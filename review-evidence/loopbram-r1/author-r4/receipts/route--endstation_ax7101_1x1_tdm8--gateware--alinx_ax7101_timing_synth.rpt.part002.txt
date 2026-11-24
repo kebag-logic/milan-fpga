@@ -1,0 +1,29 @@
+Candidate head: dc78aedae34c25a97125ecd6816a1f645db5575f
+Comparison base: 3cda030c174b325e36c26af6420487ff91346d15
+Source: route/endstation_ax7101_1x1_tdm8/gateware/alinx_ax7101_timing_synth.rpt
+Original SHA256: 3af8e36ece14717a724d115a35cbf7c8d5dd7533da0b42f356a5558110d80047
+Scope: complete text; paths and host fields normalized
+
+                         net (fo=0)                   0.000     0.000    clk200_p
+    R4                   IBUFDS (Prop_ibufds_I_O)     0.400     0.400 r  IBUFDS/O
+                         net (fo=1, unplaced)         0.338     0.738    IBUFDS_n_0_BUFG_inst_n_0
+                         BUFG (Prop_bufg_I_O)         0.030     0.768 r  IBUFDS_n_0_BUFG_inst/O
+                         net (fo=9, unplaced)         0.259     1.027    milansoc_crg_clkin_signal
+                         PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT1)
+                                                      0.053     1.080 r  PLLE2_ADV/CLKOUT1
+                         net (fo=1, unplaced)         0.338     1.418    milansoc_crg_clkout1
+                         BUFG (Prop_bufg_I_O)         0.029     1.447 r  BUFG_1/O
+                         net (fo=26196, unplaced)     0.259     1.706    milan_datapath/out
+                         FDCE                                         r  milan_datapath/amap_boot_drain_r_reg/C
+                         clock pessimism             -0.219     1.487    <hidden>
+                         FDCE (Remov_fdce_C_CLR)     -0.141     1.346    milan_datapath/amap_boot_drain_r_reg
+  -------------------------------------------------------------------
+                         required time                         -1.346    <hidden>
+                         arrival time                           1.689    <hidden>
+  -------------------------------------------------------------------
+                         slack                                  0.343    <hidden>
+
+
+
+
+

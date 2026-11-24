@@ -1,0 +1,14 @@
+Candidate head: 855529fe21fea685725a9edc4fe0a798154c6469
+Comparison base: 3cda030c174b325e36c26af6420487ff91346d15
+Source: baseline_pipeline.py
+Original SHA256: 0dc4465d9f0e853dcf040619f54eff9f306416c31345e79e642e795c41386c3e
+Scope: complete text; paths and host fields normalized
+
+import subprocess,sys
+from pathlib import Path
+w=Path(__file__).resolve().parent
+for name in ['export_base.py','synth_base.py']:
+ with (w/(name+'.log')).open('w') as log:
+  r=subprocess.run([sys.executable,str(w/name)],stdout=log,stderr=subprocess.STDOUT,timeout=21600)
+ print(name,r.returncode,flush=True)
+ if r.returncode: raise SystemExit(r.returncode)

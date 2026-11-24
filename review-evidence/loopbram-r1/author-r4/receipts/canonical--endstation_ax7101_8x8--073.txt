@@ -1,0 +1,2542 @@
+efill_read_wordIndex),
+.O({LsuL1Plugin_logic_refill_read_wordIndex_i_n_0,LsuL1Plugin_logic_refill_read_wordIndex_i_n_1,LsuL1Plugin_logic_refill_read_wordIndex_i_n_2,LsuL1Plugin_logic_refill_read_wordIndex_i_n_3}),
+.S(LsuL1TileLinkPlugin_logic_down_d_payload_opcode_i_n_3));
+RTL_REG_ASYNC__BREG_1413 \LsuL1Plugin_logic_refill_read_wordIndex_reg[0]
+(.C(litex_clk),
+.CE(LsuL1Plugin_logic_refill_read_writeReservation_take),
+.CLR(cpuResetCtrl_reset),
+.D(LsuL1Plugin_logic_refill_read_wordIndex_i_n_3),
+.Q(LsuL1Plugin_logic_refill_read_wordIndex[0]));
+RTL_REG_ASYNC__BREG_1413 \LsuL1Plugin_logic_refill_read_wordIndex_reg[1]
+(.C(litex_clk),
+.CE(LsuL1Plugin_logic_refill_read_writeReservation_take),
+.CLR(cpuResetCtrl_reset),
+.D(LsuL1Plugin_logic_refill_read_wordIndex_i_n_2),
+.Q(LsuL1Plugin_logic_refill_read_wordIndex[1]));
+RTL_REG_ASYNC__BREG_1413 \LsuL1Plugin_logic_refill_read_wordIndex_reg[2]
+(.C(litex_clk),
+.CE(LsuL1Plugin_logic_refill_read_writeReservation_take),
+.CLR(cpuResetCtrl_reset),
+.D(LsuL1Plugin_logic_refill_read_wordIndex_i_n_1),
+.Q(LsuL1Plugin_logic_refill_read_wordIndex[2]));
+RTL_REG_ASYNC__BREG_1413 \LsuL1Plugin_logic_refill_read_wordIndex_reg[3]
+(.C(litex_clk),
+.CE(LsuL1Plugin_logic_refill_read_writeReservation_take),
+.CLR(cpuResetCtrl_reset),
+.D(LsuL1Plugin_logic_refill_read_wordIndex_i_n_0),
+.Q(LsuL1Plugin_logic_refill_read_wordIndex[3]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_refill_slots_0_address_reg[0]
+(.C(litex_clk),
+.CE(when_LsuL1Plugin_l386),
+.D(LsuTileLinkPlugin_logic_bridge_down_a_payload_address[0]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_refill_slots_0_address_reg[10]
+(.C(litex_clk),
+.CE(when_LsuL1Plugin_l386),
+.D(LsuTileLinkPlugin_logic_bridge_down_a_payload_address[10]),
+.Q(\^LsuL1TileLinkPlugin_logic_down_a_payload_address [10]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_refill_slots_0_address_reg[11]
+(.C(litex_clk),
+.CE(when_LsuL1Plugin_l386),
+.D(LsuTileLinkPlugin_logic_bridge_down_a_payload_address[11]),
+.Q(\^LsuL1TileLinkPlugin_logic_down_a_payload_address [11]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_refill_slots_0_address_reg[12]
+(.C(litex_clk),
+.CE(when_LsuL1Plugin_l386),
+.D(LsuTileLinkPlugin_logic_bridge_down_a_payload_address[12]),
+.Q(\^LsuL1TileLinkPlugin_logic_down_a_payload_address [12]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_refill_slots_0_address_reg[13]
+(.C(litex_clk),
+.CE(when_LsuL1Plugin_l386),
+.D(LsuTileLinkPlugin_logic_bridge_down_a_payload_address[13]),
+.Q(\^LsuL1TileLinkPlugin_logic_down_a_payload_address [13]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_refill_slots_0_address_reg[14]
+(.C(litex_clk),
+.CE(when_LsuL1Plugin_l386),
+.D(LsuTileLinkPlugin_logic_bridge_down_a_payload_address[14]),
+.Q(\^LsuL1TileLinkPlugin_logic_down_a_payload_address [14]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_refill_slots_0_address_reg[15]
+(.C(litex_clk),
+.CE(when_LsuL1Plugin_l386),
+.D(LsuTileLinkPlugin_logic_bridge_down_a_payload_address[15]),
+.Q(\^LsuL1TileLinkPlugin_logic_down_a_payload_address [15]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_refill_slots_0_address_reg[16]
+(.C(litex_clk),
+.CE(when_LsuL1Plugin_l386),
+.D(LsuTileLinkPlugin_logic_bridge_down_a_payload_address[16]),
+.Q(\^LsuL1TileLinkPlugin_logic_down_a_payload_address [16]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_refill_slots_0_address_reg[17]
+(.C(litex_clk),
+.CE(when_LsuL1Plugin_l386),
+.D(LsuTileLinkPlugin_logic_bridge_down_a_payload_address[17]),
+.Q(\^LsuL1TileLinkPlugin_logic_down_a_payload_address [17]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_refill_slots_0_address_reg[18]
+(.C(litex_clk),
+.CE(when_LsuL1Plugin_l386),
+.D(LsuTileLinkPlugin_logic_bridge_down_a_payload_address[18]),
+.Q(\^LsuL1TileLinkPlugin_logic_down_a_payload_address [18]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_refill_slots_0_address_reg[19]
+(.C(litex_clk),
+.CE(when_LsuL1Plugin_l386),
+.D(LsuTileLinkPlugin_logic_bridge_down_a_payload_address[19]),
+.Q(\^LsuL1TileLinkPlugin_logic_down_a_payload_address [19]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_refill_slots_0_address_reg[1]
+(.C(litex_clk),
+.CE(when_LsuL1Plugin_l386),
+.D(LsuTileLinkPlugin_logic_bridge_down_a_payload_address[1]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_refill_slots_0_address_reg[20]
+(.C(litex_clk),
+.CE(when_LsuL1Plugin_l386),
+.D(LsuTileLinkPlugin_logic_bridge_down_a_payload_address[20]),
+.Q(\^LsuL1TileLinkPlugin_logic_down_a_payload_address [20]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_refill_slots_0_address_reg[21]
+(.C(litex_clk),
+.CE(when_LsuL1Plugin_l386),
+.D(LsuTileLinkPlugin_logic_bridge_down_a_payload_address[21]),
+.Q(\^LsuL1TileLinkPlugin_logic_down_a_payload_address [21]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_refill_slots_0_address_reg[22]
+(.C(litex_clk),
+.CE(when_LsuL1Plugin_l386),
+.D(LsuTileLinkPlugin_logic_bridge_down_a_payload_address[22]),
+.Q(\^LsuL1TileLinkPlugin_logic_down_a_payload_address [22]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_refill_slots_0_address_reg[23]
+(.C(litex_clk),
+.CE(when_LsuL1Plugin_l386),
+.D(LsuTileLinkPlugin_logic_bridge_down_a_payload_address[23]),
+.Q(\^LsuL1TileLinkPlugin_logic_down_a_payload_address [23]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_refill_slots_0_address_reg[24]
+(.C(litex_clk),
+.CE(when_LsuL1Plugin_l386),
+.D(LsuTileLinkPlugin_logic_bridge_down_a_payload_address[24]),
+.Q(\^LsuL1TileLinkPlugin_logic_down_a_payload_address [24]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_refill_slots_0_address_reg[25]
+(.C(litex_clk),
+.CE(when_LsuL1Plugin_l386),
+.D(LsuTileLinkPlugin_logic_bridge_down_a_payload_address[25]),
+.Q(\^LsuL1TileLinkPlugin_logic_down_a_payload_address [25]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_refill_slots_0_address_reg[26]
+(.C(litex_clk),
+.CE(when_LsuL1Plugin_l386),
+.D(LsuTileLinkPlugin_logic_bridge_down_a_payload_address[26]),
+.Q(\^LsuL1TileLinkPlugin_logic_down_a_payload_address [26]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_refill_slots_0_address_reg[27]
+(.C(litex_clk),
+.CE(when_LsuL1Plugin_l386),
+.D(LsuTileLinkPlugin_logic_bridge_down_a_payload_address[27]),
+.Q(\^LsuL1TileLinkPlugin_logic_down_a_payload_address [27]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_refill_slots_0_address_reg[28]
+(.C(litex_clk),
+.CE(when_LsuL1Plugin_l386),
+.D(LsuTileLinkPlugin_logic_bridge_down_a_payload_address[28]),
+.Q(\^LsuL1TileLinkPlugin_logic_down_a_payload_address [28]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_refill_slots_0_address_reg[29]
+(.C(litex_clk),
+.CE(when_LsuL1Plugin_l386),
+.D(LsuTileLinkPlugin_logic_bridge_down_a_payload_address[29]),
+.Q(\^LsuL1TileLinkPlugin_logic_down_a_payload_address [29]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_refill_slots_0_address_reg[2]
+(.C(litex_clk),
+.CE(when_LsuL1Plugin_l386),
+.D(LsuTileLinkPlugin_logic_bridge_down_a_payload_address[2]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_refill_slots_0_address_reg[30]
+(.C(litex_clk),
+.CE(when_LsuL1Plugin_l386),
+.D(LsuTileLinkPlugin_logic_bridge_down_a_payload_address[30]),
+.Q(\^LsuL1TileLinkPlugin_logic_down_a_payload_address [30]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_refill_slots_0_address_reg[31]
+(.C(litex_clk),
+.CE(when_LsuL1Plugin_l386),
+.D(LsuTileLinkPlugin_logic_bridge_down_a_payload_address[31]),
+.Q(\^LsuL1TileLinkPlugin_logic_down_a_payload_address [31]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_refill_slots_0_address_reg[3]
+(.C(litex_clk),
+.CE(when_LsuL1Plugin_l386),
+.D(LsuTileLinkPlugin_logic_bridge_down_a_payload_address[3]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_refill_slots_0_address_reg[4]
+(.C(litex_clk),
+.CE(when_LsuL1Plugin_l386),
+.D(LsuTileLinkPlugin_logic_bridge_down_a_payload_address[4]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_refill_slots_0_address_reg[5]
+(.C(litex_clk),
+.CE(when_LsuL1Plugin_l386),
+.D(LsuTileLinkPlugin_logic_bridge_down_a_payload_address[5]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_refill_slots_0_address_reg[6]
+(.C(litex_clk),
+.CE(when_LsuL1Plugin_l386),
+.D(LsuTileLinkPlugin_logic_bridge_down_a_payload_address[6]),
+.Q(\^LsuL1TileLinkPlugin_logic_down_a_payload_address [6]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_refill_slots_0_address_reg[7]
+(.C(litex_clk),
+.CE(when_LsuL1Plugin_l386),
+.D(LsuTileLinkPlugin_logic_bridge_down_a_payload_address[7]),
+.Q(\^LsuL1TileLinkPlugin_logic_down_a_payload_address [7]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_refill_slots_0_address_reg[8]
+(.C(litex_clk),
+.CE(when_LsuL1Plugin_l386),
+.D(LsuTileLinkPlugin_logic_bridge_down_a_payload_address[8]),
+.Q(\^LsuL1TileLinkPlugin_logic_down_a_payload_address [8]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_refill_slots_0_address_reg[9]
+(.C(litex_clk),
+.CE(when_LsuL1Plugin_l386),
+.D(LsuTileLinkPlugin_logic_bridge_down_a_payload_address[9]),
+.Q(\^LsuL1TileLinkPlugin_logic_down_a_payload_address [9]));
+RTL_MUX LsuL1Plugin_logic_refill_slots_0_c_ackId_i
+(.I0(when_LsuL1Plugin_l466),
+.I1(\<const0> ),
+.O(LsuL1Plugin_logic_refill_slots_0_c_ackId__0),
+.S(LsuL1Plugin_logic_refill_read_writeReservation_take));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_refill_slots_0_c_ackId_reg[0]
+(.C(litex_clk),
+.CE(LsuL1Plugin_logic_refill_slots_0_c_ackId__0),
+.D(LsuL1TileLinkPlugin_logic_down_d_payload_sink[0]),
+.Q(LsuL1Plugin_logic_refill_slots_0_c_ackId[0]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_refill_slots_0_c_ackId_reg[1]
+(.C(litex_clk),
+.CE(LsuL1Plugin_logic_refill_slots_0_c_ackId__0),
+.D(LsuL1TileLinkPlugin_logic_down_d_payload_sink[1]),
+.Q(LsuL1Plugin_logic_refill_slots_0_c_ackId[1]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_refill_slots_0_c_ackId_reg[2]
+(.C(litex_clk),
+.CE(LsuL1Plugin_logic_refill_slots_0_c_ackId__0),
+.D(LsuL1TileLinkPlugin_logic_down_d_payload_sink[2]),
+.Q(LsuL1Plugin_logic_refill_slots_0_c_ackId[2]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_refill_slots_0_c_ackId_reg[3]
+(.C(litex_clk),
+.CE(LsuL1Plugin_logic_refill_slots_0_c_ackId__0),
+.D(LsuL1TileLinkPlugin_logic_down_d_payload_sink[3]),
+.Q(LsuL1Plugin_logic_refill_slots_0_c_ackId[3]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_refill_slots_0_c_ackId_reg[4]
+(.C(litex_clk),
+.CE(LsuL1Plugin_logic_refill_slots_0_c_ackId__0),
+.D(LsuL1TileLinkPlugin_logic_down_d_payload_sink[4]),
+.Q(LsuL1Plugin_logic_refill_slots_0_c_ackId[4]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_refill_slots_0_c_ackId_reg[5]
+(.C(litex_clk),
+.CE(LsuL1Plugin_logic_refill_slots_0_c_ackId__0),
+.D(LsuL1TileLinkPlugin_logic_down_d_payload_sink[5]),
+.Q(LsuL1Plugin_logic_refill_slots_0_c_ackId[5]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_refill_slots_0_c_ackId_reg[6]
+(.C(litex_clk),
+.CE(LsuL1Plugin_logic_refill_slots_0_c_ackId__0),
+.D(LsuL1TileLinkPlugin_logic_down_d_payload_sink[6]),
+.Q(LsuL1Plugin_logic_refill_slots_0_c_ackId[6]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_refill_slots_0_c_ackId_reg[7]
+(.C(litex_clk),
+.CE(LsuL1Plugin_logic_refill_slots_0_c_ackId__0),
+.D(LsuL1TileLinkPlugin_logic_down_d_payload_sink[7]),
+.Q(LsuL1Plugin_logic_refill_slots_0_c_ackId[7]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_refill_slots_0_c_ackId_reg[8]
+(.C(litex_clk),
+.CE(LsuL1Plugin_logic_refill_slots_0_c_ackId__0),
+.D(LsuL1TileLinkPlugin_logic_down_d_payload_sink[8]),
+.Q(LsuL1Plugin_logic_refill_slots_0_c_ackId[8]));
+RTL_AND7 LsuL1Plugin_logic_refill_slots_0_c_ackRequest_i
+(.I0(LsuL1Plugin_logic_refill_slots_0_c_ackValid),
+.I1(LsuL1Plugin_logic_refill_slots_0_c_ackTimerFull),
+.O(LsuL1Plugin_logic_refill_slots_0_c_ackRequest));
+RTL_ADD223 LsuL1Plugin_logic_refill_slots_0_c_ackTimer0_i
+(.I0(LsuL1Plugin_logic_refill_slots_0_c_ackTimer),
+.I1({\<const0> ,\<const0> ,_zz_LsuL1Plugin_logic_refill_slots_0_c_ackTimer}),
+.O(LsuL1Plugin_logic_refill_slots_0_c_ackTimer0));
+RTL_EQ LsuL1Plugin_logic_refill_slots_0_c_ackTimerFull_i
+(.I0(LsuL1Plugin_logic_refill_slots_0_c_ackTimer),
+.I1({\<const1> ,\<const1> ,\<const0> }),
+.O(LsuL1Plugin_logic_refill_slots_0_c_ackTimerFull));
+RTL_REG_SYNC__BREG_1 \LsuL1Plugin_logic_refill_slots_0_c_ackTimer_reg[0]
+(.C(litex_clk),
+.CE(when_LsuL1Plugin_l332),
+.D(LsuL1Plugin_logic_refill_slots_0_c_ackTimer0[0]),
+.Q(LsuL1Plugin_logic_refill_slots_0_c_ackTimer[0]),
+.RST(when_LsuL1Plugin_l335));
+RTL_REG_SYNC__BREG_1 \LsuL1Plugin_logic_refill_slots_0_c_ackTimer_reg[1]
+(.C(litex_clk),
+.CE(when_LsuL1Plugin_l332),
+.D(LsuL1Plugin_logic_refill_slots_0_c_ackTimer0[1]),
+.Q(LsuL1Plugin_logic_refill_slots_0_c_ackTimer[1]),
+.RST(when_LsuL1Plugin_l335));
+RTL_REG_SYNC__BREG_1 \LsuL1Plugin_logic_refill_slots_0_c_ackTimer_reg[2]
+(.C(litex_clk),
+.CE(when_LsuL1Plugin_l332),
+.D(LsuL1Plugin_logic_refill_slots_0_c_ackTimer0[2]),
+.Q(LsuL1Plugin_logic_refill_slots_0_c_ackTimer[2]),
+.RST(when_LsuL1Plugin_l335));
+RTL_MUX LsuL1Plugin_logic_refill_slots_0_c_ackValid_i
+(.I0(\<const0> ),
+.I1(when_LsuL1Plugin_l466),
+.O(LsuL1Plugin_logic_refill_slots_0_c_ackValid_i_n_0),
+.S(LsuL1Plugin_logic_refill_slots_0_c_ackRequest));
+RTL_MUX LsuL1Plugin_logic_refill_slots_0_c_ackValid_i__0
+(.I0(LsuL1Plugin_logic_refill_slots_0_c_ackValid_i_n_0),
+.I1(when_LsuL1Plugin_l466),
+.O(LsuL1Plugin_logic_refill_slots_0_c_ackValid__0),
+.S(LsuL1Plugin_logic_refill_ackSender_ack_ready));
+RTL_MUX LsuL1Plugin_logic_refill_slots_0_c_ackValid_i__1
+(.I0(when_LsuL1Plugin_l466),
+.I1(\<const0> ),
+.O(LsuL1Plugin_logic_refill_slots_0_c_ackValid_i__1_n_0),
+.S(LsuL1Plugin_logic_refill_read_writeReservation_take));
+RTL_MUX LsuL1Plugin_logic_refill_slots_0_c_ackValid_i__2
+(.I0(\<const1> ),
+.I1(LsuL1Plugin_logic_refill_slots_0_c_ackValid_i__1_n_0),
+.O(LsuL1Plugin_logic_refill_slots_0_c_ackValid_i__2_n_0),
+.S(LsuL1Plugin_logic_refill_slots_0_c_ackRequest));
+RTL_MUX LsuL1Plugin_logic_refill_slots_0_c_ackValid_i__3
+(.I0(LsuL1Plugin_logic_refill_slots_0_c_ackValid_i__2_n_0),
+.I1(LsuL1Plugin_logic_refill_slots_0_c_ackValid_i__1_n_0),
+.O(LsuL1Plugin_logic_refill_slots_0_c_ackValid_i__3_n_0),
+.S(LsuL1Plugin_logic_refill_ackSender_ack_ready));
+RTL_REG_ASYNC__BREG_1413 LsuL1Plugin_logic_refill_slots_0_c_ackValid_reg
+(.C(litex_clk),
+.CE(LsuL1Plugin_logic_refill_slots_0_c_ackValid_i__3_n_0),
+.CLR(cpuResetCtrl_reset),
+.D(LsuL1Plugin_logic_refill_slots_0_c_ackValid__0),
+.Q(LsuL1Plugin_logic_refill_slots_0_c_ackValid));
+RTL_REG__BREG_36 LsuL1Plugin_logic_refill_slots_0_c_data_reg
+(.C(litex_clk),
+.CE(when_LsuL1Plugin_l386),
+.D(LsuL1Plugin_logic_lsu_ctrl_askRefill),
+.Q(LsuL1Plugin_logic_refill_slots_0_c_data));
+RTL_REG__BREG_36 LsuL1Plugin_logic_refill_slots_0_c_unique_reg
+(.C(litex_clk),
+.CE(when_LsuL1Plugin_l386),
+.D(LsuL1Plugin_logic_refill_push_payload_unique),
+.Q(LsuL1Plugin_logic_refill_slots_0_c_unique));
+RTL_MUX LsuL1Plugin_logic_refill_slots_0_cmdSent_i
+(.I0(LsuL1TileLinkPlugin_logic_down_a_ready),
+.I1(\<const0> ),
+.O(LsuL1Plugin_logic_refill_slots_0_cmdSent__0),
+.S(LsuL1Plugin_logic_refill_read_arbiter_oh));
+RTL_REG_SYNC__BREG_70 LsuL1Plugin_logic_refill_slots_0_cmdSent_reg
+(.C(litex_clk),
+.CE(when_LsuL1Plugin_l386),
+.D(\<const0> ),
+.Q(LsuL1Plugin_logic_refill_slots_0_cmdSent),
+.SET(LsuL1Plugin_logic_refill_slots_0_cmdSent__0));
+RTL_AND7 LsuL1Plugin_logic_refill_slots_0_fire0_i
+(.I0(LsuL1Plugin_logic_refill_slots_0_valid),
+.I1(_zz_LsuL1Plugin_logic_refill_slots_0_c_ackTimer_10_i_n_0),
+.O(LsuL1Plugin_logic_refill_slots_0_fire0));
+RTL_AND7 LsuL1Plugin_logic_refill_slots_0_fire_i
+(.I0(LsuL1Plugin_logic_refill_slots_0_fire0),
+.I1(LsuL1Plugin_logic_refill_slots_0_loadedCounter),
+.O(LsuL1Plugin_logic_refill_slots_0_fire));
+RTL_INV LsuL1Plugin_logic_refill_slots_0_free0_i
+(.I0(LsuL1Plugin_logic_refill_slots_0_valid),
+.O(LsuL1Plugin_logic_refill_slots_0_free0));
+RTL_AND7 LsuL1Plugin_logic_refill_slots_0_free_i
+(.I0(LsuL1Plugin_logic_refill_slots_0_free0),
+.I1(when_LsuL1Plugin_l335),
+.O(when_LsuL1Plugin_l386));
+RTL_ADD6 LsuL1Plugin_logic_refill_slots_0_loadedCounter0_i
+(.I0(LsuL1Plugin_logic_refill_slots_0_loadedCounter),
+.I1(LsuL1Plugin_logic_refill_slots_0_loadedCounter1),
+.O(LsuL1Plugin_logic_refill_slots_0_loadedCounter0));
+RTL_AND7 LsuL1Plugin_logic_refill_slots_0_loadedCounter1_i
+(.I0(LsuL1Plugin_logic_refill_slots_0_loadedCounter2),
+.I1(_zz_LsuL1Plugin_logic_refill_slots_0_c_ackTimer_10_i_n_0),
+.O(LsuL1Plugin_logic_refill_slots_0_loadedCounter1));
+RTL_AND7 LsuL1Plugin_logic_refill_slots_0_loadedCounter2_i
+(.I0(LsuL1Plugin_logic_refill_slots_0_loaded),
+.I1(LsuL1Plugin_logic_refill_slots_0_loadedCounter3),
+.O(LsuL1Plugin_logic_refill_slots_0_loadedCounter2));
+RTL_INV LsuL1Plugin_logic_refill_slots_0_loadedCounter3_i
+(.I0(LsuL1Plugin_logic_refill_slots_0_loadedCounter),
+.O(LsuL1Plugin_logic_refill_slots_0_loadedCounter3));
+RTL_REG_SYNC__BREG_2 \LsuL1Plugin_logic_refill_slots_0_loadedCounter_reg[0]
+(.C(litex_clk),
+.D(LsuL1Plugin_logic_refill_slots_0_loadedCounter0),
+.Q(LsuL1Plugin_logic_refill_slots_0_loadedCounter),
+.RST(when_LsuL1Plugin_l386));
+RTL_MUX LsuL1Plugin_logic_refill_slots_0_loaded_i
+(.I0(\<const0> ),
+.I1(LsuL1Plugin_logic_refill_slots_0_loadedSet),
+.O(LsuL1Plugin_logic_refill_slots_0_loaded__0),
+.S(when_LsuL1Plugin_l382));
+RTL_MUX LsuL1Plugin_logic_refill_slots_0_loaded_i__0
+(.I0(\<const1> ),
+.I1(LsuL1Plugin_logic_refill_slots_0_loadedSet),
+.O(LsuL1Plugin_logic_refill_slots_0_loaded_i__0_n_0),
+.S(when_LsuL1Plugin_l382));
+RTL_REG_ASYNC__BREG_1846 LsuL1Plugin_logic_refill_slots_0_loaded_reg
+(.C(litex_clk),
+.CE(LsuL1Plugin_logic_refill_slots_0_loaded_i__0_n_0),
+.D(LsuL1Plugin_logic_refill_slots_0_loaded__0),
+.PRE(cpuResetCtrl_reset),
+.Q(LsuL1Plugin_logic_refill_slots_0_loaded));
+RTL_MUX LsuL1Plugin_logic_refill_slots_0_valid_i
+(.I0(\<const1> ),
+.I1(LsuL1Plugin_logic_refill_slots_0_fire),
+.O(LsuL1Plugin_logic_refill_slots_0_valid__0),
+.S(when_LsuL1Plugin_l382));
+RTL_REG_ASYNC__BREG_1413 LsuL1Plugin_logic_refill_slots_0_valid_reg
+(.C(litex_clk),
+.CE(LsuL1Plugin_logic_refill_slots_0_valid__0),
+.CLR(cpuResetCtrl_reset),
+.D(when_LsuL1Plugin_l382),
+.Q(LsuL1Plugin_logic_refill_slots_0_valid));
+RTL_MUX LsuL1Plugin_logic_refill_slots_0_victim_i
+(.I0(LsuL1Plugin_logic_refill_push_payload_victim),
+.I1(\<const0> ),
+.O(LsuL1Plugin_logic_refill_slots_0_victim_i_n_0),
+.S(when_LsuL1Plugin_l386));
+RTL_MUX LsuL1Plugin_logic_refill_slots_0_victim_i__0
+(.I0(\<const1> ),
+.I1(LsuL1Plugin_logic_refill_slots_0_victim_i_n_0),
+.O(LsuL1Plugin_logic_refill_slots_0_victim__0),
+.S(_zz_LsuL1Plugin_logic_writeback_read_wordIndex));
+RTL_REG_SYNC__BREG_1 \LsuL1Plugin_logic_refill_slots_0_victim_reg[0]
+(.C(litex_clk),
+.CE(when_LsuL1Plugin_l386),
+.D(when_LsuL1Plugin_l564),
+.Q(LsuL1Plugin_logic_refill_slots_0_victim),
+.RST(LsuL1Plugin_logic_refill_slots_0_victim__0));
+RTL_RAM60 LsuL1Plugin_logic_shared_mem_reg
+(.RA1(LsuL1Plugin_logic_shared_cRead_cmd_payload),
+.RA2(execute_ctrl2_down_LsuL1_MIXED_ADDRESS_lane0[12:6]),
+.RO1(LsuL1Plugin_logic_shared_mem_reg_n_1),
+.RO2(LsuL1Plugin_logic_shared_mem_reg_n_0),
+.WA3(LsuL1Plugin_logic_shared_write_payload_address),
+.WCLK(litex_clk),
+.WD3(LsuL1Plugin_logic_shared_write_payload_data_dirty),
+.WE3(LsuL1Plugin_logic_shared_write_valid));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_shared_mem_spinal_port1_reg[0]
+(.C(litex_clk),
+.CE(LsuL1Plugin_logic_c_freezeTimeout_counter_willClear),
+.D(LsuL1Plugin_logic_shared_mem_reg_n_0),
+.Q(LsuL1Plugin_logic_shared_lsuRead_rsp_dirty));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_shared_mem_spinal_port2_reg[0]
+(.C(litex_clk),
+.CE(LsuL1Plugin_logic_ways_0_cRead_cmd_valid),
+.D(LsuL1Plugin_logic_shared_mem_reg_n_1),
+.Q(LsuL1Plugin_logic_shared_cRead_rsp_dirty));
+RTL_MUX1952 LsuL1Plugin_logic_shared_write_payload_address_i
+(.I0(LsuL1Plugin_logic_c_pip_ctrl_2_up_LsuL1_PHYSICAL_ADDRESS[12:6]),
+.I1({execute_ctrl4_up_LsuL1_MIXED_ADDRESS_lane0_reg_n_19,execute_ctrl4_up_LsuL1_MIXED_ADDRESS_lane0_reg_n_20,execute_ctrl4_up_LsuL1_MIXED_ADDRESS_lane0_reg_n_21,execute_ctrl4_up_LsuL1_MIXED_ADDRESS_lane0_reg_n_22,execute_ctrl4_up_LsuL1_MIXED_ADDRESS_lane0_reg_n_23,execute_ctrl4_up_LsuL1_MIXED_ADDRESS_lane0_reg_n_24,execute_ctrl4_up_LsuL1_MIXED_ADDRESS_lane0_reg_n_25}),
+.O({LsuL1Plugin_logic_shared_write_payload_address_i_n_0,LsuL1Plugin_logic_shared_write_payload_address_i_n_1,LsuL1Plugin_logic_shared_write_payload_address_i_n_2,LsuL1Plugin_logic_shared_write_payload_address_i_n_3,LsuL1Plugin_logic_shared_write_payload_address_i_n_4,LsuL1Plugin_logic_shared_write_payload_address_i_n_5,LsuL1Plugin_logic_shared_write_payload_address_i_n_6}),
+.S(when_LsuL1Plugin_l1170));
+RTL_MUX1952 LsuL1Plugin_logic_shared_write_payload_address_i__0
+(.I0({LsuL1Plugin_logic_shared_write_payload_address_i_n_0,LsuL1Plugin_logic_shared_write_payload_address_i_n_1,LsuL1Plugin_logic_shared_write_payload_address_i_n_2,LsuL1Plugin_logic_shared_write_payload_address_i_n_3,LsuL1Plugin_logic_shared_write_payload_address_i_n_4,LsuL1Plugin_logic_shared_write_payload_address_i_n_5,LsuL1Plugin_logic_shared_write_payload_address_i_n_6}),
+.I1({execute_ctrl4_up_LsuL1_MIXED_ADDRESS_lane0_reg_n_19,execute_ctrl4_up_LsuL1_MIXED_ADDRESS_lane0_reg_n_20,execute_ctrl4_up_LsuL1_MIXED_ADDRESS_lane0_reg_n_21,execute_ctrl4_up_LsuL1_MIXED_ADDRESS_lane0_reg_n_22,execute_ctrl4_up_LsuL1_MIXED_ADDRESS_lane0_reg_n_23,execute_ctrl4_up_LsuL1_MIXED_ADDRESS_lane0_reg_n_24,execute_ctrl4_up_LsuL1_MIXED_ADDRESS_lane0_reg_n_25}),
+.O({LsuL1Plugin_logic_shared_write_payload_address_i__0_n_0,LsuL1Plugin_logic_shared_write_payload_address_i__0_n_1,LsuL1Plugin_logic_shared_write_payload_address_i__0_n_2,LsuL1Plugin_logic_shared_write_payload_address_i__0_n_3,LsuL1Plugin_logic_shared_write_payload_address_i__0_n_4,LsuL1Plugin_logic_shared_write_payload_address_i__0_n_5,LsuL1Plugin_logic_shared_write_payload_address_i__0_n_6}),
+.S(when_LsuL1Plugin_l1168));
+RTL_MUX1952 LsuL1Plugin_logic_shared_write_payload_address_i__1
+(.I0({LsuL1Plugin_logic_shared_write_payload_address_i__0_n_0,LsuL1Plugin_logic_shared_write_payload_address_i__0_n_1,LsuL1Plugin_logic_shared_write_payload_address_i__0_n_2,LsuL1Plugin_logic_shared_write_payload_address_i__0_n_3,LsuL1Plugin_logic_shared_write_payload_address_i__0_n_4,LsuL1Plugin_logic_shared_write_payload_address_i__0_n_5,LsuL1Plugin_logic_shared_write_payload_address_i__0_n_6}),
+.I1({execute_ctrl4_up_LsuL1_MIXED_ADDRESS_lane0_reg_n_19,execute_ctrl4_up_LsuL1_MIXED_ADDRESS_lane0_reg_n_20,execute_ctrl4_up_LsuL1_MIXED_ADDRESS_lane0_reg_n_21,execute_ctrl4_up_LsuL1_MIXED_ADDRESS_lane0_reg_n_22,execute_ctrl4_up_LsuL1_MIXED_ADDRESS_lane0_reg_n_23,execute_ctrl4_up_LsuL1_MIXED_ADDRESS_lane0_reg_n_24,execute_ctrl4_up_LsuL1_MIXED_ADDRESS_lane0_reg_n_25}),
+.O({LsuL1Plugin_logic_shared_write_payload_address_i__1_n_0,LsuL1Plugin_logic_shared_write_payload_address_i__1_n_1,LsuL1Plugin_logic_shared_write_payload_address_i__1_n_2,LsuL1Plugin_logic_shared_write_payload_address_i__1_n_3,LsuL1Plugin_logic_shared_write_payload_address_i__1_n_4,LsuL1Plugin_logic_shared_write_payload_address_i__1_n_5,LsuL1Plugin_logic_shared_write_payload_address_i__1_n_6}),
+.S(LsuL1Plugin_logic_c_pip_ctrl_2_down_LsuL1_HAZARD));
+RTL_MUX1952 LsuL1Plugin_logic_shared_write_payload_address_i__2
+(.I0({LsuL1Plugin_logic_shared_write_payload_address_i__1_n_0,LsuL1Plugin_logic_shared_write_payload_address_i__1_n_1,LsuL1Plugin_logic_shared_write_payload_address_i__1_n_2,LsuL1Plugin_logic_shared_write_payload_address_i__1_n_3,LsuL1Plugin_logic_shared_write_payload_address_i__1_n_4,LsuL1Plugin_logic_shared_write_payload_address_i__1_n_5,LsuL1Plugin_logic_shared_write_payload_address_i__1_n_6}),
+.I1({execute_ctrl4_up_LsuL1_MIXED_ADDRESS_lane0_reg_n_19,execute_ctrl4_up_LsuL1_MIXED_ADDRESS_lane0_reg_n_20,execute_ctrl4_up_LsuL1_MIXED_ADDRESS_lane0_reg_n_21,execute_ctrl4_up_LsuL1_MIXED_ADDRESS_lane0_reg_n_22,execute_ctrl4_up_LsuL1_MIXED_ADDRESS_lane0_reg_n_23,execute_ctrl4_up_LsuL1_MIXED_ADDRESS_lane0_reg_n_24,execute_ctrl4_up_LsuL1_MIXED_ADDRESS_lane0_reg_n_25}),
+.O({LsuL1Plugin_logic_shared_write_payload_address_i__2_n_0,LsuL1Plugin_logic_shared_write_payload_address_i__2_n_1,LsuL1Plugin_logic_shared_write_payload_address_i__2_n_2,LsuL1Plugin_logic_shared_write_payload_address_i__2_n_3,LsuL1Plugin_logic_shared_write_payload_address_i__2_n_4,LsuL1Plugin_logic_shared_write_payload_address_i__2_n_5,LsuL1Plugin_logic_shared_write_payload_address_i__2_n_6}),
+.S(LsuL1Plugin_logic_c_pip_ctrl_2_up_valid));
+RTL_MUX1952 LsuL1Plugin_logic_shared_write_payload_address_i__3
+(.I0(p_2_in),
+.I1({LsuL1Plugin_logic_shared_write_payload_address_i__2_n_0,LsuL1Plugin_logic_shared_write_payload_address_i__2_n_1,LsuL1Plugin_logic_shared_write_payload_address_i__2_n_2,LsuL1Plugin_logic_shared_write_payload_address_i__2_n_3,LsuL1Plugin_logic_shared_write_payload_address_i__2_n_4,LsuL1Plugin_logic_shared_write_payload_address_i__2_n_5,LsuL1Plugin_logic_shared_write_payload_address_i__2_n_6}),
+.O(LsuL1Plugin_logic_shared_write_payload_address),
+.S(when_LsuL1Plugin_l1234));
+RTL_AND7 LsuL1Plugin_logic_shared_write_payload_data_dirty0_i
+(.I0(LsuL1Plugin_logic_c_pip_ctrl_2_up_SHARED_dirty),
+.I1(LsuL1Plugin_logic_c_pip_ctrl_2_up_WAYS_HITS),
+.O(LsuL1Plugin_logic_shared_write_payload_data_dirty0));
+RTL_AND7 LsuL1Plugin_logic_shared_write_payload_data_dirty0_i__0
+(.I0(LsuL1Plugin_logic_shared_write_payload_data_dirty1),
+.I1(LsuL1Plugin_logic_shared_write_payload_data_dirty2_i__0_n_0),
+.O(LsuL1Plugin_logic_shared_write_payload_data_dirty0_i__0_n_0));
+RTL_OR LsuL1Plugin_logic_shared_write_payload_data_dirty1_i
+(.I0(execute_ctrl4_up_LsuL1Plugin_logic_SHARED_lane0_dirty),
+.I1(LsuL1Plugin_logic_shared_write_payload_data_dirty2),
+.O(LsuL1Plugin_logic_shared_write_payload_data_dirty1));
+RTL_MUX LsuL1Plugin_logic_shared_write_payload_data_dirty2_i
+(.I0(_zz_execute_ctrl4_down_LsuL1Plugin_logic_MUXED_DATA_lane0),
+.I1(\<const0> ),
+.O(LsuL1Plugin_logic_shared_write_payload_data_dirty2),
+.S(LsuL1Plugin_logic_lsu_ctrl_doWrite));
+RTL_OR LsuL1Plugin_logic_shared_write_payload_data_dirty2_i__0
+(.I0(LsuL1Plugin_logic_lsu_ctrl_doRefill),
+.I1(LsuL1Plugin_logic_shared_write_payload_data_dirty3),
+.O(LsuL1Plugin_logic_shared_write_payload_data_dirty2_i__0_n_0));
+RTL_MUX LsuL1Plugin_logic_shared_write_payload_data_dirty3_i
+(.I0(LsuL1Plugin_logic_lsu_ctrl_refillWayWasDirty),
+.I1(\<const0> ),
+.O(LsuL1Plugin_logic_shared_write_payload_data_dirty3),
+.S(LsuL1Plugin_logic_lsu_ctrl_doFlush));
+RTL_MUX LsuL1Plugin_logic_shared_write_payload_data_dirty_i
+(.I0(LsuL1Plugin_logic_shared_write_payload_data_dirty0),
+.I1(LsuL1Plugin_logic_shared_write_payload_data_dirty0_i__0_n_0),
+.O(LsuL1Plugin_logic_shared_write_payload_data_dirty_i_n_0),
+.S(when_LsuL1Plugin_l1170));
+RTL_MUX LsuL1Plugin_logic_shared_write_payload_data_dirty_i__0
+(.I0(LsuL1Plugin_logic_shared_write_payload_data_dirty_i_n_0),
+.I1(LsuL1Plugin_logic_shared_write_payload_data_dirty0_i__0_n_0),
+.O(LsuL1Plugin_logic_shared_write_payload_data_dirty_i__0_n_0),
+.S(when_LsuL1Plugin_l1168));
+RTL_MUX LsuL1Plugin_logic_shared_write_payload_data_dirty_i__1
+(.I0(LsuL1Plugin_logic_shared_write_payload_data_dirty_i__0_n_0),
+.I1(LsuL1Plugin_logic_shared_write_payload_data_dirty0_i__0_n_0),
+.O(LsuL1Plugin_logic_shared_write_payload_data_dirty_i__1_n_0),
+.S(LsuL1Plugin_logic_c_pip_ctrl_2_down_LsuL1_HAZARD));
+RTL_MUX LsuL1Plugin_logic_shared_write_payload_data_dirty_i__2
+(.I0(LsuL1Plugin_logic_shared_write_payload_data_dirty_i__1_n_0),
+.I1(LsuL1Plugin_logic_shared_write_payload_data_dirty0_i__0_n_0),
+.O(LsuL1Plugin_logic_shared_write_payload_data_dirty_i__2_n_0),
+.S(LsuL1Plugin_logic_c_pip_ctrl_2_up_valid));
+RTL_MUX LsuL1Plugin_logic_shared_write_payload_data_dirty_i__3
+(.I0(\<const0> ),
+.I1(LsuL1Plugin_logic_shared_write_payload_data_dirty_i__2_n_0),
+.O(LsuL1Plugin_logic_shared_write_payload_data_dirty),
+.S(when_LsuL1Plugin_l1234));
+RTL_MUX LsuL1Plugin_logic_shared_write_valid_i
+(.I0(\<const1> ),
+.I1(LsuL1Plugin_logic_lsu_ctrl_doFlush),
+.O(LsuL1Plugin_logic_shared_write_valid_i_n_0),
+.S(LsuL1Plugin_logic_lsu_ctrl_doRefill));
+RTL_MUX LsuL1Plugin_logic_shared_write_valid_i__0
+(.I0(\<const1> ),
+.I1(LsuL1Plugin_logic_shared_write_valid_i_n_0),
+.O(LsuL1Plugin_logic_shared_write_valid_i__0_n_0),
+.S(when_LsuL1Plugin_l1028));
+RTL_MUX LsuL1Plugin_logic_shared_write_valid_i__1
+(.I0(\<const0> ),
+.I1(LsuL1Plugin_logic_shared_write_valid_i__0_n_0),
+.O(LsuL1Plugin_logic_shared_write_valid_i__1_n_0),
+.S(LsuL1Plugin_logic_lsu_ctrl_preventSideEffects));
+RTL_MUX LsuL1Plugin_logic_shared_write_valid_i__2
+(.I0(\<const1> ),
+.I1(LsuL1Plugin_logic_shared_write_valid_i__1_n_0),
+.O(LsuL1Plugin_logic_shared_write_valid_i__2_n_0),
+.S(when_LsuL1Plugin_l1170));
+RTL_MUX LsuL1Plugin_logic_shared_write_valid_i__3
+(.I0(LsuL1Plugin_logic_shared_write_valid_i__2_n_0),
+.I1(LsuL1Plugin_logic_shared_write_valid_i__1_n_0),
+.O(LsuL1Plugin_logic_shared_write_valid_i__3_n_0),
+.S(when_LsuL1Plugin_l1168));
+RTL_MUX LsuL1Plugin_logic_shared_write_valid_i__4
+(.I0(LsuL1Plugin_logic_shared_write_valid_i__3_n_0),
+.I1(LsuL1Plugin_logic_shared_write_valid_i__1_n_0),
+.O(LsuL1Plugin_logic_shared_write_valid_i__4_n_0),
+.S(LsuL1Plugin_logic_c_pip_ctrl_2_down_LsuL1_HAZARD));
+RTL_MUX LsuL1Plugin_logic_shared_write_valid_i__5
+(.I0(LsuL1Plugin_logic_shared_write_valid_i__4_n_0),
+.I1(LsuL1Plugin_logic_shared_write_valid_i__1_n_0),
+.O(LsuL1Plugin_logic_shared_write_valid_i__5_n_0),
+.S(LsuL1Plugin_logic_c_pip_ctrl_2_up_valid));
+RTL_MUX LsuL1Plugin_logic_shared_write_valid_i__6
+(.I0(\<const1> ),
+.I1(LsuL1Plugin_logic_shared_write_valid_i__5_n_0),
+.O(LsuL1Plugin_logic_shared_write_valid),
+.S(when_LsuL1Plugin_l1234));
+RTL_INV LsuL1Plugin_logic_slotsFreeze0_i
+(.I0(LsuL1Plugin_logic_c_freezeTimeout_state),
+.O(LsuL1Plugin_logic_slotsFreeze0));
+RTL_AND7 LsuL1Plugin_logic_slotsFreeze_i
+(.I0(execute_freeze_valid),
+.I1(LsuL1Plugin_logic_slotsFreeze0),
+.O(LsuL1Plugin_logic_slotsFreeze));
+RTL_MUX1952 LsuL1Plugin_logic_waysWrite_address_i
+(.I0({execute_ctrl4_up_LsuL1_MIXED_ADDRESS_lane0_reg_n_19,execute_ctrl4_up_LsuL1_MIXED_ADDRESS_lane0_reg_n_20,execute_ctrl4_up_LsuL1_MIXED_ADDRESS_lane0_reg_n_21,execute_ctrl4_up_LsuL1_MIXED_ADDRESS_lane0_reg_n_22,execute_ctrl4_up_LsuL1_MIXED_ADDRESS_lane0_reg_n_23,execute_ctrl4_up_LsuL1_MIXED_ADDRESS_lane0_reg_n_24,execute_ctrl4_up_LsuL1_MIXED_ADDRESS_lane0_reg_n_25}),
+.I1(\^LsuL1TileLinkPlugin_logic_down_a_payload_address [12:6]),
+.O({LsuL1Plugin_logic_waysWrite_address_i_n_0,LsuL1Plugin_logic_waysWrite_address_i_n_1,LsuL1Plugin_logic_waysWrite_address_i_n_2,LsuL1Plugin_logic_waysWrite_address_i_n_3,LsuL1Plugin_logic_waysWrite_address_i_n_4,LsuL1Plugin_logic_waysWrite_address_i_n_5,LsuL1Plugin_logic_waysWrite_address_i_n_6}),
+.S(LsuL1Plugin_logic_lsu_ctrl_doFlush));
+RTL_MUX1952 LsuL1Plugin_logic_waysWrite_address_i__0
+(.I0(LsuL1Plugin_logic_c_pip_ctrl_2_up_LsuL1_PHYSICAL_ADDRESS[12:6]),
+.I1({LsuL1Plugin_logic_waysWrite_address_i_n_0,LsuL1Plugin_logic_waysWrite_address_i_n_1,LsuL1Plugin_logic_waysWrite_address_i_n_2,LsuL1Plugin_logic_waysWrite_address_i_n_3,LsuL1Plugin_logic_waysWrite_address_i_n_4,LsuL1Plugin_logic_waysWrite_address_i_n_5,LsuL1Plugin_logic_waysWrite_address_i_n_6}),
+.O({LsuL1Plugin_logic_waysWrite_address_i__0_n_0,LsuL1Plugin_logic_waysWrite_address_i__0_n_1,LsuL1Plugin_logic_waysWrite_address_i__0_n_2,LsuL1Plugin_logic_waysWrite_address_i__0_n_3,LsuL1Plugin_logic_waysWrite_address_i__0_n_4,LsuL1Plugin_logic_waysWrite_address_i__0_n_5,LsuL1Plugin_logic_waysWrite_address_i__0_n_6}),
+.S(when_LsuL1Plugin_l1170));
+RTL_MUX1952 LsuL1Plugin_logic_waysWrite_address_i__1
+(.I0({LsuL1Plugin_logic_waysWrite_address_i__0_n_0,LsuL1Plugin_logic_waysWrite_address_i__0_n_1,LsuL1Plugin_logic_waysWrite_address_i__0_n_2,LsuL1Plugin_logic_waysWrite_address_i__0_n_3,LsuL1Plugin_logic_waysWrite_address_i__0_n_4,LsuL1Plugin_logic_waysWrite_address_i__0_n_5,LsuL1Plugin_logic_waysWrite_address_i__0_n_6}),
+.I1({LsuL1Plugin_logic_waysWrite_address_i_n_0,LsuL1Plugin_logic_waysWrite_address_i_n_1,LsuL1Plugin_logic_waysWrite_address_i_n_2,LsuL1Plugin_logic_waysWrite_address_i_n_3,LsuL1Plugin_logic_waysWrite_address_i_n_4,LsuL1Plugin_logic_waysWrite_address_i_n_5,LsuL1Plugin_logic_waysWrite_address_i_n_6}),
+.O({LsuL1Plugin_logic_waysWrite_address_i__1_n_0,LsuL1Plugin_logic_waysWrite_address_i__1_n_1,LsuL1Plugin_logic_waysWrite_address_i__1_n_2,LsuL1Plugin_logic_waysWrite_address_i__1_n_3,LsuL1Plugin_logic_waysWrite_address_i__1_n_4,LsuL1Plugin_logic_waysWrite_address_i__1_n_5,LsuL1Plugin_logic_waysWrite_address_i__1_n_6}),
+.S(when_LsuL1Plugin_l1168));
+RTL_MUX1952 LsuL1Plugin_logic_waysWrite_address_i__2
+(.I0({LsuL1Plugin_logic_waysWrite_address_i__1_n_0,LsuL1Plugin_logic_waysWrite_address_i__1_n_1,LsuL1Plugin_logic_waysWrite_address_i__1_n_2,LsuL1Plugin_logic_waysWrite_address_i__1_n_3,LsuL1Plugin_logic_waysWrite_address_i__1_n_4,LsuL1Plugin_logic_waysWrite_address_i__1_n_5,LsuL1Plugin_logic_waysWrite_address_i__1_n_6}),
+.I1({LsuL1Plugin_logic_waysWrite_address_i_n_0,LsuL1Plugin_logic_waysWrite_address_i_n_1,LsuL1Plugin_logic_waysWrite_address_i_n_2,LsuL1Plugin_logic_waysWrite_address_i_n_3,LsuL1Plugin_logic_waysWrite_address_i_n_4,LsuL1Plugin_logic_waysWrite_address_i_n_5,LsuL1Plugin_logic_waysWrite_address_i_n_6}),
+.O({LsuL1Plugin_logic_waysWrite_address_i__2_n_0,LsuL1Plugin_logic_waysWrite_address_i__2_n_1,LsuL1Plugin_logic_waysWrite_address_i__2_n_2,LsuL1Plugin_logic_waysWrite_address_i__2_n_3,LsuL1Plugin_logic_waysWrite_address_i__2_n_4,LsuL1Plugin_logic_waysWrite_address_i__2_n_5,LsuL1Plugin_logic_waysWrite_address_i__2_n_6}),
+.S(LsuL1Plugin_logic_c_pip_ctrl_2_down_LsuL1_HAZARD));
+RTL_MUX1952 LsuL1Plugin_logic_waysWrite_address_i__3
+(.I0({LsuL1Plugin_logic_waysWrite_address_i__2_n_0,LsuL1Plugin_logic_waysWrite_address_i__2_n_1,LsuL1Plugin_logic_waysWrite_address_i__2_n_2,LsuL1Plugin_logic_waysWrite_address_i__2_n_3,LsuL1Plugin_logic_waysWrite_address_i__2_n_4,LsuL1Plugin_logic_waysWrite_address_i__2_n_5,LsuL1Plugin_logic_waysWrite_address_i__2_n_6}),
+.I1({LsuL1Plugin_logic_waysWrite_address_i_n_0,LsuL1Plugin_logic_waysWrite_address_i_n_1,LsuL1Plugin_logic_waysWrite_address_i_n_2,LsuL1Plugin_logic_waysWrite_address_i_n_3,LsuL1Plugin_logic_waysWrite_address_i_n_4,LsuL1Plugin_logic_waysWrite_address_i_n_5,LsuL1Plugin_logic_waysWrite_address_i_n_6}),
+.O({LsuL1Plugin_logic_waysWrite_address_i__3_n_0,LsuL1Plugin_logic_waysWrite_address_i__3_n_1,LsuL1Plugin_logic_waysWrite_address_i__3_n_2,LsuL1Plugin_logic_waysWrite_address_i__3_n_3,LsuL1Plugin_logic_waysWrite_address_i__3_n_4,LsuL1Plugin_logic_waysWrite_address_i__3_n_5,LsuL1Plugin_logic_waysWrite_address_i__3_n_6}),
+.S(LsuL1Plugin_logic_c_pip_ctrl_2_up_valid));
+RTL_MUX1952 LsuL1Plugin_logic_waysWrite_address_i__4
+(.I0(p_2_in),
+.I1({LsuL1Plugin_logic_waysWrite_address_i__3_n_0,LsuL1Plugin_logic_waysWrite_address_i__3_n_1,LsuL1Plugin_logic_waysWrite_address_i__3_n_2,LsuL1Plugin_logic_waysWrite_address_i__3_n_3,LsuL1Plugin_logic_waysWrite_address_i__3_n_4,LsuL1Plugin_logic_waysWrite_address_i__3_n_5,LsuL1Plugin_logic_waysWrite_address_i__3_n_6}),
+.O(LsuL1Plugin_logic_waysWrite_address),
+.S(when_LsuL1Plugin_l1234));
+RTL_MUX LsuL1Plugin_logic_waysWrite_mask_i
+(.I0(when_LsuL1Plugin_l466),
+.I1(\<const0> ),
+.O(LsuL1Plugin_logic_refill_slots_0_loadedSet),
+.S(LsuL1Plugin_logic_refill_read_writeReservation_take));
+RTL_MUX LsuL1Plugin_logic_waysWrite_mask_i__0
+(.I0(LsuL1Plugin_logic_lsu_ctrl_refillWayWasDirty),
+.I1(LsuL1Plugin_logic_refill_slots_0_loadedSet),
+.O(LsuL1Plugin_logic_waysWrite_mask_i__0_n_0),
+.S(LsuL1Plugin_logic_lsu_ctrl_doFlush));
+RTL_MUX LsuL1Plugin_logic_waysWrite_mask_i__1
+(.I0(\<const0> ),
+.I1(LsuL1Plugin_logic_waysWrite_mask_i__0_n_0),
+.O(LsuL1Plugin_logic_waysWrite_mask_i__1_n_0),
+.S(LsuL1Plugin_logic_lsu_ctrl_wayWriteReservation_win));
+RTL_MUX LsuL1Plugin_logic_waysWrite_mask_i__2
+(.I0(LsuL1Plugin_logic_waysWrite_mask_i__1_n_0),
+.I1(LsuL1Plugin_logic_waysWrite_mask_i__0_n_0),
+.O(LsuL1Plugin_logic_waysWrite_mask_i__2_n_0),
+.S(LsuL1Plugin_logic_lsu_ctrl_preventSideEffects));
+RTL_MUX LsuL1Plugin_logic_waysWrite_mask_i__3
+(.I0(LsuL1Plugin_logic_c_pip_ctrl_2_up_WAYS_HITS),
+.I1(LsuL1Plugin_logic_waysWrite_mask_i__2_n_0),
+.O(LsuL1Plugin_logic_waysWrite_mask_i__3_n_0),
+.S(when_LsuL1Plugin_l1170));
+RTL_MUX LsuL1Plugin_logic_waysWrite_mask_i__4
+(.I0(LsuL1Plugin_logic_waysWrite_mask_i__3_n_0),
+.I1(LsuL1Plugin_logic_waysWrite_mask_i__2_n_0),
+.O(LsuL1Plugin_logic_waysWrite_mask_i__4_n_0),
+.S(when_LsuL1Plugin_l1168));
+RTL_MUX LsuL1Plugin_logic_waysWrite_mask_i__5
+(.I0(LsuL1Plugin_logic_waysWrite_mask_i__4_n_0),
+.I1(LsuL1Plugin_logic_waysWrite_mask_i__2_n_0),
+.O(LsuL1Plugin_logic_waysWrite_mask_i__5_n_0),
+.S(LsuL1Plugin_logic_c_pip_ctrl_2_down_LsuL1_HAZARD));
+RTL_MUX LsuL1Plugin_logic_waysWrite_mask_i__6
+(.I0(LsuL1Plugin_logic_waysWrite_mask_i__5_n_0),
+.I1(LsuL1Plugin_logic_waysWrite_mask_i__2_n_0),
+.O(LsuL1Plugin_logic_waysWrite_mask_i__6_n_0),
+.S(LsuL1Plugin_logic_c_pip_ctrl_2_up_valid));
+RTL_MUX LsuL1Plugin_logic_waysWrite_mask_i__7
+(.I0(\<const1> ),
+.I1(LsuL1Plugin_logic_waysWrite_mask_i__6_n_0),
+.O(_zz_LsuL1Plugin_logic_ways_0_mem_port_1),
+.S(when_LsuL1Plugin_l1234));
+RTL_MUX12353 LsuL1Plugin_logic_waysWrite_tag_address_i
+(.I0(execute_ctrl4_up_LsuL1Plugin_logic_WAYS_TAGS_lane0_0_address),
+.I1(\^LsuL1TileLinkPlugin_logic_down_a_payload_address [31:13]),
+.O({LsuL1Plugin_logic_waysWrite_tag_address_i_n_0,LsuL1Plugin_logic_waysWrite_tag_address_i_n_1,LsuL1Plugin_logic_waysWrite_tag_address_i_n_2,LsuL1Plugin_logic_waysWrite_tag_address_i_n_3,LsuL1Plugin_logic_waysWrite_tag_address_i_n_4,LsuL1Plugin_logic_waysWrite_tag_address_i_n_5,LsuL1Plugin_logic_waysWrite_tag_address_i_n_6,LsuL1Plugin_logic_waysWrite_tag_address_i_n_7,LsuL1Plugin_logic_waysWrite_tag_address_i_n_8,LsuL1Plugin_logic_waysWrite_tag_address_i_n_9,LsuL1Plugin_logic_waysWrite_tag_address_i_n_10,LsuL1Plugin_logic_waysWrite_tag_address_i_n_11,LsuL1Plugin_logic_waysWrite_tag_address_i_n_12,LsuL1Plugin_logic_waysWrite_tag_address_i_n_13,LsuL1Plugin_logic_waysWrite_tag_address_i_n_14,LsuL1Plugin_logic_waysWrite_tag_address_i_n_15,LsuL1Plugin_logic_waysWrite_tag_address_i_n_16,LsuL1Plugin_logic_waysWrite_tag_address_i_n_17,LsuL1Plugin_logic_waysWrite_tag_address_i_n_18}),
+.S(LsuL1Plugin_logic_lsu_ctrl_doFlush));
+RTL_MUX12353 LsuL1Plugin_logic_waysWrite_tag_address_i__0
+(.I0(LsuL1Plugin_logic_c_pip_ctrl_2_up_LsuL1_PHYSICAL_ADDRESS[31:13]),
+.I1({LsuL1Plugin_logic_waysWrite_tag_address_i_n_0,LsuL1Plugin_logic_waysWrite_tag_address_i_n_1,LsuL1Plugin_logic_waysWrite_tag_address_i_n_2,LsuL1Plugin_logic_waysWrite_tag_address_i_n_3,LsuL1Plugin_logic_waysWrite_tag_address_i_n_4,LsuL1Plugin_logic_waysWrite_tag_address_i_n_5,LsuL1Plugin_logic_waysWrite_tag_address_i_n_6,LsuL1Plugin_logic_waysWrite_tag_address_i_n_7,LsuL1Plugin_logic_waysWrite_tag_address_i_n_8,LsuL1Plugin_logic_waysWrite_tag_address_i_n_9,LsuL1Plugin_logic_waysWrite_tag_address_i_n_10,LsuL1Plugin_logic_waysWrite_tag_address_i_n_11,LsuL1Plugin_logic_waysWrite_tag_address_i_n_12,LsuL1Plugin_logic_waysWrite_tag_address_i_n_13,LsuL1Plugin_logic_waysWrite_tag_address_i_n_14,LsuL1Plugin_logic_waysWrite_tag_address_i_n_15,LsuL1Plugin_logic_waysWrite_tag_address_i_n_16,LsuL1Plugin_logic_waysWrite_tag_address_i_n_17,LsuL1Plugin_logic_waysWrite_tag_address_i_n_18}),
+.O({LsuL1Plugin_logic_waysWrite_tag_address_i__0_n_0,LsuL1Plugin_logic_waysWrite_tag_address_i__0_n_1,LsuL1Plugin_logic_waysWrite_tag_address_i__0_n_2,LsuL1Plugin_logic_waysWrite_tag_address_i__0_n_3,LsuL1Plugin_logic_waysWrite_tag_address_i__0_n_4,LsuL1Plugin_logic_waysWrite_tag_address_i__0_n_5,LsuL1Plugin_logic_waysWrite_tag_address_i__0_n_6,LsuL1Plugin_logic_waysWrite_tag_address_i__0_n_7,LsuL1Plugin_logic_waysWrite_tag_address_i__0_n_8,LsuL1Plugin_logic_waysWrite_tag_address_i__0_n_9,LsuL1Plugin_logic_waysWrite_tag_address_i__0_n_10,LsuL1Plugin_logic_waysWrite_tag_address_i__0_n_11,LsuL1Plugin_logic_waysWrite_tag_address_i__0_n_12,LsuL1Plugin_logic_waysWrite_tag_address_i__0_n_13,LsuL1Plugin_logic_waysWrite_tag_address_i__0_n_14,LsuL1Plugin_logic_waysWrite_tag_address_i__0_n_15,LsuL1Plugin_logic_waysWrite_tag_address_i__0_n_16,LsuL1Plugin_logic_waysWrite_tag_address_i__0_n_17,LsuL1Plugin_logic_waysWrite_tag_address_i__0_n_18}),
+.S(when_LsuL1Plugin_l1170));
+RTL_MUX12353 LsuL1Plugin_logic_waysWrite_tag_address_i__1
+(.I0({LsuL1Plugin_logic_waysWrite_tag_address_i__0_n_0,LsuL1Plugin_logic_waysWrite_tag_address_i__0_n_1,LsuL1Plugin_logic_waysWrite_tag_address_i__0_n_2,LsuL1Plugin_logic_waysWrite_tag_address_i__0_n_3,LsuL1Plugin_logic_waysWrite_tag_address_i__0_n_4,LsuL1Plugin_logic_waysWrite_tag_address_i__0_n_5,LsuL1Plugin_logic_waysWrite_tag_address_i__0_n_6,LsuL1Plugin_logic_waysWrite_tag_address_i__0_n_7,LsuL1Plugin_logic_waysWrite_tag_address_i__0_n_8,LsuL1Plugin_logic_waysWrite_tag_address_i__0_n_9,LsuL1Plugin_logic_waysWrite_tag_address_i__0_n_10,LsuL1Plugin_logic_waysWrite_tag_address_i__0_n_11,LsuL1Plugin_logic_waysWrite_tag_address_i__0_n_12,LsuL1Plugin_logic_waysWrite_tag_address_i__0_n_13,LsuL1Plugin_logic_waysWrite_tag_address_i__0_n_14,LsuL1Plugin_logic_waysWrite_tag_address_i__0_n_15,LsuL1Plugin_logic_waysWrite_tag_address_i__0_n_16,LsuL1Plugin_logic_waysWrite_tag_address_i__0_n_17,LsuL1Plugin_logic_waysWrite_tag_address_i__0_n_18}),
+.I1({LsuL1Plugin_logic_waysWrite_tag_address_i_n_0,LsuL1Plugin_logic_waysWrite_tag_address_i_n_1,LsuL1Plugin_logic_waysWrite_tag_address_i_n_2,LsuL1Plugin_logic_waysWrite_tag_address_i_n_3,LsuL1Plugin_logic_waysWrite_tag_address_i_n_4,LsuL1Plugin_logic_waysWrite_tag_address_i_n_5,LsuL1Plugin_logic_waysWrite_tag_address_i_n_6,LsuL1Plugin_logic_waysWrite_tag_address_i_n_7,LsuL1Plugin_logic_waysWrite_tag_address_i_n_8,LsuL1Plugin_logic_waysWrite_tag_address_i_n_9,LsuL1Plugin_logic_waysWrite_tag_address_i_n_10,LsuL1Plugin_logic_waysWrite_tag_address_i_n_11,LsuL1Plugin_logic_waysWrite_tag_address_i_n_12,LsuL1Plugin_logic_waysWrite_tag_address_i_n_13,LsuL1Plugin_logic_waysWrite_tag_address_i_n_14,LsuL1Plugin_logic_waysWrite_tag_address_i_n_15,LsuL1Plugin_logic_waysWrite_tag_address_i_n_16,LsuL1Plugin_logic_waysWrite_tag_address_i_n_17,LsuL1Plugin_logic_waysWrite_tag_address_i_n_18}),
+.O({LsuL1Plugin_logic_waysWrite_tag_address_i__1_n_0,LsuL1Plugin_logic_waysWrite_tag_address_i__1_n_1,LsuL1Plugin_logic_waysWrite_tag_address_i__1_n_2,LsuL1Plugin_logic_waysWrite_tag_address_i__1_n_3,LsuL1Plugin_logic_waysWrite_tag_address_i__1_n_4,LsuL1Plugin_logic_waysWrite_tag_address_i__1_n_5,LsuL1Plugin_logic_waysWrite_tag_address_i__1_n_6,LsuL1Plugin_logic_waysWrite_tag_address_i__1_n_7,LsuL1Plugin_logic_waysWrite_tag_address_i__1_n_8,LsuL1Plugin_logic_waysWrite_tag_address_i__1_n_9,LsuL1Plugin_logic_waysWrite_tag_address_i__1_n_10,LsuL1Plugin_logic_waysWrite_tag_address_i__1_n_11,LsuL1Plugin_logic_waysWrite_tag_address_i__1_n_12,LsuL1Plugin_logic_waysWrite_tag_address_i__1_n_13,LsuL1Plugin_logic_waysWrite_tag_address_i__1_n_14,LsuL1Plugin_logic_waysWrite_tag_address_i__1_n_15,LsuL1Plugin_logic_waysWrite_tag_address_i__1_n_16,LsuL1Plugin_logic_waysWrite_tag_address_i__1_n_17,LsuL1Plugin_logic_waysWrite_tag_address_i__1_n_18}),
+.S(when_LsuL1Plugin_l1168));
+RTL_MUX12353 LsuL1Plugin_logic_waysWrite_tag_address_i__2
+(.I0({LsuL1Plugin_logic_waysWrite_tag_address_i__1_n_0,LsuL1Plugin_logic_waysWrite_tag_address_i__1_n_1,LsuL1Plugin_logic_waysWrite_tag_address_i__1_n_2,LsuL1Plugin_logic_waysWrite_tag_address_i__1_n_3,LsuL1Plugin_logic_waysWrite_tag_address_i__1_n_4,LsuL1Plugin_logic_waysWrite_tag_address_i__1_n_5,LsuL1Plugin_logic_waysWrite_tag_address_i__1_n_6,LsuL1Plugin_logic_waysWrite_tag_address_i__1_n_7,LsuL1Plugin_logic_waysWrite_tag_address_i__1_n_8,LsuL1Plugin_logic_waysWrite_tag_address_i__1_n_9,LsuL1Plugin_logic_waysWrite_tag_address_i__1_n_10,LsuL1Plugin_logic_waysWrite_tag_address_i__1_n_11,LsuL1Plugin_logic_waysWrite_tag_address_i__1_n_12,LsuL1Plugin_logic_waysWrite_tag_address_i__1_n_13,LsuL1Plugin_logic_waysWrite_tag_address_i__1_n_14,LsuL1Plugin_logic_waysWrite_tag_address_i__1_n_15,LsuL1Plugin_logic_waysWrite_tag_address_i__1_n_16,LsuL1Plugin_logic_waysWrite_tag_address_i__1_n_17,LsuL1Plugin_logic_waysWrite_tag_address_i__1_n_18}),
+.I1({LsuL1Plugin_logic_waysWrite_tag_address_i_n_0,LsuL1Plugin_logic_waysWrite_tag_address_i_n_1,LsuL1Plugin_logic_waysWrite_tag_address_i_n_2,LsuL1Plugin_logic_waysWrite_tag_address_i_n_3,LsuL1Plugin_logic_waysWrite_tag_address_i_n_4,LsuL1Plugin_logic_waysWrite_tag_address_i_n_5,LsuL1Plugin_logic_waysWrite_tag_address_i_n_6,LsuL1Plugin_logic_waysWrite_tag_address_i_n_7,LsuL1Plugin_logic_waysWrite_tag_address_i_n_8,LsuL1Plugin_logic_waysWrite_tag_address_i_n_9,LsuL1Plugin_logic_waysWrite_tag_address_i_n_10,LsuL1Plugin_logic_waysWrite_tag_address_i_n_11,LsuL1Plugin_logic_waysWrite_tag_address_i_n_12,LsuL1Plugin_logic_waysWrite_tag_address_i_n_13,LsuL1Plugin_logic_waysWrite_tag_address_i_n_14,LsuL1Plugin_logic_waysWrite_tag_address_i_n_15,LsuL1Plugin_logic_waysWrite_tag_address_i_n_16,LsuL1Plugin_logic_waysWrite_tag_address_i_n_17,LsuL1Plugin_logic_waysWrite_tag_address_i_n_18}),
+.O({LsuL1Plugin_logic_waysWrite_tag_address_i__2_n_0,LsuL1Plugin_logic_waysWrite_tag_address_i__2_n_1,LsuL1Plugin_logic_waysWrite_tag_address_i__2_n_2,LsuL1Plugin_logic_waysWrite_tag_address_i__2_n_3,LsuL1Plugin_logic_waysWrite_tag_address_i__2_n_4,LsuL1Plugin_logic_waysWrite_tag_address_i__2_n_5,LsuL1Plugin_logic_waysWrite_tag_address_i__2_n_6,LsuL1Plugin_logic_waysWrite_tag_address_i__2_n_7,LsuL1Plugin_logic_waysWrite_tag_address_i__2_n_8,LsuL1Plugin_logic_waysWrite_tag_address_i__2_n_9,LsuL1Plugin_logic_waysWrite_tag_address_i__2_n_10,LsuL1Plugin_logic_waysWrite_tag_address_i__2_n_11,LsuL1Plugin_logic_waysWrite_tag_address_i__2_n_12,LsuL1Plugin_logic_waysWrite_tag_address_i__2_n_13,LsuL1Plugin_logic_waysWrite_tag_address_i__2_n_14,LsuL1Plugin_logic_waysWrite_tag_address_i__2_n_15,LsuL1Plugin_logic_waysWrite_tag_address_i__2_n_16,LsuL1Plugin_logic_waysWrite_tag_address_i__2_n_17,LsuL1Plugin_logic_waysWrite_tag_address_i__2_n_18}),
+.S(LsuL1Plugin_logic_c_pip_ctrl_2_down_LsuL1_HAZARD));
+RTL_MUX12353 LsuL1Plugin_logic_waysWrite_tag_address_i__3
+(.I0({LsuL1Plugin_logic_waysWrite_tag_address_i__2_n_0,LsuL1Plugin_logic_waysWrite_tag_address_i__2_n_1,LsuL1Plugin_logic_waysWrite_tag_address_i__2_n_2,LsuL1Plugin_logic_waysWrite_tag_address_i__2_n_3,LsuL1Plugin_logic_waysWrite_tag_address_i__2_n_4,LsuL1Plugin_logic_waysWrite_tag_address_i__2_n_5,LsuL1Plugin_logic_waysWrite_tag_address_i__2_n_6,LsuL1Plugin_logic_waysWrite_tag_address_i__2_n_7,LsuL1Plugin_logic_waysWrite_tag_address_i__2_n_8,LsuL1Plugin_logic_waysWrite_tag_address_i__2_n_9,LsuL1Plugin_logic_waysWrite_tag_address_i__2_n_10,LsuL1Plugin_logic_waysWrite_tag_address_i__2_n_11,LsuL1Plugin_logic_waysWrite_tag_address_i__2_n_12,LsuL1Plugin_logic_waysWrite_tag_address_i__2_n_13,LsuL1Plugin_logic_waysWrite_tag_address_i__2_n_14,LsuL1Plugin_logic_waysWrite_tag_address_i__2_n_15,LsuL1Plugin_logic_waysWrite_tag_address_i__2_n_16,LsuL1Plugin_logic_waysWrite_tag_address_i__2_n_17,LsuL1Plugin_logic_waysWrite_tag_address_i__2_n_18}),
+.I1({LsuL1Plugin_logic_waysWrite_tag_address_i_n_0,LsuL1Plugin_logic_waysWrite_tag_address_i_n_1,LsuL1Plugin_logic_waysWrite_tag_address_i_n_2,LsuL1Plugin_logic_waysWrite_tag_address_i_n_3,LsuL1Plugin_logic_waysWrite_tag_address_i_n_4,LsuL1Plugin_logic_waysWrite_tag_address_i_n_5,LsuL1Plugin_logic_waysWrite_tag_address_i_n_6,LsuL1Plugin_logic_waysWrite_tag_address_i_n_7,LsuL1Plugin_logic_waysWrite_tag_address_i_n_8,LsuL1Plugin_logic_waysWrite_tag_address_i_n_9,LsuL1Plugin_logic_waysWrite_tag_address_i_n_10,LsuL1Plugin_logic_waysWrite_tag_address_i_n_11,LsuL1Plugin_logic_waysWrite_tag_address_i_n_12,LsuL1Plugin_logic_waysWrite_tag_address_i_n_13,LsuL1Plugin_logic_waysWrite_tag_address_i_n_14,LsuL1Plugin_logic_waysWrite_tag_address_i_n_15,LsuL1Plugin_logic_waysWrite_tag_address_i_n_16,LsuL1Plugin_logic_waysWrite_tag_address_i_n_17,LsuL1Plugin_logic_waysWrite_tag_address_i_n_18}),
+.O(_zz_LsuL1Plugin_logic_ways_0_mem_port[19:1]),
+.S(LsuL1Plugin_logic_c_pip_ctrl_2_up_valid));
+RTL_MUX LsuL1Plugin_logic_waysWrite_tag_fault_i
+(.I0(execute_ctrl4_up_LsuL1Plugin_logic_WAYS_TAGS_lane0_0_fault),
+.I1(LsuL1Plugin_logic_refill_read_faulty),
+.O(LsuL1Plugin_logic_waysWrite_tag_fault_i_n_0),
+.S(LsuL1Plugin_logic_lsu_ctrl_doFlush));
+RTL_MUX LsuL1Plugin_logic_waysWrite_tag_fault_i__0
+(.I0(LsuL1Plugin_logic_c_pip_ctrl_2_up_onPreCtrl_HIT_FAULT),
+.I1(LsuL1Plugin_logic_waysWrite_tag_fault_i_n_0),
+.O(LsuL1Plugin_logic_waysWrite_tag_fault_i__0_n_0),
+.S(when_LsuL1Plugin_l1170));
+RTL_MUX LsuL1Plugin_logic_waysWrite_tag_fault_i__1
+(.I0(LsuL1Plugin_logic_waysWrite_tag_fault_i__0_n_0),
+.I1(LsuL1Plugin_logic_waysWrite_tag_fault_i_n_0),
+.O(LsuL1Plugin_logic_waysWrite_tag_fault_i__1_n_0),
+.S(when_LsuL1Plugin_l1168));
+RTL_MUX LsuL1Plugin_logic_waysWrite_tag_fault_i__2
+(.I0(LsuL1Plugin_logic_waysWrite_tag_fault_i__1_n_0),
+.I1(LsuL1Plugin_logic_waysWrite_tag_fault_i_n_0),
+.O(LsuL1Plugin_logic_waysWrite_tag_fault_i__2_n_0),
+.S(LsuL1Plugin_logic_c_pip_ctrl_2_down_LsuL1_HAZARD));
+RTL_MUX LsuL1Plugin_logic_waysWrite_tag_fault_i__3
+(.I0(LsuL1Plugin_logic_waysWrite_tag_fault_i__2_n_0),
+.I1(LsuL1Plugin_logic_waysWrite_tag_fault_i_n_0),
+.O(_zz_LsuL1Plugin_logic_ways_0_mem_port[20]),
+.S(LsuL1Plugin_logic_c_pip_ctrl_2_up_valid));
+RTL_MUX LsuL1Plugin_logic_waysWrite_tag_loaded_i
+(.I0(\<const1> ),
+.I1(when_LsuL1Plugin_l466),
+.O(LsuL1Plugin_logic_waysWrite_tag_loaded_i_n_0),
+.S(LsuL1Plugin_logic_lsu_ctrl_doFlush));
+RTL_MUX LsuL1Plugin_logic_waysWrite_tag_loaded_i__0
+(.I0(RTL_OR__0_n_0),
+.I1(LsuL1Plugin_logic_waysWrite_tag_loaded_i_n_0),
+.O(LsuL1Plugin_logic_waysWrite_tag_loaded_i__0_n_0),
+.S(when_LsuL1Plugin_l1170));
+RTL_MUX LsuL1Plugin_logic_waysWrite_tag_loaded_i__1
+(.I0(LsuL1Plugin_logic_waysWrite_tag_loaded_i__0_n_0),
+.I1(LsuL1Plugin_logic_waysWrite_tag_loaded_i_n_0),
+.O(LsuL1Plugin_logic_waysWrite_tag_loaded_i__1_n_0),
+.S(when_LsuL1Plugin_l1168));
+RTL_MUX LsuL1Plugin_logic_waysWrite_tag_loaded_i__2
+(.I0(LsuL1Plugin_logic_waysWrite_tag_loaded_i__1_n_0),
+.I1(LsuL1Plugin_logic_waysWrite_tag_loaded_i_n_0),
+.O(LsuL1Plugin_logic_waysWrite_tag_loaded_i__2_n_0),
+.S(LsuL1Plugin_logic_c_pip_ctrl_2_down_LsuL1_HAZARD));
+RTL_MUX LsuL1Plugin_logic_waysWrite_tag_loaded_i__3
+(.I0(LsuL1Plugin_logic_waysWrite_tag_loaded_i__2_n_0),
+.I1(LsuL1Plugin_logic_waysWrite_tag_loaded_i_n_0),
+.O(LsuL1Plugin_logic_waysWrite_tag_loaded_i__3_n_0),
+.S(LsuL1Plugin_logic_c_pip_ctrl_2_up_valid));
+RTL_MUX LsuL1Plugin_logic_waysWrite_tag_loaded_i__4
+(.I0(\<const0> ),
+.I1(LsuL1Plugin_logic_waysWrite_tag_loaded_i__3_n_0),
+.O(_zz_LsuL1Plugin_logic_ways_0_mem_port[0]),
+.S(when_LsuL1Plugin_l1234));
+RTL_MUX LsuL1Plugin_logic_waysWrite_tag_unique_i
+(.I0(execute_ctrl4_up_LsuL1Plugin_logic_WAYS_TAGS_lane0_0_unique),
+.I1(LsuL1Plugin_logic_bus_read_rsp_payload_unique),
+.O(LsuL1Plugin_logic_waysWrite_tag_unique_i_n_0),
+.S(LsuL1Plugin_logic_lsu_ctrl_doFlush));
+RTL_MUX LsuL1Plugin_logic_waysWrite_tag_unique_i__0
+(.I0(LsuL1Plugin_logic_bus_probe_rsp_payload_toShared1),
+.I1(LsuL1Plugin_logic_waysWrite_tag_unique_i_n_0),
+.O(LsuL1Plugin_logic_waysWrite_tag_unique_i__0_n_0),
+.S(when_LsuL1Plugin_l1170));
+RTL_MUX LsuL1Plugin_logic_waysWrite_tag_unique_i__1
+(.I0(LsuL1Plugin_logic_waysWrite_tag_unique_i__0_n_0),
+.I1(LsuL1Plugin_logic_waysWrite_tag_unique_i_n_0),
+.O(LsuL1Plugin_logic_waysWrite_tag_unique_i__1_n_0),
+.S(when_LsuL1Plugin_l1168));
+RTL_MUX LsuL1Plugin_logic_waysWrite_tag_unique_i__2
+(.I0(LsuL1Plugin_logic_waysWrite_tag_unique_i__1_n_0),
+.I1(LsuL1Plugin_logic_waysWrite_tag_unique_i_n_0),
+.O(LsuL1Plugin_logic_waysWrite_tag_unique_i__2_n_0),
+.S(LsuL1Plugin_logic_c_pip_ctrl_2_down_LsuL1_HAZARD));
+RTL_MUX LsuL1Plugin_logic_waysWrite_tag_unique_i__3
+(.I0(LsuL1Plugin_logic_waysWrite_tag_unique_i__2_n_0),
+.I1(LsuL1Plugin_logic_waysWrite_tag_unique_i_n_0),
+.O(_zz_LsuL1Plugin_logic_ways_0_mem_port[21]),
+.S(LsuL1Plugin_logic_c_pip_ctrl_2_up_valid));
+RTL_REDUCTION_OR149 LsuL1Plugin_logic_waysWrite_valid_i
+(.I0(_zz_LsuL1Plugin_logic_ways_0_mem_port_1),
+.O(LsuL1Plugin_logic_waysWrite_valid));
+RTL_RAM59 LsuL1Plugin_logic_ways_0_mem_reg
+(.RA1(LsuL1Plugin_logic_shared_cRead_cmd_payload),
+.RA2(execute_ctrl2_down_LsuL1_MIXED_ADDRESS_lane0[12:6]),
+.RO1({LsuL1Plugin_logic_ways_0_mem_reg_n_22,LsuL1Plugin_logic_ways_0_mem_reg_n_23,LsuL1Plugin_logic_ways_0_mem_reg_n_24,LsuL1Plugin_logic_ways_0_mem_reg_n_25,LsuL1Plugin_logic_ways_0_mem_reg_n_26,LsuL1Plugin_logic_ways_0_mem_reg_n_27,LsuL1Plugin_logic_ways_0_mem_reg_n_28,LsuL1Plugin_logic_ways_0_mem_reg_n_29,LsuL1Plugin_logic_ways_0_mem_reg_n_30,LsuL1Plugin_logic_ways_0_mem_reg_n_31,LsuL1Plugin_logic_ways_0_mem_reg_n_32,LsuL1Plugin_logic_ways_0_mem_reg_n_33,LsuL1Plugin_logic_ways_0_mem_reg_n_34,LsuL1Plugin_logic_ways_0_mem_reg_n_35,LsuL1Plugin_logic_ways_0_mem_reg_n_36,LsuL1Plugin_logic_ways_0_mem_reg_n_37,LsuL1Plugin_logic_ways_0_mem_reg_n_38,LsuL1Plugin_logic_ways_0_mem_reg_n_39,LsuL1Plugin_logic_ways_0_mem_reg_n_40,LsuL1Plugin_logic_ways_0_mem_reg_n_41,LsuL1Plugin_logic_ways_0_mem_reg_n_42,LsuL1Plugin_logic_ways_0_mem_reg_n_43}),
+.RO2({LsuL1Plugin_logic_ways_0_mem_reg_n_0,LsuL1Plugin_logic_ways_0_mem_reg_n_1,LsuL1Plugin_logic_ways_0_mem_reg_n_2,LsuL1Plugin_logic_ways_0_mem_reg_n_3,LsuL1Plugin_logic_ways_0_mem_reg_n_4,LsuL1Plugin_logic_ways_0_mem_reg_n_5,LsuL1Plugin_logic_ways_0_mem_reg_n_6,LsuL1Plugin_logic_ways_0_mem_reg_n_7,LsuL1Plugin_logic_ways_0_mem_reg_n_8,LsuL1Plugin_logic_ways_0_mem_reg_n_9,LsuL1Plugin_logic_ways_0_mem_reg_n_10,LsuL1Plugin_logic_ways_0_mem_reg_n_11,LsuL1Plugin_logic_ways_0_mem_reg_n_12,LsuL1Plugin_logic_ways_0_mem_reg_n_13,LsuL1Plugin_logic_ways_0_mem_reg_n_14,LsuL1Plugin_logic_ways_0_mem_reg_n_15,LsuL1Plugin_logic_ways_0_mem_reg_n_16,LsuL1Plugin_logic_ways_0_mem_reg_n_17,LsuL1Plugin_logic_ways_0_mem_reg_n_18,LsuL1Plugin_logic_ways_0_mem_reg_n_19,LsuL1Plugin_logic_ways_0_mem_reg_n_20,LsuL1Plugin_logic_ways_0_mem_reg_n_21}),
+.WA3(LsuL1Plugin_logic_waysWrite_address),
+.WCLK(litex_clk),
+.WD3(_zz_LsuL1Plugin_logic_ways_0_mem_port),
+.WE3(_zz_LsuL1Plugin_logic_ways_0_mem_port_1));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_ways_0_mem_spinal_port1_reg[0]
+(.C(litex_clk),
+.CE(LsuL1Plugin_logic_c_freezeTimeout_counter_willClear),
+.D(LsuL1Plugin_logic_ways_0_mem_reg_n_21),
+.Q(LsuL1Plugin_logic_ways_0_lsuRead_rsp_loaded));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_ways_0_mem_spinal_port1_reg[10]
+(.C(litex_clk),
+.CE(LsuL1Plugin_logic_c_freezeTimeout_counter_willClear),
+.D(LsuL1Plugin_logic_ways_0_mem_reg_n_11),
+.Q(LsuL1Plugin_logic_ways_0_lsuRead_rsp_address[9]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_ways_0_mem_spinal_port1_reg[11]
+(.C(litex_clk),
+.CE(LsuL1Plugin_logic_c_freezeTimeout_counter_willClear),
+.D(LsuL1Plugin_logic_ways_0_mem_reg_n_10),
+.Q(LsuL1Plugin_logic_ways_0_lsuRead_rsp_address[10]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_ways_0_mem_spinal_port1_reg[12]
+(.C(litex_clk),
+.CE(LsuL1Plugin_logic_c_freezeTimeout_counter_willClear),
+.D(LsuL1Plugin_logic_ways_0_mem_reg_n_9),
+.Q(LsuL1Plugin_logic_ways_0_lsuRead_rsp_address[11]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_ways_0_mem_spinal_port1_reg[13]
+(.C(litex_clk),
+.CE(LsuL1Plugin_logic_c_freezeTimeout_counter_willClear),
+.D(LsuL1Plugin_logic_ways_0_mem_reg_n_8),
+.Q(LsuL1Plugin_logic_ways_0_lsuRead_rsp_address[12]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_ways_0_mem_spinal_port1_reg[14]
+(.C(litex_clk),
+.CE(LsuL1Plugin_logic_c_freezeTimeout_counter_willClear),
+.D(LsuL1Plugin_logic_ways_0_mem_reg_n_7),
+.Q(LsuL1Plugin_logic_ways_0_lsuRead_rsp_address[13]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_ways_0_mem_spinal_port1_reg[15]
+(.C(litex_clk),
+.CE(LsuL1Plugin_logic_c_freezeTimeout_counter_willClear),
+.D(LsuL1Plugin_logic_ways_0_mem_reg_n_6),
+.Q(LsuL1Plugin_logic_ways_0_lsuRead_rsp_address[14]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_ways_0_mem_spinal_port1_reg[16]
+(.C(litex_clk),
+.CE(LsuL1Plugin_logic_c_freezeTimeout_counter_willClear),
+.D(LsuL1Plugin_logic_ways_0_mem_reg_n_5),
+.Q(LsuL1Plugin_logic_ways_0_lsuRead_rsp_address[15]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_ways_0_mem_spinal_port1_reg[17]
+(.C(litex_clk),
+.CE(LsuL1Plugin_logic_c_freezeTimeout_counter_willClear),
+.D(LsuL1Plugin_logic_ways_0_mem_reg_n_4),
+.Q(LsuL1Plugin_logic_ways_0_lsuRead_rsp_address[16]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_ways_0_mem_spinal_port1_reg[18]
+(.C(litex_clk),
+.CE(LsuL1Plugin_logic_c_freezeTimeout_counter_willClear),
+.D(LsuL1Plugin_logic_ways_0_mem_reg_n_3),
+.Q(LsuL1Plugin_logic_ways_0_lsuRead_rsp_address[17]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_ways_0_mem_spinal_port1_reg[19]
+(.C(litex_clk),
+.CE(LsuL1Plugin_logic_c_freezeTimeout_counter_willClear),
+.D(LsuL1Plugin_logic_ways_0_mem_reg_n_2),
+.Q(LsuL1Plugin_logic_ways_0_lsuRead_rsp_address[18]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_ways_0_mem_spinal_port1_reg[1]
+(.C(litex_clk),
+.CE(LsuL1Plugin_logic_c_freezeTimeout_counter_willClear),
+.D(LsuL1Plugin_logic_ways_0_mem_reg_n_20),
+.Q(LsuL1Plugin_logic_ways_0_lsuRead_rsp_address[0]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_ways_0_mem_spinal_port1_reg[20]
+(.C(litex_clk),
+.CE(LsuL1Plugin_logic_c_freezeTimeout_counter_willClear),
+.D(LsuL1Plugin_logic_ways_0_mem_reg_n_1),
+.Q(LsuL1Plugin_logic_ways_0_lsuRead_rsp_fault));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_ways_0_mem_spinal_port1_reg[21]
+(.C(litex_clk),
+.CE(LsuL1Plugin_logic_c_freezeTimeout_counter_willClear),
+.D(LsuL1Plugin_logic_ways_0_mem_reg_n_0),
+.Q(LsuL1Plugin_logic_ways_0_lsuRead_rsp_unique));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_ways_0_mem_spinal_port1_reg[2]
+(.C(litex_clk),
+.CE(LsuL1Plugin_logic_c_freezeTimeout_counter_willClear),
+.D(LsuL1Plugin_logic_ways_0_mem_reg_n_19),
+.Q(LsuL1Plugin_logic_ways_0_lsuRead_rsp_address[1]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_ways_0_mem_spinal_port1_reg[3]
+(.C(litex_clk),
+.CE(LsuL1Plugin_logic_c_freezeTimeout_counter_willClear),
+.D(LsuL1Plugin_logic_ways_0_mem_reg_n_18),
+.Q(LsuL1Plugin_logic_ways_0_lsuRead_rsp_address[2]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_ways_0_mem_spinal_port1_reg[4]
+(.C(litex_clk),
+.CE(LsuL1Plugin_logic_c_freezeTimeout_counter_willClear),
+.D(LsuL1Plugin_logic_ways_0_mem_reg_n_17),
+.Q(LsuL1Plugin_logic_ways_0_lsuRead_rsp_address[3]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_ways_0_mem_spinal_port1_reg[5]
+(.C(litex_clk),
+.CE(LsuL1Plugin_logic_c_freezeTimeout_counter_willClear),
+.D(LsuL1Plugin_logic_ways_0_mem_reg_n_16),
+.Q(LsuL1Plugin_logic_ways_0_lsuRead_rsp_address[4]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_ways_0_mem_spinal_port1_reg[6]
+(.C(litex_clk),
+.CE(LsuL1Plugin_logic_c_freezeTimeout_counter_willClear),
+.D(LsuL1Plugin_logic_ways_0_mem_reg_n_15),
+.Q(LsuL1Plugin_logic_ways_0_lsuRead_rsp_address[5]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_ways_0_mem_spinal_port1_reg[7]
+(.C(litex_clk),
+.CE(LsuL1Plugin_logic_c_freezeTimeout_counter_willClear),
+.D(LsuL1Plugin_logic_ways_0_mem_reg_n_14),
+.Q(LsuL1Plugin_logic_ways_0_lsuRead_rsp_address[6]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_ways_0_mem_spinal_port1_reg[8]
+(.C(litex_clk),
+.CE(LsuL1Plugin_logic_c_freezeTimeout_counter_willClear),
+.D(LsuL1Plugin_logic_ways_0_mem_reg_n_13),
+.Q(LsuL1Plugin_logic_ways_0_lsuRead_rsp_address[7]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_ways_0_mem_spinal_port1_reg[9]
+(.C(litex_clk),
+.CE(LsuL1Plugin_logic_c_freezeTimeout_counter_willClear),
+.D(LsuL1Plugin_logic_ways_0_mem_reg_n_12),
+.Q(LsuL1Plugin_logic_ways_0_lsuRead_rsp_address[8]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_ways_0_mem_spinal_port2_reg[0]
+(.C(litex_clk),
+.CE(LsuL1Plugin_logic_ways_0_cRead_cmd_valid),
+.D(LsuL1Plugin_logic_ways_0_mem_reg_n_43),
+.Q(LsuL1Plugin_logic_ways_0_cRead_rsp_loaded));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_ways_0_mem_spinal_port2_reg[10]
+(.C(litex_clk),
+.CE(LsuL1Plugin_logic_ways_0_cRead_cmd_valid),
+.D(LsuL1Plugin_logic_ways_0_mem_reg_n_33),
+.Q(LsuL1Plugin_logic_ways_0_cRead_rsp_address[9]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_ways_0_mem_spinal_port2_reg[11]
+(.C(litex_clk),
+.CE(LsuL1Plugin_logic_ways_0_cRead_cmd_valid),
+.D(LsuL1Plugin_logic_ways_0_mem_reg_n_32),
+.Q(LsuL1Plugin_logic_ways_0_cRead_rsp_address[10]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_ways_0_mem_spinal_port2_reg[12]
+(.C(litex_clk),
+.CE(LsuL1Plugin_logic_ways_0_cRead_cmd_valid),
+.D(LsuL1Plugin_logic_ways_0_mem_reg_n_31),
+.Q(LsuL1Plugin_logic_ways_0_cRead_rsp_address[11]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_ways_0_mem_spinal_port2_reg[13]
+(.C(litex_clk),
+.CE(LsuL1Plugin_logic_ways_0_cRead_cmd_valid),
+.D(LsuL1Plugin_logic_ways_0_mem_reg_n_30),
+.Q(LsuL1Plugin_logic_ways_0_cRead_rsp_address[12]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_ways_0_mem_spinal_port2_reg[14]
+(.C(litex_clk),
+.CE(LsuL1Plugin_logic_ways_0_cRead_cmd_valid),
+.D(LsuL1Plugin_logic_ways_0_mem_reg_n_29),
+.Q(LsuL1Plugin_logic_ways_0_cRead_rsp_address[13]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_ways_0_mem_spinal_port2_reg[15]
+(.C(litex_clk),
+.CE(LsuL1Plugin_logic_ways_0_cRead_cmd_valid),
+.D(LsuL1Plugin_logic_ways_0_mem_reg_n_28),
+.Q(LsuL1Plugin_logic_ways_0_cRead_rsp_address[14]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_ways_0_mem_spinal_port2_reg[16]
+(.C(litex_clk),
+.CE(LsuL1Plugin_logic_ways_0_cRead_cmd_valid),
+.D(LsuL1Plugin_logic_ways_0_mem_reg_n_27),
+.Q(LsuL1Plugin_logic_ways_0_cRead_rsp_address[15]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_ways_0_mem_spinal_port2_reg[17]
+(.C(litex_clk),
+.CE(LsuL1Plugin_logic_ways_0_cRead_cmd_valid),
+.D(LsuL1Plugin_logic_ways_0_mem_reg_n_26),
+.Q(LsuL1Plugin_logic_ways_0_cRead_rsp_address[16]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_ways_0_mem_spinal_port2_reg[18]
+(.C(litex_clk),
+.CE(LsuL1Plugin_logic_ways_0_cRead_cmd_valid),
+.D(LsuL1Plugin_logic_ways_0_mem_reg_n_25),
+.Q(LsuL1Plugin_logic_ways_0_cRead_rsp_address[17]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_ways_0_mem_spinal_port2_reg[19]
+(.C(litex_clk),
+.CE(LsuL1Plugin_logic_ways_0_cRead_cmd_valid),
+.D(LsuL1Plugin_logic_ways_0_mem_reg_n_24),
+.Q(LsuL1Plugin_logic_ways_0_cRead_rsp_address[18]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_ways_0_mem_spinal_port2_reg[1]
+(.C(litex_clk),
+.CE(LsuL1Plugin_logic_ways_0_cRead_cmd_valid),
+.D(LsuL1Plugin_logic_ways_0_mem_reg_n_42),
+.Q(LsuL1Plugin_logic_ways_0_cRead_rsp_address[0]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_ways_0_mem_spinal_port2_reg[20]
+(.C(litex_clk),
+.CE(LsuL1Plugin_logic_ways_0_cRead_cmd_valid),
+.D(LsuL1Plugin_logic_ways_0_mem_reg_n_23),
+.Q(LsuL1Plugin_logic_ways_0_cRead_rsp_fault));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_ways_0_mem_spinal_port2_reg[21]
+(.C(litex_clk),
+.CE(LsuL1Plugin_logic_ways_0_cRead_cmd_valid),
+.D(LsuL1Plugin_logic_ways_0_mem_reg_n_22),
+.Q(LsuL1Plugin_logic_ways_0_cRead_rsp_unique));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_ways_0_mem_spinal_port2_reg[2]
+(.C(litex_clk),
+.CE(LsuL1Plugin_logic_ways_0_cRead_cmd_valid),
+.D(LsuL1Plugin_logic_ways_0_mem_reg_n_41),
+.Q(LsuL1Plugin_logic_ways_0_cRead_rsp_address[1]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_ways_0_mem_spinal_port2_reg[3]
+(.C(litex_clk),
+.CE(LsuL1Plugin_logic_ways_0_cRead_cmd_valid),
+.D(LsuL1Plugin_logic_ways_0_mem_reg_n_40),
+.Q(LsuL1Plugin_logic_ways_0_cRead_rsp_address[2]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_ways_0_mem_spinal_port2_reg[4]
+(.C(litex_clk),
+.CE(LsuL1Plugin_logic_ways_0_cRead_cmd_valid),
+.D(LsuL1Plugin_logic_ways_0_mem_reg_n_39),
+.Q(LsuL1Plugin_logic_ways_0_cRead_rsp_address[3]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_ways_0_mem_spinal_port2_reg[5]
+(.C(litex_clk),
+.CE(LsuL1Plugin_logic_ways_0_cRead_cmd_valid),
+.D(LsuL1Plugin_logic_ways_0_mem_reg_n_38),
+.Q(LsuL1Plugin_logic_ways_0_cRead_rsp_address[4]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_ways_0_mem_spinal_port2_reg[6]
+(.C(litex_clk),
+.CE(LsuL1Plugin_logic_ways_0_cRead_cmd_valid),
+.D(LsuL1Plugin_logic_ways_0_mem_reg_n_37),
+.Q(LsuL1Plugin_logic_ways_0_cRead_rsp_address[5]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_ways_0_mem_spinal_port2_reg[7]
+(.C(litex_clk),
+.CE(LsuL1Plugin_logic_ways_0_cRead_cmd_valid),
+.D(LsuL1Plugin_logic_ways_0_mem_reg_n_36),
+.Q(LsuL1Plugin_logic_ways_0_cRead_rsp_address[6]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_ways_0_mem_spinal_port2_reg[8]
+(.C(litex_clk),
+.CE(LsuL1Plugin_logic_ways_0_cRead_cmd_valid),
+.D(LsuL1Plugin_logic_ways_0_mem_reg_n_35),
+.Q(LsuL1Plugin_logic_ways_0_cRead_rsp_address[7]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_ways_0_mem_spinal_port2_reg[9]
+(.C(litex_clk),
+.CE(LsuL1Plugin_logic_ways_0_cRead_cmd_valid),
+.D(LsuL1Plugin_logic_ways_0_mem_reg_n_34),
+.Q(LsuL1Plugin_logic_ways_0_cRead_rsp_address[8]));
+RTL_INV LsuL1Plugin_logic_writeback_full0_i
+(.I0(when_LsuL1Plugin_l564),
+.O(LsuL1Plugin_logic_writeback_full0));
+RTL_REDUCTION_AND29 LsuL1Plugin_logic_writeback_full_i
+(.I0(LsuL1Plugin_logic_writeback_full0),
+.O(LsuL1Plugin_logic_writeback_full));
+RTL_ALSHIFT11 LsuL1Plugin_logic_writeback_push_payload_address0_i
+(.I0({\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,execute_ctrl4_up_LsuL1Plugin_logic_WAYS_TAGS_lane0_0_address,execute_ctrl4_up_LsuL1_MIXED_ADDRESS_lane0_reg_n_19,execute_ctrl4_up_LsuL1_MIXED_ADDRESS_lane0_reg_n_20,execute_ctrl4_up_LsuL1_MIXED_ADDRESS_lane0_reg_n_21,execute_ctrl4_up_LsuL1_MIXED_ADDRESS_lane0_reg_n_22,execute_ctrl4_up_LsuL1_MIXED_ADDRESS_lane0_reg_n_23,execute_ctrl4_up_LsuL1_MIXED_ADDRESS_lane0_reg_n_24,execute_ctrl4_up_LsuL1_MIXED_ADDRESS_lane0_reg_n_25}),
+.I1({\<const1> ,\<const1> ,\<const0> }),
+.I2(\<const1> ),
+.O({LsuL1Plugin_logic_writeback_push_payload_address0_i_n_0,LsuL1Plugin_logic_writeback_push_payload_address0_i_n_1,LsuL1Plugin_logic_writeback_push_payload_address0_i_n_2,LsuL1Plugin_logic_writeback_push_payload_address0_i_n_3,LsuL1Plugin_logic_writeback_push_payload_address0_i_n_4,LsuL1Plugin_logic_writeback_push_payload_address0_i_n_5,LsuL1Plugin_logic_writeback_push_payload_address0_i_n_6,LsuL1Plugin_logic_writeback_push_payload_address0_i_n_7,LsuL1Plugin_logic_writeback_push_payload_address0_i_n_8,LsuL1Plugin_logic_writeback_push_payload_address0_i_n_9,LsuL1Plugin_logic_writeback_push_payload_address0_i_n_10,LsuL1Plugin_logic_writeback_push_payload_address0_i_n_11,LsuL1Plugin_logic_writeback_push_payload_address0_i_n_12,LsuL1Plugin_logic_writeback_push_payload_address0_i_n_13,LsuL1Plugin_logic_writeback_push_payload_address0_i_n_14,LsuL1Plugin_logic_writeback_push_payload_address0_i_n_15,LsuL1Plugin_logic_writeback_push_payload_address0_i_n_16,LsuL1Plugin_logic_writeback_push_payload_address0_i_n_17,LsuL1Plugin_logic_writeback_push_payload_address0_i_n_18,LsuL1Plugin_logic_writeback_push_payload_address0_i_n_19,LsuL1Plugin_logic_writeback_push_payload_address0_i_n_20,LsuL1Plugin_logic_writeback_push_payload_address0_i_n_21,LsuL1Plugin_logic_writeback_push_payload_address0_i_n_22,LsuL1Plugin_logic_writeback_push_payload_address0_i_n_23,LsuL1Plugin_logic_writeback_push_payload_address0_i_n_24,LsuL1Plugin_logic_writeback_push_payload_address0_i_n_25,LsuL1Plugin_logic_writeback_push_payload_address0_i_n_26,LsuL1Plugin_logic_writeback_push_payload_address0_i_n_27,LsuL1Plugin_logic_writeback_push_payload_address0_i_n_28,LsuL1Plugin_logic_writeback_push_payload_address0_i_n_29,LsuL1Plugin_logic_writeback_push_payload_address0_i_n_30,LsuL1Plugin_logic_writeback_push_payload_address0_i_n_31}));
+RTL_ALSHIFT11 LsuL1Plugin_logic_writeback_push_payload_address0_i__0
+(.I0({\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,execute_ctrl4_up_LsuL1Plugin_logic_WAYS_TAGS_lane0_0_address,execute_ctrl4_up_LsuL1_MIXED_ADDRESS_lane0_reg_n_19,execute_ctrl4_up_LsuL1_MIXED_ADDRESS_lane0_reg_n_20,execute_ctrl4_up_LsuL1_MIXED_ADDRESS_lane0_reg_n_21,execute_ctrl4_up_LsuL1_MIXED_ADDRESS_lane0_reg_n_22,execute_ctrl4_up_LsuL1_MIXED_ADDRESS_lane0_reg_n_23,execute_ctrl4_up_LsuL1_MIXED_ADDRESS_lane0_reg_n_24,execute_ctrl4_up_LsuL1_MIXED_ADDRESS_lane0_reg_n_25}),
+.I1({\<const1> ,\<const1> ,\<const0> }),
+.I2(\<const1> ),
+.O({LsuL1Plugin_logic_writeback_push_payload_address0_i__0_n_0,LsuL1Plugin_logic_writeback_push_payload_address0_i__0_n_1,LsuL1Plugin_logic_writeback_push_payload_address0_i__0_n_2,LsuL1Plugin_logic_writeback_push_payload_address0_i__0_n_3,LsuL1Plugin_logic_writeback_push_payload_address0_i__0_n_4,LsuL1Plugin_logic_writeback_push_payload_address0_i__0_n_5,LsuL1Plugin_logic_writeback_push_payload_address0_i__0_n_6,LsuL1Plugin_logic_writeback_push_payload_address0_i__0_n_7,LsuL1Plugin_logic_writeback_push_payload_address0_i__0_n_8,LsuL1Plugin_logic_writeback_push_payload_address0_i__0_n_9,LsuL1Plugin_logic_writeback_push_payload_address0_i__0_n_10,LsuL1Plugin_logic_writeback_push_payload_address0_i__0_n_11,LsuL1Plugin_logic_writeback_push_payload_address0_i__0_n_12,LsuL1Plugin_logic_writeback_push_payload_address0_i__0_n_13,LsuL1Plugin_logic_writeback_push_payload_address0_i__0_n_14,LsuL1Plugin_logic_writeback_push_payload_address0_i__0_n_15,LsuL1Plugin_logic_writeback_push_payload_address0_i__0_n_16,LsuL1Plugin_logic_writeback_push_payload_address0_i__0_n_17,LsuL1Plugin_logic_writeback_push_payload_address0_i__0_n_18,LsuL1Plugin_logic_writeback_push_payload_address0_i__0_n_19,LsuL1Plugin_logic_writeback_push_payload_address0_i__0_n_20,LsuL1Plugin_logic_writeback_push_payload_address0_i__0_n_21,LsuL1Plugin_logic_writeback_push_payload_address0_i__0_n_22,LsuL1Plugin_logic_writeback_push_payload_address0_i__0_n_23,LsuL1Plugin_logic_writeback_push_payload_address0_i__0_n_24,LsuL1Plugin_logic_writeback_push_payload_address0_i__0_n_25,LsuL1Plugin_logic_writeback_push_payload_address0_i__0_n_26,LsuL1Plugin_logic_writeback_push_payload_address0_i__0_n_27,LsuL1Plugin_logic_writeback_push_payload_address0_i__0_n_28,LsuL1Plugin_logic_writeback_push_payload_address0_i__0_n_29,LsuL1Plugin_logic_writeback_push_payload_address0_i__0_n_30,LsuL1Plugin_logic_writeback_push_payload_address0_i__0_n_31}));
+RTL_MUX374 LsuL1Plugin_logic_writeback_push_payload_address_i
+(.I0({LsuL1Plugin_logic_writeback_push_payload_address0_i_n_0,LsuL1Plugin_logic_writeback_push_payload_address0_i_n_1,LsuL1Plugin_logic_writeback_push_payload_address0_i_n_2,LsuL1Plugin_logic_writeback_push_payload_address0_i_n_3,LsuL1Plugin_logic_writeback_push_payload_address0_i_n_4,LsuL1Plugin_logic_writeback_push_payload_address0_i_n_5,LsuL1Plugin_logic_writeback_push_payload_address0_i_n_6,LsuL1Plugin_logic_writeback_push_payload_address0_i_n_7,LsuL1Plugin_logic_writeback_push_payload_address0_i_n_8,LsuL1Plugin_logic_writeback_push_payload_address0_i_n_9,LsuL1Plugin_logic_writeback_push_payload_address0_i_n_10,LsuL1Plugin_logic_writeback_push_payload_address0_i_n_11,LsuL1Plugin_logic_writeback_push_payload_address0_i_n_12,LsuL1Plugin_logic_writeback_push_payload_address0_i_n_13,LsuL1Plugin_logic_writeback_push_payload_address0_i_n_14,LsuL1Plugin_logic_writeback_push_payload_address0_i_n_15,LsuL1Plugin_logic_writeback_push_payload_address0_i_n_16,LsuL1Plugin_logic_writeback_push_payload_address0_i_n_17,LsuL1Plugin_logic_writeback_push_payload_address0_i_n_18,LsuL1Plugin_logic_writeback_push_payload_address0_i_n_19,LsuL1Plugin_logic_writeback_push_payload_address0_i_n_20,LsuL1Plugin_logic_writeback_push_payload_address0_i_n_21,LsuL1Plugin_logic_writeback_push_payload_address0_i_n_22,LsuL1Plugin_logic_writeback_push_payload_address0_i_n_23,LsuL1Plugin_logic_writeback_push_payload_address0_i_n_24,LsuL1Plugin_logic_writeback_push_payload_address0_i_n_25,LsuL1Plugin_logic_writeback_push_payload_address0_i_n_26,LsuL1Plugin_logic_writeback_push_payload_address0_i_n_27,LsuL1Plugin_logic_writeback_push_payload_address0_i_n_28,LsuL1Plugin_logic_writeback_push_payload_address0_i_n_29,LsuL1Plugin_logic_writeback_push_payload_address0_i_n_30,LsuL1Plugin_logic_writeback_push_payload_address0_i_n_31}),
+.I1({LsuL1Plugin_logic_writeback_push_payload_address0_i__0_n_0,LsuL1Plugin_logic_writeback_push_payload_address0_i__0_n_1,LsuL1Plugin_logic_writeback_push_payload_address0_i__0_n_2,LsuL1Plugin_logic_writeback_push_payload_address0_i__0_n_3,LsuL1Plugin_logic_writeback_push_payload_address0_i__0_n_4,LsuL1Plugin_logic_writeback_push_payload_address0_i__0_n_5,LsuL1Plugin_logic_writeback_push_payload_address0_i__0_n_6,LsuL1Plugin_logic_writeback_push_payload_address0_i__0_n_7,LsuL1Plugin_logic_writeback_push_payload_address0_i__0_n_8,LsuL1Plugin_logic_writeback_push_payload_address0_i__0_n_9,LsuL1Plugin_logic_writeback_push_payload_address0_i__0_n_10,LsuL1Plugin_logic_writeback_push_payload_address0_i__0_n_11,LsuL1Plugin_logic_writeback_push_payload_address0_i__0_n_12,LsuL1Plugin_logic_writeback_push_payload_address0_i__0_n_13,LsuL1Plugin_logic_writeback_push_payload_address0_i__0_n_14,LsuL1Plugin_logic_writeback_push_payload_address0_i__0_n_15,LsuL1Plugin_logic_writeback_push_payload_address0_i__0_n_16,LsuL1Plugin_logic_writeback_push_payload_address0_i__0_n_17,LsuL1Plugin_logic_writeback_push_payload_address0_i__0_n_18,LsuL1Plugin_logic_writeback_push_payload_address0_i__0_n_19,LsuL1Plugin_logic_writeback_push_payload_address0_i__0_n_20,LsuL1Plugin_logic_writeback_push_payload_address0_i__0_n_21,LsuL1Plugin_logic_writeback_push_payload_address0_i__0_n_22,LsuL1Plugin_logic_writeback_push_payload_address0_i__0_n_23,LsuL1Plugin_logic_writeback_push_payload_address0_i__0_n_24,LsuL1Plugin_logic_writeback_push_payload_address0_i__0_n_25,LsuL1Plugin_logic_writeback_push_payload_address0_i__0_n_26,LsuL1Plugin_logic_writeback_push_payload_address0_i__0_n_27,LsuL1Plugin_logic_writeback_push_payload_address0_i__0_n_28,LsuL1Plugin_logic_writeback_push_payload_address0_i__0_n_29,LsuL1Plugin_logic_writeback_push_payload_address0_i__0_n_30,LsuL1Plugin_logic_writeback_push_payload_address0_i__0_n_31}),
+.O({LsuL1Plugin_logic_writeback_push_payload_address_i_n_0,LsuL1Plugin_logic_writeback_push_payload_address_i_n_1,LsuL1Plugin_logic_writeback_push_payload_address_i_n_2,LsuL1Plugin_logic_writeback_push_payload_address_i_n_3,LsuL1Plugin_logic_writeback_push_payload_address_i_n_4,LsuL1Plugin_logic_writeback_push_payload_address_i_n_5,LsuL1Plugin_logic_writeback_push_payload_address_i_n_6,LsuL1Plugin_logic_writeback_push_payload_address_i_n_7,LsuL1Plugin_logic_writeback_push_payload_address_i_n_8,LsuL1Plugin_logic_writeback_push_payload_address_i_n_9,LsuL1Plugin_logic_writeback_push_payload_address_i_n_10,LsuL1Plugin_logic_writeback_push_payload_address_i_n_11,LsuL1Plugin_logic_writeback_push_payload_address_i_n_12,LsuL1Plugin_logic_writeback_push_payload_address_i_n_13,LsuL1Plugin_logic_writeback_push_payload_address_i_n_14,LsuL1Plugin_logic_writeback_push_payload_address_i_n_15,LsuL1Plugin_logic_writeback_push_payload_address_i_n_16,LsuL1Plugin_logic_writeback_push_payload_address_i_n_17,LsuL1Plugin_logic_writeback_push_payload_address_i_n_18,LsuL1Plugin_logic_writeback_push_payload_address_i_n_19,LsuL1Plugin_logic_writeback_push_payload_address_i_n_20,LsuL1Plugin_logic_writeback_push_payload_address_i_n_21,LsuL1Plugin_logic_writeback_push_payload_address_i_n_22,LsuL1Plugin_logic_writeback_push_payload_address_i_n_23,LsuL1Plugin_logic_writeback_push_payload_address_i_n_24,LsuL1Plugin_logic_writeback_push_payload_address_i_n_25,LsuL1Plugin_logic_writeback_push_payload_address_i_n_26,LsuL1Plugin_logic_writeback_push_payload_address_i_n_27,LsuL1Plugin_logic_writeback_push_payload_address_i_n_28,LsuL1Plugin_logic_writeback_push_payload_address_i_n_29,LsuL1Plugin_logic_writeback_push_payload_address_i_n_30,LsuL1Plugin_logic_writeback_push_payload_address_i_n_31}),
+.S(LsuL1Plugin_logic_lsu_ctrl_doRefill));
+RTL_MUX374 LsuL1Plugin_logic_writeback_push_payload_address_i__0
+(.I0(LsuL1Plugin_logic_c_pip_ctrl_2_up_LsuL1_PHYSICAL_ADDRESS),
+.I1({LsuL1Plugin_logic_writeback_push_payload_address_i_n_0,LsuL1Plugin_logic_writeback_push_payload_address_i_n_1,LsuL1Plugin_logic_writeback_push_payload_address_i_n_2,LsuL1Plugin_logic_writeback_push_payload_address_i_n_3,LsuL1Plugin_logic_writeback_push_payload_address_i_n_4,LsuL1Plugin_logic_writeback_push_payload_address_i_n_5,LsuL1Plugin_logic_writeback_push_payload_address_i_n_6,LsuL1Plugin_logic_writeback_push_payload_address_i_n_7,LsuL1Plugin_logic_writeback_push_payload_address_i_n_8,LsuL1Plugin_logic_writeback_push_payload_address_i_n_9,LsuL1Plugin_logic_writeback_push_payload_address_i_n_10,LsuL1Plugin_logic_writeback_push_payload_address_i_n_11,LsuL1Plugin_logic_writeback_push_payload_address_i_n_12,LsuL1Plugin_logic_writeback_push_payload_address_i_n_13,LsuL1Plugin_logic_writeback_push_payload_address_i_n_14,LsuL1Plugin_logic_writeback_push_payload_address_i_n_15,LsuL1Plugin_logic_writeback_push_payload_address_i_n_16,LsuL1Plugin_logic_writeback_push_payload_address_i_n_17,LsuL1Plugin_logic_writeback_push_payload_address_i_n_18,LsuL1Plugin_logic_writeback_push_payload_address_i_n_19,LsuL1Plugin_logic_writeback_push_payload_address_i_n_20,LsuL1Plugin_logic_writeback_push_payload_address_i_n_21,LsuL1Plugin_logic_writeback_push_payload_address_i_n_22,LsuL1Plugin_logic_writeback_push_payload_address_i_n_23,LsuL1Plugin_logic_writeback_push_payload_address_i_n_24,LsuL1Plugin_logic_writeback_push_payload_address_i_n_25,LsuL1Plugin_logic_writeback_push_payload_address_i_n_26,LsuL1Plugin_logic_writeback_push_payload_address_i_n_27,LsuL1Plugin_logic_writeback_push_payload_address_i_n_28,LsuL1Plugin_logic_writeback_push_payload_address_i_n_29,LsuL1Plugin_logic_writeback_push_payload_address_i_n_30,LsuL1Plugin_logic_writeback_push_payload_address_i_n_31}),
+.O({LsuL1Plugin_logic_writeback_push_payload_address_i__0_n_0,LsuL1Plugin_logic_writeback_push_payload_address_i__0_n_1,LsuL1Plugin_logic_writeback_push_payload_address_i__0_n_2,LsuL1Plugin_logic_writeback_push_payload_address_i__0_n_3,LsuL1Plugin_logic_writeback_push_payload_address_i__0_n_4,LsuL1Plugin_logic_writeback_push_payload_address_i__0_n_5,LsuL1Plugin_logic_writeback_push_payload_address_i__0_n_6,LsuL1Plugin_logic_writeback_push_payload_address_i__0_n_7,LsuL1Plugin_logic_writeback_push_payload_address_i__0_n_8,LsuL1Plugin_logic_writeback_push_payload_address_i__0_n_9,LsuL1Plugin_logic_writeback_push_payload_address_i__0_n_10,LsuL1Plugin_logic_writeback_push_payload_address_i__0_n_11,LsuL1Plugin_logic_writeback_push_payload_address_i__0_n_12,LsuL1Plugin_logic_writeback_push_payload_address_i__0_n_13,LsuL1Plugin_logic_writeback_push_payload_address_i__0_n_14,LsuL1Plugin_logic_writeback_push_payload_address_i__0_n_15,LsuL1Plugin_logic_writeback_push_payload_address_i__0_n_16,LsuL1Plugin_logic_writeback_push_payload_address_i__0_n_17,LsuL1Plugin_logic_writeback_push_payload_address_i__0_n_18,LsuL1Plugin_logic_writeback_push_payload_address_i__0_n_19,LsuL1Plugin_logic_writeback_push_payload_address_i__0_n_20,LsuL1Plugin_logic_writeback_push_payload_address_i__0_n_21,LsuL1Plugin_logic_writeback_push_payload_address_i__0_n_22,LsuL1Plugin_logic_writeback_push_payload_address_i__0_n_23,LsuL1Plugin_logic_writeback_push_payload_address_i__0_n_24,LsuL1Plugin_logic_writeback_push_payload_address_i__0_n_25,LsuL1Plugin_logic_writeback_push_payload_address_i__0_n_26,LsuL1Plugin_logic_writeback_push_payload_address_i__0_n_27,LsuL1Plugin_logic_writeback_push_payload_address_i__0_n_28,LsuL1Plugin_logic_writeback_push_payload_address_i__0_n_29,LsuL1Plugin_logic_writeback_push_payload_address_i__0_n_30,LsuL1Plugin_logic_writeback_push_payload_address_i__0_n_31}),
+.S(when_LsuL1Plugin_l1170));
+RTL_MUX374 LsuL1Plugin_logic_writeback_push_payload_address_i__1
+(.I0({LsuL1Plugin_logic_writeback_push_payload_address_i__0_n_0,LsuL1Plugin_logic_writeback_push_payload_address_i__0_n_1,LsuL1Plugin_logic_writeback_push_payload_address_i__0_n_2,LsuL1Plugin_logic_writeback_push_payload_address_i__0_n_3,LsuL1Plugin_logic_writeback_push_payload_address_i__0_n_4,LsuL1Plugin_logic_writeback_push_payload_address_i__0_n_5,LsuL1Plugin_logic_writeback_push_payload_address_i__0_n_6,LsuL1Plugin_logic_writeback_push_payload_address_i__0_n_7,LsuL1Plugin_logic_writeback_push_payload_address_i__0_n_8,LsuL1Plugin_logic_writeback_push_payload_address_i__0_n_9,LsuL1Plugin_logic_writeback_push_payload_address_i__0_n_10,LsuL1Plugin_logic_writeback_push_payload_address_i__0_n_11,LsuL1Plugin_logic_writeback_push_payload_address_i__0_n_12,LsuL1Plugin_logic_writeback_push_payload_address_i__0_n_13,LsuL1Plugin_logic_writeback_push_payload_address_i__0_n_14,LsuL1Plugin_logic_writeback_push_payload_address_i__0_n_15,LsuL1Plugin_logic_writeback_push_payload_address_i__0_n_16,LsuL1Plugin_logic_writeback_push_payload_address_i__0_n_17,LsuL1Plugin_logic_writeback_push_payload_address_i__0_n_18,LsuL1Plugin_logic_writeback_push_payload_address_i__0_n_19,LsuL1Plugin_logic_writeback_push_payload_address_i__0_n_20,LsuL1Plugin_logic_writeback_push_payload_address_i__0_n_21,LsuL1Plugin_logic_writeback_push_payload_address_i__0_n_22,LsuL1Plugin_logic_writeback_push_payload_address_i__0_n_23,LsuL1Plugin_logic_writeback_push_payload_address_i__0_n_24,LsuL1Plugin_logic_writeback_push_payload_address_i__0_n_25,LsuL1Plugin_logic_writeback_push_payload_address_i__0_n_26,LsuL1Plugin_logic_writeback_push_payload_address_i__0_n_27,LsuL1Plugin_logic_writeback_push_payload_address_i__0_n_28,LsuL1Plugin_logic_writeback_push_payload_address_i__0_n_29,LsuL1Plugin_logic_writeback_push_payload_address_i__0_n_30,LsuL1Plugin_logic_writeback_push_payload_address_i__0_n_31}),
+.I1({LsuL1Plugin_logic_writeback_push_payload_address_i_n_0,LsuL1Plugin_logic_writeback_push_payload_address_i_n_1,LsuL1Plugin_logic_writeback_push_payload_address_i_n_2,LsuL1Plugin_logic_writeback_push_payload_address_i_n_3,LsuL1Plugin_logic_writeback_push_payload_address_i_n_4,LsuL1Plugin_logic_writeback_push_payload_address_i_n_5,LsuL1Plugin_logic_writeback_push_payload_address_i_n_6,LsuL1Plugin_logic_writeback_push_payload_address_i_n_7,LsuL1Plugin_logic_writeback_push_payload_address_i_n_8,LsuL1Plugin_logic_writeback_push_payload_address_i_n_9,LsuL1Plugin_logic_writeback_push_payload_address_i_n_10,LsuL1Plugin_logic_writeback_push_payload_address_i_n_11,LsuL1Plugin_logic_writeback_push_payload_address_i_n_12,LsuL1Plugin_logic_writeback_push_payload_address_i_n_13,LsuL1Plugin_logic_writeback_push_payload_address_i_n_14,LsuL1Plugin_logic_writeback_push_payload_address_i_n_15,LsuL1Plugin_logic_writeback_push_payload_address_i_n_16,LsuL1Plugin_logic_writeback_push_payload_address_i_n_17,LsuL1Plugin_logic_writeback_push_payload_address_i_n_18,LsuL1Plugin_logic_writeback_push_payload_address_i_n_19,LsuL1Plugin_logic_writeback_push_payload_address_i_n_20,LsuL1Plugin_logic_writeback_push_payload_address_i_n_21,LsuL1Plugin_logic_writeback_push_payload_address_i_n_22,LsuL1Plugin_logic_writeback_push_payload_address_i_n_23,LsuL1Plugin_logic_writeback_push_payload_address_i_n_24,LsuL1Plugin_logic_writeback_push_payload_address_i_n_25,LsuL1Plugin_logic_writeback_push_payload_address_i_n_26,LsuL1Plugin_logic_writeback_push_payload_address_i_n_27,LsuL1Plugin_logic_writeback_push_payload_address_i_n_28,LsuL1Plugin_logic_writeback_push_payload_address_i_n_29,LsuL1Plugin_logic_writeback_push_payload_address_i_n_30,LsuL1Plugin_logic_writeback_push_payload_address_i_n_31}),
+.O({LsuL1Plugin_logic_writeback_push_payload_address_i__1_n_0,LsuL1Plugin_logic_writeback_push_payload_address_i__1_n_1,LsuL1Plugin_logic_writeback_push_payload_address_i__1_n_2,LsuL1Plugin_logic_writeback_push_payload_address_i__1_n_3,LsuL1Plugin_logic_writeback_push_payload_address_i__1_n_4,LsuL1Plugin_logic_writeback_push_payload_address_i__1_n_5,LsuL1Plugin_logic_writeback_push_payload_address_i__1_n_6,LsuL1Plugin_logic_writeback_push_payload_address_i__1_n_7,LsuL1Plugin_logic_writeback_push_payload_address_i__1_n_8,LsuL1Plugin_logic_writeback_push_payload_address_i__1_n_9,LsuL1Plugin_logic_writeback_push_payload_address_i__1_n_10,LsuL1Plugin_logic_writeback_push_payload_address_i__1_n_11,LsuL1Plugin_logic_writeback_push_payload_address_i__1_n_12,LsuL1Plugin_logic_writeback_push_payload_address_i__1_n_13,LsuL1Plugin_logic_writeback_push_payload_address_i__1_n_14,LsuL1Plugin_logic_writeback_push_payload_address_i__1_n_15,LsuL1Plugin_logic_writeback_push_payload_address_i__1_n_16,LsuL1Plugin_logic_writeback_push_payload_address_i__1_n_17,LsuL1Plugin_logic_writeback_push_payload_address_i__1_n_18,LsuL1Plugin_logic_writeback_push_payload_address_i__1_n_19,LsuL1Plugin_logic_writeback_push_payload_address_i__1_n_20,LsuL1Plugin_logic_writeback_push_payload_address_i__1_n_21,LsuL1Plugin_logic_writeback_push_payload_address_i__1_n_22,LsuL1Plugin_logic_writeback_push_payload_address_i__1_n_23,LsuL1Plugin_logic_writeback_push_payload_address_i__1_n_24,LsuL1Plugin_logic_writeback_push_payload_address_i__1_n_25,LsuL1Plugin_logic_writeback_push_payload_address_i__1_n_26,LsuL1Plugin_logic_writeback_push_payload_address_i__1_n_27,LsuL1Plugin_logic_writeback_push_payload_address_i__1_n_28,LsuL1Plugin_logic_writeback_push_payload_address_i__1_n_29,LsuL1Plugin_logic_writeback_push_payload_address_i__1_n_30,LsuL1Plugin_logic_writeback_push_payload_address_i__1_n_31}),
+.S(when_LsuL1Plugin_l1168));
+RTL_MUX374 LsuL1Plugin_logic_writeback_push_payload_address_i__2
+(.I0({LsuL1Plugin_logic_writeback_push_payload_address_i__1_n_0,LsuL1Plugin_logic_writeback_push_payload_address_i__1_n_1,LsuL1Plugin_logic_writeback_push_payload_address_i__1_n_2,LsuL1Plugin_logic_writeback_push_payload_address_i__1_n_3,LsuL1Plugin_logic_writeback_push_payload_address_i__1_n_4,LsuL1Plugin_logic_writeback_push_payload_address_i__1_n_5,LsuL1Plugin_logic_writeback_push_payload_address_i__1_n_6,LsuL1Plugin_logic_writeback_push_payload_address_i__1_n_7,LsuL1Plugin_logic_writeback_push_payload_address_i__1_n_8,LsuL1Plugin_logic_writeback_push_payload_address_i__1_n_9,LsuL1Plugin_logic_writeback_push_payload_address_i__1_n_10,LsuL1Plugin_logic_writeback_push_payload_address_i__1_n_11,LsuL1Plugin_logic_writeback_push_payload_address_i__1_n_12,LsuL1Plugin_logic_writeback_push_payload_address_i__1_n_13,LsuL1Plugin_logic_writeback_push_payload_address_i__1_n_14,LsuL1Plugin_logic_writeback_push_payload_address_i__1_n_15,LsuL1Plugin_logic_writeback_push_payload_address_i__1_n_16,LsuL1Plugin_logic_writeback_push_payload_address_i__1_n_17,LsuL1Plugin_logic_writeback_push_payload_address_i__1_n_18,LsuL1Plugin_logic_writeback_push_payload_address_i__1_n_19,LsuL1Plugin_logic_writeback_push_payload_address_i__1_n_20,LsuL1Plugin_logic_writeback_push_payload_address_i__1_n_21,LsuL1Plugin_logic_writeback_push_payload_address_i__1_n_22,LsuL1Plugin_logic_writeback_push_payload_address_i__1_n_23,LsuL1Plugin_logic_writeback_push_payload_address_i__1_n_24,LsuL1Plugin_logic_writeback_push_payload_address_i__1_n_25,LsuL1Plugin_logic_writeback_push_payload_address_i__1_n_26,LsuL1Plugin_logic_writeback_push_payload_address_i__1_n_27,LsuL1Plugin_logic_writeback_push_payload_address_i__1_n_28,LsuL1Plugin_logic_writeback_push_payload_address_i__1_n_29,LsuL1Plugin_logic_writeback_push_payload_address_i__1_n_30,LsuL1Plugin_logic_writeback_push_payload_address_i__1_n_31}),
+.I1({LsuL1Plugin_logic_writeback_push_payload_address_i_n_0,LsuL1Plugin_logic_writeback_push_payload_address_i_n_1,LsuL1Plugin_logic_writeback_push_payload_address_i_n_2,LsuL1Plugin_logic_writeback_push_payload_address_i_n_3,LsuL1Plugin_logic_writeback_push_payload_address_i_n_4,LsuL1Plugin_logic_writeback_push_payload_address_i_n_5,LsuL1Plugin_logic_writeback_push_payload_address_i_n_6,LsuL1Plugin_logic_writeback_push_payload_address_i_n_7,LsuL1Plugin_logic_writeback_push_payload_address_i_n_8,LsuL1Plugin_logic_writeback_push_payload_address_i_n_9,LsuL1Plugin_logic_writeback_push_payload_address_i_n_10,LsuL1Plugin_logic_writeback_push_payload_address_i_n_11,LsuL1Plugin_logic_writeback_push_payload_address_i_n_12,LsuL1Plugin_logic_writeback_push_payload_address_i_n_13,LsuL1Plugin_logic_writeback_push_payload_address_i_n_14,LsuL1Plugin_logic_writeback_push_payload_address_i_n_15,LsuL1Plugin_logic_writeback_push_payload_address_i_n_16,LsuL1Plugin_logic_writeback_push_payload_address_i_n_17,LsuL1Plugin_logic_writeback_push_payload_address_i_n_18,LsuL1Plugin_logic_writeback_push_payload_address_i_n_19,LsuL1Plugin_logic_writeback_push_payload_address_i_n_20,LsuL1Plugin_logic_writeback_push_payload_address_i_n_21,LsuL1Plugin_logic_writeback_push_payload_address_i_n_22,LsuL1Plugin_logic_writeback_push_payload_address_i_n_23,LsuL1Plugin_logic_writeback_push_payload_address_i_n_24,LsuL1Plugin_logic_writeback_push_payload_address_i_n_25,LsuL1Plugin_logic_writeback_push_payload_address_i_n_26,LsuL1Plugin_logic_writeback_push_payload_address_i_n_27,LsuL1Plugin_logic_writeback_push_payload_address_i_n_28,LsuL1Plugin_logic_writeback_push_payload_address_i_n_29,LsuL1Plugin_logic_writeback_push_payload_address_i_n_30,LsuL1Plugin_logic_writeback_push_payload_address_i_n_31}),
+.O({LsuL1Plugin_logic_writeback_push_payload_address_i__2_n_0,LsuL1Plugin_logic_writeback_push_payload_address_i__2_n_1,LsuL1Plugin_logic_writeback_push_payload_address_i__2_n_2,LsuL1Plugin_logic_writeback_push_payload_address_i__2_n_3,LsuL1Plugin_logic_writeback_push_payload_address_i__2_n_4,LsuL1Plugin_logic_writeback_push_payload_address_i__2_n_5,LsuL1Plugin_logic_writeback_push_payload_address_i__2_n_6,LsuL1Plugin_logic_writeback_push_payload_address_i__2_n_7,LsuL1Plugin_logic_writeback_push_payload_address_i__2_n_8,LsuL1Plugin_logic_writeback_push_payload_address_i__2_n_9,LsuL1Plugin_logic_writeback_push_payload_address_i__2_n_10,LsuL1Plugin_logic_writeback_push_payload_address_i__2_n_11,LsuL1Plugin_logic_writeback_push_payload_address_i__2_n_12,LsuL1Plugin_logic_writeback_push_payload_address_i__2_n_13,LsuL1Plugin_logic_writeback_push_payload_address_i__2_n_14,LsuL1Plugin_logic_writeback_push_payload_address_i__2_n_15,LsuL1Plugin_logic_writeback_push_payload_address_i__2_n_16,LsuL1Plugin_logic_writeback_push_payload_address_i__2_n_17,LsuL1Plugin_logic_writeback_push_payload_address_i__2_n_18,LsuL1Plugin_logic_writeback_push_payload_address_i__2_n_19,LsuL1Plugin_logic_writeback_push_payload_address_i__2_n_20,LsuL1Plugin_logic_writeback_push_payload_address_i__2_n_21,LsuL1Plugin_logic_writeback_push_payload_address_i__2_n_22,LsuL1Plugin_logic_writeback_push_payload_address_i__2_n_23,LsuL1Plugin_logic_writeback_push_payload_address_i__2_n_24,LsuL1Plugin_logic_writeback_push_payload_address_i__2_n_25,LsuL1Plugin_logic_writeback_push_payload_address_i__2_n_26,LsuL1Plugin_logic_writeback_push_payload_address_i__2_n_27,LsuL1Plugin_logic_writeback_push_payload_address_i__2_n_28,LsuL1Plugin_logic_writeback_push_payload_address_i__2_n_29,LsuL1Plugin_logic_writeback_push_payload_address_i__2_n_30,LsuL1Plugin_logic_writeback_push_payload_address_i__2_n_31}),
+.S(LsuL1Plugin_logic_c_pip_ctrl_2_down_LsuL1_HAZARD));
+RTL_MUX374 LsuL1Plugin_logic_writeback_push_payload_address_i__3
+(.I0({LsuL1Plugin_logic_writeback_push_payload_address_i__2_n_0,LsuL1Plugin_logic_writeback_push_payload_address_i__2_n_1,LsuL1Plugin_logic_writeback_push_payload_address_i__2_n_2,LsuL1Plugin_logic_writeback_push_payload_address_i__2_n_3,LsuL1Plugin_logic_writeback_push_payload_address_i__2_n_4,LsuL1Plugin_logic_writeback_push_payload_address_i__2_n_5,LsuL1Plugin_logic_writeback_push_payload_address_i__2_n_6,LsuL1Plugin_logic_writeback_push_payload_address_i__2_n_7,LsuL1Plugin_logic_writeback_push_payload_address_i__2_n_8,LsuL1Plugin_logic_writeback_push_payload_address_i__2_n_9,LsuL1Plugin_logic_writeback_push_payload_address_i__2_n_10,LsuL1Plugin_logic_writeback_push_payload_address_i__2_n_11,LsuL1Plugin_logic_writeback_push_payload_address_i__2_n_12,LsuL1Plugin_logic_writeback_push_payload_address_i__2_n_13,LsuL1Plugin_logic_writeback_push_payload_address_i__2_n_14,LsuL1Plugin_logic_writeback_push_payload_address_i__2_n_15,LsuL1Plugin_logic_writeback_push_payload_address_i__2_n_16,LsuL1Plugin_logic_writeback_push_payload_address_i__2_n_17,LsuL1Plugin_logic_writeback_push_payload_address_i__2_n_18,LsuL1Plugin_logic_writeback_push_payload_address_i__2_n_19,LsuL1Plugin_logic_writeback_push_payload_address_i__2_n_20,LsuL1Plugin_logic_writeback_push_payload_address_i__2_n_21,LsuL1Plugin_logic_writeback_push_payload_address_i__2_n_22,LsuL1Plugin_logic_writeback_push_payload_address_i__2_n_23,LsuL1Plugin_logic_writeback_push_payload_address_i__2_n_24,LsuL1Plugin_logic_writeback_push_payload_address_i__2_n_25,LsuL1Plugin_logic_writeback_push_payload_address_i__2_n_26,LsuL1Plugin_logic_writeback_push_payload_address_i__2_n_27,LsuL1Plugin_logic_writeback_push_payload_address_i__2_n_28,LsuL1Plugin_logic_writeback_push_payload_address_i__2_n_29,LsuL1Plugin_logic_writeback_push_payload_address_i__2_n_30,LsuL1Plugin_logic_writeback_push_payload_address_i__2_n_31}),
+.I1({LsuL1Plugin_logic_writeback_push_payload_address_i_n_0,LsuL1Plugin_logic_writeback_push_payload_address_i_n_1,LsuL1Plugin_logic_writeback_push_payload_address_i_n_2,LsuL1Plugin_logic_writeback_push_payload_address_i_n_3,LsuL1Plugin_logic_writeback_push_payload_address_i_n_4,LsuL1Plugin_logic_writeback_push_payload_address_i_n_5,LsuL1Plugin_logic_writeback_push_payload_address_i_n_6,LsuL1Plugin_logic_writeback_push_payload_address_i_n_7,LsuL1Plugin_logic_writeback_push_payload_address_i_n_8,LsuL1Plugin_logic_writeback_push_payload_address_i_n_9,LsuL1Plugin_logic_writeback_push_payload_address_i_n_10,LsuL1Plugin_logic_writeback_push_payload_address_i_n_11,LsuL1Plugin_logic_writeback_push_payload_address_i_n_12,LsuL1Plugin_logic_writeback_push_payload_address_i_n_13,LsuL1Plugin_logic_writeback_push_payload_address_i_n_14,LsuL1Plugin_logic_writeback_push_payload_address_i_n_15,LsuL1Plugin_logic_writeback_push_payload_address_i_n_16,LsuL1Plugin_logic_writeback_push_payload_address_i_n_17,LsuL1Plugin_logic_writeback_push_payload_address_i_n_18,LsuL1Plugin_logic_writeback_push_payload_address_i_n_19,LsuL1Plugin_logic_writeback_push_payload_address_i_n_20,LsuL1Plugin_logic_writeback_push_payload_address_i_n_21,LsuL1Plugin_logic_writeback_push_payload_address_i_n_22,LsuL1Plugin_logic_writeback_push_payload_address_i_n_23,LsuL1Plugin_logic_writeback_push_payload_address_i_n_24,LsuL1Plugin_logic_writeback_push_payload_address_i_n_25,LsuL1Plugin_logic_writeback_push_payload_address_i_n_26,LsuL1Plugin_logic_writeback_push_payload_address_i_n_27,LsuL1Plugin_logic_writeback_push_payload_address_i_n_28,LsuL1Plugin_logic_writeback_push_payload_address_i_n_29,LsuL1Plugin_logic_writeback_push_payload_address_i_n_30,LsuL1Plugin_logic_writeback_push_payload_address_i_n_31}),
+.O(LsuL1Plugin_logic_writeback_push_payload_address),
+.S(LsuL1Plugin_logic_c_pip_ctrl_2_up_valid));
+RTL_MUX LsuL1Plugin_logic_writeback_push_payload_c_dirty_i
+(.I0(LsuL1Plugin_logic_lsu_ctrl_refillWayWasDirty),
+.I1(execute_ctrl4_up_LsuL1Plugin_logic_SHARED_lane0_dirty),
+.O(LsuL1Plugin_logic_writeback_push_payload_c_dirty_i_n_0),
+.S(LsuL1Plugin_logic_lsu_ctrl_doRefill));
+RTL_MUX LsuL1Plugin_logic_writeback_push_payload_c_dirty_i__0
+(.I0(LsuL1Plugin_logic_c_pip_ctrl_2_up_onPreCtrl_HIT_DIRTY),
+.I1(LsuL1Plugin_logic_writeback_push_payload_c_dirty_i_n_0),
+.O(LsuL1Plugin_logic_writeback_push_payload_c_dirty_i__0_n_0),
+.S(when_LsuL1Plugin_l1170));
+RTL_MUX LsuL1Plugin_logic_writeback_push_payload_c_dirty_i__1
+(.I0(LsuL1Plugin_logic_writeback_push_payload_c_dirty_i__0_n_0),
+.I1(LsuL1Plugin_logic_writeback_push_payload_c_dirty_i_n_0),
+.O(LsuL1Plugin_logic_writeback_push_payload_c_dirty_i__1_n_0),
+.S(when_LsuL1Plugin_l1168));
+RTL_MUX LsuL1Plugin_logic_writeback_push_payload_c_dirty_i__2
+(.I0(LsuL1Plugin_logic_writeback_push_payload_c_dirty_i__1_n_0),
+.I1(LsuL1Plugin_logic_writeback_push_payload_c_dirty_i_n_0),
+.O(LsuL1Plugin_logic_writeback_push_payload_c_dirty_i__2_n_0),
+.S(LsuL1Plugin_logic_c_pip_ctrl_2_down_LsuL1_HAZARD));
+RTL_MUX LsuL1Plugin_logic_writeback_push_payload_c_dirty_i__3
+(.I0(LsuL1Plugin_logic_writeback_push_payload_c_dirty_i__2_n_0),
+.I1(LsuL1Plugin_logic_writeback_push_payload_c_dirty_i_n_0),
+.O(LsuL1Plugin_logic_writeback_push_payload_c_dirty),
+.S(LsuL1Plugin_logic_c_pip_ctrl_2_up_valid));
+RTL_MUX LsuL1Plugin_logic_writeback_push_payload_c_fromUnique_i
+(.I0(LsuL1Plugin_logic_c_pip_ctrl_2_up_onPreCtrl_HIT_UNIQUE),
+.I1(execute_ctrl4_up_LsuL1Plugin_logic_WAYS_TAGS_lane0_0_unique),
+.O(LsuL1Plugin_logic_writeback_push_payload_c_fromUnique_i_n_0),
+.S(when_LsuL1Plugin_l1170));
+RTL_MUX LsuL1Plugin_logic_writeback_push_payload_c_fromUnique_i__0
+(.I0(LsuL1Plugin_logic_writeback_push_payload_c_fromUnique_i_n_0),
+.I1(execute_ctrl4_up_LsuL1Plugin_logic_WAYS_TAGS_lane0_0_unique),
+.O(LsuL1Plugin_logic_writeback_push_payload_c_fromUnique_i__0_n_0),
+.S(when_LsuL1Plugin_l1168));
+RTL_MUX LsuL1Plugin_logic_writeback_push_payload_c_fromUnique_i__1
+(.I0(LsuL1Plugin_logic_writeback_push_payload_c_fromUnique_i__0_n_0),
+.I1(execute_ctrl4_up_LsuL1Plugin_logic_WAYS_TAGS_lane0_0_unique),
+.O(LsuL1Plugin_logic_writeback_push_payload_c_fromUnique_i__1_n_0),
+.S(LsuL1Plugin_logic_c_pip_ctrl_2_down_LsuL1_HAZARD));
+RTL_MUX LsuL1Plugin_logic_writeback_push_payload_c_fromUnique_i__2
+(.I0(LsuL1Plugin_logic_writeback_push_payload_c_fromUnique_i__1_n_0),
+.I1(execute_ctrl4_up_LsuL1Plugin_logic_WAYS_TAGS_lane0_0_unique),
+.O(LsuL1Plugin_logic_writeback_push_payload_c_fromUnique),
+.S(LsuL1Plugin_logic_c_pip_ctrl_2_up_valid));
+RTL_MUX LsuL1Plugin_logic_writeback_push_payload_c_release_i
+(.I0(\<const1> ),
+.I1(LsuL1Plugin_logic_lsu_ctrl_doFlush),
+.O(LsuL1Plugin_logic_writeback_push_payload_c_release),
+.S(LsuL1Plugin_logic_lsu_ctrl_doRefill));
+RTL_MUX LsuL1Plugin_logic_writeback_push_payload_c_release_i__0
+(.I0(\<const1> ),
+.I1(\<const0> ),
+.O(LsuL1Plugin_logic_writeback_push_payload_c_release_i__0_n_0),
+.S(when_LsuL1Plugin_l1170));
+RTL_MUX LsuL1Plugin_logic_writeback_push_payload_c_release_i__1
+(.I0(LsuL1Plugin_logic_writeback_push_payload_c_release_i__0_n_0),
+.I1(\<const0> ),
+.O(LsuL1Plugin_logic_writeback_push_payload_c_release_i__1_n_0),
+.S(when_LsuL1Plugin_l1168));
+RTL_MUX LsuL1Plugin_logic_writeback_push_payload_c_release_i__2
+(.I0(LsuL1Plugin_logic_writeback_push_payload_c_release_i__1_n_0),
+.I1(\<const0> ),
+.O(LsuL1Plugin_logic_writeback_push_payload_c_release_i__2_n_0),
+.S(LsuL1Plugin_logic_c_pip_ctrl_2_down_LsuL1_HAZARD));
+RTL_MUX LsuL1Plugin_logic_writeback_push_payload_c_release_i__3
+(.I0(LsuL1Plugin_logic_writeback_push_payload_c_release_i__2_n_0),
+.I1(\<const0> ),
+.O(LsuL1Plugin_logic_writeback_push_payload_c_release_i__3_n_0),
+.S(LsuL1Plugin_logic_c_pip_ctrl_2_up_valid));
+RTL_AND7 LsuL1Plugin_logic_writeback_push_payload_c_toShared0_i
+(.I0(LsuL1Plugin_logic_c_pip_ctrl_2_up_ALLOW_SHARED),
+.I1(LsuL1Plugin_logic_bus_probe_rsp_payload_toShared0_i__0_n_0),
+.O(LsuL1Plugin_logic_writeback_push_payload_c_toShared0));
+RTL_INV LsuL1Plugin_logic_writeback_push_payload_c_toShared0_i__0
+(.I0(execute_ctrl4_up_LsuL1Plugin_logic_WAYS_TAGS_lane0_0_unique),
+.O(LsuL1Plugin_logic_writeback_push_payload_c_toShared0_i__0_n_0));
+RTL_MUX LsuL1Plugin_logic_writeback_push_payload_c_toShared_i
+(.I0(\<const0> ),
+.I1(LsuL1Plugin_logic_writeback_push_payload_c_toShared0_i__0_n_0),
+.O(LsuL1Plugin_logic_writeback_push_payload_c_toShared_i_n_0),
+.S(LsuL1Plugin_logic_lsu_ctrl_doRefill));
+RTL_MUX LsuL1Plugin_logic_writeback_push_payload_c_toShared_i__0
+(.I0(LsuL1Plugin_logic_writeback_push_payload_c_toShared0),
+.I1(LsuL1Plugin_logic_writeback_push_payload_c_toShared_i_n_0),
+.O(LsuL1Plugin_logic_writeback_push_payload_c_toShared_i__0_n_0),
+.S(when_LsuL1Plugin_l1170));
+RTL_MUX LsuL1Plugin_logic_writeback_push_payload_c_toShared_i__1
+(.I0(LsuL1Plugin_logic_writeback_push_payload_c_toShared_i__0_n_0),
+.I1(LsuL1Plugin_logic_writeback_push_payload_c_toShared_i_n_0),
+.O(LsuL1Plugin_logic_writeback_push_payload_c_toShared_i__1_n_0),
+.S(when_LsuL1Plugin_l1168));
+RTL_MUX LsuL1Plugin_logic_writeback_push_payload_c_toShared_i__2
+(.I0(LsuL1Plugin_logic_writeback_push_payload_c_toShared_i__1_n_0),
+.I1(LsuL1Plugin_logic_writeback_push_payload_c_toShared_i_n_0),
+.O(LsuL1Plugin_logic_writeback_push_payload_c_toShared_i__2_n_0),
+.S(LsuL1Plugin_logic_c_pip_ctrl_2_down_LsuL1_HAZARD));
+RTL_MUX LsuL1Plugin_logic_writeback_push_payload_c_toShared_i__3
+(.I0(LsuL1Plugin_logic_writeback_push_payload_c_toShared_i__2_n_0),
+.I1(LsuL1Plugin_logic_writeback_push_payload_c_toShared_i_n_0),
+.O(LsuL1Plugin_logic_writeback_push_payload_c_toShared),
+.S(LsuL1Plugin_logic_c_pip_ctrl_2_up_valid));
+RTL_MUX LsuL1Plugin_logic_writeback_push_payload_c_toUnique_i
+(.I0(LsuL1Plugin_logic_bus_probe_rsp_payload_toShared1),
+.I1(\<const0> ),
+.O(LsuL1Plugin_logic_writeback_push_payload_c_toUnique_i_n_0),
+.S(when_LsuL1Plugin_l1170));
+RTL_MUX LsuL1Plugin_logic_writeback_push_payload_c_toUnique_i__0
+(.I0(LsuL1Plugin_logic_writeback_push_payload_c_toUnique_i_n_0),
+.I1(\<const0> ),
+.O(LsuL1Plugin_logic_writeback_push_payload_c_toUnique_i__0_n_0),
+.S(when_LsuL1Plugin_l1168));
+RTL_MUX LsuL1Plugin_logic_writeback_push_payload_c_toUnique_i__1
+(.I0(LsuL1Plugin_logic_writeback_push_payload_c_toUnique_i__0_n_0),
+.I1(\<const0> ),
+.O(LsuL1Plugin_logic_writeback_push_payload_c_toUnique_i__1_n_0),
+.S(LsuL1Plugin_logic_c_pip_ctrl_2_down_LsuL1_HAZARD));
+RTL_MUX LsuL1Plugin_logic_writeback_push_payload_c_toUnique_i__2
+(.I0(LsuL1Plugin_logic_writeback_push_payload_c_toUnique_i__1_n_0),
+.I1(\<const0> ),
+.O(LsuL1Plugin_logic_writeback_push_payload_c_toUnique),
+.S(LsuL1Plugin_logic_c_pip_ctrl_2_up_valid));
+RTL_MUX LsuL1Plugin_logic_writeback_push_valid_i
+(.I0(LsuL1Plugin_logic_lsu_ctrl_refillWayNeedWriteback),
+.I1(LsuL1Plugin_logic_lsu_ctrl_doFlush),
+.O(LsuL1Plugin_logic_writeback_push_valid_i_n_0),
+.S(LsuL1Plugin_logic_lsu_ctrl_doRefill));
+RTL_MUX LsuL1Plugin_logic_writeback_push_valid_i__0
+(.I0(\<const0> ),
+.I1(LsuL1Plugin_logic_writeback_push_valid_i_n_0),
+.O(LsuL1Plugin_logic_writeback_push_valid_i__0_n_0),
+.S(LsuL1Plugin_logic_lsu_ctrl_preventSideEffects));
+RTL_MUX LsuL1Plugin_logic_writeback_push_valid_i__1
+(.I0(\<const1> ),
+.I1(LsuL1Plugin_logic_writeback_push_valid_i__0_n_0),
+.O(LsuL1Plugin_logic_writeback_push_valid_i__1_n_0),
+.S(LsuL1Plugin_logic_c_pip_ctrl_2_up_onPreCtrl_ASK_DATA));
+RTL_MUX LsuL1Plugin_logic_writeback_push_valid_i__2
+(.I0(LsuL1Plugin_logic_writeback_push_valid_i__1_n_0),
+.I1(LsuL1Plugin_logic_writeback_push_valid_i__0_n_0),
+.O(LsuL1Plugin_logic_writeback_push_valid_i__2_n_0),
+.S(when_LsuL1Plugin_l1170));
+RTL_MUX LsuL1Plugin_logic_writeback_push_valid_i__3
+(.I0(LsuL1Plugin_logic_writeback_push_valid_i__2_n_0),
+.I1(LsuL1Plugin_logic_writeback_push_valid_i__0_n_0),
+.O(LsuL1Plugin_logic_writeback_push_valid_i__3_n_0),
+.S(when_LsuL1Plugin_l1168));
+RTL_MUX LsuL1Plugin_logic_writeback_push_valid_i__4
+(.I0(LsuL1Plugin_logic_writeback_push_valid_i__3_n_0),
+.I1(LsuL1Plugin_logic_writeback_push_valid_i__0_n_0),
+.O(LsuL1Plugin_logic_writeback_push_valid_i__4_n_0),
+.S(LsuL1Plugin_logic_c_pip_ctrl_2_down_LsuL1_HAZARD));
+RTL_MUX LsuL1Plugin_logic_writeback_push_valid_i__5
+(.I0(LsuL1Plugin_logic_writeback_push_valid_i__4_n_0),
+.I1(LsuL1Plugin_logic_writeback_push_valid_i__0_n_0),
+.O(LsuL1Plugin_logic_writeback_push_valid),
+.S(LsuL1Plugin_logic_c_pip_ctrl_2_up_valid));
+RTL_REDUCTION_OR149 LsuL1Plugin_logic_writeback_read_arbiter_hit_i
+(.I0(LsuL1Plugin_logic_writeback_read_arbiter_hits),
+.O(_zz_LsuL1Plugin_logic_writeback_read_wordIndex));
+RTL_MUX LsuL1Plugin_logic_writeback_read_arbiter_lock_i
+(.I0(\<const0> ),
+.I1(LsuL1Plugin_logic_writeback_read_arbiter_oh),
+.O(LsuL1Plugin_logic_writeback_read_arbiter_lock__0),
+.S(when_LsuL1Plugin_l608));
+RTL_REG_ASYNC__BREG_1423 \LsuL1Plugin_logic_writeback_read_arbiter_lock_reg[0]
+(.C(litex_clk),
+.CLR(cpuResetCtrl_reset),
+.D(LsuL1Plugin_logic_writeback_read_arbiter_lock__0),
+.Q(LsuL1Plugin_logic_writeback_read_arbiter_lock));
+RTL_MUX LsuL1Plugin_logic_writeback_read_arbiter_oh_i
+(.I0(LsuL1Plugin_logic_writeback_read_arbiter_lock),
+.I1(LsuL1Plugin_logic_writeback_read_arbiter_hits),
+.O(LsuL1Plugin_logic_writeback_read_arbiter_oh),
+.S(when_LsuL1Plugin_l303_1));
+RTL_INV LsuL1Plugin_logic_writeback_read_arbiter_slotsWithId_0_00_i
+(.I0(LsuL1Plugin_logic_writeback_slots_0_readCmdDone),
+.O(LsuL1Plugin_logic_writeback_read_arbiter_slotsWithId_0_00));
+RTL_AND7 LsuL1Plugin_logic_writeback_read_arbiter_slotsWithId_0_0_i
+(.I0(LsuL1Plugin_logic_writeback_slots_0_valid),
+.I1(LsuL1Plugin_logic_writeback_read_arbiter_slotsWithId_0_00),
+.O(LsuL1Plugin_logic_writeback_read_arbiter_hits));
+RTL_REG__BREG_67 \LsuL1Plugin_logic_writeback_read_slotReadLast_payload_wordIndex_reg[0]
+(.C(litex_clk),
+.D(LsuL1Plugin_logic_writeback_read_wordIndex[0]),
+.Q(LsuL1Plugin_logic_writeback_read_slotReadLast_payload_wordIndex[0]));
+RTL_REG__BREG_67 \LsuL1Plugin_logic_writeback_read_slotReadLast_payload_wordIndex_reg[1]
+(.C(litex_clk),
+.D(LsuL1Plugin_logic_writeback_read_wordIndex[1]),
+.Q(LsuL1Plugin_logic_writeback_read_slotReadLast_payload_wordIndex[1]));
+RTL_REG__BREG_67 \LsuL1Plugin_logic_writeback_read_slotReadLast_payload_wordIndex_reg[2]
+(.C(litex_clk),
+.D(LsuL1Plugin_logic_writeback_read_wordIndex[2]),
+.Q(LsuL1Plugin_logic_writeback_read_slotReadLast_payload_wordIndex[2]));
+RTL_REG__BREG_67 \LsuL1Plugin_logic_writeback_read_slotReadLast_payload_wordIndex_reg[3]
+(.C(litex_clk),
+.D(LsuL1Plugin_logic_writeback_read_wordIndex[3]),
+.Q(LsuL1Plugin_logic_writeback_read_slotReadLast_payload_wordIndex[3]));
+RTL_REG_ASYNC__BREG_1423 LsuL1Plugin_logic_writeback_read_slotReadLast_valid_reg
+(.C(litex_clk),
+.CLR(cpuResetCtrl_reset),
+.D(_zz_LsuL1Plugin_logic_writeback_read_wordIndex),
+.Q(LsuL1Plugin_logic_writeback_read_slotReadLast_valid));
+RTL_EQ5 LsuL1Plugin_logic_writeback_read_slotRead_payload_last_i
+(.I0(LsuL1Plugin_logic_writeback_read_wordIndex),
+.I1({\<const1> ,\<const1> ,\<const1> ,\<const1> }),
+.O(LsuL1Plugin_logic_writeback_read_slotRead_payload_last));
+RTL_ADD99 LsuL1Plugin_logic_writeback_read_wordIndex_reg0_i
+(.I0(LsuL1Plugin_logic_writeback_read_wordIndex),
+.I1({\<const0> ,\<const0> ,\<const0> ,_zz_LsuL1Plugin_logic_writeback_read_wordIndex}),
+.O(LsuL1Plugin_logic_writeback_read_wordIndex_reg0));
+RTL_REG_ASYNC__BREG_1423 \LsuL1Plugin_logic_writeback_read_wordIndex_reg[0]
+(.C(litex_clk),
+.CLR(cpuResetCtrl_reset),
+.D(LsuL1Plugin_logic_writeback_read_wordIndex_reg0[0]),
+.Q(LsuL1Plugin_logic_writeback_read_wordIndex[0]));
+RTL_REG_ASYNC__BREG_1423 \LsuL1Plugin_logic_writeback_read_wordIndex_reg[1]
+(.C(litex_clk),
+.CLR(cpuResetCtrl_reset),
+.D(LsuL1Plugin_logic_writeback_read_wordIndex_reg0[1]),
+.Q(LsuL1Plugin_logic_writeback_read_wordIndex[1]));
+RTL_REG_ASYNC__BREG_1423 \LsuL1Plugin_logic_writeback_read_wordIndex_reg[2]
+(.C(litex_clk),
+.CLR(cpuResetCtrl_reset),
+.D(LsuL1Plugin_logic_writeback_read_wordIndex_reg0[2]),
+.Q(LsuL1Plugin_logic_writeback_read_wordIndex[2]));
+RTL_REG_ASYNC__BREG_1423 \LsuL1Plugin_logic_writeback_read_wordIndex_reg[3]
+(.C(litex_clk),
+.CLR(cpuResetCtrl_reset),
+.D(LsuL1Plugin_logic_writeback_read_wordIndex_reg0[3]),
+.Q(LsuL1Plugin_logic_writeback_read_wordIndex[3]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_writeback_slots_0_address_reg[0]
+(.C(litex_clk),
+.CE(when_LsuL1Plugin_l564),
+.D(LsuL1Plugin_logic_writeback_push_payload_address[0]),
+.Q(LsuL1Plugin_logic_writeback_slots_0_address[0]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_writeback_slots_0_address_reg[10]
+(.C(litex_clk),
+.CE(when_LsuL1Plugin_l564),
+.D(LsuL1Plugin_logic_writeback_push_payload_address[10]),
+.Q(LsuL1Plugin_logic_writeback_slots_0_address[10]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_writeback_slots_0_address_reg[11]
+(.C(litex_clk),
+.CE(when_LsuL1Plugin_l564),
+.D(LsuL1Plugin_logic_writeback_push_payload_address[11]),
+.Q(LsuL1Plugin_logic_writeback_slots_0_address[11]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_writeback_slots_0_address_reg[12]
+(.C(litex_clk),
+.CE(when_LsuL1Plugin_l564),
+.D(LsuL1Plugin_logic_writeback_push_payload_address[12]),
+.Q(LsuL1Plugin_logic_writeback_slots_0_address[12]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_writeback_slots_0_address_reg[13]
+(.C(litex_clk),
+.CE(when_LsuL1Plugin_l564),
+.D(LsuL1Plugin_logic_writeback_push_payload_address[13]),
+.Q(LsuL1Plugin_logic_writeback_slots_0_address[13]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_writeback_slots_0_address_reg[14]
+(.C(litex_clk),
+.CE(when_LsuL1Plugin_l564),
+.D(LsuL1Plugin_logic_writeback_push_payload_address[14]),
+.Q(LsuL1Plugin_logic_writeback_slots_0_address[14]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_writeback_slots_0_address_reg[15]
+(.C(litex_clk),
+.CE(when_LsuL1Plugin_l564),
+.D(LsuL1Plugin_logic_writeback_push_payload_address[15]),
+.Q(LsuL1Plugin_logic_writeback_slots_0_address[15]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_writeback_slots_0_address_reg[16]
+(.C(litex_clk),
+.CE(when_LsuL1Plugin_l564),
+.D(LsuL1Plugin_logic_writeback_push_payload_address[16]),
+.Q(LsuL1Plugin_logic_writeback_slots_0_address[16]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_writeback_slots_0_address_reg[17]
+(.C(litex_clk),
+.CE(when_LsuL1Plugin_l564),
+.D(LsuL1Plugin_logic_writeback_push_payload_address[17]),
+.Q(LsuL1Plugin_logic_writeback_slots_0_address[17]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_writeback_slots_0_address_reg[18]
+(.C(litex_clk),
+.CE(when_LsuL1Plugin_l564),
+.D(LsuL1Plugin_logic_writeback_push_payload_address[18]),
+.Q(LsuL1Plugin_logic_writeback_slots_0_address[18]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_writeback_slots_0_address_reg[19]
+(.C(litex_clk),
+.CE(when_LsuL1Plugin_l564),
+.D(LsuL1Plugin_logic_writeback_push_payload_address[19]),
+.Q(LsuL1Plugin_logic_writeback_slots_0_address[19]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_writeback_slots_0_address_reg[1]
+(.C(litex_clk),
+.CE(when_LsuL1Plugin_l564),
+.D(LsuL1Plugin_logic_writeback_push_payload_address[1]),
+.Q(LsuL1Plugin_logic_writeback_slots_0_address[1]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_writeback_slots_0_address_reg[20]
+(.C(litex_clk),
+.CE(when_LsuL1Plugin_l564),
+.D(LsuL1Plugin_logic_writeback_push_payload_address[20]),
+.Q(LsuL1Plugin_logic_writeback_slots_0_address[20]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_writeback_slots_0_address_reg[21]
+(.C(litex_clk),
+.CE(when_LsuL1Plugin_l564),
+.D(LsuL1Plugin_logic_writeback_push_payload_address[21]),
+.Q(LsuL1Plugin_logic_writeback_slots_0_address[21]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_writeback_slots_0_address_reg[22]
+(.C(litex_clk),
+.CE(when_LsuL1Plugin_l564),
+.D(LsuL1Plugin_logic_writeback_push_payload_address[22]),
+.Q(LsuL1Plugin_logic_writeback_slots_0_address[22]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_writeback_slots_0_address_reg[23]
+(.C(litex_clk),
+.CE(when_LsuL1Plugin_l564),
+.D(LsuL1Plugin_logic_writeback_push_payload_address[23]),
+.Q(LsuL1Plugin_logic_writeback_slots_0_address[23]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_writeback_slots_0_address_reg[24]
+(.C(litex_clk),
+.CE(when_LsuL1Plugin_l564),
+.D(LsuL1Plugin_logic_writeback_push_payload_address[24]),
+.Q(LsuL1Plugin_logic_writeback_slots_0_address[24]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_writeback_slots_0_address_reg[25]
+(.C(litex_clk),
+.CE(when_LsuL1Plugin_l564),
+.D(LsuL1Plugin_logic_writeback_push_payload_address[25]),
+.Q(LsuL1Plugin_logic_writeback_slots_0_address[25]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_writeback_slots_0_address_reg[26]
+(.C(litex_clk),
+.CE(when_LsuL1Plugin_l564),
+.D(LsuL1Plugin_logic_writeback_push_payload_address[26]),
+.Q(LsuL1Plugin_logic_writeback_slots_0_address[26]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_writeback_slots_0_address_reg[27]
+(.C(litex_clk),
+.CE(when_LsuL1Plugin_l564),
+.D(LsuL1Plugin_logic_writeback_push_payload_address[27]),
+.Q(LsuL1Plugin_logic_writeback_slots_0_address[27]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_writeback_slots_0_address_reg[28]
+(.C(litex_clk),
+.CE(when_LsuL1Plugin_l564),
+.D(LsuL1Plugin_logic_writeback_push_payload_address[28]),
+.Q(LsuL1Plugin_logic_writeback_slots_0_address[28]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_writeback_slots_0_address_reg[29]
+(.C(litex_clk),
+.CE(when_LsuL1Plugin_l564),
+.D(LsuL1Plugin_logic_writeback_push_payload_address[29]),
+.Q(LsuL1Plugin_logic_writeback_slots_0_address[29]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_writeback_slots_0_address_reg[2]
+(.C(litex_clk),
+.CE(when_LsuL1Plugin_l564),
+.D(LsuL1Plugin_logic_writeback_push_payload_address[2]),
+.Q(LsuL1Plugin_logic_writeback_slots_0_address[2]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_writeback_slots_0_address_reg[30]
+(.C(litex_clk),
+.CE(when_LsuL1Plugin_l564),
+.D(LsuL1Plugin_logic_writeback_push_payload_address[30]),
+.Q(LsuL1Plugin_logic_writeback_slots_0_address[30]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_writeback_slots_0_address_reg[31]
+(.C(litex_clk),
+.CE(when_LsuL1Plugin_l564),
+.D(LsuL1Plugin_logic_writeback_push_payload_address[31]),
+.Q(LsuL1Plugin_logic_writeback_slots_0_address[31]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_writeback_slots_0_address_reg[3]
+(.C(litex_clk),
+.CE(when_LsuL1Plugin_l564),
+.D(LsuL1Plugin_logic_writeback_push_payload_address[3]),
+.Q(LsuL1Plugin_logic_writeback_slots_0_address[3]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_writeback_slots_0_address_reg[4]
+(.C(litex_clk),
+.CE(when_LsuL1Plugin_l564),
+.D(LsuL1Plugin_logic_writeback_push_payload_address[4]),
+.Q(LsuL1Plugin_logic_writeback_slots_0_address[4]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_writeback_slots_0_address_reg[5]
+(.C(litex_clk),
+.CE(when_LsuL1Plugin_l564),
+.D(LsuL1Plugin_logic_writeback_push_payload_address[5]),
+.Q(LsuL1Plugin_logic_writeback_slots_0_address[5]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_writeback_slots_0_address_reg[6]
+(.C(litex_clk),
+.CE(when_LsuL1Plugin_l564),
+.D(LsuL1Plugin_logic_writeback_push_payload_address[6]),
+.Q(LsuL1Plugin_logic_writeback_slots_0_address[6]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_writeback_slots_0_address_reg[7]
+(.C(litex_clk),
+.CE(when_LsuL1Plugin_l564),
+.D(LsuL1Plugin_logic_writeback_push_payload_address[7]),
+.Q(LsuL1Plugin_logic_writeback_slots_0_address[7]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_writeback_slots_0_address_reg[8]
+(.C(litex_clk),
+.CE(when_LsuL1Plugin_l564),
+.D(LsuL1Plugin_logic_writeback_push_payload_address[8]),
+.Q(LsuL1Plugin_logic_writeback_slots_0_address[8]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_writeback_slots_0_address_reg[9]
+(.C(litex_clk),
+.CE(when_LsuL1Plugin_l564),
+.D(LsuL1Plugin_logic_writeback_push_payload_address[9]),
+.Q(LsuL1Plugin_logic_writeback_slots_0_address[9]));
+RTL_MUX LsuL1Plugin_logic_writeback_slots_0_busy_i
+(.I0(\<const1> ),
+.I1(LsuL1Plugin_logic_writeback_slots_0_fire),
+.O(LsuL1Plugin_logic_writeback_slots_0_busy__0),
+.S(when_LsuL1Plugin_l559));
+RTL_REG_ASYNC__BREG_1413 LsuL1Plugin_logic_writeback_slots_0_busy_reg
+(.C(litex_clk),
+.CE(LsuL1Plugin_logic_writeback_slots_0_busy__0),
+.CLR(cpuResetCtrl_reset),
+.D(when_LsuL1Plugin_l559),
+.Q(LsuL1Plugin_logic_writeback_slots_0_busy));
+RTL_REG__BREG_36 LsuL1Plugin_logic_writeback_slots_0_coherency_dirty_reg
+(.C(litex_clk),
+.CE(when_LsuL1Plugin_l564),
+.D(LsuL1Plugin_logic_writeback_push_payload_c_dirty),
+.Q(LsuL1Plugin_logic_writeback_slots_0_coherency_dirty));
+RTL_REG__BREG_36 LsuL1Plugin_logic_writeback_slots_0_coherency_fromUnique_reg
+(.C(litex_clk),
+.CE(when_LsuL1Plugin_l564),
+.D(LsuL1Plugin_logic_writeback_push_payload_c_fromUnique),
+.Q(LsuL1Plugin_logic_writeback_slots_0_coherency_fromUnique));
+RTL_MUX LsuL1Plugin_logic_writeback_slots_0_coherency_release_i
+(.I0(LsuL1Plugin_logic_writeback_push_payload_c_release_i__3_n_0),
+.I1(\<const0> ),
+.O(LsuL1Plugin_logic_writeback_slots_0_coherency_release__0),
+.S(when_LsuL1Plugin_l564));
+RTL_REG_SYNC__BREG_1 LsuL1Plugin_logic_writeback_slots_0_coherency_release_reg
+(.C(litex_clk),
+.CE(when_LsuL1Plugin_l564),
+.D(LsuL1Plugin_logic_writeback_push_payload_c_release),
+.Q(LsuL1Plugin_logic_writeback_slots_0_coherency_release),
+.RST(LsuL1Plugin_logic_writeback_slots_0_coherency_release__0));
+RTL_REG__BREG_36 LsuL1Plugin_logic_writeback_slots_0_coherency_toShared_reg
+(.C(litex_clk),
+.CE(when_LsuL1Plugin_l564),
+.D(LsuL1Plugin_logic_writeback_push_payload_c_toShared),
+.Q(LsuL1Plugin_logic_writeback_slots_0_coherency_toShared));
+RTL_REG__BREG_36 LsuL1Plugin_logic_writeback_slots_0_coherency_toUnique_reg
+(.C(litex_clk),
+.CE(when_LsuL1Plugin_l564),
+.D(LsuL1Plugin_logic_writeback_push_payload_c_toUnique),
+.Q(LsuL1Plugin_logic_writeback_slots_0_coherency_toUnique));
+RTL_MUX LsuL1Plugin_logic_writeback_slots_0_fire_i
+(.I0(\<const1> ),
+.I1(when_LsuL1Plugin_l699),
+.O(LsuL1Plugin_logic_writeback_slots_0_fire),
+.S(LsuL1Plugin_logic_bus_write_rsp_valid));
+RTL_INV LsuL1Plugin_logic_writeback_slots_0_free_i
+(.I0(LsuL1Plugin_logic_writeback_slots_0_valid),
+.O(when_LsuL1Plugin_l564));
+RTL_INV LsuL1Plugin_logic_writeback_slots_0_readCmdDone0_i
+(.I0(LsuL1Plugin_logic_writeback_push_payload_c_dirty),
+.O(LsuL1Plugin_logic_writeback_slots_0_readCmdDone0));
+RTL_MUX LsuL1Plugin_logic_writeback_slots_0_readCmdDone_i
+(.I0(LsuL1Plugin_logic_writeback_read_arbiter_oh),
+.I1(\<const0> ),
+.O(LsuL1Plugin_logic_writeback_slots_0_readCmdDone__0),
+.S(when_LsuL1Plugin_l608));
+RTL_REG_SYNC__BREG_70 LsuL1Plugin_logic_writeback_slots_0_readCmdDone_reg
+(.C(litex_clk),
+.CE(when_LsuL1Plugin_l564),
+.D(LsuL1Plugin_logic_writeback_slots_0_readCmdDone0),
+.Q(LsuL1Plugin_logic_writeback_slots_0_readCmdDone),
+.SET(LsuL1Plugin_logic_writeback_slots_0_readCmdDone__0));
+RTL_ADD6 LsuL1Plugin_logic_writeback_slots_0_timer_counter0_i
+(.I0(LsuL1Plugin_logic_writeback_slots_0_timer_counter),
+.I1(LsuL1Plugin_logic_writeback_slots_0_timer_counter1),
+.O(LsuL1Plugin_logic_writeback_slots_0_timer_counter0));
+RTL_AND7 LsuL1Plugin_logic_writeback_slots_0_timer_counter1_i
+(.I0(LsuL1Plugin_logic_writeback_slots_0_timer_counter2),
+.I1(_zz_LsuL1Plugin_logic_refill_slots_0_c_ackTimer_10_i_n_0),
+.O(LsuL1Plugin_logic_writeback_slots_0_timer_counter1));
+RTL_INV LsuL1Plugin_logic_writeback_slots_0_timer_counter2_i
+(.I0(LsuL1Plugin_logic_writeback_slots_0_timer_counter),
+.O(LsuL1Plugin_logic_writeback_slots_0_timer_counter2));
+RTL_REG_SYNC__BREG_2 \LsuL1Plugin_logic_writeback_slots_0_timer_counter_reg[0]
+(.C(litex_clk),
+.D(LsuL1Plugin_logic_writeback_slots_0_timer_counter0),
+.Q(LsuL1Plugin_logic_writeback_slots_0_timer_counter),
+.RST(when_LsuL1Plugin_l564));
+RTL_MUX LsuL1Plugin_logic_writeback_slots_0_valid_i
+(.I0(\<const1> ),
+.I1(when_LsuL1Plugin_l533),
+.O(LsuL1Plugin_logic_writeback_slots_0_valid__0),
+.S(when_LsuL1Plugin_l559));
+RTL_REG_ASYNC__BREG_1413 LsuL1Plugin_logic_writeback_slots_0_valid_reg
+(.C(litex_clk),
+.CE(LsuL1Plugin_logic_writeback_slots_0_valid__0),
+.CLR(cpuResetCtrl_reset),
+.D(when_LsuL1Plugin_l559),
+.Q(LsuL1Plugin_logic_writeback_slots_0_valid));
+RTL_REG_SYNC__BREG_70 LsuL1Plugin_logic_writeback_slots_0_victimBufferReady_reg
+(.C(litex_clk),
+.CE(when_LsuL1Plugin_l564),
+.D(LsuL1Plugin_logic_writeback_slots_0_readCmdDone0),
+.Q(LsuL1Plugin_logic_writeback_slots_0_victimBufferReady),
+.SET(LsuL1Plugin_logic_writeback_read_slotReadLast_valid));
+RTL_MUX LsuL1Plugin_logic_writeback_slots_0_writeCmdDone_i
+(.I0(LsuL1Plugin_logic_writeback_write_arbiter_oh),
+.I1(\<const0> ),
+.O(LsuL1Plugin_logic_writeback_slots_0_writeCmdDone__0),
+.S(when_LsuL1Plugin_l679));
+RTL_REG_SYNC__BREG_70 LsuL1Plugin_logic_writeback_slots_0_writeCmdDone_reg
+(.C(litex_clk),
+.CE(when_LsuL1Plugin_l564),
+.D(\<const0> ),
+.Q(LsuL1Plugin_logic_writeback_slots_0_writeCmdDone),
+.SET(LsuL1Plugin_logic_writeback_slots_0_writeCmdDone__0));
+RTL_RAM61 LsuL1Plugin_logic_writeback_victimBuffer_reg
+(.RA1(LsuL1Plugin_logic_writeback_write_wordIndex),
+.RO1({LsuL1Plugin_logic_writeback_victimBuffer_reg_n_0,LsuL1Plugin_logic_writeback_victimBuffer_reg_n_1,LsuL1Plugin_logic_writeback_victimBuffer_reg_n_2,LsuL1Plugin_logic_writeback_victimBuffer_reg_n_3,LsuL1Plugin_logic_writeback_victimBuffer_reg_n_4,LsuL1Plugin_logic_writeback_victimBuffer_reg_n_5,LsuL1Plugin_logic_writeback_victimBuffer_reg_n_6,LsuL1Plugin_logic_writeback_victimBuffer_reg_n_7,LsuL1Plugin_logic_writeback_victimBuffer_reg_n_8,LsuL1Plugin_logic_writeback_victimBuffer_reg_n_9,LsuL1Plugin_logic_writeback_victimBuffer_reg_n_10,LsuL1Plugin_logic_writeback_victimBuffer_reg_n_11,LsuL1Plugin_logic_writeback_victimBuffer_reg_n_12,LsuL1Plugin_logic_writeback_victimBuffer_reg_n_13,LsuL1Plugin_logic_writeback_victimBuffer_reg_n_14,LsuL1Plugin_logic_writeback_victimBuffer_reg_n_15,LsuL1Plugin_logic_writeback_victimBuffer_reg_n_16,LsuL1Plugin_logic_writeback_victimBuffer_reg_n_17,LsuL1Plugin_logic_writeback_victimBuffer_reg_n_18,LsuL1Plugin_logic_writeback_victimBuffer_reg_n_19,LsuL1Plugin_logic_writeback_victimBuffer_reg_n_20,LsuL1Plugin_logic_writeback_victimBuffer_reg_n_21,LsuL1Plugin_logic_writeback_victimBuffer_reg_n_22,LsuL1Plugin_logic_writeback_victimBuffer_reg_n_23,LsuL1Plugin_logic_writeback_victimBuffer_reg_n_24,LsuL1Plugin_logic_writeback_victimBuffer_reg_n_25,LsuL1Plugin_logic_writeback_victimBuffer_reg_n_26,LsuL1Plugin_logic_writeback_victimBuffer_reg_n_27,LsuL1Plugin_logic_writeback_victimBuffer_reg_n_28,LsuL1Plugin_logic_writeback_victimBuffer_reg_n_29,LsuL1Plugin_logic_writeback_victimBuffer_reg_n_30,LsuL1Plugin_logic_writeback_victimBuffer_reg_n_31}),
+.WA2(LsuL1Plugin_logic_writeback_read_slotReadLast_payload_wordIndex),
+.WCLK(litex_clk),
+.WD2(LsuL1Plugin_logic_banks_0_read_rsp),
+.WE2(LsuL1Plugin_logic_writeback_read_slotReadLast_valid));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_writeback_victimBuffer_spinal_port1_reg[0]
+(.C(litex_clk),
+.CE(LsuL1Plugin_logic_writeback_write_bufferRead_ready),
+.D(LsuL1Plugin_logic_writeback_victimBuffer_reg_n_31),
+.Q(LsuL1Plugin_logic_writeback_victimBuffer_spinal_port1[0]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_writeback_victimBuffer_spinal_port1_reg[10]
+(.C(litex_clk),
+.CE(LsuL1Plugin_logic_writeback_write_bufferRead_ready),
+.D(LsuL1Plugin_logic_writeback_victimBuffer_reg_n_21),
+.Q(LsuL1Plugin_logic_writeback_victimBuffer_spinal_port1[10]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_writeback_victimBuffer_spinal_port1_reg[11]
+(.C(litex_clk),
+.CE(LsuL1Plugin_logic_writeback_write_bufferRead_ready),
+.D(LsuL1Plugin_logic_writeback_victimBuffer_reg_n_20),
+.Q(LsuL1Plugin_logic_writeback_victimBuffer_spinal_port1[11]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_writeback_victimBuffer_spinal_port1_reg[12]
+(.C(litex_clk),
+.CE(LsuL1Plugin_logic_writeback_write_bufferRead_ready),
+.D(LsuL1Plugin_logic_writeback_victimBuffer_reg_n_19),
+.Q(LsuL1Plugin_logic_writeback_victimBuffer_spinal_port1[12]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_writeback_victimBuffer_spinal_port1_reg[13]
+(.C(litex_clk),
+.CE(LsuL1Plugin_logic_writeback_write_bufferRead_ready),
+.D(LsuL1Plugin_logic_writeback_victimBuffer_reg_n_18),
+.Q(LsuL1Plugin_logic_writeback_victimBuffer_spinal_port1[13]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_writeback_victimBuffer_spinal_port1_reg[14]
+(.C(litex_clk),
+.CE(LsuL1Plugin_logic_writeback_write_bufferRead_ready),
+.D(LsuL1Plugin_logic_writeback_victimBuffer_reg_n_17),
+.Q(LsuL1Plugin_logic_writeback_victimBuffer_spinal_port1[14]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_writeback_victimBuffer_spinal_port1_reg[15]
+(.C(litex_clk),
+.CE(LsuL1Plugin_logic_writeback_write_bufferRead_ready),
+.D(LsuL1Plugin_logic_writeback_victimBuffer_reg_n_16),
+.Q(LsuL1Plugin_logic_writeback_victimBuffer_spinal_port1[15]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_writeback_victimBuffer_spinal_port1_reg[16]
+(.C(litex_clk),
+.CE(LsuL1Plugin_logic_writeback_write_bufferRead_ready),
+.D(LsuL1Plugin_logic_writeback_victimBuffer_reg_n_15),
+.Q(LsuL1Plugin_logic_writeback_victimBuffer_spinal_port1[16]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_writeback_victimBuffer_spinal_port1_reg[17]
+(.C(litex_clk),
+.CE(LsuL1Plugin_logic_writeback_write_bufferRead_ready),
+.D(LsuL1Plugin_logic_writeback_victimBuffer_reg_n_14),
+.Q(LsuL1Plugin_logic_writeback_victimBuffer_spinal_port1[17]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_writeback_victimBuffer_spinal_port1_reg[18]
+(.C(litex_clk),
+.CE(LsuL1Plugin_logic_writeback_write_bufferRead_ready),
+.D(LsuL1Plugin_logic_writeback_victimBuffer_reg_n_13),
+.Q(LsuL1Plugin_logic_writeback_victimBuffer_spinal_port1[18]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_writeback_victimBuffer_spinal_port1_reg[19]
+(.C(litex_clk),
+.CE(LsuL1Plugin_logic_writeback_write_bufferRead_ready),
+.D(LsuL1Plugin_logic_writeback_victimBuffer_reg_n_12),
+.Q(LsuL1Plugin_logic_writeback_victimBuffer_spinal_port1[19]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_writeback_victimBuffer_spinal_port1_reg[1]
+(.C(litex_clk),
+.CE(LsuL1Plugin_logic_writeback_write_bufferRead_ready),
+.D(LsuL1Plugin_logic_writeback_victimBuffer_reg_n_30),
+.Q(LsuL1Plugin_logic_writeback_victimBuffer_spinal_port1[1]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_writeback_victimBuffer_spinal_port1_reg[20]
+(.C(litex_clk),
+.CE(LsuL1Plugin_logic_writeback_write_bufferRead_ready),
+.D(LsuL1Plugin_logic_writeback_victimBuffer_reg_n_11),
+.Q(LsuL1Plugin_logic_writeback_victimBuffer_spinal_port1[20]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_writeback_victimBuffer_spinal_port1_reg[21]
+(.C(litex_clk),
+.CE(LsuL1Plugin_logic_writeback_write_bufferRead_ready),
+.D(LsuL1Plugin_logic_writeback_victimBuffer_reg_n_10),
+.Q(LsuL1Plugin_logic_writeback_victimBuffer_spinal_port1[21]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_writeback_victimBuffer_spinal_port1_reg[22]
+(.C(litex_clk),
+.CE(LsuL1Plugin_logic_writeback_write_bufferRead_ready),
+.D(LsuL1Plugin_logic_writeback_victimBuffer_reg_n_9),
+.Q(LsuL1Plugin_logic_writeback_victimBuffer_spinal_port1[22]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_writeback_victimBuffer_spinal_port1_reg[23]
+(.C(litex_clk),
+.CE(LsuL1Plugin_logic_writeback_write_bufferRead_ready),
+.D(LsuL1Plugin_logic_writeback_victimBuffer_reg_n_8),
+.Q(LsuL1Plugin_logic_writeback_victimBuffer_spinal_port1[23]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_writeback_victimBuffer_spinal_port1_reg[24]
+(.C(litex_clk),
+.CE(LsuL1Plugin_logic_writeback_write_bufferRead_ready),
+.D(LsuL1Plugin_logic_writeback_victimBuffer_reg_n_7),
+.Q(LsuL1Plugin_logic_writeback_victimBuffer_spinal_port1[24]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_writeback_victimBuffer_spinal_port1_reg[25]
+(.C(litex_clk),
+.CE(LsuL1Plugin_logic_writeback_write_bufferRead_ready),
+.D(LsuL1Plugin_logic_writeback_victimBuffer_reg_n_6),
+.Q(LsuL1Plugin_logic_writeback_victimBuffer_spinal_port1[25]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_writeback_victimBuffer_spinal_port1_reg[26]
+(.C(litex_clk),
+.CE(LsuL1Plugin_logic_writeback_write_bufferRead_ready),
+.D(LsuL1Plugin_logic_writeback_victimBuffer_reg_n_5),
+.Q(LsuL1Plugin_logic_writeback_victimBuffer_spinal_port1[26]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_writeback_victimBuffer_spinal_port1_reg[27]
+(.C(litex_clk),
+.CE(LsuL1Plugin_logic_writeback_write_bufferRead_ready),
+.D(LsuL1Plugin_logic_writeback_victimBuffer_reg_n_4),
+.Q(LsuL1Plugin_logic_writeback_victimBuffer_spinal_port1[27]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_writeback_victimBuffer_spinal_port1_reg[28]
+(.C(litex_clk),
+.CE(LsuL1Plugin_logic_writeback_write_bufferRead_ready),
+.D(LsuL1Plugin_logic_writeback_victimBuffer_reg_n_3),
+.Q(LsuL1Plugin_logic_writeback_victimBuffer_spinal_port1[28]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_writeback_victimBuffer_spinal_port1_reg[29]
+(.C(litex_clk),
+.CE(LsuL1Plugin_logic_writeback_write_bufferRead_ready),
+.D(LsuL1Plugin_logic_writeback_victimBuffer_reg_n_2),
+.Q(LsuL1Plugin_logic_writeback_victimBuffer_spinal_port1[29]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_writeback_victimBuffer_spinal_port1_reg[2]
+(.C(litex_clk),
+.CE(LsuL1Plugin_logic_writeback_write_bufferRead_ready),
+.D(LsuL1Plugin_logic_writeback_victimBuffer_reg_n_29),
+.Q(LsuL1Plugin_logic_writeback_victimBuffer_spinal_port1[2]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_writeback_victimBuffer_spinal_port1_reg[30]
+(.C(litex_clk),
+.CE(LsuL1Plugin_logic_writeback_write_bufferRead_ready),
+.D(LsuL1Plugin_logic_writeback_victimBuffer_reg_n_1),
+.Q(LsuL1Plugin_logic_writeback_victimBuffer_spinal_port1[30]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_writeback_victimBuffer_spinal_port1_reg[31]
+(.C(litex_clk),
+.CE(LsuL1Plugin_logic_writeback_write_bufferRead_ready),
+.D(LsuL1Plugin_logic_writeback_victimBuffer_reg_n_0),
+.Q(LsuL1Plugin_logic_writeback_victimBuffer_spinal_port1[31]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_writeback_victimBuffer_spinal_port1_reg[3]
+(.C(litex_clk),
+.CE(LsuL1Plugin_logic_writeback_write_bufferRead_ready),
+.D(LsuL1Plugin_logic_writeback_victimBuffer_reg_n_28),
+.Q(LsuL1Plugin_logic_writeback_victimBuffer_spinal_port1[3]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_writeback_victimBuffer_spinal_port1_reg[4]
+(.C(litex_clk),
+.CE(LsuL1Plugin_logic_writeback_write_bufferRead_ready),
+.D(LsuL1Plugin_logic_writeback_victimBuffer_reg_n_27),
+.Q(LsuL1Plugin_logic_writeback_victimBuffer_spinal_port1[4]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_writeback_victimBuffer_spinal_port1_reg[5]
+(.C(litex_clk),
+.CE(LsuL1Plugin_logic_writeback_write_bufferRead_ready),
+.D(LsuL1Plugin_logic_writeback_victimBuffer_reg_n_26),
+.Q(LsuL1Plugin_logic_writeback_victimBuffer_spinal_port1[5]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_writeback_victimBuffer_spinal_port1_reg[6]
+(.C(litex_clk),
+.CE(LsuL1Plugin_logic_writeback_write_bufferRead_ready),
+.D(LsuL1Plugin_logic_writeback_victimBuffer_reg_n_25),
+.Q(LsuL1Plugin_logic_writeback_victimBuffer_spinal_port1[6]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_writeback_victimBuffer_spinal_port1_reg[7]
+(.C(litex_clk),
+.CE(LsuL1Plugin_logic_writeback_write_bufferRead_ready),
+.D(LsuL1Plugin_logic_writeback_victimBuffer_reg_n_24),
+.Q(LsuL1Plugin_logic_writeback_victimBuffer_spinal_port1[7]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_writeback_victimBuffer_spinal_port1_reg[8]
+(.C(litex_clk),
+.CE(LsuL1Plugin_logic_writeback_write_bufferRead_ready),
+.D(LsuL1Plugin_logic_writeback_victimBuffer_reg_n_23),
+.Q(LsuL1Plugin_logic_writeback_victimBuffer_spinal_port1[8]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_writeback_victimBuffer_spinal_port1_reg[9]
+(.C(litex_clk),
+.CE(LsuL1Plugin_logic_writeback_write_bufferRead_ready),
+.D(LsuL1Plugin_logic_writeback_victimBuffer_reg_n_22),
+.Q(LsuL1Plugin_logic_writeback_victimBuffer_spinal_port1[9]));
+RTL_REDUCTION_OR149 LsuL1Plugin_logic_writeback_write_arbiter_hit_i
+(.I0(LsuL1Plugin_logic_writeback_write_arbiter_hits),
+.O(LsuL1Plugin_logic_writeback_write_bufferRead_valid));
+RTL_MUX LsuL1Plugin_logic_writeback_write_arbiter_lock_i
+(.I0(\<const0> ),
+.I1(LsuL1Plugin_logic_writeback_write_arbiter_oh),
+.O(LsuL1Plugin_logic_writeback_write_arbiter_lock__0),
+.S(when_LsuL1Plugin_l679));
+RTL_REG_ASYNC__BREG_1423 \LsuL1Plugin_logic_writeback_write_arbiter_lock_reg[0]
+(.C(litex_clk),
+.CLR(cpuResetCtrl_reset),
+.D(LsuL1Plugin_logic_writeback_write_arbiter_lock__0),
+.Q(LsuL1Plugin_logic_writeback_write_arbiter_lock));
+RTL_MUX LsuL1Plugin_logic_writeback_write_arbiter_oh_i
+(.I0(LsuL1Plugin_logic_writeback_write_arbiter_lock),
+.I1(LsuL1Plugin_logic_writeback_write_arbiter_hits),
+.O(LsuL1Plugin_logic_writeback_write_arbiter_oh),
+.S(when_LsuL1Plugin_l303_2));
+RTL_AND7 LsuL1Plugin_logic_writeback_write_arbiter_slotsWithId_0_00_i
+(.I0(LsuL1Plugin_logic_writeback_slots_0_valid),
+.I1(LsuL1Plugin_logic_writeback_slots_0_victimBufferReady),
+.O(LsuL1Plugin_logic_writeback_write_arbiter_slotsWithId_0_00));
+RTL_INV LsuL1Plugin_logic_writeback_write_arbiter_slotsWithId_0_00_i__0
+(.I0(LsuL1Plugin_logic_writeback_slots_0_writeCmdDone),
+.O(LsuL1Plugin_logic_writeback_write_arbiter_slotsWithId_0_00_i__0_n_0));
+RTL_AND7 LsuL1Plugin_logic_writeback_write_arbiter_slotsWithId_0_0_i
+(.I0(LsuL1Plugin_logic_writeback_write_arbiter_slotsWithId_0_00),
+.I1(LsuL1Plugin_logic_writeback_write_arbiter_slotsWithId_0_00_i__0_n_0),
+.O(LsuL1Plugin_logic_writeback_write_arbiter_hits));
+RTL_AND7 LsuL1Plugin_logic_writeback_write_bufferRead_fire_i
+(.I0(LsuL1Plugin_logic_writeback_write_bufferRead_valid),
+.I1(LsuL1Plugin_logic_writeback_write_bufferRead_ready),
+.O(LsuL1Plugin_logic_writeback_write_bufferRead_fire));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_writeback_write_bufferRead_rData_address_reg[0]
+(.C(litex_clk),
+.CE(LsuL1Plugin_logic_writeback_write_bufferRead_ready),
+.D(LsuL1Plugin_logic_writeback_slots_0_address[0]),
+.Q(LsuL1Plugin_logic_writeback_write_bufferRead_rData_address[0]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_writeback_write_bufferRead_rData_address_reg[10]
+(.C(litex_clk),
+.CE(LsuL1Plugin_logic_writeback_write_bufferRead_ready),
+.D(LsuL1Plugin_logic_writeback_slots_0_address[10]),
+.Q(LsuL1Plugin_logic_writeback_write_bufferRead_rData_address[10]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_writeback_write_bufferRead_rData_address_reg[11]
+(.C(litex_clk),
+.CE(LsuL1Plugin_logic_writeback_write_bufferRead_ready),
+.D(LsuL1Plugin_logic_writeback_slots_0_address[11]),
+.Q(LsuL1Plugin_logic_writeback_write_bufferRead_rData_address[11]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_writeback_write_bufferRead_rData_address_reg[12]
+(.C(litex_clk),
+.CE(LsuL1Plugin_logic_writeback_write_bufferRead_ready),
+.D(LsuL1Plugin_logic_writeback_slots_0_address[12]),
+.Q(LsuL1Plugin_logic_writeback_write_bufferRead_rData_address[12]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_writeback_write_bufferRead_rData_address_reg[13]
+(.C(litex_clk),
+.CE(LsuL1Plugin_logic_writeback_write_bufferRead_ready),
+.D(LsuL1Plugin_logic_writeback_slots_0_address[13]),
+.Q(LsuL1Plugin_logic_writeback_write_bufferRead_rData_address[13]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_writeback_write_bufferRead_rData_address_reg[14]
+(.C(litex_clk),
+.CE(LsuL1Plugin_logic_writeback_write_bufferRead_ready),
+.D(LsuL1Plugin_logic_writeback_slots_0_address[14]),
+.Q(LsuL1Plugin_logic_writeback_write_bufferRead_rData_address[14]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_writeback_write_bufferRead_rData_address_reg[15]
+(.C(litex_clk),
+.CE(LsuL1Plugin_logic_writeback_write_bufferRead_ready),
+.D(LsuL1Plugin_logic_writeback_slots_0_address[15]),
+.Q(LsuL1Plugin_logic_writeback_write_bufferRead_rData_address[15]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_writeback_write_bufferRead_rData_address_reg[16]
+(.C(litex_clk),
+.CE(LsuL1Plugin_logic_writeback_write_bufferRead_ready),
+.D(LsuL1Plugin_logic_writeback_slots_0_address[16]),
+.Q(LsuL1Plugin_logic_writeback_write_bufferRead_rData_address[16]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_writeback_write_bufferRead_rData_address_reg[17]
+(.C(litex_clk),
+.CE(LsuL1Plugin_logic_writeback_write_bufferRead_ready),
+.D(LsuL1Plugin_logic_writeback_slots_0_address[17]),
+.Q(LsuL1Plugin_logic_writeback_write_bufferRead_rData_address[17]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_writeback_write_bufferRead_rData_address_reg[18]
+(.C(litex_clk),
+.CE(LsuL1Plugin_logic_writeback_write_bufferRead_ready),
+.D(LsuL1Plugin_logic_writeback_slots_0_address[18]),
+.Q(LsuL1Plugin_logic_writeback_write_bufferRead_rData_address[18]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_writeback_write_bufferRead_rData_address_reg[19]
+(.C(litex_clk),
+.CE(LsuL1Plugin_logic_writeback_write_bufferRead_ready),
+.D(LsuL1Plugin_logic_writeback_slots_0_address[19]),
+.Q(LsuL1Plugin_logic_writeback_write_bufferRead_rData_address[19]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_writeback_write_bufferRead_rData_address_reg[1]
+(.C(litex_clk),
+.CE(LsuL1Plugin_logic_writeback_write_bufferRead_ready),
+.D(LsuL1Plugin_logic_writeback_slots_0_address[1]),
+.Q(LsuL1Plugin_logic_writeback_write_bufferRead_rData_address[1]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_writeback_write_bufferRead_rData_address_reg[20]
+(.C(litex_clk),
+.CE(LsuL1Plugin_logic_writeback_write_bufferRead_ready),
+.D(LsuL1Plugin_logic_writeback_slots_0_address[20]),
+.Q(LsuL1Plugin_logic_writeback_write_bufferRead_rData_address[20]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_writeback_write_bufferRead_rData_address_reg[21]
+(.C(litex_clk),
+.CE(LsuL1Plugin_logic_writeback_write_bufferRead_ready),
+.D(LsuL1Plugin_logic_writeback_slots_0_address[21]),
+.Q(LsuL1Plugin_logic_writeback_write_bufferRead_rData_address[21]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_writeback_write_bufferRead_rData_address_reg[22]
+(.C(litex_clk),
+.CE(LsuL1Plugin_logic_writeback_write_bufferRead_ready),
+.D(LsuL1Plugin_logic_writeback_slots_0_address[22]),
+.Q(LsuL1Plugin_logic_writeback_write_bufferRead_rData_address[22]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_writeback_write_bufferRead_rData_address_reg[23]
+(.C(litex_clk),
+.CE(LsuL1Plugin_logic_writeback_write_bufferRead_ready),
+.D(LsuL1Plugin_logic_writeback_slots_0_address[23]),
+.Q(LsuL1Plugin_logic_writeback_write_bufferRead_rData_address[23]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_writeback_write_bufferRead_rData_address_reg[24]
+(.C(litex_clk),
+.CE(LsuL1Plugin_logic_writeback_write_bufferRead_ready),
+.D(LsuL1Plugin_logic_writeback_slots_0_address[24]),
+.Q(LsuL1Plugin_logic_writeback_write_bufferRead_rData_address[24]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_writeback_write_bufferRead_rData_address_reg[25]
+(.C(litex_clk),
+.CE(LsuL1Plugin_logic_writeback_write_bufferRead_ready),
+.D(LsuL1Plugin_logic_writeback_slots_0_address[25]),
+.Q(LsuL1Plugin_logic_writeback_write_bufferRead_rData_address[25]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_writeback_write_bufferRead_rData_address_reg[26]
+(.C(litex_clk),
+.CE(LsuL1Plugin_logic_writeback_write_bufferRead_ready),
+.D(LsuL1Plugin_logic_writeback_slots_0_address[26]),
+.Q(LsuL1Plugin_logic_writeback_write_bufferRead_rData_address[26]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_writeback_write_bufferRead_rData_address_reg[27]
+(.C(litex_clk),
+.CE(LsuL1Plugin_logic_writeback_write_bufferRead_ready),
+.D(LsuL1Plugin_logic_writeback_slots_0_address[27]),
+.Q(LsuL1Plugin_logic_writeback_write_bufferRead_rData_address[27]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_writeback_write_bufferRead_rData_address_reg[28]
+(.C(litex_clk),
+.CE(LsuL1Plugin_logic_writeback_write_bufferRead_ready),
+.D(LsuL1Plugin_logic_writeback_slots_0_address[28]),
+.Q(LsuL1Plugin_logic_writeback_write_bufferRead_rData_address[28]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_writeback_write_bufferRead_rData_address_reg[29]
+(.C(litex_clk),
+.CE(LsuL1Plugin_logic_writeback_write_bufferRead_ready),
+.D(LsuL1Plugin_logic_writeback_slots_0_address[29]),
+.Q(LsuL1Plugin_logic_writeback_write_bufferRead_rData_address[29]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_writeback_write_bufferRead_rData_address_reg[2]
+(.C(litex_clk),
+.CE(LsuL1Plugin_logic_writeback_write_bufferRead_ready),
+.D(LsuL1Plugin_logic_writeback_slots_0_address[2]),
+.Q(LsuL1Plugin_logic_writeback_write_bufferRead_rData_address[2]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_writeback_write_bufferRead_rData_address_reg[30]
+(.C(litex_clk),
+.CE(LsuL1Plugin_logic_writeback_write_bufferRead_ready),
+.D(LsuL1Plugin_logic_writeback_slots_0_address[30]),
+.Q(LsuL1Plugin_logic_writeback_write_bufferRead_rData_address[30]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_writeback_write_bufferRead_rData_address_reg[31]
+(.C(litex_clk),
+.CE(LsuL1Plugin_logic_writeback_write_bufferRead_ready),
+.D(LsuL1Plugin_logic_writeback_slots_0_address[31]),
+.Q(LsuL1Plugin_logic_writeback_write_bufferRead_rData_address[31]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_writeback_write_bufferRead_rData_address_reg[3]
+(.C(litex_clk),
+.CE(LsuL1Plugin_logic_writeback_write_bufferRead_ready),
+.D(LsuL1Plugin_logic_writeback_slots_0_address[3]),
+.Q(LsuL1Plugin_logic_writeback_write_bufferRead_rData_address[3]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_writeback_write_bufferRead_rData_address_reg[4]
+(.C(litex_clk),
+.CE(LsuL1Plugin_logic_writeback_write_bufferRead_ready),
+.D(LsuL1Plugin_logic_writeback_slots_0_address[4]),
+.Q(LsuL1Plugin_logic_writeback_write_bufferRead_rData_address[4]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_writeback_write_bufferRead_rData_address_reg[5]
+(.C(litex_clk),
+.CE(LsuL1Plugin_logic_writeback_write_bufferRead_ready),
+.D(LsuL1Plugin_logic_writeback_slots_0_address[5]),
+.Q(LsuL1Plugin_logic_writeback_write_bufferRead_rData_address[5]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_writeback_write_bufferRead_rData_address_reg[6]
+(.C(litex_clk),
+.CE(LsuL1Plugin_logic_writeback_write_bufferRead_ready),
+.D(LsuL1Plugin_logic_writeback_slots_0_address[6]),
+.Q(LsuL1Plugin_logic_writeback_write_bufferRead_rData_address[6]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_writeback_write_bufferRead_rData_address_reg[7]
+(.C(litex_clk),
+.CE(LsuL1Plugin_logic_writeback_write_bufferRead_ready),
+.D(LsuL1Plugin_logic_writeback_slots_0_address[7]),
+.Q(LsuL1Plugin_logic_writeback_write_bufferRead_rData_address[7]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_writeback_write_bufferRead_rData_address_reg[8]
+(.C(litex_clk),
+.CE(LsuL1Plugin_logic_writeback_write_bufferRead_ready),
+.D(LsuL1Plugin_logic_writeback_slots_0_address[8]),
+.Q(LsuL1Plugin_logic_writeback_write_bufferRead_rData_address[8]));
+RTL_REG__BREG_36 \LsuL1Plugin_logic_writeback_write_bufferRead_rData_address_reg[9]
+(.C(litex_clk),
+.CE(LsuL1Plugin_logic_writeback_write_bufferRead_ready),
+.D(LsuL1Plugin_logic_writeback_slots_0_address[9]),
+.Q(LsuL1Plugin_logic_writeback_write_bufferRead_rData_address[9]));
+RTL_REG__BREG_36 LsuL1Plugin_logic_writeback_write_bufferRead_rData_coherency_dirty_reg
+(.C(litex_clk),
+.CE(LsuL1Plugin_logic_writeback_write_bufferRead_ready),
+.D(LsuL1Plugin_logic_writeback_slots_0_coherency_dirty),
+.Q(LsuL1Plugin_logic_writeback_write_bufferRead_rData_coherency_dirty));
+RTL_REG__BREG_36 LsuL1Plugin_logic_writeback_write_bufferRead_rData_coherency_fromUnique_reg
+(.C(litex_clk),
+.CE(LsuL1Plugin_logic_writeback_write_bufferRead_ready),
+.D(LsuL1Plugin_logic_writeback_slots_0_coherency_fromUnique),
+.Q(switch_Misc_l269[3]));
+RTL_REG__BREG_36 LsuL1Plugin_logic_writeback_write_bufferRead_rData_coherency_release_reg
+(.C(litex_clk),
+.CE(LsuL1Plugin_logic_writeback_write_bufferRead_ready),
+.D(LsuL1Plugin_logic_writeback_slots_0_coherency_release),
+.Q(LsuL1Plugin_logic_writeback_write_bufferRead_rData_coherency_release));
+RTL_REG__BREG_36 LsuL1Plugin_logic_writeback_write_bufferRead_rData_coherency_toShared_reg
+(.C(litex_clk),
+.CE(LsuL1Plugin_logic_writeback_write_bufferRead_ready),
+.D(LsuL1Plugin_logic_writeback_slots_0_coherency_toShared),
+.Q(switch_Misc_l269[0]));
+RTL_REG__BREG_36 LsuL1Plugin_logic_writeback_write_bufferRead_rData_coherency_toUnique_reg
+(.C(litex_clk),
+.CE(LsuL1Plugin_logic_writeback_write_bufferRead_ready),
+.D(LsuL1Plugin_logic_writeback_slots_0_coherency_toUnique),
+.Q(switch_Misc_l269[1]));
+RTL_REG__BREG_36 LsuL1Plugin_logic_writeback_write_bufferRead_rData_last_reg
+(.C(litex_clk),
+.CE(LsuL1Plugin_logic_writeback_write_bufferRead_ready),
+.D(LsuL1Plugin_logic_writeback_write_bufferRead_payload_last),
+.Q(LsuL1Plugin_logic_writeback_write_bufferRead_rData_last));
+RTL_REG_ASYNC__BREG_1413 LsuL1Plugin_logic_writeback_write_bufferRead_rValid_reg
+(.C(litex_clk),
+.CE(LsuL1Plugin_logic_writeback_write_bufferRead_ready),
+.CLR(cpuResetCtrl_reset),
+.D(LsuL1Plugin_logic_writeback_write_bufferRead_valid),
+.Q(LsuL1Plugin_logic_writeback_write_bufferRead_rValid));
+RTL_MUX LsuL1Plugin_logic_writeback_write_bufferRead_ready_i
+(.I0(\<const1> ),
+.I1(LsuL1Plugin_logic_bus_toTilelink_coherent_onC_arbiter_io_inputs_0_ready),
+.O(LsuL1Plugin_logic_writeback_write_bufferRead_ready),
+.S(when_Stream_l477_1));
+RTL_AND7 LsuL1Plugin_logic_writeback_write_cmd_fire_i
+(.I0(LsuL1Plugin_logic_writeback_write_bufferRead_rValid),
+.I1(LsuL1Plugin_logic_bus_toTilelink_coherent_onC_arbiter_io_inputs_0_ready),
+.O(LsuL1Plugin_logic_writeback_write_cmd_fire));
+RTL_EQ5 LsuL1Plugin_logic_writeback_write_last0_i
+(.I0(LsuL1Plugin_logic_writeback_write_wordIndex),
+.I1({\<const1> ,\<const1> ,\<const1> ,\<const1> }),
+.O(LsuL1Plugin_logic_writeback_write_last0));
+RTL_MUX LsuL1Plugin_logic_writeback_write_last_i
+(.I0(\<const1> ),
+.I1(LsuL1Plugin_logic_writeback_write_last0),
+.O(LsuL1Plugin_logic_writeback_write_bufferRead_payload_last),
+.S(when_LsuL1Plugin_l675));
+RTL_ADD99 LsuL1Plugin_logic_writeback_write_wordIndex_reg0_i
+(.I0(LsuL1Plugin_logic_writeback_write_wordIndex),
+.I1({\<const0> ,\<const0> ,\<const0> ,_zz_LsuL1Plugin_logic_writeback_write_wordIndex}),
+.O(LsuL1Plugin_logic_writeback_write_wordIndex_reg0));
+RTL_REG_ASYNC__BREG_1423 \LsuL1Plugin_logic_writeback_write_wordIndex_reg[0]
+(.C(litex_clk),
+.CLR(cpuResetCtrl_reset),
+.D(LsuL1Plugin_logic_writeback_write_wordIndex_reg0[0]),
+.Q(LsuL1Plugin_logic_writeback_write_wordIndex[0]));
+RTL_REG_ASYNC__BREG_1423 \LsuL1Plugin_logic_writeback_write_wordIndex_reg[1]
+(.C(litex_clk),
+.CLR(cpuResetCtrl_reset),
+.D(LsuL1Plugin_logic_writeback_write_wordIndex_reg0[1]),
+.Q(LsuL1Plugin_logic_writeback_write_wordIndex[1]));
+RTL_REG_ASYNC__BREG_1423 \LsuL1Plugin_logic_writeback_write_wordIndex_reg[2]
+(.C(litex_clk),
+.CLR(cpuResetCtrl_reset),
+.D(LsuL1Plugin_logic_writeback_write_wordIndex_reg0[2]),
+.Q(LsuL1Plugin_logic_writeback_write_wordIndex[2]));
+RTL_REG_ASYNC__BREG_1423 \LsuL1Plugin_logic_writeback_write_wordIndex_reg[3]
+(.C(litex_clk),
+.CLR(cpuResetCtrl_reset),
+.D(LsuL1Plugin_logic_writeback_write_wordIndex_reg0[3]),
+.Q(LsuL1Plugin_logic_writeback_write_wordIndex[3]));
+RTL_MUX861 LsuL1TileLinkPlugin_logic_down_a_payload_param0_i
+(.I0({\<const0> ,\<const0> ,\<const1> }),
+.I1({\<const0> ,\<const1> ,\<const0> }),
+.O({LsuL1TileLinkPlugin_logic_down_a_payload_param0_i_n_0,LsuL1TileLinkPlugin_logic_down_a_payload_param0_i_n_1,LsuL1TileLinkPlugin_logic_down_a_payload_param0_i_n_2}),
+.S(LsuL1Plugin_logic_refill_slots_0_c_data));
+RTL_MUX861 LsuL1TileLinkPlugin_logic_down_a_payload_param_i
+(.I0({LsuL1TileLinkPlugin_logic_down_a_payload_param0_i_n_0,LsuL1TileLinkPlugin_logic_down_a_payload_param0_i_n_1,LsuL1TileLinkPlugin_logic_down_a_payload_param0_i_n_2}),
+.I1({\<const0> ,\<const0> ,\<const0> }),
+.O(LsuL1TileLinkPlugin_logic_down_a_payload_param),
+.S(LsuL1Plugin_logic_refill_slots_0_c_unique));
+RTL_AND7 LsuL1TileLinkPlugin_logic_down_b_fire_i
+(.I0(LsuL1TileLinkPlugin_logic_down_b_valid),
+.I1(LsuL1TileLinkPlugin_logic_down_b_ready),
+.O(_zz_LsuL1Plugin_logic_bus_toTilelink_coherent_onC_inflight_2));
+RTL_MUX LsuL1TileLinkPlugin_logic_down_b_ready_i
+(.I0(\<const0> ),
+.I1(\<const1> ),
+.O(LsuL1TileLinkPlugin_logic_down_b_ready_i_n_0),
+.S(LsuL1Plugin_logic_bus_toTilelink_coherent_onC_full));
+RTL_MUX LsuL1TileLinkPlugin_logic_down_b_ready_i__0
+(.I0(\<const0> ),
+.I1(LsuL1TileLinkPlugin_logic_down_b_ready_i_n_0),
+.O(LsuL1TileLinkPlugin_logic_down_b_ready),
+.S(when_LsuL1Bus_l235));
+RTL_MUX3231 LsuL1TileLinkPlugin_logic_down_d_payload_opcode_i
+(.I0({\<const0> ,\<const0> ,\<const0> ,\<const1> }),
+.I1({\<const0> ,\<const0> ,\<const1> ,\<const0> }),
+.I2({\<const0> ,\<const1> ,\<const0> ,\<const0> }),
+.I3({\<const1> ,\<const0> ,\<const0> ,\<const0> }),
+.O({LsuL1TileLinkPlugin_logic_down_d_payload_opcode_i_n_0,LsuL1TileLinkPlugin_logic_down_d_payload_opcode_i_n_1,LsuL1TileLinkPlugin_logic_down_d_payload_opcode_i_n_2,LsuL1TileLinkPlugin_logic_down_d_payload_opcode_i_n_3}),
+.S(LsuL1TileLinkPlugin_logic_down_d_payload_opcode));
+RTL_INV LsuL1_REFILL_BUSY0_i
+(.I0(LsuL1Plugin_logic_refill_slots_0_loaded),
+.O(LsuL1_REFILL_BUSY0));
+RTL_INV LsuL1_REFILL_BUSY0_i__0
+(.I0(LsuL1Plugin_logic_refill_slots_0_loadedSet),
+.O(LsuL1_REFILL_BUSY0_i__0_n_0));
+RTL_AND7 LsuL1_REFILL_BUSY_i
+(.I0(LsuL1_REFILL_BUSY0),
+.I1(LsuL1_REFILL_BUSY0_i__0_n_0),
+.O(LsuL1_REFILL_BUSY));
+RTL_AND7 LsuPlugin_logic_bus_cmd_fire_i
+(.I0(LsuTileLinkPlugin_logic_bridge_down_a_valid),
+.I1(LsuTileLinkPlugin_logic_bridge_down_a_ready),
+.O(LsuPlugin_logic_bus_cmd_fire));
+RTL_AND7 LsuPlugin_logic_bus_cmd_valid0_i
+(.I0(LsuPlugin_logic_bus_cmd_valid1),
+.I1(LsuPlugin_logic_onCtrl_io_allowIt),
+.O(LsuPlugin_logic_bus_cmd_valid0));
+RTL_INV LsuPlugin_logic_bus_cmd_valid0_i__0
+(.I0(LsuPlugin_logic_onCtrl_io_tooEarly),
+.O(LsuPlugin_logic_bus_cmd_valid0_i__0_n_0));
+RTL_AND7 LsuPlugin_logic_bus_cmd_valid1_i
+(.I0(LsuPlugin_logic_onCtrl_io_doItReg),
+.I1(LsuPlugin_logic_bus_cmd_valid2),
+.O(LsuPlugin_logic_bus_cmd_valid1));
+RTL_INV LsuPlugin_logic_bus_cmd_valid2_i
+(.I0(LsuPlugin_logic_onCtrl_io_cmdSent),
+.O(LsuPlugin_logic_bus_cmd_valid2));
+RTL_AND7 LsuPlugin_logic_bus_cmd_valid_i
+(.I0(LsuPlugin_logic_bus_cmd_valid0),
+.I1(LsuPlugin_logic_bus_cmd_valid0_i__0_n_0),
+.O(LsuTileLinkPlugin_logic_bridge_down_a_valid));
+RTL_REG__BREG_36 \LsuPlugin_logic_bus_rsp_toStream_rData_data_reg[0]
+(.C(litex_clk),
+.CE(LsuPlugin_logic_bus_rsp_toStream_ready),
+.D(LsuTileLinkPlugin_logic_bridge_down_d_payload_data[0]),
+.Q(LsuPlugin_logic_bus_rsp_toStream_rData_data[0]));
+RTL_REG__BREG_36 \LsuPlugin_logic_bus_rsp_toStream_rData_data_reg[10]
+(.C(litex_clk),
+.CE(LsuPlugin_logic_bus_rsp_toStream_ready),
+.D(LsuTileLinkPlugin_logic_bridge_down_d_payload_data[10]),
+.Q(LsuPlugin_logic_bus_rsp_toStream_rData_data[10]));
+RTL_REG__BREG_36 \LsuPlugin_logic_bus_rsp_toStream_rData_data_reg[11]
+(.C(litex_clk),
+.CE(LsuPlugin_logic_bus_rsp_toStream_ready),
+.D(LsuTileLinkPlugin_logic_bridge_down_d_payload_data[11]),
+.Q(LsuPlugin_logic_bus_rsp_toStream_rData_data[11]));
+RTL_REG__BREG_36 \LsuPlugin_logic_bus_rsp_toStream_rData_data_reg[12]
+(.C(litex_clk),
+.CE(LsuPlugin_logic_bus_rsp_toStream_ready),
+.D(LsuTileLinkPlugin_logic_bridge_down_d_payload_data[12]),
+.Q(LsuPlugin_logic_bus_rsp_toStream_rData_data[12]));
+RTL_REG__BREG_36 \LsuPlugin_logic_bus_rsp_toStream_rData_data_reg[13]
+(.C(litex_clk),
+.CE(LsuPlugin_logic_bus_rsp_toStream_ready),
+.D(LsuTileLinkPlugin_logic_bridge_down_d_payload_data[13]),
+.Q(LsuPlugin_logic_bus_rsp_toStream_rData_data[13]));
+RTL_REG__BREG_36 \LsuPlugin_logic_bus_rsp_toStream_rData_data_reg[14]
+(.C(litex_clk),
+.CE(LsuPlugin_logic_bus_rsp_toStream_ready),
+.D(LsuTileLinkPlugin_logic_bridge_down_d_payload_data[14]),
+.Q(LsuPlugin_logic_bus_rsp_toStream_rData_data[14]));
+RTL_REG__BREG_36 \LsuPlugin_logic_bus_rsp_toStream_rData_data_reg[15]
+(.C(litex_clk),
+.CE(LsuPlugin_logic_bus_rsp_toStream_ready),
+.D(LsuTileLinkPlugin_logic_bridge_down_d_payload_data[15]),
+.Q(LsuPlugin_logic_bus_rsp_toStream_rData_data[15]));
+RTL_REG__BREG_36 \LsuPlugin_logic_bus_rsp_toStream_rData_data_reg[16]
+(.C(litex_clk),
+.CE(LsuPlugin_logic_bus_rsp_toStream_ready),
+.D(LsuTileLinkPlugin_logic_bridge_down_d_payload_data[16]),
+.Q(LsuPlugin_logic_bus_rsp_toStream_rData_data[16]));
+RTL_REG__BREG_36 \LsuPlugin_logic_bus_rsp_toStream_rData_data_reg[17]
+(.C(litex_clk),
+.CE(LsuPlugin_logic_bus_rsp_toStream_ready),
+.D(LsuTileLinkPlugin_logic_bridge_down_d_payload_data[17]),
+.Q(LsuPlugin_logic_bus_rsp_toStream_rData_data[17]));
+RTL_REG__BREG_36 \LsuPlugin_logic_bus_rsp_toStream_rData_data_reg[18]
+(.C(litex_clk),
+.CE(LsuPlugin_logic_bus_rsp_toStream_ready),
+.D(LsuTileLinkPlugin_logic_bridge_down_d_payload_data[18]),
+.Q(LsuPlugin_logic_bus_rsp_toStream_rData_data[18]));
+RTL_REG__BREG_36 \LsuPlugin_logic_bus_rsp_toStream_rData_data_reg[19]
+(.C(litex_clk),
+.CE(LsuPlugin_logic_bus_rsp_toStream_ready),
+.D(LsuTileLinkPlugin_logic_bridge_down_d_payload_data[19]),
+.Q(LsuPlugin_logic_bus_rsp_toStream_rData_data[19]));
+RTL_REG__BREG_36 \LsuPlugin_logic_bus_rsp_toStream_rData_data_reg[1]
+(.C(litex_clk),
+.CE(LsuPlugin_logic_bus_rsp_toStream_ready),
+.D(LsuTileLinkPlugin_logic_bridge_down_d_payload_data[1]),
+.Q(LsuPlugin_logic_bus_rsp_toStream_rData_data[1]));
+RTL_REG__BREG_36 \LsuPlugin_logic_bus_rsp_toStream_rData_data_reg[20]
+(.C(litex_clk),
+.CE(LsuPlugin_logic_bus_rsp_toStream_ready),
+.D(LsuTileLinkPlugin_logic_bridge_down_d_payload_data[20]),
+.Q(LsuPlugin_logic_bus_rsp_toStream_rData_data[20]));
+RTL_REG__BREG_36 \LsuPlugin_logic_bus_rsp_toStream_rData_data_reg[21]
+(.C(litex_clk),
+.CE(LsuPlugin_logic_bus_rsp_toStream_ready),
+.D(LsuTileLinkPlugin_logic_bridge_down_d_payload_data[21]),
+.Q(LsuPlugin_logic_bus_rsp_toStream_rData_data[21]));
+RTL_REG__BREG_36 \LsuPlugin_logic_bus_rsp_toStream_rData_data_reg[22]
+(.C(litex_clk),
+.CE(LsuPlugin_logic_bus_rsp_toStream_ready),
+.D(LsuTileLinkPlugin_logic_bridge_down_d_payload_data[22]),
+.Q(LsuPlugin_logic_bus_rsp_toStream_rData_data[22]));
+RTL_REG__BREG_36 \LsuPlugin_logic_bus_rsp_toStream_rData_data_reg[23]
+(.C(litex_clk),
+.CE(LsuPlugin_logic_bus_rsp_toStream_ready),
+.D(LsuTileLinkPlugin_logic_bridge_down_d_payload_data[23]),
+.Q(LsuPlugin_logic_bus_rsp_toStream_rData_data[23]));
+RTL_REG__BREG_36 \LsuPlugin_logic_bus_rsp_toStream_rData_data_reg[24]
+(.C(litex_clk),
+.CE(LsuPlugin_logic_bus_rsp_toStream_ready),
+.D(LsuTileLinkPlugin_logic_bridge_down_d_payload_data[24]),
+.Q(LsuPlugin_logic_bus_rsp_toStream_rData_data[24]));
+RTL_REG__BREG_36 \LsuPlugin_logic_bus_rsp_toStream_rData_data_reg[25]
+(.C(litex_clk),
+.CE(LsuPlugin_logic_bus_rsp_toStream_ready),
+.D(LsuTileLinkPlugin_logic_bridge_down_d_payload_data[25]),
+.Q(LsuPlugin_logic_bus_rsp_toStream_rData_data[25]));
+RTL_REG__BREG_36 \LsuPlugin_logic_bus_rsp_toStream_rData_data_reg[26]
+(.C(litex_clk),
+.CE(LsuPlugin_logic_bus_rsp_toStream_ready),
+.D(LsuTileLinkPlugin_logic_bridge_down_d_payload_data[26]),
+.Q(LsuPlugin_logic_bus_rsp_toStream_rData_data[26]));
+RTL_REG__BREG_36 \LsuPlugin_logic_bus_rsp_toStream_rData_data_reg[27]
+(.C(litex_clk),
+.CE(LsuPlugin_logic_bus_rsp_toStream_ready),
+.D(LsuTileLinkPlugin_logic_bridge_down_d_payload_data[27]),
+.Q(LsuPlugin_logic_bus_rsp_toStream_rData_data[27]));
+RTL_REG__BREG_36 \LsuPlugin_logic_bus_rsp_toStream_rData_data_reg[28]
+(.C(litex_clk),
+.CE(LsuPlugin_logic_bus_rsp_toStream_ready),
+.D(LsuTileLinkPlugin_logic_bridge_down_d_payload_data[28]),
+.Q(LsuPlugin_logic_bus_rsp_toStream_rData_data[28]));
+RTL_REG__BREG_36 \LsuPlugin_logic_bus_rsp_toStream_rData_data_reg[29]
+(.C(litex_clk),
+.CE(LsuPlugin_logic_bus_rsp_toStream_ready),
+.D(LsuTileLinkPlugin_logic_bridge_down_d_payload_data[29]),
+.Q(LsuPlugin_logic_bus_rsp_toStream_rData_data[29]));
+RTL_REG__BREG_36 \LsuPlugin_logic_bus_rsp_toStream_rData_data_reg[2]
+(.C(litex_clk),
+.CE(LsuPlugin_logic_bus_rsp_toStream_ready),
+.D(LsuTileLinkPlugin_logic_bridge_down_d_payload_data[2]),
+.Q(LsuPlugin_logic_bus_rsp_toStream_rData_data[2]));
+RTL_REG__BREG_36 \LsuPlugin_logic_bus_rsp_toStream_rData_data_reg[30]
+(.C(litex_clk),
+.CE(LsuPlugin_logic_bus_rsp_toStream_ready),
+.D(LsuTileLinkPlugin_logic_bridge_down_d_payload_data[30]),
+.Q(LsuPlugin_logic_bus_rsp_toStream_rData_data[30]));
+RTL_REG__BREG_36 \LsuPlugin_logic_bus_rsp_toStream_rData_data_reg[31]
+(.C(litex_clk),
+.CE(LsuPlugin_logic_bus_rsp_toStream_ready),
+.D(LsuTileLinkPlugin_logic_bridge_down_d_payload_data[31]),
+.Q(LsuPlugin_logic_bus_rsp_toStream_rData_data[31]));
+RTL_REG__BREG_36 \LsuPlugin_logic_bus_rsp_toStream_rData_data_reg[3]
+(.C(litex_clk),
+.CE(LsuPlugin_logic_bus_rsp_toStream_ready),
+.D(LsuTileLinkPlugin_logic_bridge_down_d_payload_data[3]),
+.Q(LsuPlugin_logic_bus_rsp_toStream_rData_data[3]));
+RTL_REG__BREG_36 \LsuPlugin_logic_bus_rsp_toStream_rData_data_reg[4]
+(.C(litex_clk),
+.CE(LsuPlugin_logic_bus_rsp_toStream_ready),
+.D(LsuTileLinkPlugin_logic_bridge_down_d_payload_data[4]),
+.Q(LsuPlugin_logic_bus_rsp_toStream_rData_data[4]));
+RTL_REG__BREG_36 \LsuPlugin_logic_bus_rsp_toStream_rData_data_reg[5]
+(.C(litex_clk),
+.CE(LsuPlugin_logic_bus_rsp_toStream_ready),
+.D(LsuTileLinkPlugin_logic_bridge_down_d_payload_data[5]),
+.Q(LsuPlugin_logic_bus_rsp_toStream_rData_data[5]));
+RTL_REG__BREG_36 \LsuPlugin_logic_bus_rsp_toStream_rData_data_reg[6]
+(.C(litex_clk),
+.CE(LsuPlugin_logic_bus_rsp_toStream_ready),
+.D(LsuTileLinkPlugin_logic_bridge_down_d_payload_data[6]),
+.Q(LsuPlugin_logic_bus_rsp_toStream_rData_data[6]));
+RTL_REG__BREG_36 \LsuPlugin_logic_bus_rsp_toStream_rData_data_reg[7]
+(.C(litex_clk),
+.CE(LsuPlugin_logic_bus_rsp_toStream_ready),
+.D(LsuTileLinkPlugin_logic_bridge_down_d_payload_data[7]),
+.Q(LsuPlugin_logic_bus_rsp_toStream_rData_data[7]));
+RTL_REG__BREG_36 \LsuPlugin_logic_bus_rsp_toStream_rData_data_reg[8]
+(.C(litex_clk),
+.CE(LsuPlugin_logic_bus_rsp_toStream_ready),
+.D(LsuTileLinkPlugin_logic_bridge_down_d_payload_data[8]),
+.Q(LsuPlugin_logic_bus_rsp_toStream_rData_data[8]));
+RTL_REG__BREG_36 \LsuPlugin_logic_bus_rsp_toStream_rData_data_reg[9]
+(.C(litex_clk),
+.CE(LsuPlugin_logic_bus_rsp_toStream_ready),
+.D(LsuTileLinkPlugin_logic_bridge_down_d_payload_data[9]),
+.Q(LsuPlugin_logic_bus_rsp_toStream_rData_data[9]));
+RTL_REG__BREG_36 LsuPlugin_logic_bus_rsp_toStream_rData_error_reg
+(.C(litex_clk),
+.CE(LsuPlugin_logic_bus_rsp_toStream_ready),
+.D(LsuTileLinkPlugin_logic_bridge_down_d_payload_denied),
+.Q(LsuPlugin_logic_bus_rsp_toStream_rData_error));
+RTL_MUX LsuPlugin_logic_bus_rsp_toStream_rValid_i
+(.I0(\<const0> ),
+.I1(LsuTileLinkPlugin_logic_bridge_down_d_valid),
+.O(LsuPlugin_logic_bus_rsp_toStream_rValid__0),
+.S(LsuPlugin_logic_onCtrl_io_rsp_fire));
+RTL_MUX LsuPlugin_logic_bus_rsp_toStream_rValid_i__0
+(.I0(\<const1> ),
+.I1(LsuTileLinkPlugin_logic_bridge_down_d_valid),
+.O(LsuPlugin_logic_bus_rsp_toStream_rValid_i__0_n_0),
+.S(LsuPlugin_logic_onCtrl_io_rsp_fire));
+RTL_REG_ASYNC__BREG_1413 LsuPlugin_logic_bus_rsp_toStream_rValid_reg
+(.C(litex_clk),
+.CE(LsuPlugin_logic_bus_rsp_toStream_rValid_i__0_n_0),
+.CLR(cpuResetCtrl_reset),
+.D(LsuPlugin_logic_bus_rsp_toStream_rValid__0),
+.Q(LsuPlugin_logic_bus_rsp_toStream_rValid));
+RTL_INV LsuPlugin_logic_bus_rsp_toStream_ready_i
+(.I0(LsuPlugin_logic_bus_rsp_toStream_rValid),
+.O(LsuPlugin_logic_bus_rsp_toStream_ready));
+RTL_MUX LsuPlugin_logic_flushPort_valid_i
+(.I0(LsuPlugin_logic_onCtrl_lsuTrap),
+.I1(\<const0> ),
+.O(_zz_TrapPlugin_logic_harts_0_trap_pending_arbiter_ports_0_valid),
+.S(when_LsuPlugin_l915));
+RTL_INV LsuPlugin_logic_iwb_valid0_i
+(.I0(execute_ctrl4_up_AguPlugin_FLOAT_lane0),
+.O(LsuPlugin_logic_iwb_valid0));
+RTL_AND7 LsuPlugin_logic_iwb_valid_i
+(.I0(execute_ctrl4_up_AguPlugin_SEL_lane0),
+.I1(LsuPlugin_logic_iwb_valid0),
+.O(lane0_IntFormatPlugin_logic_stages_1_hits[1]));
+StreamArbiter LsuPlugin_logic_onAddress0_arbiter
+(.io_inputs_0_payload_address(execute_ctrl2_down_early0_SrcPlugin_ADD_SUB_lane0),
+.io_inputs_0_payload_atomic(execute_ctrl2_up_AguPlugin_ATOMIC_lane0),
+.io_inputs_0_payload_clean(\<const0> ),
+.io_inputs_0_payload_invalidate(\<const0> ),
+.io_inputs_0_payload_load(execute_ctrl2_up_AguPlugin_LOAD_lane0),
+.io_inputs_0_payload_op({\<const0> ,\<const0> ,\<const0> }),
+.io_inputs_0_payload_size(execute_ctrl2_up_AguPlugin_SIZE_lane0),
+.io_inputs_0_payload_store(execute_ctrl2_up_AguPlugin_STORE_lane0),
+.io_inputs_0_payload_storeId(LsuPlugin_logic_onAddress0_ls_storeId),
+.io_inputs_0_ready(LsuPlugin_logic_onAddress0_arbiter_io_inputs_0_ready),
+.io_inputs_0_valid(LsuPlugin_logic_onAddress0_ls_port_valid),
+.io_output_payload_address(execute_ctrl2_down_LsuL1_MIXED_ADDRESS_lane0),
+.io_output_payload_atomic(LsuPlugin_logic_onAddress0_arbiter_io_output_payload_atomic),
+.io_output_payload_clean(LsuPlugin_logic_onAddress0_arbiter_io_output_payload_clean),
+.io_output_payload_invalidate(LsuPlugin_logic_onAddress0_arbiter_io_output_payload_invalidate),
+.io_output_payload_load(LsuPlugin_logic_onAddress0_arbiter_io_output_payload_load),
+.io_output_payload_op(LsuPlugin_logic_onAddress0_arbiter_io_output_payload_op),
+.io_output_payload_size(execute_ctrl2_down_LsuL1_SIZE_lane0),
+.io_output_payload_store(LsuPlugin_logic_onAddress0_arbiter_io_output_payload_store),
+.io_output_ready(LsuL1Plugin_logic_c_freezeTimeout_counter_willClear),
+.io_output_valid(LsuPlugin_logic_onAddress0_arbiter_io_output_valid));
+RTL_MUX3231 LsuPlugin_logic_onAddress0_arbiter_io_output_payload_op_i
+(.I0({\<const0> ,\<const0> ,\<const0> ,\<const1> }),
+.I1({\<const0> ,\<const0> ,\<const1> ,\<const0> }),
+.I2({\<const0> ,\<const1> ,\<const0> ,\<const0> }),
+.I3({\<const1> ,\<const0> ,\<const0> ,\<const0> }),
+.O({execute_ctrl2_down_LsuPlugin_logic_FROM_LSU_lane0,execute_ctrl2_down_LsuPlugin_logic_FROM_ACCESS_lane0,execute_ctrl2_down_LsuL1_FLUSH_lane0,LsuPlugin_logic_onAddress0_arbiter_io_output_payload_op_i_n_3}),
+.S(LsuPlugin_logic_onAddress0_arbiter_io_output_payload_op));
+RTL_INV LsuPlugin_logic_onAddress0_arbiter_io_output_ready_i
+(.I0(execute_freeze_valid),
+.O(LsuL1Plugin_logic_c_freezeTimeout_counter_willClear));
+RTL_AND7 LsuPlugin_logic_onAddress0_ls_port_fire_i
+(.I0(LsuPlugin_logic_onAddress0_ls_port_valid),
+.I1(LsuPlugin_logic_onAddress0_arbiter_io_inputs_0_ready),
+.O(_zz_LsuPlugin_logic_onAddress0_ls_storeId));
+RTL_AND7 LsuPlugin_logic_onAddress0_ls_port_valid_i
+(.I0(execute_ctrl2_up_LANE_SEL_lane0),
+.I1(execute_ctrl2_up_AguPlugin_SEL_lane0),
+.O(LsuPlugin_logic_onAddress0_ls_port_valid));
+RTL_ADD674 LsuPlugin_logic_onAddress0_ls_storeId0_i
+(.I0(LsuPlugin_logic_onAddress0_ls_storeId),
+.I1({\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,_zz_LsuPlugin_logic_onAddress0_ls_storeId}),
+.O(LsuPlugin_logic_onAddress0_ls_storeId0));
+RTL_REG_ASYNC__BREG_1423 \LsuPlugin_logic_onAddress0_ls_storeId_reg[0]
+(.C(litex_clk),
+.CLR(cpuResetCtrl_reset),
+.D(LsuPlugin_logic_onAddress0_ls_storeId0[0]),
+.Q(LsuPlugin_logic_onAddress0_ls_storeId[0]));
+RTL_REG_ASYNC__BREG_1423 \LsuPlugin_logic_onAddress0_ls_storeId_reg[10]
+(.C(litex_clk),
+.CLR(cpuResetCtrl_reset),
+.D(LsuPlugin_logic_onAddress0_ls_storeId0[10]),
+.Q(LsuPlugin_logic_onAddress0_ls_storeId[10]));
+RTL_REG_ASYNC__BREG_1423 \LsuPlugin_logic_onAddress0_ls_storeId_reg[11]
+(.C(litex_clk),
+.CLR(cpuResetCtrl_reset),
+.D(LsuPlugin_logic_onAddress0_ls_storeId0[11]),
+.Q(LsuPlugin_logic_onAddress0_ls_storeId[11]));
+RTL_REG_ASYNC__BREG_1423 \LsuPlugin_logic_onAddress0_ls_storeId_reg[1]
+(.C(litex_clk),
+.CLR(cpuResetCtrl_reset),
+.D(LsuPlugin_logic_onAddress0_ls_storeId0[1]),
+.Q(LsuPlugin_logic_onAddress0_ls_storeId[1]));
+RTL_REG_ASYNC__BREG_1423 \LsuPlugin_logic_onAddress0_ls_storeId_reg[2]
+(.C(litex_clk),
+.CLR(cpuResetCtrl_reset),
+.D(LsuPlugin_logic_onAddress0_ls_storeId0[2]),
+.Q(LsuPlugin_logic_onAddress0_ls_storeId[2]));
+RTL_REG_ASYNC__BREG_1423 \LsuPlugin_logic_onAddress0_ls_storeId_reg[3]
+(.C(litex_clk),
+.CLR(cpuResetCtrl_reset),
+.D(LsuPlugin_logic_onAddress0_ls_storeId0[3]),
+.Q(LsuPlugin_logic_onAddress0_ls_storeId[3]));
+RTL_REG_ASYNC__BREG_1423 \LsuPlugin_logic_onAddress0_ls_storeId_reg[4]
+(.C(litex_clk),
+.CLR(cpuResetCtrl_reset),
+.D(LsuPlugin_logic_onAddress0_ls_storeId0[4]),
+.Q(LsuPlugin_logic_onAddress0_ls_storeId[4]));
+RTL_REG_ASYNC__BREG_1423 \LsuPlugin_logic_onAddress0_ls_storeId_reg[5]
+(.C(litex_clk),
+.CLR(cpuResetCtrl_reset),
+.D(LsuPlugin_logic_onAddress0_ls_storeId0[5]),
+.Q(LsuPlugin_logic_onAddress0_ls_storeId[5]));
+RTL_REG_ASYNC__BREG_1423 \LsuPlugin_logic_onAddress0_ls_storeId_reg[6]
+(.C(litex_clk),
+.CLR(cpuResetCtrl_reset),
+.D(LsuPlugin_logic_onAddress0_ls_storeId0[6]),
+.Q(LsuPlugin_logic_onAddress0_ls_storeId[6]));
+RTL_REG_ASYNC__BREG_1423 \LsuPlugin_logic_onAddress0_ls_storeId_reg[7]
+(.C(litex_clk),
+.CLR(cpuResetCtrl_reset),
+.D(LsuPlugin_logic_onAddress0_ls_storeId0[7]),
+.Q(LsuPlugin_logic_onAddress0_ls_storeId[7]));
+RTL_REG_ASYNC__BREG_1423 \LsuPlugin_logic_onAddress0_ls_storeId_reg[8]
+(.C(litex_clk),
+.CLR(cpuResetCtrl_reset),
+.D(LsuPlugin_logic_onAddress0_ls_storeId0[8]),
+.Q(LsuPlugin_logic_onAddress0_ls_storeId[8]));
+RTL_REG_ASYNC__BREG_1423 \LsuPlugin_logic_onAddress0_ls_storeId_reg[9]
+(.C(litex_clk),
+.CLR(cpuResetCtrl_reset),
+.D(LsuPlugin_logic_onAddress0_ls_storeId0[9]),
+.Q(LsuPlugin_logic_onAddress0_ls_storeId[9]));
+RTL_REG_ASYNC__BREG_1413 LsuPlugin_logic_onCtrl_fenceTrap_doItReg_reg
+(.C(litex_clk),
+.CE(LsuL1Plugin_logic_c_freezeTimeout_counter_willClear),
+.CLR(cpuResetCtrl_reset),
+.D(\<const0> ),
+.Q(LsuPlugin_logic_onCtrl_fenceTrap_doItReg));
+RTL_MUX LsuPlugin_logic_onCtrl_hartRegulation_refill_i
+(.I0(when_LsuPlugin_l268),
+.I1(\<const0> ),
+.O(LsuPlugin_logic_onCtrl_hartRegulation_refill__0),
+.S(when_LsuPlugin_l1000));
+RTL_REG__BREG_36 \LsuPlugin_logic_onCtrl_hartRegulation_refill_reg[0]
+(.C(litex_clk),
+.CE(LsuPlugin_logic_onCtrl_hartRegulation_refill__0),
+.D(execute_ctrl4_down_LsuL1_WAIT_REFILL_lane0),
+.Q(LsuPlugin_logic_onCtrl_hartRegulation_refill));
+RTL_MUX LsuPlugin_logic_onCtrl_hartRegulation_valid_i
+(.I0(when_LsuPlugin_l268),
+.I1(\<const0> ),
+.O(LsuPlugin_logic_onCtrl_hartRegulation_valid__0),
+.S(when_LsuPlugin_l1000));
+RTL_MUX LsuPlugin_logic_onCtrl_hartRegulation_valid_i__0
+(.I0(\<const1> ),
+.I1(when_LsuPlugin_l264),
+.O(LsuPlugin_logic_onCtrl_hartRegulation_valid_i__0_n_0),
+.S(when_LsuPlugin_l268));
+RTL_MUX LsuPlugin_logic_onCtrl_hartRegulation_valid_i__1
+(.I0(LsuPlugin_logic_onCtrl_hartRegulation_valid_i__0_n_0),
+.I1(when_LsuPlugin_l264),
+.O(LsuPlugin_logic_onCtrl_hartRegulation_valid_i__1_n_0),
+.S(when_LsuPlugin_l1000));
+RTL_REG_ASYNC__BREG_1413 LsuPlugin_logic_onCtrl_hartRegulation_valid_reg
+(.C(litex_clk),
+.CE(LsuPlugin_logic_onCtrl_hartRegulation_valid_i__1_n_0),
+.CLR(cpuResetCtrl_reset),
+.D(LsuPlugin_logic_onCtrl_hartRegulation_valid__0),
+.Q(LsuPlugin_logic_onCtrl_hartRegulation_valid));
+RTL_REG_ASYNC__BREG_1423 LsuPlugin_logic_onCtrl_io_allowIt_reg
+(.C(litex_clk),
+.CLR(cpuResetCtrl_reset),
+.D(when_LsuPlugin_l615),
+.Q(LsuPlugin_logic_onCtrl_io_allowIt));
+RTL_MUX LsuPlugin_logic_onCtrl_io_cmdSent_i
+(.I0(\<const0> ),
+.I1(LsuPlugin_logic_bus_cmd_fire),
+.O(LsuPlugin_logic_onCtrl_io_cmdSent__0),
+.S(LsuL1Plugin_logic_c_freezeTimeout_counter_willClear));
+RTL_MUX LsuPlugin_logic_onCtrl_io_cmdSent_i__0
+(.I0(\<const1> ),
+.I1(LsuPlugin_logic_bus_cmd_fire),
+.O(LsuPlugin_logic_onCtrl_io_cmdSent_i__0_n_0),
+.S(LsuL1Plugin_logic_c_freezeTimeout_counter_willClear));
+RTL_REG_ASYNC__BREG_1413 LsuPlugin_logic_onCtrl_io_cmdSent_reg
+(.C(litex_clk),
+.CE(LsuPlugin_logic_onCtrl_io_cmdSent_i__0_n_0),
+.CLR(cpuResetCtrl_reset),
+.D(LsuPlugin_logic_onCtrl_io_cmdSent__0),
+.Q(LsuPlugin_logic_onCtrl_io_cmdSent));
+RTL_AND7 LsuPlugin_logic_onCtrl_io_doIt0_i
+(.I0(execute_ctrl4_up_LANE_SEL_lane0),
+.I1(execute_ctrl4_LsuL1_SEL_lane0_bypass),
+.O(LsuPlugin_logic_onCtrl_io_doIt0));
+RTL_REG_ASYNC__BREG_1423 LsuPlugin_logic_onCtrl_io_doItReg_reg
+(.C(litex_clk),
+.CLR(cpuResetCtrl_reset),
+.D(LsuPlugin_logic_onCtrl_io_doIt),
+.Q(LsuPlugin_logic_onCtrl_io_doItReg));
+RTL_AND7 LsuPlugin_logic_onCtrl_io_doIt_i
+(.I0(LsuPlugin_logic_onCtrl_io_doIt0),
+.I1(execute_ctrl4_up_LsuPlugin_logic_onPma_IO_lane0),
+.O(LsuPlugin_logic_onCtrl_io_doIt));
+RTL_OR LsuPlugin_logic_onCtrl_io_freezeIt0_i
+(.I0(LsuPlugin_logic_onCtrl_io_tooEarly),
+.I1(LsuPlugin_logic_onCtrl_io_freezeIt1),
+.O(LsuPlugin_logic_onCtrl_io_freezeIt0));
+RTL_AND7 LsuPlugin_logic_onCtrl_io_freezeIt1_i
+(.I0(LsuPlugin_logic_onCtrl_io_freezeIt2),
+.I1(LsuPlugin_logic_onCtrl_io_allowIt),
+.O(LsuPlugin_logic_onCtrl_io_freezeIt1));
+RTL_INV LsuPlugin_logic_onCtrl_io_freezeIt2_i
+(.I0(LsuPlugin_logic_bus_rsp_toStream_rValid),
+.O(LsuPlugin_logic_onCtrl_io_freezeIt2));
+RTL_AND7 LsuPlugin_logic_onCtrl_io_freezeIt_i
+(.I0(LsuPlugin_logic_onCtrl_io_doIt),
+.I1(LsuPlugin_logic_onCtrl_io_freezeIt0),
+.O(LsuPlugin_logic_onCtrl_io_freezeIt));
+RTL_AND7 LsuPlugin_logic_onCtrl_io_rsp_fire_i
+(.I0(LsuPlugin_logic_bus_rsp_toStream_rValid),
+.I1(LsuL1Plugin_logic_c_freezeTimeout_counter_willClear),
+.O(LsuPlugin_logic_onCtrl_io_rsp_fire));
+RTL_MUX LsuPlugin_logic_onCtrl_io_tooEarly_i
+(.I0(\<const0> ),
+.I1(\<const1> ),
+.O(LsuPlugin_logic_onCtrl_io_tooEarly__0),
+.S(execute_freeze_valid));
+RTL_REG_ASYNC__BREG_1423 LsuPlugin_logic_onCtrl_io_tooEarly_reg
+(.C(litex_clk),
+.CLR(cpuResetCtrl_reset),
+.D(LsuPlugin_logic_onCtrl_io_tooEarly__0),
+.Q(LsuPlugin_logic_onCtrl_io_tooEarly));
+RTL_MUX374 LsuPlugin_logic_onCtrl_loadData_input_i
+(.I0(LsuPlugin_logic_bus_rsp_toStream_rData_data),
+.I1(execute_ctrl4_down_LsuL1Plugin_logic_MUXED_DATA_lane0),
+.O({LsuPlugin_logic_onCtrl_loadData_splitted_3,LsuPlugin_logic_onCtrl_loadData_splitted_2,LsuPlugin_logic_onCtrl_loadData_splitted_1,LsuPlugin_logic_onCtrl_loadData_splitted_0}),
+.S(LsuPlugin_logic_onCtrl_io_cmdSent));
+RTL_MUX LsuPlugin_logic_onCtrl_lsuTrap_i
+(.I0(\<const1> ),
+.I1(LsuPlugin_logic_onCtrl_traps_accessFault),
+.O(LsuPlugin_logic_onCtrl_lsuTrap_i_n_0),
+.S(LsuPlugin_logic_onCtrl_traps_l1Failed));
+RTL_MUX LsuPlugin_logic_onCtrl_lsuTrap_i__0
+(.I0(\<const1> ),
+.I1(LsuPlugin_logic_onCtrl_lsuTrap_i_n_0),
+.O(LsuPlugin_logic_onCtrl_lsuTrap_i__0_n_0),
+.S(LsuPlugin_logic_onCtrl_traps_pmaFault));
+RTL_MUX LsuPlugin_logic_onCtrl_lsuTrap_i__1
+(.I0(\<const1> ),
+.I1(LsuPlugin_logic_onCtrl_lsuTrap_i__0_n_0),
+.O(LsuPlugin_logic_onCtrl_lsuTrap_i__1_n_0),
+.S(execute_ctrl4_up_LsuPlugin_logic_MMU_PAGE_FAULT_lane0));
+RTL_MUX LsuPlugin_logic_onCtrl_lsuTrap_i__2
+(.I0(\<const1> ),
+.I1(LsuPlugin_logic_onCtrl_lsuTrap_i__1_n_0),
+.O(LsuPlugin_logic_onCtrl_lsuTrap_i__2_n_0),
+.S(execute_ctrl4_up_MMU_ACCESS_FAULT_lane0));
+RTL_MUX LsuPlugin_logic_onCtrl_lsuTrap_i__3
+(.I0(\<const1> ),
+.I1(LsuPlugin_logic_onCtrl_lsuTrap_i__2_n_0),
+.O(LsuPlugin_logic_onCtrl_lsuTrap_i__3_n_0),
+.S(execute_ctrl4_up_MMU_REFILL_lane0));
+RTL_MUX LsuPlugin_logic_onCtrl_lsuTrap_i__4
+(.I0(\<const1> ),
+.I1(LsuPlugin_logic_onCtrl_lsuTrap_i__3_n_0),
+.O(LsuPlugin_logic_onCtrl_lsuTrap_i__4_n_0),
+.S(execute_ctrl4_up_MMU_HAZARD_lane0));
+RTL_MUX LsuPlugin_logic_onCtrl_lsuTrap_i__5
+(.I0(\<const1> ),
+.I1(LsuPlugin_logic_onCtrl_lsuTrap_i__4_n_0),
+.O(LsuPlugin_logic_onCtrl_lsuTrap_i__5_n_0),
+.S(execute_ctrl4_up_LsuPlugin_logic_onPma_FROM_LSU_MSB_FAILED_lane0));
+RTL_MUX LsuPlugin_logic_onCtrl_lsuTrap_i__6
+(.I0(\<const1> ),
+.I1(LsuPlugin_logic_onCtrl_lsuTrap_i__5_n_0),
+.O(LsuPlugin_logic_onCtrl_lsuTrap_i__6_n_0),
+.S(execute_ctrl4_up_LsuPlugin_logic_preCtrl_MISS_ALIGNED_lane0));
+RTL_MUX LsuPlugin_logic_onCtrl_lsuTrap_i__7
+(.I0(\<const1> ),
+.I1(LsuPlugin_logic_onCtrl_lsuTrap_i__6_n_0),
+.O(LsuPlugin_logic_onCtrl_lsuTrap_i__7_n_0),
+.S(execute_ctrl4_up_LsuPlugin_logic_onTrigger_HIT_lane0));
+RTL_MUX LsuPlugin_logic_onCtrl_lsuTrap_i__8
+(.I0(\<const0> ),
+.I1(LsuPlugin_logic_onCtrl_lsuTrap_i__7_n_0),
+.O(LsuPlugin_logic_onCtrl_lsuTrap_i__8_n_0),
+.S(when_LsuPlugin_l854));
+RTL_MUX LsuPlugin_logic_onCtrl_lsuTrap_i__9
+(.I0(\<const1> ),
+.I1(LsuPlugin_logic_onCtrl_lsuTrap_i__8_n_0),
+.O(LsuPlugin_logic_onCtrl_lsuTrap),
+.S(LsuPlugin_logic_onCtrl_fenceTrap_doItReg));
+RTL_OR LsuPlugin_logic_onCtrl_mmuNeeded_i
+(.I0(execute_ctrl4_up_LsuPlugin_logic_FROM_LSU_lane0),
+.I1(execute_ctrl4_up_LsuPlugin_logic_FROM_PREFETCH_lane0),
+.O(LsuPlugin_logic_onCtrl_mmuNeeded));
+RTL_AND7 LsuPlugin_logic_onCtrl_traps_accessFault0_i
+(.I0(LsuPlugin_logic_bus_rsp_toStream_rValid),
+.I1(LsuPlugin_logic_bus_rsp_toStream_rData_error),
+.O(LsuPlugin_logic_onCtrl_traps_accessFault0));
+RTL_MUX LsuPlugin_logic_onCtrl_traps_accessFault_i
+(.I0(LsuPlugin_logic_onCtrl_traps_accessFault0),
+.I1(execute_ctrl4_down_LsuL1_FAULT_lane0),
+.O(LsuPlugin_logic_onCtrl_traps_accessFault),
+.S(execute_ctrl4_up_LsuPlugin_logic_onPma_CACHED_RSP_lane0_fault));
+RTL_AND7 LsuPlugin_logic_onCtrl_traps_l1Failed0_i
+(.I0(LsuPlugin_logic_onCtrl_traps_l1Failed1),
+.I1(LsuPlugin_logic_onCtrl_traps_l1Failed1_i__0_n_0),
+.O(LsuPlugin_logic_onCtrl_traps_l1Failed0));
+RTL_INV LsuPlugin_logic_onCtrl_traps_l1Failed1_i
+(.I0(execute_ctrl4_up_LsuPlugin_logic_onPma_CACHED_RSP_lane0_fault),
+.O(LsuPlugin_logic_onCtrl_traps_l1Failed1));
+RTL_OR LsuPlugin_logic_onCtrl_traps_l1Failed1_i__0
+(.I0(p_0_out[0]),
+.I1(LsuPlugin_logic_onCtrl_traps_l1Failed2),
+.O(LsuPlugin_logic_onCtrl_traps_l1Failed1_i__0_n_0));
+RTL_AND7 LsuPlugin_logic_onCtrl_traps_l1Failed2_i
+(.I0(LsuPlugin_logic_onCtrl_traps_l1Failed3_i_n_0),
+.I1(LsuPlugin_logic_onCtrl_traps_l1Failed3),
+.O(LsuPlugin_logic_onCtrl_traps_l1Failed2));
+RTL_OR LsuPlugin_logic_onCtrl_traps_l1Failed3_i
+(.I0(execute_ctrl4_down_LsuL1_MISS_lane0),
+.I1(execute_ctrl4_down_LsuL1_MISS_UNIQUE_lane0),
+.O(LsuPlugin_logic_onCtrl_traps_l1Failed3_i_n_0));
+RTL_OR LsuPlugin_logic_onCtrl_traps_l1Failed3_i__0
+(.I0(execute_ctrl4_up_LsuL1_LOAD_lane0),
+.I1(execute_ctrl4_up_LsuL1_STORE_lane0),
+.O(LsuPlugin_logic_onCtrl_traps_l1Failed3));
+RTL_AND7 LsuPlugin_logic_onCtrl_traps_l1Failed_i
+(.I0(execute_ctrl4_LsuL1_SEL_lane0_bypass),
+.I1(LsuPlugin_logic_onCtrl_traps_l1Failed0),
+.O(LsuPlugin_logic_onCtrl_traps_l1Failed));
+RTL_AND7 LsuPlugin_logic_onCtrl_traps_pmaFault_i
+(.I0(execute_ctrl4_up_LsuPlugin_logic_onPma_CACHED_RSP_lane0_fault),
+.I1(execute_ctrl4_up_LsuPlugin_logic_onPma_IO_RSP_lane0_fault),
+.O(LsuPlugin_logic_onCtrl_traps_pmaFault));
+RTL_REDUCTION_OR35 LsuPlugin_logic_onPma_cached_rsp_fault0_i
+(.I0({LsuPlugin_logic_onPma_cached_rsp_fault1,_zz_LsuPlugin_logic_onPma_io_rsp_fault_4,LsuPlugin_logic_onPma_cached_rsp_fault1_i_n_0}),
+.O(LsuPlugin_logic_onPma_cached_rsp_fault0));
+RTL_EQ43 LsuPlugin_logic_onPma_cached_rsp_fault1_i
+(.I0(LsuPlugin_logic_onPma_cached_rsp_fault2),
+.I1({\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const1> ,\<const1> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> }),
+.O(LsuPlugin_logic_onPma_cached_rsp_fault1_i_n_0));
+RTL_EQ43 LsuPlugin_logic_onPma_cached_rsp_fault1_i__0
+(.I0(_zz_LsuPlugin_logic_onPma_io_rsp_fault_1),
+.I1({\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> }),
+.O(LsuPlugin_logic_onPma_cached_rsp_fault1));
+RTL_AND598 LsuPlugin_logic_onPma_cached_rsp_fault2_i
+(.I0(execute_ctrl3_up_LsuL1_MIXED_ADDRESS_lane0),
+.I1({\<const1> ,\<const1> ,\<const1> ,\<const0> ,\<const1> ,\<const1> ,\<const1> ,\<const1> ,\<const1> ,\<const1> ,\<const1> ,\<const1> ,\<const1> ,\<const1> ,\<const1> ,\<const1> ,\<const1> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> }),
+.O(LsuPlugin_logic_onPma_cached_rsp_fault2));
+RTL_INV LsuPlugin_logic_onPma_cached_rsp_fault_i
+(.I0(LsuPlugin_logic_onPma_cached_rsp_fault0),
+.O(LsuPlugin_logic_onPma_cached_rsp_fault));
+RTL_AND7 LsuPlugin_logic_onPma_io_rsp_fault0_i
+(.I0(LsuPlugin_logic_onPma_io_rsp_fault1),
+.I1(LsuPlugin_logic_onPma_io_rsp_fault1_i__0_n_0),
+.O(LsuPlugin_logic_onPma_io_rsp_fault0));
+RTL_REDUCTION_OR11 LsuPlugin_logic_onPma_io_rsp_fault1_i
+(.I0({LsuPlugin_logic_onPma_io_rsp_fault2,LsuPlugin_logic_onPma_io_rsp_fault2_i__2_n_0,LsuPlugin_logic_onPma_io_rsp_fault2_i__1_n_0,_zz_LsuPlugin_logic_onPma_io_rsp_fault_3,_zz_LsuPlugin_logic_onPma_io_rsp_fault_4,LsuPlugin_logic_onPma_cached_rsp_fault1_i_n_0,LsuPlugin_logic_onPma_io_rsp_fault2_i__0_n_0,LsuPlugin_logic_onPma_io_rsp_fault2_i_n_0}),
+.O(LsuPlugin_logic_onPma_io_rsp_fault1));
+RTL_REDUCTION_OR14 LsuPlugin_logic_onPma_io_rsp_fault1_i__0
+(.I0({LsuPlugin_pmaBuilder_io_onTransfers_1_hit,LsuPlugin_pmaBuilder_io_onTransfers_0_hit}),
+.O(LsuPlugin_logic_onPma_io_rsp_fault1_i__0_n_0));
+RTL_EQ43 LsuPlugin_logic_onPma_io_rsp_fault2_i
+(.I0({LsuPlugin_logic_onPma_io_rsp_fault3_i_n_0,LsuPlugin_logic_onPma_io_rsp_fault3_i_n_1,LsuPlugin_logic_onPma_io_rsp_fault3_i_n_2,LsuPlugin_logic_onPma_io_rsp_fault3_i_n_3,LsuPlugin_logic_onPma_io_rsp_fault3_i_n_4,LsuPlugin_logic_onPma_io_rsp_fault3_i_n_5,LsuPlugin_logic_onPma_io_rsp_fault3_i_n_6,LsuPlugin_logic_onPma_io_rsp_fault3_i_n_7,LsuPlugin_logic_onPma_io_rsp_fault3_i_n_8,LsuPlugin_logic_onPma_io_rsp_fault3_i_n_9,LsuPlugin_logic_onPma_io_rsp_fault3_i_n_10,LsuPlugin_logic_onPma_io_rsp_fault3_i_n_11,LsuPlugin_logic_onPma_io_rsp_fault3_i_n_12,LsuPlugin_logic_onPma_io_rsp_fault3_i_n_13,LsuPlugin_logic_onPma_io_rsp_fault3_i_n_14,LsuPlugin_logic_onPma_io_rsp_fault3_i_n_15,LsuPlugin_logic_onPma_io_rsp_fault3_i_n_16,LsuPlugin_logic_onPma_io_rsp_fault3_i_n_17,LsuPlugin_logic_onPma_io_rsp_fault3_i_n_18,LsuPlugin_logic_onPma_io_rsp_fault3_i_n_19,LsuPlugin_logic_onPma_io_rsp_fault3_i_n_20,LsuPlugin_logic_onPma_io_rsp_fault3_i_n_21,LsuPlugin_logic_onPma_io_rsp_fault3_i_n_22,LsuPlugin_logic_onPma_io_rsp_fault3_i_n_23,LsuPlugin_logic_onPma_io_rsp_fault3_i_n_24,LsuPlugin_logic_onPma_io_rsp_fault3_i_n_25,LsuPlugin_logic_onPma_io_rsp_fault3_i_n_26,LsuPlugin_logic_onPma_io_rsp_fault3_i_n_27,LsuPlugin_logic_onPma_io_rsp_fault3_i_n_28,LsuPlugin_logic_onPma_io_rsp_fault3_i_n_29,LsuPlugin_logic_onPma_io_rsp_fault3_i_n_30,LsuPlugin_logic_onPma_io_rsp_fault3_i_n_31}),
+.I1({\<const1> ,\<const0> ,\<const0> ,\<const1> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const1> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> }),
+.O(LsuPlugin_logic_onPma_io_rsp_fault2_i_n_0));
+RTL_EQ43 LsuPlugin_logic_onPma_io_rsp_fault2_i__0
+(.I0({LsuPlugin_logic_onPma_io_rsp_fault3_i__0_n_0,LsuPlugin_logic_onPma_io_rsp_fault3_i__0_n_1,LsuPlugin_logic_onPma_io_rsp_fault3_i__0_n_2,LsuPlugin_logic_onPma_io_rsp_fault3_i__0_n_3,LsuPlugin_logic_onPma_io_rsp_fault3_i__0_n_4,LsuPlugin_logic_onPma_io_rsp_fault3_i__0_n_5,LsuPlugin_logic_onPma_io_rsp_fault3_i__0_n_6,LsuPlugin_logic_onPma_io_rsp_fault3_i__0_n_7,LsuPlugin_logic_onPma_io_rsp_fault3_i__0_n_8,LsuPlugin_logic_onPma_io_rsp_fault3_i__0_n_9,LsuPlugin_logic_onPma_io_rsp_fault3_i__0_n_10,LsuPlugin_logic_onPma_io_rsp_fault3_i__0_n_11,LsuPlugin_logic_onPma_io_rsp_fault3_i__0_n_12,LsuPlugin_logic_onPma_io_rsp_fault3_i__0_n_13,LsuPlugin_logic_onPma_io_rsp_fault3_i__0_n_14,LsuPlugin_logic_onPma_io_rsp_fault3_i__0_n_15,LsuPlugin_logic_onPma_io_rsp_fault3_i__0_n_16,LsuPlugin_logic_onPma_io_rsp_fault3_i__0_n_17,LsuPlugin_logic_onPma_io_rsp_fault3_i__0_n_18,LsuPlugin_logic_onPma_io_rsp_fault3_i__0_n_19,LsuPlugin_logic_onPma_io_rsp_fault3_i__0_n_20,LsuPlugin_logic_onPma_io_rsp_fault3_i__0_n_21,LsuPlugin_logic_onPma_io_rsp_fault3_i__0_n_22,LsuPlugin_logic_onPma_io_rsp_fault3_i__0_n_23,LsuPlugin_logic_onPma_io_rsp_fault3_i__0_n_24,LsuPlugin_logic_onPma_io_rsp_fault3_i__0_n_25,LsuPlugin_logic_onPma_io_rsp_fault3_i__0_n_26,LsuPlugin_logic_onPma_io_rsp_fault3_i__0_n_27,LsuPlugin_logic_onPma_io_rsp_fault3_i__0_n_28,LsuPlugin_logic_onPma_io_rsp_fault3_i__0_n_29,LsuPlugin_logic_onPma_io_rsp_fault3_i__0_n_30,LsuPlugin_logic_onPma_io_rsp_fault3_i__0_n_31}),
+.I1({\<const1> ,\<const0> ,\<const0> ,\<const1> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> }),
+.O(LsuPlugin_logic_onPma_io_rsp_fault2_i__0_n_0));
+RTL_EQ43 LsuPlugin_logic_onPma_io_rsp_fault2_i__1
+(.I0(_zz_LsuPlugin_logic_onPma_io_rsp_fault_1),
+.I1({\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> }),
+.O(LsuPlugin_logic_onPma_io_rsp_fault2_i__1_n_0));
+RTL_EQ43 LsuPlugin_logic_onPma_io_rsp_fault2_i__2
+(.I0({LsuPlugin_logic_onPma_io_rsp_fault3_i__1_n_0,LsuPlugin_logic_onPma_io_rsp_fault3_i__1_n_1,LsuPlugin_logic_onPma_io_rsp_fault3_i__1_n_2,LsuPlugin_logic_onPma_io_rsp_fault3_i__1_n_3,LsuPlugin_logic_onPma_io_rsp_fault3_i__1_n_4,LsuPlugin_logic_onPma_io_rsp_fault3_i__1_n_5,LsuPlugin_logic_onPma_io_rsp_fault3_i__1_n_6,LsuPlugin_logic_onPma_io_rsp_fault3_i__1_n_7,LsuPlugin_logic_onPma_io_rsp_fault3_i__1_n_8,LsuPlugin_logic_onPma_io_rsp_fault3_i__1_n_9,LsuPlugin_logic_onPma_io_rsp_fault3_i__1_n_10,LsuPlugin_logic_onPma_io_rsp_fault3_i__1_n_11,LsuPlugin_logic_onPma_io_rsp_fault3_i__1_n_12,LsuPlugin_logic_onPma_io_rsp_fault3_i__1_n_13,LsuPlugin_logic_onPma_io_rsp_fault3_i__1_n_14,LsuPlugin_logic_onPma_io_rsp_fault3_i__1_n_15,LsuPlugin_logic_onPma_io_rsp_fault3_i__1_n_16,LsuPlugin_logic_onPma_io_rsp_fault3_i__1_n_17,LsuPlugin_logic_onPma_io_rsp_fault3_i__1_n_18,LsuPlugin_logic_onPma_io_rsp_fault3_i__1_n_19,LsuPlugin_logic_onPma_io_rsp_fault3_i__1_n_20,LsuPlugin_logic_onPma_io_rsp_fault3_i__1_n_21,LsuPlugin_logic_onPma_io_rsp_fault3_i__1_n_22,LsuPlugin_logic_onPma_io_rsp_fault3_i__1_n_23,LsuPlugin_logic_onPma_io_rsp_fault3_i__1_n_24,LsuPlugin_logic_onPma_io_rsp_fault3_i__1_n_25,LsuPlugin_logic_onPma_io_rsp_fault3_i__1_n_26,LsuPlugin_logic_onPma_io_rsp_fault3_i__1_n_27,LsuPlugin_logic_onPma_io_rsp_fault3_i__1_n_28,LsuPlugin_logic_onPma_io_rsp_fault3_i__1_n_29,LsuPlugin_logic_onPma_io_rsp_fault3_i__1_n_30,LsuPlugin_logic_onPma_io_rsp_fault3_i__1_n_31}),
+.I1({\<const1> ,\<const1> ,\<const1> ,\<const1> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const1> ,\<const1> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> }),
+.O(LsuPlugin_logic_onPma_io_rsp_fault2_i__2_n_0));
+RTL_EQ43 LsuPlugin_logic_onPma_io_rsp_fault2_i__3
+(.I0(LsuPlugin_logic_onPma_io_rsp_fault3),
+.I1({\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const1> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> }),
+.O(LsuPlugin_logic_onPma_io_rsp_fault2));
+RTL_AND598 LsuPlugin_logic_onPma_io_rsp_fault3_i
+(.I0(execute_ctrl3_up_LsuL1_MIXED_ADDRESS_lane0),
+.I1({\<const1> ,\<const1> ,\<const1> ,\<const1> ,\<const1> ,\<const1> ,\<const1> ,\<const1> ,\<const1> ,\<const1> ,\<const1> ,\<const1> ,\<const1> ,\<const1> ,\<const1> ,\<const1> ,\<const1> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> }),
+.O({LsuPlugin_logic_onPma_io_rsp_fault3_i_n_0,LsuPlugin_logic_onPma_io_rsp_fault3_i_n_1,LsuPlugin_logic_onPma_io_rsp_fault3_i_n_2,LsuPlugin_logic_onPma_io_rsp_fault3_i_n_3,LsuPlugin_logic_onPma_io_rsp_fault3_i_n_4,LsuPlugin_logic_onPma_io_rsp_fault3_i_n_5,LsuPlugin_logic_onPma_io_rsp_fault3_i_n_6,LsuPlugin_logic_onPma_io_rsp_fault3_i_n_7,LsuPlugin_logic_onPma_io_rsp_fault3_i_n_8,LsuPlugin_logic_onPma_io_rsp_fault3_i_n_9,LsuPlugin_logic_onPma_io_rsp_fault3_i_n_10,LsuPlugin_logic_onPma_io_rsp_fault3_i_n_11,LsuPlugin_logic_onPma_io_rsp_fault3_i_n_12,LsuPlugin_logic_onPma_io_rsp_fault3_i_n_13,LsuPlugin_logic_onPma_io_rsp_fault3_i_n_14,LsuPlug

@@ -1,0 +1,103 @@
+Candidate head: dc78aedae34c25a97125ecd6816a1f645db5575f
+Comparison base: 3cda030c174b325e36c26af6420487ff91346d15
+Source: builds/endstation_ax7101_1x1_tdm8-on.log
+Original SHA256: 90c3e6aa292411fef79f300961ddb9435d8127f49abee14faeef4a037f198fb6
+Scope: native compilation chatter omitted; other output retained; paths and host fields normalized
+
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+{
+  "shape": "endstation_ax7101_1x1_tdm8",
+  "interfaces": 1,
+  "entry": "plat/ctrl_plat_main.c",
+  "sections": {
+    ".text": 113088,
+    ".rodata": 15838,
+    ".data": 128,
+    ".bss": 52032,
+    ".stack": 8192,
+    ".riscv.attributes": 42
+  },
+  "largest_bss": [
+    {
+      "symbol": "arena",
+      "bytes": 9920
+    },
+    {
+      "symbol": "owed",
+      "bytes": 9216
+    },
+    {
+      "symbol": "ctrl_plat.app",
+      "bytes": 9184
+    },
+    {
+      "symbol": "values",
+      "bytes": 5967
+    },
+    {
+      "symbol": "nvm_stage",
+      "bytes": 4766
+    }
+  ],
+  "ctrl_plat_members": {
+    "acmp": 96,
+    "aecp": 3584,
+    "aecp_config": 64,
+    "app": 9184,
+    "binding": 40,
+    "bridge": 144,
+    "config": 56,
+    "console": 588,
+    "face": 100,
+    "maap_csr": 32,
+    "sources": 64,
+    "srp": 3552,
+    "srp_config": 32,
+    "state": 200
+  },
+  "split": {
+    "rom": {
+      "bytes": 129056,
+      "banks": [
+        131072
+      ],
+      "RAMB36": 32,
+      "RAMB18": 0
+    },
+    "sram": {
+      "bytes": 60352,
+      "banks": [
+        32768,
+        16384,
+        8192,
+        4096
+      ],
+      "RAMB36": 15,
+      "RAMB18": 0
+    },
+    "tiles": 47.0,
+    "budget_tiles": 56
+  },
+  "artifacts": [
+    {
+      "name": "libc.a",
+      "size": 5478,
+      "sha256": "63f90e01aee145bd4526425c534fd98465e599db191d50e51c2ef11c084c53be"
+    },
+    {
+      "name": "libcompiler_rt.a",
+      "size": 29128,
+      "sha256": "7e81410465499f2a221f9b59d96631e0139bd248697b6e88fe24bc7d51b3c4fa"
+    },
+    {
+      "name": "ctrl_app.elf",
+      "size": 163580,
+      "sha256": "68da0dbc6b05229d67b3dd311683f6892466e55d0edae5421a4b41f6b56b0286"
+    },
+    {
+      "name": "ctrl_app.map",
+      "size": 171724,
+      "sha256": "82eb11f7a8425bf27894e5875cb7396e2105e7eef585e12d467eca94b75ed24b"
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+Candidate head: 855529fe21fea685725a9edc4fe0a798154c6469
+Comparison base: 3cda030c174b325e36c26af6420487ff91346d15
+Source: leaf-capture/legacy/result.json
+Original SHA256: 070b2cd683f83f0d48f5503871c2702765924d11dd493bde9a9fdff47591e287
+Scope: complete text; paths and host fields normalized
+
+{
+  "command": [
+    "$MANAGEMENT/2026-09-23/vivado-slot.sh",
+    "$WORKSPACE_HOME/Xilinx2/2026.1/Vivado/bin/vivado",
+    "-mode",
+    "batch",
+    "-nojournal",
+    "-nolog",
+    "-source",
+    "$SCRATCH/leaf-capture/legacy/leaf.tcl"
+  ],
+  "exit": 0,
+  "source_sha256": {
+    "$CHECKOUT/hdl/ieee1722/aaf/KL_chan_map_capture.sv": "09ce0c5d87f8b4199c3c25d903721fbf742425610ea555a7b333464f2ca7c99c",
+    "$SCRATCH/leaf-capture/capture_leaf.sv": "f87e9fbcb3fc780c1598459f4981c2f36e43eedfb65e8d564ff226a15088e1c5"
+  },
+  "seconds": 98.96065998077393
+}

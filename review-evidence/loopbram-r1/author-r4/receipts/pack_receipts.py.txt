@@ -1,0 +1,121 @@
+Candidate head: dc78aedae34c25a97125ecd6816a1f645db5575f
+Comparison base: 3cda030c174b325e36c26af6420487ff91346d15
+Source: pack_receipts.py
+Original SHA256: 5131aab0ade6ee2c5df3a4ee3eb17ded22ba98ff7c0bce0ef22e714fcbab46fe
+Scope: complete text; paths and host fields normalized
+
+import hashlib,json,re,subprocess,socket
+from pathlib import Path
+w=Path(__file__).resolve().parent
+out=Path('$MANAGEMENT/2026-09-23/loopbram-a826/round4/receipts');out.mkdir(parents=True,exist_ok=True)
+root=Path('$CHECKOUT');head=subprocess.check_output(['git','rev-parse','HEAD'],cwd=root,text=True).strip()
+assert head==json.loads((w/'source.json').read_text())['head']
+assert not subprocess.check_output(['git','status','--porcelain'],cwd=root,text=True).strip()
+for row in json.loads((w/'source-sha256.json').read_text()):
+ assert hashlib.sha256((root/row['path']).read_bytes()).hexdigest()==row['sha256'],row['path']
+base_head=subprocess.check_output(['git','rev-parse','HEAD'],cwd=Path('/data-2/milan/tmp/loopbram-a826-r3-verified/base-wt'),text=True).strip()
+assert base_head=='3cda030c174b325e36c26af6420487ff91346d15'
+assert not subprocess.check_output(['git','diff','HEAD','--ignore-submodules=all','--name-only'],cwd=Path('/data-2/milan/tmp/loopbram-a826-r3-verified/base-wt'),text=True).strip()
+(w/'source-final-verification.txt').write_text('Exact candidate head '+head+'\nComparison base '+base_head+'\nCandidate tracked worktree clean. Every recorded tracked-file SHA256 still matches.\nBase tracked source has no difference from its recorded commit.\n')
+(w/'rounds3-and4.diff').write_bytes(subprocess.check_output(['git','diff','2e278379',head],cwd=root))
+patterns=[
+ 'source.json','source-sha256.json','source-final-verification.txt',
+ 'submodule*.json','rounds3-and4.diff','commit-hygiene.txt',
+ 'quick-gates.json','remaining-gates.json','disabled-pipeline.json','disabled-summary.json','mailbox-edit-utilization.json',
+ 'elaboration-hashes.json','canonical.py.final.log','shape-scope-*.txt','shape-inventory.json',
+ 'anchors.log','identity.log','identity/extra-identity.json','identity/*/identity.json',
+ 'parent-plants/*.json','parent-plants/*.log','leaf-plants/*.json','leaf-plants/*.log',
+ 'bounds/*.json','bounds/*.log','regressions/*.json','regressions/*.log',
+ 'builder-union/*.json','builder-union/*.log','yosys/run.json','yosys/run.log',
+ 'yosys/results/*.result','yosys/results/*.json',
+ 'coherence-mutants.json','coherence-mutants.log','coherence-mutants-receipt',
+ 'coherence-mutants-receipt.logs/*',
+ 'reviewer-probes/results.json','reviewer-probes/*/run.log','reviewer-probes/*/build.log',
+ 'lint.log','docs.log','doc-style.log','em-dash.log','xvlog.log','leaf-off.log',
+ 'leaf-off/*/cells.txt','leaf-off/*/stat.txt',
+ 'rtl-final/*/*/elaborate.tcl','rtl-final/*/*/run.json','rtl-final/*/*/run.log',
+ 'off-route/*/export-command.json','off-route/*/export.log',
+ 'off-route/**/measure_*.json','off-route/**/measure_*.tcl','off-route/**/measure_*.log',
+ 'off-route/**/disabled_util.rpt','off-route/**/*utilization*syn*.rpt',
+ 'base-evidence/*/*','builds/*-off.log','builds/*-on.log','builds/*-off.rc','builds/*-on.rc',
+ 'route/**/*measure*.json','route/**/*measure*.tcl','route/**/*measure*.log','route/**/*.rpt',
+ 'route-summary.json','firmware-memory.json','validation-status.json','stop-evidence.json',
+ 'endstation*.yaml','recipe-inputs.json','canonical-negative-control.json','foreground-launches.json','slot-usage.json','final-checks.json']
+files={p for pat in patterns for p in w.glob(pat) if p.is_file() and '.Xil' not in p.parts}
+files.update(w/name for name in [
+ 'rtl_compare.py','canonical.py','shape_scope.py','check_identity.py','summarize_disabled.py',
+ 'prepare_builds.py','prepare_export.py','export_off.py','measure_soc.py','synth_off.py',
+ 'disabled_pipeline.py','quick_gates.py','run_regressions.py','run_builder_union.py',
+ 'remaining_gates.py','run_coherence_mutants.py','run_yosys.py','reviewer_probes.py',
+ 'export_routes.py','run_routes.py','summarize_route.py','collect_status.py','generate_packet.py','audit_packet.py','slot_audit.py','final_checks.py','pack_receipts.py'] if (w/name).exists())
+rows=[]
+for p in sorted(files):
+ raw=p.read_bytes();data=raw.decode('utf-8',errors='replace');scope='complete text; paths and host fields normalized'
+ if p.suffix=='.log':
+  # Drop native compilation commands only, retaining test output and diagnostics.
+  lines=data.splitlines(True)
+  data=''.join(line for line in lines if not re.match(r'^(g\+\+|c\+\+|gcc|clang\+\+|cc|ar|rm -f|make\[?\d*\]?: (Entering|Leaving)) ',line))
+  scope='native compilation chatter omitted; other output retained; paths and host fields normalized'
+ data=data.replace(str(w),'$SCRATCH').replace(str(root),'$CHECKOUT')
+ data=data.replace(socket.gethostname(),'$HOST')
+ data=re.sub(r'(?m)^(\s*(?:Host|Hostname)\s*:\s*)\S+', r'\1$HOST', data)
+ data=re.sub(r'\.Xil/[A-Za-z][^/\s\"]*-\d+-[^/\s\"]+', '.Xil/$RUN', data)
+ header=f'Candidate head: {head}\nComparison base: 3cda030c174b325e36c26af6420487ff91346d15\nSource: {p.relative_to(w)}\nOriginal SHA256: {hashlib.sha256(raw).hexdigest()}\nScope: {scope}\n\n'
+ parts=[];chunk=header
+ for line in data.splitlines(True):
+  for offset in range(0,len(line),40000):
+   piece=line[offset:offset+40000]
+   if len((chunk+piece).encode())>180000:parts.append(chunk);chunk=header
+   chunk+=piece
+ if chunk!=header:parts.append(chunk)
+ stem=str(p.relative_to(w)).replace('/','--')
+ for i,part in enumerate(parts):
+  name=stem+(f'.part{i+1:03d}' if len(parts)>1 else '')+'.txt';blob=part.encode();assert len(blob)<200000
+  (out/name).write_bytes(blob);rows.append(dict(file=name,source=str(p.relative_to(w)),bytes=len(blob),sha256=hashlib.sha256(blob).hexdigest(),original_sha256=hashlib.sha256(raw).hexdigest()))
+# Keep the manifest itself below the same bound using JSON Lines parts.
+text=''.join(json.dumps(row,sort_keys=True)+'\n' for row in rows)
+for i in range(0,len(rows),150):
+ blob=''.join(json.dumps(row,sort_keys=True)+'\n' for row in rows[i:i+150]).encode();assert len(blob)<200000
+ (out/f'manifest-{i//150+1:03d}.jsonl').write_bytes(blob)
+index=['# Round 4 receipts','',f'Exact candidate head: {head}.','',
+ 'Plain text only; each file is smaller than 200,000 bytes.',
+ 'Logs retain diagnostics and test output; native compilation chatter is omitted.',
+ 'Original SHA256 values precede path/host normalization and filtering.',
+ 'Base reports identify immutable 3cda030c174b325e36c26af6420487ff91346d15.',
+ 'All candidate validation below uses this head. Preliminary scratch results are excluded.',
+ '',
+ '- [Elaboration hashes](elaboration-hashes.json.txt) and [comparison](canonical.py.final.log.txt).',
+ '- [Disabled synthesis](disabled-summary.json.txt) and [commands](disabled-pipeline.json.txt).',
+ '- [Controls, plants and anchors](quick-gates.json.txt).',
+ '- [Gate status](validation-status.json.txt).',
+ '- [Source verification](source-final-verification.txt.txt).',
+ '',
+ 'Canonical files are stored separately as exact byte chunks, without headers.',
+ 'Concatenate numbered chunks within each shape and compare its recorded SHA256.',
+ '',
+ '| Receipt | Bytes | Source |','|---|---:|---|']
+for i in range(0,len(rows),100):
+ name=f'INDEX-{i//100+1:03d}.md'
+ table=['# Receipt index part '+str(i//100+1),'', '| Receipt | Bytes | Source |','|---|---:|---|']
+ table += [f"| [{r['file']}]({r['file']}) | {r['bytes']} | `{r['source']}` |" for r in rows[i:i+100]]
+ (out/name).write_text('\n'.join(table)+'\n')
+ index.append(f'| [{name}]({name}) | - | Receipts {i+1}-{min(i+100,len(rows))} |')
+(out/'INDEX.md').write_text('\n'.join(index)+'\n')
+canonical_manifest=[]
+for shape in ['endstation_ax7101_1x1_tdm8','endstation_ax7101_8x8']:
+ before=(w/'rtl-final/base'/shape/'canonical.v').read_bytes()
+ after=(w/'rtl-final/head'/shape/'canonical.v').read_bytes()
+ assert before==after
+ chunks=[]
+ for i in range(0,len(before),180000):
+  name=f'canonical--{shape}--{i//180000+1:03d}.txt'
+  chunk=before[i:i+180000]
+  (out/name).write_bytes(chunk)
+  chunks.append(dict(file=name,sha256=hashlib.sha256(chunk).hexdigest(),bytes=len(chunk)))
+ canonical_manifest.append(dict(shape=shape,base_sha256=hashlib.sha256(before).hexdigest(),
+                                head_sha256=hashlib.sha256(after).hexdigest(),bytes=len(before),chunks=chunks))
+(out/'canonical-manifest.json').write_text(json.dumps(canonical_manifest,indent=2)+'\n')
+with (out/'INDEX.md').open('a') as f:
+ f.write('\n[Exact canonical netlist chunks](canonical-manifest.json).\n')
+assert all(p.stat().st_size<200000 and p.suffix!='.gz' for p in out.iterdir() if p.is_file())
+print('PACKED',len(rows),'text receipts at',head)

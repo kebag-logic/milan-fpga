@@ -1,0 +1,122 @@
+Candidate head: 855529fe21fea685725a9edc4fe0a798154c6469
+Comparison base: 3cda030c174b325e36c26af6420487ff91346d15
+Source: focused-results.json
+Original SHA256: 0e49ed24f18797301511ee9366f03fddaf904eb0faa0c0856abc01fb3a8a03c2
+Scope: complete text; paths and host fields normalized
+
+[
+  {
+    "name": "leaf-plants",
+    "command": [
+      "/usr/bin/python3",
+      "tb/verilator/input_loopback/mutants.py",
+      "--output",
+      "$SCRATCH/leaf-plants"
+    ],
+    "head": "855529fe21fea685725a9edc4fe0a798154c6469",
+    "exit": 0,
+    "seconds": 49.04940867424011
+  },
+  {
+    "name": "bounds",
+    "command": [
+      "/usr/bin/python3",
+      "tb/verilator/input_loopback/bounds.py",
+      "--output",
+      "$SCRATCH/bounds"
+    ],
+    "head": "855529fe21fea685725a9edc4fe0a798154c6469",
+    "exit": 0,
+    "seconds": 14.637704849243164
+  },
+  {
+    "name": "reviewer-probes",
+    "command": [
+      "/usr/bin/python3",
+      "$SCRATCH/reviewer_probes.py",
+      "--tree",
+      "$CHECKOUT",
+      "--out",
+      "$SCRATCH/reviewer-probes",
+      "--verilator",
+      "$VALIDATION_TOOLS/verilator-v5.050/bin/verilator",
+      "--pool",
+      "2",
+      "--jobs",
+      "4"
+    ],
+    "head": "855529fe21fea685725a9edc4fe0a798154c6469",
+    "exit": 0,
+    "seconds": 48.908387184143066
+  },
+  {
+    "name": "anchors",
+    "command": [
+      "/usr/bin/python3",
+      "$MANAGEMENT/2026-09-23/loopbram-r909-1/scripts/anchor_counts.py",
+      "$CHECKOUT",
+      "$CHECKOUT",
+      "3cda030c",
+      "855529fe21fea685725a9edc4fe0a798154c6469"
+    ],
+    "head": "855529fe21fea685725a9edc4fe0a798154c6469",
+    "exit": 0,
+    "seconds": 0.21436858177185059
+  },
+  {
+    "name": "leaf-off",
+    "command": [
+      "bash",
+      "$MANAGEMENT/2026-09-23/loopbram-r909-1/scripts/leaf_off_incontext.sh",
+      "$SCRATCH/base-wt",
+      "$CHECKOUT",
+      "$SCRATCH/leaf-off"
+    ],
+    "head": "855529fe21fea685725a9edc4fe0a798154c6469",
+    "exit": 0,
+    "seconds": 35.32674169540405
+  },
+  {
+    "name": "lint",
+    "command": [
+      "/usr/bin/python3",
+      "scripts/lint_rtl.py",
+      "--check"
+    ],
+    "head": "855529fe21fea685725a9edc4fe0a798154c6469",
+    "exit": 0,
+    "seconds": 4.646107196807861
+  },
+  {
+    "name": "docs",
+    "command": [
+      "/usr/bin/python3",
+      "scripts/docs_check.py"
+    ],
+    "head": "855529fe21fea685725a9edc4fe0a798154c6469",
+    "exit": 0,
+    "seconds": 9.180397987365723
+  },
+  {
+    "name": "doc-style",
+    "command": [
+      "/usr/bin/python3",
+      "scripts/check_doc_style.py"
+    ],
+    "head": "855529fe21fea685725a9edc4fe0a798154c6469",
+    "exit": 0,
+    "seconds": 0.11411261558532715
+  },
+  {
+    "name": "em-dash",
+    "command": [
+      "/data-2/milan/tmp/loopbram-a826/markdown-venv/bin/python3",
+      "scripts/check_em_dash.py",
+      "--base",
+      "2e278379"
+    ],
+    "head": "855529fe21fea685725a9edc4fe0a798154c6469",
+    "exit": 0,
+    "seconds": 2.6689858436584473
+  }
+]

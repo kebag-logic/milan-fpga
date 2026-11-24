@@ -1,0 +1,446 @@
+Candidate head: 855529fe21fea685725a9edc4fe0a798154c6469
+Comparison base: 3cda030c174b325e36c26af6420487ff91346d15
+Source: route-summary.json
+Original SHA256: 20125753124ab592ef7477a9f08a939bc41309d2ea0c971bffa24f415fd2d63b
+Scope: complete text; paths and host fields normalized
+
+[
+  {
+    "shape": "endstation_ax7101_1x1_tdm8",
+    "directive": "ExtraPostPlacementOpt",
+    "run": {
+      "command": [
+        "$MANAGEMENT/2026-09-23/vivado-slot.sh",
+        "$WORKSPACE_HOME/Xilinx2/2026.1/Vivado/bin/vivado",
+        "-mode",
+        "batch",
+        "-nojournal",
+        "-nolog",
+        "-source",
+        "$SCRATCH/route/endstation_ax7101_1x1_tdm8/gateware/ExtraPostPlacementOpt/measure_route.tcl"
+      ],
+      "cwd": "$SCRATCH/route/endstation_ax7101_1x1_tdm8/gateware/ExtraPostPlacementOpt",
+      "exit": 0,
+      "seconds": 383.54598331451416
+    },
+    "utilization": {
+      "Slice LUTs*": 33014.0,
+      "Slice Registers": 42642.0,
+      "Block RAM Tile": 83.0,
+      "RAMB36/FIFO*": 65.0,
+      "RAMB18": 36.0,
+      "F7 Muxes": 669.0,
+      "F8 Muxes": 96.0,
+      "DSPs": 11.0,
+      "Occupied slices": 13963.0
+    },
+    "corners": {
+      "alinx_ax7101_signoff_Fast_0C_timing.rpt": {
+        "WNS_ns": 1.66,
+        "TNS_ns": 0.0,
+        "WHS_ns": 0.036,
+        "setup_failing_endpoints": 0,
+        "hold_failing_endpoints": 0,
+        "WPWS_ns": 1.1,
+        "sha256": "3c4f1696e42c73e5f0abf4225344875fae3dc5999ea7c0a6f98002b0bed78a5a"
+      },
+      "alinx_ax7101_signoff_Fast_85C_timing.rpt": {
+        "WNS_ns": 1.66,
+        "TNS_ns": 0.0,
+        "WHS_ns": 0.036,
+        "setup_failing_endpoints": 0,
+        "hold_failing_endpoints": 0,
+        "WPWS_ns": 1.1,
+        "sha256": "723d95f721a02abe98867ef9db4cd48d10ae8cad700f6b13415775e3373d0099"
+      },
+      "alinx_ax7101_signoff_Slow_0C_timing.rpt": {
+        "WNS_ns": 0.055,
+        "TNS_ns": 0.0,
+        "WHS_ns": 0.102,
+        "setup_failing_endpoints": 0,
+        "hold_failing_endpoints": 0,
+        "WPWS_ns": 1.1,
+        "sha256": "9573db6faf8feb4b11ed5a4b475edf6e8ead4addca2fcea594c360a452e2b363"
+      },
+      "alinx_ax7101_signoff_Slow_85C_timing.rpt": {
+        "WNS_ns": 0.055,
+        "TNS_ns": 0.0,
+        "WHS_ns": 0.102,
+        "setup_failing_endpoints": 0,
+        "hold_failing_endpoints": 0,
+        "WPWS_ns": 1.1,
+        "sha256": "6d4f775ae0488288aa63f790089bc1d84a626e31d189d47e9981a5421cc7619e"
+      }
+    },
+    "routing_errors": 0,
+    "complete": true,
+    "min_WNS_ns": 0.055,
+    "min_WHS_ns": 0.036,
+    "floor_pass": true
+  },
+  {
+    "shape": "endstation_ax7101_1x1_tdm8",
+    "directive": "AltSpreadLogic_high",
+    "run": {
+      "command": [
+        "$MANAGEMENT/2026-09-23/vivado-slot.sh",
+        "$WORKSPACE_HOME/Xilinx2/2026.1/Vivado/bin/vivado",
+        "-mode",
+        "batch",
+        "-nojournal",
+        "-nolog",
+        "-source",
+        "$SCRATCH/route/endstation_ax7101_1x1_tdm8/gateware/AltSpreadLogic_high/measure_route.tcl"
+      ],
+      "cwd": "$SCRATCH/route/endstation_ax7101_1x1_tdm8/gateware/AltSpreadLogic_high",
+      "exit": 0,
+      "seconds": 401.01390075683594
+    },
+    "utilization": {
+      "Slice LUTs*": 33038.0,
+      "Slice Registers": 42642.0,
+      "Block RAM Tile": 83.0,
+      "RAMB36/FIFO*": 65.0,
+      "RAMB18": 36.0,
+      "F7 Muxes": 669.0,
+      "F8 Muxes": 96.0,
+      "DSPs": 11.0,
+      "Occupied slices": 14295.0
+    },
+    "corners": {
+      "alinx_ax7101_signoff_Fast_0C_timing.rpt": {
+        "WNS_ns": 1.636,
+        "TNS_ns": 0.0,
+        "WHS_ns": 0.011,
+        "setup_failing_endpoints": 0,
+        "hold_failing_endpoints": 0,
+        "WPWS_ns": 1.1,
+        "sha256": "e6795fabc81945582911926a3af97fb0f267fe415cb27fbfe316a8d3d7b3dbd8"
+      },
+      "alinx_ax7101_signoff_Fast_85C_timing.rpt": {
+        "WNS_ns": 1.636,
+        "TNS_ns": 0.0,
+        "WHS_ns": 0.011,
+        "setup_failing_endpoints": 0,
+        "hold_failing_endpoints": 0,
+        "WPWS_ns": 1.1,
+        "sha256": "96233548004caa6e24b28e4c6c749594c7bc40bf13df2c6aeb25908e278c4b45"
+      },
+      "alinx_ax7101_signoff_Slow_0C_timing.rpt": {
+        "WNS_ns": 0.145,
+        "TNS_ns": 0.0,
+        "WHS_ns": 0.102,
+        "setup_failing_endpoints": 0,
+        "hold_failing_endpoints": 0,
+        "WPWS_ns": 1.1,
+        "sha256": "364ec9474a170dec36224ac076130475307ef309a464b1d2ed1341bc6f1e1b91"
+      },
+      "alinx_ax7101_signoff_Slow_85C_timing.rpt": {
+        "WNS_ns": 0.145,
+        "TNS_ns": 0.0,
+        "WHS_ns": 0.102,
+        "setup_failing_endpoints": 0,
+        "hold_failing_endpoints": 0,
+        "WPWS_ns": 1.1,
+        "sha256": "508655f7ca6c63d8bb7715352df59333db70fdd382ee16f1fb60b47e1e422150"
+      }
+    },
+    "routing_errors": 0,
+    "complete": true,
+    "min_WNS_ns": 0.145,
+    "min_WHS_ns": 0.011,
+    "floor_pass": true
+  },
+  {
+    "shape": "endstation_ax7101_1x1_tdm8",
+    "directive": "ExtraTimingOpt",
+    "run": {
+      "command": [
+        "$MANAGEMENT/2026-09-23/vivado-slot.sh",
+        "$WORKSPACE_HOME/Xilinx2/2026.1/Vivado/bin/vivado",
+        "-mode",
+        "batch",
+        "-nojournal",
+        "-nolog",
+        "-source",
+        "$SCRATCH/route/endstation_ax7101_1x1_tdm8/gateware/ExtraTimingOpt/measure_route.tcl"
+      ],
+      "cwd": "$SCRATCH/route/endstation_ax7101_1x1_tdm8/gateware/ExtraTimingOpt",
+      "exit": 0,
+      "seconds": 380.77105236053467
+    },
+    "utilization": {
+      "Slice LUTs*": 33038.0,
+      "Slice Registers": 42642.0,
+      "Block RAM Tile": 83.0,
+      "RAMB36/FIFO*": 65.0,
+      "RAMB18": 36.0,
+      "F7 Muxes": 669.0,
+      "F8 Muxes": 96.0,
+      "DSPs": 11.0,
+      "Occupied slices": 14320.0
+    },
+    "corners": {
+      "alinx_ax7101_signoff_Fast_0C_timing.rpt": {
+        "WNS_ns": 1.636,
+        "TNS_ns": 0.0,
+        "WHS_ns": 0.011,
+        "setup_failing_endpoints": 0,
+        "hold_failing_endpoints": 0,
+        "WPWS_ns": 1.1,
+        "sha256": "1f3adf8f1c698703e5e7f8d5f0266484674456a6762d67894c8e1116a4899ce1"
+      },
+      "alinx_ax7101_signoff_Fast_85C_timing.rpt": {
+        "WNS_ns": 1.636,
+        "TNS_ns": 0.0,
+        "WHS_ns": 0.011,
+        "setup_failing_endpoints": 0,
+        "hold_failing_endpoints": 0,
+        "WPWS_ns": 1.1,
+        "sha256": "43b6acae36f59726325d65145e79836373f3857d17d95a4f783b772c1ee2e0b6"
+      },
+      "alinx_ax7101_signoff_Slow_0C_timing.rpt": {
+        "WNS_ns": 0.228,
+        "TNS_ns": 0.0,
+        "WHS_ns": 0.102,
+        "setup_failing_endpoints": 0,
+        "hold_failing_endpoints": 0,
+        "WPWS_ns": 1.1,
+        "sha256": "371fcec6f1582bb1d054c450d93c2d9683c5f4f48a8858b943bdecdcd18f429f"
+      },
+      "alinx_ax7101_signoff_Slow_85C_timing.rpt": {
+        "WNS_ns": 0.228,
+        "TNS_ns": 0.0,
+        "WHS_ns": 0.102,
+        "setup_failing_endpoints": 0,
+        "hold_failing_endpoints": 0,
+        "WPWS_ns": 1.1,
+        "sha256": "efaa4ae7e64ce9f6b19c29ecc211fa1ed3a164743e39ce182c78b9b95ad29f7e"
+      }
+    },
+    "routing_errors": 0,
+    "complete": true,
+    "min_WNS_ns": 0.228,
+    "min_WHS_ns": 0.011,
+    "floor_pass": true
+  },
+  {
+    "shape": "endstation_ax7101_8x8",
+    "directive": "ExtraPostPlacementOpt",
+    "run": {
+      "command": [
+        "$MANAGEMENT/2026-09-23/vivado-slot.sh",
+        "$WORKSPACE_HOME/Xilinx2/2026.1/Vivado/bin/vivado",
+        "-mode",
+        "batch",
+        "-nojournal",
+        "-nolog",
+        "-source",
+        "$SCRATCH/route/endstation_ax7101_8x8/gateware/ExtraPostPlacementOpt/measure_route.tcl"
+      ],
+      "cwd": "$SCRATCH/route/endstation_ax7101_8x8/gateware/ExtraPostPlacementOpt",
+      "exit": 0,
+      "seconds": 1231.606585264206
+    },
+    "utilization": {
+      "Slice LUTs*": 48170.0,
+      "Slice Registers": 54672.0,
+      "Block RAM Tile": 111.0,
+      "RAMB36/FIFO*": 94.0,
+      "RAMB18": 34.0,
+      "F7 Muxes": 3004.0,
+      "F8 Muxes": 740.0,
+      "DSPs": 11.0,
+      "Occupied slices": 15756.0
+    },
+    "corners": {
+      "alinx_ax7101_signoff_Fast_0C_timing.rpt": {
+        "WNS_ns": 1.636,
+        "TNS_ns": 0.0,
+        "WHS_ns": 0.022,
+        "setup_failing_endpoints": 0,
+        "hold_failing_endpoints": 0,
+        "WPWS_ns": 1.1,
+        "sha256": "6257196e41ad12e45003bc135a63e3585a159b33ea06f89e9a319e3b426b5640"
+      },
+      "alinx_ax7101_signoff_Fast_85C_timing.rpt": {
+        "WNS_ns": 1.636,
+        "TNS_ns": 0.0,
+        "WHS_ns": 0.022,
+        "setup_failing_endpoints": 0,
+        "hold_failing_endpoints": 0,
+        "WPWS_ns": 1.1,
+        "sha256": "2e6d8fee9993c0810ddd0615d46bdef100a9d5cd0944063a38c592ced37442cd"
+      },
+      "alinx_ax7101_signoff_Slow_0C_timing.rpt": {
+        "WNS_ns": 0.171,
+        "TNS_ns": 0.0,
+        "WHS_ns": 0.102,
+        "setup_failing_endpoints": 0,
+        "hold_failing_endpoints": 0,
+        "WPWS_ns": 1.1,
+        "sha256": "4db83acd658ebf898c399c452e8afa2b9b2113646f6d622fdde8137810ef0eac"
+      },
+      "alinx_ax7101_signoff_Slow_85C_timing.rpt": {
+        "WNS_ns": 0.171,
+        "TNS_ns": 0.0,
+        "WHS_ns": 0.102,
+        "setup_failing_endpoints": 0,
+        "hold_failing_endpoints": 0,
+        "WPWS_ns": 1.1,
+        "sha256": "428a826e64f22206d4d8a69530f1e6c9a88c4fb4de57bbdad4ebcaace571d456"
+      }
+    },
+    "routing_errors": 0,
+    "complete": true,
+    "min_WNS_ns": 0.171,
+    "min_WHS_ns": 0.022,
+    "floor_pass": true
+  },
+  {
+    "shape": "endstation_ax7101_8x8",
+    "directive": "AltSpreadLogic_high",
+    "run": {
+      "command": [
+        "$MANAGEMENT/2026-09-23/vivado-slot.sh",
+        "$WORKSPACE_HOME/Xilinx2/2026.1/Vivado/bin/vivado",
+        "-mode",
+        "batch",
+        "-nojournal",
+        "-nolog",
+        "-source",
+        "$SCRATCH/route/endstation_ax7101_8x8/gateware/AltSpreadLogic_high/measure_route.tcl"
+      ],
+      "cwd": "$SCRATCH/route/endstation_ax7101_8x8/gateware/AltSpreadLogic_high",
+      "exit": 0,
+      "seconds": 923.8192298412323
+    },
+    "utilization": {
+      "Slice LUTs*": 48114.0,
+      "Slice Registers": 54677.0,
+      "Block RAM Tile": 111.0,
+      "RAMB36/FIFO*": 94.0,
+      "RAMB18": 34.0,
+      "F7 Muxes": 3004.0,
+      "F8 Muxes": 740.0,
+      "DSPs": 11.0,
+      "Occupied slices": 15763.0
+    },
+    "corners": {
+      "alinx_ax7101_signoff_Fast_0C_timing.rpt": {
+        "WNS_ns": 1.354,
+        "TNS_ns": 0.0,
+        "WHS_ns": 0.036,
+        "setup_failing_endpoints": 0,
+        "hold_failing_endpoints": 0,
+        "WPWS_ns": 1.1,
+        "sha256": "7e4e5be29a26d322069f60d1c4998e1b82782bc8948cec86907ef062dbfc701e"
+      },
+      "alinx_ax7101_signoff_Fast_85C_timing.rpt": {
+        "WNS_ns": 1.354,
+        "TNS_ns": 0.0,
+        "WHS_ns": 0.036,
+        "setup_failing_endpoints": 0,
+        "hold_failing_endpoints": 0,
+        "WPWS_ns": 1.1,
+        "sha256": "1e6930d41a44c99234e352507fcb5e882a186194f893aaa754dc0a1c0e264508"
+      },
+      "alinx_ax7101_signoff_Slow_0C_timing.rpt": {
+        "WNS_ns": 0.295,
+        "TNS_ns": 0.0,
+        "WHS_ns": 0.102,
+        "setup_failing_endpoints": 0,
+        "hold_failing_endpoints": 0,
+        "WPWS_ns": 1.1,
+        "sha256": "cfbe105ff4b690e9ad0419bf0ecb42049ab30efd7e186b8ab19ee9e7c2cbc129"
+      },
+      "alinx_ax7101_signoff_Slow_85C_timing.rpt": {
+        "WNS_ns": 0.295,
+        "TNS_ns": 0.0,
+        "WHS_ns": 0.102,
+        "setup_failing_endpoints": 0,
+        "hold_failing_endpoints": 0,
+        "WPWS_ns": 1.1,
+        "sha256": "f46b5fd2e9f54fe643cc0a5fe7bd782c8d1afbaa8b211c55d58dd8b6f31c5ca9"
+      }
+    },
+    "routing_errors": 0,
+    "complete": true,
+    "min_WNS_ns": 0.295,
+    "min_WHS_ns": 0.036,
+    "floor_pass": true
+  },
+  {
+    "shape": "endstation_ax7101_8x8",
+    "directive": "ExtraTimingOpt",
+    "run": {
+      "command": [
+        "$MANAGEMENT/2026-09-23/vivado-slot.sh",
+        "$WORKSPACE_HOME/Xilinx2/2026.1/Vivado/bin/vivado",
+        "-mode",
+        "batch",
+        "-nojournal",
+        "-nolog",
+        "-source",
+        "$SCRATCH/route/endstation_ax7101_8x8/gateware/ExtraTimingOpt/measure_route.tcl"
+      ],
+      "cwd": "$SCRATCH/route/endstation_ax7101_8x8/gateware/ExtraTimingOpt",
+      "exit": 0,
+      "seconds": 1227.76038646698
+    },
+    "utilization": {
+      "Slice LUTs*": 48139.0,
+      "Slice Registers": 54674.0,
+      "Block RAM Tile": 111.0,
+      "RAMB36/FIFO*": 94.0,
+      "RAMB18": 34.0,
+      "F7 Muxes": 3004.0,
+      "F8 Muxes": 740.0,
+      "DSPs": 11.0,
+      "Occupied slices": 15778.0
+    },
+    "corners": {
+      "alinx_ax7101_signoff_Fast_0C_timing.rpt": {
+        "WNS_ns": 1.499,
+        "TNS_ns": 0.0,
+        "WHS_ns": 0.036,
+        "setup_failing_endpoints": 0,
+        "hold_failing_endpoints": 0,
+        "WPWS_ns": 1.1,
+        "sha256": "d6f35b72080a4065e6112d3d6b145b147a71319700f1cd347d9048f501ad450a"
+      },
+      "alinx_ax7101_signoff_Fast_85C_timing.rpt": {
+        "WNS_ns": 1.499,
+        "TNS_ns": 0.0,
+        "WHS_ns": 0.036,
+        "setup_failing_endpoints": 0,
+        "hold_failing_endpoints": 0,
+        "WPWS_ns": 1.1,
+        "sha256": "d24eed38d57f4908e480f28f72123956a6b2f279342eda834a05b253f8e8e5d3"
+      },
+      "alinx_ax7101_signoff_Slow_0C_timing.rpt": {
+        "WNS_ns": 0.215,
+        "TNS_ns": 0.0,
+        "WHS_ns": 0.102,
+        "setup_failing_endpoints": 0,
+        "hold_failing_endpoints": 0,
+        "WPWS_ns": 1.1,
+        "sha256": "763b03e231ea1b6cdb55e39367a4c0796ca9505304ef3c948e753da67d24fcf0"
+      },
+      "alinx_ax7101_signoff_Slow_85C_timing.rpt": {
+        "WNS_ns": 0.215,
+        "TNS_ns": 0.0,
+        "WHS_ns": 0.102,
+        "setup_failing_endpoints": 0,
+        "hold_failing_endpoints": 0,
+        "WPWS_ns": 1.1,
+        "sha256": "5d1f625ea29d1a87a17c461ddd70708e6be78a6a31d27a2d64da0cc0d61fb980"
+      }
+    },
+    "routing_errors": 0,
+    "complete": true,
+    "min_WNS_ns": 0.215,
+    "min_WHS_ns": 0.036,
+    "floor_pass": true
+  }
+]

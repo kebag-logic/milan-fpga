@@ -1,0 +1,106 @@
+Candidate head: dc78aedae34c25a97125ecd6816a1f645db5575f
+Comparison base: 3cda030c174b325e36c26af6420487ff91346d15
+Source: parent-plants/results.json
+Original SHA256: 1a0421bc689600190133a956a5bdd87a83b20cc83d56f9f2ff69779050477456
+Scope: complete text; paths and host fields normalized
+
+[
+  {
+    "name": "control1",
+    "command": [
+      "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+      "$CHECKOUT/tb/verilator/input_loopback_dp/run.py",
+      "--shape",
+      "1",
+      "--work",
+      "$SCRATCH/parent-plants/control1"
+    ],
+    "exit": 0,
+    "built": true,
+    "passed": true,
+    "log_sha256": "80518b3044c3d5a033cacb4123ffd0bd3b83b0256120002511598ace09257561"
+  },
+  {
+    "name": "control8",
+    "command": [
+      "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+      "$CHECKOUT/tb/verilator/input_loopback_dp/run.py",
+      "--shape",
+      "8",
+      "--work",
+      "$SCRATCH/parent-plants/control8"
+    ],
+    "exit": 0,
+    "built": true,
+    "passed": true,
+    "log_sha256": "b699bf467df8b8744b9710726e7ec4c88d30b2699ea1fa209eb8886e1f3ef6d6"
+  },
+  {
+    "name": "missing_edit_invalidation",
+    "command": [
+      "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+      "$CHECKOUT/tb/verilator/input_loopback_dp/run.py",
+      "--shape",
+      "8",
+      "--work",
+      "$SCRATCH/parent-plants/missing_edit_invalidation",
+      "--dp-source",
+      "$SCRATCH/parent-plants/missing_edit_invalidation/milan_datapath.sv"
+    ],
+    "exit": 1,
+    "built": true,
+    "passed": true,
+    "log_sha256": "c29dd577832652489d7189e7ace8ce8079a627e412420d8026ca46fc3d1ea7df"
+  },
+  {
+    "name": "disconnected_map",
+    "command": [
+      "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+      "$CHECKOUT/tb/verilator/input_loopback_dp/run.py",
+      "--shape",
+      "8",
+      "--work",
+      "$SCRATCH/parent-plants/disconnected_map",
+      "--dp-source",
+      "$SCRATCH/parent-plants/disconnected_map/milan_datapath.sv"
+    ],
+    "exit": 1,
+    "built": true,
+    "passed": true,
+    "log_sha256": "eb14c447c0327bc9f576a6fdaf832e27f5d9e4fb4e60471a39e49e49d514c515"
+  },
+  {
+    "name": "overwritten_capture_page",
+    "command": [
+      "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+      "$CHECKOUT/tb/verilator/input_loopback_dp/run.py",
+      "--shape",
+      "1",
+      "--work",
+      "$SCRATCH/parent-plants/overwritten_capture_page",
+      "--queue-source",
+      "$SCRATCH/parent-plants/overwritten_capture_page/KL_render_queue.sv"
+    ],
+    "exit": 1,
+    "built": true,
+    "passed": true,
+    "log_sha256": "5c5afa77884facae7b50edfd65eb276ad89b3c6a7464d871bb0e0737dc79fa2a"
+  },
+  {
+    "name": "truncated_claim_page",
+    "command": [
+      "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+      "$CHECKOUT/tb/verilator/input_loopback_dp/run.py",
+      "--shape",
+      "1",
+      "--work",
+      "$SCRATCH/parent-plants/truncated_claim_page",
+      "--queue-source",
+      "$SCRATCH/parent-plants/truncated_claim_page/KL_render_queue.sv"
+    ],
+    "exit": 1,
+    "built": true,
+    "passed": true,
+    "log_sha256": "91b43a32db63802e7070316a9028923efd72cb00153d913452cb207e73b5e612"
+  }
+]

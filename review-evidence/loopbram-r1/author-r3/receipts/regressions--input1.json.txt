@@ -1,0 +1,24 @@
+Candidate head: 855529fe21fea685725a9edc4fe0a798154c6469
+Comparison base: 3cda030c174b325e36c26af6420487ff91346d15
+Source: regressions/input1.json
+Original SHA256: 98ad85e5059ba88030fd85266a3e2af409ea2905b444a0d5ac178843084e8847
+Scope: complete text; paths and host fields normalized
+
+{
+  "case": "input1",
+  "command": [
+    "make",
+    "-s",
+    "-C",
+    "$CHECKOUT/tb/verilator/input_loopback",
+    "VERILATOR_JOBS=4",
+    "run",
+    "STREAMS=1",
+    "FIRST=8",
+    "CHANNELS=8",
+    "LEAD=2",
+    "MDIR=$SCRATCH/regressions/input1"
+  ],
+  "exit": 0,
+  "seconds": 5.874783515930176
+}

@@ -1,0 +1,23 @@
+Candidate head: dc78aedae34c25a97125ecd6816a1f645db5575f
+Comparison base: 3cda030c174b325e36c26af6420487ff91346d15
+Source: final-checks.json
+Original SHA256: 28bad585191e31100bb5ff54d552dd6894c5de19d2268a0b5d00749eaae23990
+Scope: complete text; paths and host fields normalized
+
+{
+  "head": "dc78aedae34c25a97125ecd6816a1f645db5575f",
+  "result": "PASS",
+  "vendor_jobs": 8,
+  "regression_groups": 7,
+  "builder_entries": 114,
+  "builder_not_run": [
+    [
+      "gate 11",
+      "real report not on disk ($WORKSPACE_HOME/litex-milan/work/build_arty_eto_milanfinal48/gateware/digilent_arty_utilization_place.rpt) - the calibration gate needs the mf48 build tree",
+      "row"
+    ]
+  ],
+  "canonical_pairs": 2,
+  "disabled_utilization_pairs": 2,
+  "enabled_route_floor_pass": true
+}

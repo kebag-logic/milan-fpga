@@ -1,0 +1,132 @@
+Candidate head: dc78aedae34c25a97125ecd6816a1f645db5575f
+Comparison base: 3cda030c174b325e36c26af6420487ff91346d15
+Source: foreground-launches.json
+Original SHA256: d427564f2d0a70a2e7a1533921d9a77e46a118ed0ab284602de82ca8f030f0b5
+Scope: complete text; paths and host fields normalized
+
+[
+  {
+    "head": "dc78aedae34c25a97125ecd6816a1f645db5575f",
+    "script": "disabled_pipeline.py",
+    "command": [
+      "rtk",
+      "proxy",
+      "env",
+      "TMPDIR=$SCRATCH",
+      "PYTHONHASHSEED=0",
+      "PATH=$WORKSPACE_HOME/litex-milan/venv/bin:$VALIDATION_TOOLS/verilator-v5.050/bin:/usr/local/bin:/usr/bin:/bin",
+      "timeout",
+      "60000",
+      "python3",
+      "$SCRATCH/disabled_pipeline.py"
+    ],
+    "cwd": "$CHECKOUT",
+    "foreground": true
+  },
+  {
+    "head": "dc78aedae34c25a97125ecd6816a1f645db5575f",
+    "script": "quick_gates.py",
+    "command": [
+      "rtk",
+      "proxy",
+      "env",
+      "TMPDIR=$SCRATCH",
+      "PYTHONHASHSEED=0",
+      "PATH=$VALIDATION_TOOLS/verilator-v5.050/bin:$WORKSPACE_HOME/litex-milan/venv/bin:$WORKSPACE_HOME/.local/bin:/usr/local/bin:/usr/bin:/bin",
+      "timeout",
+      "43200",
+      "python3",
+      "$SCRATCH/quick_gates.py"
+    ],
+    "cwd": "$CHECKOUT",
+    "foreground": true
+  },
+  {
+    "head": "dc78aedae34c25a97125ecd6816a1f645db5575f",
+    "script": "run_regressions.py",
+    "command": [
+      "rtk",
+      "proxy",
+      "env",
+      "TMPDIR=$SCRATCH",
+      "PATH=$VALIDATION_TOOLS/verilator-v5.050/bin:$WORKSPACE_HOME/litex-milan/venv/bin:$WORKSPACE_HOME/.local/bin:/usr/local/bin:/usr/bin:/bin",
+      "timeout",
+      "43200",
+      "python3",
+      "$SCRATCH/run_regressions.py"
+    ],
+    "cwd": "$CHECKOUT",
+    "foreground": true
+  },
+  {
+    "head": "dc78aedae34c25a97125ecd6816a1f645db5575f",
+    "script": "run_builder_union.py",
+    "command": [
+      "rtk",
+      "proxy",
+      "env",
+      "TMPDIR=$SCRATCH",
+      "PYTHONHASHSEED=0",
+      "timeout",
+      "43200",
+      "python3",
+      "$SCRATCH/run_builder_union.py"
+    ],
+    "cwd": "$CHECKOUT",
+    "foreground": true
+  },
+  {
+    "head": "dc78aedae34c25a97125ecd6816a1f645db5575f",
+    "script": "remaining_gates.py",
+    "command": [
+      "rtk",
+      "proxy",
+      "env",
+      "TMPDIR=$SCRATCH",
+      "PYTHONHASHSEED=0",
+      "PATH=$VALIDATION_TOOLS/verilator-v5.050/bin:$WORKSPACE_HOME/litex-milan/venv/bin:$WORKSPACE_HOME/.local/bin:$WORKSPACE_HOME/Xilinx2/2026.1/Vivado/bin:/usr/local/bin:/usr/bin:/bin",
+      "timeout",
+      "60000",
+      "python3",
+      "$SCRATCH/remaining_gates.py"
+    ],
+    "cwd": "$CHECKOUT",
+    "foreground": true
+  },
+  {
+    "head": "dc78aedae34c25a97125ecd6816a1f645db5575f",
+    "script": "export_routes.py",
+    "command": [
+      "rtk",
+      "proxy",
+      "env",
+      "TMPDIR=$SCRATCH",
+      "PYTHONHASHSEED=0",
+      "PATH=$WORKSPACE_HOME/litex-milan/venv/bin:$VALIDATION_TOOLS/verilator-v5.050/bin:/usr/local/bin:/usr/bin:/bin",
+      "timeout",
+      "3600",
+      "python3",
+      "$SCRATCH/export_routes.py"
+    ],
+    "cwd": "$CHECKOUT",
+    "foreground": true
+  },
+  {
+    "head": "dc78aedae34c25a97125ecd6816a1f645db5575f",
+    "script": "run_routes.py",
+    "command": [
+      "rtk",
+      "proxy",
+      "env",
+      "TMPDIR=$SCRATCH",
+      "PYTHONHASHSEED=0",
+      "PATH=$WORKSPACE_HOME/litex-milan/venv/bin:$VALIDATION_TOOLS/verilator-v5.050/bin:/usr/local/bin:/usr/bin:/bin",
+      "timeout",
+      "60000",
+      "python3",
+      "$SCRATCH/run_routes.py"
+    ],
+    "cwd": "$CHECKOUT",
+    "foreground": true
+  }
+]

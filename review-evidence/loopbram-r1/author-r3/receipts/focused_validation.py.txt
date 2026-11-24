@@ -1,0 +1,30 @@
+Candidate head: 855529fe21fea685725a9edc4fe0a798154c6469
+Comparison base: 3cda030c174b325e36c26af6420487ff91346d15
+Source: focused_validation.py
+Original SHA256: f00d8b30d0261a9a32809495b615fd25c74def0ecf0b6b94a4f54ed92c8cb0ce
+Scope: complete text; paths and host fields normalized
+
+import os,subprocess,sys,json,time
+from pathlib import Path
+w=Path(__file__).resolve().parent;root=Path('$CHECKOUT')
+review=Path('$MANAGEMENT/2026-09-23/loopbram-r909-1/scripts')
+head=subprocess.check_output(['git','rev-parse','HEAD'],cwd=root,text=True).strip()
+cases=[
+('leaf-plants',[sys.executable,'tb/verilator/input_loopback/mutants.py','--output',str(w/'leaf-plants')]),
+('bounds',[sys.executable,'tb/verilator/input_loopback/bounds.py','--output',str(w/'bounds')]),
+('reviewer-probes',[sys.executable,str(w/'reviewer_probes.py'),'--tree',str(root),'--out',str(w/'reviewer-probes'),'--verilator','$VALIDATION_TOOLS/verilator-v5.050/bin/verilator','--pool','2','--jobs','4']),
+('anchors',[sys.executable,str(review/'anchor_counts.py'),str(root),str(root),'3cda030c',head]),
+('leaf-off',['bash',str(review/'leaf_off_incontext.sh'),str(w/'base-wt'),str(root),str(w/'leaf-off')]),
+('lint',[sys.executable,'scripts/lint_rtl.py','--check']),
+('docs',[sys.executable,'scripts/docs_check.py']),
+('doc-style',[sys.executable,'scripts/check_doc_style.py']),
+('em-dash',['/data-2/milan/tmp/loopbram-a826/markdown-venv/bin/python3','scripts/check_em_dash.py','--base','2e278379'])]
+results=[]
+for name,cmd in cases:
+ start=time.time()
+ with (w/(name+'.log')).open('w') as log:r=subprocess.run(cmd,cwd=root,stdout=log,stderr=subprocess.STDOUT,timeout=14400)
+ exit_code=r.returncode
+ if name=='anchors' and not (w/'anchors.log').read_text().rstrip().endswith('ANCHORS INTACT 0'):exit_code=1
+ results.append(dict(name=name,command=cmd,head=head,exit=exit_code,seconds=time.time()-start))
+ (w/'focused-results.json').write_text(json.dumps(results,indent=2)+'\n')
+ print(name,exit_code,flush=True)

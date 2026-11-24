@@ -1,0 +1,1810 @@
+Candidate head: 855529fe21fea685725a9edc4fe0a798154c6469
+Comparison base: 3cda030c174b325e36c26af6420487ff91346d15
+Source: round3.diff
+Original SHA256: 697ee6336c5e8cb974454c50a3474c24b0d5d69261cd32dc6aba0d61b2115efb
+Scope: complete text; paths and host fields normalized
+
+diff --git a/docs/ENDSTATION_BUILDER.md b/docs/ENDSTATION_BUILDER.md
+index 5540f419a5..d5a82992a4 100644
+--- a/docs/ENDSTATION_BUILDER.md
++++ b/docs/ENDSTATION_BUILDER.md
+@@ -1112,9 +1112,9 @@ Line numbers are those of the cited file at the time of writing.
+ | 16b | `audio_interface.cluster_mapping.pools.{pilot,loopback}` | D8 role pools, read ONLY by `role-pools` (declaring them under another policy is a `ConfigError`). Widths become the port's cluster block (`_role_pool`, line 1286; `cluster_layout`, line 1409); `pilot`/`loopback` are talker-port-only. The static AUDIO_MAP is written against the first backed segment in `physical`, `loopback`, `pilot`, `virtual` order; part of the model hash (line 3088) | 1722.1 7.2.13, 7.2.16, 7.2.19 | AEM: each port's `clusters` count and `pool` segments carry the widths (`aem_specs.py` lines 250, 255 and 142), as does the `audio_clusters` list (lines 268 and 272); scratch for the overlay's `cluster_pools` entry (line 4396), which nothing reads |
+ | 16c | cluster ROLE (derived, D10) | AUDIO_CLUSTER `object_name`: `I2S Out 0` / `TDM16 In 3` / `Virtual Out 5` / `Pilot Tone` / `Loopback S3 ch 1`. **Excluded from the model hash**: 6.2.2.8 lists `object_name` among the fields that do not constitute model structure, so a rename never moves `entity_model_id` | 1722.1 7.2.16, 6.2.2.8 | AEM |
+ | 16d | `audio_interface.cluster_mapping.fabric.loopback_lane` | `--loopback-lane` (line 4069) -> `milan_datapath` `LOOPBACK_P` (`milan_soc.py` line 917), the rx -> talker LOOP bucket; and the overlay `cluster_fabric` word that decides whether a loopback cluster may be the power-on source (`aem_specs.py` line 139). One declaration, so the map cannot name a lane the bitstream lacks (gate 23e) | - | SoC; AEM |
+-| 16g | `audio_interface.cluster_mapping.fabric.input_loopback_lane` | Default-off boolean; `--input-loopback-lane` -> `milan_datapath.INPUT_LOOPBACK_P`. Adds independent input destinations and buffered source bucket 6: 8 physical plus 8 loop destinations at 1x1, or 1 physical plus 63 loop destinations at 8x8. Synchronous reads add one media frame; invalid or absent data produces silence. See [input-mapped loopback](design/INPUT_MAPPED_LOOPBACK.md) | Milan v1.2 5.3.3.8; 1722.1 7.2.19 | SoC; AEM; shape |
+ | 16f | `audio_interface.cluster_mapping.render_ports` | Which STREAM_PORT_INPUTs own the `physical` render channels under `role-pools` (#584): `every` (D8, the default) gives each input port its own copy; `first` binds every physical render channel to STREAM_PORT_INPUT 0's clusters, in order, so each render key is the projection of one cluster, and a port they do not reach owns one `unrouted` cluster. Read only by `role-pools` (a `ConfigError` under another policy); hashed into `entity_model_id` only when declared | Milan v1.2 5.3.3.8; 1722.1 7.2.19, 6.2.2.8 | AEM, `ADP_DMAP_IN_RPHYS_C` |
+ | 16e | `audio_interface.channel_names` | AUDIO_CLUSTER `object_name` for channel k of every port (`_ClusterNaming`, line 1507); 6.2.2.8-excluded, so names never move a hash-derived id | 1722.1 7.2.16, 6.2.2.8 | AEM (`aem_specs.py` lines 267 to 272) |
++| 16g | `audio_interface.cluster_mapping.fabric.input_loopback_lane` | Default-off boolean; `--input-loopback-lane` -> `milan_datapath.INPUT_LOOPBACK_P`. Adds independent input destinations and buffered source bucket 6: 8 physical plus 8 loop destinations at 1x1, or 1 physical plus 63 loop destinations at 8x8. Synchronous reads add one media frame; invalid or absent data produces silence. See [input-mapped loopback](design/INPUT_MAPPED_LOOPBACK.md) | Milan v1.2 5.3.3.8; 1722.1 7.2.19 | SoC; AEM; shape |
+ | 17 | `streams.listeners[].channels` | STREAM_INPUT default `current_format` channel count (= wire `channels_per_frame`); the stream count behind `--num-streams` (line 4038) | 1722.1 7.2.6; 1722 7.3.3; Milan 6.4 | AEM (`aem_specs.py` line 236); SoC (`milan_soc.py` line 831) |
+ | 17a | `streams.listeners[].name` / `streams.talkers[].name` | STREAM_INPUT / STREAM_OUTPUT `object_name` (default `Stream In k` / `Stream Out k`, line 1221); the `lwsrp_table.json` row names; 6.2.2.8-excluded | 1722.1 7.2.6, 6.2.2.8 | AEM (`aem_assemble.py` lines 210 and 220) |
+ | 18 | `streams.listeners[].formats` | STREAM_INPUT `formats` list. **Optional, and states the CURRENT format only** (`formats[0]`; defaults to the Base format for row 17's `channels` at `clocking.sampling_rate_hz`). Milan 6.4's family is DERIVED after it by `base_format_complete()` as one ut string per advertised rate, never enumerated per config: a hand-written ut entry is now a `ConfigError`, and so is a ut entry at `formats[0]` (1722 I.2.4 forbids ut in `current_format`) | 1722.1 7.2.6; Milan 5.3.8.1, 6.2, 6.4, 6.5; 1722 I.2.4 | AEM (`aem_specs.py` line 236) |
+diff --git a/docs/design/INPUT_MAPPED_LOOPBACK.md b/docs/design/INPUT_MAPPED_LOOPBACK.md
+index ef9f96669e..c497014da4 100644
+--- a/docs/design/INPUT_MAPPED_LOOPBACK.md
++++ b/docs/design/INPUT_MAPPED_LOOPBACK.md
+@@ -1,10 +1,10 @@
+ # Input-mapped block-RAM loopback
+ 
+-Status: implemented behind a default-off option; route and regression evidence belongs to the review packet.
++Status: implemented behind a default-off option; route and regression evidence belongs to [PR #987](https://github.com/kebag-logic/milan-fpga/pull/987).
+ 
+ Issue: [#979](https://github.com/kebag-logic/milan-fpga/issues/979).
+ 
+-Author: [A826]. Date: 2026-11-23.
++Date: 2026-11-23.
+ 
+ Examined base: `3cda030c174b325e36c26af6420487ff91346d15`.
+ 
+@@ -104,7 +104,7 @@ Its empty-queue behavior repeats samples; this proposal must not.
+ 
+ The supplied +2303 LUT / +1542 FF comparison is historical.
+ 
+-The current queued lane has not been remeasured.
++Fresh leaf measurements are recorded on PR #987.
+ 
+ ## Memory-port finding
+ 
+@@ -165,11 +165,17 @@ Names identify destinations; a remap must not invalidate their names.
+ 
+ Distinct names must identify the new source pool.
+ 
+-The buffer has four pages of up to 64 words.
++The buffer has eight pages of up to 64 words.
+ 
+-Each word contains a 24-bit sample, for 6144 sample-storage bits.
++Each word contains a 24-bit sample, for 12288 sample-storage bits.
+ 
+-Frame validity and capture timestamps are held separately for four pages.
++Four metadata slots hold validity, frame tags, and capture timestamps.
++
++Those slots cover unclaimed frames at the supported leads.
++
++A claim saves all three bits of its RAM page.
++
++The active walk therefore survives reuse of its metadata slot.
+ 
+ Simple-dual-port operation targets one RAMB18.
+ 
+@@ -375,3 +381,27 @@ Implementation must meet every validation and measurement obligation above.
+ The topology ruling does not relax resource or timing ceilings.
+ 
+ Overflow remains S14 debt; unmeasured behavior remains unclaimed.
++
++## Retention and capture-clock bounds
++
++The supported out-lead is at most two frames.
++Eight pages keep a claimed page throughout its capture walk.
++A concurrent domain event cannot overwrite that claimed page.
++Larger leads fail elaboration before synthesis.
++Expiry precedes page reuse; capture consumes each publication once.
++
++The capture timestamp window includes four datapath clock cycles.
++Two cover marker synchronization; two cover timestamp quantization.
++It also covers 1000 ppm across the prediction horizon.
++That horizon is the out-lead plus one media period.
++One additional nanosecond covers integer rounding.
++At 100 MHz, the maximum window is 104 ns.
++At 50 MHz, it is 144 ns.
++Both are below half the 48 kHz media period.
++Offsets outside this bound may yield silence.
++This bound does not claim sample-rate conversion.
++
++The wire scoreboard does not isolate five defensive guards.
++They are bind-only flush, one-shot claim, expiry, backlog, and age.
++Combined invalidation and steady scheduling currently mask their removal.
++They remain untested defence in depth, not mutation-proven guarantees.
+diff --git a/hdl/ieee1722/aaf/KL_chan_map_capture.sv b/hdl/ieee1722/aaf/KL_chan_map_capture.sv
+index cae1340ca8..af310351ff 100644
+--- a/hdl/ieee1722/aaf/KL_chan_map_capture.sv
++++ b/hdl/ieee1722/aaf/KL_chan_map_capture.sv
+@@ -335,11 +335,15 @@
+                 pop issue per pair, one data-return drain), then a slot costs
+                 one CM_STEP_S cycle plus the GAP_CYC_P+1 cycles CM_GAP_S
+                 takes to count GAP_CYC_P down to zero AND advance, so the
+-                walk is 1 + (LB_PAIRS_C + 1) + N_SLOTS_P * (GAP_CYC_P + 2)
++                walk is 1 + (LB_PAIRS_C + 1) + N_SLOTS_P *
++                (GAP_CYC_P + 2 + 2 * INPUT_LOOPBACK_P)
+                 cycles including the CM_IDLE_S cycle that starts it, and it
+                 must fit inside one media tick. At the shipping 8x8 that is
+                 1 + 33 + 32*26 = 866 against MILAN_CLK_FREQ_HZ/48000 (2083
+-                at 100 MHz, 1041 at 50 MHz - the worst-case budget). Covering
++                at 100 MHz, 1041 at 50 MHz - the worst-case budget).
++                Input loopback adds two synchronous-read cycles per slot:
++                930 cycles with 32 legacy pre-walk pairs; 899 when the
++                legacy bucket is disabled and has one pair. Covering
+                 the unmapped slots does not raise that ceiling - a fully
+                 mapped board already pays all 32, and the shipped 8x8 map is
+                 fully mapped - it only stops a sparsely mapped board from
+@@ -928,13 +932,11 @@ module KL_chan_map_capture #(
+   end : skid_kill_scan
+ 
+   // ---- pre-walk pop control (sequenced by the emit FSM below) ----------- //
+-  typedef enum logic [2:0] {
++  typedef enum logic [1:0] {
+     CM_IDLE_S,     //! wait for a media tick
+     CM_POP_S,      //! LOOP pre-walk: pop one queued event per fed pair
+     CM_STEP_S,     //! decide the current slot: emit
+-    CM_GAP_S,      //! settle gap after a pair pulse
+-    CM_INPUT_L_S,  //! first mono return and second request
+-    CM_INPUT_R_S   //! second mono return and pair publication
++    CM_GAP_S       //! settle gap after a pair pulse
+   } cstate_t;
+ 
+   cstate_t                st_r;
+@@ -1369,26 +1371,60 @@ module KL_chan_map_capture #(
+   wire [23:0] out_l_w = (32'(row_l_w) < N_CAND_C) ? cand_w[row_l_w] : 24'd0;
+   wire [23:0] out_r_w = (32'(row_r_w) < N_CAND_C) ? cand_w[row_r_w] : 24'd0;
+ 
+-  //! Bucket 6 reads a mono destination from synchronous block RAM.
+-  //! Only the current pair is held; there is no parallel sample bank.
+-  logic [23:0] input_left_r, input_right_r;
+-  logic input_left_select_r, input_right_select_r;
+-  wire input_right_w = (st_r == CM_INPUT_L_S);
+-  logic [5:0] input_right_addr_r;
+-  assign input_capture_o = (INPUT_LOOPBACK_P != 0)
+-      && (st_r == CM_POP_S) && (pop_idx_r == '0);
+-  assign input_read_o = (INPUT_LOOPBACK_P != 0)
+-                        && ((st_r == CM_STEP_S) || input_right_w);
+-  assign input_addr_o = input_right_w ? input_right_addr_r
+-      : {ent_l_w[6:4], ent_l_w[1:0], ent_l_w[11]};
+-  wire input_left_select_w = ent_l_w[12] && (ent_l_w[10:8] == 3'd6)
+-                              && !ent_l_w[7] && (ent_l_w[3:2] == '0);
+-  wire input_right_select_w = ent_r_w[12] && (ent_r_w[10:8] == 3'd6)
+-                               && !ent_r_w[7] && (ent_r_w[3:2] == '0);
++  wire input_step_done_w;
++  wire [23:0] input_pair_l_w, input_pair_r_w;
++  //! Only the enabled branch owns the two extra synchronous-read phases.
++  if (INPUT_LOOPBACK_P != 0) begin : g_input_loopback
++    typedef enum logic [1:0] { INPUT_REQ_S, INPUT_LEFT_S, INPUT_RIGHT_S } input_state_t;
++    input_state_t input_state_r;
++    logic [23:0] input_left_r, input_right_r;
++    logic input_left_select_r, input_right_select_r;
++    logic [5:0] input_right_addr_r;
++    wire input_right_w = (input_state_r == INPUT_LEFT_S);
++    assign input_step_done_w = (input_state_r == INPUT_RIGHT_S);
++    assign input_pair_l_w = input_left_r;
++    assign input_pair_r_w = input_right_select_r ? input_sample_i : input_right_r;
++    assign input_capture_o = (st_r == CM_POP_S) && (pop_idx_r == '0);
++    assign input_read_o = (st_r == CM_STEP_S) && !input_step_done_w;
++    assign input_addr_o = input_right_w ? input_right_addr_r
++        : {ent_l_w[6:4], ent_l_w[1:0], ent_l_w[11]};
++    always_ff @(posedge clk_i) begin : input_pair_read
++      if (!rst_n) begin
++        input_state_r <= INPUT_REQ_S;
++        input_left_r <= '0;
++        input_right_r <= '0;
++        input_right_addr_r <= '0;
++        input_left_select_r <= 1'b0;
++        input_right_select_r <= 1'b0;
++      end else if (st_r == CM_STEP_S) begin
++        case (input_state_r)
++          INPUT_REQ_S: begin
++            input_left_r <= out_l_w;
++            input_right_r <= out_r_w;
++            input_right_addr_r <= {ent_r_w[6:4], ent_r_w[1:0], ent_r_w[11]};
++            input_left_select_r <= ent_l_w[12] && (ent_l_w[10:8] == 3'd6)
++                                   && !ent_l_w[7] && (ent_l_w[3:2] == '0);
++            input_right_select_r <= ent_r_w[12] && (ent_r_w[10:8] == 3'd6)
++                                    && !ent_r_w[7] && (ent_r_w[3:2] == '0);
++            input_state_r <= INPUT_LEFT_S;
++          end
++          INPUT_LEFT_S: begin
++            if (input_left_select_r) input_left_r <= input_sample_i;
++            input_state_r <= INPUT_RIGHT_S;
++          end
++          default: input_state_r <= INPUT_REQ_S;
++        endcase
++      end
++    end : input_pair_read
++  end else begin : g_no_input_loopback
++    assign input_step_done_w = 1'b1;
++    assign input_pair_l_w = '0;
++    assign input_pair_r_w = '0;
++    assign input_capture_o = 1'b0;
++    assign input_read_o = 1'b0;
++    assign input_addr_o = '0;
++  end
+ 
+-  // ---------------------------------------------------------------------- //
+-  // Emit walk FSM (pre-walk pop, then the slot walk)                        //
+-  // ---------------------------------------------------------------------- //
+   logic [$clog2(GAP_CYC_P+1)-1:0] gap_r;
+   wire  last_slot_w = (32'(slot_r) == N_SLOTS_P - 1);
+ 
+@@ -1404,11 +1440,6 @@ module KL_chan_map_capture #(
+       pair_slot_o  <= '0;
+       pair_l_o     <= '0;
+       pair_r_o     <= '0;
+-      input_right_addr_r <= '0;
+-      input_left_r <= '0;
+-      input_right_r <= '0;
+-      input_left_select_r <= 1'b0;
+-      input_right_select_r <= 1'b0;
+     end
+     else begin
+       unique case (st_r)
+@@ -1444,30 +1475,26 @@ module KL_chan_map_capture #(
+         //! packetizer's input. Milan v1.2 5.3.7.3 gives a bound Stream Output
+         //! no way to be silent except by sending silence.
+         CM_STEP_S : begin
+-          pair_valid_o <= (INPUT_LOOPBACK_P == 0);
++          pair_valid_o <= 1'b1;
+           pair_slot_o  <= 5'(slot_r);
+           pair_l_o     <= out_l_w;
+           pair_r_o     <= out_r_w;
+           gap_r        <= ($clog2(GAP_CYC_P+1))'(GAP_CYC_P);
+-          st_r         <= (INPUT_LOOPBACK_P != 0) ? CM_INPUT_L_S : CM_GAP_S;
+-          input_left_r <= out_l_w;
+-          input_right_r <= out_r_w;
+-          input_right_addr_r <= {ent_r_w[6:4], ent_r_w[1:0], ent_r_w[11]};
+-          input_left_select_r <= input_left_select_w;
+-          input_right_select_r <= input_right_select_w;
+-        end
+-        CM_INPUT_L_S: begin
+-          if (input_left_select_r) input_left_r <= input_sample_i;
+-          st_r <= CM_INPUT_R_S;
+-        end
+-        CM_INPUT_R_S: begin
+-          pair_valid_o <= 1'b1;
+-          pair_l_o <= input_left_r;
+-          pair_r_o <= input_right_select_r ? input_sample_i : input_right_r;
+-          st_r <= CM_GAP_S;
++          st_r         <= CM_GAP_S;
++          if (INPUT_LOOPBACK_P != 0) begin
++            if (input_step_done_w) begin
++              pair_l_o <= input_pair_l_w;
++              pair_r_o <= input_pair_r_w;
++            end else begin
++              pair_valid_o <= 1'b0;
++              pair_slot_o <= pair_slot_o;
++              pair_l_o <= pair_l_o;
++              pair_r_o <= pair_r_o;
++              gap_r <= gap_r;
++              st_r <= CM_STEP_S;
++            end
++          end
+         end
+-
+-        // -------- settle gap between injects ------------------------------
+         CM_GAP_S : begin
+           pair_valid_o <= 1'b0;            //! the pulse was one cycle only
+           if (gap_r == '0) begin
+@@ -1495,6 +1522,7 @@ module KL_chan_map_capture #(
+     end
+   end : emit_engine
+ 
++
+ endmodule
+ 
+ `default_nettype wire
+diff --git a/hdl/ieee1722/aaf/KL_render_queue.sv b/hdl/ieee1722/aaf/KL_render_queue.sv
+index 8f6f91bfb3..2d35edd584 100644
+--- a/hdl/ieee1722/aaf/KL_render_queue.sv
++++ b/hdl/ieee1722/aaf/KL_render_queue.sv
+@@ -63,11 +63,14 @@
+                 clone format (lanes without a valid sample carry zero, tlast
+                 on the last beat, streams in index order), then
+                 render_tick_p_o[i] fires. Interfaces are read one after the
+-                other on the one read port.
++                other on the one read port. With INPUT_LOOPBACK_P enabled,
++                mapped mono reads then fill a separate eight-page RAM before
++                the consumed rows are scrubbed.
+ 
+                 CONSUMED ROWS. After the reads of event n, frame
+                 R = n + K_min has been read by every interface: R advances to
+-                it and its rows are invalidated (written invalid through the
++                it and, after the optional mapped copy, its rows are
++                invalidated (written invalid through the
+                 write ports, the push first), and only then may the next
+                 event's reads begin. A row therefore holds either invalid or
+                 the one frame of the window that maps to it.
+@@ -124,12 +127,16 @@
+ 
+                 HOLD. A hold of the frame grid (a stopped serial clock, a
+                 media-clock holdover) delays the frames already queued by the
+-                hold: their rows keep their frame numbers. The stream's later
++                hold when INPUT_LOOPBACK_P is disabled: their rows keep
++                their frame numbers. With it enabled, two missing domain
++                periods invalidate loop pages and flush every source stream.
++                The stream's later
+                 PDUs, placed against the moved grid, take over within the
+                 queue's lead, and the snapping leaves one gap or overlap,
+                 counted in slips_o.
+ 
+-                FLUSH (bind loss) and reset invalidate every row of the
++                FLUSH (bind loss), enabled loopback clock loss, and reset
++                invalidate every row of the
+                 stream (a walker on the write ports' idle cycles); its writes
+                 are dropped and its reads present silence until the walk has
+                 covered it.
+@@ -597,8 +604,7 @@ module KL_render_queue #(
+   typedef enum logic [1:0] {
+     S_IDLE_S,
+     S_READ_S,
+-    S_SCRUB_S,
+-    S_COPY_S
++    S_SCRUB_S
+   } sstate_t;
+   sstate_t sst_r;
+ 
+@@ -624,13 +630,14 @@ module KL_render_queue #(
+ 
+   //! the invalidation writes both banks at one address, on a cycle the push
+   //! leaves both free
++  wire copy_active_w;
+   wire        both_free_w = !pw0_w && !pw1_w;
+-  wire        scrub_go_w  = (sst_r == S_SCRUB_S) && both_free_w;
++  wire        scrub_go_w  = (sst_r == S_SCRUB_S && !copy_active_w) && both_free_w;
+ 
+   // the flush walker: a stream's every word, when the scrub does not need
+   // the ports
+   logic [$clog2(SPAN_C2)-1:0] fl_a_r; //! the stream's word being invalidated
+-  wire  fl_go_w   = fl_busy_r && both_free_w && !(sst_r == S_SCRUB_S);
++  wire  fl_go_w   = fl_busy_r && both_free_w && !(sst_r == S_SCRUB_S && !copy_active_w);
+   wire  fl_last_w = (32'(fl_a_r) == SPAN_C2 - 1);
+   wire  [AW_C-1:0] fl_addr_w = AW_C'(32'(fl_s_r) * SPAN_C2 + 32'(fl_a_r));
+ 
+@@ -658,7 +665,7 @@ module KL_render_queue #(
+   wire [3:0] copy_stream_w;
+   wire [2:0] copy_channel_w;
+   wire copy_done_w;
+-  assign ra_w = (INPUT_LOOPBACK_P != 0 && sst_r == S_COPY_S)
++  assign ra_w = copy_active_w
+       ? waddr(copy_stream_w, cons_w[RW_C-1:0], {2'b00, copy_channel_w[2:1]})
+       : waddr(slot_r, rd_fr_w[RW_C-1:0], beat_r);
+ 
+@@ -689,7 +696,7 @@ module KL_render_queue #(
+   always_comb begin : fl_rd_lookup
+     fl_rd_w = 1'b0;
+     for (int unsigned s = 0; s < N_STREAMS_P; s++)
+-      if (32'((INPUT_LOOPBACK_P != 0 && sst_r == S_COPY_S) ? copy_stream_w : slot_r) == s) fl_rd_w = flpend_r[s] || (fl_busy_r && (32'(fl_s_r) == s));
++      if (32'(copy_active_w ? copy_stream_w : slot_r) == s) fl_rd_w = flpend_r[s] || (fl_busy_r && (32'(fl_s_r) == s));
+   end : fl_rd_lookup
+ 
+   always_ff @(posedge clk_i) begin : schedule
+@@ -742,7 +749,7 @@ module KL_render_queue #(
+               slot_r <= '0;
+               if (last_if_w) begin
+                 //! every interface has read frame sn + K_min: consumed
+-                sst_r <= (INPUT_LOOPBACK_P != 0) ? S_COPY_S : S_SCRUB_S;
++                sst_r <= S_SCRUB_S;
+                 r_r   <= cons_w;
+               end else begin
+                 if_r <= if_r + 1'b1;
+@@ -754,9 +761,6 @@ module KL_render_queue #(
+             beat_r <= beat_r + 1'b1;
+           end
+         end
+-        S_COPY_S: begin
+-          if (copy_done_w) sst_r <= S_SCRUB_S;
+-        end
+         S_SCRUB_S: begin
+           if (scrub_go_w) begin
+             if (last_beat_w) begin
+@@ -778,29 +782,43 @@ module KL_render_queue #(
+     end
+   end : schedule
+ 
+-  //! Four pages retain complete mapped frames, never a prior sample hold.
++  //! Eight pages retain complete mapped frames, never a prior sample hold.
++  //! A claimed page stays readable through the entire capture walk.
++  //! Capture can overlap the next domain event at the two-frame lead.
++  //! Eight pages prevent that event from overwriting the claimed page.
+   //! Expiry and invalidation clear metadata; the sample RAM has no reset.
++  if (INPUT_LOOPBACK_P != 0 && KMIN_C > 2) begin : g_input_loop_lead_refused
++    $error("input loopback eight-page retention requires KMIN_C <= 2");
++  end
+   if (INPUT_LOOPBACK_P != 0) begin : g_input_loopback
++    localparam int SAMPLE_PAGES_C = 8;
++    localparam int META_PAGES_C = 4;
++    localparam int META_W_C = $clog2(META_PAGES_C);
+     localparam int IDLE_CYC_C = 2 * (CLK_FREQ_HZ_P / FS_HZ_P);
+     localparam int IDLE_W_C = $clog2(IDLE_CYC_C + 1);
+-    (* ram_style = "block" *) logic [23:0] samples_r [0:255];
+-    logic [3:0] page_valid_r;
+-    logic [FW_C-1:0] page_frame_r [4];
+-    logic [31:0] page_capture_ns_r [4];
++    (* ram_style = "block" *) logic [23:0] samples_r [0:SAMPLE_PAGES_C*64-1];
++    //! Four metadata slots cover unclaimed frames at KMIN_C <= 2.
++    //! A claim saves the full RAM page before metadata reuse.
++    logic [META_PAGES_C-1:0] page_valid_r;
++    logic [FW_C-1:0] page_frame_r [META_PAGES_C];
++    logic [31:0] page_capture_ns_r [META_PAGES_C];
+     logic [IDLE_W_C-1:0] idle_cyc_r;
+     logic [6:0] cursor_r;
+     logic return_r, return_bank_r, return_valid_r, bad_r;
+     logic [5:0] return_addr_r;
+     logic [23:0] read_data_r;
+     logic read_valid_r;
+-    logic [1:0] read_page_w;
+-    logic [1:0] active_page_r;
++    logic [META_W_C-1:0] read_page_w;
++    logic [2:0] active_page_r;
+     logic active_valid_r;
+-    localparam int STAMP_TOL_NS_C = 3 * ((1_000_000_000 + CLK_FREQ_HZ_P - 1) / CLK_FREQ_HZ_P);
+-    logic signed [31:0] stamp_delta_w [4];
++    localparam int STAMP_CYCLE_NS_C = (1_000_000_000 + CLK_FREQ_HZ_P - 1) / CLK_FREQ_HZ_P;
++    localparam int STAMP_RATE_NS_C = int'(((64'(KMIN_C) + 1) * PS3_L + 2999) / 3000);
++    localparam int STAMP_TOL_NS_C = 4 * STAMP_CYCLE_NS_C + STAMP_RATE_NS_C + 1;
+     logic read_valid_w;
+     wire [7:0] entry_w = input_map_i[(INPUT_FIRST_P + 32'(cursor_r[5:0]))*8 +: 8];
+-    wire copy_w = (sst_r == S_COPY_S);
++    logic copy_active_r;
++    wire copy_w = copy_active_r;
++    assign copy_active_w = copy_active_r;
+     wire copy_issue_w = copy_w && (32'(cursor_r) < INPUT_CH_P);
+     wire start_w = (sst_r == S_READ_S) && last_beat_w && last_slot_w && last_if_w;
+     wire invalidate_w = input_invalidate_i || (|flush_i)
+@@ -814,16 +832,25 @@ module KL_render_queue #(
+     assign copy_done_w = copy_w && (32'(cursor_r) == INPUT_CH_P);
+     assign input_sample_o = (read_valid_r && !invalidate_w) ? read_data_r : 24'd0;
+ 
++    function automatic logic stamp_matches(input logic [31:0] capture_ns,
++                                            input logic [31:0] page_ns);
++      logic signed [31:0] delta;
++      begin
++        delta = $signed(capture_ns - page_ns);
++        stamp_matches = (delta >= -STAMP_TOL_NS_C) && (delta <= STAMP_TOL_NS_C);
++      end
++    endfunction
++
+     //! Match the actual capture instant, not the independently phased tick.
+-    //! Clock-domain synchronizers and PHC sampling bound the stamp tolerance.
++    //! Four clock cycles cover marker synchronization and stamp quantization.
++    //! Add 1000 ppm across KMIN_C+1 periods, and one ns for rounding.
++    //! This window is below half a period: only one frame can match.
+     always_comb begin : select_page
+       read_page_w = '0;
+       read_valid_w = 1'b0;
+-      for (int p = 0; p < 4; p++) begin
+-        stamp_delta_w[p] = $signed(input_capture_ns_i - page_capture_ns_r[p]);
+-        if (page_valid_r[p] && (stamp_delta_w[p] >= -STAMP_TOL_NS_C)
+-            && (stamp_delta_w[p] <= STAMP_TOL_NS_C)) begin
+-          read_page_w = 2'(p);
++      for (int p = 0; p < META_PAGES_C; p++) begin
++        if (page_valid_r[p] && stamp_matches(input_capture_ns_i, page_capture_ns_r[p])) begin
++          read_page_w = META_W_C'(p);
+           read_valid_w = 1'b1;
+         end
+       end
+@@ -831,7 +858,7 @@ module KL_render_queue #(
+ 
+     always_ff @(posedge clk_i) begin : input_ram_write
+       if (return_r)
+-        samples_r[{cons_w[1:0], return_addr_r}] <=
++        samples_r[{cons_w[2:0], return_addr_r}] <=
+             (return_valid_r && returned_w[24]) ? returned_w[23:0] : 24'd0;
+     end : input_ram_write
+     always_ff @(posedge clk_i) begin : input_ram_read
+@@ -841,10 +868,11 @@ module KL_render_queue #(
+     always_ff @(posedge clk_i) begin : input_metadata
+       if (!rst_n) begin
+         page_valid_r <= '0;
+-        for (int p = 0; p < 4; p++) begin
++        for (int p = 0; p < META_PAGES_C; p++) begin
+           page_frame_r[p] <= '0;
+           page_capture_ns_r[p] <= '0;
+         end
++        copy_active_r <= 1'b0;
+         cursor_r <= '0;
+         return_r <= 1'b0;
+         return_bank_r <= 1'b0;
+@@ -870,25 +898,27 @@ module KL_render_queue #(
+                             && (32'(copy_channel_w) < N_CH_P);
+         end
+         //! Expire before the modulo page can alias a later frame.
+-        for (int p = 0; p < 4; p++) begin
++        for (int p = 0; p < META_PAGES_C; p++) begin
+           if (ev_p_i && ((n_now_w - page_frame_r[p]) == FW_C'(2)))
+             page_valid_r[p] <= 1'b0;
+         end
+         if (input_capture_i) begin
+-          active_page_r <= read_page_w;
++          active_page_r <= page_frame_r[read_page_w][2:0];
+           active_valid_r <= read_valid_w && !invalidate_w;
+           if (read_valid_w) page_valid_r[read_page_w] <= 1'b0;
+         end
++        if (copy_done_w) copy_active_r <= 1'b0;
+         if (start_w) begin
++          copy_active_r <= 1'b1;
+           cursor_r <= '0;
+           bad_r <= invalidate_w || (sn_r != n_r);
+-          page_valid_r[cons_w[1:0]] <= 1'b0;
+-          page_frame_r[cons_w[1:0]] <= cons_w;
+-          page_capture_ns_r[cons_w[1:0]] <= target_ns_w;
++          page_valid_r[cons_w[META_W_C-1:0]] <= 1'b0;
++          page_frame_r[cons_w[META_W_C-1:0]] <= cons_w;
++          page_capture_ns_r[cons_w[META_W_C-1:0]] <= target_ns_w;
+         end
+         if (copy_done_w && !bad_r && !invalidate_w
+             && (age_w[FW_C-1] || age_w == '0))
+-          page_valid_r[cons_w[1:0]] <= 1'b1;
++          page_valid_r[cons_w[META_W_C-1:0]] <= 1'b1;
+         if (invalidate_w) begin
+           page_valid_r <= '0;
+           bad_r <= 1'b1;
+@@ -902,10 +932,13 @@ module KL_render_queue #(
+     assign copy_stream_w = '0;
+     assign copy_channel_w = '0;
+     assign copy_done_w = 1'b0;
++    assign copy_active_w = 1'b0;
+     assign input_sample_o = '0;
+   end
+ 
+ 
++
++
+   // ------------------------------------------------------------------ //
+   // Header, divider and the PDU walk                                    //
+   // ------------------------------------------------------------------ //
+@@ -1003,7 +1036,7 @@ module KL_render_queue #(
+       pop_p_o <= '0;
+       for (int unsigned s = 0; s < N_STREAMS_P; s++) begin : per_stream
+         //! a stream with nothing queued past R has no lead
+-        if (lwv_r[s] && (sst_r == S_SCRUB_S) && (lead_s_w[s][FW_C-1] || (lead_s_w[s] == '0)))
++        if (lwv_r[s] && (sst_r == S_SCRUB_S && !copy_active_w) && (lead_s_w[s][FW_C-1] || (lead_s_w[s] == '0)))
+           lwv_r[s] <= 1'b0;
+         if (lw_adv_w && (32'(s_tuser_i) == s)) begin
+           lw_r[s]  <= fnew_w;
+@@ -1099,6 +1132,7 @@ module KL_render_queue #(
+     end
+   end : taps
+ 
++
+ endmodule
+ 
+ `default_nettype wire
+diff --git a/hdl/ieee1722/aaf/README-parameters.md b/hdl/ieee1722/aaf/README-parameters.md
+index 7ff3c495d8..32d8ae6f9d 100644
+--- a/hdl/ieee1722/aaf/README-parameters.md
++++ b/hdl/ieee1722/aaf/README-parameters.md
+@@ -77,14 +77,17 @@ At one, `KL_render_queue` reads each committed logical input destination after
+ physical rendering and before scrubbing the consumed source frame.
+ `INPUT_KEYS_P`, `INPUT_FIRST_P`, and `INPUT_CH_P` describe that map slice.
+ The two approved tuples are `(16,8,8)` and `(64,1,63)`.
+-A four-page, 256 by 24-bit sample RAM has one write port and one synchronous read port.
++An eight-page, 512 by 24-bit sample RAM has one write port and one synchronous read port.
++Four metadata slots cover unclaimed frames at the supported leads.
++A claim saves the full RAM page before metadata reuse.
+ Only a complete, current frame may publish; absent source words write zero.
+ 
+ `KL_chan_map_capture` uses source bucket 6 for these destinations.
+ The mono address is `{idxh[2:0],idx[1:0],half}`; reserved upper bits select silence.
+ Two extra cycles per output pair issue and collect its two synchronous reads.
+ A capture walk claims one page by its capture timestamp and can fan it out.
+-A second walk cannot replay that page. Input-map changes, reset, unbind and
++One-shot claim prevents replay; its isolation remains untested.
++Input-map changes, reset, unbind and
+ clock loss invalidate availability. Two missing domain periods also flush
+ source rows, preventing old future rows from shifting across a clock restart.
+ The disabled option has neither this RAM nor this additional flush behavior.
+diff --git a/hdl/milan/milan_datapath.sv b/hdl/milan/milan_datapath.sv
+index 43e79a9d1d..a0ba385283 100644
+--- a/hdl/milan/milan_datapath.sv
++++ b/hdl/milan/milan_datapath.sv
+@@ -8478,13 +8478,13 @@ module milan_datapath import ethernet_packet_pkg::*; #(
+     .CLK_FREQ_HZ_P  (MILAN_CLK_FREQ_HZ)
+   ) render_queue (
+     .input_map_i (amap_in_store_r),
++    .clk_i (axis_clk), .rst_n (axis_resetn),
+     .input_invalidate_i (input_loop_invalidate_r || !dom_live_w),
+     .input_capture_i (input_loop_capture_w),
+     .input_read_i (input_loop_read_w),
+     .input_addr_i (input_loop_addr_w),
+     .input_capture_ns_i (cmap_walk_ns_w),
+     .input_sample_o (input_loop_sample_w),
+-    .clk_i (axis_clk), .rst_n (axis_resetn),
+     .hdr_p_i      (dpkt_hdr_p_w),
+     .hdr_ts_ns_i  (dpkt_hdr_ts_w),
+     .hdr_tv_i     (dpkt_hdr_tv_w),
+diff --git a/sw/firmware/ctrl/aecp/aecp_shape.py b/sw/firmware/ctrl/aecp/aecp_shape.py
+index d921369d47..88b5d47f79 100644
+--- a/sw/firmware/ctrl/aecp/aecp_shape.py
++++ b/sw/firmware/ctrl/aecp/aecp_shape.py
+@@ -95,8 +95,22 @@ def storage(overlay: dict, blob: bytes) -> list[str]:
+             start = len(defaults)
+             if index < len(streams) and streams[index].get("kind", "aaf") == "aaf":
+                 channels = (int(streams[index]["formats"][0], 16) >> 22) & 1023
+-                defaults += [f"{{{index},{channel},{channel},0}}"
+-                             for channel in range(min(8, channels, port["clusters"]))]
++                initial = {channel: (index, channel)
++                           for channel in range(min(8, channels, port["clusters"]))}
++                if typ == 14 and overlay.get("cluster_fabric", {}).get("input_loopback_lane"):
++                    for pool in port["pool"]:
++                        if pool["role"] == "input_loopback":
++                            for offset in range(pool["width"]):
++                                destination = pool["first"] + offset
++                                source, channel = divmod(destination, 8)
++                                source_channels = (int(streams[source]["formats"][0], 16) >> 22) & 1023
++                                key = pool["offset"] + offset
++                                if channel < source_channels:
++                                    initial[key] = (source, channel)
++                                else:
++                                    initial.pop(key, None)
++                defaults += [f"{{{source},{channel},{cluster},0}}"
++                             for cluster, (source, channel) in sorted(initial.items())]
+             count = len(defaults) - start
+             page = port["map_page"] if typ == 14 else 176
+             maps.append(f"{{{typ},{index},0,{page},(rows)+{total},0,{capacity},"
+diff --git a/tb/verilator/input_loopback/Makefile b/tb/verilator/input_loopback/Makefile
+index ad57084d60..84a270e593 100644
+--- a/tb/verilator/input_loopback/Makefile
++++ b/tb/verilator/input_loopback/Makefile
+@@ -15,7 +15,7 @@ SRCS = $(RTL)/common/ethernet_packet_pkg.sv $(A)/avtp_subtype_pkg.sv \
+  $(F)/KL_aaf_packetizer.sv $(A)/avtp_stream_parser.sv $(A)/KL_avtp_rx_monitor.sv \
+  $(F)/KL_aaf_rx_depacketizer.sv $(QUEUE_SRC) $(CAPTURE_SRC) \
+  ../../../third_party/verilog-axis/rtl/axis_fifo.v loopback_wrap.sv
+-.PHONY: all run one clean
++.PHONY: all run one bounds clean
+ all: run one
+ one:
+ 	$(MAKE) run STREAMS=1 FIRST=8 CHANNELS=8 LEAD=2 MDIR=$(MDIR)_one
+@@ -23,9 +23,12 @@ clean:
+ 	rm -rf $(MDIR) $(MDIR)_one
+ run:
+ 	$(VERILATOR) --cc --exe --build -j $(VERILATOR_JOBS) --top-module loopback_wrap \
+-	 +incdir+$(RTL)/common +incdir+$(A) +incdir+$(F) --Mdir $(MDIR) -Wall -Wno-fatal -Wno-PINMISSING -Wno-UNUSEDSIGNAL -Wno-UNUSEDPARAM \
++	 +incdir+$(RTL)/common +incdir+$(A) +incdir+$(F) --Mdir $(MDIR) -Wall -Wno-fatal -Werror-USERERROR -Wno-PINMISSING -Wno-UNUSEDSIGNAL -Wno-UNUSEDPARAM \
+ 	 -Wno-DECLFILENAME -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-IMPORTSTAR \
+ 	 -GN_STREAMS_P=$(STREAMS) -GINPUT_FIRST_P=$(FIRST) -GINPUT_CH_P=$(CHANNELS) -GLEAD_P=$(LEAD) \
+ 	 -CFLAGS "-std=c++17 -O2 -Wall -Wextra -DNSTREAMS=$(STREAMS) -DFIRST=$(FIRST) -DCHANNELS=$(CHANNELS) -DLEAD=$(LEAD)" \
+ 	 $(SRCS) sim_main.cpp -o Vinput_loopback
+ 	$(MDIR)/Vinput_loopback
++
++bounds:
++	python3 bounds.py --output $(MDIR)_bounds
+diff --git a/tb/verilator/input_loopback/README.md b/tb/verilator/input_loopback/README.md
+index 74e73c898e..5c50400dad 100644
+--- a/tb/verilator/input_loopback/README.md
++++ b/tb/verilator/input_loopback/README.md
+@@ -15,9 +15,9 @@ The scoreboard covers cross-stream and reversed-channel mappings, every
+ loop destination, out-of-range silence, input and output fan-out, REMOVE,
+ replacement, edits during copying, live clock stop/restart, reset during
+ activity, bind flush, timestamp wrap and prolonged absence across tag wraps.
+-The wrapper supplies committed logical maps directly; protocol command
+-acceptance, atomicity and physical projection remain the existing datapath
+-render suites' responsibility. This test does not claim a board audio soak.
++The wrapper supplies committed logical maps directly.
++The [parent integration test](../input_loopback_dp/README.md) executes mapping commands.
++It also checks generated geometry and committed parent connections. This test does not claim a board audio soak.
+ 
+ `python3 mutants.py --output <scratch-directory>` runs a clean control and seven
+ sequential planted defects. Ignored mappings, wrong bank parity, skipped
+@@ -28,4 +28,35 @@ not a successful detection.
+ The builder union includes `test_input_loopback_contract`: both geometries,
+ page crossing, source identities, key and NAME ceilings, and byte equality
+ of disabled builder artifacts and descriptor images. Routed resources and
+-all-corner timing are measured separately and recorded in the review packet.
++all-corner timing are measured separately and recorded in [PR #987](https://github.com/kebag-logic/milan-fpga/pull/987).
++
++## Retention and capture-clock bounds
++
++The supported out-lead is at most two frames.
++Eight pages keep a claimed page throughout its capture walk.
++A concurrent domain event cannot overwrite that claimed page.
++Larger leads fail elaboration before synthesis.
++Expiry precedes page reuse; capture consumes each publication once.
++
++The capture timestamp window includes four datapath clock cycles.
++Two cover marker synchronization; two cover timestamp quantization.
++It also covers 1000 ppm across the prediction horizon.
++That horizon is the out-lead plus one media period.
++One additional nanosecond covers integer rounding.
++At 100 MHz, the maximum window is 104 ns.
++At 50 MHz, it is 144 ns.
++Both are below half the 48 kHz media period.
++Offsets outside this bound may yield silence.
++This bound does not claim sample-rate conversion.
++
++The wire scoreboard does not isolate five defensive guards.
++They are bind-only flush, one-shot claim, expiry, backlog, and age.
++Combined invalidation and steady scheduling currently mask their removal.
++They remain untested defence in depth, not mutation-proven guarantees.
++
++`make bounds` checks both supported shapes.
++A signed 1000-ppm ramp carries 84 ns marker jitter.
++That is four wrapper clock cycles, leaving rounding margin.
++Both ramp signs must pass within the derived window.
++Increasing jitter to 87 ns must fail sample comparisons.
++An out-lead of three must fail elaboration.
+diff --git a/tb/verilator/input_loopback/bounds.py b/tb/verilator/input_loopback/bounds.py
+new file mode 100644
+index 0000000000..eb3ac15eff
+--- /dev/null
++++ b/tb/verilator/input_loopback/bounds.py
+@@ -0,0 +1,47 @@
++#!/usr/bin/env python3
++# SPDX-License-Identifier: CERN-OHL-W-2.0
++"""Check retention refusal and the derived capture-stamp error budget."""
++import argparse
++import json
++import os
++from pathlib import Path
++import subprocess
++
++HERE = Path(__file__).resolve().parent
++
++
++def main():
++    parser = argparse.ArgumentParser(description=__doc__)
++    parser.add_argument("--output", type=Path, required=True)
++    args = parser.parse_args()
++    out = args.output.resolve()
++    out.mkdir(parents=True, exist_ok=True)
++    results = []
++    for shape, first, count, lead in [(1, 8, 8, 2), (8, 1, 63, 1)]:
++        work = out / str(shape)
++        base = ["make", "-s", "-C", str(HERE), "run", "VERILATOR_JOBS=4",
++                f"STREAMS={shape}", f"FIRST={first}", f"CHANNELS={count}", f"MDIR={work}"]
++        runs = [("control", base + [f"LEAD={lead}"], {}, "pass"),
++                ("inside", [str(work / "Vinput_loopback")], {"STAMP_PPM": "1000", "STAMP_JITTER_NS": "84"}, "pass"),
++                ("outside", [str(work / "Vinput_loopback")], {"STAMP_PPM": "1000", "STAMP_JITTER_NS": "87"}, "sample"),
++                ("lead3", base + ["LEAD=3", f"MDIR={work}-lead3"], {}, "refuse")]
++        for name, command, extra, expectation in runs:
++            log = out / f"{shape}-{name}.log"
++            with log.open("w") as sink:
++                result = subprocess.run(command, env=dict(os.environ, **extra), stdout=sink,
++                                        stderr=subprocess.STDOUT, timeout=3600)
++            text = log.read_text()
++            passed = ((result.returncode == 0 and "PASS input-loopback" in text) if expectation == "pass" else
++                      (result.returncode != 0 and "FAIL COPY_SAMPLE" in text) if expectation == "sample" else
++                      (result.returncode != 0 and "USERERROR" in text and "KMIN_C <= 2" in text
++                       and not Path(str(work) + "-lead3/Vinput_loopback").exists()))
++            results.append(dict(shape=shape, case=name, command=command, environment=extra,
++                                exit=result.returncode, passed=passed))
++            (out / "results.json").write_text(json.dumps(results, indent=2) + "\n")
++            print(shape, name, "PASS" if passed else "FAIL", flush=True)
++            if not passed:
++                raise SystemExit(1)
++
++
++if __name__ == "__main__":
++    main()
+diff --git a/tb/verilator/input_loopback/mutants.py b/tb/verilator/input_loopback/mutants.py
+index 3eec3eb010..0d899c117d 100644
+--- a/tb/verilator/input_loopback/mutants.py
++++ b/tb/verilator/input_loopback/mutants.py
+@@ -14,8 +14,8 @@ PLANTS = (
+      "assign copy_stream_w = 4'd0;", "COPY_SAMPLE"),
+     ("wrong_bank", "return_bank_r <= copy_channel_w[0] ^ cons_w[0];",
+      "return_bank_r <= !(copy_channel_w[0] ^ cons_w[0]);", "COPY_SAMPLE"),
+-    ("skipped_copy", "sst_r <= (INPUT_LOOPBACK_P != 0) ? S_COPY_S : S_SCRUB_S;",
+-     "sst_r <= S_SCRUB_S;", "COPY_SAMPLE"),
++    ("skipped_copy", "copy_active_r <= 1'b1;",
++     "copy_active_r <= 1'b0;", "COPY_SAMPLE"),
+     ("ignored_invalidation", "wire invalidate_w = input_invalidate_i || (|flush_i)",
+      "wire invalidate_w = 1'b0 || (|flush_i)", "COPY_SAMPLE"),
+     ("retained_word", "if (return_r)\n        samples_r",
+diff --git a/tb/verilator/input_loopback/sim_main.cpp b/tb/verilator/input_loopback/sim_main.cpp
+index 26f5732422..2d2f18e56e 100644
+--- a/tb/verilator/input_loopback/sim_main.cpp
++++ b/tb/verilator/input_loopback/sim_main.cpp
+@@ -37,6 +37,17 @@ class Bench {
+     Frame expected{};
+     int valid_from = 1;
+     bool events = true;
++    // Sweep the prediction-horizon rate error with worst-sign marker jitter.
++    // Environment controls leave the standard mutation oracle unchanged.
++    int stamp_ppm = std::getenv("STAMP_PPM") ? std::atoi(std::getenv("STAMP_PPM")) : 0;
++    int stamp_jitter = std::getenv("STAMP_JITTER_NS") ? std::atoi(std::getenv("STAMP_JITTER_NS")) : 0;
++    int capture_offset(int frame) const {
++        if (!stamp_ppm && !stamp_jitter) return 0;
++        int ramp = (frame % 65) - 32;
++        int ppm = stamp_ppm * ramp / 32;
++        int rate = int((int64_t(LEAD+1)*62500*std::abs(ppm)+2999999)/3000000);
++        return (ramp < 0 ? -1 : 1) * (rate + stamp_jitter);
++    }
+     void check(bool ok, const char* label, uint32_t got=0, uint32_t want=0) {
+         ++checks;
+         if (!ok && failures++ < 12) {
+@@ -109,7 +120,7 @@ public:
+         if(phase==400 && frame%6==0)
+             for(int s=0;s<NSTREAMS;++s) if(feed&(1u<<s)) packet(s,frame+12);
+         d->ev_i=events && phase==0; d->close_i=events && phase==250; d->tick_i=phase==300;
+-        if(events) d->frame_ns_i=stamp(frame);
++        if(events) d->frame_ns_i=stamp(frame)+uint32_t(phase>=250 ? capture_offset(frame) : 0);
+         d->rx_valid_i=0; d->rx_last_i=0;
+         if(cycles%8==0 && !incoming.empty()) {
+             Beat b=incoming.front(); incoming.pop_front();
+diff --git a/tb/verilator/input_loopback_dp/Makefile b/tb/verilator/input_loopback_dp/Makefile
+new file mode 100644
+index 0000000000..918eee715b
+--- /dev/null
++++ b/tb/verilator/input_loopback_dp/Makefile
+@@ -0,0 +1,11 @@
++# SPDX-License-Identifier: CERN-OHL-W-2.0
++WORK ?= $(CURDIR)/obj_tests
++VERILATOR ?= verilator
++VERILATOR_JOBS ?= 4
++export VERILATOR VERILATOR_JOBS
++.PHONY: all one eight
++all: one eight
++one:
++	python3 run.py --shape 1 --work $(WORK)/one
++eight:
++	python3 run.py --shape 8 --work $(WORK)/eight
+diff --git a/tb/verilator/input_loopback_dp/README.md b/tb/verilator/input_loopback_dp/README.md
+new file mode 100644
+index 0000000000..31ff7461c3
+--- /dev/null
++++ b/tb/verilator/input_loopback_dp/README.md
+@@ -0,0 +1,34 @@
++# Enabled parent loopback integration
++
++Run `make` with scratch supplied through `WORK`.
++Both supported shapes come from their generated enabled configurations.
++The test elaborates `milan_datapath` with split control enabled.
++It links the production AECP command implementation and descriptor image.
++Commands enter that implementation as Ethernet command bytes.
++Its edit callback drives the real parent transaction server.
++The mailbox transport and processor instruction execution are outside scope.
++
++ADD, REMOVE, replacement, rejected edits, and no-ops are checked.
++GET_AUDIO_MAP checks both pages against commanded mappings.
++The parent GET interface is independently checked against those mappings.
++A boot format change exercises the actual clipping writer.
++An accepted edit is aligned inside a mapped copy.
++
++Distinct received AAF samples identify stream, channel, and presentation frame.
++The expected map comes exclusively from command intent.
++The parent commit pulse establishes the edit time.
++Neither stored mapping bits nor buffer samples supply expected values.
++Every capture sample and transmitted sample is graded.
++Silence and the first eligible new frame are included.
++All 63 destinations and eight talkers run concurrently at 8x8.
++The final unused channel must remain silent.
++A walk deadline assertion covers the entire capture walk.
++
++`python3 mutants.py --output <scratch>` runs controls and four plants.
++Removing the edit invalidation or map connection must fail samples.
++Reducing retention to four pages must fail at 1x1.
++Dropping the claimed page's upper address bit must also fail.
++Compilation errors never count as successful detections.
++
++The [wire fixture](../input_loopback/README.md) adds isolated leaf coverage.
++Its five unisolated defensive guards remain explicitly untested.
+diff --git a/tb/verilator/input_loopback_dp/mutants.py b/tb/verilator/input_loopback_dp/mutants.py
+new file mode 100644
+index 0000000000..a21b59e8d2
+--- /dev/null
++++ b/tb/verilator/input_loopback_dp/mutants.py
+@@ -0,0 +1,64 @@
++#!/usr/bin/env python3
++# SPDX-License-Identifier: CERN-OHL-W-2.0
++"""Require runtime sample failures for broken parent connections and retention."""
++import argparse
++import hashlib
++import json
++from pathlib import Path
++import subprocess
++import sys
++
++HERE = Path(__file__).resolve().parent
++ROOT = HERE.parents[2]
++
++
++def main():
++    parser = argparse.ArgumentParser(description=__doc__)
++    parser.add_argument("--output", type=Path, required=True)
++    args = parser.parse_args()
++    out = args.output.resolve()
++    out.mkdir(parents=True, exist_ok=True)
++    dp = (ROOT / "hdl/milan/milan_datapath.sv").read_text()
++    queue = (ROOT / "hdl/ieee1722/aaf/KL_render_queue.sv").read_text()
++    pulse = "if (amap_edit_context_w && amap_edit_in_change_w) begin\n              input_loop_invalidate_r <= 1'b1;"
++    plants = [("control1", 1, None, None), ("control8", 8, None, None),
++              ("missing_edit_invalidation", 8, "dp", [(pulse, pulse.replace("1'b1", "1'b0"))]),
++              ("disconnected_map", 8, "dp", [(".input_map_i (amap_in_store_r)", ".input_map_i ('0)")]),
++              ("overwritten_capture_page", 1, "queue", [
++                  ("cons_w[2:0]", "{1'b0, cons_w[1:0]}"),
++                  ("page_frame_r[read_page_w][2:0]", "{1'b0, read_page_w}")]),
++              ("truncated_claim_page", 1, "queue", [
++                  ("page_frame_r[read_page_w][2:0]", "{1'b0, read_page_w}")])]
++    results = []
++    for name, shape, kind, replacements in plants:
++        work = out / name
++        work.mkdir(exist_ok=True)
++        cmd = [sys.executable, str(HERE / "run.py"), "--shape", str(shape), "--work", str(work)]
++        if kind:
++            source = dp if kind == "dp" else queue
++            for old, new in replacements:
++                count = source.count(old)
++                expected = 1
++                if count != expected:
++                    raise RuntimeError((name, "anchor count", count, expected))
++                source = source.replace(old, new)
++            target = work / ("milan_datapath.sv" if kind == "dp" else "KL_render_queue.sv")
++            target.write_text(source)
++            cmd += ["--dp-source" if kind == "dp" else "--queue-source", str(target)]
++        log = out / (name + ".log")
++        with log.open("w") as sink:
++            result = subprocess.run(cmd, stdout=sink, stderr=subprocess.STDOUT, timeout=7200)
++        text = log.read_text()
++        built = (work / "obj/parent_loopback").is_file()
++        passed = (result.returncode == 0 and "RESULT: PASS" in text) if not kind else (
++            built and result.returncode != 0 and "[FAIL] PARENT_SAMPLE" in text and "RESULT: FAIL" in text)
++        results.append(dict(name=name, command=cmd, exit=result.returncode, built=built, passed=passed,
++                            log_sha256=hashlib.sha256(log.read_bytes()).hexdigest()))
++        (out / "results.json").write_text(json.dumps(results, indent=2) + "\n")
++        print(name, "PASS" if passed else "FAIL", flush=True)
++        if not passed:
++            raise SystemExit(1)
++
++
++if __name__ == "__main__":
++    main()
+diff --git a/tb/verilator/input_loopback_dp/probes.vlt b/tb/verilator/input_loopback_dp/probes.vlt
+new file mode 100644
+index 0000000000..1628355e76
+--- /dev/null
++++ b/tb/verilator/input_loopback_dp/probes.vlt
+@@ -0,0 +1,11 @@
++// SPDX-License-Identifier: CERN-OHL-W-2.0
++`verilator_config
++public_flat_rd -module "milan_datapath" -var "dom_ev_p_w"
++public_flat_rd -module "milan_datapath" -var "cmap_walk_ns_w"
++public_flat_rd -module "milan_datapath" -var "input_loop_capture_w"
++public_flat_rd -module "milan_datapath" -var "cmap_pv_w"
++public_flat_rd -module "milan_datapath" -var "cmap_slot_w"
++public_flat_rd -module "milan_datapath" -var "cmap_l_w"
++public_flat_rd -module "milan_datapath" -var "cmap_r_w"
++public_flat_rd -module "milan_datapath" -var "amap_edit_live_wr_p"
++public_flat_rd -module "milan_datapath" -var "amap_edit_in_change_w"
+diff --git a/tb/verilator/input_loopback_dp/run.py b/tb/verilator/input_loopback_dp/run.py
+new file mode 100644
+index 0000000000..7655707e04
+--- /dev/null
++++ b/tb/verilator/input_loopback_dp/run.py
+@@ -0,0 +1,80 @@
++#!/usr/bin/env python3
++# SPDX-License-Identifier: CERN-OHL-W-2.0
++"""Generate an enabled product shape and execute its parent integration test."""
++import argparse
++import json
++import os
++from pathlib import Path
++import shlex
++import subprocess
++import sys
++import yaml
++
++HERE = Path(__file__).resolve().parent
++ROOT = HERE.parents[2]
++sys.path.insert(0, str(ROOT / "tb/verilator/milan_dp_render"))
++from ship8_params import derive, header, listener_format
++
++
++def main():
++    p = argparse.ArgumentParser(description=__doc__)
++    p.add_argument("--shape", type=int, choices=(1, 8), required=True)
++    p.add_argument("--work", type=Path, required=True)
++    p.add_argument("--dp-source", type=Path)
++    p.add_argument("--queue-source", type=Path)
++    p.add_argument("--build-only", action="store_true")
++    a = p.parse_args()
++    w = a.work.resolve()
++    w.mkdir(parents=True, exist_ok=True)
++    name = "endstation_ax7101_1x1_tdm8" if a.shape == 1 else "endstation_ax7101_8x8"
++    raw = yaml.safe_load((ROOT / "configs" / (name + ".yaml")).read_text())
++    raw["audio_interface"]["cluster_mapping"]["fabric"].update(input_loopback_lane=True, loopback_lane=False)
++    cfg = w / (name + ".yaml")
++    cfg.write_text(yaml.safe_dump(raw))
++    def run(cmd, cwd=ROOT):
++        print(shlex.join(list(map(str, cmd))), flush=True)
++        subprocess.run(list(map(str, cmd)), cwd=cwd, check=True, timeout=7200)
++    run([sys.executable, ROOT / "sw/builder/endstation_builder.py", cfg, "-o", w / "gen"])
++    gen = w / "gen" / name
++    overlay = json.loads((gen / "aem_overlay.json").read_text())
++    params = derive(json.loads((gen / "soc_params.json").read_text())["argv"])
++    params["INPUT_LOOPBACK_P"] = 1
++    params["CTRL_SPLIT_P"] = 1
++    geometry = header(params, listener_format(overlay))
++    ports = overlay["stream_ports"]["input"]
++    for key, field in (("kInputBase", "base_cluster"), ("kInputWidth", "clusters")):
++        geometry += "constexpr int " + key + "[] = {" + ",".join(str(x[field]) for x in ports) + "};\n"
++    (w / "geometry.hpp").write_text(geometry)
++    run([sys.executable, ROOT / "avdecc/gen_aemi_image.py", "--overlay", gen / "aem_overlay.json",
++         "--line-bytes", "576", "-o", w / "aemi.bin"])
++    ctrl = ROOT / "sw/firmware/ctrl"
++    run([sys.executable, ctrl / "aecp/aecp_entity.py", cfg, "-o", w / "aecp_entity_gen.h"])
++    includes = ["-I" + str(d) for d in (w, ctrl / "aecp", ctrl / "loop", ctrl / "mbx",
++                ROOT / "third_party/tsn-c-stack/include")]
++    units = ["aecp.c", "aecp_commands.c", "aecp_maps.c", "aecp_image.c", "aecp_state.c"]
++    objects = []
++    for unit in units:
++        obj = w / (unit + ".o")
++        run(["cc", "-std=c11", "-O2", *includes, "-c", ctrl / "aecp" / unit, "-o", obj])
++        objects.append(obj)
++    run(["ar", "rcs", w / "libaecp.a", *objects])
++    def make_words(target):
++        cmd = ["make", "-s", "--no-print-directory", "-C", str(ROOT / "tb/verilator/milan_dp"),
++               target, "VERILATOR_JOBS=" + os.environ.get("VERILATOR_JOBS", "4")]
++        if a.dp_source:
++            cmd.append("DP_SRC=" + str(a.dp_source.resolve()))
++        if a.queue_source:
++            cmd.append("RQ_SRC=" + str(a.queue_source.resolve()))
++        return shlex.split(subprocess.check_output(cmd, text=True))
++    cmd = [os.environ.get("VERILATOR", "verilator"), "+incdir+" + str(gen), *make_words("print-dp-vflags"),
++           "--Mdir", str(w / "obj"), "-CFLAGS", " ".join(includes), "-LDFLAGS", str(w / "libaecp.a"), str(HERE / "probes.vlt")]
++    cmd += ["-G" + k + "=" + str(v) for k, v in params.items()]
++    cmd += make_words("print-srcs") + [str(HERE / "sim_main.cpp"), "-o", "parent_loopback"]
++    (w / "build-command.json").write_text(json.dumps(cmd, indent=2) + "\n")
++    run(cmd, HERE)
++    if not a.build_only:
++        run([w / "obj/parent_loopback"], w)
++
++
++if __name__ == "__main__":
++    main()
+diff --git a/tb/verilator/input_loopback_dp/sim_main.cpp b/tb/verilator/input_loopback_dp/sim_main.cpp
+new file mode 100644
+index 0000000000..88230fd9c9
+--- /dev/null
++++ b/tb/verilator/input_loopback_dp/sim_main.cpp
+@@ -0,0 +1,726 @@
++// SPDX-License-Identifier: CERN-OHL-W-2.0
++// Real AECP, receive acceptance, committed maps and transmitted loopback audio.
++#include "../../common/verilator_harness.hpp"
++#include "Vmilan_datapath.h"
++#include "Vmilan_datapath___024root.h"
++#include "geometry.hpp"
++#include "verilated.h"
++#include <algorithm>
++#include <array>
++#include <cmath>
++#include <cstdint>
++#include <cstdio>
++#include <cstring>
++#include <deque>
++extern "C" {
++#include "aecp.h"
++#include "aecp_image.h"
++#include "aecp_entity_gen.h"
++}
++#include <map>
++#include <vector>
++
++namespace {
++constexpr int kStreams = kCfgStreams;
++constexpr int kChans = 8;
++constexpr int kBusSlots = kCfgBusSlots;
++constexpr int kAxiGuardCycles = 2048;
++constexpr int kEvents = 6;
++constexpr size_t kPayloadBytes = kChans*kEvents*4;
++constexpr size_t kFrameBytes = 38+kPayloadBytes;
++constexpr long kPduPeriodCycles = 12500;
++constexpr double kModelNsPerAxis = 10;
++constexpr long kAudNum = 391*kBusSlots/8;
++constexpr long kAudDen = 1591;
++constexpr int kFrameBclks = kBusSlots*32;
++constexpr long kLeadFrames = 24;
++constexpr uint32_t kMarker = 0x800000u;
++constexpr uint32_t kEventMask = 0x1FFFFu;
++constexpr int kFirst = kStreams == 1 ? 8 : 1;
++constexpr int kDestinations = kStreams == 1 ? 8 : 63;
++constexpr int kLead = kStreams == 1 ? 2 : 1;
++constexpr uint32_t sample_word(int s,int c,long e) {
++    return kMarker | (unsigned(s)<<20) | (unsigned(c)<<17) | unsigned(e);
++}
++class Harness {
++public:
++    int run();
++private:
++    Vmilan_datapath* dut = nullptr;
++    milan::tb::Checker check{"input_loopback_dp"};
++    long acc = 0;
++    int aud = 0;
++    long axis_cycle = 0;
++
++    void half() {
++        acc += kAudNum;
++        if (acc >= kAudDen) { acc -= kAudDen; aud ^= 1; }
++        dut->clk_audio_i = aud;
++        dut->clk_tdm_i = aud;
++    }
++    void lo() {
++        dut->axis_clk = 0; dut->gtx_clk = 0;
++        half(); dut->eval();
++        observe_audio();
++    }
++    void hi() {
++        dut->axis_clk = 1; dut->gtx_clk = 1;
++        half(); dut->eval();
++        ++axis_cycle;
++        observe_domain();
++        drp_respond();
++    }
++    int drp_lat = 0;
++    void drp_respond() {
++        dut->i_mmcm_drp_rdy = 0;
++        if (drp_lat > 0 && --drp_lat == 0) dut->i_mmcm_drp_rdy = 1;
++        if (dut->o_mmcm_drp_en) drp_lat = 3;
++        dut->i_mmcm_drp_do = 0;
++    }
++
++    uint64_t dom_ns_last = 0;
++    const double ps_phc = 2.0 * kFrameBclks * static_cast<double>(kAudDen) /
++                          static_cast<double>(kAudNum) * kModelNsPerAxis;
++    std::array<bool, kStreams> anchored{};
++    std::array<double, kStreams> anchor_ns{};
++    std::array<long, kStreams> anchor_ord{};
++    std::array<std::vector<double>, kStreams> pt_ns;
++
++    void observe_domain() {
++        dom_ns_last = dut->rootp->milan_datapath__DOT__dom_ns_w;
++    }
++    double stamp_the_event(int s, long ord) {
++        const size_t i = static_cast<size_t>(s);
++        double pt = anchor_ns[i] + static_cast<double>(ord - anchor_ord[i]) * ps_phc;
++        const double floor_ns = static_cast<double>(dom_ns_last) + 0.5 * kLeadFrames * ps_phc;
++        if (!anchored[i] || pt < floor_ns) {
++            anchored[i] = true;
++            anchor_ord[i] = ord;
++            anchor_ns[i] = static_cast<double>(dom_ns_last) + kLeadFrames * ps_phc;
++            pt = anchor_ns[i];
++        }
++        return pt;
++    }
++    void record_pt(int s, long ord, double pt) {
++        auto& v = pt_ns[static_cast<size_t>(s)];
++        if (static_cast<long>(v.size()) <= ord) v.resize(static_cast<size_t>(ord) + 1, -1.0);
++        v[static_cast<size_t>(ord)] = pt;
++    }
++    double pt_of(int s, long ord) const {
++        const auto& v = pt_ns[static_cast<size_t>(s)];
++        return (ord >= 0 && ord < static_cast<long>(v.size())) ? v[static_cast<size_t>(ord)] : -1.0;
++    }
++    double slot0_offset() const { return ps_phc / static_cast<double>(kFrameBclks); }
++
++    void axi_write(uint16_t a, uint32_t d) {
++        dut->s_axi_awaddr = a; dut->s_axi_awvalid = 1;
++        dut->s_axi_wdata = d; dut->s_axi_wstrb = 0xF; dut->s_axi_wvalid = 1;
++        dut->s_axi_bready = 1;
++        for (int g = 0; g < kAxiGuardCycles; g++) {
++            lo(); const bool acc_w = dut->s_axi_awready && dut->s_axi_wready; hi();
++            if (acc_w) break;
++        }
++        dut->s_axi_awvalid = 0; dut->s_axi_wvalid = 0;
++        for (int g = 0; g < kAxiGuardCycles; g++) {
++            lo(); const bool bv = dut->s_axi_bvalid; hi(); if (bv) break;
++        }
++        dut->s_axi_bready = 0;
++    }
++    uint32_t axi_read(uint16_t a) {
++        dut->s_axi_araddr = a; dut->s_axi_arvalid = 1; dut->s_axi_rready = 1;
++        for (int g = 0; g < kAxiGuardCycles; g++) {
++            lo(); const bool ar = dut->s_axi_arready; hi(); if (ar) break;
++        }
++        dut->s_axi_arvalid = 0;
++        uint32_t d = 0;
++        for (int g = 0; g < kAxiGuardCycles; g++) {
++            lo(); const bool rv = dut->s_axi_rvalid; if (rv) d = dut->s_axi_rdata; hi();
++            if (rv) break;
++        }
++        dut->s_axi_rready = 0;
++        return d;
++    }
++    void inject(const uint8_t* f, size_t len) {
++        std::vector<uint64_t> beats;
++        for (size_t bt = 0; bt < (len + 7) / 8; bt++) {
++            uint64_t v = 0;
++            for (size_t j = 0; j < 8; j++)
++                if (bt * 8 + j < len) v |= static_cast<uint64_t>(f[bt * 8 + j]) << (8 * j);
++            beats.push_back(v);
++        }
++        size_t idx = 0;
++        for (int c = 0; c < 1500 && idx < beats.size() + 8; c++) {
++            if (idx < beats.size()) {
++                dut->s_axis_mac_rx_tdata = beats[idx];
++                dut->s_axis_mac_rx_tkeep = 0xFF;
++                dut->s_axis_mac_rx_tvalid = 1;
++                dut->s_axis_mac_rx_tlast = (idx == beats.size() - 1);
++            } else {
++                dut->s_axis_mac_rx_tvalid = 0; dut->s_axis_mac_rx_tlast = 0;
++            }
++            lo();
++            const bool in_acc = dut->s_axis_mac_rx_tvalid && dut->s_axis_mac_rx_tready;
++            hi();
++            if (in_acc || idx >= beats.size()) idx++;
++        }
++        dut->s_axis_mac_rx_tvalid = 0; dut->s_axis_mac_rx_tlast = 0;
++    }
++
++    static std::array<uint8_t, 8> sid_of(int s) {
++        return {0x02, 0x00, 0x00, 0x00, 0x00, 0x02, 0x00, static_cast<uint8_t>(2 * s)};
++    }
++    static std::array<uint8_t, 6> dmac_of(int s) {
++        return {0x91, 0xE0, 0xF0, 0x00, 0x2A, static_cast<uint8_t>(0x02 + 2 * s)};
++    }
++    unsigned feed_mask = 0;
++    long next_pdu_at = 0;
++    std::array<uint8_t, kStreams> wire_seq{};
++    std::array<long, kStreams> injected{};
++
++    void send_pdu(int s) {
++        uint8_t f[kFrameBytes];
++        memset(f, 0, sizeof f);
++        const auto dmac = dmac_of(s);
++        memcpy(f, dmac.data(), 6);
++        const uint8_t src[6] = {0x02, 0x00, 0x00, 0x00, 0x00, 0x02};
++        memcpy(f + 6, src, 6);
++        f[12] = 0x22; f[13] = 0xF0;
++        f[14] = 0x02;                                // AAF
++        f[15] = 0x81;                                // sv, tv
++        f[16] = wire_seq[static_cast<size_t>(s)]++;
++        const auto sid = sid_of(s);
++        memcpy(f + 18, sid.data(), 8);
++        const long base = injected[static_cast<size_t>(s)];
++        long carried = base;
++        const double ts = stamp_the_event(s, base);
++        const uint32_t ts32 = static_cast<uint32_t>(static_cast<uint64_t>(std::llround(ts)));
++        f[26] = static_cast<uint8_t>(ts32 >> 24); f[27] = static_cast<uint8_t>(ts32 >> 16);
++        f[28] = static_cast<uint8_t>(ts32 >> 8);  f[29] = static_cast<uint8_t>(ts32);
++        for (int k = 0; k < kEvents; k++) record_pt(s, base + k, ts + k * ps_phc);
++        f[30] = 0x02;                                // INT32
++        f[31] = static_cast<uint8_t>(0x05 << 4);     // 48 kHz
++        f[32] = static_cast<uint8_t>(kChans);
++        f[33] = 32;
++        f[34] = static_cast<uint8_t>(kPayloadBytes >> 8);
++        f[35] = static_cast<uint8_t>(kPayloadBytes & 0xFF);
++        for (int k = 0; k < kEvents; k++)
++            for (int c = 0; c < kChans; c++) {
++                const uint32_t v = sample_word(s, c, carried + k);
++                const size_t o = 38 + 4 * (static_cast<size_t>(k) * kChans + static_cast<size_t>(c));
++                f[o] = static_cast<uint8_t>(v >> 16);
++                f[o + 1] = static_cast<uint8_t>(v >> 8);
++                f[o + 2] = static_cast<uint8_t>(v);
++                f[o + 3] = 0;
++            }
++        injected[static_cast<size_t>(s)] += kEvents;
++        inject(f, kFrameBytes);
++    }
++    void step() {
++        if (feed_mask != 0 && axis_cycle >= next_pdu_at) {
++            for (int s = 0; s < kStreams; s++)
++                if ((feed_mask >> s) & 1u) send_pdu(s);
++            next_pdu_at += kPduPeriodCycles;
++            return;
++        }
++        lo();
++        hi();
++    }
++    void steps(long n) { while (n--) step(); }
++    void run_pdus(long n) {
++        const long stop = axis_cycle + n * kPduPeriodCycles;
++        while (axis_cycle < stop) step();
++    }
++    void start_the_feeds() {
++        anchored.fill(false);
++        feed_mask = (1u << kStreams) - 1u;
++        next_pdu_at = axis_cycle + 64;
++    }
++
++    static constexpr uint16_t kCmdGetAudioMap = 43;
++    static constexpr uint16_t kCmdAddMappings = 44;
++    static constexpr uint16_t kCmdRemoveMappings = 45;
++    static constexpr uint16_t kDescStreamPortIn = 0x000E;
++    static constexpr long kSuccess = 0;
++    static constexpr long kBadArguments = 7;
++    uint16_t aecp_seq = 0x5840;
++
++    std::vector<uint8_t> aecp_request(uint16_t cmd, uint16_t sq, const std::vector<uint8_t>& pl) {
++        const size_t flen = (38 + pl.size() < 60) ? 60 : 38 + pl.size();
++        std::vector<uint8_t> f(flen, 0);
++        const uint8_t cmac[6] = {0x68, 0x05, 0xCA, 0x95, 0xB2, 0xD1};
++        memcpy(f.data() + 6, cmac, 6);
++        f[12] = 0x22; f[13] = 0xF0; f[14] = 0xFB; f[15] = 0x00;
++        const uint16_t cdl = static_cast<uint16_t>(12 + pl.size());
++        f[16] = static_cast<uint8_t>((cdl >> 8) & 0x7);
++        f[17] = static_cast<uint8_t>(cdl);
++        const uint8_t teid[8] = {0x02, 0x00, 0x00, 0xFF, 0xFE, 0x00, 0x00, 0x01};
++        memcpy(f.data() + 18, teid, 8);
++        const uint8_t ceid[8] = {0x68, 0x05, 0xCA, 0xFF, 0xFE, 0x95, 0xB2, 0xD1};
++        memcpy(f.data() + 26, ceid, 8);
++        f[34] = static_cast<uint8_t>(sq >> 8); f[35] = static_cast<uint8_t>(sq);
++        f[36] = static_cast<uint8_t>((cmd >> 8) & 0x7F);
++        f[37] = static_cast<uint8_t>(cmd);
++        for (size_t i = 0; i < pl.size(); i++) f[38 + i] = pl[i];
++        return f;
++    }
++    std::vector<uint8_t> aecp_xact(uint16_t cmd, const std::vector<uint8_t>& pl) {
++        auto f=aecp_request(cmd,aecp_seq++,pl);
++        response.clear();
++        aecp_rx(&core,0,f.data(),f.size());
++        for(int n=0;n<200;++n) {
++            bool busy=aecp_poll(&core);
++            for(auto cookie:completed) aecp_tx_complete(&core,cookie,uint32_t(axis_cycle/100000));
++            completed.clear();
++            if(!busy) break;
++        }
++        return response;
++    }
++    static long aecp_status(const std::vector<uint8_t>& b) {
++        return b.size() > 16 ? (b[16] >> 3) & 0x1F : -1;
++    }
++    long map_cmd(uint16_t cmd, int port, int stream, int chan, int cluster = 0) {
++        std::vector<uint8_t> pl = {
++            static_cast<uint8_t>(kDescStreamPortIn >> 8), static_cast<uint8_t>(kDescStreamPortIn),
++            static_cast<uint8_t>(port >> 8), static_cast<uint8_t>(port),
++            0x00, 0x01, 0x00, 0x00,
++            0x00, static_cast<uint8_t>(stream), 0x00, static_cast<uint8_t>(chan),
++            0x00, static_cast<uint8_t>(cluster), 0x00, 0x00};
++        const long st = aecp_status(aecp_xact(cmd, pl));
++        return st;
++    }
++    std::vector<std::array<int, 3>> get_audio_map(int port, long* number_of_maps, int page = 0) {
++        const std::vector<uint8_t> pl = {
++            static_cast<uint8_t>(kDescStreamPortIn >> 8), static_cast<uint8_t>(kDescStreamPortIn),
++            static_cast<uint8_t>(port >> 8), static_cast<uint8_t>(port),
++            0x00, static_cast<uint8_t>(page), 0x00, 0x00};
++        const auto r = aecp_xact(kCmdGetAudioMap, pl);
++        std::vector<std::array<int, 3>> rows;
++        *number_of_maps = -1;
++        if (aecp_status(r) != kSuccess || r.size() < 50) return rows;
++        *number_of_maps = (static_cast<long>(r[44]) << 8) | r[45];
++        const unsigned n = (static_cast<unsigned>(r[46]) << 8) | r[47];
++        if (r.size() < 50 + 8 * static_cast<size_t>(n)) return rows;
++        for (unsigned i = 0; i < n; i++) {
++            const size_t o = 50 + 8 * static_cast<size_t>(i);
++            rows.push_back({(r[o] << 8) | r[o + 1], (r[o + 2] << 8) | r[o + 3],
++                            (r[o + 4] << 8) | r[o + 5]});
++        }
++        return rows;
++    }
++
++    void bring_out_of_reset();
++    void boot_the_entity();
++    void init_core();
++    unsigned commit_records(bool remove,uint16_t type,uint16_t index,const uint8_t* rows,const uint8_t* pick,size_t count);
++    bool edit_beat(unsigned phase,unsigned record,uint64_t value);
++    aecp core{};
++    aecp_model entity_model{};
++    std::array<aecp_descriptor,AECP_ENTITY_DESCRIPTORS> descriptors{};
++    std::array<uint8_t,AECP_ENTITY_VALUE_BYTES> values{};
++    std::array<aecp_event,AECP_ENTITY_DESCRIPTORS> core_events{};
++    std::array<uint32_t,AECP_ENTITY_OUTPUTS> latency{};
++    aecp_mapping map_rows[AECP_ENTITY_MAP_ROWS]{};
++    aecp_map core_maps[AECP_ENTITY_MAPS] = AECP_ENTITY_MAPS_INIT(map_rows);
++    aecp_ports ports{};
++    aecp_config config{};
++    std::vector<uint8_t> response;
++    std::vector<uint32_t> completed;
++    bool align_apply = false;
++    void provision_the_listener_contexts(const char* tag);
++    double phc() const { return double(dut->rootp->milan_datapath__DOT__ptp_now_w); }
++    using Map = std::array<int,64>;
++    Map routes{};
++    struct Publication { double capture_ns; Map routes; long generation; };
++    std::deque<Publication> publications;
++    long generation = 0;
++    long event_cycle = -10000;
++    double event_ns = 0;
++    long copy_generation = -1;
++    Map copy_routes{};
++    long walk_cycle = 0;
++    long walks = 0;
++    long pair_count = 0;
++    long max_walk_cycles = 0;
++    long words = 0, nonzero = 0, silent = 0;
++    long commands = 0, copy_edits = 0;
++    bool grade = false;
++    std::array<uint32_t,64> expected{};
++    std::array<std::deque<uint32_t>,kStreams> pending_wire;
++    std::vector<uint8_t> tx;
++    long packets = 0;
++    int pending_key = -1, pending_value = 0;
++    bool pending_change = false;
++    int last_commit_phase = -1;
++    bool clipped = false;
++    bool active_eligible = false;
++    long first_eligible = 0;
++    long awaiting_first = 0;
++
++    void changed() {
++        ++generation;
++        publications.clear();
++        expected.fill(0);
++        active_eligible = false;
++        awaiting_first = generation;
++    }
++    void factory() {
++        routes.fill(-1);
++        for (int d=0;d<kDestinations;++d) routes[kFirst+d] = d;
++        for (int c=0;c<kFirst;++c) routes[c]=c;
++    }
++    void observe_audio();
++    void grade_wire();
++    void edit(uint16_t command,int dest,int stream,int channel,long status=0);
++    void pages(bool firmware=true);
++    uint64_t parent_map(int port,int page,int sel,int record=0);
++    void output_buffered(bool firmware);
++    void windows(int pdus) { run_pdus(pdus); }
++    void clip_at_boot();
++};
++
++void Harness::bring_out_of_reset() {
++    dut->axis_resetn = 0; dut->gtx_resetn = 0;
++    dut->m_axis_mac_tx_tready = 1;
++    dut->i_mac_speed = 0b10; dut->i_link_up = 1; dut->i_full_duplex = 1;
++    steps(64);
++    dut->axis_resetn = 1; dut->gtx_resetn = 1;
++    steps(256);
++    axi_write(0x108, 0x0); axi_write(0x10C, 0x0);
++}
++
++void Harness::provision_the_listener_contexts(const char* tag) {
++    constexpr uint16_t kStrmSel = 0x800;
++    constexpr uint16_t kSwCtrl = 0x810;
++    constexpr uint16_t kSwFmtLo = 0x824;
++    constexpr uint16_t kSwFmtHi = 0x828;
++    const uint32_t lo_word = static_cast<uint32_t>(kCfgListenerFormat);
++    const uint32_t hi_word = static_cast<uint32_t>(kCfgListenerFormat >> 32);
++    long read_back = 0;
++    for (int s = 1; s < kStreams; s++) {
++        axi_write(kStrmSel, static_cast<uint32_t>(s));
++        axi_write(kSwFmtLo, lo_word);
++        axi_write(kSwFmtHi, hi_word);
++        axi_write(kSwCtrl, 0x1);
++        if (axi_read(kSwFmtHi) == hi_word) ++read_back;
++    }
++    char what[160];
++    std::snprintf(what, sizeof what, "%s: streams 1-7's listener format reads back out of the LCTX", tag);
++    check.dec(what, static_cast<uint64_t>(read_back), kStreams - 1);
++}
++
++
++void Harness::observe_audio() {
++    if (!dut->axis_resetn) return;
++    auto* r=dut->rootp;
++    if (r->milan_datapath__DOT__dom_ev_p_w) {
++        event_cycle=axis_cycle;
++        event_ns=double(r->milan_datapath__DOT__dom_ns_w);
++    }
++    // Command intent supplies the map; the writer's commit supplies timing.
++    // The queue's map and invalidate inputs are never expected values.
++    if (r->milan_datapath__DOT__amap_edit_live_wr_p &&
++        r->milan_datapath__DOT__amap_edit_in_change_w) {
++        check.that("EDIT_INTENT_PRESENT", pending_key>=0);
++        if (pending_key>=0) routes[pending_key]=pending_value;
++        pending_change=true;
++        last_commit_phase=int(axis_cycle-event_cycle);
++        changed();
++    }
++    const long copy_start=event_cycle+1+4*kStreams;
++    const long copy_end=copy_start+kDestinations+1;
++    if (axis_cycle==copy_start) {
++        copy_routes=routes;
++        copy_generation=generation;
++    }
++    if (axis_cycle==copy_end && copy_generation==generation) {
++        publications.push_back({event_ns+(kLead+1)*62500.0/3,copy_routes,generation});
++        while (publications.size()>4) publications.pop_front();
++    }
++    if (r->milan_datapath__DOT__input_loop_capture_w) {
++        expected.fill(0);
++        active_eligible=false;
++        const uint32_t when=r->milan_datapath__DOT__cmap_walk_ns_w;
++        for (const auto& pub:publications) {
++            if (pub.generation!=generation ||
++                std::abs(int32_t(when-uint32_t(std::llround(pub.capture_ns))))>150) continue;
++            active_eligible=true;
++            for (int d=0;d<kDestinations;++d) {
++                int source=pub.routes[kFirst+d];
++                if (source<0) continue;
++                int stream=source/8, channel=source%8;
++                const double presentation=pub.capture_ns-62500.0/3;
++                const long ord=std::lround((presentation-anchor_ns[stream])/ps_phc)+anchor_ord[stream];
++                if (anchored[stream] && ord>=0 && ord<injected[stream] &&
++                    std::abs(pt_of(stream,ord)-presentation)<ps_phc/2)
++                    expected[d]=sample_word(stream,channel,ord);
++            }
++        }
++        pair_count=0;
++        walk_cycle=axis_cycle;
++        ++walks;
++        if (active_eligible && awaiting_first) { ++first_eligible; awaiting_first=0; }
++    }
++    if (grade && r->milan_datapath__DOT__cmap_pv_w) {
++        int slot=r->milan_datapath__DOT__cmap_slot_w;
++        check.dec("FULL_SLOT_ORDER",slot,pair_count++);
++        for (int half=0;half<2;++half) {
++            int channel=2*slot+half;
++            uint32_t got=half ? r->milan_datapath__DOT__cmap_r_w : r->milan_datapath__DOT__cmap_l_w;
++            uint32_t want=expected[channel];
++            check.hex("PARENT_SAMPLE",got,want);
++            pending_wire[channel/8].push_back(want);
++            ++words;
++            if (want) ++nonzero; else ++silent;
++        }
++        if (slot==4*kStreams-1) {
++            long elapsed=axis_cycle-walk_cycle;
++            max_walk_cycles=std::max(max_walk_cycles,elapsed);
++            check.that("FULL_WALK_DEADLINE",elapsed<2083);
++        }
++    }
++    grade_wire();
++}
++void Harness::grade_wire() {
++    if (!grade || !dut->m_axis_mac_tx_tvalid || !dut->m_axis_mac_tx_tready) return;
++    for (int b=0;b<8;++b) if ((dut->m_axis_mac_tx_tkeep>>b)&1)
++        tx.push_back(uint8_t(dut->m_axis_mac_tx_tdata>>(8*b)));
++    if (!dut->m_axis_mac_tx_tlast) return;
++    int h=(tx.size()>16 && tx[12]==0x81) ? 18 : 14;
++    if (tx.size()>size_t(h+24) && tx[h]==2) {
++        int stream=tx[h+11];
++        check.that("WIRE_STREAM",stream<kStreams);
++        check.dec("WIRE_LENGTH",tx.size(),h+24+kPayloadBytes);
++        if (stream<kStreams && tx.size()==size_t(h+24+kPayloadBytes)) {
++            auto& q=pending_wire[stream];
++            check.that("WIRE_CAPTURE_COVERAGE",q.size()>=48);
++            if (q.size()>=48) for(int n=0;n<48;++n) {
++                int o=h+24+4*n;
++                uint32_t got=(uint32_t(tx[o])<<16)|(uint32_t(tx[o+1])<<8)|tx[o+2];
++                check.hex("PARENT_WIRE_SAMPLE",got,q.front()); q.pop_front();
++                check.dec("WIRE_PAD",tx[o+3],0);
++            }
++        }
++        ++packets;
++    }
++    tx.clear();
++}
++void Harness::edit(uint16_t command,int dest,int stream,int channel,long status) {
++    int key=kFirst+dest,port=0,cluster=key;
++    for(int p=0;p<kStreams;++p)
++        if(key>=kInputBase[p] && key<kInputBase[p]+kInputWidth[p]) {
++            port=p; cluster=key-kInputBase[p]; break;
++        }
++    pending_key=key;
++    pending_value=command==kCmdRemoveMappings ? -1 : 8*stream+channel;
++    pending_change=false;
++    long result=map_cmd(command,port,stream,channel,cluster);
++    check.dec("AECP_EDIT_STATUS",result,status);
++    if(result==0 && status==0 && routes[key]!=pending_value)
++        check.that("ACCEPTED_EDIT_COMMITTED",false);
++    if(status!=0) check.that("REJECTED_EDIT_NO_COMMIT",!pending_change);
++    pending_key=-1;
++    ++commands;
++}
++uint64_t Harness::parent_map(int port,int page,int sel,int record) {
++    dut->i_ctl_amap_type=14; dut->i_ctl_amap_index=port;
++    dut->i_ctl_amap_map_index=page; dut->i_ctl_amap_sel=sel;
++    dut->i_ctl_amap_rec=record; dut->i_ctl_amap_req=1;
++    steps(2);
++    int waited=0;
++    while(dut->o_ctl_amap_wait && waited++<4096) step();
++    check.that("PARENT_MAP_RESPONSE",!dut->o_ctl_amap_wait);
++    uint64_t result=dut->o_ctl_amap_data;
++    dut->i_ctl_amap_req=0; step();
++    return result;
++}
++void Harness::pages(bool firmware) {
++    for(int port=0;port<kStreams;++port) {
++        int pages=(kInputWidth[port]+7)/8;
++        for(int page=0;page<pages;++page) {
++            long count=-1;
++            std::vector<std::array<int,3>> got;
++            if(firmware) got=get_audio_map(port,&count,page);
++            std::vector<std::array<int,3>> want;
++            for(int c=8*page;c<std::min(kInputWidth[port],8*page+8);++c) {
++                int source=routes[kInputBase[port]+c];
++                if(source>=0) want.push_back({source/8,source%8,c});
++            }
++            std::sort(want.begin(),want.end());
++            if(firmware) {
++                std::sort(got.begin(),got.end());
++                check.dec("GET_AUDIO_MAP_NUMBER_OF_MAPS",count,pages);
++                check.that("GET_AUDIO_MAP_FIXED_PAGE_ROWS",got==want);
++            }
++            uint64_t metadata=parent_map(port,page,1);
++            check.dec("PARENT_MAP_PAGES",metadata>>16,pages);
++            check.dec("PARENT_MAP_COUNT",metadata&65535,want.size());
++            std::vector<std::array<int,3>> actual;
++            for(unsigned row=0;row<(metadata&65535) && row<8;++row) {
++                uint64_t value=parent_map(port,page,2,row);
++                actual.push_back({int(value>>48),int((value>>32)&65535),int((value>>16)&65535)});
++                check.dec("PARENT_MAP_CLUSTER_CHANNEL",value&65535,0);
++            }
++            std::sort(actual.begin(),actual.end());
++            check.that("PARENT_MAP_FIXED_PAGE_ROWS",actual==want);
++        }
++    }
++}
++void Harness::clip_at_boot() {
++    // Hold the restore open while its input format clips the factory image.
++    grade=false; feed_mask=0;
++    dut->axis_resetn=0; dut->gtx_resetn=0; steps(32);
++    dut->i_ctl_restore=1;
++    dut->i_ctl_pub_bound=0; dut->i_ctl_pub_started=0; dut->i_ctl_pub_sid_valid=0;
++    dut->axis_resetn=1; dut->gtx_resetn=1;
++    const uint64_t format=(kCfgListenerFormat & ~(uint64_t(1023)<<22)) | (uint64_t(4)<<22);
++    dut->i_ctl_fmt_in[0]=uint32_t(format); dut->i_ctl_fmt_in[1]=uint32_t(format>>32);
++    dut->i_ctl_fmt_in_v=1;
++    steps(200);
++    factory();
++    for(auto& source:routes) if(source>=4 && source<8) source=-1;
++    changed(); publications.clear();
++    dut->i_ctl_restore=2; steps(200);
++    pages(false);
++    // Formats can widen after boot; removed mappings must stay absent.
++    boot_the_entity(); provision_the_listener_contexts("CLIP");
++    output_buffered(false);
++    for(auto& queue:pending_wire) queue.clear();
++    tx.clear(); publications.clear(); expected.fill(0);
++    while(!dut->rootp->milan_datapath__DOT__input_loop_capture_w) step();
++    grade=true; axi_write(0x654,0x00020003);
++    check.dec("AAF_ENABLED_AFTER_CLIP",axi_read(0x654)&3,3);
++    long before_packets=packets;
++    start_the_feeds(); windows(24);
++    check.that("CLIPPED_WIRE_TRANSMITS",packets>before_packets+10*kStreams);
++    pages(false);
++    clipped=true;
++}
++void Harness::output_buffered(bool firmware) {
++    if(kStreams!=1) return;
++    for(int c=0;c<8;++c) for(int remove=1;remove>=0;--remove) {
++        std::vector<uint8_t> pl={0,15,0,0,0,1,0,0,0,0,0,uint8_t(c),0,uint8_t(remove?c:8+c),0,0};
++        unsigned status=firmware ? aecp_status(aecp_xact(remove?kCmdRemoveMappings:kCmdAddMappings,pl))
++                                 : commit_records(remove,15,0,pl.data()+8,nullptr,1);
++        check.dec("OUTPUT_BUFFERED_SOURCE",status,0);
++    }
++}
++
++void Harness::init_core() {
++    check.that("GENERATED_ENTITY_IMAGE",aecp_image_load(&entity_model,aecp_entity_image,
++        sizeof aecp_entity_image,AECP_ENTITY_CRC,descriptors.data(),descriptors.size(),values.data(),values.size()));
++    ports.ctx=this;
++    ports.send=[](void* p,unsigned,const uint8_t* b,size_t n,uint32_t cookie) {
++        auto* h=static_cast<Harness*>(p);
++        h->response.assign(b,b+n); h->completed.push_back(cookie); return true;
++    };
++    ports.now_ms=[](void* p) { return uint32_t(static_cast<Harness*>(p)->axis_cycle/100000); };
++    ports.random=[](void*) { return uint32_t(12345); };
++    ports.timer=[](void*,bool,uint32_t) {};
++    ports.applied=[](void*) { return true; };
++    ports.changed=[](void*,aecp_change,uint16_t,uint16_t) {};
++    ports.available_index=[](void*,unsigned) { return uint32_t(0); };
++    ports.edit=[](void* p,bool rm,uint16_t t,uint16_t i,const uint8_t* rows,const uint8_t* pick,size_t n) {
++        return static_cast<Harness*>(p)->commit_records(rm,t,i,rows,pick,n);
++    };
++    ports.stream=[](void*,unsigned,uint16_t,uint16_t,aecp_stream_info* info) {
++        info->bound=false; info->running=false; return true;
++    };
++    config.entity_id=0x020000fffe000001ull;
++    config.mac[0]=0; config.interfaces=1; config.model=&entity_model;
++    config.maps=core_maps; config.map_count=AECP_ENTITY_MAPS;
++    config.events=core_events.data(); config.latency=latency.data();
++    check.that("AECP_CORE_INIT",aecp_init(&core,&config,&ports));
++    aecp_open(&core);
++}
++bool Harness::edit_beat(unsigned phase,unsigned record,uint64_t value) {
++    dut->i_ctl_edit_phase=phase; dut->i_ctl_edit_rec=record; dut->i_ctl_edit_record=value;
++    lo(); hi();
++    dut->i_ctl_edit_req=1;
++    bool accepted=false,answered=false;
++    for(int n=0;n<4096;++n) {
++        lo(); bool ready=!dut->o_ctl_edit_wait; uint64_t answer=dut->o_ctl_edit_data; hi();
++        if(ready) { accepted=(answer&1)!=0; answered=true; break; }
++    }
++    check.that("EDIT_FACE_ANSWERED",answered);
++    dut->i_ctl_edit_req=0; lo(); hi();
++    return accepted;
++}
++unsigned Harness::commit_records(bool remove,uint16_t type,uint16_t index,
++                                 const uint8_t* rows,const uint8_t* pick,size_t count) {
++    dut->i_ctl_edit_remove=remove; dut->i_ctl_edit_type=type;
++    dut->i_ctl_edit_index=index; dut->i_ctl_edit_count=count;
++    auto value=[&](size_t n) { uint64_t v=0;const uint8_t* b=rows+8*(pick?pick[n]:n);
++        for(int k=0;k<8;++k) v=(v<<8)|b[k];
++        return v; };
++    unsigned status=edit_beat(0,0,0)?0:11;
++    for(size_t n=0;!status && n<count;++n) if(!edit_beat(4,n,value(n))) status=7;
++    if(!status && !edit_beat(1,0,0)) status=7;
++    if(status) { edit_beat(3,0,0); return status; }
++    if(align_apply) {
++        while(axis_cycle-event_cycle!=4*kStreams+6) step();
++        ++copy_edits; align_apply=false;
++    }
++    for(size_t n=0;n<count;++n) check.that("COMMIT_RESERVED",edit_beat(5,n,value(n)));
++    edit_beat(2,0,0);
++    return 0;
++}
++void Harness::boot_the_entity() {
++    dut->i_ctl_restore=2;
++    dut->i_ctl_clk_src_index=0;
++    for(int s=0;s<kStreams;++s) {
++        uint64_t sid=0; for(auto b:sid_of(s)) sid=(sid<<8)|b;
++        dut->i_ctl_pub_sid[2*s]=uint32_t(sid);dut->i_ctl_pub_sid[2*s+1]=uint32_t(sid>>32);
++        dut->i_ctl_pub_src_sid[2*s]=unsigned(s);dut->i_ctl_pub_src_sid[2*s+1]=0x02000001;
++        dut->i_ctl_fmt_in[2*s]=uint32_t(kCfgListenerFormat);
++        dut->i_ctl_fmt_in[2*s+1]=uint32_t(kCfgListenerFormat>>32);
++    }
++    dut->i_ctl_pub_bound=(1<<kStreams)-1; dut->i_ctl_pub_sid_valid=(1<<kStreams)-1;
++    dut->i_ctl_pub_started=(1<<kStreams)-1; dut->i_ctl_fmt_in_v=(1<<kStreams)-1;
++    dut->i_ctl_pub_da_gate=(1<<kStreams)-1; dut->i_ctl_pub_licence=(1<<kStreams)-1;
++    steps(1000);
++    axi_write(0x900,1);
++    axi_write(0x108,0); axi_write(0x10c,0);
++    axi_write(0x6cc,0);
++}
++int Harness::run() {
++    const milan::tb::Model<Vmilan_datapath> model;
++    dut=model.get(); factory();
++    bring_out_of_reset(); boot_the_entity(); provision_the_listener_contexts("BOOT"); init_core();
++    pages();
++    // Select the declared buffered sources through the output-map server.
++    output_buffered(true);
++    start_the_feeds(); windows(12);
++    // Start packet capture from a complete walk with the packetizer disabled.
++    while(!dut->rootp->milan_datapath__DOT__input_loop_capture_w) step();
++    grade=true;
++    axi_write(0x654,0x00020003);
++    windows(12);
++    edit(kCmdRemoveMappings,0,0,0);
++    edit(kCmdAddMappings,0,kStreams-1,7); windows(8); pages();
++    edit(kCmdAddMappings,0,kStreams-1,7); // idempotent
++    check.that("NOOP_NO_INVALIDATION",!pending_change); windows(4);
++    edit(kCmdAddMappings,0,kStreams,0,kBadArguments); windows(4);
++    edit(kCmdRemoveMappings,0,kStreams-1,7); windows(8); pages();
++    align_apply=true; edit(kCmdAddMappings,0,0,6); windows(8); pages();
++    // Fan-out and a nonzero page are exercised with received samples.
++    edit(kCmdRemoveMappings,kDestinations-1,(kDestinations-1)/8,(kDestinations-1)%8);
++    edit(kCmdAddMappings,kDestinations-1,0,6); windows(8); pages();
++    windows(12);
++    clip_at_boot();
++    check.that("ALL_DESTINATIONS_CONCURRENT",words>8*kStreams*100 && nonzero>kDestinations*100);
++    check.that("INVALIDATION_SILENCE",silent>0);
++    check.that("FIRST_ELIGIBLE_SAMPLE_GRADED",first_eligible>=4);
++    check.that("EDIT_DURING_COPY",copy_edits==1);
++    check.that("BOOT_CLIPPING_WRITER",clipped);
++    check.that("ALL_TALKERS_TRANSMIT",packets>20*kStreams);
++    std::printf("parent loopback streams=%d words=%ld nonzero=%ld silence=%ld packets=%ld walks=%ld max_walk_cycles=%ld first_eligible=%ld\n",
++                kStreams,words,nonzero,silent,packets,walks,max_walk_cycles,first_eligible);
++    return check.report();
++}
++}
++int main(int argc,char** argv) {
++    Verilated::commandArgs(argc,argv);
++    Verilated::threadContextp()->threads(1);
++    Harness bench;
++    return bench.run();
++}
+diff --git a/tb/verilator/milan_dp/render_mutants.py b/tb/verilator/milan_dp/render_mutants.py
+index 86d5bcfccf..d061354ea0 100644
+--- a/tb/verilator/milan_dp/render_mutants.py
++++ b/tb/verilator/milan_dp/render_mutants.py
+@@ -100,8 +100,8 @@ MUTATIONS = [
+      "--render-only",
+      "RENDER-REFUSE: no refused PDU presented"),
+     ("a PHC step resets the stage", "datapath",
+-     "  ) render_queue (\n    .clk_i (axis_clk), .rst_n (axis_resetn),\n",
+-     "  ) render_queue (\n    .clk_i (axis_clk), .rst_n (axis_resetn && !eff_ptp_adjust_w),\n",
++     "  ) render_queue (\n    .input_map_i (amap_in_store_r),\n    .clk_i (axis_clk), .rst_n (axis_resetn),\n",
++     "  ) render_queue (\n    .input_map_i (amap_in_store_r),\n    .clk_i (axis_clk), .rst_n (axis_resetn && !eff_ptp_adjust_w),\n",
+      "--render-only",
+      "RENDER-STEP-INT: every event presented once, in order"),
+     ("a clock-source change flushes the stage", "datapath",
+diff --git a/tb/verilator/render_queue/mutants.py b/tb/verilator/render_queue/mutants.py
+index a646e562a2..168dc0e4f2 100644
+--- a/tb/verilator/render_queue/mutants.py
++++ b/tb/verilator/render_queue/mutants.py
+@@ -101,8 +101,8 @@ MUTATIONS = [
+        "  wire        inval_w = fl_go_w;"),),
+      "[lap] every event presented to every interface is the frame the law names", ()),
+     ("a bind wipe ignored",
+-     (("        if (flush_i[s]) begin\n          flpend_r[s]    <= 1'b1;",
+-       "        if (flush_i[s]) begin\n          flpend_r[s]    <= 1'b0;"),),
++     (("        if (flush_w[s]) begin\n          flpend_r[s]    <= 1'b1;",
++       "        if (flush_w[s]) begin\n          flpend_r[s]    <= 1'b0;"),),
+      "[flush] every event presented to every interface is the frame the law names", ()),
+     ("tv ignored",
+      (("        pst_r  <= !hdr_tv_i ? P_UNTIMED_S",
+@@ -142,7 +142,7 @@ MUTATIONS = [
+        "  assign b_slip_w = 1'b0;"),),
+      "[slip] gaps and overlaps counted", ()),
+     ("lead_o kept after the stream drains",
+-     (("        if (lwv_r[s] && (sst_r == S_SCRUB_S) && (lead_s_w[s][FW_C-1] || (lead_s_w[s] == '0)))\n"
++     (("        if (lwv_r[s] && (sst_r == S_SCRUB_S && !copy_active_w) && (lead_s_w[s][FW_C-1] || (lead_s_w[s] == '0)))\n"
+        "          lwv_r[s] <= 1'b0;",
+        "        if (1'b0)\n          lwv_r[s] <= 1'b0;"),),
+      "[place] lead_o and idle_o follow the model at every frame end", ()),

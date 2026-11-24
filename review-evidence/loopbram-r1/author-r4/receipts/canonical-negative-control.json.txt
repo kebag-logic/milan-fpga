@@ -1,0 +1,26 @@
+Candidate head: dc78aedae34c25a97125ecd6816a1f645db5575f
+Comparison base: 3cda030c174b325e36c26af6420487ff91346d15
+Source: canonical-negative-control.json
+Original SHA256: 6e6c613ff35766e0d7736fdc91a0489465e65e759f8140492e62b57b07674e33
+Scope: complete text; paths and host fields normalized
+
+[
+  {
+    "shape": "endstation_ax7101_1x1_tdm8",
+    "change_from": ".I0(io_ups_0_d_ready)",
+    "change_to": ".I0(io_ups_1_d_ready)",
+    "replacements": 1,
+    "control_sha256": "18af89e620ea88ee2a745550bd25b1645702cec071bcba36decced2b5376d9af",
+    "mutated_sha256": "44d6cf0696c6ea3b8805dca847705e127ab512ea6130c7f136c46d4bbf205c9d",
+    "detected": true
+  },
+  {
+    "shape": "endstation_ax7101_8x8",
+    "change_from": ".I0(io_ups_0_d_ready)",
+    "change_to": ".I0(io_ups_1_d_ready)",
+    "replacements": 1,
+    "control_sha256": "fe344bba8709f7b8e72075b38aa81619c316c2207f948e0adaea1540e36da767",
+    "mutated_sha256": "20908e7ecace75da05e49e8c6a690fbb263c09e33bcfef733c3f4118682aaf56",
+    "detected": true
+  }
+]

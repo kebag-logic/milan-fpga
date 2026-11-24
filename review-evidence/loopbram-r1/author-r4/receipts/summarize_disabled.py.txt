@@ -1,0 +1,33 @@
+Candidate head: dc78aedae34c25a97125ecd6816a1f645db5575f
+Comparison base: 3cda030c174b325e36c26af6420487ff91346d15
+Source: summarize_disabled.py
+Original SHA256: 87a13889f66b6744b429c5db9e236c77fc0f5c6ddf6228b6fb1a5bc201589489
+Scope: complete text; paths and host fields normalized
+
+import re,json,hashlib,subprocess
+from pathlib import Path
+w=Path(__file__).resolve().parent
+old=Path('/data-2/milan/tmp/loopbram-a826-r3-verified')
+keys=['Slice LUTs*','Slice Registers','Block RAM Tile','RAMB36/FIFO*','RAMB18','F7 Muxes','F8 Muxes','DSPs']
+def counts(p):
+ text=p.read_text()
+ out={}
+ for line in text.splitlines():
+  cols=[x.strip() for x in line.split('|')]
+  if len(cols)>2 and cols[1] in keys and cols[1] not in out:
+   out[cols[1]]=float(cols[2])
+ assert set(out)==set(keys),(p,out)
+ return out
+results=[]
+for name in ['endstation_ax7101_1x1_tdm8','endstation_ax7101_8x8']:
+ b=old/'base-route'/name/'gateware/disabled_util.rpt'
+ h=w/'off-route'/name/'gateware/disabled_util.rpt'
+ if not h.exists(): continue
+ a,c=counts(b),counts(h)
+ results.append(dict(shape=name,base=a,head=c,delta={k:c[k]-a[k] for k in keys},equal=a==c,
+                    base_report=str(b),head_report=str(h),base_sha256=hashlib.sha256(b.read_bytes()).hexdigest(),
+                    head_sha256=hashlib.sha256(h.read_bytes()).hexdigest()))
+(w/'disabled-summary.json').write_text(json.dumps(results,indent=2)+'\n')
+print(json.dumps(results,indent=2))
+if len(results)==2:
+ print('DISABLED IMAGES IDENTICAL UTILISATION' if all(r['equal'] for r in results) else 'STOP: UTILISATION DIFFERS')

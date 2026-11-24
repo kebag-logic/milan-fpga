@@ -1,0 +1,44 @@
+Candidate head: dc78aedae34c25a97125ecd6816a1f645db5575f
+Comparison base: 3cda030c174b325e36c26af6420487ff91346d15
+Source: audit_packet.py
+Original SHA256: 6a21c4f76574723ccd3c4bece24d24fefd08b0b435721ff47e4ac80f74addddc
+Scope: complete text; paths and host fields normalized
+
+import json,hashlib,re,subprocess
+from pathlib import Path
+w=Path(__file__).resolve().parent
+packet=Path('$MANAGEMENT/2026-09-23/loopbram-a826/round4')
+root=Path('$CHECKOUT')
+head=subprocess.check_output(['git','rev-parse','HEAD'],cwd=root,text=True).strip()
+assert not subprocess.check_output(['git','status','--porcelain'],cwd=root,text=True).strip()
+assert (packet/'HANDOFF-r4.md').read_text().splitlines()[-1]=='REVIEW READY '+head
+assert (packet/'HANDOFF-r4.md').read_text().startswith('Status: REVIEW READY\nETA:')
+files=list(packet.rglob('*'))
+for p in files:
+ if not p.is_file():continue
+ assert p.stat().st_size<200000,(p,p.stat().st_size)
+ assert p.suffix!='.gz',p
+ p.read_text()
+for p in packet.rglob('*.md'):
+ for target in re.findall(r'\]\(([^)]+)\)',p.read_text()):
+  if '://' in target or target.startswith('#'):continue
+  assert (p.parent/target.split('#')[0]).exists(),(p,target)
+receipts=packet/'receipts'
+count=0
+for p in receipts.glob('manifest-*.jsonl'):
+ for line in p.read_text().splitlines():
+  row=json.loads(line);blob=(receipts/row['file']).read_bytes()
+  assert len(blob)==row['bytes'] and hashlib.sha256(blob).hexdigest()==row['sha256'],row['file']
+  count+=1
+for row in json.loads((receipts/'canonical-manifest.json').read_text()):
+ digest=hashlib.sha256();total=0
+ for c in row['chunks']:
+  blob=(receipts/c['file']).read_bytes();total+=len(blob)
+  assert len(blob)==c['bytes'] and hashlib.sha256(blob).hexdigest()==c['sha256'],c['file']
+  digest.update(blob)
+ assert digest.hexdigest()==row['head_sha256']==row['base_sha256'] and total==row['bytes']
+body=(packet/'PR-BODY.md').read_text()
+assert not re.search(r'Vivado|Verilator|Yosys|ExtraTimingOpt|Xilinx|<agent-name tokens redacted for publication>',body,re.I)
+for row in json.loads((w/'source-sha256.json').read_text()):
+ assert hashlib.sha256((root/row['path']).read_bytes()).hexdigest()==row['sha256'],row['path']
+print('PACKET PASS',head,'receipts',count,'files',sum(p.is_file() for p in files))

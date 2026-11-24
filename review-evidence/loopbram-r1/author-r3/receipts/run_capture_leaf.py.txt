@@ -1,0 +1,34 @@
+Candidate head: 855529fe21fea685725a9edc4fe0a798154c6469
+Comparison base: 3cda030c174b325e36c26af6420487ff91346d15
+Source: run_capture_leaf.py
+Original SHA256: 3fd32a613f1ca27d553924b0de131d11b0844ac864d34fe9507ccad35b3fb41d
+Scope: complete text; paths and host fields normalized
+
+import os,sys,subprocess,json,time,hashlib,fcntl
+from pathlib import Path
+root=Path('$CHECKOUT');w=Path('$SCRATCH/leaf-capture');w.mkdir(exist_ok=True)
+lock=(w/'run.lock').open('w');fcntl.flock(lock,fcntl.LOCK_EX)
+source_hashes={str(p):hashlib.sha256(p.read_bytes()).hexdigest() for p in [root/'hdl/ieee1722/aaf/KL_chan_map_capture.sv',w/'capture_leaf.sv']}
+for name,legacy,enabled,streams,channels in [('off',0,0,1,2),('mapped',0,1,1,2),('legacy',1,0,8,8)]:
+ d=w/name;d.mkdir(exist_ok=True)
+ if (d/'result.json').exists():
+  previous=json.loads((d/'result.json').read_text())
+  if previous.get('exit')==0 and previous.get('source_sha256')==source_hashes:
+   print('CAPTURE LEAF',name,'reused completed exact-source result',flush=True);continue
+ tcl=d/'leaf.tcl';tcl.write_text(f"""set_param general.maxThreads 8
+set_msg_config -id {{Synth 8-324}} -new_severity ERROR
+read_verilog -sv {root}/hdl/ieee1722/aaf/KL_chan_map_capture.sv
+read_verilog -sv {w}/capture_leaf.sv
+synth_design -mode out_of_context -top capture_leaf -part xc7a100t-fgg484-2 -directive AreaOptimized_high -generic INPUT_LOOPBACK_P={enabled} -generic LEGACY_P={legacy} -generic N_LB_STREAMS_P={streams} -generic N_LB_CH_P={channels}
+create_clock -period 20 [get_ports clk_i]
+opt_design -directive ExploreArea
+report_utilization -hierarchical -file leaf_hier.rpt
+report_utilization -file leaf_util.rpt
+write_checkpoint -force leaf.dcp
+quit
+""")
+ cmd=['$MANAGEMENT/2026-09-23/vivado-slot.sh','$WORKSPACE_HOME/Xilinx2/2026.1/Vivado/bin/vivado','-mode','batch','-nojournal','-nolog','-source',str(tcl)]
+ start=time.time()
+ with (d/'leaf.log').open('w') as log:r=subprocess.run(cmd,cwd=d,env=dict(os.environ,VIVADO_SLOTS='2',VIVADO_MIN_GB='20'),stdout=log,stderr=subprocess.STDOUT,timeout=28800)
+ (d/'result.json').write_text(json.dumps({'command':cmd,'exit':r.returncode,'source_sha256':source_hashes,'seconds':time.time()-start},indent=2));print('CAPTURE LEAF',name,r.returncode,flush=True)
+ if r.returncode:sys.exit(r.returncode)

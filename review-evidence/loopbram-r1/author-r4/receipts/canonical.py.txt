@@ -1,0 +1,31 @@
+Candidate head: dc78aedae34c25a97125ecd6816a1f645db5575f
+Comparison base: 3cda030c174b325e36c26af6420487ff91346d15
+Source: canonical.py
+Original SHA256: c7efaeba37edea33c05f2860e13eb65b93d3858748ad3f4d9ff89a2980195a67
+Scope: complete text; paths and host fields normalized
+
+import re,hashlib,json,subprocess
+from pathlib import Path
+w=Path(__file__).resolve().parent
+results=[]
+for name in ['endstation_ax7101_1x1_tdm8','endstation_ax7101_8x8']:
+ texts={}
+ for side in ['base','head']:
+  p=w/'rtl-final'/side/name/'rtl.v'
+  if not p.exists():break
+  raw=p.read_text()
+  # Attribute-free canonical form. Preserve all identifiers, widths,
+  # cell parameters, connections, logic, and module order.
+  text=re.sub(r'\(\*.*?\*\)','',raw,flags=re.S)
+  text=re.sub(r'//[^\n]*','',text)
+  text=re.sub(r'/\*.*?\*/','',text,flags=re.S)
+  text='\n'.join(line.strip() for line in text.splitlines() if line.strip())+'\n'
+  p.with_name('canonical.v').write_text(text)
+  texts[side]=text
+  results.append(dict(shape=name,side=side,raw_sha256=hashlib.sha256(raw.encode()).hexdigest(),canonical_sha256=hashlib.sha256(text.encode()).hexdigest(),bytes=len(text)))
+ if len(texts)==2:
+  with (w/(name+'.diff')).open('w') as f:
+   r=subprocess.run(['diff','-u',str(w/'rtl-final/base'/name/'canonical.v'),str(w/'rtl-final/head'/name/'canonical.v')],stdout=f,timeout=120)
+  print(name,'IDENTICAL' if r.returncode==0 else 'DIFFERENT',flush=True)
+(w/'elaboration-hashes.json').write_text(json.dumps(results,indent=2)+'\n')
+print(json.dumps(results,indent=2))

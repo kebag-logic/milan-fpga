@@ -1,0 +1,87 @@
+Candidate head: 855529fe21fea685725a9edc4fe0a798154c6469
+Comparison base: 3cda030c174b325e36c26af6420487ff91346d15
+Source: pack_receipts_r3.py
+Original SHA256: d40f9cd444ce6dbeb2cb7d2c1ee1ac7d518deaeb872734f30a1c4417f0a073ab
+Scope: complete text; paths and host fields normalized
+
+import hashlib,json,re,subprocess,socket
+from pathlib import Path
+w=Path(__file__).resolve().parent
+out=Path('$MANAGEMENT/2026-09-23/loopbram-a826/round3/receipts');out.mkdir(parents=True,exist_ok=True)
+root=Path('$CHECKOUT');head=subprocess.check_output(['git','rev-parse','HEAD'],cwd=root,text=True).strip()
+assert head==json.loads((w/'source.json').read_text())['head']
+assert not subprocess.check_output(['git','status','--porcelain'],cwd=root,text=True).strip()
+for row in json.loads((w/'source-sha256.json').read_text()):
+ assert hashlib.sha256((root/row['path']).read_bytes()).hexdigest()==row['sha256'],row['path']
+base_head=subprocess.check_output(['git','rev-parse','HEAD'],cwd=w/'base-wt',text=True).strip()
+assert base_head=='3cda030c174b325e36c26af6420487ff91346d15'
+assert not subprocess.check_output(['git','diff','HEAD','--ignore-submodules=all','--name-only'],cwd=w/'base-wt',text=True).strip()
+(w/'source-final-verification.txt').write_text('Exact candidate head '+head+'\nComparison base '+base_head+'\nCandidate tracked worktree clean. Every recorded tracked-file SHA256 still matches.\nBase tracked source has no difference from its recorded commit.\n')
+(w/'round3.diff').write_bytes(subprocess.check_output(['git','diff','2e278379',head],cwd=root))
+patterns=['submodule-verification.json','submodule-source-sha256.json','execution-complete.txt','mutation-inventories.json','disabled-hierarchy-diff.txt','commit-hygiene.txt','coherence-mutants.log','coherence-mutants.json','coherence-mutants-receipt', 'coherence-mutants-receipt.logs/*','parent-plants/*/milan_datapath.sv','parent-plants/*/KL_render_queue.sv','endstation*.yaml','parent-plants/control*/geometry.hpp','parent-plants/control*/build-command.json','parent-plants/control*/gen/*/*.json','parent-plants/control*/gen/*/*.svh','source.json','firmware-memory.json','source-sha256.json','source-final-verification.txt','round3.diff','*-summary.json','validation-status.json','focused-results.json',
+ 'anchors.log','leaf-off.log','leaf-off/*/cells.txt','leaf-off/*/stat.txt','leaf-off/*/yosys.log','lint.log','docs.log','doc-style.log','em-dash.log','xvlog.log','identity.log',
+ 'reviewer-probes-anchor-adaptation.diff','identity/*/identity.json','identity/extra-identity.json',
+ 'regressions/*.json','regressions/*.log','parent-plants/*.json','parent-plants/*.log','leaf-plants/*.json','leaf-plants/*.log',
+ 'bounds/*.json','bounds/*.log','reviewer-probes/results.json','reviewer-probes/*/run.log','reviewer-probes/*/build.log',
+ 'builder-union/*.json','builder-union/*.log','yosys/run.json','yosys/run.log','yosys/results/*.json','yosys/results/*.result',
+ 'route/**/measure_*.json','route/**/measure_*.tcl','route/**/measure_*.log','route/**/*.rpt','route/*/export.log','route/*/export-command.json',
+ 'base-route/**/measure_*.json','base-route/**/measure_*.tcl','base-route/**/measure_*.log','base-route/**/disabled_util.rpt','base-route/**/*utilization*syn*.rpt',
+ 'off-route/**/measure_*.json','off-route/**/measure_*.tcl','off-route/**/measure_*.log','off-route/**/disabled_util.rpt','off-route/**/*utilization*syn*.rpt',
+ 'baseline-reuse.txt','leaf/*/*.sv','leaf/*/*.rpt','leaf/*/*.json','leaf/*/*.tcl','leaf/*/*.log','leaf-capture/*/*.rpt','leaf-capture/*/*.json','leaf-capture/*/*.tcl','leaf-capture/*/*.log',
+ 'leaf-capture/capture_leaf.sv','builds/*-on.rc','builds/*-off.rc','builds/*-on.log','builds/*-off.log']
+files={p for pat in patterns for p in w.glob(pat) if p.is_file() and '.Xil' not in p.parts}
+files.update(w/n for n in ['run_regressions.py','run_coherence_mutants.py','run_builder_union.py','run_yosys.py','focused_validation.py','reviewer_probes.py','prepare_builds.py','prepare_base.py','export_routes.py','export_base.py','export_off.py','measure_soc.py','base_soc.py','run_routes.py','synth_off.py','synth_base.py','run_leaf.py','run_capture_leaf.py','check_identity_r3.py','summarize_physical.py','candidate_physical.py','baseline_pipeline.py','pack_receipts_r3.py','final_status.py'] if (w/n).is_file())
+rows=[]
+for p in sorted(files):
+ raw=p.read_bytes();data=raw.decode('utf-8',errors='replace');scope='complete text; paths and host fields normalized'
+ if p.suffix=='.log':
+  # Drop native compilation commands only, retaining test output and diagnostics.
+  lines=data.splitlines(True)
+  data=''.join(line for line in lines if not re.match(r'^(g\+\+|c\+\+|gcc|clang\+\+|cc|ar|rm -f|make\[?\d*\]?: (Entering|Leaving)) ',line))
+  scope='native compilation chatter omitted; other output retained; paths and host fields normalized'
+ data=data.replace(str(w),'$SCRATCH').replace(str(root),'$CHECKOUT')
+ data=data.replace(socket.gethostname(),'$HOST')
+ data=re.sub(r'(?m)^(\s*(?:Host|Hostname)\s*:\s*)\S+', r'\1$HOST', data)
+ data=re.sub(r'\.Xil/[A-Za-z][^/\s\"]*-\d+-[^/\s\"]+', '.Xil/$RUN', data)
+ header=f'Candidate head: {head}\nComparison base: 3cda030c174b325e36c26af6420487ff91346d15\nSource: {p.relative_to(w)}\nOriginal SHA256: {hashlib.sha256(raw).hexdigest()}\nScope: {scope}\n\n'
+ parts=[];chunk=header
+ for line in data.splitlines(True):
+  for offset in range(0,len(line),40000):
+   piece=line[offset:offset+40000]
+   if len((chunk+piece).encode())>180000:parts.append(chunk);chunk=header
+   chunk+=piece
+ if chunk!=header:parts.append(chunk)
+ stem=str(p.relative_to(w)).replace('/','--')
+ for i,part in enumerate(parts):
+  name=stem+(f'.part{i+1:03d}' if len(parts)>1 else '')+'.txt';blob=part.encode();assert len(blob)<200000
+  (out/name).write_bytes(blob);rows.append(dict(file=name,source=str(p.relative_to(w)),bytes=len(blob),sha256=hashlib.sha256(blob).hexdigest(),original_sha256=hashlib.sha256(raw).hexdigest()))
+# Keep the manifest itself below the same bound using JSON Lines parts.
+text=''.join(json.dumps(row,sort_keys=True)+'\n' for row in rows)
+for i in range(0,len(rows),150):
+ blob=''.join(json.dumps(row,sort_keys=True)+'\n' for row in rows[i:i+150]).encode();assert len(blob)<200000
+ (out/f'manifest-{i//150+1:03d}.jsonl').write_bytes(blob)
+index=['# Round 3 receipts','',f'Exact candidate head: `{head}`.','',
+ 'Plain text only. Every file is smaller than 200,000 bytes.',
+ 'Numbered parts concatenate in order, apart from repeated provenance headers.',
+ '`$CHECKOUT` is the lane worktree; `$SCRATCH` is its round-3 scratch directory.',
+ 'Original-log hashes remain recorded before path/host normalization and compiler filtering.',
+ 'Temporary .Xil internals are excluded; requested reports and command logs are retained.',
+ 'Comparison-base receipts are reused only at the unchanged base commit; candidate receipts use this exact head.',
+ 'The final source verification checks every recorded tracked file and the clean worktree.',
+ '', 'Key receipts:', '',
+ '- [Source identity](source.json.txt), [final source verification](source-final-verification.txt.txt), and [submodule verification](submodule-verification.json.txt).',
+ '- [Validation status](validation-status.json.txt) and [anchor audit](anchors.log.txt).',
+ '- [Disabled leaves](leaf-off.log.txt), [disabled images](disabled-summary.json.txt), and [artifact identity](identity.log.txt).',
+ '- [Parent controls and plants](parent-plants--results.json.txt) and [bounds](bounds--results.json.txt).',
+ '- [Routes](route-summary.json.txt) and [control memory](firmware-memory.json.txt).',
+ '- [Builder union](builder-union--union.json.txt) and [portability command](yosys--run.json.txt).',
+ '', '| Receipt | Bytes | Source |','|---|---:|---|']
+for i in range(0,len(rows),100):
+ name=f'INDEX-{i//100+1:03d}.md'
+ table=['# Receipt index part '+str(i//100+1),'', '| Receipt | Bytes | Source |','|---|---:|---|']
+ table += [f"| [{r['file']}]({r['file']}) | {r['bytes']} | `{r['source']}` |" for r in rows[i:i+100]]
+ (out/name).write_text('\n'.join(table)+'\n')
+ index.append(f'| [{name}]({name}) | - | Receipts {i+1}-{min(i+100,len(rows))} |')
+(out/'INDEX.md').write_text('\n'.join(index)+'\n')
+assert all(p.stat().st_size<200000 and p.suffix!='.gz' for p in out.iterdir() if p.is_file())
+print('PACKED',len(rows),'text receipts at',head)

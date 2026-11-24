@@ -1,0 +1,31 @@
+Candidate head: 855529fe21fea685725a9edc4fe0a798154c6469
+Comparison base: 3cda030c174b325e36c26af6420487ff91346d15
+Source: reviewer-probes-anchor-adaptation.diff
+Original SHA256: 4095bd680bcc0d7dab808e7cc1a579e5f9833c2bc3d089f0bfb813b1814ff18d
+Scope: complete text; paths and host fields normalized
+
+--- reviewer-original
++++ adapted-current-anchors
+@@ -20,9 +20,9 @@
+ SHAPES = {8: dict(STREAMS=8, FIRST=1, CHANNELS=63, LEAD=1),
+           1: dict(STREAMS=1, FIRST=8, CHANNELS=8, LEAD=2)}
+ Q, C, T = "queue", "capture", "sim"
+-TOL = ("localparam int STAMP_TOL_NS_C = 3 * ((1_000_000_000 + CLK_FREQ_HZ_P - 1) / CLK_FREQ_HZ_P);",
++TOL = ("localparam int STAMP_TOL_NS_C = 4 * STAMP_CYCLE_NS_C + STAMP_RATE_NS_C + 1;",
+        "localparam int STAMP_TOL_NS_C = 0;")
+-STAMP = "if(events) d->frame_ns_i=stamp(frame);"
++STAMP = "if(events) d->frame_ns_i=stamp(frame)+uint32_t(phase>=250 ? capture_offset(frame) : 0);"
+ 
+ 
+ def drift(j):
+@@ -46,8 +46,8 @@
+     ("no_backlog8", 8, None, [(Q, "bad_r <= invalidate_w || (sn_r != n_r);",
+                                "bad_r <= invalidate_w;")], "observe"),
+     ("no_age8", 8, None, [(Q, "&& (age_w[FW_C-1] || age_w == '0))", "&& 1'b1)")], "observe"),
+-    ("cap_right_ignored8", 8, None, [(C, "pair_r_o <= input_right_select_r ? input_sample_i : input_right_r;",
+-                                      "pair_r_o <= input_right_r;")], "fail"),
++    ("cap_right_ignored8", 8, None, [(C, "assign input_pair_r_w = input_right_select_r ? input_sample_i : input_right_r;",
++                                      "assign input_pair_r_w = input_right_r;")], "fail"),
+     ("cap_left_addr8", 8, None, [(C, "assign input_addr_o = input_right_w ? input_right_addr_r",
+                                   "assign input_addr_o = 1'b0 ? input_right_addr_r")], "fail"),
+     ("drift_p60_8", 8, None, [(T, *drift(60))], "observe"),

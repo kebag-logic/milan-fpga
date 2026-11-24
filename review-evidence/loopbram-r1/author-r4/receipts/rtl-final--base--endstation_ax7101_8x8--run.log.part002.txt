@@ -1,0 +1,40 @@
+Candidate head: dc78aedae34c25a97125ecd6816a1f645db5575f
+Comparison base: 3cda030c174b325e36c26af6420487ff91346d15
+Source: rtl-final/base/endstation_ax7101_8x8/run.log
+Original SHA256: 4fbdb60a4dc225ed5b9ec74698f2f6e600b4ba36ba9208fbf65455f1ea228181
+Scope: native compilation chatter omitted; other output retained; paths and host fields normalized
+
+---------------------------------------------------------------------------------
+Finished RTL Optimization Phase 1 : Time (s): cpu = 00:00:19 ; elapsed = 00:00:21 . Memory (MB): peak = 3189.672 ; gain = 1181.016 ; free physical = 29367 ; free virtual = 91002
+---------------------------------------------------------------------------------
+Netlist sorting complete. Time (s): cpu = 00:00:00.98 ; elapsed = 00:00:00.99 . Memory (MB): peak = 3189.680 ; gain = 0.000 ; free physical = 27686 ; free virtual = 90337
+INFO: [Netlist 29-17] Analyzing 8 Unisim elements for replacement
+INFO: [Netlist 29-28] Unisim Transformation completed in 0 CPU seconds
+INFO: [Project 1-570] Preparing netlist for logic optimization
+INFO: [Opt 31-140] Inserted 1 IBUFs to IO ports without IO buffers.
+INFO: [Opt 31-141] Inserted 4 OBUFs to IO ports without IO buffers.
+
+Processing XDC Constraints
+Initializing timing engine
+Parsing XDC File [/data-2/milan/tmp/loopbram-a826-r3-verified/base-route/endstation_ax7101_8x8/gateware/alinx_ax7101.xdc]
+INFO: [Timing 38-2] Deriving generated clocks [/data-2/milan/tmp/loopbram-a826-r3-verified/base-route/endstation_ax7101_8x8/gateware/alinx_ax7101.xdc:215]
+Finished Parsing XDC File [/data-2/milan/tmp/loopbram-a826-r3-verified/base-route/endstation_ax7101_8x8/gateware/alinx_ax7101.xdc]
+INFO: [Project 1-236] Implementation specific constraints were found while reading constraint file [/data-2/milan/tmp/loopbram-a826-r3-verified/base-route/endstation_ax7101_8x8/gateware/alinx_ax7101.xdc]. These constraints will be ignored for synthesis but will be used in implementation. Impacted constraints are listed in the file [.Xil/alinx_ax7101_propImpl.xdc].
+Resolution: To avoid this warning, move constraints listed in [.Xil/alinx_ax7101_propImpl.xdc] to another XDC file and exclude this new file from synthesis with the used_in_synthesis property (File Properties dialog in GUI) and re-run elaboration/synthesis.
+Completed Processing XDC Constraints
+
+INFO: [Opt 31-138] Pushed 0 inverter(s) to 0 load pin(s).
+Netlist sorting complete. Time (s): cpu = 00:00:00.04 ; elapsed = 00:00:00.04 . Memory (MB): peak = 3538.254 ; gain = 0.000 ; free physical = 28788 ; free virtual = 91464
+INFO: [Project 1-111] Unisim Transformation Summary:
+  A total of 1 instances were transformed.
+  IOBUF => IOBUF (IBUF, OBUFT): 1 instance 
+
+RTL Elaboration Complete:  : Time (s): cpu = 00:00:49 ; elapsed = 00:00:38 . Memory (MB): peak = 3538.289 ; gain = 1529.633 ; free physical = 27741 ; free virtual = 90419
+338 Infos, 374 Warnings, 0 Critical Warnings and 0 Errors encountered.
+synth_design completed successfully
+synth_design: Time (s): cpu = 00:00:52 ; elapsed = 00:00:41 . Memory (MB): peak = 3538.289 ; gain = 1529.633 ; free physical = 27717 ; free virtual = 90395
+INFO: [Common 17-2834] synth_design peak Physical Memory [PSS] (MB): overall = 2543.811; main = 2515.818; forked = 290.835
+INFO: [Common 17-2834] synth_design peak Virtual Memory [VSS] (MB): overall = 4222.199; main = 3538.258; forked = 1032.523
+# write_verilog -force rtl.v
+# quit
+INFO: [Common 17-206] Exiting Vivado at Tue Nov 24 06:09:46 2026...

@@ -1,0 +1,29 @@
+Candidate head: 855529fe21fea685725a9edc4fe0a798154c6469
+Comparison base: 3cda030c174b325e36c26af6420487ff91346d15
+Source: base_soc.py
+Original SHA256: b3d6e292c2b348155b16f9c5d003730f0af6fdddcc8a8c5bbd3a95f67338879f
+Scope: complete text; paths and host fields normalized
+
+import sys,runpy,json
+from pathlib import Path
+root=Path('$SCRATCH/base-wt')
+sys.path.insert(0,str(root/'sw/litex'))
+import ctrl_memory
+original=ctrl_memory.plan
+def measure(image,**kw):
+ try:
+  return original(image,**kw)
+ except ctrl_memory.Refusal as error:
+  if error.rule != 'budget': raise
+  print('MEASUREMENT ONLY; PRODUCT REFUSAL RETAINED:',error,flush=True)
+  result=original(image,budget=float('inf'))
+  print('S14 MEASURED ALLOCATION:',json.dumps(result.summary()),flush=True)
+  return result
+ctrl_memory.plan=measure
+import milan_soc
+def scratch_output(entity_gen_dir,name):
+ path=Path(entity_gen_dir)/name
+ if not path.is_file(): raise RuntimeError(path)
+ return str(path)
+milan_soc._builder_out=scratch_output
+milan_soc.main()

@@ -1,0 +1,23 @@
+Candidate head: 855529fe21fea685725a9edc4fe0a798154c6469
+Comparison base: 3cda030c174b325e36c26af6420487ff91346d15
+Source: leaf/1/result.json
+Original SHA256: abe3adff44a580196811a2421531fab706a9d331843104b21252793fde3de0af
+Scope: complete text; paths and host fields normalized
+
+{
+  "command": [
+    "$MANAGEMENT/2026-09-23/vivado-slot.sh",
+    "$WORKSPACE_HOME/Xilinx2/2026.1/Vivado/bin/vivado",
+    "-mode",
+    "batch",
+    "-nojournal",
+    "-nolog",
+    "-source",
+    "$SCRATCH/leaf/1/leaf.tcl"
+  ],
+  "exit": 0,
+  "expected_failure": false,
+  "passed": true,
+  "source_sha256": "275ad610f31119476775210f5f473049cced40c780b4275fcb57991e960100d3",
+  "seconds": 45.34190034866333
+}

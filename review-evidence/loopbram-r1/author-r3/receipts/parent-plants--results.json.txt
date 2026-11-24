@@ -1,0 +1,106 @@
+Candidate head: 855529fe21fea685725a9edc4fe0a798154c6469
+Comparison base: 3cda030c174b325e36c26af6420487ff91346d15
+Source: parent-plants/results.json
+Original SHA256: 8225ec7cba15abb33b30b837633286b525a97242c5f569c3970dec1624cc2880
+Scope: complete text; paths and host fields normalized
+
+[
+  {
+    "name": "control1",
+    "command": [
+      "/usr/bin/python3",
+      "$CHECKOUT/tb/verilator/input_loopback_dp/run.py",
+      "--shape",
+      "1",
+      "--work",
+      "$SCRATCH/parent-plants/control1"
+    ],
+    "exit": 0,
+    "built": true,
+    "passed": true,
+    "log_sha256": "10f919eee42effc10601dd4e1ad705a4edf6fa0eb7658efe13988f6743f1b311"
+  },
+  {
+    "name": "control8",
+    "command": [
+      "/usr/bin/python3",
+      "$CHECKOUT/tb/verilator/input_loopback_dp/run.py",
+      "--shape",
+      "8",
+      "--work",
+      "$SCRATCH/parent-plants/control8"
+    ],
+    "exit": 0,
+    "built": true,
+    "passed": true,
+    "log_sha256": "eb9be93f6ba7c43d6df30aaeb9ee5c954989fdf93371ef7872f8bf35e36c0284"
+  },
+  {
+    "name": "missing_edit_invalidation",
+    "command": [
+      "/usr/bin/python3",
+      "$CHECKOUT/tb/verilator/input_loopback_dp/run.py",
+      "--shape",
+      "8",
+      "--work",
+      "$SCRATCH/parent-plants/missing_edit_invalidation",
+      "--dp-source",
+      "$SCRATCH/parent-plants/missing_edit_invalidation/milan_datapath.sv"
+    ],
+    "exit": 1,
+    "built": true,
+    "passed": true,
+    "log_sha256": "882d4002190aab178f9172e6b50c75d48d5bcabfb7fecb8e44a79f7298cbdbf5"
+  },
+  {
+    "name": "disconnected_map",
+    "command": [
+      "/usr/bin/python3",
+      "$CHECKOUT/tb/verilator/input_loopback_dp/run.py",
+      "--shape",
+      "8",
+      "--work",
+      "$SCRATCH/parent-plants/disconnected_map",
+      "--dp-source",
+      "$SCRATCH/parent-plants/disconnected_map/milan_datapath.sv"
+    ],
+    "exit": 1,
+    "built": true,
+    "passed": true,
+    "log_sha256": "ab9dd7ce2ae5b238f95bdafc62ad016c9e8f671e64046f9a152033e9891e7cf3"
+  },
+  {
+    "name": "overwritten_capture_page",
+    "command": [
+      "/usr/bin/python3",
+      "$CHECKOUT/tb/verilator/input_loopback_dp/run.py",
+      "--shape",
+      "1",
+      "--work",
+      "$SCRATCH/parent-plants/overwritten_capture_page",
+      "--queue-source",
+      "$SCRATCH/parent-plants/overwritten_capture_page/KL_render_queue.sv"
+    ],
+    "exit": 1,
+    "built": true,
+    "passed": true,
+    "log_sha256": "1b9542cbb871ec4685fa2eaae593db0745d0816d02f269cf07e7b6a3b5c449d2"
+  },
+  {
+    "name": "truncated_claim_page",
+    "command": [
+      "/usr/bin/python3",
+      "$CHECKOUT/tb/verilator/input_loopback_dp/run.py",
+      "--shape",
+      "1",
+      "--work",
+      "$SCRATCH/parent-plants/truncated_claim_page",
+      "--queue-source",
+      "$SCRATCH/parent-plants/truncated_claim_page/KL_render_queue.sv"
+    ],
+    "exit": 1,
+    "built": true,
+    "passed": true,
+    "log_sha256": "e85dd8835af451e8998932cdaf29f110b07aa4c524f14845f8b6a3171ce2e728"
+  }
+]

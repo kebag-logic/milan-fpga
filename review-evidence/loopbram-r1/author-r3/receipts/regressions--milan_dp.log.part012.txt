@@ -1,0 +1,2175 @@
+Candidate head: 855529fe21fea685725a9edc4fe0a798154c6469
+Comparison base: 3cda030c174b325e36c26af6420487ff91346d15
+Source: regressions/milan_dp.log
+Original SHA256: 2089b622ab7c68618aacf11ddffdad9ca131ba979685f05bb3fec43936a22421
+Scope: native compilation chatter omitted; other output retained; paths and host fields normalized
+
+  timestamp output=1 stamp=62966166 phc=60929690 offset=2000000 residual=36476 ns
+  [ok]   #773 output 1 AAF at 2000000 ns: its hand-over is at or before its timestamp less the offset, and after it less 125 us (IEEE 1722-2016 4.3.3 Eq. (1)) = 0x1
+  timestamp output=2 stamp=62966166 phc=60929950 offset=2000000 residual=36216 ns
+  [ok]   #773 output 2 AAF at 2000000 ns: its hand-over is at or before its timestamp less the offset, and after it less 125 us (IEEE 1722-2016 4.3.3 Eq. (1)) = 0x1
+  timestamp output=3 stamp=62966166 phc=60930210 offset=2000000 residual=35956 ns
+  [ok]   #773 output 3 AAF at 2000000 ns: its hand-over is at or before its timestamp less the offset, and after it less 125 us (IEEE 1722-2016 4.3.3 Eq. (1)) = 0x1
+  timestamp output=4 stamp=62966166 phc=60930470 offset=2000000 residual=35696 ns
+  [ok]   #773 output 4 AAF at 2000000 ns: its hand-over is at or before its timestamp less the offset, and after it less 125 us (IEEE 1722-2016 4.3.3 Eq. (1)) = 0x1
+  timestamp output=5 stamp=62966166 phc=60930730 offset=2000000 residual=35436 ns
+  [ok]   #773 output 5 AAF at 2000000 ns: its hand-over is at or before its timestamp less the offset, and after it less 125 us (IEEE 1722-2016 4.3.3 Eq. (1)) = 0x1
+  timestamp output=6 stamp=62966166 phc=60930990 offset=2000000 residual=35176 ns
+  [ok]   #773 output 6 AAF at 2000000 ns: its hand-over is at or before its timestamp less the offset, and after it less 125 us (IEEE 1722-2016 4.3.3 Eq. (1)) = 0x1
+  timestamp output=7 stamp=61966166 phc=60931250 offset=1000000 residual=34916 ns
+  [ok]   #773 output 7 AAF at 1000000 ns: its hand-over is at or before its timestamp less the offset, and after it less 125 us (IEEE 1722-2016 4.3.3 Eq. (1)) = 0x1
+  timestamp output=8 stamp=62969166 phc=60948680 offset=2000000 residual=20486 ns
+  [ok]   #773 output 8 CRF at 2000000 ns: its hand-over is at or before its timestamp less the offset, and after it less 125 us (IEEE 1722-2016 4.3.3 Eq. (1)) = 0x1
+  timestamp output=0 stamp=63094166 phc=61054420 offset=2000000 residual=39746 ns
+  [ok]   #773 output 0 AAF at 2000000 ns: its hand-over is at or before its timestamp less the offset, and after it less 125 us (IEEE 1722-2016 4.3.3 Eq. (1)) = 0x1
+  timestamp output=1 stamp=63094166 phc=61054710 offset=2000000 residual=39456 ns
+  [ok]   #773 output 1 AAF at 2000000 ns: its hand-over is at or before its timestamp less the offset, and after it less 125 us (IEEE 1722-2016 4.3.3 Eq. (1)) = 0x1
+  timestamp output=2 stamp=63094166 phc=61054970 offset=2000000 residual=39196 ns
+  [ok]   #773 output 2 AAF at 2000000 ns: its hand-over is at or before its timestamp less the offset, and after it less 125 us (IEEE 1722-2016 4.3.3 Eq. (1)) = 0x1
+  timestamp output=3 stamp=63094166 phc=61055230 offset=2000000 residual=38936 ns
+  [ok]   #773 output 3 AAF at 2000000 ns: its hand-over is at or before its timestamp less the offset, and after it less 125 us (IEEE 1722-2016 4.3.3 Eq. (1)) = 0x1
+  timestamp output=4 stamp=63094166 phc=61055490 offset=2000000 residual=38676 ns
+  [ok]   #773 output 4 AAF at 2000000 ns: its hand-over is at or before its timestamp less the offset, and after it less 125 us (IEEE 1722-2016 4.3.3 Eq. (1)) = 0x1
+  timestamp output=5 stamp=63094166 phc=61055750 offset=2000000 residual=38416 ns
+  [ok]   #773 output 5 AAF at 2000000 ns: its hand-over is at or before its timestamp less the offset, and after it less 125 us (IEEE 1722-2016 4.3.3 Eq. (1)) = 0x1
+  timestamp output=6 stamp=63094166 phc=61056010 offset=2000000 residual=38156 ns
+  [ok]   #773 output 6 AAF at 2000000 ns: its hand-over is at or before its timestamp less the offset, and after it less 125 us (IEEE 1722-2016 4.3.3 Eq. (1)) = 0x1
+  timestamp output=7 stamp=62094166 phc=61056270 offset=1000000 residual=37896 ns
+  [ok]   #773 output 7 AAF at 1000000 ns: its hand-over is at or before its timestamp less the offset, and after it less 125 us (IEEE 1722-2016 4.3.3 Eq. (1)) = 0x1
+  timestamp output=8 stamp=63460686 phc=61440200 offset=2000000 residual=20486 ns
+  [ok]   #773 output 8 CRF at 2000000 ns: its hand-over is at or before its timestamp less the offset, and after it less 125 us (IEEE 1722-2016 4.3.3 Eq. (1)) = 0x1
+  #632 exact stamps: AAF 16 on, 0 off; CRF 2 on, 0 off; 906 domain events, 0 graded cycles not live
+  [ok]   #632 the domain's frame grid is live while the stamps are graded = 0x0
+  [ok]   #632 every AAF timestamp is a domain media event's instant plus whole periods (#773) plus its offset as set, to the ns = 0x1
+  [ok]   #632 every CRF timestamp, all 64 bits, is a domain media event's instant plus whole periods (#773) plus its offset applied = 0x1
+  #773 output 0 AAF adds 8 media clock periods beside its offset
+  [ok]   #773 output 0 adds one whole number of periods to every stamp = 0x1
+  #773 output 1 AAF adds 8 media clock periods beside its offset
+  [ok]   #773 output 1 adds one whole number of periods to every stamp = 0x1
+  #773 output 2 AAF adds 8 media clock periods beside its offset
+  [ok]   #773 output 2 adds one whole number of periods to every stamp = 0x1
+  #773 output 3 AAF adds 8 media clock periods beside its offset
+  [ok]   #773 output 3 adds one whole number of periods to every stamp = 0x1
+  #773 output 4 AAF adds 8 media clock periods beside its offset
+  [ok]   #773 output 4 adds one whole number of periods to every stamp = 0x1
+  #773 output 5 AAF adds 8 media clock periods beside its offset
+  [ok]   #773 output 5 adds one whole number of periods to every stamp = 0x1
+  #773 output 6 AAF adds 8 media clock periods beside its offset
+  [ok]   #773 output 6 adds one whole number of periods to every stamp = 0x1
+  #773 output 7 AAF adds 8 media clock periods beside its offset
+  [ok]   #773 output 7 adds one whole number of periods to every stamp = 0x1
+  #773 output 8 CRF adds 2 media clock periods beside its offset
+  [ok]   #773 output 8 adds one whole number of periods to every stamp = 0x1
+  [ok]   #403 output 0 produced two timestamp observations = 0x2
+  [ok]   #403 output 1 produced two timestamp observations = 0x2
+  [ok]   #403 output 2 produced two timestamp observations = 0x2
+  [ok]   #403 output 3 produced two timestamp observations = 0x2
+  [ok]   #403 output 4 produced two timestamp observations = 0x2
+  [ok]   #403 output 5 produced two timestamp observations = 0x2
+  [ok]   #403 output 6 produced two timestamp observations = 0x2
+  [ok]   #403 output 7 produced two timestamp observations = 0x2
+  [ok]   #403 output 8 produced two timestamp observations = 0x2
+  [ok]   #403 runtime factory value can be selected again = 0x0
+  [ok]   #403 addressed output accepts runtime 1 ms     = 0x0
+  [ok]   #403 runtime GET changes only its own output   = 0x1e8480
+  [ok]   #403 runtime GET changes only its own output   = 0x1e8480
+  [ok]   #403 runtime GET changes only its own output   = 0x1e8480
+  [ok]   #403 runtime GET changes only its own output   = 0x1e8480
+  [ok]   #403 runtime GET changes only its own output   = 0x1e8480
+  [ok]   #403 runtime GET changes only its own output   = 0x1e8480
+  [ok]   #403 runtime GET changes only its own output   = 0x1e8480
+  [ok]   #403 runtime GET changes only its own output   = 0x1e8480
+  [ok]   #403 runtime GET changes only its own output   = 0xf4240
+  timestamp output=0 stamp=67886486 phc=65847050 offset=2000000 residual=39436 ns
+  [ok]   #773 output 0 AAF at 2000000 ns: its hand-over is at or before its timestamp less the offset, and after it less 125 us (IEEE 1722-2016 4.3.3 Eq. (1)) = 0x1
+  timestamp output=1 stamp=67886486 phc=65847340 offset=2000000 residual=39146 ns
+  [ok]   #773 output 1 AAF at 2000000 ns: its hand-over is at or before its timestamp less the offset, and after it less 125 us (IEEE 1722-2016 4.3.3 Eq. (1)) = 0x1
+  timestamp output=2 stamp=67886486 phc=65847600 offset=2000000 residual=38886 ns
+  [ok]   #773 output 2 AAF at 2000000 ns: its hand-over is at or before its timestamp less the offset, and after it less 125 us (IEEE 1722-2016 4.3.3 Eq. (1)) = 0x1
+  timestamp output=3 stamp=67886486 phc=65847860 offset=2000000 residual=38626 ns
+  [ok]   #773 output 3 AAF at 2000000 ns: its hand-over is at or before its timestamp less the offset, and after it less 125 us (IEEE 1722-2016 4.3.3 Eq. (1)) = 0x1
+  timestamp output=4 stamp=67886486 phc=65848120 offset=2000000 residual=38366 ns
+  [ok]   #773 output 4 AAF at 2000000 ns: its hand-over is at or before its timestamp less the offset, and after it less 125 us (IEEE 1722-2016 4.3.3 Eq. (1)) = 0x1
+  timestamp output=5 stamp=67886486 phc=65848380 offset=2000000 residual=38106 ns
+  [ok]   #773 output 5 AAF at 2000000 ns: its hand-over is at or before its timestamp less the offset, and after it less 125 us (IEEE 1722-2016 4.3.3 Eq. (1)) = 0x1
+  timestamp output=6 stamp=67886486 phc=65848640 offset=2000000 residual=37846 ns
+  [ok]   #773 output 6 AAF at 2000000 ns: its hand-over is at or before its timestamp less the offset, and after it less 125 us (IEEE 1722-2016 4.3.3 Eq. (1)) = 0x1
+  timestamp output=7 stamp=67886486 phc=65848900 offset=2000000 residual=37586 ns
+  [ok]   #773 output 7 AAF at 2000000 ns: its hand-over is at or before its timestamp less the offset, and after it less 125 us (IEEE 1722-2016 4.3.3 Eq. (1)) = 0x1
+  timestamp output=8 stamp=66884366 phc=65863880 offset=1000000 residual=20486 ns
+  [ok]   #773 output 8 CRF at 1000000 ns: its hand-over is at or before its timestamp less the offset, and after it less 125 us (IEEE 1722-2016 4.3.3 Eq. (1)) = 0x1
+  timestamp output=0 stamp=68009366 phc=65972070 offset=2000000 residual=37296 ns
+  [ok]   #773 output 0 AAF at 2000000 ns: its hand-over is at or before its timestamp less the offset, and after it less 125 us (IEEE 1722-2016 4.3.3 Eq. (1)) = 0x1
+  timestamp output=1 stamp=68009366 phc=65972360 offset=2000000 residual=37006 ns
+  [ok]   #773 output 1 AAF at 2000000 ns: its hand-over is at or before its timestamp less the offset, and after it less 125 us (IEEE 1722-2016 4.3.3 Eq. (1)) = 0x1
+  timestamp output=2 stamp=68009366 phc=65972620 offset=2000000 residual=36746 ns
+  [ok]   #773 output 2 AAF at 2000000 ns: its hand-over is at or before its timestamp less the offset, and after it less 125 us (IEEE 1722-2016 4.3.3 Eq. (1)) = 0x1
+  timestamp output=3 stamp=68009366 phc=65972880 offset=2000000 residual=36486 ns
+  [ok]   #773 output 3 AAF at 2000000 ns: its hand-over is at or before its timestamp less the offset, and after it less 125 us (IEEE 1722-2016 4.3.3 Eq. (1)) = 0x1
+  timestamp output=4 stamp=68009366 phc=65973140 offset=2000000 residual=36226 ns
+  [ok]   #773 output 4 AAF at 2000000 ns: its hand-over is at or before its timestamp less the offset, and after it less 125 us (IEEE 1722-2016 4.3.3 Eq. (1)) = 0x1
+  timestamp output=5 stamp=68009366 phc=65973400 offset=2000000 residual=35966 ns
+  [ok]   #773 output 5 AAF at 2000000 ns: its hand-over is at or before its timestamp less the offset, and after it less 125 us (IEEE 1722-2016 4.3.3 Eq. (1)) = 0x1
+  timestamp output=6 stamp=68009366 phc=65973660 offset=2000000 residual=35706 ns
+  [ok]   #773 output 6 AAF at 2000000 ns: its hand-over is at or before its timestamp less the offset, and after it less 125 us (IEEE 1722-2016 4.3.3 Eq. (1)) = 0x1
+  timestamp output=7 stamp=68009366 phc=65973920 offset=2000000 residual=35446 ns
+  [ok]   #773 output 7 AAF at 2000000 ns: its hand-over is at or before its timestamp less the offset, and after it less 125 us (IEEE 1722-2016 4.3.3 Eq. (1)) = 0x1
+  timestamp output=8 stamp=67375886 phc=66355400 offset=1000000 residual=20486 ns
+  [ok]   #773 output 8 CRF at 1000000 ns: its hand-over is at or before its timestamp less the offset, and after it less 125 us (IEEE 1722-2016 4.3.3 Eq. (1)) = 0x1
+  #632 exact stamps: AAF 16 on, 0 off; CRF 2 on, 0 off; 906 domain events, 0 graded cycles not live
+  [ok]   #632 the domain's frame grid is live while the stamps are graded = 0x0
+  [ok]   #632 every AAF timestamp is a domain media event's instant plus whole periods (#773) plus its offset as set, to the ns = 0x1
+  [ok]   #632 every CRF timestamp, all 64 bits, is a domain media event's instant plus whole periods (#773) plus its offset applied = 0x1
+  #773 output 0 AAF adds 8 media clock periods beside its offset
+  [ok]   #773 output 0 adds one whole number of periods to every stamp = 0x1
+  #773 output 1 AAF adds 8 media clock periods beside its offset
+  [ok]   #773 output 1 adds one whole number of periods to every stamp = 0x1
+  #773 output 2 AAF adds 8 media clock periods beside its offset
+  [ok]   #773 output 2 adds one whole number of periods to every stamp = 0x1
+  #773 output 3 AAF adds 8 media clock periods beside its offset
+  [ok]   #773 output 3 adds one whole number of periods to every stamp = 0x1
+  #773 output 4 AAF adds 8 media clock periods beside its offset
+  [ok]   #773 output 4 adds one whole number of periods to every stamp = 0x1
+  #773 output 5 AAF adds 8 media clock periods beside its offset
+  [ok]   #773 output 5 adds one whole number of periods to every stamp = 0x1
+  #773 output 6 AAF adds 8 media clock periods beside its offset
+  [ok]   #773 output 6 adds one whole number of periods to every stamp = 0x1
+  #773 output 7 AAF adds 8 media clock periods beside its offset
+  [ok]   #773 output 7 adds one whole number of periods to every stamp = 0x1
+  #773 output 8 CRF adds 2 media clock periods beside its offset
+  [ok]   #773 output 8 adds one whole number of periods to every stamp = 0x1
+  [ok]   #403 output 0 produced two timestamp observations = 0x2
+  [ok]   #403 output 1 produced two timestamp observations = 0x2
+  [ok]   #403 output 2 produced two timestamp observations = 0x2
+  [ok]   #403 output 3 produced two timestamp observations = 0x2
+  [ok]   #403 output 4 produced two timestamp observations = 0x2
+  [ok]   #403 output 5 produced two timestamp observations = 0x2
+  [ok]   #403 output 6 produced two timestamp observations = 0x2
+  [ok]   #403 output 7 produced two timestamp observations = 0x2
+  [ok]   #403 output 8 produced two timestamp observations = 0x2
+  [ok]   #403 runtime factory value can be selected again = 0x0
+  [ok]   #632 a non-period offset is accepted           = 0x0
+  [ok]   #632 GET_STREAM_INFO reads an AAF output's offset as set = 0x1eab90
+  [ok]   #632 a non-period offset is accepted           = 0x0
+  [ok]   #632 GET_STREAM_INFO reads the CRF output's offset applied, whole periods = 0x1ed5e2
+  timestamp output=0 stamp=72781206 phc=70743860 offset=2000000 residual=37346 ns
+  [ok]   #773 output 0 AAF at 2000000 ns: its hand-over is at or before its timestamp less the offset, and after it less 125 us (IEEE 1722-2016 4.3.3 Eq. (1)) = 0x1
+  timestamp output=1 stamp=72791206 phc=70744150 offset=2010000 residual=37056 ns
+  [ok]   #773 output 1 AAF at 2010000 ns: its hand-over is at or before its timestamp less the offset, and after it less 125 us (IEEE 1722-2016 4.3.3 Eq. (1)) = 0x1
+  timestamp output=2 stamp=72781206 phc=70744410 offset=2000000 residual=36796 ns
+  [ok]   #773 output 2 AAF at 2000000 ns: its hand-over is at or before its timestamp less the offset, and after it less 125 us (IEEE 1722-2016 4.3.3 Eq. (1)) = 0x1
+  timestamp output=3 stamp=72781206 phc=70744670 offset=2000000 residual=36536 ns
+  [ok]   #773 output 3 AAF at 2000000 ns: its hand-over is at or before its timestamp less the offset, and after it less 125 us (IEEE 1722-2016 4.3.3 Eq. (1)) = 0x1
+  timestamp output=4 stamp=72781206 phc=70744930 offset=2000000 residual=36276 ns
+  [ok]   #773 output 4 AAF at 2000000 ns: its hand-over is at or before its timestamp less the offset, and after it less 125 us (IEEE 1722-2016 4.3.3 Eq. (1)) = 0x1
+  timestamp output=5 stamp=72781206 phc=70745190 offset=2000000 residual=36016 ns
+  [ok]   #773 output 5 AAF at 2000000 ns: its hand-over is at or before its timestamp less the offset, and after it less 125 us (IEEE 1722-2016 4.3.3 Eq. (1)) = 0x1
+  timestamp output=6 stamp=72781206 phc=70745450 offset=2000000 residual=35756 ns
+  [ok]   #773 output 6 AAF at 2000000 ns: its hand-over is at or before its timestamp less the offset, and after it less 125 us (IEEE 1722-2016 4.3.3 Eq. (1)) = 0x1
+  timestamp output=7 stamp=72781206 phc=70745710 offset=2000000 residual=35496 ns
+  [ok]   #773 output 7 AAF at 2000000 ns: its hand-over is at or before its timestamp less the offset, and after it less 125 us (IEEE 1722-2016 4.3.3 Eq. (1)) = 0x1
+  timestamp output=8 stamp=72820400 phc=70779080 offset=2020834 residual=20486 ns
+  [ok]   #773 output 8 CRF at 2020834 ns: its hand-over is at or before its timestamp less the offset, and after it less 125 us (IEEE 1722-2016 4.3.3 Eq. (1)) = 0x1
+  timestamp output=0 stamp=72909206 phc=70868880 offset=2000000 residual=40326 ns
+  [ok]   #773 output 0 AAF at 2000000 ns: its hand-over is at or before its timestamp less the offset, and after it less 125 us (IEEE 1722-2016 4.3.3 Eq. (1)) = 0x1
+  timestamp output=1 stamp=72919206 phc=70869170 offset=2010000 residual=40036 ns
+  [ok]   #773 output 1 AAF at 2010000 ns: its hand-over is at or before its timestamp less the offset, and after it less 125 us (IEEE 1722-2016 4.3.3 Eq. (1)) = 0x1
+  timestamp output=2 stamp=72909206 phc=70869430 offset=2000000 residual=39776 ns
+  [ok]   #773 output 2 AAF at 2000000 ns: its hand-over is at or before its timestamp less the offset, and after it less 125 us (IEEE 1722-2016 4.3.3 Eq. (1)) = 0x1
+  timestamp output=3 stamp=72909206 phc=70869690 offset=2000000 residual=39516 ns
+  [ok]   #773 output 3 AAF at 2000000 ns: its hand-over is at or before its timestamp less the offset, and after it less 125 us (IEEE 1722-2016 4.3.3 Eq. (1)) = 0x1
+  timestamp output=4 stamp=72909206 phc=70869950 offset=2000000 residual=39256 ns
+  [ok]   #773 output 4 AAF at 2000000 ns: its hand-over is at or before its timestamp less the offset, and after it less 125 us (IEEE 1722-2016 4.3.3 Eq. (1)) = 0x1
+  timestamp output=5 stamp=72909206 phc=70870210 offset=2000000 residual=38996 ns
+  [ok]   #773 output 5 AAF at 2000000 ns: its hand-over is at or before its timestamp less the offset, and after it less 125 us (IEEE 1722-2016 4.3.3 Eq. (1)) = 0x1
+  timestamp output=6 stamp=72909206 phc=70870470 offset=2000000 residual=38736 ns
+  [ok]   #773 output 6 AAF at 2000000 ns: its hand-over is at or before its timestamp less the offset, and after it less 125 us (IEEE 1722-2016 4.3.3 Eq. (1)) = 0x1
+  timestamp output=7 stamp=72909206 phc=70870730 offset=2000000 residual=38476 ns
+  [ok]   #773 output 7 AAF at 2000000 ns: its hand-over is at or before its timestamp less the offset, and after it less 125 us (IEEE 1722-2016 4.3.3 Eq. (1)) = 0x1
+  timestamp output=8 stamp=73311920 phc=71270600 offset=2020834 residual=20486 ns
+  [ok]   #773 output 8 CRF at 2020834 ns: its hand-over is at or before its timestamp less the offset, and after it less 125 us (IEEE 1722-2016 4.3.3 Eq. (1)) = 0x1
+  #632 exact stamps: AAF 16 on, 0 off; CRF 2 on, 0 off; 906 domain events, 0 graded cycles not live
+  [ok]   #632 the domain's frame grid is live while the stamps are graded = 0x0
+  [ok]   #632 every AAF timestamp is a domain media event's instant plus whole periods (#773) plus its offset as set, to the ns = 0x1
+  [ok]   #632 every CRF timestamp, all 64 bits, is a domain media event's instant plus whole periods (#773) plus its offset applied = 0x1
+  #773 output 0 AAF adds 8 media clock periods beside its offset
+  [ok]   #773 output 0 adds one whole number of periods to every stamp = 0x1
+  #773 output 1 AAF adds 8 media clock periods beside its offset
+  [ok]   #773 output 1 adds one whole number of periods to every stamp = 0x1
+  #773 output 2 AAF adds 8 media clock periods beside its offset
+  [ok]   #773 output 2 adds one whole number of periods to every stamp = 0x1
+  #773 output 3 AAF adds 8 media clock periods beside its offset
+  [ok]   #773 output 3 adds one whole number of periods to every stamp = 0x1
+  #773 output 4 AAF adds 8 media clock periods beside its offset
+  [ok]   #773 output 4 adds one whole number of periods to every stamp = 0x1
+  #773 output 5 AAF adds 8 media clock periods beside its offset
+  [ok]   #773 output 5 adds one whole number of periods to every stamp = 0x1
+  #773 output 6 AAF adds 8 media clock periods beside its offset
+  [ok]   #773 output 6 adds one whole number of periods to every stamp = 0x1
+  #773 output 7 AAF adds 8 media clock periods beside its offset
+  [ok]   #773 output 7 adds one whole number of periods to every stamp = 0x1
+  #773 output 8 CRF adds 2 media clock periods beside its offset
+  [ok]   #773 output 8 adds one whole number of periods to every stamp = 0x1
+  [ok]   #403 output 0 produced two timestamp observations = 0x2
+  [ok]   #403 output 1 produced two timestamp observations = 0x2
+  [ok]   #403 output 2 produced two timestamp observations = 0x2
+  [ok]   #403 output 3 produced two timestamp observations = 0x2
+  [ok]   #403 output 4 produced two timestamp observations = 0x2
+  [ok]   #403 output 5 produced two timestamp observations = 0x2
+  [ok]   #403 output 6 produced two timestamp observations = 0x2
+  [ok]   #403 output 7 produced two timestamp observations = 0x2
+  [ok]   #403 output 8 produced two timestamp observations = 0x2
+  [ok]   #632 the factory offset is selected again      = 0x0
+  [ok]   #632 the factory offset is selected again      = 0x0
+  [ok]   #773 every output accepts a 125 us offset      = 0x0
+  [ok]   #773 every output accepts a 125 us offset      = 0x0
+  [ok]   #773 every output accepts a 125 us offset      = 0x0
+  [ok]   #773 every output accepts a 125 us offset      = 0x0
+  [ok]   #773 every output accepts a 125 us offset      = 0x0
+  [ok]   #773 every output accepts a 125 us offset      = 0x0
+  [ok]   #773 every output accepts a 125 us offset      = 0x0
+  [ok]   #773 every output accepts a 125 us offset      = 0x0
+  [ok]   #773 every output accepts a 125 us offset      = 0x0
+  [ok]   #773 GET_STREAM_INFO reads 125 us on every output = 0x1e848
+  [ok]   #773 GET_STREAM_INFO reads 125 us on every output = 0x1e848
+  [ok]   #773 GET_STREAM_INFO reads 125 us on every output = 0x1e848
+  [ok]   #773 GET_STREAM_INFO reads 125 us on every output = 0x1e848
+  [ok]   #773 GET_STREAM_INFO reads 125 us on every output = 0x1e848
+  [ok]   #773 GET_STREAM_INFO reads 125 us on every output = 0x1e848
+  [ok]   #773 GET_STREAM_INFO reads 125 us on every output = 0x1e848
+  [ok]   #773 GET_STREAM_INFO reads 125 us on every output = 0x1e848
+  [ok]   #773 GET_STREAM_INFO reads 125 us on every output = 0x1e848
+  timestamp output=8 stamp=75839766 phc=75694280 offset=125000 residual=20486 ns
+  [ok]   #773 output 8 CRF at 125000 ns: its hand-over is at or before its timestamp less the offset, and after it less 125 us (IEEE 1722-2016 4.3.3 Eq. (1)) = 0x1
+  timestamp output=0 stamp=75928926 phc=75765700 offset=125000 residual=38226 ns
+  [ok]   #773 output 0 AAF at 125000 ns: its hand-over is at or before its timestamp less the offset, and after it less 125 us (IEEE 1722-2016 4.3.3 Eq. (1)) = 0x1
+  timestamp output=1 stamp=75928926 phc=75765990 offset=125000 residual=37936 ns
+  [ok]   #773 output 1 AAF at 125000 ns: its hand-over is at or before its timestamp less the offset, and after it less 125 us (IEEE 1722-2016 4.3.3 Eq. (1)) = 0x1
+  timestamp output=2 stamp=75928926 phc=75766250 offset=125000 residual=37676 ns
+  [ok]   #773 output 2 AAF at 125000 ns: its hand-over is at or before its timestamp less the offset, and after it less 125 us (IEEE 1722-2016 4.3.3 Eq. (1)) = 0x1
+  timestamp output=3 stamp=75928926 phc=75766510 offset=125000 residual=37416 ns
+  [ok]   #773 output 3 AAF at 125000 ns: its hand-over is at or before its timestamp less the offset, and after it less 125 us (IEEE 1722-2016 4.3.3 Eq. (1)) = 0x1
+  timestamp output=4 stamp=75928926 phc=75766770 offset=125000 residual=37156 ns
+  [ok]   #773 output 4 AAF at 125000 ns: its hand-over is at or before its timestamp less the offset, and after it less 125 us (IEEE 1722-2016 4.3.3 Eq. (1)) = 0x1
+  timestamp output=5 stamp=75928926 phc=75767030 offset=125000 residual=36896 ns
+  [ok]   #773 output 5 AAF at 125000 ns: its hand-over is at or before its timestamp less the offset, and after it less 125 us (IEEE 1722-2016 4.3.3 Eq. (1)) = 0x1
+  timestamp output=6 stamp=75928926 phc=75767290 offset=125000 residual=36636 ns
+  [ok]   #773 output 6 AAF at 125000 ns: its hand-over is at or before its timestamp less the offset, and after it less 125 us (IEEE 1722-2016 4.3.3 Eq. (1)) = 0x1
+  timestamp output=7 stamp=75928926 phc=75767550 offset=125000 residual=36376 ns
+  [ok]   #773 output 7 AAF at 125000 ns: its hand-over is at or before its timestamp less the offset, and after it less 125 us (IEEE 1722-2016 4.3.3 Eq. (1)) = 0x1
+  timestamp output=0 stamp=76051806 phc=75890720 offset=125000 residual=36086 ns
+  [ok]   #773 output 0 AAF at 125000 ns: its hand-over is at or before its timestamp less the offset, and after it less 125 us (IEEE 1722-2016 4.3.3 Eq. (1)) = 0x1
+  timestamp output=1 stamp=76051806 phc=75891010 offset=125000 residual=35796 ns
+  [ok]   #773 output 1 AAF at 125000 ns: its hand-over is at or before its timestamp less the offset, and after it less 125 us (IEEE 1722-2016 4.3.3 Eq. (1)) = 0x1
+  timestamp output=2 stamp=76051806 phc=75891270 offset=125000 residual=35536 ns
+  [ok]   #773 output 2 AAF at 125000 ns: its hand-over is at or before its timestamp less the offset, and after it less 125 us (IEEE 1722-2016 4.3.3 Eq. (1)) = 0x1
+  timestamp output=3 stamp=76051806 phc=75891530 offset=125000 residual=35276 ns
+  [ok]   #773 output 3 AAF at 125000 ns: its hand-over is at or before its timestamp less the offset, and after it less 125 us (IEEE 1722-2016 4.3.3 Eq. (1)) = 0x1
+  timestamp output=4 stamp=76051806 phc=75891790 offset=125000 residual=35016 ns
+  [ok]   #773 output 4 AAF at 125000 ns: its hand-over is at or before its timestamp less the offset, and after it less 125 us (IEEE 1722-2016 4.3.3 Eq. (1)) = 0x1
+  timestamp output=5 stamp=76051806 phc=75892050 offset=125000 residual=34756 ns
+  [ok]   #773 output 5 AAF at 125000 ns: its hand-over is at or before its timestamp less the offset, and after it less 125 us (IEEE 1722-2016 4.3.3 Eq. (1)) = 0x1
+  timestamp output=6 stamp=76051806 phc=75892310 offset=125000 residual=34496 ns
+  [ok]   #773 output 6 AAF at 125000 ns: its hand-over is at or before its timestamp less the offset, and after it less 125 us (IEEE 1722-2016 4.3.3 Eq. (1)) = 0x1
+  timestamp output=7 stamp=76051806 phc=75892570 offset=125000 residual=34236 ns
+  [ok]   #773 output 7 AAF at 125000 ns: its hand-over is at or before its timestamp less the offset, and after it less 125 us (IEEE 1722-2016 4.3.3 Eq. (1)) = 0x1
+  timestamp output=8 stamp=76331286 phc=76185800 offset=125000 residual=20486 ns
+  [ok]   #773 output 8 CRF at 125000 ns: its hand-over is at or before its timestamp less the offset, and after it less 125 us (IEEE 1722-2016 4.3.3 Eq. (1)) = 0x1
+  #632 exact stamps: AAF 16 on, 0 off; CRF 2 on, 0 off; 886 domain events, 0 graded cycles not live
+  [ok]   #632 the domain's frame grid is live while the stamps are graded = 0x0
+  [ok]   #632 every AAF timestamp is a domain media event's instant plus whole periods (#773) plus its offset as set, to the ns = 0x1
+  [ok]   #632 every CRF timestamp, all 64 bits, is a domain media event's instant plus whole periods (#773) plus its offset applied = 0x1
+  #773 output 0 AAF adds 8 media clock periods beside its offset
+  [ok]   #773 output 0 adds one whole number of periods to every stamp = 0x1
+  #773 output 1 AAF adds 8 media clock periods beside its offset
+  [ok]   #773 output 1 adds one whole number of periods to every stamp = 0x1
+  #773 output 2 AAF adds 8 media clock periods beside its offset
+  [ok]   #773 output 2 adds one whole number of periods to every stamp = 0x1
+  #773 output 3 AAF adds 8 media clock periods beside its offset
+  [ok]   #773 output 3 adds one whole number of periods to every stamp = 0x1
+  #773 output 4 AAF adds 8 media clock periods beside its offset
+  [ok]   #773 output 4 adds one whole number of periods to every stamp = 0x1
+  #773 output 5 AAF adds 8 media clock periods beside its offset
+  [ok]   #773 output 5 adds one whole number of periods to every stamp = 0x1
+  #773 output 6 AAF adds 8 media clock periods beside its offset
+  [ok]   #773 output 6 adds one whole number of periods to every stamp = 0x1
+  #773 output 7 AAF adds 8 media clock periods beside its offset
+  [ok]   #773 output 7 adds one whole number of periods to every stamp = 0x1
+  #773 output 8 CRF adds 2 media clock periods beside its offset
+  [ok]   #773 output 8 adds one whole number of periods to every stamp = 0x1
+  [ok]   #403 output 0 produced two timestamp observations = 0x2
+  [ok]   #403 output 1 produced two timestamp observations = 0x2
+  [ok]   #403 output 2 produced two timestamp observations = 0x2
+  [ok]   #403 output 3 produced two timestamp observations = 0x2
+  [ok]   #403 output 4 produced two timestamp observations = 0x2
+  [ok]   #403 output 5 produced two timestamp observations = 0x2
+  [ok]   #403 output 6 produced two timestamp observations = 0x2
+  [ok]   #403 output 7 produced two timestamp observations = 0x2
+  [ok]   #403 output 8 produced two timestamp observations = 0x2
+  [ok]   #773 the factory offset is selected again      = 0x0
+  [ok]   #773 the factory offset is selected again      = 0x0
+  [ok]   #773 the factory offset is selected again      = 0x0
+  [ok]   #773 the factory offset is selected again      = 0x0
+  [ok]   #773 the factory offset is selected again      = 0x0
+  [ok]   #773 the factory offset is selected again      = 0x0
+  [ok]   #773 the factory offset is selected again      = 0x0
+  [ok]   #773 the factory offset is selected again      = 0x0
+  [ok]   #773 the factory offset is selected again      = 0x0
+  [ok]   #67 SET_STREAM_INFO(ACC_LAT) SUCCESS at cdl 96 = 0x1
+  [ok]   #67 GET_STREAM_INFO reads the folded transit entry = 0xb71b0
+  [ok]   #67 SET_STREAM_INFO on a Stream Input is NOT_SUPPORTED = 0xb
+  [ok]   #67 an extra sub-flag refuses the WHOLE command = 0xb
+  [ok]   #67 a bit-31 offset is BAD_ARGUMENTS           = 0x7
+  [ok]   #67 the 2013-length SET_STREAM_INFO is SUCCESS at cdl 96 = 0x1
+  [ok]   #67 no refusal moved the stored offset         = 0xb71b0
+  [ok]   #67 the CRF output's offset row takes SET_STREAM_INFO = 0x0
+  [ok]   #67 ...and its GET reads the value the CRF talker stamps = 0x1e8480
+  [ok]   #67 cleanup: SPI 0's power-on cluster 0 mapping is back = 0x0
+  [ok]   #67 cleanup: the high input's power-on mappings are back = 0x0
+  [ok]   TRAP-1 route-only CTRL at idx0 does not arm an override = 0x8
+  [ok]   TRAP-1 route-only CTRL at idx0: STILL MATCHES  = 0x1
+  [ok]   TRAP-1 explicit override at idx0: MATCH        = 0x1
+  [ok]   TRAP-1 explicit override: INFO index 0         = 0x0
+  [ok]   TRAP-1 release-to-alias: PARSED climbs         = 0x1
+  [ok]   TRAP-1 release-to-alias: alias is back, MATCHED climbs = 0x1
+  [ok]   TRAP-1 release-to-alias: INFO match flag set   = 0x1
+  [ok]   TRAP-1 ACMP re-bind still matches: PARSED climbs = 0x1
+  [ok]   TRAP-1 ACMP re-bind still matches: MATCHED climbs = 0x1
+  [ok]   TRAP-1 negative: foreign sid PARSED            = 0x1
+  [ok]   TRAP-1 negative: foreign sid NOT matched       = 0x0
+  [ok]   TRAP-1 negative: INFO match flag clear         = 0x0
+-- CRF media-clock output: ACMP talker context at uid N --
+  [ok]   CRF probe: a 70-byte ACMP response came back   = 0x46
+  [ok]   CRF probe: CONNECT_TX_RESPONSE(1)              = 0x1
+  [ok]   CRF probe: status TALKER_DEST_MAC_FAILED(3), no DA held = 0x3
+  [ok]   CRF probe: talker_unique_id echoed = N         = 0x8
+  [ok]   CRF probe negative: uid N+1 -> TALKER_UNKNOWN_ID = 0x2
+  [ok]   audio uid 1 answered in range (DEST_MAC_FAILED, not UNKNOWN_ID) = 0x3
+  [ok]   CRFT_SID unset (auto)                          = 0x0
+  [ok]   CRFT_DMAC unset (auto)                         = 0x0
+  [ok]   CRF PDU on the wire                            = 0x1
+  [ok]   CRF PDU dmac = the ACMP answer (base + N)      = 0x91e0f000fe09
+  [ok]   CRF PDU stream_id tail = N                     = 0x8
+  [ok]   explicit CRFT_DMAC overrides the auto pair     = 0x91e0f000feaa
+-- CRF media clock output: SR class A (Milan 7.3.3) --
+  [ok]   class A off: a CRF PDU still reaches the MAC   = 0x1
+  [ok]   class A off: UNTAGGED (ethertype 22F0 at 12)   = 0x22f0
+  [ok]   class A off: 60-octet legacy frame             = 0x3c
+  [ok]   class A off: dmac = the ACMP answer            = 0x91e0f000fe09
+  [ok]   class A off: 0x750[4] TA not declared          = 0x0
+  [ok]   class A off: 0x750[5] not tagged               = 0x0
+  [ok]   class A off: 0x750[19:8] VID reads 0           = 0x0
+  [ok]   lwSRP off: a CRF PDU still reaches the MAC (Milan 5.3.7.3 - a Stream Output is never stopped) = 0x1
+  [ok]   lwSRP off + class A asked: STILL UNTAGGED (the interlock) = 0x22f0
+  [ok]   lwSRP off: 0x750[1] readback keeps what was written = 0x1
+  [ok]   lwSRP off: 0x750[5] tag refused                = 0x0
+-- task #65: rx -> talker LOOPBACK (chmap src 5) --
+  [ok]   lb: talker 0 frames while the LOOP slot is mapped = 0x1
+  [ok]   lb: talker payload is NOT digital silence      = 0x1
+  [ok]   lb: every sample is one the LISTENER received  = 0x1
+  [ok]   lb: L/R stay the wire pair they arrived as     = 0x1
+         (unmapped slot: 2 talker-0 PDU(s) seen)
+  [ok]   lb: an UNMAPPED loop slot carries no rx audio  = 0x0
+  [ok]   lb: unmapping a slot never stops talker 0 framing = 0x2
+  [ok]   lb: and what it frames instead is silence      = 0x0
+-- [T66] dynamic-map ADD/REMOVE through crossbar RAM --
+  [ok]   T66 pre: every capture key is empty            = 0x0
+  [ok]   T66 pre: ...and no output port owns a mapping  = 0x0
+  [ok]   T66: local disabled template reaches CMAP without ownership = 0x500
+  [ok]   T66 ADD-state-only: ANSWERED (not silence)     = 0x1
+  [ok]   T66 ADD-state-only: response status            = 0x0
+  [ok]   T66 ADD-state-only: message_type = command + 1 = 0x1
+  [ok]   T66 ADD-state-only: cdl = 12 + the command's payload = 0x1c
+  [ok]   T66 ADD-state-only: frame length matches its cdl = 0x3c
+  [ok]   T66 ADD-state-only: sequence_id echoed         = 0x4100
+  [ok]   T66 ADD-state-only: command_type echoed, u = 0 = 0x2c
+  [ok]   T66 ADD-state-only: the command payload is ECHOED = 0x0
+  [ok]   T66: state-only ADD succeeds                   = 0x0
+  [ok]   T66: state-only ADD becomes protocol-visible   = 0x1
+  [ok]   T66 REMOVE-state-only: ANSWERED (not silence)  = 0x1
+  [ok]   T66 REMOVE-state-only: response status         = 0x0
+  [ok]   T66 REMOVE-state-only: message_type = command + 1 = 0x1
+  [ok]   T66 REMOVE-state-only: cdl = 12 + the command's payload = 0x1c
+  [ok]   T66 REMOVE-state-only: frame length matches its cdl = 0x3c
+  [ok]   T66 REMOVE-state-only: sequence_id echoed      = 0x4102
+  [ok]   T66 REMOVE-state-only: command_type echoed, u = 0 = 0x2d
+  [ok]   T66 REMOVE-state-only: the command payload is ECHOED = 0x0
+  [ok]   T66: state-only REMOVE succeeds                = 0x0
+  [ok]   T66: state-only REMOVE clears CMAP             = 0x0
+  [ok]   T66: generated output port declares clusters   = 0x9
+  [ok]   T66 ADD-model-cluster: ANSWERED (not silence)  = 0x1
+  [ok]   T66 ADD-model-cluster: response status         = 0x0
+  [ok]   T66 ADD-model-cluster: message_type = command + 1 = 0x1
+  [ok]   T66 ADD-model-cluster: cdl = 12 + the command's payload = 0x1c
+  [ok]   T66 ADD-model-cluster: frame length matches its cdl = 0x3c
+  [ok]   T66 ADD-model-cluster: sequence_id echoed      = 0x4103
+  [ok]   T66 ADD-model-cluster: command_type echoed, u = 0 = 0x2c
+  [ok]   T66 ADD-model-cluster: the command payload is ECHOED = 0x0
+  [ok]   T66 REMOVE-model-cluster: ANSWERED (not silence) = 0x1
+  [ok]   T66 REMOVE-model-cluster: response status      = 0x0
+  [ok]   T66 REMOVE-model-cluster: message_type = command + 1 = 0x1
+  [ok]   T66 REMOVE-model-cluster: cdl = 12 + the command's payload = 0x1c
+  [ok]   T66 REMOVE-model-cluster: frame length matches its cdl = 0x3c
+  [ok]   T66 REMOVE-model-cluster: sequence_id echoed   = 0x4105
+  [ok]   T66 REMOVE-model-cluster: command_type echoed, u = 0 = 0x2d
+  [ok]   T66 REMOVE-model-cluster: the command payload is ECHOED = 0x0
+  [ok]   T66 ADD-model-cluster: ANSWERED (not silence)  = 0x1
+  [ok]   T66 ADD-model-cluster: response status         = 0x0
+  [ok]   T66 ADD-model-cluster: message_type = command + 1 = 0x1
+  [ok]   T66 ADD-model-cluster: cdl = 12 + the command's payload = 0x1c
+  [ok]   T66 ADD-model-cluster: frame length matches its cdl = 0x3c
+  [ok]   T66 ADD-model-cluster: sequence_id echoed      = 0x4106
+  [ok]   T66 ADD-model-cluster: command_type echoed, u = 0 = 0x2c
+  [ok]   T66 ADD-model-cluster: the command payload is ECHOED = 0x0
+  [ok]   T66 REMOVE-model-cluster: ANSWERED (not silence) = 0x1
+  [ok]   T66 REMOVE-model-cluster: response status      = 0x0
+  [ok]   T66 REMOVE-model-cluster: message_type = command + 1 = 0x1
+  [ok]   T66 REMOVE-model-cluster: cdl = 12 + the command's payload = 0x1c
+  [ok]   T66 REMOVE-model-cluster: frame length matches its cdl = 0x3c
+  [ok]   T66 REMOVE-model-cluster: sequence_id echoed   = 0x4108
+  [ok]   T66 REMOVE-model-cluster: command_type echoed, u = 0 = 0x2d
+  [ok]   T66 REMOVE-model-cluster: the command payload is ECHOED = 0x0
+  [ok]   T66 ADD-model-cluster: ANSWERED (not silence)  = 0x1
+  [ok]   T66 ADD-model-cluster: response status         = 0x0
+  [ok]   T66 ADD-model-cluster: message_type = command + 1 = 0x1
+  [ok]   T66 ADD-model-cluster: cdl = 12 + the command's payload = 0x1c
+  [ok]   T66 ADD-model-cluster: frame length matches its cdl = 0x3c
+  [ok]   T66 ADD-model-cluster: sequence_id echoed      = 0x4109
+  [ok]   T66 ADD-model-cluster: command_type echoed, u = 0 = 0x2c
+  [ok]   T66 ADD-model-cluster: the command payload is ECHOED = 0x0
+  [ok]   T66 REMOVE-model-cluster: ANSWERED (not silence) = 0x1
+  [ok]   T66 REMOVE-model-cluster: response status      = 0x0
+  [ok]   T66 REMOVE-model-cluster: message_type = command + 1 = 0x1
+  [ok]   T66 REMOVE-model-cluster: cdl = 12 + the command's payload = 0x1c
+  [ok]   T66 REMOVE-model-cluster: frame length matches its cdl = 0x3c
+  [ok]   T66 REMOVE-model-cluster: sequence_id echoed   = 0x410b
+  [ok]   T66 REMOVE-model-cluster: command_type echoed, u = 0 = 0x2d
+  [ok]   T66 REMOVE-model-cluster: the command payload is ECHOED = 0x0
+  [ok]   T66 ADD-model-cluster: ANSWERED (not silence)  = 0x1
+  [ok]   T66 ADD-model-cluster: response status         = 0x0
+  [ok]   T66 ADD-model-cluster: message_type = command + 1 = 0x1
+  [ok]   T66 ADD-model-cluster: cdl = 12 + the command's payload = 0x1c
+  [ok]   T66 ADD-model-cluster: frame length matches its cdl = 0x3c
+  [ok]   T66 ADD-model-cluster: sequence_id echoed      = 0x410c
+  [ok]   T66 ADD-model-cluster: command_type echoed, u = 0 = 0x2c
+  [ok]   T66 ADD-model-cluster: the command payload is ECHOED = 0x0
+  [ok]   T66 REMOVE-model-cluster: ANSWERED (not silence) = 0x1
+  [ok]   T66 REMOVE-model-cluster: response status      = 0x0
+  [ok]   T66 REMOVE-model-cluster: message_type = command + 1 = 0x1
+  [ok]   T66 REMOVE-model-cluster: cdl = 12 + the command's payload = 0x1c
+  [ok]   T66 REMOVE-model-cluster: frame length matches its cdl = 0x3c
+  [ok]   T66 REMOVE-model-cluster: sequence_id echoed   = 0x410e
+  [ok]   T66 REMOVE-model-cluster: command_type echoed, u = 0 = 0x2d
+  [ok]   T66 REMOVE-model-cluster: the command payload is ECHOED = 0x0
+  [ok]   T66 ADD-model-cluster: ANSWERED (not silence)  = 0x1
+  [ok]   T66 ADD-model-cluster: response status         = 0x0
+  [ok]   T66 ADD-model-cluster: message_type = command + 1 = 0x1
+  [ok]   T66 ADD-model-cluster: cdl = 12 + the command's payload = 0x1c
+  [ok]   T66 ADD-model-cluster: frame length matches its cdl = 0x3c
+  [ok]   T66 ADD-model-cluster: sequence_id echoed      = 0x410f
+  [ok]   T66 ADD-model-cluster: command_type echoed, u = 0 = 0x2c
+  [ok]   T66 ADD-model-cluster: the command payload is ECHOED = 0x0
+  [ok]   T66 REMOVE-model-cluster: ANSWERED (not silence) = 0x1
+  [ok]   T66 REMOVE-model-cluster: response status      = 0x0
+  [ok]   T66 REMOVE-model-cluster: message_type = command + 1 = 0x1
+  [ok]   T66 REMOVE-model-cluster: cdl = 12 + the command's payload = 0x1c
+  [ok]   T66 REMOVE-model-cluster: frame length matches its cdl = 0x3c
+  [ok]   T66 REMOVE-model-cluster: sequence_id echoed   = 0x4111
+  [ok]   T66 REMOVE-model-cluster: command_type echoed, u = 0 = 0x2d
+  [ok]   T66 REMOVE-model-cluster: the command payload is ECHOED = 0x0
+  [ok]   T66 ADD-model-cluster: ANSWERED (not silence)  = 0x1
+  [ok]   T66 ADD-model-cluster: response status         = 0x0
+  [ok]   T66 ADD-model-cluster: message_type = command + 1 = 0x1
+  [ok]   T66 ADD-model-cluster: cdl = 12 + the command's payload = 0x1c
+  [ok]   T66 ADD-model-cluster: frame length matches its cdl = 0x3c
+  [ok]   T66 ADD-model-cluster: sequence_id echoed      = 0x4112
+  [ok]   T66 ADD-model-cluster: command_type echoed, u = 0 = 0x2c
+  [ok]   T66 ADD-model-cluster: the command payload is ECHOED = 0x0
+  [ok]   T66 REMOVE-model-cluster: ANSWERED (not silence) = 0x1
+  [ok]   T66 REMOVE-model-cluster: response status      = 0x0
+  [ok]   T66 REMOVE-model-cluster: message_type = command + 1 = 0x1
+  [ok]   T66 REMOVE-model-cluster: cdl = 12 + the command's payload = 0x1c
+  [ok]   T66 REMOVE-model-cluster: frame length matches its cdl = 0x3c
+  [ok]   T66 REMOVE-model-cluster: sequence_id echoed   = 0x4114
+  [ok]   T66 REMOVE-model-cluster: command_type echoed, u = 0 = 0x2d
+  [ok]   T66 REMOVE-model-cluster: the command payload is ECHOED = 0x0
+  [ok]   T66 ADD-model-cluster: ANSWERED (not silence)  = 0x1
+  [ok]   T66 ADD-model-cluster: response status         = 0x0
+  [ok]   T66 ADD-model-cluster: message_type = command + 1 = 0x1
+  [ok]   T66 ADD-model-cluster: cdl = 12 + the command's payload = 0x1c
+  [ok]   T66 ADD-model-cluster: frame length matches its cdl = 0x3c
+  [ok]   T66 ADD-model-cluster: sequence_id echoed      = 0x4115
+  [ok]   T66 ADD-model-cluster: command_type echoed, u = 0 = 0x2c
+  [ok]   T66 ADD-model-cluster: the command payload is ECHOED = 0x0
+  [ok]   T66 REMOVE-model-cluster: ANSWERED (not silence) = 0x1
+  [ok]   T66 REMOVE-model-cluster: response status      = 0x0
+  [ok]   T66 REMOVE-model-cluster: message_type = command + 1 = 0x1
+  [ok]   T66 REMOVE-model-cluster: cdl = 12 + the command's payload = 0x1c
+  [ok]   T66 REMOVE-model-cluster: frame length matches its cdl = 0x3c
+  [ok]   T66 REMOVE-model-cluster: sequence_id echoed   = 0x4117
+  [ok]   T66 REMOVE-model-cluster: command_type echoed, u = 0 = 0x2d
+  [ok]   T66 REMOVE-model-cluster: the command payload is ECHOED = 0x0
+  [ok]   T66 ADD-model-cluster: ANSWERED (not silence)  = 0x1
+  [ok]   T66 ADD-model-cluster: response status         = 0x0
+  [ok]   T66 ADD-model-cluster: message_type = command + 1 = 0x1
+  [ok]   T66 ADD-model-cluster: cdl = 12 + the command's payload = 0x1c
+  [ok]   T66 ADD-model-cluster: frame length matches its cdl = 0x3c
+  [ok]   T66 ADD-model-cluster: sequence_id echoed      = 0x4118
+  [ok]   T66 ADD-model-cluster: command_type echoed, u = 0 = 0x2c
+  [ok]   T66 ADD-model-cluster: the command payload is ECHOED = 0x0
+  [ok]   T66 REMOVE-model-cluster: ANSWERED (not silence) = 0x1
+  [ok]   T66 REMOVE-model-cluster: response status      = 0x0
+  [ok]   T66 REMOVE-model-cluster: message_type = command + 1 = 0x1
+  [ok]   T66 REMOVE-model-cluster: cdl = 12 + the command's payload = 0x1c
+  [ok]   T66 REMOVE-model-cluster: frame length matches its cdl = 0x3c
+  [ok]   T66 REMOVE-model-cluster: sequence_id echoed   = 0x411a
+  [ok]   T66 REMOVE-model-cluster: command_type echoed, u = 0 = 0x2d
+  [ok]   T66 REMOVE-model-cluster: the command payload is ECHOED = 0x0
+  [ok]   T66 ADD-model-cluster: ANSWERED (not silence)  = 0x1
+  [ok]   T66 ADD-model-cluster: response status         = 0x0
+  [ok]   T66 ADD-model-cluster: message_type = command + 1 = 0x1
+  [ok]   T66 ADD-model-cluster: cdl = 12 + the command's payload = 0x1c
+  [ok]   T66 ADD-model-cluster: frame length matches its cdl = 0x3c
+  [ok]   T66 ADD-model-cluster: sequence_id echoed      = 0x411b
+  [ok]   T66 ADD-model-cluster: command_type echoed, u = 0 = 0x2c
+  [ok]   T66 ADD-model-cluster: the command payload is ECHOED = 0x0
+  [ok]   T66 REMOVE-model-cluster: ANSWERED (not silence) = 0x1
+  [ok]   T66 REMOVE-model-cluster: response status      = 0x0
+  [ok]   T66 REMOVE-model-cluster: message_type = command + 1 = 0x1
+  [ok]   T66 REMOVE-model-cluster: cdl = 12 + the command's payload = 0x1c
+  [ok]   T66 REMOVE-model-cluster: frame length matches its cdl = 0x3c
+  [ok]   T66 REMOVE-model-cluster: sequence_id echoed   = 0x411d
+  [ok]   T66 REMOVE-model-cluster: command_type echoed, u = 0 = 0x2d
+  [ok]   T66 REMOVE-model-cluster: the command payload is ECHOED = 0x0
+  [ok]   T66: every generated output cluster ADD succeeds = 0x9
+  [ok]   T66: every generated output cluster has its CMAP template = 0x9
+  [ok]   T66: every generated output cluster reads back = 0x9
+  [ok]   T66: every generated output cluster REMOVE succeeds = 0x9
+  [ok]   T66: output edit reserves stream 0 after phase-1 recheck = 0x1
+  [ok]   T66: local bypass start write is accepted during reservation = 0x1
+  [ok]   T66: local bypass start reaches the raw stream request = 0x1
+  [ok]   T66: reservation remains live during the local start = 0x1
+  [ok]   T66: local start is masked until mapping write-back ends = 0x0
+  [ok]   T66: output reservation clears after mapping completion = 0x0
+  [ok]   T66: deferred local start becomes effective after mapping = 0x1
+  [ok]   T66: reserved 63-record ADD answers SUCCESS    = 0x1
+  [ok]   T66 REMOVE-reservation-race: ANSWERED (not silence) = 0x1
+  [ok]   T66 REMOVE-reservation-race: response status   = 0x0
+  [ok]   T66 REMOVE-reservation-race: message_type = command + 1 = 0x1
+  [ok]   T66 REMOVE-reservation-race: cdl = 12 + the command's payload = 0x1c
+  [ok]   T66 REMOVE-reservation-race: frame length matches its cdl = 0x3c
+  [ok]   T66 REMOVE-reservation-race: sequence_id echoed = 0x411f
+  [ok]   T66 REMOVE-reservation-race: command_type echoed, u = 0 = 0x2d
+  [ok]   T66 REMOVE-reservation-race: the command payload is ECHOED = 0x0
+  [ok]   T66: reservation-race cleanup REMOVE succeeds  = 0x0
+  [ok]   T66 ADD: ANSWERED (not silence)                = 0x1
+  [ok]   T66 ADD: response status                       = 0x0
+  [ok]   T66 ADD: message_type = command + 1            = 0x1
+  [ok]   T66 ADD: cdl = 12 + the command's payload      = 0x1c
+  [ok]   T66 ADD: frame length matches its cdl          = 0x3c
+  [ok]   T66 ADD: sequence_id echoed                    = 0x4120
+  [ok]   T66 ADD: command_type echoed, u = 0            = 0x2c
+  [ok]   T66 ADD: the command payload is ECHOED         = 0x0
+  [ok]   T66 ADD: ANSWERED (not silence)                = 0x1
+  [ok]   T66 ADD: response status                       = 0x0
+  [ok]   T66 ADD: message_type = command + 1            = 0x1
+  [ok]   T66 ADD: cdl = 12 + the command's payload      = 0x1c
+  [ok]   T66 ADD: frame length matches its cdl          = 0x3c
+  [ok]   T66 ADD: sequence_id echoed                    = 0x4121
+  [ok]   T66 ADD: command_type echoed, u = 0            = 0x2c
+  [ok]   T66 ADD: the command payload is ECHOED         = 0x0
+  [ok]   T66 ADD: ANSWERED (not silence)                = 0x1
+  [ok]   T66 ADD: response status                       = 0x0
+  [ok]   T66 ADD: message_type = command + 1            = 0x1
+  [ok]   T66 ADD: cdl = 12 + the command's payload      = 0x1c
+  [ok]   T66 ADD: frame length matches its cdl          = 0x3c
+  [ok]   T66 ADD: sequence_id echoed                    = 0x4122
+  [ok]   T66 ADD: command_type echoed, u = 0            = 0x2c
+  [ok]   T66 ADD: the command payload is ECHOED         = 0x0
+  [ok]   T66 ADD: ANSWERED (not silence)                = 0x1
+  [ok]   T66 ADD: response status                       = 0x0
+  [ok]   T66 ADD: message_type = command + 1            = 0x1
+  [ok]   T66 ADD: cdl = 12 + the command's payload      = 0x1c
+  [ok]   T66 ADD: frame length matches its cdl          = 0x3c
+  [ok]   T66 ADD: sequence_id echoed                    = 0x4123
+  [ok]   T66 ADD: command_type echoed, u = 0            = 0x2c
+  [ok]   T66 ADD: the command payload is ECHOED         = 0x0
+  [ok]   T66: four ADD_AUDIO_MAPPINGS commands all succeeded = 0x1
+  [ok]   T66: all four ADD rows reached crossbar RAM    = 0x1
+  [ok]   T66 ADD-idempotent: ANSWERED (not silence)     = 0x1
+  [ok]   T66 ADD-idempotent: response status            = 0x0
+  [ok]   T66 ADD-idempotent: message_type = command + 1 = 0x1
+  [ok]   T66 ADD-idempotent: cdl = 12 + the command's payload = 0x1c
+  [ok]   T66 ADD-idempotent: frame length matches its cdl = 0x3c
+  [ok]   T66 ADD-idempotent: sequence_id echoed         = 0x4124
+  [ok]   T66 ADD-idempotent: command_type echoed, u = 0 = 0x2c
+  [ok]   T66 ADD-idempotent: the command payload is ECHOED = 0x0
+  [ok]   T66: idempotent ADD answers SUCCESS            = 0x0
+  [ok]   T66: idempotent ADD preserves the mapped word  = 0x503
+  [ok]   T66 ADD-late-invalid: ANSWERED (not silence)   = 0x1
+  [ok]   T66 ADD-late-invalid: response status          = 0x7
+  [ok]   T66 ADD-late-invalid: message_type = command + 1 = 0x1
+  [ok]   T66 ADD-late-invalid: cdl = 12 + the command's payload = 0x24
+  [ok]   T66 ADD-late-invalid: frame length matches its cdl = 0x3e
+  [ok]   T66 ADD-late-invalid: sequence_id echoed       = 0x4125
+  [ok]   T66 ADD-late-invalid: command_type echoed, u = 0 = 0x2c
+  [ok]   T66 ADD-late-invalid: the command payload is ECHOED = 0x0
+  [ok]   T66: late invalid ADD returns BAD_ARGUMENTS    = 0x7
+  [ok]   T66: late invalid ADD made no partial write    = 0x0
+  [ok]   T66 ADD-unbacked: ANSWERED (not silence)       = 0x1
+  [ok]   T66 ADD-unbacked: response status              = 0x0
+  [ok]   T66 ADD-unbacked: message_type = command + 1   = 0x1
+  [ok]   T66 ADD-unbacked: cdl = 12 + the command's payload = 0x1c
+  [ok]   T66 ADD-unbacked: frame length matches its cdl = 0x3c
+  [ok]   T66 ADD-unbacked: sequence_id echoed           = 0x4126
+  [ok]   T66 ADD-unbacked: command_type echoed, u = 0   = 0x2c
+  [ok]   T66 ADD-unbacked: the command payload is ECHOED = 0x0
+  [ok]   T66: published loopback cluster ADD succeeds   = 0x0
+  [ok]   T66: unbacked cluster keeps its disabled CMAP template = 0x500
+  [ok]   T66: published loopback cluster reads back     = 0x1
+  [ok]   T66 ADD-unbacked-idempotent: ANSWERED (not silence) = 0x1
+  [ok]   T66 ADD-unbacked-idempotent: response status   = 0x0
+  [ok]   T66 ADD-unbacked-idempotent: message_type = command + 1 = 0x1
+  [ok]   T66 ADD-unbacked-idempotent: cdl = 12 + the command's payload = 0x1c
+  [ok]   T66 ADD-unbacked-idempotent: frame length matches its cdl = 0x3c
+  [ok]   T66 ADD-unbacked-idempotent: sequence_id echoed = 0x4128
+  [ok]   T66 ADD-unbacked-idempotent: command_type echoed, u = 0 = 0x2c
+  [ok]   T66 ADD-unbacked-idempotent: the command payload is ECHOED = 0x0
+  [ok]   T66: idempotent unbacked cluster ADD succeeds  = 0x0
+  [ok]   T66 ADD-unbacked-conflict: ANSWERED (not silence) = 0x1
+  [ok]   T66 ADD-unbacked-conflict: response status     = 0x7
+  [ok]   T66 ADD-unbacked-conflict: message_type = command + 1 = 0x1
+  [ok]   T66 ADD-unbacked-conflict: cdl = 12 + the command's payload = 0x1c
+  [ok]   T66 ADD-unbacked-conflict: frame length matches its cdl = 0x3c
+  [ok]   T66 ADD-unbacked-conflict: sequence_id echoed  = 0x4129
+  [ok]   T66 ADD-unbacked-conflict: command_type echoed, u = 0 = 0x2c
+  [ok]   T66 ADD-unbacked-conflict: the command payload is ECHOED = 0x0
+  [ok]   T66: another cluster cannot replace an unbacked owner = 0x7
+  [ok]   T66 ADD-unbacked-cross-port: ANSWERED (not silence) = 0x1
+  [ok]   T66 ADD-unbacked-cross-port: response status   = 0x7
+  [ok]   T66 ADD-unbacked-cross-port: message_type = command + 1 = 0x1
+  [ok]   T66 ADD-unbacked-cross-port: cdl = 12 + the command's payload = 0x1c
+  [ok]   T66 ADD-unbacked-cross-port: frame length matches its cdl = 0x3c
+  [ok]   T66 ADD-unbacked-cross-port: sequence_id echoed = 0x412a
+  [ok]   T66 ADD-unbacked-cross-port: command_type echoed, u = 0 = 0x2c
+  [ok]   T66 ADD-unbacked-cross-port: the command payload is ECHOED = 0x0
+  [ok]   T66: another port cannot claim an unbacked owner = 0x7
+  [ok]   T66: rejected unbacked claims preserve the exact mapping = 0x1
+  [ok]   T66 REMOVE-unbacked: ANSWERED (not silence)    = 0x1
+  [ok]   T66 REMOVE-unbacked: response status           = 0x0
+  [ok]   T66 REMOVE-unbacked: message_type = command + 1 = 0x1
+  [ok]   T66 REMOVE-unbacked: cdl = 12 + the command's payload = 0x1c
+  [ok]   T66 REMOVE-unbacked: frame length matches its cdl = 0x3c
+  [ok]   T66 REMOVE-unbacked: sequence_id echoed        = 0x412c
+  [ok]   T66 REMOVE-unbacked: command_type echoed, u = 0 = 0x2d
+  [ok]   T66 REMOVE-unbacked: the command payload is ECHOED = 0x0
+  [ok]   T66: published loopback cluster REMOVE succeeds = 0x0
+  [ok]   T66: published loopback cluster REMOVE clears CMAP = 0x0
+  [ok]   T66 REMOVE: ANSWERED (not silence)             = 0x1
+  [ok]   T66 REMOVE: response status                    = 0x0
+  [ok]   T66 REMOVE: message_type = command + 1         = 0x1
+  [ok]   T66 REMOVE: cdl = 12 + the command's payload   = 0x1c
+  [ok]   T66 REMOVE: frame length matches its cdl       = 0x3c
+  [ok]   T66 REMOVE: sequence_id echoed                 = 0x412d
+  [ok]   T66 REMOVE: command_type echoed, u = 0         = 0x2d
+  [ok]   T66 REMOVE: the command payload is ECHOED      = 0x0
+  [ok]   T66: REMOVE_AUDIO_MAPPINGS answers SUCCESS     = 0x0
+  [ok]   T66: REMOVE cleared the named crossbar key     = 0x0
+  [ok]   T66 ADD-cross-first: ANSWERED (not silence)    = 0x1
+  [ok]   T66 ADD-cross-first: response status           = 0x0
+  [ok]   T66 ADD-cross-first: message_type = command + 1 = 0x1
+  [ok]   T66 ADD-cross-first: cdl = 12 + the command's payload = 0x1c
+  [ok]   T66 ADD-cross-first: frame length matches its cdl = 0x3c
+  [ok]   T66 ADD-cross-first: sequence_id echoed        = 0x412e
+  [ok]   T66 ADD-cross-first: command_type echoed, u = 0 = 0x2c
+  [ok]   T66 ADD-cross-first: the command payload is ECHOED = 0x0
+  [ok]   T66: cross-port first ADD succeeds             = 0x0
+  [ok]   T66 ADD-cross-second: ANSWERED (not silence)   = 0x1
+  [ok]   T66 ADD-cross-second: response status          = 0x7
+  [ok]   T66 ADD-cross-second: message_type = command + 1 = 0x1
+  [ok]   T66 ADD-cross-second: cdl = 12 + the command's payload = 0x1c
+  [ok]   T66 ADD-cross-second: frame length matches its cdl = 0x3c
+  [ok]   T66 ADD-cross-second: sequence_id echoed       = 0x412f
+  [ok]   T66 ADD-cross-second: command_type echoed, u = 0 = 0x2c
+  [ok]   T66 ADD-cross-second: the command payload is ECHOED = 0x0
+  [ok]   T66: cross-port second ADD returns BAD_ARGUMENTS = 0x7
+  [ok]   T66: cross-port refusal preserves first route  = 0x1400
+  [ok]   T66 REMOVE-cross: ANSWERED (not silence)       = 0x1
+  [ok]   T66 REMOVE-cross: response status              = 0x0
+  [ok]   T66 REMOVE-cross: message_type = command + 1   = 0x1
+  [ok]   T66 REMOVE-cross: cdl = 12 + the command's payload = 0x1c
+  [ok]   T66 REMOVE-cross: frame length matches its cdl = 0x3c
+  [ok]   T66 REMOVE-cross: sequence_id echoed           = 0x4130
+  [ok]   T66 REMOVE-cross: command_type echoed, u = 0   = 0x2d
+  [ok]   T66 REMOVE-cross: the command payload is ECHOED = 0x0
+  [ok]   T66: cross-port cleanup REMOVE succeeds        = 0x0
+  [ok]   T66 ADD-remove-running-setup: ANSWERED (not silence) = 0x1
+  [ok]   T66 ADD-remove-running-setup: response status  = 0x0
+  [ok]   T66 ADD-remove-running-setup: message_type = command + 1 = 0x1
+  [ok]   T66 ADD-remove-running-setup: cdl = 12 + the command's payload = 0x1c
+  [ok]   T66 ADD-remove-running-setup: frame length matches its cdl = 0x3c
+  [ok]   T66 ADD-remove-running-setup: sequence_id echoed = 0x4131
+  [ok]   T66 ADD-remove-running-setup: command_type echoed, u = 0 = 0x2c
+  [ok]   T66 ADD-remove-running-setup: the command payload is ECHOED = 0x0
+  [ok]   T66: running-REMOVE setup ADD succeeds         = 0x0
+  [ok]   T66 REMOVE-running: ANSWERED (not silence)     = 0x1
+  [ok]   T66 REMOVE-running: response status            = 0x7
+  [ok]   T66 REMOVE-running: message_type = command + 1 = 0x1
+  [ok]   T66 REMOVE-running: cdl = 12 + the command's payload = 0x1c
+  [ok]   T66 REMOVE-running: frame length matches its cdl = 0x3c
+  [ok]   T66 REMOVE-running: sequence_id echoed         = 0x4132
+  [ok]   T66 REMOVE-running: command_type echoed, u = 0 = 0x2d
+  [ok]   T66 REMOVE-running: the command payload is ECHOED = 0x0
+  [ok]   T66: running output REMOVE returns BAD_ARGUMENTS = 0x7
+  [ok]   T66: running output REMOVE preserves the route = 0xd02
+  [ok]   T66 ADD-running: ANSWERED (not silence)        = 0x1
+  [ok]   T66 ADD-running: response status               = 0x7
+  [ok]   T66 ADD-running: message_type = command + 1    = 0x1
+  [ok]   T66 ADD-running: cdl = 12 + the command's payload = 0x1c
+  [ok]   T66 ADD-running: frame length matches its cdl  = 0x3c
+  [ok]   T66 ADD-running: sequence_id echoed            = 0x4133
+  [ok]   T66 ADD-running: command_type echoed, u = 0    = 0x2c
+  [ok]   T66 ADD-running: the command payload is ECHOED = 0x0
+  [ok]   T66: running output edit returns BAD_ARGUMENTS = 0x7
+  [ok]   T66: running output ADD made no write          = 0x0
+  [ok]   T66 REMOVE-running-cleanup: ANSWERED (not silence) = 0x1
+  [ok]   T66 REMOVE-running-cleanup: response status    = 0x0
+  [ok]   T66 REMOVE-running-cleanup: message_type = command + 1 = 0x1
+  [ok]   T66 REMOVE-running-cleanup: cdl = 12 + the command's payload = 0x1c
+  [ok]   T66 REMOVE-running-cleanup: frame length matches its cdl = 0x3c
+  [ok]   T66 REMOVE-running-cleanup: sequence_id echoed = 0x4134
+  [ok]   T66 REMOVE-running-cleanup: command_type echoed, u = 0 = 0x2d
+  [ok]   T66 REMOVE-running-cleanup: the command payload is ECHOED = 0x0
+  [ok]   T66: idle cleanup REMOVE succeeds              = 0x0
+  [ok]   T66: GET_AUDIO_MAP on the OUTPUT side answers SUCCESS = 0x0
+  [ok]   T66: ...as a well-formed 7.4.44.2 response     = 0x1
+  [ok]   T66: OUTPUT mapping has one fixed subset       = 0x1
+  [ok]   T66: SPI 0 holds its power-on mapping, stream 0 channel 0 on its one cluster (#584) = 0x0
+  [ok]   T66: SPI 1 holds its power-on mapping, stream 1 channel 0 on its one cluster (#584) = 0x0
+  [ok]   T66: SPI 2 holds its power-on mapping, stream 2 channel 0 on its one cluster (#584) = 0x0
+  [ok]   T66: SPI 3 holds its power-on mapping, stream 3 channel 0 on its one cluster (#584) = 0x0
+  [ok]   T66: SPI 4 holds its power-on mapping, stream 4 channel 0 on its one cluster (#584) = 0x0
+  [ok]   T66: SPI 5 holds its power-on mapping, stream 5 channel 0 on its one cluster (#584) = 0x0
+  [ok]   T66: SPI 6 holds its power-on mapping, stream 6 channel 0 on its one cluster (#584) = 0x0
+  [ok]   T66: SPI 7 holds its power-on mapping, stream 7 channel 0 on its one cluster (#584) = 0x0
+  [ok]   T66: SPI 0's power-on mapping drives render key 2 = {en, avb 0.0} = 0x80
+  [ok]   T66: ...and no input port drives another render key = 0x0
+  [ok]   T66 ADD-input-full-page: ANSWERED (not silence) = 0x1
+  [ok]   T66 ADD-input-full-page: response status       = 0x7
+  [ok]   T66 ADD-input-full-page: message_type = command + 1 = 0x1
+  [ok]   T66 ADD-input-full-page: cdl = 12 + the command's payload = 0x54
+  [ok]   T66 ADD-input-full-page: frame length matches its cdl = 0x6e
+  [ok]   T66 ADD-input-full-page: sequence_id echoed    = 0x4136
+  [ok]   T66 ADD-input-full-page: command_type echoed, u = 0 = 0x2c
+  [ok]   T66 ADD-input-full-page: the command payload is ECHOED = 0x0
+  [ok]   T66: a full eight-row input page past the port's one cluster refuses = 0x7
+  [ok]   T66: ...and leaves SPI 0's mapping             = 0x1
+  [ok]   T66 REMOVE-input-zero: ANSWERED (not silence)  = 0x1
+  [ok]   T66 REMOVE-input-zero: response status         = 0x0
+  [ok]   T66 REMOVE-input-zero: message_type = command + 1 = 0x1
+  [ok]   T66 REMOVE-input-zero: cdl = 12 + the command's payload = 0x1c
+  [ok]   T66 REMOVE-input-zero: frame length matches its cdl = 0x3c
+  [ok]   T66 REMOVE-input-zero: sequence_id echoed      = 0x4138
+  [ok]   T66 REMOVE-input-zero: command_type echoed, u = 0 = 0x2d
+  [ok]   T66 REMOVE-input-zero: the command payload is ECHOED = 0x0
+  [ok]   T66: REMOVE of SPI 0's non-empty list SUCCEEDS = 0x0
+  [ok]   T66: ...the page is empty                      = 0x0
+  [ok]   T66: ...and render key 2 is cleared            = 0x0
+  [ok]   T66 ADD-input-zero: ANSWERED (not silence)     = 0x1
+  [ok]   T66 ADD-input-zero: response status            = 0x0
+  [ok]   T66 ADD-input-zero: message_type = command + 1 = 0x1
+  [ok]   T66 ADD-input-zero: cdl = 12 + the command's payload = 0x1c
+  [ok]   T66 ADD-input-zero: frame length matches its cdl = 0x3c
+  [ok]   T66 ADD-input-zero: sequence_id echoed         = 0x413a
+  [ok]   T66 ADD-input-zero: command_type echoed, u = 0 = 0x2c
+  [ok]   T66 ADD-input-zero: the command payload is ECHOED = 0x0
+  [ok]   T66: ADD of stream 0 channel 1 on SPI 0's cluster SUCCEEDS = 0x0
+  [ok]   T66: ...render key 2 = {en, avb 0.1}           = 0x81
+  [ok]   T66: ...and no other render key moves          = 0x0
+  [ok]   T66 ADD-input-past: ANSWERED (not silence)     = 0x1
+  [ok]   T66 ADD-input-past: response status            = 0x7
+  [ok]   T66 ADD-input-past: message_type = command + 1 = 0x1
+  [ok]   T66 ADD-input-past: cdl = 12 + the command's payload = 0x1c
+  [ok]   T66 ADD-input-past: frame length matches its cdl = 0x3c
+  [ok]   T66 ADD-input-past: sequence_id echoed         = 0x413b
+  [ok]   T66 ADD-input-past: command_type echoed, u = 0 = 0x2c
+  [ok]   T66 ADD-input-past: the command payload is ECHOED = 0x0
+  [ok]   T66: cluster offset 1, past SPI 0's one cluster, refuses = 0x7
+  [ok]   T66 REMOVE-input-high: ANSWERED (not silence)  = 0x1
+  [ok]   T66 REMOVE-input-high: response status         = 0x0
+  [ok]   T66 REMOVE-input-high: message_type = command + 1 = 0x1
+  [ok]   T66 REMOVE-input-high: cdl = 12 + the command's payload = 0x1c
+  [ok]   T66 REMOVE-input-high: frame length matches its cdl = 0x3c
+  [ok]   T66 REMOVE-input-high: sequence_id echoed      = 0x413c
+  [ok]   T66 REMOVE-input-high: command_type echoed, u = 0 = 0x2d
+  [ok]   T66 REMOVE-input-high: the command payload is ECHOED = 0x0
+  [ok]   T66: REMOVE of SPI 7's power-on mapping SUCCEEDS = 0x0
+  [ok]   T66 ADD-input-high: ANSWERED (not silence)     = 0x1
+  [ok]   T66 ADD-input-high: response status            = 0x0
+  [ok]   T66 ADD-input-high: message_type = command + 1 = 0x1
+  [ok]   T66 ADD-input-high: cdl = 12 + the command's payload = 0x1c
+  [ok]   T66 ADD-input-high: frame length matches its cdl = 0x3c
+  [ok]   T66 ADD-input-high: sequence_id echoed         = 0x413d
+  [ok]   T66 ADD-input-high: command_type echoed, u = 0 = 0x2c
+  [ok]   T66 ADD-input-high: the command payload is ECHOED = 0x0
+  [ok]   T66: ADD of stream 7 channel 2 on SPI 7's unrouted cluster SUCCEEDS = 0x0
+  [ok]   T66: ...GET_AUDIO_MAP returns it               = 0x1
+  [ok]   T66: ...and the unrouted cluster drives no render key = 0x0
+  [ok]   T66: ...render key 2 keeps SPI 0's mapping     = 0x81
+  [ok]   T66 ADD-input-past7: ANSWERED (not silence)    = 0x1
+  [ok]   T66 ADD-input-past7: response status           = 0x7
+  [ok]   T66 ADD-input-past7: message_type = command + 1 = 0x1
+  [ok]   T66 ADD-input-past7: cdl = 12 + the command's payload = 0x1c
+  [ok]   T66 ADD-input-past7: frame length matches its cdl = 0x3c
+  [ok]   T66 ADD-input-past7: sequence_id echoed        = 0x413f
+  [ok]   T66 ADD-input-past7: command_type echoed, u = 0 = 0x2c
+  [ok]   T66 ADD-input-past7: the command payload is ECHOED = 0x0
+  [ok]   T66: cluster offset 1, past SPI 7's one cluster, refuses = 0x7
+  [ok]   T66 REMOVE-input-high2: ANSWERED (not silence) = 0x1
+  [ok]   T66 REMOVE-input-high2: response status        = 0x0
+  [ok]   T66 REMOVE-input-high2: message_type = command + 1 = 0x1
+  [ok]   T66 REMOVE-input-high2: cdl = 12 + the command's payload = 0x1c
+  [ok]   T66 REMOVE-input-high2: frame length matches its cdl = 0x3c
+  [ok]   T66 REMOVE-input-high2: sequence_id echoed     = 0x4140
+  [ok]   T66 REMOVE-input-high2: command_type echoed, u = 0 = 0x2d
+  [ok]   T66 REMOVE-input-high2: the command payload is ECHOED = 0x0
+  [ok]   T66: REMOVE of SPI 7's non-empty list SUCCEEDS = 0x0
+  [ok]   T66: ...its page is empty                      = 0x0
+  [ok]   T66 REMOVE-input-restore: ANSWERED (not silence) = 0x1
+  [ok]   T66 REMOVE-input-restore: response status      = 0x0
+  [ok]   T66 REMOVE-input-restore: message_type = command + 1 = 0x1
+  [ok]   T66 REMOVE-input-restore: cdl = 12 + the command's payload = 0x1c
+  [ok]   T66 REMOVE-input-restore: frame length matches its cdl = 0x3c
+  [ok]   T66 REMOVE-input-restore: sequence_id echoed   = 0x4142
+  [ok]   T66 REMOVE-input-restore: command_type echoed, u = 0 = 0x2d
+  [ok]   T66 REMOVE-input-restore: the command payload is ECHOED = 0x0
+  [ok]   T66: restore: SPI 0's channel 1 mapping removed = 0x0
+  [ok]   T66 ADD-input-restore: ANSWERED (not silence)  = 0x1
+  [ok]   T66 ADD-input-restore: response status         = 0x0
+  [ok]   T66 ADD-input-restore: message_type = command + 1 = 0x1
+  [ok]   T66 ADD-input-restore: cdl = 12 + the command's payload = 0x1c
+  [ok]   T66 ADD-input-restore: frame length matches its cdl = 0x3c
+  [ok]   T66 ADD-input-restore: sequence_id echoed      = 0x4143
+  [ok]   T66 ADD-input-restore: command_type echoed, u = 0 = 0x2c
+  [ok]   T66 ADD-input-restore: the command payload is ECHOED = 0x0
+  [ok]   T66: restore: SPI 0's power-on mapping back    = 0x0
+  [ok]   T66 ADD-input-restore7: ANSWERED (not silence) = 0x1
+  [ok]   T66 ADD-input-restore7: response status        = 0x0
+  [ok]   T66 ADD-input-restore7: message_type = command + 1 = 0x1
+  [ok]   T66 ADD-input-restore7: cdl = 12 + the command's payload = 0x1c
+  [ok]   T66 ADD-input-restore7: frame length matches its cdl = 0x3c
+  [ok]   T66 ADD-input-restore7: sequence_id echoed     = 0x4144
+  [ok]   T66 ADD-input-restore7: command_type echoed, u = 0 = 0x2c
+  [ok]   T66 ADD-input-restore7: the command payload is ECHOED = 0x0
+  [ok]   T66: restore: SPI 7's power-on mapping back    = 0x0
+  [ok]   T66: ...SPI 0 and SPI 7 hold their power-on maps = 0x0
+  [ok]   T66: ...and render key 2 = {en, avb 0.0} again = 0x80
+  [ok]   B2: REGISTER_UNSOLICITED_NOTIFICATION answers SUCCESS = 0x0
+  [ok]   B2: ...2021 format, flags echoed (cdl 16)      = 0x1
+  [ok]   T66 ADD-lock-output: ANSWERED (not silence)    = 0x1
+  [ok]   T66 ADD-lock-output: response status           = 0x0
+  [ok]   T66 ADD-lock-output: message_type = command + 1 = 0x1
+  [ok]   T66 ADD-lock-output: cdl = 12 + the command's payload = 0x1c
+  [ok]   T66 ADD-lock-output: frame length matches its cdl = 0x3c
+  [ok]   T66 ADD-lock-output: sequence_id echoed        = 0x4146
+  [ok]   T66 ADD-lock-output: command_type echoed, u = 0 = 0x2c
+  [ok]   T66 ADD-lock-output: the command payload is ECHOED = 0x0
+  [ok]   B2: lock test output mapping setup succeeds    = 0x0
+  [ok]   T66 ADD-lock-input: ANSWERED (not silence)     = 0x1
+  [ok]   T66 ADD-lock-input: response status            = 0x0
+  [ok]   T66 ADD-lock-input: message_type = command + 1 = 0x1
+  [ok]   T66 ADD-lock-input: cdl = 12 + the command's payload = 0x1c
+  [ok]   T66 ADD-lock-input: frame length matches its cdl = 0x3c
+  [ok]   T66 ADD-lock-input: sequence_id echoed         = 0x4147
+  [ok]   T66 ADD-lock-input: command_type echoed, u = 0 = 0x2c
+  [ok]   T66 ADD-lock-input: the command payload is ECHOED = 0x0
+  [ok]   B2: input mapping setup succeeds (#584)        = 0x0
+  [ok]   B2: LOCK_ENTITY takes (SUCCESS)                = 0x0
+  [ok]   B2: ...locked_id = the taker                   = 0x1
+  [ok]   B2: legacy AECP_STAT0 exposes the live lock level = 0x1
+  [ok]   B2: locked CSR map writes are both refused     = 0x2
+  [ok]   B2: locked CSR write preserves physical output RAM = 0x1400
+  [ok]   B2: locked CSR write preserves output protocol ownership = 0x1
+  [ok]   B2: locked CSR write preserves the input mapping (#584) = 0x1
+  [ok]   B2: ...and its render key                      = 0x80
+  [ok]   B2: UNLOCK releases (SUCCESS, locked_id 0)     = 0x1
+  [ok]   B2: legacy AECP_STAT0 clears after unlock      = 0x0
+  [ok]   B2: unlocked CSR write clears physical output RAM = 0x0
+  [ok]   B2: unlocked CSR write clears output protocol ownership = 0x0
+  [ok]   B2: unlocked CSR write clears the input mapping (#584) = 0x0
+  [ok]   B2: ...and its render key                      = 0x0
+  [ok]   T66 ADD-lock-input-back: ANSWERED (not silence) = 0x1
+  [ok]   T66 ADD-lock-input-back: response status       = 0x0
+  [ok]   T66 ADD-lock-input-back: message_type = command + 1 = 0x1
+  [ok]   T66 ADD-lock-input-back: cdl = 12 + the command's payload = 0x1c
+  [ok]   T66 ADD-lock-input-back: frame length matches its cdl = 0x3c
+  [ok]   T66 ADD-lock-input-back: sequence_id echoed    = 0x414e
+  [ok]   T66 ADD-lock-input-back: command_type echoed, u = 0 = 0x2c
+  [ok]   T66 ADD-lock-input-back: the command payload is ECHOED = 0x0
+  [ok]   B2: SPI 0's power-on mapping is put back       = 0x0
+  [ok]   B2: ACQUIRE_ENTITY refuses NOT_SUPPORTED(11)   = 0xb
+  [ok]   B2: GET_STREAM_INFO answers the Milan response (cdl 68) = 0x1
+  [ok]   B2: ...STREAM_FORMAT_VALID with the generated AAF format = 0x1
+  [ok]   B2: GET_AVB_INFO answers SUCCESS with one msrp mapping = 0x1
+  [ok]   B2: ...ownerless GM, pdelay, domain, and asCapable are zero = 0x1
+  [ok]   B2: GET_AS_PATH answers the empty ownerless path = 0x1
+  [ok]   B2: DEREGISTER answers SUCCESS                 = 0x0
+  [ok]   T66: tone landed at key 0 (RAM-side)           = 0x1400
+  [ok]   T66: tone landed at key 1 (RAM-side)           = 0x1400
+  [ok]   T66: CSR-mapped tone REACHES the wire (payload live) = 0x1
+  [ok]   T66: tone pair carries L == R (the TONE contract) = 0x1
+  [ok]   T66: the crossbar is left ARMED for T67        = 0x1
+-- [T67] media-grid cadence + avtp_timestamp PHC tracking --
+  [ok]   T67: the held audio clock disengaged the grid aligner (dead feed) = 0x0
+  [ok]   T67: PTP_INCR is a whole-ns rate (Q8.24 frac 0) = 0x0
+  [ok]   T67: talker 0 delivered 9 consecutive PDUs     = 0x9
+         span 8 epochs = 100000 cycles (nominal 100000, err 0)
+  [ok]   T67: PDU cadence = 48 kHz on MILAN_CLK within 50 ppm = 0x1
+  [ok]   T67: ts deltas = PHC elapsed per epoch (12500 x INCR ns) = 0x1
+  [ok]   T67: and NOT the t532 wire constant 123750     = 0x0
+  [ok]   T67: PTP_INCR rewrite moves the ts deltas (latch tracks PHC) = 0x1
+  [ok]   T67: cleanup cleared tone key 0 (RAM-side)     = 0x0
+  [ok]   T67: cleanup cleared tone key 1 (RAM-side)     = 0x0
+  [ok]   T67: crossbar disarmed again                   = 0x0
+-- [NOTIFY] Milan 5.4.5 unsolicited notifications on the wire --
+  [ok]   [NOTIFY] GET_NAME(ENTITY,0) answers SUCCESS (the restore point) = 0x0
+  [ok]   [NOTIFY] REGISTER from controller A answers SUCCESS = 0x0
+  [ok]   [NOTIFY] REGISTER from controller B answers SUCCESS = 0x0
+  [ok]   [NOTIFY] ...B's response went to B (dst MAC + controller_entity_id) = 0x1
+  [ok]   [NOTIFY] SET_NAME from A (a real change) is SUCCESS = 0x0
+  [i]    command-to-push latency: 2374 cycles (SET_NAME injected to the unsolicited frame's last beat)
+  [ok]   [NOTIFY] exactly ONE unsolicited SET_NAME egressed = 0x1
+  [ok]   [NOTIFY] ...to controller B (dst MAC and controller_entity_id) = 0x1
+  [ok]   [NOTIFY] ...and none to A, the requester (5.4.5.2 'except') = 0x0
+  [ok]   [NOTIFY] ...B's sequence_id starts at 0 (5.4.2.21: a new entry) = 0x0
+  [ok]   [NOTIFY] ...target_entity_id is this entity    = 0x1
+  [ok]   [NOTIFY] ...status SUCCESS with the full cdl-84 SET_NAME body = 0x1
+  [ok]   [NOTIFY] ...carrying the NEW name: current state, not history = 0x1
+  [ok]   [NOTIFY] SET_NAME of the value already held is SUCCESS = 0x0
+  [ok]   [NOTIFY] ...and pushes NOTHING: no state was modified (5.4.5.2) = 0x0
+  [ok]   [NOTIFY] SET_NAME from B is SUCCESS            = 0x0
+  [ok]   [NOTIFY] B's change reaches A alone            = 0x1
+  [ok]   [NOTIFY] ...A's entry starts its own sequence at 0 = 0x0
+  [ok]   [NOTIFY] a second change from A is SUCCESS     = 0x0
+  [ok]   [NOTIFY] ...reaches B with sequence_id 1 (its entry advanced) = 0x1
+  [ok]   [NOTIFY] ...and A's entry did not move (independent per entry) = 0x0
+  [ok]   [NOTIFY] GET_NAME right after is byte-identical from the body on = 0x1
+  [ok]   [OWNERLESS] GM LO write is inert               = 0x0
+  [ok]   [OWNERLESS] GM HI write is inert               = 0x0
+  [ok]   [OWNERLESS] domain write is inert              = 0x0
+  [ok]   [OWNERLESS] pdelay write is inert              = 0x0
+  [ok]   [OWNERLESS] parent LO write is inert           = 0x0
+  [ok]   [OWNERLESS] parent HI write is inert           = 0x0
+  [ok]   [OWNERLESS] CLKV control write is inert        = 0x0
+  [ok]   [OWNERLESS] AS path LO write is inert          = 0x0
+  [ok]   [OWNERLESS] AS path HI write is inert          = 0x0
+  [ok]   [OWNERLESS] AS path command/write is inert     = 0x0
+  [ok]   [OWNERLESS] timestamp uncertainty is permanent = 0x1
+  [ok]   [OWNERLESS] sync_ok remains clear              = 0x0
+  [ok]   [OWNERLESS] retired no-lease bit remains clear = 0x0
+  [ok]   [OWNERLESS] software discontinuity cannot arm holdover = 0x0
+  [ok]   [OWNERLESS] retired lease count remains zero   = 0x0
+  [ok]   [OWNERLESS] asCapable remains clear            = 0x0
+  [ok]   [OWNERLESS] writes emit no GET_AVB_INFO notification = 0x0
+  [ok]   [OWNERLESS] writes emit no GET_AS_PATH notification = 0x0
+  [ok]   [OWNERLESS] writes emit no AVB_INTERFACE counter notification = 0x0
+  [ok]   [OWNERLESS] writes do not count a grandmaster change = 0x0
+  [ok]   [OWNERLESS] solicited GET_AVB_INFO succeeds    = 0x0
+  [ok]   [OWNERLESS] GET_AVB_INFO grandmaster is zero   = 0x0
+  [ok]   [OWNERLESS] GET_AVB_INFO propagation delay is zero = 0x0
+  [ok]   [OWNERLESS] GET_AVB_INFO domain is zero        = 0x0
+  [ok]   [OWNERLESS] GET_AVB_INFO asCapable flag is clear = 0x0
+  [ok]   [OWNERLESS] solicited GET_AS_PATH succeeds     = 0x0
+  [ok]   [OWNERLESS] GET_AS_PATH has the empty cdl      = 0x10
+  [ok]   [OWNERLESS] GET_AS_PATH count is zero          = 0x0
+  [ok]   [NOTIFY] DEREGISTER from B answers SUCCESS     = 0x0
+  [ok]   [NOTIFY] a change from A with B gone is SUCCESS = 0x0
+  [ok]   [NOTIFY] ...and pushes nothing: A is the requester, B is gone = 0x0
+  [ok]   [NOTIFY] DEREGISTER from A answers SUCCESS     = 0x0
+  [ok]   [NOTIFY] the shipped entity_name is restored   = 0x1
+-- [T68] loop sequence fidelity vs a paced RAMP --
+  [ok]   T68: loop output collected against the paced ramp = 0x1
+         emitted 77 ch0 samples vs 60 sent: 0 dup, 0 skipped, 0 alien, 0 bad tail
+  [ok]   T68: every loop sample is one the listener received = 0x0
+  [ok]   T68: received order is preserved (no reordering) = 0x1
+  [ok]   T68: ZERO duplicated samples through the loop  = 0x0
+  [ok]   T68: ZERO skipped samples through the loop     = 0x0
+  [ok]   T68: the WHOLE ramp came through               = 0x3c
+  [ok]   T68: post-feed tail = the final sample repeated (bounded slip) = 0x0
+  [ok]   T68: queue skip counter delta 0 over the paced window = 0x0
+  [i]    media grid: 300 ticks in 625000 clocks (want 300 +/-1)
+  [i]    0x0041 grid: fsync-vs-grid ALIGNMENT is modelled and graded where the ratio exists: obj_aclk drives the true 391/1591 plan and proves the accepted INTERNAL drift AND the #74 aligned-under-CRF close (KL_media_grid_align). The silicon counterpart stays J11.8 against J11.9.
+  [ok]   0x0041 grid: media_tick_p actually ticks (vacuity guard) = 0x1
+  [ok]   0x0041 grid: rate is 48 kHz on the milan clock = 0x1
+  [i]    physical bucket: the slot-indexed feed pulsed 1220 times in 625000 cycles
+  [ok]   0x0042 phys: the slot-indexed capture bucket IS fed (was tied off) = 0x1
+  [ok]   0x0041 grid: the NCO's servo gate IS the live selection verdict = 0x0
+  [ok]   0x0041 grid: INTERNAL engages the grid aligner (#629 A2-a) = 0x1
+  [ok]   0x0041 grid: a disengaged aligner leaves no residual trim on the NCO port = 0x0
+--------------------------------------------------------------
+checks: 4217   failures: 0
+RESULT: PASS
+---- the shipping Arty shape: 4 streams x 4 wire channels ----
+./obj_nxn4c/Vmilan_dp_nxn4c
+=== milan_datapath NxN integration (N_STREAMS=4, P12) ===
+  [ok]   ID == 'MILN'                                   = 0x4d494c4e
+  [ok]   VERSION 0x0060 originally widened pending to unflushed bindings and AECP marks; #502 now reports accepted live name/map writes, and carries 0x005F's saved-state snapshot ownership contract, 0x005E's applied gPTP timestamp latency corrections at 0x7F0, 0x005C's SRP status words read by code, 0x005B's SET_SAMPLING_RATE list-check pin, 0x005A's GET_TX_STATE Listener-code pin, 0x0059's PPS words, 0x0058's slip pair, ownerless option OFF and the 0x0055 notification work = 0x20060
+  [ok]   [AECP] before the restore READ_DESCRIPTOR is HELD, not answered = 0x1
+  [ok]   [AECP] ...a second one is DROPPED at the slot gate (word 37 +1) = 0x1
+  [ok]   [AECP] ...read over a posted access that did not error = 0x1
+  [ok]   [AECP-IMG] the shipped generator emitted an image = 0x1
+  [i]    image: 10728 bytes, 68 descriptors
+  [ok]   [AECP-IMG] ...beginning with the AEMI magic    = 0x41454d49
+  [ok]   [BOOT] PP_STAT the restore walk sequenced (done 1, CLOSED 0) = 0x4
+  [ok]   [AECP] ...and the held READ_DESCRIPTOR is answered at the release = 0x1
+  [ok]   [AECP-IMG] the snapshot window answers ('KLPP') = 0x4b4c5050
+  [ok]   [AECP-IMG] ...over a posted access that did not error = 0x1
+  [ok]   [AECP-IMG] ENTITY,0: the image HAS this descriptor = 0x1
+  [ok]   [AECP-IMG] ENTITY,0: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-IMG] ENTITY,0: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-IMG] ENTITY,0: status SUCCESS(0)         = 0x0
+  [ok]   [AECP-IMG] ENTITY,0: sequence_id echoed        = 0x4011
+  [ok]   [AECP-IMG] ENTITY,0: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-IMG] ENTITY,0: cdl = 12 + 4 + the descriptor = 0x148
+  [ok]   [AECP-IMG] ENTITY,0: the frame is as long as it claims = 0x162
+  [ok]   [AECP-IMG] ENTITY,0: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-IMG] ENTITY,0: reserved @26 is zero      = 0x0
+  [ok]   [AECP-IMG] ENTITY,0: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-IMG] ENTITY,0: descriptor_type field @28 = 0x0
+  [ok]   [AECP-IMG] ENTITY,0: descriptor_index field @30 = 0x0
+  [i]    desc-store word 34 = 0x00058801 after 6 burst(s), 593 beat(s)
+  [ok]   [AECP-IMG] the store FETCHED from descriptor memory = 0x1
+  [ok]   [AECP-IMG] the image VALIDATED (word 34 bit 0) = 0x1
+  [ok]   [AECP-IMG] ...with no store fault (word 34 [4:1]) = 0x0
+  [ok]   [AECP-IMG] STREAM_INPUT,1: the image HAS this descriptor = 0x1
+  [ok]   [AECP-IMG] STREAM_INPUT,1: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-IMG] STREAM_INPUT,1: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-IMG] STREAM_INPUT,1: status SUCCESS(0)   = 0x0
+  [ok]   [AECP-IMG] STREAM_INPUT,1: sequence_id echoed  = 0x4012
+  [ok]   [AECP-IMG] STREAM_INPUT,1: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-IMG] STREAM_INPUT,1: cdl = 12 + 4 + the descriptor = 0xaa
+  [ok]   [AECP-IMG] STREAM_INPUT,1: the frame is as long as it claims = 0xc4
+  [ok]   [AECP-IMG] STREAM_INPUT,1: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-IMG] STREAM_INPUT,1: reserved @26 is zero = 0x0
+  [ok]   [AECP-IMG] STREAM_INPUT,1: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-IMG] STREAM_INPUT,1: descriptor_type field @28 = 0x5
+  [ok]   [AECP-IMG] STREAM_INPUT,1: descriptor_index field @30 = 0x1
+  [i]    response-memory lane writes: +40 for ENTITY (312 B), +21 for STREAM_INPUT 1 (154 B)
+  [ok]   [AECP-IMG] the response memory COMMITTED the ENTITY lanes = 0x1
+  [ok]   [AECP-IMG] ...and committed STREAM_INPUT 1's as well = 0x1
+  [ok]   [AECP-IMG] no response was voided by the memory = 0x0
+  [ok]   [AECP-IMG] the response buffer reports no fault (word 36) = 0x0
+  [ok]   [AECP-WTMO] a memory that NEVER ACKS still gets an ANSWER = 0x1
+  [ok]   [AECP-WTMO] ...still an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-WTMO] ...with ENTITY_MISBEHAVING(10), the documented degradation = 0xa
+  [ok]   [AECP-WTMO] ...carrying no payload it could not build (cdl = 12) = 0xc
+  [ok]   [AECP-WTMO] ...still padded to the 60-octet minimum = 0x3c
+  [ok]   [AECP-WTMO] ...and the response buffer reports its fault (word 36) = 0x1
+  [ok]   [AECP-WTMO] the station HEALS when the memory returns (no reset) = 0x1
+  [ok]   [AECP-WTMO] ...and the response buffer's fault clears (word 36) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 000000 index 0: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 000000 index 0: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 000000 index 0: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 000000 index 0: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 000000 index 0: sequence_id echoed = 0x4100
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 000000 index 0: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 000000 index 0: cdl = 12 + 4 + the descriptor = 0x148
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 000000 index 0: the frame is as long as it claims = 0x162
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 000000 index 0: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 000000 index 0: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 000000 index 0: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 000000 index 0: descriptor_type field @28 = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 000000 index 0: descriptor_index field @30 = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0001 index 0: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0001 index 0: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0001 index 0: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0001 index 0: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0001 index 0: sequence_id echoed = 0x4101
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0001 index 0: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0001 index 0: cdl = 12 + 4 + the descriptor = 0x7a
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0001 index 0: the frame is as long as it claims = 0x94
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0001 index 0: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0001 index 0: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0001 index 0: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0001 index 0: descriptor_type field @28 = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0001 index 0: descriptor_index field @30 = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0002 index 0: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0002 index 0: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0002 index 0: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0002 index 0: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0002 index 0: sequence_id echoed = 0x4102
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0002 index 0: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0002 index 0: cdl = 12 + 4 + the descriptor = 0xa4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0002 index 0: the frame is as long as it claims = 0xbe
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0002 index 0: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0002 index 0: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0002 index 0: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0002 index 0: descriptor_type field @28 = 0x2
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0002 index 0: descriptor_index field @30 = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 0: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 0: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 0: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 0: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 0: sequence_id echoed = 0x4103
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 0: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 0: cdl = 12 + 4 + the descriptor = 0xaa
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 0: the frame is as long as it claims = 0xc4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 0: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 0: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 0: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 0: descriptor_type field @28 = 0x5
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 0: descriptor_index field @30 = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 1: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 1: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 1: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 1: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 1: sequence_id echoed = 0x4104
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 1: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 1: cdl = 12 + 4 + the descriptor = 0xaa
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 1: the frame is as long as it claims = 0xc4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 1: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 1: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 1: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 1: descriptor_type field @28 = 0x5
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 1: descriptor_index field @30 = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 2: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 2: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 2: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 2: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 2: sequence_id echoed = 0x4105
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 2: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 2: cdl = 12 + 4 + the descriptor = 0xaa
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 2: the frame is as long as it claims = 0xc4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 2: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 2: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 2: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 2: descriptor_type field @28 = 0x5
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 2: descriptor_index field @30 = 0x2
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 3: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 3: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 3: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 3: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 3: sequence_id echoed = 0x4106
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 3: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 3: cdl = 12 + 4 + the descriptor = 0xaa
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 3: the frame is as long as it claims = 0xc4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 3: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 3: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 3: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 3: descriptor_type field @28 = 0x5
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 3: descriptor_index field @30 = 0x3
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 4: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 4: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 4: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 4: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 4: sequence_id echoed = 0x4107
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 4: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 4: cdl = 12 + 4 + the descriptor = 0xa2
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 4: the frame is as long as it claims = 0xbc
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 4: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 4: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 4: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 4: descriptor_type field @28 = 0x5
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 4: descriptor_index field @30 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 0: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 0: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 0: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 0: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 0: sequence_id echoed = 0x4108
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 0: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 0: cdl = 12 + 4 + the descriptor = 0xa2
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 0: the frame is as long as it claims = 0xbc
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 0: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 0: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 0: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 0: descriptor_type field @28 = 0x6
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 0: descriptor_index field @30 = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 1: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 1: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 1: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 1: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 1: sequence_id echoed = 0x4109
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 1: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 1: cdl = 12 + 4 + the descriptor = 0xa2
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 1: the frame is as long as it claims = 0xbc
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 1: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 1: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 1: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 1: descriptor_type field @28 = 0x6
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 1: descriptor_index field @30 = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 2: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 2: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 2: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 2: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 2: sequence_id echoed = 0x410a
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 2: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 2: cdl = 12 + 4 + the descriptor = 0xa2
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 2: the frame is as long as it claims = 0xbc
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 2: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 2: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 2: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 2: descriptor_type field @28 = 0x6
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 2: descriptor_index field @30 = 0x2
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 3: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 3: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 3: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 3: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 3: sequence_id echoed = 0x410b
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 3: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 3: cdl = 12 + 4 + the descriptor = 0xa2
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 3: the frame is as long as it claims = 0xbc
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 3: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 3: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 3: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 3: descriptor_type field @28 = 0x6
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 3: descriptor_index field @30 = 0x3
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 4: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 4: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 4: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 4: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 4: sequence_id echoed = 0x410c
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 4: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 4: cdl = 12 + 4 + the descriptor = 0xa2
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 4: the frame is as long as it claims = 0xbc
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 4: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 4: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 4: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 4: descriptor_type field @28 = 0x6
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 4: descriptor_index field @30 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0009 index 0: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0009 index 0: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0009 index 0: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0009 index 0: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0009 index 0: sequence_id echoed = 0x410d
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0009 index 0: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0009 index 0: cdl = 12 + 4 + the descriptor = 0x76
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0009 index 0: the frame is as long as it claims = 0x90
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0009 index 0: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0009 index 0: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0009 index 0: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0009 index 0: descriptor_type field @28 = 0x9
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0009 index 0: descriptor_index field @30 = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 0: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 0: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 0: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 0: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 0: sequence_id echoed = 0x410e
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 0: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 0: cdl = 12 + 4 + the descriptor = 0x66
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 0: the frame is as long as it claims = 0x80
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 0: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 0: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 0: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 0: descriptor_type field @28 = 0xa
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 0: descriptor_index field @30 = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 1: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 1: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 1: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 1: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 1: sequence_id echoed = 0x410f
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 1: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 1: cdl = 12 + 4 + the descriptor = 0x66
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 1: the frame is as long as it claims = 0x80
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 1: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 1: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 1: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 1: descriptor_type field @28 = 0xa
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 1: descriptor_index field @30 = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 2: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 2: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 2: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 2: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 2: sequence_id echoed = 0x4110
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 2: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 2: cdl = 12 + 4 + the descriptor = 0x66
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 2: the frame is as long as it claims = 0x80
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 2: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 2: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 2: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 2: descriptor_type field @28 = 0xa
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 2: descriptor_index field @30 = 0x2
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 3: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 3: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 3: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 3: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 3: sequence_id echoed = 0x4111
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 3: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 3: cdl = 12 + 4 + the descriptor = 0x66
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 3: the frame is as long as it claims = 0x80
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 3: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 3: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 3: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 3: descriptor_type field @28 = 0xa
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 3: descriptor_index field @30 = 0x3
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 4: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 4: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 4: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 4: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 4: sequence_id echoed = 0x4112
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 4: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 4: cdl = 12 + 4 + the descriptor = 0x66
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 4: the frame is as long as it claims = 0x80
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 4: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 4: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 4: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 4: descriptor_type field @28 = 0xa
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 4: descriptor_index field @30 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 5: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 5: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 5: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 5: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 5: sequence_id echoed = 0x4113
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 5: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 5: cdl = 12 + 4 + the descriptor = 0x66
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 5: the frame is as long as it claims = 0x80
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 5: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 5: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 5: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 5: descriptor_type field @28 = 0xa
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 5: descriptor_index field @30 = 0x5
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000c index 0: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000c index 0: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000c index 0: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000c index 0: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000c index 0: sequence_id echoed = 0x4114
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000c index 0: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000c index 0: cdl = 12 + 4 + the descriptor = 0x58
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000c index 0: the frame is as long as it claims = 0x72
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000c index 0: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000c index 0: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000c index 0: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000c index 0: descriptor_type field @28 = 0xc
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000c index 0: descriptor_index field @30 = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000d index 0: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000d index 0: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000d index 0: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000d index 0: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000d index 0: sequence_id echoed = 0x4115
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000d index 0: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000d index 0: cdl = 12 + 4 + the descriptor = 0x1d4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000d index 0: the frame is as long as it claims = 0x1ee
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000d index 0: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000d index 0: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000d index 0: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000d index 0: descriptor_type field @28 = 0xd
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000d index 0: descriptor_index field @30 = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 0: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 0: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 0: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 0: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 0: sequence_id echoed = 0x4116
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 0: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 0: cdl = 12 + 4 + the descriptor = 0x24
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 0: the frame is as long as it claims = 0x3e
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 0: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 0: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 0: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 0: descriptor_type field @28 = 0xe
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 0: descriptor_index field @30 = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 1: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 1: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 1: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 1: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 1: sequence_id echoed = 0x4117
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 1: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 1: cdl = 12 + 4 + the descriptor = 0x24
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 1: the frame is as long as it claims = 0x3e
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 1: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 1: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 1: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 1: descriptor_type field @28 = 0xe
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 1: descriptor_index field @30 = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 2: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 2: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 2: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 2: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 2: sequence_id echoed = 0x4118
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 2: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 2: cdl = 12 + 4 + the descriptor = 0x24
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 2: the frame is as long as it claims = 0x3e
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 2: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 2: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 2: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 2: descriptor_type field @28 = 0xe
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 2: descriptor_index field @30 = 0x2
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 3: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 3: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 3: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 3: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 3: sequence_id echoed = 0x4119
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 3: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 3: cdl = 12 + 4 + the descriptor = 0x24
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 3: the frame is as long as it claims = 0x3e
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 3: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 3: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 3: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 3: descriptor_type field @28 = 0xe
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 3: descriptor_index field @30 = 0x3
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 0: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 0: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 0: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 0: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 0: sequence_id echoed = 0x411a
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 0: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 0: cdl = 12 + 4 + the descriptor = 0x24
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 0: the frame is as long as it claims = 0x3e
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 0: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 0: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 0: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 0: descriptor_type field @28 = 0xf
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 0: descriptor_index field @30 = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 1: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 1: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 1: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 1: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 1: sequence_id echoed = 0x411b
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 1: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 1: cdl = 12 + 4 + the descriptor = 0x24
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 1: the frame is as long as it claims = 0x3e
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 1: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 1: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 1: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 1: descriptor_type field @28 = 0xf
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 1: descriptor_index field @30 = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 2: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 2: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 2: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 2: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 2: sequence_id echoed = 0x411c
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 2: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 2: cdl = 12 + 4 + the descriptor = 0x24
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 2: the frame is as long as it claims = 0x3e
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 2: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 2: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 2: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 2: descriptor_type field @28 = 0xf
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 2: descriptor_index field @30 = 0x2
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 3: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 3: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 3: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 3: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 3: sequence_id echoed = 0x411d
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 3: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 3: cdl = 12 + 4 + the descriptor = 0x24
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 3: the frame is as long as it claims = 0x3e
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 3: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 3: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 3: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 3: descriptor_type field @28 = 0xf
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 3: descriptor_index field @30 = 0x3
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 0: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 0: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 0: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 0: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 0: sequence_id echoed = 0x411e
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 0: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 0: cdl = 12 + 4 + the descriptor = 0x6a
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 0: the frame is as long as it claims = 0x84
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 0: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 0: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 0: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 0: descriptor_type field @28 = 0x14
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 0: descriptor_index field @30 = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 1: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 1: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 1: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 1: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 1: sequence_id echoed = 0x411f
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 1: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 1: cdl = 12 + 4 + the descriptor = 0x6a
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 1: the frame is as long as it claims = 0x84
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 1: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 1: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 1: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 1: descriptor_type field @28 = 0x14
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 1: descriptor_index field @30 = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 2: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 2: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 2: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 2: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 2: sequence_id echoed = 0x4120
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 2: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 2: cdl = 12 + 4 + the descriptor = 0x6a
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 2: the frame is as long as it claims = 0x84
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 2: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 2: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 2: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 2: descriptor_type field @28 = 0x14
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 2: descriptor_index field @30 = 0x2
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 3: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 3: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 3: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 3: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 3: sequence_id echoed = 0x4121
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 3: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 3: cdl = 12 + 4 + the descriptor = 0x6a
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 3: the frame is as long as it claims = 0x84
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 3: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 3: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 3: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 3: descriptor_type field @28 = 0x14
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 3: descriptor_index field @30 = 0x3
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 4: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 4: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 4: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 4: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 4: sequence_id echoed = 0x4122
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 4: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 4: cdl = 12 + 4 + the descriptor = 0x6a
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 4: the frame is as long as it claims = 0x84
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 4: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 4: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 4: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 4: descriptor_type field @28 = 0x14
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 4: descriptor_index field @30 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 5: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 5: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 5: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 5: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 5: sequence_id echoed = 0x4123
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 5: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 5: cdl = 12 + 4 + the descriptor = 0x6a
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 5: the frame is as long as it claims = 0x84
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 5: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 5: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 5: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 5: descriptor_type field @28 = 0x14
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 5: descriptor_index field @30 = 0x5
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 6: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 6: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 6: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 6: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 6: sequence_id echoed = 0x4124
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 6: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 6: cdl = 12 + 4 + the descriptor = 0x6a
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 6: the frame is as long as it claims = 0x84
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 6: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 6: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 6: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 6: descriptor_type field @28 = 0x14
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 6: descriptor_index field @30 = 0x6
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 7: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 7: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 7: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 7: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 7: sequence_id echoed = 0x4125
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 7: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 7: cdl = 12 + 4 + the descriptor = 0x6a
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 7: the frame is as long as it claims = 0x84
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 7: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 7: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 7: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 7: descriptor_type field @28 = 0x14
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 7: descriptor_index field @30 = 0x7
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 8: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 8: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 8: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 8: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 8: sequence_id echoed = 0x4126
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 8: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 8: cdl = 12 + 4 + the descriptor = 0x6a
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 8: the frame is as long as it claims = 0x84
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 8: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 8: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 8: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 8: descriptor_type field @28 = 0x14
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 8: descriptor_index field @30 = 0x8
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 9: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 9: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 9: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 9: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 9: sequence_id echoed = 0x4127
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 9: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 9: cdl = 12 + 4 + the descriptor = 0x6a
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 9: the frame is as long as it claims = 0x84
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 9: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 9: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 9: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 9: descriptor_type field @28 = 0x14
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 9: descriptor_index field @30 = 0x9
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 10: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 10: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 10: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 10: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 10: sequence_id echoed = 0x4128
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 10: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 10: cdl = 12 + 4 + the descriptor = 0x6a
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 10: the frame is as long as it claims = 0x84
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 10: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 10: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 10: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 10: descriptor_type field @28 = 0x14
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 10: descriptor_index field @30 = 0xa
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 11: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 11: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 11: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 11: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 11: sequence_id echoed = 0x4129
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 11: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 11: cdl = 12 + 4 + the descriptor = 0x6a
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 11: the frame is as long as it claims = 0x84
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 11: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 11: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 11: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 11: descriptor_type field @28 = 0x14
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 11: descriptor_index field @30 = 0xb
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 12: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 12: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 12: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 12: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 12: sequence_id echoed = 0x412a
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 12: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 12: cdl = 12 + 4 + the descriptor = 0x6a
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 12: the frame is as long as it claims = 0x84
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 12: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 12: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 12: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 12: descriptor_type field @28 = 0x14
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 12: descriptor_index field @30 = 0xc
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 13: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 13: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 13: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 13: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 13: sequence_id echoed = 0x412b
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 13: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 13: cdl = 12 + 4 + the descriptor = 0x6a
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 13: the frame is as long as it claims = 0x84
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 13: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 13: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 13: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 13: descriptor_type field @28 = 0x14
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 13: descriptor_index field @30 = 0xd
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 14: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 14: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 14: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 14: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 14: sequence_id echoed = 0x412c
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 14: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 14: cdl = 12 + 4 + the descriptor = 0x6a
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 14: the frame is as long as it claims = 0x84
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 14: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 14: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 14: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 14: descriptor_type field @28 = 0x14
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 14: descriptor_index field @30 = 0xe
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 15: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 15: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 15: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 15: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 15: sequence_id echoed = 0x412d
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 15: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 15: cdl = 12 + 4 + the descriptor = 0x6a
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 15: the frame is as long as it claims = 0x84
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 15: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 15: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 15: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 15: descriptor_type field @28 = 0x14
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 15: descriptor_index field @30 = 0xf
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 16: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 16: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 16: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 16: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 16: sequence_id echoed = 0x412e
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 16: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 16: cdl = 12 + 4 + the descriptor = 0x6a
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 16: the frame is as long as it claims = 0x84
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 16: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 16: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 16: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 16: descriptor_type field @28 = 0x14
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 16: descriptor_index field @30 = 0x10
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 17: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 17: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 17: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 17: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 17: sequence_id echoed = 0x412f
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 17: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 17: cdl = 12 + 4 + the descriptor = 0x6a
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 17: the frame is as long as it claims = 0x84
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 17: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 17: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 17: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 17: descriptor_type field @28 = 0x14
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 17: descriptor_index field @30 = 0x11
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 18: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 18: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 18: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 18: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 18: sequence_id echoed = 0x4130
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 18: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 18: cdl = 12 + 4 + the descriptor = 0x6a
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 18: the frame is as long as it claims = 0x84
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 18: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 18: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 18: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 18: descriptor_type field @28 = 0x14
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 18: descriptor_index field @30 = 0x12
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 19: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 19: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 19: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 19: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 19: sequence_id echoed = 0x4131
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 19: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 19: cdl = 12 + 4 + the descriptor = 0x6a
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 19: the frame is as long as it claims = 0x84
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 19: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 19: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 19: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 19: descriptor_type field @28 = 0x14
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 19: descriptor_index field @30 = 0x13
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 20: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 20: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 20: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 20: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 20: sequence_id echoed = 0x4132
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 20: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 20: cdl = 12 + 4 + the descriptor = 0x6a
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 20: the frame is as long as it claims = 0x84
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 20: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 20: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 20: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 20: descriptor_type field @28 = 0x14
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 20: descriptor_index field @30 = 0x14
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 21: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 21: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 21: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 21: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 21: sequence_id echoed = 0x4133
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 21: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 21: cdl = 12 + 4 + the descriptor = 0x6a
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 21: the frame is as long as it claims = 0x84
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 21: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 21: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 21: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 21: descriptor_type field @28 = 0x14
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 21: descriptor_index field @30 = 0x15
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 22: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 22: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 22: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 22: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 22: sequence_id echoed = 0x4134
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 22: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 22: cdl = 12 + 4 + the descriptor = 0x6a
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 22: the frame is as long as it claims = 0x84
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 22: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 22: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 22: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 22: descriptor_type field @28 = 0x14
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 22: descriptor_index field @30 = 0x16
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 23: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 23: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 23: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 23: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 23: sequence_id echoed = 0x4135
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 23: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 23: cdl = 12 + 4 + the descriptor = 0x6a
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 23: the frame is as long as it claims = 0x84
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 23: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 23: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 23: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 23: descriptor_type field @28 = 0x14
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 23: descriptor_index field @30 = 0x17
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 24: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 24: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 24: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 24: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 24: sequence_id echoed = 0x4136
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 24: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 24: cdl = 12 + 4 + the descriptor = 0x6a
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 24: the frame is as long as it claims = 0x84
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 24: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 24: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 24: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 24: descriptor_type field @28 = 0x14
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 24: descriptor_index field @30 = 0x18
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 25: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 25: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 25: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 25: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 25: sequence_id echoed = 0x4137
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 25: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 25: cdl = 12 + 4 + the descriptor = 0x6a
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 25: the frame is as long as it claims = 0x84
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 25: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 25: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 25: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 25: descriptor_type field @28 = 0x14
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 25: descriptor_index field @30 = 0x19
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 26: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 26: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 26: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 26: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 26: sequence_id echoed = 0x4138
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 26: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 26: cdl = 12 + 4 + the descriptor = 0x6a
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 26: the frame is as long as it claims = 0x84
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 26: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 26: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 26: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 26: descriptor_type field @28 = 0x14
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 26: descriptor_index field @30 = 0x1a
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 27: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 27: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 27: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 27: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 27: sequence_id echoed = 0x4139
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 27: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 27: cdl = 12 + 4 + the descriptor = 0x6a
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 27: the frame is as long as it claims = 0x84
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 27: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 27: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 27: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 27: descriptor_type field @28 = 0x14
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 27: descriptor_index field @30 = 0x1b
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 28: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 28: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 28: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 28: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 28: sequence_id echoed = 0x413a
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 28: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 28: cdl = 12 + 4 + the descriptor = 0x6a
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 28: the frame is as long as it claims = 0x84
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 28: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 28: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 28: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 28: descriptor_type field @28 = 0x14
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 28: descriptor_index field @30 = 0x1c
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 29: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 29: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 29: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 29: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 29: sequence_id echoed = 0x413b
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 29: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 29: cdl = 12 + 4 + the descriptor = 0x6a
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 29: the frame is as long as it claims = 0x84
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 29: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 29: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 29: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 29: descriptor_type field @28 = 0x14
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 29: descriptor_index field @30 = 0x1d
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 30: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 30: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 30: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 30: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 30: sequence_id echoed = 0x413c
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 30: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 30: cdl = 12 + 4 + the descriptor = 0x6a
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 30: the frame is as long as it claims = 0x84
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 30: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 30: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 30: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 30: descriptor_type field @28 = 0x14
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 30: descriptor_index field @30 = 0x1e
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 31: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 31: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 31: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 31: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 31: sequence_id echoed = 0x413d
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 31: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 31: cdl = 12 + 4 + the descriptor = 0x6a
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 31: the frame is as long as it claims = 0x84
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 31: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 31: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 31: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 31: descriptor_type field @28 = 0x14
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 31: descriptor_index field @30 = 0x1f
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0017 index 0: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0017 index 0: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0017 index 0: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0017 index 0: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0017 index 0: sequence_id echoed = 0x413e
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0017 index 0: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0017 index 0: cdl = 12 + 4 + the descriptor = 0x38
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0017 index 0: the frame is as long as it claims = 0x52
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0017 index 0: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0017 index 0: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0017 index 0: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0017 index 0: descriptor_type field @28 = 0x17
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0017 index 0: descriptor_index field @30 = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0017 index 1: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0017 index 1: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0017 index 1: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0017 index 1: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0017 index 1: sequence_id echoed = 0x413f
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0017 index 1: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0017 index 1: cdl = 12 + 4 + the descriptor = 0x38
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0017 index 1: the frame is as long as it claims = 0x52
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0017 index 1: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0017 index 1: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0017 index 1: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0017 index 1: descriptor_type field @28 = 0x17
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0017 index 1: descriptor_index field @30 = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0017 index 2: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0017 index 2: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0017 index 2: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0017 index 2: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0017 index 2: sequence_id echoed = 0x4140
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0017 index 2: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0017 index 2: cdl = 12 + 4 + the descriptor = 0x38
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0017 index 2: the frame is as long as it claims = 0x52
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0017 index 2: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0017 index 2: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0017 index 2: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0017 index 2: descriptor_type field @28 = 0x17
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0017 index 2: descriptor_index field @30 = 0x2
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0017 index 3: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0017 index 3: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0017 index 3: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0017 index 3: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0017 index 3: sequence_id echoed = 0x4141
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0017 index 3: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0017 index 3: cdl = 12 + 4 + the descriptor = 0x38
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0017 index 3: the frame is as long as it claims = 0x52
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0017 index 3: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0017 index 3: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0017 index 3: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0017 index 3: descriptor_type field @28 = 0x17
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0017 index 3: descriptor_index field @30 = 0x3
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x001a index 0: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x001a index 0: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x001a index 0: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x001a index 0: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x001a index 0: sequence_id echoed = 0x4142
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x001a index 0: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x001a index 0: cdl = 12 + 4 + the descriptor = 0x81
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x001a index 0: the frame is as long as it claims = 0x9b
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x001a index 0: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x001a index 0: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x001a index 0: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x001a index 0: descriptor_type field @28 = 0x1a
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x001a index 0: descriptor_index field @30 = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0024 index 0: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0024 index 0: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0024 index 0: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0024 index 0: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0024 index 0: sequence_id echoed = 0x4143
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0024 index 0: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0024 index 0: cdl = 12 + 4 + the descriptor = 0x68
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0024 index 0: the frame is as long as it claims = 0x82
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0024 index 0: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0024 index 0: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0024 index 0: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0024 index 0: descriptor_type field @28 = 0x24
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0024 index 0: descriptor_index field @30 = 0x0
+  [i]    model-driven READ_DESCRIPTOR: 68 of the generator's 68 descriptors served
+  [ok]   [AECP-MODEL] the generated model is not empty  = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 000000/0 name 0: ANSWERED at the fixed length = 0x6e
+  [ok]   [AECP-MODEL] GET_NAME 000000/0 name 0: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] GET_NAME 000000/0 name 0: cdl 84  = 0x54
+  [ok]   [AECP-MODEL] GET_NAME 000000/0 name 0: selector echoed = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 000000/0 name 0: bytes equal READ_DESCRIPTOR = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 000000/0 name 1: ANSWERED at the fixed length = 0x6e
+  [ok]   [AECP-MODEL] GET_NAME 000000/0 name 1: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] GET_NAME 000000/0 name 1: cdl 84  = 0x54
+  [ok]   [AECP-MODEL] GET_NAME 000000/0 name 1: selector echoed = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 000000/0 name 1: bytes equal READ_DESCRIPTOR = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x0001/0 name 0: ANSWERED at the fixed length = 0x6e
+  [ok]   [AECP-MODEL] GET_NAME 0x0001/0 name 0: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] GET_NAME 0x0001/0 name 0: cdl 84  = 0x54
+  [ok]   [AECP-MODEL] GET_NAME 0x0001/0 name 0: selector echoed = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x0001/0 name 0: bytes equal READ_DESCRIPTOR = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x0002/0 name 0: ANSWERED at the fixed length = 0x6e
+  [ok]   [AECP-MODEL] GET_NAME 0x0002/0 name 0: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] GET_NAME 0x0002/0 name 0: cdl 84  = 0x54
+  [ok]   [AECP-MODEL] GET_NAME 0x0002/0 name 0: selector echoed = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x0002/0 name 0: bytes equal READ_DESCRIPTOR = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x0005/0 name 0: ANSWERED at the fixed length = 0x6e
+  [ok]   [AECP-MODEL] GET_NAME 0x0005/0 name 0: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] GET_NAME 0x0005/0 name 0: cdl 84  = 0x54
+  [ok]   [AECP-MODEL] GET_NAME 0x0005/0 name 0: selector echoed = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x0005/0 name 0: bytes equal READ_DESCRIPTOR = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x0005/1 name 0: ANSWERED at the fixed length = 0x6e
+  [ok]   [AECP-MODEL] GET_NAME 0x0005/1 name 0: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] GET_NAME 0x0005/1 name 0: cdl 84  = 0x54
+  [ok]   [AECP-MODEL] GET_NAME 0x0005/1 name 0: selector echoed = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x0005/1 name 0: bytes equal READ_DESCRIPTOR = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x0005/2 name 0: ANSWERED at the fixed length = 0x6e
+  [ok]   [AECP-MODEL] GET_NAME 0x0005/2 name 0: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] GET_NAME 0x0005/2 name 0: cdl 84  = 0x54
+  [ok]   [AECP-MODEL] GET_NAME 0x0005/2 name 0: selector echoed = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x0005/2 name 0: bytes equal READ_DESCRIPTOR = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x0005/3 name 0: ANSWERED at the fixed length = 0x6e
+  [ok]   [AECP-MODEL] GET_NAME 0x0005/3 name 0: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] GET_NAME 0x0005/3 name 0: cdl 84  = 0x54
+  [ok]   [AECP-MODEL] GET_NAME 0x0005/3 name 0: selector echoed = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x0005/3 name 0: bytes equal READ_DESCRIPTOR = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x0005/4 name 0: ANSWERED at the fixed length = 0x6e
+  [ok]   [AECP-MODEL] GET_NAME 0x0005/4 name 0: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] GET_NAME 0x0005/4 name 0: cdl 84  = 0x54
+  [ok]   [AECP-MODEL] GET_NAME 0x0005/4 name 0: selector echoed = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x0005/4 name 0: bytes equal READ_DESCRIPTOR = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x0006/0 name 0: ANSWERED at the fixed length = 0x6e
+  [ok]   [AECP-MODEL] GET_NAME 0x0006/0 name 0: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] GET_NAME 0x0006/0 name 0: cdl 84  = 0x54
+  [ok]   [AECP-MODEL] GET_NAME 0x0006/0 name 0: selector echoed = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x0006/0 name 0: bytes equal READ_DESCRIPTOR = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x0006/1 name 0: ANSWERED at the fixed length = 0x6e
+  [ok]   [AECP-MODEL] GET_NAME 0x0006/1 name 0: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] GET_NAME 0x0006/1 name 0: cdl 84  = 0x54
+  [ok]   [AECP-MODEL] GET_NAME 0x0006/1 name 0: selector echoed = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x0006/1 name 0: bytes equal READ_DESCRIPTOR = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x0006/2 name 0: ANSWERED at the fixed length = 0x6e
+  [ok]   [AECP-MODEL] GET_NAME 0x0006/2 name 0: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] GET_NAME 0x0006/2 name 0: cdl 84  = 0x54
+  [ok]   [AECP-MODEL] GET_NAME 0x0006/2 name 0: selector echoed = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x0006/2 name 0: bytes equal READ_DESCRIPTOR = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x0006/3 name 0: ANSWERED at the fixed length = 0x6e
+  [ok]   [AECP-MODEL] GET_NAME 0x0006/3 name 0: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] GET_NAME 0x0006/3 name 0: cdl 84  = 0x54
+  [ok]   [AECP-MODEL] GET_NAME 0x0006/3 name 0: selector echoed = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x0006/3 name 0: bytes equal READ_DESCRIPTOR = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x0006/4 name 0: ANSWERED at the fixed length = 0x6e
+  [ok]   [AECP-MODEL] GET_NAME 0x0006/4 name 0: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] GET_NAME 0x0006/4 name 0: cdl 84  = 0x54
+  [ok]   [AECP-MODEL] GET_NAME 0x0006/4 name 0: selector echoed = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x0006/4 name 0: bytes equal READ_DESCRIPTOR = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x0009/0 name 0: ANSWERED at the fixed length = 0x6e
+  [ok]   [AECP-MODEL] GET_NAME 0x0009/0 name 0: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] GET_NAME 0x0009/0 name 0: cdl 84  = 0x54
+  [ok]   [AECP-MODEL] GET_NAME 0x0009/0 name 0: selector echoed = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x0009/0 name 0: bytes equal READ_DESCRIPTOR = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x000a/0 name 0: ANSWERED at the fixed length = 0x6e
+  [ok]   [AECP-MODEL] GET_NAME 0x000a/0 name 0: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] GET_NAME 0x000a/0 name 0: cdl 84  = 0x54
+  [ok]   [AECP-MODEL] GET_NAME 0x000a/0 name 0: selector echoed = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x000a/0 name 0: bytes equal READ_DESCRIPTOR = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x000a/1 name 0: ANSWERED at the fixed length = 0x6e
+  [ok]   [AECP-MODEL] GET_NAME 0x000a/1 name 0: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] GET_NAME 0x000a/1 name 0: cdl 84  = 0x54
+  [ok]   [AECP-MODEL] GET_NAME 0x000a/1 name 0: selector echoed = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x000a/1 name 0: bytes equal READ_DESCRIPTOR = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x000a/2 name 0: ANSWERED at the fixed length = 0x6e
+  [ok]   [AECP-MODEL] GET_NAME 0x000a/2 name 0: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] GET_NAME 0x000a/2 name 0: cdl 84  = 0x54
+  [ok]   [AECP-MODEL] GET_NAME 0x000a/2 name 0: selector echoed = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x000a/2 name 0: bytes equal READ_DESCRIPTOR = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x000a/3 name 0: ANSWERED at the fixed length = 0x6e
+  [ok]   [AECP-MODEL] GET_NAME 0x000a/3 name 0: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] GET_NAME 0x000a/3 name 0: cdl 84  = 0x54
+  [ok]   [AECP-MODEL] GET_NAME 0x000a/3 name 0: selector echoed = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x000a/3 name 0: bytes equal READ_DESCRIPTOR = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x000a/4 name 0: ANSWERED at the fixed length = 0x6e
+  [ok]   [AECP-MODEL] GET_NAME 0x000a/4 name 0: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] GET_NAME 0x000a/4 name 0: cdl 84  = 0x54
+  [ok]   [AECP-MODEL] GET_NAME 0x000a/4 name 0: selector echoed = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x000a/4 name 0: bytes equal READ_DESCRIPTOR = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x000a/5 name 0: ANSWERED at the fixed length = 0x6e
+  [ok]   [AECP-MODEL] GET_NAME 0x000a/5 name 0: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] GET_NAME 0x000a/5 name 0: cdl 84  = 0x54
+  [ok]   [AECP-MODEL] GET_NAME 0x000a/5 name 0: selector echoed = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x000a/5 name 0: bytes equal READ_DESCRIPTOR = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x0014/0 name 0: ANSWERED at the fixed length = 0x6e
+  [ok]   [AECP-MODEL] GET_NAME 0x0014/0 name 0: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] GET_NAME 0x0014/0 name 0: cdl 84  = 0x54
+  [ok]   [AECP-MODEL] GET_NAME 0x0014/0 name 0: selector echoed = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x0014/0 name 0: bytes equal READ_DESCRIPTOR = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x0014/1 name 0: ANSWERED at the fixed length = 0x6e
+  [ok]   [AECP-MODEL] GET_NAME 0x0014/1 name 0: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] GET_NAME 0x0014/1 name 0: cdl 84  = 0x54
+  [ok]   [AECP-MODEL] GET_NAME 0x0014/1 name 0: selector echoed = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x0014/1 name 0: bytes equal READ_DESCRIPTOR = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x0014/2 name 0: ANSWERED at the fixed length = 0x6e
+  [ok]   [AECP-MODEL] GET_NAME 0x0014/2 name 0: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] GET_NAME 0x0014/2 name 0: cdl 84  = 0x54
+  [ok]   [AECP-MODEL] GET_NAME 0x0014/2 name 0: selector echoed = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x0014/2 name 0: bytes equal READ_DESCRIPTOR = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x0014/3 name 0: ANSWERED at the fixed length = 0x6e
+  [ok]   [AECP-MODEL] GET_NAME 0x0014/3 name 0: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] GET_NAME 0x0014/3 name 0: cdl 84  = 0x54
+  [ok]   [AECP-MODEL] GET_NAME 0x0014/3 name 0: selector echoed = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x0014/3 name 0: bytes equal READ_DESCRIPTOR = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x0014/4 name 0: ANSWERED at the fixed length = 0x6e
+  [ok]   [AECP-MODEL] GET_NAME 0x0014/4 name 0: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] GET_NAME 0x0014/4 name 0: cdl 84  = 0x54
+  [ok]   [AECP-MODEL] GET_NAME 0x0014/4 name 0: selector echoed = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x0014/4 name 0: bytes equal READ_DESCRIPTOR = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x0014/5 name 0: ANSWERED at the fixed length = 0x6e
+  [ok]   [AECP-MODEL] GET_NAME 0x0014/5 name 0: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] GET_NAME 0x0014/5 name 0: cdl 84  = 0x54
+  [ok]   [AECP-MODEL] GET_NAME 0x0014/5 name 0: selector echoed = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x0014/5 name 0: bytes equal READ_DESCRIPTOR = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x0014/6 name 0: ANSWERED at the fixed length = 0x6e
+  [ok]   [AECP-MODEL] GET_NAME 0x0014/6 name 0: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] GET_NAME 0x0014/6 name 0: cdl 84  = 0x54
+  [ok]   [AECP-MODEL] GET_NAME 0x0014/6 name 0: selector echoed = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x0014/6 name 0: bytes equal READ_DESCRIPTOR = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x0014/7 name 0: ANSWERED at the fixed length = 0x6e
+  [ok]   [AECP-MODEL] GET_NAME 0x0014/7 name 0: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] GET_NAME 0x0014/7 name 0: cdl 84  = 0x54
+  [ok]   [AECP-MODEL] GET_NAME 0x0014/7 name 0: selector echoed = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x0014/7 name 0: bytes equal READ_DESCRIPTOR = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x0014/8 name 0: ANSWERED at the fixed length = 0x6e
+  [ok]   [AECP-MODEL] GET_NAME 0x0014/8 name 0: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] GET_NAME 0x0014/8 name 0: cdl 84  = 0x54
+  [ok]   [AECP-MODEL] GET_NAME 0x0014/8 name 0: selector echoed = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x0014/8 name 0: bytes equal READ_DESCRIPTOR = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x0014/9 name 0: ANSWERED at the fixed length = 0x6e
+  [ok]   [AECP-MODEL] GET_NAME 0x0014/9 name 0: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] GET_NAME 0x0014/9 name 0: cdl 84  = 0x54
+  [ok]   [AECP-MODEL] GET_NAME 0x0014/9 name 0: selector echoed = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x0014/9 name 0: bytes equal READ_DESCRIPTOR = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x0014/10 name 0: ANSWERED at the fixed length = 0x6e
+  [ok]   [AECP-MODEL] GET_NAME 0x0014/10 name 0: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] GET_NAME 0x0014/10 name 0: cdl 84 = 0x54
+  [ok]   [AECP-MODEL] GET_NAME 0x0014/10 name 0: selector echoed = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x0014/10 name 0: bytes equal READ_DESCRIPTOR = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x0014/11 name 0: ANSWERED at the fixed length = 0x6e
+  [ok]   [AECP-MODEL] GET_NAME 0x0014/11 name 0: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] GET_NAME 0x0014/11 name 0: cdl 84 = 0x54
+  [ok]   [AECP-MODEL] GET_NAME 0x0014/11 name 0: selector echoed = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x0014/11 name 0: bytes equal READ_DESCRIPTOR = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x0014/12 name 0: ANSWERED at the fixed length = 0x6e
+  [ok]   [AECP-MODEL] GET_NAME 0x0014/12 name 0: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] GET_NAME 0x0014/12 name 0: cdl 84 = 0x54
+  [ok]   [AECP-MODEL] GET_NAME 0x0014/12 name 0: selector echoed = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x0014/12 name 0: bytes equal READ_DESCRIPTOR = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x0014/13 name 0: ANSWERED at the fixed length = 0x6e
+  [ok]   [AECP-MODEL] GET_NAME 0x0014/13 name 0: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] GET_NAME 0x0014/13 name 0: cdl 84 = 0x54
+  [ok]   [AECP-MODEL] GET_NAME 0x0014/13 name 0: selector echoed = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x0014/13 name 0: bytes equal READ_DESCRIPTOR = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x0014/14 name 0: ANSWERED at the fixed length = 0x6e
+  [ok]   [AECP-MODEL] GET_NAME 0x0014/14 name 0: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] GET_NAME 0x0014/14 name 0: cdl 84 = 0x54
+  [ok]   [AECP-MODEL] GET_NAME 0x0014/14 name 0: selector echoed = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x0014/14 name 0: bytes equal READ_DESCRIPTOR = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x0014/15 name 0: ANSWERED at the fixed length = 0x6e
+  [ok]   [AECP-MODEL] GET_NAME 0x0014/15 name 0: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] GET_NAME 0x0014/15 name 0: cdl 84 = 0x54
+  [ok]   [AECP-MODEL] GET_NAME 0x0014/15 name 0: selector echoed = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x0014/15 name 0: bytes equal READ_DESCRIPTOR = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x0014/16 name 0: ANSWERED at the fixed length = 0x6e
+  [ok]   [AECP-MODEL] GET_NAME 0x0014/16 name 0: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] GET_NAME 0x0014/16 name 0: cdl 84 = 0x54
+  [ok]   [AECP-MODEL] GET_NAME 0x0014/16 name 0: selector echoed = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x0014/16 name 0: bytes equal READ_DESCRIPTOR = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x0014/17 name 0: ANSWERED at the fixed length = 0x6e
+  [ok]   [AECP-MODEL] GET_NAME 0x0014/17 name 0: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] GET_NAME 0x0014/17 name 0: cdl 84 = 0x54
+  [ok]   [AECP-MODEL] GET_NAME 0x0014/17 name 0: selector echoed = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x0014/17 name 0: bytes equal READ_DESCRIPTOR = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x0014/18 name 0: ANSWERED at the fixed length = 0x6e
+  [ok]   [AECP-MODEL] GET_NAME 0x0014/18 name 0: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] GET_NAME 0x0014/18 name 0: cdl 84 = 0x54
+  [ok]   [AECP-MODEL] GET_NAME 0x0014/18 name 0: selector echoed = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x0014/18 name 0: bytes equal READ_DESCRIPTOR = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x0014/19 name 0: ANSWERED at the fixed length = 0x6e
+  [ok]   [AECP-MODEL] GET_NAME 0x0014/19 name 0: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] GET_NAME 0x0014/19 name 0: cdl 84 = 0x54
+  [ok]   [AECP-MODEL] GET_NAME 0x0014/19 name 0: selector echoed = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x0014/19 name 0: bytes equal READ_DESCRIPTOR = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x0014/20 name 0: ANSWERED at the fixed length = 0x6e
+  [ok]   [AECP-MODEL] GET_NAME 0x0014/20 name 0: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] GET_NAME 0x0014/20 name 0: cdl 84 = 0x54
+  [ok]   [AECP-MODEL] GET_NAME 0x0014/20 name 0: selector echoed = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x0014/20 name 0: bytes equal READ_DESCRIPTOR = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x0014/21 name 0: ANSWERED at the fixed length = 0x6e
+  [ok]   [AECP-MODEL] GET_NAME 0x0014/21 name 0: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] GET_NAME 0x0014/21 name 0: cdl 84 = 0x54
+  [ok]   [AECP-MODEL] GET_NAME 0x0014/21 name 0: selector echoed = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x0014/21 name 0: bytes equal READ_DESCRIPTOR = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x0014/22 name 0: ANSWERED at the fixed length = 0x6e
+  [ok]   [AECP-MODEL] GET_NAME 0x0014/22 name 0: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] GET_NAME 0x0014/22 name 0: cdl 84 = 0x54
+  [ok]   [AECP-MODEL] GET_NAME 0x0014/22 name 0: selector echoed = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x0014/22 name 0: bytes equal READ_DESCRIPTOR = 0x1

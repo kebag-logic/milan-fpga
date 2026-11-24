@@ -1,0 +1,1940 @@
+Candidate head: dc78aedae34c25a97125ecd6816a1f645db5575f
+Comparison base: 3cda030c174b325e36c26af6420487ff91346d15
+Source: regressions/milan_dp.log
+Original SHA256: 9996809209e91499b4755ddaf4384e8a6ae744695b83776efefc823d91d127c7
+Scope: native compilation chatter omitted; other output retained; paths and host fields normalized
+
+  [ok]   #773 output 4 CRF at 2000000 ns: its hand-over is at or before its timestamp less the offset, and after it less 125 us (IEEE 1722-2016 4.3.3 Eq. (1)) = 0x1
+  #632 exact stamps: AAF 8 on, 0 off; CRF 2 on, 0 off; 897 domain events, 0 graded cycles not live
+  [ok]   #632 the domain's frame grid is live while the stamps are graded = 0x0
+  [ok]   #632 every AAF timestamp is a domain media event's instant plus whole periods (#773) plus its offset as set, to the ns = 0x1
+  [ok]   #632 every CRF timestamp, all 64 bits, is a domain media event's instant plus whole periods (#773) plus its offset applied = 0x1
+  #773 output 0 AAF adds 8 media clock periods beside its offset
+  [ok]   #773 output 0 adds one whole number of periods to every stamp = 0x1
+  #773 output 1 AAF adds 8 media clock periods beside its offset
+  [ok]   #773 output 1 adds one whole number of periods to every stamp = 0x1
+  #773 output 2 AAF adds 8 media clock periods beside its offset
+  [ok]   #773 output 2 adds one whole number of periods to every stamp = 0x1
+  #773 output 3 AAF adds 8 media clock periods beside its offset
+  [ok]   #773 output 3 adds one whole number of periods to every stamp = 0x1
+  #773 output 4 CRF adds 2 media clock periods beside its offset
+  [ok]   #773 output 4 adds one whole number of periods to every stamp = 0x1
+  [ok]   #403 output 0 produced two timestamp observations = 0x2
+  [ok]   #403 output 1 produced two timestamp observations = 0x2
+  [ok]   #403 output 2 produced two timestamp observations = 0x2
+  [ok]   #403 output 3 produced two timestamp observations = 0x2
+  [ok]   #403 output 4 produced two timestamp observations = 0x2
+  [ok]   #403 addressed output accepts runtime 1 ms     = 0x0
+  [ok]   #403 runtime GET changes only its own output   = 0xf4240
+  [ok]   #403 runtime GET changes only its own output   = 0x1e8480
+  [ok]   #403 runtime GET changes only its own output   = 0x1e8480
+  [ok]   #403 runtime GET changes only its own output   = 0x1e8480
+  [ok]   #403 runtime GET changes only its own output   = 0x1e8480
+  timestamp output=1 stamp=26045846 phc=23931160 offset=2000000 residual=114686 ns
+  [ok]   #773 output 1 AAF at 2000000 ns: its hand-over is at or before its timestamp less the offset, and after it less 125 us (IEEE 1722-2016 4.3.3 Eq. (1)) = 0x1
+  timestamp output=2 stamp=26045846 phc=23931420 offset=2000000 residual=114426 ns
+  [ok]   #773 output 2 AAF at 2000000 ns: its hand-over is at or before its timestamp less the offset, and after it less 125 us (IEEE 1722-2016 4.3.3 Eq. (1)) = 0x1
+  timestamp output=3 stamp=26045846 phc=23931680 offset=2000000 residual=114166 ns
+  [ok]   #773 output 3 AAF at 2000000 ns: its hand-over is at or before its timestamp less the offset, and after it less 125 us (IEEE 1722-2016 4.3.3 Eq. (1)) = 0x1
+  timestamp output=0 stamp=25045846 phc=23936360 offset=1000000 residual=109486 ns
+  [ok]   #773 output 0 AAF at 1000000 ns: its hand-over is at or before its timestamp less the offset, and after it less 125 us (IEEE 1722-2016 4.3.3 Eq. (1)) = 0x1
+  timestamp output=1 stamp=26066326 phc=23961880 offset=2000000 residual=104446 ns
+  [ok]   #773 output 1 AAF at 2000000 ns: its hand-over is at or before its timestamp less the offset, and after it less 125 us (IEEE 1722-2016 4.3.3 Eq. (1)) = 0x1
+  timestamp output=2 stamp=26066326 phc=23962140 offset=2000000 residual=104186 ns
+  [ok]   #773 output 2 AAF at 2000000 ns: its hand-over is at or before its timestamp less the offset, and after it less 125 us (IEEE 1722-2016 4.3.3 Eq. (1)) = 0x1
+  timestamp output=3 stamp=26066326 phc=23962400 offset=2000000 residual=103926 ns
+  [ok]   #773 output 3 AAF at 2000000 ns: its hand-over is at or before its timestamp less the offset, and after it less 125 us (IEEE 1722-2016 4.3.3 Eq. (1)) = 0x1
+  timestamp output=0 stamp=25066326 phc=23967080 offset=1000000 residual=99246 ns
+  [ok]   #773 output 0 AAF at 1000000 ns: its hand-over is at or before its timestamp less the offset, and after it less 125 us (IEEE 1722-2016 4.3.3 Eq. (1)) = 0x1
+  timestamp output=4 stamp=26105166 phc=24084680 offset=2000000 residual=20486 ns
+  [ok]   #773 output 4 CRF at 2000000 ns: its hand-over is at or before its timestamp less the offset, and after it less 125 us (IEEE 1722-2016 4.3.3 Eq. (1)) = 0x1
+  timestamp output=4 stamp=26596686 phc=24576200 offset=2000000 residual=20486 ns
+  [ok]   #773 output 4 CRF at 2000000 ns: its hand-over is at or before its timestamp less the offset, and after it less 125 us (IEEE 1722-2016 4.3.3 Eq. (1)) = 0x1
+  #632 exact stamps: AAF 8 on, 0 off; CRF 2 on, 0 off; 913 domain events, 0 graded cycles not live
+  [ok]   #632 the domain's frame grid is live while the stamps are graded = 0x0
+  [ok]   #632 every AAF timestamp is a domain media event's instant plus whole periods (#773) plus its offset as set, to the ns = 0x1
+  [ok]   #632 every CRF timestamp, all 64 bits, is a domain media event's instant plus whole periods (#773) plus its offset applied = 0x1
+  #773 output 0 AAF adds 8 media clock periods beside its offset
+  [ok]   #773 output 0 adds one whole number of periods to every stamp = 0x1
+  #773 output 1 AAF adds 8 media clock periods beside its offset
+  [ok]   #773 output 1 adds one whole number of periods to every stamp = 0x1
+  #773 output 2 AAF adds 8 media clock periods beside its offset
+  [ok]   #773 output 2 adds one whole number of periods to every stamp = 0x1
+  #773 output 3 AAF adds 8 media clock periods beside its offset
+  [ok]   #773 output 3 adds one whole number of periods to every stamp = 0x1
+  #773 output 4 CRF adds 2 media clock periods beside its offset
+  [ok]   #773 output 4 adds one whole number of periods to every stamp = 0x1
+  [ok]   #403 output 0 produced two timestamp observations = 0x2
+  [ok]   #403 output 1 produced two timestamp observations = 0x2
+  [ok]   #403 output 2 produced two timestamp observations = 0x2
+  [ok]   #403 output 3 produced two timestamp observations = 0x2
+  [ok]   #403 output 4 produced two timestamp observations = 0x2
+  [ok]   #403 runtime factory value can be selected again = 0x0
+  [ok]   #403 addressed output accepts runtime 1 ms     = 0x0
+  [ok]   #403 runtime GET changes only its own output   = 0x1e8480
+  [ok]   #403 runtime GET changes only its own output   = 0xf4240
+  [ok]   #403 runtime GET changes only its own output   = 0x1e8480
+  [ok]   #403 runtime GET changes only its own output   = 0x1e8480
+  [ok]   #403 runtime GET changes only its own output   = 0x1e8480
+  timestamp output=1 stamp=29961046 phc=28851480 offset=1000000 residual=109566 ns
+  [ok]   #773 output 1 AAF at 1000000 ns: its hand-over is at or before its timestamp less the offset, and after it less 125 us (IEEE 1722-2016 4.3.3 Eq. (1)) = 0x1
+  timestamp output=2 stamp=30961046 phc=28851740 offset=2000000 residual=109306 ns
+  [ok]   #773 output 2 AAF at 2000000 ns: its hand-over is at or before its timestamp less the offset, and after it less 125 us (IEEE 1722-2016 4.3.3 Eq. (1)) = 0x1
+  timestamp output=3 stamp=30961046 phc=28852000 offset=2000000 residual=109046 ns
+  [ok]   #773 output 3 AAF at 2000000 ns: its hand-over is at or before its timestamp less the offset, and after it less 125 us (IEEE 1722-2016 4.3.3 Eq. (1)) = 0x1
+  timestamp output=0 stamp=30961046 phc=28856680 offset=2000000 residual=104366 ns
+  [ok]   #773 output 0 AAF at 2000000 ns: its hand-over is at or before its timestamp less the offset, and after it less 125 us (IEEE 1722-2016 4.3.3 Eq. (1)) = 0x1
+  timestamp output=1 stamp=29981526 phc=28882200 offset=1000000 residual=99326 ns
+  [ok]   #773 output 1 AAF at 1000000 ns: its hand-over is at or before its timestamp less the offset, and after it less 125 us (IEEE 1722-2016 4.3.3 Eq. (1)) = 0x1
+  timestamp output=2 stamp=30981526 phc=28882460 offset=2000000 residual=99066 ns
+  [ok]   #773 output 2 AAF at 2000000 ns: its hand-over is at or before its timestamp less the offset, and after it less 125 us (IEEE 1722-2016 4.3.3 Eq. (1)) = 0x1
+  timestamp output=3 stamp=30981526 phc=28882720 offset=2000000 residual=98806 ns
+  [ok]   #773 output 3 AAF at 2000000 ns: its hand-over is at or before its timestamp less the offset, and after it less 125 us (IEEE 1722-2016 4.3.3 Eq. (1)) = 0x1
+  timestamp output=0 stamp=30981526 phc=28887400 offset=2000000 residual=94126 ns
+  [ok]   #773 output 0 AAF at 2000000 ns: its hand-over is at or before its timestamp less the offset, and after it less 125 us (IEEE 1722-2016 4.3.3 Eq. (1)) = 0x1
+  timestamp output=4 stamp=31020366 phc=28999880 offset=2000000 residual=20486 ns
+  [ok]   #773 output 4 CRF at 2000000 ns: its hand-over is at or before its timestamp less the offset, and after it less 125 us (IEEE 1722-2016 4.3.3 Eq. (1)) = 0x1
+  timestamp output=4 stamp=31511886 phc=29491400 offset=2000000 residual=20486 ns
+  [ok]   #773 output 4 CRF at 2000000 ns: its hand-over is at or before its timestamp less the offset, and after it less 125 us (IEEE 1722-2016 4.3.3 Eq. (1)) = 0x1
+  #632 exact stamps: AAF 8 on, 0 off; CRF 2 on, 0 off; 912 domain events, 0 graded cycles not live
+  [ok]   #632 the domain's frame grid is live while the stamps are graded = 0x0
+  [ok]   #632 every AAF timestamp is a domain media event's instant plus whole periods (#773) plus its offset as set, to the ns = 0x1
+  [ok]   #632 every CRF timestamp, all 64 bits, is a domain media event's instant plus whole periods (#773) plus its offset applied = 0x1
+  #773 output 0 AAF adds 8 media clock periods beside its offset
+  [ok]   #773 output 0 adds one whole number of periods to every stamp = 0x1
+  #773 output 1 AAF adds 8 media clock periods beside its offset
+  [ok]   #773 output 1 adds one whole number of periods to every stamp = 0x1
+  #773 output 2 AAF adds 8 media clock periods beside its offset
+  [ok]   #773 output 2 adds one whole number of periods to every stamp = 0x1
+  #773 output 3 AAF adds 8 media clock periods beside its offset
+  [ok]   #773 output 3 adds one whole number of periods to every stamp = 0x1
+  #773 output 4 CRF adds 2 media clock periods beside its offset
+  [ok]   #773 output 4 adds one whole number of periods to every stamp = 0x1
+  [ok]   #403 output 0 produced two timestamp observations = 0x2
+  [ok]   #403 output 1 produced two timestamp observations = 0x2
+  [ok]   #403 output 2 produced two timestamp observations = 0x2
+  [ok]   #403 output 3 produced two timestamp observations = 0x2
+  [ok]   #403 output 4 produced two timestamp observations = 0x2
+  [ok]   #403 runtime factory value can be selected again = 0x0
+  [ok]   #403 addressed output accepts runtime 1 ms     = 0x0
+  [ok]   #403 runtime GET changes only its own output   = 0x1e8480
+  [ok]   #403 runtime GET changes only its own output   = 0x1e8480
+  [ok]   #403 runtime GET changes only its own output   = 0xf4240
+  [ok]   #403 runtime GET changes only its own output   = 0x1e8480
+  [ok]   #403 runtime GET changes only its own output   = 0x1e8480
+  timestamp output=1 stamp=35881366 phc=33766680 offset=2000000 residual=114686 ns
+  [ok]   #773 output 1 AAF at 2000000 ns: its hand-over is at or before its timestamp less the offset, and after it less 125 us (IEEE 1722-2016 4.3.3 Eq. (1)) = 0x1
+  timestamp output=2 stamp=34881366 phc=33766940 offset=1000000 residual=114426 ns
+  [ok]   #773 output 2 AAF at 1000000 ns: its hand-over is at or before its timestamp less the offset, and after it less 125 us (IEEE 1722-2016 4.3.3 Eq. (1)) = 0x1
+  timestamp output=3 stamp=35881366 phc=33767200 offset=2000000 residual=114166 ns
+  [ok]   #773 output 3 AAF at 2000000 ns: its hand-over is at or before its timestamp less the offset, and after it less 125 us (IEEE 1722-2016 4.3.3 Eq. (1)) = 0x1
+  timestamp output=0 stamp=35881366 phc=33771880 offset=2000000 residual=109486 ns
+  [ok]   #773 output 0 AAF at 2000000 ns: its hand-over is at or before its timestamp less the offset, and after it less 125 us (IEEE 1722-2016 4.3.3 Eq. (1)) = 0x1
+  timestamp output=1 stamp=35901846 phc=33797400 offset=2000000 residual=104446 ns
+  [ok]   #773 output 1 AAF at 2000000 ns: its hand-over is at or before its timestamp less the offset, and after it less 125 us (IEEE 1722-2016 4.3.3 Eq. (1)) = 0x1
+  timestamp output=2 stamp=34901846 phc=33797660 offset=1000000 residual=104186 ns
+  [ok]   #773 output 2 AAF at 1000000 ns: its hand-over is at or before its timestamp less the offset, and after it less 125 us (IEEE 1722-2016 4.3.3 Eq. (1)) = 0x1
+  timestamp output=3 stamp=35901846 phc=33797920 offset=2000000 residual=103926 ns
+  [ok]   #773 output 3 AAF at 2000000 ns: its hand-over is at or before its timestamp less the offset, and after it less 125 us (IEEE 1722-2016 4.3.3 Eq. (1)) = 0x1
+  timestamp output=0 stamp=35901846 phc=33802600 offset=2000000 residual=99246 ns
+  [ok]   #773 output 0 AAF at 2000000 ns: its hand-over is at or before its timestamp less the offset, and after it less 125 us (IEEE 1722-2016 4.3.3 Eq. (1)) = 0x1
+  timestamp output=4 stamp=35935566 phc=33915080 offset=2000000 residual=20486 ns
+  [ok]   #773 output 4 CRF at 2000000 ns: its hand-over is at or before its timestamp less the offset, and after it less 125 us (IEEE 1722-2016 4.3.3 Eq. (1)) = 0x1
+  timestamp output=4 stamp=36427086 phc=34406600 offset=2000000 residual=20486 ns
+  [ok]   #773 output 4 CRF at 2000000 ns: its hand-over is at or before its timestamp less the offset, and after it less 125 us (IEEE 1722-2016 4.3.3 Eq. (1)) = 0x1
+  #632 exact stamps: AAF 8 on, 0 off; CRF 2 on, 0 off; 912 domain events, 0 graded cycles not live
+  [ok]   #632 the domain's frame grid is live while the stamps are graded = 0x0
+  [ok]   #632 every AAF timestamp is a domain media event's instant plus whole periods (#773) plus its offset as set, to the ns = 0x1
+  [ok]   #632 every CRF timestamp, all 64 bits, is a domain media event's instant plus whole periods (#773) plus its offset applied = 0x1
+  #773 output 0 AAF adds 8 media clock periods beside its offset
+  [ok]   #773 output 0 adds one whole number of periods to every stamp = 0x1
+  #773 output 1 AAF adds 8 media clock periods beside its offset
+  [ok]   #773 output 1 adds one whole number of periods to every stamp = 0x1
+  #773 output 2 AAF adds 8 media clock periods beside its offset
+  [ok]   #773 output 2 adds one whole number of periods to every stamp = 0x1
+  #773 output 3 AAF adds 8 media clock periods beside its offset
+  [ok]   #773 output 3 adds one whole number of periods to every stamp = 0x1
+  #773 output 4 CRF adds 2 media clock periods beside its offset
+  [ok]   #773 output 4 adds one whole number of periods to every stamp = 0x1
+  [ok]   #403 output 0 produced two timestamp observations = 0x2
+  [ok]   #403 output 1 produced two timestamp observations = 0x2
+  [ok]   #403 output 2 produced two timestamp observations = 0x2
+  [ok]   #403 output 3 produced two timestamp observations = 0x2
+  [ok]   #403 output 4 produced two timestamp observations = 0x2
+  [ok]   #403 runtime factory value can be selected again = 0x0
+  [ok]   #403 addressed output accepts runtime 1 ms     = 0x0
+  [ok]   #403 runtime GET changes only its own output   = 0x1e8480
+  [ok]   #403 runtime GET changes only its own output   = 0x1e8480
+  [ok]   #403 runtime GET changes only its own output   = 0x1e8480
+  [ok]   #403 runtime GET changes only its own output   = 0xf4240
+  [ok]   #403 runtime GET changes only its own output   = 0x1e8480
+  timestamp output=1 stamp=40796566 phc=38681880 offset=2000000 residual=114686 ns
+  [ok]   #773 output 1 AAF at 2000000 ns: its hand-over is at or before its timestamp less the offset, and after it less 125 us (IEEE 1722-2016 4.3.3 Eq. (1)) = 0x1
+  timestamp output=2 stamp=40796566 phc=38682140 offset=2000000 residual=114426 ns
+  [ok]   #773 output 2 AAF at 2000000 ns: its hand-over is at or before its timestamp less the offset, and after it less 125 us (IEEE 1722-2016 4.3.3 Eq. (1)) = 0x1
+  timestamp output=3 stamp=39796566 phc=38682400 offset=1000000 residual=114166 ns
+  [ok]   #773 output 3 AAF at 1000000 ns: its hand-over is at or before its timestamp less the offset, and after it less 125 us (IEEE 1722-2016 4.3.3 Eq. (1)) = 0x1
+  timestamp output=0 stamp=40796566 phc=38687080 offset=2000000 residual=109486 ns
+  [ok]   #773 output 0 AAF at 2000000 ns: its hand-over is at or before its timestamp less the offset, and after it less 125 us (IEEE 1722-2016 4.3.3 Eq. (1)) = 0x1
+  timestamp output=1 stamp=40817046 phc=38712600 offset=2000000 residual=104446 ns
+  [ok]   #773 output 1 AAF at 2000000 ns: its hand-over is at or before its timestamp less the offset, and after it less 125 us (IEEE 1722-2016 4.3.3 Eq. (1)) = 0x1
+  timestamp output=2 stamp=40817046 phc=38712860 offset=2000000 residual=104186 ns
+  [ok]   #773 output 2 AAF at 2000000 ns: its hand-over is at or before its timestamp less the offset, and after it less 125 us (IEEE 1722-2016 4.3.3 Eq. (1)) = 0x1
+  timestamp output=3 stamp=39817046 phc=38713120 offset=1000000 residual=103926 ns
+  [ok]   #773 output 3 AAF at 1000000 ns: its hand-over is at or before its timestamp less the offset, and after it less 125 us (IEEE 1722-2016 4.3.3 Eq. (1)) = 0x1
+  timestamp output=0 stamp=40817046 phc=38717800 offset=2000000 residual=99246 ns
+  [ok]   #773 output 0 AAF at 2000000 ns: its hand-over is at or before its timestamp less the offset, and after it less 125 us (IEEE 1722-2016 4.3.3 Eq. (1)) = 0x1
+  timestamp output=4 stamp=40850766 phc=38830280 offset=2000000 residual=20486 ns
+  [ok]   #773 output 4 CRF at 2000000 ns: its hand-over is at or before its timestamp less the offset, and after it less 125 us (IEEE 1722-2016 4.3.3 Eq. (1)) = 0x1
+  timestamp output=4 stamp=41342286 phc=39321800 offset=2000000 residual=20486 ns
+  [ok]   #773 output 4 CRF at 2000000 ns: its hand-over is at or before its timestamp less the offset, and after it less 125 us (IEEE 1722-2016 4.3.3 Eq. (1)) = 0x1
+  #632 exact stamps: AAF 8 on, 0 off; CRF 2 on, 0 off; 912 domain events, 0 graded cycles not live
+  [ok]   #632 the domain's frame grid is live while the stamps are graded = 0x0
+  [ok]   #632 every AAF timestamp is a domain media event's instant plus whole periods (#773) plus its offset as set, to the ns = 0x1
+  [ok]   #632 every CRF timestamp, all 64 bits, is a domain media event's instant plus whole periods (#773) plus its offset applied = 0x1
+  #773 output 0 AAF adds 8 media clock periods beside its offset
+  [ok]   #773 output 0 adds one whole number of periods to every stamp = 0x1
+  #773 output 1 AAF adds 8 media clock periods beside its offset
+  [ok]   #773 output 1 adds one whole number of periods to every stamp = 0x1
+  #773 output 2 AAF adds 8 media clock periods beside its offset
+  [ok]   #773 output 2 adds one whole number of periods to every stamp = 0x1
+  #773 output 3 AAF adds 8 media clock periods beside its offset
+  [ok]   #773 output 3 adds one whole number of periods to every stamp = 0x1
+  #773 output 4 CRF adds 2 media clock periods beside its offset
+  [ok]   #773 output 4 adds one whole number of periods to every stamp = 0x1
+  [ok]   #403 output 0 produced two timestamp observations = 0x2
+  [ok]   #403 output 1 produced two timestamp observations = 0x2
+  [ok]   #403 output 2 produced two timestamp observations = 0x2
+  [ok]   #403 output 3 produced two timestamp observations = 0x2
+  [ok]   #403 output 4 produced two timestamp observations = 0x2
+  [ok]   #403 runtime factory value can be selected again = 0x0
+  [ok]   #403 addressed output accepts runtime 1 ms     = 0x0
+  [ok]   #403 runtime GET changes only its own output   = 0x1e8480
+  [ok]   #403 runtime GET changes only its own output   = 0x1e8480
+  [ok]   #403 runtime GET changes only its own output   = 0x1e8480
+  [ok]   #403 runtime GET changes only its own output   = 0x1e8480
+  [ok]   #403 runtime GET changes only its own output   = 0xf4240
+  timestamp output=1 stamp=45711766 phc=43597080 offset=2000000 residual=114686 ns
+  [ok]   #773 output 1 AAF at 2000000 ns: its hand-over is at or before its timestamp less the offset, and after it less 125 us (IEEE 1722-2016 4.3.3 Eq. (1)) = 0x1
+  timestamp output=2 stamp=45711766 phc=43597340 offset=2000000 residual=114426 ns
+  [ok]   #773 output 2 AAF at 2000000 ns: its hand-over is at or before its timestamp less the offset, and after it less 125 us (IEEE 1722-2016 4.3.3 Eq. (1)) = 0x1
+  timestamp output=3 stamp=45711766 phc=43597600 offset=2000000 residual=114166 ns
+  [ok]   #773 output 3 AAF at 2000000 ns: its hand-over is at or before its timestamp less the offset, and after it less 125 us (IEEE 1722-2016 4.3.3 Eq. (1)) = 0x1
+  timestamp output=0 stamp=45711766 phc=43602280 offset=2000000 residual=109486 ns
+  [ok]   #773 output 0 AAF at 2000000 ns: its hand-over is at or before its timestamp less the offset, and after it less 125 us (IEEE 1722-2016 4.3.3 Eq. (1)) = 0x1
+  timestamp output=1 stamp=45737366 phc=43627800 offset=2000000 residual=109566 ns
+  [ok]   #773 output 1 AAF at 2000000 ns: its hand-over is at or before its timestamp less the offset, and after it less 125 us (IEEE 1722-2016 4.3.3 Eq. (1)) = 0x1
+  timestamp output=2 stamp=45737366 phc=43628060 offset=2000000 residual=109306 ns
+  [ok]   #773 output 2 AAF at 2000000 ns: its hand-over is at or before its timestamp less the offset, and after it less 125 us (IEEE 1722-2016 4.3.3 Eq. (1)) = 0x1
+  timestamp output=3 stamp=45737366 phc=43628320 offset=2000000 residual=109046 ns
+  [ok]   #773 output 3 AAF at 2000000 ns: its hand-over is at or before its timestamp less the offset, and after it less 125 us (IEEE 1722-2016 4.3.3 Eq. (1)) = 0x1
+  timestamp output=0 stamp=45737366 phc=43633000 offset=2000000 residual=104366 ns
+  [ok]   #773 output 0 AAF at 2000000 ns: its hand-over is at or before its timestamp less the offset, and after it less 125 us (IEEE 1722-2016 4.3.3 Eq. (1)) = 0x1
+  timestamp output=4 stamp=44765966 phc=43745480 offset=1000000 residual=20486 ns
+  [ok]   #773 output 4 CRF at 1000000 ns: its hand-over is at or before its timestamp less the offset, and after it less 125 us (IEEE 1722-2016 4.3.3 Eq. (1)) = 0x1
+  timestamp output=4 stamp=45257486 phc=44237000 offset=1000000 residual=20486 ns
+  [ok]   #773 output 4 CRF at 1000000 ns: its hand-over is at or before its timestamp less the offset, and after it less 125 us (IEEE 1722-2016 4.3.3 Eq. (1)) = 0x1
+  #632 exact stamps: AAF 8 on, 0 off; CRF 2 on, 0 off; 912 domain events, 0 graded cycles not live
+  [ok]   #632 the domain's frame grid is live while the stamps are graded = 0x0
+  [ok]   #632 every AAF timestamp is a domain media event's instant plus whole periods (#773) plus its offset as set, to the ns = 0x1
+  [ok]   #632 every CRF timestamp, all 64 bits, is a domain media event's instant plus whole periods (#773) plus its offset applied = 0x1
+  #773 output 0 AAF adds 8 media clock periods beside its offset
+  [ok]   #773 output 0 adds one whole number of periods to every stamp = 0x1
+  #773 output 1 AAF adds 8 media clock periods beside its offset
+  [ok]   #773 output 1 adds one whole number of periods to every stamp = 0x1
+  #773 output 2 AAF adds 8 media clock periods beside its offset
+  [ok]   #773 output 2 adds one whole number of periods to every stamp = 0x1
+  #773 output 3 AAF adds 8 media clock periods beside its offset
+  [ok]   #773 output 3 adds one whole number of periods to every stamp = 0x1
+  #773 output 4 CRF adds 2 media clock periods beside its offset
+  [ok]   #773 output 4 adds one whole number of periods to every stamp = 0x1
+  [ok]   #403 output 0 produced two timestamp observations = 0x2
+  [ok]   #403 output 1 produced two timestamp observations = 0x2
+  [ok]   #403 output 2 produced two timestamp observations = 0x2
+  [ok]   #403 output 3 produced two timestamp observations = 0x2
+  [ok]   #403 output 4 produced two timestamp observations = 0x2
+  [ok]   #403 runtime factory value can be selected again = 0x0
+  [ok]   #632 a non-period offset is accepted           = 0x0
+  [ok]   #632 GET_STREAM_INFO reads an AAF output's offset as set = 0x1eab90
+  [ok]   #632 a non-period offset is accepted           = 0x0
+  [ok]   #632 GET_STREAM_INFO reads the CRF output's offset applied, whole periods = 0x1ed5e2
+  timestamp output=0 stamp=50652566 phc=48543080 offset=2000000 residual=109486 ns
+  [ok]   #773 output 0 AAF at 2000000 ns: its hand-over is at or before its timestamp less the offset, and after it less 125 us (IEEE 1722-2016 4.3.3 Eq. (1)) = 0x1
+  timestamp output=1 stamp=50662566 phc=48543340 offset=2010000 residual=109226 ns
+  [ok]   #773 output 1 AAF at 2010000 ns: its hand-over is at or before its timestamp less the offset, and after it less 125 us (IEEE 1722-2016 4.3.3 Eq. (1)) = 0x1
+  timestamp output=2 stamp=50652566 phc=48543600 offset=2000000 residual=108966 ns
+  [ok]   #773 output 2 AAF at 2000000 ns: its hand-over is at or before its timestamp less the offset, and after it less 125 us (IEEE 1722-2016 4.3.3 Eq. (1)) = 0x1
+  timestamp output=3 stamp=50652566 phc=48543860 offset=2000000 residual=108706 ns
+  [ok]   #773 output 3 AAF at 2000000 ns: its hand-over is at or before its timestamp less the offset, and after it less 125 us (IEEE 1722-2016 4.3.3 Eq. (1)) = 0x1
+  timestamp output=0 stamp=50673046 phc=48573800 offset=2000000 residual=99246 ns
+  [ok]   #773 output 0 AAF at 2000000 ns: its hand-over is at or before its timestamp less the offset, and after it less 125 us (IEEE 1722-2016 4.3.3 Eq. (1)) = 0x1
+  timestamp output=1 stamp=50683046 phc=48574060 offset=2010000 residual=98986 ns
+  [ok]   #773 output 1 AAF at 2010000 ns: its hand-over is at or before its timestamp less the offset, and after it less 125 us (IEEE 1722-2016 4.3.3 Eq. (1)) = 0x1
+  timestamp output=2 stamp=50673046 phc=48574320 offset=2000000 residual=98726 ns
+  [ok]   #773 output 2 AAF at 2000000 ns: its hand-over is at or before its timestamp less the offset, and after it less 125 us (IEEE 1722-2016 4.3.3 Eq. (1)) = 0x1
+  timestamp output=3 stamp=50673046 phc=48574580 offset=2000000 residual=98466 ns
+  [ok]   #773 output 3 AAF at 2000000 ns: its hand-over is at or before its timestamp less the offset, and after it less 125 us (IEEE 1722-2016 4.3.3 Eq. (1)) = 0x1
+  timestamp output=4 stamp=50702000 phc=48660680 offset=2020834 residual=20486 ns
+  [ok]   #773 output 4 CRF at 2020834 ns: its hand-over is at or before its timestamp less the offset, and after it less 125 us (IEEE 1722-2016 4.3.3 Eq. (1)) = 0x1
+  timestamp output=4 stamp=51193520 phc=49152200 offset=2020834 residual=20486 ns
+  [ok]   #773 output 4 CRF at 2020834 ns: its hand-over is at or before its timestamp less the offset, and after it less 125 us (IEEE 1722-2016 4.3.3 Eq. (1)) = 0x1
+  #632 exact stamps: AAF 8 on, 0 off; CRF 2 on, 0 off; 906 domain events, 0 graded cycles not live
+  [ok]   #632 the domain's frame grid is live while the stamps are graded = 0x0
+  [ok]   #632 every AAF timestamp is a domain media event's instant plus whole periods (#773) plus its offset as set, to the ns = 0x1
+  [ok]   #632 every CRF timestamp, all 64 bits, is a domain media event's instant plus whole periods (#773) plus its offset applied = 0x1
+  #773 output 0 AAF adds 8 media clock periods beside its offset
+  [ok]   #773 output 0 adds one whole number of periods to every stamp = 0x1
+  #773 output 1 AAF adds 8 media clock periods beside its offset
+  [ok]   #773 output 1 adds one whole number of periods to every stamp = 0x1
+  #773 output 2 AAF adds 8 media clock periods beside its offset
+  [ok]   #773 output 2 adds one whole number of periods to every stamp = 0x1
+  #773 output 3 AAF adds 8 media clock periods beside its offset
+  [ok]   #773 output 3 adds one whole number of periods to every stamp = 0x1
+  #773 output 4 CRF adds 2 media clock periods beside its offset
+  [ok]   #773 output 4 adds one whole number of periods to every stamp = 0x1
+  [ok]   #403 output 0 produced two timestamp observations = 0x2
+  [ok]   #403 output 1 produced two timestamp observations = 0x2
+  [ok]   #403 output 2 produced two timestamp observations = 0x2
+  [ok]   #403 output 3 produced two timestamp observations = 0x2
+  [ok]   #403 output 4 produced two timestamp observations = 0x2
+  [ok]   #632 the factory offset is selected again      = 0x0
+  [ok]   #632 the factory offset is selected again      = 0x0
+  [ok]   #773 every output accepts a 125 us offset      = 0x0
+  [ok]   #773 every output accepts a 125 us offset      = 0x0
+  [ok]   #773 every output accepts a 125 us offset      = 0x0
+  [ok]   #773 every output accepts a 125 us offset      = 0x0
+  [ok]   #773 every output accepts a 125 us offset      = 0x0
+  [ok]   #773 GET_STREAM_INFO reads 125 us on every output = 0x1e848
+  [ok]   #773 GET_STREAM_INFO reads 125 us on every output = 0x1e848
+  [ok]   #773 GET_STREAM_INFO reads 125 us on every output = 0x1e848
+  [ok]   #773 GET_STREAM_INFO reads 125 us on every output = 0x1e848
+  [ok]   #773 GET_STREAM_INFO reads 125 us on every output = 0x1e848
+  timestamp output=1 stamp=53718366 phc=53494040 offset=125000 residual=99326 ns
+  [ok]   #773 output 1 AAF at 125000 ns: its hand-over is at or before its timestamp less the offset, and after it less 125 us (IEEE 1722-2016 4.3.3 Eq. (1)) = 0x1
+  timestamp output=2 stamp=53718366 phc=53494300 offset=125000 residual=99066 ns
+  [ok]   #773 output 2 AAF at 125000 ns: its hand-over is at or before its timestamp less the offset, and after it less 125 us (IEEE 1722-2016 4.3.3 Eq. (1)) = 0x1
+  timestamp output=3 stamp=53718366 phc=53494560 offset=125000 residual=98806 ns
+  [ok]   #773 output 3 AAF at 125000 ns: its hand-over is at or before its timestamp less the offset, and after it less 125 us (IEEE 1722-2016 4.3.3 Eq. (1)) = 0x1
+  timestamp output=0 stamp=53718366 phc=53499240 offset=125000 residual=94126 ns
+  [ok]   #773 output 0 AAF at 125000 ns: its hand-over is at or before its timestamp less the offset, and after it less 125 us (IEEE 1722-2016 4.3.3 Eq. (1)) = 0x1
+  timestamp output=1 stamp=53759326 phc=53524760 offset=125000 residual=109566 ns
+  [ok]   #773 output 1 AAF at 125000 ns: its hand-over is at or before its timestamp less the offset, and after it less 125 us (IEEE 1722-2016 4.3.3 Eq. (1)) = 0x1
+  timestamp output=2 stamp=53759326 phc=53525020 offset=125000 residual=109306 ns
+  [ok]   #773 output 2 AAF at 125000 ns: its hand-over is at or before its timestamp less the offset, and after it less 125 us (IEEE 1722-2016 4.3.3 Eq. (1)) = 0x1
+  timestamp output=3 stamp=53759326 phc=53525280 offset=125000 residual=109046 ns
+  [ok]   #773 output 3 AAF at 125000 ns: its hand-over is at or before its timestamp less the offset, and after it less 125 us (IEEE 1722-2016 4.3.3 Eq. (1)) = 0x1
+  timestamp output=0 stamp=53759326 phc=53529960 offset=125000 residual=104366 ns
+  [ok]   #773 output 0 AAF at 125000 ns: its hand-over is at or before its timestamp less the offset, and after it less 125 us (IEEE 1722-2016 4.3.3 Eq. (1)) = 0x1
+  timestamp output=4 stamp=53721366 phc=53575880 offset=125000 residual=20486 ns
+  [ok]   #773 output 4 CRF at 125000 ns: its hand-over is at or before its timestamp less the offset, and after it less 125 us (IEEE 1722-2016 4.3.3 Eq. (1)) = 0x1
+  timestamp output=4 stamp=54212886 phc=54067400 offset=125000 residual=20486 ns
+  [ok]   #773 output 4 CRF at 125000 ns: its hand-over is at or before its timestamp less the offset, and after it less 125 us (IEEE 1722-2016 4.3.3 Eq. (1)) = 0x1
+  #632 exact stamps: AAF 8 on, 0 off; CRF 2 on, 0 off; 899 domain events, 0 graded cycles not live
+  [ok]   #632 the domain's frame grid is live while the stamps are graded = 0x0
+  [ok]   #632 every AAF timestamp is a domain media event's instant plus whole periods (#773) plus its offset as set, to the ns = 0x1
+  [ok]   #632 every CRF timestamp, all 64 bits, is a domain media event's instant plus whole periods (#773) plus its offset applied = 0x1
+  #773 output 0 AAF adds 8 media clock periods beside its offset
+  [ok]   #773 output 0 adds one whole number of periods to every stamp = 0x1
+  #773 output 1 AAF adds 8 media clock periods beside its offset
+  [ok]   #773 output 1 adds one whole number of periods to every stamp = 0x1
+  #773 output 2 AAF adds 8 media clock periods beside its offset
+  [ok]   #773 output 2 adds one whole number of periods to every stamp = 0x1
+  #773 output 3 AAF adds 8 media clock periods beside its offset
+  [ok]   #773 output 3 adds one whole number of periods to every stamp = 0x1
+  #773 output 4 CRF adds 2 media clock periods beside its offset
+  [ok]   #773 output 4 adds one whole number of periods to every stamp = 0x1
+  [ok]   #403 output 0 produced two timestamp observations = 0x2
+  [ok]   #403 output 1 produced two timestamp observations = 0x2
+  [ok]   #403 output 2 produced two timestamp observations = 0x2
+  [ok]   #403 output 3 produced two timestamp observations = 0x2
+  [ok]   #403 output 4 produced two timestamp observations = 0x2
+  [ok]   #773 the factory offset is selected again      = 0x0
+  [ok]   #773 the factory offset is selected again      = 0x0
+  [ok]   #773 the factory offset is selected again      = 0x0
+  [ok]   #773 the factory offset is selected again      = 0x0
+  [ok]   #773 the factory offset is selected again      = 0x0
+  [ok]   #67 SET_STREAM_INFO(ACC_LAT) SUCCESS at cdl 96 = 0x1
+  [ok]   #67 GET_STREAM_INFO reads the folded transit entry = 0xb71b0
+  [ok]   #67 SET_STREAM_INFO on a Stream Input is NOT_SUPPORTED = 0xb
+  [ok]   #67 an extra sub-flag refuses the WHOLE command = 0xb
+  [ok]   #67 a bit-31 offset is BAD_ARGUMENTS           = 0x7
+  [ok]   #67 the 2013-length SET_STREAM_INFO is SUCCESS at cdl 96 = 0x1
+  [ok]   #67 no refusal moved the stored offset         = 0xb71b0
+  [ok]   #67 the CRF output's offset row takes SET_STREAM_INFO = 0x0
+  [ok]   #67 ...and its GET reads the value the CRF talker stamps = 0x1e8480
+  [ok]   #67 cleanup: SPI 0's power-on cluster 0 mapping is back = 0x0
+  [ok]   #67 cleanup: the high input's power-on mappings are back = 0x0
+  [ok]   TRAP-1 route-only CTRL at idx0 does not arm an override = 0x4
+  [ok]   TRAP-1 route-only CTRL at idx0: STILL MATCHES  = 0x1
+  [ok]   TRAP-1 explicit override at idx0: MATCH        = 0x1
+  [ok]   TRAP-1 explicit override: INFO index 0         = 0x0
+  [ok]   TRAP-1 release-to-alias: PARSED climbs         = 0x1
+  [ok]   TRAP-1 release-to-alias: alias is back, MATCHED climbs = 0x1
+  [ok]   TRAP-1 release-to-alias: INFO match flag set   = 0x1
+  [ok]   TRAP-1 ACMP re-bind still matches: PARSED climbs = 0x1
+  [ok]   TRAP-1 ACMP re-bind still matches: MATCHED climbs = 0x1
+  [ok]   TRAP-1 negative: foreign sid PARSED            = 0x1
+  [ok]   TRAP-1 negative: foreign sid NOT matched       = 0x0
+  [ok]   TRAP-1 negative: INFO match flag clear         = 0x0
+-- CRF media-clock output: ACMP talker context at uid N --
+  [ok]   CRF probe: a 70-byte ACMP response came back   = 0x46
+  [ok]   CRF probe: CONNECT_TX_RESPONSE(1)              = 0x1
+  [ok]   CRF probe: status TALKER_DEST_MAC_FAILED(3), no DA held = 0x3
+  [ok]   CRF probe: talker_unique_id echoed = N         = 0x4
+  [ok]   CRF probe negative: uid N+1 -> TALKER_UNKNOWN_ID = 0x2
+  [ok]   audio uid 1 answered in range (DEST_MAC_FAILED, not UNKNOWN_ID) = 0x3
+  [ok]   CRFT_SID unset (auto)                          = 0x0
+  [ok]   CRFT_DMAC unset (auto)                         = 0x0
+  [ok]   CRF PDU on the wire                            = 0x1
+  [ok]   CRF PDU dmac = the ACMP answer (base + N)      = 0x91e0f000fe05
+  [ok]   CRF PDU stream_id tail = N                     = 0x4
+  [ok]   explicit CRFT_DMAC overrides the auto pair     = 0x91e0f000feaa
+-- CRF media clock output: SR class A (Milan 7.3.3) --
+  [ok]   class A off: a CRF PDU still reaches the MAC   = 0x1
+  [ok]   class A off: UNTAGGED (ethertype 22F0 at 12)   = 0x22f0
+  [ok]   class A off: 60-octet legacy frame             = 0x3c
+  [ok]   class A off: dmac = the ACMP answer            = 0x91e0f000fe05
+  [ok]   class A off: 0x750[4] TA not declared          = 0x0
+  [ok]   class A off: 0x750[5] not tagged               = 0x0
+  [ok]   class A off: 0x750[19:8] VID reads 0           = 0x0
+  [ok]   lwSRP off: a CRF PDU still reaches the MAC (Milan 5.3.7.3 - a Stream Output is never stopped) = 0x1
+  [ok]   lwSRP off + class A asked: STILL UNTAGGED (the interlock) = 0x22f0
+  [ok]   lwSRP off: 0x750[1] readback keeps what was written = 0x1
+  [ok]   lwSRP off: 0x750[5] tag refused                = 0x0
+-- task #65: rx -> talker LOOPBACK (chmap src 5) --
+  [ok]   lb: talker 0 frames while the LOOP slot is mapped = 0x1
+  [ok]   lb (lane OFF): a loopback slot is silent by construction = 0x0
+         (unmapped slot: 2 talker-0 PDU(s) seen)
+  [ok]   lb: an UNMAPPED loop slot carries no rx audio  = 0x0
+  [ok]   lb: unmapping a slot never stops talker 0 framing = 0x2
+  [ok]   lb: and what it frames instead is silence      = 0x0
+-- [NOTIFY] Milan 5.4.5 unsolicited notifications on the wire --
+  [ok]   [NOTIFY] GET_NAME(ENTITY,0) answers SUCCESS (the restore point) = 0x0
+  [ok]   [NOTIFY] REGISTER from controller A answers SUCCESS = 0x0
+  [ok]   [NOTIFY] REGISTER from controller B answers SUCCESS = 0x0
+  [ok]   [NOTIFY] ...B's response went to B (dst MAC + controller_entity_id) = 0x1
+  [ok]   [NOTIFY] SET_NAME from A (a real change) is SUCCESS = 0x0
+  [i]    command-to-push latency: 2374 cycles (SET_NAME injected to the unsolicited frame's last beat)
+  [ok]   [NOTIFY] exactly ONE unsolicited SET_NAME egressed = 0x1
+  [ok]   [NOTIFY] ...to controller B (dst MAC and controller_entity_id) = 0x1
+  [ok]   [NOTIFY] ...and none to A, the requester (5.4.5.2 'except') = 0x0
+  [ok]   [NOTIFY] ...B's sequence_id starts at 0 (5.4.2.21: a new entry) = 0x0
+  [ok]   [NOTIFY] ...target_entity_id is this entity    = 0x1
+  [ok]   [NOTIFY] ...status SUCCESS with the full cdl-84 SET_NAME body = 0x1
+  [ok]   [NOTIFY] ...carrying the NEW name: current state, not history = 0x1
+  [ok]   [NOTIFY] SET_NAME of the value already held is SUCCESS = 0x0
+  [ok]   [NOTIFY] ...and pushes NOTHING: no state was modified (5.4.5.2) = 0x0
+  [ok]   [NOTIFY] SET_NAME from B is SUCCESS            = 0x0
+  [ok]   [NOTIFY] B's change reaches A alone            = 0x1
+  [ok]   [NOTIFY] ...A's entry starts its own sequence at 0 = 0x0
+  [ok]   [NOTIFY] a second change from A is SUCCESS     = 0x0
+  [ok]   [NOTIFY] ...reaches B with sequence_id 1 (its entry advanced) = 0x1
+  [ok]   [NOTIFY] ...and A's entry did not move (independent per entry) = 0x0
+  [ok]   [NOTIFY] GET_NAME right after is byte-identical from the body on = 0x1
+  [ok]   [OWNERLESS] GM LO write is inert               = 0x0
+  [ok]   [OWNERLESS] GM HI write is inert               = 0x0
+  [ok]   [OWNERLESS] domain write is inert              = 0x0
+  [ok]   [OWNERLESS] pdelay write is inert              = 0x0
+  [ok]   [OWNERLESS] parent LO write is inert           = 0x0
+  [ok]   [OWNERLESS] parent HI write is inert           = 0x0
+  [ok]   [OWNERLESS] CLKV control write is inert        = 0x0
+  [ok]   [OWNERLESS] AS path LO write is inert          = 0x0
+  [ok]   [OWNERLESS] AS path HI write is inert          = 0x0
+  [ok]   [OWNERLESS] AS path command/write is inert     = 0x0
+  [ok]   [OWNERLESS] timestamp uncertainty is permanent = 0x1
+  [ok]   [OWNERLESS] sync_ok remains clear              = 0x0
+  [ok]   [OWNERLESS] retired no-lease bit remains clear = 0x0
+  [ok]   [OWNERLESS] software discontinuity cannot arm holdover = 0x0
+  [ok]   [OWNERLESS] retired lease count remains zero   = 0x0
+  [ok]   [OWNERLESS] asCapable remains clear            = 0x0
+  [ok]   [OWNERLESS] writes emit no GET_AVB_INFO notification = 0x0
+  [ok]   [OWNERLESS] writes emit no GET_AS_PATH notification = 0x0
+  [ok]   [OWNERLESS] writes emit no AVB_INTERFACE counter notification = 0x0
+  [ok]   [OWNERLESS] writes do not count a grandmaster change = 0x0
+  [ok]   [OWNERLESS] solicited GET_AVB_INFO succeeds    = 0x0
+  [ok]   [OWNERLESS] GET_AVB_INFO grandmaster is zero   = 0x0
+  [ok]   [OWNERLESS] GET_AVB_INFO propagation delay is zero = 0x0
+  [ok]   [OWNERLESS] GET_AVB_INFO domain is zero        = 0x0
+  [ok]   [OWNERLESS] GET_AVB_INFO asCapable flag is clear = 0x0
+  [ok]   [OWNERLESS] solicited GET_AS_PATH succeeds     = 0x0
+  [ok]   [OWNERLESS] GET_AS_PATH has the empty cdl      = 0x10
+  [ok]   [OWNERLESS] GET_AS_PATH count is zero          = 0x0
+  [ok]   [NOTIFY] DEREGISTER from B answers SUCCESS     = 0x0
+  [ok]   [NOTIFY] a change from A with B gone is SUCCESS = 0x0
+  [ok]   [NOTIFY] ...and pushes nothing: A is the requester, B is gone = 0x0
+  [ok]   [NOTIFY] DEREGISTER from A answers SUCCESS     = 0x0
+  [ok]   [NOTIFY] the shipped entity_name is restored   = 0x1
+  [i]    media grid: 300 ticks in 625000 clocks (want 300 +/-1)
+  [i]    0x0041 grid: fsync-vs-grid ALIGNMENT is modelled and graded where the ratio exists: obj_aclk drives the true 391/1591 plan and proves the accepted INTERNAL drift AND the #74 aligned-under-CRF close (KL_media_grid_align). The silicon counterpart stays J11.8 against J11.9.
+  [ok]   0x0041 grid: media_tick_p actually ticks (vacuity guard) = 0x1
+  [ok]   0x0041 grid: rate is 48 kHz on the milan clock = 0x1
+  [i]    physical bucket: the slot-indexed feed pulsed 1221 times in 625000 cycles
+  [ok]   0x0042 phys: the slot-indexed capture bucket IS fed (was tied off) = 0x1
+  [ok]   0x0041 grid: the NCO's servo gate IS the live selection verdict = 0x0
+  [ok]   0x0041 grid: INTERNAL engages the grid aligner (#629 A2-a) = 0x1
+  [ok]   0x0041 grid: a disengaged aligner leaves no residual trim on the NCO port = 0x0
+--------------------------------------------------------------
+checks: 2098   failures: 0
+RESULT: PASS
+---- LPF_P=0 (pruned render tap, the ax7101 shipping shape) ----
+./obj_nolpf/Vmilan_dp_nolpf
+=== milan_datapath integration harness (§A.9 wrapper) ===
+[CSR] identity + reset values
+  [PASS] ID == 'MILN'                       got=0x4d494c4e exp=0x4d494c4e
+  [PASS] VERSION                            got=0x00020060 exp=0x00020060
+  [PASS] VERSION major (VERSION >> 16), all-fabric got=0x00000002 exp=0x00000002
+  [PASS] LINKG unarmed                      got=0x00000003 exp=0x00000003
+[CSR] eth guard: refused levers, magic unguard, junk re-arm
+  [PASS] GUARD armed at reset               got=0x00000001 exp=0x00000001
+  [PASS] PHY_RST write REFUSED while guarded got=0x00000001 exp=0x00000001
+  [PASS] LINK_CTRL[1] masked while guarded  got=0x00000001 exp=0x00000001
+  [PASS] magic unguards                     got=0x00000000 exp=0x00000000
+  [PASS] PHY_RST write accepted unguarded   got=0x00000000 exp=0x00000000
+  [PASS] junk write re-arms the guard       got=0x00000001 exp=0x00000001
+  [PASS] unguarded for the suite            got=0x00000000 exp=0x00000000
+  [PASS] CAP.ADP bit12                      got=0x00000001 exp=0x00000001
+  [PASS] CAP.TCAM bit13                     got=0x00000001 exp=0x00000001
+[CSR] program classifier (identity map)
+  [PASS] CLS_REGEN readback                 got=0x00fac688 exp=0x00fac688
+  [PASS] CLS_TCQ   readback                 got=0x000000e4 exp=0x000000e4
+[BOOT] PP_CTRL[1] starts the restore walk the listener waits for
+  [PASS] PP_STAT the restore walk ended CLOSED (no AEM image: busy 0, done 0, fail 1) got=0x00000001 exp=0x00000001
+  [PASS] PP_STAT[20:18] ...on the D3 cause of an unproven image (7) got=0x00000007 exp=0x00000007
+[ADP] served by the protocol processor; diag words are structural zeros
+  [PASS] A_ADP_DIAG 0x668 is a STRUCTURAL ZERO (no advertiser) got=0x00000000 exp=0x00000000
+  [PASS] A_ADP_DIAG2 0x674 is a STRUCTURAL ZERO (no advertiser) got=0x00000000 exp=0x00000000
+  [GAP]  ADP advertisement cadence is unreachable at the silicon millisecond (T-ADP-DELAY-START is a 0..2000 ms PRNG draw = up to 2e8 cycles; measured: no ADPDU in 4e7). A_ADP_STATUS reads 0x00000000. The ADPDU decode lives in tb/verilator/pp_shadow.
+[ADP] shape 0x618=0x40010001 0x61C=0x48010002 (N_STREAMS=1, CRF source no, CRF sink yes)
+  [PASS] 0x618 RO shape word derives from the config got=0x40010001 exp=0x40010001
+  [PASS] 0x61C RO shape word derives from the config got=0x48010002 exp=0x48010002
+  [PASS] 0x618 refuses the poke             got=0x40010001 exp=0x40010001
+  [PASS] 0x61C refuses the poke             got=0x48010002 exp=0x48010002
+[ACMP] GET_TX_STATE -> RESPONSE through datapath
+  [PASS] ACMP response emerged on MAC port  got=0x00000001 exp=0x00000001
+  [PASS] ACMP response is 9 beats           got=0x00000009 exp=0x00000009
+  [PASS] ACMP dst multicast                 got=0x01f0e091 exp=0x01f0e091
+  [PASS] ACMP subtype 0xFC                  got=0x000000fc exp=0x000000fc
+  [PASS] ACMP msg GET_TX_STATE_RESPONSE(5)  got=0x00000005 exp=0x00000005
+  [PASS] ACMP status SUCCESS + cdl 44       got=0x00002c00 exp=0x00002c00
+  [PASS] ACMP connection_count 0            got=0x00000000 exp=0x00000000
+  [PASS] ACMP sequence echoed               got=0x00002b1a exp=0x00002b1a
+  [PASS] 0x650 ACMP_STAT is a STRUCTURAL ZERO (no PDU counters) got=0x00000000 exp=0x00000000
+  [PASS] PP_DIAG: the plane ACCEPTED control frames (rx_frames > 0) got=0x00000001 exp=0x00000001
+  [PASS] PP_DIAG: and it SENT some (tx_frames > 0) got=0x00000001 exp=0x00000001
+  [PASS] PP_DIAG: nothing was lost to a full control FIFO got=0x00000000 exp=0x00000000
+[IRQ] o_irq_csr is driven
+  [PASS] o_irq_csr defined (0/1)            got=0x00000001 exp=0x00000001
+[PTP] retained PHC CSR control
+  [PASS] PHC adjfine owns the rate          got=0x00000001 exp=0x00000001
+  [PASS] PHC adjtime hops the counter       got=0x00000001 exp=0x00000001
+[MILAN-TALKER] the admission gate, and the bypass escape
+  [PASS] gate closed pre-probe (CSR)        got=0x00000000 exp=0x00000000
+  [PASS] MAC silent while gated             got=0x00000000 exp=0x00000000
+  [PASS] PROBE response emerged             got=0x00000001 exp=0x00000001
+  [PASS] PROBE response 9 beats             got=0x00000009 exp=0x00000009
+  [PASS] PROBE msg RESPONSE(1)              got=0x00000001 exp=0x00000001
+  [PASS] PROBE status TALKER_DEST_MAC_FAILED(3) - no DA held got=0x00000003 exp=0x00000003
+  [PASS] gate STILL closed after a refused probe got=0x00000000 exp=0x00000000
+  [PASS] AAF_CTRL[1] bypass opens the gate, and ONLY the gate got=0x00000008 exp=0x00000008
+  [PASS] AAF frames flow under the bypass escape got=0x00000001 exp=0x00000001
+  [PASS] AAF stream_id == {station MAC, uid 0} got=0x200000000010000 exp=0x200000000010000
+  [PASS] TONE_CTRL readback                 got=0x00000001 exp=0x00000001
+  [PASS] tone L0 in table                   got=0x00000001 exp=0x00000001
+  [PASS] tone L0 == R0 (both channels)      got=0x00000001 exp=0x00000001
+  [PASS] tone advances (L1 = next entry)    got=0x00000001 exp=0x00000001
+  [PASS] tone frame captured                got=0x00000001 exp=0x00000001
+  [PASS] crossbar tone: 48 ticks captured   got=0x00000030 exp=0x00000030
+  [PASS] crossbar tone: all wire channels equal got=0x00000000 exp=0x00000000
+  [PASS] crossbar tone: first sample in table got=0x00000001 exp=0x00000001
+  [PASS] ONE GRID: N ticks = N table steps (no slip) got=0x00000000 exp=0x00000000
+[CLKV] option-off is permanently ownerless (#116)
+  [PASS] CLKV: retained CTRL resets zero    got=0x00000000 exp=0x00000000
+  [PASS] CLKV: reset tu = 1                 got=0x00000001 exp=0x00000001
+  [PASS] CLKV: reset sync_ok = 0            got=0x00000000 exp=0x00000000
+  [PASS] CLKV: retired no-lease bit = 0     got=0x00000000 exp=0x00000000
+  [PASS] CLKV: retired lease count = 0      got=0x00000000 exp=0x00000000
+  [PASS] CLKV: reset asCapable = 0          got=0x00000000 exp=0x00000000
+  [PASS] CLKV: ownerless frame is still emitted got=0x00000001 exp=0x00000001
+  [PASS] CLKV: ownerless frame carries tu=1 got=0x00000001 exp=0x00000001
+  [PASS] CLKV: ownerless frame keeps tv=1   got=0x00000081 exp=0x00000081
+  [PASS] CLKV: frame remains the full AAF PDU got=0x0000005a exp=0x0000005a
+  [PASS] CLKV: all owner-control bits read back zero got=0x00000000 exp=0x00000000
+  [PASS] CLKV: write cannot clear tu        got=0x00000001 exp=0x00000001
+  [PASS] CLKV: write cannot assert sync     got=0x00000000 exp=0x00000000
+  [PASS] CLKV: write cannot assert asCapable got=0x00000000 exp=0x00000000
+  [PASS] CLKV: write cannot create a lease  got=0x00000000 exp=0x00000000
+  [PASS] CLKV: software discontinuity is inert got=0x00000000 exp=0x00000000
+  [PASS] CLKV: frame after owner write is emitted got=0x00000001 exp=0x00000001
+  [PASS] CLKV: owner write cannot clear wire tu got=0x00000001 exp=0x00000001
+  [PASS] CLKV: GM LO write reads zero       got=0x00000000 exp=0x00000000
+  [PASS] CLKV: GM HI write reads zero       got=0x00000000 exp=0x00000000
+  [PASS] CLKV: domain write reads zero      got=0x00000000 exp=0x00000000
+  [PASS] CLKV: pdelay write reads zero      got=0x00000000 exp=0x00000000
+  [PASS] CLKV: parent LO write reads zero   got=0x00000000 exp=0x00000000
+  [PASS] CLKV: parent HI write reads zero   got=0x00000000 exp=0x00000000
+  [PASS] CLKV: publication writes cannot assert GM holdover got=0x00000000 exp=0x00000000
+  [PASS] CLKV: publication writes cannot clear tu got=0x00000001 exp=0x00000001
+  [PASS] CLKV: PHC-only steps leave INTERNAL mr unchanged (#602) got=0x00000000 exp=0x00000000
+  [PASS] CLKV: PHC step arms holdover       got=0x00000001 exp=0x00000001
+  [PASS] CLKV: PHC step keeps tu asserted   got=0x00000001 exp=0x00000001
+  [PASS] CLKV: holdover expires             got=0x00000000 exp=0x00000000
+  [PASS] CLKV: ownerless tu remains asserted after holdover got=0x00000001 exp=0x00000001
+  [PASS] CLKV: TUCNT advances for permanent uncertainty got=0x00000001 exp=0x00000001
+  [PASS] CLKV: post-holdover frame is emitted got=0x00000001 exp=0x00000001
+  [PASS] CLKV: post-holdover frame still carries tu=1 got=0x00000001 exp=0x00000001
+  [PASS] CLKV: the settime leaves mr unchanged (#602) got=0x00000000 exp=0x00000000
+  [PASS] CLKV: settime adds no MEDIA_RESET (#602) got=0x00000000 exp=0x00000000
+[ASPATH] option-off path publication is inert (#116)
+  [PASS] ASP: reset LO zero                 got=0x00000000 exp=0x00000000
+  [PASS] ASP: reset HI zero                 got=0x00000000 exp=0x00000000
+  [PASS] ASP: reset {gen,count} zero        got=0x00000000 exp=0x00000000
+  [PASS] ASP: LO write reads zero           got=0x00000000 exp=0x00000000
+  [PASS] ASP: HI write reads zero           got=0x00000000 exp=0x00000000
+  [PASS] ASP: commit/publish writes read zero got=0x00000000 exp=0x00000000
+[AVTP-RXMON] BIND_RX -> AAF frame -> STREAM_INPUT counters (0x6B8)
+  [PASS] RXMON stat idle                    got=0x00000000 exp=0x00000000
+  [PASS] RXMON frames_rx idle               got=0x00000000 exp=0x00000000
+  [PASS] the listener launched a PROBE_TX at the named talker got=0x00000001 exp=0x00000001
+  [PASS] listener bound (0x6A4[3] bound, the class-D record) got=0x00000001 exp=0x00000001
+  [PASS] ...and 0x6A4[4] stream-active follows it got=0x00000001 exp=0x00000001
+  [PASS] 0x6A4[2:0] SM state is a STRUCTURAL ZERO (no ladder here) got=0x00000000 exp=0x00000000
+  [i] STREAM_INPUT[0] declared-format acceptance: 0x6BC=1 0x6C0=0x00000000 0x6C4=0x00000001 render=6 beats
+  [PASS] in0 fmt is the DECLARED format: a conformant PDU is ACCEPTED got=0x00000000 exp=0x00000000
+  [PASS] ...so FRAMES_RX moved (0x6BC)      got=0x00000001 exp=0x00000001
+  [PASS] ...and PCMRX advanced (0x6C4)      got=0x00000001 exp=0x00000001
+  [PASS] ...and the 48-byte PDU reached fabric render (6 beats) got=0x00000006 exp=0x00000006
+  [PASS] ...and MEDIA_LOCKED asserts (0x6B8) got=0x00000001 exp=0x00000001
+  [PASS] tagged: the format gate accepts it too (UNSUPPORTED still 0) got=0x00000000 exp=0x00000000
+  [PASS] tagged: FRAMES_RX = 2              got=0x00000002 exp=0x00000002
+  [PASS] tagged: 48-byte PDU reached fabric render (6 beats) got=0x00000006 exp=0x00000006
+  [PASS] APRB parsed = 2 frames             got=0x00000002 exp=0x00000002
+  [PASS] APRB matched = 2 frames            got=0x00000002 exp=0x00000002
+  [PASS] APRB last SID_HI (wire)            got=0x02000000 exp=0x02000000
+  [PASS] APRB last SID_LO (wire)            got=0x00020000 exp=0x00020000
+  [PASS] APRB info subtype = AAF            got=0x00000002 exp=0x00000002
+  [PASS] APRB info matched flag             got=0x00000001 exp=0x00000001
+  [PASS] APRB info armed entries            got=0x00000001 exp=0x00000001
+  [PASS] APRB unknown-sid: parsed = 3       got=0x00000003 exp=0x00000003
+  [PASS] APRB unknown-sid: matched still 2  got=0x00000002 exp=0x00000002
+  [PASS] APRB unknown-sid: SID_LO is the WIRE value got=0x00090000 exp=0x00090000
+  [PASS] APRB unknown-sid: match flag clear got=0x00000000 exp=0x00000000
+  [PASS] APRB unknown-sid: no fabric-render payload got=0x00000000 exp=0x00000000
+  [PASS] APRB unknown-sid: FRAMES_RX still 2 (unbound sid refused) got=0x00000002 exp=0x00000002
+  [wire86] FRX delta=2 UNSUP 0x0->0x0
+  [wire124pad] FRX delta=1
+  [mkaaf86] FRX delta=1
+  [PASS] prefilter: PCMRX KEPT consuming (+2 PDUs) got=0x00000005 exp=0x00000005
+  [PASS] prefilter: fabric render KEPT consuming (+12 beats) got=0x0000000c exp=0x0000000c
+  [PASS] I2S left sample from payload       got=0x00000001 exp=0x00000001
+  [PASS] epoch = 1 (one reset release since bitstream) got=0x00000001 exp=0x00000001
+  [PASS] LINK_CTRL reads back 0 (shadowed)  got=0x00000000 exp=0x00000000
+  [PASS] LINK_CTRL reads back 1 (shadowed)  got=0x00000001 exp=0x00000001
+  [PASS] epoch unchanged by link toggles    got=0x00000001 exp=0x00000001
+  [PASS] datapath alive after link toggle (ID) got=0x4d494c4e exp=0x4d494c4e
+  [PASS] ENT_NAME_LO reads back             got=0x59545241 exp=0x59545241
+  [PASS] LPF_CTRL default on                got=0x00000001 exp=0x00000001
+  [PASS] LPF_CTRL bypass set                got=0x00000000 exp=0x00000000
+  [PASS] UNSUPPORTED_FORMAT +1 (0x6C0)      got=0x00000001 exp=0x00000001
+  [PASS] FRAMES_RX unchanged by wrong-rate  got=0x00000009 exp=0x00000009
+  [PASS] no fabric render for rejected PDU  got=0x00000000 exp=0x00000000
+  [PASS] PCMRX unchanged by wrong-rate      got=0x00000006 exp=0x00000006
+  [PASS] UNSUPPORTED_FORMAT view reached its 0xFF ceiling got=0x000000ff exp=0x000000ff
+  [PASS] saturated view STAYS 0xFF (no wrap) got=0x000000ff exp=0x000000ff
+  [PASS] neighbouring TIMESTAMP_UNCERTAIN byte untouched got=0x00000000 exp=0x00000000
+  [PASS] full 32-bit UNSUPPORTED_FORMAT > the saturated view got=0x00000001 exp=0x00000001
+
+[CRF] Milan CRF media clock input engine
+  [PASS] CRF pdu_count 1                    got=0x00000001 exp=0x00000001
+  [PASS] CRF no fmt/seq errors              got=0x00000000 exp=0x00000000
+  [PASS] CRF not locked yet                 got=0x00000000 exp=0x00000000
+  [PASS] CRF delta captured (nonzero)       got=0x00000001 exp=0x00000001
+  [PASS] CRF locked after 8 clean PDUs      got=0x00000001 exp=0x00000001
+  [PASS] CRF pdu_count 8                    got=0x00000008 exp=0x00000008
+  [PASS] CRF fmt_err 1 (wrong interval)     got=0x00000001 exp=0x00000001
+  [PASS] CRF count unchanged by bad fmt     got=0x00000008 exp=0x00000008
+  [PASS] CRF still locked (no timeout)      got=0x00000001 exp=0x00000001
+  [PASS] CRF foreign sid ignored            got=0x00000008 exp=0x00000008
+  [PASS] CRF seq_err 1                      got=0x00000001 exp=0x00000001
+  [PASS] CRF rate = +256000 ns/window       got=0x0003e800 exp=0x0003e800
+  [PASS] CRF-5: mr/fs/tu PDUs accepted (+2) got=0x0000010f exp=0x0000010f
+  [PASS] CRF-5: no fmt/seq errors from mr/fs/tu got=0x00000101 exp=0x00000101
+  [PASS] CRF-5: lock survives mr/fs/tu      got=0x00000001 exp=0x00000001
+  [PASS] CRF-5: sv=0 PDU ignored            got=0x0000010f exp=0x0000010f
+  [PASS] CRF-5: clean seq resumes after sv=0 got=0x00000101 exp=0x00000101
+  [PASS] CRF-5: resumed PDU counted         got=0x00000110 exp=0x00000110
+  [PASS] CRF disabled = inert               got=0x00000110 exp=0x00000110
+
+[SERVO] clock_source resolves INTERNAL here (the live default; CRF runs in obj_aclk)
+  [PASS] the NCO grid is aligned at INTERNAL (servo_en = 1, #629 A2-a) got=0x00000001 exp=0x00000001
+  [PASS] ...and no source is followed at INTERNAL (follow_sel = 0) got=0x00000000 exp=0x00000000
+  [PASS] MMCM servo stays IDLE at clock_source = INTERNAL (MCSRV_STAT[2:0] == 0) got=0x00000000 exp=0x00000000
+  [PASS] MCSRV_CTRL reads 0 at reset        got=0x00000000 exp=0x00000000
+  [PASS] MCSRV_CTRL ps_invert readback      got=0x00000001 exp=0x00000001
+  [PASS] MCSRV_CTRL clears                  got=0x00000000 exp=0x00000000
+
+[CRFTX] Milan CRF media clock output engine + rx loopback
+  [PASS] CRFT count starts 0                got=0x00000000 exp=0x00000000
+  [PASS] CRFT sid readback (shadow)         got=0x00010001 exp=0x00010001
+  [PASS] CRFT dmac readback (shadow)        got=0xf0002a07 exp=0xf0002a07
+  [PASS] CRFT_CTRL readback en=1 + stat[7]  got=0x00000081 exp=0x00000081
+  [PASS] CRFTX captured 10 PDUs             got=0x0000000a exp=0x0000000a
+  [PASS] CRFTX 60-byte frame (last keep 0x0F) got=0x0000000f exp=0x0000000f
+  [PASS] CRFT count == captured             got=0x0000000a exp=0x0000000a
+  [i]    CRFTX byte15 = 0x81 (mr=0, ownerless tu=1)
+  [PASS] CRFTX header/sid/base/dlen/ival byte-exact got=0x00000001 exp=0x00000001
+  [PASS] CRFTX option-off ownerless tu stays one got=0x00000001 exp=0x00000001
+  [PASS] CRFTX sequence_num 0..9 consecutive got=0x00000001 exp=0x00000001
+  [PASS] CRFTX zero pad to 60B              got=0x00000001 exp=0x00000001
+  [PASS] CRFTX ts strictly monotone         got=0x00000001 exp=0x00000001
+  [PASS] CRFTX ts grid uniform (event-locked) got=0x00000001 exp=0x00000001
+  [PASS] CRFTX ts spacing nonzero           got=0x00000001 exp=0x00000001
+  [PASS] CRFRX counted all looped PDUs      got=0x0000000a exp=0x0000000a
+  [PASS] CRFRX fmt clean on our wire format got=0x00000000 exp=0x00000000
+  [PASS] CRFRX at most the sid-switch seq gap got=0x00000001 exp=0x00000001
+  [PASS] CRFRX locked on our stream         got=0x00000001 exp=0x00000001
+  [PASS] CRFRX delta ~= +PTO (Milan future-dating) got=0x00000001 exp=0x00000001
+  -- [H2] 10.4.3 mr: the level reaches the wire byte --
+  [PASS] H2 baseline: the CRF output is emitting got=0x00000003 exp=0x00000003
+  [PASS] H2 baseline: byte 15 is a well-formed sv|mr|fs|tu byte got=0x00000080 exp=0x00000080
+  [PASS] H2: the granted mr level reaches the wire byte, held got=0x00000001 exp=0x00000001
+  [i]    10.4.3 triggers REACH the media plane since #74: the resolved selection gates mr (obj_aclk's [MR] arm grades the received-toggle echo under CRF and its 10.4.3 silence at INTERNAL), and KL_media_clock_restart's clk_src_i is the live index, so the source-change trigger fires on a real SET_CLOCK_SOURCE.
+  [PASS] CRFTX disabled = silent wire       got=0x00000000 exp=0x00000000
+  [PASS] CRFTX disabled = count frozen      got=0x0000000d exp=0x0000000d
+  [PASS] CRFTX unlicensed (lwSRP on, no listener-ready) = silent got=0x00000000 exp=0x00000000
+  [PASS] CRFTX unlicensed = count frozen    got=0x0000000d exp=0x0000000d
+  [PASS] CRFT stat[7] emission-licensed clear got=0x00000000 exp=0x00000000
+  [PASS] CRFTX free-run restored with lwSRP off got=0x00000001 exp=0x00000001
+  [PASS] CRFT stat[7] emission-licensed set got=0x00000001 exp=0x00000001
+
+[S1CRF] ACMP sink-1 bind provisions the CRF engine
+  [PASS] [S1CRF] CSR enable cleared         got=0x00000000 exp=0x00000000
+  [PASS] [S1CRF] sink 1 launched its PROBE_TX got=0x00000001 exp=0x00000001
+  [i]    s1 probe: msg=0 len=70 teid=020000fffe000009 tuid=0001 luid=0001 seq=0001 sid=0000000000000000
+  [PASS] [S1CRF] ACMPL bit31 = sink-1 bound got=0x00000001 exp=0x00000001
+  [PASS] [S1CRF] engine counted on bound sid got=0x00000009 exp=0x00000009
+  [PASS] [S1CRF] locked via ACMP provisioning got=0x00000001 exp=0x00000001
+  [PASS] [S1CRF] unbind clears bit31        got=0x00000000 exp=0x00000000
+  [PASS] [S1CRF] post-unbind PDU ignored    got=0x00000009 exp=0x00000009
+
+[LINKG] link guard integration drill
+  [PASS] [LINKG] armed alive                got=0x00000003 exp=0x00000003
+  [PASS] [LINKG] reinit pin idle            got=0x00000000 exp=0x00000000
+  [PASS] [LINKG] freeze bounce              got=0x00000001 exp=0x00000001
+  [PASS] [LINKG] freeze state               got=0x00000001 exp=0x00000001
+  [PASS] [LINKG] freeze grst                got=0x00000001 exp=0x00000001
+  [PASS] [LINKG] freeze alive               got=0x00000000 exp=0x00000000
+  [PASS] [LINKG] reinit pin held            got=0x00000001 exp=0x00000001
+  [PASS] [LINKG] disable releases pin       got=0x00000000 exp=0x00000000
+  [PASS] [LINKG] re-enable RUN              got=0x00000000 exp=0x00000000
+  [PASS] [LINKG] re-enable alive            got=0x00000003 exp=0x00000003
+  [PASS] [LINKG] no extra bounce            got=0x00000001 exp=0x00000001
+  [PASS] [LINKG] reinit pin clear           got=0x00000000 exp=0x00000000
+[RMON] boundary good-frame lanes + STATS_CTRL snapshot
+  [PASS] [RMON] baseline TX_GOOD 0          got=0x00000000 exp=0x00000000
+  [PASS] [RMON] baseline RX_GOOD 0          got=0x00000000 exp=0x00000000
+  [PASS] [RMON] RX frame accepted at MAC ingress got=0x00000008 exp=0x00000008
+  [PASS] [RMON] RX frame accepted at MAC ingress got=0x00000008 exp=0x00000008
+  [PASS] [RMON] lanes latched (pre-re-arm TX_GOOD still 0) got=0x00000000 exp=0x00000000
+  [PASS] [RMON] RX_GOOD == 2 (0x230)        got=0x00000002 exp=0x00000002
+  [PASS] [RMON] UNDERFLOW == 0 (0x210)      got=0x00000000 exp=0x00000000
+  [PASS] [RMON] ext UNDERFLOW pulse == 1    got=0x00000001 exp=0x00000001
+  [PASS] [RMON] ext TX_GOOD bit ignored     got=0x00000000 exp=0x00000000
+  [PASS] [RMON] ext RX_GOOD bit ignored     got=0x00000002 exp=0x00000002
+  [PASS] [RMON] reinit release zeroes TX_GOOD got=0x00000000 exp=0x00000000
+  [PASS] [RMON] reinit release zeroes RX_GOOD got=0x00000000 exp=0x00000000
+[RMON] STATS_CAP lane capability mask (0x204)
+  [PASS] [RMON] cap with no MAC = the two derived lanes only got=0x00000108 exp=0x00000108
+  [PASS] [RMON] cap ORs the integration's lanes over the derived pair got=0x000001b8 exp=0x000001b8
+  [PASS] [RMON] TX_ERROR_UNDERFLOW declared unsupported got=0x00000000 exp=0x00000000
+  [PASS] [RMON] TX_FIFO_OVERFLOW declared unsupported got=0x00000000 exp=0x00000000
+  [PASS] [RMON] TX_FIFO_BAD_FRAME declared unsupported got=0x00000000 exp=0x00000000
+  [PASS] [RMON] RX_FIFO_OVERFLOW declared unsupported got=0x00000000 exp=0x00000000
+  [PASS] [RMON] cap is a live read (bits 31:9 reserved 0) got=0x00000000 exp=0x00000000
+======================================================================
+milan_datapath: 237 checks, 0 failures
+milan_datapath: guarded and NOT run in this shape: 1
+---- all six tier-1 blocks pruned ----
+./obj_prune/Vmilan_dp_prune
+=== milan_datapath PRUNED shape (MCSERVO_P=LTAP_P=MAAP_P=I2SPB_P=RXFILT_P=LPF_P=0) ===
+[identity] the CSR contract is unchanged by pruning
+  [ok]   ID == 'MILN'                                       = 0x4d494c4e
+  [ok]   VERSION unchanged by the prunes                    = 0x20060
+  [ok]   CAP.ADP bit12 still set                            = 0x1
+  [ok]   CAP.TCAM bit13 still set                           = 0x1
+[MCSERVO_P=0] servo pruned: status 0, MMCM pins parked
+  [ok]   MCSRV_STAT 0x8F8 reads 0 (structural)              = 0x0
+  [ok]   MCSRV_CTRL reads 0 at reset                        = 0x0
+  [ok]   MCSRV_CTRL still RW (ps_invert|auto_repair)        = 0x3
+[LTAP_P=0] taps pruned: the whole 0x870 window is a hard zero
+  [ok]   LTAP_CTRL = enable bit only, no status             = 0x2
+  [ok]   all 16 LTAP RO words read 0                        = 0x0
+[MAAP_P=0] engine pruned: claim never completes, no PDU
+  [ok]   MAAP_STAT0 reads 0                                 = 0x0
+  [ok]   MAAP_STAT1 reads 0 (state INITIAL, addr_valid 0)   = 0x0
+[I2SPB_P=0] DAC serializer pruned: counters 0
+  [ok]   I2SPB_STAT reads 0                                 = 0x0
+  [ok]   I2SPB_TRIM reads 0                                 = 0x0
+  [ok]   I2SPB_DBG  reads 0                                 = 0x0
+[LPF_P=0] filter pruned: LPF_CTRL survives as a plain register
+  [ok]   LPF_CTRL reset = 1 (enable, default)               = 0x1
+  [ok]   LPF_CTRL still RW with no filter behind it         = 0x0
+[RXFILT_P=0] filter pruned: MAC ingress remains live
+  [ok]   TCAM_CTRL still stores (window intact)             = 0x2
+  [ok]   TCAM-drop dmac is accepted at MAC ingress          = 0x8
+  [ok]   foreign unicast is accepted at MAC ingress         = 0x8
+[durability] the inert values hold under live traffic
+  [ok]   LTAP words STILL 0 after traffic                   = 0x0
+  [ok]   LTAP_CTRL STILL 0x2 after traffic                  = 0x2
+  [ok]   MCSRV_STAT STILL 0 after traffic                   = 0x0
+  [ok]   listener 0 accepted the fed AAF PDUs (PCMRX_CNT pdus) = 0x10
+  [ok]   SLIP_LB 0x8D4 STILL 0 fed then starved (structural: LOOPBACK_P=0) = 0x0
+  [ok]   CHMAP_LOOP is a measurement, not the 0xDEADDEAD poison = 0x0
+  [ok]   CHMAP_SNAP valid: a snapshot completed behind that word = 0x1
+  [ok]   CHMAP_LOOP {mask_valid, valid, fed}: no lane       = 0x6
+  [ok]   MAAP_STAT1 STILL 0 with MAAP_CTRL.en=1             = 0x0
+  [ok]   MAAP_STAT0 STILL 0 with MAAP_CTRL.en=1             = 0x0
+  [ok]   I2SPB_STAT STILL 0 after traffic                   = 0x0
+  [ok]   no MMCM pin ever moved                             = 0x0
+  [ok]   no DAC pin ever moved                              = 0x0
+[unaffected] the mandatory control path still runs
+  [ok]   RST_EPOCH live (no shadow lie)                     = 0x1
+--------------------------------------------------------------
+checks: 33   failures: 0
+RESULT: PASS
+---- THE SHIPPING ALINX SHAPE: 1 stream x 8 wire channels, TDM8 master ----
+./obj_ax1x1/Vmilan_dp_ax1x1
+=== milan_datapath integration harness (§A.9 wrapper) ===
+[CSR] identity + reset values
+  [PASS] ID == 'MILN'                       got=0x4d494c4e exp=0x4d494c4e
+  [PASS] VERSION                            got=0x00020060 exp=0x00020060
+  [PASS] VERSION major (VERSION >> 16), all-fabric got=0x00000002 exp=0x00000002
+  [PASS] LINKG unarmed                      got=0x00000003 exp=0x00000003
+[CSR] eth guard: refused levers, magic unguard, junk re-arm
+  [PASS] GUARD armed at reset               got=0x00000001 exp=0x00000001
+  [PASS] PHY_RST write REFUSED while guarded got=0x00000001 exp=0x00000001
+  [PASS] LINK_CTRL[1] masked while guarded  got=0x00000001 exp=0x00000001
+  [PASS] magic unguards                     got=0x00000000 exp=0x00000000
+  [PASS] PHY_RST write accepted unguarded   got=0x00000000 exp=0x00000000
+  [PASS] junk write re-arms the guard       got=0x00000001 exp=0x00000001
+  [PASS] unguarded for the suite            got=0x00000000 exp=0x00000000
+  [PASS] CAP.ADP bit12                      got=0x00000001 exp=0x00000001
+  [PASS] CAP.TCAM bit13                     got=0x00000001 exp=0x00000001
+[CSR] program classifier (identity map)
+  [PASS] CLS_REGEN readback                 got=0x00fac688 exp=0x00fac688
+  [PASS] CLS_TCQ   readback                 got=0x000000e4 exp=0x000000e4
+[BOOT] PP_CTRL[1] starts the restore walk the listener waits for
+  [PASS] PP_STAT the restore walk ended CLOSED (no AEM image: busy 0, done 0, fail 1) got=0x00000001 exp=0x00000001
+  [PASS] PP_STAT[20:18] ...on the D3 cause of an unproven image (7) got=0x00000007 exp=0x00000007
+[ADP] served by the protocol processor; diag words are structural zeros
+  [PASS] A_ADP_DIAG 0x668 is a STRUCTURAL ZERO (no advertiser) got=0x00000000 exp=0x00000000
+  [PASS] A_ADP_DIAG2 0x674 is a STRUCTURAL ZERO (no advertiser) got=0x00000000 exp=0x00000000
+  [GAP]  ADP advertisement cadence is unreachable at the silicon millisecond (T-ADP-DELAY-START is a 0..2000 ms PRNG draw = up to 2e8 cycles; measured: no ADPDU in 4e7). A_ADP_STATUS reads 0x00000000. The ADPDU decode lives in tb/verilator/pp_shadow.
+[ADP] shape 0x618=0x48010002 0x61C=0x48010002 (N_STREAMS=1, CRF source yes, CRF sink yes)
+  [PASS] 0x618 RO shape word derives from the config got=0x48010002 exp=0x48010002
+  [PASS] 0x61C RO shape word derives from the config got=0x48010002 exp=0x48010002
+  [PASS] 0x618 refuses the poke             got=0x48010002 exp=0x48010002
+  [PASS] 0x61C refuses the poke             got=0x48010002 exp=0x48010002
+[ACMP] GET_TX_STATE -> RESPONSE through datapath
+  [PASS] ACMP response emerged on MAC port  got=0x00000001 exp=0x00000001
+  [PASS] ACMP response is 9 beats           got=0x00000009 exp=0x00000009
+  [PASS] ACMP dst multicast                 got=0x01f0e091 exp=0x01f0e091
+  [PASS] ACMP subtype 0xFC                  got=0x000000fc exp=0x000000fc
+  [PASS] ACMP msg GET_TX_STATE_RESPONSE(5)  got=0x00000005 exp=0x00000005
+  [PASS] ACMP status SUCCESS + cdl 44       got=0x00002c00 exp=0x00002c00
+  [PASS] ACMP connection_count 0            got=0x00000000 exp=0x00000000
+  [PASS] ACMP sequence echoed               got=0x00002b1a exp=0x00002b1a
+  [PASS] 0x650 ACMP_STAT is a STRUCTURAL ZERO (no PDU counters) got=0x00000000 exp=0x00000000
+  [PASS] PP_DIAG: the plane ACCEPTED control frames (rx_frames > 0) got=0x00000001 exp=0x00000001
+  [PASS] PP_DIAG: and it SENT some (tx_frames > 0) got=0x00000001 exp=0x00000001
+  [PASS] PP_DIAG: nothing was lost to a full control FIFO got=0x00000000 exp=0x00000000
+[IRQ] o_irq_csr is driven
+  [PASS] o_irq_csr defined (0/1)            got=0x00000001 exp=0x00000001
+[PTP] retained PHC CSR control
+  [PASS] PHC adjfine owns the rate          got=0x00000001 exp=0x00000001
+  [PASS] PHC adjtime hops the counter       got=0x00000001 exp=0x00000001
+[MILAN-TALKER] the admission gate, and the bypass escape
+  [PASS] gate closed pre-probe (CSR)        got=0x00000000 exp=0x00000000
+  [PASS] MAC silent while gated             got=0x00000000 exp=0x00000000
+  [PASS] PROBE response emerged             got=0x00000001 exp=0x00000001
+  [PASS] PROBE response 9 beats             got=0x00000009 exp=0x00000009
+  [PASS] PROBE msg RESPONSE(1)              got=0x00000001 exp=0x00000001
+  [PASS] PROBE status TALKER_DEST_MAC_FAILED(3) - no DA held got=0x00000003 exp=0x00000003
+  [PASS] gate STILL closed after a refused probe got=0x00000000 exp=0x00000000
+  [PASS] AAF_CTRL[1] bypass opens the gate, and ONLY the gate got=0x00000008 exp=0x00000008
+  [PASS] AAF frames flow under the bypass escape got=0x00000001 exp=0x00000001
+  [PASS] AAF stream_id == {station MAC, uid 0} got=0x200000000010000 exp=0x200000000010000
+  [PASS] TONE_CTRL readback                 got=0x00000001 exp=0x00000001
+  [SKIP] tone L0 in table                   AUDIO_IF_SLOTS_P!=0 without the I2S pair: the TDM front-end has no pilot override
+  [SKIP] tone L0 == R0 (both channels)      AUDIO_IF_SLOTS_P!=0 without the I2S pair: the TDM front-end has no pilot override
+  [SKIP] tone advances (L1 = next entry)    AUDIO_IF_SLOTS_P!=0 without the I2S pair: the TDM front-end has no pilot override
+  [SKIP] tone frame captured                AUDIO_IF_SLOTS_P!=0 without the I2S pair: the TDM front-end has no pilot override
+  [PASS] crossbar tone: 48 ticks captured   got=0x00000030 exp=0x00000030
+  [PASS] crossbar tone: all wire channels equal got=0x00000000 exp=0x00000000
+  [PASS] crossbar tone: first sample in table got=0x00000001 exp=0x00000001
+  [PASS] ONE GRID: N ticks = N table steps (no slip) got=0x00000000 exp=0x00000000
+[CLKV] option-off is permanently ownerless (#116)
+  [PASS] CLKV: retained CTRL resets zero    got=0x00000000 exp=0x00000000
+  [PASS] CLKV: reset tu = 1                 got=0x00000001 exp=0x00000001
+  [PASS] CLKV: reset sync_ok = 0            got=0x00000000 exp=0x00000000
+  [PASS] CLKV: retired no-lease bit = 0     got=0x00000000 exp=0x00000000
+  [PASS] CLKV: retired lease count = 0      got=0x00000000 exp=0x00000000
+  [PASS] CLKV: reset asCapable = 0          got=0x00000000 exp=0x00000000
+  [PASS] CLKV: ownerless frame is still emitted got=0x00000001 exp=0x00000001
+  [PASS] CLKV: ownerless frame carries tu=1 got=0x00000001 exp=0x00000001
+  [PASS] CLKV: ownerless frame keeps tv=1   got=0x00000081 exp=0x00000081
+  [PASS] CLKV: frame remains the full AAF PDU got=0x000000ea exp=0x000000ea
+  [PASS] CLKV: all owner-control bits read back zero got=0x00000000 exp=0x00000000
+  [PASS] CLKV: write cannot clear tu        got=0x00000001 exp=0x00000001
+  [PASS] CLKV: write cannot assert sync     got=0x00000000 exp=0x00000000
+  [PASS] CLKV: write cannot assert asCapable got=0x00000000 exp=0x00000000
+  [PASS] CLKV: write cannot create a lease  got=0x00000000 exp=0x00000000
+  [PASS] CLKV: software discontinuity is inert got=0x00000000 exp=0x00000000
+  [PASS] CLKV: frame after owner write is emitted got=0x00000001 exp=0x00000001
+  [PASS] CLKV: owner write cannot clear wire tu got=0x00000001 exp=0x00000001
+  [PASS] CLKV: GM LO write reads zero       got=0x00000000 exp=0x00000000
+  [PASS] CLKV: GM HI write reads zero       got=0x00000000 exp=0x00000000
+  [PASS] CLKV: domain write reads zero      got=0x00000000 exp=0x00000000
+  [PASS] CLKV: pdelay write reads zero      got=0x00000000 exp=0x00000000
+  [PASS] CLKV: parent LO write reads zero   got=0x00000000 exp=0x00000000
+  [PASS] CLKV: parent HI write reads zero   got=0x00000000 exp=0x00000000
+  [PASS] CLKV: publication writes cannot assert GM holdover got=0x00000000 exp=0x00000000
+  [PASS] CLKV: publication writes cannot clear tu got=0x00000001 exp=0x00000001
+  [PASS] CLKV: PHC-only steps leave INTERNAL mr unchanged (#602) got=0x00000000 exp=0x00000000
+  [PASS] CLKV: PHC step arms holdover       got=0x00000001 exp=0x00000001
+  [PASS] CLKV: PHC step keeps tu asserted   got=0x00000001 exp=0x00000001
+  [PASS] CLKV: holdover expires             got=0x00000000 exp=0x00000000
+  [PASS] CLKV: ownerless tu remains asserted after holdover got=0x00000001 exp=0x00000001
+  [PASS] CLKV: TUCNT advances for permanent uncertainty got=0x00000001 exp=0x00000001
+  [PASS] CLKV: post-holdover frame is emitted got=0x00000001 exp=0x00000001
+  [PASS] CLKV: post-holdover frame still carries tu=1 got=0x00000001 exp=0x00000001
+  [PASS] CLKV: the settime leaves mr unchanged (#602) got=0x00000000 exp=0x00000000
+  [PASS] CLKV: settime adds no MEDIA_RESET (#602) got=0x00000000 exp=0x00000000
+[ASPATH] option-off path publication is inert (#116)
+  [PASS] ASP: reset LO zero                 got=0x00000000 exp=0x00000000
+  [PASS] ASP: reset HI zero                 got=0x00000000 exp=0x00000000
+  [PASS] ASP: reset {gen,count} zero        got=0x00000000 exp=0x00000000
+  [PASS] ASP: LO write reads zero           got=0x00000000 exp=0x00000000
+  [PASS] ASP: HI write reads zero           got=0x00000000 exp=0x00000000
+  [PASS] ASP: commit/publish writes read zero got=0x00000000 exp=0x00000000
+[AVTP-RXMON] BIND_RX -> AAF frame -> STREAM_INPUT counters (0x6B8)
+  [PASS] RXMON stat idle                    got=0x00000000 exp=0x00000000
+  [PASS] RXMON frames_rx idle               got=0x00000000 exp=0x00000000
+  [PASS] the listener launched a PROBE_TX at the named talker got=0x00000001 exp=0x00000001
+  [PASS] listener bound (0x6A4[3] bound, the class-D record) got=0x00000001 exp=0x00000001
+  [PASS] ...and 0x6A4[4] stream-active follows it got=0x00000001 exp=0x00000001
+  [PASS] 0x6A4[2:0] SM state is a STRUCTURAL ZERO (no ladder here) got=0x00000000 exp=0x00000000
+  [i] STREAM_INPUT[0] declared-format acceptance: 0x6BC=1 0x6C0=0x00000000 0x6C4=0x00000001 render=6 beats
+  [PASS] in0 fmt is the DECLARED format: a conformant PDU is ACCEPTED got=0x00000000 exp=0x00000000
+  [PASS] ...so FRAMES_RX moved (0x6BC)      got=0x00000001 exp=0x00000001
+  [PASS] ...and PCMRX advanced (0x6C4)      got=0x00000001 exp=0x00000001
+  [PASS] ...and the 48-byte PDU reached fabric render (6 beats) got=0x00000006 exp=0x00000006
+  [PASS] ...and MEDIA_LOCKED asserts (0x6B8) got=0x00000001 exp=0x00000001
+  [PASS] tagged: the format gate accepts it too (UNSUPPORTED still 0) got=0x00000000 exp=0x00000000
+  [PASS] tagged: FRAMES_RX = 2              got=0x00000002 exp=0x00000002
+  [PASS] tagged: 48-byte PDU reached fabric render (6 beats) got=0x00000006 exp=0x00000006
+  [PASS] APRB parsed = 2 frames             got=0x00000002 exp=0x00000002
+  [PASS] APRB matched = 2 frames            got=0x00000002 exp=0x00000002
+  [PASS] APRB last SID_HI (wire)            got=0x02000000 exp=0x02000000
+  [PASS] APRB last SID_LO (wire)            got=0x00020000 exp=0x00020000
+  [PASS] APRB info subtype = AAF            got=0x00000002 exp=0x00000002
+  [PASS] APRB info matched flag             got=0x00000001 exp=0x00000001
+  [PASS] APRB info armed entries            got=0x00000001 exp=0x00000001
+  [PASS] APRB unknown-sid: parsed = 3       got=0x00000003 exp=0x00000003
+  [PASS] APRB unknown-sid: matched still 2  got=0x00000002 exp=0x00000002
+  [PASS] APRB unknown-sid: SID_LO is the WIRE value got=0x00090000 exp=0x00090000
+  [PASS] APRB unknown-sid: match flag clear got=0x00000000 exp=0x00000000
+  [PASS] APRB unknown-sid: no fabric-render payload got=0x00000000 exp=0x00000000
+  [PASS] APRB unknown-sid: FRAMES_RX still 2 (unbound sid refused) got=0x00000002 exp=0x00000002
+  [wire86] FRX delta=0 UNSUP 0x0->0x200
+  [wire124pad] FRX delta=0
+  [mkaaf86] FRX delta=1
+  [PASS] prefilter: PCMRX KEPT consuming (+2 PDUs) got=0x00000004 exp=0x00000004
+  [PASS] prefilter: fabric render KEPT consuming (+12 beats) got=0x0000000c exp=0x0000000c
+  [SKIP] I2S left sample from payload       I2SPB_P=0: no DAC serializer in this elaboration
+  [PASS] epoch = 1 (one reset release since bitstream) got=0x00000001 exp=0x00000001
+  [PASS] LINK_CTRL reads back 0 (shadowed)  got=0x00000000 exp=0x00000000
+  [PASS] LINK_CTRL reads back 1 (shadowed)  got=0x00000001 exp=0x00000001
+  [PASS] epoch unchanged by link toggles    got=0x00000001 exp=0x00000001
+  [PASS] datapath alive after link toggle (ID) got=0x4d494c4e exp=0x4d494c4e
+  [PASS] ENT_NAME_LO reads back             got=0x59545241 exp=0x59545241
+  [PASS] LPF_CTRL default on                got=0x00000001 exp=0x00000001
+  [PASS] LPF_CTRL bypass set                got=0x00000000 exp=0x00000000
+  [PASS] UNSUPPORTED_FORMAT +1 (0x6C0)      got=0x00000001 exp=0x00000001
+  [PASS] FRAMES_RX unchanged by wrong-rate  got=0x00000006 exp=0x00000006
+  [PASS] no fabric render for rejected PDU  got=0x00000000 exp=0x00000000
+  [PASS] PCMRX unchanged by wrong-rate      got=0x00000005 exp=0x00000005
+  [PASS] UNSUPPORTED_FORMAT view reached its 0xFF ceiling got=0x000000ff exp=0x000000ff
+  [PASS] saturated view STAYS 0xFF (no wrap) got=0x000000ff exp=0x000000ff
+  [PASS] neighbouring TIMESTAMP_UNCERTAIN byte untouched got=0x00000000 exp=0x00000000
+  [PASS] full 32-bit UNSUPPORTED_FORMAT > the saturated view got=0x00000001 exp=0x00000001
+
+[CRF] Milan CRF media clock input engine
+  [PASS] CRF pdu_count 1                    got=0x00000001 exp=0x00000001
+  [PASS] CRF no fmt/seq errors              got=0x00000000 exp=0x00000000
+  [PASS] CRF not locked yet                 got=0x00000000 exp=0x00000000
+  [PASS] CRF delta captured (nonzero)       got=0x00000001 exp=0x00000001
+  [PASS] CRF locked after 8 clean PDUs      got=0x00000001 exp=0x00000001
+  [PASS] CRF pdu_count 8                    got=0x00000008 exp=0x00000008
+  [PASS] CRF fmt_err 1 (wrong interval)     got=0x00000001 exp=0x00000001
+  [PASS] CRF count unchanged by bad fmt     got=0x00000008 exp=0x00000008
+  [PASS] CRF still locked (no timeout)      got=0x00000001 exp=0x00000001
+  [PASS] CRF foreign sid ignored            got=0x00000008 exp=0x00000008
+  [PASS] CRF seq_err 1                      got=0x00000001 exp=0x00000001
+  [PASS] CRF rate = +256000 ns/window       got=0x0003e800 exp=0x0003e800
+  [PASS] CRF-5: mr/fs/tu PDUs accepted (+2) got=0x0000010f exp=0x0000010f
+  [PASS] CRF-5: no fmt/seq errors from mr/fs/tu got=0x00000101 exp=0x00000101
+  [PASS] CRF-5: lock survives mr/fs/tu      got=0x00000001 exp=0x00000001
+  [PASS] CRF-5: sv=0 PDU ignored            got=0x0000010f exp=0x0000010f
+  [PASS] CRF-5: clean seq resumes after sv=0 got=0x00000101 exp=0x00000101
+  [PASS] CRF-5: resumed PDU counted         got=0x00000110 exp=0x00000110
+  [PASS] CRF disabled = inert               got=0x00000110 exp=0x00000110
+
+[SERVO] clock_source resolves INTERNAL here (the live default; CRF runs in obj_aclk)
+  [PASS] the NCO grid is aligned at INTERNAL (servo_en = 1, #629 A2-a) got=0x00000001 exp=0x00000001
+  [PASS] ...and no source is followed at INTERNAL (follow_sel = 0) got=0x00000000 exp=0x00000000
+  [PASS] MMCM servo stays IDLE at clock_source = INTERNAL (MCSRV_STAT[2:0] == 0) got=0x00000000 exp=0x00000000
+  [PASS] MCSRV_CTRL reads 0 at reset        got=0x00000000 exp=0x00000000
+  [PASS] MCSRV_CTRL ps_invert readback      got=0x00000001 exp=0x00000001
+  [PASS] MCSRV_CTRL clears                  got=0x00000000 exp=0x00000000
+
+[CRFTX] Milan CRF media clock output engine + rx loopback
+  [PASS] CRFT count starts 0                got=0x00000000 exp=0x00000000
+  [PASS] CRFT sid readback (shadow)         got=0x00010001 exp=0x00010001
+  [PASS] CRFT dmac readback (shadow)        got=0xf0002a07 exp=0xf0002a07
+  [PASS] CRFT_CTRL readback en=1 + stat[7]  got=0x00000081 exp=0x00000081
+  [PASS] CRFTX captured 10 PDUs             got=0x0000000a exp=0x0000000a
+  [PASS] CRFTX 60-byte frame (last keep 0x0F) got=0x0000000f exp=0x0000000f
+  [PASS] CRFT count == captured             got=0x0000000a exp=0x0000000a
+  [i]    CRFTX byte15 = 0x81 (mr=0, ownerless tu=1)
+  [PASS] CRFTX header/sid/base/dlen/ival byte-exact got=0x00000001 exp=0x00000001
+  [PASS] CRFTX option-off ownerless tu stays one got=0x00000001 exp=0x00000001
+  [PASS] CRFTX sequence_num 0..9 consecutive got=0x00000001 exp=0x00000001
+  [PASS] CRFTX zero pad to 60B              got=0x00000001 exp=0x00000001
+  [PASS] CRFTX ts strictly monotone         got=0x00000001 exp=0x00000001
+  [PASS] CRFTX ts grid uniform (event-locked) got=0x00000001 exp=0x00000001
+  [PASS] CRFTX ts spacing nonzero           got=0x00000001 exp=0x00000001
+  [PASS] CRFRX counted all looped PDUs      got=0x0000000a exp=0x0000000a
+  [PASS] CRFRX fmt clean on our wire format got=0x00000000 exp=0x00000000
+  [PASS] CRFRX at most the sid-switch seq gap got=0x00000001 exp=0x00000001
+  [PASS] CRFRX locked on our stream         got=0x00000001 exp=0x00000001
+  [PASS] CRFRX delta ~= +PTO (Milan future-dating) got=0x00000001 exp=0x00000001
+  -- [H2] 10.4.3 mr: the level reaches the wire byte --
+  [PASS] H2 baseline: the CRF output is emitting got=0x00000003 exp=0x00000003
+  [PASS] H2 baseline: byte 15 is a well-formed sv|mr|fs|tu byte got=0x00000080 exp=0x00000080
+  [PASS] H2: the granted mr level reaches the wire byte, held got=0x00000001 exp=0x00000001
+  [i]    10.4.3 triggers REACH the media plane since #74: the resolved selection gates mr (obj_aclk's [MR] arm grades the received-toggle echo under CRF and its 10.4.3 silence at INTERNAL), and KL_media_clock_restart's clk_src_i is the live index, so the source-change trigger fires on a real SET_CLOCK_SOURCE.
+  [PASS] CRFTX disabled = silent wire       got=0x00000000 exp=0x00000000
+  [PASS] CRFTX disabled = count frozen      got=0x0000000d exp=0x0000000d
+  [PASS] CRFTX unlicensed (lwSRP on, no listener-ready) = silent got=0x00000000 exp=0x00000000
+  [PASS] CRFTX unlicensed = count frozen    got=0x0000000d exp=0x0000000d
+  [PASS] CRFT stat[7] emission-licensed clear got=0x00000000 exp=0x00000000
+  [PASS] CRFTX free-run restored with lwSRP off got=0x00000001 exp=0x00000001
+  [PASS] CRFT stat[7] emission-licensed set got=0x00000001 exp=0x00000001
+
+[S1CRF] ACMP sink-1 bind provisions the CRF engine
+  [PASS] [S1CRF] CSR enable cleared         got=0x00000000 exp=0x00000000
+  [PASS] [S1CRF] sink 1 launched its PROBE_TX got=0x00000001 exp=0x00000001
+  [i]    s1 probe: msg=0 len=70 teid=020000fffe000009 tuid=0001 luid=0001 seq=0001 sid=0000000000000000
+  [PASS] [S1CRF] ACMPL bit31 = sink-1 bound got=0x00000001 exp=0x00000001
+  [PASS] [S1CRF] engine counted on bound sid got=0x00000009 exp=0x00000009
+  [PASS] [S1CRF] locked via ACMP provisioning got=0x00000001 exp=0x00000001
+  [PASS] [S1CRF] unbind clears bit31        got=0x00000000 exp=0x00000000
+  [PASS] [S1CRF] post-unbind PDU ignored    got=0x00000009 exp=0x00000009
+
+[LINKG] link guard integration drill
+  [PASS] [LINKG] armed alive                got=0x00000003 exp=0x00000003
+  [PASS] [LINKG] reinit pin idle            got=0x00000000 exp=0x00000000
+  [PASS] [LINKG] freeze bounce              got=0x00000001 exp=0x00000001
+  [PASS] [LINKG] freeze state               got=0x00000001 exp=0x00000001
+  [PASS] [LINKG] freeze grst                got=0x00000001 exp=0x00000001
+  [PASS] [LINKG] freeze alive               got=0x00000000 exp=0x00000000
+  [PASS] [LINKG] reinit pin held            got=0x00000001 exp=0x00000001
+  [PASS] [LINKG] disable releases pin       got=0x00000000 exp=0x00000000
+  [PASS] [LINKG] re-enable RUN              got=0x00000000 exp=0x00000000
+  [PASS] [LINKG] re-enable alive            got=0x00000003 exp=0x00000003
+  [PASS] [LINKG] no extra bounce            got=0x00000001 exp=0x00000001
+  [PASS] [LINKG] reinit pin clear           got=0x00000000 exp=0x00000000
+[RMON] boundary good-frame lanes + STATS_CTRL snapshot
+  [PASS] [RMON] baseline TX_GOOD 0          got=0x00000000 exp=0x00000000
+  [PASS] [RMON] baseline RX_GOOD 0          got=0x00000000 exp=0x00000000
+  [PASS] [RMON] RX frame accepted at MAC ingress got=0x00000008 exp=0x00000008
+  [PASS] [RMON] RX frame accepted at MAC ingress got=0x00000008 exp=0x00000008
+  [PASS] [RMON] lanes latched (pre-re-arm TX_GOOD still 0) got=0x00000000 exp=0x00000000
+  [PASS] [RMON] RX_GOOD == 2 (0x230)        got=0x00000002 exp=0x00000002
+  [PASS] [RMON] UNDERFLOW == 0 (0x210)      got=0x00000000 exp=0x00000000
+  [PASS] [RMON] ext UNDERFLOW pulse == 1    got=0x00000001 exp=0x00000001
+  [PASS] [RMON] ext TX_GOOD bit ignored     got=0x00000000 exp=0x00000000
+  [PASS] [RMON] ext RX_GOOD bit ignored     got=0x00000002 exp=0x00000002
+  [PASS] [RMON] reinit release zeroes TX_GOOD got=0x00000000 exp=0x00000000
+  [PASS] [RMON] reinit release zeroes RX_GOOD got=0x00000000 exp=0x00000000
+[RMON] STATS_CAP lane capability mask (0x204)
+  [PASS] [RMON] cap with no MAC = the two derived lanes only got=0x00000108 exp=0x00000108
+  [PASS] [RMON] cap ORs the integration's lanes over the derived pair got=0x000001b8 exp=0x000001b8
+  [PASS] [RMON] TX_ERROR_UNDERFLOW declared unsupported got=0x00000000 exp=0x00000000
+  [PASS] [RMON] TX_FIFO_OVERFLOW declared unsupported got=0x00000000 exp=0x00000000
+  [PASS] [RMON] TX_FIFO_BAD_FRAME declared unsupported got=0x00000000 exp=0x00000000
+  [PASS] [RMON] RX_FIFO_OVERFLOW declared unsupported got=0x00000000 exp=0x00000000
+  [PASS] [RMON] cap is a live read (bits 31:9 reserved 0) got=0x00000000 exp=0x00000000
+  [i]    TDM8 master: fsync edges 780, AAF_PAIRS 16197 -> 17759 (+1562) over 200k cycles
+  [PASS] tdm-live: the MASTER generates its frame sync got=0x00000001 exp=0x00000001
+  [PASS] tdm-live: the front end captures pairs (A_AAF_PAIRS advances) got=0x00000001 exp=0x00000001
+======================================================================
+milan_datapath: 234 checks, 0 failures
+milan_datapath: guarded and NOT run in this shape: 5
+---- the same shape at the TRUE clk_audio ratio (391/1591) ----
+./obj_aclk/Vmilan_dp_aclk
+======================================================================
+media-grid alignment at the TRUE ratio: clk_audio = axis * 391/1591
+======================================================================
+
+[RENDER-BIND] listener 0 bound over ACMP for the render-law phases
+  [ok]   [RENDER-BIND] PP_STAT the restore walk ended CLOSED (no AEM image: busy 0, done 0, fail 1) = 1
+  [ok]   [RENDER-BIND] PP_STAT[20:18] ...on the D3 cause of an unproven image (7) = 7
+  [ok]   RENDER-BIND: the listener launched a PROBE_TX at the named talker = 1
+  [ok]   RENDER-BIND: listener bound (0x6A4[3], the class-D record) = 1
+
+[RENDER-INT] the presentation law at INTERNAL (A2-a: cadence = the physical grid the packet grid is held on)
+  [ok]   RENDER-CSR: AR handshake                                   = 1
+  [ok]   RENDER-CSR: R response                                     = 1
+  [ok]   RENDER-CSR: OKAY response                                  = 0
+  [ok]   RENDER-CSR: reset mirrors taps                             = 256
+  [ok]   RENDER-CSR: RVALID held under backpressure                 = 1
+  [ok]   RENDER-CSR: sampled word held under backpressure           = 256
+  [ok]   RENDER-CSR: idle at reset, nothing queued                  = 256
+  [ok]   RENDER-CSR: AR handshake                                   = 1
+  [ok]   RENDER-CSR: R response                                     = 1
+  [ok]   RENDER-CSR: OKAY response                                  = 0
+  [ok]   RENDER-CSR: queued mirrors taps                            = 346
+  [ok]   RENDER-CSR: RVALID held under backpressure                 = 1
+  [ok]   RENDER-CSR: sampled word held under backpressure           = 346
+  [ok]   RENDER-CSR: frames queued ahead of the first presentation  = 1
+  [ok]   RENDER-CSR: idle until the stream's first presentation time = 1
+  [ok]   RENDER-CSR: AR handshake                                   = 1
+  [ok]   RENDER-CSR: R response                                     = 1
+  [ok]   RENDER-CSR: OKAY response                                  = 0
+  [ok]   RENDER-CSR: converged mirrors taps                         = 601
+  [ok]   RENDER-CSR: RVALID held under backpressure                 = 1
+  [ok]   RENDER-CSR: sampled word held under backpressure           = 601
+  [ok]   RENDER-CSR: converged bit reached the word                 = 1
+  [ok]   RENDER-CSR: presenting (idle clear)                        = 0
+  [ok]   RENDER-INT: every injected PDU was accepted                = 960
+  RENDER-INT: the frame period 20833.555 ns (the clock plan); the domain's events measured 20833.554 ns apart
+  RENDER-INT: 943 PDUs, 5658 events: 0 never presented, 0 repeated, 0 out of order; the largest |presented - presentation time| 9.8 ns (+/-5 % of Ps is 1041.7 ns)
+  [ok]   RENDER-INT: PDUs graded                                    = 1
+  [ok]   RENDER-INT: every event presented once, in order           = 0
+  [ok]   RENDER-INT: every event presented at its presentation time = 1
+  [ok]   RENDER-INT: no slip inside the window                      = 0
+  [ok]   RENDER-INT: nothing refused inside the window              = 0
+  [ok]   RENDER-INT: nothing handed over that no PDU of this leg carried = 0
+  [ok]   RENDER-INT: converged                                      = 1
+
+[RENDER-ARRIVE-INT] the running feed arrives three ticks later, then three earlier: no presentation moves
+  RENDER-ARRIVE-INT (late): 41 PDUs, 246 events: 0 never presented, 0 repeated, 0 out of order; the largest |presented - presentation time| 9.8 ns (+/-5 % of Ps is 1041.7 ns)
+  [ok]   RENDER-ARRIVE-INT: PDUs graded (late)                      = 1
+  [ok]   RENDER-ARRIVE-INT: every event presented once, in order (late) = 0
+  [ok]   RENDER-ARRIVE-INT: every event presented at its presentation time (late) = 1
+  [ok]   RENDER-ARRIVE-INT: no slip across the shift (late)         = 0
+  [ok]   RENDER-ARRIVE-INT: nothing refused across the shift (late) = 0
+  RENDER-ARRIVE-INT (early): 42 PDUs, 252 events: 0 never presented, 0 repeated, 0 out of order; the largest |presented - presentation time| 9.8 ns (+/-5 % of Ps is 1041.7 ns)
+  [ok]   RENDER-ARRIVE-INT: PDUs graded (early)                     = 1
+  [ok]   RENDER-ARRIVE-INT: every event presented once, in order (early) = 0
+  [ok]   RENDER-ARRIVE-INT: every event presented at its presentation time (early) = 1
+  [ok]   RENDER-ARRIVE-INT: no slip across the shift (early)        = 0
+  [ok]   RENDER-ARRIVE-INT: nothing refused across the shift (early) = 0
+
+[RENDER-STEP-INT] a PHC adjtime of 65536 ns under the running stream, the talker's time moved with it: no presentation moves
+  RENDER-STEP-INT: the domain's instants moved 65542 ns (the command: 65536 ns)
+  [ok]   RENDER-STEP-INT: the step reached the domain's instants    = 1
+  RENDER-STEP-INT: 42 PDUs, 252 events: 0 never presented, 0 repeated, 0 out of order; the largest |presented - presentation time| 8.0 ns (+/-5 % of Ps is 1041.7 ns)
+  [ok]   RENDER-STEP-INT: PDUs graded                               = 1
+  [ok]   RENDER-STEP-INT: every event presented once, in order      = 0
+  [ok]   RENDER-STEP-INT: every event presented at its presentation time = 1
+  [ok]   RENDER-STEP-INT: no slip across the step                   = 0
+  [ok]   RENDER-STEP-INT: nothing refused across the step           = 0
+  [ok]   RENDER-STEP-INT: presenting throughout (converged)         = 1
+
+[RENDER-SETTIME] a PHC settime (the reset load value, zero) under the running stream, the talker's time moved with it: no presentation moves
+  RENDER-SETTIME: the domain's instants moved -136202000 ns (the command: -136201946 ns)
+  [ok]   RENDER-SETTIME: the step reached the domain's instants     = 1
+  RENDER-SETTIME: 42 PDUs, 252 events: 0 never presented, 0 repeated, 0 out of order; the largest |presented - presentation time| 13.1 ns (+/-5 % of Ps is 1041.7 ns)
+  [ok]   RENDER-SETTIME: PDUs graded                                = 1
+  [ok]   RENDER-SETTIME: every event presented once, in order       = 0
+  [ok]   RENDER-SETTIME: every event presented at its presentation time = 1
+  [ok]   RENDER-SETTIME: no slip across the step                    = 0
+  [ok]   RENDER-SETTIME: nothing refused across the step            = 0
+  [ok]   RENDER-SETTIME: presenting throughout (converged)          = 1
+
+[RENDER-REFUSE] a late PDU, a too-early one and one without tv, each between two of the running stream's: each counted once, none presented
+  [ok]   RENDER-CSR: AR handshake                                   = 1
+  [ok]   RENDER-CSR: R response                                     = 1
+  [ok]   RENDER-CSR: OKAY response                                  = 0
+  [ok]   RENDER-CSR: before the refused PDUs mirrors taps           = 607
+  [ok]   RENDER-CSR: RVALID held under backpressure                 = 1
+  [ok]   RENDER-CSR: sampled word held under backpressure           = 607
+  [ok]   RENDER-REFUSE: the late PDU counted once in late_o         = 1
+  [ok]   RENDER-REFUSE: the too-early PDU counted once in early_o   = 1
+  [ok]   RENDER-REFUSE: the PDU without tv counted once in untimed_o = 1
+  [ok]   RENDER-REFUSE: no refused PDU presented                    = 0
+  [ok]   RENDER-REFUSE: no slip                                     = 0
+  [ok]   RENDER-CSR: AR handshake                                   = 1
+  [ok]   RENDER-CSR: R response                                     = 1
+  [ok]   RENDER-CSR: OKAY response                                  = 0
+  [ok]   RENDER-CSR: refused mirrors taps                           = 131677
+  [ok]   RENDER-CSR: RVALID held under backpressure                 = 1
+  [ok]   RENDER-CSR: sampled word held under backpressure           = 131677
+  [ok]   RENDER-REFUSE: RENDER_STAT's refused field counts the late and the too-early PDU = 2
+  [ok]   RENDER-REFUSE: a refused PDU leaves the stream converged   = 1
+  RENDER-REFUSE: 45 PDUs, 270 events: 0 never presented, 0 repeated, 0 out of order; the largest |presented - presentation time| 13.0 ns (+/-5 % of Ps is 1041.7 ns)
+  [ok]   RENDER-REFUSE: PDUs graded                                 = 1
+  [ok]   RENDER-REFUSE: every event presented once, in order        = 0
+  [ok]   RENDER-REFUSE: every event presented at its presentation time = 1
+
+[RING-INT] the loopback ring at INTERNAL (A2-a): pushed on the physical grid, popped on the packet grid held on it
+  [ok]   RING-INT: the priming PDU reached the loop tap             = 1
+  loop-tap landing latency: 73 cycles after the inject slot
+  [ok]   RING-INT: the priming PDU's loop-tap latency is inside one AAF period = 1
+  restart PDU landed 1937 cycles after a tick (aim 1938, band 1875..2000)
+  [ok]   RING-INT: the restart PDU landed inside the aimed band     = 1
+  the PDU spans 23 cycles at the loop tap: its first beat landed 1914 cycles after the tick
+  the -10.64 ppm plan would dup first after 1273 PDUs = 15915705 cycles (0.159 s); window 23873557 cycles
+  ring over the window: 0 dup, 0 skip (first dup at -1); TDM junction 0 dup, 0 skip
+  [ok]   RING-INT: zero ring dups over the window that would expose -10.64 ppm (A2-a) = 0
+  [ok]   RING-INT: zero ring skips                                  = 0
+  [ok]   RING-INT: zero TDM junction slips over the same window     = 0
+  [ok]   RING-INT: the align loop is engaged at INTERNAL (A2-a)     = 1
+  [ok]   RING-INT: SLIP_LB 0x8D4 carries the ring's {skip, dup}     = 2883624
+
+[INTERNAL] clock_source INTERNAL (A2-a): the packet grid held on the physical one
+  media_tick_p : 4800 ticks, first 38637711 last 48635742
+  tdm_fsync_o  : 4799 frames, first 38637983 last 48633922
+  [ok]   media grid ticked                                          = 1
+  [ok]   TDM master framed                                          = 1
+  MEASURED     :   +0.8646 ppm   (closed form  -10.6393 ppm)
+  one sample of slip every 24.0949 s
+  [ok]   INTERNAL: the grids hold one rate within 5 ppm (the plan's -10.64 ppm drift gone) = 1
+  [ok]   INTERNAL: phase error bounded well inside a sample (<300 cycles) = 1
+  [ok]   INTERNAL: zero junction dups over the window               = 0
+  [ok]   INTERNAL: zero junction skips over the window              = 0
+  [ok]   INTERNAL: align loop engaged (A2-a)                        = 1
+  [ok]   INTERNAL: NCO servo gate live (A2-a)                       = 1
+
+[CRF] the stored selection goes to this shape's CRF index (1)
+  [ok]   CRF: the root resolve sees the selection                   = 1
+  [ok]   CRF: the NCO servo gate is live                            = 1
+  [ok]   CRF: sink locked (8 clean PDUs)                            = 1
+  [ok]   CRF: align loop engaged on the physical frame marker       = 1
+  MEASURED     :   +0.1334 ppm with CRF selected (was   +0.8646)
+  [ok]   CRF: the grids are ALIGNED (|ppm| < 0.5 - the #74 close)   = 1
+  [ok]   CRF: zero junction dups over the aligned window            = 0
+  [ok]   CRF: zero junction skips over the aligned window           = 0
+  [ok]   CRF: phase error bounded well inside a sample (<300 cycles) = 1
+  A_MCSRV_STAT : 0x00000033
+  [ok]   CRF: the MMCM servo tracks through the live select (ACQUIRE) = 3
+
+[RENDER-LIVE-CRF] the CRF selection under the running stream: no presentation moved
+  [ok]   RENDER-LIVE-CRF: no slip across the selection              = 0
+  [ok]   RENDER-LIVE-CRF: nothing refused across the selection      = 0
+  RENDER-LIVE-CRF: 4960 PDUs, 29760 events: 0 never presented, 0 repeated, 0 out of order; the largest |presented - presentation time| 13.1 ns (+/-5 % of Ps is 1041.7 ns)
+  [ok]   RENDER-LIVE-CRF: PDUs graded                               = 1
+  [ok]   RENDER-LIVE-CRF: every event presented once, in order      = 0
+  [ok]   RENDER-LIVE-CRF: every event presented at its presentation time = 1
+  [ok]   RENDER-LIVE-CRF: converged                                 = 1
+
+[RENDER-CRF] the presentation law under CRF (cadence = the physical grid, 12500 + 52/391)
+  [ok]   RENDER-CRF: every injected PDU was accepted                = 1200
+  RENDER-CRF: 1200 PDUs, 7200 events: 0 never presented, 0 repeated, 0 out of order; the largest |presented - presentation time| 13.1 ns (+/-5 % of Ps is 1041.7 ns)
+  [ok]   RENDER-CRF: PDUs graded                                    = 1
+  [ok]   RENDER-CRF: every event presented once, in order           = 0
+  [ok]   RENDER-CRF: every event presented at its presentation time = 1
+  [ok]   RENDER-CRF: no slip inside the window                      = 0
+  [ok]   RENDER-CRF: nothing refused inside the window              = 0
+  [ok]   RENDER-CRF: the aligner stayed engaged                     = 1
+  [ok]   RENDER-CRF: converged                                      = 1
+
+[RENDER-ARRIVE-CRF] the running feed arrives three ticks later, then three earlier: no presentation moves
+  RENDER-ARRIVE-CRF (late): 41 PDUs, 246 events: 0 never presented, 0 repeated, 0 out of order; the largest |presented - presentation time| 13.1 ns (+/-5 % of Ps is 1041.7 ns)
+  [ok]   RENDER-ARRIVE-CRF: PDUs graded (late)                      = 1
+  [ok]   RENDER-ARRIVE-CRF: every event presented once, in order (late) = 0
+  [ok]   RENDER-ARRIVE-CRF: every event presented at its presentation time (late) = 1
+  [ok]   RENDER-ARRIVE-CRF: no slip across the shift (late)         = 0
+  [ok]   RENDER-ARRIVE-CRF: nothing refused across the shift (late) = 0
+  RENDER-ARRIVE-CRF (early): 42 PDUs, 252 events: 0 never presented, 0 repeated, 0 out of order; the largest |presented - presentation time| 13.1 ns (+/-5 % of Ps is 1041.7 ns)
+  [ok]   RENDER-ARRIVE-CRF: PDUs graded (early)                     = 1
+  [ok]   RENDER-ARRIVE-CRF: every event presented once, in order (early) = 0
+  [ok]   RENDER-ARRIVE-CRF: every event presented at its presentation time (early) = 1
+  [ok]   RENDER-ARRIVE-CRF: no slip across the shift (early)        = 0
+  [ok]   RENDER-ARRIVE-CRF: nothing refused across the shift (early) = 0
+
+[RENDER-STEP-CRF] a PHC adjtime of 65536 ns under the running stream, the talker's time moved with it: no presentation moves
+  RENDER-STEP-CRF: the domain's instants moved 65532 ns (the command: 65536 ns)
+  [ok]   RENDER-STEP-CRF: the step reached the domain's instants    = 1
+  RENDER-STEP-CRF: 42 PDUs, 252 events: 0 never presented, 0 repeated, 0 out of order; the largest |presented - presentation time| 12.6 ns (+/-5 % of Ps is 1041.7 ns)
+  [ok]   RENDER-STEP-CRF: PDUs graded                               = 1
+  [ok]   RENDER-STEP-CRF: every event presented once, in order      = 0
+  [ok]   RENDER-STEP-CRF: every event presented at its presentation time = 1
+  [ok]   RENDER-STEP-CRF: no slip across the step                   = 0
+  [ok]   RENDER-STEP-CRF: nothing refused across the step           = 0
+  [ok]   RENDER-STEP-CRF: presenting throughout (converged)         = 1
+
+[RING-CRF] under CRF the ring's push (the physical grid) and pop (the aligned packet grid) are one grid
+  [ok]   RING-CRF: the align loop is engaged                        = 1
+  restart PDU landed 1937 cycles after a tick (aim 1938, band 1875..2000)
+  [ok]   RING-CRF: the restart PDU landed inside the aimed band     = 1
+  ring over the same 23873557-cycle window: 0 dup, 0 skip (first dup at -1); TDM junction 0 dup, 0 skip
+  align-loop phase error at the window's end: 0 cycles
+  [ok]   RING-CRF: zero ring dups over the window that exposed -10.64 ppm at INTERNAL = 0
+  [ok]   RING-CRF: zero ring skips                                  = 0
+  [ok]   RING-CRF: zero TDM junction slips over the same window     = 0
+  [ok]   RING-CRF: the align loop stayed engaged                    = 1
+  [ok]   RING-CRF: SLIP_LB still reads its tap under lock           = 2883664
+  [ok]   RING-CRF: SLIP_TDM still reads its tap under lock          = 0
+  [ok]   CHMAP_LOOP is a measurement, not the 0xDEADDEAD poison     = 0
+  [ok]   CHMAP_SNAP valid: a snapshot completed behind that word    = 1
+  [ok]   RING-CRF: CHMAP_LOOP {mask_valid, valid, fed}              = 7
+
+[MR] the received mr toggle reaches our streams - only under CRF
+  [ok]   MR baseline: our CRF output is emitting                    = 2
+  [ok]   MR: our outgoing mr FLIPPED on the received toggle (CRF selected) = 1
+  [ok]   MR: deselect resolves back                                 = 0
+  [ok]   MR: the source change itself toggles mr (4.4.4.3)          = 0
+  [ok]   MR: the received toggle does NOT echo at INTERNAL (10.4.3) = 0
+  [ok]   MR: align loop stays engaged back at INTERNAL (A2-a)       = 1
+
+[RENDER-LIVE-INT] the deselect under the running stream: no presentation moved
+  [ok]   RENDER-LIVE-INT: no slip across the deselect               = 0
+  [ok]   RENDER-LIVE-INT: nothing refused across the deselect       = 0
+  RENDER-LIVE-INT: 720 PDUs, 4320 events: 0 never presented, 0 repeated, 0 out of order; the largest |presented - presentation time| 9.5 ns (+/-5 % of Ps is 1041.7 ns)
+  [ok]   RENDER-LIVE-INT: PDUs graded                               = 1
+  [ok]   RENDER-LIVE-INT: every event presented once, in order      = 0
+  [ok]   RENDER-LIVE-INT: every event presented at its presentation time = 1
+  [ok]   RENDER-LIVE-INT: converged                                 = 1
+
+[SLIP-CSR] SLIP_LB 0x8D4 / SLIP_TDM 0x8D8 carry the junction counters
+  [ok]   SLIP-CSR: one held frame = one TDM junction dup            = 1
+  TDM junction: +1 dup after the held frame, +2 skip after the doubled frames
+  [ok]   SLIP-CSR: doubled frames = TDM junction skips              = 1
+  SLIP_TDM 0x00020001 (tap 0x00020001)
+  [ok]   SLIP-CSR: SLIP_TDM carries the junction's {skip, dup}      = 131073
+  SLIP_LB  0x002C0050 (tap 0x002C0050)
+  [ok]   SLIP-CSR: SLIP_LB carries the ring's {skip, dup}           = 2883664
+  [ok]   SLIP-CSR: both words are non-zero after the induced slips  = 1
+  [ok]   SLIP-CSR: SLIP_LB ignores writes                           = 2883664
+  [ok]   SLIP-CSR: SLIP_TDM ignores writes                          = 131073
+  [ok]   RENDER-CSR: talker selection reads zero                    = 0
+  [ok]   RENDER-CSR: bit 9 preserves talker rejection               = 0
+  [ok]   RENDER-CSR: out-of-range listener reads zero               = 0
+  [ok]   RENDER-CSR: AR handshake                                   = 1
+  [ok]   RENDER-CSR: R response                                     = 1
+  [ok]   RENDER-CSR: OKAY response                                  = 0
+  [ok]   RENDER-CSR: bit 9 with listener 0 mirrors taps             = 131648
+  [ok]   RENDER-CSR: RVALID held under backpressure                 = 1
+  [ok]   RENDER-CSR: sampled word held under backpressure           = 131648
+  [ok]   RENDER-CSR: AR handshake                                   = 1
+  [ok]   RENDER-CSR: R response                                     = 1
+  [ok]   RENDER-CSR: OKAY response                                  = 0
+  [ok]   RENDER-CSR: write ignored mirrors taps                     = 131647
+  [ok]   RENDER-CSR: RVALID held under backpressure                 = 1
+  [ok]   RENDER-CSR: sampled word held under backpressure           = 131647
+
+----------------------------------------------------------------------
+media_aclk: 182 checks, 0 failures
+RESULT: PASS
+---- #637 the map records across the 8x8 shape's eight output ports ----
+./obj_maprec8/Vmilan_dp_maprec8
+=== milan_datapath NxN integration (N_STREAMS=8, P12) ===
+  [ok]   ID == 'MILN'                                   = 0x4d494c4e
+  [ok]   VERSION 0x0060 originally widened pending to unflushed bindings and AECP marks; #502 now reports accepted live name/map writes, and carries 0x005F's saved-state snapshot ownership contract, 0x005E's applied gPTP timestamp latency corrections at 0x7F0, 0x005C's SRP status words read by code, 0x005B's SET_SAMPLING_RATE list-check pin, 0x005A's GET_TX_STATE Listener-code pin, 0x0059's PPS words, 0x0058's slip pair, ownerless option OFF and the 0x0055 notification work = 0x20060
+  [ok]   [AECP] before the restore READ_DESCRIPTOR is HELD, not answered = 0x1
+  [ok]   [AECP] ...a second one is DROPPED at the slot gate (word 37 +1) = 0x1
+  [ok]   [AECP] ...read over a posted access that did not error = 0x1
+  [ok]   [AECP-IMG] the shipped generator emitted an image = 0x1
+  [i]    image: 20800 bytes, 132 descriptors
+  [ok]   [AECP-IMG] ...beginning with the AEMI magic    = 0x41454d49
+  [ok]   [BOOT] PP_STAT the restore walk sequenced (done 1, CLOSED 0) = 0x4
+  [ok]   [AECP] ...and the held READ_DESCRIPTOR is answered at the release = 0x1
+  [ok]   [AECP-IMG] the snapshot window answers ('KLPP') = 0x4b4c5050
+  [ok]   [AECP-IMG] ...over a posted access that did not error = 0x1
+  [ok]   [AECP-IMG] ENTITY,0: the image HAS this descriptor = 0x1
+  [ok]   [AECP-IMG] ENTITY,0: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-IMG] ENTITY,0: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-IMG] ENTITY,0: status SUCCESS(0)         = 0x0
+  [ok]   [AECP-IMG] ENTITY,0: sequence_id echoed        = 0x4011
+  [ok]   [AECP-IMG] ENTITY,0: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-IMG] ENTITY,0: cdl = 12 + 4 + the descriptor = 0x148
+  [ok]   [AECP-IMG] ENTITY,0: the frame is as long as it claims = 0x162
+  [ok]   [AECP-IMG] ENTITY,0: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-IMG] ENTITY,0: reserved @26 is zero      = 0x0
+  [ok]   [AECP-IMG] ENTITY,0: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-IMG] ENTITY,0: descriptor_type field @28 = 0x0
+  [ok]   [AECP-IMG] ENTITY,0: descriptor_index field @30 = 0x0
+  [i]    desc-store word 34 = 0x00058801 after 7 burst(s), 1071 beat(s)
+  [ok]   [AECP-IMG] the store FETCHED from descriptor memory = 0x1
+  [ok]   [AECP-IMG] the image VALIDATED (word 34 bit 0) = 0x1
+  [ok]   [AECP-IMG] ...with no store fault (word 34 [4:1]) = 0x0
+  [ok]   [AECP-IMG] STREAM_INPUT,1: the image HAS this descriptor = 0x1
+  [ok]   [AECP-IMG] STREAM_INPUT,1: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-IMG] STREAM_INPUT,1: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-IMG] STREAM_INPUT,1: status SUCCESS(0)   = 0x0
+  [ok]   [AECP-IMG] STREAM_INPUT,1: sequence_id echoed  = 0x4012
+  [ok]   [AECP-IMG] STREAM_INPUT,1: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-IMG] STREAM_INPUT,1: cdl = 12 + 4 + the descriptor = 0xaa
+  [ok]   [AECP-IMG] STREAM_INPUT,1: the frame is as long as it claims = 0xc4
+  [ok]   [AECP-IMG] STREAM_INPUT,1: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-IMG] STREAM_INPUT,1: reserved @26 is zero = 0x0
+  [ok]   [AECP-IMG] STREAM_INPUT,1: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-IMG] STREAM_INPUT,1: descriptor_type field @28 = 0x5
+  [ok]   [AECP-IMG] STREAM_INPUT,1: descriptor_index field @30 = 0x1
+  [i]    response-memory lane writes: +40 for ENTITY (312 B), +21 for STREAM_INPUT 1 (154 B)
+  [ok]   [AECP-IMG] the response memory COMMITTED the ENTITY lanes = 0x1
+  [ok]   [AECP-IMG] ...and committed STREAM_INPUT 1's as well = 0x1
+  [ok]   [AECP-IMG] no response was voided by the memory = 0x0
+  [ok]   [AECP-IMG] the response buffer reports no fault (word 36) = 0x0
+  [ok]   [AECP-WTMO] a memory that NEVER ACKS still gets an ANSWER = 0x1
+  [ok]   [AECP-WTMO] ...still an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-WTMO] ...with ENTITY_MISBEHAVING(10), the documented degradation = 0xa
+  [ok]   [AECP-WTMO] ...carrying no payload it could not build (cdl = 12) = 0xc
+  [ok]   [AECP-WTMO] ...still padded to the 60-octet minimum = 0x3c
+  [ok]   [AECP-WTMO] ...and the response buffer reports its fault (word 36) = 0x1
+  [ok]   [AECP-WTMO] the station HEALS when the memory returns (no reset) = 0x1
+  [ok]   [AECP-WTMO] ...and the response buffer's fault clears (word 36) = 0x0
+-- [MAPREC] #637: the channel-map records across 8 dynamic output ports --
+  [ok]   [NVM] the backend accepted the window load (PP_NVM_STAT[2] 1, [11] 0) = 0x1
+  [ok]   [NVM] ...and holds it valid (PP_NVM_STAT[7])   = 0x1
+  [ok]   [MAPREC] a first boot over an erased window    = 0x1
+  [ok]   [BOOT] PP_STAT the restore walk sequenced (done 1, CLOSED 0) = 0x4
+  [i]    first boot: port 0: status 0, 8 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0 s0.c4->o4.c0 s0.c5->o5.c0 s0.c6->o6.c0 s0.c7->o7.c0
+  [ok]   [MAPREC] first boot: port 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] first boot: port 0: number_of_mappings = 0x8
+  [ok]   [MAPREC] first boot: port 0: the mappings are the expected list = 0x1
+  [i]    first boot: port 1: status 0, 8 mapping(s) s1.c0->o0.c0 s1.c1->o1.c0 s1.c2->o2.c0 s1.c3->o3.c0 s1.c4->o4.c0 s1.c5->o5.c0 s1.c6->o6.c0 s1.c7->o7.c0
+  [ok]   [MAPREC] first boot: port 1: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] first boot: port 1: number_of_mappings = 0x8
+  [ok]   [MAPREC] first boot: port 1: the mappings are the expected list = 0x1
+  [i]    first boot: port 2: status 0, 8 mapping(s) s2.c0->o0.c0 s2.c1->o1.c0 s2.c2->o2.c0 s2.c3->o3.c0 s2.c4->o4.c0 s2.c5->o5.c0 s2.c6->o6.c0 s2.c7->o7.c0
+  [ok]   [MAPREC] first boot: port 2: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] first boot: port 2: number_of_mappings = 0x8
+  [ok]   [MAPREC] first boot: port 2: the mappings are the expected list = 0x1
+  [i]    first boot: port 3: status 0, 8 mapping(s) s3.c0->o0.c0 s3.c1->o1.c0 s3.c2->o2.c0 s3.c3->o3.c0 s3.c4->o4.c0 s3.c5->o5.c0 s3.c6->o6.c0 s3.c7->o7.c0
+  [ok]   [MAPREC] first boot: port 3: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] first boot: port 3: number_of_mappings = 0x8
+  [ok]   [MAPREC] first boot: port 3: the mappings are the expected list = 0x1
+  [i]    first boot: port 4: status 0, 8 mapping(s) s4.c0->o0.c0 s4.c1->o1.c0 s4.c2->o2.c0 s4.c3->o3.c0 s4.c4->o4.c0 s4.c5->o5.c0 s4.c6->o6.c0 s4.c7->o7.c0
+  [ok]   [MAPREC] first boot: port 4: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] first boot: port 4: number_of_mappings = 0x8
+  [ok]   [MAPREC] first boot: port 4: the mappings are the expected list = 0x1
+  [i]    first boot: port 5: status 0, 8 mapping(s) s5.c0->o0.c0 s5.c1->o1.c0 s5.c2->o2.c0 s5.c3->o3.c0 s5.c4->o4.c0 s5.c5->o5.c0 s5.c6->o6.c0 s5.c7->o7.c0
+  [ok]   [MAPREC] first boot: port 5: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] first boot: port 5: number_of_mappings = 0x8
+  [ok]   [MAPREC] first boot: port 5: the mappings are the expected list = 0x1
+  [i]    first boot: port 6: status 0, 8 mapping(s) s6.c0->o0.c0 s6.c1->o1.c0 s6.c2->o2.c0 s6.c3->o3.c0 s6.c4->o4.c0 s6.c5->o5.c0 s6.c6->o6.c0 s6.c7->o7.c0
+  [ok]   [MAPREC] first boot: port 6: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] first boot: port 6: number_of_mappings = 0x8
+  [ok]   [MAPREC] first boot: port 6: the mappings are the expected list = 0x1
+  [i]    first boot: port 7: status 0, 8 mapping(s) s7.c0->o0.c0 s7.c1->o1.c0 s7.c2->o2.c0 s7.c3->o3.c0 s7.c4->o4.c0 s7.c5->o5.c0 s7.c6->o6.c0 s7.c7->o7.c0
+  [ok]   [MAPREC] first boot: port 7: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] first boot: port 7: number_of_mappings = 0x8
+  [ok]   [MAPREC] first boot: port 7: the mappings are the expected list = 0x1
+  [ok]   [MAPREC] first boot: every key's owner and cluster in the stores = 0x0
+  [i]    first boot: PP_STAT 5b000484
+  [ok]   [MAPREC] first boot: PP_STAT done 1, busy 0    = 0x1
+  [ok]   [MAPREC] first boot: PP_STAT fail 0            = 0x0
+  [ok]   [MAPREC] first boot: PP_STAT blank 1           = 0x1
+  [ok]   [MAPREC] transfers: port 1 REMOVE s1.c0 SUCCESS = 0x0
+  [ok]   [MAPREC] transfers: port 0 ADD s1.c0 to cluster 8 SUCCESS = 0x0
+  [ok]   [MAPREC] transfers: port 0 REMOVE s0.c1 SUCCESS = 0x0
+  [ok]   [MAPREC] transfers: port 7 ADD s0.c1 to cluster 8 SUCCESS = 0x0
+  [ok]   [MAPREC] transfers: the cycle's REMOVE SUCCESS = 0x0
+  [ok]   [MAPREC] transfers: the cycle's REMOVE SUCCESS = 0x0
+  [ok]   [MAPREC] transfers: the cycle's REMOVE SUCCESS = 0x0
+  [ok]   [MAPREC] transfers: the cycle's ADD SUCCESS    = 0x0
+  [ok]   [MAPREC] transfers: the cycle's ADD SUCCESS    = 0x0
+  [ok]   [MAPREC] transfers: the cycle's ADD SUCCESS    = 0x0
+  [i]    transfers, live: port 0: status 0, 8 mapping(s) s0.c0->o0.c0 s0.c2->o2.c0 s0.c3->o3.c0 s0.c4->o4.c0 s0.c5->o5.c0 s0.c6->o6.c0 s0.c7->o7.c0 s1.c0->o8.c0
+  [ok]   [MAPREC] transfers, live: port 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] transfers, live: port 0: number_of_mappings = 0x8
+  [ok]   [MAPREC] transfers, live: port 0: the mappings are the expected list = 0x1
+  [i]    transfers, live: port 1: status 0, 7 mapping(s) s1.c1->o1.c0 s1.c2->o2.c0 s1.c3->o3.c0 s1.c4->o4.c0 s1.c5->o5.c0 s1.c6->o6.c0 s1.c7->o7.c0
+  [ok]   [MAPREC] transfers, live: port 1: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] transfers, live: port 1: number_of_mappings = 0x7
+  [ok]   [MAPREC] transfers, live: port 1: the mappings are the expected list = 0x1
+  [i]    transfers, live: port 2: status 0, 8 mapping(s) s2.c1->o1.c0 s2.c2->o2.c0 s2.c3->o3.c0 s2.c4->o4.c0 s2.c5->o5.c0 s2.c6->o6.c0 s2.c7->o7.c0 s3.c0->o0.c0
+  [ok]   [MAPREC] transfers, live: port 2: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] transfers, live: port 2: number_of_mappings = 0x8
+  [ok]   [MAPREC] transfers, live: port 2: the mappings are the expected list = 0x1
+  [i]    transfers, live: port 3: status 0, 8 mapping(s) s3.c1->o1.c0 s3.c2->o2.c0 s3.c3->o3.c0 s3.c4->o4.c0 s3.c5->o5.c0 s3.c6->o6.c0 s3.c7->o7.c0 s4.c0->o0.c0
+  [ok]   [MAPREC] transfers, live: port 3: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] transfers, live: port 3: number_of_mappings = 0x8
+  [ok]   [MAPREC] transfers, live: port 3: the mappings are the expected list = 0x1
+  [i]    transfers, live: port 4: status 0, 8 mapping(s) s2.c0->o0.c0 s4.c1->o1.c0 s4.c2->o2.c0 s4.c3->o3.c0 s4.c4->o4.c0 s4.c5->o5.c0 s4.c6->o6.c0 s4.c7->o7.c0
+  [ok]   [MAPREC] transfers, live: port 4: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] transfers, live: port 4: number_of_mappings = 0x8
+  [ok]   [MAPREC] transfers, live: port 4: the mappings are the expected list = 0x1
+  [i]    transfers, live: port 5: status 0, 8 mapping(s) s5.c0->o0.c0 s5.c1->o1.c0 s5.c2->o2.c0 s5.c3->o3.c0 s5.c4->o4.c0 s5.c5->o5.c0 s5.c6->o6.c0 s5.c7->o7.c0
+  [ok]   [MAPREC] transfers, live: port 5: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] transfers, live: port 5: number_of_mappings = 0x8
+  [ok]   [MAPREC] transfers, live: port 5: the mappings are the expected list = 0x1
+  [i]    transfers, live: port 6: status 0, 8 mapping(s) s6.c0->o0.c0 s6.c1->o1.c0 s6.c2->o2.c0 s6.c3->o3.c0 s6.c4->o4.c0 s6.c5->o5.c0 s6.c6->o6.c0 s6.c7->o7.c0
+  [ok]   [MAPREC] transfers, live: port 6: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] transfers, live: port 6: number_of_mappings = 0x8
+  [ok]   [MAPREC] transfers, live: port 6: the mappings are the expected list = 0x1
+  [i]    transfers, live: port 7: status 0, 9 mapping(s) s0.c1->o8.c0 s7.c0->o0.c0 s7.c1->o1.c0 s7.c2->o2.c0 s7.c3->o3.c0 s7.c4->o4.c0 s7.c5->o5.c0 s7.c6->o6.c0 s7.c7->o7.c0
+  [ok]   [MAPREC] transfers, live: port 7: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] transfers, live: port 7: number_of_mappings = 0x9
+  [ok]   [MAPREC] transfers, live: port 7: the mappings are the expected list = 0x1
+  [ok]   [MAPREC] transfers, live: every key's owner and cluster in the stores = 0x0
+  [ok]   [MAPREC] transfers: the window holds the codec's records and the pend has fallen = 0x1
+  [ok]   [NVM] the backend accepted the window load (PP_NVM_STAT[2] 1, [11] 0) = 0x1
+  [ok]   [NVM] ...and holds it valid (PP_NVM_STAT[7])   = 0x1
+  [ok]   [MAPREC] transfers: the restore reached its terminal and the map restore ended = 0x1
+  [i]    transfers: the map restore held the faces 13983 clocks after restore_done, 22530 after PP_CTRL[1]
+  [i]    transfers, after the power cycle: port 0: status 0, 8 mapping(s) s0.c0->o0.c0 s0.c2->o2.c0 s0.c3->o3.c0 s0.c4->o4.c0 s0.c5->o5.c0 s0.c6->o6.c0 s0.c7->o7.c0 s1.c0->o8.c0
+  [ok]   [MAPREC] transfers, after the power cycle: port 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] transfers, after the power cycle: port 0: number_of_mappings = 0x8
+  [ok]   [MAPREC] transfers, after the power cycle: port 0: the mappings are the expected list = 0x1
+  [i]    transfers, after the power cycle: port 1: status 0, 7 mapping(s) s1.c1->o1.c0 s1.c2->o2.c0 s1.c3->o3.c0 s1.c4->o4.c0 s1.c5->o5.c0 s1.c6->o6.c0 s1.c7->o7.c0
+  [ok]   [MAPREC] transfers, after the power cycle: port 1: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] transfers, after the power cycle: port 1: number_of_mappings = 0x7
+  [ok]   [MAPREC] transfers, after the power cycle: port 1: the mappings are the expected list = 0x1
+  [i]    transfers, after the power cycle: port 2: status 0, 8 mapping(s) s2.c1->o1.c0 s2.c2->o2.c0 s2.c3->o3.c0 s2.c4->o4.c0 s2.c5->o5.c0 s2.c6->o6.c0 s2.c7->o7.c0 s3.c0->o0.c0
+  [ok]   [MAPREC] transfers, after the power cycle: port 2: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] transfers, after the power cycle: port 2: number_of_mappings = 0x8
+  [ok]   [MAPREC] transfers, after the power cycle: port 2: the mappings are the expected list = 0x1
+  [i]    transfers, after the power cycle: port 3: status 0, 8 mapping(s) s3.c1->o1.c0 s3.c2->o2.c0 s3.c3->o3.c0 s3.c4->o4.c0 s3.c5->o5.c0 s3.c6->o6.c0 s3.c7->o7.c0 s4.c0->o0.c0
+  [ok]   [MAPREC] transfers, after the power cycle: port 3: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] transfers, after the power cycle: port 3: number_of_mappings = 0x8
+  [ok]   [MAPREC] transfers, after the power cycle: port 3: the mappings are the expected list = 0x1
+  [i]    transfers, after the power cycle: port 4: status 0, 8 mapping(s) s2.c0->o0.c0 s4.c1->o1.c0 s4.c2->o2.c0 s4.c3->o3.c0 s4.c4->o4.c0 s4.c5->o5.c0 s4.c6->o6.c0 s4.c7->o7.c0
+  [ok]   [MAPREC] transfers, after the power cycle: port 4: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] transfers, after the power cycle: port 4: number_of_mappings = 0x8
+  [ok]   [MAPREC] transfers, after the power cycle: port 4: the mappings are the expected list = 0x1
+  [i]    transfers, after the power cycle: port 5: status 0, 8 mapping(s) s5.c0->o0.c0 s5.c1->o1.c0 s5.c2->o2.c0 s5.c3->o3.c0 s5.c4->o4.c0 s5.c5->o5.c0 s5.c6->o6.c0 s5.c7->o7.c0
+  [ok]   [MAPREC] transfers, after the power cycle: port 5: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] transfers, after the power cycle: port 5: number_of_mappings = 0x8
+  [ok]   [MAPREC] transfers, after the power cycle: port 5: the mappings are the expected list = 0x1
+  [i]    transfers, after the power cycle: port 6: status 0, 8 mapping(s) s6.c0->o0.c0 s6.c1->o1.c0 s6.c2->o2.c0 s6.c3->o3.c0 s6.c4->o4.c0 s6.c5->o5.c0 s6.c6->o6.c0 s6.c7->o7.c0
+  [ok]   [MAPREC] transfers, after the power cycle: port 6: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] transfers, after the power cycle: port 6: number_of_mappings = 0x8
+  [ok]   [MAPREC] transfers, after the power cycle: port 6: the mappings are the expected list = 0x1
+  [i]    transfers, after the power cycle: port 7: status 0, 9 mapping(s) s0.c1->o8.c0 s7.c0->o0.c0 s7.c1->o1.c0 s7.c2->o2.c0 s7.c3->o3.c0 s7.c4->o4.c0 s7.c5->o5.c0 s7.c6->o6.c0 s7.c7->o7.c0
+  [ok]   [MAPREC] transfers, after the power cycle: port 7: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] transfers, after the power cycle: port 7: number_of_mappings = 0x9
+  [ok]   [MAPREC] transfers, after the power cycle: port 7: the mappings are the expected list = 0x1
+  [ok]   [MAPREC] transfers, after the power cycle: every key's owner and cluster in the stores = 0x0
+  [ok]   [MAPREC] transfers, after the power cycle: the crossbar RAM routes as the reference = 0x0
+  [i]    transfers, after the power cycle: PP_STAT 5b000404
+  [ok]   [MAPREC] transfers, after the power cycle: PP_STAT done 1, busy 0 = 0x1
+  [ok]   [MAPREC] transfers, after the power cycle: PP_STAT fail 0 = 0x0
+  [ok]   [MAPREC] transfers, after the power cycle: PP_STAT blank 0 = 0x0
+  [ok]   [MAPREC] conflicting keys across ports: the codec frames the records = 0x1
+  [ok]   [NVM] the backend accepted the window load (PP_NVM_STAT[2] 1, [11] 0) = 0x1
+  [ok]   [NVM] ...and holds it valid (PP_NVM_STAT[7])   = 0x1
+  [ok]   [MAPREC] conflicting keys across ports: the restore reached its terminal and the map restore ended = 0x1
+  [i]    conflicting keys across ports: the map restore held the faces 14053 clocks after restore_done, 22600 after PP_CTRL[1]
+  [i]    conflicting keys across ports: port 0: status 0, 8 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0 s0.c4->o4.c0 s0.c5->o5.c0 s0.c6->o6.c0 s0.c7->o7.c0
+  [ok]   [MAPREC] conflicting keys across ports: port 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] conflicting keys across ports: port 0: number_of_mappings = 0x8
+  [ok]   [MAPREC] conflicting keys across ports: port 0: the mappings are the expected list = 0x1
+  [i]    conflicting keys across ports: port 1: status 0, 8 mapping(s) s1.c0->o0.c0 s1.c1->o1.c0 s1.c2->o2.c0 s1.c3->o3.c0 s1.c4->o4.c0 s1.c5->o5.c0 s1.c6->o6.c0 s1.c7->o7.c0
+  [ok]   [MAPREC] conflicting keys across ports: port 1: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] conflicting keys across ports: port 1: number_of_mappings = 0x8
+  [ok]   [MAPREC] conflicting keys across ports: port 1: the mappings are the expected list = 0x1
+  [i]    conflicting keys across ports: port 2: status 0, 8 mapping(s) s2.c0->o0.c0 s2.c1->o1.c0 s2.c2->o2.c0 s2.c3->o3.c0 s2.c4->o4.c0 s2.c5->o5.c0 s2.c6->o6.c0 s2.c7->o7.c0
+  [ok]   [MAPREC] conflicting keys across ports: port 2: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] conflicting keys across ports: port 2: number_of_mappings = 0x8
+  [ok]   [MAPREC] conflicting keys across ports: port 2: the mappings are the expected list = 0x1
+  [i]    conflicting keys across ports: port 3: status 0, 8 mapping(s) s3.c0->o0.c0 s3.c1->o1.c0 s3.c2->o2.c0 s3.c3->o3.c0 s3.c4->o4.c0 s3.c5->o5.c0 s3.c6->o6.c0 s3.c7->o7.c0
+  [ok]   [MAPREC] conflicting keys across ports: port 3: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] conflicting keys across ports: port 3: number_of_mappings = 0x8
+  [ok]   [MAPREC] conflicting keys across ports: port 3: the mappings are the expected list = 0x1
+  [i]    conflicting keys across ports: port 4: status 0, 8 mapping(s) s4.c0->o0.c0 s4.c1->o1.c0 s4.c2->o2.c0 s4.c3->o3.c0 s4.c4->o4.c0 s4.c5->o5.c0 s4.c6->o6.c0 s4.c7->o7.c0
+  [ok]   [MAPREC] conflicting keys across ports: port 4: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] conflicting keys across ports: port 4: number_of_mappings = 0x8
+  [ok]   [MAPREC] conflicting keys across ports: port 4: the mappings are the expected list = 0x1
+  [i]    conflicting keys across ports: port 5: status 0, 8 mapping(s) s5.c0->o0.c0 s5.c1->o1.c0 s5.c2->o2.c0 s5.c3->o3.c0 s5.c4->o4.c0 s5.c5->o5.c0 s5.c6->o6.c0 s5.c7->o7.c0
+  [ok]   [MAPREC] conflicting keys across ports: port 5: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] conflicting keys across ports: port 5: number_of_mappings = 0x8
+  [ok]   [MAPREC] conflicting keys across ports: port 5: the mappings are the expected list = 0x1
+  [i]    conflicting keys across ports: port 6: status 0, 8 mapping(s) s6.c0->o0.c0 s6.c1->o1.c0 s6.c2->o2.c0 s6.c3->o3.c0 s6.c4->o4.c0 s6.c5->o5.c0 s6.c6->o6.c0 s6.c7->o7.c0
+  [ok]   [MAPREC] conflicting keys across ports: port 6: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] conflicting keys across ports: port 6: number_of_mappings = 0x8
+  [ok]   [MAPREC] conflicting keys across ports: port 6: the mappings are the expected list = 0x1
+  [i]    conflicting keys across ports: port 7: status 0, 8 mapping(s) s7.c0->o0.c0 s7.c1->o1.c0 s7.c2->o2.c0 s7.c3->o3.c0 s7.c4->o4.c0 s7.c5->o5.c0 s7.c6->o6.c0 s7.c7->o7.c0
+  [ok]   [MAPREC] conflicting keys across ports: port 7: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] conflicting keys across ports: port 7: number_of_mappings = 0x8
+  [ok]   [MAPREC] conflicting keys across ports: port 7: the mappings are the expected list = 0x1
+  [ok]   [MAPREC] conflicting keys across ports: every key's owner and cluster in the stores = 0x0
+  [ok]   [MAPREC] conflicting keys across ports: the crossbar RAM routes as the reference = 0x0
+  [i]    conflicting keys across ports: PP_STAT 5b000404
+  [ok]   [MAPREC] conflicting keys across ports: PP_STAT done 1, busy 0 = 0x1
+  [ok]   [MAPREC] conflicting keys across ports: PP_STAT fail 0 = 0x0
+  [ok]   [MAPREC] conflicting keys across ports: PP_STAT blank 0 = 0x0
+  [ok]   [MAPREC] refused put-back: the codec frames the records = 0x1
+  [ok]   [NVM] the backend accepted the window load (PP_NVM_STAT[2] 1, [11] 0) = 0x1
+  [ok]   [NVM] ...and holds it valid (PP_NVM_STAT[7])   = 0x1
+  [ok]   [MAPREC] refused put-back: the restore reached its terminal and the map restore ended = 0x1
+  [i]    refused put-back: the map restore held the faces 13898 clocks after restore_done, 22445 after PP_CTRL[1]
+  [i]    refused put-back: port 0: status 0, 8 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0 s0.c4->o4.c0 s0.c5->o5.c0 s0.c6->o6.c0 s0.c7->o7.c0
+  [ok]   [MAPREC] refused put-back: port 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] refused put-back: port 0: number_of_mappings = 0x8
+  [ok]   [MAPREC] refused put-back: port 0: the mappings are the expected list = 0x1
+  [i]    refused put-back: port 1: status 0, 8 mapping(s) s1.c0->o0.c0 s1.c1->o1.c0 s1.c2->o2.c0 s1.c3->o3.c0 s1.c4->o4.c0 s1.c5->o5.c0 s1.c6->o6.c0 s1.c7->o7.c0
+  [ok]   [MAPREC] refused put-back: port 1: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] refused put-back: port 1: number_of_mappings = 0x8
+  [ok]   [MAPREC] refused put-back: port 1: the mappings are the expected list = 0x1
+  [i]    refused put-back: port 2: status 0, 8 mapping(s) s2.c0->o0.c0 s2.c1->o1.c0 s2.c2->o2.c0 s2.c3->o3.c0 s2.c4->o4.c0 s2.c5->o5.c0 s2.c6->o6.c0 s2.c7->o7.c0
+  [ok]   [MAPREC] refused put-back: port 2: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] refused put-back: port 2: number_of_mappings = 0x8
+  [ok]   [MAPREC] refused put-back: port 2: the mappings are the expected list = 0x1
+  [i]    refused put-back: port 3: status 0, 8 mapping(s) s3.c0->o0.c0 s3.c1->o1.c0 s3.c2->o2.c0 s3.c3->o3.c0 s3.c4->o4.c0 s3.c5->o5.c0 s3.c6->o6.c0 s3.c7->o7.c0
+  [ok]   [MAPREC] refused put-back: port 3: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] refused put-back: port 3: number_of_mappings = 0x8
+  [ok]   [MAPREC] refused put-back: port 3: the mappings are the expected list = 0x1
+  [i]    refused put-back: port 4: status 0, 8 mapping(s) s4.c0->o0.c0 s4.c1->o1.c0 s4.c2->o2.c0 s4.c3->o3.c0 s4.c4->o4.c0 s4.c5->o5.c0 s4.c6->o6.c0 s4.c7->o7.c0
+  [ok]   [MAPREC] refused put-back: port 4: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] refused put-back: port 4: number_of_mappings = 0x8
+  [ok]   [MAPREC] refused put-back: port 4: the mappings are the expected list = 0x1
+  [i]    refused put-back: port 5: status 0, 8 mapping(s) s5.c0->o0.c0 s5.c1->o1.c0 s5.c2->o2.c0 s5.c3->o3.c0 s5.c4->o4.c0 s5.c5->o5.c0 s5.c6->o6.c0 s5.c7->o7.c0
+  [ok]   [MAPREC] refused put-back: port 5: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] refused put-back: port 5: number_of_mappings = 0x8
+  [ok]   [MAPREC] refused put-back: port 5: the mappings are the expected list = 0x1
+  [i]    refused put-back: port 6: status 0, 8 mapping(s) s6.c0->o0.c0 s6.c1->o1.c0 s6.c2->o2.c0 s6.c3->o3.c0 s6.c4->o4.c0 s6.c5->o5.c0 s6.c6->o6.c0 s6.c7->o7.c0
+  [ok]   [MAPREC] refused put-back: port 6: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] refused put-back: port 6: number_of_mappings = 0x8
+  [ok]   [MAPREC] refused put-back: port 6: the mappings are the expected list = 0x1
+  [i]    refused put-back: port 7: status 0, 8 mapping(s) s7.c0->o0.c0 s7.c1->o1.c0 s7.c2->o2.c0 s7.c3->o3.c0 s7.c4->o4.c0 s7.c5->o5.c0 s7.c6->o6.c0 s7.c7->o7.c0
+  [ok]   [MAPREC] refused put-back: port 7: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] refused put-back: port 7: number_of_mappings = 0x8
+  [ok]   [MAPREC] refused put-back: port 7: the mappings are the expected list = 0x1
+  [ok]   [MAPREC] refused put-back: every key's owner and cluster in the stores = 0x0
+  [ok]   [MAPREC] refused put-back: the crossbar RAM routes as the reference = 0x0
+  [i]    refused put-back: PP_STAT 5b00040c
+  [ok]   [MAPREC] refused put-back: PP_STAT done 1, busy 0 = 0x1
+  [ok]   [MAPREC] refused put-back: PP_STAT fail 1      = 0x1
+  [ok]   [MAPREC] refused put-back: PP_STAT blank 0     = 0x0
+  [ok]   [MAPREC] every page ran (vacuity guard)        = 0x28
+--------------------------------------------------------------
+checks: 219   failures: 0
+RESULT: PASS
+---- #637 the map records across the 4x4 shape's four input ports ----
+./obj_maprec4/Vmilan_dp_maprec4
+=== milan_datapath NxN integration (N_STREAMS=4, P12) ===
+  [ok]   ID == 'MILN'                                   = 0x4d494c4e
+  [ok]   VERSION 0x0060 originally widened pending to unflushed bindings and AECP marks; #502 now reports accepted live name/map writes, and carries 0x005F's saved-state snapshot ownership contract, 0x005E's applied gPTP timestamp latency corrections at 0x7F0, 0x005C's SRP status words read by code, 0x005B's SET_SAMPLING_RATE list-check pin, 0x005A's GET_TX_STATE Listener-code pin, 0x0059's PPS words, 0x0058's slip pair, ownerless option OFF and the 0x0055 notification work = 0x20060
+  [ok]   [AECP] before the restore READ_DESCRIPTOR is HELD, not answered = 0x1
+  [ok]   [AECP] ...a second one is DROPPED at the slot gate (word 37 +1) = 0x1
+  [ok]   [AECP] ...read over a posted access that did not error = 0x1
+  [ok]   [AECP-IMG] the shipped generator emitted an image = 0x1
+  [i]    image: 10728 bytes, 68 descriptors
+  [ok]   [AECP-IMG] ...beginning with the AEMI magic    = 0x41454d49
+  [ok]   [BOOT] PP_STAT the restore walk sequenced (done 1, CLOSED 0) = 0x4
+  [ok]   [AECP] ...and the held READ_DESCRIPTOR is answered at the release = 0x1
+  [ok]   [AECP-IMG] the snapshot window answers ('KLPP') = 0x4b4c5050
+  [ok]   [AECP-IMG] ...over a posted access that did not error = 0x1
+  [ok]   [AECP-IMG] ENTITY,0: the image HAS this descriptor = 0x1
+  [ok]   [AECP-IMG] ENTITY,0: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-IMG] ENTITY,0: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-IMG] ENTITY,0: status SUCCESS(0)         = 0x0
+  [ok]   [AECP-IMG] ENTITY,0: sequence_id echoed        = 0x4011
+  [ok]   [AECP-IMG] ENTITY,0: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-IMG] ENTITY,0: cdl = 12 + 4 + the descriptor = 0x148
+  [ok]   [AECP-IMG] ENTITY,0: the frame is as long as it claims = 0x162
+  [ok]   [AECP-IMG] ENTITY,0: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-IMG] ENTITY,0: reserved @26 is zero      = 0x0
+  [ok]   [AECP-IMG] ENTITY,0: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-IMG] ENTITY,0: descriptor_type field @28 = 0x0
+  [ok]   [AECP-IMG] ENTITY,0: descriptor_index field @30 = 0x0
+  [i]    desc-store word 34 = 0x00058801 after 6 burst(s), 593 beat(s)
+  [ok]   [AECP-IMG] the store FETCHED from descriptor memory = 0x1
+  [ok]   [AECP-IMG] the image VALIDATED (word 34 bit 0) = 0x1
+  [ok]   [AECP-IMG] ...with no store fault (word 34 [4:1]) = 0x0
+  [ok]   [AECP-IMG] STREAM_INPUT,1: the image HAS this descriptor = 0x1
+  [ok]   [AECP-IMG] STREAM_INPUT,1: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-IMG] STREAM_INPUT,1: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-IMG] STREAM_INPUT,1: status SUCCESS(0)   = 0x0
+  [ok]   [AECP-IMG] STREAM_INPUT,1: sequence_id echoed  = 0x4012
+  [ok]   [AECP-IMG] STREAM_INPUT,1: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-IMG] STREAM_INPUT,1: cdl = 12 + 4 + the descriptor = 0xaa
+  [ok]   [AECP-IMG] STREAM_INPUT,1: the frame is as long as it claims = 0xc4
+  [ok]   [AECP-IMG] STREAM_INPUT,1: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-IMG] STREAM_INPUT,1: reserved @26 is zero = 0x0
+  [ok]   [AECP-IMG] STREAM_INPUT,1: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-IMG] STREAM_INPUT,1: descriptor_type field @28 = 0x5
+  [ok]   [AECP-IMG] STREAM_INPUT,1: descriptor_index field @30 = 0x1
+  [i]    response-memory lane writes: +40 for ENTITY (312 B), +21 for STREAM_INPUT 1 (154 B)
+  [ok]   [AECP-IMG] the response memory COMMITTED the ENTITY lanes = 0x1
+  [ok]   [AECP-IMG] ...and committed STREAM_INPUT 1's as well = 0x1
+  [ok]   [AECP-IMG] no response was voided by the memory = 0x0
+  [ok]   [AECP-IMG] the response buffer reports no fault (word 36) = 0x0
+  [ok]   [AECP-WTMO] a memory that NEVER ACKS still gets an ANSWER = 0x1
+  [ok]   [AECP-WTMO] ...still an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-WTMO] ...with ENTITY_MISBEHAVING(10), the documented degradation = 0xa
+  [ok]   [AECP-WTMO] ...carrying no payload it could not build (cdl = 12) = 0xc
+  [ok]   [AECP-WTMO] ...still padded to the 60-octet minimum = 0x3c
+  [ok]   [AECP-WTMO] ...and the response buffer reports its fault (word 36) = 0x1
+  [ok]   [AECP-WTMO] the station HEALS when the memory returns (no reset) = 0x1
+  [ok]   [AECP-WTMO] ...and the response buffer's fault clears (word 36) = 0x0
+-- [MAPREC] #637: the channel-map records across 4 dynamic input ports --
+  [ok]   [NVM] the backend accepted the window load (PP_NVM_STAT[2] 1, [11] 0) = 0x1
+  [ok]   [NVM] ...and holds it valid (PP_NVM_STAT[7])   = 0x1
+  [ok]   [MAPREC] a first boot over an erased window    = 0x1
+  [ok]   [BOOT] PP_STAT the restore walk sequenced (done 1, CLOSED 0) = 0x4
+  [i]    first boot: port 0: status 0, 4 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0
+  [ok]   [MAPREC] first boot: port 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] first boot: port 0: number_of_mappings = 0x4
+  [ok]   [MAPREC] first boot: port 0: the mappings are the expected list = 0x1
+  [i]    first boot: port 1: status 0, 4 mapping(s) s1.c0->o0.c0 s1.c1->o1.c0 s1.c2->o2.c0 s1.c3->o3.c0
+  [ok]   [MAPREC] first boot: port 1: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] first boot: port 1: number_of_mappings = 0x4
+  [ok]   [MAPREC] first boot: port 1: the mappings are the expected list = 0x1
+  [i]    first boot: port 2: status 0, 4 mapping(s) s2.c0->o0.c0 s2.c1->o1.c0 s2.c2->o2.c0 s2.c3->o3.c0
+  [ok]   [MAPREC] first boot: port 2: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] first boot: port 2: number_of_mappings = 0x4
+  [ok]   [MAPREC] first boot: port 2: the mappings are the expected list = 0x1
+  [i]    first boot: port 3: status 0, 4 mapping(s) s3.c0->o0.c0 s3.c1->o1.c0 s3.c2->o2.c0 s3.c3->o3.c0
+  [ok]   [MAPREC] first boot: port 3: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] first boot: port 3: number_of_mappings = 0x4
+  [ok]   [MAPREC] first boot: port 3: the mappings are the expected list = 0x1
+  [ok]   [MAPREC] first boot: every key's owner and cluster in the stores = 0x0
+  [i]    first boot: PP_STAT 5b000484
+  [ok]   [MAPREC] first boot: PP_STAT done 1, busy 0    = 0x1
+  [ok]   [MAPREC] first boot: PP_STAT fail 0            = 0x0
+  [ok]   [MAPREC] first boot: PP_STAT blank 1           = 0x1
+  [ok]   [MAPREC] inputs: port 0 REMOVE clusters 0 and 1 SUCCESS = 0x0
+  [ok]   [MAPREC] inputs: port 0 ADD s3.c1 to cluster 0 SUCCESS = 0x0
+  [ok]   [MAPREC] inputs: port 2 REMOVE every mapping SUCCESS = 0x0
+  [ok]   [MAPREC] inputs: port 3 REMOVE cluster 3 SUCCESS = 0x0
+  [ok]   [MAPREC] inputs: port 3 ADD s0.c0 to cluster 3 SUCCESS = 0x0
+  [i]    inputs, live: port 0: status 0, 3 mapping(s) s3.c1->o0.c0 s0.c2->o2.c0 s0.c3->o3.c0
+  [ok]   [MAPREC] inputs, live: port 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] inputs, live: port 0: number_of_mappings = 0x3
+  [ok]   [MAPREC] inputs, live: port 0: the mappings are the expected list = 0x1
+  [i]    inputs, live: port 1: status 0, 4 mapping(s) s1.c0->o0.c0 s1.c1->o1.c0 s1.c2->o2.c0 s1.c3->o3.c0
+  [ok]   [MAPREC] inputs, live: port 1: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] inputs, live: port 1: number_of_mappings = 0x4
+  [ok]   [MAPREC] inputs, live: port 1: the mappings are the expected list = 0x1
+  [i]    inputs, live: port 2: status 0, 0 mapping(s)
+  [ok]   [MAPREC] inputs, live: port 2: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] inputs, live: port 2: number_of_mappings = 0x0
+  [ok]   [MAPREC] inputs, live: port 2: the mappings are the expected list = 0x1
+  [i]    inputs, live: port 3: status 0, 4 mapping(s) s3.c0->o0.c0 s3.c1->o1.c0 s3.c2->o2.c0 s0.c0->o3.c0
+  [ok]   [MAPREC] inputs, live: port 3: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] inputs, live: port 3: number_of_mappings = 0x4
+  [ok]   [MAPREC] inputs, live: port 3: the mappings are the expected list = 0x1
+  [ok]   [MAPREC] inputs, live: every key's owner and cluster in the stores = 0x0
+  [ok]   [MAPREC] inputs: the window holds the codec's records and the pend has fallen = 0x1
+  [ok]   [NVM] the backend accepted the window load (PP_NVM_STAT[2] 1, [11] 0) = 0x1
+  [ok]   [NVM] ...and holds it valid (PP_NVM_STAT[7])   = 0x1
+  [ok]   [MAPREC] inputs: the restore reached its terminal and the map restore ended = 0x1
+  [i]    inputs: the map restore held the faces 604 clocks after restore_done, 4990 after PP_CTRL[1]
+  [i]    inputs, after the power cycle: port 0: status 0, 3 mapping(s) s3.c1->o0.c0 s0.c2->o2.c0 s0.c3->o3.c0
+  [ok]   [MAPREC] inputs, after the power cycle: port 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] inputs, after the power cycle: port 0: number_of_mappings = 0x3
+  [ok]   [MAPREC] inputs, after the power cycle: port 0: the mappings are the expected list = 0x1
+  [i]    inputs, after the power cycle: port 1: status 0, 4 mapping(s) s1.c0->o0.c0 s1.c1->o1.c0 s1.c2->o2.c0 s1.c3->o3.c0
+  [ok]   [MAPREC] inputs, after the power cycle: port 1: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] inputs, after the power cycle: port 1: number_of_mappings = 0x4
+  [ok]   [MAPREC] inputs, after the power cycle: port 1: the mappings are the expected list = 0x1
+  [i]    inputs, after the power cycle: port 2: status 0, 0 mapping(s)
+  [ok]   [MAPREC] inputs, after the power cycle: port 2: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] inputs, after the power cycle: port 2: number_of_mappings = 0x0
+  [ok]   [MAPREC] inputs, after the power cycle: port 2: the mappings are the expected list = 0x1
+  [i]    inputs, after the power cycle: port 3: status 0, 4 mapping(s) s3.c0->o0.c0 s3.c1->o1.c0 s3.c2->o2.c0 s0.c0->o3.c0
+  [ok]   [MAPREC] inputs, after the power cycle: port 3: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] inputs, after the power cycle: port 3: number_of_mappings = 0x4
+  [ok]   [MAPREC] inputs, after the power cycle: port 3: the mappings are the expected list = 0x1
+  [ok]   [MAPREC] inputs, after the power cycle: every key's owner and cluster in the stores = 0x0
+  [ok]   [MAPREC] inputs, after the power cycle: the crossbar RAM routes as the reference = 0x0
+  [i]    inputs, after the power cycle: PP_STAT 5b000404
+  [ok]   [MAPREC] inputs, after the power cycle: PP_STAT done 1, busy 0 = 0x1
+  [ok]   [MAPREC] inputs, after the power cycle: PP_STAT fail 0 = 0x0
+  [ok]   [MAPREC] inputs, after the power cycle: PP_STAT blank 0 = 0x0
+  [ok]   [MAPREC] put-back, last port: the codec frames the format alone = 0x1
+  [ok]   [NVM] the backend accepted the window load (PP_NVM_STAT[2] 1, [11] 0) = 0x1
+  [ok]   [NVM] ...and holds it valid (PP_NVM_STAT[7])   = 0x1
+  [ok]   [MAPREC] put-back reference: the restore reached its terminal and the map restore ended = 0x1
+  [i]    put-back reference: the map restore held the faces 619 clocks after restore_done, 5065 after PP_CTRL[1]
+  [ok]   [MAPREC] put-back, last port: the codec frames the records = 0x1
+  [ok]   [NVM] the backend accepted the window load (PP_NVM_STAT[2] 1, [11] 0) = 0x1
+  [ok]   [NVM] ...and holds it valid (PP_NVM_STAT[7])   = 0x1
+  [ok]   [MAPREC] put-back, last port: the restore reached its terminal and the map restore ended = 0x1
+  [i]    put-back, last port: the map restore held the faces 633 clocks after restore_done, 5079 after PP_CTRL[1]
+  [i]    put-back, last port: port 0: status 0, 4 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0
+  [ok]   [MAPREC] put-back, last port: port 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] put-back, last port: port 0: number_of_mappings = 0x4
+  [ok]   [MAPREC] put-back, last port: port 0: the mappings are the expected list = 0x1
+  [i]    put-back, last port: port 1: status 0, 4 mapping(s) s1.c0->o0.c0 s1.c1->o1.c0 s1.c2->o2.c0 s1.c3->o3.c0
+  [ok]   [MAPREC] put-back, last port: port 1: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] put-back, last port: port 1: number_of_mappings = 0x4
+  [ok]   [MAPREC] put-back, last port: port 1: the mappings are the expected list = 0x1
+  [i]    put-back, last port: port 2: status 0, 4 mapping(s) s2.c0->o0.c0 s2.c1->o1.c0 s2.c2->o2.c0 s2.c3->o3.c0
+  [ok]   [MAPREC] put-back, last port: port 2: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] put-back, last port: port 2: number_of_mappings = 0x4
+  [ok]   [MAPREC] put-back, last port: port 2: the mappings are the expected list = 0x1
+  [i]    put-back, last port: port 3: status 0, 2 mapping(s) s3.c0->o0.c0 s3.c1->o1.c0
+  [ok]   [MAPREC] put-back, last port: port 3: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] put-back, last port: port 3: number_of_mappings = 0x2
+  [ok]   [MAPREC] put-back, last port: port 3: the mappings are the expected list = 0x1
+  [ok]   [MAPREC] put-back, last port: every key's owner and cluster in the stores = 0x0
+  [ok]   [MAPREC] put-back, last port: the crossbar RAM routes as the reference = 0x0
+  [i]    put-back, last port: PP_STAT 5b000404
+  [ok]   [MAPREC] put-back, last port: PP_STAT done 1, busy 0 = 0x1
+  [ok]   [MAPREC] put-back, last port: PP_STAT fail 0   = 0x0
+  [ok]   [MAPREC] put-back, last port: PP_STAT blank 0  = 0x0
+  [ok]   [MAPREC] every page ran (vacuity guard)        = 0x10
+--------------------------------------------------------------
+checks: 137   failures: 0
+RESULT: PASS
+---- #665: the split placement's control path, KL_mbx through KL_mbx_cdc to the CTRL_SPLIT_P = 1 datapath ----
+./obj_split/Vmilan_dp_split
+[PUB] SID_VALID to the listener: 9 mailbox cycles
+[POL] LICENCE 0x0001: active 0x0001 admitted 0x0001 gate 0x0001 crf 0
+[POL] LICENCE 0x0002: active 0x0002 admitted 0x0002 gate 0x0002 crf 1
+[FACE] commit to BUSY clear: 2 polls
+[WIN] CTR round 0: status 0x102 data 0x0 in 6 polls
+[WIN] CTR round 1: status 0x202 data 0x0 in 5 polls
+[WIN] AMAP: status 0x102 data 0x1 in 10 polls
+[WIN] GSI: status 0x102 data 0xd600000e in 6 polls
+[TX] commit to the MAC's last byte: 168 mailbox cycles, 82 bytes
+[LINK] up after 0 polls, down after 4, up again after 2
+[TAP] burst: 109 frames offered, 65 handed out, 44 counted lost
+[RX] burst at the MAC: 100 frames offered, 58 handed out, 42 counted lost
+ran 142807 mailbox cycles
+checks: 148   failures: 0
+---- #839 every frame from reset carries the station MAC, through milan_init()'s own boot order ----
+./obj_bootsa/Vmilan_dp_bootsa
+bootsa: 2 MHz fabric, one processor ms = 100 cycles, station MAC 024b4c4b4c01
+[BOOTSA] BIOS window: 400 processor ms with no CSR access
+[BOOTSA] milan_init(): configure_fabric()
+[BOOTSA] configure_fabric() completed the station MAC at cycle 40088
+[BOOTSA] milan_init(): load_aem_image()
+[BOOTSA] milan_init(): nvm_boot()
+  [ ok ] [BOOTSA] nvm_boot(): the restore walk ends COMPLETE (done 1, CLOSED 0) got=0x4 exp=0x4
+[BOOTSA] milan_init(): entity_advertise()
+Milan baremetal: fabric entity enable requested; the fabric holds it until the restore releases it; UART diagnostics ready.
+  [ ok ] [BOOTSA] the first ENTITY_AVAILABLE leaves after entity_advertise()
+[BOOTSA] first ENTITY_AVAILABLE at cycle 196252, frame #5
+  [ ok ] [BOOTSA] the processor answers READ_DESCRIPTOR (an AECP frame leaves)
+  [ ok ] [BOOTSA] the processor answers GET_TX_STATE_COMMAND (an ACMP frame leaves)
+  [ ok ] [BOOTSA] the entity re-advertises past the first ENTITY_AVAILABLE
+  [ ok ] [BOOTSA] the talker answers PROBE_TX_COMMAND with SUCCESS (an ACMP frame leaves)
+  [ ok ] [BOOTSA] the probed talker joins its VLAN by MVRP (an MVRP frame leaves)
+[BOOTSA] 855 frames: MSRP 37 MVRP 4 gPTP 1 ADP 5 AECP 1 ACMP 3 MAAP 5 AAF 38 CRF 761
+[BOOTSA]   #0 MSRP  cycle    40112 source 024b4c4b4c01
+[BOOTSA]   #1 MAAP  cycle    40632 source 024b4c4b4c01
+[BOOTSA]   #2 MSRP  cycle    41170 source 024b4c4b4c01
+[BOOTSA]   #5 ADP   cycle   196252 source 024b4c4b4c01
+[BOOTSA]   #6 AECP  cycle   198037 source 024b4c4b4c01
+[BOOTSA]   #7 ACMP  cycle   198620 source 024b4c4b4c01
+[BOOTSA]   #8 CRF   cycle   200074 source 024b4c4b4c01
+[BOOTSA]   #9 CRF   cycle   204074 source 024b4c4b4c01
+[BOOTSA]   #160 ADP   cycle   781352 source 024b4c4b4c01
+[BOOTSA]   #224 MVRP  cycle  1020931 source 024b4c4b4c01
+[BOOTSA]   #243 MAAP  cycle  1096073 source 024b4c4b4c01
+[BOOTSA]   #588 gPTP  cycle  2400690 source 024b4c4b4c01
+[BOOTSA]   #595 MVRP  cycle  2420731 source 024b4c4b4c01
+[BOOTSA]   #805 AAF   cycle  3216658 source 024b4c4b4c01
+[BOOTSA]   #806 ACMP  cycle  3217176 source 024b4c4b4c01
+[BOOTSA]   #807 AAF   cycle  3217300 source 024b4c4b4c01
+  [ ok ] [BOOTSA] the processor offered a frame before the station MAC was written
+  [ ok ] [BOOTSA] no frame carries the all-zero source address got=0 exp=0
+  [ ok ] [BOOTSA] no CSR-addressed transmitter starts a frame before the station MAC is written got=0 exp=0
+  [ ok ] [BOOTSA] every MSRP frame's source address is the station MAC got=0 exp=0
+  [ ok ] [BOOTSA] every MVRP frame's source address is the station MAC got=0 exp=0
+  [ ok ] [BOOTSA] every gPTP frame's source address is the station MAC got=0 exp=0
+  [ ok ] [BOOTSA] every ADP frame's source address is the station MAC got=0 exp=0
+  [ ok ] [BOOTSA] every AECP frame's source address is the station MAC got=0 exp=0
+  [ ok ] [BOOTSA] every ACMP frame's source address is the station MAC got=0 exp=0
+  [ ok ] [BOOTSA] every MAAP frame's source address is the station MAC got=0 exp=0
+  [ ok ] [BOOTSA] every AAF frame's source address is the station MAC got=0 exp=0
+  [ ok ] [BOOTSA] every CRF frame's source address is the station MAC got=0 exp=0
+  [ ok ] [BOOTSA] every other frame's source address is the station MAC got=0 exp=0
+  [ ok ] [BOOTSA] every MSRP frame's destination address is its protocol's got=0 exp=0
+  [ ok ] [BOOTSA] every MVRP frame's destination address is its protocol's got=0 exp=0
+  [ ok ] [BOOTSA] every gPTP frame's destination address is its protocol's got=0 exp=0
+  [ ok ] [BOOTSA] every ADP frame's destination address is its protocol's got=0 exp=0
+  [ ok ] [BOOTSA] every AECP frame's destination address is the controller's MAC got=0 exp=0
+  [ ok ] [BOOTSA] every ACMP frame's destination address is its protocol's got=0 exp=0
+  [ ok ] [BOOTSA] every MAAP frame's destination address is its protocol's got=0 exp=0
+  [ ok ] [BOOTSA] every frame's EtherType (and, for AVTP, subtype) is a graded protocol's got=0 exp=0
+  [ ok ] [BOOTSA] MSRP frames were sent and graded
+  [ ok ] [BOOTSA] MVRP frames were sent and graded
+  [ ok ] [BOOTSA] gPTP frames were sent and graded
+  [ ok ] [BOOTSA] ADP frames were sent and graded
+  [ ok ] [BOOTSA] AECP frames were sent and graded
+  [ ok ] [BOOTSA] ACMP frames were sent and graded
+  [ ok ] [BOOTSA] MAAP frames were sent and graded
+  [ ok ] [BOOTSA] AAF frames were sent and graded
+  [ ok ] [BOOTSA] CRF frames were sent and graded
+  [ ok ] [BOOTSA] A_TXARB_DIAG: no arbiter stall or abort since reset got=0x0 exp=0x0
+  [ ok ] [BOOTSA] pair: MAC_ADDR_LO alone opens no CSR-addressed transmitter got=0 exp=0
+  [ ok ] [BOOTSA] pair: the second half after MAC_ADDR_LO releases the processor's frame
+  [ ok ] [BOOTSA] pair: every frame of the MAC_ADDR_LO boot carries the station MAC got=0 exp=0
+  [ ok ] [BOOTSA] pair: MAC_ADDR_HI alone opens no CSR-addressed transmitter got=0 exp=0
+  [ ok ] [BOOTSA] pair: the second half after MAC_ADDR_HI releases the processor's frame
+  [ ok ] [BOOTSA] pair: every frame of the MAC_ADDR_HI boot carries the station MAC got=0 exp=0
+[BOOTSA] early-enable, MAAP on: MAAP_CTRL 0x00000201, AAF_CTRL 0x00020003, CRFT_CTRL 0x00000003 written at cycle 3361553, then 400 processor ms with the pair unwritten
+[BOOTSA] early-enable, MAAP on: offered with the pair unwritten: MAAP yes, AAF no, CRF yes; 0 frames left
+[BOOTSA] early-enable, MAAP on: the station MAC is complete at cycle 3401557
+[BOOTSA] early-enable, MAAP on: 850 frames after the pair: MSRP 36 MVRP 2 gPTP 1 MAAP 5 AAF 1 CRF 805
+  [ ok ] [BOOTSA] early-enable, MAAP on: MAAP offered a frame while the station MAC was unwritten
+  [ ok ] [BOOTSA] early-enable, MAAP on: no MAAP frame leaves before the station MAC is written got=0 exp=0
+  [ ok ] [BOOTSA] early-enable, MAAP on: MAAP frames leave once the station MAC is written
+  [ ok ] [BOOTSA] early-enable, MAAP on: AAF frames leave once the station MAC is written
+  [ ok ] [BOOTSA] early-enable, MAAP on: the CRF talker offered a frame while the station MAC was unwritten
+  [ ok ] [BOOTSA] early-enable, MAAP on: no CRF frame leaves before the station MAC is written got=0 exp=0
+  [ ok ] [BOOTSA] early-enable, MAAP on: CRF frames leave once the station MAC is written
+  [ ok ] [BOOTSA] early-enable, MAAP on: no CSR-addressed transmitter starts a frame before the station MAC is written got=0 exp=0
+  [ ok ] [BOOTSA] early-enable, MAAP on: no frame carries the all-zero source address got=0 exp=0
+  [ ok ] [BOOTSA] early-enable, MAAP on: every frame of the boot carries the station MAC got=0 exp=0
+  [ ok ] [BOOTSA] early-enable, MAAP on: A_TXARB_DIAG: no arbiter stall or abort since reset got=0x0 exp=0x0
+[BOOTSA] early-enable, MAAP off: MAAP_CTRL 0x00000000, AAF_CTRL 0x00020003, CRFT_CTRL 0x00000003 written at cycle 6620265, then 400 processor ms with the pair unwritten
+[BOOTSA] early-enable, MAAP off: offered with the pair unwritten: MAAP no, AAF yes, CRF yes; 0 frames left
+[BOOTSA] early-enable, MAAP off: the station MAC is complete at cycle 6660269
+[BOOTSA] early-enable, MAAP off: 3 frames after the pair: MSRP 1 AAF 1 CRF 1
+  [ ok ] [BOOTSA] early-enable, MAAP off: the AAF talker offered a frame while the station MAC was unwritten
+  [ ok ] [BOOTSA] early-enable, MAAP off: no AAF frame leaves before the station MAC is written got=0 exp=0
+  [ ok ] [BOOTSA] early-enable, MAAP off: AAF frames leave once the station MAC is written
+  [ ok ] [BOOTSA] early-enable, MAAP off: the CRF talker offered a frame while the station MAC was unwritten
+  [ ok ] [BOOTSA] early-enable, MAAP off: no CRF frame leaves before the station MAC is written got=0 exp=0
+  [ ok ] [BOOTSA] early-enable, MAAP off: CRF frames leave once the station MAC is written
+  [ ok ] [BOOTSA] early-enable, MAAP off: no CSR-addressed transmitter starts a frame before the station MAC is written got=0 exp=0
+  [ ok ] [BOOTSA] early-enable, MAAP off: no frame carries the all-zero source address got=0 exp=0
+  [ ok ] [BOOTSA] early-enable, MAAP off: every frame of the boot carries the station MAC got=0 exp=0
+  [ ok ] [BOOTSA] early-enable, MAAP off: A_TXARB_DIAG: no arbiter stall or abort since reset got=0x0 exp=0x0
+[BOOTSA] control lane through the stamp: 101 frames, 3819 octets outside 6 to 11 compared, 0 changed
+  [ ok ] [BOOTSA] control-lane frames passed through the stamp
+  [ ok ] [BOOTSA] every control-lane octet outside 6 to 11 leaves the stamp as it entered got=0 exp=0
+simulated_cycles=6660318
+== bootsa: checks: 67   failures: 0 ==
+RESULT: PASS
+RENDER-PHASE {"seq": 1, "event": "origin", "t_s": 0.0, "clock": "monotonic", "unit": "s"}
+RENDER-PHASE {"seq": 2, "event": "baseline", "t_s": 0.002, "case": "control", "selected": "prebuilt"}
+RENDER-PHASE {"seq": 3, "event": "start", "t_s": 0.002, "case": "control", "phase": "simulation", "mode": "--live-only", "idle_s": 0.002}
+RENDER-PHASE {"seq": 4, "event": "end", "t_s": 82.416, "case": "control", "phase": "simulation", "mode": "--live-only", "elapsed_s": 82.414, "status": 0}
+[PASS] the unmutated gateware still passes the render-law leg (--live-only)
+RENDER-PHASE {"seq": 5, "event": "start", "t_s": 82.416, "case": "control", "phase": "simulation", "mode": "--render-only", "idle_s": 0.0}
+RENDER-PHASE {"seq": 6, "event": "end", "t_s": 141.122, "case": "control", "phase": "simulation", "mode": "--render-only", "elapsed_s": 58.706, "status": 0}
+[PASS] the unmutated gateware still passes the render-law leg (--render-only)
+RENDER-PHASE {"seq": 7, "event": "start", "t_s": 141.125, "case": "each_PDU_placed_by_its_arrival_instead_of_its_timestamp", "phase": "build", "mode": null, "idle_s": 0.003}
+RENDER-PHASE {"seq": 8, "event": "end", "t_s": 163.331, "case": "each_PDU_placed_by_its_arrival_instead_of_its_timestamp", "phase": "build", "mode": null, "elapsed_s": 22.206, "status": "built", "returncode": 0}
+RENDER-PHASE {"seq": 9, "event": "start", "t_s": 163.331, "case": "each_PDU_placed_by_its_arrival_instead_of_its_timestamp", "phase": "simulation", "mode": "--render-only", "idle_s": 0.0}
+RENDER-PHASE {"seq": 10, "event": "end", "t_s": 223.778, "case": "each_PDU_placed_by_its_arrival_instead_of_its_timestamp", "phase": "simulation", "mode": "--render-only", "elapsed_s": 60.447, "status": 1}
+[PASS] mutant caught (--render-only): each PDU placed by its arrival instead of its timestamp - breaks "RENDER-ARRIVE-INT: every event presented at its presentation time (late)"
+RENDER-PHASE {"seq": 11, "event": "start", "t_s": 223.78, "case": "the_PDU_without_tv_placed_by_its_stale_timestamp", "phase": "build", "mode": null, "idle_s": 0.002}
+RENDER-PHASE {"seq": 12, "event": "end", "t_s": 245.34, "case": "the_PDU_without_tv_placed_by_its_stale_timestamp", "phase": "build", "mode": null, "elapsed_s": 21.56, "status": "built", "returncode": 0}
+RENDER-PHASE {"seq": 13, "event": "start", "t_s": 245.34, "case": "the_PDU_without_tv_placed_by_its_stale_timestamp", "phase": "simulation", "mode": "--render-only", "idle_s": 0.0}
+RENDER-PHASE {"seq": 14, "event": "end", "t_s": 304.776, "case": "the_PDU_without_tv_placed_by_its_stale_timestamp", "phase": "simulation", "mode": "--render-only", "elapsed_s": 59.436, "status": 1}
+[PASS] mutant caught (--render-only): the PDU without tv placed by its stale timestamp - breaks "RENDER-REFUSE: no refused PDU presented"
+RENDER-PHASE {"seq": 15, "event": "start", "t_s": 304.779, "case": "a_PHC_step_resets_the_stage", "phase": "build", "mode": null, "idle_s": 0.003}
+RENDER-PHASE {"seq": 16, "event": "end", "t_s": 325.905, "case": "a_PHC_step_resets_the_stage", "phase": "build", "mode": null, "elapsed_s": 21.126, "status": "built", "returncode": 0}
+RENDER-PHASE {"seq": 17, "event": "start", "t_s": 325.905, "case": "a_PHC_step_resets_the_stage", "phase": "simulation", "mode": "--render-only", "idle_s": 0.0}
+RENDER-PHASE {"seq": 18, "event": "end", "t_s": 384.907, "case": "a_PHC_step_resets_the_stage", "phase": "simulation", "mode": "--render-only", "elapsed_s": 59.002, "status": 1}
+[PASS] mutant caught (--render-only): a PHC step resets the stage - breaks "RENDER-STEP-INT: every event presented once, in order"
+RENDER-PHASE {"seq": 19, "event": "start", "t_s": 384.91, "case": "a_clock_source_change_flushes_the_stage", "phase": "build", "mode": null, "idle_s": 0.003}
+RENDER-PHASE {"seq": 20, "event": "end", "t_s": 405.452, "case": "a_clock_source_change_flushes_the_stage", "phase": "build", "mode": null, "elapsed_s": 20.542, "status": "built", "returncode": 0}
+RENDER-PHASE {"seq": 21, "event": "start", "t_s": 405.452, "case": "a_clock_source_change_flushes_the_stage", "phase": "simulation", "mode": "--live-only", "idle_s": 0.0}
+RENDER-PHASE {"seq": 22, "event": "end", "t_s": 486.543, "case": "a_clock_source_change_flushes_the_stage", "phase": "simulation", "mode": "--live-only", "elapsed_s": 81.091, "status": 1}
+[PASS] mutant caught (--live-only): a clock-source change flushes the stage - breaks "RENDER-LIVE-CRF: every event presented once, in order"
+RENDER-PHASE {"seq": 23, "event": "end-of-run", "t_s": 486.625, "state": "idle", "idle_s": 0.082}
+
+6 checks: 6 PASS, 0 FAIL

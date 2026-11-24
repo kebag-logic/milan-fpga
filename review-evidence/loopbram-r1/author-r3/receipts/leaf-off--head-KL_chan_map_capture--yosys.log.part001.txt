@@ -1,0 +1,2126 @@
+Candidate head: 855529fe21fea685725a9edc4fe0a798154c6469
+Comparison base: 3cda030c174b325e36c26af6420487ff91346d15
+Source: leaf-off/head-KL_chan_map_capture/yosys.log
+Original SHA256: 2bbeb55d3d61970981e9d8ccbd9728fb7d13f4768efb9de3616f4f6345af0a25
+Scope: native compilation chatter omitted; other output retained; paths and host fields normalized
+
+
+ /----------------------------------------------------------------------------\
+ |  yosys -- Yosys Open SYnthesis Suite                                       |
+ |  Copyright (C) 2012 - 2026  Claire Xenia Wolf <claire@yosyshq.com>         |
+ |  Distributed under an ISC-like license, type "license" to see terms        |
+ \----------------------------------------------------------------------------/
+ Yosys 0.66 (git sha1 86f2ddebc-dirty, g++ 16.1.1 -march=x86-64 -mtune=generic -O2 -fno-plt -fexceptions -fstack-clash-protection -fcf-protection -fno-omit-frame-pointer -mno-omit-leaf-frame-pointer -ffile-prefix-map=/build/yosys/src=/usr/src/debug/yosys -fPIC -O3) [startdir/yosys at makepkg]
+
+-- Running command `read_verilog $SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v; synth_xilinx -flatten -top KL_chan_map_capture; delete -port  KL_chan_map_capture/input_capture_o KL_chan_map_capture/input_read_o KL_chan_map_capture/input_addr_o KL_chan_map_capture/input_sample_i; setundef -zero -undriven; opt_lut; opt -full; opt_clean -purge; tee -o $SCRATCH/leaf-off/head-KL_chan_map_capture/stat.txt stat' --
+
+1. Executing Verilog-2005 frontend: $SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v
+Parsing Verilog input from `$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v' to AST representation.
+Generating RTLIL representation for module `\KL_chan_map_capture'.
+Warning: Replacing memory \cand_w with list of registers. See $SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:682
+Warning: Replacing memory \tdm_walk_r with list of registers. See $SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:656
+Warning: Replacing memory \act_drop_r with list of registers. See $SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:501
+Warning: Replacing memory \rc_drop_r with list of registers. See $SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:500
+Warning: Replacing memory \rc_hold_r with list of registers. See $SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:499
+Warning: Replacing memory \tdm_frame_r with list of registers. See $SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:184
+Successfully finished Verilog frontend.
+
+2. Executing SYNTH_XILINX pass.
+
+2.1. Executing Verilog-2005 frontend: /usr/bin/../share/yosys/xilinx/cells_sim.v
+Parsing Verilog input from `/usr/bin/../share/yosys/xilinx/cells_sim.v' to AST representation.
+Generating RTLIL representation for module `\VCC'.
+Generating RTLIL representation for module `\GND'.
+Generating RTLIL representation for module `\IBUF'.
+Generating RTLIL representation for module `\IBUFG'.
+Generating RTLIL representation for module `\OBUF'.
+Generating RTLIL representation for module `\IOBUF'.
+Generating RTLIL representation for module `\OBUFT'.
+Generating RTLIL representation for module `\BUFG'.
+Generating RTLIL representation for module `\BUFGCTRL'.
+Generating RTLIL representation for module `\BUFHCE'.
+Generating RTLIL representation for module `\INV'.
+Generating RTLIL representation for module `\LUT1'.
+Generating RTLIL representation for module `\LUT2'.
+Generating RTLIL representation for module `\LUT3'.
+Generating RTLIL representation for module `\LUT4'.
+Generating RTLIL representation for module `\LUT5'.
+Generating RTLIL representation for module `\LUT6'.
+Generating RTLIL representation for module `\LUT6_2'.
+Generating RTLIL representation for module `\$__ABC9_LUT7'.
+Generating RTLIL representation for module `\$__ABC9_LUT8'.
+Generating RTLIL representation for module `\MUXCY'.
+Generating RTLIL representation for module `\MUXF5'.
+Generating RTLIL representation for module `\MUXF6'.
+Generating RTLIL representation for module `\MUXF7'.
+Generating RTLIL representation for module `\MUXF8'.
+Generating RTLIL representation for module `\MUXF9'.
+Generating RTLIL representation for module `\XORCY'.
+Generating RTLIL representation for module `\CARRY4'.
+Generating RTLIL representation for module `\CARRY8'.
+Generating RTLIL representation for module `\ORCY'.
+Generating RTLIL representation for module `\MULT_AND'.
+Generating RTLIL representation for module `\FDRE'.
+Generating RTLIL representation for module `\FDRE_1'.
+Generating RTLIL representation for module `\FDSE'.
+Generating RTLIL representation for module `\FDSE_1'.
+Generating RTLIL representation for module `\FDRSE'.
+Generating RTLIL representation for module `\FDRSE_1'.
+Generating RTLIL representation for module `\FDCE'.
+Generating RTLIL representation for module `\FDCE_1'.
+Generating RTLIL representation for module `\FDPE'.
+Generating RTLIL representation for module `\FDPE_1'.
+Generating RTLIL representation for module `\FDCPE'.
+Generating RTLIL representation for module `\FDCPE_1'.
+Generating RTLIL representation for module `\LDCE'.
+Generating RTLIL representation for module `\LDPE'.
+Generating RTLIL representation for module `\LDCPE'.
+Generating RTLIL representation for module `\AND2B1L'.
+Generating RTLIL representation for module `\OR2L'.
+Generating RTLIL representation for module `\RAM16X1S'.
+Generating RTLIL representation for module `\RAM16X1S_1'.
+Generating RTLIL representation for module `\RAM32X1S'.
+Generating RTLIL representation for module `\RAM32X1S_1'.
+Generating RTLIL representation for module `\RAM64X1S'.
+Generating RTLIL representation for module `\RAM64X1S_1'.
+Generating RTLIL representation for module `\RAM128X1S'.
+Generating RTLIL representation for module `\RAM128X1S_1'.
+Generating RTLIL representation for module `\RAM256X1S'.
+Generating RTLIL representation for module `\RAM512X1S'.
+Generating RTLIL representation for module `\RAM16X2S'.
+Generating RTLIL representation for module `\RAM32X2S'.
+Generating RTLIL representation for module `\RAM64X2S'.
+Generating RTLIL representation for module `\RAM16X4S'.
+Generating RTLIL representation for module `\RAM32X4S'.
+Generating RTLIL representation for module `\RAM16X8S'.
+Generating RTLIL representation for module `\RAM32X8S'.
+Generating RTLIL representation for module `\RAM16X1D'.
+Generating RTLIL representation for module `\RAM16X1D_1'.
+Generating RTLIL representation for module `\RAM32X1D'.
+Generating RTLIL representation for module `\RAM32X1D_1'.
+Generating RTLIL representation for module `\RAM64X1D'.
+Generating RTLIL representation for module `\RAM64X1D_1'.
+Generating RTLIL representation for module `\RAM128X1D'.
+Generating RTLIL representation for module `\RAM256X1D'.
+Generating RTLIL representation for module `\RAM32M'.
+Generating RTLIL representation for module `\RAM32M16'.
+Generating RTLIL representation for module `\RAM64M'.
+Generating RTLIL representation for module `\RAM64M8'.
+Generating RTLIL representation for module `\RAM32X16DR8'.
+Generating RTLIL representation for module `\RAM64X8SW'.
+Generating RTLIL representation for module `\ROM16X1'.
+Generating RTLIL representation for module `\ROM32X1'.
+Generating RTLIL representation for module `\ROM64X1'.
+Generating RTLIL representation for module `\ROM128X1'.
+Generating RTLIL representation for module `\ROM256X1'.
+Generating RTLIL representation for module `\SRL16'.
+Generating RTLIL representation for module `\SRL16E'.
+Generating RTLIL representation for module `\SRLC16'.
+Generating RTLIL representation for module `\SRLC16E'.
+Generating RTLIL representation for module `\SRLC32E'.
+Generating RTLIL representation for module `\CFGLUT5'.
+Generating RTLIL representation for module `\MULT18X18'.
+Generating RTLIL representation for module `\MULT18X18S'.
+Generating RTLIL representation for module `\MULT18X18SIO'.
+Generating RTLIL representation for module `\DSP48A'.
+Generating RTLIL representation for module `\DSP48A1'.
+Generating RTLIL representation for module `\DSP48'.
+Generating RTLIL representation for module `\DSP48E1'.
+Generating RTLIL representation for module `\RAMB18E1'.
+Generating RTLIL representation for module `\RAMB36E1'.
+Successfully finished Verilog frontend.
+
+2.2. Executing Verilog-2005 frontend: /usr/bin/../share/yosys/xilinx/cells_xtra.v
+Parsing Verilog input from `/usr/bin/../share/yosys/xilinx/cells_xtra.v' to AST representation.
+Generating RTLIL representation for module `\RAMB4_S1'.
+Generating RTLIL representation for module `\RAMB4_S2'.
+Generating RTLIL representation for module `\RAMB4_S4'.
+Generating RTLIL representation for module `\RAMB4_S8'.
+Generating RTLIL representation for module `\RAMB4_S16'.
+Generating RTLIL representation for module `\RAMB4_S1_S1'.
+Generating RTLIL representation for module `\RAMB4_S1_S2'.
+Generating RTLIL representation for module `\RAMB4_S1_S4'.
+Generating RTLIL representation for module `\RAMB4_S1_S8'.
+Generating RTLIL representation for module `\RAMB4_S1_S16'.
+Generating RTLIL representation for module `\RAMB4_S2_S2'.
+Generating RTLIL representation for module `\RAMB4_S2_S4'.
+Generating RTLIL representation for module `\RAMB4_S2_S8'.
+Generating RTLIL representation for module `\RAMB4_S2_S16'.
+Generating RTLIL representation for module `\RAMB4_S4_S4'.
+Generating RTLIL representation for module `\RAMB4_S4_S8'.
+Generating RTLIL representation for module `\RAMB4_S4_S16'.
+Generating RTLIL representation for module `\RAMB4_S8_S8'.
+Generating RTLIL representation for module `\RAMB4_S8_S16'.
+Generating RTLIL representation for module `\RAMB4_S16_S16'.
+Generating RTLIL representation for module `\RAMB16_S1'.
+Generating RTLIL representation for module `\RAMB16_S2'.
+Generating RTLIL representation for module `\RAMB16_S4'.
+Generating RTLIL representation for module `\RAMB16_S9'.
+Generating RTLIL representation for module `\RAMB16_S18'.
+Generating RTLIL representation for module `\RAMB16_S36'.
+Generating RTLIL representation for module `\RAMB16_S1_S1'.
+Generating RTLIL representation for module `\RAMB16_S1_S2'.
+Generating RTLIL representation for module `\RAMB16_S1_S4'.
+Generating RTLIL representation for module `\RAMB16_S1_S9'.
+Generating RTLIL representation for module `\RAMB16_S1_S18'.
+Generating RTLIL representation for module `\RAMB16_S1_S36'.
+Generating RTLIL representation for module `\RAMB16_S2_S2'.
+Generating RTLIL representation for module `\RAMB16_S2_S4'.
+Generating RTLIL representation for module `\RAMB16_S2_S9'.
+Generating RTLIL representation for module `\RAMB16_S2_S18'.
+Generating RTLIL representation for module `\RAMB16_S2_S36'.
+Generating RTLIL representation for module `\RAMB16_S4_S4'.
+Generating RTLIL representation for module `\RAMB16_S4_S9'.
+Generating RTLIL representation for module `\RAMB16_S4_S18'.
+Generating RTLIL representation for module `\RAMB16_S4_S36'.
+Generating RTLIL representation for module `\RAMB16_S9_S9'.
+Generating RTLIL representation for module `\RAMB16_S9_S18'.
+Generating RTLIL representation for module `\RAMB16_S9_S36'.
+Generating RTLIL representation for module `\RAMB16_S18_S18'.
+Generating RTLIL representation for module `\RAMB16_S18_S36'.
+Generating RTLIL representation for module `\RAMB16_S36_S36'.
+Generating RTLIL representation for module `\RAMB16BWE_S18'.
+Generating RTLIL representation for module `\RAMB16BWE_S36'.
+Generating RTLIL representation for module `\RAMB16BWE_S18_S9'.
+Generating RTLIL representation for module `\RAMB16BWE_S18_S18'.
+Generating RTLIL representation for module `\RAMB16BWE_S36_S9'.
+Generating RTLIL representation for module `\RAMB16BWE_S36_S18'.
+Generating RTLIL representation for module `\RAMB16BWE_S36_S36'.
+Generating RTLIL representation for module `\RAMB16BWER'.
+Generating RTLIL representation for module `\RAMB8BWER'.
+Generating RTLIL representation for module `\FIFO16'.
+Generating RTLIL representation for module `\RAMB16'.
+Generating RTLIL representation for module `\RAMB32_S64_ECC'.
+Generating RTLIL representation for module `\FIFO18'.
+Generating RTLIL representation for module `\FIFO18_36'.
+Generating RTLIL representation for module `\FIFO36'.
+Generating RTLIL representation for module `\FIFO36_72'.
+Generating RTLIL representation for module `\RAMB18'.
+Generating RTLIL representation for module `\RAMB36'.
+Generating RTLIL representation for module `\RAMB18SDP'.
+Generating RTLIL representation for module `\RAMB36SDP'.
+Generating RTLIL representation for module `\FIFO18E1'.
+Generating RTLIL representation for module `\FIFO36E1'.
+Generating RTLIL representation for module `\FIFO18E2'.
+Generating RTLIL representation for module `\FIFO36E2'.
+Generating RTLIL representation for module `\RAMB18E2'.
+Generating RTLIL representation for module `\RAMB36E2'.
+Generating RTLIL representation for module `\URAM288'.
+Generating RTLIL representation for module `\URAM288_BASE'.
+Generating RTLIL representation for module `\DSP48E'.
+Generating RTLIL representation for module `\DSP48E2'.
+Generating RTLIL representation for module `\FDDRCPE'.
+Generating RTLIL representation for module `\FDDRRSE'.
+Generating RTLIL representation for module `\IFDDRCPE'.
+Generating RTLIL representation for module `\IFDDRRSE'.
+Generating RTLIL representation for module `\OFDDRCPE'.
+Generating RTLIL representation for module `\OFDDRRSE'.
+Generating RTLIL representation for module `\OFDDRTCPE'.
+Generating RTLIL representation for module `\OFDDRTRSE'.
+Generating RTLIL representation for module `\IDDR2'.
+Generating RTLIL representation for module `\ODDR2'.
+Generating RTLIL representation for module `\IDDR'.
+Generating RTLIL representation for module `\IDDR_2CLK'.
+Generating RTLIL representation for module `\ODDR'.
+Generating RTLIL representation for module `\IDELAYCTRL'.
+Generating RTLIL representation for module `\IDELAY'.
+Generating RTLIL representation for module `\ISERDES'.
+Generating RTLIL representation for module `\OSERDES'.
+Generating RTLIL representation for module `\IODELAY'.
+Generating RTLIL representation for module `\ISERDES_NODELAY'.
+Generating RTLIL representation for module `\IODELAYE1'.
+Generating RTLIL representation for module `\ISERDESE1'.
+Generating RTLIL representation for module `\OSERDESE1'.
+Generating RTLIL representation for module `\IDELAYE2'.
+Generating RTLIL representation for module `\ODELAYE2'.
+Generating RTLIL representation for module `\ISERDESE2'.
+Generating RTLIL representation for module `\OSERDESE2'.
+Generating RTLIL representation for module `\PHASER_IN'.
+Generating RTLIL representation for module `\PHASER_IN_PHY'.
+Generating RTLIL representation for module `\PHASER_OUT'.
+Generating RTLIL representation for module `\PHASER_OUT_PHY'.
+Generating RTLIL representation for module `\PHASER_REF'.
+Generating RTLIL representation for module `\PHY_CONTROL'.
+Generating RTLIL representation for module `\IDDRE1'.
+Generating RTLIL representation for module `\ODDRE1'.
+Generating RTLIL representation for module `\IDELAYE3'.
+Generating RTLIL representation for module `\ODELAYE3'.
+Generating RTLIL representation for module `\ISERDESE3'.
+Generating RTLIL representation for module `\OSERDESE3'.
+Generating RTLIL representation for module `\BITSLICE_CONTROL'.
+Generating RTLIL representation for module `\RIU_OR'.
+Generating RTLIL representation for module `\RX_BITSLICE'.
+Generating RTLIL representation for module `\RXTX_BITSLICE'.
+Generating RTLIL representation for module `\TX_BITSLICE'.
+Generating RTLIL representation for module `\TX_BITSLICE_TRI'.
+Generating RTLIL representation for module `\IODELAY2'.
+Generating RTLIL representation for module `\IODRP2'.
+Generating RTLIL representation for module `\IODRP2_MCB'.
+Generating RTLIL representation for module `\ISERDES2'.
+Generating RTLIL representation for module `\OSERDES2'.
+Generating RTLIL representation for module `\IBUF_DLY_ADJ'.
+Generating RTLIL representation for module `\IBUF_IBUFDISABLE'.
+Generating RTLIL representation for module `\IBUF_INTERMDISABLE'.
+Generating RTLIL representation for module `\IBUF_ANALOG'.
+Generating RTLIL representation for module `\IBUFE3'.
+Generating RTLIL representation for module `\IBUFDS'.
+Generating RTLIL representation for module `\IBUFDS_DLY_ADJ'.
+Generating RTLIL representation for module `\IBUFDS_IBUFDISABLE'.
+Generating RTLIL representation for module `\IBUFDS_INTERMDISABLE'.
+Generating RTLIL representation for module `\IBUFDS_DIFF_OUT'.
+Generating RTLIL representation for module `\IBUFDS_DIFF_OUT_IBUFDISABLE'.
+Generating RTLIL representation for module `\IBUFDS_DIFF_OUT_INTERMDISABLE'.
+Generating RTLIL representation for module `\IBUFDSE3'.
+Generating RTLIL representation for module `\IBUFDS_DPHY'.
+Generating RTLIL representation for module `\IBUFGDS'.
+Generating RTLIL representation for module `\IBUFGDS_DIFF_OUT'.
+Generating RTLIL representation for module `\IOBUF_DCIEN'.
+Generating RTLIL representation for module `\IOBUF_INTERMDISABLE'.
+Generating RTLIL representation for module `\IOBUFE3'.
+Generating RTLIL representation for module `\IOBUFDS'.
+Generating RTLIL representation for module `\IOBUFDS_DCIEN'.
+Generating RTLIL representation for module `\IOBUFDS_INTERMDISABLE'.
+Generating RTLIL representation for module `\IOBUFDS_DIFF_OUT'.
+Generating RTLIL representation for module `\IOBUFDS_DIFF_OUT_DCIEN'.
+Generating RTLIL representation for module `\IOBUFDS_DIFF_OUT_INTERMDISABLE'.
+Generating RTLIL representation for module `\IOBUFDSE3'.
+Generating RTLIL representation for module `\OBUFDS'.
+Generating RTLIL representation for module `\OBUFDS_DPHY'.
+Generating RTLIL representation for module `\OBUFTDS'.
+Generating RTLIL representation for module `\KEEPER'.
+Generating RTLIL representation for module `\PULLDOWN'.
+Generating RTLIL representation for module `\PULLUP'.
+Generating RTLIL representation for module `\DCIRESET'.
+Generating RTLIL representation for module `\HPIO_VREF'.
+Generating RTLIL representation for module `\BUFGCE'.
+Generating RTLIL representation for module `\BUFGCE_1'.
+Generating RTLIL representation for module `\BUFGMUX'.
+Generating RTLIL representation for module `\BUFGMUX_1'.
+Generating RTLIL representation for module `\BUFGMUX_CTRL'.
+Generating RTLIL representation for module `\BUFGMUX_VIRTEX4'.
+Generating RTLIL representation for module `\BUFG_GT'.
+Generating RTLIL representation for module `\BUFG_GT_SYNC'.
+Generating RTLIL representation for module `\BUFG_PS'.
+Generating RTLIL representation for module `\BUFGCE_DIV'.
+Generating RTLIL representation for module `\BUFH'.
+Generating RTLIL representation for module `\BUFIO2'.
+Generating RTLIL representation for module `\BUFIO2_2CLK'.
+Generating RTLIL representation for module `\BUFIO2FB'.
+Generating RTLIL representation for module `\BUFPLL'.
+Generating RTLIL representation for module `\BUFPLL_MCB'.
+Generating RTLIL representation for module `\BUFIO'.
+Generating RTLIL representation for module `\BUFIODQS'.
+Generating RTLIL representation for module `\BUFR'.
+Generating RTLIL representation for module `\BUFMR'.
+Generating RTLIL representation for module `\BUFMRCE'.
+Generating RTLIL representation for module `\DCM'.
+Generating RTLIL representation for module `\DCM_SP'.
+Generating RTLIL representation for module `\DCM_CLKGEN'.
+Generating RTLIL representation for module `\DCM_ADV'.
+Generating RTLIL representation for module `\DCM_BASE'.
+Generating RTLIL representation for module `\DCM_PS'.
+Generating RTLIL representation for module `\PMCD'.
+Generating RTLIL representation for module `\PLL_ADV'.
+Generating RTLIL representation for module `\PLL_BASE'.
+Generating RTLIL representation for module `\MMCM_ADV'.
+Generating RTLIL representation for module `\MMCM_BASE'.
+Generating RTLIL representation for module `\MMCME2_ADV'.
+Generating RTLIL representation for module `\MMCME2_BASE'.
+Generating RTLIL representation for module `\PLLE2_ADV'.
+Generating RTLIL representation for module `\PLLE2_BASE'.
+Generating RTLIL representation for module `\MMCME3_ADV'.
+Generating RTLIL representation for module `\MMCME3_BASE'.
+Generating RTLIL representation for module `\PLLE3_ADV'.
+Generating RTLIL representation for module `\PLLE3_BASE'.
+Generating RTLIL representation for module `\MMCME4_ADV'.
+Generating RTLIL representation for module `\MMCME4_BASE'.
+Generating RTLIL representation for module `\PLLE4_ADV'.
+Generating RTLIL representation for module `\PLLE4_BASE'.
+Generating RTLIL representation for module `\BUFT'.
+Generating RTLIL representation for module `\IN_FIFO'.
+Generating RTLIL representation for module `\OUT_FIFO'.
+Generating RTLIL representation for module `\HARD_SYNC'.
+Generating RTLIL representation for module `\STARTUP_SPARTAN3'.
+Generating RTLIL representation for module `\STARTUP_SPARTAN3E'.
+Generating RTLIL representation for module `\STARTUP_SPARTAN3A'.
+Generating RTLIL representation for module `\STARTUP_SPARTAN6'.
+Generating RTLIL representation for module `\STARTUP_VIRTEX4'.
+Generating RTLIL representation for module `\STARTUP_VIRTEX5'.
+Generating RTLIL representation for module `\STARTUP_VIRTEX6'.
+Generating RTLIL representation for module `\STARTUPE2'.
+Generating RTLIL representation for module `\STARTUPE3'.
+Generating RTLIL representation for module `\CAPTURE_SPARTAN3'.
+Generating RTLIL representation for module `\CAPTURE_SPARTAN3A'.
+Generating RTLIL representation for module `\CAPTURE_VIRTEX4'.
+Generating RTLIL representation for module `\CAPTURE_VIRTEX5'.
+Generating RTLIL representation for module `\CAPTURE_VIRTEX6'.
+Generating RTLIL representation for module `\CAPTUREE2'.
+Generating RTLIL representation for module `\ICAP_SPARTAN3A'.
+Generating RTLIL representation for module `\ICAP_SPARTAN6'.
+Generating RTLIL representation for module `\ICAP_VIRTEX4'.
+Generating RTLIL representation for module `\ICAP_VIRTEX5'.
+Generating RTLIL representation for module `\ICAP_VIRTEX6'.
+Generating RTLIL representation for module `\ICAPE2'.
+Generating RTLIL representation for module `\ICAPE3'.
+Generating RTLIL representation for module `\BSCAN_SPARTAN3'.
+Generating RTLIL representation for module `\BSCAN_SPARTAN3A'.
+Generating RTLIL representation for module `\BSCAN_SPARTAN6'.
+Generating RTLIL representation for module `\BSCAN_VIRTEX4'.
+Generating RTLIL representation for module `\BSCAN_VIRTEX5'.
+Generating RTLIL representation for module `\BSCAN_VIRTEX6'.
+Generating RTLIL representation for module `\BSCANE2'.
+Generating RTLIL representation for module `\DNA_PORT'.
+Generating RTLIL representation for module `\DNA_PORTE2'.
+Generating RTLIL representation for module `\FRAME_ECC_VIRTEX4'.
+Generating RTLIL representation for module `\FRAME_ECC_VIRTEX5'.
+Generating RTLIL representation for module `\FRAME_ECC_VIRTEX6'.
+Generating RTLIL representation for module `\FRAME_ECCE2'.
+Generating RTLIL representation for module `\FRAME_ECCE3'.
+Generating RTLIL representation for module `\FRAME_ECCE4'.
+Generating RTLIL representation for module `\USR_ACCESS_VIRTEX4'.
+Generating RTLIL representation for module `\USR_ACCESS_VIRTEX5'.
+Generating RTLIL representation for module `\USR_ACCESS_VIRTEX6'.
+Generating RTLIL representation for module `\USR_ACCESSE2'.
+Generating RTLIL representation for module `\POST_CRC_INTERNAL'.
+Generating RTLIL representation for module `\SUSPEND_SYNC'.
+Generating RTLIL representation for module `\KEY_CLEAR'.
+Generating RTLIL representation for module `\MASTER_JTAG'.
+Generating RTLIL representation for module `\SPI_ACCESS'.
+Generating RTLIL representation for module `\EFUSE_USR'.
+Generating RTLIL representation for module `\SYSMON'.
+Generating RTLIL representation for module `\XADC'.
+Generating RTLIL representation for module `\SYSMONE1'.
+Generating RTLIL representation for module `\SYSMONE4'.
+Generating RTLIL representation for module `\GTPA1_DUAL'.
+Generating RTLIL representation for module `\GT11_CUSTOM'.
+Generating RTLIL representation for module `\GT11_DUAL'.
+Generating RTLIL representation for module `\GT11CLK'.
+Generating RTLIL representation for module `\GT11CLK_MGT'.
+Generating RTLIL representation for module `\GTP_DUAL'.
+Generating RTLIL representation for module `\GTX_DUAL'.
+Generating RTLIL representation for module `\CRC32'.
+Generating RTLIL representation for module `\CRC64'.
+Generating RTLIL representation for module `\GTHE1_QUAD'.
+Generating RTLIL representation for module `\GTXE1'.
+Generating RTLIL representation for module `\IBUFDS_GTXE1'.
+Generating RTLIL representation for module `\IBUFDS_GTHE1'.
+Generating RTLIL representation for module `\GTHE2_CHANNEL'.
+Generating RTLIL representation for module `\GTHE2_COMMON'.
+Generating RTLIL representation for module `\GTPE2_CHANNEL'.
+Generating RTLIL representation for module `\GTPE2_COMMON'.
+Generating RTLIL representation for module `\GTXE2_CHANNEL'.
+Generating RTLIL representation for module `\GTXE2_COMMON'.
+Generating RTLIL representation for module `\IBUFDS_GTE2'.
+Generating RTLIL representation for module `\GTHE3_CHANNEL'.
+Generating RTLIL representation for module `\GTHE3_COMMON'.
+Generating RTLIL representation for module `\GTYE3_CHANNEL'.
+Generating RTLIL representation for module `\GTYE3_COMMON'.
+Generating RTLIL representation for module `\IBUFDS_GTE3'.
+Generating RTLIL representation for module `\OBUFDS_GTE3'.
+Generating RTLIL representation for module `\OBUFDS_GTE3_ADV'.
+Generating RTLIL representation for module `\GTHE4_CHANNEL'.
+Generating RTLIL representation for module `\GTHE4_COMMON'.
+Generating RTLIL representation for module `\GTYE4_CHANNEL'.
+Generating RTLIL representation for module `\GTYE4_COMMON'.
+Generating RTLIL representation for module `\IBUFDS_GTE4'.
+Generating RTLIL representation for module `\OBUFDS_GTE4'.
+Generating RTLIL representation for module `\OBUFDS_GTE4_ADV'.
+Generating RTLIL representation for module `\GTM_DUAL'.
+Generating RTLIL representation for module `\IBUFDS_GTM'.
+Generating RTLIL representation for module `\OBUFDS_GTM'.
+Generating RTLIL representation for module `\OBUFDS_GTM_ADV'.
+Generating RTLIL representation for module `\HSDAC'.
+Generating RTLIL representation for module `\HSADC'.
+Generating RTLIL representation for module `\RFDAC'.
+Generating RTLIL representation for module `\RFADC'.
+Generating RTLIL representation for module `\PCIE_A1'.
+Generating RTLIL representation for module `\PCIE_EP'.
+Generating RTLIL representation for module `\PCIE_2_0'.
+Generating RTLIL representation for module `\PCIE_2_1'.
+Generating RTLIL representation for module `\PCIE_3_0'.
+Generating RTLIL representation for module `\PCIE_3_1'.
+Generating RTLIL representation for module `\PCIE40E4'.
+Generating RTLIL representation for module `\PCIE4CE4'.
+Generating RTLIL representation for module `\EMAC'.
+Generating RTLIL representation for module `\TEMAC'.
+Generating RTLIL representation for module `\TEMAC_SINGLE'.
+Generating RTLIL representation for module `\CMAC'.
+Generating RTLIL representation for module `\CMACE4'.
+Generating RTLIL representation for module `\MCB'.
+Generating RTLIL representation for module `\HBM_REF_CLK'.
+Generating RTLIL representation for module `\HBM_SNGLBLI_INTF_APB'.
+Generating RTLIL representation for module `\HBM_SNGLBLI_INTF_AXI'.
+Generating RTLIL representation for module `\HBM_ONE_STACK_INTF'.
+Generating RTLIL representation for module `\HBM_TWO_STACK_INTF'.
+Generating RTLIL representation for module `\PPC405_ADV'.
+Generating RTLIL representation for module `\PPC440'.
+Generating RTLIL representation for module `\PS7'.
+Generating RTLIL representation for module `\PS8'.
+Generating RTLIL representation for module `\ILKN'.
+Generating RTLIL representation for module `\ILKNE4'.
+Generating RTLIL representation for module `\VCU'.
+Generating RTLIL representation for module `\FE'.
+Successfully finished Verilog frontend.
+
+2.3. Executing HIERARCHY pass (managing design hierarchy).
+
+2.3.1. Analyzing design hierarchy..
+Top module:  \KL_chan_map_capture
+
+2.3.2. Analyzing design hierarchy..
+Top module:  \KL_chan_map_capture
+Removed 0 unused modules.
+
+2.4. Executing PROC pass (convert processes to netlists).
+
+2.4.1. Executing PROC_CLEAN pass (remove empty switches from decision trees).
+Found and cleaned up 1 empty switch in `\KL_chan_map_capture.$proc$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:794$4142'.
+Found and cleaned up 1 empty switch in `\KL_chan_map_capture.$proc$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:679$4067'.
+Found and cleaned up 1 empty switch in `\KL_chan_map_capture.$proc$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:428$2346'.
+Found and cleaned up 1 empty switch in `\KL_chan_map_capture.$proc$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:416$2185'.
+Found and cleaned up 1 empty switch in `\KL_chan_map_capture.$proc$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:368$1950'.
+Found and cleaned up 1 empty switch in `\KL_chan_map_capture.$proc$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:336$1922'.
+Found and cleaned up 1 empty switch in `\KL_chan_map_capture.$proc$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:274$1881'.
+Found and cleaned up 1 empty switch in `\KL_chan_map_capture.$proc$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:262$1848'.
+Found and cleaned up 1 empty switch in `\KL_chan_map_capture.$proc$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:206$1784'.
+Found and cleaned up 1 empty switch in `\KL_chan_map_capture.$proc$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:131$1370'.
+Cleaned up 10 empty switches.
+
+2.4.2. Executing PROC_RMDEAD pass (remove dead branches from decision trees).
+Marked 1 switch rules as full_case in process $proc$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:728$4574 in module KL_chan_map_capture.
+Marked 1 switch rules as full_case in process $proc$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:727$4571 in module KL_chan_map_capture.
+Removed 1 dead cases from process $proc$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:396$4337 in module KL_chan_map_capture.
+Marked 1 switch rules as full_case in process $proc$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:396$4337 in module KL_chan_map_capture.
+Removed 1 dead cases from process $proc$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:396$4325 in module KL_chan_map_capture.
+Marked 1 switch rules as full_case in process $proc$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:396$4325 in module KL_chan_map_capture.
+Removed 1 dead cases from process $proc$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:794$4142 in module KL_chan_map_capture.
+Marked 4 switch rules as full_case in process $proc$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:794$4142 in module KL_chan_map_capture.
+Marked 2 switch rules as full_case in process $proc$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:650$4060 in module KL_chan_map_capture.
+Marked 1 switch rules as full_case in process $proc$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:618$4047 in module KL_chan_map_capture.
+Marked 82 switch rules as full_case in process $proc$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:482$2655 in module KL_chan_map_capture.
+Marked 1 switch rules as full_case in process $proc$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:467$2647 in module KL_chan_map_capture.
+Marked 256 switch rules as full_case in process $proc$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:428$2346 in module KL_chan_map_capture.
+Marked 32 switch rules as full_case in process $proc$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:416$2185 in module KL_chan_map_capture.
+Marked 32 switch rules as full_case in process $proc$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:368$1950 in module KL_chan_map_capture.
+Marked 1 switch rules as full_case in process $proc$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:285$1914 in module KL_chan_map_capture.
+Marked 8 switch rules as full_case in process $proc$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:274$1881 in module KL_chan_map_capture.
+Marked 8 switch rules as full_case in process $proc$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:262$1848 in module KL_chan_map_capture.
+Marked 8 switch rules as full_case in process $proc$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:206$1784 in module KL_chan_map_capture.
+Marked 3 switch rules as full_case in process $proc$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:176$1762 in module KL_chan_map_capture.
+Marked 1 switch rules as full_case in process $proc$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:143$1755 in module KL_chan_map_capture.
+Marked 64 switch rules as full_case in process $proc$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:131$1370 in module KL_chan_map_capture.
+Marked 2 switch rules as full_case in process $proc$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:121$1231 in module KL_chan_map_capture.
+Removed a total of 3 dead cases.
+
+2.4.3. Executing PROC_PRUNE pass (remove redundant assignments in processes).
+Removed 12 redundant assignments.
+Promoted 1301 assignments to connections.
+
+2.4.4. Executing PROC_INIT pass (extract init attributes).
+
+2.4.5. Executing PROC_ARST pass (detect async resets in processes).
+
+2.4.6. Executing PROC_ROM pass (convert switches to ROMs).
+Converted 0 switches.
+<suppressed ~557 debug messages>
+
+2.4.7. Executing PROC_MUX pass (convert decision trees to multiplexers).
+Creating decoders for process `\KL_chan_map_capture.$proc$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:867$4577'.
+Creating decoders for process `\KL_chan_map_capture.$proc$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:728$4574'.
+     1/1: $1$mem2reg_rd$\cand_w$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:728$653_DATA[23:0]$4576
+Creating decoders for process `\KL_chan_map_capture.$proc$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:727$4571'.
+     1/1: $1$mem2reg_rd$\cand_w$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:727$652_DATA[23:0]$4573
+Creating decoders for process `\KL_chan_map_capture.$proc$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:785$4567'.
+Creating decoders for process `\KL_chan_map_capture.$proc$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:728$4563'.
+Creating decoders for process `\KL_chan_map_capture.$proc$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:727$4559'.
+Creating decoders for process `\KL_chan_map_capture.$proc$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:726$4490'.
+     1/21: $1\source_row$func$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:726$635.$result[6:0]$4526
+     2/21: $1\sv2v_cast_AC931$func$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:717$639.$result[6:0]$4529
+     3/21: $1\sv2v_cast_AC931$func$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:717$639.inp[6:0]$4530
+     4/21: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:717$638.$result[31:0]$4527
+     5/21: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:717$638.inp[31:0]$4528
+     6/21: $1\sv2v_cast_AC931$func$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:720$648.inp[6:0]$4546
+     7/21: $1\sv2v_cast_AC931$func$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:720$648.$result[6:0]$4545
+     8/21: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:720$647.inp[31:0]$4544
+     9/21: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:720$647.$result[31:0]$4543
+    10/21: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:720$646.inp[31:0]$4542
+    11/21: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:720$646.$result[31:0]$4541
+    12/21: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:720$645.inp[31:0]$4540
+    13/21: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:720$645.$result[31:0]$4539
+    14/21: $1\sv2v_cast_AC931$func$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:718$643.inp[6:0]$4538
+    15/21: $1\sv2v_cast_AC931$func$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:718$643.$result[6:0]$4537
+    16/21: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:718$642.inp[31:0]$4536
+    17/21: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:718$642.$result[31:0]$4535
+    18/21: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:718$641.inp[31:0]$4534
+    19/21: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:718$641.$result[31:0]$4533
+    20/21: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:718$640.inp[31:0]$4532
+    21/21: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:718$640.$result[31:0]$4531
+Creating decoders for process `\KL_chan_map_capture.$proc$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:725$4421'.
+     1/21: $1\source_row$func$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:725$621.$result[6:0]$4457
+     2/21: $1\sv2v_cast_AC931$func$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:717$625.$result[6:0]$4460
+     3/21: $1\sv2v_cast_AC931$func$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:717$625.inp[6:0]$4461
+     4/21: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:717$624.$result[31:0]$4458
+     5/21: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:717$624.inp[31:0]$4459
+     6/21: $1\sv2v_cast_AC931$func$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:720$634.inp[6:0]$4477
+     7/21: $1\sv2v_cast_AC931$func$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:720$634.$result[6:0]$4476
+     8/21: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:720$633.inp[31:0]$4475
+     9/21: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:720$633.$result[31:0]$4474
+    10/21: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:720$632.inp[31:0]$4473
+    11/21: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:720$632.$result[31:0]$4472
+    12/21: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:720$631.inp[31:0]$4471
+    13/21: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:720$631.$result[31:0]$4470
+    14/21: $1\sv2v_cast_AC931$func$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:718$629.inp[6:0]$4469
+    15/21: $1\sv2v_cast_AC931$func$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:718$629.$result[6:0]$4468
+    16/21: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:718$628.inp[31:0]$4467
+    17/21: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:718$628.$result[31:0]$4466
+    18/21: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:718$627.inp[31:0]$4465
+    19/21: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:718$627.$result[31:0]$4464
+    20/21: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:718$626.inp[31:0]$4463
+    21/21: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:718$626.$result[31:0]$4462
+Creating decoders for process `\KL_chan_map_capture.$proc$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:466$4417'.
+Creating decoders for process `\KL_chan_map_capture.$proc$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:466$4413'.
+Creating decoders for process `\KL_chan_map_capture.$proc$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:465$4409'.
+Creating decoders for process `\KL_chan_map_capture.$proc$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:465$4405'.
+Creating decoders for process `\KL_chan_map_capture.$proc$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:460$4401'.
+Creating decoders for process `\KL_chan_map_capture.$proc$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:460$4397'.
+Creating decoders for process `\KL_chan_map_capture.$proc$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:460$4393'.
+Creating decoders for process `\KL_chan_map_capture.$proc$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:458$4388'.
+Creating decoders for process `\KL_chan_map_capture.$proc$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:458$4384'.
+Creating decoders for process `\KL_chan_map_capture.$proc$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:453$4379'.
+Creating decoders for process `\KL_chan_map_capture.$proc$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:453$4375'.
+Creating decoders for process `\KL_chan_map_capture.$proc$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:448$4371'.
+Creating decoders for process `\KL_chan_map_capture.$proc$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:447$4367'.
+Creating decoders for process `\KL_chan_map_capture.$proc$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:444$4357'.
+Creating decoders for process `\KL_chan_map_capture.$proc$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:414$4353'.
+Creating decoders for process `\KL_chan_map_capture.$proc$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:413$4349'.
+Creating decoders for process `\KL_chan_map_capture.$proc$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:402$4345'.
+Creating decoders for process `\KL_chan_map_capture.$proc$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:396$4337'.
+     1/1: $1$mem2reg_rd$\act_drop_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:396$655_DATA[3:0]$4344
+Creating decoders for process `\KL_chan_map_capture.$proc$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:396$4333'.
+Creating decoders for process `\KL_chan_map_capture.$proc$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:396$4325'.
+     1/1: $1$mem2reg_rd$\act_drop_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:396$654_DATA[3:0]$4332
+Creating decoders for process `\KL_chan_map_capture.$proc$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:396$4321'.
+Creating decoders for process `\KL_chan_map_capture.$proc$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:388$4317'.
+Creating decoders for process `\KL_chan_map_capture.$proc$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:366$4313'.
+Creating decoders for process `\KL_chan_map_capture.$proc$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:366$4309'.
+Creating decoders for process `\KL_chan_map_capture.$proc$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:246$4305'.
+Creating decoders for process `\KL_chan_map_capture.$proc$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:246$4301'.
+Creating decoders for process `\KL_chan_map_capture.$proc$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:245$4297'.
+Creating decoders for process `\KL_chan_map_capture.$proc$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:245$4293'.
+Creating decoders for process `\KL_chan_map_capture.$proc$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:241$4284'.
+Creating decoders for process `\KL_chan_map_capture.$proc$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:240$4270'.
+Creating decoders for process `\KL_chan_map_capture.$proc$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:239$4256'.
+Creating decoders for process `\KL_chan_map_capture.$proc$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:238$4252'.
+Creating decoders for process `\KL_chan_map_capture.$proc$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:237$4248'.
+Creating decoders for process `\KL_chan_map_capture.$proc$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:236$4244'.
+Creating decoders for process `\KL_chan_map_capture.$proc$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:235$4235'.
+Creating decoders for process `\KL_chan_map_capture.$proc$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:171$4231'.
+Creating decoders for process `\KL_chan_map_capture.$proc$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:170$4227'.
+Creating decoders for process `\KL_chan_map_capture.$proc$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:794$4142'.
+     1/18: $2\sv2v_cast_5$func$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:826$573.inp[4:0]$4155
+     2/18: $2\sv2v_cast_5$func$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:826$573.$result[4:0]$4154
+     3/18: $2\sv2v_cast_32$func$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:820$572.inp[31:0]$4153
+     4/18: $2\sv2v_cast_32$func$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:820$572.$result[31:0]$4152
+     5/18: $1\sv2v_cast_5$func$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:826$573.inp[4:0]$4151
+     6/18: $1\sv2v_cast_5$func$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:826$573.$result[4:0]$4150
+     7/18: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:820$572.inp[31:0]$4149
+     8/18: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:820$572.$result[31:0]$4148
+     9/18: $0\gap_r[4:0]
+    10/18: $0\slot_r[4:0]
+    11/18: $0\pop_idx_r[5:0]
+    12/18: $0\tick_late_r[0:0]
+    13/18: $0\tick_pend_r[0:0]
+    14/18: $0\st_r[1:0]
+    15/18: $0\pair_r_o[23:0]
+    16/18: $0\pair_l_o[23:0]
+    17/18: $0\pair_slot_o[4:0]
+    18/18: $0\pair_valid_o[0:0]
+Creating decoders for process `\KL_chan_map_capture.$proc$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:679$4067'.
+Creating decoders for process `\KL_chan_map_capture.$proc$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:650$4060'.
+     1/9: $2\tdm_walk_snapshot.sv2v_autoblock_20.t[31:0]
+     2/9: $1\tdm_walk_snapshot.sv2v_autoblock_19.t[31:0]
+     3/9: $0\tdm_snap_late_r[0:0]
+     4/9: $1\tdm_walk_snapshot.sv2v_autoblock_20.t[31:0]
+     5/9: $0\tdm_walk_r[3][47:0]
+     6/9: $0\tdm_walk_r[2][47:0]
+     7/9: $0\tdm_walk_r[1][47:0]
+     8/9: $0\tdm_walk_r[0][47:0]
+     9/9: $0\tdm_walk_ns_o[31:0]
+Creating decoders for process `\KL_chan_map_capture.$proc$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:618$4047'.
+     1/4: $0\tdm_frame_pend_r[0:0]
+     2/4: $0\tdm_fed_r[0:0]
+     3/4: $0\tdm_skip_cnt_o[15:0]
+     4/4: $0\tdm_dup_cnt_o[15:0]
+Creating decoders for process `\KL_chan_map_capture.$proc$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:482$2655'.
+     1/929: $2$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:609$1230_EN[2:0]$4042
+     2/929: $2$memwr$\lb_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:608$1229_EN[47:0]$4041
+     3/929: $34$lookahead\q_fed_r$2654[31:31]$4043
+     4/929: $2$memwr$\q_cnt_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:606$1228_EN[4:0]$4040
+     5/929: $2$memwr$\q_rd_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:605$1227_EN[3:0]$4039
+     6/929: $2$memwr$\q_wr_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:604$1226_EN[3:0]$4038
+     7/929: $2$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:609$1225_EN[2:0]$4036
+     8/929: $2$memwr$\lb_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:608$1224_EN[47:0]$4035
+     9/929: $33$lookahead\q_fed_r$2654[30:30]$4037
+    10/929: $2$memwr$\q_cnt_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:606$1223_EN[4:0]$4034
+    11/929: $2$memwr$\q_rd_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:605$1222_EN[3:0]$4033
+    12/929: $2$memwr$\q_wr_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:604$1221_EN[3:0]$4032
+    13/929: $2$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:609$1220_EN[2:0]$4030
+    14/929: $2$memwr$\lb_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:608$1219_EN[47:0]$4029
+    15/929: $32$lookahead\q_fed_r$2654[29:29]$4031
+    16/929: $2$memwr$\q_cnt_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:606$1218_EN[4:0]$4028
+    17/929: $2$memwr$\q_rd_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:605$1217_EN[3:0]$4027
+    18/929: $2$memwr$\q_wr_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:604$1216_EN[3:0]$4026
+    19/929: $2$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:609$1215_EN[2:0]$4024
+    20/929: $2$memwr$\lb_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:608$1214_EN[47:0]$4023
+    21/929: $31$lookahead\q_fed_r$2654[28:28]$4025
+    22/929: $2$memwr$\q_cnt_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:606$1213_EN[4:0]$4022
+    23/929: $2$memwr$\q_rd_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:605$1212_EN[3:0]$4021
+    24/929: $2$memwr$\q_wr_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:604$1211_EN[3:0]$4020
+    25/929: $2$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:609$1210_EN[2:0]$4018
+    26/929: $2$memwr$\lb_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:608$1209_EN[47:0]$4017
+    27/929: $30$lookahead\q_fed_r$2654[27:27]$4019
+    28/929: $2$memwr$\q_cnt_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:606$1208_EN[4:0]$4016
+    29/929: $2$memwr$\q_rd_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:605$1207_EN[3:0]$4015
+    30/929: $2$memwr$\q_wr_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:604$1206_EN[3:0]$4014
+    31/929: $2$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:609$1205_EN[2:0]$4012
+    32/929: $2$memwr$\lb_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:608$1204_EN[47:0]$4011
+    33/929: $29$lookahead\q_fed_r$2654[26:26]$4013
+    34/929: $2$memwr$\q_cnt_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:606$1203_EN[4:0]$4010
+    35/929: $2$memwr$\q_rd_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:605$1202_EN[3:0]$4009
+    36/929: $2$memwr$\q_wr_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:604$1201_EN[3:0]$4008
+    37/929: $2$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:609$1200_EN[2:0]$4006
+    38/929: $2$memwr$\lb_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:608$1199_EN[47:0]$4005
+    39/929: $28$lookahead\q_fed_r$2654[25:25]$4007
+    40/929: $2$memwr$\q_cnt_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:606$1198_EN[4:0]$4004
+    41/929: $2$memwr$\q_rd_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:605$1197_EN[3:0]$4003
+    42/929: $2$memwr$\q_wr_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:604$1196_EN[3:0]$4002
+    43/929: $2$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:609$1195_EN[2:0]$4000
+    44/929: $2$memwr$\lb_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:608$1194_EN[47:0]$3999
+    45/929: $27$lookahead\q_fed_r$2654[24:24]$4001
+    46/929: $2$memwr$\q_cnt_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:606$1193_EN[4:0]$3998
+    47/929: $2$memwr$\q_rd_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:605$1192_EN[3:0]$3997
+    48/929: $2$memwr$\q_wr_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:604$1191_EN[3:0]$3996
+    49/929: $2$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:609$1190_EN[2:0]$3994
+    50/929: $2$memwr$\lb_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:608$1189_EN[47:0]$3993
+    51/929: $26$lookahead\q_fed_r$2654[23:23]$3995
+    52/929: $2$memwr$\q_cnt_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:606$1188_EN[4:0]$3992
+    53/929: $2$memwr$\q_rd_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:605$1187_EN[3:0]$3991
+    54/929: $2$memwr$\q_wr_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:604$1186_EN[3:0]$3990
+    55/929: $2$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:609$1185_EN[2:0]$3988
+    56/929: $2$memwr$\lb_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:608$1184_EN[47:0]$3987
+    57/929: $25$lookahead\q_fed_r$2654[22:22]$3989
+    58/929: $2$memwr$\q_cnt_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:606$1183_EN[4:0]$3986
+    59/929: $2$memwr$\q_rd_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:605$1182_EN[3:0]$3985
+    60/929: $2$memwr$\q_wr_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:604$1181_EN[3:0]$3984
+    61/929: $2$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:609$1180_EN[2:0]$3982
+    62/929: $2$memwr$\lb_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:608$1179_EN[47:0]$3981
+    63/929: $24$lookahead\q_fed_r$2654[21:21]$3983
+    64/929: $2$memwr$\q_cnt_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:606$1178_EN[4:0]$3980
+    65/929: $2$memwr$\q_rd_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:605$1177_EN[3:0]$3979
+    66/929: $2$memwr$\q_wr_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:604$1176_EN[3:0]$3978
+    67/929: $2$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:609$1175_EN[2:0]$3976
+    68/929: $2$memwr$\lb_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:608$1174_EN[47:0]$3975
+    69/929: $23$lookahead\q_fed_r$2654[20:20]$3977
+    70/929: $2$memwr$\q_cnt_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:606$1173_EN[4:0]$3974
+    71/929: $2$memwr$\q_rd_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:605$1172_EN[3:0]$3973
+    72/929: $2$memwr$\q_wr_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:604$1171_EN[3:0]$3972
+    73/929: $2$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:609$1170_EN[2:0]$3970
+    74/929: $2$memwr$\lb_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:608$1169_EN[47:0]$3969
+    75/929: $22$lookahead\q_fed_r$2654[19:19]$3971
+    76/929: $2$memwr$\q_cnt_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:606$1168_EN[4:0]$3968
+    77/929: $2$memwr$\q_rd_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:605$1167_EN[3:0]$3967
+    78/929: $2$memwr$\q_wr_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:604$1166_EN[3:0]$3966
+    79/929: $2$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:609$1165_EN[2:0]$3964
+    80/929: $2$memwr$\lb_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:608$1164_EN[47:0]$3963
+    81/929: $21$lookahead\q_fed_r$2654[18:18]$3965
+    82/929: $2$memwr$\q_cnt_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:606$1163_EN[4:0]$3962
+    83/929: $2$memwr$\q_rd_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:605$1162_EN[3:0]$3961
+    84/929: $2$memwr$\q_wr_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:604$1161_EN[3:0]$3960
+    85/929: $2$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:609$1160_EN[2:0]$3958
+    86/929: $2$memwr$\lb_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:608$1159_EN[47:0]$3957
+    87/929: $20$lookahead\q_fed_r$2654[17:17]$3959
+    88/929: $2$memwr$\q_cnt_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:606$1158_EN[4:0]$3956
+    89/929: $2$memwr$\q_rd_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:605$1157_EN[3:0]$3955
+    90/929: $2$memwr$\q_wr_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:604$1156_EN[3:0]$3954
+    91/929: $2$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:609$1155_EN[2:0]$3952
+    92/929: $2$memwr$\lb_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:608$1154_EN[47:0]$3951
+    93/929: $19$lookahead\q_fed_r$2654[16:16]$3953
+    94/929: $2$memwr$\q_cnt_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:606$1153_EN[4:0]$3950
+    95/929: $2$memwr$\q_rd_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:605$1152_EN[3:0]$3949
+    96/929: $2$memwr$\q_wr_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:604$1151_EN[3:0]$3948
+    97/929: $2$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:609$1150_EN[2:0]$3946
+    98/929: $2$memwr$\lb_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:608$1149_EN[47:0]$3945
+    99/929: $18$lookahead\q_fed_r$2654[15:15]$3947
+   100/929: $2$memwr$\q_cnt_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:606$1148_EN[4:0]$3944
+   101/929: $2$memwr$\q_rd_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:605$1147_EN[3:0]$3943
+   102/929: $2$memwr$\q_wr_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:604$1146_EN[3:0]$3942
+   103/929: $2$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:609$1145_EN[2:0]$3940
+   104/929: $2$memwr$\lb_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:608$1144_EN[47:0]$3939
+   105/929: $17$lookahead\q_fed_r$2654[14:14]$3941
+   106/929: $2$memwr$\q_cnt_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:606$1143_EN[4:0]$3938
+   107/929: $2$memwr$\q_rd_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:605$1142_EN[3:0]$3937
+   108/929: $2$memwr$\q_wr_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:604$1141_EN[3:0]$3936
+   109/929: $2$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:609$1140_EN[2:0]$3934
+   110/929: $2$memwr$\lb_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:608$1139_EN[47:0]$3933
+   111/929: $16$lookahead\q_fed_r$2654[13:13]$3935
+   112/929: $2$memwr$\q_cnt_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:606$1138_EN[4:0]$3932
+   113/929: $2$memwr$\q_rd_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:605$1137_EN[3:0]$3931
+   114/929: $2$memwr$\q_wr_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:604$1136_EN[3:0]$3930
+   115/929: $2$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:609$1135_EN[2:0]$3928
+   116/929: $2$memwr$\lb_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:608$1134_EN[47:0]$3927
+   117/929: $15$lookahead\q_fed_r$2654[12:12]$3929
+   118/929: $2$memwr$\q_cnt_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:606$1133_EN[4:0]$3926
+   119/929: $2$memwr$\q_rd_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:605$1132_EN[3:0]$3925
+   120/929: $2$memwr$\q_wr_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:604$1131_EN[3:0]$3924
+   121/929: $2$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:609$1130_EN[2:0]$3922
+   122/929: $2$memwr$\lb_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:608$1129_EN[47:0]$3921
+   123/929: $14$lookahead\q_fed_r$2654[11:11]$3923
+   124/929: $2$memwr$\q_cnt_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:606$1128_EN[4:0]$3920
+   125/929: $2$memwr$\q_rd_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:605$1127_EN[3:0]$3919
+   126/929: $2$memwr$\q_wr_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:604$1126_EN[3:0]$3918
+   127/929: $2$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:609$1125_EN[2:0]$3916
+   128/929: $2$memwr$\lb_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:608$1124_EN[47:0]$3915
+   129/929: $13$lookahead\q_fed_r$2654[10:10]$3917
+   130/929: $2$memwr$\q_cnt_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:606$1123_EN[4:0]$3914
+   131/929: $2$memwr$\q_rd_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:605$1122_EN[3:0]$3913
+   132/929: $2$memwr$\q_wr_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:604$1121_EN[3:0]$3912
+   133/929: $2$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:609$1120_EN[2:0]$3910
+   134/929: $2$memwr$\lb_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:608$1119_EN[47:0]$3909
+   135/929: $12$lookahead\q_fed_r$2654[9:9]$3911
+   136/929: $2$memwr$\q_cnt_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:606$1118_EN[4:0]$3908
+   137/929: $2$memwr$\q_rd_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:605$1117_EN[3:0]$3907
+   138/929: $2$memwr$\q_wr_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:604$1116_EN[3:0]$3906
+   139/929: $2$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:609$1115_EN[2:0]$3904
+   140/929: $2$memwr$\lb_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:608$1114_EN[47:0]$3903
+   141/929: $11$lookahead\q_fed_r$2654[8:8]$3905
+   142/929: $2$memwr$\q_cnt_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:606$1113_EN[4:0]$3902
+   143/929: $2$memwr$\q_rd_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:605$1112_EN[3:0]$3901
+   144/929: $2$memwr$\q_wr_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:604$1111_EN[3:0]$3900
+   145/929: $2$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:609$1110_EN[2:0]$3898
+   146/929: $2$memwr$\lb_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:608$1109_EN[47:0]$3897
+   147/929: $10$lookahead\q_fed_r$2654[7:7]$3899
+   148/929: $2$memwr$\q_cnt_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:606$1108_EN[4:0]$3896
+   149/929: $2$memwr$\q_rd_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:605$1107_EN[3:0]$3895
+   150/929: $2$memwr$\q_wr_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:604$1106_EN[3:0]$3894
+   151/929: $2$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:609$1105_EN[2:0]$3892
+   152/929: $2$memwr$\lb_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:608$1104_EN[47:0]$3891
+   153/929: $9$lookahead\q_fed_r$2654[6:6]$3893
+   154/929: $2$memwr$\q_cnt_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:606$1103_EN[4:0]$3890
+   155/929: $2$memwr$\q_rd_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:605$1102_EN[3:0]$3889
+   156/929: $2$memwr$\q_wr_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:604$1101_EN[3:0]$3888
+   157/929: $2$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:609$1100_EN[2:0]$3886
+   158/929: $2$memwr$\lb_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:608$1099_EN[47:0]$3885
+   159/929: $8$lookahead\q_fed_r$2654[5:5]$3887
+   160/929: $2$memwr$\q_cnt_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:606$1098_EN[4:0]$3884
+   161/929: $2$memwr$\q_rd_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:605$1097_EN[3:0]$3883
+   162/929: $2$memwr$\q_wr_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:604$1096_EN[3:0]$3882
+   163/929: $2$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:609$1095_EN[2:0]$3880
+   164/929: $2$memwr$\lb_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:608$1094_EN[47:0]$3879
+   165/929: $7$lookahead\q_fed_r$2654[4:4]$3881
+   166/929: $2$memwr$\q_cnt_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:606$1093_EN[4:0]$3878
+   167/929: $2$memwr$\q_rd_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:605$1092_EN[3:0]$3877
+   168/929: $2$memwr$\q_wr_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:604$1091_EN[3:0]$3876
+   169/929: $2$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:609$1090_EN[2:0]$3874
+   170/929: $2$memwr$\lb_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:608$1089_EN[47:0]$3873
+   171/929: $6$lookahead\q_fed_r$2654[3:3]$3875
+   172/929: $2$memwr$\q_cnt_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:606$1088_EN[4:0]$3872
+   173/929: $2$memwr$\q_rd_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:605$1087_EN[3:0]$3871
+   174/929: $2$memwr$\q_wr_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:604$1086_EN[3:0]$3870
+   175/929: $2$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:609$1085_EN[2:0]$3868
+   176/929: $2$memwr$\lb_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:608$1084_EN[47:0]$3867
+   177/929: $5$lookahead\q_fed_r$2654[2:2]$3869
+   178/929: $2$memwr$\q_cnt_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:606$1083_EN[4:0]$3866
+   179/929: $2$memwr$\q_rd_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:605$1082_EN[3:0]$3865
+   180/929: $2$memwr$\q_wr_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:604$1081_EN[3:0]$3864
+   181/929: $2$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:609$1080_EN[2:0]$3862
+   182/929: $2$memwr$\lb_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:608$1079_EN[47:0]$3861
+   183/929: $4$lookahead\q_fed_r$2654[1:1]$3863
+   184/929: $2$memwr$\q_cnt_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:606$1078_EN[4:0]$3860
+   185/929: $2$memwr$\q_rd_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:605$1077_EN[3:0]$3859
+   186/929: $2$memwr$\q_wr_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:604$1076_EN[3:0]$3858
+   187/929: $2$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:609$1075_EN[2:0]$3856
+   188/929: $2$memwr$\lb_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:608$1074_EN[47:0]$3855
+   189/929: $3$lookahead\q_fed_r$2654[0:0]$3857
+   190/929: $2$memwr$\q_cnt_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:606$1073_EN[4:0]$3854
+   191/929: $2$memwr$\q_rd_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:605$1072_EN[3:0]$3853
+   192/929: $2$memwr$\q_wr_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:604$1071_EN[3:0]$3852
+   193/929: $2$memwr$\lb_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:597$1070_EN[47:0]$3849
+   194/929: $2$memwr$\lb_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:597$1070_DATA[47:0]$3848
+   195/929: $2$memwr$\lb_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:597$1070_ADDR[4:0]$3847
+   196/929: $2$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:595$1069_EN[2:0]$3844
+   197/929: $2$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:595$1069_DATA[2:0]$3843
+   198/929: $2$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:595$1069_ADDR[4:0]$3842
+   199/929: $3$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1068_EN[2:0]$3841
+   200/929: $3$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1068_DATA[2:0]$3840
+   201/929: $3$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1067_EN[2:0]$3839
+   202/929: $3$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1067_DATA[2:0]$3838
+   203/929: $3$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1066_EN[2:0]$3837
+   204/929: $3$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1066_DATA[2:0]$3836
+   205/929: $3$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1065_EN[2:0]$3835
+   206/929: $3$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1065_DATA[2:0]$3834
+   207/929: $3$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1064_EN[2:0]$3833
+   208/929: $3$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1064_DATA[2:0]$3832
+   209/929: $3$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1063_EN[2:0]$3831
+   210/929: $3$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1063_DATA[2:0]$3830
+   211/929: $3$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1062_EN[2:0]$3829
+   212/929: $3$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1062_DATA[2:0]$3828
+   213/929: $3$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1061_EN[2:0]$3827
+   214/929: $3$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1061_DATA[2:0]$3826
+   215/929: $3$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1060_EN[2:0]$3825
+   216/929: $3$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1060_DATA[2:0]$3824
+   217/929: $3$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1059_EN[2:0]$3823
+   218/929: $3$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1059_DATA[2:0]$3822
+   219/929: $3$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1058_EN[2:0]$3821
+   220/929: $3$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1058_DATA[2:0]$3820
+   221/929: $3$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1057_EN[2:0]$3819
+   222/929: $3$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1057_DATA[2:0]$3818
+   223/929: $3$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1056_EN[2:0]$3817
+   224/929: $3$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1056_DATA[2:0]$3816
+   225/929: $3$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1055_EN[2:0]$3815
+   226/929: $3$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1055_DATA[2:0]$3814
+   227/929: $3$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1054_EN[2:0]$3813
+   228/929: $3$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1054_DATA[2:0]$3812
+   229/929: $3$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1053_EN[2:0]$3811
+   230/929: $3$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1053_DATA[2:0]$3810
+   231/929: $3$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1052_EN[2:0]$3809
+   232/929: $3$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1052_DATA[2:0]$3808
+   233/929: $3$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1051_EN[2:0]$3807
+   234/929: $3$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1051_DATA[2:0]$3806
+   235/929: $3$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1050_EN[2:0]$3805
+   236/929: $3$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1050_DATA[2:0]$3804
+   237/929: $3$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1049_EN[2:0]$3803
+   238/929: $3$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1049_DATA[2:0]$3802
+   239/929: $3$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1048_EN[2:0]$3801
+   240/929: $3$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1048_DATA[2:0]$3800
+   241/929: $3$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1047_EN[2:0]$3799
+   242/929: $3$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1047_DATA[2:0]$3798
+   243/929: $3$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1046_EN[2:0]$3797
+   244/929: $3$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1046_DATA[2:0]$3796
+   245/929: $3$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1045_EN[2:0]$3795
+   246/929: $3$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1045_DATA[2:0]$3794
+   247/929: $3$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1044_EN[2:0]$3793
+   248/929: $3$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1044_DATA[2:0]$3792
+   249/929: $3$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1043_EN[2:0]$3791
+   250/929: $3$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1043_DATA[2:0]$3790
+   251/929: $3$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1042_EN[2:0]$3789
+   252/929: $3$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1042_DATA[2:0]$3788
+   253/929: $3$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1041_EN[2:0]$3787
+   254/929: $3$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1041_DATA[2:0]$3786
+   255/929: $3$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1040_EN[2:0]$3785
+   256/929: $3$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1040_DATA[2:0]$3784
+   257/929: $3$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1039_EN[2:0]$3783
+   258/929: $3$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1039_DATA[2:0]$3782
+   259/929: $3$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1038_EN[2:0]$3781
+   260/929: $3$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1038_DATA[2:0]$3780
+   261/929: $3$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1037_EN[2:0]$3779
+   262/929: $3$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1037_DATA[2:0]$3778
+   263/929: $2\loop_queue_engine.sv2v_autoblock_17.pp[31:0]
+   264/929: $2$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1068_EN[2:0]$3777
+   265/929: $2$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1068_DATA[2:0]$3776
+   266/929: $2$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1067_EN[2:0]$3775
+   267/929: $2$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1067_DATA[2:0]$3774
+   268/929: $2$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1066_EN[2:0]$3773
+   269/929: $2$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1066_DATA[2:0]$3772
+   270/929: $2$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1065_EN[2:0]$3771
+   271/929: $2$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1065_DATA[2:0]$3770
+   272/929: $2$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1064_EN[2:0]$3769
+   273/929: $2$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1064_DATA[2:0]$3768
+   274/929: $2$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1063_EN[2:0]$3767
+   275/929: $2$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1063_DATA[2:0]$3766
+   276/929: $2$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1062_EN[2:0]$3765
+   277/929: $2$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1062_DATA[2:0]$3764
+   278/929: $2$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1061_EN[2:0]$3763
+   279/929: $2$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1061_DATA[2:0]$3762
+   280/929: $2$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1060_EN[2:0]$3761
+   281/929: $2$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1060_DATA[2:0]$3760
+   282/929: $2$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1059_EN[2:0]$3759
+   283/929: $2$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1059_DATA[2:0]$3758
+   284/929: $2$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1058_EN[2:0]$3757
+   285/929: $2$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1058_DATA[2:0]$3756
+   286/929: $2$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1057_EN[2:0]$3755
+   287/929: $2$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1057_DATA[2:0]$3754
+   288/929: $2$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1056_EN[2:0]$3753
+   289/929: $2$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1056_DATA[2:0]$3752
+   290/929: $2$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1055_EN[2:0]$3751
+   291/929: $2$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1055_DATA[2:0]$3750
+   292/929: $2$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1054_EN[2:0]$3749
+   293/929: $2$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1054_DATA[2:0]$3748
+   294/929: $2$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1053_EN[2:0]$3747
+   295/929: $2$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1053_DATA[2:0]$3746
+   296/929: $2$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1052_EN[2:0]$3745
+   297/929: $2$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1052_DATA[2:0]$3744
+   298/929: $2$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1051_EN[2:0]$3743
+   299/929: $2$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1051_DATA[2:0]$3742
+   300/929: $2$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1050_EN[2:0]$3741
+   301/929: $2$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1050_DATA[2:0]$3740
+   302/929: $2$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1049_EN[2:0]$3739
+   303/929: $2$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1049_DATA[2:0]$3738
+   304/929: $2$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1048_EN[2:0]$3737
+   305/929: $2$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1048_DATA[2:0]$3736
+   306/929: $2$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1047_EN[2:0]$3735
+   307/929: $2$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1047_DATA[2:0]$3734
+   308/929: $2$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1046_EN[2:0]$3733
+   309/929: $2$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1046_DATA[2:0]$3732
+   310/929: $2$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1045_EN[2:0]$3731
+   311/929: $2$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1045_DATA[2:0]$3730
+   312/929: $2$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1044_EN[2:0]$3729
+   313/929: $2$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1044_DATA[2:0]$3728
+   314/929: $2$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1043_EN[2:0]$3727
+   315/929: $2$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1043_DATA[2:0]$3726
+   316/929: $2$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1042_EN[2:0]$3725
+   317/929: $2$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1042_DATA[2:0]$3724
+   318/929: $2$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1041_EN[2:0]$3723
+   319/929: $2$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1041_DATA[2:0]$3722
+   320/929: $2$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1040_EN[2:0]$3721
+   321/929: $2$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1040_DATA[2:0]$3720
+   322/929: $2$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1039_EN[2:0]$3719
+   323/929: $2$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1039_DATA[2:0]$3718
+   324/929: $2$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1038_EN[2:0]$3717
+   325/929: $2$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1038_DATA[2:0]$3716
+   326/929: $2$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1037_EN[2:0]$3715
+   327/929: $2$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1037_DATA[2:0]$3714
+   328/929: $0\rc_dec_r[7:0] [7]
+   329/929: $0\rc_dec_r[7:0] [6]
+   330/929: $0\rc_arm_r[7:0] [6]
+   331/929: $0\rc_dec_r[7:0] [5]
+   332/929: $0\rc_arm_r[7:0] [5]
+   333/929: $0\rc_dec_r[7:0] [4]
+   334/929: $0\rc_arm_r[7:0] [4]
+   335/929: $0\rc_dec_r[7:0] [3]
+   336/929: $0\rc_arm_r[7:0] [3]
+   337/929: $0\rc_dec_r[7:0] [2]
+   338/929: $0\rc_arm_r[7:0] [2]
+   339/929: $0\rc_dec_r[7:0] [1]
+   340/929: $0\rc_arm_r[7:0] [1]
+   341/929: $0\rc_dec_r[7:0] [0]
+   342/929: $0\rc_arm_r[7:0] [0]
+   343/929: $3$memwr$\q_rd_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:558$1035_DATA[3:0]$3659
+   344/929: $3$memwr$\q_rd_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:558$1035_ADDR[4:0]$3658
+   345/929: $2$lookahead\q_fed_r$2654[31:0]$3655
+   346/929: $2$bitselwrite$pos$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:560$453[4:0]$3645
+   347/929: $2$memwr$\q_cnt_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:559$1036_EN[4:0]$3654
+   348/929: $2$memwr$\q_cnt_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:559$1036_DATA[4:0]$3653
+   349/929: $2$memwr$\q_cnt_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:559$1036_ADDR[4:0]$3652
+   350/929: $2$memwr$\q_rd_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:558$1035_EN[3:0]$3651
+   351/929: $2$memwr$\q_rd_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:558$1035_DATA[3:0]$3650
+   352/929: $2$memwr$\q_rd_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:558$1035_ADDR[4:0]$3649
+   353/929: $2$memwr$\q_wr_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:556$1034_EN[3:0]$3648
+   354/929: $2$memwr$\q_wr_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:556$1034_DATA[3:0]$3647
+   355/929: $2$memwr$\q_wr_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:556$1034_ADDR[4:0]$3646
+   356/929: $2$memwr$\q_cnt_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:553$1033_EN[4:0]$3642
+   357/929: $2$memwr$\q_cnt_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:553$1033_DATA[4:0]$3641
+   358/929: $2$memwr$\q_cnt_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:553$1033_ADDR[4:0]$3640
+   359/929: $2$memwr$\q_rd_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:552$1032_EN[3:0]$3639
+   360/929: $2$memwr$\q_rd_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:552$1032_DATA[3:0]$3638
+   361/929: $2$memwr$\q_rd_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:552$1032_ADDR[4:0]$3637
+   362/929: $2$memwr$\lb_q_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:547$1031_EN[47:0]$3632
+   363/929: $2$memwr$\lb_q_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:547$1031_DATA[47:0]$3631
+   364/929: $2$memwr$\lb_q_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:547$1031_ADDR[8:0]$3630
+   365/929: $2\sv2v_cast_E7587$func$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:547$451.$result[8:0]$3628
+   366/929: $2\sv2v_cast_E7587$func$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:547$451.inp[8:0]$3629
+   367/929: $2$memwr$\skid_strm_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:540$1030_EN[3:0]$3609
+   368/929: $2$memwr$\skid_strm_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:540$1030_DATA[3:0]$3608
+   369/929: $2$memwr$\skid_strm_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:540$1030_ADDR[1:0]$3607
+   370/929: $2$memwr$\skid_addr_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:539$1029_EN[4:0]$3606
+   371/929: $2$memwr$\skid_addr_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:539$1029_DATA[4:0]$3605
+   372/929: $2$memwr$\skid_addr_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:539$1029_ADDR[1:0]$3604
+   373/929: $2$memwr$\skid_beat_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:538$1028_EN[1:0]$3603
+   374/929: $2$memwr$\skid_beat_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:538$1028_DATA[1:0]$3602
+   375/929: $2$memwr$\skid_beat_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:538$1028_ADDR[1:0]$3601
+   376/929: $2$memwr$\skid_form_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:537$1027_EN[1:0]$3600
+   377/929: $2$memwr$\skid_form_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:537$1027_DATA[1:0]$3599
+   378/929: $2$memwr$\skid_form_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:537$1027_ADDR[1:0]$3598
+   379/929: $2$memwr$\skid_strm_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:533$1026_EN[3:0]$3596
+   380/929: $2$memwr$\skid_strm_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:533$1026_DATA[3:0]$3595
+   381/929: $2$memwr$\skid_strm_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:533$1026_ADDR[1:0]$3594
+   382/929: $2$memwr$\skid_addr_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:532$1025_EN[4:0]$3593
+   383/929: $2$memwr$\skid_addr_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:532$1025_DATA[4:0]$3592
+   384/929: $2$memwr$\skid_addr_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:532$1025_ADDR[1:0]$3591
+   385/929: $2$memwr$\skid_beat_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:531$1024_EN[1:0]$3590
+   386/929: $2$memwr$\skid_beat_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:531$1024_DATA[1:0]$3589
+   387/929: $2$memwr$\skid_beat_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:531$1024_ADDR[1:0]$3588
+   388/929: $2$memwr$\skid_form_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:530$1023_EN[1:0]$3587
+   389/929: $2$memwr$\skid_form_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:530$1023_DATA[1:0]$3586
+   390/929: $2$memwr$\skid_form_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:530$1023_ADDR[1:0]$3585
+   391/929: $1$lookahead\q_fed_r$2654[31:0]$3584 [31]
+   392/929: $1$lookahead\q_fed_r$2654[31:0]$3584 [30]
+   393/929: $1$lookahead\q_fed_r$2654[31:0]$3584 [29]
+   394/929: $1$lookahead\q_fed_r$2654[31:0]$3584 [28]
+   395/929: $1$lookahead\q_fed_r$2654[31:0]$3584 [27]
+   396/929: $1$lookahead\q_fed_r$2654[31:0]$3584 [26]
+   397/929: $1$lookahead\q_fed_r$2654[31:0]$3584 [25]
+   398/929: $1$lookahead\q_fed_r$2654[31:0]$3584 [24]
+   399/929: $1$lookahead\q_fed_r$2654[31:0]$3584 [23]
+   400/929: $1$lookahead\q_fed_r$2654[31:0]$3584 [22]
+   401/929: $1$lookahead\q_fed_r$2654[31:0]$3584 [21]
+   402/929: $1$lookahead\q_fed_r$2654[31:0]$3584 [20]
+   403/929: $1$lookahead\q_fed_r$2654[31:0]$3584 [19]
+   404/929: $1$lookahead\q_fed_r$2654[31:0]$3584 [18]
+   405/929: $1$lookahead\q_fed_r$2654[31:0]$3584 [17]
+   406/929: $1$lookahead\q_fed_r$2654[31:0]$3584 [16]
+   407/929: $1$lookahead\q_fed_r$2654[31:0]$3584 [15]
+   408/929: $1$lookahead\q_fed_r$2654[31:0]$3584 [14]
+   409/929: $1$lookahead\q_fed_r$2654[31:0]$3584 [13]
+   410/929: $1$lookahead\q_fed_r$2654[31:0]$3584 [12]
+   411/929: $1$lookahead\q_fed_r$2654[31:0]$3584 [11]
+   412/929: $1$lookahead\q_fed_r$2654[31:0]$3584 [10]
+   413/929: $1$lookahead\q_fed_r$2654[31:0]$3584 [9]
+   414/929: $1$lookahead\q_fed_r$2654[31:0]$3584 [8]
+   415/929: $1$lookahead\q_fed_r$2654[31:0]$3584 [7]
+   416/929: $1$lookahead\q_fed_r$2654[31:0]$3584 [6]
+   417/929: $1$lookahead\q_fed_r$2654[31:0]$3584 [5]
+   418/929: $1$lookahead\q_fed_r$2654[31:0]$3584 [4]
+   419/929: $1$lookahead\q_fed_r$2654[31:0]$3584 [3]
+   420/929: $1$lookahead\q_fed_r$2654[31:0]$3584 [2]
+   421/929: $1$lookahead\q_fed_r$2654[31:0]$3584 [1]
+   422/929: $1$lookahead\q_fed_r$2654[31:0]$3584 [0]
+   423/929: $0\lb_dup_cnt_o[15:0]
+   424/929: $0\pop_ret_pair_r[4:0]
+   425/929: $0\pop_ret_v_r[0:0]
+   426/929: $0\q_rdata_r[47:0]
+   427/929: $0\skid_cnt_r[2:0]
+   428/929: $0\skid_rp_r[1:0]
+   429/929: $0\skid_wp_r[1:0]
+   430/929: $1\loop_queue_engine.sv2v_autoblock_15.k[31:0]
+   431/929: $1$memwr$\skid_beat_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:515$1022_EN[1:0]$3311
+   432/929: $1$memwr$\skid_form_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:514$1021_EN[1:0]$3310
+   433/929: $1$memwr$\skid_beat_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:515$1020_EN[1:0]$3309
+   434/929: $1$memwr$\skid_form_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:514$1019_EN[1:0]$3308
+   435/929: $1$memwr$\skid_beat_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:515$1018_EN[1:0]$3307
+   436/929: $1$memwr$\skid_form_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:514$1017_EN[1:0]$3306
+   437/929: $1$memwr$\skid_beat_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:515$1016_EN[1:0]$3305
+   438/929: $1$memwr$\skid_form_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:514$1015_EN[1:0]$3304
+   439/929: $0\skid_v_r[3:0]
+   440/929: $0\q_primed_r[31:0]
+   441/929: $0\lb_skip_cnt_o[15:0]
+   442/929: $1\loop_queue_engine.sv2v_autoblock_14.s[31:0]
+   443/929: $1\loop_queue_engine.sv2v_autoblock_13.pp[31:0]
+   444/929: $1$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:492$1014_EN[2:0]$3303
+   445/929: $1$memwr$\lb_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:491$1013_EN[47:0]$3302
+   446/929: $1$memwr$\q_cnt_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:490$1012_EN[4:0]$3301
+   447/929: $1$memwr$\q_rd_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:489$1011_EN[3:0]$3300
+   448/929: $1$memwr$\q_wr_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:488$1010_EN[3:0]$3299
+   449/929: $1$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:492$1009_EN[2:0]$3298
+   450/929: $1$memwr$\lb_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:491$1008_EN[47:0]$3297
+   451/929: $1$memwr$\q_cnt_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:490$1007_EN[4:0]$3296
+   452/929: $1$memwr$\q_rd_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:489$1006_EN[3:0]$3295
+   453/929: $1$memwr$\q_wr_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:488$1005_EN[3:0]$3294
+   454/929: $1$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:492$1004_EN[2:0]$3293
+   455/929: $1$memwr$\lb_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:491$1003_EN[47:0]$3292
+   456/929: $1$memwr$\q_cnt_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:490$1002_EN[4:0]$3291
+   457/929: $1$memwr$\q_rd_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:489$1001_EN[3:0]$3290
+   458/929: $1$memwr$\q_wr_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:488$1000_EN[3:0]$3289
+   459/929: $1$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:492$999_EN[2:0]$3288
+   460/929: $1$memwr$\lb_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:491$998_EN[47:0]$3287
+   461/929: $1$memwr$\q_cnt_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:490$997_EN[4:0]$3286
+   462/929: $1$memwr$\q_rd_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:489$996_EN[3:0]$3285
+   463/929: $1$memwr$\q_wr_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:488$995_EN[3:0]$3284
+   464/929: $1$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:492$994_EN[2:0]$3283
+   465/929: $1$memwr$\lb_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:491$993_EN[47:0]$3282
+   466/929: $1$memwr$\q_cnt_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:490$992_EN[4:0]$3281
+   467/929: $1$memwr$\q_rd_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:489$991_EN[3:0]$3280
+   468/929: $1$memwr$\q_wr_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:488$990_EN[3:0]$3279
+   469/929: $1$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:492$989_EN[2:0]$3278
+   470/929: $1$memwr$\lb_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:491$988_EN[47:0]$3277
+   471/929: $1$memwr$\q_cnt_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:490$987_EN[4:0]$3276
+   472/929: $1$memwr$\q_rd_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:489$986_EN[3:0]$3275
+   473/929: $1$memwr$\q_wr_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:488$985_EN[3:0]$3274
+   474/929: $1$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:492$984_EN[2:0]$3273
+   475/929: $1$memwr$\lb_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:491$983_EN[47:0]$3272
+   476/929: $1$memwr$\q_cnt_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:490$982_EN[4:0]$3271
+   477/929: $1$memwr$\q_rd_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:489$981_EN[3:0]$3270
+   478/929: $1$memwr$\q_wr_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:488$980_EN[3:0]$3269
+   479/929: $1$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:492$979_EN[2:0]$3268
+   480/929: $1$memwr$\lb_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:491$978_EN[47:0]$3267
+   481/929: $1$memwr$\q_cnt_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:490$977_EN[4:0]$3266
+   482/929: $1$memwr$\q_rd_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:489$976_EN[3:0]$3265
+   483/929: $1$memwr$\q_wr_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:488$975_EN[3:0]$3264
+   484/929: $1$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:492$974_EN[2:0]$3263
+   485/929: $1$memwr$\lb_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:491$973_EN[47:0]$3262
+   486/929: $1$memwr$\q_cnt_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:490$972_EN[4:0]$3261
+   487/929: $1$memwr$\q_rd_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:489$971_EN[3:0]$3260
+   488/929: $1$memwr$\q_wr_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:488$970_EN[3:0]$3259
+   489/929: $1$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:492$969_EN[2:0]$3258
+   490/929: $1$memwr$\lb_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:491$968_EN[47:0]$3257
+   491/929: $1$memwr$\q_cnt_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:490$967_EN[4:0]$3256
+   492/929: $1$memwr$\q_rd_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:489$966_EN[3:0]$3255
+   493/929: $1$memwr$\q_wr_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:488$965_EN[3:0]$3254
+   494/929: $1$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:492$964_EN[2:0]$3253
+   495/929: $1$memwr$\lb_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:491$963_EN[47:0]$3252
+   496/929: $1$memwr$\q_cnt_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:490$962_EN[4:0]$3251
+   497/929: $1$memwr$\q_rd_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:489$961_EN[3:0]$3250
+   498/929: $1$memwr$\q_wr_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:488$960_EN[3:0]$3249
+   499/929: $1$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:492$959_EN[2:0]$3248
+   500/929: $1$memwr$\lb_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:491$958_EN[47:0]$3247
+   501/929: $1$memwr$\q_cnt_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:490$957_EN[4:0]$3246
+   502/929: $1$memwr$\q_rd_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:489$956_EN[3:0]$3245
+   503/929: $1$memwr$\q_wr_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:488$955_EN[3:0]$3244
+   504/929: $1$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:492$954_EN[2:0]$3243
+   505/929: $1$memwr$\lb_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:491$953_EN[47:0]$3242
+   506/929: $1$memwr$\q_cnt_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:490$952_EN[4:0]$3241
+   507/929: $1$memwr$\q_rd_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:489$951_EN[3:0]$3240
+   508/929: $1$memwr$\q_wr_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:488$950_EN[3:0]$3239
+   509/929: $1$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:492$949_EN[2:0]$3238
+   510/929: $1$memwr$\lb_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:491$948_EN[47:0]$3237
+   511/929: $1$memwr$\q_cnt_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:490$947_EN[4:0]$3236
+   512/929: $1$memwr$\q_rd_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:489$946_EN[3:0]$3235
+   513/929: $1$memwr$\q_wr_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:488$945_EN[3:0]$3234
+   514/929: $1$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:492$944_EN[2:0]$3233
+   515/929: $1$memwr$\lb_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:491$943_EN[47:0]$3232
+   516/929: $1$memwr$\q_cnt_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:490$942_EN[4:0]$3231
+   517/929: $1$memwr$\q_rd_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:489$941_EN[3:0]$3230
+   518/929: $1$memwr$\q_wr_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:488$940_EN[3:0]$3229
+   519/929: $1$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:492$939_EN[2:0]$3228
+   520/929: $1$memwr$\lb_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:491$938_EN[47:0]$3227
+   521/929: $1$memwr$\q_cnt_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:490$937_EN[4:0]$3226
+   522/929: $1$memwr$\q_rd_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:489$936_EN[3:0]$3225
+   523/929: $1$memwr$\q_wr_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:488$935_EN[3:0]$3224
+   524/929: $1$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:492$934_EN[2:0]$3223
+   525/929: $1$memwr$\lb_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:491$933_EN[47:0]$3222
+   526/929: $1$memwr$\q_cnt_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:490$932_EN[4:0]$3221
+   527/929: $1$memwr$\q_rd_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:489$931_EN[3:0]$3220
+   528/929: $1$memwr$\q_wr_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:488$930_EN[3:0]$3219
+   529/929: $1$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:492$929_EN[2:0]$3218
+   530/929: $1$memwr$\lb_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:491$928_EN[47:0]$3217
+   531/929: $1$memwr$\q_cnt_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:490$927_EN[4:0]$3216
+   532/929: $1$memwr$\q_rd_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:489$926_EN[3:0]$3215
+   533/929: $1$memwr$\q_wr_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:488$925_EN[3:0]$3214
+   534/929: $1$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:492$924_EN[2:0]$3213
+   535/929: $1$memwr$\lb_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:491$923_EN[47:0]$3212
+   536/929: $1$memwr$\q_cnt_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:490$922_EN[4:0]$3211
+   537/929: $1$memwr$\q_rd_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:489$921_EN[3:0]$3210
+   538/929: $1$memwr$\q_wr_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:488$920_EN[3:0]$3209
+   539/929: $1$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:492$919_EN[2:0]$3208
+   540/929: $1$memwr$\lb_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:491$918_EN[47:0]$3207
+   541/929: $1$memwr$\q_cnt_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:490$917_EN[4:0]$3206
+   542/929: $1$memwr$\q_rd_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:489$916_EN[3:0]$3205
+   543/929: $1$memwr$\q_wr_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:488$915_EN[3:0]$3204
+   544/929: $1$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:492$914_EN[2:0]$3203
+   545/929: $1$memwr$\lb_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:491$913_EN[47:0]$3202
+   546/929: $1$memwr$\q_cnt_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:490$912_EN[4:0]$3201
+   547/929: $1$memwr$\q_rd_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:489$911_EN[3:0]$3200
+   548/929: $1$memwr$\q_wr_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:488$910_EN[3:0]$3199
+   549/929: $1$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:492$909_EN[2:0]$3198
+   550/929: $1$memwr$\lb_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:491$908_EN[47:0]$3197
+   551/929: $1$memwr$\q_cnt_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:490$907_EN[4:0]$3196
+   552/929: $1$memwr$\q_rd_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:489$906_EN[3:0]$3195
+   553/929: $1$memwr$\q_wr_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:488$905_EN[3:0]$3194
+   554/929: $1$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:492$904_EN[2:0]$3193
+   555/929: $1$memwr$\lb_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:491$903_EN[47:0]$3192
+   556/929: $1$memwr$\q_cnt_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:490$902_EN[4:0]$3191
+   557/929: $1$memwr$\q_rd_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:489$901_EN[3:0]$3190
+   558/929: $1$memwr$\q_wr_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:488$900_EN[3:0]$3189
+   559/929: $1$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:492$899_EN[2:0]$3188
+   560/929: $1$memwr$\lb_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:491$898_EN[47:0]$3187
+   561/929: $1$memwr$\q_cnt_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:490$897_EN[4:0]$3186
+   562/929: $1$memwr$\q_rd_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:489$896_EN[3:0]$3185
+   563/929: $1$memwr$\q_wr_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:488$895_EN[3:0]$3184
+   564/929: $1$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:492$894_EN[2:0]$3183
+   565/929: $1$memwr$\lb_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:491$893_EN[47:0]$3182
+   566/929: $1$memwr$\q_cnt_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:490$892_EN[4:0]$3181
+   567/929: $1$memwr$\q_rd_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:489$891_EN[3:0]$3180
+   568/929: $1$memwr$\q_wr_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:488$890_EN[3:0]$3179
+   569/929: $1$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:492$889_EN[2:0]$3178
+   570/929: $1$memwr$\lb_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:491$888_EN[47:0]$3177
+   571/929: $1$memwr$\q_cnt_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:490$887_EN[4:0]$3176
+   572/929: $1$memwr$\q_rd_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:489$886_EN[3:0]$3175
+   573/929: $1$memwr$\q_wr_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:488$885_EN[3:0]$3174
+   574/929: $1$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:492$884_EN[2:0]$3173
+   575/929: $1$memwr$\lb_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:491$883_EN[47:0]$3172
+   576/929: $1$memwr$\q_cnt_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:490$882_EN[4:0]$3171
+   577/929: $1$memwr$\q_rd_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:489$881_EN[3:0]$3170
+   578/929: $1$memwr$\q_wr_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:488$880_EN[3:0]$3169
+   579/929: $1$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:492$879_EN[2:0]$3168
+   580/929: $1$memwr$\lb_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:491$878_EN[47:0]$3167
+   581/929: $1$memwr$\q_cnt_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:490$877_EN[4:0]$3166
+   582/929: $1$memwr$\q_rd_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:489$876_EN[3:0]$3165
+   583/929: $1$memwr$\q_wr_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:488$875_EN[3:0]$3164
+   584/929: $1$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:492$874_EN[2:0]$3163
+   585/929: $1$memwr$\lb_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:491$873_EN[47:0]$3162
+   586/929: $1$memwr$\q_cnt_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:490$872_EN[4:0]$3161
+   587/929: $1$memwr$\q_rd_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:489$871_EN[3:0]$3160
+   588/929: $1$memwr$\q_wr_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:488$870_EN[3:0]$3159
+   589/929: $1$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:492$869_EN[2:0]$3158
+   590/929: $1$memwr$\lb_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:491$868_EN[47:0]$3157
+   591/929: $1$memwr$\q_cnt_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:490$867_EN[4:0]$3156
+   592/929: $1$memwr$\q_rd_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:489$866_EN[3:0]$3155
+   593/929: $1$memwr$\q_wr_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:488$865_EN[3:0]$3154
+   594/929: $1$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:492$864_EN[2:0]$3153
+   595/929: $1$memwr$\lb_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:491$863_EN[47:0]$3152
+   596/929: $1$memwr$\q_cnt_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:490$862_EN[4:0]$3151
+   597/929: $1$memwr$\q_rd_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:489$861_EN[3:0]$3150
+   598/929: $1$memwr$\q_wr_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:488$860_EN[3:0]$3149
+   599/929: $1$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:492$859_EN[2:0]$3148
+   600/929: $1$memwr$\lb_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:491$858_EN[47:0]$3147
+   601/929: $1$memwr$\q_cnt_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:490$857_EN[4:0]$3146
+   602/929: $1$memwr$\q_rd_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:489$856_EN[3:0]$3145
+   603/929: $1$memwr$\q_wr_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:488$855_EN[3:0]$3144
+   604/929: $1$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:609$1230_EN[2:0]$3583
+   605/929: $1$memwr$\lb_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:608$1229_EN[47:0]$3582
+   606/929: $1$memwr$\q_cnt_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:606$1228_EN[4:0]$3581
+   607/929: $1$memwr$\q_rd_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:605$1227_EN[3:0]$3580
+   608/929: $1$memwr$\q_wr_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:604$1226_EN[3:0]$3579
+   609/929: $1$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:609$1225_EN[2:0]$3578
+   610/929: $1$memwr$\lb_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:608$1224_EN[47:0]$3577
+   611/929: $1$memwr$\q_cnt_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:606$1223_EN[4:0]$3576
+   612/929: $1$memwr$\q_rd_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:605$1222_EN[3:0]$3575
+   613/929: $1$memwr$\q_wr_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:604$1221_EN[3:0]$3574
+   614/929: $1$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:609$1220_EN[2:0]$3573
+   615/929: $1$memwr$\lb_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:608$1219_EN[47:0]$3572
+   616/929: $1$memwr$\q_cnt_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:606$1218_EN[4:0]$3571
+   617/929: $1$memwr$\q_rd_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:605$1217_EN[3:0]$3570
+   618/929: $1$memwr$\q_wr_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:604$1216_EN[3:0]$3569
+   619/929: $1$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:609$1215_EN[2:0]$3568
+   620/929: $1$memwr$\lb_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:608$1214_EN[47:0]$3567
+   621/929: $1$memwr$\q_cnt_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:606$1213_EN[4:0]$3566
+   622/929: $1$memwr$\q_rd_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:605$1212_EN[3:0]$3565
+   623/929: $1$memwr$\q_wr_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:604$1211_EN[3:0]$3564
+   624/929: $1$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:609$1210_EN[2:0]$3563
+   625/929: $1$memwr$\lb_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:608$1209_EN[47:0]$3562
+   626/929: $1$memwr$\q_cnt_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:606$1208_EN[4:0]$3561
+   627/929: $1$memwr$\q_rd_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:605$1207_EN[3:0]$3560
+   628/929: $1$memwr$\q_wr_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:604$1206_EN[3:0]$3559
+   629/929: $1$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:609$1205_EN[2:0]$3558
+   630/929: $1$memwr$\lb_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:608$1204_EN[47:0]$3557
+   631/929: $1$memwr$\q_cnt_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:606$1203_EN[4:0]$3556
+   632/929: $1$memwr$\q_rd_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:605$1202_EN[3:0]$3555
+   633/929: $1$memwr$\q_wr_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:604$1201_EN[3:0]$3554
+   634/929: $1$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:609$1200_EN[2:0]$3553
+   635/929: $1$memwr$\lb_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:608$1199_EN[47:0]$3552
+   636/929: $1$memwr$\q_cnt_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:606$1198_EN[4:0]$3551
+   637/929: $1$memwr$\q_rd_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:605$1197_EN[3:0]$3550
+   638/929: $1$memwr$\q_wr_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:604$1196_EN[3:0]$3549
+   639/929: $1$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:609$1195_EN[2:0]$3548
+   640/929: $1$memwr$\lb_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:608$1194_EN[47:0]$3547
+   641/929: $1$memwr$\q_cnt_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:606$1193_EN[4:0]$3546
+   642/929: $1$memwr$\q_rd_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:605$1192_EN[3:0]$3545
+   643/929: $1$memwr$\q_wr_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:604$1191_EN[3:0]$3544
+   644/929: $1$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:609$1190_EN[2:0]$3543
+   645/929: $1$memwr$\lb_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:608$1189_EN[47:0]$3542
+   646/929: $1$memwr$\q_cnt_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:606$1188_EN[4:0]$3541
+   647/929: $1$memwr$\q_rd_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:605$1187_EN[3:0]$3540
+   648/929: $1$memwr$\q_wr_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:604$1186_EN[3:0]$3539
+   649/929: $1$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:609$1185_EN[2:0]$3538
+   650/929: $1$memwr$\lb_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:608$1184_EN[47:0]$3537
+   651/929: $1$memwr$\q_cnt_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:606$1183_EN[4:0]$3536
+   652/929: $1$memwr$\q_rd_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:605$1182_EN[3:0]$3535
+   653/929: $1$memwr$\q_wr_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:604$1181_EN[3:0]$3534
+   654/929: $1$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:609$1180_EN[2:0]$3533
+   655/929: $1$memwr$\lb_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:608$1179_EN[47:0]$3532
+   656/929: $1$memwr$\q_cnt_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:606$1178_EN[4:0]$3531
+   657/929: $1$memwr$\q_rd_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:605$1177_EN[3:0]$3530
+   658/929: $1$memwr$\q_wr_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:604$1176_EN[3:0]$3529
+   659/929: $1$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:609$1175_EN[2:0]$3528
+   660/929: $1$memwr$\lb_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:608$1174_EN[47:0]$3527
+   661/929: $1$memwr$\q_cnt_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:606$1173_EN[4:0]$3526
+   662/929: $1$memwr$\q_rd_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:605$1172_EN[3:0]$3525
+   663/929: $1$memwr$\q_wr_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:604$1171_EN[3:0]$3524
+   664/929: $1$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:609$1170_EN[2:0]$3523
+   665/929: $1$memwr$\lb_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:608$1169_EN[47:0]$3522
+   666/929: $1$memwr$\q_cnt_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:606$1168_EN[4:0]$3521
+   667/929: $1$memwr$\q_rd_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:605$1167_EN[3:0]$3520
+   668/929: $1$memwr$\q_wr_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:604$1166_EN[3:0]$3519
+   669/929: $1$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:609$1165_EN[2:0]$3518
+   670/929: $1$memwr$\lb_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:608$1164_EN[47:0]$3517
+   671/929: $1$memwr$\q_cnt_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:606$1163_EN[4:0]$3516
+   672/929: $1$memwr$\q_rd_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:605$1162_EN[3:0]$3515
+   673/929: $1$memwr$\q_wr_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:604$1161_EN[3:0]$3514
+   674/929: $1$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:609$1160_EN[2:0]$3513
+   675/929: $1$memwr$\lb_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:608$1159_EN[47:0]$3512
+   676/929: $1$memwr$\q_cnt_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:606$1158_EN[4:0]$3511
+   677/929: $1$memwr$\q_rd_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:605$1157_EN[3:0]$3510
+   678/929: $1$memwr$\q_wr_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:604$1156_EN[3:0]$3509
+   679/929: $1$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:609$1155_EN[2:0]$3508
+   680/929: $1$memwr$\lb_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:608$1154_EN[47:0]$3507
+   681/929: $1$memwr$\q_cnt_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:606$1153_EN[4:0]$3506
+   682/929: $1$memwr$\q_rd_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:605$1152_EN[3:0]$3505
+   683/929: $1$memwr$\q_wr_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:604$1151_EN[3:0]$3504
+   684/929: $1$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:609$1150_EN[2:0]$3503
+   685/929: $1$memwr$\lb_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:608$1149_EN[47:0]$3502
+   686/929: $1$memwr$\q_cnt_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:606$1148_EN[4:0]$3501
+   687/929: $1$memwr$\q_rd_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:605$1147_EN[3:0]$3500
+   688/929: $1$memwr$\q_wr_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:604$1146_EN[3:0]$3499
+   689/929: $1$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:609$1145_EN[2:0]$3498
+   690/929: $1$memwr$\lb_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:608$1144_EN[47:0]$3497
+   691/929: $1$memwr$\q_cnt_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:606$1143_EN[4:0]$3496
+   692/929: $1$memwr$\q_rd_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:605$1142_EN[3:0]$3495
+   693/929: $1$memwr$\q_wr_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:604$1141_EN[3:0]$3494
+   694/929: $1$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:609$1140_EN[2:0]$3493
+   695/929: $1$memwr$\lb_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:608$1139_EN[47:0]$3492
+   696/929: $1$memwr$\q_cnt_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:606$1138_EN[4:0]$3491
+   697/929: $1$memwr$\q_rd_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:605$1137_EN[3:0]$3490
+   698/929: $1$memwr$\q_wr_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:604$1136_EN[3:0]$3489
+   699/929: $1$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:609$1135_EN[2:0]$3488
+   700/929: $1$memwr$\lb_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:608$1134_EN[47:0]$3487
+   701/929: $1$memwr$\q_cnt_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:606$1133_EN[4:0]$3486
+   702/929: $1$memwr$\q_rd_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:605$1132_EN[3:0]$3485
+   703/929: $1$memwr$\q_wr_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:604$1131_EN[3:0]$3484
+   704/929: $1$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:609$1130_EN[2:0]$3483
+   705/929: $1$memwr$\lb_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:608$1129_EN[47:0]$3482
+   706/929: $1$memwr$\q_cnt_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:606$1128_EN[4:0]$3481
+   707/929: $1$memwr$\q_rd_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:605$1127_EN[3:0]$3480
+   708/929: $1$memwr$\q_wr_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:604$1126_EN[3:0]$3479
+   709/929: $1$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:609$1125_EN[2:0]$3478
+   710/929: $1$memwr$\lb_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:608$1124_EN[47:0]$3477
+   711/929: $1$memwr$\q_cnt_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:606$1123_EN[4:0]$3476
+   712/929: $1$memwr$\q_rd_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:605$1122_EN[3:0]$3475
+   713/929: $1$memwr$\q_wr_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:604$1121_EN[3:0]$3474
+   714/929: $1$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:609$1120_EN[2:0]$3473
+   715/929: $1$memwr$\lb_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:608$1119_EN[47:0]$3472
+   716/929: $1$memwr$\q_cnt_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:606$1118_EN[4:0]$3471
+   717/929: $1$memwr$\q_rd_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:605$1117_EN[3:0]$3470
+   718/929: $1$memwr$\q_wr_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:604$1116_EN[3:0]$3469
+   719/929: $1$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:609$1115_EN[2:0]$3468
+   720/929: $1$memwr$\lb_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:608$1114_EN[47:0]$3467
+   721/929: $1$memwr$\q_cnt_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:606$1113_EN[4:0]$3466
+   722/929: $1$memwr$\q_rd_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:605$1112_EN[3:0]$3465
+   723/929: $1$memwr$\q_wr_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:604$1111_EN[3:0]$3464
+   724/929: $1$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:609$1110_EN[2:0]$3463
+   725/929: $1$memwr$\lb_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:608$1109_EN[47:0]$3462
+   726/929: $1$memwr$\q_cnt_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:606$1108_EN[4:0]$3461
+   727/929: $1$memwr$\q_rd_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:605$1107_EN[3:0]$3460
+   728/929: $1$memwr$\q_wr_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:604$1106_EN[3:0]$3459
+   729/929: $1$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:609$1105_EN[2:0]$3458
+   730/929: $1$memwr$\lb_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:608$1104_EN[47:0]$3457
+   731/929: $1$memwr$\q_cnt_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:606$1103_EN[4:0]$3456
+   732/929: $1$memwr$\q_rd_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:605$1102_EN[3:0]$3455
+   733/929: $1$memwr$\q_wr_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:604$1101_EN[3:0]$3454
+   734/929: $1$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:609$1100_EN[2:0]$3453
+   735/929: $1$memwr$\lb_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:608$1099_EN[47:0]$3452
+   736/929: $1$memwr$\q_cnt_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:606$1098_EN[4:0]$3451
+   737/929: $1$memwr$\q_rd_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:605$1097_EN[3:0]$3450
+   738/929: $1$memwr$\q_wr_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:604$1096_EN[3:0]$3449
+   739/929: $1$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:609$1095_EN[2:0]$3448
+   740/929: $1$memwr$\lb_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:608$1094_EN[47:0]$3447
+   741/929: $1$memwr$\q_cnt_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:606$1093_EN[4:0]$3446
+   742/929: $1$memwr$\q_rd_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:605$1092_EN[3:0]$3445
+   743/929: $1$memwr$\q_wr_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:604$1091_EN[3:0]$3444
+   744/929: $1$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:609$1090_EN[2:0]$3443
+   745/929: $1$memwr$\lb_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:608$1089_EN[47:0]$3442
+   746/929: $1$memwr$\q_cnt_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:606$1088_EN[4:0]$3441
+   747/929: $1$memwr$\q_rd_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:605$1087_EN[3:0]$3440
+   748/929: $1$memwr$\q_wr_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:604$1086_EN[3:0]$3439
+   749/929: $1$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:609$1085_EN[2:0]$3438
+   750/929: $1$memwr$\lb_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:608$1084_EN[47:0]$3437
+   751/929: $1$memwr$\q_cnt_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:606$1083_EN[4:0]$3436
+   752/929: $1$memwr$\q_rd_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:605$1082_EN[3:0]$3435
+   753/929: $1$memwr$\q_wr_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:604$1081_EN[3:0]$3434
+   754/929: $1$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:609$1080_EN[2:0]$3433
+   755/929: $1$memwr$\lb_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:608$1079_EN[47:0]$3432
+   756/929: $1$memwr$\q_cnt_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:606$1078_EN[4:0]$3431
+   757/929: $1$memwr$\q_rd_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:605$1077_EN[3:0]$3430
+   758/929: $1$memwr$\q_wr_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:604$1076_EN[3:0]$3429
+   759/929: $1$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:609$1075_EN[2:0]$3428
+   760/929: $1$memwr$\lb_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:608$1074_EN[47:0]$3427
+   761/929: $1$memwr$\q_cnt_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:606$1073_EN[4:0]$3426
+   762/929: $1$memwr$\q_rd_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:605$1072_EN[3:0]$3425
+   763/929: $1$memwr$\q_wr_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:604$1071_EN[3:0]$3424
+   764/929: $1$memwr$\lb_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:597$1070_EN[47:0]$3423
+   765/929: $1$memwr$\lb_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:597$1070_DATA[47:0]$3422
+   766/929: $1$memwr$\lb_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:597$1070_ADDR[4:0]$3421
+   767/929: $1$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:595$1069_EN[2:0]$3420
+   768/929: $1$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:595$1069_DATA[2:0]$3419
+   769/929: $1$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:595$1069_ADDR[4:0]$3418
+   770/929: $1$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1068_EN[2:0]$3417
+   771/929: $1$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1068_DATA[2:0]$3416
+   772/929: $1$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1067_EN[2:0]$3415
+   773/929: $1$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1067_DATA[2:0]$3414
+   774/929: $1$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1066_EN[2:0]$3413
+   775/929: $1$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1066_DATA[2:0]$3412
+   776/929: $1$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1065_EN[2:0]$3411
+   777/929: $1$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1065_DATA[2:0]$3410
+   778/929: $1$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1064_EN[2:0]$3409
+   779/929: $1$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1064_DATA[2:0]$3408
+   780/929: $1$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1063_EN[2:0]$3407
+   781/929: $1$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1063_DATA[2:0]$3406
+   782/929: $1$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1062_EN[2:0]$3405
+   783/929: $1$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1062_DATA[2:0]$3404
+   784/929: $1$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1061_EN[2:0]$3403
+   785/929: $1$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1061_DATA[2:0]$3402
+   786/929: $1$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1060_EN[2:0]$3401
+   787/929: $1$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1060_DATA[2:0]$3400
+   788/929: $1$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1059_EN[2:0]$3399
+   789/929: $1$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1059_DATA[2:0]$3398
+   790/929: $1$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1058_EN[2:0]$3397
+   791/929: $1$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1058_DATA[2:0]$3396
+   792/929: $1$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1057_EN[2:0]$3395
+   793/929: $1$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1057_DATA[2:0]$3394
+   794/929: $1$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1056_EN[2:0]$3393
+   795/929: $1$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1056_DATA[2:0]$3392
+   796/929: $1$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1055_EN[2:0]$3391
+   797/929: $1$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1055_DATA[2:0]$3390
+   798/929: $1$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1054_EN[2:0]$3389
+   799/929: $1$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1054_DATA[2:0]$3388
+   800/929: $1$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1053_EN[2:0]$3387
+   801/929: $1$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1053_DATA[2:0]$3386
+   802/929: $1$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1052_EN[2:0]$3385
+   803/929: $1$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1052_DATA[2:0]$3384
+   804/929: $1$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1051_EN[2:0]$3383
+   805/929: $1$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1051_DATA[2:0]$3382
+   806/929: $1$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1050_EN[2:0]$3381
+   807/929: $1$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1050_DATA[2:0]$3380
+   808/929: $1$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1049_EN[2:0]$3379
+   809/929: $1$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1049_DATA[2:0]$3378
+   810/929: $1$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1048_EN[2:0]$3377
+   811/929: $1$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1048_DATA[2:0]$3376
+   812/929: $1$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1047_EN[2:0]$3375
+   813/929: $1$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1047_DATA[2:0]$3374
+   814/929: $1$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1046_EN[2:0]$3373
+   815/929: $1$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1046_DATA[2:0]$3372
+   816/929: $1$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1045_EN[2:0]$3371
+   817/929: $1$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1045_DATA[2:0]$3370
+   818/929: $1$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1044_EN[2:0]$3369
+   819/929: $1$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1044_DATA[2:0]$3368
+   820/929: $1$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1043_EN[2:0]$3367
+   821/929: $1$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1043_DATA[2:0]$3366
+   822/929: $1$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1042_EN[2:0]$3365
+   823/929: $1$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1042_DATA[2:0]$3364
+   824/929: $1$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1041_EN[2:0]$3363
+   825/929: $1$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1041_DATA[2:0]$3362
+   826/929: $1$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1040_EN[2:0]$3361
+   827/929: $1$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1040_DATA[2:0]$3360
+   828/929: $1$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1039_EN[2:0]$3359
+   829/929: $1$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1039_DATA[2:0]$3358
+   830/929: $1$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1038_EN[2:0]$3357
+   831/929: $1$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1038_DATA[2:0]$3356
+   832/929: $1$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1037_EN[2:0]$3355
+   833/929: $1$memwr$\act_hold_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:592$1037_DATA[2:0]$3354
+   834/929: $1$memwr$\q_cnt_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:559$1036_EN[4:0]$3353
+   835/929: $1$memwr$\q_cnt_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:559$1036_DATA[4:0]$3352
+   836/929: $1$memwr$\q_cnt_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:559$1036_ADDR[4:0]$3351
+   837/929: $1$memwr$\q_rd_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:558$1035_EN[3:0]$3350
+   838/929: $1$memwr$\q_rd_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:558$1035_DATA[3:0]$3349
+   839/929: $1$memwr$\q_rd_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:558$1035_ADDR[4:0]$3348
+   840/929: $1$memwr$\q_wr_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:556$1034_EN[3:0]$3347
+   841/929: $1$memwr$\q_wr_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:556$1034_DATA[3:0]$3346
+   842/929: $1$memwr$\q_wr_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:556$1034_ADDR[4:0]$3345
+   843/929: $1$memwr$\q_cnt_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:553$1033_EN[4:0]$3344
+   844/929: $1$memwr$\q_cnt_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:553$1033_DATA[4:0]$3343
+   845/929: $1$memwr$\q_cnt_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:553$1033_ADDR[4:0]$3342
+   846/929: $1$memwr$\q_rd_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:552$1032_EN[3:0]$3341
+   847/929: $1$memwr$\q_rd_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:552$1032_DATA[3:0]$3340
+   848/929: $1$memwr$\q_rd_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:552$1032_ADDR[4:0]$3339
+   849/929: $1$memwr$\lb_q_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:547$1031_EN[47:0]$3338
+   850/929: $1$memwr$\lb_q_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:547$1031_DATA[47:0]$3337
+   851/929: $1$memwr$\lb_q_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:547$1031_ADDR[8:0]$3336
+   852/929: $1$memwr$\skid_strm_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:540$1030_EN[3:0]$3335
+   853/929: $1$memwr$\skid_strm_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:540$1030_DATA[3:0]$3334
+   854/929: $1$memwr$\skid_strm_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:540$1030_ADDR[1:0]$3333
+   855/929: $1$memwr$\skid_addr_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:539$1029_EN[4:0]$3332
+   856/929: $1$memwr$\skid_addr_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:539$1029_DATA[4:0]$3331
+   857/929: $1$memwr$\skid_addr_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:539$1029_ADDR[1:0]$3330
+   858/929: $1$memwr$\skid_beat_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:538$1028_EN[1:0]$3329
+   859/929: $1$memwr$\skid_beat_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:538$1028_DATA[1:0]$3328
+   860/929: $1$memwr$\skid_beat_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:538$1028_ADDR[1:0]$3327
+   861/929: $1$memwr$\skid_form_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:537$1027_EN[1:0]$3326
+   862/929: $1$memwr$\skid_form_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:537$1027_DATA[1:0]$3325
+   863/929: $1$memwr$\skid_form_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:537$1027_ADDR[1:0]$3324
+   864/929: $1$memwr$\skid_strm_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:533$1026_EN[3:0]$3323
+   865/929: $1$memwr$\skid_strm_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:533$1026_DATA[3:0]$3322
+   866/929: $1$memwr$\skid_strm_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:533$1026_ADDR[1:0]$3321
+   867/929: $1$memwr$\skid_addr_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:532$1025_EN[4:0]$3320
+   868/929: $1$memwr$\skid_addr_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:532$1025_DATA[4:0]$3319
+   869/929: $1$memwr$\skid_addr_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:532$1025_ADDR[1:0]$3318
+   870/929: $1$memwr$\skid_beat_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:531$1024_EN[1:0]$3317
+   871/929: $1$memwr$\skid_beat_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:531$1024_DATA[1:0]$3316
+   872/929: $1$memwr$\skid_beat_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:531$1024_ADDR[1:0]$3315
+   873/929: $1$memwr$\skid_form_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:530$1023_EN[1:0]$3314
+   874/929: $1$memwr$\skid_form_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:530$1023_DATA[1:0]$3313
+   875/929: $1$memwr$\skid_form_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:530$1023_ADDR[1:0]$3312
+   876/929: $1\loop_queue_engine.sv2v_autoblock_18.pp[31:0]
+   877/929: $1\loop_queue_engine.sv2v_autoblock_17.pp[31:0]
+   878/929: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:569$461.inp[31:0]$3143
+   879/929: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:569$461.$result[31:0]$3142
+   880/929: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:569$460.inp[31:0]$3141
+   881/929: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:569$460.$result[31:0]$3140
+   882/929: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:569$459.inp[31:0]$3139
+   883/929: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:569$459.$result[31:0]$3138
+   884/929: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:569$458.inp[31:0]$3137
+   885/929: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:569$458.$result[31:0]$3136
+   886/929: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:569$457.inp[31:0]$3135
+   887/929: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:569$457.$result[31:0]$3134
+   888/929: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:569$456.inp[31:0]$3133
+   889/929: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:569$456.$result[31:0]$3132
+   890/929: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:569$455.inp[31:0]$3131
+   891/929: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:569$455.$result[31:0]$3130
+   892/929: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:569$454.inp[31:0]$3129
+   893/929: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:569$454.$result[31:0]$3128
+   894/929: $1\loop_queue_engine.sv2v_autoblock_16.s[31:0]
+   895/929: $1$bitselwrite$pos$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:560$453[4:0]$3127
+   896/929: $1\sv2v_cast_E7587$func$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:548$452.inp[8:0]$3126
+   897/929: $1\sv2v_cast_E7587$func$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:548$452.$result[8:0]$3125
+   898/929: $1\sv2v_cast_E7587$func$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:547$451.inp[8:0]$3124
+   899/929: $1\sv2v_cast_E7587$func$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:547$451.$result[8:0]$3123
+   900/929: $1\sv2v_cast_3$func$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:544$447.inp[2:0]$3122
+   901/929: $1\sv2v_cast_3$func$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:544$447.$result[2:0]$3121
+   902/929: $0\act_drop_r[7][3:0]
+   903/929: $0\act_drop_r[6][3:0]
+   904/929: $0\act_drop_r[5][3:0]
+   905/929: $0\act_drop_r[4][3:0]
+   906/929: $0\act_drop_r[3][3:0]
+   907/929: $0\act_drop_r[2][3:0]
+   908/929: $0\act_drop_r[1][3:0]
+   909/929: $0\act_drop_r[0][3:0]
+   910/929: $0\rc_drop_r[7][3:0]
+   911/929: $0\rc_drop_r[6][3:0]
+   912/929: $0\rc_drop_r[5][3:0]
+   913/929: $0\rc_drop_r[4][3:0]
+   914/929: $0\rc_drop_r[3][3:0]
+   915/929: $0\rc_drop_r[2][3:0]
+   916/929: $0\rc_drop_r[1][3:0]
+   917/929: $0\rc_drop_r[0][3:0]
+   918/929: $0\rc_hold_r[7][2:0]
+   919/929: $0\rc_hold_r[6][2:0]
+   920/929: $0\rc_hold_r[5][2:0]
+   921/929: $0\rc_hold_r[4][2:0]
+   922/929: $0\rc_hold_r[3][2:0]
+   923/929: $0\rc_hold_r[2][2:0]
+   924/929: $0\rc_hold_r[1][2:0]
+   925/929: $0\rc_hold_r[0][2:0]
+   926/929: $0\lb_sof_r[0:0]
+   927/929: $0\beat_wp_r[1:0]
+   928/929: $0\rc_arm_r[7:0] [7]
+   929/929: $3$memwr$\q_rd_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:558$1035_EN[3:0]$3660
+Creating decoders for process `\KL_chan_map_capture.$proc$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:467$2647'.
+     1/3: $1$memwr$\beat_bank_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:469$854_EN[71:0]$2653
+     2/3: $1$memwr$\beat_bank_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:469$854_DATA[71:0]$2652
+     3/3: $1$memwr$\beat_bank_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:469$854_ADDR[1:0]$2651
+Creating decoders for process `\KL_chan_map_capture.$proc$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:428$2346'.
+     1/256: $256\flush_clr_w[31:31]
+     2/256: $255\flush_clr_w[31:31]
+     3/256: $254\flush_clr_w[31:31]
+     4/256: $253\flush_clr_w[31:31]
+     5/256: $252\flush_clr_w[31:31]
+     6/256: $251\flush_clr_w[31:31]
+     7/256: $250\flush_clr_w[31:31]
+     8/256: $249\flush_clr_w[31:31]
+     9/256: $248\flush_clr_w[30:30]
+    10/256: $247\flush_clr_w[30:30]
+    11/256: $246\flush_clr_w[30:30]
+    12/256: $245\flush_clr_w[30:30]
+    13/256: $244\flush_clr_w[30:30]
+    14/256: $243\flush_clr_w[30:30]
+    15/256: $242\flush_clr_w[30:30]
+    16/256: $241\flush_clr_w[30:30]
+    17/256: $240\flush_clr_w[29:29]
+    18/256: $239\flush_clr_w[29:29]
+    19/256: $238\flush_clr_w[29:29]
+    20/256: $237\flush_clr_w[29:29]
+    21/256: $236\flush_clr_w[29:29]
+    22/256: $235\flush_clr_w[29:29]
+    23/256: $234\flush_clr_w[29:29]
+    24/256: $233\flush_clr_w[29:29]
+    25/256: $232\flush_clr_w[28:28]
+    26/256: $231\flush_clr_w[28:28]
+    27/256: $230\flush_clr_w[28:28]
+    28/256: $229\flush_clr_w[28:28]
+    29/256: $228\flush_clr_w[28:28]
+    30/256: $227\flush_clr_w[28:28]
+    31/256: $226\flush_clr_w[28:28]
+    32/256: $225\flush_clr_w[28:28]
+    33/256: $224\flush_clr_w[27:27]
+    34/256: $223\flush_clr_w[27:27]
+    35/256: $222\flush_clr_w[27:27]
+    36/256: $221\flush_clr_w[27:27]
+    37/256: $220\flush_clr_w[27:27]
+    38/256: $219\flush_clr_w[27:27]
+    39/256: $218\flush_clr_w[27:27]
+    40/256: $217\flush_clr_w[27:27]
+    41/256: $216\flush_clr_w[26:26]
+    42/256: $215\flush_clr_w[26:26]
+    43/256: $214\flush_clr_w[26:26]
+    44/256: $213\flush_clr_w[26:26]
+    45/256: $212\flush_clr_w[26:26]
+    46/256: $211\flush_clr_w[26:26]
+    47/256: $210\flush_clr_w[26:26]
+    48/256: $209\flush_clr_w[26:26]
+    49/256: $208\flush_clr_w[25:25]
+    50/256: $207\flush_clr_w[25:25]
+    51/256: $206\flush_clr_w[25:25]
+    52/256: $205\flush_clr_w[25:25]
+    53/256: $204\flush_clr_w[25:25]
+    54/256: $203\flush_clr_w[25:25]
+    55/256: $202\flush_clr_w[25:25]
+    56/256: $201\flush_clr_w[25:25]
+    57/256: $200\flush_clr_w[24:24]
+    58/256: $199\flush_clr_w[24:24]
+    59/256: $198\flush_clr_w[24:24]
+    60/256: $197\flush_clr_w[24:24]
+    61/256: $196\flush_clr_w[24:24]
+    62/256: $195\flush_clr_w[24:24]
+    63/256: $194\flush_clr_w[24:24]
+    64/256: $193\flush_clr_w[24:24]
+    65/256: $192\flush_clr_w[23:23]
+    66/256: $191\flush_clr_w[23:23]
+    67/256: $190\flush_clr_w[23:23]
+    68/256: $189\flush_clr_w[23:23]
+    69/256: $188\flush_clr_w[23:23]
+    70/256: $187\flush_clr_w[23:23]
+    71/256: $186\flush_clr_w[23:23]
+    72/256: $185\flush_clr_w[23:23]
+    73/256: $184\flush_clr_w[22:22]
+    74/256: $183\flush_clr_w[22:22]
+    75/256: $182\flush_clr_w[22:22]
+    76/256: $181\flush_clr_w[22:22]
+    77/256: $180\flush_clr_w[22:22]
+    78/256: $179\flush_clr_w[22:22]
+    79/256: $178\flush_clr_w[22:22]
+    80/256: $177\flush_clr_w[22:22]
+    81/256: $176\flush_clr_w[21:21]
+    82/256: $175\flush_clr_w[21:21]
+    83/256: $174\flush_clr_w[21:21]
+    84/256: $173\flush_clr_w[21:21]
+    85/256: $172\flush_clr_w[21:21]
+    86/256: $171\flush_clr_w[21:21]
+    87/256: $170\flush_clr_w[21:21]
+    88/256: $169\flush_clr_w[21:21]
+    89/256: $168\flush_clr_w[20:20]
+    90/256: $167\flush_clr_w[20:20]
+    91/256: $166\flush_clr_w[20:20]
+    92/256: $165\flush_clr_w[20:20]
+    93/256: $164\flush_clr_w[20:20]
+    94/256: $163\flush_clr_w[20:20]
+    95/256: $162\flush_clr_w[20:20]
+    96/256: $161\flush_clr_w[20:20]
+    97/256: $160\flush_clr_w[19:19]
+    98/256: $159\flush_clr_w[19:19]
+    99/256: $158\flush_clr_w[19:19]
+   100/256: $157\flush_clr_w[19:19]
+   101/256: $156\flush_clr_w[19:19]
+   102/256: $155\flush_clr_w[19:19]
+   103/256: $154\flush_clr_w[19:19]
+   104/256: $153\flush_clr_w[19:19]
+   105/256: $152\flush_clr_w[18:18]
+   106/256: $151\flush_clr_w[18:18]
+   107/256: $150\flush_clr_w[18:18]
+   108/256: $149\flush_clr_w[18:18]
+   109/256: $148\flush_clr_w[18:18]
+   110/256: $147\flush_clr_w[18:18]
+   111/256: $146\flush_clr_w[18:18]
+   112/256: $145\flush_clr_w[18:18]
+   113/256: $144\flush_clr_w[17:17]
+   114/256: $143\flush_clr_w[17:17]
+   115/256: $142\flush_clr_w[17:17]
+   116/256: $141\flush_clr_w[17:17]
+   117/256: $140\flush_clr_w[17:17]
+   118/256: $139\flush_clr_w[17:17]
+   119/256: $138\flush_clr_w[17:17]
+   120/256: $137\flush_clr_w[17:17]
+   121/256: $136\flush_clr_w[16:16]
+   122/256: $135\flush_clr_w[16:16]
+   123/256: $134\flush_clr_w[16:16]
+   124/256: $133\flush_clr_w[16:16]
+   125/256: $132\flush_clr_w[16:16]
+   126/256: $131\flush_clr_w[16:16]
+   127/256: $130\flush_clr_w[16:16]
+   128/256: $129\flush_clr_w[16:16]
+   129/256: $128\flush_clr_w[15:15]
+   130/256: $127\flush_clr_w[15:15]
+   131/256: $126\flush_clr_w[15:15]
+   132/256: $125\flush_clr_w[15:15]
+   133/256: $124\flush_clr_w[15:15]
+   134/256: $123\flush_clr_w[15:15]
+   135/256: $122\flush_clr_w[15:15]
+   136/256: $121\flush_clr_w[15:15]
+   137/256: $120\flush_clr_w[14:14]
+   138/256: $119\flush_clr_w[14:14]
+   139/256: $118\flush_clr_w[14:14]
+   140/256: $117\flush_clr_w[14:14]
+   141/256: $116\flush_clr_w[14:14]
+   142/256: $115\flush_clr_w[14:14]
+   143/256: $114\flush_clr_w[14:14]
+   144/256: $113\flush_clr_w[14:14]
+   145/256: $112\flush_clr_w[13:13]
+   146/256: $111\flush_clr_w[13:13]
+   147/256: $110\flush_clr_w[13:13]
+   148/256: $109\flush_clr_w[13:13]
+   149/256: $108\flush_clr_w[13:13]
+   150/256: $107\flush_clr_w[13:13]
+   151/256: $106\flush_clr_w[13:13]
+   152/256: $105\flush_clr_w[13:13]
+   153/256: $104\flush_clr_w[12:12]
+   154/256: $103\flush_clr_w[12:12]
+   155/256: $102\flush_clr_w[12:12]
+   156/256: $101\flush_clr_w[12:12]
+   157/256: $100\flush_clr_w[12:12]
+   158/256: $99\flush_clr_w[12:12]
+   159/256: $98\flush_clr_w[12:12]
+   160/256: $97\flush_clr_w[12:12]
+   161/256: $96\flush_clr_w[11:11]
+   162/256: $95\flush_clr_w[11:11]
+   163/256: $94\flush_clr_w[11:11]
+   164/256: $93\flush_clr_w[11:11]
+   165/256: $92\flush_clr_w[11:11]
+   166/256: $91\flush_clr_w[11:11]
+   167/256: $90\flush_clr_w[11:11]
+   168/256: $89\flush_clr_w[11:11]
+   169/256: $88\flush_clr_w[10:10]
+   170/256: $87\flush_clr_w[10:10]
+   171/256: $86\flush_clr_w[10:10]
+   172/256: $85\flush_clr_w[10:10]
+   173/256: $84\flush_clr_w[10:10]
+   174/256: $83\flush_clr_w[10:10]
+   175/256: $82\flush_clr_w[10:10]
+   176/256: $81\flush_clr_w[10:10]
+   177/256: $80\flush_clr_w[9:9]
+   178/256: $79\flush_clr_w[9:9]
+   179/256: $78\flush_clr_w[9:9]
+   180/256: $77\flush_clr_w[9:9]
+   181/256: $76\flush_clr_w[9:9]
+   182/256: $75\flush_clr_w[9:9]
+   183/256: $74\flush_clr_w[9:9]
+   184/256: $73\flush_clr_w[9:9]
+   185/256: $72\flush_clr_w[8:8]
+   186/256: $71\flush_clr_w[8:8]
+   187/256: $70\flush_clr_w[8:8]
+   188/256: $69\flush_clr_w[8:8]
+   189/256: $68\flush_clr_w[8:8]
+   190/256: $67\flush_clr_w[8:8]
+   191/256: $66\flush_clr_w[8:8]
+   192/256: $65\flush_clr_w[8:8]
+   193/256: $64\flush_clr_w[7:7]
+   194/256: $63\flush_clr_w[7:7]
+   195/256: $62\flush_clr_w[7:7]
+   196/256: $61\flush_clr_w[7:7]
+   197/256: $60\flush_clr_w[7:7]
+   198/256: $59\flush_clr_w[7:7]
+   199/256: $58\flush_clr_w[7:7]
+   200/256: $57\flush_clr_w[7:7]
+   201/256: $56\flush_clr_w[6:6]
+   202/256: $55\flush_clr_w[6:6]
+   203/256: $54\flush_clr_w[6:6]
+   204/256: $53\flush_clr_w[6:6]
+   205/256: $52\flush_clr_w[6:6]
+   206/256: $51\flush_clr_w[6:6]
+   207/256: $50\flush_clr_w[6:6]
+   208/256: $49\flush_clr_w[6:6]
+   209/256: $48\flush_clr_w[5:5]
+   210/256: $47\flush_clr_w[5:5]
+   211/256: $46\flush_clr_w[5:5]
+   212/256: $45\flush_clr_w[5:5]
+   213/256: $44\flush_clr_w[5:5]
+   214/256: $43\flush_clr_w[5:5]
+   215/256: $42\flush_clr_w[5:5]
+   216/256: $41\flush_clr_w[5:5]
+   217/256: $40\flush_clr_w[4:4]
+   218/256: $39\flush_clr_w[4:4]
+   219/256: $38\flush_clr_w[4:4]
+   220/256: $37\flush_clr_w[4:4]
+   221/256: $36\flush_clr_w[4:4]
+   222/256: $35\flush_clr_w[4:4]
+   223/256: $34\flush_clr_w[4:4]
+   224/256: $33\flush_clr_w[4:4]
+   225/256: $32\flush_clr_w[3:3]
+   226/256: $31\flush_clr_w[3:3]
+   227/256: $30\flush_clr_w[3:3]
+   228/256: $29\flush_clr_w[3:3]
+   229/256: $28\flush_clr_w[3:3]
+   230/256: $27\flush_clr_w[3:3]
+   231/256: $26\flush_clr_w[3:3]
+   232/256: $25\flush_clr_w[3:3]
+   233/256: $24\flush_clr_w[2:2]
+   234/256: $23\flush_clr_w[2:2]
+   235/256: $22\flush_clr_w[2:2]
+   236/256: $21\flush_clr_w[2:2]
+   237/256: $20\flush_clr_w[2:2]
+   238/256: $19\flush_clr_w[2:2]
+   239/256: $18\flush_clr_w[2:2]
+   240/256: $17\flush_clr_w[2:2]
+   241/256: $16\flush_clr_w[1:1]
+   242/256: $15\flush_clr_w[1:1]
+   243/256: $14\flush_clr_w[1:1]
+   244/256: $13\flush_clr_w[1:1]
+   245/256: $12\flush_clr_w[1:1]
+   246/256: $11\flush_clr_w[1:1]
+   247/256: $10\flush_clr_w[1:1]
+   248/256: $9\flush_clr_w[1:1]
+   249/256: $8\flush_clr_w[0:0]
+   250/256: $7\flush_clr_w[0:0]
+   251/256: $6\flush_clr_w[0:0]
+   252/256: $5\flush_clr_w[0:0]
+   253/256: $4\flush_clr_w[0:0]
+   254/256: $3\flush_clr_w[0:0]
+   255/256: $2\flush_clr_w[0:0]
+   256/256: $1\flush_clr_w[0:0]
+Creating decoders for process `\KL_chan_map_capture.$proc$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:416$2185'.
+     1/32: $32\prime_set_w[31:31]
+     2/32: $31\prime_set_w[30:30]
+     3/32: $30\prime_set_w[29:29]
+     4/32: $29\prime_set_w[28:28]
+     5/32: $28\prime_set_w[27:27]
+     6/32: $27\prime_set_w[26:26]
+     7/32: $26\prime_set_w[25:25]
+     8/32: $25\prime_set_w[24:24]
+     9/32: $24\prime_set_w[23:23]
+    10/32: $23\prime_set_w[22:22]
+    11/32: $22\prime_set_w[21:21]
+    12/32: $21\prime_set_w[20:20]
+    13/32: $20\prime_set_w[19:19]
+    14/32: $19\prime_set_w[18:18]
+    15/32: $18\prime_set_w[17:17]
+    16/32: $17\prime_set_w[16:16]
+    17/32: $16\prime_set_w[15:15]
+    18/32: $15\prime_set_w[14:14]
+    19/32: $14\prime_set_w[13:13]
+    20/32: $13\prime_set_w[12:12]
+    21/32: $12\prime_set_w[11:11]
+    22/32: $11\prime_set_w[10:10]
+    23/32: $10\prime_set_w[9:9]
+    24/32: $9\prime_set_w[8:8]
+    25/32: $8\prime_set_w[7:7]
+    26/32: $7\prime_set_w[6:6]
+    27/32: $6\prime_set_w[5:5]
+    28/32: $5\prime_set_w[4:4]
+    29/32: $4\prime_set_w[3:3]
+    30/32: $3\prime_set_w[2:2]
+    31/32: $2\prime_set_w[1:1]
+    32/32: $1\prime_set_w[0:0]
+Creating decoders for process `\KL_chan_map_capture.$proc$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:368$1950'.
+     1/32: $32\skid_kill_w[3:3]
+     2/32: $31\skid_kill_w[3:3]
+     3/32: $30\skid_kill_w[3:3]
+     4/32: $29\skid_kill_w[3:3]
+     5/32: $28\skid_kill_w[3:3]
+     6/32: $27\skid_kill_w[3:3]
+     7/32: $26\skid_kill_w[3:3]
+     8/32: $25\skid_kill_w[3:3]
+     9/32: $24\skid_kill_w[2:2]
+    10/32: $23\skid_kill_w[2:2]
+    11/32: $22\skid_kill_w[2:2]
+    12/32: $21\skid_kill_w[2:2]
+    13/32: $20\skid_kill_w[2:2]
+    14/32: $19\skid_kill_w[2:2]
+    15/32: $18\skid_kill_w[2:2]
+    16/32: $17\skid_kill_w[2:2]
+    17/32: $16\skid_kill_w[1:1]
+    18/32: $15\skid_kill_w[1:1]
+    19/32: $14\skid_kill_w[1:1]
+    20/32: $13\skid_kill_w[1:1]
+    21/32: $12\skid_kill_w[1:1]
+    22/32: $11\skid_kill_w[1:1]
+    23/32: $10\skid_kill_w[1:1]
+    24/32: $9\skid_kill_w[1:1]
+    25/32: $8\skid_kill_w[0:0]
+    26/32: $7\skid_kill_w[0:0]
+    27/32: $6\skid_kill_w[0:0]
+    28/32: $5\skid_kill_w[0:0]
+    29/32: $4\skid_kill_w[0:0]
+    30/32: $3\skid_kill_w[0:0]
+    31/32: $2\skid_kill_w[0:0]
+    32/32: $1\skid_kill_w[0:0]
+Creating decoders for process `\KL_chan_map_capture.$proc$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:336$1922'.
+     1/1: $1\push_data_w[47:0]
+Creating decoders for process `\KL_chan_map_capture.$proc$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:285$1914'.
+     1/5: $0\stash_strm_r[3:0]
+     2/5: $0\stash_val_r[23:0]
+     3/5: $0\stash_vld_r[0:0]
+     4/5: $0\lb_chpos_r[3:0]
+     5/5: $0\loop_fed_r[0:0]
+Creating decoders for process `\KL_chan_map_capture.$proc$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:274$1881'.
+     1/8: $8\beat_flush_w[0:0]
+     2/8: $7\beat_flush_w[0:0]
+     3/8: $6\beat_flush_w[0:0]
+     4/8: $5\beat_flush_w[0:0]
+     5/8: $4\beat_flush_w[0:0]
+     6/8: $3\beat_flush_w[0:0]
+     7/8: $2\beat_flush_w[0:0]
+     8/8: $1\beat_flush_w[0:0]
+Creating decoders for process `\KL_chan_map_capture.$proc$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:262$1848'.
+     1/8: $8\stash_flush_w[0:0]
+     2/8: $7\stash_flush_w[0:0]
+     3/8: $6\stash_flush_w[0:0]
+     4/8: $5\stash_flush_w[0:0]
+     5/8: $4\stash_flush_w[0:0]
+     6/8: $3\stash_flush_w[0:0]
+     7/8: $2\stash_flush_w[0:0]
+     8/8: $1\stash_flush_w[0:0]
+Creating decoders for process `\KL_chan_map_capture.$proc$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:206$1784'.
+     1/8: $8\lb_chans_raw_w[3:0]
+     2/8: $7\lb_chans_raw_w[3:0]
+     3/8: $6\lb_chans_raw_w[3:0]
+     4/8: $5\lb_chans_raw_w[3:0]
+     5/8: $4\lb_chans_raw_w[3:0]
+     6/8: $3\lb_chans_raw_w[3:0]
+     7/8: $2\lb_chans_raw_w[3:0]
+     8/8: $1\lb_chans_raw_w[3:0]
+Creating decoders for process `\KL_chan_map_capture.$proc$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:176$1762'.
+     1/19: $2\source_latch.sv2v_autoblock_4.t[31:0]
+     2/19: $2$memwr$\tdm_stage_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:193$853_EN[47:0]$1780
+     3/19: $2$memwr$\tdm_stage_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:193$853_DATA[47:0]$1779
+     4/19: $2$memwr$\tdm_stage_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:193$853_ADDR[1:0]$1778
+     5/19: $1\source_latch.sv2v_autoblock_3.t[31:0]
+     6/19: $1$memwr$\tdm_stage_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:183$852_EN[47:0]$1774
+     7/19: $1$memwr$\tdm_stage_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:183$851_EN[47:0]$1773
+     8/19: $1$memwr$\tdm_stage_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:183$850_EN[47:0]$1772
+     9/19: $1$memwr$\tdm_stage_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:183$849_EN[47:0]$1771
+    10/19: $1$memwr$\tdm_stage_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:193$853_EN[47:0]$1777
+    11/19: $1$memwr$\tdm_stage_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:193$853_DATA[47:0]$1776
+    12/19: $1$memwr$\tdm_stage_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:193$853_ADDR[1:0]$1775
+    13/19: $1\source_latch.sv2v_autoblock_4.t[31:0]
+    14/19: $0\tdm_frame_r[3][47:0]
+    15/19: $0\tdm_frame_r[2][47:0]
+    16/19: $0\tdm_frame_r[1][47:0]
+    17/19: $0\tdm_frame_r[0][47:0]
+    18/19: $0\tdm_frame_ns_r[31:0]
+    19/19: $0\i2s_hold_r[47:0]
+Creating decoders for process `\KL_chan_map_capture.$proc$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:143$1755'.
+     1/2: $0\map_rd_valid_o[0:0]
+     2/2: $0\map_rd_data_o[14:0]
+Creating decoders for process `\KL_chan_map_capture.$proc$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:131$1370'.
+     1/64: $64\loop_mapped_w[0:0]
+     2/64: $63\loop_mapped_w[0:0]
+     3/64: $62\loop_mapped_w[0:0]
+     4/64: $61\loop_mapped_w[0:0]
+     5/64: $60\loop_mapped_w[0:0]
+     6/64: $59\loop_mapped_w[0:0]
+     7/64: $58\loop_mapped_w[0:0]
+     8/64: $57\loop_mapped_w[0:0]
+     9/64: $56\loop_mapped_w[0:0]
+    10/64: $55\loop_mapped_w[0:0]
+    11/64: $54\loop_mapped_w[0:0]
+    12/64: $53\loop_mapped_w[0:0]
+    13/64: $52\loop_mapped_w[0:0]
+    14/64: $51\loop_mapped_w[0:0]
+    15/64: $50\loop_mapped_w[0:0]
+    16/64: $49\loop_mapped_w[0:0]
+    17/64: $48\loop_mapped_w[0:0]
+    18/64: $47\loop_mapped_w[0:0]
+    19/64: $46\loop_mapped_w[0:0]
+    20/64: $45\loop_mapped_w[0:0]
+    21/64: $44\loop_mapped_w[0:0]
+    22/64: $43\loop_mapped_w[0:0]
+    23/64: $42\loop_mapped_w[0:0]
+    24/64: $41\loop_mapped_w[0:0]
+    25/64: $40\loop_mapped_w[0:0]
+    26/64: $39\loop_mapped_w[0:0]
+    27/64: $38\loop_mapped_w[0:0]
+    28/64: $37\loop_mapped_w[0:0]
+    29/64: $36\loop_mapped_w[0:0]
+    30/64: $35\loop_mapped_w[0:0]
+    31/64: $34\loop_mapped_w[0:0]
+    32/64: $33\loop_mapped_w[0:0]
+    33/64: $32\loop_mapped_w[0:0]
+    34/64: $31\loop_mapped_w[0:0]
+    35/64: $30\loop_mapped_w[0:0]
+    36/64: $29\loop_mapped_w[0:0]
+    37/64: $28\loop_mapped_w[0:0]
+    38/64: $27\loop_mapped_w[0:0]
+    39/64: $26\loop_mapped_w[0:0]
+    40/64: $25\loop_mapped_w[0:0]
+    41/64: $24\loop_mapped_w[0:0]
+    42/64: $23\loop_mapped_w[0:0]
+    43/64: $22\loop_mapped_w[0:0]
+    44/64: $21\loop_mapped_w[0:0]
+    45/64: $20\loop_mapped_w[0:0]
+    46/64: $19\loop_mapped_w[0:0]
+    47/64: $18\loop_mapped_w[0:0]
+    48/64: $17\loop_mapped_w[0:0]
+    49/64: $16\loop_mapped_w[0:0]
+    50/64: $15\loop_mapped_w[0:0]
+    51/64: $14\loop_mapped_w[0:0]
+    52/64: $13\loop_mapped_w[0:0]
+    53/64: $12\loop_mapped_w[0:0]
+    54/64: $11\loop_mapped_w[0:0]
+    55/64: $10\loop_mapped_w[0:0]
+    56/64: $9\loop_mapped_w[0:0]
+    57/64: $8\loop_mapped_w[0:0]
+    58/64: $7\loop_mapped_w[0:0]
+    59/64: $6\loop_mapped_w[0:0]
+    60/64: $5\loop_mapped_w[0:0]
+    61/64: $4\loop_mapped_w[0:0]
+    62/64: $3\loop_mapped_w[0:0]
+    63/64: $2\loop_mapped_w[0:0]
+    64/64: $1\loop_mapped_w[0:0]
+Creating decoders for process `\KL_chan_map_capture.$proc$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:121$1231'.
+     1/71: $2$memwr$\map_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:128$720_EN[12:0]$1369
+     2/71: $2$memwr$\map_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:128$720_DATA[12:0]$1368
+     3/71: $2$memwr$\map_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:128$720_ADDR[5:0]$1367
+     4/71: $1\map_write_port.sv2v_autoblock_1.s[31:0]
+     5/71: $1$memwr$\map_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:125$719_EN[12:0]$1363
+     6/71: $1$memwr$\map_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:125$718_EN[12:0]$1362
+     7/71: $1$memwr$\map_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:125$717_EN[12:0]$1361
+     8/71: $1$memwr$\map_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:125$716_EN[12:0]$1360
+     9/71: $1$memwr$\map_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:125$715_EN[12:0]$1359
+    10/71: $1$memwr$\map_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:125$714_EN[12:0]$1358
+    11/71: $1$memwr$\map_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:125$713_EN[12:0]$1357
+    12/71: $1$memwr$\map_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:125$712_EN[12:0]$1356
+    13/71: $1$memwr$\map_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:125$711_EN[12:0]$1355
+    14/71: $1$memwr$\map_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:125$710_EN[12:0]$1354
+    15/71: $1$memwr$\map_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:125$709_EN[12:0]$1353
+    16/71: $1$memwr$\map_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:125$708_EN[12:0]$1352
+    17/71: $1$memwr$\map_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:125$707_EN[12:0]$1351
+    18/71: $1$memwr$\map_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:125$706_EN[12:0]$1350
+    19/71: $1$memwr$\map_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:125$705_EN[12:0]$1349
+    20/71: $1$memwr$\map_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:125$704_EN[12:0]$1348
+    21/71: $1$memwr$\map_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:125$703_EN[12:0]$1347
+    22/71: $1$memwr$\map_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:125$702_EN[12:0]$1346
+    23/71: $1$memwr$\map_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:125$701_EN[12:0]$1345
+    24/71: $1$memwr$\map_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:125$700_EN[12:0]$1344
+    25/71: $1$memwr$\map_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:125$699_EN[12:0]$1343
+    26/71: $1$memwr$\map_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:125$698_EN[12:0]$1342
+    27/71: $1$memwr$\map_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:125$697_EN[12:0]$1341
+    28/71: $1$memwr$\map_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:125$696_EN[12:0]$1340
+    29/71: $1$memwr$\map_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:125$695_EN[12:0]$1339
+    30/71: $1$memwr$\map_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:125$694_EN[12:0]$1338
+    31/71: $1$memwr$\map_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:125$693_EN[12:0]$1337
+    32/71: $1$memwr$\map_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:125$692_EN[12:0]$1336
+    33/71: $1$memwr$\map_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:125$691_EN[12:0]$1335
+    34/71: $1$memwr$\map_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:125$690_EN[12:0]$1334
+    35/71: $1$memwr$\map_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:125$689_EN[12:0]$1333
+    36/71: $1$memwr$\map_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:125$688_EN[12:0]$1332
+    37/71: $1$memwr$\map_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:125$687_EN[12:0]$1331
+    38/71: $1$memwr$\map_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:125$686_EN[12:0]$1330
+    39/71: $1$memwr$\map_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:125$685_EN[12:0]$1329
+    40/71: $1$memwr$\map_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:125$684_EN[12:0]$1328
+    41/71: $1$memwr$\map_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:125$683_EN[12:0]$1327
+    42/71: $1$memwr$\map_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:125$682_EN[12:0]$1326
+    43/71: $1$memwr$\map_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:125$681_EN[12:0]$1325
+    44/71: $1$memwr$\map_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:125$680_EN[12:0]$1324
+    45/71: $1$memwr$\map_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:125$679_EN[12:0]$1323
+    46/71: $1$memwr$\map_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:125$678_EN[12:0]$1322
+    47/71: $1$memwr$\map_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:125$677_EN[12:0]$1321
+    48/71: $1$memwr$\map_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:125$676_EN[12:0]$1320
+    49/71: $1$memwr$\map_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:125$675_EN[12:0]$1319
+    50/71: $1$memwr$\map_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:125$674_EN[12:0]$1318
+    51/71: $1$memwr$\map_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:125$673_EN[12:0]$1317
+    52/71: $1$memwr$\map_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:125$672_EN[12:0]$1316
+    53/71: $1$memwr$\map_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:125$671_EN[12:0]$1315
+    54/71: $1$memwr$\map_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:125$670_EN[12:0]$1314
+    55/71: $1$memwr$\map_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:125$669_EN[12:0]$1313
+    56/71: $1$memwr$\map_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:125$668_EN[12:0]$1312
+    57/71: $1$memwr$\map_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:125$667_EN[12:0]$1311
+    58/71: $1$memwr$\map_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:125$666_EN[12:0]$1310
+    59/71: $1$memwr$\map_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:125$665_EN[12:0]$1309
+    60/71: $1$memwr$\map_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:125$664_EN[12:0]$1308
+    61/71: $1$memwr$\map_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:125$663_EN[12:0]$1307
+    62/71: $1$memwr$\map_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:125$662_EN[12:0]$1306
+    63/71: $1$memwr$\map_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:125$661_EN[12:0]$1305
+    64/71: $1$memwr$\map_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:125$660_EN[12:0]$1304
+    65/71: $1$memwr$\map_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:125$659_EN[12:0]$1303
+    66/71: $1$memwr$\map_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:125$658_EN[12:0]$1302
+    67/71: $1$memwr$\map_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:125$657_EN[12:0]$1301
+    68/71: $1$memwr$\map_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:125$656_EN[12:0]$1300
+    69/71: $1$memwr$\map_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:128$720_EN[12:0]$1366
+    70/71: $1$memwr$\map_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:128$720_DATA[12:0]$1365
+    71/71: $1$memwr$\map_r$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:128$720_ADDR[5:0]$1364
+
+2.4.8. Executing PROC_DLATCH pass (convert process syncs to latches).
+No latch inferred for signal `\KL_chan_map_capture.\_sv2v_0' from process `\KL_chan_map_capture.$proc$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:867$4577'.
+No latch inferred for signal `\KL_chan_map_capture.$mem2reg_rd$\cand_w$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:728$653_DATA' from process `\KL_chan_map_capture.$proc$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:728$4574'.
+No latch inferred for signal `\KL_chan_map_capture.$mem2reg_rd$\cand_w$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:727$652_DATA' from process `\KL_chan_map_capture.$proc$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:727$4571'.
+No latch inferred for signal `\KL_chan_map_capture.\sv2v_cast_32$func$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:785$571.$result' from process `\KL_chan_map_capture.$proc$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:785$4567'.
+No latch inferred for signal `\KL_chan_map_capture.\sv2v_cast_32$func$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:728$570.$result' from process `\KL_chan_map_capture.$proc$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:728$4563'.
+No latch inferred for signal `\KL_chan_map_capture.\sv2v_cast_32$func$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:727$569.$result' from process `\KL_chan_map_capture.$proc$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:727$4559'.
+No latch inferred for signal `\KL_chan_map_capture.\source_row$func$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:726$568.$result' from process `\KL_chan_map_capture.$proc$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:726$4490'.
+No latch inferred for signal `\KL_chan_map_capture.\source_row$func$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:725$567.$result' from process `\KL_chan_map_capture.$proc$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:725$4421'.
+No latch inferred for signal `\KL_chan_map_capture.\sv2v_cast_17$func$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:466$444.$result' from process `\KL_chan_map_capture.$proc$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:466$4417'.
+No latch inferred for signal `\KL_chan_map_capture.\sv2v_cast_17$func$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:466$443.$result' from process `\KL_chan_map_capture.$proc$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:466$4413'.
+No latch inferred for signal `\KL_chan_map_capture.\sv2v_cast_17$func$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:465$442.$result' from process `\KL_chan_map_capture.$proc$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:465$4409'.
+No latch inferred for signal `\KL_chan_map_capture.\sv2v_cast_17$func$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:465$441.$result' from process `\KL_chan_map_capture.$proc$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:465$4405'.
+No latch inferred for signal `\KL_chan_map_capture.\sv2v_cast_2$func$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:460$440.$result' from process `\KL_chan_map_capture.$proc$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:460$4401'.
+No latch inferred for signal `\KL_chan_map_capture.\sv2v_cast_2$func$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:460$439.$result' from process `\KL_chan_map_capture.$proc$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:460$4397'.
+No latch inferred for signal `\KL_chan_map_capture.\sv2v_cast_2$func$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:460$438.$result' from process `\KL_chan_map_capture.$proc$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:460$4393'.
+No latch inferred for signal `\KL_chan_map_capture.\sv2v_cast_DF01C$func$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:458$437.$result' from process `\KL_chan_map_capture.$proc$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:458$4388'.
+No latch inferred for signal `\KL_chan_map_capture.\sv2v_cast_32$func$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:458$436.$result' from process `\KL_chan_map_capture.$proc$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:458$4384'.
+No latch inferred for signal `\KL_chan_map_capture.\sv2v_cast_78EEA$func$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:453$435.$result' from process `\KL_chan_map_capture.$proc$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:453$4379'.
+No latch inferred for signal `\KL_chan_map_capture.\sv2v_cast_32$func$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:453$434.$result' from process `\KL_chan_map_capture.$proc$$SCRATCH/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:453$4375'.

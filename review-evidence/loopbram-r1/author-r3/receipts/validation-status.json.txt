@@ -1,0 +1,265 @@
+Candidate head: 855529fe21fea685725a9edc4fe0a798154c6469
+Comparison base: 3cda030c174b325e36c26af6420487ff91346d15
+Source: validation-status.json
+Original SHA256: 96b854de97ac00657f3eae26982d6e56c2743ffae15ec18e1045e313bdab45f0
+Scope: complete text; paths and host fields normalized
+
+{
+  "head": "855529fe21fea685725a9edc4fe0a798154c6469",
+  "all_executed_regression_gates_pass": true,
+  "selected_routes": {
+    "endstation_ax7101_1x1_tdm8": {
+      "shape": "endstation_ax7101_1x1_tdm8",
+      "directive": "ExtraTimingOpt",
+      "run": {
+        "command": [
+          "$MANAGEMENT/2026-09-23/vivado-slot.sh",
+          "$WORKSPACE_HOME/Xilinx2/2026.1/Vivado/bin/vivado",
+          "-mode",
+          "batch",
+          "-nojournal",
+          "-nolog",
+          "-source",
+          "$SCRATCH/route/endstation_ax7101_1x1_tdm8/gateware/ExtraTimingOpt/measure_route.tcl"
+        ],
+        "cwd": "$SCRATCH/route/endstation_ax7101_1x1_tdm8/gateware/ExtraTimingOpt",
+        "exit": 0,
+        "seconds": 380.77105236053467
+      },
+      "utilization": {
+        "Slice LUTs*": 33038.0,
+        "Slice Registers": 42642.0,
+        "Block RAM Tile": 83.0,
+        "RAMB36/FIFO*": 65.0,
+        "RAMB18": 36.0,
+        "F7 Muxes": 669.0,
+        "F8 Muxes": 96.0,
+        "DSPs": 11.0,
+        "Occupied slices": 14320.0
+      },
+      "corners": {
+        "alinx_ax7101_signoff_Fast_0C_timing.rpt": {
+          "WNS_ns": 1.636,
+          "TNS_ns": 0.0,
+          "WHS_ns": 0.011,
+          "setup_failing_endpoints": 0,
+          "hold_failing_endpoints": 0,
+          "WPWS_ns": 1.1,
+          "sha256": "1f3adf8f1c698703e5e7f8d5f0266484674456a6762d67894c8e1116a4899ce1"
+        },
+        "alinx_ax7101_signoff_Fast_85C_timing.rpt": {
+          "WNS_ns": 1.636,
+          "TNS_ns": 0.0,
+          "WHS_ns": 0.011,
+          "setup_failing_endpoints": 0,
+          "hold_failing_endpoints": 0,
+          "WPWS_ns": 1.1,
+          "sha256": "43b6acae36f59726325d65145e79836373f3857d17d95a4f783b772c1ee2e0b6"
+        },
+        "alinx_ax7101_signoff_Slow_0C_timing.rpt": {
+          "WNS_ns": 0.228,
+          "TNS_ns": 0.0,
+          "WHS_ns": 0.102,
+          "setup_failing_endpoints": 0,
+          "hold_failing_endpoints": 0,
+          "WPWS_ns": 1.1,
+          "sha256": "371fcec6f1582bb1d054c450d93c2d9683c5f4f48a8858b943bdecdcd18f429f"
+        },
+        "alinx_ax7101_signoff_Slow_85C_timing.rpt": {
+          "WNS_ns": 0.228,
+          "TNS_ns": 0.0,
+          "WHS_ns": 0.102,
+          "setup_failing_endpoints": 0,
+          "hold_failing_endpoints": 0,
+          "WPWS_ns": 1.1,
+          "sha256": "efaa4ae7e64ce9f6b19c29ecc211fa1ed3a164743e39ce182c78b9b95ad29f7e"
+        }
+      },
+      "routing_errors": 0,
+      "complete": true,
+      "min_WNS_ns": 0.228,
+      "min_WHS_ns": 0.011,
+      "floor_pass": true
+    },
+    "endstation_ax7101_8x8": {
+      "shape": "endstation_ax7101_8x8",
+      "directive": "AltSpreadLogic_high",
+      "run": {
+        "command": [
+          "$MANAGEMENT/2026-09-23/vivado-slot.sh",
+          "$WORKSPACE_HOME/Xilinx2/2026.1/Vivado/bin/vivado",
+          "-mode",
+          "batch",
+          "-nojournal",
+          "-nolog",
+          "-source",
+          "$SCRATCH/route/endstation_ax7101_8x8/gateware/AltSpreadLogic_high/measure_route.tcl"
+        ],
+        "cwd": "$SCRATCH/route/endstation_ax7101_8x8/gateware/AltSpreadLogic_high",
+        "exit": 0,
+        "seconds": 923.8192298412323
+      },
+      "utilization": {
+        "Slice LUTs*": 48114.0,
+        "Slice Registers": 54677.0,
+        "Block RAM Tile": 111.0,
+        "RAMB36/FIFO*": 94.0,
+        "RAMB18": 34.0,
+        "F7 Muxes": 3004.0,
+        "F8 Muxes": 740.0,
+        "DSPs": 11.0,
+        "Occupied slices": 15763.0
+      },
+      "corners": {
+        "alinx_ax7101_signoff_Fast_0C_timing.rpt": {
+          "WNS_ns": 1.354,
+          "TNS_ns": 0.0,
+          "WHS_ns": 0.036,
+          "setup_failing_endpoints": 0,
+          "hold_failing_endpoints": 0,
+          "WPWS_ns": 1.1,
+          "sha256": "7e4e5be29a26d322069f60d1c4998e1b82782bc8948cec86907ef062dbfc701e"
+        },
+        "alinx_ax7101_signoff_Fast_85C_timing.rpt": {
+          "WNS_ns": 1.354,
+          "TNS_ns": 0.0,
+          "WHS_ns": 0.036,
+          "setup_failing_endpoints": 0,
+          "hold_failing_endpoints": 0,
+          "WPWS_ns": 1.1,
+          "sha256": "1e6930d41a44c99234e352507fcb5e882a186194f893aaa754dc0a1c0e264508"
+        },
+        "alinx_ax7101_signoff_Slow_0C_timing.rpt": {
+          "WNS_ns": 0.295,
+          "TNS_ns": 0.0,
+          "WHS_ns": 0.102,
+          "setup_failing_endpoints": 0,
+          "hold_failing_endpoints": 0,
+          "WPWS_ns": 1.1,
+          "sha256": "cfbe105ff4b690e9ad0419bf0ecb42049ab30efd7e186b8ab19ee9e7c2cbc129"
+        },
+        "alinx_ax7101_signoff_Slow_85C_timing.rpt": {
+          "WNS_ns": 0.295,
+          "TNS_ns": 0.0,
+          "WHS_ns": 0.102,
+          "setup_failing_endpoints": 0,
+          "hold_failing_endpoints": 0,
+          "WPWS_ns": 1.1,
+          "sha256": "f46b5fd2e9f54fe643cc0a5fe7bd782c8d1afbaa8b211c55d58dd8b6f31c5ca9"
+        }
+      },
+      "routing_errors": 0,
+      "complete": true,
+      "min_WNS_ns": 0.295,
+      "min_WHS_ns": 0.036,
+      "floor_pass": true
+    }
+  },
+  "disabled_leaves": {
+    "KL_chan_map_capture": {
+      "LUT": {
+        "base": 4339,
+        "head": 4339,
+        "delta": 0
+      },
+      "FF": {
+        "base": 3961,
+        "head": 3961,
+        "delta": 0
+      }
+    },
+    "KL_render_queue": {
+      "LUT": {
+        "base": 1017,
+        "head": 1015,
+        "delta": -2
+      },
+      "FF": {
+        "base": 406,
+        "head": 406,
+        "delta": 0
+      }
+    }
+  },
+  "disabled_images": [
+    {
+      "shape": "endstation_ax7101_1x1_tdm8",
+      "base": {
+        "Slice LUTs*": 33792.0,
+        "Slice Registers": 42649.0,
+        "Block RAM Tile": 80.0,
+        "RAMB36/FIFO*": 62.0,
+        "RAMB18": 36.0,
+        "F7 Muxes": 723.0,
+        "F8 Muxes": 79.0,
+        "DSPs": 11.0
+      },
+      "head": {
+        "Slice LUTs*": 33692.0,
+        "Slice Registers": 42642.0,
+        "Block RAM Tile": 80.0,
+        "RAMB36/FIFO*": 62.0,
+        "RAMB18": 36.0,
+        "F7 Muxes": 785.0,
+        "F8 Muxes": 82.0,
+        "DSPs": 11.0
+      },
+      "delta": {
+        "Slice LUTs*": -100.0,
+        "Slice Registers": -7.0,
+        "Block RAM Tile": 0.0,
+        "RAMB36/FIFO*": 0.0,
+        "RAMB18": 0.0,
+        "F7 Muxes": 62.0,
+        "F8 Muxes": 3.0,
+        "DSPs": 0.0
+      },
+      "equal": false
+    },
+    {
+      "shape": "endstation_ax7101_8x8",
+      "base": {
+        "Slice LUTs*": 45199.0,
+        "Slice Registers": 53086.0,
+        "Block RAM Tile": 99.0,
+        "RAMB36/FIFO*": 82.0,
+        "RAMB18": 34.0,
+        "F7 Muxes": 2540.0,
+        "F8 Muxes": 615.0,
+        "DSPs": 11.0
+      },
+      "head": {
+        "Slice LUTs*": 46240.0,
+        "Slice Registers": 53051.0,
+        "Block RAM Tile": 99.0,
+        "RAMB36/FIFO*": 82.0,
+        "RAMB18": 34.0,
+        "F7 Muxes": 2526.0,
+        "F8 Muxes": 618.0,
+        "DSPs": 11.0
+      },
+      "delta": {
+        "Slice LUTs*": 1041.0,
+        "Slice Registers": -35.0,
+        "Block RAM Tile": 0.0,
+        "RAMB36/FIFO*": 0.0,
+        "RAMB18": 0.0,
+        "F7 Muxes": -14.0,
+        "F8 Muxes": 3.0,
+        "DSPs": 0.0
+      },
+      "equal": false
+    }
+  ],
+  "disabled_leaf_equality": false,
+  "disabled_image_equality": false,
+  "disabled_no_growth": false,
+  "literal_F2_verification_pass": false,
+  "builder_not_run": [
+    [
+      "gate 11",
+      "real report not on disk ($WORKSPACE_HOME/litex-milan/work/build_arty_eto_milanfinal48/gateware/digilent_arty_utilization_place.rpt) - the calibration gate needs the mf48 build tree",
+      "row"
+    ]
+  ]
+}

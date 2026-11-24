@@ -1,0 +1,19 @@
+Candidate head: dc78aedae34c25a97125ecd6816a1f645db5575f
+Comparison base: 3cda030c174b325e36c26af6420487ff91346d15
+Source: regressions/milan_dp.json
+Original SHA256: 583ccf3fe8640ffcfae60e5a68d79f25fda729c61b8a4189818f8dd30a35d556
+Scope: complete text; paths and host fields normalized
+
+{
+  "case": "milan_dp",
+  "command": [
+    "make",
+    "-s",
+    "-C",
+    "$CHECKOUT/tb/verilator/milan_dp",
+    "VERILATOR_JOBS=4",
+    "run"
+  ],
+  "exit": 0,
+  "seconds": 2814.093766450882
+}

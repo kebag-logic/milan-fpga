@@ -1,0 +1,19 @@
+Candidate head: 855529fe21fea685725a9edc4fe0a798154c6469
+Comparison base: 3cda030c174b325e36c26af6420487ff91346d15
+Source: bounds/1-outside.log
+Original SHA256: 2ce46d24848e639d2008e717f41b6adc13550a7e2a7dff5c2ce079b02d772f16
+Scope: native compilation chatter omitted; other output retained; paths and host fields normalized
+
+FAIL COPY_SAMPLE_L frame=64 phase=306 got=000000 want=8e003f
+FAIL COPY_SAMPLE_R frame=64 phase=306 got=000000 want=8c003f
+FAIL COPY_SAMPLE_L frame=64 phase=334 got=000000 want=8a003f
+FAIL COPY_SAMPLE_R frame=64 phase=334 got=000000 want=88003f
+FAIL COPY_SAMPLE_L frame=64 phase=362 got=000000 want=86003f
+FAIL COPY_SAMPLE_R frame=64 phase=362 got=000000 want=84003f
+FAIL COPY_SAMPLE_L frame=64 phase=390 got=000000 want=82003f
+FAIL COPY_SAMPLE_R frame=64 phase=390 got=000000 want=80003f
+FAIL COPY_SAMPLE_L frame=65 phase=306 got=000000 want=8e0040
+FAIL COPY_SAMPLE_R frame=65 phase=306 got=000000 want=8c0040
+FAIL COPY_SAMPLE_L frame=65 phase=334 got=000000 want=8a0040
+FAIL COPY_SAMPLE_R frame=65 phase=334 got=000000 want=880040
+FAIL input-loopback streams=1 channels=8 lead=2: checks=76017 packets=447 failures=48

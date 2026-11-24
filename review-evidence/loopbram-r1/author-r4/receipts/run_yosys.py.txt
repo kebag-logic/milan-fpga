@@ -1,0 +1,15 @@
+Candidate head: dc78aedae34c25a97125ecd6816a1f645db5575f
+Comparison base: 3cda030c174b325e36c26af6420487ff91346d15
+Source: run_yosys.py
+Original SHA256: 9e00ef61b5267512cf3199d88db758a5a86f27dce5e05cc72e84447ab9d71bb3
+Scope: complete text; paths and host fields normalized
+
+import os,subprocess,time,json
+from pathlib import Path
+s=Path('$SCRATCH');d=s/'yosys';d.mkdir(exist_ok=True);(d/'tmp').mkdir(exist_ok=True)
+cmd=['syn/yosys/run.sh','--results',str(d/'results')]
+t=time.time()
+with (d/'run.log').open('w') as log:
+ r=subprocess.run(cmd,cwd='$CHECKOUT',env=dict(os.environ,TMPDIR=str(d/'tmp')),stdout=log,stderr=subprocess.STDOUT,timeout=14400)
+(d/'run.json').write_text(json.dumps({'command':cmd,'exit':r.returncode,'seconds':time.time()-t},indent=2))
+print('YOSYS',r.returncode,flush=True);raise SystemExit(r.returncode)

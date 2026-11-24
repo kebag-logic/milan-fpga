@@ -1,0 +1,128 @@
+Candidate head: 855529fe21fea685725a9edc4fe0a798154c6469
+Comparison base: 3cda030c174b325e36c26af6420487ff91346d15
+Source: leaf-plants/results.json
+Original SHA256: 41fadf42cdd2bd1fbb69934383b0f7db9b5144a7f73ad3760bdbc141d2e896c6
+Scope: complete text; paths and host fields normalized
+
+[
+  {
+    "plant": "control",
+    "command": [
+      "make",
+      "-s",
+      "-C",
+      "$CHECKOUT/tb/verilator/input_loopback",
+      "run",
+      "VERILATOR_JOBS=4",
+      "MDIR=$SCRATCH/leaf-plants/control-4vixj4yz/obj",
+      "QUEUE_SRC=$SCRATCH/leaf-plants/control-4vixj4yz/KL_render_queue.sv"
+    ],
+    "exit": 0,
+    "passed": true
+  },
+  {
+    "plant": "ignored_mapping",
+    "command": [
+      "make",
+      "-s",
+      "-C",
+      "$CHECKOUT/tb/verilator/input_loopback",
+      "run",
+      "VERILATOR_JOBS=4",
+      "MDIR=$SCRATCH/leaf-plants/ignored_mapping-x8x3xzgw/obj",
+      "QUEUE_SRC=$SCRATCH/leaf-plants/ignored_mapping-x8x3xzgw/KL_render_queue.sv"
+    ],
+    "exit": 2,
+    "passed": true
+  },
+  {
+    "plant": "wrong_bank",
+    "command": [
+      "make",
+      "-s",
+      "-C",
+      "$CHECKOUT/tb/verilator/input_loopback",
+      "run",
+      "VERILATOR_JOBS=4",
+      "MDIR=$SCRATCH/leaf-plants/wrong_bank-y3epqlg6/obj",
+      "QUEUE_SRC=$SCRATCH/leaf-plants/wrong_bank-y3epqlg6/KL_render_queue.sv"
+    ],
+    "exit": 2,
+    "passed": true
+  },
+  {
+    "plant": "skipped_copy",
+    "command": [
+      "make",
+      "-s",
+      "-C",
+      "$CHECKOUT/tb/verilator/input_loopback",
+      "run",
+      "VERILATOR_JOBS=4",
+      "MDIR=$SCRATCH/leaf-plants/skipped_copy-w1i5k_8y/obj",
+      "QUEUE_SRC=$SCRATCH/leaf-plants/skipped_copy-w1i5k_8y/KL_render_queue.sv"
+    ],
+    "exit": 2,
+    "passed": true
+  },
+  {
+    "plant": "ignored_invalidation",
+    "command": [
+      "make",
+      "-s",
+      "-C",
+      "$CHECKOUT/tb/verilator/input_loopback",
+      "run",
+      "VERILATOR_JOBS=4",
+      "MDIR=$SCRATCH/leaf-plants/ignored_invalidation-dues9np7/obj",
+      "QUEUE_SRC=$SCRATCH/leaf-plants/ignored_invalidation-dues9np7/KL_render_queue.sv"
+    ],
+    "exit": 2,
+    "passed": true
+  },
+  {
+    "plant": "retained_word",
+    "command": [
+      "make",
+      "-s",
+      "-C",
+      "$CHECKOUT/tb/verilator/input_loopback",
+      "run",
+      "VERILATOR_JOBS=4",
+      "MDIR=$SCRATCH/leaf-plants/retained_word-zpv3r2z9/obj",
+      "QUEUE_SRC=$SCRATCH/leaf-plants/retained_word-zpv3r2z9/KL_render_queue.sv"
+    ],
+    "exit": 2,
+    "passed": true
+  },
+  {
+    "plant": "missing_clock_flush",
+    "command": [
+      "make",
+      "-s",
+      "-C",
+      "$CHECKOUT/tb/verilator/input_loopback",
+      "run",
+      "VERILATOR_JOBS=4",
+      "MDIR=$SCRATCH/leaf-plants/missing_clock_flush-qunkt5gz/obj",
+      "QUEUE_SRC=$SCRATCH/leaf-plants/missing_clock_flush-qunkt5gz/KL_render_queue.sv"
+    ],
+    "exit": 2,
+    "passed": true
+  },
+  {
+    "plant": "wrong_latency",
+    "command": [
+      "make",
+      "-s",
+      "-C",
+      "$CHECKOUT/tb/verilator/input_loopback",
+      "run",
+      "VERILATOR_JOBS=4",
+      "MDIR=$SCRATCH/leaf-plants/wrong_latency-xgx2ll6g/obj",
+      "QUEUE_SRC=$SCRATCH/leaf-plants/wrong_latency-xgx2ll6g/KL_render_queue.sv"
+    ],
+    "exit": 2,
+    "passed": true
+  }
+]

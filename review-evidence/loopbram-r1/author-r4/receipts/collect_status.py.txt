@@ -1,0 +1,30 @@
+Candidate head: dc78aedae34c25a97125ecd6816a1f645db5575f
+Comparison base: 3cda030c174b325e36c26af6420487ff91346d15
+Source: collect_status.py
+Original SHA256: dc8c436f32d67779984bc8c4e3d0d9019fa699988aa8068a92c0b1f3f884989c
+Scope: complete text; paths and host fields normalized
+
+import json,subprocess,hashlib
+from pathlib import Path
+w=Path(__file__).resolve().parent
+root=Path('$CHECKOUT')
+head=subprocess.check_output(['git','rev-parse','HEAD'],cwd=root,text=True).strip()
+def read(name):
+ p=w/name
+ return json.loads(p.read_text()) if p.exists() else None
+status=dict(head=head,clean=not subprocess.check_output(['git','status','--porcelain'],cwd=root,text=True).strip(),
+            quick=read('quick-gates.json'),disabled_pipeline=read('disabled-pipeline.json'),
+            disabled=read('disabled-summary.json'),builder_union=read('builder-union/union.json'),
+            remaining=read('remaining-gates.json'),regressions={})
+for name in ['input1','input8','capture','queue','milan_dp','render','coherence']:
+ status['regressions'][name]=read('regressions/'+name+'.json') or {'status':'INCOMPLETE'}
+status['portability']=read('yosys/run.json') or {'status':'NOT RUN'}
+status['coherence_mutants']=read('coherence-mutants.json') or {'status':'INCOMPLETE'}
+status['enabled_route']=read('route-summary.json') or {'status':'NOT RUN'}
+status['two_interface_release']='NOT APPLICABLE: release split top rejects interfaces=2 at both commits'
+status['source_hashes_match']=all(hashlib.sha256((root/p).read_bytes()).hexdigest()==h for p,h in read('source.json')['sha256'].items())
+(w/'validation-status.json').write_text(json.dumps(status,indent=2)+'\n')
+print('Head',head,'clean',status['clean'],'source hashes match',status['source_hashes_match'])
+print('Regressions', {n:r.get('exit',r.get('status')) for n,r in status['regressions'].items()})
+print('Builder union present',status['builder_union'] is not None)
+print('Disabled reports',len(status['disabled'] or []))

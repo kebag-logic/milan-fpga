@@ -1,0 +1,40 @@
+Candidate head: 855529fe21fea685725a9edc4fe0a798154c6469
+Comparison base: 3cda030c174b325e36c26af6420487ff91346d15
+Source: run_leaf.py
+Original SHA256: 2212e589893d048108b581bc7f39c1a42720b4da1d50500992e8d8d7fac83675
+Scope: complete text; paths and host fields normalized
+
+import os,sys,subprocess,json,time,hashlib,fcntl
+from pathlib import Path
+root=Path('$CHECKOUT');w=Path('$SCRATCH/leaf');w.mkdir(exist_ok=True)
+lock=(w/'run.lock').open('w');fcntl.flock(lock,fcntl.LOCK_EX)
+for label,enabled in [('0',0),('1',1),('short_metadata',1)]:
+ d=w/label;d.mkdir(exist_ok=True)
+ source=root/'hdl/ieee1722/aaf/KL_render_queue.sv'
+ negative=label=='short_metadata'
+ if negative:
+  original=source.read_text();anchor='logic [FW_C-1:0] page_frame_r [META_PAGES_C];'
+  assert original.count(anchor)==1
+  source=d/'KL_render_queue.sv';source.write_text(original.replace(anchor,'logic [FW_C-1:0] page_frame_r [1];'))
+ source_hash=hashlib.sha256(source.read_bytes()).hexdigest()
+ if (d/'result.json').exists():
+  previous=json.loads((d/'result.json').read_text())
+  if previous.get('passed') and previous.get('source_sha256')==source_hash:
+   print('LEAF',label,'reused completed exact-source result',flush=True);continue
+ tcl=d/'leaf.tcl';tcl.write_text(f"""set_param general.maxThreads 8
+set_msg_config -id {{Synth 8-324}} -new_severity ERROR
+read_verilog -sv {source}
+synth_design -mode out_of_context -top KL_render_queue -part xc7a100t-fgg484-2 -directive AreaOptimized_high -generic INPUT_LOOPBACK_P={enabled} -generic CLK_FREQ_HZ_P=50000000 -generic IF_LEAD_P=1
+create_clock -period 20 [get_ports clk_i]
+opt_design -directive ExploreArea
+report_utilization -hierarchical -file leaf_hier.rpt
+report_utilization -file leaf_util.rpt
+write_checkpoint -force leaf.dcp
+quit
+""")
+ cmd=['$MANAGEMENT/2026-09-23/vivado-slot.sh','$WORKSPACE_HOME/Xilinx2/2026.1/Vivado/bin/vivado','-mode','batch','-nojournal','-nolog','-source',str(tcl)]
+ start=time.time()
+ with (d/'leaf.log').open('w') as log:r=subprocess.run(cmd,cwd=d,env=dict(os.environ,VIVADO_SLOTS='2',VIVADO_MIN_GB='20'),stdout=log,stderr=subprocess.STDOUT,timeout=14400)
+ passed=(r.returncode!=0 and 'ERROR: [Synth 8-324]' in (d/'leaf.log').read_text()) if negative else r.returncode==0
+ (d/'result.json').write_text(json.dumps({'command':cmd,'exit':r.returncode,'expected_failure':negative,'passed':passed,'source_sha256':hashlib.sha256(source.read_bytes()).hexdigest(),'seconds':time.time()-start},indent=2));print('LEAF',label,r.returncode,'PASS' if passed else 'FAIL',flush=True)
+ if not passed:sys.exit(1)

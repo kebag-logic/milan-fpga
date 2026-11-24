@@ -1,0 +1,1645 @@
+Candidate head: 855529fe21fea685725a9edc4fe0a798154c6469
+Comparison base: 3cda030c174b325e36c26af6420487ff91346d15
+Source: route/endstation_ax7101_8x8/gateware/AltSpreadLogic_high/measure_route.log
+Original SHA256: cd7f365cfc3f56210fd79ae3ad30e5323a48e1f78c36f62736c157213f4fa45f
+Scope: native compilation chatter omitted; other output retained; paths and host fields normalized
+
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/splited_wc_hub_hub_logic_hub/streamArbiter_12/probe_wake_stages_1_valid_reg_0[0].  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/splited_wc_hub_hub_logic_hub/streamArbiter_12/probe_ctxMem_spinal_port1[46]_i_1
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/splited_wc_hub_hub_logic_hub/streamArbiter_12/downD_toUp_upD_valid.  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/splited_wc_hub_hub_logic_hub/streamArbiter_12/maskLocked_2_i_3__0
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/splited_wc_hub_hub_logic_hub/streamArbiter_12/maskLocked_1_i_1__2_n_0.  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/splited_wc_hub_hub_logic_hub/streamArbiter_12/maskLocked_1_i_1__2
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/splited_wc_hub_hub_logic_hub/peripheral_bus_decoder_core_io_up_a_ready.  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/splited_wc_hub_hub_logic_hub/io_output_tracker_beat[3]_i_3__1
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/peripheral_plic_intc_thread_logic/factory_rspAsync_ready_repN.  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/peripheral_plic_intc_thread_logic/factory_rspAsync_rData_source[2]_i_2__0_replica
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/splited_wc_hub_hub_logic_hub/backend_stages_1_ready_output_repN.  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/splited_wc_hub_hub_logic_hub/backend_stages_2_TO_DOWN_i_1_replica
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/splited_wc_hub_hub_logic_hub/probe_ctxMem_spinal_port1[46]_i_2_n_0_repN_1.  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/splited_wc_hub_hub_logic_hub/probe_ctxMem_spinal_port1[46]_i_2_replica_1
+INFO: [Physopt 32-662] Processed net KL_mbx/face_f_fmt_in_lo_r_reg_n_0_[0][12][0].  Did not re-place instance KL_mbx/face_f_fmt_in_lo_r_reg[0][12][0]
+INFO: [Physopt 32-662] Processed net KL_mbx/face_f_fmt_in_lo_r_reg_n_0_[0][12][12].  Did not re-place instance KL_mbx/face_f_fmt_in_lo_r_reg[0][12][12]
+INFO: [Physopt 32-662] Processed net KL_mbx/face_f_fmt_in_lo_r_reg_n_0_[0][12][17].  Did not re-place instance KL_mbx/face_f_fmt_in_lo_r_reg[0][12][17]
+INFO: [Physopt 32-662] Processed net KL_mbx/face_f_fmt_in_lo_r_reg_n_0_[0][12][22].  Did not re-place instance KL_mbx/face_f_fmt_in_lo_r_reg[0][12][22]
+INFO: [Physopt 32-662] Processed net KL_mbx/face_f_clock_r_reg[0][15]_0[235].  Did not re-place instance KL_mbx/face_f_fmt_in_lo_r_reg[0][3][13]
+INFO: [Physopt 32-662] Processed net KL_mbx/face_f_clock_r_reg[0][15]_0[244].  Did not re-place instance KL_mbx/face_f_fmt_in_lo_r_reg[0][3][22]
+INFO: [Physopt 32-662] Processed net KL_mbx/face_f_clock_r_reg[0][15]_0[245].  Did not re-place instance KL_mbx/face_f_fmt_in_lo_r_reg[0][3][23]
+INFO: [Physopt 32-662] Processed net KL_mbx/face_f_clock_r_reg[0][15]_0[248].  Did not re-place instance KL_mbx/face_f_fmt_in_lo_r_reg[0][3][26]
+INFO: [Physopt 32-662] Processed net KL_mbx/face_f_clock_r_reg[0][15]_0[251].  Did not re-place instance KL_mbx/face_f_fmt_in_lo_r_reg[0][3][29]
+INFO: [Physopt 32-662] Processed net KL_mbx/face_f_clock_r_reg[0][15]_0[252].  Did not re-place instance KL_mbx/face_f_fmt_in_lo_r_reg[0][3][30]
+INFO: [Physopt 32-662] Processed net KL_mbx/face_f_fmt_in_lo_r_reg_n_0_[0][12][8].  Did not re-place instance KL_mbx/face_f_fmt_in_lo_r_reg[0][12][8]
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/dl_r_reg[4]_30[1].  Did not re-place instance KL_mbx/u_evt/dl_r_reg[4][1]
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/dl_r_reg[4]_30[3].  Did not re-place instance KL_mbx/u_evt/dl_r_reg[4][3]
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/dl_r_reg[4]_30[7].  Did not re-place instance KL_mbx/u_evt/dl_r_reg[4][7]
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/dl_r_reg[4]_30[9].  Did not re-place instance KL_mbx/u_evt/dl_r_reg[4][9]
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/tag_r_reg[4]_48[9].  Did not re-place instance KL_mbx/u_evt/tag_r_reg[4][9]
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/ctr_seen_r_reg_n_0_[0][10].  Did not re-place instance KL_mbx/u_evt/ctr_seen_r_reg[0][10]
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/ctr_seen_r[0][10]_i_1_n_0.  Did not re-place instance KL_mbx/u_evt/ctr_seen_r[0][10]_i_1
+INFO: [Physopt 32-662] Processed net KL_mbx/reg_rdata_r[31]_i_4_n_0.  Did not re-place instance KL_mbx/KL_mbx_LUT5_15
+INFO: [Physopt 32-662] Processed net KL_mbx_dma/ring_addr_r_reg[1]_18[0].  Did not re-place instance KL_mbx_dma/face_f_fmt_in_lo_r[0][2][31]_i_1
+INFO: [Physopt 32-662] Processed net KL_mbx/face_f_clock_r_reg[0][15]_0[180].  Did not re-place instance KL_mbx/face_f_fmt_in_lo_r_reg[0][2][22]
+INFO: [Physopt 32-662] Processed net KL_mbx/face_f_clock_r_reg[0][15]_0[183].  Did not re-place instance KL_mbx/face_f_fmt_in_lo_r_reg[0][2][25]
+INFO: [Physopt 32-662] Processed net KL_mbx/face_f_clock_r_reg[0][15]_0[187].  Did not re-place instance KL_mbx/face_f_fmt_in_lo_r_reg[0][2][29]
+INFO: [Physopt 32-662] Processed net KL_mbx/face_f_clock_r_reg[0][15]_0[188].  Did not re-place instance KL_mbx/face_f_fmt_in_lo_r_reg[0][2][30]
+INFO: [Physopt 32-662] Processed net KL_mbx_dma/ring_addr_r_reg[1]_29[0].  Did not re-place instance KL_mbx_dma/face_f_fmt_in_lo_r[0][13][31]_i_1
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/pend_r[4]_i_1__0_n_0.  Did not re-place instance KL_mbx/u_evt/KL_mbx_evt_LUT6_281
+INFO: [Physopt 32-662] Processed net KL_mbx/face_f_fmt_in_lo_r_reg_n_0_[0][13][18].  Did not re-place instance KL_mbx/face_f_fmt_in_lo_r_reg[0][13][18]
+INFO: [Physopt 32-662] Processed net KL_mbx/face_f_fmt_in_lo_r_reg_n_0_[0][13][1].  Did not re-place instance KL_mbx/face_f_fmt_in_lo_r_reg[0][13][1]
+INFO: [Physopt 32-662] Processed net KL_mbx/reg_rdata_r[25]_i_4_n_0.  Did not re-place instance KL_mbx/reg_rdata_r[25]_i_4
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/pend_r[3]_i_2__0_n_0.  Did not re-place instance KL_mbx/u_evt/pend_r[3]_i_2__0
+INFO: [Physopt 32-662] Processed net KL_mbx/evt_tail_r_reg_n_0_[0].  Did not re-place instance KL_mbx/evt_tail_r_reg[0]
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/KL_mbx_evt_net_35.  Did not re-place instance KL_mbx/u_evt/KL_mbx_evt_LUT6_18
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/KL_mbx_evt_net_36.  Did not re-place instance KL_mbx/u_evt/KL_mbx_evt_LUT6_19
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/KL_mbx_evt_net_37.  Did not re-place instance KL_mbx/u_evt/KL_mbx_evt_LUT4_7
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/KL_mbx_evt_net_42.  Did not re-place instance KL_mbx/u_evt/KL_mbx_evt_LUT6_21
+INFO: [Physopt 32-662] Processed net KL_mbx/face_f_clock_r_reg[0][15]_0[222].  Did not re-place instance KL_mbx/face_f_fmt_in_lo_r_reg[0][3][0]
+INFO: [Physopt 32-662] Processed net KL_mbx/face_f_clock_r_reg[0][15]_0[240].  Did not re-place instance KL_mbx/face_f_fmt_in_lo_r_reg[0][3][18]
+INFO: [Physopt 32-662] Processed net KL_mbx/face_f_clock_r_reg[0][15]_0[243].  Did not re-place instance KL_mbx/face_f_fmt_in_lo_r_reg[0][3][21]
+INFO: [Physopt 32-661] Optimized 50 nets.  Re-placed 50 instances.
+INFO: [Physopt 32-775] End 1 Pass. Optimized 50 nets or cells. Created 0 new cell, deleted 0 existing cell and moved 50 existing cells
+INFO: [Physopt 32-619] Estimated Timing Summary | WNS=-0.323 | TNS=-17.617 |
+Netlist sorting complete. Time (s): cpu = 00:00:00.01 ; elapsed = 00:00:00.01 . Memory (MB): peak = 3963.492 ; gain = 0.000 ; free physical = 7851 ; free virtual = 82618
+Phase 15 Single Cell Placement Optimization | Checksum: 1792022a6
+
+Time (s): cpu = 00:07:57 ; elapsed = 00:01:39 . Memory (MB): peak = 3963.492 ; gain = 0.000 ; free physical = 7866 ; free virtual = 82633
+
+Phase 16 Multi Cell Placement Optimization
+INFO: [Physopt 32-660] Identified 100 candidate nets for placement-based optimization.
+INFO: [Physopt 32-662] Processed net KL_mbx/reg_rdata_r[31]_i_29_n_0.  Did not re-place instance KL_mbx/KL_mbx_LUT6_99/O
+INFO: [Physopt 32-662] Processed net KL_mbx/reg_rdata_r[11]_i_52_n_0.  Did not re-place instance KL_mbx/reg_rdata_r[11]_i_52/O
+INFO: [Physopt 32-662] Processed net KL_mbx/rd_off_r[8].  Did not re-place instance KL_mbx/rd_off_r_reg[8]/Q
+INFO: [Physopt 32-662] Processed net KL_mbx/reg_rdata_r[11]_i_27_n_0.  Did not re-place instance KL_mbx/reg_rdata_r[11]_i_27/O
+INFO: [Physopt 32-662] Processed net KL_mbx/KL_mbx_net_258.  Did not re-place instance KL_mbx/KL_mbx_LUT6_300/O
+INFO: [Physopt 32-662] Processed net KL_mbx/KL_mbx_net_35.  Did not re-place instance KL_mbx/KL_mbx_LUT4_9/O
+INFO: [Physopt 32-662] Processed net KL_mbx/reg_rdata_r[12]_i_6_n_0.  Did not re-place instance KL_mbx/KL_mbx_LUT6_302/O
+INFO: [Physopt 32-662] Processed net KL_mbx/u_rx/KL_mbx_rx_net_82.  Did not re-place instance KL_mbx/u_rx/KL_mbx_rx_LUT6_74/O
+INFO: [Physopt 32-662] Processed net KL_mbx/u_rx/KL_mbx_rx_net_84.  Did not re-place instance KL_mbx/u_rx/KL_mbx_rx_LUT6_75/O
+INFO: [Physopt 32-662] Processed net KL_mbx/u_rx/KL_mbx_rx_net_87.  Did not re-place instance KL_mbx/u_rx/KL_mbx_rx_LUT6_78/O
+INFO: [Physopt 32-662] Processed net KL_mbx/u_rx/KL_mbx_rx_net_89.  Did not re-place instance KL_mbx/u_rx/KL_mbx_rx_LUT5_17/O
+INFO: [Physopt 32-662] Processed net KL_mbx/u_rx/KL_mbx_rx_net_91.  Did not re-place instance KL_mbx/u_rx/KL_mbx_rx_LUT6_79/O
+INFO: [Physopt 32-662] Processed net KL_mbx/u_rx/KL_mbx_rx_net_93.  Did not re-place instance KL_mbx/u_rx/KL_mbx_rx_LUT6_80/O
+INFO: [Physopt 32-662] Processed net KL_mbx/u_rx/amap_data_r_reg[0][31][12].  Did not re-place instance KL_mbx/u_rx/KL_mbx_rx_LUT6_81/O
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/aligner_io_up_aw_ready.  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_LUT3_1/O
+INFO: [Physopt 32-662] Processed net KL_mbx/u_rx/FSM_onehot_socbushandler_axilite2wishbone_state_reg[1].  Did not re-place instance KL_mbx/u_rx/KL_mbx_rx_LUT2_1/O
+INFO: [Physopt 32-662] Processed net KL_mbx_dma/KL_mbx_dma_net_67.  Did not re-place instance KL_mbx_dma/KL_mbx_dma_LUT4_4_rewire/O
+INFO: [Physopt 32-662] Processed net milansoc_master_adapted_interface_we.  Did not re-place instance FSM_onehot_socbushandler_axilite2wishbone_state_reg[1]/Q
+INFO: [Physopt 32-662] Processed net KL_mbx_dma/KL_mbx_dma_net_39.  Did not re-place instance KL_mbx_dma/KL_mbx_dma_LUT5_14/O
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/peripheral_toAxiLite4_logic_bridge/sram_bank0_reg_0_0_i_4_n_0.  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/peripheral_toAxiLite4_logic_bridge/AxiLite4Bridge_LUT3_1_rewire/O
+INFO: [Physopt 32-662] Processed net KL_mbx_dma/evt_tail_r[15]_i_3_n_0.  Did not re-place instance KL_mbx_dma/evt_tail_r[15]_i_3/O
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/peripheral_toAxiLite4_logic_bridge/a_buffered_fork2/StreamFork_2_net_78.  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/peripheral_toAxiLite4_logic_bridge/a_buffered_fork2/StreamFork_2_LUT3_rewire/O
+INFO: [Physopt 32-662] Processed net KL_mbx_dma/KL_mbx_dma_net_7.  Did not re-place instance KL_mbx_dma/KL_mbx_dma_LUT4/O
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/peripheral_toAxiLite4_logic_bridge/socbushandler_slave_sel_r[4]_i_4_n_0.  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/peripheral_toAxiLite4_logic_bridge/socbushandler_slave_sel_r[4]_i_4/O
+INFO: [Physopt 32-662] Processed net KL_mbx_dma/KL_mbx_dma_net_66.  Did not re-place instance KL_mbx_dma/KL_mbx_dma_LUT6_25/O
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/peripheral_toAxiLite4_logic_bridge/D[4].  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/peripheral_toAxiLite4_logic_bridge/socbushandler_slave_sel_r[4]_i_1_rewire_rewire/O
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/peripheral_toAxiLite4_logic_bridge/socbushandler_slave_sel_r[5]_i_3_n_0.  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/peripheral_toAxiLite4_logic_bridge/socbushandler_slave_sel_r[5]_i_3/O
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/rec_r[1][19]_i_15_n_0.  Did not re-place instance KL_mbx/u_evt/rec_r[1][19]_i_15_rewire/O
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/tick_cnt_r[15]_i_4_n_0.  Did not re-place instance KL_mbx/u_evt/tick_cnt_r[15]_i_4/O
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/ctr_pend_r[0][33]_i_2_n_0.  Did not re-place instance KL_mbx/u_evt/ctr_pend_r[0][33]_i_2/O
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/rec_r[1][17]_i_3_n_0.  Did not re-place instance KL_mbx/u_evt/KL_mbx_evt_LUT6_16/O
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/KL_mbx_evt_net_63.  Did not re-place instance KL_mbx/u_evt/KL_mbx_evt_LUT4_5/O
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/rec_r[1][19]_i_10_n_0.  Did not re-place instance KL_mbx/u_evt/rec_r[1][19]_i_10/O
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/rec_r[1][17]_i_8_n_0.  Did not re-place instance KL_mbx/u_evt/rec_r[1][17]_i_8_rewire_rewire/O
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/amap_cnt_r[0][15]_i_7_n_0.  Did not re-place instance KL_mbx/u_evt/KL_mbx_evt_LUT5_rewire_rewire/O
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/rec_r[0][2]_i_2_n_0.  Did not re-place instance KL_mbx/u_evt/rec_r[0][2]_i_2/O
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/KL_mbx_evt_net_33.  Did not re-place instance KL_mbx/u_evt/KL_mbx_evt_LUT3_9/O
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/avb_cnt_r[6].  Did not re-place instance KL_mbx/u_evt/avb_cnt_r_reg[0][6]/Q
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/rec_r[1][18]_i_8_n_0.  Did not re-place instance KL_mbx/u_evt/rec_r[1][18]_i_8_rewire/O
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/rec_r[1][19]_i_21_n_0.  Did not re-place instance KL_mbx/u_evt/rec_r[1][19]_i_21_rewire_rewire/O
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/amap_cnt_r[0][15]_i_12_n_0.  Did not re-place instance KL_mbx/u_evt/amap_cnt_r[0][15]_i_12/O
+INFO: [Physopt 32-661] Optimized 8 nets.  Re-placed 17 instances.
+INFO: [Physopt 32-775] End 1 Pass. Optimized 8 nets or cells. Created 0 new cell, deleted 0 existing cell and moved 17 existing cells
+INFO: [Physopt 32-619] Estimated Timing Summary | WNS=-0.212 | TNS=-15.771 |
+Netlist sorting complete. Time (s): cpu = 00:00:00.01 ; elapsed = 00:00:00.02 . Memory (MB): peak = 3963.492 ; gain = 0.000 ; free physical = 6885 ; free virtual = 81708
+Phase 16 Multi Cell Placement Optimization | Checksum: 19cac4010
+
+Time (s): cpu = 00:08:40 ; elapsed = 00:01:45 . Memory (MB): peak = 3963.492 ; gain = 0.000 ; free physical = 6868 ; free virtual = 81696
+
+Phase 17 Rewire
+INFO: [Physopt 32-246] Starting Signal Push optimization...
+INFO: [Physopt 32-77] Pass 1. Identified 66 candidate nets for rewire optimization.
+INFO: [Physopt 32-134] Processed net KL_mbx/reg_rdata_r[28]_i_17_n_0_repN. Rewiring did not optimize the net.
+INFO: [Physopt 32-134] Processed net KL_mbx/reg_rdata_r[11]_i_27_n_0. Rewiring did not optimize the net.
+INFO: [Physopt 32-134] Processed net KL_mbx/reg_rdata_r[31]_i_13_n_0_repN. Rewiring did not optimize the net.
+INFO: [Physopt 32-134] Processed net KL_mbx/u_rx/KL_mbx_rx_net_87. Rewiring did not optimize the net.
+INFO: [Physopt 32-242] Processed net KL_mbx/KL_mbx_net_629. Rewired (signal push) KL_mbx/KL_mbx_net_628 to 1 loads. Replicated 0 times.
+INFO: [Physopt 32-134] Processed net KL_mbx/u_rx/KL_mbx_rx_net_152. Rewiring did not optimize the net.
+INFO: [Physopt 32-134] Processed net KL_mbx/u_rx/FSM_onehot_socbushandler_axilite2wishbone_state_reg[1]. Rewiring did not optimize the net.
+INFO: [Physopt 32-134] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/peripheral_toAxiLite4_logic_bridge/socbushandler_slave_sel_r[5]_i_3_n_0. Rewiring did not optimize the net.
+INFO: [Physopt 32-134] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/peripheral_toAxiLite4_logic_bridge/D[4]. Rewiring did not optimize the net.
+INFO: [Physopt 32-134] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/peripheral_toAxiLite4_logic_bridge/a_buffered_fork2/StreamFork_2_net_78. Rewiring did not optimize the net.
+INFO: [Physopt 32-134] Processed net KL_mbx_dma/KL_mbx_dma_net_39. Rewiring did not optimize the net.
+INFO: [Physopt 32-242] Processed net KL_mbx_dma/KL_mbx_dma_net_66. Rewired (signal push) KL_mbx_dma/evt_tail_r[15]_i_3_n_0 to 1 loads. Replicated 1 times.
+INFO: [Physopt 32-134] Processed net KL_mbx_dma/KL_mbx_dma_net_67. Rewiring did not optimize the net.
+INFO: [Physopt 32-242] Processed net KL_mbx_dma/hold_wdata_r_reg[2]_1. Rewired (signal push) KL_mbx_dma/KL_mbx_dma_net_67 to 2 loads. Replicated 1 times.
+INFO: [Physopt 32-134] Processed net KL_mbx_dma/rd_q_r_i_3_n_0. Rewiring did not optimize the net.
+INFO: [Physopt 32-242] Processed net KL_mbx_dma/face_ctr_req_r[0][31]_i_4_n_0. Rewired (signal push) KL_mbx_dma/rd_q_r_i_3_n_0 to 6 loads. Replicated 0 times.
+INFO: [Physopt 32-134] Processed net KL_mbx_dma/face_gsi_req_r[0][31]_i_3_n_0. Rewiring did not optimize the net.
+INFO: [Physopt 32-134] Processed net KL_mbx_dma/face_f_restore_r[0][13]_i_2_n_0. Rewiring did not optimize the net.
+INFO: [Physopt 32-134] Processed net KL_mbx_dma/face_f_fmt_in_lo_r[0][0][31]_i_2_n_0. Rewiring did not optimize the net.
+INFO: [Physopt 32-242] Processed net KL_mbx/u_evt/amap_cnt_r[0][15]_i_12_n_0. Rewired (signal push) KL_mbx/u_evt/avb_cnt_r[6] to 1 loads. Replicated 0 times.
+INFO: [Physopt 32-134] Processed net KL_mbx/u_evt/amap_cnt_r[0][15]_i_7_n_0. Rewiring did not optimize the net.
+INFO: [Physopt 32-242] Processed net KL_mbx/u_evt/rec_r[1][17]_i_8_n_0. Rewired (signal push) KL_mbx/u_evt/rec_r[0][3]_i_3_n_0 to 6 loads. Replicated 1 times.
+INFO: [Physopt 32-134] Processed net KL_mbx/u_evt/rec_r[1][19]_i_15_n_0. Rewiring did not optimize the net.
+INFO: [Physopt 32-134] Processed net KL_mbx/u_evt/rec_r[1][18]_i_8_n_0. Rewiring did not optimize the net.
+INFO: [Physopt 32-242] Processed net KL_mbx/u_evt/KL_mbx_evt_net_63. Rewired (signal push) KL_mbx/u_evt/rec_r[1][18]_i_8_n_0 to 4 loads. Replicated 0 times.
+INFO: [Physopt 32-134] Processed net KL_mbx/u_evt/rec_r[1][19]_i_10_n_0. Rewiring did not optimize the net.
+INFO: [Physopt 32-134] Processed net KL_mbx/u_evt/rec_r[1][17]_i_3_n_0. Rewiring did not optimize the net.
+INFO: [Physopt 32-242] Processed net KL_mbx/u_evt/ctr_pend_r[0][33]_i_2_n_0. Rewired (signal push) KL_mbx/u_evt/rec_r[1][17]_i_3_n_0 to 7 loads. Replicated 1 times.
+INFO: [Physopt 32-134] Processed net KL_mbx/u_evt/tick_cnt_r[15]_i_4_n_0. Rewiring did not optimize the net.
+INFO: [Physopt 32-242] Processed net KL_mbx_dma/hold_wdata_r_reg[2]_3. Rewired (signal push) KL_mbx_dma/KL_mbx_dma_net_67 to 2 loads. Replicated 1 times.
+INFO: [Physopt 32-134] Processed net KL_mbx/reg_rdata_r[31]_i_13_n_0_repN_1. Rewiring did not optimize the net.
+INFO: [Physopt 32-134] Processed net KL_mbx/u_rx/KL_mbx_rx_net_253. Rewiring did not optimize the net.
+INFO: [Physopt 32-134] Processed net KL_mbx/u_rx/KL_mbx_rx_net_254. Rewiring did not optimize the net.
+INFO: [Physopt 32-134] Processed net KL_mbx/u_rx/KL_mbx_rx_net_267. Rewiring did not optimize the net.
+INFO: [Physopt 32-134] Processed net KL_mbx_dma/pub_idle_slope_r[0][31]_i_2_n_0. Rewiring did not optimize the net.
+INFO: [Physopt 32-242] Processed net KL_mbx_dma/pub_src_sid_lo_r[0][0][31]_i_3_n_0. Rewired (signal push) KL_mbx_dma/pub_idle_slope_r[0][31]_i_2_n_0 to 8 loads. Replicated 1 times.
+INFO: [Physopt 32-242] Processed net KL_mbx_dma/face_ctr_req_r[0][31]_i_4_n_0_repN. Rewired (signal push) KL_mbx_dma/rd_q_r_i_3_n_0 to 2 loads. Replicated 0 times.
+INFO: [Physopt 32-242] Processed net KL_mbx_dma/face_edit_record_lo_r[0][31]_i_2_n_0_repN. Rewired (signal push) KL_mbx_dma/face_edit_req_r[0][31]_i_3_n_0 to 1 loads. Replicated 0 times.
+INFO: [Physopt 32-134] Processed net KL_mbx_dma/hold_wdata_r_reg[3]_5. Rewiring did not optimize the net.
+INFO: [Physopt 32-242] Processed net KL_mbx_dma/hold_wdata_r_reg[3]_4. Rewired (signal push) KL_mbx_dma/KL_mbx_dma_net_67 to 4 loads. Replicated 1 times.
+INFO: [Physopt 32-242] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/peripheral_toAxiLite4_logic_bridge/milansoc_master_adapted_interface_adr__0[16]. Rewired (signal push) VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/peripheral_toAxiLite4_logic_bridge/FSM_onehot_socbushandler_axilite2wishbone_state_reg[1] to 2 loads. Replicated 1 times.
+INFO: [Physopt 32-134] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/peripheral_toAxiLite4_logic_bridge/socbushandler_slave_sel_r[4]_i_3_n_0. Rewiring did not optimize the net.
+INFO: [Physopt 32-242] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/peripheral_toAxiLite4_logic_bridge/a_buffered_fork2/a_halted_rData_address_reg[13]_0[0]. Rewired (signal push) VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/peripheral_toAxiLite4_logic_bridge/a_buffered_fork2/SR[0] to 2 loads. Replicated 1 times.
+INFO: [Physopt 32-134] Processed net KL_mbx/reg_rdata_r[30]_i_38_n_0_repN. Rewiring did not optimize the net.
+INFO: [Physopt 32-134] Processed net KL_mbx/u_rx/KL_mbx_rx_net_153. Rewiring did not optimize the net.
+INFO: [Physopt 32-134] Processed net KL_mbx/u_rx/KL_mbx_rx_net_125. Rewiring did not optimize the net.
+INFO: [Physopt 32-242] Processed net KL_mbx/u_rx/KL_mbx_rx_net_126. Rewired (signal push) KL_mbx/u_rx/KL_mbx_rx_net_125 to 1 loads. Replicated 0 times.
+INFO: [Physopt 32-134] Processed net KL_mbx/reg_rdata_r[30]_i_4_n_0. Rewiring did not optimize the net.
+INFO: [Physopt 32-242] Processed net KL_mbx_dma/hold_wdata_r_reg[3]_7. Rewired (signal push) KL_mbx_dma/KL_mbx_dma_net_67 to 2 loads. Replicated 1 times.
+INFO: [Physopt 32-242] Processed net KL_mbx_dma/hold_wdata_r_reg[2]_7. Rewired (signal push) KL_mbx_dma/KL_mbx_dma_net_67 to 2 loads. Replicated 1 times.
+INFO: [Physopt 32-134] Processed net KL_mbx/gm_hi_snap_r[0][31]_i_5_n_0. Rewiring did not optimize the net.
+INFO: [Physopt 32-242] Processed net KL_mbx/gm_hi_snap_r[0][31]_i_3_n_0. Rewired (signal push) KL_mbx/gm_hi_snap_r[0][31]_i_5_n_0 to 8 loads. Replicated 1 times.
+INFO: [Physopt 32-242] Processed net KL_mbx/u_rx/KL_mbx_rx_net_308. Rewired (signal push) KL_mbx/u_rx/KL_mbx_rx_net_307 to 1 loads. Replicated 0 times.
+INFO: [Physopt 32-242] Processed net KL_mbx/KL_mbx_net_303. Rewired (signal push) KL_mbx/reg_rdata_r[13]_i_51_n_0 to 1 loads. Replicated 0 times.
+INFO: [Physopt 32-242] Processed net KL_mbx/KL_mbx_net_304. Rewired (signal push) KL_mbx/reg_rdata_r[13]_i_51_n_0 to 1 loads. Replicated 0 times.
+INFO: [Physopt 32-134] Processed net KL_mbx/reg_rdata_r[13]_i_6_n_0. Rewiring did not optimize the net.
+INFO: [Physopt 32-242] Processed net KL_mbx/u_rx/KL_mbx_rx_net_106. Rewired (signal push) KL_mbx/u_rx/KL_mbx_rx_net_94 to 1 loads. Replicated 0 times.
+INFO: [Physopt 32-242] Processed net KL_mbx/u_rx/KL_mbx_rx_net_109. Rewired (signal push) KL_mbx/u_rx/KL_mbx_rx_net_94 to 1 loads. Replicated 0 times.
+INFO: [Physopt 32-242] Processed net KL_mbx_dma/hold_wdata_r_reg[3]_6. Rewired (signal push) KL_mbx_dma/KL_mbx_dma_net_67 to 2 loads. Replicated 1 times.
+INFO: [Physopt 32-134] Processed net KL_mbx/reg_rdata_r[23]_i_35_n_0. Rewiring did not optimize the net.
+INFO: [Physopt 32-242] Processed net KL_mbx/KL_mbx_net_852. Rewired (signal push) KL_mbx/reg_rdata_r[23]_i_14_n_0 to 1 loads. Replicated 0 times.
+INFO: [Physopt 32-242] Processed net KL_mbx/KL_mbx_net_855. Rewired (signal push) KL_mbx/KL_mbx_net_854 to 1 loads. Replicated 0 times.
+INFO: [Physopt 32-232] Optimized 27 nets. Created 13 new instances.
+INFO: [Physopt 32-775] End 1 Pass. Optimized 27 nets or cells. Created 13 new cells, deleted 0 existing cell and moved 0 existing cell
+Netlist sorting complete. Time (s): cpu = 00:00:00.08 ; elapsed = 00:00:00.08 . Memory (MB): peak = 3977.594 ; gain = 0.000 ; free physical = 6462 ; free virtual = 81325
+INFO: [Physopt 32-619] Estimated Timing Summary | WNS=-0.212 | TNS=-0.415 |
+Netlist sorting complete. Time (s): cpu = 00:00:00.02 ; elapsed = 00:00:00.02 . Memory (MB): peak = 3977.594 ; gain = 0.000 ; free physical = 6459 ; free virtual = 81326
+Phase 17 Rewire | Checksum: 1a6413cfe
+
+Time (s): cpu = 00:09:30 ; elapsed = 00:01:59 . Memory (MB): peak = 3977.594 ; gain = 14.102 ; free physical = 6448 ; free virtual = 81319
+
+Phase 18 Critical Cell Optimization
+INFO: [Physopt 32-46] Identified 30 candidate nets for critical-cell optimization.
+INFO: [Physopt 32-572] Net KL_mbx/reg_rdata_r[31]_i_13_n_0_repN was not replicated.
+Resolution: phys_opt_design can be forced to replicate a net driver using the option -force_replication_on_nets <list of net objects>.
+INFO: [Physopt 32-572] Net KL_mbx/reg_rdata_r[31]_i_29_n_0 was not replicated.
+Resolution: phys_opt_design can be forced to replicate a net driver using the option -force_replication_on_nets <list of net objects>.
+INFO: [Physopt 32-81] Processed net KL_mbx/reg_rdata_r[28]_i_17_n_0_repN. Replicated 1 times.
+INFO: [Physopt 32-81] Processed net KL_mbx/reg_rdata_r[13]_i_21_n_0. Replicated 1 times.
+INFO: [Physopt 32-572] Net KL_mbx/reg_rdata_r[11]_i_52_n_0 was not replicated.
+Resolution: phys_opt_design can be forced to replicate a net driver using the option -force_replication_on_nets <list of net objects>.
+INFO: [Physopt 32-572] Net KL_mbx/rd_off_r[8] was not replicated.
+Resolution: phys_opt_design can be forced to replicate a net driver using the option -force_replication_on_nets <list of net objects>.
+INFO: [Physopt 32-572] Net KL_mbx/reg_rdata_r[31]_i_13_n_0_repN_1 was not replicated.
+Resolution: phys_opt_design can be forced to replicate a net driver using the option -force_replication_on_nets <list of net objects>.
+INFO: [Physopt 32-572] Net KL_mbx/KL_mbx_net_45 was not replicated.
+Resolution: phys_opt_design can be forced to replicate a net driver using the option -force_replication_on_nets <list of net objects>.
+INFO: [Physopt 32-572] Net KL_mbx/reg_rdata_r[31]_i_4_n_0 was not replicated.
+Resolution: phys_opt_design can be forced to replicate a net driver using the option -force_replication_on_nets <list of net objects>.
+INFO: [Physopt 32-572] Net KL_mbx/reg_rdata_r[30]_i_38_n_0_repN was not replicated.
+Resolution: phys_opt_design can be forced to replicate a net driver using the option -force_replication_on_nets <list of net objects>.
+INFO: [Physopt 32-81] Processed net KL_mbx/reg_rdata_r[1]_i_20_n_0. Replicated 1 times.
+INFO: [Physopt 32-572] Net KL_mbx/reg_rdata_r[30]_i_4_n_0 was not replicated.
+Resolution: phys_opt_design can be forced to replicate a net driver using the option -force_replication_on_nets <list of net objects>.
+INFO: [Physopt 32-572] Net KL_mbx/reg_rdata_r[10]_i_8_n_0 was not replicated.
+Resolution: phys_opt_design can be forced to replicate a net driver using the option -force_replication_on_nets <list of net objects>.
+INFO: [Physopt 32-572] Net KL_mbx_dma/KL_mbx_dma_net_39 was not replicated.
+Resolution: phys_opt_design can be forced to replicate a net driver using the option -force_replication_on_nets <list of net objects>.
+INFO: [Physopt 32-81] Processed net KL_mbx_dma/evt_tail_r[15]_i_3_n_0. Replicated 1 times.
+INFO: [Physopt 32-571] Net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/peripheral_toAxiLite4_logic_bridge/a_buffered_fork2/StreamFork_2_net_78 was not replicated.
+INFO: [Physopt 32-81] Processed net KL_mbx_dma/hold_wdata_r_reg[2]_5. Replicated 1 times.
+INFO: [Physopt 32-572] Net KL_mbx_dma/KL_mbx_dma_net_7 was not replicated.
+Resolution: phys_opt_design can be forced to replicate a net driver using the option -force_replication_on_nets <list of net objects>.
+INFO: [Physopt 32-572] Net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/peripheral_toAxiLite4_logic_bridge/socbushandler_slave_sel_r[4]_i_4_n_0 was not replicated.
+Resolution: phys_opt_design can be forced to replicate a net driver using the option -force_replication_on_nets <list of net objects>.
+INFO: [Physopt 32-572] Net KL_mbx/reg_rdata_r[25]_i_4_n_0 was not replicated.
+Resolution: phys_opt_design can be forced to replicate a net driver using the option -force_replication_on_nets <list of net objects>.
+INFO: [Physopt 32-81] Processed net KL_mbx/rd_off_r[9]_repN. Replicated 1 times.
+INFO: [Physopt 32-571] Net KL_mbx_dma/hold_wdata_r_reg[3]_5 was not replicated.
+INFO: [Physopt 32-571] Net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_down_arbiter_core/a_arbiter/dma_bridge_down_arbiter_core_io_down_a_payload_opcode[0]_repN was not replicated.
+INFO: [Physopt 32-571] Net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/onPerId_bridge/onAw_halted_fork2/onAw_halted_fork2_io_input_ready was not replicated.
+INFO: [Physopt 32-571] Net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/compactor_io_up_aw_ready was not replicated.
+INFO: [Physopt 32-571] Net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/frontend_split_ready_output was not replicated.
+INFO: [Physopt 32-571] Net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_net_6 was not replicated.
+INFO: [Physopt 32-571] Net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_filter_logic_core/dma_filter_logic_core_io_up_a_ready was not replicated.
+INFO: [Physopt 32-232] Optimized 6 nets. Created 6 new instances.
+INFO: [Physopt 32-775] End 1 Pass. Optimized 6 nets or cells. Created 6 new cells, deleted 0 existing cell and moved 0 existing cell
+INFO: [Physopt 32-619] Estimated Timing Summary | WNS=-0.190 | TNS=-0.382 |
+Netlist sorting complete. Time (s): cpu = 00:00:00.08 ; elapsed = 00:00:00.08 . Memory (MB): peak = 3977.594 ; gain = 0.000 ; free physical = 5952 ; free virtual = 80824
+Phase 18 Critical Cell Optimization | Checksum: ed6bd9d1
+
+Time (s): cpu = 00:09:53 ; elapsed = 00:02:06 . Memory (MB): peak = 3977.594 ; gain = 14.102 ; free physical = 5952 ; free virtual = 80826
+
+Phase 19 DSP Register Optimization
+INFO: [Physopt 32-456] No candidate cells for DSP register optimization found in the design.
+INFO: [Physopt 32-775] End 1 Pass. Optimized 0 net or cell. Created 0 new cell, deleted 0 existing cell and moved 0 existing cell
+Phase 19 DSP Register Optimization | Checksum: ed6bd9d1
+
+Time (s): cpu = 00:09:53 ; elapsed = 00:02:06 . Memory (MB): peak = 3977.594 ; gain = 14.102 ; free physical = 5931 ; free virtual = 80808
+
+Phase 20 BRAM Register Optimization
+INFO: [Physopt 32-614] Property 'READ_WIDTH_B' on BRAM cell 'mem_dat0_reg' Port 'B' is 0. Skip BRAM Register Optimization on the port
+INFO: [Physopt 32-614] Property 'READ_WIDTH_B' on BRAM cell 'milan_datapath/g_gptp_plane.u_gptp_shadow/u_engine/u_ucpu/upc_r_reg_rep_0' Port 'B' is 0. Skip BRAM Register Optimization on the port
+INFO: [Physopt 32-614] Property 'READ_WIDTH_B' on BRAM cell 'milan_datapath/g_gptp_plane.u_gptp_shadow/u_engine/u_ucpu/upc_r_reg_rep_1' Port 'B' is 0. Skip BRAM Register Optimization on the port
+INFO: [Physopt 32-614] Property 'READ_WIDTH_B' on BRAM cell 'rom_bank0_dat0_reg_0_0' Port 'B' is 0. Skip BRAM Register Optimization on the port
+INFO: [Physopt 32-614] Property 'READ_WIDTH_B' on BRAM cell 'rom_bank0_dat0_reg_0_1' Port 'B' is 0. Skip BRAM Register Optimization on the port
+INFO: [Physopt 32-614] Property 'READ_WIDTH_B' on BRAM cell 'rom_bank0_dat0_reg_0_10' Port 'B' is 0. Skip BRAM Register Optimization on the port
+INFO: [Physopt 32-614] Property 'READ_WIDTH_B' on BRAM cell 'rom_bank0_dat0_reg_0_11' Port 'B' is 0. Skip BRAM Register Optimization on the port
+INFO: [Physopt 32-614] Property 'READ_WIDTH_B' on BRAM cell 'rom_bank0_dat0_reg_0_12' Port 'B' is 0. Skip BRAM Register Optimization on the port
+INFO: [Physopt 32-614] Property 'READ_WIDTH_B' on BRAM cell 'rom_bank0_dat0_reg_0_13' Port 'B' is 0. Skip BRAM Register Optimization on the port
+INFO: [Physopt 32-614] Property 'READ_WIDTH_B' on BRAM cell 'rom_bank0_dat0_reg_0_14' Port 'B' is 0. Skip BRAM Register Optimization on the port
+INFO: [Physopt 32-614] Property 'READ_WIDTH_B' on BRAM cell 'rom_bank0_dat0_reg_0_15' Port 'B' is 0. Skip BRAM Register Optimization on the port
+INFO: [Physopt 32-614] Property 'READ_WIDTH_B' on BRAM cell 'rom_bank0_dat0_reg_0_16' Port 'B' is 0. Skip BRAM Register Optimization on the port
+INFO: [Physopt 32-614] Property 'READ_WIDTH_B' on BRAM cell 'rom_bank0_dat0_reg_0_17' Port 'B' is 0. Skip BRAM Register Optimization on the port
+INFO: [Physopt 32-614] Property 'READ_WIDTH_B' on BRAM cell 'rom_bank0_dat0_reg_0_18' Port 'B' is 0. Skip BRAM Register Optimization on the port
+INFO: [Physopt 32-614] Property 'READ_WIDTH_B' on BRAM cell 'rom_bank0_dat0_reg_0_19' Port 'B' is 0. Skip BRAM Register Optimization on the port
+INFO: [Physopt 32-614] Property 'READ_WIDTH_B' on BRAM cell 'rom_bank0_dat0_reg_0_2' Port 'B' is 0. Skip BRAM Register Optimization on the port
+INFO: [Physopt 32-614] Property 'READ_WIDTH_B' on BRAM cell 'rom_bank0_dat0_reg_0_20' Port 'B' is 0. Skip BRAM Register Optimization on the port
+INFO: [Physopt 32-614] Property 'READ_WIDTH_B' on BRAM cell 'rom_bank0_dat0_reg_0_21' Port 'B' is 0. Skip BRAM Register Optimization on the port
+INFO: [Physopt 32-614] Property 'READ_WIDTH_B' on BRAM cell 'rom_bank0_dat0_reg_0_22' Port 'B' is 0. Skip BRAM Register Optimization on the port
+INFO: [Physopt 32-614] Property 'READ_WIDTH_B' on BRAM cell 'rom_bank0_dat0_reg_0_23' Port 'B' is 0. Skip BRAM Register Optimization on the port
+INFO: [Physopt 32-614] Property 'READ_WIDTH_B' on BRAM cell 'rom_bank0_dat0_reg_0_24' Port 'B' is 0. Skip BRAM Register Optimization on the port
+INFO: [Physopt 32-614] Property 'READ_WIDTH_B' on BRAM cell 'rom_bank0_dat0_reg_0_25' Port 'B' is 0. Skip BRAM Register Optimization on the port
+INFO: [Physopt 32-614] Property 'READ_WIDTH_B' on BRAM cell 'rom_bank0_dat0_reg_0_26' Port 'B' is 0. Skip BRAM Register Optimization on the port
+INFO: [Physopt 32-614] Property 'READ_WIDTH_B' on BRAM cell 'rom_bank0_dat0_reg_0_27' Port 'B' is 0. Skip BRAM Register Optimization on the port
+INFO: [Physopt 32-614] Property 'READ_WIDTH_B' on BRAM cell 'rom_bank0_dat0_reg_0_28' Port 'B' is 0. Skip BRAM Register Optimization on the port
+INFO: [Physopt 32-614] Property 'READ_WIDTH_B' on BRAM cell 'rom_bank0_dat0_reg_0_29' Port 'B' is 0. Skip BRAM Register Optimization on the port
+INFO: [Physopt 32-614] Property 'READ_WIDTH_B' on BRAM cell 'rom_bank0_dat0_reg_0_3' Port 'B' is 0. Skip BRAM Register Optimization on the port
+INFO: [Physopt 32-614] Property 'READ_WIDTH_B' on BRAM cell 'rom_bank0_dat0_reg_0_30' Port 'B' is 0. Skip BRAM Register Optimization on the port
+INFO: [Physopt 32-614] Property 'READ_WIDTH_B' on BRAM cell 'rom_bank0_dat0_reg_0_31' Port 'B' is 0. Skip BRAM Register Optimization on the port
+INFO: [Physopt 32-614] Property 'READ_WIDTH_B' on BRAM cell 'rom_bank0_dat0_reg_0_4' Port 'B' is 0. Skip BRAM Register Optimization on the port
+INFO: [Physopt 32-614] Property 'READ_WIDTH_B' on BRAM cell 'rom_bank0_dat0_reg_0_5' Port 'B' is 0. Skip BRAM Register Optimization on the port
+INFO: [Physopt 32-614] Property 'READ_WIDTH_B' on BRAM cell 'rom_bank0_dat0_reg_0_6' Port 'B' is 0. Skip BRAM Register Optimization on the port
+INFO: [Physopt 32-614] Property 'READ_WIDTH_B' on BRAM cell 'rom_bank0_dat0_reg_0_7' Port 'B' is 0. Skip BRAM Register Optimization on the port
+INFO: [Physopt 32-614] Property 'READ_WIDTH_B' on BRAM cell 'rom_bank0_dat0_reg_0_8' Port 'B' is 0. Skip BRAM Register Optimization on the port
+INFO: [Physopt 32-614] Property 'READ_WIDTH_B' on BRAM cell 'rom_bank0_dat0_reg_0_9' Port 'B' is 0. Skip BRAM Register Optimization on the port
+INFO: [Physopt 32-614] Property 'READ_WIDTH_B' on BRAM cell 'rom_bank1_dat0_reg_0' Port 'B' is 0. Skip BRAM Register Optimization on the port
+INFO: [Physopt 32-614] Property 'READ_WIDTH_B' on BRAM cell 'rom_bank1_dat0_reg_1' Port 'B' is 0. Skip BRAM Register Optimization on the port
+INFO: [Physopt 32-614] Property 'READ_WIDTH_B' on BRAM cell 'rom_bank1_dat0_reg_2' Port 'B' is 0. Skip BRAM Register Optimization on the port
+INFO: [Physopt 32-614] Property 'READ_WIDTH_B' on BRAM cell 'rom_bank1_dat0_reg_3' Port 'B' is 0. Skip BRAM Register Optimization on the port
+INFO: [Physopt 32-614] Property 'READ_WIDTH_B' on BRAM cell 'rom_bank2_dat0_reg_0' Port 'B' is 0. Skip BRAM Register Optimization on the port
+INFO: [Physopt 32-614] Property 'READ_WIDTH_B' on BRAM cell 'rom_bank2_dat0_reg_1' Port 'B' is 0. Skip BRAM Register Optimization on the port
+INFO: [Physopt 32-614] Property 'READ_WIDTH_B' on BRAM cell 'rom_bank3_dat0_reg' Port 'B' is 0. Skip BRAM Register Optimization on the port
+INFO: [Physopt 32-614] Property 'READ_WIDTH_B' on BRAM cell 'sram_bank0_reg_0_0' Port 'B' is 0. Skip BRAM Register Optimization on the port
+INFO: [Physopt 32-614] Property 'READ_WIDTH_B' on BRAM cell 'sram_bank0_reg_0_1' Port 'B' is 0. Skip BRAM Register Optimization on the port
+INFO: [Physopt 32-614] Property 'READ_WIDTH_B' on BRAM cell 'sram_bank0_reg_0_2' Port 'B' is 0. Skip BRAM Register Optimization on the port
+INFO: [Physopt 32-614] Property 'READ_WIDTH_B' on BRAM cell 'sram_bank0_reg_0_3' Port 'B' is 0. Skip BRAM Register Optimization on the port
+INFO: [Physopt 32-614] Property 'READ_WIDTH_B' on BRAM cell 'sram_bank0_reg_1_0' Port 'B' is 0. Skip BRAM Register Optimization on the port
+INFO: [Physopt 32-614] Property 'READ_WIDTH_B' on BRAM cell 'sram_bank0_reg_1_1' Port 'B' is 0. Skip BRAM Register Optimization on the port
+INFO: [Physopt 32-614] Property 'READ_WIDTH_B' on BRAM cell 'sram_bank0_reg_1_2' Port 'B' is 0. Skip BRAM Register Optimization on the port
+INFO: [Physopt 32-614] Property 'READ_WIDTH_B' on BRAM cell 'sram_bank0_reg_1_3' Port 'B' is 0. Skip BRAM Register Optimization on the port
+INFO: [Physopt 32-614] Property 'READ_WIDTH_B' on BRAM cell 'sram_bank0_reg_2_0' Port 'B' is 0. Skip BRAM Register Optimization on the port
+INFO: [Physopt 32-614] Property 'READ_WIDTH_B' on BRAM cell 'sram_bank0_reg_2_1' Port 'B' is 0. Skip BRAM Register Optimization on the port
+INFO: [Physopt 32-614] Property 'READ_WIDTH_B' on BRAM cell 'sram_bank0_reg_2_2' Port 'B' is 0. Skip BRAM Register Optimization on the port
+INFO: [Physopt 32-614] Property 'READ_WIDTH_B' on BRAM cell 'sram_bank0_reg_2_3' Port 'B' is 0. Skip BRAM Register Optimization on the port
+INFO: [Physopt 32-614] Property 'READ_WIDTH_B' on BRAM cell 'sram_bank0_reg_3_0' Port 'B' is 0. Skip BRAM Register Optimization on the port
+INFO: [Physopt 32-614] Property 'READ_WIDTH_B' on BRAM cell 'sram_bank0_reg_3_1' Port 'B' is 0. Skip BRAM Register Optimization on the port
+INFO: [Physopt 32-614] Property 'READ_WIDTH_B' on BRAM cell 'sram_bank0_reg_3_2' Port 'B' is 0. Skip BRAM Register Optimization on the port
+INFO: [Physopt 32-614] Property 'READ_WIDTH_B' on BRAM cell 'sram_bank0_reg_3_3' Port 'B' is 0. Skip BRAM Register Optimization on the port
+INFO: [Physopt 32-614] Property 'READ_WIDTH_B' on BRAM cell 'sram_bank1_reg_0_0' Port 'B' is 0. Skip BRAM Register Optimization on the port
+INFO: [Physopt 32-614] Property 'READ_WIDTH_B' on BRAM cell 'sram_bank1_reg_0_1' Port 'B' is 0. Skip BRAM Register Optimization on the port
+INFO: [Physopt 32-614] Property 'READ_WIDTH_B' on BRAM cell 'sram_bank1_reg_1_0' Port 'B' is 0. Skip BRAM Register Optimization on the port
+INFO: [Physopt 32-614] Property 'READ_WIDTH_B' on BRAM cell 'sram_bank1_reg_1_1' Port 'B' is 0. Skip BRAM Register Optimization on the port
+INFO: [Physopt 32-614] Property 'READ_WIDTH_B' on BRAM cell 'sram_bank1_reg_2_0' Port 'B' is 0. Skip BRAM Register Optimization on the port
+INFO: [Physopt 32-614] Property 'READ_WIDTH_B' on BRAM cell 'sram_bank1_reg_2_1' Port 'B' is 0. Skip BRAM Register Optimization on the port
+INFO: [Physopt 32-614] Property 'READ_WIDTH_B' on BRAM cell 'sram_bank1_reg_3_0' Port 'B' is 0. Skip BRAM Register Optimization on the port
+INFO: [Physopt 32-614] Property 'READ_WIDTH_B' on BRAM cell 'sram_bank1_reg_3_1' Port 'B' is 0. Skip BRAM Register Optimization on the port
+INFO: [Physopt 32-614] Property 'READ_WIDTH_B' on BRAM cell 'sram_bank2_reg_0' Port 'B' is 0. Skip BRAM Register Optimization on the port
+INFO: [Physopt 32-614] Property 'READ_WIDTH_B' on BRAM cell 'sram_bank2_reg_1' Port 'B' is 0. Skip BRAM Register Optimization on the port
+INFO: [Physopt 32-614] Property 'READ_WIDTH_B' on BRAM cell 'sram_bank2_reg_2' Port 'B' is 0. Skip BRAM Register Optimization on the port
+INFO: [Physopt 32-614] Property 'READ_WIDTH_B' on BRAM cell 'sram_bank2_reg_3' Port 'B' is 0. Skip BRAM Register Optimization on the port
+INFO: [Physopt 32-614] Property 'READ_WIDTH_B' on BRAM cell 'sram_bank3_reg_0' Port 'B' is 0. Skip BRAM Register Optimization on the port
+INFO: [Physopt 32-614] Property 'READ_WIDTH_B' on BRAM cell 'sram_bank3_reg_1' Port 'B' is 0. Skip BRAM Register Optimization on the port
+INFO: [Physopt 32-614] Property 'READ_WIDTH_B' on BRAM cell 'sram_bank4_reg' Port 'B' is 0. Skip BRAM Register Optimization on the port
+INFO: [Physopt 32-526] No candidate cells for BRAM register optimization found in the design
+INFO: [Physopt 32-775] End 1 Pass. Optimized 0 net or cell. Created 0 new cell, deleted 0 existing cell and moved 0 existing cell
+Phase 20 BRAM Register Optimization | Checksum: ed6bd9d1
+
+Time (s): cpu = 00:09:53 ; elapsed = 00:02:06 . Memory (MB): peak = 3977.594 ; gain = 14.102 ; free physical = 5923 ; free virtual = 80803
+
+Phase 21 URAM Register Optimization
+INFO: [Physopt 32-846] No candidate cells for URAM register optimization found in the design
+INFO: [Physopt 32-775] End 1 Pass. Optimized 0 net or cell. Created 0 new cell, deleted 0 existing cell and moved 0 existing cell
+INFO: [Physopt 32-846] No candidate cells for URAM register optimization found in the design
+INFO: [Physopt 32-775] End 1 Pass. Optimized 0 net or cell. Created 0 new cell, deleted 0 existing cell and moved 0 existing cell
+Phase 21 URAM Register Optimization | Checksum: ed6bd9d1
+
+Time (s): cpu = 00:09:53 ; elapsed = 00:02:06 . Memory (MB): peak = 3977.594 ; gain = 14.102 ; free physical = 5913 ; free virtual = 80797
+
+Phase 22 Shift Register Optimization
+INFO: [Physopt 32-1401] No candidate cells found for Shift Register optimization.
+INFO: [Physopt 32-677] No candidate cells for Shift Register optimization found in the design
+INFO: [Physopt 32-775] End 1 Pass. Optimized 0 net or cell. Created 0 new cell, deleted 0 existing cell and moved 0 existing cell
+Phase 22 Shift Register Optimization | Checksum: ed6bd9d1
+
+Time (s): cpu = 00:09:53 ; elapsed = 00:02:06 . Memory (MB): peak = 3977.594 ; gain = 14.102 ; free physical = 5933 ; free virtual = 80819
+
+Phase 23 DSP Register Optimization
+INFO: [Physopt 32-456] No candidate cells for DSP register optimization found in the design.
+INFO: [Physopt 32-775] End 1 Pass. Optimized 0 net or cell. Created 0 new cell, deleted 0 existing cell and moved 0 existing cell
+Phase 23 DSP Register Optimization | Checksum: ed6bd9d1
+
+Time (s): cpu = 00:09:53 ; elapsed = 00:02:06 . Memory (MB): peak = 3977.594 ; gain = 14.102 ; free physical = 5945 ; free virtual = 80835
+
+Phase 24 BRAM Register Optimization
+INFO: [Physopt 32-614] Property 'READ_WIDTH_B' on BRAM cell 'mem_dat0_reg' Port 'B' is 0. Skip BRAM Register Optimization on the port
+INFO: [Physopt 32-614] Property 'READ_WIDTH_B' on BRAM cell 'milan_datapath/g_gptp_plane.u_gptp_shadow/u_engine/u_ucpu/upc_r_reg_rep_0' Port 'B' is 0. Skip BRAM Register Optimization on the port
+INFO: [Physopt 32-614] Property 'READ_WIDTH_B' on BRAM cell 'milan_datapath/g_gptp_plane.u_gptp_shadow/u_engine/u_ucpu/upc_r_reg_rep_1' Port 'B' is 0. Skip BRAM Register Optimization on the port
+INFO: [Physopt 32-614] Property 'READ_WIDTH_B' on BRAM cell 'rom_bank0_dat0_reg_0_0' Port 'B' is 0. Skip BRAM Register Optimization on the port
+INFO: [Physopt 32-614] Property 'READ_WIDTH_B' on BRAM cell 'rom_bank0_dat0_reg_0_1' Port 'B' is 0. Skip BRAM Register Optimization on the port
+INFO: [Physopt 32-614] Property 'READ_WIDTH_B' on BRAM cell 'rom_bank0_dat0_reg_0_10' Port 'B' is 0. Skip BRAM Register Optimization on the port
+INFO: [Physopt 32-614] Property 'READ_WIDTH_B' on BRAM cell 'rom_bank0_dat0_reg_0_11' Port 'B' is 0. Skip BRAM Register Optimization on the port
+INFO: [Physopt 32-614] Property 'READ_WIDTH_B' on BRAM cell 'rom_bank0_dat0_reg_0_12' Port 'B' is 0. Skip BRAM Register Optimization on the port
+INFO: [Physopt 32-614] Property 'READ_WIDTH_B' on BRAM cell 'rom_bank0_dat0_reg_0_13' Port 'B' is 0. Skip BRAM Register Optimization on the port
+INFO: [Physopt 32-614] Property 'READ_WIDTH_B' on BRAM cell 'rom_bank0_dat0_reg_0_14' Port 'B' is 0. Skip BRAM Register Optimization on the port
+INFO: [Physopt 32-614] Property 'READ_WIDTH_B' on BRAM cell 'rom_bank0_dat0_reg_0_15' Port 'B' is 0. Skip BRAM Register Optimization on the port
+INFO: [Physopt 32-614] Property 'READ_WIDTH_B' on BRAM cell 'rom_bank0_dat0_reg_0_16' Port 'B' is 0. Skip BRAM Register Optimization on the port
+INFO: [Physopt 32-614] Property 'READ_WIDTH_B' on BRAM cell 'rom_bank0_dat0_reg_0_17' Port 'B' is 0. Skip BRAM Register Optimization on the port
+INFO: [Physopt 32-614] Property 'READ_WIDTH_B' on BRAM cell 'rom_bank0_dat0_reg_0_18' Port 'B' is 0. Skip BRAM Register Optimization on the port
+INFO: [Physopt 32-614] Property 'READ_WIDTH_B' on BRAM cell 'rom_bank0_dat0_reg_0_19' Port 'B' is 0. Skip BRAM Register Optimization on the port
+INFO: [Physopt 32-614] Property 'READ_WIDTH_B' on BRAM cell 'rom_bank0_dat0_reg_0_2' Port 'B' is 0. Skip BRAM Register Optimization on the port
+INFO: [Physopt 32-614] Property 'READ_WIDTH_B' on BRAM cell 'rom_bank0_dat0_reg_0_20' Port 'B' is 0. Skip BRAM Register Optimization on the port
+INFO: [Physopt 32-614] Property 'READ_WIDTH_B' on BRAM cell 'rom_bank0_dat0_reg_0_21' Port 'B' is 0. Skip BRAM Register Optimization on the port
+INFO: [Physopt 32-614] Property 'READ_WIDTH_B' on BRAM cell 'rom_bank0_dat0_reg_0_22' Port 'B' is 0. Skip BRAM Register Optimization on the port
+INFO: [Physopt 32-614] Property 'READ_WIDTH_B' on BRAM cell 'rom_bank0_dat0_reg_0_23' Port 'B' is 0. Skip BRAM Register Optimization on the port
+INFO: [Physopt 32-614] Property 'READ_WIDTH_B' on BRAM cell 'rom_bank0_dat0_reg_0_24' Port 'B' is 0. Skip BRAM Register Optimization on the port
+INFO: [Physopt 32-614] Property 'READ_WIDTH_B' on BRAM cell 'rom_bank0_dat0_reg_0_25' Port 'B' is 0. Skip BRAM Register Optimization on the port
+INFO: [Physopt 32-614] Property 'READ_WIDTH_B' on BRAM cell 'rom_bank0_dat0_reg_0_26' Port 'B' is 0. Skip BRAM Register Optimization on the port
+INFO: [Physopt 32-614] Property 'READ_WIDTH_B' on BRAM cell 'rom_bank0_dat0_reg_0_27' Port 'B' is 0. Skip BRAM Register Optimization on the port
+INFO: [Physopt 32-614] Property 'READ_WIDTH_B' on BRAM cell 'rom_bank0_dat0_reg_0_28' Port 'B' is 0. Skip BRAM Register Optimization on the port
+INFO: [Physopt 32-614] Property 'READ_WIDTH_B' on BRAM cell 'rom_bank0_dat0_reg_0_29' Port 'B' is 0. Skip BRAM Register Optimization on the port
+INFO: [Physopt 32-614] Property 'READ_WIDTH_B' on BRAM cell 'rom_bank0_dat0_reg_0_3' Port 'B' is 0. Skip BRAM Register Optimization on the port
+INFO: [Common 17-14] Message 'Physopt 32-614' appears 100 times and further instances of the messages will be disabled. Use the Tcl command set_msg_config to change the current settings.
+INFO: [Physopt 32-526] No candidate cells for BRAM register optimization found in the design
+INFO: [Physopt 32-775] End 1 Pass. Optimized 0 net or cell. Created 0 new cell, deleted 0 existing cell and moved 0 existing cell
+Phase 24 BRAM Register Optimization | Checksum: ed6bd9d1
+
+Time (s): cpu = 00:09:53 ; elapsed = 00:02:06 . Memory (MB): peak = 3977.594 ; gain = 14.102 ; free physical = 5990 ; free virtual = 80883
+
+Phase 25 URAM Register Optimization
+INFO: [Physopt 32-846] No candidate cells for URAM register optimization found in the design
+INFO: [Physopt 32-775] End 1 Pass. Optimized 0 net or cell. Created 0 new cell, deleted 0 existing cell and moved 0 existing cell
+INFO: [Physopt 32-846] No candidate cells for URAM register optimization found in the design
+INFO: [Physopt 32-775] End 1 Pass. Optimized 0 net or cell. Created 0 new cell, deleted 0 existing cell and moved 0 existing cell
+Phase 25 URAM Register Optimization | Checksum: ed6bd9d1
+
+Time (s): cpu = 00:09:54 ; elapsed = 00:02:06 . Memory (MB): peak = 3977.594 ; gain = 14.102 ; free physical = 5994 ; free virtual = 80890
+
+Phase 26 Shift Register Optimization
+INFO: [Physopt 32-1401] No candidate cells found for Shift Register optimization.
+INFO: [Physopt 32-677] No candidate cells for Shift Register optimization found in the design
+INFO: [Physopt 32-775] End 1 Pass. Optimized 0 net or cell. Created 0 new cell, deleted 0 existing cell and moved 0 existing cell
+Phase 26 Shift Register Optimization | Checksum: ed6bd9d1
+
+Time (s): cpu = 00:09:54 ; elapsed = 00:02:06 . Memory (MB): peak = 3977.594 ; gain = 14.102 ; free physical = 5986 ; free virtual = 80886
+
+Phase 27 Critical Pin Optimization
+INFO: [Physopt 32-606] Identified 100 candidate nets for critical-pin optimization.
+INFO: [Physopt 32-608] Optimized 41 nets.  Swapped 776 pins.
+INFO: [Physopt 32-775] End 1 Pass. Optimized 41 nets or cells. Created 0 new cell, deleted 0 existing cell and moved 776 existing cells
+INFO: [Physopt 32-619] Estimated Timing Summary | WNS=0.026 | TNS=0.000 |
+Netlist sorting complete. Time (s): cpu = 00:00:00.02 ; elapsed = 00:00:00.02 . Memory (MB): peak = 3977.594 ; gain = 0.000 ; free physical = 5899 ; free virtual = 80823
+Phase 27 Critical Pin Optimization | Checksum: ed6bd9d1
+
+Time (s): cpu = 00:09:56 ; elapsed = 00:02:07 . Memory (MB): peak = 3977.594 ; gain = 14.102 ; free physical = 5878 ; free virtual = 80808
+
+Phase 28 Very High Fanout Optimization
+INFO: [Physopt 32-1132] Very high fanout net 'milan_datapath/g_gptp_plane.u_gptp_shadow/KL_gptp_shadow_net_46' is not considered as a candidate in VHFN optimization. The fanout considered for this optimization is changed from 267 to 235 due to a timing constraint or macro primitives that prevent optimization on all of the loads. To force replication, set the FORCE_MAX_FANOUT property on the net to a number less than 235.
+INFO: [Physopt 32-1132] Very high fanout net 'milan_datapath/g_gptp_plane.u_gptp_shadow/u_engine/u_ucpu/rf_waddr_w[1]' is not considered as a candidate in VHFN optimization. The fanout considered for this optimization is changed from 264 to 34 due to a timing constraint or macro primitives that prevent optimization on all of the loads. To force replication, set the FORCE_MAX_FANOUT property on the net to a number less than 34.
+INFO: [Physopt 32-1132] Very high fanout net 'milan_datapath/g_gptp_plane.u_gptp_shadow/u_engine/u_ucpu/rf_waddr_w[2]' is not considered as a candidate in VHFN optimization. The fanout considered for this optimization is changed from 264 to 34 due to a timing constraint or macro primitives that prevent optimization on all of the loads. To force replication, set the FORCE_MAX_FANOUT property on the net to a number less than 34.
+INFO: [Physopt 32-1132] Very high fanout net 'milan_datapath/g_gptp_plane.u_gptp_shadow/u_engine/u_ucpu/rf_waddr_w[3]' is not considered as a candidate in VHFN optimization. The fanout considered for this optimization is changed from 264 to 34 due to a timing constraint or macro primitives that prevent optimization on all of the loads. To force replication, set the FORCE_MAX_FANOUT property on the net to a number less than 34.
+INFO: [Physopt 32-1132] Very high fanout net 'milan_datapath/g_gptp_plane.u_gptp_shadow/u_engine/u_ucpu/rf_we_w' is not considered as a candidate in VHFN optimization. The fanout considered for this optimization is changed from 264 to 34 due to a timing constraint or macro primitives that prevent optimization on all of the loads. To force replication, set the FORCE_MAX_FANOUT property on the net to a number less than 34.
+INFO: [Physopt 32-1132] Very high fanout net 'milan_datapath/g_gptp_plane.u_gptp_shadow/u_engine/u_ucpu/rf_waddr_w[0]' is not considered as a candidate in VHFN optimization. The fanout considered for this optimization is changed from 264 to 34 due to a timing constraint or macro primitives that prevent optimization on all of the loads. To force replication, set the FORCE_MAX_FANOUT property on the net to a number less than 34.
+INFO: [Physopt 32-1408] Pass 1. Identified 4 candidate nets for high-fanout optimization.
+INFO: [Physopt 32-572] Net milan_datapath/g_gptp_plane.u_gptp_shadow/pub_commit_raw_w was not replicated.
+Resolution: phys_opt_design can be forced to replicate a net driver using the option -force_replication_on_nets <list of net objects>.
+INFO: [Physopt 32-232] Optimized 0 net. Created 0 new instance.
+INFO: [Physopt 32-775] End 1 Pass. Optimized 0 net or cell. Created 0 new cell, deleted 0 existing cell and moved 0 existing cell
+Netlist sorting complete. Time (s): cpu = 00:00:00.04 ; elapsed = 00:00:00.04 . Memory (MB): peak = 3977.594 ; gain = 0.000 ; free physical = 6332 ; free virtual = 81226
+Phase 28 Very High Fanout Optimization | Checksum: f9b95774
+
+Time (s): cpu = 00:10:00 ; elapsed = 00:02:08 . Memory (MB): peak = 3977.594 ; gain = 14.102 ; free physical = 6311 ; free virtual = 81206
+
+Phase 29 Single Cell Placement Optimization
+INFO: [Physopt 32-670] No setup violation found.  Single Cell Placement Optimization was not performed.
+Netlist sorting complete. Time (s): cpu = 00:00:00.01 ; elapsed = 00:00:00.02 . Memory (MB): peak = 3977.594 ; gain = 0.000 ; free physical = 6259 ; free virtual = 81154
+Phase 29 Single Cell Placement Optimization | Checksum: f9b95774
+
+Time (s): cpu = 00:10:00 ; elapsed = 00:02:08 . Memory (MB): peak = 3977.594 ; gain = 14.102 ; free physical = 6252 ; free virtual = 81146
+
+Phase 30 Multi Cell Placement Optimization
+INFO: [Physopt 32-670] No setup violation found.  Multi Cell Placement Optimization was not performed.
+Netlist sorting complete. Time (s): cpu = 00:00:00.02 ; elapsed = 00:00:00.02 . Memory (MB): peak = 3977.594 ; gain = 0.000 ; free physical = 6213 ; free virtual = 81107
+Phase 30 Multi Cell Placement Optimization | Checksum: f9b95774
+
+Time (s): cpu = 00:10:00 ; elapsed = 00:02:08 . Memory (MB): peak = 3977.594 ; gain = 14.102 ; free physical = 6213 ; free virtual = 81107
+
+Phase 31 SLR Crossing Optimization
+Phase 31 SLR Crossing Optimization | Checksum: f9b95774
+
+Time (s): cpu = 00:10:00 ; elapsed = 00:02:08 . Memory (MB): peak = 3977.594 ; gain = 14.102 ; free physical = 6184 ; free virtual = 81079
+
+Phase 32 Critical Path Optimization
+INFO: [Physopt 32-619] Estimated Timing Summary | WNS=0.026 | TNS=0.000 |
+INFO: [Physopt 32-619] Estimated Timing Summary | WNS=0.026 | TNS=0.000 |
+Netlist sorting complete. Time (s): cpu = 00:00:00.02 ; elapsed = 00:00:00.01 . Memory (MB): peak = 3977.594 ; gain = 0.000 ; free physical = 6152 ; free virtual = 81047
+Phase 32 Critical Path Optimization | Checksum: f9b95774
+
+Time (s): cpu = 00:10:02 ; elapsed = 00:02:08 . Memory (MB): peak = 3977.594 ; gain = 14.102 ; free physical = 6154 ; free virtual = 81049
+
+Phase 33 BRAM Enable Optimization
+Phase 33 BRAM Enable Optimization | Checksum: f9b95774
+
+Time (s): cpu = 00:10:02 ; elapsed = 00:02:08 . Memory (MB): peak = 3977.594 ; gain = 14.102 ; free physical = 6138 ; free virtual = 81033
+INFO: [Physopt 32-960] Skip hold-fix as initial WHS does not violate hold threshold 250 ps
+Netlist sorting complete. Time (s): cpu = 00:00:00.02 ; elapsed = 00:00:00.01 . Memory (MB): peak = 3977.594 ; gain = 0.000 ; free physical = 6122 ; free virtual = 81017
+INFO: [Physopt 32-603] Post Physical Optimization Timing Summary | WNS=0.026 | TNS=0.000 |
+
+Summary of Physical Synthesis Optimizations
+============================================
+
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+|  Optimization            |  WNS Gain (ns)  |  TNS Gain (ns)  |  Added Cells  |  Removed Cells  |  Optimized Cells/Nets  |  Dont Touch  |  Iterations  |  Elapsed   |
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+|  Fanout                  |          0.000  |       1134.666  |           26  |              0  |                    19  |           3  |           3  |  00:00:10  |
+|  Single Cell Placement   |          0.138  |       1817.595  |            0  |              0  |                   174  |           0  |           3  |  00:00:35  |
+|  Multi Cell Placement    |          0.159  |        203.411  |            0  |              0  |                    36  |           0  |           3  |  00:00:20  |
+|  Rewire                  |          1.618  |       1777.988  |           25  |              0  |                    64  |           0  |           3  |  00:00:28  |
+|  Critical Cell           |          0.104  |        133.188  |           36  |              0  |                    35  |           6  |           3  |  00:00:25  |
+|  SLR Crossing            |          0.000  |          0.000  |            0  |              0  |                     0  |           0  |           3  |  00:00:00  |
+|  DSP Register            |          0.000  |          0.000  |            0  |              0  |                     0  |           0  |           2  |  00:00:00  |
+|  BRAM Register           |          0.000  |          0.000  |            0  |              0  |                     0  |           0  |           2  |  00:00:00  |
+|  URAM Register           |          0.000  |          0.000  |            0  |              0  |                     0  |           0  |           2  |  00:00:00  |
+|  Shift Register          |          0.000  |          0.000  |            0  |              0  |                     0  |           0  |           2  |  00:00:00  |
+|  Critical Pin            |          0.216  |          0.382  |            0  |              0  |                    41  |           0  |           1  |  00:00:01  |
+|  Very High Fanout        |          0.000  |          0.000  |            0  |              0  |                     0  |           0  |           1  |  00:00:01  |
+|  BRAM Enable             |          0.000  |          0.000  |            0  |              0  |                     0  |           0  |           1  |  00:00:00  |
+|  Critical Path           |          0.000  |          0.000  |            0  |              0  |                     0  |           0  |           1  |  00:00:00  |
+|  Total                   |          2.235  |       5067.229  |           87  |              0  |                   369  |           9  |          30  |  00:02:01  |
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+Netlist sorting complete. Time (s): cpu = 00:00:00.02 ; elapsed = 00:00:00.02 . Memory (MB): peak = 3977.594 ; gain = 0.000 ; free physical = 5934 ; free virtual = 80828
+Ending Physical Synthesis Task | Checksum: 215de45b8
+
+Time (s): cpu = 00:10:03 ; elapsed = 00:02:09 . Memory (MB): peak = 3977.594 ; gain = 14.102 ; free physical = 5816 ; free virtual = 80711
+INFO: [Common 17-83] Releasing license: Vivado_Implementation
+1322 Infos, 0 Warnings, 0 Critical Warnings and 0 Errors encountered.
+phys_opt_design completed successfully
+phys_opt_design: Time (s): cpu = 00:10:36 ; elapsed = 00:02:14 . Memory (MB): peak = 3977.594 ; gain = 14.102 ; free physical = 6011 ; free virtual = 80905
+# report_utilization -hierarchical -file alinx_ax7101_utilization_hierarchical_place.rpt
+# report_utilization -file alinx_ax7101_utilization_place.rpt
+# report_io -file alinx_ax7101_io.rpt
+report_io: Time (s): cpu = 00:00:00.08 ; elapsed = 00:00:00.18 . Memory (MB): peak = 3977.594 ; gain = 0.000 ; free physical = 6091 ; free virtual = 80968
+# report_control_sets -verbose -file alinx_ax7101_control_sets.rpt
+report_control_sets: Time (s): cpu = 00:00:00.24 ; elapsed = 00:00:00.36 . Memory (MB): peak = 3977.594 ; gain = 0.000 ; free physical = 6301 ; free virtual = 81215
+# report_clock_utilization -file alinx_ax7101_clock_utilization.rpt
+# write_checkpoint -force alinx_ax7101_place.dcp
+INFO: [Timing 38-480] Writing timing data to binary archive.
+Wrote PlaceDB: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 4009.609 ; gain = 0.000 ; free physical = 5788 ; free virtual = 80685
+Wrote PulsedLatchDB: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 4009.609 ; gain = 0.000 ; free physical = 5788 ; free virtual = 80685
+Writing XDEF routing.
+Writing XDEF routing logical nets.
+Writing XDEF routing special nets.
+Wrote RouteStorage: Time (s): cpu = 00:00:00.46 ; elapsed = 00:00:00.1 . Memory (MB): peak = 4009.609 ; gain = 0.000 ; free physical = 5760 ; free virtual = 80665
+Write ShapeDB Complete: Time (s): cpu = 00:00:00.48 ; elapsed = 00:00:00.1 . Memory (MB): peak = 4009.609 ; gain = 0.000 ; free physical = 5760 ; free virtual = 80665
+Wrote PlaceStorage: Time (s): cpu = 00:00:05 ; elapsed = 00:00:02 . Memory (MB): peak = 4009.609 ; gain = 0.000 ; free physical = 5593 ; free virtual = 80582
+Wrote Netlist Cache: Time (s): cpu = 00:00:00.16 ; elapsed = 00:00:00.1 . Memory (MB): peak = 4009.609 ; gain = 0.000 ; free physical = 5525 ; free virtual = 80526
+Wrote Device Cache: Time (s): cpu = 00:00:00.01 ; elapsed = 00:00:00 . Memory (MB): peak = 4009.609 ; gain = 0.000 ; free physical = 5533 ; free virtual = 80534
+Write Physdb Complete: Time (s): cpu = 00:00:06 ; elapsed = 00:00:02 . Memory (MB): peak = 4009.609 ; gain = 0.000 ; free physical = 5456 ; free virtual = 80461
+INFO: [Common 17-1381] The checkpoint '$SCRATCH/route/endstation_ax7101_8x8/gateware/AltSpreadLogic_high/alinx_ax7101_place.dcp' has been generated.
+# source {$CHECKOUT/sw/litex/iob_pack_check.tcl}
+## proc kl_iob_net_cells {pins dir} {
+##     set net [get_nets -of_objects $pins]
+##     if {[llength $net] == 0} {
+##         return [list 0 {}]
+##     }
+##     set far [get_pins -leaf -of_objects $net -filter "DIRECTION == $dir"]
+##     if {[llength $far] == 0} {
+##         return [list 1 {}]
+##     }
+##     return [list 1 [get_cells -of_objects $far]]
+## }
+## proc kl_iob_far_groups {bufs dir} {
+##     if {$dir eq "OUT"} {
+##         set pins [get_pins -of_objects $bufs \
+##             -filter {REF_PIN_NAME == I || REF_PIN_NAME == T}]
+##         if {[llength $pins] == 0} {
+##             return [list 0 {}]
+##         }
+##         # one followed pin at a time: an OBUFT whose T answers a grounded
+##         # driver must not answer for an I whose net came back empty. Each
+##         # pin's answer is kept WHOLE, as its own group, because a Vivado
+##         # object list must never be taken apart and rebuilt: see the note on
+##         # `{*}` above the file's first proc.
+##         set groups {}
+##         foreach pin $pins {
+##             lassign [kl_iob_net_cells $pin OUT] reached cells
+##             if {!$reached || [llength $cells] == 0} {
+##                 return [list 0 {}]
+##             }
+##             lappend groups $cells
+##         }
+##         return [list 1 $groups]
+##     }
+##     set pins [get_pins -of_objects $bufs -filter {REF_PIN_NAME == O}]
+##     if {[llength $pins] == 0} {
+##         return [list 0 {}]
+##     }
+##     lassign [kl_iob_net_cells $pins IN] reached loads
+##     if {!$reached || [llength $loads] == 0} {
+##         return [list 0 {}]
+##     }
+##     set delays [filter $loads {REF_NAME == ZHOLD_DELAY || REF_NAME == IDELAYE2}]
+##     set direct [filter $loads {REF_NAME != ZHOLD_DELAY && REF_NAME != IDELAYE2}]
+##     if {[llength $delays] + [llength $direct] != [llength $loads]} {
+##         # the two halves must account for every load, and they do not when
+##         # the property itself answered nothing: an unknown or renamed one is
+##         # empty for == and for != alike, so both halves come back empty and
+##         # the loads that are really there would go ungraded.
+##         return [list 0 {}]
+##     }
+##     if {[llength $delays] == 0} {
+##         return [list 1 [list $direct]]
+##     }
+##     set taps [get_pins -of_objects $delays -filter \
+##         {REF_PIN_NAME == DATAOUT || REF_PIN_NAME == DLYIFF || REF_PIN_NAME == DLYFABRIC}]
+##     if {[llength $taps] == 0} {
+##         return [list 0 {}]
+##     }
+##     lassign [kl_iob_net_cells $taps IN] reached behind
+##     if {!$reached || [llength $behind] == 0} {
+##         return [list 0 {}]
+##     }
+##     return [list 1 [list $direct $behind]]
+## }
+## proc kl_iob_port_verdict {port} {
+##     set dir [get_property DIRECTION $port]
+##     if {$dir ni {IN OUT}} {
+##         return [list FAIL "direction $dir is not checked; only IN and OUT ports are"]
+##     }
+##     set site [expr {$dir eq "OUT" ? "OLOGIC" : "ILOGIC"}]
+##     set nets [get_nets -of_objects $port]
+##     if {[llength $nets] == 0} {
+##         # nothing drives or reads the pin, so synthesis kept neither net nor
+##         # buffer for it (eth0_rx_er): there is no launch or capture edge the
+##         # constraint could protect. The query itself worked - a failed one
+##         # would have raised - so this is a seen absence, not a silent one.
+##         return [list INERT "$dir, the port has no net: nothing drives or reads the pin"]
+##     }
+##     set bufs {}
+##     set pins [get_pins -leaf -of_objects $nets]
+##     if {[llength $pins] > 0} {
+##         set bufs [get_cells -of_objects $pins]
+##     }
+##     if {[llength $bufs] == 0} {
+##         return [list FAIL "$dir, net [join $nets {, }] reaches no cell: this port could not be traversed"]
+##     }
+##     lassign [kl_iob_far_groups $bufs $dir] reached groups
+##     if {!$reached} {
+##         return [list FAIL "$dir, nothing answered behind [join $bufs {, }]: this port could not be traversed"]
+##     }
+##     set regs {}
+##     set logic {}
+##     set wrong {}
+##     set fixed {}
+##     foreach group $groups {
+##         foreach cell $group {
+##             set ref [get_property REF_NAME $cell]
+##             if {$ref eq "GND" || $ref eq "VCC"} {
+##                 lappend fixed "$cell ($ref)"
+##                 continue
+##             }
+##             set loc [get_property LOC $cell]
+##             set what "$cell ($ref @ [expr {$loc eq {} ? {unplaced} : $loc}])"
+##             if {$dir eq "IN" && ![string is true -strict [get_property IS_SEQUENTIAL $cell]]} {
+##                 lappend logic $what
+##                 continue
+##             }
+##             lappend regs $what
+##             if {![string match "${site}_*" $loc]} {
+##                 lappend wrong $what
+##             }
+##         }
+##     }
+##     if {[llength $regs] == 0 && [llength $logic] == 0} {
+##         # the second of the two structures INERT is returned for: every pin
+##         # followed above answered a driver, and every one of them is a
+##         # constant cell. An input cannot arrive here - each hop behind its
+##         # pad buffer answered something or the traversal already failed - and
+##         # an output with no driver at all is the ungradable case, not a pad
+##         # with nothing to pack.
+##         if {$dir eq "OUT" && [llength $fixed] > 0} {
+##             return [list INERT "$dir, nothing to pack behind [join $bufs {, }]: driven by [join $fixed {, }]"]
+##         }
+##         return [list FAIL "$dir, no cell answered behind [join $bufs {, }]: this port could not be traversed"]
+##     }
+##     if {[llength $regs] == 0} {
+##         return [list FAIL "$dir, no register reads the pad, only: [join $logic {, }]"]
+##     }
+##     if {[llength $wrong] > 0} {
+##         return [list FAIL "$dir, not in an $site site: [join $wrong {, }]"]
+##     }
+##     set also [expr {[llength $logic] ? "; also read by [llength $logic] fabric cell(s)" : ""}]
+##     return [list PASS "$dir, [join $regs {, }]$also"]
+## }
+## proc kl_iob_constraint_lines {report} {
+##     set files [glob -nocomplain -directory [file dirname $report] *.xdc]
+##     if {[llength $files] == 0} {
+##         return -1
+##     }
+##     set lines 0
+##     foreach path $files {
+##         set fh [open $path r]
+##         set text [read $fh]
+##         close $fh
+##         foreach line [split $text "\n"] {
+##             if {[regexp -nocase {^[ \t]*set_property[ \t]+IOB[ \t]+TRUE} $line]} {
+##                 incr lines
+##             }
+##         }
+##     }
+##     return $lines
+## }
+## proc kl_iob_pack_check {report} {
+##     set rows {}
+##     set failed {}
+##     set graded {}
+##     foreach port [get_ports] {
+##         # the only -quiet read in this file, because an empty answer is the
+##         # NORMAL one here: most ports carry no IOB property at all. The two
+##         # counts crossed below are what keeps it honest.
+##         if {[string toupper [get_property -quiet IOB $port]] ne "TRUE"} {
+##             continue
+##         }
+##         lappend graded $port
+##         # re-raised, NEVER swallowed: a Vivado ERROR is catchable
+##         # (measured), so this catch is the one place a raise could be turned
+##         # into an absence, and the re-raise going uncaught is what ends the
+##         # batch run, on purpose. A named port is still a stopped build,
+##         # which is why the rule above is structural.
+##         if {[catch {kl_iob_port_verdict $port} answer]} {
+##             # printed first: measured, Vivado does not echo the re-raised
+##             # text when the cause is a Vivado ERROR, so without this line
+##             # no log names the port.
+##             puts "IOB-PACK ERROR: a query, or the code grading it, raised\
+##                 while grading $port"
+##             error "IOB-PACK ERROR: grading $port ended the run: $answer"
+##         }
+##         lassign $answer verdict detail
+##         lappend rows [format "%-5s %s: %s" $verdict $port $detail]
+##         if {$verdict eq "FAIL"} {
+##             lappend failed $port
+##         }
+##     }
+##     set rows [lsort $rows]
+##     set fh [open $report w]
+##     puts $fh "# issue #475: every port constrained IOB TRUE, after placement"
+##     foreach row $rows {
+##         puts $fh $row
+##     }
+##     close $fh
+##     foreach row $rows {
+##         puts "IOB-PACK $row"
+##     }
+##     if {[llength $failed] > 0} {
+##         error "IOB-PACK FAIL: [llength $failed] port(s) constrained IOB TRUE are not in an IOB register after placement, or could not be traversed: [join [lsort $failed] {, }]. An unpacked register is CRITICAL WARNING Place 30-722 made fatal; the other rows are this check refusing to grade what it could not see. See $report."
+##     }
+##     # A run that selected no port would otherwise report a clean result while
+##     # checking nothing. Cross the per-port property read above against the
+##     # same question asked as one filter, and both against the constraints the
+##     # build wrote: the three cannot disagree on a design that packed.
+##     set constrained [get_ports -filter {IOB == TRUE || IOB == true}]
+##     set lines [kl_iob_constraint_lines $report]
+##     if {[llength $rows] != [llength $constrained]} {
+##         set disputed {}
+##         foreach port $constrained {
+##             if {[lsearch -exact $graded $port] < 0} {
+##                 lappend disputed $port
+##             }
+##         }
+##         foreach port $graded {
+##             if {[lsearch -exact $constrained $port] < 0} {
+##                 lappend disputed $port
+##             }
+##         }
+##         error "IOB-PACK ERROR: [llength $rows] port(s) answered IOB TRUE one at a time, but [llength $constrained] match the same filter; the two reads disagree on: [join [lsort $disputed] {, }]. The netlist did not read the same way twice, so this run graded nothing; see $report."
+##     }
+##     if {[llength $rows] == 0 && $lines != 0} {
+##         set why "$lines set_property IOB TRUE line(s) sit in the constraints beside it"
+##         if {$lines < 0} {
+##             set why "no .xdc file sits beside it to say whether that is right"
+##         }
+##         error "IOB-PACK ERROR: no port answered IOB TRUE, so nothing was checked, and $why. A run that selects no port is not a pass; see $report."
+##     }
+##     puts "IOB-PACK OK: [llength $rows] port(s) constrained IOB TRUE checked, none unpacked ($report)"
+## }
+# kl_iob_pack_check alinx_ax7101_iob_pack.rpt
+WARNING: [Vivado 12-1023] No nets matched for command 'get_nets -of_objects eth0_rx_er'.
+IOB-PACK INERT eth0_rx_er: IN, the port has no net: nothing drives or reads the pin
+IOB-PACK PASS  eth0_rx_data[0]: IN, milansoc_milanmac_phy_rx_data_reg[0] (FDRE @ ILOGIC_X0Y120)
+IOB-PACK PASS  eth0_rx_data[1]: IN, milansoc_milanmac_phy_rx_data_reg[1] (FDRE @ ILOGIC_X0Y137)
+IOB-PACK PASS  eth0_rx_data[2]: IN, milansoc_milanmac_phy_rx_data_reg[2] (FDRE @ ILOGIC_X0Y138)
+IOB-PACK PASS  eth0_rx_data[3]: IN, milansoc_milanmac_phy_rx_data_reg[3] (FDRE @ ILOGIC_X0Y130)
+IOB-PACK PASS  eth0_rx_data[4]: IN, milansoc_milanmac_phy_rx_data_reg[4] (FDRE @ ILOGIC_X0Y129)
+IOB-PACK PASS  eth0_rx_data[5]: IN, milansoc_milanmac_phy_rx_data_reg[5] (FDRE @ ILOGIC_X0Y114)
+IOB-PACK PASS  eth0_rx_data[6]: IN, milansoc_milanmac_phy_rx_data_reg[6] (FDRE @ ILOGIC_X0Y113)
+IOB-PACK PASS  eth0_rx_data[7]: IN, milansoc_milanmac_phy_rx_data_reg[7] (FDRE @ ILOGIC_X0Y115)
+IOB-PACK PASS  eth0_rx_dv: IN, milansoc_milanmac_phy_rx_dv_reg (FDRE @ ILOGIC_X0Y119); also read by 4 fabric cell(s)
+IOB-PACK PASS  eth0_tx_data[0]: OUT, eth0_tx_data_reg[0] (FDRE @ OLOGIC_X0Y155)
+IOB-PACK PASS  eth0_tx_data[1]: OUT, eth0_tx_data_reg[1] (FDRE @ OLOGIC_X0Y134)
+IOB-PACK PASS  eth0_tx_data[2]: OUT, eth0_tx_data_reg[2] (FDRE @ OLOGIC_X0Y135)
+IOB-PACK PASS  eth0_tx_data[3]: OUT, eth0_tx_data_reg[3] (FDRE @ OLOGIC_X0Y136)
+IOB-PACK PASS  eth0_tx_data[4]: OUT, eth0_tx_data_reg[4] (FDRE @ OLOGIC_X0Y131)
+IOB-PACK PASS  eth0_tx_data[5]: OUT, eth0_tx_data_reg[5] (FDRE @ OLOGIC_X0Y122)
+IOB-PACK PASS  eth0_tx_data[6]: OUT, eth0_tx_data_reg[6] (FDRE @ OLOGIC_X0Y123)
+IOB-PACK PASS  eth0_tx_data[7]: OUT, eth0_tx_data_reg[7] (FDRE @ OLOGIC_X0Y121)
+IOB-PACK PASS  eth0_tx_en: OUT, eth0_tx_en_reg (FDRE @ OLOGIC_X0Y151)
+IOB-PACK PASS  tdm_bclk: OUT, milan_datapath/g_aif_tdm_master.g_solo.aaf_capture/bclk_r_reg (FDRE @ OLOGIC_X0Y168)
+IOB-PACK PASS  tdm_dout: OUT, milan_datapath/g_tdm_render_live.g_master.chan_tdm_render/tdm_dout_o_reg (FDRE @ OLOGIC_X0Y167)
+IOB-PACK PASS  tdm_fsync: OUT, milan_datapath/g_aif_tdm_master.g_solo.aaf_capture/fsync_r_reg (FDSE @ OLOGIC_X0Y164)
+IOB-PACK OK: 22 port(s) constrained IOB TRUE checked, none unpacked (alinx_ax7101_iob_pack.rpt)
+# route_design -directive AggressiveExplore
+Command: route_design -directive AggressiveExplore
+Attempting to get a license for feature 'Vivado_Implementation' and/or device 'xc7a100t'
+INFO: [Common 17-349] Got license for feature 'Vivado_Implementation' and/or device 'xc7a100t'
+INFO: [DRC 23-27] Running DRC with 16 threads
+INFO: [Vivado_Tcl 4-198] DRC finished with 0 Errors
+INFO: [Vivado_Tcl 4-199] Please refer to the DRC report (report_drc) for more information.
+
+
+Starting Routing Task
+INFO: [Route 35-270] Using Router directive 'AggressiveExplore'.
+INFO: [Route 35-254] Multithreading enabled for route_design using a maximum of 16 CPUs
+
+Phase 1 Build RT Design
+Checksum: PlaceDB: be1730d4 ConstDB: 0 ShapeSum: 4bf13d83 RouteDB: b1d25f96
+Post Restoration Checksum: NetGraph: b1fc68cb | NumContArr: 7c8b3a25 | Constraints: c2a8fa9d | Timing: c2a8fa9d
+Phase 1 Build RT Design | Checksum: 2b3d9982a
+
+Time (s): cpu = 00:00:50 ; elapsed = 00:00:20 . Memory (MB): peak = 4147.875 ; gain = 0.000 ; free physical = 3334 ; free virtual = 78192
+
+Phase 2 Router Initialization
+
+Phase 2.1 Fix Topology Constraints
+Phase 2.1 Fix Topology Constraints | Checksum: 2b3d9982a
+
+Time (s): cpu = 00:00:50 ; elapsed = 00:00:21 . Memory (MB): peak = 4147.875 ; gain = 0.000 ; free physical = 3858 ; free virtual = 78717
+
+Phase 2.2 Pre Route Cleanup
+Phase 2.2 Pre Route Cleanup | Checksum: 2b3d9982a
+
+Time (s): cpu = 00:00:51 ; elapsed = 00:00:21 . Memory (MB): peak = 4147.875 ; gain = 0.000 ; free physical = 3741 ; free virtual = 78600
+
+Phase 2.3 Update Timing
+Phase 2.3 Update Timing | Checksum: 1e38a336a
+
+Time (s): cpu = 00:01:43 ; elapsed = 00:00:30 . Memory (MB): peak = 4147.875 ; gain = 0.000 ; free physical = 3366 ; free virtual = 78342
+INFO: [Route 35-416] Intermediate Timing Summary | WNS=0.144  | TNS=0.000  | WHS=-0.376 | THS=-915.597|
+
+
+Phase 2.4 Soft Constraint Pins - Fast Budgeting
+Phase 2.4 Soft Constraint Pins - Fast Budgeting | Checksum: 17f2dcda4
+
+Time (s): cpu = 00:02:05 ; elapsed = 00:00:33 . Memory (MB): peak = 4147.875 ; gain = 0.000 ; free physical = 3598 ; free virtual = 78465
+
+Router Utilization Summary
+  Global Vertical Routing Utilization    = 0 %
+  Global Horizontal Routing Utilization  = 0 %
+  Routable Net Status*
+  *Does not include unroutable nets such as driverless and loadless.
+  Run report_route_status for detailed report.
+  Number of Failed Nets               = 96813
+    (Failed Nets is the sum of unrouted and partially routed nets)
+  Number of Unrouted Nets             = 96812
+  Number of Partially Routed Nets     = 1
+  Number of Node Overlaps             = 20
+
+Phase 2 Router Initialization | Checksum: 208c5c9b4
+
+Time (s): cpu = 00:02:06 ; elapsed = 00:00:34 . Memory (MB): peak = 4147.875 ; gain = 0.000 ; free physical = 3359 ; free virtual = 78251
+
+Phase 3 Global Routing
+Phase 3 Global Routing | Checksum: 208c5c9b4
+
+Time (s): cpu = 00:02:06 ; elapsed = 00:00:34 . Memory (MB): peak = 4147.875 ; gain = 0.000 ; free physical = 3302 ; free virtual = 78182
+
+Phase 4 Initial Routing
+
+Phase 4.1 Initial Net Routing Pass
+Phase 4.1 Initial Net Routing Pass | Checksum: 2843340b5
+
+Time (s): cpu = 00:02:37 ; elapsed = 00:00:42 . Memory (MB): peak = 4147.875 ; gain = 0.000 ; free physical = 5038 ; free virtual = 79892
+Phase 4 Initial Routing | Checksum: 2843340b5
+
+Time (s): cpu = 00:02:38 ; elapsed = 00:00:42 . Memory (MB): peak = 4147.875 ; gain = 0.000 ; free physical = 5162 ; free virtual = 80016
+INFO: [Route 35-580] Design has 1 pins with tight setup and hold constraints.
+
+The top 5 pins with tight setup and hold constraints:
+
++======================+======================+=========================================================================================================+
+| Launch Setup Clock   | Launch Hold Clock    | Pin                                                                                                     |
++======================+======================+=========================================================================================================+
+| milansoc_crg_clkout0 | milansoc_crg_clkout0 | VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/vexiis_0_logic_core/fetch_logic_ctrls_1_up_valid_reg/D |
++----------------------+----------------------+---------------------------------------------------------------------------------------------------------+
+
+File with complete list of pins: tight_setup_hold_pins.txt
+
+
+Phase 5 Rip-up And Reroute
+
+Phase 5.1 Global Iteration 0
+ Number of Nodes with overlaps = 22541
+ Number of Nodes with overlaps = 3840
+ Number of Nodes with overlaps = 1094
+ Number of Nodes with overlaps = 313
+ Number of Nodes with overlaps = 93
+ Number of Nodes with overlaps = 24
+ Number of Nodes with overlaps = 12
+ Number of Nodes with overlaps = 4
+ Number of Nodes with overlaps = 2
+ Number of Nodes with overlaps = 0
+INFO: [Route 35-416] Intermediate Timing Summary | WNS=-1.456 | TNS=-521.668| WHS=N/A    | THS=N/A    |
+
+Phase 5.1 Global Iteration 0 | Checksum: 1dfeeaad0
+
+Time (s): cpu = 00:06:15 ; elapsed = 00:02:28 . Memory (MB): peak = 4147.875 ; gain = 0.000 ; free physical = 2566 ; free virtual = 77408
+
+Phase 5.2 Global Iteration 1
+ Number of Nodes with overlaps = 5126
+ Number of Nodes with overlaps = 1748
+ Number of Nodes with overlaps = 698
+ Number of Nodes with overlaps = 242
+ Number of Nodes with overlaps = 151
+ Number of Nodes with overlaps = 70
+ Number of Nodes with overlaps = 37
+ Number of Nodes with overlaps = 35
+ Number of Nodes with overlaps = 10
+ Number of Nodes with overlaps = 10
+ Number of Nodes with overlaps = 3
+ Number of Nodes with overlaps = 1
+ Number of Nodes with overlaps = 0
+INFO: [Route 35-416] Intermediate Timing Summary | WNS=-0.621 | TNS=-36.306| WHS=N/A    | THS=N/A    |
+
+Phase 5.2 Global Iteration 1 | Checksum: 208b11baf
+
+Time (s): cpu = 00:08:21 ; elapsed = 00:03:19 . Memory (MB): peak = 4147.875 ; gain = 0.000 ; free physical = 6297 ; free virtual = 79769
+
+Phase 5.3 Global Iteration 2
+ Number of Nodes with overlaps = 3899
+ Number of Nodes with overlaps = 1077
+ Number of Nodes with overlaps = 418
+ Number of Nodes with overlaps = 282
+ Number of Nodes with overlaps = 131
+ Number of Nodes with overlaps = 74
+ Number of Nodes with overlaps = 59
+ Number of Nodes with overlaps = 35
+ Number of Nodes with overlaps = 24
+ Number of Nodes with overlaps = 16
+ Number of Nodes with overlaps = 5
+ Number of Nodes with overlaps = 9
+ Number of Nodes with overlaps = 4
+ Number of Nodes with overlaps = 3
+ Number of Nodes with overlaps = 4
+ Number of Nodes with overlaps = 3
+ Number of Nodes with overlaps = 2
+ Number of Nodes with overlaps = 1
+ Number of Nodes with overlaps = 0
+INFO: [Route 35-416] Intermediate Timing Summary | WNS=-0.321 | TNS=-3.504 | WHS=N/A    | THS=N/A    |
+
+Phase 5.3 Global Iteration 2 | Checksum: 2552e787d
+
+Time (s): cpu = 00:10:36 ; elapsed = 00:04:15 . Memory (MB): peak = 4147.875 ; gain = 0.000 ; free physical = 7258 ; free virtual = 77943
+
+Phase 5.4 Global Iteration 3
+ Number of Nodes with overlaps = 3545
+ Number of Nodes with overlaps = 1005
+ Number of Nodes with overlaps = 494
+ Number of Nodes with overlaps = 268
+ Number of Nodes with overlaps = 210
+ Number of Nodes with overlaps = 120
+ Number of Nodes with overlaps = 48
+ Number of Nodes with overlaps = 51
+ Number of Nodes with overlaps = 21
+ Number of Nodes with overlaps = 33
+ Number of Nodes with overlaps = 17
+ Number of Nodes with overlaps = 10
+ Number of Nodes with overlaps = 7
+ Number of Nodes with overlaps = 4
+ Number of Nodes with overlaps = 1
+ Number of Nodes with overlaps = 1
+ Number of Nodes with overlaps = 2
+ Number of Nodes with overlaps = 2
+ Number of Nodes with overlaps = 1
+ Number of Nodes with overlaps = 0
+INFO: [Route 35-416] Intermediate Timing Summary | WNS=-0.359 | TNS=-4.527 | WHS=N/A    | THS=N/A    |
+
+Phase 5.4 Global Iteration 3 | Checksum: 23b8730b9
+
+Time (s): cpu = 00:12:46 ; elapsed = 00:05:12 . Memory (MB): peak = 4147.875 ; gain = 0.000 ; free physical = 6861 ; free virtual = 78350
+Phase 5 Rip-up And Reroute | Checksum: 23b8730b9
+
+Time (s): cpu = 00:12:46 ; elapsed = 00:05:12 . Memory (MB): peak = 4147.875 ; gain = 0.000 ; free physical = 6861 ; free virtual = 78353
+
+Phase 6 Delay and Skew Optimization
+
+Phase 6.1 Delay CleanUp
+
+Phase 6.1.1 Update Timing
+Phase 6.1.1 Update Timing | Checksum: 1d97a6735
+
+Time (s): cpu = 00:12:56 ; elapsed = 00:05:13 . Memory (MB): peak = 4147.875 ; gain = 0.000 ; free physical = 6572 ; free virtual = 78071
+INFO: [Route 35-416] Intermediate Timing Summary | WNS=-0.247 | TNS=-1.804 | WHS=N/A    | THS=N/A    |
+
+ Number of Nodes with overlaps = 0
+Phase 6.1 Delay CleanUp | Checksum: 2004f9661
+
+Time (s): cpu = 00:12:59 ; elapsed = 00:05:14 . Memory (MB): peak = 4147.875 ; gain = 0.000 ; free physical = 6678 ; free virtual = 78209
+
+Phase 6.2 Clock Skew Optimization
+Phase 6.2 Clock Skew Optimization | Checksum: 2004f9661
+
+Time (s): cpu = 00:12:59 ; elapsed = 00:05:14 . Memory (MB): peak = 4147.875 ; gain = 0.000 ; free physical = 6674 ; free virtual = 78206
+Phase 6 Delay and Skew Optimization | Checksum: 2004f9661
+
+Time (s): cpu = 00:12:59 ; elapsed = 00:05:14 . Memory (MB): peak = 4147.875 ; gain = 0.000 ; free physical = 6668 ; free virtual = 78200
+
+Phase 7 Post Hold Fix
+
+Phase 7.1 Hold Fix Iter
+INFO: [Route 35-416] Intermediate Timing Summary | WNS=-0.247 | TNS=-1.804 | WHS=0.035  | THS=0.000  |
+
+Phase 7.1 Hold Fix Iter | Checksum: 17a75aff1
+
+Time (s): cpu = 00:13:11 ; elapsed = 00:05:15 . Memory (MB): peak = 4147.875 ; gain = 0.000 ; free physical = 6060 ; free virtual = 77624
+Phase 7 Post Hold Fix | Checksum: 17a75aff1
+
+Time (s): cpu = 00:13:12 ; elapsed = 00:05:15 . Memory (MB): peak = 4147.875 ; gain = 0.000 ; free physical = 6060 ; free virtual = 77624
+
+Phase 8 Timing Verification
+
+Phase 8.1 Update Timing
+Phase 8.1 Update Timing | Checksum: 17b689b54
+
+Time (s): cpu = 00:13:27 ; elapsed = 00:05:16 . Memory (MB): peak = 4147.875 ; gain = 0.000 ; free physical = 7060 ; free virtual = 78628
+INFO: [Route 35-416] Intermediate Timing Summary | WNS=-0.247 | TNS=-1.804 | WHS=0.035  | THS=0.000  |
+
+Phase 8 Timing Verification | Checksum: 17b689b54
+
+Time (s): cpu = 00:13:27 ; elapsed = 00:05:16 . Memory (MB): peak = 4147.875 ; gain = 0.000 ; free physical = 7060 ; free virtual = 78628
+
+Phase 9 Route finalize
+
+Router Utilization Summary
+  Global Vertical Routing Utilization    = 35.709 %
+  Global Horizontal Routing Utilization  = 38.9129 %
+  Routable Net Status*
+  *Does not include unroutable nets such as driverless and loadless.
+  Run report_route_status for detailed report.
+  Number of Failed Nets               = 0
+    (Failed Nets is the sum of unrouted and partially routed nets)
+  Number of Unrouted Nets             = 0
+  Number of Partially Routed Nets     = 0
+  Number of Node Overlaps             = 0
+
+
+--GLOBAL Congestion:
+Utilization threshold used for congestion level computation: 0.85
+Congestion Report
+North Dir 1x1 Area, Max Cong = 100%, Congestion bounded by tiles (Lower Left Tile -> Upper Right Tile):
+   INT_L_X28Y143 -> INT_L_X28Y143
+   INT_L_X44Y139 -> INT_L_X44Y139
+   INT_L_X44Y138 -> INT_L_X44Y138
+   INT_R_X39Y133 -> INT_R_X39Y133
+   INT_R_X29Y132 -> INT_R_X29Y132
+South Dir 2x2 Area, Max Cong = 88.7387%, Congestion bounded by tiles (Lower Left Tile -> Upper Right Tile):
+   INT_L_X44Y114 -> INT_R_X45Y115
+   INT_L_X42Y108 -> INT_R_X43Y109
+   INT_L_X40Y92 -> INT_R_X41Y93
+   INT_L_X38Y90 -> INT_R_X39Y91
+   INT_L_X40Y90 -> INT_R_X41Y91
+East Dir 2x2 Area, Max Cong = 88.2353%, Congestion bounded by tiles (Lower Left Tile -> Upper Right Tile):
+   INT_L_X38Y98 -> INT_R_X39Y99
+   INT_L_X38Y96 -> INT_R_X39Y97
+   INT_L_X40Y86 -> INT_R_X41Y87
+West Dir 2x2 Area, Max Cong = 90.0735%, Congestion bounded by tiles (Lower Left Tile -> Upper Right Tile):
+   INT_L_X46Y90 -> INT_R_X47Y91
+   INT_L_X16Y18 -> INT_R_X17Y19
+   INT_L_X26Y14 -> INT_R_X27Y15
+   INT_L_X16Y12 -> INT_R_X17Y13
+   INT_L_X24Y12 -> INT_R_X25Y13
+
+------------------------------
+Reporting congestion hotspots
+------------------------------
+Direction: North
+----------------
+Congested clusters found at Level 0
+Effective congestion level: 1 Aspect Ratio: 0.5 Sparse Ratio: 0.5
+Direction: South
+----------------
+Congested clusters found at Level 1
+Effective congestion level: 2 Aspect Ratio: 0.75 Sparse Ratio: 1.75
+Direction: East
+----------------
+Congested clusters found at Level 0
+Effective congestion level: 2 Aspect Ratio: 0.666667 Sparse Ratio: 0.625
+Direction: West
+----------------
+Congested clusters found at Level 1
+Effective congestion level: 2 Aspect Ratio: 0.666667 Sparse Ratio: 1
+
+Phase 9 Route finalize | Checksum: 17b689b54
+
+Time (s): cpu = 00:13:28 ; elapsed = 00:05:17 . Memory (MB): peak = 4147.875 ; gain = 0.000 ; free physical = 7033 ; free virtual = 78598
+
+Phase 10 Verifying routed nets
+
+ Verification completed successfully
+Phase 10 Verifying routed nets | Checksum: 17b689b54
+
+Time (s): cpu = 00:13:28 ; elapsed = 00:05:17 . Memory (MB): peak = 4147.875 ; gain = 0.000 ; free physical = 7020 ; free virtual = 78587
+
+Phase 11 Depositing Routes
+Phase 11 Depositing Routes | Checksum: 14fad150d
+
+Time (s): cpu = 00:13:36 ; elapsed = 00:05:21 . Memory (MB): peak = 4147.875 ; gain = 0.000 ; free physical = 6796 ; free virtual = 78413
+
+Phase 12 Incr Placement Change
+Netlist sorting complete. Time (s): cpu = 00:00:00.01 ; elapsed = 00:00:00.01 . Memory (MB): peak = 4147.875 ; gain = 0.000 ; free physical = 6933 ; free virtual = 78559
+INFO: [Place 30-746] Post Placement Timing Summary WNS=0.447. For the most accurate timing information please run report_timing.
+Ending IncrPlace Task | Checksum: 1745fb90e
+
+Time (s): cpu = 00:01:32 ; elapsed = 00:00:33 . Memory (MB): peak = 4147.875 ; gain = 0.000 ; free physical = 5497 ; free virtual = 75194
+Phase 12 Incr Placement Change | Checksum: 1745fb90e
+
+Time (s): cpu = 00:15:09 ; elapsed = 00:05:54 . Memory (MB): peak = 4147.875 ; gain = 0.000 ; free physical = 5439 ; free virtual = 75136
+
+Phase 13 Build RT Design
+Checksum: PlaceDB: 2b7f125a ConstDB: 0 ShapeSum: 7c7e8a5f RouteDB: cc621c55
+Post Restoration Checksum: NetGraph: b2648c63 | NumContArr: f2eff06f | Constraints: c2a8fa9d | Timing: c2a8fa9d
+Phase 13 Build RT Design | Checksum: 32aa6720c
+
+Time (s): cpu = 00:15:45 ; elapsed = 00:06:01 . Memory (MB): peak = 4147.875 ; gain = 0.000 ; free physical = 5875 ; free virtual = 75669
+
+Phase 14 Router Initialization
+
+Phase 14.1 Fix Topology Constraints
+Phase 14.1 Fix Topology Constraints | Checksum: 32aa6720c
+
+Time (s): cpu = 00:15:46 ; elapsed = 00:06:01 . Memory (MB): peak = 4147.875 ; gain = 0.000 ; free physical = 6467 ; free virtual = 76260
+
+Phase 14.2 Pre Route Cleanup
+Phase 14.2 Pre Route Cleanup | Checksum: 2615d1db6
+
+Time (s): cpu = 00:15:47 ; elapsed = 00:06:01 . Memory (MB): peak = 4147.875 ; gain = 0.000 ; free physical = 6359 ; free virtual = 76167
+ Number of Nodes with overlaps = 0
+
+Phase 14.3 Update Timing
+Phase 14.3 Update Timing | Checksum: 2cc781331
+
+Time (s): cpu = 00:16:43 ; elapsed = 00:06:10 . Memory (MB): peak = 4147.875 ; gain = 0.000 ; free physical = 7823 ; free virtual = 77609
+INFO: [Route 35-416] Intermediate Timing Summary | WNS=0.373  | TNS=0.000  | WHS=-0.376 | THS=-910.631|
+
+
+Phase 14.4 Soft Constraint Pins - Fast Budgeting
+Phase 14.4 Soft Constraint Pins - Fast Budgeting | Checksum: 3337490b5
+
+Time (s): cpu = 00:17:04 ; elapsed = 00:06:14 . Memory (MB): peak = 4147.875 ; gain = 0.000 ; free physical = 8458 ; free virtual = 78248
+
+Router Utilization Summary
+  Global Vertical Routing Utilization    = 35.6611 %
+  Global Horizontal Routing Utilization  = 38.8617 %
+  Routable Net Status*
+  *Does not include unroutable nets such as driverless and loadless.
+  Run report_route_status for detailed report.
+  Number of Failed Nets               = 412
+    (Failed Nets is the sum of unrouted and partially routed nets)
+  Number of Unrouted Nets             = 164
+  Number of Partially Routed Nets     = 248
+  Number of Node Overlaps             = 0
+
+Phase 14 Router Initialization | Checksum: 3104e1590
+
+Time (s): cpu = 00:17:05 ; elapsed = 00:06:14 . Memory (MB): peak = 4147.875 ; gain = 0.000 ; free physical = 8341 ; free virtual = 78132
+
+Phase 15 Global Routing
+Phase 15 Global Routing | Checksum: 3104e1590
+
+Time (s): cpu = 00:17:06 ; elapsed = 00:06:14 . Memory (MB): peak = 4147.875 ; gain = 0.000 ; free physical = 8320 ; free virtual = 78111
+
+Phase 16 Initial Routing
+
+Phase 16.1 Initial Net Routing Pass
+Phase 16.1 Initial Net Routing Pass | Checksum: 3832e1de3
+
+Time (s): cpu = 00:17:07 ; elapsed = 00:06:14 . Memory (MB): peak = 4147.875 ; gain = 0.000 ; free physical = 7924 ; free virtual = 77715
+Phase 16 Initial Routing | Checksum: 3832e1de3
+
+Time (s): cpu = 00:17:08 ; elapsed = 00:06:15 . Memory (MB): peak = 4147.875 ; gain = 0.000 ; free physical = 7925 ; free virtual = 77716
+INFO: [Route 35-580] Design has 1 pins with tight setup and hold constraints.
+
+The top 5 pins with tight setup and hold constraints:
+
++======================+======================+=========================================================================================================+
+| Launch Setup Clock   | Launch Hold Clock    | Pin                                                                                                     |
++======================+======================+=========================================================================================================+
+| milansoc_crg_clkout0 | milansoc_crg_clkout0 | VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/vexiis_0_logic_core/fetch_logic_ctrls_1_up_valid_reg/D |
++----------------------+----------------------+---------------------------------------------------------------------------------------------------------+
+
+File with complete list of pins: tight_setup_hold_pins.txt
+
+
+Phase 17 Rip-up And Reroute
+
+Phase 17.1 Global Iteration 0
+ Number of Nodes with overlaps = 2280
+ Number of Nodes with overlaps = 1303
+ Number of Nodes with overlaps = 649
+ Number of Nodes with overlaps = 389
+ Number of Nodes with overlaps = 193
+ Number of Nodes with overlaps = 102
+ Number of Nodes with overlaps = 60
+ Number of Nodes with overlaps = 38
+ Number of Nodes with overlaps = 26
+ Number of Nodes with overlaps = 23
+ Number of Nodes with overlaps = 16
+ Number of Nodes with overlaps = 13
+ Number of Nodes with overlaps = 9
+ Number of Nodes with overlaps = 5
+ Number of Nodes with overlaps = 4
+ Number of Nodes with overlaps = 2
+ Number of Nodes with overlaps = 3
+ Number of Nodes with overlaps = 3
+ Number of Nodes with overlaps = 1
+ Number of Nodes with overlaps = 1
+ Number of Nodes with overlaps = 0
+INFO: [Route 35-416] Intermediate Timing Summary | WNS=-0.016 | TNS=-0.033 | WHS=N/A    | THS=N/A    |
+
+Phase 17.1 Global Iteration 0 | Checksum: 2458ef9f7
+
+Time (s): cpu = 00:19:23 ; elapsed = 00:07:03 . Memory (MB): peak = 4147.875 ; gain = 0.000 ; free physical = 7416 ; free virtual = 77644
+
+Phase 17.2 Global Iteration 1
+ Number of Nodes with overlaps = 3440
+ Number of Nodes with overlaps = 1171
+ Number of Nodes with overlaps = 522
+ Number of Nodes with overlaps = 334
+ Number of Nodes with overlaps = 82
+ Number of Nodes with overlaps = 43
+ Number of Nodes with overlaps = 32
+ Number of Nodes with overlaps = 11
+ Number of Nodes with overlaps = 8
+ Number of Nodes with overlaps = 6
+ Number of Nodes with overlaps = 3
+ Number of Nodes with overlaps = 3
+ Number of Nodes with overlaps = 5
+ Number of Nodes with overlaps = 1
+ Number of Nodes with overlaps = 1
+ Number of Nodes with overlaps = 1
+ Number of Nodes with overlaps = 1
+ Number of Nodes with overlaps = 0
+INFO: [Route 35-416] Intermediate Timing Summary | WNS=0.291  | TNS=0.000  | WHS=N/A    | THS=N/A    |
+
+Phase 17.2 Global Iteration 1 | Checksum: 24d75d5ac
+
+Time (s): cpu = 00:20:51 ; elapsed = 00:07:39 . Memory (MB): peak = 4147.875 ; gain = 0.000 ; free physical = 8383 ; free virtual = 78728
+Phase 17 Rip-up And Reroute | Checksum: 24d75d5ac
+
+Time (s): cpu = 00:20:51 ; elapsed = 00:07:39 . Memory (MB): peak = 4147.875 ; gain = 0.000 ; free physical = 8379 ; free virtual = 78724
+
+Phase 18 Delay and Skew Optimization
+
+Phase 18.1 Delay CleanUp
+Phase 18.1 Delay CleanUp | Checksum: 24d75d5ac
+
+Time (s): cpu = 00:20:52 ; elapsed = 00:07:39 . Memory (MB): peak = 4147.875 ; gain = 0.000 ; free physical = 8307 ; free virtual = 78652
+
+Phase 18.2 Clock Skew Optimization
+Phase 18.2 Clock Skew Optimization | Checksum: 24d75d5ac
+
+Time (s): cpu = 00:20:52 ; elapsed = 00:07:39 . Memory (MB): peak = 4147.875 ; gain = 0.000 ; free physical = 8303 ; free virtual = 78648
+Phase 18 Delay and Skew Optimization | Checksum: 24d75d5ac
+
+Time (s): cpu = 00:20:52 ; elapsed = 00:07:39 . Memory (MB): peak = 4147.875 ; gain = 0.000 ; free physical = 8297 ; free virtual = 78643
+
+Phase 19 Post Hold Fix
+
+Phase 19.1 Hold Fix Iter
+INFO: [Route 35-416] Intermediate Timing Summary | WNS=0.291  | TNS=0.000  | WHS=0.035  | THS=0.000  |
+
+Phase 19.1 Hold Fix Iter | Checksum: 261ecf453
+
+Time (s): cpu = 00:21:05 ; elapsed = 00:07:40 . Memory (MB): peak = 4147.875 ; gain = 0.000 ; free physical = 8481 ; free virtual = 78828
+Phase 19 Post Hold Fix | Checksum: 261ecf453
+
+Time (s): cpu = 00:21:05 ; elapsed = 00:07:40 . Memory (MB): peak = 4147.875 ; gain = 0.000 ; free physical = 8473 ; free virtual = 78821
+
+Phase 20 Timing Verification
+
+Phase 20.1 Update Timing
+Phase 20.1 Update Timing | Checksum: 261ecf453
+
+Time (s): cpu = 00:21:21 ; elapsed = 00:07:41 . Memory (MB): peak = 4147.875 ; gain = 0.000 ; free physical = 8995 ; free virtual = 79344
+INFO: [Route 35-416] Intermediate Timing Summary | WNS=0.291  | TNS=0.000  | WHS=0.035  | THS=0.000  |
+
+Phase 20 Timing Verification | Checksum: 261ecf453
+
+Time (s): cpu = 00:21:22 ; elapsed = 00:07:41 . Memory (MB): peak = 4147.875 ; gain = 0.000 ; free physical = 9031 ; free virtual = 79379
+
+Phase 21 Route finalize
+
+Router Utilization Summary
+  Global Vertical Routing Utilization    = 35.7027 %
+  Global Horizontal Routing Utilization  = 38.9494 %
+  Routable Net Status*
+  *Does not include unroutable nets such as driverless and loadless.
+  Run report_route_status for detailed report.
+  Number of Failed Nets               = 0
+    (Failed Nets is the sum of unrouted and partially routed nets)
+  Number of Unrouted Nets             = 0
+  Number of Partially Routed Nets     = 0
+  Number of Node Overlaps             = 0
+
+Phase 21 Route finalize | Checksum: 261ecf453
+
+Time (s): cpu = 00:21:22 ; elapsed = 00:07:42 . Memory (MB): peak = 4147.875 ; gain = 0.000 ; free physical = 8979 ; free virtual = 79328
+
+Phase 22 Verifying routed nets
+
+ Verification completed successfully
+Phase 22 Verifying routed nets | Checksum: 261ecf453
+
+Time (s): cpu = 00:21:23 ; elapsed = 00:07:42 . Memory (MB): peak = 4147.875 ; gain = 0.000 ; free physical = 9025 ; free virtual = 79374
+
+Phase 23 Depositing Routes
+Phase 23 Depositing Routes | Checksum: 1cb8936a9
+
+Time (s): cpu = 00:21:30 ; elapsed = 00:07:46 . Memory (MB): peak = 4147.875 ; gain = 0.000 ; free physical = 8976 ; free virtual = 79333
+INFO: [Route 72-16] Aggressive Explore Summary
++======+========+=====+=======+=====+========+==============+===================+
+| Pass |  WNS   | TNS |  WHS  | THS | Status | Elapsed Time | Solution Selected |
++======+========+=====+=======+=====+========+==============+===================+
+|  1   | -0.247 |  -  | 0.035 |  -  |  Pass  |   00:05:00   |                   |
+|  2   | 0.291  |  -  | 0.035 |  -  |  Pass  |   00:01:44   |         x         |
++------+--------+-----+-------+-----+--------+--------------+-------------------+
+
+
+Phase 24 Post Process Routing
+Phase 24 Post Process Routing | Checksum: 1cb8936a9
+
+Time (s): cpu = 00:21:30 ; elapsed = 00:07:46 . Memory (MB): peak = 4147.875 ; gain = 0.000 ; free physical = 9174 ; free virtual = 79533
+
+Phase 25 Post Router Timing
+INFO: [Route 35-20] Post Routing Timing Summary | WNS=0.295  | TNS=0.000  | WHS=0.036  | THS=0.000  |
+
+Phase 25 Post Router Timing | Checksum: 11a67d807
+
+Time (s): cpu = 00:22:15 ; elapsed = 00:07:50 . Memory (MB): peak = 4147.875 ; gain = 0.000 ; free physical = 15836 ; free virtual = 86213
+INFO: [Route 35-61] The design met the setup and hold requirement.
+Total Elapsed time in route_design: 470.48 secs
+
+Phase 26 Post-Route Event Processing
+Phase 26 Post-Route Event Processing | Checksum: 10c31b0c4
+
+Time (s): cpu = 00:22:16 ; elapsed = 00:07:51 . Memory (MB): peak = 4147.875 ; gain = 0.000 ; free physical = 15910 ; free virtual = 86288
+INFO: [Route 35-16] Router Completed Successfully
+Ending Routing Task | Checksum: 10c31b0c4
+
+Time (s): cpu = 00:22:16 ; elapsed = 00:07:51 . Memory (MB): peak = 4147.875 ; gain = 0.000 ; free physical = 15914 ; free virtual = 86292
+
+Routing Is Done.
+INFO: [Common 17-83] Releasing license: Vivado_Implementation
+27 Infos, 0 Warnings, 0 Critical Warnings and 0 Errors encountered.
+route_design completed successfully
+route_design: Time (s): cpu = 00:22:20 ; elapsed = 00:07:52 . Memory (MB): peak = 4147.875 ; gain = 138.266 ; free physical = 15997 ; free virtual = 86375
+# phys_opt_design -directive AggressiveExplore
+Command: phys_opt_design -directive AggressiveExplore
+Attempting to get a license for feature 'Vivado_Implementation' and/or device 'xc7a100t'
+INFO: [Common 17-349] Got license for feature 'Vivado_Implementation' and/or device 'xc7a100t'
+INFO: [Vivado_Tcl 4-241] Physical synthesis in post route mode 
+INFO: [Vivado_Tcl 4-137] Directive used for phys_opt_design is: AggressiveExplore
+
+Starting Initial Update Timing Task
+
+Time (s): cpu = 00:00:32 ; elapsed = 00:00:04 . Memory (MB): peak = 4147.875 ; gain = 0.000 ; free physical = 18275 ; free virtual = 88649
+INFO: [Vivado_Tcl 4-2280] Estimated Timing Summary | WNS= 0.295 | TNS= 0.000 | WHS= 0.036 |
+INFO: [Vivado_Tcl 4-383] Design worst setup slack (WNS) is greater than or equal to 0.000 ns. All physical synthesis setup optimizations will be skipped.
+INFO: [Vivado_Tcl 4-2291] Design worst hold slack (WHS) is greater than or equal to 0.000 ns. Hold fix optimization will be skipped.
+ 
+INFO: [Vivado_Tcl 4-232] No setup violation found. The netlist was not modified.
+INFO: [Common 17-83] Releasing license: Vivado_Implementation
+8 Infos, 0 Warnings, 0 Critical Warnings and 0 Errors encountered.
+phys_opt_design completed successfully
+phys_opt_design: Time (s): cpu = 00:00:43 ; elapsed = 00:00:08 . Memory (MB): peak = 4147.875 ; gain = 0.000 ; free physical = 18374 ; free virtual = 88748
+# write_checkpoint -force alinx_ax7101_route.dcp
+INFO: [Timing 38-480] Writing timing data to binary archive.
+Wrote PlaceDB: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 4147.875 ; gain = 0.000 ; free physical = 18363 ; free virtual = 88737
+Wrote PulsedLatchDB: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 4147.875 ; gain = 0.000 ; free physical = 18363 ; free virtual = 88737
+Writing XDEF routing.
+Writing XDEF routing logical nets.
+Write ShapeDB Complete: Time (s): cpu = 00:00:00.66 ; elapsed = 00:00:00.14 . Memory (MB): peak = 4147.875 ; gain = 0.000 ; free physical = 18291 ; free virtual = 88677
+Writing XDEF routing special nets.
+Wrote RouteStorage: Time (s): cpu = 00:00:04 ; elapsed = 00:00:00.79 . Memory (MB): peak = 4147.875 ; gain = 0.000 ; free physical = 18332 ; free virtual = 88747
+Wrote PlaceStorage: Time (s): cpu = 00:00:04 ; elapsed = 00:00:02 . Memory (MB): peak = 4147.875 ; gain = 0.000 ; free physical = 18430 ; free virtual = 88914
+Wrote Netlist Cache: Time (s): cpu = 00:00:00.09 ; elapsed = 00:00:00.09 . Memory (MB): peak = 4147.875 ; gain = 0.000 ; free physical = 18461 ; free virtual = 88955
+Wrote Device Cache: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.01 . Memory (MB): peak = 4147.875 ; gain = 0.000 ; free physical = 18449 ; free virtual = 88944
+Write Physdb Complete: Time (s): cpu = 00:00:07 ; elapsed = 00:00:03 . Memory (MB): peak = 4147.875 ; gain = 0.000 ; free physical = 18428 ; free virtual = 88924
+INFO: [Common 17-1381] The checkpoint '$SCRATCH/route/endstation_ax7101_8x8/gateware/AltSpreadLogic_high/alinx_ax7101_route.dcp' has been generated.
+write_checkpoint: Time (s): cpu = 00:00:10 ; elapsed = 00:00:05 . Memory (MB): peak = 4147.875 ; gain = 0.000 ; free physical = 15665 ; free virtual = 86129
+# report_timing_summary -no_header -no_detailed_paths
+INFO: [Timing 38-91] UpdateTimingParams: Speed grade: -2, Delay Type: min_max.
+INFO: [Timing 38-191] Multithreading enabled for timing update using a maximum of 16 CPUs
+------------------------------------------------------------------------------------------------
+| Timer Settings
+| --------------
+------------------------------------------------------------------------------------------------
+
+  Enable Multi Corner Analysis               :  Yes
+  Enable Pessimism Removal                   :  Yes
+  Pessimism Removal Resolution               :  Nearest Common Node
+  Enable Input Delay Default Clock           :  No
+  Enable Preset / Clear Arcs                 :  No
+  Disable Flight Delays                      :  No
+  Ignore I/O Paths                           :  No
+  Timing Early Launch at Borrowing Latches   :  No
+  Borrow Time for Max Delay Exceptions       :  Yes
+  Merge Timing Exceptions                    :  Yes
+  Inter-SLR Compensation                     :  Conservative
+
+  Corner  Analyze    Analyze    
+  Name    Max Paths  Min Paths  
+  ------  ---------  ---------  
+  Slow    Yes        Yes        
+  Fast    Yes        Yes        
+
+
+------------------------------------------------------------------------------------------------
+| Report Methodology
+| ------------------
+------------------------------------------------------------------------------------------------
+
+No report available as report_methodology has not been run prior. Run report_methodology on the current design for the summary of methodology violations.
+
+
+
+check_timing report
+
+Table of Contents
+-----------------
+1. checking no_clock (0)
+2. checking constant_clock (0)
+3. checking pulse_width_clock (0)
+4. checking unconstrained_internal_endpoints (0)
+5. checking no_input_delay (14)
+6. checking no_output_delay (21)
+7. checking multiple_clock (0)
+8. checking generated_clocks (0)
+9. checking loops (0)
+10. checking partial_input_delay (0)
+11. checking partial_output_delay (0)
+12. checking latch_loops (0)
+
+1. checking no_clock (0)
+------------------------
+ There are 0 register/latch pins with no clock.
+
+
+2. checking constant_clock (0)
+------------------------------
+ There are 0 register/latch pins with constant_clock.
+
+
+3. checking pulse_width_clock (0)
+---------------------------------
+ There are 0 register/latch pins which need pulse_width check
+
+
+4. checking unconstrained_internal_endpoints (0)
+------------------------------------------------
+ There are 0 pins that are not constrained for maximum delay.
+
+ There are 0 pins that are not constrained for maximum delay due to constant clock.
+
+
+5. checking no_input_delay (14)
+-------------------------------
+ There are 0 input ports with no input delay specified.
+
+ There are 14 input ports with no input delay but user has a false path constraint. (MEDIUM)
+
+
+6. checking no_output_delay (21)
+--------------------------------
+ There are 21 ports with no output delay specified. (HIGH)
+
+ There are 0 ports with no output delay but user has a false path constraint
+
+ There are 0 ports with no output delay but with a timing clock defined on it or propagating through it
+
+
+7. checking multiple_clock (0)
+------------------------------
+ There are 0 register/latch pins with multiple clocks.
+
+
+8. checking generated_clocks (0)
+--------------------------------
+ There are 0 generated clocks that are not connected to a clock source.
+
+
+9. checking loops (0)
+---------------------
+ There are 0 combinational loops in the design.
+
+
+10. checking partial_input_delay (0)
+------------------------------------
+ There are 0 input ports with partial input delay specified.
+
+
+11. checking partial_output_delay (0)
+-------------------------------------
+ There are 0 ports with partial output delay specified.
+
+
+12. checking latch_loops (0)
+----------------------------
+ There are 0 combinational latch loops in the design through latch input
+
+
+
+------------------------------------------------------------------------------------------------
+| Design Timing Summary
+| ---------------------
+------------------------------------------------------------------------------------------------
+
+    WNS(ns)      TNS(ns)  TNS Failing Endpoints  TNS Total Endpoints      WHS(ns)      THS(ns)  THS Failing Endpoints  THS Total Endpoints     WPWS(ns)     TPWS(ns)  TPWS Failing Endpoints  TPWS Total Endpoints  
+    -------      -------  ---------------------  -------------------      -------      -------  ---------------------  -------------------     --------     --------  ----------------------  --------------------  
+      0.295        0.000                      0               162390        0.036        0.000                      0               162308        1.100        0.000                       0                 56894  
+
+
+All user specified timing constraints are met.
+
+
+------------------------------------------------------------------------------------------------
+| Clock Summary
+| -------------
+------------------------------------------------------------------------------------------------
+
+Clock                              Waveform(ns)         Period(ns)      Frequency(MHz)
+-----                              ------------         ----------      --------------
+clk200_p                           {0.000 2.500}        5.000           200.000         
+  milansoc_crg_clkout0             {0.000 5.000}        10.000          100.000         
+    milansoc_crg_audio_ref_raw     {0.000 29.130}       58.261          17.164          
+      milansoc_crg_audio_mclk_raw  {0.000 20.345}       40.690          24.576          
+      milansoc_crg_audio_tdm_raw   {0.000 5.086}        10.173          98.304          
+      milansoc_crg_mmcm_audio_fb   {0.000 29.130}       58.261          17.164          
+    milansoc_crg_pll_audio_fb      {0.000 10.000}       20.000          50.000          
+  milansoc_crg_clkout1             {0.000 10.000}       20.000          50.000          
+  milansoc_crg_clkout2             {0.000 2.500}        5.000           200.000         
+  subfragments_pll_fb              {0.000 2.500}        5.000           200.000         
+eth_clocks0_rx                     {0.000 4.000}        8.000           125.000         
+
+
+------------------------------------------------------------------------------------------------
+| Intra Clock Table
+| -----------------
+------------------------------------------------------------------------------------------------
+
+Clock                                  WNS(ns)      TNS(ns)  TNS Failing Endpoints  TNS Total Endpoints      WHS(ns)      THS(ns)  THS Failing Endpoints  THS Total Endpoints     WPWS(ns)     TPWS(ns)  TPWS Failing Endpoints  TPWS Total Endpoints  
+-----                                  -------      -------  ---------------------  -------------------      -------      -------  ---------------------  -------------------     --------     --------  ----------------------  --------------------  
+clk200_p                                 3.541        0.000                      0                    7        0.237        0.000                      0                    7        1.100        0.000                       0                    10  
+  milansoc_crg_clkout0                   0.295        0.000                      0                51402        0.060        0.000                      0                51402        3.000        0.000                       0                 18407  
+    milansoc_crg_audio_ref_raw                                                                                                                                                      19.130        0.000                       0                     3  
+      milansoc_crg_audio_mclk_raw       36.017        0.000                      0                   33        0.237        0.000                      0                   33       19.845        0.000                       0                    21  
+      milansoc_crg_audio_tdm_raw         2.111        0.000                      0                 1016        0.092        0.000                      0                 1016        3.956        0.000                       0                   319  
+      milansoc_crg_mmcm_audio_fb                                                                                                                                                    41.739        0.000                       0                     2  
+    milansoc_crg_pll_audio_fb                                                                                                                                                       18.751        0.000                       0                     2  
+  milansoc_crg_clkout1                   0.417        0.000                      0                99418        0.036        0.000                      0                99418        7.500        0.000                       0                 37469  
+  milansoc_crg_clkout2                   1.643        0.000                      0                  172        0.130        0.000                      0                  172        1.500        0.000                       0                    70  
+  subfragments_pll_fb                                                                                                                                                                3.751        0.000                       0                     2  
+eth_clocks0_rx                           0.422        0.000                      0                 1673        0.078        0.000                      0                 1673        2.870        0.000                       0                   589  
+
+
+------------------------------------------------------------------------------------------------
+| Inter Clock Table
+| -----------------
+------------------------------------------------------------------------------------------------
+
+From Clock            To Clock                  WNS(ns)      TNS(ns)  TNS Failing Endpoints  TNS Total Endpoints      WHS(ns)      THS(ns)  THS Failing Endpoints  THS Total Endpoints  
+----------            --------                  -------      -------  ---------------------  -------------------      -------      -------  ---------------------  -------------------  
+eth_clocks0_rx        milansoc_crg_clkout0        6.583        0.000                      0                   13                                                                        
+milansoc_crg_clkout2  milansoc_crg_clkout1        2.974        0.000                      0                    3        0.160        0.000                      0                    3  
+eth_clocks0_rx        milansoc_crg_clkout1        6.412        0.000                      0                   51                                                                        
+milansoc_crg_clkout1  milansoc_crg_clkout2        2.625        0.000                      0                   16        0.109        0.000                      0                   16  
+milansoc_crg_clkout0  eth_clocks0_rx              6.718        0.000                      0                   12                                                                        
+milansoc_crg_clkout1  eth_clocks0_rx              6.758        0.000                      0                    6                                                                        
+
+
+------------------------------------------------------------------------------------------------
+| Other Path Groups Table
+| -----------------------
+------------------------------------------------------------------------------------------------
+
+Path Group            From Clock            To Clock                  WNS(ns)      TNS(ns)  TNS Failing Endpoints  TNS Total Endpoints      WHS(ns)      THS(ns)  THS Failing Endpoints  THS Total Endpoints  
+----------            ----------            --------                  -------      -------  ---------------------  -------------------      -------      -------  ---------------------  -------------------  
+**async_default**     milansoc_crg_clkout0  milansoc_crg_clkout0        4.028        0.000                      0                  592        0.412        0.000                      0                  592  
+**async_default**     milansoc_crg_clkout1  milansoc_crg_clkout1       13.948        0.000                      0                 7976        2.171        0.000                      0                 7976  
+
+
+report_timing_summary: Time (s): cpu = 00:00:43 ; elapsed = 00:00:06 . Memory (MB): peak = 4147.875 ; gain = 0.000 ; free physical = 16592 ; free virtual = 87060
+# report_route_status -file alinx_ax7101_route_status.rpt
+# report_drc -file alinx_ax7101_drc.rpt
+Command: report_drc -file alinx_ax7101_drc.rpt
+INFO: [IP_Flow 19-234] Refreshing IP repositories
+INFO: [IP_Flow 19-1704] No user IP repositories specified
+INFO: [IP_Flow 19-2313] Loaded Vivado IP repository '$WORKSPACE_HOME/Xilinx/2026.1/data/ip'.
+INFO: [DRC 23-27] Running DRC with 16 threads
+INFO: [Vivado_Tcl 2-168] The results of DRC are in file $SCRATCH/route/endstation_ax7101_8x8/gateware/AltSpreadLogic_high/alinx_ax7101_drc.rpt.
+report_drc completed successfully
+# report_timing_summary -datasheet -max_paths 10 -file alinx_ax7101_timing.rpt
+INFO: [Timing 38-91] UpdateTimingParams: Speed grade: -2, Delay Type: min_max.
+INFO: [Timing 38-191] Multithreading enabled for timing update using a maximum of 16 CPUs
+report_timing_summary: Time (s): cpu = 00:00:48 ; elapsed = 00:00:06 . Memory (MB): peak = 4147.875 ; gain = 0.000 ; free physical = 16253 ; free virtual = 86798
+# report_power -file alinx_ax7101_power.rpt
+Command: report_power -file alinx_ax7101_power.rpt
+INFO: [Power 33-23] Power model is not available for STARTUPE2
+Running Vector-less Activity Propagation...
+
+Finished Running Vector-less Activity Propagation
+WARNING: [Power 33-332] Found switching activity that implies high-fanout reset nets being asserted for excessive periods of time which may result in inaccurate power analysis.
+Resolution: To review and fix problems, please run Power Constraints Advisor in the GUI from Tools > Power Constraints Advisor or run report_power with the -advisory option to generate a text report.
+1 Infos, 1 Warnings, 0 Critical Warnings and 0 Errors encountered.
+report_power completed successfully
+report_power: Time (s): cpu = 00:00:24 ; elapsed = 00:00:09 . Memory (MB): peak = 4324.234 ; gain = 176.359 ; free physical = 15831 ; free virtual = 86554
+# kl_timing_grade_reports alinx_ax7101_signoff
+INFO: [Timing 38-91] UpdateTimingParams: Speed grade: -2, Delay Type: min_max.
+INFO: [Timing 38-191] Multithreading enabled for timing update using a maximum of 16 CPUs
+report_timing_summary: Time (s): cpu = 00:00:38 ; elapsed = 00:00:05 . Memory (MB): peak = 4324.234 ; gain = 0.000 ; free physical = 15516 ; free virtual = 86337
+INFO: [Timing 38-91] UpdateTimingParams: Speed grade: -2, Delay Type: min_max.
+INFO: [Timing 38-191] Multithreading enabled for timing update using a maximum of 16 CPUs
+INFO: [Timing 38-78] ReportTimingParams: -max_paths 100 -nworst 1 -delay_type min_max -sort_by slack.
+WARNING: [Timing 38-164] This design has multiple clocks. Inter clock paths are considered valid unless explicitly excluded by timing constraints such as set_clock_groups or set_false_path.
+INFO: [Timing 38-72] No paths found.
+INFO: [Timing 38-91] UpdateTimingParams: Speed grade: -2, Delay Type: min_max.
+INFO: [Timing 38-191] Multithreading enabled for timing update using a maximum of 16 CPUs
+report_timing_summary: Time (s): cpu = 00:00:39 ; elapsed = 00:00:05 . Memory (MB): peak = 4324.234 ; gain = 0.000 ; free physical = 15159 ; free virtual = 85906
+INFO: [Timing 38-91] UpdateTimingParams: Speed grade: -2, Delay Type: min_max.
+INFO: [Timing 38-191] Multithreading enabled for timing update using a maximum of 16 CPUs
+INFO: [Timing 38-78] ReportTimingParams: -max_paths 100 -nworst 1 -delay_type min_max -sort_by slack.
+WARNING: [Timing 38-164] This design has multiple clocks. Inter clock paths are considered valid unless explicitly excluded by timing constraints such as set_clock_groups or set_false_path.
+INFO: [Timing 38-72] No paths found.
+INFO: [Timing 38-91] UpdateTimingParams: Speed grade: -2, Delay Type: min_max.
+INFO: [Timing 38-191] Multithreading enabled for timing update using a maximum of 16 CPUs
+report_timing_summary: Time (s): cpu = 00:00:40 ; elapsed = 00:00:05 . Memory (MB): peak = 4324.234 ; gain = 0.000 ; free physical = 16879 ; free virtual = 87724
+INFO: [Timing 38-91] UpdateTimingParams: Speed grade: -2, Delay Type: min_max.
+INFO: [Timing 38-191] Multithreading enabled for timing update using a maximum of 16 CPUs
+INFO: [Timing 38-78] ReportTimingParams: -max_paths 100 -nworst 1 -delay_type min_max -sort_by slack.
+WARNING: [Timing 38-164] This design has multiple clocks. Inter clock paths are considered valid unless explicitly excluded by timing constraints such as set_clock_groups or set_false_path.
+INFO: [Timing 38-72] No paths found.
+INFO: [Timing 38-91] UpdateTimingParams: Speed grade: -2, Delay Type: min_max.
+INFO: [Timing 38-191] Multithreading enabled for timing update using a maximum of 16 CPUs
+report_timing_summary: Time (s): cpu = 00:00:42 ; elapsed = 00:00:05 . Memory (MB): peak = 4324.234 ; gain = 0.000 ; free physical = 12579 ; free virtual = 83458
+INFO: [Timing 38-91] UpdateTimingParams: Speed grade: -2, Delay Type: min_max.
+INFO: [Timing 38-191] Multithreading enabled for timing update using a maximum of 16 CPUs
+INFO: [Timing 38-78] ReportTimingParams: -max_paths 100 -nworst 1 -delay_type min_max -sort_by slack.
+WARNING: [Timing 38-164] This design has multiple clocks. Inter clock paths are considered valid unless explicitly excluded by timing constraints such as set_clock_groups or set_false_path.
+INFO: [Timing 38-72] No paths found.
+INFO: [Timing 38-91] UpdateTimingParams: Speed grade: -2, Delay Type: min_max.
+INFO: [Timing 38-191] Multithreading enabled for timing update using a maximum of 16 CPUs
+report_timing_summary: Time (s): cpu = 00:00:48 ; elapsed = 00:00:06 . Memory (MB): peak = 4324.234 ; gain = 0.000 ; free physical = 13017 ; free virtual = 83939
+INFO: [Timing 38-91] UpdateTimingParams: Speed grade: -2, Delay Type: min_max.
+INFO: [Timing 38-191] Multithreading enabled for timing update using a maximum of 16 CPUs
+WARNING: [Timing 38-164] This design has multiple clocks. Inter clock paths are considered valid unless explicitly excluded by timing constraints such as set_clock_groups or set_false_path.
+INFO: [Timing 38-91] UpdateTimingParams: Speed grade: -2, Delay Type: min_max.
+INFO: [Timing 38-191] Multithreading enabled for timing update using a maximum of 16 CPUs
+INFO: [Timing 38-433] Consider using Xilinx recommended XPM_CDC modules to avoid Critical severities
+INFO: [Timing 38-314] The report_cdc command only analyzes and reports clock domain crossing paths where clocks have been defined on both source and destination sides. Ports with no input delay constraint are skipped. Please run check_timing to verify there are no missing clock definitions in your design, nor any unconstrained input port.
+# set_property BITSTREAM.CONFIG.SPI_BUSWIDTH 4 [current_design]
+# set_property CONFIG_MODE SPIx4 [current_design]
+# set_property BITSTREAM.CONFIG.CONFIGRATE 50 [current_design]
+# set_property CFGBVS VCCO [current_design]
+# set_property CONFIG_VOLTAGE 3.3 [current_design]
+# report_clock_interaction -delay_type min_max -file alinx_ax7101_clock_interaction.rpt
+INFO: [Timing 38-91] UpdateTimingParams: Speed grade: -2, Delay Type: min_max.
+INFO: [Timing 38-191] Multithreading enabled for timing update using a maximum of 16 CPUs
+WARNING: [Timing 38-164] This design has multiple clocks. Inter clock paths are considered valid unless explicitly excluded by timing constraints such as set_clock_groups or set_false_path.
+WARNING: [Timing 38-127] No common period was found between clocks milansoc_crg_clkout1 {rise@0ns fall@10ns period=20ns} and milansoc_crg_audio_mclk_raw {rise@0ns fall@20.3451ns period=40.6901ns} in 1000 cycles.
+WARNING: [Timing 38-127] No common period was found between clocks milansoc_crg_clkout1 {rise@0ns fall@10ns period=20ns} and milansoc_crg_audio_tdm_raw {rise@0ns fall@5.08627ns period=10.1725ns} in 1000 cycles.
+WARNING: [Timing 38-127] No common period was found between clocks milansoc_crg_audio_mclk_raw {rise@0ns fall@20.3451ns period=40.6901ns} and milansoc_crg_clkout1 {rise@0ns fall@10ns period=20ns} in 1000 cycles.
+WARNING: [Timing 38-127] No common period was found between clocks milansoc_crg_audio_tdm_raw {rise@0ns fall@5.08627ns period=10.1725ns} and milansoc_crg_clkout1 {rise@0ns fall@10ns period=20ns} in 1000 cycles.
+# report_exceptions -file alinx_ax7101_exceptions.rpt
+INFO: [Timing 38-91] UpdateTimingParams: Speed grade: -2, Delay Type: min_max.
+INFO: [Timing 38-191] Multithreading enabled for timing update using a maximum of 16 CPUs
+INFO: [Timing 38-35] Done setting XDC timing constraints.
+report_exceptions: Time (s): cpu = 00:00:39 ; elapsed = 00:00:06 . Memory (MB): peak = 4324.234 ; gain = 0.000 ; free physical = 13185 ; free virtual = 84138
+# report_utilization -hierarchical -file routed_hier.rpt
+# report_utilization -file routed_util.rpt
+# quit
+INFO: [Common 17-206] Exiting Vivado at Tue Nov 24 04:05:53 2026...

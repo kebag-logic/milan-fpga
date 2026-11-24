@@ -1,0 +1,14 @@
+Candidate head: 855529fe21fea685725a9edc4fe0a798154c6469
+Comparison base: 3cda030c174b325e36c26af6420487ff91346d15
+Source: candidate_physical.py
+Original SHA256: dffe1559d978efd4025413ecb65b8b9125be356f87e2dd3ba0dbab4711bae963
+Scope: complete text; paths and host fields normalized
+
+import subprocess,sys
+from pathlib import Path
+w=Path(__file__).resolve().parent
+for name in ['prepare_builds.py','export_routes.py','export_off.py','run_routes.py','synth_off.py','run_leaf.py','run_capture_leaf.py']:
+ with (w/(name+'.log')).open('w') as log:
+  r=subprocess.run([sys.executable,str(w/name)],stdout=log,stderr=subprocess.STDOUT,timeout=43200)
+ print(name,r.returncode,flush=True)
+ if r.returncode:raise SystemExit(r.returncode)

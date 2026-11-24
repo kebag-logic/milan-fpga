@@ -1,0 +1,224 @@
+Candidate head: dc78aedae34c25a97125ecd6816a1f645db5575f
+Comparison base: 3cda030c174b325e36c26af6420487ff91346d15
+Source: generate_packet.py
+Original SHA256: e72d52ef3fea3a3dd80ca74e2bbcd1617fc1ab6c91e7f91b9e45fbddf06b50da
+Scope: complete text; paths and host fields normalized
+
+import json,sys,subprocess
+from pathlib import Path
+w=Path(__file__).resolve().parent
+out=Path('$MANAGEMENT/2026-09-23/loopbram-a826/round4')
+status=json.loads((w/'validation-status.json').read_text())
+head=status['head']
+base='3cda030c174b325e36c26af6420487ff91346d15'
+reviewed='2e278379c1ae9ea09063b3e3cb183d0e8a3f0929'
+stop=sys.argv[1] if len(sys.argv)>1 else None
+disabled=status['disabled']
+assert len(disabled)==2
+if not stop:
+ assert all(r['equal'] for r in disabled)
+ assert all(r.get('exit')==0 for r in status['regressions'].values())
+ assert all(r['pass_gate'] for r in status['quick'])
+ assert len(status['remaining'])==6 and all(r['exit']==0 for r in status['remaining'])
+ assert status['builder_union']['union']=='pass'
+ assert any(r.get('floor_pass') for r in status['enabled_route'])
+assert status['clean'] and status['source_hashes_match']
+fmt=lambda n:f'{n:g}'
+table=['| Shape | LUT base / head | FF base / head | BRAM tiles base / head | DSP base / head | F7 / F8 delta |',
+       '|---|---:|---:|---:|---:|---:|']
+for r in disabled:
+ a,b,d=r['base'],r['head'],r['delta']
+ table.append('| '+('1x1/1if' if '1x1' in r['shape'] else '8x8/1if')+' | '+
+ ' | '.join(fmt(a[k])+' / '+fmt(b[k]) for k in ['Slice LUTs*','Slice Registers','Block RAM Tile','DSPs'])+
+ ' | '+fmt(d['F7 Muxes'])+' / '+fmt(d['F8 Muxes'])+' |')
+table='\n'.join(table)
+hashes=json.loads((w/'elaboration-hashes.json').read_text())
+hash_table=['| Shape | Side | Canonical SHA256 |','|---|---|---|']
+for r in hashes:hash_table.append('| '+('1x1/1if' if '1x1' in r['shape'] else '8x8/1if')+' | '+r['side']+' | '+r['canonical_sha256']+' |')
+hash_table='\n'.join(hash_table)
+f2='CLOSED by construction and measurement: full release-top canonical elaboration and all disabled utilization counts match the base at both supported shapes.' if not stop else 'OPEN: '+stop
+route=''
+if isinstance(status['enabled_route'],list):
+ for r in status['enabled_route']:
+  if r.get('floor_pass'):
+   route=f"Fresh enabled 1x1 route: {r['directive']}, minimum setup {r['min_WNS_ns']:+.3f} ns and hold {r['min_WHS_ns']:+.3f} ns across four corners, zero failing endpoints and routing errors. LUT {fmt(r['utilization']['Slice LUTs*'])}, FF {fmt(r['utilization']['Slice Registers'])}, BRAM tiles {fmt(r['utilization']['Block RAM Tile'])}."
+if not route: route='Enabled 1x1 reroute is not complete; no timing pass is claimed at this head.'
+gate_rows=['| Gate | Result |','|---|---|']
+for n,r in status['regressions'].items():gate_rows.append('| '+n+' | '+('PASS, exit 0' if r.get('exit')==0 else r.get('status','FAIL'))+' |')
+gate_rows.append('| Parent controls, four runtime plants, seven leaf plants, bounds, anchors, lint, docs | PASS |')
+gate_rows.append('| Builder union | '+('PASS, 114 entries; one unchanged calibration row NOT RUN' if status['builder_union'] else 'INCOMPLETE')+' |')
+for r in status.get('remaining') or []:gate_rows.append('| '+r['name']+' | '+('PASS' if r['exit']==0 else 'FAIL')+' |')
+gates='\n'.join(gate_rows)
+title='STOP: '+stop if stop else 'REVIEW READY'
+review=f"""[A826] ROUND 4 - {title}
+
+Head: {head}. Branch: pf-loopbram-1. PR #987 into dev-soft-core; issue #979.
+Combined rounds 3+4 delta from {reviewed}; implementation base {base}.
+Local commits this round: 68d17a98843861c67a2491eb64b2700432da4d3b, 2ade81b403aa0fbc32307a31eeedb2ca099a8faf and {head}.
+No push, issue/PR comment, merge, board, bench or test-machine access occurred.
+
+## Combined delta from the reviewed head
+
+Round 3 retained the original capture and queue schedulers, generated the optional
+read/copy state, corrected eight-page sample retention with a full claimed-page
+address, added real-parent command-to-audio checks, repaired mutation anchors,
+bounded timestamp matching, refused unsupported leads and corrected contract wording.
+
+Round 4 restores the disabled leaf port lists and widths. Enabled connections append
+their fields to parameter-sized existing buses; zero repetitions remove every appended
+field when disabled. Capture and queue instance names remain unchanged. Invalidation
+state and its predicates now exist only in the enabled generate branch. The shared
+mapping writer matches the base. Harness wiring and the affected mutation anchors
+follow the same fields; no assertion, stimulus or planted defect was removed.
+
+## Disabled identity and utilization
+
+{f2}
+
+The comparison uses the release flow's complete alinx_ax7101 top, including the
+datapath, mailbox and processor, at the generated release parameters. Both sides
+execute synth_design -rtl and write_verilog. Canonicalization removes comments,
+attributes and whitespace only. All identifiers, ports, widths, cells, parameters,
+connections and module order remain. A changed-connection control changes both hashes.
+
+{hash_table}
+
+The release split top refuses interfaces=2 at both commits, independently exercised
+through CtrlMailbox._split. Two-interface firmware fixtures are not release SoC builds.
+Therefore neither 1x1/2if nor 8x8/2if is a supported release-top elaboration.
+
+Full synthesis uses AreaOptimized_high, then opt_design ExploreArea, through the
+supplied two-slot wrapper with VIVADO_MIN_GB=20. Base synthesis receipts are reused
+only at immutable {base}; every candidate result uses this head.
+
+{table}
+
+The reviewer's disabled-leaf procedure reports capture 4339 / 4339 LUT and
+3961 / 3961 FF; queue 1017 / 1015 LUT and 406 / 406 FF (base / head).
+That procedure retains its head-only undriven cleanup. The complete-release
+comparison above executes the same recipe on both sides.
+
+The unchanged mailbox edit window also matches in the 8x8 hierarchical synthesis
+report: `u_edit` is 3996 LUT and 445 FF on both sides.
+
+All 12 disabled builder artifacts, descriptors, firmware ROM bytes and initialization
+files remain identical. ROM lengths are 126432 and 140544 bytes. Generated SoC text
+identity excludes comments and checkout/include paths; CSV identity excludes comments.
+Canonical RTL identity is a separate, stronger whole-design comparison.
+No FPGA bitstream or ELF debug-section byte-identity claim is made.
+
+## Finding dispositions
+
+| Finding | Response and closure evidence |
+|---|---|
+| R909-1-F1 | Original arms retained. Reset and timestamp plants follow the packed boundary. ANCHORS INTACT 0. Queue campaign passes 28 checks; complete datapath/render status appears below. |
+| R909-1-F2 | {f2} |
+| R909-1-F3 / R910-1-F1 | Both generated enabled parent controls pass. Production ADD, REMOVE, replacement, rejected/no-op edits, GET pages 0/1, boot clipping and edits during copying reach the real store. All 63 destinations and eight talkers run together. Both parent connection plants and both retention/address plants compile and fail PARENT_SAMPLE. |
+| R909-1-F4 | Permitted documentation outcome retained: bind-only flush, claim, expiry, backlog and age remain explicitly untested in isolation. No isolated guard coverage is claimed. |
+| R909-1-F5 | Both lead-three negative checks refuse; supported lead controls pass. Eight sample pages and the full claimed page address preserve overlap retention. |
+| R909-1-F6 | Four datapath cycles plus 1000 ppm across K+1 periods plus 1 ns rounding. Both shapes pass the signed ramp at 84 ns wrapper jitter and fail at 87 ns. This injects timestamp error, not a retuned oscillator. |
+| R909-1-F7 | Banners cover copy-before-scrub, clock-loss flush and two extra capture cycles per output pair. The parent checks every slot and the capture deadline. The new packed port fields are documented. |
+| R909-1-R1 | Session label removed from the design document. |
+| R909-1-R2 | Off-tree references replaced by PR #987 links. |
+| R909-1-R3 | Builder row 16g follows 16e. |
+| R910-1-R1 | Stale unmeasured-lane sentence replaced by the measurement reference. |
+| R909-1-S1 | Explicitly disclosed: split builds use layout 3's NAME capacity and omit the absent all-fabric backend's 128-record guard. Memory ledgers remain unchanged. |
+
+Parent results: 1x1 has 16169 checks, 4248 capture words and 88 packets; 8x8 has
+122517 checks, 34004 words and 704 packets. Both have zero failures and observe five
+first-eligible generations. Maximum claim-to-last-pair spans are 89 and 873 cycles.
+The parent harness executes the production command core and parent transaction
+interface, without processor-instruction or mailbox-transport execution.
+
+## Validation at this head
+
+{gates}
+
+{route}
+The enabled 8x8 route is not repeated in this round; earlier route results are not
+presented as exact-head receipts.
+
+Fresh control-memory allocation remains 47.0 tiles at 1x1 and 70.5 at 8x8. Normal
+8x8 allocation is still refused. The unchanged 59-tile ledger leaves 11.5 tiles of
+S14 debt (14.5 above the default 56). No service bound or memory ledger changed.
+
+[Commands, hashes, complete relevant logs and canonical chunks](receipts/INDEX.md)
+bind the source and results. Files are plain text below 200 KB. Native compiler
+command chatter is filtered as recorded; diagnostics and test results remain.
+The one missing calibration report is not hardware evidence.
+
+This is author evidence, not a reviewer verdict or clean-lens ledger. Independent
+re-review, manager publication, hosted/local workflow acceptance and live-base
+candidate-merge validation remain separate.
+"""
+(out/'REVIEW-READY.md').write_text(review)
+body=f"""[A826] Status: {title}
+Target: pf-loopbram-1 into dev-soft-core. Closes #979.
+Validated head: {head}.
+
+Adds optional input-mapped loopback from received audio to transmitted audio.
+The 8x8 shape has 63 independent mono destinations plus an independent physical
+destination in 64 keys. Port 0 has physical plus eight loopback destinations;
+port 7 has seven. The 1x1 shape has eight physical plus eight loopback destinations.
+The option defaults off.
+
+Received samples are copied into synchronous block memory with one media frame
+of added latency. Eight sample pages retain the claimed frame through its capture
+walk. Missing or invalidated data produces silence. Unsupported leads refuse
+elaboration; timestamp matching has a derived bound.
+
+Disabled builds retain their original ports, widths, instance names and mapping
+writer. Optional fields extend existing buses only when enabled; optional state
+exists only in enabled branches. Both complete disabled release-top netlists have
+identical canonical hashes against the base.
+
+{table}
+
+The parent integration checks production command handling and the real map store
+at both sizes, including ADD, REMOVE, replacement, GET pages, clipping and changes
+during copying. All 63 mapped destinations and eight output streams run together.
+Four runtime connection and retention defects fail sample assertions. Both wire
+sizes and all seven leaf plants pass. Processor instructions and mailbox transport
+are outside this harness.
+
+{('All requested regression and portability gates pass. The 114-entry builder union retains one documented calibration-report row marked NOT RUN.' if not stop else 'Validation is incomplete where explicitly recorded in the evidence packet; this is not ready for review.')}
+Five defensive guards remain explicitly untested in isolation: bind-only flush,
+one-shot claim, expiry, backlog and age.
+
+{(route.replace('ExtraTimingOpt, ','') if not stop else 'Required enabled timing validation is incomplete at this head.')}
+The enabled 8x8 route was not repeated in this round.
+
+Disabled builder artifacts, descriptors, firmware ROM and initialization bytes
+remain identical. Enabled control-memory allocation remains 47.0 tiles at 1x1 and
+70.5 at 8x8. The latter remains S14 debt and the ordinary allocator refuses it.
+Split builds use layout 3's NAME capacity instead of the absent all-fabric
+backend's 128-record bound. Owner memory ledgers and service limits remain unchanged.
+"""
+(out/'PR-BODY.md').write_text(body)
+handoff=f"""Status: {title}
+ETA: {'stopped at the requested resource/evidence boundary; manager decision required.' if stop else 'complete; no author jobs remain.'}
+
+[A826] Round 4, issue #979 / PR #987.
+Head: {head}; branch pf-loopbram-1; target dev-soft-core.
+Three local commits are ready for the manager; nothing was pushed.
+
+{f2}
+
+Both disabled release-top canonical netlists match the base exactly.
+
+{table}
+
+{route}
+
+[Combined rounds 3+4 findings and evidence](REVIEW-READY.md)
+[Full updated PR body](PR-BODY.md)
+[Exact-head receipts](receipts/INDEX.md)
+
+No public comment, push, merge, board, bench or test-machine access occurred.
+Independent re-review and manager publication remain pending.
+S14 remains open; no owner budget or service bound was relaxed.
+
+{('STOP: '+stop) if stop else 'REVIEW READY '+head}
+"""
+(out/'HANDOFF-r4.md').write_text(handoff)
+print('WROTE PACKET',title,head)

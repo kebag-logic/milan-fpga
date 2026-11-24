@@ -1,0 +1,71 @@
+Candidate head: dc78aedae34c25a97125ecd6816a1f645db5575f
+Comparison base: 3cda030c174b325e36c26af6420487ff91346d15
+Source: firmware-memory.json
+Original SHA256: e33bbdd509efb43c620c4e3ebaa65483558d2a296d787ff0f5915a1016aca06e
+Scope: complete text; paths and host fields normalized
+
+[
+  {
+    "shape": "endstation_ax7101_1x1_tdm8",
+    "elf_sha256": "68da0dbc6b05229d67b3dd311683f6892466e55d0edae5421a4b41f6b56b0286",
+    "product_refused": false,
+    "refusal": null,
+    "allocation": {
+      "rom": {
+        "bytes": 129056,
+        "banks": [
+          131072
+        ],
+        "RAMB36": 32,
+        "RAMB18": 0
+      },
+      "sram": {
+        "bytes": 60352,
+        "banks": [
+          32768,
+          16384,
+          8192,
+          4096
+        ],
+        "RAMB36": 15,
+        "RAMB18": 0
+      },
+      "tiles": 47.0,
+      "budget_tiles": 56
+    }
+  },
+  {
+    "shape": "endstation_ax7101_8x8",
+    "elf_sha256": "f9470e29d9a1050b00a78220dcf16e72cac9281d764a4fbdd1ac1df197030165",
+    "product_refused": true,
+    "refusal": "allocation over budget: 70.5 RAMB36 (rom 160024 bytes in 161792, sram 125104 bytes in 126976) exceeds the 56-RAMB36 budget",
+    "allocation": {
+      "rom": {
+        "bytes": 160024,
+        "banks": [
+          131072,
+          16384,
+          8192,
+          4096,
+          2048
+        ],
+        "RAMB36": 39,
+        "RAMB18": 1
+      },
+      "sram": {
+        "bytes": 125104,
+        "banks": [
+          65536,
+          32768,
+          16384,
+          8192,
+          4096
+        ],
+        "RAMB36": 31,
+        "RAMB18": 0
+      },
+      "tiles": 70.5,
+      "budget_tiles": 56
+    }
+  }
+]

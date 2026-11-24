@@ -1,0 +1,15 @@
+Candidate head: dc78aedae34c25a97125ecd6816a1f645db5575f
+Comparison base: 3cda030c174b325e36c26af6420487ff91346d15
+Source: run_coherence_mutants.py
+Original SHA256: b49c0bdb578feb551aea57b9fe9570f6c3338b35cb9a77bfc6055c86299ba7b6
+Scope: complete text; paths and host fields normalized
+
+import subprocess,json,time,os
+from pathlib import Path
+w=Path(__file__).resolve().parent;root=Path('$CHECKOUT')
+cmd=['python3','mutants.py','--jobs','2','--receipt',str(w/'coherence-mutants-receipt')]
+start=time.time()
+with (w/'coherence-mutants.log').open('w') as log:r=subprocess.run(cmd,cwd=root/'tb/verilator/capture_coherence',stdout=log,stderr=subprocess.STDOUT,timeout=14400)
+(w/'coherence-mutants.json').write_text(json.dumps(dict(command=cmd,exit=r.returncode,seconds=time.time()-start,TMPDIR=os.environ.get('TMPDIR')),indent=2)+'\n')
+print('coherence mutants',r.returncode,flush=True)
+raise SystemExit(r.returncode)

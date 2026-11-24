@@ -1,0 +1,29 @@
+Candidate head: 855529fe21fea685725a9edc4fe0a798154c6469
+Comparison base: 3cda030c174b325e36c26af6420487ff91346d15
+Source: synth_base.py
+Original SHA256: 68a90b987f494b1b6f4ff179c1e4f93ede221fb972f88d965dd146b1c629696d
+Scope: complete text; paths and host fields normalized
+
+import os,sys,subprocess,json,time,concurrent.futures
+from pathlib import Path
+w=Path('$SCRATCH/base-route')
+slot='$MANAGEMENT/2026-09-23/vivado-slot.sh'
+vivado='$WORKSPACE_HOME/Xilinx2/2026.1/Vivado/bin/vivado'
+env=dict(os.environ,VIVADO_SLOTS='2',VIVADO_MIN_GB='20')
+
+def run(cwd,tcl):
+ cmd=[slot,vivado,'-mode','batch','-nojournal','-nolog','-source',str(tcl)]
+ log=tcl.with_suffix('.log');start=time.time()
+ with log.open('w') as stream:r=subprocess.run(cmd,cwd=cwd,env=env,stdout=stream,stderr=subprocess.STDOUT,timeout=14400)
+ result={'command':cmd,'cwd':str(cwd),'exit':r.returncode,'seconds':time.time()-start}
+ tcl.with_suffix('.json').write_text(json.dumps(result,indent=2));print(tcl,'EXIT',r.returncode,flush=True)
+ return r.returncode
+
+def point(name):
+ gate=w/name/'gateware';original=(gate/'alinx_ax7101.tcl').read_text()
+ pre,post=original.split('# Add pre-placement commands',1)
+ synth=gate/'measure_synth.tcl';synth.write_text(pre+'\nreport_utilization -file disabled_util.rpt\nwrite_checkpoint -force measure_opt.dcp\nquit\n')
+ if run(gate,synth):return False
+ return True
+with concurrent.futures.ThreadPoolExecutor(max_workers=2) as pool:
+ print(list(pool.map(point,['endstation_ax7101_1x1_tdm8','endstation_ax7101_8x8'])),flush=True)

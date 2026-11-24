@@ -1,0 +1,96 @@
+Candidate head: dc78aedae34c25a97125ecd6816a1f645db5575f
+Comparison base: 3cda030c174b325e36c26af6420487ff91346d15
+Source: quick-gates.json
+Original SHA256: 3be687b754566bb4dc1177a3d93ef0a57f5e2dbbed0789d7e1ea8b9660ed0984
+Scope: complete text; paths and host fields normalized
+
+[
+  {
+    "name": "anchors",
+    "command": [
+      "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+      "$MANAGEMENT/2026-09-23/loopbram-r909-1/scripts/anchor_counts.py",
+      "$CHECKOUT",
+      "$CHECKOUT",
+      "3cda030c",
+      "dc78aedae34c25a97125ecd6816a1f645db5575f"
+    ],
+    "head": "dc78aedae34c25a97125ecd6816a1f645db5575f",
+    "exit": 0,
+    "pass_gate": true,
+    "seconds": 0.21408891677856445
+  },
+  {
+    "name": "parent-plants",
+    "command": [
+      "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+      "tb/verilator/input_loopback_dp/mutants.py",
+      "--output",
+      "$SCRATCH/parent-plants"
+    ],
+    "head": "dc78aedae34c25a97125ecd6816a1f645db5575f",
+    "exit": 0,
+    "pass_gate": true,
+    "seconds": 113.55108070373535
+  },
+  {
+    "name": "leaf-plants",
+    "command": [
+      "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+      "tb/verilator/input_loopback/mutants.py",
+      "--output",
+      "$SCRATCH/leaf-plants"
+    ],
+    "head": "dc78aedae34c25a97125ecd6816a1f645db5575f",
+    "exit": 0,
+    "pass_gate": true,
+    "seconds": 49.11288237571716
+  },
+  {
+    "name": "bounds",
+    "command": [
+      "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+      "tb/verilator/input_loopback/bounds.py",
+      "--output",
+      "$SCRATCH/bounds"
+    ],
+    "head": "dc78aedae34c25a97125ecd6816a1f645db5575f",
+    "exit": 0,
+    "pass_gate": true,
+    "seconds": 18.248871326446533
+  },
+  {
+    "name": "lint",
+    "command": [
+      "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+      "scripts/lint_rtl.py",
+      "--check"
+    ],
+    "head": "dc78aedae34c25a97125ecd6816a1f645db5575f",
+    "exit": 0,
+    "pass_gate": true,
+    "seconds": 3.875168561935425
+  },
+  {
+    "name": "docs",
+    "command": [
+      "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+      "scripts/docs_check.py"
+    ],
+    "head": "dc78aedae34c25a97125ecd6816a1f645db5575f",
+    "exit": 0,
+    "pass_gate": true,
+    "seconds": 9.480578899383545
+  },
+  {
+    "name": "doc-style",
+    "command": [
+      "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+      "scripts/check_doc_style.py"
+    ],
+    "head": "dc78aedae34c25a97125ecd6816a1f645db5575f",
+    "exit": 0,
+    "pass_gate": true,
+    "seconds": 0.11483931541442871
+  }
+]

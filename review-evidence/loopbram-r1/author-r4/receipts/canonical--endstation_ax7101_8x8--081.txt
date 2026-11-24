@@ -1,0 +1,3257 @@
+r_buffer_io_dataOut),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_rValidN));
+RTL_MUX374 splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_payload_address_i
+(.I0(splited_wc_cBus_to_splited_wc_hub_hub_up_up_bus_a_payload_address),
+.I1(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_rData_address),
+.O(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_payload_address),
+.S(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_rValidN));
+RTL_MUX splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_payload_corrupt_i
+(.I0(splited_wc_cBus_arbiter_core_io_down_a_payload_corrupt),
+.I1(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_rData_corrupt),
+.O(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_payload_corrupt),
+.S(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_rValidN));
+RTL_MUX374 splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_payload_data_i
+(.I0(splited_wc_cBus_to_splited_wc_hub_hub_up_up_bus_a_payload_data),
+.I1(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_rData_data),
+.O(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_payload_data),
+.S(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_rValidN));
+RTL_MUX342 splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_payload_mask_i
+(.I0(splited_wc_cBus_to_splited_wc_hub_hub_up_up_bus_a_payload_mask),
+.I1(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_rData_mask),
+.O(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_payload_mask),
+.S(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_rValidN));
+RTL_MUX861 splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_payload_param_i
+(.I0(splited_wc_cBus_to_splited_wc_hub_hub_up_up_bus_a_payload_param),
+.I1(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_rData_param),
+.O(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_payload_param),
+.S(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_rValidN));
+RTL_MUX861 splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_payload_size_i
+(.I0(splited_wc_cBus_to_splited_wc_hub_hub_up_up_bus_a_payload_size),
+.I1(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_rData_size),
+.O(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_payload_size),
+.S(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_rValidN));
+RTL_MUX158 splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_payload_source_i
+(.I0(splited_wc_cBus_to_splited_wc_hub_hub_up_up_bus_a_payload_source),
+.I1(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_rData_source),
+.O(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_payload_source),
+.S(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_rValidN));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_address_reg[0]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_payload_address[0]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_address[0]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_address_reg[10]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_payload_address[10]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_address[10]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_address_reg[11]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_payload_address[11]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_address[11]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_address_reg[12]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_payload_address[12]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_address[12]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_address_reg[13]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_payload_address[13]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_address[13]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_address_reg[14]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_payload_address[14]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_address[14]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_address_reg[15]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_payload_address[15]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_address[15]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_address_reg[16]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_payload_address[16]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_address[16]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_address_reg[17]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_payload_address[17]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_address[17]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_address_reg[18]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_payload_address[18]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_address[18]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_address_reg[19]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_payload_address[19]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_address[19]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_address_reg[1]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_payload_address[1]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_address[1]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_address_reg[20]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_payload_address[20]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_address[20]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_address_reg[21]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_payload_address[21]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_address[21]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_address_reg[22]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_payload_address[22]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_address[22]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_address_reg[23]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_payload_address[23]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_address[23]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_address_reg[24]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_payload_address[24]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_address[24]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_address_reg[25]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_payload_address[25]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_address[25]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_address_reg[26]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_payload_address[26]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_address[26]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_address_reg[27]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_payload_address[27]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_address[27]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_address_reg[28]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_payload_address[28]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_address[28]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_address_reg[29]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_payload_address[29]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_address[29]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_address_reg[2]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_payload_address[2]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_address[2]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_address_reg[30]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_payload_address[30]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_address[30]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_address_reg[31]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_payload_address[31]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_address[31]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_address_reg[3]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_payload_address[3]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_address[3]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_address_reg[4]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_payload_address[4]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_address[4]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_address_reg[5]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_payload_address[5]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_address[5]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_address_reg[6]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_payload_address[6]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_address[6]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_address_reg[7]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_payload_address[7]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_address[7]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_address_reg[8]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_payload_address[8]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_address[8]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_address_reg[9]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_payload_address[9]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_address[9]));
+RTL_REG__BREG_36 splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_corrupt_reg
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_payload_corrupt),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_corrupt));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_data_reg[0]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_payload_data[0]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_data[0]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_data_reg[10]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_payload_data[10]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_data[10]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_data_reg[11]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_payload_data[11]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_data[11]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_data_reg[12]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_payload_data[12]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_data[12]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_data_reg[13]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_payload_data[13]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_data[13]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_data_reg[14]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_payload_data[14]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_data[14]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_data_reg[15]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_payload_data[15]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_data[15]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_data_reg[16]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_payload_data[16]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_data[16]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_data_reg[17]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_payload_data[17]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_data[17]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_data_reg[18]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_payload_data[18]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_data[18]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_data_reg[19]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_payload_data[19]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_data[19]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_data_reg[1]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_payload_data[1]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_data[1]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_data_reg[20]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_payload_data[20]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_data[20]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_data_reg[21]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_payload_data[21]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_data[21]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_data_reg[22]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_payload_data[22]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_data[22]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_data_reg[23]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_payload_data[23]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_data[23]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_data_reg[24]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_payload_data[24]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_data[24]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_data_reg[25]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_payload_data[25]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_data[25]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_data_reg[26]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_payload_data[26]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_data[26]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_data_reg[27]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_payload_data[27]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_data[27]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_data_reg[28]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_payload_data[28]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_data[28]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_data_reg[29]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_payload_data[29]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_data[29]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_data_reg[2]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_payload_data[2]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_data[2]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_data_reg[30]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_payload_data[30]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_data[30]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_data_reg[31]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_payload_data[31]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_data[31]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_data_reg[3]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_payload_data[3]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_data[3]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_data_reg[4]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_payload_data[4]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_data[4]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_data_reg[5]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_payload_data[5]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_data[5]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_data_reg[6]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_payload_data[6]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_data[6]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_data_reg[7]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_payload_data[7]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_data[7]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_data_reg[8]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_payload_data[8]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_data[8]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_data_reg[9]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_payload_data[9]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_data[9]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_mask_reg[0]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_payload_mask[0]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_mask[0]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_mask_reg[1]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_payload_mask[1]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_mask[1]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_mask_reg[2]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_payload_mask[2]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_mask[2]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_mask_reg[3]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_payload_mask[3]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_mask[3]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_opcode_reg[0]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_ready),
+.D(_zz_splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_payload_opcode[0]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_opcode[0]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_opcode_reg[1]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_ready),
+.D(_zz_splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_payload_opcode[1]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_opcode[1]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_opcode_reg[2]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_ready),
+.D(_zz_splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_payload_opcode[2]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_opcode[2]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_param_reg[0]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_payload_param[0]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_param[0]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_param_reg[1]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_payload_param[1]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_param[1]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_param_reg[2]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_payload_param[2]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_param[2]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_size_reg[0]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_payload_size[0]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_size[0]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_size_reg[1]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_payload_size[1]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_size[1]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_size_reg[2]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_payload_size[2]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_size[2]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_source_reg[0]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_payload_source[0]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_source[0]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_source_reg[1]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_payload_source[1]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_source[1]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_source_reg[2]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_payload_source[2]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_source[2]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_source_reg[3]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_payload_source[3]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_source[3]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_source_reg[4]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_payload_source[4]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_source[4]));
+RTL_REG_ASYNC__BREG_1413 splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rValid_reg
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_ready),
+.CLR(cpuResetCtrl_fiber_buffer_io_dataOut),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_valid),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rValid));
+RTL_MUX splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_ready_i
+(.I0(\<const1> ),
+.I1(splited_wc_hub_hub_logic_hub_io_up_a_ready),
+.O(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_ready),
+.S(when_Stream_l477_4));
+RTL_INV splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_valid0_i
+(.I0(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_rValidN),
+.O(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_valid0));
+RTL_OR splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_valid_i
+(.I0(splited_wc_cBus_arbiter_core_io_down_a_valid),
+.I1(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_valid0),
+.O(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_valid));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_address_reg[0]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rValidN),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_up_bus_c_payload_address[0]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_address[0]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_address_reg[10]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rValidN),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_up_bus_c_payload_address[10]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_address[10]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_address_reg[11]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rValidN),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_up_bus_c_payload_address[11]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_address[11]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_address_reg[12]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rValidN),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_up_bus_c_payload_address[12]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_address[12]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_address_reg[13]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rValidN),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_up_bus_c_payload_address[13]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_address[13]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_address_reg[14]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rValidN),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_up_bus_c_payload_address[14]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_address[14]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_address_reg[15]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rValidN),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_up_bus_c_payload_address[15]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_address[15]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_address_reg[16]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rValidN),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_up_bus_c_payload_address[16]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_address[16]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_address_reg[17]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rValidN),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_up_bus_c_payload_address[17]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_address[17]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_address_reg[18]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rValidN),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_up_bus_c_payload_address[18]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_address[18]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_address_reg[19]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rValidN),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_up_bus_c_payload_address[19]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_address[19]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_address_reg[1]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rValidN),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_up_bus_c_payload_address[1]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_address[1]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_address_reg[20]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rValidN),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_up_bus_c_payload_address[20]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_address[20]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_address_reg[21]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rValidN),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_up_bus_c_payload_address[21]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_address[21]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_address_reg[22]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rValidN),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_up_bus_c_payload_address[22]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_address[22]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_address_reg[23]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rValidN),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_up_bus_c_payload_address[23]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_address[23]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_address_reg[24]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rValidN),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_up_bus_c_payload_address[24]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_address[24]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_address_reg[25]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rValidN),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_up_bus_c_payload_address[25]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_address[25]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_address_reg[26]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rValidN),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_up_bus_c_payload_address[26]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_address[26]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_address_reg[27]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rValidN),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_up_bus_c_payload_address[27]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_address[27]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_address_reg[28]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rValidN),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_up_bus_c_payload_address[28]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_address[28]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_address_reg[29]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rValidN),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_up_bus_c_payload_address[29]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_address[29]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_address_reg[2]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rValidN),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_up_bus_c_payload_address[2]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_address[2]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_address_reg[30]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rValidN),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_up_bus_c_payload_address[30]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_address[30]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_address_reg[31]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rValidN),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_up_bus_c_payload_address[31]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_address[31]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_address_reg[3]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rValidN),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_up_bus_c_payload_address[3]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_address[3]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_address_reg[4]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rValidN),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_up_bus_c_payload_address[4]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_address[4]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_address_reg[5]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rValidN),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_up_bus_c_payload_address[5]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_address[5]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_address_reg[6]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rValidN),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_up_bus_c_payload_address[6]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_address[6]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_address_reg[7]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rValidN),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_up_bus_c_payload_address[7]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_address[7]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_address_reg[8]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rValidN),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_up_bus_c_payload_address[8]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_address[8]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_address_reg[9]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rValidN),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_up_bus_c_payload_address[9]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_address[9]));
+RTL_REG__BREG_36 splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_corrupt_reg
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rValidN),
+.D(splited_wc_cBus_arbiter_core_io_down_c_payload_corrupt),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_corrupt));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_data_reg[0]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rValidN),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_up_bus_c_payload_data[0]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_data[0]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_data_reg[10]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rValidN),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_up_bus_c_payload_data[10]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_data[10]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_data_reg[11]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rValidN),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_up_bus_c_payload_data[11]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_data[11]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_data_reg[12]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rValidN),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_up_bus_c_payload_data[12]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_data[12]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_data_reg[13]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rValidN),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_up_bus_c_payload_data[13]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_data[13]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_data_reg[14]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rValidN),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_up_bus_c_payload_data[14]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_data[14]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_data_reg[15]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rValidN),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_up_bus_c_payload_data[15]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_data[15]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_data_reg[16]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rValidN),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_up_bus_c_payload_data[16]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_data[16]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_data_reg[17]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rValidN),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_up_bus_c_payload_data[17]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_data[17]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_data_reg[18]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rValidN),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_up_bus_c_payload_data[18]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_data[18]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_data_reg[19]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rValidN),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_up_bus_c_payload_data[19]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_data[19]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_data_reg[1]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rValidN),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_up_bus_c_payload_data[1]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_data[1]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_data_reg[20]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rValidN),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_up_bus_c_payload_data[20]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_data[20]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_data_reg[21]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rValidN),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_up_bus_c_payload_data[21]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_data[21]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_data_reg[22]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rValidN),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_up_bus_c_payload_data[22]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_data[22]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_data_reg[23]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rValidN),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_up_bus_c_payload_data[23]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_data[23]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_data_reg[24]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rValidN),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_up_bus_c_payload_data[24]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_data[24]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_data_reg[25]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rValidN),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_up_bus_c_payload_data[25]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_data[25]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_data_reg[26]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rValidN),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_up_bus_c_payload_data[26]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_data[26]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_data_reg[27]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rValidN),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_up_bus_c_payload_data[27]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_data[27]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_data_reg[28]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rValidN),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_up_bus_c_payload_data[28]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_data[28]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_data_reg[29]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rValidN),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_up_bus_c_payload_data[29]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_data[29]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_data_reg[2]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rValidN),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_up_bus_c_payload_data[2]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_data[2]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_data_reg[30]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rValidN),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_up_bus_c_payload_data[30]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_data[30]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_data_reg[31]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rValidN),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_up_bus_c_payload_data[31]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_data[31]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_data_reg[3]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rValidN),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_up_bus_c_payload_data[3]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_data[3]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_data_reg[4]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rValidN),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_up_bus_c_payload_data[4]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_data[4]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_data_reg[5]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rValidN),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_up_bus_c_payload_data[5]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_data[5]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_data_reg[6]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rValidN),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_up_bus_c_payload_data[6]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_data[6]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_data_reg[7]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rValidN),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_up_bus_c_payload_data[7]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_data[7]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_data_reg[8]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rValidN),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_up_bus_c_payload_data[8]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_data[8]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_data_reg[9]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rValidN),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_up_bus_c_payload_data[9]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_data[9]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_opcode_reg[0]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rValidN),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_up_bus_c_payload_opcode[0]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_opcode[0]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_opcode_reg[1]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rValidN),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_up_bus_c_payload_opcode[1]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_opcode[1]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_opcode_reg[2]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rValidN),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_up_bus_c_payload_opcode[2]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_opcode[2]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_param_reg[0]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rValidN),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_up_bus_c_payload_param[0]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_param[0]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_param_reg[1]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rValidN),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_up_bus_c_payload_param[1]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_param[1]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_param_reg[2]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rValidN),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_up_bus_c_payload_param[2]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_param[2]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_size_reg[0]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rValidN),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_up_bus_c_payload_size[0]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_size[0]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_size_reg[1]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rValidN),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_up_bus_c_payload_size[1]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_size[1]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_size_reg[2]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rValidN),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_up_bus_c_payload_size[2]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_size[2]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_source_reg[0]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rValidN),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_up_bus_c_payload_source[0]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_source[0]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_source_reg[1]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rValidN),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_up_bus_c_payload_source[1]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_source[1]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_source_reg[2]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rValidN),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_up_bus_c_payload_source[2]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_source[2]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_source_reg[3]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rValidN),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_up_bus_c_payload_source[3]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_source[3]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_source_reg[4]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rValidN),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_up_bus_c_payload_source[4]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_source[4]));
+RTL_MUX splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rValidN_i
+(.I0(\<const1> ),
+.I1(splited_wc_cBus_arbiter_core_io_down_c_valid),
+.O(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rValidN__0),
+.S(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_ready));
+RTL_REG_ASYNC__BREG_1846 splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rValidN_reg
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rValidN__0),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_ready),
+.PRE(cpuResetCtrl_fiber_buffer_io_dataOut),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rValidN));
+RTL_MUX374 splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_payload_address_i
+(.I0(splited_wc_cBus_to_splited_wc_hub_hub_up_up_bus_c_payload_address),
+.I1(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_address),
+.O(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_payload_address),
+.S(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rValidN));
+RTL_MUX splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_payload_corrupt_i
+(.I0(splited_wc_cBus_arbiter_core_io_down_c_payload_corrupt),
+.I1(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_corrupt),
+.O(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_payload_corrupt),
+.S(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rValidN));
+RTL_MUX374 splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_payload_data_i
+(.I0(splited_wc_cBus_to_splited_wc_hub_hub_up_up_bus_c_payload_data),
+.I1(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_data),
+.O(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_payload_data),
+.S(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rValidN));
+RTL_MUX861 splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_payload_param_i
+(.I0(splited_wc_cBus_to_splited_wc_hub_hub_up_up_bus_c_payload_param),
+.I1(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_param),
+.O(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_payload_param),
+.S(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rValidN));
+RTL_MUX861 splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_payload_size_i
+(.I0(splited_wc_cBus_to_splited_wc_hub_hub_up_up_bus_c_payload_size),
+.I1(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_size),
+.O(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_payload_size),
+.S(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rValidN));
+RTL_MUX158 splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_payload_source_i
+(.I0(splited_wc_cBus_to_splited_wc_hub_hub_up_up_bus_c_payload_source),
+.I1(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rData_source),
+.O(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_payload_source),
+.S(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rValidN));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_address_reg[0]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_payload_address[0]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_address[0]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_address_reg[10]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_payload_address[10]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_address[10]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_address_reg[11]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_payload_address[11]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_address[11]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_address_reg[12]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_payload_address[12]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_address[12]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_address_reg[13]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_payload_address[13]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_address[13]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_address_reg[14]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_payload_address[14]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_address[14]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_address_reg[15]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_payload_address[15]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_address[15]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_address_reg[16]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_payload_address[16]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_address[16]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_address_reg[17]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_payload_address[17]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_address[17]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_address_reg[18]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_payload_address[18]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_address[18]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_address_reg[19]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_payload_address[19]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_address[19]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_address_reg[1]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_payload_address[1]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_address[1]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_address_reg[20]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_payload_address[20]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_address[20]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_address_reg[21]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_payload_address[21]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_address[21]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_address_reg[22]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_payload_address[22]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_address[22]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_address_reg[23]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_payload_address[23]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_address[23]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_address_reg[24]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_payload_address[24]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_address[24]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_address_reg[25]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_payload_address[25]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_address[25]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_address_reg[26]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_payload_address[26]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_address[26]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_address_reg[27]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_payload_address[27]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_address[27]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_address_reg[28]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_payload_address[28]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_address[28]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_address_reg[29]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_payload_address[29]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_address[29]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_address_reg[2]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_payload_address[2]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_address[2]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_address_reg[30]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_payload_address[30]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_address[30]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_address_reg[31]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_payload_address[31]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_address[31]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_address_reg[3]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_payload_address[3]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_address[3]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_address_reg[4]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_payload_address[4]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_address[4]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_address_reg[5]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_payload_address[5]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_address[5]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_address_reg[6]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_payload_address[6]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_address[6]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_address_reg[7]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_payload_address[7]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_address[7]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_address_reg[8]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_payload_address[8]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_address[8]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_address_reg[9]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_payload_address[9]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_address[9]));
+RTL_REG__BREG_36 splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_corrupt_reg
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_payload_corrupt),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_corrupt));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_data_reg[0]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_payload_data[0]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_data[0]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_data_reg[10]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_payload_data[10]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_data[10]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_data_reg[11]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_payload_data[11]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_data[11]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_data_reg[12]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_payload_data[12]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_data[12]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_data_reg[13]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_payload_data[13]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_data[13]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_data_reg[14]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_payload_data[14]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_data[14]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_data_reg[15]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_payload_data[15]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_data[15]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_data_reg[16]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_payload_data[16]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_data[16]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_data_reg[17]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_payload_data[17]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_data[17]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_data_reg[18]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_payload_data[18]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_data[18]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_data_reg[19]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_payload_data[19]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_data[19]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_data_reg[1]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_payload_data[1]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_data[1]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_data_reg[20]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_payload_data[20]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_data[20]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_data_reg[21]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_payload_data[21]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_data[21]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_data_reg[22]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_payload_data[22]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_data[22]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_data_reg[23]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_payload_data[23]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_data[23]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_data_reg[24]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_payload_data[24]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_data[24]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_data_reg[25]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_payload_data[25]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_data[25]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_data_reg[26]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_payload_data[26]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_data[26]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_data_reg[27]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_payload_data[27]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_data[27]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_data_reg[28]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_payload_data[28]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_data[28]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_data_reg[29]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_payload_data[29]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_data[29]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_data_reg[2]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_payload_data[2]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_data[2]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_data_reg[30]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_payload_data[30]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_data[30]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_data_reg[31]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_payload_data[31]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_data[31]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_data_reg[3]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_payload_data[3]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_data[3]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_data_reg[4]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_payload_data[4]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_data[4]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_data_reg[5]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_payload_data[5]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_data[5]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_data_reg[6]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_payload_data[6]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_data[6]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_data_reg[7]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_payload_data[7]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_data[7]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_data_reg[8]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_payload_data[8]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_data[8]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_data_reg[9]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_payload_data[9]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_data[9]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_opcode_reg[0]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_ready),
+.D(_zz_splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_payload_opcode[0]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_opcode[0]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_opcode_reg[1]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_ready),
+.D(_zz_splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_payload_opcode[1]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_opcode[1]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_opcode_reg[2]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_ready),
+.D(_zz_splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_payload_opcode[2]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_opcode[2]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_param_reg[0]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_payload_param[0]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_param[0]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_param_reg[1]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_payload_param[1]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_param[1]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_param_reg[2]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_payload_param[2]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_param[2]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_size_reg[0]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_payload_size[0]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_size[0]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_size_reg[1]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_payload_size[1]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_size[1]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_size_reg[2]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_payload_size[2]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_size[2]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_source_reg[0]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_payload_source[0]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_source[0]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_source_reg[1]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_payload_source[1]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_source[1]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_source_reg[2]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_payload_source[2]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_source[2]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_source_reg[3]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_payload_source[3]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_source[3]));
+RTL_REG__BREG_36 \splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_source_reg[4]
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_ready),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_payload_source[4]),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_source[4]));
+RTL_REG_ASYNC__BREG_1413 splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rValid_reg
+(.C(litex_clk),
+.CE(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_ready),
+.CLR(cpuResetCtrl_fiber_buffer_io_dataOut),
+.D(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_valid),
+.Q(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rValid));
+RTL_MUX splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_ready_i
+(.I0(\<const1> ),
+.I1(splited_wc_hub_hub_logic_hub_io_up_c_ready),
+.O(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_ready),
+.S(when_Stream_l477_5));
+RTL_INV splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_valid0_i
+(.I0(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_rValidN),
+.O(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_valid0));
+RTL_OR splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_valid_i
+(.I0(splited_wc_cBus_arbiter_core_io_down_c_valid),
+.I1(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_valid0),
+.O(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_valid));
+Hub splited_wc_hub_hub_logic_hub
+(.cpuResetCtrl_reset(cpuResetCtrl_fiber_buffer_io_dataOut),
+.io_down_a_payload_address(splited_mBus_to_peripheral_bus_up_bus_a_payload_address),
+.io_down_a_payload_corrupt(splited_wc_hub_hub_logic_hub_io_down_a_payload_corrupt),
+.io_down_a_payload_data(splited_mBus_to_peripheral_bus_up_bus_a_payload_data),
+.io_down_a_payload_mask(splited_mBus_to_peripheral_bus_up_bus_a_payload_mask),
+.io_down_a_payload_opcode(splited_mBus_to_peripheral_bus_up_bus_a_payload_opcode),
+.io_down_a_payload_param(splited_mBus_to_peripheral_bus_up_bus_a_payload_param),
+.io_down_a_payload_size(splited_mBus_to_peripheral_bus_up_bus_a_payload_size),
+.io_down_a_payload_source(splited_mBus_to_peripheral_bus_up_bus_a_payload_source),
+.io_down_a_ready(peripheral_bus_arbiter_core_io_ups_1_a_ready),
+.io_down_a_valid(splited_wc_hub_hub_logic_hub_io_down_a_valid),
+.io_down_d_payload_corrupt(peripheral_bus_arbiter_core_io_ups_1_d_payload_corrupt),
+.io_down_d_payload_data(splited_mBus_to_peripheral_bus_up_bus_d_payload_data),
+.io_down_d_payload_denied(peripheral_bus_arbiter_core_io_ups_1_d_payload_denied),
+.io_down_d_payload_opcode(splited_mBus_to_peripheral_bus_up_bus_d_payload_opcode),
+.io_down_d_payload_param(splited_mBus_to_peripheral_bus_up_bus_d_payload_param),
+.io_down_d_payload_size(splited_mBus_to_peripheral_bus_up_bus_d_payload_size),
+.io_down_d_payload_source(splited_mBus_to_peripheral_bus_up_bus_d_payload_source),
+.io_down_d_ready(splited_wc_hub_hub_logic_hub_io_down_d_ready),
+.io_down_d_valid(peripheral_bus_arbiter_core_io_ups_1_d_valid),
+.io_up_a_payload_address(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_address),
+.io_up_a_payload_corrupt(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_corrupt),
+.io_up_a_payload_data(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_data),
+.io_up_a_payload_mask(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_mask),
+.io_up_a_payload_opcode(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_opcode),
+.io_up_a_payload_param(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_param),
+.io_up_a_payload_size(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_size),
+.io_up_a_payload_source(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rData_source),
+.io_up_a_ready(splited_wc_hub_hub_logic_hub_io_up_a_ready),
+.io_up_a_valid(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_a_s2mPipe_rValid),
+.io_up_b_payload_address(splited_wc_cBus_to_splited_wc_hub_hub_up_up_bus_b_payload_address),
+.io_up_b_payload_opcode(splited_wc_cBus_to_splited_wc_hub_hub_up_up_bus_b_payload_opcode),
+.io_up_b_payload_param(splited_wc_cBus_to_splited_wc_hub_hub_up_up_bus_b_payload_param),
+.io_up_b_payload_size(splited_wc_cBus_to_splited_wc_hub_hub_up_up_bus_b_payload_size),
+.io_up_b_payload_source(splited_wc_cBus_to_splited_wc_hub_hub_up_up_bus_b_payload_source),
+.io_up_b_ready(splited_wc_cBus_arbiter_core_io_down_b_ready),
+.io_up_b_valid(splited_wc_hub_hub_logic_hub_io_up_b_valid),
+.io_up_c_payload_address(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_address),
+.io_up_c_payload_corrupt(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_corrupt),
+.io_up_c_payload_data(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_data),
+.io_up_c_payload_opcode(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_opcode),
+.io_up_c_payload_param(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_param),
+.io_up_c_payload_size(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_size),
+.io_up_c_payload_source(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rData_source),
+.io_up_c_ready(splited_wc_hub_hub_logic_hub_io_up_c_ready),
+.io_up_c_valid(splited_wc_cBus_to_splited_wc_hub_hub_up_down_bus_c_s2mPipe_rValid),
+.io_up_d_payload_corrupt(splited_wc_hub_hub_logic_hub_io_up_d_payload_corrupt),
+.io_up_d_payload_data(splited_wc_cBus_to_splited_wc_hub_hub_up_up_bus_d_payload_data),
+.io_up_d_payload_denied(splited_wc_hub_hub_logic_hub_io_up_d_payload_denied),
+.io_up_d_payload_opcode(splited_wc_cBus_to_splited_wc_hub_hub_up_up_bus_d_payload_opcode),
+.io_up_d_payload_param(splited_wc_cBus_to_splited_wc_hub_hub_up_up_bus_d_payload_param),
+.io_up_d_payload_sink(splited_wc_cBus_to_splited_wc_hub_hub_up_up_bus_d_payload_sink),
+.io_up_d_payload_size(splited_wc_cBus_to_splited_wc_hub_hub_up_up_bus_d_payload_size),
+.io_up_d_payload_source(splited_wc_cBus_to_splited_wc_hub_hub_up_up_bus_d_payload_source),
+.io_up_d_ready(splited_wc_cBus_arbiter_core_io_down_d_ready),
+.io_up_d_valid(splited_wc_hub_hub_logic_hub_io_up_d_valid),
+.io_up_e_payload_sink(splited_wc_cBus_to_splited_wc_hub_hub_up_up_bus_e_payload_sink),
+.io_up_e_ready(splited_wc_hub_hub_logic_hub_io_up_e_ready),
+.io_up_e_valid(splited_wc_cBus_arbiter_core_io_down_e_valid),
+.litex_clk(litex_clk));
+RTL_AND7 vexiis_0_dBus_bus_a_halfPipe_fire_i
+(.I0(vexiis_0_dBus_bus_a_rValid),
+.I1(vexiis_0_dBus_to_ioBus_up_bus_a_ready),
+.O(vexiis_0_dBus_bus_a_halfPipe_fire));
+RTL_REG__BREG_36 \vexiis_0_dBus_bus_a_rData_address_reg[0]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_payload_address[0]),
+.Q(vexiis_0_dBus_bus_a_rData_address[0]));
+RTL_REG__BREG_36 \vexiis_0_dBus_bus_a_rData_address_reg[10]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_payload_address[10]),
+.Q(vexiis_0_dBus_bus_a_rData_address[10]));
+RTL_REG__BREG_36 \vexiis_0_dBus_bus_a_rData_address_reg[11]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_payload_address[11]),
+.Q(vexiis_0_dBus_bus_a_rData_address[11]));
+RTL_REG__BREG_36 \vexiis_0_dBus_bus_a_rData_address_reg[12]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_payload_address[12]),
+.Q(vexiis_0_dBus_bus_a_rData_address[12]));
+RTL_REG__BREG_36 \vexiis_0_dBus_bus_a_rData_address_reg[13]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_payload_address[13]),
+.Q(vexiis_0_dBus_bus_a_rData_address[13]));
+RTL_REG__BREG_36 \vexiis_0_dBus_bus_a_rData_address_reg[14]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_payload_address[14]),
+.Q(vexiis_0_dBus_bus_a_rData_address[14]));
+RTL_REG__BREG_36 \vexiis_0_dBus_bus_a_rData_address_reg[15]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_payload_address[15]),
+.Q(vexiis_0_dBus_bus_a_rData_address[15]));
+RTL_REG__BREG_36 \vexiis_0_dBus_bus_a_rData_address_reg[16]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_payload_address[16]),
+.Q(vexiis_0_dBus_bus_a_rData_address[16]));
+RTL_REG__BREG_36 \vexiis_0_dBus_bus_a_rData_address_reg[17]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_payload_address[17]),
+.Q(vexiis_0_dBus_bus_a_rData_address[17]));
+RTL_REG__BREG_36 \vexiis_0_dBus_bus_a_rData_address_reg[18]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_payload_address[18]),
+.Q(vexiis_0_dBus_bus_a_rData_address[18]));
+RTL_REG__BREG_36 \vexiis_0_dBus_bus_a_rData_address_reg[19]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_payload_address[19]),
+.Q(vexiis_0_dBus_bus_a_rData_address[19]));
+RTL_REG__BREG_36 \vexiis_0_dBus_bus_a_rData_address_reg[1]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_payload_address[1]),
+.Q(vexiis_0_dBus_bus_a_rData_address[1]));
+RTL_REG__BREG_36 \vexiis_0_dBus_bus_a_rData_address_reg[20]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_payload_address[20]),
+.Q(vexiis_0_dBus_bus_a_rData_address[20]));
+RTL_REG__BREG_36 \vexiis_0_dBus_bus_a_rData_address_reg[21]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_payload_address[21]),
+.Q(vexiis_0_dBus_bus_a_rData_address[21]));
+RTL_REG__BREG_36 \vexiis_0_dBus_bus_a_rData_address_reg[22]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_payload_address[22]),
+.Q(vexiis_0_dBus_bus_a_rData_address[22]));
+RTL_REG__BREG_36 \vexiis_0_dBus_bus_a_rData_address_reg[23]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_payload_address[23]),
+.Q(vexiis_0_dBus_bus_a_rData_address[23]));
+RTL_REG__BREG_36 \vexiis_0_dBus_bus_a_rData_address_reg[24]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_payload_address[24]),
+.Q(vexiis_0_dBus_bus_a_rData_address[24]));
+RTL_REG__BREG_36 \vexiis_0_dBus_bus_a_rData_address_reg[25]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_payload_address[25]),
+.Q(vexiis_0_dBus_bus_a_rData_address[25]));
+RTL_REG__BREG_36 \vexiis_0_dBus_bus_a_rData_address_reg[26]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_payload_address[26]),
+.Q(vexiis_0_dBus_bus_a_rData_address[26]));
+RTL_REG__BREG_36 \vexiis_0_dBus_bus_a_rData_address_reg[27]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_payload_address[27]),
+.Q(vexiis_0_dBus_bus_a_rData_address[27]));
+RTL_REG__BREG_36 \vexiis_0_dBus_bus_a_rData_address_reg[28]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_payload_address[28]),
+.Q(vexiis_0_dBus_bus_a_rData_address[28]));
+RTL_REG__BREG_36 \vexiis_0_dBus_bus_a_rData_address_reg[29]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_payload_address[29]),
+.Q(vexiis_0_dBus_bus_a_rData_address[29]));
+RTL_REG__BREG_36 \vexiis_0_dBus_bus_a_rData_address_reg[2]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_payload_address[2]),
+.Q(vexiis_0_dBus_bus_a_rData_address[2]));
+RTL_REG__BREG_36 \vexiis_0_dBus_bus_a_rData_address_reg[30]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_payload_address[30]),
+.Q(vexiis_0_dBus_bus_a_rData_address[30]));
+RTL_REG__BREG_36 \vexiis_0_dBus_bus_a_rData_address_reg[31]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_payload_address[31]),
+.Q(vexiis_0_dBus_bus_a_rData_address[31]));
+RTL_REG__BREG_36 \vexiis_0_dBus_bus_a_rData_address_reg[3]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_payload_address[3]),
+.Q(vexiis_0_dBus_bus_a_rData_address[3]));
+RTL_REG__BREG_36 \vexiis_0_dBus_bus_a_rData_address_reg[4]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_payload_address[4]),
+.Q(vexiis_0_dBus_bus_a_rData_address[4]));
+RTL_REG__BREG_36 \vexiis_0_dBus_bus_a_rData_address_reg[5]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_payload_address[5]),
+.Q(vexiis_0_dBus_bus_a_rData_address[5]));
+RTL_REG__BREG_36 \vexiis_0_dBus_bus_a_rData_address_reg[6]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_payload_address[6]),
+.Q(vexiis_0_dBus_bus_a_rData_address[6]));
+RTL_REG__BREG_36 \vexiis_0_dBus_bus_a_rData_address_reg[7]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_payload_address[7]),
+.Q(vexiis_0_dBus_bus_a_rData_address[7]));
+RTL_REG__BREG_36 \vexiis_0_dBus_bus_a_rData_address_reg[8]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_payload_address[8]),
+.Q(vexiis_0_dBus_bus_a_rData_address[8]));
+RTL_REG__BREG_36 \vexiis_0_dBus_bus_a_rData_address_reg[9]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_payload_address[9]),
+.Q(vexiis_0_dBus_bus_a_rData_address[9]));
+RTL_REG__BREG_36 vexiis_0_dBus_bus_a_rData_corrupt_reg
+(.C(litex_clk),
+.CE(vexiis_0_dBus_bus_a_ready),
+.D(vexiis_0_logic_core_LsuTileLinkPlugin_logic_bridge_down_a_payload_corrupt),
+.Q(vexiis_0_dBus_bus_a_rData_corrupt));
+RTL_REG__BREG_36 \vexiis_0_dBus_bus_a_rData_data_reg[0]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_payload_data[0]),
+.Q(vexiis_0_dBus_bus_a_rData_data[0]));
+RTL_REG__BREG_36 \vexiis_0_dBus_bus_a_rData_data_reg[10]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_payload_data[10]),
+.Q(vexiis_0_dBus_bus_a_rData_data[10]));
+RTL_REG__BREG_36 \vexiis_0_dBus_bus_a_rData_data_reg[11]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_payload_data[11]),
+.Q(vexiis_0_dBus_bus_a_rData_data[11]));
+RTL_REG__BREG_36 \vexiis_0_dBus_bus_a_rData_data_reg[12]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_payload_data[12]),
+.Q(vexiis_0_dBus_bus_a_rData_data[12]));
+RTL_REG__BREG_36 \vexiis_0_dBus_bus_a_rData_data_reg[13]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_payload_data[13]),
+.Q(vexiis_0_dBus_bus_a_rData_data[13]));
+RTL_REG__BREG_36 \vexiis_0_dBus_bus_a_rData_data_reg[14]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_payload_data[14]),
+.Q(vexiis_0_dBus_bus_a_rData_data[14]));
+RTL_REG__BREG_36 \vexiis_0_dBus_bus_a_rData_data_reg[15]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_payload_data[15]),
+.Q(vexiis_0_dBus_bus_a_rData_data[15]));
+RTL_REG__BREG_36 \vexiis_0_dBus_bus_a_rData_data_reg[16]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_payload_data[16]),
+.Q(vexiis_0_dBus_bus_a_rData_data[16]));
+RTL_REG__BREG_36 \vexiis_0_dBus_bus_a_rData_data_reg[17]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_payload_data[17]),
+.Q(vexiis_0_dBus_bus_a_rData_data[17]));
+RTL_REG__BREG_36 \vexiis_0_dBus_bus_a_rData_data_reg[18]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_payload_data[18]),
+.Q(vexiis_0_dBus_bus_a_rData_data[18]));
+RTL_REG__BREG_36 \vexiis_0_dBus_bus_a_rData_data_reg[19]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_payload_data[19]),
+.Q(vexiis_0_dBus_bus_a_rData_data[19]));
+RTL_REG__BREG_36 \vexiis_0_dBus_bus_a_rData_data_reg[1]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_payload_data[1]),
+.Q(vexiis_0_dBus_bus_a_rData_data[1]));
+RTL_REG__BREG_36 \vexiis_0_dBus_bus_a_rData_data_reg[20]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_payload_data[20]),
+.Q(vexiis_0_dBus_bus_a_rData_data[20]));
+RTL_REG__BREG_36 \vexiis_0_dBus_bus_a_rData_data_reg[21]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_payload_data[21]),
+.Q(vexiis_0_dBus_bus_a_rData_data[21]));
+RTL_REG__BREG_36 \vexiis_0_dBus_bus_a_rData_data_reg[22]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_payload_data[22]),
+.Q(vexiis_0_dBus_bus_a_rData_data[22]));
+RTL_REG__BREG_36 \vexiis_0_dBus_bus_a_rData_data_reg[23]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_payload_data[23]),
+.Q(vexiis_0_dBus_bus_a_rData_data[23]));
+RTL_REG__BREG_36 \vexiis_0_dBus_bus_a_rData_data_reg[24]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_payload_data[24]),
+.Q(vexiis_0_dBus_bus_a_rData_data[24]));
+RTL_REG__BREG_36 \vexiis_0_dBus_bus_a_rData_data_reg[25]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_payload_data[25]),
+.Q(vexiis_0_dBus_bus_a_rData_data[25]));
+RTL_REG__BREG_36 \vexiis_0_dBus_bus_a_rData_data_reg[26]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_payload_data[26]),
+.Q(vexiis_0_dBus_bus_a_rData_data[26]));
+RTL_REG__BREG_36 \vexiis_0_dBus_bus_a_rData_data_reg[27]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_payload_data[27]),
+.Q(vexiis_0_dBus_bus_a_rData_data[27]));
+RTL_REG__BREG_36 \vexiis_0_dBus_bus_a_rData_data_reg[28]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_payload_data[28]),
+.Q(vexiis_0_dBus_bus_a_rData_data[28]));
+RTL_REG__BREG_36 \vexiis_0_dBus_bus_a_rData_data_reg[29]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_payload_data[29]),
+.Q(vexiis_0_dBus_bus_a_rData_data[29]));
+RTL_REG__BREG_36 \vexiis_0_dBus_bus_a_rData_data_reg[2]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_payload_data[2]),
+.Q(vexiis_0_dBus_bus_a_rData_data[2]));
+RTL_REG__BREG_36 \vexiis_0_dBus_bus_a_rData_data_reg[30]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_payload_data[30]),
+.Q(vexiis_0_dBus_bus_a_rData_data[30]));
+RTL_REG__BREG_36 \vexiis_0_dBus_bus_a_rData_data_reg[31]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_payload_data[31]),
+.Q(vexiis_0_dBus_bus_a_rData_data[31]));
+RTL_REG__BREG_36 \vexiis_0_dBus_bus_a_rData_data_reg[3]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_payload_data[3]),
+.Q(vexiis_0_dBus_bus_a_rData_data[3]));
+RTL_REG__BREG_36 \vexiis_0_dBus_bus_a_rData_data_reg[4]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_payload_data[4]),
+.Q(vexiis_0_dBus_bus_a_rData_data[4]));
+RTL_REG__BREG_36 \vexiis_0_dBus_bus_a_rData_data_reg[5]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_payload_data[5]),
+.Q(vexiis_0_dBus_bus_a_rData_data[5]));
+RTL_REG__BREG_36 \vexiis_0_dBus_bus_a_rData_data_reg[6]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_payload_data[6]),
+.Q(vexiis_0_dBus_bus_a_rData_data[6]));
+RTL_REG__BREG_36 \vexiis_0_dBus_bus_a_rData_data_reg[7]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_payload_data[7]),
+.Q(vexiis_0_dBus_bus_a_rData_data[7]));
+RTL_REG__BREG_36 \vexiis_0_dBus_bus_a_rData_data_reg[8]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_payload_data[8]),
+.Q(vexiis_0_dBus_bus_a_rData_data[8]));
+RTL_REG__BREG_36 \vexiis_0_dBus_bus_a_rData_data_reg[9]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_payload_data[9]),
+.Q(vexiis_0_dBus_bus_a_rData_data[9]));
+RTL_REG__BREG_36 \vexiis_0_dBus_bus_a_rData_mask_reg[0]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_payload_mask[0]),
+.Q(vexiis_0_dBus_bus_a_rData_mask[0]));
+RTL_REG__BREG_36 \vexiis_0_dBus_bus_a_rData_mask_reg[1]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_payload_mask[1]),
+.Q(vexiis_0_dBus_bus_a_rData_mask[1]));
+RTL_REG__BREG_36 \vexiis_0_dBus_bus_a_rData_mask_reg[2]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_payload_mask[2]),
+.Q(vexiis_0_dBus_bus_a_rData_mask[2]));
+RTL_REG__BREG_36 \vexiis_0_dBus_bus_a_rData_mask_reg[3]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_payload_mask[3]),
+.Q(vexiis_0_dBus_bus_a_rData_mask[3]));
+RTL_REG__BREG_36 \vexiis_0_dBus_bus_a_rData_opcode_reg[0]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_payload_opcode[0]),
+.Q(vexiis_0_dBus_bus_a_rData_opcode[0]));
+RTL_REG__BREG_36 \vexiis_0_dBus_bus_a_rData_opcode_reg[1]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_payload_opcode[1]),
+.Q(vexiis_0_dBus_bus_a_rData_opcode[1]));
+RTL_REG__BREG_36 \vexiis_0_dBus_bus_a_rData_opcode_reg[2]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_payload_opcode[2]),
+.Q(vexiis_0_dBus_bus_a_rData_opcode[2]));
+RTL_REG__BREG_36 \vexiis_0_dBus_bus_a_rData_param_reg[0]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_payload_param[0]),
+.Q(vexiis_0_dBus_bus_a_rData_param[0]));
+RTL_REG__BREG_36 \vexiis_0_dBus_bus_a_rData_param_reg[1]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_payload_param[1]),
+.Q(vexiis_0_dBus_bus_a_rData_param[1]));
+RTL_REG__BREG_36 \vexiis_0_dBus_bus_a_rData_param_reg[2]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_payload_param[2]),
+.Q(vexiis_0_dBus_bus_a_rData_param[2]));
+RTL_REG__BREG_36 \vexiis_0_dBus_bus_a_rData_size_reg[0]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_payload_size[0]),
+.Q(vexiis_0_dBus_bus_a_rData_size[0]));
+RTL_REG__BREG_36 \vexiis_0_dBus_bus_a_rData_size_reg[1]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_payload_size[1]),
+.Q(vexiis_0_dBus_bus_a_rData_size[1]));
+RTL_MUX vexiis_0_dBus_bus_a_rValid_i
+(.I0(\<const0> ),
+.I1(vexiis_0_logic_core_LsuTileLinkPlugin_logic_bridge_down_a_valid),
+.O(vexiis_0_dBus_bus_a_rValid__0),
+.S(vexiis_0_dBus_bus_a_halfPipe_fire));
+RTL_MUX vexiis_0_dBus_bus_a_rValid_i__0
+(.I0(\<const1> ),
+.I1(vexiis_0_logic_core_LsuTileLinkPlugin_logic_bridge_down_a_valid),
+.O(vexiis_0_dBus_bus_a_rValid_i__0_n_0),
+.S(vexiis_0_dBus_bus_a_halfPipe_fire));
+RTL_REG_ASYNC__BREG_1413 vexiis_0_dBus_bus_a_rValid_reg
+(.C(litex_clk),
+.CE(vexiis_0_dBus_bus_a_rValid_i__0_n_0),
+.CLR(cpuResetCtrl_fiber_buffer_io_dataOut),
+.D(vexiis_0_dBus_bus_a_rValid__0),
+.Q(vexiis_0_dBus_bus_a_rValid));
+RTL_INV vexiis_0_dBus_bus_a_ready_i
+(.I0(vexiis_0_dBus_bus_a_rValid),
+.O(vexiis_0_dBus_bus_a_ready));
+RTL_REG__BREG_36 vexiis_0_dBus_noDecoder_toDown_d_rData_corrupt_reg
+(.C(litex_clk),
+.CE(ioBus_to_peripheral_bus_up_bus_d_ready),
+.D(peripheral_bus_arbiter_core_io_ups_0_d_payload_corrupt),
+.Q(vexiis_0_dBus_noDecoder_toDown_d_rData_corrupt));
+RTL_REG__BREG_36 \vexiis_0_dBus_noDecoder_toDown_d_rData_data_reg[0]
+(.C(litex_clk),
+.CE(ioBus_to_peripheral_bus_up_bus_d_ready),
+.D(ioBus_to_peripheral_bus_up_bus_d_payload_data[0]),
+.Q(vexiis_0_dBus_noDecoder_toDown_d_rData_data[0]));
+RTL_REG__BREG_36 \vexiis_0_dBus_noDecoder_toDown_d_rData_data_reg[10]
+(.C(litex_clk),
+.CE(ioBus_to_peripheral_bus_up_bus_d_ready),
+.D(ioBus_to_peripheral_bus_up_bus_d_payload_data[10]),
+.Q(vexiis_0_dBus_noDecoder_toDown_d_rData_data[10]));
+RTL_REG__BREG_36 \vexiis_0_dBus_noDecoder_toDown_d_rData_data_reg[11]
+(.C(litex_clk),
+.CE(ioBus_to_peripheral_bus_up_bus_d_ready),
+.D(ioBus_to_peripheral_bus_up_bus_d_payload_data[11]),
+.Q(vexiis_0_dBus_noDecoder_toDown_d_rData_data[11]));
+RTL_REG__BREG_36 \vexiis_0_dBus_noDecoder_toDown_d_rData_data_reg[12]
+(.C(litex_clk),
+.CE(ioBus_to_peripheral_bus_up_bus_d_ready),
+.D(ioBus_to_peripheral_bus_up_bus_d_payload_data[12]),
+.Q(vexiis_0_dBus_noDecoder_toDown_d_rData_data[12]));
+RTL_REG__BREG_36 \vexiis_0_dBus_noDecoder_toDown_d_rData_data_reg[13]
+(.C(litex_clk),
+.CE(ioBus_to_peripheral_bus_up_bus_d_ready),
+.D(ioBus_to_peripheral_bus_up_bus_d_payload_data[13]),
+.Q(vexiis_0_dBus_noDecoder_toDown_d_rData_data[13]));
+RTL_REG__BREG_36 \vexiis_0_dBus_noDecoder_toDown_d_rData_data_reg[14]
+(.C(litex_clk),
+.CE(ioBus_to_peripheral_bus_up_bus_d_ready),
+.D(ioBus_to_peripheral_bus_up_bus_d_payload_data[14]),
+.Q(vexiis_0_dBus_noDecoder_toDown_d_rData_data[14]));
+RTL_REG__BREG_36 \vexiis_0_dBus_noDecoder_toDown_d_rData_data_reg[15]
+(.C(litex_clk),
+.CE(ioBus_to_peripheral_bus_up_bus_d_ready),
+.D(ioBus_to_peripheral_bus_up_bus_d_payload_data[15]),
+.Q(vexiis_0_dBus_noDecoder_toDown_d_rData_data[15]));
+RTL_REG__BREG_36 \vexiis_0_dBus_noDecoder_toDown_d_rData_data_reg[16]
+(.C(litex_clk),
+.CE(ioBus_to_peripheral_bus_up_bus_d_ready),
+.D(ioBus_to_peripheral_bus_up_bus_d_payload_data[16]),
+.Q(vexiis_0_dBus_noDecoder_toDown_d_rData_data[16]));
+RTL_REG__BREG_36 \vexiis_0_dBus_noDecoder_toDown_d_rData_data_reg[17]
+(.C(litex_clk),
+.CE(ioBus_to_peripheral_bus_up_bus_d_ready),
+.D(ioBus_to_peripheral_bus_up_bus_d_payload_data[17]),
+.Q(vexiis_0_dBus_noDecoder_toDown_d_rData_data[17]));
+RTL_REG__BREG_36 \vexiis_0_dBus_noDecoder_toDown_d_rData_data_reg[18]
+(.C(litex_clk),
+.CE(ioBus_to_peripheral_bus_up_bus_d_ready),
+.D(ioBus_to_peripheral_bus_up_bus_d_payload_data[18]),
+.Q(vexiis_0_dBus_noDecoder_toDown_d_rData_data[18]));
+RTL_REG__BREG_36 \vexiis_0_dBus_noDecoder_toDown_d_rData_data_reg[19]
+(.C(litex_clk),
+.CE(ioBus_to_peripheral_bus_up_bus_d_ready),
+.D(ioBus_to_peripheral_bus_up_bus_d_payload_data[19]),
+.Q(vexiis_0_dBus_noDecoder_toDown_d_rData_data[19]));
+RTL_REG__BREG_36 \vexiis_0_dBus_noDecoder_toDown_d_rData_data_reg[1]
+(.C(litex_clk),
+.CE(ioBus_to_peripheral_bus_up_bus_d_ready),
+.D(ioBus_to_peripheral_bus_up_bus_d_payload_data[1]),
+.Q(vexiis_0_dBus_noDecoder_toDown_d_rData_data[1]));
+RTL_REG__BREG_36 \vexiis_0_dBus_noDecoder_toDown_d_rData_data_reg[20]
+(.C(litex_clk),
+.CE(ioBus_to_peripheral_bus_up_bus_d_ready),
+.D(ioBus_to_peripheral_bus_up_bus_d_payload_data[20]),
+.Q(vexiis_0_dBus_noDecoder_toDown_d_rData_data[20]));
+RTL_REG__BREG_36 \vexiis_0_dBus_noDecoder_toDown_d_rData_data_reg[21]
+(.C(litex_clk),
+.CE(ioBus_to_peripheral_bus_up_bus_d_ready),
+.D(ioBus_to_peripheral_bus_up_bus_d_payload_data[21]),
+.Q(vexiis_0_dBus_noDecoder_toDown_d_rData_data[21]));
+RTL_REG__BREG_36 \vexiis_0_dBus_noDecoder_toDown_d_rData_data_reg[22]
+(.C(litex_clk),
+.CE(ioBus_to_peripheral_bus_up_bus_d_ready),
+.D(ioBus_to_peripheral_bus_up_bus_d_payload_data[22]),
+.Q(vexiis_0_dBus_noDecoder_toDown_d_rData_data[22]));
+RTL_REG__BREG_36 \vexiis_0_dBus_noDecoder_toDown_d_rData_data_reg[23]
+(.C(litex_clk),
+.CE(ioBus_to_peripheral_bus_up_bus_d_ready),
+.D(ioBus_to_peripheral_bus_up_bus_d_payload_data[23]),
+.Q(vexiis_0_dBus_noDecoder_toDown_d_rData_data[23]));
+RTL_REG__BREG_36 \vexiis_0_dBus_noDecoder_toDown_d_rData_data_reg[24]
+(.C(litex_clk),
+.CE(ioBus_to_peripheral_bus_up_bus_d_ready),
+.D(ioBus_to_peripheral_bus_up_bus_d_payload_data[24]),
+.Q(vexiis_0_dBus_noDecoder_toDown_d_rData_data[24]));
+RTL_REG__BREG_36 \vexiis_0_dBus_noDecoder_toDown_d_rData_data_reg[25]
+(.C(litex_clk),
+.CE(ioBus_to_peripheral_bus_up_bus_d_ready),
+.D(ioBus_to_peripheral_bus_up_bus_d_payload_data[25]),
+.Q(vexiis_0_dBus_noDecoder_toDown_d_rData_data[25]));
+RTL_REG__BREG_36 \vexiis_0_dBus_noDecoder_toDown_d_rData_data_reg[26]
+(.C(litex_clk),
+.CE(ioBus_to_peripheral_bus_up_bus_d_ready),
+.D(ioBus_to_peripheral_bus_up_bus_d_payload_data[26]),
+.Q(vexiis_0_dBus_noDecoder_toDown_d_rData_data[26]));
+RTL_REG__BREG_36 \vexiis_0_dBus_noDecoder_toDown_d_rData_data_reg[27]
+(.C(litex_clk),
+.CE(ioBus_to_peripheral_bus_up_bus_d_ready),
+.D(ioBus_to_peripheral_bus_up_bus_d_payload_data[27]),
+.Q(vexiis_0_dBus_noDecoder_toDown_d_rData_data[27]));
+RTL_REG__BREG_36 \vexiis_0_dBus_noDecoder_toDown_d_rData_data_reg[28]
+(.C(litex_clk),
+.CE(ioBus_to_peripheral_bus_up_bus_d_ready),
+.D(ioBus_to_peripheral_bus_up_bus_d_payload_data[28]),
+.Q(vexiis_0_dBus_noDecoder_toDown_d_rData_data[28]));
+RTL_REG__BREG_36 \vexiis_0_dBus_noDecoder_toDown_d_rData_data_reg[29]
+(.C(litex_clk),
+.CE(ioBus_to_peripheral_bus_up_bus_d_ready),
+.D(ioBus_to_peripheral_bus_up_bus_d_payload_data[29]),
+.Q(vexiis_0_dBus_noDecoder_toDown_d_rData_data[29]));
+RTL_REG__BREG_36 \vexiis_0_dBus_noDecoder_toDown_d_rData_data_reg[2]
+(.C(litex_clk),
+.CE(ioBus_to_peripheral_bus_up_bus_d_ready),
+.D(ioBus_to_peripheral_bus_up_bus_d_payload_data[2]),
+.Q(vexiis_0_dBus_noDecoder_toDown_d_rData_data[2]));
+RTL_REG__BREG_36 \vexiis_0_dBus_noDecoder_toDown_d_rData_data_reg[30]
+(.C(litex_clk),
+.CE(ioBus_to_peripheral_bus_up_bus_d_ready),
+.D(ioBus_to_peripheral_bus_up_bus_d_payload_data[30]),
+.Q(vexiis_0_dBus_noDecoder_toDown_d_rData_data[30]));
+RTL_REG__BREG_36 \vexiis_0_dBus_noDecoder_toDown_d_rData_data_reg[31]
+(.C(litex_clk),
+.CE(ioBus_to_peripheral_bus_up_bus_d_ready),
+.D(ioBus_to_peripheral_bus_up_bus_d_payload_data[31]),
+.Q(vexiis_0_dBus_noDecoder_toDown_d_rData_data[31]));
+RTL_REG__BREG_36 \vexiis_0_dBus_noDecoder_toDown_d_rData_data_reg[3]
+(.C(litex_clk),
+.CE(ioBus_to_peripheral_bus_up_bus_d_ready),
+.D(ioBus_to_peripheral_bus_up_bus_d_payload_data[3]),
+.Q(vexiis_0_dBus_noDecoder_toDown_d_rData_data[3]));
+RTL_REG__BREG_36 \vexiis_0_dBus_noDecoder_toDown_d_rData_data_reg[4]
+(.C(litex_clk),
+.CE(ioBus_to_peripheral_bus_up_bus_d_ready),
+.D(ioBus_to_peripheral_bus_up_bus_d_payload_data[4]),
+.Q(vexiis_0_dBus_noDecoder_toDown_d_rData_data[4]));
+RTL_REG__BREG_36 \vexiis_0_dBus_noDecoder_toDown_d_rData_data_reg[5]
+(.C(litex_clk),
+.CE(ioBus_to_peripheral_bus_up_bus_d_ready),
+.D(ioBus_to_peripheral_bus_up_bus_d_payload_data[5]),
+.Q(vexiis_0_dBus_noDecoder_toDown_d_rData_data[5]));
+RTL_REG__BREG_36 \vexiis_0_dBus_noDecoder_toDown_d_rData_data_reg[6]
+(.C(litex_clk),
+.CE(ioBus_to_peripheral_bus_up_bus_d_ready),
+.D(ioBus_to_peripheral_bus_up_bus_d_payload_data[6]),
+.Q(vexiis_0_dBus_noDecoder_toDown_d_rData_data[6]));
+RTL_REG__BREG_36 \vexiis_0_dBus_noDecoder_toDown_d_rData_data_reg[7]
+(.C(litex_clk),
+.CE(ioBus_to_peripheral_bus_up_bus_d_ready),
+.D(ioBus_to_peripheral_bus_up_bus_d_payload_data[7]),
+.Q(vexiis_0_dBus_noDecoder_toDown_d_rData_data[7]));
+RTL_REG__BREG_36 \vexiis_0_dBus_noDecoder_toDown_d_rData_data_reg[8]
+(.C(litex_clk),
+.CE(ioBus_to_peripheral_bus_up_bus_d_ready),
+.D(ioBus_to_peripheral_bus_up_bus_d_payload_data[8]),
+.Q(vexiis_0_dBus_noDecoder_toDown_d_rData_data[8]));
+RTL_REG__BREG_36 \vexiis_0_dBus_noDecoder_toDown_d_rData_data_reg[9]
+(.C(litex_clk),
+.CE(ioBus_to_peripheral_bus_up_bus_d_ready),
+.D(ioBus_to_peripheral_bus_up_bus_d_payload_data[9]),
+.Q(vexiis_0_dBus_noDecoder_toDown_d_rData_data[9]));
+RTL_REG__BREG_36 vexiis_0_dBus_noDecoder_toDown_d_rData_denied_reg
+(.C(litex_clk),
+.CE(ioBus_to_peripheral_bus_up_bus_d_ready),
+.D(peripheral_bus_arbiter_core_io_ups_0_d_payload_denied),
+.Q(vexiis_0_dBus_noDecoder_toDown_d_rData_denied));
+RTL_REG__BREG_36 \vexiis_0_dBus_noDecoder_toDown_d_rData_opcode_reg[0]
+(.C(litex_clk),
+.CE(ioBus_to_peripheral_bus_up_bus_d_ready),
+.D(ioBus_to_peripheral_bus_up_bus_d_payload_opcode[0]),
+.Q(vexiis_0_dBus_noDecoder_toDown_d_rData_opcode[0]));
+RTL_REG__BREG_36 \vexiis_0_dBus_noDecoder_toDown_d_rData_opcode_reg[1]
+(.C(litex_clk),
+.CE(ioBus_to_peripheral_bus_up_bus_d_ready),
+.D(ioBus_to_peripheral_bus_up_bus_d_payload_opcode[1]),
+.Q(vexiis_0_dBus_noDecoder_toDown_d_rData_opcode[1]));
+RTL_REG__BREG_36 \vexiis_0_dBus_noDecoder_toDown_d_rData_opcode_reg[2]
+(.C(litex_clk),
+.CE(ioBus_to_peripheral_bus_up_bus_d_ready),
+.D(ioBus_to_peripheral_bus_up_bus_d_payload_opcode[2]),
+.Q(vexiis_0_dBus_noDecoder_toDown_d_rData_opcode[2]));
+RTL_REG__BREG_36 \vexiis_0_dBus_noDecoder_toDown_d_rData_param_reg[0]
+(.C(litex_clk),
+.CE(ioBus_to_peripheral_bus_up_bus_d_ready),
+.D(ioBus_to_peripheral_bus_up_bus_d_payload_param[0]),
+.Q(vexiis_0_dBus_noDecoder_toDown_d_rData_param[0]));
+RTL_REG__BREG_36 \vexiis_0_dBus_noDecoder_toDown_d_rData_param_reg[1]
+(.C(litex_clk),
+.CE(ioBus_to_peripheral_bus_up_bus_d_ready),
+.D(ioBus_to_peripheral_bus_up_bus_d_payload_param[1]),
+.Q(vexiis_0_dBus_noDecoder_toDown_d_rData_param[1]));
+RTL_REG__BREG_36 \vexiis_0_dBus_noDecoder_toDown_d_rData_param_reg[2]
+(.C(litex_clk),
+.CE(ioBus_to_peripheral_bus_up_bus_d_ready),
+.D(ioBus_to_peripheral_bus_up_bus_d_payload_param[2]),
+.Q(vexiis_0_dBus_noDecoder_toDown_d_rData_param[2]));
+RTL_REG__BREG_36 \vexiis_0_dBus_noDecoder_toDown_d_rData_size_reg[0]
+(.C(litex_clk),
+.CE(ioBus_to_peripheral_bus_up_bus_d_ready),
+.D(ioBus_to_peripheral_bus_up_bus_d_payload_size[0]),
+.Q(vexiis_0_dBus_noDecoder_toDown_d_rData_size[0]));
+RTL_REG__BREG_36 \vexiis_0_dBus_noDecoder_toDown_d_rData_size_reg[1]
+(.C(litex_clk),
+.CE(ioBus_to_peripheral_bus_up_bus_d_ready),
+.D(ioBus_to_peripheral_bus_up_bus_d_payload_size[1]),
+.Q(vexiis_0_dBus_noDecoder_toDown_d_rData_size[1]));
+RTL_REG_ASYNC__BREG_1413 vexiis_0_dBus_noDecoder_toDown_d_rValid_reg
+(.C(litex_clk),
+.CE(ioBus_to_peripheral_bus_up_bus_d_ready),
+.CLR(cpuResetCtrl_fiber_buffer_io_dataOut),
+.D(peripheral_bus_arbiter_core_io_ups_0_d_valid),
+.Q(vexiis_0_dBus_noDecoder_toDown_d_rValid));
+RTL_MUX vexiis_0_dBus_noDecoder_toDown_d_ready_i
+(.I0(\<const1> ),
+.I1(vexiis_0_logic_core_LsuTileLinkPlugin_logic_bridge_down_d_ready),
+.O(ioBus_to_peripheral_bus_up_bus_d_ready),
+.S(when_Stream_l477_2));
+RTL_AND7 vexiis_0_dBus_to_ioBus_down_bus_a_halfPipe_fire_i
+(.I0(vexiis_0_dBus_to_ioBus_down_bus_a_rValid),
+.I1(peripheral_bus_arbiter_core_io_ups_0_a_ready),
+.O(vexiis_0_dBus_to_ioBus_down_bus_a_halfPipe_fire));
+RTL_REG__BREG_36 \vexiis_0_dBus_to_ioBus_down_bus_a_rData_address_reg[0]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_to_ioBus_up_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_rData_address[0]),
+.Q(vexiis_0_dBus_to_ioBus_down_bus_a_rData_address[0]));
+RTL_REG__BREG_36 \vexiis_0_dBus_to_ioBus_down_bus_a_rData_address_reg[10]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_to_ioBus_up_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_rData_address[10]),
+.Q(vexiis_0_dBus_to_ioBus_down_bus_a_rData_address[10]));
+RTL_REG__BREG_36 \vexiis_0_dBus_to_ioBus_down_bus_a_rData_address_reg[11]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_to_ioBus_up_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_rData_address[11]),
+.Q(vexiis_0_dBus_to_ioBus_down_bus_a_rData_address[11]));
+RTL_REG__BREG_36 \vexiis_0_dBus_to_ioBus_down_bus_a_rData_address_reg[12]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_to_ioBus_up_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_rData_address[12]),
+.Q(vexiis_0_dBus_to_ioBus_down_bus_a_rData_address[12]));
+RTL_REG__BREG_36 \vexiis_0_dBus_to_ioBus_down_bus_a_rData_address_reg[13]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_to_ioBus_up_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_rData_address[13]),
+.Q(vexiis_0_dBus_to_ioBus_down_bus_a_rData_address[13]));
+RTL_REG__BREG_36 \vexiis_0_dBus_to_ioBus_down_bus_a_rData_address_reg[14]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_to_ioBus_up_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_rData_address[14]),
+.Q(vexiis_0_dBus_to_ioBus_down_bus_a_rData_address[14]));
+RTL_REG__BREG_36 \vexiis_0_dBus_to_ioBus_down_bus_a_rData_address_reg[15]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_to_ioBus_up_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_rData_address[15]),
+.Q(vexiis_0_dBus_to_ioBus_down_bus_a_rData_address[15]));
+RTL_REG__BREG_36 \vexiis_0_dBus_to_ioBus_down_bus_a_rData_address_reg[16]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_to_ioBus_up_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_rData_address[16]),
+.Q(vexiis_0_dBus_to_ioBus_down_bus_a_rData_address[16]));
+RTL_REG__BREG_36 \vexiis_0_dBus_to_ioBus_down_bus_a_rData_address_reg[17]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_to_ioBus_up_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_rData_address[17]),
+.Q(vexiis_0_dBus_to_ioBus_down_bus_a_rData_address[17]));
+RTL_REG__BREG_36 \vexiis_0_dBus_to_ioBus_down_bus_a_rData_address_reg[18]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_to_ioBus_up_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_rData_address[18]),
+.Q(vexiis_0_dBus_to_ioBus_down_bus_a_rData_address[18]));
+RTL_REG__BREG_36 \vexiis_0_dBus_to_ioBus_down_bus_a_rData_address_reg[19]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_to_ioBus_up_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_rData_address[19]),
+.Q(vexiis_0_dBus_to_ioBus_down_bus_a_rData_address[19]));
+RTL_REG__BREG_36 \vexiis_0_dBus_to_ioBus_down_bus_a_rData_address_reg[1]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_to_ioBus_up_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_rData_address[1]),
+.Q(vexiis_0_dBus_to_ioBus_down_bus_a_rData_address[1]));
+RTL_REG__BREG_36 \vexiis_0_dBus_to_ioBus_down_bus_a_rData_address_reg[20]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_to_ioBus_up_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_rData_address[20]),
+.Q(vexiis_0_dBus_to_ioBus_down_bus_a_rData_address[20]));
+RTL_REG__BREG_36 \vexiis_0_dBus_to_ioBus_down_bus_a_rData_address_reg[21]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_to_ioBus_up_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_rData_address[21]),
+.Q(vexiis_0_dBus_to_ioBus_down_bus_a_rData_address[21]));
+RTL_REG__BREG_36 \vexiis_0_dBus_to_ioBus_down_bus_a_rData_address_reg[22]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_to_ioBus_up_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_rData_address[22]),
+.Q(vexiis_0_dBus_to_ioBus_down_bus_a_rData_address[22]));
+RTL_REG__BREG_36 \vexiis_0_dBus_to_ioBus_down_bus_a_rData_address_reg[23]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_to_ioBus_up_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_rData_address[23]),
+.Q(vexiis_0_dBus_to_ioBus_down_bus_a_rData_address[23]));
+RTL_REG__BREG_36 \vexiis_0_dBus_to_ioBus_down_bus_a_rData_address_reg[24]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_to_ioBus_up_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_rData_address[24]),
+.Q(vexiis_0_dBus_to_ioBus_down_bus_a_rData_address[24]));
+RTL_REG__BREG_36 \vexiis_0_dBus_to_ioBus_down_bus_a_rData_address_reg[25]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_to_ioBus_up_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_rData_address[25]),
+.Q(vexiis_0_dBus_to_ioBus_down_bus_a_rData_address[25]));
+RTL_REG__BREG_36 \vexiis_0_dBus_to_ioBus_down_bus_a_rData_address_reg[26]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_to_ioBus_up_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_rData_address[26]),
+.Q(vexiis_0_dBus_to_ioBus_down_bus_a_rData_address[26]));
+RTL_REG__BREG_36 \vexiis_0_dBus_to_ioBus_down_bus_a_rData_address_reg[27]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_to_ioBus_up_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_rData_address[27]),
+.Q(vexiis_0_dBus_to_ioBus_down_bus_a_rData_address[27]));
+RTL_REG__BREG_36 \vexiis_0_dBus_to_ioBus_down_bus_a_rData_address_reg[28]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_to_ioBus_up_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_rData_address[28]),
+.Q(vexiis_0_dBus_to_ioBus_down_bus_a_rData_address[28]));
+RTL_REG__BREG_36 \vexiis_0_dBus_to_ioBus_down_bus_a_rData_address_reg[29]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_to_ioBus_up_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_rData_address[29]),
+.Q(vexiis_0_dBus_to_ioBus_down_bus_a_rData_address[29]));
+RTL_REG__BREG_36 \vexiis_0_dBus_to_ioBus_down_bus_a_rData_address_reg[2]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_to_ioBus_up_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_rData_address[2]),
+.Q(vexiis_0_dBus_to_ioBus_down_bus_a_rData_address[2]));
+RTL_REG__BREG_36 \vexiis_0_dBus_to_ioBus_down_bus_a_rData_address_reg[30]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_to_ioBus_up_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_rData_address[30]),
+.Q(vexiis_0_dBus_to_ioBus_down_bus_a_rData_address[30]));
+RTL_REG__BREG_36 \vexiis_0_dBus_to_ioBus_down_bus_a_rData_address_reg[31]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_to_ioBus_up_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_rData_address[31]),
+.Q(vexiis_0_dBus_to_ioBus_down_bus_a_rData_address[31]));
+RTL_REG__BREG_36 \vexiis_0_dBus_to_ioBus_down_bus_a_rData_address_reg[3]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_to_ioBus_up_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_rData_address[3]),
+.Q(vexiis_0_dBus_to_ioBus_down_bus_a_rData_address[3]));
+RTL_REG__BREG_36 \vexiis_0_dBus_to_ioBus_down_bus_a_rData_address_reg[4]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_to_ioBus_up_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_rData_address[4]),
+.Q(vexiis_0_dBus_to_ioBus_down_bus_a_rData_address[4]));
+RTL_REG__BREG_36 \vexiis_0_dBus_to_ioBus_down_bus_a_rData_address_reg[5]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_to_ioBus_up_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_rData_address[5]),
+.Q(vexiis_0_dBus_to_ioBus_down_bus_a_rData_address[5]));
+RTL_REG__BREG_36 \vexiis_0_dBus_to_ioBus_down_bus_a_rData_address_reg[6]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_to_ioBus_up_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_rData_address[6]),
+.Q(vexiis_0_dBus_to_ioBus_down_bus_a_rData_address[6]));
+RTL_REG__BREG_36 \vexiis_0_dBus_to_ioBus_down_bus_a_rData_address_reg[7]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_to_ioBus_up_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_rData_address[7]),
+.Q(vexiis_0_dBus_to_ioBus_down_bus_a_rData_address[7]));
+RTL_REG__BREG_36 \vexiis_0_dBus_to_ioBus_down_bus_a_rData_address_reg[8]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_to_ioBus_up_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_rData_address[8]),
+.Q(vexiis_0_dBus_to_ioBus_down_bus_a_rData_address[8]));
+RTL_REG__BREG_36 \vexiis_0_dBus_to_ioBus_down_bus_a_rData_address_reg[9]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_to_ioBus_up_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_rData_address[9]),
+.Q(vexiis_0_dBus_to_ioBus_down_bus_a_rData_address[9]));
+RTL_REG__BREG_36 vexiis_0_dBus_to_ioBus_down_bus_a_rData_corrupt_reg
+(.C(litex_clk),
+.CE(vexiis_0_dBus_to_ioBus_up_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_rData_corrupt),
+.Q(vexiis_0_dBus_to_ioBus_down_bus_a_rData_corrupt));
+RTL_REG__BREG_36 \vexiis_0_dBus_to_ioBus_down_bus_a_rData_data_reg[0]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_to_ioBus_up_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_rData_data[0]),
+.Q(vexiis_0_dBus_to_ioBus_down_bus_a_rData_data[0]));
+RTL_REG__BREG_36 \vexiis_0_dBus_to_ioBus_down_bus_a_rData_data_reg[10]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_to_ioBus_up_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_rData_data[10]),
+.Q(vexiis_0_dBus_to_ioBus_down_bus_a_rData_data[10]));
+RTL_REG__BREG_36 \vexiis_0_dBus_to_ioBus_down_bus_a_rData_data_reg[11]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_to_ioBus_up_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_rData_data[11]),
+.Q(vexiis_0_dBus_to_ioBus_down_bus_a_rData_data[11]));
+RTL_REG__BREG_36 \vexiis_0_dBus_to_ioBus_down_bus_a_rData_data_reg[12]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_to_ioBus_up_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_rData_data[12]),
+.Q(vexiis_0_dBus_to_ioBus_down_bus_a_rData_data[12]));
+RTL_REG__BREG_36 \vexiis_0_dBus_to_ioBus_down_bus_a_rData_data_reg[13]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_to_ioBus_up_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_rData_data[13]),
+.Q(vexiis_0_dBus_to_ioBus_down_bus_a_rData_data[13]));
+RTL_REG__BREG_36 \vexiis_0_dBus_to_ioBus_down_bus_a_rData_data_reg[14]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_to_ioBus_up_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_rData_data[14]),
+.Q(vexiis_0_dBus_to_ioBus_down_bus_a_rData_data[14]));
+RTL_REG__BREG_36 \vexiis_0_dBus_to_ioBus_down_bus_a_rData_data_reg[15]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_to_ioBus_up_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_rData_data[15]),
+.Q(vexiis_0_dBus_to_ioBus_down_bus_a_rData_data[15]));
+RTL_REG__BREG_36 \vexiis_0_dBus_to_ioBus_down_bus_a_rData_data_reg[16]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_to_ioBus_up_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_rData_data[16]),
+.Q(vexiis_0_dBus_to_ioBus_down_bus_a_rData_data[16]));
+RTL_REG__BREG_36 \vexiis_0_dBus_to_ioBus_down_bus_a_rData_data_reg[17]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_to_ioBus_up_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_rData_data[17]),
+.Q(vexiis_0_dBus_to_ioBus_down_bus_a_rData_data[17]));
+RTL_REG__BREG_36 \vexiis_0_dBus_to_ioBus_down_bus_a_rData_data_reg[18]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_to_ioBus_up_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_rData_data[18]),
+.Q(vexiis_0_dBus_to_ioBus_down_bus_a_rData_data[18]));
+RTL_REG__BREG_36 \vexiis_0_dBus_to_ioBus_down_bus_a_rData_data_reg[19]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_to_ioBus_up_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_rData_data[19]),
+.Q(vexiis_0_dBus_to_ioBus_down_bus_a_rData_data[19]));
+RTL_REG__BREG_36 \vexiis_0_dBus_to_ioBus_down_bus_a_rData_data_reg[1]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_to_ioBus_up_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_rData_data[1]),
+.Q(vexiis_0_dBus_to_ioBus_down_bus_a_rData_data[1]));
+RTL_REG__BREG_36 \vexiis_0_dBus_to_ioBus_down_bus_a_rData_data_reg[20]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_to_ioBus_up_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_rData_data[20]),
+.Q(vexiis_0_dBus_to_ioBus_down_bus_a_rData_data[20]));
+RTL_REG__BREG_36 \vexiis_0_dBus_to_ioBus_down_bus_a_rData_data_reg[21]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_to_ioBus_up_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_rData_data[21]),
+.Q(vexiis_0_dBus_to_ioBus_down_bus_a_rData_data[21]));
+RTL_REG__BREG_36 \vexiis_0_dBus_to_ioBus_down_bus_a_rData_data_reg[22]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_to_ioBus_up_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_rData_data[22]),
+.Q(vexiis_0_dBus_to_ioBus_down_bus_a_rData_data[22]));
+RTL_REG__BREG_36 \vexiis_0_dBus_to_ioBus_down_bus_a_rData_data_reg[23]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_to_ioBus_up_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_rData_data[23]),
+.Q(vexiis_0_dBus_to_ioBus_down_bus_a_rData_data[23]));
+RTL_REG__BREG_36 \vexiis_0_dBus_to_ioBus_down_bus_a_rData_data_reg[24]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_to_ioBus_up_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_rData_data[24]),
+.Q(vexiis_0_dBus_to_ioBus_down_bus_a_rData_data[24]));
+RTL_REG__BREG_36 \vexiis_0_dBus_to_ioBus_down_bus_a_rData_data_reg[25]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_to_ioBus_up_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_rData_data[25]),
+.Q(vexiis_0_dBus_to_ioBus_down_bus_a_rData_data[25]));
+RTL_REG__BREG_36 \vexiis_0_dBus_to_ioBus_down_bus_a_rData_data_reg[26]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_to_ioBus_up_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_rData_data[26]),
+.Q(vexiis_0_dBus_to_ioBus_down_bus_a_rData_data[26]));
+RTL_REG__BREG_36 \vexiis_0_dBus_to_ioBus_down_bus_a_rData_data_reg[27]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_to_ioBus_up_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_rData_data[27]),
+.Q(vexiis_0_dBus_to_ioBus_down_bus_a_rData_data[27]));
+RTL_REG__BREG_36 \vexiis_0_dBus_to_ioBus_down_bus_a_rData_data_reg[28]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_to_ioBus_up_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_rData_data[28]),
+.Q(vexiis_0_dBus_to_ioBus_down_bus_a_rData_data[28]));
+RTL_REG__BREG_36 \vexiis_0_dBus_to_ioBus_down_bus_a_rData_data_reg[29]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_to_ioBus_up_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_rData_data[29]),
+.Q(vexiis_0_dBus_to_ioBus_down_bus_a_rData_data[29]));
+RTL_REG__BREG_36 \vexiis_0_dBus_to_ioBus_down_bus_a_rData_data_reg[2]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_to_ioBus_up_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_rData_data[2]),
+.Q(vexiis_0_dBus_to_ioBus_down_bus_a_rData_data[2]));
+RTL_REG__BREG_36 \vexiis_0_dBus_to_ioBus_down_bus_a_rData_data_reg[30]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_to_ioBus_up_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_rData_data[30]),
+.Q(vexiis_0_dBus_to_ioBus_down_bus_a_rData_data[30]));
+RTL_REG__BREG_36 \vexiis_0_dBus_to_ioBus_down_bus_a_rData_data_reg[31]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_to_ioBus_up_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_rData_data[31]),
+.Q(vexiis_0_dBus_to_ioBus_down_bus_a_rData_data[31]));
+RTL_REG__BREG_36 \vexiis_0_dBus_to_ioBus_down_bus_a_rData_data_reg[3]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_to_ioBus_up_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_rData_data[3]),
+.Q(vexiis_0_dBus_to_ioBus_down_bus_a_rData_data[3]));
+RTL_REG__BREG_36 \vexiis_0_dBus_to_ioBus_down_bus_a_rData_data_reg[4]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_to_ioBus_up_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_rData_data[4]),
+.Q(vexiis_0_dBus_to_ioBus_down_bus_a_rData_data[4]));
+RTL_REG__BREG_36 \vexiis_0_dBus_to_ioBus_down_bus_a_rData_data_reg[5]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_to_ioBus_up_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_rData_data[5]),
+.Q(vexiis_0_dBus_to_ioBus_down_bus_a_rData_data[5]));
+RTL_REG__BREG_36 \vexiis_0_dBus_to_ioBus_down_bus_a_rData_data_reg[6]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_to_ioBus_up_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_rData_data[6]),
+.Q(vexiis_0_dBus_to_ioBus_down_bus_a_rData_data[6]));
+RTL_REG__BREG_36 \vexiis_0_dBus_to_ioBus_down_bus_a_rData_data_reg[7]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_to_ioBus_up_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_rData_data[7]),
+.Q(vexiis_0_dBus_to_ioBus_down_bus_a_rData_data[7]));
+RTL_REG__BREG_36 \vexiis_0_dBus_to_ioBus_down_bus_a_rData_data_reg[8]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_to_ioBus_up_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_rData_data[8]),
+.Q(vexiis_0_dBus_to_ioBus_down_bus_a_rData_data[8]));
+RTL_REG__BREG_36 \vexiis_0_dBus_to_ioBus_down_bus_a_rData_data_reg[9]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_to_ioBus_up_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_rData_data[9]),
+.Q(vexiis_0_dBus_to_ioBus_down_bus_a_rData_data[9]));
+RTL_REG__BREG_36 \vexiis_0_dBus_to_ioBus_down_bus_a_rData_mask_reg[0]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_to_ioBus_up_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_rData_mask[0]),
+.Q(vexiis_0_dBus_to_ioBus_down_bus_a_rData_mask[0]));
+RTL_REG__BREG_36 \vexiis_0_dBus_to_ioBus_down_bus_a_rData_mask_reg[1]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_to_ioBus_up_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_rData_mask[1]),
+.Q(vexiis_0_dBus_to_ioBus_down_bus_a_rData_mask[1]));
+RTL_REG__BREG_36 \vexiis_0_dBus_to_ioBus_down_bus_a_rData_mask_reg[2]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_to_ioBus_up_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_rData_mask[2]),
+.Q(vexiis_0_dBus_to_ioBus_down_bus_a_rData_mask[2]));
+RTL_REG__BREG_36 \vexiis_0_dBus_to_ioBus_down_bus_a_rData_mask_reg[3]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_to_ioBus_up_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_rData_mask[3]),
+.Q(vexiis_0_dBus_to_ioBus_down_bus_a_rData_mask[3]));
+RTL_REG__BREG_36 \vexiis_0_dBus_to_ioBus_down_bus_a_rData_opcode_reg[0]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_to_ioBus_up_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_rData_opcode[0]),
+.Q(vexiis_0_dBus_to_ioBus_down_bus_a_rData_opcode[0]));
+RTL_REG__BREG_36 \vexiis_0_dBus_to_ioBus_down_bus_a_rData_opcode_reg[1]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_to_ioBus_up_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_rData_opcode[1]),
+.Q(vexiis_0_dBus_to_ioBus_down_bus_a_rData_opcode[1]));
+RTL_REG__BREG_36 \vexiis_0_dBus_to_ioBus_down_bus_a_rData_opcode_reg[2]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_to_ioBus_up_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_rData_opcode[2]),
+.Q(vexiis_0_dBus_to_ioBus_down_bus_a_rData_opcode[2]));
+RTL_REG__BREG_36 \vexiis_0_dBus_to_ioBus_down_bus_a_rData_param_reg[0]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_to_ioBus_up_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_rData_param[0]),
+.Q(vexiis_0_dBus_to_ioBus_down_bus_a_rData_param[0]));
+RTL_REG__BREG_36 \vexiis_0_dBus_to_ioBus_down_bus_a_rData_param_reg[1]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_to_ioBus_up_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_rData_param[1]),
+.Q(vexiis_0_dBus_to_ioBus_down_bus_a_rData_param[1]));
+RTL_REG__BREG_36 \vexiis_0_dBus_to_ioBus_down_bus_a_rData_param_reg[2]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_to_ioBus_up_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_rData_param[2]),
+.Q(vexiis_0_dBus_to_ioBus_down_bus_a_rData_param[2]));
+RTL_REG__BREG_36 \vexiis_0_dBus_to_ioBus_down_bus_a_rData_size_reg[0]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_to_ioBus_up_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_rData_size[0]),
+.Q(vexiis_0_dBus_to_ioBus_down_bus_a_rData_size[0]));
+RTL_REG__BREG_36 \vexiis_0_dBus_to_ioBus_down_bus_a_rData_size_reg[1]
+(.C(litex_clk),
+.CE(vexiis_0_dBus_to_ioBus_up_bus_a_ready),
+.D(vexiis_0_dBus_bus_a_rData_size[1]),
+.Q(vexiis_0_dBus_to_ioBus_down_bus_a_rData_size[1]));
+RTL_MUX vexiis_0_dBus_to_ioBus_down_bus_a_rValid_i
+(.I0(\<const0> ),
+.I1(vexiis_0_dBus_bus_a_rValid),
+.O(vexiis_0_dBus_to_ioBus_down_bus_a_rValid__0),
+.S(vexiis_0_dBus_to_ioBus_down_bus_a_halfPipe_fire));
+RTL_MUX vexiis_0_dBus_to_ioBus_down_bus_a_rValid_i__0
+(.I0(\<const1> ),
+.I1(vexiis_0_dBus_bus_a_rValid),
+.O(vexiis_0_dBus_to_ioBus_down_bus_a_rValid_i__0_n_0),
+.S(vexiis_0_dBus_to_ioBus_down_bus_a_halfPipe_fire));
+RTL_REG_ASYNC__BREG_1413 vexiis_0_dBus_to_ioBus_down_bus_a_rValid_reg
+(.C(litex_clk),
+.CE(vexiis_0_dBus_to_ioBus_down_bus_a_rValid_i__0_n_0),
+.CLR(cpuResetCtrl_fiber_buffer_io_dataOut),
+.D(vexiis_0_dBus_to_ioBus_down_bus_a_rValid__0),
+.Q(vexiis_0_dBus_to_ioBus_down_bus_a_rValid));
+RTL_INV vexiis_0_dBus_to_ioBus_down_bus_a_ready_i
+(.I0(vexiis_0_dBus_to_ioBus_down_bus_a_rValid),
+.O(vexiis_0_dBus_to_ioBus_up_bus_a_ready));
+RTL_AND7 vexiis_0_iBus_bus_a_halfPipe_fire_i
+(.I0(vexiis_0_iBus_bus_a_rValid),
+.I1(vexiis_0_iBus_bus_a_halfPipe_ready),
+.O(vexiis_0_iBus_bus_a_halfPipe_fire));
+RTL_AND7 vexiis_0_iBus_bus_a_halfPipe_halfPipe_fire_i
+(.I0(vexiis_0_iBus_bus_a_halfPipe_rValid),
+.I1(splited_wc_cBus_arbiter_core_io_ups_0_a_ready),
+.O(vexiis_0_iBus_bus_a_halfPipe_halfPipe_fire));
+RTL_REG__BREG_36 \vexiis_0_iBus_bus_a_halfPipe_rData_address_reg[0]
+(.C(litex_clk),
+.CE(vexiis_0_iBus_bus_a_halfPipe_ready),
+.D(vexiis_0_iBus_bus_a_rData_address[0]),
+.Q(vexiis_0_iBus_bus_a_halfPipe_rData_address[0]));
+RTL_REG__BREG_36 \vexiis_0_iBus_bus_a_halfPipe_rData_address_reg[10]
+(.C(litex_clk),
+.CE(vexiis_0_iBus_bus_a_halfPipe_ready),
+.D(vexiis_0_iBus_bus_a_rData_address[10]),
+.Q(vexiis_0_iBus_bus_a_halfPipe_rData_address[10]));
+RTL_REG__BREG_36 \vexiis_0_iBus_bus_a_halfPipe_rData_address_reg[11]
+(.C(litex_clk),
+.CE(vexiis_0_iBus_bus_a_halfPipe_ready),
+.D(vexiis_0_iBus_bus_a_rData_address[11]),
+.Q(vexiis_0_iBus_bus_a_halfPipe_rData_address[11]));
+RTL_REG__BREG_36 \vexiis_0_iBus_bus_a_halfPipe_rData_address_reg[12]
+(.C(litex_clk),
+.CE(vexiis_0_iBus_bus_a_halfPipe_ready),
+.D(vexiis_0_iBus_bus_a_rData_address[12]),
+.Q(vexiis_0_iBus_bus_a_halfPipe_rData_address[12]));
+RTL_REG__BREG_36 \vexiis_0_iBus_bus_a_halfPipe_rData_address_reg[13]
+(.C(litex_clk),
+.CE(vexiis_0_iBus_bus_a_halfPipe_ready),
+.D(vexiis_0_iBus_bus_a_rData_address[13]),
+.Q(vexiis_0_iBus_bus_a_halfPipe_rData_address[13]));
+RTL_REG__BREG_36 \vexiis_0_iBus_bus_a_halfPipe_rData_address_reg[14]
+(.C(litex_clk),
+.CE(vexiis_0_iBus_bus_a_halfPipe_ready),
+.D(vexiis_0_iBus_bus_a_rData_address[14]),
+.Q(vexiis_0_iBus_bus_a_halfPipe_rData_address[14]));
+RTL_REG__BREG_36 \vexiis_0_iBus_bus_a_halfPipe_rData_address_reg[15]
+(.C(litex_clk),
+.CE(vexiis_0_iBus_bus_a_halfPipe_ready),
+.D(vexiis_0_iBus_bus_a_rData_address[15]),
+.Q(vexiis_0_iBus_bus_a_halfPipe_rData_address[15]));
+RTL_REG__BREG_36 \vexiis_0_iBus_bus_a_halfPipe_rData_address_reg[16]
+(.C(litex_clk),
+.CE(vexiis_0_iBus_bus_a_halfPipe_ready),
+.D(vexiis_0_iBus_bus_a_rData_address[16]),
+.Q(vexiis_0_iBus_bus_a_halfPipe_rData_address[16]));
+RTL_REG__BREG_36 \vexiis_0_iBus_bus_a_halfPipe_rData_address_reg[17]
+(.C(litex_clk),
+.CE(vexiis_0_iBus_bus_a_halfPipe_ready),
+.D(vexiis_0_iBus_bus_a_rData_address[17]),
+.Q(vexiis_0_iBus_bus_a_halfPipe_rData_address[17]));
+RTL_REG__BREG_36 \vexiis_0_iBus_bus_a_halfPipe_rData_address_reg[18]
+(.C(litex_clk),
+.CE(vexiis_0_iBus_bus_a_halfPipe_ready),
+.D(vexiis_0_iBus_bus_a_rData_address[18]),
+.Q(vexiis_0_iBus_bus_a_halfPipe_rData_address[18]));
+RTL_REG__BREG_36 \vexiis_0_iBus_bus_a_halfPipe_rData_address_reg[19]
+(.C(litex_clk),
+.CE(vexiis_0_iBus_bus_a_halfPipe_ready),
+.D(vexiis_0_iBus_bus_a_rData_address[19]),
+.Q(vexiis_0_iBus_bus_a_halfPipe_rData_address[19]));
+RTL_REG__BREG_36 \vexiis_0_iBus_bus_a_halfPipe_rData_address_reg[1]
+(.C(litex_clk),
+.CE(vexiis_0_iBus_bus_a_halfPipe_ready),
+.D(vexiis_0_iBus_bus_a_rData_address[1]),
+.Q(vexiis_0_iBus_bus_a_halfPipe_rData_address[1]));
+RTL_REG__BREG_36 \vexiis_0_iBus_bus_a_halfPipe_rData_address_reg[20]
+(.C(litex_clk),
+.CE(vexiis_0_iBus_bus_a_halfPipe_ready),
+.D(vexiis_0_iBus_bus_a_rData_address[20]),
+.Q(vexiis_0_iBus_bus_a_halfPipe_rData_address[20]));
+RTL_REG__BREG_36 \vexiis_0_iBus_bus_a_halfPipe_rData_address_reg[21]
+(.C(litex_clk),
+.CE(vexiis_0_iBus_bus_a_halfPipe_ready),
+.D(vexiis_0_iBus_bus_a_rData_address[21]),
+.Q(vexiis_0_iBus_bus_a_halfPipe_rData_address[21]));
+RTL_REG__BREG_36 \vexiis_0_iBus_bus_a_halfPipe_rData_address_reg[22]
+(.C(litex_clk),
+.CE(vexiis_0_iBus_bus_a_halfPipe_ready),
+.D(vexiis_0_iBus_bus_a_rData_address[22]),
+.Q(vexiis_0_iBus_bus_a_halfPipe_rData_address[22]));
+RTL_REG__BREG_36 \vexiis_0_iBus_bus_a_halfPipe_rData_address_reg[23]
+(.C(litex_clk),
+.CE(vexiis_0_iBus_bus_a_halfPipe_ready),
+.D(vexiis_0_iBus_bus_a_rData_address[23]),
+.Q(vexiis_0_iBus_bus_a_halfPipe_rData_address[23]));
+RTL_REG__BREG_36 \vexiis_0_iBus_bus_a_halfPipe_rData_address_reg[24]
+(.C(litex_clk),
+.CE(vexiis_0_iBus_bus_a_halfPipe_ready),
+.D(vexiis_0_iBus_bus_a_rData_address[24]),
+.Q(vexiis_0_iBus_bus_a_halfPipe_rData_address[24]));
+RTL_REG__BREG_36 \vexiis_0_iBus_bus_a_halfPipe_rData_address_reg[25]
+(.C(litex_clk),
+.CE(vexiis_0_iBus_bus_a_halfPipe_ready),
+.D(vexiis_0_iBus_bus_a_rData_address[25]),
+.Q(vexiis_0_iBus_bus_a_halfPipe_rData_address[25]));
+RTL_REG__BREG_36 \vexiis_0_iBus_bus_a_halfPipe_rData_address_reg[26]
+(.C(litex_clk),
+.CE(vexiis_0_iBus_bus_a_halfPipe_ready),
+.D(vexiis_0_iBus_bus_a_rData_address[26]),
+.Q(vexiis_0_iBus_bus_a_halfPipe_rData_address[26]));
+RTL_REG__BREG_36 \vexiis_0_iBus_bus_a_halfPipe_rData_address_reg[27]
+(.C(litex_clk),
+.CE(vexiis_0_iBus_bus_a_halfPipe_ready),
+.D(vexiis_0_iBus_bus_a_rData_address[27]),
+.Q(vexiis_0_iBus_bus_a_halfPipe_rData_address[27]));
+RTL_REG__BREG_36 \vexiis_0_iBus_bus_a_halfPipe_rData_address_reg[28]
+(.C(litex_clk),
+.CE(vexiis_0_iBus_bus_a_halfPipe_ready),
+.D(vexiis_0_iBus_bus_a_rData_address[28]),
+.Q(vexiis_0_iBus_bus_a_halfPipe_rData_address[28]));
+RTL_REG__BREG_36 \vexiis_0_iBus_bus_a_halfPipe_rData_address_reg[29]
+(.C(litex_clk),
+.CE(vexiis_0_iBus_bus_a_halfPipe_ready),
+.D(vexiis_0_iBus_bus_a_rData_address[29]),
+.Q(vexiis_0_iBus_bus_a_halfPipe_rData_address[29]));
+RTL_REG__BREG_36 \vexiis_0_iBus_bus_a_halfPipe_rData_address_reg[2]
+(.C(litex_clk),
+.CE(vexiis_0_iBus_bus_a_halfPipe_ready),
+.D(vexiis_0_iBus_bus_a_rData_address[2]),
+.Q(vexiis_0_iBus_bus_a_halfPipe_rData_address[2]));
+RTL_REG__BREG_36 \vexiis_0_iBus_bus_a_halfPipe_rData_address_reg[30]
+(.C(litex_clk),
+.CE(vexiis_0_iBus_bus_a_halfPipe_ready),
+.D(vexiis_0_iBus_bus_a_rData_address[30]),
+.Q(vexiis_0_iBus_bus_a_halfPipe_rData_address[30]));
+RTL_REG__BREG_36 \vexiis_0_iBus_bus_a_halfPipe_rData_address_reg[31]
+(.C(litex_clk),
+.CE(vexiis_0_iBus_bus_a_halfPipe_ready),
+.D(vexiis_0_iBus_bus_a_rData_address[31]),
+.Q(vexiis_0_iBus_bus_a_halfPipe_rData_address[31]));
+RTL_REG__BREG_36 \vexiis_0_iBus_bus_a_halfPipe_rData_address_reg[3]
+(.C(litex_clk),
+.CE(vexiis_0_iBus_bus_a_halfPipe_ready),
+.D(vexiis_0_iBus_bus_a_rData_address[3]),
+.Q(vexiis_0_iBus_bus_a_halfPipe_rData_address[3]));
+RTL_REG__BREG_36 \vexiis_0_iBus_bus_a_halfPipe_rData_address_reg[4]
+(.C(litex_clk),
+.CE(vexiis_0_iBus_bus_a_halfPipe_ready),
+.D(vexiis_0_iBus_bus_a_rData_address[4]),
+.Q(vexiis_0_iBus_bus_a_halfPipe_rData_address[4]));
+RTL_REG__BREG_36 \vexiis_0_iBus_bus_a_halfPipe_rData_address_reg[5]
+(.C(litex_clk),
+.CE(vexiis_0_iBus_bus_a_halfPipe_ready),
+.D(vexiis_0_iBus_bus_a_rData_address[5]),
+.Q(vexiis_0_iBus_bus_a_halfPipe_rData_address[5]));
+RTL_REG__BREG_36 \vexiis_0_iBus_bus_a_halfPipe_rData_address_reg[6]
+(.C(litex_clk),
+.CE(vexiis_0_iBus_bus_a_halfPipe_ready),
+.D(vexiis_0_iBus_bus_a_rData_address[6]),
+.Q(vexiis_0_iBus_bus_a_halfPipe_rData_address[6]));
+RTL_REG__BREG_36 \vexiis_0_iBus_bus_a_halfPipe_rData_address_reg[7]
+(.C(litex_clk),
+.CE(vexiis_0_iBus_bus_a_halfPipe_ready),
+.D(vexiis_0_iBus_bus_a_rData_address[7]),
+.Q(vexiis_0_iBus_bus_a_halfPipe_rData_address[7]));
+RTL_REG__BREG_36 \vexiis_0_iBus_bus_a_halfPipe_rData_address_reg[8]
+(.C(litex_clk),
+.CE(vexiis_0_iBus_bus_a_halfPipe_ready),
+.D(vexiis_0_iBus_bus_a_rData_address[8]),
+.Q(vexiis_0_iBus_bus_a_halfPipe_rData_address[8]));
+RTL_REG__BREG_36 \vexiis_0_iBus_bus_a_halfPipe_rData_address_reg[9]
+(.C(litex_clk),
+.CE(vexiis_0_iBus_bus_a_halfPipe_ready),
+.D(vexiis_0_iBus_bus_a_rData_address[9]),
+.Q(vexiis_0_iBus_bus_a_halfPipe_rData_address[9]));
+RTL_REG__BREG_36 \vexiis_0_iBus_bus_a_halfPipe_rData_opcode_reg[0]
+(.C(litex_clk),
+.CE(vexiis_0_iBus_bus_a_halfPipe_ready),
+.D(vexiis_0_iBus_bus_a_rData_opcode[0]),
+.Q(vexiis_0_iBus_bus_a_halfPipe_rData_opcode[0]));
+RTL_REG__BREG_36 \vexiis_0_iBus_bus_a_halfPipe_rData_opcode_reg[1]
+(.C(litex_clk),
+.CE(vexiis_0_iBus_bus_a_halfPipe_ready),
+.D(vexiis_0_iBus_bus_a_rData_opcode[1]),
+.Q(vexiis_0_iBus_bus_a_halfPipe_rData_opcode[1]));
+RTL_REG__BREG_36 \vexiis_0_iBus_bus_a_halfPipe_rData_opcode_reg[2]
+(.C(litex_clk),
+.CE(vexiis_0_iBus_bus_a_halfPipe_ready),
+.D(vexiis_0_iBus_bus_a_rData_opcode[2]),
+.Q(vexiis_0_iBus_bus_a_halfPipe_rData_opcode[2]));
+RTL_REG__BREG_36 \vexiis_0_iBus_bus_a_halfPipe_rData_param_reg[0]
+(.C(litex_clk),
+.CE(vexiis_0_iBus_bus_a_halfPipe_ready),
+.D(vexiis_0_iBus_bus_a_rData_param[0]),
+.Q(vexiis_0_iBus_bus_a_halfPipe_rData_param[0]));
+RTL_REG__BREG_36 \vexiis_0_iBus_bus_a_halfPipe_rData_param_reg[1]
+(.C(litex_clk),
+.CE(vexiis_0_iBus_bus_a_halfPipe_ready),
+.D(vexiis_0_iBus_bus_a_rData_param[1]),
+.Q(vexiis_0_iBus_bus_a_halfPipe_rData_param[1]));
+RTL_REG__BREG_36 \vexiis_0_iBus_bus_a_halfPipe_rData_param_reg[2]
+(.C(litex_clk),
+.CE(vexiis_0_iBus_bus_a_halfPipe_ready),
+.D(vexiis_0_iBus_bus_a_rData_param[2]),
+.Q(vexiis_0_iBus_bus_a_halfPipe_rData_param[2]));
+RTL_REG__BREG_36 \vexiis_0_iBus_bus_a_halfPipe_rData_size_reg[0]
+(.C(litex_clk),
+.CE(vexiis_0_iBus_bus_a_halfPipe_ready),
+.D(vexiis_0_iBus_bus_a_rData_size[0]),
+.Q(vexiis_0_iBus_bus_a_halfPipe_rData_size[0]));
+RTL_REG__BREG_36 \vexiis_0_iBus_bus_a_halfPipe_rData_size_reg[1]
+(.C(litex_clk),
+.CE(vexiis_0_iBus_bus_a_halfPipe_ready),
+.D(vexiis_0_iBus_bus_a_rData_size[1]),
+.Q(vexiis_0_iBus_bus_a_halfPipe_rData_size[1]));
+RTL_REG__BREG_36 \vexiis_0_iBus_bus_a_halfPipe_rData_size_reg[2]
+(.C(litex_clk),
+.CE(vexiis_0_iBus_bus_a_halfPipe_ready),
+.D(vexiis_0_iBus_bus_a_rData_size[2]),
+.Q(vexiis_0_iBus_bus_a_halfPipe_rData_size[2]));
+RTL_MUX vexiis_0_iBus_bus_a_halfPipe_rValid_i
+(.I0(\<const0> ),
+.I1(vexiis_0_iBus_bus_a_rValid),
+.O(vexiis_0_iBus_bus_a_halfPipe_rValid__0),
+.S(vexiis_0_iBus_bus_a_halfPipe_halfPipe_fire));
+RTL_MUX vexiis_0_iBus_bus_a_halfPipe_rValid_i__0
+(.I0(\<const1> ),
+.I1(vexiis_0_iBus_bus_a_rValid),
+.O(vexiis_0_iBus_bus_a_halfPipe_rValid_i__0_n_0),
+.S(vexiis_0_iBus_bus_a_halfPipe_halfPipe_fire));
+RTL_REG_ASYNC__BREG_1413 vexiis_0_iBus_bus_a_halfPipe_rValid_reg
+(.C(litex_clk),
+.CE(vexiis_0_iBus_bus_a_halfPipe_rValid_i__0_n_0),
+.CLR(cpuResetCtrl_fiber_buffer_io_dataOut),
+.D(vexiis_0_iBus_bus_a_halfPipe_rValid__0),
+.Q(vexiis_0_iBus_bus_a_halfPipe_rValid));
+RTL_INV vexiis_0_iBus_bus_a_halfPipe_ready_i
+(.I0(vexiis_0_iBus_bus_a_halfPipe_rValid),
+.O(vexiis_0_iBus_bus_a_halfPipe_ready));
+RTL_REG__BREG_36 \vexiis_0_iBus_bus_a_rData_address_reg[0]
+(.C(litex_clk),
+.CE(vexiis_0_iBus_bus_a_ready),
+.D(vexiis_0_iBus_bus_a_payload_address[0]),
+.Q(vexiis_0_iBus_bus_a_rData_address[0]));
+RTL_REG__BREG_36 \vexiis_0_iBus_bus_a_rData_address_reg[10]
+(.C(litex_clk),
+.CE(vexiis_0_iBus_bus_a_ready),
+.D(vexiis_0_iBus_bus_a_payload_address[10]),
+.Q(vexiis_0_iBus_bus_a_rData_address[10]));
+RTL_REG__BREG_36 \vexiis_0_iBus_bus_a_rData_address_reg[11]
+(.C(litex_clk),
+.CE(vexiis_0_iBus_bus_a_ready),
+.D(vexiis_0_iBus_bus_a_payload_address[11]),
+.Q(vexiis_0_iBus_bus_a_rData_address[11]));
+RTL_REG__BREG_36 \vexiis_0_iBus_bus_a_rData_address_reg[12]
+(.C(litex_clk),
+.CE(vexiis_0_iBus_bus_a_ready),
+.D(vexiis_0_iBus_bus_a_payload_address[12]),
+.Q(vexiis_0_iBus_bus_a_rData_address[12]));
+RTL_REG__BREG_36 \vexiis_0_iBus_bus_a_rData_address_reg[13]
+(.C(litex_clk),
+.CE(vexiis_0_iBus_bus_a_ready),
+.D(vexiis_0_iBus_bus_a_payload_address[13]),
+.Q(vexiis_0_iBus_bus_a_rData_address[13]));
+RTL_REG__BREG_36 \vexiis_0_iBus_bus_a_rData_address_reg[14]
+(.C(litex_clk),
+.CE(vexiis_0_iBus_bus_a_ready),
+.D(vexiis_0_iBus_bus_a_payload_address[14]),
+.Q(vexiis_0_iBus_bus_a_rData_address[14]));
+RTL_REG__BREG_36 \vexiis_0_iBus_bus_a_rData_address_reg[15]
+(.C(litex_clk),
+.CE(vexiis_0_iBus_bus_a_ready),
+.D(vexiis_0_iBus_bus_a_payload_address[15]),
+.Q(vexiis_0_iBus_bus_a_rData_address[15]));
+RTL_REG__BREG_36 \vexiis_0_iBus_bus_a_rData_address_reg[16]
+(.C(litex_clk),
+.CE(vexiis_0_iBus_bus_a_ready),
+.D(vexiis_0_iBus_bus_a_payload_address[16]),
+.Q(vexiis_0_iBus_bus_a_rData_address[16]));
+RTL_REG__BREG_36 \vexiis_0_iBus_bus_a_rData_address_reg[17]
+(.C(litex_clk),
+.CE(vexiis_0_iBus_bus_a_ready),
+.D(vexiis_0_iBus_bus_a_payload_address[17]),
+.Q(vexiis_0_iBus_bus_a_rData_address[17]));
+RTL_REG__BREG_36 \vexiis_0_iBus_bus_a_rData_address_reg[18]
+(.C(litex_clk),
+.CE(vexiis_0_iBus_bus_a_ready),
+.D(vexiis_0_iBus_bus_a_payload_address[18]),
+.Q(vexiis_0_iBus_bus_a_rData_address[18]));
+RTL_REG__BREG_36 \vexiis_0_iBus_bus_a_rData_address_reg[19]
+(.C(litex_clk),
+.CE(vexiis_0_iBus_bus_a_ready),
+.D(vexiis_0_iBus_bus_a_payload_address[19]),
+.Q(vexiis_0_iBus_bus_a_rData_address[19]));
+RTL_REG__BREG_36 \vexiis_0_iBus_bus_a_rData_address_reg[1]
+(.C(litex_clk),
+.CE(vexiis_0_iBus_bus_a_ready),
+.D(vexiis_0_iBus_bus_a_payload_address[1]),
+.Q(vexiis_0_iBus_bus_a_rData_address[1]));
+RTL_REG__BREG_36 \vexiis_0_iBus_bus_a_rData_address_reg[20]
+(.C(litex_clk),
+.CE(vexiis_0_iBus_bus_a_ready),
+.D(vexiis_0_iBus_bus_a_payload_address[20]),
+.Q(vexiis_0_iBus_bus_a_rData_address[20]));
+RTL_REG__BREG_36 \vexiis_0_iBus_bus_a_rData_address_reg[21]
+(.C(litex_clk),
+.CE(vexiis_0_iBus_bus_a_ready),
+.D(vexiis_0_iBus_bus_a_payload_address[21]),
+.Q(vexiis_0_iBus_bus_a_rData_address[21]));
+RTL_REG__BREG_36 \vexiis_0_iBus_bus_a_rData_address_reg[22]
+(.C(litex_clk),
+.CE(vexiis_0_iBus_bus_a_ready),
+.D(vexiis_0_iBus_bus_a_payload_address[22]),
+.Q(vexiis_0_iBus_bus_a_rData_address[22]));
+RTL_REG__BREG_36 \vexiis_0_iBus_bus_a_rData_address_reg[23]
+(.C(litex_clk),
+.CE(vexiis_0_iBus_bus_a_ready),
+.D(vexiis_0_iBus_bus_a_payload_address[23]),
+.Q(vexiis_0_iBus_bus_a_rData_address[23]));
+RTL_REG__BREG_36 \vexiis_0_iBus_bus_a_rData_address_reg[24]
+(.C(litex_clk),
+.CE(vexiis_0_iBus_bus_a_ready),
+.D(vexiis_0_iBus_bus_a_payload_address[24]),
+.Q(vexiis_0_iBus_bus_a_rData_address[24]));
+RTL_REG__BREG_36 \vexiis_0_iBus_bus_a_rData_address_reg[25]
+(.C(litex_clk),
+.CE(vexiis_0_iBus_bus_a_ready),
+.D(vexiis_0_iBus_bus_a_payload_address[25]),
+.Q(vexiis_0_iBus_bus_a_rData_address[25]));
+RTL_REG__BREG_36 \vexiis_0_iBus_bus_a_rData_address_reg[26]
+(.C(litex_clk),
+.CE(vexiis_0_iBus_bus_a_ready),
+.D(vexiis_0_iBus_bus_a_payload_address[26]),
+.Q(vexiis_0_iBus_bus_a_rData_address[26]));
+RTL_REG__BREG_36 \vexiis_0_iBus_bus_a_rData_address_reg[27]
+(.C(litex_clk),
+.CE(vexiis_0_iBus_bus_a_ready),
+.D(vexiis_0_iBus_bus_a_payload_address[27]),
+.Q(vexiis_0_iBus_bus_a_rData_address[27]));
+RTL_REG__BREG_36 \vexiis_0_iBus_bus_a_rData_address_reg[28]
+(.C(litex_clk),
+.CE(vexiis_0_iBus_bus_a_ready),
+.D(vexiis_0_iBus_bus_a_payload_address[28]),
+.Q(vexiis_0_iBus_bus_a_rData_address[28]));
+RTL_REG__BREG_36 \vexiis_0_iBus_bus_a_rData_address_reg[29]
+(.C(litex_clk),
+.CE(vexiis_0_iBus_bus_a_ready),
+.D(vexiis_0_iBus_bus_a_payload_address[29]),
+.Q(vexiis_0_iBus_bus_a_rData_address[29]));
+RTL_REG__BREG_36 \vexiis_0_iBus_bus_a_rData_address_reg[2]
+(.C(litex_clk),
+.CE(vexiis_0_iBus_bus_a_ready),
+.D(vexiis_0_iBus_bus_a_payload_address[2]),
+.Q(vexiis_0_iBus_bus_a_rData_address[2]));
+RTL_REG__BREG_36 \vexiis_0_iBus_bus_a_rData_address_reg[30]
+(.C(litex_clk),
+.CE(vexiis_0_iBus_bus_a_ready),
+.D(vexiis_0_iBus_bus_a_payload_address[30]),
+.Q(vexiis_0_iBus_bus_a_rData_address[30]));
+RTL_REG__BREG_36 \vexiis_0_iBus_bus_a_rData_address_reg[31]
+(.C(litex_clk),
+.CE(vexiis_0_iBus_bus_a_ready),
+.D(vexiis_0_iBus_bus_a_payload_address[31]),
+.Q(vexiis_0_iBus_bus_a_rData_address[31]));
+RTL_REG__BREG_36 \vexiis_0_iBus_bus_a_rData_address_reg[3]
+(.C(litex_clk),
+.CE(vexiis_0_iBus_bus_a_ready),
+.D(vexiis_0_iBus_bus_a_payload_address[3]),
+.Q(vexiis_0_iBus_bus_a_rData_address[3]));
+RTL_REG__BREG_36 \vexiis_0_iBus_bus_a_rData_address_reg[4]
+(.C(litex_clk),
+.CE(vexiis_0_iBus_bus_a_ready),
+.D(vexiis_0_iBus_bus_a_payload_address[4]),
+.Q(vexiis_0_iBus_bus_a_rData_address[4]));
+RTL_REG__BREG_36 \vexiis_0_iBus_bus_a_rData_address_reg[5]
+(.C(litex_clk),
+.CE(vexiis_0_iBus_bus_a_ready),
+.D(vexiis_0_iBus_bus_a_payload_address[5]),
+.Q(vexiis_0_iBus_bus_a_rData_address[5]));
+RTL_REG__BREG_36 \vexiis_0_iBus_bus_a_rData_address_reg[6]
+(.C(litex_clk),
+.CE(vexiis_0_iBus_bus_a_ready),
+.D(vexiis_0_iBus_bus_a_payload_address[6]),
+.Q(vexiis_0_iBus_bus_a_rData_address[6]));
+RTL_REG__BREG_36 \vexiis_0_iBus_bus_a_rData_address_reg[7]
+(.C(litex_clk),
+.CE(vexiis_0_iBus_bus_a_ready),
+.D(vexiis_0_iBus_bus_a_payload_address[7]),
+.Q(vexiis_0_iBus_bus_a_rData_address[7]));
+RTL_REG__BREG_36 \vexiis_0_iBus_bus_a_rData_address_reg[8]
+(.C(litex_clk),
+.CE(vexiis_0_iBus_bus_a_ready),
+.D(vexiis_0_iBus_bus_a_payload_address[8]),
+.Q(vexiis_0_iBus_bus_a_rData_address[8]));
+RTL_REG__BREG_36 \vexiis_0_iBus_bus_a_rData_address_reg[9]
+(.C(litex_clk),
+.CE(vexiis_0_iBus_bus_a_ready),
+.D(vexiis_0_iBus_bus_a_payload_address[9]),
+.Q(vexiis_0_iBus_bus_a_rData_address[9]));
+RTL_REG__BREG_36 \vexiis_0_iBus_bus_a_rData_opcode_reg[0]
+(.C(litex_clk),
+.CE(vexiis_0_iBus_bus_a_ready),
+.D(vexiis_0_iBus_bus_a_payload_opcode[0]),
+.Q(vexiis_0_iBus_bus_a_rData_opcode[0]));
+RTL_REG__BREG_36 \vexiis_0_iBus_bus_a_rData_opcode_reg[1]
+(.C(litex_clk),
+.CE(vexiis_0_iBus_bus_a_ready),
+.D(vexiis_0_iBus_bus_a_payload_opcode[1]),
+.Q(vexiis_0_iBus_bus_a_rData_opcode[1]));
+RTL_REG__BREG_36 \vexiis_0_iBus_bus_a_rData_opcode_reg[2]
+(.C(litex_clk),
+.CE(vexiis_0_iBus_bus_a_ready),
+.D(vexiis_0_iBus_bus_a_payload_opcode[2]),
+.Q(vexiis_0_iBus_bus_a_rData_opcode[2]));
+RTL_REG__BREG_36 \vexiis_0_iBus_bus_a_rData_param_reg[0]
+(.C(litex_clk),
+.CE(vexiis_0_iBus_bus_a_ready),
+.D(vexiis_0_iBus_bus_a_payload_param[0]),
+.Q(vexiis_0_iBus_bus_a_rData_param[0]));
+RTL_REG__BREG_36 \vexiis_0_iBus_bus_a_rData_param_reg[1]
+(.C(litex_clk),
+.CE(vexiis_0_iBus_bus_a_ready),
+.D(vexiis_0_iBus_bus_a_payload_param[1]),
+.Q(vexiis_0_iBus_bus_a_rData_param[1]));
+RTL_REG__BREG_36 \vexiis_0_iBus_bus_a_rData_param_reg[2]
+(.C(litex_clk),
+.CE(vexiis_0_iBus_bus_a_ready),
+.D(vexiis_0_iBus_bus_a_payload_param[2]),
+.Q(vexiis_0_iBus_bus_a_rData_param[2]));
+RTL_REG__BREG_36 \vexiis_0_iBus_bus_a_rData_size_reg[0]
+(.C(litex_clk),
+.CE(vexiis_0_iBus_bus_a_ready),
+.D(vexiis_0_iBus_bus_a_payload_size[0]),
+.Q(vexiis_0_iBus_bus_a_rData_size[0]));
+RTL_REG__BREG_36 \vexiis_0_iBus_bus_a_rData_size_reg[1]
+(.C(litex_clk),
+.CE(vexiis_0_iBus_bus_a_ready),
+.D(vexiis_0_iBus_bus_a_payload_size[1]),
+.Q(vexiis_0_iBus_bus_a_rData_size[1]));
+RTL_REG__BREG_36 \vexiis_0_iBus_bus_a_rData_size_reg[2]
+(.C(litex_clk),
+.CE(vexiis_0_iBus_bus_a_ready),
+.D(vexiis_0_iBus_bus_a_payload_size[2]),
+.Q(vexiis_0_iBus_bus_a_rData_size[2]));
+RTL_MUX vexiis_0_iBus_bus_a_rValid_i
+(.I0(\<const0> ),
+.I1(vexiis_0_logic_core_FetchL1TileLinkPlugin_logic_down_a_valid),
+.O(vexiis_0_iBus_bus_a_rValid__0),
+.S(vexiis_0_iBus_bus_a_halfPipe_fire));
+RTL_MUX vexiis_0_iBus_bus_a_rValid_i__0
+(.I0(\<const1> ),
+.I1(vexiis_0_logic_core_FetchL1TileLinkPlugin_logic_down_a_valid),
+.O(vexiis_0_iBus_bus_a_rValid_i__0_n_0),
+.S(vexiis_0_iBus_bus_a_halfPipe_fire));
+RTL_REG_ASYNC__BREG_1413 vexiis_0_iBus_bus_a_rValid_reg
+(.C(litex_clk),
+.CE(vexiis_0_iBus_bus_a_rValid_i__0_n_0),
+.CLR(cpuResetCtrl_fiber_buffer_io_dataOut),
+.D(vexiis_0_iBus_bus_a_rValid__0),
+.Q(vexiis_0_iBus_bus_a_rValid));
+RTL_INV vexiis_0_iBus_bus_a_ready_i
+(.I0(vexiis_0_iBus_bus_a_rValid),
+.O(vexiis_0_iBus_bus_a_ready));
+RTL_REG__BREG_36 vexiis_0_iBus_noDecoder_toDown_d_rData_corrupt_reg
+(.C(litex_clk),
+.CE(vexiis_0_iBus_to_splited_wc_cBus_up_bus_d_ready),
+.D(splited_wc_cBus_arbiter_core_io_ups_0_d_payload_corrupt),
+.Q(vexiis_0_iBus_noDecoder_toDown_d_rData_corrupt));
+RTL_REG__BREG_36 \vexiis_0_iBus_noDecoder_toDown_d_rData_data_reg[0]
+(.C(litex_clk),
+.CE(vexiis_0_iBus_to_splited_wc_cBus_up_bus_d_ready),
+.D(vexiis_0_iBus_to_splited_wc_cBus_up_bus_d_payload_data[0]),
+.Q(vexiis_0_iBus_noDecoder_toDown_d_rData_data[0]));
+RTL_REG__BREG_36 \vexiis_0_iBus_noDecoder_toDown_d_rData_data_reg[10]
+(.C(litex_clk),
+.CE(vexiis_0_iBus_to_splited_wc_cBus_up_bus_d_ready),
+.D(vexiis_0_iBus_to_splited_wc_cBus_up_bus_d_payload_data[10]),
+.Q(vexiis_0_iBus_noDecoder_toDown_d_rData_data[10]));
+RTL_REG__BREG_36 \vexiis_0_iBus_noDecoder_toDown_d_rData_data_reg[11]
+(.C(litex_clk),
+.CE(vexiis_0_iBus_to_splited_wc_cBus_up_bus_d_ready),
+.D(vexiis_0_iBus_to_splited_wc_cBus_up_bus_d_payload_data[11]),
+.Q(vexiis_0_iBus_noDecoder_toDown_d_rData_data[11]));
+RTL_REG__BREG_36 \vexiis_0_iBus_noDecoder_toDown_d_rData_data_reg[12]
+(.C(litex_clk),
+.CE(vexiis_0_iBus_to_splited_wc_cBus_up_bus_d_ready),
+.D(vexiis_0_iBus_to_splited_wc_cBus_up_bus_d_payload_data[12]),
+.Q(vexiis_0_iBus_noDecoder_toDown_d_rData_data[12]));
+RTL_REG__BREG_36 \vexiis_0_iBus_noDecoder_toDown_d_rData_data_reg[13]
+(.C(litex_clk),
+.CE(vexiis_0_iBus_to_splited_wc_cBus_up_bus_d_ready),
+.D(vexiis_0_iBus_to_splited_wc_cBus_up_bus_d_payload_data[13]),
+.Q(vexiis_0_iBus_noDecoder_toDown_d_rData_data[13]));
+RTL_REG__BREG_36 \vexiis_0_iBus_noDecoder_toDown_d_rData_data_reg[14]
+(.C(litex_clk),
+.CE(vexiis_0_iBus_to_splited_wc_cBus_up_bus_d_ready),
+.D(vexiis_0_iBus_to_splited_wc_cBus_up_bus_d_payload_data[14]),
+.Q(vexiis_0_iBus_noDecoder_toDown_d_rData_data[14]));
+RTL_REG__BREG_36 \vexiis_0_iBus_noDecoder_toDown_d_rData_data_reg[15]
+(.C(litex_clk),
+.CE(vexiis_0_iBus_to_splited_wc_cBus_up_bus_d_ready),
+.D(vexiis_0_iBus_to_splited_wc_cBus_up_bus_d_payload_data[15]),
+.Q(vexiis_0_iBus_noDecoder_toDown_d_rData_data[15]));
+RTL_REG__BREG_36 \vexiis_0_iBus_noDecoder_toDown_d_rData_data_reg[16]
+(.C(litex_clk),
+.CE(vexiis_0_iBus_to_splited_wc_cBus_up_bus_d_ready),
+.D(vexiis_0_iBus_to_splited_wc_cBus_up_bus_d_payload_data[16]),
+.Q(vexiis_0_iBus_noDecoder_toDown_d_rData_data[16]));
+RTL_REG__BREG_36 \vexiis_0_iBus_noDecoder_toDown_d_rData_data_reg[17]
+(.C(litex_clk),
+.CE(vexiis_0_iBus_to_splited_wc_cBus_up_bus_d_ready),
+.D(vexiis_0_iBus_to_splited_wc_cBus_up_bus_d_payload_data[17]),
+.Q(vexiis_0_iBus_noDecoder_toDown_d_rData_data[17]));
+RTL_REG__BREG_36 \vexiis_0_iBus_noDecoder_toDown_d_rData_data_reg[18]
+(.C(litex_clk),
+.CE(vexiis_0_iBus_to_splited_wc_cBus_up_bus_d_ready),
+.D(vexiis_0_iBus_to_splited_wc_cBus_up_bus_d_payload_data[18]),
+.Q(vexiis_0_iBus_noDecoder_toDown_d_rData_data[18]));
+RTL_REG__BREG_36 \vexiis_0_iBus_noDecoder_toDown_d_rData_data_reg[19]
+(.C(litex_clk),
+.CE(vexiis_0_iBus_to_splited_wc_cBus_up_bus_d_ready),
+.D(vexiis_0_iBus_to_splited_wc_cBus_up_bus_d_payload_data[19]),
+.Q(vexiis_0_iBus_noDecoder_toDown_d_rData_data[19]));
+RTL_REG__BREG_36 \vexiis_0_iBus_noDecoder_toDown_d_rData_data_reg[1]
+(.C(litex_clk),
+.CE(vexiis_0_iBus_to_splited_wc_cBus_up_bus_d_ready),
+.D(vexiis_0_iBus_to_splited_wc_cBus_up_bus_d_payload_data[1]),
+.Q(vexiis_0_iBus_noDecoder_toDown_d_rData_data[1]));
+RTL_REG__BREG_36 \vexiis_0_iBus_noDecoder_toDown_d_rData_data_reg[20]
+(.C(litex_clk),
+.CE(vexiis_0_iBus_to_splited_wc_cBus_up_bus_d_ready),
+.D(vexiis_0_iBus_to_splited_wc_cBus_up_bus_d_payload_data[20]),
+.Q(vexiis_0_iBus_noDecoder_toDown_d_rData_data[20]));
+RTL_REG__BREG_36 \vexiis_0_iBus_noDecoder_toDown_d_rData_data_reg[21]
+(.C(litex_clk),
+.CE(vexiis_0_iBus_to_splited_wc_cBus_up_bus_d_ready),
+.D(vexiis_0_iBus_to_splited_wc_cBus_up_bus_d_payload_data[21]),
+.Q(vexiis_0_iBus_noDecoder_toDown_d_rData_data[21]));
+RTL_REG__BREG_36 \vexiis_0_iBus_noDecoder_toDown_d_rData_data_reg[22]
+(.C(litex_clk),
+.CE(vexiis_0_iBus_to_splited_wc_cBus_up_bus_d_ready),
+.D(vexiis_0_iBus_to_splited_wc_cBus_up_bus_d_payload_data[22]),
+.Q(vexiis_0_iBus_noDecoder_toDown_d_rData_data[22]));
+RTL_REG__BREG_36 \vexiis_0_iBus_noDecoder_toDown_d_rData_data_reg[23]
+(.C(litex_clk),
+.CE(vexiis_0_iBus_to_splited_wc_cBus_up_bus_d_ready),
+.D(vexiis_0_iBus_to_splited_wc_cBus_up_bus_d_payload_data[23]),
+.Q(vexiis_0_iBus_noDecoder_toDown_d_rData_data[23]));
+RTL_REG__BREG_36 \vexiis_0_iBus_noDecoder_toDown_d_rData_data_reg[24]
+(.C(litex_clk),
+.CE(vexiis_0_iBus_to_splited_wc_cBus_up_bus_d_ready),
+.D(vexiis_0_iBus_to_splited_wc_cBus_up_bus_d_payload_data[24]),
+.Q(vexiis_0_iBus_noDecoder_toDown_d_rData_data[24]));
+RTL_REG__BREG_36 \vexiis_0_iBus_noDecoder_toDown_d_rData_data_reg[25]
+(.C(litex_clk),
+.CE(vexiis_0_iBus_to_splited_wc_cBus_up_bus_d_ready),
+.D(vexiis_0_iBus_to_splited_wc_cBus_up_bus_d_payload_data[25]),
+.Q(vexiis_0_iBus_noDecoder_toDown_d_rData_data[25]));
+RTL_REG__BREG_36 \vexiis_0_iBus_noDecoder_toDown_d_rData_data_reg[26]
+(.C(litex_clk),
+.CE(vexiis_0_iBus_to_splited_wc_cBus_up_bus_d_ready),
+.D(vexiis_0_iBus_to_splited_wc_cBus_up_bus_d_payload_data[26]),
+.Q(vexiis_0_iBus_noDecoder_toDown_d_rData_data[26]));
+RTL_REG__BREG_36 \vexiis_0_iBus_noDecoder_toDown_d_rData_data_reg[27]
+(.C(litex_clk),
+.CE(vexiis_0_iBus_to_splited_wc_cBus_up_bus_d_ready),
+.D(vexiis_0_iBus_to_splited_wc_cBus_up_bus_d_payload_data[27]),
+.Q(vexiis_0_iBus_noDecoder_toDown_d_rData_data[27]));
+RTL_REG__BREG_36 \vexiis_0_iBus_noDecoder_toDown_d_rData_data_reg[28]
+(.C(litex_clk),
+.CE(vexiis_0_iBus_to_splited_wc_cBus_up_bus_d_ready),
+.D(vexiis_0_iBus_to_splited_wc_cBus_up_bus_d_payload_data[28]),
+.Q(vexiis_0_iBus_noDecoder_toDown_d_rData_data[28]));
+RTL_REG__BREG_36 \vexiis_0_iBus_noDecoder_toDown_d_rData_data_reg[29]
+(.C(litex_clk),
+.CE(vexiis_0_iBus_to_splited_wc_cBus_up_bus_d_ready),
+.D(vexiis_0_iBus_to_splited_wc_cBus_up_bus_d_payload_data[29]),
+.Q(vexiis_0_iBus_noDecoder_toDown_d_rData_data[29]));
+RTL_REG__BREG_36 \vexiis_0_iBus_noDecoder_toDown_d_rData_data_reg[2]
+(.C(litex_clk),
+.CE(vexiis_0_iBus_to_splited_wc_cBus_up_bus_d_ready),
+.D(vexiis_0_iBus_to_splited_wc_cBus_up_bus_d_payload_data[2]),
+.Q(vexiis_0_iBus_noDecoder_toDown_d_rData_data[2]));
+RTL_REG__BREG_36 \vexiis_0_iBus_noDecoder_toDown_d_rData_data_reg[30]
+(.C(litex_clk),
+.CE(vexiis_0_iBus_to_splited_wc_cBus_up_bus_d_ready),
+.D(vexiis_0_iBus_to_splited_wc_cBus_up_bus_d_payload_data[30]),
+.Q(vexiis_0_iBus_noDecoder_toDown_d_rData_data[30]));
+RTL_REG__BREG_36 \vexiis_0_iBus_noDecoder_toDown_d_rData_data_reg[31]
+(.C(litex_clk),
+.CE(vexiis_0_iBus_to_splited_wc_cBus_up_bus_d_ready),
+.D(vexiis_0_iBus_to_splited_wc_cBus_up_bus_d_payload_data[31]),
+.Q(vexiis_0_iBus_noDecoder_toDown_d_rData_data[31]));
+RTL_REG__BREG_36 \vexiis_0_iBus_noDecoder_toDown_d_rData_data_reg[3]
+(.C(litex_clk),
+.CE(vexiis_0_iBus_to_splited_wc_cBus_up_bus_d_ready),
+.D(vexiis_0_iBus_to_splited_wc_cBus_up_bus_d_payload_data[3]),
+.Q(vexiis_0_iBus_noDecoder_toDown_d_rData_data[3]));
+RTL_REG__BREG_36 \vexiis_0_iBus_noDecoder_toDown_d_rData_data_reg[4]
+(.C(litex_clk),
+.CE(vexiis_0_iBus_to_splited_wc_cBus_up_bus_d_ready),
+.D(vexiis_0_iBus_to_splited_wc_cBus_up_bus_d_payload_data[4]),
+.Q(vexiis_0_iBus_noDecoder_toDown_d_rData_data[4]));
+RTL_REG__BREG_36 \vexiis_0_iBus_noDecoder_toDown_d_rData_data_reg[5]
+(.C(litex_clk),
+.CE(vexiis_0_iBus_to_splited_wc_cBus_up_bus_d_ready),
+.D(vexiis_0_iBus_to_splited_wc_cBus_up_bus_d_payload_data[5]),
+.Q(vexiis_0_iBus_noDecoder_toDown_d_rData_data[5]));
+RTL_REG__BREG_36 \vexiis_0_iBus_noDecoder_toDown_d_rData_data_reg[6]
+(.C(litex_clk),
+.CE(vexiis_0_iBus_to_splited_wc_cBus_up_bus_d_ready),
+.D(vexiis_0_iBus_to_splited_wc_cBus_up_bus_d_payload_data[6]),
+.Q(vexiis_0_iBus_noDecoder_toDown_d_rData_data[6]));
+RTL_REG__BREG_36 \vexiis_0_iBus_noDecoder_toDown_d_rData_data_reg[7]
+(.C(litex_clk),
+.CE(vexiis_0_iBus_to_splited_wc_cBus_up_bus_d_ready),
+.D(vexiis_0_iBus_to_splited_wc_cBus_up_bus_d_payload_data[7]),
+.Q(vexiis_0_iBus_noDecoder_toDown_d_rData_data[7]));
+RTL_REG__BREG_36 \vexiis_0_iBus_noDecoder_toDown_d_rData_data_reg[8]
+(.C(litex_clk),
+.CE(vexiis_0_iBus_to_splited_wc_cBus_up_bus_d_ready),
+.D(vexiis_0_iBus_to_splited_wc_cBus_up_bus_d_payload_data[8]),
+.Q(vexiis_0_iBus_noDecoder_toDown_d_rData_data[8]));
+RTL_REG__BREG_36 \vexiis_0_iBus_noDecoder_toDown_d_rData_data_reg[9]
+(.C(litex_clk),
+.CE(vexiis_0_iBus_to_splited_wc_cBus_up_bus_d_ready),
+.D(vexiis_0_iBus_to_splited_wc_cBus_up_bus_d_payload_data[9]),
+.Q(vexiis_0_iBus_noDecoder_toDown_d_rData_data[9]));
+RTL_REG__BREG_36 vexiis_0_iBus_noDecoder_toDown_d_rData_denied_reg
+(.C(litex_clk),
+.CE(vexiis_0_iBus_to_splited_wc_cBus_up_bus_d_ready),
+.D(splited_wc_cBus_arbiter_core_io_ups_0_d_payload_denied),
+.Q(vexiis_0_iBus_noDecoder_toDown_d_rData_denied));
+RTL_REG__BREG_36 \vexiis_0_iBus_noDecoder_toDown_d_rData_opcode_reg[0]
+(.C(litex_clk),
+.CE(vexiis_0_iBus_to_splited_wc_cBus_up_bus_d_ready),
+.D(vexiis_0_iBus_to_splited_wc_cBus_up_bus_d_payload_opcode[0]),
+.Q(vexiis_0_iBus_noDecoder_toDown_d_rData_opcode[0]));
+RTL_REG__BREG_36 \vexiis_0_iBus_noDecoder_toDown_d_rData_opcode_reg[1]
+(.C(litex_clk),
+.CE(vexiis_0_iBus_to_splited_wc_cBus_up_bus_d_ready),
+.D(vexiis_0_iBus_to_splited_wc_cBus_up_bus_d_payload_opcode[1]),
+.Q(vexiis_0_iBus_noDecoder_toDown_d_rData_opcode[1]));
+RTL_REG__BREG_36 \vexiis_0_iBus_noDecoder_toDown_d_rData_opcode_reg[2]
+(.C(litex_clk),
+.CE(vexiis_0_iBus_to_splited_wc_cBus_up_bus_d_ready),
+.D(vexiis_0_iBus_to_splited_wc_cBus_up_bus_d_payload_opcode[2]),
+.Q(vexiis_0_iBus_noDecoder_toDown_d_rData_opcode[2]));
+RTL_REG__BREG_36 \vexiis_0_iBus_noDecoder_toDown_d_rData_param_reg[0]
+(.C(litex_clk),
+.CE(vexiis_0_iBus_to_splited_wc_cBus_up_bus_d_ready),
+.D(vexiis_0_iBus_to_splited_wc_cBus_up_bus_d_payload_param[0]),
+.Q(vexiis_0_iBus_noDecoder_toDown_d_rData_param[0]));
+RTL_REG__BREG_36 \vexiis_0_iBus_noDecoder_toDown_d_rData_param_reg[1]
+(.C(litex_clk),
+.CE(vexiis_0_iBus_to_splited_wc_cBus_up_bus_d_ready),
+.D(vexiis_0_iBus_to_splited_wc_cBus_up_bus_d_payload_param[1]),
+.Q(vexiis_0_iBus_noDecoder_toDown_d_rData_param[1]));
+RTL_REG__BREG_36 \vexiis_0_iBus_noDecoder_toDown_d_rData_param_reg[2]
+(.C(litex_clk),
+.CE(vexiis_0_iBus_to_splited_wc_cBus_up_bus_d_ready),
+.D(vexiis_0_iBus_to_splited_wc_cBus_up_bus_d_payload_param[2]),
+.Q(vexiis_0_iBus_noDecoder_toDown_d_rData_param[2]));
+RTL_REG__BREG_36 \vexiis_0_iBus_noDecoder_toDown_d_rData_size_reg[0]
+(.C(litex_clk),
+.CE(vexiis_0_iBus_to_splited_wc_cBus_up_bus_d_ready),
+.D(vexiis_0_iBus_to_splited_wc_cBus_up_bus_d_payload_size[0]),
+.Q(vexiis_0_iBus_noDecoder_toDown_d_rData_size[0]));
+RTL_REG__BREG_36 \vexiis_0_iBus_noDecoder_toDown_d_rData_size_reg[1]
+(.C(litex_clk),
+.CE(vexiis_0_iBus_to_splited_wc_cBus_up_bus_d_ready),
+.D(vexiis_0_iBus_to_splited_wc_cBus_up_bus_d_payload_size[1]),
+.Q(vexiis_0_iBus_noDecoder_toDown_d_rData_size[1]));
+RTL_REG__BREG_36 \vexiis_0_iBus_noDecoder_toDown_d_rData_size_reg[2]
+(.C(litex_clk),
+.CE(vexiis_0_iBus_to_splited_wc_cBus_up_bus_d_ready),
+.D(vexiis_0_iBus_to_splited_wc_cBus_up_bus_d_payload_size[2]),
+.Q(vexiis_0_iBus_noDecoder_toDown_d_rData_size[2]));
+RTL_REG_ASYNC__BREG_1413 vexiis_0_iBus_noDecoder_toDown_d_rValid_reg
+(.C(litex_clk),
+.CE(vexiis_0_iBus_to_splited_wc_cBus_up_bus_d_ready),
+.CLR(cpuResetCtrl_fiber_buffer_io_dataOut),
+.D(splited_wc_cBus_arbiter_core_io_ups_0_d_valid),
+.Q(vexiis_0_iBus_noDecoder_toDown_d_rValid));
+RTL_MUX vexiis_0_iBus_noDecoder_toDown_d_ready_i
+(.I0(\<const1> ),
+.I1(vexiis_0_logic_core_FetchL1TileLinkPlugin_logic_down_d_ready),
+.O(vexiis_0_iBus_to_splited_wc_cBus_up_bus_d_ready),
+.S(when_Stream_l477_3));
+VexiiRiscv vexiis_0_logic_core
+(.FetchL1TileLinkPlugin_logic_down_a_payload_address(vexiis_0_iBus_bus_a_payload_address),
+.FetchL1TileLinkPlugin_logic_down_a_payload_opcode(vexiis_0_iBus_bus_a_payload_opcode),
+.FetchL1TileLinkPlugin_logic_down_a_payload_param(vexiis_0_iBus_bus_a_payload_param),
+.FetchL1TileLinkPlugin_logic_down_a_payload_size(vexiis_0_iBus_bus_a_payload_size),
+.FetchL1TileLinkPlugin_logic_down_a_ready(vexiis_0_iBus_bus_a_ready),
+.FetchL1TileLinkPlugin_logic_down_a_valid(vexiis_0_logic_core_FetchL1TileLinkPlugin_logic_down_a_valid),
+.FetchL1TileLinkPlugin_logic_down_d_payload_corrupt(vexiis_0_iBus_noDecoder_toDown_d_rData_corrupt),
+.FetchL1TileLinkPlugin_logic_down_d_payload_data(vexiis_0_iBus_noDecoder_toDown_d_rData_data),
+.FetchL1TileLinkPlugin_logic_down_d_payload_denied(vexiis_0_iBus_noDecoder_toDown_d_rData_denied),
+.FetchL1TileLinkPlugin_logic_down_d_payload_opcode(vexiis_0_iBus_noDecoder_toDown_d_rData_opcode),
+.FetchL1TileLinkPlugin_logic_down_d_payload_param(vexiis_0_iBus_noDecoder_toDown_d_rData_param),
+.FetchL1TileLinkPlugin_logic_down_d_payload_size(vexiis_0_iBus_noDecoder_toDown_d_rData_size),
+.FetchL1TileLinkPlugin_logic_down_d_ready(vexiis_0_logic_core_FetchL1TileLinkPlugin_logic_down_d_ready),
+.FetchL1TileLinkPlugin_logic_down_d_valid(vexiis_0_iBus_noDecoder_toDown_d_rValid),
+.LsuL1TileLinkPlugin_logic_down_a_payload_address(vexiis_0_lsuL1Bus_bus_a_payload_address),
+.LsuL1TileLinkPlugin_logic_down_a_payload_opcode(vexiis_0_lsuL1Bus_bus_a_payload_opcode),
+.LsuL1TileLinkPlugin_logic_down_a_payload_param(vexiis_0_lsuL1Bus_bus_a_payload_param),
+.LsuL1TileLinkPlugin_logic_down_a_payload_size(vexiis_0_lsuL1Bus_bus_a_payload_size),
+.LsuL1TileLinkPlugin_logic_down_a_ready(vexiis_0_lsuL1Bus_bus_a_ready),
+.LsuL1TileLinkPlugin_logic_down_a_valid(vexiis_0_logic_core_LsuL1TileLinkPlugin_logic_down_a_valid),
+.LsuL1TileLinkPlugin_logic_down_b_payload_address(vexiis_0_lsuL1Bus_noDecoder_toDown_b_rData_address),
+.LsuL1TileLinkPlugin_logic_down_b_payload_opcode(vexiis_0_lsuL1Bus_noDecoder_toDown_b_rData_opcode),
+.LsuL1TileLinkPlugin_logic_down_b_payload_param(vexiis_0_lsuL1Bus_noDecoder_toDown_b_rData_param),
+.LsuL1TileLinkPlugin_logic_down_b_payload_size(vexiis_0_lsuL1Bus_noDecoder_toDown_b_rData_size),
+.LsuL1TileLinkPlugin_logic_down_b_ready(vexiis_0_logic_core_LsuL1TileLinkPlugin_logic_down_b_ready),
+.LsuL1TileLinkPlugin_logic_down_b_valid(vexiis_0_lsuL1Bus_noDecoder_toDown_b_rValid),
+.LsuL1TileLinkPlugin_logic_down_c_payload_address(vexiis_0_lsuL1Bus_bus_c_payload_address),
+.LsuL1TileLinkPlugin_logic_down_c_payload_corrupt(vexiis_0_logic_core_LsuL1TileLinkPlugin_logic_down_c_payload_corrupt),
+.LsuL1TileLinkPlugin_logic_down_c_payload_data(vexiis_0_lsuL1Bus_bus_c_payload_data),
+.LsuL1TileLinkPlugin_logic_down_c_payload_opcode(vexiis_0_lsuL1Bus_bus_c_payload_opcode),
+.LsuL1TileLinkPlugin_logic_down_c_payload_param(vexiis_0_lsuL1Bus_bus_c_payload_param),
+.LsuL1TileLinkPlugin_logic_down_c_payload_size(vexiis_0_lsuL1Bus_bus_c_payload_size),
+.LsuL1TileLinkPlugin_logic_down_c_ready(vexiis_0_lsuL1Bus_bus_c_rValidN),
+.LsuL1TileLinkPlugin_logic_down_c_valid(vexiis_0_logic_core_LsuL1TileLinkPlugin_logic_down_c_valid),
+.LsuL1TileLinkPlugin_logic_down_d_payload_corrupt(vexiis_0_lsuL1Bus_noDecoder_toDown_d_rData_corrupt),
+.LsuL1TileLinkPlugin_logic_down_d_payload_data(vexiis_0_lsuL1Bus_noDecoder_toDown_d_rData_data),
+.LsuL1TileLinkPlugin_logic_down_d_payload_denied(vexiis_0_lsuL1Bus_noDecoder_toDown_d_rData_denied),
+.LsuL1TileLinkPlugin_logic_down_d_payload_opcode(vexiis_0_lsuL1Bus_noDecoder_toDown_d_rData_opcode),
+.LsuL1TileLinkPlugin_logic_down_d_payload_param(vexiis_0_lsuL1Bus_noDecoder_toDown_d_rData_param),
+.LsuL1TileLinkPlugin_logic_down_d_payload_sink(vexiis_0_lsuL1Bus_noDecoder_toDown_d_rData_sink),
+.LsuL1TileLinkPlugin_logic_down_d_payload_size(vexiis_0_lsuL1Bus_noDecoder_toDown_d_rData_size),
+.LsuL1TileLinkPlugin_logic_down_d_ready(vexiis_0_logic_core_LsuL1TileLinkPlugin_logic_down_d_ready),
+.LsuL1TileLinkPlugin_logic_down_d_valid(vexiis_0_lsuL1Bus_noDecoder_toDown_d_rValid),
+.LsuL1TileLinkPlugin_logic_down_e_payload_sink(vexiis_0_lsuL1Bus_bus_e_payload_sink),
+.LsuL1TileLinkPlugin_logic_down_e_ready(vexiis_0_lsuL1Bus_bus_e_ready),
+.LsuL1TileLinkPlugin_logic_down_e_valid(vexiis_0_logic_core_LsuL1TileLinkPlugin_logic_down_e_valid),
+.LsuTileLinkPlugin_logic_bridge_down_a_payload_address(vexiis_0_dBus_bus_a_payload_address),
+.LsuTileLinkPlugin_logic_bridge_down_a_payload_corrupt(vexiis_0_logic_core_LsuTileLinkPlugin_logic_bridge_down_a_payload_corrupt),
+.LsuTileLinkPlugin_logic_bridge_down_a_payload_data(vexiis_0_dBus_bus_a_payload_data),
+.LsuTileLinkPlugin_logic_bridge_down_a_payload_mask(vexiis_0_dBus_bus_a_payload_mask),
+.LsuTileLinkPlugin_logic_bridge_down_a_payload_opcode(vexiis_0_dBus_bus_a_payload_opcode),
+.LsuTileLinkPlugin_logic_bridge_down_a_payload_param(vexiis_0_dBus_bus_a_payload_param),
+.LsuTileLinkPlugin_logic_bridge_down_a_payload_size(vexiis_0_dBus_bus_a_payload_size),
+.LsuTileLinkPlugin_logic_bridge_down_a_ready(vexiis_0_dBus_bus_a_ready),
+.LsuTileLinkPlugin_logic_bridge_down_a_valid(vexiis_0_logic_core_LsuTileLinkPlugin_logic_bridge_down_a_valid),
+.LsuTileLinkPlugin_logic_bridge_down_d_payload_corrupt(vexiis_0_dBus_noDecoder_toDown_d_rData_corrupt),
+.LsuTileLinkPlugin_logic_bridge_down_d_payload_data(vexiis_0_dBus_noDecoder_toDown_d_rData_data),
+.LsuTileLinkPlugin_logic_bridge_down_d_payload_denied(vexiis_0_dBus_noDecoder_toDown_d_rData_denied),
+.LsuTileLinkPlugin_logic_bridge_down_d_payload_opcode(vexiis_0_dBus_noDecoder_toDown_d_rData_opcode),
+.LsuTileLinkPlugin_logic_bridge_down_d_payload_param(vexiis_0_dBus_noDecoder_toDown_d_rData_param),
+.LsuTileLinkPlugin_logic_bridge_down_d_payload_size(vexiis_0_dBus_noDecoder_toDown_d_rData_size),
+.LsuTileLinkPlugin_logic_bridge_down_d_ready(vexiis_0_logic_core_LsuTileLinkPlugin_logic_bridge_down_d_ready),
+.LsuTileLinkPlugin_logic_bridge_down_d_valid(vexiis_0_dBus_noDecoder_toDown_d_rValid),
+.PrivilegedPlugin_logic_harts_0_int_m_external(vexiis_0_priv_mei_flag),
+.PrivilegedPlugin_logic_harts_0_int_m_software(vexiis_0_priv_msi_flag),
+.PrivilegedPlugin_logic_harts_0_int_m_timer(vexiis_0_priv_mti_flag),
+.PrivilegedPlugin_logic_rdtime(_zz_vexiis_0_priv_rdtime),
+.cpuResetCtrl_reset(cpuResetCtrl_fiber_buffer_io_dataOut),
+.litex_clk(litex_clk));
+RTL_AND7 vexiis_0_lsuL1Bus_bus_a_halfPipe_fire_i
+(.I0(vexiis_0_lsuL1Bus_bus_a_rValid),
+.I1(splited_wc_cBus_arbiter_core_io_ups_1_a_ready),
+.O(vexiis_0_lsuL1Bus_bus_a_halfPipe_fire));
+RTL_REG__BREG_36 \vexiis_0_lsuL1Bus_bus_a_rData_address_reg[0]
+(.C(litex_clk),
+.CE(vexiis_0_lsuL1Bus_bus_a_ready),
+.D(vexiis_0_lsuL1Bus_bus_a_payload_address[0]),
+.Q(vexiis_0_lsuL1Bus_bus_a_rData_address[0]));
+RTL_REG__BREG_36 \vexiis_0_lsuL1Bus_bus_a_rData_address_reg[10]
+(.C(litex_clk),
+.CE(vexiis_0_lsuL1Bus_bus_a_ready),
+.D(vexiis_0_lsuL1Bus_bus_a_payload_address[10]),
+.Q(vexiis_0_lsuL1Bus_bus_a_rData_address[10]));
+RTL_REG__BREG_36 \vexiis_0_lsuL1Bus_bus_a_rData_address_reg[11]
+(.C(litex_clk),
+.CE(vexiis_0_lsuL1Bus_bus_a_ready),
+.D(vexiis_0_lsuL1Bus_bus_a_payload_address[11]),
+.Q(vexiis_0_lsuL1Bus_bus_a_rData_address[11]));
+RTL_REG__BREG_36 \vexiis_0_lsuL1Bus_bus_a_rData_address_reg[12]
+(.C(litex_clk),
+.CE(vexiis_0_lsuL1Bus_bus_a_ready),
+.D(vexiis_0_lsuL1Bus_bus_a_payload_address[12]),
+.Q(vexiis_0_lsuL1Bus_bus_a_rData_address[12]));
+RTL_REG__BREG_36 \vexiis_0_lsuL1Bus_bus_a_rData_address_reg[13]
+(.C(litex_clk),
+.CE(vexiis_0_lsuL1Bus_bus_a_ready),
+.D(vexiis_0_lsuL1Bus_bus_a_payload_address[13]),
+.Q(vexiis_0_lsuL1Bus_bus_a_rData_address[13]));
+RTL_REG__BREG_36 \vexiis_0_lsuL1Bus_bus_a_rData_address_reg[14]
+(.C(litex_clk),
+.CE(vexiis_0_lsuL1Bus_bus_a_ready),
+.D(vexiis_0_lsuL1Bus_bus_a_payload_address[14]),
+.Q(vexiis_0_lsuL1Bus_bus_a_rData_address[14]));
+RTL_REG__BREG_36 \vexiis_0_lsuL1Bus_bus_a_rData_address_reg[15]
+(.C(litex_clk),
+.CE(vexiis_0_lsuL1Bus_bus_a_ready),
+.D(vexiis_0_lsuL1Bus_bus_a_payload_address[15]),
+.Q(vexiis_0_lsuL1Bus_bus_a_rData_address[15]));
+RTL_REG__BREG_36 \vexiis_0_lsuL1Bus_bus_a_rData_address_reg[16]
+(.C(litex_clk),
+.CE(vexiis_0_lsuL1Bus_bus_a_ready),
+.D(vexiis_0_lsuL1Bus_bus_a_payload_address[16]),
+.Q(vexiis_0_lsuL1Bus_bus_a_rData_address[16]));
+RTL_REG__BREG_36 \vexiis_0_lsuL1Bus_bus_a_rData_address_reg[17]
+(.C(litex_clk),
+.CE(vexiis_0_lsuL1Bus_bus_a_ready),
+.D(vexiis_0_lsuL1Bus_bus_a_payload_address[17]),
+.Q(vexiis_0_lsuL1Bus_bus_a_rData_address[17]));
+RTL_REG__BREG_36 \vexiis_0_lsuL1Bus_bus_a_rData_address_reg[18]
+(.C(litex_clk),
+.CE(vexiis_0_lsuL1Bus_bus_a_ready),
+.D(vexiis_0_lsuL1Bus_bus_a_payload_address[18]),
+.Q(vexiis_0_lsuL1Bus_bus_a_rData_address[18]));
+RTL_REG__BREG_36 \vexiis_0_lsuL1Bus_bus_a_rData_address_reg[19]
+(.C(litex_clk),
+.CE(vexiis_0_lsuL1Bus_bus_a_ready),
+.D(vexiis_0_lsuL1Bus_bus_a_payload_address[19]),
+.Q(vexiis_0_lsuL1Bus_bus_a_rData_address[19]));
+RTL_REG__BREG_36 \vexiis_0_lsuL1Bus_bus_a_rData_address_reg[1]
+(.C(litex_clk),
+.CE(vexiis_0_lsuL1Bus_bus_a_ready),
+.D(vexiis_0_lsuL1Bus_bus_a_payload_address[1]),
+.Q(vexiis_0_lsuL1Bus_bus_a_rData_address[1]));
+RTL_REG__BREG_36 \vexiis_0_lsuL1Bus_bus_a_rData_address_reg[20]
+(.C(litex_clk),
+.CE(vexiis_0_lsuL1Bus_bus_a_ready),
+.D(vexiis_0_lsuL1Bus_bus_a_payload_address[20]),
+.Q(vexiis_0_lsuL1Bus_bus_a_rData_address[20]));
+RTL_REG__BREG_36 \vexiis_0_lsuL1Bus_bus_a_rData_address_reg[21]
+(.C(litex_clk),
+.CE(vexiis_0_lsuL1Bus_bus_a_ready),
+.D(vexiis_0_lsuL1Bus_bus_a_payload_address[21]),
+.Q(vexiis_0_lsuL1Bus_bus_a_rData_address[21]));
+RTL_REG__BREG_36 \vexiis_0_lsuL1Bus_bus_a_rData_address_reg[22]
+(.C(litex_clk),
+.CE(vexiis_0_lsuL1Bus_bus_a_ready),
+.D(vexiis_0_lsuL1Bus_bus_a_payload_address[22]),
+.Q(vexiis_0_lsuL1Bus_bus_a_rData_address[22]));
+RTL_REG__BREG_36 \vexiis_0_lsuL1Bus_bus_a_rData_address_reg[23]
+(.C(litex_clk),
+.CE(vexiis_0_lsuL1Bus_bus_a_ready),
+.D(vexiis_0_lsuL1Bus_bus_a_payload_address[23]),
+.Q(vexiis_0_lsuL1Bus_bus_a_rData_address[23]));
+RTL_REG__BREG_36 \vexiis_0_lsuL1Bus_bus_a_rData_address_reg[24]
+(.C(litex_clk),
+.CE(vexiis_0_lsuL1Bus_bus_a_ready),
+.D

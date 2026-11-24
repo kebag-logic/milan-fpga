@@ -1,0 +1,21 @@
+Candidate head: 855529fe21fea685725a9edc4fe0a798154c6469
+Comparison base: 3cda030c174b325e36c26af6420487ff91346d15
+Source: regressions/render.json
+Original SHA256: 4b953da3db8c7a8b90413712b8993e8ee9a1077840df83191f61ff8d0f45340a
+Scope: complete text; paths and host fields normalized
+
+{
+  "case": "render",
+  "command": [
+    "make",
+    "-s",
+    "-C",
+    "$CHECKOUT/tb/verilator/milan_dp_render",
+    "VERILATOR_JOBS=4",
+    "run",
+    "ship8",
+    "tdm8render-mutants"
+  ],
+  "exit": 0,
+  "seconds": 7305.608642578125
+}

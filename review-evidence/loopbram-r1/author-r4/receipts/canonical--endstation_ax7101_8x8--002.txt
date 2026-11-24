@@ -1,0 +1,5374 @@
+io_down_w_payload_last));
+RTL_MUX downW_header_i__3
+(.I0(downW_header_i__2_n_0),
+.I1(downW_header_i__1_n_0),
+.O(downW_header_i__3_n_0),
+.S(io_down_w_fire));
+RTL_REG_ASYNC__BREG_1413 \downW_header_reg[0]
+(.C(litex_clk),
+.CE(downW_header_i__3_n_0),
+.CLR(litex_reset),
+.D(downW_header__0[0]),
+.Q(downW_header[0]));
+RTL_REG_ASYNC__BREG_1413 \downW_header_reg[1]
+(.C(litex_clk),
+.CE(downW_header_i__3_n_0),
+.CLR(litex_reset),
+.D(downW_header__0[1]),
+.Q(downW_header[1]));
+RTL_REG_ASYNC__BREG_1413 \downW_header_reg[2]
+(.C(litex_clk),
+.CE(downW_header_i__3_n_0),
+.CLR(litex_reset),
+.D(downW_header__0[2]),
+.Q(downW_header[2]));
+RTL_REG_ASYNC__BREG_1413 \downW_header_reg[3]
+(.C(litex_clk),
+.CE(downW_header_i__3_n_0),
+.CLR(litex_reset),
+.D(downW_header__0[3]),
+.Q(downW_header[3]));
+RTL_EQ5 downW_last_i
+(.I0(downW_len),
+.I1(frontend_allocateSlot_wCmd_s2mPipe_rData_len),
+.O(io_down_w_payload_last));
+RTL_ADD4 downW_len0_i
+(.I0(downW_len),
+.I1(\<const1> ),
+.O(downW_len0));
+RTL_MUX342 downW_len_i
+(.I0({\<const0> ,\<const0> ,\<const0> ,\<const0> }),
+.I1(downW_len0),
+.O(downW_len__0),
+.S(io_down_w_payload_last));
+RTL_REG_ASYNC__BREG_1413 \downW_len_reg[0]
+(.C(litex_clk),
+.CE(io_down_w_fire),
+.CLR(litex_reset),
+.D(downW_len__0[0]),
+.Q(downW_len[0]));
+RTL_REG_ASYNC__BREG_1413 \downW_len_reg[1]
+(.C(litex_clk),
+.CE(io_down_w_fire),
+.CLR(litex_reset),
+.D(downW_len__0[1]),
+.Q(downW_len[1]));
+RTL_REG_ASYNC__BREG_1413 \downW_len_reg[2]
+(.C(litex_clk),
+.CE(io_down_w_fire),
+.CLR(litex_reset),
+.D(downW_len__0[2]),
+.Q(downW_len[2]));
+RTL_REG_ASYNC__BREG_1413 \downW_len_reg[3]
+(.C(litex_clk),
+.CE(io_down_w_fire),
+.CLR(litex_reset),
+.D(downW_len__0[3]),
+.Q(downW_len[3]));
+RTL_ADD99 downW_ups0_i
+(.I0(downW_ups),
+.I1({\<const0> ,\<const0> ,\<const0> ,io_down_w_ready}),
+.O(downW_ups0));
+RTL_MUX downW_upsDone_i
+(.I0(\<const0> ),
+.I1(when_Axi4Aligner_l167),
+.O(downW_upsDone_i_n_0),
+.S(io_down_w_payload_last));
+RTL_MUX downW_upsDone_i__0
+(.I0(downW_upsDone_i_n_0),
+.I1(when_Axi4Aligner_l167),
+.O(downW_upsDone__0),
+.S(io_down_w_fire));
+RTL_MUX downW_upsDone_i__1
+(.I0(when_Axi4Aligner_l167),
+.I1(\<const0> ),
+.O(downW_upsDone_i__1_n_0),
+.S(when_Axi4Aligner_l164));
+RTL_MUX downW_upsDone_i__2
+(.I0(\<const0> ),
+.I1(downW_upsDone_i__1_n_0),
+.O(downW_upsDone_i__2_n_0),
+.S(when_Axi4Aligner_l161));
+RTL_MUX downW_upsDone_i__3
+(.I0(downW_upsDone_i__2_n_0),
+.I1(\<const0> ),
+.O(downW_upsDone_i__3_n_0),
+.S(frontend_allocateSlot_wCmd_s2mPipe_rValid));
+RTL_MUX downW_upsDone_i__4
+(.I0(\<const1> ),
+.I1(downW_upsDone_i__3_n_0),
+.O(downW_upsDone_i__4_n_0),
+.S(io_down_w_payload_last));
+RTL_MUX downW_upsDone_i__5
+(.I0(downW_upsDone_i__4_n_0),
+.I1(downW_upsDone_i__3_n_0),
+.O(downW_upsDone_i__5_n_0),
+.S(io_down_w_fire));
+RTL_REG_ASYNC__BREG_1413 downW_upsDone_reg
+(.C(litex_clk),
+.CE(downW_upsDone_i__5_n_0),
+.CLR(litex_reset),
+.D(downW_upsDone__0),
+.Q(downW_upsDone));
+RTL_MUX342 downW_ups_i
+(.I0({\<const0> ,\<const0> ,\<const0> ,\<const0> }),
+.I1(downW_ups0),
+.O({downW_ups_i_n_0,downW_ups_i_n_1,downW_ups_i_n_2,downW_ups_i_n_3}),
+.S(io_down_w_payload_last));
+RTL_MUX342 downW_ups_i__0
+(.I0({downW_ups_i_n_0,downW_ups_i_n_1,downW_ups_i_n_2,downW_ups_i_n_3}),
+.I1(downW_ups0),
+.O(downW_ups__0),
+.S(io_down_w_fire));
+RTL_MUX downW_ups_i__1
+(.I0(\<const0> ),
+.I1(when_Axi4Aligner_l164),
+.O(downW_ups_i__1_n_0),
+.S(when_Axi4Aligner_l161));
+RTL_MUX downW_ups_i__2
+(.I0(downW_ups_i__1_n_0),
+.I1(\<const0> ),
+.O(downW_ups_i__2_n_0),
+.S(frontend_allocateSlot_wCmd_s2mPipe_rValid));
+RTL_MUX downW_ups_i__3
+(.I0(\<const1> ),
+.I1(downW_ups_i__2_n_0),
+.O(downW_ups_i__3_n_0),
+.S(io_down_w_payload_last));
+RTL_MUX downW_ups_i__4
+(.I0(downW_ups_i__3_n_0),
+.I1(downW_ups_i__2_n_0),
+.O(downW_ups_i__4_n_0),
+.S(io_down_w_fire));
+RTL_REG_ASYNC__BREG_1413 \downW_ups_reg[0]
+(.C(litex_clk),
+.CE(downW_ups_i__4_n_0),
+.CLR(litex_reset),
+.D(downW_ups__0[0]),
+.Q(downW_ups[0]));
+RTL_REG_ASYNC__BREG_1413 \downW_ups_reg[1]
+(.C(litex_clk),
+.CE(downW_ups_i__4_n_0),
+.CLR(litex_reset),
+.D(downW_ups__0[1]),
+.Q(downW_ups[1]));
+RTL_REG_ASYNC__BREG_1413 \downW_ups_reg[2]
+(.C(litex_clk),
+.CE(downW_ups_i__4_n_0),
+.CLR(litex_reset),
+.D(downW_ups__0[2]),
+.Q(downW_ups[2]));
+RTL_REG_ASYNC__BREG_1413 \downW_ups_reg[3]
+(.C(litex_clk),
+.CE(downW_ups_i__4_n_0),
+.CLR(litex_reset),
+.D(downW_ups__0[3]),
+.Q(downW_ups[3]));
+RTL_REG__BREG_36 \frontend_allocateSlot_bufferize_AW_addr_reg[0]
+(.C(litex_clk),
+.CE(frontend_split_ready_output),
+.D(frontend_split_spliter_boundedStart[0]),
+.Q(_zz_frontend_allocateSlot_wCmd_payload_header_1[0]));
+RTL_REG__BREG_36 \frontend_allocateSlot_bufferize_AW_addr_reg[10]
+(.C(litex_clk),
+.CE(frontend_split_ready_output),
+.D(frontend_split_spliter_boundedStart[10]));
+RTL_REG__BREG_36 \frontend_allocateSlot_bufferize_AW_addr_reg[11]
+(.C(litex_clk),
+.CE(frontend_split_ready_output),
+.D(frontend_split_spliter_boundedStart[11]));
+RTL_REG__BREG_36 \frontend_allocateSlot_bufferize_AW_addr_reg[12]
+(.C(litex_clk),
+.CE(frontend_split_ready_output),
+.D(frontend_split_bufferize_AW_addr_reg_n_19),
+.Q(io_down_aw_payload_addr[12]));
+RTL_REG__BREG_36 \frontend_allocateSlot_bufferize_AW_addr_reg[13]
+(.C(litex_clk),
+.CE(frontend_split_ready_output),
+.D(frontend_split_bufferize_AW_addr_reg_n_18),
+.Q(io_down_aw_payload_addr[13]));
+RTL_REG__BREG_36 \frontend_allocateSlot_bufferize_AW_addr_reg[14]
+(.C(litex_clk),
+.CE(frontend_split_ready_output),
+.D(frontend_split_bufferize_AW_addr_reg_n_17),
+.Q(io_down_aw_payload_addr[14]));
+RTL_REG__BREG_36 \frontend_allocateSlot_bufferize_AW_addr_reg[15]
+(.C(litex_clk),
+.CE(frontend_split_ready_output),
+.D(frontend_split_bufferize_AW_addr_reg_n_16),
+.Q(io_down_aw_payload_addr[15]));
+RTL_REG__BREG_36 \frontend_allocateSlot_bufferize_AW_addr_reg[16]
+(.C(litex_clk),
+.CE(frontend_split_ready_output),
+.D(frontend_split_bufferize_AW_addr_reg_n_15),
+.Q(io_down_aw_payload_addr[16]));
+RTL_REG__BREG_36 \frontend_allocateSlot_bufferize_AW_addr_reg[17]
+(.C(litex_clk),
+.CE(frontend_split_ready_output),
+.D(frontend_split_bufferize_AW_addr_reg_n_14),
+.Q(io_down_aw_payload_addr[17]));
+RTL_REG__BREG_36 \frontend_allocateSlot_bufferize_AW_addr_reg[18]
+(.C(litex_clk),
+.CE(frontend_split_ready_output),
+.D(frontend_split_bufferize_AW_addr_reg_n_13),
+.Q(io_down_aw_payload_addr[18]));
+RTL_REG__BREG_36 \frontend_allocateSlot_bufferize_AW_addr_reg[19]
+(.C(litex_clk),
+.CE(frontend_split_ready_output),
+.D(frontend_split_bufferize_AW_addr_reg_n_12),
+.Q(io_down_aw_payload_addr[19]));
+RTL_REG__BREG_36 \frontend_allocateSlot_bufferize_AW_addr_reg[1]
+(.C(litex_clk),
+.CE(frontend_split_ready_output),
+.D(frontend_split_spliter_boundedStart[1]),
+.Q(_zz_frontend_allocateSlot_wCmd_payload_header_1[1]));
+RTL_REG__BREG_36 \frontend_allocateSlot_bufferize_AW_addr_reg[20]
+(.C(litex_clk),
+.CE(frontend_split_ready_output),
+.D(frontend_split_bufferize_AW_addr_reg_n_11),
+.Q(io_down_aw_payload_addr[20]));
+RTL_REG__BREG_36 \frontend_allocateSlot_bufferize_AW_addr_reg[21]
+(.C(litex_clk),
+.CE(frontend_split_ready_output),
+.D(frontend_split_bufferize_AW_addr_reg_n_10),
+.Q(io_down_aw_payload_addr[21]));
+RTL_REG__BREG_36 \frontend_allocateSlot_bufferize_AW_addr_reg[22]
+(.C(litex_clk),
+.CE(frontend_split_ready_output),
+.D(frontend_split_bufferize_AW_addr_reg_n_9),
+.Q(io_down_aw_payload_addr[22]));
+RTL_REG__BREG_36 \frontend_allocateSlot_bufferize_AW_addr_reg[23]
+(.C(litex_clk),
+.CE(frontend_split_ready_output),
+.D(frontend_split_bufferize_AW_addr_reg_n_8),
+.Q(io_down_aw_payload_addr[23]));
+RTL_REG__BREG_36 \frontend_allocateSlot_bufferize_AW_addr_reg[24]
+(.C(litex_clk),
+.CE(frontend_split_ready_output),
+.D(frontend_split_bufferize_AW_addr_reg_n_7),
+.Q(io_down_aw_payload_addr[24]));
+RTL_REG__BREG_36 \frontend_allocateSlot_bufferize_AW_addr_reg[25]
+(.C(litex_clk),
+.CE(frontend_split_ready_output),
+.D(frontend_split_bufferize_AW_addr_reg_n_6),
+.Q(io_down_aw_payload_addr[25]));
+RTL_REG__BREG_36 \frontend_allocateSlot_bufferize_AW_addr_reg[26]
+(.C(litex_clk),
+.CE(frontend_split_ready_output),
+.D(frontend_split_bufferize_AW_addr_reg_n_5),
+.Q(io_down_aw_payload_addr[26]));
+RTL_REG__BREG_36 \frontend_allocateSlot_bufferize_AW_addr_reg[27]
+(.C(litex_clk),
+.CE(frontend_split_ready_output),
+.D(frontend_split_bufferize_AW_addr_reg_n_4),
+.Q(io_down_aw_payload_addr[27]));
+RTL_REG__BREG_36 \frontend_allocateSlot_bufferize_AW_addr_reg[28]
+(.C(litex_clk),
+.CE(frontend_split_ready_output),
+.D(frontend_split_bufferize_AW_addr_reg_n_3),
+.Q(io_down_aw_payload_addr[28]));
+RTL_REG__BREG_36 \frontend_allocateSlot_bufferize_AW_addr_reg[29]
+(.C(litex_clk),
+.CE(frontend_split_ready_output),
+.D(frontend_split_bufferize_AW_addr_reg_n_2),
+.Q(io_down_aw_payload_addr[29]));
+RTL_REG__BREG_36 \frontend_allocateSlot_bufferize_AW_addr_reg[2]
+(.C(litex_clk),
+.CE(frontend_split_ready_output),
+.D(frontend_split_spliter_boundedStart[2]),
+.Q(_zz_frontend_allocateSlot_wCmd_payload_header_1[2]));
+RTL_REG__BREG_36 \frontend_allocateSlot_bufferize_AW_addr_reg[30]
+(.C(litex_clk),
+.CE(frontend_split_ready_output),
+.D(frontend_split_bufferize_AW_addr_reg_n_1),
+.Q(io_down_aw_payload_addr[30]));
+RTL_REG__BREG_36 \frontend_allocateSlot_bufferize_AW_addr_reg[31]
+(.C(litex_clk),
+.CE(frontend_split_ready_output),
+.D(frontend_split_bufferize_AW_addr_reg_n_0),
+.Q(io_down_aw_payload_addr[31]));
+RTL_REG__BREG_36 \frontend_allocateSlot_bufferize_AW_addr_reg[3]
+(.C(litex_clk),
+.CE(frontend_split_ready_output),
+.D(frontend_split_spliter_boundedStart[3]),
+.Q(_zz_frontend_allocateSlot_wCmd_payload_header_1[3]));
+RTL_REG__BREG_36 \frontend_allocateSlot_bufferize_AW_addr_reg[4]
+(.C(litex_clk),
+.CE(frontend_split_ready_output),
+.D(frontend_split_spliter_boundedStart[4]),
+.Q(_zz_frontend_allocateSlot_wCmd_payload_header_1[4]));
+RTL_REG__BREG_36 \frontend_allocateSlot_bufferize_AW_addr_reg[5]
+(.C(litex_clk),
+.CE(frontend_split_ready_output),
+.D(frontend_split_spliter_boundedStart[5]),
+.Q(_zz_frontend_allocateSlot_wCmd_payload_header_1[5]));
+RTL_REG__BREG_36 \frontend_allocateSlot_bufferize_AW_addr_reg[6]
+(.C(litex_clk),
+.CE(frontend_split_ready_output),
+.D(frontend_split_spliter_boundedStart[6]));
+RTL_REG__BREG_36 \frontend_allocateSlot_bufferize_AW_addr_reg[7]
+(.C(litex_clk),
+.CE(frontend_split_ready_output),
+.D(frontend_split_spliter_boundedStart[7]));
+RTL_REG__BREG_36 \frontend_allocateSlot_bufferize_AW_addr_reg[8]
+(.C(litex_clk),
+.CE(frontend_split_ready_output),
+.D(frontend_split_spliter_boundedStart[8]));
+RTL_REG__BREG_36 \frontend_allocateSlot_bufferize_AW_addr_reg[9]
+(.C(litex_clk),
+.CE(frontend_split_ready_output),
+.D(frontend_split_spliter_boundedStart[9]));
+RTL_REG__BREG_36 \frontend_allocateSlot_bufferize_AW_burst_reg[0]
+(.C(litex_clk),
+.CE(frontend_split_ready_output),
+.D(frontend_split_bufferize_AW_burst[0]),
+.Q(io_down_aw_payload_burst[0]));
+RTL_REG__BREG_36 \frontend_allocateSlot_bufferize_AW_burst_reg[1]
+(.C(litex_clk),
+.CE(frontend_split_ready_output),
+.D(frontend_split_bufferize_AW_burst[1]),
+.Q(io_down_aw_payload_burst[1]));
+RTL_REG__BREG_36 \frontend_allocateSlot_bufferize_AW_cache_reg[0]
+(.C(litex_clk),
+.CE(frontend_split_ready_output),
+.D(frontend_split_bufferize_AW_cache[0]),
+.Q(io_down_aw_payload_cache[0]));
+RTL_REG__BREG_36 \frontend_allocateSlot_bufferize_AW_cache_reg[1]
+(.C(litex_clk),
+.CE(frontend_split_ready_output),
+.D(frontend_split_bufferize_AW_cache[1]),
+.Q(io_down_aw_payload_cache[1]));
+RTL_REG__BREG_36 \frontend_allocateSlot_bufferize_AW_cache_reg[2]
+(.C(litex_clk),
+.CE(frontend_split_ready_output),
+.D(frontend_split_bufferize_AW_cache[2]),
+.Q(io_down_aw_payload_cache[2]));
+RTL_REG__BREG_36 \frontend_allocateSlot_bufferize_AW_cache_reg[3]
+(.C(litex_clk),
+.CE(frontend_split_ready_output),
+.D(frontend_split_bufferize_AW_cache[3]),
+.Q(io_down_aw_payload_cache[3]));
+RTL_REG__BREG_36 \frontend_allocateSlot_bufferize_AW_id_reg[0]
+(.C(litex_clk),
+.CE(frontend_split_ready_output),
+.D(frontend_split_bufferize_AW_id[0]),
+.Q(_zz_context_mem_port[1]));
+RTL_REG__BREG_36 \frontend_allocateSlot_bufferize_AW_id_reg[1]
+(.C(litex_clk),
+.CE(frontend_split_ready_output),
+.D(frontend_split_bufferize_AW_id[1]),
+.Q(_zz_context_mem_port[2]));
+RTL_REG__BREG_36 \frontend_allocateSlot_bufferize_AW_id_reg[2]
+(.C(litex_clk),
+.CE(frontend_split_ready_output),
+.D(frontend_split_bufferize_AW_id[2]),
+.Q(_zz_context_mem_port[3]));
+RTL_REG__BREG_36 \frontend_allocateSlot_bufferize_AW_id_reg[3]
+(.C(litex_clk),
+.CE(frontend_split_ready_output),
+.D(frontend_split_bufferize_AW_id[3]),
+.Q(_zz_context_mem_port[4]));
+RTL_REG__BREG_36 \frontend_allocateSlot_bufferize_AW_lock_reg[0]
+(.C(litex_clk),
+.CE(frontend_split_ready_output),
+.D(frontend_split_bufferize_AW_lock),
+.Q(io_down_aw_payload_lock));
+RTL_REG__BREG_36 \frontend_allocateSlot_bufferize_AW_prot_reg[0]
+(.C(litex_clk),
+.CE(frontend_split_ready_output),
+.D(frontend_split_bufferize_AW_prot[0]),
+.Q(io_down_aw_payload_prot[0]));
+RTL_REG__BREG_36 \frontend_allocateSlot_bufferize_AW_prot_reg[1]
+(.C(litex_clk),
+.CE(frontend_split_ready_output),
+.D(frontend_split_bufferize_AW_prot[1]),
+.Q(io_down_aw_payload_prot[1]));
+RTL_REG__BREG_36 \frontend_allocateSlot_bufferize_AW_prot_reg[2]
+(.C(litex_clk),
+.CE(frontend_split_ready_output),
+.D(frontend_split_bufferize_AW_prot[2]),
+.Q(io_down_aw_payload_prot[2]));
+RTL_REG__BREG_36 \frontend_allocateSlot_bufferize_AW_qos_reg[0]
+(.C(litex_clk),
+.CE(frontend_split_ready_output),
+.D(frontend_split_bufferize_AW_qos[0]),
+.Q(io_down_aw_payload_qos[0]));
+RTL_REG__BREG_36 \frontend_allocateSlot_bufferize_AW_qos_reg[1]
+(.C(litex_clk),
+.CE(frontend_split_ready_output),
+.D(frontend_split_bufferize_AW_qos[1]),
+.Q(io_down_aw_payload_qos[1]));
+RTL_REG__BREG_36 \frontend_allocateSlot_bufferize_AW_qos_reg[2]
+(.C(litex_clk),
+.CE(frontend_split_ready_output),
+.D(frontend_split_bufferize_AW_qos[2]),
+.Q(io_down_aw_payload_qos[2]));
+RTL_REG__BREG_36 \frontend_allocateSlot_bufferize_AW_qos_reg[3]
+(.C(litex_clk),
+.CE(frontend_split_ready_output),
+.D(frontend_split_bufferize_AW_qos[3]),
+.Q(io_down_aw_payload_qos[3]));
+RTL_REG__BREG_36 \frontend_allocateSlot_bufferize_AW_region_reg[0]
+(.C(litex_clk),
+.CE(frontend_split_ready_output),
+.D(frontend_split_bufferize_AW_region[0]),
+.Q(io_down_aw_payload_region[0]));
+RTL_REG__BREG_36 \frontend_allocateSlot_bufferize_AW_region_reg[1]
+(.C(litex_clk),
+.CE(frontend_split_ready_output),
+.D(frontend_split_bufferize_AW_region[1]),
+.Q(io_down_aw_payload_region[1]));
+RTL_REG__BREG_36 \frontend_allocateSlot_bufferize_AW_region_reg[2]
+(.C(litex_clk),
+.CE(frontend_split_ready_output),
+.D(frontend_split_bufferize_AW_region[2]),
+.Q(io_down_aw_payload_region[2]));
+RTL_REG__BREG_36 \frontend_allocateSlot_bufferize_AW_region_reg[3]
+(.C(litex_clk),
+.CE(frontend_split_ready_output),
+.D(frontend_split_bufferize_AW_region[3]),
+.Q(io_down_aw_payload_region[3]));
+RTL_REG__BREG_36 \frontend_allocateSlot_bufferize_AW_size_reg[0]
+(.C(litex_clk),
+.CE(frontend_split_ready_output),
+.D(frontend_split_bufferize_AW_size[0]),
+.Q(frontend_allocateSlot_bufferize_AW_size[0]));
+RTL_REG__BREG_36 \frontend_allocateSlot_bufferize_AW_size_reg[1]
+(.C(litex_clk),
+.CE(frontend_split_ready_output),
+.D(frontend_split_bufferize_AW_size[1]),
+.Q(frontend_allocateSlot_bufferize_AW_size[1]));
+RTL_REG__BREG_36 \frontend_allocateSlot_bufferize_AW_size_reg[2]
+(.C(litex_clk),
+.CE(frontend_split_ready_output),
+.D(frontend_split_bufferize_AW_size[2]),
+.Q(frontend_allocateSlot_bufferize_AW_size[2]));
+RTL_SUB84 frontend_allocateSlot_bytes_i
+(.I0({frontend_allocateSlot_split_aligner_CHUNK_END_reg_n_4,frontend_allocateSlot_split_aligner_CHUNK_END_reg_n_5}),
+.I1(io_down_aw_payload_addr[1:0]),
+.O(_zz_frontend_allocateSlot_smallSize_1));
+RTL_INV frontend_allocateSlot_haltRequest_Axi4Aligner_l121_i
+(.I0(io_down_aw_ready),
+.O(p_0_out[1]));
+RTL_AND7 frontend_allocateSlot_haltRequest_Axi4Aligner_l1360_i
+(.I0(frontend_allocateSlot_haltRequest_Axi4Aligner_l1361_i_n_0),
+.I1(frontend_allocateSlot_haltRequest_Axi4Aligner_l1361),
+.O(frontend_allocateSlot_haltRequest_Axi4Aligner_l1360));
+RTL_INV frontend_allocateSlot_haltRequest_Axi4Aligner_l1361_i
+(.I0(_zz_frontend_allocateSlot_haltRequest_Axi4Aligner_l136_2),
+.O(frontend_allocateSlot_haltRequest_Axi4Aligner_l1361_i_n_0));
+RTL_INV frontend_allocateSlot_haltRequest_Axi4Aligner_l1361_i__0
+(.I0(frontend_allocateSlot_wCmd_rValidN),
+.O(frontend_allocateSlot_haltRequest_Axi4Aligner_l1361));
+RTL_AND7 frontend_allocateSlot_haltRequest_Axi4Aligner_l136_i
+(.I0(frontend_allocateSlot_haltRequest_Axi4Aligner_l1360),
+.I1(_zz_frontend_allocateSlot_haltRequest_Axi4Aligner_l136),
+.O(p_0_out[2]));
+RTL_AND7 frontend_allocateSlot_isFiring_i
+(.I0(frontend_allocateSlot_valid),
+.I1(when_Axi4Aligner_l136),
+.O(frontend_allocateSlot_isFiring));
+RTL_MUX frontend_allocateSlot_ready_i
+(.I0(\<const0> ),
+.I1(\<const1> ),
+.O(when_Axi4Aligner_l136),
+.S(when_Pipeline_l282));
+RTL_REG__BREG_36 \frontend_allocateSlot_split_aligner_CHUNK_END_reg[0]
+(.C(litex_clk),
+.CE(frontend_split_ready_output),
+.D(frontend_split_aligner_CHUNK_END_i_n_5),
+.Q(frontend_allocateSlot_split_aligner_CHUNK_END_reg_n_5));
+RTL_REG__BREG_36 \frontend_allocateSlot_split_aligner_CHUNK_END_reg[1]
+(.C(litex_clk),
+.CE(frontend_split_ready_output),
+.D(frontend_split_aligner_CHUNK_END_i_n_4),
+.Q(frontend_allocateSlot_split_aligner_CHUNK_END_reg_n_4));
+RTL_REG__BREG_36 \frontend_allocateSlot_split_aligner_CHUNK_END_reg[2]
+(.C(litex_clk),
+.CE(frontend_split_ready_output),
+.D(p_1_in[0]));
+RTL_REG__BREG_36 \frontend_allocateSlot_split_aligner_CHUNK_END_reg[3]
+(.C(litex_clk),
+.CE(frontend_split_ready_output),
+.D(p_1_in[1]));
+RTL_REG__BREG_36 \frontend_allocateSlot_split_aligner_CHUNK_END_reg[4]
+(.C(litex_clk),
+.CE(frontend_split_ready_output),
+.D(p_1_in[2]));
+RTL_REG__BREG_36 \frontend_allocateSlot_split_aligner_CHUNK_END_reg[5]
+(.C(litex_clk),
+.CE(frontend_split_ready_output),
+.D(p_1_in[3]));
+RTL_REG__BREG_36 \frontend_allocateSlot_split_aligner_CHUNK_START_reg[0]
+(.C(litex_clk),
+.CE(frontend_split_ready_output),
+.D(frontend_split_aligner_CHUNK_START_i_n_5),
+.Q(io_down_aw_payload_addr[0]));
+RTL_REG__BREG_36 \frontend_allocateSlot_split_aligner_CHUNK_START_reg[1]
+(.C(litex_clk),
+.CE(frontend_split_ready_output),
+.D(frontend_split_aligner_CHUNK_START_i_n_4),
+.Q(io_down_aw_payload_addr[1]));
+RTL_REG__BREG_36 \frontend_allocateSlot_split_aligner_CHUNK_START_reg[2]
+(.C(litex_clk),
+.CE(frontend_split_ready_output),
+.D(p_0_in[0]),
+.Q(io_down_aw_payload_addr[2]));
+RTL_REG__BREG_36 \frontend_allocateSlot_split_aligner_CHUNK_START_reg[3]
+(.C(litex_clk),
+.CE(frontend_split_ready_output),
+.D(p_0_in[1]),
+.Q(io_down_aw_payload_addr[3]));
+RTL_REG__BREG_36 \frontend_allocateSlot_split_aligner_CHUNK_START_reg[4]
+(.C(litex_clk),
+.CE(frontend_split_ready_output),
+.D(p_0_in[2]),
+.Q(io_down_aw_payload_addr[4]));
+RTL_REG__BREG_36 \frontend_allocateSlot_split_aligner_CHUNK_START_reg[5]
+(.C(litex_clk),
+.CE(frontend_split_ready_output),
+.D(p_0_in[3]),
+.Q(io_down_aw_payload_addr[5]));
+RTL_REG__BREG_36 \frontend_allocateSlot_split_aligner_LEN_reg[0]
+(.C(litex_clk),
+.CE(frontend_split_ready_output),
+.D(frontend_split_aligner_LEN[0]),
+.Q(\^io_down_aw_payload_len [0]));
+RTL_REG__BREG_36 \frontend_allocateSlot_split_aligner_LEN_reg[1]
+(.C(litex_clk),
+.CE(frontend_split_ready_output),
+.D(frontend_split_aligner_LEN[1]),
+.Q(\^io_down_aw_payload_len [1]));
+RTL_REG__BREG_36 \frontend_allocateSlot_split_aligner_LEN_reg[2]
+(.C(litex_clk),
+.CE(frontend_split_ready_output),
+.D(frontend_split_aligner_LEN[2]),
+.Q(\^io_down_aw_payload_len [2]));
+RTL_REG__BREG_36 \frontend_allocateSlot_split_aligner_LEN_reg[3]
+(.C(litex_clk),
+.CE(frontend_split_ready_output),
+.D(frontend_split_aligner_LEN[3]),
+.Q(\^io_down_aw_payload_len [3]));
+RTL_REG__BREG_36 \frontend_allocateSlot_split_spliter_BOUNDED_BLOCK_reg[0]
+(.C(litex_clk),
+.CE(frontend_split_ready_output),
+.D(frontend_split_spliter_BOUNDED_BLOCK[0]),
+.Q(io_down_aw_payload_addr[6]));
+RTL_REG__BREG_36 \frontend_allocateSlot_split_spliter_BOUNDED_BLOCK_reg[1]
+(.C(litex_clk),
+.CE(frontend_split_ready_output),
+.D(frontend_split_spliter_BOUNDED_BLOCK[1]),
+.Q(io_down_aw_payload_addr[7]));
+RTL_REG__BREG_36 \frontend_allocateSlot_split_spliter_BOUNDED_BLOCK_reg[2]
+(.C(litex_clk),
+.CE(frontend_split_ready_output),
+.D(frontend_split_spliter_BOUNDED_BLOCK[2]),
+.Q(io_down_aw_payload_addr[8]));
+RTL_REG__BREG_36 \frontend_allocateSlot_split_spliter_BOUNDED_BLOCK_reg[3]
+(.C(litex_clk),
+.CE(frontend_split_ready_output),
+.D(frontend_split_spliter_BOUNDED_BLOCK[3]),
+.Q(io_down_aw_payload_addr[9]));
+RTL_REG__BREG_36 \frontend_allocateSlot_split_spliter_BOUNDED_BLOCK_reg[4]
+(.C(litex_clk),
+.CE(frontend_split_ready_output),
+.D(frontend_split_spliter_BOUNDED_BLOCK[4]),
+.Q(io_down_aw_payload_addr[10]));
+RTL_REG__BREG_36 \frontend_allocateSlot_split_spliter_BOUNDED_BLOCK_reg[5]
+(.C(litex_clk),
+.CE(frontend_split_ready_output),
+.D(frontend_split_spliter_BOUNDED_BLOCK[5]),
+.Q(io_down_aw_payload_addr[11]));
+RTL_REG__BREG_36 \frontend_allocateSlot_split_spliter_CHUNKS_WORDS_reg[0]
+(.C(litex_clk),
+.CE(frontend_split_ready_output),
+.D(frontend_split_spliter_CHUNKS_WORDS[0]),
+.Q(frontend_allocateSlot_split_spliter_CHUNKS_WORDS[0]));
+RTL_REG__BREG_36 \frontend_allocateSlot_split_spliter_CHUNKS_WORDS_reg[1]
+(.C(litex_clk),
+.CE(frontend_split_ready_output),
+.D(frontend_split_spliter_CHUNKS_WORDS[1]),
+.Q(frontend_allocateSlot_split_spliter_CHUNKS_WORDS[1]));
+RTL_REG__BREG_36 \frontend_allocateSlot_split_spliter_CHUNKS_WORDS_reg[2]
+(.C(litex_clk),
+.CE(frontend_split_ready_output),
+.D(frontend_split_spliter_CHUNKS_WORDS[2]),
+.Q(frontend_allocateSlot_split_spliter_CHUNKS_WORDS[2]));
+RTL_REG__BREG_36 \frontend_allocateSlot_split_spliter_CHUNKS_WORDS_reg[3]
+(.C(litex_clk),
+.CE(frontend_split_ready_output),
+.D(frontend_split_spliter_CHUNKS_WORDS[3]),
+.Q(frontend_allocateSlot_split_spliter_CHUNKS_WORDS[3]));
+RTL_REG__BREG_36 frontend_allocateSlot_split_spliter_FIRST_reg
+(.C(litex_clk),
+.CE(frontend_split_ready_output),
+.D(frontend_split_spliter_FIRST),
+.Q(frontend_allocateSlot_split_spliter_FIRST));
+RTL_REG__BREG_36 frontend_allocateSlot_split_spliter_LAST_reg
+(.C(litex_clk),
+.CE(frontend_split_ready_output),
+.D(frontend_split_spliter_LAST),
+.Q(_zz_context_mem_port[0]));
+RTL_REG_ASYNC__BREG_1413 frontend_allocateSlot_valid_reg
+(.C(litex_clk),
+.CE(frontend_split_ready_output),
+.CLR(litex_reset),
+.D(frontend_split_valid),
+.Q(frontend_allocateSlot_valid));
+RTL_MUX342 frontend_allocateSlot_wCmd_payload_header_i
+(.I0(_zz_frontend_allocateSlot_wCmd_payload_header),
+.I1({\<const0> ,\<const0> ,\<const0> ,\<const0> }),
+.O(frontend_allocateSlot_wCmd_payload_header),
+.S(frontend_allocateSlot_split_spliter_FIRST));
+RTL_REG__BREG_36 \frontend_allocateSlot_wCmd_rData_header_reg[0]
+(.C(litex_clk),
+.CE(frontend_allocateSlot_wCmd_rValidN),
+.D(frontend_allocateSlot_wCmd_payload_header[0]),
+.Q(frontend_allocateSlot_wCmd_rData_header[0]));
+RTL_REG__BREG_36 \frontend_allocateSlot_wCmd_rData_header_reg[1]
+(.C(litex_clk),
+.CE(frontend_allocateSlot_wCmd_rValidN),
+.D(frontend_allocateSlot_wCmd_payload_header[1]),
+.Q(frontend_allocateSlot_wCmd_rData_header[1]));
+RTL_REG__BREG_36 \frontend_allocateSlot_wCmd_rData_header_reg[2]
+(.C(litex_clk),
+.CE(frontend_allocateSlot_wCmd_rValidN),
+.D(frontend_allocateSlot_wCmd_payload_header[2]),
+.Q(frontend_allocateSlot_wCmd_rData_header[2]));
+RTL_REG__BREG_36 \frontend_allocateSlot_wCmd_rData_header_reg[3]
+(.C(litex_clk),
+.CE(frontend_allocateSlot_wCmd_rValidN),
+.D(frontend_allocateSlot_wCmd_payload_header[3]),
+.Q(frontend_allocateSlot_wCmd_rData_header[3]));
+RTL_REG__BREG_36 \frontend_allocateSlot_wCmd_rData_len_reg[0]
+(.C(litex_clk),
+.CE(frontend_allocateSlot_wCmd_rValidN),
+.D(\^io_down_aw_payload_len [0]),
+.Q(frontend_allocateSlot_wCmd_rData_len[0]));
+RTL_REG__BREG_36 \frontend_allocateSlot_wCmd_rData_len_reg[1]
+(.C(litex_clk),
+.CE(frontend_allocateSlot_wCmd_rValidN),
+.D(\^io_down_aw_payload_len [1]),
+.Q(frontend_allocateSlot_wCmd_rData_len[1]));
+RTL_REG__BREG_36 \frontend_allocateSlot_wCmd_rData_len_reg[2]
+(.C(litex_clk),
+.CE(frontend_allocateSlot_wCmd_rValidN),
+.D(\^io_down_aw_payload_len [2]),
+.Q(frontend_allocateSlot_wCmd_rData_len[2]));
+RTL_REG__BREG_36 \frontend_allocateSlot_wCmd_rData_len_reg[3]
+(.C(litex_clk),
+.CE(frontend_allocateSlot_wCmd_rValidN),
+.D(\^io_down_aw_payload_len [3]),
+.Q(frontend_allocateSlot_wCmd_rData_len[3]));
+RTL_REG__BREG_36 \frontend_allocateSlot_wCmd_rData_ups_reg[0]
+(.C(litex_clk),
+.CE(frontend_allocateSlot_wCmd_rValidN),
+.D(frontend_allocateSlot_split_spliter_CHUNKS_WORDS[0]),
+.Q(frontend_allocateSlot_wCmd_rData_ups[0]));
+RTL_REG__BREG_36 \frontend_allocateSlot_wCmd_rData_ups_reg[1]
+(.C(litex_clk),
+.CE(frontend_allocateSlot_wCmd_rValidN),
+.D(frontend_allocateSlot_split_spliter_CHUNKS_WORDS[1]),
+.Q(frontend_allocateSlot_wCmd_rData_ups[1]));
+RTL_REG__BREG_36 \frontend_allocateSlot_wCmd_rData_ups_reg[2]
+(.C(litex_clk),
+.CE(frontend_allocateSlot_wCmd_rValidN),
+.D(frontend_allocateSlot_split_spliter_CHUNKS_WORDS[2]),
+.Q(frontend_allocateSlot_wCmd_rData_ups[2]));
+RTL_REG__BREG_36 \frontend_allocateSlot_wCmd_rData_ups_reg[3]
+(.C(litex_clk),
+.CE(frontend_allocateSlot_wCmd_rValidN),
+.D(frontend_allocateSlot_split_spliter_CHUNKS_WORDS[3]),
+.Q(frontend_allocateSlot_wCmd_rData_ups[3]));
+RTL_MUX frontend_allocateSlot_wCmd_rValidN_i
+(.I0(\<const1> ),
+.I1(_zz_frontend_allocateSlot_wCmd_valid),
+.O(frontend_allocateSlot_wCmd_rValidN__0),
+.S(frontend_allocateSlot_wCmd_s2mPipe_ready));
+RTL_REG_ASYNC__BREG_1846 frontend_allocateSlot_wCmd_rValidN_reg
+(.C(litex_clk),
+.CE(frontend_allocateSlot_wCmd_rValidN__0),
+.D(frontend_allocateSlot_wCmd_s2mPipe_ready),
+.PRE(litex_reset),
+.Q(frontend_allocateSlot_wCmd_rValidN));
+RTL_MUX342 frontend_allocateSlot_wCmd_s2mPipe_payload_header_i
+(.I0(frontend_allocateSlot_wCmd_payload_header),
+.I1(frontend_allocateSlot_wCmd_rData_header),
+.O(frontend_allocateSlot_wCmd_s2mPipe_payload_header),
+.S(frontend_allocateSlot_wCmd_rValidN));
+RTL_MUX342 frontend_allocateSlot_wCmd_s2mPipe_payload_len_i
+(.I0(\^io_down_aw_payload_len ),
+.I1(frontend_allocateSlot_wCmd_rData_len),
+.O(frontend_allocateSlot_wCmd_s2mPipe_payload_len),
+.S(frontend_allocateSlot_wCmd_rValidN));
+RTL_MUX342 frontend_allocateSlot_wCmd_s2mPipe_payload_ups_i
+(.I0(frontend_allocateSlot_split_spliter_CHUNKS_WORDS),
+.I1(frontend_allocateSlot_wCmd_rData_ups),
+.O(frontend_allocateSlot_wCmd_s2mPipe_payload_ups),
+.S(frontend_allocateSlot_wCmd_rValidN));
+RTL_REG__BREG_36 \frontend_allocateSlot_wCmd_s2mPipe_rData_header_reg[0]
+(.C(litex_clk),
+.CE(frontend_allocateSlot_wCmd_s2mPipe_ready),
+.D(frontend_allocateSlot_wCmd_s2mPipe_payload_header[0]),
+.Q(frontend_allocateSlot_wCmd_s2mPipe_rData_header[0]));
+RTL_REG__BREG_36 \frontend_allocateSlot_wCmd_s2mPipe_rData_header_reg[1]
+(.C(litex_clk),
+.CE(frontend_allocateSlot_wCmd_s2mPipe_ready),
+.D(frontend_allocateSlot_wCmd_s2mPipe_payload_header[1]),
+.Q(frontend_allocateSlot_wCmd_s2mPipe_rData_header[1]));
+RTL_REG__BREG_36 \frontend_allocateSlot_wCmd_s2mPipe_rData_header_reg[2]
+(.C(litex_clk),
+.CE(frontend_allocateSlot_wCmd_s2mPipe_ready),
+.D(frontend_allocateSlot_wCmd_s2mPipe_payload_header[2]),
+.Q(frontend_allocateSlot_wCmd_s2mPipe_rData_header[2]));
+RTL_REG__BREG_36 \frontend_allocateSlot_wCmd_s2mPipe_rData_header_reg[3]
+(.C(litex_clk),
+.CE(frontend_allocateSlot_wCmd_s2mPipe_ready),
+.D(frontend_allocateSlot_wCmd_s2mPipe_payload_header[3]),
+.Q(frontend_allocateSlot_wCmd_s2mPipe_rData_header[3]));
+RTL_REG__BREG_36 \frontend_allocateSlot_wCmd_s2mPipe_rData_len_reg[0]
+(.C(litex_clk),
+.CE(frontend_allocateSlot_wCmd_s2mPipe_ready),
+.D(frontend_allocateSlot_wCmd_s2mPipe_payload_len[0]),
+.Q(frontend_allocateSlot_wCmd_s2mPipe_rData_len[0]));
+RTL_REG__BREG_36 \frontend_allocateSlot_wCmd_s2mPipe_rData_len_reg[1]
+(.C(litex_clk),
+.CE(frontend_allocateSlot_wCmd_s2mPipe_ready),
+.D(frontend_allocateSlot_wCmd_s2mPipe_payload_len[1]),
+.Q(frontend_allocateSlot_wCmd_s2mPipe_rData_len[1]));
+RTL_REG__BREG_36 \frontend_allocateSlot_wCmd_s2mPipe_rData_len_reg[2]
+(.C(litex_clk),
+.CE(frontend_allocateSlot_wCmd_s2mPipe_ready),
+.D(frontend_allocateSlot_wCmd_s2mPipe_payload_len[2]),
+.Q(frontend_allocateSlot_wCmd_s2mPipe_rData_len[2]));
+RTL_REG__BREG_36 \frontend_allocateSlot_wCmd_s2mPipe_rData_len_reg[3]
+(.C(litex_clk),
+.CE(frontend_allocateSlot_wCmd_s2mPipe_ready),
+.D(frontend_allocateSlot_wCmd_s2mPipe_payload_len[3]),
+.Q(frontend_allocateSlot_wCmd_s2mPipe_rData_len[3]));
+RTL_REG__BREG_36 \frontend_allocateSlot_wCmd_s2mPipe_rData_ups_reg[0]
+(.C(litex_clk),
+.CE(frontend_allocateSlot_wCmd_s2mPipe_ready),
+.D(frontend_allocateSlot_wCmd_s2mPipe_payload_ups[0]),
+.Q(frontend_allocateSlot_wCmd_s2mPipe_rData_ups[0]));
+RTL_REG__BREG_36 \frontend_allocateSlot_wCmd_s2mPipe_rData_ups_reg[1]
+(.C(litex_clk),
+.CE(frontend_allocateSlot_wCmd_s2mPipe_ready),
+.D(frontend_allocateSlot_wCmd_s2mPipe_payload_ups[1]),
+.Q(frontend_allocateSlot_wCmd_s2mPipe_rData_ups[1]));
+RTL_REG__BREG_36 \frontend_allocateSlot_wCmd_s2mPipe_rData_ups_reg[2]
+(.C(litex_clk),
+.CE(frontend_allocateSlot_wCmd_s2mPipe_ready),
+.D(frontend_allocateSlot_wCmd_s2mPipe_payload_ups[2]),
+.Q(frontend_allocateSlot_wCmd_s2mPipe_rData_ups[2]));
+RTL_REG__BREG_36 \frontend_allocateSlot_wCmd_s2mPipe_rData_ups_reg[3]
+(.C(litex_clk),
+.CE(frontend_allocateSlot_wCmd_s2mPipe_ready),
+.D(frontend_allocateSlot_wCmd_s2mPipe_payload_ups[3]),
+.Q(frontend_allocateSlot_wCmd_s2mPipe_rData_ups[3]));
+RTL_REG_ASYNC__BREG_1413 frontend_allocateSlot_wCmd_s2mPipe_rValid_reg
+(.C(litex_clk),
+.CE(frontend_allocateSlot_wCmd_s2mPipe_ready),
+.CLR(litex_reset),
+.D(frontend_allocateSlot_wCmd_s2mPipe_valid),
+.Q(frontend_allocateSlot_wCmd_s2mPipe_rValid));
+RTL_MUX frontend_allocateSlot_wCmd_s2mPipe_ready_i
+(.I0(\<const1> ),
+.I1(downW_cmd_ready),
+.O(frontend_allocateSlot_wCmd_s2mPipe_ready),
+.S(when_Stream_l477));
+RTL_INV frontend_allocateSlot_wCmd_s2mPipe_valid0_i
+(.I0(frontend_allocateSlot_wCmd_rValidN),
+.O(frontend_allocateSlot_wCmd_s2mPipe_valid0));
+RTL_OR frontend_allocateSlot_wCmd_s2mPipe_valid_i
+(.I0(_zz_frontend_allocateSlot_wCmd_valid),
+.I1(frontend_allocateSlot_wCmd_s2mPipe_valid0),
+.O(frontend_allocateSlot_wCmd_s2mPipe_valid));
+RTL_MUX frontend_bufferize_ready_output_i
+(.I0(\<const1> ),
+.I1(frontend_split_ready),
+.O(io_up_aw_ready),
+.S(when_Connection_l74));
+RTL_OR846 frontend_split_aligner_CHUNK_END0_i
+(.I0(frontend_split_spliter_boundedEnd[5:0]),
+.I1(frontend_split_aligner_mask),
+.O(frontend_split_aligner_CHUNK_END0));
+RTL_MUX26 frontend_split_aligner_CHUNK_END_i
+(.I0({\<const1> ,\<const1> ,\<const1> ,\<const1> ,\<const1> ,\<const1> }),
+.I1(frontend_split_aligner_CHUNK_END0),
+.O({p_1_in,frontend_split_aligner_CHUNK_END_i_n_4,frontend_split_aligner_CHUNK_END_i_n_5}),
+.S(frontend_split_spliter_LAST));
+RTL_AND3109 frontend_split_aligner_CHUNK_START0_i
+(.I0(frontend_split_spliter_boundedStart[5:0]),
+.I1(frontend_split_aligner_mask),
+.O(frontend_split_aligner_CHUNK_START0));
+RTL_MUX26 frontend_split_aligner_CHUNK_START_i
+(.I0(frontend_split_aligner_CHUNK_START0),
+.I1({\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> }),
+.O({p_0_in,frontend_split_aligner_CHUNK_START_i_n_4,frontend_split_aligner_CHUNK_START_i_n_5}),
+.S(frontend_split_spliter_FIRST));
+RTL_SUB4 frontend_split_aligner_LEN_i
+(.I0(p_1_in),
+.I1(p_0_in),
+.O(frontend_split_aligner_LEN));
+RTL_MUX789 frontend_split_aligner_mask0_i
+(.I0({\<const1> ,\<const1> }),
+.I1(frontend_split_aligner_sizeToMask),
+.O(frontend_split_aligner_mask[1:0]),
+.S(frontend_split_aligner_mask2));
+RTL_REDUCTION_OR19 frontend_split_aligner_mask0_i__0
+(.I0(_zz_frontend_split_aligner_mask),
+.O(frontend_split_aligner_mask[2]));
+RTL_REDUCTION_OR35 frontend_split_aligner_mask0_i__1
+(.I0(_zz_frontend_split_aligner_mask[3:1]),
+.O(frontend_split_aligner_mask[3]));
+RTL_REDUCTION_OR14 frontend_split_aligner_mask0_i__2
+(.I0(_zz_frontend_split_aligner_mask[3:2]),
+.O(frontend_split_aligner_mask[4]));
+RTL_REDUCTION_OR149 frontend_split_aligner_mask0_i__3
+(.I0(_zz_frontend_split_aligner_mask[3]),
+.O(frontend_split_aligner_mask[5]));
+RTL_NEQ1 frontend_split_aligner_mask2_i
+(.I0(frontend_split_bufferize_AW_len),
+.I1({\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> }),
+.O(frontend_split_aligner_mask2));
+RTL_ROM84 frontend_split_aligner_sizeToMask_i
+(.A(frontend_split_bufferize_AW_size),
+.O(frontend_split_aligner_sizeToMask));
+RTL_REG__BREG_36 \frontend_split_bufferize_AW_addr_reg[0]
+(.C(litex_clk),
+.CE(io_up_aw_ready),
+.D(io_up_aw_payload_addr[0]),
+.Q(frontend_split_spliter_boundedStart[0]));
+RTL_REG__BREG_36 \frontend_split_bufferize_AW_addr_reg[10]
+(.C(litex_clk),
+.CE(io_up_aw_ready),
+.D(io_up_aw_payload_addr[10]),
+.Q(frontend_split_spliter_boundedStart[10]));
+RTL_REG__BREG_36 \frontend_split_bufferize_AW_addr_reg[11]
+(.C(litex_clk),
+.CE(io_up_aw_ready),
+.D(io_up_aw_payload_addr[11]),
+.Q(frontend_split_spliter_boundedStart[11]));
+RTL_REG__BREG_36 \frontend_split_bufferize_AW_addr_reg[12]
+(.C(litex_clk),
+.CE(io_up_aw_ready),
+.D(io_up_aw_payload_addr[12]),
+.Q(frontend_split_bufferize_AW_addr_reg_n_19));
+RTL_REG__BREG_36 \frontend_split_bufferize_AW_addr_reg[13]
+(.C(litex_clk),
+.CE(io_up_aw_ready),
+.D(io_up_aw_payload_addr[13]),
+.Q(frontend_split_bufferize_AW_addr_reg_n_18));
+RTL_REG__BREG_36 \frontend_split_bufferize_AW_addr_reg[14]
+(.C(litex_clk),
+.CE(io_up_aw_ready),
+.D(io_up_aw_payload_addr[14]),
+.Q(frontend_split_bufferize_AW_addr_reg_n_17));
+RTL_REG__BREG_36 \frontend_split_bufferize_AW_addr_reg[15]
+(.C(litex_clk),
+.CE(io_up_aw_ready),
+.D(io_up_aw_payload_addr[15]),
+.Q(frontend_split_bufferize_AW_addr_reg_n_16));
+RTL_REG__BREG_36 \frontend_split_bufferize_AW_addr_reg[16]
+(.C(litex_clk),
+.CE(io_up_aw_ready),
+.D(io_up_aw_payload_addr[16]),
+.Q(frontend_split_bufferize_AW_addr_reg_n_15));
+RTL_REG__BREG_36 \frontend_split_bufferize_AW_addr_reg[17]
+(.C(litex_clk),
+.CE(io_up_aw_ready),
+.D(io_up_aw_payload_addr[17]),
+.Q(frontend_split_bufferize_AW_addr_reg_n_14));
+RTL_REG__BREG_36 \frontend_split_bufferize_AW_addr_reg[18]
+(.C(litex_clk),
+.CE(io_up_aw_ready),
+.D(io_up_aw_payload_addr[18]),
+.Q(frontend_split_bufferize_AW_addr_reg_n_13));
+RTL_REG__BREG_36 \frontend_split_bufferize_AW_addr_reg[19]
+(.C(litex_clk),
+.CE(io_up_aw_ready),
+.D(io_up_aw_payload_addr[19]),
+.Q(frontend_split_bufferize_AW_addr_reg_n_12));
+RTL_REG__BREG_36 \frontend_split_bufferize_AW_addr_reg[1]
+(.C(litex_clk),
+.CE(io_up_aw_ready),
+.D(io_up_aw_payload_addr[1]),
+.Q(frontend_split_spliter_boundedStart[1]));
+RTL_REG__BREG_36 \frontend_split_bufferize_AW_addr_reg[20]
+(.C(litex_clk),
+.CE(io_up_aw_ready),
+.D(io_up_aw_payload_addr[20]),
+.Q(frontend_split_bufferize_AW_addr_reg_n_11));
+RTL_REG__BREG_36 \frontend_split_bufferize_AW_addr_reg[21]
+(.C(litex_clk),
+.CE(io_up_aw_ready),
+.D(io_up_aw_payload_addr[21]),
+.Q(frontend_split_bufferize_AW_addr_reg_n_10));
+RTL_REG__BREG_36 \frontend_split_bufferize_AW_addr_reg[22]
+(.C(litex_clk),
+.CE(io_up_aw_ready),
+.D(io_up_aw_payload_addr[22]),
+.Q(frontend_split_bufferize_AW_addr_reg_n_9));
+RTL_REG__BREG_36 \frontend_split_bufferize_AW_addr_reg[23]
+(.C(litex_clk),
+.CE(io_up_aw_ready),
+.D(io_up_aw_payload_addr[23]),
+.Q(frontend_split_bufferize_AW_addr_reg_n_8));
+RTL_REG__BREG_36 \frontend_split_bufferize_AW_addr_reg[24]
+(.C(litex_clk),
+.CE(io_up_aw_ready),
+.D(io_up_aw_payload_addr[24]),
+.Q(frontend_split_bufferize_AW_addr_reg_n_7));
+RTL_REG__BREG_36 \frontend_split_bufferize_AW_addr_reg[25]
+(.C(litex_clk),
+.CE(io_up_aw_ready),
+.D(io_up_aw_payload_addr[25]),
+.Q(frontend_split_bufferize_AW_addr_reg_n_6));
+RTL_REG__BREG_36 \frontend_split_bufferize_AW_addr_reg[26]
+(.C(litex_clk),
+.CE(io_up_aw_ready),
+.D(io_up_aw_payload_addr[26]),
+.Q(frontend_split_bufferize_AW_addr_reg_n_5));
+RTL_REG__BREG_36 \frontend_split_bufferize_AW_addr_reg[27]
+(.C(litex_clk),
+.CE(io_up_aw_ready),
+.D(io_up_aw_payload_addr[27]),
+.Q(frontend_split_bufferize_AW_addr_reg_n_4));
+RTL_REG__BREG_36 \frontend_split_bufferize_AW_addr_reg[28]
+(.C(litex_clk),
+.CE(io_up_aw_ready),
+.D(io_up_aw_payload_addr[28]),
+.Q(frontend_split_bufferize_AW_addr_reg_n_3));
+RTL_REG__BREG_36 \frontend_split_bufferize_AW_addr_reg[29]
+(.C(litex_clk),
+.CE(io_up_aw_ready),
+.D(io_up_aw_payload_addr[29]),
+.Q(frontend_split_bufferize_AW_addr_reg_n_2));
+RTL_REG__BREG_36 \frontend_split_bufferize_AW_addr_reg[2]
+(.C(litex_clk),
+.CE(io_up_aw_ready),
+.D(io_up_aw_payload_addr[2]),
+.Q(frontend_split_spliter_boundedStart[2]));
+RTL_REG__BREG_36 \frontend_split_bufferize_AW_addr_reg[30]
+(.C(litex_clk),
+.CE(io_up_aw_ready),
+.D(io_up_aw_payload_addr[30]),
+.Q(frontend_split_bufferize_AW_addr_reg_n_1));
+RTL_REG__BREG_36 \frontend_split_bufferize_AW_addr_reg[31]
+(.C(litex_clk),
+.CE(io_up_aw_ready),
+.D(io_up_aw_payload_addr[31]),
+.Q(frontend_split_bufferize_AW_addr_reg_n_0));
+RTL_REG__BREG_36 \frontend_split_bufferize_AW_addr_reg[3]
+(.C(litex_clk),
+.CE(io_up_aw_ready),
+.D(io_up_aw_payload_addr[3]),
+.Q(frontend_split_spliter_boundedStart[3]));
+RTL_REG__BREG_36 \frontend_split_bufferize_AW_addr_reg[4]
+(.C(litex_clk),
+.CE(io_up_aw_ready),
+.D(io_up_aw_payload_addr[4]),
+.Q(frontend_split_spliter_boundedStart[4]));
+RTL_REG__BREG_36 \frontend_split_bufferize_AW_addr_reg[5]
+(.C(litex_clk),
+.CE(io_up_aw_ready),
+.D(io_up_aw_payload_addr[5]),
+.Q(frontend_split_spliter_boundedStart[5]));
+RTL_REG__BREG_36 \frontend_split_bufferize_AW_addr_reg[6]
+(.C(litex_clk),
+.CE(io_up_aw_ready),
+.D(io_up_aw_payload_addr[6]),
+.Q(frontend_split_spliter_boundedStart[6]));
+RTL_REG__BREG_36 \frontend_split_bufferize_AW_addr_reg[7]
+(.C(litex_clk),
+.CE(io_up_aw_ready),
+.D(io_up_aw_payload_addr[7]),
+.Q(frontend_split_spliter_boundedStart[7]));
+RTL_REG__BREG_36 \frontend_split_bufferize_AW_addr_reg[8]
+(.C(litex_clk),
+.CE(io_up_aw_ready),
+.D(io_up_aw_payload_addr[8]),
+.Q(frontend_split_spliter_boundedStart[8]));
+RTL_REG__BREG_36 \frontend_split_bufferize_AW_addr_reg[9]
+(.C(litex_clk),
+.CE(io_up_aw_ready),
+.D(io_up_aw_payload_addr[9]),
+.Q(frontend_split_spliter_boundedStart[9]));
+RTL_REG__BREG_36 \frontend_split_bufferize_AW_burst_reg[0]
+(.C(litex_clk),
+.CE(io_up_aw_ready),
+.D(io_up_aw_payload_burst[0]),
+.Q(frontend_split_bufferize_AW_burst[0]));
+RTL_REG__BREG_36 \frontend_split_bufferize_AW_burst_reg[1]
+(.C(litex_clk),
+.CE(io_up_aw_ready),
+.D(io_up_aw_payload_burst[1]),
+.Q(frontend_split_bufferize_AW_burst[1]));
+RTL_REG__BREG_36 \frontend_split_bufferize_AW_cache_reg[0]
+(.C(litex_clk),
+.CE(io_up_aw_ready),
+.D(io_up_aw_payload_cache[0]),
+.Q(frontend_split_bufferize_AW_cache[0]));
+RTL_REG__BREG_36 \frontend_split_bufferize_AW_cache_reg[1]
+(.C(litex_clk),
+.CE(io_up_aw_ready),
+.D(io_up_aw_payload_cache[1]),
+.Q(frontend_split_bufferize_AW_cache[1]));
+RTL_REG__BREG_36 \frontend_split_bufferize_AW_cache_reg[2]
+(.C(litex_clk),
+.CE(io_up_aw_ready),
+.D(io_up_aw_payload_cache[2]),
+.Q(frontend_split_bufferize_AW_cache[2]));
+RTL_REG__BREG_36 \frontend_split_bufferize_AW_cache_reg[3]
+(.C(litex_clk),
+.CE(io_up_aw_ready),
+.D(io_up_aw_payload_cache[3]),
+.Q(frontend_split_bufferize_AW_cache[3]));
+RTL_REG__BREG_36 \frontend_split_bufferize_AW_id_reg[0]
+(.C(litex_clk),
+.CE(io_up_aw_ready),
+.D(io_up_aw_payload_id[0]),
+.Q(frontend_split_bufferize_AW_id[0]));
+RTL_REG__BREG_36 \frontend_split_bufferize_AW_id_reg[1]
+(.C(litex_clk),
+.CE(io_up_aw_ready),
+.D(io_up_aw_payload_id[1]),
+.Q(frontend_split_bufferize_AW_id[1]));
+RTL_REG__BREG_36 \frontend_split_bufferize_AW_id_reg[2]
+(.C(litex_clk),
+.CE(io_up_aw_ready),
+.D(io_up_aw_payload_id[2]),
+.Q(frontend_split_bufferize_AW_id[2]));
+RTL_REG__BREG_36 \frontend_split_bufferize_AW_id_reg[3]
+(.C(litex_clk),
+.CE(io_up_aw_ready),
+.D(io_up_aw_payload_id[3]),
+.Q(frontend_split_bufferize_AW_id[3]));
+RTL_REG__BREG_36 \frontend_split_bufferize_AW_len_reg[0]
+(.C(litex_clk),
+.CE(io_up_aw_ready),
+.D(io_up_aw_payload_len[0]),
+.Q(frontend_split_bufferize_AW_len[0]));
+RTL_REG__BREG_36 \frontend_split_bufferize_AW_len_reg[1]
+(.C(litex_clk),
+.CE(io_up_aw_ready),
+.D(io_up_aw_payload_len[1]),
+.Q(frontend_split_bufferize_AW_len[1]));
+RTL_REG__BREG_36 \frontend_split_bufferize_AW_len_reg[2]
+(.C(litex_clk),
+.CE(io_up_aw_ready),
+.D(io_up_aw_payload_len[2]),
+.Q(frontend_split_bufferize_AW_len[2]));
+RTL_REG__BREG_36 \frontend_split_bufferize_AW_len_reg[3]
+(.C(litex_clk),
+.CE(io_up_aw_ready),
+.D(io_up_aw_payload_len[3]),
+.Q(frontend_split_bufferize_AW_len[3]));
+RTL_REG__BREG_36 \frontend_split_bufferize_AW_len_reg[4]
+(.C(litex_clk),
+.CE(io_up_aw_ready),
+.D(io_up_aw_payload_len[4]),
+.Q(frontend_split_bufferize_AW_len[4]));
+RTL_REG__BREG_36 \frontend_split_bufferize_AW_len_reg[5]
+(.C(litex_clk),
+.CE(io_up_aw_ready),
+.D(io_up_aw_payload_len[5]),
+.Q(frontend_split_bufferize_AW_len[5]));
+RTL_REG__BREG_36 \frontend_split_bufferize_AW_len_reg[6]
+(.C(litex_clk),
+.CE(io_up_aw_ready),
+.D(io_up_aw_payload_len[6]),
+.Q(frontend_split_bufferize_AW_len[6]));
+RTL_REG__BREG_36 \frontend_split_bufferize_AW_len_reg[7]
+(.C(litex_clk),
+.CE(io_up_aw_ready),
+.D(io_up_aw_payload_len[7]),
+.Q(frontend_split_bufferize_AW_len[7]));
+RTL_REG__BREG_3194 \frontend_split_bufferize_AW_lock_reg[0]
+(.C(litex_clk),
+.CE(io_up_aw_ready),
+.D(io_up_aw_payload_lock),
+.Q(frontend_split_bufferize_AW_lock));
+RTL_REG__BREG_36 \frontend_split_bufferize_AW_prot_reg[0]
+(.C(litex_clk),
+.CE(io_up_aw_ready),
+.D(io_up_aw_payload_prot[0]),
+.Q(frontend_split_bufferize_AW_prot[0]));
+RTL_REG__BREG_36 \frontend_split_bufferize_AW_prot_reg[1]
+(.C(litex_clk),
+.CE(io_up_aw_ready),
+.D(io_up_aw_payload_prot[1]),
+.Q(frontend_split_bufferize_AW_prot[1]));
+RTL_REG__BREG_36 \frontend_split_bufferize_AW_prot_reg[2]
+(.C(litex_clk),
+.CE(io_up_aw_ready),
+.D(io_up_aw_payload_prot[2]),
+.Q(frontend_split_bufferize_AW_prot[2]));
+RTL_REG__BREG_36 \frontend_split_bufferize_AW_qos_reg[0]
+(.C(litex_clk),
+.CE(io_up_aw_ready),
+.D(io_up_aw_payload_qos[0]),
+.Q(frontend_split_bufferize_AW_qos[0]));
+RTL_REG__BREG_36 \frontend_split_bufferize_AW_qos_reg[1]
+(.C(litex_clk),
+.CE(io_up_aw_ready),
+.D(io_up_aw_payload_qos[1]),
+.Q(frontend_split_bufferize_AW_qos[1]));
+RTL_REG__BREG_36 \frontend_split_bufferize_AW_qos_reg[2]
+(.C(litex_clk),
+.CE(io_up_aw_ready),
+.D(io_up_aw_payload_qos[2]),
+.Q(frontend_split_bufferize_AW_qos[2]));
+RTL_REG__BREG_36 \frontend_split_bufferize_AW_qos_reg[3]
+(.C(litex_clk),
+.CE(io_up_aw_ready),
+.D(io_up_aw_payload_qos[3]),
+.Q(frontend_split_bufferize_AW_qos[3]));
+RTL_REG__BREG_36 \frontend_split_bufferize_AW_region_reg[0]
+(.C(litex_clk),
+.CE(io_up_aw_ready),
+.D(io_up_aw_payload_region[0]),
+.Q(frontend_split_bufferize_AW_region[0]));
+RTL_REG__BREG_36 \frontend_split_bufferize_AW_region_reg[1]
+(.C(litex_clk),
+.CE(io_up_aw_ready),
+.D(io_up_aw_payload_region[1]),
+.Q(frontend_split_bufferize_AW_region[1]));
+RTL_REG__BREG_36 \frontend_split_bufferize_AW_region_reg[2]
+(.C(litex_clk),
+.CE(io_up_aw_ready),
+.D(io_up_aw_payload_region[2]),
+.Q(frontend_split_bufferize_AW_region[2]));
+RTL_REG__BREG_36 \frontend_split_bufferize_AW_region_reg[3]
+(.C(litex_clk),
+.CE(io_up_aw_ready),
+.D(io_up_aw_payload_region[3]),
+.Q(frontend_split_bufferize_AW_region[3]));
+RTL_REG__BREG_36 \frontend_split_bufferize_AW_size_reg[0]
+(.C(litex_clk),
+.CE(io_up_aw_ready),
+.D(io_up_aw_payload_size[0]),
+.Q(frontend_split_bufferize_AW_size[0]));
+RTL_REG__BREG_36 \frontend_split_bufferize_AW_size_reg[1]
+(.C(litex_clk),
+.CE(io_up_aw_ready),
+.D(io_up_aw_payload_size[1]),
+.Q(frontend_split_bufferize_AW_size[1]));
+RTL_REG__BREG_36 \frontend_split_bufferize_AW_size_reg[2]
+(.C(litex_clk),
+.CE(io_up_aw_ready),
+.D(io_up_aw_payload_size[2]),
+.Q(frontend_split_bufferize_AW_size[2]));
+RTL_INV frontend_split_forkRequest_Axi4Aligner_l84_i
+(.I0(frontend_split_spliter_LAST),
+.O(frontend_split_forkRequest_Axi4Aligner_l84));
+RTL_AND7 frontend_split_isForked_i
+(.I0(frontend_split_valid),
+.I1(frontend_split_ready_output),
+.O(frontend_split_isForked));
+RTL_MUX frontend_split_ready_i
+(.I0(\<const0> ),
+.I1(frontend_split_ready_output),
+.O(frontend_split_ready),
+.S(when_Pipeline_l289));
+RTL_MUX frontend_split_ready_output_i
+(.I0(\<const1> ),
+.I1(when_Axi4Aligner_l136),
+.O(frontend_split_ready_output),
+.S(when_Connection_l74_1));
+RTL_ADD634 frontend_split_spliter_BOUNDED_BLOCK_i
+(.I0(frontend_split_spliter_blockStart),
+.I1(frontend_split_spliter_blockCounter),
+.O(frontend_split_spliter_BOUNDED_BLOCK));
+RTL_SUB4 frontend_split_spliter_CHUNKS_WORDS_i
+(.I0(frontend_split_spliter_chunkWordEnd),
+.I1(frontend_split_spliter_chunkWordStart),
+.O(frontend_split_spliter_CHUNKS_WORDS));
+RTL_EQ1 frontend_split_spliter_FIRST_i
+(.I0(frontend_split_spliter_blockCounter),
+.I1({\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> }),
+.O(frontend_split_spliter_FIRST));
+RTL_EQ1 frontend_split_spliter_LAST_i
+(.I0(frontend_split_spliter_blockCounter),
+.I1(frontend_split_spliter_blockCount),
+.O(frontend_split_spliter_LAST));
+RTL_SUB62 frontend_split_spliter_blockCount_i
+(.I0(frontend_split_spliter_blockEnd),
+.I1(frontend_split_spliter_blockStart),
+.O(frontend_split_spliter_blockCount));
+RTL_ADD frontend_split_spliter_blockCounter0_i
+(.I0(frontend_split_spliter_blockCounter),
+.I1(\<const1> ),
+.O(frontend_split_spliter_blockCounter0));
+RTL_MUX26 frontend_split_spliter_blockCounter_i
+(.I0({\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> }),
+.I1(frontend_split_spliter_blockCounter0),
+.O(frontend_split_spliter_blockCounter__0),
+.S(frontend_split_spliter_LAST));
+RTL_REG_ASYNC__BREG_1413 \frontend_split_spliter_blockCounter_reg[0]
+(.C(litex_clk),
+.CE(frontend_split_isForked),
+.CLR(litex_reset),
+.D(frontend_split_spliter_blockCounter__0[0]),
+.Q(frontend_split_spliter_blockCounter[0]));
+RTL_REG_ASYNC__BREG_1413 \frontend_split_spliter_blockCounter_reg[1]
+(.C(litex_clk),
+.CE(frontend_split_isForked),
+.CLR(litex_reset),
+.D(frontend_split_spliter_blockCounter__0[1]),
+.Q(frontend_split_spliter_blockCounter[1]));
+RTL_REG_ASYNC__BREG_1413 \frontend_split_spliter_blockCounter_reg[2]
+(.C(litex_clk),
+.CE(frontend_split_isForked),
+.CLR(litex_reset),
+.D(frontend_split_spliter_blockCounter__0[2]),
+.Q(frontend_split_spliter_blockCounter[2]));
+RTL_REG_ASYNC__BREG_1413 \frontend_split_spliter_blockCounter_reg[3]
+(.C(litex_clk),
+.CE(frontend_split_isForked),
+.CLR(litex_reset),
+.D(frontend_split_spliter_blockCounter__0[3]),
+.Q(frontend_split_spliter_blockCounter[3]));
+RTL_REG_ASYNC__BREG_1413 \frontend_split_spliter_blockCounter_reg[4]
+(.C(litex_clk),
+.CE(frontend_split_isForked),
+.CLR(litex_reset),
+.D(frontend_split_spliter_blockCounter__0[4]),
+.Q(frontend_split_spliter_blockCounter[4]));
+RTL_REG_ASYNC__BREG_1413 \frontend_split_spliter_blockCounter_reg[5]
+(.C(litex_clk),
+.CE(frontend_split_isForked),
+.CLR(litex_reset),
+.D(frontend_split_spliter_blockCounter__0[5]),
+.Q(frontend_split_spliter_blockCounter[5]));
+RTL_RSHIFT198 frontend_split_spliter_blockEnd_i
+(.I0(frontend_split_spliter_boundedEnd),
+.I1({\<const1> ,\<const1> ,\<const0> }),
+.I2(\<const1> ),
+.O(frontend_split_spliter_blockEnd));
+RTL_RSHIFT198 frontend_split_spliter_blockStart_i
+(.I0(frontend_split_spliter_boundedStart),
+.I1({\<const1> ,\<const1> ,\<const0> }),
+.I2(\<const1> ),
+.O(frontend_split_spliter_blockStart));
+RTL_MUX342 frontend_split_spliter_chunkWordEnd_i
+(.I0(frontend_split_spliter_boundedEnd[5:2]),
+.I1({\<const1> ,\<const1> ,\<const1> ,\<const1> }),
+.O(frontend_split_spliter_chunkWordEnd),
+.S(frontend_split_spliter_LAST));
+RTL_MUX342 frontend_split_spliter_chunkWordStart_i
+(.I0(frontend_split_spliter_boundedStart[5:2]),
+.I1({\<const0> ,\<const0> ,\<const0> ,\<const0> }),
+.O(frontend_split_spliter_chunkWordStart),
+.S(frontend_split_spliter_FIRST));
+RTL_REG_ASYNC__BREG_1413 frontend_split_valid_reg
+(.C(litex_clk),
+.CE(io_up_aw_ready),
+.CLR(litex_reset),
+.D(io_up_aw_valid),
+.Q(frontend_split_valid));
+RTL_MUX861 io_down_aw_payload_size_i
+(.I0({\<const0> ,_zz_frontend_allocateSlot_smallSize}),
+.I1(frontend_allocateSlot_bufferize_AW_size),
+.O(io_down_aw_payload_size),
+.S(when_Axi4Aligner_l131));
+RTL_AND7 io_down_aw_valid_i
+(.I0(frontend_allocateSlot_valid),
+.I1(_zz_frontend_allocateSlot_haltRequest_Axi4Aligner_l136),
+.O(io_down_aw_valid));
+RTL_MUX12916 io_down_b_payload_resp_i
+(.I0(\<const1> ),
+.O(io_down_b_payload_resp_i_n_0),
+.S(io_down_b_payload_resp));
+RTL_AND7 io_down_w_fire_i
+(.I0(io_down_w_valid),
+.I1(io_down_w_ready),
+.O(io_down_w_fire));
+RTL_AND7 io_down_w_payload_strb1_i
+(.I0(downW_headerDone),
+.I1(when_Axi4Aligner_l164),
+.O(io_down_w_payload_strb1));
+RTL_MUX342 io_down_w_payload_strb_i
+(.I0(io_up_w_payload_strb),
+.I1({\<const0> ,\<const0> ,\<const0> ,\<const0> }),
+.O(io_down_w_payload_strb),
+.S(io_down_w_payload_strb1));
+RTL_MUX io_down_w_valid_i
+(.I0(io_up_w_valid),
+.I1(\<const1> ),
+.O(io_down_w_valid_i_n_0),
+.S(when_Axi4Aligner_l164));
+RTL_MUX io_down_w_valid_i__0
+(.I0(\<const1> ),
+.I1(io_down_w_valid_i_n_0),
+.O(io_down_w_valid_i__0_n_0),
+.S(when_Axi4Aligner_l161));
+RTL_MUX io_down_w_valid_i__1
+(.I0(io_down_w_valid_i__0_n_0),
+.I1(\<const0> ),
+.O(io_down_w_valid),
+.S(frontend_allocateSlot_wCmd_s2mPipe_rValid));
+RTL_INV io_up_b_isStall0_i
+(.I0(io_up_b_ready),
+.O(io_up_b_isStall0));
+RTL_AND7 io_up_b_isStall_i
+(.I0(io_up_b_valid),
+.I1(io_up_b_isStall0),
+.O(io_up_b_isStall));
+RTL_MUX789 io_up_b_payload_resp_i
+(.I0({\<const1> ,\<const0> }),
+.I1({\<const0> ,\<const0> }),
+.O(io_up_b_payload_resp),
+.S(when_Axi4Aligner_l213));
+RTL_MUX io_up_b_valid_i
+(.I0(context_read_rsp_last),
+.I1(\<const0> ),
+.O(io_up_b_valid),
+.S(when_Axi4Aligner_l219));
+RTL_MUX io_up_w_ready_i
+(.I0(io_down_w_ready),
+.I1(\<const0> ),
+.O(io_up_w_ready_i_n_0),
+.S(when_Axi4Aligner_l164));
+RTL_MUX io_up_w_ready_i__0
+(.I0(io_up_w_ready_i_n_0),
+.I1(\<const0> ),
+.O(io_up_w_ready_i__0_n_0),
+.S(when_Axi4Aligner_l161));
+RTL_MUX io_up_w_ready_i__1
+(.I0(io_up_w_ready_i__0_n_0),
+.I1(\<const0> ),
+.O(io_up_w_ready),
+.S(frontend_allocateSlot_wCmd_s2mPipe_rValid));
+RTL_ADD0 ptr_cmd0_i
+(.I0({ptr_cmd,io_down_aw_payload_id}),
+.I1(\<const1> ),
+.O(ptr_cmd0));
+RTL_REG_ASYNC__BREG_1413 \ptr_cmd_reg[0]
+(.C(litex_clk),
+.CE(frontend_allocateSlot_isFiring),
+.CLR(litex_reset),
+.D(ptr_cmd0[0]),
+.Q(io_down_aw_payload_id[0]));
+RTL_REG_ASYNC__BREG_1413 \ptr_cmd_reg[1]
+(.C(litex_clk),
+.CE(frontend_allocateSlot_isFiring),
+.CLR(litex_reset),
+.D(ptr_cmd0[1]),
+.Q(io_down_aw_payload_id[1]));
+RTL_REG_ASYNC__BREG_1413 \ptr_cmd_reg[2]
+(.C(litex_clk),
+.CE(frontend_allocateSlot_isFiring),
+.CLR(litex_reset),
+.D(ptr_cmd0[2]),
+.Q(ptr_cmd));
+RTL_ADD0 ptr_fetch0_i
+(.I0({ptr_fetch_reg_n_0,context_read_cmd_payload}),
+.I1(\<const1> ),
+.O(ptr_fetch0));
+RTL_REG_ASYNC__BREG_1413 \ptr_fetch_reg[0]
+(.C(litex_clk),
+.CE(upB_fetch_isFiring),
+.CLR(litex_reset),
+.D(ptr_fetch0[0]),
+.Q(context_read_cmd_payload[0]));
+RTL_REG_ASYNC__BREG_1413 \ptr_fetch_reg[1]
+(.C(litex_clk),
+.CE(upB_fetch_isFiring),
+.CLR(litex_reset),
+.D(ptr_fetch0[1]),
+.Q(context_read_cmd_payload[1]));
+RTL_REG_ASYNC__BREG_1413 \ptr_fetch_reg[2]
+(.C(litex_clk),
+.CE(upB_fetch_isFiring),
+.CLR(litex_reset),
+.D(ptr_fetch0[2]),
+.Q(ptr_fetch_reg_n_0));
+RTL_XOR32 ptr_full0_i
+(.I0({ptr_full1_i_n_0,ptr_full1_i_n_1,ptr_full1_i_n_2}),
+.I1({\<const1> ,\<const0> ,\<const0> }),
+.O(ptr_full0));
+RTL_XOR32 ptr_full1_i
+(.I0({ptr_cmd,io_down_aw_payload_id}),
+.I1({ptr_rsp_reg_n_0,_zz_upB_handle_done_2}),
+.O({ptr_full1_i_n_0,ptr_full1_i_n_1,ptr_full1_i_n_2}));
+RTL_EQ ptr_full_i
+(.I0(ptr_full0),
+.I1({\<const0> ,\<const0> ,\<const0> }),
+.O(p_0_out[0]));
+RTL_ADD0 ptr_rsp0_i
+(.I0({ptr_rsp_reg_n_0,_zz_upB_handle_done_2}),
+.I1(\<const1> ),
+.O(ptr_rsp0));
+RTL_REG_ASYNC__BREG_1413 \ptr_rsp_reg[0]
+(.C(litex_clk),
+.CE(upB_handle_isFiring),
+.CLR(litex_reset),
+.D(ptr_rsp0[0]),
+.Q(_zz_upB_handle_done_2[0]));
+RTL_REG_ASYNC__BREG_1413 \ptr_rsp_reg[1]
+(.C(litex_clk),
+.CE(upB_handle_isFiring),
+.CLR(litex_reset),
+.D(ptr_rsp0[1]),
+.Q(_zz_upB_handle_done_2[1]));
+RTL_REG_ASYNC__BREG_1413 \ptr_rsp_reg[2]
+(.C(litex_clk),
+.CE(upB_handle_isFiring),
+.CLR(litex_reset),
+.D(ptr_rsp0[2]),
+.Q(ptr_rsp_reg_n_0));
+RTL_MUX1062 slots_0_done_i
+(.I0(\<const1> ),
+.I1(\<const0> ),
+.I2(\<const0> ),
+.I3(\<const0> ),
+.O(slots_0_done_i_n_0),
+.S(io_down_b_payload_id));
+RTL_MUX slots_0_done_i__0
+(.I0(slots_0_done_i_n_0),
+.I1(\<const0> ),
+.O(slots_0_done__0),
+.S(io_down_b_valid));
+RTL_MUX1062 slots_0_done_i__1
+(.I0(\<const1> ),
+.I1(\<const0> ),
+.I2(\<const0> ),
+.I3(\<const0> ),
+.O(slots_0_done_i__1_n_0),
+.S(io_down_aw_payload_id));
+RTL_MUX slots_0_done_i__2
+(.I0(slots_0_done_i__1_n_0),
+.I1(\<const0> ),
+.O(slots_0_done_i__2_n_0),
+.S(frontend_allocateSlot_isFiring));
+RTL_MUX1062 slots_0_done_i__3
+(.I0(\<const1> ),
+.I1(slots_0_done_i__2_n_0),
+.I2(slots_0_done_i__2_n_0),
+.I3(slots_0_done_i__2_n_0),
+.O(slots_0_done_i__3_n_0),
+.S(io_down_b_payload_id));
+RTL_MUX slots_0_done_i__4
+(.I0(slots_0_done_i__3_n_0),
+.I1(slots_0_done_i__2_n_0),
+.O(slots_0_done_i__4_n_0),
+.S(io_down_b_valid));
+RTL_REG__BREG_36 slots_0_done_reg
+(.C(litex_clk),
+.CE(slots_0_done_i__4_n_0),
+.D(slots_0_done__0),
+.Q(slots_0_done));
+RTL_INV slots_0_error0_i
+(.I0(io_down_b_payload_resp_i_n_0),
+.O(slots_0_error0));
+RTL_MUX1062 slots_0_error_i
+(.I0(slots_0_error0),
+.I1(\<const0> ),
+.I2(\<const0> ),
+.I3(\<const0> ),
+.O(slots_0_error_i_n_0),
+.S(io_down_b_payload_id));
+RTL_MUX slots_0_error_i__0
+(.I0(slots_0_error_i_n_0),
+.I1(\<const0> ),
+.O(slots_0_error__0),
+.S(io_down_b_valid));
+RTL_MUX1062 slots_0_error_i__1
+(.I0(\<const1> ),
+.I1(\<const0> ),
+.I2(\<const0> ),
+.I3(\<const0> ),
+.O(slots_0_error_i__1_n_0),
+.S(io_down_aw_payload_id));
+RTL_MUX slots_0_error_i__2
+(.I0(slots_0_error_i__1_n_0),
+.I1(\<const0> ),
+.O(slots_0_error_i__2_n_0),
+.S(frontend_allocateSlot_isFiring));
+RTL_MUX1062 slots_0_error_i__3
+(.I0(\<const1> ),
+.I1(slots_0_error_i__2_n_0),
+.I2(slots_0_error_i__2_n_0),
+.I3(slots_0_error_i__2_n_0),
+.O(slots_0_error_i__3_n_0),
+.S(io_down_b_payload_id));
+RTL_MUX slots_0_error_i__4
+(.I0(slots_0_error_i__3_n_0),
+.I1(slots_0_error_i__2_n_0),
+.O(slots_0_error_i__4_n_0),
+.S(io_down_b_valid));
+RTL_REG__BREG_36 slots_0_error_reg
+(.C(litex_clk),
+.CE(slots_0_error_i__4_n_0),
+.D(slots_0_error__0),
+.Q(slots_0_error));
+RTL_MUX1062 slots_1_done_i
+(.I0(\<const0> ),
+.I1(\<const1> ),
+.I2(\<const0> ),
+.I3(\<const0> ),
+.O(slots_1_done_i_n_0),
+.S(io_down_b_payload_id));
+RTL_MUX slots_1_done_i__0
+(.I0(slots_1_done_i_n_0),
+.I1(\<const0> ),
+.O(slots_1_done__0),
+.S(io_down_b_valid));
+RTL_MUX1062 slots_1_done_i__1
+(.I0(\<const0> ),
+.I1(\<const1> ),
+.I2(\<const0> ),
+.I3(\<const0> ),
+.O(slots_1_done_i__1_n_0),
+.S(io_down_aw_payload_id));
+RTL_MUX slots_1_done_i__2
+(.I0(slots_1_done_i__1_n_0),
+.I1(\<const0> ),
+.O(slots_1_done_i__2_n_0),
+.S(frontend_allocateSlot_isFiring));
+RTL_MUX1062 slots_1_done_i__3
+(.I0(slots_1_done_i__2_n_0),
+.I1(\<const1> ),
+.I2(slots_1_done_i__2_n_0),
+.I3(slots_1_done_i__2_n_0),
+.O(slots_1_done_i__3_n_0),
+.S(io_down_b_payload_id));
+RTL_MUX slots_1_done_i__4
+(.I0(slots_1_done_i__3_n_0),
+.I1(slots_1_done_i__2_n_0),
+.O(slots_1_done_i__4_n_0),
+.S(io_down_b_valid));
+RTL_REG__BREG_36 slots_1_done_reg
+(.C(litex_clk),
+.CE(slots_1_done_i__4_n_0),
+.D(slots_1_done__0),
+.Q(slots_1_done));
+RTL_MUX1062 slots_1_error_i
+(.I0(\<const0> ),
+.I1(slots_0_error0),
+.I2(\<const0> ),
+.I3(\<const0> ),
+.O(slots_1_error_i_n_0),
+.S(io_down_b_payload_id));
+RTL_MUX slots_1_error_i__0
+(.I0(slots_1_error_i_n_0),
+.I1(\<const0> ),
+.O(slots_1_error__0),
+.S(io_down_b_valid));
+RTL_MUX1062 slots_1_error_i__1
+(.I0(\<const0> ),
+.I1(\<const1> ),
+.I2(\<const0> ),
+.I3(\<const0> ),
+.O(slots_1_error_i__1_n_0),
+.S(io_down_aw_payload_id));
+RTL_MUX slots_1_error_i__2
+(.I0(slots_1_error_i__1_n_0),
+.I1(\<const0> ),
+.O(slots_1_error_i__2_n_0),
+.S(frontend_allocateSlot_isFiring));
+RTL_MUX1062 slots_1_error_i__3
+(.I0(slots_1_error_i__2_n_0),
+.I1(\<const1> ),
+.I2(slots_1_error_i__2_n_0),
+.I3(slots_1_error_i__2_n_0),
+.O(slots_1_error_i__3_n_0),
+.S(io_down_b_payload_id));
+RTL_MUX slots_1_error_i__4
+(.I0(slots_1_error_i__3_n_0),
+.I1(slots_1_error_i__2_n_0),
+.O(slots_1_error_i__4_n_0),
+.S(io_down_b_valid));
+RTL_REG__BREG_36 slots_1_error_reg
+(.C(litex_clk),
+.CE(slots_1_error_i__4_n_0),
+.D(slots_1_error__0),
+.Q(slots_1_error));
+RTL_MUX1062 slots_2_done_i
+(.I0(\<const0> ),
+.I1(\<const0> ),
+.I2(\<const1> ),
+.I3(\<const0> ),
+.O(slots_2_done_i_n_0),
+.S(io_down_b_payload_id));
+RTL_MUX slots_2_done_i__0
+(.I0(slots_2_done_i_n_0),
+.I1(\<const0> ),
+.O(slots_2_done__0),
+.S(io_down_b_valid));
+RTL_MUX1062 slots_2_done_i__1
+(.I0(\<const0> ),
+.I1(\<const0> ),
+.I2(\<const1> ),
+.I3(\<const0> ),
+.O(slots_2_done_i__1_n_0),
+.S(io_down_aw_payload_id));
+RTL_MUX slots_2_done_i__2
+(.I0(slots_2_done_i__1_n_0),
+.I1(\<const0> ),
+.O(slots_2_done_i__2_n_0),
+.S(frontend_allocateSlot_isFiring));
+RTL_MUX1062 slots_2_done_i__3
+(.I0(slots_2_done_i__2_n_0),
+.I1(slots_2_done_i__2_n_0),
+.I2(\<const1> ),
+.I3(slots_2_done_i__2_n_0),
+.O(slots_2_done_i__3_n_0),
+.S(io_down_b_payload_id));
+RTL_MUX slots_2_done_i__4
+(.I0(slots_2_done_i__3_n_0),
+.I1(slots_2_done_i__2_n_0),
+.O(slots_2_done_i__4_n_0),
+.S(io_down_b_valid));
+RTL_REG__BREG_36 slots_2_done_reg
+(.C(litex_clk),
+.CE(slots_2_done_i__4_n_0),
+.D(slots_2_done__0),
+.Q(slots_2_done));
+RTL_MUX1062 slots_2_error_i
+(.I0(\<const0> ),
+.I1(\<const0> ),
+.I2(slots_0_error0),
+.I3(\<const0> ),
+.O(slots_2_error_i_n_0),
+.S(io_down_b_payload_id));
+RTL_MUX slots_2_error_i__0
+(.I0(slots_2_error_i_n_0),
+.I1(\<const0> ),
+.O(slots_2_error__0),
+.S(io_down_b_valid));
+RTL_MUX1062 slots_2_error_i__1
+(.I0(\<const0> ),
+.I1(\<const0> ),
+.I2(\<const1> ),
+.I3(\<const0> ),
+.O(slots_2_error_i__1_n_0),
+.S(io_down_aw_payload_id));
+RTL_MUX slots_2_error_i__2
+(.I0(slots_2_error_i__1_n_0),
+.I1(\<const0> ),
+.O(slots_2_error_i__2_n_0),
+.S(frontend_allocateSlot_isFiring));
+RTL_MUX1062 slots_2_error_i__3
+(.I0(slots_2_error_i__2_n_0),
+.I1(slots_2_error_i__2_n_0),
+.I2(\<const1> ),
+.I3(slots_2_error_i__2_n_0),
+.O(slots_2_error_i__3_n_0),
+.S(io_down_b_payload_id));
+RTL_MUX slots_2_error_i__4
+(.I0(slots_2_error_i__3_n_0),
+.I1(slots_2_error_i__2_n_0),
+.O(slots_2_error_i__4_n_0),
+.S(io_down_b_valid));
+RTL_REG__BREG_36 slots_2_error_reg
+(.C(litex_clk),
+.CE(slots_2_error_i__4_n_0),
+.D(slots_2_error__0),
+.Q(slots_2_error));
+RTL_MUX1062 slots_3_done_i
+(.I0(\<const0> ),
+.I1(\<const0> ),
+.I2(\<const0> ),
+.I3(\<const1> ),
+.O(slots_3_done_i_n_0),
+.S(io_down_b_payload_id));
+RTL_MUX slots_3_done_i__0
+(.I0(slots_3_done_i_n_0),
+.I1(\<const0> ),
+.O(slots_3_done__0),
+.S(io_down_b_valid));
+RTL_MUX1062 slots_3_done_i__1
+(.I0(\<const0> ),
+.I1(\<const0> ),
+.I2(\<const0> ),
+.I3(\<const1> ),
+.O(slots_3_done_i__1_n_0),
+.S(io_down_aw_payload_id));
+RTL_MUX slots_3_done_i__2
+(.I0(slots_3_done_i__1_n_0),
+.I1(\<const0> ),
+.O(slots_3_done_i__2_n_0),
+.S(frontend_allocateSlot_isFiring));
+RTL_MUX1062 slots_3_done_i__3
+(.I0(slots_3_done_i__2_n_0),
+.I1(slots_3_done_i__2_n_0),
+.I2(slots_3_done_i__2_n_0),
+.I3(\<const1> ),
+.O(slots_3_done_i__3_n_0),
+.S(io_down_b_payload_id));
+RTL_MUX slots_3_done_i__4
+(.I0(slots_3_done_i__3_n_0),
+.I1(slots_3_done_i__2_n_0),
+.O(slots_3_done_i__4_n_0),
+.S(io_down_b_valid));
+RTL_REG__BREG_36 slots_3_done_reg
+(.C(litex_clk),
+.CE(slots_3_done_i__4_n_0),
+.D(slots_3_done__0),
+.Q(slots_3_done));
+RTL_MUX1062 slots_3_error_i
+(.I0(\<const0> ),
+.I1(\<const0> ),
+.I2(\<const0> ),
+.I3(slots_0_error0),
+.O(slots_3_error_i_n_0),
+.S(io_down_b_payload_id));
+RTL_MUX slots_3_error_i__0
+(.I0(slots_3_error_i_n_0),
+.I1(\<const0> ),
+.O(slots_3_error__0),
+.S(io_down_b_valid));
+RTL_MUX1062 slots_3_error_i__1
+(.I0(\<const0> ),
+.I1(\<const0> ),
+.I2(\<const0> ),
+.I3(\<const1> ),
+.O(slots_3_error_i__1_n_0),
+.S(io_down_aw_payload_id));
+RTL_MUX slots_3_error_i__2
+(.I0(slots_3_error_i__1_n_0),
+.I1(\<const0> ),
+.O(slots_3_error_i__2_n_0),
+.S(frontend_allocateSlot_isFiring));
+RTL_MUX1062 slots_3_error_i__3
+(.I0(slots_3_error_i__2_n_0),
+.I1(slots_3_error_i__2_n_0),
+.I2(slots_3_error_i__2_n_0),
+.I3(\<const1> ),
+.O(slots_3_error_i__3_n_0),
+.S(io_down_b_payload_id));
+RTL_MUX slots_3_error_i__4
+(.I0(slots_3_error_i__3_n_0),
+.I1(slots_3_error_i__2_n_0),
+.O(slots_3_error_i__4_n_0),
+.S(io_down_b_valid));
+RTL_REG__BREG_36 slots_3_error_reg
+(.C(litex_clk),
+.CE(slots_3_error_i__4_n_0),
+.D(slots_3_error__0),
+.Q(slots_3_error));
+RTL_AND7 upB_fetch_isFiring_i
+(.I0(upB_fetch_valid),
+.I1(upB_fetch_ready_output),
+.O(upB_fetch_isFiring));
+RTL_MUX upB_fetch_ready_output_i
+(.I0(\<const1> ),
+.I1(upB_handle_ready),
+.O(upB_fetch_ready_output),
+.S(when_Connection_l74_2));
+RTL_NEQ0 upB_fetch_valid_i
+(.I0({ptr_cmd,io_down_aw_payload_id}),
+.I1({ptr_fetch_reg_n_0,context_read_cmd_payload}),
+.O(upB_fetch_valid));
+RTL_MUX upB_handle_errorAcc_i
+(.I0(\<const0> ),
+.I1(when_Axi4Aligner_l208),
+.O(upB_handle_errorAcc_i_n_0),
+.S(io_up_b_ready));
+RTL_MUX upB_handle_errorAcc_i__0
+(.I0(upB_handle_errorAcc_i_n_0),
+.I1(when_Axi4Aligner_l208),
+.O(upB_handle_errorAcc_i__0_n_0),
+.S(context_read_rsp_last));
+RTL_MUX upB_handle_errorAcc_i__1
+(.I0(upB_handle_errorAcc_i__0_n_0),
+.I1(when_Axi4Aligner_l208),
+.O(upB_handle_errorAcc__0),
+.S(when_Axi4Aligner_l219));
+RTL_MUX upB_handle_errorAcc_i__2
+(.I0(\<const1> ),
+.I1(when_Axi4Aligner_l208),
+.O(upB_handle_errorAcc_i__2_n_0),
+.S(io_up_b_ready));
+RTL_MUX upB_handle_errorAcc_i__3
+(.I0(upB_handle_errorAcc_i__2_n_0),
+.I1(when_Axi4Aligner_l208),
+.O(upB_handle_errorAcc_i__3_n_0),
+.S(context_read_rsp_last));
+RTL_MUX upB_handle_errorAcc_i__4
+(.I0(upB_handle_errorAcc_i__3_n_0),
+.I1(when_Axi4Aligner_l208),
+.O(upB_handle_errorAcc_i__4_n_0),
+.S(when_Axi4Aligner_l219));
+RTL_REG_ASYNC__BREG_1413 upB_handle_errorAcc_reg
+(.C(litex_clk),
+.CE(upB_handle_errorAcc_i__4_n_0),
+.CLR(litex_reset),
+.D(upB_handle_errorAcc__0),
+.Q(upB_handle_errorAcc));
+RTL_INV upB_handle_haltRequest_Axi4Aligner_l214_i
+(.I0(upB_handle_done),
+.O(upB_handle_haltRequest_Axi4Aligner_l214));
+RTL_AND7 upB_handle_isFiring_i
+(.I0(upB_handle_valid),
+.I1(upB_handle_ready),
+.O(upB_handle_isFiring));
+RTL_MUX upB_handle_ready_i
+(.I0(\<const0> ),
+.I1(\<const1> ),
+.O(upB_handle_ready),
+.S(when_Pipeline_l282_1));
+RTL_REG_ASYNC__BREG_1413 upB_handle_valid_reg
+(.C(litex_clk),
+.CE(upB_fetch_ready_output),
+.CLR(litex_reset),
+.D(upB_fetch_valid),
+.Q(upB_handle_valid));
+RTL_EQ5 when_Axi4Aligner_l131_i
+(.I0(\^io_down_aw_payload_len ),
+.I1({\<const0> ,\<const0> ,\<const0> ,\<const0> }),
+.O(when_Axi4Aligner_l131));
+RTL_INV when_Axi4Aligner_l161_i
+(.I0(downW_headerDone),
+.O(when_Axi4Aligner_l161));
+RTL_INV when_Axi4Aligner_l164_i
+(.I0(downW_upsDone),
+.O(when_Axi4Aligner_l164));
+RTL_EQ5 when_Axi4Aligner_l1670_i
+(.I0(downW_ups),
+.I1(frontend_allocateSlot_wCmd_s2mPipe_rData_ups),
+.O(when_Axi4Aligner_l1670));
+RTL_AND7 when_Axi4Aligner_l167_i
+(.I0(when_Axi4Aligner_l1670),
+.I1(io_down_w_ready),
+.O(when_Axi4Aligner_l167));
+RTL_AND7 when_Axi4Aligner_l208_i
+(.I0(upB_handle_isFiring),
+.I1(upB_handle_error),
+.O(when_Axi4Aligner_l208));
+RTL_OR when_Axi4Aligner_l213_i
+(.I0(upB_handle_error),
+.I1(upB_handle_errorAcc),
+.O(when_Axi4Aligner_l213));
+RTL_AND7 when_Axi4Aligner_l219_i
+(.I0(upB_handle_valid),
+.I1(upB_handle_done),
+.O(when_Axi4Aligner_l219));
+RTL_INV when_Connection_l74_1_i
+(.I0(frontend_allocateSlot_valid),
+.O(when_Connection_l74_1));
+RTL_INV when_Connection_l74_2_i
+(.I0(upB_handle_valid),
+.O(when_Connection_l74_2));
+RTL_INV when_Connection_l74_i
+(.I0(frontend_split_valid),
+.O(when_Connection_l74));
+RTL_REDUCTION_OR14 when_Pipeline_l282_1_i
+(.I0({io_up_b_isStall,upB_handle_haltRequest_Axi4Aligner_l214}),
+.O(when_Pipeline_l282_1));
+RTL_REDUCTION_OR35 when_Pipeline_l282_i
+(.I0(p_0_out),
+.O(when_Pipeline_l282));
+RTL_REDUCTION_OR149 when_Pipeline_l289_i
+(.I0(frontend_split_forkRequest_Axi4Aligner_l84),
+.O(when_Pipeline_l289));
+RTL_INV when_Stream_l477_i
+(.I0(frontend_allocateSlot_wCmd_s2mPipe_rValid),
+.O(when_Stream_l477));
+endmodule
+module Axi4WriteOnlyCompactor
+(io_up_aw_valid,
+io_up_aw_ready,
+io_up_aw_payload_addr,
+io_up_aw_payload_id,
+io_up_aw_payload_region,
+io_up_aw_payload_len,
+io_up_aw_payload_size,
+io_up_aw_payload_burst,
+io_up_aw_payload_lock,
+io_up_aw_payload_cache,
+io_up_aw_payload_qos,
+io_up_aw_payload_prot,
+io_up_w_valid,
+io_up_w_ready,
+io_up_w_payload_data,
+io_up_w_payload_strb,
+io_up_w_payload_last,
+io_up_b_valid,
+io_up_b_ready,
+io_up_b_payload_id,
+io_up_b_payload_resp,
+io_down_aw_valid,
+io_down_aw_ready,
+io_down_aw_payload_addr,
+io_down_aw_payload_id,
+io_down_aw_payload_region,
+io_down_aw_payload_len,
+.io_down_aw_payload_size({\<const0> ,\^io_down_aw_payload_size [1],\^io_down_aw_payload_size [0]}),
+io_down_aw_payload_burst,
+io_down_aw_payload_lock,
+io_down_aw_payload_cache,
+io_down_aw_payload_qos,
+io_down_aw_payload_prot,
+io_down_w_valid,
+io_down_w_ready,
+io_down_w_payload_data,
+io_down_w_payload_strb,
+io_down_w_payload_last,
+io_down_b_valid,
+io_down_b_ready,
+io_down_b_payload_id,
+io_down_b_payload_resp,
+litex_clk,
+litex_reset);
+input io_up_aw_valid;
+output io_up_aw_ready;
+input [31:0]io_up_aw_payload_addr;
+input [3:0]io_up_aw_payload_id;
+input [3:0]io_up_aw_payload_region;
+input [7:0]io_up_aw_payload_len;
+input [2:0]io_up_aw_payload_size;
+input [1:0]io_up_aw_payload_burst;
+input [0:0]io_up_aw_payload_lock;
+input [3:0]io_up_aw_payload_cache;
+input [3:0]io_up_aw_payload_qos;
+input [2:0]io_up_aw_payload_prot;
+input io_up_w_valid;
+output io_up_w_ready;
+input [31:0]io_up_w_payload_data;
+input [3:0]io_up_w_payload_strb;
+input io_up_w_payload_last;
+output io_up_b_valid;
+input io_up_b_ready;
+output [3:0]io_up_b_payload_id;
+output [1:0]io_up_b_payload_resp;
+output io_down_aw_valid;
+input io_down_aw_ready;
+output [31:0]io_down_aw_payload_addr;
+output [3:0]io_down_aw_payload_id;
+output [3:0]io_down_aw_payload_region;
+output [7:0]io_down_aw_payload_len;
+output [1:0]io_down_aw_payload_burst;
+output [0:0]io_down_aw_payload_lock;
+output [3:0]io_down_aw_payload_cache;
+output [3:0]io_down_aw_payload_qos;
+output [2:0]io_down_aw_payload_prot;
+output io_down_w_valid;
+input io_down_w_ready;
+output [31:0]io_down_w_payload_data;
+output [3:0]io_down_w_payload_strb;
+output io_down_w_payload_last;
+input io_down_b_valid;
+output io_down_b_ready;
+input [3:0]io_down_b_payload_id;
+input [1:0]io_down_b_payload_resp;
+input litex_clk;
+input litex_reset;
+output \<const0> ;
+output [1:0]\^io_down_aw_payload_size ;
+wire \<const0> ;
+wire \<const1> ;
+wire _zz_io_down_aw_payload_size1;
+wire [14:0]_zz_onAw_bytes;
+wire [1:0]_zz_onAw_bytesBeats;
+wire [1:0]_zz_onAw_bytesBeats_2;
+wire [1:0]_zz_onAw_bytesBeats_3;
+wire [1:0]_zz_onAw_bytes_1;
+wire [1:0]_zz_onAw_smallSize;
+wire [1:0]_zz_onAw_smallSize_1;
+wire [1:0]_zz_onAw_toW_payload_bytePerBeat_1;
+wire [2:0]_zz_onW_counterPlus;
+wire [31:0]io_down_aw_payload_addr;
+wire [1:0]io_down_aw_payload_burst;
+wire [3:0]io_down_aw_payload_cache;
+wire [3:0]io_down_aw_payload_id;
+wire [7:0]io_down_aw_payload_len;
+wire [0:0]io_down_aw_payload_lock;
+wire [2:0]io_down_aw_payload_prot;
+wire [3:0]io_down_aw_payload_qos;
+wire [3:0]io_down_aw_payload_region;
+wire [1:0]\^io_down_aw_payload_size ;
+wire io_down_aw_ready;
+wire io_down_aw_valid;
+wire [3:0]io_down_b_payload_id;
+wire [1:0]io_down_b_payload_resp;
+wire io_down_b_valid;
+wire [31:0]io_down_w_payload_data;
+wire io_down_w_payload_last;
+wire [3:0]io_down_w_payload_strb;
+wire io_down_w_ready;
+wire io_down_w_valid;
+wire [1:0]io_up_aw_fork2_io_outputs_1_payload_addr;
+wire [2:0]io_up_aw_fork2_io_outputs_1_payload_size;
+wire io_up_aw_fork2_io_outputs_1_valid;
+wire [31:0]io_up_aw_payload_addr;
+wire [1:0]io_up_aw_payload_burst;
+wire [3:0]io_up_aw_payload_cache;
+wire [3:0]io_up_aw_payload_id;
+wire [7:0]io_up_aw_payload_len;
+wire [0:0]io_up_aw_payload_lock;
+wire [2:0]io_up_aw_payload_prot;
+wire [3:0]io_up_aw_payload_qos;
+wire [3:0]io_up_aw_payload_region;
+wire [2:0]io_up_aw_payload_size;
+wire io_up_aw_ready;
+wire io_up_aw_valid;
+wire io_up_b_ready;
+wire io_up_w_fire;
+wire [31:0]io_up_w_payload_data;
+wire io_up_w_payload_last;
+wire [3:0]io_up_w_payload_strb;
+wire io_up_w_ready;
+wire io_up_w_ready0;
+wire io_up_w_valid;
+wire litex_clk;
+wire litex_reset;
+wire [14:0]onAw_bytes;
+wire onAw_bytesBeats_i_n_0;
+wire onAw_bytesBeats_i_n_1;
+wire onAw_bytesBeats_i_n_10;
+wire onAw_bytesBeats_i_n_11;
+wire onAw_bytesBeats_i_n_12;
+wire onAw_bytesBeats_i_n_2;
+wire onAw_bytesBeats_i_n_3;
+wire onAw_bytesBeats_i_n_4;
+wire onAw_bytesBeats_i_n_5;
+wire onAw_bytesBeats_i_n_6;
+wire onAw_bytesBeats_i_n_7;
+wire onAw_bytesBeats_i_n_8;
+wire onAw_bytesBeats_i_n_9;
+wire [1:0]onAw_toW_payload_bytePerBeat;
+wire [1:0]onAw_toW_payload_offset;
+wire [1:0]onAw_toW_rData_bytePerBeat;
+wire [1:0]onAw_toW_rData_offset;
+wire onAw_toW_rValidN;
+wire onAw_toW_rValidN__0;
+wire onW_awS2m_fire;
+wire [1:0]onW_awS2m_payload_bytePerBeat;
+wire [1:0]onW_awS2m_payload_offset;
+wire onW_awS2m_rValid;
+wire onW_awS2m_ready;
+wire onW_awS2m_valid;
+wire onW_awS2m_valid0;
+wire onW_aw_ready;
+wire onW_buffer_0_data;
+wire onW_buffer_0_strb;
+wire onW_buffer_0_strb_i__1_n_0;
+wire onW_buffer_0_strb_i__2_n_0;
+wire onW_buffer_0_strb_i_n_0;
+wire onW_buffer_1_data;
+wire onW_buffer_1_strb;
+wire onW_buffer_1_strb_i__1_n_0;
+wire onW_buffer_1_strb_i__2_n_0;
+wire onW_buffer_1_strb_i_n_0;
+wire onW_buffer_2_data;
+wire onW_buffer_2_strb;
+wire onW_buffer_2_strb_i__1_n_0;
+wire onW_buffer_2_strb_i__2_n_0;
+wire onW_buffer_2_strb_i_n_0;
+wire onW_buffer_3_data;
+wire onW_buffer_3_strb;
+wire onW_buffer_3_strb_i__1_n_0;
+wire onW_buffer_3_strb_i__2_n_0;
+wire onW_buffer_3_strb_i_n_0;
+wire onW_commitCmd_ready;
+wire onW_commitCmd_valid;
+wire onW_commitDo_fire;
+wire onW_commitDo_isStall;
+wire onW_commitDo_isStall0;
+wire [1:0]onW_counter;
+wire [2:0]onW_counterPlus;
+wire onW_counter_i__0_n_0;
+wire onW_firstCycle;
+wire onW_last;
+wire [1:0]onW_mask;
+wire [1:0]p_0_in;
+wire [1:0]p_1_in;
+wire when_Axi4Compactor_l53;
+wire when_Axi4Compactor_l66;
+wire when_Axi4Compactor_l74;
+wire when_Axi4Compactor_l74_1;
+wire [1:0]when_Axi4Compactor_l74_10;
+wire when_Axi4Compactor_l74_2;
+wire [1:0]when_Axi4Compactor_l74_20;
+wire when_Axi4Compactor_l74_3;
+wire when_Stream_l477;
+wire when_Stream_l477_1;
+assign io_down_b_ready = io_up_b_ready;
+assign io_up_b_payload_id[3:0] = io_down_b_payload_id;
+assign io_up_b_payload_resp[1:0] = io_down_b_payload_resp;
+assign io_up_b_valid = io_down_b_valid;
+GND GND
+(.G(\<const0> ));
+VCC VCC
+(.P(\<const1> ));
+RTL_RSHIFT91 _zz_io_down_aw_payload_len_i
+(.I0({onAw_bytesBeats_i_n_0,onAw_bytesBeats_i_n_1,onAw_bytesBeats_i_n_2,onAw_bytesBeats_i_n_3,onAw_bytesBeats_i_n_4,onAw_bytesBeats_i_n_5,onAw_bytesBeats_i_n_6,onAw_bytesBeats_i_n_7,onAw_bytesBeats_i_n_8,onAw_bytesBeats_i_n_9,onAw_bytesBeats_i_n_10,onAw_bytesBeats_i_n_11,onAw_bytesBeats_i_n_12,_zz_onAw_smallSize_1}),
+.I1({\<const1> ,\<const0> }),
+.I2(\<const1> ),
+.O(io_down_aw_payload_len));
+RTL_REDUCTION_OR11 _zz_io_down_aw_payload_size1_i
+(.I0(io_down_aw_payload_len),
+.O(_zz_io_down_aw_payload_size1));
+RTL_MUX789 _zz_io_down_aw_payload_size_i
+(.I0({\<const1> ,\<const0> }),
+.I1(_zz_onAw_smallSize),
+.O(\^io_down_aw_payload_size ),
+.S(_zz_io_down_aw_payload_size1));
+RTL_AND2835 _zz_onAw_bytesBeats_1_i
+(.I0(io_up_aw_payload_addr[1:0]),
+.I1(_zz_onAw_bytesBeats_2),
+.O(_zz_onAw_bytesBeats));
+RTL_SUB17 _zz_onAw_bytesBeats_2_i
+(.I0(_zz_onAw_bytesBeats_3),
+.I1(\<const1> ),
+.O(_zz_onAw_bytesBeats_2));
+RTL_ALSHIFT28 _zz_onAw_bytesBeats_3_i
+(.I0({\<const0> ,\<const1> }),
+.I1(io_up_aw_payload_size),
+.I2(\<const1> ),
+.O(_zz_onAw_bytesBeats_3));
+RTL_ALSHIFT27 _zz_onAw_bytes_i
+(.I0({\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,io_up_aw_payload_len}),
+.I1(io_up_aw_payload_size),
+.I2(\<const1> ),
+.O(_zz_onAw_bytes));
+RTL_MUX1051 _zz_onAw_smallSize_i
+(.I0({\<const0> ,\<const0> }),
+.I1({\<const0> ,\<const1> }),
+.I2({\<const1> ,\<const0> }),
+.I3({\<const1> ,\<const0> }),
+.O(_zz_onAw_smallSize),
+.S(_zz_onAw_smallSize_1));
+RTL_ALSHIFT28 _zz_onAw_toW_payload_bytePerBeat_1_i
+(.I0({\<const0> ,\<const1> }),
+.I1(io_up_aw_fork2_io_outputs_1_payload_size),
+.I2(\<const1> ),
+.O(_zz_onAw_toW_payload_bytePerBeat_1));
+RTL_SUB17 _zz_onAw_toW_payload_bytePerBeat_i
+(.I0(_zz_onAw_toW_payload_bytePerBeat_1),
+.I1(\<const1> ),
+.O(onAw_toW_payload_bytePerBeat));
+RTL_ADD223 _zz_onW_counterPlus_i
+(.I0({\<const0> ,p_1_in}),
+.I1({\<const0> ,p_0_in}),
+.O(_zz_onW_counterPlus));
+StreamFork io_up_aw_fork2
+(.io_input_payload_addr(io_up_aw_payload_addr),
+.io_input_payload_burst(io_up_aw_payload_burst),
+.io_input_payload_cache(io_up_aw_payload_cache),
+.io_input_payload_id(io_up_aw_payload_id),
+.io_input_payload_len(io_up_aw_payload_len),
+.io_input_payload_lock(io_up_aw_payload_lock),
+.io_input_payload_prot(io_up_aw_payload_prot),
+.io_input_payload_qos(io_up_aw_payload_qos),
+.io_input_payload_region(io_up_aw_payload_region),
+.io_input_payload_size(io_up_aw_payload_size),
+.io_input_ready(io_up_aw_ready),
+.io_input_valid(io_up_aw_valid),
+.io_outputs_0_payload_addr(io_down_aw_payload_addr),
+.io_outputs_0_payload_burst(io_down_aw_payload_burst),
+.io_outputs_0_payload_cache(io_down_aw_payload_cache),
+.io_outputs_0_payload_id(io_down_aw_payload_id),
+.io_outputs_0_payload_lock(io_down_aw_payload_lock),
+.io_outputs_0_payload_prot(io_down_aw_payload_prot),
+.io_outputs_0_payload_qos(io_down_aw_payload_qos),
+.io_outputs_0_payload_region(io_down_aw_payload_region),
+.io_outputs_0_ready(io_down_aw_ready),
+.io_outputs_0_valid(io_down_aw_valid),
+.io_outputs_1_payload_addr(io_up_aw_fork2_io_outputs_1_payload_addr),
+.io_outputs_1_payload_size(io_up_aw_fork2_io_outputs_1_payload_size),
+.io_outputs_1_ready(onAw_toW_rValidN),
+.io_outputs_1_valid(io_up_aw_fork2_io_outputs_1_valid),
+.litex_clk(litex_clk),
+.litex_reset(litex_reset));
+RTL_AND7 io_up_w_fire_i
+(.I0(io_up_w_valid),
+.I1(io_up_w_ready),
+.O(io_up_w_fire));
+RTL_INV io_up_w_ready0_i
+(.I0(onW_commitDo_isStall),
+.O(io_up_w_ready0));
+RTL_MUX io_up_w_ready_i
+(.I0(io_up_w_ready0),
+.I1(\<const0> ),
+.O(io_up_w_ready),
+.S(when_Axi4Compactor_l66));
+RTL_ADD686 onAw_bytesBeats_i
+(.I0(onAw_bytes),
+.I1({\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,_zz_onAw_bytesBeats}),
+.O({onAw_bytesBeats_i_n_0,onAw_bytesBeats_i_n_1,onAw_bytesBeats_i_n_2,onAw_bytesBeats_i_n_3,onAw_bytesBeats_i_n_4,onAw_bytesBeats_i_n_5,onAw_bytesBeats_i_n_6,onAw_bytesBeats_i_n_7,onAw_bytesBeats_i_n_8,onAw_bytesBeats_i_n_9,onAw_bytesBeats_i_n_10,onAw_bytesBeats_i_n_11,onAw_bytesBeats_i_n_12,_zz_onAw_smallSize_1}));
+RTL_ADD686 onAw_bytes_i
+(.I0(_zz_onAw_bytes),
+.I1({\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,_zz_onAw_bytes_1}),
+.O(onAw_bytes));
+RTL_ROM84 onAw_sizeBytes_i
+(.A(io_up_aw_payload_size),
+.O(_zz_onAw_bytes_1));
+RTL_AND2835 onAw_toW_payload_offset_i
+(.I0(io_up_aw_fork2_io_outputs_1_payload_addr),
+.I1(onAw_toW_payload_bytePerBeat),
+.O(onAw_toW_payload_offset));
+RTL_REG__BREG_36 \onAw_toW_rData_bytePerBeat_reg[0]
+(.C(litex_clk),
+.CE(onAw_toW_rValidN),
+.D(onAw_toW_payload_bytePerBeat[0]),
+.Q(onAw_toW_rData_bytePerBeat[0]));
+RTL_REG__BREG_36 \onAw_toW_rData_bytePerBeat_reg[1]
+(.C(litex_clk),
+.CE(onAw_toW_rValidN),
+.D(onAw_toW_payload_bytePerBeat[1]),
+.Q(onAw_toW_rData_bytePerBeat[1]));
+RTL_REG__BREG_36 \onAw_toW_rData_offset_reg[0]
+(.C(litex_clk),
+.CE(onAw_toW_rValidN),
+.D(onAw_toW_payload_offset[0]),
+.Q(onAw_toW_rData_offset[0]));
+RTL_REG__BREG_36 \onAw_toW_rData_offset_reg[1]
+(.C(litex_clk),
+.CE(onAw_toW_rValidN),
+.D(onAw_toW_payload_offset[1]),
+.Q(onAw_toW_rData_offset[1]));
+RTL_MUX onAw_toW_rValidN_i
+(.I0(\<const1> ),
+.I1(io_up_aw_fork2_io_outputs_1_valid),
+.O(onAw_toW_rValidN__0),
+.S(onW_awS2m_ready));
+RTL_REG_ASYNC__BREG_1846 onAw_toW_rValidN_reg
+(.C(litex_clk),
+.CE(onAw_toW_rValidN__0),
+.D(onW_awS2m_ready),
+.PRE(litex_reset),
+.Q(onAw_toW_rValidN));
+RTL_AND7 onW_awS2m_fire_i
+(.I0(onW_awS2m_valid),
+.I1(onW_awS2m_ready),
+.O(onW_awS2m_fire));
+RTL_MUX789 onW_awS2m_payload_bytePerBeat_i
+(.I0(onAw_toW_payload_bytePerBeat),
+.I1(onAw_toW_rData_bytePerBeat),
+.O(onW_awS2m_payload_bytePerBeat),
+.S(onAw_toW_rValidN));
+RTL_MUX789 onW_awS2m_payload_offset_i
+(.I0(onAw_toW_payload_offset),
+.I1(onAw_toW_rData_offset),
+.O(onW_awS2m_payload_offset),
+.S(onAw_toW_rValidN));
+RTL_REG__BREG_36 \onW_awS2m_rData_bytePerBeat_reg[0]
+(.C(litex_clk),
+.CE(onW_awS2m_ready),
+.D(onW_awS2m_payload_bytePerBeat[0]),
+.Q(p_0_in[0]));
+RTL_REG__BREG_36 \onW_awS2m_rData_bytePerBeat_reg[1]
+(.C(litex_clk),
+.CE(onW_awS2m_ready),
+.D(onW_awS2m_payload_bytePerBeat[1]),
+.Q(p_0_in[1]));
+RTL_REG_ASYNC__BREG_1413 onW_awS2m_rValid_reg
+(.C(litex_clk),
+.CE(onW_awS2m_ready),
+.CLR(litex_reset),
+.D(onW_awS2m_valid),
+.Q(onW_awS2m_rValid));
+RTL_MUX onW_awS2m_ready_i
+(.I0(\<const1> ),
+.I1(onW_aw_ready),
+.O(onW_awS2m_ready),
+.S(when_Stream_l477));
+RTL_INV onW_awS2m_valid0_i
+(.I0(onAw_toW_rValidN),
+.O(onW_awS2m_valid0));
+RTL_OR onW_awS2m_valid_i
+(.I0(io_up_aw_fork2_io_outputs_1_valid),
+.I1(onW_awS2m_valid0),
+.O(onW_awS2m_valid));
+RTL_MUX onW_aw_ready_i
+(.I0(io_up_w_payload_last),
+.I1(\<const0> ),
+.O(onW_aw_ready),
+.S(io_up_w_fire));
+RTL_REG__BREG_36 onW_bufferLast_reg
+(.C(litex_clk),
+.CE(io_up_w_fire),
+.D(io_up_w_payload_last),
+.Q(io_down_w_payload_last));
+RTL_MUX onW_buffer_0_data_i
+(.I0(when_Axi4Compactor_l74),
+.I1(\<const0> ),
+.O(onW_buffer_0_data),
+.S(io_up_w_fire));
+RTL_REG__BREG_36 \onW_buffer_0_data_reg[0]
+(.C(litex_clk),
+.CE(onW_buffer_0_data),
+.D(io_up_w_payload_data[0]),
+.Q(io_down_w_payload_data[0]));
+RTL_REG__BREG_36 \onW_buffer_0_data_reg[1]
+(.C(litex_clk),
+.CE(onW_buffer_0_data),
+.D(io_up_w_payload_data[1]),
+.Q(io_down_w_payload_data[1]));
+RTL_REG__BREG_36 \onW_buffer_0_data_reg[2]
+(.C(litex_clk),
+.CE(onW_buffer_0_data),
+.D(io_up_w_payload_data[2]),
+.Q(io_down_w_payload_data[2]));
+RTL_REG__BREG_36 \onW_buffer_0_data_reg[3]
+(.C(litex_clk),
+.CE(onW_buffer_0_data),
+.D(io_up_w_payload_data[3]),
+.Q(io_down_w_payload_data[3]));
+RTL_REG__BREG_36 \onW_buffer_0_data_reg[4]
+(.C(litex_clk),
+.CE(onW_buffer_0_data),
+.D(io_up_w_payload_data[4]),
+.Q(io_down_w_payload_data[4]));
+RTL_REG__BREG_36 \onW_buffer_0_data_reg[5]
+(.C(litex_clk),
+.CE(onW_buffer_0_data),
+.D(io_up_w_payload_data[5]),
+.Q(io_down_w_payload_data[5]));
+RTL_REG__BREG_36 \onW_buffer_0_data_reg[6]
+(.C(litex_clk),
+.CE(onW_buffer_0_data),
+.D(io_up_w_payload_data[6]),
+.Q(io_down_w_payload_data[6]));
+RTL_REG__BREG_36 \onW_buffer_0_data_reg[7]
+(.C(litex_clk),
+.CE(onW_buffer_0_data),
+.D(io_up_w_payload_data[7]),
+.Q(io_down_w_payload_data[7]));
+RTL_MUX onW_buffer_0_strb_i
+(.I0(io_up_w_payload_strb[0]),
+.I1(\<const0> ),
+.O(onW_buffer_0_strb_i_n_0),
+.S(when_Axi4Compactor_l74));
+RTL_MUX onW_buffer_0_strb_i__0
+(.I0(onW_buffer_0_strb_i_n_0),
+.I1(\<const0> ),
+.O(onW_buffer_0_strb),
+.S(io_up_w_fire));
+RTL_MUX onW_buffer_0_strb_i__1
+(.I0(\<const1> ),
+.I1(when_Axi4Compactor_l53),
+.O(onW_buffer_0_strb_i__1_n_0),
+.S(when_Axi4Compactor_l74));
+RTL_MUX onW_buffer_0_strb_i__2
+(.I0(onW_buffer_0_strb_i__1_n_0),
+.I1(when_Axi4Compactor_l53),
+.O(onW_buffer_0_strb_i__2_n_0),
+.S(io_up_w_fire));
+RTL_REG__BREG_36 onW_buffer_0_strb_reg
+(.C(litex_clk),
+.CE(onW_buffer_0_strb_i__2_n_0),
+.D(onW_buffer_0_strb),
+.Q(io_down_w_payload_strb[0]));
+RTL_MUX onW_buffer_1_data_i
+(.I0(when_Axi4Compactor_l74_1),
+.I1(\<const0> ),
+.O(onW_buffer_1_data),
+.S(io_up_w_fire));
+RTL_REG__BREG_36 \onW_buffer_1_data_reg[0]
+(.C(litex_clk),
+.CE(onW_buffer_1_data),
+.D(io_up_w_payload_data[8]),
+.Q(io_down_w_payload_data[8]));
+RTL_REG__BREG_36 \onW_buffer_1_data_reg[1]
+(.C(litex_clk),
+.CE(onW_buffer_1_data),
+.D(io_up_w_payload_data[9]),
+.Q(io_down_w_payload_data[9]));
+RTL_REG__BREG_36 \onW_buffer_1_data_reg[2]
+(.C(litex_clk),
+.CE(onW_buffer_1_data),
+.D(io_up_w_payload_data[10]),
+.Q(io_down_w_payload_data[10]));
+RTL_REG__BREG_36 \onW_buffer_1_data_reg[3]
+(.C(litex_clk),
+.CE(onW_buffer_1_data),
+.D(io_up_w_payload_data[11]),
+.Q(io_down_w_payload_data[11]));
+RTL_REG__BREG_36 \onW_buffer_1_data_reg[4]
+(.C(litex_clk),
+.CE(onW_buffer_1_data),
+.D(io_up_w_payload_data[12]),
+.Q(io_down_w_payload_data[12]));
+RTL_REG__BREG_36 \onW_buffer_1_data_reg[5]
+(.C(litex_clk),
+.CE(onW_buffer_1_data),
+.D(io_up_w_payload_data[13]),
+.Q(io_down_w_payload_data[13]));
+RTL_REG__BREG_36 \onW_buffer_1_data_reg[6]
+(.C(litex_clk),
+.CE(onW_buffer_1_data),
+.D(io_up_w_payload_data[14]),
+.Q(io_down_w_payload_data[14]));
+RTL_REG__BREG_36 \onW_buffer_1_data_reg[7]
+(.C(litex_clk),
+.CE(onW_buffer_1_data),
+.D(io_up_w_payload_data[15]),
+.Q(io_down_w_payload_data[15]));
+RTL_MUX onW_buffer_1_strb_i
+(.I0(io_up_w_payload_strb[1]),
+.I1(\<const0> ),
+.O(onW_buffer_1_strb_i_n_0),
+.S(when_Axi4Compactor_l74_1));
+RTL_MUX onW_buffer_1_strb_i__0
+(.I0(onW_buffer_1_strb_i_n_0),
+.I1(\<const0> ),
+.O(onW_buffer_1_strb),
+.S(io_up_w_fire));
+RTL_MUX onW_buffer_1_strb_i__1
+(.I0(\<const1> ),
+.I1(when_Axi4Compactor_l53),
+.O(onW_buffer_1_strb_i__1_n_0),
+.S(when_Axi4Compactor_l74_1));
+RTL_MUX onW_buffer_1_strb_i__2
+(.I0(onW_buffer_1_strb_i__1_n_0),
+.I1(when_Axi4Compactor_l53),
+.O(onW_buffer_1_strb_i__2_n_0),
+.S(io_up_w_fire));
+RTL_REG__BREG_36 onW_buffer_1_strb_reg
+(.C(litex_clk),
+.CE(onW_buffer_1_strb_i__2_n_0),
+.D(onW_buffer_1_strb),
+.Q(io_down_w_payload_strb[1]));
+RTL_MUX onW_buffer_2_data_i
+(.I0(when_Axi4Compactor_l74_2),
+.I1(\<const0> ),
+.O(onW_buffer_2_data),
+.S(io_up_w_fire));
+RTL_REG__BREG_36 \onW_buffer_2_data_reg[0]
+(.C(litex_clk),
+.CE(onW_buffer_2_data),
+.D(io_up_w_payload_data[16]),
+.Q(io_down_w_payload_data[16]));
+RTL_REG__BREG_36 \onW_buffer_2_data_reg[1]
+(.C(litex_clk),
+.CE(onW_buffer_2_data),
+.D(io_up_w_payload_data[17]),
+.Q(io_down_w_payload_data[17]));
+RTL_REG__BREG_36 \onW_buffer_2_data_reg[2]
+(.C(litex_clk),
+.CE(onW_buffer_2_data),
+.D(io_up_w_payload_data[18]),
+.Q(io_down_w_payload_data[18]));
+RTL_REG__BREG_36 \onW_buffer_2_data_reg[3]
+(.C(litex_clk),
+.CE(onW_buffer_2_data),
+.D(io_up_w_payload_data[19]),
+.Q(io_down_w_payload_data[19]));
+RTL_REG__BREG_36 \onW_buffer_2_data_reg[4]
+(.C(litex_clk),
+.CE(onW_buffer_2_data),
+.D(io_up_w_payload_data[20]),
+.Q(io_down_w_payload_data[20]));
+RTL_REG__BREG_36 \onW_buffer_2_data_reg[5]
+(.C(litex_clk),
+.CE(onW_buffer_2_data),
+.D(io_up_w_payload_data[21]),
+.Q(io_down_w_payload_data[21]));
+RTL_REG__BREG_36 \onW_buffer_2_data_reg[6]
+(.C(litex_clk),
+.CE(onW_buffer_2_data),
+.D(io_up_w_payload_data[22]),
+.Q(io_down_w_payload_data[22]));
+RTL_REG__BREG_36 \onW_buffer_2_data_reg[7]
+(.C(litex_clk),
+.CE(onW_buffer_2_data),
+.D(io_up_w_payload_data[23]),
+.Q(io_down_w_payload_data[23]));
+RTL_MUX onW_buffer_2_strb_i
+(.I0(io_up_w_payload_strb[2]),
+.I1(\<const0> ),
+.O(onW_buffer_2_strb_i_n_0),
+.S(when_Axi4Compactor_l74_2));
+RTL_MUX onW_buffer_2_strb_i__0
+(.I0(onW_buffer_2_strb_i_n_0),
+.I1(\<const0> ),
+.O(onW_buffer_2_strb),
+.S(io_up_w_fire));
+RTL_MUX onW_buffer_2_strb_i__1
+(.I0(\<const1> ),
+.I1(when_Axi4Compactor_l53),
+.O(onW_buffer_2_strb_i__1_n_0),
+.S(when_Axi4Compactor_l74_2));
+RTL_MUX onW_buffer_2_strb_i__2
+(.I0(onW_buffer_2_strb_i__1_n_0),
+.I1(when_Axi4Compactor_l53),
+.O(onW_buffer_2_strb_i__2_n_0),
+.S(io_up_w_fire));
+RTL_REG__BREG_36 onW_buffer_2_strb_reg
+(.C(litex_clk),
+.CE(onW_buffer_2_strb_i__2_n_0),
+.D(onW_buffer_2_strb),
+.Q(io_down_w_payload_strb[2]));
+RTL_MUX onW_buffer_3_data_i
+(.I0(when_Axi4Compactor_l74_3),
+.I1(\<const0> ),
+.O(onW_buffer_3_data),
+.S(io_up_w_fire));
+RTL_REG__BREG_36 \onW_buffer_3_data_reg[0]
+(.C(litex_clk),
+.CE(onW_buffer_3_data),
+.D(io_up_w_payload_data[24]),
+.Q(io_down_w_payload_data[24]));
+RTL_REG__BREG_36 \onW_buffer_3_data_reg[1]
+(.C(litex_clk),
+.CE(onW_buffer_3_data),
+.D(io_up_w_payload_data[25]),
+.Q(io_down_w_payload_data[25]));
+RTL_REG__BREG_36 \onW_buffer_3_data_reg[2]
+(.C(litex_clk),
+.CE(onW_buffer_3_data),
+.D(io_up_w_payload_data[26]),
+.Q(io_down_w_payload_data[26]));
+RTL_REG__BREG_36 \onW_buffer_3_data_reg[3]
+(.C(litex_clk),
+.CE(onW_buffer_3_data),
+.D(io_up_w_payload_data[27]),
+.Q(io_down_w_payload_data[27]));
+RTL_REG__BREG_36 \onW_buffer_3_data_reg[4]
+(.C(litex_clk),
+.CE(onW_buffer_3_data),
+.D(io_up_w_payload_data[28]),
+.Q(io_down_w_payload_data[28]));
+RTL_REG__BREG_36 \onW_buffer_3_data_reg[5]
+(.C(litex_clk),
+.CE(onW_buffer_3_data),
+.D(io_up_w_payload_data[29]),
+.Q(io_down_w_payload_data[29]));
+RTL_REG__BREG_36 \onW_buffer_3_data_reg[6]
+(.C(litex_clk),
+.CE(onW_buffer_3_data),
+.D(io_up_w_payload_data[30]),
+.Q(io_down_w_payload_data[30]));
+RTL_REG__BREG_36 \onW_buffer_3_data_reg[7]
+(.C(litex_clk),
+.CE(onW_buffer_3_data),
+.D(io_up_w_payload_data[31]),
+.Q(io_down_w_payload_data[31]));
+RTL_MUX onW_buffer_3_strb_i
+(.I0(io_up_w_payload_strb[3]),
+.I1(\<const0> ),
+.O(onW_buffer_3_strb_i_n_0),
+.S(when_Axi4Compactor_l74_3));
+RTL_MUX onW_buffer_3_strb_i__0
+(.I0(onW_buffer_3_strb_i_n_0),
+.I1(\<const0> ),
+.O(onW_buffer_3_strb),
+.S(io_up_w_fire));
+RTL_MUX onW_buffer_3_strb_i__1
+(.I0(\<const1> ),
+.I1(when_Axi4Compactor_l53),
+.O(onW_buffer_3_strb_i__1_n_0),
+.S(when_Axi4Compactor_l74_3));
+RTL_MUX onW_buffer_3_strb_i__2
+(.I0(onW_buffer_3_strb_i__1_n_0),
+.I1(when_Axi4Compactor_l53),
+.O(onW_buffer_3_strb_i__2_n_0),
+.S(io_up_w_fire));
+RTL_REG__BREG_36 onW_buffer_3_strb_reg
+(.C(litex_clk),
+.CE(onW_buffer_3_strb_i__2_n_0),
+.D(onW_buffer_3_strb),
+.Q(io_down_w_payload_strb[3]));
+RTL_REG_ASYNC__BREG_1413 onW_commitCmd_rValid_reg
+(.C(litex_clk),
+.CE(onW_commitCmd_ready),
+.CLR(litex_reset),
+.D(onW_commitCmd_valid),
+.Q(io_down_w_valid));
+RTL_MUX onW_commitCmd_ready_i
+(.I0(\<const1> ),
+.I1(io_down_w_ready),
+.O(onW_commitCmd_ready),
+.S(when_Stream_l477_1));
+RTL_MUX onW_commitCmd_valid_i
+(.I0(onW_last),
+.I1(\<const0> ),
+.O(onW_commitCmd_valid),
+.S(when_Axi4Compactor_l66));
+RTL_AND7 onW_commitDo_fire_i
+(.I0(io_down_w_valid),
+.I1(io_down_w_ready),
+.O(onW_commitDo_fire));
+RTL_INV onW_commitDo_isStall0_i
+(.I0(io_down_w_ready),
+.O(onW_commitDo_isStall0));
+RTL_AND7 onW_commitDo_isStall_i
+(.I0(io_down_w_valid),
+.I1(onW_commitDo_isStall0),
+.O(onW_commitDo_isStall));
+RTL_ADD0 onW_counterPlus_i
+(.I0(_zz_onW_counterPlus),
+.I1(\<const1> ),
+.O(onW_counterPlus));
+RTL_MUX789 onW_counter_i
+(.I0(onW_awS2m_payload_offset),
+.I1(onW_counterPlus[1:0]),
+.O(onW_counter),
+.S(onW_awS2m_fire));
+RTL_MUX onW_counter_i__0
+(.I0(\<const1> ),
+.I1(io_up_w_fire),
+.O(onW_counter_i__0_n_0),
+.S(onW_awS2m_fire));
+RTL_REG_ASYNC__BREG_1413 \onW_counter_reg[0]
+(.C(litex_clk),
+.CE(onW_counter_i__0_n_0),
+.CLR(litex_reset),
+.D(onW_counter[0]),
+.Q(p_1_in[0]));
+RTL_REG_ASYNC__BREG_1413 \onW_counter_reg[1]
+(.C(litex_clk),
+.CE(onW_counter_i__0_n_0),
+.CLR(litex_reset),
+.D(onW_counter[1]),
+.Q(p_1_in[1]));
+RTL_REG_ASYNC__BREG_3066 onW_firstCycle_reg
+(.C(litex_clk),
+.D(\<const0> ),
+.PRE(litex_reset),
+.Q(onW_firstCycle));
+RTL_OR onW_last_i
+(.I0(onW_counterPlus[2]),
+.I1(io_up_w_payload_last),
+.O(onW_last));
+RTL_INV18 onW_mask_i
+(.I0(p_0_in),
+.O(onW_mask));
+RTL_OR when_Axi4Compactor_l53_i
+(.I0(onW_commitDo_fire),
+.I1(onW_firstCycle),
+.O(when_Axi4Compactor_l53));
+RTL_AND7 when_Axi4Compactor_l66_i
+(.I0(onW_awS2m_rValid),
+.I1(io_up_w_valid),
+.O(when_Axi4Compactor_l66));
+RTL_AND2835 when_Axi4Compactor_l74_10_i
+(.I0({\<const0> ,\<const1> }),
+.I1(onW_mask),
+.O(when_Axi4Compactor_l74_10));
+RTL_EQ41 when_Axi4Compactor_l74_1_i
+(.I0(p_1_in),
+.I1(when_Axi4Compactor_l74_10),
+.O(when_Axi4Compactor_l74_1));
+RTL_AND2835 when_Axi4Compactor_l74_20_i
+(.I0({\<const1> ,\<const0> }),
+.I1(onW_mask),
+.O(when_Axi4Compactor_l74_20));
+RTL_EQ41 when_Axi4Compactor_l74_2_i
+(.I0(p_1_in),
+.I1(when_Axi4Compactor_l74_20),
+.O(when_Axi4Compactor_l74_2));
+RTL_EQ41 when_Axi4Compactor_l74_3_i
+(.I0(p_1_in),
+.I1(onW_mask),
+.O(when_Axi4Compactor_l74_3));
+RTL_EQ41 when_Axi4Compactor_l74_i
+(.I0(p_1_in),
+.I1({\<const0> ,\<const0> }),
+.O(when_Axi4Compactor_l74));
+RTL_INV when_Stream_l477_1_i
+(.I0(io_down_w_valid),
+.O(when_Stream_l477_1));
+RTL_INV when_Stream_l477_i
+(.I0(onW_awS2m_rValid),
+.O(when_Stream_l477));
+endmodule
+module Axi4WriteOnlyOnePerId
+(io_up_aw_valid,
+io_up_aw_ready,
+io_up_aw_payload_addr,
+io_up_aw_payload_id,
+io_up_aw_payload_region,
+io_up_aw_payload_len,
+io_up_aw_payload_size,
+io_up_aw_payload_burst,
+io_up_aw_payload_lock,
+io_up_aw_payload_cache,
+io_up_aw_payload_qos,
+io_up_aw_payload_prot,
+io_up_w_valid,
+io_up_w_ready,
+io_up_w_payload_data,
+io_up_w_payload_strb,
+io_up_w_payload_last,
+io_up_b_valid,
+io_up_b_ready,
+io_up_b_payload_id,
+io_up_b_payload_resp,
+io_down_aw_valid,
+io_down_aw_ready,
+io_down_aw_payload_addr,
+io_down_aw_payload_id,
+io_down_aw_payload_region,
+io_down_aw_payload_len,
+io_down_aw_payload_size,
+io_down_aw_payload_burst,
+io_down_aw_payload_lock,
+io_down_aw_payload_cache,
+io_down_aw_payload_qos,
+io_down_aw_payload_prot,
+io_down_w_valid,
+io_down_w_ready,
+io_down_w_payload_data,
+io_down_w_payload_strb,
+io_down_w_payload_last,
+io_down_b_valid,
+io_down_b_ready,
+io_down_b_payload_id,
+io_down_b_payload_resp,
+litex_clk,
+litex_reset);
+input io_up_aw_valid;
+output io_up_aw_ready;
+input [31:0]io_up_aw_payload_addr;
+input [3:0]io_up_aw_payload_id;
+input [3:0]io_up_aw_payload_region;
+input [7:0]io_up_aw_payload_len;
+input [2:0]io_up_aw_payload_size;
+input [1:0]io_up_aw_payload_burst;
+input [0:0]io_up_aw_payload_lock;
+input [3:0]io_up_aw_payload_cache;
+input [3:0]io_up_aw_payload_qos;
+input [2:0]io_up_aw_payload_prot;
+input io_up_w_valid;
+output io_up_w_ready;
+input [31:0]io_up_w_payload_data;
+input [3:0]io_up_w_payload_strb;
+input io_up_w_payload_last;
+output io_up_b_valid;
+input io_up_b_ready;
+output [3:0]io_up_b_payload_id;
+output [1:0]io_up_b_payload_resp;
+output io_down_aw_valid;
+input io_down_aw_ready;
+output [31:0]io_down_aw_payload_addr;
+output [3:0]io_down_aw_payload_id;
+output [3:0]io_down_aw_payload_region;
+output [7:0]io_down_aw_payload_len;
+output [2:0]io_down_aw_payload_size;
+output [1:0]io_down_aw_payload_burst;
+output [0:0]io_down_aw_payload_lock;
+output [3:0]io_down_aw_payload_cache;
+output [3:0]io_down_aw_payload_qos;
+output [2:0]io_down_aw_payload_prot;
+output io_down_w_valid;
+input io_down_w_ready;
+output [31:0]io_down_w_payload_data;
+output [3:0]io_down_w_payload_strb;
+output io_down_w_payload_last;
+input io_down_b_valid;
+output io_down_b_ready;
+input [3:0]io_down_b_payload_id;
+input [1:0]io_down_b_payload_resp;
+input litex_clk;
+input litex_reset;
+wire \<const0> ;
+wire \<const1> ;
+wire _zz_io_up_aw_ready;
+wire [31:0]io_down_aw_payload_addr;
+wire [1:0]io_down_aw_payload_burst;
+wire [3:0]io_down_aw_payload_cache;
+wire [3:0]io_down_aw_payload_id;
+wire [7:0]io_down_aw_payload_len;
+wire [0:0]io_down_aw_payload_lock;
+wire [2:0]io_down_aw_payload_prot;
+wire [3:0]io_down_aw_payload_qos;
+wire [3:0]io_down_aw_payload_region;
+wire [2:0]io_down_aw_payload_size;
+wire io_down_aw_ready;
+wire io_down_aw_valid;
+wire io_down_b_fire;
+wire [3:0]io_down_b_payload_id;
+wire [1:0]io_down_b_payload_resp;
+wire io_down_b_valid;
+wire io_down_w_ready;
+wire io_down_w_valid;
+wire [31:0]io_up_aw_payload_addr;
+wire [1:0]io_up_aw_payload_burst;
+wire [3:0]io_up_aw_payload_cache;
+wire [3:0]io_up_aw_payload_id;
+wire [7:0]io_up_aw_payload_len;
+wire [0:0]io_up_aw_payload_lock;
+wire [2:0]io_up_aw_payload_prot;
+wire [3:0]io_up_aw_payload_qos;
+wire [3:0]io_up_aw_payload_region;
+wire [2:0]io_up_aw_payload_size;
+wire io_up_aw_ready;
+wire io_up_aw_valid;
+wire io_up_b_ready;
+wire [31:0]io_up_w_payload_data;
+wire io_up_w_payload_last;
+wire [3:0]io_up_w_payload_strb;
+wire io_up_w_ready;
+wire io_up_w_valid;
+wire litex_clk;
+wire litex_reset;
+wire onAw_busy;
+wire onAw_halted_fire;
+wire onAw_halted_fork2_io_input_ready;
+wire onAw_halted_fork2_io_outputs_1_valid;
+wire onAw_halted_valid;
+wire onAw_toW_rValidN;
+wire onAw_toW_rValidN__0;
+wire onAw_toW_s2mPipe_rValid;
+wire onAw_toW_s2mPipe_ready;
+wire onAw_toW_s2mPipe_valid;
+wire onAw_toW_s2mPipe_valid0;
+wire onW_aw_ready;
+wire [15:0]pendings_valids;
+wire [15:0]pendings_valids0;
+wire pendings_valids0_i__0_n_0;
+wire pendings_valids0_i__0_n_1;
+wire pendings_valids0_i__0_n_10;
+wire pendings_valids0_i__0_n_11;
+wire pendings_valids0_i__0_n_12;
+wire pendings_valids0_i__0_n_13;
+wire pendings_valids0_i__0_n_14;
+wire pendings_valids0_i__0_n_15;
+wire pendings_valids0_i__0_n_2;
+wire pendings_valids0_i__0_n_3;
+wire pendings_valids0_i__0_n_4;
+wire pendings_valids0_i__0_n_5;
+wire pendings_valids0_i__0_n_6;
+wire pendings_valids0_i__0_n_7;
+wire pendings_valids0_i__0_n_8;
+wire pendings_valids0_i__0_n_9;
+wire pendings_valids0_i__1_n_0;
+wire pendings_valids0_i__1_n_1;
+wire pendings_valids0_i__1_n_10;
+wire pendings_valids0_i__1_n_11;
+wire pendings_valids0_i__1_n_12;
+wire pendings_valids0_i__1_n_13;
+wire pendings_valids0_i__1_n_14;
+wire pendings_valids0_i__1_n_15;
+wire pendings_valids0_i__1_n_2;
+wire pendings_valids0_i__1_n_3;
+wire pendings_valids0_i__1_n_4;
+wire pendings_valids0_i__1_n_5;
+wire pendings_valids0_i__1_n_6;
+wire pendings_valids0_i__1_n_7;
+wire pendings_valids0_i__1_n_8;
+wire pendings_valids0_i__1_n_9;
+wire [15:0]pendings_valids0_out;
+wire [15:0]pendings_valids1;
+wire [15:0]pendings_valids__0;
+wire pendings_valids_i__0_n_0;
+wire pendings_valids_i__0_n_1;
+wire pendings_valids_i__0_n_10;
+wire pendings_valids_i__0_n_11;
+wire pendings_valids_i__0_n_12;
+wire pendings_valids_i__0_n_13;
+wire pendings_valids_i__0_n_14;
+wire pendings_valids_i__0_n_15;
+wire pendings_valids_i__0_n_2;
+wire pendings_valids_i__0_n_3;
+wire pendings_valids_i__0_n_4;
+wire pendings_valids_i__0_n_5;
+wire pendings_valids_i__0_n_6;
+wire pendings_valids_i__0_n_7;
+wire pendings_valids_i__0_n_8;
+wire pendings_valids_i__0_n_9;
+wire when_Stream_l477;
+assign io_down_b_ready = io_up_b_ready;
+assign io_down_w_payload_data[31:0] = io_up_w_payload_data;
+assign io_down_w_payload_last = io_up_w_payload_last;
+assign io_down_w_payload_strb[3:0] = io_up_w_payload_strb;
+assign io_up_b_payload_id[3:0] = io_down_b_payload_id;
+assign io_up_b_payload_resp[1:0] = io_down_b_payload_resp;
+assign io_up_b_valid = io_down_b_valid;
+GND GND
+(.G(\<const0> ));
+VCC VCC
+(.P(\<const1> ));
+RTL_INV _zz_io_up_aw_ready_i
+(.I0(onAw_busy),
+.O(_zz_io_up_aw_ready));
+RTL_AND7 io_down_b_fire_i
+(.I0(io_down_b_valid),
+.I1(io_up_b_ready),
+.O(io_down_b_fire));
+RTL_AND7 io_up_aw_ready_i
+(.I0(onAw_halted_fork2_io_input_ready),
+.I1(_zz_io_up_aw_ready),
+.O(io_up_aw_ready));
+RTL_BSEL131 onAw_busy_i
+(.I(pendings_valids),
+.O(onAw_busy),
+.S(io_up_aw_payload_id));
+RTL_AND7 onAw_halted_fire_i
+(.I0(onAw_halted_valid),
+.I1(onAw_halted_fork2_io_input_ready),
+.O(onAw_halted_fire));
+StreamFork onAw_halted_fork2
+(.io_input_payload_addr(io_up_aw_payload_addr),
+.io_input_payload_burst(io_up_aw_payload_burst),
+.io_input_payload_cache(io_up_aw_payload_cache),
+.io_input_payload_id(io_up_aw_payload_id),
+.io_input_payload_len(io_up_aw_payload_len),
+.io_input_payload_lock(io_up_aw_payload_lock),
+.io_input_payload_prot(io_up_aw_payload_prot),
+.io_input_payload_qos(io_up_aw_payload_qos),
+.io_input_payload_region(io_up_aw_payload_region),
+.io_input_payload_size(io_up_aw_payload_size),
+.io_input_ready(onAw_halted_fork2_io_input_ready),
+.io_input_valid(onAw_halted_valid),
+.io_outputs_0_payload_addr(io_down_aw_payload_addr),
+.io_outputs_0_payload_burst(io_down_aw_payload_burst),
+.io_outputs_0_payload_cache(io_down_aw_payload_cache),
+.io_outputs_0_payload_id(io_down_aw_payload_id),
+.io_outputs_0_payload_len(io_down_aw_payload_len),
+.io_outputs_0_payload_lock(io_down_aw_payload_lock),
+.io_outputs_0_payload_prot(io_down_aw_payload_prot),
+.io_outputs_0_payload_qos(io_down_aw_payload_qos),
+.io_outputs_0_payload_region(io_down_aw_payload_region),
+.io_outputs_0_payload_size(io_down_aw_payload_size),
+.io_outputs_0_ready(io_down_aw_ready),
+.io_outputs_0_valid(io_down_aw_valid),
+.io_outputs_1_ready(onAw_toW_rValidN),
+.io_outputs_1_valid(onAw_halted_fork2_io_outputs_1_valid),
+.litex_clk(litex_clk),
+.litex_reset(litex_reset));
+RTL_AND7 onAw_halted_valid_i
+(.I0(io_up_aw_valid),
+.I1(_zz_io_up_aw_ready),
+.O(onAw_halted_valid));
+RTL_MUX onAw_toW_rValidN_i
+(.I0(\<const1> ),
+.I1(onAw_halted_fork2_io_outputs_1_valid),
+.O(onAw_toW_rValidN__0),
+.S(onAw_toW_s2mPipe_ready));
+RTL_REG_ASYNC__BREG_1846 onAw_toW_rValidN_reg
+(.C(litex_clk),
+.CE(onAw_toW_rValidN__0),
+.D(onAw_toW_s2mPipe_ready),
+.PRE(litex_reset),
+.Q(onAw_toW_rValidN));
+RTL_REG_ASYNC__BREG_1413 onAw_toW_s2mPipe_rValid_reg
+(.C(litex_clk),
+.CE(onAw_toW_s2mPipe_ready),
+.CLR(litex_reset),
+.D(onAw_toW_s2mPipe_valid),
+.Q(onAw_toW_s2mPipe_rValid));
+RTL_MUX onAw_toW_s2mPipe_ready_i
+(.I0(\<const1> ),
+.I1(onW_aw_ready),
+.O(onAw_toW_s2mPipe_ready),
+.S(when_Stream_l477));
+RTL_INV onAw_toW_s2mPipe_valid0_i
+(.I0(onAw_toW_rValidN),
+.O(onAw_toW_s2mPipe_valid0));
+RTL_OR onAw_toW_s2mPipe_valid_i
+(.I0(onAw_halted_fork2_io_outputs_1_valid),
+.I1(onAw_toW_s2mPipe_valid0),
+.O(onAw_toW_s2mPipe_valid));
+RTL_AND7 onW_aw_ready_i
+(.I0(io_up_w_ready),
+.I1(io_up_w_payload_last),
+.O(onW_aw_ready));
+RTL_AND7 onW_join_fire_i
+(.I0(io_down_w_valid),
+.I1(io_down_w_ready),
+.O(io_up_w_ready));
+RTL_AND7 onW_join_valid_i
+(.I0(onAw_toW_s2mPipe_rValid),
+.I1(io_up_w_valid),
+.O(io_down_w_valid));
+RTL_BMERGE63 pendings_valids0_i
+(.DATA(pendings_valids1),
+.I(\<const0> ),
+.O(pendings_valids0),
+.S(io_down_b_payload_id));
+RTL_BMERGE63 pendings_valids0_i__0
+(.DATA({\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> }),
+.I(\<const1> ),
+.O({pendings_valids0_i__0_n_0,pendings_valids0_i__0_n_1,pendings_valids0_i__0_n_2,pendings_valids0_i__0_n_3,pendings_valids0_i__0_n_4,pendings_valids0_i__0_n_5,pendings_valids0_i__0_n_6,pendings_valids0_i__0_n_7,pendings_valids0_i__0_n_8,pendings_valids0_i__0_n_9,pendings_valids0_i__0_n_10,pendings_valids0_i__0_n_11,pendings_valids0_i__0_n_12,pendings_valids0_i__0_n_13,pendings_valids0_i__0_n_14,pendings_valids0_i__0_n_15}),
+.S(io_up_aw_payload_id));
+RTL_BMERGE63 pendings_valids0_i__1
+(.DATA({pendings_valids_i__0_n_0,pendings_valids_i__0_n_1,pendings_valids_i__0_n_2,pendings_valids_i__0_n_3,pendings_valids_i__0_n_4,pendings_valids_i__0_n_5,pendings_valids_i__0_n_6,pendings_valids_i__0_n_7,pendings_valids_i__0_n_8,pendings_valids_i__0_n_9,pendings_valids_i__0_n_10,pendings_valids_i__0_n_11,pendings_valids_i__0_n_12,pendings_valids_i__0_n_13,pendings_valids_i__0_n_14,pendings_valids_i__0_n_15}),
+.I(\<const1> ),
+.O({pendings_valids0_i__1_n_0,pendings_valids0_i__1_n_1,pendings_valids0_i__1_n_2,pendings_valids0_i__1_n_3,pendings_valids0_i__1_n_4,pendings_valids0_i__1_n_5,pendings_valids0_i__1_n_6,pendings_valids0_i__1_n_7,pendings_valids0_i__1_n_8,pendings_valids0_i__1_n_9,pendings_valids0_i__1_n_10,pendings_valids0_i__1_n_11,pendings_valids0_i__1_n_12,pendings_valids0_i__1_n_13,pendings_valids0_i__1_n_14,pendings_valids0_i__1_n_15}),
+.S(io_down_b_payload_id));
+RTL_BMERGE63 pendings_valids1_i
+(.DATA({\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> }),
+.I(\<const1> ),
+.O(pendings_valids1),
+.S(io_up_aw_payload_id));
+RTL_MUX81 pendings_valids_i
+(.I0(pendings_valids0),
+.I1(pendings_valids1),
+.O(pendings_valids__0),
+.S(io_down_b_fire));
+RTL_MUX81 pendings_valids_i__0
+(.I0({pendings_valids0_i__0_n_0,pendings_valids0_i__0_n_1,pendings_valids0_i__0_n_2,pendings_valids0_i__0_n_3,pendings_valids0_i__0_n_4,pendings_valids0_i__0_n_5,pendings_valids0_i__0_n_6,pendings_valids0_i__0_n_7,pendings_valids0_i__0_n_8,pendings_valids0_i__0_n_9,pendings_valids0_i__0_n_10,pendings_valids0_i__0_n_11,pendings_valids0_i__0_n_12,pendings_valids0_i__0_n_13,pendings_valids0_i__0_n_14,pendings_valids0_i__0_n_15}),
+.I1({\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> }),
+.O({pendings_valids_i__0_n_0,pendings_valids_i__0_n_1,pendings_valids_i__0_n_2,pendings_valids_i__0_n_3,pendings_valids_i__0_n_4,pendings_valids_i__0_n_5,pendings_valids_i__0_n_6,pendings_valids_i__0_n_7,pendings_valids_i__0_n_8,pendings_valids_i__0_n_9,pendings_valids_i__0_n_10,pendings_valids_i__0_n_11,pendings_valids_i__0_n_12,pendings_valids_i__0_n_13,pendings_valids_i__0_n_14,pendings_valids_i__0_n_15}),
+.S(onAw_halted_fire));
+RTL_MUX81 pendings_valids_i__1
+(.I0({pendings_valids0_i__1_n_0,pendings_valids0_i__1_n_1,pendings_valids0_i__1_n_2,pendings_valids0_i__1_n_3,pendings_valids0_i__1_n_4,pendings_valids0_i__1_n_5,pendings_valids0_i__1_n_6,pendings_valids0_i__1_n_7,pendings_valids0_i__1_n_8,pendings_valids0_i__1_n_9,pendings_valids0_i__1_n_10,pendings_valids0_i__1_n_11,pendings_valids0_i__1_n_12,pendings_valids0_i__1_n_13,pendings_valids0_i__1_n_14,pendings_valids0_i__1_n_15}),
+.I1({pendings_valids_i__0_n_0,pendings_valids_i__0_n_1,pendings_valids_i__0_n_2,pendings_valids_i__0_n_3,pendings_valids_i__0_n_4,pendings_valids_i__0_n_5,pendings_valids_i__0_n_6,pendings_valids_i__0_n_7,pendings_valids_i__0_n_8,pendings_valids_i__0_n_9,pendings_valids_i__0_n_10,pendings_valids_i__0_n_11,pendings_valids_i__0_n_12,pendings_valids_i__0_n_13,pendings_valids_i__0_n_14,pendings_valids_i__0_n_15}),
+.O(pendings_valids0_out),
+.S(io_down_b_fire));
+RTL_REG_ASYNC__BREG_1840 \pendings_valids_reg[0]
+(.C(litex_clk),
+.CE(pendings_valids0_out[0]),
+.CLR(litex_reset),
+.D(pendings_valids__0[0]),
+.Q(pendings_valids[0]));
+RTL_REG_ASYNC__BREG_1840 \pendings_valids_reg[10]
+(.C(litex_clk),
+.CE(pendings_valids0_out[10]),
+.CLR(litex_reset),
+.D(pendings_valids__0[10]),
+.Q(pendings_valids[10]));
+RTL_REG_ASYNC__BREG_1840 \pendings_valids_reg[11]
+(.C(litex_clk),
+.CE(pendings_valids0_out[11]),
+.CLR(litex_reset),
+.D(pendings_valids__0[11]),
+.Q(pendings_valids[11]));
+RTL_REG_ASYNC__BREG_1840 \pendings_valids_reg[12]
+(.C(litex_clk),
+.CE(pendings_valids0_out[12]),
+.CLR(litex_reset),
+.D(pendings_valids__0[12]),
+.Q(pendings_valids[12]));
+RTL_REG_ASYNC__BREG_1840 \pendings_valids_reg[13]
+(.C(litex_clk),
+.CE(pendings_valids0_out[13]),
+.CLR(litex_reset),
+.D(pendings_valids__0[13]),
+.Q(pendings_valids[13]));
+RTL_REG_ASYNC__BREG_1840 \pendings_valids_reg[14]
+(.C(litex_clk),
+.CE(pendings_valids0_out[14]),
+.CLR(litex_reset),
+.D(pendings_valids__0[14]),
+.Q(pendings_valids[14]));
+RTL_REG_ASYNC__BREG_1840 \pendings_valids_reg[15]
+(.C(litex_clk),
+.CE(pendings_valids0_out[15]),
+.CLR(litex_reset),
+.D(pendings_valids__0[15]),
+.Q(pendings_valids[15]));
+RTL_REG_ASYNC__BREG_1840 \pendings_valids_reg[1]
+(.C(litex_clk),
+.CE(pendings_valids0_out[1]),
+.CLR(litex_reset),
+.D(pendings_valids__0[1]),
+.Q(pendings_valids[1]));
+RTL_REG_ASYNC__BREG_1840 \pendings_valids_reg[2]
+(.C(litex_clk),
+.CE(pendings_valids0_out[2]),
+.CLR(litex_reset),
+.D(pendings_valids__0[2]),
+.Q(pendings_valids[2]));
+RTL_REG_ASYNC__BREG_1840 \pendings_valids_reg[3]
+(.C(litex_clk),
+.CE(pendings_valids0_out[3]),
+.CLR(litex_reset),
+.D(pendings_valids__0[3]),
+.Q(pendings_valids[3]));
+RTL_REG_ASYNC__BREG_1840 \pendings_valids_reg[4]
+(.C(litex_clk),
+.CE(pendings_valids0_out[4]),
+.CLR(litex_reset),
+.D(pendings_valids__0[4]),
+.Q(pendings_valids[4]));
+RTL_REG_ASYNC__BREG_1840 \pendings_valids_reg[5]
+(.C(litex_clk),
+.CE(pendings_valids0_out[5]),
+.CLR(litex_reset),
+.D(pendings_valids__0[5]),
+.Q(pendings_valids[5]));
+RTL_REG_ASYNC__BREG_1840 \pendings_valids_reg[6]
+(.C(litex_clk),
+.CE(pendings_valids0_out[6]),
+.CLR(litex_reset),
+.D(pendings_valids__0[6]),
+.Q(pendings_valids[6]));
+RTL_REG_ASYNC__BREG_1840 \pendings_valids_reg[7]
+(.C(litex_clk),
+.CE(pendings_valids0_out[7]),
+.CLR(litex_reset),
+.D(pendings_valids__0[7]),
+.Q(pendings_valids[7]));
+RTL_REG_ASYNC__BREG_1840 \pendings_valids_reg[8]
+(.C(litex_clk),
+.CE(pendings_valids0_out[8]),
+.CLR(litex_reset),
+.D(pendings_valids__0[8]),
+.Q(pendings_valids[8]));
+RTL_REG_ASYNC__BREG_1840 \pendings_valids_reg[9]
+(.C(litex_clk),
+.CE(pendings_valids0_out[9]),
+.CLR(litex_reset),
+.D(pendings_valids__0[9]),
+.Q(pendings_valids[9]));
+RTL_INV when_Stream_l477_i
+(.I0(onAw_toW_s2mPipe_rValid),
+.O(when_Stream_l477));
+endmodule
+module Axi4WriteOnlyToTilelink
+(io_up_aw_valid,
+io_up_aw_ready,
+io_up_aw_payload_addr,
+io_up_aw_payload_id,
+io_up_aw_payload_region,
+io_up_aw_payload_len,
+io_up_aw_payload_size,
+io_up_aw_payload_burst,
+io_up_aw_payload_lock,
+io_up_aw_payload_cache,
+io_up_aw_payload_qos,
+io_up_aw_payload_prot,
+io_up_w_valid,
+io_up_w_ready,
+io_up_w_payload_data,
+io_up_w_payload_strb,
+io_up_w_payload_last,
+io_up_b_valid,
+io_up_b_ready,
+io_up_b_payload_id,
+io_up_b_payload_resp,
+io_down_a_valid,
+io_down_a_ready,
+io_down_a_payload_opcode,
+io_down_a_payload_param,
+io_down_a_payload_source,
+io_down_a_payload_address,
+io_down_a_payload_size,
+io_down_a_payload_mask,
+io_down_a_payload_data,
+io_down_a_payload_corrupt,
+io_down_d_valid,
+io_down_d_ready,
+io_down_d_payload_opcode,
+io_down_d_payload_param,
+io_down_d_payload_source,
+io_down_d_payload_size,
+io_down_d_payload_denied,
+litex_clk,
+litex_reset);
+input io_up_aw_valid;
+output io_up_aw_ready;
+input [31:0]io_up_aw_payload_addr;
+input [1:0]io_up_aw_payload_id;
+input [3:0]io_up_aw_payload_region;
+input [7:0]io_up_aw_payload_len;
+input [2:0]io_up_aw_payload_size;
+input [1:0]io_up_aw_payload_burst;
+input [0:0]io_up_aw_payload_lock;
+input [3:0]io_up_aw_payload_cache;
+input [3:0]io_up_aw_payload_qos;
+input [2:0]io_up_aw_payload_prot;
+input io_up_w_valid;
+output io_up_w_ready;
+input [31:0]io_up_w_payload_data;
+input [3:0]io_up_w_payload_strb;
+input io_up_w_payload_last;
+output io_up_b_valid;
+input io_up_b_ready;
+output [1:0]io_up_b_payload_id;
+output [1:0]io_up_b_payload_resp;
+output io_down_a_valid;
+input io_down_a_ready;
+output [2:0]io_down_a_payload_opcode;
+output [2:0]io_down_a_payload_param;
+output [1:0]io_down_a_payload_source;
+output [31:0]io_down_a_payload_address;
+output [2:0]io_down_a_payload_size;
+output [3:0]io_down_a_payload_mask;
+output [31:0]io_down_a_payload_data;
+output io_down_a_payload_corrupt;
+input io_down_d_valid;
+output io_down_d_ready;
+input [2:0]io_down_d_payload_opcode;
+input [2:0]io_down_d_payload_param;
+input [1:0]io_down_d_payload_source;
+input [2:0]io_down_d_payload_size;
+input io_down_d_payload_denied;
+input litex_clk;
+input litex_reset;
+wire \<const0> ;
+wire \<const1> ;
+wire [7:0]_zz__zz_a_lenToSize_2;
+wire _zz_a_lenToSize_100;
+wire _zz_a_lenToSize_101;
+wire _zz_a_lenToSize_110;
+wire _zz_a_lenToSize_111;
+wire _zz_a_lenToSize_120;
+wire _zz_a_lenToSize_121;
+wire _zz_a_lenToSize_2_i_n_3;
+wire _zz_a_lenToSize_5;
+wire _zz_a_lenToSize_6;
+wire _zz_a_lenToSize_7;
+wire _zz_a_lenToSize_8;
+wire [2:0]a_lenToSize;
+wire [2:0]io_down_a_payload_param;
+wire io_down_a_payload_param1;
+wire [2:0]io_down_a_payload_size;
+wire io_down_a_ready;
+wire io_down_a_valid;
+wire io_down_d_payload_denied;
+wire [1:0]io_down_d_payload_source;
+wire io_down_d_valid;
+wire [31:0]io_up_aw_payload_addr;
+wire [3:0]io_up_aw_payload_cache;
+wire [1:0]io_up_aw_payload_id;
+wire [7:0]io_up_aw_payload_len;
+wire [2:0]io_up_aw_payload_size;
+wire io_up_aw_ready;
+wire io_up_aw_valid;
+wire [1:0]io_up_b_payload_resp;
+wire io_up_b_ready;
+wire [31:0]io_up_w_payload_data;
+wire io_up_w_payload_last;
+wire [3:0]io_up_w_payload_strb;
+wire io_up_w_ready;
+wire io_up_w_valid;
+wire p_0_in;
+wire p_1_in;
+wire [7:0]NLW__zz_a_lenToSize_2_i_O_UNCONNECTED;
+assign io_down_a_payload_address[31:0] = io_up_aw_payload_addr;
+assign io_down_a_payload_corrupt = \<const0> ;
+assign io_down_a_payload_data[31:0] = io_up_w_payload_data;
+assign io_down_a_payload_mask[3:0] = io_up_w_payload_strb;
+assign io_down_a_payload_opcode[2] = \<const0> ;
+assign io_down_a_payload_opcode[1] = \<const0> ;
+assign io_down_a_payload_opcode[0] = \<const1> ;
+assign io_down_a_payload_source[1:0] = io_up_aw_payload_id;
+assign io_down_d_ready = io_up_b_ready;
+assign io_up_b_payload_id[1:0] = io_down_d_payload_source;
+assign io_up_b_valid = io_down_d_valid;
+GND GND
+(.G(\<const0> ));
+VCC VCC
+(.P(\<const1> ));
+RTL_SUB27 _zz__zz_a_lenToSize_2_i
+(.I0({io_up_aw_payload_len[0],io_up_aw_payload_len[1],io_up_aw_payload_len[2],io_up_aw_payload_len[3],io_up_aw_payload_len[4],io_up_aw_payload_len[5],io_up_aw_payload_len[6],io_up_aw_payload_len[7]}),
+.I1(\<const1> ),
+.O(_zz__zz_a_lenToSize_2));
+RTL_OR _zz_a_lenToSize_100_i
+(.I0(_zz_a_lenToSize_101),
+.I1(_zz_a_lenToSize_6),
+.O(_zz_a_lenToSize_100));
+RTL_OR _zz_a_lenToSize_101_i
+(.I0(p_0_in),
+.I1(_zz_a_lenToSize_5),
+.O(_zz_a_lenToSize_101));
+RTL_OR _zz_a_lenToSize_10_i
+(.I0(_zz_a_lenToSize_100),
+.I1(_zz_a_lenToSize_8),
+.O(a_lenToSize[0]));
+RTL_OR _zz_a_lenToSize_110_i
+(.I0(_zz_a_lenToSize_111),
+.I1(_zz_a_lenToSize_7),
+.O(_zz_a_lenToSize_110));
+RTL_OR _zz_a_lenToSize_111_i
+(.I0(p_1_in),
+.I1(_zz_a_lenToSize_5),
+.O(_zz_a_lenToSize_111));
+RTL_OR _zz_a_lenToSize_11_i
+(.I0(_zz_a_lenToSize_110),
+.I1(_zz_a_lenToSize_8),
+.O(a_lenToSize[1]));
+RTL_OR _zz_a_lenToSize_120_i
+(.I0(_zz_a_lenToSize_121),
+.I1(_zz_a_lenToSize_7),
+.O(_zz_a_lenToSize_120));
+RTL_OR _zz_a_lenToSize_121_i
+(.I0(_zz_a_lenToSize_2_i_n_3),
+.I1(_zz_a_lenToSize_6),
+.O(_zz_a_lenToSize_121));
+RTL_OR _zz_a_lenToSize_12_i
+(.I0(_zz_a_lenToSize_120),
+.I1(_zz_a_lenToSize_8),
+.O(a_lenToSize[2]));
+RTL_AND751 _zz_a_lenToSize_2_i
+(.I0({io_up_aw_payload_len[0],io_up_aw_payload_len[1],io_up_aw_payload_len[2],io_up_aw_payload_len[3],io_up_aw_payload_len[4],io_up_aw_payload_len[5],io_up_aw_payload_len[6],io_up_aw_payload_len[7]}),
+.I1(_zz__zz_a_lenToSize_2),
+.O({p_0_in,p_1_in,_zz_a_lenToSize_5,_zz_a_lenToSize_2_i_n_3,_zz_a_lenToSize_6,_zz_a_lenToSize_7,_zz_a_lenToSize_8,NLW__zz_a_lenToSize_2_i_O_UNCONNECTED[0]}));
+RTL_ADD223 _zz_io_down_a_payload_size_i
+(.I0(a_lenToSize),
+.I1(io_up_aw_payload_size),
+.O(io_down_a_payload_size));
+RTL_AND7 a_ok_i
+(.I0(io_down_a_valid),
+.I1(io_down_a_ready),
+.O(io_up_w_ready));
+RTL_AND7 a_valid_i
+(.I0(io_up_aw_valid),
+.I1(io_up_w_valid),
+.O(io_down_a_valid));
+RTL_NEQ2 io_down_a_payload_param1_i
+(.I0(io_up_aw_payload_cache),
+.I1({\<const1> ,\<const1> ,\<const1> ,\<const1> }),
+.O(io_down_a_payload_param1));
+RTL_MUX861 io_down_a_payload_param_i
+(.I0({\<const0> ,\<const1> ,\<const0> }),
+.I1({\<const0> ,\<const0> ,\<const0> }),
+.O(io_down_a_payload_param),
+.S(io_down_a_payload_param1));
+RTL_AND7 io_up_aw_ready_i
+(.I0(io_up_w_ready),
+.I1(io_up_w_payload_last),
+.O(io_up_aw_ready));
+RTL_MUX789 io_up_b_payload_resp_i
+(.I0({\<const1> ,\<const0> }),
+.I1({\<const0> ,\<const0> }),
+.O(io_up_b_payload_resp),
+.S(io_down_d_payload_denied));
+endmodule
+module Axi4WriteOnlyToTilelinkFull
+(io_up_aw_valid,
+io_up_aw_ready,
+io_up_aw_payload_addr,
+io_up_aw_payload_id,
+io_up_aw_payload_region,
+io_up_aw_payload_len,
+io_up_aw_payload_size,
+io_up_aw_payload_burst,
+io_up_aw_payload_lock,
+io_up_aw_payload_cache,
+io_up_aw_payload_qos,
+io_up_aw_payload_prot,
+io_up_w_valid,
+io_up_w_ready,
+io_up_w_payload_data,
+io_up_w_payload_strb,
+io_up_w_payload_last,
+io_up_b_valid,
+io_up_b_ready,
+io_up_b_payload_id,
+io_up_b_payload_resp,
+io_down_a_valid,
+io_down_a_ready,
+io_down_a_payload_opcode,
+io_down_a_payload_param,
+io_down_a_payload_source,
+io_down_a_payload_address,
+io_down_a_payload_size,
+io_down_a_payload_mask,
+io_down_a_payload_data,
+io_down_a_payload_corrupt,
+io_down_d_valid,
+io_down_d_ready,
+io_down_d_payload_opcode,
+io_down_d_payload_param,
+io_down_d_payload_source,
+io_down_d_payload_size,
+io_down_d_payload_denied,
+litex_clk,
+litex_reset);
+input io_up_aw_valid;
+output io_up_aw_ready;
+input [31:0]io_up_aw_payload_addr;
+input [3:0]io_up_aw_payload_id;
+input [3:0]io_up_aw_payload_region;
+input [7:0]io_up_aw_payload_len;
+input [2:0]io_up_aw_payload_size;
+input [1:0]io_up_aw_payload_burst;
+input [0:0]io_up_aw_payload_lock;
+input [3:0]io_up_aw_payload_cache;
+input [3:0]io_up_aw_payload_qos;
+input [2:0]io_up_aw_payload_prot;
+input io_up_w_valid;
+output io_up_w_ready;
+input [31:0]io_up_w_payload_data;
+input [3:0]io_up_w_payload_strb;
+input io_up_w_payload_last;
+output io_up_b_valid;
+input io_up_b_ready;
+output [3:0]io_up_b_payload_id;
+output [1:0]io_up_b_payload_resp;
+output io_down_a_valid;
+input io_down_a_ready;
+output [2:0]io_down_a_payload_opcode;
+output [2:0]io_down_a_payload_param;
+output [1:0]io_down_a_payload_source;
+output [31:0]io_down_a_payload_address;
+output [2:0]io_down_a_payload_size;
+output [3:0]io_down_a_payload_mask;
+output [31:0]io_down_a_payload_data;
+output io_down_a_payload_corrupt;
+input io_down_d_valid;
+output io_down_d_ready;
+input [2:0]io_down_d_payload_opcode;
+input [2:0]io_down_d_payload_param;
+input [1:0]io_down_d_payload_source;
+input [2:0]io_down_d_payload_size;
+input io_down_d_payload_denied;
+input litex_clk;
+input litex_reset;
+wire [31:0]aligner_io_down_aw_payload_addr;
+wire [1:0]aligner_io_down_aw_payload_burst;
+wire [3:0]aligner_io_down_aw_payload_cache;
+wire [1:0]aligner_io_down_aw_payload_id;
+wire [7:0]aligner_io_down_aw_payload_len;
+wire [0:0]aligner_io_down_aw_payload_lock;
+wire [2:0]aligner_io_down_aw_payload_prot;
+wire [3:0]aligner_io_down_aw_payload_qos;
+wire [3:0]aligner_io_down_aw_payload_region;
+wire [2:0]aligner_io_down_aw_payload_size;
+wire aligner_io_down_aw_valid;
+wire aligner_io_down_b_ready;
+wire [31:0]aligner_io_down_w_payload_data;
+wire aligner_io_down_w_payload_last;
+wire [3:0]aligner_io_down_w_payload_strb;
+wire aligner_io_down_w_valid;
+wire aligner_io_up_aw_ready;
+wire [3:0]aligner_io_up_b_payload_id;
+wire [1:0]aligner_io_up_b_payload_resp;
+wire aligner_io_up_b_valid;
+wire aligner_io_up_w_ready;
+wire [31:0]compactor_io_down_aw_payload_addr;
+wire [1:0]compactor_io_down_aw_payload_burst;
+wire [3:0]compactor_io_down_aw_payload_cache;
+wire [3:0]compactor_io_down_aw_payload_id;
+wire [7:0]compactor_io_down_aw_payload_len;
+wire [0:0]compactor_io_down_aw_payload_lock;
+wire [2:0]compactor_io_down_aw_payload_prot;
+wire [3:0]compactor_io_down_aw_payload_qos;
+wire [3:0]compactor_io_down_aw_payload_region;
+wire [2:0]compactor_io_down_aw_payload_size;
+wire compactor_io_down_aw_valid;
+wire compactor_io_down_b_ready;
+wire [31:0]compactor_io_down_w_payload_data;
+wire compactor_io_down_w_payload_last;
+wire [3:0]compactor_io_down_w_payload_strb;
+wire compactor_io_down_w_valid;
+wire compactor_io_up_aw_ready;
+wire [3:0]compactor_io_up_b_payload_id;
+wire [1:0]compactor_io_up_b_payload_resp;
+wire compactor_io_up_b_valid;
+wire compactor_io_up_w_ready;
+wire [31:0]io_down_a_payload_address;
+wire io_down_a_payload_corrupt;
+wire [31:0]io_down_a_payload_data;
+wire [3:0]io_down_a_payload_mask;
+wire [2:0]io_down_a_payload_opcode;
+wire [2:0]io_down_a_payload_param;
+wire [2:0]io_down_a_payload_size;
+wire [1:0]io_down_a_payload_source;
+wire io_down_a_ready;
+wire io_down_a_valid;
+wire io_down_d_payload_denied;
+wire [2:0]io_down_d_payload_opcode;
+wire [2:0]io_down_d_payload_param;
+wire [2:0]io_down_d_payload_size;
+wire [1:0]io_down_d_payload_source;
+wire io_down_d_ready;
+wire io_down_d_valid;
+wire [31:0]io_up_aw_payload_addr;
+wire [1:0]io_up_aw_payload_burst;
+wire [3:0]io_up_aw_payload_cache;
+wire [3:0]io_up_aw_payload_id;
+wire [7:0]io_up_aw_payload_len;
+wire [0:0]io_up_aw_payload_lock;
+wire [2:0]io_up_aw_payload_prot;
+wire [3:0]io_up_aw_payload_qos;
+wire [3:0]io_up_aw_payload_region;
+wire [2:0]io_up_aw_payload_size;
+wire io_up_aw_ready;
+wire io_up_aw_valid;
+wire [3:0]io_up_b_payload_id;
+wire [1:0]io_up_b_payload_resp;
+wire io_up_b_ready;
+wire io_up_b_valid;
+wire [31:0]io_up_w_payload_data;
+wire io_up_w_payload_last;
+wire [3:0]io_up_w_payload_strb;
+wire io_up_w_ready;
+wire io_up_w_valid;
+wire litex_clk;
+wire litex_reset;
+wire [31:0]onPerId_bridge_io_down_aw_payload_addr;
+wire [1:0]onPerId_bridge_io_down_aw_payload_burst;
+wire [3:0]onPerId_bridge_io_down_aw_payload_cache;
+wire [3:0]onPerId_bridge_io_down_aw_payload_id;
+wire [7:0]onPerId_bridge_io_down_aw_payload_len;
+wire [0:0]onPerId_bridge_io_down_aw_payload_lock;
+wire [2:0]onPerId_bridge_io_down_aw_payload_prot;
+wire [3:0]onPerId_bridge_io_down_aw_payload_qos;
+wire [3:0]onPerId_bridge_io_down_aw_payload_region;
+wire [2:0]onPerId_bridge_io_down_aw_payload_size;
+wire onPerId_bridge_io_down_aw_valid;
+wire onPerId_bridge_io_down_b_ready;
+wire [31:0]onPerId_bridge_io_down_w_payload_data;
+wire onPerId_bridge_io_down_w_payload_last;
+wire [3:0]onPerId_bridge_io_down_w_payload_strb;
+wire onPerId_bridge_io_down_w_valid;
+wire toTileink_io_up_aw_ready;
+wire [1:0]toTileink_io_up_b_payload_id;
+wire [1:0]toTileink_io_up_b_payload_resp;
+wire toTileink_io_up_b_valid;
+wire toTileink_io_up_w_ready;
+Axi4WriteOnlyAligner aligner
+(.io_down_aw_payload_addr(aligner_io_down_aw_payload_addr),
+.io_down_aw_payload_burst(aligner_io_down_aw_payload_burst),
+.io_down_aw_payload_cache(aligner_io_down_aw_payload_cache),
+.io_down_aw_payload_id(aligner_io_down_aw_payload_id),
+.io_down_aw_payload_len(aligner_io_down_aw_payload_len),
+.io_down_aw_payload_lock(aligner_io_down_aw_payload_lock),
+.io_down_aw_payload_prot(aligner_io_down_aw_payload_prot),
+.io_down_aw_payload_qos(aligner_io_down_aw_payload_qos),
+.io_down_aw_payload_region(aligner_io_down_aw_payload_region),
+.io_down_aw_payload_size(aligner_io_down_aw_payload_size),
+.io_down_aw_ready(toTileink_io_up_aw_ready),
+.io_down_aw_valid(aligner_io_down_aw_valid),
+.io_down_b_payload_id(toTileink_io_up_b_payload_id),
+.io_down_b_payload_resp(toTileink_io_up_b_payload_resp),
+.io_down_b_ready(aligner_io_down_b_ready),
+.io_down_b_valid(toTileink_io_up_b_valid),
+.io_down_w_payload_data(aligner_io_down_w_payload_data),
+.io_down_w_payload_last(aligner_io_down_w_payload_last),
+.io_down_w_payload_strb(aligner_io_down_w_payload_strb),
+.io_down_w_ready(toTileink_io_up_w_ready),
+.io_down_w_valid(aligner_io_down_w_valid),
+.io_up_aw_payload_addr(compactor_io_down_aw_payload_addr),
+.io_up_aw_payload_burst(compactor_io_down_aw_payload_burst),
+.io_up_aw_payload_cache(compactor_io_down_aw_payload_cache),
+.io_up_aw_payload_id(compactor_io_down_aw_payload_id),
+.io_up_aw_payload_len(compactor_io_down_aw_payload_len),
+.io_up_aw_payload_lock(compactor_io_down_aw_payload_lock),
+.io_up_aw_payload_prot(compactor_io_down_aw_payload_prot),
+.io_up_aw_payload_qos(compactor_io_down_aw_payload_qos),
+.io_up_aw_payload_region(compactor_io_down_aw_payload_region),
+.io_up_aw_payload_size(compactor_io_down_aw_payload_size),
+.io_up_aw_ready(aligner_io_up_aw_ready),
+.io_up_aw_valid(compactor_io_down_aw_valid),
+.io_up_b_payload_id(aligner_io_up_b_payload_id),
+.io_up_b_payload_resp(aligner_io_up_b_payload_resp),
+.io_up_b_ready(compactor_io_down_b_ready),
+.io_up_b_valid(aligner_io_up_b_valid),
+.io_up_w_payload_data(compactor_io_down_w_payload_data),
+.io_up_w_payload_last(compactor_io_down_w_payload_last),
+.io_up_w_payload_strb(compactor_io_down_w_payload_strb),
+.io_up_w_ready(aligner_io_up_w_ready),
+.io_up_w_valid(compactor_io_down_w_valid),
+.litex_clk(litex_clk),
+.litex_reset(litex_reset));
+Axi4WriteOnlyCompactor compactor
+(.io_down_aw_payload_addr(compactor_io_down_aw_payload_addr),
+.io_down_aw_payload_burst(compactor_io_down_aw_payload_burst),
+.io_down_aw_payload_cache(compactor_io_down_aw_payload_cache),
+.io_down_aw_payload_id(compactor_io_down_aw_payload_id),
+.io_down_aw_payload_len(compactor_io_down_aw_payload_len),
+.io_down_aw_payload_lock(compactor_io_down_aw_payload_lock),
+.io_down_aw_payload_prot(compactor_io_down_aw_payload_prot),
+.io_down_aw_payload_qos(compactor_io_down_aw_payload_qos),
+.io_down_aw_payload_region(compactor_io_down_aw_payload_region),
+.io_down_aw_payload_size(compactor_io_down_aw_payload_size),
+.io_down_aw_ready(aligner_io_up_aw_ready),
+.io_down_aw_valid(compactor_io_down_aw_valid),
+.io_down_b_payload_id(aligner_io_up_b_payload_id),
+.io_down_b_payload_resp(aligner_io_up_b_payload_resp),
+.io_down_b_ready(compactor_io_down_b_ready),
+.io_down_b_valid(aligner_io_up_b_valid),
+.io_down_w_payload_data(compactor_io_down_w_payload_data),
+.io_down_w_payload_last(compactor_io_down_w_payload_last),
+.io_down_w_payload_strb(compactor_io_down_w_payload_strb),
+.io_down_w_ready(aligner_io_up_w_ready),
+.io_down_w_valid(compactor_io_down_w_valid),
+.io_up_aw_payload_addr(onPerId_bridge_io_down_aw_payload_addr),
+.io_up_aw_payload_burst(onPerId_bridge_io_down_aw_payload_burst),
+.io_up_aw_payload_cache(onPerId_bridge_io_down_aw_payload_cache),
+.io_up_aw_payload_id(onPerId_bridge_io_down_aw_payload_id),
+.io_up_aw_payload_len(onPerId_bridge_io_down_aw_payload_len),
+.io_up_aw_payload_lock(onPerId_bridge_io_down_aw_payload_lock),
+.io_up_aw_payload_prot(onPerId_bridge_io_down_aw_payload_prot),
+.io_up_aw_payload_qos(onPerId_bridge_io_down_aw_payload_qos),
+.io_up_aw_payload_region(onPerId_bridge_io_down_aw_payload_region),
+.io_up_aw_payload_size(onPerId_bridge_io_down_aw_payload_size),
+.io_up_aw_ready(compactor_io_up_aw_ready),
+.io_up_aw_valid(onPerId_bridge_io_down_aw_valid),
+.io_up_b_payload_id(compactor_io_up_b_payload_id),
+.io_up_b_payload_resp(compactor_io_up_b_payload_resp),
+.io_up_b_ready(onPerId_bridge_io_down_b_ready),
+.io_up_b_valid(compactor_io_up_b_valid),
+.io_up_w_payload_data(onPerId_bridge_io_down_w_payload_data),
+.io_up_w_payload_last(onPerId_bridge_io_down_w_payload_last),
+.io_up_w_payload_strb(onPerId_bridge_io_down_w_payload_strb),
+.io_up_w_ready(compactor_io_up_w_ready),
+.io_up_w_valid(onPerId_bridge_io_down_w_valid),
+.litex_clk(litex_clk),
+.litex_reset(litex_reset));
+Axi4WriteOnlyOnePerId onPerId_bridge
+(.io_down_aw_payload_addr(onPerId_bridge_io_down_aw_payload_addr),
+.io_down_aw_payload_burst(onPerId_bridge_io_down_aw_payload_burst),
+.io_down_aw_payload_cache(onPerId_bridge_io_down_aw_payload_cache),
+.io_down_aw_payload_id(onPerId_bridge_io_down_aw_payload_id),
+.io_down_aw_payload_len(onPerId_bridge_io_down_aw_payload_len),
+.io_down_aw_payload_lock(onPerId_bridge_io_down_aw_payload_lock),
+.io_down_aw_payload_prot(onPerId_bridge_io_down_aw_payload_prot),
+.io_down_aw_payload_qos(onPerId_bridge_io_down_aw_payload_qos),
+.io_down_aw_payload_region(onPerId_bridge_io_down_aw_payload_region),
+.io_down_aw_payload_size(onPerId_bridge_io_down_aw_payload_size),
+.io_down_aw_ready(compactor_io_up_aw_ready),
+.io_down_aw_valid(onPerId_bridge_io_down_aw_valid),
+.io_down_b_payload_id(compactor_io_up_b_payload_id),
+.io_down_b_payload_resp(compactor_io_up_b_payload_resp),
+.io_down_b_ready(onPerId_bridge_io_down_b_ready),
+.io_down_b_valid(compactor_io_up_b_valid),
+.io_down_w_payload_data(onPerId_bridge_io_down_w_payload_data),
+.io_down_w_payload_last(onPerId_bridge_io_down_w_payload_last),
+.io_down_w_payload_strb(onPerId_bridge_io_down_w_payload_strb),
+.io_down_w_ready(compactor_io_up_w_ready),
+.io_down_w_valid(onPerId_bridge_io_down_w_valid),
+.io_up_aw_payload_addr(io_up_aw_payload_addr),
+.io_up_aw_payload_burst(io_up_aw_payload_burst),
+.io_up_aw_payload_cache(io_up_aw_payload_cache),
+.io_up_aw_payload_id(io_up_aw_payload_id),
+.io_up_aw_payload_len(io_up_aw_payload_len),
+.io_up_aw_payload_lock(io_up_aw_payload_lock),
+.io_up_aw_payload_prot(io_up_aw_payload_prot),
+.io_up_aw_payload_qos(io_up_aw_payload_qos),
+.io_up_aw_payload_region(io_up_aw_payload_region),
+.io_up_aw_payload_size(io_up_aw_payload_size),
+.io_up_aw_ready(io_up_aw_ready),
+.io_up_aw_valid(io_up_aw_valid),
+.io_up_b_payload_id(io_up_b_payload_id),
+.io_up_b_payload_resp(io_up_b_payload_resp),
+.io_up_b_ready(io_up_b_ready),
+.io_up_b_valid(io_up_b_valid),
+.io_up_w_payload_data(io_up_w_payload_data),
+.io_up_w_payload_last(io_up_w_payload_last),
+.io_up_w_payload_strb(io_up_w_payload_strb),
+.io_up_w_ready(io_up_w_ready),
+.io_up_w_valid(io_up_w_valid),
+.litex_clk(litex_clk),
+.litex_reset(litex_reset));
+Axi4WriteOnlyToTilelink toTileink
+(.io_down_a_payload_address(io_down_a_payload_address),
+.io_down_a_payload_corrupt(io_down_a_payload_corrupt),
+.io_down_a_payload_data(io_down_a_payload_data),
+.io_down_a_payload_mask(io_down_a_payload_mask),
+.io_down_a_payload_opcode(io_down_a_payload_opcode),
+.io_down_a_payload_param(io_down_a_payload_param),
+.io_down_a_payload_size(io_down_a_payload_size),
+.io_down_a_payload_source(io_down_a_payload_source),
+.io_down_a_ready(io_down_a_ready),
+.io_down_a_valid(io_down_a_valid),
+.io_down_d_payload_denied(io_down_d_payload_denied),
+.io_down_d_payload_opcode(io_down_d_payload_opcode),
+.io_down_d_payload_param(io_down_d_payload_param),
+.io_down_d_payload_size(io_down_d_payload_size),
+.io_down_d_payload_source(io_down_d_payload_source),
+.io_down_d_ready(io_down_d_ready),
+.io_down_d_valid(io_down_d_valid),
+.io_up_aw_payload_addr(aligner_io_down_aw_payload_addr),
+.io_up_aw_payload_burst(aligner_io_down_aw_payload_burst),
+.io_up_aw_payload_cache(aligner_io_down_aw_payload_cache),
+.io_up_aw_payload_id(aligner_io_down_aw_payload_id),
+.io_up_aw_payload_len(aligner_io_down_aw_payload_len),
+.io_up_aw_payload_lock(aligner_io_down_aw_payload_lock),
+.io_up_aw_payload_prot(aligner_io_down_aw_payload_prot),
+.io_up_aw_payload_qos(aligner_io_down_aw_payload_qos),
+.io_up_aw_payload_region(aligner_io_down_aw_payload_region),
+.io_up_aw_payload_size(aligner_io_down_aw_payload_size),
+.io_up_aw_ready(toTileink_io_up_aw_ready),
+.io_up_aw_valid(aligner_io_down_aw_valid),
+.io_up_b_payload_id(toTileink_io_up_b_payload_id),
+.io_up_b_payload_resp(toTileink_io_up_b_payload_resp),
+.io_up_b_ready(aligner_io_down_b_ready),
+.io_up_b_valid(toTileink_io_up_b_valid),
+.io_up_w_payload_data(aligner_io_down_w_payload_data),
+.io_up_w_payload_last(aligner_io_down_w_payload_last),
+.io_up_w_payload_strb(aligner_io_down_w_payload_strb),
+.io_up_w_ready(toTileink_io_up_w_ready),
+.io_up_w_valid(aligner_io_down_w_valid),
+.litex_clk(litex_clk),
+.litex_reset(litex_reset));
+endmodule
+module AxiLite4Bridge
+(io_up_a_valid,
+io_up_a_ready,
+io_up_a_payload_opcode,
+io_up_a_payload_param,
+io_up_a_payload_source,
+io_up_a_payload_address,
+io_up_a_payload_size,
+io_up_a_payload_mask,
+io_up_a_payload_data,
+io_up_a_payload_corrupt,
+io_up_d_valid,
+io_up_d_ready,
+io_up_d_payload_opcode,
+io_up_d_payload_param,
+io_up_d_payload_source,
+io_up_d_payload_size,
+io_up_d_payload_denied,
+io_up_d_payload_data,
+io_up_d_payload_corrupt,
+io_down_aw_valid,
+io_down_aw_ready,
+io_down_aw_payload_addr,
+io_down_aw_payload_prot,
+io_down_w_valid,
+io_down_w_ready,
+io_down_w_payload_data,
+io_down_w_payload_strb,
+io_down_b_valid,
+io_down_b_ready,
+io_down_b_payload_resp,
+io_down_ar_valid,
+io_down_ar_ready,
+io_down_ar_payload_addr,
+io_down_ar_payload_prot,
+io_down_r_valid,
+io_down_r_ready,
+io_down_r_payload_data,
+io_down_r_payload_resp,
+litex_clk,
+litex_reset);
+input io_up_a_valid;
+output io_up_a_ready;
+input [2:0]io_up_a_payload_opcode;
+input [2:0]io_up_a_payload_param;
+input [2:0]io_up_a_payload_source;
+input [31:0]io_up_a_payload_address;
+input [2:0]io_up_a_payload_size;
+input [3:0]io_up_a_payload_mask;
+input [31:0]io_up_a_payload_data;
+input io_up_a_payload_corrupt;
+output io_up_d_valid;
+input io_up_d_ready;
+output [2:0]io_up_d_payload_opcode;
+output [2:0]io_up_d_payload_param;
+output [2:0]io_up_d_payload_source;
+output [2:0]io_up_d_payload_size;
+output io_up_d_payload_denied;
+output [31:0]io_up_d_payload_data;
+output io_up_d_payload_corrupt;
+output io_down_aw_valid;
+input io_down_aw_ready;
+output [31:0]io_down_aw_payload_addr;
+output [2:0]io_down_aw_payload_prot;
+output io_down_w_valid;
+input io_down_w_ready;
+output [31:0]io_down_w_payload_data;
+output [3:0]io_down_w_payload_strb;
+input io_down_b_valid;
+output io_down_b_ready;
+input [1:0]io_down_b_payload_resp;
+output io_down_ar_valid;
+input io_down_ar_ready;
+output [31:0]io_down_ar_payload_addr;
+output [2:0]io_down_ar_payload_prot;
+input io_down_r_valid;
+output io_down_r_ready;
+input [31:0]io_down_r_payload_data;
+input [1:0]io_down_r_payload_resp;
+input litex_clk;
+input litex_reset;
+wire \<const0> ;
+wire \<const1> ;
+wire [3:0]_zz_a_buffered_fork2_io_outputs_0_tracker_last;
+wire [5:0]_zz_a_cmd_address;
+wire _zz_a_cmd_address_10_i_n_0;
+wire _zz_a_cmd_address_10_i_n_1;
+wire _zz_a_cmd_address_10_i_n_2;
+wire _zz_a_cmd_address_10_i_n_3;
+wire _zz_io_up_a_ready;
+wire _zz_io_up_a_ready0;
+wire _zz_io_up_a_ready1;
+wire [3:0]_zz_io_up_a_tracker_last;
+wire [3:0]_zz_io_up_d_tracker_last;
+wire a_buffered_fire;
+wire a_buffered_fork2_io_input_ready;
+wire a_buffered_fork2_io_outputs_0_fire;
+wire [2:0]a_buffered_fork2_io_outputs_0_payload_opcode;
+wire [2:0]a_buffered_fork2_io_outputs_0_payload_size;
+wire a_buffered_fork2_io_outputs_0_ready;
+wire a_buffered_fork2_io_outputs_0_ready0;
+wire a_buffered_fork2_io_outputs_0_ready1;
+wire a_buffered_fork2_io_outputs_0_ready1_i__0_n_0;
+wire [3:0]a_buffered_fork2_io_outputs_0_tracker_beat;
+wire [3:0]a_buffered_fork2_io_outputs_0_tracker_beat0;
+wire [3:0]a_buffered_fork2_io_outputs_0_tracker_beat__0;
+wire a_buffered_fork2_io_outputs_0_tracker_last;
+wire a_buffered_fork2_io_outputs_0_tracker_last0;
+wire a_buffered_fork2_io_outputs_0_tracker_last0_i__0_n_0;
+wire a_buffered_fork2_io_outputs_0_tracker_last1;
+wire a_buffered_fork2_io_outputs_0_tracker_last2;
+wire a_buffered_fork2_io_outputs_0_tracker_last2_i__0_n_0;
+wire a_buffered_fork2_io_outputs_0_valid;
+wire [2:0]a_buffered_fork2_io_outputs_1_payload_opcode;
+wire a_buffered_fork2_io_outputs_1_ready;
+wire a_buffered_fork2_io_outputs_1_valid;
+wire [3:0]a_cmd_counter;
+wire [3:0]a_cmd_counter0;
+wire [3:0]a_cmd_counter__0;
+wire a_cmd_forked_fire;
+wire [31:0]a_cmd_forked_payload_address;
+wire a_cmd_forked_ready;
+wire a_cmd_isGet;
+wire a_halted_fire;
+wire [31:0]a_halted_rData_address;
+wire a_halted_rData_corrupt;
+wire [31:0]a_halted_rData_data;
+wire [3:0]a_halted_rData_mask;
+wire [2:0]a_halted_rData_opcode;
+wire [2:0]a_halted_rData_param;
+wire [2:0]a_halted_rData_size;
+wire [2:0]a_halted_rData_source;
+wire a_halted_rValid;
+wire a_halted_rValid__0;
+wire a_halted_rValid_i__0_n_0;
+wire a_halted_ready;
+wire a_halted_valid;
+wire [3:0]d_counter;
+wire [3:0]d_counter0;
+wire [3:0]d_counter__0;
+wire d_lastB;
+wire [31:0]io_down_ar_payload_addr;
+wire io_down_ar_ready;
+wire io_down_ar_valid;
+wire io_down_aw_ready;
+wire io_down_aw_valid;
+wire io_down_b_fire;
+wire [1:0]io_down_b_payload_resp;
+wire io_down_b_ready;
+wire io_down_b_ready0;
+wire io_down_b_valid;
+wire [31:0]io_down_r_payload_data;
+wire [1:0]io_down_r_payload_resp;
+wire io_down_r_valid;
+wire [31:0]io_down_w_payload_data;
+wire [3:0]io_down_w_payload_strb;
+wire io_down_w_ready;
+wire io_down_w_valid;
+wire io_up_a_fire;
+wire [31:0]io_up_a_payload_address;
+wire io_up_a_payload_corrupt;
+wire [31:0]io_up_a_payload_data;
+wire [3:0]io_up_a_payload_mask;
+wire [2:0]io_up_a_payload_opcode;
+wire [2:0]io_up_a_payload_param;
+wire [2:0]io_up_a_payload_size;
+wire [2:0]io_up_a_payload_source;
+wire io_up_a_ready;
+wire [3:0]io_up_a_tracker_beat;
+wire [3:0]io_up_a_tracker_beat0;
+wire [3:0]io_up_a_tracker_beat__0;
+wire io_up_a_tracker_last;
+wire io_up_a_tracker_last0;
+wire io_up_a_tracker_last0_i__0_n_0;
+wire io_up_a_tracker_last1;
+wire io_up_a_tracker_last2;
+wire io_up_a_tracker_last2_i__0_n_0;
+wire io_up_a_valid;
+wire io_up_d_fire;
+wire io_up_d_payload_denied;
+wire io_up_d_payload_denied0;
+wire io_up_d_payload_denied1;
+wire io_up_d_payload_denied1_i__0_n_0;
+wire [1:0]\^io_up_d_payload_opcode ;
+wire [2:0]io_up_d_payload_size;
+wire [2:0]io_up_d_payload_source;
+wire io_up_d_ready;
+wire [3:0]io_up_d_tracker_beat;
+wire [3:0]io_up_d_tracker_beat0;
+wire [3:0]io_up_d_tracker_beat__0;
+wire io_up_d_tracker_last;
+wire io_up_d_tracker_last0;
+wire io_up_d_tracker_last0_i__0_n_0;
+wire io_up_d_tracker_last1;
+wire io_up_d_valid;
+wire io_up_d_valid0;
+wire litex_clk;
+wire litex_reset;
+wire pending_get;
+wire pending_get0;
+wire pending_valid;
+wire pending_valid__0;
+wire when_AxiLite4Bridge_l29;
+wire when_Stream_l581;
+wire when_Stream_l5810;
+wire when_Stream_l5811;
+wire when_Stream_l5811_i__0_n_0;
+assign io_down_ar_payload_prot[2] = \<const0> ;
+assign io_down_ar_payload_prot[1] = \<const1> ;
+assign io_down_ar_payload_prot[0] = \<const0> ;
+assign io_down_aw_payload_addr[31:0] = io_down_ar_payload_addr;
+assign io_down_aw_payload_prot[2] = \<const0> ;
+assign io_down_aw_payload_prot[1] = \<const1> ;
+assign io_down_aw_payload_prot[0] = \<const0> ;
+assign io_down_r_ready = io_up_d_ready;
+assign io_up_d_payload_corrupt = \<const0> ;
+assign io_up_d_payload_data[31:0] = io_down_r_payload_data;
+assign io_up_d_payload_opcode[2] = \<const0> ;
+assign io_up_d_payload_opcode[1:0] = \^io_up_d_payload_opcode [1:0];
+assign io_up_d_payload_param[2] = \<const0> ;
+assign io_up_d_payload_param[1] = \<const0> ;
+assign io_up_d_payload_param[0] = \<const0> ;
+GND GND
+(.G(\<const0> ));
+VCC VCC
+(.P(\<const1> ));
+RTL_ROM160 _zz__zz_a_buffered_fork2_io_outputs_0_tracker_last_i
+(.A(a_buffered_fork2_io_outputs_0_payload_size),
+.O(_zz_a_buffered_fork2_io_outputs_0_tracker_last));
+RTL_ROM160 _zz__zz_io_up_d_tracker_last_i
+(.A(io_up_d_payload_size),
+.O(_zz_io_up_d_tracker_last));
+RTL_OR141 _zz_a_cmd_address_10_i
+(.I0(a_cmd_counter),
+.I1(a_buffered_fork2_io_outputs_0_tracker_beat),
+.O({_zz_a_cmd_address_10_i_n_0,_zz_a_cmd_address_10_i_n_1,_zz_a_cmd_address_10_i_n_2,_zz_a_cmd_address_10_i_n_3}));
+RTL_ALSHIFT34 _zz_a_cmd_address_1_i
+(.I0({\<const0> ,\<const0> ,_zz_a_cmd_address_10_i_n_0,_zz_a_cmd_address_10_i_n_1,_zz_a_cmd_address_10_i_n_2,_zz_a_cmd_address_10_i_n_3}),
+.I1({\<const1> ,\<const0> }),
+.I2(\<const1> ),
+.O(_zz_a_cmd_address));
+RTL_AND7 _zz_io_up_a_ready0_i
+(.I0(pending_valid),
+.I1(_zz_io_up_a_ready1),
+.O(_zz_io_up_a_ready0));
+RTL_EQ5 _zz_io_up_a_ready1_i
+(.I0(io_up_a_tracker_beat),
+.I1({\<const0> ,\<const0> ,\<const0> ,\<const0> }),
+.O(_zz_io_up_a_ready1));
+RTL_INV _zz_io_up_a_ready_i
+(.I0(_zz_io_up_a_ready0),
+.O(_zz_io_up_a_ready));
+RTL_ROM160 _zz_io_up_a_tracker_last_i
+(.A(io_up_a_payload_size),
+.O(_zz_io_up_a_tracker_last));
+RTL_MUX789 _zz_io_up_d_payload_opcode_i
+(.I0({\<const0> ,\<const1> }),
+.I1({\<const0> ,\<const0> }),
+.O(\^io_up_d_payload_opcode ),
+.S(pending_get));
+RTL_AND7 a_buffered_fire_i
+(.I0(a_halted_rValid),
+.I1(a_buffered_fork2_io_input_ready),
+.O(a_buffered_fire));
+StreamFork_2 a_buffered_fork2
+(.io_input_payload_address(a_halted_rData_address),
+.io_input_payload_corrupt(a_halted_rData_corrupt),
+.io_input_payload_data(a_halted_rData_data),
+.io_input_payload_mask(a_halted_rData_mask),
+.io_input_payload_opcode(a_halted_rData_opcode),
+.io_input_payload_param(a_halted_rData_param),
+.io_input_payload_size(a_halted_rData_size),
+.io_input_payload_source(a_halted_rData_source),
+.io_input_ready(a_buffered_fork2_io_input_ready),
+.io_input_valid(a_halted_rValid),
+.io_outputs_0_payload_address(a_cmd_forked_payload_address),
+.io_outputs_0_payload_opcode(a_buffered_fork2_io_outputs_0_payload_opcode),
+.io_outputs_0_payload_size(a_buffered_fork2_io_outputs_0_payload_size),
+.io_outputs_0_ready(a_buffered_fork2_io_outputs_0_ready),
+.io_outputs_0_valid(a_buffered_fork2_io_outputs_0_valid),
+.io_outputs_1_payload_data(io_down_w_payload_data),
+.io_outputs_1_payload_mask(io_down_w_payload_strb),
+.io_outputs_1_payload_opcode(a_buffered_fork2_io_outputs_1_payload_opcode),
+.io_outputs_1_ready(a_buffered_fork2_io_outputs_1_ready),
+.io_outputs_1_valid(a_buffered_fork2_io_outputs_1_valid),
+.litex_clk(litex_clk),
+.litex_reset(litex_reset));
+RTL_AND7 a_buffered_fork2_io_outputs_0_fire_i
+(.I0(a_buffered_fork2_io_outputs_0_valid),
+.I1(a_buffered_fork2_io_outputs_0_ready),
+.O(a_buffered_fork2_io_outputs_0_fire));
+RTL_OR a_buffered_fork2_io_outputs_0_ready0_i
+(.I0(a_buffered_fork2_io_outputs_0_ready1),
+.I1(a_buffered_fork2_io_outputs_0_ready1_i__0_n_0),
+.O(a_buffered_fork2_io_outputs_0_ready0));
+RTL_INV a_buffered_fork2_io_outputs_0_ready1_i
+(.I0(a_cmd_isGet),
+.O(a_buffered_fork2_io_outputs_0_ready1));
+RTL_EQ5 a_buffered_fork2_io_outputs_0_ready1_i__0
+(.I0(a_cmd_counter),
+.I1(_zz_a_buffered_fork2_io_outputs_0_tracker_last),
+.O(a_buffered_fork2_io_outputs_0_ready1_i__0_n_0));
+RTL_AND7 a_buffered_fork2_io_outputs_0_ready_i
+(.I0(a_cmd_forked_ready),
+.I1(a_buffered_fork2_io_outputs_0_ready0),
+.O(a_buffered_fork2_io_outputs_0_ready));
+RTL_ADD4 a_buffered_fork2_io_outputs_0_tracker_beat0_i
+(.I0(a_buffered_fork2_io_outputs_0_tracker_beat),
+.I1(\<const1> ),
+.O(a_buffered_fork2_io_outputs_0_tracker_beat0));
+RTL_MUX342 a_buffered_fork2_io_outputs_0_tracker_beat_i
+(.I0({\<const0> ,\<const0> ,\<const0> ,\<const0> }),
+.I1(a_buffered_fork2_io_outputs_0_tracker_beat0),
+.O(a_buffered_fork2_io_outputs_0_tracker_beat__0),
+.S(a_buffered_fork2_io_outputs_0_tracker_last));
+RTL_REG_ASYNC__BREG_1413 \a_buffered_fork2_io_outputs_0_tracker_beat_reg[0]
+(.C(litex_clk),
+.CE(a_buffered_fork2_io_outputs_0_fire),
+.CLR(litex_reset),
+.D(a_buffered_fork2_io_outputs_0_tracker_beat__0[0]),
+.Q(a_buffered_fork2_io_outputs_0_tracker_beat[0]));
+RTL_REG_ASYNC__BREG_1413 \a_buffered_fork2_io_outputs_0_tracker_beat_reg[1]
+(.C(litex_clk),
+.CE(a_buffered_fork2_io_outputs_0_fire),
+.CLR(litex_reset),
+.D(a_buffered_fork2_io_outputs_0_tracker_beat__0[1]),
+.Q(a_buffered_fork2_io_outputs_0_tracker_beat[1]));
+RTL_REG_ASYNC__BREG_1413 \a_buffered_fork2_io_outputs_0_tracker_beat_reg[2]
+(.C(litex_clk),
+.CE(a_buffered_fork2_io_outputs_0_fire),
+.CLR(litex_reset),
+.D(a_buffered_fork2_io_outputs_0_tracker_beat__0[2]),
+.Q(a_buffered_fork2_io_outputs_0_tracker_beat[2]));
+RTL_REG_ASYNC__BREG_1413 \a_buffered_fork2_io_outputs_0_tracker_beat_reg[3]
+(.C(litex_clk),
+.CE(a_buffered_fork2_io_outputs_0_fire),
+.CLR(litex_reset),
+.D(a_buffered_fork2_io_outputs_0_tracker_beat__0[3]),
+.Q(a_buffered_fork2_io_outputs_0_tracker_beat[3]));
+RTL_INV a_buffered_fork2_io_outputs_0_tracker_last0_i
+(.I0(a_buffered_fork2_io_outputs_0_tracker_last1),
+.O(a_buffered_fork2_io_outputs_0_tracker_last0));
+RTL_EQ5 a_buffered_fork2_io_outputs_0_tracker_last0_i__0
+(.I0(a_buffered_fork2_io_outputs_0_tracker_beat),
+.I1(_zz_a_buffered_fork2_io_outputs_0_tracker_last),
+.O(a_buffered_fork2_io_outputs_0_tracker_last0_i__0_n_0));
+RTL_OR a_buffered_fork2_io_outputs_0_tracker_last1_i
+(.I0(a_buffered_fork2_io_outputs_0_tracker_last2),
+.I1(a_buffered_fork2_io_outputs_0_tracker_last2_i__0_n_0),
+.O(a_buffered_fork2_io_outputs_0_tracker_last1));
+RTL_EQ a_buffered_fork2_io_outputs_0_tracker_last2_i
+(.I0({\<const0> ,\<const0> ,\<const0> }),
+.I1(a_buffered_fork2_io_outputs_0_payload_opcode),
+.O(a_buffered_fork2_io_outputs_0_tracker_last2));
+RTL_EQ a_buffered_fork2_io_outputs_0_tracker_last2_i__0
+(.I0({\<const0> ,\<const0> ,\<const1> }),
+.I1(a_buffered_fork2_io_outputs_0_payload_opcode),
+.O(a_buffered_fork2_io_outputs_0_tracker_last2_i__0_n_0));
+RTL_OR a_buffered_fork2_io_outputs_0_tracker_last_i
+(.I0(a_buffered_fork2_io_outputs_0_tracker_last0),
+.I1(a_buffered_fork2_io_outputs_0_tracker_last0_i__0_n_0),
+.O(a_buffered_fork2_io_outputs_0_tracker_last));
+RTL_MUX a_buffered_fork2_io_outputs_1_ready_i
+(.I0(\<const1> ),
+.I1(io_down_w_ready),
+.O(a_buffered_fork2_io_outputs_1_ready),
+.S(when_Stream_l581));
+RTL_OR183 a_cmd_address_i
+(.I0(a_cmd_forked_payload_address),
+.I1({\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,_zz_a_cmd_address}),
+.O(io_down_ar_payload_addr));
+RTL_ADD4 a_cmd_counter0_i
+(.I0(a_cmd_counter),
+.I1(\<const1> ),
+.O(a_cmd_counter0));
+RTL_MUX342 a_cmd_counter_i
+(.I0({\<const0> ,\<const0> ,\<const0> ,\<const0> }),
+.I1(a_cmd_counter0),
+.O(a_cmd_counter__0),
+.S(a_buffered_fork2_io_outputs_0_fire));
+RTL_REG_ASYNC__BREG_1413 \a_cmd_counter_reg[0]
+(.C(litex_clk),
+.CE(a_cmd_forked_fire),
+.CLR(litex_reset),
+.D(a_cmd_counter__0[0]),
+.Q(a_cmd_counter[0]));
+RTL_REG_ASYNC__BREG_1413 \a_cmd_counter_reg[1]
+(.C(litex_clk),
+.CE(a_cmd_forked_fire),
+.CLR(litex_reset),
+.D(a_cmd_counter__0[1]),
+.Q(a_cmd_counter[1]));
+RTL_REG_ASYNC__BREG_1413 \a_cmd_counter_reg[2]
+(.C(litex_clk),
+.CE(a_cmd_forked_fire),
+.CLR(litex_reset),
+.D(a_cmd_counter__0[2]),
+.Q(a_cmd_counter[2]));
+RTL_REG_ASYNC__BREG_1413 \a_cmd_counter_reg[3]
+(.C(litex_clk),
+.CE(a_cmd_forked_fire),
+.CLR(litex_reset),
+.D(a_cmd_counter__0[3]),
+.Q(a_cmd_counter[3]));
+RTL_AND7 a_cmd_forked_fire_i
+(.I0(a_buffered_fork2_io_outputs_0_valid),
+.I1(a_cmd_forked_ready),
+.O(a_cmd_forked_fire));
+RTL_MUX a_cmd_forked_ready_i
+(.I0(io_down_ar_ready),
+.I1(io_down_aw_ready),
+.O(a_cmd_forked_ready),
+.S(a_cmd_isGet));
+RTL_EQ a_cmd_isGet_i
+(.I0(a_buffered_fork2_io_outputs_0_payload_opcode),
+.I1({\<const1> ,\<const0> ,\<const0> }),
+.O(a_cmd_isGet));
+RTL_MUX a_data_filtered_valid_i
+(.I0(\<const0> ),
+.I1(a_buffered_fork2_io_outputs_1_valid),
+.O(io_down_w_valid),
+.S(when_Stream_l581));
+RTL_AND7 a_halted_fire_i
+(.I0(a_halted_valid),
+.I1(a_halted_ready),
+.O(a_halted_fire));
+RTL_REG__BREG_36 \a_halted_rData_address_reg[0]
+(.C(litex_clk),
+.CE(a_halted_ready),
+.D(io_up_a_payload_address[0]),
+.Q(a_halted_rData_address[0]));
+RTL_REG__BREG_36 \a_halted_rData_address_reg[10]
+(.C(litex_clk),
+.CE(a_halted_ready),
+.D(io_up_a_payload_address[10]),
+.Q(a_halted_rData_address[10]));
+RTL_REG__BREG_36 \a_halted_rData_address_reg[11]
+(.C(litex_clk),
+.CE(a_halted_ready),
+.D(io_up_a_payload_address[11]),
+.Q(a_halted_rData_address[11]));
+RTL_REG__BREG_36 \a_halted_rData_address_reg[12]
+(.C(litex_clk),
+.CE(a_halted_ready),
+.D(io_up_a_payload_address[12]),
+.Q(a_halted_rData_address[12]));
+RTL_REG__BREG_36 \a_halted_rData_address_reg[13]
+(.C(litex_clk),
+.CE(a_halted_ready),
+.D(io_up_a_payload_address[13]),
+.Q(a_halted_rData_address[13]));
+RTL_REG__BREG_36 \a_halted_rData_address_reg[14]
+(.C(litex_clk),
+.CE(a_halted_ready),
+.D(io_up_a_payload_address[14]),
+.Q(a_halted_rData_address[14]));
+RTL_REG__BREG_36 \a_halted_rData_address_reg[15]
+(.C(litex_clk),
+.CE(a_halted_ready),
+.D(io_up_a_payload_address[15]),
+.Q(a_halted_rData_address[15]));
+RTL_REG__BREG_36 \a_halted_rData_address_reg[16]
+(.C(litex_clk),
+.CE(a_halted_ready),
+.D(io_up_a_payload_address[16]),
+.Q(a_halted_rData_address[16]));
+RTL_REG__BREG_36 \a_halted_rData_address_reg[17]
+(.C(litex_clk),
+.CE(a_halted_ready),
+.D(io_up_a_payload_address[17]),
+.Q(a_halted_rData_address[17]));
+RTL_REG__BREG_36 \a_halted_rData_address_reg[18]
+(.C(litex_clk),
+.CE(a_halted_ready),
+.D(io_up_a_payload_address[18]),
+.Q(a_halted_rData_address[18]));
+RTL_REG__BREG_36 \a_halted_rData_address_reg[19]
+(.C(litex_clk),
+.CE(a_halted_ready),
+.D(io_up_a_payload_address[19]),
+.Q(a_halted_rData_address[19]));
+RTL_REG__BREG_36 \a_halted_rData_address_reg[1]
+(.C(litex_clk),
+.CE(a_halted_ready),
+.D(io_up_a_payload_address[1]),
+.Q(a_halted_rData_address[1]));
+RTL_REG__BREG_36 \a_halted_rData_address_reg[20]
+(.C(litex_clk),
+.CE(a_halted_ready),
+.D(io_up_a_payload_address[20]),
+.Q(a_halted_rData_address[20]));
+RTL_REG__BREG_36 \a_halted_rData_address_reg[21]
+(.C(litex_clk),
+.CE(a_halted_ready),
+.D(io_up_a_payload_address[21]),
+.Q(a_halted_rData_address[21]));
+RTL_REG__BREG_36 \a_halted_rData_address_reg[22]
+(.C(litex_clk),
+.CE(a_halted_ready),
+.D(io_up_a_payload_address[22]),
+.Q(a_halted_rData_address[22]));
+RTL_REG__BREG_36 \a_halted_rData_address_reg[23]
+(.C(litex_clk),
+.CE(a_halted_ready),
+.D(io_up_a_payload_address[23]),
+.Q(a_halted_rData_address[23]));
+RTL_REG__BREG_36 \a_halted_rData_address_reg[24]
+(.C(litex_clk),
+.CE(a_halted_ready),
+.D(io_up_a_payload_address[24]),
+.Q(a_halted_rData_address[24]));
+RTL_REG__BREG_36 \a_halted_rData_address_reg[25]
+(.C(litex_clk),
+.CE(a_halted_ready),
+.D(io_up_a_payload_address[25]),
+.Q(a_halted_rData_address[25]));
+RTL_REG__BREG_36 \a_halted_rData_address_reg[26]
+(.C(litex_clk),
+.CE(a_halted_ready),
+.D(io_up_a_payload_address[26]),
+.Q(a_halted_rData_address[26]));
+RTL_REG__BREG_36 \a_halted_rData_address_reg[27]
+(.C(litex_clk),
+.CE(a_halted_ready),
+.D(io_up_a_payload_address[27]),
+.Q(a_halted_rData_address[27]));
+RTL_REG__BREG_36 \a_halted_rData_address_reg[28]
+(.C(litex_clk),
+.CE(a_halted_ready),
+.D(io_up_a_payload_address[28]),
+.Q(a_halted_rData_address[28]));
+RTL_REG__BREG_36 \a_halted_rData_address_reg[29]
+(.C(litex_clk),
+.CE(a_halted_ready),
+.D(io_up_a_payload_address[29]),
+.Q(a_halted_rData_address[29]));
+RTL_REG__BREG_36 \a_halted_rData_address_reg[2]
+(.C(litex_clk),
+.CE(a_halted_ready),
+.D(io_up_a_payload_address[2]),
+.Q(a_halted_rData_address[2]));
+RTL_REG__BREG_36 \a_halted_rData_address_reg[30]
+(.C(litex_clk),
+.CE(a_halted_ready),
+.D(io_up_a_payload_address[30]),
+.Q(a_halted_rData_address[30]));
+RTL_REG__BREG_36 \a_halted_rData_address_reg[31]
+(.C(litex_clk),
+.CE(a_halted_ready),
+.D(io_up_a_payload_address[31]),
+.Q(a_halted_rData_address[31]));
+RTL_REG__BREG_36 \a_halted_rData_address_reg[3]
+(.C(litex_clk),
+.CE(a_halted_ready),
+.D(io_up_a_payload_address[3]),
+.Q(a_halted_rData_address[3]));
+RTL_REG__BREG_36 \a_halted_rData_address_reg[4]
+(.C(litex_clk),
+.CE(a_halted_ready),
+.D(io_up_a_payload_address[4]),
+.Q(a_halted_rData_address[4]));
+RTL_REG__BREG_36 \a_halted_rData_address_reg[5]
+(.C(litex_clk),
+.CE(a_halted_ready),
+.D(io_up_a_payload_address[5]),
+.Q(a_halted_rData_address[5]));
+RTL_REG__BREG_36 \a_halted_rData_address_reg[6]
+(.C(litex_clk),
+.CE(a_halted_ready),
+.D(io_up_a_payload_address[6]),
+.Q(a_halted_rData_address[6]));
+RTL_REG__BREG_36 \a_halted_rData_address_reg[7]
+(.C(litex_clk),
+.CE(a_halted_ready),
+.D(io_up_a_payload_address[7]),
+.Q(a_halted_rData_address[7]));
+RTL_REG__BREG_36 \a_halted_rData_address_reg[8]
+(.C(litex_clk),
+.CE(a_halted_ready),
+.D(io_up_a_payload_address[8]),
+.Q(a_halted_rData_address[8]));
+RTL_REG__BREG_36 \a_halted_rData_address_reg[9]
+(.C(litex_clk),
+.CE(a_halted_ready),
+.D(io_up_a_payload_address[9]),
+.Q(a_halted_rData_address[9]));
+RTL_REG__BREG_36 a_halted_rData_corrupt_reg
+(.C(litex_clk),
+.CE(a_halted_ready),
+.D(io_up_a_payload_corrupt),
+.Q(a_halted_rData_corrupt));
+RTL_REG__BREG_36 \a_halted_rData_data_reg[0]
+(.C(litex_clk),
+.CE(a_halted_ready),
+.D(io_up_a_payload_data[0]),
+.Q(a_halted_rData_data[0]));
+RTL_REG__BREG_36 \a_halted_rData_data_reg[10]
+(.C(litex_clk),
+.CE(a_halted_ready),
+.D(io_up_a_payload_data[10]),
+.Q(a_halted_rData_data[10]));
+RTL_REG__BREG_36 \a_halted_rData_data_reg[11]
+(.C(litex_clk),
+.CE(a_halted_ready),
+.D(io_up_a_payload_data[11]),
+.Q(a_halted_rData_data[11]));
+RTL_REG__BREG_36 \a_halted_rData_data_reg[12]
+(.C(litex_clk),
+.CE(a_halted_ready),
+.D(io_up_a_payload_data[12]),
+.Q(a_halted_rData_data[12]));
+RTL_REG__BREG_36 \a_halted_rData_data_reg[13]
+(.C(litex_clk),
+.CE(a_halted_ready),
+.D(io_up_a_payload_data[13]),
+.Q(a_halted_rData_data[13]));
+RTL_REG__BREG_36 \a_halted_rData_data_reg[14]
+(.C(litex_clk),
+.CE(a_halted_ready),
+.D(io_up_a_payload_data[14]),
+.Q(a_halted_rData_data[14]));
+RTL_REG__BREG_36 \a_halted_rData_data_reg[15]
+(.C(litex_clk),
+.CE(a_halted_ready),
+.D(io_up_a_payload_data[15]),
+.Q(a_halted_rData_data[15]));
+RTL_REG__BREG_36 \a_halted_rData_data_reg[16]
+(.C(litex_clk),
+.CE(a_halted_ready),
+.D(io_up_a_payload_data[16]),
+.Q(a_halted_rData_data[16]));
+RTL_REG__BREG_36 \a_halted_rData_data_reg[17]
+(.C(litex_clk),
+.CE(a_halted_ready),
+.D(io_up_a_payload_data[17]),
+.Q(a_halted_rData_data[17]));
+RTL_REG__BREG_36 \a_halted_rData_data_reg[18]
+(.C(litex_clk),
+.CE(a_halted_ready),
+.D(io_up_a_payload_data[18]),
+.Q(a_halted_rData_data[18]));
+RTL_REG__BREG_36 \a_halted_rData_data_reg[19]
+(.C(litex_clk),
+.CE(a_halted_ready),
+.D(io_up_a_payload_data[19]),
+.Q(a_halted_rData_data[19]));
+RTL_REG__BREG_36 \a_halted_rData_data_reg[1]
+(.C(litex_clk),
+.CE(a_halted_ready),
+.D(io_up_a_payload_data[1]),
+.Q(a_halted_rData_data[1]));
+RTL_REG__BREG_36 \a_halted_rData_data_reg[20]
+(.C(litex_clk),
+.CE(a_halted_ready),
+.D(io_up_a_payload_data[20]),
+.Q(a_halted_rData_data[20]));
+RTL_REG__BREG_36 \a_halted_rData_data_reg[21]
+(.C(litex_clk),
+.CE(a_halted_ready),
+.D(io_up_a_payload_data[21]),
+.Q(a_halted_rData_data[21]));
+RTL_REG__BREG_36 \a_halted_rData_data_reg[22]
+(.C(litex_clk),
+.CE(a_halted_ready),
+.D(io_up_a_payload_data[22]),
+.Q(a_halted_rData_data[22]));
+RTL_REG__BREG_36 \a_halted_rData_data_reg[23]
+(.C(litex_clk),
+.CE(a_halted_ready),
+.D(io_up_a_payload_data[23]),
+.Q(a_halted_rData_data[23]));
+RTL_REG__BREG_36 \a_halted_rData_data_reg[24]
+(.C(litex_clk),
+.CE(a_halted_ready),
+.D(io_up_a_payload_data[24]),
+.Q(a_halted_rData_data[24]));
+RTL_REG__BREG_36 \a_halted_rData_data_reg[25]
+(.C(litex_clk),
+.CE(a_halted_ready),
+.D(io_up_a_payload_data[25]),
+.Q(a_halted_rData_data[25]));
+RTL_REG__BREG_36 \a_halted_rData_data_reg[26]
+(.C(litex_clk),
+.CE(a_halted_ready),
+.D(io_up_a_payload_data[26]),
+.Q(a_halted_rData_data[26]));
+RTL_REG__BREG_36 \a_halted_rData_data_reg[27]
+(.C(litex_clk),
+.CE(a_halted_ready),
+.D(io_up_a_payload_data[27]),
+.Q(a_halted_rData_data[27]));
+RTL_REG__BREG_36 \a_halted_rData_data_reg[28]
+(.C(litex_clk),
+.CE(a_halted_ready),
+.D(io_up_a_payload_data[28]),
+.Q(a_halted_rData_data[28]));
+RTL_REG__BREG_36 \a_halted_rData_data_reg[29]
+(.C(litex_clk),
+.CE(a_halted_ready),
+.D(io_up_a_payload_data[29]),
+.Q(a_halted_rData_data[29]));
+RTL_REG__BREG_36 \a_halted_rData_data_reg[2]
+(.C(litex_clk),
+.CE(a_halted_ready),
+.D(io_up_a_payload_data[2]),
+.Q(a_halted_rData_data[2]));
+RTL_REG__BREG_36 \a_halted_rData_data_reg[30]
+(.C(litex_clk),
+.CE(a_halted_ready),
+.D(io_up_a_payload_data[30]),
+.Q(a_halted_rData_data[30]));
+RTL_REG__BREG_36 \a_halted_rData_data_reg[31]
+(.C(litex_clk),
+.CE(a_halted_ready),
+.D(io_up_a_payload_data[31]),
+.Q(a_halted_rData_data[31]));
+RTL_REG__BREG_36 \a_halted_rData_data_reg[3]
+(.C(litex_clk),
+.CE(a_halted_ready),
+.D(io_up_a_payload_data[3]),
+.Q(a_halted_rData_data[3]));
+RTL_REG__BREG_36 \a_halted_rData_data_reg[4]
+(.C(litex_clk),
+.CE(a_halted_ready),
+.D(io_up_a_payload_data[4]),
+.Q(a_halted_rData_data[4]));
+RTL_REG__BREG_36 \a_halted_rData_data_reg[5]
+(.C(litex_clk),
+.CE(a_halted_ready),
+.D(io_up_a_payload_data[5]),
+.Q(a_halted_rData_data[5]));
+RTL_REG__BREG_36 \a_halted_rData_data_reg[6]
+(.C(litex_clk),
+.CE(a_halted_ready),
+.D(io_up_a_payload_data[6]),
+.Q(a_halted_rData_data[6]));
+RTL_REG__BREG_36 \a_halted_rData_data_reg[7]
+(.C(litex_clk),
+.CE(a_halted_ready),
+.D(io_up_a_payload_data[7]),
+.Q(a_halted_rData_data[7]));
+RTL_REG__BREG_36 \a_halted_rData_data_reg[8]
+(.C(litex_clk),
+.CE(a_halted_ready),
+.D(io_up_a_payload_data[8]),
+.Q(a_halted_rData_data[8]));
+RTL_REG__BREG_36 \a_halted_rData_data_reg[9]
+(.C(litex_clk),
+.CE(a_halted_ready),
+.D(io_up_a_payload_data[9]),
+.Q(a_halted_rData_data[9]));
+RTL_REG__BREG_36 \a_halted_rData_mask_reg[0]
+(.C(litex_clk),
+.CE(a_halted_ready),
+.D(io_up_a_payload_mask[0]),
+.Q(a_halted_rData_mask[0]));
+RTL_REG__BREG_36 \a_halted_rData_mask_reg[1]
+(.C(litex_clk),
+.CE(a_halted_ready),
+.D(io_up_a_payload_mask[1]),
+.Q(a_halted_rData_mask[1]));
+RTL_REG__BREG_36 \a_halted_rData_mask_reg[2]
+(.C(litex_clk),
+.CE(a_halted_ready),
+.D(io_up_a_payload_mask[2]),
+.Q(a_halted_rData_mask[2]));
+RTL_REG__BREG_36 \a_halted_rData_mask_reg[3]
+(.C(litex_clk),
+.CE(a_halted_ready),
+.D(io_up_a_payload_mask[3]),
+.Q(a_halted_rData_mask[3]));
+RTL_REG__BREG_36 \a_halted_rData_opcode_reg[0]
+(.C(litex_clk),
+.CE(a_halted_ready),
+.D(io_up_a_payload_opcode[0]),
+.Q(a_halted_rData_opcode[0]));
+RTL_REG__BREG_36 \a_halted_rData_opcode_reg[1]
+(.C(litex_clk),
+.CE(a_halted_ready),
+.D(io_up_a_payload_opcode[1]),
+.Q(a_halted_rData_opcode[1]));
+RTL_REG__BREG_36 \a_halted_rData_opcode_reg[2]
+(.C(litex_clk),
+.CE(a_halted_ready),
+.D(io_up_a_payload_opcode[2]),
+.Q(a_halted_rData_opcode[2]));
+RTL_REG__BREG_36 \a_halted_rData_param_reg[0]
+(.C(litex_clk),
+.CE(a_halted_ready),
+.D(io_up_a_payload_param[0]),
+.Q(a_halted_rData_param[0]));
+RTL_REG__BREG_36 \a_halted_rData_param_reg[1]
+(.C(litex_clk),
+.CE(a_halted_ready),
+.D(io_up_a_payload_param[1]),
+.Q(a_halted_rData_param[1]));
+RTL_REG__BREG_36 \a_halted_rData_param_reg[2]
+(.C(litex_clk),
+.CE(a_halted_ready),
+.D(io_up_a_payload_param[2]),
+.Q(a_halted_rData_param[2]));
+RTL_REG__BREG_36 \a_halted_rData_size_reg[0]
+(.C(litex_clk),
+.CE(a_halted_ready),
+.D(io_up_a_payload_size[0]),
+.Q(a_halted_rData_size[0]));
+RTL_REG__BREG_36 \a_halted_rData_size_reg[1]
+(.C(litex_clk),
+.CE(a_halted_ready),
+.D(io_up_a_payload_size[1]),
+.Q(a_halted_rData_size[1]));
+RTL_REG__BREG_36 \a_halted_rData_size_reg[2]
+(.C(litex_clk),
+.CE(a_halted_ready),
+.D(io_up_a_payload_size[2]),
+.Q(a_halted_rData_size[2]));
+RTL_REG__BREG_36 \a_halted_rData_source_reg[0]
+(.C(litex_clk),
+.CE(a_halted_ready),
+.D(io_up_a_payload_source[0]),
+.Q(a_halted_rData_source[0]));
+RTL_REG__BREG_36 \a_halted_rData_source_reg[1]
+(.C(litex_clk),
+.CE(a_halted_ready),
+.D(io_up_a_payload_source[1]),
+.Q(a_halted_rData_source[1]));
+RTL_REG__BREG_36 \a_halted_rData_source_reg[2]
+(.C(litex_clk),
+.CE(a_halted_ready),
+.D(io_up_a_payload_source[2]),
+.Q(a_halted_rData_source[2]));
+RTL_MUX a_halted_rValid_i
+(.I0(\<const0> ),
+.I1(a_halted_valid),
+.O(a_halted_rValid__0),
+.S(a_buffered_fire));
+RTL_MUX a_halted_rValid_i__0
+(.I0(\<const1> ),
+.I1(a_halted_valid),
+.O(a_halted_rValid_i__0_n_0),
+.S(a_buffered_fire));
+RTL_REG_ASYNC__BREG_1413 a_halted_rValid_reg
+(.C(litex_clk),
+.CE(a_halted_rValid_i__0_n_0),
+.CLR(litex_reset),
+.D(a_halted_rValid__0),
+.Q(a_halted_rValid));
+RTL_INV a_halted_ready_i
+(.I0(a_halted_rValid),
+.O(a_halted_ready));
+RTL_AND7 a_halted_valid_i
+(.I0(io_up_a_valid),
+.I1(_zz_io_up_a_ready),
+.O(a_halted_valid));
+RTL_ADD4 d_counter0_i
+(.I0(d_counter),
+.I1(\<const1> ),
+.O(d_counter0));
+RTL_MUX342 d_counter_i
+(.I0({\<const0> ,\<const0> ,\<const0> ,\<const0> }),
+.I1(d_counter0),
+.O(d_counter__0),
+.S(d_lastB));
+RTL_REG_ASYNC__BREG_1413 \d_counter_reg[0]
+(.C(litex_clk),
+.CE(io_down_b_fire),
+.CLR(litex_reset),
+.D(d_counter__0[0]),
+.Q(d_counter[0]));
+RTL_REG_ASYNC__BREG_1413 \d_counter_reg[1]
+(.C(litex_clk),
+.CE(io_down_b_fire),
+.CLR(litex_reset),
+.D(d_counter__0[1]),
+.Q(d_counter[1]));
+RTL_REG_ASYNC__BREG_1413 \d_counter_reg[2]
+(.C(litex_clk),
+.CE(io_down_b_fire),
+.CLR(litex_reset),
+.D(d_counter__0[2]),
+.Q(d_counter[2]));
+RTL_REG_ASYNC__BREG_1413 \d_counter_reg[3]
+(.C(litex_clk),
+.CE(io_down_b_fire),
+.CLR(litex_reset),
+.D(d_counter__0[3]),
+.Q(d_counter[3]));
+RTL_EQ5 d_lastB_i
+(.I0(d_counter),
+.I1(_zz_io_up_d_tracker_last),
+.O(d_lastB));
+RTL_AND7 io_down_ar_valid_i
+(.I0(a_buffered_fork2_io_outputs_0_valid),
+.I1(a_cmd_isGet),
+.O(io_down_ar_valid));
+RTL_AND7 io_down_aw_valid_i
+(.I0(a_buffered_fork2_io_outputs_0_valid),
+.I1(a_buffered_fork2_io_outputs_0_ready1),
+.O(io_down_aw_valid));
+RTL_AND7 io_down_b_fire_i
+(.I0(io_down_b_valid),
+.I1(io_down_b_ready),
+.O(io_down_b_fire));
+RTL_INV io_down_b_ready0_i
+(.I0(d_lastB),
+.O(io_down_b_ready0));
+RTL_OR io_down_b_ready_i
+(.I0(io_up_d_ready),
+.I1(io_down_b_ready0),
+.O(io_down_b_ready));
+RTL_AND7 io_up_a_fire_i
+(.I0(io_up_a_valid),
+.I1(io_up_a_ready),
+.O(io_up_a_fire));
+RTL_AND7 io_up_a_ready_i
+(.I0(a_halted_ready),
+.I1(_zz_io_up_a_ready),
+.O(io_up_a_ready));
+RTL_ADD4 io_up_a_tracker_beat0_i
+(.I0(io_up_a_tracker_beat),
+.I1(\<const1> ),
+.O(io_up_a_tracker_beat0));
+RTL_MUX342 io_up_a_tracker_beat_i
+(.I0({\<const0> ,\<const0> ,\<const0> ,\<const0> }),
+.I1(io_up_a_tracker_beat0),
+.O(io_up_a_tracker_beat__0),
+.S(io_up_a_tracker_last));
+RTL_REG_ASYNC__BREG_1413 \io_up_a_tracker_beat_reg[0]
+(.C(litex_clk),
+.CE(io_up_a_fire),
+.CLR(litex_reset),
+.D(io_up_a_tracker_beat__0[0]),
+.Q(io_up_a_tracker_beat[0]));
+RTL_REG_ASYNC__BREG_1413 \io_up_a_tracker_beat_reg[1]
+(.C(litex_clk),
+.CE(io_up_a_fire),
+.CLR(litex_reset),
+.D(io_up_a_tracker_beat__0[1]),
+.Q(io_up_a_tracker_beat[1]));
+RTL_REG_ASYNC__BREG_1413 \io_up_a_tracker_beat_reg[2]
+(.C(litex_clk),
+.CE(io_up_a_fire),
+.CLR(litex_reset),
+.D(io_up_a_tracker_beat__0[2]),
+.Q(io_up_a_tracker_beat[2]));
+RTL_REG_ASYNC__BREG_1413 \io_up_a_tracker_beat_reg[3]
+(.C(litex_clk),
+.CE(io_up_a_fire),
+.CLR(litex_reset),
+.D(io_up_a_tracker_beat__0[3]),
+.Q(io_up_a_tracker_beat[3]));
+RTL_INV io_up_a_tracker_last0_i
+(.I0(io_up_a_tracker_last1),
+.O(io_up_a_tracker_last0));
+RTL_EQ5 io_up_a_tracker_last0_i__0
+(.I0(io_up_a_tracker_beat),
+.I1(_zz_io_up_a_tracker_last),
+.O(io_up_a_tracker_last0_i__0_n_0));
+RTL_OR io_up_a_tracker_last1_i
+(.I0(io_up_a_tracker_last2),
+.I1(io_up_a_tracker_last2_i__0_n_0),
+.O(io_up_a_tracker_last1));
+RTL_EQ io_up_a_tracker_last2_i
+(.I0({\<const0> ,\<const0> ,\<const0> }),
+.I1(io_up_a_payload_opcode),
+.O(io_up_a_tracker_last2));
+RTL_EQ io_up_a_tracker_last2_i__0
+(.I0({\<const0> ,\<const0> ,\<const1> }),
+.I1(io_up_a_payload_opcode),
+.O(io_up_a_tracker_last2_i__0_n_0));
+RTL_OR io_up_a_tracker_last_i
+(.I0(io_up_a_tracker_last0),
+.I1(io_up_a_tracker_last0_i__0_n_0),
+.O(io_up_a_tracker_last));
+RTL_AND7 io_up_d_fire_i
+(.I0(io_up_d_valid),
+.I1(io_up_d_ready),
+.O(io_up_d_fire));
+RTL_MUX io_up_d_payload_denied0_i
+(.I0(io_up_d_payload_denied1),
+.I1(io_up_d_payload_denied1_i__0_n_0),
+.O(io_up_d_payload_denied0),
+.S(pending_get));
+RTL_EQ41 io_up_d_payload_denied1_i
+(.I0(io_down_r_payload_resp),
+.I1({\<const0> ,\<const0> }),
+.O(io_up_d_payload_denied1));
+RTL_EQ41 io_up_d_payload_denied1_i__0
+(.I0(io_down_b_payload_resp),
+.I1({\<const0> ,\<const0> }),
+.O(io_up_d_payload_denied1_i__0_n_0));
+RTL_INV io_up_d_payload_denied_i
+(.I0(io_up_d_payload_denied0),
+.O(io_up_d_payload_denied));
+RTL_ADD4 io_up_d_tracker_beat0_i
+(.I0(io_up_d_tracker_beat),
+.I1(\<const1> ),
+.O(io_up_d_tracker_beat0));
+RTL_MUX342 io_up_d_tracker_beat_i
+(.I0({\<const0> ,\<const0> ,\<const0> ,\<const0> }),
+.I1(io_up_d_tracker_beat0),
+.O(io_up_d_tracker_beat__0),
+.S(io_up_d_tracker_last));
+RTL_REG_ASYNC__BREG_1413 \io_up_d_tracker_beat_reg[0]
+(.C(litex_clk),
+.CE(io_up_d_fire),
+.CLR(litex_reset),
+.D(io_up_d_tracker_beat__0[0]),
+.Q(io_up_d_tracker_beat[0]));
+RTL_REG_ASYNC__BREG_1413 \io_up_d_tracker_beat_reg[1]
+(.C(litex_clk),
+.CE(io_up_d_fire),
+.CLR(litex_reset),
+.D(io_up_d_tracker_beat__0[1]),
+.Q(io_up_d_tracker_beat[1]));
+RTL_REG_ASYNC__BREG_1413 \io_up_d_tracker_beat_reg[2]
+(.C(litex_clk),
+.CE(io_up_d_fire),
+.CLR(litex_reset),
+.D(io_up_d_tracker_beat__0[2]),
+.Q(io_up_d_tracker_beat[2]));
+RTL_REG_ASYNC__BREG_1413 \io_up_d_tracker_beat_reg[3]
+(.C(litex_clk),
+.CE(io_up_d_fire),
+.CLR(litex_reset),
+.D(io_up_d_tracker_beat__0[3]),
+.Q(io_up_d_tracker_beat[3]));
+RTL_INV io_up_d_tracker_last0_i
+(.I0(io_up_d_tracker_last1),
+.O(io_up_d_tracker_last0));
+RTL_EQ5 io_up_d_tracker_last0_i__0
+(.I0(io_up_d_tracker_beat),
+.I1(_zz_io_up_d_tracker_last),
+.O(io_up_d_tracker_last0_i__0_n_0));
+RTL_EQ41 io_up_d_tracker_last1_i
+(.I0({\<const0> ,\<const1> }),
+.I1(\^io_up_d_payload_opcode ),
+.O(io_up_d_tracker_last1));
+RTL_OR io_up_d_tracker_last_i
+(.I0(io_up_d_tracker_last0),
+.I1(io_up_d_tracker_last0_i__0_n_0),
+.O(io_up_d_tracker_last));
+RTL_AND7 io_up_d_valid0_i
+(.I0(io_down_b_valid),
+.I1(d_lastB),
+.O(io_up_d_valid0));
+RTL_OR io_up_d_valid_i
+(.I0(io_down_r_valid),
+.I1(io_up_d_valid0),
+.O(io_up_d_valid));
+RTL_EQ pending_get0_i
+(.I0(io_up_a_payload_opcode),
+.I1({\<const1> ,\<const0> ,\<const0> }),
+.O(pending_get0));
+RTL_REG__BREG_36 pending_get_reg
+(.C(litex_clk),
+.CE(a_halted_fire),
+.D(pending_get0),
+.Q(pending_get));
+RTL_REG__BREG_36 \pending_size_reg[0]
+(.C(litex_clk),
+.CE(a_halted_fire),
+.D(io_up_a_payload_size[0]),
+.Q(io_up_d_payload_size[0]));
+RTL_REG__BREG_36 \pending_size_reg[1]
+(.C(litex_clk),
+.CE(a_halted_fire),
+.D(io_up_a_payload_size[1]),
+.Q(io_up_d_payload_size[1]));
+RTL_REG__BREG_36 \pending_size_reg[2]
+(.C(litex_clk),
+.CE(a_halted_fire),
+.D(io_up_a_payload_size[2]),
+.Q(io_up_d_payload_size[2]));
+RTL_REG__BREG_36 \pending_source_reg[0]
+(.C(litex_clk),
+.CE(a_halted_fire),
+.D(io_up_a_payload_source[0]),
+.Q(io_up_d_payload_source[0]));
+RTL_REG__BREG_36 \pending_source_reg[1]
+(.C(litex_clk),
+.CE(a_halted_fire),
+.D(io_up_a_payload_source[1]),
+.Q(io_up_d_payload_source[1]));
+RTL_REG__BREG_36 \pending_source_reg[2]
+(.C(litex_clk),
+.CE(a_halted_fire),
+.D(io_up_a_payload_source[2]),
+.Q(io_up_d_payload_source[2]));
+RTL_MUX pending_valid_i
+(.I0(\<const1> ),
+.I1(when_AxiLite4Bridge_l29),
+.O(pending_valid__0),
+.S(a_halted_fire));
+RTL_REG_ASYNC__BREG_1413 pending_valid_reg
+(.C(litex_clk),
+.CE(pending_valid__0),
+.CLR(litex_reset),
+.D(a_halted_fire),
+.Q(pending_valid));
+RTL_AND7 when_AxiLite4Bridge_l29_i
+(.I0(io_up_d_fire),
+.I1(io_up_d_tracker_last),
+.O(when_AxiLite4Bridge_l29));
+RTL_OR when_Stream_l5810_i
+(.I0(when_Stream_l5811),
+.I1(when_Stream_l5811_i__0_n_0),
+.O(when_Stream_l5810));
+RTL_EQ when_Stream_l5811_i
+(.I0(a_buffered_fork2_io_outputs_1_payload_opcode),
+.I1({\<const0> ,\<const0> ,\<const0> }),
+.O(when_Stream_l5811));
+RTL_EQ when_Stream_l5811_i__0
+(.I0(a_buffered_fork2_io_outputs_1_payload_opcode),
+.I1({\<const0> ,\<const0> ,\<const1> }),
+.O(when_Stream_l5811_i__0_n_0));
+RTL_INV when_Stream_l581_i
+(.I0(when_Stream_l5810),
+.O(when_Stream_l581));
+endmodule
+module BufferCC
+(io_dataIn,
+.io_dataOut(buffers_1),
+litex_clk,
+litex_reset);
+input io_dataIn;
+input litex_clk;
+input litex_reset;
+output buffers_1;
+wire buffers_0;
+wire buffers_1;
+wire io_dataIn;
+wire litex_clk;
+wire litex_reset;
+RTL_REG_ASYNC__BREG_3066 buffers_0_reg
+(.C(litex_clk),
+.D(io_dataIn),
+.PRE(litex_reset),
+.Q(buffers_0));
+RTL_REG_ASYNC__BREG_3066 buffers_1_reg
+(.C(litex_clk),
+.D(buffers_0),
+.PRE(litex_reset),
+.Q(buffers_1));
+endmodule
+module BufferCC_1
+(io_dataIn,
+.io_dataOut(buffers_1),
+litex_clk,
+cpuResetCtrl_fiber_holder_reset);
+input io_dataIn;
+input litex_clk;
+input cpuResetCtrl_fiber_holder_reset;
+output buffers_1;
+wire buffers_0;
+wire buffers_1;
+wire cpuResetCtrl_fiber_holder_reset;
+wire io_dataIn;
+wire litex_clk;
+RTL_REG_ASYNC__BREG_3066 buffers_0_reg
+(.C(litex_clk),
+.D(io_dataIn),
+.PRE(cpuResetCtrl_fiber_holder_reset),
+.Q(buffers_0));
+RTL_REG_ASYNC__BREG_3066 buffers_1_reg
+(.C(litex_clk),
+.D(buffers_0),
+.PRE(cpuResetCtrl_fiber_holder_reset),
+.Q(buffers_1));
+endmodule
+module Decoder
+(io_up_a_valid,
+io_up_a_ready,
+io_up_a_payload_opcode,
+io_up_a_payload_param,
+io_up_a_payload_source,
+io_up_a_payload_address,
+io_up_a_payload_size,
+io_up_a_payload_mask,
+io_up_a_payload_data,
+io_up_a_payload_corrupt,
+io_up_d_valid,
+io_up_d_ready,
+io_up_d_payload_opcode,
+io_up_d_payload_param,
+io_up_d_payload_source,
+io_up_d_payload_size,
+io_up_d_payload_denied,
+io_up_d_payload_data,
+io_up_d_payload_corrupt,
+io_downs_0_a_valid,
+io_downs_0_a_ready,
+io_downs_0_a_payload_opcode,
+io_downs_0_a_payload_param,
+io_downs_0_a_payload_source,
+io_downs_0_a_payload_address,
+io_downs_0_a_payload_size,
+io_downs_0_a_payload_mask,
+io_downs_0_a_payload_data,
+io_downs_0_a_payload_corrupt,
+io_downs_0_d_valid,
+io_downs_0_d_ready,
+io_downs_0_d_payload_opcode,
+io_downs_0_d_payload_param,
+io_downs_0_d_payload_source,
+io_downs_0_d_payload_size,
+io_downs_0_d_payload_denied,
+io_downs_0_d_payload_data,
+io_downs_0_d_payload_corrupt,
+io_downs_1_a_valid,
+io_downs_1_a_ready,
+io_downs_1_a_payload_opcode,
+io_downs_1_a_payload_param,
+io_downs_1_a_payload_source,
+io_downs_1_a_payload_address,
+io_downs_1_a_payload_size,
+io_downs_1_a_payload_mask,
+io_downs_1_a_payload_data,
+io_downs_1_a_payload_corrupt,
+io_downs_1_d_valid,
+io_downs_1_d_ready,
+io_downs_1_d_payload_opcode,
+io_downs_1_d_payload_param,
+io_downs_1_d_payload_source,
+io_downs_1_d_payload_size,
+io_downs_1_d_payload_denied,
+io_downs_1_d_payload_data,
+io_downs_1_d_payload_corrupt,
+io_downs_2_a_valid,
+io_downs_2_a_ready,
+io_downs_2_a_payload_opcode,
+io_downs_2_a_payload_param,
+io_downs_2_a_payload_source,
+io_downs_2_a_payload_address,
+io_downs_2_a_payload_size,
+io_downs_2_a_payload_mask,
+io_downs_2_a_payload_data,
+io_downs_2_a_payload_corrupt,
+io_downs_2_d_valid,
+io_downs_2_d_ready,
+io_downs_2_d_payload_opcode,
+io_downs_2_d_payload_param,
+io_downs_2_d_payload_source,
+io_downs_2_d_payload_size,
+io_downs_2_d_payload_denied,
+io_downs_2_d_payload_data,
+io_downs_2_d_payload_corrupt,
+litex_clk,
+litex_reset);
+input io_up_a_valid;
+output io_up_a_ready;
+input [2:0]io_up_a_payload_opcode;
+input [2:0]io_up_a_payload_param;
+input [2:0]io_up_a_payload_source;
+input [31:0]io_up_a_payload_address;
+input [2:0]io_up_a_payload_size;
+input [3:0]io_up_a_payload_mask;
+input [31:0]io_up_a_payload_data;
+input io_up_a_payload_corrupt;
+output io_up_d_valid;
+input io_up_d_ready;
+output [2:0]io_up_d_payload_opcode;
+output [2:0]io_up_d_payload_param;
+output [2:0]io_up_d_payload_source;
+output [2:0]io_up_d_payload_size;
+output io_up_d_payload_denied;
+output [31:0]io_up_d_payload_data;
+output io_up_d_payload_corrupt;
+output io_downs_0_a_valid;
+input io_downs_0_a_ready;
+output [2:0]io_downs_0_a_payload_opcode;
+output [2:0]io_downs_0_a_payload_param;
+output [2:0]io_downs_0_a_payload_source;
+output [15:0]io_downs_0_a_payload_address;
+output [2:0]io_downs_0_a_payload_size;
+output [3:0]io_downs_0_a_payload_mask;
+output [31:0]io_downs_0_a_payload_data;
+output io_downs_0_a_payload_corrupt;
+input io_downs_0_d_valid;
+output io_downs_0_d_ready;
+input [2:0]io_downs_0_d_payload_opcode;
+input [2:0]io_downs_0_d_payload_param;
+input [2:0]io_downs_0_d_payload_source;
+input [2:0]io_downs_0_d_payload_size;
+input io_downs_0_d_payload_denied;
+input [31:0]io_downs_0_d_payload_data;
+input io_downs_0_d_payload_corrupt;
+output io_downs_1_a_valid;
+input io_downs_1_a_ready;
+output [2:0]io_downs_1_a_payload_opcode;
+output [2:0]io_downs_1_a_payload_param;
+output [2:0]io_downs_1_a_payload_source;
+output [21:0]io_downs_1_a_payload_address;
+output [1:0]io_downs_1_a_payload_size;
+output [3:0]io_downs_1_a_payload_mask;
+output [31:0]io_downs_1_a_payload_data;
+output io_downs_1_a_payload_corrupt;
+input io_downs_1_d_valid;
+output io_downs_1_d_ready;
+input [2:0]io_downs_1_d_payload_opcode;
+input [2:0]io_downs_1_d_payload_param;
+input [2:0]io_downs_1_d_payload_source;
+input [1:0]io_downs_1_d_payload_size;
+input io_downs_1_d_payload_denied;
+input [31:0]io_downs_1_d_payload_data;
+input io_downs_1_d_payload_corrupt;
+output io_downs_2_a_valid;
+input io_downs_2_a_ready;
+output [2:0]io_downs_2_a_payload_opcode;
+output [2:0]io_downs_2_a_payload_param;
+output [2:0]io_downs_2_a_payload_source;
+output [31:0]io_downs_2_a_payload_address;
+output [2:0]io_downs_2_a_payload_size;
+output [3:0]io_downs_2_a_payload_mask;
+output [31:0]io_downs_2_a_payload_data;
+output io_downs_2_a_payload_corrupt;
+input io_downs_2_d_valid;
+output io_downs_2_d_ready;
+input [2:0]io_downs_2_d_payload_opcode;
+input [2:0]io_downs_2_d_payload_param;
+input [2:0]io_downs_2_d_payload_source;
+input [2:0]io_downs_2_d_payload_size;
+input io_downs_2_d_payload_denied;
+input [31:0]io_downs_2_d_payload_data;
+input io_downs_2_d_payload_corrupt;
+input litex_clk;
+input litex_reset;
+wire \<const0> ;
+wire \<const1> ;
+wire _zz_a_logic_0_hit0;
+wire [34:0]_zz_a_logic_0_hit1;
+wire _zz_a_logic_1_hit0;
+wire [34:0]_zz_a_logic_1_hit1;
+wire [34:0]_zz_a_logic_2_hit1;
+wire _zz_a_logic_2_hit1_i_n_0;
+wire _zz_a_logic_2_hit1_i_n_1;
+wire _zz_a_logic_2_hit1_i_n_10;
+wire _zz_a_logic_2_hit1_i_n_11;
+wire _zz_a_logic_2_hit1_i_n_12;
+wire _zz_a_logic_2_hit1_i_n_13;
+wire _zz_a_logic_2_hit1_i_n_14;
+wire _zz_a_logic_2_hit1_i_n_15;
+wire _zz_a_logic_2_hit1_i_n_16;
+wire _zz_a_logic_2_hit1_i_n_17;
+wire _zz_a_logic_2_hit1_i_n_18;
+wire _zz_a_logic_2_hit1_i_n_19;
+wire _zz_a_logic_2_hit1_i_n_2;
+wire _zz_a_logic_2_hit1_i_n_20;
+wire _zz_a_logic_2_hit1_i_n_21;
+wire _zz_a_logic_2_hit1_i_n_22;
+wire _zz_a_logic_2_hit1_i_n_23;
+wire _zz_a_logic_2_hit1_i_n_24;
+wire _zz_a_logic_2_hit1_i_n_25;
+wire _zz_a_logic_2_hit1_i_n_26;
+wire _zz_a_logic_2_hit1_i_n_27;
+wire _zz_a_logic_2_hit1_i_n_28;
+wire _zz_a_logic_2_hit1_i_n_29;
+wire _zz_a_logic_2_hit1_i_n_3;
+wire _zz_a_logic_2_hit1_i_n_30;
+wire _zz_a_logic_2_hit1_i_n_31;
+wire _zz_a_logic_2_hit1_i_n_32;
+wire _zz_a_logic_2_hit1_i_n_33;
+wire _zz_a_logic_2_hit1_i_n_34;
+wire _zz_a_logic_2_hit1_i_n_4;
+wire _zz_a_logic_2_hit1_i_n_5;
+wire _zz_a_logic_2_hit1_i_n_6;
+wire _zz_a_logic_2_hit1_i_n_7;
+wire _zz_a_logic_2_hit1_i_n_8;
+wire _zz_a_logic_2_hit1_i_n_9;
+wire a_logic_0_hit;
+wire a_logic_1_hit;
+wire a_logic_2_hit;
+wire io_downs_0_a_ready;
+wire io_downs_0_a_valid;
+wire io_downs_0_d_payload_corrupt;
+wire [31:0]io_downs_0_d_payload_data;
+wire io_downs_0_d_payload_denied;
+wire [2:0]io_downs_0_d_payload_opcode;
+wire [2:0]io_downs_0_d_payload_param;
+wire [2:0]io_downs_0_d_payload_size;
+wire [2:0]io_downs_0_d_payload_source;
+wire io_downs_0_d_ready;
+wire io_downs_0_d_valid;
+wire io_downs_1_a_ready;
+wire io_downs_1_a_valid;
+wire io_downs_1_d_payload_corrupt;
+wire [31:0]io_downs_1_d_payload_data;
+wire io_downs_1_d_payload_denied;
+wire [2:0]io_downs_1_d_payload_opcode;
+wire [2:0]io_downs_1_d_payload_param;
+wire [1:0]io_downs_1_d_payload_size;
+wire [2:0]io_downs_1_d_payload_source;
+wire io_downs_1_d_ready;
+wire io_downs_1_d_valid;
+wire io_downs_2_a_ready;
+wire io_downs_2_a_valid;
+wire io_downs_2_d_payload_corrupt;
+wire [31:0]io_downs_2_d_payload_data;
+wire io_downs_2_d_payload_denied;
+wire [2:0]io_downs_2_d_payload_opcode;
+wire [2:0]io_downs_2_d_payload_param;
+wire [2:0]io_downs_2_d_payload_size;
+wire [2:0]io_downs_2_d_payload_source;
+wire io_downs_2_d_ready;
+wire io_downs_2_d_valid;
+wire [31:0]io_up_a_payload_address;
+wire io_up_a_payload_corrupt;
+wire [31:0]io_up_a_payload_data;
+wire [3:0]io_up_a_payload_mask;
+wire [2:0]io_up_a_payload_opcode;
+wire [2:0]io_up_a_payload_param;
+wire [2:0]io_up_a_payload_size;
+wire [2:0]io_up_a_payload_source;
+wire io_up_a_ready;
+wire io_up_a_valid;
+wire io_up_d_payload_corrupt;
+wire [31:0]io_up_d_payload_data;
+wire io_up_d_payload_denied;
+wire [2:0]io_up_d_payload_opcode;
+wire [2:0]io_up_d_payload_param;
+wire [2:0]io_up_d_payload_size;
+wire [2:0]io_up_d_payload_source;
+wire io_up_d_ready;
+wire io_up_d_valid;
+wire litex_clk;
+wire litex_reset;
+wire [1:0]p_0_in;
+wire [2:0]p_0_out;
+assign io_downs_0_a_payload_address[15:0] = io_up_a_payload_address[15:0];
+assign io_downs_0_a_payload_corrupt = io_up_a_payload_corrupt;
+assign io_downs_0_a_payload_data[31:0] = io_up_a_payload_data;
+assign io_downs_0_a_payload_mask[3:0] = io_up_a_payload_mask;
+assign io_downs_0_a_payload_opcode[2:0] = io_up_a_payload_opcode;
+assign io_downs_0_a_payload_param[2:0] = io_up_a_payload_param;
+assign io_downs_0_a_payload_size[2:0] = io_up_a_payload_size;
+assign io_downs_0_a_payload_source[2:0] = io_up_a_payload_source;
+assign io_downs_1_a_payload_address[21:0] = io_up_a_payload_address[21:0];
+assign io_downs_1_a_payload_corrupt = io_up_a_payload_corrupt;
+assign io_downs_1_a_payload_data[31:0] = io_up_a_payload_data;
+assign io_downs_1_a_payload_mask[3:0] = io_up_a_payload_mask;
+assign io_downs_1_a_payload_opcode[2:0] = io_up_a_payload_opcode;
+assign io_downs_1_a_payload_param[2:0] = io_up_a_payload_param;
+assign io_downs_1_a_payload_size[1:0] = io_up_a_payload_size[1:0];
+assign io_downs_1_a_payload_source[2:0] = io_up_a_payload_source;
+assign io_downs_2_a_payload_address[31:0] = io_up_a_payload_address;
+assign io_downs_2_a_payload_corrupt = io_up_a_payload_corrupt;
+assign io_downs_2_a_payload_data[31:0] = io_up_a_payload_data;
+assign io_downs_2_a_payload_mask[3:0] = io_up_a_payload_mask;
+assign io_downs_2_a_payload_opcode[2:0] = io_up_a_payload_opcode;
+assign io_downs_2_a_payload_param[2:0] = io_up_a_payload_param;
+assign io_downs_2_a_payload_size[2:0] = io_up_a_payload_size;
+assign io_downs_2_a_payload_source[2:0] = io_up_a_payload_source;
+GND GND
+(.G(\<const0> ));
+VCC VCC
+(.P(\<const1> ));
+RTL_EQ1170 _zz_a_logic_0_hit0_i
+(.I0(_zz_a_logic_0_hit1),
+.I1({\<const0> ,\<const0> ,\<const0> ,\<const1> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const1> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> }),
+.O(_zz_a_logic_0_hit0));
+RTL_AND1784 _zz_a_logic_0_hit1_i
+(.I0({io_up_a_payload_opcode,io_up_a_payload_address}),
+.I1({\<const0> ,\<const0> ,\<const0> ,\<const1> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const1> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const1> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> }),
+.O(_zz_a_logic_0_hit1));
+RTL_REDUCTION_OR149 _zz_a_logic_0_hit_i
+(.I0(_zz_a_logic_0_hit0),
+.O(a_logic_0_hit));
+RTL_EQ1170 _zz_a_logic_1_hit0_i
+(.I0(_zz_a_logic_1_hit1),
+.I1({\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const1> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> }),
+.O(_zz_a_logic_1_hit0));
+RTL_AND1784 _zz_a_logic_1_hit1_i
+(.I0({io_up_a_payload_opcode,io_up_a_payload_address}),
+.I1({\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const1> ,\<const1> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> }),
+.O(_zz_a_logic_1_hit1));
+RTL_REDUCTION_OR149 _zz_a_logic_1_hit_i
+(.I0(_zz_a_logic_1_hit0),
+.O(a_logic_1_hit));
+RTL_EQ1170 _zz_a_logic_2_hit0_i
+(.I0({_zz_a_logic_2_hit1_i_n_0,_zz_a_logic_2_hit1_i_n_1,_zz_a_logic_2_hit1_i_n_2,_zz_a_logic_2_hit1_i_n_3,_zz_a_logic_2_hit1_i_n_4,_zz_a_logic_2_hit1_i_n_5,_zz_a_logic_2_hit1_i_n_6,_zz_a_logic_2_hit1_i_n_7,_zz_a_logic_2_hit1_i_n_8,_zz_a_logic_2_hit1_i_n_9,_zz_a_logic_2_hit1_i_n_10,_zz_a_logic_2_hit1_i_n_11,_zz_a_logic_2_hit1_i_n_12,_zz_a_logic_2_hit1_i_n_13,_zz_a_logic_2_hit1_i_n_14,_zz_a_logic_2_hit1_i_n_15,_zz_a_logic_2_hit1_i_n_16,_zz_a_logic_2_hit1_i_n_17,_zz_a_logic_2_hit1_i_n_18,_zz_a_logic_2_hit1_i_n_19,_zz_a_logic_2_hit1_i_n_20,_zz_a_logic_2_hit1_i_n_21,_zz_a_logic_2_hit1_i_n_22,_zz_a_logic_2_hit1_i_n_23,_zz_a_logic_2_hit1_i_n_24,_zz_a_logic_2_hit1_i_n_25,_zz_a_logic_2_hit1_i_n_26,_zz_a_logic_2_hit1_i_n_27,_zz_a_logic_2_hit1_i_n_28,_zz_a_logic_2_hit1_i_n_29,_zz_a_logic_2_hit1_i_n_30,_zz_a_logic_2_hit1_i_n_31,_zz_a_logic_2_hit1_i_n_32,_zz_a_logic_2_hit1_i_n_33,_zz_a_logic_2_hit1_i_n_34}),
+.I1({\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> }),
+.O(p_0_in[0]));
+RTL_EQ1170 _zz_a_logic_2_hit0_i__0
+(.I0(_zz_a_logic_2_hit1),
+.I1({\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> }),
+.O(p_0_in[1]));
+RTL_AND1784 _zz_a_logic_2_hit1_i
+(.I0({io_up_a_payload_opcode,io_up_a_payload_address}),
+.I1({\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const1> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const1> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> }),
+.O({_zz_a_logic_2_hit1_i_n_0,_zz_a_logic_2_hit1_i_n_1,_zz_a_logic_2_hit1_i_n_2,_zz_a_logic_2_hit1_i_n_3,_zz_a_logic_2_hit1_i_n_4,_zz_a_logic_2_hit1_i_n_5,_zz_a_logic_2_hit1_i_n_6,_zz_a_logic_2_hit1_i_n_7,_zz_a_logic_2_hit1_i_n_8,_zz_a_logic_2_hit1_i_n_9,_zz_a_logic_2_hit1_i_n_10,_zz_a_logic_2_hit1_i_n_11,_zz_a_logic_2_hit1_i_n_12,_zz_a_logic_2_hit1_i_n_13,_zz_a_logic_2_hit1_i_n_14,_zz_a_logic_2_hit1_i_n_15,_zz_a_logic_2_hit1_i_n_16,_zz_a_logic_2_hit1_i_n_17,_zz_a_logic_2_hit1_i_n_18,_zz_a_logic_2_hit1_i_n_19,_zz_a_logic_2_hit1_i_n_20,_zz_a_logic_2_hit1_i_n_21,_zz_a_logic_2_hit1_i_n_22,_zz_a_logic_2_hit1_i_n_23,_zz_a_logic_2_hit1_i_n_24,_zz_a_logic_2_hit1_i_n_25,_zz_a_logic_2_hit1_i_n_26,_zz_a_logic_2_hit1_i_n_27,_zz_a_logic_2_hit1_i_n_28,_zz_a_logic_2_hit1_i_n_29,_zz_a_logic_2_hit1_i_n_30,_zz_a_logic_2_hit1_i_n_31,_zz_a_logic_2_hit1_i_n_32,_zz_a_logic_2_hit1_i_n_33,_zz_a_logic_2_hit1_i_n_34}));
+RTL_AND1784 _zz_a_logic_2_hit1_i__0
+(.I0({io_up_a_payload_opcode,io_up_a_payload_address}),
+.I1({\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const1> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> }),
+.O(_zz_a_logic_2_hit1));
+RTL_REDUCTION_OR14 _zz_a_logic_2_hit_i
+(.I0(p_0_in),
+.O(a_logic_2_hit));
+StreamArbiter_10 d_arbiter
+(.io_inputs_0_payload_corrupt(io_downs_0_d_payload_corrupt),
+.io_inputs_0_payload_data(io_downs_0_d_payload_data),
+.io_inputs_0_payload_denied(io_downs_0_d_payload_denied),
+.io_inputs_0_payload_opcode(io_downs_0_d_payload_opcode),
+.io_inputs_0_payload_param(io_downs_0_d_payload_param),
+.io_inputs_0_payload_size(io_downs_0_d_payload_size),
+.io_inputs_0_payload_source(io_downs_0_d_payload_source),
+.io_inputs_0_ready(io_downs_0_d_ready),
+.io_inputs_0_valid(io_downs_0_d_valid),
+.io_inputs_1_payload_corrupt(io_downs_1_d_payload_corrupt),
+.io_inputs_1_payload_data(io_downs_1_d_payload_data),
+.io_inputs_1_payload_denied(io_downs_1_d_payload_denied),
+.io_inputs_1_payload_opcode(io_downs_1_d_payload_opcode),
+.io_inputs_1_payload_param(io_downs_1_d_payload_param),
+.io_inputs_1_payload_size({\<const0> ,io_downs_1_d_payload_size}),
+.io_inputs_1_payload_source(io_downs_1_d_payload_source),
+.io_inputs_1_ready(io_downs_1_d_ready),
+.io_inputs_1_valid(io_downs_1_d_valid),
+.io_inputs_2_payload_corrupt(io_downs_2_d_payload_corrupt),
+.io_inputs_2_payload_data(io_downs_2_d_payload_data),
+.io_inputs_2_payload_denied(io_downs_2_d_payload_denied),
+.io_inputs_2_payload_opcode(io_downs_2_d_payload_opcode),
+.io_inputs_2_payload_param(io_downs_2_d_payload_param),
+.io_inputs_2_payload_size(io_downs_2_d_payload_size),
+.io_inputs_2_payload_source(io_downs_2_d_payload_source),
+.io_inputs_2_ready(io_downs_2_d_ready),
+.io_inputs_2_valid(io_downs_2_d_valid),
+.io_output_payload_corrupt(io_up_d_payload_corrupt),
+.io_output_payload_data(io_up_d_payload_data),
+.io_output_payload_denied(io_up_d_payload_denied),
+.io_output_payload_opcode(io_up_d_payload_opcode),
+.io_output_payload_param(io_up_d_payload_param),
+.io_output_payload_size(io_up_d_payload_size),
+.io_output_payload_source(io_up_d_payload_source),
+.io_output_ready(io_up_d_ready),
+.io_output_valid(io_up_d_valid),
+.litex_clk(litex_clk),
+.litex_reset(litex_reset));
+RTL_AND7 downs_0_a_valid_i
+(.I0(io_up_a_valid),
+.I1(a_logic_0_hit),
+.O(io_downs_0_a_valid));
+RTL_AND7 downs_1_a_valid_i
+(.I0(io_up_a_valid),
+.I1(a_logic_1_hit),
+.O(io_downs_1_a_valid));
+RTL_AND7 downs_2_a_valid_i
+(.I0(io_up_a_valid),
+.I1(a_logic_2_hit),
+.O(io_downs_2_a_valid));
+RTL_AND7 io_up_a_ready0_i
+(.I0(io_downs_0_a_ready),
+.I1(a_logic_0_hit),
+.O(p_0_out[0]));
+RTL_AND7 io_up_a_ready0_i__0
+(.I0(io_downs_1_a_ready),
+.I1(a_logic_1_hit),
+.O(p_0_out[1]));
+RTL_AND7 io_up_a_ready0_i__1
+(.I0(io_downs_2_a_ready),
+.I1(a_logic_2_hit),
+.O(p_0_out[2]));
+RTL_REDUCTION_OR35 io_up_a_ready_i
+(.I0(p_0_out),
+.O(io_up_a_ready));
+endmodule
+module DivRadix
+(io_flush,
+io_cmd_valid,
+io_cmd_ready,
+io_cmd_payload_a,
+io_cmd_payload_b,
+io_cmd_payload_normalized,
+io_cmd_payload_iterations,
+io_rsp_valid,
+io_rsp_ready,
+io_rsp_payload_result,
+io_rsp_payload_remain,
+litex_clk,
+cpuResetCtrl_reset);
+input io_flush;
+input io_cmd_valid;
+output io_cmd_ready;
+input [31:0]io_cmd_payload_a;
+input [31:0]io_cmd_payload_b;
+input io_cmd_payload_normalized;
+input [4:0]io_cmd_payload_iterations;
+output io_rsp_valid;
+input io_rsp_ready;
+output [31:0]io_rsp_payload_result;
+output [31:0]io_rsp_payload_remain;
+input litex_clk;
+input cpuResetCtrl_reset;
+wire \<const0> ;
+wire \<const1> ;
+wire _zz_sel_1;
+wire _zz_sel_2;
+wire _zz_sel_3;
+wire _zz_sel_6;
+wire _zz_sel_80_i__0_n_0;
+wire _zz_sel_80_i_n_0;
+wire _zz_sel_81;
+wire _zz_sel_81_i__0_n_0;
+wire _zz_sel_81_i_n_0;
+wire _zz_sel_82;
+wire _zz_sel_82_i_n_0;
+wire [31:0]_zz_shifter;
+wire busy;
+wire busy__0;
+wire busy_i__1_n_0;
+wire busy_i__2_n_0;
+wire busy_i_n_0;
+wire [4:0]counter;
+wire [4:0]counter0;
+wire counter0_i__0_n_0;
+wire counter0_i__0_n_1;
+wire counter0_i__0_n_2;
+wire counter0_i__0_n_3;
+wire counter0_i__0_n_4;
+wire [4:0]counter__0;
+wire counter_i__0_n_0;
+wire counter_i__0_n_1;
+wire counter_i__0_n_2;
+wire counter_i__0_n_3;
+wire counter_i__0_n_4;
+wire counter_i__2_n_0;
+wire counter_i_n_0;
+wire counter_i_n_1;
+wire counter_i_n_2;
+wire counter_i_n_3;
+wire counter_i_n_4;
+wire cpuResetCtrl_reset;
+wire done;
+wire done_i__1_n_0;
+wire done_i__2_n_0;
+wire done_i_n_0;
+wire [31:0]io_cmd_payload_a;
+wire [31:0]io_cmd_payload_b;
+wire [4:0]io_cmd_payload_iterations;
+wire io_cmd_payload_normalized;
+wire io_cmd_ready;
+wire io_cmd_valid;
+wire io_flush;
+wire io_rsp_fire;
+wire [31:0]io_rsp_payload_remain;
+wire [31:0]io_rsp_payload_result;
+wire io_rsp_ready;
+wire io_rsp_valid;
+wire litex_clk;
+wire [31:0]numerator;
+wire [31:0]numerator0;
+wire numerator0_i__0_n_0;
+wire numerator0_i__0_n_1;
+wire numerator0_i__0_n_10;
+wire numerator0_i__0_n_11;
+wire numerator0_i__0_n_12;
+wire numerator0_i__0_n_13;
+wire numerator0_i__0_n_14;
+wire numerator0_i__0_n_15;
+wire numerator0_i__0_n_16;
+wire numerator0_i__0_n_17;
+wire numerator0_i__0_n_18;
+wire numerator0_i__0_n_19;
+wire numerator0_i__0_n_2;
+wire numerator0_i__0_n_20;
+wire numerator0_i__0_n_21;
+wire numerator0_i__0_n_22;
+wire numerator0_i__0_n_23;
+wire numerator0_i__0_n_24;
+wire numerator0_i__0_n_25;
+wire numerator0_i__0_n_26;
+wire numerator0_i__0_n_27;
+wire numerator0_i__0_n_28;
+wire numerator0_i__0_n_29;
+wire numerator0_i__0_n_3;
+wire numerator0_i__0_n_30;
+wire numerator0_i__0_n_31;
+wire numerator0_i__0_n_4;
+wire numerator0_i__0_n_5;
+wire numerator0_i__0_n_6;
+wire numerator0_i__0_n_7;
+wire numerator0_i__0_n_8;
+wire numerator0_i__0_n_9;
+wire numerator0_i__1_n_0;
+wire numerator0_i__1_n_1;
+wire numerator0_i__1_n_10;
+wire numerator0_i__1_n_11;
+wire numerator0_i__1_n_12;
+wire numerator0_i__1_n_13;
+wire numerator0_i__1_n_14;
+wire numerator0_i__1_n_15;
+wire numerator0_i__1_n_16;
+wire numerator0_i__1_n_17;
+wire numerator0_i__1_n_18;
+wire numerator0_i__1_n_19;
+wire numerator0_i__1_n_2;
+wire numerator0_i__1_n_20;
+wire numerator0_i__

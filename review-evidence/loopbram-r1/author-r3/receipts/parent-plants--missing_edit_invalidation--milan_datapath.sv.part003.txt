@@ -1,0 +1,3329 @@
+Candidate head: 855529fe21fea685725a9edc4fe0a798154c6469
+Comparison base: 3cda030c174b325e36c26af6420487ff91346d15
+Source: parent-plants/missing_edit_invalidation/milan_datapath.sv
+Original SHA256: 6131e64d3099e776fed1e421068661b264bb5833e940f54c162bc327529058b8
+Scope: complete text; paths and host fields normalized
+
+  //! (key = stream*8 + channel), so the requirement is a per-stream
+  //! priority over eight enable bits - combinational, no sweep. The CRF
+  //! row's nibble stays zero: no audio mapping can reference it.
+  //! (sfv_need_out_w is declared above sfv_need_w, its first reader, #193)
+  always_comb begin : sfv_out_need
+    sfv_need_out_w = '0;
+    for (int s = 0; s < N_STREAMS; s++)
+      for (int c = 0; c < 8; c++)
+        if (cmap_flat_w[(s*8 + c)*13 + 12])
+          sfv_need_out_w[4*s +: 4] = 4'(c + 1);
+  end
+
+  //! ---- the served 802.1AS path (Milan 5.4.2.17 GET_AS_PATH) ----------
+  //! Entry 0, when count is nonzero, is the head of the selected owner's
+  //! pathTrace: the received head, never replaced by the grandmaster identity
+  //! (IEEE 802.1AS-2011 10.3.10.2.1 d), FPGA-gPTP #88), or thisClock; entries
+  //! 1.. follow it. No grandmaster is always empty. Option-off aliases are
+  //! structural zero, so software writes cannot create either a count or an
+  //! entry.
+  wire [3:0] asp_served_count_w = asp_resp_count_r;
+  logic [63:0] asp_served_entry_w;
+  always_comb begin : asp_entry_pick
+    asp_served_entry_w = 64'd0;
+    if (32'(gsiq_ord_r) < 32'(asp_served_count_w)) begin
+      if (gsiq_ord_r == 8'd0) asp_served_entry_w = asp_resp_head_r;
+      else
+        for (int unsigned k = 1; k < ASP_SLOTS_C + 1; k++)
+          if (32'(gsiq_ord_r) == k)
+            asp_served_entry_w = asp_resp_path_r[64*(k-1) +: 64];
+    end
+  end : asp_entry_pick
+
+  always_comb begin : gsi_answer
+    gsi_ans_raw_w = 64'd0;
+    unique case (gsiq_kind_r)
+      2'd0: begin                            // ---- GET_STREAM_INFO ----
+        unique case (gsiq_sel_r)
+          4'd0: gsi_ans_raw_w = {32'd0, gsi_flags_w};
+          //! the CURRENT format: a valid settings row IS the current format
+          //! (SET_STREAM_FORMAT stored it); until then the generated base -
+          //! and the CRF rows report the CRF format, never the AAF base
+          4'd1: gsi_ans_raw_w =
+                    gsi_in_w
+                      ? (sfv_crf_row_w ? ADP_CRF_FMT_C
+                         : pp_aecp_fmt_in_v_w[gsi_six_w]
+                           ? pp_aecp_fmt_in_w[64*gsi_six_w +: 64]
+                           : sfv_decl_in_w)
+                  : gsi_out_w
+                      ? (sfv_crf_row_w ? ADP_CRF_OUT_FMT_C
+                         : pp_aecp_fmt_out_v_w[gsi_oix_w]
+                           ? pp_aecp_fmt_out_w[64*gsi_oix_w +: 64]
+                           : sfv_decl_out_w)
+                      : 64'd0;
+          4'd2: gsi_ans_raw_w = gsi_in_w  ? gsi_sid_w
+                              : gsi_decl_w ? gsi_osid_w : 64'd0;
+          //! an output's accumulated latency reads the SAME transit entry
+          //! its framer stamps, so the answer and the wire cannot disagree
+          //! (Milan v1.2 5.4.2.10.2, "the presentation time offset currently
+          //! used by the talker"): an AAF talker's row as set, the CRF
+          //! output's as applied, whole media clock periods by Eq. (14)
+          //! (#632), 0xFFFFFFFF once that passes 32 bits (pres_round)
+          4'd3: gsi_ans_raw_w = gsi_in_w
+                              ? {32'd0, gsi_reging_w
+                                 ? pp_cd_srp_acc_latency_w[32*gsi_six_w +: 32]
+                                 : 32'd0}
+                              : {32'd0, !gsi_out_w ? 32'd0
+                                        : gsi_crf_out_w ? pres_crf_rb_ns_w
+                                        : aecp_pres_offset[32*gsi_oix_w +: 32]};
+          //! an input's failure-code byte [15:8] is left zero: the
+          //! processor replaces it from its SRP registrar (#508)
+          4'd4: gsi_ans_raw_w = gsi_setl_w
+                              ? {pp_cd_acmp_bound_dmac_w[48*gsi_six_w +: 48],
+                                 16'd0}
+                              : gsi_decl_w
+                              ? {(maap_addr_valid ? gsi_odmac_w : 48'd0),
+                                 gsi_ofail_w
+                                 ? pp_cd_srp_src_fail_code_w[8*gsi_oix_w +: 8]
+                                 : 8'd0, 8'd0}
+                              : 64'd0;
+          //! a STREAM_OUTPUT's own FailureInformation; an input's selector 5
+          //! is never asked of this face (#508)
+          4'd5: gsi_ans_raw_w = gsi_ofail_w
+                              ? pp_cd_srp_src_fail_bridge_w[64*gsi_oix_w +: 64]
+                              : 64'd0;
+          //! an input's stream_vlan_id [63:48] is unused: the processor
+          //! replaces it with all 16 received VLAN bits (#708)
+          4'd6: gsi_ans_raw_w = {gsi_setl_w
+                                 ? {4'd0, pp_cd_acmp_bound_vlan_w[12*gsi_six_w +: 12]}
+                                 : gsi_decl_w
+                                 ? {4'd0, pp_cd_srp_class_a_vid_w}
+                                 : 16'd0,
+                                 16'd0, gsi_flags_ex_w};
+          //! SET_STREAM_FORMAT's verdict on the proposed format (issue #67)
+          4'd15: gsi_ans_raw_w = sfv_verdict_w;
+          //! selector 7 lands here: an input's probing_status and acmp_status
+          //! are the processor's (#508), and an output's are zero
+          default: gsi_ans_raw_w = 64'd0;
+        endcase
+      end
+      2'd1: begin                            // ---- GET_AVB_INFO ----
+        unique case (gsiq_sel_r)
+          4'd0: gsi_ans_raw_w = gsi_gm_snap_r;
+          4'd1: gsi_ans_raw_w = {gsi_pdelay_snap_r,
+                                 gsi_domain_snap_r,
+                                 {3'd0, 1'b1, !gsi_link_snap_r, 1'b1, 1'b1,
+                                  gsi_ascap_snap_r},
+                                 16'd1};     // one msrp mapping: class A
+          4'd8: gsi_ans_raw_w = (gsiq_ord_r == 8'd0)
+                              ? {32'd0, 8'd6,       // SRclassID A
+                                 {5'd0, gsi_prio_snap_r},
+                                 {4'd0, gsi_vid_snap_r}}
+                              : 64'd0;
+          default: gsi_ans_raw_w = 64'd0;
+        endcase
+      end
+      default: begin                         // ---- GET_AS_PATH ----
+        unique case (gsiq_sel_r)
+          4'd0: gsi_ans_raw_w = {60'd0, asp_served_count_w};
+          4'd8: gsi_ans_raw_w = asp_served_entry_w;
+          default: gsi_ans_raw_w = 64'd0;
+        endcase
+      end
+    endcase
+  end : gsi_answer
+  assign pp_gsi_data_w = gsi_data_r;
+  //! live-match: see the counters face. The format judge (kind 0, selector
+  //! 15) also waits while the #637 map restore runs (after the D3 terminal
+  //! only, so the D3 walk's own judge is never held): a SET_STREAM_FORMAT
+  //! dispatched at the terminal is judged against the restored maps, never
+  //! between a port's saved set and its reset set (D3 8.4).
+  assign pp_gsi_wait_w = pp_gsi_req_w
+                         && (!(gsi_srv2_r && gsi_sel_match_w)
+                             || (amr_rs_run_w && (pp_gsi_kind_w == 2'd0)
+                                 && (pp_gsi_sel_w == 4'd15)));
+
+  //! ---- the Table 5.22 trigger pins this fabric owns -------------------
+  //! ONE effective source per served GET_AVB_INFO field, and the SAME wire
+  //! feeds the answer mux above and the detector below. Milan Table 5.22
+  //! names six GET_AVB_INFO triggers; the root serves and detects four of
+  //! them here, and the remaining two are the processor's own:
+  //!
+  //!   gptp_grandmaster_id  cfg_adp_gptp_gm      served 4'd0, snapped here
+  //!   propagation_delay    eff_gptp_pdelay_w    served 4'd1, snapped here
+  //!   gptp_domain_number   cfg_adp_gptp_domain  served 4'd1, snapped here
+  //!   as_capable (flags)   clkv_as_cap_w        served 4'd1, snapped here
+  //!   SR class A priority  srp_class_a_prio     served 4'd8, detected in
+  //!   SR class A VLAN ID   srp_class_a_vid      the processor off the SAME
+  //!                                             wires it publishes here
+  //!                                             (evt_domain_change_o), and
+  //!                                             AVTP_DOWN likewise off the
+  //!                                             eff_link_w it is handed.
+  //!
+  //! NONE of the four is conditioned on grandmaster presence. That matters
+  //! because pp_gm_change_p_w - the ADP duty, 1722.1-2021 6.2.6 - is
+  //! deliberately silent while the PREVIOUS grandmaster id is zero, so that
+  //! no boot announces a GM_CHANGE that never happened. Routing the AEM
+  //! notification duty through that strobe made reset and GM-loss windows
+  //! swallow a real domain change: the two duties are kept apart here, and
+  //! the ADP strobe keeps its re-advertise semantics untouched.
+  //!
+  //! A snapshot compare also gives the no-op rule for free: a write that
+  //! stores the value already held moves nothing and strobes nothing, which
+  //! is the same silence 5.4.5.2 requires of a no-op SET.
+  //!
+  //! gsi_snap_v_r suppresses the reset cycle itself. The snapshots and the
+  //! Milan domain both start at structural zero, so reset cannot manufacture
+  //! a change into an empty registry.
+  //!
+  //! GET_AS_PATH keeps its own served-tuple comparator and never uses the ADP
+  //! strobe or the unconditional grandmaster-identity edge.
+  //! Milan Table 5.22 triggers GET_AS_PATH on "the path sequence changes",
+  //! and this fabric serves that sequence from one selected owner. Compare
+  //! exactly `(count ? entry 0 : 0, count, active tails)`, not a raw
+  //! publication generation. Thus a GM A->B on a TLV-less Announce, which
+  //! keeps the previous pathTrace (FPGA-gPTP #87), is silent; every entry
+  //! aliases to empty while GM=0. Option OFF is ownerless and has no staging
+  //! state to compare.
+  //!
+  //! What is NOT a term is the gPTP domain number. It is a GET_AVB_INFO
+  //! field (below) and an ADPDU field, but it is not a path entry, so a
+  //! domain-only write with a stable grandmaster must push nothing here.
+  //! Routing pp_gm_change_p_w - the ADP duty, which carries the domain -
+  //! into an AS_PATH event is exactly that defect, and the processor's
+  //! ev_asp_i takes gsi_asp_chg_i alone for the same reason.
+  //!
+  //! All of these are one-cycle strobes; the processor coalesces them into
+  //! one push per class.
+  logic gsi_ascap_q_r;
+  logic [63:0] gsi_asp_head_q_r;
+  logic [3:0] gsi_asp_count_q_r;
+  logic [7*64-1:0] gsi_asp_path_q_r;
+  logic gsi_snap_v_r;
+  logic [63:0] gsi_gm_q_r;
+  logic [31:0] gsi_pdly_q_r;
+  logic [7:0]  gsi_dom_q_r;
+  always_ff @(posedge axis_clk) begin : gsi_change_edges
+    if (!axis_resetn) begin
+      gsi_ascap_q_r <= 1'b0;
+      gsi_asp_head_q_r <= 64'd0;
+      gsi_asp_count_q_r <= 4'd0;
+      gsi_asp_path_q_r  <= '0;
+      gsi_snap_v_r  <= 1'b0;
+      gsi_gm_q_r    <= 64'd0;
+      gsi_pdly_q_r  <= 32'd0;
+      gsi_dom_q_r   <= 8'd0;
+    end else begin
+      gsi_ascap_q_r <= clkv_as_cap_w;
+      gsi_asp_head_q_r <= asp_live_head_w;
+      gsi_asp_count_q_r <= asp_live_count_w;
+      gsi_asp_path_q_r  <= asp_live_path_w;
+      gsi_snap_v_r  <= 1'b1;
+      gsi_gm_q_r    <= cfg_adp_gptp_gm;
+      gsi_pdly_q_r  <= eff_gptp_pdelay_w;
+      gsi_dom_q_r   <= cfg_adp_gptp_domain;
+    end
+  end
+  //! the grandmaster-identity term, named once because BOTH detectors need
+  //! it and only one of them may see the domain
+  wire gsi_gm_chg_w  = gsi_snap_v_r && (cfg_adp_gptp_gm != gsi_gm_q_r);
+  wire gsi_avb_chg_w = gsi_gm_chg_w
+                    || (gsi_snap_v_r
+                        && ((clkv_as_cap_w      != gsi_ascap_q_r)
+                            || (eff_gptp_pdelay_w   != gsi_pdly_q_r)
+                            || (cfg_adp_gptp_domain != gsi_dom_q_r)));
+  //! One source for the event and the answer: compare the complete served
+  //! sequence. gsi_gm_chg_w remains the AVB_INFO/counter identity edge;
+  //! AS_PATH sees entry 0, not the GM, and only when its count makes it present.
+  wire gsi_asp_chg_w = gsi_snap_v_r
+                    && ((asp_live_head_w != gsi_asp_head_q_r)
+                        || (asp_live_count_w != gsi_asp_count_q_r)
+                        || (asp_live_path_w != gsi_asp_path_q_r));
+
+  //! IDENTIFY: the processor serves the CONTROL descriptor and stores its
+  //! dynamic value. KL_pp_shadow exports aecp_identify_o into
+  //! pp_aecp_identify_w, but no root consumer drives the public indication
+  //! from that wire yet. The physical output remains structurally dark.
+  assign o_identify = 1'b0;
+
+  // ==========================================================================
+  //  ACMP — talker AND listener, served by the protocol processor
+  // ==========================================================================
+  //! KL_acmp_tlkr_ctx, KL_acmp_responder, KL_acmp_listener, KL_acmp_lstn_ctx
+  //! and acmp_pkg.sv are DELETED. The processor's KL_acmp_talker /
+  //! KL_pp_acmp_listener pair answers CONNECT_TX/PROBE_TX/GET_TX_STATE and
+  //! runs the BIND_RX ladder, and republishes the result through the class-D
+  //! face - which is what every consumer in this file reads now.
+  //!
+  //! THE DA GATE IS THE TALKER GATE. acmp_declaring_o asserts only after an
+  //! ALLOC_DA success through KL_pp_maap_shim, so the composed AAF admission
+  //! below is still "a destination address exists AND the source is
+  //! declaring", exactly as it was.
+  assign acmp_talker_active_v = pp_cd_acmp_declaring_w;
+  assign acmp_talker_active   = acmp_talker_active_v[0];
+  //! PROBE_ARMED was the legacy talker SM's "a probe window is open" level,
+  //! read only by the 0x6E8 forensics word. The processor exposes no
+  //! equivalent through the class-D face: STRUCTURAL ZERO.
+  assign acmp_probe_armed_v   = {ACMP_SRC_C{1'b0}};
+  assign acmp_probe_armed     = 1'b0;
+  assign acmp_cmd_count = 16'd0;
+  assign acmp_resp_count = 16'd0;
+
+  //! ---- the listener half's bind record, per sink -------------------------
+  //! Same index law the deleted listener used: sink k is listener_unique_id
+  //! k, sinks 0..N_STREAMS-1 the AAF sinks and the last one the CRF Media
+  //! Clock Input when this shape declares it.
+  assign acmpl_bound_v_w = pp_cd_acmp_bound_w;
+
+  //! Milan v1.2 §5.3.8.7: "A PAAD-AE having a started Stream Input shall
+  //! process the incoming stream data ... A PAAD-AE having a stopped Stream
+  //! Input shall DISCARD the Stream AVTPDUs it receives." Both halves are
+  //! shalls, and until START/STOP_STREAMING landed (issue #78) neither was
+  //! implemented — `pp_aecp_strm_started_w` was connected and read by nothing.
+  //!
+  //! The admission view is SEPARATE from `acmpl_bound_v_w` rather than folded
+  //! into it: bind level drives the CRF sink and the entry-0 alias below, and
+  //! stopping an AAF sink must not disturb either. Nor does it touch SRP —
+  //! a stopped Stream Input is still BOUND, so its reservation stands; the
+  //! clause discards the AVTPDUs, it does not withdraw the registration.
+  //! It is NOT routed through the classification table. That was the first
+  //! cut and it was wrong: the table's bind level feeds the bind edges, and
+  //! Milan Table 5.6 makes a not-bound->bound edge the counter RESET event,
+  //! so a stop/start pair wiped all ten counters on a sink that never
+  //! unbound. The discard is on the accept pulse instead - see the comment
+  //! at `avtprx_accept_p` below, which is the authority on this.
+  //! The sinks §5.3.8.7 says to DISCARD for: bound AND stopped. Stated as
+  //! the stop condition rather than as "bound and started" on purpose - the
+  //! clause calls the state "undefined when the Stream Input is not bound",
+  //! so an entry that is NOT ACMP-bound is outside its scope entirely and
+  //! must keep flowing. A classification entry provisioned through the
+  //! `0x800` override window has no binding behind it, and gating it on
+  //! `bound & started` would silence every one of them.
+  wire [ACMP_SINKS_C-1:0] acmpl_stopped_v_w = acmpl_bound_v_w
+                                              & ~pp_aecp_strm_started_w;
+
+  //! ...and the CRF Media Clock Input's own bit, guarded by whether that sink
+  //! EXISTS. `CRF_SNK_IDX_C` falls back to 0 on a shape with `crf_sink:
+  //! false` (ACMP_SINKS_C == N_STREAMS), and reading index 0 there would let
+  //! a STOP_STREAMING aimed at AAF Stream Input 0 reach into the media-clock
+  //! receiver's consumption ladder - a controller command touching clock
+  //! recovery on a sink it never named. Every tracked config sets
+  //! `crf_sink: true`, so no shipping shape takes the fallback; the guard is
+  //! here so that stays true of shapes nobody has built yet.
+  //! `acmpl_stopped_v_w` has TWO consumers: the listener accept gate (the
+  //! AAF sinks, where stopped DISCARDS payload) and, through this wire,
+  //! `KL_crf_rx`'s `stop_i` (the CRF Media Clock Input, which has no
+  //! classification-table entry of its own). The CRF side is NOT a frame
+  //! gate: `frame_p_i` stays raw so a stopped sink keeps observing and
+  //! counting per §5.3.8.10, and `stop_i` gates only consumption - the
+  //! settle/lock ladder and the mr restart echo. Between the two consumers
+  //! every Stream Input the entity advertises is covered, which is what
+  //! §5.4.2.19's "For each Stream Input" and §5.3.8.7's discard rule
+  //! together require.
+  wire crf_snk_stopped_w = (ACMP_SINKS_C > N_STREAMS)
+                           && acmpl_stopped_v_w[CRF_SNK_IDX_C];
+
+  assign acmpl_sid_v_w   = pp_cd_acmp_bound_sid_w;
+  //! the scalar sink-0 shadows every legacy consumer here still reads
+  assign acmpl_bound = acmpl_bound_v_w[0];
+  assign acmpl_sid   = acmpl_sid_v_w [63:0];
+  //! ...and sink 1's, the 0x4B BSCAN forensics pair
+  assign acmpl1_bound = (ACMP_SINKS_C > N_STREAMS) &
+                        acmpl_bound_v_w[CRF_SNK_IDX_C];
+  assign acmpl1_sid   = (ACMP_SINKS_C > N_STREAMS)
+                        ? acmpl_sid_v_w[64*CRF_SNK_IDX_C +: 64] : 64'd0;
+  //! The legacy listener SM's observable surface. There is no state machine
+  //! here any more - the processor runs the ladder internally and publishes
+  //! only the BOUND record - so everything that described the ladder itself
+  //! reads a STRUCTURAL ZERO. ACMPL_STATE 0x6E0 in particular no longer
+  //! tracks PROBING/SETTLED: a reader must take acmpl_bound as the truth.
+  assign acmpl_state = 3'd0;
+  wire [63:0] acmpl_talker = 64'd0;
+  assign acmpl_tuid = 16'd0;
+  assign acmpl_status = 5'd0;
+  assign acmpl_probing = 2'd0;
+  assign acmpl_tk_avail = 1'b0;
+  assign acmpl_lstn_declare = 1'b0;
+  assign acmpl_active = acmpl_bound;
+  assign acmpl_cmd_count = 16'd0;
+  assign acmpl_probe_count = 16'd0;
+  assign acmpl_tx_wedge = 8'd0;
+  assign acmpl_dbg = 32'd0;
+  //! the 0x800 window's ACMP table master: no context table to serve
+  assign acmp_tbl_gnt_w = 1'b0;
+  assign acmp_tbl_ctx_w = {ACMP_LSTN_CTX_W_C{1'b0}};
+  //! E1/E3 saved-state fast-connect: the journal AND the restore port are
+  //! deleted. The processor has its own NVM restore walk, answered here by a
+  //! BLANK-FLASH responder inside KL_pp_shadow, so nothing is restored.
+  assign acmp_rest_ack_w = 1'b0;
+  assign acmp_rest_status_w = 2'd0;
+  assign jnl_stat_w = 32'd0;
+  assign jnl_seq_w = 32'd0;
+
+  // ==========================================================================
+  //  AVTP RX monitor (Milan v1.2 §5.4.5.3, Table 7-156) — non-intrusive
+  //  parser on the same RX tap, matched to the BOUND stream_id the protocol
+  //  processor publishes. Its counters reach local software through the 0x6B8
+  //  A_STRMW_CNT CSR window and supported controller targets through solicited
+  //  GET_COUNTERS and through the lossless dirty arbiter into the processor's
+  //  live Table 5.22 notification scheduler (#69).
+  // ==========================================================================
+  //! NXN §1.1 (P1): stream-table classification authority. Entry 0 aliases
+  //! the processor's ACMP bound record combinationally; entries
+  //! 1..N-1 + bench overrides arrive via the 0x800 CSR window (P12 glue
+  //! below).
+  localparam int NSIDX_W_C = (N_STREAMS <= 1) ? 1 : $clog2(N_STREAMS);
+  //! public: the #447 multi-stream render arm reads the two entries back, so
+  //! "these are two different streams" is observed at the classifier rather
+  //! than assumed from the two commands that bound them
+  wire [64*N_STREAMS-1:0] strtbl_sid_w /* verilator public_flat_rd */;
+  //! public: the #447 render-lane leg's stream-qualified epoch arm reads the
+  //! per-stream bind LEVEL and the per-stream bind FALL, so "a bind fall on a
+  //! stream this lane does not render left the lane alone" is graded against
+  //! the fall actually firing rather than against nothing having happened.
+  wire [N_STREAMS-1:0]    strtbl_en_w        /* verilator public_flat_rd */;
+  wire [N_STREAMS-1:0]    strtbl_bind_rise_w;
+  wire [N_STREAMS-1:0]    strtbl_bind_fall_w /* verilator public_flat_rd */;
+                                             //! task #32: the wipe pulse
+  //! public: the #447 multi-stream render arm counts accepts PER STREAM, so
+  //! "the second stream really is delivering" is observed and not assumed
+  wire [NSIDX_W_C-1:0]    avtprx_idx /* verilator public_flat_rd */;
+
+  //! P12 window commit glue (NXN §1.1/§1.3): the CSR window's listener
+  //! writes land in the LCTX (monitor CFG words); the classification table
+  //! and the route policy shadow the SAME accepted writes here — SID_LO/HI
+  //! (w0/w1) stage, a CTRL (w4) write COMMITS {sid, en} into the stream
+  //! table entry and [2:1] into the route table (mirrors the CSR's own
+  //! SEL-then-words staging ABI).
+  //!
+  //! The staging pair is ONE register set shared by every index, so it MUST
+  //! carry the index it was staged for: a CTRL commit only overrides the
+  //! table when a sid was staged FOR THAT INDEX. Testing "some sid is staged"
+  //! instead (the pre-2026-07-26 form) let a route-flags-only CTRL write at
+  //! idx 0 arm entry 0 with another listener's sid, permanently detaching the
+  //! ACMP alias -> bound-but-never-matching. See `tb/verilator/milan_dp`
+  //! TRAP-1 and the current stream-table integration notes.
+  logic [31:0] wing_sid_lo_r, wing_sid_hi_r;
+  logic        wing_tbl_we_r, wing_route_we_r;
+  logic [3:0]  wing_idx_r;
+  logic [63:0] wing_sid_r;
+  logic        wing_en_r;
+  logic [1:0]  wing_route_r;
+  //! which index the staged sid belongs to, and whether it is still unspent
+  logic [2:0]  wing_stg_idx_r;
+  logic        wing_stg_vld_r;
+  wire lctx_wr_acc_w = csr_lctx_wr_p_w && lctx_wr_rdy_w;
+  //! the index carried by the window write currently being accepted
+  wire [2:0] wing_wr_idx_w = csr_lctx_wr_addr_w[7:5];
+  //! staging is only spendable by a commit to the SAME index
+  wire wing_stg_hit_w = wing_stg_vld_r && (wing_stg_idx_r == wing_wr_idx_w);
+
+  always_ff @(posedge axis_clk) begin : win_commit_glue
+    if (!axis_resetn) begin
+      wing_sid_lo_r <= '0; wing_sid_hi_r <= '0;
+      wing_tbl_we_r <= 1'b0; wing_route_we_r <= 1'b0;
+      wing_idx_r <= '0; wing_sid_r <= '0; wing_en_r <= 1'b0;
+      wing_route_r <= '0;
+      wing_stg_idx_r <= '0; wing_stg_vld_r <= 1'b0;
+    end
+    else begin
+      wing_tbl_we_r   <= 1'b0;
+      wing_route_we_r <= 1'b0;
+      if (lctx_wr_acc_w) begin
+        unique case (csr_lctx_wr_addr_w[4:0])
+          //! staging a sid half BINDS the staging set to that index; a half
+          //! aimed at a different index restarts the set rather than mixing
+          //! two listeners' halves into one 64-bit value
+          5'd0 : begin
+            wing_sid_lo_r  <= csr_lctx_wr_data_w;
+            if (!wing_stg_hit_w) wing_sid_hi_r <= '0;
+            wing_stg_idx_r <= wing_wr_idx_w;
+            wing_stg_vld_r <= 1'b1;
+          end
+          5'd1 : begin
+            wing_sid_hi_r  <= csr_lctx_wr_data_w;
+            if (!wing_stg_hit_w) wing_sid_lo_r <= '0;
+            wing_stg_idx_r <= wing_wr_idx_w;
+            wing_stg_vld_r <= 1'b1;
+          end
+          5'd4 : begin              //! CTRL commit: {en[0], route[2:1]}
+            //! Override the table ONLY when a sid was staged FOR THIS INDEX,
+            //! or on an eviction (en=0). Testing "some sid is staged" instead
+            //! let a route-flags-only CTRL=en at idx 0 arm entry 0 with
+            //! another listener's stale sid and detach the ACMP alias for
+            //! good (bound-but-never-matching). 2026-07-23 bench: the
+            //! zero-sid variant of the same write froze a locked stream.
+            wing_tbl_we_r   <= wing_stg_hit_w | ~lctx_wr_data_sane_w[0];
+            wing_route_we_r <= 1'b1;
+            wing_idx_r      <= {1'b0, wing_wr_idx_w};
+            //! an eviction with nothing staged for this index commits the
+            //! ZERO sid, which is `KL_stream_table`'s release-to-alias code
+            wing_sid_r      <= wing_stg_hit_w ? {wing_sid_hi_r, wing_sid_lo_r}
+                                              : 64'd0;
+            wing_en_r       <= lctx_wr_data_sane_w[0];
+            wing_route_r    <= lctx_wr_data_sane_w[2:1];
+            wing_stg_vld_r  <= 1'b0;   //! staging is spent by its commit
+          end
+          default : ;
+        endcase
+      end
+    end
+  end : win_commit_glue
+
+  //! The TCTX CTRL[0] shadow that lived here (tctx_en_r, the t>0 admission
+  //! enable) is DELETED, 2026-07-30. It reset to 0 with no board-software
+  //! writer, so it held every talker above 0 dark forever on the
+  //! shape-static builds, and a per-stream software enable is not ours to
+  //! have in the first place (Milan v1.2 5.3.7.3 / 5.4.2.19 / 5.4.2.20 /
+  //! 5.5.4.1 - see the g_aaf_stream_en banner). TCTX w0 writes still land
+  //! in the packetizer's context RAM, so chans and VID stay provisionable;
+  //! bit 0 of that word is simply no longer consulted by anything.
+
+  // ==========================================================================
+  //  PER-ROW lwSRP TSpec (2026-07-26): MaxFrameSize is a property of the
+  //  STREAM, not of the engine. The 0x800 window has no per-stream TSpec
+  //  word, so every ctx row used to be provisioned from the shared
+  //  LWSRP_TSPEC (0x690) and a 2-channel and an 8-channel talker reserved
+  //  identically — one of them always wrong, and the reservation could not
+  //  match the frames the packetizer actually emits.
+  //
+  //  The honest source is the geometry the packetizer itself uses: TCTX w0
+  //  `chans` (same field, same clamp), so reservation and wire can never
+  //  disagree. For the AAF-PCM32 frame this datapath builds,
+  //    payload = SAMPLES_PER_FRAME x C x 4 = 24*C octets
+  //    MSDU (AVTPDU) = 24 + 24*C  <- the MSRP TSpec MaxFrameSize
+  //    L2 frame      = 42 + 24*C  = MaxFrameSize + the 802.1Q overhead of 42
+  //  which is exactly sw/builder's `srp_frame_geometry` (gate: talker rows
+  //  in lwsrp_table.json carry avtpdu_bytes).
+  //
+  //  Row 0 (the legacy talker+listener pair) is untouched: it keeps
+  //  LWSRP_TSPEC verbatim, silicon-proven, per the no-regression axiom.
+  localparam int unsigned AAF_SPF_C        = 6;   //! 48 kHz / 8000 per s
+  localparam int unsigned AAF_SMP_OCTETS_C = 4;   //! AAF INT_32BIT
+  localparam int unsigned AVTP_AAF_HDR_C   = 24;  //! common + format header
+
+  //! same clamp as KL_aaf_packetizer's chn_clamp (even, 2..8)
+  function automatic [3:0] aaf_chn_clamp(input [3:0] c);
+    aaf_chn_clamp = (c < 4'd2)  ? 4'd2
+                  : (c >= 4'd8) ? 4'd8
+                  : (c[0] ? (c + 4'd1) : c);
+  endfunction
+
+  //! RESET VALUE OF THE TSPEC GEOMETRY = THE ELABORATED WIRE WIDTH, and this
+  //! is load-bearing rather than tidy. tctx_chans_r shadows TCTX w0 `chans`,
+  //! but NO board software writes that window - it is provisioned by the
+  //! fabric (srp_fab_rec_mux below), so on silicon this register never leaves
+  //! its reset value. It used to reset to 4'd2 while KL_aaf_packetizer reset
+  //! its own chans_r to the elaborated WIRE_CHANS_C, so on the shipping
+  //! 4-channel Arty the wire carried a 120-octet AAF frame and talkers
+  //! 1..N-1 DECLARED the 2-channel TSpec (73), reserving 7.36 Mb/s against
+  //! the 10.368 Mb/s the stream actually occupies - a 29% under-reservation,
+  //! i.e. the bridge grants less CBS credit than the traffic needs. Slot 0
+  //! escaped it because the fabric mux starts at s=1 and slot 0 keeps
+  //! cfg_lwsrp_max_frame, which is exactly the index-0-works / 1..N-1-broken
+  //! signature of 0x001F. Deriving the reset from the SAME parameter the
+  //! framer is given makes wire and reservation agree by construction at any
+  //! width, 8 channels included, and a CSR write still overrides.
+  localparam logic [3:0] TCTX_CHANS_RST_C =
+      aaf_chn_clamp(4'(TALKER_WIRE_CHANS_P));
+
+  logic [3:0] tctx_chans_r [N_STREAMS];
+  //! the window raises tctx_wr_p AND the SRP provisioning request on the
+  //! SAME CTRL write, and the ctx record samples max_frame one cycle before
+  //! the accepted TCTX handshake retires — so the in-flight write is
+  //! bypassed here, never sampled a commit late
+  wire       tctx_w0_wr_w = csr_tctx_wr_p_w &&
+                            (csr_tctx_wr_addr_w[3:0] == 4'd0) &&
+                            (32'(csr_tctx_wr_addr_w[6:4]) < N_STREAMS);
+  wire [3:0] tctx_chans_w [N_STREAMS];
+  wire [15:0] tctx_maxf_w [N_STREAMS];
+  generate
+    for (genvar gc = 0; gc < N_STREAMS; gc++) begin : g_tctx_tspec
+      assign tctx_chans_w[gc] =
+          (tctx_w0_wr_w && (32'(csr_tctx_wr_addr_w[6:4]) == gc))
+              ? aaf_chn_clamp(csr_tctx_wr_data_w[4:1]) : tctx_chans_r[gc];
+      //! MILAN v1.2 4.3.3.2 Table 4.4, "AAF PCM32, 48kHz, N channels":
+      //! MaxFrameSize = 24*N + 24 + 1. The trailing +1 is NOT slack we may
+      //! round away - the table's own note says "One more byte is added to
+      //! take the fact into account, that the sampling clock of the PAAD may
+      //! be a bit faster than the nominal frequency". Omitting it (2026-07-30)
+      //! declared 72 bytes for a 2-channel stream where the clause says 73,
+      //! and since MaxFrameSize is what the bandwidth is computed from, the
+      //! reservation came out at 7296 kbps against the mandated 7360 - an
+      //! UNDER-reservation, i.e. the bridge grants less credit than the
+      //! stream actually occupies.
+      assign tctx_maxf_w[gc] =
+          16'(AVTP_AAF_HDR_C) + 16'd1 +
+          16'(AAF_SPF_C * AAF_SMP_OCTETS_C) * 16'(tctx_chans_w[gc]);
+    end
+  endgenerate
+
+  always_ff @(posedge axis_clk) begin : tctx_chans_shadow
+    if (!axis_resetn) begin
+      for (int t = 0; t < N_STREAMS; t++) tctx_chans_r[t] <= TCTX_CHANS_RST_C;
+    end else if (tctx_w0_wr_w && tctx_wr_rdy_w) begin
+      for (int t = 0; t < N_STREAMS; t++) begin
+        if (32'(csr_tctx_wr_addr_w[6:4]) == t)
+          tctx_chans_r[t] <= aaf_chn_clamp(csr_tctx_wr_data_w[4:1]);
+      end
+    end
+  end : tctx_chans_shadow
+
+  // ==========================================================================
+  //  THE lwSRP FABRIC PROVISIONER IS DELETED WITH THE ENGINE IT FED.
+  // ==========================================================================
+  //! Roughly 780 lines lived here: the per-AAF-talker, per-CRF-output and
+  //! per-AAF-sink requesters, the two-deep launch pipeline that resolved one
+  //! of them per rotation, the record muxes that composed {sid, dmac, vlan,
+  //! maxframe, interval, latency} for an attribute row, and the CSR-window
+  //! arbitration between them. Every one of them existed to write a
+  //! KL_lwsrp_ctx attribute ROW, and there is no attribute row table any
+  //! more: the protocol processor keeps its own per-source and per-sink SRP
+  //! state and is provisioned by the quasi-static ports on KL_pp_shadow
+  //! (cfg_stream_id_i, cfg_src_en_i, cfg_tspec_max_frame_i) plus the ACMP
+  //! binds it resolves itself. Provisioning a row is not something this file
+  //! does any longer, so nothing here mirrors it.
+  //!
+  //! The tctx_maxf_w derivation above SURVIVES and is now consumed directly:
+  //! it is the Milan Table 4.4 MaxFrameSize the processor declares with for
+  //! each AAF talker (g_pp_maxf; the CRF output's comes from KL_crf_tx).
+
+  //! THE INTERLOCK, repointed. Frames are tagged only while THIS STREAM's
+  //! MSRP Talker Advertise is on the wire - otherwise 802.1Q 35.1.2 prunes a
+  //! tagged-but-undeclared stream to zero ports, which is strictly worse than
+  //! the untagged flood. The level used to be "the fabric provisioned the row
+  //! AND the applicant is running"; it is now the processor's own declaration
+  //! state for the CRF source, which is the same fact one step closer to the
+  //! wire. Shapes with no CRF Stream Output have no source to declare and
+  //! keep the untagged fallback.
+  //! ...and the select must stay LEGAL at a shape that has no CRF source:
+  //! at ACMP_SRC_C == N_STREAMS the vector is 2*N_STREAMS wide and slot
+  //! CRF_TUID_C = N_STREAMS is one past its end. Verilator called that out as
+  //! SELRANGE; synthesis would have taken the out-of-range bits as X/0 and
+  //! the guard above would have hidden it. Clamp the INDEX, not the answer.
+  localparam int CRF_DECL_SLOT_C = (ACMP_SRC_C > N_STREAMS) ? CRF_TUID_C : 0;
+  wire crft_class_a_w = (ACMP_SRC_C > N_STREAMS) &
+                        (|pp_cd_srp_tk_decl_state_w[2*CRF_DECL_SLOT_C +: 2]);
+  //! The CRF source's ACTIVE AND real admission grant (top slot when
+  //! present). Neither optimism nor a previous TSpec can license a refused
+  //! re-declaration (#551, processor #112).
+  wire crft_res_active_w = (SRP_CRF_TK_C != 0) &
+                           lwsrp_stream_gate[SRP_TALKERS_C-1];
+  //! the C-TAG's {PCP, VID}: SR class A defaults {3, LWSRP_VID} (802.1Q
+  //! 34.5 / Table 34-1; Milan v1.2 4.2.7.2.1 starts the Domain triple at
+  //! {class A, priority 3, VID 2}) - and the OPERATIONAL pair once a
+  //! received Domain FirstValue is ADOPTED (4.2.7.2.1's update clause):
+  //! the lwSRP applicant serializes op_{prio,vid} into the Domain, the
+  //! MVRP VID and the TalkerAdvertise DataFrameParameters, so muxing the
+  //! SAME pair here keeps the frame and the declaration one wire.
+  wire [2:0]  crft_pcp_w = lwsrp_adopt_valid
+                           ? lwsrp_op_prio[2:0]
+                           : SR_CLASS_A_PRIO_C[2:0];
+  wire [11:0] crft_vid_w = lwsrp_adopt_valid ? lwsrp_op_vid : cfg_lwsrp_vid;
+  //! THE LICENCE (Milan v1.2 5.3.7.3): a talker streams while it declares a
+  //! Talker Advertise AND receives a Listener Ready - the CRF output is a
+  //! Stream Output like any other, so its emission rides the same bw-gate
+  //! the AAF talkers use (aaf_gate / aaf_stream_en_w), not the bare CSR
+  //! enable. ax-rv32-e wire truth: with zero listeners and no reservation
+  //! the old bare-CSR gate kept 500 PDU/s on the wire (FRAMES_TX +1/s,
+  //! stat[6]=0), which 5.3.7.3 does not license. The bring-up escapes
+  //! mirror the AAF term: AAF bypass, or an lwSRP that is not policing
+  //! (engine or talker declarations off - no TA can form, so silence would
+  //! deadlock the media clock during bring-up, same doctrine as the
+  //! untagged-but-alive fallback above). Until #530 the slot read the raw
+  //! admission verdict, so a declared output with no Listener streamed.
+  wire crft_emit_en_w /* verilator public_flat_rd */ = cfg_crft_en &
+                        (cfg_aaf_bypass | ~cfg_lwsrp_enable |
+                         ~cfg_lwsrp_talker_en | crft_res_active_w);
+
+  //! 0x750 live status (see milan_csr A_CRFT_CTRL); [1:0] come from the CSR
+  logic [31:0] crft_stat_c;
+  always_comb begin : crft_stat_pack
+    crft_stat_c        = 32'd0;
+    //! [4] used to be "the fabric provisioned this stream's TA row valid".
+    //! There is no row to provision: STRUCTURAL ZERO. [5]/[6] below still
+    //! carry the real tagged/reserved levels, from the processor.
+    crft_stat_c[4]     = 1'b0;
+    crft_stat_c[5]     = crft_class_a_w;        //! frames leaving tagged
+    crft_stat_c[6]     = crft_res_active_w;     //! ACTIVE AND real grant
+    crft_stat_c[7]     = crft_emit_en_w;        //! emission licensed NOW
+    crft_stat_c[19:8]  = crft_class_a_w ? crft_vid_w : 12'd0;
+    crft_stat_c[22:20] = crft_class_a_w ? crft_pcp_w : 3'd0;
+  end : crft_stat_pack
+  assign crft_stat_w = crft_stat_c;
+
+  KL_stream_table #(.N_LISTENERS_P(N_STREAMS)) stream_table (
+    .clk_i (axis_clk), .rst_n (axis_resetn),
+    //! entry 0 is the ACMP alias and it gets the PURE bind level, exactly
+    //! like the vector below and for the same reason: this port feeds the
+    //! bind edges that Table 5.6 resets counters on. The started gate is on
+    //! the accept pulse further down.
+    .bound0_i (acmpl_bound), .sid0_i (acmpl_sid),
+    //! task #32: every entry rides its own sink's bind level, so an UNBIND
+    //! evicts the classification entry and the departed stream's frames
+    //! become foreign at the parser (the AAF slice of the ACMP view - the
+    //! CRF sink classifies in its own path).
+    //!
+    //! It is the PURE bind level and deliberately NOT the started gate: this
+    //! port feeds `bind_rise_o`/`bind_fall_o`, and Milan Table 5.6 resets the
+    //! Stream Input counters "each time the Stream Input changes its state
+    //! from not bound to bound" - a STOP_STREAMING is not that. Gating here
+    //! synthesised a fake unbind/rebind pair around every stop/start, which
+    //! wiped all ten counters and flushed the loopback queues on a sink that
+    //! never left its binding. The started gate is on ACCEPT instead, below.
+    .bound_v_i (acmpl_bound_v_w[N_STREAMS-1:0]),
+    .sid_v_i   (acmpl_sid_v_w[64*N_STREAMS-1:0]),
+    .wr_en_i (wing_tbl_we_r), .wr_idx_i (wing_idx_r),
+    .wr_sid_i (wing_sid_r), .wr_valid_i (wing_en_r),
+    .tbl_sid_o (strtbl_sid_w), .tbl_en_o (strtbl_en_w),
+    .bind_rise_o (strtbl_bind_rise_w),
+    .bind_fall_o (strtbl_bind_fall_w)
+  );
+
+  avtp_stream_parser #(
+    .TDATA_WIDTH (TDATA_WIDTH), .BIG_ENDIAN (0), .N_STREAMS (N_STREAMS)
+  ) avtp_rx_parser (
+    .clk (axis_clk), .resetn (axis_resetn),
+    .cfg_stream_id_i (strtbl_sid_w),
+    .cfg_stream_en_i (strtbl_en_w),
+    //! PRE-FILTER tap: an accepted AVTP stream is a fabric-media input and must
+    //! not depend on the station-address policy applied to protocol observers.
+    .s_tdata_i  (rx_axis_from_mac.tdata),
+    .s_tkeep_i  (rx_axis_from_mac.tkeep),
+    .s_tvalid_i (rx_axis_from_mac.tvalid),
+    .s_tready_i (rx_axis_from_mac.tready),
+    .s_tlast_i  (rx_axis_from_mac.tlast),
+    .match_valid_o (avtprx_match),
+    .match_index_o (avtprx_idx),
+    .stream_id_o   (avtprx_sid_frame),
+    .avtp_ts_o     (avtprx_ts),
+    .subtype_o     (avtprx_subtype),
+    .ts_valid_o    (avtprx_tv_bit),
+    .media_restart_o(avtprx_mr_bit),
+    .seq_num_o     (avtprx_seq),
+    .ts_uncertain_o(avtprx_tu_bit),
+    .fsh_o         (avtprx_fsh),
+    .fsh2_o        (avtprx_fsh2),
+    .parse_valid_o (avtprx_parse_p),
+    .b3_o          (avtprx_b3),
+    .avtp_frames_o (aprb_parsed_w),
+    .matched_frames_o (aprb_matched_w)
+  );
+
+  // ==========================================================================
+  //  RX parser probe (APRB CSR group 0x8B4, 2026-07-26). Every other RX
+  //  counter in this datapath lives DOWNSTREAM of the stream-table match
+  //  (AVTPRX_*, PCMRX_*): when a bound listener accepts nothing they all
+  //  read 0 and say nothing about why. These words are the pre-match view -
+  //  how many AVTP frames the parser saw, how many matched an armed table
+  //  entry, and the stream_id it actually lifted off the wire for the last
+  //  STREAM-subtype frame (subtype[7]=0; control subtypes ADP/ACMP/MAAP are
+  //  excluded so they cannot overwrite the media evidence).
+  // ==========================================================================
+  //! DPROBES_P (docs/design/AREA_BUDGET.md, 2026-07-29): the
+  //! APRB/PBK groups are closed-finding diagnostics (fabric-listener
+  //! blocker + item-7 chain, both TB-pinned since); a build that prunes
+  //! them reads the whole 0x8B4-0x8D0 range as 0 - the LTAP precedent, an
+  //! absent block declares itself. Counting/latching logic dies with it.
+  generate if (DPROBES_P != 0) begin : g_aprb
+    logic [63:0] aprb_sid_r;      //! stream_id of the last stream-subtype frame
+    logic [7:0]  aprb_subtype_r;  //! its subtype
+    logic        aprb_hit_r;      //! did that frame match a table entry
+    logic [3:0]  aprb_idx_r;      //! matched entry index (valid with aprb_hit_r)
+    logic [7:0]  aprb_armed_w;    //! table entries currently armed (live popcount)
+
+    always_comb begin : aprb_armed_count
+      aprb_armed_w = '0;
+      for (int unsigned k = 0; k < N_STREAMS; k++)
+        if (strtbl_en_w[k]) aprb_armed_w = aprb_armed_w + 8'd1;
+    end : aprb_armed_count
+
+    always_ff @(posedge axis_clk) begin : aprb_probe
+      if (!axis_resetn) begin
+        aprb_sid_r     <= '0;
+        aprb_subtype_r <= '0;
+        aprb_hit_r     <= 1'b0;
+        aprb_idx_r     <= '0;
+      end
+      else if (avtprx_parse_p && !avtprx_subtype[7]) begin
+        aprb_sid_r     <= avtprx_sid_frame;
+        aprb_subtype_r <= avtprx_subtype;
+        aprb_hit_r     <= avtprx_match;
+        aprb_idx_r     <= 4'(avtprx_idx);
+      end
+    end : aprb_probe
+
+    assign aprb_regs_w[32*0 +: 32] = aprb_parsed_w;
+    assign aprb_regs_w[32*1 +: 32] = aprb_matched_w;
+    assign aprb_regs_w[32*2 +: 32] = aprb_sid_r[31:0];
+    assign aprb_regs_w[32*3 +: 32] = aprb_sid_r[63:32];
+    assign aprb_regs_w[32*4 +: 32] = {8'd0, aprb_armed_w, 3'd0, aprb_idx_r,
+                                      aprb_hit_r, aprb_subtype_r};
+  end else begin : g_no_aprb
+    assign aprb_regs_w = '0;
+  end endgenerate
+
+  // ==========================================================================
+  //  CRF Media Clock Input engine (Milan 7.3.2) - measurement half: parses
+  //  and validates the Avnu Pro Audio CRF stream selected by the CRF CSRs,
+  //  produces the phase/frequency error the media-clock servo consumes, and
+  //  keeps the Table 5.16 counters this Stream Input serves over
+  //  GET_COUNTERS and pushes through Table 5.22 (#529).
+  // ==========================================================================
+  KL_crf_rx #(
+    .CLK_FREQ_HZ_P (MILAN_CLK_FREQ_HZ),
+    .IVAL_CYC_P    (LDIAG_IVAL_CYC_P)
+  ) crf_rx (
+    .clk_i (axis_clk), .rst_n (axis_resetn),
+    //! the RAW parse strobe, deliberately UNGATED by the stopped state:
+    //! Milan 5.3.8.7's verb is discard, not ignore, and 5.3.8.10 defines
+    //! Table 5.6 counters on AVTPDUs "received on this Stream Input" - so a
+    //! stopped, bound CRF sink keeps matching, validating and counting.
+    .frame_p_i   (avtprx_parse_p),
+    .subtype_i   (avtprx_subtype),
+    .seq_i       (avtprx_seq),
+    .sid_frame_i (avtprx_sid_frame),
+    .pullbase_i  (avtprx_ts),
+    .fsh_i       (avtprx_fsh),
+    .fsh2_i      (avtprx_fsh2),
+    .type_i      (avtprx_b3),
+    .mr_i        (avtprx_mr_bit),
+    //! IEEE 1722-2016 10.4.3's second duty for that bit: the restart the
+    //! outgoing streams have to echo. Consumed by mcr_restart_p_w above,
+    //! under the clock-source gate the clause itself scopes it with.
+    .mr_toggle_p_o (crf_mr_toggle_p_w),
+    //! IEEE 1722-2016 10.4.5: the CRF ALTERNATIVE header puts tu at frame
+    //! byte o+1 bit 0 - the bit the parser publishes as tv for the common
+    //! stream header. avtprx_tu_bit (byte o+3 bit 0) is the CRF `type`
+    //! field's LSB and would read 1 on every conformant CRF_AUDIO_SAMPLE
+    .tu_i        (avtprx_tv_bit),
+    .ptp_now_i   (ptp_now_w),
+    //! ACMP sink-1 bind wins; the CSR pair stays the manual bench lever
+    .en_i        (cfg_crf_en | acmpl1_bound),
+    .sid_i       (acmpl1_bound ? acmpl1_sid : cfg_crf_sid),
+    //! Milan 5.3.8.7 STOP for this descriptor gates CONSUMPTION inside the
+    //! module (lock machinery + the 10.4.3 restart echo), never observation.
+    //! This sink has no classification-table entry (it keys on subtype, off
+    //! the parser), so the listener accept gate above cannot reach it and
+    //! the predicate arrives on its own port. It costs nothing in normal
+    //! operation: the state is `bound & ~started`, a bind lands started
+    //! unless the BIND_RX asked for STREAMING_WAIT, and an unbound CRF sink
+    //! is outside the clause and ungated - a controller command aimed at
+    //! this descriptor on purpose, not a command in the path of clock
+    //! recovery.
+    .stop_i      (crf_snk_stopped_w),
+    .delta_o     (crf_delta_w),
+    .rate_o      (crf_rate_w),
+    .rate_valid_o (crf_rate_valid_w),
+    .pdu_count_o (crf_pducnt_w),
+    .fmt_err_o   (crf_fmterr_w),
+    .seq_err_o   (crf_seqerr_w),
+    //! Milan Table 5.16's CRF Media Clock Input bank, whole: these seven and
+    //! the three above are the GET_COUNTERS row for STREAM_INPUT N_STREAMS
+    //! (ctr_crf_block). Only pdu, fmt_err and seq_err also have a CSR slice
+    //! (CRF_STATUS 0x74C), truncated there and full-width on the wire.
+    .mr_cnt_o    (crf_mrcnt_w),
+    .tu_cnt_o    (crf_tucnt_w),
+    .late_cnt_o  (crf_latecnt_w),
+    .early_cnt_o (crf_earlycnt_w),
+    .locked_o    (crf_locked_w),
+    .cnt_locked_o   (crf_lockcnt_w),
+    .cnt_unlocked_o (crf_unlockcnt_w),
+    .cnt_intr_o     (crf_intrcnt_w),
+    //! ...and that row's Table 5.22 source: the descriptor arbiter in front
+    //! of KL_pp_shadow delivers it as {STREAM_INPUT, N_STREAMS} to the
+    //! processor's rate-limited counter-change scheduler
+    .dirty_p_o      (crf_dirty_p_w),
+    .ts_p_o         (crf_ts_p_w),
+    .ts_o           (crf_ts_w)
+  );
+
+  // ==========================================================================
+  //  The AAF clock meter (#629, docs/design/MEDIA_CLOCK_FOLLOWING.md): the
+  //  selected AAF Stream Input's media clock, measured from its presentation
+  //  timestamps in KL_crf_rx's rate units, so the servo below follows an AAF
+  //  talker through the same path it follows a CRF talker (D2 = M1: ONE
+  //  meter, on the selected input). It reads the parser bundle KL_crf_rx
+  //  reads, but takes tu from the COMMON-header bit (avtprx_tu_bit), not the
+  //  tv net the CRF header needs. Its enable is aaf_clk_selected_r, the one
+  //  selection gate on everything it outputs. A shape that offers no AAF
+  //  source (AEM_N_AAF_CLKSRC_C == 0) elaborates none, and its outputs read
+  //  zero.
+  // ==========================================================================
+  generate if (AEM_N_AAF_CLKSRC_C != 0) begin : g_aaf_meter
+    wire [15:0] max_dev_ns_w;
+    wire [15:0] status_w;
+    KL_aaf_clock_meter #(
+      .CLK_FREQ_HZ_P (MILAN_CLK_FREQ_HZ),
+      .N_LISTENERS_P (N_STREAMS)
+    ) aaf_clock_meter (
+      .clk_i         (axis_clk),
+      .rst_n         (axis_resetn),
+      .en_i          (aaf_clk_selected_r),
+      .follow_idx_i  (aaf_follow_idx_r),
+      .bind_rise_i   (strtbl_bind_rise_w),
+      .stopped_i     (acmpl_stopped_v_w[N_STREAMS-1:0]),
+      .match_p_i     (avtprx_match),
+      .match_idx_i   (avtprx_idx),
+      .subtype_i     (avtprx_subtype),
+      .tv_i          (avtprx_tv_bit),
+      .tu_i          (avtprx_tu_bit),
+      .mr_i          (avtprx_mr_bit),
+      .seq_i         (avtprx_seq),
+      .ts_ns_i       (avtprx_ts),
+      .fsh_i         (avtprx_fsh),
+      .locked_o      (aafm_locked_w),
+      .rate_ns_o     (aafm_rate_w),
+      .rate_valid_o  (aafm_rate_valid_w),
+      .disrupt_p_o   (aafm_disrupt_p_w),
+      .mr_toggle_p_o (aafm_mr_toggle_p_w),
+      .max_dev_ns_o  (max_dev_ns_w),
+      .status_o      (status_w)
+    );
+    //! AAFM_STAT (0x8E0): the largest deviation over the status levels
+    assign aafm_stat_w = {max_dev_ns_w, status_w};
+  end else begin : g_no_aaf_meter
+    assign aafm_locked_w      = 1'b0;
+    assign aafm_rate_w        = 32'sd0;
+    assign aafm_rate_valid_w  = 1'b0;
+    assign aafm_disrupt_p_w   = 1'b0;
+    assign aafm_mr_toggle_p_w = 1'b0;
+    assign aafm_stat_w        = 32'd0;
+  end endgenerate
+
+  // --------------------------------------------------------------------------
+  //  The servo's reference: the followed measurement (#629 decision D3 = W2).
+  //  KL_crf_rx under the CRF source, the AAF clock meter under an AAF source,
+  //  through a mux whose select is the REGISTERED decode. The rate and its
+  //  validity stay combinational behind it, so KL_crf_rx's accept-edge
+  //  invalidation still reaches a coincident servo boundary (#546).
+  //  On EVERY change of the followed source the reference reads unlocked for
+  //  one cycle (ref_src_chg_w: the registered decode moved), so a switch
+  //  between two followed sources always passes HOLDOVER - trim frozen,
+  //  integrator kept - into ACQUIRE with its two-window skip and its lock
+  //  count cleared, even onto a CRF input that is already locked. A switch
+  //  through servo IDLE (W1) would reset the trim to the bare MMCM plan.
+  // --------------------------------------------------------------------------
+  logic                        ref_crf_q_r, ref_aaf_q_r;
+  logic [NSIDX_W_FOLLOW_C-1:0] ref_idx_q_r;
+  always_ff @(posedge axis_clk) begin : ref_src_track
+    if (!axis_resetn) begin
+      ref_crf_q_r <= 1'b0;
+      ref_aaf_q_r <= 1'b0;
+      ref_idx_q_r <= '0;
+    end else begin
+      ref_crf_q_r <= crf_clk_selected_r;
+      ref_aaf_q_r <= aaf_clk_selected_r;
+      ref_idx_q_r <= aaf_follow_idx_r;
+    end
+  end : ref_src_track
+  wire ref_src_chg_w = (crf_clk_selected_r != ref_crf_q_r)
+                    || (aaf_clk_selected_r != ref_aaf_q_r)
+                    || (aaf_follow_idx_r   != ref_idx_q_r);
+  //! public: the root W2 test reads the presentation it grades
+  wire ref_locked_w /* verilator public_flat_rd */ =
+       (aaf_clk_selected_r ? aafm_locked_w : crf_locked_w) && !ref_src_chg_w;
+  wire signed [31:0] ref_rate_w   = aaf_clk_selected_r ? aafm_rate_w : crf_rate_w;
+  wire               ref_rate_valid_w = aaf_clk_selected_r ? aafm_rate_valid_w
+                                                           : crf_rate_valid_w;
+
+  // ==========================================================================
+  //  The clock domain's media event (#632, #764; docs/design/
+  //  MEDIA_CLOCK_FOLLOWING.md, Phase alignment). ONE defined point of the
+  //  media-clock chain per CLOCK_DOMAIN: the instant each frame of the
+  //  domain's grid starts at the media interface. The frame-timing owner (the
+  //  capture front-end, which generates the bus every interface frames on)
+  //  closes each frame with the marker the grid aligner already follows; the
+  //  event is that marker back-dated by the owner's derived latency. The servo
+  //  phases this event to the followed CRF stream (it never compares against a
+  //  particular interface's pins), KL_crf_tx stamps every 96th one, and the AAF
+  //  talkers stamp the frame they capture with it, so both outputs stamp one
+  //  grid's instants (IEEE 1722-2016 4.3.5), each plus its own offset, and
+  //  those sit on the followed stream's timing points (10.8). Adding an
+  //  interface adds its own constants against this event, never a second
+  //  loop.
+  //
+  //  The marker latency is the owner's, DOM_MARK_LAT_NS_C, derived from its
+  //  parameters where the capture crossbar is bound (its first reader is the
+  //  AAF talkers' stamp lead there, #773).
+  // ==========================================================================
+  //! the owner's frame marker: the strobe of the pair that closes the frame
+  //! at the crossbar, the frame's last to arrive (#617; CMAP_TDM_CLOSE_SLOT_C)
+  wire        frame_mark_w = aafcap_pv_w &&
+                             (32'(aafcap_slot_w) == CMAP_TDM_CLOSE_SLOT_C);
+  wire        dom_ev_p_w;
+  wire [63:0] dom_ns_w /* verilator public_flat_rd */;
+  wire        dom_live_w /* verilator public_flat_rd */;
+  KL_media_domain_event #(
+    .MARK_LAT_NS_P (DOM_MARK_LAT_NS_C),
+    //! four frames without a marker read the grid dead
+    .TIMEOUT_CYC_P (4 * (MILAN_CLK_FREQ_HZ / AUDIO_IF_FS_HZ_P))
+  ) media_domain_event (
+    .clk_i     (axis_clk),
+    .rst_n     (axis_resetn),
+    .mark_i    (frame_mark_w),
+    .alt_i     (media_tick_p),
+    .ptp_ns_i  (ptp_now_w),
+    .ev_p_o    (dom_ev_p_w),
+    .ev_ns_o   (dom_ns_w),
+    .mark_ns_o (dom_mark_ns_w),
+    .live_o    (dom_live_w)
+  );
+  //! The walk's frame is not always the newest closed by its tick: a close
+  //! on the tick's own cycle is taken only with no frame pending, and a tick
+  //! queued behind a running walk snapshots when that walk starts (TIME_SYNC
+  //! .md, Talker capture handoff). A time base latched at the tick named the
+  //! frame before on the first of these, a whole sample off. So the crossbar
+  //! banks each frame's instant with the frame and hands the walk's out.
+  assign aaf_tbase_w = dom_live_w ? {ptp_now_w[63:32], cmap_walk_ns_w} : ptp_now_w;
+
+  // ==========================================================================
+  //  Media-clock recovery ACTUATOR (Milan 7.3.4): the audio-MMCM servo. It
+  //  follows the reference above while a CRF or AAF source is selected
+  //  (follow_sel_r, #74 and #629) and idles at INTERNAL. It steers the SoC
+  //  audio MMCM through the UG472 fine-phase-shift port
+  //  (ppm-fine, glitch-free) + the XAPP888 DRP engine (verified divider
+  //  reprogramming, reset-sequenced). auto_repair defaults OFF for silicon
+  //  bring-up (MCSRV_CTRL 0x8FC[1] resets 0): the DRP limb read-verifies but
+  //  never writes until the bench confirms the expected ClkReg encoding (see
+  //  the module header) and sets 0x8FC[1] = 1. TB: tb/verilator/
+  //  mmcm_servo_autorepair (47/47) proves the enabled repair path.
+  // ==========================================================================
+  //! MCSERVO_P = 0 prunes the servo (see the parameter note). The tie-off is
+  //! the servo's own IDLE state, term by term: it drives drp_en/we = 0 and
+  //! ps_en = 0 while CRF is unselected, and mmcm_rst_o is asserted only
+  //! inside a REPAIR sequence that a pruned build never enters. status_o = 0
+  //! makes A_MCSRV_STAT 0x8F8 a STRUCTURAL zero - REGISTER_MAP records that
+  //! this window already has a dead-read carve-out, so a reader cannot tell
+  //! "no servo built" from "servo idle" there and must not try.
+  //! The servo's window is 2^MCSRV_WIN_LOG2_C of its 1 ms ticks, its own
+  //! default, named here because the #645 settle recentre counts LOCKED in
+  //! these windows (g_settle_recentre).
+  localparam int unsigned MCSRV_WIN_LOG2_C = 9;
+  generate if (MCSERVO_P != 0) begin : g_mmcm_servo
+  KL_mmcm_drp_servo #(.CLK_FREQ_HZ_P(MILAN_CLK_FREQ_HZ),
+                      .WIN_LOG2_P(MCSRV_WIN_LOG2_C)) mmcm_servo (
+    .clk_i         (axis_clk),
+    .rst_n         (axis_resetn),
+    .clk_audio_i   (clk_audio_i),
+    .ps_clk_i      (i_ps_clk),
+    .ptp_now_i     (ptp_now_w),
+    .phc_slew_active_i (gptp_slew_eff_w),
+    //! one bit since #629: the registered decode above says a stream source
+    //! is followed; the index compare left the servo for media_clk_resolve
+    .sel_i         (follow_sel_r),
+    .ref_locked_i  (ref_locked_w),
+    .ref_rate_ns_i    (ref_rate_w),
+    .ref_rate_valid_i (ref_rate_valid_w),
+    //! the phase term (#632): a followed CRF stream's timing points against
+    //! the domain's media event, while the frame grid runs. AAF following
+    //! keeps the rate loop alone (the per-source contract's follow-on).
+    .ph_en_i         (crf_clk_selected_r && dom_live_w),
+    .dom_ev_p_i      (dom_ev_p_w),
+    .dom_ns_i        (dom_ns_w[31:0]),
+    .ref_ts_p_i      (crf_ts_p_w),
+    .ref_ts_ns_i     (crf_ts_w[31:0]),
+    .ref_restart_p_i (crf_mr_toggle_p_w),
+    .auto_repair_i (mcsrv_auto_repair_w),
+    .ps_invert_i   (mcsrv_ps_invert_w),
+    .drp_addr_o    (o_mmcm_drp_addr),
+    .drp_en_o      (o_mmcm_drp_en),
+    .drp_we_o      (o_mmcm_drp_we),
+    .drp_di_o      (o_mmcm_drp_di),
+    .drp_do_i      (i_mmcm_drp_do),
+    .drp_rdy_i     (i_mmcm_drp_rdy),
+    .mmcm_rst_o    (o_mmcm_rst),
+    .mmcm_locked_i (i_mmcm_locked),
+    .ps_en_o       (o_mmcm_ps_en),
+    .ps_incdec_o   (o_mmcm_ps_incdec),
+    .ps_done_i     (i_mmcm_ps_done),
+    .status_o      (mcsrv_stat_w),
+    .phase_o       (mcsrv_phase_w),
+    .locked_o      (mcsrv_locked_w),
+    .ph_settled_o  (mcsrv_ph_settled_w)
+  );
+  end else begin : g_no_mmcm_servo
+    assign o_mmcm_drp_addr  = 7'd0;
+    assign o_mmcm_drp_en    = 1'b0;
+    assign o_mmcm_drp_we    = 1'b0;
+    assign o_mmcm_drp_di    = 16'd0;
+    assign o_mmcm_rst       = 1'b0;
+    assign o_mmcm_ps_en     = 1'b0;
+    assign o_mmcm_ps_incdec = 1'b0;
+    assign mcsrv_stat_w     = 32'd0;
+    assign mcsrv_locked_w   = 1'b0;
+    assign mcsrv_phase_w    = 32'd0;
+    assign mcsrv_ph_settled_w = 1'b0;
+  end endgenerate
+
+  // --------------------------------------------------------------------------
+  //  ONE GRID, AS A CHAIN (#74 - the actuator seam, rewritten).
+  //
+  //  The previous wiring here handed the NCO the MMCM servo's own command
+  //  ("one error signal, two actuators"), which kept the two actuators from
+  //  diverging in RESPONSE but could never close their NOMINAL gap: the
+  //  physical grid is clk_tdm through an integer divider (47,999.4893 Hz on
+  //  the shipping plan) and the packet grid was an exact 48,000.0000 Hz, so
+  //  a shared command moved both by the same ppm and left the -10.64 ppm
+  //  difference - one slipped sample every 1.96 s at the capture holds -
+  //  fully intact. That residual is the "independent-divider drift" issue
+  //  #74 names, and its bounded-phase-alignment branch is what lands here.
+  //
+  //  The one-grid rule now holds in its strongest form, as a CHAIN with one
+  //  master per link: CRF -> KL_mmcm_drp_servo -> the physical audio clock
+  //  and its fsync grid -> KL_media_grid_align -> the packet grid. The MMCM
+  //  consumes the CRF rate error and publishes its command on
+  //  A_MCSRV_STAT[31:16] (that slice is the MMCM's alone now - the CRF arm
+  //  in tb/verilator/milan_dp grades it non-zero under CRF stimulus); the
+  //  align loop consumes the FRAME MARKER the front-end already delivers in
+  //  this clock domain and holds the packet grid inside a fraction of a
+  //  sample of the physical one - proven closed-loop at the true 391/1591
+  //  ratio in tb/verilator/media_grid_align, both rate directions, zero
+  //  junction slips.
+  //
+  //  THE ALIGNER SEES THE CAPTURE WALK'S CROSSING (#617). The crossbar
+  //  publishes a TDM frame whole at its close, the strobe of pair
+  //  CMAP_TDM_FRAME_PAIRS_C - 1, and each media-tick walk reads the frame the
+  //  close left: one closed by the tick cycle is that walk's, one closed
+  //  after it is the next walk's, and the junction counters count that same
+  //  crossing. So:
+  //   - the marker is the frame close (on the I2S shapes the frame is one
+  //     pair, so it is still the slot-0 strobe);
+  //   - the tick is media_tick_p one cycle late, which puts the aligner's
+  //     lock-target split (a capture just before its tick is pulled early,
+  //     one on it pulled late) on the walk's crossing, so no engagement is
+  //     pulled across it;
+  //   - the keep-off is MGA_KEEPOFF_CYC_C, which holds the close clear of
+  //     the crossing at every settled lock, and through acquisition inside
+  //     an envelope of RELATIVE rate: the TDM frame against the local axis
+  //     clock, which a +/-50 ppm Milan source does not bound (the local
+  //     oscillator may run +/-100 ppm off). The proportional term sits 4
+  //     cycles of phase per ppm of rate (u = 4 x err at 1/16 ppm per LSB,
+  //     at any clock), so a raced engagement, pulled at 64 ppm toward a
+  //     target a keep-off away, keeps 256 - 4 x the rate cycles of margin:
+  //     56 at 50 ppm, none at the pull (the on-crossing limit: measured at
+  //     about 67 ppm above nominal; below nominal there is none, the dwell
+  //     on the crossing only stretching with the rate). An unpulled
+  //     engagement's transient peaks at about 3 cycles per ppm, 149 at
+  //     50 ppm, measured at 50 MHz, and reaches 256 at about 86 ppm (the
+  //     transient limit). Past either limit an engagement is carried across
+  //     the crossing and back as it acquires - one repeat and one skip, both
+  //     counted - and the settled lock still holds, measured converging to
+  //     +/-100 ppm and recorded converged to +/-150 ppm
+  //     (docs/design/TIME_SYNC.md, The guarded crossing). The 1/128 sample
+  //     default (8 cycles at 50 MHz) protected a settled lock but not
+  //     acquisition: a CRF engagement within the transient's reach slipped
+  //     frames as its phase crossed, some of them inside the lock window
+  //     (tb/verilator/capture_coherence's mutation arm keeps that
+  //     measurable, and its junction leg binds this constant's own
+  //     declaration, copied out of this file, and refuses to build unless
+  //     the instance below binds it).
+  //  Keyed on the slot-0 strobe, as it was, the keep-off guarded an instant
+  //  three TDM8 pair periods from the crossing, and a lock could park the
+  //  close on the snapshot: whole-frame repeat/skip for as long as it held,
+  //  with the counters static. tb/verilator/capture_coherence sweeps the
+  //  CRF engagement phase through that band.
+  //
+  //  The cost of the wider keep-off is at engagement only: a capture within
+  //  256 cycles of the tick (half the phases at 50 MHz, a quarter at
+  //  100 MHz) is pulled out to it, at up to 64 ppm of NCO trim, and the
+  //  #645 settle recentre below waits for that pull as it waits for any
+  //  aligner movement. The lock itself is unchanged: bounded, slip-free.
+  //
+  //  INTERNAL (#629 D4 = A2-a, owner decision 2026-10-01). The align loop is
+  //  engaged at INTERNAL too, whenever the TDM feed is live, so the CRF
+  //  output (KL_crf_tx, which stamps the domain's frame grid), the AAF
+  //  streams (the packet grid) and the TDM I/O are one clock in every mode.
+  //  This REVERSES the recorded "internal media clock = free-run, slips
+  //  accepted" rule and #74's "preserve clean INTERNAL free-running" item:
+  //  at INTERNAL the media clock is now the MMCM plan (10.64 ppm under
+  //  nominal on plan A) plus the board oscillator's own error, inside Milan
+  //  v1.2 7.4's +/-50 ppm only for an oscillator grade of +/-39 ppm or
+  //  better - assumed, unconfirmed (the owner's known risk; the design's
+  //  Limits). On a dead feed the aligner's watchdog disengages it and the
+  //  packet grid free-runs at nominal, as before. A switch between INTERNAL
+  //  and a followed source keeps it engaged. The gate is "a source is
+  //  decoded": an index outside the table, which the processor cannot store,
+  //  still disengages it.
+  // --------------------------------------------------------------------------
+  wire        mga_engaged_w /* verilator public_flat_rd */;
+  wire signed [15:0] mga_err_w /* verilator public_flat_rd */;
+  //! A2-a: engaged at INTERNAL and under every followed source
+  wire        mga_sel_w = int_clk_selected_r | follow_sel_r;
+  //! 256 cycles, capped at a quarter sample: a compressed-clock test
+  //! elaboration (2 MHz, 41 cycles a sample) has no room for 256, and there
+  //! no keep-off could clear a 149-cycle transient anyway
+  localparam int unsigned MGA_SAMPLE_CYC_C  = MILAN_CLK_FREQ_HZ / 48_000;
+  localparam int unsigned MGA_KEEPOFF_CYC_C = (MGA_SAMPLE_CYC_C / 4 < 256)
+                                            ? MGA_SAMPLE_CYC_C / 4 : 256;
+  logic media_tick_q_r;                  //! media_tick_p, one cycle late
+  always_ff @(posedge axis_clk) begin : mga_tick_delay
+    if (!axis_resetn) media_tick_q_r <= 1'b0;
+    else              media_tick_q_r <= media_tick_p;
+  end : mga_tick_delay
+  KL_media_grid_align #(
+    .CLK_FREQ_HZ_P      (MILAN_CLK_FREQ_HZ),
+    .FS_HZ_P            (48_000),
+    .LOCK_KEEPOFF_CYC_P (MGA_KEEPOFF_CYC_C)
+  ) media_grid_align (
+    .clk_i      (axis_clk),
+    .rst_n      (axis_resetn),
+    .sel_i      (mga_sel_w),
+    .frame_ev_i (frame_mark_w),
+    .tick_i     (media_tick_q_r),
+    .u_o        (mnco_servo_trim_w),
+    .engaged_o  (mga_engaged_w),
+    .err_cyc_o      (mga_err_w)
+  );
+  assign mnco_servo_en_w = mga_sel_w;
+
+  // ==========================================================================
+  //  CRF Media Clock Output engine (Milan 7.3.1) - talker half: emits the
+  //  Avnu Pro Audio CRF stream (500 PDU/s) with gPTP timestamps captured on
+  //  the REAL audio-MMCM 96-sample event grid. Joins the low-rate control
+  //  merge untagged (no MSRP TA yet - see the module header).
+  // ==========================================================================
+  //! its offset comes rounded, by the rule it would apply (pres_round); its
+  //! Equation (14) TC from the terms beside the AAF packetizer (#773)
+  KL_crf_tx #(.ROUND_MTT_P   (1'b0),
+              .TC_P          (1'b1),
+              .CLK_HZ_P      (MILAN_CLK_FREQ_HZ),
+              .EV_LATE_NS_P  (TLK_CRF_EV_NS_C)) crf_tx (
+    .clk_i (axis_clk), .rst_n (axis_resetn),
+    //! its timing points: every 96th domain media event, stamped with that
+    //! event's instant (#632; 4.3.5 with the AAF talkers, 10.8 once phased)
+    .ev_p_i (dom_ev_p_w), .ev_ns_i (dom_ns_w),
+    //! licence-gated, never the bare CSR bit: see crft_emit_en_w
+    .enable_i      (crft_emit_en_w),
+    .sid_i         (crft_tx_sid_w),
+    .dest_mac_i    (eff_crft_dmac_w),
+    .station_mac_i ({cfg_mac_addr[7:0],   cfg_mac_addr[15:8],
+                     cfg_mac_addr[23:16], cfg_mac_addr[31:24],
+                     cfg_mac_addr[39:32], cfg_mac_addr[47:40]}),
+    //! Milan: the presentation time offset applies to CRF like any stream -
+    //! same source of truth as the AAF framers (SET_STREAM_INFO ACC_LAT/
+    //! MTT), reading ITS OWN per-STREAM_OUTPUT entry: the CRF output is
+    //! talker_unique_id CRF_TUID_C = N_STREAMS, as applied: whole media clock
+    //! periods by 10.7 Eq. (14), the one output that rounds (#632). Shapes
+    //! without a CRF output leave the entry at its 2 ms default and
+    //! cfg_crft_en low.
+    .transit_ns_i  (pres_crf_ns_w),
+    //! ...all 33 bits: the CRF timestamp is 64 (KL_mtt_round's banner)
+    .transit_c_i   (pres_crf_c_w),
+    .ts_uncertain_i (clkv_tu_w),
+    //! IEEE 1722-2016 10.4.3 mr: the level KL_media_clock_restart grants this
+    //! Stream Output, and the level the last completed PDU carried going back
+    //! to it (the eight-PDU hold counts transmitted PDUs, not grants)
+    .mr_i          (crft_mr_w),
+    .tu_last_o     (crft_tu_last_w),
+    .mr_last_o     (crft_mr_last_w),
+    //! SR class A C-TAG. vlan_en is the RESERVATION's shadow, never a bare
+    //! CSR bit: see crf_srp_prov / crft_class_a_w. {PCP, VID} come from
+    //! crft_{pcp,vid}_w - the OPERATIONAL Domain pair while adopted (Milan
+    //! 4.2.7.2.1), LWSRP_VID/priority-3 defaults otherwise - literally the
+    //! same pair KL_lwsrp_ctx_tx puts in this stream's Talker Advertise
+    //! DataFrameParameters (802.1Q 35.2.2.4), so the frame and the
+    //! declaration name one VLAN by construction.
+    .vlan_en_i  (crft_class_a_w),
+    .vlan_pcp_i (crft_pcp_w),
+    .vlan_vid_i (crft_vid_w),
+    .m_axis_tdata (crft_tx_tdata), .m_axis_tkeep (crft_tx_tkeep),
+    .m_axis_tvalid(crft_txs_tvalid_w), .m_axis_tlast (crft_tx_tlast),
+    .m_axis_tready(crft_txs_tready_w),
+    .tx_count_o (crft_count_w),
+    .tspec_max_frame_o (crft_maxf_w)
+  );
+
+  //! wire-truth channel count (USER 1-to-1 rule): the RENDER path follows
+  //! the last accepted PDU's channels_per_frame, never the AEM store
+  wire [7:0] mon_wire_chans_w;
+  wire [N_STREAMS*4-1:0] mon_wire_chans_all_w;   //! per-stream (follow-up 3)
+
+  //! NXN P2: the shared monitor engine (LCTX context RAM, N_STREAMS
+  //! contexts) replaces the flat single-stream KL_avtp_rx_monitor. All
+  //! legacy 0x6B8-group wires alias stream 0 (no-regression axiom); the
+  //! LCTX window port serves the 0x800 CSR window (P12).
+  wire        avtprx_accept_p_w;
+  wire [3:0]  avtprx_accept_idx_w;
+  wire        pcmrx_pdu_p_w, pcmrx_drop_p_w;
+  wire [3:0]  pcmrx_pdu_idx_w, pcmrx_drop_idx_w;
+  //! Milan v1.2 §5.3.8.7: "A PAAD-AE having a stopped Stream Input shall
+  //! DISCARD the Stream AVTPDUs it receives." The discard belongs HERE, on
+  //! the accept pulse that feeds the depacketizer, not on the classification
+  //! entry upstream - because the clause's own wording says a stopped input
+  //! RECEIVES. Table 5.6 defines FRAMES_RX, SEQ_NUM_MISMATCH, LATE/EARLY_
+  //! TIMESTAMP and the rest on frames "received on this Stream Input", so
+  //! they go on counting while the media path gets nothing;
+  //! `KL_avtp_rx_monitor_ctx` sits upstream of this gate for exactly that
+  //! reason. Gating the classifier instead ALSO forged a not-bound->bound
+  //! edge on the next start, and Table 5.6 makes that edge the counter-reset
+  //! event - so a stop/start pair wiped every counter on a sink that never
+  //! unbound.
+  //! selected without a variable bit-select: `avtprx_accept_idx_w` is four
+  //! bits and this vector is ACMP_SINKS_C wide, so indexing it directly is a
+  //! width truncation Verilator is right to flag.
+  logic avtprx_stopped_w;
+  always_comb begin : accept_stop_sel
+    avtprx_stopped_w = 1'b0;
+    for (int unsigned k = 0; k < ACMP_SINKS_C; k++) begin
+      if (32'(avtprx_accept_idx_w) == k) avtprx_stopped_w = acmpl_stopped_v_w[k];
+    end
+  end : accept_stop_sel
+
+  assign avtprx_accept_p = avtprx_accept_p_w && !avtprx_stopped_w;
+
+  KL_avtp_rx_monitor_ctx #(
+    .N_LISTENERS_P (N_STREAMS),
+    .CLK_FREQ_HZ_P (MILAN_CLK_FREQ_HZ),
+    .IVAL_CYC_P    (LDIAG_IVAL_CYC_P)
+  ) avtp_rx_monitor (
+    .clk_i (axis_clk), .rst_n (axis_resetn),
+    .match_valid_i  (avtprx_match),
+    .match_index_i  (4'(avtprx_idx)),
+    .subtype_i      (avtprx_subtype),
+    .seq_num_i      (avtprx_seq),
+    .ts_uncertain_i (avtprx_tu_bit),
+    .ts_valid_i     (avtprx_tv_bit),
+    .media_restart_i(avtprx_mr_bit),
+    .avtp_ts_i      (avtprx_ts),
+    .fsh_i          (avtprx_fsh),
+    .bound_i        (strtbl_en_w),
+    .bind_rise_i    (strtbl_bind_rise_w),
+    .bind_fall_i    (strtbl_bind_fall_w),
+    //! #762: a stopped input's silence or sequence gap interrupts no playback (5.3.8.7)
+    .stopped_i      (acmpl_stopped_v_w[N_STREAMS-1:0]),
+    .sid0_i         (acmpl_sid),
+    .fmt0_i         (aecp_in0_fmt),
+    .ptp_now_i      (ptp_now_w[31:0]),
+    //! Existing listener EARLY/LATE diagnostics use output row zero.
+    //! This threshold does not gate listener payload acceptance.
+    .pres_ofs_i     (aecp_pres_offset[31:0]),
+    //! LIVE wiring, INERT consumer (#74, [R1] finding 2): the monitor
+    //! declares these ports for a media-lock rule it does not implement
+    //! yet - clk_src_i/servo_conv_i are folded unused inside. Wired live
+    //! anyway, like i2s_playback's servo_en_i below, so the day the rule
+    //! lands the truth is already at the port and no root edit can be
+    //! forgotten. No behavior rides on this today.
+    .clk_src_i      (media_clk_src_r),
+    .servo_conv_i   (i2spb_converged),
+    .render_sel_i   (route_render_sel_w),  //! route policy's RENDER stream
+    .depkt_pdu_p_i    (pcmrx_pdu_p_w),
+    .depkt_pdu_idx_i  (pcmrx_pdu_idx_w),
+    .depkt_drop_p_i   (pcmrx_drop_p_w),
+    .depkt_drop_idx_i (pcmrx_drop_idx_w),
+    //! P12: LCTX window port <- the CSR 0x800 window (listener dir)
+    .lctx_wr_en_i (csr_lctx_wr_p_w), .lctx_wr_addr_i (csr_lctx_wr_addr_w),
+    .lctx_wr_data_i (lctx_wr_data_sane_w), .lctx_wr_rdy_o (lctx_wr_rdy_w),
+    .lctx_rd_en_i (csr_lctx_rd_en_w), .lctx_rd_addr_i (csr_lctx_rd_addr_w),
+    .lctx_rd_data_o (lctx_rd_data_w), .lctx_rd_valid_o (lctx_rd_valid_w),
+    .cnt_media_locked_o       (avtprx_locked_c),
+    .cnt_media_unlocked_o     (avtprx_unlocked_c),
+    .cnt_stream_interrupted_o (avtprx_intr_c),
+    .cnt_seq_mismatch_o       (avtprx_seqmm_c),
+    .cnt_ts_uncertain_o       (avtprx_tu_c),
+    .cnt_unsupported_fmt_o    (avtprx_unsupp_c),
+    .cnt_frames_rx_o          (avtprx_frx_c),
+    .wire_chans_o             (mon_wire_chans_w),
+    .wire_chans_all_o         (mon_wire_chans_all_w),
+    //! Milan 5.4.2.25: every sink's Table 5.6 set, muxed by the AECP's
+    //! GET_COUNTERS descriptor index
+    .diag_idx_i               (aecp_diag_idx_w),
+    .diag_col_i               (mon_diag_col_w),
+    //! Milan Table 5.16 STREAM_INPUT counters, one per read, named by
+    //! diag_idx_i and diag_col_i above. Its reader is the protocol
+    //! processor's GET_COUNTERS face; the 0x6B8 A_STRMW_CNT CSR window is
+    //! served from the per-context counters beside it, NOT from this port,
+    //! so the two views are independent readers of the same counters and a
+    //! divergence between them is a real defect.
+    .diag_q_o                 (mon_diag_q_w),
+    .cnt_media_reset_o (avtprx_mreset_c),
+    .cnt_late_ts_o     (avtprx_late_c),
+    .cnt_early_ts_o    (avtprx_early_c),
+    .cnt_ts_valid_o     (avtprx_tv_c),
+    .cnt_ts_not_valid_o (avtprx_tnv_c),
+    .media_locked_o (avtprx_locked),
+    //! per-sink Table 5.22 counter-change pulses, one STREAM_INPUT source
+    //! of the pp_ctr_event arbiter below (the processor's GET_COUNTERS push)
+    .dirty_p_o      (avtprx_dirty_p_w),
+    .pdu_accept_p_o   (avtprx_accept_p_w),
+    .pdu_accept_idx_o (avtprx_accept_idx_w),
+    .last_ts_o      (avtprx_last_ts),
+    .last_tsd_o     (avtprx_last_tsd)
+  );
+
+  // ==========================================================================
+  //  AAF RX depacketizer (listener media path) — same RX tap; the monitor's
+  //  accept pulse is the commit verdict, so fabric render receives exactly
+  //  the PDUs FRAMES_RX counts. Payload leaves as full 8-byte beats in wire
+  //  order (S32BE interleaved) toward the render path.
+  // ==========================================================================
+  //! #632: the payload follows the header's timestamp by the cycles the
+  //! render stage takes to place the PDU (its divider: a quotient bit per
+  //! cycle; KL_render_queue refuses a shorter lead at elaboration)
+  localparam int RENDER_PAY_LEAD_C = 16;
+  //! #632: the longest PDU the render stage walks. The frame FIFO drops a
+  //! frame over its depth, so a payload is at most the depth less the
+  //! 38-byte untagged header: 252 beats of two samples, 504 one-channel
+  //! events (the stage's late reach covers it)
+  localparam int DPKT_FIFO_BYTES_C = 2048;
+  localparam int RENDER_MAX_EV_C   = 2 * ((DPKT_FIFO_BYTES_C - 38 + 7) / 8);
+  wire        dpkt_hdr_p_w;
+  wire [31:0] dpkt_hdr_ts_w;
+  wire        dpkt_hdr_tv_w;
+  KL_aaf_rx_depacketizer #(
+    .FIFO_DEPTH_BYTES (DPKT_FIFO_BYTES_C),
+    .PAY_LEAD_CYC_P   (RENDER_PAY_LEAD_C)
+  ) aaf_rx_depkt (
+    .clk_i (axis_clk), .rst_n (axis_resetn),
+    //! pre-filter tap - see avtp_rx_parser note
+    .s_tdata_i  (rx_axis_from_mac.tdata),
+    .s_tkeep_i  (rx_axis_from_mac.tkeep),
+    .s_tvalid_i (rx_axis_from_mac.tvalid),
+    .s_tready_i (rx_axis_from_mac.tready),
+    .s_tlast_i  (rx_axis_from_mac.tlast),
+    .pdu_accept_p_i (avtprx_accept_p),
+    //! NXN §1.1 tuser tag: the shared monitor's per-stream accept index
+    .pdu_accept_idx_i (avtprx_accept_idx_w),
+    .m_axis_tdata (dpkt_pcm_tdata_w),
+    .m_axis_tkeep (), //! Listener PCM output is always a full 8-byte beat.
+    .m_axis_tvalid(dpkt_pcm_tvalid_w),
+    .m_axis_tlast (dpkt_pcm_tlast_w),
+    .m_axis_tuser (dpkt_pcm_tuser_w),
+    .m_axis_tready(dpkt_pcm_tready_w),
+    .hdr_p_o  (dpkt_hdr_p_w),
+    .hdr_ts_o (dpkt_hdr_ts_w),
+    .hdr_tv_o (dpkt_hdr_tv_w),
+    .pdus_o  (pcmrx_pdus),
+    .drops_o (pcmrx_drops),
+    .pdu_out_p_o (pcmrx_pdu_p_w), .pdu_out_idx_o (pcmrx_pdu_idx_w),
+    .drop_p_o (pcmrx_drop_p_w), .drop_idx_o (pcmrx_drop_idx_w)
+  );
+
+  // ==========================================================================
+  //  PCM routing policy — per-stream route field between the shared
+  //  depacketizer and fabric render. Bit 1 enables RENDER (lowest-indexed
+  //  wins); bit 0 is a reserved-zero ABI position. Writes arrive from the
+  //  listener-window CTRL[2:1] commit (wing glue above).
+  // ==========================================================================
+  wire [TDATA_WIDTH-1:0] dpkt_pcm_tdata_w;
+  wire                   dpkt_pcm_tvalid_w, dpkt_pcm_tlast_w;
+  wire [3:0]             dpkt_pcm_tuser_w;
+  wire                   dpkt_pcm_tready_w;
+
+  //! task #65: drive the capture crossbar's LOOP bucket (declared far above,
+  //! at its point of use). A CLONE, never a consumer - the strobe is the
+  //! ACCEPTED beat (tvalid && tready) and no tready comes back, so the rx
+  //! chain's flow control is untouched and this tap cannot stall a listener.
+  //! Identical discipline to KL_chan_map_render's tap below; that module is
+  //! why the clone is safe to take twice.
+  //! LOOPBACK_P = 0 folds the strobe to a constant 0, which prunes the hold
+  //! bank and its read mux to nothing - the behaviour the shipping bitstream
+  //! already had, since the bucket was never fed there either.
+  assign lb_tap_tdata_w  = dpkt_pcm_tdata_w;
+  assign lb_tap_tvalid_w = (LOOPBACK_P != 0)
+                           && dpkt_pcm_tvalid_w && dpkt_pcm_tready_w;
+  assign lb_tap_tlast_w  = dpkt_pcm_tlast_w;
+  assign lb_tap_tuser_w  = dpkt_pcm_tuser_w;
+  //! per-stream wire channels_per_frame (1722-2016 7.3.3), the LIVE value
+  //! each RX monitor decoded - so the bucket de-interleaves a 2ch stream as
+  //! 2ch and an 8ch stream as 8ch, exactly like the render crossbar.
+  assign lb_tap_chans_w  = mon_wire_chans_all_w[LB_STREAMS_C*4-1:0];
+  wire [TDATA_WIDTH-1:0] rend_pcm_tdata_w;
+  //! render-tap valid is TB-observable (route-flag truth in sim_nxn)
+  wire                   rend_pcm_tvalid_w /* verilator public_flat_rd */;
+  wire                   rend_pcm_tlast_w;
+  wire [3:0]             route_render_sel_w;
+
+  KL_pcm_route #(
+    .N_LISTENERS_P (N_STREAMS)
+  ) pcm_route (
+    .clk_i (axis_clk), .rst_n (axis_resetn),
+    .s_tdata_i (dpkt_pcm_tdata_w), .s_tvalid_i (dpkt_pcm_tvalid_w),
+    .s_tlast_i (dpkt_pcm_tlast_w), .s_tuser_i (dpkt_pcm_tuser_w),
+    .s_tready_o (dpkt_pcm_tready_w),
+    //! P12: route field <- the window CTRL[2:1] commit (glue above)
+    .route_wr_en_i (wing_route_we_r), .route_wr_idx_i (wing_idx_r),
+    .route_wr_val_i (wing_route_r),
+    .render_tvalid_o (rend_pcm_tvalid_w), .render_tdata_o (rend_pcm_tdata_w),
+    .render_tlast_o (rend_pcm_tlast_w),
+    .render_sel_o (route_render_sel_w), .render_active_o ()
+  );
+
+  // ==========================================================================
+  //  I2S playback (Pmod I2S2 DAC) — zero-CPU audible listener: taps the
+  //  depacketizer PCM transfers and serializes ch0/ch1 on the line-out.
+  //  Free-running local 48 kHz (MVP): drift vs the talker is absorbed by
+  //  the FIFO rails and MEASURED via I2SPB_STAT until CRF media-clock
+  //  discipline lands.
+  // ==========================================================================
+  //! 2nd-order Butterworth LPF on the DAC render tap only (AVB data stays
+  //! bit-true): band-limits the analog output feeding the
+  //! loop ADC. LPF_CTRL 0x72C[0], default on; auto-bypass for !=2ch.
+  //! render tap = the route policy's selected RENDER stream.
+  //! LPF_P = 0 prunes the filter (see the parameter's note). The tie-off is
+  //! the runtime-bypass state, term by term: active_o = 0 makes
+  //! KL_i2s_playback take the RAW AXIS path, and m_tvalid = 0 means the
+  //! lpf_tdata port it then ignores never strobes - exactly what
+  //! LPF_CTRL[0] = 0 produces today.
+  generate if (LPF_P != 0) begin : g_pcm_lpf
+    KL_pcm_lpf pcm_lpf (
+      .clk_i (axis_clk), .rst_n (axis_resetn),
+      .enable_i (cfg_lpf_enable),
+      .chans_i  ({2'b0, mon_wire_chans_w}),   //! wire truth (2ch engages)
+      .s_tdata  (rend_pcm_tdata_w),
+      .s_tvalid (rend_pcm_tvalid_w),
+      .s_tready (1'b1), //! The filter observes a clone and cannot stall routing.
+      .m_tdata  (pcm_lpf_tdata),
+      .m_tvalid (pcm_lpf_tvalid),
+      .active_o (pcm_lpf_active)
+    );
+  end else begin : g_no_pcm_lpf
+    assign pcm_lpf_tdata  = 64'd0;
+    assign pcm_lpf_tvalid = 1'b0;
+    assign pcm_lpf_active = 1'b0;
+  end endgenerate
+
+  //! item-7 DAC feed selector (KL_i2s_feed_mux, instanced with the render
+  //! fabric below - nets resolve module-wide): CHMAP_CTRL[0]=0 passes the
+  //! compliance render tap through BIT- and CYCLE-identically; =1 selects the
+  //! render crossbar's phys{0,1} pair paced by the 48 kHz media tick (and
+  //! masks the LPF, which belongs to the listener tap it filters).
+  wire [TDATA_WIDTH-1:0] i2s_feed_tdata_w;
+  wire                   i2s_feed_tvalid_w, i2s_feed_tready_w, i2s_feed_tlast_w;
+  wire [7:0]             i2s_feed_chans_w;
+  wire                   i2s_feed_lpf_act_w;
+
+  //! I2SPB_P = 0 prunes the DAC serializer (see the parameter note). The
+  //! tie-off is what a board with no DAC already shows: the four i2s_dac_*
+  //! pins park low (the shipping serializer holds sclk/lrck/sdin at 0 until
+  //! the first prefilled frame, which never arrives without a DAC to clock),
+  //! every I2SPB counter reads 0 and converged
+  //! stays 0 - the identical set of values the block presents before its
+  //! first stream. It does NOT backpressure: the render tap is a clone tap,
+  //! so pruning the sink cannot stall the listener path.
+  //!
+  //! task #22 (USER 08-06, measured 2 min): a grandmaster change means
+  //! the PHC - the presentation timebase - may just have STEPPED by
+  //! seconds. Nothing in the media path reacted, so the playback FIFO
+  //! walked back into its convergence band at the residual rate error.
+  //! One pulse per GM-identity change re-centers it instead; the first
+  //! fabric GM publication out of reset (0 -> id) is exempt
+  //! (prefill owns boot). Only the I2S playback FIFO below reads it: the
+  //! render stage places every sample by its timestamp and re-centres on
+  //! nothing (#632), and a shape that prunes the DAC leaves this detector
+  //! without a reader.
+  logic [63:0] gm_recentre_q_r;
+  logic        gm_recentre_p_r;
+  always_ff @(posedge axis_clk) begin : g_gm_recentre
+    if (!axis_resetn) begin
+      gm_recentre_q_r <= '0;
+      gm_recentre_p_r <= 1'b0;
+    end else begin
+      gm_recentre_q_r <= cfg_adp_gptp_gm;
+      gm_recentre_p_r <= (cfg_adp_gptp_gm != gm_recentre_q_r) &&
+                         (gm_recentre_q_r != 64'd0);
+    end
+  end : g_gm_recentre
+  //! The settle recentre's arming edges below: the selected source index
+  //! and the aligner's engagement, one cycle late. The #386 at-switch
+  //! recentre these once fed is retired with the setpoint stage (#632):
+  //! the render stage places each sample by its timestamp, so a source
+  //! change moves no fill. Its settling band and dwell stay, read by the
+  //! settle recentre at INTERNAL.
+  localparam int unsigned SRC_SETTLE_ERR_C   = (MILAN_CLK_FREQ_HZ / 48_000) / 64;
+  localparam int unsigned SRC_SETTLE_TICKS_C = 2048;
+  logic [15:0] src_recentre_q_r;   //! the selected index last seen
+  logic        mga_engaged_q_r;
+  wire signed [15:0] mga_err_abs_w = (mga_err_w < 16'sd0) ? -mga_err_w : mga_err_w;
+  always_ff @(posedge axis_clk) begin : g_src_edges
+    if (!axis_resetn) begin
+      src_recentre_q_r <= 16'd0;
+      mga_engaged_q_r  <= 1'b0;
+    end else begin
+      src_recentre_q_r <= media_clk_src_r;
+      mga_engaged_q_r  <= mga_engaged_w;
+    end
+  end : g_src_edges
+  //! #645 / #647: THE SETTLE RECENTRE. A recentre at the switch fires while
+  //! the media plane is still moving: under following the servo locks
+  //! frequency only, so the phase walk of its pull-in (1.4 ticks from
+  //! INTERNAL at a 5.9 ppm offset) lands in the ring after it, and an
+  //! aligner pull-in at INTERNAL arms nothing at all. This one recentre per
+  //! transient fires once the plane has settled and goes to the capture
+  //! crossbar's LOOP queues (settle_recentre_p_r, declared at that
+  //! instance). The render stage took it too until #632; it now places each
+  //! sample by its timestamp, so the pull-in's phase walk lands in its
+  //! snapping (a slip at most, counted) rather than in a fill. Armed by a change of the selected index, by the aligner's
+  //! re-engagement, at INTERNAL by a listener bind's first PDU (below), and,
+  //! outside recovery, by an aligner excursion past the quiet band (a
+  //! pull-in under a running stream). SETTLED means:
+  //! under a followed source, the servo LOCKED for SETTLE_LOCK_WIN_C windows
+  //! running, since the rate loop's phase tail falls about 0.64 a window.
+  //! Under a followed CRF stream the servo's phase term (#632) then pulls
+  //! the grid onto the stream's timing points, at most Ps/2 at 0.5 ppm, so
+  //! up to half a tick of that pull lands in both rings after this recentre
+  //! (docs/design/MEDIA_CLOCK_FOLLOWING.md, Phase alignment). At INTERNAL,
+  //! the aligner inside the settle band for
+  //! SRC_SETTLE_TICKS_C ticks running, or not engaged at all (no pull to
+  //! wait out). An excursion while pending restarts that run. The ceiling,
+  //! 2^SETTLE_CEIL_LOG2_C ticks (21.8 s) from the arming, fires it whatever
+  //! the loops do. After an action, excursion arming stays disabled until
+  //! the engaged aligner has spent 2048 consecutive ticks in the quiet band.
+  //! Reuse the pending dwell counter for that recovery qualification; a
+  //! source change or re-engagement still arms immediately.
+  //! Twice the quiet +/-1 axis-cycle quantisation, independent of the
+  //! clock-frequency-scaled settling band (SRC_SETTLE_ERR_C).
+  localparam int unsigned SETTLE_EXC_ERR_C   = 2;
+  localparam int unsigned SETTLE_LOCK_WIN_C  = 8;
+  //! one servo window in media ticks: 2^MCSRV_WIN_LOG2_C ticks of 1 ms
+  localparam int unsigned SETTLE_LOCK_TICKS_C =
+      SETTLE_LOCK_WIN_C * (1 << MCSRV_WIN_LOG2_C) * (48_000 / 1000);
+  localparam int unsigned SETTLE_RUN_W_C     = $clog2(SETTLE_LOCK_TICKS_C + 1);
+  localparam int unsigned SETTLE_CEIL_LOG2_C = 20;
+  logic                        settle_pend_r /* verilator public_flat_rd */;
+  logic                        settle_recover_r /* verilator public_flat_rd */;
+  logic [SETTLE_RUN_W_C-1:0]   settle_run_ticks_r /* verilator public_flat_rd */;
+  logic [SETTLE_CEIL_LOG2_C:0] settle_ceil_ticks_r;
+  wire settle_exc_w = mga_engaged_w &&
+                      (mga_err_abs_w > 16'(signed'(SETTLE_EXC_ERR_C)));
+  //! #645, bench lane B17: A LISTENER BIND'S FIRST PDU AT INTERNAL. The
+  //! capture crossbar's LOOP queue primes where a bound stream's first PDU
+  //! lands (KL_chan_map_capture PRIME: its accepted tlast beat), and at
+  //! INTERNAL no other term arms this recentre, so the ring kept that phase,
+  //! within a tick of its empty edge, until the first late burst slipped it
+  //! one frame: once in each of B17's 10 binds. Each LOOP stream waits from
+  //! its bind's rise for that beat, and at INTERNAL the beat arms the
+  //! recentre, which then fires as every INTERNAL arming does. Under
+  //! following the beat only ends the wait, so the switch rules alone arm
+  //! there; an unbind ends it too. No LOOP feed (LOOPBACK_P = 0), no arm.
+  logic [LB_STREAMS_C-1:0] settle_bind_wait_r;
+  logic [LB_STREAMS_C-1:0] settle_bind_pdu_w;
+  always_comb begin : settle_bind_pdu
+    for (int s = 0; s < LB_STREAMS_C; s++) begin
+      settle_bind_pdu_w[s] = settle_bind_wait_r[s] && lb_tap_tvalid_w &&
+                             lb_tap_tlast_w && (32'(lb_tap_tuser_w) == s);
+    end
+  end : settle_bind_pdu
+  wire settle_bind_arm_w = !follow_sel_r && (|settle_bind_pdu_w);
+  always_ff @(posedge axis_clk) begin : g_settle_bind_wait
+    if (!axis_resetn) settle_bind_wait_r <= '0;
+    else settle_bind_wait_r <= (settle_bind_wait_r | strtbl_bind_rise_w[LB_STREAMS_C-1:0]) &
+                               ~settle_bind_pdu_w & ~strtbl_bind_fall_w[LB_STREAMS_C-1:0];
+  end : g_settle_bind_wait
+  //! g_src_edges' registered copies give the change and re-engagement
+  wire settle_arm_w = (media_clk_src_r != src_recentre_q_r) ||
+                      (mga_engaged_w && !mga_engaged_q_r) ||
+                      settle_bind_arm_w ||
+                      (settle_exc_w && !settle_pend_r && !settle_recover_r);
+  wire settle_steady_w = follow_sel_r
+                         ? mcsrv_locked_w
+                         : (!mga_engaged_w ||
+                            (mga_err_abs_w <= 16'(signed'(SRC_SETTLE_ERR_C))));
+  wire [SETTLE_RUN_W_C-1:0] settle_need_w = follow_sel_r
+                                            ? SETTLE_RUN_W_C'(SETTLE_LOCK_TICKS_C)
+                                            : SETTLE_RUN_W_C'(SRC_SETTLE_TICKS_C);
+  wire settle_fire_w = (settle_run_ticks_r >= settle_need_w) ||
+                       settle_ceil_ticks_r[SETTLE_CEIL_LOG2_C];
+  always_ff @(posedge axis_clk) begin : g_settle_recentre
+    if (!axis_resetn) begin
+      settle_pend_r       <= 1'b0;
+      settle_recover_r    <= 1'b0;
+      settle_run_ticks_r  <= '0;
+      settle_ceil_ticks_r <= '0;
+      settle_recentre_p_r <= 1'b0;
+    end else begin
+      settle_recentre_p_r <= 1'b0;
+      if (settle_arm_w) begin
+        settle_pend_r       <= 1'b1;
+        settle_run_ticks_r  <= '0;
+        settle_ceil_ticks_r <= '0;
+      end else if (settle_pend_r) begin
+        if (settle_fire_w) begin
+          settle_pend_r       <= 1'b0;
+          settle_run_ticks_r  <= '0;
+          settle_ceil_ticks_r <= '0;
+          settle_recentre_p_r <= 1'b1;
+          settle_recover_r    <= 1'b1;
+        end else begin
+          if (media_tick_p) begin
+            settle_run_ticks_r  <= settle_steady_w ? settle_run_ticks_r + 1'b1 : '0;
+            settle_ceil_ticks_r <= settle_ceil_ticks_r + 1'b1;
+          end
+          if (settle_exc_w) settle_run_ticks_r <= '0;
+        end
+      end else if (settle_recover_r) begin
+        if (!mga_engaged_w || settle_exc_w) begin
+          settle_run_ticks_r <= '0;
+        end else if (settle_run_ticks_r >= SETTLE_RUN_W_C'(SRC_SETTLE_TICKS_C)) begin
+          settle_recover_r   <= 1'b0;
+          settle_run_ticks_r <= '0;
+        end else if (media_tick_p) begin
+          settle_run_ticks_r <= settle_run_ticks_r + 1'b1;
+        end
+      end
+    end
+  end : g_settle_recentre
+
+  generate if (I2SPB_P != 0) begin : g_i2s_player
+  KL_i2s_playback #(.MCLK_DIV_LOG2(MCLK_DIV_LOG2_C),
+                    .CLK_FREQ_HZ(MILAN_CLK_FREQ_HZ),
+                    //! task #28 (USER: constant source-invariant latency,
+                    //! samples picked as soon as possible): the setpoint =
+                    //! the packetization floor - one class-A frame of this
+                    //! stereo lane (6 events x 2 samples = 12) plus a
+                    //! 4-sample CDC/jitter allowance = 16 samples (8 pairs,
+                    //! ~167 us at 48 kHz), inside the USER 125-200 us band.
+                    //! DERIVED from the frame shape, not a mirrored literal.
+                    .SETPOINT_P((6 * 2) + 4)) i2s_player (
+    .clk_i (axis_clk), .rst_n (axis_resetn),
+    .clk_audio_i  (clk_audio_i),
+    .servo_en_i   (follow_sel_r),
+    .recenter_p_i (gm_recentre_p_r),
+    .pcm_tdata_i  (i2s_feed_tdata_w),
+    .lpf_tdata_i  (pcm_lpf_tdata),
+    .lpf_tvalid_i (pcm_lpf_tvalid),
+    .lpf_active_i (i2s_feed_lpf_act_w),
+    .pcm_tvalid_i (i2s_feed_tvalid_w),
+    .pcm_tready_i (i2s_feed_tready_w),
+    .pcm_tlast_i  (i2s_feed_tlast_w),
+    .wire_chans_i (i2s_feed_chans_w),
+    .i2s_mclk_o (i2s_dac_mclk_o), .i2s_sclk_o (i2s_dac_sclk_o),
+    .i2s_lrck_o (i2s_dac_lrck_o), .i2s_sdin_o (i2s_dac_sdin_o),
+    .clr_under_i (cfg_i2spb_clru), .clr_over_i (cfg_i2spb_clro),
+    .underruns_o (i2spb_underruns), .overruns_o (i2spb_overruns),
+    .trim_o (i2spb_trim), .fill_o (i2spb_fill),
+    //! the playback buffer's overrun/underrun rail is LOCAL health, not the
+    //! Milan Table 5.6 MEDIA_RESET trigger (that is the received mr bit, see
+    //! KL_avtp_rx_monitor_ctx); it stays counted by I2SPB_STAT's own
+    //! underrun/overrun tallies, which is where a local rail belongs
+    .media_reset_p_o (),
+    .converged_o     (i2spb_converged),
+    .dbg_frame_o     (i2spb_dbg_frame)
+  );
+  end else begin : g_no_i2s_player
+    assign i2s_dac_mclk_o  = 1'b0;
+    assign i2s_dac_sclk_o  = 1'b0;
+    assign i2s_dac_lrck_o  = 1'b0;
+    assign i2s_dac_sdin_o  = 1'b0;
+    assign i2spb_underruns = 16'd0;
+    assign i2spb_overruns  = 16'd0;
+    assign i2spb_trim      = 16'sd0;
+    assign i2spb_fill      = 16'd0;
+    assign i2spb_converged = 1'b0;
+    assign i2spb_dbg_frame = 32'd0;
+  end endgenerate
+
+  // ==========================================================================
+  //  Channel-map RENDER crossbar (docs/CHANNEL_MAP_64.md §3) — ADD-ALONGSIDE.
+  //  A parallel, NEVER-backpressuring tap on the depacketizer PCM AXIS: it
+  //  latches every (stream, wire-channel) sample and, on each media tick,
+  //  renders CHMAP_PHYS_C physical channels through RMAP. The I2S lane
+  //  (CHMAP_RPHYS_I2S_BASE_C, CHMAP_RPHYS_I2S_N_C) feeds the optional
+  //  mapped-I2S path above; the TDM lane (CHMAP_RPHYS_TDM_BASE_C,
+  //  CHMAP_RPHYS_TDM_N_C) feeds the render serializer below.
+  //  cfg_chmap_enable = 0 leaves rend_pcm_tdata_w -> i2s_playback untouched
+  //  (the assign below resolves to the exact compliance net).
+  //
+  //  CHMAP_PHYS_C and the two lane windows are declared ONCE beside the
+  //  audio-interface guards above: the depth is their SUM, not a literal.
+  // ==========================================================================
+  wire [CHMAP_PHYS_C*24-1:0] chmap_phys_w;
+  //! public: the render integration leg uses this pulse as a TIMESTAMP source
+  //! only - it counts post-epoch pulses and correlates the m-th with the m-th
+  //! decoded frame by COUNT. No expected sample value is ever read from it.
+  wire                       chmap_phys_v_w /* verilator public_flat_rd */;
+  wire [CHMAP_PHYS_C-1:0]    chmap_mapped_mask_w;
+
+  // --------------------------------------------------------------------------
+  //  THE RENDER PRESENTATION STAGE (#632; it replaces the #386 setpoint
+  //  stage). KL_render_queue places every event of every accepted PDU in the
+  //  row of the domain frame its presentation time names (IEEE 1722-2016
+  //  4.3.2, 7.5: the avtp_timestamp of the PDU's first sample, event k one
+  //  period per event later), against the domain's media event above, and
+  //  on each event hands the render crossbar the frame the TDM lane presents
+  //  RENDER_LEAD_C frames later: every sample reaches the pins at its
+  //  presentation time, slot k's MSB its slot offset after the frame instant
+  //  (docs/design/MEDIA_CLOCK_FOLLOWING.md, Listener presentation).
+  //
+  //    RENDER_PIPE_NS_C  the read-to-adoption path of the TDM lane,
+  //                      shortest and longest (out_pipe_ns: the queue's
+  //                      reads and tick, the crossbar, the slot adapter, the
+  //                      frame crossing into clk_tdm_i and the prefetch)
+  //    RENDER_LEAD_C     out_lead_frames(): the frames from the event's frame
+  //                      instant to the frame start that adopts the read
+  //                      (2 on the 1x1 TDM8: the event comes a frame and
+  //                      131 ns after its frame instant; 1 on the 8x8 TDM32,
+  //                      whose closing pair is a quarter of a frame in)
+  //    MAX_HOLD          Milan v1.2 4.4.2.1: the 2.126 ms a listener buffers
+  //
+  //  The depth is the queue's own derivation from those (128 rows of a
+  //  stream at 48 kHz, two RAMB18 at 1x1). Each event of a PDU is judged
+  //  on its own frame, the PDU's timestamp behind the latest event or not:
+  //  one already presented is late, one beyond the depth early, both
+  //  dropped while the PDU's other events are written; a PDU without tv is
+  //  untimed, none of it written. A PDU with a late event counts once as
+  //  late, one with an early event once as early, an untimed one once.
+  // --------------------------------------------------------------------------
+  localparam int RENDER_PAIRS_C   = (RX_WIRE_CHANS_C + 1) / 2;
+  localparam longint RENDER_PIPE_MIN_NS_C = KL_media_if_latency_pkg::out_pipe_ns(
+      0, N_STREAMS, RENDER_PAIRS_C, AUDIO_IF_RENDER_SLOTS_P, 64'(MILAN_CLK_FREQ_HZ),
+      64'(AUDIO_IF_CLK_HZ_P), 1'b0);
+  localparam longint RENDER_PIPE_NS_C = KL_media_if_latency_pkg::out_pipe_ns(
+      0, N_STREAMS, RENDER_PAIRS_C, AUDIO_IF_RENDER_SLOTS_P, 64'(MILAN_CLK_FREQ_HZ),
+      64'(AUDIO_IF_CLK_HZ_P), 1'b1);
+  localparam int RENDER_LEAD_C = KL_media_if_latency_pkg::out_lead_frames(
+      64'(DOM_MARK_LAT_NS_C), RENDER_PIPE_NS_C, 64'(AUDIO_IF_FS_HZ_P));
+  //! every pipeline delay from the shortest (the serializer's three-flop
+  //! crossing) to the longest names the same frame start, with a 50 ns
+  //! guard either side
+  if (!KL_media_if_latency_pkg::out_lead_ok(64'(DOM_MARK_LAT_NS_C), RENDER_PIPE_MIN_NS_C,
+                                            RENDER_PIPE_NS_C, 64'(AUDIO_IF_FS_HZ_P), 64'd50))
+  begin : g_render_lead_guard
+    $error("milan_datapath: the render read at the domain event (%0d ns after its frame instant) reaches the TDM lane %0d to %0d ns later, which straddles a frame start: the out-lead %0d is not one frame start for every delay",
+           DOM_MARK_LAT_NS_C, RENDER_PIPE_MIN_NS_C, RENDER_PIPE_NS_C, RENDER_LEAD_C);
+  end : g_render_lead_guard
+
+  //! public: the render legs decode the presented event's identity off its
+  //! beats (its samples name their PDU, event and channel)
+  wire [TDATA_WIDTH-1:0] rq_tdata_w  /* verilator public_flat_rd */;
+  wire                   rq_tvalid_w /* verilator public_flat_rd */;
+  wire                   rq_tlast_w;
+  wire [3:0]             rq_tuser_w;
+  wire [N_STREAMS*4-1:0] rq_wire_chans_w;
+  wire                   rq_render_tick_p_w;
+  //! #443: RENDER_STAT (0x8DC) mirrors the stage's lead, presentation and
+  //! the refused PDUs. Public taps let milan_dp compare AXI-Lite reads with
+  //! their sources.
+  wire [N_STREAMS-1:0]   rq_pop_p_w      /* verilator public_flat_rd */;
+  wire [N_STREAMS*8-1:0] rq_lead_w       /* verilator public_flat_rd */;
+  wire [N_STREAMS-1:0]   rq_idle_w       /* verilator public_flat_rd */;
+  wire [N_STREAMS-1:0]   rq_converged_w  /* verilator public_flat_rd */;
+  wire [15:0]            rq_late_w       /* verilator public_flat_rd */;
+  wire [15:0]            rq_early_w      /* verilator public_flat_rd */;
+  wire [15:0]            rq_untimed_w    /* verilator public_flat_rd */;
+  wire [15:0]            rq_slips_w      /* verilator public_flat_rd */;
+  //! the PDUs refused at the stage's two limits, saturating
+  wire [15:0]            rq_refused_w    /* verilator public_flat_rd */;
+
+  for (genvar s = 0; s < N_STREAMS; s++) begin : g_render_status
+    assign render_status_w[s*32 +: 32] =
+        {rq_refused_w, 6'd0, rq_converged_w[s], rq_idle_w[s],
+         rq_lead_w[s*8 +: 8]};
+  end : g_render_status
+
+  if (INPUT_LOOPBACK_P != 0 && (ADP_DMAP_IN_KEYS_C != INPUT_LOOP_FIRST_C + INPUT_LOOP_CH_C))
+  begin : g_input_loop_shape
+    $error("input loopback requires its generated 16-key or 64-key topology");
+  end
+  KL_render_queue #(
+    .INPUT_LOOPBACK_P (INPUT_LOOPBACK_P),
+    .INPUT_KEYS_P (AMAP_IN_KEYS_C),
+    .INPUT_FIRST_P (INPUT_LOOP_FIRST_C),
+    .INPUT_CH_P (INPUT_LOOP_CH_C),
+    .N_STREAMS_P    (N_STREAMS),
+    .N_CH_P         (RX_WIRE_CHANS_C),
+    .FS_HZ_P        (AUDIO_IF_FS_HZ_P),
+    .MAX_HOLD_NS_P  (2_126_000),
+    .EV_LAT_NS_P    (DOM_MARK_LAT_NS_C),
+    .N_IF_P         (1),
+    .IF_LEAD_P      (32'(RENDER_LEAD_C)),
+    .PAY_LEAD_CYC_P (RENDER_PAY_LEAD_C),
+    .MAX_EV_P       (RENDER_MAX_EV_C),
+    .CLK_FREQ_HZ_P  (MILAN_CLK_FREQ_HZ)
+  ) render_queue (
+    .input_map_i (amap_in_store_r),
+    .clk_i (axis_clk), .rst_n (axis_resetn),
+    .input_invalidate_i (input_loop_invalidate_r || !dom_live_w),
+    .input_capture_i (input_loop_capture_w),
+    .input_read_i (input_loop_read_w),
+    .input_addr_i (input_loop_addr_w),
+    .input_capture_ns_i (cmap_walk_ns_w),
+    .input_sample_o (input_loop_sample_w),
+    .hdr_p_i      (dpkt_hdr_p_w),
+    .hdr_ts_ns_i  (dpkt_hdr_ts_w),
+    .hdr_tv_i     (dpkt_hdr_tv_w),
+    //! the clone the crossbar consumed directly before #386: accepted
+    //! beats, never backpressured
+    .s_tdata_i    (dpkt_pcm_tdata_w),
+    .s_tvalid_i   (dpkt_pcm_tvalid_w && dpkt_pcm_tready_w),
+    .s_tlast_i    (dpkt_pcm_tlast_w),
+    .s_tuser_i    (dpkt_pcm_tuser_w),
+    .wire_chans_i (mon_wire_chans_all_w),
+    //! the domain's media event: its frame count and its instant
+    .ev_p_i       (dom_ev_p_w),
+    .ev_ns_i      (dom_ns_w[31:0]),
+    //! a sink's bind wipe (task #32 eviction pulse) empties its queue, so
+    //! no stale event renders on a rebind - the LOOP bucket's discipline
+    .flush_i      (strtbl_bind_fall_w),
+    .m_tdata_o    (rq_tdata_w),
+    .m_tvalid_o   (rq_tvalid_w),
+    .m_tlast_o    (rq_tlast_w),
+    .m_tuser_o    (rq_tuser_w),
+    .m_wire_chans_o  (rq_wire_chans_w),
+    .render_tick_p_o (rq_render_tick_p_w),
+    .pop_p_o      (rq_pop_p_w),
+    .lead_o       (rq_lead_w),
+    .idle_o       (rq_idle_w),
+    .converged_o  (rq_converged_w),
+    .late_o       (rq_late_w),
+    .early_o      (rq_early_w),
+    .refused_o    (rq_refused_w),
+    .untimed_o    (rq_untimed_w),
+    .slips_o      (rq_slips_w)
+  );
+  //! the whole render map, exported for the GET_AUDIO_MAP page walk (the
+  //! single map_rd_* readback port stays the CSR CHMAP_SNAP path's - two
+  //! independent readers of the same flops, by construction)
+  wire [CHMAP_PHYS_C*8-1:0]  rmap_flat_w;
+
+  KL_chan_map_render #(
+    .N_STREAMS_P  (N_STREAMS),
+    //! the rx wire-channel space, defined once beside the capture crossbar
+    //! (RX_WIRE_CHANS_C) and read here - the LOOP bucket keeps the same
+    //! space, and the two must not be able to drift apart
+    .N_CH_P       (RX_WIRE_CHANS_C),
+    .N_PHYS_P     (CHMAP_PHYS_C)
+  ) chan_map_render (
+    .clk_i (axis_clk), .rst_n (axis_resetn),
+    //! #632: the presentation stage's event beats, one event per stream per
+    //! domain event, in the clone format (never backpressured)
+    .s_tdata_i  (rq_tdata_w),
+    .s_tvalid_i (rq_tvalid_w),
+    .s_tlast_i  (rq_tlast_w),
+    .s_tuser_i  (rq_tuser_w),
+    //! the stage presents every stream as 2 x ceil(N_CH_P / 2) lanes
+    //! (the pad lane of an odd count carries zero), so the per-stream
+    //! channel view is the stage's, not the LCTX wire truth the stage
+    //! itself de-interleaves by
+    .wire_chans_i (rq_wire_chans_w),
+    //! the stage's tick after its events, so the crossbar renders the
+    //! events it was just handed (ONE grid: the domain event's, a constant
+    //! N_STREAMS x pairs + 3 cycles behind it)
+    .tick_i (rq_render_tick_p_w),
+    //! write mux with the live AECP transaction leg and CSR 0x900 writer.
+    //! The map key is the GLOBAL cluster index and the model may declare
+    //! MORE input clusters than this board renders (8x8 = 64 keys against
+    //! CHMAP_PHYS_C = 10), so an out-of-range key must be DROPPED, not
+    //! truncated - truncation would silently alias key 16 onto the I2S L
+    //! channel. KL_chan_map_render bounds its own write too; this gate is
+    //! what stops the narrow address bus from wrapping before it gets there.
+    //!
+    //! BOTH arms need it. The CSR debug port carries the SAME 0..63 key
+    //! space (A_CHMAP_SEL[5:0], cfg_chmap_wr_addr is 6 bits), so
+    //! CHMAP_SEL = 16 truncated to [3:0] landed on phys 0 = the I2S L
+    //! channel just as surely as an AEM key 16 would have - a bring-up poke
+    //! at a cluster this board does not render would silently retune the
+    //! DAC's left channel.
+    //!
+    //! The compares are 32-BIT, not 6'(CHMAP_PHYS_C): the literal is only
+    //! six bits wide by accident of today's value 10, and 6'(64) is 0, so a
+    //! future depth of 64 would turn the guard into "refuse everything".
+    .map_wr_en_i   ((aecp_dmap_wr_p_w &&
+                     32'(aecp_dmap_wr_addr_w) < CHMAP_PHYS_C) ||
+                    (!aecp_dmap_wr_p_w && !amap_edit_txn_active_r
+                     && !amap_boot_busy_w && !aecp_locked
+                     && cfg_chmap_wr_en &&
+                     !cfg_chmap_wr_side &&
+                     cfg_chmap_rphys_w[6]
+                     && (32'(cfg_chmap_rphys_w[5:0]) < CHMAP_PHYS_C))),
+    .map_wr_addr_i (aecp_dmap_wr_p_w
+                    ? aecp_dmap_wr_addr_w[$clog2(CHMAP_PHYS_C)-1:0]
+                    : cfg_chmap_rphys_w[$clog2(CHMAP_PHYS_C)-1:0]),
+    //! §5 16-bit word -> render 8-bit {en[7], src[6], idx[5:0]}. SRC[12] of
+    //! the §5 word selects the source bank (0 = AVB listener {stream,ch});
+    //! source 1 is retained as a reserved-zero ABI encoding. The AECP leg
+    //! carries the already projected store word.
+    .map_wr_data_i (aecp_dmap_wr_p_w ? aecp_dmap_wr_word_w
+                    : {cfg_chmap_wr_data[15], cfg_chmap_wr_data[12],
+                       cfg_chmap_wr_data[6:4], cfg_chmap_wr_data[2:0]}),
+    //! map-RAM readback -> CSR 0x910/0x914. Combinational read port with no
+    //! valid of its own; rmap_rd_valid_r above supplies the 1-clock valid.
+    .map_rd_addr_i (cfg_chmap_rd_addr[$clog2(CHMAP_PHYS_C)-1:0]),
+    .map_rd_data_o (rmap_rd_data_w),
+    .map_flat_o (rmap_flat_w),
+    .phys_smp_o (chmap_phys_w), .phys_valid_o (chmap_phys_v_w),
+    .mapped_mask_o (chmap_mapped_mask_w)
+  );
+
+  // ---- DAC feed selector (item-7): the one place the DAC's source AND its
+  //      pace are decided, and the one place the render chain is counted.
+  //      enable=0 -> the compliance tap passes through bit-/cycle-identically;
+  //      enable=1 -> phys{0,1} on the 48 kHz media tick (the ONLY pace at
+  //      which mapped fabric playback reaches the line-out). -------------
+  KL_i2s_feed_mux i2s_feed_mux (
+    .clk_i (axis_clk), .rst_n (axis_resetn),
+    //! A dynamic-input shape renders through the crossbar, which the #658
+    //! boot writer fills with the identity image. Otherwise the bring-up
+    //! tap passes through unless CHMAP_CTRL[0] selects the CSR crossbar.
+    .sel_render_i (aecp_dmap_dyn_w | cfg_chmap_enable),
+    .tap_tdata_i  (rend_pcm_tdata_w),
+    .tap_tvalid_i (rend_pcm_tvalid_w),
+    .tap_tready_i (1'b1), //! The feed selector observes a non-blocking clone.
+    .tap_tlast_i  (rend_pcm_tlast_w),
+    .tap_chans_i  (mon_wire_chans_w),
+    .lpf_active_i (pcm_lpf_active),
+    //! the DAC lane is the crossbar's I2S key window, named once above
+    .phys_l_i     (chmap_phys_w[(CHMAP_RPHYS_I2S_BASE_C + 0)*24 +: 24]),
+    .phys_r_i     (chmap_phys_w[(CHMAP_RPHYS_I2S_BASE_C + 1)*24 +: 24]),
+    .phys_valid_i (chmap_phys_v_w),
+    .phys_armed_i (|chmap_mapped_mask_w[CHMAP_RPHYS_I2S_BASE_C
+                                        +: CHMAP_RPHYS_I2S_N_C]),
+    .pcm_tdata_o (i2s_feed_tdata_w), .pcm_tvalid_o (i2s_feed_tvalid_w),
+    .pcm_tready_o (i2s_feed_tready_w), .pcm_tlast_o (i2s_feed_tlast_w),
+    .chans_o (i2s_feed_chans_w), .lpf_active_o (i2s_feed_lpf_act_w),
+    .feeds_o (),   //! Optional selector activity diagnostic is not published.
+    .unarmed_o (), //! Optional unarmed diagnostic is not published.
+    .src_render_o () //! Optional source diagnostic is not published.
+  );
+
+  // ==========================================================================
+  //  THE TDM RENDER LANE (issue #447): crossbar TDM keys -> slot writes ->
+  //  a frame commit -> the serializer that actually shifts them onto
+  //  tdm_dout_o.
+  //
+  //  WHAT WAS WRONG. tdm_dout_o IS BONDED (AX7101 J11.5, ball A20, claimed by
+  //  tdm_pads.dout on a master build), and the adapter below always filled the
+  //  bank correctly. What kept the lane dark was the CLOCK, not the pin:
+  //  KL_tdm_render is a bus SLAVE whose serializer runs on posedge
+  //  tdm_bclk_i, and a MASTER build ties tdm_bclk_i / tdm_fsync_i to 0
+  //  because the master generates bclk/fsync on the OUTPUT side. The bank
+  //  filled and never shifted. KL_tdm_render_master is the missing sibling:
+  //  capture got one, render did not.
+  //
+  //  THE RENDER EPOCH. Stopping only the upstream queue on a bind loss left
+  //  three live paths to the pins - KL_chan_map_render re-emits its retained
+  //  sel_r on every tick, a map write between events re-seeds it from cur_r,
+  //  and the serializer may already hold a prefetched frame - so the epoch
+  //  cuts at the CONSUMER instead: the adapter commits nothing while the
+  //  epoch is closed and the serial side renders digital silence after the
+  //  frame in flight ends. Because the cut is here and in the serializer
+  //  rather than inside the shared crossbar, no other destination, shape or
+  //  lane changes behavior; KL_chan_map_render and KL_render_queue are
+  //  untouched.
+  // ==========================================================================
+  //! public: the integration leg reads the lane's counters and its epoch
+  //! state directly, the precedent the #386 render-law taps set
+  wire [15:0] tdmr_frames_w    /* verilator public_flat_rd */;
+  wire [15:0] tdmr_underruns_w /* verilator public_flat_rd */;
+  wire [15:0] tdmr_skips_w     /* verilator public_flat_rd */;
+  wire [15:0] tdmr_overruns_w  /* verilator public_flat_rd */;
+  wire [15:0] tdmr_epochs_w    /* verilator public_flat_rd */;
+  wire        tdmr_commit_en_w /* verilator public_flat_rd */;
+  //! ...and the three REGISTERED instants a latency measurement needs, so the
+  //! published delay terms follow observed events rather than a model: the
+  //! adapter's frame commit (axis_clk), the serial frame start and the frame
+  //! start that ADOPTS a freshly committed frame (both clk_tdm_i).
+  wire        tdmr_commit_p_w  /* verilator public_flat_rd */;
+  wire        tdmr_frame_p_w   /* verilator public_flat_rd */;
+  wire        tdmr_adopt_p_w   /* verilator public_flat_rd */;
+
+  //! WHICH STREAMS THIS LANE RENDERS. A small combinational reduction over the
+  //! already exported whole-map vector: every TDM-lane key that is enabled and
+  //! names the AVB listener bank (src = 0) contributes its stream index. A
+  //! bind fall on a stream the lane does not render therefore does not silence
+  //! the lane.
+  logic [N_STREAMS-1:0] tdmr_lane_streams_w /* verilator public_flat_rd */;
+  always_comb begin : tdm_lane_streams
+    logic [7:0] rword;
+    tdmr_lane_streams_w = '0;
+    for (int k = 0; k < CHMAP_RPHYS_TDM_N_C; k++) begin
+      rword = rmap_flat_w[(CHMAP_RPHYS_TDM_BASE_C + k)*8 +: 8];
+      if (rword[7] && !rword[6]) begin
+        for (int s = 0; s < N_STREAMS; s++)
+          if (32'(rword[5:3]) == s) tdmr_lane_streams_w[s] = 1'b1;
+      end
+    end
+  end : tdm_lane_streams
+
+  //! the qualified bind fall: the ONLY event that closes a render epoch from
+  //! above (a reset closes it from the reset values of the handshake levels)
+  wire tdmr_epoch_evt_w = |(strtbl_bind_fall_w & tdmr_lane_streams_w);
+
+  //! POST-BIND FRESHNESS. The crossbar's retained selection is written from
+  //! the stage's OUTPUT beats, not from its queue occupancy, so "the queue
+  //! has refilled" is not the condition that makes it fresh again: the stage
+  //! must have PRESENTED a post-flush event. pop_p_o pulses only for an
+  //! event with a sample in it (KL_render_queue reads a flushed or empty
+  //! frame as silence and does not pulse), so one pulse per lane stream after
+  //! the flush is exactly the observable required.
+  logic [N_STREAMS-1:0] tdmr_fresh_r;
+  always_ff @(posedge axis_clk) begin : tdm_lane_freshness
+    if (!axis_resetn) tdmr_fresh_r <= '0;
+    else begin
+      for (int s = 0; s < N_STREAMS; s++) begin
+        if (strtbl_bind_fall_w[s])  tdmr_fresh_r[s] <= 1'b0;
+        else if (rq_pop_p_w[s])     tdmr_fresh_r[s] <= 1'b1;
+      end
+    end
+  end : tdm_lane_freshness
+  //! a lane with no mapped stream has nothing to be stale about, so the
+  //! reduction is over the mapped streams only
+  wire tdmr_fresh_w = &(tdmr_fresh_r | ~tdmr_lane_streams_w);
+
+  generate if (AUDIO_IF_RENDER_SLOTS_P == 0) begin : g_tdm_render_parked
+    //! No render lane on this build: the serial output is driven low and the
+    //! adapter, the frame CDC and the serializer are not elaborated at all.
+    //! This is what every shape did in effect before - the parked slave's
+    //! serializer never left reset on a clock tied to zero - and now it is a
+    //! structural fact instead of a consequence.
+    assign tdm_dout_o       = 1'b0;
+    assign tdmr_commit_en_w = 1'b0;
+    assign tdmr_commit_p_w  = 1'b0;
+    assign tdmr_frame_p_w   = 1'b0;
+    assign tdmr_adopt_p_w   = 1'b0;
+    assign tdmr_frames_w    = 16'd0;
+    assign tdmr_underruns_w = 16'd0;
+    assign tdmr_skips_w     = 16'd0;
+    assign tdmr_overruns_w  = 16'd0;
+    assign tdmr_epochs_w    = 16'd0;
+  end else begin : g_tdm_render_live
+    localparam int RSLOT_W_C = (AUDIO_IF_RENDER_SLOTS_P <= 1) ? 1
+                             : $clog2(AUDIO_IF_RENDER_SLOTS_P);
+    localparam int RLAST_C   = AUDIO_IF_RENDER_SLOTS_P - 1;
+
+    //! The crossbar emits the whole phys vector once per media tick; the
+    //! serializer wants slot-indexed writes and a frame commit. This burst
+    //! adapter walks the TDM key window into the bank on each phys_valid and
+    //! commits after the last slot, so a committed frame ALWAYS carries a
+    //! freshly written value in every slot.
+    logic                 tdmr_wr_en_r;
+    logic [RSLOT_W_C-1:0] tdmr_slot_r;
+    logic [23:0]          tdmr_data_r;
+    logic                 tdmr_tick_r;
+    logic                 tdmr_busy_r;
+    always_ff @(posedge axis_clk) begin : chmap_tdm_adapter
+      if (!axis_resetn) begin
+        tdmr_wr_en_r <= 1'b0; tdmr_slot_r <= '0; tdmr_data_r <= 24'd0;
+        tdmr_tick_r  <= 1'b0; tdmr_busy_r <= 1'b0;
+      end else begin
+        tdmr_wr_en_r <= 1'b0;
+        tdmr_tick_r  <= 1'b0;
+        //! a closed epoch ABORTS the walk in place: no commit, and the next
+        //! accepted walk rewrites every slot before committing, so a
+        //! partially stale bank can never be committed
+        if (!tdmr_commit_en_w) begin
+          tdmr_busy_r <= 1'b0;
+        end else if (!tdmr_busy_r) begin
+          if (chmap_phys_v_w) begin
+            tdmr_busy_r  <= 1'b1;
+            tdmr_slot_r  <= '0;
+            tdmr_wr_en_r <= 1'b1;
+            tdmr_data_r  <= chmap_phys_w[CHMAP_RPHYS_TDM_BASE_C*24 +: 24];
+          end
+        end else if (32'(tdmr_slot_r) == RLAST_C) begin
+          tdmr_busy_r <= 1'b0;
+          tdmr_tick_r <= 1'b1;             //! commit after the last slot
+        end else begin
+          tdmr_slot_r  <= tdmr_slot_r + 1'b1;
+          tdmr_wr_en_r <= 1'b1;
+          tdmr_data_r  <= chmap_phys_w[(CHMAP_RPHYS_TDM_BASE_C
+                                        + 32'(tdmr_slot_r) + 1)*24 +: 24];
+        end
+      end
+    end : chmap_tdm_adapter
+
+    assign tdmr_commit_p_w = tdmr_tick_r;
+
+    if (AUDIO_IF_MASTER_P != 0) begin : g_master
+      //! The fabric owns this bus, so the serializer consumes the ONE timing
+      //! owner's exported schedule rather than generating a second frame
+      //! phase of its own.
+      //! #584: the lane renders the first AUDIO_IF_RENDER_SLOTS_P slots of
+      //! the bus's AUDIO_IF_SLOTS_P; the rest serialize zero
+      KL_tdm_render_master #(
+        .SLOTS_P       (AUDIO_IF_RENDER_SLOTS_P),
+        .BUS_SLOTS_P   (AUDIO_IF_SLOTS_P),
+        .SLOT_BITS_P   (AIF_WORD_BITS_C),
+        .FIFO_LOG2_P   (2),
+        .FRAME_POS_W_P (AIF_FPOS_W_C)
+      ) chan_tdm_render (
+        .clk_i (axis_clk), .rst_n (axis_resetn),
+        .smp_wr_en_i   (tdmr_wr_en_r),
+        .smp_wr_slot_i (tdmr_slot_r),
+        .smp_wr_data_i (tdmr_data_r),
+        .tick_i        (tdmr_tick_r),
+        .epoch_evt_i   (tdmr_epoch_evt_w),
+        .fresh_i       (tdmr_fresh_w),
+        .commit_en_o   (tdmr_commit_en_w),
+        .clk_tdm_i     (clk_tdm_i),
+        .bclk_rise_i   (aifm_bclk_rise_w),
+        .bclk_fall_i   (aifm_bclk_fall_w),
+        .frame_pos_i   (aifm_frame_pos_w),
+        .tdm_dout_o    (tdm_dout_o),
+        .frame_start_o (tdmr_frame_p_w),
+        .adopt_p_o     (tdmr_adopt_p_w),
+        .frames_o      (tdmr_frames_w),
+        .underruns_o   (tdmr_underruns_w),
+        .skips_o       (tdmr_skips_w),
+        .overruns_o    (tdmr_overruns_w),
+        .epochs_o      (tdmr_epochs_w)
+      );
+    end else begin : g_slave
+      //! A codec-driven bus: the proven slave serializer, byte-identical, on
+      //! the external bclk/fsync. It carries no epoch protocol - extending
+      //! one into a shipped, separately proven module is outside this issue -
+      //! so its commits are always admitted and a reset asserted and released
+      //! entirely while the EXTERNAL bit clock is stopped keeps the exposure
+      //! that module has always had. No tracked config elaborates this arm;
+      //! the gap is recorded in docs/CHANNEL_MAP_64.md rather than assumed
+      //! away.
+      KL_tdm_render #(
+        .SLOTS_P     (AUDIO_IF_RENDER_SLOTS_P),
+        .SLOT_BITS_P (AIF_WORD_BITS_C)
+      ) chan_tdm_render (
+        .clk_i (axis_clk), .rst_n (axis_resetn),
+        .smp_wr_en_i   (tdmr_wr_en_r),
+        .smp_wr_slot_i (tdmr_slot_r),
+        .smp_wr_data_i (tdmr_data_r),
+        .tick_i        (tdmr_tick_r),
+        .tdm_bclk_i    (tdm_bclk_i),
+        .tdm_fsync_i   (tdm_fsync_i),
+        .tdm_dout_o    (tdm_dout_o),
+        .frames_o      (tdmr_frames_w),
+        .underruns_o   (tdmr_underruns_w),
+        .overruns_o    (tdmr_overruns_w)
+      );
+      assign tdmr_commit_en_w = 1'b1;
+      assign tdmr_skips_w     = 16'd0;   //! drop-NEWEST: no skip counter
+      assign tdmr_epochs_w    = 16'd0;   //! no epoch protocol on this arm
+      assign tdmr_frame_p_w   = 1'b0;    //! the bus, not this module, frames
+      assign tdmr_adopt_p_w   = 1'b0;
+    end
+  end endgenerate
+
+  // ==========================================================================
+  //  MAAP engine (IEEE 1722 Annex B) — dynamic stream-DMAC allocation.
+  //  Same monitor-tap + low-rate-TX recipe; addr_valid gates AAF admission
+  //  and muxes the effective stream DMAC when MAAP_CTRL.en=1.
+  // ==========================================================================
+  //! MAAP_P = 0 prunes the engine (see the parameter note). The tie-off is
+  //! the engine's RESET state, term by term: state_o = INITIAL (2'd0),
+  //! addr_valid_o = 0, no conflicts, no defends, offset 0, and a TX port
+  //! that never asserts tvalid (the ADP arbiter's MAAP leg simply never
+  //! wins). eff_aaf_dmac therefore always resolves to the CSR-provisioned
+  //! AAF_DMAC, and MAAP_STAT0/1 (0x6D0/0x6D4) read 0. The split placement
+  //! builds no engine either (CTRL_SPLIT_P): the firmware's MAAP owns the
+  //! addresses and writes them into that AAF_DMAC window itself
+  //! (sw/firmware/ctrl/maap/README.md, maap_csr_allocation), so the CSR
+  //! value is the allocated one there.
+  generate if ((MAAP_P != 0) && (CTRL_SPLIT_P == 0)) begin : g_maap
+  KL_maap #(.CLK_FREQ_HZ_P(MAAP_CLK_HZ_P)) maap_engine (
+    .clk_i (axis_clk), .rst_n (axis_resetn),
+    .enable_i (cfg_maap_enable),
+    .port_operational_i (eff_link_w),
+    .realtime_ns_i     (ptp_now_w[31:0]),
+    .count_i  (cfg_maap_count),
+    .station_mac_i ({cfg_mac_addr[7:0],   cfg_mac_addr[15:8],
+                     cfg_mac_addr[23:16], cfg_mac_addr[31:24],
+                     cfg_mac_addr[39:32], cfg_mac_addr[47:40]}),
+    .seed_offset_i (cfg_maap_seed_offset),
+    .seed_valid_i  (cfg_maap_seed_valid),
+    .rx_tdata_i  (rx_axis_fabric.tdata),
+    .rx_tkeep_i  (rx_axis_fabric.tkeep),
+    .rx_tvalid_i (rx_axis_fabric.tvalid),
+    .rx_tready_i (rx_axis_fabric.tready),
+    .rx_tlast_i  (rx_axis_fabric.tlast),
+    .m_axis_tdata (maap_tx_tdata), .m_axis_tkeep (maap_tx_tkeep),
+    .m_axis_tvalid(maap_txs_tvalid_w), .m_axis_tlast (maap_tx_tlast),
+    .m_axis_tready(maap_txs_tready_w),
+    .addr_o (maap_addr), .addr_valid_o (maap_addr_valid),
+    .state_o (maap_state), .offset_o (maap_offset),
+    .conflicts_o (maap_conflicts), .defends_o (maap_defends)
+  );
+  end else begin : g_no_maap
+    assign maap_tx_tdata   = {TDATA_WIDTH{1'b0}};
+    assign maap_tx_tkeep   = {(TDATA_WIDTH/8){1'b0}};
+    assign maap_txs_tvalid_w = 1'b0;
+    assign maap_tx_tlast   = 1'b0;
+    assign maap_addr       = 48'd0;
+    assign maap_addr_valid = 1'b0;
+    assign maap_state      = 2'd0;
+    assign maap_offset     = 16'd0;
+    assign maap_conflicts  = 8'd0;
+    assign maap_defends    = 8'd0;
+  end endgenerate
+
+  // ==========================================================================
+  //  SRP — served by the protocol processor, not by an lwSRP engine here
+  // ==========================================================================
+  //! hdl/ieee8021q/srp/ is DELETED in full - the applicant, the registrar, the
+  //! TA registrar, the walker, the ingress/rx path, the context table, the
+  //! MRPDU serializer, the timers and KL_lwsrp_bw_gate. The processor's SRP
+  //! engine declares Talker Advertise and Listener Ready, registers the
+  //! bridge's answers, adopts the Domain and publishes the result through the
+  //! class-D face.
+  //!
+  //! NO SHAPER READS THE SLOPE OR THE VERDICT HERE. The 802.1Qav chain is
+  //! not in this wrapper (NO GENERAL-DATA TX CHAIN at the top of the file,
+  //! HONEST BOUND at the CRF merge): no AAF or CRF frame is credit-shaped.
+  //! The grant OR and slope sum reach one diagnostic word each:
+  //! lwsrp_slope_en -> LWSRP_STATUS[9] and lwsrp_idle_slope -> LWSRP_SLOPE
+  //! 0x698. Licences also read the raw grant PER SOURCE, never that OR or
+  //! sum. No shaper consumes either diagnostic.
+  //!
+  //! KL_lwsrp_bw_gate sequenced slope and gate with a settling HOLD between
+  //! them: on activation the stream's idleSlope joined the running Sigma,
+  //! then HOLD_CYCLES_C elapsed, then the gate opened; on teardown the gate
+  //! closed, then HOLD_CYCLES_C, then the slope left the Sigma. Its
+  //! invariant, "no stream ever transmits against a slope the shaper has
+  //! not budgeted", needs a shaper, and the only one is the retained,
+  //! uninstantiated chain. It has no object on this wire, and this wrapper
+  //! claims no slope/gate ordering.
+  //!
+  //! The processor has no hold. KL_srp_admission walks its sources and
+  //! latches grant_r, gslope_r and sum_r TOGETHER at the end of a PUBLISHED
+  //! round, one that saw every requesting source's current slope (processor
+  //! issue 112); the published sr_admitted_o is grant_r AND the live
+  //! request, and an accepted (re)declaration retires its source's grant
+  //! until its new slope is evaluated.
+  //!
+  //! THE LICENCE (#530, #551): ACTIVE AND the real per-source grant.
+  //! ACTIVE supplies the processor's complete Milan v1.2 5.3.7.3 verdict:
+  //! Talker Advertise, not failed, Listener Ready or Ready Failed, admitted.
+  //! Its admission term includes opt_r for three PUBLISHED admission rounds.
+  //! sr_admitted_o excludes opt_r. Processor #112 clears the declaring
+  //! source's grant until its current TSpec has been evaluated. Rounds that
+  //! meet a pending declaration publish nothing; other grants and the slope
+  //! sum hold. Requiring the real grant prevents optimistic admission alone
+  //! from licensing any CRF or AAF consumer, including changed TSpecs.
+  //!
+  //! OPENING EDGE - a declaration clears its Listener registrar. Normally
+  //! Listener Ready arrives after the real grant and adds no start delay.
+  //! A registering Listener event decoded inside the optimistic window can
+  //! raise ACTIVE earlier. The licence also requires the real grant.
+  //! The two-source fixture measures added delay for both TSpec histories;
+  //! see tb/verilator/milan_dp/README.md for the measured cycle counts.
+  //!
+  //! REFUSED - no real grant; ACTIVE may pulse but the licence stays closed.
+  //! No STREAM_START/STREAM_STOP pair, Table 5.4 counter reset or PDU follows.
+  //! ACTIVE falls when optimism expires; Talker Failed follows.
+  //! LWSRP_STATUS[6] remains raw |ACTIVE; source 0's gate bit [8] and
+  //! CRFT_CTRL[6]/[7] require the real grant as well.
+  //!
+  //! CLOSING EDGE - either ACTIVE or the real grant falling closes the gate.
+  //! The raw grant does not follow Listener withdrawal; ACTIVE does. The
+  //! grant drops with withdrawal or re-declaration until that is evaluated.
+  //! LWSRP_SLOPE is latched by PUBLISHED rounds and can retain a withdrawn
+  //! declaration's slope until the next publication. No shaper consumes it.
+  //! A future shaping lane must prove its own slope/gate ordering.
+  assign lwsrp_stream_gate = pp_cd_srp_active_w[SRP_TALKERS_C-1:0] &
+                             pp_cd_srp_sr_admitted_w[SRP_TALKERS_C-1:0];
+  //! STATUS ONLY (no shaper, above): LWSRP_STATUS[9] reads the RAW verdict
+  //! of any source and LWSRP_SLOPE 0x698 the processor's Sigma across
+  //! admitted sources. Both report admitted DECLARATIONS, licensed or not,
+  //! so a declared, admitted output with no Listener Ready reads [9] set
+  //! while its gate is closed. The licence reads the per-source grant,
+  //! never this OR reduction or the sum.
+  assign lwsrp_slope_en    = |pp_cd_srp_sr_admitted_w;
+  assign lwsrp_idle_slope  = pp_cd_srp_sum_slope_bps_w;
+  //! Milan 4.2.7.2.1 Domain adoption surface: the OPERATIONAL {priority, VID}
+  //! every declaration serializes, and which the AAF/CRF C-TAG muxes take.
+  assign lwsrp_adopt_valid = pp_cd_srp_domain_adopted_w;
+  assign lwsrp_op_prio     = {5'd0, pp_cd_srp_class_a_prio_w};
+  assign lwsrp_op_vid      = pp_cd_srp_class_a_vid_w;
+  assign lwsrp_domain_ok   = pp_cd_srp_domain_adopted_w;
+  assign lwsrp_over_limit  = pp_cd_srp_over_limit_w;
+  assign lwsrp_res_active  = |pp_cd_srp_active_w;
+  //! per-source Talker failure (802.1Q 35.2.2.8.6 FailureCode + BridgeID)
+  assign lwsrp_tfail_code   = pp_cd_srp_src_fail_code_w[7:0];
+  assign lwsrp_tfail_valid  = |pp_cd_srp_src_fail_code_w[7:0];
+  //! SINK 0's registrar level - the flat 0x6A4/0x690 status words are
+  //! scalars and always described sink 0, and [2*k +: 2] is the per-sink
+  //! slice. tk_reg_state is a CODE, not a one-hot: the processor publishes
+  //! 0 NONE / 1 ADVERTISE / 2 FAILED (protocol-processor
+  //! hdl/srp/KL_srp_top.sv:211 tk_reg_state_o, driven by status_map at
+  //! hdl/srp/KL_srp_listener_fsm.sv:851-853), so bit 1 of the slice is set
+  //! for a registered Talker FAILED
+  //! and clear for the registered Talker ADVERTISE this field is named for -
+  //! the inversion #472 measured. The compare is against the ADVERTISE code,
+  //! named below because the processor spells this word's codes in a port
+  //! comment and not in srp_pkg (the Listener four-pack below IS in the
+  //! package, and is taken from it). 802.1Q 35.2.4.4.1 is the registrar.
+  //! The per-sink Failure BridgeID and registered VLAN are NOT on the
+  //! class-D face (it carries the per-SOURCE bridge id only; the processor
+  //! serves a sink's bridge id itself, in GET_STREAM_INFO, #508), so the CSR
+  //! fields that carried them are gone from this file rather than wearing a
+  //! source's value under a sink's name.
+  localparam logic [1:0] SRP_TK_REG_ADVERTISE_C = 2'd1;
+  assign lwsrp_ta_registered = (pp_cd_srp_tk_reg_state_w[1:0] ==
+                                SRP_TK_REG_ADVERTISE_C);
+  assign lwsrp_ta_failed     = |pp_cd_srp_snk_fail_code_w[7:0];
+  assign lwsrp_ta_fail_code  = pp_cd_srp_snk_fail_code_w[7:0];
+  //! LWSRP_STATUS[3:0] DESCRIBES ONE SUBJECT, as it did before the lwSRP
+  //! engine was deleted (eff99a9c): the Listener attribute REGISTERED on
+  //! talker SOURCE 0. Its four-packed value is what the processor publishes
+  //! on lstn_reg_state (802.1Q 35.2.2.7.4 FourPackedEvents, encoded by
+  //! srp_pkg::srp_decl_e, which this file compares against by name rather
+  //! than by bit index). [1:0] is that value; [2] "registered" is any value
+  //! but Ignore, AskingFailed INCLUDED - that inclusion is the whole point
+  //! of the field: eff99a9c^:hdl/ieee8021q/srp/KL_lwsrp_top.sv:429 needed
+  //! listener_reg_o set for an AskingFailed Listener, and the talker term at
+  //! eff99a9c^:hdl/milan/milan_datapath.sv:3608-3614 took the registration
+  //! DELIBERATELY and not listener_ready, because an AskingFailed Listener
+  //! must still see our TalkerAdvertise or it can never become Ready. [3]
+  //! "ready" is the Ready/ReadyFailed pair of the same value. lstn_decl_state
+  //! - THIS station's own Listener declaration for sink 0 - is a different
+  //! subject and is not this word's. Nothing in this module reads it at this
+  //! head: the net stays plumbed from KL_pp_shadow for a future reader of the
+  //! sink's own declaration, and synthesis prunes it meanwhile. What the sink
+  //! side does publish is the REGISTERED Talker attribute, tk_reg_state, read
+  //! by the GET_STREAM_INFO path and by lwsrp_ta_registered, both above.
+  wire [1:0]  lwsrp_lstn_reg0_w = pp_cd_srp_lstn_reg_state_w[1:0];
+  assign lwsrp_listener_decl  = lwsrp_lstn_reg0_w;
+  assign lwsrp_listener_reg   = (lwsrp_lstn_reg0_w != srp_pkg::SRP_DECL_IGNORE);
+  assign lwsrp_listener_ready =
+      (lwsrp_lstn_reg0_w == srp_pkg::SRP_DECL_READY) ||
+      (lwsrp_lstn_reg0_w == srp_pkg::SRP_DECL_READY_FAILED);
+  assign lwsrp_talker_declared= |pp_cd_srp_tk_decl_state_w;
+  //! OBSERVABLE AFTER ALL: the per-talker "a Listener AskingFailed attribute
+  //! is registered" level (gh #56 A2) that promoted an ACMP talker context to
+  //! REGISTERING_FAILED. This file used to record it as unobservable, on the
+  //! ground that the class-D face reports a per-source failure CODE and not
+  //! the attribute type; lstn_reg_state carries the registered attribute's
+  //! four-packed value, so the level is exactly lstn_reg_state == AskingFailed
+  //! and the GET_STREAM_INFO path above already reads it (:4481). What is
+  //! gone is the ACMP talker CONTEXT that consumed it, not the observation.
+  //! MRPDU tx/rx accounting lived in the deleted serializer/ingress pair
+  assign lwsrp_tx_count = 16'd0;
+  assign lwsrp_rx_pdus  = 16'd0;
+  assign lwsrp_rx_drops = 8'd0;
+  //! the 0x800 window's SRP context-table master and its per-row readback:
+  //! there is no attribute-row table in this fabric any more
+  assign lwsrp_ctx_oor_w   = 1'b0;
+  assign srp_ctx_gnt_w     = 1'b0;
+  assign srp_ctx_rd_sid_w  = 64'd0;
+  assign srp_ctx_rd_stat_w = 16'd0;
+
+  //! A_TXARB_DIAG 0x784 lock supervision, one lane per TX-trunk arbiter.
+  //!
+  //! THE LANE MAP RENUMBERED when the legacy 1722.1/SRP plane was deleted.
+  //! It used to be eight muxes - 0 aecp_acmp, 1 ctl_tx, 2 srp_ctl, 3 lstn_ctl,
+  //! 4 maap_ctl, 5 aaf_final, 6 crf_dp, 7 adp_tx - because five independent
+  //! control sources (AECP responses, ACMP talker answers, ADP advertisements,
+  //! lwSRP MRPDUs, ACMP listener probes) each needed a merge step. The
+  //! protocol processor emits ONE byte stream for every protocol it owns and
+  //! arbitrates internally, so four of those merges have no second source left
+  //! and are gone with the planes that fed them.
+  //!
+  //! Lane order (LSB first): 0 ctl_tx (processor + MAAP -> the control lane),
+  //! 1 aaf_final, 2 crf_dp, 3 adp_tx (= the MAC boundary mux).
+  //! Bits 7:4 read a STRUCTURAL ZERO - there is no fifth..eighth arbiter to
+  //! supervise, as opposed to four arbiters that happen never to have locked.
+  //! Anything decoding 0x784 by the old lane numbers reads the WRONG mux.
+  //!
+  //! Watchdog windows stay STAGGERED shortest-upstream (control chain 2^15,
+  //! data merges 2^16, MAC boundary 2^17): an abandoned source starves every
+  //! downstream mux on the SAME cycle (the IFG gasket passes tvalid
+  //! combinationally), so equal windows would expire together and each level
+  //! would inject its own close beat - runts on the wire per event. With the
+  //! stagger only the true origin fires; its injected tlast propagates down as
+  //! an accepted beat and clears every downstream counter normally.
+  wire [7:0] txarb_locked_w, txarb_abort_w, txarb_stall_w;
+  //! lanes 0..3 as documented above; lane 4 = the gPTP plane's merge
+  //! (a structural zero while GPTP_PLANE_EN_P is off); 7:5 structural
+  //! zero. Lane 1 WAS aaf_final_mux, the merge of the shaped general-data
+  //! lane with AAF: with the general-data chain gone AAF enters crf_dp_mux
+  //! directly, so lane 1 is a structural zero too. The lane numbers are an
+  //! ABI (REGISTER_MAP 0x784), so nothing is renumbered.
+  assign txarb_locked_w[7:5] = 3'd0;
+  assign txarb_abort_w [7:5] = 3'd0;
+  assign txarb_stall_w [7:5] = 3'd0;
+  assign txarb_locked_w[1]   = 1'b0;
+  assign txarb_abort_w [1]   = 1'b0;
+  assign txarb_stall_w [1]   = 1'b0;
+
+  //! #839 the transmit gate (tx_sa_ok_w, declared with the station MAC):
+  //! a held source sees tready 0 and its arbiter sees tvalid 0, so no frame
+  //! starts before both halves of the station MAC are written. The gPTP
+  //! plane is not held: its source address is the station MAC the builder
+  //! put in its ROM (gen_gptp_ucode.py --mac, the same platform.mac_address
+  //! firmware writes here, refused when zero or a group address), and its
+  //! path to the MAC stays free of runtime gates (the boot contract in
+  //! docs/integration/BAREMETAL_FIRMWARE.md).
+  assign pp_tx_tvalid_w    = pp_txs_tvalid_w   & tx_sa_ok_w;
+  assign pp_txs_tready_w   = pp_tx_tready_w    & tx_sa_ok_w;
+  assign maap_tx_tvalid    = maap_txs_tvalid_w & tx_sa_ok_w;
+  assign maap_txs_tready_w = maap_tx_tready    & tx_sa_ok_w;
+  assign aaf_tx_tvalid     = aaf_txs_tvalid_w  & tx_sa_ok_w;
+  assign aaf_txs_tready_w  = aaf_tx_tready     & tx_sa_ok_w;
+  assign crft_tx_tvalid    = crft_txs_tvalid_w & tx_sa_ok_w;
+  assign crft_txs_tready_w = crft_tx_tready    & tx_sa_ok_w;
+
+  //! THE control merge: the protocol processor's packed TX (s_data - ADP,
+  //! ACMP and SRP, internally arbitrated) + the fabric KL_maap
+  //! announce/probe/defend lane (s_adp). The selected processor pin also
+  //! contains KL_pp_maap, but this integration ties cfg_maap_internal_i low,
+  //! selects the fabric allocator, and presents it through KL_pp_maap_shim.
+  wire [TDATA_WIDTH-1:0]   ctlh_tx_tdata;
+  wire [TDATA_WIDTH/8-1:0] ctlh_tx_tkeep;
+  wire                     ctlh_tx_tvalid, ctlh_tx_tlast, ctlh_tx_tready;
+  adp_tx_arbiter #(.DATA_WIDTH(TDATA_WIDTH), .TO_LOG2_P(15)) ctl_tx_mux (
+    .clk_i (axis_clk), .rst_n (axis_resetn),
+    .s_data_tdata (pp_tx_tdata_w),  .s_data_tkeep (pp_tx_tkeep_w),
+    .s_data_tvalid(pp_tx_tvalid_w), .s_data_tlast (pp_tx_tlast_w),
+    .s_data_tready(pp_tx_tready_w),
+    .s_adp_tdata (maap_tx_tdata),  .s_adp_tkeep (maap_tx_tkeep),
+    .s_adp_tvalid(maap_tx_tvalid), .s_adp_tlast (maap_tx_tlast),
+    .s_adp_tready(maap_tx_tready),
+    .m_tdata (ctlh_tx_tdata), .m_tkeep (ctlh_tx_tkeep),
+    .m_tvalid(ctlh_tx_tvalid), .m_tlast (ctlh_tx_tlast), .m_tready(ctlh_tx_tready),
+    .diag_locked_o(txarb_locked_w[0]),
+    .abort_evt_o (txarb_abort_w[0]), .stall_evt_o (txarb_stall_w[0])
+  );
+
+  //! The AAF talkers head the DATA lane of the trunk: they are the first
+  //! source of the data-side merges (the shaped general-data lane that used to
+  //! sit beside them is gone - TX-trunk note at the interface declarations).
+  //! The CRF talker's PDUs join them here - on the DATA lane beside AAF, NOT on the
+  //! low-rate control merge (docs/overview/ARCHITECTURE.md section 3,
+  //! moved 2026-07-28). The CRF PDU is a STREAM carrying a gPTP timestamp
+  //! that a listener steers its 48 kHz recovery clock against; behind the
+  //! control lane's min-IFG gasket it inherited a 512-cycle spacing PER
+  //! FRAME and queued behind whatever ADP/AECP/ACMP/MAAP/lwSRP burst was in
+  //! flight - a Hive enumeration storm is hundreds of AECP responses, and
+  //! every one of them added ~10 us of delay to the media clock's
+  //! presentation margin. The data lane is gasket-free and already carries
+  //! the 8 AAF talkers, which is where a class A stream belongs.
+  //!
+  //! HONEST BOUND: neither AAF nor CRF is credit-shaped. The 802.1Qav shaper
+  //! is not in this wrapper any more (it only ever shaped the retired target's
+  //! general-data lane), so class-A shaping of the fabric's own stream
+  //! sources is a separate lane, not something this merge quietly claims.
+  wire [TDATA_WIDTH-1:0]   dpcrf_tdata;
+  wire [TDATA_WIDTH/8-1:0] dpcrf_tkeep;
+  wire                     dpcrf_tvalid, dpcrf_tlast, dpcrf_tready;
+  adp_tx_arbiter #(.DATA_WIDTH(TDATA_WIDTH), .TO_LOG2_P(16)) crf_dp_mux (
+    .clk_i (axis_clk), .rst_n (axis_resetn),
+    .s_data_tdata (aaf_tx_tdata),  .s_data_tkeep (aaf_tx_tkeep),
+    .s_data_tvalid(aaf_tx_tvalid), .s_data_tlast (aaf_tx_tlast),
+    .s_data_tready(aaf_tx_tready),
+    .s_adp_tdata (crft_tx_tdata),  .s_adp_tkeep (crft_tx_tkeep),
+    .s_adp_tvalid(crft_tx_tvalid), .s_adp_tlast (crft_tx_tlast),
+    .s_adp_tready(crft_tx_tready),
+    .m_tdata (dpcrf_tdata), .m_tkeep (dpcrf_tkeep),
+    .m_tvalid(dpcrf_tvalid), .m_tlast (dpcrf_tlast), .m_tready(dpcrf_tready),
+    .diag_locked_o(txarb_locked_w[2]),
+    .abort_evt_o (txarb_abort_w[2]), .stall_evt_o (txarb_stall_w[2])
+  );
+
+  //! min-IFG gasket on the CONTROL lane ONLY (2026-07-19): the MilanMAC
+  //! (cut-through core + milan_cd->sys CDC) silently eats a frame that
+  //! enters back-to-back behind another (silicon: the MVRP half of the
+  //! MSRP+MVRP pair, and the intermittent ACMP CONNECT_RX_RESPONSE that
+  //! follows another control frame). Spacing every control frame here fixes
+  //! ALL of them WITHOUT touching data/AAF throughput (the data lane
+  //! bypasses this gasket). Replaces lwSRP's local gap workaround.
+  logic [TDATA_WIDTH-1:0]  ctlg2_tdata;       //! ctl_sa_stamp below (#839)
+  wire  [TDATA_WIDTH-1:0]  ctlg_src_tdata_w;  //! the gasket's own output
+  wire [TDATA_WIDTH/8-1:0] ctlg2_tkeep;
+  wire                     ctlg2_tvalid, ctlg2_tlast, ctlg2_tready;
+  tx_ifg_gasket #(.DATA_WIDTH(TDATA_WIDTH), .GAP_CYCLES(512)) ctl_ifg (
+    .clk_i (axis_clk), .rst_n (axis_resetn),
+    .s_tdata (ctlh_tx_tdata),  .s_tkeep (ctlh_tx_tkeep),
+    .s_tvalid(ctlh_tx_tvalid), .s_tlast (ctlh_tx_tlast), .s_tready(ctlh_tx_tready),
+    .m_tdata (ctlg_src_tdata_w),  .m_tkeep (ctlg2_tkeep),
+    .m_tvalid(ctlg2_tvalid), .m_tlast (ctlg2_tlast), .m_tready(ctlg2_tready)
+  );
+
+  //! #839 SOURCE ADDRESS STAMP on the control lane, after the gasket
+  //! (processor + MAAP): octets 6 to 11 of every frame are the station MAC
+  //! (IEEE 802.1AC-2016 11.1, IEEE 802.1Q-2022 6.8.1: source_address is the
+  //! individual address of the source MSAP), taken from the CSR while the
+  //! octet is on the lane, as a MAC entity inserts its own address (IEEE
+  //! 802.3-2022 2.3.1.2). The hold above stops a frame STARTING before the
+  //! address is written, but the processor builds a frame into its TX slot
+  //! before offering it (KL_srp_encoder writes octets 6 to 11 at build
+  //! time), so an MSRP PDU built from the reset value would otherwise leave
+  //! with it once released. The data lane needs no stamp: KL_aaf_packetizer
+  //! and KL_crf_tx form octets 6 to 11 from station_mac_i on the beat they
+  //! emit, as KL_maap does, and the hold keeps their first beat back until
+  //! the address is written. Every other octet passes untouched. The lane
+  //! carries packed beats in little lane order (octet n of a beat in
+  //! tdata[8n +: 8], every beat but the last full), so a beat's position in
+  //! its frame fixes its octets.
+  localparam int unsigned TX_SA_BPB_C   = TDATA_WIDTH / 8;   //! octets per beat
+  //! beats that can hold a source-address octet (the field ends at octet 12)
+  localparam int unsigned TX_SA_BEATS_C = (12 + TX_SA_BPB_C - 1) / TX_SA_BPB_C;
+  localparam int unsigned TX_SA_IW_C    = $clog2(TX_SA_BEATS_C + 1);
+
+  //! the next control-lane beat's position in its frame, saturated at
+  //! TX_SA_BEATS_C (past the source address)
+  logic [TX_SA_IW_C-1:0] ctl_sa_idx_r;
+  always_ff @(posedge axis_clk) begin : ctl_sa_position
+    if (!axis_resetn)                                      ctl_sa_idx_r <= '0;
+    else if (ctlg2_tvalid && ctlg2_tready) begin
+      if (ctlg2_tlast)                                     ctl_sa_idx_r <= '0;
+      else if (ctl_sa_idx_r != TX_SA_IW_C'(TX_SA_BEATS_C)) ctl_sa_idx_r <= ctl_sa_idx_r + 1'b1;
+    end
+  end : ctl_sa_position
+
+  //! the beat with every source-address octet it holds replaced; the CSR
+  //! packing is LSB-first, wire octet 6 + k in cfg_mac_addr[8k +: 8]
+  always_comb begin : ctl_sa_stamp
+    ctlg2_tdata = ctlg_src_tdata_w;
+    for (int b = 0; b < int'(TX_SA_BEATS_C); b++)
+      for (int ln = 0; ln < int'(TX_SA_BPB_C); ln++)
+        if (ctl_sa_idx_r == TX_SA_IW_C'(b) && (b * int'(TX_SA_BPB_C) + ln) >= 6
+            && (b * int'(TX_SA_BPB_C) + ln) < 12)
+          ctlg2_tdata[8*ln +: 8] = cfg_mac_addr[8*(b * int'(TX_SA_BPB_C) + ln - 6) +: 8];
+  end : ctl_sa_stamp
+
+  // ==========================================================================
+  //  the fabric gPTP plane (issue #114, product default ON since #116)
+  // ==========================================================================
+  //! Joins the control lane AFTER the min-IFG gasket (the CRF rationale:
+  //! a time-critical frame must not queue 512 cycles per control burst)
+  //! through its own staggered merge (ctl 2^15 -> this 2^16 -> boundary
+  //! 2^17). The egress stamper observes the TRUE MAC boundary; ingress
+  //! rides the same rx_axis_fabric tap every plane uses (input only,
+  //! tvalid && tready qualified). The publication bank directly owns the GM,
+  //! parent, pdelay, tu/asCapable, CSR, and protocol-answer faces. The direct
+  //! option-OFF arm has no owner: those publications are zero, tu is one, and
+  //! every retained publication write is inert.
+  wire [TDATA_WIDTH-1:0]   ctlg3_tdata;
+  wire [TDATA_WIDTH/8-1:0] ctlg3_tkeep;
+  wire                     ctlg3_tvalid, ctlg3_tlast, ctlg3_tready;
+  wire [15:0] gptp_tap_drop_w, gptp_rx_drop_w, gptp_ev_drop_w;
+  //! #360: egress launch records that closed with no timestamp. Published
+  //! at GPTP_DROPE[31:16] beside the event-queue losses, because a lost
+  //! timestamp and a lost event are the same class of fact about the
+  //! plane and an integrator reads them in one access.
+  wire [15:0] gptp_txts_lost_w;
+
+  generate if (GPTP_PLANE_EN_P) begin : g_gptp_plane
+    wire [TDATA_WIDTH-1:0]   gtx_tdata_w;
+    wire [TDATA_WIDTH/8-1:0] gtx_tkeep_w;
+    wire                     gtx_tvalid_w, gtx_tlast_w, gtx_tready_w;
+    //! The crossing's addend under the name both ends already read it by:
+    //! Q8.24 SIGNED nanoseconds. `ptp_csr_sync` declares `t_adj` unsigned,
+    //! while `ts_counter.adj_i` and this plane's `phc_adj_eff_ns_i` are both
+    //! declared signed; the widths are equal at 32 bits either way, so
+    //! nothing is extended and no value changes here. The sign is put in a
+    //! DECLARATION rather than written as a cast inside the port connection
+    //! below, which is the boundary-type rule of
+    //! docs/development/CODE_QUALITY.md Rule 4: a cast at the consumer
+    //! decides the sign where no reader of either end can see it.
+    wire signed [31:0] phc_adj_eff_ns_ts_w = signed'(phc_adj_ts_w);
+
+    KL_gptp_shadow #(
+        .TDATA_WIDTH_P (TDATA_WIDTH),
+        .CLK_HZ_P      (MILAN_CLK_FREQ_HZ),
+        .UCODE_HEX_P   (GPTP_UCODE_HEX_P),
+        .PHC_TICK_NS_P (GPTP_PHC_TICK_NS_P),
+        .ETH_TICK_NS_P (GPTP_ETH_TICK_NS_P),
+        .ETH_CYC_PER_OCTET_P(GPTP_ETH_CYC_PER_OCTET_P),
+        .INGRESS_LAT_NS_P(GPTP_INGRESS_LAT_NS_P),
+        .EGRESS_LAT_NS_P (GPTP_EGRESS_LAT_NS_P)
+    ) u_gptp_shadow (
+        .clk_i           (axis_clk),
+        .rst_n           (axis_resetn),
+        .rx_tdata_i      (rx_axis_fabric.tdata),
+        .rx_tkeep_i      (rx_axis_fabric.tkeep),
+        .rx_tvalid_i     (rx_axis_fabric.tvalid),
+        .rx_tready_i     (rx_axis_fabric.tready),
+        .rx_tlast_i      (rx_axis_fabric.tlast),
+        .phc_ns_i        (ptp_now_w),
+        //! THE COUNTER'S OWN INPUT NETS, not the CSR face and not the
+        //! plane's own upstream addend: `gptp_adj_w` above is what this
+        //! plane ASKS for and `cfg_ptp_*` is what software asked for,
+        //! while these five are what `ts_counter` is actually being
+        //! driven with, in its own clock domain, after `ptp_csr_sync`.
+        //! Qualifying a reconstruction against anything earlier would
+        //! call a window eligible while the accumulator was still on the
+        //! previous trajectory.
+        .phc_en_eff_i    (phc_enable_ts_w),
+        .phc_incr_eff_ns_i(phc_incr_ts_w),
+        .phc_adj_eff_ns_i(phc_adj_eff_ns_ts_w),
+        .phc_load_eff_i  (phc_load_ts_w),
+        .phc_adjust_eff_i(phc_adjust_ts_w),
+        .phc_adj_o       (gptp_adj_w),
+        .phc_step_we_o   (gptp_step_we_w),
+        .phc_step_o      (gptp_step_w),
+        .phc_slew_active_o (gptp_slew_active_w),
+        .tx_tdata_o      (gtx_tdata_w),
+        .tx_tkeep_o      (gtx_tkeep_w),
+        .tx_tvalid_o     (gtx_tvalid_w),
+        .tx_tlast_o      (gtx_tlast_w),
+        .tx_tready_i     (gtx_tready_w),
+        .rec_valid_i     (i_gptp_txrec_valid),
+        .rec_kind_i      (i_gptp_txrec_kind),
+        .rec_oidx_i      (i_gptp_txrec_oidx),
+        .rec_gen_i       (i_gptp_txrec_gen),
+        .rec_type_i      (i_gptp_txrec_type),
+        .rec_seq_i       (i_gptp_txrec_seq),
+        .rec_delta_i     (i_gptp_txrec_delta),
+        .rec_abort_i     (i_gptp_txrec_abort),
+        .seal_req_o      (o_gptp_txseal_req),
+        .seal_gen_o      (o_gptp_txseal_gen),
+        .seal_ack_i      (i_gptp_txseal_ack),
+        .mac_reinit_i    (linkg_reinit_w),
+        .mac_eth_rst_i   (linkg_eth_rst_w),
+        .epi_start_i     (linkg_epi_start_w),
+        .epi_done_i      (linkg_epi_done_w),
+        .epi_busy_i      (linkg_epi_busy_w),
+        .epi_dis_i       (cfg_linkg_dis),
+        .recov_req_o     (gptp_recov_req_w),
+        //! portEnabled: the effective link, the PHY link (synchronised into
+        //! axis_clk by the SoC) gated by LINK_CTRL[0] and the link guard's
+        //! estimate, all axis_clk levels, so the plane needs no synchroniser
+        //! (FPGA-gPTP #94)
+        .port_enabled_i  (eff_link_w),
+        .pub_gm_id_o     (gptp_pub_gm_w),
+        .pub_parent_id_o (gptp_pub_parent_w),
+        .pub_flags_o     (gptp_pub_flags_w),
+        .pub_pdelay_ns_o (gptp_pub_pdelay_w),
+        .pub_offset_o    (gptp_pub_offset_w),
+        .pub_annq_o      (gptp_pub_annq_w),
+        .pub_path_count_o(gptp_pub_path_count_w),
+        .pub_path_o      (gptp_pub_path_w),
+        .pub_path_gen_o  (gptp_pub_path_gen_w),
+        .pub_commit_o    (),
+        .pub_disc_o      (gptp_pub_disc_w),
+        .dbg_tap_drop_o  (gptp_tap_drop_w),
+        .dbg_rx_drop_o   (gptp_rx_drop_w),
+        .dbg_ev_drop_o   (gptp_ev_drop_w),
+        .dbg_busy_o      (),
+        .dbg_rx_ts_o     (),
+        .dbg_tspush_v_o  (),
+        .dbg_tspush_o    (),
+        .dbg_tspop_v_o   (),
+        //! THE ONE AN INTEGRATOR READS: frames the plane admitted and
+        //! could not time. It is published at GPTP_DROPE[31:16], beside
+        //! the event-queue losses, because a lost timestamp and a lost
+        //! event are the same class of fact about this plane.
+        .dbg_txts_lost_o (gptp_txts_lost_w),
+        //! Per-cause egress-timestamp forensics. They are module outputs
+        //! with no CSR of their own: the shipping build publishes the
+        //! aggregate above and the benches read these through the
+        //! hierarchy, which is the idiom tb/verilator/milan_dp already
+        //! uses for the plane's internals. Left open here deliberately -
+        //! a CSR per cause would take addresses the register map does not
+        //! have for a diagnostic only a bench reads.
+        .dbg_txts_disc_o (),
+        .dbg_txts_barr_o (),
+        .dbg_txts_stall_o(),
+        .dbg_txts_phcl_o (),
+        .dbg_txts_dirt_cyc_o(),
+        .dbg_txts_state_o(),
+        .dbg_txts_torn_o ()
+    );
+
+    adp_tx_arbiter #(.DATA_WIDTH(TDATA_WIDTH), .TO_LOG2_P(16)) gptp_ctl_mux (
+      .clk_i (axis_clk), .rst_n (axis_resetn),
+      .s_data_tdata (ctlg2_tdata),  .s_data_tkeep (ctlg2_tkeep),
+      .s_data_tvalid(ctlg2_tvalid), .s_data_tlast (ctlg2_tlast),
+      .s_data_tready(ctlg2_tready),
+      .s_adp_tdata (gtx_tdata_w),  .s_adp_tkeep (gtx_tkeep_w),
+      .s_adp_tvalid(gtx_tvalid_w), .s_adp_tlast (gtx_tlast_w),
+      .s_adp_tready(gtx_tready_w),
+      .m_tdata (ctlg3_tdata), .m_tkeep (ctlg3_tkeep),
+      .m_tvalid(ctlg3_tvalid), .m_tlast (ctlg3_tlast),
+      .m_tready(ctlg3_tready),
+      .diag_locked_o(txarb_locked_w[4]),
+      .abort_evt_o (txarb_abort_w[4]), .stall_evt_o (txarb_stall_w[4])
+    );
+
+  end else begin : g_gptp_off
+    //! option off: the control lane passes straight through, the PHC
+    //! knobs constant-fold to the CSR face, the publish words read zero
+    assign txarb_locked_w[4] = 1'b0;
+    assign txarb_abort_w [4] = 1'b0;
+    assign txarb_stall_w [4] = 1'b0;
+    assign ctlg3_tdata  = ctlg2_tdata;
+    assign ctlg3_tkeep  = ctlg2_tkeep;
+    assign ctlg3_tvalid = ctlg2_tvalid;
+    assign ctlg3_tlast  = ctlg2_tlast;
+    assign ctlg2_tready = ctlg3_tready;
+    assign gptp_adj_w = '0;
+    assign gptp_step_we_w = 1'b0;
+    assign gptp_slew_active_w = 1'b0;
+    assign gptp_step_w = '0;
+    assign gptp_pub_gm_w = '0;
+    assign gptp_pub_parent_w = '0;
+    assign gptp_pub_annq_w = '0;
+    assign gptp_pub_flags_w = '0;
+    assign gptp_pub_pdelay_w = '0;
+    assign gptp_pub_offset_w = '0;
+    assign gptp_pub_path_w = '0;
+    assign gptp_pub_path_count_w = '0;
+    assign gptp_pub_path_gen_w = '0;
+    assign gptp_pub_disc_w = 1'b0;
+    assign gptp_tap_drop_w = '0;
+    assign gptp_rx_drop_w = '0;
+    assign gptp_ev_drop_w = '0;
+    assign gptp_txts_lost_w = '0;
+    //! no plane, so no launch observer to seal and nothing to recover:
+    //! the seal outputs and the recovery request are defined zeros like
+    //! every other plane signal in this arm
+    assign o_gptp_txseal_req = 1'b0;
+    assign o_gptp_txseal_gen = '0;
+    assign gptp_recov_req_w  = 1'b0;
+  end endgenerate
+
+  adp_tx_arbiter #(.DATA_WIDTH(TDATA_WIDTH)) adp_tx_mux (
+    .clk_i (axis_clk),
+    .rst_n (axis_resetn),
+    .s_data_tdata (dpcrf_tdata),
+    .s_data_tkeep (dpcrf_tkeep),
+    .s_data_tvalid(dpcrf_tvalid),
+    .s_data_tlast (dpcrf_tlast),
+    .s_data_tready(dpcrf_tready),
+    .s_adp_tdata (ctlg3_tdata),
+    .s_adp_tkeep (ctlg3_tkeep),
+    .s_adp_tvalid(ctlg3_tvalid),
+    .s_adp_tlast (ctlg3_tlast),
+    .s_adp_tready(ctlg3_tready),
+    .m_tdata (tx_axis_to_mac.tdata),
+    .m_tkeep (tx_axis_to_mac.tkeep),
+    .m_tvalid(tx_axis_to_mac.tvalid),
+    .m_tlast (tx_axis_to_mac.tlast),
+    .m_tready(tx_axis_to_mac.tready),
+    .diag_locked_o(txarb_locked_w[3]),
+    .abort_evt_o (txarb_abort_w[3]),
+    .stall_evt_o (txarb_stall_w[3])
+  );
+
+  //! Sticky event capture for A_TXARB_DIAG: which mux ever fired which
+  //! verdict since reset. Reset-only clear - the register is forensics for
+  //! a wedge class that by definition outlives every soft recovery path.
+  logic [7:0] txarb_abort_sticky_r, txarb_stall_sticky_r;
+  always_ff @(posedge axis_clk) begin : txarb_sticky
+    if (!axis_resetn) begin
+      txarb_abort_sticky_r <= 8'h0;
+      txarb_stall_sticky_r <= 8'h0;
+    end else begin
+      txarb_abort_sticky_r <= txarb_abort_sticky_r | txarb_abort_w;
+      txarb_stall_sticky_r <= txarb_stall_sticky_r | txarb_stall_w;
+    end
+  end : txarb_sticky
+  wire [31:0] txarb_diag_w = {8'hA7, txarb_stall_sticky_r,
+                              txarb_abort_sticky_r, txarb_locked_w};
+
+  // ==========================================================================
+  //  RMON event counters
+  // ==========================================================================
+  //! Good-frame lanes are derived HERE from the MAC AXIS boundary handshake
+  //! (one accepted `tlast` beat = one frame), so they count on every
+  //! integration - including the LiteX SoCs, whose glue has no MAC event
+  //! pulses to offer (i_mac_events tied 0 there = the "RMON never worked on
+  //! silicon" root cause). The remaining MAC-internal lanes pass through from
+  //! i_mac_events; its good-frame bits are ignored to make double-counting
+  //! structurally impossible.
+  //! an accepted beat, and an accepted `tlast` beat; KL_reboot_ctrl's egress
+  //! account counts frames in on the same two terms (#787)
+  wire tx_mac_beat_w = m_axis_mac_tx_tvalid & m_axis_mac_tx_tready;
+  wire tx_mac_good_w = tx_mac_beat_w & m_axis_mac_tx_tlast;
+  wire rx_mac_good_w = s_axis_mac_rx_tvalid & s_axis_mac_rx_tready
+                     & s_axis_mac_rx_tlast;
+  logic [_ETH_EVENT_COUNTER-1:0] mac_events_w;
+  always_comb begin : mac_event_merge
+    mac_events_w = i_mac_events;
+    mac_events_w[TX_FIFO_GOOD_FRAME] = tx_mac_good_w;
+    mac_events_w[RX_FIFO_GOOD_FRAME] = rx_mac_good_w;
+  end : mac_event_merge
+
+  //! Capability mask published at CSR 0x204. The two good-frame lanes are
+  //! forced supported because they are derived RIGHT HERE (same override that
+  //! makes double-counting impossible); every other lane is only claimed if
+  //! the integration says it drives it. A zero bit is the honest statement
+  //! "this counter is structurally silent", as opposed to a zero COUNT, which
+  //! means "nothing happened" - the distinction the RMON tie-off erased.
+  wire [_ETH_EVENT_COUNTER-1:0] stats_cap_w = i_mac_events_cap
+                                            | (1 << TX_FIFO_GOOD_FRAME)
+                                            | (1 << RX_FIFO_GOOD_FRAME);
+
+  ethernet_events ethernet_counters(
+    .clk(axis_clk),
+    .resetn(axis_resetn),
+    .stats_reset(cfg_stats_reset),
+    .events(mac_events_w),
+    .counts_o(stats_counts),
+    .rollover_o(stats_rollover)
+  );
+
+  // ==========================================================================
+  //  AAF per-stage latency taps (roadmap item 11) — the observation-point
+  //  adapter and the LTAP CSR word order live in KL_aaf_latency_tap_bank; the
+  //  datapath only names the points it is observed at. The bank is a pure
+  //  observer: every port below is an input except the two CSR rails.
+  // ==========================================================================
+  KL_aaf_latency_tap_bank #(
+    .ENABLE_P  (LTAP_P),
+    .TIMEOUT_C (MILAN_CLK_FREQ_HZ / 2000)   //! ~0.5 ms per-stage re-arm guard
+  ) aaf_latency_tap_bank (
+    .clk_i (axis_clk), .rst_n (axis_resetn),
+    .en_i  (ltap_en_w), .clr_i (ltap_clr_w),
+    .now_i (ptp_now_w[31:0]),
+
+    .cap_pair_p_i    (aafcap_pv_w),
+    .aaf_tx_tvalid_i (aaf_tx_tvalid),
+    .aaf_tx_tready_i (aaf_tx_tready),
+    .aaf_tx_tlast_i  (aaf_tx_tlast),
+    .mac_tx_tvalid_i (m_axis_mac_tx_tvalid),
+    .mac_tx_tready_i (m_axis_mac_tx_tready),
+    .mac_tx_tlast_i  (m_axis_mac_tx_tlast),
+
+    .mac_rx_tvalid_i (s_axis_mac_rx_tvalid),
+    .mac_rx_tready_i (s_axis_mac_rx_tready),
+    .mac_rx_tlast_i  (s_axis_mac_rx_tlast),
+    .avtp_accept_p_i (avtprx_accept_p),
+    .dpkt_tvalid_i   (dpkt_pcm_tvalid_w),
+    .dpkt_tready_i   (dpkt_pcm_tready_w),
+    .dpkt_tlast_i    (dpkt_pcm_tlast_w),
+    //! Final RX stage: selected listener payload accepted by fabric render.
+    .render_tvalid_i (rend_pcm_tvalid_w),
+    .render_tready_i (1'b1), //! Latency observer cannot backpressure render.
+    .render_tlast_i  (rend_pcm_tlast_w),
+
+    .regs_o   (ltap_regs_w),
+    .status_o (ltap_status_w)
+  );
+
+  // ==========================================================================
+  //  protocol-processor plane inputs the fabric computes
+  // ==========================================================================
+  //! GM_CHANGE (1722.1-2021 6.2.6). The deleted advertiser took a grandmaster
+  //! change as a level-driven re-advertise off cfg_adp_advertise_p; the
+  //! processor wants a STROBE, so the edge is detected here, on the committed
+  //! pair the 0x624/0x628/0x62C CSR words carry. An all-zero pair is "no
+  //! commitment yet" and its first write is NOT a change - otherwise every
+  //! boot would announce a grandmaster change that never happened.
+  //!
+  //! TWO FACTS, from ONE identity compare. pp_gm_id_edge_w is the
+  //! grandmaster IDENTITY moving; pp_gm_dom_edge_w is the gPTP domain
+  //! number moving under the same "a prior grandmaster existed" rule.
+  //!
+  //!   pp_gm_change_p_w    = id | domain  -> the ADP duty. Both fields are
+  //!     carried by the ADPDU, so either one changing is a re-advertise
+  //!     (1722.1-2021 6.2.6, Milan 5.6.3.5.7) and a GET_AVB_INFO trigger
+  //!     (Milan Table 5.22 names gptp_grandmaster_id AND
+  //!     gptp_domain_number).
+  //!   pp_gm_id_change_p_w = id           -> the GRANDMASTER moved, and
+  //!     only that. Milan Table 5.1 GPTP_GM_CHANGED counts "gPTP GM
+  //!     changes"; the served AS path's entry 0 is the grandmaster, so
+  //!     Table 5.22's "the path sequence changes" is an identity fact too.
+  //!     A domain-only write with a stable grandmaster must move NEITHER.
+  //!
+  //! Reusing one strobe for both made a domain write claim the grandmaster
+  //! and the path had changed when neither had; the compare is shared so the
+  //! two can never disagree about the identity, and the domain term is added
+  //! to exactly one of them.
+  wire pp_gm_id_edge_w  = (|pp_gm_id_q_r) & (pp_gm_id_q_r  != cfg_adp_gptp_gm);
+  wire pp_gm_dom_edge_w = (|pp_gm_id_q_r) & (pp_gm_dom_q_r != cfg_adp_gptp_domain);
+  always_ff @(posedge axis_clk) begin : pp_gm_edge
+    if (!axis_resetn) begin
+      pp_gm_id_q_r        <= 64'd0;
+      pp_gm_dom_q_r       <= 8'd0;
+      pp_gm_change_p_w    <= 1'b0;
+      pp_gm_id_change_p_w <= 1'b0;
+    end else begin
+      pp_gm_id_q_r        <= cfg_adp_gptp_gm;
+      pp_gm_dom_q_r       <= cfg_adp_gptp_domain;
+      pp_gm_change_p_w    <= pp_gm_id_edge_w | pp_gm_dom_edge_w;
+      pp_gm_id_change_p_w <= pp_gm_id_edge_w;
+    end
+  end : pp_gm_edge
+
+  //! THE STREAM-ID LAW, computed once for every talker source. It is the same
+  //! law KL_aaf_packetizer stamps onto the wire ({station_mac, uid}) and the
+  //! same one crft_auto_sid_w computes for the CRF Media Clock Output, so a
+  //! controller that binds source s is told the stream_id the frames of
+  //! source s actually carry. The CRF source additionally honours its CSR
+  //! override (eff_crft_sid_w), which is the provisioning lever that already
+  //! exists; without that arm a provisioned CRFT_SID would put one number on
+  //! the wire and a different one in the ACMP answer and the SRP declaration.
+  generate
+    for (genvar gsid = 0; gsid < ACMP_SRC_C; gsid++) begin : g_pp_sid
+      if (gsid == CRF_TUID_C) begin : g_sid_crf
+        assign pp_src_sid_w[64*gsid +: 64] = eff_crft_sid_w;
+      end else begin : g_sid_aaf
+        assign pp_src_sid_w[64*gsid +: 64] = {station_mac_be_w, 16'(gsid)};
+      end
+    end
+  endgenerate
+
+  //! THE TSPEC LAW, one MaxFrameSize per talker source (#774; Milan v1.2
+  //! 4.3.3.2 Table 4.4, IEEE 802.1Q-2018 35.2.2.8.4 a)), each from the framer
+  //! that source's frames come out of: AAF talker t from its own TSpec
+  //! geometry (tctx_maxf_w[t], 24*N + 24 + 1), the CRF Media Clock Output
+  //! from KL_crf_tx's PDU shape (28 + 1). Talker 0's value on every slot
+  //! declared the 8-channel AAF number, 217, for the CRF stream.
+  generate
+    for (genvar gmf = 0; gmf < ACMP_SRC_C; gmf++) begin : g_pp_maxf
+      if (gmf == CRF_TUID_C) begin : g_maxf_crf
+        assign pp_src_maxf_w[16*gmf +: 16] = crft_maxf_w;
+      end else begin : g_maxf_aaf
+        assign pp_src_maxf_w[16*gmf +: 16] = tctx_maxf_w[gmf];
+      end
+    end
+  endgenerate
+
+  // ==========================================================================
+  //  protocol-processor CONTROL plane — THE control plane, unconditional
+  // ==========================================================================
+  //! The scenario-B P5 seam, substituted. There is no PP_PLANE_P: the legacy
+  //! ADP advertiser, ACMP talker/listener, AECP/AEM engine and lwSRP
+  //! applicant are DELETED from this repository (USER, explicit: "remove the
+  //! old code AECP/ACMP/ADP the lwSRP shall be removed as well. Only use the
+  //! uCPU code"), so there is nothing to fall back to and no option to leave.
+  //! KL_pp_shadow's banner carries the full rationale; the facts that matter
+  //! HERE are:
+  //!
+  //!   1. It taps rx_axis_fabric the same way every other plane does -
+  //!      INPUT ONLY, qualified on tvalid && tready. The shared fabric tap is
+  //!      permanently ready now; retaining handshake qualification prevents a
+  //!      future sink policy from re-eating a held beat.
+  //!   2. Its packed TX is the ONE control-lane leg beside MAAP
+  //!      (ctl_tx_mux). tx_drain_i is 0: the processor owns the wire.
+  //!   3. Its class-D face IS this fabric's ACMP bind record, talker
+  //!      declaration and SRP reservation - every consumer that used to read
+  //!      a deleted plane reads pp_cd_* now.
+  //!   4. Its AECP engine serves the implemented AEM command set documented
+  //!      in protocol-processor/docs/architecture/06_aecp_engine.md.
+  //!      Integrator-owned counters, mappings and Milan information come
+  //!      from the answer blocks above. Unsupported mandatory commands remain
+  //!      explicit compliance blockers in the current Milan audit.
+
+  //! The AECP settings face, republished by KL_pp_shadow (see the instance).
+  //! `public_flat_rd` because no consumer reads these yet: without a probe a
+  //! review found that `cur_config` and `clk_src_index` are both 16 bits, so
+  //! the two could be swapped at the port map and every suite would stay
+  //! green. The milan_dp bench now moves the clock-source and IDENTIFY faces
+  //! through real AECP commands and reads them back here, asserting the
+  //! configuration face does NOT move with them. It cannot move the
+  //! configuration face itself: the image declares one configuration, so the
+  //! only legal index is also the reset value — the bench prints that as an
+  //! explicit gap rather than implying coverage it does not have.
+  logic [15:0]              pp_aecp_cur_config_w /* verilator public_flat_rd */;
+  logic  [7:0]              pp_aecp_identify_w /* verilator public_flat_rd */;
+  //! ACMP_SINKS_C, not N_STREAMS: KL_pp_shadow is elaborated at the ACMP
+  //! shape (see the .N_STREAM_IN_P connection below), which is deliberately
+  //! wider than N_STREAMS — a bare N_STREAMS-wide array would have truncated
+  //! the started vector and silently dropped the top sinks' state.
+  //! (pp_aecp_strm_started_w is declared above gsi_flag_law, its first
+  //! reader, #193)
+  //! the per-row settings faces (issue #67): value beside valid bit, sized
+  //! at the processor's ACMP shape so the CRF rows ride along (the CRF
+  //! output's offset row IS its transit entry's source below). A value
+  //! whose valid bit is clear is a reset zero - every consumer here FOLDS.
+  //! (pp_aecp_pt_offset_w, pp_aecp_pt_offset_v_w, pp_aecp_fmt_in_w,
+  //! pp_aecp_fmt_in_v_w, pp_aecp_fmt_out_w and pp_aecp_fmt_out_v_w are
+  //! declared above the aecp_in0_fmt fold, their first reader, #193)
+  logic                     pp_aecp_dyn_dirty_w;
+
+  //! ---- Milan Table 5.22 GET_COUNTERS trigger: the descriptor arbiter ----
+  //! The processor's face is SCALAR (one {type, index} per cycle) and it
+  //! keeps one dirty bit per served descriptor behind it, so this fabric
+  //! only has to hand over every changed tuple at least once. The sources
+  //! are the per-descriptor pulses of the blocks whose counters the
+  //! GET_COUNTERS face above serves: one bit per STREAM_INPUT (the rx
+  //! monitor, KL_crf_rx for the CRF input), one per STREAM_OUTPUT (the
+  //! talker diag, CRF output included), AVB_INTERFACE 0 and CLOCK_DOMAIN 0
+  //! (the edge terms named beside their counters). Each source bit stays
+  //! PENDING until the round-robin selects it, so simultaneous changes are
+  //! all delivered and a continuously changing low index cannot starve a
+  //! higher one; a
+  //! re-pulse while pending is absorbed (the processor re-reads current
+  //! state, never history). Reviewed on PR 121 (its R1 mutation checks:
+  //! dropped accumulation and a lossy clear-all picker both red).
+  //!
+  //! THE STREAM_INPUT ROWS ARE THE SERVED ONES: the AAF inputs, then the CRF
+  //! Media Clock Input at N_STREAMS when the shape declares it (#529), whose
+  //! source is KL_crf_rx's dirty pulse. The processor keeps one dirty bit per
+  //! declared sink (N_STREAM_IN_P = ACMP_SINKS_C), so that row is already
+  //! there to receive it. A shape without the CRF sink drops the pulse here:
+  //! it has no descriptor to notify about.
+  localparam int unsigned PP_CTR_SIN_N_C = N_STREAMS
+                                         + ((ACMP_SINKS_C > N_STREAMS) ? 1 : 0);
+  localparam int unsigned PP_CTR_EVT_N_C = PP_CTR_SIN_N_C + ACMP_SRC_C + 2;
+  localparam int unsigned PP_CTR_RR_W_C = (PP_CTR_EVT_N_C > 1)
+                                         ? $clog2(PP_CTR_EVT_N_C) : 1;
+  wire  [PP_CTR_SIN_N_C-1:0] pp_ctr_sin_dirty_w;
+  if (PP_CTR_SIN_N_C > N_STREAMS) begin : g_ctr_crf_dirty
+    assign pp_ctr_sin_dirty_w = {crf_dirty_p_w, avtprx_dirty_p_w};
+  end else begin : g_ctr_no_crf_dirty
+    assign pp_ctr_sin_dirty_w = avtprx_dirty_p_w;
+  end
+  logic [PP_CTR_SIN_N_C-1:0] pp_ctr_sin_pend_r, pp_ctr_sin_pend_n;
+  logic [ACMP_SRC_C-1:0] pp_ctr_sout_pend_r, pp_ctr_sout_pend_n;
+  logic pp_ctr_avb_pend_r, pp_ctr_avb_pend_n;
+  logic pp_ctr_ckd_pend_r, pp_ctr_ckd_pend_n;
+  logic [PP_CTR_RR_W_C-1:0] pp_ctr_rr_r;
+  logic [PP_CTR_EVT_N_C-1:0] pp_ctr_all_pend_w;
+  logic        pp_ctr_evt_valid_w /* verilator public_flat_rd */;
+  logic [15:0] pp_ctr_evt_type_w  /* verilator public_flat_rd */;
+  logic [15:0] pp_ctr_evt_index_w /* verilator public_flat_rd */;
+
+  assign pp_ctr_all_pend_w = {pp_ctr_ckd_pend_r, pp_ctr_avb_pend_r,
+                              pp_ctr_sout_pend_r, pp_ctr_sin_pend_r};
+
+  always_comb begin : pp_ctr_event_pick
+    int unsigned pick;
+    pp_ctr_evt_valid_w = 1'b0;
+    pp_ctr_evt_type_w  = 16'd0;
+    pp_ctr_evt_index_w = 16'd0;
+    for (int unsigned off = 0; off < PP_CTR_EVT_N_C; off++) begin
+      pick = 32'(pp_ctr_rr_r) + off;
+      if (pick >= PP_CTR_EVT_N_C) pick = pick - PP_CTR_EVT_N_C;
+      if (!pp_ctr_evt_valid_w && pp_ctr_all_pend_w[pick]) begin
+        pp_ctr_evt_valid_w = 1'b1;
+        if (pick < PP_CTR_SIN_N_C) begin
+          pp_ctr_evt_type_w  = DESC_STREAM_INPUT_C;
+          pp_ctr_evt_index_w = 16'(pick);
+        end else if (pick < (PP_CTR_SIN_N_C + ACMP_SRC_C)) begin
+          pp_ctr_evt_type_w  = DESC_STREAM_OUTPUT_C;
+          pp_ctr_evt_index_w = 16'(pick - PP_CTR_SIN_N_C);
+        end else if (pick == (PP_CTR_SIN_N_C + ACMP_SRC_C)) begin
+          pp_ctr_evt_type_w  = DESC_AVB_INTERFACE_C;
+        end else begin
+          pp_ctr_evt_type_w  = DESC_CLOCK_DOMAIN_C;
+        end
+      end
+    end
+  end : pp_ctr_event_pick
+
+  always_comb begin : pp_ctr_event_next
+    pp_ctr_sin_pend_n  = pp_ctr_sin_pend_r  | pp_ctr_sin_dirty_w;
+    pp_ctr_sout_pend_n = pp_ctr_sout_pend_r | tkd_dirty_p_w;
+    pp_ctr_avb_pend_n  = pp_ctr_avb_pend_r  | ctr_avb_dirty_w;
+    pp_ctr_ckd_pend_n  = pp_ctr_ckd_pend_r  | ctr_ckd_dirty_w;
+    for (int unsigned s = 0; s < PP_CTR_SIN_N_C; s++) begin
+      if (pp_ctr_evt_valid_w
+          && (pp_ctr_evt_type_w == DESC_STREAM_INPUT_C)
+          && (pp_ctr_evt_index_w == 16'(s))) pp_ctr_sin_pend_n[s] = 1'b0;
+    end
+    for (int unsigned s = 0; s < ACMP_SRC_C; s++) begin
+      if (pp_ctr_evt_valid_w
+          && (pp_ctr_evt_type_w == DESC_STREAM_OUTPUT_C)
+          && (pp_ctr_evt_index_w == 16'(s))) pp_ctr_sout_pend_n[s] = 1'b0;
+    end
+    if (pp_ctr_evt_valid_w && (pp_ctr_evt_type_w == DESC_AVB_INTERFACE_C))
+      pp_ctr_avb_pend_n = 1'b0;
+    if (pp_ctr_evt_valid_w && (pp_ctr_evt_type_w == DESC_CLOCK_DOMAIN_C))
+      pp_ctr_ckd_pend_n = 1'b0;
+  end : pp_ctr_event_next
+
+  always_ff @(posedge axis_clk or negedge axis_resetn) begin : pp_ctr_event_queue
+    if (!axis_resetn) begin
+      pp_ctr_sin_pend_r  <= '0;
+      pp_ctr_sout_pend_r <= '0;
+      pp_ctr_avb_pend_r  <= 1'b0;
+      pp_ctr_ckd_pend_r  <= 1'b0;
+      pp_ctr_rr_r        <= '0;
+    end else begin
+      pp_ctr_sin_pend_r  <= pp_ctr_sin_pend_n;
+      pp_ctr_sout_pend_r <= pp_ctr_sout_pend_n;
+      pp_ctr_avb_pend_r  <= pp_ctr_avb_pend_n;
+      pp_ctr_ckd_pend_r  <= pp_ctr_ckd_pend_n;
+      //! the round-robin pointer moves past whatever was just delivered
+      if (pp_ctr_evt_valid_w) begin
+        if (pp_ctr_evt_type_w == DESC_CLOCK_DOMAIN_C)
+          pp_ctr_rr_r <= '0;
+        else if (pp_ctr_evt_type_w == DESC_STREAM_INPUT_C)
+          pp_ctr_rr_r <= PP_CTR_RR_W_C'(32'(pp_ctr_evt_index_w) + 1);
+        else if (pp_ctr_evt_type_w == DESC_STREAM_OUTPUT_C)
+          pp_ctr_rr_r <= PP_CTR_RR_W_C'(PP_CTR_SIN_N_C
+                                        + 32'(pp_ctr_evt_index_w) + 1);
+        else
+          pp_ctr_rr_r <= PP_CTR_RR_W_C'(PP_CTR_SIN_N_C + ACMP_SRC_C + 1);
+      end
+    end
+  end : pp_ctr_event_queue
+
+  //! The placement (CTRL_SPLIT_P, #665): all-fabric builds the wrapper
+  //! below; split builds g_sp_ctrl after it instead, the same faces read
+  //! from the ctl ports.
+  generate if (CTRL_SPLIT_P == 0) begin : g_af_pp
+  KL_pp_shadow #(
+      .TDATA_WIDTH_P  (TDATA_WIDTH),
+      .CLK_HZ_P       (MILAN_CLK_FREQ_HZ),
+      //! THE PROCESSOR'S ARRAYS ARE THE ENTITY'S DESCRIPTOR COUNTS, not the
+      //! AAF stream count. ACMP_SINKS_C / ACMP_SRC_C come from the generated
+      //! shape header, which is the same pass that emitted the descriptors a
+      //! controller enumerates, so a STREAM_OUTPUT the entity advertises
+      //! always has a source context that can answer a CONNECT_TX for it -
+      //! including the CRF Media Clock Output at talker_unique_id
+      //! N_STREAMS, which a bare N_STREAMS-wide array would have left
+      //! unanswerable exactly the way the pre-0x0027 shapes did.
+      .N_STREAM_IN_P  (ACMP_SINKS_C),
+      .N_STREAM_OUT_P (ACMP_SRC_C),
+      .SRP_DOM_DEF_VID_P (ADP_SRP_DOM_DEF_VID_C),
+      .TIM_DIV_US_P   (PP_TIM_DIV_US_P),
+      .TIM_DIV_MS_P   (PP_TIM_DIV_MS_P),
+      .TROM_HEX_P     (PP_TROM_HEX_P),
+      .UCODE_HEX_P         (PP_UCODE_HEX_P),
+      .DESC_BASE_P         (PP_DESC_BASE_P),
+      .DESC_LINE_BYTES_P   (PP_DESC_LINE_BYTES_P),
+      .DESC_IDX_ENTRIES_P  (PP_DESC_IDX_ENTRIES_P),
+      //! Generated beside the descriptor image from the same AEM model.
+      //! Large configured models therefore cannot inherit a small default.
+      .DESC_NAME_ENTRIES_P (AEM_NAME_ENTRIES_C),
+      .DESC_MEM_TMO_CYC_P  (PP_DESC_MEM_TMO_CYC_P),
+      .RESP_BASE_P         (PP_RESP_BASE_P),
+      //! The saved-state record allocation's shape (design page section 4.2),
+      //! from the SAME generated header as the counts above: one channel-map
+      //! record per STREAM_PORT in each direction, one sampling-rate record
+      //! per AUDIO_UNIT, one clock-source and one media-clock-reference record
+      //! per CLOCK_DOMAIN. Never a literal here.
+      .N_SPORT_IN_P        (ADP_DMAP_IN_NPORTS_C),
+      .N_SPORT_OUT_P       (ADP_DMAP_OUT_NPORTS_C),
+      .N_AUDIO_UNIT_P      (AEM_N_AUDIO_UNIT_C),
+      .N_CLK_DOM_P         (AEM_N_CLKDOM_C),
+      //! IDENTIFY CONTROL rows in the processor use that same census.
+      .N_CONTROL_P         (AEM_N_CONTROL_C)
+    ) pp_shadow (
+      .clk_i             (axis_clk),
+      .rst_n             (axis_resetn),
+      //! ---- the AECP settings face (Milan §5.3.x) ----------------------
+      //! What a controller has SET. Most of these landed as observable state
+      //! ahead of their consumers ON PURPOSE: they read a reset default until
+      //! a controller writes them, so wiring them changed no behaviour and
+      //! gave the media clock, the listener gate and the talker offset a
+      //! settled place to read from when each is converted.
+      //!
+      //! `aecp_strm_started_o` is NO LONGER one of them. It is LOAD-BEARING
+      //! since issue #78 and has three consumers in this file: the listener
+      //! accept gate, `KL_crf_rx`'s `stop_i` (consumption only - the frame
+      //! strobe stays raw so a stopped CRF sink still observes and counts,
+      //! §5.3.8.10), and GET_STREAM_INFO's Table 5.9 bit 28. A stopped sink
+      //! really does stop feeding the media path - payload discarded, no
+      //! lock, no restart echo - so do not read this block as "wiring these
+      //! is inert".
+      //!
+      //! CONSUMED since #74: `pp_aecp_clk_src_index_w` is the value
+      //! SET_CLOCK_SOURCE writes, and media_clk_resolve (beside the shape
+      //! include) turns it into the media plane's one registered verdict -
+      //! the round the old note here promised.
+      .aecp_cur_config_o   (pp_aecp_cur_config_w),
+      .aecp_identify_o     (pp_aecp_identify_w),
+      .aecp_clk_src_index_o(pp_aecp_clk_src_index_w),
+      .aecp_strm_started_o (pp_aecp_strm_started_w),
+      .aecp_pt_offset_o    (pp_aecp_pt_offset_w),
+      .aecp_pt_offset_v_o  (pp_aecp_pt_offset_v_w),
+      .aecp_fmt_in_o       (pp_aecp_fmt_in_w),
+      .aecp_fmt_in_v_o     (pp_aecp_fmt_in_v_w),
+      .aecp_fmt_out_o      (pp_aecp_fmt_out_w),
+      .aecp_fmt_out_v_o    (pp_aecp_fmt_out_v_w),
+      .aecp_dyn_dirty_o    (pp_aecp_dyn_dirty_w),
+      //! Same live lock level as the processor AECP engine. Milan 5.4.2.27
+      //! and 5.4.2.28 prohibit local map changes while it is asserted.
+      .aecp_lock_held_o    (aecp_locked),
+      .reboot_req_o        (pp_reboot_req_w),
+      //! GET_COUNTERS: the processor asks, this file answers (see the
+      //! Table 7-157 mux above)
+      .ctr_req_o         (pp_ctr_req_w),
+      .ctr_desc_type_o   (pp_ctr_desc_type_w),
+      .ctr_desc_index_o  (pp_ctr_desc_index_w),
+      .ctr_word_o        (pp_ctr_word_w),
+      .ctr_data_i        (pp_ctr_data_w),
+      .ctr_wait_i        (pp_ctr_wait_w),
+      //! Table 5.22 GET_COUNTERS trigger: the descriptor arbiter above
+      .ctr_change_i      (pp_ctr_evt_valid_w),
+      .ctr_change_desc_type_i (pp_ctr_evt_type_w),
+      .ctr_change_desc_index_i(pp_ctr_evt_index_w),
+      //! GET_AUDIO_MAP: the processor asks, this file answers from the
+      //! render map RAM (see the 7.4.44 answer block above)
+      .amap_req_o        (pp_amap_req_w),
+      .amap_desc_type_o  (pp_amap_desc_type_w),
+      .amap_desc_index_o (pp_amap_desc_index_w),
+      .amap_map_index_o  (pp_amap_map_index_w),
+      .amap_sel_o        (pp_amap_sel_w),
+      .amap_rec_o        (pp_amap_rec_w),
+      .amap_data_i       (pp_amap_data_w),
+      .amap_wait_i       (pp_amap_wait_w),
+      .amap_edit_req_o   (ppo_amap_edit_req_w),
+      .amap_edit_phase_o (ppo_amap_edit_phase_w),
+      .amap_edit_remove_o(ppo_amap_edit_remove_w),
+      .amap_edit_desc_type_o(ppo_amap_edit_desc_type_w),
+      .amap_edit_desc_index_o(ppo_amap_edit_desc_index_w),
+      .amap_edit_count_o (ppo_amap_edit_count_w),
+      .amap_edit_rec_o   (ppo_amap_edit_rec_w),
+      .amap_edit_record_o(ppo_amap_edit_record_w),
+      .amap_edit_value_o (pp_amap_edit_value_w),
+      .amap_edit_data_i  (pp_amap_edit_data_w),
+      .amap_edit_wait_i  (pp_amap_edit_wait_w),
+      .amap_live_wr_i    (amap_edit_live_wr_p),
+      //! #637: the map record writer and restore (block amr_fsm) on the
+      //! backend's device face, its pending and its alarm
+      .mrec_req_i        (amr_req_r),
+      .mrec_gnt_o        (mrec_gnt_w),
+      .mrec_op_i         (amr_we_r ? 2'd1 : 2'd0),
+      .mrec_region_i     (amr_rid_w),
+      .mrec_offset_i     (16'd0),   // whole-record commands: each starts at byte 0
+      .mrec_len_i        (amr_plen_w + 16'd8),
+      .mrec_wvalid_i     (amr_wvalid_w),
+      .mrec_wready_o     (mrec_wready_w),
+      .mrec_wdata_i      (amr_fbyte_w),
+      .mrec_rvalid_o     (mrec_rvalid_w),
+      .mrec_rdata_o      (mrec_rdata_w),
+      .mrec_rready_i     (amr_rready_w),
+      .mrec_done_o       (mrec_done_w),
+      .mrec_err_o        (mrec_err_w),
+      .mrec_abort_i      (amr_abort_r),
+      .amap_unflushed_i  (|amr_dirty_r),
+      .amap_alarm_i      (amr_alarm_r),
+      //! the Milan-info face: GET_STREAM_INFO / GET_AVB_INFO / GET_AS_PATH
+      //! answered from the gsi_answer block above
+      .gsi_req_o         (pp_gsi_req_w),
+      .gsi_kind_o        (pp_gsi_kind_w),
+      .gsi_desc_type_o   (pp_gsi_desc_type_w),
+      .gsi_desc_index_o  (pp_gsi_desc_index_w),
+      .gsi_sel_o         (pp_gsi_sel_w),
+      .gsi_ord_o         (pp_gsi_ord_w),
+      .gsi_prop_fmt_o    (pp_gsi_prop_fmt_w),
+      .gsi_data_i        (pp_gsi_data_w),
+      .gsi_wait_i        (pp_gsi_wait_w),
+      .gsi_avb_chg_i     (gsi_avb_chg_w),
+      .gsi_asp_chg_i     (gsi_asp_chg_w),
+      //! identity comes from the 0x600 CSR group, which is also what the
+      //! generated entity model wrote - derive, never mirror.
+      .entity_id_i       (cfg_adp_entity_id),
+      .entity_model_id_i (cfg_adp_entity_model_id),
+      //! numeric EUI-48 ([47:40] = first wire byte); cfg_mac_addr is the
+      //! platform LSB-first convention, so byte-reverse exactly as the MAAP
+      //! engine and the AAF/CRF framers do.
+      .station_mac_i     (station_mac_be_w),
+      .talker_sources_i  (cfg_adp_talker_sources),
+      .talker_caps_i     (cfg_adp_talker_caps),
+      .listener_sinks_i  (cfg_adp_listener_sinks),
+      .listener_caps_i   (cfg_adp_listener_caps),
+      //! the two ADPDU index fields the processor DOES expose a port for
+      //! (0x600 group). The other five - entity_capabilities, valid_time,
+      //! association_id, controller_capabilities, interface_index - have no
+      //! port on protocol_processor_top and are beyond software's reach; see
+      //! the milan_csr instantiation banner.
+      .current_cfg_i     (cfg_adp_current_config),
+      .identify_index_i  (cfg_adp_identify_index),
+      //! WHICH SOURCES EXIST — derived from the entity shape, never a
+      //! hand-set mask. ACMP_SRC_C is ADP_TALKER_SRC_C out of the generated
+      //! header, so every declared STREAM_OUTPUT is enabled and no other
+      //! index is. This is the gate the whole talker half hangs off: at 0 the
+      //! walk never allocates a DA, acmp_declaring_o is stuck 0 and nothing
+      //! this device owns ever transmits.
+      .cfg_src_en_i      ({ACMP_SRC_C{1'b1}}),
+      //! ...and the per-source stream_id the processor DECLAREs and ANSWERs
+      //! with. Tied '0 (the shadow value) ACMP would answer, and SRP would
+      //! declare, stream_id 0 for every source.
+      .cfg_stream_id_i   (pp_src_sid_w),
+      //! Milan v1.2 4.3.3.2 Table 4.4 MaxFrameSize per source, DERIVED from
+      //! the framer each source's frames come out of (pp_src_maxf_w) - never
+      //! an independent constant, or the declaration and the frame disagree.
+      .cfg_tspec_max_frame_i (pp_src_maxf_w),
+      .cfg_acc_lat_ns_i  (cfg_lwsrp_latency),
+      //! the SRP admission ceiling follows the negotiated link rate
+      .port_rate_bps_i   (cfg_mac_is_1g ? 32'd1_000_000_000 : 32'd100_000_000),
+      //! THE ENTITY ENABLE, from EITHER gate. ADP_CTRL.en (0x600 bit 0) is
+      //! the historic entity-enable every board script and every bring-up
+      //! recipe in this repository writes, and it used to start the ADP
+      //! advertiser, the AECP listener and both ACMP halves at once. PP_CTRL.en
+      //! (0x920 bit 0) is the plane's own. There is exactly ONE control plane
+      //! now, so demanding both would strand every existing script and having
+      //! only the new one would silently ignore the old bit: either enables
+      //! the entity, and REGISTER_MAP records that.
+      //! ...and only once the #637 map restore has ended (the processor's
+      //! 07 §5.1: the integrator applies the saved sets before it requests
+      //! the entity's enable), so no ADPDU precedes the restored maps.
+      .enable_i          ((pp_enable_w | cfg_adp_enable) && !amr_rs_hold_r),
+      .restore_go_i      (pp_restore_go_w),
+      .link_up_i         (eff_link_w),
+      //! GM_CHANGE: an edge on the committed grandmaster pair (CSR 0x624/8 +
+      //! 0x62C). 1722.1-2021 6.2.6 makes a gPTP grandmaster change one of the
+      //! events an entity re-advertises on, and with the legacy advertiser
+      //! deleted this is the ONLY path to it - the old plane took the same
+      //! fact as a level-driven re-advertise off cfg_adp_advertise_p.

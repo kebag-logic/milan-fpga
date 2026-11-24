@@ -1,0 +1,55 @@
+Candidate head: 855529fe21fea685725a9edc4fe0a798154c6469
+Comparison base: 3cda030c174b325e36c26af6420487ff91346d15
+Source: final_status.py
+Original SHA256: 7e904c2646b1f91f50abc15e27982006fe68f9a2807adab556a5f27cbca1f521
+Scope: complete text; paths and host fields normalized
+
+import json,re,subprocess
+from pathlib import Path
+w=Path(__file__).resolve().parent
+head=json.loads((w/'source.json').read_text())['head']
+assert (w/'anchors.log').read_text().rstrip().endswith('ANCHORS INTACT 0')
+def read(name): return json.loads((w/name).read_text())
+assert all(x['exit']==0 for x in json.loads((w/'focused-results.json').read_text()))
+reg={n:read('regressions/'+n+'.json') for n in ['input1','input8','capture','queue','milan_dp','render','coherence']}
+assert 'tdm8render-mutants' in reg['render']['command'], 'Final render campaign has not finished'
+assert all(x['exit']==0 for x in reg.values()),reg
+assert read('coherence-mutants.json')['exit']==0
+assert read('yosys/run.json')['exit']==0
+assert read('builder-union/union.json')['union']=='pass'
+assert all(x['passed'] for x in read('parent-plants/results.json'))
+routes=read('route-summary.json')
+assert len(routes)==6 and all('run' in x for x in routes), 'All three route recipes must have a completed attempt at each shape'
+selected={}
+for shape in sorted({x['shape'] for x in routes}):
+ group=[x for x in routes if x['shape']==shape]
+ eligible=[x for x in group if x['complete'] and x['run']['exit']==0 and x.get('routing_errors')==0]
+ assert eligible,group
+ selected[shape]=max(eligible,key=lambda x:x['min_WNS_ns'])
+ assert selected[shape]['floor_pass'],selected[shape]
+images=read('disabled-summary.json');assert len(images)==2
+for image in images:
+ for side in ['base-route','off-route']:
+  assert read(side+'/'+image['shape']+'/gateware/measure_synth.json')['exit']==0
+for label in ['0','1','short_metadata']:
+ assert read('leaf/'+label+'/result.json')['passed']
+for label in ['off','mapped','legacy']:
+ assert read('leaf-capture/'+label+'/result.json')['exit']==0
+leaf={}
+for block in (w/'leaf-off.log').read_text().split('== ')[1:]:
+ name=block.split()[0];values={}
+ for key in ['LUT','FF']:
+  m=re.search(key+r'\(all\)\s+(\d+)\s+(\d+)\s+([+-]\d+)',block);assert m
+  values[key]={'base':int(m[1]),'head':int(m[2]),'delta':int(m[3])}
+ leaf[name]=values
+assert len(leaf)==2
+leaf_equal=all(v['delta']==0 for d in leaf.values() for v in d.values())
+image_equal=all(x['equal'] for x in images)
+report=dict(head=head,all_executed_regression_gates_pass=True,selected_routes=selected,
+ disabled_leaves=leaf,disabled_images=images,disabled_leaf_equality=leaf_equal,
+ disabled_image_equality=image_equal,
+ disabled_no_growth=all(v['delta']<=0 for d in leaf.values() for v in d.values()) and all(all(v<=0 for v in x['delta'].values()) for x in images),
+ literal_F2_verification_pass=leaf_equal and image_equal,
+ builder_not_run=read('builder-union/union.json')['not_run'])
+(w/'validation-status.json').write_text(json.dumps(report,indent=2)+'\n')
+print(json.dumps({k:v for k,v in report.items() if k not in ['selected_routes','disabled_images']},indent=2))

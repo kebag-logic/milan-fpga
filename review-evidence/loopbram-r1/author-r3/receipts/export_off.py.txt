@@ -1,0 +1,23 @@
+Candidate head: 855529fe21fea685725a9edc4fe0a798154c6469
+Comparison base: 3cda030c174b325e36c26af6420487ff91346d15
+Source: export_off.py
+Original SHA256: 59bcd0d1a7cbe84fae9193535af7572a11be4875a199aaad76cc43476b5291c0
+Scope: complete text; paths and host fields normalized
+
+import sys,subprocess,os,json
+from pathlib import Path
+root=Path('$CHECKOUT');w=Path('$SCRATCH')
+sys.path.insert(0,str(root/'sw/builder'));import endstation_builder as b
+for name in ['endstation_ax7101_1x1_tdm8','endstation_ax7101_8x8']:
+ subprocess.run([sys.executable,str(root/'sw/builder/endstation_builder.py'),str(root/'configs'/(name+'.yaml')),'-o',str(root/'sw/builder/out/loopbram_off_r3')],check=True,timeout=600)
+ gen=root/'sw/builder/out/loopbram_off_r3'/name; (gen/'gen').mkdir(exist_ok=True); (gen/'gen/adp_shape_defaults.svh').write_bytes((gen/'adp_shape_defaults.svh').read_bytes())
+ cfg=b.load_config(root/'configs'/(name+'.yaml'));args=b.emit_soc_argv(cfg)
+ args[args.index('--ctrl-firmware')+1]=str(w/'builds'/(name+'-off')/'ctrl_app.elf')
+ out=w/'off-route'/name;out.mkdir(parents=True,exist_ok=True)
+ args+=['--entity-gen-dir',str(root/'sw/builder/out/loopbram_off_r3'/name),'--output-dir',str(out),'--no-compile-software',
+ '--synth-directive','AreaOptimized_high','--opt-directive','ExploreArea','--place-directive','ExtraPostPlacementOpt','--vivado-max-threads','16']
+ cmd=[sys.executable,str(w/'measure_soc.py'),*args]
+ (out/'export-command.json').write_text(json.dumps(cmd,indent=2))
+ with (out/'export.log').open('w') as log:r=subprocess.run(cmd,cwd=root,stdout=log,stderr=subprocess.STDOUT,timeout=3600)
+ print(name,'EXPORT',r.returncode,flush=True)
+ if r.returncode:print((out/'export.log').read_text()[-3500:]);sys.exit(r.returncode)

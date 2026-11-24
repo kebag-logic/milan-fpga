@@ -1,0 +1,3932 @@
+i
+(.I0(milansoc_milannic_r_req_cdc_graycounter1_q_next_binary0),
+.I1(milansoc_milannic_r_req_cdc_graycounter1_q_binary),
+.O(milansoc_milannic_r_req_cdc_graycounter1_q_next_binary_reg),
+.S(milansoc_milannic_r_req_cdc_graycounter1_ce));
+RTL_XOR598 milansoc_milannic_r_req_cdc_graycounter1_q_next_i
+(.I0(milansoc_milannic_r_req_cdc_graycounter1_q_next_binary_reg),
+.I1({\<const0> ,milansoc_milannic_r_req_cdc_graycounter1_q_next_binary_reg[4:1]}),
+.O(milansoc_milannic_r_req_cdc_graycounter1_q_next));
+RTL_REG_SYNC__BREG_2 \milansoc_milannic_r_req_cdc_graycounter1_q_reg[0]
+(.C(sys_clk),
+.D(milansoc_milannic_r_req_cdc_graycounter1_q_next[0]),
+.Q(milansoc_milannic_r_req_cdc_graycounter1_q[0]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_2 \milansoc_milannic_r_req_cdc_graycounter1_q_reg[1]
+(.C(sys_clk),
+.D(milansoc_milannic_r_req_cdc_graycounter1_q_next[1]),
+.Q(milansoc_milannic_r_req_cdc_graycounter1_q[1]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_2 \milansoc_milannic_r_req_cdc_graycounter1_q_reg[2]
+(.C(sys_clk),
+.D(milansoc_milannic_r_req_cdc_graycounter1_q_next[2]),
+.Q(milansoc_milannic_r_req_cdc_graycounter1_q[2]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_2 \milansoc_milannic_r_req_cdc_graycounter1_q_reg[3]
+(.C(sys_clk),
+.D(milansoc_milannic_r_req_cdc_graycounter1_q_next[3]),
+.Q(milansoc_milannic_r_req_cdc_graycounter1_q[3]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_2 \milansoc_milannic_r_req_cdc_graycounter1_q_reg[4]
+(.C(sys_clk),
+.D(milansoc_milannic_r_req_cdc_graycounter1_q_next[4]),
+.Q(milansoc_milannic_r_req_cdc_graycounter1_q[4]),
+.RST(sys_rst));
+RTL_MUX milansoc_milannic_r_req_cdc_readable_i
+(.I0(\<const1> ),
+.I1(\<const0> ),
+.O(milansoc_milannic_r_req_cdc_readable0_out),
+.S(milansoc_milannic_r_req_cdc_readable));
+RTL_REG_SYNC__BREG_1 milansoc_milannic_r_req_cdc_readable_reg
+(.C(sys_clk),
+.CE(milansoc_milannic_r_req_cdc_readable0_out),
+.D(milansoc_milannic_r_req_cdc_asyncfifo_readable),
+.Q(milansoc_milannic_r_req_cdc_readable),
+.RST(sys_rst));
+RTL_OR milansoc_milannic_r_rsp_cdc_asyncfifo_re_i
+(.I0(milansoc_milannic_resp_rsp_ready),
+.I1(milansoc_milannic_r_rsp_cdc_readable),
+.O(milansoc_milannic_r_rsp_cdc_asyncfifo_re));
+RTL_NEQ10 milansoc_milannic_r_rsp_cdc_asyncfifo_readable_i
+(.I0(milansoc_milannic_r_rsp_cdc_graycounter1_q),
+.I1(impl_xilinxmultiregimpl311),
+.O(milansoc_milannic_r_rsp_cdc_asyncfifo_readable));
+RTL_REG__BREG_36 \milansoc_milannic_r_rsp_cdc_dout_reg[0]
+(.C(milan_clk),
+.CE(milansoc_milannic_r_rsp_cdc_asyncfifo_re),
+.D(storage_21_dat1[0]),
+.Q(milansoc_milannic_resp_rsp_data[0]));
+RTL_REG__BREG_36 \milansoc_milannic_r_rsp_cdc_dout_reg[10]
+(.C(milan_clk),
+.CE(milansoc_milannic_r_rsp_cdc_asyncfifo_re),
+.D(storage_21_dat1[10]),
+.Q(milansoc_milannic_resp_rsp_data[10]));
+RTL_REG__BREG_36 \milansoc_milannic_r_rsp_cdc_dout_reg[11]
+(.C(milan_clk),
+.CE(milansoc_milannic_r_rsp_cdc_asyncfifo_re),
+.D(storage_21_dat1[11]),
+.Q(milansoc_milannic_resp_rsp_data[11]));
+RTL_REG__BREG_36 \milansoc_milannic_r_rsp_cdc_dout_reg[12]
+(.C(milan_clk),
+.CE(milansoc_milannic_r_rsp_cdc_asyncfifo_re),
+.D(storage_21_dat1[12]),
+.Q(milansoc_milannic_resp_rsp_data[12]));
+RTL_REG__BREG_36 \milansoc_milannic_r_rsp_cdc_dout_reg[13]
+(.C(milan_clk),
+.CE(milansoc_milannic_r_rsp_cdc_asyncfifo_re),
+.D(storage_21_dat1[13]),
+.Q(milansoc_milannic_resp_rsp_data[13]));
+RTL_REG__BREG_36 \milansoc_milannic_r_rsp_cdc_dout_reg[14]
+(.C(milan_clk),
+.CE(milansoc_milannic_r_rsp_cdc_asyncfifo_re),
+.D(storage_21_dat1[14]),
+.Q(milansoc_milannic_resp_rsp_data[14]));
+RTL_REG__BREG_36 \milansoc_milannic_r_rsp_cdc_dout_reg[15]
+(.C(milan_clk),
+.CE(milansoc_milannic_r_rsp_cdc_asyncfifo_re),
+.D(storage_21_dat1[15]),
+.Q(milansoc_milannic_resp_rsp_data[15]));
+RTL_REG__BREG_36 \milansoc_milannic_r_rsp_cdc_dout_reg[16]
+(.C(milan_clk),
+.CE(milansoc_milannic_r_rsp_cdc_asyncfifo_re),
+.D(storage_21_dat1[16]),
+.Q(milansoc_milannic_resp_rsp_data[16]));
+RTL_REG__BREG_36 \milansoc_milannic_r_rsp_cdc_dout_reg[17]
+(.C(milan_clk),
+.CE(milansoc_milannic_r_rsp_cdc_asyncfifo_re),
+.D(storage_21_dat1[17]),
+.Q(milansoc_milannic_resp_rsp_data[17]));
+RTL_REG__BREG_36 \milansoc_milannic_r_rsp_cdc_dout_reg[18]
+(.C(milan_clk),
+.CE(milansoc_milannic_r_rsp_cdc_asyncfifo_re),
+.D(storage_21_dat1[18]),
+.Q(milansoc_milannic_resp_rsp_data[18]));
+RTL_REG__BREG_36 \milansoc_milannic_r_rsp_cdc_dout_reg[19]
+(.C(milan_clk),
+.CE(milansoc_milannic_r_rsp_cdc_asyncfifo_re),
+.D(storage_21_dat1[19]),
+.Q(milansoc_milannic_resp_rsp_data[19]));
+RTL_REG__BREG_36 \milansoc_milannic_r_rsp_cdc_dout_reg[1]
+(.C(milan_clk),
+.CE(milansoc_milannic_r_rsp_cdc_asyncfifo_re),
+.D(storage_21_dat1[1]),
+.Q(milansoc_milannic_resp_rsp_data[1]));
+RTL_REG__BREG_36 \milansoc_milannic_r_rsp_cdc_dout_reg[20]
+(.C(milan_clk),
+.CE(milansoc_milannic_r_rsp_cdc_asyncfifo_re),
+.D(storage_21_dat1[20]),
+.Q(milansoc_milannic_resp_rsp_data[20]));
+RTL_REG__BREG_36 \milansoc_milannic_r_rsp_cdc_dout_reg[21]
+(.C(milan_clk),
+.CE(milansoc_milannic_r_rsp_cdc_asyncfifo_re),
+.D(storage_21_dat1[21]),
+.Q(milansoc_milannic_resp_rsp_data[21]));
+RTL_REG__BREG_36 \milansoc_milannic_r_rsp_cdc_dout_reg[22]
+(.C(milan_clk),
+.CE(milansoc_milannic_r_rsp_cdc_asyncfifo_re),
+.D(storage_21_dat1[22]),
+.Q(milansoc_milannic_resp_rsp_data[22]));
+RTL_REG__BREG_36 \milansoc_milannic_r_rsp_cdc_dout_reg[23]
+(.C(milan_clk),
+.CE(milansoc_milannic_r_rsp_cdc_asyncfifo_re),
+.D(storage_21_dat1[23]),
+.Q(milansoc_milannic_resp_rsp_data[23]));
+RTL_REG__BREG_36 \milansoc_milannic_r_rsp_cdc_dout_reg[24]
+(.C(milan_clk),
+.CE(milansoc_milannic_r_rsp_cdc_asyncfifo_re),
+.D(storage_21_dat1[24]),
+.Q(milansoc_milannic_resp_rsp_data[24]));
+RTL_REG__BREG_36 \milansoc_milannic_r_rsp_cdc_dout_reg[25]
+(.C(milan_clk),
+.CE(milansoc_milannic_r_rsp_cdc_asyncfifo_re),
+.D(storage_21_dat1[25]),
+.Q(milansoc_milannic_resp_rsp_data[25]));
+RTL_REG__BREG_36 \milansoc_milannic_r_rsp_cdc_dout_reg[26]
+(.C(milan_clk),
+.CE(milansoc_milannic_r_rsp_cdc_asyncfifo_re),
+.D(storage_21_dat1[26]),
+.Q(milansoc_milannic_resp_rsp_data[26]));
+RTL_REG__BREG_36 \milansoc_milannic_r_rsp_cdc_dout_reg[27]
+(.C(milan_clk),
+.CE(milansoc_milannic_r_rsp_cdc_asyncfifo_re),
+.D(storage_21_dat1[27]),
+.Q(milansoc_milannic_resp_rsp_data[27]));
+RTL_REG__BREG_36 \milansoc_milannic_r_rsp_cdc_dout_reg[28]
+(.C(milan_clk),
+.CE(milansoc_milannic_r_rsp_cdc_asyncfifo_re),
+.D(storage_21_dat1[28]),
+.Q(milansoc_milannic_resp_rsp_data[28]));
+RTL_REG__BREG_36 \milansoc_milannic_r_rsp_cdc_dout_reg[29]
+(.C(milan_clk),
+.CE(milansoc_milannic_r_rsp_cdc_asyncfifo_re),
+.D(storage_21_dat1[29]),
+.Q(milansoc_milannic_resp_rsp_data[29]));
+RTL_REG__BREG_36 \milansoc_milannic_r_rsp_cdc_dout_reg[2]
+(.C(milan_clk),
+.CE(milansoc_milannic_r_rsp_cdc_asyncfifo_re),
+.D(storage_21_dat1[2]),
+.Q(milansoc_milannic_resp_rsp_data[2]));
+RTL_REG__BREG_36 \milansoc_milannic_r_rsp_cdc_dout_reg[30]
+(.C(milan_clk),
+.CE(milansoc_milannic_r_rsp_cdc_asyncfifo_re),
+.D(storage_21_dat1[30]),
+.Q(milansoc_milannic_resp_rsp_data[30]));
+RTL_REG__BREG_36 \milansoc_milannic_r_rsp_cdc_dout_reg[31]
+(.C(milan_clk),
+.CE(milansoc_milannic_r_rsp_cdc_asyncfifo_re),
+.D(storage_21_dat1[31]),
+.Q(milansoc_milannic_resp_rsp_data[31]));
+RTL_REG__BREG_36 \milansoc_milannic_r_rsp_cdc_dout_reg[32]
+(.C(milan_clk),
+.CE(milansoc_milannic_r_rsp_cdc_asyncfifo_re),
+.D(storage_21_dat1[32]),
+.Q(milansoc_milannic_resp_rsp_data[32]));
+RTL_REG__BREG_36 \milansoc_milannic_r_rsp_cdc_dout_reg[33]
+(.C(milan_clk),
+.CE(milansoc_milannic_r_rsp_cdc_asyncfifo_re),
+.D(storage_21_dat1[33]),
+.Q(milansoc_milannic_resp_rsp_data[33]));
+RTL_REG__BREG_36 \milansoc_milannic_r_rsp_cdc_dout_reg[34]
+(.C(milan_clk),
+.CE(milansoc_milannic_r_rsp_cdc_asyncfifo_re),
+.D(storage_21_dat1[34]),
+.Q(milansoc_milannic_resp_rsp_data[34]));
+RTL_REG__BREG_36 \milansoc_milannic_r_rsp_cdc_dout_reg[35]
+(.C(milan_clk),
+.CE(milansoc_milannic_r_rsp_cdc_asyncfifo_re),
+.D(storage_21_dat1[35]),
+.Q(milansoc_milannic_resp_rsp_data[35]));
+RTL_REG__BREG_36 \milansoc_milannic_r_rsp_cdc_dout_reg[36]
+(.C(milan_clk),
+.CE(milansoc_milannic_r_rsp_cdc_asyncfifo_re),
+.D(storage_21_dat1[36]),
+.Q(milansoc_milannic_resp_rsp_data[36]));
+RTL_REG__BREG_36 \milansoc_milannic_r_rsp_cdc_dout_reg[37]
+(.C(milan_clk),
+.CE(milansoc_milannic_r_rsp_cdc_asyncfifo_re),
+.D(storage_21_dat1[37]),
+.Q(milansoc_milannic_resp_rsp_data[37]));
+RTL_REG__BREG_36 \milansoc_milannic_r_rsp_cdc_dout_reg[38]
+(.C(milan_clk),
+.CE(milansoc_milannic_r_rsp_cdc_asyncfifo_re),
+.D(storage_21_dat1[38]),
+.Q(milansoc_milannic_resp_rsp_data[38]));
+RTL_REG__BREG_36 \milansoc_milannic_r_rsp_cdc_dout_reg[39]
+(.C(milan_clk),
+.CE(milansoc_milannic_r_rsp_cdc_asyncfifo_re),
+.D(storage_21_dat1[39]),
+.Q(milansoc_milannic_resp_rsp_data[39]));
+RTL_REG__BREG_36 \milansoc_milannic_r_rsp_cdc_dout_reg[3]
+(.C(milan_clk),
+.CE(milansoc_milannic_r_rsp_cdc_asyncfifo_re),
+.D(storage_21_dat1[3]),
+.Q(milansoc_milannic_resp_rsp_data[3]));
+RTL_REG__BREG_36 \milansoc_milannic_r_rsp_cdc_dout_reg[40]
+(.C(milan_clk),
+.CE(milansoc_milannic_r_rsp_cdc_asyncfifo_re),
+.D(storage_21_dat1[40]),
+.Q(milansoc_milannic_resp_rsp_data[40]));
+RTL_REG__BREG_36 \milansoc_milannic_r_rsp_cdc_dout_reg[41]
+(.C(milan_clk),
+.CE(milansoc_milannic_r_rsp_cdc_asyncfifo_re),
+.D(storage_21_dat1[41]),
+.Q(milansoc_milannic_resp_rsp_data[41]));
+RTL_REG__BREG_36 \milansoc_milannic_r_rsp_cdc_dout_reg[42]
+(.C(milan_clk),
+.CE(milansoc_milannic_r_rsp_cdc_asyncfifo_re),
+.D(storage_21_dat1[42]),
+.Q(milansoc_milannic_resp_rsp_data[42]));
+RTL_REG__BREG_36 \milansoc_milannic_r_rsp_cdc_dout_reg[43]
+(.C(milan_clk),
+.CE(milansoc_milannic_r_rsp_cdc_asyncfifo_re),
+.D(storage_21_dat1[43]),
+.Q(milansoc_milannic_resp_rsp_data[43]));
+RTL_REG__BREG_36 \milansoc_milannic_r_rsp_cdc_dout_reg[44]
+(.C(milan_clk),
+.CE(milansoc_milannic_r_rsp_cdc_asyncfifo_re),
+.D(storage_21_dat1[44]),
+.Q(milansoc_milannic_resp_rsp_data[44]));
+RTL_REG__BREG_36 \milansoc_milannic_r_rsp_cdc_dout_reg[45]
+(.C(milan_clk),
+.CE(milansoc_milannic_r_rsp_cdc_asyncfifo_re),
+.D(storage_21_dat1[45]),
+.Q(milansoc_milannic_resp_rsp_data[45]));
+RTL_REG__BREG_36 \milansoc_milannic_r_rsp_cdc_dout_reg[46]
+(.C(milan_clk),
+.CE(milansoc_milannic_r_rsp_cdc_asyncfifo_re),
+.D(storage_21_dat1[46]),
+.Q(milansoc_milannic_resp_rsp_data[46]));
+RTL_REG__BREG_36 \milansoc_milannic_r_rsp_cdc_dout_reg[47]
+(.C(milan_clk),
+.CE(milansoc_milannic_r_rsp_cdc_asyncfifo_re),
+.D(storage_21_dat1[47]),
+.Q(milansoc_milannic_resp_rsp_data[47]));
+RTL_REG__BREG_36 \milansoc_milannic_r_rsp_cdc_dout_reg[48]
+(.C(milan_clk),
+.CE(milansoc_milannic_r_rsp_cdc_asyncfifo_re),
+.D(storage_21_dat1[48]),
+.Q(milansoc_milannic_resp_rsp_data[48]));
+RTL_REG__BREG_36 \milansoc_milannic_r_rsp_cdc_dout_reg[49]
+(.C(milan_clk),
+.CE(milansoc_milannic_r_rsp_cdc_asyncfifo_re),
+.D(storage_21_dat1[49]),
+.Q(milansoc_milannic_resp_rsp_data[49]));
+RTL_REG__BREG_36 \milansoc_milannic_r_rsp_cdc_dout_reg[4]
+(.C(milan_clk),
+.CE(milansoc_milannic_r_rsp_cdc_asyncfifo_re),
+.D(storage_21_dat1[4]),
+.Q(milansoc_milannic_resp_rsp_data[4]));
+RTL_REG__BREG_36 \milansoc_milannic_r_rsp_cdc_dout_reg[50]
+(.C(milan_clk),
+.CE(milansoc_milannic_r_rsp_cdc_asyncfifo_re),
+.D(storage_21_dat1[50]),
+.Q(milansoc_milannic_resp_rsp_data[50]));
+RTL_REG__BREG_36 \milansoc_milannic_r_rsp_cdc_dout_reg[51]
+(.C(milan_clk),
+.CE(milansoc_milannic_r_rsp_cdc_asyncfifo_re),
+.D(storage_21_dat1[51]),
+.Q(milansoc_milannic_resp_rsp_data[51]));
+RTL_REG__BREG_36 \milansoc_milannic_r_rsp_cdc_dout_reg[52]
+(.C(milan_clk),
+.CE(milansoc_milannic_r_rsp_cdc_asyncfifo_re),
+.D(storage_21_dat1[52]),
+.Q(milansoc_milannic_resp_rsp_data[52]));
+RTL_REG__BREG_36 \milansoc_milannic_r_rsp_cdc_dout_reg[53]
+(.C(milan_clk),
+.CE(milansoc_milannic_r_rsp_cdc_asyncfifo_re),
+.D(storage_21_dat1[53]),
+.Q(milansoc_milannic_resp_rsp_data[53]));
+RTL_REG__BREG_36 \milansoc_milannic_r_rsp_cdc_dout_reg[54]
+(.C(milan_clk),
+.CE(milansoc_milannic_r_rsp_cdc_asyncfifo_re),
+.D(storage_21_dat1[54]),
+.Q(milansoc_milannic_resp_rsp_data[54]));
+RTL_REG__BREG_36 \milansoc_milannic_r_rsp_cdc_dout_reg[55]
+(.C(milan_clk),
+.CE(milansoc_milannic_r_rsp_cdc_asyncfifo_re),
+.D(storage_21_dat1[55]),
+.Q(milansoc_milannic_resp_rsp_data[55]));
+RTL_REG__BREG_36 \milansoc_milannic_r_rsp_cdc_dout_reg[56]
+(.C(milan_clk),
+.CE(milansoc_milannic_r_rsp_cdc_asyncfifo_re),
+.D(storage_21_dat1[56]),
+.Q(milansoc_milannic_resp_rsp_data[56]));
+RTL_REG__BREG_36 \milansoc_milannic_r_rsp_cdc_dout_reg[57]
+(.C(milan_clk),
+.CE(milansoc_milannic_r_rsp_cdc_asyncfifo_re),
+.D(storage_21_dat1[57]),
+.Q(milansoc_milannic_resp_rsp_data[57]));
+RTL_REG__BREG_36 \milansoc_milannic_r_rsp_cdc_dout_reg[58]
+(.C(milan_clk),
+.CE(milansoc_milannic_r_rsp_cdc_asyncfifo_re),
+.D(storage_21_dat1[58]),
+.Q(milansoc_milannic_resp_rsp_data[58]));
+RTL_REG__BREG_36 \milansoc_milannic_r_rsp_cdc_dout_reg[59]
+(.C(milan_clk),
+.CE(milansoc_milannic_r_rsp_cdc_asyncfifo_re),
+.D(storage_21_dat1[59]),
+.Q(milansoc_milannic_resp_rsp_data[59]));
+RTL_REG__BREG_36 \milansoc_milannic_r_rsp_cdc_dout_reg[5]
+(.C(milan_clk),
+.CE(milansoc_milannic_r_rsp_cdc_asyncfifo_re),
+.D(storage_21_dat1[5]),
+.Q(milansoc_milannic_resp_rsp_data[5]));
+RTL_REG__BREG_36 \milansoc_milannic_r_rsp_cdc_dout_reg[60]
+(.C(milan_clk),
+.CE(milansoc_milannic_r_rsp_cdc_asyncfifo_re),
+.D(storage_21_dat1[60]),
+.Q(milansoc_milannic_resp_rsp_data[60]));
+RTL_REG__BREG_36 \milansoc_milannic_r_rsp_cdc_dout_reg[61]
+(.C(milan_clk),
+.CE(milansoc_milannic_r_rsp_cdc_asyncfifo_re),
+.D(storage_21_dat1[61]),
+.Q(milansoc_milannic_resp_rsp_data[61]));
+RTL_REG__BREG_36 \milansoc_milannic_r_rsp_cdc_dout_reg[62]
+(.C(milan_clk),
+.CE(milansoc_milannic_r_rsp_cdc_asyncfifo_re),
+.D(storage_21_dat1[62]),
+.Q(milansoc_milannic_resp_rsp_data[62]));
+RTL_REG__BREG_36 \milansoc_milannic_r_rsp_cdc_dout_reg[63]
+(.C(milan_clk),
+.CE(milansoc_milannic_r_rsp_cdc_asyncfifo_re),
+.D(storage_21_dat1[63]),
+.Q(milansoc_milannic_resp_rsp_data[63]));
+RTL_REG__BREG_36 \milansoc_milannic_r_rsp_cdc_dout_reg[64]
+(.C(milan_clk),
+.CE(milansoc_milannic_r_rsp_cdc_asyncfifo_re),
+.D(storage_21_dat1[64]),
+.Q(milansoc_milannic_resp_rsp_last));
+RTL_REG__BREG_36 \milansoc_milannic_r_rsp_cdc_dout_reg[65]
+(.C(milan_clk),
+.CE(milansoc_milannic_r_rsp_cdc_asyncfifo_re),
+.D(storage_21_dat1[65]),
+.Q(milansoc_milannic_resp_rsp_err));
+RTL_REG__BREG_36 \milansoc_milannic_r_rsp_cdc_dout_reg[66]
+(.C(milan_clk),
+.CE(milansoc_milannic_r_rsp_cdc_asyncfifo_re),
+.D(storage_21_dat1[66]));
+RTL_REG__BREG_36 \milansoc_milannic_r_rsp_cdc_dout_reg[67]
+(.C(milan_clk),
+.CE(milansoc_milannic_r_rsp_cdc_asyncfifo_re),
+.D(storage_21_dat1[67]));
+RTL_REG__BREG_36 \milansoc_milannic_r_rsp_cdc_dout_reg[6]
+(.C(milan_clk),
+.CE(milansoc_milannic_r_rsp_cdc_asyncfifo_re),
+.D(storage_21_dat1[6]),
+.Q(milansoc_milannic_resp_rsp_data[6]));
+RTL_REG__BREG_36 \milansoc_milannic_r_rsp_cdc_dout_reg[7]
+(.C(milan_clk),
+.CE(milansoc_milannic_r_rsp_cdc_asyncfifo_re),
+.D(storage_21_dat1[7]),
+.Q(milansoc_milannic_resp_rsp_data[7]));
+RTL_REG__BREG_36 \milansoc_milannic_r_rsp_cdc_dout_reg[8]
+(.C(milan_clk),
+.CE(milansoc_milannic_r_rsp_cdc_asyncfifo_re),
+.D(storage_21_dat1[8]),
+.Q(milansoc_milannic_resp_rsp_data[8]));
+RTL_REG__BREG_36 \milansoc_milannic_r_rsp_cdc_dout_reg[9]
+(.C(milan_clk),
+.CE(milansoc_milannic_r_rsp_cdc_asyncfifo_re),
+.D(storage_21_dat1[9]),
+.Q(milansoc_milannic_resp_rsp_data[9]));
+RTL_REG_SYNC__BREG_42 \milansoc_milannic_r_rsp_cdc_graycounter0_q_binary_reg[0]
+(.C(sys_clk),
+.CE(\<const0> ),
+.D(\<const0> ),
+.Q(milansoc_milannic_r_rsp_cdc_graycounter0_q_binary[0]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_42 \milansoc_milannic_r_rsp_cdc_graycounter0_q_binary_reg[1]
+(.C(sys_clk),
+.CE(\<const0> ),
+.D(\<const0> ),
+.Q(milansoc_milannic_r_rsp_cdc_graycounter0_q_binary[1]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_42 \milansoc_milannic_r_rsp_cdc_graycounter0_q_binary_reg[2]
+(.C(sys_clk),
+.CE(\<const0> ),
+.D(\<const0> ),
+.Q(milansoc_milannic_r_rsp_cdc_graycounter0_q_binary[2]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_42 \milansoc_milannic_r_rsp_cdc_graycounter0_q_binary_reg[3]
+(.C(sys_clk),
+.CE(\<const0> ),
+.D(\<const0> ),
+.Q(milansoc_milannic_r_rsp_cdc_graycounter0_q_binary[3]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_42 \milansoc_milannic_r_rsp_cdc_graycounter0_q_binary_reg[4]
+(.C(sys_clk),
+.CE(\<const0> ),
+.D(\<const0> ),
+.Q(milansoc_milannic_r_rsp_cdc_graycounter0_q_binary[4]),
+.RST(sys_rst));
+RTL_XOR598 milansoc_milannic_r_rsp_cdc_graycounter0_q_next_i
+(.I0(milansoc_milannic_r_rsp_cdc_graycounter0_q_binary),
+.I1({\<const0> ,milansoc_milannic_r_rsp_cdc_graycounter0_q_binary[4:1]}),
+.O(milansoc_milannic_r_rsp_cdc_graycounter0_q_next));
+RTL_REG_SYNC__BREG_2 \milansoc_milannic_r_rsp_cdc_graycounter0_q_reg[0]
+(.C(sys_clk),
+.D(milansoc_milannic_r_rsp_cdc_graycounter0_q_next[0]),
+.Q(milansoc_milannic_r_rsp_cdc_graycounter0_q[0]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_2 \milansoc_milannic_r_rsp_cdc_graycounter0_q_reg[1]
+(.C(sys_clk),
+.D(milansoc_milannic_r_rsp_cdc_graycounter0_q_next[1]),
+.Q(milansoc_milannic_r_rsp_cdc_graycounter0_q[1]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_2 \milansoc_milannic_r_rsp_cdc_graycounter0_q_reg[2]
+(.C(sys_clk),
+.D(milansoc_milannic_r_rsp_cdc_graycounter0_q_next[2]),
+.Q(milansoc_milannic_r_rsp_cdc_graycounter0_q[2]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_2 \milansoc_milannic_r_rsp_cdc_graycounter0_q_reg[3]
+(.C(sys_clk),
+.D(milansoc_milannic_r_rsp_cdc_graycounter0_q_next[3]),
+.Q(milansoc_milannic_r_rsp_cdc_graycounter0_q[3]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_2 \milansoc_milannic_r_rsp_cdc_graycounter0_q_reg[4]
+(.C(sys_clk),
+.D(milansoc_milannic_r_rsp_cdc_graycounter0_q_next[4]),
+.Q(milansoc_milannic_r_rsp_cdc_graycounter0_q[4]),
+.RST(sys_rst));
+RTL_AND7 milansoc_milannic_r_rsp_cdc_graycounter1_ce_i
+(.I0(milansoc_milannic_r_rsp_cdc_asyncfifo_readable),
+.I1(milansoc_milannic_r_rsp_cdc_asyncfifo_re),
+.O(milansoc_milannic_r_rsp_cdc_graycounter1_ce));
+RTL_REG_SYNC__BREG_2 \milansoc_milannic_r_rsp_cdc_graycounter1_q_binary_reg[0]
+(.C(milan_clk),
+.D(milansoc_milannic_r_rsp_cdc_graycounter1_q_next_binary_reg[0]),
+.Q(milansoc_milannic_r_rsp_cdc_graycounter1_q_binary[0]),
+.RST(milan_rst));
+RTL_REG_SYNC__BREG_2 \milansoc_milannic_r_rsp_cdc_graycounter1_q_binary_reg[1]
+(.C(milan_clk),
+.D(milansoc_milannic_r_rsp_cdc_graycounter1_q_next_binary_reg[1]),
+.Q(milansoc_milannic_r_rsp_cdc_graycounter1_q_binary[1]),
+.RST(milan_rst));
+RTL_REG_SYNC__BREG_2 \milansoc_milannic_r_rsp_cdc_graycounter1_q_binary_reg[2]
+(.C(milan_clk),
+.D(milansoc_milannic_r_rsp_cdc_graycounter1_q_next_binary_reg[2]),
+.Q(milansoc_milannic_r_rsp_cdc_graycounter1_q_binary[2]),
+.RST(milan_rst));
+RTL_REG_SYNC__BREG_2 \milansoc_milannic_r_rsp_cdc_graycounter1_q_binary_reg[3]
+(.C(milan_clk),
+.D(milansoc_milannic_r_rsp_cdc_graycounter1_q_next_binary_reg[3]),
+.Q(milansoc_milannic_r_rsp_cdc_graycounter1_q_binary[3]),
+.RST(milan_rst));
+RTL_REG_SYNC__BREG_2 \milansoc_milannic_r_rsp_cdc_graycounter1_q_binary_reg[4]
+(.C(milan_clk),
+.D(milansoc_milannic_r_rsp_cdc_graycounter1_q_next_binary_reg[4]),
+.Q(milansoc_milannic_r_rsp_cdc_graycounter1_q_binary[4]),
+.RST(milan_rst));
+RTL_ADD9 milansoc_milannic_r_rsp_cdc_graycounter1_q_next_binary0_i
+(.I0(milansoc_milannic_r_rsp_cdc_graycounter1_q_binary),
+.I1(\<const1> ),
+.O(milansoc_milannic_r_rsp_cdc_graycounter1_q_next_binary0));
+RTL_MUX158 milansoc_milannic_r_rsp_cdc_graycounter1_q_next_binary_i
+(.I0(milansoc_milannic_r_rsp_cdc_graycounter1_q_next_binary0),
+.I1(milansoc_milannic_r_rsp_cdc_graycounter1_q_binary),
+.O(milansoc_milannic_r_rsp_cdc_graycounter1_q_next_binary_reg),
+.S(milansoc_milannic_r_rsp_cdc_graycounter1_ce));
+RTL_XOR598 milansoc_milannic_r_rsp_cdc_graycounter1_q_next_i
+(.I0(milansoc_milannic_r_rsp_cdc_graycounter1_q_next_binary_reg),
+.I1({\<const0> ,milansoc_milannic_r_rsp_cdc_graycounter1_q_next_binary_reg[4:1]}),
+.O(milansoc_milannic_r_rsp_cdc_graycounter1_q_next));
+RTL_REG_SYNC__BREG_2 \milansoc_milannic_r_rsp_cdc_graycounter1_q_reg[0]
+(.C(milan_clk),
+.D(milansoc_milannic_r_rsp_cdc_graycounter1_q_next[0]),
+.Q(milansoc_milannic_r_rsp_cdc_graycounter1_q[0]),
+.RST(milan_rst));
+RTL_REG_SYNC__BREG_2 \milansoc_milannic_r_rsp_cdc_graycounter1_q_reg[1]
+(.C(milan_clk),
+.D(milansoc_milannic_r_rsp_cdc_graycounter1_q_next[1]),
+.Q(milansoc_milannic_r_rsp_cdc_graycounter1_q[1]),
+.RST(milan_rst));
+RTL_REG_SYNC__BREG_2 \milansoc_milannic_r_rsp_cdc_graycounter1_q_reg[2]
+(.C(milan_clk),
+.D(milansoc_milannic_r_rsp_cdc_graycounter1_q_next[2]),
+.Q(milansoc_milannic_r_rsp_cdc_graycounter1_q[2]),
+.RST(milan_rst));
+RTL_REG_SYNC__BREG_2 \milansoc_milannic_r_rsp_cdc_graycounter1_q_reg[3]
+(.C(milan_clk),
+.D(milansoc_milannic_r_rsp_cdc_graycounter1_q_next[3]),
+.Q(milansoc_milannic_r_rsp_cdc_graycounter1_q[3]),
+.RST(milan_rst));
+RTL_REG_SYNC__BREG_2 \milansoc_milannic_r_rsp_cdc_graycounter1_q_reg[4]
+(.C(milan_clk),
+.D(milansoc_milannic_r_rsp_cdc_graycounter1_q_next[4]),
+.Q(milansoc_milannic_r_rsp_cdc_graycounter1_q[4]),
+.RST(milan_rst));
+RTL_REG_SYNC__BREG_1 milansoc_milannic_r_rsp_cdc_readable_reg
+(.C(milan_clk),
+.CE(milansoc_milannic_r_rsp_cdc_asyncfifo_re),
+.D(milansoc_milannic_r_rsp_cdc_asyncfifo_readable),
+.Q(milansoc_milannic_r_rsp_cdc_readable),
+.RST(milan_rst));
+RTL_NEQ10 milansoc_milannic_r_wd_cdc_asyncfifo_readable_i
+(.I0(milansoc_milannic_r_wd_cdc_graycounter1_q),
+.I1(impl_xilinxmultiregimpl351),
+.O(milansoc_milannic_r_wd_cdc_graycounter1_ce));
+RTL_REG__BREG_67 \milansoc_milannic_r_wd_cdc_dout_reg[0]
+(.C(milan_clk),
+.D(storage_23_dat1),
+.Q(milansoc_milannic_resp_wr_err));
+RTL_REG_SYNC__BREG_42 \milansoc_milannic_r_wd_cdc_graycounter0_q_binary_reg[0]
+(.C(sys_clk),
+.CE(\<const0> ),
+.D(\<const0> ),
+.Q(milansoc_milannic_r_wd_cdc_graycounter0_q_binary[0]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_42 \milansoc_milannic_r_wd_cdc_graycounter0_q_binary_reg[1]
+(.C(sys_clk),
+.CE(\<const0> ),
+.D(\<const0> ),
+.Q(milansoc_milannic_r_wd_cdc_graycounter0_q_binary[1]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_42 \milansoc_milannic_r_wd_cdc_graycounter0_q_binary_reg[2]
+(.C(sys_clk),
+.CE(\<const0> ),
+.D(\<const0> ),
+.Q(milansoc_milannic_r_wd_cdc_graycounter0_q_binary[2]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_42 \milansoc_milannic_r_wd_cdc_graycounter0_q_binary_reg[3]
+(.C(sys_clk),
+.CE(\<const0> ),
+.D(\<const0> ),
+.Q(milansoc_milannic_r_wd_cdc_graycounter0_q_binary[3]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_42 \milansoc_milannic_r_wd_cdc_graycounter0_q_binary_reg[4]
+(.C(sys_clk),
+.CE(\<const0> ),
+.D(\<const0> ),
+.Q(milansoc_milannic_r_wd_cdc_graycounter0_q_binary[4]),
+.RST(sys_rst));
+RTL_XOR598 milansoc_milannic_r_wd_cdc_graycounter0_q_next_i
+(.I0(milansoc_milannic_r_wd_cdc_graycounter0_q_binary),
+.I1({\<const0> ,milansoc_milannic_r_wd_cdc_graycounter0_q_binary[4:1]}),
+.O(milansoc_milannic_r_wd_cdc_graycounter0_q_next));
+RTL_REG_SYNC__BREG_2 \milansoc_milannic_r_wd_cdc_graycounter0_q_reg[0]
+(.C(sys_clk),
+.D(milansoc_milannic_r_wd_cdc_graycounter0_q_next[0]),
+.Q(milansoc_milannic_r_wd_cdc_graycounter0_q[0]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_2 \milansoc_milannic_r_wd_cdc_graycounter0_q_reg[1]
+(.C(sys_clk),
+.D(milansoc_milannic_r_wd_cdc_graycounter0_q_next[1]),
+.Q(milansoc_milannic_r_wd_cdc_graycounter0_q[1]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_2 \milansoc_milannic_r_wd_cdc_graycounter0_q_reg[2]
+(.C(sys_clk),
+.D(milansoc_milannic_r_wd_cdc_graycounter0_q_next[2]),
+.Q(milansoc_milannic_r_wd_cdc_graycounter0_q[2]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_2 \milansoc_milannic_r_wd_cdc_graycounter0_q_reg[3]
+(.C(sys_clk),
+.D(milansoc_milannic_r_wd_cdc_graycounter0_q_next[3]),
+.Q(milansoc_milannic_r_wd_cdc_graycounter0_q[3]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_2 \milansoc_milannic_r_wd_cdc_graycounter0_q_reg[4]
+(.C(sys_clk),
+.D(milansoc_milannic_r_wd_cdc_graycounter0_q_next[4]),
+.Q(milansoc_milannic_r_wd_cdc_graycounter0_q[4]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_2 \milansoc_milannic_r_wd_cdc_graycounter1_q_binary_reg[0]
+(.C(milan_clk),
+.D(milansoc_milannic_r_wd_cdc_graycounter1_q_next_binary_reg[0]),
+.Q(milansoc_milannic_r_wd_cdc_graycounter1_q_binary[0]),
+.RST(milan_rst));
+RTL_REG_SYNC__BREG_2 \milansoc_milannic_r_wd_cdc_graycounter1_q_binary_reg[1]
+(.C(milan_clk),
+.D(milansoc_milannic_r_wd_cdc_graycounter1_q_next_binary_reg[1]),
+.Q(milansoc_milannic_r_wd_cdc_graycounter1_q_binary[1]),
+.RST(milan_rst));
+RTL_REG_SYNC__BREG_2 \milansoc_milannic_r_wd_cdc_graycounter1_q_binary_reg[2]
+(.C(milan_clk),
+.D(milansoc_milannic_r_wd_cdc_graycounter1_q_next_binary_reg[2]),
+.Q(milansoc_milannic_r_wd_cdc_graycounter1_q_binary[2]),
+.RST(milan_rst));
+RTL_REG_SYNC__BREG_2 \milansoc_milannic_r_wd_cdc_graycounter1_q_binary_reg[3]
+(.C(milan_clk),
+.D(milansoc_milannic_r_wd_cdc_graycounter1_q_next_binary_reg[3]),
+.Q(milansoc_milannic_r_wd_cdc_graycounter1_q_binary[3]),
+.RST(milan_rst));
+RTL_REG_SYNC__BREG_2 \milansoc_milannic_r_wd_cdc_graycounter1_q_binary_reg[4]
+(.C(milan_clk),
+.D(milansoc_milannic_r_wd_cdc_graycounter1_q_next_binary_reg[4]),
+.Q(milansoc_milannic_r_wd_cdc_graycounter1_q_binary[4]),
+.RST(milan_rst));
+RTL_ADD9 milansoc_milannic_r_wd_cdc_graycounter1_q_next_binary0_i
+(.I0(milansoc_milannic_r_wd_cdc_graycounter1_q_binary),
+.I1(\<const1> ),
+.O(milansoc_milannic_r_wd_cdc_graycounter1_q_next_binary0));
+RTL_MUX158 milansoc_milannic_r_wd_cdc_graycounter1_q_next_binary_i
+(.I0(milansoc_milannic_r_wd_cdc_graycounter1_q_next_binary0),
+.I1(milansoc_milannic_r_wd_cdc_graycounter1_q_binary),
+.O(milansoc_milannic_r_wd_cdc_graycounter1_q_next_binary_reg),
+.S(milansoc_milannic_r_wd_cdc_graycounter1_ce));
+RTL_XOR598 milansoc_milannic_r_wd_cdc_graycounter1_q_next_i
+(.I0(milansoc_milannic_r_wd_cdc_graycounter1_q_next_binary_reg),
+.I1({\<const0> ,milansoc_milannic_r_wd_cdc_graycounter1_q_next_binary_reg[4:1]}),
+.O(milansoc_milannic_r_wd_cdc_graycounter1_q_next));
+RTL_REG_SYNC__BREG_2 \milansoc_milannic_r_wd_cdc_graycounter1_q_reg[0]
+(.C(milan_clk),
+.D(milansoc_milannic_r_wd_cdc_graycounter1_q_next[0]),
+.Q(milansoc_milannic_r_wd_cdc_graycounter1_q[0]),
+.RST(milan_rst));
+RTL_REG_SYNC__BREG_2 \milansoc_milannic_r_wd_cdc_graycounter1_q_reg[1]
+(.C(milan_clk),
+.D(milansoc_milannic_r_wd_cdc_graycounter1_q_next[1]),
+.Q(milansoc_milannic_r_wd_cdc_graycounter1_q[1]),
+.RST(milan_rst));
+RTL_REG_SYNC__BREG_2 \milansoc_milannic_r_wd_cdc_graycounter1_q_reg[2]
+(.C(milan_clk),
+.D(milansoc_milannic_r_wd_cdc_graycounter1_q_next[2]),
+.Q(milansoc_milannic_r_wd_cdc_graycounter1_q[2]),
+.RST(milan_rst));
+RTL_REG_SYNC__BREG_2 \milansoc_milannic_r_wd_cdc_graycounter1_q_reg[3]
+(.C(milan_clk),
+.D(milansoc_milannic_r_wd_cdc_graycounter1_q_next[3]),
+.Q(milansoc_milannic_r_wd_cdc_graycounter1_q[3]),
+.RST(milan_rst));
+RTL_REG_SYNC__BREG_2 \milansoc_milannic_r_wd_cdc_graycounter1_q_reg[4]
+(.C(milan_clk),
+.D(milansoc_milannic_r_wd_cdc_graycounter1_q_next[4]),
+.Q(milansoc_milannic_r_wd_cdc_graycounter1_q[4]),
+.RST(milan_rst));
+RTL_REG_SYNC__BREG_2 milansoc_milannic_r_wd_cdc_readable_reg
+(.C(milan_clk),
+.D(milansoc_milannic_r_wd_cdc_graycounter1_ce),
+.Q(milansoc_milannic_r_wd_cdc_readable),
+.RST(milan_rst));
+RTL_NEQ10 milansoc_milannic_r_wr_cdc_asyncfifo_readable_i
+(.I0(milansoc_milannic_r_wr_cdc_graycounter1_q),
+.I1(impl_xilinxmultiregimpl331),
+.O(milansoc_milannic_r_wr_cdc_asyncfifo_readable));
+RTL_OR milansoc_milannic_r_wr_cdc_asyncfifo_writable0_i
+(.I0(milansoc_milannic_r_wr_cdc_asyncfifo_writable1),
+.I1(milansoc_milannic_r_wr_cdc_asyncfifo_writable1_i__0_n_0),
+.O(milansoc_milannic_r_wr_cdc_asyncfifo_writable0));
+RTL_NEQ0 milansoc_milannic_r_wr_cdc_asyncfifo_writable0_i__0
+(.I0(milansoc_milannic_r_wr_cdc_graycounter0_q[2:0]),
+.I1(impl_xilinxmultiregimpl341[2:0]),
+.O(milansoc_milannic_r_wr_cdc_asyncfifo_writable0_i__0_n_0));
+RTL_EQ6 milansoc_milannic_r_wr_cdc_asyncfifo_writable1_i
+(.I0(milansoc_milannic_r_wr_cdc_graycounter0_q[4]),
+.I1(impl_xilinxmultiregimpl341[4]),
+.O(milansoc_milannic_r_wr_cdc_asyncfifo_writable1));
+RTL_EQ6 milansoc_milannic_r_wr_cdc_asyncfifo_writable1_i__0
+(.I0(milansoc_milannic_r_wr_cdc_graycounter0_q[3]),
+.I1(impl_xilinxmultiregimpl341[3]),
+.O(milansoc_milannic_r_wr_cdc_asyncfifo_writable1_i__0_n_0));
+RTL_OR milansoc_milannic_r_wr_cdc_asyncfifo_writable_i
+(.I0(milansoc_milannic_r_wr_cdc_asyncfifo_writable0),
+.I1(milansoc_milannic_r_wr_cdc_asyncfifo_writable0_i__0_n_0),
+.O(milansoc_milannic_resp_wr_ready));
+RTL_AND7 milansoc_milannic_r_wr_cdc_graycounter0_ce_i
+(.I0(milansoc_milannic_resp_wr_ready),
+.I1(milansoc_milannic_resp_wr_valid),
+.O(milansoc_milannic_r_wr_cdc_graycounter0_ce));
+RTL_REG_SYNC__BREG_2 \milansoc_milannic_r_wr_cdc_graycounter0_q_binary_reg[0]
+(.C(milan_clk),
+.D(milansoc_milannic_r_wr_cdc_graycounter0_q_next_binary_reg[0]),
+.Q(milansoc_milannic_r_wr_cdc_graycounter0_q_binary[0]),
+.RST(milan_rst));
+RTL_REG_SYNC__BREG_2 \milansoc_milannic_r_wr_cdc_graycounter0_q_binary_reg[1]
+(.C(milan_clk),
+.D(milansoc_milannic_r_wr_cdc_graycounter0_q_next_binary_reg[1]),
+.Q(milansoc_milannic_r_wr_cdc_graycounter0_q_binary[1]),
+.RST(milan_rst));
+RTL_REG_SYNC__BREG_2 \milansoc_milannic_r_wr_cdc_graycounter0_q_binary_reg[2]
+(.C(milan_clk),
+.D(milansoc_milannic_r_wr_cdc_graycounter0_q_next_binary_reg[2]),
+.Q(milansoc_milannic_r_wr_cdc_graycounter0_q_binary[2]),
+.RST(milan_rst));
+RTL_REG_SYNC__BREG_2 \milansoc_milannic_r_wr_cdc_graycounter0_q_binary_reg[3]
+(.C(milan_clk),
+.D(milansoc_milannic_r_wr_cdc_graycounter0_q_next_binary_reg[3]),
+.Q(milansoc_milannic_r_wr_cdc_graycounter0_q_binary[3]),
+.RST(milan_rst));
+RTL_REG_SYNC__BREG_2 \milansoc_milannic_r_wr_cdc_graycounter0_q_binary_reg[4]
+(.C(milan_clk),
+.D(milansoc_milannic_r_wr_cdc_graycounter0_q_next_binary_reg[4]),
+.Q(milansoc_milannic_r_wr_cdc_graycounter0_q_binary[4]),
+.RST(milan_rst));
+RTL_ADD9 milansoc_milannic_r_wr_cdc_graycounter0_q_next_binary0_i
+(.I0(milansoc_milannic_r_wr_cdc_graycounter0_q_binary),
+.I1(\<const1> ),
+.O(milansoc_milannic_r_wr_cdc_graycounter0_q_next_binary0));
+RTL_MUX158 milansoc_milannic_r_wr_cdc_graycounter0_q_next_binary_i
+(.I0(milansoc_milannic_r_wr_cdc_graycounter0_q_next_binary0),
+.I1(milansoc_milannic_r_wr_cdc_graycounter0_q_binary),
+.O(milansoc_milannic_r_wr_cdc_graycounter0_q_next_binary_reg),
+.S(milansoc_milannic_r_wr_cdc_graycounter0_ce));
+RTL_XOR598 milansoc_milannic_r_wr_cdc_graycounter0_q_next_i
+(.I0(milansoc_milannic_r_wr_cdc_graycounter0_q_next_binary_reg),
+.I1({\<const0> ,milansoc_milannic_r_wr_cdc_graycounter0_q_next_binary_reg[4:1]}),
+.O(milansoc_milannic_r_wr_cdc_graycounter0_q_next));
+RTL_REG_SYNC__BREG_2 \milansoc_milannic_r_wr_cdc_graycounter0_q_reg[0]
+(.C(milan_clk),
+.D(milansoc_milannic_r_wr_cdc_graycounter0_q_next[0]),
+.Q(milansoc_milannic_r_wr_cdc_graycounter0_q[0]),
+.RST(milan_rst));
+RTL_REG_SYNC__BREG_2 \milansoc_milannic_r_wr_cdc_graycounter0_q_reg[1]
+(.C(milan_clk),
+.D(milansoc_milannic_r_wr_cdc_graycounter0_q_next[1]),
+.Q(milansoc_milannic_r_wr_cdc_graycounter0_q[1]),
+.RST(milan_rst));
+RTL_REG_SYNC__BREG_2 \milansoc_milannic_r_wr_cdc_graycounter0_q_reg[2]
+(.C(milan_clk),
+.D(milansoc_milannic_r_wr_cdc_graycounter0_q_next[2]),
+.Q(milansoc_milannic_r_wr_cdc_graycounter0_q[2]),
+.RST(milan_rst));
+RTL_REG_SYNC__BREG_2 \milansoc_milannic_r_wr_cdc_graycounter0_q_reg[3]
+(.C(milan_clk),
+.D(milansoc_milannic_r_wr_cdc_graycounter0_q_next[3]),
+.Q(milansoc_milannic_r_wr_cdc_graycounter0_q[3]),
+.RST(milan_rst));
+RTL_REG_SYNC__BREG_2 \milansoc_milannic_r_wr_cdc_graycounter0_q_reg[4]
+(.C(milan_clk),
+.D(milansoc_milannic_r_wr_cdc_graycounter0_q_next[4]),
+.Q(milansoc_milannic_r_wr_cdc_graycounter0_q[4]),
+.RST(milan_rst));
+RTL_AND7 milansoc_milannic_r_wr_cdc_graycounter1_ce_i
+(.I0(milansoc_milannic_r_wr_cdc_asyncfifo_readable),
+.I1(milansoc_milannic_r_wr_cdc_readable),
+.O(milansoc_milannic_r_wr_cdc_graycounter1_ce));
+RTL_REG_SYNC__BREG_2 \milansoc_milannic_r_wr_cdc_graycounter1_q_binary_reg[0]
+(.C(sys_clk),
+.D(milansoc_milannic_r_wr_cdc_graycounter1_q_next_binary_reg[0]),
+.Q(milansoc_milannic_r_wr_cdc_graycounter1_q_binary[0]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_2 \milansoc_milannic_r_wr_cdc_graycounter1_q_binary_reg[1]
+(.C(sys_clk),
+.D(milansoc_milannic_r_wr_cdc_graycounter1_q_next_binary_reg[1]),
+.Q(milansoc_milannic_r_wr_cdc_graycounter1_q_binary[1]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_2 \milansoc_milannic_r_wr_cdc_graycounter1_q_binary_reg[2]
+(.C(sys_clk),
+.D(milansoc_milannic_r_wr_cdc_graycounter1_q_next_binary_reg[2]),
+.Q(milansoc_milannic_r_wr_cdc_graycounter1_q_binary[2]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_2 \milansoc_milannic_r_wr_cdc_graycounter1_q_binary_reg[3]
+(.C(sys_clk),
+.D(milansoc_milannic_r_wr_cdc_graycounter1_q_next_binary_reg[3]),
+.Q(milansoc_milannic_r_wr_cdc_graycounter1_q_binary[3]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_2 \milansoc_milannic_r_wr_cdc_graycounter1_q_binary_reg[4]
+(.C(sys_clk),
+.D(milansoc_milannic_r_wr_cdc_graycounter1_q_next_binary_reg[4]),
+.Q(milansoc_milannic_r_wr_cdc_graycounter1_q_binary[4]),
+.RST(sys_rst));
+RTL_ADD9 milansoc_milannic_r_wr_cdc_graycounter1_q_next_binary0_i
+(.I0(milansoc_milannic_r_wr_cdc_graycounter1_q_binary),
+.I1(\<const1> ),
+.O(milansoc_milannic_r_wr_cdc_graycounter1_q_next_binary0));
+RTL_MUX158 milansoc_milannic_r_wr_cdc_graycounter1_q_next_binary_i
+(.I0(milansoc_milannic_r_wr_cdc_graycounter1_q_next_binary0),
+.I1(milansoc_milannic_r_wr_cdc_graycounter1_q_binary),
+.O(milansoc_milannic_r_wr_cdc_graycounter1_q_next_binary_reg),
+.S(milansoc_milannic_r_wr_cdc_graycounter1_ce));
+RTL_XOR598 milansoc_milannic_r_wr_cdc_graycounter1_q_next_i
+(.I0(milansoc_milannic_r_wr_cdc_graycounter1_q_next_binary_reg),
+.I1({\<const0> ,milansoc_milannic_r_wr_cdc_graycounter1_q_next_binary_reg[4:1]}),
+.O(milansoc_milannic_r_wr_cdc_graycounter1_q_next));
+RTL_REG_SYNC__BREG_2 \milansoc_milannic_r_wr_cdc_graycounter1_q_reg[0]
+(.C(sys_clk),
+.D(milansoc_milannic_r_wr_cdc_graycounter1_q_next[0]),
+.Q(milansoc_milannic_r_wr_cdc_graycounter1_q[0]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_2 \milansoc_milannic_r_wr_cdc_graycounter1_q_reg[1]
+(.C(sys_clk),
+.D(milansoc_milannic_r_wr_cdc_graycounter1_q_next[1]),
+.Q(milansoc_milannic_r_wr_cdc_graycounter1_q[1]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_2 \milansoc_milannic_r_wr_cdc_graycounter1_q_reg[2]
+(.C(sys_clk),
+.D(milansoc_milannic_r_wr_cdc_graycounter1_q_next[2]),
+.Q(milansoc_milannic_r_wr_cdc_graycounter1_q[2]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_2 \milansoc_milannic_r_wr_cdc_graycounter1_q_reg[3]
+(.C(sys_clk),
+.D(milansoc_milannic_r_wr_cdc_graycounter1_q_next[3]),
+.Q(milansoc_milannic_r_wr_cdc_graycounter1_q[3]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_2 \milansoc_milannic_r_wr_cdc_graycounter1_q_reg[4]
+(.C(sys_clk),
+.D(milansoc_milannic_r_wr_cdc_graycounter1_q_next[4]),
+.Q(milansoc_milannic_r_wr_cdc_graycounter1_q[4]),
+.RST(sys_rst));
+RTL_MUX milansoc_milannic_r_wr_cdc_readable_i
+(.I0(\<const1> ),
+.I1(\<const0> ),
+.O(milansoc_milannic_r_wr_cdc_readable0_out),
+.S(milansoc_milannic_r_wr_cdc_readable));
+RTL_REG_SYNC__BREG_1 milansoc_milannic_r_wr_cdc_readable_reg
+(.C(sys_clk),
+.CE(milansoc_milannic_r_wr_cdc_readable0_out),
+.D(milansoc_milannic_r_wr_cdc_asyncfifo_readable),
+.Q(milansoc_milannic_r_wr_cdc_readable),
+.RST(sys_rst));
+RTL_NEQ0 milansoc_milannic_w_cdc_cdc_asyncfifo_readable_i
+(.I0(milansoc_milannic_w_cdc_cdc_graycounter1_q),
+.I1(impl_xilinxmultiregimpl171),
+.O(milansoc_milannic_w_valid));
+RTL_OR milansoc_milannic_w_cdc_cdc_asyncfifo_writable0_i
+(.I0(milansoc_milannic_w_cdc_cdc_asyncfifo_writable1),
+.I1(milansoc_milannic_w_cdc_cdc_asyncfifo_writable1_i__0_n_0),
+.O(milansoc_milannic_w_cdc_cdc_asyncfifo_writable0));
+RTL_NEQ8 milansoc_milannic_w_cdc_cdc_asyncfifo_writable0_i__0
+(.I0(milansoc_milannic_w_cdc_cdc_graycounter0_q[0]),
+.I1(impl_xilinxmultiregimpl181[0]),
+.O(milansoc_milannic_w_cdc_cdc_asyncfifo_writable0_i__0_n_0));
+RTL_EQ6 milansoc_milannic_w_cdc_cdc_asyncfifo_writable1_i
+(.I0(milansoc_milannic_w_cdc_cdc_graycounter0_q[2]),
+.I1(impl_xilinxmultiregimpl181[2]),
+.O(milansoc_milannic_w_cdc_cdc_asyncfifo_writable1));
+RTL_EQ6 milansoc_milannic_w_cdc_cdc_asyncfifo_writable1_i__0
+(.I0(milansoc_milannic_w_cdc_cdc_graycounter0_q[1]),
+.I1(impl_xilinxmultiregimpl181[1]),
+.O(milansoc_milannic_w_cdc_cdc_asyncfifo_writable1_i__0_n_0));
+RTL_OR milansoc_milannic_w_cdc_cdc_asyncfifo_writable_i
+(.I0(milansoc_milannic_w_cdc_cdc_asyncfifo_writable0),
+.I1(milansoc_milannic_w_cdc_cdc_asyncfifo_writable0_i__0_n_0),
+.O(milansoc_w_ready));
+RTL_AND7 milansoc_milannic_w_cdc_cdc_graycounter0_ce_i
+(.I0(milansoc_w_ready),
+.I1(milansoc_w_valid_reg),
+.O(milansoc_milannic_w_cdc_cdc_wrport_we));
+RTL_REG_SYNC__BREG_2 \milansoc_milannic_w_cdc_cdc_graycounter0_q_binary_reg[0]
+(.C(sys_clk),
+.D(milansoc_milannic_w_cdc_cdc_graycounter0_q_next_binary_reg[0]),
+.Q(milansoc_milannic_w_cdc_cdc_wrport_adr[0]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_2 \milansoc_milannic_w_cdc_cdc_graycounter0_q_binary_reg[1]
+(.C(sys_clk),
+.D(milansoc_milannic_w_cdc_cdc_graycounter0_q_next_binary_reg[1]),
+.Q(milansoc_milannic_w_cdc_cdc_wrport_adr[1]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_2 \milansoc_milannic_w_cdc_cdc_graycounter0_q_binary_reg[2]
+(.C(sys_clk),
+.D(milansoc_milannic_w_cdc_cdc_graycounter0_q_next_binary_reg[2]),
+.Q(milansoc_milannic_w_cdc_cdc_graycounter0_q_binary_reg_n_0),
+.RST(sys_rst));
+RTL_ADD0 milansoc_milannic_w_cdc_cdc_graycounter0_q_next_binary0_i
+(.I0({milansoc_milannic_w_cdc_cdc_graycounter0_q_binary_reg_n_0,milansoc_milannic_w_cdc_cdc_wrport_adr}),
+.I1(\<const1> ),
+.O(milansoc_milannic_w_cdc_cdc_graycounter0_q_next_binary0));
+RTL_MUX861 milansoc_milannic_w_cdc_cdc_graycounter0_q_next_binary_i
+(.I0(milansoc_milannic_w_cdc_cdc_graycounter0_q_next_binary0),
+.I1({milansoc_milannic_w_cdc_cdc_graycounter0_q_binary_reg_n_0,milansoc_milannic_w_cdc_cdc_wrport_adr}),
+.O(milansoc_milannic_w_cdc_cdc_graycounter0_q_next_binary_reg),
+.S(milansoc_milannic_w_cdc_cdc_wrport_we));
+RTL_XOR32 milansoc_milannic_w_cdc_cdc_graycounter0_q_next_i
+(.I0(milansoc_milannic_w_cdc_cdc_graycounter0_q_next_binary_reg),
+.I1({\<const0> ,milansoc_milannic_w_cdc_cdc_graycounter0_q_next_binary_reg[2:1]}),
+.O(milansoc_milannic_w_cdc_cdc_graycounter0_q_next));
+RTL_REG_SYNC__BREG_2 \milansoc_milannic_w_cdc_cdc_graycounter0_q_reg[0]
+(.C(sys_clk),
+.D(milansoc_milannic_w_cdc_cdc_graycounter0_q_next[0]),
+.Q(milansoc_milannic_w_cdc_cdc_graycounter0_q[0]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_2 \milansoc_milannic_w_cdc_cdc_graycounter0_q_reg[1]
+(.C(sys_clk),
+.D(milansoc_milannic_w_cdc_cdc_graycounter0_q_next[1]),
+.Q(milansoc_milannic_w_cdc_cdc_graycounter0_q[1]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_2 \milansoc_milannic_w_cdc_cdc_graycounter0_q_reg[2]
+(.C(sys_clk),
+.D(milansoc_milannic_w_cdc_cdc_graycounter0_q_next[2]),
+.Q(milansoc_milannic_w_cdc_cdc_graycounter0_q[2]),
+.RST(sys_rst));
+RTL_AND7 milansoc_milannic_w_cdc_cdc_graycounter1_ce_i
+(.I0(milansoc_milannic_w_valid),
+.I1(milansoc_milannic_w_ready),
+.O(milansoc_milannic_w_cdc_cdc_graycounter1_ce));
+RTL_REG_SYNC__BREG_2 \milansoc_milannic_w_cdc_cdc_graycounter1_q_binary_reg[0]
+(.C(milan_clk),
+.D(milansoc_milannic_w_cdc_cdc_graycounter1_q_next_binary_reg[0]),
+.Q(milansoc_milannic_w_cdc_cdc_graycounter1_q_binary[0]),
+.RST(milan_rst));
+RTL_REG_SYNC__BREG_2 \milansoc_milannic_w_cdc_cdc_graycounter1_q_binary_reg[1]
+(.C(milan_clk),
+.D(milansoc_milannic_w_cdc_cdc_graycounter1_q_next_binary_reg[1]),
+.Q(milansoc_milannic_w_cdc_cdc_graycounter1_q_binary[1]),
+.RST(milan_rst));
+RTL_REG_SYNC__BREG_2 \milansoc_milannic_w_cdc_cdc_graycounter1_q_binary_reg[2]
+(.C(milan_clk),
+.D(milansoc_milannic_w_cdc_cdc_graycounter1_q_next_binary_reg[2]),
+.Q(milansoc_milannic_w_cdc_cdc_graycounter1_q_binary[2]),
+.RST(milan_rst));
+RTL_ADD0 milansoc_milannic_w_cdc_cdc_graycounter1_q_next_binary0_i
+(.I0(milansoc_milannic_w_cdc_cdc_graycounter1_q_binary),
+.I1(\<const1> ),
+.O(milansoc_milannic_w_cdc_cdc_graycounter1_q_next_binary0));
+RTL_MUX861 milansoc_milannic_w_cdc_cdc_graycounter1_q_next_binary_i
+(.I0(milansoc_milannic_w_cdc_cdc_graycounter1_q_next_binary0),
+.I1(milansoc_milannic_w_cdc_cdc_graycounter1_q_binary),
+.O(milansoc_milannic_w_cdc_cdc_graycounter1_q_next_binary_reg),
+.S(milansoc_milannic_w_cdc_cdc_graycounter1_ce));
+RTL_XOR32 milansoc_milannic_w_cdc_cdc_graycounter1_q_next_i
+(.I0(milansoc_milannic_w_cdc_cdc_graycounter1_q_next_binary_reg),
+.I1({\<const0> ,milansoc_milannic_w_cdc_cdc_graycounter1_q_next_binary_reg[2:1]}),
+.O(milansoc_milannic_w_cdc_cdc_graycounter1_q_next));
+RTL_REG_SYNC__BREG_2 \milansoc_milannic_w_cdc_cdc_graycounter1_q_reg[0]
+(.C(milan_clk),
+.D(milansoc_milannic_w_cdc_cdc_graycounter1_q_next[0]),
+.Q(milansoc_milannic_w_cdc_cdc_graycounter1_q[0]),
+.RST(milan_rst));
+RTL_REG_SYNC__BREG_2 \milansoc_milannic_w_cdc_cdc_graycounter1_q_reg[1]
+(.C(milan_clk),
+.D(milansoc_milannic_w_cdc_cdc_graycounter1_q_next[1]),
+.Q(milansoc_milannic_w_cdc_cdc_graycounter1_q[1]),
+.RST(milan_rst));
+RTL_REG_SYNC__BREG_2 \milansoc_milannic_w_cdc_cdc_graycounter1_q_reg[2]
+(.C(milan_clk),
+.D(milansoc_milannic_w_cdc_cdc_graycounter1_q_next[2]),
+.Q(milansoc_milannic_w_cdc_cdc_graycounter1_q[2]),
+.RST(milan_rst));
+RTL_ADD787 milansoc_mmap_burst_adr_litespimmap_next_value30_i
+(.I0(milansoc_mmap_burst_adr),
+.I1(\<const1> ),
+.O(milansoc_mmap_burst_adr_litespimmap_next_value30));
+RTL_MUX14251 milansoc_mmap_burst_adr_litespimmap_next_value3_i
+(.I0(milansoc_mmap_burst_adr_litespimmap_next_value30),
+.I1({\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> }),
+.O({milansoc_mmap_burst_adr_litespimmap_next_value3_i_n_0,milansoc_mmap_burst_adr_litespimmap_next_value3_i_n_1,milansoc_mmap_burst_adr_litespimmap_next_value3_i_n_2,milansoc_mmap_burst_adr_litespimmap_next_value3_i_n_3,milansoc_mmap_burst_adr_litespimmap_next_value3_i_n_4,milansoc_mmap_burst_adr_litespimmap_next_value3_i_n_5,milansoc_mmap_burst_adr_litespimmap_next_value3_i_n_6,milansoc_mmap_burst_adr_litespimmap_next_value3_i_n_7,milansoc_mmap_burst_adr_litespimmap_next_value3_i_n_8,milansoc_mmap_burst_adr_litespimmap_next_value3_i_n_9,milansoc_mmap_burst_adr_litespimmap_next_value3_i_n_10,milansoc_mmap_burst_adr_litespimmap_next_value3_i_n_11,milansoc_mmap_burst_adr_litespimmap_next_value3_i_n_12,milansoc_mmap_burst_adr_litespimmap_next_value3_i_n_13,milansoc_mmap_burst_adr_litespimmap_next_value3_i_n_14,milansoc_mmap_burst_adr_litespimmap_next_value3_i_n_15,milansoc_mmap_burst_adr_litespimmap_next_value3_i_n_16,milansoc_mmap_burst_adr_litespimmap_next_value3_i_n_17,milansoc_mmap_burst_adr_litespimmap_next_value3_i_n_18,milansoc_mmap_burst_adr_litespimmap_next_value3_i_n_19,milansoc_mmap_burst_adr_litespimmap_next_value3_i_n_20,milansoc_mmap_burst_adr_litespimmap_next_value3_i_n_21,milansoc_mmap_burst_adr_litespimmap_next_value3_i_n_22,milansoc_mmap_burst_adr_litespimmap_next_value3_i_n_23,milansoc_mmap_burst_adr_litespimmap_next_value3_i_n_24,milansoc_mmap_burst_adr_litespimmap_next_value3_i_n_25,milansoc_mmap_burst_adr_litespimmap_next_value3_i_n_26,milansoc_mmap_burst_adr_litespimmap_next_value3_i_n_27,milansoc_mmap_burst_adr_litespimmap_next_value3_i_n_28,milansoc_mmap_burst_adr_litespimmap_next_value3_i_n_29}),
+.S(subfragments_rx_demux_endpoint0_source_valid_reg));
+RTL_MUX14250 milansoc_mmap_burst_adr_litespimmap_next_value3_i__0
+(.I0(milansoc_mmap_bus_adr_reg),
+.I1({\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> }),
+.I2(milansoc_mmap_bus_adr_reg),
+.I3({\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> }),
+.I4({\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> }),
+.I5({\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> }),
+.I6({\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> }),
+.I7({milansoc_mmap_burst_adr_litespimmap_next_value3_i_n_0,milansoc_mmap_burst_adr_litespimmap_next_value3_i_n_1,milansoc_mmap_burst_adr_litespimmap_next_value3_i_n_2,milansoc_mmap_burst_adr_litespimmap_next_value3_i_n_3,milansoc_mmap_burst_adr_litespimmap_next_value3_i_n_4,milansoc_mmap_burst_adr_litespimmap_next_value3_i_n_5,milansoc_mmap_burst_adr_litespimmap_next_value3_i_n_6,milansoc_mmap_burst_adr_litespimmap_next_value3_i_n_7,milansoc_mmap_burst_adr_litespimmap_next_value3_i_n_8,milansoc_mmap_burst_adr_litespimmap_next_value3_i_n_9,milansoc_mmap_burst_adr_litespimmap_next_value3_i_n_10,milansoc_mmap_burst_adr_litespimmap_next_value3_i_n_11,milansoc_mmap_burst_adr_litespimmap_next_value3_i_n_12,milansoc_mmap_burst_adr_litespimmap_next_value3_i_n_13,milansoc_mmap_burst_adr_litespimmap_next_value3_i_n_14,milansoc_mmap_burst_adr_litespimmap_next_value3_i_n_15,milansoc_mmap_burst_adr_litespimmap_next_value3_i_n_16,milansoc_mmap_burst_adr_litespimmap_next_value3_i_n_17,milansoc_mmap_burst_adr_litespimmap_next_value3_i_n_18,milansoc_mmap_burst_adr_litespimmap_next_value3_i_n_19,milansoc_mmap_burst_adr_litespimmap_next_value3_i_n_20,milansoc_mmap_burst_adr_litespimmap_next_value3_i_n_21,milansoc_mmap_burst_adr_litespimmap_next_value3_i_n_22,milansoc_mmap_burst_adr_litespimmap_next_value3_i_n_23,milansoc_mmap_burst_adr_litespimmap_next_value3_i_n_24,milansoc_mmap_burst_adr_litespimmap_next_value3_i_n_25,milansoc_mmap_burst_adr_litespimmap_next_value3_i_n_26,milansoc_mmap_burst_adr_litespimmap_next_value3_i_n_27,milansoc_mmap_burst_adr_litespimmap_next_value3_i_n_28,milansoc_mmap_burst_adr_litespimmap_next_value3_i_n_29}),
+.I8({\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> }),
+.O(milansoc_mmap_burst_adr_litespimmap_next_value3_reg),
+.S(subfragments_litespimmap_state));
+RTL_MUX2259 milansoc_mmap_burst_adr_litespimmap_next_value_ce3_i
+(.I0(\<const1> ),
+.I1(\<const0> ),
+.I2(\<const1> ),
+.I3(\<const0> ),
+.I4(\<const0> ),
+.I5(\<const0> ),
+.I6(\<const0> ),
+.I7(subfragments_rx_demux_endpoint0_source_valid_reg),
+.I8(\<const0> ),
+.O(milansoc_mmap_burst_adr_litespimmap_next_value_ce3_reg),
+.S(subfragments_litespimmap_state));
+RTL_REG__BREG_36 \milansoc_mmap_burst_adr_reg[0]
+(.C(sys_clk),
+.CE(milansoc_mmap_burst_adr_litespimmap_next_value_ce3_reg),
+.D(milansoc_mmap_burst_adr_litespimmap_next_value3_reg[0]),
+.Q(milansoc_mmap_burst_adr[0]));
+RTL_REG__BREG_36 \milansoc_mmap_burst_adr_reg[10]
+(.C(sys_clk),
+.CE(milansoc_mmap_burst_adr_litespimmap_next_value_ce3_reg),
+.D(milansoc_mmap_burst_adr_litespimmap_next_value3_reg[10]),
+.Q(milansoc_mmap_burst_adr[10]));
+RTL_REG__BREG_36 \milansoc_mmap_burst_adr_reg[11]
+(.C(sys_clk),
+.CE(milansoc_mmap_burst_adr_litespimmap_next_value_ce3_reg),
+.D(milansoc_mmap_burst_adr_litespimmap_next_value3_reg[11]),
+.Q(milansoc_mmap_burst_adr[11]));
+RTL_REG__BREG_36 \milansoc_mmap_burst_adr_reg[12]
+(.C(sys_clk),
+.CE(milansoc_mmap_burst_adr_litespimmap_next_value_ce3_reg),
+.D(milansoc_mmap_burst_adr_litespimmap_next_value3_reg[12]),
+.Q(milansoc_mmap_burst_adr[12]));
+RTL_REG__BREG_36 \milansoc_mmap_burst_adr_reg[13]
+(.C(sys_clk),
+.CE(milansoc_mmap_burst_adr_litespimmap_next_value_ce3_reg),
+.D(milansoc_mmap_burst_adr_litespimmap_next_value3_reg[13]),
+.Q(milansoc_mmap_burst_adr[13]));
+RTL_REG__BREG_36 \milansoc_mmap_burst_adr_reg[14]
+(.C(sys_clk),
+.CE(milansoc_mmap_burst_adr_litespimmap_next_value_ce3_reg),
+.D(milansoc_mmap_burst_adr_litespimmap_next_value3_reg[14]),
+.Q(milansoc_mmap_burst_adr[14]));
+RTL_REG__BREG_36 \milansoc_mmap_burst_adr_reg[15]
+(.C(sys_clk),
+.CE(milansoc_mmap_burst_adr_litespimmap_next_value_ce3_reg),
+.D(milansoc_mmap_burst_adr_litespimmap_next_value3_reg[15]),
+.Q(milansoc_mmap_burst_adr[15]));
+RTL_REG__BREG_36 \milansoc_mmap_burst_adr_reg[16]
+(.C(sys_clk),
+.CE(milansoc_mmap_burst_adr_litespimmap_next_value_ce3_reg),
+.D(milansoc_mmap_burst_adr_litespimmap_next_value3_reg[16]),
+.Q(milansoc_mmap_burst_adr[16]));
+RTL_REG__BREG_36 \milansoc_mmap_burst_adr_reg[17]
+(.C(sys_clk),
+.CE(milansoc_mmap_burst_adr_litespimmap_next_value_ce3_reg),
+.D(milansoc_mmap_burst_adr_litespimmap_next_value3_reg[17]),
+.Q(milansoc_mmap_burst_adr[17]));
+RTL_REG__BREG_36 \milansoc_mmap_burst_adr_reg[18]
+(.C(sys_clk),
+.CE(milansoc_mmap_burst_adr_litespimmap_next_value_ce3_reg),
+.D(milansoc_mmap_burst_adr_litespimmap_next_value3_reg[18]),
+.Q(milansoc_mmap_burst_adr[18]));
+RTL_REG__BREG_36 \milansoc_mmap_burst_adr_reg[19]
+(.C(sys_clk),
+.CE(milansoc_mmap_burst_adr_litespimmap_next_value_ce3_reg),
+.D(milansoc_mmap_burst_adr_litespimmap_next_value3_reg[19]),
+.Q(milansoc_mmap_burst_adr[19]));
+RTL_REG__BREG_36 \milansoc_mmap_burst_adr_reg[1]
+(.C(sys_clk),
+.CE(milansoc_mmap_burst_adr_litespimmap_next_value_ce3_reg),
+.D(milansoc_mmap_burst_adr_litespimmap_next_value3_reg[1]),
+.Q(milansoc_mmap_burst_adr[1]));
+RTL_REG__BREG_36 \milansoc_mmap_burst_adr_reg[20]
+(.C(sys_clk),
+.CE(milansoc_mmap_burst_adr_litespimmap_next_value_ce3_reg),
+.D(milansoc_mmap_burst_adr_litespimmap_next_value3_reg[20]),
+.Q(milansoc_mmap_burst_adr[20]));
+RTL_REG__BREG_36 \milansoc_mmap_burst_adr_reg[21]
+(.C(sys_clk),
+.CE(milansoc_mmap_burst_adr_litespimmap_next_value_ce3_reg),
+.D(milansoc_mmap_burst_adr_litespimmap_next_value3_reg[21]),
+.Q(milansoc_mmap_burst_adr[21]));
+RTL_REG__BREG_36 \milansoc_mmap_burst_adr_reg[22]
+(.C(sys_clk),
+.CE(milansoc_mmap_burst_adr_litespimmap_next_value_ce3_reg),
+.D(milansoc_mmap_burst_adr_litespimmap_next_value3_reg[22]),
+.Q(milansoc_mmap_burst_adr[22]));
+RTL_REG__BREG_36 \milansoc_mmap_burst_adr_reg[23]
+(.C(sys_clk),
+.CE(milansoc_mmap_burst_adr_litespimmap_next_value_ce3_reg),
+.D(milansoc_mmap_burst_adr_litespimmap_next_value3_reg[23]),
+.Q(milansoc_mmap_burst_adr[23]));
+RTL_REG__BREG_36 \milansoc_mmap_burst_adr_reg[24]
+(.C(sys_clk),
+.CE(milansoc_mmap_burst_adr_litespimmap_next_value_ce3_reg),
+.D(milansoc_mmap_burst_adr_litespimmap_next_value3_reg[24]),
+.Q(milansoc_mmap_burst_adr[24]));
+RTL_REG__BREG_36 \milansoc_mmap_burst_adr_reg[25]
+(.C(sys_clk),
+.CE(milansoc_mmap_burst_adr_litespimmap_next_value_ce3_reg),
+.D(milansoc_mmap_burst_adr_litespimmap_next_value3_reg[25]),
+.Q(milansoc_mmap_burst_adr[25]));
+RTL_REG__BREG_36 \milansoc_mmap_burst_adr_reg[26]
+(.C(sys_clk),
+.CE(milansoc_mmap_burst_adr_litespimmap_next_value_ce3_reg),
+.D(milansoc_mmap_burst_adr_litespimmap_next_value3_reg[26]),
+.Q(milansoc_mmap_burst_adr[26]));
+RTL_REG__BREG_36 \milansoc_mmap_burst_adr_reg[27]
+(.C(sys_clk),
+.CE(milansoc_mmap_burst_adr_litespimmap_next_value_ce3_reg),
+.D(milansoc_mmap_burst_adr_litespimmap_next_value3_reg[27]),
+.Q(milansoc_mmap_burst_adr[27]));
+RTL_REG__BREG_36 \milansoc_mmap_burst_adr_reg[28]
+(.C(sys_clk),
+.CE(milansoc_mmap_burst_adr_litespimmap_next_value_ce3_reg),
+.D(milansoc_mmap_burst_adr_litespimmap_next_value3_reg[28]),
+.Q(milansoc_mmap_burst_adr[28]));
+RTL_REG__BREG_36 \milansoc_mmap_burst_adr_reg[29]
+(.C(sys_clk),
+.CE(milansoc_mmap_burst_adr_litespimmap_next_value_ce3_reg),
+.D(milansoc_mmap_burst_adr_litespimmap_next_value3_reg[29]),
+.Q(milansoc_mmap_burst_adr[29]));
+RTL_REG__BREG_36 \milansoc_mmap_burst_adr_reg[2]
+(.C(sys_clk),
+.CE(milansoc_mmap_burst_adr_litespimmap_next_value_ce3_reg),
+.D(milansoc_mmap_burst_adr_litespimmap_next_value3_reg[2]),
+.Q(milansoc_mmap_burst_adr[2]));
+RTL_REG__BREG_36 \milansoc_mmap_burst_adr_reg[3]
+(.C(sys_clk),
+.CE(milansoc_mmap_burst_adr_litespimmap_next_value_ce3_reg),
+.D(milansoc_mmap_burst_adr_litespimmap_next_value3_reg[3]),
+.Q(milansoc_mmap_burst_adr[3]));
+RTL_REG__BREG_36 \milansoc_mmap_burst_adr_reg[4]
+(.C(sys_clk),
+.CE(milansoc_mmap_burst_adr_litespimmap_next_value_ce3_reg),
+.D(milansoc_mmap_burst_adr_litespimmap_next_value3_reg[4]),
+.Q(milansoc_mmap_burst_adr[4]));
+RTL_REG__BREG_36 \milansoc_mmap_burst_adr_reg[5]
+(.C(sys_clk),
+.CE(milansoc_mmap_burst_adr_litespimmap_next_value_ce3_reg),
+.D(milansoc_mmap_burst_adr_litespimmap_next_value3_reg[5]),
+.Q(milansoc_mmap_burst_adr[5]));
+RTL_REG__BREG_36 \milansoc_mmap_burst_adr_reg[6]
+(.C(sys_clk),
+.CE(milansoc_mmap_burst_adr_litespimmap_next_value_ce3_reg),
+.D(milansoc_mmap_burst_adr_litespimmap_next_value3_reg[6]),
+.Q(milansoc_mmap_burst_adr[6]));
+RTL_REG__BREG_36 \milansoc_mmap_burst_adr_reg[7]
+(.C(sys_clk),
+.CE(milansoc_mmap_burst_adr_litespimmap_next_value_ce3_reg),
+.D(milansoc_mmap_burst_adr_litespimmap_next_value3_reg[7]),
+.Q(milansoc_mmap_burst_adr[7]));
+RTL_REG__BREG_36 \milansoc_mmap_burst_adr_reg[8]
+(.C(sys_clk),
+.CE(milansoc_mmap_burst_adr_litespimmap_next_value_ce3_reg),
+.D(milansoc_mmap_burst_adr_litespimmap_next_value3_reg[8]),
+.Q(milansoc_mmap_burst_adr[8]));
+RTL_REG__BREG_36 \milansoc_mmap_burst_adr_reg[9]
+(.C(sys_clk),
+.CE(milansoc_mmap_burst_adr_litespimmap_next_value_ce3_reg),
+.D(milansoc_mmap_burst_adr_litespimmap_next_value3_reg[9]),
+.Q(milansoc_mmap_burst_adr[9]));
+RTL_AND7 milansoc_mmap_burst_cs_litespimmap_next_value10_i
+(.I0(milansoc_mmap_burst_cs),
+.I1(milansoc_mmap_done),
+.O(milansoc_mmap_burst_cs_litespimmap_next_value10));
+RTL_MUX2259 milansoc_mmap_burst_cs_litespimmap_next_value1_i
+(.I0(\<const0> ),
+.I1(\<const0> ),
+.I2(\<const1> ),
+.I3(\<const0> ),
+.I4(\<const0> ),
+.I5(\<const0> ),
+.I6(\<const0> ),
+.I7(\<const0> ),
+.I8(milansoc_mmap_burst_cs_litespimmap_next_value10),
+.O(milansoc_mmap_burst_cs_litespimmap_next_value1_reg),
+.S(subfragments_litespimmap_state));
+RTL_ROM15 milansoc_mmap_burst_cs_litespimmap_next_value_ce1_i
+(.A(subfragments_litespimmap_state),
+.O(milansoc_mmap_burst_cs_litespimmap_next_value_ce1_reg));
+RTL_REG_SYNC__BREG_1 milansoc_mmap_burst_cs_reg
+(.C(sys_clk),
+.CE(milansoc_mmap_burst_cs_litespimmap_next_value_ce1_reg),
+.D(milansoc_mmap_burst_cs_litespimmap_next_value1_reg),
+.Q(milansoc_mmap_burst_cs),
+.RST(sys_rst));
+RTL_MUX2259 milansoc_mmap_bus_ack_i
+(.I0(\<const0> ),
+.I1(\<const0> ),
+.I2(\<const0> ),
+.I3(\<const0> ),
+.I4(\<const0> ),
+.I5(\<const0> ),
+.I6(\<const0> ),
+.I7(subfragments_rx_demux_endpoint0_source_valid_reg),
+.I8(\<const0> ),
+.O(milansoc_mmap_bus_ack_reg),
+.S(subfragments_litespimmap_state));
+RTL_SUB361 milansoc_mmap_bus_adr0_i
+(.I0(milansoc_master_adapted_interface_adr_reg),
+.I1({\<const1> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> }),
+.O(milansoc_mmap_bus_adr_reg));
+RTL_MUX2253 milansoc_mmap_bus_dat_r_i
+(.I0({\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> }),
+.I1({\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> }),
+.I2({\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> }),
+.I3({\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> }),
+.I4({\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> }),
+.I5({\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> }),
+.I6({\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> }),
+.I7({subfragments_rx_demux_endpoint0_source_payload_data_reg[7:0],subfragments_rx_demux_endpoint0_source_payload_data_reg[15:8],subfragments_rx_demux_endpoint0_source_payload_data_reg[23:16],subfragments_rx_demux_endpoint0_source_payload_data_reg[31:24]}),
+.I8({\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> }),
+.O(milansoc_mmap_bus_dat_r_reg),
+.S(subfragments_litespimmap_state));
+RTL_MUX2259 milansoc_mmap_byte_count_litespimmap_next_value_ce2_i
+(.I0(\<const0> ),
+.I1(\<const0> ),
+.I2(\<const0> ),
+.I3(\<const0> ),
+.I4(\<const0> ),
+.I5(\<const0> ),
+.I6(\<const0> ),
+.I7(\<const0> ),
+.I8(milansoc_mmap_request1),
+.O(milansoc_mmap_byte_count_litespimmap_next_value_ce2_reg),
+.S(subfragments_litespimmap_state));
+RTL_REG_SYNC__BREG_1 \milansoc_mmap_byte_count_reg[0]
+(.C(sys_clk),
+.CE(milansoc_mmap_byte_count_litespimmap_next_value_ce2_reg),
+.D(\<const0> ),
+.Q(milansoc_mmap_byte_count[0]),
+.RST(milansoc_mmap_byte_count_litespimmap_next_value_ce2_reg));
+RTL_REG_SYNC__BREG_1 \milansoc_mmap_byte_count_reg[1]
+(.C(sys_clk),
+.CE(milansoc_mmap_byte_count_litespimmap_next_value_ce2_reg),
+.D(\<const0> ),
+.Q(milansoc_mmap_byte_count[1]),
+.RST(milansoc_mmap_byte_count_litespimmap_next_value_ce2_reg));
+RTL_REG_SYNC__BREG_1 \milansoc_mmap_clk_divisor_storage_reg[0]
+(.C(sys_clk),
+.CE(csr_bankarray_csrbank5_mmap_clk_divisor_re_reg),
+.D(interface1_dat_w_reg[0]),
+.Q(milansoc_mmap_clk_divisor_storage[0]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_mmap_clk_divisor_storage_reg[1]
+(.C(sys_clk),
+.CE(csr_bankarray_csrbank5_mmap_clk_divisor_re_reg),
+.D(interface1_dat_w_reg[1]),
+.Q(milansoc_mmap_clk_divisor_storage[1]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_mmap_clk_divisor_storage_reg[2]
+(.C(sys_clk),
+.CE(csr_bankarray_csrbank5_mmap_clk_divisor_re_reg),
+.D(interface1_dat_w_reg[2]),
+.Q(milansoc_mmap_clk_divisor_storage[2]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_mmap_clk_divisor_storage_reg[3]
+(.C(sys_clk),
+.CE(csr_bankarray_csrbank5_mmap_clk_divisor_re_reg),
+.D(interface1_dat_w_reg[3]),
+.Q(milansoc_mmap_clk_divisor_storage[3]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_mmap_clk_divisor_storage_reg[4]
+(.C(sys_clk),
+.CE(csr_bankarray_csrbank5_mmap_clk_divisor_re_reg),
+.D(interface1_dat_w_reg[4]),
+.Q(milansoc_mmap_clk_divisor_storage[4]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_mmap_clk_divisor_storage_reg[5]
+(.C(sys_clk),
+.CE(csr_bankarray_csrbank5_mmap_clk_divisor_re_reg),
+.D(interface1_dat_w_reg[5]),
+.Q(milansoc_mmap_clk_divisor_storage[5]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_mmap_clk_divisor_storage_reg[6]
+(.C(sys_clk),
+.CE(csr_bankarray_csrbank5_mmap_clk_divisor_re_reg),
+.D(interface1_dat_w_reg[6]),
+.Q(milansoc_mmap_clk_divisor_storage[6]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_mmap_clk_divisor_storage_reg[7]
+(.C(sys_clk),
+.CE(csr_bankarray_csrbank5_mmap_clk_divisor_re_reg),
+.D(interface1_dat_w_reg[7]),
+.Q(milansoc_mmap_clk_divisor_storage[7]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_mmap_clk_divisor_storage_reg[8]
+(.C(sys_clk),
+.CE(csr_bankarray_csrbank5_mmap_clk_divisor_re_reg),
+.D(interface1_dat_w_reg[8]),
+.Q(milansoc_mmap_clk_divisor_storage[8]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_mmap_clk_divisor_storage_reg[9]
+(.C(sys_clk),
+.CE(csr_bankarray_csrbank5_mmap_clk_divisor_re_reg),
+.D(interface1_dat_w_reg[9]),
+.Q(milansoc_mmap_clk_divisor_storage[9]),
+.RST(sys_rst));
+RTL_SUB92 milansoc_mmap_count0_i
+(.I0(milansoc_mmap_count),
+.I1(\<const1> ),
+.O(milansoc_mmap_count0));
+RTL_MUX milansoc_mmap_count_i
+(.I0(\<const1> ),
+.I1(\<const0> ),
+.O(milansoc_mmap_count__0),
+.S(milansoc_mmap_done));
+RTL_MUX milansoc_mmap_count_i__0
+(.I0(\<const0> ),
+.I1(\<const1> ),
+.O(milansoc_mmap_count_i__0_n_0),
+.S(milansoc_mmap_wait_reg));
+RTL_MUX milansoc_mmap_count_i__1
+(.I0(\<const1> ),
+.I1(milansoc_mmap_count_i__0_n_0),
+.O(milansoc_mmap_count_i__1_n_0),
+.S(sys_rst));
+RTL_REG_SYNC__BREG_162 \milansoc_mmap_count_reg[0]
+(.C(sys_clk),
+.CE(milansoc_mmap_count__0),
+.D(milansoc_mmap_count0[0]),
+.Q(milansoc_mmap_count[0]),
+.RST(milansoc_mmap_count_i__1_n_0));
+RTL_REG_SYNC__BREG_162 \milansoc_mmap_count_reg[1]
+(.C(sys_clk),
+.CE(milansoc_mmap_count__0),
+.D(milansoc_mmap_count0[1]),
+.Q(milansoc_mmap_count[1]),
+.RST(milansoc_mmap_count_i__1_n_0));
+RTL_REG_SYNC__BREG_162 \milansoc_mmap_count_reg[2]
+(.C(sys_clk),
+.CE(milansoc_mmap_count__0),
+.D(milansoc_mmap_count0[2]),
+.Q(milansoc_mmap_count[2]),
+.RST(milansoc_mmap_count_i__1_n_0));
+RTL_REG_SYNC__BREG_162 \milansoc_mmap_count_reg[3]
+(.C(sys_clk),
+.CE(milansoc_mmap_count__0),
+.D(milansoc_mmap_count0[3]),
+.Q(milansoc_mmap_count[3]),
+.RST(milansoc_mmap_count_i__1_n_0));
+RTL_REG_SYNC__BREG_162 \milansoc_mmap_count_reg[4]
+(.C(sys_clk),
+.CE(milansoc_mmap_count__0),
+.D(milansoc_mmap_count0[4]),
+.Q(milansoc_mmap_count[4]),
+.RST(milansoc_mmap_count_i__1_n_0));
+RTL_REG_SYNC__BREG_162 \milansoc_mmap_count_reg[5]
+(.C(sys_clk),
+.CE(milansoc_mmap_count__0),
+.D(milansoc_mmap_count0[5]),
+.Q(milansoc_mmap_count[5]),
+.RST(milansoc_mmap_count_i__1_n_0));
+RTL_REG_SYNC__BREG_162 \milansoc_mmap_count_reg[6]
+(.C(sys_clk),
+.CE(milansoc_mmap_count__0),
+.D(milansoc_mmap_count0[6]),
+.Q(milansoc_mmap_count[6]),
+.RST(milansoc_mmap_count_i__1_n_0));
+RTL_REG_SYNC__BREG_162 \milansoc_mmap_count_reg[7]
+(.C(sys_clk),
+.CE(milansoc_mmap_count__0),
+.D(milansoc_mmap_count0[7]),
+.Q(milansoc_mmap_count[7]),
+.RST(milansoc_mmap_count_i__1_n_0));
+RTL_REG_SYNC__BREG_162 \milansoc_mmap_count_reg[8]
+(.C(sys_clk),
+.CE(milansoc_mmap_count__0),
+.D(milansoc_mmap_count0[8]),
+.Q(milansoc_mmap_count[8]),
+.SET(milansoc_mmap_count_i__1_n_0));
+RTL_EQ50 milansoc_mmap_done_i
+(.I0(milansoc_mmap_count),
+.I1({\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> }),
+.O(milansoc_mmap_done));
+RTL_REG_SYNC__BREG_162 \milansoc_mmap_dummy_bits_storage_reg[0]
+(.C(sys_clk),
+.CE(csr_bankarray_csrbank5_mmap_dummy_bits_re_reg),
+.D(interface1_dat_w_reg[0]),
+.Q(milansoc_mmap_dummy_bits_storage[0]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_162 \milansoc_mmap_dummy_bits_storage_reg[1]
+(.C(sys_clk),
+.CE(csr_bankarray_csrbank5_mmap_dummy_bits_re_reg),
+.D(interface1_dat_w_reg[1]),
+.Q(milansoc_mmap_dummy_bits_storage[1]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_162 \milansoc_mmap_dummy_bits_storage_reg[2]
+(.C(sys_clk),
+.CE(csr_bankarray_csrbank5_mmap_dummy_bits_re_reg),
+.D(interface1_dat_w_reg[2]),
+.Q(milansoc_mmap_dummy_bits_storage[2]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_162 \milansoc_mmap_dummy_bits_storage_reg[3]
+(.C(sys_clk),
+.CE(csr_bankarray_csrbank5_mmap_dummy_bits_re_reg),
+.D(interface1_dat_w_reg[3]),
+.Q(milansoc_mmap_dummy_bits_storage[3]),
+.SET(sys_rst));
+RTL_REG_SYNC__BREG_162 \milansoc_mmap_dummy_bits_storage_reg[4]
+(.C(sys_clk),
+.CE(csr_bankarray_csrbank5_mmap_dummy_bits_re_reg),
+.D(interface1_dat_w_reg[4]),
+.Q(milansoc_mmap_dummy_bits_storage[4]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_162 \milansoc_mmap_dummy_bits_storage_reg[5]
+(.C(sys_clk),
+.CE(csr_bankarray_csrbank5_mmap_dummy_bits_re_reg),
+.D(interface1_dat_w_reg[5]),
+.Q(milansoc_mmap_dummy_bits_storage[5]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_162 \milansoc_mmap_dummy_bits_storage_reg[6]
+(.C(sys_clk),
+.CE(csr_bankarray_csrbank5_mmap_dummy_bits_re_reg),
+.D(interface1_dat_w_reg[6]),
+.Q(milansoc_mmap_dummy_bits_storage[6]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_162 \milansoc_mmap_dummy_bits_storage_reg[7]
+(.C(sys_clk),
+.CE(csr_bankarray_csrbank5_mmap_dummy_bits_re_reg),
+.D(interface1_dat_w_reg[7]),
+.Q(milansoc_mmap_dummy_bits_storage[7]),
+.RST(sys_rst));
+RTL_AND7 milansoc_mmap_request1_i
+(.I0(milansoc_mmap_burst_cs),
+.I1(milansoc_mmap_request2),
+.O(milansoc_mmap_request1_i_n_0));
+RTL_AND7 milansoc_mmap_request1_i__0
+(.I0(milansoc_slave_adapted_interface_cyc),
+.I1(milansoc_master_adapted_interface_stb_reg),
+.O(milansoc_mmap_request1));
+RTL_EQ780 milansoc_mmap_request2_i
+(.I0(milansoc_mmap_bus_adr_reg),
+.I1(milansoc_mmap_burst_adr),
+.O(milansoc_mmap_request2));
+RTL_MUX milansoc_mmap_request_i
+(.I0(milansoc_mmap_burst_cs),
+.I1(\<const0> ),
+.O(milansoc_mmap_request_i_n_0),
+.S(milansoc_mmap_request1_i_n_0));
+RTL_MUX milansoc_mmap_request_i__0
+(.I0(milansoc_mmap_request_i_n_0),
+.I1(milansoc_mmap_burst_cs),
+.O(milansoc_mmap_request_i__0_n_0),
+.S(milansoc_master_adapted_interface_we_reg));
+RTL_MUX milansoc_mmap_request_i__1
+(.I0(milansoc_mmap_request_i__0_n_0),
+.I1(milansoc_mmap_burst_cs),
+.O(milansoc_mmap_request_i__1_n_0),
+.S(milansoc_mmap_request1));
+RTL_MUX2259 milansoc_mmap_request_i__2
+(.I0(\<const1> ),
+.I1(\<const1> ),
+.I2(\<const1> ),
+.I3(\<const1> ),
+.I4(\<const1> ),
+.I5(\<const1> ),
+.I6(\<const1> ),
+.I7(\<const1> ),
+.I8(milansoc_mmap_request_i__1_n_0),
+.O(milansoc_mmap_request_reg),
+.S(subfragments_litespimmap_state));
+RTL_ROM15 milansoc_mmap_sink_ready_i
+(.A(subfragments_litespimmap_state),
+.O(milansoc_mmap_sink_ready));
+RTL_MUX14247 milansoc_mmap_source_payload_clk_div_litespimmap_next_value0_i
+(.I0({\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> }),
+.I1({\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> }),
+.I2({\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> }),
+.I3({\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> }),
+.I4({\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> }),
+.I5({\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> }),
+.I6({\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> }),
+.I7({\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> }),
+.I8(milansoc_mmap_clk_divisor_storage),
+.O(milansoc_mmap_source_payload_clk_div_litespimmap_next_value0_reg),
+.S(subfragments_litespimmap_state));
+RTL_REG_SYNC__BREG_1 \milansoc_mmap_source_payload_clk_div_reg[0]
+(.C(sys_clk),
+.CE(milansoc_mmap_wait_reg),
+.D(milansoc_mmap_source_payload_clk_div_litespimmap_next_value0_reg[0]),
+.Q(milansoc_mmap_source_payload_clk_div[0]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_mmap_source_payload_clk_div_reg[1]
+(.C(sys_clk),
+.CE(milansoc_mmap_wait_reg),
+.D(milansoc_mmap_source_payload_clk_div_litespimmap_next_value0_reg[1]),
+.Q(milansoc_mmap_source_payload_clk_div[1]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_mmap_source_payload_clk_div_reg[2]
+(.C(sys_clk),
+.CE(milansoc_mmap_wait_reg),
+.D(milansoc_mmap_source_payload_clk_div_litespimmap_next_value0_reg[2]),
+.Q(milansoc_mmap_source_payload_clk_div[2]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_mmap_source_payload_clk_div_reg[3]
+(.C(sys_clk),
+.CE(milansoc_mmap_wait_reg),
+.D(milansoc_mmap_source_payload_clk_div_litespimmap_next_value0_reg[3]),
+.Q(milansoc_mmap_source_payload_clk_div[3]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_mmap_source_payload_clk_div_reg[4]
+(.C(sys_clk),
+.CE(milansoc_mmap_wait_reg),
+.D(milansoc_mmap_source_payload_clk_div_litespimmap_next_value0_reg[4]),
+.Q(milansoc_mmap_source_payload_clk_div[4]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_mmap_source_payload_clk_div_reg[5]
+(.C(sys_clk),
+.CE(milansoc_mmap_wait_reg),
+.D(milansoc_mmap_source_payload_clk_div_litespimmap_next_value0_reg[5]),
+.Q(milansoc_mmap_source_payload_clk_div[5]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_mmap_source_payload_clk_div_reg[6]
+(.C(sys_clk),
+.CE(milansoc_mmap_wait_reg),
+.D(milansoc_mmap_source_payload_clk_div_litespimmap_next_value0_reg[6]),
+.Q(milansoc_mmap_source_payload_clk_div[6]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_mmap_source_payload_clk_div_reg[7]
+(.C(sys_clk),
+.CE(milansoc_mmap_wait_reg),
+.D(milansoc_mmap_source_payload_clk_div_litespimmap_next_value0_reg[7]),
+.Q(milansoc_mmap_source_payload_clk_div[7]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_mmap_source_payload_clk_div_reg[8]
+(.C(sys_clk),
+.CE(milansoc_mmap_wait_reg),
+.D(milansoc_mmap_source_payload_clk_div_litespimmap_next_value0_reg[8]),
+.Q(milansoc_mmap_source_payload_clk_div[8]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_mmap_source_payload_clk_div_reg[9]
+(.C(sys_clk),
+.CE(milansoc_mmap_wait_reg),
+.D(milansoc_mmap_source_payload_clk_div_litespimmap_next_value0_reg[9]),
+.Q(milansoc_mmap_source_payload_clk_div[9]),
+.RST(sys_rst));
+RTL_MUX2253 milansoc_mmap_source_payload_data_i
+(.I0({\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const1> ,\<const0> ,\<const1> ,\<const1> }),
+.I1({\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> }),
+.I2({milansoc_mmap_bus_adr_reg,milansoc_mmap_byte_count}),
+.I3({\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> }),
+.I4({\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const1> ,\<const1> ,\<const0> ,\<const1> ,\<const1> ,\<const1> ,\<const1> ,\<const0> ,\<const1> ,\<const0> ,\<const1> ,\<const0> ,\<const1> ,\<const1> ,\<const0> ,\<const1> }),
+.I5({\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> }),
+.I6({\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> }),
+.I7({\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> }),
+.I8({\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> }),
+.O(milansoc_mmap_source_payload_data),
+.S(subfragments_litespimmap_state));
+RTL_MUX14315 milansoc_mmap_source_payload_len_i
+(.I0({\<const0> ,\<const0> ,\<const1> ,\<const0> ,\<const0> ,\<const0> }),
+.I1({\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> }),
+.I2({\<const0> ,\<const1> ,\<const1> ,\<const0> ,\<const0> ,\<const0> }),
+.I3({\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> }),
+.I4(milansoc_mmap_dummy_bits_storage[5:0]),
+.I5({\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> }),
+.I6({\<const1> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> }),
+.I7({\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> }),
+.I8({\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> }),
+.O(milansoc_mmap_source_payload_len),
+.S(subfragments_litespimmap_state));
+RTL_ROM15 milansoc_mmap_source_valid_i
+(.A(subfragments_litespimmap_state),
+.O(milansoc_mmap_source_valid_reg));
+RTL_ROM15 milansoc_mmap_wait_i
+(.A(subfragments_litespimmap_state),
+.O(milansoc_mmap_wait_reg));
+RTL_REG_SYNC__BREG_162 \milansoc_phy_clk_divisor_storage_reg[0]
+(.C(sys_clk),
+.CE(csr_bankarray_csrbank5_phy_clk_divisor_re_reg),
+.D(interface1_dat_w_reg[0]),
+.Q(milansoc_phy_clk_divisor_storage[0]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_162 \milansoc_phy_clk_divisor_storage_reg[1]
+(.C(sys_clk),
+.CE(csr_bankarray_csrbank5_phy_clk_divisor_re_reg),
+.D(interface1_dat_w_reg[1]),
+.Q(milansoc_phy_clk_divisor_storage[1]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_162 \milansoc_phy_clk_divisor_storage_reg[2]
+(.C(sys_clk),
+.CE(csr_bankarray_csrbank5_phy_clk_divisor_re_reg),
+.D(interface1_dat_w_reg[2]),
+.Q(milansoc_phy_clk_divisor_storage[2]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_162 \milansoc_phy_clk_divisor_storage_reg[3]
+(.C(sys_clk),
+.CE(csr_bankarray_csrbank5_phy_clk_divisor_re_reg),
+.D(interface1_dat_w_reg[3]),
+.Q(milansoc_phy_clk_divisor_storage[3]),
+.SET(sys_rst));
+RTL_REG_SYNC__BREG_162 \milansoc_phy_clk_divisor_storage_reg[4]
+(.C(sys_clk),
+.CE(csr_bankarray_csrbank5_phy_clk_divisor_re_reg),
+.D(interface1_dat_w_reg[4]),
+.Q(milansoc_phy_clk_divisor_storage[4]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_162 \milansoc_phy_clk_divisor_storage_reg[5]
+(.C(sys_clk),
+.CE(csr_bankarray_csrbank5_phy_clk_divisor_re_reg),
+.D(interface1_dat_w_reg[5]),
+.Q(milansoc_phy_clk_divisor_storage[5]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_162 \milansoc_phy_clk_divisor_storage_reg[6]
+(.C(sys_clk),
+.CE(csr_bankarray_csrbank5_phy_clk_divisor_re_reg),
+.D(interface1_dat_w_reg[6]),
+.Q(milansoc_phy_clk_divisor_storage[6]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_162 \milansoc_phy_clk_divisor_storage_reg[7]
+(.C(sys_clk),
+.CE(csr_bankarray_csrbank5_phy_clk_divisor_re_reg),
+.D(interface1_dat_w_reg[7]),
+.Q(milansoc_phy_clk_divisor_storage[7]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_162 \milansoc_phy_clk_divisor_storage_reg[8]
+(.C(sys_clk),
+.CE(csr_bankarray_csrbank5_phy_clk_divisor_re_reg),
+.D(interface1_dat_w_reg[8]),
+.Q(milansoc_phy_clk_divisor_storage[8]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_162 \milansoc_phy_clk_divisor_storage_reg[9]
+(.C(sys_clk),
+.CE(csr_bankarray_csrbank5_phy_clk_divisor_re_reg),
+.D(interface1_dat_w_reg[9]),
+.Q(milansoc_phy_clk_divisor_storage[9]),
+.RST(sys_rst));
+RTL_MUX milansoc_phy_clk_i
+(.I0(milansoc_phy_posedge1_i_n_0),
+.I1(milansoc_phy_mode_storage[1]),
+.O(milansoc_phy_clk__0),
+.S(milansoc_phy_posedge1));
+RTL_MUX milansoc_phy_clk_i__0
+(.I0(milansoc_phy_negedge0_i_n_0),
+.I1(\<const1> ),
+.O(milansoc_phy_clk_i__0_n_0),
+.S(milansoc_phy_posedge1));
+RTL_MUX milansoc_phy_clk_i__1
+(.I0(\<const0> ),
+.I1(milansoc_phy_start_reg),
+.O(milansoc_phy_clk_i__1_n_0),
+.S(milansoc_phy_posedge1));
+RTL_MUX milansoc_phy_clk_i__2
+(.I0(\<const1> ),
+.I1(milansoc_phy_clk_i__1_n_0),
+.O(milansoc_phy_clk_i__2_n_0),
+.S(sys_rst));
+RTL_REG_SYNC__BREG_1 milansoc_phy_clk_reg
+(.C(sys_clk),
+.CE(milansoc_phy_clk_i__0_n_0),
+.D(milansoc_phy_clk__0),
+.Q(milansoc_phy_clk),
+.RST(milansoc_phy_clk_i__2_n_0));
+RTL_REG_SYNC__BREG_2 milansoc_phy_clk_reg_reg
+(.C(sys_clk),
+.D(milansoc_phy_clk),
+.Q(milansoc_phy_clk_reg_reg__0),
+.RST(sys_rst));
+RTL_SUB92 milansoc_phy_cnt0_i
+(.I0(milansoc_phy_cnt),
+.I1(\<const1> ),
+.O(milansoc_phy_cnt0));
+RTL_MUX1 milansoc_phy_cnt_i
+(.I0(milansoc_phy_half),
+.I1(milansoc_phy_cnt0),
+.O({milansoc_phy_cnt_i_n_0,milansoc_phy_cnt_i_n_1,milansoc_phy_cnt_i_n_2,milansoc_phy_cnt_i_n_3,milansoc_phy_cnt_i_n_4,milansoc_phy_cnt_i_n_5,milansoc_phy_cnt_i_n_6,milansoc_phy_cnt_i_n_7,milansoc_phy_cnt_i_n_8}),
+.S(milansoc_phy_negedge0_i_n_0));
+RTL_MUX1 milansoc_phy_cnt_i__0
+(.I0({milansoc_phy_cnt_i_n_0,milansoc_phy_cnt_i_n_1,milansoc_phy_cnt_i_n_2,milansoc_phy_cnt_i_n_3,milansoc_phy_cnt_i_n_4,milansoc_phy_cnt_i_n_5,milansoc_phy_cnt_i_n_6,milansoc_phy_cnt_i_n_7,milansoc_phy_cnt_i_n_8}),
+.I1(milansoc_phy_half),
+.O(milansoc_phy_cnt__0),
+.S(milansoc_phy_posedge1));
+RTL_REG_SYNC__BREG_2 \milansoc_phy_cnt_reg[0]
+(.C(sys_clk),
+.D(milansoc_phy_cnt__0[0]),
+.Q(milansoc_phy_cnt[0]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_2 \milansoc_phy_cnt_reg[1]
+(.C(sys_clk),
+.D(milansoc_phy_cnt__0[1]),
+.Q(milansoc_phy_cnt[1]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_2 \milansoc_phy_cnt_reg[2]
+(.C(sys_clk),
+.D(milansoc_phy_cnt__0[2]),
+.Q(milansoc_phy_cnt[2]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_2 \milansoc_phy_cnt_reg[3]
+(.C(sys_clk),
+.D(milansoc_phy_cnt__0[3]),
+.Q(milansoc_phy_cnt[3]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_2 \milansoc_phy_cnt_reg[4]
+(.C(sys_clk),
+.D(milansoc_phy_cnt__0[4]),
+.Q(milansoc_phy_cnt[4]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_2 \milansoc_phy_cnt_reg[5]
+(.C(sys_clk),
+.D(milansoc_phy_cnt__0[5]),
+.Q(milansoc_phy_cnt[5]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_2 \milansoc_phy_cnt_reg[6]
+(.C(sys_clk),
+.D(milansoc_phy_cnt__0[6]),
+.Q(milansoc_phy_cnt[6]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_2 \milansoc_phy_cnt_reg[7]
+(.C(sys_clk),
+.D(milansoc_phy_cnt__0[7]),
+.Q(milansoc_phy_cnt[7]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_2 \milansoc_phy_cnt_reg[8]
+(.C(sys_clk),
+.D(milansoc_phy_cnt__0[8]),
+.Q(milansoc_phy_cnt[8]),
+.RST(sys_rst));
+RTL_SUB22 milansoc_phy_count0_i
+(.I0(milansoc_phy_count),
+.I1(\<const1> ),
+.O(milansoc_phy_count0));
+RTL_MUX milansoc_phy_count_i
+(.I0(\<const1> ),
+.I1(\<const0> ),
+.O(milansoc_phy_count__0),
+.S(milansoc_phy_done));
+RTL_MUX milansoc_phy_count_i__0
+(.I0(\<const0> ),
+.I1(\<const1> ),
+.O(milansoc_phy_count_i__0_n_0),
+.S(milansoc_phy_wait));
+RTL_MUX milansoc_phy_count_i__1
+(.I0(\<const1> ),
+.I1(milansoc_phy_count_i__0_n_0),
+.O(milansoc_phy_count_i__1_n_0),
+.S(sys_rst));
+RTL_REG_SYNC__BREG_162 \milansoc_phy_count_reg[0]
+(.C(sys_clk),
+.CE(milansoc_phy_count__0),
+.D(milansoc_phy_count0[0]),
+.Q(milansoc_phy_count[0]),
+.SET(milansoc_phy_count_i__1_n_0));
+RTL_REG_SYNC__BREG_162 \milansoc_phy_count_reg[1]
+(.C(sys_clk),
+.CE(milansoc_phy_count__0),
+.D(milansoc_phy_count0[1]),
+.Q(milansoc_phy_count[1]),
+.SET(milansoc_phy_count_i__1_n_0));
+RTL_REG_SYNC__BREG_162 \milansoc_phy_count_reg[2]
+(.C(sys_clk),
+.CE(milansoc_phy_count__0),
+.D(milansoc_phy_count0[2]),
+.Q(milansoc_phy_count[2]),
+.RST(milansoc_phy_count_i__1_n_0));
+RTL_REG_SYNC__BREG_162 \milansoc_phy_count_reg[3]
+(.C(sys_clk),
+.CE(milansoc_phy_count__0),
+.D(milansoc_phy_count0[3]),
+.Q(milansoc_phy_count[3]),
+.SET(milansoc_phy_count_i__1_n_0));
+RTL_AND7 milansoc_phy_cs_n0_i
+(.I0(milansoc_phy_enable),
+.I1(milansoc_phy_cs),
+.O(milansoc_phy_cs_n0));
+RTL_INV milansoc_phy_cs_n_i
+(.I0(milansoc_phy_cs_n0),
+.O(milansoc_phy_cs_n));
+RTL_REG_SYNC__BREG_2 milansoc_phy_cs_reg
+(.C(sys_clk),
+.D(milansoc_crossbar_cs_reg),
+.Q(milansoc_phy_cs),
+.RST(sys_rst));
+RTL_ADD789 milansoc_phy_cycles0_i
+(.I0(milansoc_phy_cycles),
+.I1(\<const1> ),
+.O({milansoc_phy_cycles0_i_n_0,milansoc_phy_cycles0_i_n_1}));
+RTL_AND7 milansoc_phy_cycles0_i__0
+(.I0(milansoc_phy_en_int),
+.I1(milansoc_phy_posedge),
+.O(milansoc_phy_cycles0));
+RTL_REG_SYNC__BREG_1 \milansoc_phy_cycles_reg[0]
+(.C(sys_clk),
+.CE(milansoc_phy_cycles0),
+.D(milansoc_phy_cycles0_i_n_1),
+.Q(milansoc_phy_cycles[0]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_phy_cycles_reg[1]
+(.C(sys_clk),
+.CE(milansoc_phy_cycles0),
+.D(milansoc_phy_cycles0_i_n_0),
+.Q(milansoc_phy_cycles[1]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_phy_cycles_reg[2]
+(.C(sys_clk),
+.CE(milansoc_phy_cycles0),
+.D(\<const0> ),
+.Q(milansoc_phy_cycles[2]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_phy_cycles_reg[3]
+(.C(sys_clk),
+.CE(milansoc_phy_cycles0),
+.D(\<const0> ),
+.Q(milansoc_phy_cycles[3]),
+.RST(sys_rst));
+RTL_GT53 milansoc_phy_div1_i
+(.I0(milansoc_stage_spi_phy_tx_pipe_ready_source_payload_clk_div_reg),
+.I1({\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> }),
+.O(milansoc_phy_div1));
+RTL_MUX670 milansoc_phy_div_i
+(.I0(milansoc_stage_spi_phy_tx_pipe_ready_source_payload_clk_div_reg),
+.I1(milansoc_phy_spi_clk_divisor_delayed),
+.O({milansoc_phy_div_i_n_0,milansoc_phy_div_i_n_1,milansoc_phy_div_i_n_2,milansoc_phy_div_i_n_3,milansoc_phy_div_i_n_4,milansoc_phy_div_i_n_5,milansoc_phy_div_i_n_6,milansoc_phy_div_i_n_7,milansoc_phy_div_i_n_8,milansoc_phy_div_i_n_9}),
+.S(milansoc_phy_div1));
+RTL_MUX670 milansoc_phy_div_i__0
+(.I0({milansoc_phy_div_i_n_0,milansoc_phy_div_i_n_1,milansoc_phy_div_i_n_2,milansoc_phy_div_i_n_3,milansoc_phy_div_i_n_4,milansoc_phy_div_i_n_5,milansoc_phy_div_i_n_6,milansoc_phy_div_i_n_7,milansoc_phy_div_i_n_8,milansoc_phy_div_i_n_9}),
+.I1(milansoc_phy_spi_clk_divisor_delayed),
+.O({milansoc_phy_div_i__0_n_0,milansoc_phy_div_i__0_n_1,milansoc_phy_div_i__0_n_2,milansoc_phy_div_i__0_n_3,milansoc_phy_div_i__0_n_4,milansoc_phy_div_i__0_n_5,milansoc_phy_div_i__0_n_6,milansoc_phy_div_i__0_n_7,milansoc_phy_div_i__0_n_8,milansoc_phy_div_i__0_n_9}),
+.S(milansoc_phy_start0));
+RTL_MUX14304 milansoc_phy_div_i__1
+(.I0(milansoc_phy_spi_clk_divisor_delayed),
+.I1(milansoc_phy_spi_clk_divisor_delayed),
+.I2(milansoc_phy_spi_clk_divisor_delayed),
+.I3({milansoc_phy_div_i__0_n_0,milansoc_phy_div_i__0_n_1,milansoc_phy_div_i__0_n_2,milansoc_phy_div_i__0_n_3,milansoc_phy_div_i__0_n_4,milansoc_phy_div_i__0_n_5,milansoc_phy_div_i__0_n_6,milansoc_phy_div_i__0_n_7,milansoc_phy_div_i__0_n_8,milansoc_phy_div_i__0_n_9}),
+.O(milansoc_phy_div_reg),
+.S(subfragments_litespiphy_state));
+RTL_EQ5 milansoc_phy_done_i
+(.I0(milansoc_phy_count),
+.I1({\<const0> ,\<const0> ,\<const0> ,\<const0> }),
+.O(milansoc_phy_done));
+RTL_MUX13904 milansoc_phy_dq_o_i
+(.I0(milansoc_phy_sr_out[31]),
+.I1(milansoc_phy_sr_out[30]),
+.I2(milansoc_phy_sr_out[28]),
+.I3(milansoc_phy_sr_out[24]),
+.I4(\<const0> ),
+.O(milansoc_phy_dq_o_reg),
+.S(milansoc_phy_last_sink_width));
+RTL_ROM154 milansoc_phy_en_i
+(.A(milansoc_phy_sr_out_cnt),
+.O(milansoc_phy_en_i_n_0));
+RTL_MUX milansoc_phy_en_i__0
+(.I0(milansoc_phy_en_i_n_0),
+.I1(\<const1> ),
+.O(milansoc_phy_en_i__0_n_0),
+.S(milansoc_phy_negedge));
+RTL_MUX1062 milansoc_phy_en_i__1
+(.I0(milansoc_phy_en_i__0_n_0),
+.I1(\<const0> ),
+.I2(\<const0> ),
+.I3(\<const0> ),
+.O(milansoc_phy_en_reg),
+.S(subfragments_litespiphy_state));
+RTL_LT19 milansoc_phy_en_int_i
+(.I0(milansoc_phy_cycles),
+.I1({\<const0> ,\<const0> ,\<const1> ,\<const1> }),
+.O(milansoc_phy_en_int));
+RTL_NEQ8 milansoc_phy_enable0_i
+(.I0(milansoc_phy_cs),
+.I1(\<const0> ),
+.O(milansoc_phy_enable0));
+RTL_AND7 milansoc_phy_enable_i
+(.I0(milansoc_phy_enable0),
+.I1(milansoc_phy_done),
+.O(milansoc_phy_enable));
+RTL_ADD7 milansoc_phy_half0_i
+(.I0(milansoc_phy_div_reg),
+.I1(\<const1> ),
+.O(milansoc_phy_half0));
+RTL_RSHIFT209 milansoc_phy_half_i
+(.I0(milansoc_phy_half0),
+.I1(\<const1> ),
+.I2(\<const1> ),
+.O(milansoc_phy_half));
+RTL_REG_SYNC__BREG_2 milansoc_phy_last_cs_reg
+(.C(sys_clk),
+.D(milansoc_phy_enable0),
+.Q(milansoc_phy_last_cs),
+.RST(sys_rst));
+RTL_MUX342 milansoc_phy_last_sink_width_litespiphy_next_value2_i
+(.I0(milansoc_stage_spi_phy_tx_pipe_ready_source_payload_width_reg),
+.I1({\<const0> ,\<const0> ,\<const0> ,\<const0> }),
+.O({milansoc_phy_last_sink_width_litespiphy_next_value2_i_n_0,milansoc_phy_last_sink_width_litespiphy_next_value2_i_n_1,milansoc_phy_last_sink_width_litespiphy_next_value2_i_n_2,milansoc_phy_last_sink_width_litespiphy_next_value2_i_n_3}),
+.S(milansoc_phy_start0));
+RTL_MUX14308 milansoc_phy_last_sink_width_litespiphy_next_value2_i__0
+(.I0({\<const0> ,\<const0> ,\<const0> ,\<const0> }),
+.I1({\<const0> ,\<const0> ,\<const0> ,\<const0> }),
+.I2({\<const0> ,\<const0> ,\<const0> ,\<const0> }),
+.I3({milansoc_phy_last_sink_width_litespiphy_next_value2_i_n_0,milansoc_phy_last_sink_width_litespiphy_next_value2_i_n_1,milansoc_phy_last_sink_width_litespiphy_next_value2_i_n_2,milansoc_phy_last_sink_width_litespiphy_next_value2_i_n_3}),
+.O(milansoc_phy_last_sink_width_litespiphy_next_value2_reg),
+.S(subfragments_litespiphy_state));
+RTL_REG_SYNC__BREG_1 \milansoc_phy_last_sink_width_reg[0]
+(.C(sys_clk),
+.CE(milansoc_phy_start_reg),
+.D(milansoc_phy_last_sink_width_litespiphy_next_value2_reg[0]),
+.Q(milansoc_phy_last_sink_width[0]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_phy_last_sink_width_reg[1]
+(.C(sys_clk),
+.CE(milansoc_phy_start_reg),
+.D(milansoc_phy_last_sink_width_litespiphy_next_value2_reg[1]),
+.Q(milansoc_phy_last_sink_width[1]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_phy_last_sink_width_reg[2]
+(.C(sys_clk),
+.CE(milansoc_phy_start_reg),
+.D(milansoc_phy_last_sink_width_litespiphy_next_value2_reg[2]),
+.Q(milansoc_phy_last_sink_width[2]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_phy_last_sink_width_reg[3]
+(.C(sys_clk),
+.CE(milansoc_phy_start_reg),
+.D(milansoc_phy_last_sink_width_litespiphy_next_value2_reg[3]),
+.Q(milansoc_phy_last_sink_width[3]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_phy_mode_storage_reg[0]
+(.C(sys_clk),
+.CE(csr_bankarray_csrbank5_phy_mode_re_reg),
+.D(interface1_dat_w_reg[0]),
+.Q(milansoc_phy_mode_storage[0]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_phy_mode_storage_reg[1]
+(.C(sys_clk),
+.CE(csr_bankarray_csrbank5_phy_mode_re_reg),
+.D(interface1_dat_w_reg[1]),
+.Q(milansoc_phy_mode_storage[1]),
+.RST(sys_rst));
+RTL_LEQ70 milansoc_phy_negedge0_i
+(.I0(milansoc_phy_cnt),
+.I1({\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const1> }),
+.O(milansoc_phy_negedge0_i_n_0));
+RTL_AND7 milansoc_phy_negedge_i
+(.I0(milansoc_phy_clk),
+.I1(milansoc_phy_negedge0_i_n_0),
+.O(milansoc_phy_negedge));
+RTL_AND7 milansoc_phy_posedge0_i
+(.I0(milansoc_phy_posedge1),
+.I1(milansoc_phy_posedge1_i_n_0),
+.O(milansoc_phy_posedge0));
+RTL_INV milansoc_phy_posedge1_i
+(.I0(milansoc_phy_clk),
+.O(milansoc_phy_posedge1_i_n_0));
+RTL_OR milansoc_phy_posedge1_i__0
+(.I0(milansoc_phy_en_reg),
+.I1(milansoc_phy_en_int),
+.O(milansoc_phy_posedge1));
+RTL_AND7 milansoc_phy_posedge_i
+(.I0(milansoc_phy_posedge0),
+.I1(milansoc_phy_negedge0_i_n_0),
+.O(milansoc_phy_posedge));
+RTL_MUX milansoc_phy_posedge_reg_i
+(.I0(\<const1> ),
+.I1(milansoc_phy_start_reg),
+.O(milansoc_phy_posedge_reg),
+.S(sys_rst));
+RTL_REG_SYNC__BREG_2 \milansoc_phy_posedge_reg_reg[0]
+(.C(sys_clk),
+.D(milansoc_phy_posedge_reg_reg_n_0),
+.Q(milansoc_phy_posedge_reg2),
+.RST(milansoc_phy_posedge_reg));
+RTL_REG_SYNC__BREG_2 \milansoc_phy_posedge_reg_reg[1]
+(.C(sys_clk),
+.D(milansoc_phy_posedge),
+.Q(milansoc_phy_posedge_reg_reg_n_0),
+.RST(milansoc_phy_posedge_reg));
+RTL_MUX1062 milansoc_phy_source_valid_i
+(.I0(\<const0> ),
+.I1(\<const0> ),
+.I2(\<const1> ),
+.I3(\<const0> ),
+.O(milansoc_phy_source_valid_reg),
+.S(subfragments_litespiphy_state));
+RTL_MUX670 milansoc_phy_spi_clk_divisor_delayed_litespiphy_next_value0_i
+(.I0(milansoc_stage_spi_phy_tx_pipe_ready_source_payload_clk_div_reg),
+.I1(milansoc_phy_clk_divisor_storage),
+.O({milansoc_phy_spi_clk_divisor_delayed_litespiphy_next_value0_i_n_0,milansoc_phy_spi_clk_divisor_delayed_litespiphy_next_value0_i_n_1,milansoc_phy_spi_clk_divisor_delayed_litespiphy_next_value0_i_n_2,milansoc_phy_spi_clk_divisor_delayed_litespiphy_next_value0_i_n_3,milansoc_phy_spi_clk_divisor_delayed_litespiphy_next_value0_i_n_4,milansoc_phy_spi_clk_divisor_delayed_litespiphy_next_value0_i_n_5,milansoc_phy_spi_clk_divisor_delayed_litespiphy_next_value0_i_n_6,milansoc_phy_spi_clk_divisor_delayed_litespiphy_next_value0_i_n_7,milansoc_phy_spi_clk_divisor_delayed_litespiphy_next_value0_i_n_8,milansoc_phy_spi_clk_divisor_delayed_litespiphy_next_value0_i_n_9}),
+.S(milansoc_phy_div1));
+RTL_MUX670 milansoc_phy_spi_clk_divisor_delayed_litespiphy_next_value0_i__0
+(.I0({milansoc_phy_spi_clk_divisor_delayed_litespiphy_next_value0_i_n_0,milansoc_phy_spi_clk_divisor_delayed_litespiphy_next_value0_i_n_1,milansoc_phy_spi_clk_divisor_delayed_litespiphy_next_value0_i_n_2,milansoc_phy_spi_clk_divisor_delayed_litespiphy_next_value0_i_n_3,milansoc_phy_spi_clk_divisor_delayed_litespiphy_next_value0_i_n_4,milansoc_phy_spi_clk_divisor_delayed_litespiphy_next_value0_i_n_5,milansoc_phy_spi_clk_divisor_delayed_litespiphy_next_value0_i_n_6,milansoc_phy_spi_clk_divisor_delayed_litespiphy_next_value0_i_n_7,milansoc_phy_spi_clk_divisor_delayed_litespiphy_next_value0_i_n_8,milansoc_phy_spi_clk_divisor_delayed_litespiphy_next_value0_i_n_9}),
+.I1(milansoc_phy_clk_divisor_storage),
+.O({milansoc_phy_spi_clk_divisor_delayed_litespiphy_next_value0_i__0_n_0,milansoc_phy_spi_clk_divisor_delayed_litespiphy_next_value0_i__0_n_1,milansoc_phy_spi_clk_divisor_delayed_litespiphy_next_value0_i__0_n_2,milansoc_phy_spi_clk_divisor_delayed_litespiphy_next_value0_i__0_n_3,milansoc_phy_spi_clk_divisor_delayed_litespiphy_next_value0_i__0_n_4,milansoc_phy_spi_clk_divisor_delayed_litespiphy_next_value0_i__0_n_5,milansoc_phy_spi_clk_divisor_delayed_litespiphy_next_value0_i__0_n_6,milansoc_phy_spi_clk_divisor_delayed_litespiphy_next_value0_i__0_n_7,milansoc_phy_spi_clk_divisor_delayed_litespiphy_next_value0_i__0_n_8,milansoc_phy_spi_clk_divisor_delayed_litespiphy_next_value0_i__0_n_9}),
+.S(milansoc_phy_start0));
+RTL_MUX14304 milansoc_phy_spi_clk_divisor_delayed_litespiphy_next_value0_i__1
+(.I0({\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> }),
+.I1({\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> }),
+.I2({\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> }),
+.I3({milansoc_phy_spi_clk_divisor_delayed_litespiphy_next_value0_i__0_n_0,milansoc_phy_spi_clk_divisor_delayed_litespiphy_next_value0_i__0_n_1,milansoc_phy_spi_clk_divisor_delayed_litespiphy_next_value0_i__0_n_2,milansoc_phy_spi_clk_divisor_delayed_litespiphy_next_value0_i__0_n_3,milansoc_phy_spi_clk_divisor_delayed_litespiphy_next_value0_i__0_n_4,milansoc_phy_spi_clk_divisor_delayed_litespiphy_next_value0_i__0_n_5,milansoc_phy_spi_clk_divisor_delayed_litespiphy_next_value0_i__0_n_6,milansoc_phy_spi_clk_divisor_delayed_litespiphy_next_value0_i__0_n_7,milansoc_phy_spi_clk_divisor_delayed_litespiphy_next_value0_i__0_n_8,milansoc_phy_spi_clk_divisor_delayed_litespiphy_next_value0_i__0_n_9}),
+.O(milansoc_phy_spi_clk_divisor_delayed_litespiphy_next_value0_reg),
+.S(subfragments_litespiphy_state));
+RTL_MUX1062 milansoc_phy_spi_clk_divisor_delayed_litespiphy_next_value_ce0_i
+(.I0(\<const0> ),
+.I1(\<const0> ),
+.I2(\<const0> ),
+.I3(\<const1> ),
+.O(milansoc_phy_spi_clk_divisor_delayed_litespiphy_next_value_ce0_reg),
+.S(subfragments_litespiphy_state));
+RTL_REG_SYNC__BREG_1 \milansoc_phy_spi_clk_divisor_delayed_reg[0]
+(.C(sys_clk),
+.CE(milansoc_phy_spi_clk_divisor_delayed_litespiphy_next_value_ce0_reg),
+.D(milansoc_phy_spi_clk_divisor_delayed_litespiphy_next_value0_reg[0]),
+.Q(milansoc_phy_spi_clk_divisor_delayed[0]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_phy_spi_clk_divisor_delayed_reg[1]
+(.C(sys_clk),
+.CE(milansoc_phy_spi_clk_divisor_delayed_litespiphy_next_value_ce0_reg),
+.D(milansoc_phy_spi_clk_divisor_delayed_litespiphy_next_value0_reg[1]),
+.Q(milansoc_phy_spi_clk_divisor_delayed[1]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_phy_spi_clk_divisor_delayed_reg[2]
+(.C(sys_clk),
+.CE(milansoc_phy_spi_clk_divisor_delayed_litespiphy_next_value_ce0_reg),
+.D(milansoc_phy_spi_clk_divisor_delayed_litespiphy_next_value0_reg[2]),
+.Q(milansoc_phy_spi_clk_divisor_delayed[2]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_phy_spi_clk_divisor_delayed_reg[3]
+(.C(sys_clk),
+.CE(milansoc_phy_spi_clk_divisor_delayed_litespiphy_next_value_ce0_reg),
+.D(milansoc_phy_spi_clk_divisor_delayed_litespiphy_next_value0_reg[3]),
+.Q(milansoc_phy_spi_clk_divisor_delayed[3]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_phy_spi_clk_divisor_delayed_reg[4]
+(.C(sys_clk),
+.CE(milansoc_phy_spi_clk_divisor_delayed_litespiphy_next_value_ce0_reg),
+.D(milansoc_phy_spi_clk_divisor_delayed_litespiphy_next_value0_reg[4]),
+.Q(milansoc_phy_spi_clk_divisor_delayed[4]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_phy_spi_clk_divisor_delayed_reg[5]
+(.C(sys_clk),
+.CE(milansoc_phy_spi_clk_divisor_delayed_litespiphy_next_value_ce0_reg),
+.D(milansoc_phy_spi_clk_divisor_delayed_litespiphy_next_value0_reg[5]),
+.Q(milansoc_phy_spi_clk_divisor_delayed[5]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_phy_spi_clk_divisor_delayed_reg[6]
+(.C(sys_clk),
+.CE(milansoc_phy_spi_clk_divisor_delayed_litespiphy_next_value_ce0_reg),
+.D(milansoc_phy_spi_clk_divisor_delayed_litespiphy_next_value0_reg[6]),
+.Q(milansoc_phy_spi_clk_divisor_delayed[6]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_phy_spi_clk_divisor_delayed_reg[7]
+(.C(sys_clk),
+.CE(milansoc_phy_spi_clk_divisor_delayed_litespiphy_next_value_ce0_reg),
+.D(milansoc_phy_spi_clk_divisor_delayed_litespiphy_next_value0_reg[7]),
+.Q(milansoc_phy_spi_clk_divisor_delayed[7]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_phy_spi_clk_divisor_delayed_reg[8]
+(.C(sys_clk),
+.CE(milansoc_phy_spi_clk_divisor_delayed_litespiphy_next_value_ce0_reg),
+.D(milansoc_phy_spi_clk_divisor_delayed_litespiphy_next_value0_reg[8]),
+.Q(milansoc_phy_spi_clk_divisor_delayed[8]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_phy_spi_clk_divisor_delayed_reg[9]
+(.C(sys_clk),
+.CE(milansoc_phy_spi_clk_divisor_delayed_litespiphy_next_value_ce0_reg),
+.D(milansoc_phy_spi_clk_divisor_delayed_litespiphy_next_value0_reg[9]),
+.Q(milansoc_phy_spi_clk_divisor_delayed[9]),
+.RST(sys_rst));
+RTL_SUB366 milansoc_phy_sr_in_cnt0_i
+(.I0(milansoc_phy_sr_in_cnt),
+.I1(milansoc_phy_last_sink_width),
+.O(milansoc_phy_sr_in_cnt0));
+RTL_MUX26 milansoc_phy_sr_in_cnt_i
+(.I0(milansoc_phy_sr_in_cnt0),
+.I1(milansoc_stage_spi_phy_tx_pipe_ready_source_payload_len_reg),
+.O(milansoc_phy_sr_in_cnt__0),
+.S(milansoc_phy_sr_in_shift_reg));
+RTL_MUX milansoc_phy_sr_in_cnt_i__0
+(.I0(\<const1> ),
+.I1(milansoc_phy_start_reg),
+.O(milansoc_phy_sr_in_cnt_i__0_n_0),
+.S(milansoc_phy_sr_in_shift_reg));
+RTL_REG__BREG_36 \milansoc_phy_sr_in_cnt_reg[0]
+(.C(sys_clk),
+.CE(milansoc_phy_sr_in_cnt_i__0_n_0),
+.D(milansoc_phy_sr_in_cnt__0[0]),
+.Q(milansoc_phy_sr_in_cnt[0]));
+RTL_REG__BREG_36 \milansoc_phy_sr_in_cnt_reg[1]
+(.C(sys_clk),
+.CE(milansoc_phy_sr_in_cnt_i__0_n_0),
+.D(milansoc_phy_sr_in_cnt__0[1]),
+.Q(milansoc_phy_sr_in_cnt[1]));
+RTL_REG__BREG_36 \milansoc_phy_sr_in_cnt_reg[2]
+(.C(sys_clk),
+.CE(milansoc_phy_sr_in_cnt_i__0_n_0),
+.D(milansoc_phy_sr_in_cnt__0[2]),
+.Q(milansoc_phy_sr_in_cnt[2]));
+RTL_REG__BREG_36 \milansoc_phy_sr_in_cnt_reg[3]
+(.C(sys_clk),
+.CE(milansoc_phy_sr_in_cnt_i__0_n_0),
+.D(milansoc_phy_sr_in_cnt__0[3]),
+.Q(milansoc_phy_sr_in_cnt[3]));
+RTL_REG__BREG_36 \milansoc_phy_sr_in_cnt_reg[4]
+(.C(sys_clk),
+.CE(milansoc_phy_sr_in_cnt_i__0_n_0),
+.D(milansoc_phy_sr_in_cnt__0[4]),
+.Q(milansoc_phy_sr_in_cnt[4]));
+RTL_REG__BREG_36 \milansoc_phy_sr_in_cnt_reg[5]
+(.C(sys_clk),
+.CE(milansoc_phy_sr_in_cnt_i__0_n_0),
+.D(milansoc_phy_sr_in_cnt__0[5]),
+.Q(milansoc_phy_sr_in_cnt[5]));
+RTL_MUX2252 milansoc_phy_sr_in_i
+(.I0({milansoc_phy_sr_in_reg_n_1,milansoc_phy_sr_in_reg_n_2,milansoc_phy_sr_in_reg_n_3,milansoc_phy_sr_in_reg_n_4,milansoc_phy_sr_in_reg_n_5,milansoc_phy_sr_in_reg_n_6,milansoc_phy_sr_in_reg_n_7,milansoc_phy_sr_in_reg_n_8,milansoc_phy_sr_in_reg_n_9,milansoc_phy_sr_in_reg_n_10,milansoc_phy_sr_in_reg_n_11,milansoc_phy_sr_in_reg_n_12,milansoc_phy_sr_in_reg_n_13,milansoc_phy_sr_in_reg_n_14,milansoc_phy_sr_in_reg_n_15,milansoc_phy_sr_in_reg_n_16,milansoc_phy_sr_in_reg_n_17,milansoc_phy_sr_in_reg_n_18,milansoc_phy_sr_in_reg_n_19,milansoc_phy_sr_in_reg_n_20,milansoc_phy_sr_in_reg_n_21,milansoc_phy_sr_in_reg_n_22,milansoc_phy_sr_in_reg_n_23,milansoc_phy_sr_in_reg_n_24,milansoc_phy_sr_in_reg_n_25,milansoc_phy_sr_in_reg_n_26,milansoc_phy_sr_in_reg_n_27,milansoc_phy_sr_in_reg_n_28,milansoc_phy_sr_in_reg_n_29,milansoc_phy_sr_in_reg_n_30,milansoc_phy_sr_in_reg_n_31,milansoc_phy_dq_i[1]}),
+.I1({milansoc_phy_sr_in_reg_n_2,milansoc_phy_sr_in_reg_n_3,milansoc_phy_sr_in_reg_n_4,milansoc_phy_sr_in_reg_n_5,milansoc_phy_sr_in_reg_n_6,milansoc_phy_sr_in_reg_n_7,milansoc_phy_sr_in_reg_n_8,milansoc_phy_sr_in_reg_n_9,milansoc_phy_sr_in_reg_n_10,milansoc_phy_sr_in_reg_n_11,milansoc_phy_sr_in_reg_n_12,milansoc_phy_sr_in_reg_n_13,milansoc_phy_sr_in_reg_n_14,milansoc_phy_sr_in_reg_n_15,milansoc_phy_sr_in_reg_n_16,milansoc_phy_sr_in_reg_n_17,milansoc_phy_sr_in_reg_n_18,milansoc_phy_sr_in_reg_n_19,milansoc_phy_sr_in_reg_n_20,milansoc_phy_sr_in_reg_n_21,milansoc_phy_sr_in_reg_n_22,milansoc_phy_sr_in_reg_n_23,milansoc_phy_sr_in_reg_n_24,milansoc_phy_sr_in_reg_n_25,milansoc_phy_sr_in_reg_n_26,milansoc_phy_sr_in_reg_n_27,milansoc_phy_sr_in_reg_n_28,milansoc_phy_sr_in_reg_n_29,milansoc_phy_sr_in_reg_n_30,milansoc_phy_sr_in_reg_n_31,milansoc_phy_dq_i}),
+.I2({milansoc_phy_sr_in_reg_n_2,milansoc_phy_sr_in_reg_n_3,milansoc_phy_sr_in_reg_n_4,milansoc_phy_sr_in_reg_n_5,milansoc_phy_sr_in_reg_n_6,milansoc_phy_sr_in_reg_n_7,milansoc_phy_sr_in_reg_n_8,milansoc_phy_sr_in_reg_n_9,milansoc_phy_sr_in_reg_n_10,milansoc_phy_sr_in_reg_n_11,milansoc_phy_sr_in_reg_n_12,milansoc_phy_sr_in_reg_n_13,milansoc_phy_sr_in_reg_n_14,milansoc_phy_sr_in_reg_n_15,milansoc_phy_sr_in_reg_n_16,milansoc_phy_sr_in_reg_n_17,milansoc_phy_sr_in_reg_n_18,milansoc_phy_sr_in_reg_n_19,milansoc_phy_sr_in_reg_n_20,milansoc_phy_sr_in_reg_n_21,milansoc_phy_sr_in_reg_n_22,milansoc_phy_sr_in_reg_n_23,milansoc_phy_sr_in_reg_n_24,milansoc_phy_sr_in_reg_n_25,milansoc_phy_sr_in_reg_n_26,milansoc_phy_sr_in_reg_n_27,milansoc_phy_sr_in_reg_n_28,milansoc_phy_sr_in_reg_n_29,milansoc_phy_sr_in_reg_n_30,milansoc_phy_sr_in_reg_n_31,milansoc_phy_dq_i}),
+.I3({milansoc_phy_sr_in_reg_n_2,milansoc_phy_sr_in_reg_n_3,milansoc_phy_sr_in_reg_n_4,milansoc_phy_sr_in_reg_n_5,milansoc_phy_sr_in_reg_n_6,milansoc_phy_sr_in_reg_n_7,milansoc_phy_sr_in_reg_n_8,milansoc_phy_sr_in_reg_n_9,milansoc_phy_sr_in_reg_n_10,milansoc_phy_sr_in_reg_n_11,milansoc_phy_sr_in_reg_n_12,milansoc_phy_sr_in_reg_n_13,milansoc_phy_sr_in_reg_n_14,milansoc_phy_sr_in_reg_n_15,milansoc_phy_sr_in_reg_n_16,milansoc_phy_sr_in_reg_n_17,milansoc_phy_sr_in_reg_n_18,milansoc_phy_sr_in_reg_n_19,milansoc_phy_sr_in_reg_n_20,milansoc_phy_sr_in_reg_n_21,milansoc_phy_sr_in_reg_n_22,milansoc_phy_sr_in_reg_n_23,milansoc_phy_sr_in_reg_n_24,milansoc_phy_sr_in_reg_n_25,milansoc_phy_sr_in_reg_n_26,milansoc_phy_sr_in_reg_n_27,milansoc_phy_sr_in_reg_n_28,milansoc_phy_sr_in_reg_n_29,milansoc_phy_sr_in_reg_n_30,milansoc_phy_sr_in_reg_n_31,milansoc_phy_dq_i}),
+.I4({\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> }),
+.O(milansoc_phy_sr_in),
+.S(milansoc_phy_last_sink_width));
+RTL_MUX374 milansoc_phy_sr_in_i__0
+(.I0(milansoc_phy_sr_in),
+.I1({\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> }),
+.O(milansoc_phy_sr_in0_out),
+.S(milansoc_phy_sr_in_shift_reg));
+RTL_MUX2174 milansoc_phy_sr_in_i__1
+(.I0(\<const1> ),
+.I1(\<const1> ),
+.I2(\<const1> ),
+.I3(\<const1> ),
+.I4(milansoc_phy_start_reg),
+.O(milansoc_phy_sr_in_i__1_n_0),
+.S(milansoc_phy_last_sink_width));
+RTL_MUX milansoc_phy_sr_in_i__2
+(.I0(milansoc_phy_sr_in_i__1_n_0),
+.I1(milansoc_phy_start_reg),
+.O(milansoc_phy_sr_in_i__2_n_0),
+.S(milansoc_phy_sr_in_shift_reg));
+RTL_REG_SYNC__BREG_1 \milansoc_phy_sr_in_reg[0]
+(.C(sys_clk),
+.CE(milansoc_phy_sr_in_i__2_n_0),
+.D(milansoc_phy_sr_in0_out[0]),
+.Q(milansoc_phy_sr_in_reg_n_31),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_phy_sr_in_reg[10]
+(.C(sys_clk),
+.CE(milansoc_phy_sr_in_i__2_n_0),
+.D(milansoc_phy_sr_in0_out[10]),
+.Q(milansoc_phy_sr_in_reg_n_21),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_phy_sr_in_reg[11]
+(.C(sys_clk),
+.CE(milansoc_phy_sr_in_i__2_n_0),
+.D(milansoc_phy_sr_in0_out[11]),
+.Q(milansoc_phy_sr_in_reg_n_20),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_phy_sr_in_reg[12]
+(.C(sys_clk),
+.CE(milansoc_phy_sr_in_i__2_n_0),
+.D(milansoc_phy_sr_in0_out[12]),
+.Q(milansoc_phy_sr_in_reg_n_19),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_phy_sr_in_reg[13]
+(.C(sys_clk),
+.CE(milansoc_phy_sr_in_i__2_n_0),
+.D(milansoc_phy_sr_in0_out[13]),
+.Q(milansoc_phy_sr_in_reg_n_18),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_phy_sr_in_reg[14]
+(.C(sys_clk),
+.CE(milansoc_phy_sr_in_i__2_n_0),
+.D(milansoc_phy_sr_in0_out[14]),
+.Q(milansoc_phy_sr_in_reg_n_17),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_phy_sr_in_reg[15]
+(.C(sys_clk),
+.CE(milansoc_phy_sr_in_i__2_n_0),
+.D(milansoc_phy_sr_in0_out[15]),
+.Q(milansoc_phy_sr_in_reg_n_16),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_phy_sr_in_reg[16]
+(.C(sys_clk),
+.CE(milansoc_phy_sr_in_i__2_n_0),
+.D(milansoc_phy_sr_in0_out[16]),
+.Q(milansoc_phy_sr_in_reg_n_15),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_phy_sr_in_reg[17]
+(.C(sys_clk),
+.CE(milansoc_phy_sr_in_i__2_n_0),
+.D(milansoc_phy_sr_in0_out[17]),
+.Q(milansoc_phy_sr_in_reg_n_14),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_phy_sr_in_reg[18]
+(.C(sys_clk),
+.CE(milansoc_phy_sr_in_i__2_n_0),
+.D(milansoc_phy_sr_in0_out[18]),
+.Q(milansoc_phy_sr_in_reg_n_13),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_phy_sr_in_reg[19]
+(.C(sys_clk),
+.CE(milansoc_phy_sr_in_i__2_n_0),
+.D(milansoc_phy_sr_in0_out[19]),
+.Q(milansoc_phy_sr_in_reg_n_12),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_phy_sr_in_reg[1]
+(.C(sys_clk),
+.CE(milansoc_phy_sr_in_i__2_n_0),
+.D(milansoc_phy_sr_in0_out[1]),
+.Q(milansoc_phy_sr_in_reg_n_30),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_phy_sr_in_reg[20]
+(.C(sys_clk),
+.CE(milansoc_phy_sr_in_i__2_n_0),
+.D(milansoc_phy_sr_in0_out[20]),
+.Q(milansoc_phy_sr_in_reg_n_11),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_phy_sr_in_reg[21]
+(.C(sys_clk),
+.CE(milansoc_phy_sr_in_i__2_n_0),
+.D(milansoc_phy_sr_in0_out[21]),
+.Q(milansoc_phy_sr_in_reg_n_10),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_phy_sr_in_reg[22]
+(.C(sys_clk),
+.CE(milansoc_phy_sr_in_i__2_n_0),
+.D(milansoc_phy_sr_in0_out[22]),
+.Q(milansoc_phy_sr_in_reg_n_9),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_phy_sr_in_reg[23]
+(.C(sys_clk),
+.CE(milansoc_phy_sr_in_i__2_n_0),
+.D(milansoc_phy_sr_in0_out[23]),
+.Q(milansoc_phy_sr_in_reg_n_8),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_phy_sr_in_reg[24]
+(.C(sys_clk),
+.CE(milansoc_phy_sr_in_i__2_n_0),
+.D(milansoc_phy_sr_in0_out[24]),
+.Q(milansoc_phy_sr_in_reg_n_7),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_phy_sr_in_reg[25]
+(.C(sys_clk),
+.CE(milansoc_phy_sr_in_i__2_n_0),
+.D(milansoc_phy_sr_in0_out[25]),
+.Q(milansoc_phy_sr_in_reg_n_6),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_phy_sr_in_reg[26]
+(.C(sys_clk),
+.CE(milansoc_phy_sr_in_i__2_n_0),
+.D(milansoc_phy_sr_in0_out[26]),
+.Q(milansoc_phy_sr_in_reg_n_5),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_phy_sr_in_reg[27]
+(.C(sys_clk),
+.CE(milansoc_phy_sr_in_i__2_n_0),
+.D(milansoc_phy_sr_in0_out[27]),
+.Q(milansoc_phy_sr_in_reg_n_4),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_phy_sr_in_reg[28]
+(.C(sys_clk),
+.CE(milansoc_phy_sr_in_i__2_n_0),
+.D(milansoc_phy_sr_in0_out[28]),
+.Q(milansoc_phy_sr_in_reg_n_3),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_phy_sr_in_reg[29]
+(.C(sys_clk),
+.CE(milansoc_phy_sr_in_i__2_n_0),
+.D(milansoc_phy_sr_in0_out[29]),
+.Q(milansoc_phy_sr_in_reg_n_2),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_phy_sr_in_reg[2]
+(.C(sys_clk),
+.CE(milansoc_phy_sr_in_i__2_n_0),
+.D(milansoc_phy_sr_in0_out[2]),
+.Q(milansoc_phy_sr_in_reg_n_29),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_phy_sr_in_reg[30]
+(.C(sys_clk),
+.CE(milansoc_phy_sr_in_i__2_n_0),
+.D(milansoc_phy_sr_in0_out[30]),
+.Q(milansoc_phy_sr_in_reg_n_1),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_phy_sr_in_reg[31]
+(.C(sys_clk),
+.CE(milansoc_phy_sr_in_i__2_n_0),
+.D(milansoc_phy_sr_in0_out[31]),
+.Q(milansoc_phy_sr_in_reg_n_0),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_phy_sr_in_reg[3]
+(.C(sys_clk),
+.CE(milansoc_phy_sr_in_i__2_n_0),
+.D(milansoc_phy_sr_in0_out[3]),
+.Q(milansoc_phy_sr_in_reg_n_28),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_phy_sr_in_reg[4]
+(.C(sys_clk),
+.CE(milansoc_phy_sr_in_i__2_n_0),
+.D(milansoc_phy_sr_in0_out[4]),
+.Q(milansoc_phy_sr_in_reg_n_27),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_phy_sr_in_reg[5]
+(.C(sys_clk),
+.CE(milansoc_phy_sr_in_i__2_n_0),
+.D(milansoc_phy_sr_in0_out[5]),
+.Q(milansoc_phy_sr_in_reg_n_26),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_phy_sr_in_reg[6]
+(.C(sys_clk),
+.CE(milansoc_phy_sr_in_i__2_n_0),
+.D(milansoc_phy_sr_in0_out[6]),
+.Q(milansoc_phy_sr_in_reg_n_25),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_phy_sr_in_reg[7]
+(.C(sys_clk),
+.CE(milansoc_phy_sr_in_i__2_n_0),
+.D(milansoc_phy_sr_in0_out[7]),
+.Q(milansoc_phy_sr_in_reg_n_24),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_phy_sr_in_reg[8]
+(.C(sys_clk),
+.CE(milansoc_phy_sr_in_i__2_n_0),
+.D(milansoc_phy_sr_in0_out[8]),
+.Q(milansoc_phy_sr_in_reg_n_23),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_phy_sr_in_reg[9]
+(.C(sys_clk),
+.CE(milansoc_phy_sr_in_i__2_n_0),
+.D(milansoc_phy_sr_in0_out[9]),
+.Q(milansoc_phy_sr_in_reg_n_22),
+.RST(sys_rst));
+RTL_MUX1062 milansoc_phy_sr_in_shift_i
+(.I0(milansoc_phy_posedge_reg2),
+.I1(milansoc_phy_posedge_reg2),
+.I2(\<const0> ),
+.I3(\<const0> ),
+.O(milansoc_phy_sr_in_shift_reg),
+.S(subfragments_litespiphy_state));
+RTL_ALSHIFT milansoc_phy_sr_out0_i
+(.I0(milansoc_phy_sr_out),
+.I1(milansoc_phy_last_sink_width),
+.I2(\<const1> ),
+.O(milansoc_phy_sr_out0));
+RTL_ALSHIFT43 milansoc_phy_sr_out0_i__0
+(.I0(milansoc_stage_spi_phy_tx_pipe_ready_source_payload_data_reg),
+.I1(milansoc_phy_sr_out1),
+.I2(\<const1> ),
+.O({milansoc_phy_sr_out0_i__0_n_0,milansoc_phy_sr_out0_i__0_n_1,milansoc_phy_sr_out0_i__0_n_2,milansoc_phy_sr_out0_i__0_n_3,milansoc_phy_sr_out0_i__0_n_4,milansoc_phy_sr_out0_i__0_n_5,milansoc_phy_sr_out0_i__0_n_6,milansoc_phy_sr_out0_i__0_n_7,milansoc_phy_sr_out0_i__0_n_8,milansoc_phy_sr_out0_i__0_n_9,milansoc_phy_sr_out0_i__0_n_10,milansoc_phy_sr_out0_i__0_n_11,milansoc_phy_sr_out0_i__0_n_12,milansoc_phy_sr_out0_i__0_n_13,milansoc_phy_sr_out0_i__0_n_14,milansoc_phy_sr_out0_i__0_n_15,milansoc_phy_sr_out0_i__0_n_16,milansoc_phy_sr_out0_i__0_n_17,milansoc_phy_sr_out0_i__0_n_18,milansoc_phy_sr_out0_i__0_n_19,milansoc_phy_sr_out0_i__0_n_20,milansoc_phy_sr_out0_i__0_n_21,milansoc_phy_sr_out0_i__0_n_22,milansoc_phy_sr_out0_i__0_n_23,milansoc_phy_sr_out0_i__0_n_24,milansoc_phy_sr_out0_i__0_n_25,milansoc_phy_sr_out0_i__0_n_26,milansoc_phy_sr_out0_i__0_n_27,milansoc_phy_sr_out0_i__0_n_28,milansoc_phy_sr_out0_i__0_n_29,milansoc_phy_sr_out0_i__0_n_30,milansoc_phy_sr_out0_i__0_n_31}));
+RTL_SUB62 milansoc_phy_sr_out1_i
+(.I0({\<const1> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> }),
+.I1(milansoc_stage_spi_phy_tx_pipe_ready_source_payload_len_reg),
+.O(milansoc_phy_sr_out1));
+RTL_SUB366 milansoc_phy_sr_out_cnt0_i
+(.I0(milansoc_phy_sr_out_cnt),
+.I1(milansoc_phy_last_sink_width),
+.O(milansoc_phy_sr_out_cnt0));
+RTL_SUB366 milansoc_phy_sr_out_cnt0_i__0
+(.I0(milansoc_stage_spi_phy_tx_pipe_ready_source_payload_len_reg),
+.I1(milansoc_stage_spi_phy_tx_pipe_ready_source_payload_width_reg),
+.O({milansoc_phy_sr_out_cnt0_i__0_n_0,milansoc_phy_sr_out_cnt0_i__0_n_1,milansoc_phy_sr_out_cnt0_i__0_n_2,milansoc_phy_sr_out_cnt0_i__0_n_3,milansoc_phy_sr_out_cnt0_i__0_n_4,milansoc_phy_sr_out_cnt0_i__0_n_5}));
+RTL_MUX26 milansoc_phy_sr_out_cnt_i
+(.I0(milansoc_phy_sr_out_cnt0),
+.I1({milansoc_phy_sr_out_cnt0_i__0_n_0,milansoc_phy_sr_out_cnt0_i__0_n_1,milansoc_phy_sr_out_cnt0_i__0_n_2,milansoc_phy_sr_out_cnt0_i__0_n_3,milansoc_phy_sr_out_cnt0_i__0_n_4,milansoc_phy_sr_out_cnt0_i__0_n_5}),
+.O(milansoc_phy_sr_out_cnt__0),
+.S(milansoc_phy_sr_out_shift_reg));
+RTL_MUX milansoc_phy_sr_out_cnt_i__0
+(.I0(\<const1> ),
+.I1(milansoc_phy_start_reg),
+.O(milansoc_phy_sr_out_cnt_i__0_n_0),
+.S(milansoc_phy_sr_out_shift_reg));
+RTL_REG__BREG_36 \milansoc_phy_sr_out_cnt_reg[0]
+(.C(sys_clk),
+.CE(milansoc_phy_sr_out_cnt_i__0_n_0),
+.D(milansoc_phy_sr_out_cnt__0[0]),
+.Q(milansoc_phy_sr_out_cnt[0]));
+RTL_REG__BREG_36 \milansoc_phy_sr_out_cnt_reg[1]
+(.C(sys_clk),
+.CE(milansoc_phy_sr_out_cnt_i__0_n_0),
+.D(milansoc_phy_sr_out_cnt__0[1]),
+.Q(milansoc_phy_sr_out_cnt[1]));
+RTL_REG__BREG_36 \milansoc_phy_sr_out_cnt_reg[2]
+(.C(sys_clk),
+.CE(milansoc_phy_sr_out_cnt_i__0_n_0),
+.D(milansoc_phy_sr_out_cnt__0[2]),
+.Q(milansoc_phy_sr_out_cnt[2]));
+RTL_REG__BREG_36 \milansoc_phy_sr_out_cnt_reg[3]
+(.C(sys_clk),
+.CE(milansoc_phy_sr_out_cnt_i__0_n_0),
+.D(milansoc_phy_sr_out_cnt__0[3]),
+.Q(milansoc_phy_sr_out_cnt[3]));
+RTL_REG__BREG_36 \milansoc_phy_sr_out_cnt_reg[4]
+(.C(sys_clk),
+.CE(milansoc_phy_sr_out_cnt_i__0_n_0),
+.D(milansoc_phy_sr_out_cnt__0[4]),
+.Q(milansoc_phy_sr_out_cnt[4]));
+RTL_REG__BREG_36 \milansoc_phy_sr_out_cnt_reg[5]
+(.C(sys_clk),
+.CE(milansoc_phy_sr_out_cnt_i__0_n_0),
+.D(milansoc_phy_sr_out_cnt__0[5]),
+.Q(milansoc_phy_sr_out_cnt[5]));
+RTL_MUX374 milansoc_phy_sr_out_i
+(.I0(milansoc_phy_sr_out0),
+.I1({milansoc_phy_sr_out0_i__0_n_0,milansoc_phy_sr_out0_i__0_n_1,milansoc_phy_sr_out0_i__0_n_2,milansoc_phy_sr_out0_i__0_n_3,milansoc_phy_sr_out0_i__0_n_4,milansoc_phy_sr_out0_i__0_n_5,milansoc_phy_sr_out0_i__0_n_6,milansoc_phy_sr_out0_i__0_n_7,milansoc_phy_sr_out0_i__0_n_8,milansoc_phy_sr_out0_i__0_n_9,milansoc_phy_sr_out0_i__0_n_10,milansoc_phy_sr_out0_i__0_n_11,milansoc_phy_sr_out0_i__0_n_12,milansoc_phy_sr_out0_i__0_n_13,milansoc_phy_sr_out0_i__0_n_14,milansoc_phy_sr_out0_i__0_n_15,milansoc_phy_sr_out0_i__0_n_16,milansoc_phy_sr_out0_i__0_n_17,milansoc_phy_sr_out0_i__0_n_18,milansoc_phy_sr_out0_i__0_n_19,milansoc_phy_sr_out0_i__0_n_20,milansoc_phy_sr_out0_i__0_n_21,milansoc_phy_sr_out0_i__0_n_22,milansoc_phy_sr_out0_i__0_n_23,milansoc_phy_sr_out0_i__0_n_24,milansoc_phy_sr_out0_i__0_n_25,milansoc_phy_sr_out0_i__0_n_26,milansoc_phy_sr_out0_i__0_n_27,milansoc_phy_sr_out0_i__0_n_28,milansoc_phy_sr_out0_i__0_n_29,milansoc_phy_sr_out0_i__0_n_30,milansoc_phy_sr_out0_i__0_n_31}),
+.O(milansoc_phy_sr_out__0),
+.S(milansoc_phy_sr_out_shift_reg));
+RTL_MUX milansoc_phy_sr_out_i__0
+(.I0(\<const1> ),
+.I1(milansoc_phy_start_reg),
+.O(milansoc_phy_sr_out_i__0_n_0),
+.S(milansoc_phy_sr_out_shift_reg));
+RTL_REG_SYNC__BREG_1 \milansoc_phy_sr_out_reg[0]
+(.C(sys_clk),
+.CE(milansoc_phy_sr_out_i__0_n_0),
+.D(milansoc_phy_sr_out__0[0]),
+.Q(milansoc_phy_sr_out[0]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_phy_sr_out_reg[10]
+(.C(sys_clk),
+.CE(milansoc_phy_sr_out_i__0_n_0),
+.D(milansoc_phy_sr_out__0[10]),
+.Q(milansoc_phy_sr_out[10]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_phy_sr_out_reg[11]
+(.C(sys_clk),
+.CE(milansoc_phy_sr_out_i__0_n_0),
+.D(milansoc_phy_sr_out__0[11]),
+.Q(milansoc_phy_sr_out[11]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_phy_sr_out_reg[12]
+(.C(sys_clk),
+.CE(milansoc_phy_sr_out_i__0_n_0),
+.D(milansoc_phy_sr_out__0[12]),
+.Q(milansoc_phy_sr_out[12]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_phy_sr_out_reg[13]
+(.C(sys_clk),
+.CE(milansoc_phy_sr_out_i__0_n_0),
+.D(milansoc_phy_sr_out__0[13]),
+.Q(milansoc_phy_sr_out[13]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_phy_sr_out_reg[14]
+(.C(sys_clk),
+.CE(milansoc_phy_sr_out_i__0_n_0),
+.D(milansoc_phy_sr_out__0[14]),
+.Q(milansoc_phy_sr_out[14]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_phy_sr_out_reg[15]
+(.C(sys_clk),
+.CE(milansoc_phy_sr_out_i__0_n_0),
+.D(milansoc_phy_sr_out__0[15]),
+.Q(milansoc_phy_sr_out[15]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_phy_sr_out_reg[16]
+(.C(sys_clk),
+.CE(milansoc_phy_sr_out_i__0_n_0),
+.D(milansoc_phy_sr_out__0[16]),
+.Q(milansoc_phy_sr_out[16]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_phy_sr_out_reg[17]
+(.C(sys_clk),
+.CE(milansoc_phy_sr_out_i__0_n_0),
+.D(milansoc_phy_sr_out__0[17]),
+.Q(milansoc_phy_sr_out[17]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_phy_sr_out_reg[18]
+(.C(sys_clk),
+.CE(milansoc_phy_sr_out_i__0_n_0),
+.D(milansoc_phy_sr_out__0[18]),
+.Q(milansoc_phy_sr_out[18]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_phy_sr_out_reg[19]
+(.C(sys_clk),
+.CE(milansoc_phy_sr_out_i__0_n_0),
+.D(milansoc_phy_sr_out__0[19]),
+.Q(milansoc_phy_sr_out[19]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_phy_sr_out_reg[1]
+(.C(sys_clk),
+.CE(milansoc_phy_sr_out_i__0_n_0),
+.D(milansoc_phy_sr_out__0[1]),
+.Q(milansoc_phy_sr_out[1]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_phy_sr_out_reg[20]
+(.C(sys_clk),
+.CE(milansoc_phy_sr_out_i__0_n_0),
+.D(milansoc_phy_sr_out__0[20]),
+.Q(milansoc_phy_sr_out[20]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_phy_sr_out_reg[21]
+(.C(sys_clk),
+.CE(milansoc_phy_sr_out_i__0_n_0),
+.D(milansoc_phy_sr_out__0[21]),
+.Q(milansoc_phy_sr_out[21]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_phy_sr_out_reg[22]
+(.C(sys_clk),
+.CE(milansoc_phy_sr_out_i__0_n_0),
+.D(milansoc_phy_sr_out__0[22]),
+.Q(milansoc_phy_sr_out[22]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_phy_sr_out_reg[23]
+(.C(sys_clk),
+.CE(milansoc_phy_sr_out_i__0_n_0),
+.D(milansoc_phy_sr_out__0[23]),
+.Q(milansoc_phy_sr_out[23]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_phy_sr_out_reg[24]
+(.C(sys_clk),
+.CE(milansoc_phy_sr_out_i__0_n_0),
+.D(milansoc_phy_sr_out__0[24]),
+.Q(milansoc_phy_sr_out[24]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_phy_sr_out_reg[25]
+(.C(sys_clk),
+.CE(milansoc_phy_sr_out_i__0_n_0),
+.D(milansoc_phy_sr_out__0[25]),
+.Q(milansoc_phy_sr_out[25]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_phy_sr_out_reg[26]
+(.C(sys_clk),
+.CE(milansoc_phy_sr_out_i__0_n_0),
+.D(milansoc_phy_sr_out__0[26]),
+.Q(milansoc_phy_sr_out[26]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_phy_sr_out_reg[27]
+(.C(sys_clk),
+.CE(milansoc_phy_sr_out_i__0_n_0),
+.D(milansoc_phy_sr_out__0[27]),
+.Q(milansoc_phy_sr_out[27]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_phy_sr_out_reg[28]
+(.C(sys_clk),
+.CE(milansoc_phy_sr_out_i__0_n_0),
+.D(milansoc_phy_sr_out__0[28]),
+.Q(milansoc_phy_sr_out[28]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_phy_sr_out_reg[29]
+(.C(sys_clk),
+.CE(milansoc_phy_sr_out_i__0_n_0),
+.D(milansoc_phy_sr_out__0[29]),
+.Q(milansoc_phy_sr_out[29]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_phy_sr_out_reg[2]
+(.C(sys_clk),
+.CE(milansoc_phy_sr_out_i__0_n_0),
+.D(milansoc_phy_sr_out__0[2]),
+.Q(milansoc_phy_sr_out[2]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_phy_sr_out_reg[30]
+(.C(sys_clk),
+.CE(milansoc_phy_sr_out_i__0_n_0),
+.D(milansoc_phy_sr_out__0[30]),
+.Q(milansoc_phy_sr_out[30]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_phy_sr_out_reg[31]
+(.C(sys_clk),
+.CE(milansoc_phy_sr_out_i__0_n_0),
+.D(milansoc_phy_sr_out__0[31]),
+.Q(milansoc_phy_sr_out[31]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_phy_sr_out_reg[3]
+(.C(sys_clk),
+.CE(milansoc_phy_sr_out_i__0_n_0),
+.D(milansoc_phy_sr_out__0[3]),
+.Q(milansoc_phy_sr_out[3]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_phy_sr_out_reg[4]
+(.C(sys_clk),
+.CE(milansoc_phy_sr_out_i__0_n_0),
+.D(milansoc_phy_sr_out__0[4]),
+.Q(milansoc_phy_sr_out[4]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_phy_sr_out_reg[5]
+(.C(sys_clk),
+.CE(milansoc_phy_sr_out_i__0_n_0),
+.D(milansoc_phy_sr_out__0[5]),
+.Q(milansoc_phy_sr_out[5]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_phy_sr_out_reg[6]
+(.C(sys_clk),
+.CE(milansoc_phy_sr_out_i__0_n_0),
+.D(milansoc_phy_sr_out__0[6]),
+.Q(milansoc_phy_sr_out[6]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_phy_sr_out_reg[7]
+(.C(sys_clk),
+.CE(milansoc_phy_sr_out_i__0_n_0),
+.D(milansoc_phy_sr_out__0[7]),
+.Q(milansoc_phy_sr_out[7]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_phy_sr_out_reg[8]
+(.C(sys_clk),
+.CE(milansoc_phy_sr_out_i__0_n_0),
+.D(milansoc_phy_sr_out__0[8]),
+.Q(milansoc_phy_sr_out[8]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_phy_sr_out_reg[9]
+(.C(sys_clk),
+.CE(milansoc_phy_sr_out_i__0_n_0),
+.D(milansoc_phy_sr_out__0[9]),
+.Q(milansoc_phy_sr_out[9]),
+.RST(sys_rst));
+RTL_MUX1062 milansoc_phy_sr_out_shift_i
+(.I0(milansoc_phy_negedge),
+.I1(\<const0> ),
+.I2(\<const0> ),
+.I3(\<const0> ),
+.O(milansoc_phy_sr_out_shift_reg),
+.S(subfragments_litespiphy_state));
+RTL_AND7 milansoc_phy_start0_i
+(.I0(milansoc_phy_enable),
+.I1(milansoc_stage_spi_phy_tx_pipe_ready_source_valid_reg),
+.O(milansoc_phy_start0));
+RTL_MUX1062 milansoc_phy_start_i
+(.I0(\<const0> ),
+.I1(\<const0> ),
+.I2(\<const0> ),
+.I3(milansoc_phy_start0),
+.O(milansoc_phy_start_reg),
+.S(subfragments_litespiphy_state));
+RTL_AND7 milansoc_phy_wait0_i
+(.I0(milansoc_phy_wait1),
+.I1(milansoc_phy_last_cs),
+.O(milansoc_phy_wait0));
+RTL_EQ6 milansoc_phy_wait1_i
+(.I0(milansoc_phy_cs),
+.I1(\<const0> ),
+.O(milansoc_phy_wait1));
+RTL_INV milansoc_phy_wait_i
+(.I0(milansoc_phy_wait0),
+.O(milansoc_phy_wait));
+RTL_NEQ8 milansoc_port_master_request_i
+(.I0(milansoc_master_cs_storage),
+.I1(\<const0> ),
+.O(milansoc_port_master_request));
+RTL_MUX1062 milansoc_r_ready_i
+(.I0(\<const0> ),
+.I1(milansoc_cmd_done),
+.I2(\<const0> ),
+.I3(\<const0> ),
+.O(milansoc_r_ready_reg),
+.S(socbushandler_wishbone2axilite_state));
+RTL_REG_SYNC__BREG_1 \milansoc_reset_storage_reg[0]
+(.C(sys_clk),
+.CE(csr_bankarray_csrbank0_reset_re_reg),
+.D(interface1_dat_w_reg[0]),
+.Q(milansoc_reset_storage_reg_n_1),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_reset_storage_reg[1]
+(.C(sys_clk),
+.CE(csr_bankarray_csrbank0_reset_re_reg),
+.D(interface1_dat_w_reg[1]),
+.Q(milansoc_cpu_rst),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_2 milansoc_reset_wr_stb_reg
+(.C(sys_clk),
+.D(csr_bankarray_csrbank0_reset_re_reg),
+.Q(milansoc_reset_wr_stb),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_162 \milansoc_scratch_storage_reg[0]
+(.C(sys_clk),
+.CE(csr_bankarray_csrbank0_scratch_re_reg),
+.D(interface1_dat_w_reg[0]),
+.Q(milansoc_scratch_storage[0]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_162 \milansoc_scratch_storage_reg[10]
+(.C(sys_clk),
+.CE(csr_bankarray_csrbank0_scratch_re_reg),
+.D(interface1_dat_w_reg[10]),
+.Q(milansoc_scratch_storage[10]),
+.SET(sys_rst));
+RTL_REG_SYNC__BREG_162 \milansoc_scratch_storage_reg[11]
+(.C(sys_clk),
+.CE(csr_bankarray_csrbank0_scratch_re_reg),
+.D(interface1_dat_w_reg[11]),
+.Q(milansoc_scratch_storage[11]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_162 \milansoc_scratch_storage_reg[12]
+(.C(sys_clk),
+.CE(csr_bankarray_csrbank0_scratch_re_reg),
+.D(interface1_dat_w_reg[12]),
+.Q(milansoc_scratch_storage[12]),
+.SET(sys_rst));
+RTL_REG_SYNC__BREG_162 \milansoc_scratch_storage_reg[13]
+(.C(sys_clk),
+.CE(csr_bankarray_csrbank0_scratch_re_reg),
+.D(interface1_dat_w_reg[13]),
+.Q(milansoc_scratch_storage[13]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_162 \milansoc_scratch_storage_reg[14]
+(.C(sys_clk),
+.CE(csr_bankarray_csrbank0_scratch_re_reg),
+.D(interface1_dat_w_reg[14]),
+.Q(milansoc_scratch_storage[14]),
+.SET(sys_rst));
+RTL_REG_SYNC__BREG_162 \milansoc_scratch_storage_reg[15]
+(.C(sys_clk),
+.CE(csr_bankarray_csrbank0_scratch_re_reg),
+.D(interface1_dat_w_reg[15]),
+.Q(milansoc_scratch_storage[15]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_162 \milansoc_scratch_storage_reg[16]
+(.C(sys_clk),
+.CE(csr_bankarray_csrbank0_scratch_re_reg),
+.D(interface1_dat_w_reg[16]),
+.Q(milansoc_scratch_storage[16]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_162 \milansoc_scratch_storage_reg[17]
+(.C(sys_clk),
+.CE(csr_bankarray_csrbank0_scratch_re_reg),
+.D(interface1_dat_w_reg[17]),
+.Q(milansoc_scratch_storage[17]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_162 \milansoc_scratch_storage_reg[18]
+(.C(sys_clk),
+.CE(csr_bankarray_csrbank0_scratch_re_reg),
+.D(interface1_dat_w_reg[18]),
+.Q(milansoc_scratch_storage[18]),
+.SET(sys_rst));
+RTL_REG_SYNC__BREG_162 \milansoc_scratch_storage_reg[19]
+(.C(sys_clk),
+.CE(csr_bankarray_csrbank0_scratch_re_reg),
+.D(interface1_dat_w_reg[19]),
+.Q(milansoc_scratch_storage[19]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_162 \milansoc_scratch_storage_reg[1]
+(.C(sys_clk),
+.CE(csr_bankarray_csrbank0_scratch_re_reg),
+.D(interface1_dat_w_reg[1]),
+.Q(milansoc_scratch_storage[1]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_162 \milansoc_scratch_storage_reg[20]
+(.C(sys_clk),
+.CE(csr_bankarray_csrbank0_scratch_re_reg),
+.D(interface1_dat_w_reg[20]),
+.Q(milansoc_scratch_storage[20]),
+.SET(sys_rst));
+RTL_REG_SYNC__BREG_162 \milansoc_scratch_storage_reg[21]
+(.C(sys_clk),
+.CE(csr_bankarray_csrbank0_scratch_re_reg),
+.D(interface1_dat_w_reg[21]),
+.Q(milansoc_scratch_storage[21]),
+.SET(sys_rst));
+RTL_REG_SYNC__BREG_162 \milansoc_scratch_storage_reg[22]
+(.C(sys_clk),
+.CE(csr_bankarray_csrbank0_scratch_re_reg),
+.D(interface1_dat_w_reg[22]),
+.Q(milansoc_scratch_storage[22]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_162 \milansoc_scratch_storage_reg[23]
+(.C(sys_clk),
+.CE(csr_bankarray_csrbank0_scratch_re_reg),
+.D(interface1_dat_w_reg[23]),
+.Q(milansoc_scratch_storage[23]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_162 \milansoc_scratch_storage_reg[24]
+(.C(sys_clk),
+.CE(csr_bankarray_csrbank0_scratch_re_reg),
+.D(interface1_dat_w_reg[24]),
+.Q(milansoc_scratch_storage[24]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_162 \milansoc_scratch_storage_reg[25]
+(.C(sys_clk),
+.CE(csr_bankarray_csrbank0_scratch_re_reg),
+.D(interface1_dat_w_reg[25]),
+.Q(milansoc_scratch_storage[25]),
+.SET(sys_rst));
+RTL_REG_SYNC__BREG_162 \milansoc_scratch_storage_reg[26]
+(.C(sys_clk),
+.CE(csr_bankarray_csrbank0_scratch_re_reg),
+.D(interface1_dat_w_reg[26]),
+.Q(milansoc_scratch_storage[26]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_162 \milansoc_scratch_storage_reg[27]
+(.C(sys_clk),
+.CE(csr_bankarray_csrbank0_scratch_re_reg),
+.D(interface1_dat_w_reg[27]),
+.Q(milansoc_scratch_storage[27]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_162 \milansoc_scratch_storage_reg[28]
+(.C(sys_clk),
+.CE(csr_bankarray_csrbank0_scratch_re_reg),
+.D(interface1_dat_w_reg[28]),
+.Q(milansoc_scratch_storage[28]),
+.SET(sys_rst));
+RTL_REG_SYNC__BREG_162 \milansoc_scratch_storage_reg[29]
+(.C(sys_clk),
+.CE(csr_bankarray_csrbank0_scratch_re_reg),
+.D(interface1_dat_w_reg[29]),
+.Q(milansoc_scratch_storage[29]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_162 \milansoc_scratch_storage_reg[2]
+(.C(sys_clk),
+.CE(csr_bankarray_csrbank0_scratch_re_reg),
+.D(interface1_dat_w_reg[2]),
+.Q(milansoc_scratch_storage[2]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_162 \milansoc_scratch_storage_reg[30]
+(.C(sys_clk),
+.CE(csr_bankarray_csrbank0_scratch_re_reg),
+.D(interface1_dat_w_reg[30]),
+.Q(milansoc_scratch_storage[30]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_162 \milansoc_scratch_storage_reg[31]
+(.C(sys_clk),
+.CE(csr_bankarray_csrbank0_scratch_re_reg),
+.D(interface1_dat_w_reg[31]),
+.Q(milansoc_scratch_storage[31]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_162 \milansoc_scratch_storage_reg[3]
+(.C(sys_clk),
+.CE(csr_bankarray_csrbank0_scratch_re_reg),
+.D(interface1_dat_w_reg[3]),
+.Q(milansoc_scratch_storage[3]),
+.SET(sys_rst));
+RTL_REG_SYNC__BREG_162 \milansoc_scratch_storage_reg[4]
+(.C(sys_clk),
+.CE(csr_bankarray_csrbank0_scratch_re_reg),
+.D(interface1_dat_w_reg[4]),
+.Q(milansoc_scratch_storage[4]),
+.SET(sys_rst));
+RTL_REG_SYNC__BREG_162 \milansoc_scratch_storage_reg[5]
+(.C(sys_clk),
+.CE(csr_bankarray_csrbank0_scratch_re_reg),
+.D(interface1_dat_w_reg[5]),
+.Q(milansoc_scratch_storage[5]),
+.SET(sys_rst));
+RTL_REG_SYNC__BREG_162 \milansoc_scratch_storage_reg[6]
+(.C(sys_clk),
+.CE(csr_bankarray_csrbank0_scratch_re_reg),
+.D(interface1_dat_w_reg[6]),
+.Q(milansoc_scratch_storage[6]),
+.SET(sys_rst));
+RTL_REG_SYNC__BREG_162 \milansoc_scratch_storage_reg[7]
+(.C(sys_clk),
+.CE(csr_bankarray_csrbank0_scratch_re_reg),
+.D(interface1_dat_w_reg[7]),
+.Q(milansoc_scratch_storage[7]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_162 \milansoc_scratch_storage_reg[8]
+(.C(sys_clk),
+.CE(csr_bankarray_csrbank0_scratch_re_reg),
+.D(interface1_dat_w_reg[8]),
+.Q(milansoc_scratch_storage[8]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_162 \milansoc_scratch_storage_reg[9]
+(.C(sys_clk),
+.CE(csr_bankarray_csrbank0_scratch_re_reg),
+.D(interface1_dat_w_reg[9]),
+.Q(milansoc_scratch_storage[9]),
+.SET(sys_rst));
+RTL_MUX milansoc_serial_tx_rs232phytx_next_value1_i
+(.I0(milansoc_uart_core_tx_data[0]),
+.I1(\<const0> ),
+.O(milansoc_serial_tx_rs232phytx_next_value1_i_n_0),
+.S(milansoc_uart_core_tx_tick));
+RTL_MUX milansoc_serial_tx_rs232phytx_next_value1_i__0
+(.I0(\<const0> ),
+.I1(\<const1> ),
+.O(milansoc_serial_tx_rs232phytx_next_value1_i__0_n_0),
+.S(milansoc_uart_core_tx_fifo_readable));
+RTL_MUX milansoc_serial_tx_rs232phytx_next_value1_i__1
+(.I0(milansoc_serial_tx_rs232phytx_next_value1_i_n_0),
+.I1(milansoc_serial_tx_rs232phytx_next_value1_i__0_n_0),
+.O(milansoc_serial_tx_rs232phytx_next_value1_reg),
+.S(subfragments_rs232phytx_state));
+RTL_MUX milansoc_serial_tx_rs232phytx_next_value_ce1_i
+(.I0(milansoc_uart_core_tx_tick),
+.I1(\<const1> ),
+.O(milansoc_serial_tx_rs232phytx_next_value_ce1_reg),
+.S(subfragments_rs232phytx_state));
+RTL_AND7 milansoc_slave_adapted_interface_cyc_i
+(.I0(milansoc_master_adapted_interface_stb_reg),
+.I1(socbushandler_slave_sel_reg[2]),
+.O(milansoc_slave_adapted_interface_cyc));
+RTL_MUX milansoc_soc_rst_i
+(.I0(milansoc_reset_storage_reg_n_1),
+.I1(\<const0> ),
+.O(milansoc_soc_rst),
+.S(milansoc_reset_wr_stb));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_rx_pipe_ready_sink_d_payload_data_reg[0]
+(.C(sys_clk),
+.CE(milansoc_stage_spi_phy_rx_pipe_ready_sink_d_valid0),
+.D(milansoc_stage_spi_phy_rx_pipe_valid_source_payload_data[0]),
+.Q(milansoc_stage_spi_phy_rx_pipe_ready_sink_d_payload_data[0]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_rx_pipe_ready_sink_d_payload_data_reg[10]
+(.C(sys_clk),
+.CE(milansoc_stage_spi_phy_rx_pipe_ready_sink_d_valid0),
+.D(milansoc_stage_spi_phy_rx_pipe_valid_source_payload_data[10]),
+.Q(milansoc_stage_spi_phy_rx_pipe_ready_sink_d_payload_data[10]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_rx_pipe_ready_sink_d_payload_data_reg[11]
+(.C(sys_clk),
+.CE(milansoc_stage_spi_phy_rx_pipe_ready_sink_d_valid0),
+.D(milansoc_stage_spi_phy_rx_pipe_valid_source_payload_data[11]),
+.Q(milansoc_stage_spi_phy_rx_pipe_ready_sink_d_payload_data[11]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_rx_pipe_ready_sink_d_payload_data_reg[12]
+(.C(sys_clk),
+.CE(milansoc_stage_spi_phy_rx_pipe_ready_sink_d_valid0),
+.D(milansoc_stage_spi_phy_rx_pipe_valid_source_payload_data[12]),
+.Q(milansoc_stage_spi_phy_rx_pipe_ready_sink_d_payload_data[12]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_rx_pipe_ready_sink_d_payload_data_reg[13]
+(.C(sys_clk),
+.CE(milansoc_stage_spi_phy_rx_pipe_ready_sink_d_valid0),
+.D(milansoc_stage_spi_phy_rx_pipe_valid_source_payload_data[13]),
+.Q(milansoc_stage_spi_phy_rx_pipe_ready_sink_d_payload_data[13]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_rx_pipe_ready_sink_d_payload_data_reg[14]
+(.C(sys_clk),
+.CE(milansoc_stage_spi_phy_rx_pipe_ready_sink_d_valid0),
+.D(milansoc_stage_spi_phy_rx_pipe_valid_source_payload_data[14]),
+.Q(milansoc_stage_spi_phy_rx_pipe_ready_sink_d_payload_data[14]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_rx_pipe_ready_sink_d_payload_data_reg[15]
+(.C(sys_clk),
+.CE(milansoc_stage_spi_phy_rx_pipe_ready_sink_d_valid0),
+.D(milansoc_stage_spi_phy_rx_pipe_valid_source_payload_data[15]),
+.Q(milansoc_stage_spi_phy_rx_pipe_ready_sink_d_payload_data[15]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_rx_pipe_ready_sink_d_payload_data_reg[16]
+(.C(sys_clk),
+.CE(milansoc_stage_spi_phy_rx_pipe_ready_sink_d_valid0),
+.D(milansoc_stage_spi_phy_rx_pipe_valid_source_payload_data[16]),
+.Q(milansoc_stage_spi_phy_rx_pipe_ready_sink_d_payload_data[16]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_rx_pipe_ready_sink_d_payload_data_reg[17]
+(.C(sys_clk),
+.CE(milansoc_stage_spi_phy_rx_pipe_ready_sink_d_valid0),
+.D(milansoc_stage_spi_phy_rx_pipe_valid_source_payload_data[17]),
+.Q(milansoc_stage_spi_phy_rx_pipe_ready_sink_d_payload_data[17]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_rx_pipe_ready_sink_d_payload_data_reg[18]
+(.C(sys_clk),
+.CE(milansoc_stage_spi_phy_rx_pipe_ready_sink_d_valid0),
+.D(milansoc_stage_spi_phy_rx_pipe_valid_source_payload_data[18]),
+.Q(milansoc_stage_spi_phy_rx_pipe_ready_sink_d_payload_data[18]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_rx_pipe_ready_sink_d_payload_data_reg[19]
+(.C(sys_clk),
+.CE(milansoc_stage_spi_phy_rx_pipe_ready_sink_d_valid0),
+.D(milansoc_stage_spi_phy_rx_pipe_valid_source_payload_data[19]),
+.Q(milansoc_stage_spi_phy_rx_pipe_ready_sink_d_payload_data[19]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_rx_pipe_ready_sink_d_payload_data_reg[1]
+(.C(sys_clk),
+.CE(milansoc_stage_spi_phy_rx_pipe_ready_sink_d_valid0),
+.D(milansoc_stage_spi_phy_rx_pipe_valid_source_payload_data[1]),
+.Q(milansoc_stage_spi_phy_rx_pipe_ready_sink_d_payload_data[1]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_rx_pipe_ready_sink_d_payload_data_reg[20]
+(.C(sys_clk),
+.CE(milansoc_stage_spi_phy_rx_pipe_ready_sink_d_valid0),
+.D(milansoc_stage_spi_phy_rx_pipe_valid_source_payload_data[20]),
+.Q(milansoc_stage_spi_phy_rx_pipe_ready_sink_d_payload_data[20]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_rx_pipe_ready_sink_d_payload_data_reg[21]
+(.C(sys_clk),
+.CE(milansoc_stage_spi_phy_rx_pipe_ready_sink_d_valid0),
+.D(milansoc_stage_spi_phy_rx_pipe_valid_source_payload_data[21]),
+.Q(milansoc_stage_spi_phy_rx_pipe_ready_sink_d_payload_data[21]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_rx_pipe_ready_sink_d_payload_data_reg[22]
+(.C(sys_clk),
+.CE(milansoc_stage_spi_phy_rx_pipe_ready_sink_d_valid0),
+.D(milansoc_stage_spi_phy_rx_pipe_valid_source_payload_data[22]),
+.Q(milansoc_stage_spi_phy_rx_pipe_ready_sink_d_payload_data[22]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_rx_pipe_ready_sink_d_payload_data_reg[23]
+(.C(sys_clk),
+.CE(milansoc_stage_spi_phy_rx_pipe_ready_sink_d_valid0),
+.D(milansoc_stage_spi_phy_rx_pipe_valid_source_payload_data[23]),
+.Q(milansoc_stage_spi_phy_rx_pipe_ready_sink_d_payload_data[23]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_rx_pipe_ready_sink_d_payload_data_reg[24]
+(.C(sys_clk),
+.CE(milansoc_stage_spi_phy_rx_pipe_ready_sink_d_valid0),
+.D(milansoc_stage_spi_phy_rx_pipe_valid_source_payload_data[24]),
+.Q(milansoc_stage_spi_phy_rx_pipe_ready_sink_d_payload_data[24]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_rx_pipe_ready_sink_d_payload_data_reg[25]
+(.C(sys_clk),
+.CE(milansoc_stage_spi_phy_rx_pipe_ready_sink_d_valid0),
+.D(milansoc_stage_spi_phy_rx_pipe_valid_source_payload_data[25]),
+.Q(milansoc_stage_spi_phy_rx_pipe_ready_sink_d_payload_data[25]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_rx_pipe_ready_sink_d_payload_data_reg[26]
+(.C(sys_clk),
+.CE(milansoc_stage_spi_phy_rx_pipe_ready_sink_d_valid0),
+.D(milansoc_stage_spi_phy_rx_pipe_valid_source_payload_data[26]),
+.Q(milansoc_stage_spi_phy_rx_pipe_ready_sink_d_payload_data[26]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_rx_pipe_ready_sink_d_payload_data_reg[27]
+(.C(sys_clk),
+.CE(milansoc_stage_spi_phy_rx_pipe_ready_sink_d_valid0),
+.D(milansoc_stage_spi_phy_rx_pipe_valid_source_payload_data[27]),
+.Q(milansoc_stage_spi_phy_rx_pipe_ready_sink_d_payload_data[27]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_rx_pipe_ready_sink_d_payload_data_reg[28]
+(.C(sys_clk),
+.CE(milansoc_stage_spi_phy_rx_pipe_ready_sink_d_valid0),
+.D(milansoc_stage_spi_phy_rx_pipe_valid_source_payload_data[28]),
+.Q(milansoc_stage_spi_phy_rx_pipe_ready_sink_d_payload_data[28]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_rx_pipe_ready_sink_d_payload_data_reg[29]
+(.C(sys_clk),
+.CE(milansoc_stage_spi_phy_rx_pipe_ready_sink_d_valid0),
+.D(milansoc_stage_spi_phy_rx_pipe_valid_source_payload_data[29]),
+.Q(milansoc_stage_spi_phy_rx_pipe_ready_sink_d_payload_data[29]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_rx_pipe_ready_sink_d_payload_data_reg[2]
+(.C(sys_clk),
+.CE(milansoc_stage_spi_phy_rx_pipe_ready_sink_d_valid0),
+.D(milansoc_stage_spi_phy_rx_pipe_valid_source_payload_data[2]),
+.Q(milansoc_stage_spi_phy_rx_pipe_ready_sink_d_payload_data[2]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_rx_pipe_ready_sink_d_payload_data_reg[30]
+(.C(sys_clk),
+.CE(milansoc_stage_spi_phy_rx_pipe_ready_sink_d_valid0),
+.D(milansoc_stage_spi_phy_rx_pipe_valid_source_payload_data[30]),
+.Q(milansoc_stage_spi_phy_rx_pipe_ready_sink_d_payload_data[30]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_rx_pipe_ready_sink_d_payload_data_reg[31]
+(.C(sys_clk),
+.CE(milansoc_stage_spi_phy_rx_pipe_ready_sink_d_valid0),
+.D(milansoc_stage_spi_phy_rx_pipe_valid_source_payload_data[31]),
+.Q(milansoc_stage_spi_phy_rx_pipe_ready_sink_d_payload_data[31]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_rx_pipe_ready_sink_d_payload_data_reg[3]
+(.C(sys_clk),
+.CE(milansoc_stage_spi_phy_rx_pipe_ready_sink_d_valid0),
+.D(milansoc_stage_spi_phy_rx_pipe_valid_source_payload_data[3]),
+.Q(milansoc_stage_spi_phy_rx_pipe_ready_sink_d_payload_data[3]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_rx_pipe_ready_sink_d_payload_data_reg[4]
+(.C(sys_clk),
+.CE(milansoc_stage_spi_phy_rx_pipe_ready_sink_d_valid0),
+.D(milansoc_stage_spi_phy_rx_pipe_valid_source_payload_data[4]),
+.Q(milansoc_stage_spi_phy_rx_pipe_ready_sink_d_payload_data[4]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_rx_pipe_ready_sink_d_payload_data_reg[5]
+(.C(sys_clk),
+.CE(milansoc_stage_spi_phy_rx_pipe_ready_sink_d_valid0),
+.D(milansoc_stage_spi_phy_rx_pipe_valid_source_payload_data[5]),
+.Q(milansoc_stage_spi_phy_rx_pipe_ready_sink_d_payload_data[5]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_rx_pipe_ready_sink_d_payload_data_reg[6]
+(.C(sys_clk),
+.CE(milansoc_stage_spi_phy_rx_pipe_ready_sink_d_valid0),
+.D(milansoc_stage_spi_phy_rx_pipe_valid_source_payload_data[6]),
+.Q(milansoc_stage_spi_phy_rx_pipe_ready_sink_d_payload_data[6]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_rx_pipe_ready_sink_d_payload_data_reg[7]
+(.C(sys_clk),
+.CE(milansoc_stage_spi_phy_rx_pipe_ready_sink_d_valid0),
+.D(milansoc_stage_spi_phy_rx_pipe_valid_source_payload_data[7]),
+.Q(milansoc_stage_spi_phy_rx_pipe_ready_sink_d_payload_data[7]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_rx_pipe_ready_sink_d_payload_data_reg[8]
+(.C(sys_clk),
+.CE(milansoc_stage_spi_phy_rx_pipe_ready_sink_d_valid0),
+.D(milansoc_stage_spi_phy_rx_pipe_valid_source_payload_data[8]),
+.Q(milansoc_stage_spi_phy_rx_pipe_ready_sink_d_payload_data[8]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_rx_pipe_ready_sink_d_payload_data_reg[9]
+(.C(sys_clk),
+.CE(milansoc_stage_spi_phy_rx_pipe_ready_sink_d_valid0),
+.D(milansoc_stage_spi_phy_rx_pipe_valid_source_payload_data[9]),
+.Q(milansoc_stage_spi_phy_rx_pipe_ready_sink_d_payload_data[9]),
+.RST(sys_rst));
+RTL_AND7 milansoc_stage_spi_phy_rx_pipe_ready_sink_d_valid0_i
+(.I0(milansoc_stage_spi_phy_rx_pipe_ready_valid1_i_n_0),
+.I1(milansoc_stage_spi_phy_rx_pipe_valid_source_ready),
+.O(milansoc_stage_spi_phy_rx_pipe_ready_sink_d_valid0));
+RTL_REG_SYNC__BREG_1 milansoc_stage_spi_phy_rx_pipe_ready_sink_d_valid_reg
+(.C(sys_clk),
+.CE(milansoc_stage_spi_phy_rx_pipe_ready_sink_d_valid0),
+.D(milansoc_stage_spi_phy_rx_pipe_valid_source_valid),
+.Q(milansoc_stage_spi_phy_rx_pipe_ready_sink_d_valid),
+.RST(sys_rst));
+RTL_INV milansoc_stage_spi_phy_rx_pipe_ready_sink_ready_i
+(.I0(milansoc_stage_spi_phy_rx_pipe_ready_valid),
+.O(milansoc_stage_spi_phy_rx_pipe_valid_source_ready));
+RTL_MUX374 milansoc_stage_spi_phy_rx_pipe_ready_source_payload_data_i
+(.I0(milansoc_stage_spi_phy_rx_pipe_ready_sink_d_payload_data),
+.I1(milansoc_stage_spi_phy_rx_pipe_valid_source_payload_data),
+.O(milansoc_stage_spi_phy_rx_pipe_ready_source_payload_data_reg),
+.S(milansoc_stage_spi_phy_rx_pipe_ready_valid));
+RTL_MUX milansoc_stage_spi_phy_rx_pipe_ready_source_valid_i
+(.I0(milansoc_stage_spi_phy_rx_pipe_ready_sink_d_valid),
+.I1(milansoc_stage_spi_phy_rx_pipe_valid_source_valid),
+.O(milansoc_stage_spi_phy_rx_pipe_ready_source_valid_reg),
+.S(milansoc_stage_spi_phy_rx_pipe_ready_valid));
+RTL_AND7 milansoc_stage_spi_phy_rx_pipe_ready_valid0_i
+(.I0(milansoc_stage_spi_phy_rx_pipe_valid_source_valid),
+.I1(milansoc_stage_spi_phy_rx_pipe_ready_valid1_i_n_0),
+.O(milansoc_stage_spi_phy_rx_pipe_ready_valid0));
+RTL_INV milansoc_stage_spi_phy_rx_pipe_ready_valid1_i
+(.I0(subfragments_rx_demux_sink_ready_reg),
+.O(milansoc_stage_spi_phy_rx_pipe_ready_valid1_i_n_0));
+RTL_MUX milansoc_stage_spi_phy_rx_pipe_ready_valid_i
+(.I0(\<const1> ),
+.I1(subfragments_rx_demux_sink_ready_reg),
+.O(milansoc_stage_spi_phy_rx_pipe_ready_valid__0),
+.S(milansoc_stage_spi_phy_rx_pipe_ready_valid0));
+RTL_REG_SYNC__BREG_1 milansoc_stage_spi_phy_rx_pipe_ready_valid_reg
+(.C(sys_clk),
+.CE(milansoc_stage_spi_phy_rx_pipe_ready_valid__0),
+.D(milansoc_stage_spi_phy_rx_pipe_ready_valid0),
+.Q(milansoc_stage_spi_phy_rx_pipe_ready_valid),
+.RST(sys_rst));
+RTL_OR146 milansoc_stage_spi_phy_rx_pipe_valid_sink_ready_i
+(.I0(milansoc_stage_spi_phy_rx_pipe_valid_source_valid),
+.I1(milansoc_stage_spi_phy_rx_pipe_valid_source_ready),
+.O(milansoc_stage_spi_phy_rx_sink_sink_ready));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_rx_pipe_valid_source_payload_data_reg[0]
+(.C(sys_clk),
+.CE(milansoc_stage_spi_phy_rx_sink_sink_ready),
+.D(milansoc_phy_sr_in_reg_n_31),
+.Q(milansoc_stage_spi_phy_rx_pipe_valid_source_payload_data[0]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_rx_pipe_valid_source_payload_data_reg[10]
+(.C(sys_clk),
+.CE(milansoc_stage_spi_phy_rx_sink_sink_ready),
+.D(milansoc_phy_sr_in_reg_n_21),
+.Q(milansoc_stage_spi_phy_rx_pipe_valid_source_payload_data[10]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_rx_pipe_valid_source_payload_data_reg[11]
+(.C(sys_clk),
+.CE(milansoc_stage_spi_phy_rx_sink_sink_ready),
+.D(milansoc_phy_sr_in_reg_n_20),
+.Q(milansoc_stage_spi_phy_rx_pipe_valid_source_payload_data[11]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_rx_pipe_valid_source_payload_data_reg[12]
+(.C(sys_clk),
+.CE(milansoc_stage_spi_phy_rx_sink_sink_ready),
+.D(milansoc_phy_sr_in_reg_n_19),
+.Q(milansoc_stage_spi_phy_rx_pipe_valid_source_payload_data[12]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_rx_pipe_valid_source_payload_data_reg[13]
+(.C(sys_clk),
+.CE(milansoc_stage_spi_phy_rx_sink_sink_ready),
+.D(milansoc_phy_sr_in_reg_n_18),
+.Q(milansoc_stage_spi_phy_rx_pipe_valid_source_payload_data[13]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_rx_pipe_valid_source_payload_data_reg[14]
+(.C(sys_clk),
+.CE(milansoc_stage_spi_phy_rx_sink_sink_ready),
+.D(milansoc_phy_sr_in_reg_n_17),
+.Q(milansoc_stage_spi_phy_rx_pipe_valid_source_payload_data[14]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_rx_pipe_valid_source_payload_data_reg[15]
+(.C(sys_clk),
+.CE(milansoc_stage_spi_phy_rx_sink_sink_ready),
+.D(milansoc_phy_sr_in_reg_n_16),
+.Q(milansoc_stage_spi_phy_rx_pipe_valid_source_payload_data[15]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_rx_pipe_valid_source_payload_data_reg[16]
+(.C(sys_clk),
+.CE(milansoc_stage_spi_phy_rx_sink_sink_ready),
+.D(milansoc_phy_sr_in_reg_n_15),
+.Q(milansoc_stage_spi_phy_rx_pipe_valid_source_payload_data[16]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_rx_pipe_valid_source_payload_data_reg[17]
+(.C(sys_clk),
+.CE(milansoc_stage_spi_phy_rx_sink_sink_ready),
+.D(milansoc_phy_sr_in_reg_n_14),
+.Q(milansoc_stage_spi_phy_rx_pipe_valid_source_payload_data[17]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_rx_pipe_valid_source_payload_data_reg[18]
+(.C(sys_clk),
+.CE(milansoc_stage_spi_phy_rx_sink_sink_ready),
+.D(milansoc_phy_sr_in_reg_n_13),
+.Q(milansoc_stage_spi_phy_rx_pipe_valid_source_payload_data[18]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_rx_pipe_valid_source_payload_data_reg[19]
+(.C(sys_clk),
+.CE(milansoc_stage_spi_phy_rx_sink_sink_ready),
+.D(milansoc_phy_sr_in_reg_n_12),
+.Q(milansoc_stage_spi_phy_rx_pipe_valid_source_payload_data[19]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_rx_pipe_valid_source_payload_data_reg[1]
+(.C(sys_clk),
+.CE(milansoc_stage_spi_phy_rx_sink_sink_ready),
+.D(milansoc_phy_sr_in_reg_n_30),
+.Q(milansoc_stage_spi_phy_rx_pipe_valid_source_payload_data[1]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_rx_pipe_valid_source_payload_data_reg[20]
+(.C(sys_clk),
+.CE(milansoc_stage_spi_phy_rx_sink_sink_ready),
+.D(milansoc_phy_sr_in_reg_n_11),
+.Q(milansoc_stage_spi_phy_rx_pipe_valid_source_payload_data[20]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_rx_pipe_valid_source_payload_data_reg[21]
+(.C(sys_clk),
+.CE(milansoc_stage_spi_phy_rx_sink_sink_ready),
+.D(milansoc_phy_sr_in_reg_n_10),
+.Q(milansoc_stage_spi_phy_rx_pipe_valid_source_payload_data[21]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_rx_pipe_valid_source_payload_data_reg[22]
+(.C(sys_clk),
+.CE(milansoc_stage_spi_phy_rx_sink_sink_ready),
+.D(milansoc_phy_sr_in_reg_n_9),
+.Q(milansoc_stage_spi_phy_rx_pipe_valid_source_payload_data[22]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_rx_pipe_valid_source_payload_data_reg[23]
+(.C(sys_clk),
+.CE(milansoc_stage_spi_phy_rx_sink_sink_ready),
+.D(milansoc_phy_sr_in_reg_n_8),
+.Q(milansoc_stage_spi_phy_rx_pipe_valid_source_payload_data[23]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_rx_pipe_valid_source_payload_data_reg[24]
+(.C(sys_clk),
+.CE(milansoc_stage_spi_phy_rx_sink_sink_ready),
+.D(milansoc_phy_sr_in_reg_n_7),
+.Q(milansoc_stage_spi_phy_rx_pipe_valid_source_payload_data[24]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_rx_pipe_valid_source_payload_data_reg[25]
+(.C(sys_clk),
+.CE(milansoc_stage_spi_phy_rx_sink_sink_ready),
+.D(milansoc_phy_sr_in_reg_n_6),
+.Q(milansoc_stage_spi_phy_rx_pipe_valid_source_payload_data[25]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_rx_pipe_valid_source_payload_data_reg[26]
+(.C(sys_clk),
+.CE(milansoc_stage_spi_phy_rx_sink_sink_ready),
+.D(milansoc_phy_sr_in_reg_n_5),
+.Q(milansoc_stage_spi_phy_rx_pipe_valid_source_payload_data[26]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_rx_pipe_valid_source_payload_data_reg[27]
+(.C(sys_clk),
+.CE(milansoc_stage_spi_phy_rx_sink_sink_ready),
+.D(milansoc_phy_sr_in_reg_n_4),
+.Q(milansoc_stage_spi_phy_rx_pipe_valid_source_payload_data[27]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_rx_pipe_valid_source_payload_data_reg[28]
+(.C(sys_clk),
+.CE(milansoc_stage_spi_phy_rx_sink_sink_ready),
+.D(milansoc_phy_sr_in_reg_n_3),
+.Q(milansoc_stage_spi_phy_rx_pipe_valid_source_payload_data[28]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_rx_pipe_valid_source_payload_data_reg[29]
+(.C(sys_clk),
+.CE(milansoc_stage_spi_phy_rx_sink_sink_ready),
+.D(milansoc_phy_sr_in_reg_n_2),
+.Q(milansoc_stage_spi_phy_rx_pipe_valid_source_payload_data[29]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_rx_pipe_valid_source_payload_data_reg[2]
+(.C(sys_clk),
+.CE(milansoc_stage_spi_phy_rx_sink_sink_ready),
+.D(milansoc_phy_sr_in_reg_n_29),
+.Q(milansoc_stage_spi_phy_rx_pipe_valid_source_payload_data[2]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_rx_pipe_valid_source_payload_data_reg[30]
+(.C(sys_clk),
+.CE(milansoc_stage_spi_phy_rx_sink_sink_ready),
+.D(milansoc_phy_sr_in_reg_n_1),
+.Q(milansoc_stage_spi_phy_rx_pipe_valid_source_payload_data[30]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_rx_pipe_valid_source_payload_data_reg[31]
+(.C(sys_clk),
+.CE(milansoc_stage_spi_phy_rx_sink_sink_ready),
+.D(milansoc_phy_sr_in_reg_n_0),
+.Q(milansoc_stage_spi_phy_rx_pipe_valid_source_payload_data[31]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_rx_pipe_valid_source_payload_data_reg[3]
+(.C(sys_clk),
+.CE(milansoc_stage_spi_phy_rx_sink_sink_ready),
+.D(milansoc_phy_sr_in_reg_n_28),
+.Q(milansoc_stage_spi_phy_rx_pipe_valid_source_payload_data[3]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_rx_pipe_valid_source_payload_data_reg[4]
+(.C(sys_clk),
+.CE(milansoc_stage_spi_phy_rx_sink_sink_ready),
+.D(milansoc_phy_sr_in_reg_n_27),
+.Q(milansoc_stage_spi_phy_rx_pipe_valid_source_payload_data[4]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_rx_pipe_valid_source_payload_data_reg[5]
+(.C(sys_clk),
+.CE(milansoc_stage_spi_phy_rx_sink_sink_ready),
+.D(milansoc_phy_sr_in_reg_n_26),
+.Q(milansoc_stage_spi_phy_rx_pipe_valid_source_payload_data[5]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_rx_pipe_valid_source_payload_data_reg[6]
+(.C(sys_clk),
+.CE(milansoc_stage_spi_phy_rx_sink_sink_ready),
+.D(milansoc_phy_sr_in_reg_n_25),
+.Q(milansoc_stage_spi_phy_rx_pipe_valid_source_payload_data[6]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_rx_pipe_valid_source_payload_data_reg[7]
+(.C(sys_clk),
+.CE(milansoc_stage_spi_phy_rx_sink_sink_ready),
+.D(milansoc_phy_sr_in_reg_n_24),
+.Q(milansoc_stage_spi_phy_rx_pipe_valid_source_payload_data[7]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_rx_pipe_valid_source_payload_data_reg[8]
+(.C(sys_clk),
+.CE(milansoc_stage_spi_phy_rx_sink_sink_ready),
+.D(milansoc_phy_sr_in_reg_n_23),
+.Q(milansoc_stage_spi_phy_rx_pipe_valid_source_payload_data[8]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_rx_pipe_valid_source_payload_data_reg[9]
+(.C(sys_clk),
+.CE(milansoc_stage_spi_phy_rx_sink_sink_ready),
+.D(milansoc_phy_sr_in_reg_n_22),
+.Q(milansoc_stage_spi_phy_rx_pipe_valid_source_payload_data[9]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 milansoc_stage_spi_phy_rx_pipe_valid_source_valid_reg
+(.C(sys_clk),
+.CE(milansoc_stage_spi_phy_rx_sink_sink_ready),
+.D(milansoc_phy_source_valid_reg),
+.Q(milansoc_stage_spi_phy_rx_pipe_valid_source_valid),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_tx_pipe_ready_sink_d_payload_clk_div_reg[0]
+(.C(sys_clk),
+.CE(milansoc_stage_spi_phy_tx_pipe_ready_sink_d_valid0),
+.D(milansoc_stage_spi_phy_tx_pipe_valid_source_payload_clk_div[0]),
+.Q(milansoc_stage_spi_phy_tx_pipe_ready_sink_d_payload_clk_div[0]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_tx_pipe_ready_sink_d_payload_clk_div_reg[1]
+(.C(sys_clk),
+.CE(milansoc_stage_spi_phy_tx_pipe_ready_sink_d_valid0),
+.D(milansoc_stage_spi_phy_tx_pipe_valid_source_payload_clk_div[1]),
+.Q(milansoc_stage_spi_phy_tx_pipe_ready_sink_d_payload_clk_div[1]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_tx_pipe_ready_sink_d_payload_clk_div_reg[2]
+(.C(sys_clk),
+.CE(milansoc_stage_spi_phy_tx_pipe_ready_sink_d_valid0),
+.D(milansoc_stage_spi_phy_tx_pipe_valid_source_payload_clk_div[2]),
+.Q(milansoc_stage_spi_phy_tx_pipe_ready_sink_d_payload_clk_div[2]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_tx_pipe_ready_sink_d_payload_clk_div_reg[3]
+(.C(sys_clk),
+.CE(milansoc_stage_spi_phy_tx_pipe_ready_sink_d_valid0),
+.D(milansoc_stage_spi_phy_tx_pipe_valid_source_payload_clk_div[3]),
+.Q(milansoc_stage_spi_phy_tx_pipe_ready_sink_d_payload_clk_div[3]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_tx_pipe_ready_sink_d_payload_clk_div_reg[4]
+(.C(sys_clk),
+.CE(milansoc_stage_spi_phy_tx_pipe_ready_sink_d_valid0),
+.D(milansoc_stage_spi_phy_tx_pipe_valid_source_payload_clk_div[4]),
+.Q(milansoc_stage_spi_phy_tx_pipe_ready_sink_d_payload_clk_div[4]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_tx_pipe_ready_sink_d_payload_clk_div_reg[5]
+(.C(sys_clk),
+.CE(milansoc_stage_spi_phy_tx_pipe_ready_sink_d_valid0),
+.D(milansoc_stage_spi_phy_tx_pipe_valid_source_payload_clk_div[5]),
+.Q(milansoc_stage_spi_phy_tx_pipe_ready_sink_d_payload_clk_div[5]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_tx_pipe_ready_sink_d_payload_clk_div_reg[6]
+(.C(sys_clk),
+.CE(milansoc_stage_spi_phy_tx_pipe_ready_sink_d_valid0),
+.D(milansoc_stage_spi_phy_tx_pipe_valid_source_payload_clk_div[6]),
+.Q(milansoc_stage_spi_phy_tx_pipe_ready_sink_d_payload_clk_div[6]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_tx_pipe_ready_sink_d_payload_clk_div_reg[7]
+(.C(sys_clk),
+.CE(milansoc_stage_spi_phy_tx_pipe_ready_sink_d_valid0),
+.D(milansoc_stage_spi_phy_tx_pipe_valid_source_payload_clk_div[7]),
+.Q(milansoc_stage_spi_phy_tx_pipe_ready_sink_d_payload_clk_div[7]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_tx_pipe_ready_sink_d_payload_clk_div_reg[8]
+(.C(sys_clk),
+.CE(milansoc_stage_spi_phy_tx_pipe_ready_sink_d_valid0),
+.D(milansoc_stage_spi_phy_tx_pipe_valid_source_payload_clk_div[8]),
+.Q(milansoc_stage_spi_phy_tx_pipe_ready_sink_d_payload_clk_div[8]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_tx_pipe_ready_sink_d_payload_clk_div_reg[9]
+(.C(sys_clk),
+.CE(milansoc_stage_spi_phy_tx_pipe_ready_sink_d_valid0),
+.D(milansoc_stage_spi_phy_tx_pipe_valid_source_payload_clk_div[9]),
+.Q(milansoc_stage_spi_phy_tx_pipe_ready_sink_d_payload_clk_div[9]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_tx_pipe_ready_sink_d_payload_data_reg[0]
+(.C(sys_clk),
+.CE(milansoc_stage_spi_phy_tx_pipe_ready_sink_d_valid0),
+.D(milansoc_stage_spi_phy_tx_pipe_valid_source_payload_data[0]),
+.Q(milansoc_stage_spi_phy_tx_pipe_ready_sink_d_payload_data[0]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_tx_pipe_ready_sink_d_payload_data_reg[10]
+(.C(sys_clk),
+.CE(milansoc_stage_spi_phy_tx_pipe_ready_sink_d_valid0),
+.D(milansoc_stage_spi_phy_tx_pipe_valid_source_payload_data[10]),
+.Q(milansoc_stage_spi_phy_tx_pipe_ready_sink_d_payload_data[10]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_tx_pipe_ready_sink_d_payload_data_reg[11]
+(.C(sys_clk),
+.CE(milansoc_stage_spi_phy_tx_pipe_ready_sink_d_valid0),
+.D(milansoc_stage_spi_phy_tx_pipe_valid_source_payload_data[11]),
+.Q(milansoc_stage_spi_phy_tx_pipe_ready_sink_d_payload_data[11]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_tx_pipe_ready_sink_d_payload_data_reg[12]
+(.C(sys_clk),
+.CE(milansoc_stage_spi_phy_tx_pipe_ready_sink_d_valid0),
+.D(milansoc_stage_spi_phy_tx_pipe_valid_source_payload_data[12]),
+.Q(milansoc_stage_spi_phy_tx_pipe_ready_sink_d_payload_data[12]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_tx_pipe_ready_sink_d_payload_data_reg[13]
+(.C(sys_clk),
+.CE(milansoc_stage_spi_phy_tx_pipe_ready_sink_d_valid0),
+.D(milansoc_stage_spi_phy_tx_pipe_valid_source_payload_data[13]),
+.Q(milansoc_stage_spi_phy_tx_pipe_ready_sink_d_payload_data[13]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_tx_pipe_ready_sink_d_payload_data_reg[14]
+(.C(sys_clk),
+.CE(milansoc_stage_spi_phy_tx_pipe_ready_sink_d_valid0),
+.D(milansoc_stage_spi_phy_tx_pipe_valid_source_payload_data[14]),
+.Q(milansoc_stage_spi_phy_tx_pipe_ready_sink_d_payload_data[14]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_tx_pipe_ready_sink_d_payload_data_reg[15]
+(.C(sys_clk),
+.CE(milansoc_stage_spi_phy_tx_pipe_ready_sink_d_valid0),
+.D(milansoc_stage_spi_phy_tx_pipe_valid_source_payload_data[15]),
+.Q(milansoc_stage_spi_phy_tx_pipe_ready_sink_d_payload_data[15]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_tx_pipe_ready_sink_d_payload_data_reg[16]
+(.C(sys_clk),
+.CE(milansoc_stage_spi_phy_tx_pipe_ready_sink_d_valid0),
+.D(milansoc_stage_spi_phy_tx_pipe_valid_source_payload_data[16]),
+.Q(milansoc_stage_spi_phy_tx_pipe_ready_sink_d_payload_data[16]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_tx_pipe_ready_sink_d_payload_data_reg[17]
+(.C(sys_clk),
+.CE(milansoc_stage_spi_phy_tx_pipe_ready_sink_d_valid0),
+.D(milansoc_stage_spi_phy_tx_pipe_valid_source_payload_data[17]),
+.Q(milansoc_stage_spi_phy_tx_pipe_ready_sink_d_payload_data[17]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_tx_pipe_ready_sink_d_payload_data_reg[18]
+(.C(sys_clk),
+.CE(milansoc_stage_spi_phy_tx_pipe_ready_sink_d_valid0),
+.D(milansoc_stage_spi_phy_tx_pipe_valid_source_payload_data[18]),
+.Q(milansoc_stage_spi_phy_tx_pipe_ready_sink_d_payload_data[18]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_tx_pipe_ready_sink_d_payload_data_reg[19]
+(.C(sys_clk),
+.CE(milansoc_stage_spi_phy_tx_pipe_ready_sink_d_valid0),
+.D(milansoc_stage_spi_phy_tx_pipe_valid_source_payload_data[19]),
+.Q(milansoc_stage_spi_phy_tx_pipe_ready_sink_d_payload_data[19]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_tx_pipe_ready_sink_d_payload_data_reg[1]
+(.C(sys_clk),
+.CE(milansoc_stage_spi_phy_tx_pipe_ready_sink_d_valid0),
+.D(milansoc_stage_spi_phy_tx_pipe_valid_source_payload_data[1]),
+.Q(milansoc_stage_spi_phy_tx_pipe_ready_sink_d_payload_data[1]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_tx_pipe_ready_sink_d_payload_data_reg[20]
+(.C(sys_clk),
+.CE(milansoc_stage_spi_phy_tx_pipe_ready_sink_d_valid0),
+.D(milansoc_stage_spi_phy_tx_pipe_valid_source_payload_data[20]),
+.Q(milansoc_stage_spi_phy_tx_pipe_ready_sink_d_payload_data[20]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_tx_pipe_ready_sink_d_payload_data_reg[21]
+(.C(sys_clk),
+.CE(milansoc_stage_spi_phy_tx_pipe_ready_sink_d_valid0),
+.D(milansoc_stage_spi_phy_tx_pipe_valid_source_payload_data[21]),
+.Q(milansoc_stage_spi_phy_tx_pipe_ready_sink_d_payload_data[21]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_tx_pipe_ready_sink_d_payload_data_reg[22]
+(.C(sys_clk),
+.CE(milansoc_stage_spi_phy_tx_pipe_ready_sink_d_valid0),
+.D(milansoc_stage_spi_phy_tx_pipe_valid_source_payload_data[22]),
+.Q(milansoc_stage_spi_phy_tx_pipe_ready_sink_d_payload_data[22]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_tx_pipe_ready_sink_d_payload_data_reg[23]
+(.C(sys_clk),
+.CE(milansoc_stage_spi_phy_tx_pipe_ready_sink_d_valid0),
+.D(milansoc_stage_spi_phy_tx_pipe_valid_source_payload_data[23]),
+.Q(milansoc_stage_spi_phy_tx_pipe_ready_sink_d_payload_data[23]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_tx_pipe_ready_sink_d_payload_data_reg[24]
+(.C(sys_clk),
+.CE(milansoc_stage_spi_phy_tx_pipe_ready_sink_d_valid0),
+.D(milansoc_stage_spi_phy_tx_pipe_valid_source_payload_data[24]),
+.Q(milansoc_stage_spi_phy_tx_pipe_ready_sink_d_payload_data[24]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_tx_pipe_ready_sink_d_payload_data_reg[25]
+(.C(sys_clk),
+.CE(milansoc_stage_spi_phy_tx_pipe_ready_sink_d_valid0),
+.D(milansoc_stage_spi_phy_tx_pipe_valid_source_payload_data[25]),
+.Q(milansoc_stage_spi_phy_tx_pipe_ready_sink_d_payload_data[25]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_tx_pipe_ready_sink_d_payload_data_reg[26]
+(.C(sys_clk),
+.CE(milansoc_stage_spi_phy_tx_pipe_ready_sink_d_valid0),
+.D(milansoc_stage_spi_phy_tx_pipe_valid_source_payload_data[26]),
+.Q(milansoc_stage_spi_phy_tx_pipe_ready_sink_d_payload_data[26]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_tx_pipe_ready_sink_d_payload_data_reg[27]
+(.C(sys_clk),
+.CE(milansoc_stage_spi_phy_tx_pipe_ready_sink_d_valid0),
+.D(milansoc_stage_spi_phy_tx_pipe_valid_source_payload_data[27]),
+.Q(milansoc_stage_spi_phy_tx_pipe_ready_sink_d_payload_data[27]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_tx_pipe_ready_sink_d_payload_data_reg[28]
+(.C(sys_clk),
+.CE(milansoc_stage_spi_phy_tx_pipe_ready_sink_d_valid0),
+.D(milansoc_stage_spi_phy_tx_pipe_valid_source_payload_data[28]),
+.Q(milansoc_stage_spi_phy_tx_pipe_ready_sink_d_payload_data[28]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_tx_pipe_ready_sink_d_payload_data_reg[29]
+(.C(sys_clk),
+.CE(milansoc_stage_spi_phy_tx_pipe_ready_sink_d_valid0),
+.D(milansoc_stage_spi_phy_tx_pipe_valid_source_payload_data[29]),
+.Q(milansoc_stage_spi_phy_tx_pipe_ready_sink_d_payload_data[29]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_tx_pipe_ready_sink_d_payload_data_reg[2]
+(.C(sys_clk),
+.CE(milansoc_stage_spi_phy_tx_pipe_ready_sink_d_valid0),
+.D(milansoc_stage_spi_phy_tx_pipe_valid_source_payload_data[2]),
+.Q(milansoc_stage_spi_phy_tx_pipe_ready_sink_d_payload_data[2]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_tx_pipe_ready_sink_d_payload_data_reg[30]
+(.C(sys_clk),
+.CE(milansoc_stage_spi_phy_tx_pipe_ready_sink_d_valid0),
+.D(milansoc_stage_spi_phy_tx_pipe_valid_source_payload_data[30]),
+.Q(milansoc_stage_spi_phy_tx_pipe_ready_sink_d_payload_data[30]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_tx_pipe_ready_sink_d_payload_data_reg[31]
+(.C(sys_clk),
+.CE(milansoc_stage_spi_phy_tx_pipe_ready_sink_d_valid0),
+.D(milansoc_stage_spi_phy_tx_pipe_valid_source_payload_data[31]),
+.Q(milansoc_stage_spi_phy_tx_pipe_ready_sink_d_payload_data[31]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_tx_pipe_ready_sink_d_payload_data_reg[3]
+(.C(sys_clk),
+.CE(milansoc_stage_spi_phy_tx_pipe_ready_sink_d_valid0),
+.D(milansoc_stage_spi_phy_tx_pipe_valid_source_payload_data[3]),
+.Q(milansoc_stage_spi_phy_tx_pipe_ready_sink_d_payload_data[3]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_tx_pipe_ready_sink_d_payload_data_reg[4]
+(.C(sys_clk),
+.CE(milansoc_stage_spi_phy_tx_pipe_ready_sink_d_valid0),
+.D(milansoc_stage_spi_phy_tx_pipe_valid_source_payload_data[4]),
+.Q(milansoc_stage_spi_phy_tx_pipe_ready_sink_d_payload_data[4]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_tx_pipe_ready_sink_d_payload_data_reg[5]
+(.C(sys_clk),
+.CE(milansoc_stage_spi_phy_tx_pipe_ready_sink_d_valid0),
+.D(milansoc_stage_spi_phy_tx_pipe_valid_source_payload_data[5]),
+.Q(milansoc_stage_spi_phy_tx_pipe_ready_sink_d_payload_data[5]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_tx_pipe_ready_sink_d_payload_data_reg[6]
+(.C(sys_clk),
+.CE(milansoc_stage_spi_phy_tx_pipe_ready_sink_d_valid0),
+.D(milansoc_stage_spi_phy_tx_pipe_valid_source_payload_data[6]),
+.Q(milansoc_stage_spi_phy_tx_pipe_ready_sink_d_payload_data[6]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_tx_pipe_ready_sink_d_payload_data_reg[7]
+(.C(sys_clk),
+.CE(milansoc_stage_spi_phy_tx_pipe_ready_sink_d_valid0),
+.D(milansoc_stage_spi_phy_tx_pipe_valid_source_payload_data[7]),
+.Q(milansoc_stage_spi_phy_tx_pipe_ready_sink_d_payload_data[7]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_tx_pipe_ready_sink_d_payload_data_reg[8]
+(.C(sys_clk),
+.CE(milansoc_stage_spi_phy_tx_pipe_ready_sink_d_valid0),
+.D(milansoc_stage_spi_phy_tx_pipe_valid_source_payload_data[8]),
+.Q(milansoc_stage_spi_phy_tx_pipe_ready_sink_d_payload_data[8]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_tx_pipe_ready_sink_d_payload_data_reg[9]
+(.C(sys_clk),
+.CE(milansoc_stage_spi_phy_tx_pipe_ready_sink_d_valid0),
+.D(milansoc_stage_spi_phy_tx_pipe_valid_source_payload_data[9]),
+.Q(milansoc_stage_spi_phy_tx_pipe_ready_sink_d_payload_data[9]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_tx_pipe_ready_sink_d_payload_len_reg[0]
+(.C(sys_clk),
+.CE(milansoc_stage_spi_phy_tx_pipe_ready_sink_d_valid0),
+.D(milansoc_stage_spi_phy_tx_pipe_valid_source_payload_len[0]),
+.Q(milansoc_stage_spi_phy_tx_pipe_ready_sink_d_payload_len[0]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_tx_pipe_ready_sink_d_payload_len_reg[1]
+(.C(sys_clk),
+.CE(milansoc_stage_spi_phy_tx_pipe_ready_sink_d_valid0),
+.D(milansoc_stage_spi_phy_tx_pipe_valid_source_payload_len[1]),
+.Q(milansoc_stage_spi_phy_tx_pipe_ready_sink_d_payload_len[1]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_tx_pipe_ready_sink_d_payload_len_reg[2]
+(.C(sys_clk),
+.CE(milansoc_stage_spi_phy_tx_pipe_ready_sink_d_valid0),
+.D(milansoc_stage_spi_phy_tx_pipe_valid_source_payload_len[2]),
+.Q(milansoc_stage_spi_phy_tx_pipe_ready_sink_d_payload_len[2]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_tx_pipe_ready_sink_d_payload_len_reg[3]
+(.C(sys_clk),
+.CE(milansoc_stage_spi_phy_tx_pipe_ready_sink_d_valid0),
+.D(milansoc_stage_spi_phy_tx_pipe_valid_source_payload_len[3]),
+.Q(milansoc_stage_spi_phy_tx_pipe_ready_sink_d_payload_len[3]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_tx_pipe_ready_sink_d_payload_len_reg[4]
+(.C(sys_clk),
+.CE(milansoc_stage_spi_phy_tx_pipe_ready_sink_d_valid0),
+.D(milansoc_stage_spi_phy_tx_pipe_valid_source_payload_len[4]),
+.Q(milansoc_stage_spi_phy_tx_pipe_ready_sink_d_payload_len[4]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_tx_pipe_ready_sink_d_payload_len_reg[5]
+(.C(sys_clk),
+.CE(milansoc_stage_spi_phy_tx_pipe_ready_sink_d_valid0),
+.D(milansoc_stage_spi_phy_tx_pipe_valid_source_payload_len[5]),
+.Q(milansoc_stage_spi_phy_tx_pipe_ready_sink_d_payload_len[5]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_tx_pipe_ready_sink_d_payload_width_reg[0]
+(.C(sys_clk),
+.CE(milansoc_stage_spi_phy_tx_pipe_ready_sink_d_valid0),
+.D(milansoc_stage_spi_phy_tx_pipe_valid_source_payload_width[0]),
+.Q(milansoc_stage_spi_phy_tx_pipe_ready_sink_d_payload_width[0]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_tx_pipe_ready_sink_d_payload_width_reg[1]
+(.C(sys_clk),
+.CE(milansoc_stage_spi_phy_tx_pipe_ready_sink_d_valid0),
+.D(milansoc_stage_spi_phy_tx_pipe_valid_source_payload_width[1]),
+.Q(milansoc_stage_spi_phy_tx_pipe_ready_sink_d_payload_width[1]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_tx_pipe_ready_sink_d_payload_width_reg[2]
+(.C(sys_clk),
+.CE(milansoc_stage_spi_phy_tx_pipe_ready_sink_d_valid0),
+.D(milansoc_stage_spi_phy_tx_pipe_valid_source_payload_width[2]),
+.Q(milansoc_stage_spi_phy_tx_pipe_ready_sink_d_payload_width[2]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_tx_pipe_ready_sink_d_payload_width_reg[3]
+(.C(sys_clk),
+.CE(milansoc_stage_spi_phy_tx_pipe_ready_sink_d_valid0),
+.D(milansoc_stage_spi_phy_tx_pipe_valid_source_payload_width[3]),
+.Q(milansoc_stage_spi_phy_tx_pipe_ready_sink_d_payload_width[3]),
+.RST(sys_rst));
+RTL_AND7 milansoc_stage_spi_phy_tx_pipe_ready_sink_d_valid0_i
+(.I0(milansoc_stage_spi_phy_tx_pipe_ready_valid1_i_n_0),
+.I1(milansoc_stage_spi_phy_tx_pipe_valid_source_ready),
+.O(milansoc_stage_spi_phy_tx_pipe_ready_sink_d_valid0));
+RTL_REG_SYNC__BREG_1 milansoc_stage_spi_phy_tx_pipe_ready_sink_d_valid_reg
+(.C(sys_clk),
+.CE(milansoc_stage_spi_phy_tx_pipe_ready_sink_d_valid0),
+.D(milansoc_stage_spi_phy_tx_pipe_valid_source_valid),
+.Q(milansoc_stage_spi_phy_tx_pipe_ready_sink_d_valid),
+.RST(sys_rst));
+RTL_INV milansoc_stage_spi_phy_tx_pipe_ready_sink_ready_i
+(.I0(milansoc_stage_spi_phy_tx_pipe_ready_valid),
+.O(milansoc_stage_spi_phy_tx_pipe_valid_source_ready));
+RTL_MUX670 milansoc_stage_spi_phy_tx_pipe_ready_source_payload_clk_div_i
+(.I0(milansoc_stage_spi_phy_tx_pipe_ready_sink_d_payload_clk_div),
+.I1(milansoc_stage_spi_phy_tx_pipe_valid_source_payload_clk_div),
+.O(milansoc_stage_spi_phy_tx_pipe_ready_source_payload_clk_div_reg),
+.S(milansoc_stage_spi_phy_tx_pipe_ready_valid));
+RTL_MUX374 milansoc_stage_spi_phy_tx_pipe_ready_source_payload_data_i
+(.I0(milansoc_stage_spi_phy_tx_pipe_ready_sink_d_payload_data),
+.I1(milansoc_stage_spi_phy_tx_pipe_valid_source_payload_data),
+.O(milansoc_stage_spi_phy_tx_pipe_ready_source_payload_data_reg),
+.S(milansoc_stage_spi_phy_tx_pipe_ready_valid));
+RTL_MUX26 milansoc_stage_spi_phy_tx_pipe_ready_source_payload_len_i
+(.I0(milansoc_stage_spi_phy_tx_pipe_ready_sink_d_payload_len),
+.I1(milansoc_stage_spi_phy_tx_pipe_valid_source_payload_len),
+.O(milansoc_stage_spi_phy_tx_pipe_ready_source_payload_len_reg),
+.S(milansoc_stage_spi_phy_tx_pipe_ready_valid));
+RTL_MUX342 milansoc_stage_spi_phy_tx_pipe_ready_source_payload_width_i
+(.I0(milansoc_stage_spi_phy_tx_pipe_ready_sink_d_payload_width),
+.I1(milansoc_stage_spi_phy_tx_pipe_valid_source_payload_width),
+.O(milansoc_stage_spi_phy_tx_pipe_ready_source_payload_width_reg),
+.S(milansoc_stage_spi_phy_tx_pipe_ready_valid));
+RTL_MUX milansoc_stage_spi_phy_tx_pipe_ready_source_valid_i
+(.I0(milansoc_stage_spi_phy_tx_pipe_ready_sink_d_valid),
+.I1(milansoc_stage_spi_phy_tx_pipe_valid_source_valid),
+.O(milansoc_stage_spi_phy_tx_pipe_ready_source_valid_reg),
+.S(milansoc_stage_spi_phy_tx_pipe_ready_valid));
+RTL_AND7 milansoc_stage_spi_phy_tx_pipe_ready_valid0_i
+(.I0(milansoc_stage_spi_phy_tx_pipe_valid_source_valid),
+.I1(milansoc_stage_spi_phy_tx_pipe_ready_valid1_i_n_0),
+.O(milansoc_stage_spi_phy_tx_pipe_ready_valid0));
+RTL_INV milansoc_stage_spi_phy_tx_pipe_ready_valid1_i
+(.I0(milansoc_phy_start_reg),
+.O(milansoc_stage_spi_phy_tx_pipe_ready_valid1_i_n_0));
+RTL_MUX milansoc_stage_spi_phy_tx_pipe_ready_valid_i
+(.I0(\<const1> ),
+.I1(milansoc_phy_start_reg),
+.O(milansoc_stage_spi_phy_tx_pipe_ready_valid__0),
+.S(milansoc_stage_spi_phy_tx_pipe_ready_valid0));
+RTL_REG_SYNC__BREG_1 milansoc_stage_spi_phy_tx_pipe_ready_valid_reg
+(.C(sys_clk),
+.CE(milansoc_stage_spi_phy_tx_pipe_ready_valid__0),
+.D(milansoc_stage_spi_phy_tx_pipe_ready_valid0),
+.Q(milansoc_stage_spi_phy_tx_pipe_ready_valid),
+.RST(sys_rst));
+RTL_OR146 milansoc_stage_spi_phy_tx_pipe_valid_sink_ready_i
+(.I0(milansoc_stage_spi_phy_tx_pipe_valid_source_valid),
+.I1(milansoc_stage_spi_phy_tx_pipe_valid_source_ready),
+.O(subfragments_tx_mux_source_ready));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_tx_pipe_valid_source_payload_clk_div_reg[0]
+(.C(sys_clk),
+.CE(subfragments_tx_mux_source_ready),
+.D(subfragments_tx_mux_source_payload_clk_div_reg[0]),
+.Q(milansoc_stage_spi_phy_tx_pipe_valid_source_payload_clk_div[0]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_tx_pipe_valid_source_payload_clk_div_reg[1]
+(.C(sys_clk),
+.CE(subfragments_tx_mux_source_ready),
+.D(subfragments_tx_mux_source_payload_clk_div_reg[1]),
+.Q(milansoc_stage_spi_phy_tx_pipe_valid_source_payload_clk_div[1]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_tx_pipe_valid_source_payload_clk_div_reg[2]
+(.C(sys_clk),
+.CE(subfragments_tx_mux_source_ready),
+.D(subfragments_tx_mux_source_payload_clk_div_reg[2]),
+.Q(milansoc_stage_spi_phy_tx_pipe_valid_source_payload_clk_div[2]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_tx_pipe_valid_source_payload_clk_div_reg[3]
+(.C(sys_clk),
+.CE(subfragments_tx_mux_source_ready),
+.D(subfragments_tx_mux_source_payload_clk_div_reg[3]),
+.Q(milansoc_stage_spi_phy_tx_pipe_valid_source_payload_clk_div[3]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_tx_pipe_valid_source_payload_clk_div_reg[4]
+(.C(sys_clk),
+.CE(subfragments_tx_mux_source_ready),
+.D(subfragments_tx_mux_source_payload_clk_div_reg[4]),
+.Q(milansoc_stage_spi_phy_tx_pipe_valid_source_payload_clk_div[4]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_tx_pipe_valid_source_payload_clk_div_reg[5]
+(.C(sys_clk),
+.CE(subfragments_tx_mux_source_ready),
+.D(subfragments_tx_mux_source_payload_clk_div_reg[5]),
+.Q(milansoc_stage_spi_phy_tx_pipe_valid_source_payload_clk_div[5]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_tx_pipe_valid_source_payload_clk_div_reg[6]
+(.C(sys_clk),
+.CE(subfragments_tx_mux_source_ready),
+.D(subfragments_tx_mux_source_payload_clk_div_reg[6]),
+.Q(milansoc_stage_spi_phy_tx_pipe_valid_source_payload_clk_div[6]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_tx_pipe_valid_source_payload_clk_div_reg[7]
+(.C(sys_clk),
+.CE(subfragments_tx_mux_source_ready),
+.D(subfragments_tx_mux_source_payload_clk_div_reg[7]),
+.Q(milansoc_stage_spi_phy_tx_pipe_valid_source_payload_clk_div[7]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_tx_pipe_valid_source_payload_clk_div_reg[8]
+(.C(sys_clk),
+.CE(subfragments_tx_mux_source_ready),
+.D(subfragments_tx_mux_source_payload_clk_div_reg[8]),
+.Q(milansoc_stage_spi_phy_tx_pipe_valid_source_payload_clk_div[8]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_tx_pipe_valid_source_payload_clk_div_reg[9]
+(.C(sys_clk),
+.CE(subfragments_tx_mux_source_ready),
+.D(subfragments_tx_mux_source_payload_clk_div_reg[9]),
+.Q(milansoc_stage_spi_phy_tx_pipe_valid_source_payload_clk_div[9]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_tx_pipe_valid_source_payload_data_reg[0]
+(.C(sys_clk),
+.CE(subfragments_tx_mux_source_ready),
+.D(subfragments_tx_mux_source_payload_data_reg[0]),
+.Q(milansoc_stage_spi_phy_tx_pipe_valid_source_payload_data[0]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_tx_pipe_valid_source_payload_data_reg[10]
+(.C(sys_clk),
+.CE(subfragments_tx_mux_source_ready),
+.D(subfragments_tx_mux_source_payload_data_reg[10]),
+.Q(milansoc_stage_spi_phy_tx_pipe_valid_source_payload_data[10]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_tx_pipe_valid_source_payload_data_reg[11]
+(.C(sys_clk),
+.CE(subfragments_tx_mux_source_ready),
+.D(subfragments_tx_mux_source_payload_data_reg[11]),
+.Q(milansoc_stage_spi_phy_tx_pipe_valid_source_payload_data[11]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_tx_pipe_valid_source_payload_data_reg[12]
+(.C(sys_clk),
+.CE(subfragments_tx_mux_source_ready),
+.D(subfragments_tx_mux_source_payload_data_reg[12]),
+.Q(milansoc_stage_spi_phy_tx_pipe_valid_source_payload_data[12]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_tx_pipe_valid_source_payload_data_reg[13]
+(.C(sys_clk),
+.CE(subfragments_tx_mux_source_ready),
+.D(subfragments_tx_mux_source_payload_data_reg[13]),
+.Q(milansoc_stage_spi_phy_tx_pipe_valid_source_payload_data[13]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_tx_pipe_valid_source_payload_data_reg[14]
+(.C(sys_clk),
+.CE(subfragments_tx_mux_source_ready),
+.D(subfragments_tx_mux_source_payload_data_reg[14]),
+.Q(milansoc_stage_spi_phy_tx_pipe_valid_source_payload_data[14]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_tx_pipe_valid_source_payload_data_reg[15]
+(.C(sys_clk),
+.CE(subfragments_tx_mux_source_ready),
+.D(subfragments_tx_mux_source_payload_data_reg[15]),
+.Q(milansoc_stage_spi_phy_tx_pipe_valid_source_payload_data[15]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_tx_pipe_valid_source_payload_data_reg[16]
+(.C(sys_clk),
+.CE(subfragments_tx_mux_source_ready),
+.D(subfragments_tx_mux_source_payload_data_reg[16]),
+.Q(milansoc_stage_spi_phy_tx_pipe_valid_source_payload_data[16]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_tx_pipe_valid_source_payload_data_reg[17]
+(.C(sys_clk),
+.CE(subfragments_tx_mux_source_ready),
+.D(subfragments_tx_mux_source_payload_data_reg[17]),
+.Q(milansoc_stage_spi_phy_tx_pipe_valid_source_payload_data[17]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_tx_pipe_valid_source_payload_data_reg[18]
+(.C(sys_clk),
+.CE(subfragments_tx_mux_source_ready),
+.D(subfragments_tx_mux_source_payload_data_reg[18]),
+.Q(milansoc_stage_spi_phy_tx_pipe_valid_source_payload_data[18]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_tx_pipe_valid_source_payload_data_reg[19]
+(.C(sys_clk),
+.CE(subfragments_tx_mux_source_ready),
+.D(subfragments_tx_mux_source_payload_data_reg[19]),
+.Q(milansoc_stage_spi_phy_tx_pipe_valid_source_payload_data[19]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_tx_pipe_valid_source_payload_data_reg[1]
+(.C(sys_clk),
+.CE(subfragments_tx_mux_source_ready),
+.D(subfragments_tx_mux_source_payload_data_reg[1]),
+.Q(milansoc_stage_spi_phy_tx_pipe_valid_source_payload_data[1]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_tx_pipe_valid_source_payload_data_reg[20]
+(.C(sys_clk),
+.CE(subfragments_tx_mux_source_ready),
+.D(subfragments_tx_mux_source_payload_data_reg[20]),
+.Q(milansoc_stage_spi_phy_tx_pipe_valid_source_payload_data[20]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_tx_pipe_valid_source_payload_data_reg[21]
+(.C(sys_clk),
+.CE(subfragments_tx_mux_source_ready),
+.D(subfragments_tx_mux_source_payload_data_reg[21]),
+.Q(milansoc_stage_spi_phy_tx_pipe_valid_source_payload_data[21]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_tx_pipe_valid_source_payload_data_reg[22]
+(.C(sys_clk),
+.CE(subfragments_tx_mux_source_ready),
+.D(subfragments_tx_mux_source_payload_data_reg[22]),
+.Q(milansoc_stage_spi_phy_tx_pipe_valid_source_payload_data[22]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_tx_pipe_valid_source_payload_data_reg[23]
+(.C(sys_clk),
+.CE(subfragments_tx_mux_source_ready),
+.D(subfragments_tx_mux_source_payload_data_reg[23]),
+.Q(milansoc_stage_spi_phy_tx_pipe_valid_source_payload_data[23]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_tx_pipe_valid_source_payload_data_reg[24]
+(.C(sys_clk),
+.CE(subfragments_tx_mux_source_ready),
+.D(subfragments_tx_mux_source_payload_data_reg[24]),
+.Q(milansoc_stage_spi_phy_tx_pipe_valid_source_payload_data[24]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_tx_pipe_valid_source_payload_data_reg[25]
+(.C(sys_clk),
+.CE(subfragments_tx_mux_source_ready),
+.D(subfragments_tx_mux_source_payload_data_reg[25]),
+.Q(milansoc_stage_spi_phy_tx_pipe_valid_source_payload_data[25]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_tx_pipe_valid_source_payload_data_reg[26]
+(.C(sys_clk),
+.CE(subfragments_tx_mux_source_ready),
+.D(subfragments_tx_mux_source_payload_data_reg[26]),
+.Q(milansoc_stage_spi_phy_tx_pipe_valid_source_payload_data[26]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_tx_pipe_valid_source_payload_data_reg[27]
+(.C(sys_clk),
+.CE(subfragments_tx_mux_source_ready),
+.D(subfragments_tx_mux_source_payload_data_reg[27]),
+.Q(milansoc_stage_spi_phy_tx_pipe_valid_source_payload_data[27]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_tx_pipe_valid_source_payload_data_reg[28]
+(.C(sys_clk),
+.CE(subfragments_tx_mux_source_ready),
+.D(subfragments_tx_mux_source_payload_data_reg[28]),
+.Q(milansoc_stage_spi_phy_tx_pipe_valid_source_payload_data[28]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_tx_pipe_valid_source_payload_data_reg[29]
+(.C(sys_clk),
+.CE(subfragments_tx_mux_source_ready),
+.D(subfragments_tx_mux_source_payload_data_reg[29]),
+.Q(milansoc_stage_spi_phy_tx_pipe_valid_source_payload_data[29]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_tx_pipe_valid_source_payload_data_reg[2]
+(.C(sys_clk),
+.CE(subfragments_tx_mux_source_ready),
+.D(subfragments_tx_mux_source_payload_data_reg[2]),
+.Q(milansoc_stage_spi_phy_tx_pipe_valid_source_payload_data[2]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_tx_pipe_valid_source_payload_data_reg[30]
+(.C(sys_clk),
+.CE(subfragments_tx_mux_source_ready),
+.D(subfragments_tx_mux_source_payload_data_reg[30]),
+.Q(milansoc_stage_spi_phy_tx_pipe_valid_source_payload_data[30]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_tx_pipe_valid_source_payload_data_reg[31]
+(.C(sys_clk),
+.CE(subfragments_tx_mux_source_ready),
+.D(subfragments_tx_mux_source_payload_data_reg[31]),
+.Q(milansoc_stage_spi_phy_tx_pipe_valid_source_payload_data[31]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_tx_pipe_valid_source_payload_data_reg[3]
+(.C(sys_clk),
+.CE(subfragments_tx_mux_source_ready),
+.D(subfragments_tx_mux_source_payload_data_reg[3]),
+.Q(milansoc_stage_spi_phy_tx_pipe_valid_source_payload_data[3]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_tx_pipe_valid_source_payload_data_reg[4]
+(.C(sys_clk),
+.CE(subfragments_tx_mux_source_ready),
+.D(subfragments_tx_mux_source_payload_data_reg[4]),
+.Q(milansoc_stage_spi_phy_tx_pipe_valid_source_payload_data[4]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_tx_pipe_valid_source_payload_data_reg[5]
+(.C(sys_clk),
+.CE(subfragments_tx_mux_source_ready),
+.D(subfragments_tx_mux_source_payload_data_reg[5]),
+.Q(milansoc_stage_spi_phy_tx_pipe_valid_source_payload_data[5]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_tx_pipe_valid_source_payload_data_reg[6]
+(.C(sys_clk),
+.CE(subfragments_tx_mux_source_ready),
+.D(subfragments_tx_mux_source_payload_data_reg[6]),
+.Q(milansoc_stage_spi_phy_tx_pipe_valid_source_payload_data[6]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_tx_pipe_valid_source_payload_data_reg[7]
+(.C(sys_clk),
+.CE(subfragments_tx_mux_source_ready),
+.D(subfragments_tx_mux_source_payload_data_reg[7]),
+.Q(milansoc_stage_spi_phy_tx_pipe_valid_source_payload_data[7]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_tx_pipe_valid_source_payload_data_reg[8]
+(.C(sys_clk),
+.CE(subfragments_tx_mux_source_ready),
+.D(subfragments_tx_mux_source_payload_data_reg[8]),
+.Q(milansoc_stage_spi_phy_tx_pipe_valid_source_payload_data[8]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_tx_pipe_valid_source_payload_data_reg[9]
+(.C(sys_clk),
+.CE(subfragments_tx_mux_source_ready),
+.D(subfragments_tx_mux_source_payload_data_reg[9]),
+.Q(milansoc_stage_spi_phy_tx_pipe_valid_source_payload_data[9]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_tx_pipe_valid_source_payload_len_reg[0]
+(.C(sys_clk),
+.CE(subfragments_tx_mux_source_ready),
+.D(subfragments_tx_mux_source_payload_len_reg[0]),
+.Q(milansoc_stage_spi_phy_tx_pipe_valid_source_payload_len[0]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_tx_pipe_valid_source_payload_len_reg[1]
+(.C(sys_clk),
+.CE(subfragments_tx_mux_source_ready),
+.D(subfragments_tx_mux_source_payload_len_reg[1]),
+.Q(milansoc_stage_spi_phy_tx_pipe_valid_source_payload_len[1]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_tx_pipe_valid_source_payload_len_reg[2]
+(.C(sys_clk),
+.CE(subfragments_tx_mux_source_ready),
+.D(subfragments_tx_mux_source_payload_len_reg[2]),
+.Q(milansoc_stage_spi_phy_tx_pipe_valid_source_payload_len[2]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_tx_pipe_valid_source_payload_len_reg[3]
+(.C(sys_clk),
+.CE(subfragments_tx_mux_source_ready),
+.D(subfragments_tx_mux_source_payload_len_reg[3]),
+.Q(milansoc_stage_spi_phy_tx_pipe_valid_source_payload_len[3]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_tx_pipe_valid_source_payload_len_reg[4]
+(.C(sys_clk),
+.CE(subfragments_tx_mux_source_ready),
+.D(subfragments_tx_mux_source_payload_len_reg[4]),
+.Q(milansoc_stage_spi_phy_tx_pipe_valid_source_payload_len[4]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_tx_pipe_valid_source_payload_len_reg[5]
+(.C(sys_clk),
+.CE(subfragments_tx_mux_source_ready),
+.D(subfragments_tx_mux_source_payload_len_reg[5]),
+.Q(milansoc_stage_spi_phy_tx_pipe_valid_source_payload_len[5]),
+.RST(sys_rst));
+RTL_REG_SYNC__BREG_1 \milansoc_stage_spi_phy_tx_pipe_valid_source_payload_width_reg[0]
+(.C(sys_clk),
+.CE(subfragments_tx_mux_source_ready),
+.D(subfragments_tx_mux_source_payload_width

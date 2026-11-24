@@ -1,0 +1,70 @@
+Candidate head: dc78aedae34c25a97125ecd6816a1f645db5575f
+Comparison base: 3cda030c174b325e36c26af6420487ff91346d15
+Source: slot-usage.json
+Original SHA256: d6b32c7c0ae0c8f0330c7af4c76b51171e5d11e2cb9c6a3963566fd6f34df728
+Scope: complete text; paths and host fields normalized
+
+{
+  "policy": {
+    "VIVADO_SLOTS": 2,
+    "VIVADO_MIN_GB": 20
+  },
+  "jobs": [
+    {
+      "log": "off-route/endstation_ax7101_1x1_tdm8/gateware/measure_synth.log",
+      "slot": 1,
+      "lock": "/tmp/milan-vivado-slot-1.lock",
+      "MemAvailable_GB": 66,
+      "started": "2026-11-24T06:22:26+01:00"
+    },
+    {
+      "log": "off-route/endstation_ax7101_8x8/gateware/measure_synth.log",
+      "slot": 1,
+      "lock": "/tmp/milan-vivado-slot-1.lock",
+      "MemAvailable_GB": 64,
+      "started": "2026-11-24T06:11:26+01:00"
+    },
+    {
+      "log": "route/endstation_ax7101_1x1_tdm8/gateware/ExtraTimingOpt/measure_route.log",
+      "slot": 0,
+      "lock": "$VIVADO_LOCK",
+      "MemAvailable_GB": 60,
+      "started": "2026-11-24T06:33:59+01:00"
+    },
+    {
+      "log": "route/endstation_ax7101_1x1_tdm8/gateware/measure_synth.log",
+      "slot": 0,
+      "lock": "$VIVADO_LOCK",
+      "MemAvailable_GB": 60,
+      "started": "2026-11-24T06:25:49+01:00"
+    },
+    {
+      "log": "rtl-final/base/endstation_ax7101_1x1_tdm8/run.log",
+      "slot": 1,
+      "lock": "/tmp/milan-vivado-slot-1.lock",
+      "MemAvailable_GB": 63,
+      "started": "2026-11-24T06:08:15+01:00"
+    },
+    {
+      "log": "rtl-final/base/endstation_ax7101_8x8/run.log",
+      "slot": 1,
+      "lock": "/tmp/milan-vivado-slot-1.lock",
+      "MemAvailable_GB": 60,
+      "started": "2026-11-24T06:08:56+01:00"
+    },
+    {
+      "log": "rtl-final/head/endstation_ax7101_1x1_tdm8/run.log",
+      "slot": 1,
+      "lock": "/tmp/milan-vivado-slot-1.lock",
+      "MemAvailable_GB": 62,
+      "started": "2026-11-24T06:10:45+01:00"
+    },
+    {
+      "log": "rtl-final/head/endstation_ax7101_8x8/run.log",
+      "slot": 1,
+      "lock": "/tmp/milan-vivado-slot-1.lock",
+      "MemAvailable_GB": 64,
+      "started": "2026-11-24T06:09:46+01:00"
+    }
+  ]
+}

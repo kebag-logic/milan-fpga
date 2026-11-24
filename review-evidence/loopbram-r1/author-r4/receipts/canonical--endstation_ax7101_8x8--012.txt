@@ -1,0 +1,6390 @@
+.I0(\<const1> ),
+.I1(\<const0> ),
+.O(tnv_cnt_r_i__28_n_0),
+.S(rst_n));
+RTL_MUX462 tnv_cnt_r_i__29
+(.I0({RTL_ADD__35_n_0,RTL_ADD__35_n_1,RTL_ADD__35_n_2,RTL_ADD__35_n_3,RTL_ADD__35_n_4,RTL_ADD__35_n_5,RTL_ADD__35_n_6,RTL_ADD__35_n_7,RTL_ADD__35_n_8,RTL_ADD__35_n_9,RTL_ADD__35_n_10,RTL_ADD__35_n_11,RTL_ADD__35_n_12,RTL_ADD__35_n_13,RTL_ADD__35_n_14,RTL_ADD__35_n_15,RTL_ADD__35_n_16,RTL_ADD__35_n_17,RTL_ADD__35_n_18,RTL_ADD__35_n_19,RTL_ADD__35_n_20,RTL_ADD__35_n_21,RTL_ADD__35_n_22,RTL_ADD__35_n_23,RTL_ADD__35_n_24,RTL_ADD__35_n_25,RTL_ADD__35_n_26,RTL_ADD__35_n_27,RTL_ADD__35_n_28,RTL_ADD__35_n_29,RTL_ADD__35_n_30,RTL_ADD__35_n_31}),
+.I1({\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> }),
+.O({tnv_cnt_r_i__29_n_0,tnv_cnt_r_i__29_n_1,tnv_cnt_r_i__29_n_2,tnv_cnt_r_i__29_n_3,tnv_cnt_r_i__29_n_4,tnv_cnt_r_i__29_n_5,tnv_cnt_r_i__29_n_6,tnv_cnt_r_i__29_n_7,tnv_cnt_r_i__29_n_8,tnv_cnt_r_i__29_n_9,tnv_cnt_r_i__29_n_10,tnv_cnt_r_i__29_n_11,tnv_cnt_r_i__29_n_12,tnv_cnt_r_i__29_n_13,tnv_cnt_r_i__29_n_14,tnv_cnt_r_i__29_n_15,tnv_cnt_r_i__29_n_16,tnv_cnt_r_i__29_n_17,tnv_cnt_r_i__29_n_18,tnv_cnt_r_i__29_n_19,tnv_cnt_r_i__29_n_20,tnv_cnt_r_i__29_n_21,tnv_cnt_r_i__29_n_22,tnv_cnt_r_i__29_n_23,tnv_cnt_r_i__29_n_24,tnv_cnt_r_i__29_n_25,tnv_cnt_r_i__29_n_26,tnv_cnt_r_i__29_n_27,tnv_cnt_r_i__29_n_28,tnv_cnt_r_i__29_n_29,tnv_cnt_r_i__29_n_30,tnv_cnt_r_i__29_n_31}),
+.S(mst_r));
+RTL_MUX979 tnv_cnt_r_i__3
+(.I0(\<const0> ),
+.I1(\<const0> ),
+.I10(\<const0> ),
+.I2(\<const0> ),
+.I3(tnv_cnt_r_i__1_n_0),
+.I4(\<const0> ),
+.I5(\<const0> ),
+.I6(\<const0> ),
+.I7(\<const0> ),
+.I8(tnv_cnt_r_i__2_n_0),
+.I9(\<const0> ),
+.O(tnv_cnt_r_i__3_n_0),
+.S(mst_r));
+RTL_MUX tnv_cnt_r_i__30
+(.I0(\<const0> ),
+.I1(\tnv_cnt_r_reg[6]__0 ),
+.O(tnv_cnt_r_i__30_n_0),
+.S(\cur_w[tv] ));
+RTL_MUX tnv_cnt_r_i__31
+(.I0(\<const0> ),
+.I1(tnv_cnt_r_i__30_n_0),
+.O(tnv_cnt_r_i__31_n_0),
+.S(fmt_ok_w));
+RTL_MUX458 tnv_cnt_r_i__32
+(.I0(\tnv_cnt_r_reg[6]_i__0_n_0 ),
+.I1(\<const0> ),
+.O(tnv_cnt_r_i__32_n_0),
+.S(wrph_r));
+RTL_MUX979 tnv_cnt_r_i__33
+(.I0(\<const0> ),
+.I1(\<const0> ),
+.I10(\<const0> ),
+.I2(\<const0> ),
+.I3(tnv_cnt_r_i__31_n_0),
+.I4(\<const0> ),
+.I5(\<const0> ),
+.I6(\<const0> ),
+.I7(\<const0> ),
+.I8(tnv_cnt_r_i__32_n_0),
+.I9(\<const0> ),
+.O(tnv_cnt_r_i__33_n_0),
+.S(mst_r));
+RTL_MUX tnv_cnt_r_i__34
+(.I0(\<const1> ),
+.I1(\<const0> ),
+.O(tnv_cnt_r_i__34_n_0),
+.S(rst_n));
+RTL_MUX462 tnv_cnt_r_i__35
+(.I0({RTL_ADD__35_n_0,RTL_ADD__35_n_1,RTL_ADD__35_n_2,RTL_ADD__35_n_3,RTL_ADD__35_n_4,RTL_ADD__35_n_5,RTL_ADD__35_n_6,RTL_ADD__35_n_7,RTL_ADD__35_n_8,RTL_ADD__35_n_9,RTL_ADD__35_n_10,RTL_ADD__35_n_11,RTL_ADD__35_n_12,RTL_ADD__35_n_13,RTL_ADD__35_n_14,RTL_ADD__35_n_15,RTL_ADD__35_n_16,RTL_ADD__35_n_17,RTL_ADD__35_n_18,RTL_ADD__35_n_19,RTL_ADD__35_n_20,RTL_ADD__35_n_21,RTL_ADD__35_n_22,RTL_ADD__35_n_23,RTL_ADD__35_n_24,RTL_ADD__35_n_25,RTL_ADD__35_n_26,RTL_ADD__35_n_27,RTL_ADD__35_n_28,RTL_ADD__35_n_29,RTL_ADD__35_n_30,RTL_ADD__35_n_31}),
+.I1({\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> }),
+.O({tnv_cnt_r_i__35_n_0,tnv_cnt_r_i__35_n_1,tnv_cnt_r_i__35_n_2,tnv_cnt_r_i__35_n_3,tnv_cnt_r_i__35_n_4,tnv_cnt_r_i__35_n_5,tnv_cnt_r_i__35_n_6,tnv_cnt_r_i__35_n_7,tnv_cnt_r_i__35_n_8,tnv_cnt_r_i__35_n_9,tnv_cnt_r_i__35_n_10,tnv_cnt_r_i__35_n_11,tnv_cnt_r_i__35_n_12,tnv_cnt_r_i__35_n_13,tnv_cnt_r_i__35_n_14,tnv_cnt_r_i__35_n_15,tnv_cnt_r_i__35_n_16,tnv_cnt_r_i__35_n_17,tnv_cnt_r_i__35_n_18,tnv_cnt_r_i__35_n_19,tnv_cnt_r_i__35_n_20,tnv_cnt_r_i__35_n_21,tnv_cnt_r_i__35_n_22,tnv_cnt_r_i__35_n_23,tnv_cnt_r_i__35_n_24,tnv_cnt_r_i__35_n_25,tnv_cnt_r_i__35_n_26,tnv_cnt_r_i__35_n_27,tnv_cnt_r_i__35_n_28,tnv_cnt_r_i__35_n_29,tnv_cnt_r_i__35_n_30,tnv_cnt_r_i__35_n_31}),
+.S(mst_r));
+RTL_MUX tnv_cnt_r_i__36
+(.I0(\<const0> ),
+.I1(\tnv_cnt_r_reg[7]__0 ),
+.O(tnv_cnt_r_i__36_n_0),
+.S(\cur_w[tv] ));
+RTL_MUX tnv_cnt_r_i__37
+(.I0(\<const0> ),
+.I1(tnv_cnt_r_i__36_n_0),
+.O(tnv_cnt_r_i__37_n_0),
+.S(fmt_ok_w));
+RTL_MUX458 tnv_cnt_r_i__38
+(.I0(\tnv_cnt_r_reg[7]_i__0_n_0 ),
+.I1(\<const0> ),
+.O(tnv_cnt_r_i__38_n_0),
+.S(wrph_r));
+RTL_MUX979 tnv_cnt_r_i__39
+(.I0(\<const0> ),
+.I1(\<const0> ),
+.I10(\<const0> ),
+.I2(\<const0> ),
+.I3(tnv_cnt_r_i__37_n_0),
+.I4(\<const0> ),
+.I5(\<const0> ),
+.I6(\<const0> ),
+.I7(\<const0> ),
+.I8(tnv_cnt_r_i__38_n_0),
+.I9(\<const0> ),
+.O(tnv_cnt_r_i__39_n_0),
+.S(mst_r));
+RTL_MUX tnv_cnt_r_i__4
+(.I0(\<const1> ),
+.I1(\<const0> ),
+.O(tnv_cnt_r_i__4_n_0),
+.S(rst_n));
+RTL_MUX tnv_cnt_r_i__40
+(.I0(\<const1> ),
+.I1(\<const0> ),
+.O(tnv_cnt_r_i__40_n_0),
+.S(rst_n));
+RTL_MUX6163 tnv_cnt_r_i__41
+(.I0(cnt_ts_not_valid_o),
+.I1(p_15_in),
+.I2(p_14_in),
+.I3(p_13_in),
+.I4(p_12_in),
+.I5(p_11_in),
+.I6(p_10_in__0),
+.I7(p_9_in__0),
+.O({tnv_cnt_r_i__41_n_0,tnv_cnt_r_i__41_n_1,tnv_cnt_r_i__41_n_2,tnv_cnt_r_i__41_n_3,tnv_cnt_r_i__41_n_4,tnv_cnt_r_i__41_n_5,tnv_cnt_r_i__41_n_6,tnv_cnt_r_i__41_n_7,tnv_cnt_r_i__41_n_8,tnv_cnt_r_i__41_n_9,tnv_cnt_r_i__41_n_10,tnv_cnt_r_i__41_n_11,tnv_cnt_r_i__41_n_12,tnv_cnt_r_i__41_n_13,tnv_cnt_r_i__41_n_14,tnv_cnt_r_i__41_n_15,tnv_cnt_r_i__41_n_16,tnv_cnt_r_i__41_n_17,tnv_cnt_r_i__41_n_18,tnv_cnt_r_i__41_n_19,tnv_cnt_r_i__41_n_20,tnv_cnt_r_i__41_n_21,tnv_cnt_r_i__41_n_22,tnv_cnt_r_i__41_n_23,tnv_cnt_r_i__41_n_24,tnv_cnt_r_i__41_n_25,tnv_cnt_r_i__41_n_26,tnv_cnt_r_i__41_n_27,tnv_cnt_r_i__41_n_28,tnv_cnt_r_i__41_n_29,tnv_cnt_r_i__41_n_30,tnv_cnt_r_i__41_n_31}),
+.S(laddr_return));
+RTL_MUX462 tnv_cnt_r_i__42
+(.I0({RTL_ADD__35_n_0,RTL_ADD__35_n_1,RTL_ADD__35_n_2,RTL_ADD__35_n_3,RTL_ADD__35_n_4,RTL_ADD__35_n_5,RTL_ADD__35_n_6,RTL_ADD__35_n_7,RTL_ADD__35_n_8,RTL_ADD__35_n_9,RTL_ADD__35_n_10,RTL_ADD__35_n_11,RTL_ADD__35_n_12,RTL_ADD__35_n_13,RTL_ADD__35_n_14,RTL_ADD__35_n_15,RTL_ADD__35_n_16,RTL_ADD__35_n_17,RTL_ADD__35_n_18,RTL_ADD__35_n_19,RTL_ADD__35_n_20,RTL_ADD__35_n_21,RTL_ADD__35_n_22,RTL_ADD__35_n_23,RTL_ADD__35_n_24,RTL_ADD__35_n_25,RTL_ADD__35_n_26,RTL_ADD__35_n_27,RTL_ADD__35_n_28,RTL_ADD__35_n_29,RTL_ADD__35_n_30,RTL_ADD__35_n_31}),
+.I1({\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> }),
+.O({tnv_cnt_r_i__42_n_0,tnv_cnt_r_i__42_n_1,tnv_cnt_r_i__42_n_2,tnv_cnt_r_i__42_n_3,tnv_cnt_r_i__42_n_4,tnv_cnt_r_i__42_n_5,tnv_cnt_r_i__42_n_6,tnv_cnt_r_i__42_n_7,tnv_cnt_r_i__42_n_8,tnv_cnt_r_i__42_n_9,tnv_cnt_r_i__42_n_10,tnv_cnt_r_i__42_n_11,tnv_cnt_r_i__42_n_12,tnv_cnt_r_i__42_n_13,tnv_cnt_r_i__42_n_14,tnv_cnt_r_i__42_n_15,tnv_cnt_r_i__42_n_16,tnv_cnt_r_i__42_n_17,tnv_cnt_r_i__42_n_18,tnv_cnt_r_i__42_n_19,tnv_cnt_r_i__42_n_20,tnv_cnt_r_i__42_n_21,tnv_cnt_r_i__42_n_22,tnv_cnt_r_i__42_n_23,tnv_cnt_r_i__42_n_24,tnv_cnt_r_i__42_n_25,tnv_cnt_r_i__42_n_26,tnv_cnt_r_i__42_n_27,tnv_cnt_r_i__42_n_28,tnv_cnt_r_i__42_n_29,tnv_cnt_r_i__42_n_30,tnv_cnt_r_i__42_n_31}),
+.S(mst_r));
+RTL_MUX tnv_cnt_r_i__43
+(.I0(\<const0> ),
+.I1(\tnv_cnt_r_reg[0]__0 ),
+.O(tnv_cnt_r_i__43_n_0),
+.S(\cur_w[tv] ));
+RTL_MUX tnv_cnt_r_i__44
+(.I0(\<const0> ),
+.I1(tnv_cnt_r_i__43_n_0),
+.O(tnv_cnt_r_i__44_n_0),
+.S(fmt_ok_w));
+RTL_MUX458 tnv_cnt_r_i__45
+(.I0(\tnv_cnt_r_reg[0]_i__0_n_0 ),
+.I1(\<const0> ),
+.O(tnv_cnt_r_i__45_n_0),
+.S(wrph_r));
+RTL_MUX979 tnv_cnt_r_i__46
+(.I0(\<const0> ),
+.I1(\<const0> ),
+.I10(\<const0> ),
+.I2(\<const0> ),
+.I3(tnv_cnt_r_i__44_n_0),
+.I4(\<const0> ),
+.I5(\<const0> ),
+.I6(\<const0> ),
+.I7(\<const0> ),
+.I8(tnv_cnt_r_i__45_n_0),
+.I9(\<const0> ),
+.O(tnv_cnt_r_i__46_n_0),
+.S(mst_r));
+RTL_MUX tnv_cnt_r_i__47
+(.I0(\<const1> ),
+.I1(\<const0> ),
+.O(tnv_cnt_r_i__47_n_0),
+.S(rst_n));
+RTL_MUX6163 tnv_cnt_r_i__48
+(.I0(cnt_ts_not_valid_o),
+.I1(p_15_in),
+.I2(p_14_in),
+.I3(p_13_in),
+.I4(p_12_in),
+.I5(p_11_in),
+.I6(p_10_in__0),
+.I7(p_9_in__0),
+.O({tnv_cnt_r_i__48_n_0,tnv_cnt_r_i__48_n_1,tnv_cnt_r_i__48_n_2,tnv_cnt_r_i__48_n_3,tnv_cnt_r_i__48_n_4,tnv_cnt_r_i__48_n_5,tnv_cnt_r_i__48_n_6,tnv_cnt_r_i__48_n_7,tnv_cnt_r_i__48_n_8,tnv_cnt_r_i__48_n_9,tnv_cnt_r_i__48_n_10,tnv_cnt_r_i__48_n_11,tnv_cnt_r_i__48_n_12,tnv_cnt_r_i__48_n_13,tnv_cnt_r_i__48_n_14,tnv_cnt_r_i__48_n_15,tnv_cnt_r_i__48_n_16,tnv_cnt_r_i__48_n_17,tnv_cnt_r_i__48_n_18,tnv_cnt_r_i__48_n_19,tnv_cnt_r_i__48_n_20,tnv_cnt_r_i__48_n_21,tnv_cnt_r_i__48_n_22,tnv_cnt_r_i__48_n_23,tnv_cnt_r_i__48_n_24,tnv_cnt_r_i__48_n_25,tnv_cnt_r_i__48_n_26,tnv_cnt_r_i__48_n_27,tnv_cnt_r_i__48_n_28,tnv_cnt_r_i__48_n_29,tnv_cnt_r_i__48_n_30,tnv_cnt_r_i__48_n_31}),
+.S(lctx_rd_addr_i[7:5]));
+RTL_MUX6163 tnv_cnt_r_i__49
+(.I0(cnt_ts_not_valid_o),
+.I1(p_15_in),
+.I2(p_14_in),
+.I3(p_13_in),
+.I4(p_12_in),
+.I5(p_11_in),
+.I6(p_10_in__0),
+.I7(p_9_in__0),
+.O(tnv_cnt_r),
+.S(diag_ridx_w));
+RTL_MUX462 tnv_cnt_r_i__5
+(.I0({RTL_ADD__35_n_0,RTL_ADD__35_n_1,RTL_ADD__35_n_2,RTL_ADD__35_n_3,RTL_ADD__35_n_4,RTL_ADD__35_n_5,RTL_ADD__35_n_6,RTL_ADD__35_n_7,RTL_ADD__35_n_8,RTL_ADD__35_n_9,RTL_ADD__35_n_10,RTL_ADD__35_n_11,RTL_ADD__35_n_12,RTL_ADD__35_n_13,RTL_ADD__35_n_14,RTL_ADD__35_n_15,RTL_ADD__35_n_16,RTL_ADD__35_n_17,RTL_ADD__35_n_18,RTL_ADD__35_n_19,RTL_ADD__35_n_20,RTL_ADD__35_n_21,RTL_ADD__35_n_22,RTL_ADD__35_n_23,RTL_ADD__35_n_24,RTL_ADD__35_n_25,RTL_ADD__35_n_26,RTL_ADD__35_n_27,RTL_ADD__35_n_28,RTL_ADD__35_n_29,RTL_ADD__35_n_30,RTL_ADD__35_n_31}),
+.I1({\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> }),
+.O({tnv_cnt_r_i__5_n_0,tnv_cnt_r_i__5_n_1,tnv_cnt_r_i__5_n_2,tnv_cnt_r_i__5_n_3,tnv_cnt_r_i__5_n_4,tnv_cnt_r_i__5_n_5,tnv_cnt_r_i__5_n_6,tnv_cnt_r_i__5_n_7,tnv_cnt_r_i__5_n_8,tnv_cnt_r_i__5_n_9,tnv_cnt_r_i__5_n_10,tnv_cnt_r_i__5_n_11,tnv_cnt_r_i__5_n_12,tnv_cnt_r_i__5_n_13,tnv_cnt_r_i__5_n_14,tnv_cnt_r_i__5_n_15,tnv_cnt_r_i__5_n_16,tnv_cnt_r_i__5_n_17,tnv_cnt_r_i__5_n_18,tnv_cnt_r_i__5_n_19,tnv_cnt_r_i__5_n_20,tnv_cnt_r_i__5_n_21,tnv_cnt_r_i__5_n_22,tnv_cnt_r_i__5_n_23,tnv_cnt_r_i__5_n_24,tnv_cnt_r_i__5_n_25,tnv_cnt_r_i__5_n_26,tnv_cnt_r_i__5_n_27,tnv_cnt_r_i__5_n_28,tnv_cnt_r_i__5_n_29,tnv_cnt_r_i__5_n_30,tnv_cnt_r_i__5_n_31}),
+.S(mst_r));
+RTL_MUX tnv_cnt_r_i__6
+(.I0(\<const0> ),
+.I1(\tnv_cnt_r_reg[2]__0 ),
+.O(tnv_cnt_r_i__6_n_0),
+.S(\cur_w[tv] ));
+RTL_MUX tnv_cnt_r_i__7
+(.I0(\<const0> ),
+.I1(tnv_cnt_r_i__6_n_0),
+.O(tnv_cnt_r_i__7_n_0),
+.S(fmt_ok_w));
+RTL_MUX458 tnv_cnt_r_i__8
+(.I0(\tnv_cnt_r_reg[2]_i__0_n_0 ),
+.I1(\<const0> ),
+.O(tnv_cnt_r_i__8_n_0),
+.S(wrph_r));
+RTL_MUX979 tnv_cnt_r_i__9
+(.I0(\<const0> ),
+.I1(\<const0> ),
+.I10(\<const0> ),
+.I2(\<const0> ),
+.I3(tnv_cnt_r_i__7_n_0),
+.I4(\<const0> ),
+.I5(\<const0> ),
+.I6(\<const0> ),
+.I7(\<const0> ),
+.I8(tnv_cnt_r_i__8_n_0),
+.I9(\<const0> ),
+.O(tnv_cnt_r_i__9_n_0),
+.S(mst_r));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[0][0]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__46_n_0),
+.D(tnv_cnt_r_i__42_n_31),
+.Q(cnt_ts_not_valid_o[0]),
+.RST(tnv_cnt_r_i__47_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[0][10]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__46_n_0),
+.D(tnv_cnt_r_i__42_n_21),
+.Q(cnt_ts_not_valid_o[10]),
+.RST(tnv_cnt_r_i__47_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[0][11]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__46_n_0),
+.D(tnv_cnt_r_i__42_n_20),
+.Q(cnt_ts_not_valid_o[11]),
+.RST(tnv_cnt_r_i__47_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[0][12]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__46_n_0),
+.D(tnv_cnt_r_i__42_n_19),
+.Q(cnt_ts_not_valid_o[12]),
+.RST(tnv_cnt_r_i__47_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[0][13]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__46_n_0),
+.D(tnv_cnt_r_i__42_n_18),
+.Q(cnt_ts_not_valid_o[13]),
+.RST(tnv_cnt_r_i__47_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[0][14]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__46_n_0),
+.D(tnv_cnt_r_i__42_n_17),
+.Q(cnt_ts_not_valid_o[14]),
+.RST(tnv_cnt_r_i__47_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[0][15]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__46_n_0),
+.D(tnv_cnt_r_i__42_n_16),
+.Q(cnt_ts_not_valid_o[15]),
+.RST(tnv_cnt_r_i__47_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[0][16]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__46_n_0),
+.D(tnv_cnt_r_i__42_n_15),
+.Q(cnt_ts_not_valid_o[16]),
+.RST(tnv_cnt_r_i__47_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[0][17]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__46_n_0),
+.D(tnv_cnt_r_i__42_n_14),
+.Q(cnt_ts_not_valid_o[17]),
+.RST(tnv_cnt_r_i__47_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[0][18]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__46_n_0),
+.D(tnv_cnt_r_i__42_n_13),
+.Q(cnt_ts_not_valid_o[18]),
+.RST(tnv_cnt_r_i__47_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[0][19]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__46_n_0),
+.D(tnv_cnt_r_i__42_n_12),
+.Q(cnt_ts_not_valid_o[19]),
+.RST(tnv_cnt_r_i__47_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[0][1]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__46_n_0),
+.D(tnv_cnt_r_i__42_n_30),
+.Q(cnt_ts_not_valid_o[1]),
+.RST(tnv_cnt_r_i__47_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[0][20]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__46_n_0),
+.D(tnv_cnt_r_i__42_n_11),
+.Q(cnt_ts_not_valid_o[20]),
+.RST(tnv_cnt_r_i__47_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[0][21]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__46_n_0),
+.D(tnv_cnt_r_i__42_n_10),
+.Q(cnt_ts_not_valid_o[21]),
+.RST(tnv_cnt_r_i__47_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[0][22]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__46_n_0),
+.D(tnv_cnt_r_i__42_n_9),
+.Q(cnt_ts_not_valid_o[22]),
+.RST(tnv_cnt_r_i__47_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[0][23]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__46_n_0),
+.D(tnv_cnt_r_i__42_n_8),
+.Q(cnt_ts_not_valid_o[23]),
+.RST(tnv_cnt_r_i__47_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[0][24]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__46_n_0),
+.D(tnv_cnt_r_i__42_n_7),
+.Q(cnt_ts_not_valid_o[24]),
+.RST(tnv_cnt_r_i__47_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[0][25]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__46_n_0),
+.D(tnv_cnt_r_i__42_n_6),
+.Q(cnt_ts_not_valid_o[25]),
+.RST(tnv_cnt_r_i__47_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[0][26]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__46_n_0),
+.D(tnv_cnt_r_i__42_n_5),
+.Q(cnt_ts_not_valid_o[26]),
+.RST(tnv_cnt_r_i__47_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[0][27]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__46_n_0),
+.D(tnv_cnt_r_i__42_n_4),
+.Q(cnt_ts_not_valid_o[27]),
+.RST(tnv_cnt_r_i__47_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[0][28]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__46_n_0),
+.D(tnv_cnt_r_i__42_n_3),
+.Q(cnt_ts_not_valid_o[28]),
+.RST(tnv_cnt_r_i__47_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[0][29]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__46_n_0),
+.D(tnv_cnt_r_i__42_n_2),
+.Q(cnt_ts_not_valid_o[29]),
+.RST(tnv_cnt_r_i__47_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[0][2]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__46_n_0),
+.D(tnv_cnt_r_i__42_n_29),
+.Q(cnt_ts_not_valid_o[2]),
+.RST(tnv_cnt_r_i__47_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[0][30]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__46_n_0),
+.D(tnv_cnt_r_i__42_n_1),
+.Q(cnt_ts_not_valid_o[30]),
+.RST(tnv_cnt_r_i__47_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[0][31]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__46_n_0),
+.D(tnv_cnt_r_i__42_n_0),
+.Q(cnt_ts_not_valid_o[31]),
+.RST(tnv_cnt_r_i__47_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[0][3]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__46_n_0),
+.D(tnv_cnt_r_i__42_n_28),
+.Q(cnt_ts_not_valid_o[3]),
+.RST(tnv_cnt_r_i__47_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[0][4]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__46_n_0),
+.D(tnv_cnt_r_i__42_n_27),
+.Q(cnt_ts_not_valid_o[4]),
+.RST(tnv_cnt_r_i__47_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[0][5]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__46_n_0),
+.D(tnv_cnt_r_i__42_n_26),
+.Q(cnt_ts_not_valid_o[5]),
+.RST(tnv_cnt_r_i__47_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[0][6]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__46_n_0),
+.D(tnv_cnt_r_i__42_n_25),
+.Q(cnt_ts_not_valid_o[6]),
+.RST(tnv_cnt_r_i__47_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[0][7]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__46_n_0),
+.D(tnv_cnt_r_i__42_n_24),
+.Q(cnt_ts_not_valid_o[7]),
+.RST(tnv_cnt_r_i__47_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[0][8]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__46_n_0),
+.D(tnv_cnt_r_i__42_n_23),
+.Q(cnt_ts_not_valid_o[8]),
+.RST(tnv_cnt_r_i__47_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[0][9]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__46_n_0),
+.D(tnv_cnt_r_i__42_n_22),
+.Q(cnt_ts_not_valid_o[9]),
+.RST(tnv_cnt_r_i__47_n_0));
+RTL_ROM81 \tnv_cnt_r_reg[0]_i
+(.A(laddr_return),
+.O(\tnv_cnt_r_reg[0]__0 ));
+RTL_ROM81 \tnv_cnt_r_reg[0]_i__0
+(.A(laddr_return),
+.O(\tnv_cnt_r_reg[0]_i__0_n_0 ));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[1][0]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__3_n_0),
+.D(tnv_cnt_r_i_n_31),
+.Q(p_15_in[0]),
+.RST(tnv_cnt_r_i__4_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[1][10]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__3_n_0),
+.D(tnv_cnt_r_i_n_21),
+.Q(p_15_in[10]),
+.RST(tnv_cnt_r_i__4_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[1][11]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__3_n_0),
+.D(tnv_cnt_r_i_n_20),
+.Q(p_15_in[11]),
+.RST(tnv_cnt_r_i__4_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[1][12]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__3_n_0),
+.D(tnv_cnt_r_i_n_19),
+.Q(p_15_in[12]),
+.RST(tnv_cnt_r_i__4_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[1][13]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__3_n_0),
+.D(tnv_cnt_r_i_n_18),
+.Q(p_15_in[13]),
+.RST(tnv_cnt_r_i__4_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[1][14]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__3_n_0),
+.D(tnv_cnt_r_i_n_17),
+.Q(p_15_in[14]),
+.RST(tnv_cnt_r_i__4_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[1][15]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__3_n_0),
+.D(tnv_cnt_r_i_n_16),
+.Q(p_15_in[15]),
+.RST(tnv_cnt_r_i__4_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[1][16]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__3_n_0),
+.D(tnv_cnt_r_i_n_15),
+.Q(p_15_in[16]),
+.RST(tnv_cnt_r_i__4_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[1][17]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__3_n_0),
+.D(tnv_cnt_r_i_n_14),
+.Q(p_15_in[17]),
+.RST(tnv_cnt_r_i__4_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[1][18]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__3_n_0),
+.D(tnv_cnt_r_i_n_13),
+.Q(p_15_in[18]),
+.RST(tnv_cnt_r_i__4_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[1][19]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__3_n_0),
+.D(tnv_cnt_r_i_n_12),
+.Q(p_15_in[19]),
+.RST(tnv_cnt_r_i__4_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[1][1]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__3_n_0),
+.D(tnv_cnt_r_i_n_30),
+.Q(p_15_in[1]),
+.RST(tnv_cnt_r_i__4_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[1][20]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__3_n_0),
+.D(tnv_cnt_r_i_n_11),
+.Q(p_15_in[20]),
+.RST(tnv_cnt_r_i__4_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[1][21]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__3_n_0),
+.D(tnv_cnt_r_i_n_10),
+.Q(p_15_in[21]),
+.RST(tnv_cnt_r_i__4_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[1][22]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__3_n_0),
+.D(tnv_cnt_r_i_n_9),
+.Q(p_15_in[22]),
+.RST(tnv_cnt_r_i__4_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[1][23]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__3_n_0),
+.D(tnv_cnt_r_i_n_8),
+.Q(p_15_in[23]),
+.RST(tnv_cnt_r_i__4_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[1][24]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__3_n_0),
+.D(tnv_cnt_r_i_n_7),
+.Q(p_15_in[24]),
+.RST(tnv_cnt_r_i__4_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[1][25]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__3_n_0),
+.D(tnv_cnt_r_i_n_6),
+.Q(p_15_in[25]),
+.RST(tnv_cnt_r_i__4_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[1][26]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__3_n_0),
+.D(tnv_cnt_r_i_n_5),
+.Q(p_15_in[26]),
+.RST(tnv_cnt_r_i__4_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[1][27]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__3_n_0),
+.D(tnv_cnt_r_i_n_4),
+.Q(p_15_in[27]),
+.RST(tnv_cnt_r_i__4_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[1][28]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__3_n_0),
+.D(tnv_cnt_r_i_n_3),
+.Q(p_15_in[28]),
+.RST(tnv_cnt_r_i__4_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[1][29]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__3_n_0),
+.D(tnv_cnt_r_i_n_2),
+.Q(p_15_in[29]),
+.RST(tnv_cnt_r_i__4_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[1][2]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__3_n_0),
+.D(tnv_cnt_r_i_n_29),
+.Q(p_15_in[2]),
+.RST(tnv_cnt_r_i__4_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[1][30]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__3_n_0),
+.D(tnv_cnt_r_i_n_1),
+.Q(p_15_in[30]),
+.RST(tnv_cnt_r_i__4_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[1][31]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__3_n_0),
+.D(tnv_cnt_r_i_n_0),
+.Q(p_15_in[31]),
+.RST(tnv_cnt_r_i__4_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[1][3]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__3_n_0),
+.D(tnv_cnt_r_i_n_28),
+.Q(p_15_in[3]),
+.RST(tnv_cnt_r_i__4_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[1][4]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__3_n_0),
+.D(tnv_cnt_r_i_n_27),
+.Q(p_15_in[4]),
+.RST(tnv_cnt_r_i__4_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[1][5]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__3_n_0),
+.D(tnv_cnt_r_i_n_26),
+.Q(p_15_in[5]),
+.RST(tnv_cnt_r_i__4_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[1][6]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__3_n_0),
+.D(tnv_cnt_r_i_n_25),
+.Q(p_15_in[6]),
+.RST(tnv_cnt_r_i__4_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[1][7]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__3_n_0),
+.D(tnv_cnt_r_i_n_24),
+.Q(p_15_in[7]),
+.RST(tnv_cnt_r_i__4_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[1][8]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__3_n_0),
+.D(tnv_cnt_r_i_n_23),
+.Q(p_15_in[8]),
+.RST(tnv_cnt_r_i__4_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[1][9]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__3_n_0),
+.D(tnv_cnt_r_i_n_22),
+.Q(p_15_in[9]),
+.RST(tnv_cnt_r_i__4_n_0));
+RTL_ROM81 \tnv_cnt_r_reg[1]_i
+(.A(laddr_return),
+.O(\tnv_cnt_r_reg[1]__0 ));
+RTL_ROM81 \tnv_cnt_r_reg[1]_i__0
+(.A(laddr_return),
+.O(\tnv_cnt_r_reg[1]_i__0_n_0 ));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[2][0]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__9_n_0),
+.D(tnv_cnt_r_i__5_n_31),
+.Q(p_14_in[0]),
+.RST(tnv_cnt_r_i__10_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[2][10]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__9_n_0),
+.D(tnv_cnt_r_i__5_n_21),
+.Q(p_14_in[10]),
+.RST(tnv_cnt_r_i__10_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[2][11]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__9_n_0),
+.D(tnv_cnt_r_i__5_n_20),
+.Q(p_14_in[11]),
+.RST(tnv_cnt_r_i__10_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[2][12]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__9_n_0),
+.D(tnv_cnt_r_i__5_n_19),
+.Q(p_14_in[12]),
+.RST(tnv_cnt_r_i__10_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[2][13]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__9_n_0),
+.D(tnv_cnt_r_i__5_n_18),
+.Q(p_14_in[13]),
+.RST(tnv_cnt_r_i__10_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[2][14]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__9_n_0),
+.D(tnv_cnt_r_i__5_n_17),
+.Q(p_14_in[14]),
+.RST(tnv_cnt_r_i__10_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[2][15]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__9_n_0),
+.D(tnv_cnt_r_i__5_n_16),
+.Q(p_14_in[15]),
+.RST(tnv_cnt_r_i__10_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[2][16]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__9_n_0),
+.D(tnv_cnt_r_i__5_n_15),
+.Q(p_14_in[16]),
+.RST(tnv_cnt_r_i__10_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[2][17]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__9_n_0),
+.D(tnv_cnt_r_i__5_n_14),
+.Q(p_14_in[17]),
+.RST(tnv_cnt_r_i__10_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[2][18]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__9_n_0),
+.D(tnv_cnt_r_i__5_n_13),
+.Q(p_14_in[18]),
+.RST(tnv_cnt_r_i__10_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[2][19]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__9_n_0),
+.D(tnv_cnt_r_i__5_n_12),
+.Q(p_14_in[19]),
+.RST(tnv_cnt_r_i__10_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[2][1]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__9_n_0),
+.D(tnv_cnt_r_i__5_n_30),
+.Q(p_14_in[1]),
+.RST(tnv_cnt_r_i__10_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[2][20]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__9_n_0),
+.D(tnv_cnt_r_i__5_n_11),
+.Q(p_14_in[20]),
+.RST(tnv_cnt_r_i__10_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[2][21]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__9_n_0),
+.D(tnv_cnt_r_i__5_n_10),
+.Q(p_14_in[21]),
+.RST(tnv_cnt_r_i__10_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[2][22]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__9_n_0),
+.D(tnv_cnt_r_i__5_n_9),
+.Q(p_14_in[22]),
+.RST(tnv_cnt_r_i__10_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[2][23]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__9_n_0),
+.D(tnv_cnt_r_i__5_n_8),
+.Q(p_14_in[23]),
+.RST(tnv_cnt_r_i__10_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[2][24]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__9_n_0),
+.D(tnv_cnt_r_i__5_n_7),
+.Q(p_14_in[24]),
+.RST(tnv_cnt_r_i__10_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[2][25]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__9_n_0),
+.D(tnv_cnt_r_i__5_n_6),
+.Q(p_14_in[25]),
+.RST(tnv_cnt_r_i__10_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[2][26]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__9_n_0),
+.D(tnv_cnt_r_i__5_n_5),
+.Q(p_14_in[26]),
+.RST(tnv_cnt_r_i__10_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[2][27]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__9_n_0),
+.D(tnv_cnt_r_i__5_n_4),
+.Q(p_14_in[27]),
+.RST(tnv_cnt_r_i__10_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[2][28]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__9_n_0),
+.D(tnv_cnt_r_i__5_n_3),
+.Q(p_14_in[28]),
+.RST(tnv_cnt_r_i__10_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[2][29]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__9_n_0),
+.D(tnv_cnt_r_i__5_n_2),
+.Q(p_14_in[29]),
+.RST(tnv_cnt_r_i__10_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[2][2]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__9_n_0),
+.D(tnv_cnt_r_i__5_n_29),
+.Q(p_14_in[2]),
+.RST(tnv_cnt_r_i__10_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[2][30]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__9_n_0),
+.D(tnv_cnt_r_i__5_n_1),
+.Q(p_14_in[30]),
+.RST(tnv_cnt_r_i__10_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[2][31]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__9_n_0),
+.D(tnv_cnt_r_i__5_n_0),
+.Q(p_14_in[31]),
+.RST(tnv_cnt_r_i__10_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[2][3]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__9_n_0),
+.D(tnv_cnt_r_i__5_n_28),
+.Q(p_14_in[3]),
+.RST(tnv_cnt_r_i__10_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[2][4]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__9_n_0),
+.D(tnv_cnt_r_i__5_n_27),
+.Q(p_14_in[4]),
+.RST(tnv_cnt_r_i__10_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[2][5]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__9_n_0),
+.D(tnv_cnt_r_i__5_n_26),
+.Q(p_14_in[5]),
+.RST(tnv_cnt_r_i__10_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[2][6]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__9_n_0),
+.D(tnv_cnt_r_i__5_n_25),
+.Q(p_14_in[6]),
+.RST(tnv_cnt_r_i__10_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[2][7]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__9_n_0),
+.D(tnv_cnt_r_i__5_n_24),
+.Q(p_14_in[7]),
+.RST(tnv_cnt_r_i__10_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[2][8]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__9_n_0),
+.D(tnv_cnt_r_i__5_n_23),
+.Q(p_14_in[8]),
+.RST(tnv_cnt_r_i__10_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[2][9]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__9_n_0),
+.D(tnv_cnt_r_i__5_n_22),
+.Q(p_14_in[9]),
+.RST(tnv_cnt_r_i__10_n_0));
+RTL_ROM81 \tnv_cnt_r_reg[2]_i
+(.A(laddr_return),
+.O(\tnv_cnt_r_reg[2]__0 ));
+RTL_ROM81 \tnv_cnt_r_reg[2]_i__0
+(.A(laddr_return),
+.O(\tnv_cnt_r_reg[2]_i__0_n_0 ));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[3][0]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__15_n_0),
+.D(tnv_cnt_r_i__11_n_31),
+.Q(p_13_in[0]),
+.RST(tnv_cnt_r_i__16_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[3][10]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__15_n_0),
+.D(tnv_cnt_r_i__11_n_21),
+.Q(p_13_in[10]),
+.RST(tnv_cnt_r_i__16_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[3][11]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__15_n_0),
+.D(tnv_cnt_r_i__11_n_20),
+.Q(p_13_in[11]),
+.RST(tnv_cnt_r_i__16_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[3][12]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__15_n_0),
+.D(tnv_cnt_r_i__11_n_19),
+.Q(p_13_in[12]),
+.RST(tnv_cnt_r_i__16_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[3][13]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__15_n_0),
+.D(tnv_cnt_r_i__11_n_18),
+.Q(p_13_in[13]),
+.RST(tnv_cnt_r_i__16_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[3][14]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__15_n_0),
+.D(tnv_cnt_r_i__11_n_17),
+.Q(p_13_in[14]),
+.RST(tnv_cnt_r_i__16_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[3][15]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__15_n_0),
+.D(tnv_cnt_r_i__11_n_16),
+.Q(p_13_in[15]),
+.RST(tnv_cnt_r_i__16_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[3][16]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__15_n_0),
+.D(tnv_cnt_r_i__11_n_15),
+.Q(p_13_in[16]),
+.RST(tnv_cnt_r_i__16_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[3][17]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__15_n_0),
+.D(tnv_cnt_r_i__11_n_14),
+.Q(p_13_in[17]),
+.RST(tnv_cnt_r_i__16_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[3][18]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__15_n_0),
+.D(tnv_cnt_r_i__11_n_13),
+.Q(p_13_in[18]),
+.RST(tnv_cnt_r_i__16_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[3][19]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__15_n_0),
+.D(tnv_cnt_r_i__11_n_12),
+.Q(p_13_in[19]),
+.RST(tnv_cnt_r_i__16_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[3][1]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__15_n_0),
+.D(tnv_cnt_r_i__11_n_30),
+.Q(p_13_in[1]),
+.RST(tnv_cnt_r_i__16_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[3][20]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__15_n_0),
+.D(tnv_cnt_r_i__11_n_11),
+.Q(p_13_in[20]),
+.RST(tnv_cnt_r_i__16_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[3][21]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__15_n_0),
+.D(tnv_cnt_r_i__11_n_10),
+.Q(p_13_in[21]),
+.RST(tnv_cnt_r_i__16_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[3][22]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__15_n_0),
+.D(tnv_cnt_r_i__11_n_9),
+.Q(p_13_in[22]),
+.RST(tnv_cnt_r_i__16_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[3][23]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__15_n_0),
+.D(tnv_cnt_r_i__11_n_8),
+.Q(p_13_in[23]),
+.RST(tnv_cnt_r_i__16_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[3][24]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__15_n_0),
+.D(tnv_cnt_r_i__11_n_7),
+.Q(p_13_in[24]),
+.RST(tnv_cnt_r_i__16_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[3][25]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__15_n_0),
+.D(tnv_cnt_r_i__11_n_6),
+.Q(p_13_in[25]),
+.RST(tnv_cnt_r_i__16_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[3][26]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__15_n_0),
+.D(tnv_cnt_r_i__11_n_5),
+.Q(p_13_in[26]),
+.RST(tnv_cnt_r_i__16_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[3][27]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__15_n_0),
+.D(tnv_cnt_r_i__11_n_4),
+.Q(p_13_in[27]),
+.RST(tnv_cnt_r_i__16_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[3][28]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__15_n_0),
+.D(tnv_cnt_r_i__11_n_3),
+.Q(p_13_in[28]),
+.RST(tnv_cnt_r_i__16_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[3][29]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__15_n_0),
+.D(tnv_cnt_r_i__11_n_2),
+.Q(p_13_in[29]),
+.RST(tnv_cnt_r_i__16_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[3][2]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__15_n_0),
+.D(tnv_cnt_r_i__11_n_29),
+.Q(p_13_in[2]),
+.RST(tnv_cnt_r_i__16_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[3][30]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__15_n_0),
+.D(tnv_cnt_r_i__11_n_1),
+.Q(p_13_in[30]),
+.RST(tnv_cnt_r_i__16_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[3][31]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__15_n_0),
+.D(tnv_cnt_r_i__11_n_0),
+.Q(p_13_in[31]),
+.RST(tnv_cnt_r_i__16_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[3][3]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__15_n_0),
+.D(tnv_cnt_r_i__11_n_28),
+.Q(p_13_in[3]),
+.RST(tnv_cnt_r_i__16_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[3][4]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__15_n_0),
+.D(tnv_cnt_r_i__11_n_27),
+.Q(p_13_in[4]),
+.RST(tnv_cnt_r_i__16_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[3][5]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__15_n_0),
+.D(tnv_cnt_r_i__11_n_26),
+.Q(p_13_in[5]),
+.RST(tnv_cnt_r_i__16_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[3][6]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__15_n_0),
+.D(tnv_cnt_r_i__11_n_25),
+.Q(p_13_in[6]),
+.RST(tnv_cnt_r_i__16_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[3][7]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__15_n_0),
+.D(tnv_cnt_r_i__11_n_24),
+.Q(p_13_in[7]),
+.RST(tnv_cnt_r_i__16_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[3][8]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__15_n_0),
+.D(tnv_cnt_r_i__11_n_23),
+.Q(p_13_in[8]),
+.RST(tnv_cnt_r_i__16_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[3][9]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__15_n_0),
+.D(tnv_cnt_r_i__11_n_22),
+.Q(p_13_in[9]),
+.RST(tnv_cnt_r_i__16_n_0));
+RTL_ROM81 \tnv_cnt_r_reg[3]_i
+(.A(laddr_return),
+.O(\tnv_cnt_r_reg[3]__0 ));
+RTL_ROM81 \tnv_cnt_r_reg[3]_i__0
+(.A(laddr_return),
+.O(\tnv_cnt_r_reg[3]_i__0_n_0 ));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[4][0]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__21_n_0),
+.D(tnv_cnt_r_i__17_n_31),
+.Q(p_12_in[0]),
+.RST(tnv_cnt_r_i__22_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[4][10]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__21_n_0),
+.D(tnv_cnt_r_i__17_n_21),
+.Q(p_12_in[10]),
+.RST(tnv_cnt_r_i__22_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[4][11]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__21_n_0),
+.D(tnv_cnt_r_i__17_n_20),
+.Q(p_12_in[11]),
+.RST(tnv_cnt_r_i__22_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[4][12]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__21_n_0),
+.D(tnv_cnt_r_i__17_n_19),
+.Q(p_12_in[12]),
+.RST(tnv_cnt_r_i__22_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[4][13]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__21_n_0),
+.D(tnv_cnt_r_i__17_n_18),
+.Q(p_12_in[13]),
+.RST(tnv_cnt_r_i__22_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[4][14]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__21_n_0),
+.D(tnv_cnt_r_i__17_n_17),
+.Q(p_12_in[14]),
+.RST(tnv_cnt_r_i__22_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[4][15]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__21_n_0),
+.D(tnv_cnt_r_i__17_n_16),
+.Q(p_12_in[15]),
+.RST(tnv_cnt_r_i__22_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[4][16]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__21_n_0),
+.D(tnv_cnt_r_i__17_n_15),
+.Q(p_12_in[16]),
+.RST(tnv_cnt_r_i__22_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[4][17]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__21_n_0),
+.D(tnv_cnt_r_i__17_n_14),
+.Q(p_12_in[17]),
+.RST(tnv_cnt_r_i__22_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[4][18]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__21_n_0),
+.D(tnv_cnt_r_i__17_n_13),
+.Q(p_12_in[18]),
+.RST(tnv_cnt_r_i__22_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[4][19]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__21_n_0),
+.D(tnv_cnt_r_i__17_n_12),
+.Q(p_12_in[19]),
+.RST(tnv_cnt_r_i__22_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[4][1]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__21_n_0),
+.D(tnv_cnt_r_i__17_n_30),
+.Q(p_12_in[1]),
+.RST(tnv_cnt_r_i__22_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[4][20]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__21_n_0),
+.D(tnv_cnt_r_i__17_n_11),
+.Q(p_12_in[20]),
+.RST(tnv_cnt_r_i__22_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[4][21]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__21_n_0),
+.D(tnv_cnt_r_i__17_n_10),
+.Q(p_12_in[21]),
+.RST(tnv_cnt_r_i__22_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[4][22]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__21_n_0),
+.D(tnv_cnt_r_i__17_n_9),
+.Q(p_12_in[22]),
+.RST(tnv_cnt_r_i__22_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[4][23]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__21_n_0),
+.D(tnv_cnt_r_i__17_n_8),
+.Q(p_12_in[23]),
+.RST(tnv_cnt_r_i__22_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[4][24]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__21_n_0),
+.D(tnv_cnt_r_i__17_n_7),
+.Q(p_12_in[24]),
+.RST(tnv_cnt_r_i__22_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[4][25]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__21_n_0),
+.D(tnv_cnt_r_i__17_n_6),
+.Q(p_12_in[25]),
+.RST(tnv_cnt_r_i__22_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[4][26]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__21_n_0),
+.D(tnv_cnt_r_i__17_n_5),
+.Q(p_12_in[26]),
+.RST(tnv_cnt_r_i__22_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[4][27]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__21_n_0),
+.D(tnv_cnt_r_i__17_n_4),
+.Q(p_12_in[27]),
+.RST(tnv_cnt_r_i__22_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[4][28]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__21_n_0),
+.D(tnv_cnt_r_i__17_n_3),
+.Q(p_12_in[28]),
+.RST(tnv_cnt_r_i__22_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[4][29]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__21_n_0),
+.D(tnv_cnt_r_i__17_n_2),
+.Q(p_12_in[29]),
+.RST(tnv_cnt_r_i__22_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[4][2]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__21_n_0),
+.D(tnv_cnt_r_i__17_n_29),
+.Q(p_12_in[2]),
+.RST(tnv_cnt_r_i__22_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[4][30]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__21_n_0),
+.D(tnv_cnt_r_i__17_n_1),
+.Q(p_12_in[30]),
+.RST(tnv_cnt_r_i__22_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[4][31]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__21_n_0),
+.D(tnv_cnt_r_i__17_n_0),
+.Q(p_12_in[31]),
+.RST(tnv_cnt_r_i__22_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[4][3]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__21_n_0),
+.D(tnv_cnt_r_i__17_n_28),
+.Q(p_12_in[3]),
+.RST(tnv_cnt_r_i__22_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[4][4]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__21_n_0),
+.D(tnv_cnt_r_i__17_n_27),
+.Q(p_12_in[4]),
+.RST(tnv_cnt_r_i__22_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[4][5]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__21_n_0),
+.D(tnv_cnt_r_i__17_n_26),
+.Q(p_12_in[5]),
+.RST(tnv_cnt_r_i__22_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[4][6]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__21_n_0),
+.D(tnv_cnt_r_i__17_n_25),
+.Q(p_12_in[6]),
+.RST(tnv_cnt_r_i__22_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[4][7]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__21_n_0),
+.D(tnv_cnt_r_i__17_n_24),
+.Q(p_12_in[7]),
+.RST(tnv_cnt_r_i__22_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[4][8]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__21_n_0),
+.D(tnv_cnt_r_i__17_n_23),
+.Q(p_12_in[8]),
+.RST(tnv_cnt_r_i__22_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[4][9]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__21_n_0),
+.D(tnv_cnt_r_i__17_n_22),
+.Q(p_12_in[9]),
+.RST(tnv_cnt_r_i__22_n_0));
+RTL_ROM81 \tnv_cnt_r_reg[4]_i
+(.A(laddr_return),
+.O(\tnv_cnt_r_reg[4]__0 ));
+RTL_ROM81 \tnv_cnt_r_reg[4]_i__0
+(.A(laddr_return),
+.O(\tnv_cnt_r_reg[4]_i__0_n_0 ));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[5][0]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__27_n_0),
+.D(tnv_cnt_r_i__23_n_31),
+.Q(p_11_in[0]),
+.RST(tnv_cnt_r_i__28_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[5][10]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__27_n_0),
+.D(tnv_cnt_r_i__23_n_21),
+.Q(p_11_in[10]),
+.RST(tnv_cnt_r_i__28_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[5][11]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__27_n_0),
+.D(tnv_cnt_r_i__23_n_20),
+.Q(p_11_in[11]),
+.RST(tnv_cnt_r_i__28_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[5][12]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__27_n_0),
+.D(tnv_cnt_r_i__23_n_19),
+.Q(p_11_in[12]),
+.RST(tnv_cnt_r_i__28_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[5][13]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__27_n_0),
+.D(tnv_cnt_r_i__23_n_18),
+.Q(p_11_in[13]),
+.RST(tnv_cnt_r_i__28_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[5][14]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__27_n_0),
+.D(tnv_cnt_r_i__23_n_17),
+.Q(p_11_in[14]),
+.RST(tnv_cnt_r_i__28_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[5][15]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__27_n_0),
+.D(tnv_cnt_r_i__23_n_16),
+.Q(p_11_in[15]),
+.RST(tnv_cnt_r_i__28_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[5][16]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__27_n_0),
+.D(tnv_cnt_r_i__23_n_15),
+.Q(p_11_in[16]),
+.RST(tnv_cnt_r_i__28_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[5][17]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__27_n_0),
+.D(tnv_cnt_r_i__23_n_14),
+.Q(p_11_in[17]),
+.RST(tnv_cnt_r_i__28_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[5][18]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__27_n_0),
+.D(tnv_cnt_r_i__23_n_13),
+.Q(p_11_in[18]),
+.RST(tnv_cnt_r_i__28_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[5][19]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__27_n_0),
+.D(tnv_cnt_r_i__23_n_12),
+.Q(p_11_in[19]),
+.RST(tnv_cnt_r_i__28_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[5][1]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__27_n_0),
+.D(tnv_cnt_r_i__23_n_30),
+.Q(p_11_in[1]),
+.RST(tnv_cnt_r_i__28_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[5][20]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__27_n_0),
+.D(tnv_cnt_r_i__23_n_11),
+.Q(p_11_in[20]),
+.RST(tnv_cnt_r_i__28_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[5][21]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__27_n_0),
+.D(tnv_cnt_r_i__23_n_10),
+.Q(p_11_in[21]),
+.RST(tnv_cnt_r_i__28_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[5][22]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__27_n_0),
+.D(tnv_cnt_r_i__23_n_9),
+.Q(p_11_in[22]),
+.RST(tnv_cnt_r_i__28_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[5][23]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__27_n_0),
+.D(tnv_cnt_r_i__23_n_8),
+.Q(p_11_in[23]),
+.RST(tnv_cnt_r_i__28_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[5][24]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__27_n_0),
+.D(tnv_cnt_r_i__23_n_7),
+.Q(p_11_in[24]),
+.RST(tnv_cnt_r_i__28_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[5][25]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__27_n_0),
+.D(tnv_cnt_r_i__23_n_6),
+.Q(p_11_in[25]),
+.RST(tnv_cnt_r_i__28_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[5][26]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__27_n_0),
+.D(tnv_cnt_r_i__23_n_5),
+.Q(p_11_in[26]),
+.RST(tnv_cnt_r_i__28_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[5][27]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__27_n_0),
+.D(tnv_cnt_r_i__23_n_4),
+.Q(p_11_in[27]),
+.RST(tnv_cnt_r_i__28_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[5][28]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__27_n_0),
+.D(tnv_cnt_r_i__23_n_3),
+.Q(p_11_in[28]),
+.RST(tnv_cnt_r_i__28_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[5][29]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__27_n_0),
+.D(tnv_cnt_r_i__23_n_2),
+.Q(p_11_in[29]),
+.RST(tnv_cnt_r_i__28_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[5][2]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__27_n_0),
+.D(tnv_cnt_r_i__23_n_29),
+.Q(p_11_in[2]),
+.RST(tnv_cnt_r_i__28_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[5][30]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__27_n_0),
+.D(tnv_cnt_r_i__23_n_1),
+.Q(p_11_in[30]),
+.RST(tnv_cnt_r_i__28_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[5][31]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__27_n_0),
+.D(tnv_cnt_r_i__23_n_0),
+.Q(p_11_in[31]),
+.RST(tnv_cnt_r_i__28_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[5][3]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__27_n_0),
+.D(tnv_cnt_r_i__23_n_28),
+.Q(p_11_in[3]),
+.RST(tnv_cnt_r_i__28_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[5][4]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__27_n_0),
+.D(tnv_cnt_r_i__23_n_27),
+.Q(p_11_in[4]),
+.RST(tnv_cnt_r_i__28_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[5][5]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__27_n_0),
+.D(tnv_cnt_r_i__23_n_26),
+.Q(p_11_in[5]),
+.RST(tnv_cnt_r_i__28_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[5][6]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__27_n_0),
+.D(tnv_cnt_r_i__23_n_25),
+.Q(p_11_in[6]),
+.RST(tnv_cnt_r_i__28_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[5][7]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__27_n_0),
+.D(tnv_cnt_r_i__23_n_24),
+.Q(p_11_in[7]),
+.RST(tnv_cnt_r_i__28_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[5][8]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__27_n_0),
+.D(tnv_cnt_r_i__23_n_23),
+.Q(p_11_in[8]),
+.RST(tnv_cnt_r_i__28_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[5][9]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__27_n_0),
+.D(tnv_cnt_r_i__23_n_22),
+.Q(p_11_in[9]),
+.RST(tnv_cnt_r_i__28_n_0));
+RTL_ROM81 \tnv_cnt_r_reg[5]_i
+(.A(laddr_return),
+.O(\tnv_cnt_r_reg[5]__0 ));
+RTL_ROM81 \tnv_cnt_r_reg[5]_i__0
+(.A(laddr_return),
+.O(\tnv_cnt_r_reg[5]_i__0_n_0 ));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[6][0]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__33_n_0),
+.D(tnv_cnt_r_i__29_n_31),
+.Q(p_10_in__0[0]),
+.RST(tnv_cnt_r_i__34_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[6][10]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__33_n_0),
+.D(tnv_cnt_r_i__29_n_21),
+.Q(p_10_in__0[10]),
+.RST(tnv_cnt_r_i__34_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[6][11]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__33_n_0),
+.D(tnv_cnt_r_i__29_n_20),
+.Q(p_10_in__0[11]),
+.RST(tnv_cnt_r_i__34_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[6][12]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__33_n_0),
+.D(tnv_cnt_r_i__29_n_19),
+.Q(p_10_in__0[12]),
+.RST(tnv_cnt_r_i__34_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[6][13]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__33_n_0),
+.D(tnv_cnt_r_i__29_n_18),
+.Q(p_10_in__0[13]),
+.RST(tnv_cnt_r_i__34_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[6][14]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__33_n_0),
+.D(tnv_cnt_r_i__29_n_17),
+.Q(p_10_in__0[14]),
+.RST(tnv_cnt_r_i__34_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[6][15]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__33_n_0),
+.D(tnv_cnt_r_i__29_n_16),
+.Q(p_10_in__0[15]),
+.RST(tnv_cnt_r_i__34_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[6][16]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__33_n_0),
+.D(tnv_cnt_r_i__29_n_15),
+.Q(p_10_in__0[16]),
+.RST(tnv_cnt_r_i__34_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[6][17]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__33_n_0),
+.D(tnv_cnt_r_i__29_n_14),
+.Q(p_10_in__0[17]),
+.RST(tnv_cnt_r_i__34_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[6][18]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__33_n_0),
+.D(tnv_cnt_r_i__29_n_13),
+.Q(p_10_in__0[18]),
+.RST(tnv_cnt_r_i__34_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[6][19]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__33_n_0),
+.D(tnv_cnt_r_i__29_n_12),
+.Q(p_10_in__0[19]),
+.RST(tnv_cnt_r_i__34_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[6][1]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__33_n_0),
+.D(tnv_cnt_r_i__29_n_30),
+.Q(p_10_in__0[1]),
+.RST(tnv_cnt_r_i__34_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[6][20]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__33_n_0),
+.D(tnv_cnt_r_i__29_n_11),
+.Q(p_10_in__0[20]),
+.RST(tnv_cnt_r_i__34_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[6][21]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__33_n_0),
+.D(tnv_cnt_r_i__29_n_10),
+.Q(p_10_in__0[21]),
+.RST(tnv_cnt_r_i__34_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[6][22]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__33_n_0),
+.D(tnv_cnt_r_i__29_n_9),
+.Q(p_10_in__0[22]),
+.RST(tnv_cnt_r_i__34_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[6][23]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__33_n_0),
+.D(tnv_cnt_r_i__29_n_8),
+.Q(p_10_in__0[23]),
+.RST(tnv_cnt_r_i__34_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[6][24]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__33_n_0),
+.D(tnv_cnt_r_i__29_n_7),
+.Q(p_10_in__0[24]),
+.RST(tnv_cnt_r_i__34_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[6][25]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__33_n_0),
+.D(tnv_cnt_r_i__29_n_6),
+.Q(p_10_in__0[25]),
+.RST(tnv_cnt_r_i__34_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[6][26]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__33_n_0),
+.D(tnv_cnt_r_i__29_n_5),
+.Q(p_10_in__0[26]),
+.RST(tnv_cnt_r_i__34_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[6][27]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__33_n_0),
+.D(tnv_cnt_r_i__29_n_4),
+.Q(p_10_in__0[27]),
+.RST(tnv_cnt_r_i__34_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[6][28]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__33_n_0),
+.D(tnv_cnt_r_i__29_n_3),
+.Q(p_10_in__0[28]),
+.RST(tnv_cnt_r_i__34_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[6][29]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__33_n_0),
+.D(tnv_cnt_r_i__29_n_2),
+.Q(p_10_in__0[29]),
+.RST(tnv_cnt_r_i__34_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[6][2]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__33_n_0),
+.D(tnv_cnt_r_i__29_n_29),
+.Q(p_10_in__0[2]),
+.RST(tnv_cnt_r_i__34_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[6][30]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__33_n_0),
+.D(tnv_cnt_r_i__29_n_1),
+.Q(p_10_in__0[30]),
+.RST(tnv_cnt_r_i__34_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[6][31]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__33_n_0),
+.D(tnv_cnt_r_i__29_n_0),
+.Q(p_10_in__0[31]),
+.RST(tnv_cnt_r_i__34_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[6][3]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__33_n_0),
+.D(tnv_cnt_r_i__29_n_28),
+.Q(p_10_in__0[3]),
+.RST(tnv_cnt_r_i__34_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[6][4]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__33_n_0),
+.D(tnv_cnt_r_i__29_n_27),
+.Q(p_10_in__0[4]),
+.RST(tnv_cnt_r_i__34_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[6][5]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__33_n_0),
+.D(tnv_cnt_r_i__29_n_26),
+.Q(p_10_in__0[5]),
+.RST(tnv_cnt_r_i__34_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[6][6]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__33_n_0),
+.D(tnv_cnt_r_i__29_n_25),
+.Q(p_10_in__0[6]),
+.RST(tnv_cnt_r_i__34_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[6][7]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__33_n_0),
+.D(tnv_cnt_r_i__29_n_24),
+.Q(p_10_in__0[7]),
+.RST(tnv_cnt_r_i__34_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[6][8]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__33_n_0),
+.D(tnv_cnt_r_i__29_n_23),
+.Q(p_10_in__0[8]),
+.RST(tnv_cnt_r_i__34_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[6][9]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__33_n_0),
+.D(tnv_cnt_r_i__29_n_22),
+.Q(p_10_in__0[9]),
+.RST(tnv_cnt_r_i__34_n_0));
+RTL_ROM81 \tnv_cnt_r_reg[6]_i
+(.A(laddr_return),
+.O(\tnv_cnt_r_reg[6]__0 ));
+RTL_ROM81 \tnv_cnt_r_reg[6]_i__0
+(.A(laddr_return),
+.O(\tnv_cnt_r_reg[6]_i__0_n_0 ));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[7][0]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__39_n_0),
+.D(tnv_cnt_r_i__35_n_31),
+.Q(p_9_in__0[0]),
+.RST(tnv_cnt_r_i__40_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[7][10]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__39_n_0),
+.D(tnv_cnt_r_i__35_n_21),
+.Q(p_9_in__0[10]),
+.RST(tnv_cnt_r_i__40_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[7][11]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__39_n_0),
+.D(tnv_cnt_r_i__35_n_20),
+.Q(p_9_in__0[11]),
+.RST(tnv_cnt_r_i__40_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[7][12]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__39_n_0),
+.D(tnv_cnt_r_i__35_n_19),
+.Q(p_9_in__0[12]),
+.RST(tnv_cnt_r_i__40_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[7][13]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__39_n_0),
+.D(tnv_cnt_r_i__35_n_18),
+.Q(p_9_in__0[13]),
+.RST(tnv_cnt_r_i__40_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[7][14]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__39_n_0),
+.D(tnv_cnt_r_i__35_n_17),
+.Q(p_9_in__0[14]),
+.RST(tnv_cnt_r_i__40_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[7][15]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__39_n_0),
+.D(tnv_cnt_r_i__35_n_16),
+.Q(p_9_in__0[15]),
+.RST(tnv_cnt_r_i__40_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[7][16]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__39_n_0),
+.D(tnv_cnt_r_i__35_n_15),
+.Q(p_9_in__0[16]),
+.RST(tnv_cnt_r_i__40_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[7][17]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__39_n_0),
+.D(tnv_cnt_r_i__35_n_14),
+.Q(p_9_in__0[17]),
+.RST(tnv_cnt_r_i__40_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[7][18]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__39_n_0),
+.D(tnv_cnt_r_i__35_n_13),
+.Q(p_9_in__0[18]),
+.RST(tnv_cnt_r_i__40_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[7][19]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__39_n_0),
+.D(tnv_cnt_r_i__35_n_12),
+.Q(p_9_in__0[19]),
+.RST(tnv_cnt_r_i__40_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[7][1]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__39_n_0),
+.D(tnv_cnt_r_i__35_n_30),
+.Q(p_9_in__0[1]),
+.RST(tnv_cnt_r_i__40_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[7][20]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__39_n_0),
+.D(tnv_cnt_r_i__35_n_11),
+.Q(p_9_in__0[20]),
+.RST(tnv_cnt_r_i__40_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[7][21]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__39_n_0),
+.D(tnv_cnt_r_i__35_n_10),
+.Q(p_9_in__0[21]),
+.RST(tnv_cnt_r_i__40_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[7][22]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__39_n_0),
+.D(tnv_cnt_r_i__35_n_9),
+.Q(p_9_in__0[22]),
+.RST(tnv_cnt_r_i__40_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[7][23]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__39_n_0),
+.D(tnv_cnt_r_i__35_n_8),
+.Q(p_9_in__0[23]),
+.RST(tnv_cnt_r_i__40_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[7][24]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__39_n_0),
+.D(tnv_cnt_r_i__35_n_7),
+.Q(p_9_in__0[24]),
+.RST(tnv_cnt_r_i__40_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[7][25]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__39_n_0),
+.D(tnv_cnt_r_i__35_n_6),
+.Q(p_9_in__0[25]),
+.RST(tnv_cnt_r_i__40_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[7][26]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__39_n_0),
+.D(tnv_cnt_r_i__35_n_5),
+.Q(p_9_in__0[26]),
+.RST(tnv_cnt_r_i__40_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[7][27]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__39_n_0),
+.D(tnv_cnt_r_i__35_n_4),
+.Q(p_9_in__0[27]),
+.RST(tnv_cnt_r_i__40_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[7][28]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__39_n_0),
+.D(tnv_cnt_r_i__35_n_3),
+.Q(p_9_in__0[28]),
+.RST(tnv_cnt_r_i__40_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[7][29]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__39_n_0),
+.D(tnv_cnt_r_i__35_n_2),
+.Q(p_9_in__0[29]),
+.RST(tnv_cnt_r_i__40_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[7][2]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__39_n_0),
+.D(tnv_cnt_r_i__35_n_29),
+.Q(p_9_in__0[2]),
+.RST(tnv_cnt_r_i__40_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[7][30]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__39_n_0),
+.D(tnv_cnt_r_i__35_n_1),
+.Q(p_9_in__0[30]),
+.RST(tnv_cnt_r_i__40_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[7][31]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__39_n_0),
+.D(tnv_cnt_r_i__35_n_0),
+.Q(p_9_in__0[31]),
+.RST(tnv_cnt_r_i__40_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[7][3]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__39_n_0),
+.D(tnv_cnt_r_i__35_n_28),
+.Q(p_9_in__0[3]),
+.RST(tnv_cnt_r_i__40_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[7][4]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__39_n_0),
+.D(tnv_cnt_r_i__35_n_27),
+.Q(p_9_in__0[4]),
+.RST(tnv_cnt_r_i__40_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[7][5]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__39_n_0),
+.D(tnv_cnt_r_i__35_n_26),
+.Q(p_9_in__0[5]),
+.RST(tnv_cnt_r_i__40_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[7][6]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__39_n_0),
+.D(tnv_cnt_r_i__35_n_25),
+.Q(p_9_in__0[6]),
+.RST(tnv_cnt_r_i__40_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[7][7]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__39_n_0),
+.D(tnv_cnt_r_i__35_n_24),
+.Q(p_9_in__0[7]),
+.RST(tnv_cnt_r_i__40_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[7][8]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__39_n_0),
+.D(tnv_cnt_r_i__35_n_23),
+.Q(p_9_in__0[8]),
+.RST(tnv_cnt_r_i__40_n_0));
+RTL_REG_SYNC__BREG_1 \tnv_cnt_r_reg[7][9]
+(.C(clk_i),
+.CE(tnv_cnt_r_i__39_n_0),
+.D(tnv_cnt_r_i__35_n_22),
+.Q(p_9_in__0[9]),
+.RST(tnv_cnt_r_i__40_n_0));
+RTL_ROM81 \tnv_cnt_r_reg[7]_i
+(.A(laddr_return),
+.O(\tnv_cnt_r_reg[7]__0 ));
+RTL_ROM81 \tnv_cnt_r_reg[7]_i__0
+(.A(laddr_return),
+.O(\tnv_cnt_r_reg[7]_i__0_n_0 ));
+RTL_SUB2 tsd_w_i
+(.I0(avtp_ts_i),
+.I1(ptp_now_i),
+.O(tsd_w));
+RTL_MUX462 tv_cnt_r_i
+(.I0({RTL_ADD__34_n_0,RTL_ADD__34_n_1,RTL_ADD__34_n_2,RTL_ADD__34_n_3,RTL_ADD__34_n_4,RTL_ADD__34_n_5,RTL_ADD__34_n_6,RTL_ADD__34_n_7,RTL_ADD__34_n_8,RTL_ADD__34_n_9,RTL_ADD__34_n_10,RTL_ADD__34_n_11,RTL_ADD__34_n_12,RTL_ADD__34_n_13,RTL_ADD__34_n_14,RTL_ADD__34_n_15,RTL_ADD__34_n_16,RTL_ADD__34_n_17,RTL_ADD__34_n_18,RTL_ADD__34_n_19,RTL_ADD__34_n_20,RTL_ADD__34_n_21,RTL_ADD__34_n_22,RTL_ADD__34_n_23,RTL_ADD__34_n_24,RTL_ADD__34_n_25,RTL_ADD__34_n_26,RTL_ADD__34_n_27,RTL_ADD__34_n_28,RTL_ADD__34_n_29,RTL_ADD__34_n_30,RTL_ADD__34_n_31}),
+.I1({\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> }),
+.O({tv_cnt_r_i_n_0,tv_cnt_r_i_n_1,tv_cnt_r_i_n_2,tv_cnt_r_i_n_3,tv_cnt_r_i_n_4,tv_cnt_r_i_n_5,tv_cnt_r_i_n_6,tv_cnt_r_i_n_7,tv_cnt_r_i_n_8,tv_cnt_r_i_n_9,tv_cnt_r_i_n_10,tv_cnt_r_i_n_11,tv_cnt_r_i_n_12,tv_cnt_r_i_n_13,tv_cnt_r_i_n_14,tv_cnt_r_i_n_15,tv_cnt_r_i_n_16,tv_cnt_r_i_n_17,tv_cnt_r_i_n_18,tv_cnt_r_i_n_19,tv_cnt_r_i_n_20,tv_cnt_r_i_n_21,tv_cnt_r_i_n_22,tv_cnt_r_i_n_23,tv_cnt_r_i_n_24,tv_cnt_r_i_n_25,tv_cnt_r_i_n_26,tv_cnt_r_i_n_27,tv_cnt_r_i_n_28,tv_cnt_r_i_n_29,tv_cnt_r_i_n_30,tv_cnt_r_i_n_31}),
+.S(mst_r));
+RTL_MUX tv_cnt_r_i__0
+(.I0(\tv_cnt_r_reg[1]__0 ),
+.I1(\<const0> ),
+.O(tv_cnt_r_i__0_n_0),
+.S(\cur_w[tv] ));
+RTL_MUX tv_cnt_r_i__1
+(.I0(\<const0> ),
+.I1(tv_cnt_r_i__0_n_0),
+.O(tv_cnt_r_i__1_n_0),
+.S(fmt_ok_w));
+RTL_MUX tv_cnt_r_i__10
+(.I0(\<const1> ),
+.I1(\<const0> ),
+.O(tv_cnt_r_i__10_n_0),
+.S(rst_n));
+RTL_MUX462 tv_cnt_r_i__11
+(.I0({RTL_ADD__34_n_0,RTL_ADD__34_n_1,RTL_ADD__34_n_2,RTL_ADD__34_n_3,RTL_ADD__34_n_4,RTL_ADD__34_n_5,RTL_ADD__34_n_6,RTL_ADD__34_n_7,RTL_ADD__34_n_8,RTL_ADD__34_n_9,RTL_ADD__34_n_10,RTL_ADD__34_n_11,RTL_ADD__34_n_12,RTL_ADD__34_n_13,RTL_ADD__34_n_14,RTL_ADD__34_n_15,RTL_ADD__34_n_16,RTL_ADD__34_n_17,RTL_ADD__34_n_18,RTL_ADD__34_n_19,RTL_ADD__34_n_20,RTL_ADD__34_n_21,RTL_ADD__34_n_22,RTL_ADD__34_n_23,RTL_ADD__34_n_24,RTL_ADD__34_n_25,RTL_ADD__34_n_26,RTL_ADD__34_n_27,RTL_ADD__34_n_28,RTL_ADD__34_n_29,RTL_ADD__34_n_30,RTL_ADD__34_n_31}),
+.I1({\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> }),
+.O({tv_cnt_r_i__11_n_0,tv_cnt_r_i__11_n_1,tv_cnt_r_i__11_n_2,tv_cnt_r_i__11_n_3,tv_cnt_r_i__11_n_4,tv_cnt_r_i__11_n_5,tv_cnt_r_i__11_n_6,tv_cnt_r_i__11_n_7,tv_cnt_r_i__11_n_8,tv_cnt_r_i__11_n_9,tv_cnt_r_i__11_n_10,tv_cnt_r_i__11_n_11,tv_cnt_r_i__11_n_12,tv_cnt_r_i__11_n_13,tv_cnt_r_i__11_n_14,tv_cnt_r_i__11_n_15,tv_cnt_r_i__11_n_16,tv_cnt_r_i__11_n_17,tv_cnt_r_i__11_n_18,tv_cnt_r_i__11_n_19,tv_cnt_r_i__11_n_20,tv_cnt_r_i__11_n_21,tv_cnt_r_i__11_n_22,tv_cnt_r_i__11_n_23,tv_cnt_r_i__11_n_24,tv_cnt_r_i__11_n_25,tv_cnt_r_i__11_n_26,tv_cnt_r_i__11_n_27,tv_cnt_r_i__11_n_28,tv_cnt_r_i__11_n_29,tv_cnt_r_i__11_n_30,tv_cnt_r_i__11_n_31}),
+.S(mst_r));
+RTL_MUX tv_cnt_r_i__12
+(.I0(\tv_cnt_r_reg[3]__0 ),
+.I1(\<const0> ),
+.O(tv_cnt_r_i__12_n_0),
+.S(\cur_w[tv] ));
+RTL_MUX tv_cnt_r_i__13
+(.I0(\<const0> ),
+.I1(tv_cnt_r_i__12_n_0),
+.O(tv_cnt_r_i__13_n_0),
+.S(fmt_ok_w));
+RTL_MUX458 tv_cnt_r_i__14
+(.I0(\tv_cnt_r_reg[3]_i__0_n_0 ),
+.I1(\<const0> ),
+.O(tv_cnt_r_i__14_n_0),
+.S(wrph_r));
+RTL_MUX979 tv_cnt_r_i__15
+(.I0(\<const0> ),
+.I1(\<const0> ),
+.I10(\<const0> ),
+.I2(\<const0> ),
+.I3(tv_cnt_r_i__13_n_0),
+.I4(\<const0> ),
+.I5(\<const0> ),
+.I6(\<const0> ),
+.I7(\<const0> ),
+.I8(tv_cnt_r_i__14_n_0),
+.I9(\<const0> ),
+.O(tv_cnt_r_i__15_n_0),
+.S(mst_r));
+RTL_MUX tv_cnt_r_i__16
+(.I0(\<const1> ),
+.I1(\<const0> ),
+.O(tv_cnt_r_i__16_n_0),
+.S(rst_n));
+RTL_MUX462 tv_cnt_r_i__17
+(.I0({RTL_ADD__34_n_0,RTL_ADD__34_n_1,RTL_ADD__34_n_2,RTL_ADD__34_n_3,RTL_ADD__34_n_4,RTL_ADD__34_n_5,RTL_ADD__34_n_6,RTL_ADD__34_n_7,RTL_ADD__34_n_8,RTL_ADD__34_n_9,RTL_ADD__34_n_10,RTL_ADD__34_n_11,RTL_ADD__34_n_12,RTL_ADD__34_n_13,RTL_ADD__34_n_14,RTL_ADD__34_n_15,RTL_ADD__34_n_16,RTL_ADD__34_n_17,RTL_ADD__34_n_18,RTL_ADD__34_n_19,RTL_ADD__34_n_20,RTL_ADD__34_n_21,RTL_ADD__34_n_22,RTL_ADD__34_n_23,RTL_ADD__34_n_24,RTL_ADD__34_n_25,RTL_ADD__34_n_26,RTL_ADD__34_n_27,RTL_ADD__34_n_28,RTL_ADD__34_n_29,RTL_ADD__34_n_30,RTL_ADD__34_n_31}),
+.I1({\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> }),
+.O({tv_cnt_r_i__17_n_0,tv_cnt_r_i__17_n_1,tv_cnt_r_i__17_n_2,tv_cnt_r_i__17_n_3,tv_cnt_r_i__17_n_4,tv_cnt_r_i__17_n_5,tv_cnt_r_i__17_n_6,tv_cnt_r_i__17_n_7,tv_cnt_r_i__17_n_8,tv_cnt_r_i__17_n_9,tv_cnt_r_i__17_n_10,tv_cnt_r_i__17_n_11,tv_cnt_r_i__17_n_12,tv_cnt_r_i__17_n_13,tv_cnt_r_i__17_n_14,tv_cnt_r_i__17_n_15,tv_cnt_r_i__17_n_16,tv_cnt_r_i__17_n_17,tv_cnt_r_i__17_n_18,tv_cnt_r_i__17_n_19,tv_cnt_r_i__17_n_20,tv_cnt_r_i__17_n_21,tv_cnt_r_i__17_n_22,tv_cnt_r_i__17_n_23,tv_cnt_r_i__17_n_24,tv_cnt_r_i__17_n_25,tv_cnt_r_i__17_n_26,tv_cnt_r_i__17_n_27,tv_cnt_r_i__17_n_28,tv_cnt_r_i__17_n_29,tv_cnt_r_i__17_n_30,tv_cnt_r_i__17_n_31}),
+.S(mst_r));
+RTL_MUX tv_cnt_r_i__18
+(.I0(\tv_cnt_r_reg[4]__0 ),
+.I1(\<const0> ),
+.O(tv_cnt_r_i__18_n_0),
+.S(\cur_w[tv] ));
+RTL_MUX tv_cnt_r_i__19
+(.I0(\<const0> ),
+.I1(tv_cnt_r_i__18_n_0),
+.O(tv_cnt_r_i__19_n_0),
+.S(fmt_ok_w));
+RTL_MUX458 tv_cnt_r_i__2
+(.I0(\tv_cnt_r_reg[1]_i__0_n_0 ),
+.I1(\<const0> ),
+.O(tv_cnt_r_i__2_n_0),
+.S(wrph_r));
+RTL_MUX458 tv_cnt_r_i__20
+(.I0(\tv_cnt_r_reg[4]_i__0_n_0 ),
+.I1(\<const0> ),
+.O(tv_cnt_r_i__20_n_0),
+.S(wrph_r));
+RTL_MUX979 tv_cnt_r_i__21
+(.I0(\<const0> ),
+.I1(\<const0> ),
+.I10(\<const0> ),
+.I2(\<const0> ),
+.I3(tv_cnt_r_i__19_n_0),
+.I4(\<const0> ),
+.I5(\<const0> ),
+.I6(\<const0> ),
+.I7(\<const0> ),
+.I8(tv_cnt_r_i__20_n_0),
+.I9(\<const0> ),
+.O(tv_cnt_r_i__21_n_0),
+.S(mst_r));
+RTL_MUX tv_cnt_r_i__22
+(.I0(\<const1> ),
+.I1(\<const0> ),
+.O(tv_cnt_r_i__22_n_0),
+.S(rst_n));
+RTL_MUX462 tv_cnt_r_i__23
+(.I0({RTL_ADD__34_n_0,RTL_ADD__34_n_1,RTL_ADD__34_n_2,RTL_ADD__34_n_3,RTL_ADD__34_n_4,RTL_ADD__34_n_5,RTL_ADD__34_n_6,RTL_ADD__34_n_7,RTL_ADD__34_n_8,RTL_ADD__34_n_9,RTL_ADD__34_n_10,RTL_ADD__34_n_11,RTL_ADD__34_n_12,RTL_ADD__34_n_13,RTL_ADD__34_n_14,RTL_ADD__34_n_15,RTL_ADD__34_n_16,RTL_ADD__34_n_17,RTL_ADD__34_n_18,RTL_ADD__34_n_19,RTL_ADD__34_n_20,RTL_ADD__34_n_21,RTL_ADD__34_n_22,RTL_ADD__34_n_23,RTL_ADD__34_n_24,RTL_ADD__34_n_25,RTL_ADD__34_n_26,RTL_ADD__34_n_27,RTL_ADD__34_n_28,RTL_ADD__34_n_29,RTL_ADD__34_n_30,RTL_ADD__34_n_31}),
+.I1({\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> }),
+.O({tv_cnt_r_i__23_n_0,tv_cnt_r_i__23_n_1,tv_cnt_r_i__23_n_2,tv_cnt_r_i__23_n_3,tv_cnt_r_i__23_n_4,tv_cnt_r_i__23_n_5,tv_cnt_r_i__23_n_6,tv_cnt_r_i__23_n_7,tv_cnt_r_i__23_n_8,tv_cnt_r_i__23_n_9,tv_cnt_r_i__23_n_10,tv_cnt_r_i__23_n_11,tv_cnt_r_i__23_n_12,tv_cnt_r_i__23_n_13,tv_cnt_r_i__23_n_14,tv_cnt_r_i__23_n_15,tv_cnt_r_i__23_n_16,tv_cnt_r_i__23_n_17,tv_cnt_r_i__23_n_18,tv_cnt_r_i__23_n_19,tv_cnt_r_i__23_n_20,tv_cnt_r_i__23_n_21,tv_cnt_r_i__23_n_22,tv_cnt_r_i__23_n_23,tv_cnt_r_i__23_n_24,tv_cnt_r_i__23_n_25,tv_cnt_r_i__23_n_26,tv_cnt_r_i__23_n_27,tv_cnt_r_i__23_n_28,tv_cnt_r_i__23_n_29,tv_cnt_r_i__23_n_30,tv_cnt_r_i__23_n_31}),
+.S(mst_r));
+RTL_MUX tv_cnt_r_i__24
+(.I0(\tv_cnt_r_reg[5]__0 ),
+.I1(\<const0> ),
+.O(tv_cnt_r_i__24_n_0),
+.S(\cur_w[tv] ));
+RTL_MUX tv_cnt_r_i__25
+(.I0(\<const0> ),
+.I1(tv_cnt_r_i__24_n_0),
+.O(tv_cnt_r_i__25_n_0),
+.S(fmt_ok_w));
+RTL_MUX458 tv_cnt_r_i__26
+(.I0(\tv_cnt_r_reg[5]_i__0_n_0 ),
+.I1(\<const0> ),
+.O(tv_cnt_r_i__26_n_0),
+.S(wrph_r));
+RTL_MUX979 tv_cnt_r_i__27
+(.I0(\<const0> ),
+.I1(\<const0> ),
+.I10(\<const0> ),
+.I2(\<const0> ),
+.I3(tv_cnt_r_i__25_n_0),
+.I4(\<const0> ),
+.I5(\<const0> ),
+.I6(\<const0> ),
+.I7(\<const0> ),
+.I8(tv_cnt_r_i__26_n_0),
+.I9(\<const0> ),
+.O(tv_cnt_r_i__27_n_0),
+.S(mst_r));
+RTL_MUX tv_cnt_r_i__28
+(.I0(\<const1> ),
+.I1(\<const0> ),
+.O(tv_cnt_r_i__28_n_0),
+.S(rst_n));
+RTL_MUX462 tv_cnt_r_i__29
+(.I0({RTL_ADD__34_n_0,RTL_ADD__34_n_1,RTL_ADD__34_n_2,RTL_ADD__34_n_3,RTL_ADD__34_n_4,RTL_ADD__34_n_5,RTL_ADD__34_n_6,RTL_ADD__34_n_7,RTL_ADD__34_n_8,RTL_ADD__34_n_9,RTL_ADD__34_n_10,RTL_ADD__34_n_11,RTL_ADD__34_n_12,RTL_ADD__34_n_13,RTL_ADD__34_n_14,RTL_ADD__34_n_15,RTL_ADD__34_n_16,RTL_ADD__34_n_17,RTL_ADD__34_n_18,RTL_ADD__34_n_19,RTL_ADD__34_n_20,RTL_ADD__34_n_21,RTL_ADD__34_n_22,RTL_ADD__34_n_23,RTL_ADD__34_n_24,RTL_ADD__34_n_25,RTL_ADD__34_n_26,RTL_ADD__34_n_27,RTL_ADD__34_n_28,RTL_ADD__34_n_29,RTL_ADD__34_n_30,RTL_ADD__34_n_31}),
+.I1({\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> }),
+.O({tv_cnt_r_i__29_n_0,tv_cnt_r_i__29_n_1,tv_cnt_r_i__29_n_2,tv_cnt_r_i__29_n_3,tv_cnt_r_i__29_n_4,tv_cnt_r_i__29_n_5,tv_cnt_r_i__29_n_6,tv_cnt_r_i__29_n_7,tv_cnt_r_i__29_n_8,tv_cnt_r_i__29_n_9,tv_cnt_r_i__29_n_10,tv_cnt_r_i__29_n_11,tv_cnt_r_i__29_n_12,tv_cnt_r_i__29_n_13,tv_cnt_r_i__29_n_14,tv_cnt_r_i__29_n_15,tv_cnt_r_i__29_n_16,tv_cnt_r_i__29_n_17,tv_cnt_r_i__29_n_18,tv_cnt_r_i__29_n_19,tv_cnt_r_i__29_n_20,tv_cnt_r_i__29_n_21,tv_cnt_r_i__29_n_22,tv_cnt_r_i__29_n_23,tv_cnt_r_i__29_n_24,tv_cnt_r_i__29_n_25,tv_cnt_r_i__29_n_26,tv_cnt_r_i__29_n_27,tv_cnt_r_i__29_n_28,tv_cnt_r_i__29_n_29,tv_cnt_r_i__29_n_30,tv_cnt_r_i__29_n_31}),
+.S(mst_r));
+RTL_MUX979 tv_cnt_r_i__3
+(.I0(\<const0> ),
+.I1(\<const0> ),
+.I10(\<const0> ),
+.I2(\<const0> ),
+.I3(tv_cnt_r_i__1_n_0),
+.I4(\<const0> ),
+.I5(\<const0> ),
+.I6(\<const0> ),
+.I7(\<const0> ),
+.I8(tv_cnt_r_i__2_n_0),
+.I9(\<const0> ),
+.O(tv_cnt_r_i__3_n_0),
+.S(mst_r));
+RTL_MUX tv_cnt_r_i__30
+(.I0(\tv_cnt_r_reg[6]__0 ),
+.I1(\<const0> ),
+.O(tv_cnt_r_i__30_n_0),
+.S(\cur_w[tv] ));
+RTL_MUX tv_cnt_r_i__31
+(.I0(\<const0> ),
+.I1(tv_cnt_r_i__30_n_0),
+.O(tv_cnt_r_i__31_n_0),
+.S(fmt_ok_w));
+RTL_MUX458 tv_cnt_r_i__32
+(.I0(\tv_cnt_r_reg[6]_i__0_n_0 ),
+.I1(\<const0> ),
+.O(tv_cnt_r_i__32_n_0),
+.S(wrph_r));
+RTL_MUX979 tv_cnt_r_i__33
+(.I0(\<const0> ),
+.I1(\<const0> ),
+.I10(\<const0> ),
+.I2(\<const0> ),
+.I3(tv_cnt_r_i__31_n_0),
+.I4(\<const0> ),
+.I5(\<const0> ),
+.I6(\<const0> ),
+.I7(\<const0> ),
+.I8(tv_cnt_r_i__32_n_0),
+.I9(\<const0> ),
+.O(tv_cnt_r_i__33_n_0),
+.S(mst_r));
+RTL_MUX tv_cnt_r_i__34
+(.I0(\<const1> ),
+.I1(\<const0> ),
+.O(tv_cnt_r_i__34_n_0),
+.S(rst_n));
+RTL_MUX462 tv_cnt_r_i__35
+(.I0({RTL_ADD__34_n_0,RTL_ADD__34_n_1,RTL_ADD__34_n_2,RTL_ADD__34_n_3,RTL_ADD__34_n_4,RTL_ADD__34_n_5,RTL_ADD__34_n_6,RTL_ADD__34_n_7,RTL_ADD__34_n_8,RTL_ADD__34_n_9,RTL_ADD__34_n_10,RTL_ADD__34_n_11,RTL_ADD__34_n_12,RTL_ADD__34_n_13,RTL_ADD__34_n_14,RTL_ADD__34_n_15,RTL_ADD__34_n_16,RTL_ADD__34_n_17,RTL_ADD__34_n_18,RTL_ADD__34_n_19,RTL_ADD__34_n_20,RTL_ADD__34_n_21,RTL_ADD__34_n_22,RTL_ADD__34_n_23,RTL_ADD__34_n_24,RTL_ADD__34_n_25,RTL_ADD__34_n_26,RTL_ADD__34_n_27,RTL_ADD__34_n_28,RTL_ADD__34_n_29,RTL_ADD__34_n_30,RTL_ADD__34_n_31}),
+.I1({\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> }),
+.O({tv_cnt_r_i__35_n_0,tv_cnt_r_i__35_n_1,tv_cnt_r_i__35_n_2,tv_cnt_r_i__35_n_3,tv_cnt_r_i__35_n_4,tv_cnt_r_i__35_n_5,tv_cnt_r_i__35_n_6,tv_cnt_r_i__35_n_7,tv_cnt_r_i__35_n_8,tv_cnt_r_i__35_n_9,tv_cnt_r_i__35_n_10,tv_cnt_r_i__35_n_11,tv_cnt_r_i__35_n_12,tv_cnt_r_i__35_n_13,tv_cnt_r_i__35_n_14,tv_cnt_r_i__35_n_15,tv_cnt_r_i__35_n_16,tv_cnt_r_i__35_n_17,tv_cnt_r_i__35_n_18,tv_cnt_r_i__35_n_19,tv_cnt_r_i__35_n_20,tv_cnt_r_i__35_n_21,tv_cnt_r_i__35_n_22,tv_cnt_r_i__35_n_23,tv_cnt_r_i__35_n_24,tv_cnt_r_i__35_n_25,tv_cnt_r_i__35_n_26,tv_cnt_r_i__35_n_27,tv_cnt_r_i__35_n_28,tv_cnt_r_i__35_n_29,tv_cnt_r_i__35_n_30,tv_cnt_r_i__35_n_31}),
+.S(mst_r));
+RTL_MUX tv_cnt_r_i__36
+(.I0(\tv_cnt_r_reg[7]__0 ),
+.I1(\<const0> ),
+.O(tv_cnt_r_i__36_n_0),
+.S(\cur_w[tv] ));
+RTL_MUX tv_cnt_r_i__37
+(.I0(\<const0> ),
+.I1(tv_cnt_r_i__36_n_0),
+.O(tv_cnt_r_i__37_n_0),
+.S(fmt_ok_w));
+RTL_MUX458 tv_cnt_r_i__38
+(.I0(\tv_cnt_r_reg[7]_i__0_n_0 ),
+.I1(\<const0> ),
+.O(tv_cnt_r_i__38_n_0),
+.S(wrph_r));
+RTL_MUX979 tv_cnt_r_i__39
+(.I0(\<const0> ),
+.I1(\<const0> ),
+.I10(\<const0> ),
+.I2(\<const0> ),
+.I3(tv_cnt_r_i__37_n_0),
+.I4(\<const0> ),
+.I5(\<const0> ),
+.I6(\<const0> ),
+.I7(\<const0> ),
+.I8(tv_cnt_r_i__38_n_0),
+.I9(\<const0> ),
+.O(tv_cnt_r_i__39_n_0),
+.S(mst_r));
+RTL_MUX tv_cnt_r_i__4
+(.I0(\<const1> ),
+.I1(\<const0> ),
+.O(tv_cnt_r_i__4_n_0),
+.S(rst_n));
+RTL_MUX tv_cnt_r_i__40
+(.I0(\<const1> ),
+.I1(\<const0> ),
+.O(tv_cnt_r_i__40_n_0),
+.S(rst_n));
+RTL_MUX6163 tv_cnt_r_i__41
+(.I0(cnt_ts_valid_o),
+.I1(p_7_in__0),
+.I2(p_6_in__0),
+.I3(p_5_in__0),
+.I4(p_4_in__0),
+.I5(p_3_in__1),
+.I6(p_2_in__1),
+.I7(p_1_in__0),
+.O({tv_cnt_r_i__41_n_0,tv_cnt_r_i__41_n_1,tv_cnt_r_i__41_n_2,tv_cnt_r_i__41_n_3,tv_cnt_r_i__41_n_4,tv_cnt_r_i__41_n_5,tv_cnt_r_i__41_n_6,tv_cnt_r_i__41_n_7,tv_cnt_r_i__41_n_8,tv_cnt_r_i__41_n_9,tv_cnt_r_i__41_n_10,tv_cnt_r_i__41_n_11,tv_cnt_r_i__41_n_12,tv_cnt_r_i__41_n_13,tv_cnt_r_i__41_n_14,tv_cnt_r_i__41_n_15,tv_cnt_r_i__41_n_16,tv_cnt_r_i__41_n_17,tv_cnt_r_i__41_n_18,tv_cnt_r_i__41_n_19,tv_cnt_r_i__41_n_20,tv_cnt_r_i__41_n_21,tv_cnt_r_i__41_n_22,tv_cnt_r_i__41_n_23,tv_cnt_r_i__41_n_24,tv_cnt_r_i__41_n_25,tv_cnt_r_i__41_n_26,tv_cnt_r_i__41_n_27,tv_cnt_r_i__41_n_28,tv_cnt_r_i__41_n_29,tv_cnt_r_i__41_n_30,tv_cnt_r_i__41_n_31}),
+.S(laddr_return));
+RTL_MUX462 tv_cnt_r_i__42
+(.I0({RTL_ADD__34_n_0,RTL_ADD__34_n_1,RTL_ADD__34_n_2,RTL_ADD__34_n_3,RTL_ADD__34_n_4,RTL_ADD__34_n_5,RTL_ADD__34_n_6,RTL_ADD__34_n_7,RTL_ADD__34_n_8,RTL_ADD__34_n_9,RTL_ADD__34_n_10,RTL_ADD__34_n_11,RTL_ADD__34_n_12,RTL_ADD__34_n_13,RTL_ADD__34_n_14,RTL_ADD__34_n_15,RTL_ADD__34_n_16,RTL_ADD__34_n_17,RTL_ADD__34_n_18,RTL_ADD__34_n_19,RTL_ADD__34_n_20,RTL_ADD__34_n_21,RTL_ADD__34_n_22,RTL_ADD__34_n_23,RTL_ADD__34_n_24,RTL_ADD__34_n_25,RTL_ADD__34_n_26,RTL_ADD__34_n_27,RTL_ADD__34_n_28,RTL_ADD__34_n_29,RTL_ADD__34_n_30,RTL_ADD__34_n_31}),
+.I1({\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> }),
+.O({tv_cnt_r_i__42_n_0,tv_cnt_r_i__42_n_1,tv_cnt_r_i__42_n_2,tv_cnt_r_i__42_n_3,tv_cnt_r_i__42_n_4,tv_cnt_r_i__42_n_5,tv_cnt_r_i__42_n_6,tv_cnt_r_i__42_n_7,tv_cnt_r_i__42_n_8,tv_cnt_r_i__42_n_9,tv_cnt_r_i__42_n_10,tv_cnt_r_i__42_n_11,tv_cnt_r_i__42_n_12,tv_cnt_r_i__42_n_13,tv_cnt_r_i__42_n_14,tv_cnt_r_i__42_n_15,tv_cnt_r_i__42_n_16,tv_cnt_r_i__42_n_17,tv_cnt_r_i__42_n_18,tv_cnt_r_i__42_n_19,tv_cnt_r_i__42_n_20,tv_cnt_r_i__42_n_21,tv_cnt_r_i__42_n_22,tv_cnt_r_i__42_n_23,tv_cnt_r_i__42_n_24,tv_cnt_r_i__42_n_25,tv_cnt_r_i__42_n_26,tv_cnt_r_i__42_n_27,tv_cnt_r_i__42_n_28,tv_cnt_r_i__42_n_29,tv_cnt_r_i__42_n_30,tv_cnt_r_i__42_n_31}),
+.S(mst_r));
+RTL_MUX tv_cnt_r_i__43
+(.I0(\tv_cnt_r_reg[0]__0 ),
+.I1(\<const0> ),
+.O(tv_cnt_r_i__43_n_0),
+.S(\cur_w[tv] ));
+RTL_MUX tv_cnt_r_i__44
+(.I0(\<const0> ),
+.I1(tv_cnt_r_i__43_n_0),
+.O(tv_cnt_r_i__44_n_0),
+.S(fmt_ok_w));
+RTL_MUX458 tv_cnt_r_i__45
+(.I0(\tv_cnt_r_reg[0]_i__0_n_0 ),
+.I1(\<const0> ),
+.O(tv_cnt_r_i__45_n_0),
+.S(wrph_r));
+RTL_MUX979 tv_cnt_r_i__46
+(.I0(\<const0> ),
+.I1(\<const0> ),
+.I10(\<const0> ),
+.I2(\<const0> ),
+.I3(tv_cnt_r_i__44_n_0),
+.I4(\<const0> ),
+.I5(\<const0> ),
+.I6(\<const0> ),
+.I7(\<const0> ),
+.I8(tv_cnt_r_i__45_n_0),
+.I9(\<const0> ),
+.O(tv_cnt_r_i__46_n_0),
+.S(mst_r));
+RTL_MUX tv_cnt_r_i__47
+(.I0(\<const1> ),
+.I1(\<const0> ),
+.O(tv_cnt_r_i__47_n_0),
+.S(rst_n));
+RTL_MUX6163 tv_cnt_r_i__48
+(.I0(cnt_ts_valid_o),
+.I1(p_7_in__0),
+.I2(p_6_in__0),
+.I3(p_5_in__0),
+.I4(p_4_in__0),
+.I5(p_3_in__1),
+.I6(p_2_in__1),
+.I7(p_1_in__0),
+.O({tv_cnt_r_i__48_n_0,tv_cnt_r_i__48_n_1,tv_cnt_r_i__48_n_2,tv_cnt_r_i__48_n_3,tv_cnt_r_i__48_n_4,tv_cnt_r_i__48_n_5,tv_cnt_r_i__48_n_6,tv_cnt_r_i__48_n_7,tv_cnt_r_i__48_n_8,tv_cnt_r_i__48_n_9,tv_cnt_r_i__48_n_10,tv_cnt_r_i__48_n_11,tv_cnt_r_i__48_n_12,tv_cnt_r_i__48_n_13,tv_cnt_r_i__48_n_14,tv_cnt_r_i__48_n_15,tv_cnt_r_i__48_n_16,tv_cnt_r_i__48_n_17,tv_cnt_r_i__48_n_18,tv_cnt_r_i__48_n_19,tv_cnt_r_i__48_n_20,tv_cnt_r_i__48_n_21,tv_cnt_r_i__48_n_22,tv_cnt_r_i__48_n_23,tv_cnt_r_i__48_n_24,tv_cnt_r_i__48_n_25,tv_cnt_r_i__48_n_26,tv_cnt_r_i__48_n_27,tv_cnt_r_i__48_n_28,tv_cnt_r_i__48_n_29,tv_cnt_r_i__48_n_30,tv_cnt_r_i__48_n_31}),
+.S(lctx_rd_addr_i[7:5]));
+RTL_MUX6163 tv_cnt_r_i__49
+(.I0(cnt_ts_valid_o),
+.I1(p_7_in__0),
+.I2(p_6_in__0),
+.I3(p_5_in__0),
+.I4(p_4_in__0),
+.I5(p_3_in__1),
+.I6(p_2_in__1),
+.I7(p_1_in__0),
+.O(tv_cnt_r),
+.S(diag_ridx_w));
+RTL_MUX462 tv_cnt_r_i__5
+(.I0({RTL_ADD__34_n_0,RTL_ADD__34_n_1,RTL_ADD__34_n_2,RTL_ADD__34_n_3,RTL_ADD__34_n_4,RTL_ADD__34_n_5,RTL_ADD__34_n_6,RTL_ADD__34_n_7,RTL_ADD__34_n_8,RTL_ADD__34_n_9,RTL_ADD__34_n_10,RTL_ADD__34_n_11,RTL_ADD__34_n_12,RTL_ADD__34_n_13,RTL_ADD__34_n_14,RTL_ADD__34_n_15,RTL_ADD__34_n_16,RTL_ADD__34_n_17,RTL_ADD__34_n_18,RTL_ADD__34_n_19,RTL_ADD__34_n_20,RTL_ADD__34_n_21,RTL_ADD__34_n_22,RTL_ADD__34_n_23,RTL_ADD__34_n_24,RTL_ADD__34_n_25,RTL_ADD__34_n_26,RTL_ADD__34_n_27,RTL_ADD__34_n_28,RTL_ADD__34_n_29,RTL_ADD__34_n_30,RTL_ADD__34_n_31}),
+.I1({\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> }),
+.O({tv_cnt_r_i__5_n_0,tv_cnt_r_i__5_n_1,tv_cnt_r_i__5_n_2,tv_cnt_r_i__5_n_3,tv_cnt_r_i__5_n_4,tv_cnt_r_i__5_n_5,tv_cnt_r_i__5_n_6,tv_cnt_r_i__5_n_7,tv_cnt_r_i__5_n_8,tv_cnt_r_i__5_n_9,tv_cnt_r_i__5_n_10,tv_cnt_r_i__5_n_11,tv_cnt_r_i__5_n_12,tv_cnt_r_i__5_n_13,tv_cnt_r_i__5_n_14,tv_cnt_r_i__5_n_15,tv_cnt_r_i__5_n_16,tv_cnt_r_i__5_n_17,tv_cnt_r_i__5_n_18,tv_cnt_r_i__5_n_19,tv_cnt_r_i__5_n_20,tv_cnt_r_i__5_n_21,tv_cnt_r_i__5_n_22,tv_cnt_r_i__5_n_23,tv_cnt_r_i__5_n_24,tv_cnt_r_i__5_n_25,tv_cnt_r_i__5_n_26,tv_cnt_r_i__5_n_27,tv_cnt_r_i__5_n_28,tv_cnt_r_i__5_n_29,tv_cnt_r_i__5_n_30,tv_cnt_r_i__5_n_31}),
+.S(mst_r));
+RTL_MUX tv_cnt_r_i__6
+(.I0(\tv_cnt_r_reg[2]__0 ),
+.I1(\<const0> ),
+.O(tv_cnt_r_i__6_n_0),
+.S(\cur_w[tv] ));
+RTL_MUX tv_cnt_r_i__7
+(.I0(\<const0> ),
+.I1(tv_cnt_r_i__6_n_0),
+.O(tv_cnt_r_i__7_n_0),
+.S(fmt_ok_w));
+RTL_MUX458 tv_cnt_r_i__8
+(.I0(\tv_cnt_r_reg[2]_i__0_n_0 ),
+.I1(\<const0> ),
+.O(tv_cnt_r_i__8_n_0),
+.S(wrph_r));
+RTL_MUX979 tv_cnt_r_i__9
+(.I0(\<const0> ),
+.I1(\<const0> ),
+.I10(\<const0> ),
+.I2(\<const0> ),
+.I3(tv_cnt_r_i__7_n_0),
+.I4(\<const0> ),
+.I5(\<const0> ),
+.I6(\<const0> ),
+.I7(\<const0> ),
+.I8(tv_cnt_r_i__8_n_0),
+.I9(\<const0> ),
+.O(tv_cnt_r_i__9_n_0),
+.S(mst_r));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[0][0]
+(.C(clk_i),
+.CE(tv_cnt_r_i__46_n_0),
+.D(tv_cnt_r_i__42_n_31),
+.Q(cnt_ts_valid_o[0]),
+.RST(tv_cnt_r_i__47_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[0][10]
+(.C(clk_i),
+.CE(tv_cnt_r_i__46_n_0),
+.D(tv_cnt_r_i__42_n_21),
+.Q(cnt_ts_valid_o[10]),
+.RST(tv_cnt_r_i__47_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[0][11]
+(.C(clk_i),
+.CE(tv_cnt_r_i__46_n_0),
+.D(tv_cnt_r_i__42_n_20),
+.Q(cnt_ts_valid_o[11]),
+.RST(tv_cnt_r_i__47_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[0][12]
+(.C(clk_i),
+.CE(tv_cnt_r_i__46_n_0),
+.D(tv_cnt_r_i__42_n_19),
+.Q(cnt_ts_valid_o[12]),
+.RST(tv_cnt_r_i__47_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[0][13]
+(.C(clk_i),
+.CE(tv_cnt_r_i__46_n_0),
+.D(tv_cnt_r_i__42_n_18),
+.Q(cnt_ts_valid_o[13]),
+.RST(tv_cnt_r_i__47_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[0][14]
+(.C(clk_i),
+.CE(tv_cnt_r_i__46_n_0),
+.D(tv_cnt_r_i__42_n_17),
+.Q(cnt_ts_valid_o[14]),
+.RST(tv_cnt_r_i__47_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[0][15]
+(.C(clk_i),
+.CE(tv_cnt_r_i__46_n_0),
+.D(tv_cnt_r_i__42_n_16),
+.Q(cnt_ts_valid_o[15]),
+.RST(tv_cnt_r_i__47_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[0][16]
+(.C(clk_i),
+.CE(tv_cnt_r_i__46_n_0),
+.D(tv_cnt_r_i__42_n_15),
+.Q(cnt_ts_valid_o[16]),
+.RST(tv_cnt_r_i__47_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[0][17]
+(.C(clk_i),
+.CE(tv_cnt_r_i__46_n_0),
+.D(tv_cnt_r_i__42_n_14),
+.Q(cnt_ts_valid_o[17]),
+.RST(tv_cnt_r_i__47_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[0][18]
+(.C(clk_i),
+.CE(tv_cnt_r_i__46_n_0),
+.D(tv_cnt_r_i__42_n_13),
+.Q(cnt_ts_valid_o[18]),
+.RST(tv_cnt_r_i__47_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[0][19]
+(.C(clk_i),
+.CE(tv_cnt_r_i__46_n_0),
+.D(tv_cnt_r_i__42_n_12),
+.Q(cnt_ts_valid_o[19]),
+.RST(tv_cnt_r_i__47_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[0][1]
+(.C(clk_i),
+.CE(tv_cnt_r_i__46_n_0),
+.D(tv_cnt_r_i__42_n_30),
+.Q(cnt_ts_valid_o[1]),
+.RST(tv_cnt_r_i__47_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[0][20]
+(.C(clk_i),
+.CE(tv_cnt_r_i__46_n_0),
+.D(tv_cnt_r_i__42_n_11),
+.Q(cnt_ts_valid_o[20]),
+.RST(tv_cnt_r_i__47_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[0][21]
+(.C(clk_i),
+.CE(tv_cnt_r_i__46_n_0),
+.D(tv_cnt_r_i__42_n_10),
+.Q(cnt_ts_valid_o[21]),
+.RST(tv_cnt_r_i__47_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[0][22]
+(.C(clk_i),
+.CE(tv_cnt_r_i__46_n_0),
+.D(tv_cnt_r_i__42_n_9),
+.Q(cnt_ts_valid_o[22]),
+.RST(tv_cnt_r_i__47_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[0][23]
+(.C(clk_i),
+.CE(tv_cnt_r_i__46_n_0),
+.D(tv_cnt_r_i__42_n_8),
+.Q(cnt_ts_valid_o[23]),
+.RST(tv_cnt_r_i__47_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[0][24]
+(.C(clk_i),
+.CE(tv_cnt_r_i__46_n_0),
+.D(tv_cnt_r_i__42_n_7),
+.Q(cnt_ts_valid_o[24]),
+.RST(tv_cnt_r_i__47_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[0][25]
+(.C(clk_i),
+.CE(tv_cnt_r_i__46_n_0),
+.D(tv_cnt_r_i__42_n_6),
+.Q(cnt_ts_valid_o[25]),
+.RST(tv_cnt_r_i__47_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[0][26]
+(.C(clk_i),
+.CE(tv_cnt_r_i__46_n_0),
+.D(tv_cnt_r_i__42_n_5),
+.Q(cnt_ts_valid_o[26]),
+.RST(tv_cnt_r_i__47_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[0][27]
+(.C(clk_i),
+.CE(tv_cnt_r_i__46_n_0),
+.D(tv_cnt_r_i__42_n_4),
+.Q(cnt_ts_valid_o[27]),
+.RST(tv_cnt_r_i__47_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[0][28]
+(.C(clk_i),
+.CE(tv_cnt_r_i__46_n_0),
+.D(tv_cnt_r_i__42_n_3),
+.Q(cnt_ts_valid_o[28]),
+.RST(tv_cnt_r_i__47_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[0][29]
+(.C(clk_i),
+.CE(tv_cnt_r_i__46_n_0),
+.D(tv_cnt_r_i__42_n_2),
+.Q(cnt_ts_valid_o[29]),
+.RST(tv_cnt_r_i__47_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[0][2]
+(.C(clk_i),
+.CE(tv_cnt_r_i__46_n_0),
+.D(tv_cnt_r_i__42_n_29),
+.Q(cnt_ts_valid_o[2]),
+.RST(tv_cnt_r_i__47_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[0][30]
+(.C(clk_i),
+.CE(tv_cnt_r_i__46_n_0),
+.D(tv_cnt_r_i__42_n_1),
+.Q(cnt_ts_valid_o[30]),
+.RST(tv_cnt_r_i__47_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[0][31]
+(.C(clk_i),
+.CE(tv_cnt_r_i__46_n_0),
+.D(tv_cnt_r_i__42_n_0),
+.Q(cnt_ts_valid_o[31]),
+.RST(tv_cnt_r_i__47_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[0][3]
+(.C(clk_i),
+.CE(tv_cnt_r_i__46_n_0),
+.D(tv_cnt_r_i__42_n_28),
+.Q(cnt_ts_valid_o[3]),
+.RST(tv_cnt_r_i__47_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[0][4]
+(.C(clk_i),
+.CE(tv_cnt_r_i__46_n_0),
+.D(tv_cnt_r_i__42_n_27),
+.Q(cnt_ts_valid_o[4]),
+.RST(tv_cnt_r_i__47_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[0][5]
+(.C(clk_i),
+.CE(tv_cnt_r_i__46_n_0),
+.D(tv_cnt_r_i__42_n_26),
+.Q(cnt_ts_valid_o[5]),
+.RST(tv_cnt_r_i__47_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[0][6]
+(.C(clk_i),
+.CE(tv_cnt_r_i__46_n_0),
+.D(tv_cnt_r_i__42_n_25),
+.Q(cnt_ts_valid_o[6]),
+.RST(tv_cnt_r_i__47_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[0][7]
+(.C(clk_i),
+.CE(tv_cnt_r_i__46_n_0),
+.D(tv_cnt_r_i__42_n_24),
+.Q(cnt_ts_valid_o[7]),
+.RST(tv_cnt_r_i__47_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[0][8]
+(.C(clk_i),
+.CE(tv_cnt_r_i__46_n_0),
+.D(tv_cnt_r_i__42_n_23),
+.Q(cnt_ts_valid_o[8]),
+.RST(tv_cnt_r_i__47_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[0][9]
+(.C(clk_i),
+.CE(tv_cnt_r_i__46_n_0),
+.D(tv_cnt_r_i__42_n_22),
+.Q(cnt_ts_valid_o[9]),
+.RST(tv_cnt_r_i__47_n_0));
+RTL_ROM81 \tv_cnt_r_reg[0]_i
+(.A(laddr_return),
+.O(\tv_cnt_r_reg[0]__0 ));
+RTL_ROM81 \tv_cnt_r_reg[0]_i__0
+(.A(laddr_return),
+.O(\tv_cnt_r_reg[0]_i__0_n_0 ));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[1][0]
+(.C(clk_i),
+.CE(tv_cnt_r_i__3_n_0),
+.D(tv_cnt_r_i_n_31),
+.Q(p_7_in__0[0]),
+.RST(tv_cnt_r_i__4_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[1][10]
+(.C(clk_i),
+.CE(tv_cnt_r_i__3_n_0),
+.D(tv_cnt_r_i_n_21),
+.Q(p_7_in__0[10]),
+.RST(tv_cnt_r_i__4_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[1][11]
+(.C(clk_i),
+.CE(tv_cnt_r_i__3_n_0),
+.D(tv_cnt_r_i_n_20),
+.Q(p_7_in__0[11]),
+.RST(tv_cnt_r_i__4_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[1][12]
+(.C(clk_i),
+.CE(tv_cnt_r_i__3_n_0),
+.D(tv_cnt_r_i_n_19),
+.Q(p_7_in__0[12]),
+.RST(tv_cnt_r_i__4_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[1][13]
+(.C(clk_i),
+.CE(tv_cnt_r_i__3_n_0),
+.D(tv_cnt_r_i_n_18),
+.Q(p_7_in__0[13]),
+.RST(tv_cnt_r_i__4_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[1][14]
+(.C(clk_i),
+.CE(tv_cnt_r_i__3_n_0),
+.D(tv_cnt_r_i_n_17),
+.Q(p_7_in__0[14]),
+.RST(tv_cnt_r_i__4_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[1][15]
+(.C(clk_i),
+.CE(tv_cnt_r_i__3_n_0),
+.D(tv_cnt_r_i_n_16),
+.Q(p_7_in__0[15]),
+.RST(tv_cnt_r_i__4_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[1][16]
+(.C(clk_i),
+.CE(tv_cnt_r_i__3_n_0),
+.D(tv_cnt_r_i_n_15),
+.Q(p_7_in__0[16]),
+.RST(tv_cnt_r_i__4_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[1][17]
+(.C(clk_i),
+.CE(tv_cnt_r_i__3_n_0),
+.D(tv_cnt_r_i_n_14),
+.Q(p_7_in__0[17]),
+.RST(tv_cnt_r_i__4_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[1][18]
+(.C(clk_i),
+.CE(tv_cnt_r_i__3_n_0),
+.D(tv_cnt_r_i_n_13),
+.Q(p_7_in__0[18]),
+.RST(tv_cnt_r_i__4_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[1][19]
+(.C(clk_i),
+.CE(tv_cnt_r_i__3_n_0),
+.D(tv_cnt_r_i_n_12),
+.Q(p_7_in__0[19]),
+.RST(tv_cnt_r_i__4_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[1][1]
+(.C(clk_i),
+.CE(tv_cnt_r_i__3_n_0),
+.D(tv_cnt_r_i_n_30),
+.Q(p_7_in__0[1]),
+.RST(tv_cnt_r_i__4_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[1][20]
+(.C(clk_i),
+.CE(tv_cnt_r_i__3_n_0),
+.D(tv_cnt_r_i_n_11),
+.Q(p_7_in__0[20]),
+.RST(tv_cnt_r_i__4_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[1][21]
+(.C(clk_i),
+.CE(tv_cnt_r_i__3_n_0),
+.D(tv_cnt_r_i_n_10),
+.Q(p_7_in__0[21]),
+.RST(tv_cnt_r_i__4_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[1][22]
+(.C(clk_i),
+.CE(tv_cnt_r_i__3_n_0),
+.D(tv_cnt_r_i_n_9),
+.Q(p_7_in__0[22]),
+.RST(tv_cnt_r_i__4_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[1][23]
+(.C(clk_i),
+.CE(tv_cnt_r_i__3_n_0),
+.D(tv_cnt_r_i_n_8),
+.Q(p_7_in__0[23]),
+.RST(tv_cnt_r_i__4_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[1][24]
+(.C(clk_i),
+.CE(tv_cnt_r_i__3_n_0),
+.D(tv_cnt_r_i_n_7),
+.Q(p_7_in__0[24]),
+.RST(tv_cnt_r_i__4_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[1][25]
+(.C(clk_i),
+.CE(tv_cnt_r_i__3_n_0),
+.D(tv_cnt_r_i_n_6),
+.Q(p_7_in__0[25]),
+.RST(tv_cnt_r_i__4_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[1][26]
+(.C(clk_i),
+.CE(tv_cnt_r_i__3_n_0),
+.D(tv_cnt_r_i_n_5),
+.Q(p_7_in__0[26]),
+.RST(tv_cnt_r_i__4_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[1][27]
+(.C(clk_i),
+.CE(tv_cnt_r_i__3_n_0),
+.D(tv_cnt_r_i_n_4),
+.Q(p_7_in__0[27]),
+.RST(tv_cnt_r_i__4_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[1][28]
+(.C(clk_i),
+.CE(tv_cnt_r_i__3_n_0),
+.D(tv_cnt_r_i_n_3),
+.Q(p_7_in__0[28]),
+.RST(tv_cnt_r_i__4_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[1][29]
+(.C(clk_i),
+.CE(tv_cnt_r_i__3_n_0),
+.D(tv_cnt_r_i_n_2),
+.Q(p_7_in__0[29]),
+.RST(tv_cnt_r_i__4_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[1][2]
+(.C(clk_i),
+.CE(tv_cnt_r_i__3_n_0),
+.D(tv_cnt_r_i_n_29),
+.Q(p_7_in__0[2]),
+.RST(tv_cnt_r_i__4_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[1][30]
+(.C(clk_i),
+.CE(tv_cnt_r_i__3_n_0),
+.D(tv_cnt_r_i_n_1),
+.Q(p_7_in__0[30]),
+.RST(tv_cnt_r_i__4_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[1][31]
+(.C(clk_i),
+.CE(tv_cnt_r_i__3_n_0),
+.D(tv_cnt_r_i_n_0),
+.Q(p_7_in__0[31]),
+.RST(tv_cnt_r_i__4_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[1][3]
+(.C(clk_i),
+.CE(tv_cnt_r_i__3_n_0),
+.D(tv_cnt_r_i_n_28),
+.Q(p_7_in__0[3]),
+.RST(tv_cnt_r_i__4_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[1][4]
+(.C(clk_i),
+.CE(tv_cnt_r_i__3_n_0),
+.D(tv_cnt_r_i_n_27),
+.Q(p_7_in__0[4]),
+.RST(tv_cnt_r_i__4_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[1][5]
+(.C(clk_i),
+.CE(tv_cnt_r_i__3_n_0),
+.D(tv_cnt_r_i_n_26),
+.Q(p_7_in__0[5]),
+.RST(tv_cnt_r_i__4_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[1][6]
+(.C(clk_i),
+.CE(tv_cnt_r_i__3_n_0),
+.D(tv_cnt_r_i_n_25),
+.Q(p_7_in__0[6]),
+.RST(tv_cnt_r_i__4_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[1][7]
+(.C(clk_i),
+.CE(tv_cnt_r_i__3_n_0),
+.D(tv_cnt_r_i_n_24),
+.Q(p_7_in__0[7]),
+.RST(tv_cnt_r_i__4_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[1][8]
+(.C(clk_i),
+.CE(tv_cnt_r_i__3_n_0),
+.D(tv_cnt_r_i_n_23),
+.Q(p_7_in__0[8]),
+.RST(tv_cnt_r_i__4_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[1][9]
+(.C(clk_i),
+.CE(tv_cnt_r_i__3_n_0),
+.D(tv_cnt_r_i_n_22),
+.Q(p_7_in__0[9]),
+.RST(tv_cnt_r_i__4_n_0));
+RTL_ROM81 \tv_cnt_r_reg[1]_i
+(.A(laddr_return),
+.O(\tv_cnt_r_reg[1]__0 ));
+RTL_ROM81 \tv_cnt_r_reg[1]_i__0
+(.A(laddr_return),
+.O(\tv_cnt_r_reg[1]_i__0_n_0 ));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[2][0]
+(.C(clk_i),
+.CE(tv_cnt_r_i__9_n_0),
+.D(tv_cnt_r_i__5_n_31),
+.Q(p_6_in__0[0]),
+.RST(tv_cnt_r_i__10_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[2][10]
+(.C(clk_i),
+.CE(tv_cnt_r_i__9_n_0),
+.D(tv_cnt_r_i__5_n_21),
+.Q(p_6_in__0[10]),
+.RST(tv_cnt_r_i__10_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[2][11]
+(.C(clk_i),
+.CE(tv_cnt_r_i__9_n_0),
+.D(tv_cnt_r_i__5_n_20),
+.Q(p_6_in__0[11]),
+.RST(tv_cnt_r_i__10_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[2][12]
+(.C(clk_i),
+.CE(tv_cnt_r_i__9_n_0),
+.D(tv_cnt_r_i__5_n_19),
+.Q(p_6_in__0[12]),
+.RST(tv_cnt_r_i__10_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[2][13]
+(.C(clk_i),
+.CE(tv_cnt_r_i__9_n_0),
+.D(tv_cnt_r_i__5_n_18),
+.Q(p_6_in__0[13]),
+.RST(tv_cnt_r_i__10_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[2][14]
+(.C(clk_i),
+.CE(tv_cnt_r_i__9_n_0),
+.D(tv_cnt_r_i__5_n_17),
+.Q(p_6_in__0[14]),
+.RST(tv_cnt_r_i__10_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[2][15]
+(.C(clk_i),
+.CE(tv_cnt_r_i__9_n_0),
+.D(tv_cnt_r_i__5_n_16),
+.Q(p_6_in__0[15]),
+.RST(tv_cnt_r_i__10_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[2][16]
+(.C(clk_i),
+.CE(tv_cnt_r_i__9_n_0),
+.D(tv_cnt_r_i__5_n_15),
+.Q(p_6_in__0[16]),
+.RST(tv_cnt_r_i__10_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[2][17]
+(.C(clk_i),
+.CE(tv_cnt_r_i__9_n_0),
+.D(tv_cnt_r_i__5_n_14),
+.Q(p_6_in__0[17]),
+.RST(tv_cnt_r_i__10_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[2][18]
+(.C(clk_i),
+.CE(tv_cnt_r_i__9_n_0),
+.D(tv_cnt_r_i__5_n_13),
+.Q(p_6_in__0[18]),
+.RST(tv_cnt_r_i__10_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[2][19]
+(.C(clk_i),
+.CE(tv_cnt_r_i__9_n_0),
+.D(tv_cnt_r_i__5_n_12),
+.Q(p_6_in__0[19]),
+.RST(tv_cnt_r_i__10_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[2][1]
+(.C(clk_i),
+.CE(tv_cnt_r_i__9_n_0),
+.D(tv_cnt_r_i__5_n_30),
+.Q(p_6_in__0[1]),
+.RST(tv_cnt_r_i__10_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[2][20]
+(.C(clk_i),
+.CE(tv_cnt_r_i__9_n_0),
+.D(tv_cnt_r_i__5_n_11),
+.Q(p_6_in__0[20]),
+.RST(tv_cnt_r_i__10_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[2][21]
+(.C(clk_i),
+.CE(tv_cnt_r_i__9_n_0),
+.D(tv_cnt_r_i__5_n_10),
+.Q(p_6_in__0[21]),
+.RST(tv_cnt_r_i__10_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[2][22]
+(.C(clk_i),
+.CE(tv_cnt_r_i__9_n_0),
+.D(tv_cnt_r_i__5_n_9),
+.Q(p_6_in__0[22]),
+.RST(tv_cnt_r_i__10_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[2][23]
+(.C(clk_i),
+.CE(tv_cnt_r_i__9_n_0),
+.D(tv_cnt_r_i__5_n_8),
+.Q(p_6_in__0[23]),
+.RST(tv_cnt_r_i__10_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[2][24]
+(.C(clk_i),
+.CE(tv_cnt_r_i__9_n_0),
+.D(tv_cnt_r_i__5_n_7),
+.Q(p_6_in__0[24]),
+.RST(tv_cnt_r_i__10_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[2][25]
+(.C(clk_i),
+.CE(tv_cnt_r_i__9_n_0),
+.D(tv_cnt_r_i__5_n_6),
+.Q(p_6_in__0[25]),
+.RST(tv_cnt_r_i__10_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[2][26]
+(.C(clk_i),
+.CE(tv_cnt_r_i__9_n_0),
+.D(tv_cnt_r_i__5_n_5),
+.Q(p_6_in__0[26]),
+.RST(tv_cnt_r_i__10_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[2][27]
+(.C(clk_i),
+.CE(tv_cnt_r_i__9_n_0),
+.D(tv_cnt_r_i__5_n_4),
+.Q(p_6_in__0[27]),
+.RST(tv_cnt_r_i__10_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[2][28]
+(.C(clk_i),
+.CE(tv_cnt_r_i__9_n_0),
+.D(tv_cnt_r_i__5_n_3),
+.Q(p_6_in__0[28]),
+.RST(tv_cnt_r_i__10_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[2][29]
+(.C(clk_i),
+.CE(tv_cnt_r_i__9_n_0),
+.D(tv_cnt_r_i__5_n_2),
+.Q(p_6_in__0[29]),
+.RST(tv_cnt_r_i__10_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[2][2]
+(.C(clk_i),
+.CE(tv_cnt_r_i__9_n_0),
+.D(tv_cnt_r_i__5_n_29),
+.Q(p_6_in__0[2]),
+.RST(tv_cnt_r_i__10_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[2][30]
+(.C(clk_i),
+.CE(tv_cnt_r_i__9_n_0),
+.D(tv_cnt_r_i__5_n_1),
+.Q(p_6_in__0[30]),
+.RST(tv_cnt_r_i__10_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[2][31]
+(.C(clk_i),
+.CE(tv_cnt_r_i__9_n_0),
+.D(tv_cnt_r_i__5_n_0),
+.Q(p_6_in__0[31]),
+.RST(tv_cnt_r_i__10_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[2][3]
+(.C(clk_i),
+.CE(tv_cnt_r_i__9_n_0),
+.D(tv_cnt_r_i__5_n_28),
+.Q(p_6_in__0[3]),
+.RST(tv_cnt_r_i__10_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[2][4]
+(.C(clk_i),
+.CE(tv_cnt_r_i__9_n_0),
+.D(tv_cnt_r_i__5_n_27),
+.Q(p_6_in__0[4]),
+.RST(tv_cnt_r_i__10_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[2][5]
+(.C(clk_i),
+.CE(tv_cnt_r_i__9_n_0),
+.D(tv_cnt_r_i__5_n_26),
+.Q(p_6_in__0[5]),
+.RST(tv_cnt_r_i__10_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[2][6]
+(.C(clk_i),
+.CE(tv_cnt_r_i__9_n_0),
+.D(tv_cnt_r_i__5_n_25),
+.Q(p_6_in__0[6]),
+.RST(tv_cnt_r_i__10_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[2][7]
+(.C(clk_i),
+.CE(tv_cnt_r_i__9_n_0),
+.D(tv_cnt_r_i__5_n_24),
+.Q(p_6_in__0[7]),
+.RST(tv_cnt_r_i__10_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[2][8]
+(.C(clk_i),
+.CE(tv_cnt_r_i__9_n_0),
+.D(tv_cnt_r_i__5_n_23),
+.Q(p_6_in__0[8]),
+.RST(tv_cnt_r_i__10_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[2][9]
+(.C(clk_i),
+.CE(tv_cnt_r_i__9_n_0),
+.D(tv_cnt_r_i__5_n_22),
+.Q(p_6_in__0[9]),
+.RST(tv_cnt_r_i__10_n_0));
+RTL_ROM81 \tv_cnt_r_reg[2]_i
+(.A(laddr_return),
+.O(\tv_cnt_r_reg[2]__0 ));
+RTL_ROM81 \tv_cnt_r_reg[2]_i__0
+(.A(laddr_return),
+.O(\tv_cnt_r_reg[2]_i__0_n_0 ));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[3][0]
+(.C(clk_i),
+.CE(tv_cnt_r_i__15_n_0),
+.D(tv_cnt_r_i__11_n_31),
+.Q(p_5_in__0[0]),
+.RST(tv_cnt_r_i__16_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[3][10]
+(.C(clk_i),
+.CE(tv_cnt_r_i__15_n_0),
+.D(tv_cnt_r_i__11_n_21),
+.Q(p_5_in__0[10]),
+.RST(tv_cnt_r_i__16_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[3][11]
+(.C(clk_i),
+.CE(tv_cnt_r_i__15_n_0),
+.D(tv_cnt_r_i__11_n_20),
+.Q(p_5_in__0[11]),
+.RST(tv_cnt_r_i__16_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[3][12]
+(.C(clk_i),
+.CE(tv_cnt_r_i__15_n_0),
+.D(tv_cnt_r_i__11_n_19),
+.Q(p_5_in__0[12]),
+.RST(tv_cnt_r_i__16_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[3][13]
+(.C(clk_i),
+.CE(tv_cnt_r_i__15_n_0),
+.D(tv_cnt_r_i__11_n_18),
+.Q(p_5_in__0[13]),
+.RST(tv_cnt_r_i__16_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[3][14]
+(.C(clk_i),
+.CE(tv_cnt_r_i__15_n_0),
+.D(tv_cnt_r_i__11_n_17),
+.Q(p_5_in__0[14]),
+.RST(tv_cnt_r_i__16_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[3][15]
+(.C(clk_i),
+.CE(tv_cnt_r_i__15_n_0),
+.D(tv_cnt_r_i__11_n_16),
+.Q(p_5_in__0[15]),
+.RST(tv_cnt_r_i__16_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[3][16]
+(.C(clk_i),
+.CE(tv_cnt_r_i__15_n_0),
+.D(tv_cnt_r_i__11_n_15),
+.Q(p_5_in__0[16]),
+.RST(tv_cnt_r_i__16_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[3][17]
+(.C(clk_i),
+.CE(tv_cnt_r_i__15_n_0),
+.D(tv_cnt_r_i__11_n_14),
+.Q(p_5_in__0[17]),
+.RST(tv_cnt_r_i__16_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[3][18]
+(.C(clk_i),
+.CE(tv_cnt_r_i__15_n_0),
+.D(tv_cnt_r_i__11_n_13),
+.Q(p_5_in__0[18]),
+.RST(tv_cnt_r_i__16_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[3][19]
+(.C(clk_i),
+.CE(tv_cnt_r_i__15_n_0),
+.D(tv_cnt_r_i__11_n_12),
+.Q(p_5_in__0[19]),
+.RST(tv_cnt_r_i__16_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[3][1]
+(.C(clk_i),
+.CE(tv_cnt_r_i__15_n_0),
+.D(tv_cnt_r_i__11_n_30),
+.Q(p_5_in__0[1]),
+.RST(tv_cnt_r_i__16_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[3][20]
+(.C(clk_i),
+.CE(tv_cnt_r_i__15_n_0),
+.D(tv_cnt_r_i__11_n_11),
+.Q(p_5_in__0[20]),
+.RST(tv_cnt_r_i__16_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[3][21]
+(.C(clk_i),
+.CE(tv_cnt_r_i__15_n_0),
+.D(tv_cnt_r_i__11_n_10),
+.Q(p_5_in__0[21]),
+.RST(tv_cnt_r_i__16_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[3][22]
+(.C(clk_i),
+.CE(tv_cnt_r_i__15_n_0),
+.D(tv_cnt_r_i__11_n_9),
+.Q(p_5_in__0[22]),
+.RST(tv_cnt_r_i__16_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[3][23]
+(.C(clk_i),
+.CE(tv_cnt_r_i__15_n_0),
+.D(tv_cnt_r_i__11_n_8),
+.Q(p_5_in__0[23]),
+.RST(tv_cnt_r_i__16_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[3][24]
+(.C(clk_i),
+.CE(tv_cnt_r_i__15_n_0),
+.D(tv_cnt_r_i__11_n_7),
+.Q(p_5_in__0[24]),
+.RST(tv_cnt_r_i__16_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[3][25]
+(.C(clk_i),
+.CE(tv_cnt_r_i__15_n_0),
+.D(tv_cnt_r_i__11_n_6),
+.Q(p_5_in__0[25]),
+.RST(tv_cnt_r_i__16_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[3][26]
+(.C(clk_i),
+.CE(tv_cnt_r_i__15_n_0),
+.D(tv_cnt_r_i__11_n_5),
+.Q(p_5_in__0[26]),
+.RST(tv_cnt_r_i__16_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[3][27]
+(.C(clk_i),
+.CE(tv_cnt_r_i__15_n_0),
+.D(tv_cnt_r_i__11_n_4),
+.Q(p_5_in__0[27]),
+.RST(tv_cnt_r_i__16_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[3][28]
+(.C(clk_i),
+.CE(tv_cnt_r_i__15_n_0),
+.D(tv_cnt_r_i__11_n_3),
+.Q(p_5_in__0[28]),
+.RST(tv_cnt_r_i__16_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[3][29]
+(.C(clk_i),
+.CE(tv_cnt_r_i__15_n_0),
+.D(tv_cnt_r_i__11_n_2),
+.Q(p_5_in__0[29]),
+.RST(tv_cnt_r_i__16_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[3][2]
+(.C(clk_i),
+.CE(tv_cnt_r_i__15_n_0),
+.D(tv_cnt_r_i__11_n_29),
+.Q(p_5_in__0[2]),
+.RST(tv_cnt_r_i__16_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[3][30]
+(.C(clk_i),
+.CE(tv_cnt_r_i__15_n_0),
+.D(tv_cnt_r_i__11_n_1),
+.Q(p_5_in__0[30]),
+.RST(tv_cnt_r_i__16_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[3][31]
+(.C(clk_i),
+.CE(tv_cnt_r_i__15_n_0),
+.D(tv_cnt_r_i__11_n_0),
+.Q(p_5_in__0[31]),
+.RST(tv_cnt_r_i__16_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[3][3]
+(.C(clk_i),
+.CE(tv_cnt_r_i__15_n_0),
+.D(tv_cnt_r_i__11_n_28),
+.Q(p_5_in__0[3]),
+.RST(tv_cnt_r_i__16_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[3][4]
+(.C(clk_i),
+.CE(tv_cnt_r_i__15_n_0),
+.D(tv_cnt_r_i__11_n_27),
+.Q(p_5_in__0[4]),
+.RST(tv_cnt_r_i__16_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[3][5]
+(.C(clk_i),
+.CE(tv_cnt_r_i__15_n_0),
+.D(tv_cnt_r_i__11_n_26),
+.Q(p_5_in__0[5]),
+.RST(tv_cnt_r_i__16_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[3][6]
+(.C(clk_i),
+.CE(tv_cnt_r_i__15_n_0),
+.D(tv_cnt_r_i__11_n_25),
+.Q(p_5_in__0[6]),
+.RST(tv_cnt_r_i__16_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[3][7]
+(.C(clk_i),
+.CE(tv_cnt_r_i__15_n_0),
+.D(tv_cnt_r_i__11_n_24),
+.Q(p_5_in__0[7]),
+.RST(tv_cnt_r_i__16_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[3][8]
+(.C(clk_i),
+.CE(tv_cnt_r_i__15_n_0),
+.D(tv_cnt_r_i__11_n_23),
+.Q(p_5_in__0[8]),
+.RST(tv_cnt_r_i__16_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[3][9]
+(.C(clk_i),
+.CE(tv_cnt_r_i__15_n_0),
+.D(tv_cnt_r_i__11_n_22),
+.Q(p_5_in__0[9]),
+.RST(tv_cnt_r_i__16_n_0));
+RTL_ROM81 \tv_cnt_r_reg[3]_i
+(.A(laddr_return),
+.O(\tv_cnt_r_reg[3]__0 ));
+RTL_ROM81 \tv_cnt_r_reg[3]_i__0
+(.A(laddr_return),
+.O(\tv_cnt_r_reg[3]_i__0_n_0 ));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[4][0]
+(.C(clk_i),
+.CE(tv_cnt_r_i__21_n_0),
+.D(tv_cnt_r_i__17_n_31),
+.Q(p_4_in__0[0]),
+.RST(tv_cnt_r_i__22_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[4][10]
+(.C(clk_i),
+.CE(tv_cnt_r_i__21_n_0),
+.D(tv_cnt_r_i__17_n_21),
+.Q(p_4_in__0[10]),
+.RST(tv_cnt_r_i__22_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[4][11]
+(.C(clk_i),
+.CE(tv_cnt_r_i__21_n_0),
+.D(tv_cnt_r_i__17_n_20),
+.Q(p_4_in__0[11]),
+.RST(tv_cnt_r_i__22_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[4][12]
+(.C(clk_i),
+.CE(tv_cnt_r_i__21_n_0),
+.D(tv_cnt_r_i__17_n_19),
+.Q(p_4_in__0[12]),
+.RST(tv_cnt_r_i__22_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[4][13]
+(.C(clk_i),
+.CE(tv_cnt_r_i__21_n_0),
+.D(tv_cnt_r_i__17_n_18),
+.Q(p_4_in__0[13]),
+.RST(tv_cnt_r_i__22_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[4][14]
+(.C(clk_i),
+.CE(tv_cnt_r_i__21_n_0),
+.D(tv_cnt_r_i__17_n_17),
+.Q(p_4_in__0[14]),
+.RST(tv_cnt_r_i__22_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[4][15]
+(.C(clk_i),
+.CE(tv_cnt_r_i__21_n_0),
+.D(tv_cnt_r_i__17_n_16),
+.Q(p_4_in__0[15]),
+.RST(tv_cnt_r_i__22_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[4][16]
+(.C(clk_i),
+.CE(tv_cnt_r_i__21_n_0),
+.D(tv_cnt_r_i__17_n_15),
+.Q(p_4_in__0[16]),
+.RST(tv_cnt_r_i__22_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[4][17]
+(.C(clk_i),
+.CE(tv_cnt_r_i__21_n_0),
+.D(tv_cnt_r_i__17_n_14),
+.Q(p_4_in__0[17]),
+.RST(tv_cnt_r_i__22_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[4][18]
+(.C(clk_i),
+.CE(tv_cnt_r_i__21_n_0),
+.D(tv_cnt_r_i__17_n_13),
+.Q(p_4_in__0[18]),
+.RST(tv_cnt_r_i__22_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[4][19]
+(.C(clk_i),
+.CE(tv_cnt_r_i__21_n_0),
+.D(tv_cnt_r_i__17_n_12),
+.Q(p_4_in__0[19]),
+.RST(tv_cnt_r_i__22_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[4][1]
+(.C(clk_i),
+.CE(tv_cnt_r_i__21_n_0),
+.D(tv_cnt_r_i__17_n_30),
+.Q(p_4_in__0[1]),
+.RST(tv_cnt_r_i__22_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[4][20]
+(.C(clk_i),
+.CE(tv_cnt_r_i__21_n_0),
+.D(tv_cnt_r_i__17_n_11),
+.Q(p_4_in__0[20]),
+.RST(tv_cnt_r_i__22_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[4][21]
+(.C(clk_i),
+.CE(tv_cnt_r_i__21_n_0),
+.D(tv_cnt_r_i__17_n_10),
+.Q(p_4_in__0[21]),
+.RST(tv_cnt_r_i__22_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[4][22]
+(.C(clk_i),
+.CE(tv_cnt_r_i__21_n_0),
+.D(tv_cnt_r_i__17_n_9),
+.Q(p_4_in__0[22]),
+.RST(tv_cnt_r_i__22_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[4][23]
+(.C(clk_i),
+.CE(tv_cnt_r_i__21_n_0),
+.D(tv_cnt_r_i__17_n_8),
+.Q(p_4_in__0[23]),
+.RST(tv_cnt_r_i__22_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[4][24]
+(.C(clk_i),
+.CE(tv_cnt_r_i__21_n_0),
+.D(tv_cnt_r_i__17_n_7),
+.Q(p_4_in__0[24]),
+.RST(tv_cnt_r_i__22_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[4][25]
+(.C(clk_i),
+.CE(tv_cnt_r_i__21_n_0),
+.D(tv_cnt_r_i__17_n_6),
+.Q(p_4_in__0[25]),
+.RST(tv_cnt_r_i__22_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[4][26]
+(.C(clk_i),
+.CE(tv_cnt_r_i__21_n_0),
+.D(tv_cnt_r_i__17_n_5),
+.Q(p_4_in__0[26]),
+.RST(tv_cnt_r_i__22_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[4][27]
+(.C(clk_i),
+.CE(tv_cnt_r_i__21_n_0),
+.D(tv_cnt_r_i__17_n_4),
+.Q(p_4_in__0[27]),
+.RST(tv_cnt_r_i__22_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[4][28]
+(.C(clk_i),
+.CE(tv_cnt_r_i__21_n_0),
+.D(tv_cnt_r_i__17_n_3),
+.Q(p_4_in__0[28]),
+.RST(tv_cnt_r_i__22_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[4][29]
+(.C(clk_i),
+.CE(tv_cnt_r_i__21_n_0),
+.D(tv_cnt_r_i__17_n_2),
+.Q(p_4_in__0[29]),
+.RST(tv_cnt_r_i__22_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[4][2]
+(.C(clk_i),
+.CE(tv_cnt_r_i__21_n_0),
+.D(tv_cnt_r_i__17_n_29),
+.Q(p_4_in__0[2]),
+.RST(tv_cnt_r_i__22_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[4][30]
+(.C(clk_i),
+.CE(tv_cnt_r_i__21_n_0),
+.D(tv_cnt_r_i__17_n_1),
+.Q(p_4_in__0[30]),
+.RST(tv_cnt_r_i__22_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[4][31]
+(.C(clk_i),
+.CE(tv_cnt_r_i__21_n_0),
+.D(tv_cnt_r_i__17_n_0),
+.Q(p_4_in__0[31]),
+.RST(tv_cnt_r_i__22_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[4][3]
+(.C(clk_i),
+.CE(tv_cnt_r_i__21_n_0),
+.D(tv_cnt_r_i__17_n_28),
+.Q(p_4_in__0[3]),
+.RST(tv_cnt_r_i__22_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[4][4]
+(.C(clk_i),
+.CE(tv_cnt_r_i__21_n_0),
+.D(tv_cnt_r_i__17_n_27),
+.Q(p_4_in__0[4]),
+.RST(tv_cnt_r_i__22_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[4][5]
+(.C(clk_i),
+.CE(tv_cnt_r_i__21_n_0),
+.D(tv_cnt_r_i__17_n_26),
+.Q(p_4_in__0[5]),
+.RST(tv_cnt_r_i__22_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[4][6]
+(.C(clk_i),
+.CE(tv_cnt_r_i__21_n_0),
+.D(tv_cnt_r_i__17_n_25),
+.Q(p_4_in__0[6]),
+.RST(tv_cnt_r_i__22_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[4][7]
+(.C(clk_i),
+.CE(tv_cnt_r_i__21_n_0),
+.D(tv_cnt_r_i__17_n_24),
+.Q(p_4_in__0[7]),
+.RST(tv_cnt_r_i__22_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[4][8]
+(.C(clk_i),
+.CE(tv_cnt_r_i__21_n_0),
+.D(tv_cnt_r_i__17_n_23),
+.Q(p_4_in__0[8]),
+.RST(tv_cnt_r_i__22_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[4][9]
+(.C(clk_i),
+.CE(tv_cnt_r_i__21_n_0),
+.D(tv_cnt_r_i__17_n_22),
+.Q(p_4_in__0[9]),
+.RST(tv_cnt_r_i__22_n_0));
+RTL_ROM81 \tv_cnt_r_reg[4]_i
+(.A(laddr_return),
+.O(\tv_cnt_r_reg[4]__0 ));
+RTL_ROM81 \tv_cnt_r_reg[4]_i__0
+(.A(laddr_return),
+.O(\tv_cnt_r_reg[4]_i__0_n_0 ));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[5][0]
+(.C(clk_i),
+.CE(tv_cnt_r_i__27_n_0),
+.D(tv_cnt_r_i__23_n_31),
+.Q(p_3_in__1[0]),
+.RST(tv_cnt_r_i__28_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[5][10]
+(.C(clk_i),
+.CE(tv_cnt_r_i__27_n_0),
+.D(tv_cnt_r_i__23_n_21),
+.Q(p_3_in__1[10]),
+.RST(tv_cnt_r_i__28_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[5][11]
+(.C(clk_i),
+.CE(tv_cnt_r_i__27_n_0),
+.D(tv_cnt_r_i__23_n_20),
+.Q(p_3_in__1[11]),
+.RST(tv_cnt_r_i__28_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[5][12]
+(.C(clk_i),
+.CE(tv_cnt_r_i__27_n_0),
+.D(tv_cnt_r_i__23_n_19),
+.Q(p_3_in__1[12]),
+.RST(tv_cnt_r_i__28_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[5][13]
+(.C(clk_i),
+.CE(tv_cnt_r_i__27_n_0),
+.D(tv_cnt_r_i__23_n_18),
+.Q(p_3_in__1[13]),
+.RST(tv_cnt_r_i__28_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[5][14]
+(.C(clk_i),
+.CE(tv_cnt_r_i__27_n_0),
+.D(tv_cnt_r_i__23_n_17),
+.Q(p_3_in__1[14]),
+.RST(tv_cnt_r_i__28_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[5][15]
+(.C(clk_i),
+.CE(tv_cnt_r_i__27_n_0),
+.D(tv_cnt_r_i__23_n_16),
+.Q(p_3_in__1[15]),
+.RST(tv_cnt_r_i__28_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[5][16]
+(.C(clk_i),
+.CE(tv_cnt_r_i__27_n_0),
+.D(tv_cnt_r_i__23_n_15),
+.Q(p_3_in__1[16]),
+.RST(tv_cnt_r_i__28_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[5][17]
+(.C(clk_i),
+.CE(tv_cnt_r_i__27_n_0),
+.D(tv_cnt_r_i__23_n_14),
+.Q(p_3_in__1[17]),
+.RST(tv_cnt_r_i__28_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[5][18]
+(.C(clk_i),
+.CE(tv_cnt_r_i__27_n_0),
+.D(tv_cnt_r_i__23_n_13),
+.Q(p_3_in__1[18]),
+.RST(tv_cnt_r_i__28_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[5][19]
+(.C(clk_i),
+.CE(tv_cnt_r_i__27_n_0),
+.D(tv_cnt_r_i__23_n_12),
+.Q(p_3_in__1[19]),
+.RST(tv_cnt_r_i__28_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[5][1]
+(.C(clk_i),
+.CE(tv_cnt_r_i__27_n_0),
+.D(tv_cnt_r_i__23_n_30),
+.Q(p_3_in__1[1]),
+.RST(tv_cnt_r_i__28_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[5][20]
+(.C(clk_i),
+.CE(tv_cnt_r_i__27_n_0),
+.D(tv_cnt_r_i__23_n_11),
+.Q(p_3_in__1[20]),
+.RST(tv_cnt_r_i__28_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[5][21]
+(.C(clk_i),
+.CE(tv_cnt_r_i__27_n_0),
+.D(tv_cnt_r_i__23_n_10),
+.Q(p_3_in__1[21]),
+.RST(tv_cnt_r_i__28_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[5][22]
+(.C(clk_i),
+.CE(tv_cnt_r_i__27_n_0),
+.D(tv_cnt_r_i__23_n_9),
+.Q(p_3_in__1[22]),
+.RST(tv_cnt_r_i__28_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[5][23]
+(.C(clk_i),
+.CE(tv_cnt_r_i__27_n_0),
+.D(tv_cnt_r_i__23_n_8),
+.Q(p_3_in__1[23]),
+.RST(tv_cnt_r_i__28_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[5][24]
+(.C(clk_i),
+.CE(tv_cnt_r_i__27_n_0),
+.D(tv_cnt_r_i__23_n_7),
+.Q(p_3_in__1[24]),
+.RST(tv_cnt_r_i__28_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[5][25]
+(.C(clk_i),
+.CE(tv_cnt_r_i__27_n_0),
+.D(tv_cnt_r_i__23_n_6),
+.Q(p_3_in__1[25]),
+.RST(tv_cnt_r_i__28_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[5][26]
+(.C(clk_i),
+.CE(tv_cnt_r_i__27_n_0),
+.D(tv_cnt_r_i__23_n_5),
+.Q(p_3_in__1[26]),
+.RST(tv_cnt_r_i__28_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[5][27]
+(.C(clk_i),
+.CE(tv_cnt_r_i__27_n_0),
+.D(tv_cnt_r_i__23_n_4),
+.Q(p_3_in__1[27]),
+.RST(tv_cnt_r_i__28_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[5][28]
+(.C(clk_i),
+.CE(tv_cnt_r_i__27_n_0),
+.D(tv_cnt_r_i__23_n_3),
+.Q(p_3_in__1[28]),
+.RST(tv_cnt_r_i__28_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[5][29]
+(.C(clk_i),
+.CE(tv_cnt_r_i__27_n_0),
+.D(tv_cnt_r_i__23_n_2),
+.Q(p_3_in__1[29]),
+.RST(tv_cnt_r_i__28_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[5][2]
+(.C(clk_i),
+.CE(tv_cnt_r_i__27_n_0),
+.D(tv_cnt_r_i__23_n_29),
+.Q(p_3_in__1[2]),
+.RST(tv_cnt_r_i__28_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[5][30]
+(.C(clk_i),
+.CE(tv_cnt_r_i__27_n_0),
+.D(tv_cnt_r_i__23_n_1),
+.Q(p_3_in__1[30]),
+.RST(tv_cnt_r_i__28_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[5][31]
+(.C(clk_i),
+.CE(tv_cnt_r_i__27_n_0),
+.D(tv_cnt_r_i__23_n_0),
+.Q(p_3_in__1[31]),
+.RST(tv_cnt_r_i__28_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[5][3]
+(.C(clk_i),
+.CE(tv_cnt_r_i__27_n_0),
+.D(tv_cnt_r_i__23_n_28),
+.Q(p_3_in__1[3]),
+.RST(tv_cnt_r_i__28_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[5][4]
+(.C(clk_i),
+.CE(tv_cnt_r_i__27_n_0),
+.D(tv_cnt_r_i__23_n_27),
+.Q(p_3_in__1[4]),
+.RST(tv_cnt_r_i__28_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[5][5]
+(.C(clk_i),
+.CE(tv_cnt_r_i__27_n_0),
+.D(tv_cnt_r_i__23_n_26),
+.Q(p_3_in__1[5]),
+.RST(tv_cnt_r_i__28_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[5][6]
+(.C(clk_i),
+.CE(tv_cnt_r_i__27_n_0),
+.D(tv_cnt_r_i__23_n_25),
+.Q(p_3_in__1[6]),
+.RST(tv_cnt_r_i__28_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[5][7]
+(.C(clk_i),
+.CE(tv_cnt_r_i__27_n_0),
+.D(tv_cnt_r_i__23_n_24),
+.Q(p_3_in__1[7]),
+.RST(tv_cnt_r_i__28_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[5][8]
+(.C(clk_i),
+.CE(tv_cnt_r_i__27_n_0),
+.D(tv_cnt_r_i__23_n_23),
+.Q(p_3_in__1[8]),
+.RST(tv_cnt_r_i__28_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[5][9]
+(.C(clk_i),
+.CE(tv_cnt_r_i__27_n_0),
+.D(tv_cnt_r_i__23_n_22),
+.Q(p_3_in__1[9]),
+.RST(tv_cnt_r_i__28_n_0));
+RTL_ROM81 \tv_cnt_r_reg[5]_i
+(.A(laddr_return),
+.O(\tv_cnt_r_reg[5]__0 ));
+RTL_ROM81 \tv_cnt_r_reg[5]_i__0
+(.A(laddr_return),
+.O(\tv_cnt_r_reg[5]_i__0_n_0 ));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[6][0]
+(.C(clk_i),
+.CE(tv_cnt_r_i__33_n_0),
+.D(tv_cnt_r_i__29_n_31),
+.Q(p_2_in__1[0]),
+.RST(tv_cnt_r_i__34_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[6][10]
+(.C(clk_i),
+.CE(tv_cnt_r_i__33_n_0),
+.D(tv_cnt_r_i__29_n_21),
+.Q(p_2_in__1[10]),
+.RST(tv_cnt_r_i__34_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[6][11]
+(.C(clk_i),
+.CE(tv_cnt_r_i__33_n_0),
+.D(tv_cnt_r_i__29_n_20),
+.Q(p_2_in__1[11]),
+.RST(tv_cnt_r_i__34_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[6][12]
+(.C(clk_i),
+.CE(tv_cnt_r_i__33_n_0),
+.D(tv_cnt_r_i__29_n_19),
+.Q(p_2_in__1[12]),
+.RST(tv_cnt_r_i__34_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[6][13]
+(.C(clk_i),
+.CE(tv_cnt_r_i__33_n_0),
+.D(tv_cnt_r_i__29_n_18),
+.Q(p_2_in__1[13]),
+.RST(tv_cnt_r_i__34_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[6][14]
+(.C(clk_i),
+.CE(tv_cnt_r_i__33_n_0),
+.D(tv_cnt_r_i__29_n_17),
+.Q(p_2_in__1[14]),
+.RST(tv_cnt_r_i__34_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[6][15]
+(.C(clk_i),
+.CE(tv_cnt_r_i__33_n_0),
+.D(tv_cnt_r_i__29_n_16),
+.Q(p_2_in__1[15]),
+.RST(tv_cnt_r_i__34_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[6][16]
+(.C(clk_i),
+.CE(tv_cnt_r_i__33_n_0),
+.D(tv_cnt_r_i__29_n_15),
+.Q(p_2_in__1[16]),
+.RST(tv_cnt_r_i__34_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[6][17]
+(.C(clk_i),
+.CE(tv_cnt_r_i__33_n_0),
+.D(tv_cnt_r_i__29_n_14),
+.Q(p_2_in__1[17]),
+.RST(tv_cnt_r_i__34_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[6][18]
+(.C(clk_i),
+.CE(tv_cnt_r_i__33_n_0),
+.D(tv_cnt_r_i__29_n_13),
+.Q(p_2_in__1[18]),
+.RST(tv_cnt_r_i__34_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[6][19]
+(.C(clk_i),
+.CE(tv_cnt_r_i__33_n_0),
+.D(tv_cnt_r_i__29_n_12),
+.Q(p_2_in__1[19]),
+.RST(tv_cnt_r_i__34_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[6][1]
+(.C(clk_i),
+.CE(tv_cnt_r_i__33_n_0),
+.D(tv_cnt_r_i__29_n_30),
+.Q(p_2_in__1[1]),
+.RST(tv_cnt_r_i__34_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[6][20]
+(.C(clk_i),
+.CE(tv_cnt_r_i__33_n_0),
+.D(tv_cnt_r_i__29_n_11),
+.Q(p_2_in__1[20]),
+.RST(tv_cnt_r_i__34_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[6][21]
+(.C(clk_i),
+.CE(tv_cnt_r_i__33_n_0),
+.D(tv_cnt_r_i__29_n_10),
+.Q(p_2_in__1[21]),
+.RST(tv_cnt_r_i__34_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[6][22]
+(.C(clk_i),
+.CE(tv_cnt_r_i__33_n_0),
+.D(tv_cnt_r_i__29_n_9),
+.Q(p_2_in__1[22]),
+.RST(tv_cnt_r_i__34_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[6][23]
+(.C(clk_i),
+.CE(tv_cnt_r_i__33_n_0),
+.D(tv_cnt_r_i__29_n_8),
+.Q(p_2_in__1[23]),
+.RST(tv_cnt_r_i__34_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[6][24]
+(.C(clk_i),
+.CE(tv_cnt_r_i__33_n_0),
+.D(tv_cnt_r_i__29_n_7),
+.Q(p_2_in__1[24]),
+.RST(tv_cnt_r_i__34_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[6][25]
+(.C(clk_i),
+.CE(tv_cnt_r_i__33_n_0),
+.D(tv_cnt_r_i__29_n_6),
+.Q(p_2_in__1[25]),
+.RST(tv_cnt_r_i__34_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[6][26]
+(.C(clk_i),
+.CE(tv_cnt_r_i__33_n_0),
+.D(tv_cnt_r_i__29_n_5),
+.Q(p_2_in__1[26]),
+.RST(tv_cnt_r_i__34_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[6][27]
+(.C(clk_i),
+.CE(tv_cnt_r_i__33_n_0),
+.D(tv_cnt_r_i__29_n_4),
+.Q(p_2_in__1[27]),
+.RST(tv_cnt_r_i__34_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[6][28]
+(.C(clk_i),
+.CE(tv_cnt_r_i__33_n_0),
+.D(tv_cnt_r_i__29_n_3),
+.Q(p_2_in__1[28]),
+.RST(tv_cnt_r_i__34_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[6][29]
+(.C(clk_i),
+.CE(tv_cnt_r_i__33_n_0),
+.D(tv_cnt_r_i__29_n_2),
+.Q(p_2_in__1[29]),
+.RST(tv_cnt_r_i__34_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[6][2]
+(.C(clk_i),
+.CE(tv_cnt_r_i__33_n_0),
+.D(tv_cnt_r_i__29_n_29),
+.Q(p_2_in__1[2]),
+.RST(tv_cnt_r_i__34_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[6][30]
+(.C(clk_i),
+.CE(tv_cnt_r_i__33_n_0),
+.D(tv_cnt_r_i__29_n_1),
+.Q(p_2_in__1[30]),
+.RST(tv_cnt_r_i__34_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[6][31]
+(.C(clk_i),
+.CE(tv_cnt_r_i__33_n_0),
+.D(tv_cnt_r_i__29_n_0),
+.Q(p_2_in__1[31]),
+.RST(tv_cnt_r_i__34_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[6][3]
+(.C(clk_i),
+.CE(tv_cnt_r_i__33_n_0),
+.D(tv_cnt_r_i__29_n_28),
+.Q(p_2_in__1[3]),
+.RST(tv_cnt_r_i__34_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[6][4]
+(.C(clk_i),
+.CE(tv_cnt_r_i__33_n_0),
+.D(tv_cnt_r_i__29_n_27),
+.Q(p_2_in__1[4]),
+.RST(tv_cnt_r_i__34_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[6][5]
+(.C(clk_i),
+.CE(tv_cnt_r_i__33_n_0),
+.D(tv_cnt_r_i__29_n_26),
+.Q(p_2_in__1[5]),
+.RST(tv_cnt_r_i__34_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[6][6]
+(.C(clk_i),
+.CE(tv_cnt_r_i__33_n_0),
+.D(tv_cnt_r_i__29_n_25),
+.Q(p_2_in__1[6]),
+.RST(tv_cnt_r_i__34_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[6][7]
+(.C(clk_i),
+.CE(tv_cnt_r_i__33_n_0),
+.D(tv_cnt_r_i__29_n_24),
+.Q(p_2_in__1[7]),
+.RST(tv_cnt_r_i__34_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[6][8]
+(.C(clk_i),
+.CE(tv_cnt_r_i__33_n_0),
+.D(tv_cnt_r_i__29_n_23),
+.Q(p_2_in__1[8]),
+.RST(tv_cnt_r_i__34_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[6][9]
+(.C(clk_i),
+.CE(tv_cnt_r_i__33_n_0),
+.D(tv_cnt_r_i__29_n_22),
+.Q(p_2_in__1[9]),
+.RST(tv_cnt_r_i__34_n_0));
+RTL_ROM81 \tv_cnt_r_reg[6]_i
+(.A(laddr_return),
+.O(\tv_cnt_r_reg[6]__0 ));
+RTL_ROM81 \tv_cnt_r_reg[6]_i__0
+(.A(laddr_return),
+.O(\tv_cnt_r_reg[6]_i__0_n_0 ));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[7][0]
+(.C(clk_i),
+.CE(tv_cnt_r_i__39_n_0),
+.D(tv_cnt_r_i__35_n_31),
+.Q(p_1_in__0[0]),
+.RST(tv_cnt_r_i__40_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[7][10]
+(.C(clk_i),
+.CE(tv_cnt_r_i__39_n_0),
+.D(tv_cnt_r_i__35_n_21),
+.Q(p_1_in__0[10]),
+.RST(tv_cnt_r_i__40_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[7][11]
+(.C(clk_i),
+.CE(tv_cnt_r_i__39_n_0),
+.D(tv_cnt_r_i__35_n_20),
+.Q(p_1_in__0[11]),
+.RST(tv_cnt_r_i__40_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[7][12]
+(.C(clk_i),
+.CE(tv_cnt_r_i__39_n_0),
+.D(tv_cnt_r_i__35_n_19),
+.Q(p_1_in__0[12]),
+.RST(tv_cnt_r_i__40_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[7][13]
+(.C(clk_i),
+.CE(tv_cnt_r_i__39_n_0),
+.D(tv_cnt_r_i__35_n_18),
+.Q(p_1_in__0[13]),
+.RST(tv_cnt_r_i__40_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[7][14]
+(.C(clk_i),
+.CE(tv_cnt_r_i__39_n_0),
+.D(tv_cnt_r_i__35_n_17),
+.Q(p_1_in__0[14]),
+.RST(tv_cnt_r_i__40_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[7][15]
+(.C(clk_i),
+.CE(tv_cnt_r_i__39_n_0),
+.D(tv_cnt_r_i__35_n_16),
+.Q(p_1_in__0[15]),
+.RST(tv_cnt_r_i__40_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[7][16]
+(.C(clk_i),
+.CE(tv_cnt_r_i__39_n_0),
+.D(tv_cnt_r_i__35_n_15),
+.Q(p_1_in__0[16]),
+.RST(tv_cnt_r_i__40_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[7][17]
+(.C(clk_i),
+.CE(tv_cnt_r_i__39_n_0),
+.D(tv_cnt_r_i__35_n_14),
+.Q(p_1_in__0[17]),
+.RST(tv_cnt_r_i__40_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[7][18]
+(.C(clk_i),
+.CE(tv_cnt_r_i__39_n_0),
+.D(tv_cnt_r_i__35_n_13),
+.Q(p_1_in__0[18]),
+.RST(tv_cnt_r_i__40_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[7][19]
+(.C(clk_i),
+.CE(tv_cnt_r_i__39_n_0),
+.D(tv_cnt_r_i__35_n_12),
+.Q(p_1_in__0[19]),
+.RST(tv_cnt_r_i__40_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[7][1]
+(.C(clk_i),
+.CE(tv_cnt_r_i__39_n_0),
+.D(tv_cnt_r_i__35_n_30),
+.Q(p_1_in__0[1]),
+.RST(tv_cnt_r_i__40_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[7][20]
+(.C(clk_i),
+.CE(tv_cnt_r_i__39_n_0),
+.D(tv_cnt_r_i__35_n_11),
+.Q(p_1_in__0[20]),
+.RST(tv_cnt_r_i__40_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[7][21]
+(.C(clk_i),
+.CE(tv_cnt_r_i__39_n_0),
+.D(tv_cnt_r_i__35_n_10),
+.Q(p_1_in__0[21]),
+.RST(tv_cnt_r_i__40_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[7][22]
+(.C(clk_i),
+.CE(tv_cnt_r_i__39_n_0),
+.D(tv_cnt_r_i__35_n_9),
+.Q(p_1_in__0[22]),
+.RST(tv_cnt_r_i__40_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[7][23]
+(.C(clk_i),
+.CE(tv_cnt_r_i__39_n_0),
+.D(tv_cnt_r_i__35_n_8),
+.Q(p_1_in__0[23]),
+.RST(tv_cnt_r_i__40_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[7][24]
+(.C(clk_i),
+.CE(tv_cnt_r_i__39_n_0),
+.D(tv_cnt_r_i__35_n_7),
+.Q(p_1_in__0[24]),
+.RST(tv_cnt_r_i__40_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[7][25]
+(.C(clk_i),
+.CE(tv_cnt_r_i__39_n_0),
+.D(tv_cnt_r_i__35_n_6),
+.Q(p_1_in__0[25]),
+.RST(tv_cnt_r_i__40_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[7][26]
+(.C(clk_i),
+.CE(tv_cnt_r_i__39_n_0),
+.D(tv_cnt_r_i__35_n_5),
+.Q(p_1_in__0[26]),
+.RST(tv_cnt_r_i__40_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[7][27]
+(.C(clk_i),
+.CE(tv_cnt_r_i__39_n_0),
+.D(tv_cnt_r_i__35_n_4),
+.Q(p_1_in__0[27]),
+.RST(tv_cnt_r_i__40_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[7][28]
+(.C(clk_i),
+.CE(tv_cnt_r_i__39_n_0),
+.D(tv_cnt_r_i__35_n_3),
+.Q(p_1_in__0[28]),
+.RST(tv_cnt_r_i__40_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[7][29]
+(.C(clk_i),
+.CE(tv_cnt_r_i__39_n_0),
+.D(tv_cnt_r_i__35_n_2),
+.Q(p_1_in__0[29]),
+.RST(tv_cnt_r_i__40_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[7][2]
+(.C(clk_i),
+.CE(tv_cnt_r_i__39_n_0),
+.D(tv_cnt_r_i__35_n_29),
+.Q(p_1_in__0[2]),
+.RST(tv_cnt_r_i__40_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[7][30]
+(.C(clk_i),
+.CE(tv_cnt_r_i__39_n_0),
+.D(tv_cnt_r_i__35_n_1),
+.Q(p_1_in__0[30]),
+.RST(tv_cnt_r_i__40_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[7][31]
+(.C(clk_i),
+.CE(tv_cnt_r_i__39_n_0),
+.D(tv_cnt_r_i__35_n_0),
+.Q(p_1_in__0[31]),
+.RST(tv_cnt_r_i__40_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[7][3]
+(.C(clk_i),
+.CE(tv_cnt_r_i__39_n_0),
+.D(tv_cnt_r_i__35_n_28),
+.Q(p_1_in__0[3]),
+.RST(tv_cnt_r_i__40_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[7][4]
+(.C(clk_i),
+.CE(tv_cnt_r_i__39_n_0),
+.D(tv_cnt_r_i__35_n_27),
+.Q(p_1_in__0[4]),
+.RST(tv_cnt_r_i__40_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[7][5]
+(.C(clk_i),
+.CE(tv_cnt_r_i__39_n_0),
+.D(tv_cnt_r_i__35_n_26),
+.Q(p_1_in__0[5]),
+.RST(tv_cnt_r_i__40_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[7][6]
+(.C(clk_i),
+.CE(tv_cnt_r_i__39_n_0),
+.D(tv_cnt_r_i__35_n_25),
+.Q(p_1_in__0[6]),
+.RST(tv_cnt_r_i__40_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[7][7]
+(.C(clk_i),
+.CE(tv_cnt_r_i__39_n_0),
+.D(tv_cnt_r_i__35_n_24),
+.Q(p_1_in__0[7]),
+.RST(tv_cnt_r_i__40_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[7][8]
+(.C(clk_i),
+.CE(tv_cnt_r_i__39_n_0),
+.D(tv_cnt_r_i__35_n_23),
+.Q(p_1_in__0[8]),
+.RST(tv_cnt_r_i__40_n_0));
+RTL_REG_SYNC__BREG_1 \tv_cnt_r_reg[7][9]
+(.C(clk_i),
+.CE(tv_cnt_r_i__39_n_0),
+.D(tv_cnt_r_i__35_n_22),
+.Q(p_1_in__0[9]),
+.RST(tv_cnt_r_i__40_n_0));
+RTL_ROM81 \tv_cnt_r_reg[7]_i
+(.A(laddr_return),
+.O(\tv_cnt_r_reg[7]__0 ));
+RTL_ROM81 \tv_cnt_r_reg[7]_i__0
+(.A(laddr_return),
+.O(\tv_cnt_r_reg[7]_i__0_n_0 ));
+RTL_MUX w11_mode_r_i
+(.I0(\<const0> ),
+.I1(depkt_any_w),
+.O(w11_mode_r_i_n_0),
+.S(mst_r1_i__0_n_0));
+RTL_MUX w11_mode_r_i__0
+(.I0(\<const0> ),
+.I1(w11_mode_r_i_n_0),
+.O(w11_mode_r_i__0_n_0),
+.S(mst_r1_i__1_n_0));
+RTL_MUX w11_mode_r_i__1
+(.I0(\<const0> ),
+.I1(w11_mode_r_i__0_n_0),
+.O(w11_mode_r_i__1_n_0),
+.S(mst_r1_i_n_0));
+RTL_MUX458 w11_mode_r_i__2
+(.I0(w11_mode_r_i__1_n_0),
+.I1(\<const0> ),
+.O(w11_mode_r__0),
+.S(mst_r));
+RTL_MUX w11_mode_r_i__3
+(.I0(inc_rd_q_r),
+.I1(\<const0> ),
+.O(w11_mode_r_i__3_n_0),
+.S(w11_mode_r));
+RTL_MUX979 w11_mode_r_i__4
+(.I0(\<const1> ),
+.I1(\<const0> ),
+.I10(\<const0> ),
+.I2(\<const0> ),
+.I3(\<const0> ),
+.I4(\<const0> ),
+.I5(\<const0> ),
+.I6(w11_mode_r_i__3_n_0),
+.I7(\<const0> ),
+.I8(\<const0> ),
+.I9(\<const0> ),
+.O(w11_mode_r0_out),
+.S(mst_r));
+RTL_MUX w11_mode_r_i__5
+(.I0(\<const1> ),
+.I1(\<const0> ),
+.O(w11_mode_r_i__5_n_0),
+.S(rst_n));
+RTL_REG_SYNC__BREG_1 w11_mode_r_reg
+(.C(clk_i),
+.CE(w11_mode_r0_out),
+.D(w11_mode_r__0),
+.Q(w11_mode_r),
+.RST(w11_mode_r_i__5_n_0));
+RTL_MUX342 wire_chans_all_o0_i
+(.I0({\<const1> ,\<const1> ,\<const1> ,\<const1> }),
+.I1(\chans_sh_r_reg[0]__0 [3:0]),
+.O(wire_chans_all_o[3:0]),
+.S(wire_chans_all_o2));
+RTL_MUX342 wire_chans_all_o0_i__0
+(.I0({\<const1> ,\<const1> ,\<const1> ,\<const1> }),
+.I1(\chans_sh_r_reg[1]__0 [3:0]),
+.O(wire_chans_all_o[7:4]),
+.S(wire_chans_all_o2_i__0_n_0));
+RTL_MUX342 wire_chans_all_o0_i__1
+(.I0({\<const1> ,\<const1> ,\<const1> ,\<const1> }),
+.I1(\chans_sh_r_reg[2]__0 [3:0]),
+.O(wire_chans_all_o[11:8]),
+.S(wire_chans_all_o2_i__1_n_0));
+RTL_MUX342 wire_chans_all_o0_i__2
+(.I0({\<const1> ,\<const1> ,\<const1> ,\<const1> }),
+.I1(\chans_sh_r_reg[3]__0 [3:0]),
+.O(wire_chans_all_o[15:12]),
+.S(wire_chans_all_o2_i__2_n_0));
+RTL_MUX342 wire_chans_all_o0_i__3
+(.I0({\<const1> ,\<const1> ,\<const1> ,\<const1> }),
+.I1(\chans_sh_r_reg[4]__0 [3:0]),
+.O(wire_chans_all_o[19:16]),
+.S(wire_chans_all_o2_i__3_n_0));
+RTL_MUX342 wire_chans_all_o0_i__4
+(.I0({\<const1> ,\<const1> ,\<const1> ,\<const1> }),
+.I1(\chans_sh_r_reg[5]__0 [3:0]),
+.O(wire_chans_all_o[23:20]),
+.S(wire_chans_all_o2_i__4_n_0));
+RTL_MUX342 wire_chans_all_o0_i__5
+(.I0({\<const1> ,\<const1> ,\<const1> ,\<const1> }),
+.I1(\chans_sh_r_reg[6]__0 [3:0]),
+.O(wire_chans_all_o[27:24]),
+.S(wire_chans_all_o2_i__5_n_0));
+RTL_MUX342 wire_chans_all_o0_i__6
+(.I0({\<const1> ,\<const1> ,\<const1> ,\<const1> }),
+.I1(\chans_sh_r_reg[7]__0 [3:0]),
+.O(wire_chans_all_o[31:28]),
+.S(wire_chans_all_o2_i__6_n_0));
+RTL_GT24 wire_chans_all_o2_i
+(.I0(\chans_sh_r_reg[0]__0 ),
+.I1({\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const1> ,\<const1> ,\<const1> ,\<const1> }),
+.O(wire_chans_all_o2));
+RTL_GT24 wire_chans_all_o2_i__0
+(.I0(\chans_sh_r_reg[1]__0 ),
+.I1({\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const1> ,\<const1> ,\<const1> ,\<const1> }),
+.O(wire_chans_all_o2_i__0_n_0));
+RTL_GT24 wire_chans_all_o2_i__1
+(.I0(\chans_sh_r_reg[2]__0 ),
+.I1({\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const1> ,\<const1> ,\<const1> ,\<const1> }),
+.O(wire_chans_all_o2_i__1_n_0));
+RTL_GT24 wire_chans_all_o2_i__2
+(.I0(\chans_sh_r_reg[3]__0 ),
+.I1({\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const1> ,\<const1> ,\<const1> ,\<const1> }),
+.O(wire_chans_all_o2_i__2_n_0));
+RTL_GT24 wire_chans_all_o2_i__3
+(.I0(\chans_sh_r_reg[4]__0 ),
+.I1({\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const1> ,\<const1> ,\<const1> ,\<const1> }),
+.O(wire_chans_all_o2_i__3_n_0));
+RTL_GT24 wire_chans_all_o2_i__4
+(.I0(\chans_sh_r_reg[5]__0 ),
+.I1({\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const1> ,\<const1> ,\<const1> ,\<const1> }),
+.O(wire_chans_all_o2_i__4_n_0));
+RTL_GT24 wire_chans_all_o2_i__5
+(.I0(\chans_sh_r_reg[6]__0 ),
+.I1({\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const1> ,\<const1> ,\<const1> ,\<const1> }),
+.O(wire_chans_all_o2_i__5_n_0));
+RTL_GT24 wire_chans_all_o2_i__6
+(.I0(\chans_sh_r_reg[7]__0 ),
+.I1({\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const1> ,\<const1> ,\<const1> ,\<const1> }),
+.O(wire_chans_all_o2_i__6_n_0));
+RTL_MUX wire_chans_o_i
+(.I0(\<const1> ),
+.I1(\<const0> ),
+.O(wire_chans_o_i_n_0),
+.S(rst_n));
+RTL_REG_SYNC__BREG_2 \wire_chans_o_reg[0]
+(.C(clk_i),
+.D(chans_sh_r_i__23_n_7),
+.Q(wire_chans_o[0]),
+.RST(wire_chans_o_i_n_0));
+RTL_REG_SYNC__BREG_2 \wire_chans_o_reg[1]
+(.C(clk_i),
+.D(chans_sh_r_i__23_n_6),
+.Q(wire_chans_o[1]),
+.RST(wire_chans_o_i_n_0));
+RTL_REG_SYNC__BREG_2 \wire_chans_o_reg[2]
+(.C(clk_i),
+.D(chans_sh_r_i__23_n_5),
+.Q(wire_chans_o[2]),
+.RST(wire_chans_o_i_n_0));
+RTL_REG_SYNC__BREG_2 \wire_chans_o_reg[3]
+(.C(clk_i),
+.D(chans_sh_r_i__23_n_4),
+.Q(wire_chans_o[3]),
+.RST(wire_chans_o_i_n_0));
+RTL_REG_SYNC__BREG_2 \wire_chans_o_reg[4]
+(.C(clk_i),
+.D(chans_sh_r_i__23_n_3),
+.Q(wire_chans_o[4]),
+.RST(wire_chans_o_i_n_0));
+RTL_REG_SYNC__BREG_2 \wire_chans_o_reg[5]
+(.C(clk_i),
+.D(chans_sh_r_i__23_n_2),
+.Q(wire_chans_o[5]),
+.RST(wire_chans_o_i_n_0));
+RTL_REG_SYNC__BREG_2 \wire_chans_o_reg[6]
+(.C(clk_i),
+.D(chans_sh_r_i__23_n_1),
+.Q(wire_chans_o[6]),
+.RST(wire_chans_o_i_n_0));
+RTL_REG_SYNC__BREG_2 \wire_chans_o_reg[7]
+(.C(clk_i),
+.D(chans_sh_r_i__23_n_0),
+.Q(wire_chans_o[7]),
+.RST(wire_chans_o_i_n_0));
+RTL_ADD4 wrph_r0_i
+(.I0(wrph_r),
+.I1(\<const1> ),
+.O(wrph_r0));
+RTL_ROM160 wrph_r0_i__0
+(.A(laddr_return),
+.O({wrph_r0_i__0_n_0,wrph_r0_i__0_n_1,wrph_r0_i__0_n_2,wrph_r0_i__0_n_3}));
+RTL_MUX983 wrph_r_i
+(.I0({\<const0> ,\<const0> ,\<const0> ,\<const0> }),
+.I1(wrph_r0),
+.O(wrph_r__0),
+.S(wrph_r));
+RTL_ROM174 wrph_r_i__0
+(.A(wrph_r),
+.O({wrph_r_i__0_n_0,wrph_r_i__0_n_1}));
+RTL_MUX342 wrph_r_i__1
+(.I0({\<const0> ,\<const0> ,\<const0> ,\<const0> }),
+.I1(wrph_r0),
+.O({wrph_r_i__1_n_0,wrph_r_i__1_n_1,wrph_r_i__1_n_2,wrph_r_i__1_n_3}),
+.S(mst_r0_i__0_n_0));
+RTL_MUX983 wrph_r_i__2
+(.I0({wrph_r0_i__0_n_0,wrph_r0_i__0_n_1,wrph_r0_i__0_n_2,wrph_r0_i__0_n_3}),
+.I1({wrph_r_i__1_n_0,wrph_r_i__1_n_1,wrph_r_i__1_n_2,wrph_r_i__1_n_3}),
+.O({wrph_r_i__2_n_0,wrph_r_i__2_n_1,wrph_r_i__2_n_2,wrph_r_i__2_n_3}),
+.S(wrph_r));
+RTL_MUX6052 wrph_r_i__3
+(.I0({\<const0> ,\<const0> ,\<const0> ,\<const0> }),
+.I1({\<const0> ,\<const0> ,\<const0> ,\<const0> }),
+.I2(wrph_r__0),
+.I3({\<const0> ,\<const0> ,wrph_r_i__0_n_0,wrph_r_i__0_n_1}),
+.I4({wrph_r_i__2_n_0,wrph_r_i__2_n_1,wrph_r_i__2_n_2,wrph_r_i__2_n_3}),
+.O(wrph_r1_out),
+.S(mst_r));
+RTL_MUX wrph_r_i__4
+(.I0(\<const0> ),
+.I1(sil_mode_r),
+.O(wrph_r_i__4_n_0),
+.S(w11_mode_r));
+RTL_MUX979 wrph_r_i__5
+(.I0(\<const1> ),
+.I1(\<const0> ),
+.I10(\<const0> ),
+.I2(\<const0> ),
+.I3(fmt_ok_w),
+.I4(\<const1> ),
+.I5(\<const0> ),
+.I6(wrph_r_i__4_n_0),
+.I7(\<const0> ),
+.I8(\<const1> ),
+.I9(\<const0> ),
+.O(wrph_r_i__5_n_0),
+.S(mst_r));
+RTL_MUX wrph_r_i__6
+(.I0(\<const1> ),
+.I1(\<const0> ),
+.O(wrph_r_i__6_n_0),
+.S(rst_n));
+RTL_MUX1644 wrph_r_i__7
+(.I0({\<const0> ,\<const0> ,\<const1> }),
+.I1({\<const0> ,\<const1> ,\<const0> }),
+.I2({\<const1> ,\<const0> ,\<const0> }),
+.O({wrph_r_i__7_n_0,wrph_r_i__7_n_1,wrph_r_i__7_n_2}),
+.S(wrph_r));
+RTL_REG_SYNC__BREG_1 \wrph_r_reg[0]
+(.C(clk_i),
+.CE(wrph_r_i__5_n_0),
+.D(wrph_r1_out[0]),
+.Q(wrph_r[0]),
+.RST(wrph_r_i__6_n_0));
+RTL_REG_SYNC__BREG_1 \wrph_r_reg[1]
+(.C(clk_i),
+.CE(wrph_r_i__5_n_0),
+.D(wrph_r1_out[1]),
+.Q(wrph_r[1]),
+.RST(wrph_r_i__6_n_0));
+RTL_REG_SYNC__BREG_1 \wrph_r_reg[2]
+(.C(clk_i),
+.CE(wrph_r_i__5_n_0),
+.D(wrph_r1_out[2]),
+.Q(wrph_r[2]),
+.RST(wrph_r_i__6_n_0));
+RTL_REG_SYNC__BREG_1 \wrph_r_reg[3]
+(.C(clk_i),
+.CE(wrph_r_i__5_n_0),
+.D(wrph_r1_out[3]),
+.Q(wrph_r[3]),
+.RST(wrph_r_i__6_n_0));
+RTL_ADD4 zero_idx_r0_i
+(.I0(zero_idx_r),
+.I1(\<const1> ),
+.O(zero_idx_r0));
+RTL_MUX983 zero_idx_r_i
+(.I0({\<const0> ,\<const0> ,\<const0> ,\<const0> }),
+.I1(zero_idx_r0),
+.O(zero_idx_r__0),
+.S(zero_idx_r));
+RTL_MUX6081 zero_idx_r_i__0
+(.I0({\<const0> ,\<const0> ,\<const0> ,\<const0> }),
+.I1(zero_idx_r__0),
+.I2({\<const0> ,\<const0> ,\<const0> ,\<const0> }),
+.O(zero_idx_r0_out),
+.S(mst_r));
+RTL_MUX zero_idx_r_i__1
+(.I0(\<const0> ),
+.I1(bind_zero_r),
+.O(zero_idx_r_i__1_n_0),
+.S(sil_mode_r));
+RTL_MUX zero_idx_r_i__2
+(.I0(\<const0> ),
+.I1(zero_idx_r_i__1_n_0),
+.O(zero_idx_r_i__2_n_0),
+.S(w11_mode_r));
+RTL_MUX458 zero_idx_r_i__3
+(.I0(\<const0> ),
+.I1(mst_r0_i__0_n_0),
+.O(zero_idx_r_i__3_n_0),
+.S(wrph_r));
+RTL_MUX979 zero_idx_r_i__4
+(.I0(\<const1> ),
+.I1(\<const0> ),
+.I10(\<const0> ),
+.I2(\<const0> ),
+.I3(\<const0> ),
+.I4(\<const0> ),
+.I5(\<const0> ),
+.I6(zero_idx_r_i__2_n_0),
+.I7(\<const0> ),
+.I8(zero_idx_r_i__3_n_0),
+.I9(\<const0> ),
+.O(zero_idx_r_i__4_n_0),
+.S(mst_r));
+RTL_MUX zero_idx_r_i__5
+(.I0(\<const1> ),
+.I1(\<const0> ),
+.O(zero_idx_r_i__5_n_0),
+.S(rst_n));
+RTL_REG_SYNC__BREG_1 \zero_idx_r_reg[0]
+(.C(clk_i),
+.CE(zero_idx_r_i__4_n_0),
+.D(zero_idx_r0_out[0]),
+.Q(zero_idx_r[0]),
+.RST(zero_idx_r_i__5_n_0));
+RTL_REG_SYNC__BREG_1 \zero_idx_r_reg[1]
+(.C(clk_i),
+.CE(zero_idx_r_i__4_n_0),
+.D(zero_idx_r0_out[1]),
+.Q(zero_idx_r[1]),
+.RST(zero_idx_r_i__5_n_0));
+RTL_REG_SYNC__BREG_1 \zero_idx_r_reg[2]
+(.C(clk_i),
+.CE(zero_idx_r_i__4_n_0),
+.D(zero_idx_r0_out[2]),
+.Q(zero_idx_r[2]),
+.RST(zero_idx_r_i__5_n_0));
+RTL_REG_SYNC__BREG_1 \zero_idx_r_reg[3]
+(.C(clk_i),
+.CE(zero_idx_r_i__4_n_0),
+.D(zero_idx_r0_out[3]),
+.Q(zero_idx_r[3]),
+.RST(zero_idx_r_i__5_n_0));
+endmodule
+module KL_chan_map_capture
+(clk_i,
+rst_n,
+map_wr_en_i,
+map_wr_addr_i,
+map_wr_data_i,
+map_rd_en_i,
+map_rd_addr_i,
+map_rd_data_o,
+map_rd_valid_o,
+map_flat_o,
+i2s_pair_valid_i,
+i2s_l_i,
+i2s_r_i,
+tdm_pair_valid_i,
+tdm_pair_slot_i,
+tdm_l_i,
+tdm_r_i,
+tdm_close_ns_i,
+tone_smp_i,
+lb_tdata_i,
+lb_tvalid_i,
+lb_tlast_i,
+lb_tuser_i,
+lb_wire_chans_i,
+lb_flush_i,
+lb_recentre_i,
+tick_i,
+pair_valid_o,
+pair_slot_o,
+pair_l_o,
+pair_r_o,
+lb_dup_cnt_o,
+lb_skip_cnt_o,
+tdm_dup_cnt_o,
+tdm_skip_cnt_o,
+tdm_walk_ns_o);
+input clk_i;
+input rst_n;
+input map_wr_en_i;
+input [5:0]map_wr_addr_i;
+input [12:0]map_wr_data_i;
+input map_rd_en_i;
+input [5:0]map_rd_addr_i;
+output [14:0]map_rd_data_o;
+output map_rd_valid_o;
+output [831:0]map_flat_o;
+input i2s_pair_valid_i;
+input [23:0]i2s_l_i;
+input [23:0]i2s_r_i;
+input tdm_pair_valid_i;
+input [3:0]tdm_pair_slot_i;
+input [23:0]tdm_l_i;
+input [23:0]tdm_r_i;
+input [31:0]tdm_close_ns_i;
+input [23:0]tone_smp_i;
+input [63:0]lb_tdata_i;
+input lb_tvalid_i;
+input lb_tlast_i;
+input [3:0]lb_tuser_i;
+input [3:0]lb_wire_chans_i;
+input [0:0]lb_flush_i;
+input [0:0]lb_recentre_i;
+input tick_i;
+output pair_valid_o;
+output [4:0]pair_slot_o;
+output [23:0]pair_l_o;
+output [23:0]pair_r_o;
+output [15:0]lb_dup_cnt_o;
+output [15:0]lb_skip_cnt_o;
+output [15:0]tdm_dup_cnt_o;
+output [15:0]tdm_skip_cnt_o;
+output [31:0]tdm_walk_ns_o;
+wire \<const0> ;
+wire \<const1> ;
+wire RTL_ADD__0_n_0;
+wire RTL_ADD__0_n_1;
+wire RTL_ADD__0_n_2;
+wire RTL_ADD__0_n_3;
+wire RTL_ADD__0_n_4;
+wire RTL_ADD__1_n_0;
+wire RTL_ADD__1_n_1;
+wire RTL_ADD__1_n_2;
+wire RTL_ADD__1_n_3;
+wire RTL_ADD__2_n_0;
+wire RTL_ADD__2_n_1;
+wire RTL_ADD__2_n_2;
+wire RTL_ADD__2_n_3;
+wire RTL_ADD_n_0;
+wire RTL_ADD_n_1;
+wire RTL_ADD_n_2;
+wire RTL_ADD_n_3;
+wire RTL_AND_n_0;
+wire RTL_LT_n_0;
+wire RTL_MUX__0_n_0;
+wire RTL_MUX__10_n_0;
+wire RTL_MUX__10_n_1;
+wire RTL_MUX__10_n_2;
+wire RTL_MUX__10_n_3;
+wire RTL_MUX__10_n_4;
+wire RTL_MUX__11_n_0;
+wire RTL_RSHIFT__0_n_0;
+wire RTL_RSHIFT_n_0;
+wire RTL_SUB__0_n_0;
+wire RTL_SUB__0_n_1;
+wire RTL_SUB__0_n_2;
+wire RTL_SUB__1_n_0;
+wire RTL_SUB__1_n_1;
+wire RTL_SUB__1_n_2;
+wire RTL_SUB__2_n_0;
+wire RTL_SUB__2_n_1;
+wire RTL_SUB__2_n_2;
+wire RTL_SUB__2_n_3;
+wire RTL_SUB_n_0;
+wire RTL_SUB_n_1;
+wire RTL_SUB_n_2;
+wire RTL_SUB_n_3;
+wire RTL_SUB_n_4;
+wire [3:0]act_drop_r;
+wire act_drop_r__0;
+wire act_drop_r_i__0_n_0;
+wire act_drop_r_i_n_0;
+wire [2:0]act_hold_r;
+wire [2:0]act_hold_r__0;
+wire act_hold_r_i__0_n_0;
+wire act_hold_r_i__1_n_0;
+wire act_hold_r_i__2_n_0;
+wire [2:0]\act_hold_r_reg[0]__0 ;
+wire \act_hold_r_reg[0]_i__0_n_0 ;
+wire beat_bank_r_reg_n_0;
+wire beat_bank_r_reg_n_1;
+wire beat_bank_r_reg_n_10;
+wire beat_bank_r_reg_n_11;
+wire beat_bank_r_reg_n_12;
+wire beat_bank_r_reg_n_13;
+wire beat_bank_r_reg_n_14;
+wire beat_bank_r_reg_n_15;
+wire beat_bank_r_reg_n_16;
+wire beat_bank_r_reg_n_17;
+wire beat_bank_r_reg_n_18;
+wire beat_bank_r_reg_n_19;
+wire beat_bank_r_reg_n_2;
+wire beat_bank_r_reg_n_20;
+wire beat_bank_r_reg_n_21;
+wire beat_bank_r_reg_n_22;
+wire beat_bank_r_reg_n_23;
+wire beat_bank_r_reg_n_24;
+wire beat_bank_r_reg_n_25;
+wire beat_bank_r_reg_n_26;
+wire beat_bank_r_reg_n_27;
+wire beat_bank_r_reg_n_28;
+wire beat_bank_r_reg_n_29;
+wire beat_bank_r_reg_n_3;
+wire beat_bank_r_reg_n_30;
+wire beat_bank_r_reg_n_31;
+wire beat_bank_r_reg_n_32;
+wire beat_bank_r_reg_n_33;
+wire beat_bank_r_reg_n_34;
+wire beat_bank_r_reg_n_35;
+wire beat_bank_r_reg_n_36;
+wire beat_bank_r_reg_n_37;
+wire beat_bank_r_reg_n_38;
+wire beat_bank_r_reg_n_39;
+wire beat_bank_r_reg_n_4;
+wire beat_bank_r_reg_n_40;
+wire beat_bank_r_reg_n_41;
+wire beat_bank_r_reg_n_42;
+wire beat_bank_r_reg_n_43;
+wire beat_bank_r_reg_n_44;
+wire beat_bank_r_reg_n_45;
+wire beat_bank_r_reg_n_46;
+wire beat_bank_r_reg_n_47;
+wire beat_bank_r_reg_n_48;
+wire beat_bank_r_reg_n_49;
+wire beat_bank_r_reg_n_5;
+wire beat_bank_r_reg_n_50;
+wire beat_bank_r_reg_n_51;
+wire beat_bank_r_reg_n_52;
+wire beat_bank_r_reg_n_53;
+wire beat_bank_r_reg_n_54;
+wire beat_bank_r_reg_n_55;
+wire beat_bank_r_reg_n_56;
+wire beat_bank_r_reg_n_57;
+wire beat_bank_r_reg_n_58;
+wire beat_bank_r_reg_n_59;
+wire beat_bank_r_reg_n_6;
+wire beat_bank_r_reg_n_60;
+wire beat_bank_r_reg_n_61;
+wire beat_bank_r_reg_n_62;
+wire beat_bank_r_reg_n_63;
+wire beat_bank_r_reg_n_64;
+wire beat_bank_r_reg_n_65;
+wire beat_bank_r_reg_n_66;
+wire beat_bank_r_reg_n_67;
+wire beat_bank_r_reg_n_68;
+wire beat_bank_r_reg_n_69;
+wire beat_bank_r_reg_n_7;
+wire beat_bank_r_reg_n_70;
+wire beat_bank_r_reg_n_71;
+wire beat_bank_r_reg_n_8;
+wire beat_bank_r_reg_n_9;
+wire [1:0]beat_wp_r;
+wire [1:0]beat_wp_r0;
+wire beat_wp_r__0;
+wire [23:0]cand_w;
+wire [23:0]\cand_w[10]__0 ;
+wire [23:0]\cand_w[11]__0 ;
+wire [23:0]\cand_w[12]__0 ;
+wire [23:0]\cand_w[13]__0 ;
+wire [23:0]\cand_w[1]__0 ;
+wire [23:0]\cand_w[2]__0 ;
+wire [23:0]\cand_w[4]__0 ;
+wire [23:0]\cand_w[5]__0 ;
+wire [23:0]\cand_w[6]__0 ;
+wire [23:0]\cand_w[7]__0 ;
+wire [23:0]\cand_w[8]__0 ;
+wire [23:0]\cand_w[9]__0 ;
+wire cand_w_i__0_n_0;
+wire cand_w_i__0_n_1;
+wire cand_w_i__0_n_10;
+wire cand_w_i__0_n_11;
+wire cand_w_i__0_n_12;
+wire cand_w_i__0_n_13;
+wire cand_w_i__0_n_14;
+wire cand_w_i__0_n_15;
+wire cand_w_i__0_n_16;
+wire cand_w_i__0_n_17;
+wire cand_w_i__0_n_18;
+wire cand_w_i__0_n_19;
+wire cand_w_i__0_n_2;
+wire cand_w_i__0_n_20;
+wire cand_w_i__0_n_21;
+wire cand_w_i__0_n_22;
+wire cand_w_i__0_n_23;
+wire cand_w_i__0_n_3;
+wire cand_w_i__0_n_4;
+wire cand_w_i__0_n_5;
+wire cand_w_i__0_n_6;
+wire cand_w_i__0_n_7;
+wire cand_w_i__0_n_8;
+wire cand_w_i__0_n_9;
+wire clk_i;
+wire [1:0]cm0_form_w;
+wire [23:0]cm0_l_w;
+wire cm0_v_w;
+wire cm0_v_w0;
+wire [0:0]cm1_addr_w;
+wire [1:0]cm1_form_w;
+wire cm1_solo_v_w;
+wire cm1_solo_v_w0;
+wire cm1_v_w;
+wire [16:0]dup_sum_w;
+wire [12:0]e;
+wire [0:0]enq0_addr_w;
+wire [1:0]enq0_form_w;
+wire enq0_v_w;
+wire enq1_v_w;
+wire [4:0]gap_r;
+wire [4:0]gap_r0;
+wire gap_r0_out;
+wire [4:0]gap_r__0;
+wire gap_r_i__0_n_0;
+wire gap_r_i__2_n_0;
+wire i2s_hold_r;
+wire [23:0]i2s_l_i;
+wire i2s_pair_valid_i;
+wire [23:0]i2s_r_i;
+wire last_slot_w;
+wire [0:0]lb_addr_return;
+wire lb_addr_return_i__0_n_0;
+wire [3:0]lb_chans_raw_w;
+wire [3:0]lb_chans_w;
+wire [3:0]lb_chpos_r;
+wire lb_chpos_r0_i_n_0;
+wire lb_chpos_r0_i_n_1;
+wire lb_chpos_r0_i_n_2;
+wire lb_chpos_r0_i_n_3;
+wire lb_chpos_r__0;
+wire lb_chpos_r_i_n_0;
+wire [3:0]lb_chwrap_return;
+wire lb_chwrap_return1;
+wire [3:0]lb_chwrap_return2;
+wire [15:0]lb_dup_cnt_o;
+wire lb_dup_cnt_o_i_n_0;
+wire [0:0]lb_flush_i;
+wire lb_hold_r;
+wire lb_hold_r_i__0_n_0;
+wire [0:0]\lb_hold_r_reg[0]__0 ;
+wire lb_last0_w;
+wire lb_last0_w0_i_n_0;
+wire lb_last0_w0_i_n_1;
+wire lb_last0_w0_i_n_10;
+wire lb_last0_w0_i_n_11;
+wire lb_last0_w0_i_n_12;
+wire lb_last0_w0_i_n_13;
+wire lb_last0_w0_i_n_14;
+wire lb_last0_w0_i_n_15;
+wire lb_last0_w0_i_n_16;
+wire lb_last0_w0_i_n_17;
+wire lb_last0_w0_i_n_18;
+wire lb_last0_w0_i_n_19;
+wire lb_last0_w0_i_n_2;
+wire lb_last0_w0_i_n_20;
+wire lb_last0_w0_i_n_21;
+wire lb_last0_w0_i_n_22;
+wire lb_last0_w0_i_n_23;
+wire lb_last0_w0_i_n_24;
+wire lb_last0_w0_i_n_25;
+wire lb_last0_w0_i_n_26;
+wire lb_last0_w0_i_n_27;
+wire lb_last0_w0_i_n_28;
+wire lb_last0_w0_i_n_29;
+wire lb_last0_w0_i_n_3;
+wire lb_last0_w0_i_n_30;
+wire lb_last0_w0_i_n_31;
+wire lb_last0_w0_i_n_4;
+wire lb_last0_w0_i_n_5;
+wire lb_last0_w0_i_n_6;
+wire lb_last0_w0_i_n_7;
+wire lb_last0_w0_i_n_8;
+wire lb_last0_w0_i_n_9;
+wire lb_last1_w;
+wire [0:0]lb_nxt_w;
+wire lb_nxt_w0;
+wire lb_ok_w;
+wire lb_ok_w0;
+wire lb_pair01_w;
+wire lb_pair01_w0;
+wire lb_pair01_w0_i__0_n_0;
+wire lb_pair01_w1;
+wire lb_pair01_w1_i__0_n_0;
+wire lb_q_r_reg_n_0;
+wire lb_q_r_reg_n_1;
+wire lb_q_r_reg_n_10;
+wire lb_q_r_reg_n_11;
+wire lb_q_r_reg_n_12;
+wire lb_q_r_reg_n_13;
+wire lb_q_r_reg_n_14;
+wire lb_q_r_reg_n_15;
+wire lb_q_r_reg_n_16;
+wire lb_q_r_reg_n_17;
+wire lb_q_r_reg_n_18;
+wire lb_q_r_reg_n_19;
+wire lb_q_r_reg_n_2;
+wire lb_q_r_reg_n_20;
+wire lb_q_r_reg_n_21;
+wire lb_q_r_reg_n_22;
+wire lb_q_r_reg_n_23;
+wire lb_q_r_reg_n_24;
+wire lb_q_r_reg_n_25;
+wire lb_q_r_reg_n_26;
+wire lb_q_r_reg_n_27;
+wire lb_q_r_reg_n_28;
+wire lb_q_r_reg_n_29;
+wire lb_q_r_reg_n_3;
+wire lb_q_r_reg_n_30;
+wire lb_q_r_reg_n_31;
+wire lb_q_r_reg_n_32;
+wire lb_q_r_reg_n_33;
+wire lb_q_r_reg_n_34;
+wire lb_q_r_reg_n_35;
+wire lb_q_r_reg_n_36;
+wire lb_q_r_reg_n_37;
+wire lb_q_r_reg_n_38;
+wire lb_q_r_reg_n_39;
+wire lb_q_r_reg_n_4;
+wire lb_q_r_reg_n_40;
+wire lb_q_r_reg_n_41;
+wire lb_q_r_reg_n_42;
+wire lb_q_r_reg_n_43;
+wire lb_q_r_reg_n_44;
+wire lb_q_r_reg_n_45;
+wire lb_q_r_reg_n_46;
+wire lb_q_r_reg_n_47;
+wire lb_q_r_reg_n_5;
+wire lb_q_r_reg_n_6;
+wire lb_q_r_reg_n_7;
+wire lb_q_r_reg_n_8;
+wire lb_q_r_reg_n_9;
+wire [0:0]lb_recentre_i;
+wire [15:0]lb_skip_cnt_o;
+wire lb_skip_cnt_o_i_n_0;
+wire lb_sof_r;
+wire lb_sof_r__0;
+wire [63:0]lb_tdata_i;
+wire lb_tlast_i;
+wire [3:0]lb_tuser_i;
+wire lb_tvalid_i;
+wire lb_w0_w;
+wire lb_w0_w0;
+wire lb_w1_w;
+wire lb_w1_w0;
+wire [3:0]lb_wire_chans_i;
+wire loop_fed_r;
+wire loop_mapped_w;
+wire loop_mapped_w0;
+wire loop_mapped_w1;
+wire loop_mapped_w1_i__0_n_0;
+wire loop_mapped_w1_i__10_n_0;
+wire loop_mapped_w1_i__11_n_0;
+wire loop_mapped_w1_i__12_n_0;
+wire loop_mapped_w1_i__13_n_0;
+wire loop_mapped_w1_i__14_n_0;
+wire loop_mapped_w1_i__15_n_0;
+wire loop_mapped_w1_i__16_n_0;
+wire loop_mapped_w1_i__17_n_0;
+wire loop_mapped_w1_i__18_n_0;
+wire loop_mapped_w1_i__19_n_0;
+wire loop_mapped_w1_i__1_n_0;
+wire loop_mapped_w1_i__20_n_0;
+wire loop_mapped_w1_i__21_n_0;
+wire loop_mapped_w1_i__22_n_0;
+wire loop_mapped_w1_i__23_n_0;
+wire loop_mapped_w1_i__24_n_0;
+wire loop_mapped_w1_i__25_n_0;
+wire loop_mapped_w1_i__26_n_0;
+wire loop_mapped_w1_i__27_n_0;
+wire loop_mapped_w1_i__28_n_0;
+wire loop_mapped_w1_i__29_n_0;
+wire loop_mapped_w1_i__2_n_0;
+wire loop_mapped_w1_i__30_n_0;
+wire loop_mapped_w1_i__31_n_0;
+wire loop_mapped_w1_i__32_n_0;
+wire loop_mapped_w1_i__33_n_0;
+wire loop_mapped_w1_i__34_n_0;
+wire loop_mapped_w1_i__35_n_0;
+wire loop_mapped_w1_i__36_n_0;
+wire loop_mapped_w1_i__37_n_0;
+wire loop_mapped_w1_i__38_n_0;
+wire loop_mapped_w1_i__39_n_0;
+wire loop_mapped_w1_i__3_n_0;
+wire loop_mapped_w1_i__40_n_0;
+wire loop_mapped_w1_i__41_n_0;
+wire loop_mapped_w1_i__42_n_0;
+wire loop_mapped_w1_i__43_n_0;
+wire loop_mapped_w1_i__44_n_0;
+wire loop_mapped_w1_i__45_n_0;
+wire loop_mapped_w1_i__46_n_0;
+wire loop_mapped_w1_i__47_n_0;
+wire loop_mapped_w1_i__48_n_0;
+wire loop_mapped_w1_i__49_n_0;
+wire loop_mapped_w1_i__4_n_0;
+wire loop_mapped_w1_i__50_n_0;
+wire loop_mapped_w1_i__51_n_0;
+wire loop_mapped_w1_i__52_n_0;
+wire loop_mapped_w1_i__53_n_0;
+wire loop_mapped_w1_i__54_n_0;
+wire loop_mapped_w1_i__55_n_0;
+wire loop_mapped_w1_i__56_n_0;
+wire loop_mapped_w1_i__57_n_0;
+wire loop_mapped_w1_i__58_n_0;
+wire loop_mapped_w1_i__59_n_0;
+wire loop_mapped_w1_i__5_n_0;
+wire loop_mapped_w1_i__60_n_0;
+wire loop_mapped_w1_i__6_n_0;
+wire loop_mapped_w1_i__7_n_0;
+wire loop_mapped_w1_i__8_n_0;
+wire loop_mapped_w1_i__9_n_0;
+wire loop_mapped_w1_i_n_0;
+wire loop_mapped_w2;
+wire loop_mapped_w2_i__0_n_0;
+wire loop_mapped_w2_i__10_n_0;
+wire loop_mapped_w2_i__11_n_0;
+wire loop_mapped_w2_i__12_n_0;
+wire loop_mapped_w2_i__13_n_0;
+wire loop_mapped_w2_i__14_n_0;
+wire loop_mapped_w2_i__15_n_0;
+wire loop_mapped_w2_i__16_n_0;
+wire loop_mapped_w2_i__17_n_0;
+wire loop_mapped_w2_i__18_n_0;
+wire loop_mapped_w2_i__19_n_0;
+wire loop_mapped_w2_i__1_n_0;
+wire loop_mapped_w2_i__20_n_0;
+wire loop_mapped_w2_i__21_n_0;
+wire loop_mapped_w2_i__22_n_0;
+wire loop_mapped_w2_i__23_n_0;
+wire loop_mapped_w2_i__24_n_0;
+wire loop_mapped_w2_i__25_n_0;
+wire loop_mapped_w2_i__26_n_0;
+wire loop_mapped_w2_i__27_n_0;
+wire loop_mapped_w2_i__28_n_0;
+wire loop_mapped_w2_i__29_n_0;
+wire loop_mapped_w2_i__2_n_0;
+wire loop_mapped_w2_i__30_n_0;
+wire loop_mapped_w2_i__31_n_0;
+wire loop_mapped_w2_i__32_n_0;
+wire loop_mapped_w2_i__33_n_0;
+wire loop_mapped_w2_i__34_n_0;
+wire loop_mapped_w2_i__35_n_0;
+wire loop_mapped_w2_i__36_n_0;
+wire loop_mapped_w2_i__37_n_0;
+wire loop_mapped_w2_i__38_n_0;
+wire loop_mapped_w2_i__39_n_0;
+wire loop_mapped_w2_i__3_n_0;
+wire loop_mapped_w2_i__40_n_0;
+wire loop_mapped_w2_i__41_n_0;
+wire loop_mapped_w2_i__42_n_0;
+wire loop_mapped_w2_i__43_n_0;
+wire loop_mapped_w2_i__44_n_0;
+wire loop_mapped_w2_i__45_n_0;
+wire loop_mapped_w2_i__46_n_0;
+wire loop_mapped_w2_i__47_n_0;
+wire loop_mapped_w2_i__48_n_0;
+wire loop_mapped_w2_i__49_n_0;
+wire loop_mapped_w2_i__4_n_0;
+wire loop_mapped_w2_i__50_n_0;
+wire loop_mapped_w2_i__51_n_0;
+wire loop_mapped_w2_i__52_n_0;
+wire loop_mapped_w2_i__53_n_0;
+wire loop_mapped_w2_i__54_n_0;
+wire loop_mapped_w2_i__55_n_0;
+wire loop_mapped_w2_i__56_n_0;
+wire loop_mapped_w2_i__57_n_0;
+wire loop_mapped_w2_i__58_n_0;
+wire loop_mapped_w2_i__59_n_0;
+wire loop_mapped_w2_i__5_n_0;
+wire loop_mapped_w2_i__6_n_0;
+wire loop_mapped_w2_i__7_n_0;
+wire loop_mapped_w2_i__8_n_0;
+wire loop_mapped_w2_i__9_n_0;
+wire loop_mapped_w2_i_n_0;
+wire loop_mapped_w_i__0_n_0;
+wire loop_mapped_w_i__10_n_0;
+wire loop_mapped_w_i__11_n_0;
+wire loop_mapped_w_i__12_n_0;
+wire loop_mapped_w_i__13_n_0;
+wire loop_mapped_w_i__14_n_0;
+wire loop_mapped_w_i__15_n_0;
+wire loop_mapped_w_i__16_n_0;
+wire loop_mapped_w_i__17_n_0;
+wire loop_mapped_w_i__18_n_0;
+wire loop_mapped_w_i__19_n_0;
+wire loop_mapped_w_i__1_n_0;
+wire loop_mapped_w_i__20_n_0;
+wire loop_mapped_w_i__21_n_0;
+wire loop_mapped_w_i__22_n_0;
+wire loop_mapped_w_i__23_n_0;
+wire loop_mapped_w_i__24_n_0;
+wire loop_mapped_w_i__25_n_0;
+wire loop_mapped_w_i__26_n_0;
+wire loop_mapped_w_i__27_n_0;
+wire loop_mapped_w_i__28_n_0;
+wire loop_mapped_w_i__29_n_0;
+wire loop_mapped_w_i__2_n_0;
+wire loop_mapped_w_i__30_n_0;
+wire loop_mapped_w_i__31_n_0;
+wire loop_mapped_w_i__32_n_0;
+wire loop_mapped_w_i__33_n_0;
+wire loop_mapped_w_i__34_n_0;
+wire loop_mapped_w_i__35_n_0;
+wire loop_mapped_w_i__36_n_0;
+wire loop_mapped_w_i__37_n_0;
+wire loop_mapped_w_i__38_n_0;
+wire loop_mapped_w_i__39_n_0;
+wire loop_mapped_w_i__3_n_0;
+wire loop_mapped_w_i__40_n_0;
+wire loop_mapped_w_i__41_n_0;
+wire loop_mapped_w_i__42_n_0;
+wire loop_mapped_w_i__43_n_0;
+wire loop_mapped_w_i__44_n_0;
+wire loop_mapped_w_i__45_n_0;
+wire loop_mapped_w_i__46_n_0;
+wire loop_mapped_w_i__47_n_0;
+wire loop_mapped_w_i__48_n_0;
+wire loop_mapped_w_i__49_n_0;
+wire loop_mapped_w_i__4_n_0;
+wire loop_mapped_w_i__50_n_0;
+wire loop_mapped_w_i__51_n_0;
+wire loop_mapped_w_i__52_n_0;
+wire loop_mapped_w_i__53_n_0;
+wire loop_mapped_w_i__54_n_0;
+wire loop_mapped_w_i__55_n_0;
+wire loop_mapped_w_i__56_n_0;
+wire loop_mapped_w_i__57_n_0;
+wire loop_mapped_w_i__58_n_0;
+wire loop_mapped_w_i__59_n_0;
+wire loop_mapped_w_i__5_n_0;
+wire loop_mapped_w_i__6_n_0;
+wire loop_mapped_w_i__7_n_0;
+wire loop_mapped_w_i__8_n_0;
+wire loop_mapped_w_i__9_n_0;
+wire loop_mapped_w_i_n_0;
+wire [831:0]map_flat_o;
+wire map_r;
+wire map_r_i__0_n_0;
+wire map_r_i__100_n_0;
+wire map_r_i__101_n_0;
+wire map_r_i__102_n_0;
+wire map_r_i__103_n_0;
+wire map_r_i__104_n_0;
+wire map_r_i__105_n_0;
+wire map_r_i__106_n_0;
+wire map_r_i__107_n_0;
+wire map_r_i__108_n_0;
+wire map_r_i__109_n_0;
+wire map_r_i__10_n_0;
+wire map_r_i__110_n_0;
+wire map_r_i__111_n_0;
+wire map_r_i__112_n_0;
+wire map_r_i__113_n_0;
+wire map_r_i__114_n_0;
+wire map_r_i__115_n_0;
+wire map_r_i__116_n_0;
+wire map_r_i__117_n_0;
+wire map_r_i__118_n_0;
+wire map_r_i__119_n_0;
+wire map_r_i__11_n_0;
+wire map_r_i__120_n_0;
+wire map_r_i__121_n_0;
+wire map_r_i__122_n_0;
+wire map_r_i__123_n_0;
+wire map_r_i__124_n_0;
+wire map_r_i__125_n_0;
+wire map_r_i__126_n_0;
+wire map_r_i__129_n_0;
+wire map_r_i__129_n_1;
+wire map_r_i__129_n_10;
+wire map_r_i__129_n_11;
+wire map_r_i__129_n_12;
+wire map_r_i__129_n_2;
+wire map_r_i__129_n_3;
+wire map_r_i__129_n_4;
+wire map_r_i__129_n_5;
+wire map_r_i__129_n_6;
+wire map_r_i__129_n_7;
+wire map_r_i__129_n_8;
+wire map_r_i__129_n_9;
+wire map_r_i__12_n_0;
+wire map_r_i__13_n_0;
+wire map_r_i__14_n_0;
+wire map_r_i__15_n_0;
+wire map_r_i__16_n_0;
+wire map_r_i__17_n_0;
+wire map_r_i__18_n_0;
+wire map_r_i__19_n_0;
+wire map_r_i__1_n_0;
+wire map_r_i__20_n_0;
+wire map_r_i__21_n_0;
+wire map_r_i__22_n_0;
+wire map_r_i__23_n_0;
+wire map_r_i__24_n_0;
+wire map_r_i__25_n_0;
+wire map_r_i__26_n_0;
+wire map_r_i__27_n_0;
+wire map_r_i__28_n_0;
+wire map_r_i__29_n_0;
+wire map_r_i__2_n_0;
+wire map_r_i__30_n_0;
+wire map_r_i__31_n_0;
+wire map_r_i__32_n_0;
+wire map_r_i__33_n_0;
+wire map_r_i__34_n_0;
+wire map_r_i__35_n_0;
+wire map_r_i__36_n_0;
+wire map_r_i__37_n_0;
+wire map_r_i__38_n_0;
+wire map_r_i__39_n_0;
+wire map_r_i__3_n_0;
+wire map_r_i__40_n_0;
+wire map_r_i__41_n_0;
+wire map_r_i__42_n_0;
+wire map_r_i__43_n_0;
+wire map_r_i__44_n_0;
+wire map_r_i__45_n_0;
+wire map_r_i__46_n_0;
+wire map_r_i__47_n_0;
+wire map_r_i__48_n_0;
+wire map_r_i__49_n_0;
+wire map_r_i__4_n_0;
+wire map_r_i__50_n_0;
+wire map_r_i__51_n_0;
+wire map_r_i__52_n_0;
+wire map_r_i__53_n_0;
+wire map_r_i__54_n_0;
+wire map_r_i__55_n_0;
+wire map_r_i__56_n_0;
+wire map_r_i__57_n_0;
+wire map_r_i__58_n_0;
+wire map_r_i__59_n_0;
+wire map_r_i__5_n_0;
+wire map_r_i__60_n_0;
+wire map_r_i__61_n_0;
+wire map_r_i__62_n_0;
+wire map_r_i__63_n_0;
+wire map_r_i__64_n_0;
+wire map_r_i__65_n_0;
+wire map_r_i__66_n_0;
+wire map_r_i__67_n_0;
+wire map_r_i__68_n_0;
+wire map_r_i__69_n_0;
+wire map_r_i__6_n_0;
+wire map_r_i__70_n_0;
+wire map_r_i__71_n_0;
+wire map_r_i__72_n_0;
+wire map_r_i__73_n_0;
+wire map_r_i__74_n_0;
+wire map_r_i__75_n_0;
+wire map_r_i__76_n_0;
+wire map_r_i__77_n_0;
+wire map_r_i__78_n_0;
+wire map_r_i__79_n_0;
+wire map_r_i__7_n_0;
+wire map_r_i__80_n_0;
+wire map_r_i__81_n_0;
+wire map_r_i__82_n_0;
+wire map_r_i__83_n_0;
+wire map_r_i__84_n_0;
+wire map_r_i__85_n_0;
+wire map_r_i__86_n_0;
+wire map_r_i__87_n_0;
+wire map_r_i__88_n_0;
+wire map_r_i__89_n_0;
+wire map_r_i__8_n_0;
+wire map_r_i__90_n_0;
+wire map_r_i__91_n_0;
+wire map_r_i__92_n_0;
+wire map_r_i__93_n_0;
+wire map_r_i__94_n_0;
+wire map_r_i__95_n_0;
+wire map_r_i__96_n_0;
+wire map_r_i__97_n_0;
+wire map_r_i__98_n_0;
+wire map_r_i__99_n_0;
+wire map_r_i__9_n_0;
+wire [0:0]\map_r_reg[0]__0 ;
+wire [0:0]\map_r_reg[10]__0 ;
+wire [0:0]\map_r_reg[11]__0 ;
+wire [0:0]\map_r_reg[12]__0 ;
+wire [0:0]\map_r_reg[13]__0 ;
+wire [0:0]\map_r_reg[14]__0 ;
+wire [0:0]\map_r_reg[15]__0 ;
+wire [0:0]\map_r_reg[16]__0 ;
+wire [0:0]\map_r_reg[17]__0 ;
+wire [0:0]\map_r_reg[18]__0 ;
+wire [0:0]\map_r_reg[19]__0 ;
+wire [0:0]\map_r_reg[1]__0 ;
+wire [0:0]\map_r_reg[20]__0 ;
+wire [0:0]\map_r_reg[21]__0 ;
+wire [0:0]\map_r_reg[22]__0 ;
+wire [0:0]\map_r_reg[23]__0 ;
+wire [0:0]\map_r_reg[24]__0 ;
+wire [0:0]\map_r_reg[25]__0 ;
+wire [0:0]\map_r_reg[26]__0 ;
+wire [0:0]\map_r_reg[27]__0 ;
+wire [0:0]\map_r_reg[28]__0 ;
+wire [0:0]\map_r_reg[29]__0 ;
+wire [0:0]\map_r_reg[2]__0 ;
+wire [0:0]\map_r_reg[30]__0 ;
+wire [0:0]\map_r_reg[31]__0 ;
+wire [0:0]\map_r_reg[32]__0 ;
+wire [0:0]\map_r_reg[33]__0 ;
+wire [0:0]\map_r_reg[34]__0 ;
+wire [0:0]\map_r_reg[35]__0 ;
+wire [0:0]\map_r_reg[36]__0 ;
+wire [0:0]\map_r_reg[37]__0 ;
+wire [0:0]\map_r_reg[38]__0 ;
+wire [0:0]\map_r_reg[39]__0 ;
+wire [0:0]\map_r_reg[3]__0 ;
+wire [0:0]\map_r_reg[40]__0 ;
+wire [0:0]\map_r_reg[41]__0 ;
+wire [0:0]\map_r_reg[42]__0 ;
+wire [0:0]\map_r_reg[43]__0 ;
+wire [0:0]\map_r_reg[44]__0 ;
+wire [0:0]\map_r_reg[45]__0 ;
+wire [0:0]\map_r_reg[46]__0 ;
+wire [0:0]\map_r_reg[47]__0 ;
+wire [0:0]\map_r_reg[48]__0 ;
+wire [0:0]\map_r_reg[49]__0 ;
+wire [0:0]\map_r_reg[4]__0 ;
+wire [0:0]\map_r_reg[50]__0 ;
+wire [0:0]\map_r_reg[51]__0 ;
+wire [0:0]\map_r_reg[52]__0 ;
+wire [0:0]\map_r_reg[53]__0 ;
+wire [0:0]\map_r_reg[54]__0 ;
+wire [0:0]\map_r_reg[55]__0 ;
+wire [0:0]\map_r_reg[56]__0 ;
+wire [0:0]\map_r_reg[57]__0 ;
+wire [0:0]\map_r_reg[58]__0 ;
+wire [0:0]\map_r_reg[59]__0 ;
+wire [0:0]\map_r_reg[5]__0 ;
+wire [0:0]\map_r_reg[60]__0 ;
+wire [0:0]\map_r_reg[61]__0 ;
+wire [0:0]\map_r_reg[62]__0 ;
+wire [0:0]\map_r_reg[63]__0 ;
+wire [0:0]\map_r_reg[6]__0 ;
+wire [0:0]\map_r_reg[7]__0 ;
+wire [0:0]\map_r_reg[8]__0 ;
+wire [0:0]\map_r_reg[9]__0 ;
+wire [5:0]map_rd_addr_i;
+wire [14:0]map_rd_data_o;
+wire map_rd_data_o1;
+wire map_rd_data_o_i__0_n_0;
+wire map_rd_data_o_i__0_n_1;
+wire map_rd_data_o_i__0_n_10;
+wire map_rd_data_o_i__0_n_11;
+wire map_rd_data_o_i__0_n_12;
+wire map_rd_data_o_i__0_n_13;
+wire map_rd_data_o_i__0_n_14;
+wire map_rd_data_o_i__0_n_2;
+wire map_rd_data_o_i__0_n_3;
+wire map_rd_data_o_i__0_n_4;
+wire map_rd_data_o_i__0_n_5;
+wire map_rd_data_o_i__0_n_6;
+wire map_rd_data_o_i__0_n_7;
+wire map_rd_data_o_i__0_n_8;
+wire map_rd_data_o_i__0_n_9;
+wire map_rd_data_o_i_n_0;
+wire map_rd_en_i;
+wire map_rd_valid_o;
+wire map_rd_valid_o_i_n_0;
+wire [5:0]map_wr_addr_i;
+wire [12:0]map_wr_data_i;
+wire map_wr_en_i;
+wire [23:0]out_l_w;
+wire out_l_w1;
+wire [23:0]out_r_w;
+wire out_r_w1;
+wire [47:0]p_0_in;
+wire [2:0]p_0_in__0;
+wire [1:0]p_0_in__1;
+wire p_0_out;
+wire [47:0]p_1_in;
+wire [3:0]p_1_in__0;
+wire [1:0]p_1_in__1;
+wire [47:0]p_2_in;
+wire [1:0]p_2_in__0;
+wire [14:0]p_2_out;
+wire [47:0]p_3_in;
+wire [1:0]p_3_in__0;
+wire [3:0]p_4_out;
+wire [23:0]pair_l_o;
+wire pair_l_o_i__0_n_0;
+wire pair_l_o_i_n_0;
+wire [23:0]pair_r_o;
+wire pair_r_o_i__0_n_0;
+wire pair_r_o_i_n_0;
+wire [4:0]pair_slot_o;
+wire pair_slot_o_i__0_n_0;
+wire pair_slot_o_i_n_0;
+wire pair_valid_o;
+wire pair_valid_o_i__0_n_0;
+wire pair_valid_o_i__1_n_0;
+wire pair_valid_o_i_n_0;
+wire pop_act_w;
+wire pop_act_w0;
+wire pop_act_w0_i__0_n_0;
+wire pop_act_w1;
+wire pop_act_w1_i_n_0;
+wire pop_act_w2;
+wire [4:0]pop_drop_n_w0;
+wire pop_drop_n_w1;
+wire pop_drop_n_w_i_n_0;
+wire pop_drop_n_w_i_n_1;
+wire pop_drop_n_w_i_n_2;
+wire pop_drop_n_w_i_n_3;
+wire pop_drop_n_w_i_n_4;
+wire pop_dup_w;
+wire pop_dup_w0;
+wire pop_dup_w1;
+wire pop_dup_w1_i__0_n_0;
+wire pop_dup_w2;
+wire pop_hold_w;
+wire pop_hold_w0;
+wire pop_idx_r;
+wire pop_idx_r0;
+wire pop_idx_r0_out;
+wire pop_idx_r_i__0_n_0;
+wire pop_idx_r_i__2_n_0;
+wire [4:0]pop_n_w;
+wire [0:0]pop_pair_w;
+wire [3:0]pop_raddr_w;
+wire [0:0]pop_ret_pair_r;
+wire pop_ret_pair_r__0;
+wire pop_ret_v_r;
+wire pop_ret_v_r0;
+wire pop_ret_v_r1;
+wire pop_ret_v_r2;
+wire pop_ret_v_r__0;
+wire pop_visit_w;
+wire pop_visit_w0;
+wire pop_visit_w0_i__0_n_0;
+wire [4:0]push_cnt1_w;
+wire [47:0]push_data_w;
+wire push_drop_w;
+wire push_drop_w0;
+wire [0:0]push_pair_w;
+wire push_pop_n_w_i_n_0;
+wire push_pop_n_w_i_n_1;
+wire push_pop_n_w_i_n_2;
+wire push_pop_n_w_i_n_3;
+wire push_pop_n_w_i_n_4;
+wire push_ram_w;
+wire push_ram_w0;
+wire [3:0]push_rd1_w;
+wire push_same_w;
+wire push_same_w0;
+wire push_same_w0_i__0_n_0;
+wire [4:0]q_cnt_r;
+wire q_cnt_r_i__0_n_0;
+wire q_cnt_r_i__1_n_0;
+wire q_cnt_r_i__2_n_0;
+wire [4:0]\q_cnt_r_reg[0]__0 ;
+wire \q_cnt_r_reg[0]_i__0_n_0 ;
+wire \q_cnt_r_reg[0]_i__1_n_0 ;
+wire \q_cnt_r_reg_n_0_[0] ;
+wire \q_cnt_r_reg_n_1_[0] ;
+wire \q_cnt_r_reg_n_2_[0] ;
+wire \q_cnt_r_reg_n_3_[0] ;
+wire \q_cnt_r_reg_n_4_[0] ;
+wire [0:0]q_fed_r;
+wire q_fed_r0;
+wire q_fed_r0_i__0_n_0;
+wire q_fed_r__0;
+wire q_fed_r_i__0_n_0;
+wire [0:0]q_primed_r;
+wire q_primed_r0;
+wire q_primed_r1;
+wire q_primed_r2;
+wire q_primed_r3;
+wire q_primed_r3_i_n_0;
+wire q_primed_r__0;
+wire [3:0]q_rd_r;
+wire [3:0]q_rd_r__0;
+wire q_rd_r_i__1_n_0;
+wire q_rd_r_i__2_n_0;
+wire q_rd_r_i__3_n_0;
+wire q_rd_r_i__4_n_0;
+wire q_rd_r_i_n_0;
+wire q_rd_r_i_n_1;
+wire q_rd_r_i_n_2;
+wire q_rd_r_i_n_3;
+wire [3:0]\q_rd_r_reg[0]__0 ;
+wire \q_rd_r_reg[0]_i__0_n_0 ;
+wire \q_rd_r_reg[0]_i__1_n_0 ;
+wire [47:0]q_rdata_r;
+wire q_rdata_r__0;
+wire [3:0]q_wr_r;
+wire q_wr_r__0;
+wire q_wr_r_i__0_n_0;
+wire [0:0]\q_wr_r_reg[0]__0 ;
+wire [0:0]rc_arm_r;
+wire rc_arm_r0;
+wire rc_arm_r0_i_n_0;
+wire rc_arm_r1;
+wire rc_arm_r__0;
+wire rc_arm_r_i_n_0;
+wire [0:0]rc_dec_r;
+wire rc_dec_r__0;
+wire rc_dec_r_i_n_0;
+wire [0:0]rc_drop_n_w;
+wire rc_drop_r;
+wire rc_drop_r_i_n_0;
+wire [0:0]rc_hold_n_w;
+wire rc_hold_r;
+wire rc_hold_r_i_n_0;
+wire rc_over_w;
+wire rc_pdu_start_w;
+wire rc_short_w;
+wire rst_n;
+wire skid_acc0_w;
+wire skid_acc0_w0;
+wire skid_acc0_w0_i_n_0;
+wire skid_acc0_w1_i_n_0;
+wire skid_acc0_w2;
+wire skid_acc1_w;
+wire skid_acc1_w0;
+wire skid_acc1_w0_i_n_0;
+wire [2:0]skid_acc1_w1;
+wire [3:0]skid_addr_r;
+wire [3:0]skid_addr_r1_out;
+wire \skid_addr_r_reg[0] ;
+wire \skid_addr_r_reg[1] ;
+wire \skid_addr_r_reg[2] ;
+wire \skid_addr_r_reg[3] ;
+wire skid_beat_r;
+wire skid_beat_r_i__10_n_0;
+wire skid_beat_r_i__11_n_0;
+wire skid_beat_r_i__11_n_1;
+wire skid_beat_r_i__1_n_0;
+wire skid_beat_r_i__2_n_0;
+wire skid_beat_r_i__3_n_0;
+wire skid_beat_r_i__4_n_0;
+wire skid_beat_r_i__5_n_0;
+wire skid_beat_r_i__6_n_0;
+wire skid_beat_r_i__7_n_0;
+wire skid_beat_r_i__8_n_0;
+wire skid_beat_r_i__9_n_0;
+wire skid_beat_r_i_n_0;
+wire [0:0]\skid_beat_r_reg[0]__0 ;
+wire \skid_beat_r_reg[0]_i_n_0 ;
+wire [0:0]\skid_beat_r_reg[1]__0 ;
+wire \skid_beat_r_reg[1]_i_n_0 ;
+wire [0:0]\skid_beat_r_reg[2]__0 ;
+wire \skid_beat_r_reg[2]_i_n_0 ;
+wire [0:0]\skid_beat_r_reg[3]__0 ;
+wire \skid_beat_r_reg[3]_i_n_0 ;
+wire \skid_beat_r_reg_n_0_[0] ;
+wire \skid_beat_r_reg_n_0_[1] ;
+wire \skid_beat_r_reg_n_0_[2] ;
+wire \skid_beat_r_reg_n_0_[3] ;
+wire \skid_beat_r_reg_n_1_[0] ;
+wire \skid_beat_r_reg_n_1_[1] ;
+wire \skid_beat_r_reg_n_1_[2] ;
+wire \skid_beat_r_reg_n_1_[3] ;
+wire [2:0]skid_cnt_r;
+wire [2:0]skid_cnt_r0;
+wire [2:0]skid_cnt_r1;
+wire skid_cnt_r__0;
+wire skid_drain_w;
+wire [1:0]skid_enq_n_w;
+wire [1:0]skid_form_r;
+wire skid_form_r_i__0_n_0;
+wire skid_form_r_i__10_n_0;
+wire skid_form_r_i__11_n_0;
+wire skid_form_r_i__11_n_1;
+wire skid_form_r_i__12_n_0;
+wire skid_form_r_i__13_n_0;
+wire skid_form_r_i__14_n_0;
+wire skid_form_r_i__15_n_0;
+wire skid_form_r_i__15_n_1;
+wire skid_form_r_i__1_n_0;
+wire skid_form_r_i__2_n_0;
+wire skid_form_r_i__3_n_0;
+wire skid_form_r_i__3_n_1;
+wire skid_form_r_i__4_n_0;
+wire skid_form_r_i__5_n_0;
+wire skid_form_r_i__6_n_0;
+wire skid_form_r_i__7_n_0;
+wire skid_form_r_i__7_n_1;
+wire skid_form_r_i__8_n_0;
+wire skid_form_r_i__9_n_0;
+wire [1:0]\skid_form_r_reg[0]__0 ;
+wire \skid_form_r_reg[0]_i__0_n_0 ;
+wire \skid_form_r_reg[0]_i__1_n_0 ;
+wire [1:0]\skid_form_r_reg[1]__0 ;
+wire \skid_form_r_reg[1]_i__0_n_0 ;
+wire \skid_form_r_reg[1]_i__1_n_0 ;
+wire [1:0]\skid_form_r_reg[2]__0 ;
+wire \skid_form_r_reg[2]_i__0_n_0 ;
+wire \skid_form_r_reg[2]_i__1_n_0 ;
+wire [1:0]\skid_form_r_reg[3]__0 ;
+wire \skid_form_r_reg[3]_i__0_n_0 ;
+wire \skid_form_r_reg[3]_i__1_n_0 ;
+wire [2:0]skid_free_w;
+wire [2:0]skid_free_w0;
+wire skid_free_w0_i__0_n_0;
+wire skid_free_w0_i__0_n_1;
+wire [3:0]skid_kill_w;
+wire skid_kill_w0;
+wire skid_kill_w1;
+wire skid_kill_w1_i__0_n_0;
+wire skid_kill_w1_i__1_n_0;
+wire skid_kill_w1_i__2_n_0;
+wire skid_kill_w1_i__3_n_0;
+wire skid_kill_w2;
+wire skid_kill_w2_i__0_n_0;
+wire skid_kill_w2_i__1_n_0;
+wire skid_kill_w2_i__2_n_0;
+wire skid_kill_w2_i__3_n_0;
+wire skid_kill_w2_i__4_n_0;
+wire skid_kill_w_i_n_0;
+wire skid_kill_w_i_n_1;
+wire skid_ovf0_w;
+wire skid_ovf0_w0;
+wire skid_ovf1_w;
+wire skid_ovf1_w0;
+wire [1:0]skid_rp_r;
+wire [1:0]skid_rp_r0;
+wire skid_rp_r__0;
+wire skid_strm_r;
+wire skid_strm_r_i__0_n_0;
+wire skid_strm_r_i__10_n_0;
+wire skid_strm_r_i__2_n_0;
+wire skid_strm_r_i__3_n_0;
+wire skid_strm_r_i__4_n_0;
+wire skid_strm_r_i__5_n_0;
+wire skid_strm_r_i__6_n_0;
+wire skid_strm_r_i__7_n_0;
+wire skid_strm_r_i__8_n_0;
+wire skid_strm_r_i__9_n_0;
+wire skid_strm_r_i_n_0;
+wire [3:0]\skid_strm_r_reg[0]__0 ;
+wire [0:0]\skid_strm_r_reg[0]__1 ;
+wire \skid_strm_r_reg[0]_i_n_0 ;
+wire [3:0]\skid_strm_r_reg[1]__0 ;
+wire [0:0]\skid_strm_r_reg[1]__1 ;
+wire \skid_strm_r_reg[1]_i_n_0 ;
+wire [3:0]\skid_strm_r_reg[2]__0 ;
+wire [0:0]\skid_strm_r_reg[2]__1 ;
+wire \skid_strm_r_reg[2]_i_n_0 ;
+wire [3:0]\skid_strm_r_reg[3]__0 ;
+wire [0:0]\skid_strm_r_reg[3]__1 ;
+wire \skid_strm_r_reg[3]_i_n_0 ;
+wire [3:0]skid_v_r;
+wire [3:0]skid_v_r0;
+wire [3:0]skid_v_r1;
+wire skid_v_r1_i_n_0;
+wire skid_v_r1_i_n_1;
+wire skid_v_r1_i_n_2;
+wire skid_v_r1_i_n_3;
+wire [3:0]skid_v_r2;
+wire skid_v_r2_i__1_n_0;
+wire skid_v_r2_i__1_n_1;
+wire skid_v_r2_i__1_n_2;
+wire skid_v_r2_i__1_n_3;
+wire skid_v_r2_i_n_0;
+wire skid_v_r2_i_n_1;
+wire skid_v_r2_i_n_2;
+wire skid_v_r2_i_n_3;
+wire [3:0]skid_v_r3;
+wire skid_v_r3_i_n_0;
+wire skid_v_r3_i_n_1;
+wire skid_v_r3_i_n_2;
+wire skid_v_r3_i_n_3;
+wire [3:0]skid_v_r5;
+wire [3:0]skid_v_r6;
+wire skid_v_r__0;
+wire [1:0]skid_wp1_w;
+wire [1:0]skid_wp_r;
+wire [1:0]skid_wp_r0;
+wire skid_wp_r__0;
+wire [1:0]skip_inc_w;
+wire [1:0]skip_inc_w0;
+wire [16:0]skip_sum_w;
+wire [4:0]slot_r;
+wire [4:0]slot_r0;
+wire [4:0]slot_r__0;
+wire slot_r_i__0_n_0;
+wire slot_r_i__1_n_0;
+wire slot_r_i__2_n_0;
+wire slot_r_i__3_n_0;
+wire [1:0]source_row0;
+wire source_row0_i__0_n_0;
+wire source_row0_i__0_n_1;
+wire source_row0_i__0_n_2;
+wire source_row0_i__0_n_3;
+wire source_row0_i__1_n_0;
+wire source_row0_i__1_n_1;
+wire source_row0_i__1_n_2;
+wire source_row0_i__1_n_3;
+wire source_row0_i__2_n_0;
+wire source_row0_i__2_n_1;
+wire source_row0_i__3_n_0;
+wire source_row0_i__3_n_1;
+wire source_row0_i__3_n_2;
+wire source_row0_i__3_n_3;
+wire source_row0_i__4_n_0;
+wire source_row0_i__4_n_1;
+wire source_row0_i__4_n_2;
+wire source_row0_i__4_n_3;
+wire [3:0]source_row1;
+wire source_row1_i__0_n_0;
+wire source_row1_i__0_n_1;
+wire source_row1_i__0_n_2;
+wire source_row1_i__0_n_3;
+wire source_row1_i__1_n_0;
+wire source_row1_i__1_n_1;
+wire source_row1_i__1_n_2;
+wire source_row1_i__2_n_0;
+wire source_row1_i__2_n_1;
+wire source_row1_i__2_n_2;
+wire source_row1_i__2_n_3;
+wire source_row1_i__3_n_0;
+wire source_row1_i__3_n_1;
+wire source_row1_i__3_n_2;
+wire source_row1_i__3_n_3;
+wire source_row1_i__4_n_0;
+wire source_row1_i__4_n_1;
+wire source_row1_i__4_n_2;
+wire source_row2;
+wire source_row2_i__0_n_0;
+wire source_row2_i__1_n_0;
+wire source_row2_i__1_n_1;
+wire source_row2_i__1_n_2;
+wire source_row2_i__1_n_3;
+wire source_row2_i__3_n_0;
+wire source_row2_i__3_n_1;
+wire source_row2_i__3_n_2;
+wire source_row2_i__3_n_3;
+wire source_row2_i__4_n_0;
+wire source_row2_i__5_n_0;
+wire source_row2_i__5_n_1;
+wire source_row2_i__5_n_2;
+wire source_row2_i__5_n_3;
+wire source_row2_i__6_n_0;
+wire source_row2_i_n_0;
+wire source_row2_i_n_1;
+wire source_row2_i_n_2;
+wire source_row2_i_n_3;
+wire source_row3;
+wire source_row3_i__0_n_0;
+wire source_row3_i__0_n_1;
+wire source_row3_i__0_n_2;
+wire source_row3_i__0_n_3;
+wire source_row3_i__2_n_0;
+wire source_row3_i__3_n_0;
+wire source_row3_i__3_n_1;
+wire source_row3_i__3_n_2;
+wire source_row3_i__3_n_3;
+wire source_row3_i__4_n_0;
+wire source_row3_i__4_n_1;
+wire source_row3_i__4_n_2;
+wire source_row3_i__4_n_3;
+wire source_row3_i__5_n_0;
+wire source_row3_i__6_n_0;
+wire source_row3_i_n_0;
+wire source_row3_i_n_1;
+wire source_row3_i_n_2;
+wire source_row3_i_n_3;
+wire [3:0]source_row4;
+wire source_row4_i__0_n_0;
+wire source_row4_i__0_n_1;
+wire source_row4_i__0_n_2;
+wire source_row4_i__0_n_3;
+wire source_row_i__0_n_0;
+wire source_row_i__0_n_1;
+wire source_row_i__0_n_2;
+wire source_row_i__0_n_3;
+wire [3:0]source_row_return;
+wire [1:0]st_r;
+wire [1:0]st_r0_out;
+wire st_r1_out;
+wire [1:0]st_r__0;
+wire st_r_i__1_n_0;
+wire st_r_i__3_n_0;
+wire stash_flush_w;
+wire stash_open_w;
+wire stash_open_w0;
+wire stash_open_w0_i__0_n_0;
+wire stash_open_w1;
+wire stash_open_w1_i_n_0;
+wire stash_open_w2;
+wire stash_open_w2_i__0_n_0;
+wire stash_open_w3;
+wire [3:0]stash_strm_r;
+wire stash_strm_r__0;
+wire stash_strm_r_i__0_n_0;
+wire [23:0]stash_val_r;
+wire stash_val_r__0;
+wire stash_val_r_i__0_n_0;
+wire stash_vld_r;
+wire stash_vld_r1;
+wire stash_vld_r__0;
+wire [31:0]tdm_close_ns_i;
+wire tdm_close_w;
+wire tdm_close_w0;
+wire [15:0]tdm_dup_cnt_o;
+wire tdm_dup_cnt_o0;
+wire tdm_dup_cnt_o0_i_n_0;
+wire tdm_dup_cnt_o0_i_n_1;
+wire tdm_dup_cnt_o0_i_n_10;
+wire tdm_dup_cnt_o0_i_n_11;
+wire tdm_dup_cnt_o0_i_n_12;
+wire tdm_dup_cnt_o0_i_n_13;
+wire tdm_dup_cnt_o0_i_n_14;
+wire tdm_dup_cnt_o0_i_n_15;
+wire tdm_dup_cnt_o0_i_n_2;
+wire tdm_dup_cnt_o0_i_n_3;
+wire tdm_dup_cnt_o0_i_n_4;
+wire tdm_dup_cnt_o0_i_n_5;
+wire tdm_dup_cnt_o0_i_n_6;
+wire tdm_dup_cnt_o0_i_n_7;
+wire tdm_dup_cnt_o0_i_n_8;
+wire tdm_dup_cnt_o0_i_n_9;
+wire tdm_dup_cnt_o1;
+wire tdm_dup_cnt_o1_i__0_n_0;
+wire tdm_dup_cnt_o2_i_n_0;
+wire tdm_dup_cnt_o_i__0_n_0;
+wire tdm_dup_cnt_o_i_n_0;
+wire tdm_fed_r;
+wire tdm_fed_r__0;
+wire tdm_fed_r_i__0_n_0;
+wire [31:0]tdm_frame_ns_r;
+wire tdm_frame_ns_r__0;
+wire tdm_frame_pend_r;
+wire tdm_frame_pend_r__0;
+wire tdm_frame_pend_r_i__0_n_0;
+wire tdm_frame_pend_r_i__1_n_0;
+wire tdm_frame_r;
+wire tdm_frame_r_i__0_n_0;
+wire tdm_frame_r_i__1_n_0;
+wire tdm_frame_r_i__2_n_0;
+wire \tdm_frame_r_reg_n_0_[1] ;
+wire \tdm_frame_r_reg_n_0_[2] ;
+wire \tdm_frame_r_reg_n_0_[3] ;
+wire \tdm_frame_r_reg_n_10_[1] ;
+wire \tdm_frame_r_reg_n_10_[2] ;
+wire \tdm_frame_r_reg_n_10_[3] ;
+wire \tdm_frame_r_reg_n_11_[1] ;
+wire \tdm_frame_r_reg_n_11_[2] ;
+wire \tdm_frame_r_reg_n_11_[3] ;
+wire \tdm_frame_r_reg_n_12_[1] ;
+wire \tdm_frame_r_reg_n_12_[2] ;
+wire \tdm_frame_r_reg_n_12_[3] ;
+wire \tdm_frame_r_reg_n_13_[1] ;
+wire \tdm_frame_r_reg_n_13_[2] ;
+wire \tdm_frame_r_reg_n_13_[3] ;
+wire \tdm_frame_r_reg_n_14_[1] ;
+wire \tdm_frame_r_reg_n_14_[2] ;
+wire \tdm_frame_r_reg_n_14_[3] ;
+wire \tdm_frame_r_reg_n_15_[1] ;
+wire \tdm_frame_r_reg_n_15_[2] ;
+wire \tdm_frame_r_reg_n_15_[3] ;
+wire \tdm_frame_r_reg_n_16_[1] ;
+wire \tdm_frame_r_reg_n_16_[2] ;
+wire \tdm_frame_r_reg_n_16_[3] ;
+wire \tdm_frame_r_reg_n_17_[1] ;
+wire \tdm_frame_r_reg_n_17_[2] ;
+wire \tdm_frame_r_reg_n_17_[3] ;
+wire \tdm_frame_r_reg_n_18_[1] ;
+wire \tdm_frame_r_reg_n_18_[2] ;
+wire \tdm_frame_r_reg_n_18_[3] ;
+wire \tdm_frame_r_reg_n_19_[1] ;
+wire \tdm_frame_r_reg_n_19_[2] ;
+wire \tdm_frame_r_reg_n_19_[3] ;
+wire \tdm_frame_r_reg_n_1_[1] ;
+wire \tdm_frame_r_reg_n_1_[2] ;
+wire \tdm_frame_r_reg_n_1_[3] ;
+wire \tdm_frame_r_reg_n_20_[1] ;
+wire \tdm_frame_r_reg_n_20_[2] ;
+wire \tdm_frame_r_reg_n_20_[3] ;
+wire \tdm_frame_r_reg_n_21_[1] ;
+wire \tdm_frame_r_reg_n_21_[2] ;
+wire \tdm_frame_r_reg_n_21_[3] ;
+wire \tdm_frame_r_reg_n_22_[1] ;
+wire \tdm_frame_r_reg_n_22_[2] ;
+wire \tdm_frame_r_reg_n_22_[3] ;
+wire \tdm_frame_r_reg_n_23_[1] ;
+wire \tdm_frame_r_reg_n_23_[2] ;
+wire \tdm_frame_r_reg_n_23_[3] ;
+wire \tdm_frame_r_reg_n_24_[1] ;
+wire \tdm_frame_r_reg_n_24_[2] ;
+wire \tdm_frame_r_reg_n_24_[3] ;
+wire \tdm_frame_r_reg_n_25_[1] ;
+wire \tdm_frame_r_reg_n_25_[2] ;
+wire \tdm_frame_r_reg_n_25_[3] ;
+wire \tdm_frame_r_reg_n_26_[1] ;
+wire \tdm_frame_r_reg_n_26_[2] ;
+wire \tdm_frame_r_reg_n_26_[3] ;
+wire \tdm_frame_r_reg_n_27_[1] ;
+wire \tdm_frame_r_reg_n_27_[2] ;
+wire \tdm_frame_r_reg_n_27_[3] ;
+wire \tdm_frame_r_reg_n_28_[1] ;
+wire \tdm_frame_r_reg_n_28_[2] ;
+wire \tdm_frame_r_reg_n_28_[3] ;
+wire \tdm_frame_r_reg_n_29_[1] ;
+wire \tdm_frame_r_reg_n_29_[2] ;
+wire \tdm_frame_r_reg_n_29_[3] ;
+wire \tdm_frame_r_reg_n_2_[1] ;
+wire \tdm_frame_r_reg_n_2_[2] ;
+wire \tdm_frame_r_reg_n_2_[3] ;
+wire \tdm_frame_r_reg_n_30_[1] ;
+wire \tdm_frame_r_reg_n_30_[2] ;
+wire \tdm_frame_r_reg_n_30_[3] ;
+wire \tdm_frame_r_reg_n_31_[1] ;
+wire \tdm_frame_r_reg_n_31_[2] ;
+wire \tdm_frame_r_reg_n_31_[3] ;
+wire \tdm_frame_r_reg_n_32_[1] ;
+wire \tdm_frame_r_reg_n_32_[2] ;
+wire \tdm_frame_r_reg_n_32_[3] ;
+wire \tdm_frame_r_reg_n_33_[1] ;
+wire \tdm_frame_r_reg_n_33_[2] ;
+wire \tdm_frame_r_reg_n_33_[3] ;
+wire \tdm_frame_r_reg_n_34_[1] ;
+wire \tdm_frame_r_reg_n_34_[2] ;
+wire \tdm_frame_r_reg_n_34_[3] ;
+wire \tdm_frame_r_reg_n_35_[1] ;
+wire \tdm_frame_r_reg_n_35_[2] ;
+wire \tdm_frame_r_reg_n_35_[3] ;
+wire \tdm_frame_r_reg_n_36_[1] ;
+wire \tdm_frame_r_reg_n_36_[2] ;
+wire \tdm_frame_r_reg_n_36_[3] ;
+wire \tdm_frame_r_reg_n_37_[1] ;
+wire \tdm_frame_r_reg_n_37_[2] ;
+wire \tdm_frame_r_reg_n_37_[3] ;
+wire \tdm_frame_r_reg_n_38_[1] ;
+wire \tdm_frame_r_reg_n_38_[2] ;
+wire \tdm_frame_r_reg_n_38_[3] ;
+wire \tdm_frame_r_reg_n_39_[1] ;
+wire \tdm_frame_r_reg_n_39_[2] ;
+wire \tdm_frame_r_reg_n_39_[3] ;
+wire \tdm_frame_r_reg_n_3_[1] ;
+wire \tdm_frame_r_reg_n_3_[2] ;
+wire \tdm_frame_r_reg_n_3_[3] ;
+wire \tdm_frame_r_reg_n_40_[1] ;
+wire \tdm_frame_r_reg_n_40_[2] ;
+wire \tdm_frame_r_reg_n_40_[3] ;
+wire \tdm_frame_r_reg_n_41_[1] ;
+wire \tdm_frame_r_reg_n_41_[2] ;
+wire \tdm_frame_r_reg_n_41_[3] ;
+wire \tdm_frame_r_reg_n_42_[1] ;
+wire \tdm_frame_r_reg_n_42_[2] ;
+wire \tdm_frame_r_reg_n_42_[3] ;
+wire \tdm_frame_r_reg_n_43_[1] ;
+wire \tdm_frame_r_reg_n_43_[2] ;
+wire \tdm_frame_r_reg_n_43_[3] ;
+wire \tdm_frame_r_reg_n_44_[1] ;
+wire \tdm_frame_r_reg_n_44_[2] ;
+wire \tdm_frame_r_reg_n_44_[3] ;
+wire \tdm_frame_r_reg_n_45_[1] ;
+wire \tdm_frame_r_reg_n_45_[2] ;
+wire \tdm_frame_r_reg_n_45_[3] ;
+wire \tdm_frame_r_reg_n_46_[1] ;
+wire \tdm_frame_r_reg_n_46_[2] ;
+wire \tdm_frame_r_reg_n_46_[3] ;
+wire \tdm_frame_r_reg_n_47_[1] ;
+wire \tdm_frame_r_reg_n_47_[2] ;
+wire \tdm_frame_r_reg_n_47_[3] ;
+wire \tdm_frame_r_reg_n_4_[1] ;
+wire \tdm_frame_r_reg_n_4_[2] ;
+wire \tdm_frame_r_reg_n_4_[3] ;
+wire \tdm_frame_r_reg_n_5_[1] ;
+wire \tdm_frame_r_reg_n_5_[2] ;
+wire \tdm_frame_r_reg_n_5_[3] ;
+wire \tdm_frame_r_reg_n_6_[1] ;
+wire \tdm_frame_r_reg_n_6_[2] ;
+wire \tdm_frame_r_reg_n_6_[3] ;
+wire \tdm_frame_r_reg_n_7_[1] ;
+wire \tdm_frame_r_reg_n_7_[2] ;
+wire \tdm_frame_r_reg_n_7_[3] ;
+wire \tdm_frame_r_reg_n_8_[1] ;
+wire \tdm_frame_r_reg_n_8_[2] ;
+wire \tdm_frame_r_reg_n_8_[3] ;
+wire \tdm_frame_r_reg_n_9_[1] ;
+wire \tdm_frame_r_reg_n_9_[2] ;
+wire \tdm_frame_r_reg_n_9_[3] ;
+wire [23:0]tdm_l_i;
+wire [3:0]tdm_pair_slot_i;
+wire tdm_pair_valid_i;
+wire [23:0]tdm_r_i;
+wire [15:0]tdm_skip_cnt_o;
+wire tdm_skip_cnt_o0;
+wire tdm_skip_cnt_o0_i_n_0;
+wire tdm_skip_cnt_o0_i_n_1;
+wire tdm_skip_cnt_o0_i_n_10;
+wire tdm_skip_cnt_o0_i_n_11;
+wire tdm_skip_cnt_o0_i_n_12;
+wire tdm_skip_cnt_o0_i_n_13;
+wire tdm_skip_cnt_o0_i_n_14;
+wire tdm_skip_cnt_o0_i_n_15;
+wire tdm_skip_cnt_o0_i_n_2;
+wire tdm_skip_cnt_o0_i_n_3;
+wire tdm_skip_cnt_o0_i_n_4;
+wire tdm_skip_cnt_o0_i_n_5;
+wire tdm_skip_cnt_o0_i_n_6;
+wire tdm_skip_cnt_o0_i_n_7;
+wire tdm_skip_cnt_o0_i_n_8;
+wire tdm_skip_cnt_o0_i_n_9;
+wire tdm_skip_cnt_o1;
+wire tdm_skip_cnt_o_i__0_n_0;
+wire tdm_skip_cnt_o_i_n_0;
+wire tdm_snap_late_r;
+wire tdm_snap_late_r__0;
+wire tdm_snap_take_w;
+wire tdm_snap_take_w0;
+wire tdm_snap_w;
+wire tdm_snap_w0;
+wire tdm_stage_r;
+wire tdm_stage_r_i__0_n_0;
+wire tdm_stage_r_i__1_n_0;
+wire tdm_stage_r_i__2_n_0;
+wire tdm_stage_r_i__3_n_0;
+wire tdm_stage_r_i__4_n_0;
+wire [0:0]\tdm_stage_r_reg[0]__0 ;
+wire [0:0]\tdm_stage_r_reg[1]__0 ;
+wire [0:0]\tdm_stage_r_reg[2]__0 ;
+wire tdm_stage_w;
+wire [31:0]tdm_walk_ns_o;
+wire tdm_walk_ns_o0;
+wire tdm_walk_ns_o1;
+wire tdm_walk_ns_o2;
+wire tdm_walk_ns_o_i_n_0;
+wire tdm_walk_r;
+wire tdm_walk_r_i__0_n_0;
+wire tdm_walk_r_i__1_n_0;
+wire tdm_walk_r_i__2_n_0;
+wire tick_i;
+wire tick_late_r;
+wire tick_late_r0;
+wire tick_late_r1;
+wire tick_late_r__0;
+wire tick_pend_r;
+wire tick_pend_r0_out;
+wire tick_pend_r__0;
+wire [23:0]tone_smp_i;
+wire walk_start_w;
+wire walk_start_w0_i_n_0;
+GND GND
+(.G(\<const0> ));
+RTL_ADD4 RTL_ADD
+(.I0(q_wr_r),
+.I1(\<const1> ),
+.O({RTL_ADD_n_0,RTL_ADD_n_1,RTL_ADD_n_2,RTL_ADD_n_3}));
+RTL_ADD9 RTL_ADD__0
+(.I0(push_cnt1_w),
+.I1(\<const1> ),
+.O({RTL_ADD__0_n_0,RTL_ADD__0_n_1,RTL_ADD__0_n_2,RTL_ADD__0_n_3,RTL_ADD__0_n_4}));
+RTL_ADD4 RTL_ADD__1
+(.I0(push_rd1_w),
+.I1(\<const1> ),
+.O({RTL_ADD__1_n_0,RTL_ADD__1_n_1,RTL_ADD__1_n_2,RTL_ADD__1_n_3}));
+RTL_ADD4 RTL_ADD__2
+(.I0(pop_raddr_w),
+.I1(\<const1> ),
+.O({RTL_ADD__2_n_0,RTL_ADD__2_n_1,RTL_ADD__2_n_2,RTL_ADD__2_n_3}));
+RTL_AND7 RTL_AND
+(.I0(push_ram_w),
+.I1(rst_n),
+.O(RTL_AND_n_0));
+RTL_LT19 RTL_LT
+(.I0(tdm_pair_slot_i),
+.I1({\<const0> ,\<const1> ,\<const0> ,\<const0> }),
+.O(RTL_LT_n_0));
+RTL_MUX1062 RTL_MUX
+(.I0(\skid_addr_r_reg[3] ),
+.I1(\skid_addr_r_reg[2] ),
+.I2(\skid_addr_r_reg[1] ),
+.I3(\skid_addr_r_reg[0] ),
+.O(p_0_out),
+.S(skid_wp_r));
+RTL_MUX RTL_MUX__0
+(.I0(enq0_addr_w),
+.I1(p_0_out),
+.O(RTL_MUX__0_n_0),
+.S(enq0_v_w));
+RTL_MUX1072 RTL_MUX__1
+(.I0(RTL_MUX__0_n_0),
+.I1(\skid_addr_r_reg[3] ),
+.O(skid_addr_r[0]),
+.S(skid_wp_r));
+RTL_MUX158 RTL_MUX__10
+(.I0(push_cnt1_w),
+.I1({RTL_ADD__0_n_0,RTL_ADD__0_n_1,RTL_ADD__0_n_2,RTL_ADD__0_n_3,RTL_ADD__0_n_4}),
+.O({RTL_MUX__10_n_0,RTL_MUX__10_n_1,RTL_MUX__10_n_2,RTL_MUX__10_n_3,RTL_MUX__10_n_4}),
+.S(push_drop_w));
+RTL_MUX RTL_MUX__11
+(.I0(\<const0> ),
+.I1(\<const1> ),
+.O(RTL_MUX__11_n_0),
+.S(rc_dec_r));
+RTL_MUX1072 RTL_MUX__2
+(.I0(cm1_addr_w),
+.I1(skid_addr_r[0]),
+.O(p_4_out[0]),
+.S(skid_wp1_w));
+RTL_MUX1072 RTL_MUX__3
+(.I0(RTL_MUX__0_n_0),
+.I1(\skid_addr_r_reg[2] ),
+.O(skid_addr_r[1]),
+.S(skid_wp_r));
+RTL_MUX1072 RTL_MUX__4
+(.I0(cm1_addr_w),
+.I1(skid_addr_r[1]),
+.O(p_4_out[1]),
+.S(skid_wp1_w));
+RTL_MUX1072 RTL_MUX__5
+(.I0(RTL_MUX__0_n_0),
+.I1(\skid_addr_r_reg[1] ),
+.O(skid_addr_r[2]),
+.S(skid_wp_r));
+RTL_MUX1072 RTL_MUX__6
+(.I0(cm1_addr_w),
+.I1(skid_addr_r[2]),
+.O(p_4_out[2]),
+.S(skid_wp1_w));
+RTL_MUX1072 RTL_MUX__7
+(.I0(RTL_MUX__0_n_0),
+.I1(\skid_addr_r_reg[0] ),
+.O(skid_addr_r[3]),
+.S(skid_wp_r));
+RTL_MUX1072 RTL_MUX__8
+(.I0(cm1_addr_w),
+.I1(skid_addr_r[3]),
+.O(p_4_out[3]),
+.S(skid_wp1_w));
+RTL_MUX1062 RTL_MUX__9
+(.I0(\skid_addr_r_reg[3] ),
+.I1(\skid_addr_r_reg[2] ),
+.I2(\skid_addr_r_reg[1] ),
+.I3(\skid_addr_r_reg[0] ),
+.O(push_pair_w),
+.S(skid_rp_r));
+RTL_RSHIFT74 RTL_RSHIFT
+(.I0(lb_chpos_r),
+.I1(\<const1> ),
+.I2(\<const1> ),
+.O(RTL_RSHIFT_n_0));
+RTL_RSHIFT74 RTL_RSHIFT__0
+(.I0(lb_chwrap_return),
+.I1(\<const1> ),
+.I2(\<const1> ),
+.O(RTL_RSHIFT__0_n_0));
+RTL_SUB28 RTL_SUB
+(.I0({\q_cnt_r_reg_n_0_[0] ,\q_cnt_r_reg_n_1_[0] ,\q_cnt_r_reg_n_2_[0] ,\q_cnt_r_reg_n_3_[0] ,\q_cnt_r_reg_n_4_[0] }),
+.I1(pop_n_w),
+.O({RTL_SUB_n_0,RTL_SUB_n_1,RTL_SUB_n_2,RTL_SUB_n_3,RTL_SUB_n_4}));
+RTL_SUB45 RTL_SUB__0
+(.I0(act_hold_r),
+.I1(\<const1> ),
+.O({RTL_SUB__0_n_0,RTL_SUB__0_n_1,RTL_SUB__0_n_2}));
+RTL_SUB71 RTL_SUB__1
+(.I0({\<const1> ,\<const0> ,\<const1> }),
+.I1({\q_cnt_r_reg_n_2_[0] ,\q_cnt_r_reg_n_3_[0] ,\q_cnt_r_reg_n_4_[0] }),
+.O({RTL_SUB__1_n_0,RTL_SUB__1_n_1,RTL_SUB__1_n_2}));
+RTL_SUB38 RTL_SUB__2
+(.I0({\q_cnt_r_reg_n_1_[0] ,\q_cnt_r_reg_n_2_[0] ,\q_cnt_r_reg_n_3_[0] ,\q_cnt_r_reg_n_4_[0] }),
+.I1({\<const1> ,\<const0> ,\<const1> }),
+.O({RTL_SUB__2_n_0,RTL_SUB__2_n_1,RTL_SUB__2_n_2,RTL_SUB__2_n_3}));
+VCC VCC
+(.P(\<const1> ));
+RTL_MUX act_drop_r_i
+(.I0(RTL_MUX__11_n_0),
+.I1(\<const0> ),
+.O(act_drop_r_i_n_0),
+.S(walk_start_w));
+RTL_MUX act_drop_r_i__0
+(.I0(\<const1> ),
+.I1(act_drop_r_i_n_0),
+.O(act_drop_r_i__0_n_0),
+.S(lb_flush_i));
+RTL_MUX act_drop_r_i__1
+(.I0(\<const1> ),
+.I1(act_drop_r_i__0_n_0),
+.O(act_drop_r__0),
+.S(rst_n));
+RTL_REG_SYNC__BREG_1 \act_drop_r_reg[0][0]
+(.C(clk_i),
+.CE(walk_start_w),
+.D(p_1_in__0[0]),
+.Q(act_drop_r[0]),
+.RST(act_drop_r__0));
+RTL_REG_SYNC__BREG_1 \act_drop_r_reg[0][1]
+(.C(clk_i),
+.CE(walk_start_w),
+.D(p_1_in__0[1]),
+.Q(act_drop_r[1]),
+.RST(act_drop_r__0));
+RTL_REG_SYNC__BREG_1 \act_drop_r_reg[0][2]
+(.C(clk_i),
+.CE(walk_start_w),
+.D(p_1_in__0[2]),
+.Q(act_drop_r[2]),
+.RST(act_drop_r__0));
+RTL_REG_SYNC__BREG_1 \act_drop_r_reg[0][3]
+(.C(clk_i),
+.CE(walk_start_w),
+.D(p_1_in__0[3]),
+.Q(act_drop_r[3]),
+.RST(act_drop_r__0));
+RTL_MUX861 act_hold_r_i
+(.I0(\act_hold_r_reg[0]__0 ),
+.I1(p_0_in__0),
+.O(act_hold_r__0),
+.S(pop_hold_w));
+RTL_MUX act_hold_r_i__0
+(.I0(rc_dec_r),
+.I1(\<const0> ),
+.O(act_hold_r_i__0_n_0),
+.S(walk_start_w));
+RTL_MUX act_hold_r_i__1
+(.I0(\act_hold_r_reg[0]_i__0_n_0 ),
+.I1(act_hold_r_i__0_n_0),
+.O(act_hold_r_i__1_n_0),
+.S(pop_hold_w));
+RTL_MUX act_hold_r_i__2
+(.I0(\<const1> ),
+.I1(lb_flush_i),
+.O(act_hold_r_i__2_n_0),
+.S(rst_n));
+RTL_REG_SYNC__BREG_1 \act_hold_r_reg[0][0]
+(.C(clk_i),
+.CE(act_hold_r_i__1_n_0),
+.D(act_hold_r__0[0]),
+.Q(act_hold_r[0]),
+.RST(act_hold_r_i__2_n_0));
+RTL_REG_SYNC__BREG_1 \act_hold_r_reg[0][1]
+(.C(clk_i),
+.CE(act_hold_r_i__1_n_0),
+.D(act_hold_r__0[1]),
+.Q(act_hold_r[1]),
+.RST(act_hold_r_i__2_n_0));
+RTL_REG_SYNC__BREG_1 \act_hold_r_reg[0][2]
+(.C(clk_i),
+.CE(act_hold_r_i__1_n_0),
+.D(act_hold_r__0[2]),
+.Q(act_hold_r[2]),
+.RST(act_hold_r_i__2_n_0));
+RTL_MUX861 \act_hold_r_reg[0]_i
+(.I0({RTL_SUB__0_n_0,RTL_SUB__0_n_1,RTL_SUB__0_n_2}),
+.I1(p_0_in__0),
+.O(\act_hold_r_reg[0]__0 ),
+.S(pop_pair_w));
+RTL_MUX \act_hold_r_reg[0]_i__0
+(.I0(\<const1> ),
+.I1(act_hold_r_i__0_n_0),
+.O(\act_hold_r_reg[0]_i__0_n_0 ),
+.S(pop_pair_w));
+RTL_RAM22 beat_bank_r_reg
+(.RA1({skid_beat_r_i__11_n_0,skid_beat_r_i__11_n_1}),
+.RO1({beat_bank_r_reg_n_0,beat_bank_r_reg_n_1,beat_bank_r_reg_n_2,beat_bank_r_reg_n_3,beat_bank_r_reg_n_4,beat_bank_r_reg_n_5,beat_bank_r_reg_n_6,beat_bank_r_reg_n_7,beat_bank_r_reg_n_8,beat_bank_r_reg_n_9,beat_bank_r_reg_n_10,beat_bank_r_reg_n_11,beat_bank_r_reg_n_12,beat_bank_r_reg_n_13,beat_bank_r_reg_n_14,beat_bank_r_reg_n_15,beat_bank_r_reg_n_16,beat_bank_r_reg_n_17,beat_bank_r_reg_n_18,beat_bank_r_reg_n_19,beat_bank_r_reg_n_20,beat_bank_r_reg_n_21,beat_bank_r_reg_n_22,beat_bank_r_reg_n_23,beat_bank_r_reg_n_24,beat_bank_r_reg_n_25,beat_bank_r_reg_n_26,beat_bank_r_reg_n_27,beat_bank_r_reg_n_28,beat_bank_r_reg_n_29,beat_bank_r_reg_n_30,beat_bank_r_reg_n_31,beat_bank_r_reg_n_32,beat_bank_r_reg_n_33,beat_bank_r_reg_n_34,beat_bank_r_reg_n_35,beat_bank_r_reg_n_36,beat_bank_r_reg_n_37,beat_bank_r_reg_n_38,beat_bank_r_reg_n_39,beat_bank_r_reg_n_40,beat_bank_r_reg_n_41,beat_bank_r_reg_n_42,beat_bank_r_reg_n_43,beat_bank_r_reg_n_44,beat_bank_r_reg_n_45,beat_bank_r_reg_n_46,beat_bank_r_reg_n_47,beat_bank_r_reg_n_48,beat_bank_r_reg_n_49,beat_bank_r_reg_n_50,beat_bank_r_reg_n_51,beat_bank_r_reg_n_52,beat_bank_r_reg_n_53,beat_bank_r_reg_n_54,beat_bank_r_reg_n_55,beat_bank_r_reg_n_56,beat_bank_r_reg_n_57,beat_bank_r_reg_n_58,beat_bank_r_reg_n_59,beat_bank_r_reg_n_60,beat_bank_r_reg_n_61,beat_bank_r_reg_n_62,beat_bank_r_reg_n_63,beat_bank_r_reg_n_64,beat_bank_r_reg_n_65,beat_bank_r_reg_n_66,beat_bank_r_reg_n_67,beat_bank_r_reg_n_68,beat_bank_r_reg_n_69,beat_bank_r_reg_n_70,beat_bank_r_reg_n_71}),
+.WA2(beat_wp_r),
+.WCLK(clk_i),
+.WD2({cm0_l_w,lb_tdata_i[7:0],lb_tdata_i[15:8],lb_tdata_i[23:16],lb_tdata_i[39:32],lb_tdata_i[47:40],lb_tdata_i[55:48]}),
+.WE2(enq0_v_w));
+RTL_ADD38 beat_wp_r0_i
+(.I0(beat_wp_r),
+.I1(\<const1> ),
+.O(beat_wp_r0));
+RTL_MUX beat_wp_r_i
+(.I0(\<const1> ),
+.I1(\<const0> ),
+.O(beat_wp_r__0),
+.S(rst_n));
+RTL_REG_SYNC__BREG_1 \beat_wp_r_reg[0]
+(.C(clk_i),
+.CE(enq0_v_w),
+.D(beat_wp_r0[0]),
+.Q(beat_wp_r[0]),
+.RST(beat_wp_r__0));
+RTL_REG_SYNC__BREG_1 \beat_wp_r_reg[1]
+(.C(clk_i),
+.CE(enq0_v_w),
+.D(beat_wp_r0[1]),
+.Q(beat_wp_r[1]),
+.RST(beat_wp_r__0));
+RTL_MUX3018 cand_w_i
+(.I0({\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> }),
+.I1(\cand_w[1]__0 ),
+.I10(\cand_w[10]__0 ),
+.I11(\cand_w[11]__0 ),
+.I12(\cand_w[12]__0 ),
+.I13(\cand_w[13]__0 ),
+.I2(\cand_w[2]__0 ),
+.I3(tone_smp_i),
+.I4(\cand_w[4]__0 ),
+.I5(\cand_w[5]__0 ),
+.I6(\cand_w[6]__0 ),
+.I7(\cand_w[7]__0 ),
+.I8(\cand_w[8]__0 ),
+.I9(\cand_w[9]__0 ),
+.O(cand_w),
+.S(source_row_return));
+RTL_MUX3018 cand_w_i__0
+(.I0({\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> }),
+.I1(\cand_w[1]__0 ),
+.I10(\cand_w[10]__0 ),
+.I11(\cand_w[11]__0 ),
+.I12(\cand_w[12]__0 ),
+.I13(\cand_w[13]__0 ),
+.I2(\cand_w[2]__0 ),
+.I3(tone_smp_i),
+.I4(\cand_w[4]__0 ),
+.I5(\cand_w[5]__0 ),
+.I6(\cand_w[6]__0 ),
+.I7(\cand_w[7]__0 ),
+.I8(\cand_w[8]__0 ),
+.I9(\cand_w[9]__0 ),
+.O({cand_w_i__0_n_0,cand_w_i__0_n_1,cand_w_i__0_n_2,cand_w_i__0_n_3,cand_w_i__0_n_4,cand_w_i__0_n_5,cand_w_i__0_n_6,cand_w_i__0_n_7,cand_w_i__0_n_8,cand_w_i__0_n_9,cand_w_i__0_n_10,cand_w_i__0_n_11,cand_w_i__0_n_12,cand_w_i__0_n_13,cand_w_i__0_n_14,cand_w_i__0_n_15,cand_w_i__0_n_16,cand_w_i__0_n_17,cand_w_i__0_n_18,cand_w_i__0_n_19,cand_w_i__0_n_20,cand_w_i__0_n_21,cand_w_i__0_n_22,cand_w_i__0_n_23}),
+.S({source_row_i__0_n_0,source_row_i__0_n_1,source_row_i__0_n_2,source_row_i__0_n_3}));
+RTL_MUX789 cm0_form_w_i
+(.I0({\<const0> ,\<const0> }),
+.I1({\<const0> ,\<const1> }),
+.O(cm0_form_w),
+.S(lb_chpos_r[0]));
+RTL_MUX836 cm0_l_w_i
+(.I0(stash_val_r),
+.I1({\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> }),
+.O(cm0_l_w),
+.S(stash_vld_r));
+RTL_OR cm0_v_w0_i
+(.I0(lb_chpos_r[0]),
+.I1(lb_last0_w),
+.O(cm0_v_w0));
+RTL_AND7 cm0_v_w_i
+(.I0(lb_w0_w),
+.I1(cm0_v_w0),
+.O(cm0_v_w));
+RTL_MUX cm1_addr_w_i
+(.I0(lb_addr_return),
+.I1(lb_addr_return_i__0_n_0),
+.O(cm1_addr_w),
+.S(lb_pair01_w));
+RTL_MUX789 cm1_form_w_i
+(.I0({\<const1> ,\<const0> }),
+.I1({\<const1> ,\<const1> }),
+.O(cm1_form_w),
+.S(lb_pair01_w));
+RTL_OR cm1_solo_v_w0_i
+(.I0(lb_last1_w),
+.I1(lb_tlast_i),
+.O(cm1_solo_v_w0));
+RTL_AND7 cm1_solo_v_w_i
+(.I0(stash_open_w1_i_n_0),
+.I1(cm1_solo_v_w0),
+.O(cm1_solo_v_w));
+RTL_OR cm1_v_w_i
+(.I0(lb_pair01_w),
+.I1(cm1_solo_v_w),
+.O(cm1_v_w));
+RTL_ADD164 dup_sum_w_i
+(.I0(lb_dup_cnt_o),
+.I1(pop_dup_w),
+.O(dup_sum_w));
+RTL_MUX enq0_addr_w_i
+(.I0(lb_addr_return),
+.I1(cm1_addr_w),
+.O(enq0_addr_w),
+.S(cm0_v_w));
+RTL_MUX789 enq0_form_w_i
+(.I0(cm0_form_w),
+.I1(cm1_form_w),
+.O(enq0_form_w),
+.S(cm0_v_w));
+RTL_MUX enq0_v_w_i
+(.I0(skid_acc0_w),
+.I1(skid_acc1_w),
+.O(enq0_v_w),
+.S(cm0_v_w));
+RTL_AND7 enq1_v_w_i
+(.I0(cm0_v_w),
+.I1(skid_acc1_w),
+.O(enq1_v_w));
+RTL_SUB12 gap_r0_i
+(.I0(gap_r),
+.I1(\<const1> ),
+.O(gap_r0));
+RTL_MUX1760 gap_r_i
+(.I0({\<const1> ,\<const1> ,\<const0> ,\<const0> ,\<const0> }),
+.I1(gap_r0),
+.O(gap_r__0),
+.S(st_r));
+RTL_ROM164 gap_r_i__0
+(.A(gap_r),
+.O(gap_r_i__0_n_0));
+RTL_MUX1062 gap_r_i__1
+(.I0(\<const0> ),
+.I1(\<const0> ),
+.I2(\<const1> ),
+.I3(gap_r_i__0_n_0),
+.O(gap_r0_out),
+.S(st_r));
+RTL_MUX gap_r_i__2
+(.I0(\<const1> ),
+.I1(\<const0> ),
+.O(gap_r_i__2_n_0),
+.S(rst_n));
+RTL_REG_SYNC__BREG_1 \gap_r_reg[0]
+(.C(clk_i),
+.CE(gap_r0_out),
+.D(gap_r__0[0]),
+.Q(gap_r[0]),
+.RST(gap_r_i__2_n_0));
+RTL_REG_SYNC__BREG_1 \gap_r_reg[1]
+(.C(clk_i),
+.CE(gap_r0_out),
+.D(gap_r__0[1]),
+.Q(gap_r[1]),
+.RST(gap_r_i__2_n_0));
+RTL_REG_SYNC__BREG_1 \gap_r_reg[2]
+(.C(clk_i),
+.CE(gap_r0_out),
+.D(gap_r__0[2]),
+.Q(gap_r[2]),
+.RST(gap_r_i__2_n_0));
+RTL_REG_SYNC__BREG_1 \gap_r_reg[3]
+(.C(clk_i),
+.CE(gap_r0_out),
+.D(gap_r__0[3]),
+.Q(gap_r[3]),
+.RST(gap_r_i__2_n_0));
+RTL_REG_SYNC__BREG_1 \gap_r_reg[4]
+(.C(clk_i),
+.CE(gap_r0_out),
+.D(gap_r__0[4]),
+.Q(gap_r[4]),
+.RST(gap_r_i__2_n_0));
+RTL_MUX i2s_hold_r_i
+(.I0(\<const1> ),
+.I1(\<const0> ),
+.O(i2s_hold_r),
+.S(rst_n));
+RTL_REG_SYNC__BREG_1 \i2s_hold_r_reg[0]
+(.C(clk_i),
+.CE(i2s_pair_valid_i),
+.D(i2s_r_i[0]),
+.Q(\cand_w[2]__0 [0]),
+.RST(i2s_hold_r));
+RTL_REG_SYNC__BREG_1 \i2s_hold_r_reg[10]
+(.C(clk_i),
+.CE(i2s_pair_valid_i),
+.D(i2s_r_i[10]),
+.Q(\cand_w[2]__0 [10]),
+.RST(i2s_hold_r));
+RTL_REG_SYNC__BREG_1 \i2s_hold_r_reg[11]
+(.C(clk_i),
+.CE(i2s_pair_valid_i),
+.D(i2s_r_i[11]),
+.Q(\cand_w[2]__0 [11]),
+.RST(i2s_hold_r));
+RTL_REG_SYNC__BREG_1 \i2s_hold_r_reg[12]
+(.C(clk_i),
+.CE(i2s_pair_valid_i),
+.D(i2s_r_i[12]),
+.Q(\cand_w[2]__0 [12]),
+.RST(i2s_hold_r));
+RTL_REG_SYNC__BREG_1 \i2s_hold_r_reg[13]
+(.C(clk_i),
+.CE(i2s_pair_valid_i),
+.D(i2s_r_i[13]),
+.Q(\cand_w[2]__0 [13]),
+.RST(i2s_hold_r));
+RTL_REG_SYNC__BREG_1 \i2s_hold_r_reg[14]
+(.C(clk_i),
+.CE(i2s_pair_valid_i),
+.D(i2s_r_i[14]),
+.Q(\cand_w[2]__0 [14]),
+.RST(i2s_hold_r));
+RTL_REG_SYNC__BREG_1 \i2s_hold_r_reg[15]
+(.C(clk_i),
+.CE(i2s_pair_valid_i),
+.D(i2s_r_i[15]),
+.Q(\cand_w[2]__0 [15]),
+.RST(i2s_hold_r));
+RTL_REG_SYNC__BREG_1 \i2s_hold_r_reg[16]
+(.C(clk_i),
+.CE(i2s_pair_valid_i),
+.D(i2s_r_i[16]),
+.Q(\cand_w[2]__0 [16]),
+.RST(i2s_hold_r));
+RTL_REG_SYNC__BREG_1 \i2s_hold_r_reg[17]
+(.C(clk_i),
+.CE(i2s_pair_valid_i),
+.D(i2s_r_i[17]),
+.Q(\cand_w[2]__0 [17]),
+.RST(i2s_hold_r));
+RTL_REG_SYNC__BREG_1 \i2s_hold_r_reg[18]
+(.C(clk_i),
+.CE(i2s_pair_valid_i),
+.D(i2s_r_i[18]),
+.Q(\cand_w[2]__0 [18]),
+.RST(i2s_hold_r));
+RTL_REG_SYNC__BREG_1 \i2s_hold_r_reg[19]
+(.C(clk_i),
+.CE(i2s_pair_valid_i),
+.D(i2s_r_i[19]),
+.Q(\cand_w[2]__0 [19]),
+.RST(i2s_hold_r));
+RTL_REG_SYNC__BREG_1 \i2s_hold_r_reg[1]
+(.C(clk_i),
+.CE(i2s_pair_valid_i),
+.D(i2s_r_i[1]),
+.Q(\cand_w[2]__0 [1]),
+.RST(i2s_hold_r));
+RTL_REG_SYNC__BREG_1 \i2s_hold_r_reg[20]
+(.C(clk_i),
+.CE(i2s_pair_valid_i),
+.D(i2s_r_i[20]),
+.Q(\cand_w[2]__0 [20]),
+.RST(i2s_hold_r));
+RTL_REG_SYNC__BREG_1 \i2s_hold_r_reg[21]
+(.C(clk_i),
+.CE(i2s_pair_valid_i),
+.D(i2s_r_i[21]),
+.Q(\cand_w[2]__0 [21]),
+.RST(i2s_hold_r));
+RTL_REG_SYNC__BREG_1 \i2s_hold_r_reg[22]
+(.C(clk_i),
+.CE(i2s_pair_valid_i),
+.D(i2s_r_i[22]),
+.Q(\cand_w[2]__0 [22]),
+.RST(i2s_hold_r));
+RTL_REG_SYNC__BREG_1 \i2s_hold_r_reg[23]
+(.C(clk_i),
+.CE(i2s_pair_valid_i),
+.D(i2s_r_i[23]),
+.Q(\cand_w[2]__0 [23]),
+.RST(i2s_hold_r));
+RTL_REG_SYNC__BREG_1 \i2s_hold_r_reg[24]
+(.C(clk_i),
+.CE(i2s_pair_valid_i),
+.D(i2s_l_i[0]),
+.Q(\cand_w[1]__0 [0]),
+.RST(i2s_hold_r));
+RTL_REG_SYNC__BREG_1 \i2s_hold_r_reg[25]
+(.C(clk_i),
+.CE(i2s_pair_valid_i),
+.D(i2s_l_i[1]),
+.Q(\cand_w[1]__0 [1]),
+.RST(i2s_hold_r));
+RTL_REG_SYNC__BREG_1 \i2s_hold_r_reg[26]
+(.C(clk_i),
+.CE(i2s_pair_valid_i),
+.D(i2s_l_i[2]),
+.Q(\cand_w[1]__0 [2]),
+.RST(i2s_hold_r));
+RTL_REG_SYNC__BREG_1 \i2s_hold_r_reg[27]
+(.C(clk_i),
+.CE(i2s_pair_valid_i),
+.D(i2s_l_i[3]),
+.Q(\cand_w[1]__0 [3]),
+.RST(i2s_hold_r));
+RTL_REG_SYNC__BREG_1 \i2s_hold_r_reg[28]
+(.C(clk_i),
+.CE(i2s_pair_valid_i),
+.D(i2s_l_i[4]),
+.Q(\cand_w[1]__0 [4]),
+.RST(i2s_hold_r));
+RTL_REG_SYNC__BREG_1 \i2s_hold_r_reg[29]
+(.C(clk_i),
+.CE(i2s_pair_valid_i),
+.D(i2s_l_i[5]),
+.Q(\cand_w[1]__0 [5]),
+.RST(i2s_hold_r));
+RTL_REG_SYNC__BREG_1 \i2s_hold_r_reg[2]
+(.C(clk_i),
+.CE(i2s_pair_valid_i),
+.D(i2s_r_i[2]),
+.Q(\cand_w[2]__0 [2]),
+.RST(i2s_hold_r));
+RTL_REG_SYNC__BREG_1 \i2s_hold_r_reg[30]
+(.C(clk_i),
+.CE(i2s_pair_valid_i),
+.D(i2s_l_i[6]),
+.Q(\cand_w[1]__0 [6]),
+.RST(i2s_hold_r));
+RTL_REG_SYNC__BREG_1 \i2s_hold_r_reg[31]
+(.C(clk_i),
+.CE(i2s_pair_valid_i),
+.D(i2s_l_i[7]),
+.Q(\cand_w[1]__0 [7]),
+.RST(i2s_hold_r));
+RTL_REG_SYNC__BREG_1 \i2s_hold_r_reg[32]
+(.C(clk_i),
+.CE(i2s_pair_valid_i),
+.D(i2s_l_i[8]),
+.Q(\cand_w[1]__0 [8]),
+.RST(i2s_hold_r));
+RTL_REG_SYNC__BREG_1 \i2s_hold_r_reg[33]
+(.C(clk_i),
+.CE(i2s_pair_valid_i),
+.D(i2s_l_i[9]),
+.Q(\cand_w[1]__0 [9]),
+.RST(i2s_hold_r));
+RTL_REG_SYNC__BREG_1 \i2s_hold_r_reg[34]
+(.C(clk_i),
+.CE(i2s_pair_valid_i),
+.D(i2s_l_i[10]),
+.Q(\cand_w[1]__0 [10]),
+.RST(i2s_hold_r));
+RTL_REG_SYNC__BREG_1 \i2s_hold_r_reg[35]
+(.C(clk_i),
+.CE(i2s_pair_valid_i),
+.D(i2s_l_i[11]),
+.Q(\cand_w[1]__0 [11]),
+.RST(i2s_hold_r));
+RTL_REG_SYNC__BREG_1 \i2s_hold_r_reg[36]
+(.C(clk_i),
+.CE(i2s_pair_valid_i),
+.D(i2s_l_i[12]),
+.Q(\cand_w[1]__0 [12]),
+.RST(i2s_hold_r));
+RTL_REG_SYNC__BREG_1 \i2s_hold_r_reg[37]
+(.C(clk_i),
+.CE(i2s_pair_valid_i),
+.D(i2s_l_i[13]),
+.Q(\cand_w[1]__0 [13]),
+.RST(i2s_hold_r));
+RTL_REG_SYNC__BREG_1 \i2s_hold_r_reg[38]
+(.C(clk_i),
+.CE(i2s_pair_valid_i),
+.D(i2s_l_i[14]),
+.Q(\cand_w[1]__0 [14]),
+.RST(i2s_hold_r));
+RTL_REG_SYNC__BREG_1 \i2s_hold_r_reg[39]
+(.C(clk_i),
+.CE(i2s_pair_valid_i),
+.D(i2s_l_i[15]),
+.Q(\cand_w[1]__0 [15]),
+.RST(i2s_hold_r));
+RTL_REG_SYNC__BREG_1 \i2s_hold_r_reg[3]
+(.C(clk_i),
+.CE(i2s_pair_valid_i),
+.D(i2s_r_i[3]),
+.Q(\cand_w[2]__0 [3]),
+.RST(i2s_hold_r));
+RTL_REG_SYNC__BREG_1 \i2s_hold_r_reg[40]
+(.C(clk_i),
+.CE(i2s_pair_valid_i),
+.D(i2s_l_i[16]),
+.Q(\cand_w[1]__0 [16]),
+.RST(i2s_hold_r));
+RTL_REG_SYNC__BREG_1 \i2s_hold_r_reg[41]
+(.C(clk_i),
+.CE(i2s_pair_valid_i),
+.D(i2s_l_i[17]),
+.Q(\cand_w[1]__0 [17]),
+.RST(i2s_hold_r));
+RTL_REG_SYNC__BREG_1 \i2s_hold_r_reg[42]
+(.C(clk_i),
+.CE(i2s_pair_valid_i),
+.D(i2s_l_i[18]),
+.Q(\cand_w[1]__0 [18]),
+.RST(i2s_hold_r));
+RTL_REG_SYNC__BREG_1 \i2s_hold_r_reg[43]
+(.C(clk_i),
+.CE(i2s_pair_valid_i),
+.D(i2s_l_i[19]),
+.Q(\cand_w[1]__0 [19]),
+.RST(i2s_hold_r));
+RTL_REG_SYNC__BREG_1 \i2s_hold_r_reg[44]
+(.C(clk_i),
+.CE(i2s_pair_valid_i),
+.D(i2s_l_i[20]),
+.Q(\cand_w[1]__0 [20]),
+.RST(i2s_hold_r));
+RTL_REG_SYNC__BREG_1 \i2s_hold_r_reg[45]
+(.C(clk_i),
+.CE(i2s_pair_valid_i),
+.D(i2s_l_i[21]),
+.Q(\cand_w[1]__0 [21]),
+.RST(i2s_hold_r));
+RTL_REG_SYNC__BREG_1 \i2s_hold_r_reg[46]
+(.C(clk_i),
+.CE(i2s_pair_valid_i),
+.D(i2s_l_i[22]),
+.Q(\cand_w[1]__0 [22]),
+.RST(i2s_hold_r));
+RTL_REG_SYNC__BREG_1 \i2s_hold_r_reg[47]
+(.C(clk_i),
+.CE(i2s_pair_valid_i),
+.D(i2s_l_i[23]),
+.Q(\cand_w[1]__0 [23]),
+.RST(i2s_hold_r));
+RTL_REG_SYNC__BREG_1 \i2s_hold_r_reg[4]
+(.C(clk_i),
+.CE(i2s_pair_valid_i),
+.D(i2s_r_i[4]),
+.Q(\cand_w[2]__0 [4]),
+.RST(i2s_hold_r));
+RTL_REG_SYNC__BREG_1 \i2s_hold_r_reg[5]
+(.C(clk_i),
+.CE(i2s_pair_valid_i),
+.D(i2s_r_i[5]),
+.Q(\cand_w[2]__0 [5]),
+.RST(i2s_hold_r));
+RTL_REG_SYNC__BREG_1 \i2s_hold_r_reg[6]
+(.C(clk_i),
+.CE(i2s_pair_valid_i),
+.D(i2s_r_i[6]),
+.Q(\cand_w[2]__0 [6]),
+.RST(i2s_hold_r));
+RTL_REG_SYNC__BREG_1 \i2s_hold_r_reg[7]
+(.C(clk_i),
+.CE(i2s_pair_valid_i),
+.D(i2s_r_i[7]),
+.Q(\cand_w[2]__0 [7]),
+.RST(i2s_hold_r));
+RTL_REG_SYNC__BREG_1 \i2s_hold_r_reg[8]
+(.C(clk_i),
+.CE(i2s_pair_valid_i),
+.D(i2s_r_i[8]),
+.Q(\cand_w[2]__0 [8]),
+.RST(i2s_hold_r));
+RTL_REG_SYNC__BREG_1 \i2s_hold_r_reg[9]
+(.C(clk_i),
+.CE(i2s_pair_valid_i),
+.D(i2s_r_i[9]),
+.Q(\cand_w[2]__0 [9]),
+.RST(i2s_hold_r));
+RTL_EQ37 last_slot_w_i
+(.I0(slot_r),
+.I1({\<const1> ,\<const1> ,\<const1> ,\<const1> ,\<const1> }),
+.O(last_slot_w));
+RTL_ADD6 lb_addr_return_i
+(.I0(lb_tuser_i[0]),
+.I1(RTL_RSHIFT_n_0),
+.O(lb_addr_return));
+RTL_ADD6 lb_addr_return_i__0
+(.I0(lb_tuser_i[0]),
+.I1(RTL_RSHIFT__0_n_0),
+.O(lb_addr_return_i__0_n_0));
+RTL_MUX983 lb_chans_raw_w_i
+(.I0(lb_wire_chans_i),
+.I1({\<const0> ,\<const0> ,\<const0> ,\<const0> }),
+.O(lb_chans_raw_w),
+.S(lb_tuser_i));
+RTL_MUX983 lb_chans_w_i
+(.I0({\<const0> ,\<const0> ,\<const1> ,\<const0> }),
+.I1(lb_chans_raw_w),
+.O(lb_chans_w),
+.S(lb_chans_raw_w));
+RTL_ADD4 lb_chpos_r0_i
+(.I0(lb_chwrap_return),
+.I1(\<const1> ),
+.O({lb_chpos_r0_i_n_0,lb_chpos_r0_i_n_1,lb_chpos_r0_i_n_2,lb_chpos_r0_i_n_3}));
+RTL_MUX lb_chpos_r_i
+(.I0(lb_nxt_w),
+.I1(\<const0> ),
+.O(lb_chpos_r_i_n_0),
+.S(lb_tvalid_i));
+RTL_MUX lb_chpos_r_i__0
+(.I0(\<const1> ),
+.I1(lb_chpos_r_i_n_0),
+.O(lb_chpos_r__0),
+.S(rst_n));
+RTL_REG_SYNC__BREG_1 \lb_chpos_r_reg[0]
+(.C(clk_i),
+.CE(lb_tvalid_i),
+.D(lb_chpos_r0_i_n_3),
+.Q(lb_chpos_r[0]),
+.RST(lb_chpos_r__0));
+RTL_REG_SYNC__BREG_1 \lb_chpos_r_reg[1]
+(.C(clk_i),
+.CE(lb_tvalid_i),
+.D(lb_chpos_r0_i_n_2),
+.Q(lb_chpos_r[1]),
+.RST(lb_chpos_r__0));
+RTL_REG_SYNC__BREG_1 \lb_chpos_r_reg[2]
+(.C(clk_i),
+.CE(lb_tvalid_i),
+.D(lb_chpos_r0_i_n_1),
+.Q(lb_chpos_r[2]),
+.RST(lb_chpos_r__0));
+RTL_REG_SYNC__BREG_1 \lb_chpos_r_reg[3]
+(.C(clk_i),
+.CE(lb_tvalid_i),
+.D(lb_chpos_r0_i_n_0),
+.Q(lb_chpos_r[3]),
+.RST(lb_chpos_r__0));
+RTL_EQ5 lb_chwrap_return1_i
+(.I0(lb_chwrap_return2),
+.I1(lb_chans_w),
+.O(lb_chwrap_return1));
+RTL_ADD4 lb_chwrap_return2_i
+(.I0(lb_chpos_r),
+.I1(\<const1> ),
+.O(lb_chwrap_return2));
+RTL_MUX342 lb_chwrap_return_i
+(.I0({\<const0> ,\<const0> ,\<const0> ,\<const0> }),
+.I1(lb_chwrap_return2),
+.O(lb_chwrap_return),
+.S(lb_chwrap_return1));
+RTL_MUX lb_dup_cnt_o_i
+(.I0(\<const1> ),
+.I1(\<const0> ),
+.O(lb_dup_cnt_o_i_n_0),
+.S(rst_n));
+RTL_REG_SYNC__BREG_836 \lb_dup_cnt_o_reg[0]
+(.C(clk_i),
+.D(dup_sum_w[0]),
+.Q(lb_dup_cnt_o[0]),
+.RST(lb_dup_cnt_o_i_n_0),
+.SET(dup_sum_w[16]));
+RTL_REG_SYNC__BREG_836 \lb_dup_cnt_o_reg[10]
+(.C(clk_i),
+.D(dup_sum_w[10]),
+.Q(lb_dup_cnt_o[10]),
+.RST(lb_dup_cnt_o_i_n_0),
+.SET(dup_sum_w[16]));
+RTL_REG_SYNC__BREG_836 \lb_dup_cnt_o_reg[11]
+(.C(clk_i),
+.D(dup_sum_w[11]),
+.Q(lb_dup_cnt_o[11]),
+.RST(lb_dup_cnt_o_i_n_0),
+.SET(dup_sum_w[16]));
+RTL_REG_SYNC__BREG_836 \lb_dup_cnt_o_reg[12]
+(.C(clk_i),
+.D(dup_sum_w[12]),
+.Q(lb_dup_cnt_o[12]),
+.RST(lb_dup_cnt_o_i_n_0),
+.SET(dup_sum_w[16]));
+RTL_REG_SYNC__BREG_836 \lb_dup_cnt_o_reg[13]
+(.C(clk_i),
+.D(dup_sum_w[13]),
+.Q(lb_dup_cnt_o[13]),
+.RST(lb_dup_cnt_o_i_n_0),
+.SET(dup_sum_w[16]));
+RTL_REG_SYNC__BREG_836 \lb_dup_cnt_o_reg[14]
+(.C(clk_i),
+.D(dup_sum_w[14]),
+.Q(lb_dup_cnt_o[14]),
+.RST(lb_dup_cnt_o_i_n_0),
+.SET(dup_sum_w[16]));
+RTL_REG_SYNC__BREG_836 \lb_dup_cnt_o_reg[15]
+(.C(clk_i),
+.D(dup_sum_w[15]),
+.Q(lb_dup_cnt_o[15]),
+.RST(lb_dup_cnt_o_i_n_0),
+.SET(dup_sum_w[16]));
+RTL_REG_SYNC__BREG_836 \lb_dup_cnt_o_reg[1]
+(.C(clk_i),
+.D(dup_sum_w[1]),
+.Q(lb_dup_cnt_o[1]),
+.RST(lb_dup_cnt_o_i_n_0),
+.SET(dup_sum_w[16]));
+RTL_REG_SYNC__BREG_836 \lb_dup_cnt_o_reg[2]
+(.C(clk_i),
+.D(dup_sum_w[2]),
+.Q(lb_dup_cnt_o[2]),
+.RST(lb_dup_cnt_o_i_n_0),
+.SET(dup_sum_w[16]));
+RTL_REG_SYNC__BREG_836 \lb_dup_cnt_o_reg[3]
+(.C(clk_i),
+.D(dup_sum_w[3]),
+.Q(lb_dup_cnt_o[3]),
+.RST(lb_dup_cnt_o_i_n_0),
+.SET(dup_sum_w[16]));
+RTL_REG_SYNC__BREG_836 \lb_dup_cnt_o_reg[4]
+(.C(clk_i),
+.D(dup_sum_w[4]),
+.Q(lb_dup_cnt_o[4]),
+.RST(lb_dup_cnt_o_i_n_0),
+.SET(dup_sum_w[16]));
+RTL_REG_SYNC__BREG_836 \lb_dup_cnt_o_reg[5]
+(.C(clk_i),
+.D(dup_sum_w[5]),
+.Q(lb_dup_cnt_o[5]),
+.RST(lb_dup_cnt_o_i_n_0),
+.SET(dup_sum_w[16]));
+RTL_REG_SYNC__BREG_836 \lb_dup_cnt_o_reg[6]
+(.C(clk_i),
+.D(dup_sum_w[6]),
+.Q(lb_dup_cnt_o[6]),
+.RST(lb_dup_cnt_o_i_n_0),
+.SET(dup_sum_w[16]));
+RTL_REG_SYNC__BREG_836 \lb_dup_cnt_o_reg[7]
+(.C(clk_i),
+.D(dup_sum_w[7]),
+.Q(lb_dup_cnt_o[7]),
+.RST(lb_dup_cnt_o_i_n_0),
+.SET(dup_sum_w[16]));
+RTL_REG_SYNC__BREG_836 \lb_dup_cnt_o_reg[8]
+(.C(clk_i),
+.D(dup_sum_w[8]),
+.Q(lb_dup_cnt_o[8]),
+.RST(lb_dup_cnt_o_i_n_0),
+.SET(dup_sum_w[16]));
+RTL_R

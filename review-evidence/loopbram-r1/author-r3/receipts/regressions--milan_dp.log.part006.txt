@@ -1,0 +1,1484 @@
+Candidate head: 855529fe21fea685725a9edc4fe0a798154c6469
+Comparison base: 3cda030c174b325e36c26af6420487ff91346d15
+Source: regressions/milan_dp.log
+Original SHA256: 2089b622ab7c68618aacf11ddffdad9ca131ba979685f05bb3fec43936a22421
+Scope: native compilation chatter omitted; other output retained; paths and host fields normalized
+
+ 1174 |     $error("milan_datapath: AUDIO_IF_RENDER_SLOTS_P=%0d exceeds the render crossbar's TDM key lane CHMAP_RPHYS_TDM_N_C=%0d (keys %0d..%0d). A wider lane is refused rather than silently truncated onto the DAC keys.",
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/milan/milan_datapath.sv:1180:5: Unnamed generate block 'genblk3' (IEEE 1800-2023 27.6)
+                                                                                                                      : ... Suggest assign a label with 'begin : gen_<label_name>'
+ 1180 |     $error("milan_datapath: AUDIO_IF_RENDER_SLOTS_P=%0d is NARROWER than AUDIO_IF_SLOTS_P=%0d on a codec-driven (slave) bus. The slave render serializer frames its bank as the whole bus frame, so a SLAVE render lane is the FULL bus width: declare AUDIO_IF_RENDER_SLOTS_P=%0d, or 0 to prune the lane. Only a MASTER lane (BUS_SLOTS_P) may be narrower.",
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/milan/milan_datapath.sv:1989:5: Unnamed generate block 'genblk5' (IEEE 1800-2023 27.6)
+                                                                                                                      : ... Suggest assign a label with 'begin : gen_<label_name>'
+ 1989 |     $error("milan_datapath: entity definition declares ADP_TALKER_SRC_C=%0d, which is neither N_STREAMS (%0d) nor N_STREAMS+1. Point +incdir at the configs/generated/<config>/ whose shape matches this elaboration (it must come BEFORE hdl/common/csr on the include path), or rebuild the tracked include with endstation_builder.py --write-rtl.",
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_async_fifo.v:313:63: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                                                                                         : ... Suggest assign a label with 'begin : gen_<label_name>'
+  313 |     if (KEEP_ENABLE) assign s_axis[KEEP_OFFSET +: KEEP_WIDTH] = s_axis_tkeep;
+      |                                                               ^
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_async_fifo.v:314:63: Unnamed generate block 'genblk2' (IEEE 1800-2023 27.6)
+                                                                                                                                         : ... Suggest assign a label with 'begin : gen_<label_name>'
+  314 |     if (LAST_ENABLE) assign s_axis[LAST_OFFSET]               = s_axis_tlast | mark_frame_reg;
+      |                                                               ^
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_async_fifo.v:315:63: Unnamed generate block 'genblk3' (IEEE 1800-2023 27.6)
+                                                                                                                                         : ... Suggest assign a label with 'begin : gen_<label_name>'
+  315 |     if (ID_ENABLE)   assign s_axis[ID_OFFSET   +: ID_WIDTH]   = s_axis_tid;
+      |                                                               ^
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_async_fifo.v:316:63: Unnamed generate block 'genblk4' (IEEE 1800-2023 27.6)
+                                                                                                                                         : ... Suggest assign a label with 'begin : gen_<label_name>'
+  316 |     if (DEST_ENABLE) assign s_axis[DEST_OFFSET +: DEST_WIDTH] = s_axis_tdest;
+      |                                                               ^
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_async_fifo.v:317:63: Unnamed generate block 'genblk5' (IEEE 1800-2023 27.6)
+                                                                                                                                         : ... Suggest assign a label with 'begin : gen_<label_name>'
+  317 |     if (USER_ENABLE) assign s_axis[USER_OFFSET +: USER_WIDTH] = mark_frame_reg ? USER_BAD_FRAME_VALUE : s_axis_tuser;
+      |                                                               ^
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_async_fifo.v:733:26: Unnamed generate block 'genblk6' (IEEE 1800-2023 27.6)
+                                                                                                                                         : ... Suggest assign a label with 'begin : gen_<label_name>'
+  733 | if (!OUTPUT_FIFO_ENABLE) begin
+      |                          ^~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_async_fifo.v:890:10: Unnamed generate block 'genblk7' (IEEE 1800-2023 27.6)
+                                                                                                                                         : ... Suggest assign a label with 'begin : gen_<label_name>'
+  890 | end else begin
+      |          ^~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/ieee1722/aaf/KL_pair_blend.sv:94:5: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                                                                          : ... Suggest assign a label with 'begin : gen_<label_name>'
+   94 |     $error("KL_pair_blend: TDM_SLOTS_P=%0d needs 1 + %0d merged pair slots, which does not fit the 4-bit capture pair-slot bus (16). The blend ships as I2S + TDM8; widen the pair-slot bus before asking for more.",
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/ieee1722/aaf/KL_pair_zero_fill.sv:113:5: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                                                                               : ... Suggest assign a label with 'begin : gen_<label_name>'
+  113 |     $error("KL_pair_zero_fill: TOTAL_P=%0d outside 1..%0d (SLOT_W_P=%0d pair-slot bus).",
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/ieee1722/aaf/KL_aaf_packetizer.sv:243:5: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                                                                               : ... Suggest assign a label with 'begin : gen_<label_name>'
+  243 |     $error("KL_aaf_packetizer: WIRE_CHANS_P=%0d is not an even 2..%0d. This is the channels_per_frame the framer emits (IEEE 1722-2016 7.3.3); the pair stream is 2-channel-granular so odd widths cannot be produced.",
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/ieee1722/avtp/KL_media_clock_restart.sv:197:5: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                                                                                     : ... Suggest assign a label with 'begin : gen_<label_name>'
+  197 |     $error("KL_media_clock_restart: N_TALKERS_P=%0d outside 1..16 (4-bit idx).",
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/ieee1722/avtp/KL_media_clock_restart.sv:200:5: Unnamed generate block 'genblk2' (IEEE 1800-2023 27.6)
+                                                                                                                                     : ... Suggest assign a label with 'begin : gen_<label_name>'
+  200 |     $error("KL_media_clock_restart: HOLD_PDU_P=%0d below the 1722-2016 4.4.4.3 floor of 8.",
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/ieee1722/avtp/KL_talker_diag_ctx.sv:132:5: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                                                                                 : ... Suggest assign a label with 'begin : gen_<label_name>'
+  132 |     $error("KL_talker_diag_ctx: N_CTX_P=%0d outside 1..16 (the 4-bit index feeds).",
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/ieee1722/crf/KL_media_grid_align.sv:148:5: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                                                                                 : ... Suggest assign a label with 'begin : gen_<label_name>'
+  148 |     $error("KL_media_grid_align: CLK_FREQ_HZ_P/FS_HZ_P = %0d leaves the detector under 4 bits of sub-sample resolution - this loop cannot bound phase inside a sample there.", DIV_C);
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/ieee1722/crf/KL_media_grid_align.sv:150:5: Unnamed generate block 'genblk2' (IEEE 1800-2023 27.6)
+                                                                                                                                 : ... Suggest assign a label with 'begin : gen_<label_name>'
+  150 |     $error("KL_media_grid_align: DIV_C=%0d puts the saturated fold plus the capture span past err_cyc_o's 16-bit range - the truncation would wrap the error sign. Lower SLIP_LIM_C or widen err_cyc_o.", DIV_C);
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/ieee1722/crf/KL_media_grid_align.sv:152:5: Unnamed generate block 'genblk3' (IEEE 1800-2023 27.6)
+                                                                                                                                 : ... Suggest assign a label with 'begin : gen_<label_name>'
+  152 |     $error("KL_media_grid_align: U_LIM_PPM16_P=%0d cannot absorb a pre-clamp proportional term of +/-%0d without widening u_o.", U_LIM_PPM16_P, 2 * DIV_C << KP_LOG2_P);
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/ieee1722/crf/KL_media_grid_align.sv:154:5: Unnamed generate block 'genblk4' (IEEE 1800-2023 27.6)
+                                                                                                                                 : ... Suggest assign a label with 'begin : gen_<label_name>'
+  154 |     $error("KL_media_grid_align: LOCK_KEEPOFF_CYC_P=%0d leaves no lock target between the ticks of a %0d-cycle sample.", LOCK_KEEPOFF_CYC_P, DIV_C);
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:223:63: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                                                                                   : ... Suggest assign a label with 'begin : gen_<label_name>'
+  223 |     if (KEEP_ENABLE) assign s_axis[KEEP_OFFSET +: KEEP_WIDTH] = s_axis_tkeep;
+      |                                                               ^
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:224:63: Unnamed generate block 'genblk2' (IEEE 1800-2023 27.6)
+                                                                                                                                   : ... Suggest assign a label with 'begin : gen_<label_name>'
+  224 |     if (LAST_ENABLE) assign s_axis[LAST_OFFSET]               = s_axis_tlast | mark_frame_reg;
+      |                                                               ^
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:225:63: Unnamed generate block 'genblk3' (IEEE 1800-2023 27.6)
+                                                                                                                                   : ... Suggest assign a label with 'begin : gen_<label_name>'
+  225 |     if (ID_ENABLE)   assign s_axis[ID_OFFSET   +: ID_WIDTH]   = s_axis_tid;
+      |                                                               ^
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:226:63: Unnamed generate block 'genblk4' (IEEE 1800-2023 27.6)
+                                                                                                                                   : ... Suggest assign a label with 'begin : gen_<label_name>'
+  226 |     if (DEST_ENABLE) assign s_axis[DEST_OFFSET +: DEST_WIDTH] = s_axis_tdest;
+      |                                                               ^
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:227:63: Unnamed generate block 'genblk5' (IEEE 1800-2023 27.6)
+                                                                                                                                   : ... Suggest assign a label with 'begin : gen_<label_name>'
+  227 |     if (USER_ENABLE) assign s_axis[USER_OFFSET +: USER_WIDTH] = mark_frame_reg ? USER_BAD_FRAME_VALUE : s_axis_tuser;
+      |                                                               ^
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:409:26: Unnamed generate block 'genblk6' (IEEE 1800-2023 27.6)
+                                                                                                                                   : ... Suggest assign a label with 'begin : gen_<label_name>'
+  409 | if (!OUTPUT_FIFO_ENABLE) begin
+      |                          ^~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:546:10: Unnamed generate block 'genblk7' (IEEE 1800-2023 27.6)
+                                                                                                                                   : ... Suggest assign a label with 'begin : gen_<label_name>'
+  546 | end else begin
+      |          ^~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/priority_encoder.v:62:32: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                                                                                         : ... Suggest assign a label with 'begin : gen_<label_name>'
+   62 |         if (LSB_HIGH_PRIORITY) begin
+      |                                ^~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/priority_encoder.v:65:18: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                                                                                         : ... Suggest assign a label with 'begin : gen_<label_name>'
+   65 |         end else begin
+      |                  ^~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/priority_encoder.v:75:36: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                                                                                         : ... Suggest assign a label with 'begin : gen_<label_name>'
+   75 |             if (LSB_HIGH_PRIORITY) begin
+      |                                    ^~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/priority_encoder.v:78:22: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                                                                                         : ... Suggest assign a label with 'begin : gen_<label_name>'
+   78 |             end else begin
+      |                      ^~~~~
+%Warning-VARHIDDEN: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/milan/milan_datapath.sv:65:17: Declaration of signal hides declaration in upper scope: 'TDATA_WIDTH'
+   65 |   parameter int TDATA_WIDTH = 64,
+      |                 ^~~~~~~~~~~
+                    ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/common/ethernet_packet_pkg.sv:39:15: ... Location of original declaration
+   39 | parameter int TDATA_WIDTH = 64;
+      |               ^~~~~~~~~~~
+                    ... For warning description see https://verilator.org/warn/VARHIDDEN?v=5.050
+                    ... Use "/* verilator lint_off VARHIDDEN */" and lint_on around source to disable this message.
+%Warning-VARHIDDEN: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/ieee8021q/filtering/rx_mac_filter.sv:48:19: Declaration of signal hides declaration in upper scope: 'TDATA_WIDTH'
+   48 |     parameter int TDATA_WIDTH  = 64,
+      |                   ^~~~~~~~~~~
+                    ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/common/ethernet_packet_pkg.sv:39:15: ... Location of original declaration
+   39 | parameter int TDATA_WIDTH = 64;
+      |               ^~~~~~~~~~~
+%Warning-VARHIDDEN: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/ieee1722/avtp/avtp_stream_parser.sv:58:17: Declaration of signal hides declaration in upper scope: 'TDATA_WIDTH'
+   58 |   parameter int TDATA_WIDTH = 64,      
+      |                 ^~~~~~~~~~~
+                    ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/common/ethernet_packet_pkg.sv:39:15: ... Location of original declaration
+   39 | parameter int TDATA_WIDTH = 64;
+      |               ^~~~~~~~~~~
+%Warning-VARHIDDEN: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/ieee1722/aaf/KL_i2s_playback.sv:52:17: Declaration of signal hides declaration in upper scope: 'CLK_FREQ_HZ'
+   52 |   parameter int CLK_FREQ_HZ   = 50_000_000,  
+      |                 ^~~~~~~~~~~
+                    ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/common/ethernet_packet_pkg.sv:344:15: ... Location of original declaration
+  344 | parameter int CLK_FREQ_HZ = 100_000_000;
+      |               ^~~~~~~~~~~
+%Warning-BLKSEQ: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_async_fifo.v:424:33: Blocking assignment '=' in sequential logic process
+                                                                                                                                     : ... note: In instance 'tb_split_top.u_tx_x'
+                                                                                                                                     : ... Suggest using delayed assignment '<='
+  424 |                     wr_ptr_temp = wr_ptr_commit_reg;
+      |                                 ^
+                 ... For warning description see https://verilator.org/warn/BLKSEQ?v=5.050
+                 ... Use "/* verilator lint_off BLKSEQ */" and lint_on around source to disable this message.
+%Warning-BLKSEQ: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_async_fifo.v:432:29: Blocking assignment '=' in sequential logic process
+                                                                                                                                     : ... note: In instance 'tb_split_top.u_tx_x'
+                                                                                                                                     : ... Suggest using delayed assignment '<='
+  432 |                 wr_ptr_temp = wr_ptr_reg + 1;
+      |                             ^
+%Warning-BLKSEQ: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_async_fifo.v:440:37: Blocking assignment '=' in sequential logic process
+                                                                                                                                     : ... note: In instance 'tb_split_top.u_tx_x'
+                                                                                                                                     : ... Suggest using delayed assignment '<='
+  440 |                         wr_ptr_temp = wr_ptr_commit_reg;
+      |                                     ^
+%Warning-BLKSEQ: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_async_fifo.v:446:37: Blocking assignment '=' in sequential logic process
+                                                                                                                                     : ... note: In instance 'tb_split_top.u_tx_x'
+                                                                                                                                     : ... Suggest using delayed assignment '<='
+  446 |                         wr_ptr_temp = wr_ptr_reg + 1;
+      |                                     ^
+%Warning-BLKSEQ: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_async_fifo.v:469:25: Blocking assignment '=' in sequential logic process
+                                                                                                                                     : ... note: In instance 'tb_split_top.u_tx_x'
+                                                                                                                                     : ... Suggest using delayed assignment '<='
+  469 |             wr_ptr_temp = wr_ptr_reg;
+      |                         ^
+%Warning-BLKSEQ: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_async_fifo.v:495:37: Blocking assignment '=' in sequential logic process
+                                                                                                                                     : ... note: In instance 'tb_split_top.u_tx_x'
+                                                                                                                                     : ... Suggest using delayed assignment '<='
+  495 |                         wr_ptr_temp = wr_ptr_reg + 1;
+      |                                     ^
+%Warning-BLKSEQ: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_async_fifo.v:516:29: Blocking assignment '=' in sequential logic process
+                                                                                                                                     : ... note: In instance 'tb_split_top.u_tx_x'
+                                                                                                                                     : ... Suggest using delayed assignment '<='
+  516 |                 wr_ptr_temp = wr_ptr_reg + 1;
+      |                             ^
+%Warning-BLKSEQ: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_async_fifo.v:525:25: Blocking assignment '=' in sequential logic process
+                                                                                                                                     : ... note: In instance 'tb_split_top.u_tx_x'
+                                                                                                                                     : ... Suggest using delayed assignment '<='
+  525 |             wr_ptr_temp = wr_ptr_reg + 1;
+      |                         ^
+%Warning-BLKSEQ: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_async_fifo.v:671:25: Blocking assignment '=' in sequential logic process
+                                                                                                                                     : ... note: In instance 'tb_split_top.u_tx_x'
+                                                                                                                                     : ... Suggest using delayed assignment '<='
+  671 |             rd_ptr_temp = rd_ptr_reg + 1;
+      |                         ^
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_async_fifo.v:206:46: Procedural assignment to declaration with initial value: 'wr_ptr_reg'
+                                                                                                                                          : ... note: In instance 'tb_split_top.u_tx_x'
+                                                                                                                                          : ... Location of variable initialization
+  206 | reg [ADDR_WIDTH:0] wr_ptr_reg = {ADDR_WIDTH+1{1'b0}};
+      |                                              ^
+                      ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_async_fifo.v:425:21: ... Location of variable process write
+                                                                                                                                          : ... Perhaps should initialize instead using a reset in this process
+  425 |                     wr_ptr_reg <= wr_ptr_temp;
+      |                     ^~~~~~~~~~
+                      ... For warning description see https://verilator.org/warn/PROCASSINIT?v=5.050
+                      ... Use "/* verilator lint_off PROCASSINIT */" and lint_on around source to disable this message.
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_async_fifo.v:207:53: Procedural assignment to declaration with initial value: 'wr_ptr_commit_reg'
+                                                                                                                                          : ... note: In instance 'tb_split_top.u_tx_x'
+                                                                                                                                          : ... Location of variable initialization
+  207 | reg [ADDR_WIDTH:0] wr_ptr_commit_reg = {ADDR_WIDTH+1{1'b0}};
+      |                                                     ^
+                      ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_async_fifo.v:448:25: ... Location of variable process write
+                                                                                                                                          : ... Perhaps should initialize instead using a reset in this process
+  448 |                         wr_ptr_commit_reg <= wr_ptr_temp;
+      |                         ^~~~~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_async_fifo.v:208:51: Procedural assignment to declaration with initial value: 'wr_ptr_gray_reg'
+                                                                                                                                          : ... note: In instance 'tb_split_top.u_tx_x'
+                                                                                                                                          : ... Location of variable initialization
+  208 | reg [ADDR_WIDTH:0] wr_ptr_gray_reg = {ADDR_WIDTH+1{1'b0}};
+      |                                                   ^
+                      ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_async_fifo.v:426:21: ... Location of variable process write
+                                                                                                                                          : ... Perhaps should initialize instead using a reset in this process
+  426 |                     wr_ptr_gray_reg <= bin2gray(wr_ptr_temp);
+      |                     ^~~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_async_fifo.v:209:58: Procedural assignment to declaration with initial value: 'wr_ptr_sync_commit_reg'
+                                                                                                                                          : ... note: In instance 'tb_split_top.u_tx_x'
+                                                                                                                                          : ... Location of variable initialization
+  209 | reg [ADDR_WIDTH:0] wr_ptr_sync_commit_reg = {ADDR_WIDTH+1{1'b0}};
+      |                                                          ^
+                      ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_async_fifo.v:394:13: ... Location of variable process write
+                                                                                                                                          : ... Perhaps should initialize instead using a reset in this process
+  394 |             wr_ptr_sync_commit_reg <= wr_ptr_commit_reg;
+      |             ^~~~~~~~~~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_async_fifo.v:210:46: Procedural assignment to declaration with initial value: 'rd_ptr_reg'
+                                                                                                                                          : ... note: In instance 'tb_split_top.u_tx_x'
+                                                                                                                                          : ... Location of variable initialization
+  210 | reg [ADDR_WIDTH:0] rd_ptr_reg = {ADDR_WIDTH+1{1'b0}};
+      |                                              ^
+                      ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_async_fifo.v:672:13: ... Location of variable process write
+                                                                                                                                          : ... Perhaps should initialize instead using a reset in this process
+  672 |             rd_ptr_reg <= rd_ptr_temp;
+      |             ^~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_async_fifo.v:211:51: Procedural assignment to declaration with initial value: 'rd_ptr_gray_reg'
+                                                                                                                                          : ... note: In instance 'tb_split_top.u_tx_x'
+                                                                                                                                          : ... Location of variable initialization
+  211 | reg [ADDR_WIDTH:0] rd_ptr_gray_reg = {ADDR_WIDTH+1{1'b0}};
+      |                                                   ^
+                      ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_async_fifo.v:673:13: ... Location of variable process write
+                                                                                                                                          : ... Perhaps should initialize instead using a reset in this process
+  673 |             rd_ptr_gray_reg <= rd_ptr_temp ^ (rd_ptr_temp >> 1);
+      |             ^~~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_async_fifo.v:212:51: Procedural assignment to declaration with initial value: 'wr_ptr_conv_reg'
+                                                                                                                                          : ... note: In instance 'tb_split_top.u_tx_x'
+                                                                                                                                          : ... Location of variable initialization
+  212 | reg [ADDR_WIDTH:0] wr_ptr_conv_reg = {ADDR_WIDTH+1{1'b0}};
+      |                                                   ^
+                      ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_async_fifo.v:726:5: ... Location of variable process write
+                                                                                                                                         : ... Perhaps should initialize instead using a reset in this process
+  726 |     wr_ptr_conv_reg <= gray2bin(wr_ptr_gray_sync2_reg);
+      |     ^~~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_async_fifo.v:213:51: Procedural assignment to declaration with initial value: 'rd_ptr_conv_reg'
+                                                                                                                                          : ... note: In instance 'tb_split_top.u_tx_x'
+                                                                                                                                          : ... Location of variable initialization
+  213 | reg [ADDR_WIDTH:0] rd_ptr_conv_reg = {ADDR_WIDTH+1{1'b0}};
+      |                                                   ^
+                      ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_async_fifo.v:564:5: ... Location of variable process write
+                                                                                                                                         : ... Perhaps should initialize instead using a reset in this process
+  564 |     rd_ptr_conv_reg <= gray2bin(rd_ptr_gray_sync2_reg);
+      |     ^~~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_async_fifo.v:219:57: Procedural assignment to declaration with initial value: 'wr_ptr_gray_sync1_reg'
+                                                                                                                                          : ... note: In instance 'tb_split_top.u_tx_x'
+                                                                                                                                          : ... Location of variable initialization
+  219 | reg [ADDR_WIDTH:0] wr_ptr_gray_sync1_reg = {ADDR_WIDTH+1{1'b0}};
+      |                                                         ^
+                      ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_async_fifo.v:585:5: ... Location of variable process write
+                                                                                                                                         : ... Perhaps should initialize instead using a reset in this process
+  585 |     wr_ptr_gray_sync1_reg <= wr_ptr_gray_reg;
+      |     ^~~~~~~~~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_async_fifo.v:221:57: Procedural assignment to declaration with initial value: 'wr_ptr_gray_sync2_reg'
+                                                                                                                                          : ... note: In instance 'tb_split_top.u_tx_x'
+                                                                                                                                          : ... Location of variable initialization
+  221 | reg [ADDR_WIDTH:0] wr_ptr_gray_sync2_reg = {ADDR_WIDTH+1{1'b0}};
+      |                                                         ^
+                      ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_async_fifo.v:586:5: ... Location of variable process write
+                                                                                                                                         : ... Perhaps should initialize instead using a reset in this process
+  586 |     wr_ptr_gray_sync2_reg <= wr_ptr_gray_sync1_reg;
+      |     ^~~~~~~~~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_async_fifo.v:223:58: Procedural assignment to declaration with initial value: 'wr_ptr_commit_sync_reg'
+                                                                                                                                          : ... note: In instance 'tb_split_top.u_tx_x'
+                                                                                                                                          : ... Location of variable initialization
+  223 | reg [ADDR_WIDTH:0] wr_ptr_commit_sync_reg = {ADDR_WIDTH+1{1'b0}};
+      |                                                          ^
+                      ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_async_fifo.v:588:9: ... Location of variable process write
+                                                                                                                                         : ... Perhaps should initialize instead using a reset in this process
+  588 |         wr_ptr_commit_sync_reg <= wr_ptr_sync_commit_reg;
+      |         ^~~~~~~~~~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_async_fifo.v:225:57: Procedural assignment to declaration with initial value: 'rd_ptr_gray_sync1_reg'
+                                                                                                                                          : ... note: In instance 'tb_split_top.u_tx_x'
+                                                                                                                                          : ... Location of variable initialization
+  225 | reg [ADDR_WIDTH:0] rd_ptr_gray_sync1_reg = {ADDR_WIDTH+1{1'b0}};
+      |                                                         ^
+                      ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_async_fifo.v:571:5: ... Location of variable process write
+                                                                                                                                         : ... Perhaps should initialize instead using a reset in this process
+  571 |     rd_ptr_gray_sync1_reg <= rd_ptr_gray_reg;
+      |     ^~~~~~~~~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_async_fifo.v:227:57: Procedural assignment to declaration with initial value: 'rd_ptr_gray_sync2_reg'
+                                                                                                                                          : ... note: In instance 'tb_split_top.u_tx_x'
+                                                                                                                                          : ... Location of variable initialization
+  227 | reg [ADDR_WIDTH:0] rd_ptr_gray_sync2_reg = {ADDR_WIDTH+1{1'b0}};
+      |                                                         ^
+                      ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_async_fifo.v:572:5: ... Location of variable process write
+                                                                                                                                         : ... Perhaps should initialize instead using a reset in this process
+  572 |     rd_ptr_gray_sync2_reg <= rd_ptr_gray_sync1_reg;
+      |     ^~~~~~~~~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_async_fifo.v:229:31: Procedural assignment to declaration with initial value: 'wr_ptr_update_valid_reg'
+                                                                                                                                          : ... note: In instance 'tb_split_top.u_tx_x'
+                                                                                                                                          : ... Location of variable initialization
+  229 | reg wr_ptr_update_valid_reg = 1'b0;
+      |                               ^~~~
+                      ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_async_fifo.v:393:13: ... Location of variable process write
+                                                                                                                                          : ... Perhaps should initialize instead using a reset in this process
+  393 |             wr_ptr_update_valid_reg <= 1'b0;
+      |             ^~~~~~~~~~~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_async_fifo.v:230:25: Procedural assignment to declaration with initial value: 'wr_ptr_update_reg'
+                                                                                                                                          : ... note: In instance 'tb_split_top.u_tx_x'
+                                                                                                                                          : ... Location of variable initialization
+  230 | reg wr_ptr_update_reg = 1'b0;
+      |                         ^~~~
+                      ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_async_fifo.v:395:13: ... Location of variable process write
+                                                                                                                                          : ... Perhaps should initialize instead using a reset in this process
+  395 |             wr_ptr_update_reg <= !wr_ptr_update_ack_sync2_reg;
+      |             ^~~~~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_async_fifo.v:232:31: Procedural assignment to declaration with initial value: 'wr_ptr_update_sync1_reg'
+                                                                                                                                          : ... note: In instance 'tb_split_top.u_tx_x'
+                                                                                                                                          : ... Location of variable initialization
+  232 | reg wr_ptr_update_sync1_reg = 1'b0;
+      |                               ^~~~
+                      ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_async_fifo.v:590:5: ... Location of variable process write
+                                                                                                                                         : ... Perhaps should initialize instead using a reset in this process
+  590 |     wr_ptr_update_sync1_reg <= wr_ptr_update_reg;
+      |     ^~~~~~~~~~~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_async_fifo.v:234:31: Procedural assignment to declaration with initial value: 'wr_ptr_update_sync2_reg'
+                                                                                                                                          : ... note: In instance 'tb_split_top.u_tx_x'
+                                                                                                                                          : ... Location of variable initialization
+  234 | reg wr_ptr_update_sync2_reg = 1'b0;
+      |                               ^~~~
+                      ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_async_fifo.v:591:5: ... Location of variable process write
+                                                                                                                                         : ... Perhaps should initialize instead using a reset in this process
+  591 |     wr_ptr_update_sync2_reg <= wr_ptr_update_sync1_reg;
+      |     ^~~~~~~~~~~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_async_fifo.v:236:31: Procedural assignment to declaration with initial value: 'wr_ptr_update_sync3_reg'
+                                                                                                                                          : ... note: In instance 'tb_split_top.u_tx_x'
+                                                                                                                                          : ... Location of variable initialization
+  236 | reg wr_ptr_update_sync3_reg = 1'b0;
+      |                               ^~~~
+                      ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_async_fifo.v:592:5: ... Location of variable process write
+                                                                                                                                         : ... Perhaps should initialize instead using a reset in this process
+  592 |     wr_ptr_update_sync3_reg <= wr_ptr_update_sync2_reg;
+      |     ^~~~~~~~~~~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_async_fifo.v:238:35: Procedural assignment to declaration with initial value: 'wr_ptr_update_ack_sync1_reg'
+                                                                                                                                          : ... note: In instance 'tb_split_top.u_tx_x'
+                                                                                                                                          : ... Location of variable initialization
+  238 | reg wr_ptr_update_ack_sync1_reg = 1'b0;
+      |                                   ^~~~
+                      ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_async_fifo.v:573:5: ... Location of variable process write
+                                                                                                                                         : ... Perhaps should initialize instead using a reset in this process
+  573 |     wr_ptr_update_ack_sync1_reg <= wr_ptr_update_sync3_reg;
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_async_fifo.v:240:35: Procedural assignment to declaration with initial value: 'wr_ptr_update_ack_sync2_reg'
+                                                                                                                                          : ... note: In instance 'tb_split_top.u_tx_x'
+                                                                                                                                          : ... Location of variable initialization
+  240 | reg wr_ptr_update_ack_sync2_reg = 1'b0;
+      |                                   ^~~~
+                      ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_async_fifo.v:574:5: ... Location of variable process write
+                                                                                                                                         : ... Perhaps should initialize instead using a reset in this process
+  574 |     wr_ptr_update_ack_sync2_reg <= wr_ptr_update_ack_sync1_reg;
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_async_fifo.v:243:23: Procedural assignment to declaration with initial value: 's_rst_sync1_reg'
+                                                                                                                                          : ... note: In instance 'tb_split_top.u_tx_x'
+                                                                                                                                          : ... Location of variable initialization
+  243 | reg s_rst_sync1_reg = 1'b1;
+      |                       ^~~~
+                      ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_async_fifo.v:359:9: ... Location of variable process write
+                                                                                                                                         : ... Perhaps should initialize instead using a reset in this process
+  359 |         s_rst_sync1_reg <= 1'b1;
+      |         ^~~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_async_fifo.v:245:23: Procedural assignment to declaration with initial value: 's_rst_sync2_reg'
+                                                                                                                                          : ... note: In instance 'tb_split_top.u_tx_x'
+                                                                                                                                          : ... Location of variable initialization
+  245 | reg s_rst_sync2_reg = 1'b1;
+      |                       ^~~~
+                      ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_async_fifo.v:366:5: ... Location of variable process write
+                                                                                                                                         : ... Perhaps should initialize instead using a reset in this process
+  366 |     s_rst_sync2_reg <= s_rst_sync1_reg;
+      |     ^~~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_async_fifo.v:247:23: Procedural assignment to declaration with initial value: 's_rst_sync3_reg'
+                                                                                                                                          : ... note: In instance 'tb_split_top.u_tx_x'
+                                                                                                                                          : ... Location of variable initialization
+  247 | reg s_rst_sync3_reg = 1'b1;
+      |                       ^~~~
+                      ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_async_fifo.v:367:5: ... Location of variable process write
+                                                                                                                                         : ... Perhaps should initialize instead using a reset in this process
+  367 |     s_rst_sync3_reg <= s_rst_sync2_reg;
+      |     ^~~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_async_fifo.v:249:23: Procedural assignment to declaration with initial value: 'm_rst_sync1_reg'
+                                                                                                                                          : ... note: In instance 'tb_split_top.u_tx_x'
+                                                                                                                                          : ... Location of variable initialization
+  249 | reg m_rst_sync1_reg = 1'b1;
+      |                       ^~~~
+                      ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_async_fifo.v:372:9: ... Location of variable process write
+                                                                                                                                         : ... Perhaps should initialize instead using a reset in this process
+  372 |         m_rst_sync1_reg <= 1'b1;
+      |         ^~~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_async_fifo.v:251:23: Procedural assignment to declaration with initial value: 'm_rst_sync2_reg'
+                                                                                                                                          : ... note: In instance 'tb_split_top.u_tx_x'
+                                                                                                                                          : ... Location of variable initialization
+  251 | reg m_rst_sync2_reg = 1'b1;
+      |                       ^~~~
+                      ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_async_fifo.v:379:5: ... Location of variable process write
+                                                                                                                                         : ... Perhaps should initialize instead using a reset in this process
+  379 |     m_rst_sync2_reg <= m_rst_sync1_reg;
+      |     ^~~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_async_fifo.v:253:23: Procedural assignment to declaration with initial value: 'm_rst_sync3_reg'
+                                                                                                                                          : ... note: In instance 'tb_split_top.u_tx_x'
+                                                                                                                                          : ... Location of variable initialization
+  253 | reg m_rst_sync3_reg = 1'b1;
+      |                       ^~~~
+                      ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_async_fifo.v:380:5: ... Location of variable process write
+                                                                                                                                         : ... Perhaps should initialize instead using a reset in this process
+  380 |     m_rst_sync3_reg <= m_rst_sync2_reg;
+      |     ^~~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_async_fifo.v:261:51: Procedural assignment to declaration with initial value: 'm_axis_tvalid_pipe_reg'
+                                                                                                                                          : ... note: In instance 'tb_split_top.u_tx_x'
+                                                                                                                                          : ... Location of variable initialization
+  261 | reg [RAM_PIPELINE+1-1:0] m_axis_tvalid_pipe_reg = 0;
+      |                                                   ^
+                      ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_async_fifo.v:651:9: ... Location of variable process write
+                                                                                                                                         : ... Perhaps should initialize instead using a reset in this process
+  651 |         m_axis_tvalid_pipe_reg[RAM_PIPELINE+1-1] <= 1'b0;
+      |         ^~~~~~~~~~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_async_fifo.v:276:19: Procedural assignment to declaration with initial value: 's_frame_reg'
+                                                                                                                                          : ... note: In instance 'tb_split_top.u_tx_x'
+                                                                                                                                          : ... Location of variable initialization
+  276 | reg s_frame_reg = 1'b0;
+      |                   ^~~~
+                      ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_async_fifo.v:401:9: ... Location of variable process write
+                                                                                                                                         : ... Perhaps should initialize instead using a reset in this process
+  401 |         s_frame_reg <= !s_axis_tlast;
+      |         ^~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_async_fifo.v:277:19: Procedural assignment to declaration with initial value: 'm_frame_reg'
+                                                                                                                                          : ... note: In instance 'tb_split_top.u_tx_x'
+                                                                                                                                          : ... Location of variable initialization
+  277 | reg m_frame_reg = 1'b0;
+      |                   ^~~~
+                      ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_async_fifo.v:680:13: ... Location of variable process write
+                                                                                                                                          : ... Perhaps should initialize instead using a reset in this process
+  680 |             m_frame_reg <= 1'b0;
+      |             ^~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_async_fifo.v:279:22: Procedural assignment to declaration with initial value: 'drop_frame_reg'
+                                                                                                                                          : ... note: In instance 'tb_split_top.u_tx_x'
+                                                                                                                                          : ... Location of variable initialization
+  279 | reg drop_frame_reg = 1'b0;
+      |                      ^~~~
+                      ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_async_fifo.v:407:13: ... Location of variable process write
+                                                                                                                                          : ... Perhaps should initialize instead using a reset in this process
+  407 |             drop_frame_reg <= 1'b1;
+      |             ^~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_async_fifo.v:280:22: Procedural assignment to declaration with initial value: 'mark_frame_reg'
+                                                                                                                                          : ... note: In instance 'tb_split_top.u_tx_x'
+                                                                                                                                          : ... Location of variable initialization
+  280 | reg mark_frame_reg = 1'b0;
+      |                      ^~~~
+                      ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_async_fifo.v:493:25: ... Location of variable process write
+                                                                                                                                          : ... Perhaps should initialize instead using a reset in this process
+  493 |                         mark_frame_reg <= 1'b0;
+      |                         ^~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_async_fifo.v:281:22: Procedural assignment to declaration with initial value: 'send_frame_reg'
+                                                                                                                                          : ... note: In instance 'tb_split_top.u_tx_x'
+                                                                                                                                          : ... Location of variable initialization
+  281 | reg send_frame_reg = 1'b0;
+      |                      ^~~~
+                      ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_async_fifo.v:437:21: ... Location of variable process write
+                                                                                                                                          : ... Perhaps should initialize instead using a reset in this process
+  437 |                     send_frame_reg <= !s_axis_tlast;
+      |                     ^~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_async_fifo.v:282:20: Procedural assignment to declaration with initial value: 'overflow_reg'
+                                                                                                                                          : ... note: In instance 'tb_split_top.u_tx_x'
+                                                                                                                                          : ... Location of variable initialization
+  282 | reg overflow_reg = 1'b0;
+      |                    ^~~~
+                      ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_async_fifo.v:385:5: ... Location of variable process write
+                                                                                                                                         : ... Perhaps should initialize instead using a reset in this process
+  385 |     overflow_reg <= 1'b0;
+      |     ^~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_async_fifo.v:283:21: Procedural assignment to declaration with initial value: 'bad_frame_reg'
+                                                                                                                                          : ... note: In instance 'tb_split_top.u_tx_x'
+                                                                                                                                          : ... Location of variable initialization
+  283 | reg bad_frame_reg = 1'b0;
+      |                     ^~~~
+                      ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_async_fifo.v:386:5: ... Location of variable process write
+                                                                                                                                         : ... Perhaps should initialize instead using a reset in this process
+  386 |     bad_frame_reg <= 1'b0;
+      |     ^~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_async_fifo.v:284:22: Procedural assignment to declaration with initial value: 'good_frame_reg'
+                                                                                                                                          : ... note: In instance 'tb_split_top.u_tx_x'
+                                                                                                                                          : ... Location of variable initialization
+  284 | reg good_frame_reg = 1'b0;
+      |                      ^~~~
+                      ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_async_fifo.v:387:5: ... Location of variable process write
+                                                                                                                                         : ... Perhaps should initialize instead using a reset in this process
+  387 |     good_frame_reg <= 1'b0;
+      |     ^~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_async_fifo.v:286:24: Procedural assignment to declaration with initial value: 'm_drop_frame_reg'
+                                                                                                                                          : ... note: In instance 'tb_split_top.u_tx_x'
+                                                                                                                                          : ... Location of variable initialization
+  286 | reg m_drop_frame_reg = 1'b0;
+      |                        ^~~~
+                      ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_async_fifo.v:691:9: ... Location of variable process write
+                                                                                                                                         : ... Perhaps should initialize instead using a reset in this process
+  691 |         m_drop_frame_reg <= 1'b0;
+      |         ^~~~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_async_fifo.v:287:29: Procedural assignment to declaration with initial value: 'm_terminate_frame_reg'
+                                                                                                                                          : ... note: In instance 'tb_split_top.u_tx_x'
+                                                                                                                                          : ... Location of variable initialization
+  287 | reg m_terminate_frame_reg = 1'b0;
+      |                             ^~~~
+                      ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_async_fifo.v:652:9: ... Location of variable process write
+                                                                                                                                         : ... Perhaps should initialize instead using a reset in this process
+  652 |         m_terminate_frame_reg <= 1'b0;
+      |         ^~~~~~~~~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_async_fifo.v:289:34: Procedural assignment to declaration with initial value: 's_depth_reg'
+                                                                                                                                          : ... note: In instance 'tb_split_top.u_tx_x'
+                                                                                                                                          : ... Location of variable initialization
+  289 | reg [ADDR_WIDTH:0] s_depth_reg = 0;
+      |                                  ^
+                      ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_async_fifo.v:565:5: ... Location of variable process write
+                                                                                                                                         : ... Perhaps should initialize instead using a reset in this process
+  565 |     s_depth_reg <= wr_ptr_reg - rd_ptr_conv_reg;
+      |     ^~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_async_fifo.v:290:41: Procedural assignment to declaration with initial value: 's_depth_commit_reg'
+                                                                                                                                          : ... note: In instance 'tb_split_top.u_tx_x'
+                                                                                                                                          : ... Location of variable initialization
+  290 | reg [ADDR_WIDTH:0] s_depth_commit_reg = 0;
+      |                                         ^
+                      ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_async_fifo.v:566:5: ... Location of variable process write
+                                                                                                                                         : ... Perhaps should initialize instead using a reset in this process
+  566 |     s_depth_commit_reg <= wr_ptr_commit_reg - rd_ptr_conv_reg;
+      |     ^~~~~~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_async_fifo.v:291:34: Procedural assignment to declaration with initial value: 'm_depth_reg'
+                                                                                                                                          : ... note: In instance 'tb_split_top.u_tx_x'
+                                                                                                                                          : ... Location of variable initialization
+  291 | reg [ADDR_WIDTH:0] m_depth_reg = 0;
+      |                                  ^
+                      ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_async_fifo.v:727:5: ... Location of variable process write
+                                                                                                                                         : ... Perhaps should initialize instead using a reset in this process
+  727 |     m_depth_reg <= wr_ptr_conv_reg - rd_ptr_reg;
+      |     ^~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_async_fifo.v:292:41: Procedural assignment to declaration with initial value: 'm_depth_commit_reg'
+                                                                                                                                          : ... note: In instance 'tb_split_top.u_tx_x'
+                                                                                                                                          : ... Location of variable initialization
+  292 | reg [ADDR_WIDTH:0] m_depth_commit_reg = 0;
+      |                                         ^
+                      ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_async_fifo.v:728:5: ... Location of variable process write
+                                                                                                                                         : ... Perhaps should initialize instead using a reset in this process
+  728 |     m_depth_commit_reg <= FRAME_FIFO ? wr_ptr_commit_sync_reg - rd_ptr_reg : wr_ptr_conv_reg - rd_ptr_reg;
+      |     ^~~~~~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_async_fifo.v:294:26: Procedural assignment to declaration with initial value: 'overflow_sync1_reg'
+                                                                                                                                          : ... note: In instance 'tb_split_top.u_tx_x'
+                                                                                                                                          : ... Location of variable initialization
+  294 | reg overflow_sync1_reg = 1'b0;
+      |                          ^~~~
+                      ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_async_fifo.v:610:5: ... Location of variable process write
+                                                                                                                                         : ... Perhaps should initialize instead using a reset in this process
+  610 |     overflow_sync1_reg <= overflow_sync1_reg ^ overflow_reg;
+      |     ^~~~~~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_async_fifo.v:295:26: Procedural assignment to declaration with initial value: 'overflow_sync2_reg'
+                                                                                                                                          : ... note: In instance 'tb_split_top.u_tx_x'
+                                                                                                                                          : ... Location of variable initialization
+  295 | reg overflow_sync2_reg = 1'b0;
+      |                          ^~~~
+                      ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_async_fifo.v:622:5: ... Location of variable process write
+                                                                                                                                         : ... Perhaps should initialize instead using a reset in this process
+  622 |     overflow_sync2_reg <= overflow_sync1_reg;
+      |     ^~~~~~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_async_fifo.v:296:26: Procedural assignment to declaration with initial value: 'overflow_sync3_reg'
+                                                                                                                                          : ... note: In instance 'tb_split_top.u_tx_x'
+                                                                                                                                          : ... Location of variable initialization
+  296 | reg overflow_sync3_reg = 1'b0;
+      |                          ^~~~
+                      ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_async_fifo.v:623:5: ... Location of variable process write
+                                                                                                                                         : ... Perhaps should initialize instead using a reset in this process
+  623 |     overflow_sync3_reg <= overflow_sync2_reg;
+      |     ^~~~~~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_async_fifo.v:297:26: Procedural assignment to declaration with initial value: 'overflow_sync4_reg'
+                                                                                                                                          : ... note: In instance 'tb_split_top.u_tx_x'
+                                                                                                                                          : ... Location of variable initialization
+  297 | reg overflow_sync4_reg = 1'b0;
+      |                          ^~~~
+                      ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_async_fifo.v:624:5: ... Location of variable process write
+                                                                                                                                         : ... Perhaps should initialize instead using a reset in this process
+  624 |     overflow_sync4_reg <= overflow_sync3_reg;
+      |     ^~~~~~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_async_fifo.v:298:27: Procedural assignment to declaration with initial value: 'bad_frame_sync1_reg'
+                                                                                                                                          : ... note: In instance 'tb_split_top.u_tx_x'
+                                                                                                                                          : ... Location of variable initialization
+  298 | reg bad_frame_sync1_reg = 1'b0;
+      |                           ^~~~
+                      ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_async_fifo.v:611:5: ... Location of variable process write
+                                                                                                                                         : ... Perhaps should initialize instead using a reset in this process
+  611 |     bad_frame_sync1_reg <= bad_frame_sync1_reg ^ bad_frame_reg;
+      |     ^~~~~~~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_async_fifo.v:299:27: Procedural assignment to declaration with initial value: 'bad_frame_sync2_reg'
+                                                                                                                                          : ... note: In instance 'tb_split_top.u_tx_x'
+                                                                                                                                          : ... Location of variable initialization
+  299 | reg bad_frame_sync2_reg = 1'b0;
+      |                           ^~~~
+                      ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_async_fifo.v:625:5: ... Location of variable process write
+                                                                                                                                         : ... Perhaps should initialize instead using a reset in this process
+  625 |     bad_frame_sync2_reg <= bad_frame_sync1_reg;
+      |     ^~~~~~~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_async_fifo.v:300:27: Procedural assignment to declaration with initial value: 'bad_frame_sync3_reg'
+                                                                                                                                          : ... note: In instance 'tb_split_top.u_tx_x'
+                                                                                                                                          : ... Location of variable initialization
+  300 | reg bad_frame_sync3_reg = 1'b0;
+      |                           ^~~~
+                      ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_async_fifo.v:626:5: ... Location of variable process write
+                                                                                                                                         : ... Perhaps should initialize instead using a reset in this process
+  626 |     bad_frame_sync3_reg <= bad_frame_sync2_reg;
+      |     ^~~~~~~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_async_fifo.v:301:27: Procedural assignment to declaration with initial value: 'bad_frame_sync4_reg'
+                                                                                                                                          : ... note: In instance 'tb_split_top.u_tx_x'
+                                                                                                                                          : ... Location of variable initialization
+  301 | reg bad_frame_sync4_reg = 1'b0;
+      |                           ^~~~
+                      ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_async_fifo.v:627:5: ... Location of variable process write
+                                                                                                                                         : ... Perhaps should initialize instead using a reset in this process
+  627 |     bad_frame_sync4_reg <= bad_frame_sync3_reg;
+      |     ^~~~~~~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_async_fifo.v:302:28: Procedural assignment to declaration with initial value: 'good_frame_sync1_reg'
+                                                                                                                                          : ... note: In instance 'tb_split_top.u_tx_x'
+                                                                                                                                          : ... Location of variable initialization
+  302 | reg good_frame_sync1_reg = 1'b0;
+      |                            ^~~~
+                      ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_async_fifo.v:612:5: ... Location of variable process write
+                                                                                                                                         : ... Perhaps should initialize instead using a reset in this process
+  612 |     good_frame_sync1_reg <= good_frame_sync1_reg ^ good_frame_reg;
+      |     ^~~~~~~~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_async_fifo.v:303:28: Procedural assignment to declaration with initial value: 'good_frame_sync2_reg'
+                                                                                                                                          : ... note: In instance 'tb_split_top.u_tx_x'
+                                                                                                                                          : ... Location of variable initialization
+  303 | reg good_frame_sync2_reg = 1'b0;
+      |                            ^~~~
+                      ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_async_fifo.v:628:5: ... Location of variable process write
+                                                                                                                                         : ... Perhaps should initialize instead using a reset in this process
+  628 |     good_frame_sync2_reg <= good_frame_sync1_reg;
+      |     ^~~~~~~~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_async_fifo.v:304:28: Procedural assignment to declaration with initial value: 'good_frame_sync3_reg'
+                                                                                                                                          : ... note: In instance 'tb_split_top.u_tx_x'
+                                                                                                                                          : ... Location of variable initialization
+  304 | reg good_frame_sync3_reg = 1'b0;
+      |                            ^~~~
+                      ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_async_fifo.v:629:5: ... Location of variable process write
+                                                                                                                                         : ... Perhaps should initialize instead using a reset in this process
+  629 |     good_frame_sync3_reg <= good_frame_sync2_reg;
+      |     ^~~~~~~~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_async_fifo.v:305:28: Procedural assignment to declaration with initial value: 'good_frame_sync4_reg'
+                                                                                                                                          : ... note: In instance 'tb_split_top.u_tx_x'
+                                                                                                                                          : ... Location of variable initialization
+  305 | reg good_frame_sync4_reg = 1'b0;
+      |                            ^~~~
+                      ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_async_fifo.v:630:5: ... Location of variable process write
+                                                                                                                                         : ... Perhaps should initialize instead using a reset in this process
+  630 |     good_frame_sync4_reg <= good_frame_sync3_reg;
+      |     ^~~~~~~~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/common/eth_event_counter/ethernet_events.sv:60:70: Procedural assignment to declaration with initial value: 'tx_error_underflow_cnt'
+                                                                                                                                          : ... note: In instance 'tb_split_top.u_dp.ethernet_counters'
+                                                                                                                                          : ... Location of variable initialization
+   60 | (* mark_debug = "true" *) logic [WIDTH-1:0] tx_error_underflow_cnt = '0;
+      |                                                                      ^~
+                      ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/common/eth_event_counter/ethernet_events.sv:86:3: ... Location of variable process write
+                                                                                                                                         : ... Perhaps should initialize instead using a reset in this process
+   86 |   tx_error_underflow_cnt <= counters[TX_ERROR_UNDERFLOW];
+      |   ^~~~~~~~~~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/common/eth_event_counter/ethernet_events.sv:61:68: Procedural assignment to declaration with initial value: 'tx_fifo_overflow_cnt'
+                                                                                                                                          : ... note: In instance 'tb_split_top.u_dp.ethernet_counters'
+                                                                                                                                          : ... Location of variable initialization
+   61 | (* mark_debug = "true" *) logic [WIDTH-1:0] tx_fifo_overflow_cnt = '0;
+      |                                                                    ^~
+                      ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/common/eth_event_counter/ethernet_events.sv:87:3: ... Location of variable process write
+                                                                                                                                         : ... Perhaps should initialize instead using a reset in this process
+   87 |   tx_fifo_overflow_cnt <= counters[TX_FIFO_OVERFLOW];
+      |   ^~~~~~~~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/common/eth_event_counter/ethernet_events.sv:62:69: Procedural assignment to declaration with initial value: 'tx_fifo_bad_frame_cnt'
+                                                                                                                                          : ... note: In instance 'tb_split_top.u_dp.ethernet_counters'
+                                                                                                                                          : ... Location of variable initialization
+   62 | (* mark_debug = "true" *) logic [WIDTH-1:0] tx_fifo_bad_frame_cnt = '0;
+      |                                                                     ^~
+                      ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/common/eth_event_counter/ethernet_events.sv:88:3: ... Location of variable process write
+                                                                                                                                         : ... Perhaps should initialize instead using a reset in this process
+   88 |   tx_fifo_bad_frame_cnt <= counters[TX_FIFO_BAD_FRAME];
+      |   ^~~~~~~~~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/common/eth_event_counter/ethernet_events.sv:63:70: Procedural assignment to declaration with initial value: 'tx_fifo_good_frame_cnt'
+                                                                                                                                          : ... note: In instance 'tb_split_top.u_dp.ethernet_counters'
+                                                                                                                                          : ... Location of variable initialization
+   63 | (* mark_debug = "true" *) logic [WIDTH-1:0] tx_fifo_good_frame_cnt = '0;
+      |                                                                      ^~
+                      ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/common/eth_event_counter/ethernet_events.sv:89:3: ... Location of variable process write
+                                                                                                                                         : ... Perhaps should initialize instead using a reset in this process
+   89 |   tx_fifo_good_frame_cnt <= counters[TX_FIFO_GOOD_FRAME];
+      |   ^~~~~~~~~~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/common/eth_event_counter/ethernet_events.sv:64:70: Procedural assignment to declaration with initial value: 'rx_error_bad_frame_cnt'
+                                                                                                                                          : ... note: In instance 'tb_split_top.u_dp.ethernet_counters'
+                                                                                                                                          : ... Location of variable initialization
+   64 | (* mark_debug = "true" *) logic [WIDTH-1:0] rx_error_bad_frame_cnt = '0;
+      |                                                                      ^~
+                      ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/common/eth_event_counter/ethernet_events.sv:90:3: ... Location of variable process write
+                                                                                                                                         : ... Perhaps should initialize instead using a reset in this process
+   90 |   rx_error_bad_frame_cnt <= counters[RX_ERROR_BAD_FRAME];
+      |   ^~~~~~~~~~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/common/eth_event_counter/ethernet_events.sv:65:68: Procedural assignment to declaration with initial value: 'rx_error_bad_fcs_cnt'
+                                                                                                                                          : ... note: In instance 'tb_split_top.u_dp.ethernet_counters'
+                                                                                                                                          : ... Location of variable initialization
+   65 | (* mark_debug = "true" *) logic [WIDTH-1:0] rx_error_bad_fcs_cnt = '0;
+      |                                                                    ^~
+                      ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/common/eth_event_counter/ethernet_events.sv:91:3: ... Location of variable process write
+                                                                                                                                         : ... Perhaps should initialize instead using a reset in this process
+   91 |   rx_error_bad_fcs_cnt <= counters[RX_ERROR_BAD_FCS];
+      |   ^~~~~~~~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/common/eth_event_counter/ethernet_events.sv:66:68: Procedural assignment to declaration with initial value: 'rx_fifo_overflow_cnt'
+                                                                                                                                          : ... note: In instance 'tb_split_top.u_dp.ethernet_counters'
+                                                                                                                                          : ... Location of variable initialization
+   66 | (* mark_debug = "true" *) logic [WIDTH-1:0] rx_fifo_overflow_cnt = '0;
+      |                                                                    ^~
+                      ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/common/eth_event_counter/ethernet_events.sv:92:3: ... Location of variable process write
+                                                                                                                                         : ... Perhaps should initialize instead using a reset in this process
+   92 |   rx_fifo_overflow_cnt <= counters[RX_FIFO_OVERFLOW];
+      |   ^~~~~~~~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/common/eth_event_counter/ethernet_events.sv:67:69: Procedural assignment to declaration with initial value: 'rx_fifo_bad_frame_cnt'
+                                                                                                                                          : ... note: In instance 'tb_split_top.u_dp.ethernet_counters'
+                                                                                                                                          : ... Location of variable initialization
+   67 | (* mark_debug = "true" *) logic [WIDTH-1:0] rx_fifo_bad_frame_cnt = '0;
+      |                                                                     ^~
+                      ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/common/eth_event_counter/ethernet_events.sv:93:3: ... Location of variable process write
+                                                                                                                                         : ... Perhaps should initialize instead using a reset in this process
+   93 |   rx_fifo_bad_frame_cnt <= counters[RX_FIFO_BAD_FRAME];
+      |   ^~~~~~~~~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/common/eth_event_counter/ethernet_events.sv:68:70: Procedural assignment to declaration with initial value: 'rx_fifo_good_frame_cnt'
+                                                                                                                                          : ... note: In instance 'tb_split_top.u_dp.ethernet_counters'
+                                                                                                                                          : ... Location of variable initialization
+   68 | (* mark_debug = "true" *) logic [WIDTH-1:0] rx_fifo_good_frame_cnt = '0;
+      |                                                                      ^~
+                      ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/common/eth_event_counter/ethernet_events.sv:94:3: ... Location of variable process write
+                                                                                                                                         : ... Perhaps should initialize instead using a reset in this process
+   94 |   rx_fifo_good_frame_cnt <= counters[RX_FIFO_GOOD_FRAME];
+      |   ^~~~~~~~~~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/common/csr/milan_csr.sv:2316:29: Procedural assignment to declaration with initial value: 'rst_epoch_r'
+                                                                                                                        : ... note: In instance 'tb_split_top.u_dp.csr'
+                                                                                                                        : ... Location of variable initialization
+ 2316 |   logic [7:0] rst_epoch_r = 8'd0;
+      |                             ^~~~
+                      ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/common/csr/milan_csr.sv:2838:34: ... Location of variable process write
+                                                                                                                        : ... Perhaps should initialize instead using a reset in this process
+ 2838 |     if (aresetn && !rstn_seen_r) rst_epoch_r <= rst_epoch_r + 8'd1;
+      |                                  ^~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/common/csr/milan_csr.sv:2835:27: Procedural assignment to declaration with initial value: 'rstn_seen_r'
+                                                                                                                        : ... note: In instance 'tb_split_top.u_dp.csr'
+                                                                                                                        : ... Location of variable initialization
+ 2835 |   logic     rstn_seen_r = 1'b0;
+      |                           ^~~~
+                      ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/common/csr/milan_csr.sv:2837:5: ... Location of variable process write
+                                                                                                                       : ... Perhaps should initialize instead using a reset in this process
+ 2837 |     rstn_seen_r <= aresetn;
+      |     ^~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:187:46: Procedural assignment to declaration with initial value: 'wr_ptr_reg'
+                                                                                                                                    : ... note: In instance 'tb_split_top.u_dp.g_sp_ctrl.ctrl_split.rx_fifo'
+                                                                                                                                    : ... Location of variable initialization
+  187 | reg [ADDR_WIDTH:0] wr_ptr_reg = {ADDR_WIDTH+1{1'b0}};
+      |                                              ^
+                      ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:281:21: ... Location of variable process write
+                                                                                                                                    : ... Perhaps should initialize instead using a reset in this process
+  281 |                     wr_ptr_reg <= wr_ptr_commit_reg;
+      |                     ^~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:188:53: Procedural assignment to declaration with initial value: 'wr_ptr_commit_reg'
+                                                                                                                                    : ... note: In instance 'tb_split_top.u_dp.g_sp_ctrl.ctrl_split.rx_fifo'
+                                                                                                                                    : ... Location of variable initialization
+  188 | reg [ADDR_WIDTH:0] wr_ptr_commit_reg = {ADDR_WIDTH+1{1'b0}};
+      |                                                     ^
+                      ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:298:25: ... Location of variable process write
+                                                                                                                                    : ... Perhaps should initialize instead using a reset in this process
+  298 |                         wr_ptr_commit_reg <= wr_ptr_reg + 1;
+      |                         ^~~~~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:189:46: Procedural assignment to declaration with initial value: 'rd_ptr_reg'
+                                                                                                                                    : ... note: In instance 'tb_split_top.u_dp.g_sp_ctrl.ctrl_split.rx_fifo'
+                                                                                                                                    : ... Location of variable initialization
+  189 | reg [ADDR_WIDTH:0] rd_ptr_reg = {ADDR_WIDTH+1{1'b0}};
+      |                                              ^
+                      ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:397:13: ... Location of variable process write
+                                                                                                                                    : ... Perhaps should initialize instead using a reset in this process
+  397 |             rd_ptr_reg <= rd_ptr_reg + 1;
+      |             ^~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:197:51: Procedural assignment to declaration with initial value: 'm_axis_tvalid_pipe_reg'
+                                                                                                                                    : ... note: In instance 'tb_split_top.u_dp.g_sp_ctrl.ctrl_split.rx_fifo'
+                                                                                                                                    : ... Location of variable initialization
+  197 | reg [RAM_PIPELINE+1-1:0] m_axis_tvalid_pipe_reg = 0;
+      |                                                   ^
+                      ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:378:9: ... Location of variable process write
+                                                                                                                                   : ... Perhaps should initialize instead using a reset in this process
+  378 |         m_axis_tvalid_pipe_reg[RAM_PIPELINE+1-1] <= 1'b0;
+      |         ^~~~~~~~~~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:206:19: Procedural assignment to declaration with initial value: 's_frame_reg'
+                                                                                                                                    : ... note: In instance 'tb_split_top.u_dp.g_sp_ctrl.ctrl_split.rx_fifo'
+                                                                                                                                    : ... Location of variable initialization
+  206 | reg s_frame_reg = 1'b0;
+      |                   ^~~~
+                      ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:268:9: ... Location of variable process write
+                                                                                                                                   : ... Perhaps should initialize instead using a reset in this process
+  268 |         s_frame_reg <= !s_axis_tlast;
+      |         ^~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:208:22: Procedural assignment to declaration with initial value: 'drop_frame_reg'
+                                                                                                                                    : ... note: In instance 'tb_split_top.u_dp.g_sp_ctrl.ctrl_split.rx_fifo'
+                                                                                                                                    : ... Location of variable initialization
+  208 | reg drop_frame_reg = 1'b0;
+      |                      ^~~~
+                      ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:278:17: ... Location of variable process write
+                                                                                                                                    : ... Perhaps should initialize instead using a reset in this process
+  278 |                 drop_frame_reg <= 1'b1;
+      |                 ^~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:209:22: Procedural assignment to declaration with initial value: 'mark_frame_reg'
+                                                                                                                                    : ... note: In instance 'tb_split_top.u_dp.g_sp_ctrl.ctrl_split.rx_fifo'
+                                                                                                                                    : ... Location of variable initialization
+  209 | reg mark_frame_reg = 1'b0;
+      |                      ^~~~
+                      ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:318:25: ... Location of variable process write
+                                                                                                                                    : ... Perhaps should initialize instead using a reset in this process
+  318 |                         mark_frame_reg <= 1'b0;
+      |                         ^~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:210:22: Procedural assignment to declaration with initial value: 'send_frame_reg'
+                                                                                                                                    : ... note: In instance 'tb_split_top.u_dp.g_sp_ctrl.ctrl_split.rx_fifo'
+                                                                                                                                    : ... Location of variable initialization
+  210 | reg send_frame_reg = 1'b0;
+      |                      ^~~~
+                      ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:291:21: ... Location of variable process write
+                                                                                                                                    : ... Perhaps should initialize instead using a reset in this process
+  291 |                     send_frame_reg <= !s_axis_tlast;
+      |                     ^~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:211:32: Procedural assignment to declaration with initial value: 'depth_reg'
+                                                                                                                                    : ... note: In instance 'tb_split_top.u_dp.g_sp_ctrl.ctrl_split.rx_fifo'
+                                                                                                                                    : ... Location of variable initialization
+  211 | reg [ADDR_WIDTH:0] depth_reg = 0;
+      |                                ^
+                      ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:368:5: ... Location of variable process write
+                                                                                                                                   : ... Perhaps should initialize instead using a reset in this process
+  368 |     depth_reg <= wr_ptr_reg - rd_ptr_reg;
+      |     ^~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:212:39: Procedural assignment to declaration with initial value: 'depth_commit_reg'
+                                                                                                                                    : ... note: In instance 'tb_split_top.u_dp.g_sp_ctrl.ctrl_split.rx_fifo'
+                                                                                                                                    : ... Location of variable initialization
+  212 | reg [ADDR_WIDTH:0] depth_commit_reg = 0;
+      |                                       ^
+                      ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:369:5: ... Location of variable process write
+                                                                                                                                   : ... Perhaps should initialize instead using a reset in this process
+  369 |     depth_commit_reg <= wr_ptr_commit_reg - rd_ptr_reg;
+      |     ^~~~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:213:20: Procedural assignment to declaration with initial value: 'overflow_reg'
+                                                                                                                                    : ... note: In instance 'tb_split_top.u_dp.g_sp_ctrl.ctrl_split.rx_fifo'
+                                                                                                                                    : ... Location of variable initialization
+  213 | reg overflow_reg = 1'b0;
+      |                    ^~~~
+                      ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:262:5: ... Location of variable process write
+                                                                                                                                   : ... Perhaps should initialize instead using a reset in this process
+  262 |     overflow_reg <= 1'b0;
+      |     ^~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:214:21: Procedural assignment to declaration with initial value: 'bad_frame_reg'
+                                                                                                                                    : ... note: In instance 'tb_split_top.u_dp.g_sp_ctrl.ctrl_split.rx_fifo'
+                                                                                                                                    : ... Location of variable initialization
+  214 | reg bad_frame_reg = 1'b0;
+      |                     ^~~~
+                      ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:263:5: ... Location of variable process write
+                                                                                                                                   : ... Perhaps should initialize instead using a reset in this process
+  263 |     bad_frame_reg <= 1'b0;
+      |     ^~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:215:22: Procedural assignment to declaration with initial value: 'good_frame_reg'
+                                                                                                                                    : ... note: In instance 'tb_split_top.u_dp.g_sp_ctrl.ctrl_split.rx_fifo'
+                                                                                                                                    : ... Location of variable initialization
+  215 | reg good_frame_reg = 1'b0;
+      |                      ^~~~
+                      ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:264:5: ... Location of variable process write
+                                                                                                                                   : ... Perhaps should initialize instead using a reset in this process
+  264 |     good_frame_reg <= 1'b0;
+      |     ^~~~~~~~~~~~~~
+%Warning-SYNCASYNCNET: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_async_fifo.v:98:35: Signal flopped as both synchronous and async: 'tb_split_top.__Vcellinp__u_tx_x__s_rst'
+                       ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_async_fifo.v:371:9: ... Location of async usage
+  371 |     if (s_rst) begin
+      |         ^~~~~
+                       ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_async_fifo.v:542:9: ... Location of sync usage
+  542 |     if (s_rst) begin
+      |         ^~~~~
+                       ... For warning description see https://verilator.org/warn/SYNCASYNCNET?v=5.050
+                       ... Use "/* verilator lint_off SYNCASYNCNET */" and lint_on around source to disable this message.
+%Warning-SYNCASYNCNET: tb_split_top.sv:37:35: Signal flopped as both synchronous and async: 'dp_rst_n'
+                       ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/milan/milan_datapath.sv:3990:10: ... Location of async usage
+ 3990 |     if (!axis_resetn) begin
+      |          ^~~~~~~~~~~
+                       ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/milan/milan_datapath.sv:976:10: ... Location of sync usage
+  976 |     if (!axis_resetn)        media_lrclk_r <= 1'b0;
+      |          ^~~~~~~~~~~
+%Warning-SYNCASYNCNET: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:95:35: Signal flopped as both synchronous and async: 'tb_split_top.u_dp.aaf_rx_depkt.__Vcellinp__frame_fifo__rst'
+                       ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:95:35: ... Location of async usage
+   95 |     input  wire                   rst,
+      |                                   ^~~
+                       ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:95:35: ... Location of sync usage
+   95 |     input  wire                   rst,
+      |                                   ^~~
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 200.833 MB sources in 133 modules, into 9.498 MB in 20 C++ files needing 0.008 MB
+- Verilator: Walltime 11.816 s (elab=0.238, cvt=1.079, bld=10.125); cpu 1.796 s on 4 threads; allocated 404.082 MB
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+[endstation_builder] endstation_ax7101_1x1_tdm8: 1x1 AAF + CRF, tdm8, 25 clusters (role-pools), model_id 0x001BC5CD179523AB (hash); 3 planned element(s); resources TIGHT (worst LUT 79.4%)
+  wrote tb/verilator/milan_dp/obj_bootsa/aem-build/endstation_ax7101_1x1_tdm8/soc_params.json
+  wrote tb/verilator/milan_dp/obj_bootsa/aem-build/endstation_ax7101_1x1_tdm8/aem_overlay.json
+  wrote tb/verilator/milan_dp/obj_bootsa/aem-build/endstation_ax7101_1x1_tdm8/build_plan.md
+  wrote tb/verilator/milan_dp/obj_bootsa/aem-build/endstation_ax7101_1x1_tdm8/lwsrp_table.json
+  wrote tb/verilator/milan_dp/obj_bootsa/aem-build/endstation_ax7101_1x1_tdm8/lwsrp_table.svh
+  wrote tb/verilator/milan_dp/obj_bootsa/aem-build/endstation_ax7101_1x1_tdm8/lwsrp_csr_defaults.svh
+  wrote tb/verilator/milan_dp/obj_bootsa/aem-build/endstation_ax7101_1x1_tdm8/adp_shape_defaults.svh
+  wrote tb/verilator/milan_dp/obj_bootsa/aem-build/endstation_ax7101_1x1_tdm8/gen/adp_shape_defaults.svh
+  wrote tb/verilator/milan_dp/obj_bootsa/aem-build/endstation_ax7101_1x1_tdm8/platform_shape.json
+  wrote configs/generated/sweep_opts_ax7101.sh
+  wrote tb/verilator/milan_dp/obj_bootsa/aem-build/endstation_ax7101_1x1_tdm8/nvm_split.json
+  wrote tb/verilator/milan_dp/obj_bootsa/aem-build/endstation_ax7101_1x1_tdm8/gptp_ucode.hex
+  wrote tb/verilator/milan_dp/obj_bootsa/aem-build/endstation_ax7101_1x1_tdm8/aecp_aem_rom.svh
+[gen_aemi_image] obj_bootsa/aem-build/endstation_ax7101_1x1_tdm8/aem_overlay.json: 42 descriptors -> obj_bootsa/aemi.bin, 7512 bytes
+magic AEMI  layout_version 1
+configurations 1  index entries 15  names 39
+index_off 0x000020  names_off 0x001398  image_bytes 7512  desc_max_len 452
+checksum 0xBCE6817E
+
+  cfg  type    first  count  elem_len  stride  elem_off   name_base
+    0  0x0000      0      1       312     312  0x000110          0
+    0  0x0001      0      1       106     112  0x000248          2
+    0  0x0002      0      1       148     152  0x0002B8          3
+    0  0x0005      0      1       154     160  0x000350          4
+    0  0x0005      1      1       146     152  0x0003F0          5
+    0  0x0006      0      2       146     152  0x000488          6
+    0  0x0009      0      1       102     104  0x0005B8          8
+    0  0x000A      0      3        86      88  0x000620          9
+    0  0x000C      0      1        72      72  0x000728          -
+    0  0x000D      0      1       452     456  0x000770          -
+    0  0x000E      0      1        20      24  0x000938          -
+    0  0x000F      0      1        20      24  0x000950          -
+    0  0x0014      0     25        90      96  0x000968         12
+    0  0x001A      0      1       113     120  0x0012C8         37
+    0  0x0024      0      1        82      88  0x001340         38
+
+semantic lint: on (07 §3.1 rules L1 to L12)
+lint waivers applied: 0
+ADP inputs this model requires (Milan v1.2 §5.3.3.1, §5.6.2):
+  entity_model_id_i  0x001BC5CD179523AB
+  talker_sources_i   2
+  listener_sinks_i   2
+  identify_index_i   0
+model digest sha256 1ec821bbaef9c1911ba0c6af2b42cf64af860939332a6df3dd2049a64f46852e (IEEE 1722.1-2021 §6.2.2.8)
+obj_bootsa/boot/gptp_ucode.hex: 1024 words, 1015 real (99.1%), mac 024B4C4B4C01
+legs: BTCA@729 BECOME@975 BECGATE@941 SELF@309 RFU@471 SYNCFU@336 SYNCTX@834 ANNTX@385 PDPOST@28 PDPAIR@634 PDEPOCH@698 SRTO@988 SRWATCH@58 FUTO@509 SERVO@0 SLEW@163 SVRATE@958 RESUME@248 PDREQ@890 TXLOST@106 TXT1OK@999 NOTEN@1009
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/milan/milan_datapath.sv:1067:5: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                                                                      : ... Suggest assign a label with 'begin : gen_<label_name>'
+ 1067 |     $error("milan_datapath: AUDIO_IF_I2S_PAIR_P=1 blends the stereo I2S front-end beside a TDM MASTER (HANDOVER 8.3b). With AUDIO_IF_MASTER_P=%0d / AUDIO_IF_SLOTS_P=%0d there is no master to blend with: a SLAVE shares the i2s mclk pin and the plain I2S build already IS the I2S front-end.",
+      |     ^~~~~~
+                     ... For warning description see https://verilator.org/warn/GENUNNAMED?v=5.050
+                     ... Use "/* verilator lint_off GENUNNAMED */" and lint_on around source to disable this message.
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/milan/milan_datapath.sv:1071:5: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                                                                      : ... Suggest assign a label with 'begin : gen_<label_name>'
+ 1071 |     $error("milan_datapath: TALKER_WIRE_CHANS_P=%0d is not an even 2..8. It is the channels_per_frame the framer emits (IEEE 1722-2016 7.3.3) and the pair stream is 2-channel-granular.",
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/milan/milan_datapath.sv:1074:5: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                                                                      : ... Suggest assign a label with 'begin : gen_<label_name>'
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/milan/milan_datapath.sv:1114:5: Unnamed generate block 'genblk2' (IEEE 1800-2023 27.6)
+                                                                                                                      : ... Suggest assign a label with 'begin : gen_<label_name>'
+ 1114 |     $error("milan_datapath: AUDIO_IF_MASTER_P=1 with AUDIO_IF_SLOTS_P=0 asks for a TDM bus master on a build whose capture front-end is the stereo I2S one (KL_aaf_capture_i2s, which is already its own I2S clock master). Select a TDM slot count or leave the master off.");
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/milan/milan_datapath.sv:1118:5: Unnamed generate block 'genblk2' (IEEE 1800-2023 27.6)
+                                                                                                                      : ... Suggest assign a label with 'begin : gen_<label_name>'
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/milan/milan_datapath.sv:1165:5: Unnamed generate block 'genblk3' (IEEE 1800-2023 27.6)
+                                                                                                                      : ... Suggest assign a label with 'begin : gen_<label_name>'
+ 1165 |     $error("milan_datapath: AUDIO_IF_RENDER_SLOTS_P=%0d is negative. It is a slot COUNT (0 prunes the render lane).",
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/milan/milan_datapath.sv:1168:5: Unnamed generate block 'genblk3' (IEEE 1800-2023 27.6)
+                                                                                                                      : ... Suggest assign a label with 'begin : gen_<label_name>'
+ 1168 |     $error("milan_datapath: AUDIO_IF_RENDER_SLOTS_P=%0d asks for a TDM render lane on a build whose audio interface is the stereo I2S one (AUDIO_IF_SLOTS_P=0). The render lane serializes TDM slots of the bus the capture front-end frames; select a TDM slot count or leave the render lane pruned.",
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/milan/milan_datapath.sv:1171:5: Unnamed generate block 'genblk3' (IEEE 1800-2023 27.6)
+                                                                                                                      : ... Suggest assign a label with 'begin : gen_<label_name>'
+ 1171 |     $error("milan_datapath: AUDIO_IF_RENDER_SLOTS_P=%0d exceeds AUDIO_IF_SLOTS_P=%0d. Both directions ride ONE frame of AUDIO_IF_SLOTS_P slots, so the render lane cannot be wider than it.",
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/milan/milan_datapath.sv:1174:5: Unnamed generate block 'genblk3' (IEEE 1800-2023 27.6)
+                                                                                                                      : ... Suggest assign a label with 'begin : gen_<label_name>'
+ 1174 |     $error("milan_datapath: AUDIO_IF_RENDER_SLOTS_P=%0d exceeds the render crossbar's TDM key lane CHMAP_RPHYS_TDM_N_C=%0d (keys %0d..%0d). A wider lane is refused rather than silently truncated onto the DAC keys.",
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/milan/milan_datapath.sv:1180:5: Unnamed generate block 'genblk3' (IEEE 1800-2023 27.6)
+                                                                                                                      : ... Suggest assign a label with 'begin : gen_<label_name>'
+ 1180 |     $error("milan_datapath: AUDIO_IF_RENDER_SLOTS_P=%0d is NARROWER than AUDIO_IF_SLOTS_P=%0d on a codec-driven (slave) bus. The slave render serializer frames its bank as the whole bus frame, so a SLAVE render lane is the FULL bus width: declare AUDIO_IF_RENDER_SLOTS_P=%0d, or 0 to prune the lane. Only a MASTER lane (BUS_SLOTS_P) may be narrower.",
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/milan/milan_datapath.sv:1989:5: Unnamed generate block 'genblk5' (IEEE 1800-2023 27.6)
+                                                                                                                      : ... Suggest assign a label with 'begin : gen_<label_name>'
+ 1989 |     $error("milan_datapath: entity definition declares ADP_TALKER_SRC_C=%0d, which is neither N_STREAMS (%0d) nor N_STREAMS+1. Point +incdir at the configs/generated/<config>/ whose shape matches this elaboration (it must come BEFORE hdl/common/csr on the include path), or rebuild the tracked include with endstation_builder.py --write-rtl.",
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/ieee1722/aaf/KL_pair_blend.sv:94:5: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                                                                          : ... Suggest assign a label with 'begin : gen_<label_name>'
+   94 |     $error("KL_pair_blend: TDM_SLOTS_P=%0d needs 1 + %0d merged pair slots, which does not fit the 4-bit capture pair-slot bus (16). The blend ships as I2S + TDM8; widen the pair-slot bus before asking for more.",
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/ieee1722/aaf/KL_pair_zero_fill.sv:113:5: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                                                                               : ... Suggest assign a label with 'begin : gen_<label_name>'
+  113 |     $error("KL_pair_zero_fill: TOTAL_P=%0d outside 1..%0d (SLOT_W_P=%0d pair-slot bus).",
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/ieee1722/aaf/KL_aaf_packetizer.sv:243:5: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                                                                               : ... Suggest assign a label with 'begin : gen_<label_name>'
+  243 |     $error("KL_aaf_packetizer: WIRE_CHANS_P=%0d is not an even 2..%0d. This is the channels_per_frame the framer emits (IEEE 1722-2016 7.3.3); the pair stream is 2-channel-granular so odd widths cannot be produced.",
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/ieee1722/avtp/KL_media_clock_restart.sv:197:5: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                                                                                     : ... Suggest assign a label with 'begin : gen_<label_name>'
+  197 |     $error("KL_media_clock_restart: N_TALKERS_P=%0d outside 1..16 (4-bit idx).",
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/ieee1722/avtp/KL_media_clock_restart.sv:200:5: Unnamed generate block 'genblk2' (IEEE 1800-2023 27.6)
+                                                                                                                                     : ... Suggest assign a label with 'begin : gen_<label_name>'
+  200 |     $error("KL_media_clock_restart: HOLD_PDU_P=%0d below the 1722-2016 4.4.4.3 floor of 8.",
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/ieee1722/avtp/KL_talker_diag_ctx.sv:132:5: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                                                                                 : ... Suggest assign a label with 'begin : gen_<label_name>'
+  132 |     $error("KL_talker_diag_ctx: N_CTX_P=%0d outside 1..16 (the 4-bit index feeds).",
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/ieee1722/crf/KL_media_grid_align.sv:148:5: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                                                                                 : ... Suggest assign a label with 'begin : gen_<label_name>'
+  148 |     $error("KL_media_grid_align: CLK_FREQ_HZ_P/FS_HZ_P = %0d leaves the detector under 4 bits of sub-sample resolution - this loop cannot bound phase inside a sample there.", DIV_C);
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/ieee1722/crf/KL_media_grid_align.sv:150:5: Unnamed generate block 'genblk2' (IEEE 1800-2023 27.6)
+                                                                                                                                 : ... Suggest assign a label with 'begin : gen_<label_name>'
+  150 |     $error("KL_media_grid_align: DIV_C=%0d puts the saturated fold plus the capture span past err_cyc_o's 16-bit range - the truncation would wrap the error sign. Lower SLIP_LIM_C or widen err_cyc_o.", DIV_C);
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/ieee1722/crf/KL_media_grid_align.sv:152:5: Unnamed generate block 'genblk3' (IEEE 1800-2023 27.6)
+                                                                                                                                 : ... Suggest assign a label with 'begin : gen_<label_name>'
+  152 |     $error("KL_media_grid_align: U_LIM_PPM16_P=%0d cannot absorb a pre-clamp proportional term of +/-%0d without widening u_o.", U_LIM_PPM16_P, 2 * DIV_C << KP_LOG2_P);
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/ieee1722/crf/KL_media_grid_align.sv:154:5: Unnamed generate block 'genblk4' (IEEE 1800-2023 27.6)
+                                                                                                                                 : ... Suggest assign a label with 'begin : gen_<label_name>'
+  154 |     $error("KL_media_grid_align: LOCK_KEEPOFF_CYC_P=%0d leaves no lock target between the ticks of a %0d-cycle sample.", LOCK_KEEPOFF_CYC_P, DIV_C);
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:223:63: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                                                                                   : ... Suggest assign a label with 'begin : gen_<label_name>'
+  223 |     if (KEEP_ENABLE) assign s_axis[KEEP_OFFSET +: KEEP_WIDTH] = s_axis_tkeep;
+      |                                                               ^
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:224:63: Unnamed generate block 'genblk2' (IEEE 1800-2023 27.6)
+                                                                                                                                   : ... Suggest assign a label with 'begin : gen_<label_name>'
+  224 |     if (LAST_ENABLE) assign s_axis[LAST_OFFSET]               = s_axis_tlast | mark_frame_reg;
+      |                                                               ^
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:225:63: Unnamed generate block 'genblk3' (IEEE 1800-2023 27.6)
+                                                                                                                                   : ... Suggest assign a label with 'begin : gen_<label_name>'
+  225 |     if (ID_ENABLE)   assign s_axis[ID_OFFSET   +: ID_WIDTH]   = s_axis_tid;
+      |                                                               ^
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:226:63: Unnamed generate block 'genblk4' (IEEE 1800-2023 27.6)
+                                                                                                                                   : ... Suggest assign a label with 'begin : gen_<label_name>'
+  226 |     if (DEST_ENABLE) assign s_axis[DEST_OFFSET +: DEST_WIDTH] = s_axis_tdest;
+      |                                                               ^
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:227:63: Unnamed generate block 'genblk5' (IEEE 1800-2023 27.6)
+                                                                                                                                   : ... Suggest assign a label with 'begin : gen_<label_name>'
+  227 |     if (USER_ENABLE) assign s_axis[USER_OFFSET +: USER_WIDTH] = mark_frame_reg ? USER_BAD_FRAME_VALUE : s_axis_tuser;
+      |                                                               ^
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:409:26: Unnamed generate block 'genblk6' (IEEE 1800-2023 27.6)
+                                                                                                                                   : ... Suggest assign a label with 'begin : gen_<label_name>'
+  409 | if (!OUTPUT_FIFO_ENABLE) begin
+      |                          ^~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:546:10: Unnamed generate block 'genblk7' (IEEE 1800-2023 27.6)
+                                                                                                                                   : ... Suggest assign a label with 'begin : gen_<label_name>'
+  546 | end else begin
+      |          ^~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/priority_encoder.v:62:32: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                                                                                         : ... Suggest assign a label with 'begin : gen_<label_name>'
+   62 |         if (LSB_HIGH_PRIORITY) begin
+      |                                ^~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/priority_encoder.v:65:18: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                                                                                         : ... Suggest assign a label with 'begin : gen_<label_name>'
+   65 |         end else begin
+      |                  ^~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/priority_encoder.v:75:36: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                                                                                         : ... Suggest assign a label with 'begin : gen_<label_name>'
+   75 |             if (LSB_HIGH_PRIORITY) begin
+      |                                    ^~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/priority_encoder.v:78:22: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                                                                                         : ... Suggest assign a label with 'begin : gen_<label_name>'
+   78 |             end else begin
+      |                      ^~~~~
+%Warning-VARHIDDEN: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/milan/milan_datapath.sv:65:17: Declaration of signal hides declaration in upper scope: 'TDATA_WIDTH'
+   65 |   parameter int TDATA_WIDTH = 64,
+      |                 ^~~~~~~~~~~
+                    ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/common/ethernet_packet_pkg.sv:39:15: ... Location of original declaration
+   39 | parameter int TDATA_WIDTH = 64;
+      |               ^~~~~~~~~~~
+                    ... For warning description see https://verilator.org/warn/VARHIDDEN?v=5.050
+                    ... Use "/* verilator lint_off VARHIDDEN */" and lint_on around source to disable this message.
+%Warning-VARHIDDEN: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/ieee8021q/filtering/rx_mac_filter.sv:48:19: Declaration of signal hides declaration in upper scope: 'TDATA_WIDTH'
+   48 |     parameter int TDATA_WIDTH  = 64,
+      |                   ^~~~~~~~~~~
+                    ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/common/ethernet_packet_pkg.sv:39:15: ... Location of original declaration
+   39 | parameter int TDATA_WIDTH = 64;
+      |               ^~~~~~~~~~~
+%Warning-VARHIDDEN: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/ieee1722/avtp/avtp_stream_parser.sv:58:17: Declaration of signal hides declaration in upper scope: 'TDATA_WIDTH'
+   58 |   parameter int TDATA_WIDTH = 64,      
+      |                 ^~~~~~~~~~~
+                    ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/common/ethernet_packet_pkg.sv:39:15: ... Location of original declaration
+   39 | parameter int TDATA_WIDTH = 64;
+      |               ^~~~~~~~~~~
+%Warning-VARHIDDEN: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/ieee1722/aaf/KL_i2s_playback.sv:52:17: Declaration of signal hides declaration in upper scope: 'CLK_FREQ_HZ'
+   52 |   parameter int CLK_FREQ_HZ   = 50_000_000,  
+      |                 ^~~~~~~~~~~
+                    ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/common/ethernet_packet_pkg.sv:344:15: ... Location of original declaration
+  344 | parameter int CLK_FREQ_HZ = 100_000_000;
+      |               ^~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/common/eth_event_counter/ethernet_events.sv:60:70: Procedural assignment to declaration with initial value: 'tx_error_underflow_cnt'
+                                                                                                                                          : ... note: In instance 'milan_datapath.ethernet_counters'
+                                                                                                                                          : ... Location of variable initialization
+   60 | (* mark_debug = "true" *) logic [WIDTH-1:0] tx_error_underflow_cnt = '0;
+      |                                                                      ^~
+                      ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/common/eth_event_counter/ethernet_events.sv:86:3: ... Location of variable process write
+                                                                                                                                         : ... Perhaps should initialize instead using a reset in this process
+   86 |   tx_error_underflow_cnt <= counters[TX_ERROR_UNDERFLOW];
+      |   ^~~~~~~~~~~~~~~~~~~~~~
+                      ... For warning description see https://verilator.org/warn/PROCASSINIT?v=5.050
+                      ... Use "/* verilator lint_off PROCASSINIT */" and lint_on around source to disable this message.
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/common/eth_event_counter/ethernet_events.sv:61:68: Procedural assignment to declaration with initial value: 'tx_fifo_overflow_cnt'
+                                                                                                                                          : ... note: In instance 'milan_datapath.ethernet_counters'
+                                                                                                                                          : ... Location of variable initialization
+   61 | (* mark_debug = "true" *) logic [WIDTH-1:0] tx_fifo_overflow_cnt = '0;
+      |                                                                    ^~
+                      ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/common/eth_event_counter/ethernet_events.sv:87:3: ... Location of variable process write
+                                                                                                                                         : ... Perhaps should initialize instead using a reset in this process
+   87 |   tx_fifo_overflow_cnt <= counters[TX_FIFO_OVERFLOW];
+      |   ^~~~~~~~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/common/eth_event_counter/ethernet_events.sv:62:69: Procedural assignment to declaration with initial value: 'tx_fifo_bad_frame_cnt'
+                                                                                                                                          : ... note: In instance 'milan_datapath.ethernet_counters'
+                                                                                                                                          : ... Location of variable initialization
+   62 | (* mark_debug = "true" *) logic [WIDTH-1:0] tx_fifo_bad_frame_cnt = '0;
+      |                                                                     ^~
+                      ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/common/eth_event_counter/ethernet_events.sv:88:3: ... Location of variable process write
+                                                                                                                                         : ... Perhaps should initialize instead using a reset in this process
+   88 |   tx_fifo_bad_frame_cnt <= counters[TX_FIFO_BAD_FRAME];
+      |   ^~~~~~~~~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/common/eth_event_counter/ethernet_events.sv:63:70: Procedural assignment to declaration with initial value: 'tx_fifo_good_frame_cnt'
+                                                                                                                                          : ... note: In instance 'milan_datapath.ethernet_counters'
+                                                                                                                                          : ... Location of variable initialization
+   63 | (* mark_debug = "true" *) logic [WIDTH-1:0] tx_fifo_good_frame_cnt = '0;
+      |                                                                      ^~
+                      ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/common/eth_event_counter/ethernet_events.sv:89:3: ... Location of variable process write
+                                                                                                                                         : ... Perhaps should initialize instead using a reset in this process
+   89 |   tx_fifo_good_frame_cnt <= counters[TX_FIFO_GOOD_FRAME];
+      |   ^~~~~~~~~~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/common/eth_event_counter/ethernet_events.sv:64:70: Procedural assignment to declaration with initial value: 'rx_error_bad_frame_cnt'
+                                                                                                                                          : ... note: In instance 'milan_datapath.ethernet_counters'
+                                                                                                                                          : ... Location of variable initialization
+   64 | (* mark_debug = "true" *) logic [WIDTH-1:0] rx_error_bad_frame_cnt = '0;
+      |                                                                      ^~
+                      ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/common/eth_event_counter/ethernet_events.sv:90:3: ... Location of variable process write
+                                                                                                                                         : ... Perhaps should initialize instead using a reset in this process
+   90 |   rx_error_bad_frame_cnt <= counters[RX_ERROR_BAD_FRAME];
+      |   ^~~~~~~~~~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/common/eth_event_counter/ethernet_events.sv:65:68: Procedural assignment to declaration with initial value: 'rx_error_bad_fcs_cnt'
+                                                                                                                                          : ... note: In instance 'milan_datapath.ethernet_counters'
+                                                                                                                                          : ... Location of variable initialization
+   65 | (* mark_debug = "true" *) logic [WIDTH-1:0] rx_error_bad_fcs_cnt = '0;
+      |                                                                    ^~
+                      ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/common/eth_event_counter/ethernet_events.sv:91:3: ... Location of variable process write
+                                                                                                                                         : ... Perhaps should initialize instead using a reset in this process
+   91 |   rx_error_bad_fcs_cnt <= counters[RX_ERROR_BAD_FCS];
+      |   ^~~~~~~~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/common/eth_event_counter/ethernet_events.sv:66:68: Procedural assignment to declaration with initial value: 'rx_fifo_overflow_cnt'
+                                                                                                                                          : ... note: In instance 'milan_datapath.ethernet_counters'
+                                                                                                                                          : ... Location of variable initialization
+   66 | (* mark_debug = "true" *) logic [WIDTH-1:0] rx_fifo_overflow_cnt = '0;
+      |                                                                    ^~
+                      ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/common/eth_event_counter/ethernet_events.sv:92:3: ... Location of variable process write
+                                                                                                                                         : ... Perhaps should initialize instead using a reset in this process
+   92 |   rx_fifo_overflow_cnt <= counters[RX_FIFO_OVERFLOW];
+      |   ^~~~~~~~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/common/eth_event_counter/ethernet_events.sv:67:69: Procedural assignment to declaration with initial value: 'rx_fifo_bad_frame_cnt'
+                                                                                                                                          : ... note: In instance 'milan_datapath.ethernet_counters'
+                                                                                                                                          : ... Location of variable initialization
+   67 | (* mark_debug = "true" *) logic [WIDTH-1:0] rx_fifo_bad_frame_cnt = '0;
+      |                                                                     ^~
+                      ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/common/eth_event_counter/ethernet_events.sv:93:3: ... Location of variable process write
+                                                                                                                                         : ... Perhaps should initialize instead using a reset in this process
+   93 |   rx_fifo_bad_frame_cnt <= counters[RX_FIFO_BAD_FRAME];
+      |   ^~~~~~~~~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/common/eth_event_counter/ethernet_events.sv:68:70: Procedural assignment to declaration with initial value: 'rx_fifo_good_frame_cnt'
+                                                                                                                                          : ... note: In instance 'milan_datapath.ethernet_counters'
+                                                                                                                                          : ... Location of variable initialization
+   68 | (* mark_debug = "true" *) logic [WIDTH-1:0] rx_fifo_good_frame_cnt = '0;
+      |                                                                      ^~
+                      ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/common/eth_event_counter/ethernet_events.sv:94:3: ... Location of variable process write
+                                                                                                                                         : ... Perhaps should initialize instead using a reset in this process
+   94 |   rx_fifo_good_frame_cnt <= counters[RX_FIFO_GOOD_FRAME];
+      |   ^~~~~~~~~~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/common/csr/milan_csr.sv:2316:29: Procedural assignment to declaration with initial value: 'rst_epoch_r'
+                                                                                                                        : ... note: In instance 'milan_datapath.csr'
+                                                                                                                        : ... Location of variable initialization
+ 2316 |   logic [7:0] rst_epoch_r = 8'd0;
+      |                             ^~~~
+                      ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/common/csr/milan_csr.sv:2838:34: ... Location of variable process write
+                                                                                                                        : ... Perhaps should initialize instead using a reset in this process
+ 2838 |     if (aresetn && !rstn_seen_r) rst_epoch_r <= rst_epoch_r + 8'd1;
+      |                                  ^~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/common/csr/milan_csr.sv:2835:27: Procedural assignment to declaration with initial value: 'rstn_seen_r'
+                                                                                                                        : ... note: In instance 'milan_datapath.csr'
+                                                                                                                        : ... Location of variable initialization
+ 2835 |   logic     rstn_seen_r = 1'b0;
+      |                           ^~~~
+                      ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/common/csr/milan_csr.sv:2837:5: ... Location of variable process write
+                                                                                                                       : ... Perhaps should initialize instead using a reset in this process
+ 2837 |     rstn_seen_r <= aresetn;
+      |     ^~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:187:46: Procedural assignment to declaration with initial value: 'wr_ptr_reg'
+                                                                                                                                    : ... note: In instance 'milan_datapath.aaf_rx_depkt.frame_fifo'
+                                                                                                                                    : ... Location of variable initialization
+  187 | reg [ADDR_WIDTH:0] wr_ptr_reg = {ADDR_WIDTH+1{1'b0}};
+      |                                              ^
+                      ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:281:21: ... Location of variable process write
+                                                                                                                                    : ... Perhaps should initialize instead using a reset in this process
+  281 |                     wr_ptr_reg <= wr_ptr_commit_reg;
+      |                     ^~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:188:53: Procedural assignment to declaration with initial value: 'wr_ptr_commit_reg'
+                                                                                                                                    : ... note: In instance 'milan_datapath.aaf_rx_depkt.frame_fifo'
+                                                                                                                                    : ... Location of variable initialization
+  188 | reg [ADDR_WIDTH:0] wr_ptr_commit_reg = {ADDR_WIDTH+1{1'b0}};
+      |                                                     ^
+                      ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:298:25: ... Location of variable process write
+                                                                                                                                    : ... Perhaps should initialize instead using a reset in this process
+  298 |                         wr_ptr_commit_reg <= wr_ptr_reg + 1;
+      |                         ^~~~~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:189:46: Procedural assignment to declaration with initial value: 'rd_ptr_reg'
+                                                                                                                                    : ... note: In instance 'milan_datapath.aaf_rx_depkt.frame_fifo'
+                                                                                                                                    : ... Location of variable initialization
+  189 | reg [ADDR_WIDTH:0] rd_ptr_reg = {ADDR_WIDTH+1{1'b0}};
+      |                                              ^
+                      ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:397:13: ... Location of variable process write
+                                                                                                                                    : ... Perhaps should initialize instead using a reset in this process
+  397 |             rd_ptr_reg <= rd_ptr_reg + 1;
+      |             ^~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:197:51: Procedural assignment to declaration with initial value: 'm_axis_tvalid_pipe_reg'
+                                                                                                                                    : ... note: In instance 'milan_datapath.aaf_rx_depkt.frame_fifo'
+                                                                                                                                    : ... Location of variable initialization
+  197 | reg [RAM_PIPELINE+1-1:0] m_axis_tvalid_pipe_reg = 0;
+      |                                                   ^
+                      ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:378:9: ... Location of variable process write
+                                                                                                                                   : ... Perhaps should initialize instead using a reset in this process
+  378 |         m_axis_tvalid_pipe_reg[RAM_PIPELINE+1-1] <= 1'b0;
+      |         ^~~~~~~~~~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:206:19: Procedural assignment to declaration with initial value: 's_frame_reg'
+                                                                                                                                    : ... note: In instance 'milan_datapath.aaf_rx_depkt.frame_fifo'
+                                                                                                                                    : ... Location of variable initialization
+  206 | reg s_frame_reg = 1'b0;
+      |                   ^~~~
+                      ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:268:9: ... Location of variable process write
+                                                                                                                                   : ... Perhaps should initialize instead using a reset in this process
+  268 |         s_frame_reg <= !s_axis_tlast;
+      |         ^~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:208:22: Procedural assignment to declaration with initial value: 'drop_frame_reg'
+                                                                                                                                    : ... note: In instance 'milan_datapath.aaf_rx_depkt.frame_fifo'
+                                                                                                                                    : ... Location of variable initialization
+  208 | reg drop_frame_reg = 1'b0;
+      |                      ^~~~
+                      ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:278:17: ... Location of variable process write
+                                                                                                                                    : ... Perhaps should initialize instead using a reset in this process
+  278 |                 drop_frame_reg <= 1'b1;
+      |                 ^~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:209:22: Procedural assignment to declaration with initial value: 'mark_frame_reg'
+                                                                                                                                    : ... note: In instance 'milan_datapath.aaf_rx_depkt.frame_fifo'
+                                                                                                                                    : ... Location of variable initialization
+  209 | reg mark_frame_reg = 1'b0;
+      |                      ^~~~
+                      ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:318:25: ... Location of variable process write
+                                                                                                                                    : ... Perhaps should initialize instead using a reset in this process
+  318 |                         mark_frame_reg <= 1'b0;
+      |                         ^~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:210:22: Procedural assignment to declaration with initial value: 'send_frame_reg'
+                                                                                                                                    : ... note: In instance 'milan_datapath.aaf_rx_depkt.frame_fifo'
+                                                                                                                                    : ... Location of variable initialization
+  210 | reg send_frame_reg = 1'b0;
+      |                      ^~~~
+                      ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:291:21: ... Location of variable process write
+                                                                                                                                    : ... Perhaps should initialize instead using a reset in this process
+  291 |                     send_frame_reg <= !s_axis_tlast;
+      |                     ^~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:211:32: Procedural assignment to declaration with initial value: 'depth_reg'
+                                                                                                                                    : ... note: In instance 'milan_datapath.aaf_rx_depkt.frame_fifo'
+                                                                                                                                    : ... Location of variable initialization
+  211 | reg [ADDR_WIDTH:0] depth_reg = 0;
+      |                                ^
+                      ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:368:5: ... Location of variable process write
+                                                                                                                                   : ... Perhaps should initialize instead using a reset in this process
+  368 |     depth_reg <= wr_ptr_reg - rd_ptr_reg;
+      |     ^~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:212:39: Procedural assignment to declaration with initial value: 'depth_commit_reg'
+                                                                                                                                    : ... note: In instance 'milan_datapath.aaf_rx_depkt.frame_fifo'
+                                                                                                                                    : ... Location of variable initialization
+  212 | reg [ADDR_WIDTH:0] depth_commit_reg = 0;
+      |                                       ^
+                      ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:369:5: ... Location of variable process write
+                                                                                                                                   : ... Perhaps should initialize instead using a reset in this process
+  369 |     depth_commit_reg <= wr_ptr_commit_reg - rd_ptr_reg;
+      |     ^~~~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:213:20: Procedural assignment to declaration with initial value: 'overflow_reg'
+                                                                                                                                    : ... note: In instance 'milan_datapath.aaf_rx_depkt.frame_fifo'
+                                                                                                                                    : ... Location of variable initialization
+  213 | reg overflow_reg = 1'b0;
+      |                    ^~~~
+                      ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:262:5: ... Location of variable process write
+                                                                                                                                   : ... Perhaps should initialize instead using a reset in this process
+  262 |     overflow_reg <= 1'b0;
+      |     ^~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:214:21: Procedural assignment to declaration with initial value: 'bad_frame_reg'
+                                                                                                                                    : ... note: In instance 'milan_datapath.aaf_rx_depkt.frame_fifo'
+                                                                                                                                    : ... Location of variable initialization
+  214 | reg bad_frame_reg = 1'b0;
+      |                     ^~~~
+                      ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:263:5: ... Location of variable process write
+                                                                                                                                   : ... Perhaps should initialize instead using a reset in this process
+  263 |     bad_frame_reg <= 1'b0;
+      |     ^~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:215:22: Procedural assignment to declaration with initial value: 'good_frame_reg'
+                                                                                                                                    : ... note: In instance 'milan_datapath.aaf_rx_depkt.frame_fifo'
+                                                                                                                                    : ... Location of variable initialization
+  215 | reg good_frame_reg = 1'b0;
+      |                      ^~~~
+                      ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:264:5: ... Location of variable process write
+                                                                                                                                   : ... Perhaps should initialize instead using a reset in this process
+  264 |     good_frame_reg <= 1'b0;
+      |     ^~~~~~~~~~~~~~
+%Warning-SYNCASYNCNET: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/milan/milan_datapath.sv:509:15: Signal flopped as both synchronous and async: 'axis_resetn'
+                       ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/milan/milan_datapath.sv:3990:10: ... Location of async usage
+ 3990 |     if (!axis_resetn) begin
+      |          ^~~~~~~~~~~
+                       ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/milan/milan_datapath.sv:976:10: ... Location of sync usage
+  976 |     if (!axis_resetn)        media_lrclk_r <= 1'b0;
+      |          ^~~~~~~~~~~
+                       ... For warning description see https://verilator.org/warn/SYNCASYNCNET?v=5.050
+                       ... Use "/* verilator lint_off SYNCASYNCNET */" and lint_on around source to disable this message.
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 169.215 MB sources in 123 modules, into 17.645 MB in 25 C++ files needing 0.007 MB
+- Verilator: Walltime 25.635 s (elab=0.299, cvt=2.292, bld=22.593); cpu 3.226 s on 4 threads; allocated 468.086 MB
+./obj_dir/Vmilan_dp_sim
+=== milan_datapath integration harness (§A.9 wrapper) ===
+[CSR] identity + reset values
+  [PASS] ID == 'MILN'                       got=0x4d494c4e exp=0x4d494c4e
+  [PASS] VERSION                            got=0x00020060 exp=0x00020060
+  [PASS] VERSION major (VERSION >> 16), all-fabric got=0x00000002 exp=0x00000002
+  [PASS] LINKG unarmed                      got=0x00000003 exp=0x00000003
+[CSR] eth guard: refused levers, magic unguard, junk re-arm
+  [PASS] GUARD armed at reset               got=0x00000001 exp=0x00000001
+  [PASS] PHY_RST write REFUSED while guarded got=0x00000001 exp=0x00000001
+  [PASS] LINK_CTRL[1] masked while guarded  got=0x00000001 exp=0x00000001
+  [PASS] magic unguards                     got=0x00000000 exp=0x00000000
+  [PASS] PHY_RST write accepted unguarded   got=0x00000000 exp=0x00000000
+  [PASS] junk write re-arms the guard       got=0x00000001 exp=0x00000001
+  [PASS] unguarded for the suite            got=0x00000000 exp=0x00000000
+  [PASS] CAP.ADP bit12                      got=0x00000001 exp=0x00000001
+  [PASS] CAP.TCAM bit13                     got=0x00000001 exp=0x00000001
+[CSR] program classifier (identity map)
+  [PASS] CLS_REGEN readback                 got=0x00fac688 exp=0x00fac688
+  [PASS] CLS_TCQ   readback                 got=0x000000e4 exp=0x000000e4
+[BOOT] PP_CTRL[1] starts the restore walk the listener waits for
+  [PASS] PP_STAT the restore walk ended CLOSED (no AEM image: busy 0, done 0, fail 1) got=0x00000001 exp=0x00000001
+  [PASS] PP_STAT[20:18] ...on the D3 cause of an unproven image (7) got=0x00000007 exp=0x00000007
+[ADP] served by the protocol processor; diag words are structural zeros
+  [PASS] A_ADP_DIAG 0x668 is a STRUCTURAL ZERO (no advertiser) got=0x00000000 exp=0x00000000
+  [PASS] A_ADP_DIAG2 0x674 is a STRUCTURAL ZERO (no advertiser) got=0x00000000 exp=0x00000000
+  [GAP]  ADP advertisement cadence is unreachable at the silicon millisecond (T-ADP-DELAY-START is a 0..2000 ms PRNG draw = up to 2e8 cycles; measured: no ADPDU in 4e7). A_ADP_STATUS reads 0x00000000. The ADPDU decode lives in tb/verilator/pp_shadow.
+[ADP] shape 0x618=0x40010001 0x61C=0x48010002 (N_STREAMS=1, CRF source no, CRF sink yes)
+  [PASS] 0x618 RO shape word derives from the config got=0x40010001 exp=0x40010001
+  [PASS] 0x61C RO shape word derives from the config got=0x48010002 exp=0x48010002
+  [PASS] 0x618 refuses the poke             got=0x40010001 exp=0x40010001
+  [PASS] 0x61C refuses the poke             got=0x48010002 exp=0x48010002
+[ACMP] GET_TX_STATE -> RESPONSE through datapath
+  [PASS] ACMP response emerged on MAC port  got=0x00000001 exp=0x00000001
+  [PASS] ACMP response is 9 beats           got=0x00000009 exp=0x00000009
+  [PASS] ACMP dst multicast                 got=0x01f0e091 exp=0x01f0e091
+  [PASS] ACMP subtype 0xFC                  got=0x000000fc exp=0x000000fc
+  [PASS] ACMP msg GET_TX_STATE_RESPONSE(5)  got=0x00000005 exp=0x00000005
+  [PASS] ACMP status SUCCESS + cdl 44       got=0x00002c00 exp=0x00002c00
+  [PASS] ACMP connection_count 0            got=0x00000000 exp=0x00000000
+  [PASS] ACMP sequence echoed               got=0x00002b1a exp=0x00002b1a
+  [PASS] 0x650 ACMP_STAT is a STRUCTURAL ZERO (no PDU counters) got=0x00000000 exp=0x00000000
+  [PASS] PP_DIAG: the plane ACCEPTED control frames (rx_frames > 0) got=0x00000001 exp=0x00000001
+  [PASS] PP_DIAG: and it SENT some (tx_frames > 0) got=0x00000001 exp=0x00000001
+  [PASS] PP_DIAG: nothing was lost to a full control FIFO got=0x00000000 exp=0x00000000
+[IRQ] o_irq_csr is driven
+  [PASS] o_irq_csr defined (0/1)            got=0x00000001 exp=0x00000001
+[PTP] retained PHC CSR control
+  [PASS] PHC adjfine owns the rate          got=0x00000001 exp=0x00000001
+  [PASS] PHC adjtime hops the counter       got=0x00000001 exp=0x00000001
+[MILAN-TALKER] the admission gate, and the bypass escape
+  [PASS] gate closed pre-probe (CSR)        got=0x00000000 exp=0x00000000
+  [PASS] MAC silent while gated             got=0x00000000 exp=0x00000000
+  [PASS] PROBE response emerged             got=0x00000001 exp=0x00000001
+  [PASS] PROBE response 9 beats             got=0x00000009 exp=0x00000009
+  [PASS] PROBE msg RESPONSE(1)              got=0x00000001 exp=0x00000001
+  [PASS] PROBE status TALKER_DEST_MAC_FAILED(3) - no DA held got=0x00000003 exp=0x00000003
+  [PASS] gate STILL closed after a refused probe got=0x00000000 exp=0x00000000
+  [PASS] AAF_CTRL[1] bypass opens the gate, and ONLY the gate got=0x00000008 exp=0x00000008
+  [PASS] AAF frames flow under the bypass escape got=0x00000001 exp=0x00000001
+  [PASS] AAF stream_id == {station MAC, uid 0} got=0x200000000010000 exp=0x200000000010000
+  [PASS] TONE_CTRL readback                 got=0x00000001 exp=0x00000001
+  [PASS] tone L0 in table                   got=0x00000001 exp=0x00000001
+  [PASS] tone L0 == R0 (both channels)      got=0x00000001 exp=0x00000001
+  [PASS] tone advances (L1 = next entry)    got=0x00000001 exp=0x00000001
+  [PASS] tone frame captured                got=0x00000001 exp=0x00000001
+  [PASS] crossbar tone: 48 ticks captured   got=0x00000030 exp=0x00000030
+  [PASS] crossbar tone: all wire channels equal got=0x00000000 exp=0x00000000
+  [PASS] crossbar tone: first sample in table got=0x00000001 exp=0x00000001
+  [PASS] ONE GRID: N ticks = N table steps (no slip) got=0x00000000 exp=0x00000000
+[CLKV] option-off is permanently ownerless (#116)
+  [PASS] CLKV: retained CTRL resets zero    got=0x00000000 exp=0x00000000
+  [PASS] CLKV: reset tu = 1                 got=0x00000001 exp=0x00000001
+  [PASS] CLKV: reset sync_ok = 0            got=0x00000000 exp=0x00000000
+  [PASS] CLKV: retired no-lease bit = 0     got=0x00000000 exp=0x00000000
+  [PASS] CLKV: retired lease count = 0      got=0x00000000 exp=0x00000000
+  [PASS] CLKV: reset asCapable = 0          got=0x00000000 exp=0x00000000
+  [PASS] CLKV: ownerless frame is still emitted got=0x00000001 exp=0x00000001
+  [PASS] CLKV: ownerless frame carries tu=1 got=0x00000001 exp=0x00000001
+  [PASS] CLKV: ownerless frame keeps tv=1   got=0x00000081 exp=0x00000081
+  [PASS] CLKV: frame remains the full AAF PDU got=0x0000005a exp=0x0000005a
+  [PASS] CLKV: all owner-control bits read back zero got=0x00000000 exp=0x00000000
+  [PASS] CLKV: write cannot clear tu        got=0x00000001 exp=0x00000001
+  [PASS] CLKV: write cannot assert sync     got=0x00000000 exp=0x00000000
+  [PASS] CLKV: write cannot assert asCapable got=0x00000000 exp=0x00000000
+  [PASS] CLKV: write cannot create a lease  got=0x00000000 exp=0x00000000
+  [PASS] CLKV: software discontinuity is inert got=0x00000000 exp=0x00000000
+  [PASS] CLKV: frame after owner write is emitted got=0x00000001 exp=0x00000001
+  [PASS] CLKV: owner write cannot clear wire tu got=0x00000001 exp=0x00000001
+  [PASS] CLKV: GM LO write reads zero       got=0x00000000 exp=0x00000000
+  [PASS] CLKV: GM HI write reads zero       got=0x00000000 exp=0x00000000
+  [PASS] CLKV: domain write reads zero      got=0x00000000 exp=0x00000000
+  [PASS] CLKV: pdelay write reads zero      got=0x00000000 exp=0x00000000
+  [PASS] CLKV: parent LO write reads zero   got=0x00000000 exp=0x00000000
+  [PASS] CLKV: parent HI write reads zero   got=0x00000000 exp=0x00000000
+  [PASS] CLKV: publication writes cannot assert GM holdover got=0x00000000 exp=0x00000000
+  [PASS] CLKV: publication writes cannot clear tu got=0x00000001 exp=0x00000001
+  [PASS] CLKV: PHC-only steps leave INTERNAL mr unchanged (#602) got=0x00000000 exp=0x00000000
+  [PASS] CLKV: PHC step arms holdover       got=0x00000001 exp=0x00000001
+  [PASS] CLKV: PHC step keeps tu asserted   got=0x00000001 exp=0x00000001
+  [PASS] CLKV: holdover expires             got=0x00000000 exp=0x00000000
+  [PASS] CLKV: ownerless tu remains asserted after holdover got=0x00000001 exp=0x00000001
+  [PASS] CLKV: TUCNT advances for permanent uncertainty got=0x00000001 exp=0x00000001
+  [PASS] CLKV: post-holdover frame is emitted got=0x00000001 exp=0x00000001
+  [PASS] CLKV: post-holdover frame still carries tu=1 got=0x00000001 exp=0x00000001
+  [PASS] CLKV: the settime leaves mr unchanged (#602) got=0x00000000 exp=0x00000000
+  [PASS] CLKV: settime adds no MEDIA_RESET (#602) got=0x00000000 exp=0x00000000
+[ASPATH] option-off path publication is inert (#116)
+  [PASS] ASP: reset LO zero                 got=0x00000000 exp=0x00000000
+  [PASS] ASP: reset HI zero                 got=0x00000000 exp=0x00000000
+  [PASS] ASP: reset {gen,count} zero        got=0x00000000 exp=0x00000000
+  [PASS] ASP: LO write reads zero           got=0x00000000 exp=0x00000000
+  [PASS] ASP: HI write reads zero           got=0x00000000 exp=0x00000000
+  [PASS] ASP: commit/publish writes read zero got=0x00000000 exp=0x00000000
+[AVTP-RXMON] BIND_RX -> AAF frame -> STREAM_INPUT counters (0x6B8)
+  [PASS] RXMON stat idle                    got=0x00000000 exp=0x00000000
+  [PASS] RXMON frames_rx idle               got=0x00000000 exp=0x00000000
+  [PASS] the listener launched a PROBE_TX at the named talker got=0x00000001 exp=0x00000001
+  [PASS] listener bound (0x6A4[3] bound, the class-D record) got=0x00000001 exp=0x00000001
+  [PASS] ...and 0x6A4[4] stream-active follows it got=0x00000001 exp=0x00000001
+  [PASS] 0x6A4[2:0] SM state is a STRUCTURAL ZERO (no ladder here) got=0x00000000 exp=0x00000000
+  [i] STREAM_INPUT[0] declared-format acceptance: 0x6BC=1 0x6C0=0x00000000 0x6C4=0x00000001 render=6 beats
+  [PASS] in0 fmt is the DECLARED format: a conformant PDU is ACCEPTED got=0x00000000 exp=0x00000000
+  [PASS] ...so FRAMES_RX moved (0x6BC)      got=0x00000001 exp=0x00000001
+  [PASS] ...and PCMRX advanced (0x6C4)      got=0x00000001 exp=0x00000001
+  [PASS] ...and the 48-byte PDU reached fabric render (6 beats) got=0x00000006 exp=0x00000006
+  [PASS] ...and MEDIA_LOCKED asserts (0x6B8) got=0x00000001 exp=0x00000001
+  [PASS] tagged: the format gate accepts it too (UNSUPPORTED still 0) got=0x00000000 exp=0x00000000
+  [PASS] tagged: FRAMES_RX = 2              got=0x00000002 exp=0x00000002
+  [PASS] tagged: 48-byte PDU reached fabric render (6 beats) got=0x00000006 exp=0x00000006
+  [PASS] APRB parsed = 2 frames             got=0x00000002 exp=0x00000002
+  [PASS] APRB matched = 2 frames            got=0x00000002 exp=0x00000002

@@ -1,0 +1,36 @@
+Candidate head: 855529fe21fea685725a9edc4fe0a798154c6469
+Comparison base: 3cda030c174b325e36c26af6420487ff91346d15
+Source: leaf-capture/off/leaf_hier.rpt
+Original SHA256: b54a1aaf34e5ecd13aa58f46613d7ee348ab60f5064cf397a8afc5008dbd0662
+Scope: complete text; paths and host fields normalized
+
+Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2026 Advanced Micro Devices, Inc. All Rights Reserved.
+---------------------------------------------------------------------------------------------------------------------------------------------
+| Tool Version : Vivado v.2026.1 (lin64) Build 6511674 Tue Jun 16 11:01:26 MDT 2026
+| Date         : Tue Nov 24 04:09:06 2026
+| Host         : $HOST running 64-bit unknown
+| Command      : report_utilization -hierarchical -file leaf_hier.rpt
+| Design       : capture_leaf
+| Device       : xc7a100tfgg484-2
+| Speed File   : -2
+| Design State : Optimized
+---------------------------------------------------------------------------------------------------------------------------------------------
+
+Utilization Design Information
+
+Table of Contents
+-----------------
+1. Utilization by Hierarchy
+
+1. Utilization by Hierarchy
+---------------------------
+
++------------------+---------------------+------------+------------+---------+------+------+--------+--------+------------+
+|     Instance     |        Module       | Total LUTs | Logic LUTs | LUTRAMs | SRLs |  FFs | RAMB36 | RAMB18 | DSP Blocks |
++------------------+---------------------+------------+------------+---------+------+------+--------+--------+------------+
+| capture_leaf     |               (top) |        833 |        833 |       0 |    0 | 1595 |      0 |      0 |          0 |
+|   (capture_leaf) |               (top) |          0 |          0 |       0 |    0 |    0 |      0 |      0 |          0 |
+|   dut            | KL_chan_map_capture |        833 |        833 |       0 |    0 | 1595 |      0 |      0 |          0 |
++------------------+---------------------+------------+------------+---------+------+------+--------+--------+------------+
+
+

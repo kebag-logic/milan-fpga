@@ -1,0 +1,29 @@
+Candidate head: dc78aedae34c25a97125ecd6816a1f645db5575f
+Comparison base: 3cda030c174b325e36c26af6420487ff91346d15
+Source: quick_gates.py
+Original SHA256: 33c28e72e350f6b305e3783c32b660c72c314516396509de9f9ef4a8e0eda452
+Scope: complete text; paths and host fields normalized
+
+import os,subprocess,json,time,sys
+from pathlib import Path
+w=Path(__file__).resolve().parent;root=Path('$CHECKOUT')
+head=subprocess.check_output(['git','rev-parse','HEAD'],cwd=root,text=True).strip()
+cases=[
+ ('anchors',[sys.executable,'$MANAGEMENT/2026-09-23/loopbram-r909-1/scripts/anchor_counts.py',str(root),str(root),'3cda030c',head]),
+ ('parent-plants',[sys.executable,'tb/verilator/input_loopback_dp/mutants.py','--output',str(w/'parent-plants')]),
+ ('leaf-plants',[sys.executable,'tb/verilator/input_loopback/mutants.py','--output',str(w/'leaf-plants')]),
+ ('bounds',[sys.executable,'tb/verilator/input_loopback/bounds.py','--output',str(w/'bounds')]),
+ ('lint',[sys.executable,'scripts/lint_rtl.py','--check']),
+ ('docs',[sys.executable,'scripts/docs_check.py']),
+ ('doc-style',[sys.executable,'scripts/check_doc_style.py'])]
+results=[]
+for name,cmd in cases:
+ t=time.time()
+ with (w/(name+'.log')).open('w') as f:
+  r=subprocess.run(cmd,cwd=root,stdout=f,stderr=subprocess.STDOUT,timeout=14400)
+ ok=r.returncode==0
+ if name=='anchors': ok=ok and (w/'anchors.log').read_text().rstrip().endswith('ANCHORS INTACT 0')
+ results.append(dict(name=name,command=cmd,head=head,exit=r.returncode,pass_gate=ok,seconds=time.time()-t))
+ (w/'quick-gates.json').write_text(json.dumps(results,indent=2))
+ print(name,ok,flush=True)
+ if not ok: raise SystemExit(1)

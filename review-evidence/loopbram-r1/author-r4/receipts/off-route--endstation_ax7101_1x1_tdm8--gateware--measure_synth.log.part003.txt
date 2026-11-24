@@ -1,0 +1,658 @@
+Candidate head: dc78aedae34c25a97125ecd6816a1f645db5575f
+Comparison base: 3cda030c174b325e36c26af6420487ff91346d15
+Source: off-route/endstation_ax7101_1x1_tdm8/gateware/measure_synth.log
+Original SHA256: 62a013498865762b551d8fbd1c68c60089299c9d5a923c1000adad1694119c90
+Scope: native compilation chatter omitted; other output retained; paths and host fields normalized
+
+INFO: [Synth 8-7052] The timing for the instance milan_datapath/aaf_packetizer/stg_r_reg (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance milan_datapath/render_queue/bank0_r_reg (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance milan_datapath/render_queue/bank1_r_reg (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance milan_datapath/crf_rx/ts_hist_r_reg (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance milan_datapath/chan_map_capture/lb_q_r_reg (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance KL_mbx/u_evt_ring/mem_r_reg (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance KL_mbx/u_adp_rx/mem_r_reg (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance KL_mbx/u_adp_tx/mem_r_reg (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance KL_mbx/u_acmp_rx/mem_r_reg (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance KL_mbx/u_acmp_tx/mem_r_reg (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance KL_mbx/u_aecp_rx/mem_r_reg (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance KL_mbx/u_aecp_tx/mem_r_reg (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance KL_mbx/u_maap_rx/mem_r_reg (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Common 17-14] Message 'Synth 8-7052' appears 100 times and further instances of the messages will be disabled. Use the Tcl command set_msg_config to change the current settings.
+---------------------------------------------------------------------------------
+Finished Final Netlist Cleanup
+---------------------------------------------------------------------------------
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$CHECKOUT/hdl/ieee1722/aaf/KL_tdm_render_master.sv:416]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$CHECKOUT/hdl/ieee1722/aaf/KL_tdm_render_master.sv:416]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$CHECKOUT/hdl/ieee1722/aaf/KL_tdm_render_master.sv:416]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$CHECKOUT/hdl/ieee1722/aaf/KL_tdm_render_master.sv:416]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$CHECKOUT/hdl/ieee1722/aaf/KL_tdm_render_master.sv:416]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$CHECKOUT/hdl/ieee1722/aaf/KL_tdm_render_master.sv:416]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$CHECKOUT/hdl/ieee1722/aaf/KL_tdm_render_master.sv:393]
+WARNING: [Synth 8-5396] Clock pin WCLK has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$SCRATCH/off-route/endstation_ax7101_1x1_tdm8/gateware/alinx_ax7101.v:23]
+WARNING: [Synth 8-5396] Clock pin WCLK has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$SCRATCH/off-route/endstation_ax7101_1x1_tdm8/gateware/alinx_ax7101.v:23]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$CHECKOUT/hdl/ieee1722/aaf/KL_tdm_render_master.sv:139]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$CHECKOUT/hdl/common/cdc_pair_fifo.sv:84]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$CHECKOUT/hdl/common/cdc_pair_fifo.sv:84]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$CHECKOUT/hdl/common/cdc_pulse.sv:33]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$CHECKOUT/hdl/milan/milan_datapath.sv:1598]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$CHECKOUT/hdl/milan/milan_datapath.sv:1598]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$CHECKOUT/hdl/milan/milan_datapath.sv:1598]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$CHECKOUT/hdl/milan/milan_datapath.sv:1598]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$CHECKOUT/hdl/milan/milan_datapath.sv:1598]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$CHECKOUT/hdl/milan/milan_datapath.sv:1598]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$CHECKOUT/hdl/milan/milan_datapath.sv:1598]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$CHECKOUT/hdl/milan/milan_datapath.sv:1598]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$CHECKOUT/hdl/milan/milan_datapath.sv:1598]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$CHECKOUT/hdl/milan/milan_datapath.sv:1599]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$CHECKOUT/hdl/ieee1722/aaf/KL_tdm_render_master.sv:463]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$CHECKOUT/hdl/ieee1722/aaf/KL_tdm_render_master.sv:421]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$CHECKOUT/hdl/ieee1722/aaf/KL_tdm_render_master.sv:421]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$CHECKOUT/hdl/ieee1722/aaf/KL_tdm_render_master.sv:421]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$CHECKOUT/hdl/ieee1722/aaf/KL_tdm_render_master.sv:421]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$CHECKOUT/hdl/ieee1722/aaf/KL_tdm_render_master.sv:421]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$CHECKOUT/hdl/ieee1722/aaf/KL_tdm_render_master.sv:421]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$CHECKOUT/hdl/ieee1722/aaf/KL_tdm_render_master.sv:421]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$CHECKOUT/hdl/ieee1722/aaf/KL_tdm_render_master.sv:421]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$CHECKOUT/hdl/ieee1722/aaf/KL_tdm_render_master.sv:421]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$CHECKOUT/hdl/ieee1722/aaf/KL_tdm_render_master.sv:421]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$CHECKOUT/hdl/ieee1722/aaf/KL_tdm_render_master.sv:421]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$CHECKOUT/hdl/ieee1722/aaf/KL_tdm_render_master.sv:421]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$CHECKOUT/hdl/ieee1722/aaf/KL_tdm_render_master.sv:421]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$CHECKOUT/hdl/ieee1722/aaf/KL_tdm_render_master.sv:421]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$CHECKOUT/hdl/ieee1722/aaf/KL_tdm_render_master.sv:421]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$CHECKOUT/hdl/ieee1722/aaf/KL_tdm_render_master.sv:421]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$CHECKOUT/hdl/ieee1722/aaf/KL_tdm_render_master.sv:421]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$CHECKOUT/hdl/ieee1722/aaf/KL_tdm_render_master.sv:421]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$CHECKOUT/hdl/ieee1722/aaf/KL_tdm_render_master.sv:421]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$CHECKOUT/hdl/ieee1722/aaf/KL_tdm_render_master.sv:421]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$CHECKOUT/hdl/ieee1722/aaf/KL_tdm_render_master.sv:421]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$CHECKOUT/hdl/ieee1722/aaf/KL_tdm_render_master.sv:421]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$CHECKOUT/hdl/ieee1722/aaf/KL_tdm_render_master.sv:421]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$CHECKOUT/hdl/ieee1722/aaf/KL_tdm_render_master.sv:421]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$CHECKOUT/hdl/ieee1722/aaf/KL_tdm_render_master.sv:421]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$CHECKOUT/hdl/ieee1722/aaf/KL_tdm_render_master.sv:421]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$CHECKOUT/hdl/ieee1722/aaf/KL_tdm_render_master.sv:421]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$CHECKOUT/hdl/ieee1722/aaf/KL_tdm_render_master.sv:421]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$CHECKOUT/hdl/ieee1722/aaf/KL_tdm_render_master.sv:421]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$CHECKOUT/hdl/ieee1722/aaf/KL_tdm_render_master.sv:421]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$CHECKOUT/hdl/ieee1722/aaf/KL_tdm_render_master.sv:421]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$CHECKOUT/hdl/ieee1722/aaf/KL_tdm_render_master.sv:421]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$CHECKOUT/hdl/ieee1722/aaf/KL_tdm_render_master.sv:421]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$CHECKOUT/hdl/ieee1722/aaf/KL_tdm_render_master.sv:421]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$CHECKOUT/hdl/ieee1722/aaf/KL_tdm_render_master.sv:421]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$CHECKOUT/hdl/ieee1722/aaf/KL_tdm_render_master.sv:421]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$CHECKOUT/hdl/ieee1722/aaf/KL_tdm_render_master.sv:421]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$CHECKOUT/hdl/ieee1722/aaf/KL_tdm_render_master.sv:421]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$CHECKOUT/hdl/ieee1722/aaf/KL_tdm_render_master.sv:421]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$CHECKOUT/hdl/ieee1722/aaf/KL_tdm_render_master.sv:421]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$CHECKOUT/hdl/ieee1722/aaf/KL_tdm_render_master.sv:421]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$CHECKOUT/hdl/ieee1722/aaf/KL_tdm_render_master.sv:421]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$CHECKOUT/hdl/ieee1722/aaf/KL_tdm_render_master.sv:421]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$CHECKOUT/hdl/ieee1722/aaf/KL_tdm_render_master.sv:421]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$CHECKOUT/hdl/ieee1722/aaf/KL_tdm_render_master.sv:421]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$CHECKOUT/hdl/ieee1722/aaf/KL_tdm_render_master.sv:421]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$CHECKOUT/hdl/ieee1722/aaf/KL_tdm_render_master.sv:421]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$CHECKOUT/hdl/ieee1722/aaf/KL_tdm_render_master.sv:421]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$CHECKOUT/hdl/ieee1722/aaf/KL_tdm_render_master.sv:421]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$CHECKOUT/hdl/ieee1722/aaf/KL_tdm_render_master.sv:421]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$CHECKOUT/hdl/ieee1722/aaf/KL_tdm_render_master.sv:421]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$CHECKOUT/hdl/ieee1722/aaf/KL_tdm_render_master.sv:421]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$CHECKOUT/hdl/ieee1722/aaf/KL_tdm_render_master.sv:421]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$CHECKOUT/hdl/ieee1722/aaf/KL_tdm_render_master.sv:421]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$CHECKOUT/hdl/ieee1722/aaf/KL_tdm_render_master.sv:421]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$CHECKOUT/hdl/ieee1722/aaf/KL_tdm_render_master.sv:421]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$CHECKOUT/hdl/ieee1722/aaf/KL_tdm_render_master.sv:421]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$CHECKOUT/hdl/ieee1722/aaf/KL_tdm_render_master.sv:421]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$CHECKOUT/hdl/ieee1722/aaf/KL_tdm_render_master.sv:421]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$CHECKOUT/hdl/ieee1722/aaf/KL_tdm_render_master.sv:421]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$CHECKOUT/hdl/ieee1722/aaf/KL_tdm_render_master.sv:421]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$CHECKOUT/hdl/ieee1722/aaf/KL_tdm_render_master.sv:421]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$CHECKOUT/hdl/ieee1722/aaf/KL_tdm_render_master.sv:421]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$CHECKOUT/hdl/ieee1722/aaf/KL_tdm_render_master.sv:421]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$CHECKOUT/hdl/ieee1722/aaf/KL_tdm_render_master.sv:421]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$CHECKOUT/hdl/ieee1722/aaf/KL_tdm_render_master.sv:421]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$CHECKOUT/hdl/ieee1722/aaf/KL_tdm_render_master.sv:421]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$CHECKOUT/hdl/ieee1722/aaf/KL_tdm_render_master.sv:421]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$CHECKOUT/hdl/ieee1722/aaf/KL_tdm_render_master.sv:421]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$CHECKOUT/hdl/ieee1722/aaf/KL_tdm_render_master.sv:421]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$CHECKOUT/hdl/ieee1722/aaf/KL_tdm_render_master.sv:421]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$CHECKOUT/hdl/ieee1722/aaf/KL_tdm_render_master.sv:421]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$CHECKOUT/hdl/ieee1722/aaf/KL_tdm_render_master.sv:421]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$CHECKOUT/hdl/ieee1722/aaf/KL_tdm_render_master.sv:421]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$CHECKOUT/hdl/ieee1722/aaf/KL_tdm_render_master.sv:421]
+WARNING: [Synth 8-5396] Clock pin C has keep related attribute (keep/mark_debug/dont_touch) which could create extra logic on its net [$CHECKOUT/hdl/ieee1722/aaf/KL_tdm_render_master.sv:421]
+INFO: [Common 17-14] Message 'Synth 8-5396' appears 100 times and further instances of the messages will be disabled. Use the Tcl command set_msg_config to change the current settings.
+---------------------------------------------------------------------------------
+Finished IO Insertion : Time (s): cpu = 00:13:00 ; elapsed = 00:06:13 . Memory (MB): peak = 5618.047 ; gain = 3614.547 ; free physical = 13644 ; free virtual = 76145
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Renaming Generated Instances
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Renaming Generated Instances : Time (s): cpu = 00:13:00 ; elapsed = 00:06:13 . Memory (MB): peak = 5618.047 ; gain = 3614.547 ; free physical = 13594 ; free virtual = 76096
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Rebuilding User Hierarchy
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Rebuilding User Hierarchy : Time (s): cpu = 00:13:07 ; elapsed = 00:06:21 . Memory (MB): peak = 5618.047 ; gain = 3614.547 ; free physical = 19281 ; free virtual = 77637
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Renaming Generated Ports
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Renaming Generated Ports : Time (s): cpu = 00:13:08 ; elapsed = 00:06:21 . Memory (MB): peak = 5618.047 ; gain = 3614.547 ; free physical = 19598 ; free virtual = 77580
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Handling Custom Attributes
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Handling Custom Attributes : Time (s): cpu = 00:13:09 ; elapsed = 00:06:22 . Memory (MB): peak = 5618.047 ; gain = 3614.547 ; free physical = 21975 ; free virtual = 77713
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Renaming Generated Nets
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Renaming Generated Nets : Time (s): cpu = 00:13:09 ; elapsed = 00:06:22 . Memory (MB): peak = 5618.047 ; gain = 3614.547 ; free physical = 21967 ; free virtual = 77714
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start ROM, RAM, DSP, Shift Register and Retiming Reporting
+---------------------------------------------------------------------------------
+
+Static Shift Register Report:
++-------------+-----------------------------------------------------------------------------------------------------------------------------------------+--------+-------+--------------+--------------------+-------------------+--------+---------+
+|Module Name  | RTL Name                                                                                                                                | Length | Width | Reset Signal | Pull out first Reg | Pull out last Reg | SRL16E | SRLC32E | 
++-------------+-----------------------------------------------------------------------------------------------------------------------------------------+--------+-------+--------------+--------------------+-------------------+--------+---------+
+|alinx_ax7101 | VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/vexiis_0_logic_core/execute_ctrl4_up_MulPlugin_HIGH_lane0_reg                          | 3      | 1     | NO           | NO                 | YES               | 1      | 0       | 
+|alinx_ax7101 | VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/vexiis_0_logic_core/execute_ctrl4_up_lane0_IntFormatPlugin_logic_WIDTH_ID_lane0_reg[1] | 3      | 2     | NO           | NO                 | YES               | 2      | 0       | 
+|alinx_ax7101 | VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/vexiis_0_logic_core/execute_ctrl4_up_lane0_IntFormatPlugin_logic_SIGNED_lane0_reg      | 3      | 1     | NO           | NO                 | YES               | 1      | 0       | 
+|alinx_ax7101 | VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/vexiis_0_logic_core/execute_ctrl4_up_LsuL1_LOAD_lane0_reg                              | 3      | 1     | NO           | NO                 | YES               | 1      | 0       | 
++-------------+-----------------------------------------------------------------------------------------------------------------------------------------+--------+-------+--------------+--------------------+-------------------+--------+---------+
+
+
+Dynamic Shift Register Report:
++------------+-----------------------+--------+------------+--------+---------+--------+--------+--------+
+|Module Name | RTL Name              | Length | Data Width | SRL16E | SRLC32E | Mux F7 | Mux F8 | Mux F9 | 
++------------+-----------------------+--------+------------+--------+---------+--------+--------+--------+
+|dsrl        | g_cmp[0].sr_r_reg[5]  | 8      | 8          | 8      | 0       | 0      | 0      | 0      | 
+|dsrl__1     | g_cmp[1].sr_r_reg[5]  | 8      | 8          | 8      | 0       | 0      | 0      | 0      | 
+|dsrl__2     | g_cmp[2].sr_r_reg[5]  | 8      | 8          | 8      | 0       | 0      | 0      | 0      | 
+|dsrl__3     | g_cmp[3].sr_r_reg[5]  | 8      | 8          | 8      | 0       | 0      | 0      | 0      | 
+|dsrl__4     | g_cmp[4].sr_r_reg[5]  | 8      | 8          | 8      | 0       | 0      | 0      | 0      | 
+|dsrl__5     | g_cmp[5].sr_r_reg[5]  | 8      | 8          | 8      | 0       | 0      | 0      | 0      | 
+|dsrl__6     | g_cmp[6].sr_r_reg[5]  | 8      | 8          | 8      | 0       | 0      | 0      | 0      | 
+|dsrl__7     | g_cmp[7].sr_r_reg[5]  | 8      | 8          | 8      | 0       | 0      | 0      | 0      | 
+|dsrl__8     | g_cmp[8].sr_r_reg[5]  | 8      | 8          | 8      | 0       | 0      | 0      | 0      | 
+|dsrl__9     | g_cmp[9].sr_r_reg[5]  | 8      | 8          | 8      | 0       | 0      | 0      | 0      | 
+|dsrl__10    | g_cmp[10].sr_r_reg[5] | 8      | 8          | 8      | 0       | 0      | 0      | 0      | 
+|dsrl__11    | g_cmp[11].sr_r_reg[5] | 8      | 8          | 8      | 0       | 0      | 0      | 0      | 
+|dsrl__12    | g_cmp[12].sr_r_reg[5] | 8      | 8          | 8      | 0       | 0      | 0      | 0      | 
+|dsrl__13    | g_cmp[13].sr_r_reg[5] | 8      | 8          | 8      | 0       | 0      | 0      | 0      | 
+|dsrl__14    | g_cmp[14].sr_r_reg[5] | 8      | 8          | 8      | 0       | 0      | 0      | 0      | 
+|dsrl__15    | g_cmp[15].sr_r_reg[5] | 8      | 8          | 8      | 0       | 0      | 0      | 0      | 
++------------+-----------------------+--------+------------+--------+---------+--------+--------+--------+
+
+---------------------------------------------------------------------------------
+Finished ROM, RAM, DSP, Shift Register and Retiming Reporting
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Writing Synthesis Report
+---------------------------------------------------------------------------------
+
+DSP Final Report (the ' indicates corresponding REG is set)
++---------------+-------------------+--------+--------+--------+--------+--------+------+------+------+------+-------+------+------+
+|Module Name    | DSP Mapping       | A Size | B Size | C Size | D Size | P Size | AREG | BREG | CREG | DREG | ADREG | MREG | PREG | 
++---------------+-------------------+--------+--------+--------+--------+--------+------+------+------+------+-------+------+------+
+|VexiiRiscv     | (A'*B)'           | 17     | 18     | -      | -      | 34     | 1    | 0    | -    | -    | -     | 0    | 1    | 
+|VexiiRiscv     | (A'*B)'           | 17     | 18     | -      | -      | 34     | 1    | 0    | -    | -    | -     | 0    | 1    | 
+|VexiiRiscv     | (A*B)'            | 30     | 18     | -      | -      | 30     | 0    | 0    | -    | -    | -     | 0    | 1    | 
+|VexiiRiscv     | (A'*B')'          | 17     | 17     | -      | -      | 34     | 1    | 1    | -    | -    | -     | 0    | 1    | 
+|KL_gptp_engine | A'*B              | 30     | 17     | -      | -      | 48     | 1    | 0    | -    | -    | -     | 0    | 0    | 
+|KL_gptp_engine | (PCIN>>17+A*B)'   | 0      | 12     | -      | -      | 48     | 0    | 0    | -    | -    | -     | 0    | 1    | 
+|KL_gptp_ucpu   | A'*B'             | 17     | 18     | -      | -      | 48     | 1    | 1    | -    | -    | -     | 0    | 0    | 
+|KL_gptp_ucpu   | (PCIN>>17+A'*B')' | 30     | 18     | -      | -      | 48     | 1    | 1    | -    | -    | -     | 0    | 1    | 
+|KL_gptp_ucpu   | A'*B'             | 17     | 17     | -      | -      | 48     | 1    | 1    | -    | -    | -     | 0    | 0    | 
+|KL_gptp_ucpu   | (PCIN>>17+A'*B')' | 17     | 18     | -      | -      | 48     | 1    | 1    | -    | -    | -     | 0    | 1    | 
+|KL_media_nco   | A*B               | 30     | 6      | -      | -      | 24     | 0    | 0    | -    | -    | -     | 0    | 0    | 
++---------------+-------------------+--------+--------+--------+--------+--------+------+------+------+------+-------+------+------+
+
+
+Report BlackBoxes: 
++-+--------------+----------+
+| |BlackBox name |Instances |
++-+--------------+----------+
++-+--------------+----------+
+
+Report Cell Usage: 
++------+-----------+------+
+|      |Cell       |Count |
++------+-----------+------+
+|1     |BUFG       |     8|
+|2     |CARRY4     |  2464|
+|3     |DSP48E1    |    11|
+|11    |ICAPE2     |     1|
+|12    |IDDR       |     1|
+|13    |IDELAYCTRL |     1|
+|14    |LUT1       |  1213|
+|15    |LUT2       |  5965|
+|16    |LUT3       |  4776|
+|17    |LUT4       |  5871|
+|18    |LUT5       |  6608|
+|19    |LUT6       | 13979|
+|20    |MMCME2_ADV |     1|
+|21    |MUXF7      |   739|
+|22    |MUXF8      |    79|
+|23    |ODDR       |     1|
+|24    |PLLE2_ADV  |     2|
+|26    |RAM128X1D  |     7|
+|27    |RAM16X1D   |     9|
+|28    |RAM16X1S   |    32|
+|29    |RAM32M     |   227|
+|30    |RAM32X1D   |    22|
+|31    |RAM64M     |    27|
+|32    |RAM64X1D   |     2|
+|33    |RAM64X1S   |    64|
+|34    |RAMB18E1   |    36|
+|42    |RAMB36E1   |    62|
+|81    |SRL16E     |   133|
+|82    |STARTUPE2  |     1|
+|83    |FDCE       |  2647|
+|84    |FDPE       |   108|
+|85    |FDRE       | 39665|
+|86    |FDSE       |   398|
+|87    |IBUF       |    14|
+|88    |IBUFDS     |     1|
+|89    |IOBUF      |     1|
+|90    |OBUF       |    21|
++------+-----------+------+
+---------------------------------------------------------------------------------
+Finished Writing Synthesis Report : Time (s): cpu = 00:13:09 ; elapsed = 00:06:22 . Memory (MB): peak = 5618.047 ; gain = 3614.547 ; free physical = 22042 ; free virtual = 77845
+---------------------------------------------------------------------------------
+Synthesis finished with 0 errors, 0 critical warnings and 43521 warnings.
+Synthesis Optimization Runtime : Time (s): cpu = 00:12:50 ; elapsed = 00:06:15 . Memory (MB): peak = 5618.047 ; gain = 3326.074 ; free physical = 29699 ; free virtual = 85444
+Synthesis Optimization Complete : Time (s): cpu = 00:13:09 ; elapsed = 00:06:26 . Memory (MB): peak = 5618.047 ; gain = 3614.547 ; free physical = 29715 ; free virtual = 85444
+INFO: [Project 1-571] Translating synthesized netlist
+Netlist sorting complete. Time (s): cpu = 00:00:00.38 ; elapsed = 00:00:00.39 . Memory (MB): peak = 5618.047 ; gain = 0.000 ; free physical = 29342 ; free virtual = 85072
+INFO: [Netlist 29-17] Analyzing 3789 Unisim elements for replacement
+INFO: [Netlist 29-28] Unisim Transformation completed in 0 CPU seconds
+INFO: [Project 1-570] Preparing netlist for logic optimization
+Parsing XDC File [$SCRATCH/off-route/endstation_ax7101_1x1_tdm8/gateware/alinx_ax7101.xdc]
+INFO: [Timing 38-35] Done setting XDC timing constraints. [$SCRATCH/off-route/endstation_ax7101_1x1_tdm8/gateware/alinx_ax7101.xdc:215]
+INFO: [Timing 38-2] Deriving generated clocks [$SCRATCH/off-route/endstation_ax7101_1x1_tdm8/gateware/alinx_ax7101.xdc:215]
+get_clocks: Time (s): cpu = 00:00:11 ; elapsed = 00:00:06 . Memory (MB): peak = 5726.180 ; gain = 0.000 ; free physical = 28300 ; free virtual = 84429
+Finished Parsing XDC File [$SCRATCH/off-route/endstation_ax7101_1x1_tdm8/gateware/alinx_ax7101.xdc]
+INFO: [Opt 31-138] Pushed 0 inverter(s) to 0 load pin(s).
+Netlist sorting complete. Time (s): cpu = 00:00:00.02 ; elapsed = 00:00:00.03 . Memory (MB): peak = 5726.180 ; gain = 0.000 ; free physical = 28426 ; free virtual = 84560
+INFO: [Project 1-111] Unisim Transformation Summary:
+  A total of 391 instances were transformed.
+  IOBUF => IOBUF (IBUF, OBUFT): 1 instance 
+  RAM128X1D => RAM128X1D (MUXF7(x2), RAMD64E(x4)): 7 instances
+  RAM16X1D => RAM32X1D (RAMD32(x2)): 9 instances
+  RAM16X1S => RAM32X1S (RAMS32): 32 instances
+  RAM32M => RAM32M (RAMD32(x6), RAMS32(x2)): 227 instances
+  RAM32X1D => RAM32X1D (RAMD32(x2)): 22 instances
+  RAM64M => RAM64M (RAMD64E(x4)): 27 instances
+  RAM64X1D => RAM64X1D (RAMD64E(x2)): 2 instances
+  RAM64X1S => RAM64X1S (RAMS64E): 64 instances
+
+Synth Design complete | Checksum: 88ed25f9
+INFO: [Common 17-83] Releasing license: Vivado_Synthesis
+904 Infos, 691 Warnings, 0 Critical Warnings and 0 Errors encountered.
+synth_design completed successfully
+synth_design: Time (s): cpu = 00:13:37 ; elapsed = 00:06:48 . Memory (MB): peak = 5726.215 ; gain = 3722.715 ; free physical = 28062 ; free virtual = 84197
+INFO: [Common 17-2834] synth_design peak Physical Memory [PSS] (MB): overall = 13938.624; main = 4367.351; forked = 9853.199
+INFO: [Common 17-2834] synth_design peak Virtual Memory [VSS] (MB): overall = 24121.922; main = 5726.184; forked = 18760.363
+# report_timing_summary -file alinx_ax7101_timing_synth.rpt
+INFO: [Timing 38-35] Done setting XDC timing constraints.
+INFO: [Timing 38-91] UpdateTimingParams: Speed grade: -2, Delay Type: min_max.
+INFO: [Timing 38-191] Multithreading enabled for timing update using a maximum of 16 CPUs
+report_timing_summary: Time (s): cpu = 00:00:25 ; elapsed = 00:00:07 . Memory (MB): peak = 5726.215 ; gain = 0.000 ; free physical = 29123 ; free virtual = 85272
+# report_utilization -hierarchical -file alinx_ax7101_utilization_hierarchical_synth.rpt
+# report_utilization -file alinx_ax7101_utilization_synth.rpt
+# write_checkpoint -force alinx_ax7101_synth.dcp
+INFO: [Timing 38-480] Writing timing data to binary archive.
+Wrote PlaceDB: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 5758.195 ; gain = 0.000 ; free physical = 28556 ; free virtual = 84718
+Wrote PulsedLatchDB: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 5758.195 ; gain = 0.000 ; free physical = 28556 ; free virtual = 84718
+Writing XDEF routing.
+Writing XDEF routing logical nets.
+Writing XDEF routing special nets.
+Wrote RouteStorage: Time (s): cpu = 00:00:00.05 ; elapsed = 00:00:00.01 . Memory (MB): peak = 5758.195 ; gain = 0.000 ; free physical = 28539 ; free virtual = 84700
+Wrote PlaceStorage: Time (s): cpu = 00:00:00.01 ; elapsed = 00:00:00 . Memory (MB): peak = 5758.195 ; gain = 0.000 ; free physical = 28539 ; free virtual = 84701
+Wrote Netlist Cache: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 5758.195 ; gain = 0.000 ; free physical = 28539 ; free virtual = 84701
+Wrote Device Cache: Time (s): cpu = 00:00:00.01 ; elapsed = 00:00:00 . Memory (MB): peak = 5758.195 ; gain = 0.000 ; free physical = 28539 ; free virtual = 84701
+Write Physdb Complete: Time (s): cpu = 00:00:00.08 ; elapsed = 00:00:00.01 . Memory (MB): peak = 5758.195 ; gain = 0.000 ; free physical = 28539 ; free virtual = 84701
+Write ShapeDB Complete: Time (s): cpu = 00:00:00.27 ; elapsed = 00:00:00.07 . Memory (MB): peak = 5758.195 ; gain = 0.000 ; free physical = 28483 ; free virtual = 84648
+INFO: [Common 17-1381] The checkpoint '$SCRATCH/off-route/endstation_ax7101_1x1_tdm8/gateware/alinx_ax7101_synth.dcp' has been generated.
+write_checkpoint: Time (s): cpu = 00:00:09 ; elapsed = 00:00:08 . Memory (MB): peak = 5758.195 ; gain = 31.980 ; free physical = 27960 ; free virtual = 84480
+# source {$CHECKOUT/sw/litex/clock_constraints.tcl}
+## proc kl_quasi_static_constraints {} {
+##     set cells [get_cells -hierarchical -quiet -filter {quasi_static == "yes"}]
+##     if {[llength $cells]} {
+##         set_multicycle_path 4 -setup -from $cells
+##         set_multicycle_path 3 -hold -from $cells
+##     }
+##     puts "CONSTRAINTS: quasi_static cells=[llength $cells] setup=4 hold=3"
+## }
+## proc kl_net_clock {name} {
+##     set clocks [get_clocks -of_objects [get_nets $name]]
+##     if {[llength $clocks] != 1} {
+##         error "CONSTRAINTS: expected one clock on net $name, got $clocks"
+##     }
+##     return $clocks
+## }
+## proc kl_servo_reset_sync_constraints {milan_net} {
+##     set src [kl_net_clock $milan_net]
+##     set stages [get_cells -hierarchical -quiet \
+##         -filter {NAME =~ "*mmcm_servo/psrst_sync_r_reg*"}]
+##     if {[llength $stages] != 2} {
+##         error "CONSTRAINTS: expected two servo reset synchronizer flops, got $stages"
+##     }
+##     set first {}; set second {}; set dst {}
+##     foreach cell $stages {
+##         if {![string is true -strict [get_property ASYNC_REG $cell]]} {
+##             error "CONSTRAINTS: servo reset synchronizer $cell lacks ASYNC_REG"
+##         }
+##         lappend dst {*}[get_clocks -of_objects [get_pins -of_objects $cell -filter {IS_CLOCK == 1}]]
+##         set d [get_nets -of_objects [get_pins -of_objects $cell -filter {REF_PIN_NAME == D}]]
+##         set feed [get_cells -quiet -of_objects \
+##             [get_pins -quiet -leaf -of_objects $d -filter {DIRECTION == OUT}]]
+##         if {[llength $feed] == 1 && [lindex $feed 0] in $stages} {
+##             lappend second $cell
+##         } else {
+##             lappend first $cell
+##         }
+##     }
+##     if {[llength $first] != 1 || [llength $second] != 1} {
+##         error "CONSTRAINTS: servo reset synchronizer is not a two-flop chain: $stages"
+##     }
+##     set dst [lsort -unique $dst]
+##     if {[llength $dst] != 1 || [lindex $dst 0] eq [lindex $src 0]} {
+##         error "CONSTRAINTS: servo reset synchronizer clock $dst is not one clock distinct from $src"
+##     }
+##     set pin [get_pins -of_objects $first -filter {REF_PIN_NAME == D}]
+##     set_false_path -from $src -to $pin
+##     puts "CONSTRAINTS: servo reset synchronizer from=$src to=$dst cut=$pin"
+## }
+## proc milan_eth_constraints {eth_port part_nets other_nets} {
+##     set eth [get_clocks -of_objects [get_ports $eth_port]]
+##     if {[llength $eth] != 1} {
+##         error "CONSTRAINTS: expected one clock on port $eth_port, got $eth"
+##     }
+##     set part {}
+##     foreach net $part_nets {lappend part [kl_net_clock $net]}
+##     set other {}
+##     foreach net $other_nets {lappend other [kl_net_clock $net]}
+## 
+##     # Restore LiteX's MultiReg exception everywhere except the bounded pairs.
+##     # Destination classes follow the register clock, including reset-extended
+##     # aliases. No hierarchy spelling or per-register waiver selects a crossing.
+##     set eth_mr {}; set part_mr {}; set other_mr {}
+##     foreach cell [get_cells -hierarchical -quiet -filter {mr_ff == TRUE}] {
+##         set clocks [get_clocks -of_objects [get_pins -of_objects $cell -filter {IS_CLOCK == 1}]]
+##         if {[llength $clocks] != 1} {
+##             error "CONSTRAINTS: expected one MultiReg clock for $cell, got $clocks"
+##         }
+##         if {$clocks in $eth} {
+##             lappend eth_mr $cell
+##         } elseif {$clocks in $part} {
+##             lappend part_mr $cell
+##         } else {
+##             lappend other_mr $cell
+##         }
+##     }
+##     foreach {targets excluded} [list $eth_mr $part $part_mr $eth] {
+##         if {![llength $targets]} {continue}
+##         set sources {}
+##         foreach clock [get_clocks] {
+##             if {$clock ni $excluded} {lappend sources $clock}
+##         }
+##         if {[llength $sources]} {set_false_path -from $sources -to $targets}
+##         # Asynchronous board inputs retain the original synchronizer exception.
+##         set inputs [all_inputs]
+##         if {[llength $inputs]} {set_false_path -from $inputs -to $targets}
+##     }
+##     if {[llength $other_mr]} {set_false_path -to $other_mr}
+## 
+##     # Keep LiteX's PRE-pin asynchronous-assert exceptions and its 2 ns
+##     # inter-stage reset bound. The 8 ns budget covers data crossings, not
+##     # asynchronous reset assertion. Hold has no phase meaning on either pair.
+##     # An unbounded Ethernet synchronizer route previously caused a warm-die
+##     # receive failure; #607 makes that placement-dependent delay visible to STA.
+##     foreach clock $part {
+##         set_false_path -hold -from $eth -to $clock
+##         set_max_delay 8.000 -datapath_only -from $eth -to $clock
+##         set_false_path -hold -from $clock -to $eth
+##         set_max_delay 8.000 -datapath_only -from $clock -to $eth
+##     }
+##     if {[llength $other]} {
+##         set_clock_groups -asynchronous -group $eth -group $other
+##     }
+##     puts "CONSTRAINTS: eth=$eth bounded=$part async=$other budget_ns=8.000"
+##     puts "CONSTRAINTS: MultiReg eth=[llength $eth_mr] part=[llength $part_mr] other=[llength $other_mr]"
+## }
+# kl_quasi_static_constraints
+CONSTRAINTS: quasi_static cells=112 setup=4 hold=3
+# milan_eth_constraints eth_clocks0_rx [list milansoc_crg_clkout0 milansoc_crg_clkout1] [list milansoc_crg_pll_audio_fb milansoc_crg_audio_ref_raw milansoc_crg_audio_mclk_raw milansoc_crg_clkout2]
+CONSTRAINTS: eth=eth_clocks0_rx bounded=milansoc_crg_clkout0 milansoc_crg_clkout1 async=milansoc_crg_pll_audio_fb milansoc_crg_audio_ref_raw milansoc_crg_audio_mclk_raw milansoc_crg_clkout2 budget_ns=8.000
+CONSTRAINTS: MultiReg eth=12 part=190 other=0
+# kl_servo_reset_sync_constraints milansoc_crg_clkout1
+CONSTRAINTS: servo reset synchronizer from=milansoc_crg_clkout1 to=milansoc_crg_clkout2 cut=milan_datapath/g_mmcm_servo.mmcm_servo/psrst_sync_r_reg[0]/D
+# opt_design -directive ExploreArea
+Command: opt_design -directive ExploreArea
+INFO: [Vivado_Tcl 4-136] Directive used for opt_design is: ExploreArea
+Attempting to get a license for feature 'Vivado_Implementation' and/or device 'xc7a100t'
+INFO: [Common 17-349] Got license for feature 'Vivado_Implementation' and/or device 'xc7a100t'
+Running DRC as a precondition to command opt_design
+
+Starting DRC Task
+INFO: [DRC 23-27] Running DRC with 16 threads
+INFO: [Project 1-461] DRC finished with 0 Errors
+INFO: [Project 1-462] Please refer to the DRC report (report_drc) for more information.
+
+Time (s): cpu = 00:00:05 ; elapsed = 00:00:01 . Memory (MB): peak = 5758.195 ; gain = 0.000 ; free physical = 28500 ; free virtual = 85027
+
+Starting Logic Optimization Task
+
+Phase 1 Initialization
+
+Phase 1.1 Core Generation And Design Setup
+Phase 1.1 Core Generation And Design Setup | Checksum: 17348a66f
+
+Time (s): cpu = 00:00:00.05 ; elapsed = 00:00:00.05 . Memory (MB): peak = 5758.195 ; gain = 0.000 ; free physical = 28493 ; free virtual = 85025
+
+Phase 1.2 Setup Constraints And Sort Netlist
+Phase 1.2 Setup Constraints And Sort Netlist | Checksum: 17348a66f
+
+Time (s): cpu = 00:00:00.09 ; elapsed = 00:00:00.09 . Memory (MB): peak = 5758.195 ; gain = 0.000 ; free physical = 28499 ; free virtual = 85030
+Phase 1 Initialization | Checksum: 17348a66f
+
+Time (s): cpu = 00:00:00.1 ; elapsed = 00:00:00.1 . Memory (MB): peak = 5758.195 ; gain = 0.000 ; free physical = 28499 ; free virtual = 85030
+
+Phase 2 Timer Update And Timing Data Collection
+
+Phase 2.1 Detect if minReqCache needed
+Phase 2.1 Detect if minReqCache needed | Checksum: 17348a66f
+
+Time (s): cpu = 00:00:00.16 ; elapsed = 00:00:00.16 . Memory (MB): peak = 5758.195 ; gain = 0.000 ; free physical = 28490 ; free virtual = 85022
+
+Phase 2.2 Timer Update
+Phase 2.2 Timer Update | Checksum: 17348a66f
+
+Time (s): cpu = 00:00:05 ; elapsed = 00:00:01 . Memory (MB): peak = 5758.195 ; gain = 0.000 ; free physical = 28019 ; free virtual = 84594
+
+Phase 2.3 Timing Data Collection
+Phase 2.3 Timing Data Collection | Checksum: 17348a66f
+
+Time (s): cpu = 00:00:05 ; elapsed = 00:00:01 . Memory (MB): peak = 5758.195 ; gain = 0.000 ; free physical = 27947 ; free virtual = 84527
+Phase 2 Timer Update And Timing Data Collection | Checksum: 17348a66f
+
+Time (s): cpu = 00:00:05 ; elapsed = 00:00:01 . Memory (MB): peak = 5758.195 ; gain = 0.000 ; free physical = 27942 ; free virtual = 84522
+
+Phase 3 Retarget
+INFO: [Opt 31-1851] Number of loadless carry chains removed were: 0
+INFO: [Opt 31-1834] Total Chains To Be Transformed Were: 0 AND Number of Transformed insts Created are: 0
+INFO: [Opt 31-1566] Pulled 161 inverters resulting in an inversion of 1233 pins
+INFO: [Opt 31-138] Pushed 3 inverter(s) to 6 load pin(s).
+INFO: [Opt 31-49] Retargeted 0 cell(s).
+Phase 3 Retarget | Checksum: 1ec60b914
+
+Time (s): cpu = 00:00:07 ; elapsed = 00:00:03 . Memory (MB): peak = 5758.195 ; gain = 0.000 ; free physical = 27520 ; free virtual = 84071
+Retarget | Checksum: 1ec60b914
+INFO: [Opt 31-389] Phase Retarget created 121 cells and removed 314 cells
+INFO: [Opt 31-1021] In phase Retarget, 6 netlist objects are constrained preventing optimization. Please run opt_design with -debug_log to get more detail. 
+
+Phase 4 Constant propagation
+INFO: [Opt 31-138] Pushed 0 inverter(s) to 0 load pin(s).
+Phase 4 Constant propagation | Checksum: 1f8409b4b
+
+Time (s): cpu = 00:00:08 ; elapsed = 00:00:03 . Memory (MB): peak = 5758.195 ; gain = 0.000 ; free physical = 27348 ; free virtual = 83927
+Constant propagation | Checksum: 1f8409b4b
+INFO: [Opt 31-389] Phase Constant propagation created 24 cells and removed 69 cells
+INFO: [Opt 31-1021] In phase Constant propagation, 178 netlist objects are constrained preventing optimization. Please run opt_design with -debug_log to get more detail. 
+
+Phase 5 Sweep
+INFO: [Constraints 18-11670] Building netlist checker database with flags, 0x8
+Done building netlist checker database: Time (s): cpu = 00:00:00.03 ; elapsed = 00:00:00.03 . Memory (MB): peak = 5758.195 ; gain = 0.000 ; free physical = 27248 ; free virtual = 83885
+INFO: [Constraints 18-11670] Building netlist checker database with flags, 0x8
+Done building netlist checker database: Time (s): cpu = 00:00:00.03 ; elapsed = 00:00:00.03 . Memory (MB): peak = 5758.195 ; gain = 0.000 ; free physical = 27516 ; free virtual = 84323
+Phase 5 Sweep | Checksum: 16ec22cad
+
+Time (s): cpu = 00:00:09 ; elapsed = 00:00:05 . Memory (MB): peak = 5758.195 ; gain = 0.000 ; free physical = 27320 ; free virtual = 84119
+Sweep | Checksum: 16ec22cad
+INFO: [Opt 31-389] Phase Sweep created 0 cells and removed 161 cells
+INFO: [Opt 31-1021] In phase Sweep, 1491 netlist objects are constrained preventing optimization. Please run opt_design with -debug_log to get more detail. 
+
+Phase 6 BUFG optimization
+Phase 6 BUFG optimization | Checksum: 16ec22cad
+
+Time (s): cpu = 00:00:10 ; elapsed = 00:00:05 . Memory (MB): peak = 5758.195 ; gain = 0.000 ; free physical = 27297 ; free virtual = 84147
+BUFG optimization | Checksum: 16ec22cad
+INFO: [Opt 31-662] Phase BUFG optimization created 0 cells of which 0 are BUFGs and removed 0 cells.
+
+Phase 7 Shift Register Optimization
+INFO: [Opt 31-1064] SRL Remap converted 0 SRLs to 0 registers and converted 0 registers of register chains to 0 SRLs
+Phase 7 Shift Register Optimization | Checksum: 16ec22cad
+
+Time (s): cpu = 00:00:10 ; elapsed = 00:00:05 . Memory (MB): peak = 5758.195 ; gain = 0.000 ; free physical = 27248 ; free virtual = 84098
+Shift Register Optimization | Checksum: 16ec22cad
+INFO: [Opt 31-389] Phase Shift Register Optimization created 0 cells and removed 0 cells
+INFO: [Opt 31-1555] control_set_opt supports Versal devices only, and device 7a100t is unsupported
+
+Phase 8 Resynthesis
+INFO: [Timing 38-35] Done setting XDC timing constraints.
+INFO: [Opt 31-74] Optimized 30 modules.
+INFO: [Opt 31-75] Optimized module 'Axi4WriteOnlyAligner'.
+INFO: [Opt 31-75] Optimized module 'AxiLite4Bridge'.
+INFO: [Opt 31-75] Optimized module 'KL_aaf_latency_chain'.
+INFO: [Opt 31-75] Optimized module 'KL_aaf_latency_chain_6'.
+INFO: [Opt 31-75] Optimized module 'KL_aaf_packetizer'.
+INFO: [Opt 31-75] Optimized module 'KL_aaf_rx_depacketizer'.
+INFO: [Opt 31-75] Optimized module 'KL_avtp_rx_monitor_ctx'.
+INFO: [Opt 31-75] Optimized module 'KL_chan_map_render'.
+INFO: [Opt 31-75] Optimized module 'KL_ctrl_split'.
+INFO: [Opt 31-75] Optimized module 'KL_gptp_engine'.
+INFO: [Opt 31-75] Optimized module 'KL_gptp_rx_parser'.
+INFO: [Opt 31-75] Optimized module 'KL_gptp_ucpu'.
+INFO: [Opt 31-75] Optimized module 'KL_mbx'.
+INFO: [Opt 31-75] Optimized module 'KL_mbx_cdc_window__parameterized1'.
+INFO: [Opt 31-75] Optimized module 'KL_mbx_cdc_window__parameterized2'.
+INFO: [Opt 31-75] Optimized module 'KL_mbx_dma'.
+INFO: [Opt 31-75] Optimized module 'KL_mbx_evt'.
+INFO: [Opt 31-75] Optimized module 'KL_mbx_rx'.
+INFO: [Opt 31-75] Optimized module 'KL_mbx_tx'.
+INFO: [Opt 31-75] Optimized module 'KL_media_clock_restart'.
+INFO: [Opt 31-75] Optimized module 'KL_ptp_clock_validity'.
+INFO: [Opt 31-75] Optimized module 'KL_tdm_capture_master'.
+INFO: [Opt 31-75] Optimized module 'KL_tdm_render_master'.
+INFO: [Opt 31-75] Optimized module 'RegFileMem'.
+INFO: [Opt 31-75] Optimized module 'StreamFork_2'.
+INFO: [Opt 31-75] Optimized module 'TransferFilter'.
+INFO: [Opt 31-75] Optimized module 'VexiiRiscv'.
+INFO: [Opt 31-75] Optimized module 'avtp_stream_parser'.
+INFO: [Opt 31-75] Optimized module 'axis_fifo__parameterized1'.
+INFO: [Opt 31-75] Optimized module 'milan_datapath'.
+INFO: [Opt 31-1566] Pulled 965 inverters resulting in an inversion of 4033 pins
+INFO: [Opt 31-138] Pushed 4 inverter(s) to 73 load pin(s).
+INFO: [Constraints 18-11670] Building netlist checker database with flags, 0x8
+Done building netlist checker database: Time (s): cpu = 00:00:00.03 ; elapsed = 00:00:00.03 . Memory (MB): peak = 5766.023 ; gain = 0.000 ; free physical = 27869 ; free virtual = 84929
+INFO: [Constraints 18-11670] Building netlist checker database with flags, 0x8
+Done building netlist checker database: Time (s): cpu = 00:00:00.03 ; elapsed = 00:00:00.04 . Memory (MB): peak = 5766.023 ; gain = 0.000 ; free physical = 27832 ; free virtual = 84875
+INFO: [Opt 31-138] Pushed 0 inverter(s) to 0 load pin(s).
+INFO: [Constraints 18-11670] Building netlist checker database with flags, 0x8
+Done building netlist checker database: Time (s): cpu = 00:00:00.03 ; elapsed = 00:00:00.03 . Memory (MB): peak = 5766.023 ; gain = 0.000 ; free physical = 27896 ; free virtual = 84940
+Phase 8 Resynthesis | Checksum: 1aa33a343
+
+Time (s): cpu = 00:02:25 ; elapsed = 00:00:33 . Memory (MB): peak = 5766.023 ; gain = 7.828 ; free physical = 27983 ; free virtual = 85029
+Resynthesis | Checksum: 1aa33a343
+INFO: [Opt 31-389] Phase Resynthesis created 19555 cells and removed 20264 cells
+INFO: [Opt 31-1021] In phase Resynthesis, 1495 netlist objects are constrained preventing optimization. Please run opt_design with -debug_log to get more detail. 
+
+Phase 9 Post Processing Netlist
+Phase 9 Post Processing Netlist | Checksum: 1aa33a343
+
+Time (s): cpu = 00:02:26 ; elapsed = 00:00:33 . Memory (MB): peak = 5766.023 ; gain = 7.828 ; free physical = 27973 ; free virtual = 85019
+Post Processing Netlist | Checksum: 1aa33a343
+INFO: [Opt 31-389] Phase Post Processing Netlist created 0 cells and removed 0 cells
+INFO: [Opt 31-1021] In phase Post Processing Netlist, 339 netlist objects are constrained preventing optimization. Please run opt_design with -debug_log to get more detail. 
+
+Phase 10 Finalization
+
+Phase 10.1 Finalizing Design Cores and Updating Shapes
+Phase 10.1 Finalizing Design Cores and Updating Shapes | Checksum: 2102e825c
+
+Time (s): cpu = 00:02:27 ; elapsed = 00:00:34 . Memory (MB): peak = 5766.023 ; gain = 7.828 ; free physical = 27633 ; free virtual = 84680
+
+Phase 10.2 Verifying Netlist Connectivity
+
+Starting Connectivity Check Task
+
+Time (s): cpu = 00:00:00.15 ; elapsed = 00:00:00.14 . Memory (MB): peak = 5766.023 ; gain = 0.000 ; free physical = 27588 ; free virtual = 84635
+Phase 10.2 Verifying Netlist Connectivity | Checksum: 2102e825c
+
+Time (s): cpu = 00:02:28 ; elapsed = 00:00:35 . Memory (MB): peak = 5766.023 ; gain = 7.828 ; free physical = 27590 ; free virtual = 84637
+Phase 10 Finalization | Checksum: 2102e825c
+
+Time (s): cpu = 00:02:28 ; elapsed = 00:00:35 . Memory (MB): peak = 5766.023 ; gain = 7.828 ; free physical = 27590 ; free virtual = 84637
+Opt_design Change Summary
+=========================
+
+
+-------------------------------------------------------------------------------------------------------------------------
+|  Phase                        |  #Cells created  |  #Cells Removed  |  #Constrained objects preventing optimizations  |
+-------------------------------------------------------------------------------------------------------------------------
+|  Retarget                     |             121  |             314  |                                              6  |
+|  Constant propagation         |              24  |              69  |                                            178  |
+|  Sweep                        |               0  |             161  |                                           1491  |
+|  BUFG optimization            |               0  |               0  |                                              0  |
+|  Shift Register Optimization  |               0  |               0  |                                              0  |
+|  Resynthesis                  |           19555  |           20264  |                                           1495  |
+|  Post Processing Netlist      |               0  |               0  |                                            339  |
+-------------------------------------------------------------------------------------------------------------------------
+
+
+Ending Logic Optimization Task | Checksum: 2102e825c
+
+Time (s): cpu = 00:02:28 ; elapsed = 00:00:35 . Memory (MB): peak = 5766.023 ; gain = 7.828 ; free physical = 27590 ; free virtual = 84637
+Netlist sorting complete. Time (s): cpu = 00:00:00.04 ; elapsed = 00:00:00.03 . Memory (MB): peak = 5766.023 ; gain = 0.000 ; free physical = 27608 ; free virtual = 84656
+INFO: [Common 17-83] Releasing license: Vivado_Implementation
+66 Infos, 0 Warnings, 0 Critical Warnings and 0 Errors encountered.
+opt_design completed successfully
+opt_design: Time (s): cpu = 00:02:35 ; elapsed = 00:00:39 . Memory (MB): peak = 5766.023 ; gain = 7.828 ; free physical = 27577 ; free virtual = 84624
+# report_utilization -file disabled_util.rpt
+# write_checkpoint -force measure_opt.dcp
+INFO: [Timing 38-480] Writing timing data to binary archive.
+Wrote PlaceDB: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 5766.023 ; gain = 0.000 ; free physical = 27409 ; free virtual = 84503
+Wrote PulsedLatchDB: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 5766.023 ; gain = 0.000 ; free physical = 27409 ; free virtual = 84503
+Writing XDEF routing.
+Writing XDEF routing logical nets.
+Writing XDEF routing special nets.
+Wrote RouteStorage: Time (s): cpu = 00:00:00.05 ; elapsed = 00:00:00.01 . Memory (MB): peak = 5766.023 ; gain = 0.000 ; free physical = 27411 ; free virtual = 84505
+Wrote PlaceStorage: Time (s): cpu = 00:00:00.01 ; elapsed = 00:00:00 . Memory (MB): peak = 5766.023 ; gain = 0.000 ; free physical = 27411 ; free virtual = 84505
+Wrote Netlist Cache: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 5766.023 ; gain = 0.000 ; free physical = 27411 ; free virtual = 84505
+Wrote Device Cache: Time (s): cpu = 00:00:00.02 ; elapsed = 00:00:00.01 . Memory (MB): peak = 5766.023 ; gain = 0.000 ; free physical = 27411 ; free virtual = 84506
+Write Physdb Complete: Time (s): cpu = 00:00:00.09 ; elapsed = 00:00:00.02 . Memory (MB): peak = 5766.023 ; gain = 0.000 ; free physical = 27411 ; free virtual = 84506
+Write ShapeDB Complete: Time (s): cpu = 00:00:00.33 ; elapsed = 00:00:00.08 . Memory (MB): peak = 5766.023 ; gain = 0.000 ; free physical = 27411 ; free virtual = 84508
+INFO: [Common 17-1381] The checkpoint '$SCRATCH/off-route/endstation_ax7101_1x1_tdm8/gateware/measure_opt.dcp' has been generated.
+write_checkpoint: Time (s): cpu = 00:00:09 ; elapsed = 00:00:08 . Memory (MB): peak = 5766.023 ; gain = 0.000 ; free physical = 28176 ; free virtual = 84977
+# quit
+INFO: [Common 17-206] Exiting Vivado at Tue Nov 24 06:30:24 2026...

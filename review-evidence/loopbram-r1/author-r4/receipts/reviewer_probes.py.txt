@@ -1,0 +1,138 @@
+Candidate head: dc78aedae34c25a97125ecd6816a1f645db5575f
+Comparison base: 3cda030c174b325e36c26af6420487ff91346d15
+Source: reviewer_probes.py
+Original SHA256: f2590e3b096ea338d616811c15ec108ee85e4851419b3aac43dbb385b201248c
+Scope: complete text; paths and host fields normalized
+
+#!/usr/bin/env python3
+# SPDX-License-Identifier: CERN-OHL-W-2.0
+"""Reviewer probes for the #979 input-mapped loopback wire harness.
+
+Usage: probes.py --tree <exported head tree> --out <dir> --verilator <bin> [--pool N] [--jobs J]
+
+Each probe copies tb/verilator/input_loopback and the two leaf sources into
+its own directory, applies at most one textual plant per file (each plant must
+match exactly once), builds with the pinned simulator and records the exit
+status and the harness verdict line. Nothing is written into the tree.
+"""
+import argparse
+import concurrent.futures as cf
+import json
+import shutil
+import subprocess
+import time
+from pathlib import Path
+
+SHAPES = {8: dict(STREAMS=8, FIRST=1, CHANNELS=63, LEAD=1),
+          1: dict(STREAMS=1, FIRST=8, CHANNELS=8, LEAD=2)}
+Q, C, T = "queue", "capture", "sim"
+TOL = ("localparam int STAMP_TOL_NS_C = 4 * STAMP_CYCLE_NS_C + STAMP_RATE_NS_C + 1;",
+       "localparam int STAMP_TOL_NS_C = 0;")
+STAMP = "if(events) d->frame_ns_i=stamp(frame)+uint32_t(phase>=250 ? capture_offset(frame) : 0);"
+
+
+def drift(j):
+    return (STAMP, f"if(events) d->frame_ns_i=stamp(frame)+uint32_t(phase>=250 ? {j} : 0);")
+
+
+# name, shape, lead override, [(file, old, new)], expectation
+PROBES = [
+    ("clean8", 8, None, [], "pass"),
+    ("clean1", 1, None, [], "pass"),
+    ("tol_zero8", 8, None, [(Q, *TOL)], "observe"),
+    ("no_flush_term8", 8, None, [(Q, "wire invalidate_w = input_invalidate_i || (|flush_i)",
+                                  "wire invalidate_w = input_invalidate_i || 1'b0")], "observe"),
+    ("lead2_8", 8, 2, [], "observe"),
+    ("lead3_8", 8, 3, [], "observe"),
+    ("lead3_1", 1, 3, [], "observe"),
+    ("no_expiry8", 8, None, [(Q, "if (ev_p_i && ((n_now_w - page_frame_r[p]) == FW_C'(2)))",
+                              "if (1'b0 && ev_p_i && ((n_now_w - page_frame_r[p]) == FW_C'(2)))")], "observe"),
+    ("no_claim8", 8, None, [(Q, "if (read_valid_w) page_valid_r[read_page_w] <= 1'b0;",
+                             "if (1'b0) page_valid_r[read_page_w] <= 1'b0;")], "observe"),
+    ("no_backlog8", 8, None, [(Q, "bad_r <= invalidate_w || (sn_r != n_r);",
+                               "bad_r <= invalidate_w;")], "observe"),
+    ("no_age8", 8, None, [(Q, "&& (age_w[FW_C-1] || age_w == '0))", "&& 1'b1)")], "observe"),
+    ("cap_right_ignored8", 8, None, [(C, "assign input_pair_r_w = input_right_select_r ? input_sample_i : input_right_r;",
+                                      "assign input_pair_r_w = input_right_r;")], "fail"),
+    ("cap_left_addr8", 8, None, [(C, "assign input_addr_o = input_right_w ? input_right_addr_r",
+                                  "assign input_addr_o = 1'b0 ? input_right_addr_r")], "fail"),
+    ("drift_p60_8", 8, None, [(T, *drift(60))], "observe"),
+    ("drift_p70_8", 8, None, [(T, *drift(70))], "observe"),
+    ("drift_m60_8", 8, None, [(T, *drift("-60"))], "observe"),
+    ("wrong_latency1", 1, None, [(Q, "64'(KMIN_C + 1) * PS3_L", "64'(KMIN_C + 2) * PS3_L")], "fail"),
+    ("wrong_bank1", 1, None, [(Q, "return_bank_r <= copy_channel_w[0] ^ cons_w[0];",
+                               "return_bank_r <= !(copy_channel_w[0] ^ cons_w[0]);")], "fail"),
+]
+
+
+def run(probe, tree, out, verilator, jobs):
+    name, shape, lead, plants, expect = probe
+    where = out / name
+    if where.exists():
+        shutil.rmtree(where)
+    tb = where / "tb" / "verilator" / "input_loopback"
+    shutil.copytree(tree / "tb/verilator/input_loopback", tb)
+    shutil.copytree(tree / "tb/common", where / "tb" / "common")
+    files = {Q: where / "KL_render_queue.sv", C: where / "KL_chan_map_capture.sv", T: tb / "sim_main.cpp"}
+    shutil.copy(tree / "hdl/ieee1722/aaf/KL_render_queue.sv", files[Q])
+    shutil.copy(tree / "hdl/ieee1722/aaf/KL_chan_map_capture.sv", files[C])
+    for kind, old, new in plants:
+        text = files[kind].read_text()
+        if text.count(old) != 1:
+            return dict(probe=name, error=f"plant text matched {text.count(old)} times in {kind}")
+        files[kind].write_text(text.replace(old, new, 1))
+    rtl = tree / "hdl"
+    srcs = " ".join(str(p) for p in (
+        rtl / "common/ethernet_packet_pkg.sv", rtl / "ieee1722/avtp/avtp_subtype_pkg.sv",
+        rtl / "ieee1722/aaf/KL_aaf_packetizer.sv", rtl / "ieee1722/avtp/avtp_stream_parser.sv",
+        rtl / "ieee1722/avtp/KL_avtp_rx_monitor.sv", rtl / "ieee1722/aaf/KL_aaf_rx_depacketizer.sv",
+        files[Q], files[C], tree / "third_party/verilog-axis/rtl/axis_fifo.v", tb / "loopback_wrap.sv"))
+    params = dict(SHAPES[shape])
+    if lead is not None:
+        params["LEAD"] = lead
+    cmd = ["make", "-s", "-C", str(tb), "run", f"VERILATOR={verilator}", f"VERILATOR_JOBS={jobs}",
+           f"MDIR={where / 'obj'}", f"RTL={rtl}", f"SRCS={srcs}"] + [f"{k}={v}" for k, v in params.items()]
+    log = where / "run.log"
+    start = time.time()
+    with log.open("w") as sink:
+        rc = subprocess.run(cmd, stdout=sink, stderr=subprocess.STDOUT, timeout=3000).returncode
+    text = log.read_text()
+    verdict = [l for l in text.splitlines() if "input-loopback streams=" in l]
+    fails = sorted({l.split()[1] for l in text.splitlines() if l.startswith("FAIL ") and "input-loopback" not in l})
+    built = (where / "obj" / "Vinput_loopback").exists()
+    if expect == "pass":
+        ok = rc == 0 and bool(verdict) and verdict[-1].startswith("PASS")
+    elif expect == "fail":
+        ok = built and rc != 0 and bool(verdict) and verdict[-1].startswith("FAIL")
+    else:
+        ok = None
+    shutil.rmtree(where / "obj", ignore_errors=True)
+    return dict(probe=name, shape=shape, params=params, plants=[[k, o, n] for k, o, n in plants],
+                expect=expect, exit=rc, built=built, verdict=verdict[-1] if verdict else None,
+                failing_labels=fails, expectation_met=ok, seconds=round(time.time() - start, 1))
+
+
+def main():
+    ap = argparse.ArgumentParser(description=__doc__)
+    ap.add_argument("--tree", type=Path, required=True)
+    ap.add_argument("--out", type=Path, required=True)
+    ap.add_argument("--verilator", required=True)
+    ap.add_argument("--pool", type=int, default=6)
+    ap.add_argument("--jobs", type=int, default=2)
+    a = ap.parse_args()
+    a.out.mkdir(parents=True, exist_ok=True)
+    results = []
+    with cf.ThreadPoolExecutor(a.pool) as ex:
+        futs = [ex.submit(run, p, a.tree.resolve(), a.out.resolve(), a.verilator, a.jobs) for p in PROBES]
+        for f in cf.as_completed(futs):
+            r = f.result()
+            results.append(r)
+            print(json.dumps(r), flush=True)
+            (a.out / "results.json").write_text(json.dumps(sorted(results, key=lambda r: r["probe"]), indent=1) + "\n")
+    bad = [r for r in results if r.get("error") or r.get("expectation_met") is False]
+    print("PROBES DONE", len(results), "unexpected", [r["probe"] for r in bad], flush=True)
+    raise SystemExit(1 if bad else 0)
+
+
+if __name__ == "__main__":
+    main()

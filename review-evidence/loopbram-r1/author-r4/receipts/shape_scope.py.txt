@@ -1,0 +1,21 @@
+Candidate head: dc78aedae34c25a97125ecd6816a1f645db5575f
+Comparison base: 3cda030c174b325e36c26af6420487ff91346d15
+Source: shape_scope.py
+Original SHA256: 2ecd3700e5f900a36c9e3936c075c93b464167515c00c60ce6450bcb5adbfafb
+Scope: complete text; paths and host fields normalized
+
+import sys,subprocess,json,hashlib
+from pathlib import Path
+from types import SimpleNamespace
+root=Path(sys.argv[1])
+sys.path.insert(0,str(root/'sw/litex'))
+import milan_soc
+try:
+ milan_soc.CtrlMailbox._split(None,SimpleNamespace(interfaces=2),None,{}, {}, {})
+except ValueError as e:
+ assert str(e)=='the split placement connects one datapath interface; the contract has 2'
+ print('PASS: release split top refuses two interfaces:',e)
+else:
+ raise SystemExit('FAIL: two-interface split unexpectedly accepted')
+print('Commit:',subprocess.check_output(['git','rev-parse','HEAD'],cwd=root,text=True).strip())
+print('Source SHA256:',hashlib.sha256((root/'sw/litex/milan_soc.py').read_bytes()).hexdigest())

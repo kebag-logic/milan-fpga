@@ -1,0 +1,36 @@
+Candidate head: dc78aedae34c25a97125ecd6816a1f645db5575f
+Comparison base: 3cda030c174b325e36c26af6420487ff91346d15
+Source: synth_off.py
+Original SHA256: bdfa01999c1d184792bcedb7d3fdc27647ff070a24c4c473f0a3898fa7a827fe
+Scope: complete text; paths and host fields normalized
+
+import os,sys,subprocess,json,time,concurrent.futures,fcntl
+from pathlib import Path
+w=Path('$SCRATCH/off-route')
+slot='$MANAGEMENT/2026-09-23/vivado-slot.sh'
+vivado='$WORKSPACE_HOME/Xilinx2/2026.1/Vivado/bin/vivado'
+env=dict(os.environ,VIVADO_SLOTS='2',VIVADO_MIN_GB='20')
+# Serialize invocations; reuse only this exact-head export's completed reports.
+lock=(w/'synthesis.lock').open('w')
+fcntl.flock(lock,fcntl.LOCK_EX)
+
+def run(cwd,tcl):
+ cmd=[slot,vivado,'-mode','batch','-nojournal','-nolog','-source',str(tcl)]
+ log=tcl.with_suffix('.log');start=time.time()
+ with log.open('w') as stream:r=subprocess.run(cmd,cwd=cwd,env=env,stdout=stream,stderr=subprocess.STDOUT,timeout=14400)
+ result={'command':cmd,'cwd':str(cwd),'exit':r.returncode,'seconds':time.time()-start}
+ tcl.with_suffix('.json').write_text(json.dumps(result,indent=2));print(tcl,'EXIT',r.returncode,flush=True)
+ return r.returncode
+
+def point(name):
+ gate=w/name/'gateware'
+ result=gate/'measure_synth.json'
+ if result.exists() and (gate/'disabled_util.rpt').exists() and result.stat().st_mtime > (gate/'alinx_ax7101.tcl').stat().st_mtime and json.loads(result.read_text())['exit']==0:
+  print('EXACT-EXPORT REUSE',name,flush=True);return True
+ original=(gate/'alinx_ax7101.tcl').read_text()
+ pre,post=original.split('# Add pre-placement commands',1)
+ synth=gate/'measure_synth.tcl';synth.write_text(pre+'\nreport_utilization -file disabled_util.rpt\nwrite_checkpoint -force measure_opt.dcp\nquit\n')
+ if run(gate,synth):return False
+ return True
+with concurrent.futures.ThreadPoolExecutor(max_workers=2) as pool:
+ print(list(pool.map(point,['endstation_ax7101_1x1_tdm8','endstation_ax7101_8x8'])),flush=True)

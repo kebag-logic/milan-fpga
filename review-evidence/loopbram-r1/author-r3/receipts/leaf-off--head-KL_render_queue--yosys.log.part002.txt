@@ -1,0 +1,1700 @@
+Candidate head: 855529fe21fea685725a9edc4fe0a798154c6469
+Comparison base: 3cda030c174b325e36c26af6420487ff91346d15
+Source: leaf-off/head-KL_render_queue/yosys.log
+Original SHA256: 4b5219e0c084bb65ec2960bb10c35b32568b2e2875d3335b71a824fc6c492e57
+Scope: native compilation chatter omitted; other output retained; paths and host fields normalized
+
+Running muxtree optimizer on module \KL_render_queue..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~452 debug messages>
+
+2.14.18. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \KL_render_queue.
+Performed a total of 0 changes.
+
+2.14.19. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\KL_render_queue'.
+Computing hashes of 800 cells of `\KL_render_queue'.
+Finding duplicate cells in `\KL_render_queue'.
+Removed a total of 0 cells.
+
+2.14.20. Executing OPT_DFF pass (perform DFF optimizations).
+
+2.14.21. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \KL_render_queue..
+
+2.14.22. Executing OPT_EXPR pass (perform const folding).
+Optimizing module KL_render_queue.
+
+2.14.23. Finished fast OPT passes. (There is nothing left to do.)
+
+2.15. Executing WREDUCE pass (reducing word size of cells).
+Removed top 1 bits (of 2) from port B of cell KL_render_queue.$auto$opt_dff.cc:235:make_patterns_logic$5309 ($ne).
+Removed top 1 bits (of 2) from port B of cell KL_render_queue.$auto$opt_dff.cc:235:make_patterns_logic$5060 ($ne).
+Removed top 1 bits (of 2) from port B of cell KL_render_queue.$auto$opt_dff.cc:235:make_patterns_logic$5058 ($ne).
+Removed top 1 bits (of 2) from port B of cell KL_render_queue.$auto$opt_dff.cc:235:make_patterns_logic$5033 ($ne).
+Removed top 1 bits (of 2) from port B of cell KL_render_queue.$auto$opt_dff.cc:235:make_patterns_logic$5031 ($ne).
+Removed top 1 bits (of 3) from port B of cell KL_render_queue.$auto$opt_dff.cc:235:make_patterns_logic$4988 ($ne).
+Removed top 2 bits (of 3) from port B of cell KL_render_queue.$auto$fsm_map.cc:77:implement_pattern_cache$4975 ($eq).
+Removed top 1 bits (of 3) from port B of cell KL_render_queue.$auto$fsm_map.cc:77:implement_pattern_cache$4972 ($eq).
+Removed top 2 bits (of 5) from port B of cell KL_render_queue.$auto$fsm_map.cc:77:implement_pattern_cache$4965 ($eq).
+Removed top 1 bits (of 4) from port B of cell KL_render_queue.$auto$fsm_map.cc:77:implement_pattern_cache$4961 ($eq).
+Removed top 1 bits (of 5) from port B of cell KL_render_queue.$auto$fsm_map.cc:77:implement_pattern_cache$4957 ($eq).
+Removed top 4 bits (of 5) from port B of cell KL_render_queue.$auto$fsm_map.cc:77:implement_pattern_cache$4948 ($eq).
+Removed top 1 bits (of 2) from port B of cell KL_render_queue.$auto$fsm_map.cc:77:implement_pattern_cache$4936 ($eq).
+Removed top 1 bits (of 4) from port B of cell KL_render_queue.$auto$fsm_map.cc:77:implement_pattern_cache$4919 ($eq).
+Removed top 1 bits (of 3) from port B of cell KL_render_queue.$auto$fsm_map.cc:77:implement_pattern_cache$4915 ($eq).
+Removed top 1 bits (of 2) from port B of cell KL_render_queue.$auto$fsm_map.cc:77:implement_pattern_cache$4911 ($eq).
+Removed top 1 bits (of 2) from port B of cell KL_render_queue.$auto$fsm_map.cc:77:implement_pattern_cache$4906 ($eq).
+Removed top 1 bits (of 2) from port B of cell KL_render_queue.$auto$fsm_map.cc:77:implement_pattern_cache$4889 ($eq).
+Removed top 9 bits (of 10) from port B of cell KL_render_queue.$add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:246$283 ($add).
+Removed top 8 bits (of 32) from port B of cell KL_render_queue.$add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:258$288 ($add).
+Removed top 32 bits (of 64) from port A of cell KL_render_queue.$ge$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:260$290 ($ge).
+Removed top 40 bits (of 64) from port B of cell KL_render_queue.$ge$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:260$290 ($ge).
+Removed top 1 bits (of 17) from port B of cell KL_render_queue.$ge$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:266$292 ($ge).
+Removed top 1 bits (of 16) from port B of cell KL_render_queue.$ge$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:272$294 ($ge).
+Removed top 28 bits (of 32) from port A of cell KL_render_queue.$lt$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:273$295 ($lt).
+Removed top 28 bits (of 32) from port B of cell KL_render_queue.$lt$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:273$295 ($lt).
+Removed top 3 bits (of 4) from port B of cell KL_render_queue.$sub$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:299$327 ($sub).
+Removed top 9 bits (of 10) from port B of cell KL_render_queue.$add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:302$331 ($add).
+Removed top 22 bits (of 32) from port A of cell KL_render_queue.$ge$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:307$339 ($ge).
+Removed top 24 bits (of 32) from port B of cell KL_render_queue.$ge$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:307$339 ($ge).
+Removed top 22 bits (of 32) from port A of cell KL_render_queue.$ge$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:308$342 ($ge).
+Removed top 24 bits (of 32) from port B of cell KL_render_queue.$ge$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:308$342 ($ge).
+Removed top 28 bits (of 32) from port A of cell KL_render_queue.$lt$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:338$461 ($lt).
+Removed top 28 bits (of 32) from port B of cell KL_render_queue.$lt$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:338$461 ($lt).
+Removed top 28 bits (of 32) from port A of cell KL_render_queue.$lt$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:339$472 ($lt).
+Removed top 28 bits (of 32) from port B of cell KL_render_queue.$lt$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:339$472 ($lt).
+Removed top 2 bits (of 4) from port B of cell KL_render_queue.$eq$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:381$532 ($eq).
+Removed top 8 bits (of 10) from port B of cell KL_render_queue.$add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:401$540 ($add).
+Removed top 1 bits (of 25) from mux cell KL_render_queue.$ternary$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:440$623 ($mux).
+Removed top 1 bits (of 25) from mux cell KL_render_queue.$ternary$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:441$624 ($mux).
+Removed top 3 bits (of 4) from port B of cell KL_render_queue.$eq$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:462$673 ($eq).
+Removed top 3 bits (of 4) from port B of cell KL_render_queue.$eq$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:463$676 ($eq).
+Removed top 2 bits (of 4) from port B of cell KL_render_queue.$eq$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:462$680 ($eq).
+Removed top 2 bits (of 4) from port B of cell KL_render_queue.$eq$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:463$683 ($eq).
+Removed top 2 bits (of 4) from port B of cell KL_render_queue.$eq$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:462$687 ($eq).
+Removed top 2 bits (of 4) from port B of cell KL_render_queue.$eq$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:463$690 ($eq).
+Removed top 1 bits (of 4) from port B of cell KL_render_queue.$eq$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:462$694 ($eq).
+Removed top 1 bits (of 4) from port B of cell KL_render_queue.$eq$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:463$697 ($eq).
+Removed top 1 bits (of 4) from port B of cell KL_render_queue.$eq$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:462$701 ($eq).
+Removed top 1 bits (of 4) from port B of cell KL_render_queue.$eq$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:463$704 ($eq).
+Removed top 1 bits (of 4) from port B of cell KL_render_queue.$eq$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:462$708 ($eq).
+Removed top 1 bits (of 4) from port B of cell KL_render_queue.$eq$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:463$711 ($eq).
+Removed top 1 bits (of 4) from port B of cell KL_render_queue.$eq$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:462$715 ($eq).
+Removed top 1 bits (of 4) from port B of cell KL_render_queue.$eq$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:463$718 ($eq).
+Removed top 1 bits (of 27) from port Y of cell KL_render_queue.$add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:732$776 ($add).
+Removed top 1 bits (of 27) from port A of cell KL_render_queue.$add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:732$776 ($add).
+Removed top 9 bits (of 10) from port B of cell KL_render_queue.$add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:741$784 ($add).
+Removed top 9 bits (of 10) from port B of cell KL_render_queue.$add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:747$788 ($add).
+Removed top 1 bits (of 10) from port B of cell KL_render_queue.$sub$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:751$791 ($sub).
+Removed top 3 bits (of 4) from port B of cell KL_render_queue.$add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:196$809 ($add).
+Removed top 6 bits (of 7) from port B of cell KL_render_queue.$add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:840$963 ($add).
+Removed top 3 bits (of 4) from port B of cell KL_render_queue.$eq$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:825$971 ($eq).
+Removed top 6 bits (of 7) from port B of cell KL_render_queue.$add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:840$980 ($add).
+Removed top 2 bits (of 4) from port B of cell KL_render_queue.$eq$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:825$988 ($eq).
+Removed top 6 bits (of 7) from port B of cell KL_render_queue.$add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:840$997 ($add).
+Removed top 2 bits (of 4) from port B of cell KL_render_queue.$eq$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:825$1005 ($eq).
+Removed top 6 bits (of 7) from port B of cell KL_render_queue.$add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:840$1014 ($add).
+Removed top 1 bits (of 4) from port B of cell KL_render_queue.$eq$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:825$1022 ($eq).
+Removed top 6 bits (of 7) from port B of cell KL_render_queue.$add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:840$1031 ($add).
+Removed top 1 bits (of 4) from port B of cell KL_render_queue.$eq$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:825$1039 ($eq).
+Removed top 6 bits (of 7) from port B of cell KL_render_queue.$add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:840$1048 ($add).
+Removed top 1 bits (of 4) from port B of cell KL_render_queue.$eq$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:825$1056 ($eq).
+Removed top 6 bits (of 7) from port B of cell KL_render_queue.$add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:840$1065 ($add).
+Removed top 1 bits (of 4) from port B of cell KL_render_queue.$eq$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:825$1073 ($eq).
+Removed top 6 bits (of 7) from port B of cell KL_render_queue.$add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:840$1082 ($add).
+Removed top 3 bits (of 4) from port B of cell KL_render_queue.$eq$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:861$1120 ($eq).
+Removed top 2 bits (of 4) from port B of cell KL_render_queue.$eq$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:861$1123 ($eq).
+Removed top 2 bits (of 4) from port B of cell KL_render_queue.$eq$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:861$1126 ($eq).
+Removed top 1 bits (of 4) from port B of cell KL_render_queue.$eq$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:861$1129 ($eq).
+Removed top 1 bits (of 4) from port B of cell KL_render_queue.$eq$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:861$1132 ($eq).
+Removed top 1 bits (of 4) from port B of cell KL_render_queue.$eq$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:861$1135 ($eq).
+Removed top 1 bits (of 4) from port B of cell KL_render_queue.$eq$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:861$1138 ($eq).
+Removed top 3 bits (of 4) from port B of cell KL_render_queue.$eq$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:880$1166 ($eq).
+Removed top 2 bits (of 4) from port B of cell KL_render_queue.$eq$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:880$1171 ($eq).
+Removed top 2 bits (of 4) from port B of cell KL_render_queue.$eq$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:880$1176 ($eq).
+Removed top 1 bits (of 4) from port B of cell KL_render_queue.$eq$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:880$1181 ($eq).
+Removed top 1 bits (of 4) from port B of cell KL_render_queue.$eq$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:880$1186 ($eq).
+Removed top 1 bits (of 4) from port B of cell KL_render_queue.$eq$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:880$1191 ($eq).
+Removed top 1 bits (of 4) from port B of cell KL_render_queue.$eq$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:880$1196 ($eq).
+Removed top 15 bits (of 16) from port B of cell KL_render_queue.$add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:900$1214 ($add).
+Removed top 15 bits (of 16) from port B of cell KL_render_queue.$add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:902$1218 ($add).
+Removed top 15 bits (of 16) from port B of cell KL_render_queue.$add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:904$1223 ($add).
+Removed top 15 bits (of 16) from port B of cell KL_render_queue.$add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:906$1227 ($add).
+Removed top 15 bits (of 16) from port B of cell KL_render_queue.$add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:908$1235 ($add).
+Removed top 15 bits (of 16) from port B of cell KL_render_queue.$add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:908$1236 ($add).
+Removed top 22 bits (of 32) from port A of cell KL_render_queue.$gt$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:926$1274 ($gt).
+Removed top 24 bits (of 32) from port B of cell KL_render_queue.$gt$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:926$1274 ($gt).
+Removed top 22 bits (of 32) from port A of cell KL_render_queue.$gt$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:926$1280 ($gt).
+Removed top 24 bits (of 32) from port B of cell KL_render_queue.$gt$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:926$1280 ($gt).
+Removed top 22 bits (of 32) from port A of cell KL_render_queue.$gt$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:926$1286 ($gt).
+Removed top 24 bits (of 32) from port B of cell KL_render_queue.$gt$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:926$1286 ($gt).
+Removed top 22 bits (of 32) from port A of cell KL_render_queue.$gt$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:926$1292 ($gt).
+Removed top 24 bits (of 32) from port B of cell KL_render_queue.$gt$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:926$1292 ($gt).
+Removed top 22 bits (of 32) from port A of cell KL_render_queue.$gt$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:926$1298 ($gt).
+Removed top 24 bits (of 32) from port B of cell KL_render_queue.$gt$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:926$1298 ($gt).
+Removed top 22 bits (of 32) from port A of cell KL_render_queue.$gt$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:926$1304 ($gt).
+Removed top 24 bits (of 32) from port B of cell KL_render_queue.$gt$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:926$1304 ($gt).
+Removed top 22 bits (of 32) from port A of cell KL_render_queue.$gt$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:926$1310 ($gt).
+Removed top 24 bits (of 32) from port B of cell KL_render_queue.$gt$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:926$1310 ($gt).
+Removed top 22 bits (of 32) from port A of cell KL_render_queue.$gt$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:926$1316 ($gt).
+Removed top 24 bits (of 32) from port B of cell KL_render_queue.$gt$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:926$1316 ($gt).
+Removed top 1 bits (of 17) from port B of cell KL_render_queue.$sub$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:271$1332 ($sub).
+Removed top 1 bits (of 17) from port Y of cell KL_render_queue.$sub$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:271$1332 ($sub).
+Removed top 1 bits (of 17) from port A of cell KL_render_queue.$sub$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:271$1332 ($sub).
+Removed top 3 bits (of 4) from port B of cell KL_render_queue.$add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:196$1344 ($add).
+Removed top 21 bits (of 32) from port A of cell KL_render_queue.$add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:206$1389 ($add).
+Removed top 25 bits (of 32) from port B of cell KL_render_queue.$add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:206$1389 ($add).
+Removed top 20 bits (of 32) from port Y of cell KL_render_queue.$add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:206$1389 ($add).
+Removed top 18 bits (of 32) from port A of cell KL_render_queue.$add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:206$1391 ($add).
+Removed top 29 bits (of 32) from port B of cell KL_render_queue.$add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:206$1391 ($add).
+Removed top 20 bits (of 32) from port Y of cell KL_render_queue.$add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:206$1391 ($add).
+Removed top 2 bits (of 14) from port A of cell KL_render_queue.$add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:206$1391 ($add).
+Removed top 21 bits (of 32) from port A of cell KL_render_queue.$add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:206$1407 ($add).
+Removed top 25 bits (of 32) from port B of cell KL_render_queue.$add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:206$1407 ($add).
+Removed top 20 bits (of 32) from port Y of cell KL_render_queue.$add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:206$1407 ($add).
+Removed top 18 bits (of 32) from port A of cell KL_render_queue.$add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:206$1409 ($add).
+Removed top 29 bits (of 32) from port B of cell KL_render_queue.$add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:206$1409 ($add).
+Removed top 20 bits (of 32) from port Y of cell KL_render_queue.$add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:206$1409 ($add).
+Removed top 2 bits (of 14) from port A of cell KL_render_queue.$add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:206$1409 ($add).
+Removed top 19 bits (of 32) from port A of cell KL_render_queue.$add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:408$1443 ($add).
+Removed top 23 bits (of 32) from port B of cell KL_render_queue.$add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:408$1443 ($add).
+Removed top 20 bits (of 32) from port Y of cell KL_render_queue.$add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:408$1443 ($add).
+Removed top 1 bits (of 13) from port A of cell KL_render_queue.$add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:408$1443 ($add).
+Removed top 21 bits (of 32) from port A of cell KL_render_queue.$add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:206$1477 ($add).
+Removed top 25 bits (of 32) from port B of cell KL_render_queue.$add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:206$1477 ($add).
+Removed top 20 bits (of 32) from port Y of cell KL_render_queue.$add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:206$1477 ($add).
+Removed top 18 bits (of 32) from port A of cell KL_render_queue.$add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:206$1479 ($add).
+Removed top 28 bits (of 32) from port B of cell KL_render_queue.$add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:206$1479 ($add).
+Removed top 20 bits (of 32) from port Y of cell KL_render_queue.$add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:206$1479 ($add).
+Removed top 2 bits (of 14) from port A of cell KL_render_queue.$add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:206$1479 ($add).
+Removed top 1 bits (of 4) from mux cell KL_render_queue.$procmux$3847 ($mux).
+Removed top 2 bits (of 12) from port Y of cell KL_render_queue.$add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:206$1389 ($add).
+Removed top 1 bits (of 11) from port A of cell KL_render_queue.$add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:206$1389 ($add).
+Removed top 2 bits (of 12) from port Y of cell KL_render_queue.$add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:206$1407 ($add).
+Removed top 1 bits (of 11) from port A of cell KL_render_queue.$add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:206$1407 ($add).
+Removed top 2 bits (of 12) from port Y of cell KL_render_queue.$add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:206$1477 ($add).
+Removed top 1 bits (of 11) from port A of cell KL_render_queue.$add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:206$1477 ($add).
+Removed top 22 bits (of 32) from wire KL_render_queue.$add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:206$1477_Y.
+Removed top 22 bits (of 32) from wire KL_render_queue.$add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:206$1407_Y.
+Removed top 22 bits (of 32) from wire KL_render_queue.$add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:206$1389_Y.
+Removed top 1 bits (of 4) from wire KL_render_queue.$1\fl_low_w[3:0].
+Removed top 1 bits (of 27) from wire KL_render_queue.$add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:732$776_Y.
+Removed top 1 bits (of 25) from wire KL_render_queue.odd_w.
+Removed top 1 bits (of 25) from wire KL_render_queue.even_w.
+
+2.16. Executing PEEPOPT pass (run peephole optimizers).
+
+2.17. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \KL_render_queue..
+Removed 0 unused cells and 12 unused wires.
+<suppressed ~1 debug messages>
+
+2.18. Executing PMUX2SHIFTX pass.
+
+2.19. Executing SORT pass.
+
+2.20. Executing MEMORY_DFF pass (merging $dff cells to $memrd).
+Checking read port `\bank0_r'[0] in module `\KL_render_queue': merging output FF to cell.
+    Write port 0: non-transparent.
+Checking read port `\bank1_r'[0] in module `\KL_render_queue': merging output FF to cell.
+    Write port 0: non-transparent.
+
+2.21. Executing TECHMAP pass (map to technology primitives).
+
+2.21.1. Executing Verilog-2005 frontend: /usr/bin/../share/yosys/mul2dsp.v
+Parsing Verilog input from `/usr/bin/../share/yosys/mul2dsp.v' to AST representation.
+Generating RTLIL representation for module `\_80_mul'.
+Generating RTLIL representation for module `\_90_soft_mul'.
+Successfully finished Verilog frontend.
+
+2.21.2. Executing Verilog-2005 frontend: /usr/bin/../share/yosys/xilinx/xc7_dsp_map.v
+Parsing Verilog input from `/usr/bin/../share/yosys/xilinx/xc7_dsp_map.v' to AST representation.
+Generating RTLIL representation for module `$__MUL25X18'.
+Successfully finished Verilog frontend.
+
+2.21.3. Continuing TECHMAP pass.
+No more expansions possible.
+<suppressed ~5 debug messages>
+
+2.22. Executing OPT_EXPR pass (perform const folding).
+
+2.23. Executing WREDUCE pass (reducing word size of cells).
+
+2.24. Executing XILINX_DSP pass (pack resources into DSPs).
+
+2.25. Executing TECHMAP pass (map to technology primitives).
+
+2.25.1. Executing Verilog-2005 frontend: /usr/bin/../share/yosys/cmp2lut.v
+Parsing Verilog input from `/usr/bin/../share/yosys/cmp2lut.v' to AST representation.
+Generating RTLIL representation for module `\_90_lut_cmp_'.
+Successfully finished Verilog frontend.
+
+2.25.2. Executing Verilog-2005 frontend: /usr/bin/../share/yosys/cmp2lcu.v
+Parsing Verilog input from `/usr/bin/../share/yosys/cmp2lcu.v' to AST representation.
+Generating RTLIL representation for module `\_80_lcu_cmp_'.
+Generating RTLIL representation for module `$__CMP2LCU'.
+Successfully finished Verilog frontend.
+
+2.25.3. Continuing TECHMAP pass.
+Using template $paramod$2864ff82abd0e0e7b7ad20591738f77a101f7aca\_80_lcu_cmp_ for cells of type $ge.
+Using template $paramod$1a9b7ac2e5ad83bd3c30e70ff3a6189fbd429638\_80_lcu_cmp_ for cells of type $ge.
+Using template $paramod$6806fdc4775e7df132d5f98b7a0ac53abc17760b\_80_lcu_cmp_ for cells of type $ge.
+Using template $paramod$d8a8e5762defe90e659a6be8dee4b5ead1706e5b\_80_lcu_cmp_ for cells of type $lt.
+Using template $paramod$3d81ba9b93a64e6fd8c7ea81de83b8f9d18c21e0\_80_lcu_cmp_ for cells of type $ge.
+Using template $paramod$259894106d2ad198d0d04618b21dd2497b1cfb96\_80_lcu_cmp_ for cells of type $lt.
+Using template $paramod$3ec268ab8e078b169c558540460b85b37f9f2e76\_80_lcu_cmp_ for cells of type $gt.
+Using template $paramod$f7d5d0eedf5abf60dacbca37e1f70863b34bd030$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$0e6b897c30e7e58b2a42ce30ac9a786098cae9be$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$07a2ea5368696b2f963f2f68a5f207192110219c$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$51c3f858cbd57f5e7357fcbdbed8cec97fb3da61\_80_lcu_cmp_ for cells of type $gt.
+Using template $paramod$176f144b7c2332d0aa23d67e7627be36b69b9acf$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$7471c16ccde3ba74bc45d1b0191ea15669d59841\_80_lcu_cmp_ for cells of type $gt.
+Using template $paramod$7cbd3c5541c34b35af432f7a6e224fc73c84effa$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$40cfd7382004e7c7b7df6c752c5a7db3c62c5349$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$0dbe6f4486f156d9b0cc4165f07bb8a3c41a3fc9$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$9816587badb35b47d56cba3da150849ec2c257c2$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$412580fbecc4ffa89226da87698fd0a360ff0ba9$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$abbe5cfad150b332b083ed097acaee90035f935b$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$b21dae0014d24d1ab306f0f0cb9165e2eeb69bee$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$2fea46a7b907ee27dc1e048f1f5951c3d609cc62$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$5128cb6dd44b023f769c54e1a970d0052e9c7bf2$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$5702f7590b8b25addb0eeaaef5a34b2763897e12$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$e5e0c83a276d31185839e91c2c593a7246dd306c$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$5a4d77ac66e2ba111de43452349a1937831fcbbb$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$24cd2fb012bc1c97d52a0755a58168ae0a6ab1cb$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$b25aac6548b14bdb1d4027b921b3a609355d5680$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$6594abd0b562d31e13ba47cbf8298641e37f4264$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$b07f4499f2901f3d50ae3a891afd3a24c29afa8a$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$1de1183d01e83708af80ee015878101c9c03b97c$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$f34c3e7789e298a12084a681b969d96459878594$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$d97874404b82ffd5befcf56f882c444d64ec9fa5$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$eddf41874fe6faa3e8776e24beae3fc9d001d763$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$7f4a4c4651d8e51142a51f5cd66473bac608541e$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$aa5e87992e268284a247b07f236dd8dcb639202b$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$f7205ba83260b2c1023a0cdb99dff9665becdd8f$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$e11ce580ada44dd21ad77399a71b762ffaf17bc4$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$a2d038c26a918ece53fcc78f1784db53db9f9d8f$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$4cd940e5db376015060af75b10fbc225ed3011be$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$81941b5f4d008344bcc6f819e8664bbb1fa6a27c$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$9b48c13f6ee139ffd868f987a3c23519dd687b87$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$c249ba5fbbe42d4ae1378f848414fcb9f9ab0611$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$15991d3cf7cdb91e60324631b7780a239738aaee$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$6fb878fdb1bf7311923cff142a17359f6e96b365$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$44f66768811bf5cbd17bd98d557bf551eaa4f78f$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$db02a46a286ea895edb5c4502c36f849ae1fd15a$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$1b46dd74f16d92f96f44974923b179dbd1c1ed08$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$62cf0aed4f1287d05405733bd8c0de7f1a790d8a$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$e6c025b9a8cdfb57288f81dd0dd27de0e04f1e28$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$32c8a2f4982ca753df3846a72fa473a587db00b7$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$d8e478c8753e99d3ea19b7fdb784116e39db5e37$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$209d3a30ba0959620530e5dcd91c9f830095755d$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$ca71d0724ba6c39933564e80a1ab6d9790be0a4c$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$98166957ac12eea64cd6583be54bb675ddb81494$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$e6622b6cf980fe7ce5f6e5ea0bf75f213ebf5a63$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$041aa5e7f50730218ea42ebc906c2fdcb4f14736$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$cf5d21098074673ea4c4c75dfb483ab3fae52279$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$0dfd26f5d1684064a9dd8600ad1bbe809d029c09$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$6f089d4b493cdd202c51cc5cc83012f42eaab2d6$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$561a9b977b6bb53998d6a59827bb207f04d976c1$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$00b1657bb2849fcb757137e22ae149ea8ca6dc50$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$ef291593d40b02bbdd0181bfb84d08a1e057c755$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$49a83fcbd5f0d74fb96b676225c218fb886f7a60$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$422ef83d950eac127977b984c2d7dc2d7b4a3edf$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$b45bb0f4c3e4bdb00bd176ce69e5a5795be59c43$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$befe0c0d9ea1dabbf9289f94adb6119b6815c19d$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$815be3878991b4f99c33c18e5b47988e63c1d969$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$012f2d0cd52af9a48dc57d0f8c1a749176ad03eb$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$63e69a94a86363b5c2acdcd36c5b3f75859d426e$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$c1f8c06748c8de19f72b2f0c4117821928719538$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$2b2f53694b666a1b3b919d9feae8e7c4b5cb72bb$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$ec5f95f9dce56865576df386f29795b51d339c68$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$a14f29a05f5787d666f51e7d511c07b6eb8e4270$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$d099e244dd9b0dc93097962eebedbf7ecb6a1f1e$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$545f0c1f51c94bb31cd482adf84eba582710943a$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$a9bf96b5066c178171e722af65a0a1b96240d8fa$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$f253d129c721ae78c8df93b065702e22dea73156$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$316f26711b72417234a01da6f8ffa69598ec7bb8$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$c218b4e837ff8114b34be467b33c1c22ae54b2d6$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$c09a13df41210ae2e868a14b7f4da0019e55b9f6$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$540f5c23b9b5e635a19b84c0ee3879128ff633bd$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$84e1b4bd11ac1d7a058dec3622bd5a793bef66b2$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$b955e056118428b6ec4ad6c86215d3825dbeca28$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$cbc1a3f8cd55bc859368f75f0ddb3170133ae662$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$e9fd2ff07ea55906e0fdd367ba4914c29374d871$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$2149c6cf41348acdc0ea8c0f309b12db6b6f8c70$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$33403e8731da66b7b6eb067dcd29086df348119a$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$504ffbfeb6d4f5c4e9bee46e25e37ce2d4fb5971$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$967f74975042bd569ff7b927bd0deb9af866806e$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$508213505aabe6105f9b3afe99d667bc7255fe5d$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$a344e994601e672499b297c9c1b0cbb97f7436a6$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$df55c4b7114595092bb2fcec82038ff1f4a5c526$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$dd030be97b597df7b66c352fc3b1ca9e827c0805$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$c8ce2b1d789c04379ee16593d08a9ccaf2d4a220$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$dfb09ff1391d28fbe378fa817c5be0cff16c8670$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$b44c4072001c32cad79b4eb40c655ff22fc1d72a$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$390ab4ef0c72481bc59512356a5b66a8053f39e7$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$e5b366943cc9c6868e553495bbe1b56dc162fe28$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$531c8591d2ebdb6e5c2a02d92229f92b01c07741$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$ca10b6db39ea827eac59fdee7b63fd2c6051849d$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$d38ad95e6c046c39d9325409a27296c71dddd89e$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$3a78ae448bd5c87887a9637f133b1084df0801a7$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$97945e1eddc3e90966d1c0317ebd3d9b949bd2ed$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$c18e0477cdcc3388607dc61644381a75d0b2837b$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$e1786feb41cb0b192b3d02d17f0390edee59f05c$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$b9b57395dea2b26f0732d980e245a01722ac7b7b$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$dc172931a9f23b32c22aa22066facbe60a809c4c$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$f2c50c1eaee0df06526511f9757181e598707c0b$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$42b9a2776b52cfc40aa2b6f9fa11a70a9d780506$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$4bc8fdb6ad574c0987fa96d30cdee338e105d7c2$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$20a106bfae078a1999bfddb2ed55c902b3f5a8b4$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$0cedfb49e1d8bb960790bbfc68ee2bd67213b691$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$295ffa2716aea37566449ed1727c23f1ed71ad09$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$8f92327b54c73ea9fcbec75de0555df5b740cc0d$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$301eb5cc2573d80ad78247185b5c1dd9eaac2545$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$595a92826cf5dbaac4bdf1a90c7a46615bb32169$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$88c30cd2a72a23f47f3d899717f782dd03fa163c$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$6a74e7cf8e651a2716b075beb645b75ad4ec94a0$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$4eaee49cc82f7ae80c48946f15c1416c10ad3c8a$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$664b06fa09ef54d9d31f8c96564ae19cb73d9809$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$ed875251c3fd4c06528ae537b3273ac25c2eaa4f$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$594c57c1fab06aa502a33414a7dd9e30228287c0$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$8726e33cf289d628836acffbd0a7fbdc4822787e$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$5e26cd707ce6cb68e260e10c1df19359b5a03a81$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$7c2d3d81e44cb45813ef376c979a6ce959d98b41$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$d7edf18ba4185834fcebdc8207875c2a9c585833$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$ec5594a0d5ad3e75f69162db0530b56f54c21098$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$22ad9e870fce2ed4c73360e1e10e53ea53e46dc6$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$5cbc37e78d31e3419cda21799dceac98a3a5b553$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$c86bc95425acf0b5e900c6d9085057595e5eb151$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$781a875153a8b2953342acd932592b44be2d03a1$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$4cca0930140ede19bc06c5c2b4fc79dcc2b46558$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$b94493b5b106a34af4a573fd2f9d5cd3657f7697$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$26c79d4b0a81e55731f3bf4577232c606a833ee3$__CMP2LCU for cells of type $__CMP2LCU.
+No more expansions possible.
+<suppressed ~3573 debug messages>
+
+2.26. Executing ALUMACC pass (create $alu and $macc cells).
+Extracting $alu and $macc cells in module KL_render_queue:
+  creating $macc model for $add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:196$809 ($add).
+  creating $macc model for $add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:206$1389 ($add).
+  creating $macc model for $add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:206$1391 ($add).
+  creating $macc model for $add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:206$1407 ($add).
+  creating $macc model for $add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:206$1409 ($add).
+  creating $macc model for $add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:206$1477 ($add).
+  creating $macc model for $add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:206$1479 ($add).
+  creating $macc model for $add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:246$283 ($add).
+  creating $macc model for $add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:251$286 ($add).
+  creating $macc model for $add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:258$288 ($add).
+  creating $macc model for $add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:302$331 ($add).
+  creating $macc model for $add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:401$540 ($add).
+  creating $macc model for $add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:408$1443 ($add).
+  creating $macc model for $add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:504$735 ($add).
+  creating $macc model for $add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:519$736 ($add).
+  creating $macc model for $add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:536$739 ($add).
+  creating $macc model for $add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:539$740 ($add).
+  creating $macc model for $add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:732$776 ($add).
+  creating $macc model for $add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:741$783 ($add).
+  creating $macc model for $add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:741$784 ($add).
+  creating $macc model for $add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:747$788 ($add).
+  creating $macc model for $add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:840$1014 ($add).
+  creating $macc model for $add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:840$1031 ($add).
+  creating $macc model for $add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:840$1048 ($add).
+  creating $macc model for $add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:840$1065 ($add).
+  creating $macc model for $add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:840$1082 ($add).
+  creating $macc model for $add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:840$963 ($add).
+  creating $macc model for $add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:840$980 ($add).
+  creating $macc model for $add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:840$997 ($add).
+  creating $macc model for $add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:867$1141 ($add).
+  creating $macc model for $add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:898$1209 ($add).
+  creating $macc model for $add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:900$1214 ($add).
+  creating $macc model for $add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:902$1218 ($add).
+  creating $macc model for $add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:904$1223 ($add).
+  creating $macc model for $add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:906$1227 ($add).
+  creating $macc model for $add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:908$1235 ($add).
+  creating $macc model for $add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:908$1236 ($add).
+  creating $macc model for $add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:196$1344 ($add).
+  creating $macc model for $sub$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:258$287 ($sub).
+  creating $macc model for $sub$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:271$1332 ($sub).
+  creating $macc model for $sub$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:299$327 ($sub).
+  creating $macc model for $sub$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:303$332 ($sub).
+  creating $macc model for $sub$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:304$333 ($sub).
+  creating $macc model for $sub$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:369$516 ($sub).
+  creating $macc model for $sub$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:373$524 ($sub).
+  creating $macc model for $sub$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:737$782 ($sub).
+  creating $macc model for $sub$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:751$791 ($sub).
+  creating $macc model for $sub$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:925$1272 ($sub).
+  creating $macc model for $sub$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:925$1278 ($sub).
+  creating $macc model for $sub$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:925$1284 ($sub).
+  creating $macc model for $sub$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:925$1290 ($sub).
+  creating $macc model for $sub$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:925$1296 ($sub).
+  creating $macc model for $sub$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:925$1302 ($sub).
+  creating $macc model for $sub$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:925$1308 ($sub).
+  creating $macc model for $sub$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:925$1314 ($sub).
+  merging $macc model for $add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:246$283 into $sub$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:751$791.
+  merging $macc model for $add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:908$1235 into $add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:908$1236.
+  merging $macc model for $add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:741$783 into $add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:741$784.
+  merging $macc model for $sub$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:258$287 into $add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:258$288.
+  creating $alu model for $macc $sub$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:925$1290.
+  creating $alu model for $macc $sub$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:925$1284.
+  creating $alu model for $macc $sub$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:925$1278.
+  creating $alu model for $macc $sub$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:925$1272.
+  creating $alu model for $macc $sub$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:737$782.
+  creating $alu model for $macc $sub$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:373$524.
+  creating $alu model for $macc $sub$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:369$516.
+  creating $alu model for $macc $sub$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:304$333.
+  creating $alu model for $macc $sub$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:303$332.
+  creating $alu model for $macc $sub$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:299$327.
+  creating $alu model for $macc $sub$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:271$1332.
+  creating $alu model for $macc $sub$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:925$1314.
+  creating $alu model for $macc $add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:196$1344.
+  creating $alu model for $macc $add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:908$1236.
+  creating $alu model for $macc $sub$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:925$1302.
+  creating $alu model for $macc $add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:906$1227.
+  creating $alu model for $macc $add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:904$1223.
+  creating $alu model for $macc $add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:902$1218.
+  creating $alu model for $macc $add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:900$1214.
+  creating $alu model for $macc $add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:898$1209.
+  creating $alu model for $macc $add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:867$1141.
+  creating $alu model for $macc $add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:840$997.
+  creating $alu model for $macc $add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:840$980.
+  creating $alu model for $macc $add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:840$963.
+  creating $alu model for $macc $add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:840$1082.
+  creating $alu model for $macc $add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:840$1065.
+  creating $alu model for $macc $add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:840$1048.
+  creating $alu model for $macc $add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:840$1031.
+  creating $alu model for $macc $add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:840$1014.
+  creating $alu model for $macc $add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:747$788.
+  creating $alu model for $macc $add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:741$784.
+  creating $alu model for $macc $sub$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:925$1308.
+  creating $alu model for $macc $add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:732$776.
+  creating $alu model for $macc $add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:539$740.
+  creating $alu model for $macc $add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:536$739.
+  creating $alu model for $macc $add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:519$736.
+  creating $alu model for $macc $add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:504$735.
+  creating $alu model for $macc $add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:408$1443.
+  creating $alu model for $macc $add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:401$540.
+  creating $alu model for $macc $add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:302$331.
+  creating $alu model for $macc $add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:251$286.
+  creating $alu model for $macc $sub$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:925$1296.
+  creating $alu model for $macc $add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:206$1479.
+  creating $alu model for $macc $add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:206$1477.
+  creating $alu model for $macc $add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:206$1409.
+  creating $alu model for $macc $add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:206$1407.
+  creating $alu model for $macc $add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:206$1391.
+  creating $alu model for $macc $add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:206$1389.
+  creating $alu model for $macc $add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:196$809.
+  creating $macc cell for $add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:258$288: $auto$alumacc.cc:382:replace_macc$6297
+  creating $macc cell for $sub$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:751$791: $auto$alumacc.cc:382:replace_macc$6298
+  creating $alu cell for $add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:196$809: $auto$alumacc.cc:512:replace_alu$6299
+  creating $alu cell for $add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:206$1389: $auto$alumacc.cc:512:replace_alu$6302
+  creating $alu cell for $add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:206$1391: $auto$alumacc.cc:512:replace_alu$6305
+  creating $alu cell for $add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:206$1407: $auto$alumacc.cc:512:replace_alu$6308
+  creating $alu cell for $add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:206$1409: $auto$alumacc.cc:512:replace_alu$6311
+  creating $alu cell for $add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:206$1477: $auto$alumacc.cc:512:replace_alu$6314
+  creating $alu cell for $add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:206$1479: $auto$alumacc.cc:512:replace_alu$6317
+  creating $alu cell for $sub$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:925$1296: $auto$alumacc.cc:512:replace_alu$6320
+  creating $alu cell for $add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:251$286: $auto$alumacc.cc:512:replace_alu$6323
+  creating $alu cell for $add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:302$331: $auto$alumacc.cc:512:replace_alu$6326
+  creating $alu cell for $add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:401$540: $auto$alumacc.cc:512:replace_alu$6329
+  creating $alu cell for $add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:408$1443: $auto$alumacc.cc:512:replace_alu$6332
+  creating $alu cell for $add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:504$735: $auto$alumacc.cc:512:replace_alu$6335
+  creating $alu cell for $add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:519$736: $auto$alumacc.cc:512:replace_alu$6338
+  creating $alu cell for $add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:536$739: $auto$alumacc.cc:512:replace_alu$6341
+  creating $alu cell for $add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:539$740: $auto$alumacc.cc:512:replace_alu$6344
+  creating $alu cell for $add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:732$776: $auto$alumacc.cc:512:replace_alu$6347
+  creating $alu cell for $sub$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:925$1308: $auto$alumacc.cc:512:replace_alu$6350
+  creating $alu cell for $add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:741$784: $auto$alumacc.cc:512:replace_alu$6353
+  creating $alu cell for $add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:747$788: $auto$alumacc.cc:512:replace_alu$6356
+  creating $alu cell for $add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:840$1014: $auto$alumacc.cc:512:replace_alu$6359
+  creating $alu cell for $add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:840$1031: $auto$alumacc.cc:512:replace_alu$6362
+  creating $alu cell for $add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:840$1048: $auto$alumacc.cc:512:replace_alu$6365
+  creating $alu cell for $add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:840$1065: $auto$alumacc.cc:512:replace_alu$6368
+  creating $alu cell for $add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:840$1082: $auto$alumacc.cc:512:replace_alu$6371
+  creating $alu cell for $add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:840$963: $auto$alumacc.cc:512:replace_alu$6374
+  creating $alu cell for $add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:840$980: $auto$alumacc.cc:512:replace_alu$6377
+  creating $alu cell for $add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:840$997: $auto$alumacc.cc:512:replace_alu$6380
+  creating $alu cell for $add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:867$1141: $auto$alumacc.cc:512:replace_alu$6383
+  creating $alu cell for $add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:898$1209: $auto$alumacc.cc:512:replace_alu$6386
+  creating $alu cell for $add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:900$1214: $auto$alumacc.cc:512:replace_alu$6389
+  creating $alu cell for $add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:902$1218: $auto$alumacc.cc:512:replace_alu$6392
+  creating $alu cell for $add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:904$1223: $auto$alumacc.cc:512:replace_alu$6395
+  creating $alu cell for $add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:906$1227: $auto$alumacc.cc:512:replace_alu$6398
+  creating $alu cell for $sub$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:925$1302: $auto$alumacc.cc:512:replace_alu$6401
+  creating $alu cell for $add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:908$1236: $auto$alumacc.cc:512:replace_alu$6404
+  creating $alu cell for $add$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:196$1344: $auto$alumacc.cc:512:replace_alu$6407
+  creating $alu cell for $sub$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:925$1314: $auto$alumacc.cc:512:replace_alu$6410
+  creating $alu cell for $sub$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:271$1332: $auto$alumacc.cc:512:replace_alu$6413
+  creating $alu cell for $sub$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:299$327: $auto$alumacc.cc:512:replace_alu$6416
+  creating $alu cell for $sub$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:303$332: $auto$alumacc.cc:512:replace_alu$6419
+  creating $alu cell for $sub$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:304$333: $auto$alumacc.cc:512:replace_alu$6422
+  creating $alu cell for $sub$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:369$516: $auto$alumacc.cc:512:replace_alu$6425
+  creating $alu cell for $sub$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:373$524: $auto$alumacc.cc:512:replace_alu$6428
+  creating $alu cell for $sub$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:737$782: $auto$alumacc.cc:512:replace_alu$6431
+  creating $alu cell for $sub$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:925$1272: $auto$alumacc.cc:512:replace_alu$6434
+  creating $alu cell for $sub$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:925$1278: $auto$alumacc.cc:512:replace_alu$6437
+  creating $alu cell for $sub$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:925$1284: $auto$alumacc.cc:512:replace_alu$6440
+  creating $alu cell for $sub$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:925$1290: $auto$alumacc.cc:512:replace_alu$6443
+  created 49 $alu and 2 $macc cells.
+
+2.27. Executing SHARE pass (SAT-based resource sharing).
+
+2.28. Executing OPT pass (performing simple optimizations).
+
+2.28.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module KL_render_queue.
+<suppressed ~823 debug messages>
+
+2.28.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\KL_render_queue'.
+Computing hashes of 1206 cells of `\KL_render_queue'.
+Finding duplicate cells in `\KL_render_queue'.
+Computing hashes of 1186 cells of `\KL_render_queue'.
+Finding duplicate cells in `\KL_render_queue'.
+Computing hashes of 1182 cells of `\KL_render_queue'.
+Finding duplicate cells in `\KL_render_queue'.
+Computing hashes of 1177 cells of `\KL_render_queue'.
+Finding duplicate cells in `\KL_render_queue'.
+Computing hashes of 1171 cells of `\KL_render_queue'.
+Finding duplicate cells in `\KL_render_queue'.
+Computing hashes of 1166 cells of `\KL_render_queue'.
+Finding duplicate cells in `\KL_render_queue'.
+Computing hashes of 1162 cells of `\KL_render_queue'.
+Finding duplicate cells in `\KL_render_queue'.
+Computing hashes of 1161 cells of `\KL_render_queue'.
+Finding duplicate cells in `\KL_render_queue'.
+<suppressed ~135 debug messages>
+Removed a total of 45 cells.
+
+2.28.3. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \KL_render_queue..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~452 debug messages>
+
+2.28.4. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \KL_render_queue.
+Performed a total of 0 changes.
+
+2.28.5. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\KL_render_queue'.
+Computing hashes of 1161 cells of `\KL_render_queue'.
+Finding duplicate cells in `\KL_render_queue'.
+Removed a total of 0 cells.
+
+2.28.6. Executing OPT_DFF pass (perform DFF optimizations).
+
+2.28.7. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \KL_render_queue..
+Removed 6 unused cells and 2951 unused wires.
+<suppressed ~8 debug messages>
+
+2.28.8. Executing OPT_EXPR pass (perform const folding).
+Optimizing module KL_render_queue.
+
+2.28.9. Rerunning OPT passes. (Maybe there is more to do..)
+
+2.28.10. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \KL_render_queue..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~452 debug messages>
+
+2.28.11. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \KL_render_queue.
+Performed a total of 0 changes.
+
+2.28.12. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\KL_render_queue'.
+Computing hashes of 1155 cells of `\KL_render_queue'.
+Finding duplicate cells in `\KL_render_queue'.
+Removed a total of 0 cells.
+
+2.28.13. Executing OPT_DFF pass (perform DFF optimizations).
+
+2.28.14. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \KL_render_queue..
+
+2.28.15. Executing OPT_EXPR pass (perform const folding).
+Optimizing module KL_render_queue.
+
+2.28.16. Finished fast OPT passes. (There is nothing left to do.)
+
+2.29. Executing MEMORY pass.
+
+2.29.1. Executing OPT_MEM pass (optimize memories).
+Performed a total of 0 transformations.
+
+2.29.2. Executing OPT_MEM_PRIORITY pass (removing unnecessary memory write priority relations).
+Performed a total of 0 transformations.
+
+2.29.3. Executing OPT_MEM_FEEDBACK pass (finding memory read-to-write feedback paths).
+
+2.29.4. Executing MEMORY_BMUX2ROM pass (converting muxes to ROMs).
+
+2.29.5. Executing MEMORY_DFF pass (merging $dff cells to $memrd).
+
+2.29.6. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \KL_render_queue..
+
+2.29.7. Executing MEMORY_SHARE pass (consolidating $memrd/$memwr cells).
+
+2.29.8. Executing OPT_MEM_WIDEN pass (optimize memories where all ports are wide).
+Performed a total of 0 transformations.
+
+2.29.9. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \KL_render_queue..
+
+2.29.10. Executing MEMORY_COLLECT pass (generating $mem cells).
+
+2.30. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \KL_render_queue..
+
+2.31. Executing MEMORY_LIBMAP pass (mapping memories to cells).
+found attribute 'ram_style = block' on memory KL_render_queue.bank0_r, forced mapping to block RAM
+mapping memory KL_render_queue.bank0_r via $__XILINX_BLOCKRAM_TDP_
+found attribute 'ram_style = block' on memory KL_render_queue.bank1_r, forced mapping to block RAM
+mapping memory KL_render_queue.bank1_r via $__XILINX_BLOCKRAM_TDP_
+<suppressed ~2984 debug messages>
+
+2.32. Executing TECHMAP pass (map to technology primitives).
+
+2.32.1. Executing Verilog-2005 frontend: /usr/bin/../share/yosys/xilinx/lutrams_xc5v_map.v
+Parsing Verilog input from `/usr/bin/../share/yosys/xilinx/lutrams_xc5v_map.v' to AST representation.
+Generating RTLIL representation for module `$__XILINX_LUTRAM_SP_'.
+Generating RTLIL representation for module `$__XILINX_LUTRAM_DP_'.
+Generating RTLIL representation for module `$__XILINX_LUTRAM_QP_'.
+Generating RTLIL representation for module `$__XILINX_LUTRAM_OP_'.
+Generating RTLIL representation for module `$__XILINX_LUTRAM_SDP_'.
+Generating RTLIL representation for module `$__XILINX_LUTRAM_64X8SW_'.
+Generating RTLIL representation for module `$__XILINX_LUTRAM_32X16DR8_'.
+Successfully finished Verilog frontend.
+
+2.32.2. Continuing TECHMAP pass.
+No more expansions possible.
+<suppressed ~9 debug messages>
+
+2.33. Executing TECHMAP pass (map to technology primitives).
+
+2.33.1. Executing Verilog-2005 frontend: /usr/bin/../share/yosys/xilinx/brams_xc6v_map.v
+Parsing Verilog input from `/usr/bin/../share/yosys/xilinx/brams_xc6v_map.v' to AST representation.
+Generating RTLIL representation for module `$__XILINX_BLOCKRAM_TDP_'.
+Generating RTLIL representation for module `$__XILINX_BLOCKRAM_SDP_'.
+Successfully finished Verilog frontend.
+
+2.33.2. Continuing TECHMAP pass.
+Using template $paramod$b90c3a57ad43818af524c7954996d652261e01d1$__XILINX_BLOCKRAM_TDP_ for cells of type $__XILINX_BLOCKRAM_TDP_.
+Using template $paramod$9901efee2cd4f1078933b3cfae839fdce776feb1$__XILINX_BLOCKRAM_TDP_ for cells of type $__XILINX_BLOCKRAM_TDP_.
+No more expansions possible.
+<suppressed ~104 debug messages>
+
+2.34. Executing OPT pass (performing simple optimizations).
+
+2.34.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module KL_render_queue.
+<suppressed ~97 debug messages>
+
+2.34.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\KL_render_queue'.
+Computing hashes of 1116 cells of `\KL_render_queue'.
+Finding duplicate cells in `\KL_render_queue'.
+Computing hashes of 1113 cells of `\KL_render_queue'.
+Finding duplicate cells in `\KL_render_queue'.
+<suppressed ~9 debug messages>
+Removed a total of 3 cells.
+
+2.34.3. Executing OPT_DFF pass (perform DFF optimizations).
+Adding EN signal on $auto$ff.cc:337:slice$5175 ($sdffe) from module KL_render_queue (D = $procmux$4167_Y [0], Q = \ld_r [0]).
+
+2.34.4. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \KL_render_queue..
+Removed 0 unused cells and 189 unused wires.
+<suppressed ~4 debug messages>
+
+2.34.5. Rerunning OPT passes. (Removed registers in this run.)
+
+2.34.6. Executing OPT_EXPR pass (perform const folding).
+Optimizing module KL_render_queue.
+
+2.34.7. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\KL_render_queue'.
+Computing hashes of 1113 cells of `\KL_render_queue'.
+Finding duplicate cells in `\KL_render_queue'.
+Computing hashes of 1112 cells of `\KL_render_queue'.
+Finding duplicate cells in `\KL_render_queue'.
+<suppressed ~3 debug messages>
+Removed a total of 1 cells.
+
+2.34.8. Executing OPT_DFF pass (perform DFF optimizations).
+
+2.34.9. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \KL_render_queue..
+Removed 0 unused cells and 1 unused wires.
+<suppressed ~1 debug messages>
+
+2.34.10. Finished fast OPT passes.
+
+2.35. Executing MEMORY_MAP pass (converting memories to logic and flip-flops).
+
+2.36. Executing OPT pass (performing simple optimizations).
+
+2.36.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module KL_render_queue.
+
+2.36.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\KL_render_queue'.
+Computing hashes of 1112 cells of `\KL_render_queue'.
+Finding duplicate cells in `\KL_render_queue'.
+Removed a total of 0 cells.
+
+2.36.3. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \KL_render_queue..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~312 debug messages>
+
+2.36.4. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \KL_render_queue.
+    New input vector for $reduce_and cell $auto$opt_dff.cc:252:make_patterns_logic$7279: { $auto$opt_dff.cc:234:make_patterns_logic$5151 $auto$opt_dff.cc:234:make_patterns_logic$5168 $auto$opt_dff.cc:234:make_patterns_logic$5178 }
+    Consolidated identical input bits for $mux cell $procmux$3844:
+      Old ports: A={ 1'0 $1\fl_low_w[3:0] }, B=4'0110, Y=$2\fl_low_w[3:0]
+      New ports: A=$1\fl_low_w[3:0], B=3'110, Y=$2\fl_low_w[3:0] [2:0]
+      New connections: $2\fl_low_w[3:0] [3] = 1'0
+    Consolidated identical input bits for $mux cell $procmux$3847:
+      Old ports: A=3'000, B=3'111, Y=$1\fl_low_w[3:0]
+      New ports: A=1'0, B=1'1, Y=$1\fl_low_w[3:0] [0]
+      New connections: $1\fl_low_w[3:0] [2:1] = { $1\fl_low_w[3:0] [0] $1\fl_low_w[3:0] [0] }
+    New ctrl vector for $pmux cell $procmux$4232: $auto$opt_reduce.cc:135:opt_pmux$7282
+    New ctrl vector for $pmux cell $procmux$4253: $auto$opt_reduce.cc:135:opt_pmux$7284
+    Consolidated identical input bits for $mux cell $ternary$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:271$293:
+      Old ports: A=\ld_r [24:9], B={ \sv2v_cast_7F50A$func$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:271$47.$result [15:2] \ld_r [10:9] }, Y=\lr_w
+      New ports: A=\ld_r [24:11], B=\sv2v_cast_7F50A$func$$SCRATCH/leaf-off/head-KL_render_queue/KL_render_queue.v:271$47.$result [15:2], Y=\lr_w [15:2]
+      New connections: \lr_w [1:0] = \ld_r [10:9]
+  Optimizing cells in module \KL_render_queue.
+    Consolidated identical input bits for $mux cell $procmux$3841:
+      Old ports: A=$2\fl_low_w[3:0], B=4'0101, Y=$3\fl_low_w[3:0]
+      New ports: A=$2\fl_low_w[3:0] [2:0], B=3'101, Y=$3\fl_low_w[3:0] [2:0]
+      New connections: $3\fl_low_w[3:0] [3] = 1'0
+    Consolidated identical input bits for $mux cell $procmux$3844:
+      Old ports: A=$1\fl_low_w[3:0], B=3'110, Y=$2\fl_low_w[3:0] [2:0]
+      New ports: A={ $1\fl_low_w[3:0] [0] $1\fl_low_w[3:0] [0] }, B=2'10, Y=$2\fl_low_w[3:0] [1:0]
+      New connections: $2\fl_low_w[3:0] [2] = $2\fl_low_w[3:0] [1]
+  Optimizing cells in module \KL_render_queue.
+    Consolidated identical input bits for $mux cell $procmux$3838:
+      Old ports: A=$3\fl_low_w[3:0], B=4'0100, Y=$4\fl_low_w[3:0]
+      New ports: A=$3\fl_low_w[3:0] [2:0], B=3'100, Y=$4\fl_low_w[3:0] [2:0]
+      New connections: $4\fl_low_w[3:0] [3] = 1'0
+  Optimizing cells in module \KL_render_queue.
+    Consolidated identical input bits for $mux cell $procmux$3835:
+      Old ports: A=$4\fl_low_w[3:0], B=4'0011, Y=$5\fl_low_w[3:0]
+      New ports: A=$4\fl_low_w[3:0] [2:0], B=3'011, Y=$5\fl_low_w[3:0] [2:0]
+      New connections: $5\fl_low_w[3:0] [3] = 1'0
+  Optimizing cells in module \KL_render_queue.
+    Consolidated identical input bits for $mux cell $procmux$3832:
+      Old ports: A=$5\fl_low_w[3:0], B=4'0010, Y=$6\fl_low_w[3:0]
+      New ports: A=$5\fl_low_w[3:0] [2:0], B=3'010, Y=$6\fl_low_w[3:0] [2:0]
+      New connections: $6\fl_low_w[3:0] [3] = 1'0
+  Optimizing cells in module \KL_render_queue.
+    Consolidated identical input bits for $mux cell $procmux$3829:
+      Old ports: A=$6\fl_low_w[3:0], B=4'0001, Y=$7\fl_low_w[3:0]
+      New ports: A=$6\fl_low_w[3:0] [2:0], B=3'001, Y=$7\fl_low_w[3:0] [2:0]
+      New connections: $7\fl_low_w[3:0] [3] = 1'0
+  Optimizing cells in module \KL_render_queue.
+    Consolidated identical input bits for $mux cell $procmux$3826:
+      Old ports: A=$7\fl_low_w[3:0], B=4'0000, Y=\fl_low_w
+      New ports: A=$7\fl_low_w[3:0] [2:0], B=3'000, Y=\fl_low_w [2:0]
+      New connections: \fl_low_w [3] = 1'0
+  Optimizing cells in module \KL_render_queue.
+Performed a total of 13 changes.
+
+2.36.5. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\KL_render_queue'.
+Computing hashes of 1114 cells of `\KL_render_queue'.
+Finding duplicate cells in `\KL_render_queue'.
+Computing hashes of 1113 cells of `\KL_render_queue'.
+Finding duplicate cells in `\KL_render_queue'.
+<suppressed ~3 debug messages>
+Removed a total of 1 cells.
+
+2.36.6. Executing OPT_SHARE pass.
+
+2.36.7. Executing OPT_DFF pass (perform DFF optimizations).
+Adding EN signal on $auto$ff.cc:337:slice$5037 ($sdffe) from module KL_render_queue (D = $procmux$4253_Y, Q = \slot_r).
+
+2.36.8. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \KL_render_queue..
+Removed 0 unused cells and 1 unused wires.
+<suppressed ~1 debug messages>
+
+2.36.9. Executing OPT_EXPR pass (perform const folding).
+Optimizing module KL_render_queue.
+<suppressed ~3 debug messages>
+
+2.36.10. Rerunning OPT passes. (Maybe there is more to do..)
+
+2.36.11. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \KL_render_queue..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~307 debug messages>
+
+2.36.12. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \KL_render_queue.
+    New input vector for $reduce_and cell $auto$opt_dff.cc:252:make_patterns_logic$7289: { $auto$opt_dff.cc:234:make_patterns_logic$5028 $auto$opt_dff.cc:234:make_patterns_logic$5030 $auto$opt_dff.cc:234:make_patterns_logic$5032 $auto$opt_dff.cc:234:make_patterns_logic$7286 }
+  Optimizing cells in module \KL_render_queue.
+Performed a total of 1 changes.
+
+2.36.13. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\KL_render_queue'.
+Computing hashes of 1113 cells of `\KL_render_queue'.
+Finding duplicate cells in `\KL_render_queue'.
+Removed a total of 0 cells.
+
+2.36.14. Executing OPT_SHARE pass.
+
+2.36.15. Executing OPT_DFF pass (perform DFF optimizations).
+Setting constant 0-bit at position 3 on $auto$ff.cc:337:slice$5313 ($sdffe) from module KL_render_queue.
+
+2.36.16. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \KL_render_queue..
+Removed 0 unused cells and 2 unused wires.
+<suppressed ~1 debug messages>
+
+2.36.17. Executing OPT_EXPR pass (perform const folding).
+Optimizing module KL_render_queue.
+<suppressed ~1 debug messages>
+
+2.36.18. Rerunning OPT passes. (Maybe there is more to do..)
+
+2.36.19. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \KL_render_queue..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~307 debug messages>
+
+2.36.20. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \KL_render_queue.
+Performed a total of 0 changes.
+
+2.36.21. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\KL_render_queue'.
+Computing hashes of 1113 cells of `\KL_render_queue'.
+Finding duplicate cells in `\KL_render_queue'.
+Removed a total of 0 cells.
+
+2.36.22. Executing OPT_SHARE pass.
+
+2.36.23. Executing OPT_DFF pass (perform DFF optimizations).
+
+2.36.24. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \KL_render_queue..
+
+2.36.25. Executing OPT_EXPR pass (perform const folding).
+Optimizing module KL_render_queue.
+
+2.36.26. Finished fast OPT passes. (There is nothing left to do.)
+
+2.37. Executing XILINX_SRL pass (Xilinx shift register extraction).
+
+2.38. Executing TECHMAP pass (map to technology primitives).
+
+2.38.1. Executing Verilog-2005 frontend: /usr/bin/../share/yosys/techmap.v
+Parsing Verilog input from `/usr/bin/../share/yosys/techmap.v' to AST representation.
+Generating RTLIL representation for module `\_90_simplemap_bool_ops'.
+Generating RTLIL representation for module `\_90_simplemap_reduce_ops'.
+Generating RTLIL representation for module `\_90_simplemap_logic_ops'.
+Generating RTLIL representation for module `\_90_simplemap_compare_ops'.
+Generating RTLIL representation for module `\_90_simplemap_various'.
+Generating RTLIL representation for module `\_90_simplemap_registers'.
+Generating RTLIL representation for module `\_90_shift_ops_shr_shl_sshl_sshr'.
+Generating RTLIL representation for module `\_90_shift_shiftx'.
+Generating RTLIL representation for module `\_90_fa'.
+Generating RTLIL representation for module `\_90_lcu_brent_kung'.
+Generating RTLIL representation for module `\_90_alu'.
+Generating RTLIL representation for module `\_90_macc'.
+Generating RTLIL representation for module `\_90_alumacc'.
+Generating RTLIL representation for module `$__div_mod_u'.
+Generating RTLIL representation for module `$__div_mod_trunc'.
+Generating RTLIL representation for module `\_90_div'.
+Generating RTLIL representation for module `\_90_mod'.
+Generating RTLIL representation for module `$__div_mod_floor'.
+Generating RTLIL representation for module `\_90_divfloor'.
+Generating RTLIL representation for module `\_90_modfloor'.
+Generating RTLIL representation for module `\_90_pow'.
+Generating RTLIL representation for module `\_90_demux'.
+Generating RTLIL representation for module `\_90_lut'.
+Generating RTLIL representation for module `$connect'.
+Generating RTLIL representation for module `$input_port'.
+Successfully finished Verilog frontend.
+
+2.38.2. Executing Verilog-2005 frontend: /usr/bin/../share/yosys/xilinx/arith_map.v
+Parsing Verilog input from `/usr/bin/../share/yosys/xilinx/arith_map.v' to AST representation.
+Generating RTLIL representation for module `\_80_xilinx_lcu'.
+Generating RTLIL representation for module `\_80_xilinx_alu'.
+Successfully finished Verilog frontend.
+
+2.38.3. Continuing TECHMAP pass.
+Using extmapper simplemap for cells of type $sdffe.
+Using extmapper simplemap for cells of type $reduce_and.
+Using extmapper simplemap for cells of type $ne.
+Using extmapper simplemap for cells of type $reduce_or.
+Using extmapper simplemap for cells of type $not.
+Using template $paramod$6d1b9c1ebbe7746b4e540df7e076a3cec64ddce6\_80_xilinx_alu for cells of type $alu.
+Using template $paramod$18fbf2ae0c1204f7117bee5244a0aa0c2207d642\_80_xilinx_alu for cells of type $alu.
+Using template $paramod$16077e393cb7e5df01b28a3cd3d834212b700ba6\_80_xilinx_alu for cells of type $alu.
+Using template $paramod$2d430accc811ebecebfd7615c530557bf130fec2\_80_xilinx_alu for cells of type $alu.
+Using template $paramod$674141544fade965cf052b5e9d5b65813fc4e151\_80_xilinx_alu for cells of type $alu.
+Using template $paramod$2c5c6a40f0d8bdf97a3af702f554bd099bd16dd7\_80_xilinx_alu for cells of type $alu.
+Using template $paramod$817919053e360e32f1a00d067c5411f16a07f712\_80_xilinx_alu for cells of type $alu.
+Using template $paramod$b8b8f8cc916d1668dd419325962a8fb5ae230abb\_80_xilinx_alu for cells of type $alu.
+Using template $paramod$85af84bf7d42be99c4722b1d2545723156f1bf66\_80_xilinx_alu for cells of type $alu.
+Using template $paramod$2763a5a9ec1e8423a0c42a10276e1bb59c96a13e\_80_xilinx_alu for cells of type $alu.
+Using template $paramod\_80_xilinx_lcu\WIDTH=s32'00000000000000000000000000000011 for cells of type $lcu.
+Using template $paramod$f84def23bf8f180b480a601ee81a2b8a0f92be63\_80_xilinx_alu for cells of type $alu.
+Using template $paramod$00cc2032966886b665ce170c4596fd029bf4614e\_80_xilinx_alu for cells of type $alu.
+Using template $paramod$175e67c02b86e96b1288b9dc100122520d7240d8\_90_alu for cells of type $alu.
+Using template $paramod$d3afd6d3566150346191f8eac3aed6ff4b7f54ca\_80_xilinx_alu for cells of type $alu.
+Using extmapper maccmap for cells of type $macc_v2.
+  add \n_r (10 bits, unsigned)
+  add \ev_p_i (1 bits, unsigned)
+  add 10'1000001000 (10 bits, unsigned)
+  add \hdr_ts_ns_i (32 bits, unsigned)
+  sub \ev_ns_i (32 bits, unsigned)
+  add 10500000 (32 bits, unsigned)
+Using extmapper simplemap for cells of type $reduce_bool.
+Using extmapper simplemap for cells of type $sdff.
+Using extmapper simplemap for cells of type $eq.
+Using extmapper simplemap for cells of type $and.
+Using extmapper simplemap for cells of type $dff.
+Using extmapper simplemap for cells of type $or.
+Using extmapper simplemap for cells of type $logic_not.
+Using template $paramod\_80_xilinx_lcu\WIDTH=s32'00000000000000000000000000000110 for cells of type $lcu.
+Using extmapper simplemap for cells of type $logic_and.
+Using extmapper simplemap for cells of type $mux.
+Using template $paramod\_90_lcu_brent_kung\WIDTH=s32'00000000000000000000000000000001 for cells of type $lcu.
+Using extmapper simplemap for cells of type $logic_or.
+Using template $paramod\_90_lcu_brent_kung\WIDTH=s32'00000000000000000000000000000010 for cells of type $lcu.
+Using extmapper simplemap for cells of type $xor.
+Using template $paramod\_90_fa\WIDTH=32'00000000000000000000000000100000 for cells of type $fa.
+Using template $paramod$4fc821520cb3a924f2bc6fa8576a539779b37dc8\_80_xilinx_alu for cells of type $alu.
+Using template $paramod$6d1e247f80c13075df75829e25886ab70965ed61\_80_xilinx_alu for cells of type $alu.
+Using extmapper simplemap for cells of type $pos.
+Using template $paramod\_90_fa\WIDTH=32'00000000000000000000000000000010 for cells of type $fa.
+No more expansions possible.
+<suppressed ~2154 debug messages>
+
+2.39. Executing OPT pass (performing simple optimizations).
+
+2.39.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module KL_render_queue.
+<suppressed ~1408 debug messages>
+
+2.39.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\KL_render_queue'.
+Computing hashes of 3710 cells of `\KL_render_queue'.
+Finding duplicate cells in `\KL_render_queue'.
+Computing hashes of 3357 cells of `\KL_render_queue'.
+Finding duplicate cells in `\KL_render_queue'.
+Computing hashes of 3315 cells of `\KL_render_queue'.
+Finding duplicate cells in `\KL_render_queue'.
+Computing hashes of 3314 cells of `\KL_render_queue'.
+Finding duplicate cells in `\KL_render_queue'.
+<suppressed ~1188 debug messages>
+Removed a total of 396 cells.
+
+2.39.3. Executing OPT_DFF pass (perform DFF optimizations).
+
+2.39.4. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \KL_render_queue..
+Removed 300 unused cells and 1574 unused wires.
+<suppressed ~302 debug messages>
+
+2.39.5. Finished fast OPT passes.
+
+2.40. Executing IOPADMAP pass (mapping inputs/outputs to IO-PAD cells).
+Mapping port KL_render_queue.clk_i using IBUF.
+Mapping port KL_render_queue.converged_o using OBUF.
+Mapping port KL_render_queue.early_o using OBUF.
+Mapping port KL_render_queue.ev_ns_i using IBUF.
+Mapping port KL_render_queue.ev_p_i using IBUF.
+Mapping port KL_render_queue.flush_i using IBUF.
+Mapping port KL_render_queue.hdr_p_i using IBUF.
+Mapping port KL_render_queue.hdr_ts_ns_i using IBUF.
+Mapping port KL_render_queue.hdr_tv_i using IBUF.
+Mapping port KL_render_queue.idle_o using OBUF.
+Mapping port KL_render_queue.input_addr_i using IBUF.
+Mapping port KL_render_queue.input_capture_i using IBUF.
+Mapping port KL_render_queue.input_capture_ns_i using IBUF.
+Mapping port KL_render_queue.input_invalidate_i using IBUF.
+Mapping port KL_render_queue.input_map_i using IBUF.
+Mapping port KL_render_queue.input_read_i using IBUF.
+Mapping port KL_render_queue.input_sample_o using OBUF.
+Mapping port KL_render_queue.late_o using OBUF.
+Mapping port KL_render_queue.lead_o using OBUF.
+Mapping port KL_render_queue.m_tdata_o using OBUF.
+Mapping port KL_render_queue.m_tlast_o using OBUF.
+Mapping port KL_render_queue.m_tuser_o using OBUF.
+Mapping port KL_render_queue.m_tvalid_o using OBUF.
+Mapping port KL_render_queue.m_wire_chans_o using OBUF.
+Mapping port KL_render_queue.pop_p_o using OBUF.
+Mapping port KL_render_queue.refused_o using OBUF.
+Mapping port KL_render_queue.render_tick_p_o using OBUF.
+Mapping port KL_render_queue.rst_n using IBUF.
+Mapping port KL_render_queue.s_tdata_i using IBUF.
+Mapping port KL_render_queue.s_tlast_i using IBUF.
+Mapping port KL_render_queue.s_tuser_i using IBUF.
+Mapping port KL_render_queue.s_tvalid_i using IBUF.
+Mapping port KL_render_queue.slips_o using OBUF.
+Mapping port KL_render_queue.untimed_o using OBUF.
+Mapping port KL_render_queue.wire_chans_i using IBUF.
+
+2.41. Executing TECHMAP pass (map to technology primitives).
+
+2.41.1. Executing Verilog-2005 frontend: /usr/bin/../share/yosys/techmap.v
+Parsing Verilog input from `/usr/bin/../share/yosys/techmap.v' to AST representation.
+Generating RTLIL representation for module `\_90_simplemap_bool_ops'.
+Generating RTLIL representation for module `\_90_simplemap_reduce_ops'.
+Generating RTLIL representation for module `\_90_simplemap_logic_ops'.
+Generating RTLIL representation for module `\_90_simplemap_compare_ops'.
+Generating RTLIL representation for module `\_90_simplemap_various'.
+Generating RTLIL representation for module `\_90_simplemap_registers'.
+Generating RTLIL representation for module `\_90_shift_ops_shr_shl_sshl_sshr'.
+Generating RTLIL representation for module `\_90_shift_shiftx'.
+Generating RTLIL representation for module `\_90_fa'.
+Generating RTLIL representation for module `\_90_lcu_brent_kung'.
+Generating RTLIL representation for module `\_90_alu'.
+Generating RTLIL representation for module `\_90_macc'.
+Generating RTLIL representation for module `\_90_alumacc'.
+Generating RTLIL representation for module `$__div_mod_u'.
+Generating RTLIL representation for module `$__div_mod_trunc'.
+Generating RTLIL representation for module `\_90_div'.
+Generating RTLIL representation for module `\_90_mod'.
+Generating RTLIL representation for module `$__div_mod_floor'.
+Generating RTLIL representation for module `\_90_divfloor'.
+Generating RTLIL representation for module `\_90_modfloor'.
+Generating RTLIL representation for module `\_90_pow'.
+Generating RTLIL representation for module `\_90_demux'.
+Generating RTLIL representation for module `\_90_lut'.
+Generating RTLIL representation for module `$connect'.
+Generating RTLIL representation for module `$input_port'.
+Successfully finished Verilog frontend.
+
+2.41.2. Executing Verilog-2005 frontend: /usr/bin/../share/yosys/xilinx/cells_map.v
+Parsing Verilog input from `/usr/bin/../share/yosys/xilinx/cells_map.v' to AST representation.
+Generating RTLIL representation for module `$__SHREG_'.
+Generating RTLIL representation for module `$__XILINX_SHREG_'.
+Generating RTLIL representation for module `$__XILINX_MUXF78'.
+Successfully finished Verilog frontend.
+
+2.41.3. Continuing TECHMAP pass.
+No more expansions possible.
+<suppressed ~80 debug messages>
+Removed 0 unused cells and 8 unused wires.
+
+2.42. Executing DFFLEGALIZE pass (convert FFs to types supported by the target).
+
+2.43. Executing OPT_EXPR pass (perform const folding).
+Optimizing module KL_render_queue.
+<suppressed ~7 debug messages>
+
+2.44. Executing ABC pass (technology mapping using ABC).
+
+2.44.1. Extracting gate netlist of module `\KL_render_queue' to `<abc-temp-dir>/input.blif'..
+
+2.44.1.1. Executed ABC.
+Extracted 2755 gates and 3717 wires to a netlist network with 960 inputs and 1043 outputs.
+Running ABC script: <abc-temp-dir>/abc.script
+ABC: ======== ABC command line "source <abc-temp-dir>/abc.script"
+ABC: + read_blif <abc-temp-dir>/input.blif 
+ABC: + read_lut <abc-temp-dir>/lutdefs.txt 
+ABC: + strash 
+ABC: + &get -n 
+ABC: + &fraig -x 
+ABC: + &put 
+ABC: + scorr 
+ABC: Warning: The network is combinational (run "fraig" or "fraig_sweep").
+ABC: + dc2 
+ABC: + dretime 
+ABC: + strash 
+ABC: + dch -f 
+ABC: + if 
+ABC: + mfs2 
+ABC: + write_blif <abc-temp-dir>/output.blif 
+
+2.44.1.2. Re-integrating ABC results.
+ABC RESULTS:              $lut cells:     1340
+ABC RESULTS:        internal signals:     1714
+ABC RESULTS:           input signals:      960
+ABC RESULTS:          output signals:     1043
+Removing temp directory.
+Removing global temp directory.
+Removed 0 unused cells and 2700 unused wires.
+
+2.45. Executing TECHMAP pass (map to technology primitives).
+
+2.45.1. Executing Verilog-2005 frontend: /usr/bin/../share/yosys/xilinx/ff_map.v
+Parsing Verilog input from `/usr/bin/../share/yosys/xilinx/ff_map.v' to AST representation.
+Generating RTLIL representation for module `$_DFFE_NP0P_'.
+Generating RTLIL representation for module `$_DFFE_PP0P_'.
+Generating RTLIL representation for module `$_DFFE_NP1P_'.
+Generating RTLIL representation for module `$_DFFE_PP1P_'.
+Generating RTLIL representation for module `$_DFFSRE_NPPP_'.
+Generating RTLIL representation for module `$_DFFSRE_PPPP_'.
+Generating RTLIL representation for module `$_SDFFE_NP0P_'.
+Generating RTLIL representation for module `$_SDFFE_PP0P_'.
+Generating RTLIL representation for module `$_SDFFE_NP1P_'.
+Generating RTLIL representation for module `$_SDFFE_PP1P_'.
+Generating RTLIL representation for module `$_DLATCH_NP0_'.
+Generating RTLIL representation for module `$_DLATCH_PP0_'.
+Generating RTLIL representation for module `$_DLATCH_NP1_'.
+Generating RTLIL representation for module `$_DLATCH_PP1_'.
+Generating RTLIL representation for module `$_DLATCH_NPP_'.
+Generating RTLIL representation for module `$_DLATCH_PPP_'.
+Successfully finished Verilog frontend.
+
+2.45.2. Continuing TECHMAP pass.
+Using template $paramod$_SDFFE_PP0P_\_TECHMAP_WIREINIT_Q_=1'x for cells of type $_SDFFE_PP0P_.
+Using template $paramod$_SDFFE_PP1P_\_TECHMAP_WIREINIT_Q_=1'x for cells of type $_SDFFE_PP1P_.
+No more expansions possible.
+<suppressed ~446 debug messages>
+
+2.46. Executing XILINX_SRL pass (Xilinx shift register extraction).
+
+2.47. Executing TECHMAP pass (map to technology primitives).
+
+2.47.1. Executing Verilog-2005 frontend: /usr/bin/../share/yosys/xilinx/lut_map.v
+Parsing Verilog input from `/usr/bin/../share/yosys/xilinx/lut_map.v' to AST representation.
+Generating RTLIL representation for module `$lut'.
+Successfully finished Verilog frontend.
+
+2.47.2. Executing Verilog-2005 frontend: /usr/bin/../share/yosys/xilinx/cells_map.v
+Parsing Verilog input from `/usr/bin/../share/yosys/xilinx/cells_map.v' to AST representation.
+Generating RTLIL representation for module `$__SHREG_'.
+Generating RTLIL representation for module `$__XILINX_SHREG_'.
+Generating RTLIL representation for module `$__XILINX_MUXF78'.
+Successfully finished Verilog frontend.
+
+2.47.3. Continuing TECHMAP pass.
+Using template $paramod$6d6beead1425af15cf78b27fd9b11b41b5d4bce8$lut for cells of type $lut.
+Using template $paramod$6e238df02989b317f10820a22773676e71120644$lut for cells of type $lut.
+Using template $paramod$82465a09fa1fb625cf05c680e7f5642ba36c85a0$lut for cells of type $lut.
+Using template $paramod$272652f6c6fbe9a75eff76e45cc7e2788835518b$lut for cells of type $lut.
+Using template $paramod$lut\WIDTH=32'00000000000000000000000000000010\LUT=4'1000 for cells of type $lut.
+Using template $paramod$608f40069c27841a5b3bdf03643a34bdc8974072$lut for cells of type $lut.
+Using template $paramod$658b9ed803f0d3d335616d3858b53e0a2522f1e8$lut for cells of type $lut.
+Using template $paramod$058f79e29a33e9f5978ecd2647e890aedeb5b215$lut for cells of type $lut.
+Using template $paramod$lut\WIDTH=32'00000000000000000000000000000010\LUT=4'0111 for cells of type $lut.
+Using template $paramod$lut\WIDTH=32'00000000000000000000000000000010\LUT=4'1001 for cells of type $lut.
+Using template $paramod$lut\WIDTH=32'00000000000000000000000000000010\LUT=4'0100 for cells of type $lut.
+Using template $paramod$b587e1dcd8f8a9800d395e4aeecac52c55d6f585$lut for cells of type $lut.
+Using template $paramod$ee19d45db61acb4c70d938b97483a4ed4b792645$lut for cells of type $lut.
+Using template $paramod$lut\WIDTH=32'00000000000000000000000000000010\LUT=4'0001 for cells of type $lut.
+Using template $paramod$lut\WIDTH=32'00000000000000000000000000000011\LUT=8'00000001 for cells of type $lut.
+Using template $paramod$6a68ae497b18bdb9f77745d4dd1819e390737773$lut for cells of type $lut.
+Using template $paramod$lut\WIDTH=32'00000000000000000000000000000011\LUT=8'11001010 for cells of type $lut.
+Using template $paramod$9a383ca297ef012b6f33ce559547f89432250d88$lut for cells of type $lut.
+Using template $paramod$759c565434f48c09d0b6b6f4511d82b24adfecd7$lut for cells of type $lut.
+Using template $paramod$c6364c1c44c01bd533fa2efe3a700455891e44b1$lut for cells of type $lut.
+Using template $paramod$e5f53fb2cb3e702c9422ebddd3ba952e5a8f3401$lut for cells of type $lut.
+Using template $paramod$ebf910d4087eb067cc21d5b758d87e5b874b2f90$lut for cells of type $lut.
+Using template $paramod$09194da5f2c8e08bed8f609fd0e254d8629b24b3$lut for cells of type $lut.
+Using template $paramod$d518cfb1ae2b2438b7286e424233ec67ac6a9215$lut for cells of type $lut.
+Using template $paramod$8adf7fbd410d2cc654c288d5be5f7508ee8809b0$lut for cells of type $lut.
+Using template $paramod$2f30c857aefd45b5c53b3be38978e6f605dae34c$lut for cells of type $lut.
+Using template $paramod$lut\WIDTH=32'00000000000000000000000000000010\LUT=4'0110 for cells of type $lut.
+Using template $paramod$c392942bb02b3cd07fcd86fac9f5f55f157df510$lut for cells of type $lut.
+Using template $paramod$62dd9b49b5c225372717cbd46be3fa579d2eb530$lut for cells of type $lut.
+Using template $paramod$1ab406870cafef2cd197cc9767a28a2d3194a814$lut for cells of type $lut.
+Using template $paramod$fc4ae8851981e03503f761bc656ab05ae19ad1b0$lut for cells of type $lut.
+Using template $paramod$061e3d50e5f12976858d7f08b5cdbc5ccdb177a9$lut for cells of type $lut.
+Using template $paramod$7a4fff851329baac3bdc845bd31fe89ed6a9918e$lut for cells of type $lut.
+Using template $paramod$1d4b8a0b2103b878eef68480ac34afbb1bda8c76$lut for cells of type $lut.
+Using template $paramod$41903f159b4f5ce965f40c75635377f060c794b9$lut for cells of type $lut.
+Using template $paramod$lut\WIDTH=32'00000000000000000000000000000011\LUT=8'10000111 for cells of type $lut.
+Using template $paramod$f637ed6a873015eaf839950066f65377bb102748$lut for cells of type $lut.
+Using template $paramod$lut\WIDTH=32'00000000000000000000000000000011\LUT=8'00110101 for cells of type $lut.
+Using template $paramod$lut\WIDTH=32'00000000000000000000000000000010\LUT=4'1011 for cells of type $lut.
+Using template $paramod$c362ad8dedc7d166ed978091aca319ab1e81a2d4$lut for cells of type $lut.
+Using template $paramod$c4634b47ad8e7b7f6adf6d800b7872d9db6e2d80$lut for cells of type $lut.
+Using template $paramod$68a253c3e52279a6a4af59164feb2f0e75401659$lut for cells of type $lut.
+Using template $paramod$a7dad16c080c08c1647c7e1b9706a59a123d8bcd$lut for cells of type $lut.
+Using template $paramod$3e895991b845b8c620b8c9e0068c52e372d1fbc1$lut for cells of type $lut.
+Using template $paramod$b37f456815ea21f4ae8fe81abd8ac64e904dcd02$lut for cells of type $lut.
+Using template $paramod$aade59dbadae9a6e0e1c9d8049c7a7d1a1454acf$lut for cells of type $lut.
+Using template $paramod$lut\WIDTH=32'00000000000000000000000000000011\LUT=8'01001011 for cells of type $lut.
+Using template $paramod$559d8f61325f7b4ee17556605f88d95718b41383$lut for cells of type $lut.
+Using template $paramod$fccccf8bb2add7667329c686feec7546eb9a3ae3$lut for cells of type $lut.
+Using template $paramod$lut\WIDTH=32'00000000000000000000000000000011\LUT=8'01111111 for cells of type $lut.
+Using template $paramod$lut\WIDTH=32'00000000000000000000000000000011\LUT=8'01110000 for cells of type $lut.
+Using template $paramod$b75735a33e04f8df7440b7e109f76ae1721fa93c$lut for cells of type $lut.
+Using template $paramod$lut\WIDTH=32'00000000000000000000000000000011\LUT=8'10110100 for cells of type $lut.
+Using template $paramod$37248355284f026088b6d60775909e01f6f0ff93$lut for cells of type $lut.
+Using template $paramod$200337237619ba4c0bed9a492562f1d1b57fb569$lut for cells of type $lut.
+Using template $paramod$9ae0f136c9ed34a2deb323e9b2a3a520eea61514$lut for cells of type $lut.
+Using template $paramod$lut\WIDTH=32'00000000000000000000000000000011\LUT=8'11111110 for cells of type $lut.
+Using template $paramod$928343592c4b103f65140f016edc24f6357b56ac$lut for cells of type $lut.
+Using template $paramod$478e33feeac3aa53ff57d491aada044b8aedceae$lut for cells of type $lut.
+Using template $paramod$436da1ed4df9e383f770e19f097123d7f09097ba$lut for cells of type $lut.
+Using template $paramod$lut\WIDTH=32'00000000000000000000000000000010\LUT=4'1110 for cells of type $lut.
+Using template $paramod$lut\WIDTH=32'00000000000000000000000000000011\LUT=8'01010011 for cells of type $lut.
+Using template $paramod$fe89c52e83c5b0456317806a3190c48a5e8494e5$lut for cells of type $lut.
+Using template $paramod$39a17684f8c6b69cc455a5efe8715f467de3efbe$lut for cells of type $lut.
+Using template $paramod$lut\WIDTH=32'00000000000000000000000000000011\LUT=8'00010000 for cells of type $lut.
+Using template $paramod$01cbc9f2eb2cc4241ded6de72b111cacf10027fe$lut for cells of type $lut.
+Using template $paramod$a809e49b5e48229bdb2da45119e2854e3e422606$lut for cells of type $lut.
+Using template $paramod$9cf044275e70b6dc34d2f815a6f8ffc23f9694a0$lut for cells of type $lut.
+Using template $paramod$lut\WIDTH=32'00000000000000000000000000000011\LUT=8'01000000 for cells of type $lut.
+Using template $paramod$a3cdc1eb771a2c6a16f64da161e11100ac409d2b$lut for cells of type $lut.
+Using template $paramod$c9355c14671e8569b2b55b2828d4fd95591ab987$lut for cells of type $lut.
+Using template $paramod$2d07c1a6c53c7b878509360922c4fa5ebedc3011$lut for cells of type $lut.
+Using template $paramod$8b09f347504cfc0d3d65fbb4601497936543b1b3$lut for cells of type $lut.
+Using template $paramod$f45429e380905f064bb0bad3a8bdb941708e63a7$lut for cells of type $lut.
+Using template $paramod$53ce561f80f32d4298a3beadc88b6c5c78293221$lut for cells of type $lut.
+Using template $paramod$81d8a60fd95b1a9f9ef71c12a774ae6988cb9fd5$lut for cells of type $lut.
+Using template $paramod$e2ccf23557d84e0b4c1df9b67c7e89a6eddb6e76$lut for cells of type $lut.
+Using template $paramod$lut\WIDTH=32'00000000000000000000000000000011\LUT=8'00000111 for cells of type $lut.
+Using template $paramod$lut\WIDTH=32'00000000000000000000000000000011\LUT=8'10000000 for cells of type $lut.
+Using template $paramod$73bbff9804d791be5cfd09c0116d6c083b3293af$lut for cells of type $lut.
+Using template $paramod$lut\WIDTH=32'00000000000000000000000000000011\LUT=8'11100000 for cells of type $lut.
+Using template $paramod$7fbf57a6848ba6d6cb1a0002890caa234d63cda5$lut for cells of type $lut.
+Using template $paramod$b4f15f202f50520dbc381cd0880ac94f830f05a8$lut for cells of type $lut.
+Using template $paramod$2276fac91ae2f47a1a1a6e9e19fde112b8b13d2f$lut for cells of type $lut.
+Using template $paramod$ba82fb3eadd5cbe40f1451e04a124c85f0c6bc85$lut for cells of type $lut.
+Using template $paramod$3b71aa8dd2f20873cf444e04f2a4b5a99ec22152$lut for cells of type $lut.
+Using template $paramod$7bb6a37e65823eeb4b38c370fec30ab082759a14$lut for cells of type $lut.
+Using template $paramod$f3a6f0fecedb3db72ca84eef798434e1b7cc446b$lut for cells of type $lut.
+Using template $paramod$2e474cb5fe1401020bc2d109556f5c7476e38307$lut for cells of type $lut.
+Using template $paramod$c230b81ff74b2d43068bae07cbb3a47917067fd5$lut for cells of type $lut.
+Using template $paramod$38e6aa9546c40949f8135bb018f0d5ef863085b9$lut for cells of type $lut.
+Using template $paramod$564e13cd6e50d2482a8e0eaaa77a76746a7a821c$lut for cells of type $lut.
+Using template $paramod$lut\WIDTH=32'00000000000000000000000000000011\LUT=8'11110100 for cells of type $lut.
+Using template $paramod$1bf62ab10e48d71d6497bccacf5c70420c470fe9$lut for cells of type $lut.
+Using template $paramod$57633d398096025f59e180bc0c6c5dc42ae710e9$lut for cells of type $lut.
+Using template $paramod$7b49938a297df6b72316d177066464a90ef2d115$lut for cells of type $lut.
+Using template $paramod$f65ee88d7019b03495324b80868a6d3022aa240a$lut for cells of type $lut.
+Using template $paramod$b62f1ed46414d00e6888c6c7e67fa920d3f65500$lut for cells of type $lut.
+Using template $paramod$39897fa6ad5a2d6a4d82b31133e0850eecf4675a$lut for cells of type $lut.
+Using template $paramod$75dfc61750aedbf7f5cf9dc328c81d4cd06ab264$lut for cells of type $lut.
+Using template $paramod$d7dcf697e653276374d08b3c1a4f0f2db90007e3$lut for cells of type $lut.
+Using template $paramod$33e58adf67c6b686a154c9ce8ebbc4b04b8cabc5$lut for cells of type $lut.
+Using template $paramod$8e224a63a74b6daf8fc2e441cb0688a65e7a4073$lut for cells of type $lut.
+Using template $paramod$4d4d3bbe4065b7fc301ea101ae5398df0bc58e40$lut for cells of type $lut.
+Using template $paramod$509f826fefbb2418c274dd3c4ab58f3af958249a$lut for cells of type $lut.
+Using template $paramod$251994398653c4cf8de320f1e306e535d5d2d624$lut for cells of type $lut.
+Using template $paramod$6f94ed872e6e996ae21b7b60ade8b217c03dc294$lut for cells of type $lut.
+Using template $paramod$c5f049e747ce94b3da9bca49240ccb46921b7fd3$lut for cells of type $lut.
+Using template $paramod$a9b475774a27fd84fed6eecb5f25fc5601b59ec5$lut for cells of type $lut.
+Using template $paramod$a2280512f80c783e53ab598de7cc957e97033112$lut for cells of type $lut.
+Using template $paramod$30234ddca80ec18fbcf4d45d8bd1821aad47e8fd$lut for cells of type $lut.
+Using template $paramod$a4808a44b6b61b959d24a850f0470444a72a5b00$lut for cells of type $lut.
+Using template $paramod$3e01ac5407c471fc91bb1ad655e29aefaffa2ab7$lut for cells of type $lut.
+Using template $paramod$ef26adabe6060e01077b576cfe34e95e55a26aef$lut for cells of type $lut.
+Using template $paramod$lut\WIDTH=32'00000000000000000000000000000011\LUT=8'00001110 for cells of type $lut.
+Using template $paramod$lut\WIDTH=32'00000000000000000000000000000001\LUT=2'01 for cells of type $lut.
+Using template $paramod$lut\WIDTH=32'00000000000000000000000000000011\LUT=8'11111000 for cells of type $lut.
+Using template $paramod$cc08dba3aac8677e797984bdf18a09dd37547dd3$lut for cells of type $lut.
+Using template $paramod$f63c6881f649ffceb85adfd4e22615165b16ba68$lut for cells of type $lut.
+Using template $paramod$edb82a92dc3321d9bf2f2fccfe9e88bba258d607$lut for cells of type $lut.
+Using template $paramod$6bd4f3a365f6bbe9aaba76a2d2f8d264c67b03a8$lut for cells of type $lut.
+Using template $paramod$5d563d2c44b36134ae9be29ebe657d72e30d8a80$lut for cells of type $lut.
+Using template $paramod$lut\WIDTH=32'00000000000000000000000000000011\LUT=8'01100000 for cells of type $lut.
+Using template $paramod$8e34e782f9ef59eee1c50ab93ef54fb5ebb3e307$lut for cells of type $lut.
+Using template $paramod$e856f6af4132f2ee9d4980afecb67ed58ab1c46f$lut for cells of type $lut.
+Using template $paramod$ea9ac9d5a295262691b577e0f688eb0f14705e6d$lut for cells of type $lut.
+Using template $paramod$lut\WIDTH=32'00000000000000000000000000000011\LUT=8'10110000 for cells of type $lut.
+Using template $paramod$4789582d00084c3344b7a6dacf516efd46244876$lut for cells of type $lut.
+Using template $paramod$lut\WIDTH=32'00000000000000000000000000000011\LUT=8'01001111 for cells of type $lut.
+Using template $paramod$3c17557fcd213346f7b38856ecb30fe49bafcccd$lut for cells of type $lut.
+Using template $paramod$e6c9ad94986bc86afe165f318af89e6b660a15d7$lut for cells of type $lut.
+Using template $paramod$f8987610b63e17f2f5fcc46ca22fd4351d23fd87$lut for cells of type $lut.
+Using template $paramod$3d82d0c50c1e9db108496bfabe5ef9bfc7627413$lut for cells of type $lut.
+Using template $paramod$9488659465061022ad8f3a5a185fdc75904bcac8$lut for cells of type $lut.
+Using template $paramod$af763bca85949884aefa417266a961f9c91132de$lut for cells of type $lut.
+Using template $paramod$e49f6e3576ef1a6d2f58c54414dbb786af8cc869$lut for cells of type $lut.
+Using template $paramod$lut\WIDTH=32'00000000000000000000000000000011\LUT=8'10101100 for cells of type $lut.
+Using template $paramod$eb086640fde631881d605df1a05cd8c72db478e4$lut for cells of type $lut.
+Using template $paramod$lut\WIDTH=32'00000000000000000000000000000011\LUT=8'10001111 for cells of type $lut.
+Using template $paramod$d14ad95bded2b667afa97670e151697087b7de83$lut for cells of type $lut.
+Using template $paramod$938c0207201b5c77e09fc32fcdc51930fddca837$lut for cells of type $lut.
+Using template $paramod$bfef631f4120ae904d579a9b878626373c506acd$lut for cells of type $lut.
+Using template $paramod$9995dd10528d9fb7f49b5365b298b800ad71a293$lut for cells of type $lut.
+Using template $paramod$c2d46725187f3456e21134bec8580ee58bd911a9$lut for cells of type $lut.
+Using template $paramod$a2b4ddfa3906001b2ef9f2414d79c3048f2a3a6e$lut for cells of type $lut.
+Using template $paramod$363989f5af6d092047d0f58583febe4aa37db9e1$lut for cells of type $lut.
+Using template $paramod$f94ec0379f99f25d312429558f92346891174e06$lut for cells of type $lut.
+Using template $paramod$2fdaf7c2e4fc7827ce96b03da15796b8079d7bd6$lut for cells of type $lut.
+Using template $paramod$d07a2a88bebb2aff8c4341031934808e014131b3$lut for cells of type $lut.
+Using template $paramod$4e5d388b6037a2d3ddd195b32f30e45089549066$lut for cells of type $lut.
+Using template $paramod$eb0e98a40ff1b4a0ec730de14ee049a560252cb6$lut for cells of type $lut.
+Using template $paramod$891b0676dd270c8daa62388db6bb07fb3d3f2443$lut for cells of type $lut.
+Using template $paramod$b60c995550d7cf639b9dec177ad89d2734622916$lut for cells of type $lut.
+Using template $paramod$15cf44c4455bd810438569d962e9363745008369$lut for cells of type $lut.
+Using template $paramod$95011fd6174a38a499ad23b556c4d7ea781c1b2b$lut for cells of type $lut.
+Using template $paramod$fc0e90dccd72587dca5447c5931c1cbd9eed126f$lut for cells of type $lut.
+Using template $paramod$93b1c6e1caa8e38979bd1b18e26609d7c7193f60$lut for cells of type $lut.
+Using template $paramod$0c2f9c7b54b310c32b4e488df0e7bc42e125a0e9$lut for cells of type $lut.
+Using template $paramod$692927e279b3d5c42ee4aacb287247c0b34943ed$lut for cells of type $lut.
+Using template $paramod$1a0e2b41b703e4f9a4473c978be3fcac3e4019a9$lut for cells of type $lut.
+Using template $paramod$f9d5cb7f3a24a3978811c5219d2f4f07ec60cef0$lut for cells of type $lut.
+Using template $paramod$44bfdff5e3ae220c23a770741990ae3127a74cff$lut for cells of type $lut.
+Using template $paramod$0fff0bb1d1be344842f650acffb3c55e154cd3b0$lut for cells of type $lut.
+Using template $paramod$0e0b568085824e9f7841013be5e14325b4e154e1$lut for cells of type $lut.
+Using template $paramod$1581e511f9a888eb68a55ef2326b7c88f5a4ce41$lut for cells of type $lut.
+Using template $paramod$e83c335f78e8f17dcccd0566744c7814ca58bb24$lut for cells of type $lut.
+Using template $paramod$c315fd171a22ad0b563d890e3adda172ea240769$lut for cells of type $lut.
+Using template $paramod$3ff4124e6d65496a94f67998a25024bded45afe5$lut for cells of type $lut.
+Using template $paramod$527af9b5bba4292b7f3cdd0178aea7c57dbd9f32$lut for cells of type $lut.
+Using template $paramod$c07e58ee8e598273ba4a4c39b0756dbef8fd3cc6$lut for cells of type $lut.
+Using template $paramod$1850b08a612effa832e3cc46fc0847ecbc7144c0$lut for cells of type $lut.
+No more expansions possible.
+<suppressed ~3624 debug messages>
+
+2.48. Executing XILINX_DFFOPT pass (optimize FF control signal usage).
+Optimizing FFs in KL_render_queue.
+  Merging D + S LUTs for $auto$ff.cc:337:slice$7688/flpend_r (4 -> 5)
+  Merging D + R + CE LUTs for $auto$ff.cc:337:slice$7629/$auto$alumacc.cc:512:replace_alu$6404.X (4 -> 6)
+  Merging D + R + CE LUTs for $auto$ff.cc:337:slice$7630/$auto$alumacc.cc:512:replace_alu$6404.X (4 -> 6)
+  Merging D + R + CE LUTs for $auto$ff.cc:337:slice$7631/$auto$alumacc.cc:512:replace_alu$6404.X (4 -> 6)
+  Merging D + R + CE LUTs for $auto$ff.cc:337:slice$7632/$auto$alumacc.cc:512:replace_alu$6404.X (4 -> 6)
+  Merging D + R + CE LUTs for $auto$ff.cc:337:slice$7633/$auto$alumacc.cc:512:replace_alu$6404.X (4 -> 6)
+  Merging D + R + CE LUTs for $auto$ff.cc:337:slice$7634/$auto$alumacc.cc:512:replace_alu$6404.X (4 -> 6)
+  Merging D + R + CE LUTs for $auto$ff.cc:337:slice$7635/$auto$alumacc.cc:512:replace_alu$6404.X (4 -> 6)
+  Merging D + R + CE LUTs for $auto$ff.cc:337:slice$7636/$auto$alumacc.cc:512:replace_alu$6404.X (4 -> 6)
+  Merging D + R + CE LUTs for $auto$ff.cc:337:slice$7637/$auto$alumacc.cc:512:replace_alu$6404.X (4 -> 6)
+  Merging D + R + CE LUTs for $auto$ff.cc:337:slice$7638/$auto$alumacc.cc:512:replace_alu$6404.X (4 -> 6)
+  Merging D + R + CE LUTs for $auto$ff.cc:337:slice$7639/$auto$alumacc.cc:512:replace_alu$6404.X (4 -> 6)
+  Merging D + R + CE LUTs for $auto$ff.cc:337:slice$7640/$auto$alumacc.cc:512:replace_alu$6404.X (4 -> 6)
+  Merging D + R + CE LUTs for $auto$ff.cc:337:slice$7641/$auto$alumacc.cc:512:replace_alu$6404.X (4 -> 6)
+  Merging D + R + CE LUTs for $auto$ff.cc:337:slice$7642/$auto$alumacc.cc:512:replace_alu$6404.X (4 -> 6)
+  Merging D + R + CE LUTs for $auto$ff.cc:337:slice$7643/$auto$alumacc.cc:512:replace_alu$6404.X (4 -> 6)
+  Merging D + S LUTs for $auto$ff.cc:337:slice$7689/flpend_r (4 -> 5)
+  Merging D + S LUTs for $auto$ff.cc:337:slice$7690/flpend_r (4 -> 5)
+  Merging D + S LUTs for $auto$ff.cc:337:slice$7691/flpend_r (3 -> 4)
+  Merging D + S LUTs for $auto$ff.cc:337:slice$7692/flpend_r (4 -> 5)
+  Merging D + S LUTs for $auto$ff.cc:337:slice$7693/flpend_r (4 -> 5)
+  Merging D + S LUTs for $auto$ff.cc:337:slice$7694/flpend_r (4 -> 5)
+  Merging D + R + CE LUTs for $auto$ff.cc:337:slice$7711/fl_a_r (2 -> 6)
+  Merging D + R + CE LUTs for $auto$ff.cc:337:slice$7712/fl_a_r (2 -> 6)
+  Merging D + R + CE LUTs for $auto$ff.cc:337:slice$7713/fl_a_r (2 -> 6)
+  Merging D + R + CE LUTs for $auto$ff.cc:337:slice$7714/fl_a_r (2 -> 6)
+  Merging D + R + CE LUTs for $auto$ff.cc:337:slice$7715/fl_a_r (2 -> 6)
+  Merging D + R + CE LUTs for $auto$ff.cc:337:slice$7716/fl_a_r (2 -> 6)
+  Merging D + R + CE LUTs for $auto$ff.cc:337:slice$7717/fl_a_r (2 -> 6)
+  Merging D + R + CE LUTs for $auto$ff.cc:337:slice$7718/fl_a_r (2 -> 6)
+  Merging D + R + CE LUTs for $auto$ff.cc:337:slice$7856/step_r (2 -> 5)
+  Merging D + CE LUTs for $auto$ff.cc:337:slice$8004/if_r (2 -> 6)
+  Merging D + R LUTs for $auto$ff.cc:337:slice$8006/converged_r[5] (4 -> 6)
+  Merging D + R LUTs for $auto$ff.cc:337:slice$7961/converged_r[4] (4 -> 6)
+  Merging D + R LUTs for $auto$ff.cc:337:slice$7929/$iopadmap$render_tick_p_o (2 -> 3)
+  Merging D + R LUTs for $auto$ff.cc:337:slice$7928/converged_r[2] (4 -> 6)
+  Merging D + R LUTs for $auto$ff.cc:337:slice$7927/converged_r[1] (4 -> 6)
+  Merging D + R LUTs for $auto$ff.cc:337:slice$7926/converged_r[0] (4 -> 6)
+  Merging D + R LUTs for $auto$ff.cc:337:slice$7877/conv_ms_r[1] (4 -> 6)
+  Merging D + R + CE LUTs for $auto$ff.cc:337:slice$7855/step_r (2 -> 5)
+  Merging D + R + CE LUTs for $auto$ff.cc:337:slice$7628/$abc$13848$iopadmap$slips_o[0] (4 -> 6)
+  Merging D + R LUTs for $auto$ff.cc:337:slice$7881/conv_ms_r[1] (4 -> 6)
+  Merging D + R LUTs for $auto$ff.cc:337:slice$7880/conv_ms_r[1] (4 -> 6)
+  Merging D + R LUTs for $auto$ff.cc:337:slice$7879/conv_ms_r[1] (4 -> 6)
+  Merging D + R LUTs for $auto$ff.cc:337:slice$7878/conv_ms_r[1] (4 -> 6)
+  Merging D + S LUTs for $auto$ff.cc:337:slice$7687/flpend_r (3 -> 4)
+  Merging D + R + CE LUTs for $auto$ff.cc:337:slice$7710/fl_a_r (2 -> 6)
+  Merging D + R LUTs for $auto$ff.cc:337:slice$7945/converged_r[3] (4 -> 6)
+  Merging D + R LUTs for $auto$ff.cc:337:slice$8041/converged_r[7] (4 -> 6)
+  Merging D + R LUTs for $auto$ff.cc:337:slice$8035/converged_r[6] (4 -> 6)
+  Merging D + R LUTs for $auto$ff.cc:337:slice$8058/rany_r (2 -> 5)
+  Merging D + R + CE LUTs for $auto$ff.cc:337:slice$7424/ld_r (3 -> 6)
+
+2.49. Executing OPT_LUT_INS pass (discard unused LUT inputs).
+Optimizing LUTs in KL_render_queue.
+  Optimizing lut $abc$13848$auto$blifparse.cc:557:parse_blif$14115.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.lut0.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.lut0 (6 -> 0)
+  Optimizing lut $abc$13848$auto$blifparse.cc:557:parse_blif$13995.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.lut1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.lut0 (6 -> 4)
+  Optimizing lut $abc$13848$auto$blifparse.cc:557:parse_blif$14752.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.lut0 (6 -> 0)
+  Optimizing lut $abc$13848$auto$blifparse.cc:557:parse_blif$13994.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.lut1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.lut0 (6 -> 3)
+  Optimizing lut $abc$13848$auto$blifparse.cc:557:parse_blif$13994.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.lut0.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.lut0 (6 -> 3)
+  Optimizing lut $abc$13848$auto$blifparse.cc:557:parse_blif$13992.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.lut1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.lut0 (6 -> 3)
+  Optimizing lut $abc$13848$auto$blifparse.cc:557:parse_blif$13992.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.lut0.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.lut0 (6 -> 0)
+  Optimizing lut $abc$13848$auto$blifparse.cc:557:parse_blif$13991.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.lut1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.lut0 (6 -> 3)
+  Optimizing lut $abc$13848$auto$blifparse.cc:557:parse_blif$13991.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.lut0.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.lut0 (6 -> 3)
+  Optimizing lut $abc$13848$auto$blifparse.cc:557:parse_blif$13989.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.lut1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.lut0 (6 -> 3)
+  Optimizing lut $abc$13848$auto$blifparse.cc:557:parse_blif$13989.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.lut0.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.lut0 (6 -> 0)
+  Optimizing lut $abc$13848$auto$blifparse.cc:557:parse_blif$13988.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.lut1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.lut0 (6 -> 3)
+  Optimizing lut $abc$13848$auto$blifparse.cc:557:parse_blif$13988.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.lut0.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.lut0 (6 -> 3)
+  Optimizing lut $abc$13848$auto$blifparse.cc:557:parse_blif$13996.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.lut1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.lut0 (6 -> 0)
+  Optimizing lut $abc$13848$auto$blifparse.cc:557:parse_blif$13996.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.lut0.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.lut0 (6 -> 0)
+  Optimizing lut $abc$13848$auto$blifparse.cc:557:parse_blif$13988.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.lut1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.lut1 (6 -> 3)
+  Optimizing lut $abc$13848$auto$blifparse.cc:557:parse_blif$13989.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.lut1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.lut1 (6 -> 3)
+  Optimizing lut $abc$13848$auto$blifparse.cc:557:parse_blif$13991.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.lut1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.lut1 (6 -> 0)
+  Optimizing lut $abc$13848$auto$blifparse.cc:557:parse_blif$13992.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.lut1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.lut1 (6 -> 4)
+  Optimizing lut $abc$13848$auto$blifparse.cc:557:parse_blif$13994.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.lut1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.lut1 (6 -> 3)
+  Optimizing lut $abc$13848$auto$blifparse.cc:557:parse_blif$13995.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.lut1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.lut1 (6 -> 3)
+  Optimizing lut $abc$13848$auto$blifparse.cc:557:parse_blif$13997.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.lut0 (6 -> 3)
+  Optimizing lut $abc$13848$auto$blifparse.cc:557:parse_blif$13998.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.lut0 (6 -> 5)
+  Optimizing lut $abc$13848$auto$blifparse.cc:557:parse_blif$13988.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.lut0.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.lut1 (6 -> 3)
+  Optimizing lut $abc$13848$auto$blifparse.cc:557:parse_blif$13989.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.lut0.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.lut1 (6 -> 4)
+  Optimizing lut $abc$13848$auto$blifparse.cc:557:parse_blif$13991.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.lut0.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.lut1 (6 -> 4)
+  Optimizing lut $abc$13848$auto$blifparse.cc:557:parse_blif$13992.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.lut0.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.lut1 (6 -> 3)
+  Optimizing lut $abc$13848$auto$blifparse.cc:557:parse_blif$13994.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.lut0.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.lut1 (6 -> 3)
+  Optimizing lut $abc$13848$auto$blifparse.cc:557:parse_blif$13995.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.lut0.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.lut1 (6 -> 3)
+  Optimizing lut $abc$13848$auto$blifparse.cc:557:parse_blif$13996.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.lut0.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.lut1 (6 -> 0)
+  Optimizing lut $abc$13848$auto$blifparse.cc:557:parse_blif$13995.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.lut0.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.lut0 (6 -> 0)
+  Optimizing lut $abc$13848$auto$blifparse.cc:557:parse_blif$13997.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.lut1 (6 -> 5)
+  Optimizing lut $abc$13848$auto$blifparse.cc:557:parse_blif$14115.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.lut1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.lut1 (6 -> 0)
+  Optimizing lut $abc$13848$auto$blifparse.cc:557:parse_blif$13998.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.lut1 (6 -> 3)
+
+2.50. Executing CLKBUFMAP pass (inserting clock buffers).
+Inserting BUFG on KL_render_queue.$iopadmap$clk_i[0].
+Removed 93 unused cells and 5482 unused wires.
+
+2.51. Executing HIERARCHY pass (managing design hierarchy).
+Attribute `top' found on module `KL_render_queue'. Setting top module to KL_render_queue.
+
+2.51.1. Analyzing design hierarchy..
+Top module:  \KL_render_queue
+
+2.51.2. Analyzing design hierarchy..
+Top module:  \KL_render_queue
+Removed 0 unused modules.
+Warning: Resizing cell port KL_render_queue.bank1_r.0.0.DOPBDOP from 8 bits to 4 bits.
+Warning: Resizing cell port KL_render_queue.bank1_r.0.0.DOBDO from 64 bits to 32 bits.
+Warning: Resizing cell port KL_render_queue.bank1_r.0.0.DIPADIP from 8 bits to 4 bits.
+Warning: Resizing cell port KL_render_queue.bank1_r.0.0.DIADI from 64 bits to 32 bits.
+Warning: Resizing cell port KL_render_queue.bank1_r.0.0.DOPADOP from 8 bits to 4 bits.
+Warning: Resizing cell port KL_render_queue.bank1_r.0.0.DOADO from 64 bits to 32 bits.
+Warning: Resizing cell port KL_render_queue.bank1_r.0.2.DOPBDOP from 8 bits to 4 bits.
+Warning: Resizing cell port KL_render_queue.bank1_r.0.2.DOBDO from 64 bits to 32 bits.
+Warning: Resizing cell port KL_render_queue.bank1_r.0.2.DIADI from 64 bits to 32 bits.
+Warning: Resizing cell port KL_render_queue.bank1_r.0.2.DOPADOP from 8 bits to 4 bits.
+Warning: Resizing cell port KL_render_queue.bank1_r.0.2.DOADO from 64 bits to 32 bits.
+Warning: Resizing cell port KL_render_queue.bank0_r.0.0.DOPBDOP from 8 bits to 4 bits.
+Warning: Resizing cell port KL_render_queue.bank0_r.0.0.DOBDO from 64 bits to 32 bits.
+Warning: Resizing cell port KL_render_queue.bank0_r.0.0.DIPADIP from 8 bits to 4 bits.
+Warning: Resizing cell port KL_render_queue.bank0_r.0.0.DIADI from 64 bits to 32 bits.
+Warning: Resizing cell port KL_render_queue.bank0_r.0.0.DOPADOP from 8 bits to 4 bits.
+Warning: Resizing cell port KL_render_queue.bank0_r.0.0.DOADO from 64 bits to 32 bits.
+Warning: Resizing cell port KL_render_queue.bank1_r.0.1.DOPBDOP from 8 bits to 4 bits.
+Warning: Resizing cell port KL_render_queue.bank1_r.0.1.DOBDO from 64 bits to 32 bits.
+Warning: Resizing cell port KL_render_queue.bank1_r.0.1.DIPADIP from 8 bits to 4 bits.
+Warning: Resizing cell port KL_render_queue.bank1_r.0.1.DIADI from 64 bits to 32 bits.
+Warning: Resizing cell port KL_render_queue.bank1_r.0.1.DOPADOP from 8 bits to 4 bits.
+Warning: Resizing cell port KL_render_queue.bank1_r.0.1.DOADO from 64 bits to 32 bits.
+Warning: Resizing cell port KL_render_queue.bank0_r.0.2.DOPBDOP from 8 bits to 4 bits.
+Warning: Resizing cell port KL_render_queue.bank0_r.0.2.DOBDO from 64 bits to 32 bits.
+Warning: Resizing cell port KL_render_queue.bank0_r.0.2.DIADI from 64 bits to 32 bits.
+Warning: Resizing cell port KL_render_queue.bank0_r.0.2.DOPADOP from 8 bits to 4 bits.
+Warning: Resizing cell port KL_render_queue.bank0_r.0.2.DOADO from 64 bits to 32 bits.
+Warning: Resizing cell port KL_render_queue.bank0_r.0.1.DOPBDOP from 8 bits to 4 bits.
+Warning: Resizing cell port KL_render_queue.bank0_r.0.1.DOBDO from 64 bits to 32 bits.
+Warning: Resizing cell port KL_render_queue.bank0_r.0.1.DIPADIP from 8 bits to 4 bits.
+Warning: Resizing cell port KL_render_queue.bank0_r.0.1.DIADI from 64 bits to 32 bits.
+Warning: Resizing cell port KL_render_queue.bank0_r.0.1.DOPADOP from 8 bits to 4 bits.
+Warning: Resizing cell port KL_render_queue.bank0_r.0.1.DOADO from 64 bits to 32 bits.
+
+2.52. Printing statistics.
+
+=== KL_render_queue ===
+
+        +----------Local Count, excluding submodules.
+        | 
+     1395 wires
+    11218 wire bits
+      321 public wires
+     5718 public wire bits
+       35 ports
+     1027 port bits
+     2350 cells
+        1   BUFG
+      732   IBUF
+      301   INV
+      383   LUT2
+      233   LUT3
+       93   LUT4
+      140   LUT5
+      166   LUT6
+      295   OBUF
+        6   RAMB36E1
+      574 submodules
+      140   CARRY4
+      396   FDRE
+       10   FDSE
+       20   MUXF7
+        8   MUXF8
+
+   Estimated number of LCs:        661
+
+=== design hierarchy ===
+
+        +----------Count including submodules.
+        | 
+     2350 KL_render_queue
+
+        +----------Count including submodules.
+        | 
+     1395 wires
+    11218 wire bits
+      321 public wires
+     5718 public wire bits
+       35 ports
+     1027 port bits
+        - memories
+        - memory bits
+        - processes
+     2350 cells
+        1   BUFG
+      732   IBUF
+      301   INV
+      383   LUT2
+      233   LUT3
+       93   LUT4
+      140   LUT5
+      166   LUT6
+      295   OBUF
+        6   RAMB36E1
+      574 submodules
+      140   CARRY4
+      396   FDRE
+       10   FDSE
+       20   MUXF7
+        8   MUXF8
+
+   Estimated number of LCs:        661
+
+2.53. Executing CHECK pass (checking for obvious problems).
+Checking module KL_render_queue...
+Found and reported 0 problems.
+
+3. Executing SETUNDEF pass (replace undef values with defined constants).
+
+4. Executing OPT_LUT pass (optimize LUTs).
+Discovering LUTs.
+Number of LUTs:        0
+
+Eliminating LUTs.
+Number of LUTs:        0
+
+Combining LUTs.
+Number of LUTs:        0
+
+Eliminated 0 LUTs.
+Combined 0 LUTs.
+
+5. Executing OPT pass (performing simple optimizations).
+
+5.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module KL_render_queue.
+
+5.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\KL_render_queue'.
+Computing hashes of 2924 cells of `\KL_render_queue'.
+Finding duplicate cells in `\KL_render_queue'.
+Removed a total of 0 cells.
+
+5.3. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \KL_render_queue..
+  Creating internal representation of mux trees.
+  No muxes found in this module.
+Removed 0 multiplexer ports.
+
+5.4. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \KL_render_queue.
+Performed a total of 0 changes.
+
+5.5. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\KL_render_queue'.
+Computing hashes of 2924 cells of `\KL_render_queue'.
+Finding duplicate cells in `\KL_render_queue'.
+Removed a total of 0 cells.
+
+5.6. Executing OPT_SHARE pass.
+
+5.7. Executing OPT_DFF pass (perform DFF optimizations).
+
+5.8. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \KL_render_queue..
+Removed 0 unused cells and 12 unused wires.
+<suppressed ~1 debug messages>
+
+5.9. Executing OPT_EXPR pass (perform const folding).
+Optimizing module KL_render_queue.
+
+5.10. Rerunning OPT passes. (Maybe there is more to do..)
+
+5.11. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \KL_render_queue..
+  Creating internal representation of mux trees.
+  No muxes found in this module.
+Removed 0 multiplexer ports.
+
+5.12. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \KL_render_queue.
+Performed a total of 0 changes.
+
+5.13. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\KL_render_queue'.
+Computing hashes of 2924 cells of `\KL_render_queue'.
+Finding duplicate cells in `\KL_render_queue'.
+Removed a total of 0 cells.
+
+5.14. Executing OPT_SHARE pass.
+
+5.15. Executing OPT_DFF pass (perform DFF optimizations).
+
+5.16. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \KL_render_queue..
+
+5.17. Executing OPT_EXPR pass (perform const folding).
+Optimizing module KL_render_queue.
+
+5.18. Finished fast OPT passes. (There is nothing left to do.)
+
+6. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \KL_render_queue..
+Removed 0 unused cells and 166 unused wires.
+<suppressed ~166 debug messages>
+
+7. Printing statistics.
+
+=== KL_render_queue ===
+
+        +----------Local Count, excluding submodules.
+        | 
+     1217 wires
+     6376 wire bits
+      155 public wires
+     1308 public wire bits
+       28 ports
+      450 port bits
+     2924 cells
+        1   BUFG
+      140   CARRY4
+      396   FDRE
+       10   FDSE
+      732   IBUF
+      301   INV
+      383   LUT2
+      233   LUT3
+       93   LUT4
+      140   LUT5
+      166   LUT6
+       20   MUXF7
+        8   MUXF8
+      295   OBUF
+        6   RAMB36E1
+
+Warnings: 40 unique messages, 40 total
+End of script. Logfile hash: adfe28687c, time: 4.82s, user: 3.94s, system: 0.59s, MEM: 137.53 MB peak
+Yosys 0.66 (git sha1 86f2ddebc-dirty, g++ 16.1.1 -march=x86-64 -mtune=generic -O2 -fno-plt -fexceptions -fstack-clash-protection -fcf-protection -fno-omit-frame-pointer -mno-omit-leaf-frame-pointer -ffile-prefix-map=/build/yosys/src=/usr/src/debug/yosys -fPIC -O3) [startdir/yosys at makepkg]
+Time spent: 30% 19x read_verilog (1 sec), 25% 8x techmap (1 sec), ...

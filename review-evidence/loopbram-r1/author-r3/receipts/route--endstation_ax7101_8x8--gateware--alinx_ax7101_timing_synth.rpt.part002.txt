@@ -1,0 +1,346 @@
+Candidate head: 855529fe21fea685725a9edc4fe0a798154c6469
+Comparison base: 3cda030c174b325e36c26af6420487ff91346d15
+Source: route/endstation_ax7101_8x8/gateware/alinx_ax7101_timing_synth.rpt
+Original SHA256: e4896312d262ca3c2d9fa5dd8521716a65b0a3d6965a6206b2898d1edcb92c48
+Scope: complete text; paths and host fields normalized
+
+  Clock Domain Crossing:  Inter clock paths are considered valid unless explicitly excluded by timing constraints such as set_clock_groups or set_false_path.
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock milansoc_crg_clkout1 rise edge)
+                                                      0.000     0.000 r  <hidden>
+    R4                                                0.000     0.000 r  clk200_p
+                         net (fo=0)                   0.000     0.000    clk200_p
+    R4                   IBUFDS (Prop_ibufds_I_O)     0.369     0.369 r  IBUFDS/O
+                         net (fo=1, unplaced)         0.321     0.690    IBUFDS_n_0_BUFG_inst_n_0
+                         BUFG (Prop_bufg_I_O)         0.027     0.717 r  IBUFDS_n_0_BUFG_inst/O
+                         net (fo=9, unplaced)         0.114     0.831    milansoc_crg_clkin_signal
+                         PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT1)
+                                                      0.050     0.881 r  PLLE2_ADV/CLKOUT1
+                         net (fo=1, unplaced)         0.321     1.202    milansoc_crg_clkout1
+                         BUFG (Prop_bufg_I_O)         0.026     1.228 r  BUFG_1/O
+                         net (fo=37485, unplaced)     0.114     1.342    KL_gptp_gmii_launch/u_seal_cdc/out
+                         FDRE                                         r  KL_gptp_gmii_launch/u_seal_cdc/data_hold_reg[0]/C
+  -------------------------------------------------------------------    -------------------
+                         FDRE (Prop_fdre_C_Q)         0.147     1.489 r  KL_gptp_gmii_launch/u_seal_cdc/data_hold_reg[0]/Q
+                         net (fo=1, unplaced)         0.127     1.616    KL_gptp_gmii_launch/u_seal_cdc/data_hold_reg_n_0_[0]
+                         FDRE                                         r  KL_gptp_gmii_launch/u_seal_cdc/dest_out_r_reg[0]/D
+  -------------------------------------------------------------------    -------------------
+
+                         (clock eth_clocks0_rx rise edge)
+                                                      0.000     0.000 r  <hidden>
+    K18                                               0.000     0.000 r  eth_clocks0_rx
+                         net (fo=0)                   0.000     0.000    eth_clocks0_rx
+    K18                  IBUF (Prop_ibuf_I_O)         0.444     0.444 r  eth_clocks0_rx_IBUF_inst/O
+                         net (fo=2, unplaced)         0.338     0.782    milansoc_milanmac_phy_eth_tx_clk_reg
+                         BUFG (Prop_bufg_I_O)         0.029     0.811 r  BUFG_7/O
+                         net (fo=417, unplaced)       0.338     1.149    KL_gptp_gmii_launch/u_seal_cdc/eth_tx_clk
+                         FDRE                                         r  KL_gptp_gmii_launch/u_seal_cdc/dest_out_r_reg[0]/C
+                         clock pessimism              0.000     1.149    <hidden>
+                         clock uncertainty            0.125     1.274    <hidden>
+                         FDRE (Hold_fdre_C_D)        -0.009     1.265    KL_gptp_gmii_launch/u_seal_cdc/dest_out_r_reg[0]
+  -------------------------------------------------------------------
+                         required time                         -1.265    <hidden>
+                         arrival time                           1.616    <hidden>
+  -------------------------------------------------------------------
+                         slack                                  0.351    <hidden>
+
+
+
+
+
+---------------------------------------------------------------------------------------------------
+Path Group:  **async_default**
+From Clock:  milansoc_crg_clkout0
+  To Clock:  milansoc_crg_clkout0
+
+Setup :            0  Failing Endpoints,  Worst Slack        7.214ns,  Total Violation        0.000ns
+Hold  :            0  Failing Endpoints,  Worst Slack        0.291ns,  Total Violation        0.000ns
+---------------------------------------------------------------------------------------------------
+
+
+Max Delay Paths
+--------------------------------------------------------------------------------------
+Slack (MET) :             7.214ns  (required time - arrival time)
+  Source:                 VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/cpuResetCtrl_fiber_holder_counter_reg[1]/C
+                            (rising edge-triggered cell FDCE clocked by milansoc_crg_clkout0  {rise@0.000ns fall@5.000ns period=10.000ns})
+  Destination:            VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/cpuResetCtrl_fiber_buffer/buffers_0_reg/PRE
+                            (recovery check against rising-edge clock milansoc_crg_clkout0  {rise@0.000ns fall@5.000ns period=10.000ns})
+  Path Group:             **async_default**
+  Path Type:              Recovery (Max at Slow Process Corner)
+  Requirement:            10.000ns  (milansoc_crg_clkout0 rise@10.000ns - milansoc_crg_clkout0 rise@0.000ns)
+  Data Path Delay:        2.265ns  (logic 0.734ns (32.406%)  route 1.531ns (67.594%))
+  Logic Levels:           2  (LUT4=2)
+  Clock Path Skew:        -0.145ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    3.212ns = ( 13.212 - 10.000 ) 
+    Source Clock Delay      (SCD):    3.617ns
+    Clock Pessimism Removal (CPR):    0.260ns
+  Clock Uncertainty:      0.055ns  ((TSJ^2 + DJ^2)^1/2) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Discrete Jitter          (DJ):    0.083ns
+    Phase Error              (PE):    0.000ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock milansoc_crg_clkout0 rise edge)
+                                                      0.000     0.000 r  <hidden>
+    R4                                                0.000     0.000 r  clk200_p
+                         net (fo=0)                   0.000     0.000    clk200_p
+    R4                   IBUFDS (Prop_ibufds_I_O)     0.851     0.851 r  IBUFDS/O
+                         net (fo=1, unplaced)         0.647     1.498    IBUFDS_n_0_BUFG_inst_n_0
+                         BUFG (Prop_bufg_I_O)         0.082     1.580 r  IBUFDS_n_0_BUFG_inst/O
+                         net (fo=9, unplaced)         0.584     2.164    milansoc_crg_clkin_signal
+                         PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT0)
+                                                      0.077     2.241 r  PLLE2_ADV/CLKOUT0
+                         net (fo=1, unplaced)         0.647     2.889    milansoc_crg_clkout0
+                         BUFG (Prop_bufg_I_O)         0.081     2.970 r  BUFG/O
+                         net (fo=18438, unplaced)     0.647     3.617    VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/out
+                         FDCE                                         r  VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/cpuResetCtrl_fiber_holder_counter_reg[1]/C
+  -------------------------------------------------------------------    -------------------
+                         FDCE (Prop_fdce_C_Q)         0.397     4.014 f  VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/cpuResetCtrl_fiber_holder_counter_reg[1]/Q
+                         net (fo=6, unplaced)         0.657     4.671    VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/cpuResetCtrl_fiber_holder_counter_reg[1]
+                         LUT4 (Prop_lut4_I1_O)        0.232     4.903 r  VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/cpuResetCtrl_fiber_buffer_i_2/O
+                         net (fo=1, unplaced)         0.347     5.250    VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/cpuResetCtrl_fiber_buffer_i_2_n_0
+                         LUT4 (Prop_lut4_I0_O)        0.105     5.355 f  VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/cpuResetCtrl_fiber_buffer_i_1/O
+                         net (fo=9, unplaced)         0.527     5.882    VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/cpuResetCtrl_fiber_buffer/cpuResetCtrl_fiber_holder_reset
+                         FDPE                                         f  VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/cpuResetCtrl_fiber_buffer/buffers_0_reg/PRE
+  -------------------------------------------------------------------    -------------------
+
+                         (clock milansoc_crg_clkout0 rise edge)
+                                                     10.000    10.000 r  <hidden>
+    R4                                                0.000    10.000 r  clk200_p
+                         net (fo=0)                   0.000    10.000    clk200_p
+    R4                   IBUFDS (Prop_ibufds_I_O)     0.813    10.813 r  IBUFDS/O
+                         net (fo=1, unplaced)         0.615    11.428    IBUFDS_n_0_BUFG_inst_n_0
+                         BUFG (Prop_bufg_I_O)         0.078    11.506 r  IBUFDS_n_0_BUFG_inst/O
+                         net (fo=9, unplaced)         0.439    11.945    milansoc_crg_clkin_signal
+                         PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT0)
+                                                      0.073    12.018 r  PLLE2_ADV/CLKOUT0
+                         net (fo=1, unplaced)         0.615    12.633    milansoc_crg_clkout0
+                         BUFG (Prop_bufg_I_O)         0.077    12.710 r  BUFG/O
+                         net (fo=18438, unplaced)     0.502    13.212    VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/cpuResetCtrl_fiber_buffer/litex_clk
+                         FDPE                                         r  VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/cpuResetCtrl_fiber_buffer/buffers_0_reg/C
+                         clock pessimism              0.260    13.472    <hidden>
+                         clock uncertainty           -0.055    13.418    <hidden>
+                         FDPE (Recov_fdpe_C_PRE)     -0.321    13.097    VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/cpuResetCtrl_fiber_buffer/buffers_0_reg
+  -------------------------------------------------------------------
+                         required time                         13.097    <hidden>
+                         arrival time                          -5.882    <hidden>
+  -------------------------------------------------------------------
+                         slack                                  7.214    <hidden>
+
+
+
+
+
+Min Delay Paths
+--------------------------------------------------------------------------------------
+Slack (MET) :             0.291ns  (arrival time - required time)
+  Source:                 VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/cpuResetCtrl_fiber_aggregator_asyncBuffers_0/buffers_1_reg/C
+                            (rising edge-triggered cell FDPE clocked by milansoc_crg_clkout0  {rise@0.000ns fall@5.000ns period=10.000ns})
+  Destination:            VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/cpuResetCtrl_fiber_holder_counter_reg[0]/CLR
+                            (removal check against rising-edge clock milansoc_crg_clkout0  {rise@0.000ns fall@5.000ns period=10.000ns})
+  Path Group:             **async_default**
+  Path Type:              Removal (Min at Fast Process Corner)
+  Requirement:            0.000ns  (milansoc_crg_clkout0 rise@0.000ns - milansoc_crg_clkout0 rise@0.000ns)
+  Data Path Delay:        0.295ns  (logic 0.147ns (49.784%)  route 0.148ns (50.216%))
+  Logic Levels:           0  
+  Clock Path Skew:        0.145ns (DCD - SCD - CPR)
+    Destination Clock Delay (DCD):    1.785ns
+    Source Clock Delay      (SCD):    1.421ns
+    Clock Pessimism Removal (CPR):    0.219ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock milansoc_crg_clkout0 rise edge)
+                                                      0.000     0.000 r  <hidden>
+    R4                                                0.000     0.000 r  clk200_p
+                         net (fo=0)                   0.000     0.000    clk200_p
+    R4                   IBUFDS (Prop_ibufds_I_O)     0.369     0.369 r  IBUFDS/O
+                         net (fo=1, unplaced)         0.321     0.690    IBUFDS_n_0_BUFG_inst_n_0
+                         BUFG (Prop_bufg_I_O)         0.027     0.717 r  IBUFDS_n_0_BUFG_inst/O
+                         net (fo=9, unplaced)         0.114     0.831    milansoc_crg_clkin_signal
+                         PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT0)
+                                                      0.050     0.881 r  PLLE2_ADV/CLKOUT0
+                         net (fo=1, unplaced)         0.321     1.202    milansoc_crg_clkout0
+                         BUFG (Prop_bufg_I_O)         0.026     1.228 r  BUFG/O
+                         net (fo=18438, unplaced)     0.193     1.421    VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/cpuResetCtrl_fiber_aggregator_asyncBuffers_0/litex_clk
+                         FDPE                                         r  VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/cpuResetCtrl_fiber_aggregator_asyncBuffers_0/buffers_1_reg/C
+  -------------------------------------------------------------------    -------------------
+                         FDPE (Prop_fdpe_C_Q)         0.147     1.568 f  VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/cpuResetCtrl_fiber_aggregator_asyncBuffers_0/buffers_1_reg/Q
+                         net (fo=7, unplaced)         0.148     1.716    VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/cpuResetCtrl_fiber_aggregator_asyncBuffers_0_io_dataOut
+                         FDCE                                         f  VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/cpuResetCtrl_fiber_holder_counter_reg[0]/CLR
+  -------------------------------------------------------------------    -------------------
+
+                         (clock milansoc_crg_clkout0 rise edge)
+                                                      0.000     0.000 r  <hidden>
+    R4                                                0.000     0.000 r  clk200_p
+                         net (fo=0)                   0.000     0.000    clk200_p
+    R4                   IBUFDS (Prop_ibufds_I_O)     0.400     0.400 r  IBUFDS/O
+                         net (fo=1, unplaced)         0.338     0.738    IBUFDS_n_0_BUFG_inst_n_0
+                         BUFG (Prop_bufg_I_O)         0.030     0.768 r  IBUFDS_n_0_BUFG_inst/O
+                         net (fo=9, unplaced)         0.259     1.027    milansoc_crg_clkin_signal
+                         PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT0)
+                                                      0.053     1.080 r  PLLE2_ADV/CLKOUT0
+                         net (fo=1, unplaced)         0.338     1.418    milansoc_crg_clkout0
+                         BUFG (Prop_bufg_I_O)         0.029     1.447 r  BUFG/O
+                         net (fo=18438, unplaced)     0.338     1.785    VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/out
+                         FDCE                                         r  VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/cpuResetCtrl_fiber_holder_counter_reg[0]/C
+                         clock pessimism             -0.219     1.566    <hidden>
+                         FDCE (Remov_fdce_C_CLR)     -0.141     1.425    VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/cpuResetCtrl_fiber_holder_counter_reg[0]
+  -------------------------------------------------------------------
+                         required time                         -1.425    <hidden>
+                         arrival time                           1.716    <hidden>
+  -------------------------------------------------------------------
+                         slack                                  0.291    <hidden>
+
+
+
+
+
+---------------------------------------------------------------------------------------------------
+Path Group:  **async_default**
+From Clock:  milansoc_crg_clkout1
+  To Clock:  milansoc_crg_clkout1
+
+Setup :            0  Failing Endpoints,  Worst Slack       18.547ns,  Total Violation        0.000ns
+Hold  :            0  Failing Endpoints,  Worst Slack        0.343ns,  Total Violation        0.000ns
+---------------------------------------------------------------------------------------------------
+
+
+Max Delay Paths
+--------------------------------------------------------------------------------------
+Slack (MET) :             18.547ns  (required time - arrival time)
+  Source:                 FDPE_3/C
+                            (rising edge-triggered cell FDPE clocked by milansoc_crg_clkout1  {rise@0.000ns fall@10.000ns period=20.000ns})
+  Destination:            milan_datapath/amap_boot_r_reg/PRE
+                            (recovery check against rising-edge clock milansoc_crg_clkout1  {rise@0.000ns fall@10.000ns period=20.000ns})
+  Path Group:             **async_default**
+  Path Type:              Recovery (Max at Slow Process Corner)
+  Requirement:            20.000ns  (milansoc_crg_clkout1 rise@20.000ns - milansoc_crg_clkout1 rise@0.000ns)
+  Data Path Delay:        0.801ns  (logic 0.397ns (49.563%)  route 0.404ns (50.437%))
+  Logic Levels:           0  
+  Clock Path Skew:        -0.145ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    3.149ns = ( 23.149 - 20.000 ) 
+    Source Clock Delay      (SCD):    3.554ns
+    Clock Pessimism Removal (CPR):    0.260ns
+  Clock Uncertainty:      0.059ns  ((TSJ^2 + DJ^2)^1/2) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Discrete Jitter          (DJ):    0.095ns
+    Phase Error              (PE):    0.000ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock milansoc_crg_clkout1 rise edge)
+                                                      0.000     0.000 r  <hidden>
+    R4                                                0.000     0.000 r  clk200_p
+                         net (fo=0)                   0.000     0.000    clk200_p
+    R4                   IBUFDS (Prop_ibufds_I_O)     0.851     0.851 r  IBUFDS/O
+                         net (fo=1, unplaced)         0.647     1.498    IBUFDS_n_0_BUFG_inst_n_0
+                         BUFG (Prop_bufg_I_O)         0.082     1.580 r  IBUFDS_n_0_BUFG_inst/O
+                         net (fo=9, unplaced)         0.584     2.164    milansoc_crg_clkin_signal
+                         PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT1)
+                                                      0.077     2.241 r  PLLE2_ADV/CLKOUT1
+                         net (fo=1, unplaced)         0.647     2.889    milansoc_crg_clkout1
+                         BUFG (Prop_bufg_I_O)         0.081     2.970 r  BUFG_1/O
+                         net (fo=37485, unplaced)     0.584     3.554    milan_clk
+                         FDPE                                         r  FDPE_3/C
+  -------------------------------------------------------------------    -------------------
+                         FDPE (Prop_fdpe_C_Q)         0.397     3.951 f  FDPE_3/Q
+                         net (fo=30763, unplaced)     0.404     4.355    milan_datapath/milan_rst
+                         FDPE                                         f  milan_datapath/amap_boot_r_reg/PRE
+  -------------------------------------------------------------------    -------------------
+
+                         (clock milansoc_crg_clkout1 rise edge)
+                                                     20.000    20.000 r  <hidden>
+    R4                                                0.000    20.000 r  clk200_p
+                         net (fo=0)                   0.000    20.000    clk200_p
+    R4                   IBUFDS (Prop_ibufds_I_O)     0.813    20.813 r  IBUFDS/O
+                         net (fo=1, unplaced)         0.615    21.428    IBUFDS_n_0_BUFG_inst_n_0
+                         BUFG (Prop_bufg_I_O)         0.078    21.506 r  IBUFDS_n_0_BUFG_inst/O
+                         net (fo=9, unplaced)         0.439    21.945    milansoc_crg_clkin_signal
+                         PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT1)
+                                                      0.073    22.018 r  PLLE2_ADV/CLKOUT1
+                         net (fo=1, unplaced)         0.615    22.633    milansoc_crg_clkout1
+                         BUFG (Prop_bufg_I_O)         0.077    22.710 r  BUFG_1/O
+                         net (fo=37485, unplaced)     0.439    23.149    milan_datapath/out
+                         FDPE                                         r  milan_datapath/amap_boot_r_reg/C
+                         clock pessimism              0.260    23.409    <hidden>
+                         clock uncertainty           -0.059    23.349    <hidden>
+                         FDPE (Recov_fdpe_C_PRE)     -0.448    22.901    milan_datapath/amap_boot_r_reg
+  -------------------------------------------------------------------
+                         required time                         22.901    <hidden>
+                         arrival time                          -4.355    <hidden>
+  -------------------------------------------------------------------
+                         slack                                 18.547    <hidden>
+
+
+
+
+
+Min Delay Paths
+--------------------------------------------------------------------------------------
+Slack (MET) :             0.343ns  (arrival time - required time)
+  Source:                 FDPE_3/C
+                            (rising edge-triggered cell FDPE clocked by milansoc_crg_clkout1  {rise@0.000ns fall@10.000ns period=20.000ns})
+  Destination:            milan_datapath/amap_boot_drain_r_reg/CLR
+                            (removal check against rising-edge clock milansoc_crg_clkout1  {rise@0.000ns fall@10.000ns period=20.000ns})
+  Path Group:             **async_default**
+  Path Type:              Removal (Min at Fast Process Corner)
+  Requirement:            0.000ns  (milansoc_crg_clkout1 rise@0.000ns - milansoc_crg_clkout1 rise@0.000ns)
+  Data Path Delay:        0.347ns  (logic 0.147ns (42.321%)  route 0.200ns (57.679%))
+  Logic Levels:           0  
+  Clock Path Skew:        0.145ns (DCD - SCD - CPR)
+    Destination Clock Delay (DCD):    1.706ns
+    Source Clock Delay      (SCD):    1.342ns
+    Clock Pessimism Removal (CPR):    0.219ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock milansoc_crg_clkout1 rise edge)
+                                                      0.000     0.000 r  <hidden>
+    R4                                                0.000     0.000 r  clk200_p
+                         net (fo=0)                   0.000     0.000    clk200_p
+    R4                   IBUFDS (Prop_ibufds_I_O)     0.369     0.369 r  IBUFDS/O
+                         net (fo=1, unplaced)         0.321     0.690    IBUFDS_n_0_BUFG_inst_n_0
+                         BUFG (Prop_bufg_I_O)         0.027     0.717 r  IBUFDS_n_0_BUFG_inst/O
+                         net (fo=9, unplaced)         0.114     0.831    milansoc_crg_clkin_signal
+                         PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT1)
+                                                      0.050     0.881 r  PLLE2_ADV/CLKOUT1
+                         net (fo=1, unplaced)         0.321     1.202    milansoc_crg_clkout1
+                         BUFG (Prop_bufg_I_O)         0.026     1.228 r  BUFG_1/O
+                         net (fo=37485, unplaced)     0.114     1.342    milan_clk
+                         FDPE                                         r  FDPE_3/C
+  -------------------------------------------------------------------    -------------------
+                         FDPE (Prop_fdpe_C_Q)         0.147     1.489 f  FDPE_3/Q
+                         net (fo=30763, unplaced)     0.200     1.689    milan_datapath/milan_rst
+                         FDCE                                         f  milan_datapath/amap_boot_drain_r_reg/CLR
+  -------------------------------------------------------------------    -------------------
+
+                         (clock milansoc_crg_clkout1 rise edge)
+                                                      0.000     0.000 r  <hidden>
+    R4                                                0.000     0.000 r  clk200_p
+                         net (fo=0)                   0.000     0.000    clk200_p
+    R4                   IBUFDS (Prop_ibufds_I_O)     0.400     0.400 r  IBUFDS/O
+                         net (fo=1, unplaced)         0.338     0.738    IBUFDS_n_0_BUFG_inst_n_0
+                         BUFG (Prop_bufg_I_O)         0.030     0.768 r  IBUFDS_n_0_BUFG_inst/O
+                         net (fo=9, unplaced)         0.259     1.027    milansoc_crg_clkin_signal
+                         PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT1)
+                                                      0.053     1.080 r  PLLE2_ADV/CLKOUT1
+                         net (fo=1, unplaced)         0.338     1.418    milansoc_crg_clkout1
+                         BUFG (Prop_bufg_I_O)         0.029     1.447 r  BUFG_1/O
+                         net (fo=37485, unplaced)     0.259     1.706    milan_datapath/out
+                         FDCE                                         r  milan_datapath/amap_boot_drain_r_reg/C
+                         clock pessimism             -0.219     1.487    <hidden>
+                         FDCE (Remov_fdce_C_CLR)     -0.141     1.346    milan_datapath/amap_boot_drain_r_reg
+  -------------------------------------------------------------------
+                         required time                         -1.346    <hidden>
+                         arrival time                           1.689    <hidden>
+  -------------------------------------------------------------------
+                         slack                                  0.343    <hidden>
+
+
+
+
+

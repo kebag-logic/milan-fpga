@@ -1,0 +1,7722 @@
+art_cnt_r0[0]),
+.Q(\^status_o [8]),
+.RST(restart_cnt_r_i__3_n_0));
+RTL_REG_SYNC__BREG_1 \restart_cnt_r_reg[1]
+(.C(clk_i),
+.CE(restart_cnt_r),
+.D(restart_cnt_r0[1]),
+.Q(\^status_o [9]),
+.RST(restart_cnt_r_i__3_n_0));
+RTL_REG_SYNC__BREG_1 \restart_cnt_r_reg[2]
+(.C(clk_i),
+.CE(restart_cnt_r),
+.D(restart_cnt_r0[2]),
+.Q(\^status_o [10]),
+.RST(restart_cnt_r_i__3_n_0));
+RTL_REG_SYNC__BREG_1 \restart_cnt_r_reg[3]
+(.C(clk_i),
+.CE(restart_cnt_r),
+.D(restart_cnt_r0[3]),
+.Q(\^status_o [11]),
+.RST(restart_cnt_r_i__3_n_0));
+RTL_REG_SYNC__BREG_1 \restart_cnt_r_reg[4]
+(.C(clk_i),
+.CE(restart_cnt_r),
+.D(restart_cnt_r0[4]),
+.Q(\^status_o [12]),
+.RST(restart_cnt_r_i__3_n_0));
+RTL_REG_SYNC__BREG_1 \restart_cnt_r_reg[5]
+(.C(clk_i),
+.CE(restart_cnt_r),
+.D(restart_cnt_r0[5]),
+.Q(\^status_o [13]),
+.RST(restart_cnt_r_i__3_n_0));
+RTL_REG_SYNC__BREG_1 \restart_cnt_r_reg[6]
+(.C(clk_i),
+.CE(restart_cnt_r),
+.D(restart_cnt_r0[6]),
+.Q(\^status_o [14]),
+.RST(restart_cnt_r_i__3_n_0));
+RTL_REG_SYNC__BREG_1 \restart_cnt_r_reg[7]
+(.C(clk_i),
+.CE(restart_cnt_r),
+.D(restart_cnt_r0[7]),
+.Q(\^status_o [15]),
+.RST(restart_cnt_r_i__3_n_0));
+RTL_ADD4 ring_fill_r0_i
+(.I0(ring_fill_r),
+.I1(\<const1> ),
+.O(ring_fill_r0));
+RTL_ROM15 ring_fill_r_i
+(.A(ring_fill_r),
+.O(ring_fill_r_i_n_0));
+RTL_MUX ring_fill_r_i__0
+(.I0(ring_fill_r_i_n_0),
+.I1(\<const0> ),
+.O(ring_fill_r__0),
+.S(ring_we_w));
+RTL_MUX ring_fill_r_i__1
+(.I0(ring_fill_r__0),
+.I1(\<const0> ),
+.O(ring_fill_r0_out),
+.S(g3_v_r));
+RTL_MUX178 ring_fill_r_i__2
+(.I0({\<const1> ,\<const1> ,\<const1> ,\<const0> }),
+.I1({\<const0> ,\<const0> ,\<const0> ,\<const0> }),
+.O({ring_fill_r_i__2_n_0,ring_fill_r_i__2_n_1,ring_fill_r_i__2_n_2,ring_fill_r_i__2_n_3}),
+.S(restart_cnt_r1));
+RTL_MUX178 ring_fill_r_i__3
+(.I0({ring_fill_r_i__2_n_0,ring_fill_r_i__2_n_1,ring_fill_r_i__2_n_2,ring_fill_r_i__2_n_3}),
+.I1({\<const0> ,\<const0> ,\<const0> ,\<const0> }),
+.O({ring_fill_r_i__3_n_0,ring_fill_r_i__3_n_1,ring_fill_r_i__3_n_2,ring_fill_r_i__3_n_3}),
+.S(g3_v_r));
+RTL_MUX178 ring_fill_r_i__4
+(.I0({\<const1> ,\<const1> ,\<const1> ,\<const1> }),
+.I1({ring_fill_r_i__3_n_0,ring_fill_r_i__3_n_1,ring_fill_r_i__3_n_2,ring_fill_r_i__3_n_3}),
+.O({ring_fill_r_i__4_n_0,ring_fill_r_i__4_n_1,ring_fill_r_i__4_n_2,ring_fill_r_i__4_n_3}),
+.S(pdu_restart_r));
+RTL_MUX178 ring_fill_r_i__5
+(.I0({\<const1> ,\<const1> ,\<const1> ,\<const1> }),
+.I1({ring_fill_r_i__4_n_0,ring_fill_r_i__4_n_1,ring_fill_r_i__4_n_2,ring_fill_r_i__4_n_3}),
+.O({ring_fill_r_i__5_n_0,ring_fill_r_i__5_n_1,ring_fill_r_i__5_n_2,ring_fill_r_i__5_n_3}),
+.S(s1_v_r0));
+RTL_MUX178 ring_fill_r_i__6
+(.I0({\<const1> ,\<const1> ,\<const1> ,\<const1> }),
+.I1({ring_fill_r_i__5_n_0,ring_fill_r_i__5_n_1,ring_fill_r_i__5_n_2,ring_fill_r_i__5_n_3}),
+.O({ring_fill_r_i__6_n_0,ring_fill_r_i__6_n_1,ring_fill_r_i__6_n_2,ring_fill_r_i__6_n_3}),
+.S(rst_n));
+RTL_MUX178 ring_fill_r_i__7
+(.I0({\<const0> ,\<const0> ,\<const0> ,\<const1> }),
+.I1({\<const0> ,\<const0> ,\<const0> ,\<const0> }),
+.O({ring_fill_r_i__7_n_0,ring_fill_r_i__7_n_1,ring_fill_r_i__7_n_2,ring_fill_r_i__7_n_3}),
+.S(restart_cnt_r1));
+RTL_MUX178 ring_fill_r_i__8
+(.I0({ring_fill_r_i__7_n_0,ring_fill_r_i__7_n_1,ring_fill_r_i__7_n_2,ring_fill_r_i__7_n_3}),
+.I1({\<const0> ,\<const0> ,\<const0> ,\<const0> }),
+.O({ring_fill_r_i__8_n_0,ring_fill_r_i__8_n_1,ring_fill_r_i__8_n_2,ring_fill_r_i__8_n_3}),
+.S(g3_v_r));
+RTL_REG_SYNC__BREG_155 \ring_fill_r_reg[0]
+(.C(clk_i),
+.CE(ring_fill_r0_out),
+.D(ring_fill_r0[0]),
+.Q(ring_fill_r[0]),
+.RST(ring_fill_r_i__6_n_3),
+.SET(ring_fill_r_i__8_n_3));
+RTL_REG_SYNC__BREG_155 \ring_fill_r_reg[1]
+(.C(clk_i),
+.CE(ring_fill_r0_out),
+.D(ring_fill_r0[1]),
+.Q(ring_fill_r[1]),
+.RST(ring_fill_r_i__6_n_2));
+RTL_REG_SYNC__BREG_155 \ring_fill_r_reg[2]
+(.C(clk_i),
+.CE(ring_fill_r0_out),
+.D(ring_fill_r0[2]),
+.Q(ring_fill_r[2]),
+.RST(ring_fill_r_i__6_n_1));
+RTL_REG_SYNC__BREG_155 \ring_fill_r_reg[3]
+(.C(clk_i),
+.CE(ring_fill_r0_out),
+.D(ring_fill_r0[3]),
+.Q(ring_fill_r[3]),
+.RST(ring_fill_r_i__6_n_0));
+RTL_ADD0 ring_idx_r0_i
+(.I0(ring_idx_r),
+.I1(\<const1> ),
+.O(ring_idx_r0));
+RTL_MUX ring_idx_r_i
+(.I0(\<const1> ),
+.I1(ring_we_w),
+.O(ring_idx_r_i_n_0),
+.S(restart_cnt_r1));
+RTL_MUX ring_idx_r_i__0
+(.I0(ring_idx_r_i_n_0),
+.I1(\<const0> ),
+.O(ring_idx_r__0),
+.S(g3_v_r));
+RTL_MUX ring_idx_r_i__1
+(.I0(\<const1> ),
+.I1(\<const0> ),
+.O(ring_idx_r_i__1_n_0),
+.S(rst_n));
+RTL_REG_SYNC__BREG_1 \ring_idx_r_reg[0]
+(.C(clk_i),
+.CE(ring_idx_r__0),
+.D(ring_idx_r0[0]),
+.Q(ring_idx_r[0]),
+.RST(ring_idx_r_i__1_n_0));
+RTL_REG_SYNC__BREG_1 \ring_idx_r_reg[1]
+(.C(clk_i),
+.CE(ring_idx_r__0),
+.D(ring_idx_r0[1]),
+.Q(ring_idx_r[1]),
+.RST(ring_idx_r_i__1_n_0));
+RTL_REG_SYNC__BREG_1 \ring_idx_r_reg[2]
+(.C(clk_i),
+.CE(ring_idx_r__0),
+.D(ring_idx_r0[2]),
+.Q(ring_idx_r[2]),
+.RST(ring_idx_r_i__1_n_0));
+RTL_RAM0 ring_r_reg
+(.RA1(ring_idx_r),
+.RO1({ring_r_reg_n_0,ring_r_reg_n_1,ring_r_reg_n_2,ring_r_reg_n_3,ring_r_reg_n_4,ring_r_reg_n_5,ring_r_reg_n_6,ring_r_reg_n_7,ring_r_reg_n_8,ring_r_reg_n_9,ring_r_reg_n_10,ring_r_reg_n_11,ring_r_reg_n_12,ring_r_reg_n_13,ring_r_reg_n_14,ring_r_reg_n_15,ring_r_reg_n_16,ring_r_reg_n_17,ring_r_reg_n_18,ring_r_reg_n_19,ring_r_reg_n_20,ring_r_reg_n_21,ring_r_reg_n_22,ring_r_reg_n_23,ring_r_reg_n_24,ring_r_reg_n_25,ring_r_reg_n_26,ring_r_reg_n_27,ring_r_reg_n_28,ring_r_reg_n_29,ring_r_reg_n_30,ring_r_reg_n_31}),
+.WA2(ring_idx_r),
+.WCLK(clk_i),
+.WD2(ring_wd_w),
+.WE2(ring_we_w));
+RTL_AND7 ring_wd_w1_i
+(.I0(ring_wd_w2),
+.I1(ring_wd_w2_i__0_n_0),
+.O(ring_wd_w1));
+RTL_AND7 ring_wd_w2_i
+(.I0(g3_v_r),
+.I1(acc_w0_i__0_n_0),
+.O(ring_wd_w2));
+RTL_INV ring_wd_w2_i__0
+(.I0(pdu_restart_r),
+.O(ring_wd_w2_i__0_n_0));
+RTL_MUX377 ring_wd_w_i
+(.I0(g_mid_r),
+.I1(g_pick_r),
+.O({ring_wd_w_i_n_0,ring_wd_w_i_n_1,ring_wd_w_i_n_2,ring_wd_w_i_n_3,ring_wd_w_i_n_4,ring_wd_w_i_n_5,ring_wd_w_i_n_6,ring_wd_w_i_n_7,ring_wd_w_i_n_8,ring_wd_w_i_n_9,ring_wd_w_i_n_10,ring_wd_w_i_n_11,ring_wd_w_i_n_12,ring_wd_w_i_n_13,ring_wd_w_i_n_14,ring_wd_w_i_n_15,ring_wd_w_i_n_16,ring_wd_w_i_n_17,ring_wd_w_i_n_18,ring_wd_w_i_n_19,ring_wd_w_i_n_20,ring_wd_w_i_n_21,ring_wd_w_i_n_22,ring_wd_w_i_n_23,ring_wd_w_i_n_24,ring_wd_w_i_n_25,ring_wd_w_i_n_26,ring_wd_w_i_n_27,ring_wd_w_i_n_28,ring_wd_w_i_n_29,ring_wd_w_i_n_30,ring_wd_w_i_n_31}),
+.S(g3_snap_mid_w));
+RTL_MUX377 ring_wd_w_i__0
+(.I0(g_pick_r),
+.I1({ring_wd_w_i_n_0,ring_wd_w_i_n_1,ring_wd_w_i_n_2,ring_wd_w_i_n_3,ring_wd_w_i_n_4,ring_wd_w_i_n_5,ring_wd_w_i_n_6,ring_wd_w_i_n_7,ring_wd_w_i_n_8,ring_wd_w_i_n_9,ring_wd_w_i_n_10,ring_wd_w_i_n_11,ring_wd_w_i_n_12,ring_wd_w_i_n_13,ring_wd_w_i_n_14,ring_wd_w_i_n_15,ring_wd_w_i_n_16,ring_wd_w_i_n_17,ring_wd_w_i_n_18,ring_wd_w_i_n_19,ring_wd_w_i_n_20,ring_wd_w_i_n_21,ring_wd_w_i_n_22,ring_wd_w_i_n_23,ring_wd_w_i_n_24,ring_wd_w_i_n_25,ring_wd_w_i_n_26,ring_wd_w_i_n_27,ring_wd_w_i_n_28,ring_wd_w_i_n_29,ring_wd_w_i_n_30,ring_wd_w_i_n_31}),
+.O({ring_wd_w_i__0_n_0,ring_wd_w_i__0_n_1,ring_wd_w_i__0_n_2,ring_wd_w_i__0_n_3,ring_wd_w_i__0_n_4,ring_wd_w_i__0_n_5,ring_wd_w_i__0_n_6,ring_wd_w_i__0_n_7,ring_wd_w_i__0_n_8,ring_wd_w_i__0_n_9,ring_wd_w_i__0_n_10,ring_wd_w_i__0_n_11,ring_wd_w_i__0_n_12,ring_wd_w_i__0_n_13,ring_wd_w_i__0_n_14,ring_wd_w_i__0_n_15,ring_wd_w_i__0_n_16,ring_wd_w_i__0_n_17,ring_wd_w_i__0_n_18,ring_wd_w_i__0_n_19,ring_wd_w_i__0_n_20,ring_wd_w_i__0_n_21,ring_wd_w_i__0_n_22,ring_wd_w_i__0_n_23,ring_wd_w_i__0_n_24,ring_wd_w_i__0_n_25,ring_wd_w_i__0_n_26,ring_wd_w_i__0_n_27,ring_wd_w_i__0_n_28,ring_wd_w_i__0_n_29,ring_wd_w_i__0_n_30,ring_wd_w_i__0_n_31}),
+.S(restart_cnt_r1));
+RTL_MUX377 ring_wd_w_i__1
+(.I0({ring_wd_w_i__0_n_0,ring_wd_w_i__0_n_1,ring_wd_w_i__0_n_2,ring_wd_w_i__0_n_3,ring_wd_w_i__0_n_4,ring_wd_w_i__0_n_5,ring_wd_w_i__0_n_6,ring_wd_w_i__0_n_7,ring_wd_w_i__0_n_8,ring_wd_w_i__0_n_9,ring_wd_w_i__0_n_10,ring_wd_w_i__0_n_11,ring_wd_w_i__0_n_12,ring_wd_w_i__0_n_13,ring_wd_w_i__0_n_14,ring_wd_w_i__0_n_15,ring_wd_w_i__0_n_16,ring_wd_w_i__0_n_17,ring_wd_w_i__0_n_18,ring_wd_w_i__0_n_19,ring_wd_w_i__0_n_20,ring_wd_w_i__0_n_21,ring_wd_w_i__0_n_22,ring_wd_w_i__0_n_23,ring_wd_w_i__0_n_24,ring_wd_w_i__0_n_25,ring_wd_w_i__0_n_26,ring_wd_w_i__0_n_27,ring_wd_w_i__0_n_28,ring_wd_w_i__0_n_29,ring_wd_w_i__0_n_30,ring_wd_w_i__0_n_31}),
+.I1(g_pick_r),
+.O(ring_wd_w),
+.S(ring_wd_w1));
+RTL_MUX ring_we_w_i
+(.I0(\<const1> ),
+.I1(g3_snap_pick_w),
+.O(ring_we_w_i_n_0),
+.S(g3_snap_mid_w));
+RTL_MUX ring_we_w_i__0
+(.I0(\<const1> ),
+.I1(ring_we_w_i_n_0),
+.O(ring_we_w_i__0_n_0),
+.S(restart_cnt_r1));
+RTL_MUX ring_we_w_i__1
+(.I0(ring_we_w_i__0_n_0),
+.I1(\<const0> ),
+.O(ring_we_w),
+.S(ring_wd_w1));
+RTL_SUB2 s1_dev_w_i
+(.I0(s1_ts_r),
+.I1(grp_ref_r),
+.O(s1_dev_w));
+RTL_NEQ1 s1_gap_w0_i
+(.I0(s1_seq_r),
+.I1(s1_gap_w1),
+.O(s1_gap_w0));
+RTL_ADD1 s1_gap_w1_i
+(.I0(last_seq_r),
+.I1(\<const1> ),
+.O(s1_gap_w1));
+RTL_AND7 s1_gap_w_i
+(.I0(have_seq_r),
+.I1(s1_gap_w0),
+.O(s1_gap_w));
+RTL_MUX s1_mr_r_i
+(.I0(\<const1> ),
+.I1(\<const0> ),
+.O(s1_mr_r__0),
+.S(rst_n));
+RTL_REG_SYNC__BREG_1 s1_mr_r_reg
+(.C(clk_i),
+.CE(acc_w),
+.D(mr_i),
+.Q(s1_mr_r),
+.RST(s1_mr_r__0));
+RTL_MUX s1_seq_r_i
+(.I0(\<const1> ),
+.I1(\<const0> ),
+.O(s1_seq_r__0),
+.S(rst_n));
+RTL_REG_SYNC__BREG_1 \s1_seq_r_reg[0]
+(.C(clk_i),
+.CE(acc_w),
+.D(seq_i[0]),
+.Q(s1_seq_r[0]),
+.RST(s1_seq_r__0));
+RTL_REG_SYNC__BREG_1 \s1_seq_r_reg[1]
+(.C(clk_i),
+.CE(acc_w),
+.D(seq_i[1]),
+.Q(s1_seq_r[1]),
+.RST(s1_seq_r__0));
+RTL_REG_SYNC__BREG_1 \s1_seq_r_reg[2]
+(.C(clk_i),
+.CE(acc_w),
+.D(seq_i[2]),
+.Q(s1_seq_r[2]),
+.RST(s1_seq_r__0));
+RTL_REG_SYNC__BREG_1 \s1_seq_r_reg[3]
+(.C(clk_i),
+.CE(acc_w),
+.D(seq_i[3]),
+.Q(s1_seq_r[3]),
+.RST(s1_seq_r__0));
+RTL_REG_SYNC__BREG_1 \s1_seq_r_reg[4]
+(.C(clk_i),
+.CE(acc_w),
+.D(seq_i[4]),
+.Q(s1_seq_r[4]),
+.RST(s1_seq_r__0));
+RTL_REG_SYNC__BREG_1 \s1_seq_r_reg[5]
+(.C(clk_i),
+.CE(acc_w),
+.D(seq_i[5]),
+.Q(s1_seq_r[5]),
+.RST(s1_seq_r__0));
+RTL_REG_SYNC__BREG_1 \s1_seq_r_reg[6]
+(.C(clk_i),
+.CE(acc_w),
+.D(seq_i[6]),
+.Q(s1_seq_r[6]),
+.RST(s1_seq_r__0));
+RTL_REG_SYNC__BREG_1 \s1_seq_r_reg[7]
+(.C(clk_i),
+.CE(acc_w),
+.D(seq_i[7]),
+.Q(s1_seq_r[7]),
+.RST(s1_seq_r__0));
+RTL_MUX s1_ts_r_i
+(.I0(\<const1> ),
+.I1(\<const0> ),
+.O(s1_ts_r__0),
+.S(rst_n));
+RTL_REG_SYNC__BREG_1 \s1_ts_r_reg[0]
+(.C(clk_i),
+.CE(acc_w),
+.D(ts_ns_i[0]),
+.Q(s1_ts_r[0]),
+.RST(s1_ts_r__0));
+RTL_REG_SYNC__BREG_1 \s1_ts_r_reg[10]
+(.C(clk_i),
+.CE(acc_w),
+.D(ts_ns_i[10]),
+.Q(s1_ts_r[10]),
+.RST(s1_ts_r__0));
+RTL_REG_SYNC__BREG_1 \s1_ts_r_reg[11]
+(.C(clk_i),
+.CE(acc_w),
+.D(ts_ns_i[11]),
+.Q(s1_ts_r[11]),
+.RST(s1_ts_r__0));
+RTL_REG_SYNC__BREG_1 \s1_ts_r_reg[12]
+(.C(clk_i),
+.CE(acc_w),
+.D(ts_ns_i[12]),
+.Q(s1_ts_r[12]),
+.RST(s1_ts_r__0));
+RTL_REG_SYNC__BREG_1 \s1_ts_r_reg[13]
+(.C(clk_i),
+.CE(acc_w),
+.D(ts_ns_i[13]),
+.Q(s1_ts_r[13]),
+.RST(s1_ts_r__0));
+RTL_REG_SYNC__BREG_1 \s1_ts_r_reg[14]
+(.C(clk_i),
+.CE(acc_w),
+.D(ts_ns_i[14]),
+.Q(s1_ts_r[14]),
+.RST(s1_ts_r__0));
+RTL_REG_SYNC__BREG_1 \s1_ts_r_reg[15]
+(.C(clk_i),
+.CE(acc_w),
+.D(ts_ns_i[15]),
+.Q(s1_ts_r[15]),
+.RST(s1_ts_r__0));
+RTL_REG_SYNC__BREG_1 \s1_ts_r_reg[16]
+(.C(clk_i),
+.CE(acc_w),
+.D(ts_ns_i[16]),
+.Q(s1_ts_r[16]),
+.RST(s1_ts_r__0));
+RTL_REG_SYNC__BREG_1 \s1_ts_r_reg[17]
+(.C(clk_i),
+.CE(acc_w),
+.D(ts_ns_i[17]),
+.Q(s1_ts_r[17]),
+.RST(s1_ts_r__0));
+RTL_REG_SYNC__BREG_1 \s1_ts_r_reg[18]
+(.C(clk_i),
+.CE(acc_w),
+.D(ts_ns_i[18]),
+.Q(s1_ts_r[18]),
+.RST(s1_ts_r__0));
+RTL_REG_SYNC__BREG_1 \s1_ts_r_reg[19]
+(.C(clk_i),
+.CE(acc_w),
+.D(ts_ns_i[19]),
+.Q(s1_ts_r[19]),
+.RST(s1_ts_r__0));
+RTL_REG_SYNC__BREG_1 \s1_ts_r_reg[1]
+(.C(clk_i),
+.CE(acc_w),
+.D(ts_ns_i[1]),
+.Q(s1_ts_r[1]),
+.RST(s1_ts_r__0));
+RTL_REG_SYNC__BREG_1 \s1_ts_r_reg[20]
+(.C(clk_i),
+.CE(acc_w),
+.D(ts_ns_i[20]),
+.Q(s1_ts_r[20]),
+.RST(s1_ts_r__0));
+RTL_REG_SYNC__BREG_1 \s1_ts_r_reg[21]
+(.C(clk_i),
+.CE(acc_w),
+.D(ts_ns_i[21]),
+.Q(s1_ts_r[21]),
+.RST(s1_ts_r__0));
+RTL_REG_SYNC__BREG_1 \s1_ts_r_reg[22]
+(.C(clk_i),
+.CE(acc_w),
+.D(ts_ns_i[22]),
+.Q(s1_ts_r[22]),
+.RST(s1_ts_r__0));
+RTL_REG_SYNC__BREG_1 \s1_ts_r_reg[23]
+(.C(clk_i),
+.CE(acc_w),
+.D(ts_ns_i[23]),
+.Q(s1_ts_r[23]),
+.RST(s1_ts_r__0));
+RTL_REG_SYNC__BREG_1 \s1_ts_r_reg[24]
+(.C(clk_i),
+.CE(acc_w),
+.D(ts_ns_i[24]),
+.Q(s1_ts_r[24]),
+.RST(s1_ts_r__0));
+RTL_REG_SYNC__BREG_1 \s1_ts_r_reg[25]
+(.C(clk_i),
+.CE(acc_w),
+.D(ts_ns_i[25]),
+.Q(s1_ts_r[25]),
+.RST(s1_ts_r__0));
+RTL_REG_SYNC__BREG_1 \s1_ts_r_reg[26]
+(.C(clk_i),
+.CE(acc_w),
+.D(ts_ns_i[26]),
+.Q(s1_ts_r[26]),
+.RST(s1_ts_r__0));
+RTL_REG_SYNC__BREG_1 \s1_ts_r_reg[27]
+(.C(clk_i),
+.CE(acc_w),
+.D(ts_ns_i[27]),
+.Q(s1_ts_r[27]),
+.RST(s1_ts_r__0));
+RTL_REG_SYNC__BREG_1 \s1_ts_r_reg[28]
+(.C(clk_i),
+.CE(acc_w),
+.D(ts_ns_i[28]),
+.Q(s1_ts_r[28]),
+.RST(s1_ts_r__0));
+RTL_REG_SYNC__BREG_1 \s1_ts_r_reg[29]
+(.C(clk_i),
+.CE(acc_w),
+.D(ts_ns_i[29]),
+.Q(s1_ts_r[29]),
+.RST(s1_ts_r__0));
+RTL_REG_SYNC__BREG_1 \s1_ts_r_reg[2]
+(.C(clk_i),
+.CE(acc_w),
+.D(ts_ns_i[2]),
+.Q(s1_ts_r[2]),
+.RST(s1_ts_r__0));
+RTL_REG_SYNC__BREG_1 \s1_ts_r_reg[30]
+(.C(clk_i),
+.CE(acc_w),
+.D(ts_ns_i[30]),
+.Q(s1_ts_r[30]),
+.RST(s1_ts_r__0));
+RTL_REG_SYNC__BREG_1 \s1_ts_r_reg[31]
+(.C(clk_i),
+.CE(acc_w),
+.D(ts_ns_i[31]),
+.Q(s1_ts_r[31]),
+.RST(s1_ts_r__0));
+RTL_REG_SYNC__BREG_1 \s1_ts_r_reg[3]
+(.C(clk_i),
+.CE(acc_w),
+.D(ts_ns_i[3]),
+.Q(s1_ts_r[3]),
+.RST(s1_ts_r__0));
+RTL_REG_SYNC__BREG_1 \s1_ts_r_reg[4]
+(.C(clk_i),
+.CE(acc_w),
+.D(ts_ns_i[4]),
+.Q(s1_ts_r[4]),
+.RST(s1_ts_r__0));
+RTL_REG_SYNC__BREG_1 \s1_ts_r_reg[5]
+(.C(clk_i),
+.CE(acc_w),
+.D(ts_ns_i[5]),
+.Q(s1_ts_r[5]),
+.RST(s1_ts_r__0));
+RTL_REG_SYNC__BREG_1 \s1_ts_r_reg[6]
+(.C(clk_i),
+.CE(acc_w),
+.D(ts_ns_i[6]),
+.Q(s1_ts_r[6]),
+.RST(s1_ts_r__0));
+RTL_REG_SYNC__BREG_1 \s1_ts_r_reg[7]
+(.C(clk_i),
+.CE(acc_w),
+.D(ts_ns_i[7]),
+.Q(s1_ts_r[7]),
+.RST(s1_ts_r__0));
+RTL_REG_SYNC__BREG_1 \s1_ts_r_reg[8]
+(.C(clk_i),
+.CE(acc_w),
+.D(ts_ns_i[8]),
+.Q(s1_ts_r[8]),
+.RST(s1_ts_r__0));
+RTL_REG_SYNC__BREG_1 \s1_ts_r_reg[9]
+(.C(clk_i),
+.CE(acc_w),
+.D(ts_ns_i[9]),
+.Q(s1_ts_r[9]),
+.RST(s1_ts_r__0));
+RTL_MUX s1_tu_r_i
+(.I0(\<const1> ),
+.I1(\<const0> ),
+.O(s1_tu_r__0),
+.S(rst_n));
+RTL_REG_SYNC__BREG_1 s1_tu_r_reg
+(.C(clk_i),
+.CE(acc_w),
+.D(tu_i),
+.Q(s1_tu_r),
+.RST(s1_tu_r__0));
+RTL_OR s1_v_r0_i
+(.I0(era_start_w),
+.I1(tout_r2_i_n_0),
+.O(s1_v_r0));
+RTL_MUX s1_v_r_i
+(.I0(\<const1> ),
+.I1(s1_v_r0),
+.O(s1_v_r__0),
+.S(rst_n));
+RTL_REG_SYNC__BREG_2 s1_v_r_reg
+(.C(clk_i),
+.D(acc_w),
+.Q(s1_v_r),
+.RST(s1_v_r__0));
+RTL_MINUS s2_abs_w0_i
+(.I0(s2_dev_r),
+.O(s2_abs_w0));
+RTL_MUX377 s2_abs_w_i
+(.I0(s2_abs_w0),
+.I1(s2_dev_r),
+.O({s2_abs_w_i_n_0,s2_abs_w_i_n_1,s2_abs_w_i_n_2,s2_abs_w_i_n_3,s2_abs_w_i_n_4,s2_abs_w_i_n_5,s2_abs_w_i_n_6,s2_abs_w_i_n_7,s2_abs_w_i_n_8,s2_abs_w_i_n_9,s2_abs_w_i_n_10,s2_abs_w_i_n_11,s2_abs_w_i_n_12,s2_abs_w_i_n_13,s2_abs_w_i_n_14,s2_abs_w_i_n_15,s2_abs_w_i_n_16,s2_abs_w_i_n_17,s2_abs_w_i_n_18,s2_abs_w_i_n_19,s2_abs_w_i_n_20,s2_abs_w_i_n_21,s2_abs_w_i_n_22,s2_abs_w_i_n_23,s2_abs_w_i_n_24,s2_abs_w_i_n_25,s2_abs_w_i_n_26,s2_abs_w_i_n_27,s2_abs_w_i_n_28,s2_abs_w_i_n_29,s2_abs_w_i_n_30,s2_abs_w_i_n_31}),
+.S(s2_dev_r[31]));
+RTL_ROM15 s2_dev_r0_i
+(.A(s1_seq_r[3:0]),
+.O(s2_dev_r0));
+RTL_MUX s2_dev_r_i
+(.I0(s2_dev_r0),
+.I1(\<const0> ),
+.O(s2_dev_r_i_n_0),
+.S(s1_v_r));
+RTL_MUX s2_dev_r_i__0
+(.I0(\<const1> ),
+.I1(s2_dev_r_i_n_0),
+.O(s2_dev_r__0),
+.S(rst_n));
+RTL_REG_SYNC__BREG_1 \s2_dev_r_reg[0]
+(.C(clk_i),
+.CE(s1_v_r),
+.D(s1_dev_w[0]),
+.Q(s2_dev_r[0]),
+.RST(s2_dev_r__0));
+RTL_REG_SYNC__BREG_1 \s2_dev_r_reg[10]
+(.C(clk_i),
+.CE(s1_v_r),
+.D(s1_dev_w[10]),
+.Q(s2_dev_r[10]),
+.RST(s2_dev_r__0));
+RTL_REG_SYNC__BREG_1 \s2_dev_r_reg[11]
+(.C(clk_i),
+.CE(s1_v_r),
+.D(s1_dev_w[11]),
+.Q(s2_dev_r[11]),
+.RST(s2_dev_r__0));
+RTL_REG_SYNC__BREG_1 \s2_dev_r_reg[12]
+(.C(clk_i),
+.CE(s1_v_r),
+.D(s1_dev_w[12]),
+.Q(s2_dev_r[12]),
+.RST(s2_dev_r__0));
+RTL_REG_SYNC__BREG_1 \s2_dev_r_reg[13]
+(.C(clk_i),
+.CE(s1_v_r),
+.D(s1_dev_w[13]),
+.Q(s2_dev_r[13]),
+.RST(s2_dev_r__0));
+RTL_REG_SYNC__BREG_1 \s2_dev_r_reg[14]
+(.C(clk_i),
+.CE(s1_v_r),
+.D(s1_dev_w[14]),
+.Q(s2_dev_r[14]),
+.RST(s2_dev_r__0));
+RTL_REG_SYNC__BREG_1 \s2_dev_r_reg[15]
+(.C(clk_i),
+.CE(s1_v_r),
+.D(s1_dev_w[15]),
+.Q(s2_dev_r[15]),
+.RST(s2_dev_r__0));
+RTL_REG_SYNC__BREG_1 \s2_dev_r_reg[16]
+(.C(clk_i),
+.CE(s1_v_r),
+.D(s1_dev_w[16]),
+.Q(s2_dev_r[16]),
+.RST(s2_dev_r__0));
+RTL_REG_SYNC__BREG_1 \s2_dev_r_reg[17]
+(.C(clk_i),
+.CE(s1_v_r),
+.D(s1_dev_w[17]),
+.Q(s2_dev_r[17]),
+.RST(s2_dev_r__0));
+RTL_REG_SYNC__BREG_1 \s2_dev_r_reg[18]
+(.C(clk_i),
+.CE(s1_v_r),
+.D(s1_dev_w[18]),
+.Q(s2_dev_r[18]),
+.RST(s2_dev_r__0));
+RTL_REG_SYNC__BREG_1 \s2_dev_r_reg[19]
+(.C(clk_i),
+.CE(s1_v_r),
+.D(s1_dev_w[19]),
+.Q(s2_dev_r[19]),
+.RST(s2_dev_r__0));
+RTL_REG_SYNC__BREG_1 \s2_dev_r_reg[1]
+(.C(clk_i),
+.CE(s1_v_r),
+.D(s1_dev_w[1]),
+.Q(s2_dev_r[1]),
+.RST(s2_dev_r__0));
+RTL_REG_SYNC__BREG_1 \s2_dev_r_reg[20]
+(.C(clk_i),
+.CE(s1_v_r),
+.D(s1_dev_w[20]),
+.Q(s2_dev_r[20]),
+.RST(s2_dev_r__0));
+RTL_REG_SYNC__BREG_1 \s2_dev_r_reg[21]
+(.C(clk_i),
+.CE(s1_v_r),
+.D(s1_dev_w[21]),
+.Q(s2_dev_r[21]),
+.RST(s2_dev_r__0));
+RTL_REG_SYNC__BREG_1 \s2_dev_r_reg[22]
+(.C(clk_i),
+.CE(s1_v_r),
+.D(s1_dev_w[22]),
+.Q(s2_dev_r[22]),
+.RST(s2_dev_r__0));
+RTL_REG_SYNC__BREG_1 \s2_dev_r_reg[23]
+(.C(clk_i),
+.CE(s1_v_r),
+.D(s1_dev_w[23]),
+.Q(s2_dev_r[23]),
+.RST(s2_dev_r__0));
+RTL_REG_SYNC__BREG_1 \s2_dev_r_reg[24]
+(.C(clk_i),
+.CE(s1_v_r),
+.D(s1_dev_w[24]),
+.Q(s2_dev_r[24]),
+.RST(s2_dev_r__0));
+RTL_REG_SYNC__BREG_1 \s2_dev_r_reg[25]
+(.C(clk_i),
+.CE(s1_v_r),
+.D(s1_dev_w[25]),
+.Q(s2_dev_r[25]),
+.RST(s2_dev_r__0));
+RTL_REG_SYNC__BREG_1 \s2_dev_r_reg[26]
+(.C(clk_i),
+.CE(s1_v_r),
+.D(s1_dev_w[26]),
+.Q(s2_dev_r[26]),
+.RST(s2_dev_r__0));
+RTL_REG_SYNC__BREG_1 \s2_dev_r_reg[27]
+(.C(clk_i),
+.CE(s1_v_r),
+.D(s1_dev_w[27]),
+.Q(s2_dev_r[27]),
+.RST(s2_dev_r__0));
+RTL_REG_SYNC__BREG_1 \s2_dev_r_reg[28]
+(.C(clk_i),
+.CE(s1_v_r),
+.D(s1_dev_w[28]),
+.Q(s2_dev_r[28]),
+.RST(s2_dev_r__0));
+RTL_REG_SYNC__BREG_1 \s2_dev_r_reg[29]
+(.C(clk_i),
+.CE(s1_v_r),
+.D(s1_dev_w[29]),
+.Q(s2_dev_r[29]),
+.RST(s2_dev_r__0));
+RTL_REG_SYNC__BREG_1 \s2_dev_r_reg[2]
+(.C(clk_i),
+.CE(s1_v_r),
+.D(s1_dev_w[2]),
+.Q(s2_dev_r[2]),
+.RST(s2_dev_r__0));
+RTL_REG_SYNC__BREG_1 \s2_dev_r_reg[30]
+(.C(clk_i),
+.CE(s1_v_r),
+.D(s1_dev_w[30]),
+.Q(s2_dev_r[30]),
+.RST(s2_dev_r__0));
+RTL_REG_SYNC__BREG_1 \s2_dev_r_reg[31]
+(.C(clk_i),
+.CE(s1_v_r),
+.D(s1_dev_w[31]),
+.Q(s2_dev_r[31]),
+.RST(s2_dev_r__0));
+RTL_REG_SYNC__BREG_1 \s2_dev_r_reg[3]
+(.C(clk_i),
+.CE(s1_v_r),
+.D(s1_dev_w[3]),
+.Q(s2_dev_r[3]),
+.RST(s2_dev_r__0));
+RTL_REG_SYNC__BREG_1 \s2_dev_r_reg[4]
+(.C(clk_i),
+.CE(s1_v_r),
+.D(s1_dev_w[4]),
+.Q(s2_dev_r[4]),
+.RST(s2_dev_r__0));
+RTL_REG_SYNC__BREG_1 \s2_dev_r_reg[5]
+(.C(clk_i),
+.CE(s1_v_r),
+.D(s1_dev_w[5]),
+.Q(s2_dev_r[5]),
+.RST(s2_dev_r__0));
+RTL_REG_SYNC__BREG_1 \s2_dev_r_reg[6]
+(.C(clk_i),
+.CE(s1_v_r),
+.D(s1_dev_w[6]),
+.Q(s2_dev_r[6]),
+.RST(s2_dev_r__0));
+RTL_REG_SYNC__BREG_1 \s2_dev_r_reg[7]
+(.C(clk_i),
+.CE(s1_v_r),
+.D(s1_dev_w[7]),
+.Q(s2_dev_r[7]),
+.RST(s2_dev_r__0));
+RTL_REG_SYNC__BREG_1 \s2_dev_r_reg[8]
+(.C(clk_i),
+.CE(s1_v_r),
+.D(s1_dev_w[8]),
+.Q(s2_dev_r[8]),
+.RST(s2_dev_r__0));
+RTL_REG_SYNC__BREG_1 \s2_dev_r_reg[9]
+(.C(clk_i),
+.CE(s1_v_r),
+.D(s1_dev_w[9]),
+.Q(s2_dev_r[9]),
+.RST(s2_dev_r__0));
+RTL_MUX s2_gap_r_i
+(.I0(\<const1> ),
+.I1(\<const0> ),
+.O(s2_gap_r__0),
+.S(rst_n));
+RTL_REG_SYNC__BREG_1 s2_gap_r_reg
+(.C(clk_i),
+.CE(s1_v_r),
+.D(s1_gap_w),
+.Q(s2_gap_r),
+.RST(s2_gap_r__0));
+RTL_LEQ0 s2_in_bound_w0_i
+(.I0(s2_dev_r),
+.I1({\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const1> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> }),
+.O(s2_in_bound_w0));
+RTL_GEQ1 s2_in_bound_w0_i__0
+(.I0(s2_dev_r),
+.I1({\<const1> ,\<const1> ,\<const1> ,\<const1> ,\<const1> ,\<const1> ,\<const1> ,\<const1> ,\<const1> ,\<const1> ,\<const1> ,\<const1> ,\<const1> ,\<const1> ,\<const1> ,\<const1> ,\<const1> ,\<const1> ,\<const1> ,\<const1> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> }),
+.O(s2_in_bound_w0_i__0_n_0));
+RTL_AND7 s2_in_bound_w_i
+(.I0(s2_in_bound_w0),
+.I1(s2_in_bound_w0_i__0_n_0),
+.O(s2_in_bound_w));
+RTL_MUX s2_mr_r_i
+(.I0(\<const1> ),
+.I1(\<const0> ),
+.O(s2_mr_r__0),
+.S(rst_n));
+RTL_REG_SYNC__BREG_1 s2_mr_r_reg
+(.C(clk_i),
+.CE(s1_v_r),
+.D(s1_mr_r),
+.Q(s2_mr_r),
+.RST(s2_mr_r__0));
+RTL_MUX s2_seq_r_i
+(.I0(\<const1> ),
+.I1(\<const0> ),
+.O(s2_seq_r),
+.S(rst_n));
+RTL_REG_SYNC__BREG_1 \s2_seq_r_reg[0]
+(.C(clk_i),
+.CE(s1_v_r),
+.D(s1_seq_r[0]),
+.Q(s2_pos_w[0]),
+.RST(s2_seq_r));
+RTL_REG_SYNC__BREG_1 \s2_seq_r_reg[1]
+(.C(clk_i),
+.CE(s1_v_r),
+.D(s1_seq_r[1]),
+.Q(s2_pos_w[1]),
+.RST(s2_seq_r));
+RTL_REG_SYNC__BREG_1 \s2_seq_r_reg[2]
+(.C(clk_i),
+.CE(s1_v_r),
+.D(s1_seq_r[2]),
+.Q(s2_pos_w[2]),
+.RST(s2_seq_r));
+RTL_REG_SYNC__BREG_1 \s2_seq_r_reg[3]
+(.C(clk_i),
+.CE(s1_v_r),
+.D(s1_seq_r[3]),
+.Q(s2_pos_w[3]),
+.RST(s2_seq_r));
+RTL_REG_SYNC__BREG_1 \s2_seq_r_reg[4]
+(.C(clk_i),
+.CE(s1_v_r),
+.D(s1_seq_r[4]),
+.Q(s2_gid_w[0]),
+.RST(s2_seq_r));
+RTL_REG_SYNC__BREG_1 \s2_seq_r_reg[5]
+(.C(clk_i),
+.CE(s1_v_r),
+.D(s1_seq_r[5]),
+.Q(s2_gid_w[1]),
+.RST(s2_seq_r));
+RTL_REG_SYNC__BREG_1 \s2_seq_r_reg[6]
+(.C(clk_i),
+.CE(s1_v_r),
+.D(s1_seq_r[6]),
+.Q(s2_gid_w[2]),
+.RST(s2_seq_r));
+RTL_REG_SYNC__BREG_1 \s2_seq_r_reg[7]
+(.C(clk_i),
+.CE(s1_v_r),
+.D(s1_seq_r[7]),
+.Q(s2_gid_w[3]),
+.RST(s2_seq_r));
+RTL_MUX s2_ts_r_i
+(.I0(\<const1> ),
+.I1(\<const0> ),
+.O(s2_ts_r__0),
+.S(rst_n));
+RTL_REG_SYNC__BREG_1 \s2_ts_r_reg[0]
+(.C(clk_i),
+.CE(s1_v_r),
+.D(s1_ts_r[0]),
+.Q(s2_ts_r[0]),
+.RST(s2_ts_r__0));
+RTL_REG_SYNC__BREG_1 \s2_ts_r_reg[10]
+(.C(clk_i),
+.CE(s1_v_r),
+.D(s1_ts_r[10]),
+.Q(s2_ts_r[10]),
+.RST(s2_ts_r__0));
+RTL_REG_SYNC__BREG_1 \s2_ts_r_reg[11]
+(.C(clk_i),
+.CE(s1_v_r),
+.D(s1_ts_r[11]),
+.Q(s2_ts_r[11]),
+.RST(s2_ts_r__0));
+RTL_REG_SYNC__BREG_1 \s2_ts_r_reg[12]
+(.C(clk_i),
+.CE(s1_v_r),
+.D(s1_ts_r[12]),
+.Q(s2_ts_r[12]),
+.RST(s2_ts_r__0));
+RTL_REG_SYNC__BREG_1 \s2_ts_r_reg[13]
+(.C(clk_i),
+.CE(s1_v_r),
+.D(s1_ts_r[13]),
+.Q(s2_ts_r[13]),
+.RST(s2_ts_r__0));
+RTL_REG_SYNC__BREG_1 \s2_ts_r_reg[14]
+(.C(clk_i),
+.CE(s1_v_r),
+.D(s1_ts_r[14]),
+.Q(s2_ts_r[14]),
+.RST(s2_ts_r__0));
+RTL_REG_SYNC__BREG_1 \s2_ts_r_reg[15]
+(.C(clk_i),
+.CE(s1_v_r),
+.D(s1_ts_r[15]),
+.Q(s2_ts_r[15]),
+.RST(s2_ts_r__0));
+RTL_REG_SYNC__BREG_1 \s2_ts_r_reg[16]
+(.C(clk_i),
+.CE(s1_v_r),
+.D(s1_ts_r[16]),
+.Q(s2_ts_r[16]),
+.RST(s2_ts_r__0));
+RTL_REG_SYNC__BREG_1 \s2_ts_r_reg[17]
+(.C(clk_i),
+.CE(s1_v_r),
+.D(s1_ts_r[17]),
+.Q(s2_ts_r[17]),
+.RST(s2_ts_r__0));
+RTL_REG_SYNC__BREG_1 \s2_ts_r_reg[18]
+(.C(clk_i),
+.CE(s1_v_r),
+.D(s1_ts_r[18]),
+.Q(s2_ts_r[18]),
+.RST(s2_ts_r__0));
+RTL_REG_SYNC__BREG_1 \s2_ts_r_reg[19]
+(.C(clk_i),
+.CE(s1_v_r),
+.D(s1_ts_r[19]),
+.Q(s2_ts_r[19]),
+.RST(s2_ts_r__0));
+RTL_REG_SYNC__BREG_1 \s2_ts_r_reg[1]
+(.C(clk_i),
+.CE(s1_v_r),
+.D(s1_ts_r[1]),
+.Q(s2_ts_r[1]),
+.RST(s2_ts_r__0));
+RTL_REG_SYNC__BREG_1 \s2_ts_r_reg[20]
+(.C(clk_i),
+.CE(s1_v_r),
+.D(s1_ts_r[20]),
+.Q(s2_ts_r[20]),
+.RST(s2_ts_r__0));
+RTL_REG_SYNC__BREG_1 \s2_ts_r_reg[21]
+(.C(clk_i),
+.CE(s1_v_r),
+.D(s1_ts_r[21]),
+.Q(s2_ts_r[21]),
+.RST(s2_ts_r__0));
+RTL_REG_SYNC__BREG_1 \s2_ts_r_reg[22]
+(.C(clk_i),
+.CE(s1_v_r),
+.D(s1_ts_r[22]),
+.Q(s2_ts_r[22]),
+.RST(s2_ts_r__0));
+RTL_REG_SYNC__BREG_1 \s2_ts_r_reg[23]
+(.C(clk_i),
+.CE(s1_v_r),
+.D(s1_ts_r[23]),
+.Q(s2_ts_r[23]),
+.RST(s2_ts_r__0));
+RTL_REG_SYNC__BREG_1 \s2_ts_r_reg[24]
+(.C(clk_i),
+.CE(s1_v_r),
+.D(s1_ts_r[24]),
+.Q(s2_ts_r[24]),
+.RST(s2_ts_r__0));
+RTL_REG_SYNC__BREG_1 \s2_ts_r_reg[25]
+(.C(clk_i),
+.CE(s1_v_r),
+.D(s1_ts_r[25]),
+.Q(s2_ts_r[25]),
+.RST(s2_ts_r__0));
+RTL_REG_SYNC__BREG_1 \s2_ts_r_reg[26]
+(.C(clk_i),
+.CE(s1_v_r),
+.D(s1_ts_r[26]),
+.Q(s2_ts_r[26]),
+.RST(s2_ts_r__0));
+RTL_REG_SYNC__BREG_1 \s2_ts_r_reg[27]
+(.C(clk_i),
+.CE(s1_v_r),
+.D(s1_ts_r[27]),
+.Q(s2_ts_r[27]),
+.RST(s2_ts_r__0));
+RTL_REG_SYNC__BREG_1 \s2_ts_r_reg[28]
+(.C(clk_i),
+.CE(s1_v_r),
+.D(s1_ts_r[28]),
+.Q(s2_ts_r[28]),
+.RST(s2_ts_r__0));
+RTL_REG_SYNC__BREG_1 \s2_ts_r_reg[29]
+(.C(clk_i),
+.CE(s1_v_r),
+.D(s1_ts_r[29]),
+.Q(s2_ts_r[29]),
+.RST(s2_ts_r__0));
+RTL_REG_SYNC__BREG_1 \s2_ts_r_reg[2]
+(.C(clk_i),
+.CE(s1_v_r),
+.D(s1_ts_r[2]),
+.Q(s2_ts_r[2]),
+.RST(s2_ts_r__0));
+RTL_REG_SYNC__BREG_1 \s2_ts_r_reg[30]
+(.C(clk_i),
+.CE(s1_v_r),
+.D(s1_ts_r[30]),
+.Q(s2_ts_r[30]),
+.RST(s2_ts_r__0));
+RTL_REG_SYNC__BREG_1 \s2_ts_r_reg[31]
+(.C(clk_i),
+.CE(s1_v_r),
+.D(s1_ts_r[31]),
+.Q(s2_ts_r[31]),
+.RST(s2_ts_r__0));
+RTL_REG_SYNC__BREG_1 \s2_ts_r_reg[3]
+(.C(clk_i),
+.CE(s1_v_r),
+.D(s1_ts_r[3]),
+.Q(s2_ts_r[3]),
+.RST(s2_ts_r__0));
+RTL_REG_SYNC__BREG_1 \s2_ts_r_reg[4]
+(.C(clk_i),
+.CE(s1_v_r),
+.D(s1_ts_r[4]),
+.Q(s2_ts_r[4]),
+.RST(s2_ts_r__0));
+RTL_REG_SYNC__BREG_1 \s2_ts_r_reg[5]
+(.C(clk_i),
+.CE(s1_v_r),
+.D(s1_ts_r[5]),
+.Q(s2_ts_r[5]),
+.RST(s2_ts_r__0));
+RTL_REG_SYNC__BREG_1 \s2_ts_r_reg[6]
+(.C(clk_i),
+.CE(s1_v_r),
+.D(s1_ts_r[6]),
+.Q(s2_ts_r[6]),
+.RST(s2_ts_r__0));
+RTL_REG_SYNC__BREG_1 \s2_ts_r_reg[7]
+(.C(clk_i),
+.CE(s1_v_r),
+.D(s1_ts_r[7]),
+.Q(s2_ts_r[7]),
+.RST(s2_ts_r__0));
+RTL_REG_SYNC__BREG_1 \s2_ts_r_reg[8]
+(.C(clk_i),
+.CE(s1_v_r),
+.D(s1_ts_r[8]),
+.Q(s2_ts_r[8]),
+.RST(s2_ts_r__0));
+RTL_REG_SYNC__BREG_1 \s2_ts_r_reg[9]
+(.C(clk_i),
+.CE(s1_v_r),
+.D(s1_ts_r[9]),
+.Q(s2_ts_r[9]),
+.RST(s2_ts_r__0));
+RTL_NEQ6 s2_tu_edge_w0_i
+(.I0(s2_tu_r),
+.I1(prev_tu_r),
+.O(s2_tu_edge_w0));
+RTL_AND7 s2_tu_edge_w_i
+(.I0(tu_seeded_r),
+.I1(s2_tu_edge_w0),
+.O(s2_tu_edge_w));
+RTL_MUX s2_tu_r_i
+(.I0(\<const1> ),
+.I1(\<const0> ),
+.O(s2_tu_r__0),
+.S(rst_n));
+RTL_REG_SYNC__BREG_1 s2_tu_r_reg
+(.C(clk_i),
+.CE(s1_v_r),
+.D(s1_tu_r),
+.Q(s2_tu_r),
+.RST(s2_tu_r__0));
+RTL_MUX s2_v_r_i
+(.I0(\<const1> ),
+.I1(s1_v_r0),
+.O(s2_v_r__0),
+.S(rst_n));
+RTL_REG_SYNC__BREG_2 s2_v_r_reg
+(.C(clk_i),
+.D(s1_v_r),
+.Q(s2_v_r),
+.RST(s2_v_r__0));
+RTL_LSHIFT0 sdl_for_return0_i
+(.I0({\<const0> ,\<const0> ,\<const0> ,fsh_i[49:40]}),
+.I1({\<const1> ,\<const1> }),
+.I2(\<const1> ),
+.O(sdl_for_return00_in));
+RTL_LSHIFT1 sdl_for_return0_i__0
+(.I0({\<const0> ,\<const0> ,\<const0> ,\<const0> ,fsh_i[49:40]}),
+.I1({\<const1> ,\<const0> ,\<const0> }),
+.I2(\<const1> ),
+.O(sdl_for_return0));
+RTL_ADD28 sdl_for_return_i
+(.I0(sdl_for_return00_in),
+.I1(sdl_for_return0),
+.O(sdl_for_return));
+RTL_ADD0 settle_r0_i
+(.I0(settle_r),
+.I1(\<const1> ),
+.O({settle_r0_i_n_0,settle_r0_i_n_1,settle_r0_i_n_2}));
+RTL_NEQ0 settle_r0_i__0
+(.I0(settle_r),
+.I1({\<const1> ,\<const1> ,\<const1> }),
+.O(settle_r0));
+RTL_MUX settle_r_i
+(.I0(settle_r0),
+.I1(\<const0> ),
+.O(settle_r__0),
+.S(s2_v_r));
+RTL_MUX settle_r_i__0
+(.I0(s2_gap_r),
+.I1(\<const0> ),
+.O(settle_r_i__0_n_0),
+.S(s2_v_r));
+RTL_MUX settle_r_i__1
+(.I0(\<const1> ),
+.I1(settle_r_i__0_n_0),
+.O(settle_r_i__1_n_0),
+.S(s1_v_r0));
+RTL_MUX settle_r_i__2
+(.I0(\<const1> ),
+.I1(settle_r_i__1_n_0),
+.O(settle_r_i__2_n_0),
+.S(rst_n));
+RTL_REG_SYNC__BREG_1 \settle_r_reg[0]
+(.C(clk_i),
+.CE(settle_r__0),
+.D(settle_r0_i_n_2),
+.Q(settle_r[0]),
+.RST(settle_r_i__2_n_0));
+RTL_REG_SYNC__BREG_1 \settle_r_reg[1]
+(.C(clk_i),
+.CE(settle_r__0),
+.D(settle_r0_i_n_1),
+.Q(settle_r[1]),
+.RST(settle_r_i__2_n_0));
+RTL_REG_SYNC__BREG_1 \settle_r_reg[2]
+(.C(clk_i),
+.CE(settle_r__0),
+.D(settle_r0_i_n_0),
+.Q(settle_r[2]),
+.RST(settle_r_i__2_n_0));
+RTL_MUX stopped_w_i
+(.I0(stopped_i),
+.I1(\<const0> ),
+.O(stopped_w),
+.S(follow_idx_i));
+RTL_EQ25 tout_fire_w0_i
+(.I0(tout_r),
+.I1({\<const1> ,\<const0> ,\<const0> ,\<const1> ,\<const1> ,\<const0> ,\<const0> ,\<const0> ,\<const1> ,\<const0> ,\<const0> ,\<const1> ,\<const0> ,\<const1> ,\<const1> ,\<const0> ,\<const1> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> }),
+.O(tout_fire_w0));
+RTL_AND7 tout_fire_w_i
+(.I0(en_i),
+.I1(tout_fire_w0),
+.O(tout_fire_w));
+RTL_ADD17 tout_r0_i
+(.I0(tout_r),
+.I1(\<const1> ),
+.O({tout_r0_i_n_0,tout_r0_i_n_1,tout_r0_i_n_2,tout_r0_i_n_3,tout_r0_i_n_4,tout_r0_i_n_5,tout_r0_i_n_6,tout_r0_i_n_7,tout_r0_i_n_8,tout_r0_i_n_9,tout_r0_i_n_10,tout_r0_i_n_11,tout_r0_i_n_12,tout_r0_i_n_13,tout_r0_i_n_14,tout_r0_i_n_15,tout_r0_i_n_16,tout_r0_i_n_17,tout_r0_i_n_18,tout_r0_i_n_19,tout_r0_i_n_20,tout_r0_i_n_21,tout_r0_i_n_22}));
+RTL_OR tout_r0_i__0
+(.I0(tout_r1),
+.I1(era_start_w),
+.O(tout_r0));
+RTL_OR tout_r1_i
+(.I0(tout_r2_i_n_0),
+.I1(acc_w),
+.O(tout_r1));
+RTL_INV tout_r2_i
+(.I0(en_i),
+.O(tout_r2_i_n_0));
+RTL_MUX tout_r_i
+(.I0(\<const1> ),
+.I1(tout_r0),
+.O(tout_r__0),
+.S(rst_n));
+RTL_REG_SYNC__BREG_2 \tout_r_reg[0]
+(.C(clk_i),
+.D(tout_r0_i_n_22),
+.Q(tout_r[0]),
+.RST(tout_r__0));
+RTL_REG_SYNC__BREG_2 \tout_r_reg[10]
+(.C(clk_i),
+.D(tout_r0_i_n_12),
+.Q(tout_r[10]),
+.RST(tout_r__0));
+RTL_REG_SYNC__BREG_2 \tout_r_reg[11]
+(.C(clk_i),
+.D(tout_r0_i_n_11),
+.Q(tout_r[11]),
+.RST(tout_r__0));
+RTL_REG_SYNC__BREG_2 \tout_r_reg[12]
+(.C(clk_i),
+.D(tout_r0_i_n_10),
+.Q(tout_r[12]),
+.RST(tout_r__0));
+RTL_REG_SYNC__BREG_2 \tout_r_reg[13]
+(.C(clk_i),
+.D(tout_r0_i_n_9),
+.Q(tout_r[13]),
+.RST(tout_r__0));
+RTL_REG_SYNC__BREG_2 \tout_r_reg[14]
+(.C(clk_i),
+.D(tout_r0_i_n_8),
+.Q(tout_r[14]),
+.RST(tout_r__0));
+RTL_REG_SYNC__BREG_2 \tout_r_reg[15]
+(.C(clk_i),
+.D(tout_r0_i_n_7),
+.Q(tout_r[15]),
+.RST(tout_r__0));
+RTL_REG_SYNC__BREG_2 \tout_r_reg[16]
+(.C(clk_i),
+.D(tout_r0_i_n_6),
+.Q(tout_r[16]),
+.RST(tout_r__0));
+RTL_REG_SYNC__BREG_2 \tout_r_reg[17]
+(.C(clk_i),
+.D(tout_r0_i_n_5),
+.Q(tout_r[17]),
+.RST(tout_r__0));
+RTL_REG_SYNC__BREG_2 \tout_r_reg[18]
+(.C(clk_i),
+.D(tout_r0_i_n_4),
+.Q(tout_r[18]),
+.RST(tout_r__0));
+RTL_REG_SYNC__BREG_2 \tout_r_reg[19]
+(.C(clk_i),
+.D(tout_r0_i_n_3),
+.Q(tout_r[19]),
+.RST(tout_r__0));
+RTL_REG_SYNC__BREG_2 \tout_r_reg[1]
+(.C(clk_i),
+.D(tout_r0_i_n_21),
+.Q(tout_r[1]),
+.RST(tout_r__0));
+RTL_REG_SYNC__BREG_2 \tout_r_reg[20]
+(.C(clk_i),
+.D(tout_r0_i_n_2),
+.Q(tout_r[20]),
+.RST(tout_r__0));
+RTL_REG_SYNC__BREG_2 \tout_r_reg[21]
+(.C(clk_i),
+.D(tout_r0_i_n_1),
+.Q(tout_r[21]),
+.RST(tout_r__0));
+RTL_REG_SYNC__BREG_2 \tout_r_reg[22]
+(.C(clk_i),
+.D(tout_r0_i_n_0),
+.Q(tout_r[22]),
+.RST(tout_r__0));
+RTL_REG_SYNC__BREG_2 \tout_r_reg[2]
+(.C(clk_i),
+.D(tout_r0_i_n_20),
+.Q(tout_r[2]),
+.RST(tout_r__0));
+RTL_REG_SYNC__BREG_2 \tout_r_reg[3]
+(.C(clk_i),
+.D(tout_r0_i_n_19),
+.Q(tout_r[3]),
+.RST(tout_r__0));
+RTL_REG_SYNC__BREG_2 \tout_r_reg[4]
+(.C(clk_i),
+.D(tout_r0_i_n_18),
+.Q(tout_r[4]),
+.RST(tout_r__0));
+RTL_REG_SYNC__BREG_2 \tout_r_reg[5]
+(.C(clk_i),
+.D(tout_r0_i_n_17),
+.Q(tout_r[5]),
+.RST(tout_r__0));
+RTL_REG_SYNC__BREG_2 \tout_r_reg[6]
+(.C(clk_i),
+.D(tout_r0_i_n_16),
+.Q(tout_r[6]),
+.RST(tout_r__0));
+RTL_REG_SYNC__BREG_2 \tout_r_reg[7]
+(.C(clk_i),
+.D(tout_r0_i_n_15),
+.Q(tout_r[7]),
+.RST(tout_r__0));
+RTL_REG_SYNC__BREG_2 \tout_r_reg[8]
+(.C(clk_i),
+.D(tout_r0_i_n_14),
+.Q(tout_r[8]),
+.RST(tout_r__0));
+RTL_REG_SYNC__BREG_2 \tout_r_reg[9]
+(.C(clk_i),
+.D(tout_r0_i_n_13),
+.Q(tout_r[9]),
+.RST(tout_r__0));
+RTL_MUX tu_seeded_r_i
+(.I0(\<const1> ),
+.I1(s1_v_r0),
+.O(tu_seeded_r__0),
+.S(rst_n));
+RTL_REG_SYNC__BREG_169 tu_seeded_r_reg
+(.C(clk_i),
+.CE(\<const0> ),
+.D(\<const0> ),
+.Q(tu_seeded_r),
+.RST(tu_seeded_r__0),
+.SET(s2_v_r));
+endmodule
+module KL_aaf_latency_chain
+(clk_i,
+rst_n,
+en_i,
+clr_i,
+cyc_i,
+now_i,
+stage_p_i,
+epoch_o,
+samples_o,
+timeouts_o,
+last_o,
+min_o,
+max_o,
+active_o,
+stage_o);
+input clk_i;
+input rst_n;
+input en_i;
+input clr_i;
+input [31:0]cyc_i;
+input [31:0]now_i;
+input [3:0]stage_p_i;
+output [31:0]epoch_o;
+output [15:0]samples_o;
+output [15:0]timeouts_o;
+output [47:0]last_o;
+output [47:0]min_o;
+output [47:0]max_o;
+output active_o;
+output [2:0]stage_o;
+wire \<const0> ;
+wire \<const1> ;
+wire RTL_ADD_n_0;
+wire RTL_ADD_n_1;
+wire RTL_ADD_n_2;
+wire RTL_ADD_n_3;
+wire RTL_AND__0_n_0;
+wire RTL_AND__1_n_0;
+wire RTL_AND_n_0;
+wire RTL_GEQ__0_n_0;
+wire RTL_GEQ__1_n_0;
+wire RTL_GEQ_n_0;
+wire RTL_GT__0_n_0;
+wire RTL_GT__1_n_0;
+wire RTL_GT_n_0;
+wire RTL_LT__1_n_0;
+wire RTL_LT__2_n_0;
+wire RTL_LT__3_n_0;
+wire RTL_LT__4_n_0;
+wire RTL_LT__5_n_0;
+wire RTL_LT__6_n_0;
+wire RTL_LT__7_n_0;
+wire RTL_LT_n_0;
+wire active_o;
+wire active_r;
+wire active_r0;
+wire active_r1;
+wire active_r1_i__1_n_0;
+wire active_r1_i__1_n_1;
+wire active_r1_i__1_n_2;
+wire active_r1_i__1_n_3;
+wire active_r1_i__1_n_4;
+wire active_r1_i_n_0;
+wire active_r1_out;
+wire [3:0]active_r2;
+wire active_r2_out;
+wire active_r_i__2_n_0;
+wire active_r_i__3_n_0;
+wire active_r_i__5_n_0;
+wire active_r_i__6_n_0;
+wire active_r_i__7_n_0;
+wire active_r_i_n_0;
+wire \adv_scan.run_v ;
+wire \adv_scan.run_v1 ;
+wire \adv_scan.run_v1_i_n_0 ;
+wire \adv_scan.run_v2 ;
+wire \adv_scan.run_v_i_n_0 ;
+wire [1:0]\chain_fsm.(null)[0].didx ;
+wire [15:0]\chain_fsm.(null)[0].meas ;
+wire clk_i;
+wire clr_i;
+wire [31:0]cyc_i;
+wire en_i;
+wire [31:0]epoch_o;
+wire [31:0]epoch_pend_r;
+wire epoch_pend_r__0;
+wire epoch_pend_r_i__0_n_0;
+wire epoch_pend_r_i__2_n_0;
+wire epoch_pend_r_i_n_0;
+wire [31:0]epoch_r;
+wire epoch_r_i__0_n_0;
+wire epoch_r_i__1_n_0;
+wire epoch_r_i__2_n_0;
+wire epoch_r_i__3_n_0;
+wire epoch_r_i__4_n_0;
+wire epoch_r_i__5_n_0;
+wire epoch_r_i__6_n_0;
+wire epoch_r_i__7_n_0;
+wire [15:0]hopd0_return;
+wire [15:0]hopd1_return;
+wire [15:0]hopd_return;
+wire [47:0]last_o;
+wire last_r;
+wire last_r_i__0_n_0;
+wire last_r_i__10_n_0;
+wire last_r_i__11_n_0;
+wire last_r_i__12_n_0;
+wire last_r_i__13_n_0;
+wire last_r_i__14_n_0;
+wire last_r_i__15_n_0;
+wire last_r_i__16_n_0;
+wire last_r_i__17_n_0;
+wire last_r_i__18_n_0;
+wire last_r_i__19_n_0;
+wire last_r_i__1_n_0;
+wire last_r_i__20_n_0;
+wire last_r_i__21_n_0;
+wire last_r_i__22_n_0;
+wire last_r_i__23_n_0;
+wire last_r_i__24_n_0;
+wire last_r_i__25_n_0;
+wire last_r_i__26_n_0;
+wire last_r_i__27_n_0;
+wire last_r_i__28_n_0;
+wire last_r_i__3_n_0;
+wire last_r_i__4_n_0;
+wire last_r_i__5_n_0;
+wire last_r_i__6_n_0;
+wire last_r_i__7_n_0;
+wire last_r_i__8_n_0;
+wire last_r_i__9_n_0;
+wire last_r_i_n_0;
+wire [47:0]max_o;
+wire max_r;
+wire max_r_i__0_n_0;
+wire max_r_i__10_n_0;
+wire max_r_i__11_n_0;
+wire max_r_i__12_n_0;
+wire max_r_i__13_n_0;
+wire max_r_i__14_n_0;
+wire max_r_i__15_n_0;
+wire max_r_i__16_n_0;
+wire max_r_i__1_n_0;
+wire max_r_i__2_n_0;
+wire max_r_i__4_n_0;
+wire max_r_i__5_n_0;
+wire max_r_i__6_n_0;
+wire max_r_i__7_n_0;
+wire max_r_i__8_n_0;
+wire max_r_i__9_n_0;
+wire max_r_i_n_0;
+wire [47:0]min_o;
+wire min_r;
+wire min_r_i__0_n_0;
+wire min_r_i__10_n_0;
+wire min_r_i__11_n_0;
+wire min_r_i__12_n_0;
+wire min_r_i__13_n_0;
+wire min_r_i__14_n_0;
+wire min_r_i__15_n_0;
+wire min_r_i__16_n_0;
+wire min_r_i__17_n_0;
+wire min_r_i__18_n_0;
+wire min_r_i__19_n_0;
+wire min_r_i__1_n_0;
+wire min_r_i__20_n_0;
+wire min_r_i__21_n_0;
+wire min_r_i__22_n_0;
+wire min_r_i__23_n_0;
+wire min_r_i__24_n_0;
+wire min_r_i__25_n_0;
+wire min_r_i__26_n_0;
+wire min_r_i__27_n_0;
+wire min_r_i__28_n_0;
+wire min_r_i__2_n_0;
+wire min_r_i__4_n_0;
+wire min_r_i__5_n_0;
+wire min_r_i__6_n_0;
+wire min_r_i__7_n_0;
+wire min_r_i__8_n_0;
+wire min_r_i__9_n_0;
+wire min_r_i_n_0;
+wire [1:0]nadv0_w;
+wire nadv0_w_i__0_n_0;
+wire nadv0_w_i__0_n_1;
+wire nadv0_w_i_n_0;
+wire nadv0_w_i_n_1;
+wire [2:0]nadv_w;
+wire [2:0]nadv_w0;
+wire nadv_w0_i_n_0;
+wire nadv_w0_i_n_1;
+wire nadv_w_i__0_n_0;
+wire nadv_w_i__0_n_1;
+wire nadv_w_i__1_n_0;
+wire nadv_w_i__1_n_1;
+wire nadv_w_i__2_n_0;
+wire nadv_w_i__2_n_1;
+wire nadv_w_i__2_n_2;
+wire nadv_w_i_n_0;
+wire [31:0]now_i;
+wire [15:0]p_0_in;
+wire p_0_out;
+wire [15:0]p_1_in;
+wire p_1_out;
+wire [31:0]prevc_r;
+wire prevc_r__0;
+wire prevc_r_i__0_n_0;
+wire prevc_r_i__1_n_0;
+wire prevc_r_i__3_n_0;
+wire prevc_r_i_n_0;
+wire rst_n;
+wire [15:0]samples_o;
+wire samples_r;
+wire samples_r0;
+wire samples_r0_i_n_0;
+wire samples_r0_i_n_1;
+wire samples_r0_i_n_10;
+wire samples_r0_i_n_11;
+wire samples_r0_i_n_12;
+wire samples_r0_i_n_13;
+wire samples_r0_i_n_14;
+wire samples_r0_i_n_15;
+wire samples_r0_i_n_2;
+wire samples_r0_i_n_3;
+wire samples_r0_i_n_4;
+wire samples_r0_i_n_5;
+wire samples_r0_i_n_6;
+wire samples_r0_i_n_7;
+wire samples_r0_i_n_8;
+wire samples_r0_i_n_9;
+wire samples_r2;
+wire samples_r_i__0_n_0;
+wire samples_r_i__1_n_0;
+wire samples_r_i__2_n_0;
+wire samples_r_i__3_n_0;
+wire samples_r_i__4_n_0;
+wire samples_r_i__5_n_0;
+wire samples_r_i__7_n_0;
+wire samples_r_i_n_0;
+wire [2:0]stage_o;
+wire [3:0]stage_p_i;
+wire [1:0]stg_r;
+wire [1:0]stg_r0;
+wire stg_r0_i__0_n_0;
+wire stg_r0_i__0_n_1;
+wire [1:0]stg_r__0;
+wire stg_r_i__0_n_0;
+wire stg_r_i__10_n_0;
+wire stg_r_i__11_n_0;
+wire stg_r_i__1_n_0;
+wire stg_r_i__2_n_0;
+wire stg_r_i__3_n_0;
+wire stg_r_i__4_n_0;
+wire stg_r_i__5_n_0;
+wire stg_r_i__6_n_0;
+wire stg_r_i__7_n_0;
+wire stg_r_i__8_n_0;
+wire stg_r_i__9_n_0;
+wire [15:0]timeouts_o;
+wire timeouts_r;
+wire timeouts_r0;
+wire timeouts_r0_i_n_0;
+wire timeouts_r0_i_n_1;
+wire timeouts_r0_i_n_10;
+wire timeouts_r0_i_n_11;
+wire timeouts_r0_i_n_12;
+wire timeouts_r0_i_n_13;
+wire timeouts_r0_i_n_14;
+wire timeouts_r0_i_n_15;
+wire timeouts_r0_i_n_2;
+wire timeouts_r0_i_n_3;
+wire timeouts_r0_i_n_4;
+wire timeouts_r0_i_n_5;
+wire timeouts_r0_i_n_6;
+wire timeouts_r0_i_n_7;
+wire timeouts_r0_i_n_8;
+wire timeouts_r0_i_n_9;
+wire timeouts_r2;
+wire timeouts_r_i__0_n_0;
+wire timeouts_r_i__2_n_0;
+wire timeouts_r_i_n_0;
+wire [14:0]to_r;
+wire [14:0]to_r0;
+wire to_r0_out;
+wire [14:0]to_r__0;
+wire to_r_i__0_n_0;
+wire to_r_i__10_n_0;
+wire to_r_i__10_n_1;
+wire to_r_i__10_n_10;
+wire to_r_i__10_n_11;
+wire to_r_i__10_n_12;
+wire to_r_i__10_n_13;
+wire to_r_i__10_n_14;
+wire to_r_i__10_n_2;
+wire to_r_i__10_n_3;
+wire to_r_i__10_n_4;
+wire to_r_i__10_n_5;
+wire to_r_i__10_n_6;
+wire to_r_i__10_n_7;
+wire to_r_i__10_n_8;
+wire to_r_i__10_n_9;
+wire to_r_i__11_n_0;
+wire to_r_i__11_n_1;
+wire to_r_i__11_n_10;
+wire to_r_i__11_n_11;
+wire to_r_i__11_n_12;
+wire to_r_i__11_n_13;
+wire to_r_i__11_n_14;
+wire to_r_i__11_n_2;
+wire to_r_i__11_n_3;
+wire to_r_i__11_n_4;
+wire to_r_i__11_n_5;
+wire to_r_i__11_n_6;
+wire to_r_i__11_n_7;
+wire to_r_i__11_n_8;
+wire to_r_i__11_n_9;
+wire to_r_i__12_n_0;
+wire to_r_i__12_n_1;
+wire to_r_i__12_n_10;
+wire to_r_i__12_n_11;
+wire to_r_i__12_n_12;
+wire to_r_i__12_n_13;
+wire to_r_i__12_n_14;
+wire to_r_i__12_n_2;
+wire to_r_i__12_n_3;
+wire to_r_i__12_n_4;
+wire to_r_i__12_n_5;
+wire to_r_i__12_n_6;
+wire to_r_i__12_n_7;
+wire to_r_i__12_n_8;
+wire to_r_i__12_n_9;
+wire to_r_i__1_n_0;
+wire to_r_i__2_n_0;
+wire to_r_i__4_n_0;
+wire to_r_i__4_n_1;
+wire to_r_i__4_n_10;
+wire to_r_i__4_n_11;
+wire to_r_i__4_n_12;
+wire to_r_i__4_n_13;
+wire to_r_i__4_n_14;
+wire to_r_i__4_n_2;
+wire to_r_i__4_n_3;
+wire to_r_i__4_n_4;
+wire to_r_i__4_n_5;
+wire to_r_i__4_n_6;
+wire to_r_i__4_n_7;
+wire to_r_i__4_n_8;
+wire to_r_i__4_n_9;
+wire to_r_i__5_n_0;
+wire to_r_i__5_n_1;
+wire to_r_i__5_n_10;
+wire to_r_i__5_n_11;
+wire to_r_i__5_n_12;
+wire to_r_i__5_n_13;
+wire to_r_i__5_n_14;
+wire to_r_i__5_n_2;
+wire to_r_i__5_n_3;
+wire to_r_i__5_n_4;
+wire to_r_i__5_n_5;
+wire to_r_i__5_n_6;
+wire to_r_i__5_n_7;
+wire to_r_i__5_n_8;
+wire to_r_i__5_n_9;
+wire to_r_i__6_n_0;
+wire to_r_i__6_n_1;
+wire to_r_i__6_n_10;
+wire to_r_i__6_n_11;
+wire to_r_i__6_n_12;
+wire to_r_i__6_n_13;
+wire to_r_i__6_n_14;
+wire to_r_i__6_n_2;
+wire to_r_i__6_n_3;
+wire to_r_i__6_n_4;
+wire to_r_i__6_n_5;
+wire to_r_i__6_n_6;
+wire to_r_i__6_n_7;
+wire to_r_i__6_n_8;
+wire to_r_i__6_n_9;
+wire to_r_i__7_n_0;
+wire to_r_i__7_n_1;
+wire to_r_i__7_n_10;
+wire to_r_i__7_n_11;
+wire to_r_i__7_n_12;
+wire to_r_i__7_n_13;
+wire to_r_i__7_n_14;
+wire to_r_i__7_n_2;
+wire to_r_i__7_n_3;
+wire to_r_i__7_n_4;
+wire to_r_i__7_n_5;
+wire to_r_i__7_n_6;
+wire to_r_i__7_n_7;
+wire to_r_i__7_n_8;
+wire to_r_i__7_n_9;
+wire to_r_i__8_n_0;
+wire to_r_i__8_n_1;
+wire to_r_i__8_n_10;
+wire to_r_i__8_n_11;
+wire to_r_i__8_n_12;
+wire to_r_i__8_n_13;
+wire to_r_i__8_n_14;
+wire to_r_i__8_n_2;
+wire to_r_i__8_n_3;
+wire to_r_i__8_n_4;
+wire to_r_i__8_n_5;
+wire to_r_i__8_n_6;
+wire to_r_i__8_n_7;
+wire to_r_i__8_n_8;
+wire to_r_i__8_n_9;
+wire to_r_i__9_n_0;
+wire to_r_i__9_n_1;
+wire to_r_i__9_n_10;
+wire to_r_i__9_n_11;
+wire to_r_i__9_n_12;
+wire to_r_i__9_n_13;
+wire to_r_i__9_n_14;
+wire to_r_i__9_n_2;
+wire to_r_i__9_n_3;
+wire to_r_i__9_n_4;
+wire to_r_i__9_n_5;
+wire to_r_i__9_n_6;
+wire to_r_i__9_n_7;
+wire to_r_i__9_n_8;
+wire to_r_i__9_n_9;
+GND GND
+(.G(\<const0> ));
+RTL_ADD380 RTL_ADD
+(.I0(\chain_fsm.(null)[0].didx ),
+.I1(nadv_w),
+.O({RTL_ADD_n_0,RTL_ADD_n_1,RTL_ADD_n_2,RTL_ADD_n_3}));
+RTL_AND7 RTL_AND
+(.I0(RTL_GEQ_n_0),
+.I1(RTL_LT_n_0),
+.O(RTL_AND_n_0));
+RTL_AND7 RTL_AND__0
+(.I0(RTL_GEQ__0_n_0),
+.I1(RTL_LT__1_n_0),
+.O(RTL_AND__0_n_0));
+RTL_AND7 RTL_AND__1
+(.I0(RTL_GEQ__1_n_0),
+.I1(RTL_LT__3_n_0),
+.O(RTL_AND__1_n_0));
+RTL_GEQ12 RTL_GEQ
+(.I0({\<const0> ,\<const0> }),
+.I1(\chain_fsm.(null)[0].didx ),
+.O(RTL_GEQ_n_0));
+RTL_GEQ12 RTL_GEQ__0
+(.I0({\<const0> ,\<const1> }),
+.I1(\chain_fsm.(null)[0].didx ),
+.O(RTL_GEQ__0_n_0));
+RTL_GEQ12 RTL_GEQ__1
+(.I0({\<const1> ,\<const0> }),
+.I1(\chain_fsm.(null)[0].didx ),
+.O(RTL_GEQ__1_n_0));
+RTL_GT2 RTL_GT
+(.I0(hopd_return),
+.I1(max_o[15:0]),
+.O(RTL_GT_n_0));
+RTL_GT2 RTL_GT__0
+(.I0(hopd0_return),
+.I1(max_o[31:16]),
+.O(RTL_GT__0_n_0));
+RTL_GT2 RTL_GT__1
+(.I0(hopd1_return),
+.I1(max_o[47:32]),
+.O(RTL_GT__1_n_0));
+RTL_LT18 RTL_LT
+(.I0({\<const0> ,\<const0> ,\<const0> ,\<const0> }),
+.I1({RTL_ADD_n_0,RTL_ADD_n_1,RTL_ADD_n_2,RTL_ADD_n_3}),
+.O(RTL_LT_n_0));
+RTL_LT37 RTL_LT__0
+(.I0({\<const0> ,\<const0> ,\<const0> }),
+.I1({\<const0> ,nadv0_w}),
+.O(p_0_out));
+RTL_LT18 RTL_LT__1
+(.I0({\<const0> ,\<const0> ,\<const0> ,\<const1> }),
+.I1({RTL_ADD_n_0,RTL_ADD_n_1,RTL_ADD_n_2,RTL_ADD_n_3}),
+.O(RTL_LT__1_n_0));
+RTL_LT37 RTL_LT__2
+(.I0({\<const0> ,\<const0> ,\<const1> }),
+.I1({\<const0> ,nadv0_w}),
+.O(RTL_LT__2_n_0));
+RTL_LT18 RTL_LT__3
+(.I0({\<const0> ,\<const0> ,\<const1> ,\<const0> }),
+.I1({RTL_ADD_n_0,RTL_ADD_n_1,RTL_ADD_n_2,RTL_ADD_n_3}),
+.O(RTL_LT__3_n_0));
+RTL_LT37 RTL_LT__4
+(.I0({\<const0> ,\<const1> ,\<const0> }),
+.I1({\<const0> ,nadv0_w}),
+.O(RTL_LT__4_n_0));
+RTL_LT12 RTL_LT__5
+(.I0(hopd_return),
+.I1(min_o[15:0]),
+.O(RTL_LT__5_n_0));
+RTL_LT12 RTL_LT__6
+(.I0(hopd0_return),
+.I1(min_o[31:16]),
+.O(RTL_LT__6_n_0));
+RTL_LT12 RTL_LT__7
+(.I0(hopd1_return),
+.I1(min_o[47:32]),
+.O(RTL_LT__7_n_0));
+RTL_REDUCTION_OR9 RTL_REDUCTION_OR
+(.I0(p_0_in),
+.O(p_1_out));
+VCC VCC
+(.P(\<const1> ));
+RTL_EQ37 active_r0_i
+(.I0({active_r1_i__1_n_0,active_r1_i__1_n_1,active_r1_i__1_n_2,active_r1_i__1_n_3,active_r1_i__1_n_4}),
+.I1({\<const0> ,\<const0> ,\<const0> ,\<const1> ,\<const1> }),
+.O(active_r0));
+RTL_NEQ0 active_r1_i
+(.I0({\<const0> ,nadv0_w}),
+.I1({\<const0> ,\<const0> ,\<const0> }),
+.O(active_r1_i_n_0));
+RTL_NEQ0 active_r1_i__0
+(.I0(nadv_w),
+.I1({\<const0> ,\<const0> ,\<const0> }),
+.O(active_r1));
+RTL_SUB201 active_r1_i__1
+(.I0(active_r2),
+.I1(\<const1> ),
+.O({active_r1_i__1_n_0,active_r1_i__1_n_1,active_r1_i__1_n_2,active_r1_i__1_n_3,active_r1_i__1_n_4}));
+RTL_ADD380 active_r2_i
+(.I0(stg_r),
+.I1(nadv_w),
+.O(active_r2));
+RTL_ROM81 active_r_i
+(.A({\<const0> ,nadv0_w}),
+.O(active_r_i_n_0));
+RTL_MUX active_r_i__0
+(.I0(active_r_i_n_0),
+.I1(\<const1> ),
+.O(active_r),
+.S(active_r1_i_n_0));
+RTL_MUX active_r_i__1
+(.I0(active_r),
+.I1(\<const0> ),
+.O(active_r1_out),
+.S(active_o));
+RTL_MUX active_r_i__2
+(.I0(active_r0),
+.I1(\<const0> ),
+.O(active_r_i__2_n_0),
+.S(active_r1));
+RTL_MUX5889 active_r_i__3
+(.I0(\<const1> ),
+.I1(active_r_i__2_n_0),
+.O(active_r_i__3_n_0),
+.S(to_r));
+RTL_MUX active_r_i__4
+(.I0(stage_p_i[0]),
+.I1(active_r_i__3_n_0),
+.O(active_r2_out),
+.S(active_o));
+RTL_MUX active_r_i__5
+(.I0(\<const1> ),
+.I1(\<const0> ),
+.O(active_r_i__5_n_0),
+.S(en_i));
+RTL_MUX active_r_i__6
+(.I0(\<const1> ),
+.I1(active_r_i__5_n_0),
+.O(active_r_i__6_n_0),
+.S(clr_i));
+RTL_MUX active_r_i__7
+(.I0(\<const1> ),
+.I1(active_r_i__6_n_0),
+.O(active_r_i__7_n_0),
+.S(rst_n));
+RTL_REG_SYNC__BREG_1 active_r_reg
+(.C(clk_i),
+.CE(active_r2_out),
+.D(active_r1_out),
+.Q(active_o),
+.RST(active_r_i__7_n_0));
+RTL_GEQ12 \adv_scan.run_v1_i
+(.I0({\<const0> ,\<const1> }),
+.I1(stg_r),
+.O(\adv_scan.run_v1_i_n_0 ));
+RTL_AND7 \adv_scan.run_v1_i__0
+(.I0(\adv_scan.run_v2 ),
+.I1(\adv_scan.run_v_i_n_0 ),
+.O(\adv_scan.run_v1 ));
+RTL_GEQ12 \adv_scan.run_v2_i
+(.I0({\<const1> ,\<const0> }),
+.I1(stg_r),
+.O(\adv_scan.run_v2 ));
+RTL_MUX \adv_scan.run_v_i
+(.I0(stage_p_i[1]),
+.I1(\<const1> ),
+.O(\adv_scan.run_v_i_n_0 ),
+.S(\adv_scan.run_v1_i_n_0 ));
+RTL_MUX \adv_scan.run_v_i__0
+(.I0(stage_p_i[2]),
+.I1(\adv_scan.run_v_i_n_0 ),
+.O(\adv_scan.run_v ),
+.S(\adv_scan.run_v1 ));
+RTL_SUB17 didx_w_i
+(.I0(stg_r),
+.I1(\<const1> ),
+.O(\chain_fsm.(null)[0].didx ));
+RTL_SUB2 diff_w_i
+(.I0(cyc_i),
+.I1(prevc_r),
+.O({p_0_in,p_1_in}));
+RTL_MUX81 dsat_w_i
+(.I0({\<const1> ,\<const1> ,\<const1> ,\<const1> ,\<const1> ,\<const1> ,\<const1> ,\<const1> ,\<const1> ,\<const1> ,\<const1> ,\<const1> ,\<const1> ,\<const1> ,\<const1> ,\<const1> }),
+.I1(p_1_in),
+.O(\chain_fsm.(null)[0].meas ),
+.S(p_1_out));
+RTL_MUX epoch_pend_r_i
+(.I0(stage_p_i[0]),
+.I1(\<const0> ),
+.O(epoch_pend_r_i_n_0),
+.S(active_o));
+RTL_MUX epoch_pend_r_i__0
+(.I0(\<const0> ),
+.I1(epoch_pend_r_i_n_0),
+.O(epoch_pend_r_i__0_n_0),
+.S(en_i));
+RTL_MUX epoch_pend_r_i__1
+(.I0(\<const0> ),
+.I1(epoch_pend_r_i__0_n_0),
+.O(epoch_pend_r__0),
+.S(clr_i));
+RTL_MUX epoch_pend_r_i__2
+(.I0(\<const1> ),
+.I1(\<const0> ),
+.O(epoch_pend_r_i__2_n_0),
+.S(rst_n));
+RTL_REG_SYNC__BREG_1 \epoch_pend_r_reg[0]
+(.C(clk_i),
+.CE(epoch_pend_r__0),
+.D(now_i[0]),
+.Q(epoch_pend_r[0]),
+.RST(epoch_pend_r_i__2_n_0));
+RTL_REG_SYNC__BREG_1 \epoch_pend_r_reg[10]
+(.C(clk_i),
+.CE(epoch_pend_r__0),
+.D(now_i[10]),
+.Q(epoch_pend_r[10]),
+.RST(epoch_pend_r_i__2_n_0));
+RTL_REG_SYNC__BREG_1 \epoch_pend_r_reg[11]
+(.C(clk_i),
+.CE(epoch_pend_r__0),
+.D(now_i[11]),
+.Q(epoch_pend_r[11]),
+.RST(epoch_pend_r_i__2_n_0));
+RTL_REG_SYNC__BREG_1 \epoch_pend_r_reg[12]
+(.C(clk_i),
+.CE(epoch_pend_r__0),
+.D(now_i[12]),
+.Q(epoch_pend_r[12]),
+.RST(epoch_pend_r_i__2_n_0));
+RTL_REG_SYNC__BREG_1 \epoch_pend_r_reg[13]
+(.C(clk_i),
+.CE(epoch_pend_r__0),
+.D(now_i[13]),
+.Q(epoch_pend_r[13]),
+.RST(epoch_pend_r_i__2_n_0));
+RTL_REG_SYNC__BREG_1 \epoch_pend_r_reg[14]
+(.C(clk_i),
+.CE(epoch_pend_r__0),
+.D(now_i[14]),
+.Q(epoch_pend_r[14]),
+.RST(epoch_pend_r_i__2_n_0));
+RTL_REG_SYNC__BREG_1 \epoch_pend_r_reg[15]
+(.C(clk_i),
+.CE(epoch_pend_r__0),
+.D(now_i[15]),
+.Q(epoch_pend_r[15]),
+.RST(epoch_pend_r_i__2_n_0));
+RTL_REG_SYNC__BREG_1 \epoch_pend_r_reg[16]
+(.C(clk_i),
+.CE(epoch_pend_r__0),
+.D(now_i[16]),
+.Q(epoch_pend_r[16]),
+.RST(epoch_pend_r_i__2_n_0));
+RTL_REG_SYNC__BREG_1 \epoch_pend_r_reg[17]
+(.C(clk_i),
+.CE(epoch_pend_r__0),
+.D(now_i[17]),
+.Q(epoch_pend_r[17]),
+.RST(epoch_pend_r_i__2_n_0));
+RTL_REG_SYNC__BREG_1 \epoch_pend_r_reg[18]
+(.C(clk_i),
+.CE(epoch_pend_r__0),
+.D(now_i[18]),
+.Q(epoch_pend_r[18]),
+.RST(epoch_pend_r_i__2_n_0));
+RTL_REG_SYNC__BREG_1 \epoch_pend_r_reg[19]
+(.C(clk_i),
+.CE(epoch_pend_r__0),
+.D(now_i[19]),
+.Q(epoch_pend_r[19]),
+.RST(epoch_pend_r_i__2_n_0));
+RTL_REG_SYNC__BREG_1 \epoch_pend_r_reg[1]
+(.C(clk_i),
+.CE(epoch_pend_r__0),
+.D(now_i[1]),
+.Q(epoch_pend_r[1]),
+.RST(epoch_pend_r_i__2_n_0));
+RTL_REG_SYNC__BREG_1 \epoch_pend_r_reg[20]
+(.C(clk_i),
+.CE(epoch_pend_r__0),
+.D(now_i[20]),
+.Q(epoch_pend_r[20]),
+.RST(epoch_pend_r_i__2_n_0));
+RTL_REG_SYNC__BREG_1 \epoch_pend_r_reg[21]
+(.C(clk_i),
+.CE(epoch_pend_r__0),
+.D(now_i[21]),
+.Q(epoch_pend_r[21]),
+.RST(epoch_pend_r_i__2_n_0));
+RTL_REG_SYNC__BREG_1 \epoch_pend_r_reg[22]
+(.C(clk_i),
+.CE(epoch_pend_r__0),
+.D(now_i[22]),
+.Q(epoch_pend_r[22]),
+.RST(epoch_pend_r_i__2_n_0));
+RTL_REG_SYNC__BREG_1 \epoch_pend_r_reg[23]
+(.C(clk_i),
+.CE(epoch_pend_r__0),
+.D(now_i[23]),
+.Q(epoch_pend_r[23]),
+.RST(epoch_pend_r_i__2_n_0));
+RTL_REG_SYNC__BREG_1 \epoch_pend_r_reg[24]
+(.C(clk_i),
+.CE(epoch_pend_r__0),
+.D(now_i[24]),
+.Q(epoch_pend_r[24]),
+.RST(epoch_pend_r_i__2_n_0));
+RTL_REG_SYNC__BREG_1 \epoch_pend_r_reg[25]
+(.C(clk_i),
+.CE(epoch_pend_r__0),
+.D(now_i[25]),
+.Q(epoch_pend_r[25]),
+.RST(epoch_pend_r_i__2_n_0));
+RTL_REG_SYNC__BREG_1 \epoch_pend_r_reg[26]
+(.C(clk_i),
+.CE(epoch_pend_r__0),
+.D(now_i[26]),
+.Q(epoch_pend_r[26]),
+.RST(epoch_pend_r_i__2_n_0));
+RTL_REG_SYNC__BREG_1 \epoch_pend_r_reg[27]
+(.C(clk_i),
+.CE(epoch_pend_r__0),
+.D(now_i[27]),
+.Q(epoch_pend_r[27]),
+.RST(epoch_pend_r_i__2_n_0));
+RTL_REG_SYNC__BREG_1 \epoch_pend_r_reg[28]
+(.C(clk_i),
+.CE(epoch_pend_r__0),
+.D(now_i[28]),
+.Q(epoch_pend_r[28]),
+.RST(epoch_pend_r_i__2_n_0));
+RTL_REG_SYNC__BREG_1 \epoch_pend_r_reg[29]
+(.C(clk_i),
+.CE(epoch_pend_r__0),
+.D(now_i[29]),
+.Q(epoch_pend_r[29]),
+.RST(epoch_pend_r_i__2_n_0));
+RTL_REG_SYNC__BREG_1 \epoch_pend_r_reg[2]
+(.C(clk_i),
+.CE(epoch_pend_r__0),
+.D(now_i[2]),
+.Q(epoch_pend_r[2]),
+.RST(epoch_pend_r_i__2_n_0));
+RTL_REG_SYNC__BREG_1 \epoch_pend_r_reg[30]
+(.C(clk_i),
+.CE(epoch_pend_r__0),
+.D(now_i[30]),
+.Q(epoch_pend_r[30]),
+.RST(epoch_pend_r_i__2_n_0));
+RTL_REG_SYNC__BREG_1 \epoch_pend_r_reg[31]
+(.C(clk_i),
+.CE(epoch_pend_r__0),
+.D(now_i[31]),
+.Q(epoch_pend_r[31]),
+.RST(epoch_pend_r_i__2_n_0));
+RTL_REG_SYNC__BREG_1 \epoch_pend_r_reg[3]
+(.C(clk_i),
+.CE(epoch_pend_r__0),
+.D(now_i[3]),
+.Q(epoch_pend_r[3]),
+.RST(epoch_pend_r_i__2_n_0));
+RTL_REG_SYNC__BREG_1 \epoch_pend_r_reg[4]
+(.C(clk_i),
+.CE(epoch_pend_r__0),
+.D(now_i[4]),
+.Q(epoch_pend_r[4]),
+.RST(epoch_pend_r_i__2_n_0));
+RTL_REG_SYNC__BREG_1 \epoch_pend_r_reg[5]
+(.C(clk_i),
+.CE(epoch_pend_r__0),
+.D(now_i[5]),
+.Q(epoch_pend_r[5]),
+.RST(epoch_pend_r_i__2_n_0));
+RTL_REG_SYNC__BREG_1 \epoch_pend_r_reg[6]
+(.C(clk_i),
+.CE(epoch_pend_r__0),
+.D(now_i[6]),
+.Q(epoch_pend_r[6]),
+.RST(epoch_pend_r_i__2_n_0));
+RTL_REG_SYNC__BREG_1 \epoch_pend_r_reg[7]
+(.C(clk_i),
+.CE(epoch_pend_r__0),
+.D(now_i[7]),
+.Q(epoch_pend_r[7]),
+.RST(epoch_pend_r_i__2_n_0));
+RTL_REG_SYNC__BREG_1 \epoch_pend_r_reg[8]
+(.C(clk_i),
+.CE(epoch_pend_r__0),
+.D(now_i[8]),
+.Q(epoch_pend_r[8]),
+.RST(epoch_pend_r_i__2_n_0));
+RTL_REG_SYNC__BREG_1 \epoch_pend_r_reg[9]
+(.C(clk_i),
+.CE(epoch_pend_r__0),
+.D(now_i[9]),
+.Q(epoch_pend_r[9]),
+.RST(epoch_pend_r_i__2_n_0));
+RTL_MUX377 epoch_r_i
+(.I0(now_i),
+.I1(epoch_pend_r),
+.O(epoch_r),
+.S(active_o));
+RTL_ROM81 epoch_r_i__0
+(.A({\<const0> ,nadv0_w}),
+.O(epoch_r_i__0_n_0));
+RTL_MUX epoch_r_i__1
+(.I0(epoch_r_i__0_n_0),
+.I1(\<const0> ),
+.O(epoch_r_i__1_n_0),
+.S(active_r1_i_n_0));
+RTL_MUX epoch_r_i__2
+(.I0(epoch_r_i__1_n_0),
+.I1(\<const0> ),
+.O(epoch_r_i__2_n_0),
+.S(stage_p_i[0]));
+RTL_MUX epoch_r_i__3
+(.I0(active_r0),
+.I1(\<const0> ),
+.O(epoch_r_i__3_n_0),
+.S(active_r1));
+RTL_MUX5889 epoch_r_i__4
+(.I0(\<const0> ),
+.I1(epoch_r_i__3_n_0),
+.O(epoch_r_i__4_n_0),
+.S(to_r));
+RTL_MUX epoch_r_i__5
+(.I0(epoch_r_i__2_n_0),
+.I1(epoch_r_i__4_n_0),
+.O(epoch_r_i__5_n_0),
+.S(active_o));
+RTL_MUX epoch_r_i__6
+(.I0(\<const0> ),
+.I1(epoch_r_i__5_n_0),
+.O(epoch_r_i__6_n_0),
+.S(en_i));
+RTL_MUX epoch_r_i__7
+(.I0(\<const1> ),
+.I1(clr_i),
+.O(epoch_r_i__7_n_0),
+.S(rst_n));
+RTL_REG_SYNC__BREG_1 \epoch_r_reg[0]
+(.C(clk_i),
+.CE(epoch_r_i__6_n_0),
+.D(epoch_r[0]),
+.Q(epoch_o[0]),
+.RST(epoch_r_i__7_n_0));
+RTL_REG_SYNC__BREG_1 \epoch_r_reg[10]
+(.C(clk_i),
+.CE(epoch_r_i__6_n_0),
+.D(epoch_r[10]),
+.Q(epoch_o[10]),
+.RST(epoch_r_i__7_n_0));
+RTL_REG_SYNC__BREG_1 \epoch_r_reg[11]
+(.C(clk_i),
+.CE(epoch_r_i__6_n_0),
+.D(epoch_r[11]),
+.Q(epoch_o[11]),
+.RST(epoch_r_i__7_n_0));
+RTL_REG_SYNC__BREG_1 \epoch_r_reg[12]
+(.C(clk_i),
+.CE(epoch_r_i__6_n_0),
+.D(epoch_r[12]),
+.Q(epoch_o[12]),
+.RST(epoch_r_i__7_n_0));
+RTL_REG_SYNC__BREG_1 \epoch_r_reg[13]
+(.C(clk_i),
+.CE(epoch_r_i__6_n_0),
+.D(epoch_r[13]),
+.Q(epoch_o[13]),
+.RST(epoch_r_i__7_n_0));
+RTL_REG_SYNC__BREG_1 \epoch_r_reg[14]
+(.C(clk_i),
+.CE(epoch_r_i__6_n_0),
+.D(epoch_r[14]),
+.Q(epoch_o[14]),
+.RST(epoch_r_i__7_n_0));
+RTL_REG_SYNC__BREG_1 \epoch_r_reg[15]
+(.C(clk_i),
+.CE(epoch_r_i__6_n_0),
+.D(epoch_r[15]),
+.Q(epoch_o[15]),
+.RST(epoch_r_i__7_n_0));
+RTL_REG_SYNC__BREG_1 \epoch_r_reg[16]
+(.C(clk_i),
+.CE(epoch_r_i__6_n_0),
+.D(epoch_r[16]),
+.Q(epoch_o[16]),
+.RST(epoch_r_i__7_n_0));
+RTL_REG_SYNC__BREG_1 \epoch_r_reg[17]
+(.C(clk_i),
+.CE(epoch_r_i__6_n_0),
+.D(epoch_r[17]),
+.Q(epoch_o[17]),
+.RST(epoch_r_i__7_n_0));
+RTL_REG_SYNC__BREG_1 \epoch_r_reg[18]
+(.C(clk_i),
+.CE(epoch_r_i__6_n_0),
+.D(epoch_r[18]),
+.Q(epoch_o[18]),
+.RST(epoch_r_i__7_n_0));
+RTL_REG_SYNC__BREG_1 \epoch_r_reg[19]
+(.C(clk_i),
+.CE(epoch_r_i__6_n_0),
+.D(epoch_r[19]),
+.Q(epoch_o[19]),
+.RST(epoch_r_i__7_n_0));
+RTL_REG_SYNC__BREG_1 \epoch_r_reg[1]
+(.C(clk_i),
+.CE(epoch_r_i__6_n_0),
+.D(epoch_r[1]),
+.Q(epoch_o[1]),
+.RST(epoch_r_i__7_n_0));
+RTL_REG_SYNC__BREG_1 \epoch_r_reg[20]
+(.C(clk_i),
+.CE(epoch_r_i__6_n_0),
+.D(epoch_r[20]),
+.Q(epoch_o[20]),
+.RST(epoch_r_i__7_n_0));
+RTL_REG_SYNC__BREG_1 \epoch_r_reg[21]
+(.C(clk_i),
+.CE(epoch_r_i__6_n_0),
+.D(epoch_r[21]),
+.Q(epoch_o[21]),
+.RST(epoch_r_i__7_n_0));
+RTL_REG_SYNC__BREG_1 \epoch_r_reg[22]
+(.C(clk_i),
+.CE(epoch_r_i__6_n_0),
+.D(epoch_r[22]),
+.Q(epoch_o[22]),
+.RST(epoch_r_i__7_n_0));
+RTL_REG_SYNC__BREG_1 \epoch_r_reg[23]
+(.C(clk_i),
+.CE(epoch_r_i__6_n_0),
+.D(epoch_r[23]),
+.Q(epoch_o[23]),
+.RST(epoch_r_i__7_n_0));
+RTL_REG_SYNC__BREG_1 \epoch_r_reg[24]
+(.C(clk_i),
+.CE(epoch_r_i__6_n_0),
+.D(epoch_r[24]),
+.Q(epoch_o[24]),
+.RST(epoch_r_i__7_n_0));
+RTL_REG_SYNC__BREG_1 \epoch_r_reg[25]
+(.C(clk_i),
+.CE(epoch_r_i__6_n_0),
+.D(epoch_r[25]),
+.Q(epoch_o[25]),
+.RST(epoch_r_i__7_n_0));
+RTL_REG_SYNC__BREG_1 \epoch_r_reg[26]
+(.C(clk_i),
+.CE(epoch_r_i__6_n_0),
+.D(epoch_r[26]),
+.Q(epoch_o[26]),
+.RST(epoch_r_i__7_n_0));
+RTL_REG_SYNC__BREG_1 \epoch_r_reg[27]
+(.C(clk_i),
+.CE(epoch_r_i__6_n_0),
+.D(epoch_r[27]),
+.Q(epoch_o[27]),
+.RST(epoch_r_i__7_n_0));
+RTL_REG_SYNC__BREG_1 \epoch_r_reg[28]
+(.C(clk_i),
+.CE(epoch_r_i__6_n_0),
+.D(epoch_r[28]),
+.Q(epoch_o[28]),
+.RST(epoch_r_i__7_n_0));
+RTL_REG_SYNC__BREG_1 \epoch_r_reg[29]
+(.C(clk_i),
+.CE(epoch_r_i__6_n_0),
+.D(epoch_r[29]),
+.Q(epoch_o[29]),
+.RST(epoch_r_i__7_n_0));
+RTL_REG_SYNC__BREG_1 \epoch_r_reg[2]
+(.C(clk_i),
+.CE(epoch_r_i__6_n_0),
+.D(epoch_r[2]),
+.Q(epoch_o[2]),
+.RST(epoch_r_i__7_n_0));
+RTL_REG_SYNC__BREG_1 \epoch_r_reg[30]
+(.C(clk_i),
+.CE(epoch_r_i__6_n_0),
+.D(epoch_r[30]),
+.Q(epoch_o[30]),
+.RST(epoch_r_i__7_n_0));
+RTL_REG_SYNC__BREG_1 \epoch_r_reg[31]
+(.C(clk_i),
+.CE(epoch_r_i__6_n_0),
+.D(epoch_r[31]),
+.Q(epoch_o[31]),
+.RST(epoch_r_i__7_n_0));
+RTL_REG_SYNC__BREG_1 \epoch_r_reg[3]
+(.C(clk_i),
+.CE(epoch_r_i__6_n_0),
+.D(epoch_r[3]),
+.Q(epoch_o[3]),
+.RST(epoch_r_i__7_n_0));
+RTL_REG_SYNC__BREG_1 \epoch_r_reg[4]
+(.C(clk_i),
+.CE(epoch_r_i__6_n_0),
+.D(epoch_r[4]),
+.Q(epoch_o[4]),
+.RST(epoch_r_i__7_n_0));
+RTL_REG_SYNC__BREG_1 \epoch_r_reg[5]
+(.C(clk_i),
+.CE(epoch_r_i__6_n_0),
+.D(epoch_r[5]),
+.Q(epoch_o[5]),
+.RST(epoch_r_i__7_n_0));
+RTL_REG_SYNC__BREG_1 \epoch_r_reg[6]
+(.C(clk_i),
+.CE(epoch_r_i__6_n_0),
+.D(epoch_r[6]),
+.Q(epoch_o[6]),
+.RST(epoch_r_i__7_n_0));
+RTL_REG_SYNC__BREG_1 \epoch_r_reg[7]
+(.C(clk_i),
+.CE(epoch_r_i__6_n_0),
+.D(epoch_r[7]),
+.Q(epoch_o[7]),
+.RST(epoch_r_i__7_n_0));
+RTL_REG_SYNC__BREG_1 \epoch_r_reg[8]
+(.C(clk_i),
+.CE(epoch_r_i__6_n_0),
+.D(epoch_r[8]),
+.Q(epoch_o[8]),
+.RST(epoch_r_i__7_n_0));
+RTL_REG_SYNC__BREG_1 \epoch_r_reg[9]
+(.C(clk_i),
+.CE(epoch_r_i__6_n_0),
+.D(epoch_r[9]),
+.Q(epoch_o[9]),
+.RST(epoch_r_i__7_n_0));
+RTL_MUX1859 hopd0_return_i
+(.I0(\chain_fsm.(null)[0].meas ),
+.I1({\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> }),
+.O(hopd0_return),
+.S(\chain_fsm.(null)[0].didx ));
+RTL_MUX1859 hopd1_return_i
+(.I0(\chain_fsm.(null)[0].meas ),
+.I1({\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> }),
+.O(hopd1_return),
+.S(\chain_fsm.(null)[0].didx ));
+RTL_MUX1859 hopd_return_i
+(.I0(\chain_fsm.(null)[0].meas ),
+.I1({\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> }),
+.O(hopd_return),
+.S(\chain_fsm.(null)[0].didx ));
+RTL_MUX last_r_i
+(.I0(RTL_AND_n_0),
+.I1(\<const0> ),
+.O(last_r_i_n_0),
+.S(active_r1));
+RTL_MUX5889 last_r_i__0
+(.I0(\<const0> ),
+.I1(last_r_i_n_0),
+.O(last_r_i__0_n_0),
+.S(to_r));
+RTL_MUX last_r_i__1
+(.I0(\<const0> ),
+.I1(last_r_i__0_n_0),
+.O(last_r_i__1_n_0),
+.S(active_o));
+RTL_MUX5889 last_r_i__10
+(.I0(\<const0> ),
+.I1(last_r_i__9_n_0),
+.O(last_r_i__10_n_0),
+.S(to_r));
+RTL_MUX last_r_i__11
+(.I0(\<const0> ),
+.I1(last_r_i__10_n_0),
+.O(last_r_i__11_n_0),
+.S(active_o));
+RTL_MUX last_r_i__12
+(.I0(\<const0> ),
+.I1(last_r_i__11_n_0),
+.O(last_r_i__12_n_0),
+.S(en_i));
+RTL_MUX last_r_i__13
+(.I0(RTL_LT__2_n_0),
+.I1(\<const0> ),
+.O(last_r_i__13_n_0),
+.S(active_r1_i_n_0));
+RTL_MUX last_r_i__14
+(.I0(last_r_i__13_n_0),
+.I1(\<const0> ),
+.O(last_r_i__14_n_0),
+.S(stage_p_i[0]));
+RTL_MUX last_r_i__15
+(.I0(last_r_i__14_n_0),
+.I1(\<const0> ),
+.O(last_r_i__15_n_0),
+.S(active_o));
+RTL_MUX last_r_i__16
+(.I0(\<const0> ),
+.I1(last_r_i__15_n_0),
+.O(last_r_i__16_n_0),
+.S(en_i));
+RTL_MUX last_r_i__17
+(.I0(\<const1> ),
+.I1(last_r_i__16_n_0),
+.O(last_r_i__17_n_0),
+.S(clr_i));
+RTL_MUX last_r_i__18
+(.I0(\<const1> ),
+.I1(last_r_i__17_n_0),
+.O(last_r_i__18_n_0),
+.S(rst_n));
+RTL_MUX last_r_i__19
+(.I0(RTL_AND__1_n_0),
+.I1(\<const0> ),
+.O(last_r_i__19_n_0),
+.S(active_r1));
+RTL_MUX last_r_i__2
+(.I0(\<const0> ),
+.I1(last_r_i__1_n_0),
+.O(last_r),
+.S(en_i));
+RTL_MUX5889 last_r_i__20
+(.I0(\<const0> ),
+.I1(last_r_i__19_n_0),
+.O(last_r_i__20_n_0),
+.S(to_r));
+RTL_MUX last_r_i__21
+(.I0(\<const0> ),
+.I1(last_r_i__20_n_0),
+.O(last_r_i__21_n_0),
+.S(active_o));
+RTL_MUX last_r_i__22
+(.I0(\<const0> ),
+.I1(last_r_i__21_n_0),
+.O(last_r_i__22_n_0),
+.S(en_i));
+RTL_MUX last_r_i__23
+(.I0(RTL_LT__4_n_0),
+.I1(\<const0> ),
+.O(last_r_i__23_n_0),
+.S(active_r1_i_n_0));
+RTL_MUX last_r_i__24
+(.I0(last_r_i__23_n_0),
+.I1(\<const0> ),
+.O(last_r_i__24_n_0),
+.S(stage_p_i[0]));
+RTL_MUX last_r_i__25
+(.I0(last_r_i__24_n_0),
+.I1(\<const0> ),
+.O(last_r_i__25_n_0),
+.S(active_o));
+RTL_MUX last_r_i__26
+(.I0(\<const0> ),
+.I1(last_r_i__25_n_0),
+.O(last_r_i__26_n_0),
+.S(en_i));
+RTL_MUX last_r_i__27
+(.I0(\<const1> ),
+.I1(last_r_i__26_n_0),
+.O(last_r_i__27_n_0),
+.S(clr_i));
+RTL_MUX last_r_i__28
+(.I0(\<const1> ),
+.I1(last_r_i__27_n_0),
+.O(last_r_i__28_n_0),
+.S(rst_n));
+RTL_MUX last_r_i__3
+(.I0(p_0_out),
+.I1(\<const0> ),
+.O(last_r_i__3_n_0),
+.S(active_r1_i_n_0));
+RTL_MUX last_r_i__4
+(.I0(last_r_i__3_n_0),
+.I1(\<const0> ),
+.O(last_r_i__4_n_0),
+.S(stage_p_i[0]));
+RTL_MUX last_r_i__5
+(.I0(last_r_i__4_n_0),
+.I1(\<const0> ),
+.O(last_r_i__5_n_0),
+.S(active_o));
+RTL_MUX last_r_i__6
+(.I0(\<const0> ),
+.I1(last_r_i__5_n_0),
+.O(last_r_i__6_n_0),
+.S(en_i));
+RTL_MUX last_r_i__7
+(.I0(\<const1> ),
+.I1(last_r_i__6_n_0),
+.O(last_r_i__7_n_0),
+.S(clr_i));
+RTL_MUX last_r_i__8
+(.I0(\<const1> ),
+.I1(last_r_i__7_n_0),
+.O(last_r_i__8_n_0),
+.S(rst_n));
+RTL_MUX last_r_i__9
+(.I0(RTL_AND__0_n_0),
+.I1(\<const0> ),
+.O(last_r_i__9_n_0),
+.S(active_r1));
+RTL_REG_SYNC__BREG_1 \last_r_reg[0][0]
+(.C(clk_i),
+.CE(last_r),
+.D(hopd_return[0]),
+.Q(last_o[0]),
+.RST(last_r_i__8_n_0));
+RTL_REG_SYNC__BREG_1 \last_r_reg[0][10]
+(.C(clk_i),
+.CE(last_r),
+.D(hopd_return[10]),
+.Q(last_o[10]),
+.RST(last_r_i__8_n_0));
+RTL_REG_SYNC__BREG_1 \last_r_reg[0][11]
+(.C(clk_i),
+.CE(last_r),
+.D(hopd_return[11]),
+.Q(last_o[11]),
+.RST(last_r_i__8_n_0));
+RTL_REG_SYNC__BREG_1 \last_r_reg[0][12]
+(.C(clk_i),
+.CE(last_r),
+.D(hopd_return[12]),
+.Q(last_o[12]),
+.RST(last_r_i__8_n_0));
+RTL_REG_SYNC__BREG_1 \last_r_reg[0][13]
+(.C(clk_i),
+.CE(last_r),
+.D(hopd_return[13]),
+.Q(last_o[13]),
+.RST(last_r_i__8_n_0));
+RTL_REG_SYNC__BREG_1 \last_r_reg[0][14]
+(.C(clk_i),
+.CE(last_r),
+.D(hopd_return[14]),
+.Q(last_o[14]),
+.RST(last_r_i__8_n_0));
+RTL_REG_SYNC__BREG_1 \last_r_reg[0][15]
+(.C(clk_i),
+.CE(last_r),
+.D(hopd_return[15]),
+.Q(last_o[15]),
+.RST(last_r_i__8_n_0));
+RTL_REG_SYNC__BREG_1 \last_r_reg[0][1]
+(.C(clk_i),
+.CE(last_r),
+.D(hopd_return[1]),
+.Q(last_o[1]),
+.RST(last_r_i__8_n_0));
+RTL_REG_SYNC__BREG_1 \last_r_reg[0][2]
+(.C(clk_i),
+.CE(last_r),
+.D(hopd_return[2]),
+.Q(last_o[2]),
+.RST(last_r_i__8_n_0));
+RTL_REG_SYNC__BREG_1 \last_r_reg[0][3]
+(.C(clk_i),
+.CE(last_r),
+.D(hopd_return[3]),
+.Q(last_o[3]),
+.RST(last_r_i__8_n_0));
+RTL_REG_SYNC__BREG_1 \last_r_reg[0][4]
+(.C(clk_i),
+.CE(last_r),
+.D(hopd_return[4]),
+.Q(last_o[4]),
+.RST(last_r_i__8_n_0));
+RTL_REG_SYNC__BREG_1 \last_r_reg[0][5]
+(.C(clk_i),
+.CE(last_r),
+.D(hopd_return[5]),
+.Q(last_o[5]),
+.RST(last_r_i__8_n_0));
+RTL_REG_SYNC__BREG_1 \last_r_reg[0][6]
+(.C(clk_i),
+.CE(last_r),
+.D(hopd_return[6]),
+.Q(last_o[6]),
+.RST(last_r_i__8_n_0));
+RTL_REG_SYNC__BREG_1 \last_r_reg[0][7]
+(.C(clk_i),
+.CE(last_r),
+.D(hopd_return[7]),
+.Q(last_o[7]),
+.RST(last_r_i__8_n_0));
+RTL_REG_SYNC__BREG_1 \last_r_reg[0][8]
+(.C(clk_i),
+.CE(last_r),
+.D(hopd_return[8]),
+.Q(last_o[8]),
+.RST(last_r_i__8_n_0));
+RTL_REG_SYNC__BREG_1 \last_r_reg[0][9]
+(.C(clk_i),
+.CE(last_r),
+.D(hopd_return[9]),
+.Q(last_o[9]),
+.RST(last_r_i__8_n_0));
+RTL_REG_SYNC__BREG_1 \last_r_reg[1][0]
+(.C(clk_i),
+.CE(last_r_i__12_n_0),
+.D(hopd0_return[0]),
+.Q(last_o[16]),
+.RST(last_r_i__18_n_0));
+RTL_REG_SYNC__BREG_1 \last_r_reg[1][10]
+(.C(clk_i),
+.CE(last_r_i__12_n_0),
+.D(hopd0_return[10]),
+.Q(last_o[26]),
+.RST(last_r_i__18_n_0));
+RTL_REG_SYNC__BREG_1 \last_r_reg[1][11]
+(.C(clk_i),
+.CE(last_r_i__12_n_0),
+.D(hopd0_return[11]),
+.Q(last_o[27]),
+.RST(last_r_i__18_n_0));
+RTL_REG_SYNC__BREG_1 \last_r_reg[1][12]
+(.C(clk_i),
+.CE(last_r_i__12_n_0),
+.D(hopd0_return[12]),
+.Q(last_o[28]),
+.RST(last_r_i__18_n_0));
+RTL_REG_SYNC__BREG_1 \last_r_reg[1][13]
+(.C(clk_i),
+.CE(last_r_i__12_n_0),
+.D(hopd0_return[13]),
+.Q(last_o[29]),
+.RST(last_r_i__18_n_0));
+RTL_REG_SYNC__BREG_1 \last_r_reg[1][14]
+(.C(clk_i),
+.CE(last_r_i__12_n_0),
+.D(hopd0_return[14]),
+.Q(last_o[30]),
+.RST(last_r_i__18_n_0));
+RTL_REG_SYNC__BREG_1 \last_r_reg[1][15]
+(.C(clk_i),
+.CE(last_r_i__12_n_0),
+.D(hopd0_return[15]),
+.Q(last_o[31]),
+.RST(last_r_i__18_n_0));
+RTL_REG_SYNC__BREG_1 \last_r_reg[1][1]
+(.C(clk_i),
+.CE(last_r_i__12_n_0),
+.D(hopd0_return[1]),
+.Q(last_o[17]),
+.RST(last_r_i__18_n_0));
+RTL_REG_SYNC__BREG_1 \last_r_reg[1][2]
+(.C(clk_i),
+.CE(last_r_i__12_n_0),
+.D(hopd0_return[2]),
+.Q(last_o[18]),
+.RST(last_r_i__18_n_0));
+RTL_REG_SYNC__BREG_1 \last_r_reg[1][3]
+(.C(clk_i),
+.CE(last_r_i__12_n_0),
+.D(hopd0_return[3]),
+.Q(last_o[19]),
+.RST(last_r_i__18_n_0));
+RTL_REG_SYNC__BREG_1 \last_r_reg[1][4]
+(.C(clk_i),
+.CE(last_r_i__12_n_0),
+.D(hopd0_return[4]),
+.Q(last_o[20]),
+.RST(last_r_i__18_n_0));
+RTL_REG_SYNC__BREG_1 \last_r_reg[1][5]
+(.C(clk_i),
+.CE(last_r_i__12_n_0),
+.D(hopd0_return[5]),
+.Q(last_o[21]),
+.RST(last_r_i__18_n_0));
+RTL_REG_SYNC__BREG_1 \last_r_reg[1][6]
+(.C(clk_i),
+.CE(last_r_i__12_n_0),
+.D(hopd0_return[6]),
+.Q(last_o[22]),
+.RST(last_r_i__18_n_0));
+RTL_REG_SYNC__BREG_1 \last_r_reg[1][7]
+(.C(clk_i),
+.CE(last_r_i__12_n_0),
+.D(hopd0_return[7]),
+.Q(last_o[23]),
+.RST(last_r_i__18_n_0));
+RTL_REG_SYNC__BREG_1 \last_r_reg[1][8]
+(.C(clk_i),
+.CE(last_r_i__12_n_0),
+.D(hopd0_return[8]),
+.Q(last_o[24]),
+.RST(last_r_i__18_n_0));
+RTL_REG_SYNC__BREG_1 \last_r_reg[1][9]
+(.C(clk_i),
+.CE(last_r_i__12_n_0),
+.D(hopd0_return[9]),
+.Q(last_o[25]),
+.RST(last_r_i__18_n_0));
+RTL_REG_SYNC__BREG_1 \last_r_reg[2][0]
+(.C(clk_i),
+.CE(last_r_i__22_n_0),
+.D(hopd1_return[0]),
+.Q(last_o[32]),
+.RST(last_r_i__28_n_0));
+RTL_REG_SYNC__BREG_1 \last_r_reg[2][10]
+(.C(clk_i),
+.CE(last_r_i__22_n_0),
+.D(hopd1_return[10]),
+.Q(last_o[42]),
+.RST(last_r_i__28_n_0));
+RTL_REG_SYNC__BREG_1 \last_r_reg[2][11]
+(.C(clk_i),
+.CE(last_r_i__22_n_0),
+.D(hopd1_return[11]),
+.Q(last_o[43]),
+.RST(last_r_i__28_n_0));
+RTL_REG_SYNC__BREG_1 \last_r_reg[2][12]
+(.C(clk_i),
+.CE(last_r_i__22_n_0),
+.D(hopd1_return[12]),
+.Q(last_o[44]),
+.RST(last_r_i__28_n_0));
+RTL_REG_SYNC__BREG_1 \last_r_reg[2][13]
+(.C(clk_i),
+.CE(last_r_i__22_n_0),
+.D(hopd1_return[13]),
+.Q(last_o[45]),
+.RST(last_r_i__28_n_0));
+RTL_REG_SYNC__BREG_1 \last_r_reg[2][14]
+(.C(clk_i),
+.CE(last_r_i__22_n_0),
+.D(hopd1_return[14]),
+.Q(last_o[46]),
+.RST(last_r_i__28_n_0));
+RTL_REG_SYNC__BREG_1 \last_r_reg[2][15]
+(.C(clk_i),
+.CE(last_r_i__22_n_0),
+.D(hopd1_return[15]),
+.Q(last_o[47]),
+.RST(last_r_i__28_n_0));
+RTL_REG_SYNC__BREG_1 \last_r_reg[2][1]
+(.C(clk_i),
+.CE(last_r_i__22_n_0),
+.D(hopd1_return[1]),
+.Q(last_o[33]),
+.RST(last_r_i__28_n_0));
+RTL_REG_SYNC__BREG_1 \last_r_reg[2][2]
+(.C(clk_i),
+.CE(last_r_i__22_n_0),
+.D(hopd1_return[2]),
+.Q(last_o[34]),
+.RST(last_r_i__28_n_0));
+RTL_REG_SYNC__BREG_1 \last_r_reg[2][3]
+(.C(clk_i),
+.CE(last_r_i__22_n_0),
+.D(hopd1_return[3]),
+.Q(last_o[35]),
+.RST(last_r_i__28_n_0));
+RTL_REG_SYNC__BREG_1 \last_r_reg[2][4]
+(.C(clk_i),
+.CE(last_r_i__22_n_0),
+.D(hopd1_return[4]),
+.Q(last_o[36]),
+.RST(last_r_i__28_n_0));
+RTL_REG_SYNC__BREG_1 \last_r_reg[2][5]
+(.C(clk_i),
+.CE(last_r_i__22_n_0),
+.D(hopd1_return[5]),
+.Q(last_o[37]),
+.RST(last_r_i__28_n_0));
+RTL_REG_SYNC__BREG_1 \last_r_reg[2][6]
+(.C(clk_i),
+.CE(last_r_i__22_n_0),
+.D(hopd1_return[6]),
+.Q(last_o[38]),
+.RST(last_r_i__28_n_0));
+RTL_REG_SYNC__BREG_1 \last_r_reg[2][7]
+(.C(clk_i),
+.CE(last_r_i__22_n_0),
+.D(hopd1_return[7]),
+.Q(last_o[39]),
+.RST(last_r_i__28_n_0));
+RTL_REG_SYNC__BREG_1 \last_r_reg[2][8]
+(.C(clk_i),
+.CE(last_r_i__22_n_0),
+.D(hopd1_return[8]),
+.Q(last_o[40]),
+.RST(last_r_i__28_n_0));
+RTL_REG_SYNC__BREG_1 \last_r_reg[2][9]
+(.C(clk_i),
+.CE(last_r_i__22_n_0),
+.D(hopd1_return[9]),
+.Q(last_o[41]),
+.RST(last_r_i__28_n_0));
+RTL_MUX max_r_i
+(.I0(RTL_GT_n_0),
+.I1(\<const0> ),
+.O(max_r_i_n_0),
+.S(RTL_AND_n_0));
+RTL_MUX max_r_i__0
+(.I0(max_r_i_n_0),
+.I1(\<const0> ),
+.O(max_r_i__0_n_0),
+.S(active_r1));
+RTL_MUX5889 max_r_i__1
+(.I0(\<const0> ),
+.I1(max_r_i__0_n_0),
+.O(max_r_i__1_n_0),
+.S(to_r));
+RTL_MUX max_r_i__10
+(.I0(\<const1> ),
+.I1(clr_i),
+.O(max_r_i__10_n_0),
+.S(rst_n));
+RTL_MUX max_r_i__11
+(.I0(RTL_GT__1_n_0),
+.I1(\<const0> ),
+.O(max_r_i__11_n_0),
+.S(RTL_AND__1_n_0));
+RTL_MUX max_r_i__12
+(.I0(max_r_i__11_n_0),
+.I1(\<const0> ),
+.O(max_r_i__12_n_0),
+.S(active_r1));
+RTL_MUX5889 max_r_i__13
+(.I0(\<const0> ),
+.I1(max_r_i__12_n_0),
+.O(max_r_i__13_n_0),
+.S(to_r));
+RTL_MUX max_r_i__14
+(.I0(\<const0> ),
+.I1(max_r_i__13_n_0),
+.O(max_r_i__14_n_0),
+.S(active_o));
+RTL_MUX max_r_i__15
+(.I0(\<const0> ),
+.I1(max_r_i__14_n_0),
+.O(max_r_i__15_n_0),
+.S(en_i));
+RTL_MUX max_r_i__16
+(.I0(\<const1> ),
+.I1(clr_i),
+.O(max_r_i__16_n_0),
+.S(rst_n));
+RTL_MUX max_r_i__2
+(.I0(\<const0> ),
+.I1(max_r_i__1_n_0),
+.O(max_r_i__2_n_0),
+.S(active_o));
+RTL_MUX max_r_i__3
+(.I0(\<const0> ),
+.I1(max_r_i__2_n_0),
+.O(max_r),
+.S(en_i));
+RTL_MUX max_r_i__4
+(.I0(\<const1> ),
+.I1(clr_i),
+.O(max_r_i__4_n_0),
+.S(rst_n));
+RTL_MUX max_r_i__5
+(.I0(RTL_GT__0_n_0),
+.I1(\<const0> ),
+.O(max_r_i__5_n_0),
+.S(RTL_AND__0_n_0));
+RTL_MUX max_r_i__6
+(.I0(max_r_i__5_n_0),
+.I1(\<const0> ),
+.O(max_r_i__6_n_0),
+.S(active_r1));
+RTL_MUX5889 max_r_i__7
+(.I0(\<const0> ),
+.I1(max_r_i__6_n_0),
+.O(max_r_i__7_n_0),
+.S(to_r));
+RTL_MUX max_r_i__8
+(.I0(\<const0> ),
+.I1(max_r_i__7_n_0),
+.O(max_r_i__8_n_0),
+.S(active_o));
+RTL_MUX max_r_i__9
+(.I0(\<const0> ),
+.I1(max_r_i__8_n_0),
+.O(max_r_i__9_n_0),
+.S(en_i));
+RTL_REG_SYNC__BREG_1 \max_r_reg[0][0]
+(.C(clk_i),
+.CE(max_r),
+.D(hopd_return[0]),
+.Q(max_o[0]),
+.RST(max_r_i__4_n_0));
+RTL_REG_SYNC__BREG_1 \max_r_reg[0][10]
+(.C(clk_i),
+.CE(max_r),
+.D(hopd_return[10]),
+.Q(max_o[10]),
+.RST(max_r_i__4_n_0));
+RTL_REG_SYNC__BREG_1 \max_r_reg[0][11]
+(.C(clk_i),
+.CE(max_r),
+.D(hopd_return[11]),
+.Q(max_o[11]),
+.RST(max_r_i__4_n_0));
+RTL_REG_SYNC__BREG_1 \max_r_reg[0][12]
+(.C(clk_i),
+.CE(max_r),
+.D(hopd_return[12]),
+.Q(max_o[12]),
+.RST(max_r_i__4_n_0));
+RTL_REG_SYNC__BREG_1 \max_r_reg[0][13]
+(.C(clk_i),
+.CE(max_r),
+.D(hopd_return[13]),
+.Q(max_o[13]),
+.RST(max_r_i__4_n_0));
+RTL_REG_SYNC__BREG_1 \max_r_reg[0][14]
+(.C(clk_i),
+.CE(max_r),
+.D(hopd_return[14]),
+.Q(max_o[14]),
+.RST(max_r_i__4_n_0));
+RTL_REG_SYNC__BREG_1 \max_r_reg[0][15]
+(.C(clk_i),
+.CE(max_r),
+.D(hopd_return[15]),
+.Q(max_o[15]),
+.RST(max_r_i__4_n_0));
+RTL_REG_SYNC__BREG_1 \max_r_reg[0][1]
+(.C(clk_i),
+.CE(max_r),
+.D(hopd_return[1]),
+.Q(max_o[1]),
+.RST(max_r_i__4_n_0));
+RTL_REG_SYNC__BREG_1 \max_r_reg[0][2]
+(.C(clk_i),
+.CE(max_r),
+.D(hopd_return[2]),
+.Q(max_o[2]),
+.RST(max_r_i__4_n_0));
+RTL_REG_SYNC__BREG_1 \max_r_reg[0][3]
+(.C(clk_i),
+.CE(max_r),
+.D(hopd_return[3]),
+.Q(max_o[3]),
+.RST(max_r_i__4_n_0));
+RTL_REG_SYNC__BREG_1 \max_r_reg[0][4]
+(.C(clk_i),
+.CE(max_r),
+.D(hopd_return[4]),
+.Q(max_o[4]),
+.RST(max_r_i__4_n_0));
+RTL_REG_SYNC__BREG_1 \max_r_reg[0][5]
+(.C(clk_i),
+.CE(max_r),
+.D(hopd_return[5]),
+.Q(max_o[5]),
+.RST(max_r_i__4_n_0));
+RTL_REG_SYNC__BREG_1 \max_r_reg[0][6]
+(.C(clk_i),
+.CE(max_r),
+.D(hopd_return[6]),
+.Q(max_o[6]),
+.RST(max_r_i__4_n_0));
+RTL_REG_SYNC__BREG_1 \max_r_reg[0][7]
+(.C(clk_i),
+.CE(max_r),
+.D(hopd_return[7]),
+.Q(max_o[7]),
+.RST(max_r_i__4_n_0));
+RTL_REG_SYNC__BREG_1 \max_r_reg[0][8]
+(.C(clk_i),
+.CE(max_r),
+.D(hopd_return[8]),
+.Q(max_o[8]),
+.RST(max_r_i__4_n_0));
+RTL_REG_SYNC__BREG_1 \max_r_reg[0][9]
+(.C(clk_i),
+.CE(max_r),
+.D(hopd_return[9]),
+.Q(max_o[9]),
+.RST(max_r_i__4_n_0));
+RTL_REG_SYNC__BREG_1 \max_r_reg[1][0]
+(.C(clk_i),
+.CE(max_r_i__9_n_0),
+.D(hopd0_return[0]),
+.Q(max_o[16]),
+.RST(max_r_i__10_n_0));
+RTL_REG_SYNC__BREG_1 \max_r_reg[1][10]
+(.C(clk_i),
+.CE(max_r_i__9_n_0),
+.D(hopd0_return[10]),
+.Q(max_o[26]),
+.RST(max_r_i__10_n_0));
+RTL_REG_SYNC__BREG_1 \max_r_reg[1][11]
+(.C(clk_i),
+.CE(max_r_i__9_n_0),
+.D(hopd0_return[11]),
+.Q(max_o[27]),
+.RST(max_r_i__10_n_0));
+RTL_REG_SYNC__BREG_1 \max_r_reg[1][12]
+(.C(clk_i),
+.CE(max_r_i__9_n_0),
+.D(hopd0_return[12]),
+.Q(max_o[28]),
+.RST(max_r_i__10_n_0));
+RTL_REG_SYNC__BREG_1 \max_r_reg[1][13]
+(.C(clk_i),
+.CE(max_r_i__9_n_0),
+.D(hopd0_return[13]),
+.Q(max_o[29]),
+.RST(max_r_i__10_n_0));
+RTL_REG_SYNC__BREG_1 \max_r_reg[1][14]
+(.C(clk_i),
+.CE(max_r_i__9_n_0),
+.D(hopd0_return[14]),
+.Q(max_o[30]),
+.RST(max_r_i__10_n_0));
+RTL_REG_SYNC__BREG_1 \max_r_reg[1][15]
+(.C(clk_i),
+.CE(max_r_i__9_n_0),
+.D(hopd0_return[15]),
+.Q(max_o[31]),
+.RST(max_r_i__10_n_0));
+RTL_REG_SYNC__BREG_1 \max_r_reg[1][1]
+(.C(clk_i),
+.CE(max_r_i__9_n_0),
+.D(hopd0_return[1]),
+.Q(max_o[17]),
+.RST(max_r_i__10_n_0));
+RTL_REG_SYNC__BREG_1 \max_r_reg[1][2]
+(.C(clk_i),
+.CE(max_r_i__9_n_0),
+.D(hopd0_return[2]),
+.Q(max_o[18]),
+.RST(max_r_i__10_n_0));
+RTL_REG_SYNC__BREG_1 \max_r_reg[1][3]
+(.C(clk_i),
+.CE(max_r_i__9_n_0),
+.D(hopd0_return[3]),
+.Q(max_o[19]),
+.RST(max_r_i__10_n_0));
+RTL_REG_SYNC__BREG_1 \max_r_reg[1][4]
+(.C(clk_i),
+.CE(max_r_i__9_n_0),
+.D(hopd0_return[4]),
+.Q(max_o[20]),
+.RST(max_r_i__10_n_0));
+RTL_REG_SYNC__BREG_1 \max_r_reg[1][5]
+(.C(clk_i),
+.CE(max_r_i__9_n_0),
+.D(hopd0_return[5]),
+.Q(max_o[21]),
+.RST(max_r_i__10_n_0));
+RTL_REG_SYNC__BREG_1 \max_r_reg[1][6]
+(.C(clk_i),
+.CE(max_r_i__9_n_0),
+.D(hopd0_return[6]),
+.Q(max_o[22]),
+.RST(max_r_i__10_n_0));
+RTL_REG_SYNC__BREG_1 \max_r_reg[1][7]
+(.C(clk_i),
+.CE(max_r_i__9_n_0),
+.D(hopd0_return[7]),
+.Q(max_o[23]),
+.RST(max_r_i__10_n_0));
+RTL_REG_SYNC__BREG_1 \max_r_reg[1][8]
+(.C(clk_i),
+.CE(max_r_i__9_n_0),
+.D(hopd0_return[8]),
+.Q(max_o[24]),
+.RST(max_r_i__10_n_0));
+RTL_REG_SYNC__BREG_1 \max_r_reg[1][9]
+(.C(clk_i),
+.CE(max_r_i__9_n_0),
+.D(hopd0_return[9]),
+.Q(max_o[25]),
+.RST(max_r_i__10_n_0));
+RTL_REG_SYNC__BREG_1 \max_r_reg[2][0]
+(.C(clk_i),
+.CE(max_r_i__15_n_0),
+.D(hopd1_return[0]),
+.Q(max_o[32]),
+.RST(max_r_i__16_n_0));
+RTL_REG_SYNC__BREG_1 \max_r_reg[2][10]
+(.C(clk_i),
+.CE(max_r_i__15_n_0),
+.D(hopd1_return[10]),
+.Q(max_o[42]),
+.RST(max_r_i__16_n_0));
+RTL_REG_SYNC__BREG_1 \max_r_reg[2][11]
+(.C(clk_i),
+.CE(max_r_i__15_n_0),
+.D(hopd1_return[11]),
+.Q(max_o[43]),
+.RST(max_r_i__16_n_0));
+RTL_REG_SYNC__BREG_1 \max_r_reg[2][12]
+(.C(clk_i),
+.CE(max_r_i__15_n_0),
+.D(hopd1_return[12]),
+.Q(max_o[44]),
+.RST(max_r_i__16_n_0));
+RTL_REG_SYNC__BREG_1 \max_r_reg[2][13]
+(.C(clk_i),
+.CE(max_r_i__15_n_0),
+.D(hopd1_return[13]),
+.Q(max_o[45]),
+.RST(max_r_i__16_n_0));
+RTL_REG_SYNC__BREG_1 \max_r_reg[2][14]
+(.C(clk_i),
+.CE(max_r_i__15_n_0),
+.D(hopd1_return[14]),
+.Q(max_o[46]),
+.RST(max_r_i__16_n_0));
+RTL_REG_SYNC__BREG_1 \max_r_reg[2][15]
+(.C(clk_i),
+.CE(max_r_i__15_n_0),
+.D(hopd1_return[15]),
+.Q(max_o[47]),
+.RST(max_r_i__16_n_0));
+RTL_REG_SYNC__BREG_1 \max_r_reg[2][1]
+(.C(clk_i),
+.CE(max_r_i__15_n_0),
+.D(hopd1_return[1]),
+.Q(max_o[33]),
+.RST(max_r_i__16_n_0));
+RTL_REG_SYNC__BREG_1 \max_r_reg[2][2]
+(.C(clk_i),
+.CE(max_r_i__15_n_0),
+.D(hopd1_return[2]),
+.Q(max_o[34]),
+.RST(max_r_i__16_n_0));
+RTL_REG_SYNC__BREG_1 \max_r_reg[2][3]
+(.C(clk_i),
+.CE(max_r_i__15_n_0),
+.D(hopd1_return[3]),
+.Q(max_o[35]),
+.RST(max_r_i__16_n_0));
+RTL_REG_SYNC__BREG_1 \max_r_reg[2][4]
+(.C(clk_i),
+.CE(max_r_i__15_n_0),
+.D(hopd1_return[4]),
+.Q(max_o[36]),
+.RST(max_r_i__16_n_0));
+RTL_REG_SYNC__BREG_1 \max_r_reg[2][5]
+(.C(clk_i),
+.CE(max_r_i__15_n_0),
+.D(hopd1_return[5]),
+.Q(max_o[37]),
+.RST(max_r_i__16_n_0));
+RTL_REG_SYNC__BREG_1 \max_r_reg[2][6]
+(.C(clk_i),
+.CE(max_r_i__15_n_0),
+.D(hopd1_return[6]),
+.Q(max_o[38]),
+.RST(max_r_i__16_n_0));
+RTL_REG_SYNC__BREG_1 \max_r_reg[2][7]
+(.C(clk_i),
+.CE(max_r_i__15_n_0),
+.D(hopd1_return[7]),
+.Q(max_o[39]),
+.RST(max_r_i__16_n_0));
+RTL_REG_SYNC__BREG_1 \max_r_reg[2][8]
+(.C(clk_i),
+.CE(max_r_i__15_n_0),
+.D(hopd1_return[8]),
+.Q(max_o[40]),
+.RST(max_r_i__16_n_0));
+RTL_REG_SYNC__BREG_1 \max_r_reg[2][9]
+(.C(clk_i),
+.CE(max_r_i__15_n_0),
+.D(hopd1_return[9]),
+.Q(max_o[41]),
+.RST(max_r_i__16_n_0));
+RTL_MUX min_r_i
+(.I0(RTL_LT__5_n_0),
+.I1(\<const0> ),
+.O(min_r_i_n_0),
+.S(RTL_AND_n_0));
+RTL_MUX min_r_i__0
+(.I0(min_r_i_n_0),
+.I1(\<const0> ),
+.O(min_r_i__0_n_0),
+.S(active_r1));
+RTL_MUX5889 min_r_i__1
+(.I0(\<const0> ),
+.I1(min_r_i__0_n_0),
+.O(min_r_i__1_n_0),
+.S(to_r));
+RTL_MUX min_r_i__10
+(.I0(min_r_i__9_n_0),
+.I1(\<const0> ),
+.O(min_r_i__10_n_0),
+.S(active_r1));
+RTL_MUX5889 min_r_i__11
+(.I0(\<const0> ),
+.I1(min_r_i__10_n_0),
+.O(min_r_i__11_n_0),
+.S(to_r));
+RTL_MUX min_r_i__12
+(.I0(\<const0> ),
+.I1(min_r_i__11_n_0),
+.O(min_r_i__12_n_0),
+.S(active_o));
+RTL_MUX min_r_i__13
+(.I0(\<const0> ),
+.I1(min_r_i__12_n_0),
+.O(min_r_i__13_n_0),
+.S(en_i));
+RTL_MUX min_r_i__14
+(.I0(\<const1> ),
+.I1(clr_i),
+.O(min_r_i__14_n_0),
+.S(rst_n));
+RTL_MUX min_r_i__15
+(.I0(RTL_LT__2_n_0),
+.I1(\<const0> ),
+.O(min_r_i__15_n_0),
+.S(active_r1_i_n_0));
+RTL_MUX min_r_i__16
+(.I0(min_r_i__15_n_0),
+.I1(\<const0> ),
+.O(min_r_i__16_n_0),
+.S(stage_p_i[0]));
+RTL_MUX min_r_i__17
+(.I0(min_r_i__16_n_0),
+.I1(\<const0> ),
+.O(min_r_i__17_n_0),
+.S(active_o));
+RTL_MUX min_r_i__18
+(.I0(\<const0> ),
+.I1(min_r_i__17_n_0),
+.O(min_r_i__18_n_0),
+.S(en_i));
+RTL_MUX min_r_i__19
+(.I0(RTL_LT__7_n_0),
+.I1(\<const0> ),
+.O(min_r_i__19_n_0),
+.S(RTL_AND__1_n_0));
+RTL_MUX min_r_i__2
+(.I0(\<const0> ),
+.I1(min_r_i__1_n_0),
+.O(min_r_i__2_n_0),
+.S(active_o));
+RTL_MUX min_r_i__20
+(.I0(min_r_i__19_n_0),
+.I1(\<const0> ),
+.O(min_r_i__20_n_0),
+.S(active_r1));
+RTL_MUX5889 min_r_i__21
+(.I0(\<const0> ),
+.I1(min_r_i__20_n_0),
+.O(min_r_i__21_n_0),
+.S(to_r));
+RTL_MUX min_r_i__22
+(.I0(\<const0> ),
+.I1(min_r_i__21_n_0),
+.O(min_r_i__22_n_0),
+.S(active_o));
+RTL_MUX min_r_i__23
+(.I0(\<const0> ),
+.I1(min_r_i__22_n_0),
+.O(min_r_i__23_n_0),
+.S(en_i));
+RTL_MUX min_r_i__24
+(.I0(\<const1> ),
+.I1(clr_i),
+.O(min_r_i__24_n_0),
+.S(rst_n));
+RTL_MUX min_r_i__25
+(.I0(RTL_LT__4_n_0),
+.I1(\<const0> ),
+.O(min_r_i__25_n_0),
+.S(active_r1_i_n_0));
+RTL_MUX min_r_i__26
+(.I0(min_r_i__25_n_0),
+.I1(\<const0> ),
+.O(min_r_i__26_n_0),
+.S(stage_p_i[0]));
+RTL_MUX min_r_i__27
+(.I0(min_r_i__26_n_0),
+.I1(\<const0> ),
+.O(min_r_i__27_n_0),
+.S(active_o));
+RTL_MUX min_r_i__28
+(.I0(\<const0> ),
+.I1(min_r_i__27_n_0),
+.O(min_r_i__28_n_0),
+.S(en_i));
+RTL_MUX min_r_i__3
+(.I0(\<const0> ),
+.I1(min_r_i__2_n_0),
+.O(min_r),
+.S(en_i));
+RTL_MUX min_r_i__4
+(.I0(\<const1> ),
+.I1(clr_i),
+.O(min_r_i__4_n_0),
+.S(rst_n));
+RTL_MUX min_r_i__5
+(.I0(p_0_out),
+.I1(\<const0> ),
+.O(min_r_i__5_n_0),
+.S(active_r1_i_n_0));
+RTL_MUX min_r_i__6
+(.I0(min_r_i__5_n_0),
+.I1(\<const0> ),
+.O(min_r_i__6_n_0),
+.S(stage_p_i[0]));
+RTL_MUX min_r_i__7
+(.I0(min_r_i__6_n_0),
+.I1(\<const0> ),
+.O(min_r_i__7_n_0),
+.S(active_o));
+RTL_MUX min_r_i__8
+(.I0(\<const0> ),
+.I1(min_r_i__7_n_0),
+.O(min_r_i__8_n_0),
+.S(en_i));
+RTL_MUX min_r_i__9
+(.I0(RTL_LT__6_n_0),
+.I1(\<const0> ),
+.O(min_r_i__9_n_0),
+.S(RTL_AND__0_n_0));
+RTL_REG_SYNC__BREG_162 \min_r_reg[0][0]
+(.C(clk_i),
+.CE(min_r),
+.D(hopd_return[0]),
+.Q(min_o[0]),
+.RST(min_r_i__8_n_0),
+.SET(min_r_i__4_n_0));
+RTL_REG_SYNC__BREG_162 \min_r_reg[0][10]
+(.C(clk_i),
+.CE(min_r),
+.D(hopd_return[10]),
+.Q(min_o[10]),
+.RST(min_r_i__8_n_0),
+.SET(min_r_i__4_n_0));
+RTL_REG_SYNC__BREG_162 \min_r_reg[0][11]
+(.C(clk_i),
+.CE(min_r),
+.D(hopd_return[11]),
+.Q(min_o[11]),
+.RST(min_r_i__8_n_0),
+.SET(min_r_i__4_n_0));
+RTL_REG_SYNC__BREG_162 \min_r_reg[0][12]
+(.C(clk_i),
+.CE(min_r),
+.D(hopd_return[12]),
+.Q(min_o[12]),
+.RST(min_r_i__8_n_0),
+.SET(min_r_i__4_n_0));
+RTL_REG_SYNC__BREG_162 \min_r_reg[0][13]
+(.C(clk_i),
+.CE(min_r),
+.D(hopd_return[13]),
+.Q(min_o[13]),
+.RST(min_r_i__8_n_0),
+.SET(min_r_i__4_n_0));
+RTL_REG_SYNC__BREG_162 \min_r_reg[0][14]
+(.C(clk_i),
+.CE(min_r),
+.D(hopd_return[14]),
+.Q(min_o[14]),
+.RST(min_r_i__8_n_0),
+.SET(min_r_i__4_n_0));
+RTL_REG_SYNC__BREG_162 \min_r_reg[0][15]
+(.C(clk_i),
+.CE(min_r),
+.D(hopd_return[15]),
+.Q(min_o[15]),
+.RST(min_r_i__8_n_0),
+.SET(min_r_i__4_n_0));
+RTL_REG_SYNC__BREG_162 \min_r_reg[0][1]
+(.C(clk_i),
+.CE(min_r),
+.D(hopd_return[1]),
+.Q(min_o[1]),
+.RST(min_r_i__8_n_0),
+.SET(min_r_i__4_n_0));
+RTL_REG_SYNC__BREG_162 \min_r_reg[0][2]
+(.C(clk_i),
+.CE(min_r),
+.D(hopd_return[2]),
+.Q(min_o[2]),
+.RST(min_r_i__8_n_0),
+.SET(min_r_i__4_n_0));
+RTL_REG_SYNC__BREG_162 \min_r_reg[0][3]
+(.C(clk_i),
+.CE(min_r),
+.D(hopd_return[3]),
+.Q(min_o[3]),
+.RST(min_r_i__8_n_0),
+.SET(min_r_i__4_n_0));
+RTL_REG_SYNC__BREG_162 \min_r_reg[0][4]
+(.C(clk_i),
+.CE(min_r),
+.D(hopd_return[4]),
+.Q(min_o[4]),
+.RST(min_r_i__8_n_0),
+.SET(min_r_i__4_n_0));
+RTL_REG_SYNC__BREG_162 \min_r_reg[0][5]
+(.C(clk_i),
+.CE(min_r),
+.D(hopd_return[5]),
+.Q(min_o[5]),
+.RST(min_r_i__8_n_0),
+.SET(min_r_i__4_n_0));
+RTL_REG_SYNC__BREG_162 \min_r_reg[0][6]
+(.C(clk_i),
+.CE(min_r),
+.D(hopd_return[6]),
+.Q(min_o[6]),
+.RST(min_r_i__8_n_0),
+.SET(min_r_i__4_n_0));
+RTL_REG_SYNC__BREG_162 \min_r_reg[0][7]
+(.C(clk_i),
+.CE(min_r),
+.D(hopd_return[7]),
+.Q(min_o[7]),
+.RST(min_r_i__8_n_0),
+.SET(min_r_i__4_n_0));
+RTL_REG_SYNC__BREG_162 \min_r_reg[0][8]
+(.C(clk_i),
+.CE(min_r),
+.D(hopd_return[8]),
+.Q(min_o[8]),
+.RST(min_r_i__8_n_0),
+.SET(min_r_i__4_n_0));
+RTL_REG_SYNC__BREG_162 \min_r_reg[0][9]
+(.C(clk_i),
+.CE(min_r),
+.D(hopd_return[9]),
+.Q(min_o[9]),
+.RST(min_r_i__8_n_0),
+.SET(min_r_i__4_n_0));
+RTL_REG_SYNC__BREG_162 \min_r_reg[1][0]
+(.C(clk_i),
+.CE(min_r_i__13_n_0),
+.D(hopd0_return[0]),
+.Q(min_o[16]),
+.RST(min_r_i__18_n_0),
+.SET(min_r_i__14_n_0));
+RTL_REG_SYNC__BREG_162 \min_r_reg[1][10]
+(.C(clk_i),
+.CE(min_r_i__13_n_0),
+.D(hopd0_return[10]),
+.Q(min_o[26]),
+.RST(min_r_i__18_n_0),
+.SET(min_r_i__14_n_0));
+RTL_REG_SYNC__BREG_162 \min_r_reg[1][11]
+(.C(clk_i),
+.CE(min_r_i__13_n_0),
+.D(hopd0_return[11]),
+.Q(min_o[27]),
+.RST(min_r_i__18_n_0),
+.SET(min_r_i__14_n_0));
+RTL_REG_SYNC__BREG_162 \min_r_reg[1][12]
+(.C(clk_i),
+.CE(min_r_i__13_n_0),
+.D(hopd0_return[12]),
+.Q(min_o[28]),
+.RST(min_r_i__18_n_0),
+.SET(min_r_i__14_n_0));
+RTL_REG_SYNC__BREG_162 \min_r_reg[1][13]
+(.C(clk_i),
+.CE(min_r_i__13_n_0),
+.D(hopd0_return[13]),
+.Q(min_o[29]),
+.RST(min_r_i__18_n_0),
+.SET(min_r_i__14_n_0));
+RTL_REG_SYNC__BREG_162 \min_r_reg[1][14]
+(.C(clk_i),
+.CE(min_r_i__13_n_0),
+.D(hopd0_return[14]),
+.Q(min_o[30]),
+.RST(min_r_i__18_n_0),
+.SET(min_r_i__14_n_0));
+RTL_REG_SYNC__BREG_162 \min_r_reg[1][15]
+(.C(clk_i),
+.CE(min_r_i__13_n_0),
+.D(hopd0_return[15]),
+.Q(min_o[31]),
+.RST(min_r_i__18_n_0),
+.SET(min_r_i__14_n_0));
+RTL_REG_SYNC__BREG_162 \min_r_reg[1][1]
+(.C(clk_i),
+.CE(min_r_i__13_n_0),
+.D(hopd0_return[1]),
+.Q(min_o[17]),
+.RST(min_r_i__18_n_0),
+.SET(min_r_i__14_n_0));
+RTL_REG_SYNC__BREG_162 \min_r_reg[1][2]
+(.C(clk_i),
+.CE(min_r_i__13_n_0),
+.D(hopd0_return[2]),
+.Q(min_o[18]),
+.RST(min_r_i__18_n_0),
+.SET(min_r_i__14_n_0));
+RTL_REG_SYNC__BREG_162 \min_r_reg[1][3]
+(.C(clk_i),
+.CE(min_r_i__13_n_0),
+.D(hopd0_return[3]),
+.Q(min_o[19]),
+.RST(min_r_i__18_n_0),
+.SET(min_r_i__14_n_0));
+RTL_REG_SYNC__BREG_162 \min_r_reg[1][4]
+(.C(clk_i),
+.CE(min_r_i__13_n_0),
+.D(hopd0_return[4]),
+.Q(min_o[20]),
+.RST(min_r_i__18_n_0),
+.SET(min_r_i__14_n_0));
+RTL_REG_SYNC__BREG_162 \min_r_reg[1][5]
+(.C(clk_i),
+.CE(min_r_i__13_n_0),
+.D(hopd0_return[5]),
+.Q(min_o[21]),
+.RST(min_r_i__18_n_0),
+.SET(min_r_i__14_n_0));
+RTL_REG_SYNC__BREG_162 \min_r_reg[1][6]
+(.C(clk_i),
+.CE(min_r_i__13_n_0),
+.D(hopd0_return[6]),
+.Q(min_o[22]),
+.RST(min_r_i__18_n_0),
+.SET(min_r_i__14_n_0));
+RTL_REG_SYNC__BREG_162 \min_r_reg[1][7]
+(.C(clk_i),
+.CE(min_r_i__13_n_0),
+.D(hopd0_return[7]),
+.Q(min_o[23]),
+.RST(min_r_i__18_n_0),
+.SET(min_r_i__14_n_0));
+RTL_REG_SYNC__BREG_162 \min_r_reg[1][8]
+(.C(clk_i),
+.CE(min_r_i__13_n_0),
+.D(hopd0_return[8]),
+.Q(min_o[24]),
+.RST(min_r_i__18_n_0),
+.SET(min_r_i__14_n_0));
+RTL_REG_SYNC__BREG_162 \min_r_reg[1][9]
+(.C(clk_i),
+.CE(min_r_i__13_n_0),
+.D(hopd0_return[9]),
+.Q(min_o[25]),
+.RST(min_r_i__18_n_0),
+.SET(min_r_i__14_n_0));
+RTL_REG_SYNC__BREG_162 \min_r_reg[2][0]
+(.C(clk_i),
+.CE(min_r_i__23_n_0),
+.D(hopd1_return[0]),
+.Q(min_o[32]),
+.RST(min_r_i__28_n_0),
+.SET(min_r_i__24_n_0));
+RTL_REG_SYNC__BREG_162 \min_r_reg[2][10]
+(.C(clk_i),
+.CE(min_r_i__23_n_0),
+.D(hopd1_return[10]),
+.Q(min_o[42]),
+.RST(min_r_i__28_n_0),
+.SET(min_r_i__24_n_0));
+RTL_REG_SYNC__BREG_162 \min_r_reg[2][11]
+(.C(clk_i),
+.CE(min_r_i__23_n_0),
+.D(hopd1_return[11]),
+.Q(min_o[43]),
+.RST(min_r_i__28_n_0),
+.SET(min_r_i__24_n_0));
+RTL_REG_SYNC__BREG_162 \min_r_reg[2][12]
+(.C(clk_i),
+.CE(min_r_i__23_n_0),
+.D(hopd1_return[12]),
+.Q(min_o[44]),
+.RST(min_r_i__28_n_0),
+.SET(min_r_i__24_n_0));
+RTL_REG_SYNC__BREG_162 \min_r_reg[2][13]
+(.C(clk_i),
+.CE(min_r_i__23_n_0),
+.D(hopd1_return[13]),
+.Q(min_o[45]),
+.RST(min_r_i__28_n_0),
+.SET(min_r_i__24_n_0));
+RTL_REG_SYNC__BREG_162 \min_r_reg[2][14]
+(.C(clk_i),
+.CE(min_r_i__23_n_0),
+.D(hopd1_return[14]),
+.Q(min_o[46]),
+.RST(min_r_i__28_n_0),
+.SET(min_r_i__24_n_0));
+RTL_REG_SYNC__BREG_162 \min_r_reg[2][15]
+(.C(clk_i),
+.CE(min_r_i__23_n_0),
+.D(hopd1_return[15]),
+.Q(min_o[47]),
+.RST(min_r_i__28_n_0),
+.SET(min_r_i__24_n_0));
+RTL_REG_SYNC__BREG_162 \min_r_reg[2][1]
+(.C(clk_i),
+.CE(min_r_i__23_n_0),
+.D(hopd1_return[1]),
+.Q(min_o[33]),
+.RST(min_r_i__28_n_0),
+.SET(min_r_i__24_n_0));
+RTL_REG_SYNC__BREG_162 \min_r_reg[2][2]
+(.C(clk_i),
+.CE(min_r_i__23_n_0),
+.D(hopd1_return[2]),
+.Q(min_o[34]),
+.RST(min_r_i__28_n_0),
+.SET(min_r_i__24_n_0));
+RTL_REG_SYNC__BREG_162 \min_r_reg[2][3]
+(.C(clk_i),
+.CE(min_r_i__23_n_0),
+.D(hopd1_return[3]),
+.Q(min_o[35]),
+.RST(min_r_i__28_n_0),
+.SET(min_r_i__24_n_0));
+RTL_REG_SYNC__BREG_162 \min_r_reg[2][4]
+(.C(clk_i),
+.CE(min_r_i__23_n_0),
+.D(hopd1_return[4]),
+.Q(min_o[36]),
+.RST(min_r_i__28_n_0),
+.SET(min_r_i__24_n_0));
+RTL_REG_SYNC__BREG_162 \min_r_reg[2][5]
+(.C(clk_i),
+.CE(min_r_i__23_n_0),
+.D(hopd1_return[5]),
+.Q(min_o[37]),
+.RST(min_r_i__28_n_0),
+.SET(min_r_i__24_n_0));
+RTL_REG_SYNC__BREG_162 \min_r_reg[2][6]
+(.C(clk_i),
+.CE(min_r_i__23_n_0),
+.D(hopd1_return[6]),
+.Q(min_o[38]),
+.RST(min_r_i__28_n_0),
+.SET(min_r_i__24_n_0));
+RTL_REG_SYNC__BREG_162 \min_r_reg[2][7]
+(.C(clk_i),
+.CE(min_r_i__23_n_0),
+.D(hopd1_return[7]),
+.Q(min_o[39]),
+.RST(min_r_i__28_n_0),
+.SET(min_r_i__24_n_0));
+RTL_REG_SYNC__BREG_162 \min_r_reg[2][8]
+(.C(clk_i),
+.CE(min_r_i__23_n_0),
+.D(hopd1_return[8]),
+.Q(min_o[40]),
+.RST(min_r_i__28_n_0),
+.SET(min_r_i__24_n_0));
+RTL_REG_SYNC__BREG_162 \min_r_reg[2][9]
+(.C(clk_i),
+.CE(min_r_i__23_n_0),
+.D(hopd1_return[9]),
+.Q(min_o[41]),
+.RST(min_r_i__28_n_0),
+.SET(min_r_i__24_n_0));
+RTL_MUX778 nadv0_w_i
+(.I0({\<const1> ,\<const1> }),
+.I1({\<const1> ,\<const0> }),
+.O({nadv0_w_i_n_0,nadv0_w_i_n_1}),
+.S(stage_p_i[3]));
+RTL_MUX778 nadv0_w_i__0
+(.I0({\<const0> ,\<const1> }),
+.I1({nadv0_w_i_n_0,nadv0_w_i_n_1}),
+.O({nadv0_w_i__0_n_0,nadv0_w_i__0_n_1}),
+.S(stage_p_i[2]));
+RTL_MUX778 nadv0_w_i__1
+(.I0({\<const0> ,\<const0> }),
+.I1({nadv0_w_i__0_n_0,nadv0_w_i__0_n_1}),
+.O(nadv0_w),
+.S(stage_p_i[1]));
+RTL_ADD161 nadv_w0_i
+(.I0(nadv_w_i_n_0),
+.I1(\<const1> ),
+.O({nadv_w0_i_n_0,nadv_w0_i_n_1}));
+RTL_ADD385 nadv_w0_i__0
+(.I0({nadv_w_i__1_n_0,nadv_w_i__1_n_1}),
+.I1(\<const1> ),
+.O(nadv_w0));
+RTL_MUX nadv_w_i
+(.I0(stage_p_i[1]),
+.I1(\<const0> ),
+.O(nadv_w_i_n_0),
+.S(\adv_scan.run_v1_i_n_0 ));
+RTL_MUX2571 nadv_w_i__0
+(.I0({nadv_w0_i_n_0,nadv_w0_i_n_1}),
+.I1(nadv_w_i_n_0),
+.O({nadv_w_i__0_n_0,nadv_w_i__0_n_1}),
+.S(stage_p_i[2]));
+RTL_MUX2571 nadv_w_i__1
+(.I0({nadv_w_i__0_n_0,nadv_w_i__0_n_1}),
+.I1(nadv_w_i_n_0),
+.O({nadv_w_i__1_n_0,nadv_w_i__1_n_1}),
+.S(\adv_scan.run_v1 ));
+RTL_MUX678 nadv_w_i__2
+(.I0(nadv_w0),
+.I1({nadv_w_i__1_n_0,nadv_w_i__1_n_1}),
+.O({nadv_w_i__2_n_0,nadv_w_i__2_n_1,nadv_w_i__2_n_2}),
+.S(stage_p_i[3]));
+RTL_MUX678 nadv_w_i__3
+(.I0({nadv_w_i__2_n_0,nadv_w_i__2_n_1,nadv_w_i__2_n_2}),
+.I1({nadv_w_i__1_n_0,nadv_w_i__1_n_1}),
+.O(nadv_w),
+.S(\adv_scan.run_v ));
+RTL_MUX5889 prevc_r_i
+(.I0(\<const0> ),
+.I1(active_r1),
+.O(prevc_r_i_n_0),
+.S(to_r));
+RTL_MUX prevc_r_i__0
+(.I0(stage_p_i[0]),
+.I1(prevc_r_i_n_0),
+.O(prevc_r_i__0_n_0),
+.S(active_o));
+RTL_MUX prevc_r_i__1
+(.I0(\<const0> ),
+.I1(prevc_r_i__0_n_0),
+.O(prevc_r_i__1_n_0),
+.S(en_i));
+RTL_MUX prevc_r_i__2
+(.I0(\<const0> ),
+.I1(prevc_r_i__1_n_0),
+.O(prevc_r__0),
+.S(clr_i));
+RTL_MUX prevc_r_i__3
+(.I0(\<const1> ),
+.I1(\<const0> ),
+.O(prevc_r_i__3_n_0),
+.S(rst_n));
+RTL_REG_SYNC__BREG_1 \prevc_r_reg[0]
+(.C(clk_i),
+.CE(prevc_r__0),
+.D(cyc_i[0]),
+.Q(prevc_r[0]),
+.RST(prevc_r_i__3_n_0));
+RTL_REG_SYNC__BREG_1 \prevc_r_reg[10]
+(.C(clk_i),
+.CE(prevc_r__0),
+.D(cyc_i[10]),
+.Q(prevc_r[10]),
+.RST(prevc_r_i__3_n_0));
+RTL_REG_SYNC__BREG_1 \prevc_r_reg[11]
+(.C(clk_i),
+.CE(prevc_r__0),
+.D(cyc_i[11]),
+.Q(prevc_r[11]),
+.RST(prevc_r_i__3_n_0));
+RTL_REG_SYNC__BREG_1 \prevc_r_reg[12]
+(.C(clk_i),
+.CE(prevc_r__0),
+.D(cyc_i[12]),
+.Q(prevc_r[12]),
+.RST(prevc_r_i__3_n_0));
+RTL_REG_SYNC__BREG_1 \prevc_r_reg[13]
+(.C(clk_i),
+.CE(prevc_r__0),
+.D(cyc_i[13]),
+.Q(prevc_r[13]),
+.RST(prevc_r_i__3_n_0));
+RTL_REG_SYNC__BREG_1 \prevc_r_reg[14]
+(.C(clk_i),
+.CE(prevc_r__0),
+.D(cyc_i[14]),
+.Q(prevc_r[14]),
+.RST(prevc_r_i__3_n_0));
+RTL_REG_SYNC__BREG_1 \prevc_r_reg[15]
+(.C(clk_i),
+.CE(prevc_r__0),
+.D(cyc_i[15]),
+.Q(prevc_r[15]),
+.RST(prevc_r_i__3_n_0));
+RTL_REG_SYNC__BREG_1 \prevc_r_reg[16]
+(.C(clk_i),
+.CE(prevc_r__0),
+.D(cyc_i[16]),
+.Q(prevc_r[16]),
+.RST(prevc_r_i__3_n_0));
+RTL_REG_SYNC__BREG_1 \prevc_r_reg[17]
+(.C(clk_i),
+.CE(prevc_r__0),
+.D(cyc_i[17]),
+.Q(prevc_r[17]),
+.RST(prevc_r_i__3_n_0));
+RTL_REG_SYNC__BREG_1 \prevc_r_reg[18]
+(.C(clk_i),
+.CE(prevc_r__0),
+.D(cyc_i[18]),
+.Q(prevc_r[18]),
+.RST(prevc_r_i__3_n_0));
+RTL_REG_SYNC__BREG_1 \prevc_r_reg[19]
+(.C(clk_i),
+.CE(prevc_r__0),
+.D(cyc_i[19]),
+.Q(prevc_r[19]),
+.RST(prevc_r_i__3_n_0));
+RTL_REG_SYNC__BREG_1 \prevc_r_reg[1]
+(.C(clk_i),
+.CE(prevc_r__0),
+.D(cyc_i[1]),
+.Q(prevc_r[1]),
+.RST(prevc_r_i__3_n_0));
+RTL_REG_SYNC__BREG_1 \prevc_r_reg[20]
+(.C(clk_i),
+.CE(prevc_r__0),
+.D(cyc_i[20]),
+.Q(prevc_r[20]),
+.RST(prevc_r_i__3_n_0));
+RTL_REG_SYNC__BREG_1 \prevc_r_reg[21]
+(.C(clk_i),
+.CE(prevc_r__0),
+.D(cyc_i[21]),
+.Q(prevc_r[21]),
+.RST(prevc_r_i__3_n_0));
+RTL_REG_SYNC__BREG_1 \prevc_r_reg[22]
+(.C(clk_i),
+.CE(prevc_r__0),
+.D(cyc_i[22]),
+.Q(prevc_r[22]),
+.RST(prevc_r_i__3_n_0));
+RTL_REG_SYNC__BREG_1 \prevc_r_reg[23]
+(.C(clk_i),
+.CE(prevc_r__0),
+.D(cyc_i[23]),
+.Q(prevc_r[23]),
+.RST(prevc_r_i__3_n_0));
+RTL_REG_SYNC__BREG_1 \prevc_r_reg[24]
+(.C(clk_i),
+.CE(prevc_r__0),
+.D(cyc_i[24]),
+.Q(prevc_r[24]),
+.RST(prevc_r_i__3_n_0));
+RTL_REG_SYNC__BREG_1 \prevc_r_reg[25]
+(.C(clk_i),
+.CE(prevc_r__0),
+.D(cyc_i[25]),
+.Q(prevc_r[25]),
+.RST(prevc_r_i__3_n_0));
+RTL_REG_SYNC__BREG_1 \prevc_r_reg[26]
+(.C(clk_i),
+.CE(prevc_r__0),
+.D(cyc_i[26]),
+.Q(prevc_r[26]),
+.RST(prevc_r_i__3_n_0));
+RTL_REG_SYNC__BREG_1 \prevc_r_reg[27]
+(.C(clk_i),
+.CE(prevc_r__0),
+.D(cyc_i[27]),
+.Q(prevc_r[27]),
+.RST(prevc_r_i__3_n_0));
+RTL_REG_SYNC__BREG_1 \prevc_r_reg[28]
+(.C(clk_i),
+.CE(prevc_r__0),
+.D(cyc_i[28]),
+.Q(prevc_r[28]),
+.RST(prevc_r_i__3_n_0));
+RTL_REG_SYNC__BREG_1 \prevc_r_reg[29]
+(.C(clk_i),
+.CE(prevc_r__0),
+.D(cyc_i[29]),
+.Q(prevc_r[29]),
+.RST(prevc_r_i__3_n_0));
+RTL_REG_SYNC__BREG_1 \prevc_r_reg[2]
+(.C(clk_i),
+.CE(prevc_r__0),
+.D(cyc_i[2]),
+.Q(prevc_r[2]),
+.RST(prevc_r_i__3_n_0));
+RTL_REG_SYNC__BREG_1 \prevc_r_reg[30]
+(.C(clk_i),
+.CE(prevc_r__0),
+.D(cyc_i[30]),
+.Q(prevc_r[30]),
+.RST(prevc_r_i__3_n_0));
+RTL_REG_SYNC__BREG_1 \prevc_r_reg[31]
+(.C(clk_i),
+.CE(prevc_r__0),
+.D(cyc_i[31]),
+.Q(prevc_r[31]),
+.RST(prevc_r_i__3_n_0));
+RTL_REG_SYNC__BREG_1 \prevc_r_reg[3]
+(.C(clk_i),
+.CE(prevc_r__0),
+.D(cyc_i[3]),
+.Q(prevc_r[3]),
+.RST(prevc_r_i__3_n_0));
+RTL_REG_SYNC__BREG_1 \prevc_r_reg[4]
+(.C(clk_i),
+.CE(prevc_r__0),
+.D(cyc_i[4]),
+.Q(prevc_r[4]),
+.RST(prevc_r_i__3_n_0));
+RTL_REG_SYNC__BREG_1 \prevc_r_reg[5]
+(.C(clk_i),
+.CE(prevc_r__0),
+.D(cyc_i[5]),
+.Q(prevc_r[5]),
+.RST(prevc_r_i__3_n_0));
+RTL_REG_SYNC__BREG_1 \prevc_r_reg[6]
+(.C(clk_i),
+.CE(prevc_r__0),
+.D(cyc_i[6]),
+.Q(prevc_r[6]),
+.RST(prevc_r_i__3_n_0));
+RTL_REG_SYNC__BREG_1 \prevc_r_reg[7]
+(.C(clk_i),
+.CE(prevc_r__0),
+.D(cyc_i[7]),
+.Q(prevc_r[7]),
+.RST(prevc_r_i__3_n_0));
+RTL_REG_SYNC__BREG_1 \prevc_r_reg[8]
+(.C(clk_i),
+.CE(prevc_r__0),
+.D(cyc_i[8]),
+.Q(prevc_r[8]),
+.RST(prevc_r_i__3_n_0));
+RTL_REG_SYNC__BREG_1 \prevc_r_reg[9]
+(.C(clk_i),
+.CE(prevc_r__0),
+.D(cyc_i[9]),
+.Q(prevc_r[9]),
+.RST(prevc_r_i__3_n_0));
+RTL_ADD3 samples_r0_i
+(.I0(samples_o),
+.I1(\<const1> ),
+.O({samples_r0_i_n_0,samples_r0_i_n_1,samples_r0_i_n_2,samples_r0_i_n_3,samples_r0_i_n_4,samples_r0_i_n_5,samples_r0_i_n_6,samples_r0_i_n_7,samples_r0_i_n_8,samples_r0_i_n_9,samples_r0_i_n_10,samples_r0_i_n_11,samples_r0_i_n_12,samples_r0_i_n_13,samples_r0_i_n_14,samples_r0_i_n_15}));
+RTL_MUX samples_r0_i__0
+(.I0(\<const0> ),
+.I1(\<const1> ),
+.O(samples_r0),
+.S(samples_r2));
+RTL_REDUCTION_AND1 samples_r2_i
+(.I0(samples_o),
+.O(samples_r2));
+RTL_MUX1495 samples_r_i
+(.I0(samples_r0),
+.I1(\<const0> ),
+.O(samples_r_i_n_0),
+.S({\<const0> ,nadv0_w}));
+RTL_MUX samples_r_i__0
+(.I0(samples_r_i_n_0),
+.I1(\<const0> ),
+.O(samples_r_i__0_n_0),
+.S(active_r1_i_n_0));
+RTL_MUX samples_r_i__1
+(.I0(samples_r_i__0_n_0),
+.I1(\<const0> ),
+.O(samples_r_i__1_n_0),
+.S(stage_p_i[0]));
+RTL_MUX samples_r_i__2
+(.I0(samples_r0),
+.I1(\<const0> ),
+.O(samples_r_i__2_n_0),
+.S(active_r0));
+RTL_MUX samples_r_i__3
+(.I0(samples_r_i__2_n_0),
+.I1(\<const0> ),
+.O(samples_r_i__3_n_0),
+.S(active_r1));
+RTL_MUX5889 samples_r_i__4
+(.I0(\<const0> ),
+.I1(samples_r_i__3_n_0),
+.O(samples_r_i__4_n_0),
+.S(to_r));
+RTL_MUX samples_r_i__5
+(.I0(samples_r_i__1_n_0),
+.I1(samples_r_i__4_n_0),
+.O(samples_r_i__5_n_0),
+.S(active_o));
+RTL_MUX samples_r_i__6
+(.I0(\<const0> ),
+.I1(samples_r_i__5_n_0),
+.O(samples_r),
+.S(en_i));
+RTL_MUX samples_r_i__7
+(.I0(\<const1> ),
+.I1(clr_i),
+.O(samples_r_i__7_n_0),
+.S(rst_n));
+RTL_REG_SYNC__BREG_1 \samples_r_reg[0]
+(.C(clk_i),
+.CE(samples_r),
+.D(samples_r0_i_n_15),
+.Q(samples_o[0]),
+.RST(samples_r_i__7_n_0));
+RTL_REG_SYNC__BREG_1 \samples_r_reg[10]
+(.C(clk_i),
+.CE(samples_r),
+.D(samples_r0_i_n_5),
+.Q(samples_o[10]),
+.RST(samples_r_i__7_n_0));
+RTL_REG_SYNC__BREG_1 \samples_r_reg[11]
+(.C(clk_i),
+.CE(samples_r),
+.D(samples_r0_i_n_4),
+.Q(samples_o[11]),
+.RST(samples_r_i__7_n_0));
+RTL_REG_SYNC__BREG_1 \samples_r_reg[12]
+(.C(clk_i),
+.CE(samples_r),
+.D(samples_r0_i_n_3),
+.Q(samples_o[12]),
+.RST(samples_r_i__7_n_0));
+RTL_REG_SYNC__BREG_1 \samples_r_reg[13]
+(.C(clk_i),
+.CE(samples_r),
+.D(samples_r0_i_n_2),
+.Q(samples_o[13]),
+.RST(samples_r_i__7_n_0));
+RTL_REG_SYNC__BREG_1 \samples_r_reg[14]
+(.C(clk_i),
+.CE(samples_r),
+.D(samples_r0_i_n_1),
+.Q(samples_o[14]),
+.RST(samples_r_i__7_n_0));
+RTL_REG_SYNC__BREG_1 \samples_r_reg[15]
+(.C(clk_i),
+.CE(samples_r),
+.D(samples_r0_i_n_0),
+.Q(samples_o[15]),
+.RST(samples_r_i__7_n_0));
+RTL_REG_SYNC__BREG_1 \samples_r_reg[1]
+(.C(clk_i),
+.CE(samples_r),
+.D(samples_r0_i_n_14),
+.Q(samples_o[1]),
+.RST(samples_r_i__7_n_0));
+RTL_REG_SYNC__BREG_1 \samples_r_reg[2]
+(.C(clk_i),
+.CE(samples_r),
+.D(samples_r0_i_n_13),
+.Q(samples_o[2]),
+.RST(samples_r_i__7_n_0));
+RTL_REG_SYNC__BREG_1 \samples_r_reg[3]
+(.C(clk_i),
+.CE(samples_r),
+.D(samples_r0_i_n_12),
+.Q(samples_o[3]),
+.RST(samples_r_i__7_n_0));
+RTL_REG_SYNC__BREG_1 \samples_r_reg[4]
+(.C(clk_i),
+.CE(samples_r),
+.D(samples_r0_i_n_11),
+.Q(samples_o[4]),
+.RST(samples_r_i__7_n_0));
+RTL_REG_SYNC__BREG_1 \samples_r_reg[5]
+(.C(clk_i),
+.CE(samples_r),
+.D(samples_r0_i_n_10),
+.Q(samples_o[5]),
+.RST(samples_r_i__7_n_0));
+RTL_REG_SYNC__BREG_1 \samples_r_reg[6]
+(.C(clk_i),
+.CE(samples_r),
+.D(samples_r0_i_n_9),
+.Q(samples_o[6]),
+.RST(samples_r_i__7_n_0));
+RTL_REG_SYNC__BREG_1 \samples_r_reg[7]
+(.C(clk_i),
+.CE(samples_r),
+.D(samples_r0_i_n_8),
+.Q(samples_o[7]),
+.RST(samples_r_i__7_n_0));
+RTL_REG_SYNC__BREG_1 \samples_r_reg[8]
+(.C(clk_i),
+.CE(samples_r),
+.D(samples_r0_i_n_7),
+.Q(samples_o[8]),
+.RST(samples_r_i__7_n_0));
+RTL_REG_SYNC__BREG_1 \samples_r_reg[9]
+(.C(clk_i),
+.CE(samples_r),
+.D(samples_r0_i_n_6),
+.Q(samples_o[9]),
+.RST(samples_r_i__7_n_0));
+RTL_MUX5840 stage_o_i
+(.I0(stg_r),
+.I1({\<const0> ,\<const0> ,\<const0> }),
+.O(stage_o),
+.S(active_o));
+RTL_ADD381 stg_r0_i
+(.I0(\<const1> ),
+.I1(nadv0_w),
+.O(stg_r0));
+RTL_ADD50 stg_r0_i__0
+(.I0(stg_r),
+.I1(nadv_w[1:0]),
+.O({stg_r0_i__0_n_0,stg_r0_i__0_n_1}));
+RTL_MUX778 stg_r_i
+(.I0(stg_r0),
+.I1({stg_r0_i__0_n_0,stg_r0_i__0_n_1}),
+.O(stg_r__0),
+.S(active_o));
+RTL_MUX stg_r_i__0
+(.I0(\<const0> ),
+.I1(\<const1> ),
+.O(stg_r_i__0_n_0),
+.S(active_r0));
+RTL_MUX stg_r_i__1
+(.I0(stg_r_i__0_n_0),
+.I1(\<const0> ),
+.O(stg_r_i__1_n_0),
+.S(active_r1));
+RTL_MUX stg_r_i__10
+(.I0(\<const1> ),
+.I1(stg_r_i__9_n_0),
+.O(stg_r_i__10_n_0),
+.S(clr_i));
+RTL_MUX stg_r_i__11
+(.I0(\<const1> ),
+.I1(stg_r_i__10_n_0),
+.O(stg_r_i__11_n_0),
+.S(rst_n));
+RTL_MUX5889 stg_r_i__2
+(.I0(\<const0> ),
+.I1(stg_r_i__1_n_0),
+.O(stg_r_i__2_n_0),
+.S(to_r));
+RTL_MUX stg_r_i__3
+(.I0(stage_p_i[0]),
+.I1(stg_r_i__2_n_0),
+.O(stg_r_i__3_n_0),
+.S(active_o));
+RTL_MUX stg_r_i__4
+(.I0(\<const0> ),
+.I1(stg_r_i__3_n_0),
+.O(stg_r_i__4_n_0),
+.S(en_i));
+RTL_ROM81 stg_r_i__5
+(.A({\<const0> ,nadv0_w}),
+.O(stg_r_i__5_n_0));
+RTL_MUX stg_r_i__6
+(.I0(stg_r_i__5_n_0),
+.I1(\<const1> ),
+.O(stg_r_i__6_n_0),
+.S(active_r1_i_n_0));
+RTL_MUX stg_r_i__7
+(.I0(stg_r_i__6_n_0),
+.I1(\<const0> ),
+.O(stg_r_i__7_n_0),
+.S(stage_p_i[0]));
+RTL_MUX stg_r_i__8
+(.I0(stg_r_i__7_n_0),
+.I1(\<const0> ),
+.O(stg_r_i__8_n_0),
+.S(active_o));
+RTL_MUX stg_r_i__9
+(.I0(\<const0> ),
+.I1(stg_r_i__8_n_0),
+.O(stg_r_i__9_n_0),
+.S(en_i));
+RTL_REG_SYNC__BREG_162 \stg_r_reg[0]
+(.C(clk_i),
+.CE(stg_r_i__4_n_0),
+.D(stg_r__0[0]),
+.Q(stg_r[0]),
+.SET(stg_r_i__11_n_0));
+RTL_REG_SYNC__BREG_162 \stg_r_reg[1]
+(.C(clk_i),
+.CE(stg_r_i__4_n_0),
+.D(stg_r__0[1]),
+.Q(stg_r[1]),
+.RST(stg_r_i__11_n_0));
+RTL_ADD3 timeouts_r0_i
+(.I0(timeouts_o),
+.I1(\<const1> ),
+.O({timeouts_r0_i_n_0,timeouts_r0_i_n_1,timeouts_r0_i_n_2,timeouts_r0_i_n_3,timeouts_r0_i_n_4,timeouts_r0_i_n_5,timeouts_r0_i_n_6,timeouts_r0_i_n_7,timeouts_r0_i_n_8,timeouts_r0_i_n_9,timeouts_r0_i_n_10,timeouts_r0_i_n_11,timeouts_r0_i_n_12,timeouts_r0_i_n_13,timeouts_r0_i_n_14,timeouts_r0_i_n_15}));
+RTL_MUX timeouts_r0_i__0
+(.I0(\<const0> ),
+.I1(\<const1> ),
+.O(timeouts_r0),
+.S(timeouts_r2));
+RTL_REDUCTION_AND1 timeouts_r2_i
+(.I0(timeouts_o),
+.O(timeouts_r2));
+RTL_MUX5889 timeouts_r_i
+(.I0(timeouts_r0),
+.I1(\<const0> ),
+.O(timeouts_r_i_n_0),
+.S(to_r));
+RTL_MUX timeouts_r_i__0
+(.I0(\<const0> ),
+.I1(timeouts_r_i_n_0),
+.O(timeouts_r_i__0_n_0),
+.S(active_o));
+RTL_MUX timeouts_r_i__1
+(.I0(\<const0> ),
+.I1(timeouts_r_i__0_n_0),
+.O(timeouts_r),
+.S(en_i));
+RTL_MUX timeouts_r_i__2
+(.I0(\<const1> ),
+.I1(clr_i),
+.O(timeouts_r_i__2_n_0),
+.S(rst_n));
+RTL_REG_SYNC__BREG_1 \timeouts_r_reg[0]
+(.C(clk_i),
+.CE(timeouts_r),
+.D(timeouts_r0_i_n_15),
+.Q(timeouts_o[0]),
+.RST(timeouts_r_i__2_n_0));
+RTL_REG_SYNC__BREG_1 \timeouts_r_reg[10]
+(.C(clk_i),
+.CE(timeouts_r),
+.D(timeouts_r0_i_n_5),
+.Q(timeouts_o[10]),
+.RST(timeouts_r_i__2_n_0));
+RTL_REG_SYNC__BREG_1 \timeouts_r_reg[11]
+(.C(clk_i),
+.CE(timeouts_r),
+.D(timeouts_r0_i_n_4),
+.Q(timeouts_o[11]),
+.RST(timeouts_r_i__2_n_0));
+RTL_REG_SYNC__BREG_1 \timeouts_r_reg[12]
+(.C(clk_i),
+.CE(timeouts_r),
+.D(timeouts_r0_i_n_3),
+.Q(timeouts_o[12]),
+.RST(timeouts_r_i__2_n_0));
+RTL_REG_SYNC__BREG_1 \timeouts_r_reg[13]
+(.C(clk_i),
+.CE(timeouts_r),
+.D(timeouts_r0_i_n_2),
+.Q(timeouts_o[13]),
+.RST(timeouts_r_i__2_n_0));
+RTL_REG_SYNC__BREG_1 \timeouts_r_reg[14]
+(.C(clk_i),
+.CE(timeouts_r),
+.D(timeouts_r0_i_n_1),
+.Q(timeouts_o[14]),
+.RST(timeouts_r_i__2_n_0));
+RTL_REG_SYNC__BREG_1 \timeouts_r_reg[15]
+(.C(clk_i),
+.CE(timeouts_r),
+.D(timeouts_r0_i_n_0),
+.Q(timeouts_o[15]),
+.RST(timeouts_r_i__2_n_0));
+RTL_REG_SYNC__BREG_1 \timeouts_r_reg[1]
+(.C(clk_i),
+.CE(timeouts_r),
+.D(timeouts_r0_i_n_14),
+.Q(timeouts_o[1]),
+.RST(timeouts_r_i__2_n_0));
+RTL_REG_SYNC__BREG_1 \timeouts_r_reg[2]
+(.C(clk_i),
+.CE(timeouts_r),
+.D(timeouts_r0_i_n_13),
+.Q(timeouts_o[2]),
+.RST(timeouts_r_i__2_n_0));
+RTL_REG_SYNC__BREG_1 \timeouts_r_reg[3]
+(.C(clk_i),
+.CE(timeouts_r),
+.D(timeouts_r0_i_n_12),
+.Q(timeouts_o[3]),
+.RST(timeouts_r_i__2_n_0));
+RTL_REG_SYNC__BREG_1 \timeouts_r_reg[4]
+(.C(clk_i),
+.CE(timeouts_r),
+.D(timeouts_r0_i_n_11),
+.Q(timeouts_o[4]),
+.RST(timeouts_r_i__2_n_0));
+RTL_REG_SYNC__BREG_1 \timeouts_r_reg[5]
+(.C(clk_i),
+.CE(timeouts_r),
+.D(timeouts_r0_i_n_10),
+.Q(timeouts_o[5]),
+.RST(timeouts_r_i__2_n_0));
+RTL_REG_SYNC__BREG_1 \timeouts_r_reg[6]
+(.C(clk_i),
+.CE(timeouts_r),
+.D(timeouts_r0_i_n_9),
+.Q(timeouts_o[6]),
+.RST(timeouts_r_i__2_n_0));
+RTL_REG_SYNC__BREG_1 \timeouts_r_reg[7]
+(.C(clk_i),
+.CE(timeouts_r),
+.D(timeouts_r0_i_n_8),
+.Q(timeouts_o[7]),
+.RST(timeouts_r_i__2_n_0));
+RTL_REG_SYNC__BREG_1 \timeouts_r_reg[8]
+(.C(clk_i),
+.CE(timeouts_r),
+.D(timeouts_r0_i_n_7),
+.Q(timeouts_o[8]),
+.RST(timeouts_r_i__2_n_0));
+RTL_REG_SYNC__BREG_1 \timeouts_r_reg[9]
+(.C(clk_i),
+.CE(timeouts_r),
+.D(timeouts_r0_i_n_6),
+.Q(timeouts_o[9]),
+.RST(timeouts_r_i__2_n_0));
+RTL_SUB202 to_r0_i
+(.I0(to_r),
+.I1(\<const1> ),
+.O(to_r0));
+RTL_MUX870 to_r_i
+(.I0({\<const1> ,\<const1> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const1> ,\<const1> ,\<const0> ,\<const1> ,\<const0> ,\<const1> ,\<const0> ,\<const0> ,\<const0> }),
+.I1(to_r0),
+.O(to_r__0),
+.S(active_r1));
+RTL_ROM79 to_r_i__0
+(.A(to_r),
+.O(to_r_i__0_n_0));
+RTL_MUX to_r_i__1
+(.I0(\<const0> ),
+.I1(to_r_i__0_n_0),
+.O(to_r_i__1_n_0),
+.S(active_o));
+RTL_MUX870 to_r_i__10
+(.I0({to_r_i__9_n_0,to_r_i__9_n_1,to_r_i__9_n_2,to_r_i__9_n_3,to_r_i__9_n_4,to_r_i__9_n_5,to_r_i__9_n_6,to_r_i__9_n_7,to_r_i__9_n_8,to_r_i__9_n_9,to_r_i__9_n_10,to_r_i__9_n_11,to_r_i__9_n_12,to_r_i__9_n_13,to_r_i__9_n_14}),
+.I1({\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> }),
+.O({to_r_i__10_n_0,to_r_i__10_n_1,to_r_i__10_n_2,to_r_i__10_n_3,to_r_i__10_n_4,to_r_i__10_n_5,to_r_i__10_n_6,to_r_i__10_n_7,to_r_i__10_n_8,to_r_i__10_n_9,to_r_i__10_n_10,to_r_i__10_n_11,to_r_i__10_n_12,to_r_i__10_n_13,to_r_i__10_n_14}),
+.S(active_o));
+RTL_MUX870 to_r_i__11
+(.I0({\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> }),
+.I1({to_r_i__10_n_0,to_r_i__10_n_1,to_r_i__10_n_2,to_r_i__10_n_3,to_r_i__10_n_4,to_r_i__10_n_5,to_r_i__10_n_6,to_r_i__10_n_7,to_r_i__10_n_8,to_r_i__10_n_9,to_r_i__10_n_10,to_r_i__10_n_11,to_r_i__10_n_12,to_r_i__10_n_13,to_r_i__10_n_14}),
+.O({to_r_i__11_n_0,to_r_i__11_n_1,to_r_i__11_n_2,to_r_i__11_n_3,to_r_i__11_n_4,to_r_i__11_n_5,to_r_i__11_n_6,to_r_i__11_n_7,to_r_i__11_n_8,to_r_i__11_n_9,to_r_i__11_n_10,to_r_i__11_n_11,to_r_i__11_n_12,to_r_i__11_n_13,to_r_i__11_n_14}),
+.S(en_i));
+RTL_MUX870 to_r_i__12
+(.I0({\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> }),
+.I1({to_r_i__11_n_0,to_r_i__11_n_1,to_r_i__11_n_2,to_r_i__11_n_3,to_r_i__11_n_4,to_r_i__11_n_5,to_r_i__11_n_6,to_r_i__11_n_7,to_r_i__11_n_8,to_r_i__11_n_9,to_r_i__11_n_10,to_r_i__11_n_11,to_r_i__11_n_12,to_r_i__11_n_13,to_r_i__11_n_14}),
+.O({to_r_i__12_n_0,to_r_i__12_n_1,to_r_i__12_n_2,to_r_i__12_n_3,to_r_i__12_n_4,to_r_i__12_n_5,to_r_i__12_n_6,to_r_i__12_n_7,to_r_i__12_n_8,to_r_i__12_n_9,to_r_i__12_n_10,to_r_i__12_n_11,to_r_i__12_n_12,to_r_i__12_n_13,to_r_i__12_n_14}),
+.S(clr_i));
+RTL_MUX to_r_i__2
+(.I0(\<const0> ),
+.I1(to_r_i__1_n_0),
+.O(to_r_i__2_n_0),
+.S(en_i));
+RTL_MUX to_r_i__3
+(.I0(\<const0> ),
+.I1(to_r_i__2_n_0),
+.O(to_r0_out),
+.S(clr_i));
+RTL_MUX870 to_r_i__4
+(.I0({\<const0> ,\<const0> ,\<const1> ,\<const1> ,\<const1> ,\<const1> ,\<const0> ,\<const0> ,\<const1> ,\<const0> ,\<const1> ,\<const0> ,\<const1> ,\<const1> ,\<const1> }),
+.I1({\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> }),
+.O({to_r_i__4_n_0,to_r_i__4_n_1,to_r_i__4_n_2,to_r_i__4_n_3,to_r_i__4_n_4,to_r_i__4_n_5,to_r_i__4_n_6,to_r_i__4_n_7,to_r_i__4_n_8,to_r_i__4_n_9,to_r_i__4_n_10,to_r_i__4_n_11,to_r_i__4_n_12,to_r_i__4_n_13,to_r_i__4_n_14}),
+.S(stage_p_i[0]));
+RTL_MUX870 to_r_i__5
+(.I0({to_r_i__4_n_0,to_r_i__4_n_1,to_r_i__4_n_2,to_r_i__4_n_3,to_r_i__4_n_4,to_r_i__4_n_5,to_r_i__4_n_6,to_r_i__4_n_7,to_r_i__4_n_8,to_r_i__4_n_9,to_r_i__4_n_10,to_r_i__4_n_11,to_r_i__4_n_12,to_r_i__4_n_13,to_r_i__4_n_14}),
+.I1({\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> }),
+.O({to_r_i__5_n_0,to_r_i__5_n_1,to_r_i__5_n_2,to_r_i__5_n_3,to_r_i__5_n_4,to_r_i__5_n_5,to_r_i__5_n_6,to_r_i__5_n_7,to_r_i__5_n_8,to_r_i__5_n_9,to_r_i__5_n_10,to_r_i__5_n_11,to_r_i__5_n_12,to_r_i__5_n_13,to_r_i__5_n_14}),
+.S(active_o));
+RTL_MUX870 to_r_i__6
+(.I0({\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> }),
+.I1({to_r_i__5_n_0,to_r_i__5_n_1,to_r_i__5_n_2,to_r_i__5_n_3,to_r_i__5_n_4,to_r_i__5_n_5,to_r_i__5_n_6,to_r_i__5_n_7,to_r_i__5_n_8,to_r_i__5_n_9,to_r_i__5_n_10,to_r_i__5_n_11,to_r_i__5_n_12,to_r_i__5_n_13,to_r_i__5_n_14}),
+.O({to_r_i__6_n_0,to_r_i__6_n_1,to_r_i__6_n_2,to_r_i__6_n_3,to_r_i__6_n_4,to_r_i__6_n_5,to_r_i__6_n_6,to_r_i__6_n_7,to_r_i__6_n_8,to_r_i__6_n_9,to_r_i__6_n_10,to_r_i__6_n_11,to_r_i__6_n_12,to_r_i__6_n_13,to_r_i__6_n_14}),
+.S(en_i));
+RTL_MUX870 to_r_i__7
+(.I0({\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> }),
+.I1({to_r_i__6_n_0,to_r_i__6_n_1,to_r_i__6_n_2,to_r_i__6_n_3,to_r_i__6_n_4,to_r_i__6_n_5,to_r_i__6_n_6,to_r_i__6_n_7,to_r_i__6_n_8,to_r_i__6_n_9,to_r_i__6_n_10,to_r_i__6_n_11,to_r_i__6_n_12,to_r_i__6_n_13,to_r_i__6_n_14}),
+.O({to_r_i__7_n_0,to_r_i__7_n_1,to_r_i__7_n_2,to_r_i__7_n_3,to_r_i__7_n_4,to_r_i__7_n_5,to_r_i__7_n_6,to_r_i__7_n_7,to_r_i__7_n_8,to_r_i__7_n_9,to_r_i__7_n_10,to_r_i__7_n_11,to_r_i__7_n_12,to_r_i__7_n_13,to_r_i__7_n_14}),
+.S(clr_i));
+RTL_MUX870 to_r_i__8
+(.I0({\<const1> ,\<const1> ,\<const1> ,\<const1> ,\<const1> ,\<const1> ,\<const1> ,\<const1> ,\<const1> ,\<const1> ,\<const1> ,\<const1> ,\<const1> ,\<const1> ,\<const1> }),
+.I1({to_r_i__7_n_0,to_r_i__7_n_1,to_r_i__7_n_2,to_r_i__7_n_3,to_r_i__7_n_4,to_r_i__7_n_5,to_r_i__7_n_6,to_r_i__7_n_7,to_r_i__7_n_8,to_r_i__7_n_9,to_r_i__7_n_10,to_r_i__7_n_11,to_r_i__7_n_12,to_r_i__7_n_13,to_r_i__7_n_14}),
+.O({to_r_i__8_n_0,to_r_i__8_n_1,to_r_i__8_n_2,to_r_i__8_n_3,to_r_i__8_n_4,to_r_i__8_n_5,to_r_i__8_n_6,to_r_i__8_n_7,to_r_i__8_n_8,to_r_i__8_n_9,to_r_i__8_n_10,to_r_i__8_n_11,to_r_i__8_n_12,to_r_i__8_n_13,to_r_i__8_n_14}),
+.S(rst_n));
+RTL_MUX870 to_r_i__9
+(.I0({\<const1> ,\<const1> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const1> ,\<const1> ,\<const0> ,\<const1> ,\<const0> ,\<const1> ,\<const0> ,\<const0> ,\<const0> }),
+.I1({\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> }),
+.O({to_r_i__9_n_0,to_r_i__9_n_1,to_r_i__9_n_2,to_r_i__9_n_3,to_r_i__9_n_4,to_r_i__9_n_5,to_r_i__9_n_6,to_r_i__9_n_7,to_r_i__9_n_8,to_r_i__9_n_9,to_r_i__9_n_10,to_r_i__9_n_11,to_r_i__9_n_12,to_r_i__9_n_13,to_r_i__9_n_14}),
+.S(stage_p_i[0]));
+RTL_REG_SYNC__BREG_155 \to_r_reg[0]
+(.C(clk_i),
+.CE(to_r0_out),
+.D(to_r__0[0]),
+.Q(to_r[0]),
+.RST(to_r_i__8_n_14));
+RTL_REG_SYNC__BREG_155 \to_r_reg[10]
+(.C(clk_i),
+.CE(to_r0_out),
+.D(to_r__0[10]),
+.Q(to_r[10]),
+.RST(to_r_i__8_n_4));
+RTL_REG_SYNC__BREG_155 \to_r_reg[11]
+(.C(clk_i),
+.CE(to_r0_out),
+.D(to_r__0[11]),
+.Q(to_r[11]),
+.RST(to_r_i__8_n_3));
+RTL_REG_SYNC__BREG_155 \to_r_reg[12]
+(.C(clk_i),
+.CE(to_r0_out),
+.D(to_r__0[12]),
+.Q(to_r[12]),
+.RST(to_r_i__8_n_2));
+RTL_REG_SYNC__BREG_155 \to_r_reg[13]
+(.C(clk_i),
+.CE(to_r0_out),
+.D(to_r__0[13]),
+.Q(to_r[13]),
+.RST(to_r_i__8_n_1),
+.SET(to_r_i__12_n_1));
+RTL_REG_SYNC__BREG_155 \to_r_reg[14]
+(.C(clk_i),
+.CE(to_r0_out),
+.D(to_r__0[14]),
+.Q(to_r[14]),
+.RST(to_r_i__8_n_0),
+.SET(to_r_i__12_n_0));
+RTL_REG_SYNC__BREG_155 \to_r_reg[1]
+(.C(clk_i),
+.CE(to_r0_out),
+.D(to_r__0[1]),
+.Q(to_r[1]),
+.RST(to_r_i__8_n_13));
+RTL_REG_SYNC__BREG_155 \to_r_reg[2]
+(.C(clk_i),
+.CE(to_r0_out),
+.D(to_r__0[2]),
+.Q(to_r[2]),
+.RST(to_r_i__8_n_12));
+RTL_REG_SYNC__BREG_155 \to_r_reg[3]
+(.C(clk_i),
+.CE(to_r0_out),
+.D(to_r__0[3]),
+.Q(to_r[3]),
+.RST(to_r_i__8_n_11),
+.SET(to_r_i__12_n_11));
+RTL_REG_SYNC__BREG_155 \to_r_reg[4]
+(.C(clk_i),
+.CE(to_r0_out),
+.D(to_r__0[4]),
+.Q(to_r[4]),
+.RST(to_r_i__8_n_10));
+RTL_REG_SYNC__BREG_155 \to_r_reg[5]
+(.C(clk_i),
+.CE(to_r0_out),
+.D(to_r__0[5]),
+.Q(to_r[5]),
+.RST(to_r_i__8_n_9),
+.SET(to_r_i__12_n_9));
+RTL_REG_SYNC__BREG_155 \to_r_reg[6]
+(.C(clk_i),
+.CE(to_r0_out),
+.D(to_r__0[6]),
+.Q(to_r[6]),
+.RST(to_r_i__8_n_8));
+RTL_REG_SYNC__BREG_155 \to_r_reg[7]
+(.C(clk_i),
+.CE(to_r0_out),
+.D(to_r__0[7]),
+.Q(to_r[7]),
+.RST(to_r_i__8_n_7),
+.SET(to_r_i__12_n_7));
+RTL_REG_SYNC__BREG_155 \to_r_reg[8]
+(.C(clk_i),
+.CE(to_r0_out),
+.D(to_r__0[8]),
+.Q(to_r[8]),
+.RST(to_r_i__8_n_6),
+.SET(to_r_i__12_n_6));
+RTL_REG_SYNC__BREG_155 \to_r_reg[9]
+(.C(clk_i),
+.CE(to_r0_out),
+.D(to_r__0[9]),
+.Q(to_r[9]),
+.RST(to_r_i__8_n_5));
+endmodule
+module KL_aaf_latency_tap_bank
+(clk_i,
+rst_n,
+en_i,
+clr_i,
+now_i,
+cap_pair_p_i,
+aaf_tx_tvalid_i,
+aaf_tx_tready_i,
+aaf_tx_tlast_i,
+mac_tx_tvalid_i,
+mac_tx_tready_i,
+mac_tx_tlast_i,
+mac_rx_tvalid_i,
+mac_rx_tready_i,
+mac_rx_tlast_i,
+avtp_accept_p_i,
+dpkt_tvalid_i,
+dpkt_tready_i,
+dpkt_tlast_i,
+render_tvalid_i,
+render_tready_i,
+render_tlast_i,
+regs_o,
+status_o);
+input clk_i;
+input rst_n;
+input en_i;
+input clr_i;
+input [31:0]now_i;
+input cap_pair_p_i;
+input aaf_tx_tvalid_i;
+input aaf_tx_tready_i;
+input aaf_tx_tlast_i;
+input mac_tx_tvalid_i;
+input mac_tx_tready_i;
+input mac_tx_tlast_i;
+input mac_rx_tvalid_i;
+input mac_rx_tready_i;
+input mac_rx_tlast_i;
+input avtp_accept_p_i;
+input dpkt_tvalid_i;
+input dpkt_tready_i;
+input dpkt_tlast_i;
+input render_tvalid_i;
+input render_tready_i;
+input render_tlast_i;
+output [511:0]regs_o;
+output [31:0]status_o;
+wire \<const0> ;
+wire \<const1> ;
+wire aaf_tx_acc_w;
+wire aaf_tx_inframe_r;
+wire aaf_tx_inframe_r0;
+wire aaf_tx_inframe_r__0;
+wire aaf_tx_tlast_i;
+wire aaf_tx_tready_i;
+wire aaf_tx_tvalid_i;
+wire avtp_accept_p_i;
+wire cap_pair_p_i;
+wire clk_i;
+wire clr_i;
+wire dpkt_acc_w;
+wire dpkt_tlast_i;
+wire dpkt_tready_i;
+wire dpkt_tvalid_i;
+wire en_i;
+wire [3:0]\g_ltap.ltap_rxp_q_r ;
+wire \g_ltap.ltap_rxp_q_r__0 ;
+wire [3:0]\g_ltap.ltap_txp_q_r ;
+wire \g_ltap.ltap_txp_q_r__0 ;
+wire mac_rx_acc_w;
+wire mac_rx_inframe_r;
+wire mac_rx_inframe_r0;
+wire mac_rx_inframe_r__0;
+wire mac_rx_tlast_i;
+wire mac_rx_tready_i;
+wire mac_rx_tvalid_i;
+wire mac_tx_acc_w;
+wire mac_tx_tlast_i;
+wire mac_tx_tready_i;
+wire mac_tx_tvalid_i;
+wire [31:0]now_i;
+wire [3:1]p_0_out;
+wire [3:0]p_0_out__0;
+wire [495:0]\^regs_o ;
+wire render_acc_w;
+wire render_tlast_i;
+wire render_tready_i;
+wire render_tvalid_i;
+wire rst_n;
+wire [31:0]status_o;
+assign regs_o[511] = \<const0> ;
+assign regs_o[510] = \<const0> ;
+assign regs_o[509] = \<const0> ;
+assign regs_o[508] = \<const0> ;
+assign regs_o[507] = \<const0> ;
+assign regs_o[506] = \<const0> ;
+assign regs_o[505] = \<const0> ;
+assign regs_o[504] = \<const0> ;
+assign regs_o[503] = \<const0> ;
+assign regs_o[502] = \<const0> ;
+assign regs_o[501] = \<const0> ;
+assign regs_o[500] = \<const0> ;
+assign regs_o[499] = \<const0> ;
+assign regs_o[498] = \<const0> ;
+assign regs_o[497] = \<const0> ;
+assign regs_o[496] = \<const0> ;
+assign regs_o[495:448] = \^regs_o [495:448];
+assign regs_o[447] = \<const0> ;
+assign regs_o[446] = \<const0> ;
+assign regs_o[445] = \<const0> ;
+assign regs_o[444] = \<const0> ;
+assign regs_o[443] = \<const0> ;
+assign regs_o[442] = \<const0> ;
+assign regs_o[441] = \<const0> ;
+assign regs_o[440] = \<const0> ;
+assign regs_o[439] = \<const0> ;
+assign regs_o[438] = \<const0> ;
+assign regs_o[437] = \<const0> ;
+assign regs_o[436] = \<const0> ;
+assign regs_o[435] = \<const0> ;
+assign regs_o[434] = \<const0> ;
+assign regs_o[433] = \<const0> ;
+assign regs_o[432] = \<const0> ;
+assign regs_o[431:384] = \^regs_o [431:384];
+assign regs_o[383] = \<const0> ;
+assign regs_o[382] = \<const0> ;
+assign regs_o[381] = \<const0> ;
+assign regs_o[380] = \<const0> ;
+assign regs_o[379] = \<const0> ;
+assign regs_o[378] = \<const0> ;
+assign regs_o[377] = \<const0> ;
+assign regs_o[376] = \<const0> ;
+assign regs_o[375] = \<const0> ;
+assign regs_o[374] = \<const0> ;
+assign regs_o[373] = \<const0> ;
+assign regs_o[372] = \<const0> ;
+assign regs_o[371] = \<const0> ;
+assign regs_o[370] = \<const0> ;
+assign regs_o[369] = \<const0> ;
+assign regs_o[368] = \<const0> ;
+assign regs_o[367:256] = \^regs_o [367:256];
+assign regs_o[255] = \<const0> ;
+assign regs_o[254] = \<const0> ;
+assign regs_o[253] = \<const0> ;
+assign regs_o[252] = \<const0> ;
+assign regs_o[251] = \<const0> ;
+assign regs_o[250] = \<const0> ;
+assign regs_o[249] = \<const0> ;
+assign regs_o[248] = \<const0> ;
+assign regs_o[247] = \<const0> ;
+assign regs_o[246] = \<const0> ;
+assign regs_o[245] = \<const0> ;
+assign regs_o[244] = \<const0> ;
+assign regs_o[243] = \<const0> ;
+assign regs_o[242] = \<const0> ;
+assign regs_o[241] = \<const0> ;
+assign regs_o[240] = \<const0> ;
+assign regs_o[239:192] = \^regs_o [239:192];
+assign regs_o[191] = \<const0> ;
+assign regs_o[190] = \<const0> ;
+assign regs_o[189] = \<const0> ;
+assign regs_o[188] = \<const0> ;
+assign regs_o[187] = \<const0> ;
+assign regs_o[186] = \<const0> ;
+assign regs_o[185] = \<const0> ;
+assign regs_o[184] = \<const0> ;
+assign regs_o[183] = \<const0> ;
+assign regs_o[182] = \<const0> ;
+assign regs_o[181] = \<const0> ;
+assign regs_o[180] = \<const0> ;
+assign regs_o[179] = \<const0> ;
+assign regs_o[178] = \<const0> ;
+assign regs_o[177] = \<const0> ;
+assign regs_o[176] = \<const0> ;
+assign regs_o[175:128] = \^regs_o [175:128];
+assign regs_o[127] = \<const0> ;
+assign regs_o[126] = \<const0> ;
+assign regs_o[125] = \<const0> ;
+assign regs_o[124] = \<const0> ;
+assign regs_o[123] = \<const0> ;
+assign regs_o[122] = \<const0> ;
+assign regs_o[121] = \<const0> ;
+assign regs_o[120] = \<const0> ;
+assign regs_o[119] = \<const0> ;
+assign regs_o[118] = \<const0> ;
+assign regs_o[117] = \<const0> ;
+assign regs_o[116] = \<const0> ;
+assign regs_o[115] = \<const0> ;
+assign regs_o[114] = \<const0> ;
+assign regs_o[113] = \<const0> ;
+assign regs_o[112] = \<const0> ;
+assign regs_o[111:0] = \^regs_o [111:0];
+GND GND
+(.G(\<const0> ));
+VCC VCC
+(.P(\<const1> ));
+RTL_AND7 aaf_tx_acc_w_i
+(.I0(aaf_tx_tvalid_i),
+.I1(aaf_tx_tready_i),
+.O(aaf_tx_acc_w));
+RTL_INV aaf_tx_inframe_r0_i
+(.I0(aaf_tx_tlast_i),
+.O(aaf_tx_inframe_r0));
+RTL_MUX aaf_tx_inframe_r_i
+(.I0(\<const1> ),
+.I1(\<const0> ),
+.O(aaf_tx_inframe_r__0),
+.S(rst_n));
+RTL_REG_SYNC__BREG_1 aaf_tx_inframe_r_reg
+(.C(clk_i),
+.CE(aaf_tx_acc_w),
+.D(aaf_tx_inframe_r0),
+.Q(aaf_tx_inframe_r),
+.RST(aaf_tx_inframe_r__0));
+RTL_AND7 dpkt_acc_w_i
+(.I0(dpkt_tvalid_i),
+.I1(dpkt_tready_i),
+.O(dpkt_acc_w));
+KL_aaf_latency_taps \g_ltap.aaf_latency_taps
+(.clk_i(clk_i),
+.clr_i(clr_i),
+.en_i(en_i),
+.now_i(now_i),
+.rst_n(rst_n),
+.rx_epoch_o(\^regs_o [287:256]),
+.rx_last_o({\^regs_o [463:448],\^regs_o [399:384],\^regs_o [335:320]}),
+.rx_max_o({\^regs_o [479:464],\^regs_o [415:400],\^regs_o [351:336]}),
+.rx_min_o({\^regs_o [495:480],\^regs_o [431:416],\^regs_o [367:352]}),
+.rx_samples_o(\^regs_o [303:288]),
+.rx_stage_p_i(\g_ltap.ltap_rxp_q_r ),
+.rx_timeouts_o(\^regs_o [319:304]),
+.status_o(status_o),
+.tx_epoch_o(\^regs_o [31:0]),
+.tx_last_o({\^regs_o [207:192],\^regs_o [143:128],\^regs_o [79:64]}),
+.tx_max_o({\^regs_o [223:208],\^regs_o [159:144],\^regs_o [95:80]}),
+.tx_min_o({\^regs_o [239:224],\^regs_o [175:160],\^regs_o [111:96]}),
+.tx_samples_o(\^regs_o [47:32]),
+.tx_stage_p_i(\g_ltap.ltap_txp_q_r ),
+.tx_timeouts_o(\^regs_o [63:48]));
+RTL_MUX \g_ltap.ltap_rxp_q_r_i
+(.I0(\<const1> ),
+.I1(\<const0> ),
+.O(\g_ltap.ltap_rxp_q_r__0 ),
+.S(rst_n));
+RTL_REG_SYNC__BREG_2 \g_ltap.ltap_rxp_q_r_reg[0]
+(.C(clk_i),
+.D(p_0_out__0[0]),
+.Q(\g_ltap.ltap_rxp_q_r [0]),
+.RST(\g_ltap.ltap_rxp_q_r__0 ));
+RTL_REG_SYNC__BREG_2 \g_ltap.ltap_rxp_q_r_reg[1]
+(.C(clk_i),
+.D(avtp_accept_p_i),
+.Q(\g_ltap.ltap_rxp_q_r [1]),
+.RST(\g_ltap.ltap_rxp_q_r__0 ));
+RTL_REG_SYNC__BREG_2 \g_ltap.ltap_rxp_q_r_reg[2]
+(.C(clk_i),
+.D(p_0_out__0[2]),
+.Q(\g_ltap.ltap_rxp_q_r [2]),
+.RST(\g_ltap.ltap_rxp_q_r__0 ));
+RTL_REG_SYNC__BREG_2 \g_ltap.ltap_rxp_q_r_reg[3]
+(.C(clk_i),
+.D(p_0_out__0[3]),
+.Q(\g_ltap.ltap_rxp_q_r [3]),
+.RST(\g_ltap.ltap_rxp_q_r__0 ));
+RTL_MUX \g_ltap.ltap_txp_q_r_i
+(.I0(\<const1> ),
+.I1(\<const0> ),
+.O(\g_ltap.ltap_txp_q_r__0 ),
+.S(rst_n));
+RTL_REG_SYNC__BREG_2 \g_ltap.ltap_txp_q_r_reg[0]
+(.C(clk_i),
+.D(cap_pair_p_i),
+.Q(\g_ltap.ltap_txp_q_r [0]),
+.RST(\g_ltap.ltap_txp_q_r__0 ));
+RTL_REG_SYNC__BREG_2 \g_ltap.ltap_txp_q_r_reg[1]
+(.C(clk_i),
+.D(p_0_out[1]),
+.Q(\g_ltap.ltap_txp_q_r [1]),
+.RST(\g_ltap.ltap_txp_q_r__0 ));
+RTL_REG_SYNC__BREG_2 \g_ltap.ltap_txp_q_r_reg[2]
+(.C(clk_i),
+.D(p_0_out[2]),
+.Q(\g_ltap.ltap_txp_q_r [2]),
+.RST(\g_ltap.ltap_txp_q_r__0 ));
+RTL_REG_SYNC__BREG_2 \g_ltap.ltap_txp_q_r_reg[3]
+(.C(clk_i),
+.D(p_0_out[3]),
+.Q(\g_ltap.ltap_txp_q_r [3]),
+.RST(\g_ltap.ltap_txp_q_r__0 ));
+RTL_AND7 ltap_rxdpk_w_i
+(.I0(dpkt_acc_w),
+.I1(dpkt_tlast_i),
+.O(p_0_out__0[2]));
+RTL_AND7 ltap_rxrend_w_i
+(.I0(render_acc_w),
+.I1(render_tlast_i),
+.O(p_0_out__0[3]));
+RTL_AND7 ltap_rxsof_w_i
+(.I0(mac_rx_acc_w),
+.I1(mac_rx_inframe_r),
+.O(p_0_out__0[0]));
+RTL_AND7 ltap_txeof_w_i
+(.I0(aaf_tx_acc_w),
+.I1(aaf_tx_tlast_i),
+.O(p_0_out[2]));
+RTL_AND7 ltap_txmac_w_i
+(.I0(mac_tx_acc_w),
+.I1(mac_tx_tlast_i),
+.O(p_0_out[3]));
+RTL_AND7 ltap_txsof_w_i
+(.I0(aaf_tx_acc_w),
+.I1(aaf_tx_inframe_r),
+.O(p_0_out[1]));
+RTL_AND7 mac_rx_acc_w_i
+(.I0(mac_rx_tvalid_i),
+.I1(mac_rx_tready_i),
+.O(mac_rx_acc_w));
+RTL_INV mac_rx_inframe_r0_i
+(.I0(mac_rx_tlast_i),
+.O(mac_rx_inframe_r0));
+RTL_MUX mac_rx_inframe_r_i
+(.I0(\<const1> ),
+.I1(\<const0> ),
+.O(mac_rx_inframe_r__0),
+.S(rst_n));
+RTL_REG_SYNC__BREG_1 mac_rx_inframe_r_reg
+(.C(clk_i),
+.CE(mac_rx_acc_w),
+.D(mac_rx_inframe_r0),
+.Q(mac_rx_inframe_r),
+.RST(mac_rx_inframe_r__0));
+RTL_AND7 mac_tx_acc_w_i
+(.I0(mac_tx_tvalid_i),
+.I1(mac_tx_tready_i),
+.O(mac_tx_acc_w));
+RTL_AND7 render_acc_w_i
+(.I0(render_tvalid_i),
+.I1(render_tready_i),
+.O(render_acc_w));
+endmodule
+module KL_aaf_latency_taps
+(clk_i,
+rst_n,
+en_i,
+clr_i,
+now_i,
+tx_stage_p_i,
+rx_stage_p_i,
+tx_epoch_o,
+rx_epoch_o,
+tx_samples_o,
+rx_samples_o,
+tx_timeouts_o,
+rx_timeouts_o,
+tx_last_o,
+tx_min_o,
+tx_max_o,
+rx_last_o,
+rx_min_o,
+rx_max_o,
+status_o);
+input clk_i;
+input rst_n;
+input en_i;
+input clr_i;
+input [31:0]now_i;
+input [3:0]tx_stage_p_i;
+input [3:0]rx_stage_p_i;
+output [31:0]tx_epoch_o;
+output [31:0]rx_epoch_o;
+output [15:0]tx_samples_o;
+output [15:0]rx_samples_o;
+output [15:0]tx_timeouts_o;
+output [15:0]rx_timeouts_o;
+output [47:0]tx_last_o;
+output [47:0]tx_min_o;
+output [47:0]tx_max_o;
+output [47:0]rx_last_o;
+output [47:0]rx_min_o;
+output [47:0]rx_max_o;
+output [31:0]status_o;
+wire \<const0> ;
+wire \<const1> ;
+wire clk_i;
+wire clr_i;
+wire [31:0]cyc_r;
+wire [31:0]cyc_r0;
+wire cyc_r__0;
+wire en_i;
+wire [31:0]now_i;
+wire rst_n;
+wire [31:0]rx_epoch_o;
+wire [47:0]rx_last_o;
+wire [47:0]rx_max_o;
+wire [47:0]rx_min_o;
+wire [15:0]rx_samples_o;
+wire [3:0]rx_stage_p_i;
+wire [15:0]rx_timeouts_o;
+wire [15:8]\^status_o ;
+wire [31:0]tx_epoch_o;
+wire [47:0]tx_last_o;
+wire [47:0]tx_max_o;
+wire [47:0]tx_min_o;
+wire [15:0]tx_samples_o;
+wire [3:0]tx_stage_p_i;
+wire [15:0]tx_timeouts_o;
+assign status_o[31] = \<const0> ;
+assign status_o[30] = \<const0> ;
+assign status_o[29] = \<const0> ;
+assign status_o[28] = \<const0> ;
+assign status_o[27] = \<const0> ;
+assign status_o[26] = \<const0> ;
+assign status_o[25] = \<const0> ;
+assign status_o[24] = \<const0> ;
+assign status_o[23] = \<const0> ;
+assign status_o[22] = \<const0> ;
+assign status_o[21] = \<const0> ;
+assign status_o[20] = \<const0> ;
+assign status_o[19] = \<const0> ;
+assign status_o[18] = \<const0> ;
+assign status_o[17] = \<const0> ;
+assign status_o[16] = \<const0> ;
+assign status_o[15:8] = \^status_o [15:8];
+assign status_o[7] = \<const0> ;
+assign status_o[6] = \<const0> ;
+assign status_o[5] = \<const0> ;
+assign status_o[4] = \<const0> ;
+assign status_o[3] = \<const0> ;
+assign status_o[2] = \<const0> ;
+assign status_o[1] = \<const0> ;
+assign status_o[0] = \<const0> ;
+GND GND
+(.G(\<const0> ));
+VCC VCC
+(.P(\<const1> ));
+RTL_ADD10 cyc_r0_i
+(.I0(cyc_r),
+.I1(\<const1> ),
+.O(cyc_r0));
+RTL_MUX cyc_r_i
+(.I0(\<const1> ),
+.I1(\<const0> ),
+.O(cyc_r__0),
+.S(rst_n));
+RTL_REG_SYNC__BREG_2 \cyc_r_reg[0]
+(.C(clk_i),
+.D(cyc_r0[0]),
+.Q(cyc_r[0]),
+.RST(cyc_r__0));
+RTL_REG_SYNC__BREG_2 \cyc_r_reg[10]
+(.C(clk_i),
+.D(cyc_r0[10]),
+.Q(cyc_r[10]),
+.RST(cyc_r__0));
+RTL_REG_SYNC__BREG_2 \cyc_r_reg[11]
+(.C(clk_i),
+.D(cyc_r0[11]),
+.Q(cyc_r[11]),
+.RST(cyc_r__0));
+RTL_REG_SYNC__BREG_2 \cyc_r_reg[12]
+(.C(clk_i),
+.D(cyc_r0[12]),
+.Q(cyc_r[12]),
+.RST(cyc_r__0));
+RTL_REG_SYNC__BREG_2 \cyc_r_reg[13]
+(.C(clk_i),
+.D(cyc_r0[13]),
+.Q(cyc_r[13]),
+.RST(cyc_r__0));
+RTL_REG_SYNC__BREG_2 \cyc_r_reg[14]
+(.C(clk_i),
+.D(cyc_r0[14]),
+.Q(cyc_r[14]),
+.RST(cyc_r__0));
+RTL_REG_SYNC__BREG_2 \cyc_r_reg[15]
+(.C(clk_i),
+.D(cyc_r0[15]),
+.Q(cyc_r[15]),
+.RST(cyc_r__0));
+RTL_REG_SYNC__BREG_2 \cyc_r_reg[16]
+(.C(clk_i),
+.D(cyc_r0[16]),
+.Q(cyc_r[16]),
+.RST(cyc_r__0));
+RTL_REG_SYNC__BREG_2 \cyc_r_reg[17]
+(.C(clk_i),
+.D(cyc_r0[17]),
+.Q(cyc_r[17]),
+.RST(cyc_r__0));
+RTL_REG_SYNC__BREG_2 \cyc_r_reg[18]
+(.C(clk_i),
+.D(cyc_r0[18]),
+.Q(cyc_r[18]),
+.RST(cyc_r__0));
+RTL_REG_SYNC__BREG_2 \cyc_r_reg[19]
+(.C(clk_i),
+.D(cyc_r0[19]),
+.Q(cyc_r[19]),
+.RST(cyc_r__0));
+RTL_REG_SYNC__BREG_2 \cyc_r_reg[1]
+(.C(clk_i),
+.D(cyc_r0[1]),
+.Q(cyc_r[1]),
+.RST(cyc_r__0));
+RTL_REG_SYNC__BREG_2 \cyc_r_reg[20]
+(.C(clk_i),
+.D(cyc_r0[20]),
+.Q(cyc_r[20]),
+.RST(cyc_r__0));
+RTL_REG_SYNC__BREG_2 \cyc_r_reg[21]
+(.C(clk_i),
+.D(cyc_r0[21]),
+.Q(cyc_r[21]),
+.RST(cyc_r__0));
+RTL_REG_SYNC__BREG_2 \cyc_r_reg[22]
+(.C(clk_i),
+.D(cyc_r0[22]),
+.Q(cyc_r[22]),
+.RST(cyc_r__0));
+RTL_REG_SYNC__BREG_2 \cyc_r_reg[23]
+(.C(clk_i),
+.D(cyc_r0[23]),
+.Q(cyc_r[23]),
+.RST(cyc_r__0));
+RTL_REG_SYNC__BREG_2 \cyc_r_reg[24]
+(.C(clk_i),
+.D(cyc_r0[24]),
+.Q(cyc_r[24]),
+.RST(cyc_r__0));
+RTL_REG_SYNC__BREG_2 \cyc_r_reg[25]
+(.C(clk_i),
+.D(cyc_r0[25]),
+.Q(cyc_r[25]),
+.RST(cyc_r__0));
+RTL_REG_SYNC__BREG_2 \cyc_r_reg[26]
+(.C(clk_i),
+.D(cyc_r0[26]),
+.Q(cyc_r[26]),
+.RST(cyc_r__0));
+RTL_REG_SYNC__BREG_2 \cyc_r_reg[27]
+(.C(clk_i),
+.D(cyc_r0[27]),
+.Q(cyc_r[27]),
+.RST(cyc_r__0));
+RTL_REG_SYNC__BREG_2 \cyc_r_reg[28]
+(.C(clk_i),
+.D(cyc_r0[28]),
+.Q(cyc_r[28]),
+.RST(cyc_r__0));
+RTL_REG_SYNC__BREG_2 \cyc_r_reg[29]
+(.C(clk_i),
+.D(cyc_r0[29]),
+.Q(cyc_r[29]),
+.RST(cyc_r__0));
+RTL_REG_SYNC__BREG_2 \cyc_r_reg[2]
+(.C(clk_i),
+.D(cyc_r0[2]),
+.Q(cyc_r[2]),
+.RST(cyc_r__0));
+RTL_REG_SYNC__BREG_2 \cyc_r_reg[30]
+(.C(clk_i),
+.D(cyc_r0[30]),
+.Q(cyc_r[30]),
+.RST(cyc_r__0));
+RTL_REG_SYNC__BREG_2 \cyc_r_reg[31]
+(.C(clk_i),
+.D(cyc_r0[31]),
+.Q(cyc_r[31]),
+.RST(cyc_r__0));
+RTL_REG_SYNC__BREG_2 \cyc_r_reg[3]
+(.C(clk_i),
+.D(cyc_r0[3]),
+.Q(cyc_r[3]),
+.RST(cyc_r__0));
+RTL_REG_SYNC__BREG_2 \cyc_r_reg[4]
+(.C(clk_i),
+.D(cyc_r0[4]),
+.Q(cyc_r[4]),
+.RST(cyc_r__0));
+RTL_REG_SYNC__BREG_2 \cyc_r_reg[5]
+(.C(clk_i),
+.D(cyc_r0[5]),
+.Q(cyc_r[5]),
+.RST(cyc_r__0));
+RTL_REG_SYNC__BREG_2 \cyc_r_reg[6]
+(.C(clk_i),
+.D(cyc_r0[6]),
+.Q(cyc_r[6]),
+.RST(cyc_r__0));
+RTL_REG_SYNC__BREG_2 \cyc_r_reg[7]
+(.C(clk_i),
+.D(cyc_r0[7]),
+.Q(cyc_r[7]),
+.RST(cyc_r__0));
+RTL_REG_SYNC__BREG_2 \cyc_r_reg[8]
+(.C(clk_i),
+.D(cyc_r0[8]),
+.Q(cyc_r[8]),
+.RST(cyc_r__0));
+RTL_REG_SYNC__BREG_2 \cyc_r_reg[9]
+(.C(clk_i),
+.D(cyc_r0[9]),
+.Q(cyc_r[9]),
+.RST(cyc_r__0));
+KL_aaf_latency_chain rx_chain
+(.active_o(\^status_o [12]),
+.clk_i(clk_i),
+.clr_i(clr_i),
+.cyc_i(cyc_r),
+.en_i(en_i),
+.epoch_o(rx_epoch_o),
+.last_o(rx_last_o),
+.max_o(rx_max_o),
+.min_o(rx_min_o),
+.now_i(now_i),
+.rst_n(rst_n),
+.samples_o(rx_samples_o),
+.stage_o(\^status_o [15:13]),
+.stage_p_i(rx_stage_p_i),
+.timeouts_o(rx_timeouts_o));
+KL_aaf_latency_chain tx_chain
+(.active_o(\^status_o [8]),
+.clk_i(clk_i),
+.clr_i(clr_i),
+.cyc_i(cyc_r),
+.en_i(en_i),
+.epoch_o(tx_epoch_o),
+.last_o(tx_last_o),
+.max_o(tx_max_o),
+.min_o(tx_min_o),
+.now_i(now_i),
+.rst_n(rst_n),
+.samples_o(tx_samples_o),
+.stage_o(\^status_o [11:9]),
+.stage_p_i(tx_stage_p_i),
+.timeouts_o(tx_timeouts_o));
+endmodule
+module KL_aaf_packetizer
+(clk_i,
+rst_n,
+pair_valid_i,
+pair_slot_i,
+pair_l_i,
+pair_r_i,
+stream_en_i,
+dest_mac_i,
+station_mac_i,
+vlan_vid_i,
+vlan_pcp_i,
+dom_ovr_i,
+stream_id_i,
+transit_ns_i,
+ptp_ns_i,
+ts_uncertain_i,
+mr_i,
+tctx_wr_en_i,
+tctx_wr_addr_i,
+tctx_wr_data_i,
+tctx_wr_rdy_o,
+tctx_rd_en_i,
+tctx_rd_addr_i,
+tctx_rd_data_o,
+tctx_rd_valid_o,
+m_axis_tdata,
+m_axis_tkeep,
+m_axis_tvalid,
+m_axis_tlast,
+m_axis_tready,
+frames_sent_o,
+frame_p_o,
+frame_idx_o,
+frame_tu_o,
+frame_mr_o);
+input clk_i;
+input rst_n;
+input pair_valid_i;
+input [4:0]pair_slot_i;
+input [23:0]pair_l_i;
+input [23:0]pair_r_i;
+input [0:0]stream_en_i;
+input [47:0]dest_mac_i;
+input [47:0]station_mac_i;
+input [11:0]vlan_vid_i;
+input [2:0]vlan_pcp_i;
+input dom_ovr_i;
+input [63:0]stream_id_i;
+input [31:0]transit_ns_i;
+input [63:0]ptp_ns_i;
+input ts_uncertain_i;
+input [0:0]mr_i;
+input tctx_wr_en_i;
+input [6:0]tctx_wr_addr_i;
+input [31:0]tctx_wr_data_i;
+output tctx_wr_rdy_o;
+input tctx_rd_en_i;
+input [6:0]tctx_rd_addr_i;
+output [31:0]tctx_rd_data_o;
+output tctx_rd_valid_o;
+output [63:0]m_axis_tdata;
+output [7:0]m_axis_tkeep;
+output m_axis_tvalid;
+output m_axis_tlast;
+input m_axis_tready;
+output [31:0]frames_sent_o;
+output frame_p_o;
+output [3:0]frame_idx_o;
+output frame_tu_o;
+output frame_mr_o;
+wire \<const0> ;
+wire \<const1> ;
+wire RTL_ADD__0_n_0;
+wire RTL_ADD__0_n_1;
+wire RTL_ADD__0_n_2;
+wire RTL_ADD__0_n_3;
+wire RTL_ADD__0_n_4;
+wire RTL_ADD__0_n_5;
+wire RTL_ADD__0_n_6;
+wire RTL_ADD__0_n_7;
+wire RTL_ADD__1_n_0;
+wire RTL_ADD__1_n_1;
+wire RTL_ADD__1_n_2;
+wire RTL_ADD__1_n_3;
+wire RTL_ADD_n_0;
+wire RTL_ADD_n_1;
+wire RTL_ADD_n_2;
+wire RTL_EQ_n_0;
+wire RTL_GEQ_n_0;
+wire RTL_LT_n_0;
+wire RTL_MUX__0_n_0;
+wire RTL_MUX__0_n_1;
+wire RTL_MUX__0_n_2;
+wire RTL_MUX__0_n_3;
+wire RTL_MUX__1_n_0;
+wire RTL_MUX__1_n_1;
+wire RTL_MUX__1_n_2;
+wire RTL_MUX__1_n_3;
+wire RTL_MUX_n_0;
+wire RTL_MUX_n_1;
+wire RTL_MUX_n_2;
+wire RTL_MUX_n_3;
+wire RTL_RSHIFT_n_0;
+wire [4:0]beat_r;
+wire [4:0]beat_r0;
+wire [4:0]beat_r__0;
+wire beat_r_i__0_n_0;
+wire beat_r_i__1_n_0;
+wire beat_r_i__2_n_0;
+wire beat_r_i__3_n_0;
+wire beat_r_i__4_n_0;
+wire beat_r_i__5_n_0;
+wire buf_l_r;
+wire buf_l_r_i__0_n_0;
+wire buf_l_r_i__10_n_0;
+wire buf_l_r_i__11_n_0;
+wire buf_l_r_i__12_n_0;
+wire buf_l_r_i__13_n_0;
+wire buf_l_r_i__14_n_0;
+wire buf_l_r_i__15_n_0;
+wire buf_l_r_i__16_n_0;
+wire buf_l_r_i__17_n_0;
+wire buf_l_r_i__18_n_0;
+wire buf_l_r_i__19_n_0;
+wire buf_l_r_i__20_n_0;
+wire buf_l_r_i__21_n_0;
+wire buf_l_r_i__22_n_0;
+wire buf_l_r_i__23_n_0;
+wire buf_l_r_i__24_n_0;
+wire buf_l_r_i__25_n_0;
+wire buf_l_r_i__26_n_0;
+wire buf_l_r_i__27_n_0;
+wire buf_l_r_i__28_n_0;
+wire buf_l_r_i__29_n_0;
+wire buf_l_r_i__2_n_0;
+wire buf_l_r_i__30_n_0;
+wire buf_l_r_i__31_n_0;
+wire buf_l_r_i__32_n_0;
+wire buf_l_r_i__33_n_0;
+wire buf_l_r_i__34_n_0;
+wire buf_l_r_i__35_n_0;
+wire buf_l_r_i__36_n_0;
+wire buf_l_r_i__37_n_0;
+wire buf_l_r_i__38_n_0;
+wire buf_l_r_i__39_n_0;
+wire buf_l_r_i__3_n_0;
+wire buf_l_r_i__40_n_0;
+wire buf_l_r_i__41_n_0;
+wire buf_l_r_i__42_n_0;
+wire buf_l_r_i__43_n_0;
+wire buf_l_r_i__44_n_0;
+wire buf_l_r_i__45_n_0;
+wire buf_l_r_i__46_n_0;
+wire buf_l_r_i__47_n_0;
+wire buf_l_r_i__48_n_0;
+wire buf_l_r_i__49_n_0;
+wire buf_l_r_i__4_n_0;
+wire buf_l_r_i__50_n_0;
+wire buf_l_r_i__51_n_0;
+wire buf_l_r_i__52_n_0;
+wire buf_l_r_i__53_n_0;
+wire buf_l_r_i__54_n_0;
+wire buf_l_r_i__55_n_0;
+wire buf_l_r_i__56_n_0;
+wire buf_l_r_i__57_n_0;
+wire buf_l_r_i__58_n_0;
+wire buf_l_r_i__59_n_0;
+wire buf_l_r_i__5_n_0;
+wire buf_l_r_i__60_n_0;
+wire buf_l_r_i__61_n_0;
+wire buf_l_r_i__62_n_0;
+wire buf_l_r_i__63_n_0;
+wire buf_l_r_i__64_n_0;
+wire buf_l_r_i__65_n_0;
+wire buf_l_r_i__66_n_0;
+wire buf_l_r_i__67_n_0;
+wire buf_l_r_i__68_n_0;
+wire buf_l_r_i__69_n_0;
+wire buf_l_r_i__6_n_0;
+wire buf_l_r_i__70_n_0;
+wire buf_l_r_i__71_n_0;
+wire buf_l_r_i__72_n_0;
+wire buf_l_r_i__73_n_0;
+wire buf_l_r_i__74_n_0;
+wire buf_l_r_i__75_n_0;
+wire buf_l_r_i__76_n_0;
+wire buf_l_r_i__77_n_0;
+wire buf_l_r_i__78_n_0;
+wire buf_l_r_i__79_n_0;
+wire buf_l_r_i__7_n_0;
+wire buf_l_r_i__80_n_0;
+wire buf_l_r_i__81_n_0;
+wire buf_l_r_i__82_n_0;
+wire buf_l_r_i__83_n_0;
+wire buf_l_r_i__84_n_0;
+wire buf_l_r_i__85_n_0;
+wire buf_l_r_i__86_n_0;
+wire buf_l_r_i__87_n_0;
+wire buf_l_r_i__88_n_0;
+wire buf_l_r_i__89_n_0;
+wire buf_l_r_i__8_n_0;
+wire buf_l_r_i__90_n_0;
+wire buf_l_r_i__91_n_0;
+wire buf_l_r_i__92_n_0;
+wire buf_l_r_i__93_n_0;
+wire buf_l_r_i__94_n_0;
+wire buf_l_r_i__9_n_0;
+wire buf_l_r_i_n_0;
+wire [23:0]\buf_l_r_reg[0]__0 ;
+wire [0:0]\buf_l_r_reg[0]__1 ;
+wire [23:0]\buf_l_r_reg[10]__0 ;
+wire [0:0]\buf_l_r_reg[10]__1 ;
+wire [23:0]\buf_l_r_reg[11]__0 ;
+wire [0:0]\buf_l_r_reg[11]__1 ;
+wire [23:0]\buf_l_r_reg[12]__0 ;
+wire [0:0]\buf_l_r_reg[12]__1 ;
+wire [23:0]\buf_l_r_reg[13]__0 ;
+wire [0:0]\buf_l_r_reg[13]__1 ;
+wire [23:0]\buf_l_r_reg[14]__0 ;
+wire [0:0]\buf_l_r_reg[14]__1 ;
+wire [23:0]\buf_l_r_reg[15]__0 ;
+wire [0:0]\buf_l_r_reg[15]__1 ;
+wire [23:0]\buf_l_r_reg[16]__0 ;
+wire [0:0]\buf_l_r_reg[16]__1 ;
+wire [23:0]\buf_l_r_reg[17]__0 ;
+wire [0:0]\buf_l_r_reg[17]__1 ;
+wire [23:0]\buf_l_r_reg[18]__0 ;
+wire [0:0]\buf_l_r_reg[18]__1 ;
+wire [23:0]\buf_l_r_reg[19]__0 ;
+wire [0:0]\buf_l_r_reg[19]__1 ;
+wire [23:0]\buf_l_r_reg[1]__0 ;
+wire [0:0]\buf_l_r_reg[1]__1 ;
+wire [23:0]\buf_l_r_reg[20]__0 ;
+wire [0:0]\buf_l_r_reg[20]__1 ;
+wire [23:0]\buf_l_r_reg[21]__0 ;
+wire [0:0]\buf_l_r_reg[21]__1 ;
+wire [23:0]\buf_l_r_reg[22]__0 ;
+wire [0:0]\buf_l_r_reg[22]__1 ;
+wire [23:0]\buf_l_r_reg[23]__0 ;
+wire [0:0]\buf_l_r_reg[23]__1 ;
+wire [23:0]\buf_l_r_reg[2]__0 ;
+wire [0:0]\buf_l_r_reg[2]__1 ;
+wire [23:0]\buf_l_r_reg[3]__0 ;
+wire [0:0]\buf_l_r_reg[3]__1 ;
+wire [23:0]\buf_l_r_reg[4]__0 ;
+wire [0:0]\buf_l_r_reg[4]__1 ;
+wire [23:0]\buf_l_r_reg[5]__0 ;
+wire [0:0]\buf_l_r_reg[5]__1 ;
+wire [23:0]\buf_l_r_reg[6]__0 ;
+wire [0:0]\buf_l_r_reg[6]__1 ;
+wire [23:0]\buf_l_r_reg[7]__0 ;
+wire [0:0]\buf_l_r_reg[7]__1 ;
+wire [23:0]\buf_l_r_reg[8]__0 ;
+wire [0:0]\buf_l_r_reg[8]__1 ;
+wire [23:0]\buf_l_r_reg[9]__0 ;
+wire [0:0]\buf_l_r_reg[9]__1 ;
+wire buf_r_r;
+wire buf_r_r_i__0_n_0;
+wire buf_r_r_i__10_n_0;
+wire buf_r_r_i__11_n_0;
+wire buf_r_r_i__12_n_0;
+wire buf_r_r_i__13_n_0;
+wire buf_r_r_i__14_n_0;
+wire buf_r_r_i__15_n_0;
+wire buf_r_r_i__16_n_0;
+wire buf_r_r_i__17_n_0;
+wire buf_r_r_i__18_n_0;
+wire buf_r_r_i__19_n_0;
+wire buf_r_r_i__20_n_0;
+wire buf_r_r_i__21_n_0;
+wire buf_r_r_i__22_n_0;
+wire buf_r_r_i__23_n_0;
+wire buf_r_r_i__24_n_0;
+wire buf_r_r_i__25_n_0;
+wire buf_r_r_i__26_n_0;
+wire buf_r_r_i__27_n_0;
+wire buf_r_r_i__28_n_0;
+wire buf_r_r_i__29_n_0;
+wire buf_r_r_i__2_n_0;
+wire buf_r_r_i__30_n_0;
+wire buf_r_r_i__31_n_0;
+wire buf_r_r_i__32_n_0;
+wire buf_r_r_i__33_n_0;
+wire buf_r_r_i__34_n_0;
+wire buf_r_r_i__35_n_0;
+wire buf_r_r_i__36_n_0;
+wire buf_r_r_i__37_n_0;
+wire buf_r_r_i__38_n_0;
+wire buf_r_r_i__39_n_0;
+wire buf_r_r_i__3_n_0;
+wire buf_r_r_i__40_n_0;
+wire buf_r_r_i__41_n_0;
+wire buf_r_r_i__42_n_0;
+wire buf_r_r_i__43_n_0;
+wire buf_r_r_i__44_n_0;
+wire buf_r_r_i__45_n_0;
+wire buf_r_r_i__46_n_0;
+wire buf_r_r_i__47_n_0;
+wire buf_r_r_i__48_n_0;
+wire buf_r_r_i__49_n_0;
+wire buf_r_r_i__4_n_0;
+wire buf_r_r_i__50_n_0;
+wire buf_r_r_i__51_n_0;
+wire buf_r_r_i__52_n_0;
+wire buf_r_r_i__53_n_0;
+wire buf_r_r_i__54_n_0;
+wire buf_r_r_i__55_n_0;
+wire buf_r_r_i__56_n_0;
+wire buf_r_r_i__57_n_0;
+wire buf_r_r_i__58_n_0;
+wire buf_r_r_i__59_n_0;
+wire buf_r_r_i__5_n_0;
+wire buf_r_r_i__60_n_0;
+wire buf_r_r_i__61_n_0;
+wire buf_r_r_i__62_n_0;
+wire buf_r_r_i__63_n_0;
+wire buf_r_r_i__64_n_0;
+wire buf_r_r_i__65_n_0;
+wire buf_r_r_i__66_n_0;
+wire buf_r_r_i__67_n_0;
+wire buf_r_r_i__68_n_0;
+wire buf_r_r_i__69_n_0;
+wire buf_r_r_i__6_n_0;
+wire buf_r_r_i__70_n_0;
+wire buf_r_r_i__71_n_0;
+wire buf_r_r_i__72_n_0;
+wire buf_r_r_i__73_n_0;
+wire buf_r_r_i__74_n_0;
+wire buf_r_r_i__75_n_0;
+wire buf_r_r_i__76_n_0;
+wire buf_r_r_i__77_n_0;
+wire buf_r_r_i__78_n_0;
+wire buf_r_r_i__79_n_0;
+wire buf_r_r_i__7_n_0;
+wire buf_r_r_i__80_n_0;
+wire buf_r_r_i__81_n_0;
+wire buf_r_r_i__82_n_0;
+wire buf_r_r_i__83_n_0;
+wire buf_r_r_i__84_n_0;
+wire buf_r_r_i__85_n_0;
+wire buf_r_r_i__86_n_0;
+wire buf_r_r_i__87_n_0;
+wire buf_r_r_i__88_n_0;
+wire buf_r_r_i__89_n_0;
+wire buf_r_r_i__8_n_0;
+wire buf_r_r_i__90_n_0;
+wire buf_r_r_i__91_n_0;
+wire buf_r_r_i__92_n_0;
+wire buf_r_r_i__93_n_0;
+wire buf_r_r_i__94_n_0;
+wire buf_r_r_i__9_n_0;
+wire buf_r_r_i_n_0;
+wire [23:0]\buf_r_r_reg[0]__0 ;
+wire [0:0]\buf_r_r_reg[0]__1 ;
+wire [23:0]\buf_r_r_reg[10]__0 ;
+wire [0:0]\buf_r_r_reg[10]__1 ;
+wire [23:0]\buf_r_r_reg[11]__0 ;
+wire [0:0]\buf_r_r_reg[11]__1 ;
+wire [23:0]\buf_r_r_reg[12]__0 ;
+wire [0:0]\buf_r_r_reg[12]__1 ;
+wire [23:0]\buf_r_r_reg[13]__0 ;
+wire [0:0]\buf_r_r_reg[13]__1 ;
+wire [23:0]\buf_r_r_reg[14]__0 ;
+wire [0:0]\buf_r_r_reg[14]__1 ;
+wire [23:0]\buf_r_r_reg[15]__0 ;
+wire [0:0]\buf_r_r_reg[15]__1 ;
+wire [23:0]\buf_r_r_reg[16]__0 ;
+wire [0:0]\buf_r_r_reg[16]__1 ;
+wire [23:0]\buf_r_r_reg[17]__0 ;
+wire [0:0]\buf_r_r_reg[17]__1 ;
+wire [23:0]\buf_r_r_reg[18]__0 ;
+wire [0:0]\buf_r_r_reg[18]__1 ;
+wire [23:0]\buf_r_r_reg[19]__0 ;
+wire [0:0]\buf_r_r_reg[19]__1 ;
+wire [23:0]\buf_r_r_reg[1]__0 ;
+wire [0:0]\buf_r_r_reg[1]__1 ;
+wire [23:0]\buf_r_r_reg[20]__0 ;
+wire [0:0]\buf_r_r_reg[20]__1 ;
+wire [23:0]\buf_r_r_reg[21]__0 ;
+wire [0:0]\buf_r_r_reg[21]__1 ;
+wire [23:0]\buf_r_r_reg[22]__0 ;
+wire [0:0]\buf_r_r_reg[22]__1 ;
+wire [23:0]\buf_r_r_reg[23]__0 ;
+wire [0:0]\buf_r_r_reg[23]__1 ;
+wire [23:0]\buf_r_r_reg[2]__0 ;
+wire [0:0]\buf_r_r_reg[2]__1 ;
+wire [23:0]\buf_r_r_reg[3]__0 ;
+wire [0:0]\buf_r_r_reg[3]__1 ;
+wire [23:0]\buf_r_r_reg[4]__0 ;
+wire [0:0]\buf_r_r_reg[4]__1 ;
+wire [23:0]\buf_r_r_reg[5]__0 ;
+wire [0:0]\buf_r_r_reg[5]__1 ;
+wire [23:0]\buf_r_r_reg[6]__0 ;
+wire [0:0]\buf_r_r_reg[6]__1 ;
+wire [23:0]\buf_r_r_reg[7]__0 ;
+wire [0:0]\buf_r_r_reg[7]__1 ;
+wire [23:0]\buf_r_r_reg[8]__0 ;
+wire [0:0]\buf_r_r_reg[8]__1 ;
+wire [23:0]\buf_r_r_reg[9]__0 ;
+wire [0:0]\buf_r_r_reg[9]__1 ;
+wire chans_r;
+wire chans_r_i__0_n_0;
+wire chans_r_i__0_n_1;
+wire chans_r_i__0_n_2;
+wire chans_r_i__0_n_3;
+wire chans_r_i__1_n_0;
+wire chans_r_i__1_n_1;
+wire chans_r_i__1_n_2;
+wire chans_r_i__1_n_3;
+wire [0:0]\chans_r_reg[0]__0 ;
+wire \chans_r_reg[0]_i__0_n_0 ;
+wire \chans_r_reg[0]_i__0_n_1 ;
+wire \chans_r_reg[0]_i__0_n_2 ;
+wire \chans_r_reg[0]_i__0_n_3 ;
+wire \chans_r_reg_n_3_[0] ;
+wire [3:0]chn_clamp_return;
+wire chn_clamp_return_i_n_0;
+wire chn_clamp_return_i_n_1;
+wire chn_clamp_return_i_n_2;
+wire chn_clamp_return_i_n_3;
+wire clk_i;
+wire [47:0]dest_mac_i;
+wire dom_ovr_i;
+wire ebank_r;
+wire ebank_r0;
+wire ebank_r__0;
+wire ebank_r_i__0_n_0;
+wire [4:0]ebeats_w;
+wire [4:0]ecap_r;
+wire [4:0]ecap_r0;
+wire [4:0]ecap_r__0;
+wire ecap_r_i__0_n_0;
+wire ecap_r_i__1_n_0;
+wire ecap_r_i__2_n_0;
+wire [47:0]edmac_r;
+wire [47:0]edmac_r__0;
+wire edmac_r_i__0_n_0;
+wire edmac_r_i__0_n_1;
+wire edmac_r_i__0_n_10;
+wire edmac_r_i__0_n_11;
+wire edmac_r_i__0_n_12;
+wire edmac_r_i__0_n_13;
+wire edmac_r_i__0_n_14;
+wire edmac_r_i__0_n_15;
+wire edmac_r_i__0_n_16;
+wire edmac_r_i__0_n_17;
+wire edmac_r_i__0_n_18;
+wire edmac_r_i__0_n_19;
+wire edmac_r_i__0_n_2;
+wire edmac_r_i__0_n_20;
+wire edmac_r_i__0_n_21;
+wire edmac_r_i__0_n_22;
+wire edmac_r_i__0_n_23;
+wire edmac_r_i__0_n_24;
+wire edmac_r_i__0_n_25;
+wire edmac_r_i__0_n_26;
+wire edmac_r_i__0_n_27;
+wire edmac_r_i__0_n_28;
+wire edmac_r_i__0_n_29;
+wire edmac_r_i__0_n_3;
+wire edmac_r_i__0_n_30;
+wire edmac_r_i__0_n_31;
+wire edmac_r_i__0_n_32;
+wire edmac_r_i__0_n_33;
+wire edmac_r_i__0_n_34;
+wire edmac_r_i__0_n_35;
+wire edmac_r_i__0_n_36;
+wire edmac_r_i__0_n_37;
+wire edmac_r_i__0_n_38;
+wire edmac_r_i__0_n_39;
+wire edmac_r_i__0_n_4;
+wire edmac_r_i__0_n_40;
+wire edmac_r_i__0_n_41;
+wire edmac_r_i__0_n_42;
+wire edmac_r_i__0_n_43;
+wire edmac_r_i__0_n_44;
+wire edmac_r_i__0_n_45;
+wire edmac_r_i__0_n_46;
+wire edmac_r_i__0_n_47;
+wire edmac_r_i__0_n_5;
+wire edmac_r_i__0_n_6;
+wire edmac_r_i__0_n_7;
+wire edmac_r_i__0_n_8;
+wire edmac_r_i__0_n_9;
+wire edmac_r_i__1_n_0;
+wire edmac_r_i__1_n_1;
+wire edmac_r_i__1_n_10;
+wire edmac_r_i__1_n_11;
+wire edmac_r_i__1_n_12;
+wire edmac_r_i__1_n_13;
+wire edmac_r_i__1_n_14;
+wire edmac_r_i__1_n_15;
+wire edmac_r_i__1_n_16;
+wire edmac_r_i__1_n_17;
+wire edmac_r_i__1_n_18;
+wire edmac_r_i__1_n_19;
+wire edmac_r_i__1_n_2;
+wire edmac_r_i__1_n_20;
+wire edmac_r_i__1_n_21;
+wire edmac_r_i__1_n_22;
+wire edmac_r_i__1_n_23;
+wire edmac_r_i__1_n_24;
+wire edmac_r_i__1_n_25;
+wire edmac_r_i__1_n_26;
+wire edmac_r_i__1_n_27;
+wire edmac_r_i__1_n_28;
+wire edmac_r_i__1_n_29;
+wire edmac_r_i__1_n_3;
+wire edmac_r_i__1_n_30;
+wire edmac_r_i__1_n_31;
+wire edmac_r_i__1_n_32;
+wire edmac_r_i__1_n_33;
+wire edmac_r_i__1_n_34;
+wire edmac_r_i__1_n_35;
+wire edmac_r_i__1_n_36;
+wire edmac_r_i__1_n_37;
+wire edmac_r_i__1_n_38;
+wire edmac_r_i__1_n_39;
+wire edmac_r_i__1_n_4;
+wire edmac_r_i__1_n_40;
+wire edmac_r_i__1_n_41;
+wire edmac_r_i__1_n_42;
+wire edmac_r_i__1_n_43;
+wire edmac_r_i__1_n_44;
+wire edmac_r_i__1_n_45;
+wire edmac_r_i__1_n_46;
+wire edmac_r_i__1_n_47;
+wire edmac_r_i__1_n_5;
+wire edmac_r_i__1_n_6;
+wire edmac_r_i__1_n_7;
+wire edmac_r_i__1_n_8;
+wire edmac_r_i__1_n_9;
+wire edmac_r_i__2_n_0;
+wire eff_dmac_w0_i_n_0;
+wire eff_dmac_w0_i_n_1;
+wire eff_dmac_w0_i_n_10;
+wire eff_dmac_w0_i_n_11;
+wire eff_dmac_w0_i_n_12;
+wire eff_dmac_w0_i_n_13;
+wire eff_dmac_w0_i_n_14;
+wire eff_dmac_w0_i_n_15;
+wire eff_dmac_w0_i_n_16;
+wire eff_dmac_w0_i_n_17;
+wire eff_dmac_w0_i_n_18;
+wire eff_dmac_w0_i_n_19;
+wire eff_dmac_w0_i_n_2;
+wire eff_dmac_w0_i_n_20;
+wire eff_dmac_w0_i_n_21;
+wire eff_dmac_w0_i_n_22;
+wire eff_dmac_w0_i_n_23;
+wire eff_dmac_w0_i_n_24;
+wire eff_dmac_w0_i_n_25;
+wire eff_dmac_w0_i_n_26;
+wire eff_dmac_w0_i_n_27;
+wire eff_dmac_w0_i_n_28;
+wire eff_dmac_w0_i_n_29;
+wire eff_dmac_w0_i_n_3;
+wire eff_dmac_w0_i_n_30;
+wire eff_dmac_w0_i_n_31;
+wire eff_dmac_w0_i_n_32;
+wire eff_dmac_w0_i_n_33;
+wire eff_dmac_w0_i_n_34;
+wire eff_dmac_w0_i_n_35;
+wire eff_dmac_w0_i_n_36;
+wire eff_dmac_w0_i_n_37;
+wire eff_dmac_w0_i_n_38;
+wire eff_dmac_w0_i_n_39;
+wire eff_dmac_w0_i_n_4;
+wire eff_dmac_w0_i_n_40;
+wire eff_dmac_w0_i_n_41;
+wire eff_dmac_w0_i_n_42;
+wire eff_dmac_w0_i_n_43;
+wire eff_dmac_w0_i_n_44;
+wire eff_dmac_w0_i_n_45;
+wire eff_dmac_w0_i_n_46;
+wire eff_dmac_w0_i_n_47;
+wire eff_dmac_w0_i_n_5;
+wire eff_dmac_w0_i_n_6;
+wire eff_dmac_w0_i_n_7;
+wire eff_dmac_w0_i_n_8;
+wire eff_dmac_w0_i_n_9;
+wire [47:0]eff_dmac_w1;
+wire eff_dmac_w2;
+wire eff_vid_w0_i_n_0;
+wire eff_vid_w0_i_n_1;
+wire eff_vid_w0_i_n_10;
+wire eff_vid_w0_i_n_11;
+wire eff_vid_w0_i_n_2;
+wire eff_vid_w0_i_n_3;
+wire eff_vid_w0_i_n_4;
+wire eff_vid_w0_i_n_5;
+wire eff_vid_w0_i_n_6;
+wire eff_vid_w0_i_n_7;
+wire eff_vid_w0_i_n_8;
+wire eff_vid_w0_i_n_9;
+wire eff_vid_w1_i_n_0;
+wire eff_vid_w1_i_n_1;
+wire eff_vid_w1_i_n_10;
+wire eff_vid_w1_i_n_11;
+wire eff_vid_w1_i_n_2;
+wire eff_vid_w1_i_n_3;
+wire eff_vid_w1_i_n_4;
+wire eff_vid_w1_i_n_5;
+wire eff_vid_w1_i_n_6;
+wire eff_vid_w1_i_n_7;
+wire eff_vid_w1_i_n_8;
+wire eff_vid_w1_i_n_9;
+wire eff_vid_w3;
+wire [4:0]eiss_r;
+wire [4:0]eiss_r0;
+wire eiss_r0_i__0_n_0;
+wire [4:0]eiss_r__0;
+wire eiss_r_i__0_n_0;
+wire eiss_r_i__1_n_0;
+wire eiss_r_i__2_n_0;
+wire emr_r;
+wire emr_r_i__0_n_0;
+wire [1:0]eo_r;
+wire [1:0]eo_r0;
+wire [1:0]eo_r__0;
+wire eo_r_i__1_n_0;
+wire eo_r_i__2_n_0;
+wire eo_r_i__3_n_0;
+wire eo_r_i_n_0;
+wire eo_r_i_n_1;
+wire [2:0]epairs_w;
+wire [7:0]eseq_r;
+wire eseq_r__0;
+wire eseq_r_i__1_n_0;
+wire eseq_r_i_n_0;
+wire [2:0]esmp_r;
+wire [2:0]esmp_r0;
+wire esmp_r0_i_n_0;
+wire [31:0]esmp_r1;
+wire [2:0]esmp_r__0;
+wire esmp_r_i__0_n_0;
+wire esmp_r_i__1_n_0;
+wire esmp_r_i__2_n_0;
+wire esmp_r_i__3_n_0;
+wire [2:0]est_r;
+wire est_r0;
+wire est_r0_i_n_0;
+wire [2:0]est_r0_out;
+wire est_r1;
+wire est_r1_i__0_n_0;
+wire est_r1_i__1_n_0;
+wire est_r1_i__1_n_1;
+wire est_r1_i__1_n_2;
+wire est_r1_i__1_n_3;
+wire est_r1_i__1_n_4;
+wire est_r1_i__2_n_0;
+wire est_r1_i__2_n_1;
+wire est_r1_i__2_n_2;
+wire est_r1_i__2_n_3;
+wire est_r1_i__2_n_4;
+wire est_r3_out;
+wire [2:0]est_r__0;
+wire est_r_i__1_n_0;
+wire est_r_i__2_n_0;
+wire est_r_i__3_n_0;
+wire est_r_i__4_n_0;
+wire est_r_i__5_n_0;
+wire est_r_i__6_n_0;
+wire est_r_i__8_n_0;
+wire est_r_i__9_n_1;
+wire est_r_i__9_n_3;
+wire et_r;
+wire et_r_i__0_n_0;
+wire ets_r;
+wire ets_r_i__0_n_0;
+wire ets_r_i__2_n_0;
+wire ets_r_i_n_0;
+wire etu_r;
+wire etu_r__0;
+wire etu_r_i__0_n_0;
+wire [11:0]evid_r;
+wire evid_r__0;
+wire evid_r_i__1_n_0;
+wire evid_r_i_n_0;
+wire ext_trd_go_w;
+wire ext_trd_go_w0;
+wire ext_trd_go_w1;
+wire ext_trd_go_w2;
+wire ext_trd_q_r;
+wire ext_trd_q_r0;
+wire ext_trd_q_r1;
+wire ext_trd_q_r__0;
+wire fb1;
+wire fb1_i__0_n_0;
+wire fb1_i__10_n_0;
+wire fb1_i__11_n_0;
+wire fb1_i__12_n_0;
+wire fb1_i__13_n_0;
+wire fb1_i__14_n_0;
+wire fb1_i__15_n_0;
+wire fb1_i__16_n_0;
+wire fb1_i__17_n_0;
+wire fb1_i__18_n_0;
+wire fb1_i__19_n_0;
+wire fb1_i__1_n_0;
+wire fb1_i__20_n_0;
+wire fb1_i__21_n_0;
+wire fb1_i__22_n_0;
+wire fb1_i__2_n_0;
+wire fb1_i__3_n_0;
+wire fb1_i__4_n_0;
+wire fb1_i__5_n_0;
+wire fb1_i__6_n_0;
+wire fb1_i__7_n_0;
+wire fb1_i__8_n_0;
+wire fb1_i__9_n_0;
+wire [7:0]\fb[0] ;
+wire [7:0]\fb[100] ;
+wire [7:0]\fb[102] ;
+wire [7:0]\fb[103] ;
+wire [7:0]\fb[104] ;
+wire [7:0]\fb[106] ;
+wire [7:0]\fb[107] ;
+wire [7:0]\fb[108] ;
+wire [7:0]\fb[110] ;
+wire [7:0]\fb[111] ;
+wire [7:0]\fb[112] ;
+wire [7:0]\fb[114] ;
+wire [7:0]\fb[115] ;
+wire [7:0]\fb[116] ;
+wire [7:0]\fb[118] ;
+wire [7:0]\fb[119] ;
+wire [7:0]\fb[120] ;
+wire [7:0]\fb[122] ;
+wire [7:0]\fb[123] ;
+wire [7:0]\fb[124] ;
+wire [7:0]\fb[126] ;
+wire [7:0]\fb[127] ;
+wire [7:0]\fb[128] ;
+wire [7:0]\fb[130] ;
+wire [7:0]\fb[131] ;
+wire [7:0]\fb[132] ;
+wire [7:0]\fb[134] ;
+wire [7:0]\fb[135] ;
+wire [7:0]\fb[136] ;
+wire [7:0]\fb[138] ;
+wire [7:0]\fb[139] ;
+wire [7:0]\fb[140] ;
+wire [7:0]\fb[142] ;
+wire [7:0]\fb[143] ;
+wire [7:0]\fb[144] ;
+wire [7:0]\fb[146] ;
+wire [7:0]\fb[147] ;
+wire [7:0]\fb[148] ;
+wire [3:0]\fb[14] ;
+wire [7:0]\fb[150] ;
+wire [7:0]\fb[151] ;
+wire [7:0]\fb[152] ;
+wire [7:0]\fb[154] ;
+wire [7:0]\fb[155] ;
+wire [7:0]\fb[156] ;
+wire [7:0]\fb[158] ;
+wire [7:0]\fb[159] ;
+wire [7:0]\fb[15] ;
+wire [7:0]\fb[160] ;
+wire [7:0]\fb[162] ;
+wire [7:0]\fb[163] ;
+wire [7:0]\fb[164] ;
+wire [7:0]\fb[166] ;
+wire [7:0]\fb[167] ;
+wire [7:0]\fb[168] ;
+wire [7:0]\fb[170] ;
+wire [7:0]\fb[171] ;
+wire [7:0]\fb[172] ;
+wire [7:0]\fb[174] ;
+wire [7:0]\fb[175] ;
+wire [7:0]\fb[176] ;
+wire [7:0]\fb[178] ;
+wire [7:0]\fb[179] ;
+wire [7:0]\fb[180] ;
+wire [7:0]\fb[182] ;
+wire [7:0]\fb[183] ;
+wire [7:0]\fb[184] ;
+wire [7:0]\fb[186] ;
+wire [7:0]\fb[187] ;
+wire [7:0]\fb[188] ;
+wire [7:0]\fb[190] ;
+wire [7:0]\fb[191] ;
+wire [7:0]\fb[192] ;
+wire [7:0]\fb[194] ;
+wire [7:0]\fb[195] ;
+wire [7:0]\fb[196] ;
+wire [7:0]\fb[198] ;
+wire [7:0]\fb[199] ;
+wire [3:3]\fb[19] ;
+wire [7:0]\fb[1] ;
+wire [7:0]\fb[200] ;
+wire [7:0]\fb[202] ;
+wire [7:0]\fb[203] ;
+wire [7:0]\fb[204] ;
+wire [7:0]\fb[206] ;
+wire [7:0]\fb[207] ;
+wire [7:0]\fb[208] ;
+wire [7:0]\fb[210] ;
+wire [7:0]\fb[211] ;
+wire [7:0]\fb[212] ;
+wire [7:0]\fb[214] ;
+wire [7:0]\fb[215] ;
+wire [7:0]\fb[216] ;
+wire [7:0]\fb[218] ;
+wire [7:0]\fb[219] ;
+wire [7:0]\fb[220] ;
+wire [7:0]\fb[222] ;
+wire [7:0]\fb[223] ;
+wire [7:0]\fb[224] ;
+wire [7:0]\fb[226] ;
+wire [7:0]\fb[227] ;
+wire [7:0]\fb[228] ;
+wire [7:0]\fb[22] ;
+wire [7:0]\fb[230] ;
+wire [7:0]\fb[231] ;
+wire [7:0]\fb[232] ;
+wire [7:0]\fb[23] ;
+wire [7:0]\fb[24] ;
+wire [7:0]\fb[25] ;
+wire [7:0]\fb[26] ;
+wire [7:0]\fb[27] ;
+wire [7:0]\fb[28] ;
+wire [7:0]\fb[29] ;
+wire [7:0]\fb[2] ;
+wire [7:0]\fb[30] ;
+wire [7:0]\fb[31] ;
+wire [7:0]\fb[32] ;
+wire [7:0]\fb[33] ;
+wire [7:3]\fb[39] ;
+wire [7:0]\fb[3] ;
+wire [7:0]\fb[42] ;
+wire [7:0]\fb[43] ;
+wire [7:0]\fb[44] ;
+wire [7:0]\fb[46] ;
+wire [7:0]\fb[47] ;
+wire [7:0]\fb[48] ;
+wire [7:0]\fb[4] ;
+wire [7:0]\fb[50] ;
+wire [7:0]\fb[51] ;
+wire [7:0]\fb[52] ;
+wire [7:0]\fb[54] ;
+wire [7:0]\fb[55] ;
+wire [7:0]\fb[56] ;
+wire [7:0]\fb[58] ;
+wire [7:0]\fb[59] ;
+wire [7:0]\fb[5] ;
+wire [7:0]\fb[60] ;
+wire [7:0]\fb[62] ;
+wire [7:0]\fb[63] ;
+wire [7:0]\fb[64] ;
+wire [7:0]\fb[66] ;
+wire [7:0]\fb[67] ;
+wire [7:0]\fb[68] ;
+wire [7:0]\fb[70] ;
+wire [7:0]\fb[71] ;
+wire [7:0]\fb[72] ;
+wire [7:0]\fb[74] ;
+wire [7:0]\fb[75] ;
+wire [7:0]\fb[76] ;
+wire [7:0]\fb[78] ;
+wire [7:0]\fb[79] ;
+wire [7:0]\fb[80] ;
+wire [7:0]\fb[82] ;
+wire [7:0]\fb[83] ;
+wire [7:0]\fb[84] ;
+wire [7:0]\fb[86] ;
+wire [7:0]\fb[87] ;
+wire [7:0]\fb[88] ;
+wire [7:0]\fb[90] ;
+wire [7:0]\fb[91] ;
+wire [7:0]\fb[92] ;
+wire [7:0]\fb[94] ;
+wire [7:0]\fb[95] ;
+wire [7:0]\fb[96] ;
+wire [7:0]\fb[98] ;
+wire [7:0]\fb[99] ;
+wire [3:0]fph_r;
+wire fph_r0;
+wire fph_r0_i_n_0;
+wire fph_r0_i_n_1;
+wire fph_r0_i_n_2;
+wire fph_r0_i_n_3;
+wire [3:0]fph_r0_out;
+wire [3:0]fph_r__0;
+wire fph_r_i__1_n_0;
+wire fph_r_i__2_n_0;
+wire [3:0]frame_idx_o;
+wire frame_idx_o_i__0_n_0;
+wire frame_idx_o_i__1_n_0;
+wire frame_idx_o_i_n_0;
+wire frame_mr_o;
+wire frame_mr_o_i__0_n_0;
+wire frame_mr_o_i__1_n_0;
+wire frame_mr_o_i_n_0;
+wire frame_p_o;
+wire frame_p_o_i__0_n_0;
+wire frame_p_o_i__1_n_0;
+wire frame_p_o_i_n_0;
+wire frame_tu_o;
+wire frame_tu_o_i__0_n_0;
+wire frame_tu_o_i__1_n_0;
+wire frame_tu_o_i_n_0;
+wire [31:0]frames_sent_o;
+wire [31:0]frames_sent_o0;
+wire frames_sent_o_i__0_n_0;
+wire frames_sent_o_i__1_n_0;
+wire frames_sent_o_i__2_n_0;
+wire frames_sent_o_i_n_0;
+wire [63:0]m_axis_tdata;
+wire [7:0]m_axis_tdata2;
+wire m_axis_tdata2_i__0_n_0;
+wire m_axis_tdata2_i__0_n_1;
+wire m_axis_tdata2_i__0_n_2;
+wire m_axis_tdata2_i__0_n_3;
+wire m_axis_tdata2_i__0_n_4;
+wire m_axis_tdata2_i__0_n_5;
+wire m_axis_tdata2_i__0_n_6;
+wire m_axis_tdata2_i__0_n_7;
+wire m_axis_tdata2_i__1_n_0;
+wire m_axis_tdata2_i__1_n_1;
+wire m_axis_tdata2_i__1_n_2;
+wire m_axis_tdata2_i__1_n_3;
+wire m_axis_tdata2_i__1_n_4;
+wire m_axis_tdata2_i__1_n_5;
+wire m_axis_tdata2_i__1_n_6;
+wire m_axis_tdata2_i__1_n_7;
+wire m_axis_tdata2_i__2_n_0;
+wire m_axis_tdata2_i__2_n_1;
+wire m_axis_tdata2_i__2_n_2;
+wire m_axis_tdata2_i__2_n_3;
+wire m_axis_tdata2_i__2_n_4;
+wire m_axis_tdata2_i__2_n_5;
+wire m_axis_tdata2_i__2_n_6;
+wire m_axis_tdata2_i__2_n_7;
+wire m_axis_tdata2_i__3_n_0;
+wire m_axis_tdata2_i__3_n_1;
+wire m_axis_tdata2_i__3_n_2;
+wire m_axis_tdata2_i__3_n_3;
+wire m_axis_tdata2_i__3_n_4;
+wire m_axis_tdata2_i__3_n_5;
+wire m_axis_tdata2_i__3_n_6;
+wire m_axis_tdata2_i__3_n_7;
+wire m_axis_tdata2_i__4_n_0;
+wire m_axis_tdata2_i__4_n_1;
+wire m_axis_tdata2_i__4_n_2;
+wire m_axis_tdata2_i__4_n_3;
+wire m_axis_tdata2_i__4_n_4;
+wire m_axis_tdata2_i__4_n_5;
+wire m_axis_tdata2_i__4_n_6;
+wire m_axis_tdata2_i__4_n_7;
+wire m_axis_tdata2_i_n_0;
+wire m_axis_tdata2_i_n_1;
+wire m_axis_tdata2_i_n_2;
+wire m_axis_tdata2_i_n_3;
+wire m_axis_tdata2_i_n_4;
+wire m_axis_tdata2_i_n_5;
+wire m_axis_tdata2_i_n_6;
+wire m_axis_tdata2_i_n_7;
+wire m_axis_tdata3_i_n_0;
+wire m_axis_tdata3_i_n_1;
+wire m_axis_tdata3_i_n_2;
+wire m_axis_tdata3_i_n_3;
+wire m_axis_tdata3_i_n_4;
+wire m_axis_tdata3_i_n_5;
+wire m_axis_tdata3_i_n_6;
+wire m_axis_tdata3_i_n_7;
+wire [7:0]m_axis_tkeep;
+wire m_axis_tlast;
+wire m_axis_tready;
+wire m_axis_tvalid;
+wire [0:0]mr_i;
+wire nsamp_r;
+wire [2:0]nsamp_r0_out;
+wire nsamp_r_i__1_n_0;
+wire nsamp_r_i__2_n_0;
+wire own_last_w;
+wire [1:0]own_pairs_w;
+wire p_0_out;
+wire [31:0]p_1_in;
+wire p_1_out;
+wire [23:0]pair_l_i;
+wire pair_ok_w;
+wire pair_ok_w0;
+wire pair_ok_w0_i__0_n_0;
+wire pair_ok_w1;
+wire pair_ok_w1_i__0_n_0;
+wire pair_ok_w1_i__1_n_0;
+wire pair_ok_w2;
+wire pair_ok_w2_i__0_n_0;
+wire pair_ok_w2_i__1_n_0;
+wire pair_ok_w2_i__2_n_0;
+wire pair_ok_w3;
+wire [23:0]pair_r_i;
+wire [4:0]pair_slot_i;
+wire pair_valid_i;
+wire pend_r;
+wire pend_r__0;
+wire pend_r_i__0_n_0;
+wire pend_r_i__2_n_0;
+wire pend_r_i__3_n_0;
+wire pend_r_i__4_n_0;
+wire pend_r_i__5_n_0;
+wire pend_r_i__6_n_0;
+wire pend_r_i_n_0;
+wire [0:0]\pend_r_reg[0]__0 ;
+wire [3:0]\pkt_engine.c ;
+wire [63:0]ptp_ns_i;
+wire rst_n;
+wire started_r;
+wire started_r__0;
+wire started_r_i_n_0;
+wire [47:0]station_mac_i;
+wire [47:0]stg_q_r;
+wire stg_r_reg_n_0;
+wire stg_r_reg_n_1;
+wire stg_r_reg_n_10;
+wire stg_r_reg_n_11;
+wire stg_r_reg_n_12;
+wire stg_r_reg_n_13;
+wire stg_r_reg_n_14;
+wire stg_r_reg_n_15;
+wire stg_r_reg_n_16;
+wire stg_r_reg_n_17;
+wire stg_r_reg_n_18;
+wire stg_r_reg_n_19;
+wire stg_r_reg_n_2;
+wire stg_r_reg_n_20;
+wire stg_r_reg_n_21;
+wire stg_r_reg_n_22;
+wire stg_r_reg_n_23;
+wire stg_r_reg_n_24;
+wire stg_r_reg_n_25;
+wire stg_r_reg_n_26;
+wire stg_r_reg_n_27;
+wire stg_r_reg_n_28;
+wire stg_r_reg_n_29;
+wire stg_r_reg_n_3;
+wire stg_r_reg_n_30;
+wire stg_r_reg_n_31;
+wire stg_r_reg_n_32;
+wire stg_r_reg_n_33;
+wire stg_r_reg_n_34;
+wire stg_r_reg_n_35;
+wire stg_r_reg_n_36;
+wire stg_r_reg_n_37;
+wire stg_r_reg_n_38;
+wire stg_r_reg_n_39;
+wire stg_r_reg_n_4;
+wire stg_r_reg_n_40;
+wire stg_r_reg_n_41;
+wire stg_r_reg_n_42;
+wire stg_r_reg_n_43;
+wire stg_r_reg_n_44;
+wire stg_r_reg_n_45;
+wire stg_r_reg_n_46;
+wire stg_r_reg_n_47;
+wire stg_r_reg_n_5;
+wire stg_r_reg_n_6;
+wire stg_r_reg_n_7;
+wire stg_r_reg_n_8;
+wire stg_r_reg_n_9;
+wire [6:0]stg_raddr_w;
+wire stg_raddr_w1;
+wire [5:0]stg_waddr_w;
+wire [0:0]stream_en_i;
+wire [63:0]stream_id_i;
+wire [7:0]stream_id_w0;
+wire [4:4]taddr0_return;
+wire [4:4]taddr_return;
+wire tctx_r_reg_n_0;
+wire tctx_r_reg_n_1;
+wire tctx_r_reg_n_10;
+wire tctx_r_reg_n_11;
+wire tctx_r_reg_n_12;
+wire tctx_r_reg_n_13;
+wire tctx_r_reg_n_14;
+wire tctx_r_reg_n_15;
+wire tctx_r_reg_n_16;
+wire tctx_r_reg_n_17;
+wire tctx_r_reg_n_18;
+wire tctx_r_reg_n_19;
+wire tctx_r_reg_n_2;
+wire tctx_r_reg_n_20;
+wire tctx_r_reg_n_21;
+wire tctx_r_reg_n_22;
+wire tctx_r_reg_n_23;
+wire tctx_r_reg_n_24;
+wire tctx_r_reg_n_25;
+wire tctx_r_reg_n_26;
+wire tctx_r_reg_n_27;
+wire tctx_r_reg_n_28;
+wire tctx_r_reg_n_29;
+wire tctx_r_reg_n_3;
+wire tctx_r_reg_n_30;
+wire tctx_r_reg_n_31;
+wire tctx_r_reg_n_4;
+wire tctx_r_reg_n_5;
+wire tctx_r_reg_n_6;
+wire tctx_r_reg_n_7;
+wire tctx_r_reg_n_8;
+wire tctx_r_reg_n_9;
+wire [6:0]tctx_rd_addr_i;
+wire [31:0]tctx_rd_data_o;
+wire tctx_rd_data_o_i_n_0;
+wire tctx_rd_en_i;
+wire tctx_rd_valid_o;
+wire tctx_rd_valid_o_i_n_0;
+wire [3:0]\tctx_rmux.w ;
+wire [2:0]\tctx_rmux.w0 ;
+wire \tctx_rmux.w_i__0_n_0 ;
+wire \tctx_rmux.w_i__0_n_1 ;
+wire \tctx_rmux.w_i__0_n_2 ;
+wire \tctx_rmux.w_i__0_n_3 ;
+wire [6:0]tctx_wr_addr_i;
+wire [31:0]tctx_wr_data_i;
+wire tctx_wr_en_i;
+wire tctx_wr_rdy_o;
+wire tctx_wr_rdy_o_i__0_n_0;
+wire tctx_wr_rdy_o_i_n_0;
+wire [4:0]tram_raddr_w;
+wire [4:0]tram_raddr_w0;
+wire [4:0]tram_waddr_w;
+wire tram_waddr_w_i__0_n_0;
+wire tram_waddr_w_i__0_n_1;
+wire tram_waddr_w_i__0_n_2;
+wire tram_waddr_w_i__0_n_3;
+wire tram_waddr_w_i__0_n_4;
+wire tram_waddr_w_i__1_n_0;
+wire tram_waddr_w_i__1_n_1;
+wire tram_waddr_w_i__1_n_2;
+wire tram_waddr_w_i__1_n_3;
+wire tram_waddr_w_i__1_n_4;
+wire tram_waddr_w_i_n_0;
+wire tram_waddr_w_i_n_1;
+wire tram_waddr_w_i_n_2;
+wire tram_waddr_w_i_n_3;
+wire tram_waddr_w_i_n_4;
+wire tram_wdata_w_i__0_n_0;
+wire tram_wdata_w_i__0_n_1;
+wire tram_wdata_w_i__0_n_10;
+wire tram_wdata_w_i__0_n_11;
+wire tram_wdata_w_i__0_n_12;
+wire tram_wdata_w_i__0_n_13;
+wire tram_wdata_w_i__0_n_14;
+wire tram_wdata_w_i__0_n_15;
+wire tram_wdata_w_i__0_n_16;
+wire tram_wdata_w_i__0_n_17;
+wire tram_wdata_w_i__0_n_18;
+wire tram_wdata_w_i__0_n_19;
+wire tram_wdata_w_i__0_n_2;
+wire tram_wdata_w_i__0_n_20;
+wire tram_wdata_w_i__0_n_21;
+wire tram_wdata_w_i__0_n_22;
+wire tram_wdata_w_i__0_n_23;
+wire tram_wdata_w_i__0_n_24;
+wire tram_wdata_w_i__0_n_25;
+wire tram_wdata_w_i__0_n_26;
+wire tram_wdata_w_i__0_n_27;
+wire tram_wdata_w_i__0_n_28;
+wire tram_wdata_w_i__0_n_29;
+wire tram_wdata_w_i__0_n_3;
+wire tram_wdata_w_i__0_n_30;
+wire tram_wdata_w_i__0_n_31;
+wire tram_wdata_w_i__0_n_4;
+wire tram_wdata_w_i__0_n_5;
+wire tram_wdata_w_i__0_n_6;
+wire tram_wdata_w_i__0_n_7;
+wire tram_wdata_w_i__0_n_8;
+wire tram_wdata_w_i__0_n_9;
+wire tram_wdata_w_i__1_n_0;
+wire tram_wdata_w_i__1_n_1;
+wire tram_wdata_w_i__1_n_10;
+wire tram_wdata_w_i__1_n_11;
+wire tram_wdata_w_i__1_n_12;
+wire tram_wdata_w_i__1_n_13;
+wire tram_wdata_w_i__1_n_14;
+wire tram_wdata_w_i__1_n_15;
+wire tram_wdata_w_i__1_n_16;
+wire tram_wdata_w_i__1_n_17;
+wire tram_wdata_w_i__1_n_18;
+wire tram_wdata_w_i__1_n_19;
+wire tram_wdata_w_i__1_n_2;
+wire tram_wdata_w_i__1_n_20;
+wire tram_wdata_w_i__1_n_21;
+wire tram_wdata_w_i__1_n_22;
+wire tram_wdata_w_i__1_n_23;
+wire tram_wdata_w_i__1_n_24;
+wire tram_wdata_w_i__1_n_25;
+wire tram_wdata_w_i__1_n_26;
+wire tram_wdata_w_i__1_n_27;
+wire tram_wdata_w_i__1_n_28;
+wire tram_wdata_w_i__1_n_29;
+wire tram_wdata_w_i__1_n_3;
+wire tram_wdata_w_i__1_n_30;
+wire tram_wdata_w_i__1_n_31;
+wire tram_wdata_w_i__1_n_4;
+wire tram_wdata_w_i__1_n_5;
+wire tram_wdata_w_i__1_n_6;
+wire tram_wdata_w_i__1_n_7;
+wire tram_wdata_w_i__1_n_8;
+wire tram_wdata_w_i__1_n_9;
+wire tram_wdata_w_i__2_n_0;
+wire tram_wdata_w_i__2_n_1;
+wire tram_wdata_w_i__2_n_10;
+wire tram_wdata_w_i__2_n_11;
+wire tram_wdata_w_i__2_n_12;
+wire tram_wdata_w_i__2_n_13;
+wire tram_wdata_w_i__2_n_14;
+wire tram_wdata_w_i__2_n_15;
+wire tram_wdata_w_i__2_n_16;
+wire tram_wdata_w_i__2_n_17;
+wire tram_wdata_w_i__2_n_18;
+wire tram_wdata_w_i__2_n_19;
+wire tram_wdata_w_i__2_n_2;
+wire tram_wdata_w_i__2_n_20;
+wire tram_wdata_w_i__2_n_21;
+wire tram_wdata_w_i__2_n_22;
+wire tram_wdata_w_i__2_n_23;
+wire tram_wdata_w_i__2_n_24;
+wire tram_wdata_w_i__2_n_25;
+wire tram_wdata_w_i__2_n_26;
+wire tram_wdata_w_i__2_n_3;
+wire tram_wdata_w_i__2_n_31;
+wire tram_wdata_w_i__2_n_4;
+wire tram_wdata_w_i__2_n_5;
+wire tram_wdata_w_i__2_n_6;
+wire tram_wdata_w_i__2_n_7;
+wire tram_wdata_w_i__2_n_8;
+wire tram_wdata_w_i__2_n_9;
+wire tram_wdata_w_i_n_0;
+wire tram_wdata_w_i_n_1;
+wire tram_wdata_w_i_n_10;
+wire tram_wdata_w_i_n_11;
+wire tram_wdata_w_i_n_12;
+wire tram_wdata_w_i_n_13;
+wire tram_wdata_w_i_n_14;
+wire tram_wdata_w_i_n_15;
+wire tram_wdata_w_i_n_16;
+wire tram_wdata_w_i_n_17;
+wire tram_wdata_w_i_n_18;
+wire tram_wdata_w_i_n_19;
+wire tram_wdata_w_i_n_2;
+wire tram_wdata_w_i_n_20;
+wire tram_wdata_w_i_n_21;
+wire tram_wdata_w_i_n_22;
+wire tram_wdata_w_i_n_23;
+wire tram_wdata_w_i_n_24;
+wire tram_wdata_w_i_n_25;
+wire tram_wdata_w_i_n_26;
+wire tram_wdata_w_i_n_27;
+wire tram_wdata_w_i_n_28;
+wire tram_wdata_w_i_n_29;
+wire tram_wdata_w_i_n_3;
+wire tram_wdata_w_i_n_30;
+wire tram_wdata_w_i_n_31;
+wire tram_wdata_w_i_n_4;
+wire tram_wdata_w_i_n_5;
+wire tram_wdata_w_i_n_6;
+wire tram_wdata_w_i_n_7;
+wire tram_wdata_w_i_n_8;
+wire tram_wdata_w_i_n_9;
+wire tram_we_w;
+wire tram_we_w_i__0_n_0;
+wire tram_we_w_i_n_0;
+wire [31:0]transit_ns_i;
+wire ts_uncertain_i;
+wire tsw_pend_r;
+wire tsw_pend_r0;
+wire tsw_pend_r1;
+wire tsw_pend_r__0;
+wire tsw_pend_r_i__0_n_0;
+wire tsw_t_r;
+wire tsw_t_r_i__0_n_0;
+wire tsw_t_r_i__1_n_0;
+wire [31:0]tsw_val_r;
+wire [31:0]tsw_val_r0;
+wire [31:0]tsw_val_r1;
+wire tsw_val_r__0;
+wire tsw_val_r_i__0_n_0;
+wire [2:0]vlan_pcp_i;
+wire [11:0]vlan_vid_i;
+wire wb_frm_w;
+wire wbank_r;
+wire wbank_r_i__0_n_0;
+wire wbank_r_i__2_n_0;
+wire wbank_r_i_n_0;
+wire [47:0]NLW_edmac_r_i_I1_UNCONNECTED;
+GND GND
+(.G(\<const0> ));
+RTL_ADD0 RTL_ADD
+(.I0(stg_waddr_w[4:2]),
+.I1(\<const1> ),
+.O({RTL_ADD_n_0,RTL_ADD_n_1,RTL_ADD_n_2}));
+RTL_ADD1 RTL_ADD__0
+(.I0(eseq_r),
+.I1(\<const1> ),
+.O({RTL_ADD__0_n_0,RTL_ADD__0_n_1,RTL_ADD__0_n_2,RTL_ADD__0_n_3,RTL_ADD__0_n_4,RTL_ADD__0_n_5,RTL_ADD__0_n_6,RTL_ADD__0_n_7}));
+RTL_ADD4 RTL_ADD__1
+(.I0(\pkt_engine.c ),
+.I1(\<const1> ),
+.O({RTL_ADD__1_n_0,RTL_ADD__1_n_1,RTL_ADD__1_n_2,RTL_ADD__1_n_3}));
+RTL_AND7 RTL_AND
+(.I0(tram_we_w),
+.I1(RTL_EQ_n_0),
+.O(p_1_out));
+RTL_EQ5 RTL_EQ
+(.I0(tram_waddr_w[3:0]),
+.I1({\<const0> ,\<const0> ,\<const0> ,\<const0> }),
+.O(RTL_EQ_n_0));
+RTL_GEQ24 RTL_GEQ
+(.I0(\pkt_engine.c ),
+.I1({\<const1> ,\<const0> ,\<const0> ,\<const0> }),
+.O(RTL_GEQ_n_0));
+RTL_INV RTL_INV
+(.I0(stg_waddr_w[5]),
+.O(p_0_out));
+RTL_LT18 RTL_LT
+(.I0(\pkt_engine.c ),
+.I1({\<const0> ,\<const0> ,\<const1> ,\<const0> }),
+.O(RTL_LT_n_0));
+RTL_MUX178 RTL_MUX
+(.I0({RTL_ADD__1_n_0,RTL_ADD__1_n_1,RTL_ADD__1_n_2,RTL_ADD__1_n_3}),
+.I1(\pkt_engine.c ),
+.O({RTL_MUX_n_0,RTL_MUX_n_1,RTL_MUX_n_2,RTL_MUX_n_3}),
+.S(\pkt_engine.c [0]));
+RTL_MUX178 RTL_MUX__0
+(.I0({\<const1> ,\<const0> ,\<const0> ,\<const0> }),
+.I1({RTL_MUX_n_0,RTL_MUX_n_1,RTL_MUX_n_2,RTL_MUX_n_3}),
+.O({RTL_MUX__0_n_0,RTL_MUX__0_n_1,RTL_MUX__0_n_2,RTL_MUX__0_n_3}),
+.S(RTL_GEQ_n_0));
+RTL_MUX178 RTL_MUX__1
+(.I0({\<const0> ,\<const1> ,\<const0> ,\<const1> }),
+.I1({\<const0> ,\<const0> ,\<const0> ,\<const0> }),
+.O({RTL_MUX__1_n_0,RTL_MUX__1_n_1,RTL_MUX__1_n_2,RTL_MUX__1_n_3}),
+.S(RTL_GEQ_n_0));
+RTL_RSHIFT76 RTL_RSHIFT
+(.I0(tram_waddr_w),
+.I1({\<const1> ,\<const0> ,\<const0> }),
+.I2(\<const1> ),
+.O(RTL_RSHIFT_n_0));
+VCC VCC
+(.P(\<const1> ));
+RTL_ADD8 beat_r0_i
+(.I0(beat_r),
+.I1(\<const1> ),
+.O(beat_r0));
+RTL_MUX1521 beat_r_i
+(.I0({\<const0> ,\<const0> ,\<const0> ,\<const0> ,\<const0> }),
+.I1(beat_r0),
+.O(beat_r__0),
+.S(est_r));
+RTL_MUX beat_r_i__0
+(.I0(est_r0_i_n_0),
+.I1(\<const0> ),
+.O(beat_r_i__0_n_0),
+.S(est_r1_i__0_n_0));
+RTL_MUX beat_r_i__1
+(.I0(beat_r_i__0_n_0),
+.I1(\<const0> ),
+.O(beat_r_i__1_n_0),
+.S(est_r1));
+RTL_MUX beat_r_i__2
+(.I0(\<const0> ),
+.I1(\<const1> ),
+.O(beat_r_i__2_n_0),
+.S(est_r0));
+RTL_MUX beat_r_i__3
+(.I0(beat_r_i__2_n_0),
+.I1(\<const0> ),
+.O(beat_r_i__3_n_0),
+.S(m_axis_tready));
+RTL_MUX3288 beat_r_i__4
+(.I0(\<const0> ),
+.I1(\<const0> ),
+.I2(beat_r_i__1_n_0),
+.I3(beat_r_i__3_n_0),
+.I4(\<const0> ),
+.I5(\<const0> ),
+.I6(\<const0> ),
+.O(beat_r_i__4_n_0),
+.S(est_r));
+RTL_MUX beat_r_i__5
+(.I0(\<const1> ),
+.I1(\<const0> ),
+.O(beat_r_i__5_n_0),
+.S(rst_n));
+RTL_REG_SYNC__BREG_1 \beat_r_reg[0]
+(.C(clk_i),
+.CE(beat_r_i__4_n_0),
+.D(beat_r__0[0]),
+.Q(beat_r[0]),
+.RST(beat_r_i__5_n_0));
+RTL_REG_SYNC__BREG_1 \beat_r_reg[1]
+(.C(clk_i),
+.CE(beat_r_i__4_n_0),
+.D(beat_r__0[1]),
+.Q(beat_r[1]),
+.RST(beat_r_i__5_n_0));
+RTL_REG_SYNC__BREG_1 \beat_r_reg[2]
+(.C(clk_i),
+.CE(beat_r_i__4_n_0),
+.D(beat_r__0[2]),
+.Q(beat_r[2]),
+.RST(beat_r_i__5_n_0));
+RTL_REG_SYNC__BREG_1 \beat_r_reg[3]
+(.C(clk_i),
+.CE(beat_r_i__4_n_0),
+.D(beat_r__0[3]),
+.Q(beat_r[3]),
+.RST(beat_r_i__5_n_0));
+RTL_REG_SYNC__BREG_1 \beat_r_reg[4]
+(.C(clk_i),
+.CE(beat_r_i__4_n_0),
+.D(beat_r__0[4]),
+.Q(beat_r[4]),
+.RST(beat_r_i__5_n_0));
+RTL_MUX buf_l_r_i
+(.I0(\buf_l_r_reg[0]__1 ),
+.I1(\<const0> ),
+.O(buf_l_r_i_n_0),
+.S(est_r1_i__0_n_0));
+RTL_MUX buf_l_r_i__0
+(.I0(buf_l_r_i_n_0),
+.I1(\<const0> ),
+.O(buf_l_r_i__0_n_0),
+.S(est_r1));
+RTL_MUX3288 buf_l_r_i__1
+(.I0(\<const0> ),
+.I1(\<const0> ),
+.I2(buf_l_r_i__0_n_0),
+.I3(\<const0> ),
+.I4(\<const0> ),
+.I5(\<const0> ),
+.I6(\<const0> ),
+.O(buf_l_r),
+.S(est_r));
+RTL_MUX buf_l_r_i__10
+(.I0(\<const1> ),
+.I1(\<const0> ),
+.O(buf_l_r_i__10_n_0),
+.S(rst_n));
+RTL_MUX buf_l_r_i__11
+(.I0(\buf_l_r_reg[3]__1 ),
+.I1(\<const0> ),
+.O(buf_l_r_i__11_n_0),
+.S(est_r1_i__0_n_0));
+RTL_MUX buf_l_r_i__12
+(.I0(buf_l_r_i__11_n_0),
+.I1(\<const0> ),
+.O(buf_l_r_i__12_n_0),
+.S(est_r1));
+RTL_MUX3288 buf_l_r_i__13
+(.I0(\<const0> ),
+.I1(\<const0> ),
+.I2(buf_l_r_i__12_n_0),
+.I3(\<const0> ),
+.I4(\<const0> ),
+.I5(\<const0> ),
+.I6(\<const0> ),
+.O(buf_l_r_i__13_n_0),
+.S(est_r));
+RTL_MUX buf_l_r_i__14
+(.I0(\<const1> ),
+.I1(\<const0> ),
+.O(buf_l_r_i__14_n_0),
+.S(rst_n));
+RTL_MUX buf_l_r_i__15
+(.I0(\buf_l_r_reg[4]__1 ),
+.I1(\<const0> ),
+.O(buf_l_r_i__15_n_0),
+.S(est_r1_i__0_n_0));
+RTL_MUX buf_l_r_i__16
+(.I0(buf_l_r_i__15_n_0),
+.I1(\<const0> ),
+.O(buf_l_r_i__16_n_0),
+.S(est_r1));
+RTL_MUX3288 buf_l_r_i__17
+(.I0(\<const0> ),
+.I1(\<const0> ),
+.I2(buf_l_r_i__16_n_0),
+.I3(\<const0> ),
+.I4(\<const0> ),
+.I5(\<const0> ),
+.I6(\<const0> ),
+.O(buf_l_r_i__17_n_0),
+.S(est_r));
+RTL_MUX buf_l_r_i__18
+(.I0(\<const1> ),
+.I1(\<const0> ),
+.O(buf_l_r_i__18_n_0),
+.S(rst_n));
+RTL_MUX buf_l_r_i__19
+(.I0(\buf_l_r_reg[5]__1 ),
+.I1(\<const0> ),
+.O(buf_l_r_i__19_n_0),
+.S(est_r1_i__0_n_0));
+RTL_MUX buf_l_r_i__2
+(.I0(\<const1> ),
+.I1(\<const0> ),
+.O(buf_l_r_i__2_n_0),
+.S(rst_n));
+RTL_MUX buf_l_r_i__20
+(.I0(buf_l_r_i__19_n_0),
+.I1(\<const0> ),
+.O(buf_l_r_i__20_n_0),
+.S(est_r1));
+RTL_MUX3288 buf_l_r_i__21
+(.I0(\<const0> ),
+.I1(\<const0> ),
+.I2(buf_l_r_i__20_n_0),
+.I3(\<const0> ),
+.I4(\<const0> ),
+.I5(\<const0> ),
+.I6(\<const0> ),
+.O(buf_l_r_i__21_n_0),
+.S(est_r));
+RTL_MUX buf_l_r_i__22
+(.I0(\<const1> ),
+.I1(\<const0> ),
+.O(buf_l_r_i__22_n_0),
+.S(rst_n));
+RTL_MUX buf_l_r_i__23
+(.I0(\buf_l_r_reg[6]__1 ),
+.I1(\<const0> ),
+.O(buf_l_r_i__23_n_0),
+.S(est_r1_i__0_n_0));
+RTL_MUX buf_l_r_i__24
+(.I0(buf_l_r_i__23_n_0),
+.I1(\<const0> ),
+.O(buf_l_r_i__24_n_0),
+.S(est_r1));
+RTL_MUX3288 buf_l_r_i__25
+(.I0(\<const0> ),
+.I1(\<const0> ),
+.I2(buf_l_r_i__24_n_0),
+.I3(\<const0> ),
+.I4(\<const0> ),
+.I5(\<const0> ),
+.I6(\<const0> ),
+.O(buf_l_r_i__25_n_0),
+.S(est_r));
+RTL_MUX buf_l_r_i__26
+(.I0(\<const1> ),
+.I1(\<const0> ),
+.O(buf_l_r_i__26_n_0),
+.S(rst_n));
+RTL_MUX buf_l_r_i__27
+(.I0(\buf_l_r_reg[7]__1 ),
+.I1(\<const0> ),
+.O(buf_l_r_i__27_n_0),
+.S(est_r1_i__0_n_0));
+RTL_MUX buf_l_r_i__28
+(.I0(buf_l_r_i__27_n_0),
+.I1(\<const0> ),
+.O(buf_l_r_i__28_n_0),
+.S(est_r1));
+RTL_MUX3288 buf_l_r_i__29
+(.I0(\<const0> ),
+.I1(\<const0> ),
+.I2(buf_l_r_i__28_n_0),
+.I3(\<const0> ),
+.I4(\<const0> ),
+.I5(\<const0> ),
+.I6(\<const0> ),
+.O(buf_l_r_i__29_n_0),
+.S(est_r));
+RTL_MUX buf_l_r_i__3
+(.I0(\buf_l_r_reg[1]__1 ),
+.I1(\<const0> ),
+.O(buf_l_r_i__3_n_0),
+.S(est_r1_i__0_n_0));
+RTL_MUX buf_l_r_i__30
+(.I0(\<const1> ),
+.I1(\<const0> ),
+.O(buf_l_r_i__30_n_0),
+.S(rst_n));
+RTL_MUX buf_l_r_i__31
+(.I0(\buf_l_r_reg[8]__1 ),
+.I1(\<const0> ),
+.O(buf_l_r_i__31_n_0),
+.S(est_r1_i__0_n_0));
+RTL_MUX buf_l_r_i__32
+(.I0(buf_l_r_i__31_n_0),
+.I1(\<const0> ),
+.O(buf_l_r_i__32_n_0),
+.S(est_r1));
+RTL_MUX3288 buf_l_r_i__33
+(.I0(\<const0> ),
+.I1(\<const0> ),
+.I2(buf_l_r_i__32_n_0),
+.I3(\<const0> ),
+.I4(\<const0> ),
+.I5(\<const0> ),
+.I6(\<const0> ),
+.O(buf_l_r_i__33_n_0),
+.S(est_r));
+RTL_MUX buf_l_r_i__34
+(.I0(\<const1> ),
+.I1(\<const0> ),
+.O(buf_l_r_i__34_n_0),
+.S(rst_n));
+RTL_MUX buf_l_r_i__35
+(.I0(\buf_l_r_reg[9]__1 ),
+.I1(\<const0> ),
+.O(buf_l_r_i__35_n_0),
+.S(est_r1_i__0_n_0));
+RTL_MUX buf_l_r_i__36
+(.I0(buf_l_r_i__35_n_0),
+.I1(\<const0> ),
+.O(buf_l_r_i__36_n_0),
+.S(est_r1));
+RTL_MUX3288 buf_l_r_i__37
+(.I0(\<const0> ),
+.I1(\<const0> ),
+.I2(buf_l_r_i__36_n_0),
+.I3(\<const0> ),
+.I4(\<const0> ),
+.I5(\<const0> ),
+.I6(\<const0> ),
+.O(buf_l_r_i__37_n_0),
+.S(est_r));
+RTL_MUX buf_l_r_i__38
+(.I0(\<const1> ),
+.I1(\<const0> ),
+.O(buf_l_r_i__38_n_0),
+.S(rst_n));
+RTL_MUX buf_l_r_i__39
+(.I0(\buf_l_r_reg[10]__1 ),
+.I1(\<const0> ),
+.O(buf_l_r_i__39_n_0),
+.S(est_r1_i__0_n_0));
+RTL_MUX buf_l_r_i__4
+(.I0(buf_l_r_i__3_n_0),
+.I1(\<const0> ),
+.O(buf_l_r_i__4_n_0),
+.S(est_r1));
+RTL_MUX buf_l_r_i__40
+(.I0(buf_l_r_i__39_n_0),
+.I1(\<const0> ),
+.O(buf_l_r_i__40_n_0),
+.S(est_r1));
+RTL_MUX3288 buf_l_r_i__41
+(.I0(\<const0> ),
+.I1(\<const0> ),
+.I2(buf_l_r_i__40_n_0),
+.I3(\<const0> ),
+.I4(\<const0> ),
+.I5(\<const0> ),
+.I6(\<const0> ),
+.O(buf_l_r_i__41_n_0),
+.S(est_r));
+RTL_MUX buf_l_r_i__42
+(.I0(\<const1> ),
+.I1(\<const0> ),
+.O(buf_l_r_i__42_n_0),
+.S(rst_n));
+RTL_MUX buf_l_r_i__43
+(.I0(\buf_l_r_reg[11]__1 ),
+.I1(\<const0> ),
+.O(buf_l_r_i__43_n_0),
+.S(est_r1_i__0_n_0));
+RTL_MUX buf_l_r_i__44
+(.I0(buf_l_r_i__43_n_0),
+.I1(\<const0> ),
+.O(buf_l_r_i__44_n_0),
+.S(est_r1));
+RTL_MUX3288 buf_l_r_i__45
+(.I0(\<const0> ),
+.I1(\<const0> ),
+.I2(buf_l_r_i__44_n_0),
+.I3(\<const0> ),
+.I4(\<const0> ),
+.I5(\<const0> ),
+.I6(\<const0> ),
+.O(buf_l_r_i__45_n_0),
+.S(est_r));
+RTL_MUX buf_l_r_i__46
+(.I0(\<const1> ),
+.I1(\<const0> ),
+.O(buf_l_r_i__46_n_0),
+.S(rst_n));
+RTL_MUX buf_l_r_i__47
+(.I0(\buf_l_r_reg[12]__1 ),
+.I1(\<const0> ),
+.O(buf_l_r_i__47_n_0),
+.S(est_r1_i__0_n_0));
+RTL_MUX buf_l_r_i__48
+(.I0(buf_l_r_i__47_n_0),
+.I1(\<const0> ),
+.O(buf_l_r_i__48_n_0),
+.S(est_r1));
+RTL_MUX3288 buf_l_r_i__49
+(.I0(\<const0> ),
+.I1(\<const0> ),
+.I2(buf_l_r_i__48_n_0),
+.I3(\<const0> ),
+.I4(\<const0> ),
+.I5(\<const0> ),
+.I6(\<const0> ),
+.O(buf_l_r_i__49_n_0),
+.S(est_r));
+RTL_MUX3288 buf_l_r_i__5
+(.I0(\<const0> ),
+.I1(\<const0> ),
+.I2(buf_l_r_i__4_n_0),
+.I3(\<const0> ),
+.I4(\<const0> ),
+.I5(\<const0> ),
+.I6(\<const0> ),
+.O(buf_l_r_i__5_n_0),
+.S(est_r));
+RTL_MUX buf_l_r_i__50
+(.I0(\<const1> ),
+.I1(\<const0> ),
+.O(buf_l_r_i__50_n_0),
+.S(rst_n));
+RTL_MUX buf_l_r_i__51
+(.I0(\buf_l_r_reg[13]__1 ),
+.I1(\<const0> ),
+.O(buf_l_r_i__51_n_0),
+.S(est_r1_i__0_n_0));
+RTL_MUX buf_l_r_i__52
+(.I0(buf_l_r_i__51_n_0),
+.I1(\<const0> ),
+.O(buf_l_r_i__52_n_0),
+.S(est_r1));
+RTL_MUX3288 buf_l_r_i__53
+(.I0(\<const0> ),
+.I1(\<const0> ),
+.I2(buf_l_r_i__52_n_0),
+.I3(\<const0> ),
+.I4(\<const0> ),
+.I5(\<const0> ),
+.I6(\<const0> ),
+.O(buf_l_r_i__53_n_0),
+.S(est_r));
+RTL_MUX buf_l_r_i__54
+(.I0(\<const1> ),
+.I1(\<const0> ),
+.O(buf_l_r_i__54_n_0),
+.S(rst_n));
+RTL_MUX buf_l_r_i__55
+(.I0(\buf_l_r_reg[14]__1 ),
+.I1(\<const0> ),
+.O(buf_l_r_i__55_n_0),
+.S(est_r1_i__0_n_0));
+RTL_MUX buf_l_r_i__56
+(.I0(buf_l_r_i__55_n_0),
+.I1(\<const0> ),
+.O(buf_l_r_i__56_n_0),
+.S(est_r1));
+RTL_MUX3288 buf_l_r_i__57
+(.I0(\<const0> ),
+.I1(\<const0> ),
+.I2(buf_l_r_i__56_n_0),
+.I3(\<const0> ),
+.I4(\<const0> ),
+.I5(\<const0> ),
+.I6(\<const0> ),
+.O(buf_l_r_i__57_n_0),
+.S(est_r));
+RTL_MUX buf_l_r_i__58
+(.I0(\<const1> ),
+.I1(\<const0> ),
+.O(buf_l_r_i__58_n_0),
+.S(rst_n));
+RTL_MUX buf_l_r_i__59
+(.I0(\buf_l_r_reg[15]__1 ),
+.I1(\<const0> ),
+.O(buf_l_r_i__59_n_0),
+.S(est_r1_i__0_n_0));
+RTL_MUX buf_l_r_i__6
+(.I0(\<const1> ),
+.I1(\<const0> ),
+.O(buf_l_r_i__6_n_0),
+.S(rst_n));
+RTL_MUX buf_l_r_i__60
+(.I0(buf_l_r_i__59_n_0),
+.I1(\<const0> ),
+.O(buf_l_r_i__60_n_0),
+.S(est_r1));
+RTL_MUX3288 buf_l_r_i__61
+(.I0(\<const0> ),
+.I1(\<const0> ),
+.I2(buf_l_r_i__60_n_0),
+.I3(\<const0> ),
+.I4(\<const0> ),
+.I5(\<const0> ),
+.I6(\<const0> ),
+.O(buf_l_r_i__61_n_0),
+.S(est_r));
+RTL_MUX buf_l_r_i__62
+(.I0(\<const1> ),
+.I1(\<const0> ),
+.O(buf_l_r_i__62_n_0),
+.S(rst_n));
+RTL_MUX buf_l_r_i__63
+(.I0(\buf_l_r_reg[16]__1 ),
+.I1(\<const0> ),
+.O(buf_l_r_i__63_n_0),
+.S(est_r1_i__0_n_0));
+RTL_MUX buf_l_r_i__64
+(.I0(buf_l_r_i__63_n_0),
+.I1(\<const0> ),
+.O(buf_l_r_i__64_n_0),
+.S(est_r1));
+RTL_MUX3288 buf_l_r_i__65
+(.I0(\<const0> ),
+.I1(\<const0> ),
+.I2(buf_l_r_i__64_n_0),
+.I3(\<const0> ),
+.I4(\<const0> ),
+.I5(\<const0> ),
+.I6(\<const0> ),
+.O(buf_l_r_i__65_n_0),
+.S(est_r));
+RTL_MUX buf_l_r_i__66
+(.I0(\<const1> ),
+.I1(\<const0> ),
+.O(buf_l_r_i__66_n_0),
+.S(rst_n));
+RTL_MUX buf_l_r_i__67
+(.I0(\buf_l_r_reg[17]__1 ),
+.I1(\<const0> ),
+.O(buf_l_r_i__67_n_0),
+.S(est_r1_i__0_n_0));
+RTL_MUX buf_l_r_i__68
+(.I0(buf_l_r_i__67_n_0),
+.I1(\<const0> ),
+.O(buf_l_r_i__68_n_0),
+.S(est_r1));
+RTL_MUX3288 buf_l_r_i__69
+(.I0(\<const0> ),
+.I1(\<const0> ),
+.I2(buf_l_r_i__68_n_0),
+.I3(\<const0> ),
+.I4(\<const0> ),
+.I5(\<const0> ),
+.I6(\<const0> ),
+.O(buf_l_r_i__69_n_0),
+.S(est_r));
+RTL_MUX buf_l_r_i__7
+(.I0(\buf_l_r_reg[2]__1 ),
+.I1(\<const0> ),
+.O(buf_l_r_i__7_n_0),
+.S(est_r1_i__0_n_0));
+RTL_MUX buf_l_r_i__70
+(.I0(\<const1> ),
+.I1(\<const0> ),
+.O(buf_l_r_i__70_n_0),
+.S(rst_n));
+RTL_MUX buf_l_r_i__71
+(.I0(\buf_l_r_reg[18]__1 ),
+.I1(\<const0> ),
+.O(buf_l_r_i__71_n_0),
+.S(est_r1_i__0_n_0));
+RTL_MUX buf_l_r_i__72
+(.I0(buf_l_r_i__71_n_0),
+.I1(\<const0> ),
+.O(buf_l_r_i__72_n_0),
+.S(est_r1));
+RTL_MUX3288 buf_l_r_i__73
+(.I0(\<const0> ),
+.I1(\<const0> ),
+.I2(buf_l_r_i__72_n_0),
+.I3(\<const0> ),
+.I4(\<const0> ),
+.I5(\<const0> ),
+.I6(\<const0> ),
+.O(buf_l_r_i__73_n_0),
+.S(est_r));
+RTL_MUX buf_l_r_i__74
+(.I0(\<const1> ),
+.I1(\<const0> ),
+.O(buf_l_r_i__74_n_0),
+.S(rst_n));
+RTL_MUX buf_l_r_i__75
+(.I0(\buf_l_r_reg[19]__1 ),
+.I1(\<const0> ),
+.O(buf_l_r_i__75_n_0),
+.S(est_r1_i__0_n_0));
+RTL_MUX buf_l_r_i__76
+(.I0(buf_l_r_i__75_n_0),
+.I1(\<const0> ),
+.O(buf_l_r_i__76_n_0),
+.S(est_r1));
+RTL_MUX3288 buf_l_r_i__77
+(.I0(\<const0> ),
+.I1(\<const0> ),
+.I2(buf_l_r_i__76_n_0),
+.I3(\<const0> ),
+.I4(\<const0> ),
+.I5(\<const0> ),
+.I6(\<const0> ),
+.O(buf_l_r_i__77_n_0),
+.S(est_r));
+RTL_MUX buf_l_r_i__78
+(.I0(\<const1> ),
+.I1(\<const0> ),
+.O(buf_l_r_i__78_n_0),
+.S(rst_n));
+RTL_MUX buf_l_r_i__79
+(.I0(\buf_l_r_reg[20]__1 ),
+.I1(\<const0> ),
+.O(buf_l_r_i__79_n_0),
+.S(est_r1_i__0_n_0));
+RTL_MUX buf_l_r_i__8
+(.I0(buf_l_r_i__7_n_0),
+.I1(\<const0> ),
+.O(buf_l_r_i__8_n_0),
+.S(est_r1));
+RTL_MUX buf_l_r_i__80
+(.I0(buf_l_r_i__79_n_0),
+.I1(\<const0> ),
+.O(buf_l_r_i__80_n_0),
+.S(est_r1));
+RTL_MUX3288 buf_l_r_i__81
+(.I0(\<const0> ),
+.I1(\<const0> ),
+.I2(buf_l_r_i__80_n_0),
+.I3(\<const0> ),
+.I4(\<const0> ),
+.I5(\<const0> ),
+.I6(\<const0> ),
+.O(buf_l_r_i__81_n_0),
+.S(est_r));
+RTL_MUX buf_l_r_i__82
+(.I0(\<const1> ),
+.I1(\<const0> ),
+.O(buf_l_r_i__82_n_0),
+.S(rst_n));
+RTL_MUX buf_l_r_i__83
+(.I0(\buf_l_r_reg[21]__1 ),
+.I1(\<const0> ),
+.O(buf_l_r_i__83_n_0),
+.S(est_r1_i__0_n_0));
+RTL_MUX buf_l_r_i__84
+(.I0(buf_l_r_i__83_n_0),
+.I1(\<const0> ),
+.O(buf_l_r_i__84_n_0),
+.S(est_r1));
+RTL_MUX3288 buf_l_r_i__85
+(.I0(\<const0> ),
+.I1(\<const0> ),
+.I2(buf_l_r_i__84_n_0),
+.I3(\<const0> ),
+.I4(\<const0> ),
+.I5(\<const0> ),
+.I6(\<const0> ),
+.O(buf_l_r_i__85_n_0),
+.S(est_r));
+RTL_MUX buf_l_r_i__86
+(.I0(\<const1> ),
+.I1(\<const0> ),
+.O(buf_l_r_i__86_n_0),
+.S(rst_n));
+RTL_MUX buf_l_r_i__87
+(.I0(\buf_l_r_reg[22]__1 ),
+.I1(\<const0> ),
+.O(buf_l_r_i__87_n_0),
+.S(est_r1_i__0_n_0));
+RTL_MUX buf_l_r_i__88
+(.I0(buf_l_r_i__87_n_0),
+.I1(\<const0> ),
+.O(buf_l_r_i__88_n_0),
+.S(est_r1));
+RTL_MUX3288 buf_l_r_i__89
+(.I0(\<const0> ),
+.I1(\<const0> ),
+.I2(buf_l_r_i__88_n_0),
+.I3(\<const0> ),
+.I4(\<const0> ),
+.I5(\<const0> ),
+.I6(\<const0> ),
+.O(buf_l_r_i__89_n_0),
+.S(est_r));
+RTL_MUX3288 buf_l_r_i__9
+(.I0(\<const0> ),
+.I1(\<const0> ),
+.I2(buf_l_r_i__8_n_0),
+.I3(\<const0> ),
+.I4(\<const0> ),
+.I5(\<const0> ),
+.I6(\<const0> ),
+.O(buf_l_r_i__9_n_0),
+.S(est_r));
+RTL_MUX buf_l_r_i__90
+(.I0(\<const1> ),
+.I1(\<const0> ),
+.O(buf_l_r_i__90_n_0),
+.S(rst_n));
+RTL_MUX buf_l_r_i__91
+(.I0(\buf_l_r_reg[23]__1 ),
+.I1(\<const0> ),
+.O(buf_l_r_i__91_n_0),
+.S(est_r1_i__0_n_0));
+RTL_MUX buf_l_r_i__92
+(.I0(buf_l_r_i__91_n_0),
+.I1(\<const0> ),
+.O(buf_l_r_i__92_n_0),
+.S(est_r1));
+RTL_MUX3288 buf_l_r_i__93
+(.I0(\<const0> ),
+.I1(\<const0> ),
+.I2(buf_l_r_i__92_n_0),
+.I3(\<const0> ),
+.I4(\<const0> ),
+.I5(\<const0> ),
+.I6(\<const0> ),
+.O(buf_l_r_i__93_n_0),
+.S(est_r));
+RTL_MUX buf_l_r_i__94
+(.I0(\<const1> ),
+.I1(\<const0> ),
+.O(buf_l_r_i__94_n_0),
+.S(rst_n));
+RTL_REG_SYNC__BREG_1 \buf_l_r_reg[0][0]
+(.C(clk_i),
+.CE(buf_l_r),
+.D(stg_q_r[24]),
+.Q(\buf_l_r_reg[0]__0 [0]),
+.RST(buf_l_r_i__2_n_0));
+RTL_REG_SYNC__BREG_1 \buf_l_r_reg[0][10]
+(.C(clk_i),
+.CE(buf_l_r),
+.D(stg_q_r[34]),
+.Q(\buf_l_r_reg[0]__0 [10]),
+.RST(buf_l_r_i__2_n_0));
+RTL_REG_SYNC__BREG_1 \buf_l_r_reg[0][11]
+(.C(clk_i),
+.CE(buf_l_r),
+.D(stg_q_r[35]),
+.Q(\buf_l_r_reg[0]__0 [11]),
+.RST(buf_l_r_i__2_n_0));
+RTL_REG_SYNC__BREG_1 \buf_l_r_reg[0][12]
+(.C(clk_i),
+.CE(buf_l_r),
+.D(stg_q_r[36]),
+.Q(\buf_l_r_reg[0]__0 [12]),
+.RST(buf_l_r_i__2_n_0));
+RTL_REG_SYNC__BREG_1 \buf_l_r_reg[0][13]
+(.C(clk_i),
+.CE(buf_l_r),
+.D(stg_q_r[37]),
+.Q(\buf_l_r_reg[0]__0 [13]),
+.RST(buf_l_r_i__2_n_0));
+RTL_REG_SYNC__BREG_1 \buf_l_r_reg[0][14]
+(.C(clk_i),
+.CE(buf_l_r),
+.D(stg_q_r[38]),
+.Q(\buf_l_r_reg[0]__0 [14]),
+.RST(buf_l_r_i__2_n_0));
+RTL_REG_SYNC__BREG_1 \buf_l_r_reg[0][15]
+(.C(clk_i),
+.CE(buf_l_r),
+.D(stg_q_r[39]),
+.Q(\buf_l_r_reg[0]__0 [15]),
+.RST(buf_l_r_i__2_n_0));
+RTL_REG_SYNC__BREG_1 \buf_l_r_reg[0][16]
+(.C(clk_i),
+.CE(buf_l_r),
+.D(stg_q_r[40]),
+.Q(\buf_l_r_reg[0]__0 [16]),
+.RST(buf_l_r_i__2_n_0));
+RTL_REG_SYNC__BREG_1 \buf_l_r_reg[0][17]
+(.C(clk_i),
+.CE(buf_l_r),
+.D(stg_q_r[41]),
+.Q(\buf_l_r_reg[0]__0 [17]),
+.RST(buf_l_r_i__2_n_0));
+RTL_REG_SYNC__BREG_1 \buf_l_r_reg[0][18]
+(.C(clk_i),
+.CE(buf_l_r),
+.D(stg_q_r[42]),
+.Q(\buf_l_r_reg[0]__0 [18]),
+.RST(buf_l_r_i__2_n_0));
+RTL_REG_SYNC__BREG_1 \buf_l_r_reg[0][19]
+(.C(clk_i),
+.CE(buf_l_r),
+.D(stg_q_r[43]),
+.Q(\buf_l_r_reg[0]__0 [19]),
+.RST(buf_l_r_i__2_n_0));
+RTL_REG_SYNC__BREG_1 \buf_l_r_reg[0][1]
+(.C(clk_i),
+.CE(buf_l_r),
+.D(stg_q_r[25]),
+.Q(\buf_l_r_reg[0]__0 [1]),
+.RST(buf_l_r_i__2_n_0));
+RTL_REG_SYNC__BREG_1 \buf_l_r_reg[0][20]
+(.C(clk_i),
+.CE(buf_l_r),
+.D(stg_q_r[44]),
+.Q(\buf_l_r_reg[0]__0 [20]),
+.RST(buf_l_r_i__2_n_0));
+RTL_REG_SYNC__BREG_1 \buf_l_r_reg[0][21]
+(.C(clk_i),
+.CE(buf_l_r),
+.D(stg_q_r[45]),
+.Q(\buf_l_r_reg[0]__0 [21]),
+.RST(buf_l_r_i__2_n_0));
+RTL_REG_SYNC__BREG_1 \buf_l_r_reg[0][22]
+(.C(clk_i),
+.CE(buf_l_r),
+.D(stg_q_r[46]),
+.Q(\buf_l_r_reg[0]__0 [22]),
+.RST(buf_l_r_i__2_n_0));
+RTL_REG_SYNC__BREG_1 \buf_l_r_reg[0][23]
+(.C(clk_i),
+.CE(buf_l_r),
+.D(stg_q_r[47]),
+.Q(\buf_l_r_reg[0]__0 [23]),
+.RST(buf_l_r_i__2_n_0));
+RTL_REG_SYNC__BREG_1 \buf_l_r_reg[0][2]
+(.C(clk_i),
+.CE(buf_l_r),
+.D(stg_q_r[26]),
+.Q(\buf_l_r_reg[0]__0 [2]),
+.RST(buf_l_r_i__2_n_0));
+RTL_REG_SYNC__BREG_1 \buf_l_r_reg[0][3]
+(.C(clk_i),
+.CE(buf_l_r),
+.D(stg_q_r[27]),
+.Q(\buf_l_r_reg[0]__0 [3]),
+.RST(buf_l_r_i__2_n_0));
+RTL_REG_SYNC__BREG_1 \buf_l_r_reg[0][4]
+(.C(clk_i),
+.CE(buf_l_r),
+.D(stg_q_r[28]),
+.Q(\buf_l_r_reg[0]__0 [4]),
+.RST(buf_l_r_i__2_n_0));
+RTL_REG_SYNC__BREG_1 \buf_l_r_reg[0][5]
+(.C(clk_i),
+.CE(buf_l_r),
+.D(stg_q_r[29]),
+.Q(\buf_l_r_reg[0]__0 [5]),
+.RST(buf_l_r_i__2_n_0));
+RTL_REG_SYNC__BREG_1 \buf_l_r_reg[0][6]
+(.C(clk_i),
+.CE(buf_l_r),
+.D(stg_q_r[30]),
+.Q(\buf_l_r_reg[0]__0 [6]),
+.RST(buf_l_r_i__2_n_0));
+RTL_REG_SYNC__BREG_1 \buf_l_r_reg[0][7]
+(.C(clk_i),
+.CE(buf_l_r),
+.D(stg_q_r[31]),
+.Q(\buf_l_r_reg[0]__0 [7]),
+.RST(buf_l_r_i__2_n_0));
+RTL_REG_SYNC__BREG_1 \buf_l_r_reg[0][8]
+(.C(clk_i),
+.CE(buf_l_r),
+.D(stg_q_r[32]),
+.Q(\buf_l_r_reg[0]__0 [8]),
+.RST(buf_l_r_i__2_n_0));
+RTL_REG_SYNC__BREG_1 \buf_l_r_reg[0][9]
+(.C(clk_i),
+.CE(buf_l_r),
+.D(stg_q_r[33]),
+.Q(\buf_l_r_reg[0]__0 [9]),
+.RST(buf_l_r_i__2_n_0));
+RTL_ROM172 \buf_l_r_reg[0]_i
+(.A(ecap_r),
+.O(\buf_l_r_reg[0]__1 ));
+RTL_REG_SYNC__BREG_1 \buf_l_r_reg[10][0]
+(.C(clk_i),
+.CE(buf_l_r_i__41_n_0),
+.D(stg_q_r[24]),
+.Q(\buf_l_r_reg[10]__0 [0]),
+.RST(buf_l_r_i__42_n_0));
+RTL_REG_SYNC__BREG_1 \buf_l_r_reg[10][10]
+(.C(clk_i),
+.CE(buf_l_r_i__41_n_0),
+.D(stg_q_r[34]),
+.Q(\buf_l_r_reg[10]__0 [10]),
+.RST(buf_l_r_i__42_n_0));
+RTL_REG_SYNC__BREG_1 \buf_l_r_reg[10][11]
+(.C(clk_i),
+.CE(buf_l_r_i__41_n_0),
+.D(stg_q_r[35]),
+.Q(\buf_l_r_reg[10]__0 [11]),
+.RST(buf_l_r_i__42_n_0));
+RTL_REG_SYNC__BREG_1 \buf_l_r_reg[10][12]
+(.C(clk_i),
+.CE(buf_l_r_i__41_n_0),
+.D(stg_q_r[36]),
+.Q(\buf_l_r_reg[10]__0 [12]),
+.RST(buf_l_r_i__42_n_0));
+RTL_REG_SYNC__BREG_1 \buf_l_r_reg[10][13]
+(.C(clk_i),
+.CE(buf_l_r_i__41_n_0),
+.D(stg_q_r[37]),
+.Q(\buf_l_r_reg[10]__0 [13]),
+.RST(buf_l_r_i__42_n_0));
+RTL_REG_SYNC__BREG_1 \buf_l_r_reg[10][14]
+(.C(clk_i),
+.CE(buf_l_r_i__41_n_0),
+.D(stg_q_r[38]),
+.Q(\buf_l_r_reg[10]__0 [14]),
+.RST(buf_l_r_i__42_n_0));
+RTL_REG_SYNC__BREG_1 \buf_l_r_reg[10][15]
+(.C(clk_i),
+.CE(buf_l_r_i__41_n_0),
+.D(stg_q_r[39]),
+.Q(\buf_l_r_reg[10]__0 [15]),
+.RST(buf_l_r_i__42_n_0));
+RTL_REG_SYNC__BREG_1 \buf_l_r_reg[10][16]
+(.C(clk_i),
+.CE(buf_l_r_i__41_n_0),
+.D(stg_q_r[40]),
+.Q(\buf_l_r_reg[10]__0 [16]),
+.RST(buf_l_r_i__42_n_0));
+RTL_REG_SYNC__BREG_1 \buf_l_r_reg[10][17]
+(.C(clk_i),
+.CE(buf_l_r_i__41_n_0),
+.D(stg_q_r[41]),
+.Q(\buf_l_r_reg[10]__0 [17]),
+.RST(buf_l_r_i__42_n_0));
+RTL_REG_SYNC__BREG_1 \buf_l_r_reg[10][18]
+(.C(clk_i),
+.CE(buf_l_r_i__41_n_0),
+.D(stg_q_r[42]),
+.Q(\buf_l_r_reg[10]__0 [18]),
+.RST(buf_l_r_i__42_n_0));
+RTL_REG_SYNC__BREG_1 \buf_l_r_reg[10][19]
+(.C(clk_i),
+.CE(buf_l_r_i__41_n_0),
+.D(stg_q_r[43]),
+.Q(\buf_l_r_reg[10]__0 [19]),
+.RST(buf_l_r_i__42_n_0));
+RTL_REG_SYNC__BREG_1 \buf_l_r_reg[10][1]
+(.C(clk_i),
+.CE(buf_l_r_i__41_n_0),
+.D(stg_q_r[25]),
+.Q(\buf_l_r_reg[10]__0 [1]),
+.RST(buf_l_r_i__42_n_0));
+RTL_REG_SYNC__BREG_1 \buf_l_r_reg[10][20]
+(.C(clk_i),
+.CE(buf_l_r_i__41_n_0),
+.D(stg_q_r[44]),
+.Q(\buf_l_r_reg[10]__0 [20]),
+.RST(buf_l_r_i__42_n_0));
+RTL_REG_SYNC__BREG_1 \buf_l_r_reg[10][21]
+(.C(clk_i),
+.CE(buf_l_r_i__41_n_0),
+.D(stg_q_r[45]),
+.Q(\buf_l_r_reg[10]__0 [21]),
+.RST(buf_l_r_i__42_n_0));
+RTL_REG_SYNC__BREG_1 \buf_l_r_reg[10][22]
+(.C(clk_i),
+.CE(buf_l_r_i__41_n_0),
+.D(stg_q_r[46]),
+.Q(\buf_l_r_reg[10]__0 [22]),
+.RST(buf_l_r_i__42_n_0));
+RTL_REG_SYNC__BREG_1 \buf_l_r_reg[10][23]
+(.C(clk_i),
+.CE(buf_l_r_i__41_n_0),
+.D(stg_q_r[47]),
+.Q(\buf_l_r_reg[10]__0 [23]),
+.RST(buf_l_r_i__42_n_0));
+RTL_REG_SYNC__BREG_1 \buf_l_r_reg[10][2]
+(.C(clk_i),
+.CE(buf_l_r_i__41_n_0),
+.D(stg_q_r[26]),
+.Q(\buf_l_r_reg[10]__0 [2]),
+.RST(buf_l_r_i__42_n_0));
+RTL_REG_SYNC__BREG_1 \buf_l_r_reg[10][3]
+(.C(clk_i),
+.CE(buf_l_r_i__41_n_0),
+.D(stg_q_r[27]),
+.Q(\buf_l_r_reg[10]__0 [3]),
+.RST(buf_l_r_i__42_n_0));
+RTL_REG_SYNC__BREG_1 \buf_l_r_reg[10][4]
+(.C(clk_i),
+.CE(buf_l_r_i__41_n_0),
+.D(stg_q_r[28]),
+.Q(\buf_l_r_reg[10]__0 [4]),
+.RST(buf_l_r_i__42_n_0));
+RTL_REG_SYNC__BREG_1 \buf_l_r_reg[10][5]
+(.C(clk_i),
+.CE(buf_l_r_i__41_n_0),
+.D(stg_q_r[29]),
+.Q(\buf_l_r_reg[10]__0 [5]),
+.RST(buf_l_r_i__42_n_0));
+RTL_REG_SYNC__BREG_1 \buf_l_r_reg[10][6]
+(.C(clk_i),
+.CE(buf_l_r_i__41_n_0),
+.D(stg_q_r[30]),
+.Q(\buf_l_r_reg[10]__0 [6]),
+.RST(buf_l_r_i__42_n_0));
+RTL_REG_SYNC__BREG_1 \buf_l_r_reg[10][7]
+(.C(clk_i),
+.CE(buf_l_r_i__41_n_0),
+.D(stg_q_r[31]),
+.Q(\buf_l_r_reg[10]__0 [7]),
+.RST(buf_l_r_i__42_n_0));
+RTL_REG_SYNC__BREG_1 \buf_l_r_reg[10][8]
+(.C(clk_i),
+.CE(buf_l_r_i__41_n_0),
+.D(stg_q_r[32]),
+.Q(\buf_l_r_reg[10]__0 [8]),
+.RST(buf_l_r_i__42_n_0));
+RTL_REG_SYNC__BREG_1 \buf_l_r_reg[10][9]
+(.C(clk_i),
+.CE(buf_l_r_i__41_n_0),
+.D(stg_q_r[33]),
+.Q(\buf_l_r_reg[10]__0 [9]),
+.RST(buf_l_r_i__42_n_0));
+RTL_ROM172 \buf_l_r_reg[10]_i
+(.A(ecap_r),
+.O(\buf_l_r_reg[10]__1 ));
+RTL_REG_SYNC__BREG_1 \buf_l_r_reg[11][0]
+(.C(clk_i),
+.CE(buf_l_r_i__45_n_0),
+.D(stg_q_r[24]),
+.Q(\buf_l_r_reg[11]__0 [0]),
+.RST(buf_l_r_i__46_n_0));
+RTL_REG_SYNC__BREG_1 \buf_l_r_reg[11][10]
+(.C(clk_i),
+.CE(buf_l_r_i__45_n_0),
+.D(stg_q_r[34]),
+.Q(\buf_l_r_reg[11]__0 [10]),
+.RST(buf_l_r_i__46_n_0));
+RTL_REG_SYNC__BREG_1 \buf_l_r_reg[11][11]
+(.C(clk_i),
+.CE(buf_l_r_i__45_n_0),
+.D(stg_q_r[35]),
+.Q(\buf_l_r_reg[11]__0 [11]),
+.RST(buf_l_r_i__46_n_0));
+RTL_REG_SYNC__BREG_1 \buf_l_r_reg[11][12]
+(.C(clk_i),
+.CE(buf_l_r_i__45_n_0),
+.D(stg_q_r[36]),
+.Q(\buf_l_r_reg[11]__0 [12]),
+.RST(buf_l_r_i__46_n_0));
+RTL_REG_SYNC__BREG_1 \buf_l_r_reg[11][13]
+(.C(clk_i),
+.CE(buf_l_r_i__45_n_0),
+.D(stg_q_r[37]),
+.Q(\buf_l_r_reg[11]__0 [13]),
+.RST(buf_l_r_i__46_n_0));
+RTL_REG_SYNC__BREG_1 \buf_l_r_reg[11][14]
+(.C(clk_i),
+.CE(buf_l_r_i__45_n_0),
+.D(stg_q_r[38]),
+.Q(\buf_l_r_reg[11]__0 [14]),
+.RST(buf_l_r_i__46_n_0));
+RTL_REG_SYNC__BREG_1 \buf_l_r_reg[11][15]
+(.C(clk_i),
+.CE(buf_l_r_i__45_n_0),
+.D(stg_q_r[39]),
+.Q(\buf_l_r_reg[11]__0 [15]),
+.RST(buf_l_r_i__46_n_0));
+RTL_REG_SYNC__BREG_1 \buf_l_r_reg[11][16]
+(.C(clk_i),
+.CE(buf_l_r_i__45_n_0),
+.D(stg_q_r[40]),
+.Q(\buf_l_r_reg[11]__0 [16]),
+.RST(buf_l_r_i__46_n_0));
+RTL_REG_SYNC__BREG_1 \buf_l_r_reg[11][17]
+(.C(clk_i),
+.CE(buf_l_r_i__45_n_0),
+.D(stg_q_r[41]),
+.Q(\buf_l_r_reg[11]__0 [17]),
+.RST(buf_l_r_i__46_n_0));
+RTL_REG_SYNC__BREG_1 \buf_l_r_reg[11][18]
+(.C(clk_i),
+.CE(buf_l_r_i__45_n_0),
+.D(stg_q_r[42]),
+.Q(\buf_l_r_reg[11]__0 [18]),
+.RST(buf_l_r_i__46_n_0));
+RTL_REG_SYNC__BREG_1 \buf_l_r_reg[11][19]
+(.C(clk_i),
+.CE(buf_l_r_i__45_n_0),
+.D(stg_q_r[43]),
+.Q(\buf_l_r_reg[11]__0 [19]),
+.RST(buf_l_r_i__46_n_0));
+RTL_REG_SYNC__BREG_1 \buf_l_r_reg[11][1]
+(.C(clk_i),
+.CE(buf_l_r_i__45_n_0),
+.D(stg_q_r[25]),
+.Q(\buf_l_r_reg[11]__0 [1]),
+.RST(buf_l_r_i__46_n_0));
+RTL_REG_SYNC__BREG_1 \buf_l_r_reg[11][20]
+(.C(clk_i),
+.CE(buf_l_r_i__45_n_0),
+.D(stg_q_r[44]),
+.Q(\buf_l_r_reg[11]__0 [20]),
+.RST(buf_l_r_i__46_n_0));
+RTL_REG_SYNC__BREG_1 \buf_l_r_reg[11][21]
+(.C(clk_i),
+.CE(buf_l_r_i__45_n_0),
+.D(stg_q_r[45]),
+.Q(\buf_l_r_reg[11]__0 [21]),
+.RST(buf_l_r_i__46_n_0));
+RTL_REG_SYNC__BREG_1 \buf_l_r_reg[11][22]
+(.C(clk_i),
+.CE(buf_l_r_i__45_n_0),
+.D(stg_q_r[46]),
+.Q(\buf_l_r_reg[11]__0 [22]),
+.RST(buf_l_r_i__46_n_0));
+RTL_REG_SYNC__BREG_1 \buf_l_r_reg[11][23]
+(.C(clk_i),
+.CE(buf_l_r_i__45_n_0),
+.D(stg_q_r[47]),
+.Q(\buf_l_r_reg[11]__0 [23]),
+.RST(buf_l_r_i__46_n_0));
+RTL_REG_SYNC__BREG_1 \buf_l_r_reg[11][2]
+(.C(clk_i),
+.CE(buf_l_r_i__45_n_0),
+.D(stg_q_r[26]),
+.Q(\buf_l_r_reg[11]__0 [2]),
+.RST(buf_l_r_i__46_n_0));
+RTL_REG_SYNC__BREG_1 \buf_l_r_reg[11][3]
+(.C(clk_i),
+.CE(buf_l_r_i__45_n_0),
+.D(stg_q_r[27]),
+.Q(\buf_l_r_reg[11]__0 [3]),
+.RST(buf_l_r_i__46_n_0));
+RTL_REG_SYNC__BREG_1 \buf_l_r_reg[11][4]
+(.C(clk_i),
+.CE(buf_l_r_i__45_n_0),
+.D(stg_q_r[28]),
+.Q(\buf_l_r_reg[11]__0 [4]),
+.RST(buf_l_r_i__46_n_0));
+RTL_REG_SYNC__BREG_1 \buf_l_r_reg[11][5]
+(.C(clk_i),
+.CE(buf_l_r_i__45_n_0),
+.D(stg_q_r[29]),
+.Q(\buf_l_r_reg[11]__0 [5]),
+.RST(buf_l_r_i__46_n_0));
+RTL_REG_SYNC__BREG_1 \buf_l_r_reg[11][6]
+(.C(clk_i),
+.CE(buf_l_r_i__45_n_0),
+.D(stg_q_r[30]),
+.Q(\buf_l_r_reg[11]__0 [6]),
+.RST(buf_l_r_i__46_n_0));
+RTL_REG_SYNC__BREG_1 \buf_l_r_reg[11][7]
+(.C(clk_i),
+.CE(buf_l_r_i__45_n_0),
+.D(stg_q_r[31]),
+.Q(\buf_l_r_reg[11]__0 [7]),
+.RST(buf_l_r_i__46_n_0));
+RTL_REG_SYNC__BREG_1 \buf_l_r_reg[11][8]
+(.C(clk_i),
+.CE(buf_l_r_i__45_n_0),
+.D(stg_q_r[32]),
+.Q(\buf_l_r_reg[11]__0 [8]),
+.RST(buf_l_r_i__46_n_0));
+RTL_REG_SYNC__BREG_1 \buf_l_r_reg[11][9]
+(.C(clk_i),
+.CE(buf_l_r_i__45_n_0),
+.D(stg_q_r[33]),
+.Q(\buf_l_r_reg[11]__0 [9]),
+.RST(buf_l_r_i__46_n_0));
+RTL_ROM172 \buf_l_r_reg[11]_i
+(.A(ecap_r),
+.O(\buf_l_r_reg[11]__1 ));
+RTL_REG_SYNC__BREG_1 \buf_l_r_reg[12][0]
+(.C(clk_i),
+.CE(buf_l_r_i__49_n_0),
+.D(stg_q_r[24]),
+.Q(\buf_l_r_reg[12]__0 [0]),
+.RST(buf_l_r_i__50_n_0));
+RTL_REG_SYNC__BREG_1 \buf_l_r_reg[12][10]
+(.C(clk_i),
+.CE(buf_l_r_i__49_n_0),
+.D(stg_q_r[34]),
+.Q(\buf_l_r_reg[12]__0 [10]),
+.RST(buf_l_r_i__50_n_0));
+RTL_REG_SYNC__BREG_1 \buf_l_r_reg[12][11]
+(.C(clk_i),
+.CE(buf_l_r_i__49_n_0),
+.D(stg_q_r[35]),
+.Q(\buf_l_r_reg[12]__0 [11]),
+.RST(buf_l_r_i__50_n_0));
+RTL_REG_SYNC__BREG_1 \buf_l_r_reg[12][12]
+(.C(clk_i),
+.CE(buf_l_r_i__49_n_0),
+.D(stg_q_r[36]),
+.Q(\buf_l_r_reg[12]__0 [12]),
+.RST(buf_l_r_i__50_n_0));
+RTL_REG_SYNC__BREG_1 \buf_l_r_reg[12][13]
+(.C(clk_i),
+.CE(buf_l_r_i__49_n_0),
+.D(stg_q_r[37]),
+.Q(\buf_l_r_reg[12]__0 [13]),
+.RST(buf_l_r_i__50_n_0));
+RTL_REG_SYNC__BREG_1 \buf_l_r_reg[12][14]
+(.C(clk_i),
+.CE(buf_l_r_i__49_n_0),
+.D(stg_q_r[38]),
+.Q(\buf_l_r_reg[12]__0 [14]),
+.RST(buf_l_r_i__50_n_0));
+RTL_REG_SYNC__BREG_1 \buf_l_r_reg[12][15]
+(.C(clk_i),
+.CE(buf_l_r_i__49_n_0),
+.D(stg_q_r[39]),
+.Q(\buf_l_r_reg[12]__0 [15]),
+.RST(buf_l_r_i__50_n_0));
+RTL_REG_SYNC__BREG_1 \buf_l_r_reg[12][16]
+(.C(clk_i),
+.CE(buf_l_r_i__49_n_0),
+.D(stg_q_r[40]),
+.Q(\buf_l_r_reg[12]__0 [16]),
+.RST(buf_l_r_i__50_n_0));
+RTL_REG_SYNC__BREG_1 \buf_l_r_reg[12][17]
+(.C(clk_i),
+.CE(buf_l_r_i__49_n_0),
+.D(stg_q_r[41]),
+.Q(\buf_l_r_reg[12]__0 [17]),
+.RST(buf_l_r_i__50_n_0));
+RTL_REG_SYNC__BREG_1 \buf_l_r_reg[12][18]
+(.C(clk_i),
+.CE(buf_l_r_i__49_n_0),
+.D(stg_q_r[42]),
+.Q(\buf_l_r_reg[12]__0 [18]),
+.RST(buf_l_r_i__50_n_0));
+RTL_REG_SYNC__BREG_1 \buf_l_r_reg[12][19]
+(.C(clk_i),
+.CE(buf_l_r_i__49_n_0),
+.D(stg_q_r[43]),
+.Q(\buf_l_r_reg[12]__0 [19]),
+.RST(buf_l_r_i__50_n_0));
+RTL_REG_SYNC__BREG_1 \buf_l_r_reg[12][1]
+(.C(clk_i),
+.CE(buf_l_r_i__49_n_0),
+.D(stg_q_r[25]),
+.Q(\buf_l_r_reg[12]__0 [1]),
+.RST(buf_l_r_i__50_n_0));
+RTL_REG_SYNC__BREG_1 \buf_l_r_reg[12][20]
+(.C(clk_i),
+.CE(buf_l_r_i__49_n_0),
+.D(stg_q_r[44]),
+.Q(\buf_l_r_reg[12]__0 [20]),
+.RST(buf_l_r_i__50_n_0));
+RTL_REG_SYNC__BREG_1 \buf_l_r_reg[12][21]
+(.C(clk_i),
+.CE(buf_l_r_i__49_n_0),
+.D(stg_q_r[45]),
+.Q(\buf_l_r_reg[12]__0 [21]),
+.RST(buf_l_r_i__50_n_0));
+RTL_REG_SYNC__BREG_1 \buf_l_r_reg[12][22]
+(.C(clk_i),
+.CE(buf_l_r_i__49_n_0),
+.D(stg_q_r[46]),
+.Q(\buf_l_r_reg[12]__0 [22]),
+.RST(buf_l_r_i__50_n_0));
+RTL_REG_SYNC__BREG_1 \buf_l_r_reg[12][23]
+(.C(clk_i),
+.CE(buf_l_r_i__49_n_0),
+.D(stg_q_r[47]),
+.Q(\buf_l_r_reg[12]__0 [23]),
+.RST(buf_l_r_i__50_n_0));
+RTL_REG_SYNC__BREG_1 \buf_l_r_reg[12][2]
+(.C(clk_i),
+.CE(buf_l_r_i__49_n_0),
+.D(stg_q_r[26]),
+.Q(\buf_l_r_reg[12]__0 [2]),
+.RST(buf_l_r_i__50_n_0));
+RTL_REG_SYNC__BREG_1 \buf_l_r_reg[12][3]
+(.C(clk_i),
+.CE(buf_l_r_i__49_n_0),
+.D(stg_q_r[27]),
+.Q(\buf_l_r_reg[12]__0 [3]),
+.RST(buf_l_r_i__50_n_0));
+RTL_REG_SYNC__BREG_1 \buf_l_r_reg[12][4]
+(.C(clk_i),
+.CE(buf_l_r_i__49_n_0),
+.D(stg_q_r[28]),
+.Q(\buf_l_r_reg[12]__0 [4]),
+.RST(buf_l_r_i__50_n_0));
+RTL_REG_SYNC__BREG_1 \buf_l_r_reg[12][5]
+(.C(clk_i),
+.CE(buf_l_r_i__49_n_0),
+.D(stg_q_r[29]),
+.Q(\buf_l_r_reg[12]__0 [5]),
+.RST(buf_l_r_i__50_n_0));
+RTL_REG_SYNC__BREG_1 \buf_l_r_reg[12][6]
+(.C(clk_i),
+.CE(buf_l_r_i__49_n_0),
+.D(stg_q_r[30]),
+.Q(\buf_l_r_reg[12]__0 [6]),
+.RST(buf_l_r_i__50_n_0));
+RTL_REG_SYNC__BREG_1 \buf_l_r_reg[12][7]
+(.C(clk_i),
+.CE(buf_l_r_i__49_n_0),
+.D(stg_q_r[31]),
+.Q(\buf_l_r_reg[12]__0 [7]),
+.RST(buf_l_r_i__50_n_0));
+RTL_REG_SYNC__BREG_1 \buf_l_r_reg[12][8]
+(.C(clk_i),
+.CE(buf_l_r_i__49_n_0),
+.D(stg_q_r[32]),
+.Q(\buf_l_r_reg[12]__0 [8]),
+.RST(buf_l_r_i__50_n_0));
+RTL_REG_SYNC__BREG_1 \buf_l_r_reg[12][9]
+(.C(clk_i),
+.CE(buf_l_r_i__49_n_0),
+.D(stg_q_r[33]),
+.Q(\buf_l_r_reg[12]__0 [9]),
+.RST(buf_l_r_i__50_n_0));
+RTL_ROM172 \buf_l_r_reg[12]_i
+(.A(ecap_r),
+.O(\buf_l_r_reg[12]__1 ));
+RTL_REG_SYNC__BREG_1 \buf_l_r_reg[13][0]
+(.C(clk_i),
+.CE(buf_l_r_i__53_n_0),
+.D(stg_q_r[24]),
+.Q(\buf_l_r_reg[13]__0 [0]),
+.RST(buf_l_r_i__54_n_0));
+RTL_REG_SYNC__BREG_1 \buf_l_r_reg[13][10]
+(.C(clk_i),
+.CE(buf_l_r_i__53_n_0),
+.D(stg_q_r[34]),
+.Q(\buf_l_r_reg[13]__0 [10]),
+.RST(buf_l_r_i__54_n_0));
+RTL_REG_SYNC__BREG_1 \buf_l_r_reg[13][11]
+(.C(clk_i),
+.CE(buf_l_r_i__53_n_0),
+.D(stg_q_r[35]),
+.Q(\buf_l_r_reg[13]__0 [11]),
+.RST(buf_l_r_i__54_n_0));
+RTL_REG_SYNC__BREG_1 \buf_l_r_reg[13][12]
+(.C(clk_i),
+.CE(buf_l_r_i__53_n_0),
+.D(stg_q_r[36]),
+.Q(\buf_l_r_reg[13]__0 [12]),
+.RST(buf_l_r_i__54_n_0));
+RTL_REG_SYNC__BREG_1 \buf_l_r_reg[13][13]
+(.C(clk_i),
+.CE(buf_l_r_i__53_n_0),
+.D(stg_q_r[37]),
+.Q(\buf_l_r_reg[13]__0 [13]),
+.RST(buf_l_r_i__54_n_0));
+RTL_REG_SYNC__BREG_1 \buf_l_r_reg[13][14]
+(.C(clk_i),
+.CE(buf_l_r_i__53_n_0),
+.D(stg_q_r[38]),
+.Q(\buf_l_r_reg[13]__0 [14]),
+.RST(buf_l_r_i__54_n_0));
+RTL_REG_SYNC__BREG_1 \buf_l_r_reg[13][15]
+(.C(clk_i),
+.CE(buf_l_r_i__53_n_0),
+.D(stg_q_r[39]),
+.Q(\buf_l_r_reg[13]__0 [15]),
+.RST(buf_l_r_i__54_n_0));
+RTL_REG_SYNC__BREG_1 \buf_l_r_reg[13][16

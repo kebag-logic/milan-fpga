@@ -1,0 +1,1008 @@
+Candidate head: 855529fe21fea685725a9edc4fe0a798154c6469
+Comparison base: 3cda030c174b325e36c26af6420487ff91346d15
+Source: leaf-off/base-KL_chan_map_capture/yosys.log
+Original SHA256: 18f22042f779f609dfd65a5a6e13df1eb2815cf215db1930ae6a8b8a6d57b585
+Scope: native compilation chatter omitted; other output retained; paths and host fields normalized
+
+      New connections: $0$memwr$\q_rd_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:480$1006_EN[3:0]$2830 [3:1] = { $0$memwr$\q_rd_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:480$1006_EN[3:0]$2830 [0] $0$memwr$\q_rd_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:480$1006_EN[3:0]$2830 [0] $0$memwr$\q_rd_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:480$1006_EN[3:0]$2830 [0] }
+    Consolidated identical input bits for $mux cell $procmux$9035:
+      Old ports: A=5'11111, B=5'00000, Y=$0$memwr$\q_cnt_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:481$1007_EN[4:0]$2831
+      New ports: A=1'1, B=1'0, Y=$0$memwr$\q_cnt_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:481$1007_EN[4:0]$2831 [0]
+      New connections: $0$memwr$\q_cnt_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:481$1007_EN[4:0]$2831 [4:1] = { $0$memwr$\q_cnt_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:481$1007_EN[4:0]$2831 [0] $0$memwr$\q_cnt_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:481$1007_EN[4:0]$2831 [0] $0$memwr$\q_cnt_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:481$1007_EN[4:0]$2831 [0] $0$memwr$\q_cnt_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:481$1007_EN[4:0]$2831 [0] }
+    Consolidated identical input bits for $mux cell $procmux$9032:
+      Old ports: A=48'111111111111111111111111111111111111111111111111, B=48'000000000000000000000000000000000000000000000000, Y=$0$memwr$\lb_hold_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:482$1008_EN[47:0]$2832
+      New ports: A=1'1, B=1'0, Y=$0$memwr$\lb_hold_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:482$1008_EN[47:0]$2832 [0]
+      New connections: $0$memwr$\lb_hold_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:482$1008_EN[47:0]$2832 [47:1] = { $0$memwr$\lb_hold_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:482$1008_EN[47:0]$2832 [0] $0$memwr$\lb_hold_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:482$1008_EN[47:0]$2832 [0] $0$memwr$\lb_hold_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:482$1008_EN[47:0]$2832 [0] $0$memwr$\lb_hold_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:482$1008_EN[47:0]$2832 [0] $0$memwr$\lb_hold_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:482$1008_EN[47:0]$2832 [0] $0$memwr$\lb_hold_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:482$1008_EN[47:0]$2832 [0] $0$memwr$\lb_hold_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:482$1008_EN[47:0]$2832 [0] $0$memwr$\lb_hold_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:482$1008_EN[47:0]$2832 [0] $0$memwr$\lb_hold_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:482$1008_EN[47:0]$2832 [0] $0$memwr$\lb_hold_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:482$1008_EN[47:0]$2832 [0] $0$memwr$\lb_hold_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:482$1008_EN[47:0]$2832 [0] $0$memwr$\lb_hold_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:482$1008_EN[47:0]$2832 [0] $0$memwr$\lb_hold_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:482$1008_EN[47:0]$2832 [0] $0$memwr$\lb_hold_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:482$1008_EN[47:0]$2832 [0] $0$memwr$\lb_hold_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:482$1008_EN[47:0]$2832 [0] $0$memwr$\lb_hold_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:482$1008_EN[47:0]$2832 [0] $0$memwr$\lb_hold_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:482$1008_EN[47:0]$2832 [0] $0$memwr$\lb_hold_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:482$1008_EN[47:0]$2832 [0] $0$memwr$\lb_hold_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:482$1008_EN[47:0]$2832 [0] $0$memwr$\lb_hold_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:482$1008_EN[47:0]$2832 [0] $0$memwr$\lb_hold_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:482$1008_EN[47:0]$2832 [0] $0$memwr$\lb_hold_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:482$1008_EN[47:0]$2832 [0] $0$memwr$\lb_hold_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:482$1008_EN[47:0]$2832 [0] $0$memwr$\lb_hold_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:482$1008_EN[47:0]$2832 [0] $0$memwr$\lb_hold_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:482$1008_EN[47:0]$2832 [0] $0$memwr$\lb_hold_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:482$1008_EN[47:0]$2832 [0] $0$memwr$\lb_hold_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:482$1008_EN[47:0]$2832 [0] $0$memwr$\lb_hold_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:482$1008_EN[47:0]$2832 [0] $0$memwr$\lb_hold_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:482$1008_EN[47:0]$2832 [0] $0$memwr$\lb_hold_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:482$1008_EN[47:0]$2832 [0] $0$memwr$\lb_hold_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:482$1008_EN[47:0]$2832 [0] $0$memwr$\lb_hold_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:482$1008_EN[47:0]$2832 [0] $0$memwr$\lb_hold_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:482$1008_EN[47:0]$2832 [0] $0$memwr$\lb_hold_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:482$1008_EN[47:0]$2832 [0] $0$memwr$\lb_hold_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:482$1008_EN[47:0]$2832 [0] $0$memwr$\lb_hold_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:482$1008_EN[47:0]$2832 [0] $0$memwr$\lb_hold_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:482$1008_EN[47:0]$2832 [0] $0$memwr$\lb_hold_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:482$1008_EN[47:0]$2832 [0] $0$memwr$\lb_hold_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:482$1008_EN[47:0]$2832 [0] $0$memwr$\lb_hold_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:482$1008_EN[47:0]$2832 [0] $0$memwr$\lb_hold_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:482$1008_EN[47:0]$2832 [0] $0$memwr$\lb_hold_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:482$1008_EN[47:0]$2832 [0] $0$memwr$\lb_hold_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:482$1008_EN[47:0]$2832 [0] $0$memwr$\lb_hold_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:482$1008_EN[47:0]$2832 [0] $0$memwr$\lb_hold_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:482$1008_EN[47:0]$2832 [0] $0$memwr$\lb_hold_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:482$1008_EN[47:0]$2832 [0] $0$memwr$\lb_hold_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:482$1008_EN[47:0]$2832 [0] }
+    Consolidated identical input bits for $mux cell $procmux$9029:
+      Old ports: A=3'111, B=3'000, Y=$0$memwr$\act_hold_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:483$1009_EN[2:0]$2833
+      New ports: A=1'1, B=1'0, Y=$0$memwr$\act_hold_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:483$1009_EN[2:0]$2833 [0]
+      New connections: $0$memwr$\act_hold_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:483$1009_EN[2:0]$2833 [2:1] = { $0$memwr$\act_hold_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:483$1009_EN[2:0]$2833 [0] $0$memwr$\act_hold_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:483$1009_EN[2:0]$2833 [0] }
+    Consolidated identical input bits for $mux cell $procmux$9026:
+      Old ports: A=4'1111, B=4'0000, Y=$0$memwr$\q_wr_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:479$1010_EN[3:0]$2834
+      New ports: A=1'1, B=1'0, Y=$0$memwr$\q_wr_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:479$1010_EN[3:0]$2834 [0]
+      New connections: $0$memwr$\q_wr_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:479$1010_EN[3:0]$2834 [3:1] = { $0$memwr$\q_wr_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:479$1010_EN[3:0]$2834 [0] $0$memwr$\q_wr_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:479$1010_EN[3:0]$2834 [0] $0$memwr$\q_wr_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:479$1010_EN[3:0]$2834 [0] }
+    Consolidated identical input bits for $mux cell $procmux$9023:
+      Old ports: A=4'1111, B=4'0000, Y=$0$memwr$\q_rd_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:480$1011_EN[3:0]$2835
+      New ports: A=1'1, B=1'0, Y=$0$memwr$\q_rd_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:480$1011_EN[3:0]$2835 [0]
+      New connections: $0$memwr$\q_rd_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:480$1011_EN[3:0]$2835 [3:1] = { $0$memwr$\q_rd_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:480$1011_EN[3:0]$2835 [0] $0$memwr$\q_rd_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:480$1011_EN[3:0]$2835 [0] $0$memwr$\q_rd_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:480$1011_EN[3:0]$2835 [0] }
+    Consolidated identical input bits for $mux cell $procmux$9020:
+      Old ports: A=5'11111, B=5'00000, Y=$0$memwr$\q_cnt_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:481$1012_EN[4:0]$2836
+      New ports: A=1'1, B=1'0, Y=$0$memwr$\q_cnt_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:481$1012_EN[4:0]$2836 [0]
+      New connections: $0$memwr$\q_cnt_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:481$1012_EN[4:0]$2836 [4:1] = { $0$memwr$\q_cnt_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:481$1012_EN[4:0]$2836 [0] $0$memwr$\q_cnt_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:481$1012_EN[4:0]$2836 [0] $0$memwr$\q_cnt_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:481$1012_EN[4:0]$2836 [0] $0$memwr$\q_cnt_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:481$1012_EN[4:0]$2836 [0] }
+    Consolidated identical input bits for $mux cell $procmux$9017:
+      Old ports: A=48'111111111111111111111111111111111111111111111111, B=48'000000000000000000000000000000000000000000000000, Y=$0$memwr$\lb_hold_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:482$1013_EN[47:0]$2837
+      New ports: A=1'1, B=1'0, Y=$0$memwr$\lb_hold_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:482$1013_EN[47:0]$2837 [0]
+      New connections: $0$memwr$\lb_hold_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:482$1013_EN[47:0]$2837 [47:1] = { $0$memwr$\lb_hold_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:482$1013_EN[47:0]$2837 [0] $0$memwr$\lb_hold_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:482$1013_EN[47:0]$2837 [0] $0$memwr$\lb_hold_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:482$1013_EN[47:0]$2837 [0] $0$memwr$\lb_hold_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:482$1013_EN[47:0]$2837 [0] $0$memwr$\lb_hold_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:482$1013_EN[47:0]$2837 [0] $0$memwr$\lb_hold_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:482$1013_EN[47:0]$2837 [0] $0$memwr$\lb_hold_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:482$1013_EN[47:0]$2837 [0] $0$memwr$\lb_hold_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:482$1013_EN[47:0]$2837 [0] $0$memwr$\lb_hold_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:482$1013_EN[47:0]$2837 [0] $0$memwr$\lb_hold_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:482$1013_EN[47:0]$2837 [0] $0$memwr$\lb_hold_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:482$1013_EN[47:0]$2837 [0] $0$memwr$\lb_hold_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:482$1013_EN[47:0]$2837 [0] $0$memwr$\lb_hold_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:482$1013_EN[47:0]$2837 [0] $0$memwr$\lb_hold_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:482$1013_EN[47:0]$2837 [0] $0$memwr$\lb_hold_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:482$1013_EN[47:0]$2837 [0] $0$memwr$\lb_hold_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:482$1013_EN[47:0]$2837 [0] $0$memwr$\lb_hold_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:482$1013_EN[47:0]$2837 [0] $0$memwr$\lb_hold_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:482$1013_EN[47:0]$2837 [0] $0$memwr$\lb_hold_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:482$1013_EN[47:0]$2837 [0] $0$memwr$\lb_hold_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:482$1013_EN[47:0]$2837 [0] $0$memwr$\lb_hold_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:482$1013_EN[47:0]$2837 [0] $0$memwr$\lb_hold_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:482$1013_EN[47:0]$2837 [0] $0$memwr$\lb_hold_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:482$1013_EN[47:0]$2837 [0] $0$memwr$\lb_hold_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:482$1013_EN[47:0]$2837 [0] $0$memwr$\lb_hold_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:482$1013_EN[47:0]$2837 [0] $0$memwr$\lb_hold_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:482$1013_EN[47:0]$2837 [0] $0$memwr$\lb_hold_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:482$1013_EN[47:0]$2837 [0] $0$memwr$\lb_hold_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:482$1013_EN[47:0]$2837 [0] $0$memwr$\lb_hold_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:482$1013_EN[47:0]$2837 [0] $0$memwr$\lb_hold_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:482$1013_EN[47:0]$2837 [0] $0$memwr$\lb_hold_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:482$1013_EN[47:0]$2837 [0] $0$memwr$\lb_hold_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:482$1013_EN[47:0]$2837 [0] $0$memwr$\lb_hold_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:482$1013_EN[47:0]$2837 [0] $0$memwr$\lb_hold_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:482$1013_EN[47:0]$2837 [0] $0$memwr$\lb_hold_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:482$1013_EN[47:0]$2837 [0] $0$memwr$\lb_hold_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:482$1013_EN[47:0]$2837 [0] $0$memwr$\lb_hold_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:482$1013_EN[47:0]$2837 [0] $0$memwr$\lb_hold_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:482$1013_EN[47:0]$2837 [0] $0$memwr$\lb_hold_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:482$1013_EN[47:0]$2837 [0] $0$memwr$\lb_hold_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:482$1013_EN[47:0]$2837 [0] $0$memwr$\lb_hold_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:482$1013_EN[47:0]$2837 [0] $0$memwr$\lb_hold_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:482$1013_EN[47:0]$2837 [0] $0$memwr$\lb_hold_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:482$1013_EN[47:0]$2837 [0] $0$memwr$\lb_hold_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:482$1013_EN[47:0]$2837 [0] $0$memwr$\lb_hold_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:482$1013_EN[47:0]$2837 [0] $0$memwr$\lb_hold_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:482$1013_EN[47:0]$2837 [0] $0$memwr$\lb_hold_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:482$1013_EN[47:0]$2837 [0] }
+    Consolidated identical input bits for $mux cell $procmux$9014:
+      Old ports: A=3'111, B=3'000, Y=$0$memwr$\act_hold_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:483$1014_EN[2:0]$2838
+      New ports: A=1'1, B=1'0, Y=$0$memwr$\act_hold_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:483$1014_EN[2:0]$2838 [0]
+      New connections: $0$memwr$\act_hold_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:483$1014_EN[2:0]$2838 [2:1] = { $0$memwr$\act_hold_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:483$1014_EN[2:0]$2838 [0] $0$memwr$\act_hold_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:483$1014_EN[2:0]$2838 [0] }
+    Consolidated identical input bits for $mux cell $procmux$8996:
+      Old ports: A=2'11, B=2'00, Y=$0$memwr$\skid_form_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:505$1015_EN[1:0]$2839
+      New ports: A=1'1, B=1'0, Y=$0$memwr$\skid_form_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:505$1015_EN[1:0]$2839 [0]
+      New connections: $0$memwr$\skid_form_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:505$1015_EN[1:0]$2839 [1] = $0$memwr$\skid_form_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:505$1015_EN[1:0]$2839 [0]
+    Consolidated identical input bits for $mux cell $procmux$8993:
+      Old ports: A=2'11, B=2'00, Y=$0$memwr$\skid_beat_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:506$1016_EN[1:0]$2840
+      New ports: A=1'1, B=1'0, Y=$0$memwr$\skid_beat_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:506$1016_EN[1:0]$2840 [0]
+      New connections: $0$memwr$\skid_beat_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:506$1016_EN[1:0]$2840 [1] = $0$memwr$\skid_beat_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:506$1016_EN[1:0]$2840 [0]
+    Consolidated identical input bits for $mux cell $procmux$8990:
+      Old ports: A=2'11, B=2'00, Y=$0$memwr$\skid_form_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:505$1017_EN[1:0]$2841
+      New ports: A=1'1, B=1'0, Y=$0$memwr$\skid_form_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:505$1017_EN[1:0]$2841 [0]
+      New connections: $0$memwr$\skid_form_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:505$1017_EN[1:0]$2841 [1] = $0$memwr$\skid_form_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:505$1017_EN[1:0]$2841 [0]
+    Consolidated identical input bits for $mux cell $procmux$8987:
+      Old ports: A=2'11, B=2'00, Y=$0$memwr$\skid_beat_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:506$1018_EN[1:0]$2842
+      New ports: A=1'1, B=1'0, Y=$0$memwr$\skid_beat_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:506$1018_EN[1:0]$2842 [0]
+      New connections: $0$memwr$\skid_beat_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:506$1018_EN[1:0]$2842 [1] = $0$memwr$\skid_beat_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:506$1018_EN[1:0]$2842 [0]
+    Consolidated identical input bits for $mux cell $procmux$8984:
+      Old ports: A=2'11, B=2'00, Y=$0$memwr$\skid_form_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:505$1019_EN[1:0]$2843
+      New ports: A=1'1, B=1'0, Y=$0$memwr$\skid_form_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:505$1019_EN[1:0]$2843 [0]
+      New connections: $0$memwr$\skid_form_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:505$1019_EN[1:0]$2843 [1] = $0$memwr$\skid_form_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:505$1019_EN[1:0]$2843 [0]
+    Consolidated identical input bits for $mux cell $procmux$8981:
+      Old ports: A=2'11, B=2'00, Y=$0$memwr$\skid_beat_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:506$1020_EN[1:0]$2844
+      New ports: A=1'1, B=1'0, Y=$0$memwr$\skid_beat_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:506$1020_EN[1:0]$2844 [0]
+      New connections: $0$memwr$\skid_beat_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:506$1020_EN[1:0]$2844 [1] = $0$memwr$\skid_beat_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:506$1020_EN[1:0]$2844 [0]
+    Consolidated identical input bits for $mux cell $procmux$8978:
+      Old ports: A=2'11, B=2'00, Y=$0$memwr$\skid_form_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:505$1021_EN[1:0]$2845
+      New ports: A=1'1, B=1'0, Y=$0$memwr$\skid_form_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:505$1021_EN[1:0]$2845 [0]
+      New connections: $0$memwr$\skid_form_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:505$1021_EN[1:0]$2845 [1] = $0$memwr$\skid_form_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:505$1021_EN[1:0]$2845 [0]
+    Consolidated identical input bits for $mux cell $procmux$8975:
+      Old ports: A=2'11, B=2'00, Y=$0$memwr$\skid_beat_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:506$1022_EN[1:0]$2846
+      New ports: A=1'1, B=1'0, Y=$0$memwr$\skid_beat_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:506$1022_EN[1:0]$2846 [0]
+      New connections: $0$memwr$\skid_beat_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:506$1022_EN[1:0]$2846 [1] = $0$memwr$\skid_beat_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:506$1022_EN[1:0]$2846 [0]
+    Consolidated identical input bits for $mux cell $procmux$8837:
+      Old ports: A=2'00, B=2'11, Y=$procmux$8837_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$8837_Y [0]
+      New connections: $procmux$8837_Y [1] = $procmux$8837_Y [0]
+    Consolidated identical input bits for $mux cell $procmux$8819:
+      Old ports: A=2'00, B=2'11, Y=$procmux$8819_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$8819_Y [0]
+      New connections: $procmux$8819_Y [1] = $procmux$8819_Y [0]
+    Consolidated identical input bits for $mux cell $procmux$8801:
+      Old ports: A=5'00000, B=5'11111, Y=$procmux$8801_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$8801_Y [0]
+      New connections: $procmux$8801_Y [4:1] = { $procmux$8801_Y [0] $procmux$8801_Y [0] $procmux$8801_Y [0] $procmux$8801_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$8783:
+      Old ports: A=4'0000, B=4'1111, Y=$procmux$8783_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$8783_Y [0]
+      New connections: $procmux$8783_Y [3:1] = { $procmux$8783_Y [0] $procmux$8783_Y [0] $procmux$8783_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$8765:
+      Old ports: A=2'00, B=2'11, Y=$procmux$8765_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$8765_Y [0]
+      New connections: $procmux$8765_Y [1] = $procmux$8765_Y [0]
+    Consolidated identical input bits for $mux cell $procmux$8747:
+      Old ports: A=2'00, B=2'11, Y=$procmux$8747_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$8747_Y [0]
+      New connections: $procmux$8747_Y [1] = $procmux$8747_Y [0]
+    Consolidated identical input bits for $mux cell $procmux$8729:
+      Old ports: A=5'00000, B=5'11111, Y=$procmux$8729_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$8729_Y [0]
+      New connections: $procmux$8729_Y [4:1] = { $procmux$8729_Y [0] $procmux$8729_Y [0] $procmux$8729_Y [0] $procmux$8729_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$8711:
+      Old ports: A=4'0000, B=4'1111, Y=$procmux$8711_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$8711_Y [0]
+      New connections: $procmux$8711_Y [3:1] = { $procmux$8711_Y [0] $procmux$8711_Y [0] $procmux$8711_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$8681:
+      Old ports: A=48'000000000000000000000000000000000000000000000000, B=48'111111111111111111111111111111111111111111111111, Y=$procmux$8681_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$8681_Y [0]
+      New connections: $procmux$8681_Y [47:1] = { $procmux$8681_Y [0] $procmux$8681_Y [0] $procmux$8681_Y [0] $procmux$8681_Y [0] $procmux$8681_Y [0] $procmux$8681_Y [0] $procmux$8681_Y [0] $procmux$8681_Y [0] $procmux$8681_Y [0] $procmux$8681_Y [0] $procmux$8681_Y [0] $procmux$8681_Y [0] $procmux$8681_Y [0] $procmux$8681_Y [0] $procmux$8681_Y [0] $procmux$8681_Y [0] $procmux$8681_Y [0] $procmux$8681_Y [0] $procmux$8681_Y [0] $procmux$8681_Y [0] $procmux$8681_Y [0] $procmux$8681_Y [0] $procmux$8681_Y [0] $procmux$8681_Y [0] $procmux$8681_Y [0] $procmux$8681_Y [0] $procmux$8681_Y [0] $procmux$8681_Y [0] $procmux$8681_Y [0] $procmux$8681_Y [0] $procmux$8681_Y [0] $procmux$8681_Y [0] $procmux$8681_Y [0] $procmux$8681_Y [0] $procmux$8681_Y [0] $procmux$8681_Y [0] $procmux$8681_Y [0] $procmux$8681_Y [0] $procmux$8681_Y [0] $procmux$8681_Y [0] $procmux$8681_Y [0] $procmux$8681_Y [0] $procmux$8681_Y [0] $procmux$8681_Y [0] $procmux$8681_Y [0] $procmux$8681_Y [0] $procmux$8681_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$8663:
+      Old ports: A=4'0000, B=4'1111, Y=$procmux$8663_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$8663_Y [0]
+      New connections: $procmux$8663_Y [3:1] = { $procmux$8663_Y [0] $procmux$8663_Y [0] $procmux$8663_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$8645:
+      Old ports: A=5'00000, B=5'11111, Y=$procmux$8645_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$8645_Y [0]
+      New connections: $procmux$8645_Y [4:1] = { $procmux$8645_Y [0] $procmux$8645_Y [0] $procmux$8645_Y [0] $procmux$8645_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$8627:
+      Old ports: A=4'0000, B=4'1111, Y=$procmux$8627_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$8627_Y [0]
+      New connections: $procmux$8627_Y [3:1] = { $procmux$8627_Y [0] $procmux$8627_Y [0] $procmux$8627_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$8591:
+      Old ports: A=5'00000, B=5'11111, Y=$procmux$8591_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$8591_Y [0]
+      New connections: $procmux$8591_Y [4:1] = { $procmux$8591_Y [0] $procmux$8591_Y [0] $procmux$8591_Y [0] $procmux$8591_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$10570:
+      Old ports: A=72'000000000000000000000000000000000000000000000000000000000000000000000000, B=72'111111111111111111111111111111111111111111111111111111111111111111111111, Y=$0$memwr$\beat_bank_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:460$854_EN[71:0]$2650
+      New ports: A=1'0, B=1'1, Y=$0$memwr$\beat_bank_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:460$854_EN[71:0]$2650 [0]
+      New connections: $0$memwr$\beat_bank_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:460$854_EN[71:0]$2650 [71:1] = { $0$memwr$\beat_bank_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:460$854_EN[71:0]$2650 [0] $0$memwr$\beat_bank_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:460$854_EN[71:0]$2650 [0] $0$memwr$\beat_bank_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:460$854_EN[71:0]$2650 [0] $0$memwr$\beat_bank_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:460$854_EN[71:0]$2650 [0] $0$memwr$\beat_bank_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:460$854_EN[71:0]$2650 [0] $0$memwr$\beat_bank_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:460$854_EN[71:0]$2650 [0] $0$memwr$\beat_bank_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:460$854_EN[71:0]$2650 [0] $0$memwr$\beat_bank_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:460$854_EN[71:0]$2650 [0] $0$memwr$\beat_bank_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:460$854_EN[71:0]$2650 [0] $0$memwr$\beat_bank_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:460$854_EN[71:0]$2650 [0] $0$memwr$\beat_bank_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:460$854_EN[71:0]$2650 [0] $0$memwr$\beat_bank_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:460$854_EN[71:0]$2650 [0] $0$memwr$\beat_bank_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:460$854_EN[71:0]$2650 [0] $0$memwr$\beat_bank_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:460$854_EN[71:0]$2650 [0] $0$memwr$\beat_bank_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:460$854_EN[71:0]$2650 [0] $0$memwr$\beat_bank_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:460$854_EN[71:0]$2650 [0] $0$memwr$\beat_bank_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:460$854_EN[71:0]$2650 [0] $0$memwr$\beat_bank_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:460$854_EN[71:0]$2650 [0] $0$memwr$\beat_bank_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:460$854_EN[71:0]$2650 [0] $0$memwr$\beat_bank_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:460$854_EN[71:0]$2650 [0] $0$memwr$\beat_bank_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:460$854_EN[71:0]$2650 [0] $0$memwr$\beat_bank_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:460$854_EN[71:0]$2650 [0] $0$memwr$\beat_bank_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:460$854_EN[71:0]$2650 [0] $0$memwr$\beat_bank_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:460$854_EN[71:0]$2650 [0] $0$memwr$\beat_bank_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:460$854_EN[71:0]$2650 [0] $0$memwr$\beat_bank_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:460$854_EN[71:0]$2650 [0] $0$memwr$\beat_bank_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:460$854_EN[71:0]$2650 [0] $0$memwr$\beat_bank_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:460$854_EN[71:0]$2650 [0] $0$memwr$\beat_bank_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:460$854_EN[71:0]$2650 [0] $0$memwr$\beat_bank_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:460$854_EN[71:0]$2650 [0] $0$memwr$\beat_bank_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:460$854_EN[71:0]$2650 [0] $0$memwr$\beat_bank_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:460$854_EN[71:0]$2650 [0] $0$memwr$\beat_bank_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:460$854_EN[71:0]$2650 [0] $0$memwr$\beat_bank_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:460$854_EN[71:0]$2650 [0] $0$memwr$\beat_bank_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:460$854_EN[71:0]$2650 [0] $0$memwr$\beat_bank_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:460$854_EN[71:0]$2650 [0] $0$memwr$\beat_bank_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:460$854_EN[71:0]$2650 [0] $0$memwr$\beat_bank_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:460$854_EN[71:0]$2650 [0] $0$memwr$\beat_bank_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:460$854_EN[71:0]$2650 [0] $0$memwr$\beat_bank_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:460$854_EN[71:0]$2650 [0] $0$memwr$\beat_bank_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:460$854_EN[71:0]$2650 [0] $0$memwr$\beat_bank_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:460$854_EN[71:0]$2650 [0] $0$memwr$\beat_bank_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:460$854_EN[71:0]$2650 [0] $0$memwr$\beat_bank_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:460$854_EN[71:0]$2650 [0] $0$memwr$\beat_bank_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:460$854_EN[71:0]$2650 [0] $0$memwr$\beat_bank_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:460$854_EN[71:0]$2650 [0] $0$memwr$\beat_bank_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:460$854_EN[71:0]$2650 [0] $0$memwr$\beat_bank_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:460$854_EN[71:0]$2650 [0] $0$memwr$\beat_bank_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:460$854_EN[71:0]$2650 [0] $0$memwr$\beat_bank_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:460$854_EN[71:0]$2650 [0] $0$memwr$\beat_bank_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:460$854_EN[71:0]$2650 [0] $0$memwr$\beat_bank_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:460$854_EN[71:0]$2650 [0] $0$memwr$\beat_bank_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:460$854_EN[71:0]$2650 [0] $0$memwr$\beat_bank_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:460$854_EN[71:0]$2650 [0] $0$memwr$\beat_bank_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:460$854_EN[71:0]$2650 [0] $0$memwr$\beat_bank_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:460$854_EN[71:0]$2650 [0] $0$memwr$\beat_bank_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:460$854_EN[71:0]$2650 [0] $0$memwr$\beat_bank_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:460$854_EN[71:0]$2650 [0] $0$memwr$\beat_bank_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:460$854_EN[71:0]$2650 [0] $0$memwr$\beat_bank_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:460$854_EN[71:0]$2650 [0] $0$memwr$\beat_bank_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:460$854_EN[71:0]$2650 [0] $0$memwr$\beat_bank_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:460$854_EN[71:0]$2650 [0] $0$memwr$\beat_bank_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:460$854_EN[71:0]$2650 [0] $0$memwr$\beat_bank_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:460$854_EN[71:0]$2650 [0] $0$memwr$\beat_bank_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:460$854_EN[71:0]$2650 [0] $0$memwr$\beat_bank_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:460$854_EN[71:0]$2650 [0] $0$memwr$\beat_bank_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:460$854_EN[71:0]$2650 [0] $0$memwr$\beat_bank_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:460$854_EN[71:0]$2650 [0] $0$memwr$\beat_bank_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:460$854_EN[71:0]$2650 [0] $0$memwr$\beat_bank_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:460$854_EN[71:0]$2650 [0] $0$memwr$\beat_bank_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:460$854_EN[71:0]$2650 [0] }
+    Consolidated identical input bits for $mux cell $procmux$10562:
+      Old ports: A=4'0000, B=4'1111, Y=$procmux$10562_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$10562_Y [0]
+      New connections: $procmux$10562_Y [3:1] = { $procmux$10562_Y [0] $procmux$10562_Y [0] $procmux$10562_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$8004:
+      Old ports: A=3'000, B=3'111, Y=$procmux$8004_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$8004_Y [0]
+      New connections: $procmux$8004_Y [2:1] = { $procmux$8004_Y [0] $procmux$8004_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$7986:
+      Old ports: A=3'000, B=3'111, Y=$procmux$7986_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$7986_Y [0]
+      New connections: $procmux$7986_Y [2:1] = { $procmux$7986_Y [0] $procmux$7986_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$7968:
+      Old ports: A=3'000, B=3'111, Y=$procmux$7968_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$7968_Y [0]
+      New connections: $procmux$7968_Y [2:1] = { $procmux$7968_Y [0] $procmux$7968_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$7950:
+      Old ports: A=3'000, B=3'111, Y=$procmux$7950_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$7950_Y [0]
+      New connections: $procmux$7950_Y [2:1] = { $procmux$7950_Y [0] $procmux$7950_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$7932:
+      Old ports: A=3'000, B=3'111, Y=$procmux$7932_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$7932_Y [0]
+      New connections: $procmux$7932_Y [2:1] = { $procmux$7932_Y [0] $procmux$7932_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$7914:
+      Old ports: A=3'000, B=3'111, Y=$procmux$7914_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$7914_Y [0]
+      New connections: $procmux$7914_Y [2:1] = { $procmux$7914_Y [0] $procmux$7914_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$7896:
+      Old ports: A=3'000, B=3'111, Y=$procmux$7896_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$7896_Y [0]
+      New connections: $procmux$7896_Y [2:1] = { $procmux$7896_Y [0] $procmux$7896_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$7878:
+      Old ports: A=3'000, B=3'111, Y=$procmux$7878_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$7878_Y [0]
+      New connections: $procmux$7878_Y [2:1] = { $procmux$7878_Y [0] $procmux$7878_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$7860:
+      Old ports: A=3'000, B=3'111, Y=$procmux$7860_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$7860_Y [0]
+      New connections: $procmux$7860_Y [2:1] = { $procmux$7860_Y [0] $procmux$7860_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$7842:
+      Old ports: A=3'000, B=3'111, Y=$procmux$7842_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$7842_Y [0]
+      New connections: $procmux$7842_Y [2:1] = { $procmux$7842_Y [0] $procmux$7842_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$7824:
+      Old ports: A=3'000, B=3'111, Y=$procmux$7824_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$7824_Y [0]
+      New connections: $procmux$7824_Y [2:1] = { $procmux$7824_Y [0] $procmux$7824_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$7806:
+      Old ports: A=3'000, B=3'111, Y=$procmux$7806_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$7806_Y [0]
+      New connections: $procmux$7806_Y [2:1] = { $procmux$7806_Y [0] $procmux$7806_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$7788:
+      Old ports: A=3'000, B=3'111, Y=$procmux$7788_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$7788_Y [0]
+      New connections: $procmux$7788_Y [2:1] = { $procmux$7788_Y [0] $procmux$7788_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$7770:
+      Old ports: A=3'000, B=3'111, Y=$procmux$7770_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$7770_Y [0]
+      New connections: $procmux$7770_Y [2:1] = { $procmux$7770_Y [0] $procmux$7770_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$7752:
+      Old ports: A=3'000, B=3'111, Y=$procmux$7752_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$7752_Y [0]
+      New connections: $procmux$7752_Y [2:1] = { $procmux$7752_Y [0] $procmux$7752_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$7734:
+      Old ports: A=3'000, B=3'111, Y=$procmux$7734_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$7734_Y [0]
+      New connections: $procmux$7734_Y [2:1] = { $procmux$7734_Y [0] $procmux$7734_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$7716:
+      Old ports: A=3'000, B=3'111, Y=$procmux$7716_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$7716_Y [0]
+      New connections: $procmux$7716_Y [2:1] = { $procmux$7716_Y [0] $procmux$7716_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$7698:
+      Old ports: A=3'000, B=3'111, Y=$procmux$7698_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$7698_Y [0]
+      New connections: $procmux$7698_Y [2:1] = { $procmux$7698_Y [0] $procmux$7698_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$7680:
+      Old ports: A=3'000, B=3'111, Y=$procmux$7680_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$7680_Y [0]
+      New connections: $procmux$7680_Y [2:1] = { $procmux$7680_Y [0] $procmux$7680_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$7662:
+      Old ports: A=3'000, B=3'111, Y=$procmux$7662_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$7662_Y [0]
+      New connections: $procmux$7662_Y [2:1] = { $procmux$7662_Y [0] $procmux$7662_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$7644:
+      Old ports: A=3'000, B=3'111, Y=$procmux$7644_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$7644_Y [0]
+      New connections: $procmux$7644_Y [2:1] = { $procmux$7644_Y [0] $procmux$7644_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$7626:
+      Old ports: A=3'000, B=3'111, Y=$procmux$7626_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$7626_Y [0]
+      New connections: $procmux$7626_Y [2:1] = { $procmux$7626_Y [0] $procmux$7626_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$7608:
+      Old ports: A=3'000, B=3'111, Y=$procmux$7608_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$7608_Y [0]
+      New connections: $procmux$7608_Y [2:1] = { $procmux$7608_Y [0] $procmux$7608_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$7590:
+      Old ports: A=3'000, B=3'111, Y=$procmux$7590_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$7590_Y [0]
+      New connections: $procmux$7590_Y [2:1] = { $procmux$7590_Y [0] $procmux$7590_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$7572:
+      Old ports: A=3'000, B=3'111, Y=$procmux$7572_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$7572_Y [0]
+      New connections: $procmux$7572_Y [2:1] = { $procmux$7572_Y [0] $procmux$7572_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$7554:
+      Old ports: A=3'000, B=3'111, Y=$procmux$7554_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$7554_Y [0]
+      New connections: $procmux$7554_Y [2:1] = { $procmux$7554_Y [0] $procmux$7554_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$7536:
+      Old ports: A=3'000, B=3'111, Y=$procmux$7536_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$7536_Y [0]
+      New connections: $procmux$7536_Y [2:1] = { $procmux$7536_Y [0] $procmux$7536_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$7518:
+      Old ports: A=3'000, B=3'111, Y=$procmux$7518_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$7518_Y [0]
+      New connections: $procmux$7518_Y [2:1] = { $procmux$7518_Y [0] $procmux$7518_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$7500:
+      Old ports: A=3'000, B=3'111, Y=$procmux$7500_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$7500_Y [0]
+      New connections: $procmux$7500_Y [2:1] = { $procmux$7500_Y [0] $procmux$7500_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$7482:
+      Old ports: A=3'000, B=3'111, Y=$procmux$7482_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$7482_Y [0]
+      New connections: $procmux$7482_Y [2:1] = { $procmux$7482_Y [0] $procmux$7482_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$7464:
+      Old ports: A=3'000, B=3'111, Y=$procmux$7464_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$7464_Y [0]
+      New connections: $procmux$7464_Y [2:1] = { $procmux$7464_Y [0] $procmux$7464_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$7446:
+      Old ports: A=3'000, B=3'111, Y=$procmux$7446_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$7446_Y [0]
+      New connections: $procmux$7446_Y [2:1] = { $procmux$7446_Y [0] $procmux$7446_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$7427:
+      Old ports: A=3'000, B=3'111, Y=$procmux$7427_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$7427_Y [0]
+      New connections: $procmux$7427_Y [2:1] = { $procmux$7427_Y [0] $procmux$7427_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$7409:
+      Old ports: A=48'000000000000000000000000000000000000000000000000, B=48'111111111111111111111111111111111111111111111111, Y=$procmux$7409_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$7409_Y [0]
+      New connections: $procmux$7409_Y [47:1] = { $procmux$7409_Y [0] $procmux$7409_Y [0] $procmux$7409_Y [0] $procmux$7409_Y [0] $procmux$7409_Y [0] $procmux$7409_Y [0] $procmux$7409_Y [0] $procmux$7409_Y [0] $procmux$7409_Y [0] $procmux$7409_Y [0] $procmux$7409_Y [0] $procmux$7409_Y [0] $procmux$7409_Y [0] $procmux$7409_Y [0] $procmux$7409_Y [0] $procmux$7409_Y [0] $procmux$7409_Y [0] $procmux$7409_Y [0] $procmux$7409_Y [0] $procmux$7409_Y [0] $procmux$7409_Y [0] $procmux$7409_Y [0] $procmux$7409_Y [0] $procmux$7409_Y [0] $procmux$7409_Y [0] $procmux$7409_Y [0] $procmux$7409_Y [0] $procmux$7409_Y [0] $procmux$7409_Y [0] $procmux$7409_Y [0] $procmux$7409_Y [0] $procmux$7409_Y [0] $procmux$7409_Y [0] $procmux$7409_Y [0] $procmux$7409_Y [0] $procmux$7409_Y [0] $procmux$7409_Y [0] $procmux$7409_Y [0] $procmux$7409_Y [0] $procmux$7409_Y [0] $procmux$7409_Y [0] $procmux$7409_Y [0] $procmux$7409_Y [0] $procmux$7409_Y [0] $procmux$7409_Y [0] $procmux$7409_Y [0] $procmux$7409_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$7403:
+      Old ports: A=4'0000, B=4'1111, Y=$procmux$7403_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$7403_Y [0]
+      New connections: $procmux$7403_Y [3:1] = { $procmux$7403_Y [0] $procmux$7403_Y [0] $procmux$7403_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$7397:
+      Old ports: A=4'0000, B=4'1111, Y=$procmux$7397_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$7397_Y [0]
+      New connections: $procmux$7397_Y [3:1] = { $procmux$7397_Y [0] $procmux$7397_Y [0] $procmux$7397_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$7391:
+      Old ports: A=5'00000, B=5'11111, Y=$procmux$7391_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$7391_Y [0]
+      New connections: $procmux$7391_Y [4:1] = { $procmux$7391_Y [0] $procmux$7391_Y [0] $procmux$7391_Y [0] $procmux$7391_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$7379:
+      Old ports: A=48'000000000000000000000000000000000000000000000000, B=48'111111111111111111111111111111111111111111111111, Y=$procmux$7379_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$7379_Y [0]
+      New connections: $procmux$7379_Y [47:1] = { $procmux$7379_Y [0] $procmux$7379_Y [0] $procmux$7379_Y [0] $procmux$7379_Y [0] $procmux$7379_Y [0] $procmux$7379_Y [0] $procmux$7379_Y [0] $procmux$7379_Y [0] $procmux$7379_Y [0] $procmux$7379_Y [0] $procmux$7379_Y [0] $procmux$7379_Y [0] $procmux$7379_Y [0] $procmux$7379_Y [0] $procmux$7379_Y [0] $procmux$7379_Y [0] $procmux$7379_Y [0] $procmux$7379_Y [0] $procmux$7379_Y [0] $procmux$7379_Y [0] $procmux$7379_Y [0] $procmux$7379_Y [0] $procmux$7379_Y [0] $procmux$7379_Y [0] $procmux$7379_Y [0] $procmux$7379_Y [0] $procmux$7379_Y [0] $procmux$7379_Y [0] $procmux$7379_Y [0] $procmux$7379_Y [0] $procmux$7379_Y [0] $procmux$7379_Y [0] $procmux$7379_Y [0] $procmux$7379_Y [0] $procmux$7379_Y [0] $procmux$7379_Y [0] $procmux$7379_Y [0] $procmux$7379_Y [0] $procmux$7379_Y [0] $procmux$7379_Y [0] $procmux$7379_Y [0] $procmux$7379_Y [0] $procmux$7379_Y [0] $procmux$7379_Y [0] $procmux$7379_Y [0] $procmux$7379_Y [0] $procmux$7379_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$7373:
+      Old ports: A=3'000, B=3'111, Y=$procmux$7373_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$7373_Y [0]
+      New connections: $procmux$7373_Y [2:1] = { $procmux$7373_Y [0] $procmux$7373_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$7367:
+      Old ports: A=4'0000, B=4'1111, Y=$procmux$7367_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$7367_Y [0]
+      New connections: $procmux$7367_Y [3:1] = { $procmux$7367_Y [0] $procmux$7367_Y [0] $procmux$7367_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$7361:
+      Old ports: A=4'0000, B=4'1111, Y=$procmux$7361_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$7361_Y [0]
+      New connections: $procmux$7361_Y [3:1] = { $procmux$7361_Y [0] $procmux$7361_Y [0] $procmux$7361_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$7355:
+      Old ports: A=5'00000, B=5'11111, Y=$procmux$7355_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$7355_Y [0]
+      New connections: $procmux$7355_Y [4:1] = { $procmux$7355_Y [0] $procmux$7355_Y [0] $procmux$7355_Y [0] $procmux$7355_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$7343:
+      Old ports: A=48'000000000000000000000000000000000000000000000000, B=48'111111111111111111111111111111111111111111111111, Y=$procmux$7343_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$7343_Y [0]
+      New connections: $procmux$7343_Y [47:1] = { $procmux$7343_Y [0] $procmux$7343_Y [0] $procmux$7343_Y [0] $procmux$7343_Y [0] $procmux$7343_Y [0] $procmux$7343_Y [0] $procmux$7343_Y [0] $procmux$7343_Y [0] $procmux$7343_Y [0] $procmux$7343_Y [0] $procmux$7343_Y [0] $procmux$7343_Y [0] $procmux$7343_Y [0] $procmux$7343_Y [0] $procmux$7343_Y [0] $procmux$7343_Y [0] $procmux$7343_Y [0] $procmux$7343_Y [0] $procmux$7343_Y [0] $procmux$7343_Y [0] $procmux$7343_Y [0] $procmux$7343_Y [0] $procmux$7343_Y [0] $procmux$7343_Y [0] $procmux$7343_Y [0] $procmux$7343_Y [0] $procmux$7343_Y [0] $procmux$7343_Y [0] $procmux$7343_Y [0] $procmux$7343_Y [0] $procmux$7343_Y [0] $procmux$7343_Y [0] $procmux$7343_Y [0] $procmux$7343_Y [0] $procmux$7343_Y [0] $procmux$7343_Y [0] $procmux$7343_Y [0] $procmux$7343_Y [0] $procmux$7343_Y [0] $procmux$7343_Y [0] $procmux$7343_Y [0] $procmux$7343_Y [0] $procmux$7343_Y [0] $procmux$7343_Y [0] $procmux$7343_Y [0] $procmux$7343_Y [0] $procmux$7343_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$7337:
+      Old ports: A=3'000, B=3'111, Y=$procmux$7337_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$7337_Y [0]
+      New connections: $procmux$7337_Y [2:1] = { $procmux$7337_Y [0] $procmux$7337_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$7331:
+      Old ports: A=4'0000, B=4'1111, Y=$procmux$7331_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$7331_Y [0]
+      New connections: $procmux$7331_Y [3:1] = { $procmux$7331_Y [0] $procmux$7331_Y [0] $procmux$7331_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$7325:
+      Old ports: A=4'0000, B=4'1111, Y=$procmux$7325_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$7325_Y [0]
+      New connections: $procmux$7325_Y [3:1] = { $procmux$7325_Y [0] $procmux$7325_Y [0] $procmux$7325_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$7319:
+      Old ports: A=5'00000, B=5'11111, Y=$procmux$7319_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$7319_Y [0]
+      New connections: $procmux$7319_Y [4:1] = { $procmux$7319_Y [0] $procmux$7319_Y [0] $procmux$7319_Y [0] $procmux$7319_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$7307:
+      Old ports: A=48'000000000000000000000000000000000000000000000000, B=48'111111111111111111111111111111111111111111111111, Y=$procmux$7307_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$7307_Y [0]
+      New connections: $procmux$7307_Y [47:1] = { $procmux$7307_Y [0] $procmux$7307_Y [0] $procmux$7307_Y [0] $procmux$7307_Y [0] $procmux$7307_Y [0] $procmux$7307_Y [0] $procmux$7307_Y [0] $procmux$7307_Y [0] $procmux$7307_Y [0] $procmux$7307_Y [0] $procmux$7307_Y [0] $procmux$7307_Y [0] $procmux$7307_Y [0] $procmux$7307_Y [0] $procmux$7307_Y [0] $procmux$7307_Y [0] $procmux$7307_Y [0] $procmux$7307_Y [0] $procmux$7307_Y [0] $procmux$7307_Y [0] $procmux$7307_Y [0] $procmux$7307_Y [0] $procmux$7307_Y [0] $procmux$7307_Y [0] $procmux$7307_Y [0] $procmux$7307_Y [0] $procmux$7307_Y [0] $procmux$7307_Y [0] $procmux$7307_Y [0] $procmux$7307_Y [0] $procmux$7307_Y [0] $procmux$7307_Y [0] $procmux$7307_Y [0] $procmux$7307_Y [0] $procmux$7307_Y [0] $procmux$7307_Y [0] $procmux$7307_Y [0] $procmux$7307_Y [0] $procmux$7307_Y [0] $procmux$7307_Y [0] $procmux$7307_Y [0] $procmux$7307_Y [0] $procmux$7307_Y [0] $procmux$7307_Y [0] $procmux$7307_Y [0] $procmux$7307_Y [0] $procmux$7307_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$7301:
+      Old ports: A=3'000, B=3'111, Y=$procmux$7301_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$7301_Y [0]
+      New connections: $procmux$7301_Y [2:1] = { $procmux$7301_Y [0] $procmux$7301_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$7295:
+      Old ports: A=4'0000, B=4'1111, Y=$procmux$7295_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$7295_Y [0]
+      New connections: $procmux$7295_Y [3:1] = { $procmux$7295_Y [0] $procmux$7295_Y [0] $procmux$7295_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$7289:
+      Old ports: A=4'0000, B=4'1111, Y=$procmux$7289_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$7289_Y [0]
+      New connections: $procmux$7289_Y [3:1] = { $procmux$7289_Y [0] $procmux$7289_Y [0] $procmux$7289_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$7283:
+      Old ports: A=5'00000, B=5'11111, Y=$procmux$7283_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$7283_Y [0]
+      New connections: $procmux$7283_Y [4:1] = { $procmux$7283_Y [0] $procmux$7283_Y [0] $procmux$7283_Y [0] $procmux$7283_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$7271:
+      Old ports: A=48'000000000000000000000000000000000000000000000000, B=48'111111111111111111111111111111111111111111111111, Y=$procmux$7271_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$7271_Y [0]
+      New connections: $procmux$7271_Y [47:1] = { $procmux$7271_Y [0] $procmux$7271_Y [0] $procmux$7271_Y [0] $procmux$7271_Y [0] $procmux$7271_Y [0] $procmux$7271_Y [0] $procmux$7271_Y [0] $procmux$7271_Y [0] $procmux$7271_Y [0] $procmux$7271_Y [0] $procmux$7271_Y [0] $procmux$7271_Y [0] $procmux$7271_Y [0] $procmux$7271_Y [0] $procmux$7271_Y [0] $procmux$7271_Y [0] $procmux$7271_Y [0] $procmux$7271_Y [0] $procmux$7271_Y [0] $procmux$7271_Y [0] $procmux$7271_Y [0] $procmux$7271_Y [0] $procmux$7271_Y [0] $procmux$7271_Y [0] $procmux$7271_Y [0] $procmux$7271_Y [0] $procmux$7271_Y [0] $procmux$7271_Y [0] $procmux$7271_Y [0] $procmux$7271_Y [0] $procmux$7271_Y [0] $procmux$7271_Y [0] $procmux$7271_Y [0] $procmux$7271_Y [0] $procmux$7271_Y [0] $procmux$7271_Y [0] $procmux$7271_Y [0] $procmux$7271_Y [0] $procmux$7271_Y [0] $procmux$7271_Y [0] $procmux$7271_Y [0] $procmux$7271_Y [0] $procmux$7271_Y [0] $procmux$7271_Y [0] $procmux$7271_Y [0] $procmux$7271_Y [0] $procmux$7271_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$7265:
+      Old ports: A=3'000, B=3'111, Y=$procmux$7265_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$7265_Y [0]
+      New connections: $procmux$7265_Y [2:1] = { $procmux$7265_Y [0] $procmux$7265_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$7259:
+      Old ports: A=4'0000, B=4'1111, Y=$procmux$7259_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$7259_Y [0]
+      New connections: $procmux$7259_Y [3:1] = { $procmux$7259_Y [0] $procmux$7259_Y [0] $procmux$7259_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$7253:
+      Old ports: A=4'0000, B=4'1111, Y=$procmux$7253_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$7253_Y [0]
+      New connections: $procmux$7253_Y [3:1] = { $procmux$7253_Y [0] $procmux$7253_Y [0] $procmux$7253_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$7247:
+      Old ports: A=5'00000, B=5'11111, Y=$procmux$7247_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$7247_Y [0]
+      New connections: $procmux$7247_Y [4:1] = { $procmux$7247_Y [0] $procmux$7247_Y [0] $procmux$7247_Y [0] $procmux$7247_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$7235:
+      Old ports: A=48'000000000000000000000000000000000000000000000000, B=48'111111111111111111111111111111111111111111111111, Y=$procmux$7235_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$7235_Y [0]
+      New connections: $procmux$7235_Y [47:1] = { $procmux$7235_Y [0] $procmux$7235_Y [0] $procmux$7235_Y [0] $procmux$7235_Y [0] $procmux$7235_Y [0] $procmux$7235_Y [0] $procmux$7235_Y [0] $procmux$7235_Y [0] $procmux$7235_Y [0] $procmux$7235_Y [0] $procmux$7235_Y [0] $procmux$7235_Y [0] $procmux$7235_Y [0] $procmux$7235_Y [0] $procmux$7235_Y [0] $procmux$7235_Y [0] $procmux$7235_Y [0] $procmux$7235_Y [0] $procmux$7235_Y [0] $procmux$7235_Y [0] $procmux$7235_Y [0] $procmux$7235_Y [0] $procmux$7235_Y [0] $procmux$7235_Y [0] $procmux$7235_Y [0] $procmux$7235_Y [0] $procmux$7235_Y [0] $procmux$7235_Y [0] $procmux$7235_Y [0] $procmux$7235_Y [0] $procmux$7235_Y [0] $procmux$7235_Y [0] $procmux$7235_Y [0] $procmux$7235_Y [0] $procmux$7235_Y [0] $procmux$7235_Y [0] $procmux$7235_Y [0] $procmux$7235_Y [0] $procmux$7235_Y [0] $procmux$7235_Y [0] $procmux$7235_Y [0] $procmux$7235_Y [0] $procmux$7235_Y [0] $procmux$7235_Y [0] $procmux$7235_Y [0] $procmux$7235_Y [0] $procmux$7235_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$7229:
+      Old ports: A=3'000, B=3'111, Y=$procmux$7229_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$7229_Y [0]
+      New connections: $procmux$7229_Y [2:1] = { $procmux$7229_Y [0] $procmux$7229_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$7223:
+      Old ports: A=4'0000, B=4'1111, Y=$procmux$7223_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$7223_Y [0]
+      New connections: $procmux$7223_Y [3:1] = { $procmux$7223_Y [0] $procmux$7223_Y [0] $procmux$7223_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$7217:
+      Old ports: A=4'0000, B=4'1111, Y=$procmux$7217_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$7217_Y [0]
+      New connections: $procmux$7217_Y [3:1] = { $procmux$7217_Y [0] $procmux$7217_Y [0] $procmux$7217_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$7211:
+      Old ports: A=5'00000, B=5'11111, Y=$procmux$7211_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$7211_Y [0]
+      New connections: $procmux$7211_Y [4:1] = { $procmux$7211_Y [0] $procmux$7211_Y [0] $procmux$7211_Y [0] $procmux$7211_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$7199:
+      Old ports: A=48'000000000000000000000000000000000000000000000000, B=48'111111111111111111111111111111111111111111111111, Y=$procmux$7199_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$7199_Y [0]
+      New connections: $procmux$7199_Y [47:1] = { $procmux$7199_Y [0] $procmux$7199_Y [0] $procmux$7199_Y [0] $procmux$7199_Y [0] $procmux$7199_Y [0] $procmux$7199_Y [0] $procmux$7199_Y [0] $procmux$7199_Y [0] $procmux$7199_Y [0] $procmux$7199_Y [0] $procmux$7199_Y [0] $procmux$7199_Y [0] $procmux$7199_Y [0] $procmux$7199_Y [0] $procmux$7199_Y [0] $procmux$7199_Y [0] $procmux$7199_Y [0] $procmux$7199_Y [0] $procmux$7199_Y [0] $procmux$7199_Y [0] $procmux$7199_Y [0] $procmux$7199_Y [0] $procmux$7199_Y [0] $procmux$7199_Y [0] $procmux$7199_Y [0] $procmux$7199_Y [0] $procmux$7199_Y [0] $procmux$7199_Y [0] $procmux$7199_Y [0] $procmux$7199_Y [0] $procmux$7199_Y [0] $procmux$7199_Y [0] $procmux$7199_Y [0] $procmux$7199_Y [0] $procmux$7199_Y [0] $procmux$7199_Y [0] $procmux$7199_Y [0] $procmux$7199_Y [0] $procmux$7199_Y [0] $procmux$7199_Y [0] $procmux$7199_Y [0] $procmux$7199_Y [0] $procmux$7199_Y [0] $procmux$7199_Y [0] $procmux$7199_Y [0] $procmux$7199_Y [0] $procmux$7199_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$7193:
+      Old ports: A=3'000, B=3'111, Y=$procmux$7193_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$7193_Y [0]
+      New connections: $procmux$7193_Y [2:1] = { $procmux$7193_Y [0] $procmux$7193_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$7187:
+      Old ports: A=4'0000, B=4'1111, Y=$procmux$7187_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$7187_Y [0]
+      New connections: $procmux$7187_Y [3:1] = { $procmux$7187_Y [0] $procmux$7187_Y [0] $procmux$7187_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$7181:
+      Old ports: A=4'0000, B=4'1111, Y=$procmux$7181_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$7181_Y [0]
+      New connections: $procmux$7181_Y [3:1] = { $procmux$7181_Y [0] $procmux$7181_Y [0] $procmux$7181_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$7175:
+      Old ports: A=5'00000, B=5'11111, Y=$procmux$7175_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$7175_Y [0]
+      New connections: $procmux$7175_Y [4:1] = { $procmux$7175_Y [0] $procmux$7175_Y [0] $procmux$7175_Y [0] $procmux$7175_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$7163:
+      Old ports: A=48'000000000000000000000000000000000000000000000000, B=48'111111111111111111111111111111111111111111111111, Y=$procmux$7163_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$7163_Y [0]
+      New connections: $procmux$7163_Y [47:1] = { $procmux$7163_Y [0] $procmux$7163_Y [0] $procmux$7163_Y [0] $procmux$7163_Y [0] $procmux$7163_Y [0] $procmux$7163_Y [0] $procmux$7163_Y [0] $procmux$7163_Y [0] $procmux$7163_Y [0] $procmux$7163_Y [0] $procmux$7163_Y [0] $procmux$7163_Y [0] $procmux$7163_Y [0] $procmux$7163_Y [0] $procmux$7163_Y [0] $procmux$7163_Y [0] $procmux$7163_Y [0] $procmux$7163_Y [0] $procmux$7163_Y [0] $procmux$7163_Y [0] $procmux$7163_Y [0] $procmux$7163_Y [0] $procmux$7163_Y [0] $procmux$7163_Y [0] $procmux$7163_Y [0] $procmux$7163_Y [0] $procmux$7163_Y [0] $procmux$7163_Y [0] $procmux$7163_Y [0] $procmux$7163_Y [0] $procmux$7163_Y [0] $procmux$7163_Y [0] $procmux$7163_Y [0] $procmux$7163_Y [0] $procmux$7163_Y [0] $procmux$7163_Y [0] $procmux$7163_Y [0] $procmux$7163_Y [0] $procmux$7163_Y [0] $procmux$7163_Y [0] $procmux$7163_Y [0] $procmux$7163_Y [0] $procmux$7163_Y [0] $procmux$7163_Y [0] $procmux$7163_Y [0] $procmux$7163_Y [0] $procmux$7163_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$7157:
+      Old ports: A=3'000, B=3'111, Y=$procmux$7157_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$7157_Y [0]
+      New connections: $procmux$7157_Y [2:1] = { $procmux$7157_Y [0] $procmux$7157_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$7151:
+      Old ports: A=4'0000, B=4'1111, Y=$procmux$7151_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$7151_Y [0]
+      New connections: $procmux$7151_Y [3:1] = { $procmux$7151_Y [0] $procmux$7151_Y [0] $procmux$7151_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$7145:
+      Old ports: A=4'0000, B=4'1111, Y=$procmux$7145_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$7145_Y [0]
+      New connections: $procmux$7145_Y [3:1] = { $procmux$7145_Y [0] $procmux$7145_Y [0] $procmux$7145_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$7139:
+      Old ports: A=5'00000, B=5'11111, Y=$procmux$7139_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$7139_Y [0]
+      New connections: $procmux$7139_Y [4:1] = { $procmux$7139_Y [0] $procmux$7139_Y [0] $procmux$7139_Y [0] $procmux$7139_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$7127:
+      Old ports: A=48'000000000000000000000000000000000000000000000000, B=48'111111111111111111111111111111111111111111111111, Y=$procmux$7127_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$7127_Y [0]
+      New connections: $procmux$7127_Y [47:1] = { $procmux$7127_Y [0] $procmux$7127_Y [0] $procmux$7127_Y [0] $procmux$7127_Y [0] $procmux$7127_Y [0] $procmux$7127_Y [0] $procmux$7127_Y [0] $procmux$7127_Y [0] $procmux$7127_Y [0] $procmux$7127_Y [0] $procmux$7127_Y [0] $procmux$7127_Y [0] $procmux$7127_Y [0] $procmux$7127_Y [0] $procmux$7127_Y [0] $procmux$7127_Y [0] $procmux$7127_Y [0] $procmux$7127_Y [0] $procmux$7127_Y [0] $procmux$7127_Y [0] $procmux$7127_Y [0] $procmux$7127_Y [0] $procmux$7127_Y [0] $procmux$7127_Y [0] $procmux$7127_Y [0] $procmux$7127_Y [0] $procmux$7127_Y [0] $procmux$7127_Y [0] $procmux$7127_Y [0] $procmux$7127_Y [0] $procmux$7127_Y [0] $procmux$7127_Y [0] $procmux$7127_Y [0] $procmux$7127_Y [0] $procmux$7127_Y [0] $procmux$7127_Y [0] $procmux$7127_Y [0] $procmux$7127_Y [0] $procmux$7127_Y [0] $procmux$7127_Y [0] $procmux$7127_Y [0] $procmux$7127_Y [0] $procmux$7127_Y [0] $procmux$7127_Y [0] $procmux$7127_Y [0] $procmux$7127_Y [0] $procmux$7127_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$7121:
+      Old ports: A=3'000, B=3'111, Y=$procmux$7121_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$7121_Y [0]
+      New connections: $procmux$7121_Y [2:1] = { $procmux$7121_Y [0] $procmux$7121_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$7115:
+      Old ports: A=4'0000, B=4'1111, Y=$procmux$7115_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$7115_Y [0]
+      New connections: $procmux$7115_Y [3:1] = { $procmux$7115_Y [0] $procmux$7115_Y [0] $procmux$7115_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$7109:
+      Old ports: A=4'0000, B=4'1111, Y=$procmux$7109_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$7109_Y [0]
+      New connections: $procmux$7109_Y [3:1] = { $procmux$7109_Y [0] $procmux$7109_Y [0] $procmux$7109_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$7103:
+      Old ports: A=5'00000, B=5'11111, Y=$procmux$7103_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$7103_Y [0]
+      New connections: $procmux$7103_Y [4:1] = { $procmux$7103_Y [0] $procmux$7103_Y [0] $procmux$7103_Y [0] $procmux$7103_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$7091:
+      Old ports: A=48'000000000000000000000000000000000000000000000000, B=48'111111111111111111111111111111111111111111111111, Y=$procmux$7091_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$7091_Y [0]
+      New connections: $procmux$7091_Y [47:1] = { $procmux$7091_Y [0] $procmux$7091_Y [0] $procmux$7091_Y [0] $procmux$7091_Y [0] $procmux$7091_Y [0] $procmux$7091_Y [0] $procmux$7091_Y [0] $procmux$7091_Y [0] $procmux$7091_Y [0] $procmux$7091_Y [0] $procmux$7091_Y [0] $procmux$7091_Y [0] $procmux$7091_Y [0] $procmux$7091_Y [0] $procmux$7091_Y [0] $procmux$7091_Y [0] $procmux$7091_Y [0] $procmux$7091_Y [0] $procmux$7091_Y [0] $procmux$7091_Y [0] $procmux$7091_Y [0] $procmux$7091_Y [0] $procmux$7091_Y [0] $procmux$7091_Y [0] $procmux$7091_Y [0] $procmux$7091_Y [0] $procmux$7091_Y [0] $procmux$7091_Y [0] $procmux$7091_Y [0] $procmux$7091_Y [0] $procmux$7091_Y [0] $procmux$7091_Y [0] $procmux$7091_Y [0] $procmux$7091_Y [0] $procmux$7091_Y [0] $procmux$7091_Y [0] $procmux$7091_Y [0] $procmux$7091_Y [0] $procmux$7091_Y [0] $procmux$7091_Y [0] $procmux$7091_Y [0] $procmux$7091_Y [0] $procmux$7091_Y [0] $procmux$7091_Y [0] $procmux$7091_Y [0] $procmux$7091_Y [0] $procmux$7091_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$7085:
+      Old ports: A=3'000, B=3'111, Y=$procmux$7085_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$7085_Y [0]
+      New connections: $procmux$7085_Y [2:1] = { $procmux$7085_Y [0] $procmux$7085_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$7079:
+      Old ports: A=4'0000, B=4'1111, Y=$procmux$7079_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$7079_Y [0]
+      New connections: $procmux$7079_Y [3:1] = { $procmux$7079_Y [0] $procmux$7079_Y [0] $procmux$7079_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$7073:
+      Old ports: A=4'0000, B=4'1111, Y=$procmux$7073_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$7073_Y [0]
+      New connections: $procmux$7073_Y [3:1] = { $procmux$7073_Y [0] $procmux$7073_Y [0] $procmux$7073_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$7067:
+      Old ports: A=5'00000, B=5'11111, Y=$procmux$7067_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$7067_Y [0]
+      New connections: $procmux$7067_Y [4:1] = { $procmux$7067_Y [0] $procmux$7067_Y [0] $procmux$7067_Y [0] $procmux$7067_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$7055:
+      Old ports: A=48'000000000000000000000000000000000000000000000000, B=48'111111111111111111111111111111111111111111111111, Y=$procmux$7055_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$7055_Y [0]
+      New connections: $procmux$7055_Y [47:1] = { $procmux$7055_Y [0] $procmux$7055_Y [0] $procmux$7055_Y [0] $procmux$7055_Y [0] $procmux$7055_Y [0] $procmux$7055_Y [0] $procmux$7055_Y [0] $procmux$7055_Y [0] $procmux$7055_Y [0] $procmux$7055_Y [0] $procmux$7055_Y [0] $procmux$7055_Y [0] $procmux$7055_Y [0] $procmux$7055_Y [0] $procmux$7055_Y [0] $procmux$7055_Y [0] $procmux$7055_Y [0] $procmux$7055_Y [0] $procmux$7055_Y [0] $procmux$7055_Y [0] $procmux$7055_Y [0] $procmux$7055_Y [0] $procmux$7055_Y [0] $procmux$7055_Y [0] $procmux$7055_Y [0] $procmux$7055_Y [0] $procmux$7055_Y [0] $procmux$7055_Y [0] $procmux$7055_Y [0] $procmux$7055_Y [0] $procmux$7055_Y [0] $procmux$7055_Y [0] $procmux$7055_Y [0] $procmux$7055_Y [0] $procmux$7055_Y [0] $procmux$7055_Y [0] $procmux$7055_Y [0] $procmux$7055_Y [0] $procmux$7055_Y [0] $procmux$7055_Y [0] $procmux$7055_Y [0] $procmux$7055_Y [0] $procmux$7055_Y [0] $procmux$7055_Y [0] $procmux$7055_Y [0] $procmux$7055_Y [0] $procmux$7055_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$7049:
+      Old ports: A=3'000, B=3'111, Y=$procmux$7049_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$7049_Y [0]
+      New connections: $procmux$7049_Y [2:1] = { $procmux$7049_Y [0] $procmux$7049_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$7043:
+      Old ports: A=4'0000, B=4'1111, Y=$procmux$7043_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$7043_Y [0]
+      New connections: $procmux$7043_Y [3:1] = { $procmux$7043_Y [0] $procmux$7043_Y [0] $procmux$7043_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$7037:
+      Old ports: A=4'0000, B=4'1111, Y=$procmux$7037_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$7037_Y [0]
+      New connections: $procmux$7037_Y [3:1] = { $procmux$7037_Y [0] $procmux$7037_Y [0] $procmux$7037_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$7031:
+      Old ports: A=5'00000, B=5'11111, Y=$procmux$7031_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$7031_Y [0]
+      New connections: $procmux$7031_Y [4:1] = { $procmux$7031_Y [0] $procmux$7031_Y [0] $procmux$7031_Y [0] $procmux$7031_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$7019:
+      Old ports: A=48'000000000000000000000000000000000000000000000000, B=48'111111111111111111111111111111111111111111111111, Y=$procmux$7019_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$7019_Y [0]
+      New connections: $procmux$7019_Y [47:1] = { $procmux$7019_Y [0] $procmux$7019_Y [0] $procmux$7019_Y [0] $procmux$7019_Y [0] $procmux$7019_Y [0] $procmux$7019_Y [0] $procmux$7019_Y [0] $procmux$7019_Y [0] $procmux$7019_Y [0] $procmux$7019_Y [0] $procmux$7019_Y [0] $procmux$7019_Y [0] $procmux$7019_Y [0] $procmux$7019_Y [0] $procmux$7019_Y [0] $procmux$7019_Y [0] $procmux$7019_Y [0] $procmux$7019_Y [0] $procmux$7019_Y [0] $procmux$7019_Y [0] $procmux$7019_Y [0] $procmux$7019_Y [0] $procmux$7019_Y [0] $procmux$7019_Y [0] $procmux$7019_Y [0] $procmux$7019_Y [0] $procmux$7019_Y [0] $procmux$7019_Y [0] $procmux$7019_Y [0] $procmux$7019_Y [0] $procmux$7019_Y [0] $procmux$7019_Y [0] $procmux$7019_Y [0] $procmux$7019_Y [0] $procmux$7019_Y [0] $procmux$7019_Y [0] $procmux$7019_Y [0] $procmux$7019_Y [0] $procmux$7019_Y [0] $procmux$7019_Y [0] $procmux$7019_Y [0] $procmux$7019_Y [0] $procmux$7019_Y [0] $procmux$7019_Y [0] $procmux$7019_Y [0] $procmux$7019_Y [0] $procmux$7019_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$7013:
+      Old ports: A=3'000, B=3'111, Y=$procmux$7013_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$7013_Y [0]
+      New connections: $procmux$7013_Y [2:1] = { $procmux$7013_Y [0] $procmux$7013_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$7007:
+      Old ports: A=4'0000, B=4'1111, Y=$procmux$7007_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$7007_Y [0]
+      New connections: $procmux$7007_Y [3:1] = { $procmux$7007_Y [0] $procmux$7007_Y [0] $procmux$7007_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$7001:
+      Old ports: A=4'0000, B=4'1111, Y=$procmux$7001_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$7001_Y [0]
+      New connections: $procmux$7001_Y [3:1] = { $procmux$7001_Y [0] $procmux$7001_Y [0] $procmux$7001_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$6995:
+      Old ports: A=5'00000, B=5'11111, Y=$procmux$6995_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$6995_Y [0]
+      New connections: $procmux$6995_Y [4:1] = { $procmux$6995_Y [0] $procmux$6995_Y [0] $procmux$6995_Y [0] $procmux$6995_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$6983:
+      Old ports: A=48'000000000000000000000000000000000000000000000000, B=48'111111111111111111111111111111111111111111111111, Y=$procmux$6983_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$6983_Y [0]
+      New connections: $procmux$6983_Y [47:1] = { $procmux$6983_Y [0] $procmux$6983_Y [0] $procmux$6983_Y [0] $procmux$6983_Y [0] $procmux$6983_Y [0] $procmux$6983_Y [0] $procmux$6983_Y [0] $procmux$6983_Y [0] $procmux$6983_Y [0] $procmux$6983_Y [0] $procmux$6983_Y [0] $procmux$6983_Y [0] $procmux$6983_Y [0] $procmux$6983_Y [0] $procmux$6983_Y [0] $procmux$6983_Y [0] $procmux$6983_Y [0] $procmux$6983_Y [0] $procmux$6983_Y [0] $procmux$6983_Y [0] $procmux$6983_Y [0] $procmux$6983_Y [0] $procmux$6983_Y [0] $procmux$6983_Y [0] $procmux$6983_Y [0] $procmux$6983_Y [0] $procmux$6983_Y [0] $procmux$6983_Y [0] $procmux$6983_Y [0] $procmux$6983_Y [0] $procmux$6983_Y [0] $procmux$6983_Y [0] $procmux$6983_Y [0] $procmux$6983_Y [0] $procmux$6983_Y [0] $procmux$6983_Y [0] $procmux$6983_Y [0] $procmux$6983_Y [0] $procmux$6983_Y [0] $procmux$6983_Y [0] $procmux$6983_Y [0] $procmux$6983_Y [0] $procmux$6983_Y [0] $procmux$6983_Y [0] $procmux$6983_Y [0] $procmux$6983_Y [0] $procmux$6983_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$6977:
+      Old ports: A=3'000, B=3'111, Y=$procmux$6977_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$6977_Y [0]
+      New connections: $procmux$6977_Y [2:1] = { $procmux$6977_Y [0] $procmux$6977_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$6971:
+      Old ports: A=4'0000, B=4'1111, Y=$procmux$6971_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$6971_Y [0]
+      New connections: $procmux$6971_Y [3:1] = { $procmux$6971_Y [0] $procmux$6971_Y [0] $procmux$6971_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$6965:
+      Old ports: A=4'0000, B=4'1111, Y=$procmux$6965_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$6965_Y [0]
+      New connections: $procmux$6965_Y [3:1] = { $procmux$6965_Y [0] $procmux$6965_Y [0] $procmux$6965_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$6959:
+      Old ports: A=5'00000, B=5'11111, Y=$procmux$6959_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$6959_Y [0]
+      New connections: $procmux$6959_Y [4:1] = { $procmux$6959_Y [0] $procmux$6959_Y [0] $procmux$6959_Y [0] $procmux$6959_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$6947:
+      Old ports: A=48'000000000000000000000000000000000000000000000000, B=48'111111111111111111111111111111111111111111111111, Y=$procmux$6947_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$6947_Y [0]
+      New connections: $procmux$6947_Y [47:1] = { $procmux$6947_Y [0] $procmux$6947_Y [0] $procmux$6947_Y [0] $procmux$6947_Y [0] $procmux$6947_Y [0] $procmux$6947_Y [0] $procmux$6947_Y [0] $procmux$6947_Y [0] $procmux$6947_Y [0] $procmux$6947_Y [0] $procmux$6947_Y [0] $procmux$6947_Y [0] $procmux$6947_Y [0] $procmux$6947_Y [0] $procmux$6947_Y [0] $procmux$6947_Y [0] $procmux$6947_Y [0] $procmux$6947_Y [0] $procmux$6947_Y [0] $procmux$6947_Y [0] $procmux$6947_Y [0] $procmux$6947_Y [0] $procmux$6947_Y [0] $procmux$6947_Y [0] $procmux$6947_Y [0] $procmux$6947_Y [0] $procmux$6947_Y [0] $procmux$6947_Y [0] $procmux$6947_Y [0] $procmux$6947_Y [0] $procmux$6947_Y [0] $procmux$6947_Y [0] $procmux$6947_Y [0] $procmux$6947_Y [0] $procmux$6947_Y [0] $procmux$6947_Y [0] $procmux$6947_Y [0] $procmux$6947_Y [0] $procmux$6947_Y [0] $procmux$6947_Y [0] $procmux$6947_Y [0] $procmux$6947_Y [0] $procmux$6947_Y [0] $procmux$6947_Y [0] $procmux$6947_Y [0] $procmux$6947_Y [0] $procmux$6947_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$6941:
+      Old ports: A=3'000, B=3'111, Y=$procmux$6941_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$6941_Y [0]
+      New connections: $procmux$6941_Y [2:1] = { $procmux$6941_Y [0] $procmux$6941_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$6935:
+      Old ports: A=4'0000, B=4'1111, Y=$procmux$6935_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$6935_Y [0]
+      New connections: $procmux$6935_Y [3:1] = { $procmux$6935_Y [0] $procmux$6935_Y [0] $procmux$6935_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$6929:
+      Old ports: A=4'0000, B=4'1111, Y=$procmux$6929_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$6929_Y [0]
+      New connections: $procmux$6929_Y [3:1] = { $procmux$6929_Y [0] $procmux$6929_Y [0] $procmux$6929_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$6923:
+      Old ports: A=5'00000, B=5'11111, Y=$procmux$6923_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$6923_Y [0]
+      New connections: $procmux$6923_Y [4:1] = { $procmux$6923_Y [0] $procmux$6923_Y [0] $procmux$6923_Y [0] $procmux$6923_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$6911:
+      Old ports: A=48'000000000000000000000000000000000000000000000000, B=48'111111111111111111111111111111111111111111111111, Y=$procmux$6911_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$6911_Y [0]
+      New connections: $procmux$6911_Y [47:1] = { $procmux$6911_Y [0] $procmux$6911_Y [0] $procmux$6911_Y [0] $procmux$6911_Y [0] $procmux$6911_Y [0] $procmux$6911_Y [0] $procmux$6911_Y [0] $procmux$6911_Y [0] $procmux$6911_Y [0] $procmux$6911_Y [0] $procmux$6911_Y [0] $procmux$6911_Y [0] $procmux$6911_Y [0] $procmux$6911_Y [0] $procmux$6911_Y [0] $procmux$6911_Y [0] $procmux$6911_Y [0] $procmux$6911_Y [0] $procmux$6911_Y [0] $procmux$6911_Y [0] $procmux$6911_Y [0] $procmux$6911_Y [0] $procmux$6911_Y [0] $procmux$6911_Y [0] $procmux$6911_Y [0] $procmux$6911_Y [0] $procmux$6911_Y [0] $procmux$6911_Y [0] $procmux$6911_Y [0] $procmux$6911_Y [0] $procmux$6911_Y [0] $procmux$6911_Y [0] $procmux$6911_Y [0] $procmux$6911_Y [0] $procmux$6911_Y [0] $procmux$6911_Y [0] $procmux$6911_Y [0] $procmux$6911_Y [0] $procmux$6911_Y [0] $procmux$6911_Y [0] $procmux$6911_Y [0] $procmux$6911_Y [0] $procmux$6911_Y [0] $procmux$6911_Y [0] $procmux$6911_Y [0] $procmux$6911_Y [0] $procmux$6911_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$6905:
+      Old ports: A=3'000, B=3'111, Y=$procmux$6905_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$6905_Y [0]
+      New connections: $procmux$6905_Y [2:1] = { $procmux$6905_Y [0] $procmux$6905_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$6899:
+      Old ports: A=4'0000, B=4'1111, Y=$procmux$6899_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$6899_Y [0]
+      New connections: $procmux$6899_Y [3:1] = { $procmux$6899_Y [0] $procmux$6899_Y [0] $procmux$6899_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$6893:
+      Old ports: A=4'0000, B=4'1111, Y=$procmux$6893_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$6893_Y [0]
+      New connections: $procmux$6893_Y [3:1] = { $procmux$6893_Y [0] $procmux$6893_Y [0] $procmux$6893_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$6887:
+      Old ports: A=5'00000, B=5'11111, Y=$procmux$6887_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$6887_Y [0]
+      New connections: $procmux$6887_Y [4:1] = { $procmux$6887_Y [0] $procmux$6887_Y [0] $procmux$6887_Y [0] $procmux$6887_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$6875:
+      Old ports: A=48'000000000000000000000000000000000000000000000000, B=48'111111111111111111111111111111111111111111111111, Y=$procmux$6875_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$6875_Y [0]
+      New connections: $procmux$6875_Y [47:1] = { $procmux$6875_Y [0] $procmux$6875_Y [0] $procmux$6875_Y [0] $procmux$6875_Y [0] $procmux$6875_Y [0] $procmux$6875_Y [0] $procmux$6875_Y [0] $procmux$6875_Y [0] $procmux$6875_Y [0] $procmux$6875_Y [0] $procmux$6875_Y [0] $procmux$6875_Y [0] $procmux$6875_Y [0] $procmux$6875_Y [0] $procmux$6875_Y [0] $procmux$6875_Y [0] $procmux$6875_Y [0] $procmux$6875_Y [0] $procmux$6875_Y [0] $procmux$6875_Y [0] $procmux$6875_Y [0] $procmux$6875_Y [0] $procmux$6875_Y [0] $procmux$6875_Y [0] $procmux$6875_Y [0] $procmux$6875_Y [0] $procmux$6875_Y [0] $procmux$6875_Y [0] $procmux$6875_Y [0] $procmux$6875_Y [0] $procmux$6875_Y [0] $procmux$6875_Y [0] $procmux$6875_Y [0] $procmux$6875_Y [0] $procmux$6875_Y [0] $procmux$6875_Y [0] $procmux$6875_Y [0] $procmux$6875_Y [0] $procmux$6875_Y [0] $procmux$6875_Y [0] $procmux$6875_Y [0] $procmux$6875_Y [0] $procmux$6875_Y [0] $procmux$6875_Y [0] $procmux$6875_Y [0] $procmux$6875_Y [0] $procmux$6875_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$6869:
+      Old ports: A=3'000, B=3'111, Y=$procmux$6869_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$6869_Y [0]
+      New connections: $procmux$6869_Y [2:1] = { $procmux$6869_Y [0] $procmux$6869_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$6863:
+      Old ports: A=4'0000, B=4'1111, Y=$procmux$6863_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$6863_Y [0]
+      New connections: $procmux$6863_Y [3:1] = { $procmux$6863_Y [0] $procmux$6863_Y [0] $procmux$6863_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$6857:
+      Old ports: A=4'0000, B=4'1111, Y=$procmux$6857_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$6857_Y [0]
+      New connections: $procmux$6857_Y [3:1] = { $procmux$6857_Y [0] $procmux$6857_Y [0] $procmux$6857_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$6851:
+      Old ports: A=5'00000, B=5'11111, Y=$procmux$6851_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$6851_Y [0]
+      New connections: $procmux$6851_Y [4:1] = { $procmux$6851_Y [0] $procmux$6851_Y [0] $procmux$6851_Y [0] $procmux$6851_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$6839:
+      Old ports: A=48'000000000000000000000000000000000000000000000000, B=48'111111111111111111111111111111111111111111111111, Y=$procmux$6839_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$6839_Y [0]
+      New connections: $procmux$6839_Y [47:1] = { $procmux$6839_Y [0] $procmux$6839_Y [0] $procmux$6839_Y [0] $procmux$6839_Y [0] $procmux$6839_Y [0] $procmux$6839_Y [0] $procmux$6839_Y [0] $procmux$6839_Y [0] $procmux$6839_Y [0] $procmux$6839_Y [0] $procmux$6839_Y [0] $procmux$6839_Y [0] $procmux$6839_Y [0] $procmux$6839_Y [0] $procmux$6839_Y [0] $procmux$6839_Y [0] $procmux$6839_Y [0] $procmux$6839_Y [0] $procmux$6839_Y [0] $procmux$6839_Y [0] $procmux$6839_Y [0] $procmux$6839_Y [0] $procmux$6839_Y [0] $procmux$6839_Y [0] $procmux$6839_Y [0] $procmux$6839_Y [0] $procmux$6839_Y [0] $procmux$6839_Y [0] $procmux$6839_Y [0] $procmux$6839_Y [0] $procmux$6839_Y [0] $procmux$6839_Y [0] $procmux$6839_Y [0] $procmux$6839_Y [0] $procmux$6839_Y [0] $procmux$6839_Y [0] $procmux$6839_Y [0] $procmux$6839_Y [0] $procmux$6839_Y [0] $procmux$6839_Y [0] $procmux$6839_Y [0] $procmux$6839_Y [0] $procmux$6839_Y [0] $procmux$6839_Y [0] $procmux$6839_Y [0] $procmux$6839_Y [0] $procmux$6839_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$6833:
+      Old ports: A=3'000, B=3'111, Y=$procmux$6833_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$6833_Y [0]
+      New connections: $procmux$6833_Y [2:1] = { $procmux$6833_Y [0] $procmux$6833_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$6827:
+      Old ports: A=4'0000, B=4'1111, Y=$procmux$6827_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$6827_Y [0]
+      New connections: $procmux$6827_Y [3:1] = { $procmux$6827_Y [0] $procmux$6827_Y [0] $procmux$6827_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$6821:
+      Old ports: A=4'0000, B=4'1111, Y=$procmux$6821_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$6821_Y [0]
+      New connections: $procmux$6821_Y [3:1] = { $procmux$6821_Y [0] $procmux$6821_Y [0] $procmux$6821_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$6815:
+      Old ports: A=5'00000, B=5'11111, Y=$procmux$6815_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$6815_Y [0]
+      New connections: $procmux$6815_Y [4:1] = { $procmux$6815_Y [0] $procmux$6815_Y [0] $procmux$6815_Y [0] $procmux$6815_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$6803:
+      Old ports: A=48'000000000000000000000000000000000000000000000000, B=48'111111111111111111111111111111111111111111111111, Y=$procmux$6803_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$6803_Y [0]
+      New connections: $procmux$6803_Y [47:1] = { $procmux$6803_Y [0] $procmux$6803_Y [0] $procmux$6803_Y [0] $procmux$6803_Y [0] $procmux$6803_Y [0] $procmux$6803_Y [0] $procmux$6803_Y [0] $procmux$6803_Y [0] $procmux$6803_Y [0] $procmux$6803_Y [0] $procmux$6803_Y [0] $procmux$6803_Y [0] $procmux$6803_Y [0] $procmux$6803_Y [0] $procmux$6803_Y [0] $procmux$6803_Y [0] $procmux$6803_Y [0] $procmux$6803_Y [0] $procmux$6803_Y [0] $procmux$6803_Y [0] $procmux$6803_Y [0] $procmux$6803_Y [0] $procmux$6803_Y [0] $procmux$6803_Y [0] $procmux$6803_Y [0] $procmux$6803_Y [0] $procmux$6803_Y [0] $procmux$6803_Y [0] $procmux$6803_Y [0] $procmux$6803_Y [0] $procmux$6803_Y [0] $procmux$6803_Y [0] $procmux$6803_Y [0] $procmux$6803_Y [0] $procmux$6803_Y [0] $procmux$6803_Y [0] $procmux$6803_Y [0] $procmux$6803_Y [0] $procmux$6803_Y [0] $procmux$6803_Y [0] $procmux$6803_Y [0] $procmux$6803_Y [0] $procmux$6803_Y [0] $procmux$6803_Y [0] $procmux$6803_Y [0] $procmux$6803_Y [0] $procmux$6803_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$6797:
+      Old ports: A=3'000, B=3'111, Y=$procmux$6797_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$6797_Y [0]
+      New connections: $procmux$6797_Y [2:1] = { $procmux$6797_Y [0] $procmux$6797_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$6791:
+      Old ports: A=4'0000, B=4'1111, Y=$procmux$6791_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$6791_Y [0]
+      New connections: $procmux$6791_Y [3:1] = { $procmux$6791_Y [0] $procmux$6791_Y [0] $procmux$6791_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$6785:
+      Old ports: A=4'0000, B=4'1111, Y=$procmux$6785_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$6785_Y [0]
+      New connections: $procmux$6785_Y [3:1] = { $procmux$6785_Y [0] $procmux$6785_Y [0] $procmux$6785_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$6779:
+      Old ports: A=5'00000, B=5'11111, Y=$procmux$6779_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$6779_Y [0]
+      New connections: $procmux$6779_Y [4:1] = { $procmux$6779_Y [0] $procmux$6779_Y [0] $procmux$6779_Y [0] $procmux$6779_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$6767:
+      Old ports: A=48'000000000000000000000000000000000000000000000000, B=48'111111111111111111111111111111111111111111111111, Y=$procmux$6767_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$6767_Y [0]
+      New connections: $procmux$6767_Y [47:1] = { $procmux$6767_Y [0] $procmux$6767_Y [0] $procmux$6767_Y [0] $procmux$6767_Y [0] $procmux$6767_Y [0] $procmux$6767_Y [0] $procmux$6767_Y [0] $procmux$6767_Y [0] $procmux$6767_Y [0] $procmux$6767_Y [0] $procmux$6767_Y [0] $procmux$6767_Y [0] $procmux$6767_Y [0] $procmux$6767_Y [0] $procmux$6767_Y [0] $procmux$6767_Y [0] $procmux$6767_Y [0] $procmux$6767_Y [0] $procmux$6767_Y [0] $procmux$6767_Y [0] $procmux$6767_Y [0] $procmux$6767_Y [0] $procmux$6767_Y [0] $procmux$6767_Y [0] $procmux$6767_Y [0] $procmux$6767_Y [0] $procmux$6767_Y [0] $procmux$6767_Y [0] $procmux$6767_Y [0] $procmux$6767_Y [0] $procmux$6767_Y [0] $procmux$6767_Y [0] $procmux$6767_Y [0] $procmux$6767_Y [0] $procmux$6767_Y [0] $procmux$6767_Y [0] $procmux$6767_Y [0] $procmux$6767_Y [0] $procmux$6767_Y [0] $procmux$6767_Y [0] $procmux$6767_Y [0] $procmux$6767_Y [0] $procmux$6767_Y [0] $procmux$6767_Y [0] $procmux$6767_Y [0] $procmux$6767_Y [0] $procmux$6767_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$6761:
+      Old ports: A=3'000, B=3'111, Y=$procmux$6761_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$6761_Y [0]
+      New connections: $procmux$6761_Y [2:1] = { $procmux$6761_Y [0] $procmux$6761_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$6755:
+      Old ports: A=4'0000, B=4'1111, Y=$procmux$6755_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$6755_Y [0]
+      New connections: $procmux$6755_Y [3:1] = { $procmux$6755_Y [0] $procmux$6755_Y [0] $procmux$6755_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$6749:
+      Old ports: A=4'0000, B=4'1111, Y=$procmux$6749_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$6749_Y [0]
+      New connections: $procmux$6749_Y [3:1] = { $procmux$6749_Y [0] $procmux$6749_Y [0] $procmux$6749_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$6743:
+      Old ports: A=5'00000, B=5'11111, Y=$procmux$6743_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$6743_Y [0]
+      New connections: $procmux$6743_Y [4:1] = { $procmux$6743_Y [0] $procmux$6743_Y [0] $procmux$6743_Y [0] $procmux$6743_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$6731:
+      Old ports: A=48'000000000000000000000000000000000000000000000000, B=48'111111111111111111111111111111111111111111111111, Y=$procmux$6731_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$6731_Y [0]
+      New connections: $procmux$6731_Y [47:1] = { $procmux$6731_Y [0] $procmux$6731_Y [0] $procmux$6731_Y [0] $procmux$6731_Y [0] $procmux$6731_Y [0] $procmux$6731_Y [0] $procmux$6731_Y [0] $procmux$6731_Y [0] $procmux$6731_Y [0] $procmux$6731_Y [0] $procmux$6731_Y [0] $procmux$6731_Y [0] $procmux$6731_Y [0] $procmux$6731_Y [0] $procmux$6731_Y [0] $procmux$6731_Y [0] $procmux$6731_Y [0] $procmux$6731_Y [0] $procmux$6731_Y [0] $procmux$6731_Y [0] $procmux$6731_Y [0] $procmux$6731_Y [0] $procmux$6731_Y [0] $procmux$6731_Y [0] $procmux$6731_Y [0] $procmux$6731_Y [0] $procmux$6731_Y [0] $procmux$6731_Y [0] $procmux$6731_Y [0] $procmux$6731_Y [0] $procmux$6731_Y [0] $procmux$6731_Y [0] $procmux$6731_Y [0] $procmux$6731_Y [0] $procmux$6731_Y [0] $procmux$6731_Y [0] $procmux$6731_Y [0] $procmux$6731_Y [0] $procmux$6731_Y [0] $procmux$6731_Y [0] $procmux$6731_Y [0] $procmux$6731_Y [0] $procmux$6731_Y [0] $procmux$6731_Y [0] $procmux$6731_Y [0] $procmux$6731_Y [0] $procmux$6731_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$6725:
+      Old ports: A=3'000, B=3'111, Y=$procmux$6725_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$6725_Y [0]
+      New connections: $procmux$6725_Y [2:1] = { $procmux$6725_Y [0] $procmux$6725_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$6719:
+      Old ports: A=4'0000, B=4'1111, Y=$procmux$6719_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$6719_Y [0]
+      New connections: $procmux$6719_Y [3:1] = { $procmux$6719_Y [0] $procmux$6719_Y [0] $procmux$6719_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$6713:
+      Old ports: A=4'0000, B=4'1111, Y=$procmux$6713_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$6713_Y [0]
+      New connections: $procmux$6713_Y [3:1] = { $procmux$6713_Y [0] $procmux$6713_Y [0] $procmux$6713_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$6707:
+      Old ports: A=5'00000, B=5'11111, Y=$procmux$6707_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$6707_Y [0]
+      New connections: $procmux$6707_Y [4:1] = { $procmux$6707_Y [0] $procmux$6707_Y [0] $procmux$6707_Y [0] $procmux$6707_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$6695:
+      Old ports: A=48'000000000000000000000000000000000000000000000000, B=48'111111111111111111111111111111111111111111111111, Y=$procmux$6695_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$6695_Y [0]
+      New connections: $procmux$6695_Y [47:1] = { $procmux$6695_Y [0] $procmux$6695_Y [0] $procmux$6695_Y [0] $procmux$6695_Y [0] $procmux$6695_Y [0] $procmux$6695_Y [0] $procmux$6695_Y [0] $procmux$6695_Y [0] $procmux$6695_Y [0] $procmux$6695_Y [0] $procmux$6695_Y [0] $procmux$6695_Y [0] $procmux$6695_Y [0] $procmux$6695_Y [0] $procmux$6695_Y [0] $procmux$6695_Y [0] $procmux$6695_Y [0] $procmux$6695_Y [0] $procmux$6695_Y [0] $procmux$6695_Y [0] $procmux$6695_Y [0] $procmux$6695_Y [0] $procmux$6695_Y [0] $procmux$6695_Y [0] $procmux$6695_Y [0] $procmux$6695_Y [0] $procmux$6695_Y [0] $procmux$6695_Y [0] $procmux$6695_Y [0] $procmux$6695_Y [0] $procmux$6695_Y [0] $procmux$6695_Y [0] $procmux$6695_Y [0] $procmux$6695_Y [0] $procmux$6695_Y [0] $procmux$6695_Y [0] $procmux$6695_Y [0] $procmux$6695_Y [0] $procmux$6695_Y [0] $procmux$6695_Y [0] $procmux$6695_Y [0] $procmux$6695_Y [0] $procmux$6695_Y [0] $procmux$6695_Y [0] $procmux$6695_Y [0] $procmux$6695_Y [0] $procmux$6695_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$6689:
+      Old ports: A=3'000, B=3'111, Y=$procmux$6689_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$6689_Y [0]
+      New connections: $procmux$6689_Y [2:1] = { $procmux$6689_Y [0] $procmux$6689_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$6683:
+      Old ports: A=4'0000, B=4'1111, Y=$procmux$6683_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$6683_Y [0]
+      New connections: $procmux$6683_Y [3:1] = { $procmux$6683_Y [0] $procmux$6683_Y [0] $procmux$6683_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$6677:
+      Old ports: A=4'0000, B=4'1111, Y=$procmux$6677_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$6677_Y [0]
+      New connections: $procmux$6677_Y [3:1] = { $procmux$6677_Y [0] $procmux$6677_Y [0] $procmux$6677_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$6671:
+      Old ports: A=5'00000, B=5'11111, Y=$procmux$6671_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$6671_Y [0]
+      New connections: $procmux$6671_Y [4:1] = { $procmux$6671_Y [0] $procmux$6671_Y [0] $procmux$6671_Y [0] $procmux$6671_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$6659:
+      Old ports: A=48'000000000000000000000000000000000000000000000000, B=48'111111111111111111111111111111111111111111111111, Y=$procmux$6659_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$6659_Y [0]
+      New connections: $procmux$6659_Y [47:1] = { $procmux$6659_Y [0] $procmux$6659_Y [0] $procmux$6659_Y [0] $procmux$6659_Y [0] $procmux$6659_Y [0] $procmux$6659_Y [0] $procmux$6659_Y [0] $procmux$6659_Y [0] $procmux$6659_Y [0] $procmux$6659_Y [0] $procmux$6659_Y [0] $procmux$6659_Y [0] $procmux$6659_Y [0] $procmux$6659_Y [0] $procmux$6659_Y [0] $procmux$6659_Y [0] $procmux$6659_Y [0] $procmux$6659_Y [0] $procmux$6659_Y [0] $procmux$6659_Y [0] $procmux$6659_Y [0] $procmux$6659_Y [0] $procmux$6659_Y [0] $procmux$6659_Y [0] $procmux$6659_Y [0] $procmux$6659_Y [0] $procmux$6659_Y [0] $procmux$6659_Y [0] $procmux$6659_Y [0] $procmux$6659_Y [0] $procmux$6659_Y [0] $procmux$6659_Y [0] $procmux$6659_Y [0] $procmux$6659_Y [0] $procmux$6659_Y [0] $procmux$6659_Y [0] $procmux$6659_Y [0] $procmux$6659_Y [0] $procmux$6659_Y [0] $procmux$6659_Y [0] $procmux$6659_Y [0] $procmux$6659_Y [0] $procmux$6659_Y [0] $procmux$6659_Y [0] $procmux$6659_Y [0] $procmux$6659_Y [0] $procmux$6659_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$6653:
+      Old ports: A=3'000, B=3'111, Y=$procmux$6653_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$6653_Y [0]
+      New connections: $procmux$6653_Y [2:1] = { $procmux$6653_Y [0] $procmux$6653_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$6647:
+      Old ports: A=4'0000, B=4'1111, Y=$procmux$6647_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$6647_Y [0]
+      New connections: $procmux$6647_Y [3:1] = { $procmux$6647_Y [0] $procmux$6647_Y [0] $procmux$6647_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$6641:
+      Old ports: A=4'0000, B=4'1111, Y=$procmux$6641_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$6641_Y [0]
+      New connections: $procmux$6641_Y [3:1] = { $procmux$6641_Y [0] $procmux$6641_Y [0] $procmux$6641_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$6635:
+      Old ports: A=5'00000, B=5'11111, Y=$procmux$6635_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$6635_Y [0]
+      New connections: $procmux$6635_Y [4:1] = { $procmux$6635_Y [0] $procmux$6635_Y [0] $procmux$6635_Y [0] $procmux$6635_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$6623:
+      Old ports: A=48'000000000000000000000000000000000000000000000000, B=48'111111111111111111111111111111111111111111111111, Y=$procmux$6623_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$6623_Y [0]
+      New connections: $procmux$6623_Y [47:1] = { $procmux$6623_Y [0] $procmux$6623_Y [0] $procmux$6623_Y [0] $procmux$6623_Y [0] $procmux$6623_Y [0] $procmux$6623_Y [0] $procmux$6623_Y [0] $procmux$6623_Y [0] $procmux$6623_Y [0] $procmux$6623_Y [0] $procmux$6623_Y [0] $procmux$6623_Y [0] $procmux$6623_Y [0] $procmux$6623_Y [0] $procmux$6623_Y [0] $procmux$6623_Y [0] $procmux$6623_Y [0] $procmux$6623_Y [0] $procmux$6623_Y [0] $procmux$6623_Y [0] $procmux$6623_Y [0] $procmux$6623_Y [0] $procmux$6623_Y [0] $procmux$6623_Y [0] $procmux$6623_Y [0] $procmux$6623_Y [0] $procmux$6623_Y [0] $procmux$6623_Y [0] $procmux$6623_Y [0] $procmux$6623_Y [0] $procmux$6623_Y [0] $procmux$6623_Y [0] $procmux$6623_Y [0] $procmux$6623_Y [0] $procmux$6623_Y [0] $procmux$6623_Y [0] $procmux$6623_Y [0] $procmux$6623_Y [0] $procmux$6623_Y [0] $procmux$6623_Y [0] $procmux$6623_Y [0] $procmux$6623_Y [0] $procmux$6623_Y [0] $procmux$6623_Y [0] $procmux$6623_Y [0] $procmux$6623_Y [0] $procmux$6623_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$6617:
+      Old ports: A=3'000, B=3'111, Y=$procmux$6617_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$6617_Y [0]
+      New connections: $procmux$6617_Y [2:1] = { $procmux$6617_Y [0] $procmux$6617_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$6611:
+      Old ports: A=4'0000, B=4'1111, Y=$procmux$6611_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$6611_Y [0]
+      New connections: $procmux$6611_Y [3:1] = { $procmux$6611_Y [0] $procmux$6611_Y [0] $procmux$6611_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$6605:
+      Old ports: A=4'0000, B=4'1111, Y=$procmux$6605_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$6605_Y [0]
+      New connections: $procmux$6605_Y [3:1] = { $procmux$6605_Y [0] $procmux$6605_Y [0] $procmux$6605_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$6599:
+      Old ports: A=5'00000, B=5'11111, Y=$procmux$6599_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$6599_Y [0]
+      New connections: $procmux$6599_Y [4:1] = { $procmux$6599_Y [0] $procmux$6599_Y [0] $procmux$6599_Y [0] $procmux$6599_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$6587:
+      Old ports: A=48'000000000000000000000000000000000000000000000000, B=48'111111111111111111111111111111111111111111111111, Y=$procmux$6587_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$6587_Y [0]
+      New connections: $procmux$6587_Y [47:1] = { $procmux$6587_Y [0] $procmux$6587_Y [0] $procmux$6587_Y [0] $procmux$6587_Y [0] $procmux$6587_Y [0] $procmux$6587_Y [0] $procmux$6587_Y [0] $procmux$6587_Y [0] $procmux$6587_Y [0] $procmux$6587_Y [0] $procmux$6587_Y [0] $procmux$6587_Y [0] $procmux$6587_Y [0] $procmux$6587_Y [0] $procmux$6587_Y [0] $procmux$6587_Y [0] $procmux$6587_Y [0] $procmux$6587_Y [0] $procmux$6587_Y [0] $procmux$6587_Y [0] $procmux$6587_Y [0] $procmux$6587_Y [0] $procmux$6587_Y [0] $procmux$6587_Y [0] $procmux$6587_Y [0] $procmux$6587_Y [0] $procmux$6587_Y [0] $procmux$6587_Y [0] $procmux$6587_Y [0] $procmux$6587_Y [0] $procmux$6587_Y [0] $procmux$6587_Y [0] $procmux$6587_Y [0] $procmux$6587_Y [0] $procmux$6587_Y [0] $procmux$6587_Y [0] $procmux$6587_Y [0] $procmux$6587_Y [0] $procmux$6587_Y [0] $procmux$6587_Y [0] $procmux$6587_Y [0] $procmux$6587_Y [0] $procmux$6587_Y [0] $procmux$6587_Y [0] $procmux$6587_Y [0] $procmux$6587_Y [0] $procmux$6587_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$6581:
+      Old ports: A=3'000, B=3'111, Y=$procmux$6581_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$6581_Y [0]
+      New connections: $procmux$6581_Y [2:1] = { $procmux$6581_Y [0] $procmux$6581_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$6575:
+      Old ports: A=4'0000, B=4'1111, Y=$procmux$6575_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$6575_Y [0]
+      New connections: $procmux$6575_Y [3:1] = { $procmux$6575_Y [0] $procmux$6575_Y [0] $procmux$6575_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$6569:
+      Old ports: A=4'0000, B=4'1111, Y=$procmux$6569_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$6569_Y [0]
+      New connections: $procmux$6569_Y [3:1] = { $procmux$6569_Y [0] $procmux$6569_Y [0] $procmux$6569_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$6563:
+      Old ports: A=5'00000, B=5'11111, Y=$procmux$6563_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$6563_Y [0]
+      New connections: $procmux$6563_Y [4:1] = { $procmux$6563_Y [0] $procmux$6563_Y [0] $procmux$6563_Y [0] $procmux$6563_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$6551:
+      Old ports: A=48'000000000000000000000000000000000000000000000000, B=48'111111111111111111111111111111111111111111111111, Y=$procmux$6551_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$6551_Y [0]
+      New connections: $procmux$6551_Y [47:1] = { $procmux$6551_Y [0] $procmux$6551_Y [0] $procmux$6551_Y [0] $procmux$6551_Y [0] $procmux$6551_Y [0] $procmux$6551_Y [0] $procmux$6551_Y [0] $procmux$6551_Y [0] $procmux$6551_Y [0] $procmux$6551_Y [0] $procmux$6551_Y [0] $procmux$6551_Y [0] $procmux$6551_Y [0] $procmux$6551_Y [0] $procmux$6551_Y [0] $procmux$6551_Y [0] $procmux$6551_Y [0] $procmux$6551_Y [0] $procmux$6551_Y [0] $procmux$6551_Y [0] $procmux$6551_Y [0] $procmux$6551_Y [0] $procmux$6551_Y [0] $procmux$6551_Y [0] $procmux$6551_Y [0] $procmux$6551_Y [0] $procmux$6551_Y [0] $procmux$6551_Y [0] $procmux$6551_Y [0] $procmux$6551_Y [0] $procmux$6551_Y [0] $procmux$6551_Y [0] $procmux$6551_Y [0] $procmux$6551_Y [0] $procmux$6551_Y [0] $procmux$6551_Y [0] $procmux$6551_Y [0] $procmux$6551_Y [0] $procmux$6551_Y [0] $procmux$6551_Y [0] $procmux$6551_Y [0] $procmux$6551_Y [0] $procmux$6551_Y [0] $procmux$6551_Y [0] $procmux$6551_Y [0] $procmux$6551_Y [0] $procmux$6551_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$6545:
+      Old ports: A=3'000, B=3'111, Y=$procmux$6545_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$6545_Y [0]
+      New connections: $procmux$6545_Y [2:1] = { $procmux$6545_Y [0] $procmux$6545_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$6539:
+      Old ports: A=4'0000, B=4'1111, Y=$procmux$6539_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$6539_Y [0]
+      New connections: $procmux$6539_Y [3:1] = { $procmux$6539_Y [0] $procmux$6539_Y [0] $procmux$6539_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$6533:
+      Old ports: A=4'0000, B=4'1111, Y=$procmux$6533_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$6533_Y [0]
+      New connections: $procmux$6533_Y [3:1] = { $procmux$6533_Y [0] $procmux$6533_Y [0] $procmux$6533_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$6527:
+      Old ports: A=5'00000, B=5'11111, Y=$procmux$6527_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$6527_Y [0]
+      New connections: $procmux$6527_Y [4:1] = { $procmux$6527_Y [0] $procmux$6527_Y [0] $procmux$6527_Y [0] $procmux$6527_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$6515:
+      Old ports: A=48'000000000000000000000000000000000000000000000000, B=48'111111111111111111111111111111111111111111111111, Y=$procmux$6515_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$6515_Y [0]
+      New connections: $procmux$6515_Y [47:1] = { $procmux$6515_Y [0] $procmux$6515_Y [0] $procmux$6515_Y [0] $procmux$6515_Y [0] $procmux$6515_Y [0] $procmux$6515_Y [0] $procmux$6515_Y [0] $procmux$6515_Y [0] $procmux$6515_Y [0] $procmux$6515_Y [0] $procmux$6515_Y [0] $procmux$6515_Y [0] $procmux$6515_Y [0] $procmux$6515_Y [0] $procmux$6515_Y [0] $procmux$6515_Y [0] $procmux$6515_Y [0] $procmux$6515_Y [0] $procmux$6515_Y [0] $procmux$6515_Y [0] $procmux$6515_Y [0] $procmux$6515_Y [0] $procmux$6515_Y [0] $procmux$6515_Y [0] $procmux$6515_Y [0] $procmux$6515_Y [0] $procmux$6515_Y [0] $procmux$6515_Y [0] $procmux$6515_Y [0] $procmux$6515_Y [0] $procmux$6515_Y [0] $procmux$6515_Y [0] $procmux$6515_Y [0] $procmux$6515_Y [0] $procmux$6515_Y [0] $procmux$6515_Y [0] $procmux$6515_Y [0] $procmux$6515_Y [0] $procmux$6515_Y [0] $procmux$6515_Y [0] $procmux$6515_Y [0] $procmux$6515_Y [0] $procmux$6515_Y [0] $procmux$6515_Y [0] $procmux$6515_Y [0] $procmux$6515_Y [0] $procmux$6515_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$6509:
+      Old ports: A=3'000, B=3'111, Y=$procmux$6509_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$6509_Y [0]
+      New connections: $procmux$6509_Y [2:1] = { $procmux$6509_Y [0] $procmux$6509_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$6503:
+      Old ports: A=4'0000, B=4'1111, Y=$procmux$6503_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$6503_Y [0]
+      New connections: $procmux$6503_Y [3:1] = { $procmux$6503_Y [0] $procmux$6503_Y [0] $procmux$6503_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$6497:
+      Old ports: A=4'0000, B=4'1111, Y=$procmux$6497_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$6497_Y [0]
+      New connections: $procmux$6497_Y [3:1] = { $procmux$6497_Y [0] $procmux$6497_Y [0] $procmux$6497_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$6491:
+      Old ports: A=5'00000, B=5'11111, Y=$procmux$6491_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$6491_Y [0]
+      New connections: $procmux$6491_Y [4:1] = { $procmux$6491_Y [0] $procmux$6491_Y [0] $procmux$6491_Y [0] $procmux$6491_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$6479:
+      Old ports: A=48'000000000000000000000000000000000000000000000000, B=48'111111111111111111111111111111111111111111111111, Y=$procmux$6479_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$6479_Y [0]
+      New connections: $procmux$6479_Y [47:1] = { $procmux$6479_Y [0] $procmux$6479_Y [0] $procmux$6479_Y [0] $procmux$6479_Y [0] $procmux$6479_Y [0] $procmux$6479_Y [0] $procmux$6479_Y [0] $procmux$6479_Y [0] $procmux$6479_Y [0] $procmux$6479_Y [0] $procmux$6479_Y [0] $procmux$6479_Y [0] $procmux$6479_Y [0] $procmux$6479_Y [0] $procmux$6479_Y [0] $procmux$6479_Y [0] $procmux$6479_Y [0] $procmux$6479_Y [0] $procmux$6479_Y [0] $procmux$6479_Y [0] $procmux$6479_Y [0] $procmux$6479_Y [0] $procmux$6479_Y [0] $procmux$6479_Y [0] $procmux$6479_Y [0] $procmux$6479_Y [0] $procmux$6479_Y [0] $procmux$6479_Y [0] $procmux$6479_Y [0] $procmux$6479_Y [0] $procmux$6479_Y [0] $procmux$6479_Y [0] $procmux$6479_Y [0] $procmux$6479_Y [0] $procmux$6479_Y [0] $procmux$6479_Y [0] $procmux$6479_Y [0] $procmux$6479_Y [0] $procmux$6479_Y [0] $procmux$6479_Y [0] $procmux$6479_Y [0] $procmux$6479_Y [0] $procmux$6479_Y [0] $procmux$6479_Y [0] $procmux$6479_Y [0] $procmux$6479_Y [0] $procmux$6479_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$6473:
+      Old ports: A=3'000, B=3'111, Y=$procmux$6473_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$6473_Y [0]
+      New connections: $procmux$6473_Y [2:1] = { $procmux$6473_Y [0] $procmux$6473_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$6467:
+      Old ports: A=4'0000, B=4'1111, Y=$procmux$6467_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$6467_Y [0]
+      New connections: $procmux$6467_Y [3:1] = { $procmux$6467_Y [0] $procmux$6467_Y [0] $procmux$6467_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$6461:
+      Old ports: A=4'0000, B=4'1111, Y=$procmux$6461_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$6461_Y [0]
+      New connections: $procmux$6461_Y [3:1] = { $procmux$6461_Y [0] $procmux$6461_Y [0] $procmux$6461_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$6455:
+      Old ports: A=5'00000, B=5'11111, Y=$procmux$6455_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$6455_Y [0]
+      New connections: $procmux$6455_Y [4:1] = { $procmux$6455_Y [0] $procmux$6455_Y [0] $procmux$6455_Y [0] $procmux$6455_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$6443:
+      Old ports: A=48'000000000000000000000000000000000000000000000000, B=48'111111111111111111111111111111111111111111111111, Y=$procmux$6443_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$6443_Y [0]
+      New connections: $procmux$6443_Y [47:1] = { $procmux$6443_Y [0] $procmux$6443_Y [0] $procmux$6443_Y [0] $procmux$6443_Y [0] $procmux$6443_Y [0] $procmux$6443_Y [0] $procmux$6443_Y [0] $procmux$6443_Y [0] $procmux$6443_Y [0] $procmux$6443_Y [0] $procmux$6443_Y [0] $procmux$6443_Y [0] $procmux$6443_Y [0] $procmux$6443_Y [0] $procmux$6443_Y [0] $procmux$6443_Y [0] $procmux$6443_Y [0] $procmux$6443_Y [0] $procmux$6443_Y [0] $procmux$6443_Y [0] $procmux$6443_Y [0] $procmux$6443_Y [0] $procmux$6443_Y [0] $procmux$6443_Y [0] $procmux$6443_Y [0] $procmux$6443_Y [0] $procmux$6443_Y [0] $procmux$6443_Y [0] $procmux$6443_Y [0] $procmux$6443_Y [0] $procmux$6443_Y [0] $procmux$6443_Y [0] $procmux$6443_Y [0] $procmux$6443_Y [0] $procmux$6443_Y [0] $procmux$6443_Y [0] $procmux$6443_Y [0] $procmux$6443_Y [0] $procmux$6443_Y [0] $procmux$6443_Y [0] $procmux$6443_Y [0] $procmux$6443_Y [0] $procmux$6443_Y [0] $procmux$6443_Y [0] $procmux$6443_Y [0] $procmux$6443_Y [0] $procmux$6443_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$6437:
+      Old ports: A=3'000, B=3'111, Y=$procmux$6437_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$6437_Y [0]
+      New connections: $procmux$6437_Y [2:1] = { $procmux$6437_Y [0] $procmux$6437_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$6431:
+      Old ports: A=4'0000, B=4'1111, Y=$procmux$6431_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$6431_Y [0]
+      New connections: $procmux$6431_Y [3:1] = { $procmux$6431_Y [0] $procmux$6431_Y [0] $procmux$6431_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$6425:
+      Old ports: A=4'0000, B=4'1111, Y=$procmux$6425_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$6425_Y [0]
+      New connections: $procmux$6425_Y [3:1] = { $procmux$6425_Y [0] $procmux$6425_Y [0] $procmux$6425_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$6419:
+      Old ports: A=5'00000, B=5'11111, Y=$procmux$6419_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$6419_Y [0]
+      New connections: $procmux$6419_Y [4:1] = { $procmux$6419_Y [0] $procmux$6419_Y [0] $procmux$6419_Y [0] $procmux$6419_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$6407:
+      Old ports: A=48'000000000000000000000000000000000000000000000000, B=48'111111111111111111111111111111111111111111111111, Y=$procmux$6407_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$6407_Y [0]
+      New connections: $procmux$6407_Y [47:1] = { $procmux$6407_Y [0] $procmux$6407_Y [0] $procmux$6407_Y [0] $procmux$6407_Y [0] $procmux$6407_Y [0] $procmux$6407_Y [0] $procmux$6407_Y [0] $procmux$6407_Y [0] $procmux$6407_Y [0] $procmux$6407_Y [0] $procmux$6407_Y [0] $procmux$6407_Y [0] $procmux$6407_Y [0] $procmux$6407_Y [0] $procmux$6407_Y [0] $procmux$6407_Y [0] $procmux$6407_Y [0] $procmux$6407_Y [0] $procmux$6407_Y [0] $procmux$6407_Y [0] $procmux$6407_Y [0] $procmux$6407_Y [0] $procmux$6407_Y [0] $procmux$6407_Y [0] $procmux$6407_Y [0] $procmux$6407_Y [0] $procmux$6407_Y [0] $procmux$6407_Y [0] $procmux$6407_Y [0] $procmux$6407_Y [0] $procmux$6407_Y [0] $procmux$6407_Y [0] $procmux$6407_Y [0] $procmux$6407_Y [0] $procmux$6407_Y [0] $procmux$6407_Y [0] $procmux$6407_Y [0] $procmux$6407_Y [0] $procmux$6407_Y [0] $procmux$6407_Y [0] $procmux$6407_Y [0] $procmux$6407_Y [0] $procmux$6407_Y [0] $procmux$6407_Y [0] $procmux$6407_Y [0] $procmux$6407_Y [0] $procmux$6407_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$6401:
+      Old ports: A=3'000, B=3'111, Y=$procmux$6401_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$6401_Y [0]
+      New connections: $procmux$6401_Y [2:1] = { $procmux$6401_Y [0] $procmux$6401_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$6395:
+      Old ports: A=4'0000, B=4'1111, Y=$procmux$6395_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$6395_Y [0]
+      New connections: $procmux$6395_Y [3:1] = { $procmux$6395_Y [0] $procmux$6395_Y [0] $procmux$6395_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$6389:
+      Old ports: A=4'0000, B=4'1111, Y=$procmux$6389_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$6389_Y [0]
+      New connections: $procmux$6389_Y [3:1] = { $procmux$6389_Y [0] $procmux$6389_Y [0] $procmux$6389_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$6383:
+      Old ports: A=5'00000, B=5'11111, Y=$procmux$6383_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$6383_Y [0]
+      New connections: $procmux$6383_Y [4:1] = { $procmux$6383_Y [0] $procmux$6383_Y [0] $procmux$6383_Y [0] $procmux$6383_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$6371:
+      Old ports: A=48'000000000000000000000000000000000000000000000000, B=48'111111111111111111111111111111111111111111111111, Y=$procmux$6371_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$6371_Y [0]
+      New connections: $procmux$6371_Y [47:1] = { $procmux$6371_Y [0] $procmux$6371_Y [0] $procmux$6371_Y [0] $procmux$6371_Y [0] $procmux$6371_Y [0] $procmux$6371_Y [0] $procmux$6371_Y [0] $procmux$6371_Y [0] $procmux$6371_Y [0] $procmux$6371_Y [0] $procmux$6371_Y [0] $procmux$6371_Y [0] $procmux$6371_Y [0] $procmux$6371_Y [0] $procmux$6371_Y [0] $procmux$6371_Y [0] $procmux$6371_Y [0] $procmux$6371_Y [0] $procmux$6371_Y [0] $procmux$6371_Y [0] $procmux$6371_Y [0] $procmux$6371_Y [0] $procmux$6371_Y [0] $procmux$6371_Y [0] $procmux$6371_Y [0] $procmux$6371_Y [0] $procmux$6371_Y [0] $procmux$6371_Y [0] $procmux$6371_Y [0] $procmux$6371_Y [0] $procmux$6371_Y [0] $procmux$6371_Y [0] $procmux$6371_Y [0] $procmux$6371_Y [0] $procmux$6371_Y [0] $procmux$6371_Y [0] $procmux$6371_Y [0] $procmux$6371_Y [0] $procmux$6371_Y [0] $procmux$6371_Y [0] $procmux$6371_Y [0] $procmux$6371_Y [0] $procmux$6371_Y [0] $procmux$6371_Y [0] $procmux$6371_Y [0] $procmux$6371_Y [0] $procmux$6371_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$6365:
+      Old ports: A=3'000, B=3'111, Y=$procmux$6365_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$6365_Y [0]
+      New connections: $procmux$6365_Y [2:1] = { $procmux$6365_Y [0] $procmux$6365_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$6359:
+      Old ports: A=4'0000, B=4'1111, Y=$procmux$6359_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$6359_Y [0]
+      New connections: $procmux$6359_Y [3:1] = { $procmux$6359_Y [0] $procmux$6359_Y [0] $procmux$6359_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$6353:
+      Old ports: A=4'0000, B=4'1111, Y=$procmux$6353_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$6353_Y [0]
+      New connections: $procmux$6353_Y [3:1] = { $procmux$6353_Y [0] $procmux$6353_Y [0] $procmux$6353_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$6347:
+      Old ports: A=5'00000, B=5'11111, Y=$procmux$6347_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$6347_Y [0]
+      New connections: $procmux$6347_Y [4:1] = { $procmux$6347_Y [0] $procmux$6347_Y [0] $procmux$6347_Y [0] $procmux$6347_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$6335:
+      Old ports: A=48'000000000000000000000000000000000000000000000000, B=48'111111111111111111111111111111111111111111111111, Y=$procmux$6335_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$6335_Y [0]
+      New connections: $procmux$6335_Y [47:1] = { $procmux$6335_Y [0] $procmux$6335_Y [0] $procmux$6335_Y [0] $procmux$6335_Y [0] $procmux$6335_Y [0] $procmux$6335_Y [0] $procmux$6335_Y [0] $procmux$6335_Y [0] $procmux$6335_Y [0] $procmux$6335_Y [0] $procmux$6335_Y [0] $procmux$6335_Y [0] $procmux$6335_Y [0] $procmux$6335_Y [0] $procmux$6335_Y [0] $procmux$6335_Y [0] $procmux$6335_Y [0] $procmux$6335_Y [0] $procmux$6335_Y [0] $procmux$6335_Y [0] $procmux$6335_Y [0] $procmux$6335_Y [0] $procmux$6335_Y [0] $procmux$6335_Y [0] $procmux$6335_Y [0] $procmux$6335_Y [0] $procmux$6335_Y [0] $procmux$6335_Y [0] $procmux$6335_Y [0] $procmux$6335_Y [0] $procmux$6335_Y [0] $procmux$6335_Y [0] $procmux$6335_Y [0] $procmux$6335_Y [0] $procmux$6335_Y [0] $procmux$6335_Y [0] $procmux$6335_Y [0] $procmux$6335_Y [0] $procmux$6335_Y [0] $procmux$6335_Y [0] $procmux$6335_Y [0] $procmux$6335_Y [0] $procmux$6335_Y [0] $procmux$6335_Y [0] $procmux$6335_Y [0] $procmux$6335_Y [0] $procmux$6335_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$6329:
+      Old ports: A=3'000, B=3'111, Y=$procmux$6329_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$6329_Y [0]
+      New connections: $procmux$6329_Y [2:1] = { $procmux$6329_Y [0] $procmux$6329_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$6323:
+      Old ports: A=4'0000, B=4'1111, Y=$procmux$6323_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$6323_Y [0]
+      New connections: $procmux$6323_Y [3:1] = { $procmux$6323_Y [0] $procmux$6323_Y [0] $procmux$6323_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$6317:
+      Old ports: A=4'0000, B=4'1111, Y=$procmux$6317_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$6317_Y [0]
+      New connections: $procmux$6317_Y [3:1] = { $procmux$6317_Y [0] $procmux$6317_Y [0] $procmux$6317_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$6311:
+      Old ports: A=5'00000, B=5'11111, Y=$procmux$6311_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$6311_Y [0]
+      New connections: $procmux$6311_Y [4:1] = { $procmux$6311_Y [0] $procmux$6311_Y [0] $procmux$6311_Y [0] $procmux$6311_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$6299:
+      Old ports: A=48'000000000000000000000000000000000000000000000000, B=48'111111111111111111111111111111111111111111111111, Y=$procmux$6299_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$6299_Y [0]
+      New connections: $procmux$6299_Y [47:1] = { $procmux$6299_Y [0] $procmux$6299_Y [0] $procmux$6299_Y [0] $procmux$6299_Y [0] $procmux$6299_Y [0] $procmux$6299_Y [0] $procmux$6299_Y [0] $procmux$6299_Y [0] $procmux$6299_Y [0] $procmux$6299_Y [0] $procmux$6299_Y [0] $procmux$6299_Y [0] $procmux$6299_Y [0] $procmux$6299_Y [0] $procmux$6299_Y [0] $procmux$6299_Y [0] $procmux$6299_Y [0] $procmux$6299_Y [0] $procmux$6299_Y [0] $procmux$6299_Y [0] $procmux$6299_Y [0] $procmux$6299_Y [0] $procmux$6299_Y [0] $procmux$6299_Y [0] $procmux$6299_Y [0] $procmux$6299_Y [0] $procmux$6299_Y [0] $procmux$6299_Y [0] $procmux$6299_Y [0] $procmux$6299_Y [0] $procmux$6299_Y [0] $procmux$6299_Y [0] $procmux$6299_Y [0] $procmux$6299_Y [0] $procmux$6299_Y [0] $procmux$6299_Y [0] $procmux$6299_Y [0] $procmux$6299_Y [0] $procmux$6299_Y [0] $procmux$6299_Y [0] $procmux$6299_Y [0] $procmux$6299_Y [0] $procmux$6299_Y [0] $procmux$6299_Y [0] $procmux$6299_Y [0] $procmux$6299_Y [0] $procmux$6299_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$6293:
+      Old ports: A=3'000, B=3'111, Y=$procmux$6293_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$6293_Y [0]
+      New connections: $procmux$6293_Y [2:1] = { $procmux$6293_Y [0] $procmux$6293_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$6287:
+      Old ports: A=4'0000, B=4'1111, Y=$procmux$6287_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$6287_Y [0]
+      New connections: $procmux$6287_Y [3:1] = { $procmux$6287_Y [0] $procmux$6287_Y [0] $procmux$6287_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$6281:
+      Old ports: A=4'0000, B=4'1111, Y=$procmux$6281_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$6281_Y [0]
+      New connections: $procmux$6281_Y [3:1] = { $procmux$6281_Y [0] $procmux$6281_Y [0] $procmux$6281_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$6275:
+      Old ports: A=5'00000, B=5'11111, Y=$procmux$6275_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$6275_Y [0]
+      New connections: $procmux$6275_Y [4:1] = { $procmux$6275_Y [0] $procmux$6275_Y [0] $procmux$6275_Y [0] $procmux$6275_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$6263:
+      Old ports: A=48'000000000000000000000000000000000000000000000000, B=48'111111111111111111111111111111111111111111111111, Y=$procmux$6263_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$6263_Y [0]
+      New connections: $procmux$6263_Y [47:1] = { $procmux$6263_Y [0] $procmux$6263_Y [0] $procmux$6263_Y [0] $procmux$6263_Y [0] $procmux$6263_Y [0] $procmux$6263_Y [0] $procmux$6263_Y [0] $procmux$6263_Y [0] $procmux$6263_Y [0] $procmux$6263_Y [0] $procmux$6263_Y [0] $procmux$6263_Y [0] $procmux$6263_Y [0] $procmux$6263_Y [0] $procmux$6263_Y [0] $procmux$6263_Y [0] $procmux$6263_Y [0] $procmux$6263_Y [0] $procmux$6263_Y [0] $procmux$6263_Y [0] $procmux$6263_Y [0] $procmux$6263_Y [0] $procmux$6263_Y [0] $procmux$6263_Y [0] $procmux$6263_Y [0] $procmux$6263_Y [0] $procmux$6263_Y [0] $procmux$6263_Y [0] $procmux$6263_Y [0] $procmux$6263_Y [0] $procmux$6263_Y [0] $procmux$6263_Y [0] $procmux$6263_Y [0] $procmux$6263_Y [0] $procmux$6263_Y [0] $procmux$6263_Y [0] $procmux$6263_Y [0] $procmux$6263_Y [0] $procmux$6263_Y [0] $procmux$6263_Y [0] $procmux$6263_Y [0] $procmux$6263_Y [0] $procmux$6263_Y [0] $procmux$6263_Y [0] $procmux$6263_Y [0] $procmux$6263_Y [0] $procmux$6263_Y [0] }
+    Consolidated identical input bits for $mux cell $procmux$6257:
+      Old ports: A=3'000, B=3'111, Y=$procmux$6257_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$6257_Y [0]
+      New connections: $procmux$6257_Y [2:1] = { $procmux$6257_Y [0] $procmux$6257_Y [0] }
+    New ctrl vector for $pmux cell $procmux$6231: $auto$opt_reduce.cc:135:opt_pmux$13232
+    New ctrl vector for $pmux cell $procmux$6170: { $auto$opt_reduce.cc:135:opt_pmux$13234 $procmux$6172_CMP }
+    Consolidated identical input bits for $mux cell $procmux$12145:
+      Old ports: A=13'1111111111111, B=13'0000000000000, Y=$0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$656_EN[12:0]$1232
+      New ports: A=1'1, B=1'0, Y=$0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$656_EN[12:0]$1232 [0]
+      New connections: $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$656_EN[12:0]$1232 [12:1] = { $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$656_EN[12:0]$1232 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$656_EN[12:0]$1232 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$656_EN[12:0]$1232 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$656_EN[12:0]$1232 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$656_EN[12:0]$1232 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$656_EN[12:0]$1232 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$656_EN[12:0]$1232 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$656_EN[12:0]$1232 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$656_EN[12:0]$1232 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$656_EN[12:0]$1232 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$656_EN[12:0]$1232 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$656_EN[12:0]$1232 [0] }
+    Consolidated identical input bits for $mux cell $procmux$12142:
+      Old ports: A=13'1111111111111, B=13'0000000000000, Y=$0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$657_EN[12:0]$1233
+      New ports: A=1'1, B=1'0, Y=$0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$657_EN[12:0]$1233 [0]
+      New connections: $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$657_EN[12:0]$1233 [12:1] = { $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$657_EN[12:0]$1233 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$657_EN[12:0]$1233 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$657_EN[12:0]$1233 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$657_EN[12:0]$1233 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$657_EN[12:0]$1233 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$657_EN[12:0]$1233 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$657_EN[12:0]$1233 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$657_EN[12:0]$1233 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$657_EN[12:0]$1233 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$657_EN[12:0]$1233 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$657_EN[12:0]$1233 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$657_EN[12:0]$1233 [0] }
+    Consolidated identical input bits for $mux cell $procmux$12139:
+      Old ports: A=13'1111111111111, B=13'0000000000000, Y=$0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$658_EN[12:0]$1234
+      New ports: A=1'1, B=1'0, Y=$0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$658_EN[12:0]$1234 [0]
+      New connections: $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$658_EN[12:0]$1234 [12:1] = { $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$658_EN[12:0]$1234 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$658_EN[12:0]$1234 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$658_EN[12:0]$1234 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$658_EN[12:0]$1234 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$658_EN[12:0]$1234 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$658_EN[12:0]$1234 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$658_EN[12:0]$1234 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$658_EN[12:0]$1234 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$658_EN[12:0]$1234 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$658_EN[12:0]$1234 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$658_EN[12:0]$1234 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$658_EN[12:0]$1234 [0] }
+    Consolidated identical input bits for $mux cell $procmux$12136:
+      Old ports: A=13'1111111111111, B=13'0000000000000, Y=$0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$659_EN[12:0]$1235
+      New ports: A=1'1, B=1'0, Y=$0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$659_EN[12:0]$1235 [0]
+      New connections: $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$659_EN[12:0]$1235 [12:1] = { $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$659_EN[12:0]$1235 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$659_EN[12:0]$1235 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$659_EN[12:0]$1235 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$659_EN[12:0]$1235 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$659_EN[12:0]$1235 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$659_EN[12:0]$1235 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$659_EN[12:0]$1235 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$659_EN[12:0]$1235 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$659_EN[12:0]$1235 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$659_EN[12:0]$1235 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$659_EN[12:0]$1235 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$659_EN[12:0]$1235 [0] }
+    Consolidated identical input bits for $mux cell $procmux$12133:
+      Old ports: A=13'1111111111111, B=13'0000000000000, Y=$0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$660_EN[12:0]$1236
+      New ports: A=1'1, B=1'0, Y=$0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$660_EN[12:0]$1236 [0]
+      New connections: $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$660_EN[12:0]$1236 [12:1] = { $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$660_EN[12:0]$1236 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$660_EN[12:0]$1236 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$660_EN[12:0]$1236 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$660_EN[12:0]$1236 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$660_EN[12:0]$1236 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$660_EN[12:0]$1236 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$660_EN[12:0]$1236 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$660_EN[12:0]$1236 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$660_EN[12:0]$1236 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$660_EN[12:0]$1236 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$660_EN[12:0]$1236 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$660_EN[12:0]$1236 [0] }
+    Consolidated identical input bits for $mux cell $procmux$12130:
+      Old ports: A=13'1111111111111, B=13'0000000000000, Y=$0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$661_EN[12:0]$1237
+      New ports: A=1'1, B=1'0, Y=$0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$661_EN[12:0]$1237 [0]
+      New connections: $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$661_EN[12:0]$1237 [12:1] = { $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$661_EN[12:0]$1237 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$661_EN[12:0]$1237 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$661_EN[12:0]$1237 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$661_EN[12:0]$1237 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$661_EN[12:0]$1237 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$661_EN[12:0]$1237 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$661_EN[12:0]$1237 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$661_EN[12:0]$1237 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$661_EN[12:0]$1237 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$661_EN[12:0]$1237 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$661_EN[12:0]$1237 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$661_EN[12:0]$1237 [0] }
+    Consolidated identical input bits for $mux cell $procmux$12127:
+      Old ports: A=13'1111111111111, B=13'0000000000000, Y=$0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$662_EN[12:0]$1238
+      New ports: A=1'1, B=1'0, Y=$0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$662_EN[12:0]$1238 [0]
+      New connections: $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$662_EN[12:0]$1238 [12:1] = { $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$662_EN[12:0]$1238 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$662_EN[12:0]$1238 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$662_EN[12:0]$1238 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$662_EN[12:0]$1238 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$662_EN[12:0]$1238 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$662_EN[12:0]$1238 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$662_EN[12:0]$1238 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$662_EN[12:0]$1238 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$662_EN[12:0]$1238 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$662_EN[12:0]$1238 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$662_EN[12:0]$1238 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$662_EN[12:0]$1238 [0] }
+    Consolidated identical input bits for $mux cell $procmux$12124:
+      Old ports: A=13'1111111111111, B=13'0000000000000, Y=$0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$663_EN[12:0]$1239
+      New ports: A=1'1, B=1'0, Y=$0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$663_EN[12:0]$1239 [0]
+      New connections: $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$663_EN[12:0]$1239 [12:1] = { $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$663_EN[12:0]$1239 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$663_EN[12:0]$1239 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$663_EN[12:0]$1239 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$663_EN[12:0]$1239 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$663_EN[12:0]$1239 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$663_EN[12:0]$1239 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$663_EN[12:0]$1239 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$663_EN[12:0]$1239 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$663_EN[12:0]$1239 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$663_EN[12:0]$1239 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$663_EN[12:0]$1239 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$663_EN[12:0]$1239 [0] }
+    Consolidated identical input bits for $mux cell $procmux$12121:
+      Old ports: A=13'1111111111111, B=13'0000000000000, Y=$0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$664_EN[12:0]$1240
+      New ports: A=1'1, B=1'0, Y=$0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$664_EN[12:0]$1240 [0]
+      New connections: $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$664_EN[12:0]$1240 [12:1] = { $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$664_EN[12:0]$1240 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$664_EN[12:0]$1240 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$664_EN[12:0]$1240 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$664_EN[12:0]$1240 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$664_EN[12:0]$1240 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$664_EN[12:0]$1240 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$664_EN[12:0]$1240 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$664_EN[12:0]$1240 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$664_EN[12:0]$1240 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$664_EN[12:0]$1240 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$664_EN[12:0]$1240 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$664_EN[12:0]$1240 [0] }
+    Consolidated identical input bits for $mux cell $procmux$12118:
+      Old ports: A=13'1111111111111, B=13'0000000000000, Y=$0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$665_EN[12:0]$1241
+      New ports: A=1'1, B=1'0, Y=$0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$665_EN[12:0]$1241 [0]
+      New connections: $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$665_EN[12:0]$1241 [12:1] = { $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$665_EN[12:0]$1241 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$665_EN[12:0]$1241 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$665_EN[12:0]$1241 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$665_EN[12:0]$1241 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$665_EN[12:0]$1241 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$665_EN[12:0]$1241 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$665_EN[12:0]$1241 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$665_EN[12:0]$1241 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$665_EN[12:0]$1241 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$665_EN[12:0]$1241 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$665_EN[12:0]$1241 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$665_EN[12:0]$1241 [0] }
+    Consolidated identical input bits for $mux cell $procmux$12115:
+      Old ports: A=13'1111111111111, B=13'0000000000000, Y=$0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$666_EN[12:0]$1242
+      New ports: A=1'1, B=1'0, Y=$0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$666_EN[12:0]$1242 [0]
+      New connections: $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$666_EN[12:0]$1242 [12:1] = { $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$666_EN[12:0]$1242 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$666_EN[12:0]$1242 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$666_EN[12:0]$1242 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$666_EN[12:0]$1242 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$666_EN[12:0]$1242 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$666_EN[12:0]$1242 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$666_EN[12:0]$1242 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$666_EN[12:0]$1242 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$666_EN[12:0]$1242 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$666_EN[12:0]$1242 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$666_EN[12:0]$1242 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$666_EN[12:0]$1242 [0] }
+    Consolidated identical input bits for $mux cell $procmux$12112:
+      Old ports: A=13'1111111111111, B=13'0000000000000, Y=$0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$667_EN[12:0]$1243
+      New ports: A=1'1, B=1'0, Y=$0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$667_EN[12:0]$1243 [0]
+      New connections: $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$667_EN[12:0]$1243 [12:1] = { $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$667_EN[12:0]$1243 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$667_EN[12:0]$1243 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$667_EN[12:0]$1243 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$667_EN[12:0]$1243 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$667_EN[12:0]$1243 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$667_EN[12:0]$1243 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$667_EN[12:0]$1243 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$667_EN[12:0]$1243 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$667_EN[12:0]$1243 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$667_EN[12:0]$1243 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$667_EN[12:0]$1243 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$667_EN[12:0]$1243 [0] }
+    Consolidated identical input bits for $mux cell $procmux$11683:
+      Old ports: A=48'111111111111111111111111111111111111111111111111, B=48'000000000000000000000000000000000000000000000000, Y=$0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$849_EN[47:0]$1763
+      New ports: A=1'1, B=1'0, Y=$0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$849_EN[47:0]$1763 [0]
+      New connections: $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$849_EN[47:0]$1763 [47:1] = { $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$849_EN[47:0]$1763 [0] $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$849_EN[47:0]$1763 [0] $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$849_EN[47:0]$1763 [0] $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$849_EN[47:0]$1763 [0] $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$849_EN[47:0]$1763 [0] $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$849_EN[47:0]$1763 [0] $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$849_EN[47:0]$1763 [0] $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$849_EN[47:0]$1763 [0] $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$849_EN[47:0]$1763 [0] $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$849_EN[47:0]$1763 [0] $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$849_EN[47:0]$1763 [0] $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$849_EN[47:0]$1763 [0] $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$849_EN[47:0]$1763 [0] $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$849_EN[47:0]$1763 [0] $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$849_EN[47:0]$1763 [0] $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$849_EN[47:0]$1763 [0] $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$849_EN[47:0]$1763 [0] $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$849_EN[47:0]$1763 [0] $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$849_EN[47:0]$1763 [0] $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$849_EN[47:0]$1763 [0] $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$849_EN[47:0]$1763 [0] $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$849_EN[47:0]$1763 [0] $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$849_EN[47:0]$1763 [0] $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$849_EN[47:0]$1763 [0] $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$849_EN[47:0]$1763 [0] $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$849_EN[47:0]$1763 [0] $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$849_EN[47:0]$1763 [0] $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$849_EN[47:0]$1763 [0] $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$849_EN[47:0]$1763 [0] $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$849_EN[47:0]$1763 [0] $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$849_EN[47:0]$1763 [0] $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$849_EN[47:0]$1763 [0] $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$849_EN[47:0]$1763 [0] $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$849_EN[47:0]$1763 [0] $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$849_EN[47:0]$1763 [0] $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$849_EN[47:0]$1763 [0] $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$849_EN[47:0]$1763 [0] $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$849_EN[47:0]$1763 [0] $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$849_EN[47:0]$1763 [0] $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$849_EN[47:0]$1763 [0] $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$849_EN[47:0]$1763 [0] $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$849_EN[47:0]$1763 [0] $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$849_EN[47:0]$1763 [0] $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$849_EN[47:0]$1763 [0] $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$849_EN[47:0]$1763 [0] $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$849_EN[47:0]$1763 [0] $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$849_EN[47:0]$1763 [0] }
+    Consolidated identical input bits for $mux cell $procmux$11680:
+      Old ports: A=48'111111111111111111111111111111111111111111111111, B=48'000000000000000000000000000000000000000000000000, Y=$0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$850_EN[47:0]$1764
+      New ports: A=1'1, B=1'0, Y=$0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$850_EN[47:0]$1764 [0]
+      New connections: $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$850_EN[47:0]$1764 [47:1] = { $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$850_EN[47:0]$1764 [0] $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$850_EN[47:0]$1764 [0] $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$850_EN[47:0]$1764 [0] $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$850_EN[47:0]$1764 [0] $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$850_EN[47:0]$1764 [0] $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$850_EN[47:0]$1764 [0] $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$850_EN[47:0]$1764 [0] $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$850_EN[47:0]$1764 [0] $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$850_EN[47:0]$1764 [0] $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$850_EN[47:0]$1764 [0] $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$850_EN[47:0]$1764 [0] $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$850_EN[47:0]$1764 [0] $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$850_EN[47:0]$1764 [0] $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$850_EN[47:0]$1764 [0] $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$850_EN[47:0]$1764 [0] $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$850_EN[47:0]$1764 [0] $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$850_EN[47:0]$1764 [0] $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$850_EN[47:0]$1764 [0] $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$850_EN[47:0]$1764 [0] $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$850_EN[47:0]$1764 [0] $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$850_EN[47:0]$1764 [0] $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$850_EN[47:0]$1764 [0] $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$850_EN[47:0]$1764 [0] $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$850_EN[47:0]$1764 [0] $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$850_EN[47:0]$1764 [0] $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$850_EN[47:0]$1764 [0] $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$850_EN[47:0]$1764 [0] $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$850_EN[47:0]$1764 [0] $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$850_EN[47:0]$1764 [0] $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$850_EN[47:0]$1764 [0] $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$850_EN[47:0]$1764 [0] $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$850_EN[47:0]$1764 [0] $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$850_EN[47:0]$1764 [0] $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$850_EN[47:0]$1764 [0] $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$850_EN[47:0]$1764 [0] $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$850_EN[47:0]$1764 [0] $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$850_EN[47:0]$1764 [0] $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$850_EN[47:0]$1764 [0] $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$850_EN[47:0]$1764 [0] $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$850_EN[47:0]$1764 [0] $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$850_EN[47:0]$1764 [0] $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$850_EN[47:0]$1764 [0] $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$850_EN[47:0]$1764 [0] $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$850_EN[47:0]$1764 [0] $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$850_EN[47:0]$1764 [0] $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$850_EN[47:0]$1764 [0] $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$850_EN[47:0]$1764 [0] }
+    Consolidated identical input bits for $mux cell $procmux$11677:
+      Old ports: A=48'111111111111111111111111111111111111111111111111, B=48'000000000000000000000000000000000000000000000000, Y=$0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$851_EN[47:0]$1765
+      New ports: A=1'1, B=1'0, Y=$0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$851_EN[47:0]$1765 [0]
+      New connections: $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$851_EN[47:0]$1765 [47:1] = { $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$851_EN[47:0]$1765 [0] $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$851_EN[47:0]$1765 [0] $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$851_EN[47:0]$1765 [0] $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$851_EN[47:0]$1765 [0] $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$851_EN[47:0]$1765 [0] $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$851_EN[47:0]$1765 [0] $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$851_EN[47:0]$1765 [0] $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$851_EN[47:0]$1765 [0] $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$851_EN[47:0]$1765 [0] $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$851_EN[47:0]$1765 [0] $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$851_EN[47:0]$1765 [0] $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$851_EN[47:0]$1765 [0] $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$851_EN[47:0]$1765 [0] $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$851_EN[47:0]$1765 [0] $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$851_EN[47:0]$1765 [0] $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$851_EN[47:0]$1765 [0] $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$851_EN[47:0]$1765 [0] $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$851_EN[47:0]$1765 [0] $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$851_EN[47:0]$1765 [0] $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$851_EN[47:0]$1765 [0] $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$851_EN[47:0]$1765 [0] $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$851_EN[47:0]$1765 [0] $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$851_EN[47:0]$1765 [0] $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$851_EN[47:0]$1765 [0] $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$851_EN[47:0]$1765 [0] $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$851_EN[47:0]$1765 [0] $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$851_EN[47:0]$1765 [0] $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$851_EN[47:0]$1765 [0] $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$851_EN[47:0]$1765 [0] $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$851_EN[47:0]$1765 [0] $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$851_EN[47:0]$1765 [0] $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$851_EN[47:0]$1765 [0] $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$851_EN[47:0]$1765 [0] $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$851_EN[47:0]$1765 [0] $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$851_EN[47:0]$1765 [0] $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$851_EN[47:0]$1765 [0] $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$851_EN[47:0]$1765 [0] $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$851_EN[47:0]$1765 [0] $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$851_EN[47:0]$1765 [0] $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$851_EN[47:0]$1765 [0] $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$851_EN[47:0]$1765 [0] $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$851_EN[47:0]$1765 [0] $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$851_EN[47:0]$1765 [0] $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$851_EN[47:0]$1765 [0] $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$851_EN[47:0]$1765 [0] $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$851_EN[47:0]$1765 [0] $0$memwr$\tdm_stage_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:174$851_EN[47:0]$1765 [0] }
+    Consolidated identical input bits for $mux cell $procmux$12109:
+      Old ports: A=13'1111111111111, B=13'0000000000000, Y=$0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$668_EN[12:0]$1244
+      New ports: A=1'1, B=1'0, Y=$0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$668_EN[12:0]$1244 [0]
+      New connections: $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$668_EN[12:0]$1244 [12:1] = { $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$668_EN[12:0]$1244 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$668_EN[12:0]$1244 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$668_EN[12:0]$1244 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$668_EN[12:0]$1244 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$668_EN[12:0]$1244 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$668_EN[12:0]$1244 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$668_EN[12:0]$1244 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$668_EN[12:0]$1244 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$668_EN[12:0]$1244 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$668_EN[12:0]$1244 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$668_EN[12:0]$1244 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$668_EN[12:0]$1244 [0] }
+    Consolidated identical input bits for $mux cell $procmux$12106:
+      Old ports: A=13'1111111111111, B=13'0000000000000, Y=$0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$669_EN[12:0]$1245
+      New ports: A=1'1, B=1'0, Y=$0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$669_EN[12:0]$1245 [0]
+      New connections: $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$669_EN[12:0]$1245 [12:1] = { $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$669_EN[12:0]$1245 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$669_EN[12:0]$1245 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$669_EN[12:0]$1245 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$669_EN[12:0]$1245 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$669_EN[12:0]$1245 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$669_EN[12:0]$1245 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$669_EN[12:0]$1245 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$669_EN[12:0]$1245 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$669_EN[12:0]$1245 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$669_EN[12:0]$1245 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$669_EN[12:0]$1245 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$669_EN[12:0]$1245 [0] }
+    Consolidated identical input bits for $mux cell $procmux$12103:
+      Old ports: A=13'1111111111111, B=13'0000000000000, Y=$0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$670_EN[12:0]$1246
+      New ports: A=1'1, B=1'0, Y=$0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$670_EN[12:0]$1246 [0]
+      New connections: $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$670_EN[12:0]$1246 [12:1] = { $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$670_EN[12:0]$1246 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$670_EN[12:0]$1246 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$670_EN[12:0]$1246 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$670_EN[12:0]$1246 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$670_EN[12:0]$1246 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$670_EN[12:0]$1246 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$670_EN[12:0]$1246 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$670_EN[12:0]$1246 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$670_EN[12:0]$1246 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$670_EN[12:0]$1246 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$670_EN[12:0]$1246 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$670_EN[12:0]$1246 [0] }
+    Consolidated identical input bits for $mux cell $procmux$12100:
+      Old ports: A=13'1111111111111, B=13'0000000000000, Y=$0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$671_EN[12:0]$1247
+      New ports: A=1'1, B=1'0, Y=$0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$671_EN[12:0]$1247 [0]
+      New connections: $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$671_EN[12:0]$1247 [12:1] = { $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$671_EN[12:0]$1247 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$671_EN[12:0]$1247 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$671_EN[12:0]$1247 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$671_EN[12:0]$1247 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$671_EN[12:0]$1247 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$671_EN[12:0]$1247 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$671_EN[12:0]$1247 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$671_EN[12:0]$1247 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$671_EN[12:0]$1247 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$671_EN[12:0]$1247 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$671_EN[12:0]$1247 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$671_EN[12:0]$1247 [0] }
+    Consolidated identical input bits for $mux cell $procmux$12097:
+      Old ports: A=13'1111111111111, B=13'0000000000000, Y=$0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$672_EN[12:0]$1248
+      New ports: A=1'1, B=1'0, Y=$0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$672_EN[12:0]$1248 [0]
+      New connections: $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$672_EN[12:0]$1248 [12:1] = { $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$672_EN[12:0]$1248 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$672_EN[12:0]$1248 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$672_EN[12:0]$1248 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$672_EN[12:0]$1248 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$672_EN[12:0]$1248 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$672_EN[12:0]$1248 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$672_EN[12:0]$1248 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$672_EN[12:0]$1248 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$672_EN[12:0]$1248 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$672_EN[12:0]$1248 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$672_EN[12:0]$1248 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$672_EN[12:0]$1248 [0] }
+    Consolidated identical input bits for $mux cell $procmux$12094:
+      Old ports: A=13'1111111111111, B=13'0000000000000, Y=$0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$673_EN[12:0]$1249
+      New ports: A=1'1, B=1'0, Y=$0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$673_EN[12:0]$1249 [0]
+      New connections: $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$673_EN[12:0]$1249 [12:1] = { $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$673_EN[12:0]$1249 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$673_EN[12:0]$1249 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$673_EN[12:0]$1249 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$673_EN[12:0]$1249 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$673_EN[12:0]$1249 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$673_EN[12:0]$1249 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$673_EN[12:0]$1249 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$673_EN[12:0]$1249 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$673_EN[12:0]$1249 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$673_EN[12:0]$1249 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$673_EN[12:0]$1249 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$673_EN[12:0]$1249 [0] }
+    Consolidated identical input bits for $mux cell $procmux$12091:
+      Old ports: A=13'1111111111111, B=13'0000000000000, Y=$0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$674_EN[12:0]$1250
+      New ports: A=1'1, B=1'0, Y=$0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$674_EN[12:0]$1250 [0]
+      New connections: $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$674_EN[12:0]$1250 [12:1] = { $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$674_EN[12:0]$1250 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$674_EN[12:0]$1250 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$674_EN[12:0]$1250 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$674_EN[12:0]$1250 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$674_EN[12:0]$1250 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$674_EN[12:0]$1250 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$674_EN[12:0]$1250 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$674_EN[12:0]$1250 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$674_EN[12:0]$1250 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$674_EN[12:0]$1250 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$674_EN[12:0]$1250 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$674_EN[12:0]$1250 [0] }
+    Consolidated identical input bits for $mux cell $procmux$12088:
+      Old ports: A=13'1111111111111, B=13'0000000000000, Y=$0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$675_EN[12:0]$1251
+      New ports: A=1'1, B=1'0, Y=$0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$675_EN[12:0]$1251 [0]
+      New connections: $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$675_EN[12:0]$1251 [12:1] = { $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$675_EN[12:0]$1251 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$675_EN[12:0]$1251 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$675_EN[12:0]$1251 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$675_EN[12:0]$1251 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$675_EN[12:0]$1251 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$675_EN[12:0]$1251 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$675_EN[12:0]$1251 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$675_EN[12:0]$1251 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$675_EN[12:0]$1251 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$675_EN[12:0]$1251 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$675_EN[12:0]$1251 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$675_EN[12:0]$1251 [0] }
+    Consolidated identical input bits for $mux cell $procmux$12085:
+      Old ports: A=13'1111111111111, B=13'0000000000000, Y=$0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$676_EN[12:0]$1252
+      New ports: A=1'1, B=1'0, Y=$0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$676_EN[12:0]$1252 [0]
+      New connections: $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$676_EN[12:0]$1252 [12:1] = { $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$676_EN[12:0]$1252 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$676_EN[12:0]$1252 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$676_EN[12:0]$1252 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$676_EN[12:0]$1252 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$676_EN[12:0]$1252 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$676_EN[12:0]$1252 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$676_EN[12:0]$1252 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$676_EN[12:0]$1252 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$676_EN[12:0]$1252 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$676_EN[12:0]$1252 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$676_EN[12:0]$1252 [0] $0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$676_EN[12:0]$1252 [0] }
+    Consolidated identical input bits for $mux cell $procmux$12082:
+      Old ports: A=13'1111111111111, B=13'0000000000000, Y=$0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$677_EN[12:0]$1253
+      New ports: A=1'1, B=1'0, Y=$0$memwr$\map_r$$SCRATCH/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:116$677_EN[12:0]$1253 [0]

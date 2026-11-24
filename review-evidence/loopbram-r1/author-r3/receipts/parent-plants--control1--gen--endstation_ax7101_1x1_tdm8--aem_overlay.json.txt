@@ -1,0 +1,553 @@
+Candidate head: 855529fe21fea685725a9edc4fe0a798154c6469
+Comparison base: 3cda030c174b325e36c26af6420487ff91346d15
+Source: parent-plants/control1/gen/endstation_ax7101_1x1_tdm8/aem_overlay.json
+Original SHA256: fb824b921b6ff65fc1b6092e577548a18ed18c8539412b7eab6ae4b7045ac9d2
+Scope: complete text; paths and host fields normalized
+
+{
+ "_schema": "kebag-logic/aem-overlay",
+ "_schema_version": "2.2.0",
+ "_generated_by": "sw/builder/endstation_builder.py",
+ "_source_config": "$SCRATCH/parent-plants/control1/endstation_ax7101_1x1_tdm8.yaml",
+ "entity": {
+  "name": "Milan FPGA 1x1 TDM8",
+  "vendor_name": "Kebag Logic",
+  "firmware_version": "3.96.0",
+  "firmware_rev": 0,
+  "serial_number": "<device-serial>",
+  "group_name": "",
+  "entity_id": "mac-derived",
+  "entity_model_id": "0x001BC5FB6EA4D2F5"
+ },
+ "model_id": {
+  "value": "0x001BC5FB6EA4D2F5",
+  "source": "hash",
+  "hash": "0x001BC5FB6EA4D2F5"
+ },
+ "adp": {
+  "entity_id": "0x024B4CFFFE4B4C01",
+  "mac_address": "02:4b:4c:4b:4c:01",
+  "talker_stream_sources": 2,
+  "listener_stream_sinks": 2,
+  "talker_capabilities": "0x4801",
+  "listener_capabilities": "0x4801"
+ },
+ "gptp": {
+  "port_number": 1,
+  "priority1": 248,
+  "priority2": 248,
+  "clock_class": 248,
+  "clock_accuracy": 34,
+  "offset_scaled_log_variance": 17258,
+  "domain": 0,
+  "log_sync_interval": -3,
+  "log_announce_interval": 0,
+  "log_pdelay_interval": 0
+ },
+ "sampling_rates_hz": [
+  48000
+ ],
+ "current_sampling_rate_hz": 48000,
+ "entity_counts": {
+  "talker_stream_sources": 2,
+  "listener_stream_sinks": 2
+ },
+ "descriptor_counts": {
+  "ENTITY": 1,
+  "CONFIGURATION": 1,
+  "AUDIO_UNIT": 1,
+  "STREAM_INPUT": 2,
+  "STREAM_OUTPUT": 2,
+  "AVB_INTERFACE": 1,
+  "CLOCK_SOURCE": 3,
+  "CLOCK_DOMAIN": 1,
+  "CONTROL": 1,
+  "LOCALE": 1,
+  "STRINGS": 1,
+  "STREAM_PORT_INPUT": 1,
+  "STREAM_PORT_OUTPUT": 1,
+  "AUDIO_CLUSTER": 41,
+  "AUDIO_MAP": 0
+ },
+ "stream_inputs": [
+  {
+   "index": 0,
+   "name": "Stream In 0",
+   "kind": "aaf",
+   "channels": 8,
+   "formats": [
+    "0x0205022002006000",
+    "0x0215022002006000"
+   ],
+   "buffer_length_ns": 2126000
+  },
+  {
+   "index": 1,
+   "name": "CRF",
+   "kind": "crf",
+   "channels": 0,
+   "formats": [
+    "0x041060010000BB80"
+   ],
+   "buffer_length_ns": 2126000
+  }
+ ],
+ "stream_outputs": [
+  {
+   "index": 0,
+   "name": "Stream Out 0",
+   "kind": "aaf",
+   "channels": 8,
+   "formats": [
+    "0x0205022002006000"
+   ],
+   "presentation_time_offset_ns": 2000000
+  },
+  {
+   "index": 1,
+   "name": "CRF",
+   "kind": "crf",
+   "channels": 0,
+   "formats": [
+    "0x041060010000BB80"
+   ],
+   "presentation_time_offset_ns": 2000000
+  }
+ ],
+ "clock_sources": [
+  {
+   "index": 0,
+   "name": "Internal",
+   "type": "internal",
+   "location_type": "CLOCK_SOURCE",
+   "location_index": 0
+  },
+  {
+   "index": 1,
+   "name": "CRF Clock",
+   "type": "crf",
+   "location_type": "STREAM_INPUT",
+   "location_index": 1
+  },
+  {
+   "index": 2,
+   "name": "Stream Clock",
+   "type": "input_stream",
+   "location_type": "STREAM_INPUT",
+   "location_index": 0
+  }
+ ],
+ "stream_ports": {
+  "input": [
+   {
+    "index": 0,
+    "stream_index": 0,
+    "clusters": 16,
+    "base_cluster": 0,
+    "maps": 0,
+    "base_map": 0,
+    "map_mode": "dynamic",
+    "map_page": 8,
+    "pool": [
+     {
+      "role": "physical",
+      "offset": 0,
+      "width": 8
+     },
+     {
+      "role": "input_loopback",
+      "offset": 8,
+      "width": 8,
+      "first": 0
+     }
+    ],
+    "primary_role": "physical"
+   }
+  ],
+  "output": [
+   {
+    "index": 0,
+    "stream_index": 0,
+    "clusters": 25,
+    "base_cluster": 16,
+    "maps": 0,
+    "base_map": 0,
+    "map_mode": "dynamic",
+    "pool": [
+     {
+      "role": "physical",
+      "offset": 0,
+      "width": 8
+     },
+     {
+      "role": "input_loopback",
+      "offset": 8,
+      "width": 8,
+      "first": 0
+     },
+     {
+      "role": "pilot",
+      "offset": 16,
+      "width": 1
+     },
+     {
+      "role": "loopback",
+      "offset": 17,
+      "width": 8
+     }
+    ],
+    "primary_role": "physical"
+   }
+  ]
+ },
+ "audio_maps": [],
+ "audio_clusters": [
+  {
+   "index": 0,
+   "name": "TDM8 Out FL",
+   "direction": "input",
+   "role": "physical",
+   "port_index": 0,
+   "offset": 0
+  },
+  {
+   "index": 1,
+   "name": "TDM8 Out FR",
+   "direction": "input",
+   "role": "physical",
+   "port_index": 0,
+   "offset": 1
+  },
+  {
+   "index": 2,
+   "name": "TDM8 Out FC",
+   "direction": "input",
+   "role": "physical",
+   "port_index": 0,
+   "offset": 2
+  },
+  {
+   "index": 3,
+   "name": "TDM8 Out LFE",
+   "direction": "input",
+   "role": "physical",
+   "port_index": 0,
+   "offset": 3
+  },
+  {
+   "index": 4,
+   "name": "TDM8 Out RL",
+   "direction": "input",
+   "role": "physical",
+   "port_index": 0,
+   "offset": 4
+  },
+  {
+   "index": 5,
+   "name": "TDM8 Out RR",
+   "direction": "input",
+   "role": "physical",
+   "port_index": 0,
+   "offset": 5
+  },
+  {
+   "index": 6,
+   "name": "TDM8 Out SL",
+   "direction": "input",
+   "role": "physical",
+   "port_index": 0,
+   "offset": 6
+  },
+  {
+   "index": 7,
+   "name": "TDM8 Out SR",
+   "direction": "input",
+   "role": "physical",
+   "port_index": 0,
+   "offset": 7
+  },
+  {
+   "index": 8,
+   "name": "Input Loopback 0",
+   "direction": "input",
+   "role": "input_loopback",
+   "port_index": 0,
+   "offset": 8
+  },
+  {
+   "index": 9,
+   "name": "Input Loopback 1",
+   "direction": "input",
+   "role": "input_loopback",
+   "port_index": 0,
+   "offset": 9
+  },
+  {
+   "index": 10,
+   "name": "Input Loopback 2",
+   "direction": "input",
+   "role": "input_loopback",
+   "port_index": 0,
+   "offset": 10
+  },
+  {
+   "index": 11,
+   "name": "Input Loopback 3",
+   "direction": "input",
+   "role": "input_loopback",
+   "port_index": 0,
+   "offset": 11
+  },
+  {
+   "index": 12,
+   "name": "Input Loopback 4",
+   "direction": "input",
+   "role": "input_loopback",
+   "port_index": 0,
+   "offset": 12
+  },
+  {
+   "index": 13,
+   "name": "Input Loopback 5",
+   "direction": "input",
+   "role": "input_loopback",
+   "port_index": 0,
+   "offset": 13
+  },
+  {
+   "index": 14,
+   "name": "Input Loopback 6",
+   "direction": "input",
+   "role": "input_loopback",
+   "port_index": 0,
+   "offset": 14
+  },
+  {
+   "index": 15,
+   "name": "Input Loopback 7",
+   "direction": "input",
+   "role": "input_loopback",
+   "port_index": 0,
+   "offset": 15
+  },
+  {
+   "index": 16,
+   "name": "TDM8 In FL",
+   "direction": "output",
+   "role": "physical",
+   "port_index": 0,
+   "offset": 0
+  },
+  {
+   "index": 17,
+   "name": "TDM8 In FR",
+   "direction": "output",
+   "role": "physical",
+   "port_index": 0,
+   "offset": 1
+  },
+  {
+   "index": 18,
+   "name": "TDM8 In FC",
+   "direction": "output",
+   "role": "physical",
+   "port_index": 0,
+   "offset": 2
+  },
+  {
+   "index": 19,
+   "name": "TDM8 In LFE",
+   "direction": "output",
+   "role": "physical",
+   "port_index": 0,
+   "offset": 3
+  },
+  {
+   "index": 20,
+   "name": "TDM8 In RL",
+   "direction": "output",
+   "role": "physical",
+   "port_index": 0,
+   "offset": 4
+  },
+  {
+   "index": 21,
+   "name": "TDM8 In RR",
+   "direction": "output",
+   "role": "physical",
+   "port_index": 0,
+   "offset": 5
+  },
+  {
+   "index": 22,
+   "name": "TDM8 In SL",
+   "direction": "output",
+   "role": "physical",
+   "port_index": 0,
+   "offset": 6
+  },
+  {
+   "index": 23,
+   "name": "TDM8 In SR",
+   "direction": "output",
+   "role": "physical",
+   "port_index": 0,
+   "offset": 7
+  },
+  {
+   "index": 24,
+   "name": "Input Loopback 0",
+   "direction": "output",
+   "role": "input_loopback",
+   "port_index": 0,
+   "offset": 8
+  },
+  {
+   "index": 25,
+   "name": "Input Loopback 1",
+   "direction": "output",
+   "role": "input_loopback",
+   "port_index": 0,
+   "offset": 9
+  },
+  {
+   "index": 26,
+   "name": "Input Loopback 2",
+   "direction": "output",
+   "role": "input_loopback",
+   "port_index": 0,
+   "offset": 10
+  },
+  {
+   "index": 27,
+   "name": "Input Loopback 3",
+   "direction": "output",
+   "role": "input_loopback",
+   "port_index": 0,
+   "offset": 11
+  },
+  {
+   "index": 28,
+   "name": "Input Loopback 4",
+   "direction": "output",
+   "role": "input_loopback",
+   "port_index": 0,
+   "offset": 12
+  },
+  {
+   "index": 29,
+   "name": "Input Loopback 5",
+   "direction": "output",
+   "role": "input_loopback",
+   "port_index": 0,
+   "offset": 13
+  },
+  {
+   "index": 30,
+   "name": "Input Loopback 6",
+   "direction": "output",
+   "role": "input_loopback",
+   "port_index": 0,
+   "offset": 14
+  },
+  {
+   "index": 31,
+   "name": "Input Loopback 7",
+   "direction": "output",
+   "role": "input_loopback",
+   "port_index": 0,
+   "offset": 15
+  },
+  {
+   "index": 32,
+   "name": "Pilot Tone",
+   "direction": "output",
+   "role": "pilot",
+   "port_index": 0,
+   "offset": 16
+  },
+  {
+   "index": 33,
+   "name": "Loopback S0 FL",
+   "direction": "output",
+   "role": "loopback",
+   "port_index": 0,
+   "offset": 17
+  },
+  {
+   "index": 34,
+   "name": "Loopback S0 FR",
+   "direction": "output",
+   "role": "loopback",
+   "port_index": 0,
+   "offset": 18
+  },
+  {
+   "index": 35,
+   "name": "Loopback S0 FC",
+   "direction": "output",
+   "role": "loopback",
+   "port_index": 0,
+   "offset": 19
+  },
+  {
+   "index": 36,
+   "name": "Loopback S0 LFE",
+   "direction": "output",
+   "role": "loopback",
+   "port_index": 0,
+   "offset": 20
+  },
+  {
+   "index": 37,
+   "name": "Loopback S0 RL",
+   "direction": "output",
+   "role": "loopback",
+   "port_index": 0,
+   "offset": 21
+  },
+  {
+   "index": 38,
+   "name": "Loopback S0 RR",
+   "direction": "output",
+   "role": "loopback",
+   "port_index": 0,
+   "offset": 22
+  },
+  {
+   "index": 39,
+   "name": "Loopback S0 SL",
+   "direction": "output",
+   "role": "loopback",
+   "port_index": 0,
+   "offset": 23
+  },
+  {
+   "index": 40,
+   "name": "Loopback S0 SR",
+   "direction": "output",
+   "role": "loopback",
+   "port_index": 0,
+   "offset": 24
+  }
+ ],
+ "cluster_format": "MBLA-mono",
+ "cluster_policy": "role-pools",
+ "cluster_pools": {
+  "loopback": 8,
+  "pilot": true
+ },
+ "cluster_fabric": {
+  "loopback_lane": false,
+  "input_loopback_lane": true
+ },
+ "physical_binding": {
+  "interface": "tdm8",
+  "channels_per_direction": 8,
+  "physical_channels": {
+   "capture": 8,
+   "render": 8
+  },
+  "rule": "first-N-clusters-per-direction; extra stream channels virtual, missing physical channels render 0 (USER wire-truth 1-to-1 rule)"
+ }
+}

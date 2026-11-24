@@ -1,0 +1,14 @@
+Candidate head: dc78aedae34c25a97125ecd6816a1f645db5575f
+Comparison base: 3cda030c174b325e36c26af6420487ff91346d15
+Source: prepare_export.py
+Original SHA256: 51b73f0a43e2e923a63550da24141bb073ec7f4cbb9855bebec9f86906e3b568
+Scope: complete text; paths and host fields normalized
+
+import subprocess,sys,os
+from pathlib import Path
+w=Path(__file__).resolve().parent
+for name in ['prepare_builds.py','export_off.py']:
+ with (w/(name+'.log')).open('w') as log:
+  r=subprocess.run([sys.executable,str(w/name)],stdout=log,stderr=subprocess.STDOUT,timeout=14400)
+ print(name,r.returncode,flush=True)
+ if r.returncode: raise SystemExit(r.returncode)

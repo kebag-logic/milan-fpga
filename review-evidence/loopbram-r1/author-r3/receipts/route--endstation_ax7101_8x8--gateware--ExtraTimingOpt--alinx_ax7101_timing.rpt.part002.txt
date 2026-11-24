@@ -1,0 +1,2091 @@
+Candidate head: 855529fe21fea685725a9edc4fe0a798154c6469
+Comparison base: 3cda030c174b325e36c26af6420487ff91346d15
+Source: route/endstation_ax7101_8x8/gateware/ExtraTimingOpt/alinx_ax7101_timing.rpt
+Original SHA256: ae71a0bcf977b4f04ad7c7aafe332d071b48e0e18823ed385efeda5afd7fcf1f
+Scope: complete text; paths and host fields normalized
+
+    SLICE_X84Y98         RAMD32 (Hold_ramd32_CLK_WADR0)
+                                                      0.310     3.139    storage_29_reg_0_15_6_8/RAMA_D1
+  -------------------------------------------------------------------
+                         required time                         -3.139    <hidden>
+                         arrival time                           3.212    <hidden>
+  -------------------------------------------------------------------
+                         slack                                  0.073    <hidden>
+
+Slack (MET) :             0.073ns  (arrival time - required time)
+  Source:                 milansoc_ctrlmailbox_ctrlmailbox_tx_cdc_graycounter0_q_binary_reg[0]/C
+                            (rising edge-triggered cell FDRE clocked by milansoc_crg_clkout0  {rise@0.000ns fall@5.000ns period=10.000ns})
+  Destination:            storage_29_reg_0_15_6_8/RAMB/WADR0
+                            (rising edge-triggered cell RAMD32 clocked by milansoc_crg_clkout0  {rise@0.000ns fall@5.000ns period=10.000ns})
+  Path Group:             milansoc_crg_clkout0
+  Path Type:              Hold (Min at Fast Process Corner)
+  Requirement:            0.000ns  (milansoc_crg_clkout0 rise@0.000ns - milansoc_crg_clkout0 rise@0.000ns)
+  Data Path Delay:        0.420ns  (logic 0.141ns (33.550%)  route 0.279ns (66.450%))
+  Logic Levels:           0  
+  Clock Path Skew:        0.037ns (DCD - SCD - CPR)
+    Destination Clock Delay (DCD):    3.473ns
+    Source Clock Delay      (SCD):    2.792ns
+    Clock Pessimism Removal (CPR):    0.644ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock milansoc_crg_clkout0 rise edge)
+                                                      0.000     0.000 r  <hidden>
+    R4                                                0.000     0.000 r  clk200_p
+                         net (fo=0)                   0.000     0.000    clk200_p
+    R4                   IBUFDS (Prop_ibufds_I_O)     0.369     0.369 r  IBUFDS/O
+                         net (fo=1, routed)           0.644     1.013    IBUFDS_n_0_BUFG_inst_n_0
+    BUFGCTRL_X0Y6        BUFG (Prop_bufg_I_O)         0.027     1.040 r  IBUFDS_n_0_BUFG_inst/O
+                         net (fo=9, routed)           0.561     1.600    milansoc_crg_clkin_signal
+    PLLE2_ADV_X0Y1       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT0)
+                                                      0.050     1.650 r  PLLE2_ADV/CLKOUT0
+                         net (fo=1, routed)           0.510     2.160    milansoc_crg_clkout0
+    BUFGCTRL_X0Y0        BUFG (Prop_bufg_I_O)         0.026     2.186 r  BUFG/O
+                         net (fo=18402, routed)       0.606     2.792    sys_clk
+    SLICE_X86Y99         FDRE                                         r  milansoc_ctrlmailbox_ctrlmailbox_tx_cdc_graycounter0_q_binary_reg[0]/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X86Y99         FDRE (Prop_fdre_C_Q)         0.141     2.933 r  milansoc_ctrlmailbox_ctrlmailbox_tx_cdc_graycounter0_q_binary_reg[0]/Q
+                         net (fo=25, routed)          0.279     3.212    storage_29_reg_0_15_6_8/ADDRD0
+    SLICE_X84Y98         RAMD32                                       r  storage_29_reg_0_15_6_8/RAMB/WADR0
+  -------------------------------------------------------------------    -------------------
+
+                         (clock milansoc_crg_clkout0 rise edge)
+                                                      0.000     0.000 r  <hidden>
+    R4                                                0.000     0.000 r  clk200_p
+                         net (fo=0)                   0.000     0.000    clk200_p
+    R4                   IBUFDS (Prop_ibufds_I_O)     0.400     0.400 r  IBUFDS/O
+                         net (fo=1, routed)           0.699     1.098    IBUFDS_n_0_BUFG_inst_n_0
+    BUFGCTRL_X0Y6        BUFG (Prop_bufg_I_O)         0.030     1.128 r  IBUFDS_n_0_BUFG_inst/O
+                         net (fo=9, routed)           0.831     1.959    milansoc_crg_clkin_signal
+    PLLE2_ADV_X0Y1       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT0)
+                                                      0.053     2.012 r  PLLE2_ADV/CLKOUT0
+                         net (fo=1, routed)           0.556     2.568    milansoc_crg_clkout0
+    BUFGCTRL_X0Y0        BUFG (Prop_bufg_I_O)         0.029     2.597 r  BUFG/O
+                         net (fo=18402, routed)       0.877     3.473    storage_29_reg_0_15_6_8/WCLK
+    SLICE_X84Y98         RAMD32                                       r  storage_29_reg_0_15_6_8/RAMB/CLK
+                         clock pessimism             -0.644     2.829    <hidden>
+    SLICE_X84Y98         RAMD32 (Hold_ramd32_CLK_WADR0)
+                                                      0.310     3.139    storage_29_reg_0_15_6_8/RAMB
+  -------------------------------------------------------------------
+                         required time                         -3.139    <hidden>
+                         arrival time                           3.212    <hidden>
+  -------------------------------------------------------------------
+                         slack                                  0.073    <hidden>
+
+Slack (MET) :             0.073ns  (arrival time - required time)
+  Source:                 milansoc_ctrlmailbox_ctrlmailbox_tx_cdc_graycounter0_q_binary_reg[0]/C
+                            (rising edge-triggered cell FDRE clocked by milansoc_crg_clkout0  {rise@0.000ns fall@5.000ns period=10.000ns})
+  Destination:            storage_29_reg_0_15_6_8/RAMB_D1/WADR0
+                            (rising edge-triggered cell RAMD32 clocked by milansoc_crg_clkout0  {rise@0.000ns fall@5.000ns period=10.000ns})
+  Path Group:             milansoc_crg_clkout0
+  Path Type:              Hold (Min at Fast Process Corner)
+  Requirement:            0.000ns  (milansoc_crg_clkout0 rise@0.000ns - milansoc_crg_clkout0 rise@0.000ns)
+  Data Path Delay:        0.420ns  (logic 0.141ns (33.550%)  route 0.279ns (66.450%))
+  Logic Levels:           0  
+  Clock Path Skew:        0.037ns (DCD - SCD - CPR)
+    Destination Clock Delay (DCD):    3.473ns
+    Source Clock Delay      (SCD):    2.792ns
+    Clock Pessimism Removal (CPR):    0.644ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock milansoc_crg_clkout0 rise edge)
+                                                      0.000     0.000 r  <hidden>
+    R4                                                0.000     0.000 r  clk200_p
+                         net (fo=0)                   0.000     0.000    clk200_p
+    R4                   IBUFDS (Prop_ibufds_I_O)     0.369     0.369 r  IBUFDS/O
+                         net (fo=1, routed)           0.644     1.013    IBUFDS_n_0_BUFG_inst_n_0
+    BUFGCTRL_X0Y6        BUFG (Prop_bufg_I_O)         0.027     1.040 r  IBUFDS_n_0_BUFG_inst/O
+                         net (fo=9, routed)           0.561     1.600    milansoc_crg_clkin_signal
+    PLLE2_ADV_X0Y1       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT0)
+                                                      0.050     1.650 r  PLLE2_ADV/CLKOUT0
+                         net (fo=1, routed)           0.510     2.160    milansoc_crg_clkout0
+    BUFGCTRL_X0Y0        BUFG (Prop_bufg_I_O)         0.026     2.186 r  BUFG/O
+                         net (fo=18402, routed)       0.606     2.792    sys_clk
+    SLICE_X86Y99         FDRE                                         r  milansoc_ctrlmailbox_ctrlmailbox_tx_cdc_graycounter0_q_binary_reg[0]/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X86Y99         FDRE (Prop_fdre_C_Q)         0.141     2.933 r  milansoc_ctrlmailbox_ctrlmailbox_tx_cdc_graycounter0_q_binary_reg[0]/Q
+                         net (fo=25, routed)          0.279     3.212    storage_29_reg_0_15_6_8/ADDRD0
+    SLICE_X84Y98         RAMD32                                       r  storage_29_reg_0_15_6_8/RAMB_D1/WADR0
+  -------------------------------------------------------------------    -------------------
+
+                         (clock milansoc_crg_clkout0 rise edge)
+                                                      0.000     0.000 r  <hidden>
+    R4                                                0.000     0.000 r  clk200_p
+                         net (fo=0)                   0.000     0.000    clk200_p
+    R4                   IBUFDS (Prop_ibufds_I_O)     0.400     0.400 r  IBUFDS/O
+                         net (fo=1, routed)           0.699     1.098    IBUFDS_n_0_BUFG_inst_n_0
+    BUFGCTRL_X0Y6        BUFG (Prop_bufg_I_O)         0.030     1.128 r  IBUFDS_n_0_BUFG_inst/O
+                         net (fo=9, routed)           0.831     1.959    milansoc_crg_clkin_signal
+    PLLE2_ADV_X0Y1       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT0)
+                                                      0.053     2.012 r  PLLE2_ADV/CLKOUT0
+                         net (fo=1, routed)           0.556     2.568    milansoc_crg_clkout0
+    BUFGCTRL_X0Y0        BUFG (Prop_bufg_I_O)         0.029     2.597 r  BUFG/O
+                         net (fo=18402, routed)       0.877     3.473    storage_29_reg_0_15_6_8/WCLK
+    SLICE_X84Y98         RAMD32                                       r  storage_29_reg_0_15_6_8/RAMB_D1/CLK
+                         clock pessimism             -0.644     2.829    <hidden>
+    SLICE_X84Y98         RAMD32 (Hold_ramd32_CLK_WADR0)
+                                                      0.310     3.139    storage_29_reg_0_15_6_8/RAMB_D1
+  -------------------------------------------------------------------
+                         required time                         -3.139    <hidden>
+                         arrival time                           3.212    <hidden>
+  -------------------------------------------------------------------
+                         slack                                  0.073    <hidden>
+
+Slack (MET) :             0.073ns  (arrival time - required time)
+  Source:                 milansoc_ctrlmailbox_ctrlmailbox_tx_cdc_graycounter0_q_binary_reg[0]/C
+                            (rising edge-triggered cell FDRE clocked by milansoc_crg_clkout0  {rise@0.000ns fall@5.000ns period=10.000ns})
+  Destination:            storage_29_reg_0_15_6_8/RAMC/WADR0
+                            (rising edge-triggered cell RAMD32 clocked by milansoc_crg_clkout0  {rise@0.000ns fall@5.000ns period=10.000ns})
+  Path Group:             milansoc_crg_clkout0
+  Path Type:              Hold (Min at Fast Process Corner)
+  Requirement:            0.000ns  (milansoc_crg_clkout0 rise@0.000ns - milansoc_crg_clkout0 rise@0.000ns)
+  Data Path Delay:        0.420ns  (logic 0.141ns (33.550%)  route 0.279ns (66.450%))
+  Logic Levels:           0  
+  Clock Path Skew:        0.037ns (DCD - SCD - CPR)
+    Destination Clock Delay (DCD):    3.473ns
+    Source Clock Delay      (SCD):    2.792ns
+    Clock Pessimism Removal (CPR):    0.644ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock milansoc_crg_clkout0 rise edge)
+                                                      0.000     0.000 r  <hidden>
+    R4                                                0.000     0.000 r  clk200_p
+                         net (fo=0)                   0.000     0.000    clk200_p
+    R4                   IBUFDS (Prop_ibufds_I_O)     0.369     0.369 r  IBUFDS/O
+                         net (fo=1, routed)           0.644     1.013    IBUFDS_n_0_BUFG_inst_n_0
+    BUFGCTRL_X0Y6        BUFG (Prop_bufg_I_O)         0.027     1.040 r  IBUFDS_n_0_BUFG_inst/O
+                         net (fo=9, routed)           0.561     1.600    milansoc_crg_clkin_signal
+    PLLE2_ADV_X0Y1       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT0)
+                                                      0.050     1.650 r  PLLE2_ADV/CLKOUT0
+                         net (fo=1, routed)           0.510     2.160    milansoc_crg_clkout0
+    BUFGCTRL_X0Y0        BUFG (Prop_bufg_I_O)         0.026     2.186 r  BUFG/O
+                         net (fo=18402, routed)       0.606     2.792    sys_clk
+    SLICE_X86Y99         FDRE                                         r  milansoc_ctrlmailbox_ctrlmailbox_tx_cdc_graycounter0_q_binary_reg[0]/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X86Y99         FDRE (Prop_fdre_C_Q)         0.141     2.933 r  milansoc_ctrlmailbox_ctrlmailbox_tx_cdc_graycounter0_q_binary_reg[0]/Q
+                         net (fo=25, routed)          0.279     3.212    storage_29_reg_0_15_6_8/ADDRD0
+    SLICE_X84Y98         RAMD32                                       r  storage_29_reg_0_15_6_8/RAMC/WADR0
+  -------------------------------------------------------------------    -------------------
+
+                         (clock milansoc_crg_clkout0 rise edge)
+                                                      0.000     0.000 r  <hidden>
+    R4                                                0.000     0.000 r  clk200_p
+                         net (fo=0)                   0.000     0.000    clk200_p
+    R4                   IBUFDS (Prop_ibufds_I_O)     0.400     0.400 r  IBUFDS/O
+                         net (fo=1, routed)           0.699     1.098    IBUFDS_n_0_BUFG_inst_n_0
+    BUFGCTRL_X0Y6        BUFG (Prop_bufg_I_O)         0.030     1.128 r  IBUFDS_n_0_BUFG_inst/O
+                         net (fo=9, routed)           0.831     1.959    milansoc_crg_clkin_signal
+    PLLE2_ADV_X0Y1       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT0)
+                                                      0.053     2.012 r  PLLE2_ADV/CLKOUT0
+                         net (fo=1, routed)           0.556     2.568    milansoc_crg_clkout0
+    BUFGCTRL_X0Y0        BUFG (Prop_bufg_I_O)         0.029     2.597 r  BUFG/O
+                         net (fo=18402, routed)       0.877     3.473    storage_29_reg_0_15_6_8/WCLK
+    SLICE_X84Y98         RAMD32                                       r  storage_29_reg_0_15_6_8/RAMC/CLK
+                         clock pessimism             -0.644     2.829    <hidden>
+    SLICE_X84Y98         RAMD32 (Hold_ramd32_CLK_WADR0)
+                                                      0.310     3.139    storage_29_reg_0_15_6_8/RAMC
+  -------------------------------------------------------------------
+                         required time                         -3.139    <hidden>
+                         arrival time                           3.212    <hidden>
+  -------------------------------------------------------------------
+                         slack                                  0.073    <hidden>
+
+Slack (MET) :             0.073ns  (arrival time - required time)
+  Source:                 milansoc_ctrlmailbox_ctrlmailbox_tx_cdc_graycounter0_q_binary_reg[0]/C
+                            (rising edge-triggered cell FDRE clocked by milansoc_crg_clkout0  {rise@0.000ns fall@5.000ns period=10.000ns})
+  Destination:            storage_29_reg_0_15_6_8/RAMC_D1/WADR0
+                            (rising edge-triggered cell RAMD32 clocked by milansoc_crg_clkout0  {rise@0.000ns fall@5.000ns period=10.000ns})
+  Path Group:             milansoc_crg_clkout0
+  Path Type:              Hold (Min at Fast Process Corner)
+  Requirement:            0.000ns  (milansoc_crg_clkout0 rise@0.000ns - milansoc_crg_clkout0 rise@0.000ns)
+  Data Path Delay:        0.420ns  (logic 0.141ns (33.550%)  route 0.279ns (66.450%))
+  Logic Levels:           0  
+  Clock Path Skew:        0.037ns (DCD - SCD - CPR)
+    Destination Clock Delay (DCD):    3.473ns
+    Source Clock Delay      (SCD):    2.792ns
+    Clock Pessimism Removal (CPR):    0.644ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock milansoc_crg_clkout0 rise edge)
+                                                      0.000     0.000 r  <hidden>
+    R4                                                0.000     0.000 r  clk200_p
+                         net (fo=0)                   0.000     0.000    clk200_p
+    R4                   IBUFDS (Prop_ibufds_I_O)     0.369     0.369 r  IBUFDS/O
+                         net (fo=1, routed)           0.644     1.013    IBUFDS_n_0_BUFG_inst_n_0
+    BUFGCTRL_X0Y6        BUFG (Prop_bufg_I_O)         0.027     1.040 r  IBUFDS_n_0_BUFG_inst/O
+                         net (fo=9, routed)           0.561     1.600    milansoc_crg_clkin_signal
+    PLLE2_ADV_X0Y1       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT0)
+                                                      0.050     1.650 r  PLLE2_ADV/CLKOUT0
+                         net (fo=1, routed)           0.510     2.160    milansoc_crg_clkout0
+    BUFGCTRL_X0Y0        BUFG (Prop_bufg_I_O)         0.026     2.186 r  BUFG/O
+                         net (fo=18402, routed)       0.606     2.792    sys_clk
+    SLICE_X86Y99         FDRE                                         r  milansoc_ctrlmailbox_ctrlmailbox_tx_cdc_graycounter0_q_binary_reg[0]/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X86Y99         FDRE (Prop_fdre_C_Q)         0.141     2.933 r  milansoc_ctrlmailbox_ctrlmailbox_tx_cdc_graycounter0_q_binary_reg[0]/Q
+                         net (fo=25, routed)          0.279     3.212    storage_29_reg_0_15_6_8/ADDRD0
+    SLICE_X84Y98         RAMD32                                       r  storage_29_reg_0_15_6_8/RAMC_D1/WADR0
+  -------------------------------------------------------------------    -------------------
+
+                         (clock milansoc_crg_clkout0 rise edge)
+                                                      0.000     0.000 r  <hidden>
+    R4                                                0.000     0.000 r  clk200_p
+                         net (fo=0)                   0.000     0.000    clk200_p
+    R4                   IBUFDS (Prop_ibufds_I_O)     0.400     0.400 r  IBUFDS/O
+                         net (fo=1, routed)           0.699     1.098    IBUFDS_n_0_BUFG_inst_n_0
+    BUFGCTRL_X0Y6        BUFG (Prop_bufg_I_O)         0.030     1.128 r  IBUFDS_n_0_BUFG_inst/O
+                         net (fo=9, routed)           0.831     1.959    milansoc_crg_clkin_signal
+    PLLE2_ADV_X0Y1       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT0)
+                                                      0.053     2.012 r  PLLE2_ADV/CLKOUT0
+                         net (fo=1, routed)           0.556     2.568    milansoc_crg_clkout0
+    BUFGCTRL_X0Y0        BUFG (Prop_bufg_I_O)         0.029     2.597 r  BUFG/O
+                         net (fo=18402, routed)       0.877     3.473    storage_29_reg_0_15_6_8/WCLK
+    SLICE_X84Y98         RAMD32                                       r  storage_29_reg_0_15_6_8/RAMC_D1/CLK
+                         clock pessimism             -0.644     2.829    <hidden>
+    SLICE_X84Y98         RAMD32 (Hold_ramd32_CLK_WADR0)
+                                                      0.310     3.139    storage_29_reg_0_15_6_8/RAMC_D1
+  -------------------------------------------------------------------
+                         required time                         -3.139    <hidden>
+                         arrival time                           3.212    <hidden>
+  -------------------------------------------------------------------
+                         slack                                  0.073    <hidden>
+
+
+
+
+
+Pulse Width Checks
+--------------------------------------------------------------------------------------
+Clock Name:         milansoc_crg_clkout0
+Waveform(ns):       { 0.000 5.000 }
+Period(ns):         10.000
+Sources:            { PLLE2_ADV/CLKOUT0 }
+
+Check Type        Corner  Lib Pin             Reference Pin  Required(ns)  Actual(ns)  Slack(ns)  Location        Pin
+Min Period        n/a     DSP48E1/CLK         n/a            3.272         10.000      6.728      DSP48_X1Y18     VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/vexiis_0_logic_core/execute_ctrl3_up_early0_MulPlugin_logic_mul_VALUES_0_lane0_reg/CLK
+Min Period        n/a     DSP48E1/CLK         n/a            3.272         10.000      6.728      DSP48_X1Y20     VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/vexiis_0_logic_core/execute_ctrl3_up_early0_MulPlugin_logic_mul_VALUES_1_lane0_reg/CLK
+Min Period        n/a     DSP48E1/CLK         n/a            3.272         10.000      6.728      DSP48_X1Y19     VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/vexiis_0_logic_core/execute_ctrl3_up_early0_MulPlugin_logic_mul_VALUES_2_lane0_reg/CLK
+Min Period        n/a     RAMB36E1/CLKARDCLK  n/a            2.472         10.000      7.528      RAMB36_X2Y22    storage_5_reg_0/CLKARDCLK
+Min Period        n/a     RAMB36E1/CLKBWRCLK  n/a            2.472         10.000      7.528      RAMB36_X2Y22    storage_5_reg_0/CLKBWRCLK
+Min Period        n/a     RAMB18E1/CLKARDCLK  n/a            2.472         10.000      7.528      RAMB18_X2Y39    storage_5_reg_1/CLKARDCLK
+Min Period        n/a     RAMB18E1/CLKBWRCLK  n/a            2.472         10.000      7.528      RAMB18_X2Y39    storage_5_reg_1/CLKBWRCLK
+Min Period        n/a     RAMB18E1/CLKARDCLK  n/a            2.472         10.000      7.528      RAMB18_X1Y30    KL_mbx/u_acmp_rx/mem_r_reg/CLKARDCLK
+Min Period        n/a     RAMB18E1/CLKBWRCLK  n/a            2.472         10.000      7.528      RAMB18_X1Y30    KL_mbx/u_acmp_rx/mem_r_reg/CLKBWRCLK
+Min Period        n/a     RAMB18E1/CLKARDCLK  n/a            2.472         10.000      7.528      RAMB18_X3Y38    KL_mbx/u_acmp_tx/mem_r_reg/CLKARDCLK
+Max Period        n/a     PLLE2_ADV/CLKIN1    n/a            52.633        10.000      42.633     PLLE2_ADV_X0Y0  pll_audio_pre/CLKIN1
+Max Period        n/a     PLLE2_ADV/CLKOUT0   n/a            160.000       10.000      150.000    PLLE2_ADV_X0Y1  PLLE2_ADV/CLKOUT0
+Low Pulse Width   Slow    PLLE2_ADV/CLKIN1    n/a            2.000         5.000       3.000      PLLE2_ADV_X0Y0  pll_audio_pre/CLKIN1
+Low Pulse Width   Fast    PLLE2_ADV/CLKIN1    n/a            2.000         5.000       3.000      PLLE2_ADV_X0Y0  pll_audio_pre/CLKIN1
+Low Pulse Width   Slow    RAMD32/CLK          n/a            1.130         5.000       3.870      SLICE_X70Y74    KL_mbx/u_rx/rb_mem_r_reg_0_31_0_5/RAMA/CLK
+Low Pulse Width   Fast    RAMD32/CLK          n/a            1.130         5.000       3.870      SLICE_X70Y74    KL_mbx/u_rx/rb_mem_r_reg_0_31_0_5/RAMA/CLK
+Low Pulse Width   Slow    RAMD32/CLK          n/a            1.130         5.000       3.870      SLICE_X70Y74    KL_mbx/u_rx/rb_mem_r_reg_0_31_0_5/RAMA_D1/CLK
+Low Pulse Width   Fast    RAMD32/CLK          n/a            1.130         5.000       3.870      SLICE_X70Y74    KL_mbx/u_rx/rb_mem_r_reg_0_31_0_5/RAMA_D1/CLK
+Low Pulse Width   Slow    RAMD32/CLK          n/a            1.130         5.000       3.870      SLICE_X70Y74    KL_mbx/u_rx/rb_mem_r_reg_0_31_0_5/RAMB/CLK
+Low Pulse Width   Fast    RAMD32/CLK          n/a            1.130         5.000       3.870      SLICE_X70Y74    KL_mbx/u_rx/rb_mem_r_reg_0_31_0_5/RAMB/CLK
+Low Pulse Width   Slow    RAMD32/CLK          n/a            1.130         5.000       3.870      SLICE_X70Y74    KL_mbx/u_rx/rb_mem_r_reg_0_31_0_5/RAMB_D1/CLK
+Low Pulse Width   Fast    RAMD32/CLK          n/a            1.130         5.000       3.870      SLICE_X70Y74    KL_mbx/u_rx/rb_mem_r_reg_0_31_0_5/RAMB_D1/CLK
+High Pulse Width  Slow    PLLE2_ADV/CLKIN1    n/a            2.000         5.000       3.000      PLLE2_ADV_X0Y0  pll_audio_pre/CLKIN1
+High Pulse Width  Fast    PLLE2_ADV/CLKIN1    n/a            2.000         5.000       3.000      PLLE2_ADV_X0Y0  pll_audio_pre/CLKIN1
+High Pulse Width  Slow    RAMD32/CLK          n/a            1.130         5.000       3.870      SLICE_X70Y74    KL_mbx/u_rx/rb_mem_r_reg_0_31_0_5/RAMA/CLK
+High Pulse Width  Fast    RAMD32/CLK          n/a            1.130         5.000       3.870      SLICE_X70Y74    KL_mbx/u_rx/rb_mem_r_reg_0_31_0_5/RAMA/CLK
+High Pulse Width  Slow    RAMD32/CLK          n/a            1.130         5.000       3.870      SLICE_X70Y74    KL_mbx/u_rx/rb_mem_r_reg_0_31_0_5/RAMA_D1/CLK
+High Pulse Width  Fast    RAMD32/CLK          n/a            1.130         5.000       3.870      SLICE_X70Y74    KL_mbx/u_rx/rb_mem_r_reg_0_31_0_5/RAMA_D1/CLK
+High Pulse Width  Slow    RAMD32/CLK          n/a            1.130         5.000       3.870      SLICE_X70Y74    KL_mbx/u_rx/rb_mem_r_reg_0_31_0_5/RAMB/CLK
+High Pulse Width  Fast    RAMD32/CLK          n/a            1.130         5.000       3.870      SLICE_X70Y74    KL_mbx/u_rx/rb_mem_r_reg_0_31_0_5/RAMB/CLK
+High Pulse Width  Slow    RAMD32/CLK          n/a            1.130         5.000       3.870      SLICE_X70Y74    KL_mbx/u_rx/rb_mem_r_reg_0_31_0_5/RAMB_D1/CLK
+High Pulse Width  Fast    RAMD32/CLK          n/a            1.130         5.000       3.870      SLICE_X70Y74    KL_mbx/u_rx/rb_mem_r_reg_0_31_0_5/RAMB_D1/CLK
+
+
+
+---------------------------------------------------------------------------------------------------
+From Clock:  milansoc_crg_audio_ref_raw
+  To Clock:  milansoc_crg_audio_ref_raw
+
+Setup :           NA  Failing Endpoints,  Worst Slack           NA  ,  Total Violation           NA
+Hold  :           NA  Failing Endpoints,  Worst Slack           NA  ,  Total Violation           NA
+PW    :            0  Failing Endpoints,  Worst Slack       19.130ns,  Total Violation        0.000ns
+---------------------------------------------------------------------------------------------------
+
+
+Pulse Width Checks
+--------------------------------------------------------------------------------------
+Clock Name:         milansoc_crg_audio_ref_raw
+Waveform(ns):       { 0.000 29.130 }
+Period(ns):         58.261
+Sources:            { pll_audio_pre/CLKOUT0 }
+
+Check Type        Corner  Lib Pin            Reference Pin  Required(ns)  Actual(ns)  Slack(ns)  Location         Pin
+Min Period        n/a     BUFG/I             n/a            1.592         58.261      56.668     BUFGCTRL_X0Y7    BUFG_2/I
+Min Period        n/a     MMCME2_ADV/CLKIN1  n/a            1.249         58.261      57.012     MMCME2_ADV_X0Y0  mmcm_audio/CLKIN1
+Min Period        n/a     PLLE2_ADV/CLKOUT0  n/a            1.249         58.261      57.012     PLLE2_ADV_X0Y0   pll_audio_pre/CLKOUT0
+Max Period        n/a     MMCME2_ADV/CLKIN1  n/a            100.000       58.261      41.739     MMCME2_ADV_X0Y0  mmcm_audio/CLKIN1
+Max Period        n/a     PLLE2_ADV/CLKOUT0  n/a            160.000       58.261      101.739    PLLE2_ADV_X0Y0   pll_audio_pre/CLKOUT0
+Low Pulse Width   Slow    MMCME2_ADV/CLKIN1  n/a            10.000        29.130      19.130     MMCME2_ADV_X0Y0  mmcm_audio/CLKIN1
+Low Pulse Width   Fast    MMCME2_ADV/CLKIN1  n/a            10.000        29.130      19.130     MMCME2_ADV_X0Y0  mmcm_audio/CLKIN1
+High Pulse Width  Slow    MMCME2_ADV/CLKIN1  n/a            10.000        29.130      19.130     MMCME2_ADV_X0Y0  mmcm_audio/CLKIN1
+High Pulse Width  Fast    MMCME2_ADV/CLKIN1  n/a            10.000        29.130      19.130     MMCME2_ADV_X0Y0  mmcm_audio/CLKIN1
+
+
+
+---------------------------------------------------------------------------------------------------
+From Clock:  milansoc_crg_audio_mclk_raw
+  To Clock:  milansoc_crg_audio_mclk_raw
+
+Setup :            0  Failing Endpoints,  Worst Slack       36.006ns,  Total Violation        0.000ns
+Hold  :            0  Failing Endpoints,  Worst Slack        0.237ns,  Total Violation        0.000ns
+PW    :            0  Failing Endpoints,  Worst Slack       19.845ns,  Total Violation        0.000ns
+---------------------------------------------------------------------------------------------------
+
+
+Max Delay Paths
+--------------------------------------------------------------------------------------
+Slack (MET) :             36.006ns  (required time - arrival time)
+  Source:                 milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[10]/C
+                            (rising edge-triggered cell FDRE clocked by milansoc_crg_audio_mclk_raw  {rise@0.000ns fall@20.345ns period=40.690ns})
+  Destination:            milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[12]/R
+                            (rising edge-triggered cell FDRE clocked by milansoc_crg_audio_mclk_raw  {rise@0.000ns fall@20.345ns period=40.690ns})
+  Path Group:             milansoc_crg_audio_mclk_raw
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            40.690ns  (milansoc_crg_audio_mclk_raw rise@40.690ns - milansoc_crg_audio_mclk_raw rise@0.000ns)
+  Data Path Delay:        4.082ns  (logic 0.748ns (18.325%)  route 3.334ns (81.675%))
+  Logic Levels:           3  (LUT2=1 LUT4=1 LUT6=1)
+  Clock Path Skew:        -0.026ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    13.143ns = ( 53.833 - 40.690 ) 
+    Source Clock Delay      (SCD):    13.962ns
+    Clock Pessimism Removal (CPR):    0.793ns
+  Clock Uncertainty:      0.153ns  ((TSJ^2 + DJ^2)^1/2) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Discrete Jitter          (DJ):    0.297ns
+    Phase Error              (PE):    0.000ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock milansoc_crg_audio_mclk_raw rise edge)
+                                                      0.000     0.000 r  <hidden>
+    R4                                                0.000     0.000 r  clk200_p
+                         net (fo=0)                   0.000     0.000    clk200_p
+    R4                   IBUFDS (Prop_ibufds_I_O)     0.851     0.851 r  IBUFDS/O
+                         net (fo=1, routed)           1.717     2.568    IBUFDS_n_0_BUFG_inst_n_0
+    BUFGCTRL_X0Y6        BUFG (Prop_bufg_I_O)         0.082     2.650 r  IBUFDS_n_0_BUFG_inst/O
+                         net (fo=9, routed)           1.424     4.074    milansoc_crg_clkin_signal
+    PLLE2_ADV_X0Y1       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT0)
+                                                      0.077     4.151 r  PLLE2_ADV/CLKOUT0
+                         net (fo=1, routed)           1.439     5.589    milansoc_crg_clkout0
+    BUFGCTRL_X0Y0        BUFG (Prop_bufg_I_O)         0.081     5.670 r  BUFG/O
+                         net (fo=18402, routed)       1.568     7.238    sys_clk
+    PLLE2_ADV_X0Y0       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT0)
+                                                      0.077     7.315 r  pll_audio_pre/CLKOUT0
+                         net (fo=1, routed)           1.712     9.027    milansoc_crg_audio_ref_raw
+    BUFGCTRL_X0Y7        BUFG (Prop_bufg_I_O)         0.081     9.108 r  BUFG_2/O
+                         net (fo=1, routed)           1.549    10.657    milansoc_crg_audio_ref
+    MMCME2_ADV_X0Y0      MMCME2_ADV (Prop_mmcme2_adv_CLKIN1_CLKOUT0)
+                                                      0.077    10.734 r  mmcm_audio/CLKOUT0
+                         net (fo=1, routed)           1.714    12.448    milansoc_crg_audio_mclk_raw
+    BUFGCTRL_X0Y5        BUFG (Prop_bufg_I_O)         0.081    12.529 r  BUFG_3/O
+                         net (fo=19, routed)          1.433    13.962    milan_datapath/g_mmcm_servo.mmcm_servo/CLK
+    SLICE_X2Y118         FDRE                                         r  milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[10]/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X2Y118         FDRE (Prop_fdre_C_Q)         0.433    14.395 r  milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[10]/Q
+                         net (fo=2, routed)           0.693    15.088    milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[10]
+    SLICE_X3Y118         LUT4 (Prop_lut4_I0_O)        0.105    15.193 f  milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r[0]_i_5/O
+                         net (fo=1, routed)           0.653    15.846    milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r[0]_i_5_n_0
+    SLICE_X3Y117         LUT6 (Prop_lut6_I0_O)        0.105    15.951 r  milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r[0]_i_3/O
+                         net (fo=2, routed)           1.101    17.052    milan_datapath/g_mmcm_servo.mmcm_servo/tick_a_r
+    SLICE_X3Y113         LUT2 (Prop_lut2_I0_O)        0.105    17.157 r  milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r[0]_i_1/O
+                         net (fo=15, routed)          0.886    18.044    milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r[0]_i_1_n_0
+    SLICE_X2Y119         FDRE                                         r  milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[12]/R
+  -------------------------------------------------------------------    -------------------
+
+                         (clock milansoc_crg_audio_mclk_raw rise edge)
+                                                     40.690    40.690 r  <hidden>
+    R4                                                0.000    40.690 r  clk200_p
+                         net (fo=0)                   0.000    40.690    clk200_p
+    R4                   IBUFDS (Prop_ibufds_I_O)     0.813    41.503 r  IBUFDS/O
+                         net (fo=1, routed)           1.628    43.131    IBUFDS_n_0_BUFG_inst_n_0
+    BUFGCTRL_X0Y6        BUFG (Prop_bufg_I_O)         0.078    43.209 r  IBUFDS_n_0_BUFG_inst/O
+                         net (fo=9, routed)           1.319    44.528    milansoc_crg_clkin_signal
+    PLLE2_ADV_X0Y1       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT0)
+                                                      0.073    44.601 r  PLLE2_ADV/CLKOUT0
+                         net (fo=1, routed)           1.371    45.971    milansoc_crg_clkout0
+    BUFGCTRL_X0Y0        BUFG (Prop_bufg_I_O)         0.077    46.048 r  BUFG/O
+                         net (fo=18402, routed)       1.458    47.506    sys_clk
+    PLLE2_ADV_X0Y0       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT0)
+                                                      0.073    47.579 r  pll_audio_pre/CLKOUT0
+                         net (fo=1, routed)           1.630    49.210    milansoc_crg_audio_ref_raw
+    BUFGCTRL_X0Y7        BUFG (Prop_bufg_I_O)         0.077    49.287 r  BUFG_2/O
+                         net (fo=1, routed)           1.439    50.726    milansoc_crg_audio_ref
+    MMCME2_ADV_X0Y0      MMCME2_ADV (Prop_mmcme2_adv_CLKIN1_CLKOUT0)
+                                                      0.073    50.799 r  mmcm_audio/CLKOUT0
+                         net (fo=1, routed)           1.633    52.432    milansoc_crg_audio_mclk_raw
+    BUFGCTRL_X0Y5        BUFG (Prop_bufg_I_O)         0.077    52.509 r  BUFG_3/O
+                         net (fo=19, routed)          1.324    53.833    milan_datapath/g_mmcm_servo.mmcm_servo/CLK
+    SLICE_X2Y119         FDRE                                         r  milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[12]/C
+                         clock pessimism              0.793    54.626    <hidden>
+                         clock uncertainty           -0.153    54.473    <hidden>
+    SLICE_X2Y119         FDRE (Setup_fdre_C_R)       -0.423    54.050    milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[12]
+  -------------------------------------------------------------------
+                         required time                         54.050    <hidden>
+                         arrival time                         -18.044    <hidden>
+  -------------------------------------------------------------------
+                         slack                                 36.006    <hidden>
+
+Slack (MET) :             36.006ns  (required time - arrival time)
+  Source:                 milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[10]/C
+                            (rising edge-triggered cell FDRE clocked by milansoc_crg_audio_mclk_raw  {rise@0.000ns fall@20.345ns period=40.690ns})
+  Destination:            milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[13]/R
+                            (rising edge-triggered cell FDRE clocked by milansoc_crg_audio_mclk_raw  {rise@0.000ns fall@20.345ns period=40.690ns})
+  Path Group:             milansoc_crg_audio_mclk_raw
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            40.690ns  (milansoc_crg_audio_mclk_raw rise@40.690ns - milansoc_crg_audio_mclk_raw rise@0.000ns)
+  Data Path Delay:        4.082ns  (logic 0.748ns (18.325%)  route 3.334ns (81.675%))
+  Logic Levels:           3  (LUT2=1 LUT4=1 LUT6=1)
+  Clock Path Skew:        -0.026ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    13.143ns = ( 53.833 - 40.690 ) 
+    Source Clock Delay      (SCD):    13.962ns
+    Clock Pessimism Removal (CPR):    0.793ns
+  Clock Uncertainty:      0.153ns  ((TSJ^2 + DJ^2)^1/2) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Discrete Jitter          (DJ):    0.297ns
+    Phase Error              (PE):    0.000ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock milansoc_crg_audio_mclk_raw rise edge)
+                                                      0.000     0.000 r  <hidden>
+    R4                                                0.000     0.000 r  clk200_p
+                         net (fo=0)                   0.000     0.000    clk200_p
+    R4                   IBUFDS (Prop_ibufds_I_O)     0.851     0.851 r  IBUFDS/O
+                         net (fo=1, routed)           1.717     2.568    IBUFDS_n_0_BUFG_inst_n_0
+    BUFGCTRL_X0Y6        BUFG (Prop_bufg_I_O)         0.082     2.650 r  IBUFDS_n_0_BUFG_inst/O
+                         net (fo=9, routed)           1.424     4.074    milansoc_crg_clkin_signal
+    PLLE2_ADV_X0Y1       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT0)
+                                                      0.077     4.151 r  PLLE2_ADV/CLKOUT0
+                         net (fo=1, routed)           1.439     5.589    milansoc_crg_clkout0
+    BUFGCTRL_X0Y0        BUFG (Prop_bufg_I_O)         0.081     5.670 r  BUFG/O
+                         net (fo=18402, routed)       1.568     7.238    sys_clk
+    PLLE2_ADV_X0Y0       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT0)
+                                                      0.077     7.315 r  pll_audio_pre/CLKOUT0
+                         net (fo=1, routed)           1.712     9.027    milansoc_crg_audio_ref_raw
+    BUFGCTRL_X0Y7        BUFG (Prop_bufg_I_O)         0.081     9.108 r  BUFG_2/O
+                         net (fo=1, routed)           1.549    10.657    milansoc_crg_audio_ref
+    MMCME2_ADV_X0Y0      MMCME2_ADV (Prop_mmcme2_adv_CLKIN1_CLKOUT0)
+                                                      0.077    10.734 r  mmcm_audio/CLKOUT0
+                         net (fo=1, routed)           1.714    12.448    milansoc_crg_audio_mclk_raw
+    BUFGCTRL_X0Y5        BUFG (Prop_bufg_I_O)         0.081    12.529 r  BUFG_3/O
+                         net (fo=19, routed)          1.433    13.962    milan_datapath/g_mmcm_servo.mmcm_servo/CLK
+    SLICE_X2Y118         FDRE                                         r  milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[10]/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X2Y118         FDRE (Prop_fdre_C_Q)         0.433    14.395 r  milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[10]/Q
+                         net (fo=2, routed)           0.693    15.088    milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[10]
+    SLICE_X3Y118         LUT4 (Prop_lut4_I0_O)        0.105    15.193 f  milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r[0]_i_5/O
+                         net (fo=1, routed)           0.653    15.846    milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r[0]_i_5_n_0
+    SLICE_X3Y117         LUT6 (Prop_lut6_I0_O)        0.105    15.951 r  milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r[0]_i_3/O
+                         net (fo=2, routed)           1.101    17.052    milan_datapath/g_mmcm_servo.mmcm_servo/tick_a_r
+    SLICE_X3Y113         LUT2 (Prop_lut2_I0_O)        0.105    17.157 r  milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r[0]_i_1/O
+                         net (fo=15, routed)          0.886    18.044    milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r[0]_i_1_n_0
+    SLICE_X2Y119         FDRE                                         r  milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[13]/R
+  -------------------------------------------------------------------    -------------------
+
+                         (clock milansoc_crg_audio_mclk_raw rise edge)
+                                                     40.690    40.690 r  <hidden>
+    R4                                                0.000    40.690 r  clk200_p
+                         net (fo=0)                   0.000    40.690    clk200_p
+    R4                   IBUFDS (Prop_ibufds_I_O)     0.813    41.503 r  IBUFDS/O
+                         net (fo=1, routed)           1.628    43.131    IBUFDS_n_0_BUFG_inst_n_0
+    BUFGCTRL_X0Y6        BUFG (Prop_bufg_I_O)         0.078    43.209 r  IBUFDS_n_0_BUFG_inst/O
+                         net (fo=9, routed)           1.319    44.528    milansoc_crg_clkin_signal
+    PLLE2_ADV_X0Y1       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT0)
+                                                      0.073    44.601 r  PLLE2_ADV/CLKOUT0
+                         net (fo=1, routed)           1.371    45.971    milansoc_crg_clkout0
+    BUFGCTRL_X0Y0        BUFG (Prop_bufg_I_O)         0.077    46.048 r  BUFG/O
+                         net (fo=18402, routed)       1.458    47.506    sys_clk
+    PLLE2_ADV_X0Y0       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT0)
+                                                      0.073    47.579 r  pll_audio_pre/CLKOUT0
+                         net (fo=1, routed)           1.630    49.210    milansoc_crg_audio_ref_raw
+    BUFGCTRL_X0Y7        BUFG (Prop_bufg_I_O)         0.077    49.287 r  BUFG_2/O
+                         net (fo=1, routed)           1.439    50.726    milansoc_crg_audio_ref
+    MMCME2_ADV_X0Y0      MMCME2_ADV (Prop_mmcme2_adv_CLKIN1_CLKOUT0)
+                                                      0.073    50.799 r  mmcm_audio/CLKOUT0
+                         net (fo=1, routed)           1.633    52.432    milansoc_crg_audio_mclk_raw
+    BUFGCTRL_X0Y5        BUFG (Prop_bufg_I_O)         0.077    52.509 r  BUFG_3/O
+                         net (fo=19, routed)          1.324    53.833    milan_datapath/g_mmcm_servo.mmcm_servo/CLK
+    SLICE_X2Y119         FDRE                                         r  milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[13]/C
+                         clock pessimism              0.793    54.626    <hidden>
+                         clock uncertainty           -0.153    54.473    <hidden>
+    SLICE_X2Y119         FDRE (Setup_fdre_C_R)       -0.423    54.050    milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[13]
+  -------------------------------------------------------------------
+                         required time                         54.050    <hidden>
+                         arrival time                         -18.044    <hidden>
+  -------------------------------------------------------------------
+                         slack                                 36.006    <hidden>
+
+Slack (MET) :             36.006ns  (required time - arrival time)
+  Source:                 milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[10]/C
+                            (rising edge-triggered cell FDRE clocked by milansoc_crg_audio_mclk_raw  {rise@0.000ns fall@20.345ns period=40.690ns})
+  Destination:            milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[14]/R
+                            (rising edge-triggered cell FDRE clocked by milansoc_crg_audio_mclk_raw  {rise@0.000ns fall@20.345ns period=40.690ns})
+  Path Group:             milansoc_crg_audio_mclk_raw
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            40.690ns  (milansoc_crg_audio_mclk_raw rise@40.690ns - milansoc_crg_audio_mclk_raw rise@0.000ns)
+  Data Path Delay:        4.082ns  (logic 0.748ns (18.325%)  route 3.334ns (81.675%))
+  Logic Levels:           3  (LUT2=1 LUT4=1 LUT6=1)
+  Clock Path Skew:        -0.026ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    13.143ns = ( 53.833 - 40.690 ) 
+    Source Clock Delay      (SCD):    13.962ns
+    Clock Pessimism Removal (CPR):    0.793ns
+  Clock Uncertainty:      0.153ns  ((TSJ^2 + DJ^2)^1/2) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Discrete Jitter          (DJ):    0.297ns
+    Phase Error              (PE):    0.000ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock milansoc_crg_audio_mclk_raw rise edge)
+                                                      0.000     0.000 r  <hidden>
+    R4                                                0.000     0.000 r  clk200_p
+                         net (fo=0)                   0.000     0.000    clk200_p
+    R4                   IBUFDS (Prop_ibufds_I_O)     0.851     0.851 r  IBUFDS/O
+                         net (fo=1, routed)           1.717     2.568    IBUFDS_n_0_BUFG_inst_n_0
+    BUFGCTRL_X0Y6        BUFG (Prop_bufg_I_O)         0.082     2.650 r  IBUFDS_n_0_BUFG_inst/O
+                         net (fo=9, routed)           1.424     4.074    milansoc_crg_clkin_signal
+    PLLE2_ADV_X0Y1       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT0)
+                                                      0.077     4.151 r  PLLE2_ADV/CLKOUT0
+                         net (fo=1, routed)           1.439     5.589    milansoc_crg_clkout0
+    BUFGCTRL_X0Y0        BUFG (Prop_bufg_I_O)         0.081     5.670 r  BUFG/O
+                         net (fo=18402, routed)       1.568     7.238    sys_clk
+    PLLE2_ADV_X0Y0       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT0)
+                                                      0.077     7.315 r  pll_audio_pre/CLKOUT0
+                         net (fo=1, routed)           1.712     9.027    milansoc_crg_audio_ref_raw
+    BUFGCTRL_X0Y7        BUFG (Prop_bufg_I_O)         0.081     9.108 r  BUFG_2/O
+                         net (fo=1, routed)           1.549    10.657    milansoc_crg_audio_ref
+    MMCME2_ADV_X0Y0      MMCME2_ADV (Prop_mmcme2_adv_CLKIN1_CLKOUT0)
+                                                      0.077    10.734 r  mmcm_audio/CLKOUT0
+                         net (fo=1, routed)           1.714    12.448    milansoc_crg_audio_mclk_raw
+    BUFGCTRL_X0Y5        BUFG (Prop_bufg_I_O)         0.081    12.529 r  BUFG_3/O
+                         net (fo=19, routed)          1.433    13.962    milan_datapath/g_mmcm_servo.mmcm_servo/CLK
+    SLICE_X2Y118         FDRE                                         r  milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[10]/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X2Y118         FDRE (Prop_fdre_C_Q)         0.433    14.395 r  milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[10]/Q
+                         net (fo=2, routed)           0.693    15.088    milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[10]
+    SLICE_X3Y118         LUT4 (Prop_lut4_I0_O)        0.105    15.193 f  milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r[0]_i_5/O
+                         net (fo=1, routed)           0.653    15.846    milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r[0]_i_5_n_0
+    SLICE_X3Y117         LUT6 (Prop_lut6_I0_O)        0.105    15.951 r  milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r[0]_i_3/O
+                         net (fo=2, routed)           1.101    17.052    milan_datapath/g_mmcm_servo.mmcm_servo/tick_a_r
+    SLICE_X3Y113         LUT2 (Prop_lut2_I0_O)        0.105    17.157 r  milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r[0]_i_1/O
+                         net (fo=15, routed)          0.886    18.044    milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r[0]_i_1_n_0
+    SLICE_X2Y119         FDRE                                         r  milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[14]/R
+  -------------------------------------------------------------------    -------------------
+
+                         (clock milansoc_crg_audio_mclk_raw rise edge)
+                                                     40.690    40.690 r  <hidden>
+    R4                                                0.000    40.690 r  clk200_p
+                         net (fo=0)                   0.000    40.690    clk200_p
+    R4                   IBUFDS (Prop_ibufds_I_O)     0.813    41.503 r  IBUFDS/O
+                         net (fo=1, routed)           1.628    43.131    IBUFDS_n_0_BUFG_inst_n_0
+    BUFGCTRL_X0Y6        BUFG (Prop_bufg_I_O)         0.078    43.209 r  IBUFDS_n_0_BUFG_inst/O
+                         net (fo=9, routed)           1.319    44.528    milansoc_crg_clkin_signal
+    PLLE2_ADV_X0Y1       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT0)
+                                                      0.073    44.601 r  PLLE2_ADV/CLKOUT0
+                         net (fo=1, routed)           1.371    45.971    milansoc_crg_clkout0
+    BUFGCTRL_X0Y0        BUFG (Prop_bufg_I_O)         0.077    46.048 r  BUFG/O
+                         net (fo=18402, routed)       1.458    47.506    sys_clk
+    PLLE2_ADV_X0Y0       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT0)
+                                                      0.073    47.579 r  pll_audio_pre/CLKOUT0
+                         net (fo=1, routed)           1.630    49.210    milansoc_crg_audio_ref_raw
+    BUFGCTRL_X0Y7        BUFG (Prop_bufg_I_O)         0.077    49.287 r  BUFG_2/O
+                         net (fo=1, routed)           1.439    50.726    milansoc_crg_audio_ref
+    MMCME2_ADV_X0Y0      MMCME2_ADV (Prop_mmcme2_adv_CLKIN1_CLKOUT0)
+                                                      0.073    50.799 r  mmcm_audio/CLKOUT0
+                         net (fo=1, routed)           1.633    52.432    milansoc_crg_audio_mclk_raw
+    BUFGCTRL_X0Y5        BUFG (Prop_bufg_I_O)         0.077    52.509 r  BUFG_3/O
+                         net (fo=19, routed)          1.324    53.833    milan_datapath/g_mmcm_servo.mmcm_servo/CLK
+    SLICE_X2Y119         FDRE                                         r  milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[14]/C
+                         clock pessimism              0.793    54.626    <hidden>
+                         clock uncertainty           -0.153    54.473    <hidden>
+    SLICE_X2Y119         FDRE (Setup_fdre_C_R)       -0.423    54.050    milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[14]
+  -------------------------------------------------------------------
+                         required time                         54.050    <hidden>
+                         arrival time                         -18.044    <hidden>
+  -------------------------------------------------------------------
+                         slack                                 36.006    <hidden>
+
+Slack (MET) :             36.124ns  (required time - arrival time)
+  Source:                 milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[10]/C
+                            (rising edge-triggered cell FDRE clocked by milansoc_crg_audio_mclk_raw  {rise@0.000ns fall@20.345ns period=40.690ns})
+  Destination:            milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[10]/R
+                            (rising edge-triggered cell FDRE clocked by milansoc_crg_audio_mclk_raw  {rise@0.000ns fall@20.345ns period=40.690ns})
+  Path Group:             milansoc_crg_audio_mclk_raw
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            40.690ns  (milansoc_crg_audio_mclk_raw rise@40.690ns - milansoc_crg_audio_mclk_raw rise@0.000ns)
+  Data Path Delay:        3.990ns  (logic 0.748ns (18.746%)  route 3.242ns (81.254%))
+  Logic Levels:           3  (LUT2=1 LUT4=1 LUT6=1)
+  Clock Path Skew:        0.000ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    13.144ns = ( 53.834 - 40.690 ) 
+    Source Clock Delay      (SCD):    13.962ns
+    Clock Pessimism Removal (CPR):    0.818ns
+  Clock Uncertainty:      0.153ns  ((TSJ^2 + DJ^2)^1/2) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Discrete Jitter          (DJ):    0.297ns
+    Phase Error              (PE):    0.000ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock milansoc_crg_audio_mclk_raw rise edge)
+                                                      0.000     0.000 r  <hidden>
+    R4                                                0.000     0.000 r  clk200_p
+                         net (fo=0)                   0.000     0.000    clk200_p
+    R4                   IBUFDS (Prop_ibufds_I_O)     0.851     0.851 r  IBUFDS/O
+                         net (fo=1, routed)           1.717     2.568    IBUFDS_n_0_BUFG_inst_n_0
+    BUFGCTRL_X0Y6        BUFG (Prop_bufg_I_O)         0.082     2.650 r  IBUFDS_n_0_BUFG_inst/O
+                         net (fo=9, routed)           1.424     4.074    milansoc_crg_clkin_signal
+    PLLE2_ADV_X0Y1       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT0)
+                                                      0.077     4.151 r  PLLE2_ADV/CLKOUT0
+                         net (fo=1, routed)           1.439     5.589    milansoc_crg_clkout0
+    BUFGCTRL_X0Y0        BUFG (Prop_bufg_I_O)         0.081     5.670 r  BUFG/O
+                         net (fo=18402, routed)       1.568     7.238    sys_clk
+    PLLE2_ADV_X0Y0       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT0)
+                                                      0.077     7.315 r  pll_audio_pre/CLKOUT0
+                         net (fo=1, routed)           1.712     9.027    milansoc_crg_audio_ref_raw
+    BUFGCTRL_X0Y7        BUFG (Prop_bufg_I_O)         0.081     9.108 r  BUFG_2/O
+                         net (fo=1, routed)           1.549    10.657    milansoc_crg_audio_ref
+    MMCME2_ADV_X0Y0      MMCME2_ADV (Prop_mmcme2_adv_CLKIN1_CLKOUT0)
+                                                      0.077    10.734 r  mmcm_audio/CLKOUT0
+                         net (fo=1, routed)           1.714    12.448    milansoc_crg_audio_mclk_raw
+    BUFGCTRL_X0Y5        BUFG (Prop_bufg_I_O)         0.081    12.529 r  BUFG_3/O
+                         net (fo=19, routed)          1.433    13.962    milan_datapath/g_mmcm_servo.mmcm_servo/CLK
+    SLICE_X2Y118         FDRE                                         r  milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[10]/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X2Y118         FDRE (Prop_fdre_C_Q)         0.433    14.395 r  milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[10]/Q
+                         net (fo=2, routed)           0.693    15.088    milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[10]
+    SLICE_X3Y118         LUT4 (Prop_lut4_I0_O)        0.105    15.193 f  milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r[0]_i_5/O
+                         net (fo=1, routed)           0.653    15.846    milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r[0]_i_5_n_0
+    SLICE_X3Y117         LUT6 (Prop_lut6_I0_O)        0.105    15.951 r  milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r[0]_i_3/O
+                         net (fo=2, routed)           1.101    17.052    milan_datapath/g_mmcm_servo.mmcm_servo/tick_a_r
+    SLICE_X3Y113         LUT2 (Prop_lut2_I0_O)        0.105    17.157 r  milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r[0]_i_1/O
+                         net (fo=15, routed)          0.795    17.952    milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r[0]_i_1_n_0
+    SLICE_X2Y118         FDRE                                         r  milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[10]/R
+  -------------------------------------------------------------------    -------------------
+
+                         (clock milansoc_crg_audio_mclk_raw rise edge)
+                                                     40.690    40.690 r  <hidden>
+    R4                                                0.000    40.690 r  clk200_p
+                         net (fo=0)                   0.000    40.690    clk200_p
+    R4                   IBUFDS (Prop_ibufds_I_O)     0.813    41.503 r  IBUFDS/O
+                         net (fo=1, routed)           1.628    43.131    IBUFDS_n_0_BUFG_inst_n_0
+    BUFGCTRL_X0Y6        BUFG (Prop_bufg_I_O)         0.078    43.209 r  IBUFDS_n_0_BUFG_inst/O
+                         net (fo=9, routed)           1.319    44.528    milansoc_crg_clkin_signal
+    PLLE2_ADV_X0Y1       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT0)
+                                                      0.073    44.601 r  PLLE2_ADV/CLKOUT0
+                         net (fo=1, routed)           1.371    45.971    milansoc_crg_clkout0
+    BUFGCTRL_X0Y0        BUFG (Prop_bufg_I_O)         0.077    46.048 r  BUFG/O
+                         net (fo=18402, routed)       1.458    47.506    sys_clk
+    PLLE2_ADV_X0Y0       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT0)
+                                                      0.073    47.579 r  pll_audio_pre/CLKOUT0
+                         net (fo=1, routed)           1.630    49.210    milansoc_crg_audio_ref_raw
+    BUFGCTRL_X0Y7        BUFG (Prop_bufg_I_O)         0.077    49.287 r  BUFG_2/O
+                         net (fo=1, routed)           1.439    50.726    milansoc_crg_audio_ref
+    MMCME2_ADV_X0Y0      MMCME2_ADV (Prop_mmcme2_adv_CLKIN1_CLKOUT0)
+                                                      0.073    50.799 r  mmcm_audio/CLKOUT0
+                         net (fo=1, routed)           1.633    52.432    milansoc_crg_audio_mclk_raw
+    BUFGCTRL_X0Y5        BUFG (Prop_bufg_I_O)         0.077    52.509 r  BUFG_3/O
+                         net (fo=19, routed)          1.325    53.834    milan_datapath/g_mmcm_servo.mmcm_servo/CLK
+    SLICE_X2Y118         FDRE                                         r  milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[10]/C
+                         clock pessimism              0.818    54.652    <hidden>
+                         clock uncertainty           -0.153    54.499    <hidden>
+    SLICE_X2Y118         FDRE (Setup_fdre_C_R)       -0.423    54.076    milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[10]
+  -------------------------------------------------------------------
+                         required time                         54.076    <hidden>
+                         arrival time                         -17.952    <hidden>
+  -------------------------------------------------------------------
+                         slack                                 36.124    <hidden>
+
+Slack (MET) :             36.124ns  (required time - arrival time)
+  Source:                 milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[10]/C
+                            (rising edge-triggered cell FDRE clocked by milansoc_crg_audio_mclk_raw  {rise@0.000ns fall@20.345ns period=40.690ns})
+  Destination:            milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[11]/R
+                            (rising edge-triggered cell FDRE clocked by milansoc_crg_audio_mclk_raw  {rise@0.000ns fall@20.345ns period=40.690ns})
+  Path Group:             milansoc_crg_audio_mclk_raw
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            40.690ns  (milansoc_crg_audio_mclk_raw rise@40.690ns - milansoc_crg_audio_mclk_raw rise@0.000ns)
+  Data Path Delay:        3.990ns  (logic 0.748ns (18.746%)  route 3.242ns (81.254%))
+  Logic Levels:           3  (LUT2=1 LUT4=1 LUT6=1)
+  Clock Path Skew:        0.000ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    13.144ns = ( 53.834 - 40.690 ) 
+    Source Clock Delay      (SCD):    13.962ns
+    Clock Pessimism Removal (CPR):    0.818ns
+  Clock Uncertainty:      0.153ns  ((TSJ^2 + DJ^2)^1/2) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Discrete Jitter          (DJ):    0.297ns
+    Phase Error              (PE):    0.000ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock milansoc_crg_audio_mclk_raw rise edge)
+                                                      0.000     0.000 r  <hidden>
+    R4                                                0.000     0.000 r  clk200_p
+                         net (fo=0)                   0.000     0.000    clk200_p
+    R4                   IBUFDS (Prop_ibufds_I_O)     0.851     0.851 r  IBUFDS/O
+                         net (fo=1, routed)           1.717     2.568    IBUFDS_n_0_BUFG_inst_n_0
+    BUFGCTRL_X0Y6        BUFG (Prop_bufg_I_O)         0.082     2.650 r  IBUFDS_n_0_BUFG_inst/O
+                         net (fo=9, routed)           1.424     4.074    milansoc_crg_clkin_signal
+    PLLE2_ADV_X0Y1       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT0)
+                                                      0.077     4.151 r  PLLE2_ADV/CLKOUT0
+                         net (fo=1, routed)           1.439     5.589    milansoc_crg_clkout0
+    BUFGCTRL_X0Y0        BUFG (Prop_bufg_I_O)         0.081     5.670 r  BUFG/O
+                         net (fo=18402, routed)       1.568     7.238    sys_clk
+    PLLE2_ADV_X0Y0       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT0)
+                                                      0.077     7.315 r  pll_audio_pre/CLKOUT0
+                         net (fo=1, routed)           1.712     9.027    milansoc_crg_audio_ref_raw
+    BUFGCTRL_X0Y7        BUFG (Prop_bufg_I_O)         0.081     9.108 r  BUFG_2/O
+                         net (fo=1, routed)           1.549    10.657    milansoc_crg_audio_ref
+    MMCME2_ADV_X0Y0      MMCME2_ADV (Prop_mmcme2_adv_CLKIN1_CLKOUT0)
+                                                      0.077    10.734 r  mmcm_audio/CLKOUT0
+                         net (fo=1, routed)           1.714    12.448    milansoc_crg_audio_mclk_raw
+    BUFGCTRL_X0Y5        BUFG (Prop_bufg_I_O)         0.081    12.529 r  BUFG_3/O
+                         net (fo=19, routed)          1.433    13.962    milan_datapath/g_mmcm_servo.mmcm_servo/CLK
+    SLICE_X2Y118         FDRE                                         r  milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[10]/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X2Y118         FDRE (Prop_fdre_C_Q)         0.433    14.395 r  milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[10]/Q
+                         net (fo=2, routed)           0.693    15.088    milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[10]
+    SLICE_X3Y118         LUT4 (Prop_lut4_I0_O)        0.105    15.193 f  milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r[0]_i_5/O
+                         net (fo=1, routed)           0.653    15.846    milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r[0]_i_5_n_0
+    SLICE_X3Y117         LUT6 (Prop_lut6_I0_O)        0.105    15.951 r  milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r[0]_i_3/O
+                         net (fo=2, routed)           1.101    17.052    milan_datapath/g_mmcm_servo.mmcm_servo/tick_a_r
+    SLICE_X3Y113         LUT2 (Prop_lut2_I0_O)        0.105    17.157 r  milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r[0]_i_1/O
+                         net (fo=15, routed)          0.795    17.952    milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r[0]_i_1_n_0
+    SLICE_X2Y118         FDRE                                         r  milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[11]/R
+  -------------------------------------------------------------------    -------------------
+
+                         (clock milansoc_crg_audio_mclk_raw rise edge)
+                                                     40.690    40.690 r  <hidden>
+    R4                                                0.000    40.690 r  clk200_p
+                         net (fo=0)                   0.000    40.690    clk200_p
+    R4                   IBUFDS (Prop_ibufds_I_O)     0.813    41.503 r  IBUFDS/O
+                         net (fo=1, routed)           1.628    43.131    IBUFDS_n_0_BUFG_inst_n_0
+    BUFGCTRL_X0Y6        BUFG (Prop_bufg_I_O)         0.078    43.209 r  IBUFDS_n_0_BUFG_inst/O
+                         net (fo=9, routed)           1.319    44.528    milansoc_crg_clkin_signal
+    PLLE2_ADV_X0Y1       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT0)
+                                                      0.073    44.601 r  PLLE2_ADV/CLKOUT0
+                         net (fo=1, routed)           1.371    45.971    milansoc_crg_clkout0
+    BUFGCTRL_X0Y0        BUFG (Prop_bufg_I_O)         0.077    46.048 r  BUFG/O
+                         net (fo=18402, routed)       1.458    47.506    sys_clk
+    PLLE2_ADV_X0Y0       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT0)
+                                                      0.073    47.579 r  pll_audio_pre/CLKOUT0
+                         net (fo=1, routed)           1.630    49.210    milansoc_crg_audio_ref_raw
+    BUFGCTRL_X0Y7        BUFG (Prop_bufg_I_O)         0.077    49.287 r  BUFG_2/O
+                         net (fo=1, routed)           1.439    50.726    milansoc_crg_audio_ref
+    MMCME2_ADV_X0Y0      MMCME2_ADV (Prop_mmcme2_adv_CLKIN1_CLKOUT0)
+                                                      0.073    50.799 r  mmcm_audio/CLKOUT0
+                         net (fo=1, routed)           1.633    52.432    milansoc_crg_audio_mclk_raw
+    BUFGCTRL_X0Y5        BUFG (Prop_bufg_I_O)         0.077    52.509 r  BUFG_3/O
+                         net (fo=19, routed)          1.325    53.834    milan_datapath/g_mmcm_servo.mmcm_servo/CLK
+    SLICE_X2Y118         FDRE                                         r  milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[11]/C
+                         clock pessimism              0.818    54.652    <hidden>
+                         clock uncertainty           -0.153    54.499    <hidden>
+    SLICE_X2Y118         FDRE (Setup_fdre_C_R)       -0.423    54.076    milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[11]
+  -------------------------------------------------------------------
+                         required time                         54.076    <hidden>
+                         arrival time                         -17.952    <hidden>
+  -------------------------------------------------------------------
+                         slack                                 36.124    <hidden>
+
+Slack (MET) :             36.124ns  (required time - arrival time)
+  Source:                 milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[10]/C
+                            (rising edge-triggered cell FDRE clocked by milansoc_crg_audio_mclk_raw  {rise@0.000ns fall@20.345ns period=40.690ns})
+  Destination:            milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[8]/R
+                            (rising edge-triggered cell FDRE clocked by milansoc_crg_audio_mclk_raw  {rise@0.000ns fall@20.345ns period=40.690ns})
+  Path Group:             milansoc_crg_audio_mclk_raw
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            40.690ns  (milansoc_crg_audio_mclk_raw rise@40.690ns - milansoc_crg_audio_mclk_raw rise@0.000ns)
+  Data Path Delay:        3.990ns  (logic 0.748ns (18.746%)  route 3.242ns (81.254%))
+  Logic Levels:           3  (LUT2=1 LUT4=1 LUT6=1)
+  Clock Path Skew:        0.000ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    13.144ns = ( 53.834 - 40.690 ) 
+    Source Clock Delay      (SCD):    13.962ns
+    Clock Pessimism Removal (CPR):    0.818ns
+  Clock Uncertainty:      0.153ns  ((TSJ^2 + DJ^2)^1/2) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Discrete Jitter          (DJ):    0.297ns
+    Phase Error              (PE):    0.000ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock milansoc_crg_audio_mclk_raw rise edge)
+                                                      0.000     0.000 r  <hidden>
+    R4                                                0.000     0.000 r  clk200_p
+                         net (fo=0)                   0.000     0.000    clk200_p
+    R4                   IBUFDS (Prop_ibufds_I_O)     0.851     0.851 r  IBUFDS/O
+                         net (fo=1, routed)           1.717     2.568    IBUFDS_n_0_BUFG_inst_n_0
+    BUFGCTRL_X0Y6        BUFG (Prop_bufg_I_O)         0.082     2.650 r  IBUFDS_n_0_BUFG_inst/O
+                         net (fo=9, routed)           1.424     4.074    milansoc_crg_clkin_signal
+    PLLE2_ADV_X0Y1       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT0)
+                                                      0.077     4.151 r  PLLE2_ADV/CLKOUT0
+                         net (fo=1, routed)           1.439     5.589    milansoc_crg_clkout0
+    BUFGCTRL_X0Y0        BUFG (Prop_bufg_I_O)         0.081     5.670 r  BUFG/O
+                         net (fo=18402, routed)       1.568     7.238    sys_clk
+    PLLE2_ADV_X0Y0       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT0)
+                                                      0.077     7.315 r  pll_audio_pre/CLKOUT0
+                         net (fo=1, routed)           1.712     9.027    milansoc_crg_audio_ref_raw
+    BUFGCTRL_X0Y7        BUFG (Prop_bufg_I_O)         0.081     9.108 r  BUFG_2/O
+                         net (fo=1, routed)           1.549    10.657    milansoc_crg_audio_ref
+    MMCME2_ADV_X0Y0      MMCME2_ADV (Prop_mmcme2_adv_CLKIN1_CLKOUT0)
+                                                      0.077    10.734 r  mmcm_audio/CLKOUT0
+                         net (fo=1, routed)           1.714    12.448    milansoc_crg_audio_mclk_raw
+    BUFGCTRL_X0Y5        BUFG (Prop_bufg_I_O)         0.081    12.529 r  BUFG_3/O
+                         net (fo=19, routed)          1.433    13.962    milan_datapath/g_mmcm_servo.mmcm_servo/CLK
+    SLICE_X2Y118         FDRE                                         r  milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[10]/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X2Y118         FDRE (Prop_fdre_C_Q)         0.433    14.395 r  milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[10]/Q
+                         net (fo=2, routed)           0.693    15.088    milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[10]
+    SLICE_X3Y118         LUT4 (Prop_lut4_I0_O)        0.105    15.193 f  milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r[0]_i_5/O
+                         net (fo=1, routed)           0.653    15.846    milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r[0]_i_5_n_0
+    SLICE_X3Y117         LUT6 (Prop_lut6_I0_O)        0.105    15.951 r  milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r[0]_i_3/O
+                         net (fo=2, routed)           1.101    17.052    milan_datapath/g_mmcm_servo.mmcm_servo/tick_a_r
+    SLICE_X3Y113         LUT2 (Prop_lut2_I0_O)        0.105    17.157 r  milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r[0]_i_1/O
+                         net (fo=15, routed)          0.795    17.952    milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r[0]_i_1_n_0
+    SLICE_X2Y118         FDRE                                         r  milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[8]/R
+  -------------------------------------------------------------------    -------------------
+
+                         (clock milansoc_crg_audio_mclk_raw rise edge)
+                                                     40.690    40.690 r  <hidden>
+    R4                                                0.000    40.690 r  clk200_p
+                         net (fo=0)                   0.000    40.690    clk200_p
+    R4                   IBUFDS (Prop_ibufds_I_O)     0.813    41.503 r  IBUFDS/O
+                         net (fo=1, routed)           1.628    43.131    IBUFDS_n_0_BUFG_inst_n_0
+    BUFGCTRL_X0Y6        BUFG (Prop_bufg_I_O)         0.078    43.209 r  IBUFDS_n_0_BUFG_inst/O
+                         net (fo=9, routed)           1.319    44.528    milansoc_crg_clkin_signal
+    PLLE2_ADV_X0Y1       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT0)
+                                                      0.073    44.601 r  PLLE2_ADV/CLKOUT0
+                         net (fo=1, routed)           1.371    45.971    milansoc_crg_clkout0
+    BUFGCTRL_X0Y0        BUFG (Prop_bufg_I_O)         0.077    46.048 r  BUFG/O
+                         net (fo=18402, routed)       1.458    47.506    sys_clk
+    PLLE2_ADV_X0Y0       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT0)
+                                                      0.073    47.579 r  pll_audio_pre/CLKOUT0
+                         net (fo=1, routed)           1.630    49.210    milansoc_crg_audio_ref_raw
+    BUFGCTRL_X0Y7        BUFG (Prop_bufg_I_O)         0.077    49.287 r  BUFG_2/O
+                         net (fo=1, routed)           1.439    50.726    milansoc_crg_audio_ref
+    MMCME2_ADV_X0Y0      MMCME2_ADV (Prop_mmcme2_adv_CLKIN1_CLKOUT0)
+                                                      0.073    50.799 r  mmcm_audio/CLKOUT0
+                         net (fo=1, routed)           1.633    52.432    milansoc_crg_audio_mclk_raw
+    BUFGCTRL_X0Y5        BUFG (Prop_bufg_I_O)         0.077    52.509 r  BUFG_3/O
+                         net (fo=19, routed)          1.325    53.834    milan_datapath/g_mmcm_servo.mmcm_servo/CLK
+    SLICE_X2Y118         FDRE                                         r  milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[8]/C
+                         clock pessimism              0.818    54.652    <hidden>
+                         clock uncertainty           -0.153    54.499    <hidden>
+    SLICE_X2Y118         FDRE (Setup_fdre_C_R)       -0.423    54.076    milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[8]
+  -------------------------------------------------------------------
+                         required time                         54.076    <hidden>
+                         arrival time                         -17.952    <hidden>
+  -------------------------------------------------------------------
+                         slack                                 36.124    <hidden>
+
+Slack (MET) :             36.124ns  (required time - arrival time)
+  Source:                 milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[10]/C
+                            (rising edge-triggered cell FDRE clocked by milansoc_crg_audio_mclk_raw  {rise@0.000ns fall@20.345ns period=40.690ns})
+  Destination:            milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[9]/R
+                            (rising edge-triggered cell FDRE clocked by milansoc_crg_audio_mclk_raw  {rise@0.000ns fall@20.345ns period=40.690ns})
+  Path Group:             milansoc_crg_audio_mclk_raw
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            40.690ns  (milansoc_crg_audio_mclk_raw rise@40.690ns - milansoc_crg_audio_mclk_raw rise@0.000ns)
+  Data Path Delay:        3.990ns  (logic 0.748ns (18.746%)  route 3.242ns (81.254%))
+  Logic Levels:           3  (LUT2=1 LUT4=1 LUT6=1)
+  Clock Path Skew:        0.000ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    13.144ns = ( 53.834 - 40.690 ) 
+    Source Clock Delay      (SCD):    13.962ns
+    Clock Pessimism Removal (CPR):    0.818ns
+  Clock Uncertainty:      0.153ns  ((TSJ^2 + DJ^2)^1/2) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Discrete Jitter          (DJ):    0.297ns
+    Phase Error              (PE):    0.000ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock milansoc_crg_audio_mclk_raw rise edge)
+                                                      0.000     0.000 r  <hidden>
+    R4                                                0.000     0.000 r  clk200_p
+                         net (fo=0)                   0.000     0.000    clk200_p
+    R4                   IBUFDS (Prop_ibufds_I_O)     0.851     0.851 r  IBUFDS/O
+                         net (fo=1, routed)           1.717     2.568    IBUFDS_n_0_BUFG_inst_n_0
+    BUFGCTRL_X0Y6        BUFG (Prop_bufg_I_O)         0.082     2.650 r  IBUFDS_n_0_BUFG_inst/O
+                         net (fo=9, routed)           1.424     4.074    milansoc_crg_clkin_signal
+    PLLE2_ADV_X0Y1       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT0)
+                                                      0.077     4.151 r  PLLE2_ADV/CLKOUT0
+                         net (fo=1, routed)           1.439     5.589    milansoc_crg_clkout0
+    BUFGCTRL_X0Y0        BUFG (Prop_bufg_I_O)         0.081     5.670 r  BUFG/O
+                         net (fo=18402, routed)       1.568     7.238    sys_clk
+    PLLE2_ADV_X0Y0       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT0)
+                                                      0.077     7.315 r  pll_audio_pre/CLKOUT0
+                         net (fo=1, routed)           1.712     9.027    milansoc_crg_audio_ref_raw
+    BUFGCTRL_X0Y7        BUFG (Prop_bufg_I_O)         0.081     9.108 r  BUFG_2/O
+                         net (fo=1, routed)           1.549    10.657    milansoc_crg_audio_ref
+    MMCME2_ADV_X0Y0      MMCME2_ADV (Prop_mmcme2_adv_CLKIN1_CLKOUT0)
+                                                      0.077    10.734 r  mmcm_audio/CLKOUT0
+                         net (fo=1, routed)           1.714    12.448    milansoc_crg_audio_mclk_raw
+    BUFGCTRL_X0Y5        BUFG (Prop_bufg_I_O)         0.081    12.529 r  BUFG_3/O
+                         net (fo=19, routed)          1.433    13.962    milan_datapath/g_mmcm_servo.mmcm_servo/CLK
+    SLICE_X2Y118         FDRE                                         r  milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[10]/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X2Y118         FDRE (Prop_fdre_C_Q)         0.433    14.395 r  milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[10]/Q
+                         net (fo=2, routed)           0.693    15.088    milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[10]
+    SLICE_X3Y118         LUT4 (Prop_lut4_I0_O)        0.105    15.193 f  milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r[0]_i_5/O
+                         net (fo=1, routed)           0.653    15.846    milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r[0]_i_5_n_0
+    SLICE_X3Y117         LUT6 (Prop_lut6_I0_O)        0.105    15.951 r  milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r[0]_i_3/O
+                         net (fo=2, routed)           1.101    17.052    milan_datapath/g_mmcm_servo.mmcm_servo/tick_a_r
+    SLICE_X3Y113         LUT2 (Prop_lut2_I0_O)        0.105    17.157 r  milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r[0]_i_1/O
+                         net (fo=15, routed)          0.795    17.952    milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r[0]_i_1_n_0
+    SLICE_X2Y118         FDRE                                         r  milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[9]/R
+  -------------------------------------------------------------------    -------------------
+
+                         (clock milansoc_crg_audio_mclk_raw rise edge)
+                                                     40.690    40.690 r  <hidden>
+    R4                                                0.000    40.690 r  clk200_p
+                         net (fo=0)                   0.000    40.690    clk200_p
+    R4                   IBUFDS (Prop_ibufds_I_O)     0.813    41.503 r  IBUFDS/O
+                         net (fo=1, routed)           1.628    43.131    IBUFDS_n_0_BUFG_inst_n_0
+    BUFGCTRL_X0Y6        BUFG (Prop_bufg_I_O)         0.078    43.209 r  IBUFDS_n_0_BUFG_inst/O
+                         net (fo=9, routed)           1.319    44.528    milansoc_crg_clkin_signal
+    PLLE2_ADV_X0Y1       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT0)
+                                                      0.073    44.601 r  PLLE2_ADV/CLKOUT0
+                         net (fo=1, routed)           1.371    45.971    milansoc_crg_clkout0
+    BUFGCTRL_X0Y0        BUFG (Prop_bufg_I_O)         0.077    46.048 r  BUFG/O
+                         net (fo=18402, routed)       1.458    47.506    sys_clk
+    PLLE2_ADV_X0Y0       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT0)
+                                                      0.073    47.579 r  pll_audio_pre/CLKOUT0
+                         net (fo=1, routed)           1.630    49.210    milansoc_crg_audio_ref_raw
+    BUFGCTRL_X0Y7        BUFG (Prop_bufg_I_O)         0.077    49.287 r  BUFG_2/O
+                         net (fo=1, routed)           1.439    50.726    milansoc_crg_audio_ref
+    MMCME2_ADV_X0Y0      MMCME2_ADV (Prop_mmcme2_adv_CLKIN1_CLKOUT0)
+                                                      0.073    50.799 r  mmcm_audio/CLKOUT0
+                         net (fo=1, routed)           1.633    52.432    milansoc_crg_audio_mclk_raw
+    BUFGCTRL_X0Y5        BUFG (Prop_bufg_I_O)         0.077    52.509 r  BUFG_3/O
+                         net (fo=19, routed)          1.325    53.834    milan_datapath/g_mmcm_servo.mmcm_servo/CLK
+    SLICE_X2Y118         FDRE                                         r  milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[9]/C
+                         clock pessimism              0.818    54.652    <hidden>
+                         clock uncertainty           -0.153    54.499    <hidden>
+    SLICE_X2Y118         FDRE (Setup_fdre_C_R)       -0.423    54.076    milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[9]
+  -------------------------------------------------------------------
+                         required time                         54.076    <hidden>
+                         arrival time                         -17.952    <hidden>
+  -------------------------------------------------------------------
+                         slack                                 36.124    <hidden>
+
+Slack (MET) :             36.210ns  (required time - arrival time)
+  Source:                 milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[10]/C
+                            (rising edge-triggered cell FDRE clocked by milansoc_crg_audio_mclk_raw  {rise@0.000ns fall@20.345ns period=40.690ns})
+  Destination:            milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[4]/R
+                            (rising edge-triggered cell FDRE clocked by milansoc_crg_audio_mclk_raw  {rise@0.000ns fall@20.345ns period=40.690ns})
+  Path Group:             milansoc_crg_audio_mclk_raw
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            40.690ns  (milansoc_crg_audio_mclk_raw rise@40.690ns - milansoc_crg_audio_mclk_raw rise@0.000ns)
+  Data Path Delay:        3.880ns  (logic 0.748ns (19.277%)  route 3.132ns (80.723%))
+  Logic Levels:           3  (LUT2=1 LUT4=1 LUT6=1)
+  Clock Path Skew:        -0.024ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    13.145ns = ( 53.835 - 40.690 ) 
+    Source Clock Delay      (SCD):    13.962ns
+    Clock Pessimism Removal (CPR):    0.793ns
+  Clock Uncertainty:      0.153ns  ((TSJ^2 + DJ^2)^1/2) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Discrete Jitter          (DJ):    0.297ns
+    Phase Error              (PE):    0.000ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock milansoc_crg_audio_mclk_raw rise edge)
+                                                      0.000     0.000 r  <hidden>
+    R4                                                0.000     0.000 r  clk200_p
+                         net (fo=0)                   0.000     0.000    clk200_p
+    R4                   IBUFDS (Prop_ibufds_I_O)     0.851     0.851 r  IBUFDS/O
+                         net (fo=1, routed)           1.717     2.568    IBUFDS_n_0_BUFG_inst_n_0
+    BUFGCTRL_X0Y6        BUFG (Prop_bufg_I_O)         0.082     2.650 r  IBUFDS_n_0_BUFG_inst/O
+                         net (fo=9, routed)           1.424     4.074    milansoc_crg_clkin_signal
+    PLLE2_ADV_X0Y1       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT0)
+                                                      0.077     4.151 r  PLLE2_ADV/CLKOUT0
+                         net (fo=1, routed)           1.439     5.589    milansoc_crg_clkout0
+    BUFGCTRL_X0Y0        BUFG (Prop_bufg_I_O)         0.081     5.670 r  BUFG/O
+                         net (fo=18402, routed)       1.568     7.238    sys_clk
+    PLLE2_ADV_X0Y0       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT0)
+                                                      0.077     7.315 r  pll_audio_pre/CLKOUT0
+                         net (fo=1, routed)           1.712     9.027    milansoc_crg_audio_ref_raw
+    BUFGCTRL_X0Y7        BUFG (Prop_bufg_I_O)         0.081     9.108 r  BUFG_2/O
+                         net (fo=1, routed)           1.549    10.657    milansoc_crg_audio_ref
+    MMCME2_ADV_X0Y0      MMCME2_ADV (Prop_mmcme2_adv_CLKIN1_CLKOUT0)
+                                                      0.077    10.734 r  mmcm_audio/CLKOUT0
+                         net (fo=1, routed)           1.714    12.448    milansoc_crg_audio_mclk_raw
+    BUFGCTRL_X0Y5        BUFG (Prop_bufg_I_O)         0.081    12.529 r  BUFG_3/O
+                         net (fo=19, routed)          1.433    13.962    milan_datapath/g_mmcm_servo.mmcm_servo/CLK
+    SLICE_X2Y118         FDRE                                         r  milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[10]/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X2Y118         FDRE (Prop_fdre_C_Q)         0.433    14.395 r  milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[10]/Q
+                         net (fo=2, routed)           0.693    15.088    milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[10]
+    SLICE_X3Y118         LUT4 (Prop_lut4_I0_O)        0.105    15.193 f  milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r[0]_i_5/O
+                         net (fo=1, routed)           0.653    15.846    milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r[0]_i_5_n_0
+    SLICE_X3Y117         LUT6 (Prop_lut6_I0_O)        0.105    15.951 r  milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r[0]_i_3/O
+                         net (fo=2, routed)           1.101    17.052    milan_datapath/g_mmcm_servo.mmcm_servo/tick_a_r
+    SLICE_X3Y113         LUT2 (Prop_lut2_I0_O)        0.105    17.157 r  milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r[0]_i_1/O
+                         net (fo=15, routed)          0.685    17.842    milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r[0]_i_1_n_0
+    SLICE_X2Y117         FDRE                                         r  milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[4]/R
+  -------------------------------------------------------------------    -------------------
+
+                         (clock milansoc_crg_audio_mclk_raw rise edge)
+                                                     40.690    40.690 r  <hidden>
+    R4                                                0.000    40.690 r  clk200_p
+                         net (fo=0)                   0.000    40.690    clk200_p
+    R4                   IBUFDS (Prop_ibufds_I_O)     0.813    41.503 r  IBUFDS/O
+                         net (fo=1, routed)           1.628    43.131    IBUFDS_n_0_BUFG_inst_n_0
+    BUFGCTRL_X0Y6        BUFG (Prop_bufg_I_O)         0.078    43.209 r  IBUFDS_n_0_BUFG_inst/O
+                         net (fo=9, routed)           1.319    44.528    milansoc_crg_clkin_signal
+    PLLE2_ADV_X0Y1       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT0)
+                                                      0.073    44.601 r  PLLE2_ADV/CLKOUT0
+                         net (fo=1, routed)           1.371    45.971    milansoc_crg_clkout0
+    BUFGCTRL_X0Y0        BUFG (Prop_bufg_I_O)         0.077    46.048 r  BUFG/O
+                         net (fo=18402, routed)       1.458    47.506    sys_clk
+    PLLE2_ADV_X0Y0       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT0)
+                                                      0.073    47.579 r  pll_audio_pre/CLKOUT0
+                         net (fo=1, routed)           1.630    49.210    milansoc_crg_audio_ref_raw
+    BUFGCTRL_X0Y7        BUFG (Prop_bufg_I_O)         0.077    49.287 r  BUFG_2/O
+                         net (fo=1, routed)           1.439    50.726    milansoc_crg_audio_ref
+    MMCME2_ADV_X0Y0      MMCME2_ADV (Prop_mmcme2_adv_CLKIN1_CLKOUT0)
+                                                      0.073    50.799 r  mmcm_audio/CLKOUT0
+                         net (fo=1, routed)           1.633    52.432    milansoc_crg_audio_mclk_raw
+    BUFGCTRL_X0Y5        BUFG (Prop_bufg_I_O)         0.077    52.509 r  BUFG_3/O
+                         net (fo=19, routed)          1.326    53.835    milan_datapath/g_mmcm_servo.mmcm_servo/CLK
+    SLICE_X2Y117         FDRE                                         r  milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[4]/C
+                         clock pessimism              0.793    54.628    <hidden>
+                         clock uncertainty           -0.153    54.475    <hidden>
+    SLICE_X2Y117         FDRE (Setup_fdre_C_R)       -0.423    54.052    milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[4]
+  -------------------------------------------------------------------
+                         required time                         54.052    <hidden>
+                         arrival time                         -17.842    <hidden>
+  -------------------------------------------------------------------
+                         slack                                 36.210    <hidden>
+
+Slack (MET) :             36.210ns  (required time - arrival time)
+  Source:                 milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[10]/C
+                            (rising edge-triggered cell FDRE clocked by milansoc_crg_audio_mclk_raw  {rise@0.000ns fall@20.345ns period=40.690ns})
+  Destination:            milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[5]/R
+                            (rising edge-triggered cell FDRE clocked by milansoc_crg_audio_mclk_raw  {rise@0.000ns fall@20.345ns period=40.690ns})
+  Path Group:             milansoc_crg_audio_mclk_raw
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            40.690ns  (milansoc_crg_audio_mclk_raw rise@40.690ns - milansoc_crg_audio_mclk_raw rise@0.000ns)
+  Data Path Delay:        3.880ns  (logic 0.748ns (19.277%)  route 3.132ns (80.723%))
+  Logic Levels:           3  (LUT2=1 LUT4=1 LUT6=1)
+  Clock Path Skew:        -0.024ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    13.145ns = ( 53.835 - 40.690 ) 
+    Source Clock Delay      (SCD):    13.962ns
+    Clock Pessimism Removal (CPR):    0.793ns
+  Clock Uncertainty:      0.153ns  ((TSJ^2 + DJ^2)^1/2) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Discrete Jitter          (DJ):    0.297ns
+    Phase Error              (PE):    0.000ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock milansoc_crg_audio_mclk_raw rise edge)
+                                                      0.000     0.000 r  <hidden>
+    R4                                                0.000     0.000 r  clk200_p
+                         net (fo=0)                   0.000     0.000    clk200_p
+    R4                   IBUFDS (Prop_ibufds_I_O)     0.851     0.851 r  IBUFDS/O
+                         net (fo=1, routed)           1.717     2.568    IBUFDS_n_0_BUFG_inst_n_0
+    BUFGCTRL_X0Y6        BUFG (Prop_bufg_I_O)         0.082     2.650 r  IBUFDS_n_0_BUFG_inst/O
+                         net (fo=9, routed)           1.424     4.074    milansoc_crg_clkin_signal
+    PLLE2_ADV_X0Y1       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT0)
+                                                      0.077     4.151 r  PLLE2_ADV/CLKOUT0
+                         net (fo=1, routed)           1.439     5.589    milansoc_crg_clkout0
+    BUFGCTRL_X0Y0        BUFG (Prop_bufg_I_O)         0.081     5.670 r  BUFG/O
+                         net (fo=18402, routed)       1.568     7.238    sys_clk
+    PLLE2_ADV_X0Y0       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT0)
+                                                      0.077     7.315 r  pll_audio_pre/CLKOUT0
+                         net (fo=1, routed)           1.712     9.027    milansoc_crg_audio_ref_raw
+    BUFGCTRL_X0Y7        BUFG (Prop_bufg_I_O)         0.081     9.108 r  BUFG_2/O
+                         net (fo=1, routed)           1.549    10.657    milansoc_crg_audio_ref
+    MMCME2_ADV_X0Y0      MMCME2_ADV (Prop_mmcme2_adv_CLKIN1_CLKOUT0)
+                                                      0.077    10.734 r  mmcm_audio/CLKOUT0
+                         net (fo=1, routed)           1.714    12.448    milansoc_crg_audio_mclk_raw
+    BUFGCTRL_X0Y5        BUFG (Prop_bufg_I_O)         0.081    12.529 r  BUFG_3/O
+                         net (fo=19, routed)          1.433    13.962    milan_datapath/g_mmcm_servo.mmcm_servo/CLK
+    SLICE_X2Y118         FDRE                                         r  milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[10]/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X2Y118         FDRE (Prop_fdre_C_Q)         0.433    14.395 r  milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[10]/Q
+                         net (fo=2, routed)           0.693    15.088    milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[10]
+    SLICE_X3Y118         LUT4 (Prop_lut4_I0_O)        0.105    15.193 f  milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r[0]_i_5/O
+                         net (fo=1, routed)           0.653    15.846    milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r[0]_i_5_n_0
+    SLICE_X3Y117         LUT6 (Prop_lut6_I0_O)        0.105    15.951 r  milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r[0]_i_3/O
+                         net (fo=2, routed)           1.101    17.052    milan_datapath/g_mmcm_servo.mmcm_servo/tick_a_r
+    SLICE_X3Y113         LUT2 (Prop_lut2_I0_O)        0.105    17.157 r  milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r[0]_i_1/O
+                         net (fo=15, routed)          0.685    17.842    milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r[0]_i_1_n_0
+    SLICE_X2Y117         FDRE                                         r  milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[5]/R
+  -------------------------------------------------------------------    -------------------
+
+                         (clock milansoc_crg_audio_mclk_raw rise edge)
+                                                     40.690    40.690 r  <hidden>
+    R4                                                0.000    40.690 r  clk200_p
+                         net (fo=0)                   0.000    40.690    clk200_p
+    R4                   IBUFDS (Prop_ibufds_I_O)     0.813    41.503 r  IBUFDS/O
+                         net (fo=1, routed)           1.628    43.131    IBUFDS_n_0_BUFG_inst_n_0
+    BUFGCTRL_X0Y6        BUFG (Prop_bufg_I_O)         0.078    43.209 r  IBUFDS_n_0_BUFG_inst/O
+                         net (fo=9, routed)           1.319    44.528    milansoc_crg_clkin_signal
+    PLLE2_ADV_X0Y1       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT0)
+                                                      0.073    44.601 r  PLLE2_ADV/CLKOUT0
+                         net (fo=1, routed)           1.371    45.971    milansoc_crg_clkout0
+    BUFGCTRL_X0Y0        BUFG (Prop_bufg_I_O)         0.077    46.048 r  BUFG/O
+                         net (fo=18402, routed)       1.458    47.506    sys_clk
+    PLLE2_ADV_X0Y0       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT0)
+                                                      0.073    47.579 r  pll_audio_pre/CLKOUT0
+                         net (fo=1, routed)           1.630    49.210    milansoc_crg_audio_ref_raw
+    BUFGCTRL_X0Y7        BUFG (Prop_bufg_I_O)         0.077    49.287 r  BUFG_2/O
+                         net (fo=1, routed)           1.439    50.726    milansoc_crg_audio_ref
+    MMCME2_ADV_X0Y0      MMCME2_ADV (Prop_mmcme2_adv_CLKIN1_CLKOUT0)
+                                                      0.073    50.799 r  mmcm_audio/CLKOUT0
+                         net (fo=1, routed)           1.633    52.432    milansoc_crg_audio_mclk_raw
+    BUFGCTRL_X0Y5        BUFG (Prop_bufg_I_O)         0.077    52.509 r  BUFG_3/O
+                         net (fo=19, routed)          1.326    53.835    milan_datapath/g_mmcm_servo.mmcm_servo/CLK
+    SLICE_X2Y117         FDRE                                         r  milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[5]/C
+                         clock pessimism              0.793    54.628    <hidden>
+                         clock uncertainty           -0.153    54.475    <hidden>
+    SLICE_X2Y117         FDRE (Setup_fdre_C_R)       -0.423    54.052    milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[5]
+  -------------------------------------------------------------------
+                         required time                         54.052    <hidden>
+                         arrival time                         -17.842    <hidden>
+  -------------------------------------------------------------------
+                         slack                                 36.210    <hidden>
+
+Slack (MET) :             36.210ns  (required time - arrival time)
+  Source:                 milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[10]/C
+                            (rising edge-triggered cell FDRE clocked by milansoc_crg_audio_mclk_raw  {rise@0.000ns fall@20.345ns period=40.690ns})
+  Destination:            milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[6]/R
+                            (rising edge-triggered cell FDRE clocked by milansoc_crg_audio_mclk_raw  {rise@0.000ns fall@20.345ns period=40.690ns})
+  Path Group:             milansoc_crg_audio_mclk_raw
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            40.690ns  (milansoc_crg_audio_mclk_raw rise@40.690ns - milansoc_crg_audio_mclk_raw rise@0.000ns)
+  Data Path Delay:        3.880ns  (logic 0.748ns (19.277%)  route 3.132ns (80.723%))
+  Logic Levels:           3  (LUT2=1 LUT4=1 LUT6=1)
+  Clock Path Skew:        -0.024ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    13.145ns = ( 53.835 - 40.690 ) 
+    Source Clock Delay      (SCD):    13.962ns
+    Clock Pessimism Removal (CPR):    0.793ns
+  Clock Uncertainty:      0.153ns  ((TSJ^2 + DJ^2)^1/2) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Discrete Jitter          (DJ):    0.297ns
+    Phase Error              (PE):    0.000ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock milansoc_crg_audio_mclk_raw rise edge)
+                                                      0.000     0.000 r  <hidden>
+    R4                                                0.000     0.000 r  clk200_p
+                         net (fo=0)                   0.000     0.000    clk200_p
+    R4                   IBUFDS (Prop_ibufds_I_O)     0.851     0.851 r  IBUFDS/O
+                         net (fo=1, routed)           1.717     2.568    IBUFDS_n_0_BUFG_inst_n_0
+    BUFGCTRL_X0Y6        BUFG (Prop_bufg_I_O)         0.082     2.650 r  IBUFDS_n_0_BUFG_inst/O
+                         net (fo=9, routed)           1.424     4.074    milansoc_crg_clkin_signal
+    PLLE2_ADV_X0Y1       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT0)
+                                                      0.077     4.151 r  PLLE2_ADV/CLKOUT0
+                         net (fo=1, routed)           1.439     5.589    milansoc_crg_clkout0
+    BUFGCTRL_X0Y0        BUFG (Prop_bufg_I_O)         0.081     5.670 r  BUFG/O
+                         net (fo=18402, routed)       1.568     7.238    sys_clk
+    PLLE2_ADV_X0Y0       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT0)
+                                                      0.077     7.315 r  pll_audio_pre/CLKOUT0
+                         net (fo=1, routed)           1.712     9.027    milansoc_crg_audio_ref_raw
+    BUFGCTRL_X0Y7        BUFG (Prop_bufg_I_O)         0.081     9.108 r  BUFG_2/O
+                         net (fo=1, routed)           1.549    10.657    milansoc_crg_audio_ref
+    MMCME2_ADV_X0Y0      MMCME2_ADV (Prop_mmcme2_adv_CLKIN1_CLKOUT0)
+                                                      0.077    10.734 r  mmcm_audio/CLKOUT0
+                         net (fo=1, routed)           1.714    12.448    milansoc_crg_audio_mclk_raw
+    BUFGCTRL_X0Y5        BUFG (Prop_bufg_I_O)         0.081    12.529 r  BUFG_3/O
+                         net (fo=19, routed)          1.433    13.962    milan_datapath/g_mmcm_servo.mmcm_servo/CLK
+    SLICE_X2Y118         FDRE                                         r  milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[10]/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X2Y118         FDRE (Prop_fdre_C_Q)         0.433    14.395 r  milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[10]/Q
+                         net (fo=2, routed)           0.693    15.088    milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[10]
+    SLICE_X3Y118         LUT4 (Prop_lut4_I0_O)        0.105    15.193 f  milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r[0]_i_5/O
+                         net (fo=1, routed)           0.653    15.846    milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r[0]_i_5_n_0
+    SLICE_X3Y117         LUT6 (Prop_lut6_I0_O)        0.105    15.951 r  milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r[0]_i_3/O
+                         net (fo=2, routed)           1.101    17.052    milan_datapath/g_mmcm_servo.mmcm_servo/tick_a_r
+    SLICE_X3Y113         LUT2 (Prop_lut2_I0_O)        0.105    17.157 r  milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r[0]_i_1/O
+                         net (fo=15, routed)          0.685    17.842    milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r[0]_i_1_n_0
+    SLICE_X2Y117         FDRE                                         r  milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[6]/R
+  -------------------------------------------------------------------    -------------------
+
+                         (clock milansoc_crg_audio_mclk_raw rise edge)
+                                                     40.690    40.690 r  <hidden>
+    R4                                                0.000    40.690 r  clk200_p
+                         net (fo=0)                   0.000    40.690    clk200_p
+    R4                   IBUFDS (Prop_ibufds_I_O)     0.813    41.503 r  IBUFDS/O
+                         net (fo=1, routed)           1.628    43.131    IBUFDS_n_0_BUFG_inst_n_0
+    BUFGCTRL_X0Y6        BUFG (Prop_bufg_I_O)         0.078    43.209 r  IBUFDS_n_0_BUFG_inst/O
+                         net (fo=9, routed)           1.319    44.528    milansoc_crg_clkin_signal
+    PLLE2_ADV_X0Y1       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT0)
+                                                      0.073    44.601 r  PLLE2_ADV/CLKOUT0
+                         net (fo=1, routed)           1.371    45.971    milansoc_crg_clkout0
+    BUFGCTRL_X0Y0        BUFG (Prop_bufg_I_O)         0.077    46.048 r  BUFG/O
+                         net (fo=18402, routed)       1.458    47.506    sys_clk
+    PLLE2_ADV_X0Y0       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT0)
+                                                      0.073    47.579 r  pll_audio_pre/CLKOUT0
+                         net (fo=1, routed)           1.630    49.210    milansoc_crg_audio_ref_raw
+    BUFGCTRL_X0Y7        BUFG (Prop_bufg_I_O)         0.077    49.287 r  BUFG_2/O
+                         net (fo=1, routed)           1.439    50.726    milansoc_crg_audio_ref
+    MMCME2_ADV_X0Y0      MMCME2_ADV (Prop_mmcme2_adv_CLKIN1_CLKOUT0)
+                                                      0.073    50.799 r  mmcm_audio/CLKOUT0
+                         net (fo=1, routed)           1.633    52.432    milansoc_crg_audio_mclk_raw
+    BUFGCTRL_X0Y5        BUFG (Prop_bufg_I_O)         0.077    52.509 r  BUFG_3/O
+                         net (fo=19, routed)          1.326    53.835    milan_datapath/g_mmcm_servo.mmcm_servo/CLK
+    SLICE_X2Y117         FDRE                                         r  milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[6]/C
+                         clock pessimism              0.793    54.628    <hidden>
+                         clock uncertainty           -0.153    54.475    <hidden>
+    SLICE_X2Y117         FDRE (Setup_fdre_C_R)       -0.423    54.052    milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[6]
+  -------------------------------------------------------------------
+                         required time                         54.052    <hidden>
+                         arrival time                         -17.842    <hidden>
+  -------------------------------------------------------------------
+                         slack                                 36.210    <hidden>
+
+
+
+
+
+Min Delay Paths
+--------------------------------------------------------------------------------------
+Slack (MET) :             0.237ns  (arrival time - required time)
+  Source:                 milan_datapath/g_mmcm_servo.mmcm_servo/arst_sync_r_reg[0]/C
+                            (rising edge-triggered cell FDRE clocked by milansoc_crg_audio_mclk_raw  {rise@0.000ns fall@20.345ns period=40.690ns})
+  Destination:            milan_datapath/g_mmcm_servo.mmcm_servo/arst_sync_r_reg[1]/D
+                            (rising edge-triggered cell FDRE clocked by milansoc_crg_audio_mclk_raw  {rise@0.000ns fall@20.345ns period=40.690ns})
+  Path Group:             milansoc_crg_audio_mclk_raw
+  Path Type:              Hold (Min at Fast Process Corner)
+  Requirement:            0.000ns  (milansoc_crg_audio_mclk_raw rise@0.000ns - milansoc_crg_audio_mclk_raw rise@0.000ns)
+  Data Path Delay:        0.298ns  (logic 0.141ns (47.245%)  route 0.157ns (52.755%))
+  Logic Levels:           0  
+  Clock Path Skew:        0.000ns (DCD - SCD - CPR)
+    Destination Clock Delay (DCD):    6.847ns
+    Source Clock Delay      (SCD):    5.499ns
+    Clock Pessimism Removal (CPR):    1.348ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock milansoc_crg_audio_mclk_raw rise edge)
+                                                      0.000     0.000 r  <hidden>
+    R4                                                0.000     0.000 r  clk200_p
+                         net (fo=0)                   0.000     0.000    clk200_p
+    R4                   IBUFDS (Prop_ibufds_I_O)     0.369     0.369 r  IBUFDS/O
+                         net (fo=1, routed)           0.644     1.013    IBUFDS_n_0_BUFG_inst_n_0
+    BUFGCTRL_X0Y6        BUFG (Prop_bufg_I_O)         0.027     1.040 r  IBUFDS_n_0_BUFG_inst/O
+                         net (fo=9, routed)           0.561     1.600    milansoc_crg_clkin_signal
+    PLLE2_ADV_X0Y1       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT0)
+                                                      0.050     1.650 r  PLLE2_ADV/CLKOUT0
+                         net (fo=1, routed)           0.510     2.160    milansoc_crg_clkout0
+    BUFGCTRL_X0Y0        BUFG (Prop_bufg_I_O)         0.026     2.186 r  BUFG/O
+                         net (fo=18402, routed)       0.627     2.813    sys_clk
+    PLLE2_ADV_X0Y0       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT0)
+                                                      0.050     2.863 r  pll_audio_pre/CLKOUT0
+                         net (fo=1, routed)           0.663     3.526    milansoc_crg_audio_ref_raw
+    BUFGCTRL_X0Y7        BUFG (Prop_bufg_I_O)         0.026     3.552 r  BUFG_2/O
+                         net (fo=1, routed)           0.622     4.174    milansoc_crg_audio_ref
+    MMCME2_ADV_X0Y0      MMCME2_ADV (Prop_mmcme2_adv_CLKIN1_CLKOUT0)
+                                                      0.050     4.224 r  mmcm_audio/CLKOUT0
+                         net (fo=1, routed)           0.648     4.872    milansoc_crg_audio_mclk_raw
+    BUFGCTRL_X0Y5        BUFG (Prop_bufg_I_O)         0.026     4.898 r  BUFG_3/O
+                         net (fo=19, routed)          0.601     5.499    milan_datapath/g_mmcm_servo.mmcm_servo/CLK
+    SLICE_X3Y101         FDRE                                         r  milan_datapath/g_mmcm_servo.mmcm_servo/arst_sync_r_reg[0]/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X3Y101         FDRE (Prop_fdre_C_Q)         0.141     5.640 r  milan_datapath/g_mmcm_servo.mmcm_servo/arst_sync_r_reg[0]/Q
+                         net (fo=1, routed)           0.157     5.797    milan_datapath/g_mmcm_servo.mmcm_servo/arst_sync_r[0]
+    SLICE_X3Y101         FDRE                                         r  milan_datapath/g_mmcm_servo.mmcm_servo/arst_sync_r_reg[1]/D
+  -------------------------------------------------------------------    -------------------
+
+                         (clock milansoc_crg_audio_mclk_raw rise edge)
+                                                      0.000     0.000 r  <hidden>
+    R4                                                0.000     0.000 r  clk200_p
+                         net (fo=0)                   0.000     0.000    clk200_p
+    R4                   IBUFDS (Prop_ibufds_I_O)     0.400     0.400 r  IBUFDS/O
+                         net (fo=1, routed)           0.699     1.098    IBUFDS_n_0_BUFG_inst_n_0
+    BUFGCTRL_X0Y6        BUFG (Prop_bufg_I_O)         0.030     1.128 r  IBUFDS_n_0_BUFG_inst/O
+                         net (fo=9, routed)           0.831     1.959    milansoc_crg_clkin_signal
+    PLLE2_ADV_X0Y1       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT0)
+                                                      0.053     2.012 r  PLLE2_ADV/CLKOUT0
+                         net (fo=1, routed)           0.556     2.568    milansoc_crg_clkout0
+    BUFGCTRL_X0Y0        BUFG (Prop_bufg_I_O)         0.029     2.597 r  BUFG/O
+                         net (fo=18402, routed)       0.901     3.497    sys_clk
+    PLLE2_ADV_X0Y0       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT0)
+                                                      0.053     3.550 r  pll_audio_pre/CLKOUT0
+                         net (fo=1, routed)           0.716     4.266    milansoc_crg_audio_ref_raw
+    BUFGCTRL_X0Y7        BUFG (Prop_bufg_I_O)         0.029     4.295 r  BUFG_2/O
+                         net (fo=1, routed)           0.896     5.191    milansoc_crg_audio_ref
+    MMCME2_ADV_X0Y0      MMCME2_ADV (Prop_mmcme2_adv_CLKIN1_CLKOUT0)
+                                                      0.053     5.244 r  mmcm_audio/CLKOUT0
+                         net (fo=1, routed)           0.700     5.944    milansoc_crg_audio_mclk_raw
+    BUFGCTRL_X0Y5        BUFG (Prop_bufg_I_O)         0.029     5.973 r  BUFG_3/O
+                         net (fo=19, routed)          0.873     6.847    milan_datapath/g_mmcm_servo.mmcm_servo/CLK
+    SLICE_X3Y101         FDRE                                         r  milan_datapath/g_mmcm_servo.mmcm_servo/arst_sync_r_reg[1]/C
+                         clock pessimism             -1.348     5.499    <hidden>
+    SLICE_X3Y101         FDRE (Hold_fdre_C_D)         0.061     5.560    milan_datapath/g_mmcm_servo.mmcm_servo/arst_sync_r_reg[1]
+  -------------------------------------------------------------------
+                         required time                         -5.560    <hidden>
+                         arrival time                           5.797    <hidden>
+  -------------------------------------------------------------------
+                         slack                                  0.237    <hidden>
+
+Slack (MET) :             0.251ns  (arrival time - required time)
+  Source:                 milan_datapath/g_mmcm_servo.mmcm_servo/tick_a_r_reg/C
+                            (rising edge-triggered cell FDRE clocked by milansoc_crg_audio_mclk_raw  {rise@0.000ns fall@20.345ns period=40.690ns})
+  Destination:            milan_datapath/g_mmcm_servo.mmcm_servo/u_tick_cdc/src_level_reg/D
+                            (rising edge-triggered cell FDRE clocked by milansoc_crg_audio_mclk_raw  {rise@0.000ns fall@20.345ns period=40.690ns})
+  Path Group:             milansoc_crg_audio_mclk_raw
+  Path Type:              Hold (Min at Fast Process Corner)
+  Requirement:            0.000ns  (milansoc_crg_audio_mclk_raw rise@0.000ns - milansoc_crg_audio_mclk_raw rise@0.000ns)
+  Data Path Delay:        0.343ns  (logic 0.186ns (54.157%)  route 0.157ns (45.843%))
+  Logic Levels:           1  (LUT3=1)
+  Clock Path Skew:        0.000ns (DCD - SCD - CPR)
+    Destination Clock Delay (DCD):    6.813ns
+    Source Clock Delay      (SCD):    5.467ns
+    Clock Pessimism Removal (CPR):    1.346ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock milansoc_crg_audio_mclk_raw rise edge)
+                                                      0.000     0.000 r  <hidden>
+    R4                                                0.000     0.000 r  clk200_p
+                         net (fo=0)                   0.000     0.000    clk200_p
+    R4                   IBUFDS (Prop_ibufds_I_O)     0.369     0.369 r  IBUFDS/O
+                         net (fo=1, routed)           0.644     1.013    IBUFDS_n_0_BUFG_inst_n_0
+    BUFGCTRL_X0Y6        BUFG (Prop_bufg_I_O)         0.027     1.040 r  IBUFDS_n_0_BUFG_inst/O
+                         net (fo=9, routed)           0.561     1.600    milansoc_crg_clkin_signal
+    PLLE2_ADV_X0Y1       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT0)
+                                                      0.050     1.650 r  PLLE2_ADV/CLKOUT0
+                         net (fo=1, routed)           0.510     2.160    milansoc_crg_clkout0
+    BUFGCTRL_X0Y0        BUFG (Prop_bufg_I_O)         0.026     2.186 r  BUFG/O
+                         net (fo=18402, routed)       0.627     2.813    sys_clk
+    PLLE2_ADV_X0Y0       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT0)
+                                                      0.050     2.863 r  pll_audio_pre/CLKOUT0
+                         net (fo=1, routed)           0.663     3.526    milansoc_crg_audio_ref_raw
+    BUFGCTRL_X0Y7        BUFG (Prop_bufg_I_O)         0.026     3.552 r  BUFG_2/O
+                         net (fo=1, routed)           0.622     4.174    milansoc_crg_audio_ref
+    MMCME2_ADV_X0Y0      MMCME2_ADV (Prop_mmcme2_adv_CLKIN1_CLKOUT0)
+                                                      0.050     4.224 r  mmcm_audio/CLKOUT0
+                         net (fo=1, routed)           0.648     4.872    milansoc_crg_audio_mclk_raw
+    BUFGCTRL_X0Y5        BUFG (Prop_bufg_I_O)         0.026     4.898 r  BUFG_3/O
+                         net (fo=19, routed)          0.569     5.467    milan_datapath/g_mmcm_servo.mmcm_servo/CLK
+    SLICE_X9Y111         FDRE                                         r  milan_datapath/g_mmcm_servo.mmcm_servo/tick_a_r_reg/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X9Y111         FDRE (Prop_fdre_C_Q)         0.141     5.608 r  milan_datapath/g_mmcm_servo.mmcm_servo/tick_a_r_reg/Q
+                         net (fo=1, routed)           0.157     5.765    milan_datapath/g_mmcm_servo.mmcm_servo/u_tick_cdc/src_level_reg_0
+    SLICE_X9Y111         LUT3 (Prop_lut3_I1_O)        0.045     5.810 r  milan_datapath/g_mmcm_servo.mmcm_servo/u_tick_cdc/src_level_i_1/O
+                         net (fo=1, routed)           0.000     5.810    milan_datapath/g_mmcm_servo.mmcm_servo/u_tick_cdc/src_level_i_1_n_0
+    SLICE_X9Y111         FDRE                                         r  milan_datapath/g_mmcm_servo.mmcm_servo/u_tick_cdc/src_level_reg/D
+  -------------------------------------------------------------------    -------------------
+
+                         (clock milansoc_crg_audio_mclk_raw rise edge)
+                                                      0.000     0.000 r  <hidden>
+    R4                                                0.000     0.000 r  clk200_p
+                         net (fo=0)                   0.000     0.000    clk200_p
+    R4                   IBUFDS (Prop_ibufds_I_O)     0.400     0.400 r  IBUFDS/O
+                         net (fo=1, routed)           0.699     1.098    IBUFDS_n_0_BUFG_inst_n_0
+    BUFGCTRL_X0Y6        BUFG (Prop_bufg_I_O)         0.030     1.128 r  IBUFDS_n_0_BUFG_inst/O
+                         net (fo=9, routed)           0.831     1.959    milansoc_crg_clkin_signal
+    PLLE2_ADV_X0Y1       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT0)
+                                                      0.053     2.012 r  PLLE2_ADV/CLKOUT0
+                         net (fo=1, routed)           0.556     2.568    milansoc_crg_clkout0
+    BUFGCTRL_X0Y0        BUFG (Prop_bufg_I_O)         0.029     2.597 r  BUFG/O
+                         net (fo=18402, routed)       0.901     3.497    sys_clk
+    PLLE2_ADV_X0Y0       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT0)
+                                                      0.053     3.550 r  pll_audio_pre/CLKOUT0
+                         net (fo=1, routed)           0.716     4.266    milansoc_crg_audio_ref_raw
+    BUFGCTRL_X0Y7        BUFG (Prop_bufg_I_O)         0.029     4.295 r  BUFG_2/O
+                         net (fo=1, routed)           0.896     5.191    milansoc_crg_audio_ref
+    MMCME2_ADV_X0Y0      MMCME2_ADV (Prop_mmcme2_adv_CLKIN1_CLKOUT0)
+                                                      0.053     5.244 r  mmcm_audio/CLKOUT0
+                         net (fo=1, routed)           0.700     5.944    milansoc_crg_audio_mclk_raw
+    BUFGCTRL_X0Y5        BUFG (Prop_bufg_I_O)         0.029     5.973 r  BUFG_3/O
+                         net (fo=19, routed)          0.840     6.813    milan_datapath/g_mmcm_servo.mmcm_servo/u_tick_cdc/CLK
+    SLICE_X9Y111         FDRE                                         r  milan_datapath/g_mmcm_servo.mmcm_servo/u_tick_cdc/src_level_reg/C
+                         clock pessimism             -1.346     5.467    <hidden>
+    SLICE_X9Y111         FDRE (Hold_fdre_C_D)         0.092     5.559    milan_datapath/g_mmcm_servo.mmcm_servo/u_tick_cdc/src_level_reg
+  -------------------------------------------------------------------
+                         required time                         -5.559    <hidden>
+                         arrival time                           5.810    <hidden>
+  -------------------------------------------------------------------
+                         slack                                  0.251    <hidden>
+
+Slack (MET) :             0.262ns  (arrival time - required time)
+  Source:                 milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[10]/C
+                            (rising edge-triggered cell FDRE clocked by milansoc_crg_audio_mclk_raw  {rise@0.000ns fall@20.345ns period=40.690ns})
+  Destination:            milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[10]/D
+                            (rising edge-triggered cell FDRE clocked by milansoc_crg_audio_mclk_raw  {rise@0.000ns fall@20.345ns period=40.690ns})
+  Path Group:             milansoc_crg_audio_mclk_raw
+  Path Type:              Hold (Min at Fast Process Corner)
+  Requirement:            0.000ns  (milansoc_crg_audio_mclk_raw rise@0.000ns - milansoc_crg_audio_mclk_raw rise@0.000ns)
+  Data Path Delay:        0.396ns  (logic 0.274ns (69.208%)  route 0.122ns (30.792%))
+  Logic Levels:           1  (CARRY4=1)
+  Clock Path Skew:        0.000ns (DCD - SCD - CPR)
+    Destination Clock Delay (DCD):    6.837ns
+    Source Clock Delay      (SCD):    5.491ns
+    Clock Pessimism Removal (CPR):    1.346ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock milansoc_crg_audio_mclk_raw rise edge)
+                                                      0.000     0.000 r  <hidden>
+    R4                                                0.000     0.000 r  clk200_p
+                         net (fo=0)                   0.000     0.000    clk200_p
+    R4                   IBUFDS (Prop_ibufds_I_O)     0.369     0.369 r  IBUFDS/O
+                         net (fo=1, routed)           0.644     1.013    IBUFDS_n_0_BUFG_inst_n_0
+    BUFGCTRL_X0Y6        BUFG (Prop_bufg_I_O)         0.027     1.040 r  IBUFDS_n_0_BUFG_inst/O
+                         net (fo=9, routed)           0.561     1.600    milansoc_crg_clkin_signal
+    PLLE2_ADV_X0Y1       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT0)
+                                                      0.050     1.650 r  PLLE2_ADV/CLKOUT0
+                         net (fo=1, routed)           0.510     2.160    milansoc_crg_clkout0
+    BUFGCTRL_X0Y0        BUFG (Prop_bufg_I_O)         0.026     2.186 r  BUFG/O
+                         net (fo=18402, routed)       0.627     2.813    sys_clk
+    PLLE2_ADV_X0Y0       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT0)
+                                                      0.050     2.863 r  pll_audio_pre/CLKOUT0
+                         net (fo=1, routed)           0.663     3.526    milansoc_crg_audio_ref_raw
+    BUFGCTRL_X0Y7        BUFG (Prop_bufg_I_O)         0.026     3.552 r  BUFG_2/O
+                         net (fo=1, routed)           0.622     4.174    milansoc_crg_audio_ref
+    MMCME2_ADV_X0Y0      MMCME2_ADV (Prop_mmcme2_adv_CLKIN1_CLKOUT0)
+                                                      0.050     4.224 r  mmcm_audio/CLKOUT0
+                         net (fo=1, routed)           0.648     4.872    milansoc_crg_audio_mclk_raw
+    BUFGCTRL_X0Y5        BUFG (Prop_bufg_I_O)         0.026     4.898 r  BUFG_3/O
+                         net (fo=19, routed)          0.593     5.491    milan_datapath/g_mmcm_servo.mmcm_servo/CLK
+    SLICE_X2Y118         FDRE                                         r  milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[10]/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X2Y118         FDRE (Prop_fdre_C_Q)         0.164     5.655 r  milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[10]/Q
+                         net (fo=2, routed)           0.122     5.777    milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[10]
+    SLICE_X2Y118         CARRY4 (Prop_carry4_S[2]_O[2])
+                                                      0.110     5.887 r  milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[8]_i_1/O[2]
+                         net (fo=1, routed)           0.000     5.887    milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[8]_i_1_n_5
+    SLICE_X2Y118         FDRE                                         r  milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[10]/D
+  -------------------------------------------------------------------    -------------------
+
+                         (clock milansoc_crg_audio_mclk_raw rise edge)
+                                                      0.000     0.000 r  <hidden>
+    R4                                                0.000     0.000 r  clk200_p
+                         net (fo=0)                   0.000     0.000    clk200_p
+    R4                   IBUFDS (Prop_ibufds_I_O)     0.400     0.400 r  IBUFDS/O
+                         net (fo=1, routed)           0.699     1.098    IBUFDS_n_0_BUFG_inst_n_0
+    BUFGCTRL_X0Y6        BUFG (Prop_bufg_I_O)         0.030     1.128 r  IBUFDS_n_0_BUFG_inst/O
+                         net (fo=9, routed)           0.831     1.959    milansoc_crg_clkin_signal
+    PLLE2_ADV_X0Y1       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT0)
+                                                      0.053     2.012 r  PLLE2_ADV/CLKOUT0
+                         net (fo=1, routed)           0.556     2.568    milansoc_crg_clkout0
+    BUFGCTRL_X0Y0        BUFG (Prop_bufg_I_O)         0.029     2.597 r  BUFG/O
+                         net (fo=18402, routed)       0.901     3.497    sys_clk
+    PLLE2_ADV_X0Y0       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT0)
+                                                      0.053     3.550 r  pll_audio_pre/CLKOUT0
+                         net (fo=1, routed)           0.716     4.266    milansoc_crg_audio_ref_raw
+    BUFGCTRL_X0Y7        BUFG (Prop_bufg_I_O)         0.029     4.295 r  BUFG_2/O
+                         net (fo=1, routed)           0.896     5.191    milansoc_crg_audio_ref
+    MMCME2_ADV_X0Y0      MMCME2_ADV (Prop_mmcme2_adv_CLKIN1_CLKOUT0)
+                                                      0.053     5.244 r  mmcm_audio/CLKOUT0
+                         net (fo=1, routed)           0.700     5.944    milansoc_crg_audio_mclk_raw
+    BUFGCTRL_X0Y5        BUFG (Prop_bufg_I_O)         0.029     5.973 r  BUFG_3/O
+                         net (fo=19, routed)          0.863     6.837    milan_datapath/g_mmcm_servo.mmcm_servo/CLK
+    SLICE_X2Y118         FDRE                                         r  milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[10]/C
+                         clock pessimism             -1.346     5.491    <hidden>
+    SLICE_X2Y118         FDRE (Hold_fdre_C_D)         0.134     5.625    milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[10]
+  -------------------------------------------------------------------
+                         required time                         -5.625    <hidden>
+                         arrival time                           5.887    <hidden>
+  -------------------------------------------------------------------
+                         slack                                  0.262    <hidden>
+
+Slack (MET) :             0.263ns  (arrival time - required time)
+  Source:                 milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[2]/C
+                            (rising edge-triggered cell FDRE clocked by milansoc_crg_audio_mclk_raw  {rise@0.000ns fall@20.345ns period=40.690ns})
+  Destination:            milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[2]/D
+                            (rising edge-triggered cell FDRE clocked by milansoc_crg_audio_mclk_raw  {rise@0.000ns fall@20.345ns period=40.690ns})
+  Path Group:             milansoc_crg_audio_mclk_raw
+  Path Type:              Hold (Min at Fast Process Corner)
+  Requirement:            0.000ns  (milansoc_crg_audio_mclk_raw rise@0.000ns - milansoc_crg_audio_mclk_raw rise@0.000ns)
+  Data Path Delay:        0.397ns  (logic 0.274ns (69.098%)  route 0.123ns (30.902%))
+  Logic Levels:           1  (CARRY4=1)
+  Clock Path Skew:        0.000ns (DCD - SCD - CPR)
+    Destination Clock Delay (DCD):    6.839ns
+    Source Clock Delay      (SCD):    5.493ns
+    Clock Pessimism Removal (CPR):    1.346ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock milansoc_crg_audio_mclk_raw rise edge)
+                                                      0.000     0.000 r  <hidden>
+    R4                                                0.000     0.000 r  clk200_p
+                         net (fo=0)                   0.000     0.000    clk200_p
+    R4                   IBUFDS (Prop_ibufds_I_O)     0.369     0.369 r  IBUFDS/O
+                         net (fo=1, routed)           0.644     1.013    IBUFDS_n_0_BUFG_inst_n_0
+    BUFGCTRL_X0Y6        BUFG (Prop_bufg_I_O)         0.027     1.040 r  IBUFDS_n_0_BUFG_inst/O
+                         net (fo=9, routed)           0.561     1.600    milansoc_crg_clkin_signal
+    PLLE2_ADV_X0Y1       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT0)
+                                                      0.050     1.650 r  PLLE2_ADV/CLKOUT0
+                         net (fo=1, routed)           0.510     2.160    milansoc_crg_clkout0
+    BUFGCTRL_X0Y0        BUFG (Prop_bufg_I_O)         0.026     2.186 r  BUFG/O
+                         net (fo=18402, routed)       0.627     2.813    sys_clk
+    PLLE2_ADV_X0Y0       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT0)
+                                                      0.050     2.863 r  pll_audio_pre/CLKOUT0
+                         net (fo=1, routed)           0.663     3.526    milansoc_crg_audio_ref_raw
+    BUFGCTRL_X0Y7        BUFG (Prop_bufg_I_O)         0.026     3.552 r  BUFG_2/O
+                         net (fo=1, routed)           0.622     4.174    milansoc_crg_audio_ref
+    MMCME2_ADV_X0Y0      MMCME2_ADV (Prop_mmcme2_adv_CLKIN1_CLKOUT0)
+                                                      0.050     4.224 r  mmcm_audio/CLKOUT0
+                         net (fo=1, routed)           0.648     4.872    milansoc_crg_audio_mclk_raw
+    BUFGCTRL_X0Y5        BUFG (Prop_bufg_I_O)         0.026     4.898 r  BUFG_3/O
+                         net (fo=19, routed)          0.595     5.493    milan_datapath/g_mmcm_servo.mmcm_servo/CLK
+    SLICE_X2Y116         FDRE                                         r  milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[2]/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X2Y116         FDRE (Prop_fdre_C_Q)         0.164     5.657 r  milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[2]/Q
+                         net (fo=2, routed)           0.123     5.779    milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[2]
+    SLICE_X2Y116         CARRY4 (Prop_carry4_S[2]_O[2])
+                                                      0.110     5.889 r  milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[0]_i_2/O[2]
+                         net (fo=1, routed)           0.000     5.889    milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[0]_i_2_n_5
+    SLICE_X2Y116         FDRE                                         r  milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[2]/D
+  -------------------------------------------------------------------    -------------------
+
+                         (clock milansoc_crg_audio_mclk_raw rise edge)
+                                                      0.000     0.000 r  <hidden>
+    R4                                                0.000     0.000 r  clk200_p
+                         net (fo=0)                   0.000     0.000    clk200_p
+    R4                   IBUFDS (Prop_ibufds_I_O)     0.400     0.400 r  IBUFDS/O
+                         net (fo=1, routed)           0.699     1.098    IBUFDS_n_0_BUFG_inst_n_0
+    BUFGCTRL_X0Y6        BUFG (Prop_bufg_I_O)         0.030     1.128 r  IBUFDS_n_0_BUFG_inst/O
+                         net (fo=9, routed)           0.831     1.959    milansoc_crg_clkin_signal
+    PLLE2_ADV_X0Y1       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT0)
+                                                      0.053     2.012 r  PLLE2_ADV/CLKOUT0
+                         net (fo=1, routed)           0.556     2.568    milansoc_crg_clkout0
+    BUFGCTRL_X0Y0        BUFG (Prop_bufg_I_O)         0.029     2.597 r  BUFG/O
+                         net (fo=18402, routed)       0.901     3.497    sys_clk
+    PLLE2_ADV_X0Y0       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT0)
+                                                      0.053     3.550 r  pll_audio_pre/CLKOUT0
+                         net (fo=1, routed)           0.716     4.266    milansoc_crg_audio_ref_raw
+    BUFGCTRL_X0Y7        BUFG (Prop_bufg_I_O)         0.029     4.295 r  BUFG_2/O
+                         net (fo=1, routed)           0.896     5.191    milansoc_crg_audio_ref
+    MMCME2_ADV_X0Y0      MMCME2_ADV (Prop_mmcme2_adv_CLKIN1_CLKOUT0)
+                                                      0.053     5.244 r  mmcm_audio/CLKOUT0
+                         net (fo=1, routed)           0.700     5.944    milansoc_crg_audio_mclk_raw
+    BUFGCTRL_X0Y5        BUFG (Prop_bufg_I_O)         0.029     5.973 r  BUFG_3/O
+                         net (fo=19, routed)          0.866     6.839    milan_datapath/g_mmcm_servo.mmcm_servo/CLK
+    SLICE_X2Y116         FDRE                                         r  milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[2]/C
+                         clock pessimism             -1.346     5.493    <hidden>
+    SLICE_X2Y116         FDRE (Hold_fdre_C_D)         0.134     5.627    milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[2]
+  -------------------------------------------------------------------
+                         required time                         -5.627    <hidden>
+                         arrival time                           5.889    <hidden>
+  -------------------------------------------------------------------
+                         slack                                  0.263    <hidden>
+
+Slack (MET) :             0.264ns  (arrival time - required time)
+  Source:                 milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[14]/C
+                            (rising edge-triggered cell FDRE clocked by milansoc_crg_audio_mclk_raw  {rise@0.000ns fall@20.345ns period=40.690ns})
+  Destination:            milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[14]/D
+                            (rising edge-triggered cell FDRE clocked by milansoc_crg_audio_mclk_raw  {rise@0.000ns fall@20.345ns period=40.690ns})
+  Path Group:             milansoc_crg_audio_mclk_raw
+  Path Type:              Hold (Min at Fast Process Corner)
+  Requirement:            0.000ns  (milansoc_crg_audio_mclk_raw rise@0.000ns - milansoc_crg_audio_mclk_raw rise@0.000ns)
+  Data Path Delay:        0.398ns  (logic 0.274ns (68.886%)  route 0.124ns (31.114%))
+  Logic Levels:           1  (CARRY4=1)
+  Clock Path Skew:        0.000ns (DCD - SCD - CPR)
+    Destination Clock Delay (DCD):    6.836ns
+    Source Clock Delay      (SCD):    5.490ns
+    Clock Pessimism Removal (CPR):    1.346ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock milansoc_crg_audio_mclk_raw rise edge)
+                                                      0.000     0.000 r  <hidden>
+    R4                                                0.000     0.000 r  clk200_p
+                         net (fo=0)                   0.000     0.000    clk200_p
+    R4                   IBUFDS (Prop_ibufds_I_O)     0.369     0.369 r  IBUFDS/O
+                         net (fo=1, routed)           0.644     1.013    IBUFDS_n_0_BUFG_inst_n_0
+    BUFGCTRL_X0Y6        BUFG (Prop_bufg_I_O)         0.027     1.040 r  IBUFDS_n_0_BUFG_inst/O
+                         net (fo=9, routed)           0.561     1.600    milansoc_crg_clkin_signal
+    PLLE2_ADV_X0Y1       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT0)
+                                                      0.050     1.650 r  PLLE2_ADV/CLKOUT0
+                         net (fo=1, routed)           0.510     2.160    milansoc_crg_clkout0
+    BUFGCTRL_X0Y0        BUFG (Prop_bufg_I_O)         0.026     2.186 r  BUFG/O
+                         net (fo=18402, routed)       0.627     2.813    sys_clk
+    PLLE2_ADV_X0Y0       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT0)
+                                                      0.050     2.863 r  pll_audio_pre/CLKOUT0
+                         net (fo=1, routed)           0.663     3.526    milansoc_crg_audio_ref_raw
+    BUFGCTRL_X0Y7        BUFG (Prop_bufg_I_O)         0.026     3.552 r  BUFG_2/O
+                         net (fo=1, routed)           0.622     4.174    milansoc_crg_audio_ref
+    MMCME2_ADV_X0Y0      MMCME2_ADV (Prop_mmcme2_adv_CLKIN1_CLKOUT0)
+                                                      0.050     4.224 r  mmcm_audio/CLKOUT0
+                         net (fo=1, routed)           0.648     4.872    milansoc_crg_audio_mclk_raw
+    BUFGCTRL_X0Y5        BUFG (Prop_bufg_I_O)         0.026     4.898 r  BUFG_3/O
+                         net (fo=19, routed)          0.592     5.490    milan_datapath/g_mmcm_servo.mmcm_servo/CLK
+    SLICE_X2Y119         FDRE                                         r  milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[14]/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X2Y119         FDRE (Prop_fdre_C_Q)         0.164     5.654 r  milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[14]/Q
+                         net (fo=2, routed)           0.124     5.778    milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[14]
+    SLICE_X2Y119         CARRY4 (Prop_carry4_S[2]_O[2])
+                                                      0.110     5.888 r  milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[12]_i_1/O[2]
+                         net (fo=1, routed)           0.000     5.888    milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[12]_i_1_n_5
+    SLICE_X2Y119         FDRE                                         r  milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[14]/D
+  -------------------------------------------------------------------    -------------------
+
+                         (clock milansoc_crg_audio_mclk_raw rise edge)
+                                                      0.000     0.000 r  <hidden>
+    R4                                                0.000     0.000 r  clk200_p
+                         net (fo=0)                   0.000     0.000    clk200_p
+    R4                   IBUFDS (Prop_ibufds_I_O)     0.400     0.400 r  IBUFDS/O
+                         net (fo=1, routed)           0.699     1.098    IBUFDS_n_0_BUFG_inst_n_0
+    BUFGCTRL_X0Y6        BUFG (Prop_bufg_I_O)         0.030     1.128 r  IBUFDS_n_0_BUFG_inst/O
+                         net (fo=9, routed)           0.831     1.959    milansoc_crg_clkin_signal
+    PLLE2_ADV_X0Y1       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT0)
+                                                      0.053     2.012 r  PLLE2_ADV/CLKOUT0
+                         net (fo=1, routed)           0.556     2.568    milansoc_crg_clkout0
+    BUFGCTRL_X0Y0        BUFG (Prop_bufg_I_O)         0.029     2.597 r  BUFG/O
+                         net (fo=18402, routed)       0.901     3.497    sys_clk
+    PLLE2_ADV_X0Y0       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT0)
+                                                      0.053     3.550 r  pll_audio_pre/CLKOUT0
+                         net (fo=1, routed)           0.716     4.266    milansoc_crg_audio_ref_raw
+    BUFGCTRL_X0Y7        BUFG (Prop_bufg_I_O)         0.029     4.295 r  BUFG_2/O
+                         net (fo=1, routed)           0.896     5.191    milansoc_crg_audio_ref
+    MMCME2_ADV_X0Y0      MMCME2_ADV (Prop_mmcme2_adv_CLKIN1_CLKOUT0)
+                                                      0.053     5.244 r  mmcm_audio/CLKOUT0
+                         net (fo=1, routed)           0.700     5.944    milansoc_crg_audio_mclk_raw
+    BUFGCTRL_X0Y5        BUFG (Prop_bufg_I_O)         0.029     5.973 r  BUFG_3/O
+                         net (fo=19, routed)          0.862     6.836    milan_datapath/g_mmcm_servo.mmcm_servo/CLK
+    SLICE_X2Y119         FDRE                                         r  milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[14]/C
+                         clock pessimism             -1.346     5.490    <hidden>
+    SLICE_X2Y119         FDRE (Hold_fdre_C_D)         0.134     5.624    milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[14]
+  -------------------------------------------------------------------
+                         required time                         -5.624    <hidden>
+                         arrival time                           5.888    <hidden>
+  -------------------------------------------------------------------
+                         slack                                  0.264    <hidden>
+
+Slack (MET) :             0.298ns  (arrival time - required time)
+  Source:                 milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[10]/C
+                            (rising edge-triggered cell FDRE clocked by milansoc_crg_audio_mclk_raw  {rise@0.000ns fall@20.345ns period=40.690ns})
+  Destination:            milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[11]/D
+                            (rising edge-triggered cell FDRE clocked by milansoc_crg_audio_mclk_raw  {rise@0.000ns fall@20.345ns period=40.690ns})
+  Path Group:             milansoc_crg_audio_mclk_raw
+  Path Type:              Hold (Min at Fast Process Corner)
+  Requirement:            0.000ns  (milansoc_crg_audio_mclk_raw rise@0.000ns - milansoc_crg_audio_mclk_raw rise@0.000ns)
+  Data Path Delay:        0.432ns  (logic 0.310ns (71.774%)  route 0.122ns (28.226%))
+  Logic Levels:           1  (CARRY4=1)
+  Clock Path Skew:        0.000ns (DCD - SCD - CPR)
+    Destination Clock Delay (DCD):    6.837ns
+    Source Clock Delay      (SCD):    5.491ns
+    Clock Pessimism Removal (CPR):    1.346ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock milansoc_crg_audio_mclk_raw rise edge)
+                                                      0.000     0.000 r  <hidden>
+    R4                                                0.000     0.000 r  clk200_p
+                         net (fo=0)                   0.000     0.000    clk200_p
+    R4                   IBUFDS (Prop_ibufds_I_O)     0.369     0.369 r  IBUFDS/O
+                         net (fo=1, routed)           0.644     1.013    IBUFDS_n_0_BUFG_inst_n_0
+    BUFGCTRL_X0Y6        BUFG (Prop_bufg_I_O)         0.027     1.040 r  IBUFDS_n_0_BUFG_inst/O
+                         net (fo=9, routed)           0.561     1.600    milansoc_crg_clkin_signal
+    PLLE2_ADV_X0Y1       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT0)
+                                                      0.050     1.650 r  PLLE2_ADV/CLKOUT0
+                         net (fo=1, routed)           0.510     2.160    milansoc_crg_clkout0
+    BUFGCTRL_X0Y0        BUFG (Prop_bufg_I_O)         0.026     2.186 r  BUFG/O
+                         net (fo=18402, routed)       0.627     2.813    sys_clk
+    PLLE2_ADV_X0Y0       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT0)
+                                                      0.050     2.863 r  pll_audio_pre/CLKOUT0
+                         net (fo=1, routed)           0.663     3.526    milansoc_crg_audio_ref_raw
+    BUFGCTRL_X0Y7        BUFG (Prop_bufg_I_O)         0.026     3.552 r  BUFG_2/O
+                         net (fo=1, routed)           0.622     4.174    milansoc_crg_audio_ref
+    MMCME2_ADV_X0Y0      MMCME2_ADV (Prop_mmcme2_adv_CLKIN1_CLKOUT0)
+                                                      0.050     4.224 r  mmcm_audio/CLKOUT0
+                         net (fo=1, routed)           0.648     4.872    milansoc_crg_audio_mclk_raw
+    BUFGCTRL_X0Y5        BUFG (Prop_bufg_I_O)         0.026     4.898 r  BUFG_3/O
+                         net (fo=19, routed)          0.593     5.491    milan_datapath/g_mmcm_servo.mmcm_servo/CLK
+    SLICE_X2Y118         FDRE                                         r  milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[10]/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X2Y118         FDRE (Prop_fdre_C_Q)         0.164     5.655 r  milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[10]/Q
+                         net (fo=2, routed)           0.122     5.777    milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[10]
+    SLICE_X2Y118         CARRY4 (Prop_carry4_S[2]_O[3])
+                                                      0.146     5.923 r  milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[8]_i_1/O[3]
+                         net (fo=1, routed)           0.000     5.923    milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[8]_i_1_n_4
+    SLICE_X2Y118         FDRE                                         r  milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[11]/D
+  -------------------------------------------------------------------    -------------------
+
+                         (clock milansoc_crg_audio_mclk_raw rise edge)
+                                                      0.000     0.000 r  <hidden>
+    R4                                                0.000     0.000 r  clk200_p
+                         net (fo=0)                   0.000     0.000    clk200_p
+    R4                   IBUFDS (Prop_ibufds_I_O)     0.400     0.400 r  IBUFDS/O
+                         net (fo=1, routed)           0.699     1.098    IBUFDS_n_0_BUFG_inst_n_0
+    BUFGCTRL_X0Y6        BUFG (Prop_bufg_I_O)         0.030     1.128 r  IBUFDS_n_0_BUFG_inst/O
+                         net (fo=9, routed)           0.831     1.959    milansoc_crg_clkin_signal
+    PLLE2_ADV_X0Y1       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT0)
+                                                      0.053     2.012 r  PLLE2_ADV/CLKOUT0
+                         net (fo=1, routed)           0.556     2.568    milansoc_crg_clkout0
+    BUFGCTRL_X0Y0        BUFG (Prop_bufg_I_O)         0.029     2.597 r  BUFG/O
+                         net (fo=18402, routed)       0.901     3.497    sys_clk
+    PLLE2_ADV_X0Y0       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT0)
+                                                      0.053     3.550 r  pll_audio_pre/CLKOUT0
+                         net (fo=1, routed)           0.716     4.266    milansoc_crg_audio_ref_raw
+    BUFGCTRL_X0Y7        BUFG (Prop_bufg_I_O)         0.029     4.295 r  BUFG_2/O
+                         net (fo=1, routed)           0.896     5.191    milansoc_crg_audio_ref
+    MMCME2_ADV_X0Y0      MMCME2_ADV (Prop_mmcme2_adv_CLKIN1_CLKOUT0)
+                                                      0.053     5.244 r  mmcm_audio/CLKOUT0
+                         net (fo=1, routed)           0.700     5.944    milansoc_crg_audio_mclk_raw
+    BUFGCTRL_X0Y5        BUFG (Prop_bufg_I_O)         0.029     5.973 r  BUFG_3/O
+                         net (fo=19, routed)          0.863     6.837    milan_datapath/g_mmcm_servo.mmcm_servo/CLK
+    SLICE_X2Y118         FDRE                                         r  milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[11]/C
+                         clock pessimism             -1.346     5.491    <hidden>
+    SLICE_X2Y118         FDRE (Hold_fdre_C_D)         0.134     5.625    milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[11]
+  -------------------------------------------------------------------
+                         required time                         -5.625    <hidden>
+                         arrival time                           5.923    <hidden>
+  -------------------------------------------------------------------
+                         slack                                  0.298    <hidden>
+
+Slack (MET) :             0.299ns  (arrival time - required time)
+  Source:                 milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[2]/C
+                            (rising edge-triggered cell FDRE clocked by milansoc_crg_audio_mclk_raw  {rise@0.000ns fall@20.345ns period=40.690ns})
+  Destination:            milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[3]/D
+                            (rising edge-triggered cell FDRE clocked by milansoc_crg_audio_mclk_raw  {rise@0.000ns fall@20.345ns period=40.690ns})
+  Path Group:             milansoc_crg_audio_mclk_raw
+  Path Type:              Hold (Min at Fast Process Corner)
+  Requirement:            0.000ns  (milansoc_crg_audio_mclk_raw rise@0.000ns - milansoc_crg_audio_mclk_raw rise@0.000ns)
+  Data Path Delay:        0.433ns  (logic 0.310ns (71.670%)  route 0.123ns (28.330%))
+  Logic Levels:           1  (CARRY4=1)
+  Clock Path Skew:        0.000ns (DCD - SCD - CPR)
+    Destination Clock Delay (DCD):    6.839ns
+    Source Clock Delay      (SCD):    5.493ns
+    Clock Pessimism Removal (CPR):    1.346ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock milansoc_crg_audio_mclk_raw rise edge)
+                                                      0.000     0.000 r  <hidden>
+    R4                                                0.000     0.000 r  clk200_p
+                         net (fo=0)                   0.000     0.000    clk200_p
+    R4                   IBUFDS (Prop_ibufds_I_O)     0.369     0.369 r  IBUFDS/O
+                         net (fo=1, routed)           0.644     1.013    IBUFDS_n_0_BUFG_inst_n_0
+    BUFGCTRL_X0Y6        BUFG (Prop_bufg_I_O)         0.027     1.040 r  IBUFDS_n_0_BUFG_inst/O
+                         net (fo=9, routed)           0.561     1.600    milansoc_crg_clkin_signal
+    PLLE2_ADV_X0Y1       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT0)
+                                                      0.050     1.650 r  PLLE2_ADV/CLKOUT0
+                         net (fo=1, routed)           0.510     2.160    milansoc_crg_clkout0
+    BUFGCTRL_X0Y0        BUFG (Prop_bufg_I_O)         0.026     2.186 r  BUFG/O
+                         net (fo=18402, routed)       0.627     2.813    sys_clk
+    PLLE2_ADV_X0Y0       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT0)
+                                                      0.050     2.863 r  pll_audio_pre/CLKOUT0
+                         net (fo=1, routed)           0.663     3.526    milansoc_crg_audio_ref_raw
+    BUFGCTRL_X0Y7        BUFG (Prop_bufg_I_O)         0.026     3.552 r  BUFG_2/O
+                         net (fo=1, routed)           0.622     4.174    milansoc_crg_audio_ref
+    MMCME2_ADV_X0Y0      MMCME2_ADV (Prop_mmcme2_adv_CLKIN1_CLKOUT0)
+                                                      0.050     4.224 r  mmcm_audio/CLKOUT0
+                         net (fo=1, routed)           0.648     4.872    milansoc_crg_audio_mclk_raw
+    BUFGCTRL_X0Y5        BUFG (Prop_bufg_I_O)         0.026     4.898 r  BUFG_3/O
+                         net (fo=19, routed)          0.595     5.493    milan_datapath/g_mmcm_servo.mmcm_servo/CLK
+    SLICE_X2Y116         FDRE                                         r  milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[2]/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X2Y116         FDRE (Prop_fdre_C_Q)         0.164     5.657 r  milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[2]/Q
+                         net (fo=2, routed)           0.123     5.779    milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[2]
+    SLICE_X2Y116         CARRY4 (Prop_carry4_S[2]_O[3])
+                                                      0.146     5.925 r  milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[0]_i_2/O[3]
+                         net (fo=1, routed)           0.000     5.925    milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[0]_i_2_n_4
+    SLICE_X2Y116         FDRE                                         r  milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[3]/D
+  -------------------------------------------------------------------    -------------------
+
+                         (clock milansoc_crg_audio_mclk_raw rise edge)
+                                                      0.000     0.000 r  <hidden>
+    R4                                                0.000     0.000 r  clk200_p
+                         net (fo=0)                   0.000     0.000    clk200_p
+    R4                   IBUFDS (Prop_ibufds_I_O)     0.400     0.400 r  IBUFDS/O
+                         net (fo=1, routed)           0.699     1.098    IBUFDS_n_0_BUFG_inst_n_0
+    BUFGCTRL_X0Y6        BUFG (Prop_bufg_I_O)         0.030     1.128 r  IBUFDS_n_0_BUFG_inst/O
+                         net (fo=9, routed)           0.831     1.959    milansoc_crg_clkin_signal
+    PLLE2_ADV_X0Y1       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT0)
+                                                      0.053     2.012 r  PLLE2_ADV/CLKOUT0
+                         net (fo=1, routed)           0.556     2.568    milansoc_crg_clkout0
+    BUFGCTRL_X0Y0        BUFG (Prop_bufg_I_O)         0.029     2.597 r  BUFG/O
+                         net (fo=18402, routed)       0.901     3.497    sys_clk
+    PLLE2_ADV_X0Y0       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT0)
+                                                      0.053     3.550 r  pll_audio_pre/CLKOUT0
+                         net (fo=1, routed)           0.716     4.266    milansoc_crg_audio_ref_raw
+    BUFGCTRL_X0Y7        BUFG (Prop_bufg_I_O)         0.029     4.295 r  BUFG_2/O
+                         net (fo=1, routed)           0.896     5.191    milansoc_crg_audio_ref
+    MMCME2_ADV_X0Y0      MMCME2_ADV (Prop_mmcme2_adv_CLKIN1_CLKOUT0)
+                                                      0.053     5.244 r  mmcm_audio/CLKOUT0
+                         net (fo=1, routed)           0.700     5.944    milansoc_crg_audio_mclk_raw
+    BUFGCTRL_X0Y5        BUFG (Prop_bufg_I_O)         0.029     5.973 r  BUFG_3/O
+                         net (fo=19, routed)          0.866     6.839    milan_datapath/g_mmcm_servo.mmcm_servo/CLK
+    SLICE_X2Y116         FDRE                                         r  milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[3]/C
+                         clock pessimism             -1.346     5.493    <hidden>
+    SLICE_X2Y116         FDRE (Hold_fdre_C_D)         0.134     5.627    milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[3]
+  -------------------------------------------------------------------
+                         required time                         -5.627    <hidden>
+                         arrival time                           5.925    <hidden>
+  -------------------------------------------------------------------
+                         slack                                  0.299    <hidden>
+
+Slack (MET) :             0.313ns  (arrival time - required time)
+  Source:                 milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[7]/C
+                            (rising edge-triggered cell FDRE clocked by milansoc_crg_audio_mclk_raw  {rise@0.000ns fall@20.345ns period=40.690ns})
+  Destination:            milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[7]/D
+                            (rising edge-triggered cell FDRE clocked by milansoc_crg_audio_mclk_raw  {rise@0.000ns fall@20.345ns period=40.690ns})
+  Path Group:             milansoc_crg_audio_mclk_raw
+  Path Type:              Hold (Min at Fast Process Corner)
+  Requirement:            0.000ns  (milansoc_crg_audio_mclk_raw rise@0.000ns - milansoc_crg_audio_mclk_raw rise@0.000ns)
+  Data Path Delay:        0.447ns  (logic 0.273ns (61.115%)  route 0.174ns (38.885%))
+  Logic Levels:           1  (CARRY4=1)
+  Clock Path Skew:        0.000ns (DCD - SCD - CPR)
+    Destination Clock Delay (DCD):    6.838ns
+    Source Clock Delay      (SCD):    5.492ns
+    Clock Pessimism Removal (CPR):    1.346ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock milansoc_crg_audio_mclk_raw rise edge)
+                                                      0.000     0.000 r  <hidden>
+    R4                                                0.000     0.000 r  clk200_p
+                         net (fo=0)                   0.000     0.000    clk200_p
+    R4                   IBUFDS (Prop_ibufds_I_O)     0.369     0.369 r  IBUFDS/O
+                         net (fo=1, routed)           0.644     1.013    IBUFDS_n_0_BUFG_inst_n_0
+    BUFGCTRL_X0Y6        BUFG (Prop_bufg_I_O)         0.027     1.040 r  IBUFDS_n_0_BUFG_inst/O
+                         net (fo=9, routed)           0.561     1.600    milansoc_crg_clkin_signal
+    PLLE2_ADV_X0Y1       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT0)
+                                                      0.050     1.650 r  PLLE2_ADV/CLKOUT0
+                         net (fo=1, routed)           0.510     2.160    milansoc_crg_clkout0
+    BUFGCTRL_X0Y0        BUFG (Prop_bufg_I_O)         0.026     2.186 r  BUFG/O
+                         net (fo=18402, routed)       0.627     2.813    sys_clk
+    PLLE2_ADV_X0Y0       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT0)
+                                                      0.050     2.863 r  pll_audio_pre/CLKOUT0
+                         net (fo=1, routed)           0.663     3.526    milansoc_crg_audio_ref_raw
+    BUFGCTRL_X0Y7        BUFG (Prop_bufg_I_O)         0.026     3.552 r  BUFG_2/O
+                         net (fo=1, routed)           0.622     4.174    milansoc_crg_audio_ref
+    MMCME2_ADV_X0Y0      MMCME2_ADV (Prop_mmcme2_adv_CLKIN1_CLKOUT0)
+                                                      0.050     4.224 r  mmcm_audio/CLKOUT0
+                         net (fo=1, routed)           0.648     4.872    milansoc_crg_audio_mclk_raw
+    BUFGCTRL_X0Y5        BUFG (Prop_bufg_I_O)         0.026     4.898 r  BUFG_3/O
+                         net (fo=19, routed)          0.594     5.492    milan_datapath/g_mmcm_servo.mmcm_servo/CLK
+    SLICE_X2Y117         FDRE                                         r  milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[7]/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X2Y117         FDRE (Prop_fdre_C_Q)         0.164     5.656 r  milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[7]/Q
+                         net (fo=2, routed)           0.174     5.830    milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[7]
+    SLICE_X2Y117         CARRY4 (Prop_carry4_S[3]_O[3])
+                                                      0.109     5.939 r  milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[4]_i_1/O[3]
+                         net (fo=1, routed)           0.000     5.939    milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[4]_i_1_n_4
+    SLICE_X2Y117         FDRE                                         r  milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[7]/D
+  -------------------------------------------------------------------    -------------------
+
+                         (clock milansoc_crg_audio_mclk_raw rise edge)
+                                                      0.000     0.000 r  <hidden>
+    R4                                                0.000     0.000 r  clk200_p
+                         net (fo=0)                   0.000     0.000    clk200_p
+    R4                   IBUFDS (Prop_ibufds_I_O)     0.400     0.400 r  IBUFDS/O
+                         net (fo=1, routed)           0.699     1.098    IBUFDS_n_0_BUFG_inst_n_0
+    BUFGCTRL_X0Y6        BUFG (Prop_bufg_I_O)         0.030     1.128 r  IBUFDS_n_0_BUFG_inst/O
+                         net (fo=9, routed)           0.831     1.959    milansoc_crg_clkin_signal
+    PLLE2_ADV_X0Y1       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT0)
+                                                      0.053     2.012 r  PLLE2_ADV/CLKOUT0
+                         net (fo=1, routed)           0.556     2.568    milansoc_crg_clkout0
+    BUFGCTRL_X0Y0        BUFG (Prop_bufg_I_O)         0.029     2.597 r  BUFG/O
+                         net (fo=18402, routed)       0.901     3.497    sys_clk
+    PLLE2_ADV_X0Y0       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT0)
+                                                      0.053     3.550 r  pll_audio_pre/CLKOUT0
+                         net (fo=1, routed)           0.716     4.266    milansoc_crg_audio_ref_raw
+    BUFGCTRL_X0Y7        BUFG (Prop_bufg_I_O)         0.029     4.295 r  BUFG_2/O
+                         net (fo=1, routed)           0.896     5.191    milansoc_crg_audio_ref
+    MMCME2_ADV_X0Y0      MMCME2_ADV (Prop_mmcme2_adv_CLKIN1_CLKOUT0)
+                                                      0.053     5.244 r  mmcm_audio/CLKOUT0
+                         net (fo=1, routed)           0.700     5.944    milansoc_crg_audio_mclk_raw
+    BUFGCTRL_X0Y5        BUFG (Prop_bufg_I_O)         0.029     5.973 r  BUFG_3/O
+                         net (fo=19, routed)          0.864     6.838    milan_datapath/g_mmcm_servo.mmcm_servo/CLK
+    SLICE_X2Y117         FDRE                                         r  milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[7]/C
+                         clock pessimism             -1.346     5.492    <hidden>
+    SLICE_X2Y117         FDRE (Hold_fdre_C_D)         0.134     5.626    milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[7]
+  -------------------------------------------------------------------
+                         required time                         -5.626    <hidden>
+                         arrival time                           5.939    <hidden>
+  -------------------------------------------------------------------
+                         slack                                  0.313    <hidden>
+
+Slack (MET) :             0.317ns  (arrival time - required time)
+  Source:                 milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[1]/C
+                            (rising edge-triggered cell FDRE clocked by milansoc_crg_audio_mclk_raw  {rise@0.000ns fall@20.345ns period=40.690ns})
+  Destination:            milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[1]/D
+                            (rising edge-triggered cell FDRE clocked by milansoc_crg_audio_mclk_raw  {rise@0.000ns fall@20.345ns period=40.690ns})
+  Path Group:             milansoc_crg_audio_mclk_raw
+  Path Type:              Hold (Min at Fast Process Corner)
+  Requirement:            0.000ns  (milansoc_crg_audio_mclk_raw rise@0.000ns - milansoc_crg_audio_mclk_raw rise@0.000ns)
+  Data Path Delay:        0.451ns  (logic 0.275ns (61.016%)  route 0.176ns (38.984%))
+  Logic Levels:           1  (CARRY4=1)
+  Clock Path Skew:        0.000ns (DCD - SCD - CPR)
+    Destination Clock Delay (DCD):    6.839ns
+    Source Clock Delay      (SCD):    5.493ns
+    Clock Pessimism Removal (CPR):    1.346ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock milansoc_crg_audio_mclk_raw rise edge)
+                                                      0.000     0.000 r  <hidden>
+    R4                                                0.000     0.000 r  clk200_p
+                         net (fo=0)                   0.000     0.000    clk200_p
+    R4                   IBUFDS (Prop_ibufds_I_O)     0.369     0.369 r  IBUFDS/O
+                         net (fo=1, routed)           0.644     1.013    IBUFDS_n_0_BUFG_inst_n_0
+    BUFGCTRL_X0Y6        BUFG (Prop_bufg_I_O)         0.027     1.040 r  IBUFDS_n_0_BUFG_inst/O
+                         net (fo=9, routed)           0.561     1.600    milansoc_crg_clkin_signal
+    PLLE2_ADV_X0Y1       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT0)
+                                                      0.050     1.650 r  PLLE2_ADV/CLKOUT0
+                         net (fo=1, routed)           0.510     2.160    milansoc_crg_clkout0
+    BUFGCTRL_X0Y0        BUFG (Prop_bufg_I_O)         0.026     2.186 r  BUFG/O
+                         net (fo=18402, routed)       0.627     2.813    sys_clk
+    PLLE2_ADV_X0Y0       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT0)
+                                                      0.050     2.863 r  pll_audio_pre/CLKOUT0
+                         net (fo=1, routed)           0.663     3.526    milansoc_crg_audio_ref_raw
+    BUFGCTRL_X0Y7        BUFG (Prop_bufg_I_O)         0.026     3.552 r  BUFG_2/O
+                         net (fo=1, routed)           0.622     4.174    milansoc_crg_audio_ref
+    MMCME2_ADV_X0Y0      MMCME2_ADV (Prop_mmcme2_adv_CLKIN1_CLKOUT0)
+                                                      0.050     4.224 r  mmcm_audio/CLKOUT0
+                         net (fo=1, routed)           0.648     4.872    milansoc_crg_audio_mclk_raw
+    BUFGCTRL_X0Y5        BUFG (Prop_bufg_I_O)         0.026     4.898 r  BUFG_3/O
+                         net (fo=19, routed)          0.595     5.493    milan_datapath/g_mmcm_servo.mmcm_servo/CLK
+    SLICE_X2Y116         FDRE                                         r  milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[1]/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X2Y116         FDRE (Prop_fdre_C_Q)         0.164     5.657 r  milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[1]/Q
+                         net (fo=2, routed)           0.176     5.833    milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[1]
+    SLICE_X2Y116         CARRY4 (Prop_carry4_S[1]_O[1])
+                                                      0.111     5.944 r  milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[0]_i_2/O[1]
+                         net (fo=1, routed)           0.000     5.944    milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[0]_i_2_n_6
+    SLICE_X2Y116         FDRE                                         r  milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[1]/D
+  -------------------------------------------------------------------    -------------------
+
+                         (clock milansoc_crg_audio_mclk_raw rise edge)
+                                                      0.000     0.000 r  <hidden>
+    R4                                                0.000     0.000 r  clk200_p
+                         net (fo=0)                   0.000     0.000    clk200_p
+    R4                   IBUFDS (Prop_ibufds_I_O)     0.400     0.400 r  IBUFDS/O
+                         net (fo=1, routed)           0.699     1.098    IBUFDS_n_0_BUFG_inst_n_0
+    BUFGCTRL_X0Y6        BUFG (Prop_bufg_I_O)         0.030     1.128 r  IBUFDS_n_0_BUFG_inst/O
+                         net (fo=9, routed)           0.831     1.959    milansoc_crg_clkin_signal
+    PLLE2_ADV_X0Y1       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT0)
+                                                      0.053     2.012 r  PLLE2_ADV/CLKOUT0
+                         net (fo=1, routed)           0.556     2.568    milansoc_crg_clkout0
+    BUFGCTRL_X0Y0        BUFG (Prop_bufg_I_O)         0.029     2.597 r  BUFG/O
+                         net (fo=18402, routed)       0.901     3.497    sys_clk
+    PLLE2_ADV_X0Y0       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT0)
+                                                      0.053     3.550 r  pll_audio_pre/CLKOUT0
+                         net (fo=1, routed)           0.716     4.266    milansoc_crg_audio_ref_raw
+    BUFGCTRL_X0Y7        BUFG (Prop_bufg_I_O)         0.029     4.295 r  BUFG_2/O
+                         net (fo=1, routed)           0.896     5.191    milansoc_crg_audio_ref
+    MMCME2_ADV_X0Y0      MMCME2_ADV (Prop_mmcme2_adv_CLKIN1_CLKOUT0)
+                                                      0.053     5.244 r  mmcm_audio/CLKOUT0
+                         net (fo=1, routed)           0.700     5.944    milansoc_crg_audio_mclk_raw
+    BUFGCTRL_X0Y5        BUFG (Prop_bufg_I_O)         0.029     5.973 r  BUFG_3/O
+                         net (fo=19, routed)          0.866     6.839    milan_datapath/g_mmcm_servo.mmcm_servo/CLK
+    SLICE_X2Y116         FDRE                                         r  milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[1]/C
+                         clock pessimism             -1.346     5.493    <hidden>
+    SLICE_X2Y116         FDRE (Hold_fdre_C_D)         0.134     5.627    milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[1]
+  -------------------------------------------------------------------
+                         required time                         -5.627    <hidden>
+                         arrival time                           5.944    <hidden>
+  -------------------------------------------------------------------
+                         slack                                  0.317    <hidden>
+
+Slack (MET) :             0.318ns  (arrival time - required time)
+  Source:                 milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[0]/C
+                            (rising edge-triggered cell FDRE clocked by milansoc_crg_audio_mclk_raw  {rise@0.000ns fall@20.345ns period=40.690ns})
+  Destination:            milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[0]/D
+                            (rising edge-triggered cell FDRE clocked by milansoc_crg_audio_mclk_raw  {rise@0.000ns fall@20.345ns period=40.690ns})
+  Path Group:             milansoc_crg_audio_mclk_raw
+  Path Type:              Hold (Min at Fast Process Corner)
+  Requirement:            0.000ns  (milansoc_crg_audio_mclk_raw rise@0.000ns - milansoc_crg_audio_mclk_raw rise@0.000ns)
+  Data Path Delay:        0.452ns  (logic 0.279ns (61.740%)  route 0.173ns (38.260%))
+  Logic Levels:           2  (CARRY4=1 LUT1=1)
+  Clock Path Skew:        0.000ns (DCD - SCD - CPR)
+    Destination Clock Delay (DCD):    6.839ns
+    Source Clock Delay      (SCD):    5.493ns
+    Clock Pessimism Removal (CPR):    1.346ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock milansoc_crg_audio_mclk_raw rise edge)
+                                                      0.000     0.000 r  <hidden>
+    R4                                                0.000     0.000 r  clk200_p
+                         net (fo=0)                   0.000     0.000    clk200_p
+    R4                   IBUFDS (Prop_ibufds_I_O)     0.369     0.369 r  IBUFDS/O
+                         net (fo=1, routed)           0.644     1.013    IBUFDS_n_0_BUFG_inst_n_0
+    BUFGCTRL_X0Y6        BUFG (Prop_bufg_I_O)         0.027     1.040 r  IBUFDS_n_0_BUFG_inst/O
+                         net (fo=9, routed)           0.561     1.600    milansoc_crg_clkin_signal
+    PLLE2_ADV_X0Y1       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT0)
+                                                      0.050     1.650 r  PLLE2_ADV/CLKOUT0
+                         net (fo=1, routed)           0.510     2.160    milansoc_crg_clkout0
+    BUFGCTRL_X0Y0        BUFG (Prop_bufg_I_O)         0.026     2.186 r  BUFG/O
+                         net (fo=18402, routed)       0.627     2.813    sys_clk
+    PLLE2_ADV_X0Y0       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT0)
+                                                      0.050     2.863 r  pll_audio_pre/CLKOUT0
+                         net (fo=1, routed)           0.663     3.526    milansoc_crg_audio_ref_raw
+    BUFGCTRL_X0Y7        BUFG (Prop_bufg_I_O)         0.026     3.552 r  BUFG_2/O
+                         net (fo=1, routed)           0.622     4.174    milansoc_crg_audio_ref
+    MMCME2_ADV_X0Y0      MMCME2_ADV (Prop_mmcme2_adv_CLKIN1_CLKOUT0)
+                                                      0.050     4.224 r  mmcm_audio/CLKOUT0
+                         net (fo=1, routed)           0.648     4.872    milansoc_crg_audio_mclk_raw
+    BUFGCTRL_X0Y5        BUFG (Prop_bufg_I_O)         0.026     4.898 r  BUFG_3/O
+                         net (fo=19, routed)          0.595     5.493    milan_datapath/g_mmcm_servo.mmcm_servo/CLK
+    SLICE_X2Y116         FDRE                                         r  milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[0]/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X2Y116         FDRE (Prop_fdre_C_Q)         0.164     5.657 f  milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[0]/Q
+                         net (fo=2, routed)           0.173     5.830    milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[0]
+    SLICE_X2Y116         LUT1 (Prop_lut1_I0_O)        0.045     5.875 r  milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r[0]_i_4/O
+                         net (fo=1, routed)           0.000     5.875    milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r[0]_i_4_n_0
+    SLICE_X2Y116         CARRY4 (Prop_carry4_S[0]_O[0])
+                                                      0.070     5.945 r  milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[0]_i_2/O[0]
+                         net (fo=1, routed)           0.000     5.945    milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[0]_i_2_n_7
+    SLICE_X2Y116         FDRE                                         r  milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[0]/D
+  -------------------------------------------------------------------    -------------------
+
+                         (clock milansoc_crg_audio_mclk_raw rise edge)
+                                                      0.000     0.000 r  <hidden>
+    R4                                                0.000     0.000 r  clk200_p
+                         net (fo=0)                   0.000     0.000    clk200_p
+    R4                   IBUFDS (Prop_ibufds_I_O)     0.400     0.400 r  IBUFDS/O
+                         net (fo=1, routed)           0.699     1.098    IBUFDS_n_0_BUFG_inst_n_0
+    BUFGCTRL_X0Y6        BUFG (Prop_bufg_I_O)         0.030     1.128 r  IBUFDS_n_0_BUFG_inst/O
+                         net (fo=9, routed)           0.831     1.959    milansoc_crg_clkin_signal
+    PLLE2_ADV_X0Y1       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT0)
+                                                      0.053     2.012 r  PLLE2_ADV/CLKOUT0
+                         net (fo=1, routed)           0.556     2.568    milansoc_crg_clkout0
+    BUFGCTRL_X0Y0        BUFG (Prop_bufg_I_O)         0.029     2.597 r  BUFG/O
+                         net (fo=18402, routed)       0.901     3.497    sys_clk
+    PLLE2_ADV_X0Y0       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT0)
+                                                      0.053     3.550 r  pll_audio_pre/CLKOUT0
+                         net (fo=1, routed)           0.716     4.266    milansoc_crg_audio_ref_raw
+    BUFGCTRL_X0Y7        BUFG (Prop_bufg_I_O)         0.029     4.295 r  BUFG_2/O
+                         net (fo=1, routed)           0.896     5.191    milansoc_crg_audio_ref
+    MMCME2_ADV_X0Y0      MMCME2_ADV (Prop_mmcme2_adv_CLKIN1_CLKOUT0)
+                                                      0.053     5.244 r  mmcm_audio/CLKOUT0
+                         net (fo=1, routed)           0.700     5.944    milansoc_crg_audio_mclk_raw
+    BUFGCTRL_X0Y5        BUFG (Prop_bufg_I_O)         0.029     5.973 r  BUFG_3/O
+                         net (fo=19, routed)          0.866     6.839    milan_datapath/g_mmcm_servo.mmcm_servo/CLK
+    SLICE_X2Y116         FDRE                                         r  milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[0]/C
+                         clock pessimism             -1.346     5.493    <hidden>
+    SLICE_X2Y116         FDRE (Hold_fdre_C_D)         0.134     5.627    milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[0]
+  -------------------------------------------------------------------
+                         required time                         -5.627    <hidden>
+                         arrival time                           5.945    <hidden>
+  -------------------------------------------------------------------
+                         slack                                  0.318    <hidden>
+
+
+
+
+
+Pulse Width Checks
+--------------------------------------------------------------------------------------
+Clock Name:         milansoc_crg_audio_mclk_raw
+Waveform(ns):       { 0.000 20.345 }
+Period(ns):         40.690
+Sources:            { mmcm_audio/CLKOUT0 }
+
+Check Type        Corner  Lib Pin             Reference Pin  Required(ns)  Actual(ns)  Slack(ns)  Location         Pin
+Min Period        n/a     BUFG/I              n/a            1.592         40.690      39.098     BUFGCTRL_X0Y5    BUFG_3/I
+Min Period        n/a     MMCME2_ADV/CLKOUT0  n/a            1.249         40.690      39.441     MMCME2_ADV_X0Y0  mmcm_audio/CLKOUT0
+Min Period        n/a     FDRE/C              n/a            1.000         40.690      39.690     SLICE_X3Y101     milan_datapath/g_mmcm_servo.mmcm_servo/arst_sync_r_reg[0]/C
+Min Period        n/a     FDRE/C              n/a            1.000         40.690      39.690     SLICE_X3Y101     milan_datapath/g_mmcm_servo.mmcm_servo/arst_sync_r_reg[1]/C
+Min Period        n/a     FDRE/C              n/a            1.000         40.690      39.690     SLICE_X9Y111     milan_datapath/g_mmcm_servo.mmcm_servo/tick_a_r_reg/C
+Min Period        n/a     FDRE/C              n/a            1.000         40.690      39.690     SLICE_X2Y116     milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[0]/C
+Min Period        n/a     FDRE/C              n/a            1.000         40.690      39.690     SLICE_X2Y118     milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[10]/C
+Min Period        n/a     FDRE/C              n/a            1.000         40.690      39.690     SLICE_X2Y118     milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[11]/C
+Min Period        n/a     FDRE/C              n/a            1.000         40.690      39.690     SLICE_X2Y119     milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[12]/C
+Min Period        n/a     FDRE/C              n/a            1.000         40.690      39.690     SLICE_X2Y119     milan_datapath/g_mmcm_servo.mmcm_servo/tick_div_r_reg[13]/C
+Max Period        n/a     MMCME2_ADV/CLKOUT0  n/a            213.360       40.690      172.670    MMCME2_ADV_X0Y0  mmcm_audio/CLKOUT0
+Low Pulse Width   Slow    FDRE/C              n/a            0.500         20.345      19.845     SLICE_X3Y101     milan_datapath/g_mmcm_servo.mmcm_servo/arst_sync_r_reg[0]/C

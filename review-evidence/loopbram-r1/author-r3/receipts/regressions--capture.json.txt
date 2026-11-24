@@ -1,0 +1,20 @@
+Candidate head: 855529fe21fea685725a9edc4fe0a798154c6469
+Comparison base: 3cda030c174b325e36c26af6420487ff91346d15
+Source: regressions/capture.json
+Original SHA256: c9b7e0989a31a27b702930e6d60b97695db2a42ba82a7fd09f1f9c2cb46b50d7
+Scope: complete text; paths and host fields normalized
+
+{
+  "case": "capture",
+  "command": [
+    "make",
+    "-s",
+    "-C",
+    "$CHECKOUT/tb/verilator/chmap_capture",
+    "VERILATOR_JOBS=4",
+    "run",
+    "MDIR=$SCRATCH/regressions/capture"
+  ],
+  "exit": 0,
+  "seconds": 111.92827010154724
+}

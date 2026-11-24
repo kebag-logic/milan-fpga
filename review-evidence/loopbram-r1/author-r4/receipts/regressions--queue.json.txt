@@ -1,0 +1,19 @@
+Candidate head: dc78aedae34c25a97125ecd6816a1f645db5575f
+Comparison base: 3cda030c174b325e36c26af6420487ff91346d15
+Source: regressions/queue.json
+Original SHA256: c7fc9402164e8f93d218ab75865d0b4e33e4008e51e7fbb26ca23401e8cc9724
+Scope: complete text; paths and host fields normalized
+
+{
+  "case": "queue",
+  "command": [
+    "make",
+    "-s",
+    "-C",
+    "$CHECKOUT/tb/verilator/render_queue",
+    "VERILATOR_JOBS=4",
+    "all"
+  ],
+  "exit": 0,
+  "seconds": 156.43873405456543
+}

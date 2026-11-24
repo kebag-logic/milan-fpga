@@ -1,0 +1,32 @@
+Candidate head: dc78aedae34c25a97125ecd6816a1f645db5575f
+Comparison base: 3cda030c174b325e36c26af6420487ff91346d15
+Source: disabled-pipeline.json
+Original SHA256: 10cf3962ff068390a79c8de7dd569e31857198447aff12436a30d0cb661859ed
+Scope: complete text; paths and host fields normalized
+
+[
+  {
+    "script": "prepare_export.py",
+    "head": "dc78aedae34c25a97125ecd6816a1f645db5575f",
+    "exit": 0,
+    "seconds": 60.73979997634888
+  },
+  {
+    "script": "rtl_compare.py",
+    "head": "dc78aedae34c25a97125ecd6816a1f645db5575f",
+    "exit": 0,
+    "seconds": 189.81731486320496
+  },
+  {
+    "script": "canonical.py",
+    "head": "dc78aedae34c25a97125ecd6816a1f645db5575f",
+    "exit": 0,
+    "seconds": 1.766624927520752
+  },
+  {
+    "script": "synth_off.py",
+    "head": "dc78aedae34c25a97125ecd6816a1f645db5575f",
+    "exit": 0,
+    "seconds": 1138.9390654563904
+  }
+]

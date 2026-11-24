@@ -1,0 +1,41 @@
+Candidate head: 855529fe21fea685725a9edc4fe0a798154c6469
+Comparison base: 3cda030c174b325e36c26af6420487ff91346d15
+Source: check_identity_r3.py
+Original SHA256: f5311835787f4cb5e65ccffdb4a5f1fd1c4a93bf1dc99ae889012ad7784f720f
+Scope: complete text; paths and host fields normalized
+
+import hashlib,json,re,subprocess,sys
+from pathlib import Path
+w=Path(__file__).resolve().parent;root=Path('$CHECKOUT')
+scripts=Path('$MANAGEMENT/2026-09-23/loopbram-r909-1/scripts')
+for label,tree in [('base',w/'base-wt'),('head',root)]:
+ subprocess.run([sys.executable,str(scripts/'identity.py'),str(tree),str(w/'identity'/label)],check=True,timeout=600)
+subprocess.run([sys.executable,str(scripts/'compare_identity.py'),str(w/'identity/base/identity.json'),str(w/'identity/head/identity.json')],check=True,timeout=60)
+sys.path.insert(0,str(root/'sw/litex'));import ctrl_memory
+records=[]
+for name in ['endstation_ax7101_1x1_tdm8','endstation_ax7101_8x8']:
+ a=w/'base-builds'/(name+'-off')/'ctrl_app.elf';b=w/'builds'/(name+'-off')/'ctrl_app.elf'
+ ar=ctrl_memory.rom_words(ctrl_memory.read_elf(a));br=ctrl_memory.rom_words(ctrl_memory.read_elf(b))
+ assert ar==br,('firmware',name)
+ blob=b''.join(v.to_bytes(4,'little') for v in br)
+ records.append(dict(shape=name,kind='firmware ROM',bytes=len(blob),sha256=hashlib.sha256(blob).hexdigest(),equal=True))
+ a=w/'base-route'/name;b=w/'off-route'/name
+ files=['aem_desc.bin','csr.csv','gateware/alinx_ax7101.v']+[str(p.relative_to(a)) for p in (a/'gateware').glob('*.init')]
+ for f in files:
+  before=(a/f).read_bytes();after=(b/f).read_bytes()
+  same=before==after;scope='all bytes'
+  if f.endswith('.v'):
+   clean=lambda v:re.sub(rb'/\*.*?\*/|//[^\n]*',b'',v,flags=re.S)
+   before_clean=clean(before);after_clean=clean(after)
+   for path in [w/'base-wt/sw/builder/out/loopbram_base',(w/'base-wt').resolve()/'sw/builder/out/loopbram_base',root/'sw/builder/out/loopbram_off_r3']:
+    before_clean=before_clean.replace(str(path).encode(),b'$GENERATED');after_clean=after_clean.replace(str(path).encode(),b'$GENERATED')
+   before_clean=before_clean.replace(str((w/'base-wt').resolve()).encode(),b'$CHECKOUT').replace(str(w/'base-wt').encode(),b'$CHECKOUT');after_clean=after_clean.replace(str(root).encode(),b'$CHECKOUT')
+   same=before_clean==after_clean;scope='excluding generated comments and checkout/include-directory prefixes' 
+  if f.endswith('.csv'):
+   same=[v for v in before.splitlines() if not v.startswith(b'#')]==[v for v in after.splitlines() if not v.startswith(b'#')];scope='excluding generated comments'
+  records.append(dict(shape=name,file=f,bytes=len(after),base_sha256=hashlib.sha256(before).hexdigest(),sha256=hashlib.sha256(after).hexdigest(),equal=same,scope=scope))
+  if not same:print('DIFFERENCE',name,f,flush=True)
+ print(name,'firmware ROM byte identity PASS',len(blob),'bytes',flush=True)
+(w/'identity/extra-identity.json').write_text(json.dumps(records,indent=2)+'\n')
+assert all(r['equal'] for r in records)
+print('ALL DISABLED IDENTITY CHECKS PASS',flush=True)

@@ -1,0 +1,2100 @@
+Candidate head: 855529fe21fea685725a9edc4fe0a798154c6469
+Comparison base: 3cda030c174b325e36c26af6420487ff91346d15
+Source: leaf-off/base-KL_render_queue/yosys.log
+Original SHA256: d22163aeff89d2f2b9d05471615f1bc763b107a85d879ea7992be7a406b9eb86
+Scope: native compilation chatter omitted; other output retained; paths and host fields normalized
+
+
+ /----------------------------------------------------------------------------\
+ |  yosys -- Yosys Open SYnthesis Suite                                       |
+ |  Copyright (C) 2012 - 2026  Claire Xenia Wolf <claire@yosyshq.com>         |
+ |  Distributed under an ISC-like license, type "license" to see terms        |
+ \----------------------------------------------------------------------------/
+ Yosys 0.66 (git sha1 86f2ddebc-dirty, g++ 16.1.1 -march=x86-64 -mtune=generic -O2 -fno-plt -fexceptions -fstack-clash-protection -fcf-protection -fno-omit-frame-pointer -mno-omit-leaf-frame-pointer -ffile-prefix-map=/build/yosys/src=/usr/src/debug/yosys -fPIC -O3) [startdir/yosys at makepkg]
+
+-- Running command `read_verilog $SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v; synth_xilinx -flatten -top KL_render_queue; opt_lut; opt -full; opt_clean -purge; tee -o $SCRATCH/leaf-off/base-KL_render_queue/stat.txt stat' --
+
+1. Executing Verilog-2005 frontend: $SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v
+Parsing Verilog input from `$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v' to AST representation.
+Generating RTLIL representation for module `\KL_render_queue'.
+Warning: Replacing memory \lead_s_w with list of registers. See $SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:734, $SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:733
+Warning: Replacing memory \converged_r with list of registers. See $SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:616
+Warning: Replacing memory \conv_ms_r with list of registers. See $SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:615
+Warning: Replacing memory \live_r with list of registers. See $SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:614
+Warning: Replacing memory \lwv_r with list of registers. See $SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:613
+Warning: Replacing memory \lw_r with list of registers. See $SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:612
+Successfully finished Verilog frontend.
+
+2. Executing SYNTH_XILINX pass.
+
+2.1. Executing Verilog-2005 frontend: /usr/bin/../share/yosys/xilinx/cells_sim.v
+Parsing Verilog input from `/usr/bin/../share/yosys/xilinx/cells_sim.v' to AST representation.
+Generating RTLIL representation for module `\VCC'.
+Generating RTLIL representation for module `\GND'.
+Generating RTLIL representation for module `\IBUF'.
+Generating RTLIL representation for module `\IBUFG'.
+Generating RTLIL representation for module `\OBUF'.
+Generating RTLIL representation for module `\IOBUF'.
+Generating RTLIL representation for module `\OBUFT'.
+Generating RTLIL representation for module `\BUFG'.
+Generating RTLIL representation for module `\BUFGCTRL'.
+Generating RTLIL representation for module `\BUFHCE'.
+Generating RTLIL representation for module `\INV'.
+Generating RTLIL representation for module `\LUT1'.
+Generating RTLIL representation for module `\LUT2'.
+Generating RTLIL representation for module `\LUT3'.
+Generating RTLIL representation for module `\LUT4'.
+Generating RTLIL representation for module `\LUT5'.
+Generating RTLIL representation for module `\LUT6'.
+Generating RTLIL representation for module `\LUT6_2'.
+Generating RTLIL representation for module `\$__ABC9_LUT7'.
+Generating RTLIL representation for module `\$__ABC9_LUT8'.
+Generating RTLIL representation for module `\MUXCY'.
+Generating RTLIL representation for module `\MUXF5'.
+Generating RTLIL representation for module `\MUXF6'.
+Generating RTLIL representation for module `\MUXF7'.
+Generating RTLIL representation for module `\MUXF8'.
+Generating RTLIL representation for module `\MUXF9'.
+Generating RTLIL representation for module `\XORCY'.
+Generating RTLIL representation for module `\CARRY4'.
+Generating RTLIL representation for module `\CARRY8'.
+Generating RTLIL representation for module `\ORCY'.
+Generating RTLIL representation for module `\MULT_AND'.
+Generating RTLIL representation for module `\FDRE'.
+Generating RTLIL representation for module `\FDRE_1'.
+Generating RTLIL representation for module `\FDSE'.
+Generating RTLIL representation for module `\FDSE_1'.
+Generating RTLIL representation for module `\FDRSE'.
+Generating RTLIL representation for module `\FDRSE_1'.
+Generating RTLIL representation for module `\FDCE'.
+Generating RTLIL representation for module `\FDCE_1'.
+Generating RTLIL representation for module `\FDPE'.
+Generating RTLIL representation for module `\FDPE_1'.
+Generating RTLIL representation for module `\FDCPE'.
+Generating RTLIL representation for module `\FDCPE_1'.
+Generating RTLIL representation for module `\LDCE'.
+Generating RTLIL representation for module `\LDPE'.
+Generating RTLIL representation for module `\LDCPE'.
+Generating RTLIL representation for module `\AND2B1L'.
+Generating RTLIL representation for module `\OR2L'.
+Generating RTLIL representation for module `\RAM16X1S'.
+Generating RTLIL representation for module `\RAM16X1S_1'.
+Generating RTLIL representation for module `\RAM32X1S'.
+Generating RTLIL representation for module `\RAM32X1S_1'.
+Generating RTLIL representation for module `\RAM64X1S'.
+Generating RTLIL representation for module `\RAM64X1S_1'.
+Generating RTLIL representation for module `\RAM128X1S'.
+Generating RTLIL representation for module `\RAM128X1S_1'.
+Generating RTLIL representation for module `\RAM256X1S'.
+Generating RTLIL representation for module `\RAM512X1S'.
+Generating RTLIL representation for module `\RAM16X2S'.
+Generating RTLIL representation for module `\RAM32X2S'.
+Generating RTLIL representation for module `\RAM64X2S'.
+Generating RTLIL representation for module `\RAM16X4S'.
+Generating RTLIL representation for module `\RAM32X4S'.
+Generating RTLIL representation for module `\RAM16X8S'.
+Generating RTLIL representation for module `\RAM32X8S'.
+Generating RTLIL representation for module `\RAM16X1D'.
+Generating RTLIL representation for module `\RAM16X1D_1'.
+Generating RTLIL representation for module `\RAM32X1D'.
+Generating RTLIL representation for module `\RAM32X1D_1'.
+Generating RTLIL representation for module `\RAM64X1D'.
+Generating RTLIL representation for module `\RAM64X1D_1'.
+Generating RTLIL representation for module `\RAM128X1D'.
+Generating RTLIL representation for module `\RAM256X1D'.
+Generating RTLIL representation for module `\RAM32M'.
+Generating RTLIL representation for module `\RAM32M16'.
+Generating RTLIL representation for module `\RAM64M'.
+Generating RTLIL representation for module `\RAM64M8'.
+Generating RTLIL representation for module `\RAM32X16DR8'.
+Generating RTLIL representation for module `\RAM64X8SW'.
+Generating RTLIL representation for module `\ROM16X1'.
+Generating RTLIL representation for module `\ROM32X1'.
+Generating RTLIL representation for module `\ROM64X1'.
+Generating RTLIL representation for module `\ROM128X1'.
+Generating RTLIL representation for module `\ROM256X1'.
+Generating RTLIL representation for module `\SRL16'.
+Generating RTLIL representation for module `\SRL16E'.
+Generating RTLIL representation for module `\SRLC16'.
+Generating RTLIL representation for module `\SRLC16E'.
+Generating RTLIL representation for module `\SRLC32E'.
+Generating RTLIL representation for module `\CFGLUT5'.
+Generating RTLIL representation for module `\MULT18X18'.
+Generating RTLIL representation for module `\MULT18X18S'.
+Generating RTLIL representation for module `\MULT18X18SIO'.
+Generating RTLIL representation for module `\DSP48A'.
+Generating RTLIL representation for module `\DSP48A1'.
+Generating RTLIL representation for module `\DSP48'.
+Generating RTLIL representation for module `\DSP48E1'.
+Generating RTLIL representation for module `\RAMB18E1'.
+Generating RTLIL representation for module `\RAMB36E1'.
+Successfully finished Verilog frontend.
+
+2.2. Executing Verilog-2005 frontend: /usr/bin/../share/yosys/xilinx/cells_xtra.v
+Parsing Verilog input from `/usr/bin/../share/yosys/xilinx/cells_xtra.v' to AST representation.
+Generating RTLIL representation for module `\RAMB4_S1'.
+Generating RTLIL representation for module `\RAMB4_S2'.
+Generating RTLIL representation for module `\RAMB4_S4'.
+Generating RTLIL representation for module `\RAMB4_S8'.
+Generating RTLIL representation for module `\RAMB4_S16'.
+Generating RTLIL representation for module `\RAMB4_S1_S1'.
+Generating RTLIL representation for module `\RAMB4_S1_S2'.
+Generating RTLIL representation for module `\RAMB4_S1_S4'.
+Generating RTLIL representation for module `\RAMB4_S1_S8'.
+Generating RTLIL representation for module `\RAMB4_S1_S16'.
+Generating RTLIL representation for module `\RAMB4_S2_S2'.
+Generating RTLIL representation for module `\RAMB4_S2_S4'.
+Generating RTLIL representation for module `\RAMB4_S2_S8'.
+Generating RTLIL representation for module `\RAMB4_S2_S16'.
+Generating RTLIL representation for module `\RAMB4_S4_S4'.
+Generating RTLIL representation for module `\RAMB4_S4_S8'.
+Generating RTLIL representation for module `\RAMB4_S4_S16'.
+Generating RTLIL representation for module `\RAMB4_S8_S8'.
+Generating RTLIL representation for module `\RAMB4_S8_S16'.
+Generating RTLIL representation for module `\RAMB4_S16_S16'.
+Generating RTLIL representation for module `\RAMB16_S1'.
+Generating RTLIL representation for module `\RAMB16_S2'.
+Generating RTLIL representation for module `\RAMB16_S4'.
+Generating RTLIL representation for module `\RAMB16_S9'.
+Generating RTLIL representation for module `\RAMB16_S18'.
+Generating RTLIL representation for module `\RAMB16_S36'.
+Generating RTLIL representation for module `\RAMB16_S1_S1'.
+Generating RTLIL representation for module `\RAMB16_S1_S2'.
+Generating RTLIL representation for module `\RAMB16_S1_S4'.
+Generating RTLIL representation for module `\RAMB16_S1_S9'.
+Generating RTLIL representation for module `\RAMB16_S1_S18'.
+Generating RTLIL representation for module `\RAMB16_S1_S36'.
+Generating RTLIL representation for module `\RAMB16_S2_S2'.
+Generating RTLIL representation for module `\RAMB16_S2_S4'.
+Generating RTLIL representation for module `\RAMB16_S2_S9'.
+Generating RTLIL representation for module `\RAMB16_S2_S18'.
+Generating RTLIL representation for module `\RAMB16_S2_S36'.
+Generating RTLIL representation for module `\RAMB16_S4_S4'.
+Generating RTLIL representation for module `\RAMB16_S4_S9'.
+Generating RTLIL representation for module `\RAMB16_S4_S18'.
+Generating RTLIL representation for module `\RAMB16_S4_S36'.
+Generating RTLIL representation for module `\RAMB16_S9_S9'.
+Generating RTLIL representation for module `\RAMB16_S9_S18'.
+Generating RTLIL representation for module `\RAMB16_S9_S36'.
+Generating RTLIL representation for module `\RAMB16_S18_S18'.
+Generating RTLIL representation for module `\RAMB16_S18_S36'.
+Generating RTLIL representation for module `\RAMB16_S36_S36'.
+Generating RTLIL representation for module `\RAMB16BWE_S18'.
+Generating RTLIL representation for module `\RAMB16BWE_S36'.
+Generating RTLIL representation for module `\RAMB16BWE_S18_S9'.
+Generating RTLIL representation for module `\RAMB16BWE_S18_S18'.
+Generating RTLIL representation for module `\RAMB16BWE_S36_S9'.
+Generating RTLIL representation for module `\RAMB16BWE_S36_S18'.
+Generating RTLIL representation for module `\RAMB16BWE_S36_S36'.
+Generating RTLIL representation for module `\RAMB16BWER'.
+Generating RTLIL representation for module `\RAMB8BWER'.
+Generating RTLIL representation for module `\FIFO16'.
+Generating RTLIL representation for module `\RAMB16'.
+Generating RTLIL representation for module `\RAMB32_S64_ECC'.
+Generating RTLIL representation for module `\FIFO18'.
+Generating RTLIL representation for module `\FIFO18_36'.
+Generating RTLIL representation for module `\FIFO36'.
+Generating RTLIL representation for module `\FIFO36_72'.
+Generating RTLIL representation for module `\RAMB18'.
+Generating RTLIL representation for module `\RAMB36'.
+Generating RTLIL representation for module `\RAMB18SDP'.
+Generating RTLIL representation for module `\RAMB36SDP'.
+Generating RTLIL representation for module `\FIFO18E1'.
+Generating RTLIL representation for module `\FIFO36E1'.
+Generating RTLIL representation for module `\FIFO18E2'.
+Generating RTLIL representation for module `\FIFO36E2'.
+Generating RTLIL representation for module `\RAMB18E2'.
+Generating RTLIL representation for module `\RAMB36E2'.
+Generating RTLIL representation for module `\URAM288'.
+Generating RTLIL representation for module `\URAM288_BASE'.
+Generating RTLIL representation for module `\DSP48E'.
+Generating RTLIL representation for module `\DSP48E2'.
+Generating RTLIL representation for module `\FDDRCPE'.
+Generating RTLIL representation for module `\FDDRRSE'.
+Generating RTLIL representation for module `\IFDDRCPE'.
+Generating RTLIL representation for module `\IFDDRRSE'.
+Generating RTLIL representation for module `\OFDDRCPE'.
+Generating RTLIL representation for module `\OFDDRRSE'.
+Generating RTLIL representation for module `\OFDDRTCPE'.
+Generating RTLIL representation for module `\OFDDRTRSE'.
+Generating RTLIL representation for module `\IDDR2'.
+Generating RTLIL representation for module `\ODDR2'.
+Generating RTLIL representation for module `\IDDR'.
+Generating RTLIL representation for module `\IDDR_2CLK'.
+Generating RTLIL representation for module `\ODDR'.
+Generating RTLIL representation for module `\IDELAYCTRL'.
+Generating RTLIL representation for module `\IDELAY'.
+Generating RTLIL representation for module `\ISERDES'.
+Generating RTLIL representation for module `\OSERDES'.
+Generating RTLIL representation for module `\IODELAY'.
+Generating RTLIL representation for module `\ISERDES_NODELAY'.
+Generating RTLIL representation for module `\IODELAYE1'.
+Generating RTLIL representation for module `\ISERDESE1'.
+Generating RTLIL representation for module `\OSERDESE1'.
+Generating RTLIL representation for module `\IDELAYE2'.
+Generating RTLIL representation for module `\ODELAYE2'.
+Generating RTLIL representation for module `\ISERDESE2'.
+Generating RTLIL representation for module `\OSERDESE2'.
+Generating RTLIL representation for module `\PHASER_IN'.
+Generating RTLIL representation for module `\PHASER_IN_PHY'.
+Generating RTLIL representation for module `\PHASER_OUT'.
+Generating RTLIL representation for module `\PHASER_OUT_PHY'.
+Generating RTLIL representation for module `\PHASER_REF'.
+Generating RTLIL representation for module `\PHY_CONTROL'.
+Generating RTLIL representation for module `\IDDRE1'.
+Generating RTLIL representation for module `\ODDRE1'.
+Generating RTLIL representation for module `\IDELAYE3'.
+Generating RTLIL representation for module `\ODELAYE3'.
+Generating RTLIL representation for module `\ISERDESE3'.
+Generating RTLIL representation for module `\OSERDESE3'.
+Generating RTLIL representation for module `\BITSLICE_CONTROL'.
+Generating RTLIL representation for module `\RIU_OR'.
+Generating RTLIL representation for module `\RX_BITSLICE'.
+Generating RTLIL representation for module `\RXTX_BITSLICE'.
+Generating RTLIL representation for module `\TX_BITSLICE'.
+Generating RTLIL representation for module `\TX_BITSLICE_TRI'.
+Generating RTLIL representation for module `\IODELAY2'.
+Generating RTLIL representation for module `\IODRP2'.
+Generating RTLIL representation for module `\IODRP2_MCB'.
+Generating RTLIL representation for module `\ISERDES2'.
+Generating RTLIL representation for module `\OSERDES2'.
+Generating RTLIL representation for module `\IBUF_DLY_ADJ'.
+Generating RTLIL representation for module `\IBUF_IBUFDISABLE'.
+Generating RTLIL representation for module `\IBUF_INTERMDISABLE'.
+Generating RTLIL representation for module `\IBUF_ANALOG'.
+Generating RTLIL representation for module `\IBUFE3'.
+Generating RTLIL representation for module `\IBUFDS'.
+Generating RTLIL representation for module `\IBUFDS_DLY_ADJ'.
+Generating RTLIL representation for module `\IBUFDS_IBUFDISABLE'.
+Generating RTLIL representation for module `\IBUFDS_INTERMDISABLE'.
+Generating RTLIL representation for module `\IBUFDS_DIFF_OUT'.
+Generating RTLIL representation for module `\IBUFDS_DIFF_OUT_IBUFDISABLE'.
+Generating RTLIL representation for module `\IBUFDS_DIFF_OUT_INTERMDISABLE'.
+Generating RTLIL representation for module `\IBUFDSE3'.
+Generating RTLIL representation for module `\IBUFDS_DPHY'.
+Generating RTLIL representation for module `\IBUFGDS'.
+Generating RTLIL representation for module `\IBUFGDS_DIFF_OUT'.
+Generating RTLIL representation for module `\IOBUF_DCIEN'.
+Generating RTLIL representation for module `\IOBUF_INTERMDISABLE'.
+Generating RTLIL representation for module `\IOBUFE3'.
+Generating RTLIL representation for module `\IOBUFDS'.
+Generating RTLIL representation for module `\IOBUFDS_DCIEN'.
+Generating RTLIL representation for module `\IOBUFDS_INTERMDISABLE'.
+Generating RTLIL representation for module `\IOBUFDS_DIFF_OUT'.
+Generating RTLIL representation for module `\IOBUFDS_DIFF_OUT_DCIEN'.
+Generating RTLIL representation for module `\IOBUFDS_DIFF_OUT_INTERMDISABLE'.
+Generating RTLIL representation for module `\IOBUFDSE3'.
+Generating RTLIL representation for module `\OBUFDS'.
+Generating RTLIL representation for module `\OBUFDS_DPHY'.
+Generating RTLIL representation for module `\OBUFTDS'.
+Generating RTLIL representation for module `\KEEPER'.
+Generating RTLIL representation for module `\PULLDOWN'.
+Generating RTLIL representation for module `\PULLUP'.
+Generating RTLIL representation for module `\DCIRESET'.
+Generating RTLIL representation for module `\HPIO_VREF'.
+Generating RTLIL representation for module `\BUFGCE'.
+Generating RTLIL representation for module `\BUFGCE_1'.
+Generating RTLIL representation for module `\BUFGMUX'.
+Generating RTLIL representation for module `\BUFGMUX_1'.
+Generating RTLIL representation for module `\BUFGMUX_CTRL'.
+Generating RTLIL representation for module `\BUFGMUX_VIRTEX4'.
+Generating RTLIL representation for module `\BUFG_GT'.
+Generating RTLIL representation for module `\BUFG_GT_SYNC'.
+Generating RTLIL representation for module `\BUFG_PS'.
+Generating RTLIL representation for module `\BUFGCE_DIV'.
+Generating RTLIL representation for module `\BUFH'.
+Generating RTLIL representation for module `\BUFIO2'.
+Generating RTLIL representation for module `\BUFIO2_2CLK'.
+Generating RTLIL representation for module `\BUFIO2FB'.
+Generating RTLIL representation for module `\BUFPLL'.
+Generating RTLIL representation for module `\BUFPLL_MCB'.
+Generating RTLIL representation for module `\BUFIO'.
+Generating RTLIL representation for module `\BUFIODQS'.
+Generating RTLIL representation for module `\BUFR'.
+Generating RTLIL representation for module `\BUFMR'.
+Generating RTLIL representation for module `\BUFMRCE'.
+Generating RTLIL representation for module `\DCM'.
+Generating RTLIL representation for module `\DCM_SP'.
+Generating RTLIL representation for module `\DCM_CLKGEN'.
+Generating RTLIL representation for module `\DCM_ADV'.
+Generating RTLIL representation for module `\DCM_BASE'.
+Generating RTLIL representation for module `\DCM_PS'.
+Generating RTLIL representation for module `\PMCD'.
+Generating RTLIL representation for module `\PLL_ADV'.
+Generating RTLIL representation for module `\PLL_BASE'.
+Generating RTLIL representation for module `\MMCM_ADV'.
+Generating RTLIL representation for module `\MMCM_BASE'.
+Generating RTLIL representation for module `\MMCME2_ADV'.
+Generating RTLIL representation for module `\MMCME2_BASE'.
+Generating RTLIL representation for module `\PLLE2_ADV'.
+Generating RTLIL representation for module `\PLLE2_BASE'.
+Generating RTLIL representation for module `\MMCME3_ADV'.
+Generating RTLIL representation for module `\MMCME3_BASE'.
+Generating RTLIL representation for module `\PLLE3_ADV'.
+Generating RTLIL representation for module `\PLLE3_BASE'.
+Generating RTLIL representation for module `\MMCME4_ADV'.
+Generating RTLIL representation for module `\MMCME4_BASE'.
+Generating RTLIL representation for module `\PLLE4_ADV'.
+Generating RTLIL representation for module `\PLLE4_BASE'.
+Generating RTLIL representation for module `\BUFT'.
+Generating RTLIL representation for module `\IN_FIFO'.
+Generating RTLIL representation for module `\OUT_FIFO'.
+Generating RTLIL representation for module `\HARD_SYNC'.
+Generating RTLIL representation for module `\STARTUP_SPARTAN3'.
+Generating RTLIL representation for module `\STARTUP_SPARTAN3E'.
+Generating RTLIL representation for module `\STARTUP_SPARTAN3A'.
+Generating RTLIL representation for module `\STARTUP_SPARTAN6'.
+Generating RTLIL representation for module `\STARTUP_VIRTEX4'.
+Generating RTLIL representation for module `\STARTUP_VIRTEX5'.
+Generating RTLIL representation for module `\STARTUP_VIRTEX6'.
+Generating RTLIL representation for module `\STARTUPE2'.
+Generating RTLIL representation for module `\STARTUPE3'.
+Generating RTLIL representation for module `\CAPTURE_SPARTAN3'.
+Generating RTLIL representation for module `\CAPTURE_SPARTAN3A'.
+Generating RTLIL representation for module `\CAPTURE_VIRTEX4'.
+Generating RTLIL representation for module `\CAPTURE_VIRTEX5'.
+Generating RTLIL representation for module `\CAPTURE_VIRTEX6'.
+Generating RTLIL representation for module `\CAPTUREE2'.
+Generating RTLIL representation for module `\ICAP_SPARTAN3A'.
+Generating RTLIL representation for module `\ICAP_SPARTAN6'.
+Generating RTLIL representation for module `\ICAP_VIRTEX4'.
+Generating RTLIL representation for module `\ICAP_VIRTEX5'.
+Generating RTLIL representation for module `\ICAP_VIRTEX6'.
+Generating RTLIL representation for module `\ICAPE2'.
+Generating RTLIL representation for module `\ICAPE3'.
+Generating RTLIL representation for module `\BSCAN_SPARTAN3'.
+Generating RTLIL representation for module `\BSCAN_SPARTAN3A'.
+Generating RTLIL representation for module `\BSCAN_SPARTAN6'.
+Generating RTLIL representation for module `\BSCAN_VIRTEX4'.
+Generating RTLIL representation for module `\BSCAN_VIRTEX5'.
+Generating RTLIL representation for module `\BSCAN_VIRTEX6'.
+Generating RTLIL representation for module `\BSCANE2'.
+Generating RTLIL representation for module `\DNA_PORT'.
+Generating RTLIL representation for module `\DNA_PORTE2'.
+Generating RTLIL representation for module `\FRAME_ECC_VIRTEX4'.
+Generating RTLIL representation for module `\FRAME_ECC_VIRTEX5'.
+Generating RTLIL representation for module `\FRAME_ECC_VIRTEX6'.
+Generating RTLIL representation for module `\FRAME_ECCE2'.
+Generating RTLIL representation for module `\FRAME_ECCE3'.
+Generating RTLIL representation for module `\FRAME_ECCE4'.
+Generating RTLIL representation for module `\USR_ACCESS_VIRTEX4'.
+Generating RTLIL representation for module `\USR_ACCESS_VIRTEX5'.
+Generating RTLIL representation for module `\USR_ACCESS_VIRTEX6'.
+Generating RTLIL representation for module `\USR_ACCESSE2'.
+Generating RTLIL representation for module `\POST_CRC_INTERNAL'.
+Generating RTLIL representation for module `\SUSPEND_SYNC'.
+Generating RTLIL representation for module `\KEY_CLEAR'.
+Generating RTLIL representation for module `\MASTER_JTAG'.
+Generating RTLIL representation for module `\SPI_ACCESS'.
+Generating RTLIL representation for module `\EFUSE_USR'.
+Generating RTLIL representation for module `\SYSMON'.
+Generating RTLIL representation for module `\XADC'.
+Generating RTLIL representation for module `\SYSMONE1'.
+Generating RTLIL representation for module `\SYSMONE4'.
+Generating RTLIL representation for module `\GTPA1_DUAL'.
+Generating RTLIL representation for module `\GT11_CUSTOM'.
+Generating RTLIL representation for module `\GT11_DUAL'.
+Generating RTLIL representation for module `\GT11CLK'.
+Generating RTLIL representation for module `\GT11CLK_MGT'.
+Generating RTLIL representation for module `\GTP_DUAL'.
+Generating RTLIL representation for module `\GTX_DUAL'.
+Generating RTLIL representation for module `\CRC32'.
+Generating RTLIL representation for module `\CRC64'.
+Generating RTLIL representation for module `\GTHE1_QUAD'.
+Generating RTLIL representation for module `\GTXE1'.
+Generating RTLIL representation for module `\IBUFDS_GTXE1'.
+Generating RTLIL representation for module `\IBUFDS_GTHE1'.
+Generating RTLIL representation for module `\GTHE2_CHANNEL'.
+Generating RTLIL representation for module `\GTHE2_COMMON'.
+Generating RTLIL representation for module `\GTPE2_CHANNEL'.
+Generating RTLIL representation for module `\GTPE2_COMMON'.
+Generating RTLIL representation for module `\GTXE2_CHANNEL'.
+Generating RTLIL representation for module `\GTXE2_COMMON'.
+Generating RTLIL representation for module `\IBUFDS_GTE2'.
+Generating RTLIL representation for module `\GTHE3_CHANNEL'.
+Generating RTLIL representation for module `\GTHE3_COMMON'.
+Generating RTLIL representation for module `\GTYE3_CHANNEL'.
+Generating RTLIL representation for module `\GTYE3_COMMON'.
+Generating RTLIL representation for module `\IBUFDS_GTE3'.
+Generating RTLIL representation for module `\OBUFDS_GTE3'.
+Generating RTLIL representation for module `\OBUFDS_GTE3_ADV'.
+Generating RTLIL representation for module `\GTHE4_CHANNEL'.
+Generating RTLIL representation for module `\GTHE4_COMMON'.
+Generating RTLIL representation for module `\GTYE4_CHANNEL'.
+Generating RTLIL representation for module `\GTYE4_COMMON'.
+Generating RTLIL representation for module `\IBUFDS_GTE4'.
+Generating RTLIL representation for module `\OBUFDS_GTE4'.
+Generating RTLIL representation for module `\OBUFDS_GTE4_ADV'.
+Generating RTLIL representation for module `\GTM_DUAL'.
+Generating RTLIL representation for module `\IBUFDS_GTM'.
+Generating RTLIL representation for module `\OBUFDS_GTM'.
+Generating RTLIL representation for module `\OBUFDS_GTM_ADV'.
+Generating RTLIL representation for module `\HSDAC'.
+Generating RTLIL representation for module `\HSADC'.
+Generating RTLIL representation for module `\RFDAC'.
+Generating RTLIL representation for module `\RFADC'.
+Generating RTLIL representation for module `\PCIE_A1'.
+Generating RTLIL representation for module `\PCIE_EP'.
+Generating RTLIL representation for module `\PCIE_2_0'.
+Generating RTLIL representation for module `\PCIE_2_1'.
+Generating RTLIL representation for module `\PCIE_3_0'.
+Generating RTLIL representation for module `\PCIE_3_1'.
+Generating RTLIL representation for module `\PCIE40E4'.
+Generating RTLIL representation for module `\PCIE4CE4'.
+Generating RTLIL representation for module `\EMAC'.
+Generating RTLIL representation for module `\TEMAC'.
+Generating RTLIL representation for module `\TEMAC_SINGLE'.
+Generating RTLIL representation for module `\CMAC'.
+Generating RTLIL representation for module `\CMACE4'.
+Generating RTLIL representation for module `\MCB'.
+Generating RTLIL representation for module `\HBM_REF_CLK'.
+Generating RTLIL representation for module `\HBM_SNGLBLI_INTF_APB'.
+Generating RTLIL representation for module `\HBM_SNGLBLI_INTF_AXI'.
+Generating RTLIL representation for module `\HBM_ONE_STACK_INTF'.
+Generating RTLIL representation for module `\HBM_TWO_STACK_INTF'.
+Generating RTLIL representation for module `\PPC405_ADV'.
+Generating RTLIL representation for module `\PPC440'.
+Generating RTLIL representation for module `\PS7'.
+Generating RTLIL representation for module `\PS8'.
+Generating RTLIL representation for module `\ILKN'.
+Generating RTLIL representation for module `\ILKNE4'.
+Generating RTLIL representation for module `\VCU'.
+Generating RTLIL representation for module `\FE'.
+Successfully finished Verilog frontend.
+
+2.3. Executing HIERARCHY pass (managing design hierarchy).
+
+2.3.1. Analyzing design hierarchy..
+Top module:  \KL_render_queue
+
+2.3.2. Analyzing design hierarchy..
+Top module:  \KL_render_queue
+Removed 0 unused modules.
+
+2.4. Executing PROC pass (convert processes to netlists).
+
+2.4.1. Executing PROC_CLEAN pass (remove empty switches from decision trees).
+Found and cleaned up 1 empty switch in `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:726$1199'.
+Found and cleaned up 1 empty switch in `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:681$1102'.
+Found and cleaned up 1 empty switch in `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:591$788'.
+Found and cleaned up 1 empty switch in `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:431$616'.
+Found and cleaned up 1 empty switch in `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:422$611'.
+Found and cleaned up 1 empty switch in `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:389$541'.
+Found and cleaned up 1 empty switch in `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:369$525'.
+Found and cleaned up 1 empty switch in `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:334$480'.
+Found and cleaned up 1 empty switch in `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:296$337'.
+Found and cleaned up 1 empty switch in `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:257$288'.
+Cleaned up 10 empty switches.
+
+2.4.2. Executing PROC_RMDEAD pass (remove dead branches from decision trees).
+Marked 2 switch rules as full_case in process $proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:696$1159 in module KL_render_queue.
+Marked 8 switch rules as full_case in process $proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:681$1102 in module KL_render_queue.
+Marked 19 switch rules as full_case in process $proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:606$793 in module KL_render_queue.
+Marked 8 switch rules as full_case in process $proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:591$788 in module KL_render_queue.
+Marked 2 switch rules as full_case in process $proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:565$772 in module KL_render_queue.
+Marked 6 switch rules as full_case in process $proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:529$717 in module KL_render_queue.
+Marked 7 switch rules as full_case in process $proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:442$697 in module KL_render_queue.
+Marked 8 switch rules as full_case in process $proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:431$616 in module KL_render_queue.
+Marked 2 switch rules as full_case in process $proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:389$541 in module KL_render_queue.
+Marked 1 switch rules as full_case in process $proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:369$525 in module KL_render_queue.
+Marked 8 switch rules as full_case in process $proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:334$480 in module KL_render_queue.
+Marked 8 switch rules as full_case in process $proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:296$337 in module KL_render_queue.
+Marked 8 switch rules as full_case in process $proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:257$288 in module KL_render_queue.
+Marked 1 switch rules as full_case in process $proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:229$275 in module KL_render_queue.
+Marked 1 switch rules as full_case in process $proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:216$272 in module KL_render_queue.
+Marked 1 switch rules as full_case in process $proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:212$265 in module KL_render_queue.
+Marked 1 switch rules as full_case in process $proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:206$263 in module KL_render_queue.
+Marked 1 switch rules as full_case in process $proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:202$256 in module KL_render_queue.
+Removed a total of 0 dead cases.
+
+2.4.3. Executing PROC_PRUNE pass (remove redundant assignments in processes).
+Removed 11 redundant assignments.
+Promoted 433 assignments to connections.
+
+2.4.4. Executing PROC_INIT pass (extract init attributes).
+
+2.4.5. Executing PROC_ARST pass (detect async resets in processes).
+
+2.4.6. Executing PROC_ROM pass (convert switches to ROMs).
+Converted 0 switches.
+<suppressed ~162 debug messages>
+
+2.4.7. Executing PROC_MUX pass (convert decision trees to multiplexers).
+Creating decoders for process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:741$1426'.
+Creating decoders for process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:603$1422'.
+Creating decoders for process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:408$1404'.
+Creating decoders for process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:387$1398'.
+Creating decoders for process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:387$1394'.
+Creating decoders for process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:387$1390'.
+Creating decoders for process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:386$1386'.
+Creating decoders for process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:380$1382'.
+Creating decoders for process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:363$1378'.
+Creating decoders for process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:362$1374'.
+Creating decoders for process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:361$1370'.
+Creating decoders for process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:323$1352'.
+Creating decoders for process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:322$1334'.
+Creating decoders for process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:319$1330'.
+Creating decoders for process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:318$1326'.
+Creating decoders for process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:308$1322'.
+Creating decoders for process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:307$1318'.
+Creating decoders for process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:290$1314'.
+Creating decoders for process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:289$1310'.
+Creating decoders for process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:284$1306'.
+Creating decoders for process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:279$1297'.
+Creating decoders for process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:255$1293'.
+Creating decoders for process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:253$1288'.
+Creating decoders for process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:242$1284'.
+Creating decoders for process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:228$1280'.
+Creating decoders for process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:726$1199'.
+Creating decoders for process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:696$1159'.
+     1/14: $2\sv2v_cast_16$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:716$193.$result[15:0]$1193
+     2/14: $2\sv2v_cast_16$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:716$193.inp[15:0]$1194
+     3/14: $2\sv2v_cast_16$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:716$192.$result[15:0]$1191
+     4/14: $2\sv2v_cast_16$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:716$192.inp[15:0]$1192
+     5/14: $0\ms_div_r[16:0]
+     6/14: $1\sv2v_cast_16$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:716$193.inp[15:0]$1168
+     7/14: $1\sv2v_cast_16$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:716$193.$result[15:0]$1167
+     8/14: $1\sv2v_cast_16$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:716$192.inp[15:0]$1166
+     9/14: $1\sv2v_cast_16$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:716$192.$result[15:0]$1165
+    10/14: $0\slips_o[15:0]
+    11/14: $0\untimed_o[15:0]
+    12/14: $0\refused_o[15:0]
+    13/14: $0\early_o[15:0]
+    14/14: $0\late_o[15:0]
+Creating decoders for process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:681$1102'.
+     1/8: $8\gap_w[0:0]
+     2/8: $7\gap_w[0:0]
+     3/8: $6\gap_w[0:0]
+     4/8: $5\gap_w[0:0]
+     5/8: $4\gap_w[0:0]
+     6/8: $3\gap_w[0:0]
+     7/8: $2\gap_w[0:0]
+     8/8: $1\gap_w[0:0]
+Creating decoders for process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:606$793'.
+     1/176: $3\stream_state.sv2v_autoblock_13.s[31:0]
+     2/176: $3\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:669$183.$result[31:0]$1075
+     3/176: $3\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:669$183.inp[31:0]$1076
+     4/176: $3\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:669$182.$result[31:0]$1073
+     5/176: $3\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:669$182.inp[31:0]$1074
+     6/176: $3\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:669$181.$result[31:0]$1071
+     7/176: $3\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:669$181.inp[31:0]$1072
+     8/176: $3\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:669$180.$result[31:0]$1069
+     9/176: $3\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:669$180.inp[31:0]$1070
+    10/176: $3\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:669$179.$result[31:0]$1067
+    11/176: $3\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:669$179.inp[31:0]$1068
+    12/176: $3\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:669$178.$result[31:0]$1065
+    13/176: $3\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:669$178.inp[31:0]$1066
+    14/176: $3\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:669$177.$result[31:0]$1063
+    15/176: $3\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:669$177.inp[31:0]$1064
+    16/176: $3\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:669$176.$result[31:0]$1061
+    17/176: $3\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:669$176.inp[31:0]$1062
+    18/176: $2\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:669$183.inp[31:0]$1059
+    19/176: $2\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:669$183.$result[31:0]$1058
+    20/176: $2\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:669$182.inp[31:0]$1057
+    21/176: $2\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:669$182.$result[31:0]$1056
+    22/176: $2\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:669$181.inp[31:0]$1055
+    23/176: $2\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:669$181.$result[31:0]$1054
+    24/176: $2\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:669$180.inp[31:0]$1053
+    25/176: $2\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:669$180.$result[31:0]$1052
+    26/176: $2\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:669$179.inp[31:0]$1051
+    27/176: $2\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:669$179.$result[31:0]$1050
+    28/176: $2\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:669$178.inp[31:0]$1049
+    29/176: $2\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:669$178.$result[31:0]$1048
+    30/176: $2\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:669$177.inp[31:0]$1047
+    31/176: $2\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:669$177.$result[31:0]$1046
+    32/176: $2\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:669$176.inp[31:0]$1045
+    33/176: $2\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:669$176.$result[31:0]$1044
+    34/176: $2\stream_state.sv2v_autoblock_13.s[31:0]
+    35/176: $2\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:647$175.$result[31:0]$1039
+    36/176: $2\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:647$175.inp[31:0]$1040
+    37/176: $0\flpend_r[7:0] [7]
+    38/176: $0\flpend_r[7:0] [6]
+    39/176: $2\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:647$172.inp[31:0]$1025
+    40/176: $0\pop_p_o[7:0] [7]
+    41/176: $0\pop_p_o[7:0] [6]
+    42/176: $0\flpend_r[7:0] [5]
+    43/176: $2\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:647$169.inp[31:0]$1010
+    44/176: $2\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:647$172.$result[31:0]$1024
+    45/176: $0\pop_p_o[7:0] [5]
+    46/176: $0\flpend_r[7:0] [4]
+    47/176: $2\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:647$166.inp[31:0]$995
+    48/176: $2\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:647$169.$result[31:0]$1009
+    49/176: $0\pop_p_o[7:0] [4]
+    50/176: $0\flpend_r[7:0] [3]
+    51/176: $2\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:647$163.inp[31:0]$980
+    52/176: $2\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:647$166.$result[31:0]$994
+    53/176: $0\pop_p_o[7:0] [3]
+    54/176: $0\flpend_r[7:0] [2]
+    55/176: $2\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:647$160.inp[31:0]$965
+    56/176: $2\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:647$163.$result[31:0]$979
+    57/176: $0\pop_p_o[7:0] [2]
+    58/176: $0\flpend_r[7:0] [1]
+    59/176: $2\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:647$157.inp[31:0]$950
+    60/176: $2\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:647$160.$result[31:0]$964
+    61/176: $0\pop_p_o[7:0] [1]
+    62/176: $0\flpend_r[7:0] [0]
+    63/176: $2\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:647$154.inp[31:0]$935
+    64/176: $2\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:647$157.$result[31:0]$949
+    65/176: $0\pop_p_o[7:0] [0]
+    66/176: $1\stream_state.sv2v_autoblock_11.s[31:0]
+    67/176: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:669$183.inp[31:0]$922
+    68/176: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:669$183.$result[31:0]$921
+    69/176: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:669$182.inp[31:0]$920
+    70/176: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:669$182.$result[31:0]$919
+    71/176: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:669$181.inp[31:0]$918
+    72/176: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:669$181.$result[31:0]$917
+    73/176: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:669$180.inp[31:0]$916
+    74/176: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:669$180.$result[31:0]$915
+    75/176: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:669$179.inp[31:0]$914
+    76/176: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:669$179.$result[31:0]$913
+    77/176: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:669$178.inp[31:0]$912
+    78/176: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:669$178.$result[31:0]$911
+    79/176: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:669$177.inp[31:0]$910
+    80/176: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:669$177.$result[31:0]$909
+    81/176: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:669$176.inp[31:0]$908
+    82/176: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:669$176.$result[31:0]$907
+    83/176: $1\stream_state.sv2v_autoblock_13.s[31:0]
+    84/176: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:647$175.inp[31:0]$906
+    85/176: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:647$175.$result[31:0]$905
+    86/176: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:637$174.inp[31:0]$904
+    87/176: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:637$174.$result[31:0]$903
+    88/176: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:633$173.inp[31:0]$902
+    89/176: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:633$173.$result[31:0]$901
+    90/176: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:647$172.inp[31:0]$900
+    91/176: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:647$172.$result[31:0]$899
+    92/176: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:637$171.inp[31:0]$898
+    93/176: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:637$171.$result[31:0]$897
+    94/176: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:633$170.inp[31:0]$896
+    95/176: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:633$170.$result[31:0]$895
+    96/176: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:647$169.inp[31:0]$894
+    97/176: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:647$169.$result[31:0]$893
+    98/176: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:637$168.inp[31:0]$892
+    99/176: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:637$168.$result[31:0]$891
+   100/176: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:633$167.inp[31:0]$890
+   101/176: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:633$167.$result[31:0]$889
+   102/176: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:647$166.inp[31:0]$888
+   103/176: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:647$166.$result[31:0]$887
+   104/176: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:637$165.inp[31:0]$886
+   105/176: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:637$165.$result[31:0]$885
+   106/176: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:633$164.inp[31:0]$884
+   107/176: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:633$164.$result[31:0]$883
+   108/176: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:647$163.inp[31:0]$882
+   109/176: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:647$163.$result[31:0]$881
+   110/176: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:637$162.inp[31:0]$880
+   111/176: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:637$162.$result[31:0]$879
+   112/176: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:633$161.inp[31:0]$878
+   113/176: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:633$161.$result[31:0]$877
+   114/176: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:647$160.inp[31:0]$876
+   115/176: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:647$160.$result[31:0]$875
+   116/176: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:637$159.inp[31:0]$874
+   117/176: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:637$159.$result[31:0]$873
+   118/176: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:633$158.inp[31:0]$872
+   119/176: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:633$158.$result[31:0]$871
+   120/176: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:647$157.inp[31:0]$870
+   121/176: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:647$157.$result[31:0]$869
+   122/176: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:637$156.inp[31:0]$868
+   123/176: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:637$156.$result[31:0]$867
+   124/176: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:633$155.inp[31:0]$866
+   125/176: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:633$155.$result[31:0]$865
+   126/176: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:647$154.inp[31:0]$864
+   127/176: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:647$154.$result[31:0]$863
+   128/176: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:637$153.inp[31:0]$862
+   129/176: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:637$153.$result[31:0]$861
+   130/176: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:633$152.inp[31:0]$860
+   131/176: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:633$152.$result[31:0]$859
+   132/176: $1\stream_state.sv2v_autoblock_12.s[31:0]
+   133/176: $0\converged_r[7][0:0]
+   134/176: $0\converged_r[6][0:0]
+   135/176: $0\converged_r[5][0:0]
+   136/176: $0\converged_r[4][0:0]
+   137/176: $0\converged_r[3][0:0]
+   138/176: $0\converged_r[2][0:0]
+   139/176: $0\converged_r[1][0:0]
+   140/176: $0\converged_r[0][0:0]
+   141/176: $0\conv_ms_r[7][6:0]
+   142/176: $0\conv_ms_r[6][6:0]
+   143/176: $0\conv_ms_r[5][6:0]
+   144/176: $0\conv_ms_r[4][6:0]
+   145/176: $0\conv_ms_r[3][6:0]
+   146/176: $0\conv_ms_r[2][6:0]
+   147/176: $0\conv_ms_r[1][6:0]
+   148/176: $0\conv_ms_r[0][6:0]
+   149/176: $0\live_r[7][0:0]
+   150/176: $0\live_r[6][0:0]
+   151/176: $0\live_r[5][0:0]
+   152/176: $0\live_r[4][0:0]
+   153/176: $0\live_r[3][0:0]
+   154/176: $0\live_r[2][0:0]
+   155/176: $0\live_r[1][0:0]
+   156/176: $0\live_r[0][0:0]
+   157/176: $0\lwv_r[7][0:0]
+   158/176: $0\lwv_r[6][0:0]
+   159/176: $0\lwv_r[5][0:0]
+   160/176: $0\lwv_r[4][0:0]
+   161/176: $0\lwv_r[3][0:0]
+   162/176: $0\lwv_r[2][0:0]
+   163/176: $0\lwv_r[1][0:0]
+   164/176: $0\lwv_r[0][0:0]
+   165/176: $0\lw_r[7][9:0]
+   166/176: $0\lw_r[6][9:0]
+   167/176: $0\lw_r[5][9:0]
+   168/176: $0\lw_r[4][9:0]
+   169/176: $0\lw_r[3][9:0]
+   170/176: $0\lw_r[2][9:0]
+   171/176: $0\lw_r[1][9:0]
+   172/176: $0\lw_r[0][9:0]
+   173/176: $0\fl_a_r[8:0]
+   174/176: $0\fl_s_r[3:0]
+   175/176: $0\fl_busy_r[0:0]
+   176/176: $2\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:647$154.$result[31:0]$934
+Creating decoders for process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:591$788'.
+     1/8: $8\fl_low_w[3:0]
+     2/8: $7\fl_low_w[3:0]
+     3/8: $6\fl_low_w[3:0]
+     4/8: $5\fl_low_w[3:0]
+     5/8: $4\fl_low_w[3:0]
+     6/8: $3\fl_low_w[3:0]
+     7/8: $2\fl_low_w[3:0]
+     8/8: $1\fl_low_w[3:0]
+Creating decoders for process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:565$772'.
+     1/13: $2\chwrap$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:576$142.$result[3:0]$780
+     2/13: $2\chwrap$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:576$142.chans[3:0]$782
+     3/13: $2\chwrap$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:576$142.ch[3:0]$781
+     4/13: $1\chwrap$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:576$142.chans[3:0]$779
+     5/13: $1\chwrap$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:576$142.ch[3:0]$778
+     6/13: $1\chwrap$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:576$142.$result[3:0]$777
+     7/13: $0\pdu_slip_r[0:0]
+     8/13: $0\pdu_untimed_r[0:0]
+     9/13: $0\pdu_early_r[0:0]
+    10/13: $0\pdu_late_r[0:0]
+    11/13: $0\pdu_ok_r[0:0]
+    12/13: $0\sof_r[0:0]
+    13/13: $0\chpos_r[3:0]
+Creating decoders for process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:529$717'.
+     1/35: $2\sv2v_cast_0CCB4$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:560$141.$result[25:0]$765
+     2/35: $2\sv2v_cast_0CCB4$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:560$141.inp[25:0]$766
+     3/35: $2\sv2v_cast_1E29C$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:555$138.$result[9:0]$762
+     4/35: $2\sv2v_cast_1E29C$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:555$138.inp[9:0]$763
+     5/35: $4\sv2v_cast_1E29C$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:549$137.inp[9:0]$757
+     6/35: $4\sv2v_cast_1E29C$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:549$137.$result[9:0]$756
+     7/35: $4\sv2v_cast_1E29C$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:549$136.inp[9:0]$755
+     8/35: $4\sv2v_cast_1E29C$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:549$136.$result[9:0]$754
+     9/35: $3\sv2v_cast_0CCB4$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:540$135.$result[25:0]$746
+    10/35: $3\sv2v_cast_0CCB4$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:540$135.inp[25:0]$747
+    11/35: $3\sv2v_cast_1E29C$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:549$137.inp[9:0]$751
+    12/35: $3\sv2v_cast_1E29C$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:549$137.$result[9:0]$750
+    13/35: $3\sv2v_cast_1E29C$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:549$136.inp[9:0]$749
+    14/35: $3\sv2v_cast_1E29C$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:549$136.$result[9:0]$748
+    15/35: $2\sv2v_cast_1E29C$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:549$137.inp[9:0]$745
+    16/35: $2\sv2v_cast_1E29C$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:549$137.$result[9:0]$744
+    17/35: $2\sv2v_cast_1E29C$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:549$136.inp[9:0]$743
+    18/35: $2\sv2v_cast_1E29C$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:549$136.$result[9:0]$742
+    19/35: $2\sv2v_cast_0CCB4$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:540$135.inp[25:0]$741
+    20/35: $2\sv2v_cast_0CCB4$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:540$135.$result[25:0]$740
+    21/35: $1\sv2v_cast_0CCB4$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:560$141.inp[25:0]$738
+    22/35: $1\sv2v_cast_0CCB4$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:560$141.$result[25:0]$737
+    23/35: $1\sv2v_cast_1E29C$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:555$138.inp[9:0]$736
+    24/35: $1\sv2v_cast_1E29C$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:555$138.$result[9:0]$735
+    25/35: $1\sv2v_cast_1E29C$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:549$137.inp[9:0]$734
+    26/35: $1\sv2v_cast_1E29C$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:549$137.$result[9:0]$733
+    27/35: $1\sv2v_cast_1E29C$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:549$136.inp[9:0]$732
+    28/35: $1\sv2v_cast_1E29C$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:549$136.$result[9:0]$731
+    29/35: $1\sv2v_cast_0CCB4$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:540$135.inp[25:0]$730
+    30/35: $1\sv2v_cast_0CCB4$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:540$135.$result[25:0]$729
+    31/35: $0\f0_r[9:0]
+    32/35: $0\tri_r[0:0]
+    33/35: $0\step_r[3:0]
+    34/35: $0\ld_r[25:0]
+    35/35: $0\pst_r[2:0]
+Creating decoders for process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:442$697'.
+     1/18: $0\render_tick_p_o[0:0]
+     2/18: $0\rodd_r[0:0]
+     3/18: $0\rlastif_r[0:0]
+     4/18: $0\rlast_r[0:0]
+     5/18: $0\rs_r[3:0]
+     6/18: $0\rif_r[1:0]
+     7/18: $0\rv_r[0:0]
+     8/18: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:473$134.inp[31:0]$702
+     9/18: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:473$134.$result[31:0]$701
+    10/18: $1\schedule.sv2v_autoblock_9.i[31:0]
+    11/18: $0\rany_r[0:0]
+    12/18: $0\beat_r[3:0]
+    13/18: $0\slot_r[3:0]
+    14/18: $0\if_r[1:0]
+    15/18: $0\sn_r[9:0]
+    16/18: $0\served_r[9:0]
+    17/18: $0\sst_r[1:0]
+    18/18: $0\r_r[9:0]
+Creating decoders for process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:431$616'.
+     1/24: $8\fl_rd_w[0:0]
+     2/24: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:439$132.$result[31:0]$692
+     3/24: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:439$132.inp[31:0]$693
+     4/24: $7\fl_rd_w[0:0]
+     5/24: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:439$130.$result[31:0]$686
+     6/24: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:439$130.inp[31:0]$687
+     7/24: $6\fl_rd_w[0:0]
+     8/24: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:439$128.$result[31:0]$680
+     9/24: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:439$128.inp[31:0]$681
+    10/24: $5\fl_rd_w[0:0]
+    11/24: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:439$126.$result[31:0]$674
+    12/24: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:439$126.inp[31:0]$675
+    13/24: $4\fl_rd_w[0:0]
+    14/24: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:439$124.$result[31:0]$668
+    15/24: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:439$124.inp[31:0]$669
+    16/24: $3\fl_rd_w[0:0]
+    17/24: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:439$122.$result[31:0]$662
+    18/24: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:439$122.inp[31:0]$663
+    19/24: $2\fl_rd_w[0:0]
+    20/24: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:439$120.$result[31:0]$656
+    21/24: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:439$120.inp[31:0]$657
+    22/24: $1\fl_rd_w[0:0]
+    23/24: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:439$118.$result[31:0]$650
+    24/24: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:439$118.inp[31:0]$651
+Creating decoders for process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:422$611'.
+Creating decoders for process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:389$541'.
+     1/28: $2\wa1_w[11:0]
+     2/28: $2\wa0_w[11:0]
+     3/28: $1\wa1_w[11:0]
+     4/28: $1\waddr$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:400$110.$result[11:0]$586
+     5/28: $1\sv2v_cast_472FB$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:188$114.$result[11:0]$596
+     6/28: $1\sv2v_cast_472FB$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:188$114.inp[11:0]$597
+     7/28: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:188$113.$result[31:0]$594
+     8/28: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:188$113.inp[31:0]$595
+     9/28: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:188$112.$result[31:0]$592
+    10/28: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:188$112.inp[31:0]$593
+    11/28: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:188$111.$result[31:0]$590
+    12/28: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:188$111.inp[31:0]$591
+    13/28: $1\waddr$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:400$110.pair[3:0]$589
+    14/28: $1\waddr$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:400$110.row[6:0]$588
+    15/28: $1\waddr$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:400$110.s[3:0]$587
+    16/28: $1\wa0_w[11:0]
+    17/28: $1\waddr$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:399$105.$result[11:0]$574
+    18/28: $1\sv2v_cast_472FB$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:188$109.$result[11:0]$584
+    19/28: $1\sv2v_cast_472FB$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:188$109.inp[11:0]$585
+    20/28: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:188$108.$result[31:0]$582
+    21/28: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:188$108.inp[31:0]$583
+    22/28: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:188$107.$result[31:0]$580
+    23/28: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:188$107.inp[31:0]$581
+    24/28: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:188$106.$result[31:0]$578
+    25/28: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:188$106.inp[31:0]$579
+    26/28: $1\waddr$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:399$105.pair[3:0]$577
+    27/28: $1\waddr$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:399$105.row[6:0]$576
+    28/28: $1\waddr$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:399$105.s[3:0]$575
+Creating decoders for process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:369$525'.
+     1/1: $1\lead_rd_w[7:0]
+Creating decoders for process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:334$480'.
+     1/16: $8\lwv_in_w[0:0]
+     2/16: $8\lw_in_w[9:0]
+     3/16: $7\lwv_in_w[0:0]
+     4/16: $7\lw_in_w[9:0]
+     5/16: $6\lwv_in_w[0:0]
+     6/16: $6\lw_in_w[9:0]
+     7/16: $5\lwv_in_w[0:0]
+     8/16: $5\lw_in_w[9:0]
+     9/16: $4\lwv_in_w[0:0]
+    10/16: $4\lw_in_w[9:0]
+    11/16: $3\lwv_in_w[0:0]
+    12/16: $3\lw_in_w[9:0]
+    13/16: $2\lwv_in_w[0:0]
+    14/16: $2\lw_in_w[9:0]
+    15/16: $1\lwv_in_w[0:0]
+    16/16: $1\lw_in_w[9:0]
+Creating decoders for process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:296$337'.
+     1/24: $8\fl_in_w[0:0]
+     2/24: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:304$74.$result[31:0]$413
+     3/24: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:304$74.inp[31:0]$414
+     4/24: $7\fl_in_w[0:0]
+     5/24: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:304$72.$result[31:0]$407
+     6/24: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:304$72.inp[31:0]$408
+     7/24: $6\fl_in_w[0:0]
+     8/24: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:304$70.$result[31:0]$401
+     9/24: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:304$70.inp[31:0]$402
+    10/24: $5\fl_in_w[0:0]
+    11/24: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:304$68.$result[31:0]$395
+    12/24: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:304$68.inp[31:0]$396
+    13/24: $4\fl_in_w[0:0]
+    14/24: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:304$66.$result[31:0]$389
+    15/24: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:304$66.inp[31:0]$390
+    16/24: $3\fl_in_w[0:0]
+    17/24: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:304$64.$result[31:0]$383
+    18/24: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:304$64.inp[31:0]$384
+    19/24: $2\fl_in_w[0:0]
+    20/24: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:304$62.$result[31:0]$377
+    21/24: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:304$62.inp[31:0]$378
+    22/24: $1\fl_in_w[0:0]
+    23/24: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:304$60.$result[31:0]$371
+    24/24: $1\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:304$60.inp[31:0]$372
+Creating decoders for process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:257$288'.
+     1/8: $8\chans_in_raw_w[3:0]
+     2/8: $7\chans_in_raw_w[3:0]
+     3/8: $6\chans_in_raw_w[3:0]
+     4/8: $5\chans_in_raw_w[3:0]
+     5/8: $4\chans_in_raw_w[3:0]
+     6/8: $3\chans_in_raw_w[3:0]
+     7/8: $2\chans_in_raw_w[3:0]
+     8/8: $1\chans_in_raw_w[3:0]
+Creating decoders for process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:229$275'.
+     1/1: $0\n_r[9:0]
+Creating decoders for process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:216$272'.
+     1/1: $0\rd1_r[24:0]
+Creating decoders for process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:212$265'.
+     1/3: $1$memwr$\bank1_r$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:214$255_EN[24:0]$271
+     2/3: $1$memwr$\bank1_r$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:214$255_DATA[24:0]$270
+     3/3: $1$memwr$\bank1_r$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:214$255_ADDR[11:0]$269
+Creating decoders for process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:206$263'.
+     1/1: $0\rd0_r[24:0]
+Creating decoders for process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:202$256'.
+     1/3: $1$memwr$\bank0_r$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:204$254_EN[24:0]$262
+     2/3: $1$memwr$\bank0_r$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:204$254_DATA[24:0]$261
+     3/3: $1$memwr$\bank0_r$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:204$254_ADDR[11:0]$260
+
+2.4.8. Executing PROC_DLATCH pass (convert process syncs to latches).
+No latch inferred for signal `\KL_render_queue.\_sv2v_0' from process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:741$1426'.
+No latch inferred for signal `\KL_render_queue.\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:603$151.$result' from process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:603$1422'.
+No latch inferred for signal `\KL_render_queue.\waddr$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:408$115.$result' from process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:408$1404'.
+No latch inferred for signal `\KL_render_queue.\sv2v_cast_472FB$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:387$104.$result' from process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:387$1398'.
+No latch inferred for signal `\KL_render_queue.\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:387$103.$result' from process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:387$1394'.
+No latch inferred for signal `\KL_render_queue.\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:387$102.$result' from process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:387$1390'.
+No latch inferred for signal `\KL_render_queue.\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:386$101.$result' from process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:386$1386'.
+No latch inferred for signal `\KL_render_queue.\sv2v_cast_1E29C$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:380$99.$result' from process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:380$1382'.
+No latch inferred for signal `\KL_render_queue.\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:363$91.$result' from process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:363$1378'.
+No latch inferred for signal `\KL_render_queue.\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:362$90.$result' from process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:362$1374'.
+No latch inferred for signal `\KL_render_queue.\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:361$89.$result' from process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:361$1370'.
+No latch inferred for signal `\KL_render_queue.\waddr$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:323$80.$result' from process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:323$1352'.
+No latch inferred for signal `\KL_render_queue.\waddr$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:322$79.$result' from process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:322$1334'.
+No latch inferred for signal `\KL_render_queue.\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:319$78.$result' from process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:319$1330'.
+No latch inferred for signal `\KL_render_queue.\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:318$77.$result' from process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:318$1326'.
+No latch inferred for signal `\KL_render_queue.\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:308$76.$result' from process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:308$1322'.
+No latch inferred for signal `\KL_render_queue.\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:307$75.$result' from process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:307$1318'.
+No latch inferred for signal `\KL_render_queue.\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:290$58.$result' from process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:290$1314'.
+No latch inferred for signal `\KL_render_queue.\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:289$57.$result' from process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:289$1310'.
+No latch inferred for signal `\KL_render_queue.\sv2v_cast_1E29C$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:284$56.$result' from process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:284$1306'.
+No latch inferred for signal `\KL_render_queue.\chwrap$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:279$55.$result' from process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:279$1297'.
+No latch inferred for signal `\KL_render_queue.\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:255$46.$result' from process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:255$1293'.
+No latch inferred for signal `\KL_render_queue.\sv2v_cast_7F50A$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:253$44.$result' from process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:253$1288'.
+No latch inferred for signal `\KL_render_queue.\sv2v_cast_64$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:242$41.$result' from process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:242$1284'.
+No latch inferred for signal `\KL_render_queue.\sv2v_cast_1E29C$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:228$39.$result' from process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:228$1280'.
+No latch inferred for signal `\KL_render_queue.\m_wire_chans_o' from process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:726$1199'.
+No latch inferred for signal `\KL_render_queue.\lead_o' from process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:726$1199'.
+No latch inferred for signal `\KL_render_queue.\idle_o' from process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:726$1199'.
+No latch inferred for signal `\KL_render_queue.\converged_o' from process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:726$1199'.
+No latch inferred for signal `\KL_render_queue.\taps.sv2v_autoblock_15.s' from process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:726$1199'.
+No latch inferred for signal `\KL_render_queue.\lead_s_w[0]' from process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:726$1199'.
+No latch inferred for signal `\KL_render_queue.\lead_s_w[1]' from process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:726$1199'.
+No latch inferred for signal `\KL_render_queue.\lead_s_w[2]' from process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:726$1199'.
+No latch inferred for signal `\KL_render_queue.\lead_s_w[3]' from process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:726$1199'.
+No latch inferred for signal `\KL_render_queue.\lead_s_w[4]' from process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:726$1199'.
+No latch inferred for signal `\KL_render_queue.\lead_s_w[5]' from process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:726$1199'.
+No latch inferred for signal `\KL_render_queue.\lead_s_w[6]' from process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:726$1199'.
+No latch inferred for signal `\KL_render_queue.\lead_s_w[7]' from process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:726$1199'.
+No latch inferred for signal `\KL_render_queue.\gap_w' from process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:681$1102'.
+No latch inferred for signal `\KL_render_queue.\gap_detect.sv2v_autoblock_14.s' from process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:681$1102'.
+No latch inferred for signal `\KL_render_queue.\fl_low_w' from process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:591$788'.
+No latch inferred for signal `\KL_render_queue.\fl_low.sv2v_autoblock_10.s' from process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:591$788'.
+No latch inferred for signal `\KL_render_queue.\fl_rd_w' from process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:431$616'.
+No latch inferred for signal `\KL_render_queue.\fl_rd_lookup.sv2v_autoblock_8.s' from process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:431$616'.
+No latch inferred for signal `\KL_render_queue.\m_tvalid_o' from process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:422$611'.
+No latch inferred for signal `\KL_render_queue.\tvalid_fan.sv2v_autoblock_7.i' from process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:422$611'.
+No latch inferred for signal `\KL_render_queue.\we0_w' from process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:389$541'.
+No latch inferred for signal `\KL_render_queue.\we1_w' from process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:389$541'.
+No latch inferred for signal `\KL_render_queue.\wa0_w' from process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:389$541'.
+No latch inferred for signal `\KL_render_queue.\wa1_w' from process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:389$541'.
+No latch inferred for signal `\KL_render_queue.\wd0_w' from process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:389$541'.
+No latch inferred for signal `\KL_render_queue.\wd1_w' from process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:389$541'.
+No latch inferred for signal `\KL_render_queue.\lead_rd_w' from process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:369$525'.
+No latch inferred for signal `\KL_render_queue.\lead_lookup.sv2v_autoblock_6.i' from process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:369$525'.
+No latch inferred for signal `\KL_render_queue.\lw_in_w' from process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:334$480'.
+No latch inferred for signal `\KL_render_queue.\lwv_in_w' from process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:334$480'.
+No latch inferred for signal `\KL_render_queue.\lw_lookup.sv2v_autoblock_5.s' from process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:334$480'.
+No latch inferred for signal `\KL_render_queue.\fl_in_w' from process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:296$337'.
+No latch inferred for signal `\KL_render_queue.\fl_lookup.sv2v_autoblock_4.s' from process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:296$337'.
+No latch inferred for signal `\KL_render_queue.\chans_in_raw_w' from process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:257$288'.
+No latch inferred for signal `\KL_render_queue.\in_lookup.sv2v_autoblock_3.s' from process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:257$288'.
+
+2.4.9. Executing PROC_DFF pass (convert process syncs to FFs).
+Creating register for signal `\KL_render_queue.\late_o' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:696$1159'.
+  created $dff cell `$procdff$4633' with positive edge clock.
+Creating register for signal `\KL_render_queue.\early_o' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:696$1159'.
+  created $dff cell `$procdff$4634' with positive edge clock.
+Creating register for signal `\KL_render_queue.\refused_o' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:696$1159'.
+  created $dff cell `$procdff$4635' with positive edge clock.
+Creating register for signal `\KL_render_queue.\untimed_o' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:696$1159'.
+  created $dff cell `$procdff$4636' with positive edge clock.
+Creating register for signal `\KL_render_queue.\slips_o' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:696$1159'.
+  created $dff cell `$procdff$4637' with positive edge clock.
+Creating register for signal `\KL_render_queue.\ms_div_r' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:696$1159'.
+  created $dff cell `$procdff$4638' with positive edge clock.
+Creating register for signal `\KL_render_queue.\sv2v_cast_16$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:716$192.$result' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:696$1159'.
+  created $dff cell `$procdff$4639' with positive edge clock.
+Creating register for signal `\KL_render_queue.\sv2v_cast_16$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:716$192.inp' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:696$1159'.
+  created $dff cell `$procdff$4640' with positive edge clock.
+Creating register for signal `\KL_render_queue.\sv2v_cast_16$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:716$193.$result' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:696$1159'.
+  created $dff cell `$procdff$4641' with positive edge clock.
+Creating register for signal `\KL_render_queue.\sv2v_cast_16$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:716$193.inp' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:696$1159'.
+  created $dff cell `$procdff$4642' with positive edge clock.
+Creating register for signal `\KL_render_queue.\pop_p_o' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:606$793'.
+  created $dff cell `$procdff$4643' with positive edge clock.
+Creating register for signal `\KL_render_queue.\flpend_r' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:606$793'.
+  created $dff cell `$procdff$4644' with positive edge clock.
+Creating register for signal `\KL_render_queue.\fl_busy_r' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:606$793'.
+  created $dff cell `$procdff$4645' with positive edge clock.
+Creating register for signal `\KL_render_queue.\fl_s_r' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:606$793'.
+  created $dff cell `$procdff$4646' with positive edge clock.
+Creating register for signal `\KL_render_queue.\fl_a_r' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:606$793'.
+  created $dff cell `$procdff$4647' with positive edge clock.
+Creating register for signal `\KL_render_queue.\stream_state.sv2v_autoblock_11.s' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:606$793'.
+  created $dff cell `$procdff$4648' with positive edge clock.
+Creating register for signal `\KL_render_queue.\stream_state.sv2v_autoblock_12.s' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:606$793'.
+  created $dff cell `$procdff$4649' with positive edge clock.
+Creating register for signal `\KL_render_queue.\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:633$152.$result' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:606$793'.
+  created $dff cell `$procdff$4650' with positive edge clock.
+Creating register for signal `\KL_render_queue.\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:633$152.inp' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:606$793'.
+  created $dff cell `$procdff$4651' with positive edge clock.
+Creating register for signal `\KL_render_queue.\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:637$153.$result' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:606$793'.
+  created $dff cell `$procdff$4652' with positive edge clock.
+Creating register for signal `\KL_render_queue.\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:637$153.inp' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:606$793'.
+  created $dff cell `$procdff$4653' with positive edge clock.
+Creating register for signal `\KL_render_queue.\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:647$154.$result' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:606$793'.
+  created $dff cell `$procdff$4654' with positive edge clock.
+Creating register for signal `\KL_render_queue.\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:647$154.inp' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:606$793'.
+  created $dff cell `$procdff$4655' with positive edge clock.
+Creating register for signal `\KL_render_queue.\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:633$155.$result' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:606$793'.
+  created $dff cell `$procdff$4656' with positive edge clock.
+Creating register for signal `\KL_render_queue.\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:633$155.inp' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:606$793'.
+  created $dff cell `$procdff$4657' with positive edge clock.
+Creating register for signal `\KL_render_queue.\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:637$156.$result' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:606$793'.
+  created $dff cell `$procdff$4658' with positive edge clock.
+Creating register for signal `\KL_render_queue.\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:637$156.inp' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:606$793'.
+  created $dff cell `$procdff$4659' with positive edge clock.
+Creating register for signal `\KL_render_queue.\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:647$157.$result' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:606$793'.
+  created $dff cell `$procdff$4660' with positive edge clock.
+Creating register for signal `\KL_render_queue.\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:647$157.inp' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:606$793'.
+  created $dff cell `$procdff$4661' with positive edge clock.
+Creating register for signal `\KL_render_queue.\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:633$158.$result' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:606$793'.
+  created $dff cell `$procdff$4662' with positive edge clock.
+Creating register for signal `\KL_render_queue.\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:633$158.inp' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:606$793'.
+  created $dff cell `$procdff$4663' with positive edge clock.
+Creating register for signal `\KL_render_queue.\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:637$159.$result' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:606$793'.
+  created $dff cell `$procdff$4664' with positive edge clock.
+Creating register for signal `\KL_render_queue.\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:637$159.inp' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:606$793'.
+  created $dff cell `$procdff$4665' with positive edge clock.
+Creating register for signal `\KL_render_queue.\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:647$160.$result' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:606$793'.
+  created $dff cell `$procdff$4666' with positive edge clock.
+Creating register for signal `\KL_render_queue.\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:647$160.inp' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:606$793'.
+  created $dff cell `$procdff$4667' with positive edge clock.
+Creating register for signal `\KL_render_queue.\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:633$161.$result' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:606$793'.
+  created $dff cell `$procdff$4668' with positive edge clock.
+Creating register for signal `\KL_render_queue.\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:633$161.inp' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:606$793'.
+  created $dff cell `$procdff$4669' with positive edge clock.
+Creating register for signal `\KL_render_queue.\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:637$162.$result' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:606$793'.
+  created $dff cell `$procdff$4670' with positive edge clock.
+Creating register for signal `\KL_render_queue.\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:637$162.inp' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:606$793'.
+  created $dff cell `$procdff$4671' with positive edge clock.
+Creating register for signal `\KL_render_queue.\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:647$163.$result' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:606$793'.
+  created $dff cell `$procdff$4672' with positive edge clock.
+Creating register for signal `\KL_render_queue.\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:647$163.inp' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:606$793'.
+  created $dff cell `$procdff$4673' with positive edge clock.
+Creating register for signal `\KL_render_queue.\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:633$164.$result' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:606$793'.
+  created $dff cell `$procdff$4674' with positive edge clock.
+Creating register for signal `\KL_render_queue.\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:633$164.inp' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:606$793'.
+  created $dff cell `$procdff$4675' with positive edge clock.
+Creating register for signal `\KL_render_queue.\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:637$165.$result' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:606$793'.
+  created $dff cell `$procdff$4676' with positive edge clock.
+Creating register for signal `\KL_render_queue.\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:637$165.inp' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:606$793'.
+  created $dff cell `$procdff$4677' with positive edge clock.
+Creating register for signal `\KL_render_queue.\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:647$166.$result' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:606$793'.
+  created $dff cell `$procdff$4678' with positive edge clock.
+Creating register for signal `\KL_render_queue.\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:647$166.inp' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:606$793'.
+  created $dff cell `$procdff$4679' with positive edge clock.
+Creating register for signal `\KL_render_queue.\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:633$167.$result' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:606$793'.
+  created $dff cell `$procdff$4680' with positive edge clock.
+Creating register for signal `\KL_render_queue.\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:633$167.inp' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:606$793'.
+  created $dff cell `$procdff$4681' with positive edge clock.
+Creating register for signal `\KL_render_queue.\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:637$168.$result' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:606$793'.
+  created $dff cell `$procdff$4682' with positive edge clock.
+Creating register for signal `\KL_render_queue.\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:637$168.inp' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:606$793'.
+  created $dff cell `$procdff$4683' with positive edge clock.
+Creating register for signal `\KL_render_queue.\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:647$169.$result' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:606$793'.
+  created $dff cell `$procdff$4684' with positive edge clock.
+Creating register for signal `\KL_render_queue.\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:647$169.inp' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:606$793'.
+  created $dff cell `$procdff$4685' with positive edge clock.
+Creating register for signal `\KL_render_queue.\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:633$170.$result' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:606$793'.
+  created $dff cell `$procdff$4686' with positive edge clock.
+Creating register for signal `\KL_render_queue.\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:633$170.inp' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:606$793'.
+  created $dff cell `$procdff$4687' with positive edge clock.
+Creating register for signal `\KL_render_queue.\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:637$171.$result' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:606$793'.
+  created $dff cell `$procdff$4688' with positive edge clock.
+Creating register for signal `\KL_render_queue.\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:637$171.inp' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:606$793'.
+  created $dff cell `$procdff$4689' with positive edge clock.
+Creating register for signal `\KL_render_queue.\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:647$172.$result' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:606$793'.
+  created $dff cell `$procdff$4690' with positive edge clock.
+Creating register for signal `\KL_render_queue.\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:647$172.inp' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:606$793'.
+  created $dff cell `$procdff$4691' with positive edge clock.
+Creating register for signal `\KL_render_queue.\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:633$173.$result' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:606$793'.
+  created $dff cell `$procdff$4692' with positive edge clock.
+Creating register for signal `\KL_render_queue.\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:633$173.inp' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:606$793'.
+  created $dff cell `$procdff$4693' with positive edge clock.
+Creating register for signal `\KL_render_queue.\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:637$174.$result' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:606$793'.
+  created $dff cell `$procdff$4694' with positive edge clock.
+Creating register for signal `\KL_render_queue.\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:637$174.inp' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:606$793'.
+  created $dff cell `$procdff$4695' with positive edge clock.
+Creating register for signal `\KL_render_queue.\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:647$175.$result' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:606$793'.
+  created $dff cell `$procdff$4696' with positive edge clock.
+Creating register for signal `\KL_render_queue.\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:647$175.inp' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:606$793'.
+  created $dff cell `$procdff$4697' with positive edge clock.
+Creating register for signal `\KL_render_queue.\stream_state.sv2v_autoblock_13.s' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:606$793'.
+  created $dff cell `$procdff$4698' with positive edge clock.
+Creating register for signal `\KL_render_queue.\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:669$176.$result' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:606$793'.
+  created $dff cell `$procdff$4699' with positive edge clock.
+Creating register for signal `\KL_render_queue.\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:669$176.inp' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:606$793'.
+  created $dff cell `$procdff$4700' with positive edge clock.
+Creating register for signal `\KL_render_queue.\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:669$177.$result' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:606$793'.
+  created $dff cell `$procdff$4701' with positive edge clock.
+Creating register for signal `\KL_render_queue.\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:669$177.inp' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:606$793'.
+  created $dff cell `$procdff$4702' with positive edge clock.
+Creating register for signal `\KL_render_queue.\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:669$178.$result' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:606$793'.
+  created $dff cell `$procdff$4703' with positive edge clock.
+Creating register for signal `\KL_render_queue.\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:669$178.inp' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:606$793'.
+  created $dff cell `$procdff$4704' with positive edge clock.
+Creating register for signal `\KL_render_queue.\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:669$179.$result' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:606$793'.
+  created $dff cell `$procdff$4705' with positive edge clock.
+Creating register for signal `\KL_render_queue.\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:669$179.inp' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:606$793'.
+  created $dff cell `$procdff$4706' with positive edge clock.
+Creating register for signal `\KL_render_queue.\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:669$180.$result' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:606$793'.
+  created $dff cell `$procdff$4707' with positive edge clock.
+Creating register for signal `\KL_render_queue.\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:669$180.inp' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:606$793'.
+  created $dff cell `$procdff$4708' with positive edge clock.
+Creating register for signal `\KL_render_queue.\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:669$181.$result' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:606$793'.
+  created $dff cell `$procdff$4709' with positive edge clock.
+Creating register for signal `\KL_render_queue.\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:669$181.inp' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:606$793'.
+  created $dff cell `$procdff$4710' with positive edge clock.
+Creating register for signal `\KL_render_queue.\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:669$182.$result' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:606$793'.
+  created $dff cell `$procdff$4711' with positive edge clock.
+Creating register for signal `\KL_render_queue.\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:669$182.inp' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:606$793'.
+  created $dff cell `$procdff$4712' with positive edge clock.
+Creating register for signal `\KL_render_queue.\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:669$183.$result' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:606$793'.
+  created $dff cell `$procdff$4713' with positive edge clock.
+Creating register for signal `\KL_render_queue.\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:669$183.inp' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:606$793'.
+  created $dff cell `$procdff$4714' with positive edge clock.
+Creating register for signal `\KL_render_queue.\lw_r[0]' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:606$793'.
+  created $dff cell `$procdff$4715' with positive edge clock.
+Creating register for signal `\KL_render_queue.\lw_r[1]' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:606$793'.
+  created $dff cell `$procdff$4716' with positive edge clock.
+Creating register for signal `\KL_render_queue.\lw_r[2]' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:606$793'.
+  created $dff cell `$procdff$4717' with positive edge clock.
+Creating register for signal `\KL_render_queue.\lw_r[3]' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:606$793'.
+  created $dff cell `$procdff$4718' with positive edge clock.
+Creating register for signal `\KL_render_queue.\lw_r[4]' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:606$793'.
+  created $dff cell `$procdff$4719' with positive edge clock.
+Creating register for signal `\KL_render_queue.\lw_r[5]' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:606$793'.
+  created $dff cell `$procdff$4720' with positive edge clock.
+Creating register for signal `\KL_render_queue.\lw_r[6]' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:606$793'.
+  created $dff cell `$procdff$4721' with positive edge clock.
+Creating register for signal `\KL_render_queue.\lw_r[7]' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:606$793'.
+  created $dff cell `$procdff$4722' with positive edge clock.
+Creating register for signal `\KL_render_queue.\lwv_r[0]' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:606$793'.
+  created $dff cell `$procdff$4723' with positive edge clock.
+Creating register for signal `\KL_render_queue.\lwv_r[1]' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:606$793'.
+  created $dff cell `$procdff$4724' with positive edge clock.
+Creating register for signal `\KL_render_queue.\lwv_r[2]' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:606$793'.
+  created $dff cell `$procdff$4725' with positive edge clock.
+Creating register for signal `\KL_render_queue.\lwv_r[3]' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:606$793'.
+  created $dff cell `$procdff$4726' with positive edge clock.
+Creating register for signal `\KL_render_queue.\lwv_r[4]' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:606$793'.
+  created $dff cell `$procdff$4727' with positive edge clock.
+Creating register for signal `\KL_render_queue.\lwv_r[5]' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:606$793'.
+  created $dff cell `$procdff$4728' with positive edge clock.
+Creating register for signal `\KL_render_queue.\lwv_r[6]' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:606$793'.
+  created $dff cell `$procdff$4729' with positive edge clock.
+Creating register for signal `\KL_render_queue.\lwv_r[7]' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:606$793'.
+  created $dff cell `$procdff$4730' with positive edge clock.
+Creating register for signal `\KL_render_queue.\live_r[0]' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:606$793'.
+  created $dff cell `$procdff$4731' with positive edge clock.
+Creating register for signal `\KL_render_queue.\live_r[1]' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:606$793'.
+  created $dff cell `$procdff$4732' with positive edge clock.
+Creating register for signal `\KL_render_queue.\live_r[2]' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:606$793'.
+  created $dff cell `$procdff$4733' with positive edge clock.
+Creating register for signal `\KL_render_queue.\live_r[3]' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:606$793'.
+  created $dff cell `$procdff$4734' with positive edge clock.
+Creating register for signal `\KL_render_queue.\live_r[4]' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:606$793'.
+  created $dff cell `$procdff$4735' with positive edge clock.
+Creating register for signal `\KL_render_queue.\live_r[5]' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:606$793'.
+  created $dff cell `$procdff$4736' with positive edge clock.
+Creating register for signal `\KL_render_queue.\live_r[6]' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:606$793'.
+  created $dff cell `$procdff$4737' with positive edge clock.
+Creating register for signal `\KL_render_queue.\live_r[7]' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:606$793'.
+  created $dff cell `$procdff$4738' with positive edge clock.
+Creating register for signal `\KL_render_queue.\conv_ms_r[0]' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:606$793'.
+  created $dff cell `$procdff$4739' with positive edge clock.
+Creating register for signal `\KL_render_queue.\conv_ms_r[1]' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:606$793'.
+  created $dff cell `$procdff$4740' with positive edge clock.
+Creating register for signal `\KL_render_queue.\conv_ms_r[2]' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:606$793'.
+  created $dff cell `$procdff$4741' with positive edge clock.
+Creating register for signal `\KL_render_queue.\conv_ms_r[3]' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:606$793'.
+  created $dff cell `$procdff$4742' with positive edge clock.
+Creating register for signal `\KL_render_queue.\conv_ms_r[4]' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:606$793'.
+  created $dff cell `$procdff$4743' with positive edge clock.
+Creating register for signal `\KL_render_queue.\conv_ms_r[5]' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:606$793'.
+  created $dff cell `$procdff$4744' with positive edge clock.
+Creating register for signal `\KL_render_queue.\conv_ms_r[6]' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:606$793'.
+  created $dff cell `$procdff$4745' with positive edge clock.
+Creating register for signal `\KL_render_queue.\conv_ms_r[7]' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:606$793'.
+  created $dff cell `$procdff$4746' with positive edge clock.
+Creating register for signal `\KL_render_queue.\converged_r[0]' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:606$793'.
+  created $dff cell `$procdff$4747' with positive edge clock.
+Creating register for signal `\KL_render_queue.\converged_r[1]' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:606$793'.
+  created $dff cell `$procdff$4748' with positive edge clock.
+Creating register for signal `\KL_render_queue.\converged_r[2]' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:606$793'.
+  created $dff cell `$procdff$4749' with positive edge clock.
+Creating register for signal `\KL_render_queue.\converged_r[3]' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:606$793'.
+  created $dff cell `$procdff$4750' with positive edge clock.
+Creating register for signal `\KL_render_queue.\converged_r[4]' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:606$793'.
+  created $dff cell `$procdff$4751' with positive edge clock.
+Creating register for signal `\KL_render_queue.\converged_r[5]' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:606$793'.
+  created $dff cell `$procdff$4752' with positive edge clock.
+Creating register for signal `\KL_render_queue.\converged_r[6]' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:606$793'.
+  created $dff cell `$procdff$4753' with positive edge clock.
+Creating register for signal `\KL_render_queue.\converged_r[7]' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:606$793'.
+  created $dff cell `$procdff$4754' with positive edge clock.
+Creating register for signal `\KL_render_queue.\chpos_r' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:565$772'.
+  created $dff cell `$procdff$4755' with positive edge clock.
+Creating register for signal `\KL_render_queue.\sof_r' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:565$772'.
+  created $dff cell `$procdff$4756' with positive edge clock.
+Creating register for signal `\KL_render_queue.\pdu_ok_r' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:565$772'.
+  created $dff cell `$procdff$4757' with positive edge clock.
+Creating register for signal `\KL_render_queue.\pdu_late_r' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:565$772'.
+  created $dff cell `$procdff$4758' with positive edge clock.
+Creating register for signal `\KL_render_queue.\pdu_early_r' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:565$772'.
+  created $dff cell `$procdff$4759' with positive edge clock.
+Creating register for signal `\KL_render_queue.\pdu_untimed_r' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:565$772'.
+  created $dff cell `$procdff$4760' with positive edge clock.
+Creating register for signal `\KL_render_queue.\pdu_slip_r' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:565$772'.
+  created $dff cell `$procdff$4761' with positive edge clock.
+Creating register for signal `\KL_render_queue.\chwrap$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:576$142.$result' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:565$772'.
+  created $dff cell `$procdff$4762' with positive edge clock.
+Creating register for signal `\KL_render_queue.\chwrap$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:576$142.ch' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:565$772'.
+  created $dff cell `$procdff$4763' with positive edge clock.
+Creating register for signal `\KL_render_queue.\chwrap$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:576$142.chans' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:565$772'.
+  created $dff cell `$procdff$4764' with positive edge clock.
+Creating register for signal `\KL_render_queue.\pst_r' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:529$717'.
+  created $dff cell `$procdff$4765' with positive edge clock.
+Creating register for signal `\KL_render_queue.\ld_r' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:529$717'.
+  created $dff cell `$procdff$4766' with positive edge clock.
+Creating register for signal `\KL_render_queue.\step_r' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:529$717'.
+  created $dff cell `$procdff$4767' with positive edge clock.
+Creating register for signal `\KL_render_queue.\tri_r' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:529$717'.
+  created $dff cell `$procdff$4768' with positive edge clock.
+Creating register for signal `\KL_render_queue.\f0_r' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:529$717'.
+  created $dff cell `$procdff$4769' with positive edge clock.
+Creating register for signal `\KL_render_queue.\sv2v_cast_0CCB4$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:540$135.$result' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:529$717'.
+  created $dff cell `$procdff$4770' with positive edge clock.
+Creating register for signal `\KL_render_queue.\sv2v_cast_0CCB4$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:540$135.inp' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:529$717'.
+  created $dff cell `$procdff$4771' with positive edge clock.
+Creating register for signal `\KL_render_queue.\sv2v_cast_1E29C$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:549$136.$result' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:529$717'.
+  created $dff cell `$procdff$4772' with positive edge clock.
+Creating register for signal `\KL_render_queue.\sv2v_cast_1E29C$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:549$136.inp' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:529$717'.
+  created $dff cell `$procdff$4773' with positive edge clock.
+Creating register for signal `\KL_render_queue.\sv2v_cast_1E29C$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:549$137.$result' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:529$717'.
+  created $dff cell `$procdff$4774' with positive edge clock.
+Creating register for signal `\KL_render_queue.\sv2v_cast_1E29C$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:549$137.inp' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:529$717'.
+  created $dff cell `$procdff$4775' with positive edge clock.
+Creating register for signal `\KL_render_queue.\sv2v_cast_1E29C$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:555$138.$result' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:529$717'.
+  created $dff cell `$procdff$4776' with positive edge clock.
+Creating register for signal `\KL_render_queue.\sv2v_cast_1E29C$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:555$138.inp' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:529$717'.
+  created $dff cell `$procdff$4777' with positive edge clock.
+Creating register for signal `\KL_render_queue.\sv2v_cast_0CCB4$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:560$141.$result' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:529$717'.
+  created $dff cell `$procdff$4778' with positive edge clock.
+Creating register for signal `\KL_render_queue.\sv2v_cast_0CCB4$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:560$141.inp' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:529$717'.
+  created $dff cell `$procdff$4779' with positive edge clock.
+Creating register for signal `\KL_render_queue.\render_tick_p_o' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:442$697'.
+  created $dff cell `$procdff$4780' with positive edge clock.
+Creating register for signal `\KL_render_queue.\r_r' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:442$697'.
+  created $dff cell `$procdff$4781' with positive edge clock.
+Creating register for signal `\KL_render_queue.\sst_r' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:442$697'.
+  created $dff cell `$procdff$4782' with positive edge clock.
+Creating register for signal `\KL_render_queue.\served_r' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:442$697'.
+  created $dff cell `$procdff$4783' with positive edge clock.
+Creating register for signal `\KL_render_queue.\sn_r' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:442$697'.
+  created $dff cell `$procdff$4784' with positive edge clock.
+Creating register for signal `\KL_render_queue.\if_r' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:442$697'.
+  created $dff cell `$procdff$4785' with positive edge clock.
+Creating register for signal `\KL_render_queue.\slot_r' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:442$697'.
+  created $dff cell `$procdff$4786' with positive edge clock.
+Creating register for signal `\KL_render_queue.\beat_r' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:442$697'.
+  created $dff cell `$procdff$4787' with positive edge clock.
+Creating register for signal `\KL_render_queue.\rv_r' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:442$697'.
+  created $dff cell `$procdff$4788' with positive edge clock.
+Creating register for signal `\KL_render_queue.\rif_r' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:442$697'.
+  created $dff cell `$procdff$4789' with positive edge clock.
+Creating register for signal `\KL_render_queue.\rs_r' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:442$697'.
+  created $dff cell `$procdff$4790' with positive edge clock.
+Creating register for signal `\KL_render_queue.\rlast_r' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:442$697'.
+  created $dff cell `$procdff$4791' with positive edge clock.
+Creating register for signal `\KL_render_queue.\rlastif_r' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:442$697'.
+  created $dff cell `$procdff$4792' with positive edge clock.
+Creating register for signal `\KL_render_queue.\rodd_r' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:442$697'.
+  created $dff cell `$procdff$4793' with positive edge clock.
+Creating register for signal `\KL_render_queue.\rany_r' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:442$697'.
+  created $dff cell `$procdff$4794' with positive edge clock.
+Creating register for signal `\KL_render_queue.\schedule.sv2v_autoblock_9.i' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:442$697'.
+  created $dff cell `$procdff$4795' with positive edge clock.
+Creating register for signal `\KL_render_queue.\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:473$134.$result' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:442$697'.
+  created $dff cell `$procdff$4796' with positive edge clock.
+Creating register for signal `\KL_render_queue.\sv2v_cast_32$func$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:473$134.inp' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:442$697'.
+  created $dff cell `$procdff$4797' with positive edge clock.
+Creating register for signal `\KL_render_queue.\n_r' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:229$275'.
+  created $dff cell `$procdff$4798' with positive edge clock.
+Creating register for signal `\KL_render_queue.\rd1_r' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:216$272'.
+  created $dff cell `$procdff$4799' with positive edge clock.
+Creating register for signal `\KL_render_queue.$memwr$\bank1_r$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:214$255_ADDR' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:212$265'.
+  created $dff cell `$procdff$4800' with positive edge clock.
+Creating register for signal `\KL_render_queue.$memwr$\bank1_r$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:214$255_DATA' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:212$265'.
+  created $dff cell `$procdff$4801' with positive edge clock.
+Creating register for signal `\KL_render_queue.$memwr$\bank1_r$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:214$255_EN' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:212$265'.
+  created $dff cell `$procdff$4802' with positive edge clock.
+Creating register for signal `\KL_render_queue.\rd0_r' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:206$263'.
+  created $dff cell `$procdff$4803' with positive edge clock.
+Creating register for signal `\KL_render_queue.$memwr$\bank0_r$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:204$254_ADDR' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:202$256'.
+  created $dff cell `$procdff$4804' with positive edge clock.
+Creating register for signal `\KL_render_queue.$memwr$\bank0_r$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:204$254_DATA' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:202$256'.
+  created $dff cell `$procdff$4805' with positive edge clock.
+Creating register for signal `\KL_render_queue.$memwr$\bank0_r$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:204$254_EN' using process `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:202$256'.
+  created $dff cell `$procdff$4806' with positive edge clock.
+
+2.4.10. Executing PROC_MEMWR pass (convert process memory writes to cells).
+
+2.4.11. Executing PROC_CLEAN pass (remove empty switches from decision trees).
+Removing empty process `KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:741$1426'.
+Removing empty process `KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:603$1422'.
+Removing empty process `KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:408$1404'.
+Removing empty process `KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:387$1398'.
+Removing empty process `KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:387$1394'.
+Removing empty process `KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:387$1390'.
+Removing empty process `KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:386$1386'.
+Removing empty process `KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:380$1382'.
+Removing empty process `KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:363$1378'.
+Removing empty process `KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:362$1374'.
+Removing empty process `KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:361$1370'.
+Removing empty process `KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:323$1352'.
+Removing empty process `KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:322$1334'.
+Removing empty process `KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:319$1330'.
+Removing empty process `KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:318$1326'.
+Removing empty process `KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:308$1322'.
+Removing empty process `KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:307$1318'.
+Removing empty process `KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:290$1314'.
+Removing empty process `KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:289$1310'.
+Removing empty process `KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:284$1306'.
+Removing empty process `KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:279$1297'.
+Removing empty process `KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:255$1293'.
+Removing empty process `KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:253$1288'.
+Removing empty process `KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:242$1284'.
+Removing empty process `KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:228$1280'.
+Removing empty process `KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:726$1199'.
+Found and cleaned up 7 empty switches in `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:696$1159'.
+Removing empty process `KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:696$1159'.
+Found and cleaned up 8 empty switches in `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:681$1102'.
+Removing empty process `KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:681$1102'.
+Found and cleaned up 77 empty switches in `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:606$793'.
+Removing empty process `KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:606$793'.
+Found and cleaned up 8 empty switches in `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:591$788'.
+Removing empty process `KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:591$788'.
+Found and cleaned up 3 empty switches in `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:565$772'.
+Removing empty process `KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:565$772'.
+Found and cleaned up 7 empty switches in `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:529$717'.
+Removing empty process `KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:529$717'.
+Found and cleaned up 11 empty switches in `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:442$697'.
+Removing empty process `KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:442$697'.
+Found and cleaned up 8 empty switches in `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:431$616'.
+Removing empty process `KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:431$616'.
+Removing empty process `KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:422$611'.
+Found and cleaned up 2 empty switches in `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:389$541'.
+Removing empty process `KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:389$541'.
+Found and cleaned up 1 empty switch in `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:369$525'.
+Removing empty process `KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:369$525'.
+Found and cleaned up 8 empty switches in `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:334$480'.
+Removing empty process `KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:334$480'.
+Found and cleaned up 8 empty switches in `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:296$337'.
+Removing empty process `KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:296$337'.
+Found and cleaned up 8 empty switches in `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:257$288'.
+Removing empty process `KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:257$288'.
+Found and cleaned up 2 empty switches in `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:229$275'.
+Removing empty process `KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:229$275'.
+Found and cleaned up 1 empty switch in `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:216$272'.
+Removing empty process `KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:216$272'.
+Found and cleaned up 1 empty switch in `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:212$265'.
+Removing empty process `KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:212$265'.
+Found and cleaned up 1 empty switch in `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:206$263'.
+Removing empty process `KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:206$263'.
+Found and cleaned up 1 empty switch in `\KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:202$256'.
+Removing empty process `KL_render_queue.$proc$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:202$256'.
+Cleaned up 162 empty switches.
+
+2.4.12. Executing OPT_EXPR pass (perform const folding).
+Optimizing module KL_render_queue.
+<suppressed ~361 debug messages>
+
+2.5. Executing CHECK pass (checking for obvious problems).
+Checking module KL_render_queue...
+Found and reported 0 problems.
+
+2.6. Executing FLATTEN pass (flatten design).
+
+2.7. Executing TRIBUF pass.
+
+2.8. Executing DEMINOUT pass (demote inout ports to input or output).
+
+2.9. Executing OPT_EXPR pass (perform const folding).
+Optimizing module KL_render_queue.
+<suppressed ~22 debug messages>
+
+2.10. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \KL_render_queue..
+Removed 446 unused cells and 2227 unused wires.
+<suppressed ~493 debug messages>
+
+2.11. Executing CHECK pass (checking for obvious problems).
+Checking module KL_render_queue...
+Found and reported 0 problems.
+
+2.12. Executing OPT pass (performing simple optimizations).
+
+2.12.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module KL_render_queue.
+
+2.12.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\KL_render_queue'.
+Computing hashes of 1023 cells of `\KL_render_queue'.
+Finding duplicate cells in `\KL_render_queue'.
+Computing hashes of 930 cells of `\KL_render_queue'.
+Finding duplicate cells in `\KL_render_queue'.
+Computing hashes of 912 cells of `\KL_render_queue'.
+Finding duplicate cells in `\KL_render_queue'.
+Computing hashes of 903 cells of `\KL_render_queue'.
+Finding duplicate cells in `\KL_render_queue'.
+<suppressed ~360 debug messages>
+Removed a total of 120 cells.
+
+2.12.3. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \KL_render_queue..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+      Replacing known input bits on port A of cell $procmux$4074: \tri_r -> 1'0
+      Replacing known input bits on port A of cell $procmux$3750: \fl_busy_r -> 1'1
+      Replacing known input bits on port A of cell $procmux$3748: \fl_busy_r -> 1'1
+      Replacing known input bits on port A of cell $procmux$3754: \fl_busy_r -> 1'0
+  Analyzing evaluation results.
+    dead port 1/2 on $mux $procmux$4372.
+    dead port 1/2 on $mux $procmux$4378.
+Removed 2 multiplexer ports.
+<suppressed ~698 debug messages>
+
+2.12.4. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \KL_render_queue.
+    Consolidated identical input bits for $mux cell $procmux$4613:
+      Old ports: A=25'0000000000000000000000000, B=25'1111111111111111111111111, Y=$0$memwr$\bank1_r$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:214$255_EN[24:0]$268
+      New ports: A=1'0, B=1'1, Y=$0$memwr$\bank1_r$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:214$255_EN[24:0]$268 [0]
+      New connections: $0$memwr$\bank1_r$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:214$255_EN[24:0]$268 [24:1] = { $0$memwr$\bank1_r$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:214$255_EN[24:0]$268 [0] $0$memwr$\bank1_r$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:214$255_EN[24:0]$268 [0] $0$memwr$\bank1_r$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:214$255_EN[24:0]$268 [0] $0$memwr$\bank1_r$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:214$255_EN[24:0]$268 [0] $0$memwr$\bank1_r$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:214$255_EN[24:0]$268 [0] $0$memwr$\bank1_r$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:214$255_EN[24:0]$268 [0] $0$memwr$\bank1_r$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:214$255_EN[24:0]$268 [0] $0$memwr$\bank1_r$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:214$255_EN[24:0]$268 [0] $0$memwr$\bank1_r$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:214$255_EN[24:0]$268 [0] $0$memwr$\bank1_r$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:214$255_EN[24:0]$268 [0] $0$memwr$\bank1_r$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:214$255_EN[24:0]$268 [0] $0$memwr$\bank1_r$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:214$255_EN[24:0]$268 [0] $0$memwr$\bank1_r$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:214$255_EN[24:0]$268 [0] $0$memwr$\bank1_r$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:214$255_EN[24:0]$268 [0] $0$memwr$\bank1_r$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:214$255_EN[24:0]$268 [0] $0$memwr$\bank1_r$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:214$255_EN[24:0]$268 [0] $0$memwr$\bank1_r$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:214$255_EN[24:0]$268 [0] $0$memwr$\bank1_r$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:214$255_EN[24:0]$268 [0] $0$memwr$\bank1_r$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:214$255_EN[24:0]$268 [0] $0$memwr$\bank1_r$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:214$255_EN[24:0]$268 [0] $0$memwr$\bank1_r$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:214$255_EN[24:0]$268 [0] $0$memwr$\bank1_r$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:214$255_EN[24:0]$268 [0] $0$memwr$\bank1_r$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:214$255_EN[24:0]$268 [0] $0$memwr$\bank1_r$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:214$255_EN[24:0]$268 [0] }
+    Consolidated identical input bits for $mux cell $procmux$4625:
+      Old ports: A=25'0000000000000000000000000, B=25'1111111111111111111111111, Y=$0$memwr$\bank0_r$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:204$254_EN[24:0]$259
+      New ports: A=1'0, B=1'1, Y=$0$memwr$\bank0_r$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:204$254_EN[24:0]$259 [0]
+      New connections: $0$memwr$\bank0_r$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:204$254_EN[24:0]$259 [24:1] = { $0$memwr$\bank0_r$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:204$254_EN[24:0]$259 [0] $0$memwr$\bank0_r$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:204$254_EN[24:0]$259 [0] $0$memwr$\bank0_r$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:204$254_EN[24:0]$259 [0] $0$memwr$\bank0_r$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:204$254_EN[24:0]$259 [0] $0$memwr$\bank0_r$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:204$254_EN[24:0]$259 [0] $0$memwr$\bank0_r$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:204$254_EN[24:0]$259 [0] $0$memwr$\bank0_r$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:204$254_EN[24:0]$259 [0] $0$memwr$\bank0_r$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:204$254_EN[24:0]$259 [0] $0$memwr$\bank0_r$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:204$254_EN[24:0]$259 [0] $0$memwr$\bank0_r$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:204$254_EN[24:0]$259 [0] $0$memwr$\bank0_r$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:204$254_EN[24:0]$259 [0] $0$memwr$\bank0_r$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:204$254_EN[24:0]$259 [0] $0$memwr$\bank0_r$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:204$254_EN[24:0]$259 [0] $0$memwr$\bank0_r$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:204$254_EN[24:0]$259 [0] $0$memwr$\bank0_r$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:204$254_EN[24:0]$259 [0] $0$memwr$\bank0_r$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:204$254_EN[24:0]$259 [0] $0$memwr$\bank0_r$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:204$254_EN[24:0]$259 [0] $0$memwr$\bank0_r$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:204$254_EN[24:0]$259 [0] $0$memwr$\bank0_r$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:204$254_EN[24:0]$259 [0] $0$memwr$\bank0_r$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:204$254_EN[24:0]$259 [0] $0$memwr$\bank0_r$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:204$254_EN[24:0]$259 [0] $0$memwr$\bank0_r$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:204$254_EN[24:0]$259 [0] $0$memwr$\bank0_r$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:204$254_EN[24:0]$259 [0] $0$memwr$\bank0_r$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:204$254_EN[24:0]$259 [0] }
+  Optimizing cells in module \KL_render_queue.
+Performed a total of 2 changes.
+
+2.12.5. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\KL_render_queue'.
+Computing hashes of 901 cells of `\KL_render_queue'.
+Finding duplicate cells in `\KL_render_queue'.
+Computing hashes of 891 cells of `\KL_render_queue'.
+Finding duplicate cells in `\KL_render_queue'.
+Computing hashes of 890 cells of `\KL_render_queue'.
+Finding duplicate cells in `\KL_render_queue'.
+<suppressed ~33 debug messages>
+Removed a total of 11 cells.
+
+2.12.6. Executing OPT_DFF pass (perform DFF optimizations).
+
+2.12.7. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \KL_render_queue..
+Removed 0 unused cells and 132 unused wires.
+<suppressed ~1 debug messages>
+
+2.12.8. Executing OPT_EXPR pass (perform const folding).
+Optimizing module KL_render_queue.
+<suppressed ~1 debug messages>
+
+2.12.9. Rerunning OPT passes. (Maybe there is more to do..)
+
+2.12.10. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \KL_render_queue..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~701 debug messages>
+
+2.12.11. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \KL_render_queue.
+Performed a total of 0 changes.
+
+2.12.12. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\KL_render_queue'.
+Computing hashes of 889 cells of `\KL_render_queue'.
+Finding duplicate cells in `\KL_render_queue'.
+Removed a total of 0 cells.
+
+2.12.13. Executing OPT_DFF pass (perform DFF optimizations).
+
+2.12.14. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \KL_render_queue..
+Removed 0 unused cells and 1 unused wires.
+<suppressed ~1 debug messages>
+
+2.12.15. Executing OPT_EXPR pass (perform const folding).
+Optimizing module KL_render_queue.
+
+2.12.16. Rerunning OPT passes. (Maybe there is more to do..)
+
+2.12.17. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \KL_render_queue..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~701 debug messages>
+
+2.12.18. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \KL_render_queue.
+Performed a total of 0 changes.
+
+2.12.19. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\KL_render_queue'.
+Computing hashes of 889 cells of `\KL_render_queue'.
+Finding duplicate cells in `\KL_render_queue'.
+Removed a total of 0 cells.
+
+2.12.20. Executing OPT_DFF pass (perform DFF optimizations).
+
+2.12.21. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \KL_render_queue..
+
+2.12.22. Executing OPT_EXPR pass (perform const folding).
+Optimizing module KL_render_queue.
+
+2.12.23. Finished fast OPT passes. (There is nothing left to do.)
+
+2.13. Executing FSM pass (extract and optimize FSM).
+
+2.13.1. Executing FSM_DETECT pass (finding FSMs in design).
+Found FSM state register KL_render_queue.sst_r.
+Not marking KL_render_queue.fl_s_r as FSM state register:
+    Users of register don't seem to benefit from recoding.
+Found FSM state register KL_render_queue.pst_r.
+Not marking KL_render_queue.pop_p_o as FSM state register:
+    Register is connected to module port.
+    Users of register don't seem to benefit from recoding.
+
+2.13.2. Executing FSM_EXTRACT pass (extracting FSM from design).
+Extracting FSM `\sst_r' from module `\KL_render_queue'.
+  found $dff cell for state register: $procdff$4782
+  root of input selection tree: $0\sst_r[1:0]
+  found reset state: 2'00 (guessed from mux tree)
+  found ctrl input: \rst_n
+  found state code: 2'00
+  found ctrl input: $eq$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:383$534_Y
+  found ctrl input: \rd_go_w
+  found ctrl input: $procmux$4182_CMP
+  found ctrl input: \scrub_go_w
+  found ctrl input: \last_beat_w
+  found ctrl input: \last_slot_w
+  found ctrl input: \last_if_w
+  found state code: 2'10
+  found ctrl input: $ne$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:478$710_Y
+  found state code: 2'01
+  found ctrl output: $ne$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:385$537_Y
+  found ctrl output: $eq$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:383$534_Y
+  found ctrl output: \rd_go_w
+  found ctrl output: $procmux$4182_CMP
+  ctrl inputs: { $ne$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:478$710_Y \scrub_go_w \last_if_w \last_slot_w \last_beat_w \rst_n }
+  ctrl outputs: { $procmux$4182_CMP $0\sst_r[1:0] $ne$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:385$537_Y $eq$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:383$534_Y \rd_go_w }
+  transition:       2'00 6'-----0 ->       2'00 6'100100
+  transition:       2'00 6'0----1 ->       2'00 6'100100
+  transition:       2'00 6'1----1 ->       2'01 6'101100
+  transition:       2'10 6'-----0 ->       2'00 6'000010
+  transition:       2'10 6'-0---1 ->       2'10 6'010010
+  transition:       2'10 6'-1--01 ->       2'10 6'010010
+  transition:       2'10 6'-1-011 ->       2'10 6'010010
+  transition:       2'10 6'-1-111 ->       2'00 6'000010
+  transition:       2'01 6'-----0 ->       2'00 6'000101
+  transition:       2'01 6'----01 ->       2'01 6'001101
+  transition:       2'01 6'---011 ->       2'01 6'001101
+  transition:       2'01 6'--0111 ->       2'01 6'001101
+  transition:       2'01 6'--1111 ->       2'10 6'010101
+Extracting FSM `\pst_r' from module `\KL_render_queue'.
+  found $dff cell for state register: $procdff$4765
+  root of input selection tree: $0\pst_r[2:0]
+  found reset state: 3'000 (guessed from mux tree)
+  found ctrl input: \rst_n
+  found state code: 3'000
+  found ctrl input: \hdr_p_i
+  found ctrl input: $logic_and$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:552$761_Y
+  found ctrl input: $eq$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:538$739_Y
+  found ctrl input: \tri_r
+  found ctrl input: $ne$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:543$753_Y
+  found state code: 3'010
+  found ctrl input: \hdr_tv_i
+  found state code: 3'101
+  found ctrl input: \db_w [31]
+  found ctrl input: \d_far_w
+  found state code: 3'001
+  found state code: 3'100
+  found state code: 3'011
+  found ctrl output: $eq$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:309$422_Y
+  found ctrl output: $eq$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:310$430_Y
+  found ctrl output: $eq$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:538$739_Y
+  found ctrl output: $eq$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:282$320_Y
+  ctrl inputs: { $logic_and$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:552$761_Y $ne$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:543$753_Y \d_far_w \db_w [31] \tri_r \hdr_tv_i \hdr_p_i \rst_n }
+  ctrl outputs: { $eq$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:538$739_Y $0\pst_r[2:0] $eq$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:310$430_Y $eq$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:309$422_Y $eq$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:282$320_Y }
+  transition:      3'000 8'-------0 ->      3'000 7'0000000
+  transition:      3'000 8'0-----01 ->      3'000 7'0000000
+  transition:      3'000 8'1-----01 ->      3'000 7'0000000
+  transition:      3'000 8'-----011 ->      3'101 7'0101000
+  transition:      3'000 8'--00-111 ->      3'001 7'0001000
+  transition:      3'000 8'--10-111 ->      3'100 7'0100000
+  transition:      3'000 8'---1-111 ->      3'011 7'0011000
+  transition:      3'100 8'-------0 ->      3'000 7'0000100
+  transition:      3'100 8'0-----01 ->      3'100 7'0100100
+  transition:      3'100 8'1-----01 ->      3'000 7'0000100
+  transition:      3'100 8'-----011 ->      3'101 7'0101100
+  transition:      3'100 8'--00-111 ->      3'001 7'0001100
+  transition:      3'100 8'--10-111 ->      3'100 7'0100100
+  transition:      3'100 8'---1-111 ->      3'011 7'0011100
+  transition:      3'010 8'-------0 ->      3'000 7'0000001
+  transition:      3'010 8'0-----01 ->      3'010 7'0010001
+  transition:      3'010 8'1-----01 ->      3'000 7'0000001
+  transition:      3'010 8'-----011 ->      3'101 7'0101001
+  transition:      3'010 8'--00-111 ->      3'001 7'0001001
+  transition:      3'010 8'--10-111 ->      3'100 7'0100001
+  transition:      3'010 8'---1-111 ->      3'011 7'0011001
+  transition:      3'001 8'-------0 ->      3'000 7'1000000
+  transition:      3'001 8'00--0-01 ->      3'010 7'1010000
+  transition:      3'001 8'01--0-01 ->      3'001 7'1001000
+  transition:      3'001 8'0---1-01 ->      3'001 7'1001000
+  transition:      3'001 8'1-----01 ->      3'000 7'1000000
+  transition:      3'001 8'-----011 ->      3'101 7'1101000
+  transition:      3'001 8'--00-111 ->      3'001 7'1001000
+  transition:      3'001 8'--10-111 ->      3'100 7'1100000
+  transition:      3'001 8'---1-111 ->      3'011 7'1011000
+  transition:      3'101 8'-------0 ->      3'000 7'0000000
+  transition:      3'101 8'0-----01 ->      3'101 7'0101000
+  transition:      3'101 8'1-----01 ->      3'000 7'0000000
+  transition:      3'101 8'-----011 ->      3'101 7'0101000
+  transition:      3'101 8'--00-111 ->      3'001 7'0001000
+  transition:      3'101 8'--10-111 ->      3'100 7'0100000
+  transition:      3'101 8'---1-111 ->      3'011 7'0011000
+  transition:      3'011 8'-------0 ->      3'000 7'0000010
+  transition:      3'011 8'0-----01 ->      3'011 7'0011010
+  transition:      3'011 8'1-----01 ->      3'000 7'0000010
+  transition:      3'011 8'-----011 ->      3'101 7'0101010
+  transition:      3'011 8'--00-111 ->      3'001 7'0001010
+  transition:      3'011 8'--10-111 ->      3'100 7'0100010
+  transition:      3'011 8'---1-111 ->      3'011 7'0011010
+
+2.13.3. Executing FSM_OPT pass (simple optimizations of FSMs).
+Optimizing FSM `$fsm$\pst_r$4815' from module `\KL_render_queue'.
+  Merging pattern 8'0-----01 and 8'1-----01 from group (0 0 7'0000000).
+  Merging pattern 8'1-----01 and 8'0-----01 from group (0 0 7'0000000).
+Optimizing FSM `$fsm$\sst_r$4809' from module `\KL_render_queue'.
+
+2.13.4. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \KL_render_queue..
+Removed 28 unused cells and 28 unused wires.
+<suppressed ~29 debug messages>
+
+2.13.5. Executing FSM_OPT pass (simple optimizations of FSMs).
+Optimizing FSM `$fsm$\sst_r$4809' from module `\KL_render_queue'.
+  Removing unused output signal $0\sst_r[1:0] [0].
+  Removing unused output signal $0\sst_r[1:0] [1].
+Optimizing FSM `$fsm$\pst_r$4815' from module `\KL_render_queue'.
+  Removing unused output signal $0\pst_r[2:0] [0].
+  Removing unused output signal $0\pst_r[2:0] [1].
+  Removing unused output signal $0\pst_r[2:0] [2].
+
+2.13.6. Executing FSM_RECODE pass (re-assigning FSM state encoding).
+Recoding FSM `$fsm$\sst_r$4809' from module `\KL_render_queue' using `auto' encoding:
+  mapping auto encoding to `one-hot` for this FSM.
+  00 -> --1
+  10 -> -1-
+  01 -> 1--
+Recoding FSM `$fsm$\pst_r$4815' from module `\KL_render_queue' using `auto' encoding:
+  mapping auto encoding to `one-hot` for this FSM.
+  000 -> -----1
+  100 -> ----1-
+  010 -> ---1--
+  001 -> --1---
+  101 -> -1----
+  011 -> 1-----
+
+2.13.7. Executing FSM_INFO pass (dumping all available information on FSM cells).
+
+FSM `$fsm$\sst_r$4809' from module `KL_render_queue':
+-------------------------------------
+
+  Information on FSM $fsm$\sst_r$4809 (\sst_r):
+
+  Number of input signals:    6
+  Number of output signals:   4
+  Number of state bits:       3
+
+  Input signals:
+    0: \rst_n
+    1: \last_beat_w
+    2: \last_slot_w
+    3: \last_if_w
+    4: \scrub_go_w
+    5: $ne$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:478$710_Y
+
+  Output signals:
+    0: \rd_go_w
+    1: $eq$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:383$534_Y
+    2: $ne$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:385$537_Y
+    3: $procmux$4182_CMP
+
+  State encoding:
+    0:      3'--1  <RESET STATE>
+    1:      3'-1-
+    2:      3'1--
+
+  Transition Table (state_in, ctrl_in, state_out, ctrl_out):
+      0:     0 6'-----0   ->     0 4'1100
+      1:     0 6'0----1   ->     0 4'1100
+      2:     0 6'1----1   ->     2 4'1100
+      3:     1 6'-----0   ->     0 4'0010
+      4:     1 6'-1-111   ->     0 4'0010
+      5:     1 6'-1--01   ->     1 4'0010
+      6:     1 6'-1-011   ->     1 4'0010
+      7:     1 6'-0---1   ->     1 4'0010
+      8:     2 6'-----0   ->     0 4'0101
+      9:     2 6'--1111   ->     1 4'0101
+     10:     2 6'----01   ->     2 4'0101
+     11:     2 6'---011   ->     2 4'0101
+     12:     2 6'--0111   ->     2 4'0101
+
+-------------------------------------
+
+FSM `$fsm$\pst_r$4815' from module `KL_render_queue':
+-------------------------------------
+
+  Information on FSM $fsm$\pst_r$4815 (\pst_r):
+
+  Number of input signals:    8
+  Number of output signals:   4
+  Number of state bits:       6
+
+  Input signals:
+    0: \rst_n
+    1: \hdr_p_i
+    2: \hdr_tv_i
+    3: \tri_r
+    4: \db_w [31]
+    5: \d_far_w
+    6: $ne$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:543$753_Y
+    7: $logic_and$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:552$761_Y
+
+  Output signals:
+    0: $eq$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:282$320_Y
+    1: $eq$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:309$422_Y
+    2: $eq$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:310$430_Y
+    3: $eq$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:538$739_Y
+
+  State encoding:
+    0:   6'-----1  <RESET STATE>
+    1:   6'----1-
+    2:   6'---1--
+    3:   6'--1---
+    4:   6'-1----
+    5:   6'1-----
+
+  Transition Table (state_in, ctrl_in, state_out, ctrl_out):
+      0:     0 8'-------0   ->     0 4'0000
+      1:     0 8'------01   ->     0 4'0000
+      2:     0 8'--10-111   ->     1 4'0000
+      3:     0 8'--00-111   ->     3 4'0000
+      4:     0 8'-----011   ->     4 4'0000
+      5:     0 8'---1-111   ->     5 4'0000
+      6:     1 8'-------0   ->     0 4'0100
+      7:     1 8'1-----01   ->     0 4'0100
+      8:     1 8'0-----01   ->     1 4'0100
+      9:     1 8'--10-111   ->     1 4'0100
+     10:     1 8'--00-111   ->     3 4'0100
+     11:     1 8'-----011   ->     4 4'0100
+     12:     1 8'---1-111   ->     5 4'0100
+     13:     2 8'-------0   ->     0 4'0001
+     14:     2 8'1-----01   ->     0 4'0001
+     15:     2 8'--10-111   ->     1 4'0001
+     16:     2 8'0-----01   ->     2 4'0001
+     17:     2 8'--00-111   ->     3 4'0001
+     18:     2 8'-----011   ->     4 4'0001
+     19:     2 8'---1-111   ->     5 4'0001
+     20:     3 8'-------0   ->     0 4'1000
+     21:     3 8'1-----01   ->     0 4'1000
+     22:     3 8'--10-111   ->     1 4'1000
+     23:     3 8'00--0-01   ->     2 4'1000
+     24:     3 8'01--0-01   ->     3 4'1000
+     25:     3 8'0---1-01   ->     3 4'1000
+     26:     3 8'--00-111   ->     3 4'1000
+     27:     3 8'-----011   ->     4 4'1000
+     28:     3 8'---1-111   ->     5 4'1000
+     29:     4 8'-------0   ->     0 4'0000
+     30:     4 8'1-----01   ->     0 4'0000
+     31:     4 8'--10-111   ->     1 4'0000
+     32:     4 8'--00-111   ->     3 4'0000
+     33:     4 8'0-----01   ->     4 4'0000
+     34:     4 8'-----011   ->     4 4'0000
+     35:     4 8'---1-111   ->     5 4'0000
+     36:     5 8'-------0   ->     0 4'0010
+     37:     5 8'1-----01   ->     0 4'0010
+     38:     5 8'--10-111   ->     1 4'0010
+     39:     5 8'--00-111   ->     3 4'0010
+     40:     5 8'-----011   ->     4 4'0010
+     41:     5 8'0-----01   ->     5 4'0010
+     42:     5 8'---1-111   ->     5 4'0010
+
+-------------------------------------
+
+2.13.8. Executing FSM_MAP pass (mapping FSMs to basic logic).
+Mapping FSM `$fsm$\sst_r$4809' from module `\KL_render_queue'.
+Mapping FSM `$fsm$\pst_r$4815' from module `\KL_render_queue'.
+
+2.14. Executing OPT pass (performing simple optimizations).
+
+2.14.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module KL_render_queue.
+<suppressed ~2 debug messages>
+
+2.14.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\KL_render_queue'.
+Computing hashes of 916 cells of `\KL_render_queue'.
+Finding duplicate cells in `\KL_render_queue'.
+Computing hashes of 912 cells of `\KL_render_queue'.
+Finding duplicate cells in `\KL_render_queue'.
+<suppressed ~12 debug messages>
+Removed a total of 4 cells.
+
+2.14.3. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \KL_render_queue..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~681 debug messages>
+
+2.14.4. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \KL_render_queue.
+Performed a total of 0 changes.
+
+2.14.5. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\KL_render_queue'.
+Computing hashes of 912 cells of `\KL_render_queue'.
+Finding duplicate cells in `\KL_render_queue'.
+Removed a total of 0 cells.
+
+2.14.6. Executing OPT_DFF pass (perform DFF optimizations).
+Adding SRST signal on $procdff$4803 ($dff) from module KL_render_queue (D = $memrd$\bank0_r$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:210$264_DATA, Q = \rd0_r, rval = 25'0000000000000000000000000).
+Adding SRST signal on $procdff$4794 ($dff) from module KL_render_queue (D = $procmux$4163_Y, Q = \rany_r, rval = 1'0).
+Adding EN signal on $auto$ff.cc:337:slice$4926 ($sdff) from module KL_render_queue (D = $ternary$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:468$706_Y, Q = \rany_r).
+Adding SRST signal on $procdff$4793 ($dff) from module KL_render_queue (D = \cons_w [0], Q = \rodd_r, rval = 1'0).
+Adding SRST signal on $procdff$4792 ($dff) from module KL_render_queue (D = $logic_and$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:465$705_Y, Q = \rlastif_r, rval = 1'0).
+Adding SRST signal on $procdff$4791 ($dff) from module KL_render_queue (D = $logic_and$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:464$703_Y, Q = \rlast_r, rval = 1'0).
+Adding SRST signal on $procdff$4790 ($dff) from module KL_render_queue (D = \slot_r, Q = \rs_r, rval = 4'0000).
+Adding SRST signal on $procdff$4789 ($dff) from module KL_render_queue (D = \if_r, Q = \rif_r, rval = 2'00).
+Adding SRST signal on $procdff$4788 ($dff) from module KL_render_queue (D = \rd_go_w, Q = \rv_r, rval = 1'0).
+Adding SRST signal on $procdff$4787 ($dff) from module KL_render_queue (D = $procmux$4174_Y, Q = \beat_r, rval = 4'0000).
+Adding EN signal on $auto$ff.cc:337:slice$4934 ($sdff) from module KL_render_queue (D = $procmux$4174_Y, Q = \beat_r).
+Adding SRST signal on $procdff$4786 ($dff) from module KL_render_queue (D = $procmux$4195_Y, Q = \slot_r, rval = 4'0000).
+Adding EN signal on $auto$ff.cc:337:slice$4944 ($sdff) from module KL_render_queue (D = $procmux$4195_Y, Q = \slot_r).
+Adding SRST signal on $procdff$4785 ($dff) from module KL_render_queue (D = $procmux$4221_Y, Q = \if_r, rval = 2'00).
+Adding EN signal on $auto$ff.cc:337:slice$4954 ($sdff) from module KL_render_queue (D = $procmux$4221_Y, Q = \if_r).
+Adding SRST signal on $procdff$4784 ($dff) from module KL_render_queue (D = $procmux$4234_Y, Q = \sn_r, rval = 10'0000000000).
+Adding EN signal on $auto$ff.cc:337:slice$4968 ($sdff) from module KL_render_queue (D = $add$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:480$711_Y, Q = \sn_r).
+Adding SRST signal on $procdff$4783 ($dff) from module KL_render_queue (D = $procmux$4248_Y, Q = \served_r, rval = 10'0000000000).
+Adding EN signal on $auto$ff.cc:337:slice$4972 ($sdff) from module KL_render_queue (D = \sn_r, Q = \served_r).
+Adding SRST signal on $procdff$4781 ($dff) from module KL_render_queue (D = $procmux$4291_Y, Q = \r_r, rval = 10'0000000010).
+Adding EN signal on $auto$ff.cc:337:slice$4976 ($sdff) from module KL_render_queue (D = \cons_w, Q = \r_r).
+Adding SRST signal on $procdff$4780 ($dff) from module KL_render_queue (D = $procmux$4131_Y, Q = \render_tick_p_o, rval = 1'0).
+Adding SRST signal on $procdff$4799 ($dff) from module KL_render_queue (D = $memrd$\bank1_r$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:220$273_DATA, Q = \rd1_r, rval = 25'0000000000000000000000000).
+Adding SRST signal on $procdff$4798 ($dff) from module KL_render_queue (D = $procmux$4604_Y, Q = \n_r, rval = 10'0000000000).
+Adding EN signal on $auto$ff.cc:337:slice$4982 ($sdff) from module KL_render_queue (D = $add$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:233$277_Y, Q = \n_r).
+Adding SRST signal on $procdff$4769 ($dff) from module KL_render_queue (D = $procmux$4067_Y, Q = \f0_r, rval = 10'0000000000).
+Adding EN signal on $auto$ff.cc:337:slice$4984 ($sdff) from module KL_render_queue (D = $procmux$4067_Y, Q = \f0_r).
+Adding SRST signal on $procdff$4768 ($dff) from module KL_render_queue (D = $procmux$4079_Y, Q = \tri_r, rval = 1'0).
+Adding EN signal on $auto$ff.cc:337:slice$4994 ($sdff) from module KL_render_queue (D = $procmux$4079_Y, Q = \tri_r).
+Adding SRST signal on $procdff$4767 ($dff) from module KL_render_queue (D = { $procmux$4094_Y [3] $procmux$4094_Y [1] }, Q = { \step_r [3] \step_r [1] }, rval = 2'00).
+Adding SRST signal on $procdff$4767 ($dff) from module KL_render_queue (D = { $procmux$4091_Y [2] $procmux$4091_Y [0] }, Q = { \step_r [2] \step_r [0] }, rval = 2'00).
+Adding EN signal on $auto$ff.cc:337:slice$4999 ($sdff) from module KL_render_queue (D = { $sub$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:545$758_Y [2] $sub$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:545$758_Y [0] }, Q = { \step_r [2] \step_r [0] }).
+Adding EN signal on $auto$ff.cc:337:slice$4998 ($sdff) from module KL_render_queue (D = { $procmux$4094_Y [3] $procmux$4094_Y [1] }, Q = { \step_r [3] \step_r [1] }).
+Adding SRST signal on $procdff$4766 ($dff) from module KL_render_queue (D = $procmux$4109_Y, Q = \ld_r, rval = 26'00000000000000000000000000).
+Adding EN signal on $auto$ff.cc:337:slice$5018 ($sdff) from module KL_render_queue (D = $procmux$4109_Y, Q = \ld_r).
+Adding SRST signal on $procdff$4761 ($dff) from module KL_render_queue (D = $procmux$3819_Y, Q = \pdu_slip_r, rval = 1'0).
+Adding EN signal on $auto$ff.cc:337:slice$5026 ($sdff) from module KL_render_queue (D = \b_slip_w, Q = \pdu_slip_r).
+Adding SRST signal on $procdff$4760 ($dff) from module KL_render_queue (D = $procmux$3825_Y, Q = \pdu_untimed_r, rval = 1'0).
+Adding EN signal on $auto$ff.cc:337:slice$5028 ($sdff) from module KL_render_queue (D = \b_untimed_w, Q = \pdu_untimed_r).
+Adding SRST signal on $procdff$4759 ($dff) from module KL_render_queue (D = $procmux$3831_Y, Q = \pdu_early_r, rval = 1'0).
+Adding EN signal on $auto$ff.cc:337:slice$5030 ($sdff) from module KL_render_queue (D = \b_early_w, Q = \pdu_early_r).
+Adding SRST signal on $procdff$4758 ($dff) from module KL_render_queue (D = $procmux$3837_Y, Q = \pdu_late_r, rval = 1'0).
+Adding EN signal on $auto$ff.cc:337:slice$5032 ($sdff) from module KL_render_queue (D = \b_late_w, Q = \pdu_late_r).
+Adding SRST signal on $procdff$4757 ($dff) from module KL_render_queue (D = $procmux$3845_Y, Q = \pdu_ok_r, rval = 1'0).
+Adding EN signal on $auto$ff.cc:337:slice$5034 ($sdff) from module KL_render_queue (D = \place_w, Q = \pdu_ok_r).
+Adding SRST signal on $procdff$4756 ($dff) from module KL_render_queue (D = $procmux$3851_Y, Q = \sof_r, rval = 1'1).
+Adding EN signal on $auto$ff.cc:337:slice$5036 ($sdff) from module KL_render_queue (D = \s_tlast_i, Q = \sof_r).
+Adding SRST signal on $procdff$4755 ($dff) from module KL_render_queue (D = $procmux$3857_Y, Q = \chpos_r, rval = 4'0000).
+Adding EN signal on $auto$ff.cc:337:slice$5038 ($sdff) from module KL_render_queue (D = $ternary$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:178$786_Y, Q = \chpos_r).
+Adding SRST signal on $procdff$4754 ($dff) from module KL_render_queue (D = $procmux$3328_Y, Q = \converged_r[7], rval = 1'0).
+Adding SRST signal on $procdff$4753 ($dff) from module KL_render_queue (D = $procmux$3343_Y, Q = \converged_r[6], rval = 1'0).
+Adding SRST signal on $procdff$4752 ($dff) from module KL_render_queue (D = $procmux$3358_Y, Q = \converged_r[5], rval = 1'0).
+Adding SRST signal on $procdff$4751 ($dff) from module KL_render_queue (D = $procmux$3373_Y, Q = \converged_r[4], rval = 1'0).
+Adding SRST signal on $procdff$4750 ($dff) from module KL_render_queue (D = $procmux$3388_Y, Q = \converged_r[3], rval = 1'0).
+Adding SRST signal on $procdff$4749 ($dff) from module KL_render_queue (D = $procmux$3403_Y, Q = \converged_r[2], rval = 1'0).
+Adding SRST signal on $procdff$4748 ($dff) from module KL_render_queue (D = $procmux$3418_Y, Q = \converged_r[1], rval = 1'0).
+Adding SRST signal on $procdff$4747 ($dff) from module KL_render_queue (D = $procmux$3433_Y, Q = \converged_r[0], rval = 1'0).
+Adding SRST signal on $procdff$4746 ($dff) from module KL_render_queue (D = $procmux$3448_Y, Q = \conv_ms_r[7], rval = 7'0000000).
+Adding SRST signal on $procdff$4745 ($dff) from module KL_render_queue (D = $procmux$3463_Y, Q = \conv_ms_r[6], rval = 7'0000000).
+Adding SRST signal on $procdff$4744 ($dff) from module KL_render_queue (D = $procmux$3478_Y, Q = \conv_ms_r[5], rval = 7'0000000).
+Adding SRST signal on $procdff$4743 ($dff) from module KL_render_queue (D = $procmux$3493_Y, Q = \conv_ms_r[4], rval = 7'0000000).
+Adding SRST signal on $procdff$4742 ($dff) from module KL_render_queue (D = $procmux$3508_Y, Q = \conv_ms_r[3], rval = 7'0000000).
+Adding SRST signal on $procdff$4741 ($dff) from module KL_render_queue (D = $procmux$3523_Y, Q = \conv_ms_r[2], rval = 7'0000000).
+Adding SRST signal on $procdff$4740 ($dff) from module KL_render_queue (D = $procmux$3538_Y, Q = \conv_ms_r[1], rval = 7'0000000).
+Adding SRST signal on $procdff$4739 ($dff) from module KL_render_queue (D = $procmux$3553_Y, Q = \conv_ms_r[0], rval = 7'0000000).
+Adding SRST signal on $procdff$4738 ($dff) from module KL_render_queue (D = $procmux$3560_Y, Q = \live_r[7], rval = 1'0).
+Adding EN signal on $auto$ff.cc:337:slice$5120 ($sdff) from module KL_render_queue (D = \any_w, Q = \live_r[7]).
+Adding SRST signal on $procdff$4737 ($dff) from module KL_render_queue (D = $procmux$3567_Y, Q = \live_r[6], rval = 1'0).
+Adding EN signal on $auto$ff.cc:337:slice$5126 ($sdff) from module KL_render_queue (D = \any_w, Q = \live_r[6]).
+Adding SRST signal on $procdff$4736 ($dff) from module KL_render_queue (D = $procmux$3574_Y, Q = \live_r[5], rval = 1'0).
+Adding EN signal on $auto$ff.cc:337:slice$5132 ($sdff) from module KL_render_queue (D = \any_w, Q = \live_r[5]).
+Adding SRST signal on $procdff$4735 ($dff) from module KL_render_queue (D = $procmux$3581_Y, Q = \live_r[4], rval = 1'0).
+Adding EN signal on $auto$ff.cc:337:slice$5138 ($sdff) from module KL_render_queue (D = \any_w, Q = \live_r[4]).
+Adding SRST signal on $procdff$4734 ($dff) from module KL_render_queue (D = $procmux$3588_Y, Q = \live_r[3], rval = 1'0).
+Adding EN signal on $auto$ff.cc:337:slice$5144 ($sdff) from module KL_render_queue (D = \any_w, Q = \live_r[3]).
+Adding SRST signal on $procdff$4733 ($dff) from module KL_render_queue (D = $procmux$3595_Y, Q = \live_r[2], rval = 1'0).
+Adding EN signal on $auto$ff.cc:337:slice$5150 ($sdff) from module KL_render_queue (D = \any_w, Q = \live_r[2]).
+Adding SRST signal on $procdff$4732 ($dff) from module KL_render_queue (D = $procmux$3602_Y, Q = \live_r[1], rval = 1'0).
+Adding EN signal on $auto$ff.cc:337:slice$5156 ($sdff) from module KL_render_queue (D = \any_w, Q = \live_r[1]).
+Adding SRST signal on $procdff$4731 ($dff) from module KL_render_queue (D = $procmux$3609_Y, Q = \live_r[0], rval = 1'0).
+Adding EN signal on $auto$ff.cc:337:slice$5162 ($sdff) from module KL_render_queue (D = \any_w, Q = \live_r[0]).
+Adding SRST signal on $procdff$4730 ($dff) from module KL_render_queue (D = $procmux$3618_Y, Q = \lwv_r[7], rval = 1'0).
+Adding EN signal on $auto$ff.cc:337:slice$5168 ($sdff) from module KL_render_queue (D = $procmux$3618_Y, Q = \lwv_r[7]).
+Adding SRST signal on $procdff$4729 ($dff) from module KL_render_queue (D = $procmux$3627_Y, Q = \lwv_r[6], rval = 1'0).
+Adding EN signal on $auto$ff.cc:337:slice$5176 ($sdff) from module KL_render_queue (D = $procmux$3627_Y, Q = \lwv_r[6]).
+Adding SRST signal on $procdff$4728 ($dff) from module KL_render_queue (D = $procmux$3636_Y, Q = \lwv_r[5], rval = 1'0).
+Adding EN signal on $auto$ff.cc:337:slice$5184 ($sdff) from module KL_render_queue (D = $procmux$3636_Y, Q = \lwv_r[5]).
+Adding SRST signal on $procdff$4727 ($dff) from module KL_render_queue (D = $procmux$3645_Y, Q = \lwv_r[4], rval = 1'0).
+Adding EN signal on $auto$ff.cc:337:slice$5192 ($sdff) from module KL_render_queue (D = $procmux$3645_Y, Q = \lwv_r[4]).
+Adding SRST signal on $procdff$4726 ($dff) from module KL_render_queue (D = $procmux$3654_Y, Q = \lwv_r[3], rval = 1'0).
+Adding EN signal on $auto$ff.cc:337:slice$5200 ($sdff) from module KL_render_queue (D = $procmux$3654_Y, Q = \lwv_r[3]).
+Adding SRST signal on $procdff$4725 ($dff) from module KL_render_queue (D = $procmux$3663_Y, Q = \lwv_r[2], rval = 1'0).
+Adding EN signal on $auto$ff.cc:337:slice$5208 ($sdff) from module KL_render_queue (D = $procmux$3663_Y, Q = \lwv_r[2]).
+Adding SRST signal on $procdff$4724 ($dff) from module KL_render_queue (D = $procmux$3672_Y, Q = \lwv_r[1], rval = 1'0).
+Adding EN signal on $auto$ff.cc:337:slice$5216 ($sdff) from module KL_render_queue (D = $procmux$3672_Y, Q = \lwv_r[1]).
+Adding SRST signal on $procdff$4723 ($dff) from module KL_render_queue (D = $procmux$3681_Y, Q = \lwv_r[0], rval = 1'0).
+Adding EN signal on $auto$ff.cc:337:slice$5224 ($sdff) from module KL_render_queue (D = $procmux$3681_Y, Q = \lwv_r[0]).
+Adding SRST signal on $procdff$4722 ($dff) from module KL_render_queue (D = $procmux$3688_Y, Q = \lw_r[7], rval = 10'0000000000).
+Adding EN signal on $auto$ff.cc:337:slice$5232 ($sdff) from module KL_render_queue (D = \fnew_w, Q = \lw_r[7]).
+Adding SRST signal on $procdff$4721 ($dff) from module KL_render_queue (D = $procmux$3693_Y, Q = \lw_r[6], rval = 10'0000000000).
+Adding EN signal on $auto$ff.cc:337:slice$5234 ($sdff) from module KL_render_queue (D = \fnew_w, Q = \lw_r[6]).
+Adding SRST signal on $procdff$4720 ($dff) from module KL_render_queue (D = $procmux$3698_Y, Q = \lw_r[5], rval = 10'0000000000).
+Adding EN signal on $auto$ff.cc:337:slice$5236 ($sdff) from module KL_render_queue (D = \fnew_w, Q = \lw_r[5]).
+Adding SRST signal on $procdff$4719 ($dff) from module KL_render_queue (D = $procmux$3703_Y, Q = \lw_r[4], rval = 10'0000000000).
+Adding EN signal on $auto$ff.cc:337:slice$5238 ($sdff) from module KL_render_queue (D = \fnew_w, Q = \lw_r[4]).
+Adding SRST signal on $procdff$4718 ($dff) from module KL_render_queue (D = $procmux$3708_Y, Q = \lw_r[3], rval = 10'0000000000).
+Adding EN signal on $auto$ff.cc:337:slice$5240 ($sdff) from module KL_render_queue (D = \fnew_w, Q = \lw_r[3]).
+Adding SRST signal on $procdff$4717 ($dff) from module KL_render_queue (D = $procmux$3713_Y, Q = \lw_r[2], rval = 10'0000000000).
+Adding EN signal on $auto$ff.cc:337:slice$5242 ($sdff) from module KL_render_queue (D = \fnew_w, Q = \lw_r[2]).
+Adding SRST signal on $procdff$4716 ($dff) from module KL_render_queue (D = $procmux$3718_Y, Q = \lw_r[1], rval = 10'0000000000).
+Adding EN signal on $auto$ff.cc:337:slice$5244 ($sdff) from module KL_render_queue (D = \fnew_w, Q = \lw_r[1]).
+Adding SRST signal on $procdff$4715 ($dff) from module KL_render_queue (D = $procmux$3723_Y, Q = \lw_r[0], rval = 10'0000000000).
+Adding EN signal on $auto$ff.cc:337:slice$5246 ($sdff) from module KL_render_queue (D = \fnew_w, Q = \lw_r[0]).
+Adding SRST signal on $procdff$4647 ($dff) from module KL_render_queue (D = $procmux$3734_Y, Q = \fl_a_r, rval = 9'000000000).
+Adding EN signal on $auto$ff.cc:337:slice$5248 ($sdff) from module KL_render_queue (D = $procmux$3734_Y, Q = \fl_a_r).
+Adding SRST signal on $procdff$4646 ($dff) from module KL_render_queue (D = $procmux$3743_Y, Q = \fl_s_r, rval = 4'0000).
+Adding EN signal on $auto$ff.cc:337:slice$5256 ($sdff) from module KL_render_queue (D = \fl_low_w, Q = \fl_s_r).
+Adding SRST signal on $procdff$4645 ($dff) from module KL_render_queue (D = $procmux$3756_Y, Q = \fl_busy_r, rval = 1'0).
+Adding SRST signal on $procdff$4644 ($dff) from module KL_render_queue (D = { $procmux$2889_Y $procmux$2902_Y $procmux$2935_Y $procmux$2967_Y $procmux$2999_Y $procmux$3031_Y $procmux$3063_Y $procmux$3095_Y }, Q = \flpend_r, rval = 8'11111111).
+Adding SRST signal on $procdff$4643 ($dff) from module KL_render_queue (D = $procmux$2913_Y, Q = \pop_p_o [0], rval = 1'0).
+Adding SRST signal on $procdff$4643 ($dff) from module KL_render_queue (D = $procmux$2913_Y, Q = \pop_p_o [1], rval = 1'0).
+Adding SRST signal on $procdff$4643 ($dff) from module KL_render_queue (D = $procmux$2913_Y, Q = \pop_p_o [2], rval = 1'0).
+Adding SRST signal on $procdff$4643 ($dff) from module KL_render_queue (D = $procmux$2913_Y, Q = \pop_p_o [3], rval = 1'0).
+Adding SRST signal on $procdff$4643 ($dff) from module KL_render_queue (D = $procmux$2913_Y, Q = \pop_p_o [4], rval = 1'0).
+Adding SRST signal on $procdff$4643 ($dff) from module KL_render_queue (D = $procmux$2913_Y, Q = \pop_p_o [5], rval = 1'0).
+Adding SRST signal on $procdff$4643 ($dff) from module KL_render_queue (D = $procmux$2913_Y, Q = \pop_p_o [6], rval = 1'0).
+Adding SRST signal on $procdff$4643 ($dff) from module KL_render_queue (D = $procmux$2913_Y, Q = \pop_p_o [7], rval = 1'0).
+Adding SRST signal on $procdff$4638 ($dff) from module KL_render_queue (D = $add$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:706$1169_Y, Q = \ms_div_r, rval = 17'00000000000000000).
+Adding SRST signal on $procdff$4637 ($dff) from module KL_render_queue (D = $procmux$2565_Y, Q = \slips_o, rval = 16'0000000000000000).
+Adding EN signal on $auto$ff.cc:337:slice$5293 ($sdff) from module KL_render_queue (D = $procmux$2565_Y, Q = \slips_o).
+Adding SRST signal on $procdff$4636 ($dff) from module KL_render_queue (D = $procmux$2570_Y, Q = \untimed_o, rval = 16'0000000000000000).
+Adding EN signal on $auto$ff.cc:337:slice$5297 ($sdff) from module KL_render_queue (D = $add$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:714$1187_Y, Q = \untimed_o).
+Adding SRST signal on $procdff$4635 ($dff) from module KL_render_queue (D = $procmux$2575_Y, Q = \refused_o, rval = 16'0000000000000000).
+Adding EN signal on $auto$ff.cc:337:slice$5299 ($sdff) from module KL_render_queue (D = $add$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:712$1183_Y, Q = \refused_o).
+Adding SRST signal on $procdff$4634 ($dff) from module KL_render_queue (D = $procmux$2580_Y, Q = \early_o, rval = 16'0000000000000000).
+Adding EN signal on $auto$ff.cc:337:slice$5301 ($sdff) from module KL_render_queue (D = $add$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:710$1178_Y, Q = \early_o).
+Adding SRST signal on $procdff$4633 ($dff) from module KL_render_queue (D = $procmux$2585_Y, Q = \late_o, rval = 16'0000000000000000).
+Adding EN signal on $auto$ff.cc:337:slice$5303 ($sdff) from module KL_render_queue (D = $add$$SCRATCH/leaf-off/base-KL_render_queue/KL_render_queue.v:708$1174_Y, Q = \late_o).
+
+2.14.7. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \KL_render_queue..
+Removed 175 unused cells and 177 unused wires.
+<suppressed ~176 debug messages>
+
+2.14.8. Executing OPT_EXPR pass (perform const folding).
+Optimizing module KL_render_queue.
+<suppressed ~19 debug messages>
+
+2.14.9. Rerunning OPT passes. (Maybe there is more to do..)
+
+2.14.10. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \KL_render_queue..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~450 debug messages>
+
+2.14.11. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \KL_render_queue.
+Performed a total of 0 changes.
+
+2.14.12. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\KL_render_queue'.
+Computing hashes of 866 cells of `\KL_render_queue'.
+Finding duplicate cells in `\KL_render_queue'.
+Computing hashes of 825 cells of `\KL_render_queue'.
+Finding duplicate cells in `\KL_render_queue'.
+Computing hashes of 800 cells of `\KL_render_queue'.
+Finding duplicate cells in `\KL_render_queue'.
+<suppressed ~198 debug messages>
+Removed a total of 66 cells.
+
+2.14.13. Executing OPT_DFF pass (perform DFF optimizations).
+
+2.14.14. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \KL_render_queue..
+Removed 0 unused cells and 66 unused wires.
+<suppressed ~1 debug messages>
+
+2.14.15. Executing OPT_EXPR pass (perform const folding).
+Optimizing module KL_render_queue.
+
+2.14.16. Rerunning OPT passes. (Maybe there is more to do..)
+
+2.14.17. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \KL_render_queue..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~452 debug messages>
+
+2.14.18. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \KL_render_queue.
+Performed a total of 0 changes.
+
+2.14.19. Executing OPT_MERGE pass (detect identical cells).

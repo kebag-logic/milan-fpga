@@ -1,0 +1,2196 @@
+Candidate head: dc78aedae34c25a97125ecd6816a1f645db5575f
+Comparison base: 3cda030c174b325e36c26af6420487ff91346d15
+Source: regressions/milan_dp.log
+Original SHA256: 9996809209e91499b4755ddaf4384e8a6ae744695b83776efefc823d91d127c7
+Scope: native compilation chatter omitted; other output retained; paths and host fields normalized
+
+  [ok]   [GSI] G11 sink 0 passive: BOUND                = 0x1
+  [ok]   [GSI] G11 sink 0 passive: the binding view still names the settled stream = 0x211223344550000
+  [ok]   [GSI] G11 sink 0 passive: no talker discovered, so no new PROBE_TX = 0x1
+  [ok]   [GSI] G11 sink 0 back in PROBING_PASSIVE after TMR_NO_TK, the stale ID: STREAM_ID_VALID, STREAM_DEST_MAC_VALID and STREAM_VLAN_ID_VALID clear = 0x0
+  [ok]   [GSI] G11 sink 0 back in PROBING_PASSIVE after TMR_NO_TK, the stale ID: stream_id is zero = 0x0
+  [ok]   [GSI] G11 sink 0 back in PROBING_PASSIVE after TMR_NO_TK, the stale ID: stream_dest_mac is zero = 0x0
+  [ok]   [GSI] G11 sink 0 back in PROBING_PASSIVE after TMR_NO_TK, the stale ID: stream_vlan_id is zero = 0x0
+  [ok]   [GSI] G11 sink 0 unbound after it settled: the ACMP response is SUCCESS = 0x0
+  [ok]   [GSI] G11 sink 0 unbound after it settled: GET_STREAM_INFO SUCCESS at cdl 68 = 0x1
+  [ok]   [GSI] G11 sink 0 unbound after it settled: probing_status = 0x0
+  [ok]   [GSI] G11 sink 0 unbound after it settled: acmp_status = 0x0
+  [ok]   [GSI] G11 sink 0 unbound: BOUND                = 0x0
+  [ok]   [GSI] G11 sink 0 unbound: the binding view is cleared = 0x0
+  [ok]   [GSI] G11 sink 0 unbound after it settled: STREAM_ID_VALID, STREAM_DEST_MAC_VALID and STREAM_VLAN_ID_VALID clear = 0x0
+  [ok]   [GSI] G11 sink 0 unbound after it settled: stream_id is zero = 0x0
+  [ok]   [GSI] G11 sink 0 unbound after it settled: stream_dest_mac is zero = 0x0
+  [ok]   [GSI] G11 sink 0 unbound after it settled: stream_vlan_id is zero = 0x0
+-- [UNB] #653: the UNBIND_RX response leaves before the push reporting its unlock (one processor ms = 100 cycles) --
+  [ok]   [UNB] REGISTER_UNSOLICITED_NOTIFICATION from A = 0x0
+  [ok]   [UNB] REGISTER_UNSOLICITED_NOTIFICATION from B = 0x0
+  [ok]   [765] STREAM_INPUT 0's current channel count is readable = 0x1
+  [ok]   [UNB] AAF sink 0 BIND_RX: the ACMP response is SUCCESS = 0x0
+  [ok]   [UNB] AAF sink 0 the bind sent its PROBE_TX    = 0x1
+  [ok]   [UNB] AAF sink 0 locked: MEDIA_LOCKED          = 0x1
+  [ok]   [UNB] AAF sink 0 locked: MEDIA_UNLOCKED        = 0x0
+  [ok]   [UNB] AAF sink 0 the lock was pushed           = 0x1
+  [ok]   [UNB] AAF sink 0 source pause remains below silence timeout = 0x1
+  [ok]   [UNB] AAF sink 0 the row pushed nothing in the second before the unbind = 0x1
+  [ok]   [UNB] AAF sink 0 U1 UNBIND_RX: the ACMP response is SUCCESS = 0x0
+  [ok]   [UNB] AAF sink 0 U3 as the response left: the source's MEDIA_LOCKED, MEDIA_UNLOCKED = 0x101
+  [ok]   [UNB] AAF sink 0 U3 right after the response: MEDIA_LOCKED = 0x1
+  [ok]   [UNB] AAF sink 0 U3 right after the response: MEDIA_UNLOCKED = MEDIA_LOCKED = 0x1
+  [ok]   [UNB] AAF sink 0 U3 right after the response: STREAM_INTERRUPTED = 0x0
+  [ok]   [UNB] AAF sink 0 U2 a push reporting the unlock reached A = 0x1
+  [ok]   [UNB] AAF sink 0 U2 every push reporting the unlock to A left after the UNBIND_RX response = 0x1
+  [ok]   [UNB] AAF sink 0 U2 a push reporting the unlock reached B = 0x1
+  [ok]   [UNB] AAF sink 0 U2 every push reporting the unlock to B left after the UNBIND_RX response = 0x1
+  [ok]   [UNB] AAF sink 0 U3 every push after the response reads MEDIA_LOCKED = MEDIA_UNLOCKED = 0x0
+  [ok]   [UNB] AAF sink 0 U4 the wait outlasted both 100 ms silence timeouts = 0x1
+  [ok]   [UNB] AAF sink 0 U4 past the silence timeouts: MEDIA_LOCKED, MEDIA_UNLOCKED, STREAM_INTERRUPTED = 0x10100
+  [i]    [UNB] AAF sink 0 trace, cycles after the UNBIND_RX's last byte: response queued +193, bind level fell +199, MEDIA_UNLOCKED +204, Table 5.22 pulse +204, delivered +205, response left +277 (source LOCKED/UNLOCKED 1/1), push to A left +2294, push to B left +3057; GET_STREAM_INFO push to A +887, to B +1497
+  [ok]   [UNB] CRF sink 1 BIND_RX: the ACMP response is SUCCESS = 0x0
+  [ok]   [UNB] CRF sink 1 the bind sent its PROBE_TX    = 0x1
+  [ok]   [UNB] CRF sink 1 locked: MEDIA_LOCKED          = 0x1
+  [ok]   [UNB] CRF sink 1 locked: MEDIA_UNLOCKED        = 0x0
+  [ok]   [UNB] CRF sink 1 the lock was pushed           = 0x1
+  [ok]   [UNB] CRF sink 1 source pause remains below silence timeout = 0x1
+  [ok]   [UNB] CRF sink 1 the row pushed nothing in the second before the unbind = 0x1
+  [ok]   [UNB] CRF sink 1 U1 UNBIND_RX: the ACMP response is SUCCESS = 0x0
+  [ok]   [UNB] CRF sink 1 U3 as the response left: the source's MEDIA_LOCKED, MEDIA_UNLOCKED = 0x101
+  [ok]   [UNB] CRF sink 1 U3 right after the response: MEDIA_LOCKED = 0x1
+  [ok]   [UNB] CRF sink 1 U3 right after the response: MEDIA_UNLOCKED = MEDIA_LOCKED = 0x1
+  [ok]   [UNB] CRF sink 1 U3 right after the response: STREAM_INTERRUPTED = 0x0
+  [ok]   [UNB] CRF sink 1 U2 a push reporting the unlock reached A = 0x1
+  [ok]   [UNB] CRF sink 1 U2 every push reporting the unlock to A left after the UNBIND_RX response = 0x1
+  [ok]   [UNB] CRF sink 1 U2 a push reporting the unlock reached B = 0x1
+  [ok]   [UNB] CRF sink 1 U2 every push reporting the unlock to B left after the UNBIND_RX response = 0x1
+  [ok]   [UNB] CRF sink 1 U3 every push after the response reads MEDIA_LOCKED = MEDIA_UNLOCKED = 0x0
+  [ok]   [UNB] CRF sink 1 U4 the wait outlasted both 100 ms silence timeouts = 0x1
+  [ok]   [UNB] CRF sink 1 U4 past the silence timeouts: MEDIA_LOCKED, MEDIA_UNLOCKED, STREAM_INTERRUPTED = 0x10100
+  [i]    [UNB] CRF sink 1 trace, cycles after the UNBIND_RX's last byte: response queued +193, bind level fell +199, MEDIA_UNLOCKED +200, Table 5.22 pulse +200, delivered +201, response left +277 (source LOCKED/UNLOCKED 1/1), push to A left +2731, push to B left +3431; GET_STREAM_INFO push to A +887, to B +2031
+-- [AIDX] #858: READ_DESCRIPTOR(ENTITY) available_index is the last ENTITY_AVAILABLE's (IEEE 1722.1-2021 Table 7-2, 6.2.2.15; one processor ms = 100 cycles) --
+  [ok]   [AIDX] the image has an ENTITY descriptor holding available_index = 0x1
+  [ok]   [AIDX] PP_CTRL[0] is clear, so ADP_CTRL[0] alone requests the entity enable = 0x0
+  [ok]   [AIDX] A1: an ENTITY_AVAILABLE left within 10 s = 0x1
+  [i]    A1: the ENTITY_AVAILABLE carried available_index 31
+  [ok]   [AIDX] A1 after an ENTITY_AVAILABLE: READ_DESCRIPTOR(ENTITY) answered SUCCESS = 0x1
+  [ok]   [AIDX] A1 after an ENTITY_AVAILABLE: no ADPDU left while it was answered = 0x1
+  [ok]   [AIDX] A1 after an ENTITY_AVAILABLE: available_index (octets 36..39) is the wire's = 0x1f
+  [ok]   [AIDX] A1 after an ENTITY_AVAILABLE: every other octet is the image's = 0x0
+  [ok]   [AIDX] A2: an ENTITY_AVAILABLE left within 10 s = 0x1
+  [i]    A2: the ENTITY_AVAILABLE carried available_index 32
+  [ok]   [AIDX] A2 after an ENTITY_AVAILABLE: READ_DESCRIPTOR(ENTITY) answered SUCCESS = 0x1
+  [ok]   [AIDX] A2 after an ENTITY_AVAILABLE: no ADPDU left while it was answered = 0x1
+  [ok]   [AIDX] A2 after an ENTITY_AVAILABLE: available_index (octets 36..39) is the wire's = 0x20
+  [ok]   [AIDX] A2 after an ENTITY_AVAILABLE: every other octet is the image's = 0x0
+  [ok]   [AIDX] A3: an ENTITY_AVAILABLE left within 10 s = 0x1
+  [i]    A3: the ENTITY_AVAILABLE carried available_index 33
+  [ok]   [AIDX] A3 after an ENTITY_AVAILABLE: READ_DESCRIPTOR(ENTITY) answered SUCCESS = 0x1
+  [ok]   [AIDX] A3 after an ENTITY_AVAILABLE: no ADPDU left while it was answered = 0x1
+  [ok]   [AIDX] A3 after an ENTITY_AVAILABLE: available_index (octets 36..39) is the wire's = 0x21
+  [ok]   [AIDX] A3 after an ENTITY_AVAILABLE: every other octet is the image's = 0x0
+  [ok]   [AIDX] the three ENTITY_AVAILABLEs carried consecutive indices (6.2.2.15) = 0x21
+  [ok]   [AIDX] ...past the image's constant 0, so the reads above can tell them apart = 0x1
+  [ok]   [AIDX] D: clearing the entity enable sends ENTITY_DEPARTING within 1 s = 0x1
+  [i]    D: the ENTITY_DEPARTING carried available_index 34
+  [ok]   [AIDX] D after ENTITY_DEPARTING: READ_DESCRIPTOR(ENTITY) answered SUCCESS = 0x1
+  [ok]   [AIDX] D after ENTITY_DEPARTING: no ADPDU left while it was answered = 0x1
+  [ok]   [AIDX] D after ENTITY_DEPARTING: available_index (octets 36..39) is the wire's = 0x0
+  [ok]   [AIDX] D after ENTITY_DEPARTING: every other octet is the image's = 0x0
+  [ok]   [AIDX] R1: an ENTITY_AVAILABLE left within 10 s = 0x1
+  [ok]   [AIDX] R1: it carried available_index 0, counted from 0 again = 0x0
+  [ok]   [AIDX] R1 after re-enabled ENTITY_AVAILABLE 1: READ_DESCRIPTOR(ENTITY) answered SUCCESS = 0x1
+  [ok]   [AIDX] R1 after re-enabled ENTITY_AVAILABLE 1: no ADPDU left while it was answered = 0x1
+  [ok]   [AIDX] R1 after re-enabled ENTITY_AVAILABLE 1: available_index (octets 36..39) is the wire's = 0x0
+  [ok]   [AIDX] R1 after re-enabled ENTITY_AVAILABLE 1: every other octet is the image's = 0x0
+  [ok]   [AIDX] R2: an ENTITY_AVAILABLE left within 10 s = 0x1
+  [ok]   [AIDX] R2: it carried available_index 1, counted from 0 again = 0x1
+  [ok]   [AIDX] R2 after re-enabled ENTITY_AVAILABLE 2: READ_DESCRIPTOR(ENTITY) answered SUCCESS = 0x1
+  [ok]   [AIDX] R2 after re-enabled ENTITY_AVAILABLE 2: no ADPDU left while it was answered = 0x1
+  [ok]   [AIDX] R2 after re-enabled ENTITY_AVAILABLE 2: available_index (octets 36..39) is the wire's = 0x1
+  [ok]   [AIDX] R2 after re-enabled ENTITY_AVAILABLE 2: every other octet is the image's = 0x0
+--------------------------------------------------------------
+checks: 535   failures: 0
+RESULT: PASS
+---- #530 CRF talker licence and per-type LeaveAll, TIMED on one compressed grid ----
+./obj_crflic/Vmilan_dp_crflic
+=== obj_crflic: #530 on endstation_ax7101_1x1_tdm8, 1 ms = 100 cycles ===
+[BOOT] identity, the firmware boot values, the MAAP claim started
+  [PASS] ID == 'MILN'                                                       got=1296649294 exp=1296649294
+  [PASS] ADP_TALKER[15:0] talker_stream_sources is this leg's source count  got=2 exp=2
+  [PASS] KL_maap is probing, no block claimed yet                           got=1 exp=1
+  [PASS] CRFT_CTRL[1:0] reads back the boot value                           got=3 exp=3
+  [PASS] nothing declares yet, so nothing is licensed                       got=0 exp=0
+[A] the Run B opening: probe refused, MAAP grant, Talker Advertise declared and admitted, NO Listener Ready - nothing may be emitted
+  [t]       25.56 ms  listener PROBE_TX, uid 1 (1)
+  [t]       25.56 ms  listener PROBE_TX, uid 0 (1)
+  [t]       28.21 ms  PROBE_TX answered, status, uid 1 (3)
+  [t]       34.04 ms  PROBE_TX answered, status, uid 0 (3)
+  [t]     1802.52 ms  DUT Talker Advertise first on the wire, uid 0 (0)
+  [t]     1802.52 ms  DUT Talker Advertise first on the wire, uid 1 (0)
+  [PASS] KL_maap reached ANNOUNCE (a block of two is claimed)               got=1 exp=1
+  -- source uid 0 (AAF)
+  [PASS] the first PROBE_TX is answered TALKER_DEST_MAC_FAIL (3)            got=3 exp=3
+  [PASS] ...and MAAP's grant opens the DA gate after it
+  [PASS] the DUT declares Talker Advertise on the wire
+  [PASS] the processor's RAW admission verdict is up (the pre-#530 gate)    got=1 exp=1
+  [PASS] ...while no Listener Ready has been declared to the DUT
+  [PASS] ACTIVE never rose                                                  got=0 exp=0
+  -- source uid 1 (CRF Media Clock Output)
+  [PASS] the first PROBE_TX is answered TALKER_DEST_MAC_FAIL (3)            got=3 exp=3
+  [PASS] ...and MAAP's grant opens the DA gate after it
+  [PASS] the DUT declares Talker Advertise on the wire
+  [PASS] the processor's RAW admission verdict is up (the pre-#530 gate)    got=1 exp=1
+  [PASS] ...while no Listener Ready has been declared to the DUT
+  [PASS] ACTIVE never rose                                                  got=0 exp=0
+  [PASS] the CRF licence never opened (every cycle sampled)                 got=0 exp=0
+  [PASS] no CRF PDU on the wire                                             got=0 exp=0
+  [PASS] CRFT_COUNT stays 0                                                 got=0 exp=0
+  [PASS] CRFT_CTRL[5] the output is tagged (its Talker Advertise stands)    got=1 exp=1
+  [PASS] CRFT_CTRL[6] reservation active reads 0                            got=0 exp=0
+  [PASS] CRFT_CTRL[7] emission licensed reads 0                             got=0 exp=0
+  [PASS] the AAF gate never opened                                          got=0 exp=0
+  [PASS] no AAF PDU on the wire                                             got=0 exp=0
+  [PASS] LWSRP_STATUS[8] stream gate (source 0) reads 0                     got=0 exp=0
+  [i]    the raw verdict has stood 2125.42 ms: the window Run B streamed through
+[B] the listener's retry succeeds and the switch declares Listener Ready
+  [t]     4028.21 ms  listener PROBE_TX, uid 1 (2)
+  [t]     4030.86 ms  PROBE_TX answered, status, uid 1 (0)
+  [t]     4034.04 ms  listener PROBE_TX, uid 0 (2)
+  [t]     4036.69 ms  PROBE_TX answered, status, uid 0 (0)
+  [t]     4070.86 ms  switch declares the FIRST Listener Ready, uid 1
+  [t]     4071.94 ms  CRF licence RISES, uid 1
+  [t]     4071.94 ms  ACTIVE RISES, uid 1
+  [t]     4076.69 ms  switch declares the FIRST Listener Ready, uid 0
+  [t]     4189.84 ms  first AAF PDU on the wire
+  [t]     4423.95 ms  first CRF PDU on the wire
+  -- source uid 0
+  [PASS] the retried PROBE_TX is answered SUCCESS                           got=0 exp=0
+  [PASS] the switch's first Listener Ready reached the DUT
+  [PASS] ACTIVE rose after it, within 50 ms
+  -- source uid 1
+  [PASS] the retried PROBE_TX is answered SUCCESS                           got=0 exp=0
+  [PASS] the switch's first Listener Ready reached the DUT
+  [PASS] ACTIVE rose after it, within 50 ms
+  [PASS] the CRF licence opened on the cycle ACTIVE[CRF] rose               got=407194 exp=407194
+  [PASS] the AAF gate opened on the cycle ACTIVE[AAF] rose                  got=407777 exp=407777
+  [PASS] CRF PDUs follow the licence (>= 3 in 3 s)
+  [PASS] AAF PDUs follow the AAF gate
+  [PASS] every CRF PDU: C-tag {PCP 3, VID 2}, stream {MAC, uid 1}, the MAAP DA got=6 exp=6
+  [PASS] CRFT_CTRL[6] reservation active reads 1                            got=1 exp=1
+  [PASS] CRFT_CTRL[7] emission licensed reads 1                             got=1 exp=1
+  [PASS] LWSRP_STATUS[8] stream gate (source 0) reads 1                     got=1 exp=1
+[B2] the AAF listener unbinds; the switch withdraws that Listener
+  [t]     7025.64 ms  switch withdraws its Listener (Lv), uid 0
+  [t]    10204.14 ms  DUT LeaveAll MRPDU, flagged-type mask (bit n = AttributeType n+1) (15)
+  [PASS] ACTIVE[AAF] fell on the Lv, within 50 ms (the registrar goes IN to MT on an rLv)
+  [PASS] the AAF gate closed on that cycle                                  got=702672 exp=702672
+  [PASS] ...while the AAF talker still declares Talker Advertise            got=1 exp=1
+  [PASS] ...and its raw verdict still stands (the pre-#530 gate stayed open) got=1 exp=1
+  [PASS] no AAF PDU 20 ms after the gate closed                             got=0 exp=0
+  [PASS] the CRF output is untouched                                        got=1 exp=1
+[C] bound, the probe window long closed, across the Run B LeaveAll exchange: no self-Leave, no licence drop
+  [t]    19202.21 ms  DUT Talker Advertise LEAVE, uid 0
+  [t]    20194.14 ms  switch LeaveAll MRPDU (Run B layout) (1)
+  [t]    33203.49 ms  DUT LeaveAll MRPDU, flagged-type mask (bit n = AttributeType n+1) (15)
+  [t]    43193.49 ms  switch LeaveAll MRPDU (Run B layout) (2)
+  [t]    53603.49 ms  DUT LeaveAll MRPDU, flagged-type mask (bit n = AttributeType n+1) (15)
+  [t]    63593.49 ms  switch LeaveAll MRPDU (Run B layout) (3)
+  [t]    73803.49 ms  DUT LeaveAll MRPDU, flagged-type mask (bit n = AttributeType n+1) (15)
+  [PASS] the DUT sent no Talker Advertise Leave for its bound CRF output    got=0 exp=0
+  [PASS] ACTIVE[CRF] never fell                                             got=0 exp=0
+  [PASS] the CRF licence never fell                                         got=0 exp=0
+  [PASS] the CRF DA gate never closed                                       got=0 exp=0
+  [PASS] the listener never had to re-probe (two probes in all)             got=2 exp=2
+  [PASS] the registration alone held the DA gate for >= 45 s (probe window + 15 s closed)
+  [i]    3 DUT and 3 switch LeaveAll MRPDUs in this phase
+  [PASS] the DUT sent >= 3 LeaveAll MRPDUs
+  [PASS] every DUT LeaveAll flagged all four MSRP attribute types (802.1Q-2014 10.7.5.20) got=0 exp=0
+  [PASS] the switch sent >= 3 of its own, Listener JoinMt first
+  [i]    3 DUT LeaveAll MRPDUs followed a switch LeaveAll, the soonest 10210.00 ms after it
+  [PASS] each switch LeaveAll restarted the DUT's leavealltimer: every DUT LeaveAll came >= 10 s after the switch's preceding one (802.1Q-2014 Table 10-5 rLA!)
+  [PASS] the Listener registration still reads Ready                        got=2 exp=2
+  [i]    154 CRF PDUs, mean period 491.52 ms, longest gap 491.52 ms
+  [PASS] the CRF stream never paused (longest gap <= 1.5 mean periods)
+[F] Stream Output 1's Milan v1.2 5.3.7.7 Table 5.4 counters (observation interval 2000 ms here)
+  [i]    37 intervals since STREAM_START, FRAMES_TX 154, 154 PDUs
+  [PASS] STREAM_START = 1: one start since the bind                         got=1 exp=1
+  [PASS] STREAM_STOP = 0                                                    got=0 exp=0
+  [PASS] FRAMES_TX follows wire PDUs (one in-flight completion permitted)
+  [PASS] CRFT_COUNT (0x764) is the PDU total the wire carried               got=154 exp=154
+[D] the Listener declaration changes: Asking Failed, then Ready Failed
+  [t]    80025.60 ms  listener PROBE_TX, uid 1 (3)
+  [t]    80028.25 ms  PROBE_TX answered, status, uid 1 (0)
+  [t]    80526.68 ms  CRF licence FALLS, uid 1
+  [t]    80526.68 ms  ACTIVE FALLS, uid 1
+  [PASS] Asking Failed registered                                           got=1 exp=1
+  [PASS] ACTIVE fell within 50 ms of it
+  [PASS] the licence closed on that cycle                                   got=8052668 exp=8052668
+  [PASS] ...while the talker still declares Talker Advertise                got=1 exp=1
+  [PASS] ...and its raw verdict still stands                                got=1 exp=1
+  [PASS] no CRF PDU 20 ms after the licence closed                          got=0 exp=0
+  [t]    82526.68 ms  CRF licence RISES, uid 1
+  [t]    82526.68 ms  ACTIVE RISES, uid 1
+  [t]    83793.49 ms  switch LeaveAll MRPDU (Run B layout) (4)
+  [PASS] Ready Failed registered                                            got=3 exp=3
+  [PASS] ACTIVE rose after it
+  [PASS] the licence reopened on that cycle                                 got=8252668 exp=8252668
+  [PASS] CRF PDUs resumed
+[F] ...and they restart at the next STREAM_START
+  [PASS] STREAM_START = 2                                                   got=2 exp=2
+  [PASS] STREAM_STOP = 1                                                    got=1 exp=1
+  [PASS] FRAMES_TX restarted: only new-run wire PDUs (one in flight)
+[E] the CRF listener unbinds inside a fresh probe window
+  [t]    85025.60 ms  switch withdraws its Listener (Lv), uid 1
+  [t]    85026.68 ms  CRF licence FALLS, uid 1
+  [t]    85026.68 ms  ACTIVE FALLS, uid 1
+  [PASS] the probe window is still open
+  [PASS] ACTIVE fell on the Lv, within 50 ms (the registrar goes IN to MT on an rLv)
+  [PASS] the licence closed on that cycle                                   got=8502668 exp=8502668
+  [PASS] ...while the talker still declares Talker Advertise                got=1 exp=1
+  [PASS] ...and its raw verdict still stands                                got=1 exp=1
+  [PASS] no CRF PDU 20 ms after the licence closed                          got=0 exp=0
+  [PASS] CRFT_CTRL[6] reservation active reads 0                            got=0 exp=0
+  [PASS] CRFT_CTRL[7] emission licensed reads 0                             got=0 exp=0
+[TSPEC] #774: every source's Talker Advertise carries its own format's Milan v1.2 Table 4.4 TSpec
+  -- source uid 0 (AAF PCM32 48 kHz), 27 Talker Advertise values
+  [PASS] a Talker Advertise value names this source
+  [PASS] AAF TSpec MaxFrameSize is Milan v1.2 Table 4.4's 24*N + 24 + 1     got=217 exp=217
+  [PASS] TSpec MaxIntervalFrames is Table 4.4's 1                           got=1 exp=1
+  [PASS] every Talker Advertise for it carried that TSpec                   got=0 exp=0
+  -- source uid 1 (CRF Media Clock Output, 1 ts/pdu), 104 Talker Advertise values
+  [PASS] a Talker Advertise value names this source
+  [PASS] CRF TSpec MaxFrameSize is Milan v1.2 Table 4.4's 28 + 1            got=29 exp=29
+  [PASS] TSpec MaxIntervalFrames is Table 4.4's 1                           got=1 exp=1
+  [PASS] every Talker Advertise for it carried that TSpec                   got=0 exp=0
+  -- against the wire
+  [PASS] the CRF MaxFrameSize is the emitted CRF AVTPDU plus one octet      got=29 exp=29
+  [PASS] the AAF MaxFrameSize is the emitted AAF AVTPDU plus one octet      got=217 exp=217
+[MVRPLA] #857 (processor #216): every declaration withdrawn; the LeaveAll state machines run on (IEEE 802.1Q-2018 10.7.9, Table 10-5; Milan v1.2 Table 4.3)
+  [PASS] every DA gate closed and every Talker Advertise was withdrawn within 20 s
+  [i]    nothing declared from 95036 ms; VID 2 Lv at 95208 ms
+  [PASS] the DUT sent VID 2 Lv when its last user left (Table 10-3 Lv!: sL)
+  [PASS] ...and VID 2's last message is that Lv                             got=5 exp=5
+  [PASS] after the Lv no MVRP message declares a VID (no New, JoinIn or JoinMt) got=0 exp=0
+  -- MVRP, nothing declared: 3 LeaveAll MRPDUs after the withdrawal, at 99401 113601 126601 ms
+  [PASS] MVRP, nothing declared: at least two LeaveAll MRPDUs after the withdrawal
+  [PASS] MVRP, nothing declared: each LeaveAll 9.5 to 15.5 s after its timer's last start (shortest 13000, longest 14600 ms)
+  [PASS] MVRP, nothing declared: and none overdue at the end of the phase
+  -- MSRP, the Domain alone: 3 LeaveAll MRPDUs after the withdrawal, at 96203 107003 120403 ms
+  [PASS] MSRP, the Domain alone: at least two LeaveAll MRPDUs after the withdrawal
+  [PASS] MSRP, the Domain alone: each LeaveAll 9.5 to 15.5 s after its timer's last start (shortest 10800, longest 13400 ms)
+  [PASS] MSRP, the Domain alone: and none overdue at the end of the phase
+[G/H] #551: real admission ceiling and both round phases
+  [t]   128035.64 ms  listener PROBE_TX, uid 0 (3)
+  [t]   128035.64 ms  listener PROBE_TX, uid 1 (4)
+  [t]   128038.29 ms  PROBE_TX answered, status, uid 0 (0)
+  [t]   128044.12 ms  PROBE_TX answered, status, uid 1 (0)
+  [PASS] calibration decoded a real Listener frame
+  [PASS] decoder delay can bracket a declaration
+[G] source 0, admission phase 0: refused re-declaration
+  [t]   128617.56 ms  listener PROBE_TX, uid 0 (4)
+  [t]   128620.21 ms  PROBE_TX answered, status, uid 0 (0)
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] withdrawal cleared the real grant                                  got=0 exp=0
+  [PASS] withdrawal closed ACTIVE                                           got=0 exp=0
+  [PASS] the ACMP declaration still stands                                  got=1 exp=1
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] Listener replay retained the measured decoder timing               got=13121995 exp=13121995
+  [PASS] Listener Ready registered after re-declaration                     got=2 exp=2
+  [PASS] the optimistic window actually raised ACTIVE                       got=1 exp=1
+  [PASS] ACTIVE rose within three admission rounds
+  [PASS] the ceiling refused the re-declaration throughout                  got=0 exp=0
+  [PASS] the live over-limit bit confirms refusal                           got=1 exp=1
+  [PASS] ACTIVE fell after the optimistic window                            got=0 exp=0
+  [PASS] the declaration became Talker Failed                               got=2 exp=2
+  [PASS] refused AAF gate never opened                                      got=0 exp=0
+  [PASS] refused re-declaration adds no STREAM_START                        got=2 exp=2
+  [PASS] refused re-declaration adds no STREAM_STOP                         got=2 exp=2
+  [PASS] refused re-declaration preserves MEDIA_RESET                       got=17 exp=17
+  [PASS] refused re-declaration preserves TIMESTAMP_UNCERTAIN               got=29 exp=29
+  [PASS] refused re-declaration preserves FRAMES_TX                         got=43 exp=43
+  [PASS] refused re-declaration emits no PDU                                got=27 exp=27
+[H] source 0, admission phase 0: admitted re-declaration
+  [t]   133720.63 ms  listener PROBE_TX, uid 0 (5)
+  [t]   133723.28 ms  PROBE_TX answered, status, uid 0 (0)
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] withdrawal cleared the real grant                                  got=0 exp=0
+  [PASS] withdrawal closed ACTIVE                                           got=0 exp=0
+  [PASS] the ACMP declaration still stands                                  got=1 exp=1
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] Listener replay retained the measured decoder timing               got=13632303 exp=13632303
+  [PASS] Listener Ready registered after re-declaration                     got=2 exp=2
+  [PASS] the optimistic window actually raised ACTIVE                       got=1 exp=1
+  [PASS] ACTIVE rose within three admission rounds
+  [PASS] admitted re-declaration opens the licence once                     got=1 exp=1
+  [PASS] licence waits for both ACTIVE and grant
+  [LATENCY] history=same uid=0 phase=0 ACTIVE=13632304 grant=13632309 licence=13632309 added_cycles=5
+  [PASS] added start latency fits three admission rounds
+  [PASS] admitted start resets MEDIA_RESET                                  got=0 exp=0
+  [PASS] admitted start resets TIMESTAMP_UNCERTAIN                          got=0 exp=0
+  [PASS] admitted start resets FRAMES_TX                                    got=0 exp=0
+  [PASS] admitted re-declaration still streams
+  [PASS] admitted re-declaration adds one STREAM_START                      got=3 exp=3
+  [PASS] admitted re-declaration adds no STREAM_STOP                        got=2 exp=2
+[I] source 0, admission phase 0: refused re-declaration
+  [t]   138823.67 ms  listener PROBE_TX, uid 0 (6)
+  [t]   138826.32 ms  PROBE_TX answered, status, uid 0 (0)
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] withdrawal cleared the real grant                                  got=0 exp=0
+  [PASS] withdrawal closed ACTIVE                                           got=0 exp=0
+  [PASS] the ACMP declaration still stands                                  got=1 exp=1
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] Listener replay retained the measured decoder timing               got=14142607 exp=14142607
+  [PASS] Listener Ready registered after re-declaration                     got=2 exp=2
+  [PASS] the optimistic window actually raised ACTIVE                       got=1 exp=1
+  [PASS] ACTIVE rose within three admission rounds
+  [PASS] the ceiling refused the re-declaration throughout                  got=0 exp=0
+  [PASS] the live over-limit bit confirms refusal                           got=1 exp=1
+  [PASS] ACTIVE fell after the optimistic window                            got=0 exp=0
+  [PASS] the declaration became Talker Failed                               got=2 exp=2
+  [PASS] refused AAF gate never opened                                      got=0 exp=0
+  [PASS] refused re-declaration adds no STREAM_START                        got=3 exp=3
+  [PASS] refused re-declaration adds no STREAM_STOP                         got=3 exp=3
+  [PASS] refused re-declaration preserves MEDIA_RESET                       got=17 exp=17
+  [PASS] refused re-declaration preserves TIMESTAMP_UNCERTAIN               got=29 exp=29
+  [PASS] refused re-declaration preserves FRAMES_TX                         got=43 exp=43
+  [PASS] refused re-declaration emits no PDU                                got=51 exp=51
+[J] source 0, admission phase 0: admitted re-declaration
+  [t]   143926.75 ms  listener PROBE_TX, uid 0 (7)
+  [t]   143929.40 ms  PROBE_TX answered, status, uid 0 (0)
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] withdrawal cleared the real grant                                  got=0 exp=0
+  [PASS] withdrawal closed ACTIVE                                           got=0 exp=0
+  [PASS] the ACMP declaration still stands                                  got=1 exp=1
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] Listener replay retained the measured decoder timing               got=14652915 exp=14652915
+  [PASS] Listener Ready registered after re-declaration                     got=2 exp=2
+  [PASS] the optimistic window actually raised ACTIVE                       got=1 exp=1
+  [PASS] ACTIVE rose within three admission rounds
+  [PASS] admitted re-declaration opens the licence once                     got=1 exp=1
+  [PASS] licence waits for both ACTIVE and grant
+  [LATENCY] history=changed uid=0 phase=0 ACTIVE=14652916 grant=14652921 licence=14652921 added_cycles=5
+  [PASS] added start latency fits three admission rounds
+  [PASS] admitted start resets MEDIA_RESET                                  got=0 exp=0
+  [PASS] admitted start resets TIMESTAMP_UNCERTAIN                          got=0 exp=0
+  [PASS] admitted start resets FRAMES_TX                                    got=0 exp=0
+  [PASS] admitted re-declaration still streams
+  [PASS] admitted re-declaration adds one STREAM_START                      got=4 exp=4
+  [PASS] admitted re-declaration adds no STREAM_STOP                        got=3 exp=3
+[G] source 0, admission phase 1: refused re-declaration
+  [t]   149029.79 ms  listener PROBE_TX, uid 0 (8)
+  [t]   149032.44 ms  PROBE_TX answered, status, uid 0 (0)
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] withdrawal cleared the real grant                                  got=0 exp=0
+  [PASS] withdrawal closed ACTIVE                                           got=0 exp=0
+  [PASS] the ACMP declaration still stands                                  got=1 exp=1
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] Listener replay retained the measured decoder timing               got=15163218 exp=15163218
+  [PASS] Listener Ready registered after re-declaration                     got=2 exp=2
+  [PASS] the optimistic window actually raised ACTIVE                       got=1 exp=1
+  [PASS] ACTIVE rose within three admission rounds
+  [PASS] the ceiling refused the re-declaration throughout                  got=0 exp=0
+  [PASS] the live over-limit bit confirms refusal                           got=1 exp=1
+  [PASS] ACTIVE fell after the optimistic window                            got=0 exp=0
+  [PASS] the declaration became Talker Failed                               got=2 exp=2
+  [PASS] refused AAF gate never opened                                      got=0 exp=0
+  [PASS] refused re-declaration adds no STREAM_START                        got=4 exp=4
+  [PASS] refused re-declaration adds no STREAM_STOP                         got=4 exp=4
+  [PASS] refused re-declaration preserves MEDIA_RESET                       got=17 exp=17
+  [PASS] refused re-declaration preserves TIMESTAMP_UNCERTAIN               got=29 exp=29
+  [PASS] refused re-declaration preserves FRAMES_TX                         got=43 exp=43
+  [PASS] refused re-declaration emits no PDU                                got=75 exp=75
+[H] source 0, admission phase 1: admitted re-declaration
+  [t]   154132.86 ms  listener PROBE_TX, uid 0 (9)
+  [t]   154135.51 ms  PROBE_TX answered, status, uid 0 (0)
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] withdrawal cleared the real grant                                  got=0 exp=0
+  [PASS] withdrawal closed ACTIVE                                           got=0 exp=0
+  [PASS] the ACMP declaration still stands                                  got=1 exp=1
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] Listener replay retained the measured decoder timing               got=15673526 exp=15673526
+  [PASS] Listener Ready registered after re-declaration                     got=2 exp=2
+  [PASS] the optimistic window actually raised ACTIVE                       got=1 exp=1
+  [PASS] ACTIVE rose within three admission rounds
+  [PASS] admitted re-declaration opens the licence once                     got=1 exp=1
+  [PASS] licence waits for both ACTIVE and grant
+  [LATENCY] history=same uid=0 phase=1 ACTIVE=15673527 grant=15673532 licence=15673532 added_cycles=5
+  [PASS] added start latency fits three admission rounds
+  [PASS] admitted start resets MEDIA_RESET                                  got=0 exp=0
+  [PASS] admitted start resets TIMESTAMP_UNCERTAIN                          got=0 exp=0
+  [PASS] admitted start resets FRAMES_TX                                    got=0 exp=0
+  [PASS] admitted re-declaration still streams
+  [PASS] admitted re-declaration adds one STREAM_START                      got=5 exp=5
+  [PASS] admitted re-declaration adds no STREAM_STOP                        got=4 exp=4
+[I] source 0, admission phase 1: refused re-declaration
+  [t]   159235.90 ms  listener PROBE_TX, uid 0 (10)
+  [t]   159238.55 ms  PROBE_TX answered, status, uid 0 (0)
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] withdrawal cleared the real grant                                  got=0 exp=0
+  [PASS] withdrawal closed ACTIVE                                           got=0 exp=0
+  [PASS] the ACMP declaration still stands                                  got=1 exp=1
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] Listener replay retained the measured decoder timing               got=16183830 exp=16183830
+  [PASS] Listener Ready registered after re-declaration                     got=2 exp=2
+  [PASS] the optimistic window actually raised ACTIVE                       got=1 exp=1
+  [PASS] ACTIVE rose within three admission rounds
+  [PASS] the ceiling refused the re-declaration throughout                  got=0 exp=0
+  [PASS] the live over-limit bit confirms refusal                           got=1 exp=1
+  [PASS] ACTIVE fell after the optimistic window                            got=0 exp=0
+  [PASS] the declaration became Talker Failed                               got=2 exp=2
+  [PASS] refused AAF gate never opened                                      got=0 exp=0
+  [PASS] refused re-declaration adds no STREAM_START                        got=5 exp=5
+  [PASS] refused re-declaration adds no STREAM_STOP                         got=5 exp=5
+  [PASS] refused re-declaration preserves MEDIA_RESET                       got=17 exp=17
+  [PASS] refused re-declaration preserves TIMESTAMP_UNCERTAIN               got=29 exp=29
+  [PASS] refused re-declaration preserves FRAMES_TX                         got=43 exp=43
+  [PASS] refused re-declaration emits no PDU                                got=99 exp=99
+[J] source 0, admission phase 1: admitted re-declaration
+  [t]   164338.98 ms  listener PROBE_TX, uid 0 (11)
+  [t]   164341.63 ms  PROBE_TX answered, status, uid 0 (0)
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] withdrawal cleared the real grant                                  got=0 exp=0
+  [PASS] withdrawal closed ACTIVE                                           got=0 exp=0
+  [PASS] the ACMP declaration still stands                                  got=1 exp=1
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] Listener replay retained the measured decoder timing               got=16694138 exp=16694138
+  [PASS] Listener Ready registered after re-declaration                     got=2 exp=2
+  [PASS] the optimistic window actually raised ACTIVE                       got=1 exp=1
+  [PASS] ACTIVE rose within three admission rounds
+  [PASS] admitted re-declaration opens the licence once                     got=1 exp=1
+  [PASS] licence waits for both ACTIVE and grant
+  [LATENCY] history=changed uid=0 phase=1 ACTIVE=16694139 grant=16694144 licence=16694144 added_cycles=5
+  [PASS] added start latency fits three admission rounds
+  [PASS] admitted start resets MEDIA_RESET                                  got=0 exp=0
+  [PASS] admitted start resets TIMESTAMP_UNCERTAIN                          got=0 exp=0
+  [PASS] admitted start resets FRAMES_TX                                    got=0 exp=0
+  [PASS] admitted re-declaration still streams
+  [PASS] admitted re-declaration adds one STREAM_START                      got=6 exp=6
+  [PASS] admitted re-declaration adds no STREAM_STOP                        got=5 exp=5
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] calibration decoded a real Listener frame
+  [PASS] decoder delay can bracket a declaration
+[G] source 1, admission phase 0: refused re-declaration
+  [t]   169623.94 ms  listener PROBE_TX, uid 1 (5)
+  [t]   169626.59 ms  PROBE_TX answered, status, uid 1 (0)
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] withdrawal cleared the real grant                                  got=0 exp=0
+  [PASS] withdrawal closed ACTIVE                                           got=0 exp=0
+  [PASS] the ACMP declaration still stands                                  got=1 exp=1
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [t]   172226.34 ms  ACTIVE RISES, uid 1
+  [t]   172226.42 ms  ACTIVE FALLS, uid 1
+  [PASS] Listener replay retained the measured decoder timing               got=17222633 exp=17222633
+  [PASS] Listener Ready registered after re-declaration                     got=2 exp=2
+  [PASS] the optimistic window actually raised ACTIVE                       got=1 exp=1
+  [PASS] ACTIVE rose within three admission rounds
+  [PASS] the ceiling refused the re-declaration throughout                  got=0 exp=0
+  [PASS] the live over-limit bit confirms refusal                           got=1 exp=1
+  [PASS] ACTIVE fell after the optimistic window                            got=0 exp=0
+  [PASS] the declaration became Talker Failed                               got=2 exp=2
+  [PASS] refused CRF licence never opened                                   got=0 exp=0
+  [PASS] refused re-declaration adds no STREAM_START                        got=2 exp=2
+  [PASS] refused re-declaration adds no STREAM_STOP                         got=2 exp=2
+  [PASS] refused re-declaration preserves MEDIA_RESET                       got=17 exp=17
+  [PASS] refused re-declaration preserves TIMESTAMP_UNCERTAIN               got=29 exp=29
+  [PASS] refused re-declaration preserves FRAMES_TX                         got=43 exp=43
+  [PASS] refused re-declaration emits no PDU                                got=160 exp=160
+  [PASS] refused CRF leaves CRFT_COUNT unchanged                            got=160 exp=160
+[H] source 1, admission phase 0: admitted re-declaration
+  [t]   174727.05 ms  listener PROBE_TX, uid 1 (6)
+  [t]   174729.70 ms  PROBE_TX answered, status, uid 1 (0)
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] withdrawal cleared the real grant                                  got=0 exp=0
+  [PASS] withdrawal closed ACTIVE                                           got=0 exp=0
+  [PASS] the ACMP declaration still stands                                  got=1 exp=1
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [t]   177329.46 ms  ACTIVE RISES, uid 1
+  [t]   177329.49 ms  CRF licence RISES, uid 1
+  [PASS] Listener replay retained the measured decoder timing               got=17732945 exp=17732945
+  [PASS] Listener Ready registered after re-declaration                     got=2 exp=2
+  [PASS] the optimistic window actually raised ACTIVE                       got=1 exp=1
+  [PASS] ACTIVE rose within three admission rounds
+  [PASS] admitted re-declaration opens the licence once                     got=1 exp=1
+  [PASS] licence waits for both ACTIVE and grant
+  [LATENCY] history=same uid=1 phase=0 ACTIVE=17732946 grant=17732949 licence=17732949 added_cycles=3
+  [PASS] added start latency fits three admission rounds
+  [PASS] admitted start resets MEDIA_RESET                                  got=0 exp=0
+  [PASS] admitted start resets TIMESTAMP_UNCERTAIN                          got=0 exp=0
+  [PASS] admitted start resets FRAMES_TX                                    got=0 exp=0
+  [PASS] admitted re-declaration still streams
+  [PASS] admitted re-declaration adds one STREAM_START                      got=3 exp=3
+  [PASS] admitted re-declaration adds no STREAM_STOP                        got=2 exp=2
+[I] source 1, admission phase 0: refused re-declaration
+  [t]   179830.09 ms  listener PROBE_TX, uid 1 (7)
+  [t]   179832.74 ms  PROBE_TX answered, status, uid 1 (0)
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [t]   180330.10 ms  CRF licence FALLS, uid 1
+  [t]   180330.10 ms  ACTIVE FALLS, uid 1
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] withdrawal cleared the real grant                                  got=0 exp=0
+  [PASS] withdrawal closed ACTIVE                                           got=0 exp=0
+  [PASS] the ACMP declaration still stands                                  got=1 exp=1
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [t]   182432.50 ms  ACTIVE RISES, uid 1
+  [t]   182432.58 ms  ACTIVE FALLS, uid 1
+  [PASS] Listener replay retained the measured decoder timing               got=18243249 exp=18243249
+  [PASS] Listener Ready registered after re-declaration                     got=2 exp=2
+  [PASS] the optimistic window actually raised ACTIVE                       got=1 exp=1
+  [PASS] ACTIVE rose within three admission rounds
+  [PASS] the ceiling refused the re-declaration throughout                  got=0 exp=0
+  [PASS] the live over-limit bit confirms refusal                           got=1 exp=1
+  [PASS] ACTIVE fell after the optimistic window                            got=0 exp=0
+  [PASS] the declaration became Talker Failed                               got=2 exp=2
+  [PASS] refused CRF licence never opened                                   got=0 exp=0
+  [PASS] refused re-declaration adds no STREAM_START                        got=3 exp=3
+  [PASS] refused re-declaration adds no STREAM_STOP                         got=3 exp=3
+  [PASS] refused re-declaration preserves MEDIA_RESET                       got=17 exp=17
+  [PASS] refused re-declaration preserves TIMESTAMP_UNCERTAIN               got=29 exp=29
+  [PASS] refused re-declaration preserves FRAMES_TX                         got=43 exp=43
+  [PASS] refused re-declaration emits no PDU                                got=166 exp=166
+  [PASS] refused CRF leaves CRFT_COUNT unchanged                            got=166 exp=166
+[J] source 1, admission phase 0: admitted re-declaration
+  [t]   184933.21 ms  listener PROBE_TX, uid 1 (8)
+  [t]   184935.86 ms  PROBE_TX answered, status, uid 1 (0)
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] withdrawal cleared the real grant                                  got=0 exp=0
+  [PASS] withdrawal closed ACTIVE                                           got=0 exp=0
+  [PASS] the ACMP declaration still stands                                  got=1 exp=1
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [t]   187535.62 ms  ACTIVE RISES, uid 1
+  [t]   187535.65 ms  CRF licence RISES, uid 1
+  [PASS] Listener replay retained the measured decoder timing               got=18753561 exp=18753561
+  [PASS] Listener Ready registered after re-declaration                     got=2 exp=2
+  [PASS] the optimistic window actually raised ACTIVE                       got=1 exp=1
+  [PASS] ACTIVE rose within three admission rounds
+  [PASS] admitted re-declaration opens the licence once                     got=1 exp=1
+  [PASS] licence waits for both ACTIVE and grant
+  [LATENCY] history=changed uid=1 phase=0 ACTIVE=18753562 grant=18753565 licence=18753565 added_cycles=3
+  [PASS] added start latency fits three admission rounds
+  [PASS] admitted start resets MEDIA_RESET                                  got=0 exp=0
+  [PASS] admitted start resets TIMESTAMP_UNCERTAIN                          got=0 exp=0
+  [PASS] admitted start resets FRAMES_TX                                    got=0 exp=0
+  [PASS] admitted re-declaration still streams
+  [PASS] admitted re-declaration adds one STREAM_START                      got=4 exp=4
+  [PASS] admitted re-declaration adds no STREAM_STOP                        got=3 exp=3
+[G] source 1, admission phase 1: refused re-declaration
+  [t]   190036.25 ms  listener PROBE_TX, uid 1 (9)
+  [t]   190038.90 ms  PROBE_TX answered, status, uid 1 (0)
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [t]   190536.26 ms  CRF licence FALLS, uid 1
+  [t]   190536.26 ms  ACTIVE FALLS, uid 1
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] withdrawal cleared the real grant                                  got=0 exp=0
+  [PASS] withdrawal closed ACTIVE                                           got=0 exp=0
+  [PASS] the ACMP declaration still stands                                  got=1 exp=1
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [t]   192638.65 ms  ACTIVE RISES, uid 1
+  [t]   192638.75 ms  ACTIVE FALLS, uid 1
+  [PASS] Listener replay retained the measured decoder timing               got=19263864 exp=19263864
+  [PASS] Listener Ready registered after re-declaration                     got=2 exp=2
+  [PASS] the optimistic window actually raised ACTIVE                       got=1 exp=1
+  [PASS] ACTIVE rose within three admission rounds
+  [PASS] the ceiling refused the re-declaration throughout                  got=0 exp=0
+  [PASS] the live over-limit bit confirms refusal                           got=1 exp=1
+  [PASS] ACTIVE fell after the optimistic window                            got=0 exp=0
+  [PASS] the declaration became Talker Failed                               got=2 exp=2
+  [PASS] refused CRF licence never opened                                   got=0 exp=0
+  [PASS] refused re-declaration adds no STREAM_START                        got=4 exp=4
+  [PASS] refused re-declaration adds no STREAM_STOP                         got=4 exp=4
+  [PASS] refused re-declaration preserves MEDIA_RESET                       got=17 exp=17
+  [PASS] refused re-declaration preserves TIMESTAMP_UNCERTAIN               got=29 exp=29
+  [PASS] refused re-declaration preserves FRAMES_TX                         got=43 exp=43
+  [PASS] refused re-declaration emits no PDU                                got=172 exp=172
+  [PASS] refused CRF leaves CRFT_COUNT unchanged                            got=172 exp=172
+[H] source 1, admission phase 1: admitted re-declaration
+  [t]   195139.36 ms  listener PROBE_TX, uid 1 (10)
+  [t]   195142.01 ms  PROBE_TX answered, status, uid 1 (0)
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] withdrawal cleared the real grant                                  got=0 exp=0
+  [PASS] withdrawal closed ACTIVE                                           got=0 exp=0
+  [PASS] the ACMP declaration still stands                                  got=1 exp=1
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [t]   197741.77 ms  ACTIVE RISES, uid 1
+  [t]   197741.82 ms  CRF licence RISES, uid 1
+  [PASS] Listener replay retained the measured decoder timing               got=19774176 exp=19774176
+  [PASS] Listener Ready registered after re-declaration                     got=2 exp=2
+  [PASS] the optimistic window actually raised ACTIVE                       got=1 exp=1
+  [PASS] ACTIVE rose within three admission rounds
+  [PASS] admitted re-declaration opens the licence once                     got=1 exp=1
+  [PASS] licence waits for both ACTIVE and grant
+  [LATENCY] history=same uid=1 phase=1 ACTIVE=19774177 grant=19774182 licence=19774182 added_cycles=5
+  [PASS] added start latency fits three admission rounds
+  [PASS] admitted start resets MEDIA_RESET                                  got=0 exp=0
+  [PASS] admitted start resets TIMESTAMP_UNCERTAIN                          got=0 exp=0
+  [PASS] admitted start resets FRAMES_TX                                    got=0 exp=0
+  [PASS] admitted re-declaration still streams
+  [PASS] admitted re-declaration adds one STREAM_START                      got=5 exp=5
+  [PASS] admitted re-declaration adds no STREAM_STOP                        got=4 exp=4
+[I] source 1, admission phase 1: refused re-declaration
+  [t]   200242.40 ms  listener PROBE_TX, uid 1 (11)
+  [t]   200245.05 ms  PROBE_TX answered, status, uid 1 (0)
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [t]   200742.41 ms  CRF licence FALLS, uid 1
+  [t]   200742.41 ms  ACTIVE FALLS, uid 1
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] withdrawal cleared the real grant                                  got=0 exp=0
+  [PASS] withdrawal closed ACTIVE                                           got=0 exp=0
+  [PASS] the ACMP declaration still stands                                  got=1 exp=1
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [t]   202844.81 ms  ACTIVE RISES, uid 1
+  [t]   202844.91 ms  ACTIVE FALLS, uid 1
+  [PASS] Listener replay retained the measured decoder timing               got=20284480 exp=20284480
+  [PASS] Listener Ready registered after re-declaration                     got=2 exp=2
+  [PASS] the optimistic window actually raised ACTIVE                       got=1 exp=1
+  [PASS] ACTIVE rose within three admission rounds
+  [PASS] the ceiling refused the re-declaration throughout                  got=0 exp=0
+  [PASS] the live over-limit bit confirms refusal                           got=1 exp=1
+  [PASS] ACTIVE fell after the optimistic window                            got=0 exp=0
+  [PASS] the declaration became Talker Failed                               got=2 exp=2
+  [PASS] refused CRF licence never opened                                   got=0 exp=0
+  [PASS] refused re-declaration adds no STREAM_START                        got=5 exp=5
+  [PASS] refused re-declaration adds no STREAM_STOP                         got=5 exp=5
+  [PASS] refused re-declaration preserves MEDIA_RESET                       got=17 exp=17
+  [PASS] refused re-declaration preserves TIMESTAMP_UNCERTAIN               got=29 exp=29
+  [PASS] refused re-declaration preserves FRAMES_TX                         got=43 exp=43
+  [PASS] refused re-declaration emits no PDU                                got=178 exp=178
+  [PASS] refused CRF leaves CRFT_COUNT unchanged                            got=178 exp=178
+[J] source 1, admission phase 1: admitted re-declaration
+  [t]   205345.52 ms  listener PROBE_TX, uid 1 (12)
+  [t]   205348.17 ms  PROBE_TX answered, status, uid 1 (0)
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] withdrawal cleared the real grant                                  got=0 exp=0
+  [PASS] withdrawal closed ACTIVE                                           got=0 exp=0
+  [PASS] the ACMP declaration still stands                                  got=1 exp=1
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [t]   207947.93 ms  ACTIVE RISES, uid 1
+  [t]   207947.98 ms  CRF licence RISES, uid 1
+  [PASS] Listener replay retained the measured decoder timing               got=20794792 exp=20794792
+  [PASS] Listener Ready registered after re-declaration                     got=2 exp=2
+  [PASS] the optimistic window actually raised ACTIVE                       got=1 exp=1
+  [PASS] ACTIVE rose within three admission rounds
+  [PASS] admitted re-declaration opens the licence once                     got=1 exp=1
+  [PASS] licence waits for both ACTIVE and grant
+  [LATENCY] history=changed uid=1 phase=1 ACTIVE=20794793 grant=20794798 licence=20794798 added_cycles=5
+  [PASS] added start latency fits three admission rounds
+  [PASS] admitted start resets MEDIA_RESET                                  got=0 exp=0
+  [PASS] admitted start resets TIMESTAMP_UNCERTAIN                          got=0 exp=0
+  [PASS] admitted start resets FRAMES_TX                                    got=0 exp=0
+  [PASS] admitted re-declaration still streams
+  [PASS] admitted re-declaration adds one STREAM_START                      got=6 exp=6
+  [PASS] admitted re-declaration adds no STREAM_STOP                        got=5 exp=5
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [t]   210448.57 ms  CRF licence FALLS, uid 1
+  [t]   210448.57 ms  ACTIVE FALLS, uid 1
+[INV] over the whole run, every cycle
+  [PASS] the CRF licence equals ACTIVE[CRF] AND real grant (config: en, class A, SRP policing) got=0 exp=0
+  [PASS] the AAF gate is never open without ACTIVE[AAF] AND real grant      got=0 exp=0
+  [PASS] no malformed DUT MRPDU                                             got=0 exp=0
+[ONEVEC] processor #214: every DUT MRPDU carries each attribute value at most once
+  [i]    412 MSRP and 193 MVRP MRPDUs, 685 values; 17 MRPDUs carry two vectors of one AttributeType
+  [PASS] the DUT sent MSRP and MVRP MRPDUs
+  [PASS] every DUT MRPDU walks to its EndMark                               got=0 exp=0
+  [PASS] no DUT MRPDU carries one attribute value in two VectorAttributes (802.1Q-2022 10.7.7, 10.7.5.13 c)) got=0 exp=0
+[MRPAPP] #860 (processor #216): a declaration's New on two transmissions, then its Join (IEEE 802.1Q-2018 Table 10-3, 10.7.6.3)
+  -- MSRP Domain {class A, 3, VID 2}: first messages 0 0 1 (0 New, 1 JoinIn, 3 JoinMt)
+  [PASS] MSRP Domain {class A, 3, VID 2}: the DUT sent it at least three times
+  [PASS] MSRP Domain {class A, 3, VID 2}: message 1 is New (VN tx!: sN)     got=0 exp=0
+  [PASS] MSRP Domain {class A, 3, VID 2}: message 2 is New again (AN tx!: sN) got=0 exp=0
+  [PASS] MSRP Domain {class A, 3, VID 2}: message 3 is the Join, JoinIn: the switch's Domain registered at boot (10.7.6.3) got=1 exp=1
+  -- MVRP VID 2: first messages 0 0 3 (0 New, 1 JoinIn, 3 JoinMt)
+  [PASS] MVRP VID 2: the DUT sent it at least three times
+  [PASS] MVRP VID 2: message 1 is New (VN tx!: sN)                          got=0 exp=0
+  [PASS] MVRP VID 2: message 2 is New again (AN tx!: sN)                    got=0 exp=0
+  [PASS] MVRP VID 2: message 3 is the Join, JoinMt: no MVRPDU reached the DUT, its Registrar is MT (10.7.6.3) got=3 exp=3
+  -- Talker Advertise of source uid 0: first messages 0 0 3 (0 New, 1 JoinIn, 3 JoinMt)
+  [PASS] Talker Advertise of source uid 0: the DUT sent it at least three times
+  [PASS] Talker Advertise of source uid 0: message 1 is New (VN tx!: sN)    got=0 exp=0
+  [PASS] Talker Advertise of source uid 0: message 2 is New again (AN tx!: sN) got=0 exp=0
+  [PASS] Talker Advertise of source uid 0: message 3 is the Join, JoinMt: no peer declares a Talker Advertise (10.7.6.3) got=3 exp=3
+  -- Talker Advertise of source uid 1: first messages 0 0 3 (0 New, 1 JoinIn, 3 JoinMt)
+  [PASS] Talker Advertise of source uid 1: the DUT sent it at least three times
+  [PASS] Talker Advertise of source uid 1: message 1 is New (VN tx!: sN)    got=0 exp=0
+  [PASS] Talker Advertise of source uid 1: message 2 is New again (AN tx!: sN) got=0 exp=0
+  [PASS] Talker Advertise of source uid 1: message 3 is the Join, JoinMt: no peer declares a Talker Advertise (10.7.6.3) got=3 exp=3
+  [i]    190 MVRP VID values and 227 Talker Advertise values in the run
+  [PASS] no MVRP JoinIn in the whole run: no VID was ever registered (10.7.6.3) got=0 exp=0
+  [PASS] no Talker Advertise JoinIn in the whole run: none was ever registered (10.7.6.3) got=0 exp=0
+--------------------------------------------------------------
+simulated 210548.56 ms (21054856 cycles)
+checks: 458   failures: 0
+RESULT: PASS
+---- #774 per-source TSpec MaxFrameSize on the AX 8x8 shape, TIMED on the crflic grid ----
+./obj_tspec8/Vmilan_dp_tspec8
+=== #774 TSpec per source, 9 talker sources, 8 wire channels, 1 ms = 100 cycles ===
+[BOOT] identity, the firmware boot values, the MAAP claim started
+  [PASS] ID == 'MILN'                                                       got=1296649294 exp=1296649294
+  [PASS] ADP_TALKER[15:0] talker_stream_sources is this leg's source count  got=9 exp=9
+  [PASS] KL_maap is probing, no block claimed yet                           got=1 exp=1
+  [PASS] CRFT_CTRL[1:0] reads back the boot value                           got=3 exp=3
+  [PASS] nothing declares yet, so nothing is licensed                       got=0 exp=0
+[A] every source probed: MAAP grants and the DUT declares each one
+  [t]       25.56 ms  listener PROBE_TX, uid 0 (1)
+  [t]       25.56 ms  listener PROBE_TX, uid 1 (1)
+  [t]       25.56 ms  listener PROBE_TX, uid 2 (1)
+  [t]       25.56 ms  listener PROBE_TX, uid 3 (1)
+  [t]       25.56 ms  listener PROBE_TX, uid 4 (1)
+  [t]       25.56 ms  listener PROBE_TX, uid 5 (1)
+  [t]       25.56 ms  listener PROBE_TX, uid 6 (1)
+  [t]       25.56 ms  listener PROBE_TX, uid 7 (1)
+  [t]       25.56 ms  listener PROBE_TX, uid 8 (1)
+  [t]       28.21 ms  PROBE_TX answered, status, uid 0 (3)
+  [t]       34.04 ms  PROBE_TX answered, status, uid 1 (3)
+  [t]       39.87 ms  PROBE_TX answered, status, uid 2 (3)
+  [t]     1807.54 ms  DUT Talker Advertise first on the wire, uid 0 (0)
+  [t]     1807.54 ms  DUT Talker Advertise first on the wire, uid 1 (0)
+  [t]     1807.54 ms  DUT Talker Advertise first on the wire, uid 2 (0)
+  [t]     1807.54 ms  DUT Talker Advertise first on the wire, uid 3 (0)
+  [t]     1807.54 ms  DUT Talker Advertise first on the wire, uid 4 (0)
+  [t]     1807.54 ms  DUT Talker Advertise first on the wire, uid 5 (0)
+  [t]     1807.54 ms  DUT Talker Advertise first on the wire, uid 6 (0)
+  [t]     1807.54 ms  DUT Talker Advertise first on the wire, uid 7 (0)
+  [t]     1807.54 ms  DUT Talker Advertise first on the wire, uid 8 (0)
+  [PASS] KL_maap reached ANNOUNCE (a block of one address per source is claimed) got=1 exp=1
+  -- source uid 0 (AAF)
+  [PASS] ...MAAP's grant opens the DA gate
+  [PASS] the DUT declares Talker Advertise on the wire
+  -- source uid 1 (AAF)
+  [PASS] ...MAAP's grant opens the DA gate
+  [PASS] the DUT declares Talker Advertise on the wire
+  -- source uid 2 (AAF)
+  [PASS] ...MAAP's grant opens the DA gate
+  [PASS] the DUT declares Talker Advertise on the wire
+  -- source uid 3 (AAF)
+  [PASS] ...MAAP's grant opens the DA gate
+  [PASS] the DUT declares Talker Advertise on the wire
+  -- source uid 4 (AAF)
+  [PASS] ...MAAP's grant opens the DA gate
+  [PASS] the DUT declares Talker Advertise on the wire
+  -- source uid 5 (AAF)
+  [PASS] ...MAAP's grant opens the DA gate
+  [PASS] the DUT declares Talker Advertise on the wire
+  -- source uid 6 (AAF)
+  [PASS] ...MAAP's grant opens the DA gate
+  [PASS] the DUT declares Talker Advertise on the wire
+  -- source uid 7 (AAF)
+  [PASS] ...MAAP's grant opens the DA gate
+  [PASS] the DUT declares Talker Advertise on the wire
+  -- source uid 8 (CRF Media Clock Output)
+  [PASS] ...MAAP's grant opens the DA gate
+  [PASS] the DUT declares Talker Advertise on the wire
+[TSPEC] #774: every source's Talker Advertise carries its own format's Milan v1.2 Table 4.4 TSpec
+  -- source uid 0 (AAF PCM32 48 kHz), 4 Talker Advertise values
+  [PASS] a Talker Advertise value names this source
+  [PASS] AAF TSpec MaxFrameSize is Milan v1.2 Table 4.4's 24*N + 24 + 1     got=217 exp=217
+  [PASS] TSpec MaxIntervalFrames is Table 4.4's 1                           got=1 exp=1
+  [PASS] every Talker Advertise for it carried that TSpec                   got=0 exp=0
+  -- source uid 1 (AAF PCM32 48 kHz), 4 Talker Advertise values
+  [PASS] a Talker Advertise value names this source
+  [PASS] AAF TSpec MaxFrameSize is Milan v1.2 Table 4.4's 24*N + 24 + 1     got=217 exp=217
+  [PASS] TSpec MaxIntervalFrames is Table 4.4's 1                           got=1 exp=1
+  [PASS] every Talker Advertise for it carried that TSpec                   got=0 exp=0
+  -- source uid 2 (AAF PCM32 48 kHz), 4 Talker Advertise values
+  [PASS] a Talker Advertise value names this source
+  [PASS] AAF TSpec MaxFrameSize is Milan v1.2 Table 4.4's 24*N + 24 + 1     got=217 exp=217
+  [PASS] TSpec MaxIntervalFrames is Table 4.4's 1                           got=1 exp=1
+  [PASS] every Talker Advertise for it carried that TSpec                   got=0 exp=0
+  -- source uid 3 (AAF PCM32 48 kHz), 4 Talker Advertise values
+  [PASS] a Talker Advertise value names this source
+  [PASS] AAF TSpec MaxFrameSize is Milan v1.2 Table 4.4's 24*N + 24 + 1     got=217 exp=217
+  [PASS] TSpec MaxIntervalFrames is Table 4.4's 1                           got=1 exp=1
+  [PASS] every Talker Advertise for it carried that TSpec                   got=0 exp=0
+  -- source uid 4 (AAF PCM32 48 kHz), 4 Talker Advertise values
+  [PASS] a Talker Advertise value names this source
+  [PASS] AAF TSpec MaxFrameSize is Milan v1.2 Table 4.4's 24*N + 24 + 1     got=217 exp=217
+  [PASS] TSpec MaxIntervalFrames is Table 4.4's 1                           got=1 exp=1
+  [PASS] every Talker Advertise for it carried that TSpec                   got=0 exp=0
+  -- source uid 5 (AAF PCM32 48 kHz), 4 Talker Advertise values
+  [PASS] a Talker Advertise value names this source
+  [PASS] AAF TSpec MaxFrameSize is Milan v1.2 Table 4.4's 24*N + 24 + 1     got=217 exp=217
+  [PASS] TSpec MaxIntervalFrames is Table 4.4's 1                           got=1 exp=1
+  [PASS] every Talker Advertise for it carried that TSpec                   got=0 exp=0
+  -- source uid 6 (AAF PCM32 48 kHz), 4 Talker Advertise values
+  [PASS] a Talker Advertise value names this source
+  [PASS] AAF TSpec MaxFrameSize is Milan v1.2 Table 4.4's 24*N + 24 + 1     got=217 exp=217
+  [PASS] TSpec MaxIntervalFrames is Table 4.4's 1                           got=1 exp=1
+  [PASS] every Talker Advertise for it carried that TSpec                   got=0 exp=0
+  -- source uid 7 (AAF PCM32 48 kHz), 4 Talker Advertise values
+  [PASS] a Talker Advertise value names this source
+  [PASS] AAF TSpec MaxFrameSize is Milan v1.2 Table 4.4's 24*N + 24 + 1     got=217 exp=217
+  [PASS] TSpec MaxIntervalFrames is Table 4.4's 1                           got=1 exp=1
+  [PASS] every Talker Advertise for it carried that TSpec                   got=0 exp=0
+  -- source uid 8 (CRF Media Clock Output, 1 ts/pdu), 4 Talker Advertise values
+  [PASS] a Talker Advertise value names this source
+  [PASS] CRF TSpec MaxFrameSize is Milan v1.2 Table 4.4's 28 + 1            got=29 exp=29
+  [PASS] TSpec MaxIntervalFrames is Table 4.4's 1                           got=1 exp=1
+  [PASS] every Talker Advertise for it carried that TSpec                   got=0 exp=0
+[INV] over the whole run
+  [PASS] no malformed DUT MRPDU                                             got=0 exp=0
+--------------------------------------------------------------
+simulated 3925.60 ms (392560 cycles)
+checks: 61   failures: 0
+RESULT: PASS
+---- processor #202: the Stream ID move after a MAAP conflict on the wire, the shipping shape, TIMED on the crflic grid ----
+./obj_sidmove/Vmilan_dp_sidmove
+=== processor #202 Stream ID move, 2 talker sources (graded mask 0x3), 1 ms = 100 cycles ===
+[BOOT] identity, the firmware boot values, the named talker's TCTX uid
+  [PASS] ID == 'MILN'                                                           got=000000004d494c4e exp=000000004d494c4e
+  [PASS] ADP_TALKER[15:0] talker_stream_sources is this leg's source count      got=0000000000000002 exp=0000000000000002
+  [PASS] [BOOT] the shape's AEM image was generated and is served               got=0000000000000001 exp=0000000000000001
+  [PASS] [BOOT] PP_STAT the restore walk sequenced (done 1, CLOSED 0)           got=0000000000000004 exp=0000000000000004
+  [PASS] KL_maap is probing, no block claimed yet                               got=0000000000000001 exp=0000000000000001
+[A] the listener probes, MAAP grants, the switch declares Listener Ready for the answered ID, and each source streams
+  [t]       60.19 ms  PROBE_TX answered, uid 0, status 3, stream_id 0000000000000000
+  [t]       66.02 ms  PROBE_TX answered, uid 1, status 3, stream_id 0000000000000000
+  [t]      565.00 ms  PROBE_TX answered, uid 0, status 3, stream_id 0000000000000000
+  [t]      570.83 ms  PROBE_TX answered, uid 1, status 3, stream_id 0000000000000000
+  [t]     1067.65 ms  PROBE_TX answered, uid 0, status 3, stream_id 0000000000000000
+  [t]     1073.48 ms  PROBE_TX answered, uid 1, status 3, stream_id 0000000000000000
+  [t]     1570.30 ms  PROBE_TX answered, uid 0, status 3, stream_id 0000000000000000
+  [t]     1576.13 ms  PROBE_TX answered, uid 1, status 3, stream_id 0000000000000000
+  [t]     1802.52 ms  Talker Advertise first on the wire for 0200000000010000 (event 0)
+  [t]     1802.52 ms  Talker Advertise first on the wire for 0200000000010001 (event 0)
+  [t]     2072.95 ms  PROBE_TX answered, uid 0, status 0, stream_id 0200000000010000
+  [t]     2078.78 ms  PROBE_TX answered, uid 1, status 0, stream_id 0200000000010001
+  [t]     2112.95 ms  switch declares Listener Ready, uid 0, stream_id 0200000000010000
+  [t]     2118.78 ms  switch declares Listener Ready, uid 1, stream_id 0200000000010001
+  [PASS] KL_maap reached ANNOUNCE (a block of one address per source)           got=0000000000000001 exp=0000000000000001
+  [PASS] [A] src_stream_id_o[0] is the configured {MAC, uid}                    got=0200000000010000 exp=0200000000010000
+  [PASS] [A] src_stream_id_o[1] is the configured {MAC, uid}                    got=0200000000010001 exp=0200000000010001
+  -- source uid 0 (AAF)
+  [PASS] [A]: PROBE_TX answers SUCCESS                                          got=0000000000000000 exp=0000000000000000
+  [PASS] [A]: PROBE_TX's stream_id is src_stream_id_o                           got=0200000000010000 exp=0200000000010000
+  [PASS] [A]: PROBE_TX's stream_dest_mac is the block address                   got=000091e0f0001039 exp=000091e0f0001039
+  [PASS] [A]: GET_STREAM_INFO selector 2 is src_stream_id_o                     got=0200000000010000 exp=0200000000010000
+  [PASS] [A]: the Talker Advertise declares src_stream_id_o
+  [PASS] [A]: the source's stream PDUs are on the wire (44)
+  [PASS] [A]: every one carries src_stream_id_o (else 0000000000000000)         got=0000000000000000 exp=0000000000000000
+  -- source uid 1 (CRF Media Clock Output)
+  [PASS] [A]: PROBE_TX answers SUCCESS                                          got=0000000000000000 exp=0000000000000000
+  [PASS] [A]: PROBE_TX's stream_id is src_stream_id_o                           got=0200000000010001 exp=0200000000010001
+  [PASS] [A]: PROBE_TX's stream_dest_mac is the block address                   got=000091e0f000103a exp=000091e0f000103a
+  [PASS] [A]: GET_STREAM_INFO selector 2 is src_stream_id_o                     got=0200000000010001 exp=0200000000010001
+  [PASS] [A]: the Talker Advertise declares src_stream_id_o
+  [PASS] [A]: the source's stream PDUs are on the wire (11)
+  [PASS] [A]: every one carries src_stream_id_o (else 0000000000000000)         got=0000000000000000 exp=0000000000000000
+[MOVE] a peer ANNOUNCEs the claimed block from a lower MAC: KL_maap re-addresses, each declaring source withdraws and moves
+  [t]     8078.68 ms  PROBE_TX answered, uid 0, status 0, stream_id 0200000000010000
+  [t]     8084.51 ms  PROBE_TX answered, uid 1, status 0, stream_id 0200000000010001
+  [t]     8905.17 ms  PROBE_TX answered, uid 0, status 3, stream_id 0000000000000000
+  [t]     8911.00 ms  PROBE_TX answered, uid 1, status 3, stream_id 0000000000000000
+  [t]     9407.82 ms  PROBE_TX answered, uid 0, status 3, stream_id 0000000000000000
+  [t]     9413.65 ms  PROBE_TX answered, uid 1, status 3, stream_id 0000000000000000
+  [t]     9910.47 ms  PROBE_TX answered, uid 0, status 3, stream_id 0000000000000000
+  [t]     9916.30 ms  PROBE_TX answered, uid 1, status 3, stream_id 0000000000000000
+  [t]    10002.52 ms  Talker Advertise first on the wire for 0200000000010002 (event 3)
+  [t]    10002.52 ms  Talker Advertise first on the wire for 0200000000010003 (event 3)
+  [t]    10413.12 ms  PROBE_TX answered, uid 0, status 0, stream_id 0200000000010002
+  [t]    10418.95 ms  PROBE_TX answered, uid 1, status 0, stream_id 0200000000010003
+  [t]    10453.12 ms  switch declares Listener Ready, uid 0, stream_id 0200000000010002
+  [t]    10458.95 ms  switch declares Listener Ready, uid 1, stream_id 0200000000010003
+  [PASS] KL_maap claimed another block
+  [PASS] KL_maap is in ANNOUNCE again                                           got=0000000000000001 exp=0000000000000001
+[AFTER] each source's new Stream ID, everywhere it is named
+  -- source uid 0: 0200000000010000 -> 0200000000010002
+  [PASS] [AFTER] the source moved to a new Stream ID
+  [PASS] [AFTER] the new ID keeps the upper 48 bits                             got=0000020000000001 exp=0000020000000001
+  [PASS] [AFTER] the withdrawn ID's Talker Advertise left after the conflict
+  [PASS] [AFTER] conflict to the new ID's declaration under 2 s (1730 ms)
+  [PASS] [AFTER] no PDU carries the withdrawn ID 50 ms after its Leave (0)      got=0000000000000000 exp=0000000000000000
+  -- source uid 1: 0200000000010001 -> 0200000000010003
+  [PASS] [AFTER] the source moved to a new Stream ID
+  [PASS] [AFTER] the new ID keeps the upper 48 bits                             got=0000020000000001 exp=0000020000000001
+  [PASS] [AFTER] the withdrawn ID's Talker Advertise left after the conflict
+  [PASS] [AFTER] conflict to the new ID's declaration under 2 s (1730 ms)
+  [PASS] [AFTER] no PDU carries the withdrawn ID 50 ms after its Leave (0)      got=0000000000000000 exp=0000000000000000
+  [PASS] [AFTER] the graded sources' current IDs are distinct
+  -- source uid 0 (AAF)
+  [PASS] [AFTER]: PROBE_TX answers SUCCESS                                      got=0000000000000000 exp=0000000000000000
+  [PASS] [AFTER]: PROBE_TX's stream_id is src_stream_id_o                       got=0200000000010002 exp=0200000000010002
+  [PASS] [AFTER]: PROBE_TX's stream_dest_mac is the block address               got=000091e0f0002a1b exp=000091e0f0002a1b
+  [PASS] [AFTER]: GET_STREAM_INFO selector 2 is src_stream_id_o                 got=0200000000010002 exp=0200000000010002
+  [PASS] [AFTER]: the Talker Advertise declares src_stream_id_o
+  [PASS] [AFTER]: the source's stream PDUs are on the wire (51)
+  [PASS] [AFTER]: every one carries src_stream_id_o (else 0000000000000000)     got=0000000000000000 exp=0000000000000000
+  -- source uid 1 (CRF Media Clock Output)
+  [PASS] [AFTER]: PROBE_TX answers SUCCESS                                      got=0000000000000000 exp=0000000000000000
+  [PASS] [AFTER]: PROBE_TX's stream_id is src_stream_id_o                       got=0200000000010003 exp=0200000000010003
+  [PASS] [AFTER]: PROBE_TX's stream_dest_mac is the block address               got=000091e0f0002a1c exp=000091e0f0002a1c
+  [PASS] [AFTER]: GET_STREAM_INFO selector 2 is src_stream_id_o                 got=0200000000010003 exp=0200000000010003
+  [PASS] [AFTER]: the Talker Advertise declares src_stream_id_o
+  [PASS] [AFTER]: the source's stream PDUs are on the wire (13)
+  [PASS] [AFTER]: every one carries src_stream_id_o (else 0000000000000000)     got=0000000000000000 exp=0000000000000000
+[INV] over the whole run
+  [PASS] no malformed DUT MRPDU                                                 got=0000000000000000 exp=0000000000000000
+--------------------------------------------------------------
+simulated 17288.22 ms (1728822 cycles)
+checks: 50   failures: 0
+RESULT: PASS
+---- processor #202: the Stream ID move on the wire, two AAF talkers of the 8x8 shape, a TCTX uid named ----
+./obj_sidmove8/Vmilan_dp_sidmove8
+=== processor #202 Stream ID move, 9 talker sources (graded mask 0x3), 1 ms = 100 cycles ===
+[BOOT] identity, the firmware boot values, the named talker's TCTX uid
+  [PASS] ID == 'MILN'                                                           got=000000004d494c4e exp=000000004d494c4e
+  [PASS] ADP_TALKER[15:0] talker_stream_sources is this leg's source count      got=0000000000000009 exp=0000000000000009
+  [PASS] [BOOT] the shape's AEM image was generated and is served               got=0000000000000001 exp=0000000000000001
+  [PASS] [BOOT] PP_STAT the restore walk sequenced (done 1, CLOSED 0)           got=0000000000000004 exp=0000000000000004
+  [PASS] KL_maap is probing, no block claimed yet                               got=0000000000000001 exp=0000000000000001
+[A] the listener probes, MAAP grants, the switch declares Listener Ready for the answered ID, and each source streams
+  [t]      179.93 ms  PROBE_TX answered, uid 0, status 3, stream_id 0000000000000000
+  [t]      185.76 ms  PROBE_TX answered, uid 1, status 3, stream_id 0000000000000000
+  [t]      682.58 ms  PROBE_TX answered, uid 0, status 3, stream_id 0000000000000000
+  [t]      688.41 ms  PROBE_TX answered, uid 1, status 3, stream_id 0000000000000000
+  [t]     1185.23 ms  PROBE_TX answered, uid 0, status 3, stream_id 0000000000000000
+  [t]     1191.06 ms  PROBE_TX answered, uid 1, status 3, stream_id 0000000000000000
+  [t]     1687.88 ms  PROBE_TX answered, uid 0, status 3, stream_id 0000000000000000
+  [t]     1693.71 ms  PROBE_TX answered, uid 1, status 3, stream_id 0000000000000000
+  [t]     1807.19 ms  Talker Advertise first on the wire for 0200000000010000 (event 0)
+  [t]     1807.19 ms  Talker Advertise first on the wire for 0200000000010001 (event 0)
+  [t]     2190.53 ms  PROBE_TX answered, uid 0, status 0, stream_id 0200000000010000
+  [t]     2196.36 ms  PROBE_TX answered, uid 1, status 0, stream_id 0200000000010001
+  [t]     2230.53 ms  switch declares Listener Ready, uid 0, stream_id 0200000000010000
+  [t]     2236.36 ms  switch declares Listener Ready, uid 1, stream_id 0200000000010001
+  [PASS] KL_maap reached ANNOUNCE (a block of one address per source)           got=0000000000000001 exp=0000000000000001
+  [PASS] [A] src_stream_id_o[0] is the configured {MAC, uid}                    got=0200000000010000 exp=0200000000010000
+  [PASS] [A] src_stream_id_o[1] is the configured {MAC, uid}                    got=0200000000010001 exp=0200000000010001
+  [PASS] [A] the named talker's TCTX uid is held by the framer                  got=0000000000000001 exp=0000000000000001
+  -- source uid 0 (AAF)
+  [PASS] [A]: PROBE_TX answers SUCCESS                                          got=0000000000000000 exp=0000000000000000
+  [PASS] [A]: PROBE_TX's stream_id is src_stream_id_o                           got=0200000000010000 exp=0200000000010000
+  [PASS] [A]: PROBE_TX's stream_dest_mac is the block address                   got=000091e0f000f838 exp=000091e0f000f838
+  [PASS] [A]: GET_STREAM_INFO selector 2 is src_stream_id_o                     got=0200000000010000 exp=0200000000010000
+  [PASS] [A]: the Talker Advertise declares src_stream_id_o
+  [PASS] [A]: the source's stream PDUs are on the wire (44)
+  [PASS] [A]: every one carries src_stream_id_o (else 0000000000000000)         got=0000000000000000 exp=0000000000000000
+  -- source uid 1 (AAF), its TCTX uid named
+  [PASS] [A]: PROBE_TX answers SUCCESS                                          got=0000000000000000 exp=0000000000000000
+  [PASS] [A]: PROBE_TX's stream_id is src_stream_id_o                           got=0200000000010001 exp=0200000000010001
+  [PASS] [A]: PROBE_TX's stream_dest_mac is the block address                   got=000091e0f000f839 exp=000091e0f000f839
+  [PASS] [A]: GET_STREAM_INFO selector 2 is src_stream_id_o                     got=0200000000010001 exp=0200000000010001
+  [PASS] [A]: the Talker Advertise declares src_stream_id_o
+  [PASS] [A]: the source's stream PDUs are on the wire (44)
+  [PASS] [A]: every one carries src_stream_id_o (else 0000000000000000)         got=0000000000000000 exp=0000000000000000
+[MOVE] a peer ANNOUNCEs the claimed block from a lower MAC: KL_maap re-addresses, each declaring source withdraws and moves
+  [t]     8198.42 ms  PROBE_TX answered, uid 0, status 0, stream_id 0200000000010000
+  [t]     8204.25 ms  PROBE_TX answered, uid 1, status 0, stream_id 0200000000010001
+  [t]     8909.84 ms  PROBE_TX answered, uid 0, status 3, stream_id 0000000000000000
+  [t]     8915.67 ms  PROBE_TX answered, uid 1, status 3, stream_id 0000000000000000
+  [t]     9412.49 ms  PROBE_TX answered, uid 0, status 3, stream_id 0000000000000000
+  [t]     9418.32 ms  PROBE_TX answered, uid 1, status 3, stream_id 0000000000000000
+  [t]     9915.14 ms  PROBE_TX answered, uid 0, status 3, stream_id 0000000000000000
+  [t]     9920.97 ms  PROBE_TX answered, uid 1, status 3, stream_id 0000000000000000
+  [t]    10007.19 ms  Talker Advertise first on the wire for 0200000000010009 (event 3)
+  [t]    10007.19 ms  Talker Advertise first on the wire for 020000000001000a (event 3)
+  [t]    10417.79 ms  PROBE_TX answered, uid 0, status 0, stream_id 0200000000010009
+  [t]    10423.62 ms  PROBE_TX answered, uid 1, status 0, stream_id 020000000001000a
+  [t]    10457.79 ms  switch declares Listener Ready, uid 0, stream_id 0200000000010009
+  [t]    10463.62 ms  switch declares Listener Ready, uid 1, stream_id 020000000001000a
+  [PASS] KL_maap claimed another block
+  [PASS] KL_maap is in ANNOUNCE again                                           got=0000000000000001 exp=0000000000000001
+[AFTER] each source's new Stream ID, everywhere it is named
+  -- source uid 0: 0200000000010000 -> 0200000000010009
+  [PASS] [AFTER] the source moved to a new Stream ID
+  [PASS] [AFTER] the new ID keeps the upper 48 bits                             got=0000020000000001 exp=0000020000000001
+  [PASS] [AFTER] the withdrawn ID's Talker Advertise left after the conflict
+  [PASS] [AFTER] conflict to the new ID's declaration under 2 s (1615 ms)
+  [PASS] [AFTER] no PDU carries the withdrawn ID 50 ms after its Leave (0)      got=0000000000000000 exp=0000000000000000
+  -- source uid 1: 0200000000010001 -> 020000000001000a
+  [PASS] [AFTER] the source moved to a new Stream ID
+  [PASS] [AFTER] the new ID keeps the upper 48 bits                             got=0000020000000001 exp=0000020000000001
+  [PASS] [AFTER] the withdrawn ID's Talker Advertise left after the conflict
+  [PASS] [AFTER] conflict to the new ID's declaration under 2 s (1615 ms)
+  [PASS] [AFTER] no PDU carries the withdrawn ID 50 ms after its Leave (0)      got=0000000000000000 exp=0000000000000000
+  [PASS] [AFTER] the graded sources' current IDs are distinct
+  [PASS] [AFTER] the named talker's TCTX uid is still held, unchanged           got=0000000000000001 exp=0000000000000001
+  -- source uid 0 (AAF)
+  [PASS] [AFTER]: PROBE_TX answers SUCCESS                                      got=0000000000000000 exp=0000000000000000
+  [PASS] [AFTER]: PROBE_TX's stream_id is src_stream_id_o                       got=0200000000010009 exp=0200000000010009
+  [PASS] [AFTER]: PROBE_TX's stream_dest_mac is the block address               got=000091e0f0004af7 exp=000091e0f0004af7
+  [PASS] [AFTER]: GET_STREAM_INFO selector 2 is src_stream_id_o                 got=0200000000010009 exp=0200000000010009
+  [PASS] [AFTER]: the Talker Advertise declares src_stream_id_o
+  [PASS] [AFTER]: the source's stream PDUs are on the wire (52)
+  [PASS] [AFTER]: every one carries src_stream_id_o (else 0000000000000000)     got=0000000000000000 exp=0000000000000000
+  -- source uid 1 (AAF), its TCTX uid named
+  [PASS] [AFTER]: PROBE_TX answers SUCCESS                                      got=0000000000000000 exp=0000000000000000
+  [PASS] [AFTER]: PROBE_TX's stream_id is src_stream_id_o                       got=020000000001000a exp=020000000001000a
+  [PASS] [AFTER]: PROBE_TX's stream_dest_mac is the block address               got=000091e0f0004af8 exp=000091e0f0004af8
+  [PASS] [AFTER]: GET_STREAM_INFO selector 2 is src_stream_id_o                 got=020000000001000a exp=020000000001000a
+  [PASS] [AFTER]: the Talker Advertise declares src_stream_id_o
+  [PASS] [AFTER]: the source's stream PDUs are on the wire (52)
+  [PASS] [AFTER]: every one carries src_stream_id_o (else 0000000000000000)     got=0000000000000000 exp=0000000000000000
+[INV] over the whole run
+  [PASS] no malformed DUT MRPDU                                                 got=0000000000000000 exp=0000000000000000
+--------------------------------------------------------------
+simulated 17407.96 ms (1740796 cycles)
+checks: 52   failures: 0
+RESULT: PASS
+---- #658 the power-on audio maps, Milan 5.4.2.7 and a restored format ----
+./obj_dynmap/Vmilan_dp_dynmap
+=== milan_datapath NxN integration (N_STREAMS=1, P12) ===
+  [ok]   ID == 'MILN'                                   = 0x4d494c4e
+  [ok]   VERSION 0x0060 originally widened pending to unflushed bindings and AECP marks; #502 now reports accepted live name/map writes, and carries 0x005F's saved-state snapshot ownership contract, 0x005E's applied gPTP timestamp latency corrections at 0x7F0, 0x005C's SRP status words read by code, 0x005B's SET_SAMPLING_RATE list-check pin, 0x005A's GET_TX_STATE Listener-code pin, 0x0059's PPS words, 0x0058's slip pair, ownerless option OFF and the 0x0055 notification work = 0x20060
+  [ok]   [AECP] before the restore READ_DESCRIPTOR is HELD, not answered = 0x1
+  [ok]   [AECP] ...a second one is DROPPED at the slot gate (word 37 +1) = 0x1
+  [ok]   [AECP] ...read over a posted access that did not error = 0x1
+  [ok]   [AECP-IMG] the shipped generator emitted an image = 0x1
+  [i]    image: 7512 bytes, 42 descriptors
+  [ok]   [AECP-IMG] ...beginning with the AEMI magic    = 0x41454d49
+  [ok]   [BOOT] PP_STAT the restore walk sequenced (done 1, CLOSED 0) = 0x4
+  [ok]   [AECP] ...and the held READ_DESCRIPTOR is answered at the release = 0x1
+  [ok]   [AECP-IMG] the snapshot window answers ('KLPP') = 0x4b4c5050
+  [ok]   [AECP-IMG] ...over a posted access that did not error = 0x1
+  [ok]   [AECP-IMG] ENTITY,0: the image HAS this descriptor = 0x1
+  [ok]   [AECP-IMG] ENTITY,0: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-IMG] ENTITY,0: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-IMG] ENTITY,0: status SUCCESS(0)         = 0x0
+  [ok]   [AECP-IMG] ENTITY,0: sequence_id echoed        = 0x4011
+  [ok]   [AECP-IMG] ENTITY,0: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-IMG] ENTITY,0: cdl = 12 + 4 + the descriptor = 0x148
+  [ok]   [AECP-IMG] ENTITY,0: the frame is as long as it claims = 0x162
+  [ok]   [AECP-IMG] ENTITY,0: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-IMG] ENTITY,0: reserved @26 is zero      = 0x0
+  [ok]   [AECP-IMG] ENTITY,0: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-IMG] ENTITY,0: descriptor_type field @28 = 0x0
+  [ok]   [AECP-IMG] ENTITY,0: descriptor_index field @30 = 0x0
+  [i]    desc-store word 34 = 0x00058801 after 6 burst(s), 463 beat(s)
+  [ok]   [AECP-IMG] the store FETCHED from descriptor memory = 0x1
+  [ok]   [AECP-IMG] the image VALIDATED (word 34 bit 0) = 0x1
+  [ok]   [AECP-IMG] ...with no store fault (word 34 [4:1]) = 0x0
+  [ok]   [AECP-IMG] STREAM_INPUT,1: the image HAS this descriptor = 0x1
+  [ok]   [AECP-IMG] STREAM_INPUT,1: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-IMG] STREAM_INPUT,1: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-IMG] STREAM_INPUT,1: status SUCCESS(0)   = 0x0
+  [ok]   [AECP-IMG] STREAM_INPUT,1: sequence_id echoed  = 0x4012
+  [ok]   [AECP-IMG] STREAM_INPUT,1: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-IMG] STREAM_INPUT,1: cdl = 12 + 4 + the descriptor = 0xa2
+  [ok]   [AECP-IMG] STREAM_INPUT,1: the frame is as long as it claims = 0xbc
+  [ok]   [AECP-IMG] STREAM_INPUT,1: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-IMG] STREAM_INPUT,1: reserved @26 is zero = 0x0
+  [ok]   [AECP-IMG] STREAM_INPUT,1: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-IMG] STREAM_INPUT,1: descriptor_type field @28 = 0x5
+  [ok]   [AECP-IMG] STREAM_INPUT,1: descriptor_index field @30 = 0x1
+  [i]    response-memory lane writes: +40 for ENTITY (312 B), +20 for STREAM_INPUT 1 (146 B)
+  [ok]   [AECP-IMG] the response memory COMMITTED the ENTITY lanes = 0x1
+  [ok]   [AECP-IMG] ...and committed STREAM_INPUT 1's as well = 0x1
+  [ok]   [AECP-IMG] no response was voided by the memory = 0x0
+  [ok]   [AECP-IMG] the response buffer reports no fault (word 36) = 0x0
+  [ok]   [AECP-WTMO] a memory that NEVER ACKS still gets an ANSWER = 0x1
+  [ok]   [AECP-WTMO] ...still an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-WTMO] ...with ENTITY_MISBEHAVING(10), the documented degradation = 0xa
+  [ok]   [AECP-WTMO] ...carrying no payload it could not build (cdl = 12) = 0xc
+  [ok]   [AECP-WTMO] ...still padded to the 60-octet minimum = 0x3c
+  [ok]   [AECP-WTMO] ...and the response buffer reports its fault (word 36) = 0x1
+  [ok]   [AECP-WTMO] the station HEALS when the memory returns (no reset) = 0x1
+  [ok]   [AECP-WTMO] ...and the response buffer's fault clears (word 36) = 0x0
+-- [DYNMAP] #658: the power-on maps, a format change under Milan 5.4.2.7, and a restored format --
+  [i]    STREAM_INPUT 0 0205022002006000 (8 ch), STREAM_OUTPUT 0 0205022002006000 (8 ch); clusters SPI 0 8, SPO 0 17
+  [ok]   [DYNMAP] the reset input format is 8 channels  = 0x8
+  [ok]   [DYNMAP] the image declares both ports' clusters = 0x1
+  [i]    power-on SPI 0: status 0, number_of_maps 1, 8 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0 s0.c4->o4.c0 s0.c5->o5.c0 s0.c6->o6.c0 s0.c7->o7.c0
+  [ok]   [DYNMAP] power-on SPI 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [DYNMAP] power-on SPI 0: number_of_maps 1      = 0x1
+  [ok]   [DYNMAP] power-on SPI 0: cdl carries every counted record = 0x58
+  [ok]   [DYNMAP] power-on SPI 0: number_of_mappings    = 0x8
+  [ok]   [DYNMAP] power-on SPI 0: records off the identity = 0x0
+  [i]    power-on SPO 0: status 0, number_of_maps 1, 8 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0 s0.c4->o4.c0 s0.c5->o5.c0 s0.c6->o6.c0 s0.c7->o7.c0
+  [ok]   [DYNMAP] power-on SPO 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [DYNMAP] power-on SPO 0: number_of_maps 1      = 0x1
+  [ok]   [DYNMAP] power-on SPO 0: cdl carries every counted record = 0x58
+  [ok]   [DYNMAP] power-on SPO 0: number_of_mappings    = 0x8
+  [ok]   [DYNMAP] power-on SPO 0: records off the identity = 0x0
+  [ok]   [DYNMAP] power-on: render RAM keys 2..9 hold the input map = 0x0
+  [ok]   [DYNMAP] power-on: capture RAM keys 0..7 hold the output map = 0x0
+  [ok]   [DYNMAP] 8->4 while 4..7 are mapped: SET_STREAM_FORMAT BAD_ARGUMENTS (Milan 5.4.2.7) = 0x7
+  [ok]   [DYNMAP] 8->4 while 4..7 are mapped: GET_STREAM_FORMAT reads the unchanged format = 0x1
+  [i]    8->4 while 4..7 are mapped: STREAM_INPUT 0 format 0205022002006000
+  [i]    refused 8->4 SPI 0: status 0, number_of_maps 1, 8 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0 s0.c4->o4.c0 s0.c5->o5.c0 s0.c6->o6.c0 s0.c7->o7.c0
+  [ok]   [DYNMAP] refused 8->4 SPI 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [DYNMAP] refused 8->4 SPI 0: number_of_maps 1  = 0x1
+  [ok]   [DYNMAP] refused 8->4 SPI 0: cdl carries every counted record = 0x58
+  [ok]   [DYNMAP] refused 8->4 SPI 0: number_of_mappings = 0x8
+  [ok]   [DYNMAP] refused 8->4 SPI 0: records off the identity = 0x0
+  [i]    refused 8->4 SPO 0: status 0, number_of_maps 1, 8 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0 s0.c4->o4.c0 s0.c5->o5.c0 s0.c6->o6.c0 s0.c7->o7.c0
+  [ok]   [DYNMAP] refused 8->4 SPO 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [DYNMAP] refused 8->4 SPO 0: number_of_maps 1  = 0x1
+  [ok]   [DYNMAP] refused 8->4 SPO 0: cdl carries every counted record = 0x58
+  [ok]   [DYNMAP] refused 8->4 SPO 0: number_of_mappings = 0x8
+  [ok]   [DYNMAP] refused 8->4 SPO 0: records off the identity = 0x0
+  [ok]   [DYNMAP] REMOVE_AUDIO_MAPPINGS of channels 4..7 SUCCESS = 0x0
+  [i]    after REMOVE 4..7 SPI 0: status 0, number_of_maps 1, 4 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0
+  [ok]   [DYNMAP] after REMOVE 4..7 SPI 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [DYNMAP] after REMOVE 4..7 SPI 0: number_of_maps 1 = 0x1
+  [ok]   [DYNMAP] after REMOVE 4..7 SPI 0: cdl carries every counted record = 0x38
+  [ok]   [DYNMAP] after REMOVE 4..7 SPI 0: number_of_mappings = 0x4
+  [ok]   [DYNMAP] after REMOVE 4..7 SPI 0: records off the identity = 0x0
+  [ok]   [DYNMAP] after REMOVE 4..7: render RAM keys 2..9 hold the input map = 0x0
+  [ok]   [DYNMAP] after REMOVE 4..7: capture RAM keys 0..7 hold the output map = 0x0
+  [ok]   [DYNMAP] 8->4: SET_STREAM_FORMAT SUCCESS       = 0x0
+  [ok]   [DYNMAP] 8->4: GET_STREAM_FORMAT reads the new format = 0x1
+  [i]    8->4: STREAM_INPUT 0 format 0205022001006000
+  [i]    8->4 SPI 0: status 0, number_of_maps 1, 4 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0
+  [ok]   [DYNMAP] 8->4 SPI 0: GET_AUDIO_MAP SUCCESS     = 0x0
+  [ok]   [DYNMAP] 8->4 SPI 0: number_of_maps 1          = 0x1
+  [ok]   [DYNMAP] 8->4 SPI 0: cdl carries every counted record = 0x38
+  [ok]   [DYNMAP] 8->4 SPI 0: number_of_mappings        = 0x4
+  [ok]   [DYNMAP] 8->4 SPI 0: records off the identity  = 0x0
+  [i]    8->4 SPO 0: status 0, number_of_maps 1, 8 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0 s0.c4->o4.c0 s0.c5->o5.c0 s0.c6->o6.c0 s0.c7->o7.c0
+  [ok]   [DYNMAP] 8->4 SPO 0: GET_AUDIO_MAP SUCCESS     = 0x0
+  [ok]   [DYNMAP] 8->4 SPO 0: number_of_maps 1          = 0x1
+  [ok]   [DYNMAP] 8->4 SPO 0: cdl carries every counted record = 0x58
+  [ok]   [DYNMAP] 8->4 SPO 0: number_of_mappings        = 0x8
+  [ok]   [DYNMAP] 8->4 SPO 0: records off the identity  = 0x0
+  [ok]   [DYNMAP] 4->8: SET_STREAM_FORMAT SUCCESS       = 0x0
+  [ok]   [DYNMAP] 4->8: GET_STREAM_FORMAT reads the new format = 0x1
+  [i]    4->8: STREAM_INPUT 0 format 0205022002006000
+  [i]    4->8 SPI 0: status 0, number_of_maps 1, 4 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0
+  [ok]   [DYNMAP] 4->8 SPI 0: GET_AUDIO_MAP SUCCESS     = 0x0
+  [ok]   [DYNMAP] 4->8 SPI 0: number_of_maps 1          = 0x1
+  [ok]   [DYNMAP] 4->8 SPI 0: cdl carries every counted record = 0x38
+  [ok]   [DYNMAP] 4->8 SPI 0: number_of_mappings        = 0x4
+  [ok]   [DYNMAP] 4->8 SPI 0: records off the identity  = 0x0
+  [i]    4->8 SPO 0: status 0, number_of_maps 1, 8 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0 s0.c4->o4.c0 s0.c5->o5.c0 s0.c6->o6.c0 s0.c7->o7.c0
+  [ok]   [DYNMAP] 4->8 SPO 0: GET_AUDIO_MAP SUCCESS     = 0x0
+  [ok]   [DYNMAP] 4->8 SPO 0: number_of_maps 1          = 0x1
+  [ok]   [DYNMAP] 4->8 SPO 0: cdl carries every counted record = 0x58
+  [ok]   [DYNMAP] 4->8 SPO 0: number_of_mappings        = 0x8
+  [ok]   [DYNMAP] 4->8 SPO 0: records off the identity  = 0x0
+  [ok]   [DYNMAP] 4->8: render RAM keys 2..9 hold the input map = 0x0
+  [ok]   [DYNMAP] 4->8: capture RAM keys 0..7 hold the output map = 0x0
+  [ok]   [DYNMAP] window, output row staged at 4 ch: render RAM keys 2..9 hold the input map = 0x0
+  [ok]   [DYNMAP] window, output row staged at 4 ch: capture RAM keys 0..7 hold the output map = 0x0
+  [ok]   [DYNMAP] window, output row invalid again: render RAM keys 2..9 hold the input map = 0x0
+  [ok]   [DYNMAP] window, output row invalid again: capture RAM keys 0..7 hold the output map = 0x0
+  [ok]   [NVM] the backend accepted the window load (PP_NVM_STAT[2] 1, [11] 0) = 0x1
+  [ok]   [NVM] ...and holds it valid (PP_NVM_STAT[7])   = 0x1
+  [ok]   [DYNMAP] restore: the saved-state window holds a 4 ch input format = 0x1
+  [ok]   [BOOT] PP_STAT the restore walk sequenced (done 1, CLOSED 0) = 0x4
+  [ok]   [DYNMAP] restore: the walk applied a record (fail 0, blank 0) = 0x0
+  [i]    restored STREAM_INPUT 0 format 0205022001006000 (4 ch)
+  [ok]   [DYNMAP] restore: GET_STREAM_FORMAT reads the saved 4 ch format = 0x1
+  [i]    restored SPI 0: status 0, number_of_maps 1, 4 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0
+  [ok]   [DYNMAP] restored SPI 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [DYNMAP] restored SPI 0: number_of_maps 1      = 0x1
+  [ok]   [DYNMAP] restored SPI 0: cdl carries every counted record = 0x38
+  [ok]   [DYNMAP] restored SPI 0: number_of_mappings    = 0x4
+  [ok]   [DYNMAP] restored SPI 0: records off the identity = 0x0
+  [i]    restored SPO 0: status 0, number_of_maps 1, 8 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0 s0.c4->o4.c0 s0.c5->o5.c0 s0.c6->o6.c0 s0.c7->o7.c0
+  [ok]   [DYNMAP] restored SPO 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [DYNMAP] restored SPO 0: number_of_maps 1      = 0x1
+  [ok]   [DYNMAP] restored SPO 0: cdl carries every counted record = 0x58
+  [ok]   [DYNMAP] restored SPO 0: number_of_mappings    = 0x8
+  [ok]   [DYNMAP] restored SPO 0: records off the identity = 0x0
+  [ok]   [DYNMAP] restored: render RAM keys 2..9 hold the input map = 0x0
+  [ok]   [DYNMAP] restored: capture RAM keys 0..7 hold the output map = 0x0
+  [ok]   [DYNMAP] restored 4->8: SET_STREAM_FORMAT SUCCESS = 0x0
+  [ok]   [DYNMAP] restored 4->8: GET_STREAM_FORMAT reads the new format = 0x1
+  [i]    restored 4->8: STREAM_INPUT 0 format 0205022002006000
+  [i]    restored 4->8 SPI 0: status 0, number_of_maps 1, 4 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0
+  [ok]   [DYNMAP] restored 4->8 SPI 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [DYNMAP] restored 4->8 SPI 0: number_of_maps 1 = 0x1
+  [ok]   [DYNMAP] restored 4->8 SPI 0: cdl carries every counted record = 0x38
+  [ok]   [DYNMAP] restored 4->8 SPI 0: number_of_mappings = 0x4
+  [ok]   [DYNMAP] restored 4->8 SPI 0: records off the identity = 0x0
+  [i]    CSR hold, input: CSR commit at CLOSED-2: store 0x00087, RAM 0x0087 (refused)
+  [i]    CSR hold, input: CSR commit at CLOSED-1: store 0x00087, RAM 0x0087 (refused)
+  [i]    CSR hold, input: CSR commit at CLOSED+0: store 0x00087, RAM 0x0087 (refused)
+  [i]    CSR hold, input: CSR commit at CLOSED+1: store 0x00087, RAM 0x0087 (refused)
+  [i]    CSR hold, input: CSR commit at CLOSED+2: store 0x00087, RAM 0x0087 (refused)
+  [i]    CSR hold, input: CSR commit at CLOSED+3: store 0x00087, RAM 0x0087 (refused)
+  [i]    CSR hold, input: CSR commit at CLOSED+4: store 0x00087, RAM 0x0087 (refused)
+  [i]    CSR hold, input: CSR commit at CLOSED+5: store 0x00087, RAM 0x0087 (refused)
+  [i]    CSR hold, input: CSR commit at CLOSED+6: store 0x00087, RAM 0x0087 (refused)
+  [i]    CSR hold, input: CSR commit at CLOSED+7: store 0x00087, RAM 0x0087 (refused)
+  [i]    CSR hold, input: CSR commit at CLOSED+8: store 0x00087, RAM 0x0087 (refused)
+  [i]    CSR hold, input: CSR commit at CLOSED+9: store 0x00087, RAM 0x0087 (refused)
+  [i]    CSR hold, input: CSR commit at CLOSED+10: store 0x00083, RAM 0x0083 (landed)
+  [i]    CSR hold, input: CSR commit at CLOSED+11: store 0x00083, RAM 0x0083 (landed)
+  [i]    CSR hold, input: CSR commit at CLOSED+12: store 0x00083, RAM 0x0083 (landed)
+  [ok]   [DYNMAP] CSR hold, input: the CSR commits ran from the window to past the sweep (vacuity guard) = 0x1
+  [ok]   [DYNMAP] CSR hold, input: no CSR write splits the store from the RAM = 0x0
+  [ok]   [DYNMAP] CSR hold, input: CSR refused in the window and for one sweep after CLOSED = 0x0
+  [ok]   [DYNMAP] CSR hold, input: CSR lands in both once the sweep after CLOSED has ended = 0x0
+  [i]    CSR hold, output: CSR commit at CLOSED-2: store 0x10007, RAM 0x1a03 (refused)
+  [i]    CSR hold, output: CSR commit at CLOSED-1: store 0x10007, RAM 0x1a03 (refused)
+  [i]    CSR hold, output: CSR commit at CLOSED+0: store 0x10007, RAM 0x1a03 (refused)
+  [i]    CSR hold, output: CSR commit at CLOSED+1: store 0x10007, RAM 0x1a03 (refused)
+  [i]    CSR hold, output: CSR commit at CLOSED+2: store 0x10007, RAM 0x1a03 (refused)
+  [i]    CSR hold, output: CSR commit at CLOSED+3: store 0x10007, RAM 0x1a03 (refused)
+  [i]    CSR hold, output: CSR commit at CLOSED+4: store 0x10007, RAM 0x1a03 (refused)
+  [i]    CSR hold, output: CSR commit at CLOSED+5: store 0x10007, RAM 0x1a03 (refused)
+  [i]    CSR hold, output: CSR commit at CLOSED+6: store 0x10007, RAM 0x1a03 (refused)
+  [i]    CSR hold, output: CSR commit at CLOSED+7: store 0x10007, RAM 0x1a03 (refused)
+  [i]    CSR hold, output: CSR commit at CLOSED+8: store 0x10007, RAM 0x1a03 (refused)
+  [i]    CSR hold, output: CSR commit at CLOSED+9: store 0x10007, RAM 0x1a03 (refused)
+  [i]    CSR hold, output: CSR commit at CLOSED+10: store 0x10006, RAM 0x1203 (landed)
+  [i]    CSR hold, output: CSR commit at CLOSED+11: store 0x10006, RAM 0x1203 (landed)
+  [i]    CSR hold, output: CSR commit at CLOSED+12: store 0x10006, RAM 0x1203 (landed)
+  [ok]   [DYNMAP] CSR hold, output: the CSR commits ran from the window to past the sweep (vacuity guard) = 0x1
+  [ok]   [DYNMAP] CSR hold, output: no CSR write splits the store from the RAM = 0x0
+  [ok]   [DYNMAP] CSR hold, output: CSR refused in the window and for one sweep after CLOSED = 0x0
+  [ok]   [DYNMAP] CSR hold, output: CSR lands in both once the sweep after CLOSED has ended = 0x0
+  [ok]   [DYNMAP] window, both rows staged at 4 ch: render RAM keys 2..9 hold the input map = 0x0
+  [ok]   [DYNMAP] window, both rows staged at 4 ch: capture RAM keys 0..7 hold the output map = 0x0
+  [ok]   [DYNMAP] CLOSED on the roll-back's clock: both stores hold the whole image = 0x0
+  [ok]   [DYNMAP] CLOSED on the roll-back's clock: render RAM keys 2..9 hold the input map = 0x0
+  [ok]   [DYNMAP] CLOSED on the roll-back's clock: capture RAM keys 0..7 hold the output map = 0x0
+  [ok]   [BOOT] PP_STAT the restore walk sequenced (done 1, CLOSED 0) = 0x4
+  [ok]   [DYNMAP] edit meets the sweep: REMOVE of the top two output channels SUCCESS = 0x0
+  [i]    edit meets the sweep: ADD answered 1190 clocks into the wait, the sweep held for 1000
+  [ok]   [DYNMAP] edit meets the sweep: ADD of the moved channel SUCCESS = 0x0
+  [ok]   [DYNMAP] edit meets the sweep: the ADD is answered only after the sweep ends = 0x1
+  [ok]   [DYNMAP] edit meets the sweep: GET reads the moved channel on its new cluster = 0x1
+  [ok]   [DYNMAP] edit meets the sweep: the capture RAM keeps the ADD's word = 0x1203
+  [ok]   [DYNMAP] edit meets the sweep: the removed channel's capture key stays empty = 0x0
+  [ok]   [DYNMAP] every identity page ran (vacuity guard) = 0xc
+-- [762-DP] the AX7101 1x1 TDM8 geometry: a stopped AAF Stream Input counts no STREAM_INTERRUPTED --
+  [i]    elaborated: N_STREAMS 1 ADP_TALKER_SRC_C 2 ADP_LISTENER_SINK_C 2 CRF_SNK_IDX_C 1 MILAN_CLK_FREQ_HZ 100000000 GPTP_PLANE_EN_P 0
+  [i]    elaborated: TALKER_WIRE_CHANS_P 8 AUDIO_IF_SLOTS_P 8 AUDIO_IF_MASTER_P 1 AUDIO_IF_RENDER_SLOTS_P 0 AUDIO_IF_I2S_PAIR_P 0 AUDIO_IF_WORD_BITS_P 32 AUDIO_IF_FS_HZ_P 48000 AUDIO_IF_CLK_HZ_P 24576000 LOOPBACK_P 1
+  [i]    elaborated prunes: MCSERVO_P 1 LTAP_P 1 MAAP_P 1 I2SPB_P 0 RXFILT_P 1 LPF_P 0 DPROBES_P 1
+  [ok]   [762-DP] AX 1x1: one AAF Stream Input (N_STREAMS 1) = 0x1
+  [ok]   [762-DP] AX 1x1: the CRF Media Clock Input is sink N_STREAMS, the entity's last = 0x1
+  [ok]   [BOOT] PP_STAT the restore walk sequenced (done 1, CLOSED 0) = 0x4
+  [ok]   TRAP-1 bind: the listener launched its PROBE_TX = 0x1
+  [ok]   TRAP-1 bound: PARSED climbs                    = 0x1
+  [ok]   TRAP-1 bound: MATCHED climbs (alias intact)    = 0x1
+  [ok]   TRAP-1 bound: INFO match flag set              = 0x1
+  [ok]   TRAP-1 bound: INFO index 0                     = 0x0
+  [ok]   TRAP-1 bound: the ACMP alias counts as one armed entry = 0x1
+  [ok]   [765] STREAM_INPUT 0's current channel count is readable = 0x1
+  [ok]   5.3.8.7 GET_STREAM_INFO answers before the stop = 0x0
+  [ok]   5.3.8.7 started: STREAMING_WAIT reads 0        = 0x1
+  [ok]   5.3.8.7 STOP_STREAMING answered SUCCESS        = 0x0
+  [ok]   5.3.8.7 stopped: STREAMING_WAIT reads 1        = 0x1
+  [ok]   5.3.8.7 stopped: ...and BOUND still reads 1 - the clause stops the data, it does not unbind the sink = 0x1
+  [ok]   5.3.8.7 stopped: the frame still REACHES the parser = 0x1
+  [ok]   5.3.8.7 stopped: ...and is STILL matched (it is still bound) = 0x1
+  [ok]   5.3.8.7 stopped: ...but the media path got NOTHING = 0x0
+  [ok]   5.3.8.7 START_STREAMING answered SUCCESS       = 0x0
+  [ok]   5.3.8.7 restarted: PARSED climbs               = 0x1
+  [ok]   5.3.8.7 restarted: MATCHED climbs again        = 0x1
+  [ok]   5.3.8.7 restarted: ...and the media path receives again = 0x1
+  [ok]   5.3.8.7 restarted: STREAMING_WAIT reads 0 again = 0x1
+  [ok]   5.3.8.7 Table 5.6: FRAMES_RX SURVIVED the stop/start pair = 0x1
+  [ok]   5.3.8.7 Table 5.6: ...and counted the frame arriving while STOPPED (the clause says a stopped input RECEIVES) = 0x1
+-- [762-DP] a stopped AAF Stream Input counts no STREAM_INTERRUPTED --
+  [ok]   [765] STREAM_INPUT 0's current channel count is readable = 0x1
+   STREAM_INPUT 0's current format: 8 channels
+  [ok]   [762-DP] 1 started: GET_COUNTERS(STREAM_INPUT,0) answers SUCCESS = 0x0
+  [ok]   [762-DP] 1 started: ...and the input reads locked = 0x1
+  [ok]   [762-DP] 2 STOP_STREAMING answered SUCCESS     = 0x0
+  [ok]   [762-DP] 2 stopped gap: SEQ_NUM_MISMATCH +1 (the gap was seen) = 0x1
+  [ok]   [762-DP] 2 stopped gap: STREAM_INTERRUPTED +0  = 0x0
+  [ok]   [762-DP] 3 the skip only shortens the silence (the watchdog was below it) = 0x1
+  [ok]   [762-DP] 3 the stopped input's silence unlocked it = 0x0
+  [ok]   [762-DP] 3 stopped silence: MEDIA_UNLOCKED +1 (the silence was seen) = 0x1
+  [ok]   [762-DP] 3 stopped silence: STREAM_INTERRUPTED +0 = 0x0
+  [ok]   [762-DP] 4 START_STREAMING answered SUCCESS    = 0x0
+  [ok]   [762-DP] 4 started again: MEDIA_LOCKED +1 (relocked) = 0x1
+  [ok]   [762-DP] 4 started gap: SEQ_NUM_MISMATCH +1    = 0x1
+  [ok]   [762-DP] 4 started gap: STREAM_INTERRUPTED +1  = 0x1
+-- [MAPREC] #637: the channel-map records across a planted power cycle --
+  [ok]   [NVM] the backend accepted the window load (PP_NVM_STAT[2] 1, [11] 0) = 0x1
+  [ok]   [NVM] ...and holds it valid (PP_NVM_STAT[7])   = 0x1
+  [ok]   [MAPREC] a first boot over an erased window    = 0x1
+  [ok]   [BOOT] PP_STAT the restore walk sequenced (done 1, CLOSED 0) = 0x4
+  [i]    first boot: SPI 0: status 0, 8 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0 s0.c4->o4.c0 s0.c5->o5.c0 s0.c6->o6.c0 s0.c7->o7.c0
+  [ok]   [MAPREC] first boot: SPI 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] first boot: SPI 0: number_of_mappings = 0x8
+  [ok]   [MAPREC] first boot: SPI 0: the mappings are the expected list = 0x1
+  [i]    first boot: SPO 0: status 0, 8 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0 s0.c4->o4.c0 s0.c5->o5.c0 s0.c6->o6.c0 s0.c7->o7.c0
+  [ok]   [MAPREC] first boot: SPO 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] first boot: SPO 0: number_of_mappings = 0x8
+  [ok]   [MAPREC] first boot: SPO 0: the mappings are the expected list = 0x1
+  [ok]   [MAPREC] first boot: render RAM keys 2..9 hold the input list = 0x0
+  [ok]   [MAPREC] first boot: capture RAM keys 0..7 hold the output list = 0x0
+  [i]    first boot: PP_STAT 5b000484
+  [ok]   [MAPREC] first boot: PP_STAT done 1, busy 0    = 0x1
+  [ok]   [MAPREC] first boot: PP_STAT fail 0            = 0x0
+  [ok]   [MAPREC] first boot: PP_STAT blank 1           = 0x1
+  [ok]   [MAPREC] first boot: STREAM_INPUT 0 reads 8 channels = 0x8
+  [ok]   [MAPREC] empty: REMOVE every SPI 0 mapping SUCCESS = 0x0
+  [ok]   [MAPREC] empty: PP_STAT pend rises with the accepted change = 0x1
+  [ok]   [MAPREC] empty: REMOVE every SPO 0 mapping SUCCESS = 0x0
+  [ok]   [MAPREC] empty: the codec frames both records  = 0x1
+  [i]    empty: the window held the codec's records 50000 clocks after the change
+  [ok]   [MAPREC] empty: the window holds the codec's records and the pend has fallen = 0x1
+  [ok]   [MAPREC] empty: the write waited out the 500 ms first-dirty window = 0x1
+  [ok]   [NVM] the backend accepted the window load (PP_NVM_STAT[2] 1, [11] 0) = 0x1
+  [ok]   [NVM] ...and holds it valid (PP_NVM_STAT[7])   = 0x1
+  [ok]   [MAPREC] empty: the restore reached its terminal and the map restore ended = 0x1
+  [i]    empty: the map restore held the faces 598 clocks after restore_done, 3648 after PP_CTRL[1]
+  [i]    empty, after the power cycle: SPI 0: status 0, 0 mapping(s)
+  [ok]   [MAPREC] empty, after the power cycle: SPI 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] empty, after the power cycle: SPI 0: number_of_mappings = 0x0
+  [ok]   [MAPREC] empty, after the power cycle: SPI 0: the mappings are the expected list = 0x1
+  [i]    empty, after the power cycle: SPO 0: status 0, 0 mapping(s)
+  [ok]   [MAPREC] empty, after the power cycle: SPO 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] empty, after the power cycle: SPO 0: number_of_mappings = 0x0
+  [ok]   [MAPREC] empty, after the power cycle: SPO 0: the mappings are the expected list = 0x1
+  [ok]   [MAPREC] empty, after the power cycle: render RAM keys 2..9 hold the input list = 0x0
+  [ok]   [MAPREC] empty, after the power cycle: capture RAM keys 0..7 hold the output list = 0x0
+  [i]    empty, after the power cycle: PP_STAT 5b000404
+  [ok]   [MAPREC] empty, after the power cycle: PP_STAT done 1, busy 0 = 0x1
+  [ok]   [MAPREC] empty, after the power cycle: PP_STAT fail 0 = 0x0
+  [ok]   [MAPREC] empty, after the power cycle: PP_STAT blank 0 = 0x0
+  [ok]   [MAPREC] saved: ADD the SPI 0 list SUCCESS     = 0x0
+  [ok]   [MAPREC] saved: ADD the SPO 0 list SUCCESS     = 0x0
+  [ok]   [MAPREC] saved: the codec frames both records  = 0x1
+  [i]    saved: the window held the codec's records 51000 clocks after the change
+  [ok]   [MAPREC] saved: the window holds the codec's records and the pend has fallen = 0x1
+  [ok]   [MAPREC] saved: the write waited out the 500 ms first-dirty window = 0x1
+  [ok]   [MAPREC] unchanged: the same SPI 0 ADD again SUCCESS = 0x0
+  [ok]   [MAPREC] unchanged: no record write follows an unchanged edit = 0x0
+  [ok]   [MAPREC] unchanged: pend stays clear           = 0x0
+  [ok]   [NVM] the backend accepted the window load (PP_NVM_STAT[2] 1, [11] 0) = 0x1
+  [ok]   [NVM] ...and holds it valid (PP_NVM_STAT[7])   = 0x1
+  [ok]   [MAPREC] saved: the restore reached its terminal and the map restore ended = 0x1
+  [i]    saved: the map restore held the faces 650 clocks after restore_done, 3700 after PP_CTRL[1]
+  [i]    saved, after the power cycle: SPI 0: status 0, 3 mapping(s) s0.c6->o0.c0 s0.c0->o3.c0 s0.c1->o5.c0
+  [ok]   [MAPREC] saved, after the power cycle: SPI 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] saved, after the power cycle: SPI 0: number_of_mappings = 0x3
+  [ok]   [MAPREC] saved, after the power cycle: SPI 0: the mappings are the expected list = 0x1
+  [i]    saved, after the power cycle: SPO 0: status 0, 2 mapping(s) s0.c0->o7.c0 s0.c4->o2.c0
+  [ok]   [MAPREC] saved, after the power cycle: SPO 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] saved, after the power cycle: SPO 0: number_of_mappings = 0x2
+  [ok]   [MAPREC] saved, after the power cycle: SPO 0: the mappings are the expected list = 0x1
+  [ok]   [MAPREC] saved, after the power cycle: render RAM keys 2..9 hold the input list = 0x0
+  [ok]   [MAPREC] saved, after the power cycle: capture RAM keys 0..7 hold the output list = 0x0
+  [ok]   [MAPREC] saved: PP_STAT reads busy, not done, not blank, while the map restore holds = 0x2
+  [i]    saved, after the power cycle: PP_STAT 5b000404
+  [ok]   [MAPREC] saved, after the power cycle: PP_STAT done 1, busy 0 = 0x1
+  [ok]   [MAPREC] saved, after the power cycle: PP_STAT fail 0 = 0x0
+  [ok]   [MAPREC] saved, after the power cycle: PP_STAT blank 0 = 0x0
+  [ok]   [MAPREC] saved: the restore itself writes no record = 0x0
+  [ok]   [MAPREC] saved: pend is clear after the restore = 0x0
+  [ok]   [MAPREC] saved: the map restore holds the faces under the AECP gather watchdog = 0x1
+  [ok]   [NVM] the backend accepted the window load (PP_NVM_STAT[2] 1, [11] 0) = 0x1
+  [ok]   [NVM] ...and holds it valid (PP_NVM_STAT[7])   = 0x1
+  [ok]   [MAPREC] torn input record: the restore reached its terminal and the map restore ended = 0x1
+  [i]    torn input record: the map restore held the faces 660 clocks after restore_done, 3710 after PP_CTRL[1]
+  [i]    torn input record: SPI 0: status 0, 8 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0 s0.c4->o4.c0 s0.c5->o5.c0 s0.c6->o6.c0 s0.c7->o7.c0
+  [ok]   [MAPREC] torn input record: SPI 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] torn input record: SPI 0: number_of_mappings = 0x8
+  [ok]   [MAPREC] torn input record: SPI 0: the mappings are the expected list = 0x1
+  [i]    torn input record: SPO 0: status 0, 2 mapping(s) s0.c0->o7.c0 s0.c4->o2.c0
+  [ok]   [MAPREC] torn input record: SPO 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] torn input record: SPO 0: number_of_mappings = 0x2
+  [ok]   [MAPREC] torn input record: SPO 0: the mappings are the expected list = 0x1
+  [ok]   [MAPREC] torn input record: render RAM keys 2..9 hold the input list = 0x0
+  [ok]   [MAPREC] torn input record: capture RAM keys 0..7 hold the output list = 0x0
+  [i]    torn input record: PP_STAT 5b000404
+  [ok]   [MAPREC] torn input record: PP_STAT done 1, busy 0 = 0x1
+  [ok]   [MAPREC] torn input record: PP_STAT fail 0     = 0x0
+  [ok]   [MAPREC] torn input record: PP_STAT blank 0    = 0x0
+  [ok]   [NVM] the backend accepted the window load (PP_NVM_STAT[2] 1, [11] 0) = 0x1
+  [ok]   [NVM] ...and holds it valid (PP_NVM_STAT[7])   = 0x1
+  [ok]   [MAPREC] roll-back: the restore reached its terminal and the map restore ended = 0x1
+  [i]    roll-back: the map restore held the faces 321 clocks after restore_done, 3371 after PP_CTRL[1]
+  [i]    roll-back: SPI 0: status 0, 8 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0 s0.c4->o4.c0 s0.c5->o5.c0 s0.c6->o6.c0 s0.c7->o7.c0
+  [ok]   [MAPREC] roll-back: SPI 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] roll-back: SPI 0: number_of_mappings  = 0x8
+  [ok]   [MAPREC] roll-back: SPI 0: the mappings are the expected list = 0x1
+  [i]    roll-back: SPO 0: status 0, 8 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0 s0.c4->o4.c0 s0.c5->o5.c0 s0.c6->o6.c0 s0.c7->o7.c0
+  [ok]   [MAPREC] roll-back: SPO 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] roll-back: SPO 0: number_of_mappings  = 0x8
+  [ok]   [MAPREC] roll-back: SPO 0: the mappings are the expected list = 0x1
+  [ok]   [MAPREC] roll-back: render RAM keys 2..9 hold the input list = 0x0
+  [ok]   [MAPREC] roll-back: capture RAM keys 0..7 hold the output list = 0x0
+  [i]    roll-back: PP_STAT 5b00040c
+  [ok]   [MAPREC] roll-back: PP_STAT done 1, busy 0     = 0x1
+  [ok]   [MAPREC] roll-back: PP_STAT fail 1             = 0x1
+  [ok]   [MAPREC] roll-back: PP_STAT blank 0            = 0x0
+  [ok]   [NVM] the backend accepted the window load (PP_NVM_STAT[2] 1, [11] 0) = 0x1
+  [ok]   [NVM] ...and holds it valid (PP_NVM_STAT[7])   = 0x1
+  [ok]   [MAPREC] first-record device error: the restore reached its terminal and the map restore ended = 0x1
+  [i]    first-record device error: the map restore held the faces 127 clocks after restore_done, 3177 after PP_CTRL[1]
+  [i]    first-record device error: SPI 0: status 0, 8 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0 s0.c4->o4.c0 s0.c5->o5.c0 s0.c6->o6.c0 s0.c7->o7.c0
+  [ok]   [MAPREC] first-record device error: SPI 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] first-record device error: SPI 0: number_of_mappings = 0x8
+  [ok]   [MAPREC] first-record device error: SPI 0: the mappings are the expected list = 0x1
+  [i]    first-record device error: SPO 0: status 0, 8 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0 s0.c4->o4.c0 s0.c5->o5.c0 s0.c6->o6.c0 s0.c7->o7.c0
+  [ok]   [MAPREC] first-record device error: SPO 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] first-record device error: SPO 0: number_of_mappings = 0x8
+  [ok]   [MAPREC] first-record device error: SPO 0: the mappings are the expected list = 0x1
+  [ok]   [MAPREC] first-record device error: render RAM keys 2..9 hold the input list = 0x0
+  [ok]   [MAPREC] first-record device error: capture RAM keys 0..7 hold the output list = 0x0
+  [i]    first-record device error: PP_STAT 5b00040c
+  [ok]   [MAPREC] first-record device error: PP_STAT done 1, busy 0 = 0x1
+  [ok]   [MAPREC] first-record device error: PP_STAT fail 1 = 0x1
+  [ok]   [MAPREC] first-record device error: PP_STAT blank 0 = 0x0
+  [ok]   [NVM] the backend accepted the window load (PP_NVM_STAT[2] 1, [11] 0) = 0x1
+  [ok]   [NVM] ...and holds it valid (PP_NVM_STAT[7])   = 0x1
+  [ok]   [MAPREC] D3 roll-back: the restore reached its terminal and the map restore ended = 0x1
+  [i]    D3 roll-back: the map restore held the faces 4 clocks after restore_done, 3054 after PP_CTRL[1]
+  [i]    D3 roll-back: SPI 0: status 0, 8 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0 s0.c4->o4.c0 s0.c5->o5.c0 s0.c6->o6.c0 s0.c7->o7.c0
+  [ok]   [MAPREC] D3 roll-back: SPI 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] D3 roll-back: SPI 0: number_of_mappings = 0x8
+  [ok]   [MAPREC] D3 roll-back: SPI 0: the mappings are the expected list = 0x1
+  [i]    D3 roll-back: SPO 0: status 0, 8 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0 s0.c4->o4.c0 s0.c5->o5.c0 s0.c6->o6.c0 s0.c7->o7.c0
+  [ok]   [MAPREC] D3 roll-back: SPO 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] D3 roll-back: SPO 0: number_of_mappings = 0x8
+  [ok]   [MAPREC] D3 roll-back: SPO 0: the mappings are the expected list = 0x1
+  [ok]   [MAPREC] D3 roll-back: render RAM keys 2..9 hold the input list = 0x0
+  [ok]   [MAPREC] D3 roll-back: capture RAM keys 0..7 hold the output list = 0x0
+  [ok]   [NVM] the backend accepted the window load (PP_NVM_STAT[2] 1, [11] 0) = 0x1
+  [ok]   [NVM] ...and holds it valid (PP_NVM_STAT[7])   = 0x1
+  [ok]   [MAPREC] held GET: the entity enable waits for the map restore = 0x1
+  [ok]   [MAPREC] held GET: it reached the read face inside the map restore = 0x1
+  [ok]   [MAPREC] held GET: answered SUCCESS            = 0x0
+  [ok]   [MAPREC] held GET: answered with the restored list = 0x1
+  [ok]   [NVM] the backend accepted the window load (PP_NVM_STAT[2] 1, [11] 0) = 0x1
+  [ok]   [NVM] ...and holds it valid (PP_NVM_STAT[7])   = 0x1
+  [ok]   [MAPREC] held SET_STREAM_FORMAT: its judge was asked inside the map restore = 0x1
+  [ok]   [MAPREC] held SET_STREAM_FORMAT: ...while the input port held no mapping the format orphans = 0x1
+  [ok]   [MAPREC] held SET_STREAM_FORMAT: BAD_ARGUMENTS against the restored list = 0x7
+  [ok]   [MAPREC] held SET_STREAM_FORMAT: STREAM_INPUT 0 still reads 8 channels = 0x8
+  [i]    held SET_STREAM_FORMAT: SPI 0: status 0, 3 mapping(s) s0.c6->o0.c0 s0.c0->o3.c0 s0.c1->o5.c0
+  [ok]   [MAPREC] held SET_STREAM_FORMAT: SPI 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] held SET_STREAM_FORMAT: SPI 0: number_of_mappings = 0x3
+  [ok]   [MAPREC] held SET_STREAM_FORMAT: SPI 0: the mappings are the expected list = 0x1
+  [ok]   [NVM] the backend accepted the window load (PP_NVM_STAT[2] 1, [11] 0) = 0x1
+  [ok]   [NVM] ...and holds it valid (PP_NVM_STAT[7])   = 0x1
+  [ok]   [MAPREC] taint: the restore reached its terminal and the map restore ended = 0x1
+  [i]    taint: the map restore held the faces 650 clocks after restore_done, 3700 after PP_CTRL[1]
+  [ok]   [MAPREC] taint: REMOVE the first SPI 0 mapping SUCCESS = 0x0
+  [ok]   [MAPREC] taint: REMOVE the second while the record is written SUCCESS = 0x0
+  [ok]   [MAPREC] taint: the second change landed after the latch = 0x1
+  [ok]   [MAPREC] taint: the codec frames both records  = 0x1
+  [ok]   [MAPREC] taint: the window ends on the final list = 0x1
+  [ok]   [NVM] the backend accepted the window load (PP_NVM_STAT[2] 1, [11] 0) = 0x1
+  [ok]   [NVM] ...and holds it valid (PP_NVM_STAT[7])   = 0x1
+  [ok]   [MAPREC] taint: the restore reached its terminal and the map restore ended = 0x1
+  [i]    taint: the map restore held the faces 646 clocks after restore_done, 3696 after PP_CTRL[1]
+  [i]    taint, after the power cycle: SPI 0: status 0, 1 mapping(s) s0.c1->o5.c0
+  [ok]   [MAPREC] taint, after the power cycle: SPI 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] taint, after the power cycle: SPI 0: number_of_mappings = 0x1
+  [ok]   [MAPREC] taint, after the power cycle: SPI 0: the mappings are the expected list = 0x1
+  [i]    taint, after the power cycle: SPO 0: status 0, 2 mapping(s) s0.c0->o7.c0 s0.c4->o2.c0
+  [ok]   [MAPREC] taint, after the power cycle: SPO 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] taint, after the power cycle: SPO 0: number_of_mappings = 0x2
+  [ok]   [MAPREC] taint, after the power cycle: SPO 0: the mappings are the expected list = 0x1
+  [ok]   [MAPREC] taint, after the power cycle: render RAM keys 2..9 hold the input list = 0x0
+  [ok]   [MAPREC] taint, after the power cycle: capture RAM keys 0..7 hold the output list = 0x0
+  [ok]   [NVM] the backend accepted the window load (PP_NVM_STAT[2] 1, [11] 0) = 0x1
+  [ok]   [NVM] ...and holds it valid (PP_NVM_STAT[7])   = 0x1
+  [ok]   [MAPREC] shared face: the restore reached its terminal and the map restore ended = 0x1
+  [i]    shared face: the map restore held the faces 650 clocks after restore_done, 3700 after PP_CTRL[1]
+  [ok]   [MAPREC] shared face: the codec frames the three records = 0x1
+  [ok]   [MAPREC] shared face: SET_NAME of the entity SUCCESS = 0x0
+  [ok]   [MAPREC] shared face: the processor's commit of the name began = 0x1
+  [ok]   [MAPREC] shared face: REMOVE one SPI 0 mapping SUCCESS = 0x0
+  [ok]   [MAPREC] shared face: the map writer asked while the processor's command held the device = 0x1
+  [ok]   [MAPREC] shared face: both writers' records are in the window = 0x1
+  [ok]   [NVM] the backend accepted the window load (PP_NVM_STAT[2] 1, [11] 0) = 0x1
+  [ok]   [NVM] ...and holds it valid (PP_NVM_STAT[7])   = 0x1
+  [ok]   [MAPREC] failing writes: the restore reached its terminal and the map restore ended = 0x1
+  [i]    failing writes: the map restore held the faces 650 clocks after restore_done, 3700 after PP_CTRL[1]
+  [ok]   [MAPREC] failing writes: REMOVE one SPI 0 mapping SUCCESS = 0x0
+  [i]    failing writes: 3 attempt(s) at clocks 51378793 51428892 51478992, PP_STAT 5b000c14
+  [ok]   [MAPREC] failing writes: three attempts, then no more = 0x3
+  [ok]   [MAPREC] failing writes: the attempts are at least 500 ms apart = 0x1
+  [ok]   [MAPREC] failing writes: PP_STAT[4], the alarm, is raised = 0x1
+  [ok]   [MAPREC] failing writes: the writer gives the record up = 0x0
+  [ok]   [MAPREC] failing writes: nvm_backed is revoked (PP_STAT[6]) = 0x0
+  [ok]   [NVM] the backend accepted the window load (PP_NVM_STAT[2] 1, [11] 0) = 0x1
+  [ok]   [NVM] ...and holds it valid (PP_NVM_STAT[7])   = 0x1
+  [ok]   [MAPREC] slow memory: the restore reached its terminal and the map restore ended = 0x1
+  [i]    slow memory: the map restore held the faces 23992 clocks after restore_done, 30042 after PP_CTRL[1]
+  [ok]   [MAPREC] slow memory: the walk ends at its aggregate bound = 0x1
+  [i]    slow memory: SPI 0: status 0, 8 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0 s0.c4->o4.c0 s0.c5->o5.c0 s0.c6->o6.c0 s0.c7->o7.c0
+  [ok]   [MAPREC] slow memory: SPI 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] slow memory: SPI 0: number_of_mappings = 0x8
+  [ok]   [MAPREC] slow memory: SPI 0: the mappings are the expected list = 0x1
+  [i]    slow memory: SPO 0: status 0, 8 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0 s0.c4->o4.c0 s0.c5->o5.c0 s0.c6->o6.c0 s0.c7->o7.c0
+  [ok]   [MAPREC] slow memory: SPO 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] slow memory: SPO 0: number_of_mappings = 0x8
+  [ok]   [MAPREC] slow memory: SPO 0: the mappings are the expected list = 0x1
+  [ok]   [MAPREC] slow memory: render RAM keys 2..9 hold the input list = 0x0
+  [ok]   [MAPREC] slow memory: capture RAM keys 0..7 hold the output list = 0x0
+  [i]    slow memory: PP_STAT 5b00040c
+  [ok]   [MAPREC] slow memory: PP_STAT done 1, busy 0   = 0x1
+  [ok]   [MAPREC] slow memory: PP_STAT fail 1           = 0x1
+  [ok]   [MAPREC] slow memory: PP_STAT blank 0          = 0x0
+  [ok]   [NVM] the backend accepted the window load (PP_NVM_STAT[2] 1, [11] 0) = 0x1
+  [ok]   [NVM] ...and holds it valid (PP_NVM_STAT[7])   = 0x1
+  [ok]   [MAPREC] silent memory: the restore reached its terminal and the map restore ended = 0x1
+  [i]    silent memory: the map restore held the faces 2392 clocks after restore_done, 5442 after PP_CTRL[1]
+  [ok]   [MAPREC] silent memory: the walk ends at its per-wait deadline = 0x1
+  [i]    silent memory: SPI 0: status 0, 8 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0 s0.c4->o4.c0 s0.c5->o5.c0 s0.c6->o6.c0 s0.c7->o7.c0
+  [ok]   [MAPREC] silent memory: SPI 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] silent memory: SPI 0: number_of_mappings = 0x8
+  [ok]   [MAPREC] silent memory: SPI 0: the mappings are the expected list = 0x1
+  [i]    silent memory: SPO 0: status 0, 8 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0 s0.c4->o4.c0 s0.c5->o5.c0 s0.c6->o6.c0 s0.c7->o7.c0
+  [ok]   [MAPREC] silent memory: SPO 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] silent memory: SPO 0: number_of_mappings = 0x8
+  [ok]   [MAPREC] silent memory: SPO 0: the mappings are the expected list = 0x1
+  [ok]   [MAPREC] silent memory: render RAM keys 2..9 hold the input list = 0x0
+  [ok]   [MAPREC] silent memory: capture RAM keys 0..7 hold the output list = 0x0
+  [i]    silent memory: PP_STAT 5b00040c
+  [ok]   [MAPREC] silent memory: PP_STAT done 1, busy 0 = 0x1
+  [ok]   [MAPREC] silent memory: PP_STAT fail 1         = 0x1
+  [ok]   [MAPREC] silent memory: PP_STAT blank 0        = 0x0
+  [ok]   [MAPREC] silent memory, late answer: REMOVE one SPI 0 mapping SUCCESS = 0x0
+  [ok]   [MAPREC] silent memory, late answer: a later change reaches the window = 0x1
+  [ok]   [MAPREC] hole, input: the codec frames the records = 0x1
+  [ok]   [NVM] the backend accepted the window load (PP_NVM_STAT[2] 1, [11] 0) = 0x1
+  [ok]   [NVM] ...and holds it valid (PP_NVM_STAT[7])   = 0x1
+  [ok]   [MAPREC] hole, input: the restore reached its terminal and the map restore ended = 0x1
+  [i]    hole, input: the map restore held the faces 660 clocks after restore_done, 3710 after PP_CTRL[1]
+  [i]    hole, input: SPI 0: status 0, 8 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0 s0.c4->o4.c0 s0.c5->o5.c0 s0.c6->o6.c0 s0.c7->o7.c0
+  [ok]   [MAPREC] hole, input: SPI 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] hole, input: SPI 0: number_of_mappings = 0x8
+  [ok]   [MAPREC] hole, input: SPI 0: the mappings are the expected list = 0x1
+  [i]    hole, input: SPO 0: status 0, 2 mapping(s) s0.c0->o7.c0 s0.c4->o2.c0
+  [ok]   [MAPREC] hole, input: SPO 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] hole, input: SPO 0: number_of_mappings = 0x2
+  [ok]   [MAPREC] hole, input: SPO 0: the mappings are the expected list = 0x1
+  [ok]   [MAPREC] hole, input: render RAM keys 2..9 hold the input list = 0x0
+  [ok]   [MAPREC] hole, input: capture RAM keys 0..7 hold the output list = 0x0
+  [i]    hole, input: PP_STAT 5b000404
+  [ok]   [MAPREC] hole, input: PP_STAT done 1, busy 0   = 0x1
+  [ok]   [MAPREC] hole, input: PP_STAT fail 0           = 0x0
+  [ok]   [MAPREC] hole, input: PP_STAT blank 0          = 0x0
+  [ok]   [MAPREC] hole, output: the codec frames the records = 0x1
+  [ok]   [NVM] the backend accepted the window load (PP_NVM_STAT[2] 1, [11] 0) = 0x1
+  [ok]   [NVM] ...and holds it valid (PP_NVM_STAT[7])   = 0x1
+  [ok]   [MAPREC] hole, output: the restore reached its terminal and the map restore ended = 0x1
+  [i]    hole, output: the map restore held the faces 662 clocks after restore_done, 3712 after PP_CTRL[1]
+  [i]    hole, output: SPI 0: status 0, 3 mapping(s) s0.c6->o0.c0 s0.c0->o3.c0 s0.c1->o5.c0
+  [ok]   [MAPREC] hole, output: SPI 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] hole, output: SPI 0: number_of_mappings = 0x3
+  [ok]   [MAPREC] hole, output: SPI 0: the mappings are the expected list = 0x1
+  [i]    hole, output: SPO 0: status 0, 8 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0 s0.c4->o4.c0 s0.c5->o5.c0 s0.c6->o6.c0 s0.c7->o7.c0
+  [ok]   [MAPREC] hole, output: SPO 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] hole, output: SPO 0: number_of_mappings = 0x8
+  [ok]   [MAPREC] hole, output: SPO 0: the mappings are the expected list = 0x1
+  [ok]   [MAPREC] hole, output: render RAM keys 2..9 hold the input list = 0x0
+  [ok]   [MAPREC] hole, output: capture RAM keys 0..7 hold the output list = 0x0
+  [i]    hole, output: PP_STAT 5b000404
+  [ok]   [MAPREC] hole, output: PP_STAT done 1, busy 0  = 0x1
+  [ok]   [MAPREC] hole, output: PP_STAT fail 0          = 0x0
+  [ok]   [MAPREC] hole, output: PP_STAT blank 0         = 0x0
+  [ok]   [MAPREC] range, input stream channel: the codec frames the records = 0x1
+  [ok]   [NVM] the backend accepted the window load (PP_NVM_STAT[2] 1, [11] 0) = 0x1
+  [ok]   [NVM] ...and holds it valid (PP_NVM_STAT[7])   = 0x1
+  [ok]   [MAPREC] range, input stream channel: the restore reached its terminal and the map restore ended = 0x1
+  [i]    range, input stream channel: the map restore held the faces 660 clocks after restore_done, 3710 after PP_CTRL[1]
+  [i]    range, input stream channel: SPI 0: status 0, 8 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0 s0.c4->o4.c0 s0.c5->o5.c0 s0.c6->o6.c0 s0.c7->o7.c0
+  [ok]   [MAPREC] range, input stream channel: SPI 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] range, input stream channel: SPI 0: number_of_mappings = 0x8
+  [ok]   [MAPREC] range, input stream channel: SPI 0: the mappings are the expected list = 0x1
+  [i]    range, input stream channel: SPO 0: status 0, 2 mapping(s) s0.c0->o7.c0 s0.c4->o2.c0
+  [ok]   [MAPREC] range, input stream channel: SPO 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] range, input stream channel: SPO 0: number_of_mappings = 0x2
+  [ok]   [MAPREC] range, input stream channel: SPO 0: the mappings are the expected list = 0x1
+  [ok]   [MAPREC] range, input stream channel: render RAM keys 2..9 hold the input list = 0x0
+  [ok]   [MAPREC] range, input stream channel: capture RAM keys 0..7 hold the output list = 0x0
+  [i]    range, input stream channel: PP_STAT 5b000404
+  [ok]   [MAPREC] range, input stream channel: PP_STAT done 1, busy 0 = 0x1
+  [ok]   [MAPREC] range, input stream channel: PP_STAT fail 0 = 0x0
+  [ok]   [MAPREC] range, input stream channel: PP_STAT blank 0 = 0x0
+  [ok]   [MAPREC] range, input cluster: the codec frames the records = 0x1
+  [ok]   [NVM] the backend accepted the window load (PP_NVM_STAT[2] 1, [11] 0) = 0x1
+  [ok]   [NVM] ...and holds it valid (PP_NVM_STAT[7])   = 0x1
+  [ok]   [MAPREC] range, input cluster: the restore reached its terminal and the map restore ended = 0x1
+  [i]    range, input cluster: the map restore held the faces 660 clocks after restore_done, 3710 after PP_CTRL[1]
+  [i]    range, input cluster: SPI 0: status 0, 8 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0 s0.c4->o4.c0 s0.c5->o5.c0 s0.c6->o6.c0 s0.c7->o7.c0
+  [ok]   [MAPREC] range, input cluster: SPI 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] range, input cluster: SPI 0: number_of_mappings = 0x8
+  [ok]   [MAPREC] range, input cluster: SPI 0: the mappings are the expected list = 0x1
+  [i]    range, input cluster: SPO 0: status 0, 2 mapping(s) s0.c0->o7.c0 s0.c4->o2.c0
+  [ok]   [MAPREC] range, input cluster: SPO 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] range, input cluster: SPO 0: number_of_mappings = 0x2
+  [ok]   [MAPREC] range, input cluster: SPO 0: the mappings are the expected list = 0x1
+  [ok]   [MAPREC] range, input cluster: render RAM keys 2..9 hold the input list = 0x0
+  [ok]   [MAPREC] range, input cluster: capture RAM keys 0..7 hold the output list = 0x0
+  [i]    range, input cluster: PP_STAT 5b000404
+  [ok]   [MAPREC] range, input cluster: PP_STAT done 1, busy 0 = 0x1
+  [ok]   [MAPREC] range, input cluster: PP_STAT fail 0  = 0x0
+  [ok]   [MAPREC] range, input cluster: PP_STAT blank 0 = 0x0
+  [ok]   [MAPREC] range, output stream: the codec frames the records = 0x1
+  [ok]   [NVM] the backend accepted the window load (PP_NVM_STAT[2] 1, [11] 0) = 0x1
+  [ok]   [NVM] ...and holds it valid (PP_NVM_STAT[7])   = 0x1
+  [ok]   [MAPREC] range, output stream: the restore reached its terminal and the map restore ended = 0x1
+  [i]    range, output stream: the map restore held the faces 662 clocks after restore_done, 3712 after PP_CTRL[1]
+  [i]    range, output stream: SPI 0: status 0, 3 mapping(s) s0.c6->o0.c0 s0.c0->o3.c0 s0.c1->o5.c0
+  [ok]   [MAPREC] range, output stream: SPI 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] range, output stream: SPI 0: number_of_mappings = 0x3
+  [ok]   [MAPREC] range, output stream: SPI 0: the mappings are the expected list = 0x1
+  [i]    range, output stream: SPO 0: status 0, 8 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0 s0.c4->o4.c0 s0.c5->o5.c0 s0.c6->o6.c0 s0.c7->o7.c0
+  [ok]   [MAPREC] range, output stream: SPO 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] range, output stream: SPO 0: number_of_mappings = 0x8
+  [ok]   [MAPREC] range, output stream: SPO 0: the mappings are the expected list = 0x1
+  [ok]   [MAPREC] range, output stream: render RAM keys 2..9 hold the input list = 0x0
+  [ok]   [MAPREC] range, output stream: capture RAM keys 0..7 hold the output list = 0x0
+  [i]    range, output stream: PP_STAT 5b000404
+  [ok]   [MAPREC] range, output stream: PP_STAT done 1, busy 0 = 0x1
+  [ok]   [MAPREC] range, output stream: PP_STAT fail 0  = 0x0
+  [ok]   [MAPREC] range, output stream: PP_STAT blank 0 = 0x0
+  [ok]   [MAPREC] range, output cluster: the codec frames the records = 0x1
+  [ok]   [NVM] the backend accepted the window load (PP_NVM_STAT[2] 1, [11] 0) = 0x1
+  [ok]   [NVM] ...and holds it valid (PP_NVM_STAT[7])   = 0x1
+  [ok]   [MAPREC] range, output cluster: the restore reached its terminal and the map restore ended = 0x1
+  [i]    range, output cluster: the map restore held the faces 662 clocks after restore_done, 3712 after PP_CTRL[1]
+  [i]    range, output cluster: SPI 0: status 0, 3 mapping(s) s0.c6->o0.c0 s0.c0->o3.c0 s0.c1->o5.c0
+  [ok]   [MAPREC] range, output cluster: SPI 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] range, output cluster: SPI 0: number_of_mappings = 0x3
+  [ok]   [MAPREC] range, output cluster: SPI 0: the mappings are the expected list = 0x1
+  [i]    range, output cluster: SPO 0: status 0, 8 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0 s0.c4->o4.c0 s0.c5->o5.c0 s0.c6->o6.c0 s0.c7->o7.c0
+  [ok]   [MAPREC] range, output cluster: SPO 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] range, output cluster: SPO 0: number_of_mappings = 0x8
+  [ok]   [MAPREC] range, output cluster: SPO 0: the mappings are the expected list = 0x1
+  [ok]   [MAPREC] range, output cluster: render RAM keys 2..9 hold the input list = 0x0
+  [ok]   [MAPREC] range, output cluster: capture RAM keys 0..7 hold the output list = 0x0
+  [i]    range, output cluster: PP_STAT 5b000404
+  [ok]   [MAPREC] range, output cluster: PP_STAT done 1, busy 0 = 0x1
+  [ok]   [MAPREC] range, output cluster: PP_STAT fail 0 = 0x0
+  [ok]   [MAPREC] range, output cluster: PP_STAT blank 0 = 0x0
+  [ok]   [MAPREC] conflicting keys, input: the codec frames the records = 0x1
+  [ok]   [NVM] the backend accepted the window load (PP_NVM_STAT[2] 1, [11] 0) = 0x1
+  [ok]   [NVM] ...and holds it valid (PP_NVM_STAT[7])   = 0x1
+  [ok]   [MAPREC] conflicting keys, input: the restore reached its terminal and the map restore ended = 0x1
+  [i]    conflicting keys, input: the map restore held the faces 660 clocks after restore_done, 3710 after PP_CTRL[1]
+  [i]    conflicting keys, input: SPI 0: status 0, 8 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0 s0.c4->o4.c0 s0.c5->o5.c0 s0.c6->o6.c0 s0.c7->o7.c0
+  [ok]   [MAPREC] conflicting keys, input: SPI 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] conflicting keys, input: SPI 0: number_of_mappings = 0x8
+  [ok]   [MAPREC] conflicting keys, input: SPI 0: the mappings are the expected list = 0x1
+  [i]    conflicting keys, input: SPO 0: status 0, 2 mapping(s) s0.c0->o7.c0 s0.c4->o2.c0
+  [ok]   [MAPREC] conflicting keys, input: SPO 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] conflicting keys, input: SPO 0: number_of_mappings = 0x2
+  [ok]   [MAPREC] conflicting keys, input: SPO 0: the mappings are the expected list = 0x1
+  [ok]   [MAPREC] conflicting keys, input: render RAM keys 2..9 hold the input list = 0x0
+  [ok]   [MAPREC] conflicting keys, input: capture RAM keys 0..7 hold the output list = 0x0
+  [i]    conflicting keys, input: PP_STAT 5b000404
+  [ok]   [MAPREC] conflicting keys, input: PP_STAT done 1, busy 0 = 0x1
+  [ok]   [MAPREC] conflicting keys, input: PP_STAT fail 0 = 0x0
+  [ok]   [MAPREC] conflicting keys, input: PP_STAT blank 0 = 0x0
+  [ok]   [MAPREC] conflicting keys, output: the codec frames the records = 0x1
+  [ok]   [NVM] the backend accepted the window load (PP_NVM_STAT[2] 1, [11] 0) = 0x1
+  [ok]   [NVM] ...and holds it valid (PP_NVM_STAT[7])   = 0x1
+  [ok]   [MAPREC] conflicting keys, output: the restore reached its terminal and the map restore ended = 0x1
+  [i]    conflicting keys, output: the map restore held the faces 662 clocks after restore_done, 3712 after PP_CTRL[1]
+  [i]    conflicting keys, output: SPI 0: status 0, 3 mapping(s) s0.c6->o0.c0 s0.c0->o3.c0 s0.c1->o5.c0
+  [ok]   [MAPREC] conflicting keys, output: SPI 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] conflicting keys, output: SPI 0: number_of_mappings = 0x3
+  [ok]   [MAPREC] conflicting keys, output: SPI 0: the mappings are the expected list = 0x1
+  [i]    conflicting keys, output: SPO 0: status 0, 8 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0 s0.c4->o4.c0 s0.c5->o5.c0 s0.c6->o6.c0 s0.c7->o7.c0
+  [ok]   [MAPREC] conflicting keys, output: SPO 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] conflicting keys, output: SPO 0: number_of_mappings = 0x8
+  [ok]   [MAPREC] conflicting keys, output: SPO 0: the mappings are the expected list = 0x1
+  [ok]   [MAPREC] conflicting keys, output: render RAM keys 2..9 hold the input list = 0x0
+  [ok]   [MAPREC] conflicting keys, output: capture RAM keys 0..7 hold the output list = 0x0
+  [i]    conflicting keys, output: PP_STAT 5b000404
+  [ok]   [MAPREC] conflicting keys, output: PP_STAT done 1, busy 0 = 0x1
+  [ok]   [MAPREC] conflicting keys, output: PP_STAT fail 0 = 0x0
+  [ok]   [MAPREC] conflicting keys, output: PP_STAT blank 0 = 0x0
+  [ok]   [MAPREC] wrong layout, input: the codec frames the records = 0x1
+  [ok]   [NVM] the backend accepted the window load (PP_NVM_STAT[2] 1, [11] 0) = 0x1
+  [ok]   [NVM] ...and holds it valid (PP_NVM_STAT[7])   = 0x1
+  [ok]   [MAPREC] wrong layout, input: the restore reached its terminal and the map restore ended = 0x1
+  [i]    wrong layout, input: the map restore held the faces 660 clocks after restore_done, 3710 after PP_CTRL[1]
+  [i]    wrong layout, input: SPI 0: status 0, 8 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0 s0.c4->o4.c0 s0.c5->o5.c0 s0.c6->o6.c0 s0.c7->o7.c0
+  [ok]   [MAPREC] wrong layout, input: SPI 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] wrong layout, input: SPI 0: number_of_mappings = 0x8
+  [ok]   [MAPREC] wrong layout, input: SPI 0: the mappings are the expected list = 0x1
+  [i]    wrong layout, input: SPO 0: status 0, 2 mapping(s) s0.c0->o7.c0 s0.c4->o2.c0
+  [ok]   [MAPREC] wrong layout, input: SPO 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] wrong layout, input: SPO 0: number_of_mappings = 0x2
+  [ok]   [MAPREC] wrong layout, input: SPO 0: the mappings are the expected list = 0x1
+  [ok]   [MAPREC] wrong layout, input: render RAM keys 2..9 hold the input list = 0x0
+  [ok]   [MAPREC] wrong layout, input: capture RAM keys 0..7 hold the output list = 0x0
+  [i]    wrong layout, input: PP_STAT 5b000404
+  [ok]   [MAPREC] wrong layout, input: PP_STAT done 1, busy 0 = 0x1
+  [ok]   [MAPREC] wrong layout, input: PP_STAT fail 0   = 0x0
+  [ok]   [MAPREC] wrong layout, input: PP_STAT blank 0  = 0x0
+  [ok]   [MAPREC] wrong layout, output: the codec frames the records = 0x1
+  [ok]   [NVM] the backend accepted the window load (PP_NVM_STAT[2] 1, [11] 0) = 0x1
+  [ok]   [NVM] ...and holds it valid (PP_NVM_STAT[7])   = 0x1
+  [ok]   [MAPREC] wrong layout, output: the restore reached its terminal and the map restore ended = 0x1
+  [i]    wrong layout, output: the map restore held the faces 662 clocks after restore_done, 3712 after PP_CTRL[1]
+  [i]    wrong layout, output: SPI 0: status 0, 3 mapping(s) s0.c6->o0.c0 s0.c0->o3.c0 s0.c1->o5.c0
+  [ok]   [MAPREC] wrong layout, output: SPI 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] wrong layout, output: SPI 0: number_of_mappings = 0x3
+  [ok]   [MAPREC] wrong layout, output: SPI 0: the mappings are the expected list = 0x1
+  [i]    wrong layout, output: SPO 0: status 0, 8 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0 s0.c4->o4.c0 s0.c5->o5.c0 s0.c6->o6.c0 s0.c7->o7.c0
+  [ok]   [MAPREC] wrong layout, output: SPO 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] wrong layout, output: SPO 0: number_of_mappings = 0x8
+  [ok]   [MAPREC] wrong layout, output: SPO 0: the mappings are the expected list = 0x1
+  [ok]   [MAPREC] wrong layout, output: render RAM keys 2..9 hold the input list = 0x0
+  [ok]   [MAPREC] wrong layout, output: capture RAM keys 0..7 hold the output list = 0x0
+  [i]    wrong layout, output: PP_STAT 5b000404
+  [ok]   [MAPREC] wrong layout, output: PP_STAT done 1, busy 0 = 0x1
+  [ok]   [MAPREC] wrong layout, output: PP_STAT fail 0  = 0x0
+  [ok]   [MAPREC] wrong layout, output: PP_STAT blank 0 = 0x0
+  [ok]   [MAPREC] wrong id, input: the codec frames the records = 0x1
+  [ok]   [NVM] the backend accepted the window load (PP_NVM_STAT[2] 1, [11] 0) = 0x1
+  [ok]   [NVM] ...and holds it valid (PP_NVM_STAT[7])   = 0x1
+  [ok]   [MAPREC] wrong id, input: the restore reached its terminal and the map restore ended = 0x1
+  [i]    wrong id, input: the map restore held the faces 660 clocks after restore_done, 3710 after PP_CTRL[1]
+  [i]    wrong id, input: SPI 0: status 0, 8 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0 s0.c4->o4.c0 s0.c5->o5.c0 s0.c6->o6.c0 s0.c7->o7.c0
+  [ok]   [MAPREC] wrong id, input: SPI 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] wrong id, input: SPI 0: number_of_mappings = 0x8
+  [ok]   [MAPREC] wrong id, input: SPI 0: the mappings are the expected list = 0x1
+  [i]    wrong id, input: SPO 0: status 0, 2 mapping(s) s0.c0->o7.c0 s0.c4->o2.c0
+  [ok]   [MAPREC] wrong id, input: SPO 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] wrong id, input: SPO 0: number_of_mappings = 0x2
+  [ok]   [MAPREC] wrong id, input: SPO 0: the mappings are the expected list = 0x1
+  [ok]   [MAPREC] wrong id, input: render RAM keys 2..9 hold the input list = 0x0
+  [ok]   [MAPREC] wrong id, input: capture RAM keys 0..7 hold the output list = 0x0
+  [i]    wrong id, input: PP_STAT 5b000404
+  [ok]   [MAPREC] wrong id, input: PP_STAT done 1, busy 0 = 0x1
+  [ok]   [MAPREC] wrong id, input: PP_STAT fail 0       = 0x0
+  [ok]   [MAPREC] wrong id, input: PP_STAT blank 0      = 0x0
+  [ok]   [MAPREC] wrong id, output: the codec frames the records = 0x1
+  [ok]   [NVM] the backend accepted the window load (PP_NVM_STAT[2] 1, [11] 0) = 0x1
+  [ok]   [NVM] ...and holds it valid (PP_NVM_STAT[7])   = 0x1
+  [ok]   [MAPREC] wrong id, output: the restore reached its terminal and the map restore ended = 0x1
+  [i]    wrong id, output: the map restore held the faces 662 clocks after restore_done, 3712 after PP_CTRL[1]
+  [i]    wrong id, output: SPI 0: status 0, 3 mapping(s) s0.c6->o0.c0 s0.c0->o3.c0 s0.c1->o5.c0
+  [ok]   [MAPREC] wrong id, output: SPI 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] wrong id, output: SPI 0: number_of_mappings = 0x3
+  [ok]   [MAPREC] wrong id, output: SPI 0: the mappings are the expected list = 0x1
+  [i]    wrong id, output: SPO 0: status 0, 8 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0 s0.c4->o4.c0 s0.c5->o5.c0 s0.c6->o6.c0 s0.c7->o7.c0
+  [ok]   [MAPREC] wrong id, output: SPO 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] wrong id, output: SPO 0: number_of_mappings = 0x8
+  [ok]   [MAPREC] wrong id, output: SPO 0: the mappings are the expected list = 0x1
+  [ok]   [MAPREC] wrong id, output: render RAM keys 2..9 hold the input list = 0x0
+  [ok]   [MAPREC] wrong id, output: capture RAM keys 0..7 hold the output list = 0x0
+  [i]    wrong id, output: PP_STAT 5b000404
+  [ok]   [MAPREC] wrong id, output: PP_STAT done 1, busy 0 = 0x1
+  [ok]   [MAPREC] wrong id, output: PP_STAT fail 0      = 0x0
+  [ok]   [MAPREC] wrong id, output: PP_STAT blank 0     = 0x0
+  [ok]   [MAPREC] legal maximum: the codec frames the records = 0x1
+  [ok]   [NVM] the backend accepted the window load (PP_NVM_STAT[2] 1, [11] 0) = 0x1
+  [ok]   [NVM] ...and holds it valid (PP_NVM_STAT[7])   = 0x1
+  [ok]   [MAPREC] legal maximum: the restore reached its terminal and the map restore ended = 0x1
+  [i]    legal maximum: the map restore held the faces 672 clocks after restore_done, 3722 after PP_CTRL[1]
+  [i]    legal maximum: SPI 0: status 0, 8 mapping(s) s0.c7->o0.c0 s0.c6->o1.c0 s0.c5->o2.c0 s0.c4->o3.c0 s0.c3->o4.c0 s0.c2->o5.c0 s0.c1->o6.c0 s0.c0->o7.c0
+  [ok]   [MAPREC] legal maximum: SPI 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] legal maximum: SPI 0: number_of_mappings = 0x8
+  [ok]   [MAPREC] legal maximum: SPI 0: the mappings are the expected list = 0x1
+  [i]    legal maximum: SPO 0: status 0, 8 mapping(s) s0.c0->o7.c0 s0.c1->o6.c0 s0.c2->o5.c0 s0.c3->o4.c0 s0.c4->o3.c0 s0.c5->o2.c0 s0.c6->o1.c0 s0.c7->o0.c0
+  [ok]   [MAPREC] legal maximum: SPO 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] legal maximum: SPO 0: number_of_mappings = 0x8
+  [ok]   [MAPREC] legal maximum: SPO 0: the mappings are the expected list = 0x1
+  [ok]   [MAPREC] legal maximum: render RAM keys 2..9 hold the input list = 0x0
+  [ok]   [MAPREC] legal maximum: capture RAM keys 0..7 hold the output list = 0x0
+  [i]    legal maximum: PP_STAT 5b000404
+  [ok]   [MAPREC] legal maximum: PP_STAT done 1, busy 0 = 0x1
+  [ok]   [MAPREC] legal maximum: PP_STAT fail 0         = 0x0
+  [ok]   [MAPREC] legal maximum: PP_STAT blank 0        = 0x0
+  [ok]   [MAPREC] put-back: the codec frames the records = 0x1
+  [ok]   [NVM] the backend accepted the window load (PP_NVM_STAT[2] 1, [11] 0) = 0x1
+  [ok]   [NVM] ...and holds it valid (PP_NVM_STAT[7])   = 0x1
+  [ok]   [MAPREC] put-back: the restore reached its terminal and the map restore ended = 0x1
+  [i]    put-back: the map restore held the faces 658 clocks after restore_done, 3768 after PP_CTRL[1]
+  [i]    put-back: SPI 0: status 0, 4 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0
+  [ok]   [MAPREC] put-back: SPI 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] put-back: SPI 0: number_of_mappings   = 0x4
+  [ok]   [MAPREC] put-back: SPI 0: the mappings are the expected list = 0x1
+  [i]    put-back: SPO 0: status 0, 2 mapping(s) s0.c0->o7.c0 s0.c4->o2.c0
+  [ok]   [MAPREC] put-back: SPO 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] put-back: SPO 0: number_of_mappings   = 0x2
+  [ok]   [MAPREC] put-back: SPO 0: the mappings are the expected list = 0x1
+  [ok]   [MAPREC] put-back: render RAM keys 2..9 hold the input list = 0x0
+  [ok]   [MAPREC] put-back: capture RAM keys 0..7 hold the output list = 0x0
+  [i]    put-back: PP_STAT 5b000404
+  [ok]   [MAPREC] put-back: PP_STAT done 1, busy 0      = 0x1
+  [ok]   [MAPREC] put-back: PP_STAT fail 0              = 0x0
+  [ok]   [MAPREC] put-back: PP_STAT blank 0             = 0x0
+  [ok]   [MAPREC] D3 pass-0 abort: the codec frames the records = 0x1
+  [ok]   [MAPREC] D3 pass-0 abort: no map record shares a faulted lane = 0x1
+  [ok]   [NVM] the backend accepted the window load (PP_NVM_STAT[2] 1, [11] 0) = 0x1
+  [ok]   [NVM] ...and holds it valid (PP_NVM_STAT[7])   = 0x1
+  [ok]   [MAPREC] D3 pass-0 abort: the restore reached its terminal and the map restore ended = 0x1
+  [i]    D3 pass-0 abort: the map restore held the faces 4 clocks after restore_done, 833 after PP_CTRL[1]
+  [ok]   [MAPREC] D3 pass-0 abort: the D3 walk aborted (cause 2) and did not roll back = 0x1
+  [i]    D3 pass-0 abort: SPI 0: status 0, 8 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0 s0.c4->o4.c0 s0.c5->o5.c0 s0.c6->o6.c0 s0.c7->o7.c0
+  [ok]   [MAPREC] D3 pass-0 abort: SPI 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] D3 pass-0 abort: SPI 0: number_of_mappings = 0x8
+  [ok]   [MAPREC] D3 pass-0 abort: SPI 0: the mappings are the expected list = 0x1
+  [i]    D3 pass-0 abort: SPO 0: status 0, 8 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0 s0.c4->o4.c0 s0.c5->o5.c0 s0.c6->o6.c0 s0.c7->o7.c0
+  [ok]   [MAPREC] D3 pass-0 abort: SPO 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] D3 pass-0 abort: SPO 0: number_of_mappings = 0x8
+  [ok]   [MAPREC] D3 pass-0 abort: SPO 0: the mappings are the expected list = 0x1
+  [ok]   [MAPREC] D3 pass-0 abort: render RAM keys 2..9 hold the input list = 0x0
+  [ok]   [MAPREC] D3 pass-0 abort: capture RAM keys 0..7 hold the output list = 0x0
+  [i]    D3 pass-0 abort: PP_STAT 5b08040c
+  [ok]   [MAPREC] D3 pass-0 abort: PP_STAT done 1, busy 0 = 0x1
+  [ok]   [MAPREC] D3 pass-0 abort: PP_STAT fail 1       = 0x1
+  [ok]   [MAPREC] D3 pass-0 abort: PP_STAT blank 0      = 0x0
+  [ok]   [MAPREC] lone crc-bad input record: the codec frames the record = 0x1
+  [ok]   [NVM] the backend accepted the window load (PP_NVM_STAT[2] 1, [11] 0) = 0x1
+  [ok]   [NVM] ...and holds it valid (PP_NVM_STAT[7])   = 0x1
+  [ok]   [MAPREC] lone crc-bad input record: the restore reached its terminal and the map restore ended = 0x1
+  [i]    lone crc-bad input record: the map restore held the faces 672 clocks after restore_done, 3722 after PP_CTRL[1]
+  [i]    lone crc-bad input record: SPI 0: status 0, 8 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0 s0.c4->o4.c0 s0.c5->o5.c0 s0.c6->o6.c0 s0.c7->o7.c0
+  [ok]   [MAPREC] lone crc-bad input record: SPI 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] lone crc-bad input record: SPI 0: number_of_mappings = 0x8
+  [ok]   [MAPREC] lone crc-bad input record: SPI 0: the mappings are the expected list = 0x1
+  [i]    lone crc-bad input record: SPO 0: status 0, 8 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0 s0.c4->o4.c0 s0.c5->o5.c0 s0.c6->o6.c0 s0.c7->o7.c0
+  [ok]   [MAPREC] lone crc-bad input record: SPO 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] lone crc-bad input record: SPO 0: number_of_mappings = 0x8
+  [ok]   [MAPREC] lone crc-bad input record: SPO 0: the mappings are the expected list = 0x1
+  [ok]   [MAPREC] lone crc-bad input record: render RAM keys 2..9 hold the input list = 0x0
+  [ok]   [MAPREC] lone crc-bad input record: capture RAM keys 0..7 hold the output list = 0x0
+  [i]    lone crc-bad input record: PP_STAT 5b000484
+  [ok]   [MAPREC] lone crc-bad input record: PP_STAT done 1, busy 0 = 0x1
+  [ok]   [MAPREC] lone crc-bad input record: PP_STAT fail 0 = 0x0
+  [ok]   [MAPREC] lone crc-bad input record: PP_STAT blank 1 = 0x1
+  [ok]   [MAPREC] lone wrong-layout input record: the codec frames the record = 0x1
+  [ok]   [NVM] the backend accepted the window load (PP_NVM_STAT[2] 1, [11] 0) = 0x1
+  [ok]   [NVM] ...and holds it valid (PP_NVM_STAT[7])   = 0x1
+  [ok]   [MAPREC] lone wrong-layout input record: the restore reached its terminal and the map restore ended = 0x1
+  [i]    lone wrong-layout input record: the map restore held the faces 672 clocks after restore_done, 3722 after PP_CTRL[1]
+  [i]    lone wrong-layout input record: SPI 0: status 0, 8 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0 s0.c4->o4.c0 s0.c5->o5.c0 s0.c6->o6.c0 s0.c7->o7.c0
+  [ok]   [MAPREC] lone wrong-layout input record: SPI 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] lone wrong-layout input record: SPI 0: number_of_mappings = 0x8
+  [ok]   [MAPREC] lone wrong-layout input record: SPI 0: the mappings are the expected list = 0x1
+  [i]    lone wrong-layout input record: SPO 0: status 0, 8 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0 s0.c4->o4.c0 s0.c5->o5.c0 s0.c6->o6.c0 s0.c7->o7.c0
+  [ok]   [MAPREC] lone wrong-layout input record: SPO 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] lone wrong-layout input record: SPO 0: number_of_mappings = 0x8
+  [ok]   [MAPREC] lone wrong-layout input record: SPO 0: the mappings are the expected list = 0x1
+  [ok]   [MAPREC] lone wrong-layout input record: render RAM keys 2..9 hold the input list = 0x0
+  [ok]   [MAPREC] lone wrong-layout input record: capture RAM keys 0..7 hold the output list = 0x0
+  [i]    lone wrong-layout input record: PP_STAT 5b000484
+  [ok]   [MAPREC] lone wrong-layout input record: PP_STAT done 1, busy 0 = 0x1
+  [ok]   [MAPREC] lone wrong-layout input record: PP_STAT fail 0 = 0x0
+  [ok]   [MAPREC] lone wrong-layout input record: PP_STAT blank 1 = 0x1
+  [ok]   [MAPREC] lone wrong-id output record: the codec frames the record = 0x1
+  [ok]   [NVM] the backend accepted the window load (PP_NVM_STAT[2] 1, [11] 0) = 0x1
+  [ok]   [NVM] ...and holds it valid (PP_NVM_STAT[7])   = 0x1
+  [ok]   [MAPREC] lone wrong-id output record: the restore reached its terminal and the map restore ended = 0x1
+  [i]    lone wrong-id output record: the map restore held the faces 672 clocks after restore_done, 3722 after PP_CTRL[1]
+  [i]    lone wrong-id output record: SPI 0: status 0, 8 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0 s0.c4->o4.c0 s0.c5->o5.c0 s0.c6->o6.c0 s0.c7->o7.c0
+  [ok]   [MAPREC] lone wrong-id output record: SPI 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] lone wrong-id output record: SPI 0: number_of_mappings = 0x8
+  [ok]   [MAPREC] lone wrong-id output record: SPI 0: the mappings are the expected list = 0x1
+  [i]    lone wrong-id output record: SPO 0: status 0, 8 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0 s0.c4->o4.c0 s0.c5->o5.c0 s0.c6->o6.c0 s0.c7->o7.c0
+  [ok]   [MAPREC] lone wrong-id output record: SPO 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] lone wrong-id output record: SPO 0: number_of_mappings = 0x8
+  [ok]   [MAPREC] lone wrong-id output record: SPO 0: the mappings are the expected list = 0x1
+  [ok]   [MAPREC] lone wrong-id output record: render RAM keys 2..9 hold the input list = 0x0
+  [ok]   [MAPREC] lone wrong-id output record: capture RAM keys 0..7 hold the output list = 0x0
+  [i]    lone wrong-id output record: PP_STAT 5b000484
+  [ok]   [MAPREC] lone wrong-id output record: PP_STAT done 1, busy 0 = 0x1
+  [ok]   [MAPREC] lone wrong-id output record: PP_STAT fail 0 = 0x0
+  [ok]   [MAPREC] lone wrong-id output record: PP_STAT blank 1 = 0x1
+  [ok]   [MAPREC] lone wrong-magic output record: the codec frames the record = 0x1
+  [ok]   [NVM] the backend accepted the window load (PP_NVM_STAT[2] 1, [11] 0) = 0x1
+  [ok]   [NVM] ...and holds it valid (PP_NVM_STAT[7])   = 0x1
+  [ok]   [MAPREC] lone wrong-magic output record: the restore reached its terminal and the map restore ended = 0x1
+  [i]    lone wrong-magic output record: the map restore held the faces 672 clocks after restore_done, 3722 after PP_CTRL[1]
+  [i]    lone wrong-magic output record: SPI 0: status 0, 8 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0 s0.c4->o4.c0 s0.c5->o5.c0 s0.c6->o6.c0 s0.c7->o7.c0
+  [ok]   [MAPREC] lone wrong-magic output record: SPI 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] lone wrong-magic output record: SPI 0: number_of_mappings = 0x8
+  [ok]   [MAPREC] lone wrong-magic output record: SPI 0: the mappings are the expected list = 0x1
+  [i]    lone wrong-magic output record: SPO 0: status 0, 8 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0 s0.c4->o4.c0 s0.c5->o5.c0 s0.c6->o6.c0 s0.c7->o7.c0
+  [ok]   [MAPREC] lone wrong-magic output record: SPO 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] lone wrong-magic output record: SPO 0: number_of_mappings = 0x8
+  [ok]   [MAPREC] lone wrong-magic output record: SPO 0: the mappings are the expected list = 0x1
+  [ok]   [MAPREC] lone wrong-magic output record: render RAM keys 2..9 hold the input list = 0x0
+  [ok]   [MAPREC] lone wrong-magic output record: capture RAM keys 0..7 hold the output list = 0x0
+  [i]    lone wrong-magic output record: PP_STAT 5b000484
+  [ok]   [MAPREC] lone wrong-magic output record: PP_STAT done 1, busy 0 = 0x1
+  [ok]   [MAPREC] lone wrong-magic output record: PP_STAT fail 0 = 0x0
+  [ok]   [MAPREC] lone wrong-magic output record: PP_STAT blank 1 = 0x1
+  [ok]   [MAPREC] every page ran (vacuity guard)        = 0x3b
+-- [VOLATILE] #70: the lock, the registry and IDENTIFY across a planted power cycle --
+  [ok]   [NVM] the backend accepted the window load (PP_NVM_STAT[2] 1, [11] 0) = 0x1
+  [ok]   [NVM] ...and holds it valid (PP_NVM_STAT[7])   = 0x1
+  [ok]   [VOLATILE] a first boot over a window holding a saved entity name = 0x1
+  [ok]   [BOOT] PP_STAT the restore walk sequenced (done 1, CLOSED 0) = 0x4
+  [ok]   [VOLATILE] premise: the restore applied the saved entity name = 0x1
+  [ok]   [VOLATILE] premise: REGISTER_UNSOLICITED_NOTIFICATION from A is SUCCESS = 0x0
+  [ok]   [VOLATILE] premise: SET_NAME from B is SUCCESS = 0x0
+  [ok]   [VOLATILE] premise: B's change notifies A, the registered controller = 0x1
+  [ok]   [VOLATILE] premise: SET_CONTROL(IDENTIFY, 255) from A is SUCCESS = 0x0
+  [ok]   [VOLATILE] premise: GET_CONTROL reads IDENTIFY 255 = 0xff
+  [ok]   [VOLATILE] premise: LOCK_ENTITY from A is SUCCESS, locked_id A = 0x1
+  [ok]   [VOLATILE] premise: AECP_STAT0 reads the lock held = 0x1
+  [ok]   [VOLATILE] premise: SET_NAME from B is refused ENTITY_LOCKED = 0x3
+  [ok]   [VOLATILE] premise: the cut lands inside the processor's debounce: the window still holds the saved set = 0x1
+  [ok]   [NVM] the backend accepted the window load (PP_NVM_STAT[2] 1, [11] 0) = 0x1
+  [ok]   [NVM] ...and holds it valid (PP_NVM_STAT[7])   = 0x1
+  [ok]   [MAPREC] [VOLATILE] the power cycle: the restore reached its terminal and the map restore ended = 0x1
+  [i]    [VOLATILE] the power cycle: the map restore held the faces 672 clocks after restore_done, 5818 after PP_CTRL[1]
+  [i]    [VOLATILE] after the power cycle: PP_STAT 5b000404
+  [ok]   [VOLATILE] the restore reached its terminal: PP_STAT done 1, busy 0, fail 0, blank 0 = 0x1
+  [ok]   [VOLATILE] the restore applied the saved entity name again, B's unsaved one lost = 0x1
+  [ok]   [VOLATILE] IDENTIFY reads 0 after the restore (Milan v1.2 5.3.12) = 0x0
+  [ok]   [VOLATILE] the lock is clear after the restore: AECP_STAT0 reads no lock (Milan v1.2 5.3.4.1) = 0x0
+  [ok]   [VOLATILE] the lock is clear after the restore: SET_NAME from B is SUCCESS (Milan v1.2 5.3.4.1) = 0x0
+  [ok]   [VOLATILE] the registry is empty after the restore: B's accepted change notifies no controller (Milan v1.2 5.3.4.2) = 0x1
+--------------------------------------------------------------
+checks: 711   failures: 0
+RESULT: PASS
+./obj_nxn/Vmilan_dp_nxn
+=== milan_datapath NxN integration (N_STREAMS=4, P12) ===
+  [ok]   ID == 'MILN'                                   = 0x4d494c4e
+  [ok]   VERSION 0x0060 originally widened pending to unflushed bindings and AECP marks; #502 now reports accepted live name/map writes, and carries 0x005F's saved-state snapshot ownership contract, 0x005E's applied gPTP timestamp latency corrections at 0x7F0, 0x005C's SRP status words read by code, 0x005B's SET_SAMPLING_RATE list-check pin, 0x005A's GET_TX_STATE Listener-code pin, 0x0059's PPS words, 0x0058's slip pair, ownerless option OFF and the 0x0055 notification work = 0x20060
+  [ok]   [AECP] before the restore READ_DESCRIPTOR is HELD, not answered = 0x1
+  [ok]   [AECP] ...a second one is DROPPED at the slot gate (word 37 +1) = 0x1
+  [ok]   [AECP] ...read over a posted access that did not error = 0x1
+  [ok]   [AECP-IMG] the shipped generator emitted an image = 0x1
+  [i]    image: 10728 bytes, 68 descriptors
+  [ok]   [AECP-IMG] ...beginning with the AEMI magic    = 0x41454d49
+  [ok]   [BOOT] PP_STAT the restore walk sequenced (done 1, CLOSED 0) = 0x4
+  [ok]   [AECP] ...and the held READ_DESCRIPTOR is answered at the release = 0x1
+  [ok]   [AECP-IMG] the snapshot window answers ('KLPP') = 0x4b4c5050
+  [ok]   [AECP-IMG] ...over a posted access that did not error = 0x1
+  [ok]   [AECP-IMG] ENTITY,0: the image HAS this descriptor = 0x1
+  [ok]   [AECP-IMG] ENTITY,0: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-IMG] ENTITY,0: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-IMG] ENTITY,0: status SUCCESS(0)         = 0x0
+  [ok]   [AECP-IMG] ENTITY,0: sequence_id echoed        = 0x4011
+  [ok]   [AECP-IMG] ENTITY,0: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-IMG] ENTITY,0: cdl = 12 + 4 + the descriptor = 0x148
+  [ok]   [AECP-IMG] ENTITY,0: the frame is as long as it claims = 0x162
+  [ok]   [AECP-IMG] ENTITY,0: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-IMG] ENTITY,0: reserved @26 is zero      = 0x0
+  [ok]   [AECP-IMG] ENTITY,0: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-IMG] ENTITY,0: descriptor_type field @28 = 0x0
+  [ok]   [AECP-IMG] ENTITY,0: descriptor_index field @30 = 0x0
+  [i]    desc-store word 34 = 0x00058801 after 6 burst(s), 593 beat(s)
+  [ok]   [AECP-IMG] the store FETCHED from descriptor memory = 0x1
+  [ok]   [AECP-IMG] the image VALIDATED (word 34 bit 0) = 0x1
+  [ok]   [AECP-IMG] ...with no store fault (word 34 [4:1]) = 0x0
+  [ok]   [AECP-IMG] STREAM_INPUT,1: the image HAS this descriptor = 0x1
+  [ok]   [AECP-IMG] STREAM_INPUT,1: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-IMG] STREAM_INPUT,1: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-IMG] STREAM_INPUT,1: status SUCCESS(0)   = 0x0
+  [ok]   [AECP-IMG] STREAM_INPUT,1: sequence_id echoed  = 0x4012
+  [ok]   [AECP-IMG] STREAM_INPUT,1: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-IMG] STREAM_INPUT,1: cdl = 12 + 4 + the descriptor = 0xaa
+  [ok]   [AECP-IMG] STREAM_INPUT,1: the frame is as long as it claims = 0xc4
+  [ok]   [AECP-IMG] STREAM_INPUT,1: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-IMG] STREAM_INPUT,1: reserved @26 is zero = 0x0
+  [ok]   [AECP-IMG] STREAM_INPUT,1: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-IMG] STREAM_INPUT,1: descriptor_type field @28 = 0x5
+  [ok]   [AECP-IMG] STREAM_INPUT,1: descriptor_index field @30 = 0x1
+  [i]    response-memory lane writes: +40 for ENTITY (312 B), +21 for STREAM_INPUT 1 (154 B)
+  [ok]   [AECP-IMG] the response memory COMMITTED the ENTITY lanes = 0x1
+  [ok]   [AECP-IMG] ...and committed STREAM_INPUT 1's as well = 0x1
+  [ok]   [AECP-IMG] no response was voided by the memory = 0x0
+  [ok]   [AECP-IMG] the response buffer reports no fault (word 36) = 0x0
+  [ok]   [AECP-WTMO] a memory that NEVER ACKS still gets an ANSWER = 0x1
+  [ok]   [AECP-WTMO] ...still an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-WTMO] ...with ENTITY_MISBEHAVING(10), the documented degradation = 0xa
+  [ok]   [AECP-WTMO] ...carrying no payload it could not build (cdl = 12) = 0xc
+  [ok]   [AECP-WTMO] ...still padded to the 60-octet minimum = 0x3c
+  [ok]   [AECP-WTMO] ...and the response buffer reports its fault (word 36) = 0x1
+  [ok]   [AECP-WTMO] the station HEALS when the memory returns (no reset) = 0x1
+  [ok]   [AECP-WTMO] ...and the response buffer's fault clears (word 36) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 000000 index 0: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 000000 index 0: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 000000 index 0: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 000000 index 0: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 000000 index 0: sequence_id echoed = 0x4100
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 000000 index 0: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 000000 index 0: cdl = 12 + 4 + the descriptor = 0x148
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 000000 index 0: the frame is as long as it claims = 0x162
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 000000 index 0: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 000000 index 0: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 000000 index 0: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 000000 index 0: descriptor_type field @28 = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 000000 index 0: descriptor_index field @30 = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0001 index 0: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0001 index 0: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0001 index 0: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0001 index 0: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0001 index 0: sequence_id echoed = 0x4101
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0001 index 0: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0001 index 0: cdl = 12 + 4 + the descriptor = 0x7a
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0001 index 0: the frame is as long as it claims = 0x94
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0001 index 0: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0001 index 0: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0001 index 0: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0001 index 0: descriptor_type field @28 = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0001 index 0: descriptor_index field @30 = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0002 index 0: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0002 index 0: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0002 index 0: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0002 index 0: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0002 index 0: sequence_id echoed = 0x4102
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0002 index 0: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0002 index 0: cdl = 12 + 4 + the descriptor = 0xa4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0002 index 0: the frame is as long as it claims = 0xbe
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0002 index 0: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0002 index 0: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0002 index 0: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0002 index 0: descriptor_type field @28 = 0x2
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0002 index 0: descriptor_index field @30 = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 0: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 0: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 0: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 0: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 0: sequence_id echoed = 0x4103
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 0: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 0: cdl = 12 + 4 + the descriptor = 0xaa
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 0: the frame is as long as it claims = 0xc4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 0: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 0: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 0: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 0: descriptor_type field @28 = 0x5
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 0: descriptor_index field @30 = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 1: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 1: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 1: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 1: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 1: sequence_id echoed = 0x4104
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 1: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 1: cdl = 12 + 4 + the descriptor = 0xaa
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 1: the frame is as long as it claims = 0xc4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 1: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 1: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 1: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 1: descriptor_type field @28 = 0x5
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 1: descriptor_index field @30 = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 2: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 2: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 2: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 2: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 2: sequence_id echoed = 0x4105
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 2: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 2: cdl = 12 + 4 + the descriptor = 0xaa
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 2: the frame is as long as it claims = 0xc4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 2: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 2: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 2: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 2: descriptor_type field @28 = 0x5
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 2: descriptor_index field @30 = 0x2
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 3: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 3: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 3: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 3: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 3: sequence_id echoed = 0x4106
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 3: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 3: cdl = 12 + 4 + the descriptor = 0xaa
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 3: the frame is as long as it claims = 0xc4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 3: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 3: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 3: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 3: descriptor_type field @28 = 0x5
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 3: descriptor_index field @30 = 0x3
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 4: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 4: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 4: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 4: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 4: sequence_id echoed = 0x4107
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 4: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 4: cdl = 12 + 4 + the descriptor = 0xa2
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 4: the frame is as long as it claims = 0xbc
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 4: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 4: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 4: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 4: descriptor_type field @28 = 0x5
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 4: descriptor_index field @30 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 0: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 0: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 0: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 0: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 0: sequence_id echoed = 0x4108
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 0: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 0: cdl = 12 + 4 + the descriptor = 0xa2
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 0: the frame is as long as it claims = 0xbc
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 0: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 0: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 0: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 0: descriptor_type field @28 = 0x6
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 0: descriptor_index field @30 = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 1: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 1: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 1: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 1: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 1: sequence_id echoed = 0x4109
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 1: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 1: cdl = 12 + 4 + the descriptor = 0xa2
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 1: the frame is as long as it claims = 0xbc
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 1: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 1: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 1: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 1: descriptor_type field @28 = 0x6
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 1: descriptor_index field @30 = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 2: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 2: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 2: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 2: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 2: sequence_id echoed = 0x410a
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 2: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 2: cdl = 12 + 4 + the descriptor = 0xa2
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 2: the frame is as long as it claims = 0xbc
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 2: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 2: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 2: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 2: descriptor_type field @28 = 0x6
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 2: descriptor_index field @30 = 0x2
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 3: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 3: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 3: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 3: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 3: sequence_id echoed = 0x410b
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 3: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 3: cdl = 12 + 4 + the descriptor = 0xa2
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 3: the frame is as long as it claims = 0xbc
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 3: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 3: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 3: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 3: descriptor_type field @28 = 0x6
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 3: descriptor_index field @30 = 0x3
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 4: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 4: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 4: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 4: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 4: sequence_id echoed = 0x410c
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 4: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 4: cdl = 12 + 4 + the descriptor = 0xa2
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 4: the frame is as long as it claims = 0xbc
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 4: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 4: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 4: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 4: descriptor_type field @28 = 0x6
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 4: descriptor_index field @30 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0009 index 0: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0009 index 0: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0009 index 0: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0009 index 0: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0009 index 0: sequence_id echoed = 0x410d
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0009 index 0: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0009 index 0: cdl = 12 + 4 + the descriptor = 0x76
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0009 index 0: the frame is as long as it claims = 0x90
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0009 index 0: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0009 index 0: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0009 index 0: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0009 index 0: descriptor_type field @28 = 0x9
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0009 index 0: descriptor_index field @30 = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 0: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 0: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 0: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 0: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 0: sequence_id echoed = 0x410e
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 0: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 0: cdl = 12 + 4 + the descriptor = 0x66
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 0: the frame is as long as it claims = 0x80
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 0: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 0: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 0: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 0: descriptor_type field @28 = 0xa
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 0: descriptor_index field @30 = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 1: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 1: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 1: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 1: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 1: sequence_id echoed = 0x410f
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 1: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 1: cdl = 12 + 4 + the descriptor = 0x66
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 1: the frame is as long as it claims = 0x80

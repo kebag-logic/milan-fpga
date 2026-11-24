@@ -1,0 +1,763 @@
+Candidate head: dc78aedae34c25a97125ecd6816a1f645db5575f
+Comparison base: 3cda030c174b325e36c26af6420487ff91346d15
+Source: validation-status.json
+Original SHA256: 8a31151e4898ff97fcb3a75d3076b5aaff01ce92ee24c04055afb0a35d798d36
+Scope: complete text; paths and host fields normalized
+
+{
+  "head": "dc78aedae34c25a97125ecd6816a1f645db5575f",
+  "clean": true,
+  "quick": [
+    {
+      "name": "anchors",
+      "command": [
+        "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+        "$MANAGEMENT/2026-09-23/loopbram-r909-1/scripts/anchor_counts.py",
+        "$CHECKOUT",
+        "$CHECKOUT",
+        "3cda030c",
+        "dc78aedae34c25a97125ecd6816a1f645db5575f"
+      ],
+      "head": "dc78aedae34c25a97125ecd6816a1f645db5575f",
+      "exit": 0,
+      "pass_gate": true,
+      "seconds": 0.21408891677856445
+    },
+    {
+      "name": "parent-plants",
+      "command": [
+        "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+        "tb/verilator/input_loopback_dp/mutants.py",
+        "--output",
+        "$SCRATCH/parent-plants"
+      ],
+      "head": "dc78aedae34c25a97125ecd6816a1f645db5575f",
+      "exit": 0,
+      "pass_gate": true,
+      "seconds": 113.55108070373535
+    },
+    {
+      "name": "leaf-plants",
+      "command": [
+        "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+        "tb/verilator/input_loopback/mutants.py",
+        "--output",
+        "$SCRATCH/leaf-plants"
+      ],
+      "head": "dc78aedae34c25a97125ecd6816a1f645db5575f",
+      "exit": 0,
+      "pass_gate": true,
+      "seconds": 49.11288237571716
+    },
+    {
+      "name": "bounds",
+      "command": [
+        "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+        "tb/verilator/input_loopback/bounds.py",
+        "--output",
+        "$SCRATCH/bounds"
+      ],
+      "head": "dc78aedae34c25a97125ecd6816a1f645db5575f",
+      "exit": 0,
+      "pass_gate": true,
+      "seconds": 18.248871326446533
+    },
+    {
+      "name": "lint",
+      "command": [
+        "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+        "scripts/lint_rtl.py",
+        "--check"
+      ],
+      "head": "dc78aedae34c25a97125ecd6816a1f645db5575f",
+      "exit": 0,
+      "pass_gate": true,
+      "seconds": 3.875168561935425
+    },
+    {
+      "name": "docs",
+      "command": [
+        "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+        "scripts/docs_check.py"
+      ],
+      "head": "dc78aedae34c25a97125ecd6816a1f645db5575f",
+      "exit": 0,
+      "pass_gate": true,
+      "seconds": 9.480578899383545
+    },
+    {
+      "name": "doc-style",
+      "command": [
+        "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+        "scripts/check_doc_style.py"
+      ],
+      "head": "dc78aedae34c25a97125ecd6816a1f645db5575f",
+      "exit": 0,
+      "pass_gate": true,
+      "seconds": 0.11483931541442871
+    }
+  ],
+  "disabled_pipeline": [
+    {
+      "script": "prepare_export.py",
+      "head": "dc78aedae34c25a97125ecd6816a1f645db5575f",
+      "exit": 0,
+      "seconds": 60.73979997634888
+    },
+    {
+      "script": "rtl_compare.py",
+      "head": "dc78aedae34c25a97125ecd6816a1f645db5575f",
+      "exit": 0,
+      "seconds": 189.81731486320496
+    },
+    {
+      "script": "canonical.py",
+      "head": "dc78aedae34c25a97125ecd6816a1f645db5575f",
+      "exit": 0,
+      "seconds": 1.766624927520752
+    },
+    {
+      "script": "synth_off.py",
+      "head": "dc78aedae34c25a97125ecd6816a1f645db5575f",
+      "exit": 0,
+      "seconds": 1138.9390654563904
+    }
+  ],
+  "disabled": [
+    {
+      "shape": "endstation_ax7101_1x1_tdm8",
+      "base": {
+        "Slice LUTs*": 33792.0,
+        "Slice Registers": 42649.0,
+        "F7 Muxes": 723.0,
+        "F8 Muxes": 79.0,
+        "Block RAM Tile": 80.0,
+        "RAMB36/FIFO*": 62.0,
+        "RAMB18": 36.0,
+        "DSPs": 11.0
+      },
+      "head": {
+        "Slice LUTs*": 33792.0,
+        "Slice Registers": 42649.0,
+        "F7 Muxes": 723.0,
+        "F8 Muxes": 79.0,
+        "Block RAM Tile": 80.0,
+        "RAMB36/FIFO*": 62.0,
+        "RAMB18": 36.0,
+        "DSPs": 11.0
+      },
+      "delta": {
+        "Slice LUTs*": 0.0,
+        "Slice Registers": 0.0,
+        "Block RAM Tile": 0.0,
+        "RAMB36/FIFO*": 0.0,
+        "RAMB18": 0.0,
+        "F7 Muxes": 0.0,
+        "F8 Muxes": 0.0,
+        "DSPs": 0.0
+      },
+      "equal": true,
+      "base_report": "/data-2/milan/tmp/loopbram-a826-r3-verified/base-route/endstation_ax7101_1x1_tdm8/gateware/disabled_util.rpt",
+      "head_report": "$SCRATCH/off-route/endstation_ax7101_1x1_tdm8/gateware/disabled_util.rpt",
+      "base_sha256": "33daac45a9a3e14697c5c5b6913daaca3945e8cccbdf1774219493575b02f45d",
+      "head_sha256": "dfe859898e4df2d7d90b7e75ab01009eae941c6db1e963fc84ed4a2b96be08fa"
+    },
+    {
+      "shape": "endstation_ax7101_8x8",
+      "base": {
+        "Slice LUTs*": 45199.0,
+        "Slice Registers": 53086.0,
+        "F7 Muxes": 2540.0,
+        "F8 Muxes": 615.0,
+        "Block RAM Tile": 99.0,
+        "RAMB36/FIFO*": 82.0,
+        "RAMB18": 34.0,
+        "DSPs": 11.0
+      },
+      "head": {
+        "Slice LUTs*": 45199.0,
+        "Slice Registers": 53086.0,
+        "F7 Muxes": 2540.0,
+        "F8 Muxes": 615.0,
+        "Block RAM Tile": 99.0,
+        "RAMB36/FIFO*": 82.0,
+        "RAMB18": 34.0,
+        "DSPs": 11.0
+      },
+      "delta": {
+        "Slice LUTs*": 0.0,
+        "Slice Registers": 0.0,
+        "Block RAM Tile": 0.0,
+        "RAMB36/FIFO*": 0.0,
+        "RAMB18": 0.0,
+        "F7 Muxes": 0.0,
+        "F8 Muxes": 0.0,
+        "DSPs": 0.0
+      },
+      "equal": true,
+      "base_report": "/data-2/milan/tmp/loopbram-a826-r3-verified/base-route/endstation_ax7101_8x8/gateware/disabled_util.rpt",
+      "head_report": "$SCRATCH/off-route/endstation_ax7101_8x8/gateware/disabled_util.rpt",
+      "base_sha256": "121c2da507e33a724c1f35e699a9ca17e61c9ffaf3f1e4801cd7a4c0972b106d",
+      "head_sha256": "b10b3bd854ec0ebf2701250cfd96a6a3b8f866cf57561b1623320cd954cc0ff2"
+    }
+  ],
+  "builder_union": {
+    "head": "dc78aedae34c25a97125ecd6816a1f645db5575f",
+    "inventory": [
+      "test_soc_option_refusals",
+      "test_commercial_timing_grade",
+      "test_baremetal_clock_contract",
+      "test_rom_clock_contract",
+      "test_rom_clock_skip_reaches_the_ledger",
+      "test_extra_sweep_clocks",
+      "test_tap_clock_docs",
+      "test_sim_clock",
+      "test_extra_sweep_invocation",
+      "test_builder_clock_source",
+      "test_declaration_contracts",
+      "test_clock_crossing_constraints",
+      "test_all_configs_build",
+      "test_baremetal_profile_contract",
+      "test_gptp_product_default_and_legacy_option",
+      "test_gptp_launch_observer_seam",
+      "test_gptp_launch_shape_follows_the_phy",
+      "test_gptp_datapath_carries_the_launch_shape",
+      "test_reboot_egress_statement",
+      "test_reboot_egress_statement_gate_bites",
+      "test_qspi_owner_transition_completed_write_prefixes",
+      "test_gptp_plane_reaches_the_instance",
+      "test_control_placement_key",
+      "test_placement_recipe",
+      "test_gptp_plane_instance_gate_bites",
+      "test_current_shape_matches_sweep_flags",
+      "test_current_shape_matches_gen_aem_store",
+      "test_capability_marks",
+      "test_bad_configs_rejected",
+      "test_port_layout_invariants",
+      "test_both_policies_valid",
+      "test_model_id_hashing",
+      "test_sweep_opts_fragments",
+      "test_gen_aem_store_consumes_overlay",
+      "test_resource_calibration",
+      "test_resource_determinism",
+      "test_resource_verdicts",
+      "test_milan_723_crf_output_rule",
+      "test_crf_output_overlay_structure",
+      "test_gen_aem_store_crf_output_overlay",
+      "test_clock_sources_follow_the_fabric",
+      "test_dynamic_map_topology_reaches_shape_header",
+      "test_shipping_channel_map_table",
+      "test_dynamic_audio_map_overlay",
+      "test_lwsrp_reset_words_match_rtl",
+      "test_lwsrp_class_constants_match_rtl",
+      "test_lwsrp_tspec_and_params",
+      "test_lwsrp_rejects",
+      "test_platform_gateware_shape",
+      "test_csr_defaults_header_consumed",
+      "test_csr_defaults_rejects",
+      "test_aes3_interface_switch",
+      "test_aes3_rejects",
+      "test_cbs_reset_table_single_source",
+      "test_optional_blocks_default_present",
+      "test_optional_block_gates_bite",
+      "test_optional_block_prune_accounting",
+      "test_optional_block_names_reach_the_rtl",
+      "test_optional_block_consumption_gate_bites",
+      "test_optional_blocks_reach_the_instance",
+      "test_optional_block_instance_gate_bites",
+      "test_clock_plan_reaches_the_instance",
+      "test_clock_plan_instance_gate_bites",
+      "test_datapath_params_match_the_instance",
+      "test_datapath_params_gate_bites",
+      "test_image_identity_gate",
+      "test_every_recipe_elaborates",
+      "test_recipe_smoke_gate_bites",
+      "test_recipe_skip_classifier_bites",
+      "test_build_sh_argv_follows_the_config",
+      "test_build_sh_grades_its_own_bindings",
+      "test_build_sh_dry_run_leaves_the_tracked_tree",
+      "test_build_sh_refuses_a_preservation_it_cannot_complete",
+      "test_toolchain_patches_are_applied",
+      "test_toolchain_patch_gate_bites",
+      "test_tdm_master_binding_reaches_the_pins",
+      "test_tdm_master_binding_gate_bites",
+      "test_front_end_routing_per_board",
+      "test_front_end_routing_gate_bites",
+      "test_i2s_pair_blend_binding",
+      "test_i2s_pair_blend_gate_bites",
+      "test_firmware_version_derived_from_rtl",
+      "test_d8_role_pools",
+      "test_d8_role_pools_reject",
+      "test_prune_guard_hop_gate_bites",
+      "test_d10_cluster_names",
+      "test_d10_cluster_namer_paths",
+      "test_d10_names_reach_the_rom",
+      "test_gptp_domain_is_one_source",
+      "test_gptp_dataset_matches_engine_announce",
+      "test_gptp_clock_accuracy_per_board",
+      "test_pp_window_contract",
+      "test_station_mac_ul_bit_warns",
+      "test_image_identity_is_baked",
+      "test_image_name_table_matches_descriptors",
+      "test_schema_12_keys_reach_the_image",
+      "test_schema_12_refusals",
+      "test_schema_11_configs_accepted_unchanged",
+      "test_milan_base_formats_are_rate_complete",
+      "test_per_row_format_facts_are_per_row",
+      "test_builder_doc_key_map",
+      "test_boot_policy_follows_the_declaration",
+      "test_nvm_firmware_shapes",
+      "test_gptp_latency_corrections_are_declared_and_carried",
+      "test_audio_unit_rates_loader_contract",
+      "test_audio_unit_shipping_rates",
+      "test_shipping_image_contract",
+      "test_soc_shipping_image_contract",
+      "test_shipping_image_contract_presence",
+      "test_pp_shadow_audio_unit_rates_match_config",
+      "test_descriptor_fields_name_this_device",
+      "test_name_count_fits_the_nvm_name_block",
+      "test_split_record_space_bounds_the_split_output",
+      "test_input_loopback_contract"
+    ],
+    "legs": [
+      {
+        "cases": [
+          "test_baremetal_profile_contract"
+        ],
+        "shard": "0/2"
+      },
+      {
+        "cases": [
+          "test_soc_option_refusals",
+          "test_commercial_timing_grade",
+          "test_baremetal_clock_contract",
+          "test_rom_clock_contract",
+          "test_rom_clock_skip_reaches_the_ledger",
+          "test_extra_sweep_clocks",
+          "test_tap_clock_docs",
+          "test_sim_clock",
+          "test_extra_sweep_invocation",
+          "test_builder_clock_source",
+          "test_declaration_contracts",
+          "test_clock_crossing_constraints",
+          "test_all_configs_build",
+          "test_gptp_product_default_and_legacy_option",
+          "test_gptp_launch_observer_seam",
+          "test_gptp_launch_shape_follows_the_phy",
+          "test_gptp_datapath_carries_the_launch_shape",
+          "test_reboot_egress_statement",
+          "test_reboot_egress_statement_gate_bites",
+          "test_qspi_owner_transition_completed_write_prefixes",
+          "test_gptp_plane_reaches_the_instance",
+          "test_control_placement_key",
+          "test_placement_recipe",
+          "test_gptp_plane_instance_gate_bites",
+          "test_current_shape_matches_sweep_flags",
+          "test_current_shape_matches_gen_aem_store",
+          "test_capability_marks",
+          "test_bad_configs_rejected",
+          "test_port_layout_invariants",
+          "test_both_policies_valid",
+          "test_model_id_hashing",
+          "test_sweep_opts_fragments",
+          "test_gen_aem_store_consumes_overlay",
+          "test_resource_calibration",
+          "test_resource_determinism",
+          "test_resource_verdicts",
+          "test_milan_723_crf_output_rule",
+          "test_crf_output_overlay_structure",
+          "test_gen_aem_store_crf_output_overlay",
+          "test_clock_sources_follow_the_fabric",
+          "test_dynamic_map_topology_reaches_shape_header",
+          "test_shipping_channel_map_table",
+          "test_dynamic_audio_map_overlay",
+          "test_lwsrp_reset_words_match_rtl",
+          "test_lwsrp_class_constants_match_rtl",
+          "test_lwsrp_tspec_and_params",
+          "test_lwsrp_rejects",
+          "test_platform_gateware_shape",
+          "test_csr_defaults_header_consumed",
+          "test_csr_defaults_rejects",
+          "test_aes3_interface_switch",
+          "test_aes3_rejects",
+          "test_cbs_reset_table_single_source",
+          "test_optional_blocks_default_present",
+          "test_optional_block_gates_bite",
+          "test_optional_block_prune_accounting",
+          "test_optional_block_names_reach_the_rtl",
+          "test_optional_block_consumption_gate_bites",
+          "test_optional_blocks_reach_the_instance",
+          "test_optional_block_instance_gate_bites",
+          "test_clock_plan_reaches_the_instance",
+          "test_clock_plan_instance_gate_bites",
+          "test_datapath_params_match_the_instance",
+          "test_datapath_params_gate_bites",
+          "test_image_identity_gate",
+          "test_every_recipe_elaborates",
+          "test_recipe_smoke_gate_bites",
+          "test_recipe_skip_classifier_bites",
+          "test_build_sh_argv_follows_the_config",
+          "test_build_sh_grades_its_own_bindings",
+          "test_build_sh_dry_run_leaves_the_tracked_tree",
+          "test_build_sh_refuses_a_preservation_it_cannot_complete",
+          "test_toolchain_patches_are_applied",
+          "test_toolchain_patch_gate_bites",
+          "test_tdm_master_binding_reaches_the_pins",
+          "test_tdm_master_binding_gate_bites",
+          "test_front_end_routing_per_board",
+          "test_front_end_routing_gate_bites",
+          "test_i2s_pair_blend_binding",
+          "test_i2s_pair_blend_gate_bites",
+          "test_firmware_version_derived_from_rtl",
+          "test_d8_role_pools",
+          "test_d8_role_pools_reject",
+          "test_prune_guard_hop_gate_bites",
+          "test_d10_cluster_names",
+          "test_d10_cluster_namer_paths",
+          "test_d10_names_reach_the_rom",
+          "test_gptp_domain_is_one_source",
+          "test_gptp_dataset_matches_engine_announce",
+          "test_gptp_clock_accuracy_per_board",
+          "test_pp_window_contract",
+          "test_station_mac_ul_bit_warns",
+          "test_image_identity_is_baked",
+          "test_image_name_table_matches_descriptors",
+          "test_schema_12_keys_reach_the_image",
+          "test_schema_12_refusals",
+          "test_schema_11_configs_accepted_unchanged",
+          "test_milan_base_formats_are_rate_complete",
+          "test_per_row_format_facts_are_per_row",
+          "test_builder_doc_key_map",
+          "test_boot_policy_follows_the_declaration",
+          "test_nvm_firmware_shapes",
+          "test_gptp_latency_corrections_are_declared_and_carried",
+          "test_audio_unit_rates_loader_contract",
+          "test_audio_unit_shipping_rates",
+          "test_shipping_image_contract",
+          "test_soc_shipping_image_contract",
+          "test_shipping_image_contract_presence",
+          "test_pp_shadow_audio_unit_rates_match_config",
+          "test_descriptor_fields_name_this_device",
+          "test_name_count_fits_the_nvm_name_block",
+          "test_split_record_space_bounds_the_split_output",
+          "test_input_loopback_contract"
+        ],
+        "shard": "1/2"
+      }
+    ],
+    "not_run": [
+      [
+        "gate 11",
+        "real report not on disk ($WORKSPACE_HOME/litex-milan/work/build_arty_eto_milanfinal48/gateware/digilent_arty_utilization_place.rpt) - the calibration gate needs the mf48 build tree",
+        "row"
+      ]
+    ],
+    "requirements": {
+      "--require-elaboration": [
+        "test_soc_option_refusals",
+        "test_commercial_timing_grade",
+        "test_clock_crossing_constraints",
+        "test_gptp_plane_reaches_the_instance",
+        "test_gptp_plane_instance_gate_bites",
+        "test_optional_blocks_reach_the_instance",
+        "test_optional_block_instance_gate_bites",
+        "test_clock_plan_reaches_the_instance",
+        "test_clock_plan_instance_gate_bites",
+        "test_datapath_params_match_the_instance",
+        "test_datapath_params_gate_bites",
+        "test_image_identity_gate",
+        "test_every_recipe_elaborates",
+        "test_recipe_smoke_gate_bites",
+        "test_toolchain_patches_are_applied",
+        "test_toolchain_patch_gate_bites"
+      ],
+      "--require-rv32": [
+        "test_baremetal_profile_contract"
+      ]
+    },
+    "suite": "builder",
+    "tree": "41223b89427673df91715a56a7e8a647d9a339e4",
+    "union": "pass",
+    "verdicts_sha256": "6a9c6e84999bd5339a18b0e7b924ca4b18c20817464243939bd9e0c29e99d3b0"
+  },
+  "remaining": [
+    {
+      "name": "coherence-mutants",
+      "head": "dc78aedae34c25a97125ecd6816a1f645db5575f",
+      "command": [
+        "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+        "$SCRATCH/run_coherence_mutants.py"
+      ],
+      "exit": 0,
+      "seconds": 1380.485381603241
+    },
+    {
+      "name": "portability",
+      "head": "dc78aedae34c25a97125ecd6816a1f645db5575f",
+      "command": [
+        "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+        "$SCRATCH/run_yosys.py"
+      ],
+      "exit": 0,
+      "seconds": 2420.434223175049
+    },
+    {
+      "name": "reviewer-probes",
+      "head": "dc78aedae34c25a97125ecd6816a1f645db5575f",
+      "command": [
+        "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+        "$SCRATCH/reviewer_probes.py",
+        "--tree",
+        "$CHECKOUT",
+        "--out",
+        "$SCRATCH/reviewer-probes",
+        "--verilator",
+        "$VALIDATION_TOOLS/verilator-v5.050/bin/verilator",
+        "--pool",
+        "2",
+        "--jobs",
+        "4"
+      ],
+      "exit": 0,
+      "seconds": 46.69723653793335
+    },
+    {
+      "name": "leaf-off",
+      "head": "dc78aedae34c25a97125ecd6816a1f645db5575f",
+      "command": [
+        "bash",
+        "$MANAGEMENT/2026-09-23/loopbram-r909-1/scripts/leaf_off_incontext.sh",
+        "/data-2/milan/tmp/loopbram-a826-r3/base-wt",
+        "$CHECKOUT",
+        "$SCRATCH/leaf-off"
+      ],
+      "exit": 0,
+      "seconds": 32.11774659156799
+    },
+    {
+      "name": "xvlog",
+      "head": "dc78aedae34c25a97125ecd6816a1f645db5575f",
+      "command": [
+        "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+        "scripts/xvlog_gate.py",
+        "--check"
+      ],
+      "exit": 0,
+      "seconds": 156.12756967544556
+    },
+    {
+      "name": "em-dash",
+      "head": "dc78aedae34c25a97125ecd6816a1f645db5575f",
+      "command": [
+        "/data-2/milan/tmp/loopbram-a826/markdown-venv/bin/python3",
+        "scripts/check_em_dash.py",
+        "--base",
+        "2e278379"
+      ],
+      "exit": 0,
+      "seconds": 2.6178293228149414
+    }
+  ],
+  "regressions": {
+    "input1": {
+      "case": "input1",
+      "command": [
+        "make",
+        "-s",
+        "-C",
+        "$CHECKOUT/tb/verilator/input_loopback",
+        "VERILATOR_JOBS=4",
+        "run",
+        "STREAMS=1",
+        "FIRST=8",
+        "CHANNELS=8",
+        "LEAD=2",
+        "MDIR=$SCRATCH/regressions/input1"
+      ],
+      "exit": 0,
+      "seconds": 6.328054189682007
+    },
+    "input8": {
+      "case": "input8",
+      "command": [
+        "make",
+        "-s",
+        "-C",
+        "$CHECKOUT/tb/verilator/input_loopback",
+        "VERILATOR_JOBS=4",
+        "run",
+        "MDIR=$SCRATCH/regressions/input8"
+      ],
+      "exit": 0,
+      "seconds": 6.878820180892944
+    },
+    "capture": {
+      "case": "capture",
+      "command": [
+        "make",
+        "-s",
+        "-C",
+        "$CHECKOUT/tb/verilator/chmap_capture",
+        "VERILATOR_JOBS=4",
+        "run",
+        "MDIR=$SCRATCH/regressions/capture"
+      ],
+      "exit": 0,
+      "seconds": 115.9047520160675
+    },
+    "queue": {
+      "case": "queue",
+      "command": [
+        "make",
+        "-s",
+        "-C",
+        "$CHECKOUT/tb/verilator/render_queue",
+        "VERILATOR_JOBS=4",
+        "all"
+      ],
+      "exit": 0,
+      "seconds": 156.43873405456543
+    },
+    "milan_dp": {
+      "case": "milan_dp",
+      "command": [
+        "make",
+        "-s",
+        "-C",
+        "$CHECKOUT/tb/verilator/milan_dp",
+        "VERILATOR_JOBS=4",
+        "run"
+      ],
+      "exit": 0,
+      "seconds": 2814.093766450882
+    },
+    "render": {
+      "case": "render",
+      "command": [
+        "make",
+        "-s",
+        "-C",
+        "$CHECKOUT/tb/verilator/milan_dp_render",
+        "VERILATOR_JOBS=4",
+        "run",
+        "ship8",
+        "tdm8render-mutants"
+      ],
+      "exit": 0,
+      "seconds": 7323.379932165146
+    },
+    "coherence": {
+      "case": "coherence",
+      "command": [
+        "make",
+        "-s",
+        "-C",
+        "$CHECKOUT/tb/verilator/capture_coherence",
+        "VERILATOR_JOBS=4",
+        "run",
+        "dp"
+      ],
+      "exit": 0,
+      "seconds": 491.0382297039032
+    }
+  },
+  "portability": {
+    "command": [
+      "syn/yosys/run.sh",
+      "--results",
+      "$SCRATCH/yosys/results"
+    ],
+    "exit": 0,
+    "seconds": 2420.3575687408447
+  },
+  "coherence_mutants": {
+    "command": [
+      "python3",
+      "mutants.py",
+      "--jobs",
+      "2",
+      "--receipt",
+      "$SCRATCH/coherence-mutants-receipt"
+    ],
+    "exit": 0,
+    "seconds": 1380.4393751621246,
+    "TMPDIR": "$SCRATCH"
+  },
+  "enabled_route": [
+    {
+      "shape": "endstation_ax7101_1x1_tdm8",
+      "directive": "ExtraTimingOpt",
+      "run": {
+        "command": [
+          "$MANAGEMENT/2026-09-23/vivado-slot.sh",
+          "$WORKSPACE_HOME/Xilinx2/2026.1/Vivado/bin/vivado",
+          "-mode",
+          "batch",
+          "-nojournal",
+          "-nolog",
+          "-source",
+          "$SCRATCH/route/endstation_ax7101_1x1_tdm8/gateware/ExtraTimingOpt/measure_route.tcl"
+        ],
+        "cwd": "$SCRATCH/route/endstation_ax7101_1x1_tdm8/gateware/ExtraTimingOpt",
+        "exit": 0,
+        "seconds": 421.21976351737976
+      },
+      "utilization": {
+        "Slice LUTs*": 32792.0,
+        "Slice Registers": 42637.0,
+        "Block RAM Tile": 83.0,
+        "RAMB36/FIFO*": 65.0,
+        "RAMB18": 36.0,
+        "F7 Muxes": 693.0,
+        "F8 Muxes": 83.0,
+        "DSPs": 11.0,
+        "Occupied slices": 14148.0
+      },
+      "corners": {
+        "alinx_ax7101_signoff_Fast_0C_timing.rpt": {
+          "WNS_ns": 1.636,
+          "TNS_ns": 0.0,
+          "WHS_ns": 0.036,
+          "setup_failing_endpoints": 0,
+          "hold_failing_endpoints": 0,
+          "WPWS_ns": 1.1,
+          "sha256": "f387b4a3446011ffcf72ee5e4220510b33992539a72a565929224448d8786258"
+        },
+        "alinx_ax7101_signoff_Fast_85C_timing.rpt": {
+          "WNS_ns": 1.636,
+          "TNS_ns": 0.0,
+          "WHS_ns": 0.036,
+          "setup_failing_endpoints": 0,
+          "hold_failing_endpoints": 0,
+          "WPWS_ns": 1.1,
+          "sha256": "919d790f5dc1196c69fbcf0574951007b053657ae385db3615a926ccb1e74a59"
+        },
+        "alinx_ax7101_signoff_Slow_0C_timing.rpt": {
+          "WNS_ns": 0.124,
+          "TNS_ns": 0.0,
+          "WHS_ns": 0.102,
+          "setup_failing_endpoints": 0,
+          "hold_failing_endpoints": 0,
+          "WPWS_ns": 1.1,
+          "sha256": "b74c21dc0c2faea9e2d1bf60af785fbccbb66f2a163ff820508fb8c32f369a52"
+        },
+        "alinx_ax7101_signoff_Slow_85C_timing.rpt": {
+          "WNS_ns": 0.124,
+          "TNS_ns": 0.0,
+          "WHS_ns": 0.102,
+          "setup_failing_endpoints": 0,
+          "hold_failing_endpoints": 0,
+          "WPWS_ns": 1.1,
+          "sha256": "d12f9dfc5599dd92e6ce273418f45fb9609a749bc57b9238ecaea5bbf900451e"
+        }
+      },
+      "routing_errors": 0,
+      "complete": true,
+      "min_WNS_ns": 0.124,
+      "min_WHS_ns": 0.036,
+      "floor_pass": true
+    }
+  ],
+  "two_interface_release": "NOT APPLICABLE: release split top rejects interfaces=2 at both commits",
+  "source_hashes_match": true
+}

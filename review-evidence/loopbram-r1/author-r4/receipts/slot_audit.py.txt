@@ -1,0 +1,20 @@
+Candidate head: dc78aedae34c25a97125ecd6816a1f645db5575f
+Comparison base: 3cda030c174b325e36c26af6420487ff91346d15
+Source: slot_audit.py
+Original SHA256: e9f0554b9435b0c799733436b9c95cb6607b71608cbc7beac5aceb3dfa310728
+Scope: complete text; paths and host fields normalized
+
+import re,json
+from pathlib import Path
+w=Path(__file__).resolve().parent
+logs=list((w/'rtl-final').glob('*/*/run.log'))+list((w/'off-route').glob('*/gateware/measure_synth.log'))+list((w/'route').glob('*/gateware/measure_synth.log'))+list((w/'route').glob('*/gateware/*/measure_route.log'))
+rows=[]
+for p in sorted(logs):
+ matches=re.findall(r'vivado-slot: slot ([01]) \(([^)]+)\), MemAvailable ([0-9]+) GB, ([^\n]+)',p.read_text())
+ assert len(matches)==1,(p,matches)
+ slot,lock,avail,when=matches[0]
+ assert int(avail)>=20,(p,avail)
+ rows.append(dict(log=str(p.relative_to(w)),slot=int(slot),lock=lock,MemAvailable_GB=int(avail),started=when))
+assert len(rows)>=8,len(rows)
+(w/'slot-usage.json').write_text(json.dumps(dict(policy=dict(VIVADO_SLOTS=2,VIVADO_MIN_GB=20),jobs=rows),indent=2)+'\n')
+print('SLOT POLICY PASS',len(rows),'jobs, minimum MemAvailable',min(r['MemAvailable_GB'] for r in rows),'GB')

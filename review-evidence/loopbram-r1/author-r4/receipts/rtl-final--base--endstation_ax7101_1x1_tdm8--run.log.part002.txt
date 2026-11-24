@@ -1,0 +1,57 @@
+Candidate head: dc78aedae34c25a97125ecd6816a1f645db5575f
+Comparison base: 3cda030c174b325e36c26af6420487ff91346d15
+Source: rtl-final/base/endstation_ax7101_1x1_tdm8/run.log
+Original SHA256: ea80a7bfdf6db317bbcc5065b3a4b97bfb24fab88696dc7d673e0133897d7886
+Scope: native compilation chatter omitted; other output retained; paths and host fields normalized
+
+WARNING: [Synth 8-7129] Port FetchL1TileLinkPlugin_logic_down_d_payload_param[0] in module VexiiRiscv is either unconnected or has no load
+WARNING: [Synth 8-7129] Port FetchL1TileLinkPlugin_logic_down_d_payload_size[2] in module VexiiRiscv is either unconnected or has no load
+WARNING: [Synth 8-7129] Port FetchL1TileLinkPlugin_logic_down_d_payload_size[1] in module VexiiRiscv is either unconnected or has no load
+WARNING: [Synth 8-7129] Port FetchL1TileLinkPlugin_logic_down_d_payload_size[0] in module VexiiRiscv is either unconnected or has no load
+WARNING: [Synth 8-7129] Port LsuL1TileLinkPlugin_logic_down_b_payload_size[2] in module VexiiRiscv is either unconnected or has no load
+WARNING: [Synth 8-7129] Port LsuL1TileLinkPlugin_logic_down_b_payload_size[1] in module VexiiRiscv is either unconnected or has no load
+WARNING: [Synth 8-7129] Port LsuL1TileLinkPlugin_logic_down_b_payload_size[0] in module VexiiRiscv is either unconnected or has no load
+INFO: [Common 17-14] Message 'Synth 8-7129' appears 100 times and further instances of the messages will be disabled. Use the Tcl command set_msg_config to change the current settings.
+---------------------------------------------------------------------------------
+Finished RTL Elaboration : Time (s): cpu = 00:00:14 ; elapsed = 00:00:16 . Memory (MB): peak = 3074.992 ; gain = 1072.461 ; free physical = 26895 ; free virtual = 89499
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Handling Custom Attributes
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Handling Custom Attributes : Time (s): cpu = 00:00:15 ; elapsed = 00:00:18 . Memory (MB): peak = 3074.992 ; gain = 1072.461 ; free physical = 25109 ; free virtual = 87752
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished RTL Optimization Phase 1 : Time (s): cpu = 00:00:15 ; elapsed = 00:00:18 . Memory (MB): peak = 3074.992 ; gain = 1072.461 ; free physical = 25109 ; free virtual = 87752
+---------------------------------------------------------------------------------
+Netlist sorting complete. Time (s): cpu = 00:00:00.72 ; elapsed = 00:00:00.73 . Memory (MB): peak = 3075.000 ; gain = 0.000 ; free physical = 25901 ; free virtual = 88718
+INFO: [Netlist 29-17] Analyzing 8 Unisim elements for replacement
+INFO: [Netlist 29-28] Unisim Transformation completed in 0 CPU seconds
+INFO: [Project 1-570] Preparing netlist for logic optimization
+INFO: [Opt 31-140] Inserted 1 IBUFs to IO ports without IO buffers.
+INFO: [Opt 31-141] Inserted 4 OBUFs to IO ports without IO buffers.
+
+Processing XDC Constraints
+Initializing timing engine
+Parsing XDC File [/data-2/milan/tmp/loopbram-a826-r3-verified/base-route/endstation_ax7101_1x1_tdm8/gateware/alinx_ax7101.xdc]
+INFO: [Timing 38-2] Deriving generated clocks [/data-2/milan/tmp/loopbram-a826-r3-verified/base-route/endstation_ax7101_1x1_tdm8/gateware/alinx_ax7101.xdc:215]
+Finished Parsing XDC File [/data-2/milan/tmp/loopbram-a826-r3-verified/base-route/endstation_ax7101_1x1_tdm8/gateware/alinx_ax7101.xdc]
+INFO: [Project 1-236] Implementation specific constraints were found while reading constraint file [/data-2/milan/tmp/loopbram-a826-r3-verified/base-route/endstation_ax7101_1x1_tdm8/gateware/alinx_ax7101.xdc]. These constraints will be ignored for synthesis but will be used in implementation. Impacted constraints are listed in the file [.Xil/alinx_ax7101_propImpl.xdc].
+Resolution: To avoid this warning, move constraints listed in [.Xil/alinx_ax7101_propImpl.xdc] to another XDC file and exclude this new file from synthesis with the used_in_synthesis property (File Properties dialog in GUI) and re-run elaboration/synthesis.
+Completed Processing XDC Constraints
+
+INFO: [Opt 31-138] Pushed 0 inverter(s) to 0 load pin(s).
+Netlist sorting complete. Time (s): cpu = 00:00:00.04 ; elapsed = 00:00:00.03 . Memory (MB): peak = 3345.637 ; gain = 0.000 ; free physical = 26157 ; free virtual = 89223
+INFO: [Project 1-111] Unisim Transformation Summary:
+  A total of 1 instances were transformed.
+  IOBUF => IOBUF (IBUF, OBUFT): 1 instance 
+
+RTL Elaboration Complete:  : Time (s): cpu = 00:00:39 ; elapsed = 00:00:31 . Memory (MB): peak = 3345.672 ; gain = 1343.141 ; free physical = 29034 ; free virtual = 92125
+340 Infos, 375 Warnings, 0 Critical Warnings and 0 Errors encountered.
+synth_design completed successfully
+synth_design: Time (s): cpu = 00:00:42 ; elapsed = 00:00:34 . Memory (MB): peak = 3345.672 ; gain = 1343.141 ; free physical = 29022 ; free virtual = 92109
+INFO: [Common 17-2834] synth_design peak Physical Memory [PSS] (MB): overall = 2346.233; main = 2346.233; forked = 290.822
+INFO: [Common 17-2834] synth_design peak Virtual Memory [VSS] (MB): overall = 3897.316; main = 3345.641; forked = 1032.523
+# write_verilog -force rtl.v
+# quit
+INFO: [Common 17-206] Exiting Vivado at Tue Nov 24 06:08:56 2026...

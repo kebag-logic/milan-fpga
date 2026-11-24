@@ -1,0 +1,17 @@
+Candidate head: 855529fe21fea685725a9edc4fe0a798154c6469
+Comparison base: 3cda030c174b325e36c26af6420487ff91346d15
+Source: leaf-capture/off/leaf.tcl
+Original SHA256: 28b9661cf5f9b2e11fff1ae8c3edbd6f0f52b73bb5da1c62905d98bcf8a27876
+Scope: complete text; paths and host fields normalized
+
+set_param general.maxThreads 8
+set_msg_config -id {Synth 8-324} -new_severity ERROR
+read_verilog -sv $CHECKOUT/hdl/ieee1722/aaf/KL_chan_map_capture.sv
+read_verilog -sv $SCRATCH/leaf-capture/capture_leaf.sv
+synth_design -mode out_of_context -top capture_leaf -part xc7a100t-fgg484-2 -directive AreaOptimized_high -generic INPUT_LOOPBACK_P=0 -generic LEGACY_P=0 -generic N_LB_STREAMS_P=1 -generic N_LB_CH_P=2
+create_clock -period 20 [get_ports clk_i]
+opt_design -directive ExploreArea
+report_utilization -hierarchical -file leaf_hier.rpt
+report_utilization -file leaf_util.rpt
+write_checkpoint -force leaf.dcp
+quit

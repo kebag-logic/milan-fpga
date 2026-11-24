@@ -1,0 +1,16 @@
+Candidate head: 855529fe21fea685725a9edc4fe0a798154c6469
+Comparison base: 3cda030c174b325e36c26af6420487ff91346d15
+Source: leaf/1/leaf.tcl
+Original SHA256: 27e7596c96775524c20f5d040c8d9608812999996137b9477c5bf9da413cff62
+Scope: complete text; paths and host fields normalized
+
+set_param general.maxThreads 8
+set_msg_config -id {Synth 8-324} -new_severity ERROR
+read_verilog -sv $CHECKOUT/hdl/ieee1722/aaf/KL_render_queue.sv
+synth_design -mode out_of_context -top KL_render_queue -part xc7a100t-fgg484-2 -directive AreaOptimized_high -generic INPUT_LOOPBACK_P=1 -generic CLK_FREQ_HZ_P=50000000 -generic IF_LEAD_P=1
+create_clock -period 20 [get_ports clk_i]
+opt_design -directive ExploreArea
+report_utilization -hierarchical -file leaf_hier.rpt
+report_utilization -file leaf_util.rpt
+write_checkpoint -force leaf.dcp
+quit

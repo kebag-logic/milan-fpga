@@ -1,0 +1,24 @@
+Candidate head: dc78aedae34c25a97125ecd6816a1f645db5575f
+Comparison base: 3cda030c174b325e36c26af6420487ff91346d15
+Source: disabled_pipeline.py
+Original SHA256: 80ab75155c1a1b40b0c8eaddab0213fe79c64c1f8158ca9176533b77f82cf3e7
+Scope: complete text; paths and host fields normalized
+
+import os,sys,subprocess,json,time
+from pathlib import Path
+w=Path(__file__).resolve().parent
+head=subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()
+results=[]
+for name in ['prepare_export.py','rtl_compare.py','canonical.py','synth_off.py']:
+ t=time.time()
+ with (w/(name+'.final.log')).open('w') as log:
+  r=subprocess.run([sys.executable,str(w/name)],stdout=log,stderr=subprocess.STDOUT,timeout=43200)
+ results.append(dict(script=name,head=head,exit=r.returncode,seconds=time.time()-t))
+ (w/'disabled-pipeline.json').write_text(json.dumps(results,indent=2))
+ print(name,r.returncode,flush=True)
+ if r.returncode: raise SystemExit(r.returncode)
+ if name=='canonical.py':
+  hashes=json.loads((w/'elaboration-hashes.json').read_text())
+  assert len(hashes)==4
+  for n in set(x['shape'] for x in hashes):
+   assert len(set(x['canonical_sha256'] for x in hashes if x['shape']==n))==1, n

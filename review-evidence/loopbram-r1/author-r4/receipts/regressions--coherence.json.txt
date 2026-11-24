@@ -1,0 +1,20 @@
+Candidate head: dc78aedae34c25a97125ecd6816a1f645db5575f
+Comparison base: 3cda030c174b325e36c26af6420487ff91346d15
+Source: regressions/coherence.json
+Original SHA256: b87f61a79d5070b627847a0edb4e89e99bc79c4b6e530829c54cf9f8f0acd1f9
+Scope: complete text; paths and host fields normalized
+
+{
+  "case": "coherence",
+  "command": [
+    "make",
+    "-s",
+    "-C",
+    "$CHECKOUT/tb/verilator/capture_coherence",
+    "VERILATOR_JOBS=4",
+    "run",
+    "dp"
+  ],
+  "exit": 0,
+  "seconds": 491.0382297039032
+}

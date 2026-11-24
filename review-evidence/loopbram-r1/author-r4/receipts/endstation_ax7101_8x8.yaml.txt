@@ -1,0 +1,147 @@
+Candidate head: dc78aedae34c25a97125ecd6816a1f645db5575f
+Comparison base: 3cda030c174b325e36c26af6420487ff91346d15
+Source: endstation_ax7101_8x8.yaml
+Original SHA256: 5b258505042971e2074f44bf4ecaf9e80c6c8de58054e287dcc4ddcb634bae60
+Scope: complete text; paths and host fields normalized
+
+audio_interface:
+  cluster_mapping:
+    fabric:
+      input_loopback_lane: true
+      loopback_lane: false
+    policy: role-pools
+    pools:
+      loopback: 8
+      pilot: true
+    render_ports: first
+  kind: tdm32
+  physical_channels:
+    capture: 0
+    render: 1
+  word_length_bits: 24
+board:
+  constraints:
+    eth_port: e1
+    flashboot: baremetal
+    floorplan: true
+    gtx_tx_invert: true
+    l2_bytes: 0
+    milan_clk_hz: 50000000
+    num_queues: 5
+    phy: gmii-1g
+    sys_clk_hz: 100000000
+    uart_baudrate: 115200
+  features:
+    datapath_probes: false
+    fabric_gptp: true
+    i2s_playback: false
+    latency_taps: false
+    render_lpf: false
+  target: ax7101
+clocking:
+  audio_pll_hz: 24576000
+  audio_unit_rates_hz:
+  - 48000
+  crf_output:
+    enabled: true
+    format: '0x041060010000BB80'
+  crf_sink: true
+  default_source: internal
+  media_clock_sources:
+  - internal
+  - crf
+  - input_stream
+  sampling_rate_hz: 48000
+control:
+  placement: split
+entity:
+  entity_id: mac-derived
+  entity_model_id: hash-derived
+  group_name: ''
+  name: Milan FPGA 8x8
+  serial_number: AX7101-0001
+  vendor_name: Kebag Logic
+gptp:
+  clock_accuracy: 34
+  clock_class: 248
+  domain: 0
+  egress_latency_ns: 219
+  ingress_latency_ns: 656
+  log_announce_interval: 0
+  log_pdelay_interval: 0
+  log_sync_interval: -3
+  priority1: 248
+  priority2: 248
+platform:
+  mac_address: 02:4b:4c:4b:4c:01
+  pp_mem_phys: 2138046464
+schema: kebag-logic/milan-endstation-config
+schema_version: 1.2.0
+srp:
+  bandwidth_limit_pct: 75
+  class_queue: 4
+  sr_class: A
+  stream_dmac_base: '0x91E0F000FE01'
+  tspec:
+    interval_frames: 1
+    policy: derived
+  vid: 2
+streams:
+  listeners:
+  - channels: 8
+    map_mode: dynamic
+    name: Stream In 0
+  - channels: 8
+    map_mode: dynamic
+    name: Stream In 1
+  - channels: 8
+    map_mode: dynamic
+    name: Stream In 2
+  - channels: 8
+    map_mode: dynamic
+    name: Stream In 3
+  - channels: 8
+    map_mode: dynamic
+    name: Stream In 4
+  - channels: 8
+    map_mode: dynamic
+    name: Stream In 5
+  - channels: 8
+    map_mode: dynamic
+    name: Stream In 6
+  - channels: 8
+    map_mode: dynamic
+    name: Stream In 7
+  talkers:
+  - channels: 8
+    clusters: 2
+    map_mode: dynamic
+    name: Stream Out 0
+  - channels: 8
+    clusters: 2
+    map_mode: dynamic
+    name: Stream Out 1
+  - channels: 8
+    clusters: 2
+    map_mode: dynamic
+    name: Stream Out 2
+  - channels: 8
+    clusters: 2
+    map_mode: dynamic
+    name: Stream Out 3
+  - channels: 8
+    clusters: 2
+    map_mode: dynamic
+    name: Stream Out 4
+  - channels: 8
+    clusters: 2
+    map_mode: dynamic
+    name: Stream Out 5
+  - channels: 8
+    clusters: 2
+    map_mode: dynamic
+    name: Stream Out 6
+  - channels: 8
+    clusters: 2
+    map_mode: dynamic
+    name: Stream Out 7

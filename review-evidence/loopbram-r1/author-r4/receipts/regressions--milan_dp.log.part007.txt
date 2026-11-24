@@ -1,0 +1,1976 @@
+Candidate head: dc78aedae34c25a97125ecd6816a1f645db5575f
+Comparison base: 3cda030c174b325e36c26af6420487ff91346d15
+Source: regressions/milan_dp.log
+Original SHA256: 9996809209e91499b4755ddaf4384e8a6ae744695b83776efefc823d91d127c7
+Scope: native compilation chatter omitted; other output retained; paths and host fields normalized
+
+  [ok]   0x0041 grid: INTERNAL engages the grid aligner (#629 A2-a) = 0x1
+  [ok]   0x0041 grid: a disengaged aligner leaves no residual trim on the NCO port = 0x0
+--------------------------------------------------------------
+checks: 2100   failures: 0
+RESULT: PASS
+./obj_nxn8/Vmilan_dp_nxn8
+=== milan_datapath NxN integration (N_STREAMS=8, P12) ===
+  [ok]   ID == 'MILN'                                   = 0x4d494c4e
+  [ok]   VERSION 0x0060 originally widened pending to unflushed bindings and AECP marks; #502 now reports accepted live name/map writes, and carries 0x005F's saved-state snapshot ownership contract, 0x005E's applied gPTP timestamp latency corrections at 0x7F0, 0x005C's SRP status words read by code, 0x005B's SET_SAMPLING_RATE list-check pin, 0x005A's GET_TX_STATE Listener-code pin, 0x0059's PPS words, 0x0058's slip pair, ownerless option OFF and the 0x0055 notification work = 0x20060
+  [ok]   [AECP] before the restore READ_DESCRIPTOR is HELD, not answered = 0x1
+  [ok]   [AECP] ...a second one is DROPPED at the slot gate (word 37 +1) = 0x1
+  [ok]   [AECP] ...read over a posted access that did not error = 0x1
+  [ok]   [AECP-IMG] the shipped generator emitted an image = 0x1
+  [i]    image: 20800 bytes, 132 descriptors
+  [ok]   [AECP-IMG] ...beginning with the AEMI magic    = 0x41454d49
+  [ok]   [BOOT] PP_STAT the restore walk sequenced (done 1, CLOSED 0) = 0x4
+  [ok]   [AECP] ...and the held READ_DESCRIPTOR is answered at the release = 0x1
+  [ok]   [AECP-IMG] the snapshot window answers ('KLPP') = 0x4b4c5050
+  [ok]   [AECP-IMG] ...over a posted access that did not error = 0x1
+  [ok]   [AECP-IMG] ENTITY,0: the image HAS this descriptor = 0x1
+  [ok]   [AECP-IMG] ENTITY,0: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-IMG] ENTITY,0: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-IMG] ENTITY,0: status SUCCESS(0)         = 0x0
+  [ok]   [AECP-IMG] ENTITY,0: sequence_id echoed        = 0x4011
+  [ok]   [AECP-IMG] ENTITY,0: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-IMG] ENTITY,0: cdl = 12 + 4 + the descriptor = 0x148
+  [ok]   [AECP-IMG] ENTITY,0: the frame is as long as it claims = 0x162
+  [ok]   [AECP-IMG] ENTITY,0: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-IMG] ENTITY,0: reserved @26 is zero      = 0x0
+  [ok]   [AECP-IMG] ENTITY,0: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-IMG] ENTITY,0: descriptor_type field @28 = 0x0
+  [ok]   [AECP-IMG] ENTITY,0: descriptor_index field @30 = 0x0
+  [i]    desc-store word 34 = 0x00058801 after 7 burst(s), 1071 beat(s)
+  [ok]   [AECP-IMG] the store FETCHED from descriptor memory = 0x1
+  [ok]   [AECP-IMG] the image VALIDATED (word 34 bit 0) = 0x1
+  [ok]   [AECP-IMG] ...with no store fault (word 34 [4:1]) = 0x0
+  [ok]   [AECP-IMG] STREAM_INPUT,1: the image HAS this descriptor = 0x1
+  [ok]   [AECP-IMG] STREAM_INPUT,1: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-IMG] STREAM_INPUT,1: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-IMG] STREAM_INPUT,1: status SUCCESS(0)   = 0x0
+  [ok]   [AECP-IMG] STREAM_INPUT,1: sequence_id echoed  = 0x4012
+  [ok]   [AECP-IMG] STREAM_INPUT,1: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-IMG] STREAM_INPUT,1: cdl = 12 + 4 + the descriptor = 0xaa
+  [ok]   [AECP-IMG] STREAM_INPUT,1: the frame is as long as it claims = 0xc4
+  [ok]   [AECP-IMG] STREAM_INPUT,1: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-IMG] STREAM_INPUT,1: reserved @26 is zero = 0x0
+  [ok]   [AECP-IMG] STREAM_INPUT,1: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-IMG] STREAM_INPUT,1: descriptor_type field @28 = 0x5
+  [ok]   [AECP-IMG] STREAM_INPUT,1: descriptor_index field @30 = 0x1
+  [i]    response-memory lane writes: +40 for ENTITY (312 B), +21 for STREAM_INPUT 1 (154 B)
+  [ok]   [AECP-IMG] the response memory COMMITTED the ENTITY lanes = 0x1
+  [ok]   [AECP-IMG] ...and committed STREAM_INPUT 1's as well = 0x1
+  [ok]   [AECP-IMG] no response was voided by the memory = 0x0
+  [ok]   [AECP-IMG] the response buffer reports no fault (word 36) = 0x0
+  [ok]   [AECP-WTMO] a memory that NEVER ACKS still gets an ANSWER = 0x1
+  [ok]   [AECP-WTMO] ...still an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-WTMO] ...with ENTITY_MISBEHAVING(10), the documented degradation = 0xa
+  [ok]   [AECP-WTMO] ...carrying no payload it could not build (cdl = 12) = 0xc
+  [ok]   [AECP-WTMO] ...still padded to the 60-octet minimum = 0x3c
+  [ok]   [AECP-WTMO] ...and the response buffer reports its fault (word 36) = 0x1
+  [ok]   [AECP-WTMO] the station HEALS when the memory returns (no reset) = 0x1
+  [ok]   [AECP-WTMO] ...and the response buffer's fault clears (word 36) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 000000 index 0: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 000000 index 0: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 000000 index 0: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 000000 index 0: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 000000 index 0: sequence_id echoed = 0x4100
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 000000 index 0: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 000000 index 0: cdl = 12 + 4 + the descriptor = 0x148
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 000000 index 0: the frame is as long as it claims = 0x162
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 000000 index 0: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 000000 index 0: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 000000 index 0: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 000000 index 0: descriptor_type field @28 = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 000000 index 0: descriptor_index field @30 = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0001 index 0: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0001 index 0: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0001 index 0: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0001 index 0: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0001 index 0: sequence_id echoed = 0x4101
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0001 index 0: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0001 index 0: cdl = 12 + 4 + the descriptor = 0x7a
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0001 index 0: the frame is as long as it claims = 0x94
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0001 index 0: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0001 index 0: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0001 index 0: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0001 index 0: descriptor_type field @28 = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0001 index 0: descriptor_index field @30 = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0002 index 0: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0002 index 0: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0002 index 0: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0002 index 0: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0002 index 0: sequence_id echoed = 0x4102
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0002 index 0: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0002 index 0: cdl = 12 + 4 + the descriptor = 0xa4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0002 index 0: the frame is as long as it claims = 0xbe
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0002 index 0: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0002 index 0: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0002 index 0: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0002 index 0: descriptor_type field @28 = 0x2
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0002 index 0: descriptor_index field @30 = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 0: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 0: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 0: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 0: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 0: sequence_id echoed = 0x4103
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 0: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 0: cdl = 12 + 4 + the descriptor = 0xaa
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 0: the frame is as long as it claims = 0xc4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 0: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 0: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 0: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 0: descriptor_type field @28 = 0x5
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 0: descriptor_index field @30 = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 1: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 1: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 1: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 1: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 1: sequence_id echoed = 0x4104
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 1: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 1: cdl = 12 + 4 + the descriptor = 0xaa
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 1: the frame is as long as it claims = 0xc4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 1: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 1: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 1: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 1: descriptor_type field @28 = 0x5
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 1: descriptor_index field @30 = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 2: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 2: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 2: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 2: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 2: sequence_id echoed = 0x4105
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 2: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 2: cdl = 12 + 4 + the descriptor = 0xaa
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 2: the frame is as long as it claims = 0xc4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 2: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 2: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 2: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 2: descriptor_type field @28 = 0x5
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 2: descriptor_index field @30 = 0x2
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 3: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 3: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 3: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 3: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 3: sequence_id echoed = 0x4106
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 3: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 3: cdl = 12 + 4 + the descriptor = 0xaa
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 3: the frame is as long as it claims = 0xc4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 3: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 3: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 3: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 3: descriptor_type field @28 = 0x5
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 3: descriptor_index field @30 = 0x3
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 4: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 4: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 4: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 4: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 4: sequence_id echoed = 0x4107
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 4: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 4: cdl = 12 + 4 + the descriptor = 0xaa
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 4: the frame is as long as it claims = 0xc4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 4: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 4: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 4: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 4: descriptor_type field @28 = 0x5
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 4: descriptor_index field @30 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 5: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 5: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 5: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 5: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 5: sequence_id echoed = 0x4108
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 5: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 5: cdl = 12 + 4 + the descriptor = 0xaa
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 5: the frame is as long as it claims = 0xc4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 5: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 5: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 5: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 5: descriptor_type field @28 = 0x5
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 5: descriptor_index field @30 = 0x5
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 6: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 6: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 6: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 6: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 6: sequence_id echoed = 0x4109
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 6: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 6: cdl = 12 + 4 + the descriptor = 0xaa
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 6: the frame is as long as it claims = 0xc4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 6: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 6: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 6: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 6: descriptor_type field @28 = 0x5
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 6: descriptor_index field @30 = 0x6
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 7: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 7: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 7: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 7: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 7: sequence_id echoed = 0x410a
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 7: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 7: cdl = 12 + 4 + the descriptor = 0xaa
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 7: the frame is as long as it claims = 0xc4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 7: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 7: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 7: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 7: descriptor_type field @28 = 0x5
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 7: descriptor_index field @30 = 0x7
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 8: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 8: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 8: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 8: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 8: sequence_id echoed = 0x410b
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 8: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 8: cdl = 12 + 4 + the descriptor = 0xa2
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 8: the frame is as long as it claims = 0xbc
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 8: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 8: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 8: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 8: descriptor_type field @28 = 0x5
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 8: descriptor_index field @30 = 0x8
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 0: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 0: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 0: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 0: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 0: sequence_id echoed = 0x410c
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 0: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 0: cdl = 12 + 4 + the descriptor = 0xa2
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 0: the frame is as long as it claims = 0xbc
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 0: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 0: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 0: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 0: descriptor_type field @28 = 0x6
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 0: descriptor_index field @30 = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 1: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 1: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 1: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 1: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 1: sequence_id echoed = 0x410d
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 1: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 1: cdl = 12 + 4 + the descriptor = 0xa2
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 1: the frame is as long as it claims = 0xbc
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 1: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 1: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 1: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 1: descriptor_type field @28 = 0x6
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 1: descriptor_index field @30 = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 2: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 2: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 2: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 2: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 2: sequence_id echoed = 0x410e
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 2: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 2: cdl = 12 + 4 + the descriptor = 0xa2
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 2: the frame is as long as it claims = 0xbc
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 2: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 2: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 2: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 2: descriptor_type field @28 = 0x6
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 2: descriptor_index field @30 = 0x2
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 3: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 3: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 3: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 3: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 3: sequence_id echoed = 0x410f
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 3: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 3: cdl = 12 + 4 + the descriptor = 0xa2
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 3: the frame is as long as it claims = 0xbc
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 3: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 3: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 3: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 3: descriptor_type field @28 = 0x6
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 3: descriptor_index field @30 = 0x3
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 4: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 4: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 4: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 4: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 4: sequence_id echoed = 0x4110
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 4: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 4: cdl = 12 + 4 + the descriptor = 0xa2
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 4: the frame is as long as it claims = 0xbc
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 4: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 4: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 4: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 4: descriptor_type field @28 = 0x6
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 4: descriptor_index field @30 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 5: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 5: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 5: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 5: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 5: sequence_id echoed = 0x4111
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 5: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 5: cdl = 12 + 4 + the descriptor = 0xa2
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 5: the frame is as long as it claims = 0xbc
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 5: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 5: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 5: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 5: descriptor_type field @28 = 0x6
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 5: descriptor_index field @30 = 0x5
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 6: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 6: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 6: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 6: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 6: sequence_id echoed = 0x4112
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 6: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 6: cdl = 12 + 4 + the descriptor = 0xa2
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 6: the frame is as long as it claims = 0xbc
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 6: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 6: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 6: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 6: descriptor_type field @28 = 0x6
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 6: descriptor_index field @30 = 0x6
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 7: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 7: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 7: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 7: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 7: sequence_id echoed = 0x4113
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 7: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 7: cdl = 12 + 4 + the descriptor = 0xa2
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 7: the frame is as long as it claims = 0xbc
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 7: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 7: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 7: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 7: descriptor_type field @28 = 0x6
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 7: descriptor_index field @30 = 0x7
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 8: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 8: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 8: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 8: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 8: sequence_id echoed = 0x4114
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 8: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 8: cdl = 12 + 4 + the descriptor = 0xa2
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 8: the frame is as long as it claims = 0xbc
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 8: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 8: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 8: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 8: descriptor_type field @28 = 0x6
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 8: descriptor_index field @30 = 0x8
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0009 index 0: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0009 index 0: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0009 index 0: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0009 index 0: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0009 index 0: sequence_id echoed = 0x4115
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0009 index 0: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0009 index 0: cdl = 12 + 4 + the descriptor = 0x76
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0009 index 0: the frame is as long as it claims = 0x90
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0009 index 0: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0009 index 0: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0009 index 0: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0009 index 0: descriptor_type field @28 = 0x9
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0009 index 0: descriptor_index field @30 = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 0: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 0: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 0: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 0: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 0: sequence_id echoed = 0x4116
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 0: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 0: cdl = 12 + 4 + the descriptor = 0x66
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 0: the frame is as long as it claims = 0x80
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 0: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 0: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 0: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 0: descriptor_type field @28 = 0xa
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 0: descriptor_index field @30 = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 1: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 1: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 1: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 1: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 1: sequence_id echoed = 0x4117
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 1: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 1: cdl = 12 + 4 + the descriptor = 0x66
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 1: the frame is as long as it claims = 0x80
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 1: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 1: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 1: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 1: descriptor_type field @28 = 0xa
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 1: descriptor_index field @30 = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 2: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 2: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 2: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 2: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 2: sequence_id echoed = 0x4118
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 2: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 2: cdl = 12 + 4 + the descriptor = 0x66
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 2: the frame is as long as it claims = 0x80
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 2: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 2: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 2: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 2: descriptor_type field @28 = 0xa
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 2: descriptor_index field @30 = 0x2
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 3: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 3: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 3: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 3: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 3: sequence_id echoed = 0x4119
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 3: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 3: cdl = 12 + 4 + the descriptor = 0x66
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 3: the frame is as long as it claims = 0x80
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 3: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 3: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 3: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 3: descriptor_type field @28 = 0xa
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 3: descriptor_index field @30 = 0x3
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 4: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 4: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 4: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 4: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 4: sequence_id echoed = 0x411a
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 4: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 4: cdl = 12 + 4 + the descriptor = 0x66
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 4: the frame is as long as it claims = 0x80
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 4: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 4: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 4: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 4: descriptor_type field @28 = 0xa
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 4: descriptor_index field @30 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 5: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 5: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 5: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 5: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 5: sequence_id echoed = 0x411b
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 5: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 5: cdl = 12 + 4 + the descriptor = 0x66
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 5: the frame is as long as it claims = 0x80
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 5: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 5: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 5: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 5: descriptor_type field @28 = 0xa
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 5: descriptor_index field @30 = 0x5
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 6: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 6: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 6: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 6: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 6: sequence_id echoed = 0x411c
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 6: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 6: cdl = 12 + 4 + the descriptor = 0x66
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 6: the frame is as long as it claims = 0x80
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 6: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 6: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 6: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 6: descriptor_type field @28 = 0xa
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 6: descriptor_index field @30 = 0x6
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 7: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 7: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 7: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 7: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 7: sequence_id echoed = 0x411d
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 7: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 7: cdl = 12 + 4 + the descriptor = 0x66
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 7: the frame is as long as it claims = 0x80
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 7: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 7: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 7: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 7: descriptor_type field @28 = 0xa
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 7: descriptor_index field @30 = 0x7
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 8: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 8: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 8: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 8: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 8: sequence_id echoed = 0x411e
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 8: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 8: cdl = 12 + 4 + the descriptor = 0x66
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 8: the frame is as long as it claims = 0x80
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 8: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 8: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 8: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 8: descriptor_type field @28 = 0xa
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 8: descriptor_index field @30 = 0x8
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 9: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 9: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 9: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 9: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 9: sequence_id echoed = 0x411f
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 9: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 9: cdl = 12 + 4 + the descriptor = 0x66
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 9: the frame is as long as it claims = 0x80
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 9: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 9: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 9: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 9: descriptor_type field @28 = 0xa
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 9: descriptor_index field @30 = 0x9
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000c index 0: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000c index 0: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000c index 0: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000c index 0: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000c index 0: sequence_id echoed = 0x4120
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000c index 0: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000c index 0: cdl = 12 + 4 + the descriptor = 0x58
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000c index 0: the frame is as long as it claims = 0x72
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000c index 0: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000c index 0: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000c index 0: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000c index 0: descriptor_type field @28 = 0xc
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000c index 0: descriptor_index field @30 = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000d index 0: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000d index 0: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000d index 0: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000d index 0: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000d index 0: sequence_id echoed = 0x4121
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000d index 0: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000d index 0: cdl = 12 + 4 + the descriptor = 0x1d4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000d index 0: the frame is as long as it claims = 0x1ee
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000d index 0: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000d index 0: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000d index 0: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000d index 0: descriptor_type field @28 = 0xd
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000d index 0: descriptor_index field @30 = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 0: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 0: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 0: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 0: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 0: sequence_id echoed = 0x4122
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 0: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 0: cdl = 12 + 4 + the descriptor = 0x24
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 0: the frame is as long as it claims = 0x3e
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 0: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 0: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 0: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 0: descriptor_type field @28 = 0xe
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 0: descriptor_index field @30 = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 1: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 1: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 1: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 1: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 1: sequence_id echoed = 0x4123
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 1: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 1: cdl = 12 + 4 + the descriptor = 0x24
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 1: the frame is as long as it claims = 0x3e
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 1: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 1: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 1: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 1: descriptor_type field @28 = 0xe
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 1: descriptor_index field @30 = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 2: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 2: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 2: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 2: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 2: sequence_id echoed = 0x4124
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 2: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 2: cdl = 12 + 4 + the descriptor = 0x24
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 2: the frame is as long as it claims = 0x3e
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 2: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 2: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 2: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 2: descriptor_type field @28 = 0xe
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 2: descriptor_index field @30 = 0x2
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 3: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 3: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 3: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 3: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 3: sequence_id echoed = 0x4125
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 3: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 3: cdl = 12 + 4 + the descriptor = 0x24
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 3: the frame is as long as it claims = 0x3e
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 3: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 3: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 3: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 3: descriptor_type field @28 = 0xe
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 3: descriptor_index field @30 = 0x3
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 4: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 4: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 4: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 4: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 4: sequence_id echoed = 0x4126
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 4: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 4: cdl = 12 + 4 + the descriptor = 0x24
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 4: the frame is as long as it claims = 0x3e
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 4: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 4: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 4: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 4: descriptor_type field @28 = 0xe
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 4: descriptor_index field @30 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 5: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 5: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 5: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 5: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 5: sequence_id echoed = 0x4127
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 5: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 5: cdl = 12 + 4 + the descriptor = 0x24
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 5: the frame is as long as it claims = 0x3e
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 5: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 5: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 5: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 5: descriptor_type field @28 = 0xe
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 5: descriptor_index field @30 = 0x5
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 6: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 6: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 6: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 6: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 6: sequence_id echoed = 0x4128
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 6: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 6: cdl = 12 + 4 + the descriptor = 0x24
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 6: the frame is as long as it claims = 0x3e
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 6: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 6: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 6: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 6: descriptor_type field @28 = 0xe
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 6: descriptor_index field @30 = 0x6
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 7: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 7: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 7: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 7: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 7: sequence_id echoed = 0x4129
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 7: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 7: cdl = 12 + 4 + the descriptor = 0x24
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 7: the frame is as long as it claims = 0x3e
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 7: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 7: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 7: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 7: descriptor_type field @28 = 0xe
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 7: descriptor_index field @30 = 0x7
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 0: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 0: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 0: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 0: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 0: sequence_id echoed = 0x412a
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 0: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 0: cdl = 12 + 4 + the descriptor = 0x24
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 0: the frame is as long as it claims = 0x3e
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 0: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 0: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 0: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 0: descriptor_type field @28 = 0xf
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 0: descriptor_index field @30 = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 1: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 1: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 1: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 1: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 1: sequence_id echoed = 0x412b
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 1: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 1: cdl = 12 + 4 + the descriptor = 0x24
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 1: the frame is as long as it claims = 0x3e
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 1: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 1: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 1: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 1: descriptor_type field @28 = 0xf
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 1: descriptor_index field @30 = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 2: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 2: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 2: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 2: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 2: sequence_id echoed = 0x412c
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 2: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 2: cdl = 12 + 4 + the descriptor = 0x24
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 2: the frame is as long as it claims = 0x3e
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 2: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 2: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 2: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 2: descriptor_type field @28 = 0xf
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 2: descriptor_index field @30 = 0x2
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 3: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 3: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 3: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 3: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 3: sequence_id echoed = 0x412d
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 3: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 3: cdl = 12 + 4 + the descriptor = 0x24
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 3: the frame is as long as it claims = 0x3e
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 3: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 3: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 3: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 3: descriptor_type field @28 = 0xf
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 3: descriptor_index field @30 = 0x3
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 4: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 4: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 4: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 4: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 4: sequence_id echoed = 0x412e
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 4: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 4: cdl = 12 + 4 + the descriptor = 0x24
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 4: the frame is as long as it claims = 0x3e
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 4: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 4: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 4: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 4: descriptor_type field @28 = 0xf
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 4: descriptor_index field @30 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 5: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 5: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 5: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 5: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 5: sequence_id echoed = 0x412f
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 5: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 5: cdl = 12 + 4 + the descriptor = 0x24
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 5: the frame is as long as it claims = 0x3e
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 5: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 5: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 5: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 5: descriptor_type field @28 = 0xf
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 5: descriptor_index field @30 = 0x5
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 6: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 6: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 6: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 6: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 6: sequence_id echoed = 0x4130
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 6: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 6: cdl = 12 + 4 + the descriptor = 0x24
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 6: the frame is as long as it claims = 0x3e
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 6: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 6: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 6: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 6: descriptor_type field @28 = 0xf
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 6: descriptor_index field @30 = 0x6
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 7: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 7: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 7: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 7: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 7: sequence_id echoed = 0x4131
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 7: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 7: cdl = 12 + 4 + the descriptor = 0x24
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 7: the frame is as long as it claims = 0x3e
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 7: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 7: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 7: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 7: descriptor_type field @28 = 0xf
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 7: descriptor_index field @30 = 0x7
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 0: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 0: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 0: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 0: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 0: sequence_id echoed = 0x4132
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 0: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 0: cdl = 12 + 4 + the descriptor = 0x6a
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 0: the frame is as long as it claims = 0x84
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 0: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 0: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 0: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 0: descriptor_type field @28 = 0x14
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 0: descriptor_index field @30 = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 1: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 1: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 1: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 1: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 1: sequence_id echoed = 0x4133
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 1: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 1: cdl = 12 + 4 + the descriptor = 0x6a
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 1: the frame is as long as it claims = 0x84
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 1: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 1: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 1: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 1: descriptor_type field @28 = 0x14
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 1: descriptor_index field @30 = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 2: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 2: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 2: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 2: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 2: sequence_id echoed = 0x4134
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 2: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 2: cdl = 12 + 4 + the descriptor = 0x6a
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 2: the frame is as long as it claims = 0x84
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 2: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 2: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 2: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 2: descriptor_type field @28 = 0x14
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 2: descriptor_index field @30 = 0x2
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 3: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 3: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 3: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 3: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 3: sequence_id echoed = 0x4135
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 3: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 3: cdl = 12 + 4 + the descriptor = 0x6a
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 3: the frame is as long as it claims = 0x84
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 3: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 3: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 3: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 3: descriptor_type field @28 = 0x14
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 3: descriptor_index field @30 = 0x3
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 4: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 4: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 4: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 4: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 4: sequence_id echoed = 0x4136
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 4: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 4: cdl = 12 + 4 + the descriptor = 0x6a
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 4: the frame is as long as it claims = 0x84
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 4: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 4: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 4: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 4: descriptor_type field @28 = 0x14
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 4: descriptor_index field @30 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 5: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 5: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 5: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 5: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 5: sequence_id echoed = 0x4137
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 5: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 5: cdl = 12 + 4 + the descriptor = 0x6a
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 5: the frame is as long as it claims = 0x84
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 5: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 5: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 5: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 5: descriptor_type field @28 = 0x14
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 5: descriptor_index field @30 = 0x5
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 6: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 6: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 6: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 6: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 6: sequence_id echoed = 0x4138
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 6: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 6: cdl = 12 + 4 + the descriptor = 0x6a
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 6: the frame is as long as it claims = 0x84
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 6: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 6: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 6: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 6: descriptor_type field @28 = 0x14
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 6: descriptor_index field @30 = 0x6
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 7: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 7: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 7: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 7: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 7: sequence_id echoed = 0x4139
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 7: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 7: cdl = 12 + 4 + the descriptor = 0x6a
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 7: the frame is as long as it claims = 0x84
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 7: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 7: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 7: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 7: descriptor_type field @28 = 0x14
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 7: descriptor_index field @30 = 0x7
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 8: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 8: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 8: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 8: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 8: sequence_id echoed = 0x413a
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 8: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 8: cdl = 12 + 4 + the descriptor = 0x6a
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 8: the frame is as long as it claims = 0x84
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 8: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 8: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 8: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 8: descriptor_type field @28 = 0x14
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 8: descriptor_index field @30 = 0x8
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 9: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 9: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 9: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 9: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 9: sequence_id echoed = 0x413b
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 9: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 9: cdl = 12 + 4 + the descriptor = 0x6a
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 9: the frame is as long as it claims = 0x84
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 9: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 9: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 9: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 9: descriptor_type field @28 = 0x14
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 9: descriptor_index field @30 = 0x9
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 10: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 10: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 10: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 10: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 10: sequence_id echoed = 0x413c
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 10: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 10: cdl = 12 + 4 + the descriptor = 0x6a
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 10: the frame is as long as it claims = 0x84
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 10: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 10: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 10: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 10: descriptor_type field @28 = 0x14
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 10: descriptor_index field @30 = 0xa
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 11: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 11: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 11: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 11: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 11: sequence_id echoed = 0x413d
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 11: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 11: cdl = 12 + 4 + the descriptor = 0x6a
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 11: the frame is as long as it claims = 0x84
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 11: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 11: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 11: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 11: descriptor_type field @28 = 0x14
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 11: descriptor_index field @30 = 0xb
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 12: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 12: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 12: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 12: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 12: sequence_id echoed = 0x413e
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 12: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 12: cdl = 12 + 4 + the descriptor = 0x6a
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 12: the frame is as long as it claims = 0x84
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 12: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 12: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 12: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 12: descriptor_type field @28 = 0x14
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 12: descriptor_index field @30 = 0xc
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 13: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 13: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 13: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 13: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 13: sequence_id echoed = 0x413f
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 13: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 13: cdl = 12 + 4 + the descriptor = 0x6a
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 13: the frame is as long as it claims = 0x84
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 13: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 13: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 13: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 13: descriptor_type field @28 = 0x14
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 13: descriptor_index field @30 = 0xd
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 14: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 14: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 14: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 14: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 14: sequence_id echoed = 0x4140
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 14: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 14: cdl = 12 + 4 + the descriptor = 0x6a
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 14: the frame is as long as it claims = 0x84
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 14: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 14: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 14: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 14: descriptor_type field @28 = 0x14
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 14: descriptor_index field @30 = 0xe
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 15: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 15: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 15: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 15: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 15: sequence_id echoed = 0x4141
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 15: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 15: cdl = 12 + 4 + the descriptor = 0x6a
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 15: the frame is as long as it claims = 0x84
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 15: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 15: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 15: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 15: descriptor_type field @28 = 0x14
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 15: descriptor_index field @30 = 0xf
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 16: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 16: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 16: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 16: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 16: sequence_id echoed = 0x4142
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 16: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 16: cdl = 12 + 4 + the descriptor = 0x6a
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 16: the frame is as long as it claims = 0x84
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 16: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 16: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 16: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 16: descriptor_type field @28 = 0x14
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 16: descriptor_index field @30 = 0x10
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 17: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 17: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 17: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 17: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 17: sequence_id echoed = 0x4143
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 17: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 17: cdl = 12 + 4 + the descriptor = 0x6a
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 17: the frame is as long as it claims = 0x84
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 17: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 17: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 17: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 17: descriptor_type field @28 = 0x14
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 17: descriptor_index field @30 = 0x11
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 18: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 18: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 18: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 18: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 18: sequence_id echoed = 0x4144
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 18: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 18: cdl = 12 + 4 + the descriptor = 0x6a
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 18: the frame is as long as it claims = 0x84
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 18: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 18: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 18: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 18: descriptor_type field @28 = 0x14
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 18: descriptor_index field @30 = 0x12
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 19: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 19: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 19: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 19: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 19: sequence_id echoed = 0x4145
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 19: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 19: cdl = 12 + 4 + the descriptor = 0x6a
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 19: the frame is as long as it claims = 0x84
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 19: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 19: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 19: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 19: descriptor_type field @28 = 0x14
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 19: descriptor_index field @30 = 0x13
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 20: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 20: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 20: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 20: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 20: sequence_id echoed = 0x4146
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 20: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 20: cdl = 12 + 4 + the descriptor = 0x6a
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 20: the frame is as long as it claims = 0x84
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 20: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 20: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 20: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 20: descriptor_type field @28 = 0x14
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 20: descriptor_index field @30 = 0x14
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 21: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 21: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 21: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 21: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 21: sequence_id echoed = 0x4147
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 21: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 21: cdl = 12 + 4 + the descriptor = 0x6a
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 21: the frame is as long as it claims = 0x84
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 21: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 21: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 21: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 21: descriptor_type field @28 = 0x14
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 21: descriptor_index field @30 = 0x15
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 22: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 22: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 22: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 22: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 22: sequence_id echoed = 0x4148
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 22: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 22: cdl = 12 + 4 + the descriptor = 0x6a
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 22: the frame is as long as it claims = 0x84
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 22: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 22: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 22: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 22: descriptor_type field @28 = 0x14
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 22: descriptor_index field @30 = 0x16
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 23: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 23: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 23: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 23: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 23: sequence_id echoed = 0x4149
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 23: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 23: cdl = 12 + 4 + the descriptor = 0x6a
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 23: the frame is as long as it claims = 0x84
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 23: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 23: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 23: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 23: descriptor_type field @28 = 0x14
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 23: descriptor_index field @30 = 0x17
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 24: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 24: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 24: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 24: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 24: sequence_id echoed = 0x414a
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 24: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 24: cdl = 12 + 4 + the descriptor = 0x6a
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 24: the frame is as long as it claims = 0x84
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 24: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 24: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 24: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 24: descriptor_type field @28 = 0x14
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 24: descriptor_index field @30 = 0x18
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 25: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 25: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 25: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 25: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 25: sequence_id echoed = 0x414b
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 25: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 25: cdl = 12 + 4 + the descriptor = 0x6a
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 25: the frame is as long as it claims = 0x84
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 25: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 25: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 25: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 25: descriptor_type field @28 = 0x14
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 25: descriptor_index field @30 = 0x19
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 26: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 26: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 26: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 26: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 26: sequence_id echoed = 0x414c
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 26: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 26: cdl = 12 + 4 + the descriptor = 0x6a
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 26: the frame is as long as it claims = 0x84
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 26: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 26: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 26: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 26: descriptor_type field @28 = 0x14
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 26: descriptor_index field @30 = 0x1a
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 27: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 27: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 27: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 27: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 27: sequence_id echoed = 0x414d
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 27: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 27: cdl = 12 + 4 + the descriptor = 0x6a
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 27: the frame is as long as it claims = 0x84
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 27: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 27: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 27: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 27: descriptor_type field @28 = 0x14
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 27: descriptor_index field @30 = 0x1b
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 28: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 28: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 28: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 28: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 28: sequence_id echoed = 0x414e
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 28: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 28: cdl = 12 + 4 + the descriptor = 0x6a
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 28: the frame is as long as it claims = 0x84
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 28: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 28: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 28: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 28: descriptor_type field @28 = 0x14
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 28: descriptor_index field @30 = 0x1c
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 29: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 29: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 29: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 29: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 29: sequence_id echoed = 0x414f
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 29: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 29: cdl = 12 + 4 + the descriptor = 0x6a
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 29: the frame is as long as it claims = 0x84
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 29: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 29: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 29: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 29: descriptor_type field @28 = 0x14
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 29: descriptor_index field @30 = 0x1d
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 30: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 30: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 30: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 30: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 30: sequence_id echoed = 0x4150
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 30: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 30: cdl = 12 + 4 + the descriptor = 0x6a
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 30: the frame is as long as it claims = 0x84
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 30: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 30: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 30: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 30: descriptor_type field @28 = 0x14
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 30: descriptor_index field @30 = 0x1e
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 31: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 31: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 31: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 31: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 31: sequence_id echoed = 0x4151
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 31: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 31: cdl = 12 + 4 + the descriptor = 0x6a
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 31: the frame is as long as it claims = 0x84
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 31: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 31: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 31: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 31: descriptor_type field @28 = 0x14
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 31: descriptor_index field @30 = 0x1f
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 32: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 32: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 32: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 32: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 32: sequence_id echoed = 0x4152
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 32: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 32: cdl = 12 + 4 + the descriptor = 0x6a
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 32: the frame is as long as it claims = 0x84
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 32: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 32: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 32: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 32: descriptor_type field @28 = 0x14
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 32: descriptor_index field @30 = 0x20
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 33: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 33: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 33: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 33: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 33: sequence_id echoed = 0x4153
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 33: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 33: cdl = 12 + 4 + the descriptor = 0x6a
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 33: the frame is as long as it claims = 0x84
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 33: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 33: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 33: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 33: descriptor_type field @28 = 0x14
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 33: descriptor_index field @30 = 0x21
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 34: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 34: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 34: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 34: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 34: sequence_id echoed = 0x4154
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 34: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 34: cdl = 12 + 4 + the descriptor = 0x6a
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 34: the frame is as long as it claims = 0x84
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 34: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 34: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 34: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 34: descriptor_type field @28 = 0x14
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 34: descriptor_index field @30 = 0x22
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 35: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 35: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 35: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 35: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 35: sequence_id echoed = 0x4155
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 35: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 35: cdl = 12 + 4 + the descriptor = 0x6a
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 35: the frame is as long as it claims = 0x84
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 35: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 35: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 35: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 35: descriptor_type field @28 = 0x14
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 35: descriptor_index field @30 = 0x23
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 36: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 36: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 36: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 36: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 36: sequence_id echoed = 0x4156
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 36: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 36: cdl = 12 + 4 + the descriptor = 0x6a
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 36: the frame is as long as it claims = 0x84
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 36: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 36: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 36: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 36: descriptor_type field @28 = 0x14
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 36: descriptor_index field @30 = 0x24
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 37: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 37: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 37: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 37: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 37: sequence_id echoed = 0x4157
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 37: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 37: cdl = 12 + 4 + the descriptor = 0x6a
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 37: the frame is as long as it claims = 0x84
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 37: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 37: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 37: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 37: descriptor_type field @28 = 0x14
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 37: descriptor_index field @30 = 0x25
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 38: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 38: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 38: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 38: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 38: sequence_id echoed = 0x4158
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 38: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 38: cdl = 12 + 4 + the descriptor = 0x6a
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 38: the frame is as long as it claims = 0x84
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 38: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 38: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 38: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 38: descriptor_type field @28 = 0x14
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 38: descriptor_index field @30 = 0x26
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 39: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 39: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 39: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 39: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 39: sequence_id echoed = 0x4159
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 39: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 39: cdl = 12 + 4 + the descriptor = 0x6a
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 39: the frame is as long as it claims = 0x84
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 39: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 39: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 39: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 39: descriptor_type field @28 = 0x14
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 39: descriptor_index field @30 = 0x27
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 40: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 40: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 40: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 40: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 40: sequence_id echoed = 0x415a
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 40: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 40: cdl = 12 + 4 + the descriptor = 0x6a
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 40: the frame is as long as it claims = 0x84
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 40: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 40: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 40: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 40: descriptor_type field @28 = 0x14
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 40: descriptor_index field @30 = 0x28
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 41: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 41: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 41: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 41: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 41: sequence_id echoed = 0x415b
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 41: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 41: cdl = 12 + 4 + the descriptor = 0x6a
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 41: the frame is as long as it claims = 0x84
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 41: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 41: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 41: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 41: descriptor_type field @28 = 0x14
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 41: descriptor_index field @30 = 0x29
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 42: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 42: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 42: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 42: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 42: sequence_id echoed = 0x415c
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 42: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 42: cdl = 12 + 4 + the descriptor = 0x6a
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 42: the frame is as long as it claims = 0x84
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 42: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 42: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 42: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 42: descriptor_type field @28 = 0x14
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 42: descriptor_index field @30 = 0x2a
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 43: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 43: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 43: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 43: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 43: sequence_id echoed = 0x415d
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 43: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 43: cdl = 12 + 4 + the descriptor = 0x6a
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 43: the frame is as long as it claims = 0x84
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 43: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 43: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 43: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 43: descriptor_type field @28 = 0x14
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 43: descriptor_index field @30 = 0x2b
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 44: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 44: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 44: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 44: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 44: sequence_id echoed = 0x415e
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 44: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 44: cdl = 12 + 4 + the descriptor = 0x6a
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 44: the frame is as long as it claims = 0x84
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 44: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 44: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 44: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 44: descriptor_type field @28 = 0x14
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 44: descriptor_index field @30 = 0x2c
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 45: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 45: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 45: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 45: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 45: sequence_id echoed = 0x415f
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 45: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 45: cdl = 12 + 4 + the descriptor = 0x6a
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 45: the frame is as long as it claims = 0x84
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 45: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 45: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 45: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 45: descriptor_type field @28 = 0x14
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 45: descriptor_index field @30 = 0x2d
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 46: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 46: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 46: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 46: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 46: sequence_id echoed = 0x4160
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 46: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 46: cdl = 12 + 4 + the descriptor = 0x6a
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 46: the frame is as long as it claims = 0x84
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 46: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 46: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 46: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 46: descriptor_type field @28 = 0x14
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 46: descriptor_index field @30 = 0x2e
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 47: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 47: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 47: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 47: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 47: sequence_id echoed = 0x4161
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 47: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 47: cdl = 12 + 4 + the descriptor = 0x6a
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 47: the frame is as long as it claims = 0x84
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 47: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 47: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 47: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 47: descriptor_type field @28 = 0x14
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 47: descriptor_index field @30 = 0x2f
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 48: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 48: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 48: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 48: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 48: sequence_id echoed = 0x4162
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 48: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 48: cdl = 12 + 4 + the descriptor = 0x6a
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 48: the frame is as long as it claims = 0x84
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 48: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 48: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 48: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 48: descriptor_type field @28 = 0x14
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 48: descriptor_index field @30 = 0x30
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 49: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 49: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 49: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 49: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 49: sequence_id echoed = 0x4163
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 49: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 49: cdl = 12 + 4 + the descriptor = 0x6a
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 49: the frame is as long as it claims = 0x84
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 49: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 49: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 49: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 49: descriptor_type field @28 = 0x14
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 49: descriptor_index field @30 = 0x31
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 50: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 50: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 50: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 50: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 50: sequence_id echoed = 0x4164
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 50: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 50: cdl = 12 + 4 + the descriptor = 0x6a
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 50: the frame is as long as it claims = 0x84
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 50: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 50: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 50: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 50: descriptor_type field @28 = 0x14
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 50: descriptor_index field @30 = 0x32
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 51: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 51: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 51: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 51: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 51: sequence_id echoed = 0x4165
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 51: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 51: cdl = 12 + 4 + the descriptor = 0x6a
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 51: the frame is as long as it claims = 0x84
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 51: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 51: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 51: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 51: descriptor_type field @28 = 0x14
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 51: descriptor_index field @30 = 0x33
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 52: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 52: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 52: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 52: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 52: sequence_id echoed = 0x4166
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 52: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 52: cdl = 12 + 4 + the descriptor = 0x6a
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 52: the frame is as long as it claims = 0x84
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 52: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 52: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 52: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 52: descriptor_type field @28 = 0x14
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 52: descriptor_index field @30 = 0x34
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 53: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 53: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 53: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 53: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 53: sequence_id echoed = 0x4167
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 53: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 53: cdl = 12 + 4 + the descriptor = 0x6a
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 53: the frame is as long as it claims = 0x84
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 53: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 53: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 53: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 53: descriptor_type field @28 = 0x14
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 53: descriptor_index field @30 = 0x35
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 54: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 54: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 54: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 54: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 54: sequence_id echoed = 0x4168
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 54: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 54: cdl = 12 + 4 + the descriptor = 0x6a
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 54: the frame is as long as it claims = 0x84
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 54: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 54: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 54: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 54: descriptor_type field @28 = 0x14
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 54: descriptor_index field @30 = 0x36
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 55: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 55: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 55: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 55: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 55: sequence_id echoed = 0x4169
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 55: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 55: cdl = 12 + 4 + the descriptor = 0x6a
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 55: the frame is as long as it claims = 0x84
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 55: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 55: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 55: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 55: descriptor_type field @28 = 0x14
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 55: descriptor_index field @30 = 0x37
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 56: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 56: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 56: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 56: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 56: sequence_id echoed = 0x416a
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 56: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 56: cdl = 12 + 4 + the descriptor = 0x6a
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 56: the frame is as long as it claims = 0x84
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 56: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 56: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 56: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 56: descriptor_type field @28 = 0x14
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 56: descriptor_index field @30 = 0x38
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 57: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 57: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 57: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 57: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 57: sequence_id echoed = 0x416b
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 57: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 57: cdl = 12 + 4 + the descriptor = 0x6a
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 57: the frame is as long as it claims = 0x84
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 57: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 57: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 57: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 57: descriptor_type field @28 = 0x14
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 57: descriptor_index field @30 = 0x39
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 58: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 58: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 58: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 58: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 58: sequence_id echoed = 0x416c
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 58: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 58: cdl = 12 + 4 + the descriptor = 0x6a
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 58: the frame is as long as it claims = 0x84
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 58: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 58: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 58: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 58: descriptor_type field @28 = 0x14
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 58: descriptor_index field @30 = 0x3a
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 59: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 59: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 59: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 59: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 59: sequence_id echoed = 0x416d
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 59: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 59: cdl = 12 + 4 + the descriptor = 0x6a
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 59: the frame is as long as it claims = 0x84
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 59: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 59: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 59: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 59: descriptor_type field @28 = 0x14
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 59: descriptor_index field @30 = 0x3b
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 60: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 60: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 60: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 60: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 60: sequence_id echoed = 0x416e
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 60: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 60: cdl = 12 + 4 + the descriptor = 0x6a
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 60: the frame is as long as it claims = 0x84
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 60: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 60: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 60: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 60: descriptor_type field @28 = 0x14
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 60: descriptor_index field @30 = 0x3c
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 61: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 61: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 61: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 61: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 61: sequence_id echoed = 0x416f
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 61: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 61: cdl = 12 + 4 + the descriptor = 0x6a
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 61: the frame is as long as it claims = 0x84
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 61: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 61: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 61: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 61: descriptor_type field @28 = 0x14
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 61: descriptor_index field @30 = 0x3d
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 62: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 62: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 62: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 62: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 62: sequence_id echoed = 0x4170
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 62: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 62: cdl = 12 + 4 + the descriptor = 0x6a
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 62: the frame is as long as it claims = 0x84
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 62: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 62: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 62: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 62: descriptor_type field @28 = 0x14
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 62: descriptor_index field @30 = 0x3e
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 63: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 63: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 63: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 63: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 63: sequence_id echoed = 0x4171
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 63: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 63: cdl = 12 + 4 + the descriptor = 0x6a
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 63: the frame is as long as it claims = 0x84
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 63: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 63: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 63: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 63: descriptor_type field @28 = 0x14
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 63: descriptor_index field @30 = 0x3f
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 64: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 64: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 64: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 64: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 64: sequence_id echoed = 0x4172
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 64: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 64: cdl = 12 + 4 + the descriptor = 0x6a
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 64: the frame is as long as it claims = 0x84
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 64: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 64: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 64: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 64: descriptor_type field @28 = 0x14
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 64: descriptor_index field @30 = 0x40
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 65: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 65: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 65: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 65: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 65: sequence_id echoed = 0x4173
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 65: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 65: cdl = 12 + 4 + the descriptor = 0x6a
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 65: the frame is as long as it claims = 0x84
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 65: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 65: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 65: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 65: descriptor_type field @28 = 0x14
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 65: descriptor_index field @30 = 0x41
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 66: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 66: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 66: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 66: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 66: sequence_id echoed = 0x4174
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 66: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 66: cdl = 12 + 4 + the descriptor = 0x6a
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 66: the frame is as long as it claims = 0x84
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 66: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 66: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 66: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 66: descriptor_type field @28 = 0x14
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 66: descriptor_index field @30 = 0x42
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 67: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 67: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 67: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 67: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 67: sequence_id echoed = 0x4175
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 67: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 67: cdl = 12 + 4 + the descriptor = 0x6a
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 67: the frame is as long as it claims = 0x84
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 67: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 67: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 67: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 67: descriptor_type field @28 = 0x14
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 67: descriptor_index field @30 = 0x43
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 68: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 68: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 68: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 68: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 68: sequence_id echoed = 0x4176
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 68: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 68: cdl = 12 + 4 + the descriptor = 0x6a
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 68: the frame is as long as it claims = 0x84
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 68: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 68: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 68: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 68: descriptor_type field @28 = 0x14
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 68: descriptor_index field @30 = 0x44
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 69: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 69: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 69: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 69: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 69: sequence_id echoed = 0x4177
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 69: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 69: cdl = 12 + 4 + the descriptor = 0x6a
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 69: the frame is as long as it claims = 0x84
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 69: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 69: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 69: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 69: descriptor_type field @28 = 0x14
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 69: descriptor_index field @30 = 0x45
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 70: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 70: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 70: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 70: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 70: sequence_id echoed = 0x4178
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 70: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 70: cdl = 12 + 4 + the descriptor = 0x6a
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 70: the frame is as long as it claims = 0x84
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 70: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 70: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 70: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 70: descriptor_type field @28 = 0x14
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 70: descriptor_index field @30 = 0x46
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 71: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 71: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 71: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 71: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 71: sequence_id echoed = 0x4179
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 71: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 71: cdl = 12 + 4 + the descriptor = 0x6a
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 71: the frame is as long as it claims = 0x84
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 71: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 71: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 71: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 71: descriptor_type field @28 = 0x14
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 71: descriptor_index field @30 = 0x47
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 72: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 72: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 72: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 72: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 72: sequence_id echoed = 0x417a
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 72: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 72: cdl = 12 + 4 + the descriptor = 0x6a
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 72: the frame is as long as it claims = 0x84
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 72: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 72: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 72: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 72: descriptor_type field @28 = 0x14
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 72: descriptor_index field @30 = 0x48
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 73: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 73: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 73: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 73: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 73: sequence_id echoed = 0x417b
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 73: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 73: cdl = 12 + 4 + the descriptor = 0x6a
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 73: the frame is as long as it claims = 0x84
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 73: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 73: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 73: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 73: descriptor_type field @28 = 0x14
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 73: descriptor_index field @30 = 0x49
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 74: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 74: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 74: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 74: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 74: sequence_id echoed = 0x417c
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 74: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 74: cdl = 12 + 4 + the descriptor = 0x6a
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 74: the frame is as long as it claims = 0x84
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 74: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 74: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 74: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 74: descriptor_type field @28 = 0x14
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 74: descriptor_index field @30 = 0x4a
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 75: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 75: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 75: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 75: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 75: sequence_id echoed = 0x417d
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 75: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 75: cdl = 12 + 4 + the descriptor = 0x6a
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 75: the frame is as long as it claims = 0x84
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 75: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 75: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 75: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 75: descriptor_type field @28 = 0x14
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 75: descriptor_index field @30 = 0x4b
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 76: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 76: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 76: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 76: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 76: sequence_id echoed = 0x417e
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 76: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 76: cdl = 12 + 4 + the descriptor = 0x6a
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 76: the frame is as long as it claims = 0x84
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 76: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 76: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 76: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 76: descriptor_type field @28 = 0x14
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 76: descriptor_index field @30 = 0x4c
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 77: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 77: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 77: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 77: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 77: sequence_id echoed = 0x417f
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 77: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 77: cdl = 12 + 4 + the descriptor = 0x6a
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 77: the frame is as long as it claims = 0x84
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 77: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 77: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 77: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 77: descriptor_type field @28 = 0x14
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 77: descriptor_index field @30 = 0x4d
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 78: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 78: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 78: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 78: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 78: sequence_id echoed = 0x4180
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 78: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 78: cdl = 12 + 4 + the descriptor = 0x6a
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 78: the frame is as long as it claims = 0x84
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 78: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 78: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 78: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 78: descriptor_type field @28 = 0x14
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 78: descriptor_index field @30 = 0x4e
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 79: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 79: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 79: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 79: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 79: sequence_id echoed = 0x4181
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 79: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 79: cdl = 12 + 4 + the descriptor = 0x6a
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 79: the frame is as long as it claims = 0x84
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 79: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 79: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 79: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 79: descriptor_type field @28 = 0x14
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 79: descriptor_index field @30 = 0x4f
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x001a index 0: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x001a index 0: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x001a index 0: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x001a index 0: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x001a index 0: sequence_id echoed = 0x4182
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x001a index 0: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x001a index 0: cdl = 12 + 4 + the descriptor = 0x81
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x001a index 0: the frame is as long as it claims = 0x9b
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x001a index 0: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x001a index 0: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x001a index 0: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x001a index 0: descriptor_type field @28 = 0x1a
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x001a index 0: descriptor_index field @30 = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0024 index 0: the image HAS this descriptor = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0024 index 0: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0024 index 0: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0024 index 0: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0024 index 0: sequence_id echoed = 0x4183
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0024 index 0: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0024 index 0: cdl = 12 + 4 + the descriptor = 0x70
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0024 index 0: the frame is as long as it claims = 0x8a
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0024 index 0: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0024 index 0: reserved @26 is zero = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0024 index 0: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0024 index 0: descriptor_type field @28 = 0x24
+  [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0024 index 0: descriptor_index field @30 = 0x0
+  [i]    model-driven READ_DESCRIPTOR: 132 of the generator's 132 descriptors served
+  [ok]   [AECP-MODEL] the generated model is not empty  = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 000000/0 name 0: ANSWERED at the fixed length = 0x6e
+  [ok]   [AECP-MODEL] GET_NAME 000000/0 name 0: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] GET_NAME 000000/0 name 0: cdl 84  = 0x54
+  [ok]   [AECP-MODEL] GET_NAME 000000/0 name 0: selector echoed = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 000000/0 name 0: bytes equal READ_DESCRIPTOR = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 000000/0 name 1: ANSWERED at the fixed length = 0x6e
+  [ok]   [AECP-MODEL] GET_NAME 000000/0 name 1: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] GET_NAME 000000/0 name 1: cdl 84  = 0x54
+  [ok]   [AECP-MODEL] GET_NAME 000000/0 name 1: selector echoed = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 000000/0 name 1: bytes equal READ_DESCRIPTOR = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x0001/0 name 0: ANSWERED at the fixed length = 0x6e
+  [ok]   [AECP-MODEL] GET_NAME 0x0001/0 name 0: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] GET_NAME 0x0001/0 name 0: cdl 84  = 0x54
+  [ok]   [AECP-MODEL] GET_NAME 0x0001/0 name 0: selector echoed = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x0001/0 name 0: bytes equal READ_DESCRIPTOR = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x0002/0 name 0: ANSWERED at the fixed length = 0x6e
+  [ok]   [AECP-MODEL] GET_NAME 0x0002/0 name 0: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] GET_NAME 0x0002/0 name 0: cdl 84  = 0x54
+  [ok]   [AECP-MODEL] GET_NAME 0x0002/0 name 0: selector echoed = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x0002/0 name 0: bytes equal READ_DESCRIPTOR = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x0005/0 name 0: ANSWERED at the fixed length = 0x6e
+  [ok]   [AECP-MODEL] GET_NAME 0x0005/0 name 0: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] GET_NAME 0x0005/0 name 0: cdl 84  = 0x54
+  [ok]   [AECP-MODEL] GET_NAME 0x0005/0 name 0: selector echoed = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x0005/0 name 0: bytes equal READ_DESCRIPTOR = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x0005/1 name 0: ANSWERED at the fixed length = 0x6e
+  [ok]   [AECP-MODEL] GET_NAME 0x0005/1 name 0: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] GET_NAME 0x0005/1 name 0: cdl 84  = 0x54
+  [ok]   [AECP-MODEL] GET_NAME 0x0005/1 name 0: selector echoed = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x0005/1 name 0: bytes equal READ_DESCRIPTOR = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x0005/2 name 0: ANSWERED at the fixed length = 0x6e
+  [ok]   [AECP-MODEL] GET_NAME 0x0005/2 name 0: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] GET_NAME 0x0005/2 name 0: cdl 84  = 0x54
+  [ok]   [AECP-MODEL] GET_NAME 0x0005/2 name 0: selector echoed = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x0005/2 name 0: bytes equal READ_DESCRIPTOR = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x0005/3 name 0: ANSWERED at the fixed length = 0x6e
+  [ok]   [AECP-MODEL] GET_NAME 0x0005/3 name 0: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] GET_NAME 0x0005/3 name 0: cdl 84  = 0x54
+  [ok]   [AECP-MODEL] GET_NAME 0x0005/3 name 0: selector echoed = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x0005/3 name 0: bytes equal READ_DESCRIPTOR = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x0005/4 name 0: ANSWERED at the fixed length = 0x6e
+  [ok]   [AECP-MODEL] GET_NAME 0x0005/4 name 0: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] GET_NAME 0x0005/4 name 0: cdl 84  = 0x54
+  [ok]   [AECP-MODEL] GET_NAME 0x0005/4 name 0: selector echoed = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x0005/4 name 0: bytes equal READ_DESCRIPTOR = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x0005/5 name 0: ANSWERED at the fixed length = 0x6e
+  [ok]   [AECP-MODEL] GET_NAME 0x0005/5 name 0: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] GET_NAME 0x0005/5 name 0: cdl 84  = 0x54
+  [ok]   [AECP-MODEL] GET_NAME 0x0005/5 name 0: selector echoed = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x0005/5 name 0: bytes equal READ_DESCRIPTOR = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x0005/6 name 0: ANSWERED at the fixed length = 0x6e
+  [ok]   [AECP-MODEL] GET_NAME 0x0005/6 name 0: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] GET_NAME 0x0005/6 name 0: cdl 84  = 0x54
+  [ok]   [AECP-MODEL] GET_NAME 0x0005/6 name 0: selector echoed = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x0005/6 name 0: bytes equal READ_DESCRIPTOR = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x0005/7 name 0: ANSWERED at the fixed length = 0x6e
+  [ok]   [AECP-MODEL] GET_NAME 0x0005/7 name 0: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] GET_NAME 0x0005/7 name 0: cdl 84  = 0x54
+  [ok]   [AECP-MODEL] GET_NAME 0x0005/7 name 0: selector echoed = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x0005/7 name 0: bytes equal READ_DESCRIPTOR = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x0005/8 name 0: ANSWERED at the fixed length = 0x6e
+  [ok]   [AECP-MODEL] GET_NAME 0x0005/8 name 0: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] GET_NAME 0x0005/8 name 0: cdl 84  = 0x54
+  [ok]   [AECP-MODEL] GET_NAME 0x0005/8 name 0: selector echoed = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x0005/8 name 0: bytes equal READ_DESCRIPTOR = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x0006/0 name 0: ANSWERED at the fixed length = 0x6e
+  [ok]   [AECP-MODEL] GET_NAME 0x0006/0 name 0: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] GET_NAME 0x0006/0 name 0: cdl 84  = 0x54
+  [ok]   [AECP-MODEL] GET_NAME 0x0006/0 name 0: selector echoed = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x0006/0 name 0: bytes equal READ_DESCRIPTOR = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x0006/1 name 0: ANSWERED at the fixed length = 0x6e
+  [ok]   [AECP-MODEL] GET_NAME 0x0006/1 name 0: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] GET_NAME 0x0006/1 name 0: cdl 84  = 0x54
+  [ok]   [AECP-MODEL] GET_NAME 0x0006/1 name 0: selector echoed = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x0006/1 name 0: bytes equal READ_DESCRIPTOR = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x0006/2 name 0: ANSWERED at the fixed length = 0x6e
+  [ok]   [AECP-MODEL] GET_NAME 0x0006/2 name 0: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] GET_NAME 0x0006/2 name 0: cdl 84  = 0x54
+  [ok]   [AECP-MODEL] GET_NAME 0x0006/2 name 0: selector echoed = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x0006/2 name 0: bytes equal READ_DESCRIPTOR = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x0006/3 name 0: ANSWERED at the fixed length = 0x6e
+  [ok]   [AECP-MODEL] GET_NAME 0x0006/3 name 0: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] GET_NAME 0x0006/3 name 0: cdl 84  = 0x54
+  [ok]   [AECP-MODEL] GET_NAME 0x0006/3 name 0: selector echoed = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x0006/3 name 0: bytes equal READ_DESCRIPTOR = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x0006/4 name 0: ANSWERED at the fixed length = 0x6e
+  [ok]   [AECP-MODEL] GET_NAME 0x0006/4 name 0: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] GET_NAME 0x0006/4 name 0: cdl 84  = 0x54
+  [ok]   [AECP-MODEL] GET_NAME 0x0006/4 name 0: selector echoed = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x0006/4 name 0: bytes equal READ_DESCRIPTOR = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x0006/5 name 0: ANSWERED at the fixed length = 0x6e
+  [ok]   [AECP-MODEL] GET_NAME 0x0006/5 name 0: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] GET_NAME 0x0006/5 name 0: cdl 84  = 0x54
+  [ok]   [AECP-MODEL] GET_NAME 0x0006/5 name 0: selector echoed = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x0006/5 name 0: bytes equal READ_DESCRIPTOR = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x0006/6 name 0: ANSWERED at the fixed length = 0x6e
+  [ok]   [AECP-MODEL] GET_NAME 0x0006/6 name 0: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] GET_NAME 0x0006/6 name 0: cdl 84  = 0x54
+  [ok]   [AECP-MODEL] GET_NAME 0x0006/6 name 0: selector echoed = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x0006/6 name 0: bytes equal READ_DESCRIPTOR = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x0006/7 name 0: ANSWERED at the fixed length = 0x6e
+  [ok]   [AECP-MODEL] GET_NAME 0x0006/7 name 0: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] GET_NAME 0x0006/7 name 0: cdl 84  = 0x54
+  [ok]   [AECP-MODEL] GET_NAME 0x0006/7 name 0: selector echoed = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x0006/7 name 0: bytes equal READ_DESCRIPTOR = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x0006/8 name 0: ANSWERED at the fixed length = 0x6e
+  [ok]   [AECP-MODEL] GET_NAME 0x0006/8 name 0: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] GET_NAME 0x0006/8 name 0: cdl 84  = 0x54
+  [ok]   [AECP-MODEL] GET_NAME 0x0006/8 name 0: selector echoed = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x0006/8 name 0: bytes equal READ_DESCRIPTOR = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x0009/0 name 0: ANSWERED at the fixed length = 0x6e
+  [ok]   [AECP-MODEL] GET_NAME 0x0009/0 name 0: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] GET_NAME 0x0009/0 name 0: cdl 84  = 0x54
+  [ok]   [AECP-MODEL] GET_NAME 0x0009/0 name 0: selector echoed = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x0009/0 name 0: bytes equal READ_DESCRIPTOR = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x000a/0 name 0: ANSWERED at the fixed length = 0x6e
+  [ok]   [AECP-MODEL] GET_NAME 0x000a/0 name 0: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] GET_NAME 0x000a/0 name 0: cdl 84  = 0x54
+  [ok]   [AECP-MODEL] GET_NAME 0x000a/0 name 0: selector echoed = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x000a/0 name 0: bytes equal READ_DESCRIPTOR = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x000a/1 name 0: ANSWERED at the fixed length = 0x6e
+  [ok]   [AECP-MODEL] GET_NAME 0x000a/1 name 0: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] GET_NAME 0x000a/1 name 0: cdl 84  = 0x54
+  [ok]   [AECP-MODEL] GET_NAME 0x000a/1 name 0: selector echoed = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x000a/1 name 0: bytes equal READ_DESCRIPTOR = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x000a/2 name 0: ANSWERED at the fixed length = 0x6e
+  [ok]   [AECP-MODEL] GET_NAME 0x000a/2 name 0: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] GET_NAME 0x000a/2 name 0: cdl 84  = 0x54
+  [ok]   [AECP-MODEL] GET_NAME 0x000a/2 name 0: selector echoed = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x000a/2 name 0: bytes equal READ_DESCRIPTOR = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x000a/3 name 0: ANSWERED at the fixed length = 0x6e
+  [ok]   [AECP-MODEL] GET_NAME 0x000a/3 name 0: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] GET_NAME 0x000a/3 name 0: cdl 84  = 0x54
+  [ok]   [AECP-MODEL] GET_NAME 0x000a/3 name 0: selector echoed = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x000a/3 name 0: bytes equal READ_DESCRIPTOR = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x000a/4 name 0: ANSWERED at the fixed length = 0x6e
+  [ok]   [AECP-MODEL] GET_NAME 0x000a/4 name 0: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] GET_NAME 0x000a/4 name 0: cdl 84  = 0x54
+  [ok]   [AECP-MODEL] GET_NAME 0x000a/4 name 0: selector echoed = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x000a/4 name 0: bytes equal READ_DESCRIPTOR = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x000a/5 name 0: ANSWERED at the fixed length = 0x6e
+  [ok]   [AECP-MODEL] GET_NAME 0x000a/5 name 0: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] GET_NAME 0x000a/5 name 0: cdl 84  = 0x54
+  [ok]   [AECP-MODEL] GET_NAME 0x000a/5 name 0: selector echoed = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x000a/5 name 0: bytes equal READ_DESCRIPTOR = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x000a/6 name 0: ANSWERED at the fixed length = 0x6e
+  [ok]   [AECP-MODEL] GET_NAME 0x000a/6 name 0: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] GET_NAME 0x000a/6 name 0: cdl 84  = 0x54
+  [ok]   [AECP-MODEL] GET_NAME 0x000a/6 name 0: selector echoed = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x000a/6 name 0: bytes equal READ_DESCRIPTOR = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x000a/7 name 0: ANSWERED at the fixed length = 0x6e
+  [ok]   [AECP-MODEL] GET_NAME 0x000a/7 name 0: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] GET_NAME 0x000a/7 name 0: cdl 84  = 0x54
+  [ok]   [AECP-MODEL] GET_NAME 0x000a/7 name 0: selector echoed = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x000a/7 name 0: bytes equal READ_DESCRIPTOR = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x000a/8 name 0: ANSWERED at the fixed length = 0x6e
+  [ok]   [AECP-MODEL] GET_NAME 0x000a/8 name 0: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] GET_NAME 0x000a/8 name 0: cdl 84  = 0x54
+  [ok]   [AECP-MODEL] GET_NAME 0x000a/8 name 0: selector echoed = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x000a/8 name 0: bytes equal READ_DESCRIPTOR = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x000a/9 name 0: ANSWERED at the fixed length = 0x6e
+  [ok]   [AECP-MODEL] GET_NAME 0x000a/9 name 0: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] GET_NAME 0x000a/9 name 0: cdl 84  = 0x54
+  [ok]   [AECP-MODEL] GET_NAME 0x000a/9 name 0: selector echoed = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x000a/9 name 0: bytes equal READ_DESCRIPTOR = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x0014/0 name 0: ANSWERED at the fixed length = 0x6e
+  [ok]   [AECP-MODEL] GET_NAME 0x0014/0 name 0: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] GET_NAME 0x0014/0 name 0: cdl 84  = 0x54
+  [ok]   [AECP-MODEL] GET_NAME 0x0014/0 name 0: selector echoed = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x0014/0 name 0: bytes equal READ_DESCRIPTOR = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x0014/1 name 0: ANSWERED at the fixed length = 0x6e
+  [ok]   [AECP-MODEL] GET_NAME 0x0014/1 name 0: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] GET_NAME 0x0014/1 name 0: cdl 84  = 0x54
+  [ok]   [AECP-MODEL] GET_NAME 0x0014/1 name 0: selector echoed = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x0014/1 name 0: bytes equal READ_DESCRIPTOR = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x0014/2 name 0: ANSWERED at the fixed length = 0x6e
+  [ok]   [AECP-MODEL] GET_NAME 0x0014/2 name 0: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] GET_NAME 0x0014/2 name 0: cdl 84  = 0x54
+  [ok]   [AECP-MODEL] GET_NAME 0x0014/2 name 0: selector echoed = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x0014/2 name 0: bytes equal READ_DESCRIPTOR = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x0014/3 name 0: ANSWERED at the fixed length = 0x6e
+  [ok]   [AECP-MODEL] GET_NAME 0x0014/3 name 0: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] GET_NAME 0x0014/3 name 0: cdl 84  = 0x54
+  [ok]   [AECP-MODEL] GET_NAME 0x0014/3 name 0: selector echoed = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x0014/3 name 0: bytes equal READ_DESCRIPTOR = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x0014/4 name 0: ANSWERED at the fixed length = 0x6e
+  [ok]   [AECP-MODEL] GET_NAME 0x0014/4 name 0: status SUCCESS(0) = 0x0
+  [ok]   [AECP-MODEL] GET_NAME 0x0014/4 name 0: cdl 84  = 0x54
+  [ok]   [AECP-MODEL] GET_NAME 0x0014/4 name 0: selector echoed = 0x1
+  [ok]   [AECP-MODEL] GET_NAME 0x0014/4 name 0: bytes equal READ_DESCRIPTOR = 0x1
