@@ -1,0 +1,116 @@
+[
+  {
+    "name": "products-pipeline-command",
+    "command": [
+      "<home-path>/litex-milan/venv/bin/python3",
+      "-B",
+      "$VALIDATION_STORAGE/artysplit-a829/r4/build-corrected/final-product-identity.py"
+    ],
+    "returncode": 0,
+    "environment": {
+      "PYTHONHASHSEED": "0",
+      "TMPDIR": "$VALIDATION_STORAGE/artysplit-a829/r4/build-corrected/work-tmp"
+    },
+    "log": "$VALIDATION_STORAGE/artysplit-a829/r4/build-corrected/products-pipeline-command.log"
+  },
+  {
+    "name": "docs-pipeline-command",
+    "command": [
+      "<home-path>/litex-milan/venv/bin/python3",
+      "-B",
+      "$VALIDATION_STORAGE/artysplit-a829/r4/build-corrected/final-product-docs.py"
+    ],
+    "returncode": 0,
+    "environment": {
+      "PYTHONHASHSEED": "0",
+      "TMPDIR": "$VALIDATION_STORAGE/artysplit-a829/r4/build-corrected/work-tmp"
+    },
+    "log": "$VALIDATION_STORAGE/artysplit-a829/r4/build-corrected/docs-pipeline-command.log"
+  },
+  {
+    "name": "identity-final-export-command",
+    "command": [
+      "<home-path>/litex-milan/venv/bin/python3",
+      "-B",
+      "$VALIDATION_STORAGE/artysplit-a829/r4/build-corrected/identity-final-export.py"
+    ],
+    "returncode": 0,
+    "environment": {
+      "PYTHONHASHSEED": "0",
+      "TMPDIR": "$VALIDATION_STORAGE/artysplit-a829/r4/build-corrected/work-tmp"
+    },
+    "log": "$VALIDATION_STORAGE/artysplit-a829/r4/build-corrected/identity-final-export-command.log"
+  },
+  {
+    "name": "boot-pipeline-command",
+    "command": [
+      "<home-path>/litex-milan/venv/bin/python3",
+      "-B",
+      "$VALIDATION_STORAGE/artysplit-a829/r4/build-corrected/run-final-other-gates.py",
+      "boot"
+    ],
+    "returncode": 0,
+    "environment": {
+      "PYTHONHASHSEED": "0",
+      "TMPDIR": "$VALIDATION_STORAGE/artysplit-a829/r4/build-corrected/work-tmp"
+    },
+    "log": "$VALIDATION_STORAGE/artysplit-a829/r4/build-corrected/boot-pipeline-command.log"
+  },
+  {
+    "name": "final-service-selftest",
+    "command": [
+      "<home-path>/litex-milan/venv/bin/python3",
+      "-B",
+      "tb/verilator/ctrl_service_budget/selftest.py"
+    ],
+    "returncode": 0,
+    "environment": {
+      "PYTHONHASHSEED": "0",
+      "TMPDIR": "$VALIDATION_STORAGE/artysplit-a829/r4/build-corrected/work-tmp"
+    },
+    "log": "$VALIDATION_STORAGE/artysplit-a829/r4/build-corrected/final-service-selftest.log"
+  },
+  {
+    "name": "firmware-pipeline-command",
+    "command": [
+      "<home-path>/litex-milan/venv/bin/python3",
+      "-B",
+      "$VALIDATION_STORAGE/artysplit-a829/r4/build-corrected/run-final-other-gates.py",
+      "firmware"
+    ],
+    "returncode": 0,
+    "environment": {
+      "PYTHONHASHSEED": "0",
+      "TMPDIR": "$VALIDATION_STORAGE/artysplit-a829/r4/build-corrected/work-tmp"
+    },
+    "log": "$VALIDATION_STORAGE/artysplit-a829/r4/build-corrected/firmware-pipeline-command.log"
+  },
+  {
+    "name": "final-census-command",
+    "command": [
+      "<home-path>/litex-milan/venv/bin/python3",
+      "-B",
+      "$VALIDATION_STORAGE/artysplit-a829/r4/build-corrected/run-final-census.py"
+    ],
+    "returncode": 0,
+    "environment": {
+      "PYTHONHASHSEED": "0",
+      "TMPDIR": "$VALIDATION_STORAGE/artysplit-a829/r4/build-corrected/work-tmp"
+    },
+    "log": "$VALIDATION_STORAGE/artysplit-a829/r4/build-corrected/final-census-command.log"
+  },
+  {
+    "name": "watch-final-costs-command",
+    "command": [
+      "<home-path>/litex-milan/venv/bin/python3",
+      "-B",
+      "$VALIDATION_STORAGE/artysplit-a829/r4/build-corrected/watch-final-costs.py"
+    ],
+    "returncode": 0,
+    "environment": {
+      "PYTHONHASHSEED": "0",
+      "TMPDIR": "$VALIDATION_STORAGE/artysplit-a829/r4/build-corrected/work-tmp"
+    },
+    "log": "$VALIDATION_STORAGE/artysplit-a829/r4/build-corrected/watch-final-costs-command.log"
+  }
+]

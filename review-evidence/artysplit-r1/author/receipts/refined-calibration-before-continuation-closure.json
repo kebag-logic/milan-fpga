@@ -1,0 +1,93 @@
+{
+  "status": "INPUTS CLOSED FOR CALIBRATION CONTINUATION; NOT QUALIFIED",
+  "time": "2026-11-24T01:38:27.895059+00:00",
+  "firmware_tree": "59c35633b6f3aac780391d5769dc90352f05b3384db3f1d6ffccd895efb63168",
+  "groups": 54,
+  "commands": [
+    {
+      "command": [
+        "<home-path>/litex-milan/venv/bin/python3",
+        "-B",
+        "$VALIDATION_STORAGE/artysplit-a829/r4/refined/census.py",
+        "$VALIDATION_STORAGE/artysplit-a829/r4/refined/calibration-before-continuation-census.json",
+        "$VALIDATION_STORAGE/artysplit-a829/r4/refined/final-census/none/results",
+        "$VALIDATION_STORAGE/artysplit-a829/r4/refined/final-census/answering-ports/results",
+        "$VALIDATION_STORAGE/artysplit-a829/r4/refined/final-census/answering-every-port/results",
+        "$VALIDATION_STORAGE/artysplit-a829/r4/refined/final-census/valid-destinations/results",
+        "$VALIDATION_STORAGE/artysplit-a829/r4/refined/final-census/declaring-outputs/results",
+        "$VALIDATION_STORAGE/artysplit-a829/r4/refined/final-census/answering-later/results",
+        "$VALIDATION_STORAGE/artysplit-a829/r4/refined/final-census/talker-notices/results",
+        "$VALIDATION_STORAGE/artysplit-a829/r4/refined/final-census/shutdown-entry/results"
+      ],
+      "returncode": 0,
+      "log": "$VALIDATION_STORAGE/artysplit-a829/r4/refined/calibration-before-continuation-census.log"
+    },
+    {
+      "command": [
+        "<home-path>/litex-milan/venv/bin/python3",
+        "-B",
+        "$VALIDATION_STORAGE/artysplit-a829/r4/refined/merge-census.py",
+        "$VALIDATION_STORAGE/artysplit-a829/r4/refined/calibration-base-census.json",
+        "$VALIDATION_STORAGE/artysplit-a829/r4/refined/census-preliminary-complete.json",
+        "$VALIDATION_STORAGE/artysplit-a829/r4/refined/calibration-before-continuation-census.json"
+      ],
+      "returncode": 0,
+      "log": "$VALIDATION_STORAGE/artysplit-a829/r4/refined/calibration-base-merge.log"
+    },
+    {
+      "command": [
+        "<home-path>/litex-milan/venv/bin/python3",
+        "-B",
+        "$VALIDATION_STORAGE/artysplit-a829/r4/refined/derive-own.py",
+        "$VALIDATION_STORAGE/artysplit-a829/r4/refined/calibration-base-census.json"
+      ],
+      "returncode": 0,
+      "log": "$VALIDATION_STORAGE/artysplit-a829/r4/refined/calibration-base-model.log"
+    }
+  ],
+  "builds": {
+    "none": {
+      "executable_sha256": "14e3d972050d724384aeacf22e4be52c11acee88d3b1d9070f0c6046efd79b8e",
+      "cpu_hz": 80000000
+    },
+    "answering-ports": {
+      "executable_sha256": "f52c2a92ddb04771c9cb9590cd4120e1bdfe5c7853cff59f2c75fa8d0176f358",
+      "cpu_hz": 80000000
+    },
+    "answering-every-port": {
+      "executable_sha256": "86ec22d8287e9fd5b70a69f2e0e33dd0e3736c2ae7f0215a867c35014c132c88",
+      "cpu_hz": 80000000
+    },
+    "valid-destinations": {
+      "executable_sha256": "527d451d8c6aec496c6c1910d6d7f067e5a76014604f89eea4e8630d1f9281cc",
+      "cpu_hz": 80000000
+    },
+    "declaring-outputs": {
+      "executable_sha256": "fd049c309bdc9773d99506986340cc4e476acb07554fd3755a4e0c0dca765fa7",
+      "cpu_hz": 80000000
+    },
+    "answering-later": {
+      "executable_sha256": "70a57e3506334cb983a95df8d03d956e319903d2a25e2da5597938605607b9b2",
+      "cpu_hz": 80000000
+    },
+    "talker-notices": {
+      "executable_sha256": "24297eb12f9f394059bf231c33a4d34689b730a5222737afd3eec6eed23fb015",
+      "cpu_hz": 80000000
+    },
+    "shutdown-entry": {
+      "executable_sha256": "ce132eb010e0a301279df76718b80eddfcd0b51194b898cd51356fc486c669ec",
+      "cpu_hz": 80000000
+    }
+  },
+  "findings": [
+    {
+      "variant": "none",
+      "group": "srp",
+      "stated": [
+        "srp: a build pass of 78,512 CPU cycles, over its stated 66,400",
+        "srp: a tier-2 slice of THE TRANSMIT's build of 78,512 CPU cycles, over the stated slice 76,000"
+      ]
+    }
+  ],
+  "note": "Preserved native and per-row results include the known under-stated build cost. No owner or unauthorized row failure is present."
+}

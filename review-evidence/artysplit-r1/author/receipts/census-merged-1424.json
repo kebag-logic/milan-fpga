@@ -1,0 +1,449 @@
+{
+  "status": "PARTIAL MEASUREMENT MAXIMA; NOT QUALIFICATION",
+  "cpu_hz": 80000000,
+  "shape": [
+    1,
+    1,
+    2
+  ],
+  "groups": [
+    "arm-a-full/acmp-notk",
+    "arm-a-full/save-burst",
+    "arm-a-full/save-flight",
+    "arm-a-full/save-second",
+    "arm-a/aecp-largest-notice",
+    "arm-a/backlog-adp",
+    "arm-a/backlog-owed",
+    "arm-a/srp",
+    "arm-b/aecp",
+    "arm-b/aecp-fanout",
+    "arm-b/aecp-largest-notice",
+    "arm-b/aecp-reboot",
+    "arm-declaring/aecp",
+    "arm-declaring/aecp-fanout",
+    "arm-declaring/aecp-largest-notice",
+    "arm-declaring/aecp-reboot",
+    "arm-every/notice-every-0",
+    "arm-every/notice-every-1",
+    "arm-every/notice-every-2",
+    "arm-every/notice-every-3",
+    "arm-every/notice-every-4",
+    "arm-every/notice-every-5",
+    "arm-fast/acmp-cmd",
+    "arm-fast/acmp-disc",
+    "arm-fast/adp-discover",
+    "arm-fast/adp-gm",
+    "arm-fast/adp-link",
+    "arm-fast/aecp-held",
+    "arm-fast/backlog-adp-refill",
+    "arm-fast/backlog-adp@blank-aged2-0",
+    "arm-fast/backlog-adp@program-aged2-0",
+    "arm-fast/backlog-adp@verify-aged2-0",
+    "arm-fast/control",
+    "arm-fast/datapath-events",
+    "arm-fast/fixture",
+    "arm-fast/maap",
+    "arm-two/srp"
+  ],
+  "costs": {
+    "base": {
+      "cycles": 15374,
+      "us": 192.175,
+      "rule_us": 205,
+      "instances": 16,
+      "group": "arm-a-full/save-burst",
+      "start": null
+    },
+    "build": {
+      "cycles": 57948,
+      "us": 724.35,
+      "rule_us": 765,
+      "instances": 1,
+      "group": "arm-two/srp",
+      "start": null
+    },
+    "build_one": {
+      "cycles": 50117,
+      "us": 626.4625,
+      "rule_us": 660,
+      "instances": 1,
+      "group": "arm-two/srp",
+      "start": null
+    },
+    "centisecond": {
+      "cycles": 10889,
+      "us": 136.1125,
+      "rule_us": 145,
+      "instances": 5858,
+      "group": "arm-every/notice-every-1",
+      "start": 241947058
+    },
+    "event.GM": {
+      "cycles": 2518,
+      "us": 31.475,
+      "rule_us": 35,
+      "instances": 10484,
+      "group": "arm-every/notice-every-2",
+      "start": null
+    },
+    "event.LINK": {
+      "cycles": 11164,
+      "us": 139.55,
+      "rule_us": 150,
+      "instances": 13,
+      "group": "arm-fast/fixture",
+      "start": null
+    },
+    "event.TICK": {
+      "cycles": 2554,
+      "us": 31.925,
+      "rule_us": 35,
+      "instances": 646,
+      "group": "arm-fast/backlog-adp@program-aged2-0",
+      "start": null
+    },
+    "event.TIMER#0": {
+      "cycles": 6931,
+      "us": 86.6375,
+      "rule_us": 95,
+      "instances": 10,
+      "group": "arm-declaring/aecp-fanout",
+      "start": null
+    },
+    "event.TIMER#1": {
+      "cycles": 11969,
+      "us": 149.6125,
+      "rule_us": 160,
+      "instances": 6,
+      "group": "arm-every/notice-every-5",
+      "start": null
+    },
+    "event.TIMER#2": {
+      "cycles": 11216,
+      "us": 140.2,
+      "rule_us": 150,
+      "instances": 21,
+      "group": "arm-fast/acmp-disc",
+      "start": null
+    },
+    "event.TIMER#3": {
+      "cycles": 6102,
+      "us": 76.275,
+      "rule_us": 85,
+      "instances": 382,
+      "group": "arm-every/notice-every-5",
+      "start": null
+    },
+    "events_none": {
+      "cycles": 2705,
+      "us": 33.8125,
+      "rule_us": 40,
+      "instances": 12,
+      "group": "arm-two/srp",
+      "start": 214228792
+    },
+    "item.acmp": {
+      "cycles": 4256,
+      "us": 53.2,
+      "rule_us": 60,
+      "instances": 16,
+      "group": "arm-a/backlog-owed",
+      "start": null
+    },
+    "item.acmp_declined": {
+      "cycles": 1332,
+      "us": 16.65,
+      "rule_us": 20,
+      "instances": 16,
+      "group": "arm-a/backlog-owed",
+      "start": null
+    },
+    "item.acmp_kept": {
+      "cycles": 6497,
+      "us": 81.2125,
+      "rule_us": 90,
+      "instances": 16,
+      "group": "arm-a/backlog-owed",
+      "start": null
+    },
+    "item.aecp": {
+      "cycles": 14863,
+      "us": 185.7875,
+      "rule_us": 200,
+      "instances": 12,
+      "group": "arm-declaring/aecp-fanout",
+      "start": null
+    },
+    "item.aecp_long": {
+      "cycles": 28903,
+      "us": 361.2875,
+      "rule_us": 380,
+      "instances": 16,
+      "group": "arm-a/aecp-largest-notice",
+      "start": null
+    },
+    "item.mrpdu": {
+      "cycles": 0,
+      "us": 0.0,
+      "rule_us": 0,
+      "instances": 16,
+      "group": "arm-a/aecp-largest-notice",
+      "start": null
+    },
+    "item.rebuild": {
+      "cycles": 18597,
+      "us": 232.4625,
+      "rule_us": 245,
+      "instances": 9,
+      "group": "arm-fast/adp-link",
+      "start": null
+    },
+    "item.reclaim": {
+      "cycles": 1279,
+      "us": 15.9875,
+      "rule_us": 20,
+      "instances": 1,
+      "group": "arm-two/srp",
+      "start": null
+    },
+    "item.record": {
+      "cycles": 22063,
+      "us": 275.7875,
+      "rule_us": 290,
+      "instances": 2,
+      "group": "arm-fast/backlog-adp@program-aged2-0",
+      "start": null
+    },
+    "item.retained": {
+      "cycles": 0,
+      "us": 0.0,
+      "rule_us": 0,
+      "instances": 16,
+      "group": "arm-a/aecp-largest-notice",
+      "start": null
+    },
+    "item.walk": {
+      "cycles": 1958,
+      "us": 24.475,
+      "rule_us": 30,
+      "instances": 1,
+      "group": "arm-two/srp",
+      "start": null
+    },
+    "item.withdraw": {
+      "cycles": 6584,
+      "us": 82.3,
+      "rule_us": 90,
+      "instances": 13,
+      "group": "arm-fast/fixture",
+      "start": 16762568
+    },
+    "paced.44": {
+      "cycles": 23223,
+      "us": 290.2875,
+      "rule_us": 305,
+      "instances": 1,
+      "group": "arm-declaring/aecp-fanout",
+      "start": 64405669
+    },
+    "paced.45": {
+      "cycles": 25231,
+      "us": 315.3875,
+      "rule_us": 335,
+      "instances": 1,
+      "group": "arm-declaring/aecp-fanout",
+      "start": 63688665
+    },
+    "paced.6": {
+      "cycles": 23956,
+      "us": 299.45,
+      "rule_us": 315,
+      "instances": 1,
+      "group": "arm-b/aecp-fanout",
+      "start": 65536155
+    },
+    "record.acmp": {
+      "cycles": 18192,
+      "us": 227.4,
+      "rule_us": 240,
+      "instances": 4736,
+      "group": "arm-every/notice-every-4",
+      "start": 240328192
+    },
+    "record.adp": {
+      "cycles": 8814,
+      "us": 110.175,
+      "rule_us": 120,
+      "instances": 47,
+      "group": "arm-fast/backlog-adp-refill",
+      "start": 221437284
+    },
+    "record.aecp.long": {
+      "cycles": 83148,
+      "us": 1039.35,
+      "rule_us": 1095,
+      "instances": 42,
+      "group": "arm-a/aecp-largest-notice",
+      "start": 61692887
+    },
+    "record.aecp.other": {
+      "cycles": 21181,
+      "us": 264.7625,
+      "rule_us": 280,
+      "instances": 37,
+      "group": "arm-declaring/aecp-fanout",
+      "start": 66329841
+    },
+    "record.aecp.paced": {
+      "cycles": 24380,
+      "us": 304.75,
+      "rule_us": 320,
+      "instances": 3,
+      "group": "arm-b/aecp-fanout",
+      "start": 63652635
+    },
+    "record.maap": {
+      "cycles": 8148,
+      "us": 101.85,
+      "rule_us": 110,
+      "instances": 8,
+      "group": "arm-fast/fixture",
+      "start": 16609606
+    },
+    "record.srp": {
+      "cycles": 22431,
+      "us": 280.3875,
+      "rule_us": 295,
+      "instances": 64,
+      "group": "arm-fast/backlog-adp@program-aged2-0",
+      "start": 260720318
+    },
+    "share": {
+      "cycles": 134507,
+      "us": 1681.3375,
+      "rule_us": 1770,
+      "instances": 12,
+      "group": "arm-declaring/aecp-largest-notice",
+      "start": null
+    },
+    "step": {
+      "cycles": 80584,
+      "us": 1007.3,
+      "rule_us": 1060,
+      "instances": 2,
+      "group": "arm-fast/backlog-adp@program-aged2-0",
+      "start": null
+    },
+    "tx.aecp.long": {
+      "cycles": 28903,
+      "us": 361.2875,
+      "rule_us": 380,
+      "instances": 4,
+      "group": "arm-a/aecp-largest-notice",
+      "start": 62496335
+    },
+    "tx.aecp.notice": {
+      "cycles": 14863,
+      "us": 185.7875,
+      "rule_us": 200,
+      "instances": 19,
+      "group": "arm-declaring/aecp-fanout",
+      "start": 63720074
+    },
+    "tx.aecp.response": {
+      "cycles": 3193,
+      "us": 39.9125,
+      "rule_us": 45,
+      "instances": 637,
+      "group": "arm-a/aecp-largest-notice",
+      "start": 63149441
+    },
+    "event.AMAP_LIVE_WRITE": {
+      "cycles": 845,
+      "us": 10.5625,
+      "rule_us": 15,
+      "instances": 8,
+      "group": "arm-fast/datapath-events",
+      "start": null
+    },
+    "event.AS_PATH_CHANGED": {
+      "cycles": 1588,
+      "us": 19.85,
+      "rule_us": 25,
+      "instances": 8,
+      "group": "arm-fast/datapath-events",
+      "start": null
+    },
+    "event.AVB_INFO_CHANGED": {
+      "cycles": 1777,
+      "us": 22.2125,
+      "rule_us": 25,
+      "instances": 8,
+      "group": "arm-fast/datapath-events",
+      "start": null
+    }
+  },
+  "rounds": {
+    "0:0": {
+      "start_sys": 240613027,
+      "cycles": 3594,
+      "notices": 0,
+      "refused": 0,
+      "group": "arm-every/notice-every-5"
+    },
+    "0:1": {
+      "start_sys": 260791362,
+      "cycles": 9447,
+      "notices": 0,
+      "refused": 1,
+      "group": "arm-fast/backlog-adp@program-aged2-0"
+    },
+    "1:0": {
+      "start_sys": 67837077,
+      "cycles": 23303,
+      "notices": 1,
+      "refused": 0,
+      "group": "arm-declaring/aecp-fanout"
+    },
+    "0:4": {
+      "start_sys": 241231032,
+      "cycles": 17026,
+      "notices": 0,
+      "refused": 4,
+      "group": "arm-every/notice-every-0"
+    },
+    "0:2": {
+      "start_sys": 242013809,
+      "cycles": 13140,
+      "notices": 0,
+      "refused": 2,
+      "group": "arm-every/notice-every-0"
+    },
+    "4:0": {
+      "start_sys": 252169308,
+      "cycles": 78069,
+      "notices": 4,
+      "refused": 0,
+      "group": "arm-every/notice-every-5"
+    },
+    "2:0": {
+      "start_sys": 252338718,
+      "cycles": 40086,
+      "notices": 2,
+      "refused": 0,
+      "group": "arm-every/notice-every-5"
+    }
+  },
+  "sources": [
+    {
+      "path": "$VALIDATION_STORAGE/artysplit-a829/r4/census-merged-1352.json",
+      "sha256": "be01b88c621ee81da611e37729c109f9206a8209d4867ea6303536a35d9ecbf6",
+      "status": "PARTIAL MEASUREMENT MAXIMA; NOT QUALIFICATION"
+    },
+    {
+      "path": "$VALIDATION_STORAGE/artysplit-a829/r4/census-1424.json",
+      "sha256": "1718b0b360b195f57c81f59b6770e51e9a9ec63dad1c66495e5c226fef198f00",
+      "status": "measurement census; missing groups remain unqualified"
+    }
+  ]
+}

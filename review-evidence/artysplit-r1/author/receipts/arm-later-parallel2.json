@@ -1,0 +1,19 @@
+{
+  "command": [
+    "<home-path>/litex-milan/venv/bin/python3",
+    "-B",
+    "tb/verilator/ctrl_service_budget/run.py",
+    "--point",
+    "arty-1x1",
+    "--build-dir",
+    "$VALIDATION_STORAGE/artysplit-a829/r4/arm-later",
+    "--reuse-build",
+    "--variant",
+    "answering-later",
+    "--jobs",
+    "2",
+    "--record-budget-findings",
+    "--record-share-findings"
+  ],
+  "returncode": 1
+}

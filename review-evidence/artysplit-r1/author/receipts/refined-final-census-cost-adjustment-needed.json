@@ -1,0 +1,64 @@
+{
+  "status": "PARTIAL FINAL COST FORECAST",
+  "time": "2026-11-24T01:15:55.140893+00:00",
+  "completed_groups": 50,
+  "model": "$VALIDATION_STORAGE/artysplit-a829/r4/refined/final-progress/048/model.json",
+  "load": 0.49567711403508774,
+  "choices": [
+    {
+      "queued_ms": 125,
+      "pace_ms": 9,
+      "slice_us": 950,
+      "least_margin": 0.006326530612244944,
+      "pace_rule": 9,
+      "queued_rule": 125,
+      "rows_ms": {
+        "R4": 13.93,
+        "R5": 72.09,
+        "R6": 68.29,
+        "first": 14.45,
+        "last": 121.72,
+        "R4L": 203.35,
+        "ACMP": 28.79,
+        "ADP": 26.89,
+        "MAAP": 27.01,
+        "tx": 29.93,
+        "txL": 48.69
+      },
+      "owner_findings": []
+    },
+    {
+      "queued_ms": 140,
+      "pace_ms": 9,
+      "slice_us": 700,
+      "least_margin": 0.012244897959183702,
+      "pace_rule": 9,
+      "queued_rule": 140,
+      "rows_ms": {
+        "R4": 13.64,
+        "R5": 77.05,
+        "R6": 74.7,
+        "first": 14.2,
+        "last": 137.59,
+        "R4L": 203.06,
+        "ACMP": 28.5,
+        "ADP": 26.6,
+        "MAAP": 26.72,
+        "tx": 29.64,
+        "txL": 48.4
+      },
+      "owner_findings": []
+    }
+  ],
+  "qualification": false,
+  "firmware_changes": {
+    "CTRL_LOOP_BUILD_PASS_US": {
+      "installed": 830,
+      "measured": 1035
+    },
+    "CTRL_LOOP_TX_MS": {
+      "installed": 34,
+      "measured": 30
+    }
+  }
+}

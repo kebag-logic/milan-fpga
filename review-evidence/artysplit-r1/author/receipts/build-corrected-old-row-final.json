@@ -1,0 +1,63 @@
+{
+  "status": "PASS",
+  "baseline": "4a89ddcdb18bdfaafc9e999daeee1e7ba56274a2",
+  "existing_shape_blocks": [
+    {
+      "shape": "1u, 2u, 2u",
+      "identical": true,
+      "sha256": "904a8e28760d1bca55c85639b28301ecd45b795352a9c87f415f8ece4cb141d6"
+    },
+    {
+      "shape": "1u, 9u, 9u",
+      "identical": true,
+      "sha256": "f55540ae7001797b42f61c45bb41adc675a7cc6cf7b8993bf12d84472588c3b5"
+    },
+    {
+      "shape": "2u, 2u, 2u",
+      "identical": true,
+      "sha256": "ffce80142fe8e3993b795c091190e1b489456928377c09cd1348f49c57b059c1"
+    },
+    {
+      "shape": "2u, 9u, 9u",
+      "identical": true,
+      "sha256": "9fda6018fe932513cc84d8542b38d6936e948c0ff1a41a3daf911e6251943ce0"
+    }
+  ],
+  "existing_cost_tables": [
+    {
+      "file": "tb/verilator/ctrl_service_budget/load_grade.py",
+      "unchanged": [
+        "STATED_US",
+        "STATED_US_DONOR"
+      ]
+    },
+    {
+      "file": "tb/verilator/ctrl_service_budget/poll_grade.py",
+      "unchanged": [
+        "ONE",
+        "TWO",
+        "EIGHT_ONE"
+      ]
+    },
+    {
+      "file": "tb/verilator/ctrl_service_budget/rows_grade.py",
+      "unchanged": [
+        "ROW_COSTS"
+      ]
+    },
+    {
+      "file": "tb/verilator/ctrl_service_budget/rows_tiers.py",
+      "unchanged": [
+        "DATAPATH_US",
+        "LONG_RECORD_US"
+      ]
+    },
+    {
+      "file": "tb/verilator/ctrl_service_budget/edit_rows.py",
+      "unchanged": [
+        "PACED"
+      ]
+    }
+  ],
+  "cost_row_proof": "Every existing dictionary value retains its exact source bytes as well as its syntax tree"
+}

@@ -1,0 +1,78 @@
+{
+  "status": "PASS",
+  "kind": "native runtime benchmark; no firmware qualification",
+  "records": [
+    {
+      "kind": "baseline",
+      "sample": 0,
+      "returncode": 0,
+      "wall_seconds": 16.511874246003572,
+      "cpu_seconds": 14.478672000000008,
+      "trace_sha256": "c9b0b25e9f6a5c27c75f7899990413ad1d1e42720ed1a4e17c58610223935544",
+      "completed": true
+    },
+    {
+      "kind": "optimized",
+      "sample": 0,
+      "returncode": 0,
+      "wall_seconds": 15.460863016996882,
+      "cpu_seconds": 14.190964000000003,
+      "trace_sha256": "c9b0b25e9f6a5c27c75f7899990413ad1d1e42720ed1a4e17c58610223935544",
+      "completed": true
+    },
+    {
+      "kind": "baseline",
+      "sample": 1,
+      "returncode": 0,
+      "wall_seconds": 15.502989392000018,
+      "cpu_seconds": 14.595480000000002,
+      "trace_sha256": "c9b0b25e9f6a5c27c75f7899990413ad1d1e42720ed1a4e17c58610223935544",
+      "completed": true
+    },
+    {
+      "kind": "optimized",
+      "sample": 1,
+      "returncode": 0,
+      "wall_seconds": 12.85179463699751,
+      "cpu_seconds": 11.775269999999992,
+      "trace_sha256": "c9b0b25e9f6a5c27c75f7899990413ad1d1e42720ed1a4e17c58610223935544",
+      "completed": true
+    },
+    {
+      "kind": "baseline",
+      "sample": 2,
+      "returncode": 0,
+      "wall_seconds": 16.38484517500183,
+      "cpu_seconds": 14.554076000000006,
+      "trace_sha256": "c9b0b25e9f6a5c27c75f7899990413ad1d1e42720ed1a4e17c58610223935544",
+      "completed": true
+    },
+    {
+      "kind": "optimized",
+      "sample": 2,
+      "returncode": 0,
+      "wall_seconds": 18.976183967999532,
+      "cpu_seconds": 14.240624,
+      "trace_sha256": "c9b0b25e9f6a5c27c75f7899990413ad1d1e42720ed1a4e17c58610223935544",
+      "completed": true
+    }
+  ],
+  "identical": true,
+  "mean_cpu_seconds": {
+    "baseline": 14.54274266666667,
+    "optimized": 13.402285999999998
+  },
+  "speedup": 1.0850941896529198,
+  "build_command": [
+    "make",
+    "-j8",
+    "-C",
+    "$VALIDATION_STORAGE/artysplit-a829/r4/native-optimization/native",
+    "-f",
+    "Vsim.mk",
+    "Vsim",
+    "OPT_FAST=-O3",
+    "OPT_SLOW=-O3",
+    "OPT_GLOBAL=-O3"
+  ]
+}

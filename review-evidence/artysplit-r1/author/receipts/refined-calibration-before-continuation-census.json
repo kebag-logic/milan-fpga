@@ -1,0 +1,393 @@
+{
+  "status": "measurement census; missing groups remain unqualified",
+  "cpu_hz": 80000000,
+  "shape": [
+    1,
+    1,
+    2
+  ],
+  "groups": [
+    "none/acmp-noresp",
+    "none/acmp-notk",
+    "none/adp-advertise",
+    "none/backlog-adp-refill",
+    "none/backlog-adp",
+    "none/backlog-adp@blank-aged1-7",
+    "none/backlog-adp@blank-aged2-7",
+    "none/backlog-adp@program-aged1-7",
+    "none/backlog-adp@program-aged2-7",
+    "none/backlog-owed",
+    "none/save-burst",
+    "none/save-flight",
+    "none/save-held",
+    "none/save-second",
+    "none/save-starved",
+    "none/save",
+    "none/srp",
+    "answering-every-port/notice-burst-0",
+    "answering-every-port/notice-burst-1",
+    "answering-every-port/notice-burst-2",
+    "answering-every-port/notice-burst-3",
+    "answering-every-port/notice-burst-4",
+    "answering-every-port/notice-burst-5",
+    "answering-every-port/notice-burst-6",
+    "answering-every-port/notice-burst-7",
+    "answering-every-port/notice-every-0",
+    "answering-every-port/notice-every-1",
+    "answering-every-port/notice-every-2",
+    "answering-every-port/notice-every-3",
+    "answering-every-port/notice-every-4",
+    "answering-every-port/notice-every-5",
+    "answering-every-port/notice-every-6",
+    "answering-every-port/notice-every-7",
+    "valid-destinations/srp-talker-held",
+    "valid-destinations/srp-talker-loss",
+    "valid-destinations/srp-talker",
+    "declaring-outputs/aecp-largest-notice",
+    "declaring-outputs/aecp-outputs",
+    "answering-later/notice-retried-0",
+    "answering-later/notice-retried-1",
+    "answering-later/notice-retried-2",
+    "answering-later/notice-retried-3",
+    "answering-later/notice-retried-4",
+    "answering-later/notice-retried-5",
+    "answering-later/notice-retried-6",
+    "answering-later/notice-retried-7",
+    "talker-notices/talker-notice-0",
+    "talker-notices/talker-notice-1",
+    "talker-notices/talker-notice-2",
+    "talker-notices/talker-notice-3",
+    "talker-notices/talker-notice-4",
+    "talker-notices/talker-notice-5",
+    "talker-notices/talker-notice-6",
+    "talker-notices/talker-notice-7"
+  ],
+  "pace_ms_by_input": {
+    "$VALIDATION_STORAGE/artysplit-a829/r4/refined/final-census/none/results": 9,
+    "$VALIDATION_STORAGE/artysplit-a829/r4/refined/final-census/answering-ports/results": 9,
+    "$VALIDATION_STORAGE/artysplit-a829/r4/refined/final-census/answering-every-port/results": 9,
+    "$VALIDATION_STORAGE/artysplit-a829/r4/refined/final-census/valid-destinations/results": 9,
+    "$VALIDATION_STORAGE/artysplit-a829/r4/refined/final-census/declaring-outputs/results": 9,
+    "$VALIDATION_STORAGE/artysplit-a829/r4/refined/final-census/answering-later/results": 9,
+    "$VALIDATION_STORAGE/artysplit-a829/r4/refined/final-census/talker-notices/results": 9,
+    "$VALIDATION_STORAGE/artysplit-a829/r4/refined/final-census/shutdown-entry/results": 9
+  },
+  "costs": {
+    "base": {
+      "cycles": 17007,
+      "us": 212.5875,
+      "rule_us": 225,
+      "instances": 54,
+      "group": "valid-destinations/srp-talker-held",
+      "start": null
+    },
+    "build": {
+      "cycles": 78512,
+      "us": 981.4,
+      "rule_us": 1035,
+      "instances": 54,
+      "group": "none/srp",
+      "start": null
+    },
+    "build_one": {
+      "cycles": 45097,
+      "us": 563.7125,
+      "rule_us": 595,
+      "instances": 54,
+      "group": "talker-notices/talker-notice-1",
+      "start": null
+    },
+    "centisecond": {
+      "cycles": 11376,
+      "us": 142.2,
+      "rule_us": 150,
+      "instances": 24590,
+      "group": "valid-destinations/srp-talker-held",
+      "start": 401929724
+    },
+    "event.GM": {
+      "cycles": 2812,
+      "us": 35.15,
+      "rule_us": 40,
+      "instances": 152339,
+      "group": "talker-notices/talker-notice-1",
+      "start": null
+    },
+    "event.LINK": {
+      "cycles": 9671,
+      "us": 120.8875,
+      "rule_us": 130,
+      "instances": 54,
+      "group": "declaring-outputs/aecp-largest-notice",
+      "start": null
+    },
+    "event.TICK": {
+      "cycles": 2392,
+      "us": 29.9,
+      "rule_us": 35,
+      "instances": 24590,
+      "group": "none/backlog-adp",
+      "start": null
+    },
+    "event.TIMER#0": {
+      "cycles": 6247,
+      "us": 78.0875,
+      "rule_us": 85,
+      "instances": 79,
+      "group": "declaring-outputs/aecp-outputs",
+      "start": null
+    },
+    "event.TIMER#1": {
+      "cycles": 12261,
+      "us": 153.2625,
+      "rule_us": 165,
+      "instances": 31,
+      "group": "answering-later/notice-retried-6",
+      "start": null
+    },
+    "event.TIMER#2": {
+      "cycles": 11618,
+      "us": 145.225,
+      "rule_us": 155,
+      "instances": 163,
+      "group": "valid-destinations/srp-talker-loss",
+      "start": null
+    },
+    "event.TIMER#3": {
+      "cycles": 6314,
+      "us": 78.925,
+      "rule_us": 85,
+      "instances": 6269,
+      "group": "answering-every-port/notice-burst-7",
+      "start": null
+    },
+    "events_none": {
+      "cycles": 1627,
+      "us": 20.3375,
+      "rule_us": 25,
+      "instances": 10363,
+      "group": "valid-destinations/srp-talker-held",
+      "start": 264833696
+    },
+    "item.acmp": {
+      "cycles": 4256,
+      "us": 53.2,
+      "rule_us": 60,
+      "instances": 54,
+      "group": "none/backlog-owed",
+      "start": null
+    },
+    "item.acmp_declined": {
+      "cycles": 1332,
+      "us": 16.65,
+      "rule_us": 20,
+      "instances": 54,
+      "group": "none/backlog-owed",
+      "start": null
+    },
+    "item.acmp_kept": {
+      "cycles": 6497,
+      "us": 81.2125,
+      "rule_us": 90,
+      "instances": 54,
+      "group": "none/backlog-owed",
+      "start": null
+    },
+    "item.aecp": {
+      "cycles": 13080,
+      "us": 163.5,
+      "rule_us": 175,
+      "instances": 54,
+      "group": "answering-every-port/notice-burst-0",
+      "start": null
+    },
+    "item.aecp_long": {
+      "cycles": 28794,
+      "us": 359.925,
+      "rule_us": 380,
+      "instances": 54,
+      "group": "declaring-outputs/aecp-largest-notice",
+      "start": null
+    },
+    "item.mrpdu": {
+      "cycles": 0,
+      "us": 0.0,
+      "rule_us": 0,
+      "instances": 54,
+      "group": "none/acmp-noresp",
+      "start": null
+    },
+    "item.rebuild": {
+      "cycles": 0,
+      "us": 0.0,
+      "rule_us": 0,
+      "instances": 54,
+      "group": "none/acmp-noresp",
+      "start": null
+    },
+    "item.reclaim": {
+      "cycles": 1158,
+      "us": 14.475,
+      "rule_us": 20,
+      "instances": 54,
+      "group": "none/srp",
+      "start": null
+    },
+    "item.record": {
+      "cycles": 22165,
+      "us": 277.0625,
+      "rule_us": 295,
+      "instances": 54,
+      "group": "none/backlog-owed",
+      "start": null
+    },
+    "item.retained": {
+      "cycles": 0,
+      "us": 0.0,
+      "rule_us": 0,
+      "instances": 54,
+      "group": "none/acmp-noresp",
+      "start": null
+    },
+    "item.walk": {
+      "cycles": 1305,
+      "us": 16.3125,
+      "rule_us": 20,
+      "instances": 54,
+      "group": "none/srp",
+      "start": null
+    },
+    "item.withdraw": {
+      "cycles": 0,
+      "us": 0.0,
+      "rule_us": 0,
+      "instances": 54,
+      "group": "none/acmp-noresp",
+      "start": null
+    },
+    "record.acmp": {
+      "cycles": 18192,
+      "us": 227.4,
+      "rule_us": 240,
+      "instances": 8673,
+      "group": "answering-every-port/notice-burst-4",
+      "start": 240333902
+    },
+    "record.adp": {
+      "cycles": 8814,
+      "us": 110.175,
+      "rule_us": 120,
+      "instances": 4337,
+      "group": "none/backlog-adp-refill",
+      "start": 221436031
+    },
+    "record.aecp.other": {
+      "cycles": 21646,
+      "us": 270.575,
+      "rule_us": 285,
+      "instances": 5031,
+      "group": "declaring-outputs/aecp-outputs",
+      "start": 274756172
+    },
+    "record.maap": {
+      "cycles": 8951,
+      "us": 111.8875,
+      "rule_us": 120,
+      "instances": 2144,
+      "group": "valid-destinations/srp-talker-loss",
+      "start": 262209291
+    },
+    "record.srp": {
+      "cycles": 22547,
+      "us": 281.8375,
+      "rule_us": 300,
+      "instances": 21861,
+      "group": "none/backlog-adp@program-aged2-7",
+      "start": 261522404
+    },
+    "share": {
+      "cycles": 141157,
+      "us": 1764.4625,
+      "rule_us": 1855,
+      "instances": 54,
+      "group": "answering-every-port/notice-burst-5",
+      "start": null
+    },
+    "step": {
+      "cycles": 80587,
+      "us": 1007.3375,
+      "rule_us": 1060,
+      "instances": 54,
+      "group": "none/save-starved",
+      "start": null
+    },
+    "tx.aecp.long": {
+      "cycles": 28794,
+      "us": 359.925,
+      "rule_us": 380,
+      "instances": 2,
+      "group": "declaring-outputs/aecp-largest-notice",
+      "start": 62491901
+    },
+    "tx.aecp.notice": {
+      "cycles": 15330,
+      "us": 191.625,
+      "rule_us": 205,
+      "instances": 221,
+      "group": "answering-every-port/notice-burst-6",
+      "start": 253430160
+    },
+    "tx.aecp.response": {
+      "cycles": 3102,
+      "us": 38.775,
+      "rule_us": 45,
+      "instances": 7166,
+      "group": "declaring-outputs/aecp-largest-notice",
+      "start": 63145536
+    }
+  },
+  "rounds": {
+    "0:0": {
+      "start_sys": 242022172,
+      "cycles": 4420,
+      "notices": 0,
+      "refused": 0,
+      "group": "answering-every-port/notice-burst-6"
+    },
+    "0:1": {
+      "start_sys": 241220370,
+      "cycles": 9905,
+      "notices": 0,
+      "refused": 1,
+      "group": "answering-later/notice-retried-0"
+    },
+    "0:4": {
+      "start_sys": 241399915,
+      "cycles": 17073,
+      "notices": 0,
+      "refused": 4,
+      "group": "answering-every-port/notice-every-2"
+    },
+    "0:2": {
+      "start_sys": 242010965,
+      "cycles": 13179,
+      "notices": 0,
+      "refused": 2,
+      "group": "answering-every-port/notice-every-7"
+    },
+    "3:0": {
+      "start_sys": 253442218,
+      "cycles": 60343,
+      "notices": 3,
+      "refused": 0,
+      "group": "answering-every-port/notice-burst-5"
+    },
+    "1:0": {
+      "start_sys": 253008057,
+      "cycles": 24643,
+      "notices": 1,
+      "refused": 0,
+      "group": "answering-every-port/notice-burst-3"
+    }
+  }
+}

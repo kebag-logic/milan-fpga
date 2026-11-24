@@ -1,0 +1,15 @@
+{
+  "status": "PASS",
+  "preliminary": "run.py --self-test failed on stale import, cacheless observers, then retry stores counted twice",
+  "final_execution": "python3 - with foreground payload equivalent to the following steps for none, single-mask, cover",
+  "steps": [
+    "spec = json.loads((case / \"soc/soc.json\").read_text())",
+    "model = run.verilate(case, spec)",
+    "run.simulate(case, model)",
+    "verdict, report = run.grade(case)",
+    "require actual failures == run.KILLS.get(mutant, set()) and probe reached DONE"
+  ],
+  "result_receipt": "region-commit-result.json",
+  "trace_receipts": "arty-region-cached/{none,single-mask,cover}/sim.log",
+  "reason": "Shipping CPU data cache and sys domain replaced obsolete cacheless/Milan-domain assumptions; original mutant kill sets unchanged"
+}

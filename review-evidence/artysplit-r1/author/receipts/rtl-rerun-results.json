@@ -1,0 +1,21 @@
+[
+  {
+    "case": "milan-dp-latw-rerun",
+    "command": [
+      "make",
+      "-j1",
+      "-C",
+      "tb/verilator/milan_dp",
+      "gptp-latw"
+    ],
+    "returncode": 0
+  },
+  {
+    "case": "gptp-shadow-mutants-rerun",
+    "command": [
+      "python3",
+      "mutants.py"
+    ],
+    "returncode": 0
+  }
+]

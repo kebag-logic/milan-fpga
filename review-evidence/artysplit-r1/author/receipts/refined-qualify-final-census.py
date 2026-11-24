@@ -1,0 +1,80 @@
+"""Qualify the fresh complete Arty native campaign; never promote a partial pass.
+Run after run-final-census.py, with the completed preliminary merged census path.
+"""
+import hashlib,json,os,subprocess,sys
+from pathlib import Path
+root=Path.cwd(); scratch=Path('$VALIDATION_STORAGE/artysplit-a829/r4/refined'); out=scratch/'final-census'
+sys.path.insert(0,str(root/'tb/verilator/ctrl_service_budget'))
+import arty_grade,build,run,scenario,shape_costs
+manifest=json.loads((out/'manifest.json').read_text())
+completed=json.loads((out/'completed.json').read_text())
+assert manifest['status']=='NATIVE MEASUREMENTS COMPLETE; FINAL COST AND CLASS CHECKS REQUIRED'
+assert len(completed)==manifest['completed']==sum(map(len,manifest['groups'].values()))
+assert not (out/'stop-finding.json').exists()
+expected={(v,g) for v,gs in manifest['groups'].items() for g in gs}
+assert {(row['variant'],row['group']) for row in completed}==expected
+for row in completed:
+ assert row['native_status']==0
+ log=out/row['variant']/'results'/(row['group']+'.log')
+ assert hashlib.sha256(log.read_bytes()).hexdigest()==row['trace_sha256']
+ assert not any(row[k] for k in ('refusals','share','late','forbidden'))
+commands=[]
+def command(name,argv,env=None):
+ log=out/(name+'.log')
+ with log.open('w') as stream:
+  proc=subprocess.run(argv,cwd=root,stdout=stream,stderr=subprocess.STDOUT,env=env,timeout=28800)
+ record=dict(name=name,command=argv,returncode=proc.returncode,log=str(log),sha256=hashlib.sha256(log.read_bytes()).hexdigest())
+ commands.append(record);(out/'qualification-commands.json').write_text(json.dumps(commands,indent=2)+'\n')
+ print(name,proc.returncode,flush=True)
+ return proc.returncode
+results=[];failed=[]
+for variant,wanted in manifest['groups'].items():
+ directory=out/variant;spec=build.reused(directory)
+ actual=run.all_groups(scenario.point('arty-1x1',spec),spec)
+ if variant=='answering-ports':
+  actual=[g for g in actual if g.name in ('aecp','aecp-fanout','aecp-largest-notice','aecp-reboot')]
+ assert sorted(g.name for g in actual)==sorted(wanted)
+ argv=[sys.executable,'-B','tb/verilator/ctrl_service_budget/run.py','--point','arty-1x1',
+       '--build-dir',str(directory),'--variant',variant,'--regrade','--record-budget-findings']
+ if variant=='answering-ports':argv+=['--groups',','.join(wanted)]
+ if command('regrade-'+variant,argv):failed.append('regrade-'+variant)
+ results.append(str(directory/'results'))
+for name,argv in (
+ ('record-classes',[sys.executable,'-I','tb/verilator/ctrl_service_budget/record_classes.py',*results]),
+ ('egress-ledger',[sys.executable,'-I','tb/verilator/ctrl_service_budget/egress_ledger.py','--point','arty-1x1',*results]),
+ ('census',[sys.executable,'-B',str(scratch/'census.py'),str(out/'census.json'),*results])):
+ if command(name,argv):failed.append(name)
+if not (out/'census.json').exists():raise SystemExit('No complete final census')
+if command('merge-census',[sys.executable,'-B',str(scratch/'merge-census.py'),
+       str(out/'merged-census.json'),sys.argv[1],str(out/'census.json')]):failed.append('merge-census')
+model_log=out/'derive-model.log'
+if command('derive-model',[sys.executable,'-B',str(scratch/'derive-own.py'),str(out/'merged-census.json')]):failed.append('derive-model')
+measured=json.loads(model_log.read_text());(out/'derived-model.json').write_text(json.dumps(measured,indent=2)+'\n')
+model,findings=arty_grade.inspect(root)
+if findings:failed+=findings
+if not measured['choices']:failed.append('OWNER: no measured choice meets the rules and owner bounds')
+else:
+ choice=measured['choices'][0]
+ own=shape_costs.at(shape_costs.Shape(1,1,2),root)
+ for name,value in {'CTRL_LOOP_SLICE_US':choice['slice_us'],'AECP_PACE_MS':choice['pace_ms'],
+                    'CTRL_LOOP_QUEUED_MS':choice['queued_ms'],
+                    'CTRL_LOOP_RETRY_COLD_US':measured['retry_us'][0],
+                    'CTRL_LOOP_RETRY_ATTEMPT_US':measured['retry_us'][1],
+                    'AECP_NOTICE_US':measured['retry_us'][2]}.items():
+  if own[name]!=value:failed.append(f'{name}: installed {own[name]}, measured rule {value}')
+ same_rows=set(model['rows_ms'])==set(choice['rows_ms']) and all(
+  model['rows_ms'][key] is not None and value is not None and abs(model['rows_ms'][key]-value)<=1e-12
+  for key,value in choice['rows_ms'].items())
+ if not same_rows or abs(model['load']-measured['load'])>1e-12:
+  failed.append('Installed cost model differs from the measured model; rederive before qualification')
+for variant in manifest['groups']:build.reused(out/variant)
+worst=max(completed,key=lambda row:row['worst_pass_cycles'])
+record=dict(status='FAIL' if failed else 'PASS',kind='complete measured Arty FPGA point',point='arty-1x1',
+            cpu_hz=80_000_000,shape=[1,1,2],groups=len(completed),
+            checks={name:('FAIL' if failed else 'PASS') for name in
+                    ('owner-model','share','record-classes','retry-costs','transmit-costs','egress-ledger')},
+            findings=failed,model=model,worst_pass=worst,commands=commands,
+            note='Seven held-egress rows remain recorded budget misses, held to their own ledger.')
+(out/'qualification.json').write_text(json.dumps(record,indent=2)+'\n')
+print(json.dumps(record,indent=2),flush=True)
+raise SystemExit(bool(failed))

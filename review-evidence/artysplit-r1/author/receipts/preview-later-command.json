@@ -1,0 +1,19 @@
+[
+  {
+    "command": [
+      "/usr/bin/python3",
+      "-B",
+      "$VALIDATION_STORAGE/artysplit-a829/r4/preview-own-costs-later.py"
+    ],
+    "returncode": 0
+  },
+  {
+    "command": [
+      "/usr/bin/python3",
+      "-B",
+      "$VALIDATION_STORAGE/artysplit-a829/r4/check-cost-preview-later.py",
+      "--selftest"
+    ],
+    "returncode": -15
+  }
+]

@@ -1,0 +1,344 @@
+{
+  "status": "measurement census; missing groups remain unqualified",
+  "cpu_hz": 80000000,
+  "shape": [
+    1,
+    1,
+    2
+  ],
+  "groups": [
+    "arm-declaring/aecp-fanout",
+    "arm-declaring/aecp-largest-notice",
+    "arm-declaring/aecp-reboot",
+    "arm-declaring/aecp",
+    "arm-fast/acmp-cmd",
+    "arm-fast/acmp-disc",
+    "arm-fast/adp-discover",
+    "arm-fast/adp-gm",
+    "arm-fast/aecp-held",
+    "arm-fast/backlog-adp-refill",
+    "arm-fast/control",
+    "arm-fast/fixture"
+  ],
+  "costs": {
+    "base": {
+      "cycles": 14732,
+      "us": 184.15,
+      "rule_us": 195,
+      "instances": 12,
+      "group": "arm-declaring/aecp-largest-notice",
+      "start": null
+    },
+    "build": {
+      "cycles": 0,
+      "us": 0.0,
+      "rule_us": 0,
+      "instances": 12,
+      "group": "arm-declaring/aecp-fanout",
+      "start": null
+    },
+    "build_one": {
+      "cycles": 32823,
+      "us": 410.2875,
+      "rule_us": 435,
+      "instances": 12,
+      "group": "arm-declaring/aecp-fanout",
+      "start": null
+    },
+    "centisecond": {
+      "cycles": 9456,
+      "us": 118.2,
+      "rule_us": 125,
+      "instances": 1351,
+      "group": "arm-fast/acmp-disc",
+      "start": 81927079
+    },
+    "event.GM": {
+      "cycles": 1466,
+      "us": 18.325,
+      "rule_us": 20,
+      "instances": 18,
+      "group": "arm-fast/backlog-adp-refill",
+      "start": null
+    },
+    "event.LINK": {
+      "cycles": 11164,
+      "us": 139.55,
+      "rule_us": 150,
+      "instances": 13,
+      "group": "arm-fast/fixture",
+      "start": null
+    },
+    "event.TICK": {
+      "cycles": 2393,
+      "us": 29.9125,
+      "rule_us": 35,
+      "instances": 1351,
+      "group": "arm-declaring/aecp-fanout",
+      "start": null
+    },
+    "event.TIMER#0": {
+      "cycles": 6931,
+      "us": 86.6375,
+      "rule_us": 95,
+      "instances": 10,
+      "group": "arm-declaring/aecp-fanout",
+      "start": null
+    },
+    "event.TIMER#1": {
+      "cycles": 11665,
+      "us": 145.8125,
+      "rule_us": 155,
+      "instances": 4,
+      "group": "arm-fast/acmp-disc",
+      "start": null
+    },
+    "event.TIMER#2": {
+      "cycles": 11216,
+      "us": 140.2,
+      "rule_us": 150,
+      "instances": 15,
+      "group": "arm-fast/acmp-disc",
+      "start": null
+    },
+    "event.TIMER#3": {
+      "cycles": 2543,
+      "us": 31.7875,
+      "rule_us": 35,
+      "instances": 365,
+      "group": "arm-fast/acmp-disc",
+      "start": null
+    },
+    "events_none": {
+      "cycles": 1360,
+      "us": 17.0,
+      "rule_us": 20,
+      "instances": 430,
+      "group": "arm-fast/acmp-cmd",
+      "start": 54075944
+    },
+    "item.acmp": {
+      "cycles": 0,
+      "us": 0.0,
+      "rule_us": 0,
+      "instances": 12,
+      "group": "arm-declaring/aecp-fanout",
+      "start": null
+    },
+    "item.acmp_declined": {
+      "cycles": 0,
+      "us": 0.0,
+      "rule_us": 0,
+      "instances": 12,
+      "group": "arm-declaring/aecp-fanout",
+      "start": null
+    },
+    "item.acmp_kept": {
+      "cycles": 0,
+      "us": 0.0,
+      "rule_us": 0,
+      "instances": 12,
+      "group": "arm-declaring/aecp-fanout",
+      "start": null
+    },
+    "item.aecp": {
+      "cycles": 14863,
+      "us": 185.7875,
+      "rule_us": 200,
+      "instances": 12,
+      "group": "arm-declaring/aecp-fanout",
+      "start": null
+    },
+    "item.aecp_long": {
+      "cycles": 28794,
+      "us": 359.925,
+      "rule_us": 380,
+      "instances": 12,
+      "group": "arm-declaring/aecp-largest-notice",
+      "start": null
+    },
+    "item.mrpdu": {
+      "cycles": 0,
+      "us": 0.0,
+      "rule_us": 0,
+      "instances": 12,
+      "group": "arm-declaring/aecp-fanout",
+      "start": null
+    },
+    "item.rebuild": {
+      "cycles": 18540,
+      "us": 231.75,
+      "rule_us": 245,
+      "instances": 12,
+      "group": "arm-fast/fixture",
+      "start": null
+    },
+    "item.reclaim": {
+      "cycles": 495,
+      "us": 6.1875,
+      "rule_us": 10,
+      "instances": 12,
+      "group": "arm-fast/fixture",
+      "start": null
+    },
+    "item.record": {
+      "cycles": 21866,
+      "us": 273.325,
+      "rule_us": 290,
+      "instances": 12,
+      "group": "arm-fast/backlog-adp-refill",
+      "start": null
+    },
+    "item.retained": {
+      "cycles": 0,
+      "us": 0.0,
+      "rule_us": 0,
+      "instances": 12,
+      "group": "arm-declaring/aecp-fanout",
+      "start": null
+    },
+    "item.walk": {
+      "cycles": 1077,
+      "us": 13.4625,
+      "rule_us": 15,
+      "instances": 12,
+      "group": "arm-fast/acmp-cmd",
+      "start": null
+    },
+    "item.withdraw": {
+      "cycles": 6584,
+      "us": 82.3,
+      "rule_us": 90,
+      "instances": 13,
+      "group": "arm-fast/fixture",
+      "start": 16762568
+    },
+    "paced.44": {
+      "cycles": 23223,
+      "us": 290.2875,
+      "rule_us": 305,
+      "instances": 1,
+      "group": "arm-declaring/aecp-fanout",
+      "start": 64405669
+    },
+    "paced.45": {
+      "cycles": 25231,
+      "us": 315.3875,
+      "rule_us": 335,
+      "instances": 1,
+      "group": "arm-declaring/aecp-fanout",
+      "start": 63688665
+    },
+    "paced.6": {
+      "cycles": 23330,
+      "us": 291.625,
+      "rule_us": 310,
+      "instances": 1,
+      "group": "arm-declaring/aecp-fanout",
+      "start": 65624265
+    },
+    "record.acmp": {
+      "cycles": 17681,
+      "us": 221.0125,
+      "rule_us": 235,
+      "instances": 26,
+      "group": "arm-fast/fixture",
+      "start": 16827359
+    },
+    "record.adp": {
+      "cycles": 8814,
+      "us": 110.175,
+      "rule_us": 120,
+      "instances": 22,
+      "group": "arm-fast/backlog-adp-refill",
+      "start": 221437284
+    },
+    "record.aecp.other": {
+      "cycles": 21181,
+      "us": 264.7625,
+      "rule_us": 280,
+      "instances": 37,
+      "group": "arm-declaring/aecp-fanout",
+      "start": 66329841
+    },
+    "record.maap": {
+      "cycles": 8148,
+      "us": 101.85,
+      "rule_us": 110,
+      "instances": 8,
+      "group": "arm-fast/fixture",
+      "start": 16609606
+    },
+    "record.srp": {
+      "cycles": 22234,
+      "us": 277.925,
+      "rule_us": 295,
+      "instances": 34,
+      "group": "arm-fast/backlog-adp-refill",
+      "start": 218579662
+    },
+    "share": {
+      "cycles": 134507,
+      "us": 1681.3375,
+      "rule_us": 1770,
+      "instances": 12,
+      "group": "arm-declaring/aecp-largest-notice",
+      "start": null
+    },
+    "step": {
+      "cycles": 0,
+      "us": 0.0,
+      "rule_us": 0,
+      "instances": 12,
+      "group": "arm-declaring/aecp-fanout",
+      "start": null
+    },
+    "tx.aecp.long": {
+      "cycles": 28794,
+      "us": 359.925,
+      "rule_us": 380,
+      "instances": 2,
+      "group": "arm-declaring/aecp-largest-notice",
+      "start": 62493785
+    },
+    "tx.aecp.notice": {
+      "cycles": 14863,
+      "us": 185.7875,
+      "rule_us": 200,
+      "instances": 19,
+      "group": "arm-declaring/aecp-fanout",
+      "start": 63720074
+    },
+    "tx.aecp.response": {
+      "cycles": 3102,
+      "us": 38.775,
+      "rule_us": 45,
+      "instances": 118,
+      "group": "arm-declaring/aecp-largest-notice",
+      "start": 63147267
+    }
+  },
+  "rounds": {
+    "0:0": {
+      "start_sys": 62543187,
+      "cycles": 2367,
+      "notices": 0,
+      "refused": 0,
+      "group": "arm-declaring/aecp-largest-notice"
+    },
+    "1:0": {
+      "start_sys": 67837077,
+      "cycles": 23303,
+      "notices": 1,
+      "refused": 0,
+      "group": "arm-declaring/aecp-fanout"
+    },
+    "0:1": {
+      "start_sys": 16866128,
+      "cycles": 9226,
+      "notices": 0,
+      "refused": 1,
+      "group": "arm-fast/fixture"
+    }
+  }
+}

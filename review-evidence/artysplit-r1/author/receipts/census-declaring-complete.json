@@ -1,0 +1,290 @@
+{
+  "status": "measurement census; missing groups remain unqualified",
+  "cpu_hz": 80000000,
+  "shape": [
+    1,
+    1,
+    2
+  ],
+  "groups": [
+    "arm-declaring/aecp-fanout",
+    "arm-declaring/aecp-largest-notice",
+    "arm-declaring/aecp-outputs",
+    "arm-declaring/aecp-reboot",
+    "arm-declaring/aecp"
+  ],
+  "costs": {
+    "base": {
+      "cycles": 14732,
+      "us": 184.15,
+      "rule_us": 195,
+      "instances": 5,
+      "group": "arm-declaring/aecp-largest-notice",
+      "start": null
+    },
+    "build": {
+      "cycles": 0,
+      "us": 0.0,
+      "rule_us": 0,
+      "instances": 5,
+      "group": "arm-declaring/aecp-fanout",
+      "start": null
+    },
+    "build_one": {
+      "cycles": 41897,
+      "us": 523.7125,
+      "rule_us": 550,
+      "instances": 5,
+      "group": "arm-declaring/aecp-outputs",
+      "start": null
+    },
+    "centisecond": {
+      "cycles": 9588,
+      "us": 119.85,
+      "rule_us": 130,
+      "instances": 659,
+      "group": "arm-declaring/aecp-outputs",
+      "start": 81921372
+    },
+    "event.LINK": {
+      "cycles": 9671,
+      "us": 120.8875,
+      "rule_us": 130,
+      "instances": 5,
+      "group": "arm-declaring/aecp-fanout",
+      "start": null
+    },
+    "event.TICK": {
+      "cycles": 2393,
+      "us": 29.9125,
+      "rule_us": 35,
+      "instances": 659,
+      "group": "arm-declaring/aecp-fanout",
+      "start": null
+    },
+    "event.TIMER#0": {
+      "cycles": 6931,
+      "us": 86.6375,
+      "rule_us": 95,
+      "instances": 5,
+      "group": "arm-declaring/aecp-fanout",
+      "start": null
+    },
+    "event.TIMER#2": {
+      "cycles": 11470,
+      "us": 143.375,
+      "rule_us": 155,
+      "instances": 7,
+      "group": "arm-declaring/aecp-outputs",
+      "start": null
+    },
+    "events_none": {
+      "cycles": 1359,
+      "us": 16.9875,
+      "rule_us": 20,
+      "instances": 126,
+      "group": "arm-declaring/aecp-fanout",
+      "start": 67826399
+    },
+    "item.acmp": {
+      "cycles": 0,
+      "us": 0.0,
+      "rule_us": 0,
+      "instances": 5,
+      "group": "arm-declaring/aecp-fanout",
+      "start": null
+    },
+    "item.acmp_declined": {
+      "cycles": 0,
+      "us": 0.0,
+      "rule_us": 0,
+      "instances": 5,
+      "group": "arm-declaring/aecp-fanout",
+      "start": null
+    },
+    "item.acmp_kept": {
+      "cycles": 0,
+      "us": 0.0,
+      "rule_us": 0,
+      "instances": 5,
+      "group": "arm-declaring/aecp-fanout",
+      "start": null
+    },
+    "item.aecp": {
+      "cycles": 14863,
+      "us": 185.7875,
+      "rule_us": 200,
+      "instances": 5,
+      "group": "arm-declaring/aecp-fanout",
+      "start": null
+    },
+    "item.aecp_long": {
+      "cycles": 28794,
+      "us": 359.925,
+      "rule_us": 380,
+      "instances": 5,
+      "group": "arm-declaring/aecp-largest-notice",
+      "start": null
+    },
+    "item.mrpdu": {
+      "cycles": 0,
+      "us": 0.0,
+      "rule_us": 0,
+      "instances": 5,
+      "group": "arm-declaring/aecp-fanout",
+      "start": null
+    },
+    "item.rebuild": {
+      "cycles": 0,
+      "us": 0.0,
+      "rule_us": 0,
+      "instances": 5,
+      "group": "arm-declaring/aecp-fanout",
+      "start": null
+    },
+    "item.reclaim": {
+      "cycles": 0,
+      "us": 0.0,
+      "rule_us": 0,
+      "instances": 5,
+      "group": "arm-declaring/aecp-fanout",
+      "start": null
+    },
+    "item.record": {
+      "cycles": 21966,
+      "us": 274.575,
+      "rule_us": 290,
+      "instances": 5,
+      "group": "arm-declaring/aecp-outputs",
+      "start": null
+    },
+    "item.retained": {
+      "cycles": 0,
+      "us": 0.0,
+      "rule_us": 0,
+      "instances": 5,
+      "group": "arm-declaring/aecp-fanout",
+      "start": null
+    },
+    "item.walk": {
+      "cycles": 1096,
+      "us": 13.7,
+      "rule_us": 15,
+      "instances": 5,
+      "group": "arm-declaring/aecp-outputs",
+      "start": null
+    },
+    "item.withdraw": {
+      "cycles": 0,
+      "us": 0.0,
+      "rule_us": 0,
+      "instances": 5,
+      "group": "arm-declaring/aecp-fanout",
+      "start": null
+    },
+    "paced.44": {
+      "cycles": 23223,
+      "us": 290.2875,
+      "rule_us": 305,
+      "instances": 1,
+      "group": "arm-declaring/aecp-fanout",
+      "start": 64405669
+    },
+    "paced.45": {
+      "cycles": 25231,
+      "us": 315.3875,
+      "rule_us": 335,
+      "instances": 1,
+      "group": "arm-declaring/aecp-fanout",
+      "start": 63688665
+    },
+    "paced.6": {
+      "cycles": 23330,
+      "us": 291.625,
+      "rule_us": 310,
+      "instances": 1,
+      "group": "arm-declaring/aecp-fanout",
+      "start": 65624265
+    },
+    "record.acmp": {
+      "cycles": 17623,
+      "us": 220.2875,
+      "rule_us": 235,
+      "instances": 2,
+      "group": "arm-declaring/aecp-fanout",
+      "start": 67794475
+    },
+    "record.aecp.other": {
+      "cycles": 21646,
+      "us": 270.575,
+      "rule_us": 285,
+      "instances": 6,
+      "group": "arm-declaring/aecp-outputs",
+      "start": 274756370
+    },
+    "record.srp": {
+      "cycles": 22234,
+      "us": 277.925,
+      "rule_us": 295,
+      "instances": 1,
+      "group": "arm-declaring/aecp-outputs",
+      "start": 270335651
+    },
+    "share": {
+      "cycles": 134507,
+      "us": 1681.3375,
+      "rule_us": 1770,
+      "instances": 5,
+      "group": "arm-declaring/aecp-largest-notice",
+      "start": null
+    },
+    "step": {
+      "cycles": 0,
+      "us": 0.0,
+      "rule_us": 0,
+      "instances": 5,
+      "group": "arm-declaring/aecp-fanout",
+      "start": null
+    },
+    "tx.aecp.long": {
+      "cycles": 28794,
+      "us": 359.925,
+      "rule_us": 380,
+      "instances": 2,
+      "group": "arm-declaring/aecp-largest-notice",
+      "start": 62493785
+    },
+    "tx.aecp.notice": {
+      "cycles": 14863,
+      "us": 185.7875,
+      "rule_us": 200,
+      "instances": 23,
+      "group": "arm-declaring/aecp-fanout",
+      "start": 63720074
+    },
+    "tx.aecp.response": {
+      "cycles": 3102,
+      "us": 38.775,
+      "rule_us": 45,
+      "instances": 120,
+      "group": "arm-declaring/aecp-largest-notice",
+      "start": 63147267
+    }
+  },
+  "rounds": {
+    "0:0": {
+      "start_sys": 269840340,
+      "cycles": 2589,
+      "notices": 0,
+      "refused": 0,
+      "group": "arm-declaring/aecp-outputs"
+    },
+    "1:0": {
+      "start_sys": 269855150,
+      "cycles": 23656,
+      "notices": 1,
+      "refused": 0,
+      "group": "arm-declaring/aecp-outputs"
+    }
+  }
+}

@@ -1,0 +1,310 @@
+{
+ "group": "control-shutdown",
+ "probes": [
+  {
+   "probe": "control.shutdown.if0",
+   "row": "SHUTDOWN",
+   "family": "adp",
+   "interface": 0,
+   "path": [
+    "adp.shutdown",
+    0
+   ],
+   "start_sys": 200001307,
+   "end_sys": 200005465,
+   "sys_cycles": 4158,
+   "cpu_cycles": 4158,
+   "ms": 0.05198,
+   "wait_ms": 0.0,
+   "passes": 1,
+   "ring": "events",
+   "ahead": 0,
+   "budget_ms": 20.0,
+   "ceiling_ms": 200.0,
+   "within_budget": true,
+   "within_ceiling": true,
+   "bound_cpu_cycles": 13225,
+   "bound_ms": 0.16531,
+   "bound_within_budget": true,
+   "pass_cycles": 13225,
+   "pass_instr": 3481,
+   "pass_mbx_accesses": 17,
+   "pass_fetch_share": 0.5526,
+   "pass_fetch_wait_share": 0.2668,
+   "pass_regions": {
+    "rom": [
+     42,
+     0,
+     0
+    ],
+    "mbx": [
+     0,
+     13,
+     4
+    ],
+    "csr": [
+     0,
+     10,
+     7
+    ]
+   },
+   "pass_modules": {
+    "adp": 2489,
+    "ctrl_loop": 2254,
+    "mbx": 1916,
+    "aecp": 1312,
+    "ctrl_app_aecp": 890,
+    "nvm_store": 676
+   },
+   "model_accesses": 29,
+   "status": "measured"
+  }
+ ],
+ "timeouts": [],
+ "passes": {
+  "count": 24654,
+  "work": 267,
+  "idle_min": 2013,
+  "idle_max": 19132,
+  "worst": {
+   "cycles": 31009,
+   "ms": 0.38761,
+   "instr": 4934,
+   "start_sys": 6022997,
+   "modules": {
+    "aecp_mbx": 60,
+    "ctrl_loop": 399,
+    "nvm_store": 121,
+    "nvm_flash_litespi": 121,
+    "aecp": 125,
+    "mbx": 1023,
+    "srp_mbx": 3805,
+    "ctrl_mem": 1324,
+    "timer": 7,
+    "mrp_mad": 23631,
+    "msrp": 393
+   }
+  },
+  "composed": null,
+  "share": {
+   "ms": 2.0,
+   "cycles": 160000,
+   "passes": 267,
+   "over": 0,
+   "over_passes": [],
+   "idle_over": 0,
+   "idle_longest": 19132
+  },
+  "steps": {
+   "passes": 252,
+   "cycles": 15654,
+   "ms": 0.19567,
+   "start_sys": 161995391,
+   "store_cycles": 2508,
+   "store_ms": 0.03135,
+   "store_start_sys": 2737010
+  },
+  "stated": {
+   "heaviest": {
+    "step": 0,
+    "build": 0,
+    "build-one": 31009
+   },
+   "limits": {
+    "step": 84800,
+    "build": 82800,
+    "build-one": 52800
+   },
+   "over": []
+  },
+  "rounds": {
+   "rounds": 24378,
+   "heaviest": {
+    "0": 1705
+   },
+   "stated": {
+    "cold": 125,
+    "notice": 230,
+    "attempt": 30
+   },
+   "over": []
+  },
+  "polls": {
+   "passes": 24635,
+   "heaviest": {
+    "base": 10629,
+    "withdraw": 0,
+    "rebuild": 0,
+    "walk": 776,
+    "reclaim": 0,
+    "retained": 0,
+    "mrpdu": 0,
+    "acmp": 0,
+    "aecp": 0,
+    "aecp_long": 0,
+    "acmp_declined": 0,
+    "record": 0,
+    "acmp_kept": 0
+   },
+   "limits": {
+    "base": 18000,
+    "withdraw": 7200,
+    "rebuild": 19600,
+    "walk": 2400,
+    "reclaim": 1600,
+    "retained": 24000,
+    "mrpdu": 52800,
+    "acmp": 4800,
+    "aecp": 16000,
+    "aecp_long": 30400,
+    "acmp_declined": 1600,
+    "record": 24000,
+    "acmp_kept": 19200
+   },
+   "over": [],
+   "long": []
+  },
+  "slices": {
+   "slices": 24387,
+   "longest": {
+    "srp": 0,
+    "build": 31009,
+    "round": 1705
+   },
+   "limit": 76000,
+   "over": []
+  },
+  "joins": {
+   "count": 3,
+   "shortest": 188.834,
+   "longest": 190.05,
+   "over": [],
+   "runs": {
+    "released": 7,
+    "empty": 6,
+    "late": 0,
+    "absent": 0,
+    "unresolved": 0,
+    "unowned": 0
+   },
+   "failing": [],
+   "leave_all": {
+    "runs": {
+     "sent": 0,
+     "skipped": 0,
+     "late": 0,
+     "absent": 0,
+     "unresolved": 0,
+     "unowned": 0
+    },
+    "failing": []
+   }
+  }
+ },
+ "save": null,
+ "burst": null,
+ "summary": {
+  "sys": "204019913",
+  "cpu": "204019849",
+  "passes": "24654",
+  "instr": "61918053",
+  "bus_errors": "0",
+  "traps": "0",
+  "mbx_read": "247023/1989592/7/70",
+  "mbx_write": "444/4767/7/68",
+  "host_cycles": "247577/493572/1/2",
+  "fetch_rom": "3792/312540/80/529",
+  "load_rom": "0/0/0/0",
+  "store_rom": "0/0/0/0",
+  "fetch_sram": "0/0/0/0",
+  "load_sram": "0/0/0/0",
+  "store_sram": "0/0/0/0",
+  "fetch_mbx": "0/0/0/0",
+  "load_mbx": "247023/1989592/7/70",
+  "store_mbx": "444/4767/7/68",
+  "fetch_flash": "0/0/0/0",
+  "load_flash": "240/96166/203/468",
+  "store_flash": "0/0/0/0",
+  "fetch_csr": "0/0/0/0",
+  "load_csr": "98591/691252/7/120",
+  "store_csr": "98585/690540/7/38",
+  "fetch_other": "0/0/0/0",
+  "load_other": "0/0/0/0",
+  "store_other": "0/0/0/0"
+ },
+ "modules": {
+  "ctrl_split_start": 179154,
+  "aecp_mbx": 7615602,
+  "ctrl_app_aecp": 21991004,
+  "ctrl_loop": 51989862,
+  "nvm_store": 11799373,
+  "nvm_flash_litespi": 12622627,
+  "aecp": 26794143,
+  "mbx": 14507499,
+  "mbx_plat_mmio": 146268,
+  "srp_mbx": 11038068,
+  "acmp_mbx": 4019580,
+  "adp_mbx": 158526,
+  "adp": 1854707,
+  "acmp": 5987512,
+  "maap_mbx": 10641190,
+  "ctrl_mem": 3468222,
+  "ctrl_app_srp": 9560959,
+  "ctrl_aecp_image": 1375777,
+  "maap": 2893848,
+  "aecp_nvm": 394906,
+  "aecp_face": 3085779,
+  "timer": 100544,
+  "mrp_mad": 249574,
+  "aecp_commands": 6293,
+  "msrp": 2201,
+  "shlan_port": 313,
+  "ctrl_pool": 5984,
+  "mvrp": 2254,
+  "nvm_klj2": 265910,
+  "aecp_maps": 2698,
+  "ctrl_debug": 18,
+  "acmp_nvm": 197,
+  "ctrl_app": 2701,
+  "aecp_image": 1246306,
+  "mrp_pdu": 9900,
+  "unmapped": 350
+ },
+ "code": {
+  "boot_bytes": "15936",
+  "service_bytes": "38272",
+  "service_only_bytes": "36096",
+  "aecp_mbx": "772",
+  "ctrl_app_aecp": "1316",
+  "ctrl_loop": "2376",
+  "nvm_store": "636",
+  "nvm_flash_litespi": "176",
+  "aecp": "2540",
+  "mbx": "2392",
+  "mbx_plat_mmio": "20",
+  "srp_mbx": "5924",
+  "acmp_mbx": "388",
+  "adp_mbx": "388",
+  "adp": "2028",
+  "acmp": "1440",
+  "maap_mbx": "1552",
+  "ctrl_mem": "764",
+  "ctrl_app_srp": "960",
+  "ctrl_aecp_image": "528",
+  "maap": "2056",
+  "aecp_nvm": "108",
+  "aecp_face": "1512",
+  "timer": "128",
+  "mrp_mad": "5816",
+  "aecp_commands": "332",
+  "msrp": "640",
+  "shlan_port": "60",
+  "ctrl_pool": "348",
+  "mvrp": "568",
+  "nvm_klj2": "56",
+  "aecp_maps": "1172",
+  "ctrl_debug": "20",
+  "ctrl_app": "112",
+  "mrp_pdu": "1144"
+ }
+}

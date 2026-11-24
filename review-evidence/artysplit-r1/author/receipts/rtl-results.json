@@ -1,0 +1,33 @@
+[
+  {
+    "case": "gptp-txts",
+    "command": [
+      "make",
+      "-j1",
+      "-C",
+      "tb/verilator/gptp_txts"
+    ],
+    "returncode": 0
+  },
+  {
+    "case": "milan-dp-latw",
+    "command": [
+      "make",
+      "-j1",
+      "-C",
+      "tb/verilator/milan_dp",
+      "gptp-latw"
+    ],
+    "returncode": 2
+  },
+  {
+    "case": "gptp-shadow",
+    "command": [
+      "make",
+      "-j1",
+      "-C",
+      "tb/verilator/gptp_shadow"
+    ],
+    "returncode": 2
+  }
+]

@@ -1,0 +1,47 @@
+{
+  "status": "PASS",
+  "records": [
+    {
+      "mutant": "none",
+      "status": "PASS",
+      "failed": [],
+      "expected": []
+    },
+    {
+      "mutant": "single-mask",
+      "status": "PASS",
+      "failed": [
+        "DECODE the fetch decode admits exactly the SoC regions it may fetch",
+        "DECODE the load decode admits exactly the SoC regions it may load",
+        "rom: a fetch at each seam of its decode pieces executes it",
+        "rom: a load at each seam of its decode pieces reads its word from memory"
+      ],
+      "expected": [
+        "DECODE the fetch decode admits exactly the SoC regions it may fetch",
+        "DECODE the load decode admits exactly the SoC regions it may load",
+        "rom: a fetch at each seam of its decode pieces executes it",
+        "rom: a load at each seam of its decode pieces reads its word from memory"
+      ]
+    },
+    {
+      "mutant": "cover",
+      "status": "PASS",
+      "failed": [
+        "DECODE the fetch decode admits exactly the SoC regions it may fetch",
+        "DECODE the load decode admits exactly the SoC regions it may load",
+        "rom: a fetch one word past its end, 0x00038000, takes an instruction access fault (cause 1) before its bus",
+        "rom: a load one word past its end, 0x00038000, takes a load access fault (cause 5) before its bus",
+        "sram: a fetch one word past its end, 0x10038000, takes an instruction access fault (cause 1) before its bus",
+        "sram: a load one word past its end, 0x10038000, takes a load access fault (cause 5) before its bus"
+      ],
+      "expected": [
+        "DECODE the fetch decode admits exactly the SoC regions it may fetch",
+        "DECODE the load decode admits exactly the SoC regions it may load",
+        "rom: a fetch one word past its end, 0x00038000, takes an instruction access fault (cause 1) before its bus",
+        "rom: a load one word past its end, 0x00038000, takes a load access fault (cause 5) before its bus",
+        "sram: a fetch one word past its end, 0x10038000, takes an instruction access fault (cause 1) before its bus",
+        "sram: a load one word past its end, 0x10038000, takes a load access fault (cause 5) before its bus"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,47 @@
+{
+  "status": "NATIVE DRAIN COMPLETE; CALIBRATION REGRADING REQUIRED",
+  "parent": 2799895,
+  "children": [
+    {
+      "pid": 3555895,
+      "command": [
+        "$VALIDATION_STORAGE/artysplit-a829/r4/final-census/none/native/Vsim",
+        "$VALIDATION_STORAGE/artysplit-a829/r4/final-census/none/results/save-second.txt",
+        "-"
+      ],
+      "script": "$VALIDATION_STORAGE/artysplit-a829/r4/final-census/none/results/save-second.txt",
+      "state": "Z",
+      "wait_status": 0,
+      "returncode": 0
+    },
+    {
+      "pid": 3573523,
+      "command": [
+        "$VALIDATION_STORAGE/artysplit-a829/r4/final-census/none/native/Vsim",
+        "$VALIDATION_STORAGE/artysplit-a829/r4/final-census/none/results/save-held.txt",
+        "-"
+      ],
+      "script": "$VALIDATION_STORAGE/artysplit-a829/r4/final-census/none/results/save-held.txt",
+      "state": "Z",
+      "wait_status": 0,
+      "returncode": 0
+    },
+    {
+      "pid": 3608574,
+      "command": [
+        "$VALIDATION_STORAGE/artysplit-a829/r4/final-census/none/native/Vsim",
+        "$VALIDATION_STORAGE/artysplit-a829/r4/final-census/none/results/save-starved.txt",
+        "-"
+      ],
+      "script": "$VALIDATION_STORAGE/artysplit-a829/r4/final-census/none/results/save-starved.txt",
+      "state": "Z",
+      "wait_status": 0,
+      "returncode": 0
+    }
+  ],
+  "time": "2026-11-23T19:00:55.230421+00:00",
+  "reason": "Measured SRP margin rounds to 300 us; installed 295 us requires a firmware correction. No owner bound failed.",
+  "admission": "Only this supervisor is SIGSTOPped. Its existing foreground native children continue normally; a just-finished group may be awaiting Python grading.",
+  "updated": "2026-11-23T19:32:05.276735+00:00",
+  "supervisor_exit": "intentional SIGKILL after all native children exited"
+}

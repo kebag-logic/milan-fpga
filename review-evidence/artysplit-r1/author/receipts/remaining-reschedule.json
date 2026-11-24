@@ -1,0 +1,86 @@
+{
+  "status": "RESCHEDULED; incomplete serial traces excluded",
+  "workers": 4,
+  "kept": [
+    [
+      "arm-valid",
+      "srp-talker"
+    ],
+    [
+      "arm-declaring",
+      "aecp"
+    ],
+    [
+      "arm-declaring",
+      "aecp-fanout"
+    ],
+    [
+      "arm-declaring",
+      "aecp-largest-notice"
+    ],
+    [
+      "arm-declaring",
+      "aecp-reboot"
+    ],
+    [
+      "arm-declaring",
+      "aecp-outputs"
+    ]
+  ],
+  "pending": [
+    [
+      "arm-valid",
+      "srp-talker-loss"
+    ],
+    [
+      "arm-valid",
+      "srp-talker-held"
+    ],
+    [
+      "arm-later",
+      "notice-retried-0"
+    ],
+    [
+      "arm-later",
+      "notice-retried-1"
+    ],
+    [
+      "arm-later",
+      "notice-retried-2"
+    ],
+    [
+      "arm-later",
+      "notice-retried-3"
+    ],
+    [
+      "arm-later",
+      "notice-retried-4"
+    ],
+    [
+      "arm-later",
+      "notice-retried-5"
+    ],
+    [
+      "arm-later",
+      "notice-retried-6"
+    ],
+    [
+      "arm-later",
+      "notice-retried-7"
+    ]
+  ],
+  "interrupted": [
+    {
+      "arm": "arm-valid",
+      "file": "srp-talker-loss.txt",
+      "bytes": 649,
+      "sha256": "c34ca1eaad96fb91bf7804f9f83d13dfa27cb11fb02b9e53de84405ddd0e61cf"
+    },
+    {
+      "arm": "arm-valid",
+      "file": "srp-talker-loss.log",
+      "bytes": 8708096,
+      "sha256": "788a17b56f36f4b12de853f36829dbe310a352c7c680842a926bfeebc28f1c0e"
+    }
+  ]
+}

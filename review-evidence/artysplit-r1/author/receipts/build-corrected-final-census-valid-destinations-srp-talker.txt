@@ -1,0 +1,17 @@
+wait ready
+mark booted
+wait cycles 4000000
+wait quiet 3 within 1600000
+link 0 1
+wait cycles 48000000
+wait quiet 3 within 1600000
+mark settled
+wait cycles 208000000
+wait quiet 3 within 1600000
+mark srp.talker_declare.s0.if0
+frame 0 91e0f00100000a0b0c0d0e0122f0fc00002c00000000000000000a0b0c0d0e0f0001024b4cfffe4b4c020d0e0f10111200020000000300000000000000005300000000000000 srp.talker_declare.s0.if0
+wait tx 4 1 within 24000000
+wait quiet 3 within 1600000
+wait cycles 1280000000
+wait quiet 3 within 1600000
+end

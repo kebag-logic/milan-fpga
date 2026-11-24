@@ -1,0 +1,244 @@
+[
+  {
+    "name": "regrade-answering-ports",
+    "command": [
+      "<home-path>/litex-milan/venv/bin/python3",
+      "-B",
+      "tb/verilator/ctrl_service_budget/run.py",
+      "--point",
+      "arty-1x1",
+      "--build-dir",
+      "$VALIDATION_STORAGE/artysplit-a829/r4/build-corrected/final-census/answering-ports",
+      "--variant",
+      "answering-ports",
+      "--regrade",
+      "--record-budget-findings",
+      "--groups",
+      "aecp-fanout,aecp,aecp-reboot,aecp-largest-notice"
+    ],
+    "returncode": 0,
+    "log": "$VALIDATION_STORAGE/artysplit-a829/r4/build-corrected/final-census/regrade-answering-ports.log",
+    "sha256": "182f6ed1e2773bc673aa7cec3e790762f967ae31534702207cfad567431c2b53"
+  },
+  {
+    "name": "regrade-answering-every-port",
+    "command": [
+      "<home-path>/litex-milan/venv/bin/python3",
+      "-B",
+      "tb/verilator/ctrl_service_budget/run.py",
+      "--point",
+      "arty-1x1",
+      "--build-dir",
+      "$VALIDATION_STORAGE/artysplit-a829/r4/build-corrected/final-census/answering-every-port",
+      "--variant",
+      "answering-every-port",
+      "--regrade",
+      "--record-budget-findings"
+    ],
+    "returncode": 0,
+    "log": "$VALIDATION_STORAGE/artysplit-a829/r4/build-corrected/final-census/regrade-answering-every-port.log",
+    "sha256": "767da0a3cbf5092c8fe47676fd8c6c74abb1be50f8027d0c2afdfaaa0621e155"
+  },
+  {
+    "name": "regrade-answering-later",
+    "command": [
+      "<home-path>/litex-milan/venv/bin/python3",
+      "-B",
+      "tb/verilator/ctrl_service_budget/run.py",
+      "--point",
+      "arty-1x1",
+      "--build-dir",
+      "$VALIDATION_STORAGE/artysplit-a829/r4/build-corrected/final-census/answering-later",
+      "--variant",
+      "answering-later",
+      "--regrade",
+      "--record-budget-findings"
+    ],
+    "returncode": 0,
+    "log": "$VALIDATION_STORAGE/artysplit-a829/r4/build-corrected/final-census/regrade-answering-later.log",
+    "sha256": "861cb24c44bfa58d7ba7b23608c4939c46ca164d2abba7dbfc23a4481be075b4"
+  },
+  {
+    "name": "regrade-declaring-outputs",
+    "command": [
+      "<home-path>/litex-milan/venv/bin/python3",
+      "-B",
+      "tb/verilator/ctrl_service_budget/run.py",
+      "--point",
+      "arty-1x1",
+      "--build-dir",
+      "$VALIDATION_STORAGE/artysplit-a829/r4/build-corrected/final-census/declaring-outputs",
+      "--variant",
+      "declaring-outputs",
+      "--regrade",
+      "--record-budget-findings"
+    ],
+    "returncode": 0,
+    "log": "$VALIDATION_STORAGE/artysplit-a829/r4/build-corrected/final-census/regrade-declaring-outputs.log",
+    "sha256": "1061a9626315aea2184cff4e283ac4ee85331c3d503e2948362bbe09450cd32d"
+  },
+  {
+    "name": "regrade-talker-notices",
+    "command": [
+      "<home-path>/litex-milan/venv/bin/python3",
+      "-B",
+      "tb/verilator/ctrl_service_budget/run.py",
+      "--point",
+      "arty-1x1",
+      "--build-dir",
+      "$VALIDATION_STORAGE/artysplit-a829/r4/build-corrected/final-census/talker-notices",
+      "--variant",
+      "talker-notices",
+      "--regrade",
+      "--record-budget-findings"
+    ],
+    "returncode": 0,
+    "log": "$VALIDATION_STORAGE/artysplit-a829/r4/build-corrected/final-census/regrade-talker-notices.log",
+    "sha256": "34a45fbb123f55e14404d823f35b3cdeb16acf369063dd0d176bdaf62c51eb8d"
+  },
+  {
+    "name": "regrade-shutdown-entry",
+    "command": [
+      "<home-path>/litex-milan/venv/bin/python3",
+      "-B",
+      "tb/verilator/ctrl_service_budget/run.py",
+      "--point",
+      "arty-1x1",
+      "--build-dir",
+      "$VALIDATION_STORAGE/artysplit-a829/r4/build-corrected/final-census/shutdown-entry",
+      "--variant",
+      "shutdown-entry",
+      "--regrade",
+      "--record-budget-findings"
+    ],
+    "returncode": 0,
+    "log": "$VALIDATION_STORAGE/artysplit-a829/r4/build-corrected/final-census/regrade-shutdown-entry.log",
+    "sha256": "ea8a6ed564cedcfa75993aa80a06d4a973a5ff7f42b2e1c6c1d69eee72874fee"
+  },
+  {
+    "name": "regrade-valid-destinations",
+    "command": [
+      "<home-path>/litex-milan/venv/bin/python3",
+      "-B",
+      "tb/verilator/ctrl_service_budget/run.py",
+      "--point",
+      "arty-1x1",
+      "--build-dir",
+      "$VALIDATION_STORAGE/artysplit-a829/r4/build-corrected/final-census/valid-destinations",
+      "--variant",
+      "valid-destinations",
+      "--regrade",
+      "--record-budget-findings"
+    ],
+    "returncode": 0,
+    "log": "$VALIDATION_STORAGE/artysplit-a829/r4/build-corrected/final-census/regrade-valid-destinations.log",
+    "sha256": "5a3c8d659ea84b3ae3bf99e8aa2d184b955f5ba3cadf21364af677ac3fb1014e"
+  },
+  {
+    "name": "regrade-none",
+    "command": [
+      "<home-path>/litex-milan/venv/bin/python3",
+      "-B",
+      "tb/verilator/ctrl_service_budget/run.py",
+      "--point",
+      "arty-1x1",
+      "--build-dir",
+      "$VALIDATION_STORAGE/artysplit-a829/r4/build-corrected/final-census/none",
+      "--variant",
+      "none",
+      "--regrade",
+      "--record-budget-findings"
+    ],
+    "returncode": 0,
+    "log": "$VALIDATION_STORAGE/artysplit-a829/r4/build-corrected/final-census/regrade-none.log",
+    "sha256": "1ad758b0d7e926fe1b5867134764a556473a5038a473e49f0253573c47da969b"
+  },
+  {
+    "name": "egress-ledger",
+    "command": [
+      "<home-path>/litex-milan/venv/bin/python3",
+      "-I",
+      "-B",
+      "tb/verilator/ctrl_service_budget/egress_ledger.py",
+      "--point",
+      "arty-1x1",
+      "$VALIDATION_STORAGE/artysplit-a829/r4/build-corrected/final-census/none/results",
+      "$VALIDATION_STORAGE/artysplit-a829/r4/build-corrected/final-census/answering-ports/results",
+      "$VALIDATION_STORAGE/artysplit-a829/r4/build-corrected/final-census/answering-every-port/results",
+      "$VALIDATION_STORAGE/artysplit-a829/r4/build-corrected/final-census/valid-destinations/results",
+      "$VALIDATION_STORAGE/artysplit-a829/r4/build-corrected/final-census/declaring-outputs/results",
+      "$VALIDATION_STORAGE/artysplit-a829/r4/build-corrected/final-census/answering-later/results",
+      "$VALIDATION_STORAGE/artysplit-a829/r4/build-corrected/final-census/talker-notices/results",
+      "$VALIDATION_STORAGE/artysplit-a829/r4/build-corrected/final-census/shutdown-entry/results"
+    ],
+    "returncode": 0,
+    "log": "$VALIDATION_STORAGE/artysplit-a829/r4/build-corrected/final-census/egress-ledger.log",
+    "sha256": "c93877e6bc0a9753b9df479cf78cca63842a4937bb5035b30ab07ca0491d506d"
+  },
+  {
+    "name": "record-classes",
+    "command": [
+      "<home-path>/litex-milan/venv/bin/python3",
+      "-I",
+      "-B",
+      "tb/verilator/ctrl_service_budget/record_classes.py",
+      "$VALIDATION_STORAGE/artysplit-a829/r4/build-corrected/final-census/none/results",
+      "$VALIDATION_STORAGE/artysplit-a829/r4/build-corrected/final-census/answering-ports/results",
+      "$VALIDATION_STORAGE/artysplit-a829/r4/build-corrected/final-census/answering-every-port/results",
+      "$VALIDATION_STORAGE/artysplit-a829/r4/build-corrected/final-census/valid-destinations/results",
+      "$VALIDATION_STORAGE/artysplit-a829/r4/build-corrected/final-census/declaring-outputs/results",
+      "$VALIDATION_STORAGE/artysplit-a829/r4/build-corrected/final-census/answering-later/results",
+      "$VALIDATION_STORAGE/artysplit-a829/r4/build-corrected/final-census/talker-notices/results",
+      "$VALIDATION_STORAGE/artysplit-a829/r4/build-corrected/final-census/shutdown-entry/results"
+    ],
+    "returncode": 0,
+    "log": "$VALIDATION_STORAGE/artysplit-a829/r4/build-corrected/final-census/record-classes.log",
+    "sha256": "72196a57462e755a1e94518ccd1067eb3838eecbc1dfc0a51dddcadd4635c84e"
+  },
+  {
+    "name": "census",
+    "command": [
+      "<home-path>/litex-milan/venv/bin/python3",
+      "-B",
+      "$VALIDATION_STORAGE/artysplit-a829/r4/build-corrected/census.py",
+      "$VALIDATION_STORAGE/artysplit-a829/r4/build-corrected/final-census/census.json",
+      "$VALIDATION_STORAGE/artysplit-a829/r4/build-corrected/final-census/none/results",
+      "$VALIDATION_STORAGE/artysplit-a829/r4/build-corrected/final-census/answering-ports/results",
+      "$VALIDATION_STORAGE/artysplit-a829/r4/build-corrected/final-census/answering-every-port/results",
+      "$VALIDATION_STORAGE/artysplit-a829/r4/build-corrected/final-census/valid-destinations/results",
+      "$VALIDATION_STORAGE/artysplit-a829/r4/build-corrected/final-census/declaring-outputs/results",
+      "$VALIDATION_STORAGE/artysplit-a829/r4/build-corrected/final-census/answering-later/results",
+      "$VALIDATION_STORAGE/artysplit-a829/r4/build-corrected/final-census/talker-notices/results",
+      "$VALIDATION_STORAGE/artysplit-a829/r4/build-corrected/final-census/shutdown-entry/results"
+    ],
+    "returncode": 0,
+    "log": "$VALIDATION_STORAGE/artysplit-a829/r4/build-corrected/final-census/census.log",
+    "sha256": "d8cd2667bf9adc8e1f0d2a5f901c6a3c2b29cfb87d01b0a057bbe6d9b45b08c0"
+  },
+  {
+    "name": "merge-census",
+    "command": [
+      "<home-path>/litex-milan/venv/bin/python3",
+      "-B",
+      "$VALIDATION_STORAGE/artysplit-a829/r4/build-corrected/merge-census.py",
+      "$VALIDATION_STORAGE/artysplit-a829/r4/build-corrected/final-census/merged-census.json",
+      "$VALIDATION_STORAGE/artysplit-a829/r4/build-corrected/census-preliminary-complete.json",
+      "$VALIDATION_STORAGE/artysplit-a829/r4/build-corrected/final-census/census.json"
+    ],
+    "returncode": 0,
+    "log": "$VALIDATION_STORAGE/artysplit-a829/r4/build-corrected/final-census/merge-census.log",
+    "sha256": "98d7c3ddc64fd0d4e343e6d81fc7a2d6dce0938b74cb43bfce2828108ac4b53e"
+  },
+  {
+    "name": "derive-model",
+    "command": [
+      "<home-path>/litex-milan/venv/bin/python3",
+      "-B",
+      "$VALIDATION_STORAGE/artysplit-a829/r4/build-corrected/derive-own.py",
+      "$VALIDATION_STORAGE/artysplit-a829/r4/build-corrected/final-census/merged-census.json"
+    ],
+    "returncode": 0,
+    "log": "$VALIDATION_STORAGE/artysplit-a829/r4/build-corrected/final-census/derive-model.log",
+    "sha256": "1d3d489dff558ea56718e74a8e0a35aaaab6b1c5ff1108df0ef17bd8da459f34"
+  }
+]

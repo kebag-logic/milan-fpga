@@ -1,0 +1,100 @@
+{
+  "shape": "endstation_arty_split",
+  "interfaces": 1,
+  "entry": "plat/ctrl_plat_main.c",
+  "sections": {
+    ".text": 112748,
+    ".rodata": 11558,
+    ".data": 100,
+    ".bss": 45072,
+    ".stack": 8192,
+    ".riscv.attributes": 42
+  },
+  "largest_bss": [
+    {
+      "symbol": "owed",
+      "bytes": 9216
+    },
+    {
+      "symbol": "ctrl_plat.app",
+      "bytes": 9184
+    },
+    {
+      "symbol": "arena",
+      "bytes": 9056
+    },
+    {
+      "symbol": "values",
+      "bytes": 3651
+    },
+    {
+      "symbol": "ctrl_plat.aecp",
+      "bytes": 3584
+    }
+  ],
+  "ctrl_plat_members": {
+    "acmp": 96,
+    "aecp": 3584,
+    "aecp_config": 64,
+    "app": 9184,
+    "binding": 40,
+    "bridge": 144,
+    "config": 56,
+    "console": 588,
+    "face": 100,
+    "maap_csr": 32,
+    "sources": 32,
+    "srp": 3504,
+    "srp_config": 32,
+    "state": 200
+  },
+  "split": {
+    "rom": {
+      "bytes": 124412,
+      "banks": [
+        65536,
+        32768,
+        16384,
+        8192,
+        2048
+      ],
+      "RAMB36": 30,
+      "RAMB18": 1
+    },
+    "sram": {
+      "bytes": 53392,
+      "banks": [
+        32768,
+        16384,
+        4096,
+        2048
+      ],
+      "RAMB36": 13,
+      "RAMB18": 1
+    },
+    "tiles": 44.0,
+    "budget_tiles": 56
+  },
+  "artifacts": [
+    {
+      "name": "libc.a",
+      "size": 5478,
+      "sha256": "d8aa8f158c7a964194d4f4233641e439acccaaf7f0b2c5a6e099b8ad4411a869"
+    },
+    {
+      "name": "libcompiler_rt.a",
+      "size": 29128,
+      "sha256": "1bd05596298e1948eb39ab1f7ab094241e0ebc6af8b61369a7ebc568de32bc80"
+    },
+    {
+      "name": "ctrl_app.elf",
+      "size": 159532,
+      "sha256": "6c98c9985a85265fa2eb49dc9e538207d0fe3af97967ba381e1939600a88b526"
+    },
+    {
+      "name": "ctrl_app.map",
+      "size": 185751,
+      "sha256": "12690a1b66dcd56266d1deb40ffdd26e8e953ce00d89990213865621d72d8e4b"
+    }
+  ]
+}

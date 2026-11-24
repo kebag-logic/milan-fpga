@@ -1,0 +1,17 @@
+{
+  "label": "final-boot-controls",
+  "command": [
+    "<home-path>/litex-milan/venv/bin/python3",
+    "-B",
+    "tb/verilator/ctrl_split_boot/run.py",
+    "--shape",
+    "endstation_arty_split",
+    "--interfaces",
+    "1",
+    "--build-dir",
+    "$VALIDATION_STORAGE/artysplit-a829/r4/final-boot-controls",
+    "--self-test"
+  ],
+  "returncode": -15,
+  "log": "$VALIDATION_STORAGE/artysplit-a829/r4/final-boot-controls.log"
+}

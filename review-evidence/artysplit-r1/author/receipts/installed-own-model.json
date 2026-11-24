@@ -1,0 +1,54 @@
+{
+  "status": "PASS",
+  "model": {
+    "status": "PASS",
+    "evidence": "stated-cost model only",
+    "cpu_hz": 80000000,
+    "shape": [
+      1,
+      1,
+      2
+    ],
+    "load": 0.49166544736842105,
+    "load_terms": {
+      "rec.aecp": 0.057,
+      "rec.acmp": 0.048,
+      "rec.adp": 0.012,
+      "rec.maap": 0.006,
+      "srp": 0.177,
+      "item.reclaim": 0.020421052631578947,
+      "item.aecp": 0.04288,
+      "notices": 0.0017749999999999999,
+      "item.acmp": 0.018600000000000002,
+      "item.acmp_declined": 0.012400000000000001,
+      "ticks": 0.0185,
+      "item.walk": 0.0033157894736842108,
+      "builds": 0.006947368421052632,
+      "item.mrpdu": 0.013894736842105264,
+      "steps": 0.035333333333333335,
+      "timers": 0.0175165,
+      "gm": 8.166666666666668e-05
+    },
+    "rows_ms": {
+      "R4": 13.91,
+      "R5": 69.9,
+      "R6": 68.07,
+      "first": 14.440000000000001,
+      "last": 121.2,
+      "R4L": 203.34,
+      "ACMP": 28.77,
+      "ADP": 26.87,
+      "MAAP": 26.99,
+      "tx": 33.53,
+      "txL": 48.84
+    },
+    "slice_us": 950,
+    "slice_margin": 0.00326530612244891,
+    "pace_ms": 9
+  },
+  "findings": [],
+  "tests": {
+    "shape_controls": [],
+    "load_controls": []
+  }
+}

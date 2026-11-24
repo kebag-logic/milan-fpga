@@ -1,0 +1,226 @@
+{
+  "status": "measurement census; missing groups remain unqualified",
+  "cpu_hz": 80000000,
+  "shape": [
+    1,
+    1,
+    2
+  ],
+  "groups": [
+    "arm-valid/srp-talker-held",
+    "arm-valid/srp-talker-loss",
+    "arm-later/notice-retried-0",
+    "arm-later/notice-retried-1"
+  ],
+  "costs": {
+    "base": {
+      "cycles": 12570,
+      "us": 157.125,
+      "rule_us": 165,
+      "instances": 4,
+      "group": "arm-later/notice-retried-0",
+      "start": null
+    },
+    "build": {
+      "cycles": 0,
+      "us": 0.0,
+      "rule_us": 0,
+      "instances": 4,
+      "group": "arm-valid/srp-talker-held",
+      "start": null
+    },
+    "build_one": {
+      "cycles": 32671,
+      "us": 408.3875,
+      "rule_us": 430,
+      "instances": 4,
+      "group": "arm-valid/srp-talker-held",
+      "start": null
+    },
+    "centisecond": {
+      "cycles": 8821,
+      "us": 110.2625,
+      "rule_us": 120,
+      "instances": 1129,
+      "group": "arm-later/notice-retried-0",
+      "start": 81928173
+    },
+    "event.LINK": {
+      "cycles": 9497,
+      "us": 118.7125,
+      "rule_us": 125,
+      "instances": 4,
+      "group": "arm-valid/srp-talker-held",
+      "start": null
+    },
+    "event.TICK": {
+      "cycles": 1915,
+      "us": 23.9375,
+      "rule_us": 30,
+      "instances": 1128,
+      "group": "arm-later/notice-retried-0",
+      "start": null
+    },
+    "event.TIMER#0": {
+      "cycles": 6153,
+      "us": 76.9125,
+      "rule_us": 85,
+      "instances": 4,
+      "group": "arm-valid/srp-talker-held",
+      "start": null
+    },
+    "event.TIMER#2": {
+      "cycles": 10801,
+      "us": 135.0125,
+      "rule_us": 145,
+      "instances": 12,
+      "group": "arm-valid/srp-talker-held",
+      "start": null
+    },
+    "events_none": {
+      "cycles": 1055,
+      "us": 13.1875,
+      "rule_us": 15,
+      "instances": 37,
+      "group": "arm-later/notice-retried-1",
+      "start": 216383957
+    },
+    "item.acmp": {
+      "cycles": 0,
+      "us": 0.0,
+      "rule_us": 0,
+      "instances": 4,
+      "group": "arm-valid/srp-talker-held",
+      "start": null
+    },
+    "item.acmp_declined": {
+      "cycles": 0,
+      "us": 0.0,
+      "rule_us": 0,
+      "instances": 4,
+      "group": "arm-valid/srp-talker-held",
+      "start": null
+    },
+    "item.acmp_kept": {
+      "cycles": 0,
+      "us": 0.0,
+      "rule_us": 0,
+      "instances": 4,
+      "group": "arm-valid/srp-talker-held",
+      "start": null
+    },
+    "item.aecp": {
+      "cycles": 13018,
+      "us": 162.725,
+      "rule_us": 175,
+      "instances": 4,
+      "group": "arm-later/notice-retried-0",
+      "start": null
+    },
+    "item.aecp_long": {
+      "cycles": 0,
+      "us": 0.0,
+      "rule_us": 0,
+      "instances": 4,
+      "group": "arm-valid/srp-talker-held",
+      "start": null
+    },
+    "item.mrpdu": {
+      "cycles": 0,
+      "us": 0.0,
+      "rule_us": 0,
+      "instances": 4,
+      "group": "arm-valid/srp-talker-held",
+      "start": null
+    },
+    "item.rebuild": {
+      "cycles": 0,
+      "us": 0.0,
+      "rule_us": 0,
+      "instances": 4,
+      "group": "arm-valid/srp-talker-held",
+      "start": null
+    },
+    "item.reclaim": {
+      "cycles": 0,
+      "us": 0.0,
+      "rule_us": 0,
+      "instances": 4,
+      "group": "arm-valid/srp-talker-held",
+      "start": null
+    },
+    "item.record": {
+      "cycles": 0,
+      "us": 0.0,
+      "rule_us": 0,
+      "instances": 4,
+      "group": "arm-valid/srp-talker-held",
+      "start": null
+    },
+    "item.retained": {
+      "cycles": 0,
+      "us": 0.0,
+      "rule_us": 0,
+      "instances": 4,
+      "group": "arm-valid/srp-talker-held",
+      "start": null
+    },
+    "item.walk": {
+      "cycles": 776,
+      "us": 9.7,
+      "rule_us": 15,
+      "instances": 4,
+      "group": "arm-later/notice-retried-0",
+      "start": null
+    },
+    "item.withdraw": {
+      "cycles": 0,
+      "us": 0.0,
+      "rule_us": 0,
+      "instances": 4,
+      "group": "arm-valid/srp-talker-held",
+      "start": null
+    },
+    "share": {
+      "cycles": 89637,
+      "us": 1120.4625,
+      "rule_us": 1180,
+      "instances": 4,
+      "group": "arm-later/notice-retried-1",
+      "start": null
+    },
+    "step": {
+      "cycles": 0,
+      "us": 0.0,
+      "rule_us": 0,
+      "instances": 4,
+      "group": "arm-valid/srp-talker-held",
+      "start": null
+    },
+    "tx.aecp.notice": {
+      "cycles": 13018,
+      "us": 162.725,
+      "rule_us": 175,
+      "instances": 2,
+      "group": "arm-later/notice-retried-0",
+      "start": 136027808
+    },
+    "tx.aecp.response": {
+      "cycles": 1661,
+      "us": 20.7625,
+      "rule_us": 25,
+      "instances": 34,
+      "group": "arm-later/notice-retried-0",
+      "start": 136019583
+    }
+  },
+  "rounds": {
+    "0:0": {
+      "start_sys": 82018493,
+      "cycles": 2444,
+      "notices": 0,
+      "refused": 0,
+      "group": "arm-later/notice-retried-0"
+    }
+  }
+}

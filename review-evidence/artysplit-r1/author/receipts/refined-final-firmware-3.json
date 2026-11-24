@@ -1,0 +1,18 @@
+{
+  "label": "final-firmware-3",
+  "command": [
+    "<home-path>/litex-milan/venv/bin/python3",
+    "-B",
+    "sw/firmware/ctrl/test/test_ctrl_firmware.py",
+    "--self-test",
+    "--require-rv32",
+    "--shard",
+    "3/4",
+    "--jobs",
+    "1",
+    "--build-dir",
+    "$VALIDATION_STORAGE/artysplit-a829/r4/refined/final-firmware/3"
+  ],
+  "returncode": 0,
+  "log": "$VALIDATION_STORAGE/artysplit-a829/r4/refined/final-firmware-3.log"
+}

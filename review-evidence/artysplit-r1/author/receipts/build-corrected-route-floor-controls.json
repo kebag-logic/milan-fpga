@@ -1,0 +1,93 @@
+{
+  "status": "PASS",
+  "controls": [
+    {
+      "control": "equal floors",
+      "expected": true,
+      "accepted": true,
+      "timing": {
+        "wns": 0.03,
+        "tns": 0.0,
+        "failing_endpoints": 0,
+        "total_endpoints": 100,
+        "whs": 0.0,
+        "ths": 0.0,
+        "met": true,
+        "failing_hold_endpoints": 0,
+        "total_hold_endpoints": 100
+      }
+    },
+    {
+      "control": "setup below floor",
+      "expected": false,
+      "accepted": false,
+      "timing": {
+        "wns": 0.029,
+        "tns": 0.0,
+        "failing_endpoints": 0,
+        "total_endpoints": 100,
+        "whs": 0.0,
+        "ths": 0.0,
+        "met": true,
+        "failing_hold_endpoints": 0,
+        "total_hold_endpoints": 100
+      }
+    },
+    {
+      "control": "negative hold",
+      "expected": false,
+      "accepted": false,
+      "timing": {
+        "wns": 0.1,
+        "tns": 0.0,
+        "failing_endpoints": 0,
+        "total_endpoints": 100,
+        "whs": -0.001,
+        "ths": -0.001,
+        "met": false,
+        "failing_hold_endpoints": 1,
+        "total_hold_endpoints": 100
+      }
+    },
+    {
+      "control": "hold rounds to zero",
+      "expected": false,
+      "accepted": false,
+      "timing": {
+        "wns": 0.1,
+        "tns": 0.0,
+        "failing_endpoints": 0,
+        "total_endpoints": 100,
+        "whs": -0.0,
+        "ths": -0.0,
+        "met": true,
+        "failing_hold_endpoints": 1,
+        "total_hold_endpoints": 100
+      }
+    },
+    {
+      "control": "failing setup endpoint",
+      "expected": false,
+      "accepted": false,
+      "timing": {
+        "wns": 0.1,
+        "tns": 0.0,
+        "failing_endpoints": 1,
+        "total_endpoints": 100,
+        "whs": 0.0,
+        "ths": 0.0,
+        "met": true,
+        "failing_hold_endpoints": 0,
+        "total_hold_endpoints": 100
+      }
+    },
+    {
+      "control": "missing hold counts",
+      "expected": false,
+      "accepted": false,
+      "timing": {}
+    }
+  ],
+  "helper_sha256": "a7eec9445ed4e4564e2ebeda423365a67ee41967e1414f4a070633b0223d6122",
+  "note": "Zero failing hold endpoints enforces the stated WHS floor despite printed rounding; no new numerical floor."
+}

@@ -1,0 +1,401 @@
+diff --git a/tb/verilator/ctrl_region_decode/README.md b/tb/verilator/ctrl_region_decode/README.md
+index 730dc8e4a..cead19e3d 100644
+--- a/tb/verilator/ctrl_region_decode/README.md
++++ b/tb/verilator/ctrl_region_decode/README.md
+@@ -39,13 +39,12 @@ The directory has no Makefile, for the CPU budget harness's reason: the serial s
+ ## The SoC and the probe
+ 
+ [`region_soc.py`](region_soc.py) builds its SoC from the [CPU budget harness's](../ctrl_service_budget/split_soc.py) parts, imported read only.
+-It uses MilanSoC's own VexiiRiscv path with the DMA port and the split placement's instruction cache, the CPU at the Milan clock and the bus at the system clock.
++It uses MilanSoC's own VexiiRiscv path with the DMA port and the split placement's instruction and data caches, with CPU and bus on the system clock (80 MHz for Arty); the Milan datapath clock remains 50 MHz.
+ Its firmware memory is `milan_soc.add_ctrl_memory`, which hands the generator the split regions as their pieces.
+ The split SoC's other CPU-visible regions are slaves that answer `err`.
+ They sit at the shipping split SoC's places, in its order: the flash window where LiteX's allocator puts it, the Milan CSR window, then the mailbox.
+ So the generator is handed the region list of a split SoC without DDR3, as the Arty's split image is built.
+-Its single-mask netlist matches, line for line apart from its name, the CPU netlist of the split image that would not boot on the Arty ([#878](https://github.com/kebag-logic/milan-fpga/issues/878)).
+-Its cover netlist is that bring-up's booting diagnostic's own.
++The single-mask and cover arms apply the original bring-up decode defects to this current CPU recipe; they do not reuse a historical CPU netlist.
+ The AX7101 split export also builds DDR3, so its CPU also has `main_ram` on its memory bus; `decode.py` reads that netlist on its own.
+ 
+ Two things differ from the shipping SoC, so the test reads the CPU's decode and nothing else:
+@@ -56,11 +55,13 @@ Two things differ from the shipping SoC, so the test reads the CPU's decode and
+ [`probe.S`](probe.S) runs the table `run.py` writes (`probe_data.S`), one probe at a time, in machine mode.
+ Every word probed inside a region is `ret`: `rom`'s are in the image, and the probe stores `sram`'s first.
+ A fetch calls its address; a load reads it.
++The probe executes `fence.i` after writing each instruction word so the shipping data cache makes it instruction-visible.
+ Before each probe the program stores the probe's table address to `sram`'s first word, which divides the log into one segment per probe.
+ A trap of any cause stores `mcause`, `mtval` and `mepc`, then resumes after the probe, so every probe runs.
+ 
+ [`sim_main.cpp`](sim_main.cpp) drives only the clocks, the reset and the idle UART.
+-At each rising edge of the CPU's clock it prints the committed PC, each trap and its cause, each fetch command on the CPU's bus (an instruction-cache refill), and each data command and response.
++At each rising edge of the CPU's clock it prints the committed PC, each trap and its cause, each fetch command on the CPU's bus (an instruction-cache refill), completed cached loads with their actual returned data, committed stores, and data-cache refill and I/O bus commands.
++The passive Whiteboxer load/store observations include cache hits; external bus observations independently check that forbidden accesses never leave the CPU.
+ 
+ ## What is graded
+ 
+@@ -68,7 +69,7 @@ At each rising edge of the CPU's clock it prints the committed PC, each trap and
+ 
+ | Check | Requires |
+ |---|---|
+-| a load at its last word reads its word from memory | the load reaches the bus, answers without `err`, reads `ret`, and no trap |
++| a load at its last word reads its word from memory | the completed load returns `ret`, the probe reports that word, no refill error, and no trap |
+ | a fetch at its last word executes it | the word commits, and no trap |
+ | a load at each seam of its decode pieces | the same, at 0x1_fffc, 0x2_0000, 0x2_fffc and 0x3_0000 from the origin |
+ | a fetch at each seam of its decode pieces | the same, at those four words |
+@@ -77,7 +78,8 @@ At each rising edge of the CPU's clock it prints the committed PC, each trap and
+ 
+ It also requires the probe to run every probe and store its end word, with the model's exit status 0.
+ 
+-**DECODE.** [`decode.py`](decode.py) reads the netlist's two fault terms: `FetchL1Plugin_logic_ctrl_pmaPort_rsp_fault` for a fetch, and `LsuCachelessPlugin_logic_onPma_port_rsp_fault` for a word load.
++**DECODE.** [`decode.py`](decode.py) reads the netlist's two fault terms: `FetchL1Plugin_logic_ctrl_pmaPort_rsp_fault` for a fetch, and the cached and I/O PMA fault terms for a word load (`LsuPlugin_logic_onPma_cached_rsp_fault` and `LsuPlugin_logic_onPma_io_rsp_fault`).
++A word load is admitted when either data PMA admits it, matching the CPU's fault rule; the legacy cacheless term remains supported when checking an older netlist.
+ It reads every assign they use, inlined.
+ The address appears only masked by constants, so each term reads only those mask bits; a region's membership reads only the bits from the lowest set bit of `origin | size` up.
+ Evaluating every combination of the union of those bits decides each term at all 2^32 addresses.
+diff --git a/tb/verilator/ctrl_region_decode/decode.py b/tb/verilator/ctrl_region_decode/decode.py
+index c1703829d..48a265727 100644
+--- a/tb/verilator/ctrl_region_decode/decode.py
++++ b/tb/verilator/ctrl_region_decode/decode.py
+@@ -4,11 +4,12 @@
+ """The split CPU's generated region decode, read off its netlist and compared with the SoC's regions (#791).
+ 
+ A VexiiRiscv netlist decides whether a fetch or a load may reach the bus in
+-one combinational fault term per port, its PMA:
++combinational fault terms for its physical memory attributes (PMA):
+ 
+   - fetch: FetchL1Plugin_logic_ctrl_pmaPort_rsp_fault, of the fetch address;
+-  - load: LsuCachelessPlugin_logic_onPma_port_rsp_fault, of the data address
+-    and the access ({size, store}: a word load is 3'b100).
++  - load: the cached and I/O LsuPlugin PMA terms, admitting a word load
++    when either admits it; the legacy LsuCachelessPlugin term is supported
++    for older netlists as well.
+ 
+ Stores are not graded: at the pinned generator the data port's term admits a
+ store wherever it admits a load, whatever the region's mode, so it decides
+@@ -288,15 +289,25 @@ def check(netlist: Path, regions: list) -> list[tuple[str, bool, str]]:
+     text = netlist.read_text()
+     results = []
+     for port, (signal, address, argument, mode) in PORTS.items():
+-        term = Term(text, signal, address, argument[0] if argument else None)
++        terms = [(signal, address, argument)]
++        if port == 'load' and 'LsuPlugin_logic_onPma_cached_rsp_fault' in text:
++            # A cached CPU faults only if BOTH PMAs refuse the word load.
++            terms = [('LsuPlugin_logic_onPma_cached_rsp_fault', 'LsuPlugin_pmaBuilder_l1_addressBits',
++                      ('LsuPlugin_pmaBuilder_l1_argsBits', 0)),
++                     ('LsuPlugin_logic_onPma_io_rsp_fault', 'LsuPlugin_pmaBuilder_io_addressBits',
++                      ('LsuPlugin_pmaBuilder_io_argsBits', 0b100))]
++        parsed = [(Term(text, sig, addr, arg[0] if arg else None), addr, arg) for sig, addr, arg in terms]
+         want_regions = [r for r in regions if mode in r[2]]
+         bits = region_bits(regions)
+-        for mask in term.masks:
+-            bits |= mask
++        for term, _, _ in parsed:
++            for mask in term.masks:
++                bits |= mask
+         addrs = representatives(bits)
+-        env = {address: addrs, **({argument[0]: argument[1]} if argument else {})}
+-        fault, _ = term.evaluate(term.tree, env)
+-        admitted = np.asarray(fault) == 0
++        admitted = np.zeros(addrs.shape, dtype=bool)
++        for term, addr, arg in parsed:
++            env = {addr: addrs, **({arg[0]: arg[1]} if arg else {})}
++            fault, _ = term.evaluate(term.tree, env)
++            admitted |= np.asarray(fault) == 0
+         want = np.zeros(addrs.shape, dtype=bool)
+         for origin, size, *_ in want_regions:
+             want |= (addrs >= np.uint64(origin)) & (addrs < np.uint64(origin + size))
+diff --git a/tb/verilator/ctrl_region_decode/observe.vlt b/tb/verilator/ctrl_region_decode/observe.vlt
+index c873dda45..8c803c988 100644
+--- a/tb/verilator/ctrl_region_decode/observe.vlt
++++ b/tb/verilator/ctrl_region_decode/observe.vlt
+@@ -1,6 +1,6 @@
+ `verilator_config
+ // Passive observation of the split CPU only: its commits and traps, its
+-// instruction cache's refill bus and its cacheless data bus. No source changes.
++// instruction/data cache refill buses and completed loads/stores. No source changes.
+ public_flat_rd -module "VexiiRiscv" -var "WhiteboxerPlugin_logic_commits_ports_0_valid"
+ public_flat_rd -module "VexiiRiscv" -var "WhiteboxerPlugin_logic_commits_ports_0_pc"
+ public_flat_rd -module "VexiiRiscv" -var "WhiteboxerPlugin_logic_trap_ports_0_valid"
+@@ -11,13 +11,17 @@ public_flat_rd -module "VexiiRiscv" -var "FetchL1Plugin_logic_bus_cmd_ready"
+ public_flat_rd -module "VexiiRiscv" -var "FetchL1Plugin_logic_bus_cmd_payload_address"
+ public_flat_rd -module "VexiiRiscv" -var "FetchL1Plugin_logic_bus_rsp_valid"
+ public_flat_rd -module "VexiiRiscv" -var "FetchL1Plugin_logic_bus_rsp_payload_error"
+-public_flat_rd -module "VexiiRiscv" -var "LsuCachelessPlugin_logic_bus_cmd_valid"
+-public_flat_rd -module "VexiiRiscv" -var "LsuCachelessPlugin_logic_bus_cmd_ready"
+-public_flat_rd -module "VexiiRiscv" -var "LsuCachelessPlugin_logic_bus_cmd_payload_id"
+-public_flat_rd -module "VexiiRiscv" -var "LsuCachelessPlugin_logic_bus_cmd_payload_write"
+-public_flat_rd -module "VexiiRiscv" -var "LsuCachelessPlugin_logic_bus_cmd_payload_address"
+-public_flat_rd -module "VexiiRiscv" -var "LsuCachelessPlugin_logic_bus_cmd_payload_data"
+-public_flat_rd -module "VexiiRiscv" -var "LsuCachelessPlugin_logic_bus_rsp_valid"
+-public_flat_rd -module "VexiiRiscv" -var "LsuCachelessPlugin_logic_bus_rsp_payload_id"
+-public_flat_rd -module "VexiiRiscv" -var "LsuCachelessPlugin_logic_bus_rsp_payload_data"
+-public_flat_rd -module "VexiiRiscv" -var "LsuCachelessPlugin_logic_bus_rsp_payload_error"
++public_flat_rd -module "VexiiRiscv" -var "WhiteboxerPlugin_logic_loadExecute_fire"
++public_flat_rd -module "VexiiRiscv" -var "WhiteboxerPlugin_logic_loadExecute_address"
++public_flat_rd -module "VexiiRiscv" -var "WhiteboxerPlugin_logic_loadExecute_data"
++public_flat_rd -module "VexiiRiscv" -var "WhiteboxerPlugin_logic_storeCommit_fire"
++public_flat_rd -module "VexiiRiscv" -var "WhiteboxerPlugin_logic_storeCommit_address"
++public_flat_rd -module "VexiiRiscv" -var "WhiteboxerPlugin_logic_storeCommit_data"
++public_flat_rd -module "VexiiRiscv" -var "LsuL1Plugin_logic_bus_read_cmd_valid"
++public_flat_rd -module "VexiiRiscv" -var "LsuL1Plugin_logic_bus_read_cmd_ready"
++public_flat_rd -module "VexiiRiscv" -var "LsuL1Plugin_logic_bus_read_cmd_payload_address"
++public_flat_rd -module "VexiiRiscv" -var "LsuL1Plugin_logic_bus_read_rsp_valid"
++public_flat_rd -module "VexiiRiscv" -var "LsuL1Plugin_logic_bus_read_rsp_payload_error"
++public_flat_rd -module "VexiiRiscv" -var "LsuPlugin_logic_bus_cmd_valid"
++public_flat_rd -module "VexiiRiscv" -var "LsuPlugin_logic_bus_cmd_ready"
++public_flat_rd -module "VexiiRiscv" -var "LsuPlugin_logic_bus_cmd_payload_address"
+diff --git a/tb/verilator/ctrl_region_decode/probe.S b/tb/verilator/ctrl_region_decode/probe.S
+index 328328a12..3011cd792 100644
+--- a/tb/verilator/ctrl_region_decode/probe.S
++++ b/tb/verilator/ctrl_region_decode/probe.S
+@@ -52,6 +52,7 @@ fetch:
+ 	j	step
+ store:
+ 	sw	a1, 0(a0)
++	fence.i			/* stores become instruction-visible with the shipping data cache */
+ step:
+ 	addi	s1, s1, 12
+ 	j	next
+diff --git a/tb/verilator/ctrl_region_decode/region_soc.py b/tb/verilator/ctrl_region_decode/region_soc.py
+index 9f3f45fee..d1d88da7f 100644
+--- a/tb/verilator/ctrl_region_decode/region_soc.py
++++ b/tb/verilator/ctrl_region_decode/region_soc.py
+@@ -5,7 +5,7 @@
+ The CPU is the CPU budget harness's (tb/verilator/ctrl_service_budget/split_soc.py,
+ imported read only): MilanSoC's own VexiiRiscv path with the DMA port the
+ shipping image has and the split placement's instruction cache, the CPU at
+-the Milan clock. Its firmware memory is milan_soc.add_ctrl_memory, which
++the system clock, including its data cache. Its firmware memory is milan_soc.add_ctrl_memory, which
+ also hands the CPU generator the split regions as aligned power-of-two
+ pieces (milan_soc.exact_cpu_decode, ctrl_memory.cpu_regions).
+ 
+@@ -100,14 +100,14 @@ def build(build_dir: Path, shape: str, elf: Path, mutant: str) -> dict:
+     platform = split_soc.platform_for(contract, 1)
+     geometry = split_soc.fetch_l1_geometry('split')
+     scala_args = [*params['scala_args'], *filter(None, [milan_soc.ctrl_cpu_args(geometry)])]
+-    sys_hz, cpu_hz = clocks['sys_clk_hz'], clocks['milan_clk_hz']
++    sys_hz, milan_hz = clocks['sys_clk_hz'], clocks['milan_clk_hz']
+     with mutated(mutant), patch.object(ctrl_memory, 'plan', full_plan):
+         cpu = split_soc.CpuPatches('as-built' if mutant == 'single-mask' else 'cover')
+         with cpu.applied():
+             soc = milan_soc.MilanSoC(
+                 platform, sys_hz, xlen=params['xlen'], cpu_count=params['cpu_count'], cpu=params['cpu'],
+                 board='ax7101', with_milan=False, with_mac=False, with_dram=False, with_spiflash=False,
+-                flashboot=clocks['flashboot'], milan_clk_freq=cpu_hz, l2_bytes=clocks['l2_bytes'],
++                flashboot=clocks['flashboot'], milan_clk_freq=milan_hz, ctrl_cpu_cd=milan_soc.CTRL_CPU_CD, l2_bytes=clocks['l2_bytes'],
+                 extra_scala_args=scala_args, uart_name='sim', uart_baudrate=clocks['uart_baudrate'],
+                 integrated_rom_size=0, integrated_sram_size=0, integrated_main_ram_size=0, with_timer=False)
+             milan_soc.add_ctrl_memory(soc, elf)
+@@ -121,12 +121,12 @@ def build(build_dir: Path, shape: str, elf: Path, mutant: str) -> dict:
+                               csr_csv=str(build_dir / 'csr.csv'))
+             sim_config = SimConfig()
+             sim_config.add_clocker('sys_clk', freq_hz=sys_hz)
+-            sim_config.add_clocker('milan_clk', freq_hz=cpu_hz)
++            sim_config.add_clocker('milan_clk', freq_hz=milan_hz)
+             builder.build(run=False, sim_config=sim_config)
+     spec = {
+         'sources': [str(Path(s[0]).resolve()) for s in soc.platform.sources],
+         'includes': soc.platform.verilog_include_paths,
+-        'sys_hz': sys_hz, 'cpu_hz': cpu_hz, 'shape': shape, 'mutant': mutant,
++        'sys_hz': sys_hz, 'cpu_hz': soc.cpu_clk_freq, 'cpu_cd': soc.cpu_cd, 'milan_hz': milan_hz, 'shape': shape, 'mutant': mutant,
+         'netlist': VexiiRiscv.netlist_name,
+         'memory_regions': cpu.soc_regions,
+         'cpu_memory_regions': [list(r) for r in VexiiRiscv.memory_regions],
+diff --git a/tb/verilator/ctrl_region_decode/run.py b/tb/verilator/ctrl_region_decode/run.py
+index accbbcf69..ddc8b4e6a 100644
+--- a/tb/verilator/ctrl_region_decode/run.py
++++ b/tb/verilator/ctrl_region_decode/run.py
+@@ -13,7 +13,7 @@ Then it runs the model, saves its exit status beside its log (sim.status),
+ and grades the log by name, for `rom` and `sram` (ctrl_memory.ROM, RAM):
+ 
+   - a load at the region's last word reads its word from memory: the load
+-    reaches the bus, answers without err, and is the image's word (rom) or
++    completes through the data cache, without a refill error, and is the image's word (rom) or
+     the word the probe stored (sram); and no trap;
+   - a fetch at the last word executes it: the word is `ret`, it commits,
+     and no trap;
+@@ -177,7 +177,7 @@ def image(out: Path) -> Path:
+         raise RuntimeError('no RV32 compiler (sw/firmware/gtest/fw_rv32.py)')
+     sources(out)
+     elf = out / 'probe.elf'
+-    run([cc, '-march=rv32i_zicsr', '-mabi=ilp32', '-nostdlib', '-nostartfiles', '-ffreestanding', '-static',
++    run([cc, '-march=rv32i_zicsr_zifencei', '-mabi=ilp32', '-nostdlib', '-nostartfiles', '-ffreestanding', '-static',
+          f'-DREPORT_ADDRESS=0x{REPORT:08x}', f'-DDONE_WORD=0x{DONE_WORD:08x}', f'-DHALT_WORD=0x{HALT_WORD:08x}',
+          '-T', str(out / 'probe.ld'), '-Wl,--no-relax', '-o', str(elf), str(HERE / 'probe.S'),
+          str(out / 'probe_data.S')], out / 'probe.log')
+@@ -213,23 +213,29 @@ ACCESSORS = (
+     ('fetch_address', 'std::uint32_t', 'FetchL1Plugin_logic_bus_cmd_payload_address'),
+     ('fetch_rsp_valid', 'bool', 'FetchL1Plugin_logic_bus_rsp_valid'),
+     ('fetch_rsp_error', 'bool', 'FetchL1Plugin_logic_bus_rsp_payload_error'),
+-    ('lsu_cmd_valid', 'bool', 'LsuCachelessPlugin_logic_bus_cmd_valid'),
+-    ('lsu_cmd_ready', 'bool', 'LsuCachelessPlugin_logic_bus_cmd_ready'),
+-    ('lsu_cmd_id', 'unsigned', 'LsuCachelessPlugin_logic_bus_cmd_payload_id'),
+-    ('lsu_write', 'bool', 'LsuCachelessPlugin_logic_bus_cmd_payload_write'),
+-    ('lsu_address', 'std::uint32_t', 'LsuCachelessPlugin_logic_bus_cmd_payload_address'),
+-    ('lsu_wdata', 'std::uint32_t', 'LsuCachelessPlugin_logic_bus_cmd_payload_data'),
+-    ('lsu_rsp_valid', 'bool', 'LsuCachelessPlugin_logic_bus_rsp_valid'),
+-    ('lsu_rsp_id', 'unsigned', 'LsuCachelessPlugin_logic_bus_rsp_payload_id'),
+-    ('lsu_rsp_data', 'std::uint32_t', 'LsuCachelessPlugin_logic_bus_rsp_payload_data'),
+-    ('lsu_rsp_error', 'bool', 'LsuCachelessPlugin_logic_bus_rsp_payload_error'),
++    ('load_valid', 'bool', 'WhiteboxerPlugin_logic_loadExecute_fire'),
++    ('load_address', 'std::uint32_t', 'WhiteboxerPlugin_logic_loadExecute_address'),
++    ('load_data', 'std::uint32_t', 'WhiteboxerPlugin_logic_loadExecute_data'),
++    ('store_valid', 'bool', 'WhiteboxerPlugin_logic_storeCommit_fire'),
++    ('store_address', 'std::uint32_t', 'WhiteboxerPlugin_logic_storeCommit_address'),
++    ('store_data', 'std::uint32_t', 'WhiteboxerPlugin_logic_storeCommit_data'),
++    ('refill_valid', 'bool', 'LsuL1Plugin_logic_bus_read_cmd_valid'),
++    ('refill_ready', 'bool', 'LsuL1Plugin_logic_bus_read_cmd_ready'),
++    ('refill_address', 'std::uint32_t', 'LsuL1Plugin_logic_bus_read_cmd_payload_address'),
++    ('refill_error_valid', 'bool', 'LsuL1Plugin_logic_bus_read_rsp_valid'),
++    ('refill_error', 'bool', 'LsuL1Plugin_logic_bus_read_rsp_payload_error'),
++    ('io_valid', 'bool', 'LsuPlugin_logic_bus_cmd_valid'),
++    ('io_ready', 'bool', 'LsuPlugin_logic_bus_cmd_ready'),
++    ('io_address', 'std::uint32_t', 'LsuPlugin_logic_bus_cmd_payload_address'),
+ )
+ 
+ 
+ def verilate(out: Path, spec: dict) -> Path:
+     """The native model of the exported top and this testbench, its observers bound by the generated header."""
++    if spec.get("cpu_cd") != "sys" or spec["cpu_hz"] != spec["sys_hz"]:
++        raise RuntimeError("the region probe requires the shipping CPU on the system clock")
+     sys.path.insert(0, str(BUDGET))
+-    import build as budget_build
++    import observers as budget_observers
+     native = out / 'native'
+     flags = f'-O3 -std=c++17 -Wall -Wextra -I{ROOT}/tb/common -I{out}'
+     run(['verilator', '--cc', '--exe', '-Wno-fatal', '-Werror-USERERROR', '-Wno-BLKANDNBLK', '-Wno-WIDTH',
+@@ -237,15 +243,16 @@ def verilate(out: Path, spec: dict) -> Path:
+          '--output-split', '5000', '--output-split-cfuncs', '500', '-CFLAGS', flags,
+          *['-I' + str(i) for i in spec['includes']], str(HERE / 'observe.vlt'), *spec['sources'],
+          str(HERE / 'sim_main.cpp')], out / 'verilate.log', cwd=out / 'soc/gateware')
+-    observed = {'VexiiRiscv': budget_build.OBSERVED['VexiiRiscv']}
+-    with patch.dict(budget_build.OBSERVED, observed, clear=True):
+-        path, prefix = budget_build.member_paths(native)['VexiiRiscv']
++    observed = {'VexiiRiscv': budget_observers.OBSERVED['VexiiRiscv']}
++    with patch.dict(budget_observers.OBSERVED, observed, clear=True):
++        path, prefix = budget_observers.member_paths(native)['VexiiRiscv']
+     lines = ['// GENERATED by tb/verilator/ctrl_region_decode/run.py; DO NOT EDIT.', '#pragma once',
+              '#include <cstdint>', '#include "Vsim.h"', '#include "Vsim___024root.h"',
+              *[f'#include "{h.name}"' for h in sorted(native.glob('Vsim_*.h'))
+                if not h.name.startswith('Vsim__')],
+              f'constexpr std::uint64_t sys_hz = {spec["sys_hz"]}ULL;',
+              f'constexpr std::uint64_t cpu_hz = {spec["cpu_hz"]}ULL;',
++             f'constexpr std::uint64_t milan_hz = {spec["milan_hz"]}ULL;',
+              f'constexpr std::uint64_t sim_limit_ps = {SIM_LIMIT_MS}ULL * 1000000000ULL;',
+              f'constexpr std::uint32_t report_address = 0x{REPORT:08x}u;',
+              f'constexpr std::uint32_t done_word = 0x{DONE_WORD:08x}u;',
+@@ -285,7 +292,7 @@ def segments(log: str, table: int, count: int) -> tuple[list[Segment | None], st
+     current, end = None, None
+     for raw in log.splitlines():
+         line = raw.split()
+-        if not line or line[0] not in ('COMMIT', 'TRAP', 'FETCH', 'FETCHERR', 'LSU', 'RSP', 'END'):
++        if not line or line[0] not in ('COMMIT', 'TRAP', 'FETCH', 'FETCHERR', 'LSU', 'RSP', 'BUS', 'DATAERR', 'END'):
+             continue
+         if line[0] == 'END':
+             end = line[2]
+@@ -310,11 +317,13 @@ def judge(probe: Probe, seg: Segment | None, want: int | None) -> str | None:
+     at = f'0x{probe.address:08x}'
+     if probe.kind == K_STORE:
+         stored = [ln for ln in seg.tagged('LSU') if ln[1] == 'W' and int(ln[2], 16) == probe.address]
+-        return None if stored and not traps else f'{at}: the store did not reach the bus ({len(traps)} trap(s))'
++        return None if stored and not traps else f'{at}: the store did not commit ({len(traps)} trap(s))'
+     if probe.kind == K_LOAD and want is not None:
+         rsp = [ln for ln in seg.tagged('RSP') if int(ln[1], 16) == probe.address]
+         if traps:
+             return f'{at}: trap cause {traps[0][2]}'
++        if seg.tagged('DATAERR'):
++            return f'{at}: data-cache refill returned an error'
+         if not rsp or rsp[0][3] != '0' or int(rsp[0][2], 16) != want or seg.reports(4) != [want]:
+             return f'{at}: read {rsp[0][2] if rsp else "nothing"} (err {rsp[0][3] if rsp else "-"}), want {want:08x}'
+         return None
+@@ -325,7 +334,7 @@ def judge(probe: Probe, seg: Segment | None, want: int | None) -> str | None:
+         return None if probe.address in commits else f'{at}: never committed'
+     cause = 5 if probe.kind == K_LOAD else 1
+     reported = (seg.reports(8), seg.reports(12), seg.reports(16))
+-    bus = ([ln for ln in seg.tagged('LSU') if int(ln[2], 16) == probe.address] if probe.kind == K_LOAD
++    bus = ([ln for ln in seg.tagged('BUS') if int(ln[2], 16) == (probe.address & ~63 if ln[1] == 'C' else probe.address)] if probe.kind == K_LOAD
+            else [ln for ln in seg.tagged('FETCH') if int(ln[1], 16) == probe.address & ~63])
+     wrong = []
+     if [int(t[2]) for t in traps] != [cause] or reported[0] != [cause] or reported[1] != [probe.address]:
+diff --git a/tb/verilator/ctrl_region_decode/sim_main.cpp b/tb/verilator/ctrl_region_decode/sim_main.cpp
+index a041497a6..baebd2091 100644
+--- a/tb/verilator/ctrl_region_decode/sim_main.cpp
++++ b/tb/verilator/ctrl_region_decode/sim_main.cpp
+@@ -10,8 +10,10 @@
+ //   TRAP <cycle> <interrupt> <cause>      a trap taken
+ //   FETCH <cycle> <address>               a fetch command on the CPU's bus (an instruction-cache refill)
+ //   FETCHERR <cycle>                      a fetch response with err
+-//   LSU <cycle> <R|W> <address> <data>    a data command on the CPU's bus, a store with its data
+-//   RSP <cycle> <address> <data> <err>    a data response, with its command's address
++//   LSU <cycle> <R|W> <address> <data>    a completed cached load or committed store
++//   RSP <cycle> <address> <data> <err>    a completed load, with its address and actual data
++//   BUS <cycle> <C|I> <address>         a cache refill or I/O command
++//   DATAERR <cycle>                     a data-cache refill returned an error
+ //   END <cycle> <DONE|HALT>               the probe stored its end word to the report word
+ #include "Vsim.h"
+ #include "region_config.hpp"
+@@ -37,26 +39,31 @@ public:
+         if (fetch_cmd_valid(dut) && fetch_cmd_ready(dut))
+             std::printf("FETCH %llu %08x\n", ull(cycle_), fetch_address(dut));
+         if (fetch_rsp_valid(dut) && fetch_rsp_error(dut)) std::printf("FETCHERR %llu\n", ull(cycle_));
+-        if (lsu_cmd_valid(dut) && lsu_cmd_ready(dut)) {
+-            const bool write = lsu_write(dut);
+-            const std::uint32_t address = lsu_address(dut), data = lsu_wdata(dut);
+-            lsu_at_[lsu_cmd_id(dut) % lsu_at_.size()] = address;
+-            std::printf("LSU %llu %c %08x %08x\n", ull(cycle_), write ? 'W' : 'R', address, write ? data : 0u);
+-            if (write && address == report_address && (data == done_word || data == halt_word)) {
++        if (refill_valid(dut) && refill_ready(dut))
++            std::printf("BUS %llu C %08x\n", ull(cycle_), refill_address(dut));
++        if (io_valid(dut) && io_ready(dut))
++            std::printf("BUS %llu I %08x\n", ull(cycle_), io_address(dut));
++        if (refill_error_valid(dut) && refill_error(dut)) std::printf("DATAERR %llu\n", ull(cycle_));
++        // The Whiteboxer store signal also marks cache-miss retries. Only
++        // architectural commits report the probe once. Both are stage 4.
++        if (store_valid(dut) && commit_valid(dut)) {
++            const std::uint32_t address = store_address(dut), data = store_data(dut);
++            std::printf("LSU %llu W %08x %08x\n", ull(cycle_), address, data);
++            if (address == report_address && (data == done_word || data == halt_word)) {
+                 std::printf("END %llu %s\n", ull(cycle_), data == done_word ? "DONE" : "HALT");
+                 done_ = true;
+             }
+         }
+-        if (lsu_rsp_valid(dut))
+-            std::printf("RSP %llu %08x %08x %u\n", ull(cycle_), lsu_at_[lsu_rsp_id(dut) % lsu_at_.size()],
+-                        lsu_rsp_data(dut), unsigned(lsu_rsp_error(dut)));
++        if (load_valid(dut) && commit_valid(dut)) {
++            std::printf("LSU %llu R %08x 00000000\n", ull(cycle_), load_address(dut));
++            std::printf("RSP %llu %08x %08x 0\n", ull(cycle_), load_address(dut), load_data(dut));
++        }
+     }
+ 
+     bool done() const { return done_; }
+ 
+ private:
+     std::uint64_t cycle_ = 0;
+-    std::array<std::uint32_t, 4> lsu_at_{};
+     bool done_ = false;
+ };
+ 
+@@ -71,18 +78,18 @@ void initialize(Vsim& dut) {
+     dut.eval();
+ }
+ 
+-// The CPU budget harness's clocking: aligned rising edges, the bus at sys_hz and the CPU at cpu_hz.
++// The CPU budget harness's clocking: CPU and bus on sys_hz; the independent datapath clock is milan_hz.
+ void simulate(Vsim& dut, Bench& bench) {
+-    const std::array<std::uint64_t, 2> frequency = {sys_hz, cpu_hz};
++    const std::array<std::uint64_t, 2> frequency = {sys_hz, milan_hz};
+     std::array<std::uint64_t, 2> edge = {1, 1};
+     std::array<std::uint64_t, 2> next{};
+-    const std::array<std::uint64_t, 2> offset = {0, (500000000000ULL / cpu_hz - 500000000000ULL / sys_hz)};
++    const std::array<std::uint64_t, 2> offset = {0, (500000000000ULL / milan_hz - 500000000000ULL / sys_hz)};
+     for (unsigned i = 0; i < next.size(); ++i) next[i] = 500000000000ULL / frequency[i] + offset[i];
+     while (!Verilated::gotFinish() && !bench.done()) {
+         const auto time_ps = *std::min_element(next.begin(), next.end());
+         if (time_ps > sim_limit_ps) throw std::runtime_error("simulation exceeded its time limit");
+         Verilated::threadContextp()->time(time_ps);
+-        if (next[1] == time_ps && !dut.milan_clk && !dut.sys_reset) bench.sample(dut);
++        if (next[0] == time_ps && !dut.sys_clk && !dut.sys_reset) bench.sample(dut);
+         for (unsigned i = 0; i < next.size(); ++i) {
+             if (next[i] != time_ps) continue;
+             if (i == 0) dut.sys_clk = !dut.sys_clk;

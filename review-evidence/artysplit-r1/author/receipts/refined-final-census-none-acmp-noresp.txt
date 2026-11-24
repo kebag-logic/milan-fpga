@@ -1,0 +1,30 @@
+wait ready
+mark booted
+wait cycles 4000000
+wait quiet 3 within 1600000
+link 0 1
+wait cycles 48000000
+wait quiet 3 within 1600000
+mark settled
+frame 0 91e0f00100000a0b0c0d0e0122f0fc06002c00000000000000000a0b0c0d0e0f00010c0d0e0f10110001024b4cfffe4b4c020001000000000000000000004200000000000000
+wait tx 1 2 within 3200000
+wait quiet 3 within 1600000
+mark acmp.tmr_no_resp1.if0
+wait cycles 24000000
+mark acmp-noresp.barrier0
+mark acmp.tmr_no_resp2.if0
+wait cycles 12000000
+wait tmr 1 1 within 24000000
+wait quiet 3 within 1600000
+mark acmp-noresp.barrier1
+frame 0 91e0f00100000c0d0e0f100122f0fa0050380c0d0e0f101100010000000000000000000000000001400100000000000000000000000000000000000000000000000000000000000000000000000000000000
+wait quiet 3 within 1600000
+mark acmp.tmr_retry.if0
+wait cycles 312000000
+wait tmr 1 1 within 48000000
+mark acmp-noresp.barrier2
+mark acmp.tmr_delay.if0
+wait cycles 88000000
+wait quiet 3 within 1600000
+mark acmp-noresp.barrier3
+end

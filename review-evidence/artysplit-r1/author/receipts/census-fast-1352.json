@@ -1,0 +1,325 @@
+{
+  "status": "measurement census; missing groups remain unqualified",
+  "cpu_hz": 80000000,
+  "shape": [
+    1,
+    1,
+    2
+  ],
+  "groups": [
+    "arm-fast/adp-link",
+    "arm-fast/backlog-adp@blank-aged2-0",
+    "arm-fast/backlog-adp@program-aged2-0",
+    "arm-fast/backlog-adp@verify-aged2-0",
+    "arm-fast/datapath-events",
+    "arm-fast/maap",
+    "arm-fast/acmp-disc",
+    "arm-fast/adp-gm",
+    "arm-fast/backlog-adp-refill"
+  ],
+  "costs": {
+    "base": {
+      "cycles": 13840,
+      "us": 173.0,
+      "rule_us": 185,
+      "instances": 9,
+      "group": "arm-fast/backlog-adp@blank-aged2-0",
+      "start": null
+    },
+    "build": {
+      "cycles": 0,
+      "us": 0.0,
+      "rule_us": 0,
+      "instances": 9,
+      "group": "arm-fast/adp-link",
+      "start": null
+    },
+    "build_one": {
+      "cycles": 30774,
+      "us": 384.675,
+      "rule_us": 405,
+      "instances": 9,
+      "group": "arm-fast/adp-link",
+      "start": null
+    },
+    "centisecond": {
+      "cycles": 9456,
+      "us": 118.2,
+      "rule_us": 125,
+      "instances": 1942,
+      "group": "arm-fast/acmp-disc",
+      "start": 81927079
+    },
+    "event.AMAP_LIVE_WRITE": {
+      "cycles": 845,
+      "us": 10.5625,
+      "rule_us": 15,
+      "instances": 8,
+      "group": "arm-fast/datapath-events",
+      "start": null
+    },
+    "event.AS_PATH_CHANGED": {
+      "cycles": 1588,
+      "us": 19.85,
+      "rule_us": 25,
+      "instances": 8,
+      "group": "arm-fast/datapath-events",
+      "start": null
+    },
+    "event.AVB_INFO_CHANGED": {
+      "cycles": 1777,
+      "us": 22.2125,
+      "rule_us": 25,
+      "instances": 8,
+      "group": "arm-fast/datapath-events",
+      "start": null
+    },
+    "event.GM": {
+      "cycles": 2094,
+      "us": 26.175,
+      "rule_us": 30,
+      "instances": 1326,
+      "group": "arm-fast/backlog-adp@blank-aged2-0",
+      "start": null
+    },
+    "event.LINK": {
+      "cycles": 9456,
+      "us": 118.2,
+      "rule_us": 125,
+      "instances": 10,
+      "group": "arm-fast/adp-link",
+      "start": null
+    },
+    "event.TICK": {
+      "cycles": 2554,
+      "us": 31.925,
+      "rule_us": 35,
+      "instances": 1942,
+      "group": "arm-fast/backlog-adp@program-aged2-0",
+      "start": null
+    },
+    "event.TIMER#0": {
+      "cycles": 5835,
+      "us": 72.9375,
+      "rule_us": 80,
+      "instances": 8,
+      "group": "arm-fast/adp-link",
+      "start": null
+    },
+    "event.TIMER#1": {
+      "cycles": 11665,
+      "us": 145.8125,
+      "rule_us": 155,
+      "instances": 3,
+      "group": "arm-fast/acmp-disc",
+      "start": null
+    },
+    "event.TIMER#2": {
+      "cycles": 11216,
+      "us": 140.2,
+      "rule_us": 150,
+      "instances": 21,
+      "group": "arm-fast/acmp-disc",
+      "start": null
+    },
+    "event.TIMER#3": {
+      "cycles": 2708,
+      "us": 33.85,
+      "rule_us": 40,
+      "instances": 550,
+      "group": "arm-fast/backlog-adp@program-aged2-0",
+      "start": null
+    },
+    "events_none": {
+      "cycles": 1360,
+      "us": 17.0,
+      "rule_us": 20,
+      "instances": 458,
+      "group": "arm-fast/acmp-disc",
+      "start": 54075944
+    },
+    "item.acmp": {
+      "cycles": 0,
+      "us": 0.0,
+      "rule_us": 0,
+      "instances": 9,
+      "group": "arm-fast/adp-link",
+      "start": null
+    },
+    "item.acmp_declined": {
+      "cycles": 0,
+      "us": 0.0,
+      "rule_us": 0,
+      "instances": 9,
+      "group": "arm-fast/adp-link",
+      "start": null
+    },
+    "item.acmp_kept": {
+      "cycles": 0,
+      "us": 0.0,
+      "rule_us": 0,
+      "instances": 9,
+      "group": "arm-fast/adp-link",
+      "start": null
+    },
+    "item.aecp": {
+      "cycles": 0,
+      "us": 0.0,
+      "rule_us": 0,
+      "instances": 9,
+      "group": "arm-fast/adp-link",
+      "start": null
+    },
+    "item.aecp_long": {
+      "cycles": 0,
+      "us": 0.0,
+      "rule_us": 0,
+      "instances": 9,
+      "group": "arm-fast/adp-link",
+      "start": null
+    },
+    "item.mrpdu": {
+      "cycles": 0,
+      "us": 0.0,
+      "rule_us": 0,
+      "instances": 9,
+      "group": "arm-fast/adp-link",
+      "start": null
+    },
+    "item.rebuild": {
+      "cycles": 18597,
+      "us": 232.4625,
+      "rule_us": 245,
+      "instances": 9,
+      "group": "arm-fast/adp-link",
+      "start": null
+    },
+    "item.reclaim": {
+      "cycles": 495,
+      "us": 6.1875,
+      "rule_us": 10,
+      "instances": 9,
+      "group": "arm-fast/adp-link",
+      "start": null
+    },
+    "item.record": {
+      "cycles": 22063,
+      "us": 275.7875,
+      "rule_us": 290,
+      "instances": 9,
+      "group": "arm-fast/backlog-adp@program-aged2-0",
+      "start": null
+    },
+    "item.retained": {
+      "cycles": 0,
+      "us": 0.0,
+      "rule_us": 0,
+      "instances": 9,
+      "group": "arm-fast/adp-link",
+      "start": null
+    },
+    "item.walk": {
+      "cycles": 1068,
+      "us": 13.35,
+      "rule_us": 15,
+      "instances": 9,
+      "group": "arm-fast/adp-link",
+      "start": null
+    },
+    "item.withdraw": {
+      "cycles": 6062,
+      "us": 75.775,
+      "rule_us": 80,
+      "instances": 10,
+      "group": "arm-fast/adp-link",
+      "start": 65791042
+    },
+    "record.acmp": {
+      "cycles": 17705,
+      "us": 221.3125,
+      "rule_us": 235,
+      "instances": 54,
+      "group": "arm-fast/backlog-adp@blank-aged2-0",
+      "start": 214070954
+    },
+    "record.adp": {
+      "cycles": 8814,
+      "us": 110.175,
+      "rule_us": 120,
+      "instances": 47,
+      "group": "arm-fast/backlog-adp-refill",
+      "start": 221437284
+    },
+    "record.aecp.other": {
+      "cycles": 16573,
+      "us": 207.1625,
+      "rule_us": 220,
+      "instances": 67,
+      "group": "arm-fast/backlog-adp@blank-aged2-0",
+      "start": 174032802
+    },
+    "record.maap": {
+      "cycles": 5444,
+      "us": 68.05,
+      "rule_us": 75,
+      "instances": 29,
+      "group": "arm-fast/maap",
+      "start": 134372837
+    },
+    "record.srp": {
+      "cycles": 22431,
+      "us": 280.3875,
+      "rule_us": 295,
+      "instances": 128,
+      "group": "arm-fast/backlog-adp@program-aged2-0",
+      "start": 260720318
+    },
+    "share": {
+      "cycles": 119003,
+      "us": 1487.5375,
+      "rule_us": 1565,
+      "instances": 9,
+      "group": "arm-fast/backlog-adp@program-aged2-0",
+      "start": null
+    },
+    "step": {
+      "cycles": 80584,
+      "us": 1007.3,
+      "rule_us": 1060,
+      "instances": 9,
+      "group": "arm-fast/backlog-adp@program-aged2-0",
+      "start": null
+    },
+    "tx.aecp.response": {
+      "cycles": 2595,
+      "us": 32.4375,
+      "rule_us": 35,
+      "instances": 67,
+      "group": "arm-fast/backlog-adp@blank-aged2-0",
+      "start": 258915226
+    }
+  },
+  "rounds": {
+    "0:0": {
+      "start_sys": 242008858,
+      "cycles": 2326,
+      "notices": 0,
+      "refused": 0,
+      "group": "arm-fast/backlog-adp@blank-aged2-0"
+    },
+    "0:1": {
+      "start_sys": 260791362,
+      "cycles": 9447,
+      "notices": 0,
+      "refused": 1,
+      "group": "arm-fast/backlog-adp@program-aged2-0"
+    },
+    "0:2": {
+      "start_sys": 55200237,
+      "cycles": 7670,
+      "notices": 0,
+      "refused": 2,
+      "group": "arm-fast/datapath-events"
+    }
+  }
+}

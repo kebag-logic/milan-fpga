@@ -1,0 +1,132 @@
+{
+  "status": "PASS",
+  "time": "2026-11-24T18:56:59.537459+00:00",
+  "firmware_tree": "7e5a1ae880340481da1ca0b8850e3f2a07e57b366405d2cbef2c358fa22eca63",
+  "changes": [
+    {
+      "file": "docs/design/SPLIT_CONTROL_MEMORY.md",
+      "before_sha256": "a1db059d2139ab63f6aca6f0f5546ff59e42861b49705b6434e01247b709ca94",
+      "after_sha256": "37f9af97c9c0da00e5b5bb6823a285bb272aa9ae4235c2913c02342567776eed"
+    },
+    {
+      "file": "docs/ENDSTATION_BUILDER.md",
+      "before_sha256": "01a30e888338717e269ff5ae8d100154b52e35b6a58d82df275bde20730e129e",
+      "after_sha256": "2c474022248861c75512bd0ddb973676ebafa00dc17f64218b54f63991f507df"
+    },
+    {
+      "file": "docs/integration/BUILDING.md",
+      "before_sha256": "abf77002feb11519ca1a6af734af165714d2af8d770ab1e7fae1aea74a0e2569",
+      "after_sha256": "db9d2aad82e04927191f3daa7e8362603470901c8ea1cf185e9ae9f17ace0607"
+    }
+  ],
+  "results": [
+    {
+      "command": [
+        "<home-path>/litex-milan/venv/bin/python3",
+        "scripts/docs_check.py"
+      ],
+      "rc": 0,
+      "seconds": 9.229,
+      "log": "00-docs_check.log"
+    },
+    {
+      "command": [
+        "<home-path>/litex-milan/venv/bin/python3",
+        "scripts/check_doc_style.py"
+      ],
+      "rc": 0,
+      "seconds": 0.114,
+      "log": "01-check_doc_style.log"
+    },
+    {
+      "command": [
+        "<home-path>/litex-milan/venv/bin/python3",
+        "scripts/check_doc_style.py",
+        "--selftest"
+      ],
+      "rc": 0,
+      "seconds": 0.064,
+      "log": "02-check_doc_style.log"
+    },
+    {
+      "command": [
+        "<home-path>/litex-milan/venv/bin/python3",
+        "scripts/check_gptp_docs.py"
+      ],
+      "rc": 0,
+      "seconds": 0.314,
+      "log": "03-check_gptp_docs.log"
+    },
+    {
+      "command": [
+        "<home-path>/litex-milan/venv/bin/python3",
+        "scripts/check_gptp_docs.py",
+        "--selftest"
+      ],
+      "rc": 0,
+      "seconds": 0.364,
+      "log": "04-check_gptp_docs.log"
+    },
+    {
+      "command": [
+        "<home-path>/litex-milan/venv/bin/python3",
+        "scripts/check_feature_status.py",
+        "--self-test"
+      ],
+      "rc": 0,
+      "seconds": 1.466,
+      "log": "05-check_feature_status.log"
+    },
+    {
+      "command": [
+        "<home-path>/litex-milan/venv/bin/python3",
+        "scripts/check_doc_paths.py"
+      ],
+      "rc": 0,
+      "seconds": 0.114,
+      "log": "06-check_doc_paths.log"
+    },
+    {
+      "command": [
+        "$VALIDATION_STORAGE/artysplit-a829/docs-venv/bin/python",
+        "scripts/gen_toc.py",
+        "--selftest"
+      ],
+      "rc": 0,
+      "seconds": 0.817,
+      "log": "07-gen_toc.log"
+    },
+    {
+      "command": [
+        "$VALIDATION_STORAGE/artysplit-a829/docs-venv/bin/python",
+        "scripts/gen_toc.py",
+        "--verify-anchors"
+      ],
+      "rc": 0,
+      "seconds": 5.273,
+      "log": "08-gen_toc.log"
+    },
+    {
+      "command": [
+        "$VALIDATION_STORAGE/artysplit-a829/docs-venv/bin/python",
+        "scripts/gen_toc.py",
+        "--check"
+      ],
+      "rc": 0,
+      "seconds": 6.475,
+      "log": "09-gen_toc.log"
+    },
+    {
+      "command": [
+        "$VALIDATION_STORAGE/artysplit-a829/docs-venv/bin/python",
+        "scripts/check_em_dash.py",
+        "--base",
+        "854bd723"
+      ],
+      "rc": 0,
+      "seconds": 2.769,
+      "log": "10-check_em_dash.log"
+    }
+  ],
+  "qualification_sha256": "f6f1d2f535a8de0ec2348dbb0998a152103f3583e9bf4cc72b0115552ef1886c"
+}

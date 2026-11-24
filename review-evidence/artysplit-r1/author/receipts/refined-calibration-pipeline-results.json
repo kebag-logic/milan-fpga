@@ -1,0 +1,20 @@
+[
+  {
+    "command": [
+      "<home-path>/litex-milan/venv/bin/python3",
+      "-B",
+      "$VALIDATION_STORAGE/artysplit-a829/r4/refined/continue-calibration.py"
+    ],
+    "returncode": 0,
+    "log": "$VALIDATION_STORAGE/artysplit-a829/r4/refined/calibration-continuation-command.log"
+  },
+  {
+    "command": [
+      "<home-path>/litex-milan/venv/bin/python3",
+      "-B",
+      "$VALIDATION_STORAGE/artysplit-a829/r4/refined/watch-calibration-costs.py"
+    ],
+    "returncode": 0,
+    "log": "$VALIDATION_STORAGE/artysplit-a829/r4/refined/watch-calibration-costs-command.log"
+  }
+]

@@ -1,0 +1,35 @@
+{
+  "method": "relative cycle waits and absolute millisecond targets, matching sim_main.cpp::satisfied; excludes response waits and boot",
+  "arms": [
+    {
+      "arm": "arm-a-full",
+      "groups": 99,
+      "minimum_script_duration_ms": 292608.19993750006
+    },
+    {
+      "arm": "arm-b",
+      "groups": 4,
+      "minimum_script_duration_ms": 3095.0
+    },
+    {
+      "arm": "arm-every",
+      "groups": 16,
+      "minimum_script_duration_ms": 52559.999999999985
+    },
+    {
+      "arm": "arm-valid",
+      "groups": 3,
+      "minimum_script_duration_ms": 32219.999999999985
+    },
+    {
+      "arm": "arm-declaring",
+      "groups": 5,
+      "minimum_script_duration_ms": 6494.0
+    },
+    {
+      "arm": "arm-later",
+      "groups": 8,
+      "minimum_script_duration_ms": 26279.999999999993
+    }
+  ]
+}

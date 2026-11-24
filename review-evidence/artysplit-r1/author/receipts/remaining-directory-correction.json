@@ -1,0 +1,9 @@
+{
+  "status": "CORRECTED HARNESS DIRECTORY SETUP",
+  "detail": "The remaining-phase runner reached all eight later tasks, each before native launch, but their results directory had never been created by the cancelled serial queue. The two destination tasks remain foreground-owned by that runner. A separate two-worker later arm takes exactly the two otherwise idle native slots.",
+  "native_slots": {
+    "destination": 2,
+    "later": 2
+  },
+  "excluded": "No later native trace existed from the failed starts; no measurement was reused."
+}

@@ -1,0 +1,8 @@
+{
+  "event": "Brief concurrency-limit breach, corrected",
+  "limit": 4,
+  "observed": 5,
+  "cause": "The idle-queue check examined only the main thread child list; worker threads had already launched the next two arms.",
+  "correction": "Terminated only the premature arm-two model; the scheduled four continued. The interrupted fixture is unqualified and will rerun from reset.",
+  "prevention": "Do not borrow capacity from an active worker pool. Wait for the owning queue to finish before launching any further independent legs."
+}

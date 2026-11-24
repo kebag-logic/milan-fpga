@@ -1,0 +1,77 @@
+{
+  "status": "APPLIED; FRESH QUALIFICATION REQUIRED",
+  "changes": {
+    "item.record": {
+      "old": 290,
+      "new": 295
+    },
+    "item.retained": {
+      "old": 295,
+      "new": 300
+    },
+    "record.srp": {
+      "old": 295,
+      "new": 300
+    }
+  },
+  "before": {
+    "sw/firmware/ctrl/loop/ctrl_loop.h": "63eb56d8cf930f4f166c7fb68d243471e062c80cc7514a982ad8e2bfebecfaa2",
+    "tb/verilator/ctrl_service_budget/poll_grade.py": "5b99560d12620a0633e717122f38345b28c316b78fc8092168d7226079e1b062",
+    "tb/verilator/ctrl_service_budget/load_grade.py": "ac65d61bb142f42d978977a8727a848debfe94b08a8058bb8607fbaf087256e3",
+    "docs/design/SPLIT_CONTROL_MEMORY.md": "89158323e97335c4d3bc7d8d9428ca998d75d6efdd42fde1097b0034d37da9cf"
+  },
+  "after": {
+    "sw/firmware/ctrl/loop/ctrl_loop.h": "6000cf4691dddaec391d014cca4c6500db82ba4a7bf209931d465c4e818b99bf",
+    "tb/verilator/ctrl_service_budget/poll_grade.py": "91a88427c455a09d93c18dfc212573298752689a19239f8be74f8da76c4481f6",
+    "tb/verilator/ctrl_service_budget/load_grade.py": "4f94bbf98c215b99d13d7c3918a516a55b552dae8f4e2be43251a8341d4281e8",
+    "docs/design/SPLIT_CONTROL_MEMORY.md": "9d75db6f0b5336349a56e802f29590a095fc9c30914b2e1ebeeca91896771dd8"
+  },
+  "firmware_tree": "59c35633b6f3aac780391d5769dc90352f05b3384db3f1d6ffccd895efb63168",
+  "model": {
+    "status": "PASS",
+    "evidence": "stated-cost model only",
+    "cpu_hz": 80000000,
+    "shape": [
+      1,
+      1,
+      2
+    ],
+    "load": 0.49466544736842105,
+    "load_terms": {
+      "rec.aecp": 0.057,
+      "rec.acmp": 0.048,
+      "rec.adp": 0.012,
+      "rec.maap": 0.006,
+      "srp": 0.18,
+      "item.reclaim": 0.020421052631578947,
+      "item.aecp": 0.04288,
+      "notices": 0.0017749999999999999,
+      "item.acmp": 0.018600000000000002,
+      "item.acmp_declined": 0.012400000000000001,
+      "ticks": 0.0185,
+      "item.walk": 0.0033157894736842108,
+      "builds": 0.006947368421052632,
+      "item.mrpdu": 0.013894736842105264,
+      "steps": 0.035333333333333335,
+      "timers": 0.0175165,
+      "gm": 8.166666666666668e-05
+    },
+    "rows_ms": {
+      "R4": 13.91,
+      "R5": 72.07,
+      "R6": 68.27,
+      "first": 14.440000000000001,
+      "last": 121.7,
+      "R4L": 203.34,
+      "ACMP": 28.77,
+      "ADP": 26.87,
+      "MAAP": 26.99,
+      "tx": 33.53,
+      "txL": 48.84
+    },
+    "slice_us": 950,
+    "slice_margin": 0.00326530612244891,
+    "pace_ms": 9
+  },
+  "calibration": "$VALIDATION_STORAGE/artysplit-a829/r4/calibration-295-input-closure.json"
+}

@@ -1,0 +1,50 @@
+{
+  "time": "2026-11-24T04:49:51.717335+00:00",
+  "comments": [
+    {
+      "id": "IC_kwDOP42Xbc8AAAABpvwNeA",
+      "author": {
+        "login": "Mister-M-alt"
+      },
+      "authorAssociation": "MEMBER",
+      "body": "[A10] Ruling on the round-1 STOP: **option 1**. The Arty keeps its entity shape: AAF talker, AAF listener, CRF input. That already meets Milan v1.2 7.2.2, and a CRF output is only required with two AAF inputs (7.2.3). Option 2 would change the model identity (IEEE 1722.1-2021 6.2.2.8) and still need the same clock evidence.\n\nNext round:\n- Add a (1 interface, 1 source, 2 sinks) point at 83,333,000 Hz to the service-budget harness. Measure it and derive its row by the existing rules.\n- If any bound fails (load 0.70, txL 49 ms, THE SHARE 2 ms, last notice 140 ms, ACMP 30 ms), STOP.\n- Advertise 100BASE-TX full duplex only (IEEE 802.1BA-2011 Table 6-1 and 6.5, through Milan v1.2 4.2.1), gated to the MII platform.\n- AX7101 1x1/8x8 images byte-identical.\n- Best-of-three routes at four corners against the #818 floor.\n- Then bench: boot, enumeration, a 100 Mb/s full-duplex link and one stream each way.\n",
+      "createdAt": "2026-11-23T09:19:35Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/kebag-logic/milan-fpga/issues/878#issuecomment-7096503672",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOP42Xbc8AAAABpwa_zQ",
+      "author": {
+        "login": "Mister-M-alt"
+      },
+      "authorAssociation": "MEMBER",
+      "body": "[A10] Ruling on the round-2 STOP: my round-2 ruling carried the YAML's 83,333,000 Hz. The production CRG needs an exact divider (`margin=0`), and the 100 MHz oscillator cannot give that rate. The Arty's sys/CPU clock becomes **80,000,000 Hz exactly**: a VCO of 800 MHz divided by 10, with 50 / 25 / 200 MHz at /16, /32 and /4. That keeps the exact-divider contract and an integer clock, so no nominal/actual mapping is needed. The datapath stays at 50 MHz.\n\nAt 80 MHz the bootstrap's longest pass (132,507 cycles) is about 1.66 ms, inside THE SHARE. The (1,1,2) point is measured and derived at 80 MHz. Every other part of the round-2 instruction is unchanged, including STOP if an owner bound fails.\n",
+      "createdAt": "2026-11-23T09:52:31Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/kebag-logic/milan-fpga/issues/878#issuecomment-7097204685",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOP42Xbc8AAAABpwrfcg",
+      "author": {
+        "login": "Mister-M-alt"
+      },
+      "authorAssociation": "MEMBER",
+      "body": "[A10] Ruling on the round-3 STOP: the seven held-egress rows are `backlog-owed`'s rows, set by the scenario's 60 ms egress hold. No CPU lever moves them, and they miss at every point, the AX7101's included. #894's held-egress ruling ([item (a)](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6871343905)) puts them in `egress_ledger.py` as recorded misses: FR_NFR 3.4.1 still charges the backpressure, and a new or larger miss fails.\n\nThe Arty gets its own ledger rows, derived by the same rule at its point: HOLD_MS + the service measured at 80 MHz, by the ledger's own procedure, with the ledger self-test extended to the new rows. This is the existing rule applied to a new point, not a waiver. My round-3 \"never waived\" line was wrong for these rows.\n\nRound 4 implements the whole round-2 instruction at 80 MHz. It STOPs only if an owner bound fails (load 0.70, txL 49 ms, THE SHARE 2 ms, last notice 140 ms, ACMP 30 ms) or if a row other than the seven misses.\n",
+      "createdAt": "2026-11-23T10:05:08Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/kebag-logic/milan-fpga/issues/878#issuecomment-7097474930",
+      "viewerDidAuthor": true
+    }
+  ]
+}

@@ -1,0 +1,362 @@
+{
+  "status": "measurement census; missing groups remain unqualified",
+  "cpu_hz": 80000000,
+  "shape": [
+    1,
+    1,
+    2
+  ],
+  "groups": [
+    "arm-a/aecp-largest-notice",
+    "arm-a/backlog-adp",
+    "arm-a/backlog-owed",
+    "arm-a/srp",
+    "arm-b/aecp-fanout",
+    "arm-b/aecp-largest-notice",
+    "arm-b/aecp-reboot",
+    "arm-b/aecp",
+    "arm-every/notice-every-0",
+    "arm-every/notice-every-1"
+  ],
+  "costs": {
+    "base": {
+      "cycles": 13437,
+      "us": 167.9625,
+      "rule_us": 180,
+      "instances": 10,
+      "group": "arm-a/aecp-largest-notice",
+      "start": null
+    },
+    "build": {
+      "cycles": 0,
+      "us": 0.0,
+      "rule_us": 0,
+      "instances": 10,
+      "group": "arm-a/aecp-largest-notice",
+      "start": null
+    },
+    "build_one": {
+      "cycles": 49832,
+      "us": 622.9,
+      "rule_us": 655,
+      "instances": 10,
+      "group": "arm-a/srp",
+      "start": null
+    },
+    "centisecond": {
+      "cycles": 10889,
+      "us": 136.1125,
+      "rule_us": 145,
+      "instances": 1866,
+      "group": "arm-every/notice-every-1",
+      "start": 241947058
+    },
+    "event.GM": {
+      "cycles": 2231,
+      "us": 27.8875,
+      "rule_us": 30,
+      "instances": 3518,
+      "group": "arm-every/notice-every-0",
+      "start": null
+    },
+    "event.LINK": {
+      "cycles": 9138,
+      "us": 114.225,
+      "rule_us": 120,
+      "instances": 10,
+      "group": "arm-every/notice-every-0",
+      "start": null
+    },
+    "event.TICK": {
+      "cycles": 2279,
+      "us": 28.4875,
+      "rule_us": 30,
+      "instances": 1866,
+      "group": "arm-a/backlog-adp",
+      "start": null
+    },
+    "event.TIMER#0": {
+      "cycles": 6617,
+      "us": 82.7125,
+      "rule_us": 90,
+      "instances": 10,
+      "group": "arm-b/aecp-fanout",
+      "start": null
+    },
+    "event.TIMER#1": {
+      "cycles": 10970,
+      "us": 137.125,
+      "rule_us": 145,
+      "instances": 2,
+      "group": "arm-every/notice-every-1",
+      "start": null
+    },
+    "event.TIMER#2": {
+      "cycles": 10541,
+      "us": 131.7625,
+      "rule_us": 140,
+      "instances": 20,
+      "group": "arm-a/backlog-adp",
+      "start": null
+    },
+    "event.TIMER#3": {
+      "cycles": 4418,
+      "us": 55.225,
+      "rule_us": 60,
+      "instances": 135,
+      "group": "arm-every/notice-every-0",
+      "start": null
+    },
+    "events_none": {
+      "cycles": 1429,
+      "us": 17.8625,
+      "rule_us": 20,
+      "instances": 215,
+      "group": "arm-every/notice-every-1",
+      "start": 240311349
+    },
+    "item.acmp": {
+      "cycles": 4256,
+      "us": 53.2,
+      "rule_us": 60,
+      "instances": 10,
+      "group": "arm-a/backlog-owed",
+      "start": null
+    },
+    "item.acmp_declined": {
+      "cycles": 1332,
+      "us": 16.65,
+      "rule_us": 20,
+      "instances": 10,
+      "group": "arm-a/backlog-owed",
+      "start": null
+    },
+    "item.acmp_kept": {
+      "cycles": 6497,
+      "us": 81.2125,
+      "rule_us": 90,
+      "instances": 10,
+      "group": "arm-a/backlog-owed",
+      "start": null
+    },
+    "item.aecp": {
+      "cycles": 14645,
+      "us": 183.0625,
+      "rule_us": 195,
+      "instances": 10,
+      "group": "arm-b/aecp-fanout",
+      "start": null
+    },
+    "item.aecp_long": {
+      "cycles": 28903,
+      "us": 361.2875,
+      "rule_us": 380,
+      "instances": 10,
+      "group": "arm-a/aecp-largest-notice",
+      "start": null
+    },
+    "item.mrpdu": {
+      "cycles": 0,
+      "us": 0.0,
+      "rule_us": 0,
+      "instances": 10,
+      "group": "arm-a/aecp-largest-notice",
+      "start": null
+    },
+    "item.rebuild": {
+      "cycles": 0,
+      "us": 0.0,
+      "rule_us": 0,
+      "instances": 10,
+      "group": "arm-a/aecp-largest-notice",
+      "start": null
+    },
+    "item.reclaim": {
+      "cycles": 1158,
+      "us": 14.475,
+      "rule_us": 20,
+      "instances": 10,
+      "group": "arm-a/srp",
+      "start": null
+    },
+    "item.record": {
+      "cycles": 21866,
+      "us": 273.325,
+      "rule_us": 290,
+      "instances": 10,
+      "group": "arm-a/backlog-adp",
+      "start": null
+    },
+    "item.retained": {
+      "cycles": 0,
+      "us": 0.0,
+      "rule_us": 0,
+      "instances": 10,
+      "group": "arm-a/aecp-largest-notice",
+      "start": null
+    },
+    "item.walk": {
+      "cycles": 1305,
+      "us": 16.3125,
+      "rule_us": 20,
+      "instances": 10,
+      "group": "arm-a/srp",
+      "start": null
+    },
+    "item.withdraw": {
+      "cycles": 0,
+      "us": 0.0,
+      "rule_us": 0,
+      "instances": 10,
+      "group": "arm-a/aecp-largest-notice",
+      "start": null
+    },
+    "paced.44": {
+      "cycles": 22762,
+      "us": 284.525,
+      "rule_us": 300,
+      "instances": 1,
+      "group": "arm-b/aecp-fanout",
+      "start": 64331404
+    },
+    "paced.45": {
+      "cycles": 24380,
+      "us": 304.75,
+      "rule_us": 320,
+      "instances": 1,
+      "group": "arm-b/aecp-fanout",
+      "start": 63652635
+    },
+    "paced.6": {
+      "cycles": 23956,
+      "us": 299.45,
+      "rule_us": 315,
+      "instances": 1,
+      "group": "arm-b/aecp-fanout",
+      "start": 65536155
+    },
+    "record.acmp": {
+      "cycles": 18127,
+      "us": 226.5875,
+      "rule_us": 240,
+      "instances": 160,
+      "group": "arm-every/notice-every-0",
+      "start": 240004649
+    },
+    "record.adp": {
+      "cycles": 6788,
+      "us": 84.85,
+      "rule_us": 90,
+      "instances": 82,
+      "group": "arm-a/backlog-adp",
+      "start": 218528545
+    },
+    "record.aecp.long": {
+      "cycles": 83148,
+      "us": 1039.35,
+      "rule_us": 1095,
+      "instances": 42,
+      "group": "arm-a/aecp-largest-notice",
+      "start": 61692887
+    },
+    "record.aecp.other": {
+      "cycles": 19288,
+      "us": 241.1,
+      "rule_us": 255,
+      "instances": 227,
+      "group": "arm-b/aecp-fanout",
+      "start": 66248063
+    },
+    "record.aecp.paced": {
+      "cycles": 24380,
+      "us": 304.75,
+      "rule_us": 320,
+      "instances": 3,
+      "group": "arm-b/aecp-fanout",
+      "start": 63652635
+    },
+    "record.maap": {
+      "cycles": 5623,
+      "us": 70.2875,
+      "rule_us": 75,
+      "instances": 42,
+      "group": "arm-every/notice-every-0",
+      "start": 252059723
+    },
+    "record.srp": {
+      "cycles": 22234,
+      "us": 277.925,
+      "rule_us": 295,
+      "instances": 387,
+      "group": "arm-a/backlog-adp",
+      "start": 218589505
+    },
+    "share": {
+      "cycles": 132439,
+      "us": 1655.4875,
+      "rule_us": 1740,
+      "instances": 10,
+      "group": "arm-a/aecp-largest-notice",
+      "start": null
+    },
+    "step": {
+      "cycles": 2183,
+      "us": 27.2875,
+      "rule_us": 30,
+      "instances": 10,
+      "group": "arm-every/notice-every-0",
+      "start": null
+    }
+  },
+  "rounds": {
+    "0:0": {
+      "start_sys": 240392343,
+      "cycles": 3583,
+      "notices": 0,
+      "refused": 0,
+      "group": "arm-every/notice-every-1"
+    },
+    "0:1": {
+      "start_sys": 241741352,
+      "cycles": 8996,
+      "notices": 0,
+      "refused": 1,
+      "group": "arm-every/notice-every-0"
+    },
+    "1:0": {
+      "start_sys": 67738862,
+      "cycles": 22900,
+      "notices": 1,
+      "refused": 0,
+      "group": "arm-b/aecp-fanout"
+    },
+    "0:4": {
+      "start_sys": 241231032,
+      "cycles": 17026,
+      "notices": 0,
+      "refused": 4,
+      "group": "arm-every/notice-every-0"
+    },
+    "0:2": {
+      "start_sys": 242013809,
+      "cycles": 13140,
+      "notices": 0,
+      "refused": 2,
+      "group": "arm-every/notice-every-0"
+    },
+    "4:0": {
+      "start_sys": 252325505,
+      "cycles": 77025,
+      "notices": 4,
+      "refused": 0,
+      "group": "arm-every/notice-every-0"
+    },
+    "2:0": {
+      "start_sys": 252496869,
+      "cycles": 39800,
+      "notices": 2,
+      "refused": 0,
+      "group": "arm-every/notice-every-0"
+    }
+  }
+}

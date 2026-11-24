@@ -1,0 +1,109 @@
+[
+  {
+    "command": [
+      "<home-path>/litex-milan/venv/bin/python3",
+      "scripts/docs_check.py"
+    ],
+    "rc": 0,
+    "seconds": 10.035,
+    "log": "00-docs_check.log"
+  },
+  {
+    "command": [
+      "<home-path>/litex-milan/venv/bin/python3",
+      "scripts/check_doc_style.py"
+    ],
+    "rc": 0,
+    "seconds": 0.114,
+    "log": "01-check_doc_style.log"
+  },
+  {
+    "command": [
+      "<home-path>/litex-milan/venv/bin/python3",
+      "scripts/check_doc_style.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 0.064,
+    "log": "02-check_doc_style.log"
+  },
+  {
+    "command": [
+      "<home-path>/litex-milan/venv/bin/python3",
+      "scripts/check_gptp_docs.py"
+    ],
+    "rc": 0,
+    "seconds": 0.315,
+    "log": "03-check_gptp_docs.log"
+  },
+  {
+    "command": [
+      "<home-path>/litex-milan/venv/bin/python3",
+      "scripts/check_gptp_docs.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 0.315,
+    "log": "04-check_gptp_docs.log"
+  },
+  {
+    "command": [
+      "<home-path>/litex-milan/venv/bin/python3",
+      "scripts/check_feature_status.py",
+      "--self-test"
+    ],
+    "rc": 0,
+    "seconds": 1.517,
+    "log": "05-check_feature_status.log"
+  },
+  {
+    "command": [
+      "<home-path>/litex-milan/venv/bin/python3",
+      "scripts/check_doc_paths.py"
+    ],
+    "rc": 0,
+    "seconds": 0.114,
+    "log": "06-check_doc_paths.log"
+  },
+  {
+    "command": [
+      "$VALIDATION_STORAGE/artysplit-a829/docs-venv/bin/python",
+      "scripts/gen_toc.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 0.765,
+    "log": "07-gen_toc.log"
+  },
+  {
+    "command": [
+      "$VALIDATION_STORAGE/artysplit-a829/docs-venv/bin/python",
+      "scripts/gen_toc.py",
+      "--verify-anchors"
+    ],
+    "rc": 0,
+    "seconds": 5.726,
+    "log": "08-gen_toc.log"
+  },
+  {
+    "command": [
+      "$VALIDATION_STORAGE/artysplit-a829/docs-venv/bin/python",
+      "scripts/gen_toc.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 7.326,
+    "log": "09-gen_toc.log"
+  },
+  {
+    "command": [
+      "$VALIDATION_STORAGE/artysplit-a829/docs-venv/bin/python",
+      "scripts/check_em_dash.py",
+      "--base",
+      "854bd723"
+    ],
+    "rc": 0,
+    "seconds": 2.718,
+    "log": "10-check_em_dash.log"
+  }
+]

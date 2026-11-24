@@ -1,0 +1,257 @@
+{
+  "status": "PASS",
+  "head": "248d85c1453213b0f1642967a4046f395c82c56b",
+  "time": "2026-11-24T19:23:12.280192+00:00",
+  "directive": "ExtraTimingOpt",
+  "corners": [
+    {
+      "corner": "Slow",
+      "junction_c": 0,
+      "timing": {
+        "wns": 0.617,
+        "tns": 0.0,
+        "failing_endpoints": 0,
+        "total_endpoints": 120824,
+        "whs": 0.102,
+        "ths": 0.0,
+        "met": true,
+        "failing_hold_endpoints": 0,
+        "total_hold_endpoints": 120824
+      },
+      "report": {
+        "path": "$VALIDATION_STORAGE/artysplit-a829/r4/build-corrected/images/ExtraTimingOpt/gateware/digilent_arty_signoff_Slow_0C_timing.rpt",
+        "bytes": 1346676,
+        "sha256": "69c5580c9f8867513aa263add530ecfd4df4fa7a901ccedc3ea25628fa1f0e8e"
+      }
+    },
+    {
+      "corner": "Slow",
+      "junction_c": 85,
+      "timing": {
+        "wns": 0.617,
+        "tns": 0.0,
+        "failing_endpoints": 0,
+        "total_endpoints": 120824,
+        "whs": 0.102,
+        "ths": 0.0,
+        "met": true,
+        "failing_hold_endpoints": 0,
+        "total_hold_endpoints": 120824
+      },
+      "report": {
+        "path": "$VALIDATION_STORAGE/artysplit-a829/r4/build-corrected/images/ExtraTimingOpt/gateware/digilent_arty_signoff_Slow_85C_timing.rpt",
+        "bytes": 1346679,
+        "sha256": "094273190a11a8048a855b89bd641e26f4e2462e55bd00ce00ff1b666675c5c2"
+      }
+    },
+    {
+      "corner": "Fast",
+      "junction_c": 0,
+      "timing": {
+        "wns": 1.613,
+        "tns": 0.0,
+        "failing_endpoints": 0,
+        "total_endpoints": 120824,
+        "whs": 0.017,
+        "ths": 0.0,
+        "met": true,
+        "failing_hold_endpoints": 0,
+        "total_hold_endpoints": 120824
+      },
+      "report": {
+        "path": "$VALIDATION_STORAGE/artysplit-a829/r4/build-corrected/images/ExtraTimingOpt/gateware/digilent_arty_signoff_Fast_0C_timing.rpt",
+        "bytes": 1319123,
+        "sha256": "c9777c612bbed03304e8991e373dea79a076e27d36ff800bf9be6d3b1b630c56"
+      }
+    },
+    {
+      "corner": "Fast",
+      "junction_c": 85,
+      "timing": {
+        "wns": 1.613,
+        "tns": 0.0,
+        "failing_endpoints": 0,
+        "total_endpoints": 120824,
+        "whs": 0.017,
+        "ths": 0.0,
+        "met": true,
+        "failing_hold_endpoints": 0,
+        "total_hold_endpoints": 120824
+      },
+      "report": {
+        "path": "$VALIDATION_STORAGE/artysplit-a829/r4/build-corrected/images/ExtraTimingOpt/gateware/digilent_arty_signoff_Fast_85C_timing.rpt",
+        "bytes": 1319126,
+        "sha256": "b7bee89d7b2b34cec9a874f659ba7e9e499bcdcee6c6fb8547b893998f46bbda"
+      }
+    }
+  ],
+  "utilization": {
+    "Slice LUTs": 33411.0,
+    "Slice Registers": 40479.0,
+    "Slice": 14119.0,
+    "Block RAM Tile": 78.5,
+    "RAMB36/FIFO": 61.0,
+    "RAMB18": 35.0
+  },
+  "worst_wns_ns": 0.617,
+  "worst_whs_ns": 0.017,
+  "qualification": {
+    "path": "$VALIDATION_STORAGE/artysplit-a829/r4/build-corrected/final-census/qualification.json",
+    "bytes": 12227,
+    "sha256": "f6f1d2f535a8de0ec2348dbb0998a152103f3583e9bf4cc72b0115552ef1886c"
+  },
+  "route_grading": {
+    "path": "$VALIDATION_STORAGE/artysplit-a829/r4/build-corrected/images/graded-images.json",
+    "bytes": 21884,
+    "sha256": "f9c1702d85352d8dde9302acfd11b582962a49303dc09def7ca74e6d3e68c39e"
+  },
+  "artifacts": {
+    "Bitstream": {
+      "path": "<home-path>/milan-fpga-management/2026-09-23/artysplit-a829/round4/image/gateware/digilent_arty.bit",
+      "bytes": 3281691,
+      "sha256": "1046292da1e73b2b595f65c66d9c429fb183a43e3466e160d95024651014735c"
+    },
+    "flashboot_layout.json": {
+      "path": "<home-path>/milan-fpga-management/2026-09-23/artysplit-a829/round4/image/flashboot_layout.json",
+      "bytes": 1002,
+      "sha256": "a096b7612353ce756440111ce4b89b0b241dd25ae3481e4d5ff0d16360f4b84f"
+    },
+    "Matched image_manifest.json": {
+      "path": "<home-path>/milan-fpga-management/2026-09-23/artysplit-a829/round4/image/image_manifest.json",
+      "bytes": 608,
+      "sha256": "81ade1bd936f258d58921666e4b1c5508ca29392e35ed1ea46c20b6337de47f2"
+    },
+    "AEM image": {
+      "path": "<home-path>/milan-fpga-management/2026-09-23/artysplit-a829/round4/image/aem_desc.bin",
+      "bytes": 5952,
+      "sha256": "019bced16c167794869a794af3b5389103b3665f5d4a45878ea2bdeaf55a9463"
+    },
+    "AEM manifest": {
+      "path": "<home-path>/milan-fpga-management/2026-09-23/artysplit-a829/round4/image/aem_desc.json",
+      "bytes": 261,
+      "sha256": "e1dc362f1d4a087d13fb08e7eb3f30f8da17c22fd82078fc16ca2bb8646b5ad8"
+    },
+    "Firmware ELF": {
+      "path": "<home-path>/milan-fpga-management/2026-09-23/artysplit-a829/round4/image/ctrl_app.elf",
+      "bytes": 159532,
+      "sha256": "b81f300e205f1067170458898b8b62f8407ecdb46bd38467e540efb89b9e84e5"
+    }
+  },
+  "copied": [
+    {
+      "path": "<home-path>/milan-fpga-management/2026-09-23/artysplit-a829/round4/image/csr.csv",
+      "bytes": 10278,
+      "sha256": "d3ba11f6a14bfc1555c471291151824cddc8f63de210ddfaa2526b2e3e5d0740"
+    },
+    {
+      "path": "<home-path>/milan-fpga-management/2026-09-23/artysplit-a829/round4/image/csr.json",
+      "bytes": 14533,
+      "sha256": "405077dbb89f9bddac7500860fe1aab5f49fd3f4f1c223a76f57e983b2c839d6"
+    },
+    {
+      "path": "<home-path>/milan-fpga-management/2026-09-23/artysplit-a829/round4/image/flashboot_layout.json",
+      "bytes": 1002,
+      "sha256": "a096b7612353ce756440111ce4b89b0b241dd25ae3481e4d5ff0d16360f4b84f"
+    },
+    {
+      "path": "<home-path>/milan-fpga-management/2026-09-23/artysplit-a829/round4/image/image_manifest.json",
+      "bytes": 608,
+      "sha256": "81ade1bd936f258d58921666e4b1c5508ca29392e35ed1ea46c20b6337de47f2"
+    },
+    {
+      "path": "<home-path>/milan-fpga-management/2026-09-23/artysplit-a829/round4/image/aem_desc.bin",
+      "bytes": 5952,
+      "sha256": "019bced16c167794869a794af3b5389103b3665f5d4a45878ea2bdeaf55a9463"
+    },
+    {
+      "path": "<home-path>/milan-fpga-management/2026-09-23/artysplit-a829/round4/image/aem_desc.json",
+      "bytes": 261,
+      "sha256": "e1dc362f1d4a087d13fb08e7eb3f30f8da17c22fd82078fc16ca2bb8646b5ad8"
+    },
+    {
+      "path": "<home-path>/milan-fpga-management/2026-09-23/artysplit-a829/round4/image/gateware/digilent_arty.bit",
+      "bytes": 3281691,
+      "sha256": "1046292da1e73b2b595f65c66d9c429fb183a43e3466e160d95024651014735c"
+    },
+    {
+      "path": "<home-path>/milan-fpga-management/2026-09-23/artysplit-a829/round4/image/gateware/digilent_arty_rom_bank0.init",
+      "bytes": 147456,
+      "sha256": "1db39f5a65355c821091dab001ee24c96769ff544afe097a88c223c0b3c9244c"
+    },
+    {
+      "path": "<home-path>/milan-fpga-management/2026-09-23/artysplit-a829/round4/image/gateware/digilent_arty_rom_bank1.init",
+      "bytes": 73728,
+      "sha256": "d49b3d238b236136497031862bc9750612cb49bda4fd6824e6d3590b4d116926"
+    },
+    {
+      "path": "<home-path>/milan-fpga-management/2026-09-23/artysplit-a829/round4/image/gateware/digilent_arty_rom_bank3.init",
+      "bytes": 18432,
+      "sha256": "891469ee56fe6248edc1052c8a5c2baae2819229e2e1e7cf24bf22f97d44c645"
+    },
+    {
+      "path": "<home-path>/milan-fpga-management/2026-09-23/artysplit-a829/round4/image/gateware/digilent_arty_mem.init",
+      "bytes": 165,
+      "sha256": "1419f6c025ea524df88b47ba56bc561f894db4307efc586c8a1dc43b1990cbda"
+    },
+    {
+      "path": "<home-path>/milan-fpga-management/2026-09-23/artysplit-a829/round4/image/gateware/digilent_arty.tcl",
+      "bytes": 30658,
+      "sha256": "919f98613d51c7236db2f7eb6182108b49149e04c33a2cc10c212140c6f7628c"
+    },
+    {
+      "path": "<home-path>/milan-fpga-management/2026-09-23/artysplit-a829/round4/image/gateware/digilent_arty.v",
+      "bytes": 746760,
+      "sha256": "62873843da862c53001d82f570f9a7e9e1e2ebd4a0b50410e4a80a2638900da1"
+    },
+    {
+      "path": "<home-path>/milan-fpga-management/2026-09-23/artysplit-a829/round4/image/gateware/digilent_arty.xdc",
+      "bytes": 7091,
+      "sha256": "679902b53ffd33c2832855899a6b3cdf1278c15412cd172de956b054c60b3415"
+    },
+    {
+      "path": "<home-path>/milan-fpga-management/2026-09-23/artysplit-a829/round4/image/gateware/digilent_arty_rom_bank4.init",
+      "bytes": 3447,
+      "sha256": "2851fc70c48ab6e7cb5e3310cb94be38a40b8f83fc72b81cb5f617023b590138"
+    },
+    {
+      "path": "<home-path>/milan-fpga-management/2026-09-23/artysplit-a829/round4/image/gateware/digilent_arty_rom_bank2.init",
+      "bytes": 36864,
+      "sha256": "1da749ed9a208c7ce5eb3321fcbe1140a943d679a121015b01ac80b37dbbbfeb"
+    }
+  ],
+  "commands": [
+    {
+      "name": "image-identity",
+      "command": [
+        "<home-path>/litex-milan/venv/bin/python3",
+        "$LANES/arty-split/sw/litex/check_image_identity.py",
+        "<home-path>/milan-fpga-management/2026-09-23/artysplit-a829/round4/image",
+        "--firmware",
+        "<home-path>/milan-fpga-management/2026-09-23/artysplit-a829/round4/image/ctrl_app.elf",
+        "--bitstream",
+        "<home-path>/milan-fpga-management/2026-09-23/artysplit-a829/round4/image/gateware/digilent_arty.bit"
+      ],
+      "returncode": 0,
+      "log": {
+        "path": "<home-path>/milan-fpga-management/2026-09-23/artysplit-a829/round4/image/image-identity.log",
+        "bytes": 107,
+        "sha256": "24e56f2b7ae5d7fcc92f373824a4af70101fe0e85565ac1edcf0be173f4a74a0"
+      }
+    },
+    {
+      "name": "offline-flash-pair-inputs",
+      "command": [
+        "bash",
+        "$LANES/arty-split/sw/litex/deploy.sh",
+        "check-images"
+      ],
+      "returncode": 0,
+      "log": {
+        "path": "<home-path>/milan-fpga-management/2026-09-23/artysplit-a829/round4/image/offline-flash-pair-inputs.log",
+        "bytes": 673,
+        "sha256": "ca71043fa394c006ed32f40718944d3c6b28c6ad4473448bfd03b06643f8c9f3"
+      }
+    }
+  ],
+  "note": "Offline input validation only. No hardware was accessed."
+}
