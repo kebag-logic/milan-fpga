@@ -1,0 +1,50 @@
+{
+  "matrix": {
+    "fail-fast": true,
+    "matrix": {
+      "leg": [
+        0,
+        1
+      ]
+    }
+  },
+  "permissions": null,
+  "watcher_if": "${{ github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository) }}",
+  "terminal_guard_if": "${{ always() && (github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository)) }}",
+  "boundary_arms": {
+    "boundary legs one leg dropped": [
+      ".github/workflows/rtl-fast.yml: job `firmware-boundary-capture` strategy must be exactly {'fail-fast': True, 'matrix': {'leg': [0, 1]}} (found {'fail-fast': True, 'matrix': {'leg': [0]}}): one leg per entry of ctrl_runs.LEGS, which firmware-boundary downloads one by one"
+    ],
+    "boundary legs cancellation disabled": [
+      ".github/workflows/rtl-fast.yml: job `firmware-boundary-capture` strategy must be exactly {'fail-fast': True, 'matrix': {'leg': [0, 1]}} (found {'fail-fast': False, 'matrix': {'leg': [0, 1]}}): one leg per entry of ctrl_runs.LEGS, which firmware-boundary downloads one by one"
+    ],
+    "boundary legs fail-fast left to the default": [
+      ".github/workflows/rtl-fast.yml: job `firmware-boundary-capture` strategy must be exactly {'fail-fast': True, 'matrix': {'leg': [0, 1]}} (found {'matrix': {'leg': [0, 1]}}): one leg per entry of ctrl_runs.LEGS, which firmware-boundary downloads one by one"
+    ],
+    "boundary legs judge needs no capture": [
+      ".github/workflows/rtl-fast.yml: job `firmware-boundary` must need `firmware-boundary-capture` (found ['changes'])"
+    ],
+    "boundary legs firmware-boundary-capture timeout raised": [
+      ".github/workflows/rtl-fast.yml: job `firmware-boundary-capture` timeout must remain 30 minutes"
+    ],
+    "boundary legs firmware-boundary timeout raised": [
+      ".github/workflows/rtl-fast.yml: job `firmware-boundary` timeout must remain 30 minutes"
+    ],
+    "boundary legs gate holds a third leg": [
+      ".github/workflows/rtl-fast.yml: ctrl_runs.LEGS must hold 2 legs, one per capture job leg (found 3)"
+    ],
+    "independent configuration False": [
+      ".github/workflows/rtl-fast.yml: job `firmware-boundary-capture` strategy must be exactly {'fail-fast': True, 'matrix': {'leg': [0, 1]}} (found {'fail-fast': False, 'matrix': {'leg': [0, 1]}}): one leg per entry of ctrl_runs.LEGS, which firmware-boundary downloads one by one"
+    ],
+    "independent configuration None": [
+      ".github/workflows/rtl-fast.yml: job `firmware-boundary-capture` strategy must be exactly {'fail-fast': True, 'matrix': {'leg': [0, 1]}} (found {'matrix': {'leg': [0, 1]}}): one leg per entry of ctrl_runs.LEGS, which firmware-boundary downloads one by one"
+    ]
+  },
+  "aggregate_exit_codes": {
+    "success/success": 0,
+    "failure/skipped": 1,
+    "cancelled/skipped": 1,
+    "missing/skipped": 1
+  }
+}
+PASS: seven standing boundary arms; false/absent fail-fast refused; failed/cancelled/missing capture cannot pass aggregate

@@ -1,0 +1,14 @@
+{
+  "url": "https://github.com/kebag-logic/milan-fpga/pull/1003",
+  "excerpts": [
+    {
+      "line": 316,
+      "text": "| #998 acceptance 2, the manager's ruling on round 6's finding 1: other hosted jobs over the bound | For this PR, the criterion is that every job the PR touches is within the bound with margin and no job gets slower. The first holds at `b0f2bc1a`. The second held at `9c625393`; at `b0f2bc1a`, two jobs ran slower than their earlier windows on unchanged work (runner speed), and seven workers rebuilt Verilator once after the workflow change (Hosted runs). The untouched jobs are [#1008](https://github.com/kebag-logic/milan-fpga/issues/1008). The four \"Fail fast across this head\" watchers span their run by design: a documented exception, recorded in #1008 with rtl-full's nightly physical gPTP job | \u2014 |"
+    },
+    {
+      "line": 332,
+      "text": "- **On a fork, nothing else changes.** The `ci-fail-fast` watcher, the only job with a write token, still runs only"
+    }
+  ],
+  "issue_998_comments": 0
+}

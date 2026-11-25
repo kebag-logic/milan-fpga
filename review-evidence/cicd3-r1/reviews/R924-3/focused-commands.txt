@@ -1,0 +1,42 @@
+R924-3 focused execution record
+All commands ran in the foreground. No model build, full bank or hosted mutation was run.
+
+python3 -B probe_cancellation.py CHECKOUT
+exit 0; seven production mutation arms fail as intended; independent false/absent strategy controls fail;
+actual aggregate shell exits 0 on success and 1 on failure/cancelled/missing capture.
+
+PYTHONDONTWRITEBYTECODE=1 python3 scripts/ci_gate_workflows.py --check
+exit 0; generation-check.log (empty successful output).
+PYTHONDONTWRITEBYTECODE=1 python3 scripts/ci_events.py --check
+exit 0; event-check.log (2378 contract items).
+PYTHONDONTWRITEBYTECODE=1 python3 scripts/ci_fail_fast_selftest.py
+exit 0; fork-controls.log (first failure, complete success, sibling selection, fork zero-write PASS).
+
+sh follow_ring_make_probe.sh CHECKOUT PACKET/scratch/make-head
+exit 0; compare result IDENTICAL, base/head warnings 0/0.
+PROBE_REVS='base:13e6d869d8 head:9c62539365' sh follow_ring_make_probe.sh CHECKOUT PACKET/scratch/make-old
+exit 0; diagnostic control DIFFERS, base/head warnings 0/1.
+The historical probe reports differences in its output rather than its process status.
+make -j16 --jobserver-style=pipe build-pullin-small VERILATOR=true
+Run in each extracted head's follow_ring directory. Old warning 1; current warning 0.
+make -s -C tb/verilator/follow_ring ci-list
+exit 0; b8, pullin-small, bind-settle.
+make -n --no-print-directory -C tb/verilator/follow_ring exec-pullin-small
+exit 0; no build, mkdir, dp_glue or compiler command; host path normalized to ROOT.
+git diff --exit-code fcbc31f3 13e6d869 -- tb/verilator/follow_ring/Makefile
+exit 0; the historical probe base has exactly the source base's Makefile.
+
+python3 verify_public.py CHECKOUT
+exit 0; 107 files match published hashes, 3 case result objects identical, source/tree identities match.
+python3 read_hosted.py PACKET
+exit 0; four fixed run heads match, 84 jobs retained with executed/skipped distinction.
+python3 spotcheck_outputs.py PACKET
+exit 0; 12 complete case-output hashes match in local/hosted logs across both heads.
+python3 verify_tree.py CHECKOUT
+exit 0; 1974 superproject entries and 1362 submodule entries match raw blobs/modes/index.
+
+To restore spotcheck inputs in a fresh packet directory:
+git -C CHECKOUT fetch --no-tags origin 22b3d7ad1e8bca3a5b783af5c8bd2446edc2cc9a
+python3 fetch_evidence.py CHECKOUT PACKET
+python3 spotcheck_outputs.py PACKET
+The two hosted artifacts were available during review; artifact retention may limit later downloads.

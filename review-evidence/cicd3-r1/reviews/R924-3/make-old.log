@@ -1,0 +1,14 @@
+base: jobserver warnings: 0
+head: jobserver warnings: 1
+make -n run: DIFFERS
+11,17d10
+< python3 settle_control.py --sim verilator \
+<   --out ROOT/tb/verilator/follow_ring/obj_dir_control --jobs 4
+< make[2]: Entering directory 'ROOT/tb/verilator/follow_ring'
+< mkdir -p ROOT/tb/verilator/follow_ring/obj_dir_fine
+< python3 dp_glue.py ../../../hdl/milan/milan_datapath.sv ROOT/tb/verilator/follow_ring/obj_dir_fine/dp_glue.svh
+< verilator --cc --exe --build -j 16 --top-module follow_ring_wrap --public-flat-rw -GCLK_HZ_P=25000000 -GFRAME_DIV_P=64 -GTICK_CYC_P=3072 +incdir+../../../conf
+< make[2]: Leaving directory 'ROOT/tb/verilator/follow_ring'
+19a13,14
+> python3 settle_control.py --sim verilator \
+>   --out ROOT/tb/verilator/follow_ring/obj_dir_control --jobs 4

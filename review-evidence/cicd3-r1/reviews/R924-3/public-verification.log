@@ -1,0 +1,35 @@
+fr-old leg 0: 351.36 wall 463.95 user 2.17 sys
+rc=0
+fr-fr leg 0: 350.73 wall 463.51 user 1.54 sys
+rc=0
+fr-old leg 1: 472.07 wall 1386.15 user 1.57 sys
+rc=0
+fr-fr leg 1: 464.87 wall 1365.19 user 1.18 sys
+rc=0
+{
+  "publication_commit": "22b3d7ad1e8bca3a5b783af5c8bd2446edc2cc9a",
+  "files_verified": 107,
+  "redacted_files": 3,
+  "follow_ring_equal_results": [
+    {
+      "case": "b8",
+      "outcome": "pass",
+      "output_sha256": "2a74e418415fc5f662a21a280822184520209487883ba0f84a62c29558a7babd",
+      "returncode": 0
+    },
+    {
+      "case": "bind-settle",
+      "outcome": "pass",
+      "output_sha256": "fa56074b4d2fe943ca81cab9399470bc59951c26253fa6701f86f9f195b12ad8",
+      "returncode": 0
+    },
+    {
+      "case": "pullin-small",
+      "outcome": "pass",
+      "output_sha256": "29d6aa5183c97e8ba1dda321c726cfb42ba6a79fc80e94f8bab9ace963f7d910",
+      "returncode": 0
+    }
+  ],
+  "commit_signature_status": "N"
+}
+PASS: every author-r8 publication hash matched; both follow_ring piece result tables identical
