@@ -75,8 +75,9 @@ PLANTS = {
 }
 #: The tick phases staged in each flash phase.
 TICK_PHASES = 8
-#: The store's first-dirty window (DR2a, MILAN_NVM_DEBOUNCE_MS) and its tick, in ms (nvm_store.c).
-DIRTY_MS, TICK_MS = 1000, 10
+#: The store's first-dirty windows (DR2a: MILAN_NVM_DEBOUNCE_MS, and NVM_BIND_DEBOUNCE_MS for a binding record, #1009)
+#: and its tick, in ms (nvm_store.c). A SET_NAME's save waits the first; bind_save's groups time the second.
+DIRTY_MS, BIND_DIRTY_MS, TICK_MS = 1000, 100, 10
 #: A seal step's and a page program's stretch, a read-back's, and the container's trailer, in bytes (nvm_store.c,
 #: NVM_STEP_BYTES and NVM_READ_BYTES; nvm_klj2.h).
 PAGE, READ, TRAILER = 256, 128, 4
@@ -341,11 +342,13 @@ def groups(p: scenario.Point, build: dict) -> list[scenario.Group]:
     without and with no pass that takes nothing, and a change while a save is in flight, each of the build's
     image's container; at one interface, a burst of names and a change in flight, each timed from its response
     (save_burst.py, #920)."""
-    import save_burst  # it reads this module's
+    import bind_save  # they read this module's
+    import save_burst
     image = container(build)
     return [*windows(p), *aged_windows(p), alone(p, image), loaded(p, 'save-held', False, image),
             loaded(p, 'save-starved', True, image), second(p, image),
-            *(save_burst.groups(p, build) if p.interfaces == 1 else [])]
+            *(save_burst.groups(p, build) if p.interfaces == 1 else []),
+            *(bind_save.groups(p, build) if p.interfaces == 1 else [])]
 
 
 def row_names() -> list[str]:

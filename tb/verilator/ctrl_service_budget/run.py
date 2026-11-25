@@ -68,6 +68,29 @@ def burst_misses(results: list[dict]) -> list[str]:
     return [m for g in results if g.get('burst') for m in save_burst.misses(g['burst'], g['group'])]
 
 
+def bind_misses(results: list[dict]) -> list[str]:
+    """Each bind or unbind not durable within its target, or not held in the container at the cut (bind_save.misses), named by
+    its group."""
+    import bind_save
+    return [m for g in results if g.get('bind') for m in bind_save.misses(g['bind'], g['group'])]
+
+
+def bind_lines(results: list[dict]) -> list[str]:
+    """One BIND line for each graded bind group: its commands' worst time to durable, its target, its saves and erases."""
+    import bind_save
+    out = []
+    for g in results:
+        b = g.get('bind')
+        if not b:
+            continue
+        worst = f"{b['worst_ms']:.3f} ms" if b['worst_ms'] is not None else 'never'
+        out.append(f"BIND {g['group']}: {b['commands']} command(s), the latest durable {worst} after its response "
+                   f"(sink {b['worst_sink']}; target {b['target_ms']:,} ms), {b['saves']} save(s), {b['frames']} "
+                   f"frame(s), {b['erases']} erase(s), {len(b['missing'])} sink(s) not as last commanded at the cut "
+                   f"{'OVER' if bind_save.misses(b, g['group']) else 'within'}")
+    return out
+
+
 def burst_lines(results: list[dict]) -> list[str]:
     """One BURST line for each graded burst or change in flight: its names' worst time to durable, its target."""
     out = []
@@ -474,6 +497,24 @@ def burst_table(results: list[dict]) -> list[str]:
     return lines
 
 
+def bind_table(results: list[dict]) -> list[str]:
+    """The bind groups' section of the table (bind_save.py): each one's worst command, its target, its saves, the cut."""
+    import bind_save
+    rows = [(g['group'], g['bind']) for g in results if g.get('bind')]
+    if not rows:
+        return []
+    lines = ['', 'Binding changes from their response to durable (bind_save.py; the binding class\'s 100 ms window, '
+             'Milan v1.2 5.5.3.5.3):', '',
+             '| Group | Commands | Latest, ms (sink) | Target ms | Saves | Frames | Erases | Not as commanded at the '
+             'cut | Verdict |', '|---|---:|---:|---:|---:|---:|---:|---|---|']
+    for group, b in rows:
+        worst = f"{b['worst_ms']:.3f} ({b['worst_sink']})" if b['worst_ms'] is not None else 'never'
+        lines.append(f"| {group} | {b['commands']} | {worst} | {b['target_ms']:,} | {b['saves']} | {b['frames']} | "
+                     f"{b['erases']} | {', '.join(map(str, b['missing'])) or '-'} | "
+                     f"{'OVER' if bind_save.misses(b, group) else 'within'} |")
+    return lines
+
+
 def step_table(results: list[dict]) -> list[str]:
     """The store's steps' section of the table: each group's passes that carry a step (save_grade.step_figures)."""
     rows = [(g['group'], g['passes']['steps']) for g in results if g['passes'].get('steps', {}).get('passes')]
@@ -554,6 +595,7 @@ def table(results: list[dict], point: str, clock: str = '') -> str:
     lines += aged_table(results)
     lines += save_table(results)
     lines += burst_table(results)
+    lines += bind_table(results)
     lines += notice_table(results)
     lines += step_table(results)
     lines += ['', '| Path | Probe | CPU cycles | ms | Budget (+W) ms | Ceiling ms | Verdict | Taking pass cycles '
@@ -946,8 +988,10 @@ def main() -> int:
         print('BUDGET', line)
     for line in shares:
         print('SHARE', line)
-    late = save_misses(results) + burst_misses(results)
+    late = save_misses(results) + burst_misses(results) + bind_misses(results)
     print_bursts(results)
+    for line in bind_lines(results):
+        print(line)
     stepped = [(g['group'], g['passes']['steps']) for g in results if g['passes'].get('steps', {}).get('passes')]
     if stepped:
         group, top = max(stepped, key=lambda r: r[1]['cycles'])

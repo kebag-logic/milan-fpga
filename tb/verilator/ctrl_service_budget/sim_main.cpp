@@ -86,7 +86,19 @@ struct Step { std::string op; std::vector<std::string> args; };
 
 class Bench {
 public:
-    Bench(const char* script, const char* flash_image) : flash_(0, 0) {
+    // The part's erase and page-program times, from BUDGET_FLASH_US "erase:program" in microseconds (none by default:
+    // a save is then measured as the CPU's and the loop's own work).
+    static std::uint64_t flash_cycles(unsigned part) {
+        const char* text = std::getenv("BUDGET_FLASH_US");
+        if (text == nullptr) return 0;
+        char* end = nullptr;
+        const std::uint64_t erase = std::strtoull(text, &end, 10);
+        if (end == text || *end != ':') throw std::runtime_error("BUDGET_FLASH_US is erase:program in microseconds");
+        const std::uint64_t program = std::strtoull(end + 1, nullptr, 10);
+        return (part == 0 ? erase : program) * (sys_hz / 1000000);
+    }
+
+    Bench(const char* script, const char* flash_image) : flash_(flash_cycles(0), flash_cycles(1)) {
         // The store's journal is the flash map's (budget_config.hpp), the KLJ3 journal at the split placement
         // (#823): the device refuses a write outside it, and its reads are the FLASHRD runs below.
         flash_.journal(journal_offset, journal_size);
