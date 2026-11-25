@@ -1,0 +1,6 @@
+NO_POST_PROGRAM_READ input_reads= [(800, 900, 14942720, 64)] merged_reads= [(800, 900, 14942720, 64)] durable= None
+FULL_POST_PROGRAM_CONTROL input_reads= [(800, 900, 14942720, 64), (1100, 1200, 14942720, 64)] merged_reads= [(800, 1200, 14942720, 64)] durable= 1200
+ONLY_FOUR_BYTES_AFTER_PROGRAM input_reads= [(800, 900, 14942720, 64), (1100, 1200, 14942720, 4)] merged_reads= [(800, 1200, 14942720, 64)] durable= 1200
+REPRODUCED: a 64-byte frame is credited as verified after only four post-program bytes.
+FULL_RECONSTRUCTION [{'kind': 'whole', 'start': 100, 'base': 14942208, 'durable': 1200, 'seq': 5}, {'kind': 'frame', 'start': 1000, 'base': 14942208, 'durable': 1200, 'seq': 7}]
+REPRODUCED with valid frame and reconstructed container: full save grade also credits partial verification.

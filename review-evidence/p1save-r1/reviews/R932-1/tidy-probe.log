@@ -1,0 +1,206 @@
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+SHAPE endstation_ax7101_1x1_tdm8 contract_pass False
+[==========] Running 6 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 6 tests from Ports/NvmBoth
+[ RUN      ] Ports/NvmBoth.maintenance_capture_first_failure/model
+CAPTURED_CHANGE_FIRST_FAILURE {'abandoned': 0, 'abandoned_vd': 0, 'applied': 54, 'attempts': 0, 'auth': 1, 'bad': 0, 'bind_cause': 0, 'bind_terminal': 1, 'blank': 0, 'calls': 1049, 'cause': 0, 'clock_hz': 100000000, 'commit_refused': 0, 'commit_tries': 0, 'deferred': 0, 'deltas': 1, 'descending': 0, 'dirty': 0, 'effects': 1, 'erases': 0, 'exhausted': 0, 'failed': 1, 'first': 0, 'img_len': 3444, 'last': 11, 'legacy': 0, 'ls_call_ticks': 200000, 'ls_hung': 0, 'ls_max_withheld': 0, 'ls_no_wel': 0, 'ls_pp': 0, 'ls_refused': 0, 'ls_se': 0, 'ls_short': 0, 'ls_stalled': 0, 'ls_unknown': 0, 'ls_wren': 0, 'max_call_us': 44, 'max_polls_call': 1, 'max_read': 64, 'n_dirty': 0, 'n_inflight': 1, 'n_rec': 54, 'now_ms': 116, 'ok': 1, 'outside': 0, 'pagewrap': 0, 'pending': 1, 'phase': 1, 'programs': 1, 'protected': 0, 'read_faults': 0, 'refused': 0, 'releases': 1, 'seq': 36, 'seq_a': 35, 'seq_b': 6, 'skipped': 0, 'sm_applied': 54, 'sm_applies': 54, 'sm_order': 0, 'sm_refused': 0, 'sm_releases': 1, 'sm_rollbacks': 0, 'sm_settles': 1, 'sm_unbinds': 0, 'stale': 0, 'step_bound': 280, 'step_max': 256, 'step_owing': 0, 'steps': 1049, 'terminal': 1, 'tidied': 1, 'unread': 0, 'vd_a': 0, 'vd_b': 0, 'while_busy': 0, 'withheld': 0}
+$REVIEWS/p1save-r932-1-packet/probe_tidy.cpp:25: Failure
+Expected equality of these values:
+  r.at("stale")
+    Which is: 0
+  1
+A captured change failed to reach durable storage
+
+  [FAIL] Ports/NvmBoth.maintenance_capture_first_failure/model: A captured change failed to reach durable storage
+$REVIEWS/p1save-r932-1-packet/probe_tidy.cpp:26: Failure
+Expected equality of these values:
+  r.at("attempts")
+    Which is: 0
+  1
+The failed captured work set owes one attempt
+
+  [FAIL] Ports/NvmBoth.maintenance_capture_first_failure/model: The failed captured work set owes one attempt
+[  FAILED  ] Ports/NvmBoth.maintenance_capture_first_failure/model, where GetParam() = 4-byte object <00-00 00-00> (9 ms)
+[ RUN      ] Ports/NvmBoth.maintenance_capture_first_failure/litespi
+CAPTURED_CHANGE_FIRST_FAILURE {'abandoned': 0, 'abandoned_vd': 0, 'applied': 54, 'attempts': 0, 'auth': 1, 'bad': 0, 'bind_cause': 0, 'bind_terminal': 1, 'blank': 0, 'calls': 1051, 'cause': 0, 'clock_hz': 100000000, 'commit_refused': 0, 'commit_tries': 0, 'deferred': 0, 'deltas': 1, 'descending': 0, 'dirty': 0, 'effects': 1, 'erases': 0, 'exhausted': 0, 'failed': 1, 'first': 0, 'img_len': 3444, 'last': 11, 'legacy': 0, 'ls_call_ticks': 200000, 'ls_hung': 0, 'ls_max_withheld': 0, 'ls_no_wel': 0, 'ls_pp': 1, 'ls_refused': 1, 'ls_se': 1, 'ls_short': 0, 'ls_stalled': 0, 'ls_unknown': 0, 'ls_wren': 2, 'max_call_us': 56, 'max_polls_call': 3, 'max_read': 0, 'n_dirty': 0, 'n_inflight': 1, 'n_rec': 54, 'now_ms': 105, 'ok': 1, 'outside': 0, 'pagewrap': 0, 'pending': 1, 'phase': 1, 'programs': 1, 'protected': 0, 'read_faults': 0, 'refused': 0, 'releases': 1, 'seq': 36, 'seq_a': 35, 'seq_b': 6, 'skipped': 0, 'sm_applied': 54, 'sm_applies': 54, 'sm_order': 0, 'sm_refused': 0, 'sm_releases': 1, 'sm_rollbacks': 0, 'sm_settles': 1, 'sm_unbinds': 0, 'stale': 0, 'step_bound': 280, 'step_max': 256, 'step_owing': 0, 'steps': 1051, 'terminal': 1, 'tidied': 1, 'unread': 0, 'vd_a': 0, 'vd_b': 0, 'while_busy': 0, 'withheld': 0}
+$REVIEWS/p1save-r932-1-packet/probe_tidy.cpp:25: Failure
+Expected equality of these values:
+  r.at("stale")
+    Which is: 0
+  1
+A captured change failed to reach durable storage
+
+  [FAIL] Ports/NvmBoth.maintenance_capture_first_failure/litespi: A captured change failed to reach durable storage
+$REVIEWS/p1save-r932-1-packet/probe_tidy.cpp:26: Failure
+Expected equality of these values:
+  r.at("attempts")
+    Which is: 0
+  1
+The failed captured work set owes one attempt
+
+  [FAIL] Ports/NvmBoth.maintenance_capture_first_failure/litespi: The failed captured work set owes one attempt
+[  FAILED  ] Ports/NvmBoth.maintenance_capture_first_failure/litespi, where GetParam() = 4-byte object <01-00 00-00> (5 ms)
+[ RUN      ] Ports/NvmBoth.maintenance_capture_retry_count/model
+CAPTURED_CHANGE_ALL_FAILURES {'abandoned': 1, 'abandoned_vd': 11, 'applied': 54, 'attempts': 3, 'auth': 1, 'bad': 0, 'bind_cause': 0, 'bind_terminal': 1, 'blank': 0, 'calls': 21098, 'cause': 0, 'clock_hz': 100000000, 'commit_refused': 0, 'commit_tries': 0, 'deferred': 0, 'deltas': 1, 'descending': 0, 'dirty': 0, 'effects': 1, 'erases': 0, 'exhausted': 1, 'failed': 4, 'first': 11, 'img_len': 3444, 'last': 11, 'legacy': 0, 'ls_call_ticks': 200000, 'ls_hung': 0, 'ls_max_withheld': 0, 'ls_no_wel': 0, 'ls_pp': 0, 'ls_refused': 0, 'ls_se': 0, 'ls_short': 0, 'ls_stalled': 0, 'ls_unknown': 0, 'ls_wren': 0, 'max_call_us': 44, 'max_polls_call': 1, 'max_read': 64, 'n_dirty': 0, 'n_inflight': 1, 'n_rec': 54, 'now_ms': 2121, 'ok': 1, 'outside': 0, 'pagewrap': 0, 'pending': 1, 'phase': 1, 'programs': 1, 'protected': 0, 'read_faults': 0, 'refused': 0, 'releases': 1, 'seq': 36, 'seq_a': 35, 'seq_b': 6, 'skipped': 0, 'sm_applied': 54, 'sm_applies': 54, 'sm_order': 0, 'sm_refused': 0, 'sm_releases': 1, 'sm_rollbacks': 0, 'sm_settles': 1, 'sm_unbinds': 0, 'stale': 1, 'step_bound': 280, 'step_max': 256, 'step_owing': 0, 'steps': 21098, 'terminal': 1, 'tidied': 1, 'unread': 0, 'vd_a': 0, 'vd_b': 0, 'while_busy': 0, 'withheld': 0}
+FAILURE_US 0 116128
+FAILURE_US 1 117828
+FAILURE_US 2 1119428
+FAILURE_US 3 2121028
+$REVIEWS/p1save-r932-1-packet/probe_tidy.cpp:37: Failure
+Expected equality of these values:
+  r.at("failed")
+    Which is: 4
+  3
+DR2c allows three attempts including the first
+
+  [FAIL] Ports/NvmBoth.maintenance_capture_retry_count/model: DR2c allows three attempts including the first
+$REVIEWS/p1save-r932-1-packet/probe_tidy.cpp:39: Failure
+Expected: (r.fail_at[1] - r.fail_at[0]) >= (1000000u), actual: 1700 vs 1000000
+
+  [FAIL] Ports/NvmBoth.maintenance_capture_retry_count/model: Expected: (r.fail_at[1] - r.fail_at[0]) >= (1000000u), actual: 1700 vs 1000000
+[  FAILED  ] Ports/NvmBoth.maintenance_capture_retry_count/model, where GetParam() = 4-byte object <00-00 00-00> (6 ms)
+[ RUN      ] Ports/NvmBoth.maintenance_capture_retry_count/litespi
+CAPTURED_CHANGE_ALL_FAILURES {'abandoned': 1, 'abandoned_vd': 11, 'applied': 54, 'attempts': 3, 'auth': 1, 'bad': 0, 'bind_cause': 0, 'bind_terminal': 1, 'blank': 0, 'calls': 21092, 'cause': 0, 'clock_hz': 100000000, 'commit_refused': 0, 'commit_tries': 0, 'deferred': 0, 'deltas': 1, 'descending': 0, 'dirty': 0, 'effects': 1, 'erases': 0, 'exhausted': 1, 'failed': 4, 'first': 11, 'img_len': 3444, 'last': 11, 'legacy': 0, 'ls_call_ticks': 200000, 'ls_hung': 0, 'ls_max_withheld': 0, 'ls_no_wel': 0, 'ls_pp': 1, 'ls_refused': 4, 'ls_se': 4, 'ls_short': 0, 'ls_stalled': 0, 'ls_unknown': 0, 'ls_wren': 5, 'max_call_us': 56, 'max_polls_call': 3, 'max_read': 0, 'n_dirty': 0, 'n_inflight': 1, 'n_rec': 54, 'now_ms': 2111, 'ok': 1, 'outside': 0, 'pagewrap': 0, 'pending': 1, 'phase': 1, 'programs': 1, 'protected': 0, 'read_faults': 0, 'refused': 0, 'releases': 1, 'seq': 36, 'seq_a': 35, 'seq_b': 6, 'skipped': 0, 'sm_applied': 54, 'sm_applies': 54, 'sm_order': 0, 'sm_refused': 0, 'sm_releases': 1, 'sm_rollbacks': 0, 'sm_settles': 1, 'sm_unbinds': 0, 'stale': 1, 'step_bound': 280, 'step_max': 256, 'step_owing': 0, 'steps': 21092, 'terminal': 1, 'tidied': 1, 'unread': 0, 'vd_a': 0, 'vd_b': 0, 'while_busy': 0, 'withheld': 0}
+FAILURE_US 0 105235
+FAILURE_US 1 107146
+FAILURE_US 2 1109057
+FAILURE_US 3 2110967
+$REVIEWS/p1save-r932-1-packet/probe_tidy.cpp:37: Failure
+Expected equality of these values:
+  r.at("failed")
+    Which is: 4
+  3
+DR2c allows three attempts including the first
+
+  [FAIL] Ports/NvmBoth.maintenance_capture_retry_count/litespi: DR2c allows three attempts including the first
+$REVIEWS/p1save-r932-1-packet/probe_tidy.cpp:39: Failure
+Expected: (r.fail_at[1] - r.fail_at[0]) >= (1000000u), actual: 1911 vs 1000000
+
+  [FAIL] Ports/NvmBoth.maintenance_capture_retry_count/litespi: Expected: (r.fail_at[1] - r.fail_at[0]) >= (1000000u), actual: 1911 vs 1000000
+[  FAILED  ] Ports/NvmBoth.maintenance_capture_retry_count/litespi, where GetParam() = 4-byte object <01-00 00-00> (6 ms)
+[ RUN      ] Ports/NvmBoth.maintenance_without_change_control/model
+EMPTY_MAINTENANCE_CONTROL {'abandoned': 0, 'abandoned_vd': 0, 'applied': 54, 'attempts': 0, 'auth': 1, 'bad': 0, 'bind_cause': 0, 'bind_terminal': 1, 'blank': 0, 'calls': 1048, 'cause': 0, 'clock_hz': 100000000, 'commit_refused': 0, 'commit_tries': 0, 'deferred': 0, 'deltas': 1, 'descending': 0, 'dirty': 0, 'effects': 1, 'erases': 0, 'exhausted': 0, 'failed': 1, 'first': 0, 'img_len': 3444, 'last': 11, 'legacy': 0, 'ls_call_ticks': 200000, 'ls_hung': 0, 'ls_max_withheld': 0, 'ls_no_wel': 0, 'ls_pp': 0, 'ls_refused': 0, 'ls_se': 0, 'ls_short': 0, 'ls_stalled': 0, 'ls_unknown': 0, 'ls_wren': 0, 'max_call_us': 44, 'max_polls_call': 1, 'max_read': 64, 'n_dirty': 0, 'n_inflight': 0, 'n_rec': 54, 'now_ms': 116, 'ok': 1, 'outside': 0, 'pagewrap': 0, 'pending': 0, 'phase': 1, 'programs': 1, 'protected': 0, 'read_faults': 0, 'refused': 0, 'releases': 1, 'seq': 36, 'seq_a': 35, 'seq_b': 6, 'skipped': 0, 'sm_applied': 54, 'sm_applies': 54, 'sm_order': 0, 'sm_refused': 0, 'sm_releases': 1, 'sm_rollbacks': 0, 'sm_settles': 1, 'sm_unbinds': 0, 'stale': 0, 'step_bound': 280, 'step_max': 256, 'step_owing': 0, 'steps': 1048, 'terminal': 1, 'tidied': 1, 'unread': 0, 'vd_a': 0, 'vd_b': 0, 'while_busy': 0, 'withheld': 0}
+[       OK ] Ports/NvmBoth.maintenance_without_change_control/model (5 ms)
+[ RUN      ] Ports/NvmBoth.maintenance_without_change_control/litespi
+EMPTY_MAINTENANCE_CONTROL {'abandoned': 0, 'abandoned_vd': 0, 'applied': 54, 'attempts': 0, 'auth': 1, 'bad': 0, 'bind_cause': 0, 'bind_terminal': 1, 'blank': 0, 'calls': 1050, 'cause': 0, 'clock_hz': 100000000, 'commit_refused': 0, 'commit_tries': 0, 'deferred': 0, 'deltas': 1, 'descending': 0, 'dirty': 0, 'effects': 1, 'erases': 0, 'exhausted': 0, 'failed': 1, 'first': 0, 'img_len': 3444, 'last': 11, 'legacy': 0, 'ls_call_ticks': 200000, 'ls_hung': 0, 'ls_max_withheld': 0, 'ls_no_wel': 0, 'ls_pp': 1, 'ls_refused': 1, 'ls_se': 1, 'ls_short': 0, 'ls_stalled': 0, 'ls_unknown': 0, 'ls_wren': 2, 'max_call_us': 56, 'max_polls_call': 3, 'max_read': 0, 'n_dirty': 0, 'n_inflight': 0, 'n_rec': 54, 'now_ms': 105, 'ok': 1, 'outside': 0, 'pagewrap': 0, 'pending': 0, 'phase': 1, 'programs': 1, 'protected': 0, 'read_faults': 0, 'refused': 0, 'releases': 1, 'seq': 36, 'seq_a': 35, 'seq_b': 6, 'skipped': 0, 'sm_applied': 54, 'sm_applies': 54, 'sm_order': 0, 'sm_refused': 0, 'sm_releases': 1, 'sm_rollbacks': 0, 'sm_settles': 1, 'sm_unbinds': 0, 'stale': 0, 'step_bound': 280, 'step_max': 256, 'step_owing': 0, 'steps': 1050, 'terminal': 1, 'tidied': 1, 'unread': 0, 'vd_a': 0, 'vd_b': 0, 'while_busy': 0, 'withheld': 0}
+[       OK ] Ports/NvmBoth.maintenance_without_change_control/litespi (5 ms)
+[----------] 6 tests from Ports/NvmBoth (38 ms total)
+
+[----------] Global test environment tear-down
+  longest service call, model time: 56 us with no stall armed, 0 us with a command-master stall
+[==========] 6 tests from 1 test suite ran. (38 ms total)
+[  PASSED  ] 2 tests.
+[  FAILED  ] 4 tests, listed below:
+[  FAILED  ] Ports/NvmBoth.maintenance_capture_first_failure/model, where GetParam() = 4-byte object <00-00 00-00>
+[  FAILED  ] Ports/NvmBoth.maintenance_capture_first_failure/litespi, where GetParam() = 4-byte object <01-00 00-00>
+[  FAILED  ] Ports/NvmBoth.maintenance_capture_retry_count/model, where GetParam() = 4-byte object <00-00 00-00>
+[  FAILED  ] Ports/NvmBoth.maintenance_capture_retry_count/litespi, where GetParam() = 4-byte object <01-00 00-00>
+
+ 4 FAILED TESTS
+== maintenance capture fault probe: checks: 6   failures: 4 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 4 failure(s) across 6 checks, exit 1)
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+SHAPE endstation_ax7101_8x8 contract_pass False
+[==========] Running 6 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 6 tests from Ports/NvmBoth
+[ RUN      ] Ports/NvmBoth.maintenance_capture_first_failure/model
+CAPTURED_CHANGE_FIRST_FAILURE {'abandoned': 0, 'abandoned_vd': 0, 'applied': 172, 'attempts': 0, 'auth': 1, 'bad': 0, 'bind_cause': 0, 'bind_terminal': 1, 'blank': 0, 'calls': 1133, 'cause': 0, 'clock_hz': 100000000, 'commit_refused': 0, 'commit_tries': 0, 'deferred': 0, 'deltas': 1, 'descending': 0, 'dirty': 0, 'effects': 1, 'erases': 0, 'exhausted': 0, 'failed': 1, 'first': 0, 'img_len': 14240, 'last': 11, 'legacy': 0, 'ls_call_ticks': 200000, 'ls_hung': 0, 'ls_max_withheld': 0, 'ls_no_wel': 0, 'ls_pp': 0, 'ls_refused': 0, 'ls_se': 0, 'ls_short': 0, 'ls_stalled': 0, 'ls_unknown': 0, 'ls_wren': 0, 'max_call_us': 44, 'max_polls_call': 1, 'max_read': 64, 'n_dirty': 0, 'n_inflight': 1, 'n_rec': 172, 'now_ms': 152, 'ok': 1, 'outside': 0, 'pagewrap': 0, 'pending': 1, 'phase': 1, 'programs': 1, 'protected': 0, 'read_faults': 0, 'refused': 0, 'releases': 1, 'seq': 36, 'seq_a': 35, 'seq_b': 6, 'skipped': 0, 'sm_applied': 172, 'sm_applies': 172, 'sm_order': 0, 'sm_refused': 0, 'sm_releases': 1, 'sm_rollbacks': 0, 'sm_settles': 1, 'sm_unbinds': 0, 'stale': 0, 'step_bound': 1160, 'step_max': 256, 'step_owing': 0, 'steps': 1133, 'terminal': 1, 'tidied': 1, 'unread': 0, 'vd_a': 0, 'vd_b': 0, 'while_busy': 0, 'withheld': 0}
+$REVIEWS/p1save-r932-1-packet/probe_tidy.cpp:25: Failure
+Expected equality of these values:
+  r.at("stale")
+    Which is: 0
+  1
+A captured change failed to reach durable storage
+
+  [FAIL] Ports/NvmBoth.maintenance_capture_first_failure/model: A captured change failed to reach durable storage
+$REVIEWS/p1save-r932-1-packet/probe_tidy.cpp:26: Failure
+Expected equality of these values:
+  r.at("attempts")
+    Which is: 0
+  1
+The failed captured work set owes one attempt
+
+  [FAIL] Ports/NvmBoth.maintenance_capture_first_failure/model: The failed captured work set owes one attempt
+[  FAILED  ] Ports/NvmBoth.maintenance_capture_first_failure/model, where GetParam() = 4-byte object <00-00 00-00> (36 ms)
+[ RUN      ] Ports/NvmBoth.maintenance_capture_first_failure/litespi
+CAPTURED_CHANGE_FIRST_FAILURE {'abandoned': 0, 'abandoned_vd': 0, 'applied': 172, 'attempts': 0, 'auth': 1, 'bad': 0, 'bind_cause': 0, 'bind_terminal': 1, 'blank': 0, 'calls': 1135, 'cause': 0, 'clock_hz': 100000000, 'commit_refused': 0, 'commit_tries': 0, 'deferred': 0, 'deltas': 1, 'descending': 0, 'dirty': 0, 'effects': 1, 'erases': 0, 'exhausted': 0, 'failed': 1, 'first': 0, 'img_len': 14240, 'last': 11, 'legacy': 0, 'ls_call_ticks': 200000, 'ls_hung': 0, 'ls_max_withheld': 0, 'ls_no_wel': 0, 'ls_pp': 1, 'ls_refused': 1, 'ls_se': 1, 'ls_short': 0, 'ls_stalled': 0, 'ls_unknown': 0, 'ls_wren': 2, 'max_call_us': 55, 'max_polls_call': 3, 'max_read': 0, 'n_dirty': 0, 'n_inflight': 1, 'n_rec': 172, 'now_ms': 113, 'ok': 1, 'outside': 0, 'pagewrap': 0, 'pending': 1, 'phase': 1, 'programs': 1, 'protected': 0, 'read_faults': 0, 'refused': 0, 'releases': 1, 'seq': 36, 'seq_a': 35, 'seq_b': 6, 'skipped': 0, 'sm_applied': 172, 'sm_applies': 172, 'sm_order': 0, 'sm_refused': 0, 'sm_releases': 1, 'sm_rollbacks': 0, 'sm_settles': 1, 'sm_unbinds': 0, 'stale': 0, 'step_bound': 1160, 'step_max': 256, 'step_owing': 0, 'steps': 1135, 'terminal': 1, 'tidied': 1, 'unread': 0, 'vd_a': 0, 'vd_b': 0, 'while_busy': 0, 'withheld': 0}
+$REVIEWS/p1save-r932-1-packet/probe_tidy.cpp:25: Failure
+Expected equality of these values:
+  r.at("stale")
+    Which is: 0
+  1
+A captured change failed to reach durable storage
+
+  [FAIL] Ports/NvmBoth.maintenance_capture_first_failure/litespi: A captured change failed to reach durable storage
+$REVIEWS/p1save-r932-1-packet/probe_tidy.cpp:26: Failure
+Expected equality of these values:
+  r.at("attempts")
+    Which is: 0
+  1
+The failed captured work set owes one attempt
+
+  [FAIL] Ports/NvmBoth.maintenance_capture_first_failure/litespi: The failed captured work set owes one attempt
+[  FAILED  ] Ports/NvmBoth.maintenance_capture_first_failure/litespi, where GetParam() = 4-byte object <01-00 00-00> (24 ms)
+[ RUN      ] Ports/NvmBoth.maintenance_capture_retry_count/model
+CAPTURED_CHANGE_ALL_FAILURES {'abandoned': 1, 'abandoned_vd': 11, 'applied': 172, 'attempts': 3, 'auth': 1, 'bad': 0, 'bind_cause': 0, 'bind_terminal': 1, 'blank': 0, 'calls': 21308, 'cause': 0, 'clock_hz': 100000000, 'commit_refused': 0, 'commit_tries': 0, 'deferred': 0, 'deltas': 1, 'descending': 0, 'dirty': 0, 'effects': 1, 'erases': 0, 'exhausted': 1, 'failed': 4, 'first': 11, 'img_len': 14240, 'last': 11, 'legacy': 0, 'ls_call_ticks': 200000, 'ls_hung': 0, 'ls_max_withheld': 0, 'ls_no_wel': 0, 'ls_pp': 0, 'ls_refused': 0, 'ls_se': 0, 'ls_short': 0, 'ls_stalled': 0, 'ls_unknown': 0, 'ls_wren': 0, 'max_call_us': 44, 'max_polls_call': 1, 'max_read': 64, 'n_dirty': 0, 'n_inflight': 1, 'n_rec': 172, 'now_ms': 2169, 'ok': 1, 'outside': 0, 'pagewrap': 0, 'pending': 1, 'phase': 1, 'programs': 1, 'protected': 0, 'read_faults': 0, 'refused': 0, 'releases': 1, 'seq': 36, 'seq_a': 35, 'seq_b': 6, 'skipped': 0, 'sm_applied': 172, 'sm_applies': 172, 'sm_order': 0, 'sm_refused': 0, 'sm_releases': 1, 'sm_rollbacks': 0, 'sm_settles': 1, 'sm_unbinds': 0, 'stale': 1, 'step_bound': 1160, 'step_max': 256, 'step_owing': 0, 'steps': 21308, 'terminal': 1, 'tidied': 1, 'unread': 0, 'vd_a': 0, 'vd_b': 0, 'while_busy': 0, 'withheld': 0}
+FAILURE_US 0 152274
+FAILURE_US 1 158174
+FAILURE_US 2 1163974
+FAILURE_US 3 2169774
+$REVIEWS/p1save-r932-1-packet/probe_tidy.cpp:37: Failure
+Expected equality of these values:
+  r.at("failed")
+    Which is: 4
+  3
+DR2c allows three attempts including the first
+
+  [FAIL] Ports/NvmBoth.maintenance_capture_retry_count/model: DR2c allows three attempts including the first
+$REVIEWS/p1save-r932-1-packet/probe_tidy.cpp:39: Failure
+Expected: (r.fail_at[1] - r.fail_at[0]) >= (1000000u), actual: 5900 vs 1000000
+
+  [FAIL] Ports/NvmBoth.maintenance_capture_retry_count/model: Expected: (r.fail_at[1] - r.fail_at[0]) >= (1000000u), actual: 5900 vs 1000000
+[  FAILED  ] Ports/NvmBoth.maintenance_capture_retry_count/model, where GetParam() = 4-byte object <00-00 00-00> (26 ms)
+[ RUN      ] Ports/NvmBoth.maintenance_capture_retry_count/litespi
+CAPTURED_CHANGE_ALL_FAILURES {'abandoned': 1, 'abandoned_vd': 11, 'applied': 172, 'attempts': 3, 'auth': 1, 'bad': 0, 'bind_cause': 0, 'bind_terminal': 1, 'blank': 0, 'calls': 21302, 'cause': 0, 'clock_hz': 100000000, 'commit_refused': 0, 'commit_tries': 0, 'deferred': 0, 'deltas': 1, 'descending': 0, 'dirty': 0, 'effects': 1, 'erases': 0, 'exhausted': 1, 'failed': 4, 'first': 11, 'img_len': 14240, 'last': 11, 'legacy': 0, 'ls_call_ticks': 200000, 'ls_hung': 0, 'ls_max_withheld': 0, 'ls_no_wel': 0, 'ls_pp': 1, 'ls_refused': 4, 'ls_se': 4, 'ls_short': 0, 'ls_stalled': 0, 'ls_unknown': 0, 'ls_wren': 5, 'max_call_us': 55, 'max_polls_call': 3, 'max_read': 0, 'n_dirty': 0, 'n_inflight': 1, 'n_rec': 172, 'now_ms': 2132, 'ok': 1, 'outside': 0, 'pagewrap': 0, 'pending': 1, 'phase': 1, 'programs': 1, 'protected': 0, 'read_faults': 0, 'refused': 0, 'releases': 1, 'seq': 36, 'seq_a': 35, 'seq_b': 6, 'skipped': 0, 'sm_applied': 172, 'sm_applies': 172, 'sm_order': 0, 'sm_refused': 0, 'sm_releases': 1, 'sm_rollbacks': 0, 'sm_settles': 1, 'sm_unbinds': 0, 'stale': 1, 'step_bound': 1160, 'step_max': 256, 'step_owing': 0, 'steps': 21302, 'terminal': 1, 'tidied': 1, 'unread': 0, 'vd_a': 0, 'vd_b': 0, 'while_busy': 0, 'withheld': 0}
+FAILURE_US 0 113642
+FAILURE_US 1 119756
+FAILURE_US 2 1125870
+FAILURE_US 3 2131984
+$REVIEWS/p1save-r932-1-packet/probe_tidy.cpp:37: Failure
+Expected equality of these values:
+  r.at("failed")
+    Which is: 4
+  3
+DR2c allows three attempts including the first
+
+  [FAIL] Ports/NvmBoth.maintenance_capture_retry_count/litespi: DR2c allows three attempts including the first
+$REVIEWS/p1save-r932-1-packet/probe_tidy.cpp:39: Failure
+Expected: (r.fail_at[1] - r.fail_at[0]) >= (1000000u), actual: 6114 vs 1000000
+
+  [FAIL] Ports/NvmBoth.maintenance_capture_retry_count/litespi: Expected: (r.fail_at[1] - r.fail_at[0]) >= (1000000u), actual: 6114 vs 1000000
+[  FAILED  ] Ports/NvmBoth.maintenance_capture_retry_count/litespi, where GetParam() = 4-byte object <01-00 00-00> (26 ms)
+[ RUN      ] Ports/NvmBoth.maintenance_without_change_control/model
+EMPTY_MAINTENANCE_CONTROL {'abandoned': 0, 'abandoned_vd': 0, 'applied': 172, 'attempts': 0, 'auth': 1, 'bad': 0, 'bind_cause': 0, 'bind_terminal': 1, 'blank': 0, 'calls': 1132, 'cause': 0, 'clock_hz': 100000000, 'commit_refused': 0, 'commit_tries': 0, 'deferred': 0, 'deltas': 1, 'descending': 0, 'dirty': 0, 'effects': 1, 'erases': 0, 'exhausted': 0, 'failed': 1, 'first': 0, 'img_len': 14240, 'last': 11, 'legacy': 0, 'ls_call_ticks': 200000, 'ls_hung': 0, 'ls_max_withheld': 0, 'ls_no_wel': 0, 'ls_pp': 0, 'ls_refused': 0, 'ls_se': 0, 'ls_short': 0, 'ls_stalled': 0, 'ls_unknown': 0, 'ls_wren': 0, 'max_call_us': 44, 'max_polls_call': 1, 'max_read': 64, 'n_dirty': 0, 'n_inflight': 0, 'n_rec': 172, 'now_ms': 152, 'ok': 1, 'outside': 0, 'pagewrap': 0, 'pending': 0, 'phase': 1, 'programs': 1, 'protected': 0, 'read_faults': 0, 'refused': 0, 'releases': 1, 'seq': 36, 'seq_a': 35, 'seq_b': 6, 'skipped': 0, 'sm_applied': 172, 'sm_applies': 172, 'sm_order': 0, 'sm_refused': 0, 'sm_releases': 1, 'sm_rollbacks': 0, 'sm_settles': 1, 'sm_unbinds': 0, 'stale': 0, 'step_bound': 1160, 'step_max': 256, 'step_owing': 0, 'steps': 1132, 'terminal': 1, 'tidied': 1, 'unread': 0, 'vd_a': 0, 'vd_b': 0, 'while_busy': 0, 'withheld': 0}
+[       OK ] Ports/NvmBoth.maintenance_without_change_control/model (25 ms)
+[ RUN      ] Ports/NvmBoth.maintenance_without_change_control/litespi
+EMPTY_MAINTENANCE_CONTROL {'abandoned': 0, 'abandoned_vd': 0, 'applied': 172, 'attempts': 0, 'auth': 1, 'bad': 0, 'bind_cause': 0, 'bind_terminal': 1, 'blank': 0, 'calls': 1134, 'cause': 0, 'clock_hz': 100000000, 'commit_refused': 0, 'commit_tries': 0, 'deferred': 0, 'deltas': 1, 'descending': 0, 'dirty': 0, 'effects': 1, 'erases': 0, 'exhausted': 0, 'failed': 1, 'first': 0, 'img_len': 14240, 'last': 11, 'legacy': 0, 'ls_call_ticks': 200000, 'ls_hung': 0, 'ls_max_withheld': 0, 'ls_no_wel': 0, 'ls_pp': 1, 'ls_refused': 1, 'ls_se': 1, 'ls_short': 0, 'ls_stalled': 0, 'ls_unknown': 0, 'ls_wren': 2, 'max_call_us': 55, 'max_polls_call': 3, 'max_read': 0, 'n_dirty': 0, 'n_inflight': 0, 'n_rec': 172, 'now_ms': 113, 'ok': 1, 'outside': 0, 'pagewrap': 0, 'pending': 0, 'phase': 1, 'programs': 1, 'protected': 0, 'read_faults': 0, 'refused': 0, 'releases': 1, 'seq': 36, 'seq_a': 35, 'seq_b': 6, 'skipped': 0, 'sm_applied': 172, 'sm_applies': 172, 'sm_order': 0, 'sm_refused': 0, 'sm_releases': 1, 'sm_rollbacks': 0, 'sm_settles': 1, 'sm_unbinds': 0, 'stale': 0, 'step_bound': 1160, 'step_max': 256, 'step_owing': 0, 'steps': 1134, 'terminal': 1, 'tidied': 1, 'unread': 0, 'vd_a': 0, 'vd_b': 0, 'while_busy': 0, 'withheld': 0}
+[       OK ] Ports/NvmBoth.maintenance_without_change_control/litespi (26 ms)
+[----------] 6 tests from Ports/NvmBoth (166 ms total)
+
+[----------] Global test environment tear-down
+  longest service call, model time: 55 us with no stall armed, 0 us with a command-master stall
+[==========] 6 tests from 1 test suite ran. (166 ms total)
+[  PASSED  ] 2 tests.
+[  FAILED  ] 4 tests, listed below:
+[  FAILED  ] Ports/NvmBoth.maintenance_capture_first_failure/model, where GetParam() = 4-byte object <00-00 00-00>
+[  FAILED  ] Ports/NvmBoth.maintenance_capture_first_failure/litespi, where GetParam() = 4-byte object <01-00 00-00>
+[  FAILED  ] Ports/NvmBoth.maintenance_capture_retry_count/model, where GetParam() = 4-byte object <00-00 00-00>
+[  FAILED  ] Ports/NvmBoth.maintenance_capture_retry_count/litespi, where GetParam() = 4-byte object <01-00 00-00>
+
+ 4 FAILED TESTS
+== maintenance capture fault probe: checks: 6   failures: 4 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 4 failure(s) across 6 checks, exit 1)
