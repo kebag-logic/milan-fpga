@@ -263,7 +263,7 @@ so a mark costs the same in any pass. Each
 
 | Phase | One step |
 |---|---|
-| idle | after the 1,000 ms first-dirty window (DR2a) and any backoff, start a capture; or retry a failed work set; with no change waiting, write whole a slot whose frames' room is full (below) |
+| idle | after the first-dirty window of the change's class (1,000 ms, DR2a; 100 ms for a binding record, #1009) and any backoff, start a capture; or retry a failed work set; with no change waiting, write whole a slot whose frames' room is full (below) |
 | capture | latch ONE dirty record from its owner, compare it, frame it into the stage |
 | seal | decide (DR2b, DR2c below); then the header at the next sequence, then 256 bytes of CRC-32 per step; then, for a delta frame (below), the frame's header and span made in the payload buffer and its CRC-32 |
 | erase | start the erase of the next block the container spans, in the slot that is NOT authoritative; a delta frame erases nothing |
@@ -305,8 +305,10 @@ a frame cut short or bytes this store did not write, what it lacks is not
 known, or the frame does not fit the buffer or the room. A frame's span that
 does not read erased under an erased header makes the same save whole, in the
 same attempt. A failed attempt leaves its slot taking no frame until it is
-written whole. When the slot the next save goes to has less than two pages of
-room left and no change waits, the store writes it whole by itself (`tidied`
+written whole. When the slot the next save goes to has less room left than
+`NVM_DELTA_RESERVE`, two of the largest frames a change can make or half the
+room if that is less (6 pages at 8x8, 2 at 1x1 and the Arty shapes), and no
+change waits, the store writes it whole by itself (`tidied`
 in the status), so the next change's save is a frame again; a failure of that
 commit leaves its slot taking no frame, so it is not begun again, and leaves
 no claim stale.
@@ -354,17 +356,26 @@ both arms, with and without the drafts, the longest step is 96,579 cycles,
 #920's step a pass it is 78,825 cycles at 1x1/1if and 78,737 at 8x8/1if, over
 every group at each.
 
-A save at 1x1/1if takes 1,081.8 ms from the change to durable on a flash
+A SET_NAME's save at 1x1/1if takes 1,081.8 ms from the change to durable on a flash
 with no busy time, 1,308.8 ms at 8x8/1if: the 1,000 ms first-dirty window,
 then its steps a pass each (2,018 ms at 1x1 and 4,697 ms at 8x8/2if when it
 took a step a tick, before #920). A real part's erase and program waits add to
 it. No deadline of this store is that figure: the owner's 0.5 s (#823) belongs
 to the append-only design.
 
+A binding record's change (#1009) is durable 134.3 ms after its response at
+8x8/1if and 116.1 ms at 1x1/1if when its save is a delta frame, and 561.5 ms
+and 305.2 ms when it is a whole commit, with the part's erase and page times
+modelled (120 ms and 0.5 ms, calibrated on the board's 1.49 s for the base
+image's whole save; [the budget harness](../../../tb/verilator/ctrl_service_budget/README.md),
+`save-bind`), against #1009's acceptance of 250 ms and 800 ms; 64 binds in
+640 ms are 6 saves, every one a frame with no erase.
+
 **A change's worst case.** Under input that leaves no pass empty a step comes
 at most three ticks after the one before. With no save in flight a change is
-durable at most 1,000 ms after it plus 30 ms for each step of its save after
-that window (the step that starts the capture, one for each changed record and
+durable at most its window (1,000 ms; 100 ms for a binding record) after it plus
+30 ms for each step of its save after that window (the step that starts the
+capture, one for each changed record and
 one more, the seal's 256-byte stretches, the erase and its wait, the read-backs
 of the blank check and of the verify, each page's issue and its wait), and
 10 ms for the change's own pass and the ticks' dispatch (`nvm_store.h`). A
@@ -397,14 +408,19 @@ The atomicity rules, from section 7 and the D3 register:
   covered the whole container. A power cut at any step boots the old values
   or the new ones, never a mix.
 - **DR2a.** The window opens at the first change still waiting for a
-  capture. A change marked during a running capture joins it and opens no
-  window: one the capture has yet to reach, and one to a record no capture
+  capture: 1,000 ms, and 100 ms for a binding record (`NVM_G_BIND`: a bind,
+  an unbind, the started and stopped state; #1009, Milan v1.2 5.3.8.3 and
+  5.5.3.5.3). It is not restarted; a later change only brings its end nearer
+  (a binding change in a 1,000 ms window ends it 100 ms after itself), and
+  the save takes everything dirty. A change marked during a running capture
+  joins it and opens no window: one the capture has yet to reach, and one to a record no capture
   holds, for which the capture walks again from the first record, taking only
   such records, so it takes each record once and ends (#920). A change to a
   record the capture has taken, or one marked after the capture, is the next
   save's, which starts at the first idle step after the save in flight with no
-  window (#920; #665, the ruling of issuecomment-6899740728, item 1). A first
-  change keeps its 1,000 ms window.
+  window (#920; #665, the ruling of issuecomment-6899740728, item 1), except that
+  a binding record's change waits its 100 ms window even then (#1009). A first
+  change keeps its window.
 - **DR2c.** A failed attempt names its step (`VD_ERASE`, `VD_PROGRAM`,
   `VD_VERIFY`), keeps its records in flight and marks the claim stale. The
   captured work set gets three attempts in all, the first included. Each
@@ -691,9 +707,19 @@ under any shape header but the host suite's own, which alone defines
   - a console commit of nothing, and an erased record, as frames;
   - **the swept cut**: from a binding change to 3 s after it, a cut every
     10 ms and at the start and middle of each media effect, with an erase of
-    150 ms and a page of 0.5 ms, once as a frame and once written whole:
-    every cut boots the old binding or the new one, never neither, and the
-    next change commits and boots back.
+    150 ms and a page of 0.5 ms, as a frame, written whole, and as a frame
+    into the slot a full room's commit leaves: every cut boots the old
+    binding or the new one, never neither, always the new one from the
+    gate on (250 ms for a frame, 800 ms for a whole commit, #1009's
+    acceptance), and the next change commits and boots back.
+- **The first-dirty windows** ([`test/test_nvm_window.cpp`](test/test_nvm_window.cpp), #1009):
+  the binding record's 100 ms window beside the 1,000 ms of the records
+  above and below its block; the window not restarted; the earliest window
+  taking everything dirty; a binding change in flight opening the next
+  window while any other record's starts the next save at the first idle
+  step; the room's reserve to the page; a binding change in a full
+  room's commit; and a burst of 64 bindings, its saves, its erases and
+  its last values.
 - **Power loss.** `--powercut` cuts the power inside every media effect of a
   commit, at 0, 1/256, 1/2 and 255/256 of it, and during the read-back. It
   starts from blank media, one slot and two slots. Every case boots the old

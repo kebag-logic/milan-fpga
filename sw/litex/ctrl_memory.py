@@ -281,7 +281,7 @@ LEDGERED: dict[str, Ledgered] = {
                                         "98,928 B of sram, past 57.5, by the same rule: ROM debt of 2.0 RAMB36 owed "
                                         "to S14"),
     "8x8-two-interfaces": Ledgered("8x8, two interfaces", ((STAGE_SYMBOL, 14_250), ("image_allocation", 16)),
-                                   62.0, "lane S14, the hybrid XIP (#665 decision D3, rulings 6412739248 and "
+                                   62.5, "lane S14, the hybrid XIP (#665 decision D3, rulings 6412739248 and "
                                          "6425357821); 58.0 since a TX record's commit judges its own move, "
                                          "+112 to 120 B an image, with tsn-c-stack 715589c; 58.5, the cap of the "
                                          "owner's decision of 2026-11-12, since the KLJ3 stage's sram takes a 56th "
@@ -310,7 +310,11 @@ LEDGERED: dict[str, Ledgered] = {
                                          "probe also past 61.0), the stage 14,250 B, by the same rule: ROM debt of "
                                          "5.5 RAMB36 owed to S14; 62.0 with the saved-state store's delta frames "
                                          "(#1009): the fixture needs 136,392 B of rom and 116,448 B of sram, past "
-                                         "61.5, by the same rule: ROM debt of 6.0 RAMB36 owed to S14"),
+                                         "61.5, by the same rule: ROM debt of 6.0 RAMB36 owed to S14; 62.5 with "
+                                         "the binding class's first-dirty window (#1009): its declaring-outputs "
+                                         "arm needs 137,344 B of rom, 128 B past the 137,216 B 62.0 holds, its "
+                                         "other arms 62.0, by the same rule: ROM debt of 6.5 RAMB36 owed to "
+                                         "S14"),
     "platform-8x8-two-interfaces": Ledgered("target platform's 8x8, two interfaces",
                                             ((STAGE_SYMBOL, 14_250), ("ctrl_plat", 21_888)), 65.0,
                                             "lane S14, the hybrid XIP (#665 decision D3: the boot and the CSR "

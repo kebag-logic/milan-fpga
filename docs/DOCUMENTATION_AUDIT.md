@@ -27,18 +27,18 @@ Findings cite source lines at dev `1f29f189` and its submodule pins.
 
 | Status | Pages |
 |---|---:|
-| current | 186 |
+| current | 187 |
 | stale | 16 |
 | superseded | 0 |
 | obsolete | 21 |
-| **total** | **223** |
+| **total** | **224** |
 
 | Lane | Pages | Current | Stale | Superseded | Obsolete | Verified by D0 |
 |---|---:|---:|---:|---:|---:|---:|
 | archive | 22 | 1 | 0 | 0 | 21 | 0 |
 | design | 28 | 27 | 1 | 0 | 0 | 0 |
 | findings | 23 | 23 | 0 | 0 | 0 | 0 |
-| module READMEs | 88 | 88 | 0 | 0 | 0 | 0 |
+| module READMEs | 89 | 89 | 0 | 0 | 0 | 0 |
 | overview and guides | 21 | 19 | 2 | 0 | 0 | 12 |
 | reference | 23 | 11 | 12 | 0 | 0 | 18 |
 | repository contract | 4 | 4 | 0 | 0 | 0 | 0 |
@@ -66,9 +66,9 @@ The README count includes subdirectories.
 | `hdl/ieee8021as/` | no | 2 |
 | `hdl/ieee8021q/` | no | 2 |
 | `hdl/milan/` | yes | 2 |
-| `sw/` | yes | 12 |
+| `sw/` | yes | 13 |
 | `sw/builder/` | yes | 1 |
-| `sw/firmware/` | no | 8 |
+| `sw/firmware/` | no | 9 |
 | `sw/litex/` | no | 1 |
 | `sw/mailbox/` | no | 0 |
 | `sw/trace/` | yes | 1 |
@@ -111,7 +111,7 @@ Areas follow the directory tree.
 - [docs/testing](#docstesting) (12)
 - [docs/traceability](#docstraceability) (3)
 - [hdl](#hdl) (36)
-- [sw](#sw) (12)
+- [sw](#sw) (13)
 - [syn](#syn) (2)
 - [tb](#tb) (34)
 - [tests](#tests) (1)
@@ -401,7 +401,8 @@ Areas follow the directory tree.
 | [sw/firmware/ctrl/maap/README.md](../sw/firmware/ctrl/maap/README.md) | firmware developer | Bare-metal MAAP | `sw/firmware/ctrl`, `sw/firmware/gtest`, `third_party/tsn-c-stack`, Milan v1.2, 1722-2016 | current | no recorded contradiction | area lane | module READMEs |
 | [sw/firmware/ctrl/plat/README.md](../sw/firmware/ctrl/plat/README.md) | firmware developer | plat: the split placement's control firmware on its target (#665 S3) | `sw/firmware/ctrl`, `tb/verilator/ctrl_split_boot`, `sw/firmware/ctrl_nvm`, Milan v1.2, 1722.1-2021, 802.1AS | current | no recorded contradiction | area lane | module READMEs |
 | [sw/firmware/ctrl/srp/README.md](../sw/firmware/ctrl/srp/README.md) | firmware developer | Bare-metal MSRP and MVRP | `sw/firmware/ctrl`, `tb/verilator/ctrl_service_budget`, `configs`, Milan v1.2, 1722.1-2021, 802.1Q | current | no recorded contradiction | area lane | module READMEs |
-| [sw/firmware/ctrl_nvm/README.md](../sw/firmware/ctrl_nvm/README.md) | firmware developer | ctrl_nvm: the bare-metal saved-state store (#665 F1) | `sw/firmware/ctrl_nvm`, `sw/firmware/ctrl`, `scripts` | current | no recorded contradiction | area lane | module READMEs |
+| [sw/firmware/ctrl_nvm/README.md](../sw/firmware/ctrl_nvm/README.md) | firmware developer | ctrl_nvm: the bare-metal saved-state store (#665 F1) | `sw/firmware/ctrl_nvm`, `scripts`, `sw/firmware/ctrl`, Milan v1.2 | current | no recorded contradiction | area lane | module READMEs |
+| [sw/firmware/ctrl_nvm/test/data/2509db68/README.md](../sw/firmware/ctrl_nvm/test/data/2509db68/README.md) | firmware developer | A store written by 2509db68 | `sw/firmware/ctrl_nvm`, `tb/verilator/ctrl_service_budget` | current | no recorded contradiction | area lane | module READMEs |
 | [sw/firmware/gtest/README.md](../sw/firmware/gtest/README.md) | firmware developer | gtest: the host unit tests of the bare-metal firmware (#665 lane FT) | `sw/firmware/gtest`, `sw/firmware/ctrl`, `sw/firmware/ctrl_nvm` | current | no recorded contradiction | area lane | module READMEs |
 | [sw/firmware/nvm_hosttest/README.md](../sw/firmware/nvm_hosttest/README.md) | firmware developer | nvm_hosttest: the saved-state writer on a host model | `sw/firmware/nvm_hosttest`, `scripts`, `sw/firmware/milan_baremetal` | current | no recorded contradiction | area lane | module READMEs |
 | [sw/litex/patches/README.md](../sw/litex/patches/README.md) | maintainer | LiteX ecosystem patches | `sw/litex`, `tb/verilator/ctrl_region_decode`, `scripts` | current | no recorded contradiction | area lane | module READMEs |
@@ -430,7 +431,7 @@ Areas follow the directory tree.
 | [tb/verilator/csr/README.md](../tb/verilator/csr/README.md) | verification | CSR verification harness (`milan_csr` AXI4-Lite control plane) | `tb/verilator/csr`, `hdl/common/csr`, `tb/common` | current | no recorded contradiction | area lane | module READMEs |
 | [tb/verilator/ctrl_reboot/README.md](../tb/verilator/ctrl_reboot/README.md) | verification | REBOOT simulation (#871) | `tb/verilator/ctrl_reboot`, `hdl/milan`, `tb/tools`, Milan v1.2, 1722.1-2021 | current | no recorded contradiction | area lane | module READMEs |
 | [tb/verilator/ctrl_region_decode/README.md](../tb/verilator/ctrl_region_decode/README.md) | verification | Region-decode simulation (#791) | `tb/verilator/ctrl_region_decode`, `tb/verilator/ctrl_service_budget`, `sw/litex` | current | no recorded contradiction | area lane | module READMEs |
-| [tb/verilator/ctrl_service_budget/README.md](../tb/verilator/ctrl_service_budget/README.md) | verification | Split CPU service budget | `tb/verilator/ctrl_service_budget`, `tb/verilator/nvm_split_target`, `scripts`, Milan v1.2, 1722.1-2021, 1722-2016, 802.1Q | current | no recorded contradiction | area lane | module READMEs |
+| [tb/verilator/ctrl_service_budget/README.md](../tb/verilator/ctrl_service_budget/README.md) | verification | Split CPU service budget | `tb/verilator/ctrl_service_budget`, `sw/firmware/ctrl_nvm`, `tb/verilator/nvm_split_target`, Milan v1.2, 1722.1-2021, 1722-2016, 802.1Q | current | no recorded contradiction | area lane | module READMEs |
 | [tb/verilator/ctrl_service_hooks/README.md](../tb/verilator/ctrl_service_hooks/README.md) | verification | The F2-F5 timing hooks on the target core (#665 S5) | `tb/verilator/ctrl_service_hooks`, `tb/verilator/ctrl_service_budget`, `tb/verilator/ctrl_split_boot`, Milan v1.2, 1722.1-2021, 1722-2016, 802.1Q | current | no recorded contradiction | area lane | module READMEs |
 | [tb/verilator/ctrl_split_boot/README.md](../tb/verilator/ctrl_split_boot/README.md) | verification | Split boot simulation (#665 S3) | `tb/verilator/ctrl_split_boot`, `scripts`, `tb/verilator/ctrl_service_budget`, Milan v1.2 | current | no recorded contradiction | area lane | module READMEs |
 | [tb/verilator/fw_service_budget/README.md](../tb/verilator/fw_service_budget/README.md) | verification | Firmware service-budget measurement | `tb/verilator/fw_service_budget`, `tb/verilator/nvm_capture_cpu`, Milan v1.2 | current | no recorded contradiction | area lane | module READMEs |

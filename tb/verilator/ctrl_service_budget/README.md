@@ -134,6 +134,23 @@ Each miss is named by its group and fails the run whatever the options record (`
 Three planted defects (`save_window.PLANTS`) are save controls (`build.SAVE_CONTROLS`), each caught by its group's miss: `store-names-past-256-lost` (a record past the first 256 ids never reaches the store, as before #920), `store-step-only-owed` (the store steps only when a centisecond owes it, caught at 8x8/1if, where the burst is not durable within 5 s at that pace) and `store-next-save-waits` (the change in flight's next save waits for its window).
 The capture's join has no control here: with it left out, a change behind the cursor is the next save's, which starts at the first idle step, and the burst is still durable within 5 s at both points (7 saves where the join makes 6 at 8x8/1if, the latest name 1,366.7 ms after its response), so no group's target sees it; the store's units hold it (`test_nvm_write.cpp`, `capture_joins`).
 
+**A bind from its response to durable, with the part's busy times (#1009).**
+[`bind_save.py`](bind_save.py)'s groups run at the one-interface points and time a BIND_RX or UNBIND_RX from its response (the ACMP TX commit with its sequence_id) to the first durable save whose container holds the sink's binding record as the command left it, a whole commit or a delta frame (`save_burst.saves`), so the figure holds for a cut at any later instant.
+Milan v1.2 5.5.3.5.3 saves the binding parameters before the BIND_RX_RESPONSE and 5.3.8.3 counts the started and stopped state with them; the store captures a binding record 100 ms after its class's first change and every other record after 1,000 ms ([the store's README](../../../sw/firmware/ctrl_nvm/README.md), DR2a).
+`save-bind` binds one sink of a device with blank flash, so its save is the whole container; `save-bind-frame` writes both slots with a bind and its unbind, then binds again, a delta frame; `save-bind-burst` writes both slots, then binds and unbinds every sink in turn, 64 commands, one every 10 ms, each sink's last command timed, with the burst's saves and erases counted.
+The targets are #1009's acceptance: 800 ms for a whole commit, 250 ms for a frame and for the burst's commands; the journal at the cut must hold every sink's last value, and a group over its target, or one that leaves it missing, fails the run (`run.bind_misses`, the `BIND` lines).
+The harness models the part's erase and page-program times when `BUDGET_FLASH_US=erase:program` (microseconds) is set (`sim_main.cpp`), and has none by default, so the other groups' figures stay the CPU's and the loop's own.
+At `120000:500` the base image 2509db68's `save-bind` at 8x8/1if takes 1,451.5 ms against 1.490 to 1.502 s on the board; with it the fix's figures are:
+
+| Group | 8x8/1if | 1x1/1if | Target |
+|---|---:|---:|---:|
+| `save-bind`, the whole commit | 561.5 ms | 305.2 ms | 800 ms |
+| `save-bind-frame`, a delta frame | 134.3 ms | 116.1 ms | 250 ms |
+| `save-bind-burst`, 64 commands, the latest | 155.3 ms | 46.9 ms | 250 ms |
+| `save-bind-burst`, saves, frames, erases | 6, 6, 0 | 6, 6, 0 | |
+
+[`selftest_bind.py`](selftest_bind.py) grades the groups' checks on synthetic logs and plants defects in the grade ([`selftest_mutants_bind.py`](selftest_mutants_bind.py)).
+
 **A retried notice under sustained input.**
 [`notice_window.py`](notice_window.py)'s groups, `notice-retried-<k>`, time a change notice whose observation port does not answer and then answers.
 The time runs from the port's answer to the notice's last recipient's commit, against its 20 ms: min(T_svc, the 24 ms notification ceiling), with no extra budget at a retry ([FR_NFR.md 3.4.1](../../../docs/reference/FR_NFR.md#341-control-service-budget-and-normative-timing); THE RETRY in `ctrl_loop.h`, #665).
