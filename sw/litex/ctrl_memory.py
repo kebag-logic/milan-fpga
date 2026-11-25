@@ -286,7 +286,7 @@ LEDGERED: dict[str, Ledgered] = {
                                         "declaring-outputs past the 137,216 B 58.0 holds, by the same rule: ROM "
                                         "debt of 2.5 RAMB36 owed to S14"),
     "8x8-two-interfaces": Ledgered("8x8, two interfaces", ((STAGE_SYMBOL, 14_250), ("image_allocation", 16)),
-                                   62.0, "lane S14, the hybrid XIP (#665 decision D3, rulings 6412739248 and "
+                                   62.5, "lane S14, the hybrid XIP (#665 decision D3, rulings 6412739248 and "
                                          "6425357821); 58.0 since a TX record's commit judges its own move, "
                                          "+112 to 120 B an image, with tsn-c-stack 715589c; 58.5, the cap of the "
                                          "owner's decision of 2026-11-12, since the KLJ3 stage's sram takes a 56th "
@@ -317,7 +317,12 @@ LEDGERED: dict[str, Ledgered] = {
                                          "lwSRP's end-station options and the kept list's and held table's "
                                          "last-octet sets composed on the post-flip train: its arms plan 136,386 "
                                          "to 137,206 B of rom within 137,216 and 116,536 to 116,544 B of sram, by "
-                                         "the same rule: ROM debt of 6.0 RAMB36 owed to S14"),
+                                         "the same rule: ROM debt of 6.0 RAMB36 owed to S14; 62.5 with #977's pin "
+                                         "of tsn-c-stack f71c8870 (its ACMP completion cut, 512 B of rom an "
+                                         "image) and the hot list relearned on it: its arms plan 136,912 to "
+                                         "137,728 B of rom and 116,544 to 116,608 B of sram, answering-ports, "
+                                         "answering-every-port and declaring-outputs past the 137,216 B 62.0 "
+                                         "holds, by the same rule: ROM debt of 6.5 RAMB36 owed to S14"),
     "platform-8x8-two-interfaces": Ledgered("target platform's 8x8, two interfaces",
                                             ((STAGE_SYMBOL, 14_250), ("ctrl_plat", 22_016)), 65.0,
                                             "lane S14, the hybrid XIP (#665 decision D3: the boot and the CSR "

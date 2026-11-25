@@ -135,7 +135,7 @@ Two are 8x8 with two interfaces; the third, the target platform's 8x8 image with
 | Name in `ctrl_memory.LEDGERED` | Image | Its symbols | RAMB36 |
 |---|---|---|---:|
 | `8x8-one-interface` | the size fixture's, one interface | `nvm_stage` of 14,250 B, `image_allocation` of 8 B | 58.5 |
-| `8x8-two-interfaces` | the size fixture's | `nvm_stage` of 14,250 B, `image_allocation` of 16 B | 62.0 |
+| `8x8-two-interfaces` | the size fixture's | `nvm_stage` of 14,250 B, `image_allocation` of 16 B | 62.5 |
 | `platform-8x8-two-interfaces` | the target platform's | `nvm_stage` of 14,250 B, `ctrl_plat` of 22,016 B | 65.0 |
 | `platform-8x8-one-interface` | the target platform's, one interface | `nvm_stage` of 14,250 B, `ctrl_plat` of 19,264 B | 60.5 |
 
@@ -165,7 +165,8 @@ With the Talkers SRP keeps for StreamIDs no binding holds (#969), the two-interf
 On the post-flip composition train (#956, #957, #950, #954, #948, #584, #969, #973, #972) ([section 5](#5-fit)) each entry is its composed image's measured tiles by the same rule: the platform's two-interface image 64.5 (143,368 B of `rom` and 117,632 B of `sram`, `ctrl_plat` at 21,888 B), its one-interface image 59.5 (141,616 B and 100,096 B, `ctrl_plat` at 19,136 B), the size fixture's one-interface image 57.5 (its `declaring-outputs` arm, 133,128 B of `rom`; every other arm and plant 57.0) and its two-interface image 61.5 (every arm and plant).
 With #977's drain charge, sink index and lwSRP's end-station options composed on that train ([its ruling of 2026-11-23](https://github.com/kebag-logic/milan-fpga/issues/977#issuecomment-7091882145)), the platform's one-interface image is 60.5, its `rom` 145,448 B, 1,064 B past the 144,384 B that 59.5 holds, `ctrl_plat` at 19,200 B; its two-interface image stays 64.5, 145,048 B of `rom` and `ctrl_plat` at 21,952 B; and the size fixture's are 58.0 and 62.0, every arm's within them, by the same rule.
 With the kept list's and the held table's last-octet sets and their copies (#977; #969's rule of a kept record within the bound one), `ctrl_plat` is 18,240, 19,968, 19,264 and 22,016 B (1x1 and 8x8, one and two interfaces); the platform's two-interface image is 65.0, 145,736 B of `rom`, 328 B past the 145,408 B that 64.5 holds beside 117,760 B of `sram`; its one-interface image stays 60.5 (146,128 B of `rom`); the size fixture's one-interface image is 58.5, its `answering-ports` and `declaring-outputs` arms past the 137,216 B of `rom` that 58.0 holds (up to 137,630 B), and its two-interface image stays 62.0 (its arms up to 137,206 B of `rom`), by the same rule.
-Each image is refused half a tile past its entry, at 62.5 and 59.0 (the size fixture's), 65.5 and 61.0 (the platform's).
+With #977's pin of tsn-c-stack `f71c8870` (its ACMP completion cut, 512 B of `rom` an image) and the hot list relearned on it, the size fixture's two-interface image is 62.5: its `answering-ports`, `answering-every-port` and `declaring-outputs` arms plan 137,228 to 137,728 B of `rom`, past the 137,216 B that 62.0 holds, its other arms 136,912 to 137,136 B, and 116,544 to 116,608 B of `sram`, by the same rule: ROM debt of 6.5 RAMB36 owed to S14. Its one-interface image stays 58.5 (137,368 to 138,152 B of `rom`), and the platform's images stay 65.0 and 60.5 (146,256 and 146,648 B of `rom`, `ctrl_plat` unchanged; `plat_ledger.py` at `7c300127`).
+Each image is refused half a tile past its entry, at 63.0 and 59.0 (the size fixture's), 65.5 and 61.0 (the platform's).
 
 Each override recognises its image by the image's own symbols.
 `nvm_stage` is the 8x8 shape's staging buffer.
