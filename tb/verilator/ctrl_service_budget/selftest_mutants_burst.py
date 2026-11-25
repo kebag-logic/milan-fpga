@@ -10,6 +10,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 import save_burst
+import save_grade
 
 
 def _burst_cut_any_slot(path: Path, image: int, base: int) -> tuple:
@@ -29,6 +30,13 @@ MUTANTS: dict[str, Callable[[], list]] = {
         save_burst, 'journal', _burst_cut_any_slot)],
     "burst: a SET_NAME's status is not read": lambda: [patch.object(
         save_burst, 'responses', lambda log, _r=save_burst.responses: {k: (c, 0) for k, (c, _) in _r(log).items()})],
+    'burst: a delta frame is not a save': lambda: [patch.object(
+        save_burst, 'frame_saves', lambda log, image, blocks: [])],
+    "burst: a slot's delta frames are not applied": lambda: [patch.object(
+        save_burst, 'slot_state', lambda slot, image: (save_burst.accepted(bytes(slot[:image]), image),
+                                                       bytes(slot[:image])))],
+    "save: a whole save's pages run to the next erase, a delta frame's with them": lambda: [patch.object(
+        save_grade, 'container_end', lambda log, erase, stop, base: None)],
     "flight: the next save's steps are not counted": lambda: [patch.object(
         save_burst, 'next_steps', lambda log, done, spec, image: dict(steps=0, want=0, gap_ms=0))],
 }

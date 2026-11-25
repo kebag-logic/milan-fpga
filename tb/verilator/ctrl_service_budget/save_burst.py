@@ -25,10 +25,11 @@ of the entity to another value. Its records are in flight in the first save, so 
 at the first idle step after the first (nvm_store.c, nvm_mark and nvm_idle).
 
 THE GRADE. Each save is read off the testbench's flash lines: its erase (FLASHOP), the bytes each page program left
-(FLASHDATA), and the read-backs after its last page, the verify, which make it durable (save_grade.first_save). Its
-container is the programmed pages over an erased slot, accepted when its magic, length and CRC-32 close (KLJ3,
-nvm_klj2.c), and a name is in it when its layout 3 frame (nvm_layout3.h: the NAME block's base and the ordinal) carries
-the value with a closing crc16. A change is durable at the first durable save whose container holds its value, timed
+(FLASHDATA), and the read-backs after its last page, the verify, which make it durable (save_grade.first_save); or,
+with no erase, a delta frame's pages into a slot's room past its container (#1009, frame_saves). Its container is
+the slot's once its pages are in, the slot's block replayed from the log with its frames applied (slot_state),
+accepted when its magic, length and CRC-32 close (KLJ3, nvm_klj2.c), and a name is in it when its layout 3 frame
+(nvm_layout3.h: the NAME block's base and the ordinal) carries the value with a closing crc16. A change is durable at the first durable save whose container holds its value, timed
 from its SET_NAME's response (the AECP TX commit with its sequence_id), which must be SUCCESS. At the cut the journal's
 authoritative container (section 7: the newer accepted slot) must hold every name. `save-flight` must also take no step
 between the first save's verify and the next save's erase but the next save's capture and seal: its capture starts at
@@ -67,6 +68,10 @@ SET_NAME, GET_NAME = 0x0010, 0x0011
 SEQ = 0x9000
 #: KLJ3 (nvm_shape.h, nvm_klj2.c): the magic, the header and trailer, and the layout 3 frame's magic and version.
 KLJ3_MAGIC, KLJ_HDR, TRAILER = 0x334A4C4B, 40, 4
+#: A delta frame (nvm_shape.h, #1009): KLJ3's minor that takes them, the frame's magic, version and header, the flash
+#: page its frames are aligned to, the most room a slot gives them past its container, and the erase block both are in.
+KLJ3_MINOR1, KLD3_MAGIC, KLD3_VER, DHDR = 0x0003_0001, 0x33444C4B, 0x0001_0000, 28
+PAGE, ROOM_MAX, BLOCK = 256, 4096, 0x10000
 REC_MAGIC, LAYOUT, NAME_BYTES = 0x1722, 3, 64
 
 
@@ -265,26 +270,124 @@ def held_names(blob: bytes, image: int, base: int) -> dict[int, bytes]:
         at += 1
 
 
+def frame_len(n: int) -> int:
+    """A delta frame's length for a span of n bytes: its header, the span padded to a word, its CRC-32."""
+    return DHDR + ((n + 3) & ~3) + TRAILER
+
+
+def delta_room(image: int) -> tuple[int, int]:
+    """A slot's room for delta frames: from the first page past its container to ROOM_MAX on, inside its block."""
+    start = -(-image // PAGE) * PAGE
+    return start, start + min(BLOCK - start, ROOM_MAX)
+
+
+def slot_state(slot: bytes, image: int) -> tuple[int | None, bytes]:
+    """A slot's state as the store's boot reads it (nvm_store.c, nvm_chain; #1009): its container, accepted, then
+    while the next frame in its room is of the kind, follows the sequence before, is newer, carries a span inside the
+    container and fits the room, and its CRC-32 closes, that span copied over the container with the frame's sequence
+    and trailer, and the result accepted again, else the slot is refused. A container of another minor takes no frame.
+    (its sequence, or None when refused, and the container)."""
+    blob = bytes(slot[:image])
+    seq = accepted(blob, image)
+    if seq is None or struct.unpack_from('<I', blob, 4)[0] != KLJ3_MINOR1:
+        return seq, blob
+    pos, end = delta_room(image)
+    while pos + DHDR <= end:
+        magic, ver, nseq, prev, off, n, crc = struct.unpack_from('<7I', slot, pos)
+        if (magic != KLD3_MAGIC or ver != KLD3_VER or prev != seq or not 0 < (nseq - seq) % (1 << 32) < 1 << 31
+                or not KLJ_HDR <= off <= image - TRAILER or n > image - TRAILER - off or frame_len(n) > end - pos):
+            break
+        frame = slot[pos:pos + frame_len(n)]
+        if zlib.crc32(frame[:-TRAILER]) != struct.unpack_from('<I', frame, len(frame) - TRAILER)[0]:
+            break
+        out = bytearray(blob)
+        out[off:off + n] = frame[DHDR:DHDR + n]
+        struct.pack_into('<I', out, 8, nseq)
+        struct.pack_into('<I', out, image - TRAILER, crc)
+        if accepted(bytes(out), image) != nseq:
+            return None, b''
+        blob, seq = bytes(out), nseq
+        pos += -(-len(frame) // PAGE) * PAGE
+    return seq, blob
+
+
+def frame_saves(log: grader.Log, image: int, blocks: list[int]) -> list[dict]:
+    """Every delta frame the log shows (#1009): the page programs into a slot's room from the first, whose bytes
+    begin with the frame's kind, until the frame's length its header gives; its slot's block the erased block that
+    holds it; durable at the read-back after its last page, before the next save, that completes reading back every
+    byte it programmed (as save_grade.first_save's verify)."""
+    import grade
+    import save_grade
+    room = delta_room(image)
+    kind = struct.pack('<2I', KLD3_MAGIC, KLD3_VER)
+    head = {(c, a): d for c, a, d in log.programmed}
+    out, left = [], 0
+    for c, op, a, n in sorted(log.flash_ops):
+        if op != grade.FLASH_PROGRAM:
+            continue
+        base = next((b for b in blocks if b <= a < b + BLOCK), a - a % BLOCK)
+        if not room[0] <= a - base < room[1]:
+            continue
+        data = head.get((c, a), b'')
+        if left > 0 and out and out[-1]['base'] == base:
+            out[-1]['pages'].append((c, a, n))
+        elif data[:8] == kind and len(data) >= DHDR:
+            left = frame_len(struct.unpack_from('<I', data, 20)[0])
+            out.append(dict(kind='frame', start=c, base=base, pages=[(c, a, n)]))
+        else:
+            continue
+        left -= n
+    starts = sorted([c for c, op, _, _ in log.flash_ops if op == grade.FLASH_ERASE] + [s['start'] for s in out])
+    reads = save_grade.merged_reads(log)
+    for s in out:
+        lo, total, last = s['pages'][0][1], sum(n for *_, n in s['pages']), s['pages'][-1][0]
+        stop = next((c for c in starts if c > s['start']), 1 << 62)
+        done, s['durable'] = 0, None
+        for first, end_, address, n in reads:
+            if last < first < stop and lo <= address < lo + total:
+                done += n
+                if done >= total:
+                    s['durable'] = end_
+                    break
+    return out
+
+
 def saves(log: grader.Log, image: int) -> list[dict]:
-    """Every save the log shows: its erase, the container its pages left over an erased slot, its sequence when the
-    container is accepted, and when it is durable (save_grade.first_save), or None."""
+    """Every save the log shows in order, whole or a delta frame (#1009): its kind, its start (a whole save's erase,
+    a frame's first page), its slot's container once its pages are in (the slot's block replayed from the log's
+    erases and page programs, and its frames applied, slot_state), its sequence when that state is the save's own,
+    and when it is durable (save_grade.first_save; frame_saves), or None."""
     import grade
     import save_grade
     out = []
-    # one save an erase the log shows, its blocks erased in one step (NVM_ERASE_BLOCKS is 1 at every shape)
-    erases = sorted(c for c, op, _, _ in log.flash_ops if op == grade.FLASH_ERASE)
+    # one whole save an erase the log shows, its blocks erased in one step (NVM_ERASE_BLOCKS is 1 at every shape)
+    erases = sorted((c, a) for c, op, a, _ in log.flash_ops if op == grade.FLASH_ERASE)
     for n in range(len(erases)):
         save = save_grade.first_save(log, n)
         if save is None:
             break
-        stop = next((c for c in erases if c > save.erase), 1 << 62)
-        blob = bytearray(b'\xff' * image)
-        for cycle, addr, data in log.programmed:
-            if save.erase < cycle < stop and save.base <= addr < save.base + image:
-                blob[addr - save.base:addr - save.base + len(data)] = data[:image - (addr - save.base)]
-        seq = accepted(bytes(blob), image)
-        out.append(dict(erase=save.erase, base=save.base, durable=save.durable if seq is not None else None,
-                        seq=seq, blob=bytes(blob)))
+        out.append(dict(kind='whole', start=save.erase, base=save.base, pages=save.pages, durable=save.durable))
+    out = sorted(out + frame_saves(log, image, sorted({a for _, a in erases})), key=lambda s: s['start'])
+    events = sorted([(c, 0, a, b'') for c, a in erases] + [(c, 1, a, d) for c, a, d in log.programmed])
+    flash: dict[int, bytearray] = {}
+    at = 0
+    for s in out:
+        before = slot_state(bytes(flash.get(s['base'], b'\xff' * BLOCK)), image)[0]
+        last = s['pages'][-1][0] if s['pages'] else s['start']
+        while at < len(events) and events[at][0] <= last:
+            c, op, a, data = events[at]
+            at += 1
+            base = next((b for _, b in erases if b <= a < b + BLOCK), a - a % BLOCK)
+            block = flash.setdefault(base, bytearray(b'\xff' * BLOCK))
+            if op == 0:
+                block[:] = b'\xff' * BLOCK
+            else:
+                into = a - base
+                block[into:into + len(data)] = data[:BLOCK - into]
+        seq, blob = slot_state(bytes(flash.get(s['base'], b'\xff' * BLOCK)), image)
+        if s['kind'] == 'frame' and seq == before:
+            seq = None
+        s.update(seq=seq, blob=blob, durable=s['durable'] if seq is not None else None)
     return out
 
 
@@ -300,11 +403,11 @@ def responses(log: grader.Log) -> dict[int, tuple[int, int]]:
 
 
 def journal(path: Path, image: int, base: int) -> tuple[int | None, dict[int, bytes]]:
-    """The journal a cut leaves: its authoritative container (section 7: the newer accepted slot, wrap-safe, slot A
-    on a tie) and its names, or (None, {}) with no slot accepted."""
+    """The journal a cut leaves: its authoritative container (section 7: the newer accepted slot, each read through
+    its delta frames, slot_state; wrap-safe, slot A on a tie) and its names, or (None, {}) with no slot accepted."""
     data = path.read_bytes()
     half = len(data) // 2
-    slots = [(accepted(data[o:o + image], image), data[o:o + image]) for o in (0, half)]
+    slots = [slot_state(data[o:o + half], image) for o in (0, half)]
     good = [(s, b) for s, b in slots if s is not None]
     if not good:
         return None, {}
@@ -330,14 +433,15 @@ def grade(log: grader.Log, group: scenario.Group, journal_path: Path | None) -> 
         if status != 0:
             raise grader.Refusal(f"{group.name}: the SET_NAME of name {s['ordinal']} answered status {status}")
         want = bytes.fromhex(s['value'])
-        holds = [d for d in done if d['durable'] is not None and d['erase'] > cycle
+        holds = [d for d in done if d['durable'] is not None and d['start'] > cycle
                  and held_names(d['blob'], image, base).get(s['ordinal']) == want]
         durable = min((d['durable'] for d in holds), default=None)
         ms = round(log.ms_of(durable - cycle), 3) if durable is not None else None
         rows.append(dict(ordinal=s['ordinal'], response_sys=cycle, durable_sys=durable, ms=ms,
                          within=ms is not None and ms <= spec['target_ms']))
     out = dict(kind=spec['kind'], names=len(rows), target_ms=spec['target_ms'],
-               saves=[dict(erase=d['erase'], durable=d['durable'], seq=d['seq']) for d in done], rows=rows)
+               saves=[dict(kind=d['kind'], start=d['start'], durable=d['durable'], seq=d['seq']) for d in done],
+               rows=rows)
     timed_rows = [r for r in rows if r['ms'] is not None]
     worst = max(rows, key=lambda r: (r['ms'] is None, r['ms'] or 0))
     out.update(worst_ms=worst['ms'], worst_ordinal=worst['ordinal'],
@@ -360,7 +464,7 @@ def next_steps(log: grader.Log, done: list[dict], spec: dict, image: int) -> dic
     want = 3 + spec['records'] + math.ceil((image - TRAILER) / save_window.PAGE)
     if len(done) < 2 or done[0]['durable'] is None:
         return dict(steps=None, want=want, gap_ms=None)
-    lo, hi = done[0]['durable'], done[1]['erase']
+    lo, hi = done[0]['durable'], done[1]['start']
     taken = sum(1 for _, start, *_ in log.stepped if lo < start <= hi)
     return dict(steps=taken, want=want, gap_ms=round(log.ms_of(hi - lo), 3))
 

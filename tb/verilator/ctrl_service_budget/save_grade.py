@@ -14,6 +14,9 @@ import grade
 import save_window
 import scenario
 
+#: KLJ3's magic and the offset of its length in the header (nvm_shape.h), and the flash page (NVM_FLASH_PAGE).
+KLJ3_MAGIC, KLJ3_LENGTH, PAGE = b'KLJ3', 16, 256
+
 
 @dataclass
 class Save:
@@ -28,15 +31,20 @@ class Save:
 
 
 def first_save(log: grade.Log, n: int = 0) -> Save | None:
-    """The log's first save (or its n-th after it): its erase, the pages programmed before the next erase, and the
-    slot's read-backs after the last page, the verify, which ends when they have read back every programmed byte
-    (nvm_store.c, the verify step); None when the log shows no such erase."""
+    """The log's first save (or its n-th after it): its erase, the pages programmed before the next erase (only those
+    of its container, from the slot's base to the length its header gives, when the log carries their bytes: past it
+    are the delta frames that follow it, #1009), and the slot's read-backs after the last page, the verify, which ends
+    when they have read back every programmed byte (nvm_store.c, the verify step); None when the log shows no such
+    erase."""
     erases = [(c, a) for c, op, a, _ in log.flash_ops if op == grade.FLASH_ERASE]
     if len(erases) <= n:
         return None
     erase, base = erases[n]
     stop = erases[n + 1][0] if len(erases) > n + 1 else 1 << 62
     pages = [(c, a, n) for c, op, a, n in log.flash_ops if op == grade.FLASH_PROGRAM and erase < c < stop]
+    end = container_end(log, erase, stop, base)
+    if end is not None:
+        pages = [p for p in pages if base <= p[1] < end]
     image = sum(n for *_, n in pages)
     last = pages[-1][0] if pages else 1 << 62
     verified, done, durable = [], 0, None
@@ -51,6 +59,15 @@ def first_save(log: grade.Log, n: int = 0) -> Save | None:
                     *(first for first, _, a, _ in merged_reads(log) if erase < first <= until
                       and base <= a < base + image)])
     return Save(erase, base, pages, image, verified, durable, steps)
+
+
+def container_end(log: grade.Log, erase: int, stop: int, base: int) -> int | None:
+    """The page past the container a whole save programs from the slot's base after its erase: its first page's
+    KLJ3 header gives its length; None when the log carries no such page's bytes (FLASHDATA)."""
+    head = next((data for cycle, address, data in log.programmed if erase < cycle < stop and address == base), b'')
+    if len(head) < KLJ3_LENGTH + 4 or head[:4] != KLJ3_MAGIC:
+        return None
+    return base + -(-int.from_bytes(head[KLJ3_LENGTH:KLJ3_LENGTH + 4], 'little') // PAGE) * PAGE
 
 
 def merged_reads(log: grade.Log) -> list[tuple[int, int, int, int]]:

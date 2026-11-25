@@ -32,13 +32,26 @@ def frame(rid: int, payload: bytes) -> bytes:
     return head + struct.pack('>H', crc) + payload
 
 
-def container(names: dict[int, bytes], seq: int, crc_ok: bool = True) -> bytes:
+def container(names: dict[int, bytes], seq: int, crc_ok: bool = True, ver: int = 0x00030000,
+              nrec: int | None = None) -> bytes:
     """A KLJ3 container of IMAGE bytes: its header, an erased record before the names, the names, its CRC-32."""
-    body = struct.pack('<10I', 0x334A4C4B, 0x00030000, seq, len(names) + 1, IMAGE, 0, 0, 0, 0, 3)
+    count = len(names) + 1 if nrec is None else nrec
+    body = struct.pack('<10I', 0x334A4C4B, ver, seq, count, IMAGE, 0, 0, 0, 0, 3)
     body += b'\xff' * 18 + b''.join(frame(BASE + k, v) for k, v in sorted(names.items()))
     body = body.ljust(IMAGE - 4, b'\0')
     crc = zlib.crc32(body) ^ (0 if crc_ok else 1)
     return body + struct.pack('<I', crc)
+
+
+def delta(base: bytes, new: bytes) -> bytes:
+    """A delta frame (#1009, nvm_shape.h's KLD3) that makes base, a minor 1 container, into new: the span where they
+    differ past the header, new's sequence and trailer, the sequence it follows, its CRC-32."""
+    diff = [i for i in range(40, IMAGE - 4) if base[i] != new[i]]
+    off, n = diff[0], diff[-1] + 1 - diff[0]
+    body = struct.pack('<7I', 0x33444C4B, 0x00010000, *struct.unpack_from('<I', new, 8),
+                       *struct.unpack_from('<I', base, 8), off, n, *struct.unpack_from('<I', new, IMAGE - 4))
+    body += new[off:off + n] + bytes(-n % 4)
+    return body + struct.pack('<I', zlib.crc32(body))
 
 
 def save_lines(blob: bytes, erase: int, verify_end: int, slot: int = SLOT) -> list[str]:
@@ -76,6 +89,12 @@ def graded(m: ModuleType, kind: str, blob: bytes, durable_ms: float, journal: by
         lines += m.tx_sequence(scenario.CH['aecp'], records)
     end = 1000 + int(durable_ms * ms)
     lines += save_lines(blob, 2000, end)
+    if 'frame' in opts:
+        # a delta frame after the whole save, into its slot's room, verified frame_ms after the responses
+        frame_, frame_ms = opts['frame']
+        done, at = 1000 + int(frame_ms * ms), SLOT + save_burst.delta_room(IMAGE)[0]
+        lines += [f'FLASHOP {done - 200} {grade.FLASH_PROGRAM} {at:06x} {len(frame_)}',
+                  f'FLASHDATA {done - 200} {at:06x} {frame_.hex()}', f'FLASHRD {done - 100} {done} {at:06x} {len(frame_)}']
     lines += [f'STEPPASS {n} {end + 10 + n} 1 100 store=50' for n in range(steps)]
     if kind == 'flight':
         lines += save_lines(blob, end + 10 + steps, end + 10 + steps + 2 * ms, SLOT + 0x50000)
@@ -124,6 +143,16 @@ def burst_checks(m: ModuleType) -> list[Check]:
     words = save_burst.misses(g, 'synthetic-burst')
     out.append(('burst: a run that left no journal fails', 'synthetic-burst: the run left no journal' in words,
                 str(words)))
+    base = container({0: NAMES[0]}, 6, ver=0x00030001, nrec=3)
+    new = container(NAMES, 7, ver=0x00030001, nrec=3)
+    frame_ = delta(base, new)
+    g = run('burst', base, 1500, journal(base + frame_), frame=(frame_, 2500))
+    words = save_burst.misses(g, 'synthetic-burst')
+    ms = {r['ordinal']: r['ms'] for r in g['rows']}
+    out.append(('burst: a delta frame after a whole save is a save, durable at its verify, its container the slot\'s '
+                'with the frame applied, and the cut reads the slot through its frames',
+                not words and [s['kind'] for s in g['saves']] == ['whole', 'frame'] and ms[0] is not None
+                and abs(ms[0] - 1500) < 1 and ms[1] is not None and abs(ms[1] - 2500) < 1, f'{words} {g["saves"]} {ms}'))
     for name, kw, want in (('refused', dict(status=1), 'answered status 1'),
                            ('unanswered', dict(answered=False), 'was never answered')):
         try:
