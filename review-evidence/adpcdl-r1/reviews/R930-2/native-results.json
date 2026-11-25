@@ -1,0 +1,164 @@
+[
+  {
+    "control": "head",
+    "filter": "*",
+    "rc": 0,
+    "tests": 49,
+    "failed": [],
+    "boundary_diagnostic": false
+  },
+  {
+    "control": "adp-short-control-length-accepted",
+    "filter": "AllStates/AdpInputControl.RejectsShortControlDataLength/0:AllStates/AdpInputControl.RejectsShortControlDataLength/1:AllStates/AdpInputControl.RejectsShortControlDataLength/2:AllStates/AdpInputControl.RejectsShortControlDataLength/3:AllStates/AdpInputControl.RejectsShortControlDataLength/4",
+    "rc": 1,
+    "tests": 5,
+    "failed": [
+      "AllStates/AdpInputControl.RejectsShortControlDataLength/0",
+      "AllStates/AdpInputControl.RejectsShortControlDataLength/1",
+      "AllStates/AdpInputControl.RejectsShortControlDataLength/2",
+      "AllStates/AdpInputControl.RejectsShortControlDataLength/3",
+      "AllStates/AdpInputControl.RejectsShortControlDataLength/4"
+    ],
+    "boundary_diagnostic": false
+  },
+  {
+    "control": "adp-control-length-off-by-one",
+    "filter": "AllStates/AdpInputControl.RejectsShortControlDataLength/0:AllStates/AdpInputControl.RejectsShortControlDataLength/1:AllStates/AdpInputControl.RejectsShortControlDataLength/2:AllStates/AdpInputControl.RejectsShortControlDataLength/3:AllStates/AdpInputControl.RejectsShortControlDataLength/4",
+    "rc": 1,
+    "tests": 5,
+    "failed": [
+      "AllStates/AdpInputControl.RejectsShortControlDataLength/0",
+      "AllStates/AdpInputControl.RejectsShortControlDataLength/1",
+      "AllStates/AdpInputControl.RejectsShortControlDataLength/2",
+      "AllStates/AdpInputControl.RejectsShortControlDataLength/3",
+      "AllStates/AdpInputControl.RejectsShortControlDataLength/4"
+    ],
+    "boundary_diagnostic": false
+  },
+  {
+    "control": "adp-control-length-includes-valid-time",
+    "filter": "AllStates/AdpInputControl.RejectsShortControlDataLength/0:AllStates/AdpInputControl.RejectsShortControlDataLength/1:AllStates/AdpInputControl.RejectsShortControlDataLength/2:AllStates/AdpInputControl.RejectsShortControlDataLength/3:AllStates/AdpInputControl.RejectsShortControlDataLength/4",
+    "rc": 1,
+    "tests": 5,
+    "failed": [
+      "AllStates/AdpInputControl.RejectsShortControlDataLength/0",
+      "AllStates/AdpInputControl.RejectsShortControlDataLength/1",
+      "AllStates/AdpInputControl.RejectsShortControlDataLength/2",
+      "AllStates/AdpInputControl.RejectsShortControlDataLength/3",
+      "AllStates/AdpInputControl.RejectsShortControlDataLength/4"
+    ],
+    "boundary_diagnostic": false
+  },
+  {
+    "control": "adp-long-control-length-refused",
+    "filter": "AllStates/AdpInputControl.AcceptsLongControlDataLength/0:AllStates/AdpInputControl.AcceptsLongControlDataLength/1:AllStates/AdpInputControl.AcceptsLongControlDataLength/2:AllStates/AdpInputControl.AcceptsLongControlDataLength/3:AllStates/AdpInputControl.AcceptsLongControlDataLength/4",
+    "rc": 1,
+    "tests": 5,
+    "failed": [
+      "AllStates/AdpInputControl.AcceptsLongControlDataLength/0",
+      "AllStates/AdpInputControl.AcceptsLongControlDataLength/1",
+      "AllStates/AdpInputControl.AcceptsLongControlDataLength/2",
+      "AllStates/AdpInputControl.AcceptsLongControlDataLength/3",
+      "AllStates/AdpInputControl.AcceptsLongControlDataLength/4"
+    ],
+    "boundary_diagnostic": false
+  },
+  {
+    "control": "adp-long-control-length-needs-surplus",
+    "filter": "AllStates/AdpInputControl.AcceptsLongControlDataLength/0:AllStates/AdpInputControl.AcceptsLongControlDataLength/1:AllStates/AdpInputControl.AcceptsLongControlDataLength/2:AllStates/AdpInputControl.AcceptsLongControlDataLength/3:AllStates/AdpInputControl.AcceptsLongControlDataLength/4",
+    "rc": 1,
+    "tests": 5,
+    "failed": [
+      "AllStates/AdpInputControl.AcceptsLongControlDataLength/0",
+      "AllStates/AdpInputControl.AcceptsLongControlDataLength/1",
+      "AllStates/AdpInputControl.AcceptsLongControlDataLength/2",
+      "AllStates/AdpInputControl.AcceptsLongControlDataLength/3",
+      "AllStates/AdpInputControl.AcceptsLongControlDataLength/4"
+    ],
+    "boundary_diagnostic": false
+  },
+  {
+    "control": "adp-minimum-control-length-refused",
+    "filter": "AllStates/AdpInputControl.ValidDiscovery/0:AllStates/AdpInputControl.ValidDiscovery/1:AllStates/AdpInputControl.ValidDiscovery/2:AllStates/AdpInputControl.ValidDiscovery/3:AllStates/AdpInputControl.ValidDiscovery/4",
+    "rc": 1,
+    "tests": 5,
+    "failed": [
+      "AllStates/AdpInputControl.ValidDiscovery/0",
+      "AllStates/AdpInputControl.ValidDiscovery/1",
+      "AllStates/AdpInputControl.ValidDiscovery/2",
+      "AllStates/AdpInputControl.ValidDiscovery/3",
+      "AllStates/AdpInputControl.ValidDiscovery/4"
+    ],
+    "boundary_diagnostic": false
+  },
+  {
+    "control": "adp-control-length-mask-0x03ff",
+    "filter": "AllStates/AdpInputControl.AcceptsLongControlDataLength/0:AllStates/AdpInputControl.AcceptsLongControlDataLength/1:AllStates/AdpInputControl.AcceptsLongControlDataLength/2:AllStates/AdpInputControl.AcceptsLongControlDataLength/3:AllStates/AdpInputControl.AcceptsLongControlDataLength/4",
+    "rc": 1,
+    "tests": 5,
+    "failed": [
+      "AllStates/AdpInputControl.AcceptsLongControlDataLength/0",
+      "AllStates/AdpInputControl.AcceptsLongControlDataLength/1",
+      "AllStates/AdpInputControl.AcceptsLongControlDataLength/2",
+      "AllStates/AdpInputControl.AcceptsLongControlDataLength/3",
+      "AllStates/AdpInputControl.AcceptsLongControlDataLength/4"
+    ],
+    "boundary_diagnostic": false
+  },
+  {
+    "control": "adp-control-length-mask-0x01ff",
+    "filter": "AllStates/AdpInputControl.AcceptsLongControlDataLength/0:AllStates/AdpInputControl.AcceptsLongControlDataLength/1:AllStates/AdpInputControl.AcceptsLongControlDataLength/2:AllStates/AdpInputControl.AcceptsLongControlDataLength/3:AllStates/AdpInputControl.AcceptsLongControlDataLength/4",
+    "rc": 1,
+    "tests": 5,
+    "failed": [
+      "AllStates/AdpInputControl.AcceptsLongControlDataLength/0",
+      "AllStates/AdpInputControl.AcceptsLongControlDataLength/1",
+      "AllStates/AdpInputControl.AcceptsLongControlDataLength/2",
+      "AllStates/AdpInputControl.AcceptsLongControlDataLength/3",
+      "AllStates/AdpInputControl.AcceptsLongControlDataLength/4"
+    ],
+    "boundary_diagnostic": false
+  },
+  {
+    "control": "adp-control-length-mask-0x00ff",
+    "filter": "AllStates/AdpInputControl.AcceptsLongControlDataLength/0:AllStates/AdpInputControl.AcceptsLongControlDataLength/1:AllStates/AdpInputControl.AcceptsLongControlDataLength/2:AllStates/AdpInputControl.AcceptsLongControlDataLength/3:AllStates/AdpInputControl.AcceptsLongControlDataLength/4",
+    "rc": 1,
+    "tests": 5,
+    "failed": [
+      "AllStates/AdpInputControl.AcceptsLongControlDataLength/0",
+      "AllStates/AdpInputControl.AcceptsLongControlDataLength/1",
+      "AllStates/AdpInputControl.AcceptsLongControlDataLength/2",
+      "AllStates/AdpInputControl.AcceptsLongControlDataLength/3",
+      "AllStates/AdpInputControl.AcceptsLongControlDataLength/4"
+    ],
+    "boundary_diagnostic": false
+  },
+  {
+    "control": "adp-control-length-mask-0x007f",
+    "filter": "AllStates/AdpInputControl.AcceptsLongControlDataLength/0:AllStates/AdpInputControl.AcceptsLongControlDataLength/1:AllStates/AdpInputControl.AcceptsLongControlDataLength/2:AllStates/AdpInputControl.AcceptsLongControlDataLength/3:AllStates/AdpInputControl.AcceptsLongControlDataLength/4",
+    "rc": 1,
+    "tests": 5,
+    "failed": [
+      "AllStates/AdpInputControl.AcceptsLongControlDataLength/0",
+      "AllStates/AdpInputControl.AcceptsLongControlDataLength/1",
+      "AllStates/AdpInputControl.AcceptsLongControlDataLength/2",
+      "AllStates/AdpInputControl.AcceptsLongControlDataLength/3",
+      "AllStates/AdpInputControl.AcceptsLongControlDataLength/4"
+    ],
+    "boundary_diagnostic": false
+  },
+  {
+    "control": "adp-long-control-length-reads-surplus",
+    "filter": "AllStates/AdpInputControl.ReadsNoOctetPastTheFrame/0:AllStates/AdpInputControl.ReadsNoOctetPastTheFrame/1:AllStates/AdpInputControl.ReadsNoOctetPastTheFrame/2:AllStates/AdpInputControl.ReadsNoOctetPastTheFrame/3:AllStates/AdpInputControl.ReadsNoOctetPastTheFrame/4",
+    "rc": 1,
+    "tests": 5,
+    "failed": [
+      "AllStates/AdpInputControl.ReadsNoOctetPastTheFrame/0",
+      "AllStates/AdpInputControl.ReadsNoOctetPastTheFrame/1",
+      "AllStates/AdpInputControl.ReadsNoOctetPastTheFrame/2",
+      "AllStates/AdpInputControl.ReadsNoOctetPastTheFrame/3",
+      "AllStates/AdpInputControl.ReadsNoOctetPastTheFrame/4"
+    ],
+    "boundary_diagnostic": false
+  }
+]

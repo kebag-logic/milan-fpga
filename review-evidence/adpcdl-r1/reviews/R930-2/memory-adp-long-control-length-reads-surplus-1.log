@@ -1,0 +1,69 @@
+Note: Google Test filter = *AcceptsLongControlDataLength*
+[==========] Running 5 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 5 tests from AllStates/AdpInputControl
+[ RUN      ] AllStates/AdpInputControl.AcceptsLongControlDataLength/0
+=================================================================
+==3648414==ERROR: AddressSanitizer: heap-buffer-overflow on address 0x7bb85cbe02f2 at pc 0x562f7d46be6a bp 0x7fff64600c40 sp 0x7fff64600c30
+READ of size 1 at 0x7bb85cbe02f2 thread T0
+    #0 0x562f7d46be69 in adp_rx src/adp.c:320
+    #1 0x562f7d319a18 in accepted_discovery tests/test_adp.cpp:748
+    #2 0x562f7d32093a in TestBody tests/test_adp.cpp:847
+    #3 0x562f7d4bd2f1 in void testing::internal::HandleExceptionsInMethodIfSupported<testing::Test, void>(testing::Test*, void (testing::Test::*)(), char const*) (<packet>/scratch/memory/probe+0x4182f1) (BuildId: 54407102ae0b2e4d88b3c23c8cc98b0e3c16b816)
+    #4 0x562f7d4ad289 in testing::Test::Run() [clone .part.0] (<packet>/scratch/memory/probe+0x408289) (BuildId: 54407102ae0b2e4d88b3c23c8cc98b0e3c16b816)
+    #5 0x562f7d4ad813 in testing::TestInfo::Run() (<packet>/scratch/memory/probe+0x408813) (BuildId: 54407102ae0b2e4d88b3c23c8cc98b0e3c16b816)
+    #6 0x562f7d4af030 in testing::TestSuite::Run() [clone .part.0] (<packet>/scratch/memory/probe+0x40a030) (BuildId: 54407102ae0b2e4d88b3c23c8cc98b0e3c16b816)
+    #7 0x562f7d4b4831 in testing::internal::UnitTestImpl::RunAllTests() (<packet>/scratch/memory/probe+0x40f831) (BuildId: 54407102ae0b2e4d88b3c23c8cc98b0e3c16b816)
+    #8 0x562f7d4b4f50 in testing::UnitTest::Run() (<packet>/scratch/memory/probe+0x40ff50) (BuildId: 54407102ae0b2e4d88b3c23c8cc98b0e3c16b816)
+    #9 0x562f7d466dee in RUN_ALL_TESTS() <test-prefix>/include/gtest/gtest.h:2317
+    #10 0x562f7d4668f3 in main tests/main.cpp:8
+    #11 0x7f385da27780  (/usr/lib/libc.so.6+0x27780) (BuildId: 6961407ef2e7877eabf5ed8c5a39aea9de7194c1)
+    #12 0x7f385da278b8 in __libc_start_main (/usr/lib/libc.so.6+0x278b8) (BuildId: 6961407ef2e7877eabf5ed8c5a39aea9de7194c1)
+    #13 0x562f7d2f56c4 in _start (<packet>/scratch/memory/probe+0x2506c4) (BuildId: 54407102ae0b2e4d88b3c23c8cc98b0e3c16b816)
+
+0x7bb85cbe02f2 is located 0 bytes after 82-byte region [0x7bb85cbe02a0,0x7bb85cbe02f2)
+allocated by thread T0 here:
+    #0 0x7f385eb2d2a1 in operator new(unsigned long) (/usr/lib/libasan.so.8+0x12d2a1) (BuildId: b8a4241051a1621937fdc46e867ba7ecb56d96ea)
+    #1 0x562f7d416b60 in std::__new_allocator<unsigned char>::allocate(unsigned long, void const*) /usr/include/c++/16/bits/new_allocator.h:162
+    #2 0x562f7d3b35c0 in std::allocator<unsigned char>::allocate(unsigned long) /usr/include/c++/16/bits/allocator.h:206
+    #3 0x562f7d3b35c0 in std::allocator_traits<std::allocator<unsigned char> >::allocate(std::allocator<unsigned char>&, unsigned long) /usr/include/c++/16/bits/alloc_traits.h:638
+    #4 0x562f7d3b35c0 in std::_Vector_base<unsigned char, std::allocator<unsigned char> >::_M_allocate(unsigned long) /usr/include/c++/16/bits/stl_vector.h:389
+    #5 0x562f7d3b39b3 in std::_Vector_base<unsigned char, std::allocator<unsigned char> >::_M_create_storage(unsigned long) /usr/include/c++/16/bits/stl_vector.h:407
+    #6 0x562f7d398ade in std::_Vector_base<unsigned char, std::allocator<unsigned char> >::_Vector_base(unsigned long, std::allocator<unsigned char> const&) /usr/include/c++/16/bits/stl_vector.h:341
+    #7 0x562f7d36fd4a in std::vector<unsigned char, std::allocator<unsigned char> >::vector(unsigned long, std::allocator<unsigned char> const&) /usr/include/c++/16/bits/stl_vector.h:577
+    #8 0x562f7d320803 in TestBody tests/test_adp.cpp:844
+    #9 0x562f7d4bd2f1 in void testing::internal::HandleExceptionsInMethodIfSupported<testing::Test, void>(testing::Test*, void (testing::Test::*)(), char const*) (<packet>/scratch/memory/probe+0x4182f1) (BuildId: 54407102ae0b2e4d88b3c23c8cc98b0e3c16b816)
+
+SUMMARY: AddressSanitizer: heap-buffer-overflow src/adp.c:320 in adp_rx
+Shadow bytes around the buggy address:
+  0x7bb85cbe0000: fa fa fa fa fd fd fd fd fd fd fd fd fd fd fd fa
+  0x7bb85cbe0080: fa fa fa fa fd fd fd fd fd fd fd fd fd fd fd fa
+  0x7bb85cbe0100: fa fa fa fa 00 00 00 00 00 00 00 00 00 00 00 03
+  0x7bb85cbe0180: fa fa fa fa fd fd fd fd fd fd fd fd fd fd fd fd
+  0x7bb85cbe0200: fa fa fa fa fd fd fd fd fd fd fd fd fd fd fd fd
+=>0x7bb85cbe0280: fa fa fa fa 00 00 00 00 00 00 00 00 00 00[02]fa
+  0x7bb85cbe0300: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x7bb85cbe0380: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x7bb85cbe0400: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x7bb85cbe0480: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x7bb85cbe0500: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+Shadow byte legend (one shadow byte represents 8 application bytes):
+  Addressable:           00
+  Partially addressable: 01 02 03 04 05 06 07 
+  Heap left redzone:       fa
+  Freed heap region:       fd
+  Stack left redzone:      f1
+  Stack mid redzone:       f2
+  Stack right redzone:     f3
+  Stack after return:      f5
+  Stack use after scope:   f8
+  Global redzone:          f9
+  Global init order:       f6
+  Poisoned by user:        f7
+  Container overflow:      fc
+  Array cookie:            ac
+  Intra object redzone:    bb
+  ASan internal:           fe
+  Left alloca redzone:     ca
+  Right alloca redzone:    cb
+==3648414==ABORTING

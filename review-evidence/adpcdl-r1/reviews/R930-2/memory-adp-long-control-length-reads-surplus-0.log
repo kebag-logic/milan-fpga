@@ -1,0 +1,202 @@
+Note: Google Test filter = AllStates/AdpInputControl.ReadsNoOctetPastTheFrame/0:AllStates/AdpInputControl.ReadsNoOctetPastTheFrame/1:AllStates/AdpInputControl.ReadsNoOctetPastTheFrame/2:AllStates/AdpInputControl.ReadsNoOctetPastTheFrame/3:AllStates/AdpInputControl.ReadsNoOctetPastTheFrame/4
+[==========] Running 5 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 5 tests from AllStates/AdpInputControl
+[ RUN      ] AllStates/AdpInputControl.ReadsNoOctetPastTheFrame/0
+tests/test_adp.cpp:865: Failure
+Death test: read_up_to_a_protected_page(GetParam())
+    Result: died but not with expected exit code:
+            Exited with exit status 1
+Actual msg:
+[  DEATH   ] AddressSanitizer:DEADLYSIGNAL
+[  DEATH   ] =================================================================
+[  DEATH   ] ==3648391==ERROR: AddressSanitizer: SEGV on unknown address 0x7ff2444df000 (pc 0x5634fbdaee6a bp 0x7ffc80ab3d10 sp 0x7ffc80ab3c70 T0)
+[  DEATH   ] ==3648391==The signal is caused by a READ memory access.
+[  DEATH   ]     #0 0x5634fbdaee6a in adp_rx src/adp.c:320
+[  DEATH   ]     #1 0x5634fbc5f0f2 in read_up_to_a_protected_page tests/test_adp.cpp:776
+[  DEATH   ]     #2 0x5634fbc65409 in TestBody tests/test_adp.cpp:865
+[  DEATH   ]     #3 0x5634fbe002f1 in void testing::internal::HandleExceptionsInMethodIfSupported<testing::Test, void>(testing::Test*, void (testing::Test::*)(), char const*) (<packet>/scratch/memory/probe+0x4182f1) (BuildId: 54407102ae0b2e4d88b3c23c8cc98b0e3c16b816)
+[  DEATH   ]     #4 0x5634fbdf0289 in testing::Test::Run() [clone .part.0] (<packet>/scratch/memory/probe+0x408289) (BuildId: 54407102ae0b2e4d88b3c23c8cc98b0e3c16b816)
+[  DEATH   ]     #5 0x5634fbdf0813 in testing::TestInfo::Run() (<packet>/scratch/memory/probe+0x408813) (BuildId: 54407102ae0b2e4d88b3c23c8cc98b0e3c16b816)
+[  DEATH   ]     #6 0x5634fbdf2030 in testing::TestSuite::Run() [clone .part.0] (<packet>/scratch/memory/probe+0x40a030) (BuildId: 54407102ae0b2e4d88b3c23c8cc98b0e3c16b816)
+[  DEATH   ]     #7 0x5634fbdf7831 in testing::internal::UnitTestImpl::RunAllTests() (<packet>/scratch/memory/probe+0x40f831) (BuildId: 54407102ae0b2e4d88b3c23c8cc98b0e3c16b816)
+[  DEATH   ]     #8 0x5634fbdf7f50 in testing::UnitTest::Run() (<packet>/scratch/memory/probe+0x40ff50) (BuildId: 54407102ae0b2e4d88b3c23c8cc98b0e3c16b816)
+[  DEATH   ]     #9 0x5634fbda9dee in RUN_ALL_TESTS() <test-prefix>/include/gtest/gtest.h:2317
+[  DEATH   ]     #10 0x5634fbda98f3 in main tests/main.cpp:8
+[  DEATH   ]     #11 0x7ff243627780  (/usr/lib/libc.so.6+0x27780) (BuildId: 6961407ef2e7877eabf5ed8c5a39aea9de7194c1)
+[  DEATH   ]     #12 0x7ff2436278b8 in __libc_start_main (/usr/lib/libc.so.6+0x278b8) (BuildId: 6961407ef2e7877eabf5ed8c5a39aea9de7194c1)
+[  DEATH   ]     #13 0x5634fbc386c4 in _start (<packet>/scratch/memory/probe+0x2506c4) (BuildId: 54407102ae0b2e4d88b3c23c8cc98b0e3c16b816)
+[  DEATH   ] 
+[  DEATH   ] ==3648391==Register values:
+[  DEATH   ] rax = 0x00007ff2444df000  rbx = 0x00007bf2413135c0  rcx = 0x00005634fc134c00  rdx = 0x0000000000000000  
+[  DEATH   ] rdi = 0x00007ff2444defbe  rsi = 0x0000000000000000  rbp = 0x00007ffc80ab3d10  rsp = 0x00007ffc80ab3c70  
+[  DEATH   ]  r8 = 0x00007ff243790000   r9 = 0x00000000000000f3  r10 = 0x0000000000000000  r11 = 0x00007ff2444defae  
+[  DEATH   ] r12 = 0x00000f7e482626b8  r13 = 0x00007ff2444df000  r14 = 0x00007bf241313600  r15 = 0x00007ffc80ab3ca0  
+[  DEATH   ] AddressSanitizer can not provide additional info.
+[  DEATH   ] SUMMARY: AddressSanitizer: SEGV src/adp.c:320 in adp_rx
+[  DEATH   ] ==3648391==ABORTING
+[  DEATH   ] 
+discovery of every length is read within its 82 octets
+
+[  FAILED  ] AllStates/AdpInputControl.ReadsNoOctetPastTheFrame/0, where GetParam() = 0 (76 ms)
+[ RUN      ] AllStates/AdpInputControl.ReadsNoOctetPastTheFrame/1
+tests/test_adp.cpp:865: Failure
+Death test: read_up_to_a_protected_page(GetParam())
+    Result: died but not with expected exit code:
+            Exited with exit status 1
+Actual msg:
+[  DEATH   ] AddressSanitizer:DEADLYSIGNAL
+[  DEATH   ] =================================================================
+[  DEATH   ] ==3648392==ERROR: AddressSanitizer: SEGV on unknown address 0x7ff2444df000 (pc 0x5634fbdaee6a bp 0x7ffc80ab3d10 sp 0x7ffc80ab3c70 T0)
+[  DEATH   ] ==3648392==The signal is caused by a READ memory access.
+[  DEATH   ]     #0 0x5634fbdaee6a in adp_rx src/adp.c:320
+[  DEATH   ]     #1 0x5634fbc5f0f2 in read_up_to_a_protected_page tests/test_adp.cpp:776
+[  DEATH   ]     #2 0x5634fbc65409 in TestBody tests/test_adp.cpp:865
+[  DEATH   ]     #3 0x5634fbe002f1 in void testing::internal::HandleExceptionsInMethodIfSupported<testing::Test, void>(testing::Test*, void (testing::Test::*)(), char const*) (<packet>/scratch/memory/probe+0x4182f1) (BuildId: 54407102ae0b2e4d88b3c23c8cc98b0e3c16b816)
+[  DEATH   ]     #4 0x5634fbdf0289 in testing::Test::Run() [clone .part.0] (<packet>/scratch/memory/probe+0x408289) (BuildId: 54407102ae0b2e4d88b3c23c8cc98b0e3c16b816)
+[  DEATH   ]     #5 0x5634fbdf0813 in testing::TestInfo::Run() (<packet>/scratch/memory/probe+0x408813) (BuildId: 54407102ae0b2e4d88b3c23c8cc98b0e3c16b816)
+[  DEATH   ]     #6 0x5634fbdf2030 in testing::TestSuite::Run() [clone .part.0] (<packet>/scratch/memory/probe+0x40a030) (BuildId: 54407102ae0b2e4d88b3c23c8cc98b0e3c16b816)
+[  DEATH   ]     #7 0x5634fbdf7831 in testing::internal::UnitTestImpl::RunAllTests() (<packet>/scratch/memory/probe+0x40f831) (BuildId: 54407102ae0b2e4d88b3c23c8cc98b0e3c16b816)
+[  DEATH   ]     #8 0x5634fbdf7f50 in testing::UnitTest::Run() (<packet>/scratch/memory/probe+0x40ff50) (BuildId: 54407102ae0b2e4d88b3c23c8cc98b0e3c16b816)
+[  DEATH   ]     #9 0x5634fbda9dee in RUN_ALL_TESTS() <test-prefix>/include/gtest/gtest.h:2317
+[  DEATH   ]     #10 0x5634fbda98f3 in main tests/main.cpp:8
+[  DEATH   ]     #11 0x7ff243627780  (/usr/lib/libc.so.6+0x27780) (BuildId: 6961407ef2e7877eabf5ed8c5a39aea9de7194c1)
+[  DEATH   ]     #12 0x7ff2436278b8 in __libc_start_main (/usr/lib/libc.so.6+0x278b8) (BuildId: 6961407ef2e7877eabf5ed8c5a39aea9de7194c1)
+[  DEATH   ]     #13 0x5634fbc386c4 in _start (<packet>/scratch/memory/probe+0x2506c4) (BuildId: 54407102ae0b2e4d88b3c23c8cc98b0e3c16b816)
+[  DEATH   ] 
+[  DEATH   ] ==3648392==Register values:
+[  DEATH   ] rax = 0x00007ff2444df000  rbx = 0x00007bf241314bc0  rcx = 0x00005634fc134c00  rdx = 0x0000000000000000  
+[  DEATH   ] rdi = 0x00007ff2444defbe  rsi = 0x0000000000000000  rbp = 0x00007ffc80ab3d10  rsp = 0x00007ffc80ab3c70  
+[  DEATH   ]  r8 = 0x00007ff243790000   r9 = 0x00000000000000f3  r10 = 0x0000000000000000  r11 = 0x00007ff2444defae  
+[  DEATH   ] r12 = 0x00000f7e48262978  r13 = 0x00007ff2444df000  r14 = 0x00007bf241314c00  r15 = 0x00007ffc80ab3ca0  
+[  DEATH   ] AddressSanitizer can not provide additional info.
+[  DEATH   ] SUMMARY: AddressSanitizer: SEGV src/adp.c:320 in adp_rx
+[  DEATH   ] ==3648392==ABORTING
+[  DEATH   ] 
+discovery of every length is read within its 82 octets
+
+[  FAILED  ] AllStates/AdpInputControl.ReadsNoOctetPastTheFrame/1, where GetParam() = 1 (77 ms)
+[ RUN      ] AllStates/AdpInputControl.ReadsNoOctetPastTheFrame/2
+tests/test_adp.cpp:865: Failure
+Death test: read_up_to_a_protected_page(GetParam())
+    Result: died but not with expected exit code:
+            Exited with exit status 1
+Actual msg:
+[  DEATH   ] AddressSanitizer:DEADLYSIGNAL
+[  DEATH   ] =================================================================
+[  DEATH   ] ==3648399==ERROR: AddressSanitizer: SEGV on unknown address 0x7ff2444df000 (pc 0x5634fbdaee6a bp 0x7ffc80ab3d10 sp 0x7ffc80ab3c70 T0)
+[  DEATH   ] ==3648399==The signal is caused by a READ memory access.
+[  DEATH   ]     #0 0x5634fbdaee6a in adp_rx src/adp.c:320
+[  DEATH   ]     #1 0x5634fbc5f0f2 in read_up_to_a_protected_page tests/test_adp.cpp:776
+[  DEATH   ]     #2 0x5634fbc65409 in TestBody tests/test_adp.cpp:865
+[  DEATH   ]     #3 0x5634fbe002f1 in void testing::internal::HandleExceptionsInMethodIfSupported<testing::Test, void>(testing::Test*, void (testing::Test::*)(), char const*) (<packet>/scratch/memory/probe+0x4182f1) (BuildId: 54407102ae0b2e4d88b3c23c8cc98b0e3c16b816)
+[  DEATH   ]     #4 0x5634fbdf0289 in testing::Test::Run() [clone .part.0] (<packet>/scratch/memory/probe+0x408289) (BuildId: 54407102ae0b2e4d88b3c23c8cc98b0e3c16b816)
+[  DEATH   ]     #5 0x5634fbdf0813 in testing::TestInfo::Run() (<packet>/scratch/memory/probe+0x408813) (BuildId: 54407102ae0b2e4d88b3c23c8cc98b0e3c16b816)
+[  DEATH   ]     #6 0x5634fbdf2030 in testing::TestSuite::Run() [clone .part.0] (<packet>/scratch/memory/probe+0x40a030) (BuildId: 54407102ae0b2e4d88b3c23c8cc98b0e3c16b816)
+[  DEATH   ]     #7 0x5634fbdf7831 in testing::internal::UnitTestImpl::RunAllTests() (<packet>/scratch/memory/probe+0x40f831) (BuildId: 54407102ae0b2e4d88b3c23c8cc98b0e3c16b816)
+[  DEATH   ]     #8 0x5634fbdf7f50 in testing::UnitTest::Run() (<packet>/scratch/memory/probe+0x40ff50) (BuildId: 54407102ae0b2e4d88b3c23c8cc98b0e3c16b816)
+[  DEATH   ]     #9 0x5634fbda9dee in RUN_ALL_TESTS() <test-prefix>/include/gtest/gtest.h:2317
+[  DEATH   ]     #10 0x5634fbda98f3 in main tests/main.cpp:8
+[  DEATH   ]     #11 0x7ff243627780  (/usr/lib/libc.so.6+0x27780) (BuildId: 6961407ef2e7877eabf5ed8c5a39aea9de7194c1)
+[  DEATH   ]     #12 0x7ff2436278b8 in __libc_start_main (/usr/lib/libc.so.6+0x278b8) (BuildId: 6961407ef2e7877eabf5ed8c5a39aea9de7194c1)
+[  DEATH   ]     #13 0x5634fbc386c4 in _start (<packet>/scratch/memory/probe+0x2506c4) (BuildId: 54407102ae0b2e4d88b3c23c8cc98b0e3c16b816)
+[  DEATH   ] 
+[  DEATH   ] ==3648399==Register values:
+[  DEATH   ] rax = 0x00007ff2444df000  rbx = 0x00007bf241316180  rcx = 0x00005634fc134c00  rdx = 0x0000000000000000  
+[  DEATH   ] rdi = 0x00007ff2444defbe  rsi = 0x0000000000000000  rbp = 0x00007ffc80ab3d10  rsp = 0x00007ffc80ab3c70  
+[  DEATH   ]  r8 = 0x00007ff243790000   r9 = 0x00000000000000f3  r10 = 0x0000000000000000  r11 = 0x00007ff2444defae  
+[  DEATH   ] r12 = 0x00000f7e48262c30  r13 = 0x00007ff2444df000  r14 = 0x00007bf2413161c0  r15 = 0x00007ffc80ab3ca0  
+[  DEATH   ] AddressSanitizer can not provide additional info.
+[  DEATH   ] SUMMARY: AddressSanitizer: SEGV src/adp.c:320 in adp_rx
+[  DEATH   ] ==3648399==ABORTING
+[  DEATH   ] 
+discovery of every length is read within its 82 octets
+
+[  FAILED  ] AllStates/AdpInputControl.ReadsNoOctetPastTheFrame/2, where GetParam() = 2 (76 ms)
+[ RUN      ] AllStates/AdpInputControl.ReadsNoOctetPastTheFrame/3
+tests/test_adp.cpp:865: Failure
+Death test: read_up_to_a_protected_page(GetParam())
+    Result: died but not with expected exit code:
+            Exited with exit status 1
+Actual msg:
+[  DEATH   ] AddressSanitizer:DEADLYSIGNAL
+[  DEATH   ] =================================================================
+[  DEATH   ] ==3648402==ERROR: AddressSanitizer: SEGV on unknown address 0x7ff2444df000 (pc 0x5634fbdaee6a bp 0x7ffc80ab3d10 sp 0x7ffc80ab3c70 T0)
+[  DEATH   ] ==3648402==The signal is caused by a READ memory access.
+[  DEATH   ]     #0 0x5634fbdaee6a in adp_rx src/adp.c:320
+[  DEATH   ]     #1 0x5634fbc5f0f2 in read_up_to_a_protected_page tests/test_adp.cpp:776
+[  DEATH   ]     #2 0x5634fbc65409 in TestBody tests/test_adp.cpp:865
+[  DEATH   ]     #3 0x5634fbe002f1 in void testing::internal::HandleExceptionsInMethodIfSupported<testing::Test, void>(testing::Test*, void (testing::Test::*)(), char const*) (<packet>/scratch/memory/probe+0x4182f1) (BuildId: 54407102ae0b2e4d88b3c23c8cc98b0e3c16b816)
+[  DEATH   ]     #4 0x5634fbdf0289 in testing::Test::Run() [clone .part.0] (<packet>/scratch/memory/probe+0x408289) (BuildId: 54407102ae0b2e4d88b3c23c8cc98b0e3c16b816)
+[  DEATH   ]     #5 0x5634fbdf0813 in testing::TestInfo::Run() (<packet>/scratch/memory/probe+0x408813) (BuildId: 54407102ae0b2e4d88b3c23c8cc98b0e3c16b816)
+[  DEATH   ]     #6 0x5634fbdf2030 in testing::TestSuite::Run() [clone .part.0] (<packet>/scratch/memory/probe+0x40a030) (BuildId: 54407102ae0b2e4d88b3c23c8cc98b0e3c16b816)
+[  DEATH   ]     #7 0x5634fbdf7831 in testing::internal::UnitTestImpl::RunAllTests() (<packet>/scratch/memory/probe+0x40f831) (BuildId: 54407102ae0b2e4d88b3c23c8cc98b0e3c16b816)
+[  DEATH   ]     #8 0x5634fbdf7f50 in testing::UnitTest::Run() (<packet>/scratch/memory/probe+0x40ff50) (BuildId: 54407102ae0b2e4d88b3c23c8cc98b0e3c16b816)
+[  DEATH   ]     #9 0x5634fbda9dee in RUN_ALL_TESTS() <test-prefix>/include/gtest/gtest.h:2317
+[  DEATH   ]     #10 0x5634fbda98f3 in main tests/main.cpp:8
+[  DEATH   ]     #11 0x7ff243627780  (/usr/lib/libc.so.6+0x27780) (BuildId: 6961407ef2e7877eabf5ed8c5a39aea9de7194c1)
+[  DEATH   ]     #12 0x7ff2436278b8 in __libc_start_main (/usr/lib/libc.so.6+0x278b8) (BuildId: 6961407ef2e7877eabf5ed8c5a39aea9de7194c1)
+[  DEATH   ]     #13 0x5634fbc386c4 in _start (<packet>/scratch/memory/probe+0x2506c4) (BuildId: 54407102ae0b2e4d88b3c23c8cc98b0e3c16b816)
+[  DEATH   ] 
+[  DEATH   ] ==3648402==Register values:
+[  DEATH   ] rax = 0x00007ff2444df000  rbx = 0x00007bf241317740  rcx = 0x00005634fc134c00  rdx = 0x0000000000000000  
+[  DEATH   ] rdi = 0x00007ff2444defbe  rsi = 0x0000000000000000  rbp = 0x00007ffc80ab3d10  rsp = 0x00007ffc80ab3c70  
+[  DEATH   ]  r8 = 0x00007ff243790000   r9 = 0x00000000000000f3  r10 = 0x0000000000000000  r11 = 0x00007ff2444defae  
+[  DEATH   ] r12 = 0x00000f7e48262ee8  r13 = 0x00007ff2444df000  r14 = 0x00007bf241317780  r15 = 0x00007ffc80ab3ca0  
+[  DEATH   ] AddressSanitizer can not provide additional info.
+[  DEATH   ] SUMMARY: AddressSanitizer: SEGV src/adp.c:320 in adp_rx
+[  DEATH   ] ==3648402==ABORTING
+[  DEATH   ] 
+discovery of every length is read within its 82 octets
+
+[  FAILED  ] AllStates/AdpInputControl.ReadsNoOctetPastTheFrame/3, where GetParam() = 3 (69 ms)
+[ RUN      ] AllStates/AdpInputControl.ReadsNoOctetPastTheFrame/4
+tests/test_adp.cpp:865: Failure
+Death test: read_up_to_a_protected_page(GetParam())
+    Result: died but not with expected exit code:
+            Exited with exit status 1
+Actual msg:
+[  DEATH   ] AddressSanitizer:DEADLYSIGNAL
+[  DEATH   ] =================================================================
+[  DEATH   ] ==3648403==ERROR: AddressSanitizer: SEGV on unknown address 0x7ff2444df000 (pc 0x5634fbdaee6a bp 0x7ffc80ab3d10 sp 0x7ffc80ab3c70 T0)
+[  DEATH   ] ==3648403==The signal is caused by a READ memory access.
+[  DEATH   ]     #0 0x5634fbdaee6a in adp_rx src/adp.c:320
+[  DEATH   ]     #1 0x5634fbc5f0f2 in read_up_to_a_protected_page tests/test_adp.cpp:776
+[  DEATH   ]     #2 0x5634fbc65409 in TestBody tests/test_adp.cpp:865
+[  DEATH   ]     #3 0x5634fbe002f1 in void testing::internal::HandleExceptionsInMethodIfSupported<testing::Test, void>(testing::Test*, void (testing::Test::*)(), char const*) (<packet>/scratch/memory/probe+0x4182f1) (BuildId: 54407102ae0b2e4d88b3c23c8cc98b0e3c16b816)
+[  DEATH   ]     #4 0x5634fbdf0289 in testing::Test::Run() [clone .part.0] (<packet>/scratch/memory/probe+0x408289) (BuildId: 54407102ae0b2e4d88b3c23c8cc98b0e3c16b816)
+[  DEATH   ]     #5 0x5634fbdf0813 in testing::TestInfo::Run() (<packet>/scratch/memory/probe+0x408813) (BuildId: 54407102ae0b2e4d88b3c23c8cc98b0e3c16b816)
+[  DEATH   ]     #6 0x5634fbdf2030 in testing::TestSuite::Run() [clone .part.0] (<packet>/scratch/memory/probe+0x40a030) (BuildId: 54407102ae0b2e4d88b3c23c8cc98b0e3c16b816)
+[  DEATH   ]     #7 0x5634fbdf7831 in testing::internal::UnitTestImpl::RunAllTests() (<packet>/scratch/memory/probe+0x40f831) (BuildId: 54407102ae0b2e4d88b3c23c8cc98b0e3c16b816)
+[  DEATH   ]     #8 0x5634fbdf7f50 in testing::UnitTest::Run() (<packet>/scratch/memory/probe+0x40ff50) (BuildId: 54407102ae0b2e4d88b3c23c8cc98b0e3c16b816)
+[  DEATH   ]     #9 0x5634fbda9dee in RUN_ALL_TESTS() <test-prefix>/include/gtest/gtest.h:2317
+[  DEATH   ]     #10 0x5634fbda98f3 in main tests/main.cpp:8
+[  DEATH   ]     #11 0x7ff243627780  (/usr/lib/libc.so.6+0x27780) (BuildId: 6961407ef2e7877eabf5ed8c5a39aea9de7194c1)
+[  DEATH   ]     #12 0x7ff2436278b8 in __libc_start_main (/usr/lib/libc.so.6+0x278b8) (BuildId: 6961407ef2e7877eabf5ed8c5a39aea9de7194c1)
+[  DEATH   ]     #13 0x5634fbc386c4 in _start (<packet>/scratch/memory/probe+0x2506c4) (BuildId: 54407102ae0b2e4d88b3c23c8cc98b0e3c16b816)
+[  DEATH   ] 
+[  DEATH   ] ==3648403==Register values:
+[  DEATH   ] rax = 0x00007ff2444df000  rbx = 0x00007bf241318d00  rcx = 0x00005634fc134c00  rdx = 0x0000000000000000  
+[  DEATH   ] rdi = 0x00007ff2444defbe  rsi = 0x0000000000000000  rbp = 0x00007ffc80ab3d10  rsp = 0x00007ffc80ab3c70  
+[  DEATH   ]  r8 = 0x00007ff243790000   r9 = 0x00000000000000f3  r10 = 0x0000000000000000  r11 = 0x00007ff2444defae  
+[  DEATH   ] r12 = 0x00000f7e482631a0  r13 = 0x00007ff2444df000  r14 = 0x00007bf241318d40  r15 = 0x00007ffc80ab3ca0  
+[  DEATH   ] AddressSanitizer can not provide additional info.
+[  DEATH   ] SUMMARY: AddressSanitizer: SEGV src/adp.c:320 in adp_rx
+[  DEATH   ] ==3648403==ABORTING
+[  DEATH   ] 
+discovery of every length is read within its 82 octets
+
+[  FAILED  ] AllStates/AdpInputControl.ReadsNoOctetPastTheFrame/4, where GetParam() = 4 (71 ms)
+[----------] 5 tests from AllStates/AdpInputControl (371 ms total)
+
+[----------] Global test environment tear-down
+[==========] 5 tests from 1 test suite ran. (371 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 5 tests, listed below:
+[  FAILED  ] AllStates/AdpInputControl.ReadsNoOctetPastTheFrame/0, where GetParam() = 0
+[  FAILED  ] AllStates/AdpInputControl.ReadsNoOctetPastTheFrame/1, where GetParam() = 1
+[  FAILED  ] AllStates/AdpInputControl.ReadsNoOctetPastTheFrame/2, where GetParam() = 2
+[  FAILED  ] AllStates/AdpInputControl.ReadsNoOctetPastTheFrame/3, where GetParam() = 3
+[  FAILED  ] AllStates/AdpInputControl.ReadsNoOctetPastTheFrame/4, where GetParam() = 4
+
+ 5 FAILED TESTS

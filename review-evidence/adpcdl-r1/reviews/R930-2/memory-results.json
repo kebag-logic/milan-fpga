@@ -1,0 +1,32 @@
+[
+  {
+    "control": "head",
+    "filter": "*",
+    "rc": 0,
+    "tests": 49,
+    "failed": [],
+    "boundary_diagnostic": false
+  },
+  {
+    "control": "adp-long-control-length-reads-surplus",
+    "filter": "AllStates/AdpInputControl.ReadsNoOctetPastTheFrame/0:AllStates/AdpInputControl.ReadsNoOctetPastTheFrame/1:AllStates/AdpInputControl.ReadsNoOctetPastTheFrame/2:AllStates/AdpInputControl.ReadsNoOctetPastTheFrame/3:AllStates/AdpInputControl.ReadsNoOctetPastTheFrame/4",
+    "rc": 1,
+    "tests": 5,
+    "failed": [
+      "AllStates/AdpInputControl.ReadsNoOctetPastTheFrame/0",
+      "AllStates/AdpInputControl.ReadsNoOctetPastTheFrame/1",
+      "AllStates/AdpInputControl.ReadsNoOctetPastTheFrame/2",
+      "AllStates/AdpInputControl.ReadsNoOctetPastTheFrame/3",
+      "AllStates/AdpInputControl.ReadsNoOctetPastTheFrame/4"
+    ],
+    "boundary_diagnostic": false
+  },
+  {
+    "control": "adp-long-control-length-reads-surplus",
+    "filter": "*AcceptsLongControlDataLength*",
+    "rc": 1,
+    "tests": 0,
+    "failed": [],
+    "boundary_diagnostic": true
+  }
+]
