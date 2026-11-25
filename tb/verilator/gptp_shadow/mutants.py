@@ -23,7 +23,10 @@ adopted a repair for: the first master Announce waiting for a beat
 A third drops the Announce leg's transmit-credit gate. One more is planted
 in this suite's own harness: its lane, held across the race, delivers the
 master Announce only after the re-election. It shows the race check grades
-that order, not only that the Announce exists.
+that order, not only that the Announce exists. The last drops the public
+bank's clamp of a negative link delay, which the engine keeps signed
+(FPGA-gPTP #109); the engine's own #109 defects are planted by
+`tb/verilator/gptp_plane/link_delay.py`, to the nanosecond.
 
 Each control names the check it must break, and the run prints whether that
 check really failed rather than only that something did.
@@ -53,6 +56,8 @@ PLANE = REPO / "hdl" / "ieee8021as" / "gptp_plane"
 RET = PLANE / "KL_gptp_txret.sv"
 OBS = PLANE / "KL_gptp_gmii_launch.sv"
 TIC = PLANE / "KL_gptp_txticket.sv"
+#: the slice's public bank, whose clamp of a negative link delay one control removes
+BANK = PLANE / "KL_gptp_shadow.sv"
 #: The pinned engine and its micro-code generator. The two controls on them
 #: restore the defects FPGA-gPTP #106 and #107 repaired, with the donor's
 #: own anchors (its p106_mutants.py and p107_mutants.py), so this platform
@@ -203,6 +208,17 @@ MUTATIONS = [
         "        dut->tx_tready_i = 0;\n" + RACE_ANNOUNCE +
         "        dut->tx_tready_i = 1;\n",
         "#106 race: one master Announce reaches the lane before the re-election",
+    ),
+    (
+        #: the public bank without its clamp to 0: a negative link delay,
+        #: which the engine keeps signed (FPGA-gPTP #109), reads as about
+        #: 4.29 s at the CSR and in GET_AVB_INFO
+        "public_bank_publishes_a_negative_delay",
+        BANK,
+        "        pub_pdelay_ns_o <= pub_pdelay_raw_w[31] ? 32'd0\n"
+        "                                                : pub_pdelay_raw_w;\n",
+        "        pub_pdelay_ns_o <= pub_pdelay_raw_w;\n",
+        "#109 -263 ns: the public bank reads 0",
     ),
 ]
 
