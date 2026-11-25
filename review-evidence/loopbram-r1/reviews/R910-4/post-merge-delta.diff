@@ -1,0 +1,383 @@
+diff --git a/.github/workflows/rtl.yml b/.github/workflows/rtl.yml
+index dd7bd8ea76..5df27c975d 100644
+--- a/.github/workflows/rtl.yml
++++ b/.github/workflows/rtl.yml
+@@ -213,7 +213,7 @@ jobs:
+     needs: full-ci-gate
+     if: ${{ needs.full-ci-gate.outputs.run_full == 'true' }}
+     runs-on: ubuntu-24.04
+-    timeout-minutes: ${{ matrix.shard == 25 && 60 || 45 }}
++    timeout-minutes: ${{ matrix.shard == 26 && 60 || 45 }}
+     strategy:
+       fail-fast: true
+       matrix:
+@@ -244,8 +244,9 @@ jobs:
+           - 23
+           - 24
+           - 25
+-        total:
+           - 26
++        total:
++          - 27
+     steps:
+       - uses: actions/checkout@v4
+         id: ci_step_0
+@@ -701,7 +702,7 @@ jobs:
+         run: |
+           shopt -s nullglob
+           roots=("$RUNNER_TEMP"/all-suite-logs/suite-logs-*)
+-          python3 scripts/ci_events.py --require-target-sha --expect 26 \
++          python3 scripts/ci_events.py --require-target-sha --expect 27 \
+             --sha gate="$GATE_SHA" --sha run="$GITHUB_SHA" \
+             --sha checkout="$(git rev-parse HEAD)" -- "${roots[@]}"
+         id: ci_step_5
+@@ -1842,23 +1843,24 @@ jobs:
+           EXPECTED_JOBS: '["Collect CI manifest","full-ci-gate","Physical gPTP (nightly and manual)","Union
+             capture_coherence","Union follow_ring","Union maap","Union media_phase","Union milan_dp","Union
+             milan_dp_mclk","Union milan_dp_render","Union pp_shadow","Verilator preflight","Verilator
+-            shard 0/26","Verilator shard 1/26","Verilator shard 2/26","Verilator shard 3/26","Verilator
+-            shard 4/26","Verilator shard 5/26","Verilator shard 6/26","Verilator shard 7/26","Verilator
+-            shard 8/26","Verilator shard 9/26","Verilator shard 10/26","Verilator shard 11/26","Verilator
+-            shard 12/26","Verilator shard 13/26","Verilator shard 14/26","Verilator shard 15/26","Verilator
+-            shard 16/26","Verilator shard 17/26","Verilator shard 18/26","Verilator shard 19/26","Verilator
+-            shard 20/26","Verilator shard 21/26","Verilator shard 22/26","Verilator shard 23/26","Verilator
+-            shard 24/26","Verilator shard 25/26","verilator-suites","yosys-portability","Yosys shard 0/4","Yosys
+-            shard 1/4","Yosys shard 2/4","Yosys shard 3/4","Prepare pinned Yosys"]'
++            shard 0/27","Verilator shard 1/27","Verilator shard 2/27","Verilator shard 3/27","Verilator
++            shard 4/27","Verilator shard 5/27","Verilator shard 6/27","Verilator shard 7/27","Verilator
++            shard 8/27","Verilator shard 9/27","Verilator shard 10/27","Verilator shard 11/27","Verilator
++            shard 12/27","Verilator shard 13/27","Verilator shard 14/27","Verilator shard 15/27","Verilator
++            shard 16/27","Verilator shard 17/27","Verilator shard 18/27","Verilator shard 19/27","Verilator
++            shard 20/27","Verilator shard 21/27","Verilator shard 22/27","Verilator shard 23/27","Verilator
++            shard 24/27","Verilator shard 25/27","Verilator shard 26/27","verilator-suites","yosys-portability","Yosys
++            shard 0/4","Yosys shard 1/4","Yosys shard 2/4","Yosys shard 3/4","Prepare pinned Yosys"]'
+           SKIPPED_MATRICES: '{"Verilator shard ${{ matrix.shard }}/${{ matrix.total }}":["Verilator shard
+-            0/26","Verilator shard 1/26","Verilator shard 2/26","Verilator shard 3/26","Verilator shard
+-            4/26","Verilator shard 5/26","Verilator shard 6/26","Verilator shard 7/26","Verilator shard
+-            8/26","Verilator shard 9/26","Verilator shard 10/26","Verilator shard 11/26","Verilator shard
+-            12/26","Verilator shard 13/26","Verilator shard 14/26","Verilator shard 15/26","Verilator
+-            shard 16/26","Verilator shard 17/26","Verilator shard 18/26","Verilator shard 19/26","Verilator
+-            shard 20/26","Verilator shard 21/26","Verilator shard 22/26","Verilator shard 23/26","Verilator
+-            shard 24/26","Verilator shard 25/26"],"Yosys shard ${{ matrix.shard }}/${{ matrix.total }}":["Yosys
+-            shard 0/4","Yosys shard 1/4","Yosys shard 2/4","Yosys shard 3/4"]}'
++            0/27","Verilator shard 1/27","Verilator shard 2/27","Verilator shard 3/27","Verilator shard
++            4/27","Verilator shard 5/27","Verilator shard 6/27","Verilator shard 7/27","Verilator shard
++            8/27","Verilator shard 9/27","Verilator shard 10/27","Verilator shard 11/27","Verilator shard
++            12/27","Verilator shard 13/27","Verilator shard 14/27","Verilator shard 15/27","Verilator
++            shard 16/27","Verilator shard 17/27","Verilator shard 18/27","Verilator shard 19/27","Verilator
++            shard 20/27","Verilator shard 21/27","Verilator shard 22/27","Verilator shard 23/27","Verilator
++            shard 24/27","Verilator shard 25/27","Verilator shard 26/27"],"Yosys shard ${{ matrix.shard
++            }}/${{ matrix.total }}":["Yosys shard 0/4","Yosys shard 1/4","Yosys shard 2/4","Yosys shard
++            3/4"]}'
+         run: |
+           python3 scripts/ci_fail_fast.py watch
+       - name: Cancel this run and sibling workflows
+diff --git a/docs/testing/CI_WORKFLOWS.md b/docs/testing/CI_WORKFLOWS.md
+index 02e69ebca1..06125f6a51 100644
+--- a/docs/testing/CI_WORKFLOWS.md
++++ b/docs/testing/CI_WORKFLOWS.md
+@@ -485,8 +485,8 @@ The workflow keeps the public aggregate names `verilator-suites` and
+ relevant PR must run them successfully, while a docs-only PR emits them as
+ explicit successful skipped results.
+ 
+-Verilator schedules 94 units on twenty-six native matrix workers. The ordinary
+-serial command still runs the original 65 suites. CI expands eight long suites
++Verilator schedules 96 units on twenty-seven native matrix workers. The ordinary
++serial command still runs the original 67 suites. CI expands eight long suites
+ into driver-derived case partitions: `milan_dp` (eight legs), `milan_dp_mclk`
+ (four), `capture_coherence` (eight), `maap` (four), `milan_dp_render` (four),
+ `pp_shadow` (four), `follow_ring` (two) and `media_phase` (three). At this head
+@@ -614,7 +614,7 @@ figure its worker would project 1922 seconds, over the 1620-second bound. The
+ selector then placed it on worker 3, projected at 1538 seconds. The template keeps
+ dev's six-worker matrix, its shard 5/6 `milan_dp` ownership arm and its
+ `--expect 6`; the generator replaces the matrix and `--expect` with the
+-twenty-six workers and removes the arm; the selector's self-test proves that the
++twenty-seven workers and removes the arm; the selector's self-test proves that the
+ last worker runs `milan_dp_mclk__0` alone.
+ 
+ The selector refuses a missing or extra duration, duplicate ownership, a
+@@ -656,7 +656,7 @@ current driver inventory, and requires every case exactly once. Dropping a
+ case from every leg and every claimed inventory still fails against that fresh
+ inventory. The union checks verdicts and checked-output digests, then assembles
+ the original physical suite log. The final `verilator-suites` aggregate requires
+-all twenty-six workers and all eight unions. It rechecks raw case evidence against
++all twenty-seven workers and all eight unions. It rechecks raw case evidence against
+ the union artifact, proves every original log's ownership and exact head, then
+ runs the unchanged tally. Missing, duplicated, extra, failed, cancelled or
+ skipped workers cannot release the protected context.
+@@ -807,7 +807,7 @@ The `physical-gptp` job owns the physical-rate `milan_dp_gptp` suite.
+ It runs nightly at 01:17 UTC and on manual dispatch.
+ PR and push events exclude this job from execution.
+ Physical regressions therefore report nightly, outside the required PR aggregate.
+-The twenty-six default workers retain every other suite.
++The twenty-seven default workers retain every other suite.
+ 
+ The physical suite has a 6900-second build-and-run deadline.
+ Its separate four-core `ubuntu-24.04` job permits 145 minutes total.
+@@ -2708,7 +2708,7 @@ Docker teardown remains paused until absence is actually established, with the
+ PGID and operator recovery action printed. Docker-daemon-owned containers are
+ independently contained by the same verified cleanup.
+ 
+-The sharded exhaustive workers (twenty-six Verilator, four Yosys) carry their
++The sharded exhaustive workers (twenty-seven Verilator, four Yosys) carry their
+ checked denominator through the singleton `matrix.total` dimension.
+ `scripts/ci_events.py` proves that value
+ equals the `matrix.shard` list length and that every job name and shard command
+@@ -3434,32 +3434,33 @@ workers', which is #998's budget (below).
+ | `yosys-shards 1/4` | 85 | 1044 | 959 |
+ | `yosys-shards 2/4` | 92 | 1044 | 952 |
+ | `yosys-shards 3/4` | 91 | 1044 | 953 |
+-| `verilator-shards 0/26` | 1275 | 1276 | 1 |
+-| `verilator-shards 1/26` | 1250 | 1276 | 26 |
+-| `verilator-shards 2/26` | 1267 | 1276 | 9 |
+-| `verilator-shards 3/26` | 1203 | 1276 | 73 |
+-| `verilator-shards 4/26` | 1217 | 1276 | 59 |
+-| `verilator-shards 5/26` | 1203 | 1276 | 73 |
+-| `verilator-shards 6/26` | 1205 | 1276 | 71 |
+-| `verilator-shards 7/26` | 1204 | 1276 | 72 |
+-| `verilator-shards 8/26` | 1204 | 1276 | 72 |
+-| `verilator-shards 9/26` | 1204 | 1276 | 72 |
+-| `verilator-shards 10/26` | 1267 | 1276 | 9 |
+-| `verilator-shards 11/26` | 1246 | 1276 | 30 |
+-| `verilator-shards 12/26` | 1233 | 1276 | 43 |
+-| `verilator-shards 13/26` | 1223 | 1276 | 53 |
+-| `verilator-shards 14/26` | 1223 | 1276 | 53 |
+-| `verilator-shards 15/26` | 1204 | 1276 | 72 |
+-| `verilator-shards 16/26` | 1200 | 1276 | 76 |
+-| `verilator-shards 17/26` | 1205 | 1276 | 71 |
+-| `verilator-shards 18/26` | 1201 | 1276 | 75 |
+-| `verilator-shards 19/26` | 1201 | 1276 | 75 |
+-| `verilator-shards 20/26` | 1263 | 1276 | 13 |
+-| `verilator-shards 21/26` | 1265 | 1276 | 11 |
+-| `verilator-shards 22/26` | 1199 | 1276 | 77 |
+-| `verilator-shards 23/26` | 1200 | 1276 | 76 |
+-| `verilator-shards 24/26` | 1275 | 1276 | 1 |
+-| `verilator-shards 25/26` | 1530 | 2160 | 630 |
++| `verilator-shards 0/27` | 1275 | 1276 | 1 |
++| `verilator-shards 1/27` | 1249 | 1276 | 27 |
++| `verilator-shards 2/27` | 1267 | 1276 | 9 |
++| `verilator-shards 3/27` | 1180 | 1276 | 96 |
++| `verilator-shards 4/27` | 1217 | 1276 | 59 |
++| `verilator-shards 5/27` | 1197 | 1276 | 79 |
++| `verilator-shards 6/27` | 1177 | 1276 | 99 |
++| `verilator-shards 7/27` | 1179 | 1276 | 97 |
++| `verilator-shards 8/27` | 1176 | 1276 | 100 |
++| `verilator-shards 9/27` | 1176 | 1276 | 100 |
++| `verilator-shards 10/27` | 1180 | 1276 | 96 |
++| `verilator-shards 11/27` | 1246 | 1276 | 30 |
++| `verilator-shards 12/27` | 1233 | 1276 | 43 |
++| `verilator-shards 13/27` | 1223 | 1276 | 53 |
++| `verilator-shards 14/27` | 1206 | 1276 | 70 |
++| `verilator-shards 15/27` | 1177 | 1276 | 99 |
++| `verilator-shards 16/27` | 1180 | 1276 | 96 |
++| `verilator-shards 17/27` | 1176 | 1276 | 100 |
++| `verilator-shards 18/27` | 1176 | 1276 | 100 |
++| `verilator-shards 19/27` | 1179 | 1276 | 97 |
++| `verilator-shards 20/27` | 1237 | 1276 | 39 |
++| `verilator-shards 21/27` | 1243 | 1276 | 33 |
++| `verilator-shards 22/27` | 1175 | 1276 | 101 |
++| `verilator-shards 23/27` | 1177 | 1276 | 99 |
++| `verilator-shards 24/27` | 1238 | 1276 | 38 |
++| `verilator-shards 25/27` | 1220 | 1276 | 56 |
++| `verilator-shards 26/27` | 1530 | 2160 | 630 |
+ 
+ Verilator figures already include their 122-second overhead allowance.
+ A regular worker's bound is #998's 1276-second budget, below 60% of its
+@@ -3467,6 +3468,10 @@ A regular worker's bound is #998's 1276-second budget, below 60% of its
+ The heaviest regular worker, 0, carries `milan_dp__1` at 1275 seconds:
+ 1 inside the budget and 525 inside 30 minutes, before downstream collection.
+ The continuous media-clock exception remains explicit at 1530 seconds (#998).
++The twenty-seventh worker is #979's: its two new suites carry provisional
++300-second figures, and at twenty-six workers they leave four regular workers
++over the budget, up to 1306 seconds. They run on workers 14 and 15
++([provenance](TESTING.md)).
+ Docs now projects at 1395 seconds for its slowest worker, `docs-gates-0`.
+ Allowing 60 seconds each for aggregate and collector, one 120-second
+ watcher interval and 30 seconds for the tail gives 1665 seconds,
+diff --git a/docs/testing/RUNNING_TESTS.md b/docs/testing/RUNNING_TESTS.md
+index 8e9d720d1c..58c217e26d 100644
+--- a/docs/testing/RUNNING_TESTS.md
++++ b/docs/testing/RUNNING_TESTS.md
+@@ -86,12 +86,12 @@ Per-suite deadlines follow the [workflow policy table](CI_WORKFLOWS.md#exhaustiv
+ [The #673 ruling](https://github.com/kebag-logic/milan-fpga/issues/673#issuecomment-6015726285) records the current increases.
+ The separate `milan_dp_gptp` selection uses
+ 6900 seconds, including compilation, and preserves physical clock and timer
+-rates. CI runs the default selection on twenty-six `--ci-pieces` workers; the
++rates. CI runs the default selection on twenty-seven `--ci-pieces` workers; the
+ physical job runs nightly and on manual dispatch. Inspect a hosted worker's
+ selection and the physical selection without compiling with:
+ 
+ ```sh
+-scripts/run_all_suites.sh --ci-pieces --shard 0/26 --list
++scripts/run_all_suites.sh --ci-pieces --shard 0/27 --list
+ scripts/run_all_suites.sh --physical-gptp --list
+ ```
+ 
+diff --git a/docs/testing/TESTING.md b/docs/testing/TESTING.md
+index b01617a9a7..18d071e45f 100644
+--- a/docs/testing/TESTING.md
++++ b/docs/testing/TESTING.md
+@@ -468,10 +468,15 @@ Its hosted window is owed by the first hosted run of a head that carries it.
+ #979 adds two default suites, `input_loopback` and `input_loopback_dp`.
+ Both are provisional under the new-suite steps in the selector's docstring: each figure in `scripts/suite_shards.py` is 300 s.
+ That is the `suite_timeout` arm `scripts/run_all_suites.sh` gives each suite, as for `reboot_ctrl`.
+-The `*` arm's 1800 s cannot be the figure, because no regular worker holds it within its 1620 s bound.
++The `*` arm's 1800 s cannot be the figure, because no regular worker holds it within #998's 1276 s budget.
+ The sweep's own `make -C tb/verilator/<suite>` command, run cold on four pinned CPUs, took at most 34.2 s and 98.0 s.
+ Those runs were at a host load average near 206, so each arm keeps at least three times its slowest run.
+ Measured hosted windows replace both figures after the first hosted run of a head that carries them.
++Hosted run 45469087943 at `1516b2ff` cancelled both owning workers before either suite ran, so neither window exists yet.
++With both 300 s figures, #998's twenty-six workers leave four regular workers over the 1276 s budget, up to 1306 s.
++Either figure alone leaves three over it.
++So #979 adds a twenty-seventh worker, as its N1 decision provides when the self-test requires one.
++The largest regular worker stays at 1275 s, and `input_loopback_dp` and `input_loopback` land on workers 14 and 15.
+ 
+ #645's [bind round](https://github.com/kebag-logic/milan-fpga/issues/645#issuecomment-6187595500)
+ added a fifth default leg, `bind`, bench lane B17's binds at INTERNAL.
+@@ -671,20 +676,20 @@ preflight runs `scripts/suite_shards.py --selftest`, and so does every hosted
+ worker's ownership step before its suites. That self-test refuses to start until the selector's
+ `SUITE_SECONDS` names every default suite, so a change that adds a suite first
+ records a provisional figure for it, by the new-suite steps in the selector's
+-docstring. GitHub runs twenty-six isolated `--ci-pieces --shard INDEX/26`
++docstring. GitHub runs twenty-seven isolated `--ci-pieces --shard INDEX/27`
+ workers to reduce wall time. `--ci-pieces` expands eight long suites into
+ driver-derived case partitions, so `milan_dp` runs as eight legs on separate
+ workers, and the last worker runs media-clock leg A, `milan_dp_mclk__0`,
+ alone. The workflow template's six-worker matrix is generator input only;
+-`scripts/ci_gate_workflows.py` writes the twenty-six-worker workflow from it
++`scripts/ci_gate_workflows.py` writes the twenty-seven-worker workflow from it
+ ([CI workflow policy](CI_WORKFLOWS.md#exhaustive-validation)). GitHub then
+ keeps `verilator-suites` as a small aggregate required check. That aggregate
+ requires every divided suite's case union, compares the uploaded log names with
+ the live default suite inventory, and fails on a missing, unexpected, or
+ multiply-owned suite before trusting the combined tally.
+-`scripts/run_all_suites.sh --ci-pieces --shard 0/26 --list` shows a worker's
++`scripts/run_all_suites.sh --ci-pieces --shard 0/27 --list` shows a worker's
+ deterministic selection without building it; sharding is a scheduling detail,
+-not permission to validate only one twenty-sixth locally.
++not permission to validate only one twenty-seventh locally.
+ 
+ **Case start order in a piece.** `scripts/ci_make_cases.py` runs a piece's
+ cases on two workers. It starts them longest first by its `CASE_SECONDS`
+diff --git a/scripts/suite_shards.py b/scripts/suite_shards.py
+index 19a8a66e8d..c44c220ddd 100644
+--- a/scripts/suite_shards.py
++++ b/scripts/suite_shards.py
+@@ -18,7 +18,7 @@ hide a new suite by omitting it from selection. A changed count or timeout is re
+ from the generated workflow, and omission, ownership, overflow and deterministic
+ selection controls must still pass.
+ 
+-    python3 scripts/suite_shards.py --suite-root tb/verilator --ci-pieces --shard 0/26
++    python3 scripts/suite_shards.py --suite-root tb/verilator --ci-pieces --shard 0/27
+     python3 scripts/suite_shards.py --measure worker.log
+     python3 scripts/suite_shards.py --selftest
+ """
+@@ -147,16 +147,14 @@ SUITE_SECONDS = {
+     "tsn_fuzz": 62,
+ }
+ 
+-#: Suites whose SUITE_SECONDS figure is provisional: the wall clock the
+-#: driver's suite_timeout gives a new suite, until the change's own hosted run
+-#: measures it (step 3 of the module docstring's new-suite steps).
++#: Suites whose SUITE_SECONDS figure is provisional: the wall clock the driver's suite_timeout gives a new suite,
++#: until the change's own hosted run measures it (step 3 of the module docstring's new-suite steps).
+ PROVISIONAL_SUITES: frozenset[str] = frozenset({"input_loopback", "input_loopback_dp", "reboot_ctrl"})
+ 
+-#: Seconds of each worker's job outside its suite windows in the same dev run:
+-#: checkout, the Verilator cache, tsn-gen on worker 1, Yosys and sv2v on worker
+-#: 3, the ownership step and the sweep's preflight self-tests, then the tally.
+-#: #781 and #799 add three regular 45-minute workers and #998 seven (CI_BUDGET_SECONDS); all 26 carry 122 s.
+-WORKER_OVERHEAD_SECONDS = (122,) * 26
++#: Seconds of each worker's job outside its suite windows in the same dev run: checkout, the Verilator cache, tsn-gen
++#: on worker 1, Yosys and sv2v on worker 3, the ownership step and the sweep's preflight self-tests, then the tally.
++#: #781 and #799 add three regular 45-minute workers, #998 seven and #979 one (CI_BUDGET_SECONDS); all 27 carry 122 s.
++WORKER_OVERHEAD_SECONDS = (122,) * 27
+ 
+ # Physical inventory stays available to the serial gate and log ownership.
+ SERIAL_SUITE_SECONDS = SUITE_SECONDS.copy()
+diff --git a/sw/firmware/ctrl/README.md b/sw/firmware/ctrl/README.md
+index f278ad9b62..013e935d6f 100644
+--- a/sw/firmware/ctrl/README.md
++++ b/sw/firmware/ctrl/README.md
+@@ -155,9 +155,9 @@ So does an invocation the compiler could not expand: the expansion failed, print
+ So does a precompiled header read first that no compile in the capture made.
+ So does a compiler run by a path no wrapper stands on: one a Python builder starts, which the audit hook sees, or one a Makefile builder's recipe names, which make's own dry run shows under the capture's `PATH`.
+ Three such compilers are not seen, and no builder has one: one a shell runs by its path (a shell script's, or a command a builder runs through a shell), one a compiled helper runs by its path, and one a Python builder started with `-I` or `-E` runs by its path, since that process loads no audit hook.
+-`--without verilator` leaves out the builders that need Verilator (the mailbox bench, the MAAP differential and the AECP wire comparison) and names each; `firmware-boundary` has no Verilator.
+-`--only verilator` judges those three alone, under the gate's own capture, and names the others.
+-Each runs every configuration its own list holds: the bench's default target, the differential with its self-test, and the wire comparison at each processor reference it pins (`--every`, one and two interfaces).
++`--without verilator` leaves out the builders that need Verilator (the mailbox bench, the MAAP differential, the AECP wire comparison and the enabled parent loopback harness, #979) and names each; `firmware-boundary` has no Verilator.
++`--only verilator` judges those four alone, under the gate's own capture, and names the others.
++Each runs every configuration its own list holds: the bench's default target, the differential with its self-test, the wire comparison at each processor reference it pins (`--every`, one and two interfaces), and the loopback harness's build at both shapes (`--build-only`), which compiles the AECP sources into the library its model links.
+ The required `firmware-verilator` job runs it with the pinned Verilator from the cache.
+ The two jobs split the builders, never an invocation: each recorded compile is judged whole, in the job that ran it.
+ The builders are also found by text, as a cross-check that can only refuse: every Python module and Makefile that names `sw/firmware/ctrl` or `ctrl_build`.
+diff --git a/sw/firmware/ctrl/test/ctrl_configs.py b/sw/firmware/ctrl/test/ctrl_configs.py
+index 711301cb1c..2e436f6428 100644
+--- a/sw/firmware/ctrl/test/ctrl_configs.py
++++ b/sw/firmware/ctrl/test/ctrl_configs.py
+@@ -104,11 +104,11 @@ class Builder:
+ #: binaries and RV32 build, every shape's store binaries and RV32 build, and both gates' coverage builds, none
+ #: run and no defect planted (the RV32 self-test compiles its planted header, ABI and runtime cases and runs no
+ #: binary); the gate runs the stack's gate and the image builders itself on
+-#: every run (ctrl_runs.owned); the last three need Verilator, and the hosted firmware-verilator job runs them
++#: every run (ctrl_runs.owned); the last four need Verilator, and the hosted firmware-verilator job runs them
+ #: through the gate's own capture (--only verilator). Each runs every configuration its own list holds: the
+ #: bench's default target, the differential with its self-test, the wire comparison at every reference it pins
+-#: (--every); the differential and the comparison keep what they build in the run's directory, where a control
+-#: replays it. Issue #998; REQ-VER-01 and REQ-VER-04.
++#: (--every), the loopback harness's build at both shapes; the differential and the comparison keep what they
++#: build in the run's directory, where a control replays it. Issue #998; REQ-VER-01 and REQ-VER-04.
+ BUILDERS = (
+     Builder("sw/firmware/gtest/fw_rv32_selftest.py",
+             (("{python}", "sw/firmware/gtest/fw_rv32_selftest.py", "--require-rv32"),)),
+@@ -137,6 +137,10 @@ BUILDERS = (
+     Builder("sw/firmware/ctrl/test/aecp_wire.py",
+             (("{python}", "sw/firmware/ctrl/test/aecp_wire.py", "--every", "--output", "{work}/aecp-wire",
+               "--verilator", "{verilator}"),), "verilator"),
++    # the enabled parent loopback harness (#979): the AECP sources into libaecp.a, linked into its model
++    Builder("tb/verilator/input_loopback_dp/run.py",
++            tuple(("{python}", "tb/verilator/input_loopback_dp/run.py", "--shape", shape, "--work",
++                   "{work}/input-loopback-" + shape, "--build-only") for shape in ("1", "8")), "verilator"),
+ )
+ #: What a run may say it has none of: each builder that needs it is left out of the capture, and named.
+ NEEDS = {"verilator": "Verilator"}
+diff --git a/tb/verilator/input_loopback/loopback_wrap.sv b/tb/verilator/input_loopback/loopback_wrap.sv
+index 454db18e70..6434a152ca 100644
+--- a/tb/verilator/input_loopback/loopback_wrap.sv
++++ b/tb/verilator/input_loopback/loopback_wrap.sv
+@@ -37,7 +37,6 @@ module loopback_wrap #(
+   wire [31:0] ts_w;
+   wire [63:0] fsh_w;
+   wire [N_STREAMS_P-1:0] accept_w;
+-  logic [3:0] accept_idx_w;
+   for (genvar i = 0; i < N_STREAMS_P; i++) begin : g_monitor
+     assign sid_w[64*i +: 64] = 64'h0200_0000_0002_0000 + 64'(i);
+     KL_avtp_rx_monitor #(.CLK_FREQ_HZ_P(49_152_000)) mon (
+@@ -50,11 +49,6 @@ module loopback_wrap #(
+       .clk_src_i(16'd0), .servo_conv_i(1'b1), .pdu_accept_p_o(accept_w[i])
+     );
+   end
+-  always_comb begin : accepted_index
+-    accept_idx_w = '0;
+-    for (int i = 0; i < N_STREAMS_P; i++)
+-      if (accept_w[i]) accept_idx_w = 4'(i);
+-  end
+   avtp_stream_parser #(.N_STREAMS(N_STREAMS_P)) parser (
+     .clk(clk), .resetn(rst_n), .cfg_stream_id_i(sid_w), .cfg_stream_en_i('1),
+     .s_tdata_i(rx_data_i), .s_tkeep_i(rx_keep_i), .s_tvalid_i(rx_valid_i),
+@@ -67,10 +61,12 @@ module loopback_wrap #(
+   wire pcm_valid_w, pcm_last_w, hdr_w, hdr_tv_w;
+   wire [3:0] pcm_stream_w;
+   wire [31:0] hdr_ts_w;
+-  KL_aaf_rx_depacketizer #(.PAY_LEAD_CYC_P(16)) depacketizer (
++  //! each flat monitor's accept lands in the frame's flight and is its PDU's one verdict: it queues the PDU and
++  //! completes it at once, the accepting monitors its done mask (#948's verdict protocol)
++  KL_aaf_rx_depacketizer #(.N_STREAMS_P(N_STREAMS_P), .PAY_LEAD_CYC_P(16)) depacketizer (
+     .clk_i(clk), .rst_n(rst_n), .s_tdata_i(rx_data_i), .s_tkeep_i(rx_keep_i),
+     .s_tvalid_i(rx_valid_i), .s_tready_i(1'b1), .s_tlast_i(rx_last_i),
+-    .pdu_accept_p_i(|accept_w), .pdu_accept_idx_i(accept_idx_w),
++    .pdu_enq_p_i(|accept_w), .pdu_done_p_i(|accept_w), .pdu_done_mask_i(accept_w),
+     .m_axis_tdata(pcm_w), .m_axis_tvalid(pcm_valid_w), .m_axis_tlast(pcm_last_w),
+     .m_axis_tuser(pcm_stream_w), .m_axis_tready(1'b1),
+     .hdr_p_o(hdr_w), .hdr_ts_o(hdr_ts_w), .hdr_tv_o(hdr_tv_w), .pdus_o(pdus_o)

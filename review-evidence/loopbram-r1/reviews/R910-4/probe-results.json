@@ -1,0 +1,790 @@
+[
+  {
+    "name": "old-list",
+    "command": [
+      "python3",
+      "sw/builder/test_builder.py",
+      "--list"
+    ],
+    "rc": 2,
+    "expected": 2,
+    "seconds": 1.136
+  },
+  {
+    "name": "fixed-list",
+    "command": [
+      "python3",
+      "sw/builder/test_builder.py",
+      "--list"
+    ],
+    "rc": 0,
+    "expected": 0,
+    "seconds": 1.156
+  },
+  {
+    "name": "head-list",
+    "command": [
+      "python3",
+      "sw/builder/test_builder.py",
+      "--list"
+    ],
+    "rc": 0,
+    "expected": 0,
+    "seconds": 0.845
+  },
+  {
+    "name": "fixed-planner",
+    "command": [
+      "python3",
+      "scripts/suite_shards.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "expected": 0,
+    "seconds": 5.647
+  },
+  {
+    "name": "head-planner",
+    "command": [
+      "python3",
+      "scripts/suite_shards.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "expected": 0,
+    "seconds": 7.816
+  },
+  {
+    "name": "head-evidence-selftest",
+    "command": [
+      "python3",
+      "scripts/measure_test_evidence.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "expected": 0,
+    "seconds": 18.298
+  },
+  {
+    "name": "head-suite-workflows",
+    "command": [
+      "python3",
+      "scripts/ci_suite_workflows.py",
+      "--check"
+    ],
+    "rc": 0,
+    "expected": 0,
+    "seconds": 0.132
+  },
+  {
+    "name": "head-gate-workflows",
+    "command": [
+      "python3",
+      "scripts/ci_gate_workflows.py",
+      "--check"
+    ],
+    "rc": 0,
+    "expected": 0,
+    "seconds": 1.187
+  },
+  {
+    "name": "head-builder-focused",
+    "command": [
+      "python3",
+      "sw/builder/test_input_loopback.py"
+    ],
+    "rc": 0,
+    "expected": 0,
+    "seconds": 0.648
+  },
+  {
+    "name": "fixed-shard-0",
+    "command": [
+      "python3",
+      "scripts/suite_shards.py",
+      "--suite-root",
+      "tb/verilator",
+      "--ci-pieces",
+      "--shard",
+      "0/19"
+    ],
+    "rc": 0,
+    "expected": 0,
+    "seconds": 0.287
+  },
+  {
+    "name": "fixed-shard-1",
+    "command": [
+      "python3",
+      "scripts/suite_shards.py",
+      "--suite-root",
+      "tb/verilator",
+      "--ci-pieces",
+      "--shard",
+      "1/19"
+    ],
+    "rc": 0,
+    "expected": 0,
+    "seconds": 0.12
+  },
+  {
+    "name": "fixed-shard-2",
+    "command": [
+      "python3",
+      "scripts/suite_shards.py",
+      "--suite-root",
+      "tb/verilator",
+      "--ci-pieces",
+      "--shard",
+      "2/19"
+    ],
+    "rc": 0,
+    "expected": 0,
+    "seconds": 0.189
+  },
+  {
+    "name": "fixed-shard-3",
+    "command": [
+      "python3",
+      "scripts/suite_shards.py",
+      "--suite-root",
+      "tb/verilator",
+      "--ci-pieces",
+      "--shard",
+      "3/19"
+    ],
+    "rc": 0,
+    "expected": 0,
+    "seconds": 0.159
+  },
+  {
+    "name": "fixed-shard-4",
+    "command": [
+      "python3",
+      "scripts/suite_shards.py",
+      "--suite-root",
+      "tb/verilator",
+      "--ci-pieces",
+      "--shard",
+      "4/19"
+    ],
+    "rc": 0,
+    "expected": 0,
+    "seconds": 0.17
+  },
+  {
+    "name": "fixed-shard-5",
+    "command": [
+      "python3",
+      "scripts/suite_shards.py",
+      "--suite-root",
+      "tb/verilator",
+      "--ci-pieces",
+      "--shard",
+      "5/19"
+    ],
+    "rc": 0,
+    "expected": 0,
+    "seconds": 0.096
+  },
+  {
+    "name": "fixed-shard-6",
+    "command": [
+      "python3",
+      "scripts/suite_shards.py",
+      "--suite-root",
+      "tb/verilator",
+      "--ci-pieces",
+      "--shard",
+      "6/19"
+    ],
+    "rc": 0,
+    "expected": 0,
+    "seconds": 0.098
+  },
+  {
+    "name": "fixed-shard-7",
+    "command": [
+      "python3",
+      "scripts/suite_shards.py",
+      "--suite-root",
+      "tb/verilator",
+      "--ci-pieces",
+      "--shard",
+      "7/19"
+    ],
+    "rc": 0,
+    "expected": 0,
+    "seconds": 0.104
+  },
+  {
+    "name": "fixed-shard-8",
+    "command": [
+      "python3",
+      "scripts/suite_shards.py",
+      "--suite-root",
+      "tb/verilator",
+      "--ci-pieces",
+      "--shard",
+      "8/19"
+    ],
+    "rc": 0,
+    "expected": 0,
+    "seconds": 0.092
+  },
+  {
+    "name": "fixed-shard-9",
+    "command": [
+      "python3",
+      "scripts/suite_shards.py",
+      "--suite-root",
+      "tb/verilator",
+      "--ci-pieces",
+      "--shard",
+      "9/19"
+    ],
+    "rc": 0,
+    "expected": 0,
+    "seconds": 0.103
+  },
+  {
+    "name": "fixed-shard-10",
+    "command": [
+      "python3",
+      "scripts/suite_shards.py",
+      "--suite-root",
+      "tb/verilator",
+      "--ci-pieces",
+      "--shard",
+      "10/19"
+    ],
+    "rc": 0,
+    "expected": 0,
+    "seconds": 0.103
+  },
+  {
+    "name": "fixed-shard-11",
+    "command": [
+      "python3",
+      "scripts/suite_shards.py",
+      "--suite-root",
+      "tb/verilator",
+      "--ci-pieces",
+      "--shard",
+      "11/19"
+    ],
+    "rc": 0,
+    "expected": 0,
+    "seconds": 0.101
+  },
+  {
+    "name": "fixed-shard-12",
+    "command": [
+      "python3",
+      "scripts/suite_shards.py",
+      "--suite-root",
+      "tb/verilator",
+      "--ci-pieces",
+      "--shard",
+      "12/19"
+    ],
+    "rc": 0,
+    "expected": 0,
+    "seconds": 0.102
+  },
+  {
+    "name": "fixed-shard-13",
+    "command": [
+      "python3",
+      "scripts/suite_shards.py",
+      "--suite-root",
+      "tb/verilator",
+      "--ci-pieces",
+      "--shard",
+      "13/19"
+    ],
+    "rc": 0,
+    "expected": 0,
+    "seconds": 0.101
+  },
+  {
+    "name": "fixed-shard-14",
+    "command": [
+      "python3",
+      "scripts/suite_shards.py",
+      "--suite-root",
+      "tb/verilator",
+      "--ci-pieces",
+      "--shard",
+      "14/19"
+    ],
+    "rc": 0,
+    "expected": 0,
+    "seconds": 0.107
+  },
+  {
+    "name": "fixed-shard-15",
+    "command": [
+      "python3",
+      "scripts/suite_shards.py",
+      "--suite-root",
+      "tb/verilator",
+      "--ci-pieces",
+      "--shard",
+      "15/19"
+    ],
+    "rc": 0,
+    "expected": 0,
+    "seconds": 0.109
+  },
+  {
+    "name": "fixed-shard-16",
+    "command": [
+      "python3",
+      "scripts/suite_shards.py",
+      "--suite-root",
+      "tb/verilator",
+      "--ci-pieces",
+      "--shard",
+      "16/19"
+    ],
+    "rc": 0,
+    "expected": 0,
+    "seconds": 0.122
+  },
+  {
+    "name": "fixed-shard-17",
+    "command": [
+      "python3",
+      "scripts/suite_shards.py",
+      "--suite-root",
+      "tb/verilator",
+      "--ci-pieces",
+      "--shard",
+      "17/19"
+    ],
+    "rc": 0,
+    "expected": 0,
+    "seconds": 0.127
+  },
+  {
+    "name": "fixed-shard-18",
+    "command": [
+      "python3",
+      "scripts/suite_shards.py",
+      "--suite-root",
+      "tb/verilator",
+      "--ci-pieces",
+      "--shard",
+      "18/19"
+    ],
+    "rc": 0,
+    "expected": 0,
+    "seconds": 0.124
+  },
+  {
+    "name": "head-shard-0",
+    "command": [
+      "python3",
+      "scripts/suite_shards.py",
+      "--suite-root",
+      "tb/verilator",
+      "--ci-pieces",
+      "--shard",
+      "0/27"
+    ],
+    "rc": 0,
+    "expected": 0,
+    "seconds": 0.117
+  },
+  {
+    "name": "head-shard-1",
+    "command": [
+      "python3",
+      "scripts/suite_shards.py",
+      "--suite-root",
+      "tb/verilator",
+      "--ci-pieces",
+      "--shard",
+      "1/27"
+    ],
+    "rc": 0,
+    "expected": 0,
+    "seconds": 0.109
+  },
+  {
+    "name": "head-shard-2",
+    "command": [
+      "python3",
+      "scripts/suite_shards.py",
+      "--suite-root",
+      "tb/verilator",
+      "--ci-pieces",
+      "--shard",
+      "2/27"
+    ],
+    "rc": 0,
+    "expected": 0,
+    "seconds": 0.167
+  },
+  {
+    "name": "head-shard-3",
+    "command": [
+      "python3",
+      "scripts/suite_shards.py",
+      "--suite-root",
+      "tb/verilator",
+      "--ci-pieces",
+      "--shard",
+      "3/27"
+    ],
+    "rc": 0,
+    "expected": 0,
+    "seconds": 0.105
+  },
+  {
+    "name": "head-shard-4",
+    "command": [
+      "python3",
+      "scripts/suite_shards.py",
+      "--suite-root",
+      "tb/verilator",
+      "--ci-pieces",
+      "--shard",
+      "4/27"
+    ],
+    "rc": 0,
+    "expected": 0,
+    "seconds": 0.104
+  },
+  {
+    "name": "head-shard-5",
+    "command": [
+      "python3",
+      "scripts/suite_shards.py",
+      "--suite-root",
+      "tb/verilator",
+      "--ci-pieces",
+      "--shard",
+      "5/27"
+    ],
+    "rc": 0,
+    "expected": 0,
+    "seconds": 0.103
+  },
+  {
+    "name": "head-shard-6",
+    "command": [
+      "python3",
+      "scripts/suite_shards.py",
+      "--suite-root",
+      "tb/verilator",
+      "--ci-pieces",
+      "--shard",
+      "6/27"
+    ],
+    "rc": 0,
+    "expected": 0,
+    "seconds": 0.105
+  },
+  {
+    "name": "head-shard-7",
+    "command": [
+      "python3",
+      "scripts/suite_shards.py",
+      "--suite-root",
+      "tb/verilator",
+      "--ci-pieces",
+      "--shard",
+      "7/27"
+    ],
+    "rc": 0,
+    "expected": 0,
+    "seconds": 0.109
+  },
+  {
+    "name": "head-shard-8",
+    "command": [
+      "python3",
+      "scripts/suite_shards.py",
+      "--suite-root",
+      "tb/verilator",
+      "--ci-pieces",
+      "--shard",
+      "8/27"
+    ],
+    "rc": 0,
+    "expected": 0,
+    "seconds": 0.097
+  },
+  {
+    "name": "head-shard-9",
+    "command": [
+      "python3",
+      "scripts/suite_shards.py",
+      "--suite-root",
+      "tb/verilator",
+      "--ci-pieces",
+      "--shard",
+      "9/27"
+    ],
+    "rc": 0,
+    "expected": 0,
+    "seconds": 0.099
+  },
+  {
+    "name": "head-shard-10",
+    "command": [
+      "python3",
+      "scripts/suite_shards.py",
+      "--suite-root",
+      "tb/verilator",
+      "--ci-pieces",
+      "--shard",
+      "10/27"
+    ],
+    "rc": 0,
+    "expected": 0,
+    "seconds": 0.097
+  },
+  {
+    "name": "head-shard-11",
+    "command": [
+      "python3",
+      "scripts/suite_shards.py",
+      "--suite-root",
+      "tb/verilator",
+      "--ci-pieces",
+      "--shard",
+      "11/27"
+    ],
+    "rc": 0,
+    "expected": 0,
+    "seconds": 0.104
+  },
+  {
+    "name": "head-shard-12",
+    "command": [
+      "python3",
+      "scripts/suite_shards.py",
+      "--suite-root",
+      "tb/verilator",
+      "--ci-pieces",
+      "--shard",
+      "12/27"
+    ],
+    "rc": 0,
+    "expected": 0,
+    "seconds": 0.107
+  },
+  {
+    "name": "head-shard-13",
+    "command": [
+      "python3",
+      "scripts/suite_shards.py",
+      "--suite-root",
+      "tb/verilator",
+      "--ci-pieces",
+      "--shard",
+      "13/27"
+    ],
+    "rc": 0,
+    "expected": 0,
+    "seconds": 0.104
+  },
+  {
+    "name": "head-shard-14",
+    "command": [
+      "python3",
+      "scripts/suite_shards.py",
+      "--suite-root",
+      "tb/verilator",
+      "--ci-pieces",
+      "--shard",
+      "14/27"
+    ],
+    "rc": 0,
+    "expected": 0,
+    "seconds": 0.108
+  },
+  {
+    "name": "head-shard-15",
+    "command": [
+      "python3",
+      "scripts/suite_shards.py",
+      "--suite-root",
+      "tb/verilator",
+      "--ci-pieces",
+      "--shard",
+      "15/27"
+    ],
+    "rc": 0,
+    "expected": 0,
+    "seconds": 0.104
+  },
+  {
+    "name": "head-shard-16",
+    "command": [
+      "python3",
+      "scripts/suite_shards.py",
+      "--suite-root",
+      "tb/verilator",
+      "--ci-pieces",
+      "--shard",
+      "16/27"
+    ],
+    "rc": 0,
+    "expected": 0,
+    "seconds": 0.113
+  },
+  {
+    "name": "head-shard-17",
+    "command": [
+      "python3",
+      "scripts/suite_shards.py",
+      "--suite-root",
+      "tb/verilator",
+      "--ci-pieces",
+      "--shard",
+      "17/27"
+    ],
+    "rc": 0,
+    "expected": 0,
+    "seconds": 0.096
+  },
+  {
+    "name": "head-shard-18",
+    "command": [
+      "python3",
+      "scripts/suite_shards.py",
+      "--suite-root",
+      "tb/verilator",
+      "--ci-pieces",
+      "--shard",
+      "18/27"
+    ],
+    "rc": 0,
+    "expected": 0,
+    "seconds": 0.104
+  },
+  {
+    "name": "head-shard-19",
+    "command": [
+      "python3",
+      "scripts/suite_shards.py",
+      "--suite-root",
+      "tb/verilator",
+      "--ci-pieces",
+      "--shard",
+      "19/27"
+    ],
+    "rc": 0,
+    "expected": 0,
+    "seconds": 0.193
+  },
+  {
+    "name": "head-shard-20",
+    "command": [
+      "python3",
+      "scripts/suite_shards.py",
+      "--suite-root",
+      "tb/verilator",
+      "--ci-pieces",
+      "--shard",
+      "20/27"
+    ],
+    "rc": 0,
+    "expected": 0,
+    "seconds": 0.117
+  },
+  {
+    "name": "head-shard-21",
+    "command": [
+      "python3",
+      "scripts/suite_shards.py",
+      "--suite-root",
+      "tb/verilator",
+      "--ci-pieces",
+      "--shard",
+      "21/27"
+    ],
+    "rc": 0,
+    "expected": 0,
+    "seconds": 0.162
+  },
+  {
+    "name": "head-shard-22",
+    "command": [
+      "python3",
+      "scripts/suite_shards.py",
+      "--suite-root",
+      "tb/verilator",
+      "--ci-pieces",
+      "--shard",
+      "22/27"
+    ],
+    "rc": 0,
+    "expected": 0,
+    "seconds": 0.094
+  },
+  {
+    "name": "head-shard-23",
+    "command": [
+      "python3",
+      "scripts/suite_shards.py",
+      "--suite-root",
+      "tb/verilator",
+      "--ci-pieces",
+      "--shard",
+      "23/27"
+    ],
+    "rc": 0,
+    "expected": 0,
+    "seconds": 0.096
+  },
+  {
+    "name": "head-shard-24",
+    "command": [
+      "python3",
+      "scripts/suite_shards.py",
+      "--suite-root",
+      "tb/verilator",
+      "--ci-pieces",
+      "--shard",
+      "24/27"
+    ],
+    "rc": 0,
+    "expected": 0,
+    "seconds": 0.095
+  },
+  {
+    "name": "head-shard-25",
+    "command": [
+      "python3",
+      "scripts/suite_shards.py",
+      "--suite-root",
+      "tb/verilator",
+      "--ci-pieces",
+      "--shard",
+      "25/27"
+    ],
+    "rc": 0,
+    "expected": 0,
+    "seconds": 0.108
+  },
+  {
+    "name": "head-shard-26",
+    "command": [
+      "python3",
+      "scripts/suite_shards.py",
+      "--suite-root",
+      "tb/verilator",
+      "--ci-pieces",
+      "--shard",
+      "26/27"
+    ],
+    "rc": 0,
+    "expected": 0,
+    "seconds": 0.115
+  }
+]

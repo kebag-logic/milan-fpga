@@ -1,0 +1,15 @@
+{
+  "name": "fixed-shard-1",
+  "command": [
+    "python3",
+    "scripts/suite_shards.py",
+    "--suite-root",
+    "tb/verilator",
+    "--ci-pieces",
+    "--shard",
+    "1/19"
+  ],
+  "rc": 0,
+  "expected": 0,
+  "seconds": 0.12
+}

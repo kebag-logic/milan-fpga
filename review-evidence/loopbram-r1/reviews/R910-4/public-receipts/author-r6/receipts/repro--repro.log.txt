@@ -1,0 +1,36 @@
+Candidate head: c413d33abe016f5c1e44bdaa1e0354cfe4ab6d99
+Prior reviewed head: 9acb9b828b29aba71bd51303a4836f86c2278267
+Final merge read: 79d350657a5966306c87a607ffc3e52ecf6abc05 (tree ecaf54ccedc2f1fcdd4806dd3c0d510a202e273b)
+Source: repro/repro.log
+Original SHA256: 4e648939dbe74893221c8521ec11a21f493116b076025a5f50e3a20a841d8c77
+Scope: complete text; paths and host fields normalized
+
+python: Python 3.12.13
+final merge: 79d350657a5966306c87a607ffc3e52ecf6abc05 (ecaf54ccedc2f1fcdd4806dd3c0d510a202e273b)
+== A. hosted merge 7bfae19dee8a1eb105e8481691a407e66b92c142, no submodules
+  protocol-processor files: 0; -801ef2283ec793e35a2590fc6593c90313a64041 
+7bfae19-nosub: builder --list exit 2 ; stdout sha256 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+  stderr: gen_aemi_image: the protocol-processor submodule is not checked out (no protocol-processor/hdl/aecp/desc).
+  stderr:   git submodule update --init protocol-processor
+  File "$SCRATCH/merge-new/scripts/ci_builder_legs.py", line 59, in inventory
+  File "$PY312/lib/python3.12/subprocess.py", line 571, in run
+subprocess.CalledProcessError: Command '['$SCRATCH/py312/bin/python', 'sw/builder/test_builder.py', '--list']' returned non-zero exit status 2.
+exit=1
+  File "$SCRATCH/merge-new/scripts/ci_builder_legs.py", line 59, in inventory
+  File "$PY312/lib/python3.12/subprocess.py", line 571, in run
+subprocess.CalledProcessError: Command '['$SCRATCH/py312/bin/python', 'sw/builder/test_builder.py', '--list']' returned non-zero exit status 2.
+exit=1
+== B. hosted merge 7bfae19dee8a1eb105e8481691a407e66b92c142, protocol-processor present
+  protocol-processor files: 9;  801ef2283ec793e35a2590fc6593c90313a64041 
+7bfae19-sub: builder --list exit 0 ; stdout sha256 acc4d933d03afea09650fdd05df5400900fc1bf09960225b6980e01ef519c7fc
+tree=$SCRATCH/merge head=7bfae19dee8a1eb105e8481691a407e66b92c142 workflow=docs submodule-protocol-processor=9 python=Python 3.12.13
+docs: 45 source gates exactly once; all worker jobs successful
+exit=0
+--require-elaboration: an interpreter carrying the patch series was found and no elaboration arm was skipped for a toolchain reason; 4 arm(s) did not run for recorded reasons, listed above, and this verdict does not cover them
+elaborate: 5 source gates exactly once; all worker jobs successful
+exit=0
+== C. final merge 79d350657a5966306c87a607ffc3e52ecf6abc05, no submodules
+  protocol-processor files: 0; -801ef2283ec793e35a2590fc6593c90313a64041 
+final-nosub: builder --list exit 0 ; stdout sha256 acc4d933d03afea09650fdd05df5400900fc1bf09960225b6980e01ef519c7fc
+inventory: final/no-submodule == 7bfae19/with-submodule, byte-identical
+worktrees returned: 79d350657a 79d350657a; full tree status: ''

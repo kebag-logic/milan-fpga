@@ -1,0 +1,8 @@
+09201d35d7ea720b3ba205da185ba35c159ec24a Drive the leaf loopback harness's depacketizer with #948's queued and completed verdicts and their accepting mask, which replace the single accept index the merge removed
+e9f95da426506c2689166928e65029183c6736e9 Register the enabled parent loopback harness as a Verilator builder of the firmware, since it compiles the AECP sources into the library its model links
+12382bc88fcbcf2094fe3d91bb3632e81b949fd7 Deal the Verilator sweep on twenty-seven workers, so the loopback suites' provisional 300 s figures fit #998's 1276 s budget
+7049c524c45e0f3d1e6ba17b93208c0bb4e59a85 Merge dev-soft-core 5de21ff3 (PRs #1001, #1003, #995 and #992) into the BRAM loopback lane
+1516b2ffe321337858389ec8e42897f8a80644bb State the loopback suites' provisional 300 s budgets in the CI policy's suite table
+c413d33abe016f5c1e44bdaa1e0354cfe4ab6d99 Pin the loopback suites' timeout arms in the runner evidence contract
+243516da306747c5dcd757f78750385b289926e2 Register the loopback suites at their own 300 s suite timeouts as provisional figures
+42c0d6368f9d166cff9780afb2358628b851af64 Import the descriptor generators inside the loopback test so builder --list runs without submodules

@@ -1,0 +1,37 @@
+Candidate head: c413d33abe016f5c1e44bdaa1e0354cfe4ab6d99
+Prior reviewed head: 9acb9b828b29aba71bd51303a4836f86c2278267
+Final merge read: 79d350657a5966306c87a607ffc3e52ecf6abc05 (tree ecaf54ccedc2f1fcdd4806dd3c0d510a202e273b)
+Source: source-binding.json
+Original SHA256: 67fb3852f1c0869b676183b3f7456ee68c9c620ecc293910756a4e0cce4a8859
+Scope: complete text; paths and host fields normalized
+
+{
+  "candidate_head": "c413d33abe016f5c1e44bdaa1e0354cfe4ab6d99",
+  "candidate_tree": "8a668511253c4ef88a2a3cefe37ad202ccc5742a",
+  "prior_reviewed_head": "9acb9b828b29aba71bd51303a4836f86c2278267",
+  "base_branch": "dev-soft-core",
+  "base_tip": "2509db684b58b920e215b0d5d327b4a845bac3f4",
+  "final_merge": "79d350657a5966306c87a607ffc3e52ecf6abc05",
+  "final_merge_tree": "ecaf54ccedc2f1fcdd4806dd3c0d510a202e273b",
+  "hosted_failing_merge": "7bfae19dee8a1eb105e8481691a407e66b92c142",
+  "commits": [
+    "c413d33abe016f5c1e44bdaa1e0354cfe4ab6d99 Pin the loopback suites' timeout arms in the runner evidence contract",
+    "243516da306747c5dcd757f78750385b289926e2 Register the loopback suites at their own 300 s suite timeouts as provisional figures",
+    "42c0d6368f9d166cff9780afb2358628b851af64 Import the descriptor generators inside the loopback test so builder --list runs without submodules"
+  ],
+  "changed_files": [
+    "docs/testing/TESTING.md",
+    "scripts/measure_test_evidence.py",
+    "scripts/run_all_suites.sh",
+    "scripts/suite_shards.py",
+    "sw/builder/test_input_loopback.py"
+  ],
+  "diffstat": [
+    "docs/testing/TESTING.md           | 10 ++++++----",
+    " scripts/measure_test_evidence.py  |  2 ++",
+    " scripts/run_all_suites.sh         |  7 +++++--",
+    " scripts/suite_shards.py           |  8 ++++----",
+    " sw/builder/test_input_loopback.py | 16 +++++++++++-----",
+    " 5 files changed, 28 insertions(+), 15 deletions(-)"
+  ]
+}
