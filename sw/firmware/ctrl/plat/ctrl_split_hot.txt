@@ -23,49 +23,31 @@
 # each as itself and as the SoC plan's stand-in and mapped images. The target
 # platform's image (ctrl_plat_image.py) links the same script without that
 # check, and an entry it lacks places nothing there.
+# Dropped: mrp_mad find_attr; the one-interface images build lwSRP's lookup buckets, whose lookup links as find_attr,
+# and the 8x8/2if images keep find_attr.isra.0, so neither name links in every image (#977).
+# Dropped: msrp msrp_attr_key; lwSRP's bucket key (LWSRP_ATTR_KEY), which only the one-interface images build; the size
+# fixture's 8x8/2if images lack it, in every arm (#977).
+# Dropped: mvrp mvrp_attr_key; lwSRP's bucket key (LWSRP_ATTR_KEY), which only the one-interface images build; the size
+# fixture's 8x8/2if images lack it, in every arm (#977).
 # Dropped: aecp owe; the size fixture's 8x8/2if images lack it, in every arm.
 # Dropped: aecp owed_drain; the size fixture's 8x8/2if images lack it, in every arm.
-# Dropped: mrp_mad find_attr.isra.0; the one-interface images build lwSRP's lookup buckets, whose lookup
-# links as find_attr, and the 8x8/2if images keep find_attr.isra.0, so neither name links in every image (#977).
-# The traces' sha256:
-#   backlog              c20af90805ec27ac1e13778ff39263ee91215b51b724bf909d233ceaccf3ec66
-#   backlog-adp          0095424351ea6b71ccfce8348e0c8eed846eb1bfe4f1054d299dc44b58494a06
-#   aecp-largest-notice  d03e4494ef4b4cb23d98f00ceb978a639f07e225a1df0d340c9d3797b9a53eee
+# The traces' sha256 (each window's PC lines, as the harness printed them):
+#   backlog              e3efd43419d684b6115b6d1e30835824976539eb011d35f31c5bb4b093993b09
+#   backlog-adp          83c73afb9dad61acc809fbc5f731b7500a37043d41828101891a02608dd77f6b
+#   aecp-largest-notice  7b2ed7e010362ed4f4d3098c1e2d8fd5960e54b753fc5e8afc222abc3551840c
+# The backlog windows' traces end with their groups, at 204,258 and 274,521 PCs; the third's at 900,000.
 #
 # sw/firmware/ctrl/test/ctrl_hot.py requires the script's list to be this one,
 # entry for entry, and every entry to name a section of the linked image.
 # One entry a line: the object, then the function's section name. A firmware
 # object is its source's stem; a runtime archive's member is <archive>:<member>.
 ctrl_loop ctrl_loop_service
+ctrl_loop service_rx
+acmp_mbx on_rx_ready
+mbx mbx_rx_take
 nvm_store nvm_store_clock
 nvm_store nvm_now
 nvm_flash_litespi ls_now_us
-ctrl_loop round_of
-aecp_mbx retry
-aecp aecp_retry
-aecp aecp_enter
-aecp round_waits
-aecp now
-aecp_mbx now
-mbx mbx_now_ms
-aecp scan
-aecp arm
-aecp_mbx timer
-nvm_store nvm_store_step
-ctrl_loop ctrl_loop_step
-mbx_plat_mmio mbx_hal_wait
-ctrl_loop ctrl_loop_run
-aecp_mbx retry_aged
-aecp aecp_retry_aged
-srp_mbx transmit_aged
-mbx mbx_rx_mark
-ctrl_loop dispatch_ticks
-mbx mbx_event_take
-ctrl_loop service_rx
-aecp_mbx ready
-aecp aecp_ready
-mbx mbx_rx_take
-acmp_mbx on_rx_ready
 srp_mbx rx_ready
 mbx mbx_rx_waiting
 adp_mbx on_poll
@@ -87,7 +69,13 @@ maap pump
 maap_mbx declaring
 aecp_mbx poll
 aecp aecp_poll
+aecp aecp_enter
+aecp now
+aecp_mbx now
+mbx mbx_now_ms
 aecp transmit
+aecp arm
+aecp_mbx timer
 ctrl_app_aecp deliver
 aecp_nvm aecp_nvm_poll
 ctrl_app_aecp publish_store
@@ -99,10 +87,27 @@ srp_mbx poll
 srp_mbx enter
 mbx mbx_link_up
 srp_mbx snapshot
-srp_mbx capture
 srp_mbx reclaim
 ctrl_app_srp deliver
 srp_mbx srp_mbx_gate
+ctrl_loop round_of
+aecp_mbx retry
+aecp aecp_retry
+aecp round_waits
+aecp scan
+nvm_store nvm_store_step
+ctrl_loop ctrl_loop_step
+mbx_plat_mmio mbx_hal_wait
+ctrl_loop ctrl_loop_run
+aecp_mbx retry_aged
+aecp aecp_retry_aged
+srp_mbx transmit_aged
+ctrl_app_srp settle
+mbx mbx_rx_mark
+ctrl_loop dispatch_ticks
+mbx mbx_event_take
+aecp_mbx ready
+aecp aecp_ready
 srp_mbx tick
 timer shlan_timer_tick
 mrp_mad mrp_port_status
@@ -119,6 +124,7 @@ adp adp_gm_change
 adp enter_delay
 adp_mbx port_timer_start
 mbx mbx_timer_arm
+mbx rx_word
 aecp_mbx frame
 aecp aecp_rx
 aecp wire_be32
@@ -157,6 +163,7 @@ timer shlan_timer_remove
 shlan_port shlan_free
 ctrl_pool ctrl_pool_free
 mvrp mvrp_app_destroy
+srp_mbx capture
 mbx mbx_rx_before
 adp adp_link_change
 adp timer_stop
@@ -222,39 +229,29 @@ maap mac_at
 acmp_mbx on_adp_frame
 adp_mbx on_frame
 adp adp_rx
-srp_mbx receive
 srp_mbx transmit
-ctrl_app_srp locked
-ctrl_app_aecp locked
-aecp aecp_locked
+srp_mbx rx_charge
+mbx mbx_rx_next_len
+mbx mbx_rx_next_byte
+srp_mbx receive
+maap enqueue
+maap wire_put_be
+maap_mbx send_frame
+acmp acmp_adp_rx
 acmp mark
-acmp bind_response
-acmp_mbx port_publish
-mbx mbx_pub_sink_binding
-acmp probe
-acmp send_probe
+acmp_mbx port_gptp
+mbx mbx_gm_id
 acmp now
 acmp_mbx port_now
+acmp delay
+acmp_mbx port_seed
 acmp_mbx port_timer
-acmp_mbx port_admit
-mbx mbx_filter_set_bound_talker
-acmp record_of
-ctrl_app_srp persist
-ctrl_app_aecp persist
-ctrl_aecp_image notice
 acmp view_of
 ctrl_app_srp changed
 ctrl_app_aecp acmp_changed
-nvm_store nvm_store_changed
-nvm_klj2 nvm_rec_id_of
-nvm_store nvm_mark
-nvm_store nvm_open_set
+ctrl_aecp_image notice
 acmp acmp_change_pending
 aecp aecp_changed
-aecp_face publish
-aecp_face current.isra.0
-mbx mbx_face_write
-mbx mbx_face_commit
 aecp_commands aecp_stream_read
 aecp_commands observe
 aecp_mbx stream
@@ -263,10 +260,24 @@ aecp_face stream
 aecp_face gsi
 mbx mbx_win_read
 mbx mbx_win_ask
-acmp acmp_adp_rx
-acmp_mbx port_gptp
-mbx mbx_gm_id
-acmp tk_departed
+srp_mbx apply_receive
+shlan_port shlan_port_pool
+mrp_mad mrp_rx
+mrp_pdu mrpdu_parse
+mrp_pdu parse_pass
+msrp msrp_attr_len
+msrp msrp_attr_has_subtype
+msrp msrp_decode_attr
+msrp increment_stream
+mrp_mad rx_on_attr
+srp_mbx interested_msrp
+srp_mbx sources_of
+srp_mbx same
+msrp msrp_join_ind
+srp_mbx listener
+msrp msrp_attr_cmp
+ctrl_mem memcmp
+acmp acmp_listener_registered
 aecp monitor
 aecp_mbx random_value
 ctrl_app_aecp random_value
@@ -290,10 +301,17 @@ aecp_mbx changed
 ctrl_app_aecp changed
 aecp_nvm aecp_nvm_changed
 aecp_nvm mark
+nvm_klj2 nvm_rec_id_of
 aecp_face changed
+aecp_face publish
+aecp_face current.isra.0
+mbx mbx_face_write
+mbx mbx_face_commit
 aecp fan_out
 nvm_store nvm_store_changed_id
 nvm_klj2 nvm_rec_id_known
+nvm_store nvm_mark
+nvm_store nvm_open_set
 adp adp_timer_expired
 adp advertise
 adp send
