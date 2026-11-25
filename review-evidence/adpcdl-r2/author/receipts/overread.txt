@@ -1,0 +1,12 @@
+plain core=head filter=* rc=0 started=49 failed=[] named-message=0 
+plain core=head filter=*AcceptsLong* rc=0 started=5 failed=[] named-message=0 
+plain core=head filter=*ReadsNoOctet* rc=0 started=5 failed=[] named-message=0 
+plain core=overread filter=* rc=1 started=49 failed=[AllStates/AdpInputControl.ReadsNoOctetPastTheFrame/0 AllStates/AdpInputControl.ReadsNoOctetPastTheFrame/1 AllStates/AdpInputControl.ReadsNoOctetPastTheFrame/2 AllStates/AdpInputControl.ReadsNoOctetPastTheFrame/3 AllStates/AdpInputControl.ReadsNoOctetPastTheFrame/4 ] named-message=5 
+plain core=overread filter=*AcceptsLong* rc=0 started=5 failed=[] named-message=0 
+plain core=overread filter=*ReadsNoOctet* rc=1 started=5 failed=[AllStates/AdpInputControl.ReadsNoOctetPastTheFrame/0 AllStates/AdpInputControl.ReadsNoOctetPastTheFrame/1 AllStates/AdpInputControl.ReadsNoOctetPastTheFrame/2 AllStates/AdpInputControl.ReadsNoOctetPastTheFrame/3 AllStates/AdpInputControl.ReadsNoOctetPastTheFrame/4 ] named-message=5 
+asan core=head filter=* rc=0 started=49 failed=[] named-message=0 
+asan core=head filter=*AcceptsLong* rc=0 started=5 failed=[] named-message=0 
+asan core=head filter=*ReadsNoOctet* rc=0 started=5 failed=[] named-message=0 
+asan core=overread filter=* rc=1 started=35 failed=[] named-message=0 ERROR: AddressSanitizer: heap-buffer-overflow 
+asan core=overread filter=*AcceptsLong* rc=1 started=1 failed=[] named-message=0 ERROR: AddressSanitizer: heap-buffer-overflow 
+asan core=overread filter=*ReadsNoOctet* rc=1 started=5 failed=[AllStates/AdpInputControl.ReadsNoOctetPastTheFrame/0 AllStates/AdpInputControl.ReadsNoOctetPastTheFrame/1 AllStates/AdpInputControl.ReadsNoOctetPastTheFrame/2 AllStates/AdpInputControl.ReadsNoOctetPastTheFrame/3 AllStates/AdpInputControl.ReadsNoOctetPastTheFrame/4 ] named-message=5 

@@ -1,0 +1,29 @@
+ec727b64663b4eef2fc8da1ea5e0eae6541597d1 00b9b9eebd1dd1f9ecdea206ead5a0a40ed67951
+Accept every length from 57 to 2047 in a frame of exactly 82 octets, read frames that end at a protected page, plant narrowed masks and a read past the frame, and check a long length on RV32 (#37)
+
+ CHANGELOG.md          |   2 +-
+ docs/REQUIREMENTS.md  |   1 +
+ docs/TESTS.md         |  49 +++++++++---------
+ docs/TRACEABILITY.md  |  18 +++----
+ docs/VERIFICATION.md  |   4 +-
+ examples/rv32/smoke.c |  20 +++++---
+ tests/mutations.json  | 140 ++++++++++++++++++++++++++++++++++++++++++++++++++
+ tests/test_adp.cpp    |  52 ++++++++++++++++---
+ 8 files changed, 235 insertions(+), 51 deletions(-)
+e0b144904e57c96928f1dd3fca36a00df42f6ed3 2b5890f3cbb82b2415f7fa50151db3acc550e282
+Read an ENTITY_DISCOVER whose control_data_length is above 56 by its first 56 octets and ignore the rest
+
+ CHANGELOG.md           |   1 +
+ docs/PORTING.md        |   7 ++-
+ docs/REQUIREMENTS.md   |   9 ++-
+ docs/TESTS.md          |   9 +--
+ docs/TRACEABILITY.md   |   6 +-
+ docs/VERIFICATION.md   |   2 +-
+ docs/requirements.json |   6 +-
+ src/adp.c              |   3 +-
+ tests/mutations.json   | 154 ++++++++++++++++++++++++++++++++++++++++++++++---
+ tests/test_adp.cpp     |  75 +++++++++++++++---------
+ 10 files changed, 222 insertions(+), 50 deletions(-)
+
+git merge-tree with dev-linux (9e1cd60): 00b9b9ee = head tree; with main (69bac7c): 00b9b9ee = head tree
+src/ and include/ since e0b1449: unchanged

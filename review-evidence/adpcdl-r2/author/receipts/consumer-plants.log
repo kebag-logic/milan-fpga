@@ -1,0 +1,25 @@
+toolchain: {'cc': 'gcc (GCC) 16.2.1 20260810', 'cxx': 'g++ (GCC) 16.2.1 20260810', 'gcov': 'gcov (GCC) 16.2.1 20260810', 'gtest': '1.14.0', 'gmock': '1.14.0'}
+tsn-c-stack at ec727b64663b4eef2fc8da1ea5e0eae6541597d1
+tests no defect names, full table of 847 defects: []
+selected: ['own-discover-discarded', 'foreign-discover-answered', 'other-subtype-accepted', 'pin-adp-short-discovery', 'pin-adp-discovery-version', 'pin-adp-discovery-length', 'pin-adp-discovery-valid-time', 'pin-adp-discovery-length-octet', 'pin-adp-long-discovery', 'pin-adp-valid-discovery']
+[ok] mutant own-discover-discarded (walk): 4 check(s) failed
+    first: [FAIL] Table551/AdpWalkCell.Graded/RCV_ADP_DISCOVER_own_eid_x_WAITING: RCV_ADP_DISCOVER(own eid) x WAITING: advertise state after
+[ok] mutant foreign-discover-answered (adp): 3 check(s) failed
+    first: [FAIL] AdpCore.A3toA5DiscoverAndDiscard: A4 a foreign DISCOVER, an AVAILABLE and a truncated ADPDU are discarded (5.6.3.1)
+[ok] mutant other-subtype-accepted (adp): 2 check(s) failed
+    first: [FAIL] AdpCore.A24OtherEtherTypeOrSubtypeDiscarded: A24 a DISCOVER under another EtherType or subtype is discarded and counted
+[ok] mutant pin-adp-short-discovery (adp): 124 check(s) failed
+    first: [FAIL] AdpAdapter.PinRejectsEveryTruncatedDiscovery: malformed discovery changes only the discard count through the parent adapter
+[ok] mutant pin-adp-discovery-version (adp): 26 check(s) failed
+    first: [FAIL] AdpAdapter.PinRejectsUnsupportedDiscoveryVersions: malformed discovery changes only the discard count through the parent adapter
+[ok] mutant pin-adp-discovery-length (adp): 20 check(s) failed
+    first: [FAIL] AdpAdapter.PinRejectsShortDiscoveryControlLength: malformed discovery changes only the discard count through the parent adapter
+[ok] mutant pin-adp-discovery-valid-time (adp): 16 check(s) failed
+    first: [FAIL] AdpAdapter.PinRejectsShortDiscoveryControlLength: malformed discovery changes only the discard count through the parent adapter
+[ok] mutant pin-adp-discovery-length-octet (adp): 17 check(s) failed
+    first: [FAIL] AdpAdapter.PinAcceptsLongDiscoveryThroughMailbox: a longer discovery restarts advertising through the mailbox
+[ok] mutant pin-adp-long-discovery (adp): 31 check(s) failed
+    first: [FAIL] AdpAdapter.PinAcceptsLongDiscoveryThroughMailbox: a longer discovery restarts advertising through the mailbox
+[ok] mutant pin-adp-valid-discovery (adp): 99 check(s) failed
+    first: [FAIL] AdpCore.A3toA5DiscoverAndDiscard: A3 RCV_ADP_DISCOVER in DELAY is ignored (Table 5.51)
+mutants: 10 of 10 caught

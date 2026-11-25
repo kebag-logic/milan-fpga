@@ -1,0 +1,55 @@
+    41942:  301:void adp_rx(struct adp *a, const uint8_t *frame, size_t len)
+        -:  302:{
+    41942:  303:	if (reject_reentry()) {
+call    0 returned 41942
+branch  1 taken 12 (fallthrough)
+branch  2 taken 41930
+       12:  304:		return;
+        -:  305:	}
+        -:  306:	// Milan v1.2 5.6.3.1
+        -:  307:	// IEEE 1722.1-2021 Figure 6-1
+        -:  308:	// IEEE 1722.1-2021 6.2.2.3 and 6.2.2.6
+        -:  309:	// IEEE 1722.1-2021 6.2.7.1.3
+        -:  310:	// IEEE 1722-2016 4.4.3.4 and 4.4.5.4
+    41930:  311:	if (len < ADP_FRAME_BYTES || wire_be16(frame + 12) != ADP_ETHERTYPE ||
+branch  0 taken 41109 (fallthrough)
+branch  1 taken 821
+call    2 returned 41109
+branch  3 taken 41108 (fallthrough)
+branch  4 taken 1
+    41108:  312:	    frame[ADP_HEADER_BYTES] != ADP_SUBTYPE ||
+branch  0 taken 41107 (fallthrough)
+branch  1 taken 1
+    41107:  313:	    (frame[ADP_HEADER_BYTES + 1u] & 0x70u) != 0u ||
+branch  0 taken 41037 (fallthrough)
+branch  1 taken 70
+    41037:  314:	    (wire_be16(frame + ADP_HEADER_BYTES + 2u) & 0x07FFu) < ADP_CONTROL_DATA_LENGTH ||
+call    0 returned 41037
+branch  1 taken 39917 (fallthrough)
+branch  2 taken 1120
+    39917:  315:	    (frame[ADP_HEADER_BYTES + 1u] & 0x0Fu) != ADP_MSG_ENTITY_DISCOVER) {
+branch  0 taken 1 (fallthrough)
+branch  1 taken 39916
+     2014:  316:		a->discarded++;
+     2014:  317:		return;
+        -:  318:	}
+    39916:  319:	uint64_t target = wire_be64(frame + ADP_HEADER_BYTES + 4u);
+call    0 returned 39916
+    39916:  320:	if (target != 0u && target != a->entity->entity_id) {
+branch  0 taken 19957 (fallthrough)
+branch  1 taken 19959
+branch  2 taken 1 (fallthrough)
+branch  3 taken 19956
+        1:  321:		a->discarded++;
+        1:  322:		return;
+        -:  323:	}
+    39915:  324:	if (!a->enabled || a->state != ADP_STATE_WAITING) {             // Milan v1.2 Table 5.51
+branch  0 taken 31932 (fallthrough)
+branch  1 taken 7983
+branch  2 taken 23949 (fallthrough)
+branch  3 taken 7983
+    31932:  325:		return;
+        -:  326:	}
+     7983:  327:	timer_stop(a);                                                  // Milan v1.2 5.6.3.5.4
+call    0 returned 7983
+     7983:  328:	enter_delay(a, ADP_DRAW_DELAY);
