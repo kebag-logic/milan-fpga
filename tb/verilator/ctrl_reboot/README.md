@@ -117,7 +117,7 @@ At the shipping shape, one interface, the split CPU and its bus at 100 MHz (sinc
 | BOUND | this scenario's measurement, not a bound: 54,327 bus cycles, 54,327 CPU cycles, from the command to the port; then 851.040 ms to the PHY hold, the drain ended durable and the egress wait quiet. The firmware stage has no bound while a ring is held ([REBOOT_RESET.md section 8](../../../docs/design/REBOOT_RESET.md#8-the-split-placement)) |
 | JOURNAL | the write's erase 62 bus cycles before the REBOOT arrived, its 14 page programs after it; the drain durable; every item back after the reset; the cut's replay reads the saved snapshot whole |
 | RESTORE | PASS over the stream format, the presentation time offset, the channel mappings, the clock source, the entity names, the object name and the binding; the configuration (0) and the rate (48,000) read the same and are not graded |
-| ADP | 851.583 ms to the PHY hold, 3,500 ms of hold and 3 ms to the IPROG word, then 454.192 ms from the reset to the first ENTITY_AVAILABLE (84.255 ms to ready): 4,808.775 ms of 20,000 ms, 15,191.225 ms left for the configuration load |
+| ADP | 842.550 ms to the PHY hold, 3,500 ms of hold and 3 ms to the IPROG word, then 871.322 ms from the reset to the first ENTITY_AVAILABLE (85.645 ms to ready), its draw seeded per host since #970: 5,216.872 ms of 20,000 ms, 14,783.128 ms left for the configuration load |
 
 The five plants and the seven controls are each caught by their own finding's words.
 
