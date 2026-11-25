@@ -175,8 +175,8 @@ MUTATIONS = [
      "T6 IDENTITY: every decoded frame is a complete 24-bit match against "
      "the injection record"),
     ("shared identity corruption: one pdu bit of EVERY channel", "datapath",
-     [("    .s_tdata_i  (rq_tdata_w),",
-       "    .s_tdata_i  (rq_tdata_w ^ 64'h0000_0001_0000_0001),")],
+     [("    .s_tdata_i  (rq_tdata_w[63:0]),",
+       "    .s_tdata_i  (rq_tdata_w[63:0] ^ 64'h0000_0001_0000_0001),")],
      "ship", "--serial-only",
      "T6 IDENTITY: every decoded frame is a complete 24-bit match against "
      "the injection record"),

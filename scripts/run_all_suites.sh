@@ -49,8 +49,9 @@
 #   SUITE_TIMEOUT        explicit wall clock override for every selected suite.
 #                        Defaults: 1800 s; capture_coherence gets 2400 s,
 #                        milan_dp_mclk 3600 s, milan_dp 4800 s, the
-#                        scheduled milan_dp_gptp 6900 s and media_phase
-#                        1400 s (suite_timeout below).
+#                        scheduled milan_dp_gptp 6900 s, media_phase
+#                        1400 s, and reboot_ctrl, input_loopback and
+#                        input_loopback_dp 300 s (suite_timeout below).
 #                        See docs/testing/TESTING.md for the physical timer floor.
 #   SUITE_SWEEP_LOCK     lock file path. Defaults to one per repo root, which
 #                        is the obj_* collision domain. Point every worktree at
@@ -291,6 +292,8 @@ acquire_lock() {
 suite_timeout() {
   case "$1" in
     capture_coherence) printf '%s\n' "${SUITE_TIMEOUT:-2400}" ;;
+    input_loopback)    printf '%s\n' "${SUITE_TIMEOUT:-300}" ;;
+    input_loopback_dp) printf '%s\n' "${SUITE_TIMEOUT:-300}" ;;
     milan_dp)          printf '%s\n' "${SUITE_TIMEOUT:-4800}" ;;
     milan_dp_gptp)     printf '%s\n' "${SUITE_TIMEOUT:-6900}" ;;
     milan_dp_mclk)     printf '%s\n' "${SUITE_TIMEOUT:-3600}" ;;

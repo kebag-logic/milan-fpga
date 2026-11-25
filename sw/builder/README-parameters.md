@@ -115,6 +115,22 @@ actually routed by the board. Role-pool widths and the `loopback_lane` fabric
 fact are validated separately so the model cannot advertise a power-on source
 that the built datapath cannot provide.
 
+`audio_interface.cluster_mapping.fabric.input_loopback_lane` is a boolean,
+default false. It enables a separate mapped input buffer and source bucket 6.
+The approved dynamic shapes are 1x1 with eight physical render channels,
+and 8x8 with one physical channel owned by input port 0.
+The former has 16 input keys; the latter has 64 keys with port widths
+`[9,8,8,8,8,8,8,7]`. Physical and loopback destinations are independent.
+The new pool contains eight destinations at 1x1 and 63 at 8x8.
+`loopback_lane` still selects the earlier bucket-5 implementation independently.
+Omitting the new option and setting it false produce identical artifacts.
+See [the input-buffer contract](../../docs/design/INPUT_MAPPED_LOOPBACK.md).
+
+The split placement checks writable names against layout 3's declared NAME
+capacity. The all-fabric placement checks its own 128-record backend limit.
+The enabled 8x8 model needs 234 names. This does not enlarge either capacity
+or authorize a firmware-memory allocation above the existing owner ledger.
+
 Every AAF or CRF output requires `internal` in `clocking.media_clock_sources`.
 Milan v1.2 5.3.3.6 requires its availability, not its selection.
 `default_source: crf` remains valid with both sources available.

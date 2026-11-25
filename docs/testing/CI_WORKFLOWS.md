@@ -485,8 +485,8 @@ The workflow keeps the public aggregate names `verilator-suites` and
 relevant PR must run them successfully, while a docs-only PR emits them as
 explicit successful skipped results.
 
-Verilator schedules 94 units on twenty-six native matrix workers. The ordinary
-serial command still runs the original 65 suites. CI expands eight long suites
+Verilator schedules 96 units on twenty-seven native matrix workers. The ordinary
+serial command still runs the original 67 suites. CI expands eight long suites
 into driver-derived case partitions: `milan_dp` (eight legs), `milan_dp_mclk`
 (four), `capture_coherence` (eight), `maap` (four), `milan_dp_render` (four),
 `pp_shadow` (four), `follow_ring` (two) and `media_phase` (three). At this head
@@ -614,7 +614,7 @@ figure its worker would project 1922 seconds, over the 1620-second bound. The
 selector then placed it on worker 3, projected at 1538 seconds. The template keeps
 dev's six-worker matrix, its shard 5/6 `milan_dp` ownership arm and its
 `--expect 6`; the generator replaces the matrix and `--expect` with the
-twenty-six workers and removes the arm; the selector's self-test proves that the
+twenty-seven workers and removes the arm; the selector's self-test proves that the
 last worker runs `milan_dp_mclk__0` alone.
 
 The selector refuses a missing or extra duration, duplicate ownership, a
@@ -656,7 +656,7 @@ current driver inventory, and requires every case exactly once. Dropping a
 case from every leg and every claimed inventory still fails against that fresh
 inventory. The union checks verdicts and checked-output digests, then assembles
 the original physical suite log. The final `verilator-suites` aggregate requires
-all twenty-six workers and all eight unions. It rechecks raw case evidence against
+all twenty-seven workers and all eight unions. It rechecks raw case evidence against
 the union artifact, proves every original log's ownership and exact head, then
 runs the unchanged tally. Missing, duplicated, extra, failed, cancelled or
 skipped workers cannot release the protected context.
@@ -684,6 +684,8 @@ margin sets each named entry:
 | Suite | Budget | Basis |
 |---|---|---|
 | every other default suite | 1800 s | retained; #673's near-limit survey appears below |
+| `input_loopback`, `input_loopback_dp` | 300 s each | provisional at their own arm under the new-suite steps in the selector's docstring (`scripts/suite_shards.py`), from cold local runs; their hosted windows are owed and replace these figures |
+| `reboot_ctrl` | 300 s | provisional at its own arm under the same new-suite steps |
 | `mmcm_servo` | 1800 s | hosted window 1159.1 s; 640.9 s remains (35.6% of budget) |
 | `capture_coherence` | 2400 s | hosted PASS 1642.280 s; 757.720 s remains (31.6%) |
 | `milan_dp_mclk` | 3600 s | hosted TIMEOUT 1800.008 s; completion maximum remains unknown |
@@ -805,7 +807,7 @@ The `physical-gptp` job owns the physical-rate `milan_dp_gptp` suite.
 It runs nightly at 01:17 UTC and on manual dispatch.
 PR and push events exclude this job from execution.
 Physical regressions therefore report nightly, outside the required PR aggregate.
-The twenty-six default workers retain every other suite.
+The twenty-seven default workers retain every other suite.
 
 The physical suite has a 6900-second build-and-run deadline.
 Its separate four-core `ubuntu-24.04` job permits 145 minutes total.
@@ -2706,7 +2708,7 @@ Docker teardown remains paused until absence is actually established, with the
 PGID and operator recovery action printed. Docker-daemon-owned containers are
 independently contained by the same verified cleanup.
 
-The sharded exhaustive workers (twenty-six Verilator, four Yosys) carry their
+The sharded exhaustive workers (twenty-seven Verilator, four Yosys) carry their
 checked denominator through the singleton `matrix.total` dimension.
 `scripts/ci_events.py` proves that value
 equals the `matrix.shard` list length and that every job name and shard command
@@ -3432,32 +3434,33 @@ workers', which is #998's budget (below).
 | `yosys-shards 1/4` | 85 | 1044 | 959 |
 | `yosys-shards 2/4` | 92 | 1044 | 952 |
 | `yosys-shards 3/4` | 91 | 1044 | 953 |
-| `verilator-shards 0/26` | 1275 | 1276 | 1 |
-| `verilator-shards 1/26` | 1250 | 1276 | 26 |
-| `verilator-shards 2/26` | 1267 | 1276 | 9 |
-| `verilator-shards 3/26` | 1203 | 1276 | 73 |
-| `verilator-shards 4/26` | 1217 | 1276 | 59 |
-| `verilator-shards 5/26` | 1203 | 1276 | 73 |
-| `verilator-shards 6/26` | 1205 | 1276 | 71 |
-| `verilator-shards 7/26` | 1204 | 1276 | 72 |
-| `verilator-shards 8/26` | 1204 | 1276 | 72 |
-| `verilator-shards 9/26` | 1204 | 1276 | 72 |
-| `verilator-shards 10/26` | 1267 | 1276 | 9 |
-| `verilator-shards 11/26` | 1246 | 1276 | 30 |
-| `verilator-shards 12/26` | 1233 | 1276 | 43 |
-| `verilator-shards 13/26` | 1223 | 1276 | 53 |
-| `verilator-shards 14/26` | 1223 | 1276 | 53 |
-| `verilator-shards 15/26` | 1204 | 1276 | 72 |
-| `verilator-shards 16/26` | 1200 | 1276 | 76 |
-| `verilator-shards 17/26` | 1205 | 1276 | 71 |
-| `verilator-shards 18/26` | 1201 | 1276 | 75 |
-| `verilator-shards 19/26` | 1201 | 1276 | 75 |
-| `verilator-shards 20/26` | 1263 | 1276 | 13 |
-| `verilator-shards 21/26` | 1265 | 1276 | 11 |
-| `verilator-shards 22/26` | 1199 | 1276 | 77 |
-| `verilator-shards 23/26` | 1200 | 1276 | 76 |
-| `verilator-shards 24/26` | 1275 | 1276 | 1 |
-| `verilator-shards 25/26` | 1530 | 2160 | 630 |
+| `verilator-shards 0/27` | 1275 | 1276 | 1 |
+| `verilator-shards 1/27` | 1249 | 1276 | 27 |
+| `verilator-shards 2/27` | 1267 | 1276 | 9 |
+| `verilator-shards 3/27` | 1180 | 1276 | 96 |
+| `verilator-shards 4/27` | 1217 | 1276 | 59 |
+| `verilator-shards 5/27` | 1197 | 1276 | 79 |
+| `verilator-shards 6/27` | 1177 | 1276 | 99 |
+| `verilator-shards 7/27` | 1179 | 1276 | 97 |
+| `verilator-shards 8/27` | 1176 | 1276 | 100 |
+| `verilator-shards 9/27` | 1176 | 1276 | 100 |
+| `verilator-shards 10/27` | 1180 | 1276 | 96 |
+| `verilator-shards 11/27` | 1246 | 1276 | 30 |
+| `verilator-shards 12/27` | 1233 | 1276 | 43 |
+| `verilator-shards 13/27` | 1223 | 1276 | 53 |
+| `verilator-shards 14/27` | 1206 | 1276 | 70 |
+| `verilator-shards 15/27` | 1177 | 1276 | 99 |
+| `verilator-shards 16/27` | 1180 | 1276 | 96 |
+| `verilator-shards 17/27` | 1176 | 1276 | 100 |
+| `verilator-shards 18/27` | 1176 | 1276 | 100 |
+| `verilator-shards 19/27` | 1179 | 1276 | 97 |
+| `verilator-shards 20/27` | 1237 | 1276 | 39 |
+| `verilator-shards 21/27` | 1243 | 1276 | 33 |
+| `verilator-shards 22/27` | 1175 | 1276 | 101 |
+| `verilator-shards 23/27` | 1177 | 1276 | 99 |
+| `verilator-shards 24/27` | 1238 | 1276 | 38 |
+| `verilator-shards 25/27` | 1220 | 1276 | 56 |
+| `verilator-shards 26/27` | 1530 | 2160 | 630 |
 
 Verilator figures already include their 122-second overhead allowance.
 A regular worker's bound is #998's 1276-second budget, below 60% of its
@@ -3465,6 +3468,10 @@ A regular worker's bound is #998's 1276-second budget, below 60% of its
 The heaviest regular worker, 0, carries `milan_dp__1` at 1275 seconds:
 1 inside the budget and 525 inside 30 minutes, before downstream collection.
 The continuous media-clock exception remains explicit at 1530 seconds (#998).
+The twenty-seventh worker is #979's: its two new suites carry provisional
+300-second figures, and at twenty-six workers they leave four regular workers
+over the budget, up to 1306 seconds. They run on workers 14 and 15
+([provenance](TESTING.md)).
 Docs now projects at 1395 seconds for its slowest worker, `docs-gates-0`.
 Allowing 60 seconds each for aggregate and collector, one 120-second
 watcher interval and 30 seconds for the tail gives 1665 seconds,
