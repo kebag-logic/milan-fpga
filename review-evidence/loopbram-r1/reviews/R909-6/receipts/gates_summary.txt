@@ -1,0 +1,11 @@
+scripts/suite_shards.py --selftest rc=0
+scripts/ci_gate_workflows.py --check rc=0
+scripts/ci_suite_workflows.py --check rc=0
+scripts/measure_test_evidence.py --check rc=0
+scripts/docs_check.py rc=0
+scripts/check_hygiene.py --check rc=0
+scripts/check_doc_style.py rc=0
+scripts/check_doc_paths.py rc=0
+docs/DOC_MAP.gen.py --check rc=0
+check_em_dash --base 1516b2ffe321337858389ec8e42897f8a80644bb rc=0
+check_em_dash --base 3cda030c17 rc=0

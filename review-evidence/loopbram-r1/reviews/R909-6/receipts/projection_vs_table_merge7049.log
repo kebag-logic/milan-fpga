@@ -1,0 +1,30 @@
+units=96 workers=26 table_rows=26
+worker 0: planner 1275 table (1275, 1276, 1) ok
+worker 1: planner 1273 table (1250, 1276, 26) MISMATCH
+worker 2: planner 1267 table (1267, 1276, 9) ok
+worker 3: planner 1232 table (1203, 1276, 73) MISMATCH
+worker 4: planner 1230 table (1217, 1276, 59) MISMATCH
+worker 5: planner 1231 table (1203, 1276, 73) MISMATCH
+worker 6: planner 1230 table (1205, 1276, 71) MISMATCH
+worker 7: planner 1232 table (1204, 1276, 72) MISMATCH
+worker 8: planner 1231 table (1204, 1276, 72) MISMATCH
+worker 9: planner 1231 table (1204, 1276, 72) MISMATCH
+worker 10: planner 1304 table (1267, 1276, 9) MISMATCH
+worker 11: planner 1254 table (1246, 1276, 30) MISMATCH
+worker 12: planner 1234 table (1233, 1276, 43) MISMATCH
+worker 13: planner 1229 table (1223, 1276, 53) MISMATCH
+worker 14: planner 1229 table (1223, 1276, 53) MISMATCH
+worker 15: planner 1231 table (1204, 1276, 72) MISMATCH
+worker 16: planner 1233 table (1200, 1276, 76) MISMATCH
+worker 17: planner 1230 table (1205, 1276, 71) MISMATCH
+worker 18: planner 1230 table (1201, 1276, 75) MISMATCH
+worker 19: planner 1232 table (1201, 1276, 75) MISMATCH
+worker 20: planner 1278 table (1263, 1276, 13) MISMATCH
+worker 21: planner 1290 table (1265, 1276, 11) MISMATCH
+worker 22: planner 1271 table (1199, 1276, 77) MISMATCH
+worker 23: planner 1254 table (1200, 1276, 76) MISMATCH
+worker 24: planner 1306 table (1275, 1276, 1) MISMATCH
+worker 25: planner 1530 table (1530, 2160, 630) ok
+input_loopback -> worker 13
+input_loopback_dp -> worker 12
+RESULT FAIL (23)

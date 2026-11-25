@@ -1,0 +1,34 @@
+2c2
+< index 3e59d3e893..716abaa16e 100644
+---
+> index 278475b84d..19a8a66e8d 100644
+5,7c5,7
+< @@ -108,6 +108,8 @@ SUITE_SECONDS = {
+<      "gptp_txts": 72,
+<      "i2spb": 6,
+---
+> @@ -110,6 +110,8 @@ SUITE_SECONDS = {
+>      "gptp_txts": 107,
+>      "i2spb": 15,
+14c14
+< @@ -145,8 +147,8 @@ SUITE_SECONDS = {
+---
+> @@ -147,8 +149,8 @@ SUITE_SECONDS = {
+25,41d24
+< @@ -188,7 +190,6 @@ def concrete_job_limits(workflow: str) -> tuple[int, ...] | None:
+<      return tuple(workers[index] for index in range(len(workers)))
+<  
+<  
+< -
+<  def expand_suites(suites: list[str]) -> list[str]:
+<      """Replace each registered parent by every leg, retaining all other suites."""
+<      pieces = [f"{suite}__{leg}" for suite in suites if suite in PIECE_SECONDS
+< @@ -345,8 +346,6 @@ def verilator_job_limits(workflow: str) -> tuple[int, int]:
+<      return max(limits), len(limits)
+<  
+<  
+< -
+< -
+<  SUITE_TIMEOUT_ARM_RE = re.compile(
+<      r" +([A-Za-z0-9_]+|\*)\) +printf '%s\\n' \"\$\{SUITE_TIMEOUT:-([0-9]+)\}\" ;;")
+<  

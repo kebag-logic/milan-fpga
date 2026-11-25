@@ -1,0 +1,232 @@
+make: Entering directory '<CLONE>/tb/verilator/input_loopback'
+<PINNED_VERILATOR> --cc --exe --build -j 4 --top-module loopback_wrap \
+ +incdir+../../../hdl/common +incdir+../../../hdl/ieee1722/avtp +incdir+../../../hdl/ieee1722/aaf --Mdir obj_dir -Wall -Wno-fatal -Werror-USERERROR -Wno-PINMISSING -Wno-UNUSEDSIGNAL -Wno-UNUSEDPARAM \
+ -Wno-DECLFILENAME -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-IMPORTSTAR \
+ -GN_STREAMS_P=8 -GINPUT_FIRST_P=1 -GINPUT_CH_P=63 -GLEAD_P=1 \
+ -CFLAGS "-std=c++17 -O2 -Wall -Wextra -DNSTREAMS=8 -DFIRST=1 -DCHANNELS=63 -DLEAD=1" \
+ ../../../hdl/common/ethernet_packet_pkg.sv ../../../hdl/ieee1722/avtp/avtp_subtype_pkg.sv ../../../hdl/ieee1722/aaf/KL_aaf_packetizer.sv ../../../hdl/ieee1722/avtp/avtp_stream_parser.sv ../../../hdl/ieee1722/avtp/KL_avtp_rx_monitor.sv ../../../hdl/ieee1722/aaf/KL_aaf_rx_depacketizer.sv ../../../hdl/ieee1722/aaf/KL_render_queue.sv ../../../hdl/ieee1722/aaf/KL_chan_map_capture.sv ../../../third_party/verilog-axis/rtl/axis_fifo.v loopback_wrap.sv sim_main.cpp -o Vinput_loopback
+%Warning-TIMESCALEMOD: ../../../hdl/ieee1722/avtp/../../../hdl/common/ethernet_packet_pkg.sv:28:9: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   28 | package ethernet_packet_pkg;
+      |         ^~~~~~~~~~~~~~~~~~~
+                       ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:34:8: ... Location of module with timescale
+   34 | module axis_fifo #
+      |        ^~~~~~~~~
+                       ... For warning description see https://verilator.org/warn/TIMESCALEMOD?v=5.050
+                       ... Use "/* verilator lint_off TIMESCALEMOD */" and lint_on around source to disable this message.
+%Warning-TIMESCALEMOD: ../../../hdl/ieee1722/avtp/../../../hdl/ieee1722/avtp/avtp_subtype_pkg.sv:24:9: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   24 | package avtp_subtype_pkg;
+      |         ^~~~~~~~~~~~~~~~
+                       ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:34:8: ... Location of module with timescale
+   34 | module axis_fifo #
+      |        ^~~~~~~~~
+%Warning-TIMESCALEMOD: ../../../hdl/ieee1722/avtp/../../../hdl/ieee1722/aaf/KL_aaf_packetizer.sv:93:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   93 | module KL_aaf_packetizer #(
+      |        ^~~~~~~~~~~~~~~~~
+                       ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:34:8: ... Location of module with timescale
+   34 | module axis_fifo #
+      |        ^~~~~~~~~
+%Warning-TIMESCALEMOD: ../../../hdl/ieee1722/avtp/../../../hdl/ieee1722/avtp/avtp_stream_parser.sv:61:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   61 | module avtp_stream_parser #(
+      |        ^~~~~~~~~~~~~~~~~~
+                       ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:34:8: ... Location of module with timescale
+   34 | module axis_fifo #
+      |        ^~~~~~~~~
+%Warning-TIMESCALEMOD: ../../../hdl/ieee1722/avtp/../../../hdl/ieee1722/avtp/KL_avtp_rx_monitor.sv:100:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+  100 | module KL_avtp_rx_monitor #(
+      |        ^~~~~~~~~~~~~~~~~~
+                       ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:34:8: ... Location of module with timescale
+   34 | module axis_fifo #
+      |        ^~~~~~~~~
+%Warning-TIMESCALEMOD: ../../../hdl/ieee1722/avtp/../../../hdl/ieee1722/aaf/KL_aaf_rx_depacketizer.sv:88:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   88 | module KL_aaf_rx_depacketizer #(
+      |        ^~~~~~~~~~~~~~~~~~~~~~
+                       ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:34:8: ... Location of module with timescale
+   34 | module axis_fifo #
+      |        ^~~~~~~~~
+%Warning-TIMESCALEMOD: ../../../hdl/ieee1722/avtp/../../../hdl/ieee1722/aaf/KL_render_queue.sv:174:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+  174 | module KL_render_queue #(
+      |        ^~~~~~~~~~~~~~~
+                       ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:34:8: ... Location of module with timescale
+   34 | module axis_fifo #
+      |        ^~~~~~~~~
+%Warning-TIMESCALEMOD: ../../../hdl/ieee1722/avtp/../../../hdl/ieee1722/aaf/KL_chan_map_capture.sv:379:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+  379 | module KL_chan_map_capture #(
+      |        ^~~~~~~~~~~~~~~~~~~
+                       ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:34:8: ... Location of module with timescale
+   34 | module axis_fifo #
+      |        ^~~~~~~~~
+%Warning-GENUNNAMED: ../../../hdl/ieee1722/avtp/../../../hdl/ieee1722/aaf/KL_aaf_packetizer.sv:243:5: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                                                    : ... Suggest assign a label with 'begin : gen_<label_name>'
+  243 |     $error("KL_aaf_packetizer: WIRE_CHANS_P=%0d is not an even 2..%0d. This is the channels_per_frame the framer emits (IEEE 1722-2016 7.3.3); the pair stream is 2-channel-granular so odd widths cannot be produced.",
+      |     ^~~~~~
+                     ... For warning description see https://verilator.org/warn/GENUNNAMED?v=5.050
+                     ... Use "/* verilator lint_off GENUNNAMED */" and lint_on around source to disable this message.
+%Warning-GENUNNAMED: ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:223:63: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                                                        : ... Suggest assign a label with 'begin : gen_<label_name>'
+  223 |     if (KEEP_ENABLE) assign s_axis[KEEP_OFFSET +: KEEP_WIDTH] = s_axis_tkeep;
+      |                                                               ^
+%Warning-GENUNNAMED: ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:224:63: Unnamed generate block 'genblk2' (IEEE 1800-2023 27.6)
+                                                                                                        : ... Suggest assign a label with 'begin : gen_<label_name>'
+  224 |     if (LAST_ENABLE) assign s_axis[LAST_OFFSET]               = s_axis_tlast | mark_frame_reg;
+      |                                                               ^
+%Warning-GENUNNAMED: ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:225:63: Unnamed generate block 'genblk3' (IEEE 1800-2023 27.6)
+                                                                                                        : ... Suggest assign a label with 'begin : gen_<label_name>'
+  225 |     if (ID_ENABLE)   assign s_axis[ID_OFFSET   +: ID_WIDTH]   = s_axis_tid;
+      |                                                               ^
+%Warning-GENUNNAMED: ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:226:63: Unnamed generate block 'genblk4' (IEEE 1800-2023 27.6)
+                                                                                                        : ... Suggest assign a label with 'begin : gen_<label_name>'
+  226 |     if (DEST_ENABLE) assign s_axis[DEST_OFFSET +: DEST_WIDTH] = s_axis_tdest;
+      |                                                               ^
+%Warning-GENUNNAMED: ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:227:63: Unnamed generate block 'genblk5' (IEEE 1800-2023 27.6)
+                                                                                                        : ... Suggest assign a label with 'begin : gen_<label_name>'
+  227 |     if (USER_ENABLE) assign s_axis[USER_OFFSET +: USER_WIDTH] = mark_frame_reg ? USER_BAD_FRAME_VALUE : s_axis_tuser;
+      |                                                               ^
+%Warning-GENUNNAMED: ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:409:26: Unnamed generate block 'genblk6' (IEEE 1800-2023 27.6)
+                                                                                                        : ... Suggest assign a label with 'begin : gen_<label_name>'
+  409 | if (!OUTPUT_FIFO_ENABLE) begin
+      |                          ^~~~~
+%Warning-GENUNNAMED: ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:546:10: Unnamed generate block 'genblk7' (IEEE 1800-2023 27.6)
+                                                                                                        : ... Suggest assign a label with 'begin : gen_<label_name>'
+  546 | end else begin
+      |          ^~~~~
+%Warning-VARHIDDEN: ../../../hdl/ieee1722/avtp/../../../hdl/ieee1722/avtp/avtp_stream_parser.sv:62:17: Declaration of signal hides declaration in upper scope: 'TDATA_WIDTH'
+   62 |   parameter int TDATA_WIDTH = 64,      
+      |                 ^~~~~~~~~~~
+                    ../../../hdl/ieee1722/avtp/../../../hdl/common/ethernet_packet_pkg.sv:39:15: ... Location of original declaration
+   39 | parameter int TDATA_WIDTH = 64;
+      |               ^~~~~~~~~~~
+                    ... For warning description see https://verilator.org/warn/VARHIDDEN?v=5.050
+                    ... Use "/* verilator lint_off VARHIDDEN */" and lint_on around source to disable this message.
+make[1]: Entering directory '<CLONE>/tb/verilator/input_loopback/obj_dir'
+g++  -I.  -MMD -I<PINNED_VERILATOR_SHARE>/include -I<PINNED_VERILATOR_SHARE>/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DNSTREAMS=8 -DFIRST=1 -DCHANNELS=63 -DLEAD=1   -Os  -c -o sim_main.o ../sim_main.cpp
+g++ -Os  -I.  -MMD -I<PINNED_VERILATOR_SHARE>/include -I<PINNED_VERILATOR_SHARE>/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DNSTREAMS=8 -DFIRST=1 -DCHANNELS=63 -DLEAD=1   -c -o verilated.o <PINNED_VERILATOR_SHARE>/include/verilated.cpp
+g++ -Os  -I.  -MMD -I<PINNED_VERILATOR_SHARE>/include -I<PINNED_VERILATOR_SHARE>/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DNSTREAMS=8 -DFIRST=1 -DCHANNELS=63 -DLEAD=1   -c -o verilated_dpi.o <PINNED_VERILATOR_SHARE>/include/verilated_dpi.cpp
+g++ -Os  -I.  -MMD -I<PINNED_VERILATOR_SHARE>/include -I<PINNED_VERILATOR_SHARE>/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DNSTREAMS=8 -DFIRST=1 -DCHANNELS=63 -DLEAD=1   -c -o verilated_threads.o <PINNED_VERILATOR_SHARE>/include/verilated_threads.cpp
+python3 <PINNED_VERILATOR_SHARE>/bin/verilator_includer -DVL_INCLUDE_OPT=include Vloopback_wrap.cpp Vloopback_wrap___024root__0.cpp Vloopback_wrap_KL_avtp_rx_monitor__C2ee0000__0.cpp Vloopback_wrap__Dpi.cpp Vloopback_wrap__ConstPool__0__Slow.cpp Vloopback_wrap___024root__Slow.cpp Vloopback_wrap___024root__0__Slow.cpp Vloopback_wrap___024unit__Slow.cpp Vloopback_wrap_KL_avtp_rx_monitor__C2ee0000__Slow.cpp Vloopback_wrap_KL_avtp_rx_monitor__C2ee0000__0__Slow.cpp Vloopback_wrap__Syms__Slow.cpp > Vloopback_wrap__ALL.cpp
+g++ -Os  -I.  -MMD -I<PINNED_VERILATOR_SHARE>/include -I<PINNED_VERILATOR_SHARE>/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DNSTREAMS=8 -DFIRST=1 -DCHANNELS=63 -DLEAD=1   -c -o Vloopback_wrap__ALL.o Vloopback_wrap__ALL.cpp
+g++    sim_main.o verilated.o verilated_dpi.o verilated_threads.o Vloopback_wrap__ALL.a    -pthread -lpthread -latomic   -o Vinput_loopback
+rm Vloopback_wrap__ALL.verilator_deplist.tmp
+make[1]: Leaving directory '<CLONE>/tb/verilator/input_loopback/obj_dir'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 1.474 MB sources in 12 modules, into 0.813 MB in 11 C++ files needing 0.002 MB
+- Verilator: Walltime 9.112 s (elab=0.034, cvt=0.130, bld=8.861); cpu 0.243 s on 4 threads; allocated 360.617 MB
+obj_dir/Vinput_loopback
+PASS input-loopback streams=8 channels=63 lead=1: 79587 checks, 0 failures, packets=468
+make run STREAMS=1 FIRST=8 CHANNELS=8 LEAD=2 MDIR=obj_dir_one
+make[1]: Entering directory '<CLONE>/tb/verilator/input_loopback'
+<PINNED_VERILATOR> --cc --exe --build -j 4 --top-module loopback_wrap \
+ +incdir+../../../hdl/common +incdir+../../../hdl/ieee1722/avtp +incdir+../../../hdl/ieee1722/aaf --Mdir obj_dir_one -Wall -Wno-fatal -Werror-USERERROR -Wno-PINMISSING -Wno-UNUSEDSIGNAL -Wno-UNUSEDPARAM \
+ -Wno-DECLFILENAME -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-IMPORTSTAR \
+ -GN_STREAMS_P=1 -GINPUT_FIRST_P=8 -GINPUT_CH_P=8 -GLEAD_P=2 \
+ -CFLAGS "-std=c++17 -O2 -Wall -Wextra -DNSTREAMS=1 -DFIRST=8 -DCHANNELS=8 -DLEAD=2" \
+ ../../../hdl/common/ethernet_packet_pkg.sv ../../../hdl/ieee1722/avtp/avtp_subtype_pkg.sv ../../../hdl/ieee1722/aaf/KL_aaf_packetizer.sv ../../../hdl/ieee1722/avtp/avtp_stream_parser.sv ../../../hdl/ieee1722/avtp/KL_avtp_rx_monitor.sv ../../../hdl/ieee1722/aaf/KL_aaf_rx_depacketizer.sv ../../../hdl/ieee1722/aaf/KL_render_queue.sv ../../../hdl/ieee1722/aaf/KL_chan_map_capture.sv ../../../third_party/verilog-axis/rtl/axis_fifo.v loopback_wrap.sv sim_main.cpp -o Vinput_loopback
+%Warning-TIMESCALEMOD: ../../../hdl/ieee1722/avtp/../../../hdl/common/ethernet_packet_pkg.sv:28:9: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   28 | package ethernet_packet_pkg;
+      |         ^~~~~~~~~~~~~~~~~~~
+                       ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:34:8: ... Location of module with timescale
+   34 | module axis_fifo #
+      |        ^~~~~~~~~
+                       ... For warning description see https://verilator.org/warn/TIMESCALEMOD?v=5.050
+                       ... Use "/* verilator lint_off TIMESCALEMOD */" and lint_on around source to disable this message.
+%Warning-TIMESCALEMOD: ../../../hdl/ieee1722/avtp/../../../hdl/ieee1722/avtp/avtp_subtype_pkg.sv:24:9: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   24 | package avtp_subtype_pkg;
+      |         ^~~~~~~~~~~~~~~~
+                       ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:34:8: ... Location of module with timescale
+   34 | module axis_fifo #
+      |        ^~~~~~~~~
+%Warning-TIMESCALEMOD: ../../../hdl/ieee1722/avtp/../../../hdl/ieee1722/aaf/KL_aaf_packetizer.sv:93:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   93 | module KL_aaf_packetizer #(
+      |        ^~~~~~~~~~~~~~~~~
+                       ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:34:8: ... Location of module with timescale
+   34 | module axis_fifo #
+      |        ^~~~~~~~~
+%Warning-TIMESCALEMOD: ../../../hdl/ieee1722/avtp/../../../hdl/ieee1722/avtp/avtp_stream_parser.sv:61:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   61 | module avtp_stream_parser #(
+      |        ^~~~~~~~~~~~~~~~~~
+                       ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:34:8: ... Location of module with timescale
+   34 | module axis_fifo #
+      |        ^~~~~~~~~
+%Warning-TIMESCALEMOD: ../../../hdl/ieee1722/avtp/../../../hdl/ieee1722/avtp/KL_avtp_rx_monitor.sv:100:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+  100 | module KL_avtp_rx_monitor #(
+      |        ^~~~~~~~~~~~~~~~~~
+                       ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:34:8: ... Location of module with timescale
+   34 | module axis_fifo #
+      |        ^~~~~~~~~
+%Warning-TIMESCALEMOD: ../../../hdl/ieee1722/avtp/../../../hdl/ieee1722/aaf/KL_aaf_rx_depacketizer.sv:88:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   88 | module KL_aaf_rx_depacketizer #(
+      |        ^~~~~~~~~~~~~~~~~~~~~~
+                       ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:34:8: ... Location of module with timescale
+   34 | module axis_fifo #
+      |        ^~~~~~~~~
+%Warning-TIMESCALEMOD: ../../../hdl/ieee1722/avtp/../../../hdl/ieee1722/aaf/KL_render_queue.sv:174:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+  174 | module KL_render_queue #(
+      |        ^~~~~~~~~~~~~~~
+                       ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:34:8: ... Location of module with timescale
+   34 | module axis_fifo #
+      |        ^~~~~~~~~
+%Warning-TIMESCALEMOD: ../../../hdl/ieee1722/avtp/../../../hdl/ieee1722/aaf/KL_chan_map_capture.sv:379:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+  379 | module KL_chan_map_capture #(
+      |        ^~~~~~~~~~~~~~~~~~~
+                       ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:34:8: ... Location of module with timescale
+   34 | module axis_fifo #
+      |        ^~~~~~~~~
+%Warning-GENUNNAMED: ../../../hdl/ieee1722/avtp/../../../hdl/ieee1722/aaf/KL_aaf_packetizer.sv:243:5: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                                                    : ... Suggest assign a label with 'begin : gen_<label_name>'
+  243 |     $error("KL_aaf_packetizer: WIRE_CHANS_P=%0d is not an even 2..%0d. This is the channels_per_frame the framer emits (IEEE 1722-2016 7.3.3); the pair stream is 2-channel-granular so odd widths cannot be produced.",
+      |     ^~~~~~
+                     ... For warning description see https://verilator.org/warn/GENUNNAMED?v=5.050
+                     ... Use "/* verilator lint_off GENUNNAMED */" and lint_on around source to disable this message.
+%Warning-GENUNNAMED: ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:223:63: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                                                        : ... Suggest assign a label with 'begin : gen_<label_name>'
+  223 |     if (KEEP_ENABLE) assign s_axis[KEEP_OFFSET +: KEEP_WIDTH] = s_axis_tkeep;
+      |                                                               ^
+%Warning-GENUNNAMED: ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:224:63: Unnamed generate block 'genblk2' (IEEE 1800-2023 27.6)
+                                                                                                        : ... Suggest assign a label with 'begin : gen_<label_name>'
+  224 |     if (LAST_ENABLE) assign s_axis[LAST_OFFSET]               = s_axis_tlast | mark_frame_reg;
+      |                                                               ^
+%Warning-GENUNNAMED: ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:225:63: Unnamed generate block 'genblk3' (IEEE 1800-2023 27.6)
+                                                                                                        : ... Suggest assign a label with 'begin : gen_<label_name>'
+  225 |     if (ID_ENABLE)   assign s_axis[ID_OFFSET   +: ID_WIDTH]   = s_axis_tid;
+      |                                                               ^
+%Warning-GENUNNAMED: ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:226:63: Unnamed generate block 'genblk4' (IEEE 1800-2023 27.6)
+                                                                                                        : ... Suggest assign a label with 'begin : gen_<label_name>'
+  226 |     if (DEST_ENABLE) assign s_axis[DEST_OFFSET +: DEST_WIDTH] = s_axis_tdest;
+      |                                                               ^
+%Warning-GENUNNAMED: ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:227:63: Unnamed generate block 'genblk5' (IEEE 1800-2023 27.6)
+                                                                                                        : ... Suggest assign a label with 'begin : gen_<label_name>'
+  227 |     if (USER_ENABLE) assign s_axis[USER_OFFSET +: USER_WIDTH] = mark_frame_reg ? USER_BAD_FRAME_VALUE : s_axis_tuser;
+      |                                                               ^
+%Warning-GENUNNAMED: ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:409:26: Unnamed generate block 'genblk6' (IEEE 1800-2023 27.6)
+                                                                                                        : ... Suggest assign a label with 'begin : gen_<label_name>'
+  409 | if (!OUTPUT_FIFO_ENABLE) begin
+      |                          ^~~~~
+%Warning-GENUNNAMED: ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:546:10: Unnamed generate block 'genblk7' (IEEE 1800-2023 27.6)
+                                                                                                        : ... Suggest assign a label with 'begin : gen_<label_name>'
+  546 | end else begin
+      |          ^~~~~
+%Warning-VARHIDDEN: ../../../hdl/ieee1722/avtp/../../../hdl/ieee1722/avtp/avtp_stream_parser.sv:62:17: Declaration of signal hides declaration in upper scope: 'TDATA_WIDTH'
+   62 |   parameter int TDATA_WIDTH = 64,      
+      |                 ^~~~~~~~~~~
+                    ../../../hdl/ieee1722/avtp/../../../hdl/common/ethernet_packet_pkg.sv:39:15: ... Location of original declaration
+   39 | parameter int TDATA_WIDTH = 64;
+      |               ^~~~~~~~~~~
+                    ... For warning description see https://verilator.org/warn/VARHIDDEN?v=5.050
+                    ... Use "/* verilator lint_off VARHIDDEN */" and lint_on around source to disable this message.
+make[2]: Entering directory '<CLONE>/tb/verilator/input_loopback/obj_dir_one'
+g++  -I.  -MMD -I<PINNED_VERILATOR_SHARE>/include -I<PINNED_VERILATOR_SHARE>/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DNSTREAMS=1 -DFIRST=8 -DCHANNELS=8 -DLEAD=2   -Os  -c -o sim_main.o ../sim_main.cpp
+g++ -Os  -I.  -MMD -I<PINNED_VERILATOR_SHARE>/include -I<PINNED_VERILATOR_SHARE>/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DNSTREAMS=1 -DFIRST=8 -DCHANNELS=8 -DLEAD=2   -c -o verilated.o <PINNED_VERILATOR_SHARE>/include/verilated.cpp
+g++ -Os  -I.  -MMD -I<PINNED_VERILATOR_SHARE>/include -I<PINNED_VERILATOR_SHARE>/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DNSTREAMS=1 -DFIRST=8 -DCHANNELS=8 -DLEAD=2   -c -o verilated_dpi.o <PINNED_VERILATOR_SHARE>/include/verilated_dpi.cpp
+g++ -Os  -I.  -MMD -I<PINNED_VERILATOR_SHARE>/include -I<PINNED_VERILATOR_SHARE>/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DNSTREAMS=1 -DFIRST=8 -DCHANNELS=8 -DLEAD=2   -c -o verilated_threads.o <PINNED_VERILATOR_SHARE>/include/verilated_threads.cpp
+python3 <PINNED_VERILATOR_SHARE>/bin/verilator_includer -DVL_INCLUDE_OPT=include Vloopback_wrap.cpp Vloopback_wrap___024root__0.cpp Vloopback_wrap__Dpi.cpp Vloopback_wrap__ConstPool__0__Slow.cpp Vloopback_wrap___024root__Slow.cpp Vloopback_wrap___024root__0__Slow.cpp Vloopback_wrap___024unit__Slow.cpp Vloopback_wrap__Syms__Slow.cpp > Vloopback_wrap__ALL.cpp
+g++ -Os  -I.  -MMD -I<PINNED_VERILATOR_SHARE>/include -I<PINNED_VERILATOR_SHARE>/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DNSTREAMS=1 -DFIRST=8 -DCHANNELS=8 -DLEAD=2   -c -o Vloopback_wrap__ALL.o Vloopback_wrap__ALL.cpp
+g++    sim_main.o verilated.o verilated_dpi.o verilated_threads.o Vloopback_wrap__ALL.a    -pthread -lpthread -latomic   -o Vinput_loopback
+rm Vloopback_wrap__ALL.verilator_deplist.tmp
+make[2]: Leaving directory '<CLONE>/tb/verilator/input_loopback/obj_dir_one'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 1.474 MB sources in 12 modules, into 0.764 MB in 8 C++ files needing 0.002 MB
+- Verilator: Walltime 10.331 s (elab=0.069, cvt=0.284, bld=9.872); cpu 0.228 s on 4 threads; allocated 293.359 MB
+obj_dir_one/Vinput_loopback
+PASS input-loopback streams=1 channels=8 lead=2: 76017 checks, 0 failures, packets=447
+make[1]: Leaving directory '<CLONE>/tb/verilator/input_loopback'
+make: Leaving directory '<CLONE>/tb/verilator/input_loopback'
+elapsed 24 s

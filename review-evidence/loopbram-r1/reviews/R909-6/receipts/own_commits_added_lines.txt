@@ -1,0 +1,91 @@
++    timeout-minutes: ${{ matrix.shard == 26 && 60 || 45 }}
++        total:
++          - 27
++          python3 scripts/ci_events.py --require-target-sha --expect 27 \
++            shard 0/27","Verilator shard 1/27","Verilator shard 2/27","Verilator shard 3/27","Verilator
++            shard 4/27","Verilator shard 5/27","Verilator shard 6/27","Verilator shard 7/27","Verilator
++            shard 8/27","Verilator shard 9/27","Verilator shard 10/27","Verilator shard 11/27","Verilator
++            shard 12/27","Verilator shard 13/27","Verilator shard 14/27","Verilator shard 15/27","Verilator
++            shard 16/27","Verilator shard 17/27","Verilator shard 18/27","Verilator shard 19/27","Verilator
++            shard 20/27","Verilator shard 21/27","Verilator shard 22/27","Verilator shard 23/27","Verilator
++            shard 24/27","Verilator shard 25/27","Verilator shard 26/27","verilator-suites","yosys-portability","Yosys
++            shard 0/4","Yosys shard 1/4","Yosys shard 2/4","Yosys shard 3/4","Prepare pinned Yosys"]'
++            0/27","Verilator shard 1/27","Verilator shard 2/27","Verilator shard 3/27","Verilator shard
++            4/27","Verilator shard 5/27","Verilator shard 6/27","Verilator shard 7/27","Verilator shard
++            8/27","Verilator shard 9/27","Verilator shard 10/27","Verilator shard 11/27","Verilator shard
++            12/27","Verilator shard 13/27","Verilator shard 14/27","Verilator shard 15/27","Verilator
++            shard 16/27","Verilator shard 17/27","Verilator shard 18/27","Verilator shard 19/27","Verilator
++            shard 20/27","Verilator shard 21/27","Verilator shard 22/27","Verilator shard 23/27","Verilator
++            shard 24/27","Verilator shard 25/27","Verilator shard 26/27"],"Yosys shard ${{ matrix.shard
++            }}/${{ matrix.total }}":["Yosys shard 0/4","Yosys shard 1/4","Yosys shard 2/4","Yosys shard
++            3/4"]}'
++Verilator schedules 96 units on twenty-seven native matrix workers. The ordinary
++serial command still runs the original 67 suites. CI expands eight long suites
++twenty-seven workers and removes the arm; the selector's self-test proves that the
++all twenty-seven workers and all eight unions. It rechecks raw case evidence against
++The twenty-seven default workers retain every other suite.
++The sharded exhaustive workers (twenty-seven Verilator, four Yosys) carry their
++| `verilator-shards 0/27` | 1275 | 1276 | 1 |
++| `verilator-shards 1/27` | 1249 | 1276 | 27 |
++| `verilator-shards 2/27` | 1267 | 1276 | 9 |
++| `verilator-shards 3/27` | 1180 | 1276 | 96 |
++| `verilator-shards 4/27` | 1217 | 1276 | 59 |
++| `verilator-shards 5/27` | 1197 | 1276 | 79 |
++| `verilator-shards 6/27` | 1177 | 1276 | 99 |
++| `verilator-shards 7/27` | 1179 | 1276 | 97 |
++| `verilator-shards 8/27` | 1176 | 1276 | 100 |
++| `verilator-shards 9/27` | 1176 | 1276 | 100 |
++| `verilator-shards 10/27` | 1180 | 1276 | 96 |
++| `verilator-shards 11/27` | 1246 | 1276 | 30 |
++| `verilator-shards 12/27` | 1233 | 1276 | 43 |
++| `verilator-shards 13/27` | 1223 | 1276 | 53 |
++| `verilator-shards 14/27` | 1206 | 1276 | 70 |
++| `verilator-shards 15/27` | 1177 | 1276 | 99 |
++| `verilator-shards 16/27` | 1180 | 1276 | 96 |
++| `verilator-shards 17/27` | 1176 | 1276 | 100 |
++| `verilator-shards 18/27` | 1176 | 1276 | 100 |
++| `verilator-shards 19/27` | 1179 | 1276 | 97 |
++| `verilator-shards 20/27` | 1237 | 1276 | 39 |
++| `verilator-shards 21/27` | 1243 | 1276 | 33 |
++| `verilator-shards 22/27` | 1175 | 1276 | 101 |
++| `verilator-shards 23/27` | 1177 | 1276 | 99 |
++| `verilator-shards 24/27` | 1238 | 1276 | 38 |
++| `verilator-shards 25/27` | 1220 | 1276 | 56 |
++| `verilator-shards 26/27` | 1530 | 2160 | 630 |
++The twenty-seventh worker is #979's: its two new suites carry provisional
++300-second figures, and at twenty-six workers they leave four regular workers
++over the budget, up to 1306 seconds. They run on workers 14 and 15
++([provenance](TESTING.md)).
++rates. CI runs the default selection on twenty-seven `--ci-pieces` workers; the
++scripts/run_all_suites.sh --ci-pieces --shard 0/27 --list
++The `*` arm's 1800 s cannot be the figure, because no regular worker holds it within #998's 1276 s budget.
++Hosted run 45469087943 at `1516b2ff` cancelled both owning workers before either suite ran, so neither window exists yet.
++With both 300 s figures, #998's twenty-six workers leave four regular workers over the 1276 s budget, up to 1306 s.
++Either figure alone leaves three over it.
++So #979 adds a twenty-seventh worker, as its N1 decision provides when the self-test requires one.
++The largest regular worker stays at 1275 s, and `input_loopback_dp` and `input_loopback` land on workers 14 and 15.
++docstring. GitHub runs twenty-seven isolated `--ci-pieces --shard INDEX/27`
++`scripts/ci_gate_workflows.py` writes the twenty-seven-worker workflow from it
++`scripts/run_all_suites.sh --ci-pieces --shard 0/27 --list` shows a worker's
++not permission to validate only one twenty-seventh locally.
++    python3 scripts/suite_shards.py --suite-root tb/verilator --ci-pieces --shard 0/27
++#: Suites whose SUITE_SECONDS figure is provisional: the wall clock the driver's suite_timeout gives a new suite,
++#: until the change's own hosted run measures it (step 3 of the module docstring's new-suite steps).
++#: Seconds of each worker's job outside its suite windows in the same dev run: checkout, the Verilator cache, tsn-gen
++#: on worker 1, Yosys and sv2v on worker 3, the ownership step and the sweep's preflight self-tests, then the tally.
++#: #781 and #799 add three regular 45-minute workers, #998 seven and #979 one (CI_BUDGET_SECONDS); all 27 carry 122 s.
++WORKER_OVERHEAD_SECONDS = (122,) * 27
++`--without verilator` leaves out the builders that need Verilator (the mailbox bench, the MAAP differential, the AECP wire comparison and the enabled parent loopback harness, #979) and names each; `firmware-boundary` has no Verilator.
++`--only verilator` judges those four alone, under the gate's own capture, and names the others.
++Each runs every configuration its own list holds: the bench's default target, the differential with its self-test, the wire comparison at each processor reference it pins (`--every`, one and two interfaces), and the loopback harness's build at both shapes (`--build-only`), which compiles the AECP sources into the library its model links.
++#: every run (ctrl_runs.owned); the last four need Verilator, and the hosted firmware-verilator job runs them
++#: (--every), the loopback harness's build at both shapes; the differential and the comparison keep what they
++#: build in the run's directory, where a control replays it. Issue #998; REQ-VER-01 and REQ-VER-04.
++    # the enabled parent loopback harness (#979): the AECP sources into libaecp.a, linked into its model
++    Builder("tb/verilator/input_loopback_dp/run.py",
++            tuple(("{python}", "tb/verilator/input_loopback_dp/run.py", "--shape", shape, "--work",
++                   "{work}/input-loopback-" + shape, "--build-only") for shape in ("1", "8")), "verilator"),
++  //! each flat monitor's accept lands in the frame's flight and is its PDU's one verdict: it queues the PDU and
++  //! completes it at once, the accepting monitors its done mask (#948's verdict protocol)
++  KL_aaf_rx_depacketizer #(.N_STREAMS_P(N_STREAMS_P), .PAY_LEAD_CYC_P(16)) depacketizer (
++    .pdu_enq_p_i(|accept_w), .pdu_done_p_i(|accept_w), .pdu_done_mask_i(accept_w),
