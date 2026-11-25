@@ -63,9 +63,9 @@ MUTATIONS = {
                     '\tadp_rx(&i->adp, f->bytes, f->len);\n}', 'control', 'none'),
     # The SHUTDOWN path's planted defect (MAILBOX_SPLIT.md:523): disabling ADP spins before
     # each interface's ENTITY_DEPARTING, so the path exceeds its 20 ms budget.
-    'slow-adp-shutdown': ('adp/adp_mbx.c', '\tfor (unsigned k = 0; k < MBX_N_IF; ++k) {\n\t\tadp_set_enable(',
+    'slow-adp-shutdown': ('adp/adp_mbx.c', '\tfor (unsigned k = 0; k < MBX_N_IF; ++k) {\n\t\tseed_interface = k;\n',
                           '\tfor (volatile uint32_t n = 0; !enable && n < 32000u; ++n) {\n\t}\n'
-                          '\tfor (unsigned k = 0; k < MBX_N_IF; ++k) {\n\t\tadp_set_enable(',
+                          '\tfor (unsigned k = 0; k < MBX_N_IF; ++k) {\n\t\tseed_interface = k;\n',
                           'control-shutdown', 'shutdown-entry'),
     # #665's planted store step: the loop takes THE STEP in every pass and hands it a deadline no pass
     # reaches, so the saved-state store takes its flash step in whatever pass owes it, as before

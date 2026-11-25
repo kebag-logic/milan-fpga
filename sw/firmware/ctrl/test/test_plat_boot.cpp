@@ -301,6 +301,12 @@ extern "C" void mbx_hal_write32(std::uint32_t offset, std::uint32_t value) {
 
 extern "C" void mbx_hal_wait(void) {}
 
+// The flash model's clock with an origin of its own, for two boots that differ only in it
+std::uint64_t clock_origin_us = 0;
+std::uint64_t biased_now_us(void* ctx) {
+    return nvm_fmodel_port.now_us(ctx) + clock_origin_us;
+}
+
 namespace {
 
 struct Boot : ::testing::Test {
@@ -1326,6 +1332,37 @@ struct Phy : Boot {
                bus().count(0, kPhyBus.link_status, true);
     }
 };
+
+// B25 the platform seeds ADP's draw from its microsecond clock (adp_mbx.h, THE DRAW; #970): two boots that differ only
+// in the clock's origin leave the machine's generator in different states.
+TEST_F(Boot, B25TheAdpDrawIsSeededFromThePlatformsClock) {
+    std::uint32_t seeded[2] = {};
+    flash.now_us = biased_now_us;
+    for (unsigned k = 0; k < 2u; ++k) {
+        if (k != 0u) reload();
+        clock_origin_us = k * 1234567u;
+        ASSERT_EQ(ctrl_plat_boot(&env), CTRL_PLAT_READY) << "B25 the boot reaches its ready state";
+        ASSERT_TRUE(ctrl_plat.app.adp.ifs[0].adp.enabled) << "B25 ADP is enabled at ready";
+        seeded[k] = ctrl_plat.app.adp.ifs[0].adp.rng;
+    }
+    clock_origin_us = 0;
+    EXPECT_NE(seeded[0], seeded[1])
+        << "B25 boots that differ only in the clock's origin seed ADP's draw differently (#970)";
+}
+
+#if MBX_N_IF > 1
+// B26 the interface is in the seed: two interfaces enabled at one clock reading are seeded apart (#970).
+std::uint64_t stopped_now_us(void*) {
+    return 0;
+}
+
+TEST_F(Boot, B26TwoInterfacesAreSeededApart) {
+    flash.now_us = stopped_now_us;
+    ASSERT_EQ(ctrl_plat_boot(&env), CTRL_PLAT_READY) << "B26 the boot reaches its ready state";
+    EXPECT_NE(ctrl_plat.app.adp.ifs[0].adp.rng, ctrl_plat.app.adp.ifs[1].adp.rng)
+        << "B26 two interfaces enabled at one clock reading are seeded apart";
+}
+#endif
 
 TEST_F(Phy, B11ArmedPastTheIdentityCheck) {
     bus().csr[CTRL_PLAT_CSR_ID] = 0x12345678u;

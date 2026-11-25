@@ -537,6 +537,10 @@ One instance per AVB interface implements Milan v1.2 5.6.3 over the IEEE
   a link-up comes within the entity's declared 6.0 s discovery time, derived
   term by term in [FR_NFR.md](../reference/FR_NFR.md#211-the-declared-discovery-time)
   (#970), the draw its largest term and the boot path none (#972);
+- the seed of the draw: the sum of the MAC address and the platform's
+  microsecond clock, mixed with the entity ID and the interface (`adp_mbx.h`,
+  THE DRAW; IEEE 1722.1-2021 6.2.4.2.2), so entities powered up together draw
+  apart (Milan v1.2 Table 5.49);
 - the ENTITY_DISCOVER answer for entity_id 0 or this entity, in WAITING
   (5.6.3.1, 5.6.3.5.4);
 - the re-advertise on a grandmaster change (5.6.3.5.7);

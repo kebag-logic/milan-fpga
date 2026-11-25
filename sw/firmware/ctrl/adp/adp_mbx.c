@@ -47,10 +47,35 @@ static bool port_link_up(void *ctx, unsigned interface)
 	return mbx_link_up(interface);
 }
 
+// THE DRAW's clock and the interface being enabled (adp_mbx.h): outside the platform's ledgered struct.
+static adp_mbx_clock_fn clock_fn;
+static void *clock_ctx;
+static unsigned seed_interface;
+
+void adp_mbx_set_clock(adp_mbx_clock_fn clock, void *ctx)
+{
+	clock_fn = clock;
+	clock_ctx = ctx;
+}
+
+// Thomas Wang's 32 bit mix, its multiply by 2057 as shifts (rv32i): a bijection.
+static uint32_t mix(uint32_t x)
+{
+	x = ~x + (x << 15);
+	x ^= x >> 12;
+	x += x << 2;
+	x ^= x >> 4;
+	x += (x << 3) + (x << 11);
+	return x ^ (x >> 16);
+}
+
 static uint32_t port_seed(void *ctx)
 {
-	(void)ctx;
-	return mbx_now_ms();
+	const struct adp_entity *e = instance(ctx, seed_interface)->adp.entity;
+	const uint32_t sample = clock_fn != NULL ? clock_fn(clock_ctx) : mbx_now_ms();
+	uint32_t sum = (uint32_t)e->mac + sample;
+	sum += sum < sample;
+	return mix(mix(sum) ^ (uint32_t)e->entity_id ^ (uint32_t)(e->entity_id >> 32) ^ (seed_interface << 24));
 }
 
 bool adp_mbx_init(struct adp_mbx *m, const struct adp_entity *entity, unsigned first_slot,
@@ -142,6 +167,7 @@ bool adp_mbx_attach(struct adp_mbx *m, struct ctrl_loop *l)
 void adp_mbx_set_enable(struct adp_mbx *m, bool enable)
 {
 	for (unsigned k = 0; k < MBX_N_IF; ++k) {
+		seed_interface = k;
 		adp_set_enable(&m->ifs[k].adp, enable);
 	}
 }

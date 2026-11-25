@@ -90,6 +90,17 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - On this base that growth does not appear.
 - VERSION is unchanged; the release step owns the bump.
 
+## Unreleased - the advertisement's draw is seeded per host
+
+- #970: ADP's first draws were not uniform.
+- Every boot of one entity drew 640 to 890 ms.
+- Sixteen neighbouring entity IDs drew within 5 ms.
+- The seed now sums MAC address and microsecond clock.
+- It mixes the entity ID and the interface in.
+- Milan's draw ranges and the 6.0 s stand.
+- Host tests hold both draws uniform, with plants.
+- A fresh sample at each LINK_UP needs tsn-c-stack.
+
 ## Unreleased - the boot forms its link once
 
 - #972: the split's boot forms its link once.

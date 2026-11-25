@@ -409,7 +409,7 @@ def order_adp_group(p: Point) -> Group:
     """H-ADP's ordering check: a grandmaster change on every interface, then the ENTITY_AVAILABLE it causes after
     its delay (Milan v1.2 5.6.3.5.7, a draw of 0 to 4 s), twice."""
     adp = CH['adp']
-    g = Group('hooks-order-adp', sim_ms=11000)
+    g = Group('hooks-order-adp', sim_ms=11000 + scenario.DELAY_MAX_MS - 2000)
     scenario.ready(g, p, link=False)
     scenario.advertised(g, p)
     for n in (1, 2):
