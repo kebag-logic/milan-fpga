@@ -1,0 +1,93 @@
+# round 2 validation, milan-fpga 970-discovery (head 0ad0e5180; feature ef764d73b; merge f13845710 of dev-soft-core c34e7d8b)
+== gate
+    verdict: PASS (17 tests, 0 failures, exit 0)
+    == ctrl split platform sink formats (host model, endstation_ax7101_1x1_tdm8 if1): checks: 17   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (17 tests, 0 failures, exit 0)
+test_ctrl_firmware: PASS
+gate rc=0
+== boot-1x1
+GRADER gptp-pdelay: FAIL (pdelay=1510401025 ns (need a measured 0 < delay < 800 ns)); not evidence: no gPTP peer and no datapath: PDELAY_NS is the stand-in register file's word
+GRADER clkv-fabric-owner: FAIL (CLKV_STAT=0x5A077C01 SYNC=0 ASCAPABLE=1 TU=1); not evidence: no datapath: CLKV_STAT is the stand-in register file's word
+GRADER gptp-locked: FAIL (SYNC=0 ASCAPABLE=1 TU=1); not evidence: no gPTP peer and no datapath: CLKV_STAT is the stand-in register file's word
+GRADER phc-advances: PASS (0x0000000001FE6171 -> 0x0000000002139D75)
+ctrl_split_boot: PASS (0 finding(s))
+rc=0
+== boot-8x8
+GRADER gptp-pdelay: FAIL (pdelay=1510401025 ns (need a measured 0 < delay < 800 ns)); not evidence: no gPTP peer and no datapath: PDELAY_NS is the stand-in register file's word
+GRADER clkv-fabric-owner: FAIL (CLKV_STAT=0x5A077C01 SYNC=0 ASCAPABLE=1 TU=1); not evidence: no datapath: CLKV_STAT is the stand-in register file's word
+GRADER gptp-locked: FAIL (SYNC=0 ASCAPABLE=1 TU=1); not evidence: no gPTP peer and no datapath: CLKV_STAT is the stand-in register file's word
+GRADER phc-advances: PASS (0x0000000004ACA0E5 -> 0x0000000004C23BAD)
+ctrl_split_boot: PASS (0 finding(s))
+rc=0
+== ledger
+POINT 1x1-if1: rom 127,856 B, sram 56,736 B, 45.5 RAMB36 (the 56-RAMB36 budget), ctrl_plat 18048 B: PASS
+POINT 1x1-if2: rom 129,680 B, sram 59,168 B, 46.5 RAMB36 (the 56-RAMB36 budget), ctrl_plat 19840 B: PASS
+POINT 8x8-if1: rom 141,968 B, sram 100,096 B, 59.5 RAMB36 (platform-8x8-one-interface), ctrl_plat 19136 B: PASS
+POINT 8x8-if2: rom 143,744 B, sram 117,632 B, 64.5 RAMB36 (platform-8x8-two-interfaces), ctrl_plat 21888 B: PASS
+plat_ledger: PASS (0 finding(s))
+rc=0
+== cov
+  RESULT: PASS
+  verdict: PASS (2 tests, 0 failures, exit 0)
+saved-state store coverage run: PASS
+firmware coverage: PASS (40 files)
+rc=0
+== cosim
+== mbx cosim (firmware on the RTL and on the model): checks: 32   failures: 0 ==
+RESULT: PASS
+rc=0
+== reboot
+RESTORE PASS over stream_format, presentation_time_offset, channel_mappings, clock_source, entity_names, object_names, stream_binding: {'phase': 'soft_reset', 'items': ['stream_format', 'presentation_time_offset', 'channel_mappings', 'clock_source', 'entity_names', 'object_names', 'stream_binding']}
+ADP the REBOOT to the PHY hold 842.550 ms, the hold 3500 ms and the IPROG word 3 ms, the reset to ready 85.64505 ms and to the first ENTITY_AVAILABLE 871.322 ms: 5216.872 ms of 20000 ms, 14783.128 ms left for the configuration load, which the simulation does not model
+ctrl_reboot: PASS (0 finding(s))
+rc=0
+== hooks
+MUTANT amended: the column grades a path: caught by the amended column grades nothing
+MUTANT amended: a finding reads the column: caught by the amended column grades nothing
+MUTANT amended: the table does not say which bounds graded: caught by the amended column grades nothing
+MUTANT amended: the column repeats the bound: caught by the amended column grades nothing
+ctrl_service_hooks self-test: 28 of 28 checks pass; 96 of 96 mutants caught
+rc=0
+== bselftest
+CONTROL store-step-ageless caught: 1 save(s) not durable within their stated worst case (save-starved), 0 refusal(s)
+CONTROL store-step-aged-heavier caught: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier caught: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 0 refusal(s)
+MUTANT caught: clock: a reused build is not checked: the run reuses a build on sys and refuses one recorded on the Milan clock, off the bus clock or with no CPU domain (on the Milan clock: reached; on sys at half the bus clock: reached; with no domain recorded: reached)
+self-test: 0 failures
+rc=0
+== ctrlmem
+  [ok  ] PLANTED ledger 'the product entry at the two-interface ctrl_plat' is caught: the platform-8x8-one-interface override plans its own point's image: raised Refusal (allocation over budget: the override 'platform-8x8-one-interface' is for the target platform's 8x8, one interface image alone, th
+  [ok  ] MUTANT 'the mapper's override ignored' (ooc override) is caught by the mapper's facts: --ledgered p=platform-8x8-two-interfaces maps that image at 64.5 RAMB36 and the other at 56.0 with no override (exit 2, {})
+  [ok  ] MUTANT 'the mapper's override on every image' (ooc override) is caught by the mapper's facts: --ledgered p=platform-8x8-two-interfaces maps that image at 64.5 RAMB36 and the other at 56.0 with no override (exit 2, {})
+  [ok  ] MUTANT 'the mapper's stray override accepted' (ooc override) is caught by the mapper's facts: the mapper refuses the platform-8x8-two-interfaces override whose tag names no image (exit 0)
+RESULT: PASS
+rc=0
+== twin
+twin: 0 finding(s); counts {'all-fabric': {'ACMP': 7, 'ADP': 12, 'AECP': 53, 'MAAP': 8, 'MSRP': 88, 'MVRP': 24}, 'split': {'ACMP': 7, 'ADP': 12, 'AECP': 53, 'MAAP': 8, 'MSRP': 87, 'MVRP': 82}}
+rc=0
+== twin-plants
+rc=0
+== ADP plants (adp_first table + latency-extra-read), at the final firmware
+19 of 19 caught (17 in one campaign, then seed-without-the-interface and seed-clock-not-wired with the platboot arms; see HANDOFF-r2)
+== CPU legs
+10 groups graded, 0 refusals, 0 budget misses (0 of 75 probe instances, 0 of 46 paths), 0 of 2185 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+paired 75 probes, 0 only in base, 0 only in head
+pairs apart by more than 0.1 ms: 10
+11 groups graded, 0 refusals, 7 budget misses (7 of 90 probe instances, 4 of 48 paths), 0 of 3221 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+paired 90 probes, 0 only in base, 0 only in head
+pairs apart by more than 0.1 ms: 1
+== CPU legs, pin branch
+10 groups graded, 0 refusals, 0 budget misses (0 of 75 probe instances, 0 of 46 paths), 0 of 3520 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+paired 75 probes, 0 only in base, 0 only in head
+pairs apart by more than 0.1 ms: 10
+11 groups graded, 0 refusals, 7 budget misses (7 of 90 probe instances, 4 of 48 paths), 0 of 2826 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+paired 90 probes, 0 only in base, 0 only in head
+pairs apart by more than 0.1 ms: 26
+== load and flip tables: identical to the base's (cmp)
+| 8x8/2if | 0.799 | 0.757 | the flip check, 0.70 at the pin (flip_grade.py) | 1.08x | 390 | srp 0.219, item.aecp 0.063, rec.acmp 0.061, timers 0.061, ticks 0.059, rec.aecp 0.053, item.mrpdu 0.051, ite
+| 8x8/1if | 0.744 | 0.704 | the flip check, 0.75 at the pin (flip_grade.py) | 1.01x | 345 | srp 0.225, rec.acmp 0.061, ticks 0.059, item.aecp 0.059, rec.aecp 0.053, item.reclaim 0.041, steps 0.034, ti
+| 32x32/2if | 2.175 | 1.684 | reported: the more-compute image, #872 | 2.41x | 590 | srp 0.519, item.mrpdu 0.315, builds 0.158, item.reclaim 0.109, ticks 0.101, timers 0.088, rec.acmp 0.085, item.aecp
+HELD 1x1/1if at the pin: the load 0.512, its ceiling 0.70
+HELD 1x1/1if with tsn-c-stack#32: the load 0.509, its ceiling 0.70
+RESULT: PASS
