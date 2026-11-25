@@ -30,10 +30,10 @@ This page defines parent integration.
 
 | Reader | Parent guide | Engine guide |
 |---|---|---|
-| Project manager | [Manager](../guides/gptp/MANAGER.md) | [`MANAGER.md`](https://github.com/Mister-M-alt/FPGA-gPTP/blob/1213ac5b9e09b8759ba76cc70c53652b5e108996/docs/MANAGER.md) |
-| System integrator | [Integrator](../guides/gptp/SYSTEM_INTEGRATOR.md) | [`INTEGRATION.md`](https://github.com/Mister-M-alt/FPGA-gPTP/blob/1213ac5b9e09b8759ba76cc70c53652b5e108996/docs/INTEGRATION.md) |
-| HDL developer | [HDL developer](../guides/gptp/HDL_DEVELOPER.md) | [`HDL_DEVELOPER.md`](https://github.com/Mister-M-alt/FPGA-gPTP/blob/1213ac5b9e09b8759ba76cc70c53652b5e108996/docs/HDL_DEVELOPER.md) |
-| Test developer | [Test developer](../guides/gptp/TEST_DEVELOPER.md) | [`TEST_DEVELOPER.md`](https://github.com/Mister-M-alt/FPGA-gPTP/blob/1213ac5b9e09b8759ba76cc70c53652b5e108996/docs/TEST_DEVELOPER.md) |
+| Project manager | [Manager](../guides/gptp/MANAGER.md) | [`MANAGER.md`](https://github.com/Mister-M-alt/FPGA-gPTP/blob/3009f9a2a2d69375211d8355490675879033d940/docs/MANAGER.md) |
+| System integrator | [Integrator](../guides/gptp/SYSTEM_INTEGRATOR.md) | [`INTEGRATION.md`](https://github.com/Mister-M-alt/FPGA-gPTP/blob/3009f9a2a2d69375211d8355490675879033d940/docs/INTEGRATION.md) |
+| HDL developer | [HDL developer](../guides/gptp/HDL_DEVELOPER.md) | [`HDL_DEVELOPER.md`](https://github.com/Mister-M-alt/FPGA-gPTP/blob/3009f9a2a2d69375211d8355490675879033d940/docs/HDL_DEVELOPER.md) |
+| Test developer | [Test developer](../guides/gptp/TEST_DEVELOPER.md) | [`TEST_DEVELOPER.md`](https://github.com/Mister-M-alt/FPGA-gPTP/blob/3009f9a2a2d69375211d8355490675879033d940/docs/TEST_DEVELOPER.md) |
 
 Parent guides own integration behavior.
 
@@ -129,6 +129,33 @@ Reset is synchronous and active-low.
 - asCapable then takes two exchanges, as after any loss.
 - The 5-minute countdown remains the cease's other exit.
 - `make -C tb/verilator/milan_dp gptp` grades each term and both exits.
+
+### Link delay verdict
+
+Values are the pinned engine's, FPGA-gPTP #109.
+
+| Computed delay | asCapable | Used in the Sync path | Public word |
+|---|---|---|---|
+| Above 800 ns | Cleared | The exchange is bad | The measured delay |
+| 0 to 800 ns | Kept | The delay | The delay |
+| -800 to -1 ns | Kept | The delay, signed | 0 |
+| Below -800 ns | Kept | -800 ns | 0 |
+
+802.1AS clears asCapable only above the threshold.
+
+See 802.1AS-2011 11.2.2 b) and Figure 11-8.
+
+Milan `4.2.6.2.7` only sets a minimum tolerance.
+
+Two over-stated latency constants then cancel in the offset.
+
+The floor bounds what a faulty peer can inject.
+
+`KL_gptp_shadow` clamps the public word, and nothing else does.
+
+So the published and used delays differ by design.
+
+`gptp_plane`'s phase 6 grades every row to the nanosecond.
 
 ### Peer delay during PHC steps
 
