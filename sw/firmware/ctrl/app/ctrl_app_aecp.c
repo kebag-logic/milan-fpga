@@ -233,9 +233,10 @@ static bool deliver(void *ctx)
 		publish_store(c);
 		pending = aecp_face_poll(c->face) || pending;
 	}
-	// A Talker declared, withdrawn, swapped between Advertise and Failed or declared on another VID: its
-	// STREAM_OUTPUT's GET_STREAM_INFO notice (#936; Milan v1.2 5.4.5.2, Table 5.22; IEEE 1722.1-2021 7.5.2), as the
-	// release processor sends one at each declaration and withdrawal. SRP's delivery took the change from SRP.
+	// A Talker declared, withdrawn, swapped between Advertise and Failed or declared on another VID, or the Listener
+	// registered for its stream on its own interface changed: its STREAM_OUTPUT's GET_STREAM_INFO notice (#936, #957;
+	// Milan v1.2 5.4.5.2, Table 5.22; IEEE 1722.1-2021 7.5.2), as the release processor sends one at each declaration,
+	// withdrawal and Listener registration change. SRP's delivery took the change from SRP.
 	uint32_t noticed = c->app->srp_noticed;
 	if (noticed != 0u) {
 		c->app->srp_noticed = 0u;

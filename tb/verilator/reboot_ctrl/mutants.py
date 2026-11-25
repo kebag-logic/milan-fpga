@@ -25,10 +25,11 @@ Exit 0 = the golden run passed and every control was caught by its check;
 import argparse
 import subprocess
 import sys
-import tempfile
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
+sys.path.insert(0, str(HERE.parents[2] / "scripts"))
+import mutant_stage  # noqa: E402
 SOURCE = HERE.parents[2] / "hdl" / "milan" / "KL_reboot_ctrl.sv"
 
 REQ = "U1 no writer, nothing in the MAC: from the request the PHY hold rises more than one tick later"
@@ -197,7 +198,7 @@ def main() -> int:
 
     original = SOURCE.read_text()
     missed = []
-    with tempfile.TemporaryDirectory(prefix="reboot_ctrl_mut_") as scratch:
+    with mutant_stage.directory("reboot_ctrl_mut_") as scratch:
         root = Path(scratch)
         golden = root / "golden"
         golden.mkdir()

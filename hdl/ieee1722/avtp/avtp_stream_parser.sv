@@ -14,10 +14,14 @@
                 never backpressures or modifies the data path, it just parses
                 each frame's header and, for AVTP stream packets whose
                 stream_id matches a programmable table, emits one metadata pulse
-                per frame carrying the matched stream index, the 64-bit
-                stream_id, the 32-bit AVTP presentation timestamp and the
-                subtype. Listener diagnostics and depacketizer commit logic use
-                `match_index` to select the matched sink context.
+                per frame carrying every matching table entry (`match_vec`),
+                the highest of them (`match_index`), the 64-bit stream_id, the
+                32-bit AVTP presentation timestamp and the subtype. Several
+                entries can hold one stream_id: IEEE 1722.1-2021 8.2 lets each
+                sink bind on its own, so one stream can be the source of several
+                Stream Inputs, and the monitor serves the PDU to each context
+                `match_vec` names (#948). `match_index` remains for the
+                diagnostics that report one entry.
 
                 Frame byte layout parsed (big-endian on the wire; this module
                 converts LE beats when BIG_ENDIAN=0, like traffic_classifier):
@@ -78,7 +82,8 @@ module avtp_stream_parser #(
 
   //! --- extracted per-frame metadata (one-cycle pulse on match) ---
   output logic                      match_valid_o,   //! matched AVTP stream frame
-  output logic [IDXW_P-1:0]         match_index_o,   //! matched table entry
+  output logic [IDXW_P-1:0]         match_index_o,   //! highest matched table entry
+  output logic [N_STREAMS-1:0]      match_vec_o,     //! every matched table entry
   output logic [63:0]               stream_id_o,     //! parsed stream_id
   output logic [31:0]               avtp_ts_o,       //! presentation time
   output logic [7:0]                subtype_o,       //! AVTP subtype
@@ -184,14 +189,17 @@ output logic                      media_restart_o, //! mr bit (O+1 bit 3)
   //! subtypes (IIDC, MMA, AAF, CVF, CRF, TSCF, SVF, RVF).
   wire is_stream_subtype = (subtype <= 8'h07);
 
-  //! match the parsed stream_id against the enabled table entries
+  //! match the parsed stream_id against the enabled table entries: every
+  //! entry that holds it, since several sinks may bind one stream (#948)
   logic                match_hit;
   logic [IDXW-1:0]     match_idx;
+  logic [N_STREAMS-1:0] match_vec;
   always_comb begin
     match_hit = 1'b0;
     match_idx = '0;
     for (int e = 0; e < N_STREAMS; e++) begin
-      if (cfg_stream_en_i[e] && (cfg_stream_id_i[e*64 +: 64] == sid)) begin
+      match_vec[e] = cfg_stream_en_i[e] && (cfg_stream_id_i[e*64 +: 64] == sid);
+      if (match_vec[e]) begin
         match_hit = 1'b1;
         match_idx = IDXW'(e);
       end
@@ -214,6 +222,7 @@ output logic                      media_restart_o, //! mr bit (O+1 bit 3)
       parsed         <= 1'b0;
       match_valid_o  <= 1'b0;
       match_index_o  <= '0;
+      match_vec_o    <= '0;
       stream_id_o    <= '0;
       avtp_ts_o      <= '0;
       subtype_o      <= '0;
@@ -243,6 +252,7 @@ output logic                      media_restart_o, //! mr bit (O+1 bit 3)
         if (fire) begin
           parsed           <= 1'b1;
           match_index_o    <= IDXW'(match_idx);
+          match_vec_o      <= match_vec;
           stream_id_o      <= sid;
           avtp_ts_o        <= ats;
           subtype_o        <= subtype;

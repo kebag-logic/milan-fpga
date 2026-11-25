@@ -96,7 +96,6 @@ import os
 import signal
 import subprocess
 import sys
-import tempfile
 import threading
 from collections.abc import Callable
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -114,6 +113,7 @@ NCO = HERE / "../../../hdl/ieee1722/crf/KL_media_nco.sv"
 sys.path.insert(0, str(HERE / "../../../scripts"))
 from suite_tally import log_reports_failure  # noqa: E402
 from ci_case_receipts import Receipt, canonical, partition  # noqa: E402
+import mutant_stage  # noqa: E402
 
 TORN = "[A] AAF columns mixing two TDM frames"
 MISCOUNT = "[C] walks whose repeat or skip the junction counters did not count"
@@ -714,7 +714,7 @@ def main() -> int:
         parser.error(str(exc))
     for sig in (signal.SIGTERM, signal.SIGINT):
         signal.signal(sig, stop)
-    with tempfile.TemporaryDirectory(prefix="capture-coherence-mutants-") as td:
+    with mutant_stage.directory("capture-coherence-mutants-") as td:
         made, lines = rom_images_result(Path(td))
         if not made:
             emit(lines)

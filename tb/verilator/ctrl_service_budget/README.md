@@ -200,11 +200,11 @@ The testbench traces a pass's first and last firmware poll and every item ([`pol
 [`egress_ledger.py`](egress_ledger.py) holds the rows the egress decides to their ledger ([#894's held-egress ruling](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6871343905), item (a)).
 `backlog-owed`'s seven rows are set by the scenario's 60 ms egress hold, which no CPU lever moves: they miss their budget at every point, and a run with `--record-budget-findings` records every miss and fails none.
 [FR_NFR.md 3.4.1](../../../docs/reference/FR_NFR.md#341-control-service-budget-and-normative-timing) charges TX backpressure to the service budget, so they stay recorded misses, not passes, and a new or larger miss fails the leg.
-- **The ledger** (`LEDGER`) is derived at 8x8/1if, the one point that has one, by #894's round-6 ruling: each figure is the scenario's egress hold (`HOLD_MS`, read from `scenario.py`'s `backlog-owed` group) plus the service behind it at its measurement (`MEASURED`, the larger of the merged image's and the composed image's, `MERGED` and `COMPOSED`, by [#894's ruling of 2026-11-16](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6914952893) on the composition with #901, item 1) plus 5 %, rounded up to 0.01 ms (`figure`). [Section 13](../../../docs/design/SPLIT_CONTROL_MEMORY.md#the-shapes-and-8x81if)'s table states both measurements and the figures; the self-test holds the table to the tool, row for row and figure for figure, and the derivation to the rule, computed apart.
+- **The ledger** (`LEDGER`) is derived at 8x8/1if, the one point that has one, by #894's round-6 ruling: each figure is the scenario's egress hold (`HOLD_MS`, read from `scenario.py`'s `backlog-owed` group) plus the service behind it at its measurement (`MEASURED`, the largest of five images' measurements: the merged image's and the composed image's, `MERGED` and `COMPOSED`, by [#894's ruling of 2026-11-16](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6914952893) on the composition with #901, item 1; the Listener copies' image's, `LISTENED`, by [its ruling of 2026-11-17](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6934688411); and the flip train's and the lwSRP pin merge's, `TRAIN` and `PINNED`, by [#992's ruling of 2026-11-24](https://github.com/kebag-logic/milan-fpga/pull/992#issuecomment-7146658362), item 1) plus 5 %, rounded up to 0.01 ms (`figure`). [Section 13](../../../docs/design/SPLIT_CONTROL_MEMORY.md#the-shapes-and-8x81if)'s table states the five measurements and the figures; the self-test holds the table to the tool, row for row and figure for figure, and the derivation to the rule, computed apart.
 - **A larger miss.** A measured instance of a ledger row over its figure fails, by as little as one cycle of the bus, whatever its name; so does one never released or answered, whose time is a lower bound.
 - **A new miss.** A budget miss of any other row fails, and so do a ledger row with no measured instance and any instance not measured.
 - **Its inputs** are the harness's own: a results directory's group grades, whose figures are exact to 10 ns, beside its run's `results.json`, whose refusals fail (a group the harness refused has no grade of its own), or a run's log, whose `BUDGET` lines name every instance over its budget to 1 us. A row read from a log is held at the most its printed figure can be, so one printed at its ledger figure fails, and a log must end in its run's summary, with no refusal and one `BUDGET` line a budget miss.
-- `egress_ledger.py --selftest` runs its controls in its own process and as a process of their own, whose exit status is the verdict. The unchanged ledger passes, and each row one cycle over its figure, and 36.76 ms over, exits 1 naming it. It refuses fourteen mutants, among them one that waives a ledger row by its name whatever its size, one that reads no run's refusals, a figure with no 5 % on its service, the 5 % taken on the hold too, a hold not the scenario's, and a figure at the merged image's measurement where the composed one is larger.
+- `egress_ledger.py --selftest` runs its controls in its own process and as a process of their own, whose exit status is the verdict. The unchanged ledger passes, and each row one cycle over its figure, and 36.76 ms over, exits 1 naming it. It refuses eighteen mutants, among them one that waives a ledger row by its name whatever its size, one that reads no run's refusals, a figure with no 5 % on its service, the 5 % taken on the hold too, a hold not the scenario's, a figure at the merged image's measurement where the composed one is larger, and a figure at an earlier image's measurement where the train's or the pin merge's is larger.
 
 [`load_grade.py`](load_grade.py) is the long-window load of every source at its stated arrival bound (#665, the round 24 ruling, item 2): each source's rate, a contract rate or a protocol timer, its clause in the module's term list and its value read from the tree, times its stated cost, at 1x1/1if, 8x8/2if and 32x32/2if.
 Its stated costs are `poll_grade.STATED_US`'s for the polls and `ctrl_loop.h`'s for THE TRANSMIT's builds and THE STEP at the two harness points, and its own `STATED_US` for the records, the events and a centisecond's consumers there and for every cost at 32x32/2if, measured on the 32x32 simulation shape (#859).
@@ -326,7 +326,7 @@ python3 -B tb/verilator/ctrl_service_budget/run.py --point 1x1 \
 - `valid-destinations` (#895) makes the fixture's ACMP source port report each source's destination as the target platform's does: valid once MAAP holds its interface's range, at base + n (Milan v1.2 5.5.4.1).
   Its first group, `srp-talker` ([`talker_window.py`](talker_window.py)), sends a PROBE_TX for every source once MAAP holds the ranges: each is answered SUCCESS, its DA gate opens, and SRP declares its Talker Advertise at once, the row `srp.talker_declare.s<n>` on the source's interface, from the command's commit to SRP's next frame, with a JoinTime's wait (200 ms, IEEE 802.1Q-2018 10.7.4.1), since a declaration leaves at its participant's next transmit opportunity, as the `srp` group's Domain row states. With no Listener the 15 s probe window then closes every gate, and SRP withdraws every Talker.
   Its second group, `srp-talker-loss`, probes every source the same way, then makes each interface lose its range: a peer ANNOUNCEs it from a MAC for which `compare_MAC` is FALSE (IEEE 1722-2016 Table B.7, B.3.6.4), so MAAP restarts on a new range, its DA gate closes, and SRP withdraws that interface's Talkers, the row `srp.talker_loss` from the ANNOUNCE's commit to MAAP's new PROBE and SRP's Leave, with the same wait.
-  The new range waits two nominal longest LeaveAll periods, about 30 s (#951), so no Advertise follows within the group.
+  The new range is declared two nominal longest LeaveAll periods less a JoinTime and THE TRANSMIT's term after the Leave's request, about 29.7 s (#951, #956), so no Advertise follows within the group.
   Its third group, `srp-talker-held`, probes every source the same way, then sends a bridge's Listener Ready for each source's stream (the row `srp.listener_ready.s<n>`), so SRP licenses every source and each build carries every Talker declaration beside a registered Listener, the build THE SHAPES state THE TRANSMIT's costs at (#894's ruling of 2026-11-16 on its round-8 stop, item 3). It then holds a save under every receive channel at its refill rate (`save_window.loaded`), long enough that a LeaveAll timer runs out under the load at 8x8/1if (`mrpdu_grade.py`'s `leaveall` row).
   Those declaration and withdrawal passes are given whole to THE TRANSMIT, so `whole_grade.py` holds them to its stated build cost and `share.py` to the share; arm A's fixture reports no destination, so no arm A group declares a Talker.
 - `talker-notices` (#936) is `valid-destinations` with the face block's stream observation answering zeroed values at every attempt, as `answering-ports`' does, so a STREAM_OUTPUT's GET_STREAM_INFO notice is built at its first attempt.
@@ -762,6 +762,48 @@ At 8x8/2if the figures are interface 0's, then interface 1's.
 | MAAP last PROBE retransmission | 1.24 (4.23) | 3.92 (8.86) / 2.64 (9.41) | 64 / 65 |
 | MAAP ANNOUNCE | 1.50 (4.23) | 4.17 (8.86) / 2.90 (9.41) | 64 / 65 |
 | MAAP conflicting PROBE -> DEFEND | 0.71 (2.02) | 1.72 (8.05) / 1.97 (8.23) | 47 / 48 |
+
+The Talkers SRP keeps for StreamIDs no binding holds (#969; `srp_mbx.c` `keep_talker`, `count_kept`) run in a group
+of their own, `srp-kept` ([`kept_window.py`](kept_window.py)), in arm A at every point. On every interface it
+declares every STREAM_INPUT's Talker Advertise in one MRPDU before any binding (the fixture binds none), so each is
+kept; one of them leaves, and past its leave timer a receive of one stream more than the inputs counts the kept
+again after the block's return, keeps one in the freed place and refuses the rest past the bound; the LeaveAll
+timer then runs out with the kept present: the LeaveAll itself carries none of them (its txLA! takes each, observed
+and not declared, to LO with only an optional [s], IEEE 802.1Q-2018 Table 10-3), and the next MRPDU answers it with
+In for each from LO (s, 10.7.6.5), the build that encodes the kept values (2 values at 1x1, 9 at 8x8, both
+measured); `mrpdu_grade.py`'s LeaveAll row grades the LeaveAll's owner and deadline. After a link down and up, a
+reset, every input's Talker Failed in one MRPDU is kept. Beside it on the same image, `srp-bound`
+is the bound path the base has: every input bound to its own stream through BIND_RX and the talker's
+PROBE_TX_RESPONSE, then the same MRPDU, as a bridge re-declares the bound Talkers after any LeaveAll.
+
+A record that registers more than one or two Talkers is past `CTRL_LOOP_SRP_UNIT_US`, on that bound path as for the
+kept ones. That cost is owed to [#977](https://github.com/kebag-logic/milan-fpga/issues/977), and the unit is not
+restated (the owner's ruling on #969, 2026-11-22, [amended 2026-11-23](https://github.com/kebag-logic/milan-fpga/issues/969#issuecomment-7116192252)).
+[`kept_grade.py`](kept_grade.py) grades both groups as owed to it: each record over the unit, and the bound group's
+walk, polls base, builds of one MRPDU (as passes and as THE TRANSMIT's tier-2 slices) and work passes over THE SHARE,
+are named OWED #977 while every condition holds, each breach a finding by name: both groups' logs are present and
+finished (no incomplete simulation, trap or bus error); every probe the point makes is marked, none other, and each
+has its record; every kept record costs no more than the bound record of its own interface on the same image within
+the measurement rule's 5 % (`record_classes.rule`; kept <= bound x 1.05), that record present, printed with both
+figures and the margin; no work pass of `srp-kept` is over THE SHARE, nor any idle run's longest pass in either group
+(an idle pass makes no registration, so none is owed); every pass of both given whole to THE TRANSMIT's build, and
+every build of one of `srp-kept`, is within its stated cost. A tier-2 slice of THE TRANSMIT's build over the slice is
+owed only where `whole_grade.held` itself classes its pass, by the pass's start, as `srp-bound`'s build of one over its
+stated cost, the pass the amendment owes (its round idle, not an aged step, at most one SRP frame). Every other such
+slice stays a failure: a pass either group gives whole to the build (both MRPDUs), as over its stated cost, and a
+`srp-bound` build of one whose round did work or that is an aged step's. A build of one and a pass given whole of the
+same length make the slice line ambiguous, so both fail. Every shape's slice is at least its build of one's stated
+cost, so a build of one over the slice is over that cost too. `CTRL_LOOP_BUILD_ONE_PASS_US` and the SRP unit are not
+restated. THE SHARE is read from the logs graded, never from a result file beside them, so a stale, empty or absent
+`<group>.json` neither clears nor hides it. `run.py` gives its STATED and SHARE lines the same disposition
+(`kept_grade.Disposition`), and one of the two groups graded alone is a finding. `--selftest` breaks each condition in
+synthetic logs at 1x1/1if, through `held`, `Disposition` and the standalone entry point (32 checks), and each must be
+the finding it names: kept 4 % over bound holds and 6 % over breaks, kept exactly bound + 5 % (105,000 against
+100,000) holds and one cycle more breaks, a kept pass over THE SHARE and a kept build of one over its slice are
+findings, and the bound path's are owed, while a `srp-bound` pass given whole to THE TRANSMIT's build, over the slice
+and within `CTRL_LOOP_BUILD_PASS_US`, a bound build of one over the slice whose round did work or that is an aged
+step's, and a build of one as long as a pass given whole each keep their slice lines failing (`run.py`'s own STATED
+lines).
 
 ### Backlog rows
 

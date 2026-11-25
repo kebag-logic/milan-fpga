@@ -21,6 +21,15 @@ short); the window's words wrong (halves swapped, the talker selection, the sele
 back); the AECP refusal the race argument rests on, a bound input accepting SET_STREAM_FORMAT; and the saved
 state's format restore reading the verdict's survival bit against the map store's reset set, which loses a
 narrowed input at every boot where that set maps its channels (REQUIREMENTS.md, the persisted inventory).
+
+The streams beside the contexts (Streams): a waiting SET_STREAM_FORMAT done again without its running check, the
+shipped core's (#950), at input 0, the CRF input and every STREAM_OUTPUT at both shapes, or its check made of
+stream 0; and GET_TX_STATE's REGISTERING_FAILED from the platform's source port never reported, the shipped
+platform's (#954), reported for any Listener, with none, or from output 0's Listener.
+
+The Early fixture's S13 and S14 (#969) are the platform's view of SRP's Talker registrations kept for a StreamID no
+binding holds: the defect is the filter before #969, which ignores them, so a saved binding restored at power-on, or a
+bind while bound, whose talker declared before the probe was answered declares no Listener and shows no REGISTERING.
 """
 from __future__ import annotations
 
@@ -40,6 +49,30 @@ S9 = "Sinks.S9AChangeWhoseInputIsUnboundAgainIsDoneAgainBeforeARebind"
 S10 = "Sinks.S10SetConfigurationWritesEveryContextAndOneWaitingIsNotDoneAgainOntoABoundInput"
 S11 = "Sinks.S11AChangeOfAnotherTypeOrKindAtAContextsIndexIsTakenAndWritesNoContext"
 S12 = "Sinks.S12ANarrowedInputFormatIsKeptAcrossAPowerCut"
+S13 = "Streams.S13AWaitingFormatChangeIsRefusedOntoAnInputWithNoContextBoundMeanwhile"
+S14 = "Streams.S14AWaitingFormatChangeIsRefusedOntoAnOutputStartedMeanwhile"
+T1 = "Streams.T1GetTxStateCarriesRegisteringFailedWhileAListenerAskingFailedIsRegistered"
+#: #950's refusal checks' words, each followed by the stream's index, and the core's check as aecp.c and
+#: aecp_commands.c hold it.
+S13_WORDS = ("S13 a waiting SET_STREAM_FORMAT of an input bound meanwhile is refused STREAM_IS_RUNNING once "
+             "acknowledged: input ")
+S14_WORDS = ("S14 a waiting SET_STREAM_FORMAT of an output started meanwhile is refused STREAM_IS_RUNNING once "
+             "acknowledged: output ")
+AGAIN = "unsigned status = taken ? aecp_again(a) : AECP_ENTITY_MISBEHAVING;"
+AGAIN_CHECK = "running(a, a->noted_type, a->noted_index) : AECP_SUCCESS;"
+#: #954's source port, as ctrl_plat.c holds it, and T1's words for an Asking Failed Listener's flag.
+ASKING = "\tout->asking_failed = srp->listener_present[n] && !srp->registered[n];\n"
+T1_WORDS = ("T1 REGISTERING_FAILED while a Listener Asking Failed is registered for its stream, and not for Ready or "
+            "Ready Failed (Table 5.47): output ")
+#: #969's two tests (Early), named apart from the Streams fixture's S13 and S14 above, whose numbers they share.
+EARLY_S13 = "Early.S13ASavedBindingRestoredAtPowerOnDeclaresATalkerRegisteredBeforeItSettled"
+EARLY_S14 = "Early.S14ABindWhileBoundToAStreamDeclaredAllAlongIsDeclaredWithinOneTransmit"
+#: srp_mbx.c's receive filter for a Talker no binding holds (#969), as it holds it.
+KEEPS = "    return keep_talker(i,type,value);\n"
+POWER_ON = ("S13 a Talker Advertise registered before the restored binding settled: the Listener is declared in THE "
+            "TRANSMIT's next MRPDU, input 0")
+REBOUND = ("S14 a BIND_RX while bound to a stream declared all along: the Listener is declared in THE TRANSMIT's next "
+           "MRPDU, input 0")
 #: SET_STREAM_FORMAT's verdict test, as aecp_face.c holds it: before the open, supported alone.
 VERDICT = "((verdict & 0xFFu) | (f->ready ? 0u : 2u)) == 3u;"
 C5 = "Plat.C5SinkFormatSelectsTheInputWritesItsFormatAndRestores"
@@ -67,7 +100,12 @@ HI = ("\tctrl_plat_io_write32(window + (CTRL_PLAT_CSR_STRMW_FMT_HI - CTRL_PLAT_C
 
 
 def mutants(mutant: type) -> tuple:
-    """The table, built with the campaign's Mutant (ctrl_mutant.py)."""
+    """The table, built with the campaign's Mutant (ctrl_mutant.py): the contexts' rows, then the streams'."""
+    return contexts(mutant) + streams(mutant)
+
+
+def contexts(mutant: type) -> tuple:
+    """The receive monitor's formats' rows (#946)."""
     m = mutant
     return (
         # the shipped firmware's state, and the write's place after the acknowledgement
@@ -157,4 +195,37 @@ def mutants(mutant: type) -> tuple:
         # reads the verdict's bit 1 against it refuses the saved format
         m("restore-format-survival-read", "aecp/aecp_face.c", VERDICT, "(verdict & 0xFFu) == 3u;",
           "platsinks1", S12, "S12 input 0's narrowed format is restored after the cut"),
+        # #969: the filter before it, which ignores a Talker of a StreamID no binding holds
+        m("early-talker-ignored", "srp/srp_mbx.c", KEEPS, KEEPS.replace("return ", "return false && "), "platsinks8",
+          EARLY_S13, POWER_ON,
+          also=(("platsinks1", EARLY_S13, POWER_ON), ("platsinks8", EARLY_S14, REBOUND),
+                ("platsinks1", EARLY_S14, REBOUND))),
+    )
+
+
+def streams(mutant: type) -> tuple:
+    """The streams' rows beside the contexts (Streams; #950, #954)."""
+    m = mutant
+    return (
+        # #950: a waiting SET_STREAM_FORMAT done again without its running check (the shipped core), at input 0, the
+        # CRF input and every output at both shapes; its check made of another stream
+        m("again-unchecked-onto-a-stream", "aecp/aecp.c", AGAIN,
+          "unsigned status = taken ? AECP_SUCCESS : AECP_ENTITY_MISBEHAVING;",
+          "platsinks8", S13, S13_WORDS + "0",
+          also=(("platsinks8", S14, S14_WORDS + "0"), ("platsinks1", S13, S13_WORDS + "0"),
+                ("platsinks1", S14, S14_WORDS + "0"))),
+        m("again-of-stream-zero", "aecp/aecp_commands.c", AGAIN_CHECK,
+          "running(a, a->noted_type, 0u) : AECP_SUCCESS;",
+          "platsinks1", S13, S13_WORDS + "1", also=(("platsinks1", S14, S14_WORDS + "1"),)),
+        # #954: GET_TX_STATE's REGISTERING_FAILED from the source port: never (the shipped platform), for any
+        # Listener, with none, or from output 0's
+        m("asking-failed-unreported", PLAT, ASKING, "\t(void)srp;\n\tout->asking_failed = false;\n",
+          "platsinks8", T1, T1_WORDS + "0, declaration 1", also=(("platsinks1", T1, T1_WORDS + "0, declaration 1"),)),
+        m("asking-failed-any-listener", PLAT, ASKING, "\tout->asking_failed = srp->listener_present[n];\n",
+          "platsinks8", T1, T1_WORDS + "0, declaration 2"),
+        m("asking-failed-without-a-listener", PLAT, ASKING, "\tout->asking_failed = !srp->registered[n];\n",
+          "platsinks8", T1, "T1 no REGISTERING_FAILED with no Listener registered: output 0"),
+        m("asking-failed-of-output-zero", PLAT, ASKING,
+          "\tout->asking_failed = srp->listener_present[0] && !srp->registered[0];\n",
+          "platsinks8", T1, "T1 no other output carries output 0's Listener: output 1, Asking Failed"),
     )

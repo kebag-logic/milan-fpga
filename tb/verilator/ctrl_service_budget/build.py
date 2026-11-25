@@ -97,8 +97,8 @@ MUTATIONS = {
                       'answering-later'),
     # #665's planted age on the build: an MRPDU owed waits 300 passes before THE TRANSMIT's pass, so an MRPDU a
     # timer owes is committed past its bound, CTRL_LOOP_TX_BOUND_MS (mrpdu_grade.BUDGET_MS, 49 ms; FR_NFR.md 3.4.1).
-    'transmit-aged': ('srp/srp_mbx.c', '    return m->tx_due != 0u && !m->owed_len;\n',
-                      '    static unsigned held;\n    held = m->tx_due != 0u ? held + 1u : 0u;\n'
+    'transmit-aged': ('srp/srp_mbx.c', '    return m->tx_owed != 0u && !m->owed_len;\n',
+                      '    static unsigned held;\n    held = m->tx_owed != 0u ? held + 1u : 0u;\n'
                       '    return held > 300u && !m->owed_len;\n', ','.join(notice_window.names()), 'answering-later'),
     **poll_items.PLANTS, **save_window.PLANTS, **talker_notice.PLANTS, **declaring_outputs.PLANTS,
 }
@@ -775,7 +775,9 @@ def verilate(build_dir: Path, spec: dict, table: dict[str, int], jobs: int) -> N
         raise RuntimeError(f'the mailbox instances leave ports unconnected (verilate.log, PINMISSING): {missing}')
     config_header(build_dir, spec, table, observers.member_paths(native),
                   code_modules(Path(spec['elf']).with_name('ctrl_app.map')))
-    run(['make', f'-j{jobs}', '-C', str(native), '-f', 'Vsim.mk', 'Vsim'], build_dir / 'make.log')
+    # OPT_FAST: Verilator's rule for sim_main.cpp puts OPT_FAST (default -Os) after -CFLAGS, so without it the
+    # testbench compiles for size; -O3 as the model (2.5-5 % less CPU on the 8x8/1if fixture, the same output).
+    run(['make', f'-j{jobs}', '-C', str(native), '-f', 'Vsim.mk', 'Vsim', 'OPT_FAST=-O3'], build_dir / 'make.log')
 
 
 #: The source trees the image is compiled from (ctrl_srp_image.py: the control firmware and

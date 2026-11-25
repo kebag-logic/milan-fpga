@@ -67,7 +67,6 @@ import os
 import signal
 import subprocess
 import sys
-import tempfile
 import time
 from collections.abc import Callable
 from pathlib import Path
@@ -79,6 +78,7 @@ DP_RTL = HERE / "../../../hdl/milan/milan_datapath.sv"
 CLEAN_EXE = HERE / "obj_aclk/Vmilan_dp_aclk"
 sys.path.insert(0, str(HERE / "../../../scripts"))
 from suite_tally import log_reports_failure  # noqa: E402
+import mutant_stage  # noqa: E402
 
 #: the two sources a mutant may plant into: (path, the Makefile override)
 SOURCES = {
@@ -345,7 +345,7 @@ def main(log: PhaseLog | None = None) -> int:
     sources = {key: path.read_text() for key, (path, _) in SOURCES.items()}
     passes = fails = 0
     signal.signal(signal.SIGTERM, on_sigterm)
-    with tempfile.TemporaryDirectory(prefix="render-mutants-") as td:
+    with mutant_stage.directory("render-mutants-") as td:
         work = Path(td)
         reused = CLEAN_EXE.is_file()
         log.baseline("prebuilt" if reused else "fallback-build")

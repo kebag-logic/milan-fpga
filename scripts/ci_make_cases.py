@@ -68,6 +68,50 @@ def execute(directory: Path, name: str, form: str = "tally") -> tuple[str, int, 
     return "pass" if passed else "failed", ran.returncode, output
 
 
+#: Measured execution cost per case, in seconds, for the suites whose pieces
+#: run more than one case. Only the START order reads it: a piece's cases are
+#: submitted longest first, so its longest case no longer waits behind the
+#: short ones for a free worker, and every result is still printed and
+#: recorded in driver order, so the transcript and the receipt do not change.
+#: A case absent here costs 0 and keeps its driver order behind the measured
+#: ones; a stale figure can only make a piece slower, never change a verdict.
+#: How the figures were taken, and how to retake them: TESTING.md, "Case
+#: start order in a piece". Issue #998; REQ-VER-01 and REQ-VER-04.
+CASE_SECONDS: dict[str, dict[str, int]] = {
+    # 2026-11-24, at fcbc31f3: each case's `exec-<case>` alone on one core of its own, CPU seconds.
+    "milan_dp": {
+        "aclk": 1558, "render-mutants": 1375, "gptp": 862, "gptp-lat": 838, "dynmap": 617, "notify": 366,
+        "counters-8": 300, "counters-8-frames": 296, "crflic": 247, "nxn8": 242, "counters-1": 144,
+        "counters-1-frames": 142, "nxn": 101, "nxn4c": 99, "bootsa": 96, "nxndv": 92, "sidmove8": 45,
+        "ax1x1": 26, "base": 23, "nolpf": 22, "sidmove": 22, "maprec8": 15, "tspec8": 14, "maprec4": 9,
+        "prune": 3, "split": 1,
+    },
+    # 2026-11-24, at 45d5c35a: each case's log span in one `make -C tb/verilator/media_phase`, three cases at once on
+    # four CPUs, wall seconds of its one single-threaded simulation.
+    "media_phase": {
+        "ramp": 314, "edge": 221, "engage": 189, "step": 189, "phcstep": 180, "mr": 173, "internal": 143,
+        "holdover": 135, "burst": 131, "edge2": 118, "slew": 118, "engage2": 104, "carry": 51,
+    },
+}
+
+
+def start_order(suite: str, selected: list[str]) -> list[str]:
+    """The selected cases longest first by CASE_SECONDS; ties keep driver order."""
+    cost = CASE_SECONDS.get(suite, {})
+    return sorted(selected, key=lambda name: -cost.get(name, 0))
+
+
+def execute_all(directory: Path, suite: str, selected: list[str], forms: dict[str, str],
+                jobs: int) -> list[tuple[str, int, str]]:
+    """Execute every selected case on `jobs` workers, started longest first, with the
+    results returned in driver order."""
+    with ThreadPoolExecutor(max_workers=jobs) as pool:
+        # The pool starts submitted work first-in first-out.
+        futures = {name: pool.submit(execute, directory, name, forms[name])
+                   for name in start_order(suite, selected)}
+        return [futures[name].result() for name in selected]
+
+
 def build(directory: Path, name: str) -> int:
     """Build a selected case; shared outputs have one sequential owner."""
     return subprocess.run(["make", "-s", "--no-print-directory", "-C", str(directory),
@@ -105,8 +149,7 @@ def main() -> int:
                 return 1
         # Frame dumps deliberately share an output path; presence serializes.
         jobs = 1 if "MILAN_COUNTER_FRAME_OUT" in os.environ else args.jobs
-        with ThreadPoolExecutor(max_workers=jobs) as pool:
-            results = list(pool.map(lambda name: execute(directory, name, forms[name]), selected))
+        results = execute_all(directory, args.suite, selected, forms, jobs)
         for name, (outcome, rc, output) in zip(selected, results):
             print(f"======== {args.suite}/{name} ========", flush=True)
             sys.stdout.write(output)

@@ -191,11 +191,11 @@ TEST_F(SrpFeedback, AnAdvertiseNewBeforeAnUnchangedDomainUpdatesBothWireViews) {
     const unsigned i=acfg.sink_interface[k];
     bind(k); response(k); registration(k,true,1);
     for (unsigned n=0;n<2000u && (srp_adapter.join_left[2u*i]!=0u || srp_adapter.join_left[2u*i+1u]!=0u ||
-                                 srp_adapter.tx_due!=0u);++n) {
+                                 srp_adapter.tx_owed!=0u);++n) {
         mbx_model_advance_ms(&model,1); settle();
     }
     ASSERT_EQ(srp_adapter.join_left[2u*i],0u) << "an idle join timer";
-    ASSERT_EQ(srp_adapter.tx_due,0u);
+    ASSERT_EQ(srp_adapter.tx_owed,0u);
     ASSERT_EQ(sink(k).declared,1u);
     current_kind(k,true);
     auto frame=talker(0,false,0);

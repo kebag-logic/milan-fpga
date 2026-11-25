@@ -6,7 +6,41 @@
 from pathlib import Path
 import tempfile
 
-from ci_make_cases import build, execute, inventory, receipt_forms
+import ci_make_cases
+from ci_make_cases import build, execute, execute_all, inventory, receipt_forms
+
+
+def start_order_controls(root: Path) -> None:
+    """Cases start longest first by measured cost, ties and unmeasured cases in driver
+    order, and their results come back in driver order whatever the start order."""
+    names = ["short", "long", "tie_a", "unmeasured", "tie_b", "longest"]
+    recipe = "".join(f"exec-{name}:\n\t@echo {name} >> started\n"
+                     f"\t@printf '{name} checks: 1   failures: 0\\n'\n" for name in names)
+    (root / "Makefile").write_text(recipe)
+    saved = dict(ci_make_cases.CASE_SECONDS)
+    ci_make_cases.CASE_SECONDS.clear()
+    ci_make_cases.CASE_SECONDS["controls"] = {"short": 5, "long": 50, "tie_a": 20, "tie_b": 20,
+                                              "longest": 90}
+    try:
+        for jobs in (1, 3):
+            (root / "started").unlink(missing_ok=True)
+            results = execute_all(root, "controls", names, dict.fromkeys(names, "tally"), jobs)
+            assert [output.split()[0] for _, _, output in results] == names, results
+            assert all(outcome == "pass" for outcome, _, _ in results), results
+            started = (root / "started").read_text().split()
+            assert sorted(started) == sorted(names), started
+            if jobs == 1:
+                # One worker starts each case only after the previous one ends.
+                assert started == ["longest", "long", "tie_a", "tie_b", "short", "unmeasured"], started
+            print(f"make case start order control, {jobs} job(s): results in driver order")
+        ci_make_cases.CASE_SECONDS.clear()
+        (root / "started").unlink()
+        execute_all(root, "controls", names, dict.fromkeys(names, "tally"), 1)
+        assert (root / "started").read_text().split() == names
+        print("make case start order control: an unmeasured suite keeps driver order")
+    finally:
+        ci_make_cases.CASE_SECONDS.clear()
+        ci_make_cases.CASE_SECONDS.update(saved)
 
 
 def main() -> int:
@@ -71,6 +105,12 @@ exec-buildfail:
                 print(f"make inventory control: {changed!r} refused")
             else:
                 raise AssertionError(f"invalid inventory accepted: {changed!r}")
+        start_order_controls(root)
+    for suite, cost in ci_make_cases.CASE_SECONDS.items():
+        # A misspelt case would silently cost 0; every measured name is a live case.
+        live = inventory(ci_make_cases.ROOT / "tb/verilator" / suite)
+        assert set(cost) <= set(live), (suite, sorted(set(cost) - set(live)))
+        print(f"make case start order: {suite}'s {len(cost)} measured costs name live cases")
     print("make case runner: all controls pass")
     return 0
 

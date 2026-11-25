@@ -24,10 +24,11 @@ Exit 0 = every mutant was caught and the clean harness still passes.
 import signal
 import subprocess
 import sys
-import tempfile
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
+sys.path.insert(0, str(HERE.parents[2] / "scripts"))
+import mutant_stage  # noqa: E402
 sys.path.insert(0, str(HERE))
 from lockstep_mutants import failed_checks, verdict  # noqa: E402
 
@@ -113,7 +114,7 @@ def main() -> int:
     src = RTL.read_text()
     passes = 0
     fails = 0
-    with tempfile.TemporaryDirectory(prefix="rxmon-ctxfmt-mutants-") as td:
+    with mutant_stage.directory("rxmon-ctxfmt-mutants-") as td:
         work = Path(td)
         exe = build(RTL.resolve(), work / "obj_clean")
         answer = verdict(*run_harness(exe), None) if exe else "did not compile"

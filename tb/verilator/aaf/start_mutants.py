@@ -12,11 +12,13 @@ are bounded by sample counts, independently of DUT progress.
 import argparse
 import os
 import subprocess
-import tempfile
+import sys
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
+sys.path.insert(0, str(HERE.parents[2] / "scripts"))
+import mutant_stage  # noqa: E402
 RTL = HERE / "../../../hdl/ieee1722/aaf/KL_aaf_packetizer.sv"
 # name, unique source text, replacement, required failed assertion
 MUTATIONS = (
@@ -87,7 +89,7 @@ def main() -> int:
     if args.jobs < 1:
         parser.error("--jobs must be positive")
     # TMPDIR selects physical scratch storage for the entire campaign.
-    with tempfile.TemporaryDirectory(prefix="aaf-start-", dir=os.environ.get("TMPDIR")) as temp:
+    with mutant_stage.directory("aaf-start-") as temp:
         with ThreadPoolExecutor(max_workers=args.jobs) as pool:
             results = list(pool.map(lambda arm: run_arm(arm, Path(temp)), MUTATIONS))
     print(f"startup mutants: {sum(results)}/{len(results)} caught")

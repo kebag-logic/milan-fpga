@@ -23,10 +23,11 @@ import os
 import shutil
 import subprocess
 import sys
-import tempfile
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
+sys.path.insert(0, str(HERE.parents[2] / "scripts"))
+import mutant_stage  # noqa: E402
 RTL = HERE.parents[2] / "hdl"
 DP = RTL / "milan/milan_datapath.sv"
 CDC = RTL / "milan/mailbox/KL_mbx_cdc.sv"
@@ -202,7 +203,7 @@ def main() -> int:
     if not arms:
         print(f"no arm named {args.only!r}")
         return 2
-    work = Path(tempfile.mkdtemp(prefix="split-mutants-", dir=HERE))
+    work = Path(mutant_stage.mkdtemp("split-mutants-", parent=HERE))
     bad = 0
     try:
         rc, out = build_and_run(work / "clean", {})

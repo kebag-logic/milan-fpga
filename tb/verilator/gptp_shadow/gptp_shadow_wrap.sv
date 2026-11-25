@@ -205,6 +205,11 @@ module gptp_shadow_wrap #(
     output wire [15:0] dbg_txts_phcl_o,
     output wire  [7:0] dbg_phc_dirtcyc_o,
     output wire signed [31:0] dbg_phc_adj_o,
+    //! the takeover taps (FPGA-gPTP #107): the plane's slew level, which
+    //! the datapath feeds to the media clock, and the adjtime strobe the
+    //! counter takes, so a mastership is graded as rate 0 with no step
+    output wire        dbg_phc_slew_o,
+    output wire        dbg_phc_step_v_o,
     output wire [15:0] dbg_txts_state_o,
     output wire [15:0] dbg_txts_torn_o
 );
@@ -295,7 +300,7 @@ module gptp_shadow_wrap #(
       .phc_adj_o       (adj_w),
       .phc_step_we_o   (step_we_w),
       .phc_step_o      (step_w),
-      .phc_slew_active_o (), //! These timestamp tests do not consume media rate.
+      .phc_slew_active_o (dbg_phc_slew_o),
       .tx_tdata_o      (tx_tdata_o),
       .tx_tkeep_o      (tx_tkeep_o),
       .tx_tvalid_o     (tx_tvalid_o),
@@ -406,6 +411,7 @@ module gptp_shadow_wrap #(
   assign mac_rst_n_w = rst_n & ~linkg_eth_rst_w;
 
   assign dbg_phc_adj_o = adj_eff_w;
+  assign dbg_phc_step_v_o = step_we_w;
   assign pub_disc_o = pub_disc_w;
   //! entry 0 is the head; tail k is entry k + 1
   assign pub_path_head_o  = pub_path_w[0*64 +: 64];

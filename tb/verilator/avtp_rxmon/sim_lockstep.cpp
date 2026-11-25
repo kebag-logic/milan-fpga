@@ -113,10 +113,11 @@ struct Rng {
     bool chance(uint32_t one_in) { return below(one_in) == 0; }
 };
 
-//! the AAF format-specific header a conformant PDU carries for kFmt
+//! the AAF format-specific header a conformant PDU carries for kFmt: its
+//! stream_data_length is six four-octet samples per channel (#948)
 uint64_t fsh_for(uint8_t chans) {
     return (0x02ULL << 56) | (0x5ULL << 52) | (static_cast<uint64_t>(chans) << 40) |
-           (0x20ULL << 32);
+           (0x20ULL << 32) | (static_cast<uint64_t>(24u * chans) << 16);
 }
 
 class Lockstep {

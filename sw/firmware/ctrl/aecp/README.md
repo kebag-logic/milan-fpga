@@ -77,11 +77,17 @@ applied (#665). Acknowledged state is the only state a controller sees:
   SET_CONTROL), the command waits. The core undoes the change from the values
   it recorded as the command overwrote them (`aecp_keep`), keeps the SUCCESS
   response, and answers IN_PROGRESS with the values in force. If the port is
-  true within `AECP_WAIT_MS` (100 ms), the change is done again, answered and
-  notified. Otherwise it stays undone, and the command answers
-  ENTITY_MISBEHAVING and notifies no one. Either way the change is handed to
-  `changed` again. The core's own notifications, probes and lock expiry
-  follow the wait.
+  true within `AECP_WAIT_MS` (100 ms), the command makes again the checks a
+  waiting command repeats (`aecp_again`): a SET_STREAM_FORMAT's running
+  check, since its STREAM_INPUT may have been bound or its STREAM_OUTPUT
+  started meanwhile (#950; IEEE 1722.1-2021 7.4.9, 8.2). Passed, the change
+  is done again, answered and notified. Refused, or not applied in time, it
+  stays undone, and the command answers the check's status
+  (STREAM_IS_RUNNING, or ENTITY_MISBEHAVING when the stream cannot be
+  observed), or ENTITY_MISBEHAVING, and notifies no one. Either way the change
+  is handed to `changed` again. The other commands of `AECP_WAITS` are done
+  again as they were taken. The core's own notifications, probes and lock
+  expiry follow the wait.
 - **After a lock expires**, its release is handed to `changed`, and the lock
   holds, by its owner, for every response and read until the port is true:
   ENTITY_AVAILABLE, LOCK_ENTITY's `locked_id`, `aecp_locked` and every
@@ -118,8 +124,8 @@ Its `stream_dest_mac` is the Talker's MAAP address, the ACMP source port's that 
 REGISTERING (`flags_ex`) is set while SRP registers a matching Listener on the output's interface, of any declaration.
 REGISTERING_FAILED (`0x00000040`) is set while that Listener is Asking Failed. Undeclared, all three read 0, as the fabric answers.
 A brief observation, a running check's, stays the face's, and an output map edit's check of its stream is one (`aecp_maps.c`, `idle`).
-A Listener's registration change raises no notice of its own yet; the next response or notice carries it.
-`AppOutputs` tests every output of the 1x1 and 8x8 shapes; [`aecp_output_mutants.py`](../test/aecp_output_mutants.py) plants its defects.
+Each change of that Listener's registration, a Listener Ready, Ready Failed or Asking Failed appearing, replacing another or going, is the output's GET_STREAM_INFO notice to every registered controller (#957; Milan v1.2 5.4.5.2, Table 5.22), raised from SRP's record as a Talker declaration's is ([SRP](../srp/README.md)).
+`AppOutputs` tests every output of the 1x1 and 8x8 shapes; [`aecp_output_mutants.py`](../test/aecp_output_mutants.py) and [`aecp_registration_mutants.py`](../test/aecp_registration_mutants.py) plant their defects.
 Controller probes use a 30-60 s monitor interval,
 250 ms retry and eventual targeted deregistration. Locks expire after 60 s.
 
@@ -427,6 +433,10 @@ The rest cover the acknowledgement:
 - a change not done again once applied; a success not notified; a failure
   notified, reporting the request, or not given to the face; a final response
   that forgets its requester;
+- a waiting SET_STREAM_FORMAT done again without its running check, with
+  another command's check instead, an input judged by its streaming, or a
+  stream it cannot observe taken; its refusal done again, notified, or
+  answered ENTITY_MISBEHAVING (#950);
 - a lock expiry inside a wait, notified unapplied, or never notified once late;
 - an expired lock read as released, or its owner dropped, before its release
   is applied, by ENTITY_AVAILABLE, `aecp_locked` or a refusal to another

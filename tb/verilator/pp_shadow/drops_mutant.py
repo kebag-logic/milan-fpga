@@ -29,10 +29,11 @@ and every arm was caught by its named check; 1 = otherwise.
 import os
 import subprocess
 import sys
-import tempfile
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
+sys.path.insert(0, str(HERE.parents[2] / "scripts"))
+import mutant_stage  # noqa: E402
 ROOT = HERE.parents[2]
 SHADOW = (ROOT / "hdl" / "milan" / "KL_pp_shadow.sv").resolve()
 DATAPATH = (ROOT / "hdl" / "milan" / "milan_datapath.sv").resolve()
@@ -125,7 +126,7 @@ def main() -> int:
             print(f"REFUSED: expected exactly one {path.name} in the datapath source list")
             return 1
     missed = []
-    with tempfile.TemporaryDirectory(prefix="pp-drops-") as temporary:
+    with mutant_stage.directory("pp-drops-") as temporary:
         directory = Path(temporary)
         for leg, label in ((BASE, "control"), (PRUNED, "control-rxfilt0")):
             status, text = run_leg(directory, label, leg)

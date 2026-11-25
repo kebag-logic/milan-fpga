@@ -41,7 +41,6 @@ import json
 import os
 import subprocess
 import sys
-import tempfile
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
 from pathlib import Path
@@ -52,6 +51,7 @@ CLEAN_EXE = HERE / "obj_mclk/Vmilan_dp_mclk"
 sys.path.insert(0, str(HERE / "../../../scripts"))
 from suite_tally import log_reports_failure  # noqa: E402
 from ci_case_receipts import Receipt, partition  # noqa: E402
+import mutant_stage  # noqa: E402
 
 #: the three files the schemata plant into: (path, the Makefile override)
 SOURCES = {
@@ -123,8 +123,11 @@ EDITS = [
          " : (aafm_disrupt_p_w & (mclk_mut_r != 8))) | aafm_mr_toggle_p_w;"),
     Edit("dp", "      .en_i          (aaf_clk_selected_r),",
          "      .en_i          (aaf_clk_selected_r || mclk_mut_r == 7),"),
-    Edit("meter", "(match_idx_i == follow_idx_i)",
-         "(match_idx_i == follow_idx_i || mclk_mut_r == 9)"),
+    Edit("dp", "      .match_p_i     (avtprx_match && avtprx_vec_w[aaf_follow_idx_r]),\n"
+         "      .match_idx_i   (aaf_follow_idx_r),",
+         "      .match_p_i     ((mclk_mut_r == 9 || mclk_mut_r == 19) ? avtprx_match"
+         " : (avtprx_match && avtprx_vec_w[aaf_follow_idx_r])),\n"
+         "      .match_idx_i   ((mclk_mut_r == 19) ? avtprx_idx : aaf_follow_idx_r),"),
     Edit("dp", "  wire ctr_mclk_lock_w = ~clkv_tu_w & (~follow_sel_r | mcsrv_locked_w);",
          "  wire ctr_mclk_lock_w = ~clkv_tu_w & (~follow_sel_r | (mclk_mut_r == 10)"
          " | ((mclk_mut_r == 11) ? (aaf_clk_selected_r ? aafm_locked_w : crf_locked_w)"
@@ -162,7 +165,7 @@ MUTANTS = [
            "(iii) INTERNAL dwell: AAF0's mr toggle raises no request"),
     Mutant(8, "disrupt_p not ORed into the request", "aafloss",
            "AAF loss: one request at the meter's timeout"),
-    Mutant(9, "the echo ungated (the meter's listener compare ignored)", "echo",
+    Mutant(9, "the echo ungated (the followed input's match bit ignored)", "echo",
            "echo: the unfollowed AAF1's toggle raises no request"),
     Mutant(10, "C0's level (~tu only)", "select",
            "C1: UNLOCKED moves at the switch onto AAF0"),
@@ -182,13 +185,15 @@ MUTANTS = [
            "CRF return: one request at the sink's re-lock"),
     Mutant(18, "the selected CRF's lock-loss edge dropped", "crfloss",
            "CRF loss: one request at the sink's timeout"),
+    Mutant(19, "the meter given the highest match's index (#948: each PDU to one input)", "shared",
+           "SHARED: the meter locked on listener 0 while listener 1 shares its stream"),
 ]
 
 
 #: simulated seconds each short leg runs, so the pool starts the long ones
 #: first and the short ones fill in behind them
 MODE_SECONDS = {"loss": 9.0, "crfloss": 6.2, "internal": 4.1, "refmux": 3.2, "aafloss": 0.4,
-                "switch": 0.4, "silent": 0.3, "echo": 0.2, "dwell": 0.2, "tu": 0.1}
+                "switch": 0.4, "silent": 0.3, "echo": 0.2, "dwell": 0.2, "tu": 0.1, "shared": 0.03}
 
 
 def plant(work: Path) -> dict[str, Path] | str:
@@ -293,7 +298,7 @@ def main() -> int:
     if not CLEAN_EXE.is_file():
         print(f"[FAIL] the clean leg {CLEAN_EXE.name} is not built (make mclk-build)")
         return 1
-    with tempfile.TemporaryDirectory(prefix="mclk-mutants-") as td:
+    with mutant_stage.directory("mclk-mutants-") as td:
         work = Path(td)
         copies = plant(work)
         if isinstance(copies, str):

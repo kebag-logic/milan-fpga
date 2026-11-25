@@ -160,7 +160,6 @@ def run(rate: int, source: str, out: Path, simulator: str) -> int:
         (work / f"{name}.rc").write_text(f"{rc}\n")
         if rc:
             return rc
-    print(f"settle control {rate} Hz: PASS", flush=True)
     return 0
 
 
@@ -178,6 +177,12 @@ def main() -> int:
     source = text[begin:end]
     with ThreadPoolExecutor(max_workers=args.jobs) as pool:
         results = list(pool.map(lambda rate: run(rate, source, args.out.resolve(), args.sim), RATES))
+    # One line per passing rate in RATES order, from this thread, so the transcript
+    # is the same whichever rate ends first (a CI piece's receipt digests it).
+    # Issue #998; REQ-VER-01 and REQ-VER-04.
+    for rate, rc in zip(RATES, results):
+        if rc == 0:
+            print(f"settle control {rate} Hz: PASS", flush=True)
     return int(any(results))
 
 

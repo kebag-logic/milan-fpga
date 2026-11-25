@@ -113,6 +113,16 @@ pull-request update and on every push to `dev`. It produces one stable
   Its budget is the job's own 30 minutes.
   On the runner's Ubuntu 24.04 with four CPUs, a replica of the step at `0a9c5fa8` took 682 s, 38% of 1800 s.
   Of that the builds took 614 s: the control gate's 299 s, the coverage gate's 226 s, the store's 80 s and the RV32 self-test's 9 s.
+  The step later outgrew #998's budget (below): over fourteen hosted runs, 45147231523 to 45481508222, the job took 1302-1667 s and its builds 1033-1366 s, and run 45514146566's was cut at its 30-minute limit.
+  So #1003 runs the builders in `firmware-boundary-capture`, two matrix legs, each on a runner of its own under a capture of its own (`--leg K/2 --capture-out <capture>`, `ctrl_runs.LEGS`).
+  Leg 0 runs the control gate's build, leg 1 every other builder; each uploads its capture as this head's artifact.
+  `firmware-boundary` needs both legs and runs none of their builders itself.
+  It restores each capture at the path its leg made it at and judges both together (`--capture`, once per leg), with the image builders, the stack's own gate, the controls, the pin controls and the figures.
+  The judgement is the whole run's: a local replica of the three jobs at one checkout path printed the same lines as the whole step, but for the eight builder lines the legs print, down to the same counts and verdict.
+  Given one leg's capture alone, the gate refuses, naming each builder the other leg holds.
+  The aggregate requires `firmware-boundary-capture` too: a failed leg skips the judge, and the aggregate counts a skipped job as a pass.
+  The matrix keeps GitHub's own `fail-fast: true`, as every hosted matrix does (below): a failed leg cancels the other on every event, a fork's included, with no token, and its result still fails the aggregate.
+  `ci_events.py` pins the matrix to one leg per entry of `ctrl_runs.LEGS` under `fail-fast: true`, the judge's need of the legs, and each job's 30 minutes.
 - the same TSN stack boundary over the compiles only the builders that need
   Verilator make, `firmware-verilator` (#697), when RTL or its tooling
   changes: the mailbox bench at its default target, the MAAP differential
@@ -124,7 +134,7 @@ pull-request update and on every push to `dev`. It produces one stable
   The step is `ctrl_boundary.py --require-rv32 --selftest --only verilator`: the same judgement over that capture, with the controls that need it and the pin controls.
   Those controls replay the wire comparison's and the differential's own recorded compiles on a planted copy, and drop the wire comparison's compiles from the capture.
   It names the firmware builders and their controls as `firmware-boundary`'s.
-  Each recorded compile is judged whole, in the job that ran it.
+  Each recorded compile is judged whole, in the job that ran it; `firmware-boundary` judges its legs' compiles from their captures.
   Its budget is the job's own 40 minutes.
   On a hosted runner at `5b4f6fbe`, before the dependency pass, the step took 438 s (job 114344992708) and the job 473 s, a fifth of the 40 minutes.
   A replica of the step took 486 s on four CPUs of a shared host, where `5b4f6fbe`'s took 452 s, on the runner's Ubuntu 24.04 with its GCC 13.3, CPython 3.12.3, static GoogleTest 1.14.0 and clang 18.
@@ -143,7 +153,7 @@ It also runs the tally checks and complete coverage ratchet.
 The normal shard includes the SRP wire comparator self-test.
 Both SRP interface campaigns retain F-INT's publication mutants.
 The aggregate also requires the separate `publication-census` and `split-cdc` jobs.
-It also requires the two TSN stack boundary jobs above (#697), which run none of the four phases.
+It also requires the two TSN stack boundary jobs above (#697) and `firmware-boundary-capture` (#1003), which run none of the four phases.
 All jobs verify the same pinned SDK.
 Only that authenticated SDK is cached; builds remain fresh.
 
@@ -475,26 +485,97 @@ The workflow keeps the public aggregate names `verilator-suites` and
 relevant PR must run them successfully, while a docs-only PR emits them as
 explicit successful skipped results.
 
-Verilator schedules 81 units on nineteen native matrix workers. The ordinary
-serial command still runs the original 64 suites. CI expands six long suites
-into driver-derived case partitions: `milan_dp` (four legs), `milan_dp_mclk`
-(four), `capture_coherence` (four), `maap` (four), `milan_dp_render` (three), and
-`pp_shadow` (four). At this head the source drivers enumerate 24, 34, 43, 66, 3
-and 4 units, respectively. A unit can carry several original checks; it is never split by
+Verilator schedules 94 units on twenty-six native matrix workers. The ordinary
+serial command still runs the original 65 suites. CI expands eight long suites
+into driver-derived case partitions: `milan_dp` (eight legs), `milan_dp_mclk`
+(four), `capture_coherence` (eight), `maap` (four), `milan_dp_render` (four),
+`pp_shadow` (four), `follow_ring` (two) and `media_phase` (three). At this head
+the source drivers enumerate 26, 36, 43, 66, 4, 4, 3 and 18 units, respectively.
+A unit can carry several original checks; it is never split by
 resetting a carried history. No test predicate or per-suite timeout changes.
+
+The sweep's eight preflight self-tests run once per head, in the
+`verilator-preflight` job ("Verilator preflight"), and not on every worker.
+They took 76 to 97 seconds of each of the nineteen workers in run 45326076983
+and were the same eight commands on the same tree each time. The job keeps the
+workers' checkout and SHA record and runs `scripts/run_all_suites.sh
+--preflight-only`; its self-tests read no submodule and need none of the
+workers' tools. It needs `full-ci-gate` only and runs beside the workers, so
+its own setup is not on their critical path. The workers run `--ci-pieces
+--no-preflight`. `verilator-suites` needs the job, downloads its
+`suite-preflight` artifact and runs `ci_events.py --require-target-sha
+--expect 1` over it, then is red unless the job's result is `success`. A
+failed, cancelled or skipped preflight, a record for another SHA and a missing
+record each fail it, as `scripts/ci_suite_pieces_selftest.py` shows by running
+the generated step. The job is one of the fail-fast watcher's expected jobs, so
+a failing preflight also cancels the run's workers on a push or a
+same-repository pull request; on a fork pull request the workers run to
+completion and `verilator-suites` is red. The 122-second setup
+allowance below still includes the preflight: it is re-measured from a hosted
+run before it is lowered.
 
 `scripts/suite_shards.py` assigns the longest measured pieces first. It pins
 `tsn_fuzz` to worker 1 and `chmap_capture` to worker 3 for their specialized
-installs. Worker 18 owns only media-clock leg A, whose continuous history is
-indivisible under #737's ruling. Eighteen workers project at most 1615 seconds
-including a conservative 122-second setup allowance. Leg A projects to 988
-seconds before setup and 1110 seconds with it, its largest window in #799's
-hosted runs; #737's round-one projection was 1910 and 2032 seconds. Its
-dedicated worker is the explicit round-one exception; the coordinating role
+installs. Worker 25 owns only media-clock leg A, whose continuous history is
+indivisible under #737's ruling. Twenty-five workers project at most 1275 seconds
+including a conservative 122-second setup allowance. Leg A projects to 1408
+seconds before setup and 1530 seconds with it, its largest window in #998's
+hosted runs (#799's was 988 seconds); #737's round-one projection was 1910 and
+2032 seconds. Its
+dedicated worker is the explicit round-one exception, and the one worker over
+#998's budget below; the coordinating role
 measures the actual hosted head before the owner decides any remaining
 acceleration. Regular workers have 45-minute
 limits; leg A retains a 60-minute allowance within its former 120-minute job
 limit. The separate nightly physical-rate job keeps its existing deadline.
+
+**The #998 budget.** The owner's bound is every hosted job within 30 minutes,
+with no runner-speed qualifier. Run 45481508309's slowest worker built the same
+models 1.41 times as slowly as the base run, so every regular worker must
+project at most 1800 / 1.41 seconds, 1276 seconds rounded down
+(`CI_BUDGET_SECONDS`), allowance included. Six pieces exceeded it alone:
+`follow_ring`, `media_phase`, `capture_coherence` leg 0, `milan_dp` legs 0 and
+1, and leg A. `capture_coherence` leg 1 exceeded it with the allowance. #998
+divides all but leg A further with the existing mechanisms:
+
+- `milan_dp` deals its cases into eight legs instead of four. Each new leg
+  holds half of one old leg's cases, so the `aclk` case shares its leg with two
+  cases and `render-mutants` with three, where each shared one with six.
+- `capture_coherence` deals its units into eight legs instead of four.
+- `follow_ring` becomes a parent: `tb/verilator/follow_ring/Makefile` names its
+  five default legs as three cases (`b8`; `pullin` with `small-pullin`; `bind`
+  with `settle-control`), since `small-pullin` and `settle-control` print no
+  counted tally of their own. Two legs deal them.
+- `media_phase` becomes a parent: its Makefile names the five harness targets
+  and each of the thirteen `cases` as a case. Three legs deal them.
+
+The serial default of every suite is unchanged. A new leg's figure is its old
+leg's hosted figure times the ratio of the two legs' local walls, measured
+concurrently on equal four-CPU bookings with hosted budgets and no compiler
+cache; since each new leg is a subset of one old leg, an unmeasured one keeps
+the old leg's figure. A newly divided suite's pieces scale its figure by each
+piece's local wall over the whole suite's. `milan_dp_mclk` keeps four legs:
+eight would cut leg A's piece by 7 % (669 against 720 seconds locally), still
+over the budget, at the cost of four more pieces that each build both models.
+Leg A's own history is the floor. Splitting it is ruled out (#737). Its
+projection is therefore stated, not hidden: 1530 seconds, 254 over the
+budget, so 36 minutes on a runner 1.41 times as slow as its figure's run. That
+figure's run is itself the slowest of three hosted windows: 857, 1408 and 779
+seconds.
+
+rtl-fast's `firmware-boundary` is a hosted job too, under the same budget
+(#1003). Whole, it projected 1765 seconds by the same method: its slowest
+step, 1613 seconds, plus its slowest setup, 152 seconds, over the fourteen
+hosted runs 45147231523 to 45481508222. Its builders now run in two capture
+legs, and the judgement in the job itself (the job list above). Each job's
+figure is the slowest window of its part of the step in those runs; its
+projection adds that slowest setup:
+
+| Job | Figure | Projection |
+|---|---|---|
+| `firmware-boundary-capture` leg 0, the control gate's build | 769 s | 921 s |
+| `firmware-boundary-capture` leg 1, the other five builders | 597 s | 749 s |
+| `firmware-boundary`, the step less its builds | 247 s | 399 s |
 
 The seventeenth worker is #781's: `media_phase` timed out at 900 seconds on
 hosted, and its 1400-second budget plus the 122-second allowance fits no
@@ -533,27 +614,49 @@ figure its worker would project 1922 seconds, over the 1620-second bound. The
 selector then placed it on worker 3, projected at 1538 seconds. The template keeps
 dev's six-worker matrix, its shard 5/6 `milan_dp` ownership arm and its
 `--expect 6`; the generator replaces the matrix and `--expect` with the
-nineteen workers and removes the arm; the selector's self-test proves that the
+twenty-six workers and removes the arm; the selector's self-test proves that the
 last worker runs `milan_dp_mclk__0` alone.
 
 The selector refuses a missing or extra duration, duplicate ownership, a
-changed specialized owner, or a regular worker projected above 1620 seconds.
-Its existing 60%-of-deadline control applies separately to each worker's own
-timeout: 1620 seconds for regular workers, 2160 seconds for leg A. Controls
-plant a shorter regular timeout and a 1621-second ordinary worker under a
-deliberately wide timeout; each must fail its respective bound. The figures for split suites are
+changed specialized owner, or a regular worker projected above #998's 1276
+seconds. Its existing 60%-of-deadline control applies separately to each
+worker's own timeout: 1620 seconds for regular workers, 2160 seconds for leg A.
+Controls plant a shorter regular timeout, leg A one second over a 35-minute
+job's 1260-second bound, and a 1277-second ordinary worker under a deliberately
+wide timeout; each must fail its respective bound. A further control computes
+the budget from 1800 seconds and 1.41 without the constant. The figures for split suites are
 hosted leg windows from #799's pull-request runs, measured with
 `scripts/suite_shards.py --measure`. They replaced the earlier apportionment of
 baseline `7032bca5` windows by local leg durations. Refresh them from the next
 complete hosted run. The ordinary unsharded scheduling mode remains available.
 
-Every selected leg writes source-bound case receipts. Each of six union jobs
+#998 refreshed them from two complete pull-request runs, 45383854694 at
+`fcbc31f3` and 45457006166 at `13e6d869`, measuring all 38 worker logs with
+`--measure`. An inventory change had re-targeted `milan_dp`'s legs (#804): leg 1
+ran 995 seconds against its 508-second figure and leg 3 ran 396 against 1307.
+So worker 1/19 took that leg beside eight other suites. It ran 27.3 minutes, and
+38.6 minutes on a runner whose identical model builds took 1.39 times as long.
+All four `milan_dp` legs now carry the larger window of the two runs. Every
+other figure that a window in them exceeded carries that window, nine suites
+and four legs. No other figure is lowered. Every figure is then at or above
+every window the two runs measured, and on those windows the slowest regular
+worker takes 1549 seconds with its 122-second allowance.
+
+The third complete run, 45481508309 at `45d5c35a`, exceeded thirteen figures.
+Those not re-dealt now carry its window: `aaf_audio_loop` 22, `clkvalid` 18,
+`gptp_txts` 107, `i2spb` 15, `mbx` 299, `render_queue` 126, `shaper_core` 7,
+`tcam` 29, `milan_dp_mclk` leg 2 1051, and `milan_dp_render` legs 0 and 1 620
+and 90. `capture_coherence` legs 0 and 1 (1618 and 1204) enter its new legs'
+figures as their old legs'. Each new piece's figure, with the two local walls
+it scales by, is in PR #1003's description (its derivation table); its first hosted windows replace it.
+
+Every selected leg writes source-bound case receipts. Each of eight union jobs
 waits for the native worker matrix, independently enumerates its suite's
 current driver inventory, and requires every case exactly once. Dropping a
 case from every leg and every claimed inventory still fails against that fresh
 inventory. The union checks verdicts and checked-output digests, then assembles
 the original physical suite log. The final `verilator-suites` aggregate requires
-all nineteen workers and all six unions. It rechecks raw case evidence against
+all twenty-six workers and all eight unions. It rechecks raw case evidence against
 the union artifact, proves every original log's ownership and exact head, then
 runs the unchanged tally. Missing, duplicated, extra, failed, cancelled or
 skipped workers cannot release the protected context.
@@ -704,7 +807,7 @@ The `physical-gptp` job owns the physical-rate `milan_dp_gptp` suite.
 It runs nightly at 01:17 UTC and on manual dispatch.
 PR and push events exclude this job from execution.
 Physical regressions therefore report nightly, outside the required PR aggregate.
-The nineteen default workers retain every other suite.
+The twenty-six default workers retain every other suite.
 
 The physical suite has a 6900-second build-and-run deadline.
 Its separate four-core `ubuntu-24.04` job permits 145 minutes total.
@@ -2605,7 +2708,7 @@ Docker teardown remains paused until absence is actually established, with the
 PGID and operator recovery action printed. Docker-daemon-owned containers are
 independently contained by the same verified cleanup.
 
-The sharded exhaustive workers (nineteen Verilator, four Yosys) carry their
+The sharded exhaustive workers (twenty-six Verilator, four Yosys) carry their
 checked denominator through the singleton `matrix.total` dimension.
 `scripts/ci_events.py` proves that value
 equals the `matrix.shard` list length and that every job name and shard command
@@ -3313,7 +3416,8 @@ This is a projection for standard hosted runners, not a hosted cold-build result
 Synthesis workers retain their measured 494/25/32/31-second baseline windows,
 plus 60 seconds for download, extraction and execution evidence.
 Each row's own bound is 60% of its job's limit, except the elaborate workers',
-which is their 45-minute limit itself (#737).
+which is their 45-minute limit itself (#737), and the regular Verilator
+workers', which is #998's budget (below).
 
 | Worker | Projected seconds | Own bound | Margin, seconds |
 |---|---:|---:|---:|
@@ -3330,32 +3434,39 @@ which is their 45-minute limit itself (#737).
 | `yosys-shards 1/4` | 85 | 1044 | 959 |
 | `yosys-shards 2/4` | 92 | 1044 | 952 |
 | `yosys-shards 3/4` | 91 | 1044 | 953 |
-| `verilator-shards 0/19` | 1615 | 1620 | 5 |
-| `verilator-shards 1/19` | 1445 | 1620 | 175 |
-| `verilator-shards 2/19` | 1558 | 1620 | 62 |
-| `verilator-shards 3/19` | 1448 | 1620 | 172 |
-| `verilator-shards 4/19` | 1551 | 1620 | 69 |
-| `verilator-shards 5/19` | 1522 | 1620 | 98 |
-| `verilator-shards 6/19` | 1447 | 1620 | 173 |
-| `verilator-shards 7/19` | 1522 | 1620 | 98 |
-| `verilator-shards 8/19` | 1541 | 1620 | 79 |
-| `verilator-shards 9/19` | 1494 | 1620 | 126 |
-| `verilator-shards 10/19` | 1445 | 1620 | 175 |
-| `verilator-shards 11/19` | 1443 | 1620 | 177 |
-| `verilator-shards 12/19` | 1531 | 1620 | 89 |
-| `verilator-shards 13/19` | 1552 | 1620 | 68 |
-| `verilator-shards 14/19` | 1444 | 1620 | 176 |
-| `verilator-shards 15/19` | 1443 | 1620 | 177 |
-| `verilator-shards 16/19` | 1444 | 1620 | 176 |
-| `verilator-shards 17/19` | 1444 | 1620 | 176 |
-| `verilator-shards 18/19` | 1110 | 2160 | 1050 |
+| `verilator-shards 0/26` | 1275 | 1276 | 1 |
+| `verilator-shards 1/26` | 1250 | 1276 | 26 |
+| `verilator-shards 2/26` | 1267 | 1276 | 9 |
+| `verilator-shards 3/26` | 1203 | 1276 | 73 |
+| `verilator-shards 4/26` | 1217 | 1276 | 59 |
+| `verilator-shards 5/26` | 1203 | 1276 | 73 |
+| `verilator-shards 6/26` | 1205 | 1276 | 71 |
+| `verilator-shards 7/26` | 1204 | 1276 | 72 |
+| `verilator-shards 8/26` | 1204 | 1276 | 72 |
+| `verilator-shards 9/26` | 1204 | 1276 | 72 |
+| `verilator-shards 10/26` | 1267 | 1276 | 9 |
+| `verilator-shards 11/26` | 1246 | 1276 | 30 |
+| `verilator-shards 12/26` | 1233 | 1276 | 43 |
+| `verilator-shards 13/26` | 1223 | 1276 | 53 |
+| `verilator-shards 14/26` | 1223 | 1276 | 53 |
+| `verilator-shards 15/26` | 1204 | 1276 | 72 |
+| `verilator-shards 16/26` | 1200 | 1276 | 76 |
+| `verilator-shards 17/26` | 1205 | 1276 | 71 |
+| `verilator-shards 18/26` | 1201 | 1276 | 75 |
+| `verilator-shards 19/26` | 1201 | 1276 | 75 |
+| `verilator-shards 20/26` | 1263 | 1276 | 13 |
+| `verilator-shards 21/26` | 1265 | 1276 | 11 |
+| `verilator-shards 22/26` | 1199 | 1276 | 77 |
+| `verilator-shards 23/26` | 1200 | 1276 | 76 |
+| `verilator-shards 24/26` | 1275 | 1276 | 1 |
+| `verilator-shards 25/26` | 1530 | 2160 | 630 |
 
 Verilator figures already include their 122-second overhead allowance.
-Worker 3 carries `gptp_tables` at 1448 seconds: 172 inside its bound and 352
-inside 30 minutes, before downstream collection. Worker 5 carries
-`media_phase`'s kept 1400-second budget at 1522 seconds: 98 inside its bound.
-Worker 0 carries `follow_ring` alone at 1615 seconds (#799).
-The continuous media-clock exception remains explicit at 1110 seconds.
+A regular worker's bound is #998's 1276-second budget, below 60% of its
+45-minute limit; leg A's row is its own 60% bound.
+The heaviest regular worker, 0, carries `milan_dp__1` at 1275 seconds:
+1 inside the budget and 525 inside 30 minutes, before downstream collection.
+The continuous media-clock exception remains explicit at 1530 seconds (#998).
 Docs now projects at 1395 seconds for its slowest worker, `docs-gates-0`.
 Allowing 60 seconds each for aggregate and collector, one 120-second
 watcher interval and 30 seconds for the tail gives 1665 seconds,
@@ -3659,7 +3770,9 @@ A worker is not trusted merely because an aggregate job was able to download
 something. Both aggregate jobs refuse evidence recorded for any tree but the
 run's own (see [One authoritative SHA](#one-authoritative-sha)), compare
 artifacts with the live repository inventory, and separately require every
-worker result to be `success`.
+worker result to be `success`. `verilator-suites` requires the
+`verilator-preflight` result and its SHA record the same way, because the
+workers no longer run the preflight self-tests themselves.
 
 Workflow concurrency retains the PR number or branch ref.
 Push/PR runs share the default category; newer updates replace older runs.

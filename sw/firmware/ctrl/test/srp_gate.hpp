@@ -322,27 +322,55 @@ TEST_F(SrpGate, F895ARangeLostWithdrawsAndTheNewRangeWaitsTheHoldOff) {
     listener(1u);
     ASSERT_TRUE(declared(interface)) << "a probe declares the source's Talker";
     const std::uint64_t first = app.maap.ifs[interface].core.base;
+    const std::uint32_t at = model.now_ms;
     conflict();
     EXPECT_NE(app.maap.ifs[interface].core.base, first) << "MAAP restarts on a new range";
     EXPECT_FALSE(declared(interface)) << "a range lost withdraws the Talker";
     EXPECT_EQ(talker_decl(interface) >> source & 1u, 0u) << "a range lost withdraws the Talker";
+    // the first MSRP frame on the interface that carries the new range's destination, scanned as each second's frames
+    // are captured
+    const std::uint64_t moved = app.maap.ifs[interface].core.base + source;
+    std::uint32_t scanned = model.tx_sent;
+    std::uint32_t wire = 0;
+    auto scan = [&] {
+        for (; scanned < model.tx_sent; ++scanned) {
+            const mbx_model_tx* f = mbx_model_tx_frame(&model, scanned);
+            ASSERT_NE(f, nullptr) << "each second's frames are scanned before the capture drops them";
+            if (wire != 0u || f->interface != interface || f->len < 20u || wire_be16(f->bytes + 12) != 0x22ea) continue;
+            for (unsigned b = 14; b + 6u <= f->len; ++b) {
+                std::uint64_t v = 0;
+                for (unsigned k = 0; k < 6u; ++k) v = v << 8 | f->bytes[b + k];
+                if (v == moved) {
+                    wire = f->now_ms;
+                    break;
+                }
+            }
+        }
+    };
     // the peer keeps its Listener, so the source is valid again once MAAP holds the new range (Milan v1.2 4.3.3.1);
-    // its new destination waits two nominal longest LeaveAll periods, each 1.5 x LeaveAllTime (IEEE 802.1Q-2018
-    // 10.7.4.3) of 10 s (Table 10-7; Milan v1.2 Table 4.3), 30 s after the Leave, so it is still held a second before
+    // its new destination is held within two nominal longest LeaveAll periods, each 1.5 x LeaveAllTime (IEEE
+    // 802.1Q-2018 10.7.4.3) of 10 s (Table 10-7; Milan v1.2 Table 4.3), the JoinTime and THE TRANSMIT's terms counted
+    // inside them (#956): still held a second before the 30 s, and on the wire by them
     constexpr unsigned kLeaveAllTimeS = 10u;
     constexpr unsigned kTwoLongestLeaveAllS = 2u * (kLeaveAllTimeS + kLeaveAllTimeS / 2u);
     for (unsigned s = 0; s + 1u < kTwoLongestLeaveAllS; ++s) {
         run(1000u);
+        scan();
         listener(1u);
     }
     EXPECT_TRUE(app.maap.ifs[interface].core.valid) << "MAAP holds the new range";
     EXPECT_FALSE(declared(interface))
-        << "a changed destination waits two of the longest LeaveAll periods after the Leave";
-    for (unsigned s = 0; s < 2u; ++s) {
-        run(1000u);
-        listener(1u);
-    }
-    EXPECT_TRUE(declared(interface)) << "the new range's destination is declared once the hold-off ends";
+        << "a changed destination waits two of the longest LeaveAll periods less its terms after the Leave";
+    EXPECT_EQ(wire, 0u) << "a changed destination waits two of the longest LeaveAll periods less its terms after the Leave";
+    run(1000u);
+    scan();
+    EXPECT_TRUE(declared(interface))
+        << "the new range's destination is declared within two of the longest LeaveAll periods of the conflict";
+    EXPECT_NE(wire, 0u)
+        << "the new range's destination reaches the wire within two of the longest LeaveAll periods of the conflict";
+    EXPECT_LE(wire, at + 1000u * kTwoLongestLeaveAllS)
+        << "the new range's destination reaches the wire within two of the longest LeaveAll periods of the conflict";
+    listener(1u);
     EXPECT_EQ(destination(), app.maap.ifs[interface].core.base + source) << "with the new range's base + n";
     EXPECT_EQ(core()->reentries, 0u);
 }
