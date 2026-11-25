@@ -1,0 +1,18 @@
+control PASS
+ignored_mapping PASS
+wrong_bank PASS
+skipped_copy PASS
+ignored_invalidation PASS
+retained_word PASS
+missing_clock_flush PASS
+wrong_latency PASS
+python3 bounds.py --output obj_dir_bounds
+1 control PASS
+1 inside PASS
+1 outside PASS
+1 lead3 PASS
+8 control PASS
+8 inside PASS
+8 outside PASS
+8 lead3 PASS
+command: python3 tb/verilator/input_loopback/mutants.py --output $SCRATCH/leaf-mutants && make -C tb/verilator/input_loopback bounds -> exit 0 (111 s) at e9f95da426506c2689166928e65029183c6736e9

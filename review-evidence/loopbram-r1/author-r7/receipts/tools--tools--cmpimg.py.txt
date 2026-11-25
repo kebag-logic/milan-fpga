@@ -1,0 +1,20 @@
+"""Compare fwimages.json records: head against dev and against the 1516b2ff base, image by image."""
+import json
+import sys
+from pathlib import Path
+r = Path(sys.argv[1])
+d = {n: json.loads((r / n / "fwimages.json").read_text()) for n in ("old", "dev", "head")}
+print("| Image | Load bytes (base / dev / head) | head = dev | head = base | Generated headers differing, head vs base |")
+print("|---|---|---|---|---|")
+bad = 0
+for k in sorted(d["head"]):
+    o, v, h = d["old"][k], d["dev"][k], d["head"][k]
+    if any(x["rc"] for x in (o, v, h)):
+        print(f"| {k} | build failed | | | |"); bad += 1; continue
+    hdr = sorted(f for f in set(o["headers"]) | set(h["headers"]) if o["headers"].get(f) != h["headers"].get(f))
+    eqd = h["rom_sha256"] == v["rom_sha256"]; eqo = h["rom_sha256"] == o["rom_sha256"]
+    bad += not eqd
+    print(f"| `{k}` | {o['load_bytes']} / {v['load_bytes']} / {h['load_bytes']} | {'yes' if eqd else 'NO'} | "
+          f"{'yes' if eqo else 'no'} | {', '.join(hdr) or 'none'} |")
+print("head = dev for every image:", "PASS" if not bad else "FAIL")
+raise SystemExit(1 if bad else 0)

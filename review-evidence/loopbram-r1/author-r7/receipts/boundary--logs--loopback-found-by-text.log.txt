@@ -1,0 +1,7 @@
+candidates: tb/verilator/input_loopback/Makefile, tb/verilator/input_loopback/bounds.py, tb/verilator/input_loopback/mutants.py, tb/verilator/input_loopback_dp/Makefile, tb/verilator/input_loopback_dp/mutants.py, tb/verilator/input_loopback_dp/run.py
+tb/verilator/input_loopback/Makefile: names neither sw/firmware/ctrl nor ctrl_build, so no builder
+tb/verilator/input_loopback/bounds.py: names neither sw/firmware/ctrl nor ctrl_build, so no builder
+tb/verilator/input_loopback/mutants.py: names neither sw/firmware/ctrl nor ctrl_build, so no builder
+tb/verilator/input_loopback_dp/Makefile: names neither sw/firmware/ctrl nor ctrl_build, so no builder
+tb/verilator/input_loopback_dp/mutants.py: names neither sw/firmware/ctrl nor ctrl_build, so no builder
+tb/verilator/input_loopback_dp/run.py: builder by text, program=True, listed in ['BUILDERS'] needs='verilator' runs=['{python} tb/verilator/input_loopback_dp/run.py --shape 1 --work {work}/input-loopback-1 --build-only', '{python} tb/verilator/input_loopback_dp/run.py --shape 8 --work {work}/input-loopback-8 --build-only']

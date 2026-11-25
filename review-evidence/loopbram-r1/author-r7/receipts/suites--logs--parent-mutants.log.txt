@@ -1,0 +1,18 @@
+control1 PASS
+control8 PASS
+missing_edit_invalidation PASS
+missing_edit_invalidation_1x1 PASS
+disconnected_map PASS
+disconnected_map_1x1 PASS
+overwritten_capture_page PASS
+truncated_claim_page PASS
+missing_output_8x8_stream0 PASS
+missing_output_8x8_stream1 PASS
+missing_output_8x8_stream2 PASS
+missing_output_8x8_stream3 PASS
+missing_output_8x8_stream4 PASS
+missing_output_8x8_stream5 PASS
+missing_output_8x8_stream6 PASS
+missing_output_8x8_stream7 PASS
+missing_output_1x1_stream0 PASS
+command: python3 tb/verilator/input_loopback_dp/mutants.py --output $SCRATCH/parent-mutants -> exit 0 (389 s) at e9f95da426506c2689166928e65029183c6736e9

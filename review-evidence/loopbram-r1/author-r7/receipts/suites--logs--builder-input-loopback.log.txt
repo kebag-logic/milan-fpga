@@ -1,0 +1,7 @@
+test_input_loopback_contract:
+  input loopback: 1x1/16 keys, 8x8/64 keys, page crossing, source addresses, NAME/key bounds, off identity PASS
+
+SUBSET: 1 of 114 gates ran; this verdict covers only them, and --require-elaboration and --require-rv32 are judged on the union of the legs
+ALL GATES PASS
+  input loopback: 1x1/16 keys, 8x8/64 keys, page crossing, source addresses, NAME/key bounds, off identity PASS
+command: python3 sw/builder/test_builder.py --gates test_input_loopback_contract --require-rv32 && python3 sw/builder/test_input_loopback.py -> exit 0 (2 s) at 09201d35d7ea720b3ba205da185ba35c159ec24a

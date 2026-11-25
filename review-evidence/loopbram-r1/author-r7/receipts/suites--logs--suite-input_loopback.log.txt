@@ -1,0 +1,4 @@
+input_loopback: suite_timeout 300 s, make rc 2, 0.2 s, tally verdict rc 0 
+command: $SCRATCH/tools/suite1.sh $SCRATCH/suites input_loopback -> exit 1 (0 s) at e9f95da426506c2689166928e65029183c6736e9
+input_loopback: suite_timeout 300 s, make rc 0, 20.3 s, tally verdict rc 0 
+command: $SCRATCH/tools/suite1.sh $SCRATCH/suites input_loopback -> exit 0 (20 s) at e9f95da426506c2689166928e65029183c6736e9

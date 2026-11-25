@@ -1,0 +1,19 @@
+"""List the boundary gate's builders found by text among the loopback suites' files, and each one's registration."""
+import sys
+from pathlib import Path
+root = Path(sys.argv[1])
+sys.path.insert(0, str(root / "sw/firmware/ctrl/test"))
+import ctrl_configs as c
+mine = [p for p in c.candidates() if c.rel(p).startswith(("tb/verilator/input_loopback/", "tb/verilator/input_loopback_dp/"))]
+print("candidates:", ", ".join(c.rel(p) for p in mine))
+found = {c.rel(p): t for p, t in c.builder_texts().items()}
+for p in mine:
+    name = c.rel(p)
+    if name not in found:
+        print(f"{name}: names neither sw/firmware/ctrl nor ctrl_build, so no builder")
+        continue
+    kind = [k for k, table in (("BUILDERS", {b.path for b in c.BUILDERS}), ("PART_OF", c.PART_OF),
+                               ("OUTSIDE", c.OUTSIDE), ("SUITES", c.SUITES)) if name in table]
+    b = next((b for b in c.BUILDERS if b.path == name), None)
+    print(f"{name}: builder by text, program={c.program(p, found[name])}, listed in {kind or 'nothing'}",
+          f"needs={b.needs!r} runs={[' '.join(r) for r in b.runs]}" if b else "")

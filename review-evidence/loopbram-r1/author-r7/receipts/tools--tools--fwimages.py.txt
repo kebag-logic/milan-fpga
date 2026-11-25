@@ -1,0 +1,43 @@
+"""Build one tree's SRP-composition firmware images, as the boundary gate's own image runs do (ctrl_runs.image_runs)
+but linked against one runtime, and hash each image's loaded segments (address, length, bytes) and the generated headers it compiled.
+
+usage: fwimages.py <tree> <out-dir> <runtime-dir> <reader-tree>
+"""
+import hashlib
+import json
+import subprocess
+import sys
+from pathlib import Path
+
+tree, out, rt, reader = (Path(a).resolve() for a in sys.argv[1:5])
+sys.path.insert(0, str(reader / "sw/litex"))
+import ctrl_memory  # noqa: E402  one reader for every tree's ELF
+
+test = tree / "sw/firmware/ctrl/test"
+runs = []
+for shape in ("endstation_ax7101_1x1_tdm8", "endstation_ax7101_8x8"):
+    cfg = tree / "configs" / (shape + ".yaml")
+    for interfaces in ("1", "2"):
+        for comp in ("--without-srp", "", "--with-aecp"):
+            label = f"srp-image/{shape}-if{interfaces}{comp or '-srp'}"
+            runs.append((label, [sys.executable, "-B", str(test / "ctrl_srp_image.py"), "--config", str(cfg),
+                                 "--interfaces", interfaces, "--output", str(out / label), "--libc",
+                                 str(rt / "libc.a"), "--compiler-runtime", str(rt / "libcompiler_rt.a"),
+                                 *([comp] if comp else [])]))
+records = {}
+for label, argv in runs:
+    res = subprocess.run(argv, cwd=tree, capture_output=True, text=True, check=False)
+    (out / label).mkdir(parents=True, exist_ok=True)
+    (out / label / "build.log").write_text(res.stdout + res.stderr)
+    if res.returncode:
+        records[label] = {"rc": res.returncode, "tail": (res.stdout + res.stderr)[-400:]}
+        print(label, "exit", res.returncode, flush=True)
+        continue
+    elf = out / label / "ctrl_app.elf"
+    segments = sorted(ctrl_memory.read_elf(elf).segments)
+    rom = b"".join(addr.to_bytes(4, "little") + len(data).to_bytes(4, "little") + data for addr, data in segments)
+    headers = {str(p.relative_to(out / label)): hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted((out / label).rglob("*.h"))}
+    records[label] = {"rc": 0, "load_bytes": sum(len(d) for _, d in segments), "segments": [[hex(a), len(d)] for a, d in segments], "rom_sha256": hashlib.sha256(rom).hexdigest(),
+                      "headers": headers}
+    print(label, sum(len(d) for _, d in segments), "load bytes", hashlib.sha256(rom).hexdigest()[:16], flush=True)
+(out / "fwimages.json").write_text(json.dumps(records, indent=1, sort_keys=True) + "\n")

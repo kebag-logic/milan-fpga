@@ -1,0 +1,31 @@
+"""Compare two CPU budget harness builds (head, dev): the image's loaded segments, the SoC's CSR map, the
+gateware and the stimulus configuration, with each build's own tree and build-directory paths normalized."""
+import hashlib
+import re
+import sys
+from pathlib import Path
+reader, a_tree, a, b_tree, b = (Path(x) for x in sys.argv[1:6])
+sys.path.insert(0, str(reader / "sw/litex"))
+import ctrl_memory  # noqa: E402
+bad = 0
+def norm(data: bytes, tree: Path, build: Path) -> bytes:
+    for p, tag in ((build, b"$BUILD"), (tree.resolve(), b"$TREE"), (tree, b"$TREE")):
+        data = data.replace(str(p).encode(), tag)
+    return data
+def seg(elf: Path) -> bytes:
+    return b"".join(x.to_bytes(4, "little") + len(d).to_bytes(4, "little") + d
+                    for x, d in sorted(ctrl_memory.read_elf(elf).segments))
+for elf in sorted(p.relative_to(a) for p in a.rglob("*.elf")):
+    sa, sb = seg(a / elf), seg(b / elf)
+    print(f"{elf}: loaded segments {len(sa)} B, sha256 {hashlib.sha256(sa).hexdigest()[:16]}, "
+          f"{'IDENTICAL' if sa == sb else 'DIFFERENT'}"); bad += sa != sb
+files = [p.relative_to(a) for p in sorted(a.glob("gateware/*")) if p.is_file()] + \
+        [Path(n) for n in ("csr.csv", "csr.json", "budget_config.hpp") if (a / n).is_file()]
+for f in files:
+    da, db = norm((a / f).read_bytes(), a_tree, a), norm((b / f).read_bytes(), b_tree, b)
+    if f.suffix in (".v", ".csv"):
+        da, db = (re.sub(rb"/\*.*?\*/", b"", re.sub(rb"//[^\n]*|^#[^\n]*", b"", x, flags=re.M), flags=re.S) for x in (da, db))
+    same = da == db
+    print(f"{f}: {len(da)} B normalized, {'IDENTICAL' if same else 'DIFFERENT'}"); bad += not same
+print("HARNESS BUILD IDENTITY", "PASS" if not bad else "FAIL")
+raise SystemExit(1 if bad else 0)

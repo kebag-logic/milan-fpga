@@ -1,0 +1,7 @@
+# The CPU budget harness's tool environment (the lwSRP pin lane's penv.sh, with this host's own RV32 SDK):
+# the product LiteX tree's venv, pinned Verilator 5.050, offline CPU netlist, scratch TMPDIR.
+V=$TOOLS/pinned-verilator-5.050
+export TMPDIR=$SCRATCH/tmp VERILATOR=$V/verilator PYTHONHASHSEED=0 PYTHONDONTWRITEBYTECODE=1
+export COURSIER_MODE=offline SBT_OPTS=-Dsbt.offline=true LITEX_ENV_CC_TRIPLE=riscv32-linux
+export PATH=<home-path>/litex-milan/venv/bin:$V:$TOOLS/sv2v-v0.0.12:$VALIDATION_STORAGE/scratch/a662/make43/bin:/usr/local/bin:/usr/bin:/bin:$HOME/br-milan-rv32/host/bin
+export TSN_GEN_ROOT=<home-path>/milan-fpga-management/tools/tsn-gen-deca300c GIT_ALLOW_PROTOCOL=file:https

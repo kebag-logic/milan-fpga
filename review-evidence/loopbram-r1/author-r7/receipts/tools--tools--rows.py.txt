@@ -1,0 +1,14 @@
+"""Print CI_WORKFLOWS.md's Verilator projection rows from the planner at the workflow's worker count."""
+import sys
+from pathlib import Path
+root = Path(sys.argv[1])
+sys.path.insert(0, str(root / "scripts"))
+import suite_shards as s
+wf = (root / ".github/workflows/rtl.yml").read_text()
+suites = s.expand_suites(s.sweep_suites(root / "tb/verilator"))
+probs, load, bounds = s.headroom_problems(suites, wf)
+assert not probs, probs
+n = len(load)
+for i, v in enumerate(load):
+    b = bounds[i] if i == n - 1 else min(bounds[i], s.CI_BUDGET_SECONDS)
+    print(f"| `verilator-shards {i}/{n}` | {v} | {b} | {b - v} |")

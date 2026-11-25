@@ -1,0 +1,45 @@
+"""Copy the round's receipts into the round directory with host paths normalized, and index them."""
+import hashlib
+import shutil
+import sys
+from pathlib import Path
+R = Path("$SCRATCH")
+O = Path(sys.argv[1])
+SUBS = [("$CHECKOUT", "$CHECKOUT"), (str(R), "$SCRATCH"), ("$TOOLS", "$TOOLS"),
+        ("<home-path>", "<home-path>")]
+groups = {
+    "hosted": ["hosted/firmware-boundary-138726979088.excerpt.log", "hosted/firmware-verilator-138726979378.excerpt.log",
+               "hosted/shard12.excerpt.log", "hosted/shard13.excerpt.log"],
+    "boundary": ["logs/fwv-only-verilator.log", "logs/fwv-cap-mbx.log", "logs/fwv-cap-maap.log",
+                 "logs/fwv-cap-aecpwire.log", "logs/fwv-cap-loopback-1.log", "logs/fwv-cap-loopback-8.log",
+                 "logs/fwv-judge.log", "logs/fwb-leg0.log", "logs/fwb-leg1.log", "logs/fwb-partial-capture.log",
+                 "logs/fwb-judge-partial-fixed.log", "logs/fwb-judge-partial-planted.log", "logs/reasons-fixed.txt",
+                 "logs/reasons-planted.txt", "logs/reasons-hosted.txt", "logs/loopback-found-by-text.log"],
+    "planner": ["logs/planner-selftest.log", "logs/fit-at-merge-26-workers.txt", "logs/rtl-ownership.log"],
+    "egress": ["logs/egress-ledger-selftest.log", "logs/budget-8x8-1if-build.log", "logs/budget-8x8-1if-backlog-owed.log",
+               "logs/budget-dev-8x8-1if-build.log", "logs/harness-head-vs-dev.txt"],
+    "identity": ["logs/fwimages-compare.md", "logs/fwimages-headers.txt", "img/old/fwimages.json", "img/dev/fwimages.json",
+                 "img/head/fwimages.json", "logs/ident-head-vs-dev.txt", "logs/ident-head-vs-base.txt",
+                 "logs/ident-dev-vs-base.txt", "identity/old.json", "identity/dev.json", "identity/head.json"],
+    "suites": ["logs/suite-input_loopback-premerge-fix.log", "suites/input_loopback.log", "suites/input_loopback_dp.log",
+               "suites/render_queue.log", "suites/chmap_capture.log", "logs/suite-input_loopback.log",
+               "logs/suite-input_loopback_dp.log", "logs/suite-render_queue.log", "logs/suite-chmap_capture.log",
+               "logs/leaf-mutants.log", "logs/parent-mutants.log", "parent-mutants/results.json",
+               "logs/builder-input-loopback.log"],
+    "docswf": ["docswf/results.json", "docswf/030-selftest.log"] + sorted(
+        "docswf/" + p.name for p in (R / "docswf").glob("[0-9][0-9][0-9]-*.log")),
+    "tools": ["tools/" + p.name for p in sorted((R / "tools").iterdir()) if p.is_file()],
+}
+rows = {}
+for group, names in groups.items():
+    for name in names:
+        src = R / name
+        text = src.read_text(errors="replace")
+        for a, b in SUBS:
+            text = text.replace(a, b)
+        dest = O / "receipts" / (group + "--" + name.replace("/", "--") + ".txt")
+        dest.write_text(text)
+        data = dest.read_bytes()
+        rows.setdefault(group, []).append((dest.name, len(data), hashlib.sha256(data).hexdigest()[:16]))
+(O / "receipts" / "rows.tsv").write_text("".join(f"{g}\t{n}\t{s}\t{h}\n" for g, r in rows.items() for n, s, h in r))
+print(sum(len(r) for r in rows.values()), "receipts")

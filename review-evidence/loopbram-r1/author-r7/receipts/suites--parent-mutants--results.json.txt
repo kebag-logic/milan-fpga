@@ -1,0 +1,361 @@
+[
+  {
+    "name": "control1",
+    "command": [
+      "/usr/bin/python3",
+      "$CHECKOUT/tb/verilator/input_loopback_dp/run.py",
+      "--shape",
+      "1",
+      "--work",
+      "$SCRATCH/parent-mutants/control1"
+    ],
+    "exit": 0,
+    "built": true,
+    "passed": true,
+    "required": null,
+    "log_sha256": "500553214cf7b7a6a3dc5a0584f23b317528685d079885c5442cf572dfbd9f63"
+  },
+  {
+    "name": "control8",
+    "command": [
+      "/usr/bin/python3",
+      "$CHECKOUT/tb/verilator/input_loopback_dp/run.py",
+      "--shape",
+      "8",
+      "--work",
+      "$SCRATCH/parent-mutants/control8"
+    ],
+    "exit": 0,
+    "built": true,
+    "passed": true,
+    "required": null,
+    "log_sha256": "09489ffdb431ec09815bb7d864034efa82afb08579c0f496a0029d49e1f0bebf"
+  },
+  {
+    "name": "missing_edit_invalidation",
+    "command": [
+      "/usr/bin/python3",
+      "$CHECKOUT/tb/verilator/input_loopback_dp/run.py",
+      "--shape",
+      "8",
+      "--work",
+      "$SCRATCH/parent-mutants/missing_edit_invalidation",
+      "--dp-source",
+      "$SCRATCH/parent-mutants/missing_edit_invalidation/milan_datapath.sv"
+    ],
+    "exit": 1,
+    "built": true,
+    "passed": true,
+    "required": [
+      "[FAIL] PARENT_SAMPLE"
+    ],
+    "log_sha256": "e1dc490bf41583e16ca695c7672c05f259653037e7e004907b1a50ce804fb631"
+  },
+  {
+    "name": "missing_edit_invalidation_1x1",
+    "command": [
+      "/usr/bin/python3",
+      "$CHECKOUT/tb/verilator/input_loopback_dp/run.py",
+      "--shape",
+      "1",
+      "--work",
+      "$SCRATCH/parent-mutants/missing_edit_invalidation_1x1",
+      "--dp-source",
+      "$SCRATCH/parent-mutants/missing_edit_invalidation_1x1/milan_datapath.sv"
+    ],
+    "exit": 1,
+    "built": true,
+    "passed": true,
+    "required": [
+      "[FAIL] PARENT_SAMPLE"
+    ],
+    "log_sha256": "efab0658b7f1a31f11d055134a7b6391e517a291284c1fd57cceeccf1096aeb9"
+  },
+  {
+    "name": "disconnected_map",
+    "command": [
+      "/usr/bin/python3",
+      "$CHECKOUT/tb/verilator/input_loopback_dp/run.py",
+      "--shape",
+      "8",
+      "--work",
+      "$SCRATCH/parent-mutants/disconnected_map",
+      "--dp-source",
+      "$SCRATCH/parent-mutants/disconnected_map/milan_datapath.sv"
+    ],
+    "exit": 1,
+    "built": true,
+    "passed": true,
+    "required": [
+      "[FAIL] PARENT_SAMPLE"
+    ],
+    "log_sha256": "ab66f41a6c60a9c6bbf87ad19951661d7896b535e7efe5820865392ec85372cc"
+  },
+  {
+    "name": "disconnected_map_1x1",
+    "command": [
+      "/usr/bin/python3",
+      "$CHECKOUT/tb/verilator/input_loopback_dp/run.py",
+      "--shape",
+      "1",
+      "--work",
+      "$SCRATCH/parent-mutants/disconnected_map_1x1",
+      "--dp-source",
+      "$SCRATCH/parent-mutants/disconnected_map_1x1/milan_datapath.sv"
+    ],
+    "exit": 1,
+    "built": true,
+    "passed": true,
+    "required": [
+      "[FAIL] PARENT_SAMPLE"
+    ],
+    "log_sha256": "9bd75fc1c5ab699916933ae0b43c75dd0072d9841e0da7798918b939667092e5"
+  },
+  {
+    "name": "overwritten_capture_page",
+    "command": [
+      "/usr/bin/python3",
+      "$CHECKOUT/tb/verilator/input_loopback_dp/run.py",
+      "--shape",
+      "1",
+      "--work",
+      "$SCRATCH/parent-mutants/overwritten_capture_page",
+      "--queue-source",
+      "$SCRATCH/parent-mutants/overwritten_capture_page/KL_render_queue.sv"
+    ],
+    "exit": 1,
+    "built": true,
+    "passed": true,
+    "required": [
+      "[FAIL] PARENT_SAMPLE"
+    ],
+    "log_sha256": "251701a1a7e45820f7d18586df29809143e414ebc5162edd7b41153172023d94"
+  },
+  {
+    "name": "truncated_claim_page",
+    "command": [
+      "/usr/bin/python3",
+      "$CHECKOUT/tb/verilator/input_loopback_dp/run.py",
+      "--shape",
+      "1",
+      "--work",
+      "$SCRATCH/parent-mutants/truncated_claim_page",
+      "--queue-source",
+      "$SCRATCH/parent-mutants/truncated_claim_page/KL_render_queue.sv"
+    ],
+    "exit": 1,
+    "built": true,
+    "passed": true,
+    "required": [
+      "[FAIL] PARENT_SAMPLE"
+    ],
+    "log_sha256": "11acc64fca229c5a0a1d003d92d0f0644257513f0b00bb1f40c55b1954c81265"
+  },
+  {
+    "name": "missing_output_8x8_stream0",
+    "command": [
+      "/usr/bin/python3",
+      "$CHECKOUT/tb/verilator/input_loopback_dp/run.py",
+      "--shape",
+      "8",
+      "--work",
+      "$SCRATCH/parent-mutants/missing_output_8x8_stream0",
+      "--dp-source",
+      "$SCRATCH/parent-mutants/missing_output_8x8_stream0/milan_datapath.sv"
+    ],
+    "exit": 1,
+    "built": true,
+    "passed": true,
+    "required": [
+      "[FAIL] WIRE_STREAM_DELIVERY edits stream 0",
+      "[FAIL] WIRE_STREAM_DELIVERY clipped stream 0",
+      "[FAIL] WIRE_STREAM_COMPLETE edits stream 0",
+      "[FAIL] WIRE_STREAM_COMPLETE clipped stream 0"
+    ],
+    "log_sha256": "e9eb20a03641f81cca19ae4243765af18e81a1d4ab632136b036ff49bdc3e601"
+  },
+  {
+    "name": "missing_output_8x8_stream1",
+    "command": [
+      "/usr/bin/python3",
+      "$CHECKOUT/tb/verilator/input_loopback_dp/run.py",
+      "--shape",
+      "8",
+      "--work",
+      "$SCRATCH/parent-mutants/missing_output_8x8_stream1",
+      "--dp-source",
+      "$SCRATCH/parent-mutants/missing_output_8x8_stream1/milan_datapath.sv"
+    ],
+    "exit": 1,
+    "built": true,
+    "passed": true,
+    "required": [
+      "[FAIL] WIRE_STREAM_DELIVERY edits stream 1",
+      "[FAIL] WIRE_STREAM_DELIVERY clipped stream 1",
+      "[FAIL] WIRE_STREAM_COMPLETE edits stream 1",
+      "[FAIL] WIRE_STREAM_COMPLETE clipped stream 1"
+    ],
+    "log_sha256": "0aeef00a2ba682fed44b7cd22f3a08f7552aac67087380101f21bc01873859e8"
+  },
+  {
+    "name": "missing_output_8x8_stream2",
+    "command": [
+      "/usr/bin/python3",
+      "$CHECKOUT/tb/verilator/input_loopback_dp/run.py",
+      "--shape",
+      "8",
+      "--work",
+      "$SCRATCH/parent-mutants/missing_output_8x8_stream2",
+      "--dp-source",
+      "$SCRATCH/parent-mutants/missing_output_8x8_stream2/milan_datapath.sv"
+    ],
+    "exit": 1,
+    "built": true,
+    "passed": true,
+    "required": [
+      "[FAIL] WIRE_STREAM_DELIVERY edits stream 2",
+      "[FAIL] WIRE_STREAM_DELIVERY clipped stream 2",
+      "[FAIL] WIRE_STREAM_COMPLETE edits stream 2",
+      "[FAIL] WIRE_STREAM_COMPLETE clipped stream 2"
+    ],
+    "log_sha256": "73d0a0431501be6ff1d92795d4d7b37e823bf897973eb5510f827e147ace4ace"
+  },
+  {
+    "name": "missing_output_8x8_stream3",
+    "command": [
+      "/usr/bin/python3",
+      "$CHECKOUT/tb/verilator/input_loopback_dp/run.py",
+      "--shape",
+      "8",
+      "--work",
+      "$SCRATCH/parent-mutants/missing_output_8x8_stream3",
+      "--dp-source",
+      "$SCRATCH/parent-mutants/missing_output_8x8_stream3/milan_datapath.sv"
+    ],
+    "exit": 1,
+    "built": true,
+    "passed": true,
+    "required": [
+      "[FAIL] WIRE_STREAM_DELIVERY edits stream 3",
+      "[FAIL] WIRE_STREAM_DELIVERY clipped stream 3",
+      "[FAIL] WIRE_STREAM_COMPLETE edits stream 3",
+      "[FAIL] WIRE_STREAM_COMPLETE clipped stream 3"
+    ],
+    "log_sha256": "d8d5db5d70f5a50055bfdca7c3535448711b3a9feff9b99d92d2178b396de028"
+  },
+  {
+    "name": "missing_output_8x8_stream4",
+    "command": [
+      "/usr/bin/python3",
+      "$CHECKOUT/tb/verilator/input_loopback_dp/run.py",
+      "--shape",
+      "8",
+      "--work",
+      "$SCRATCH/parent-mutants/missing_output_8x8_stream4",
+      "--dp-source",
+      "$SCRATCH/parent-mutants/missing_output_8x8_stream4/milan_datapath.sv"
+    ],
+    "exit": 1,
+    "built": true,
+    "passed": true,
+    "required": [
+      "[FAIL] WIRE_STREAM_DELIVERY edits stream 4",
+      "[FAIL] WIRE_STREAM_DELIVERY clipped stream 4",
+      "[FAIL] WIRE_STREAM_COMPLETE edits stream 4",
+      "[FAIL] WIRE_STREAM_COMPLETE clipped stream 4"
+    ],
+    "log_sha256": "38b7ebebd564fc73aed0b431fb9b07702f25a2a981ca018a2d26cdfbaca6c859"
+  },
+  {
+    "name": "missing_output_8x8_stream5",
+    "command": [
+      "/usr/bin/python3",
+      "$CHECKOUT/tb/verilator/input_loopback_dp/run.py",
+      "--shape",
+      "8",
+      "--work",
+      "$SCRATCH/parent-mutants/missing_output_8x8_stream5",
+      "--dp-source",
+      "$SCRATCH/parent-mutants/missing_output_8x8_stream5/milan_datapath.sv"
+    ],
+    "exit": 1,
+    "built": true,
+    "passed": true,
+    "required": [
+      "[FAIL] WIRE_STREAM_DELIVERY edits stream 5",
+      "[FAIL] WIRE_STREAM_DELIVERY clipped stream 5",
+      "[FAIL] WIRE_STREAM_COMPLETE edits stream 5",
+      "[FAIL] WIRE_STREAM_COMPLETE clipped stream 5"
+    ],
+    "log_sha256": "3ddca38ce0f2d09b387654e8631c36c5379a6ce26fcf48014895d3ad3d037ab3"
+  },
+  {
+    "name": "missing_output_8x8_stream6",
+    "command": [
+      "/usr/bin/python3",
+      "$CHECKOUT/tb/verilator/input_loopback_dp/run.py",
+      "--shape",
+      "8",
+      "--work",
+      "$SCRATCH/parent-mutants/missing_output_8x8_stream6",
+      "--dp-source",
+      "$SCRATCH/parent-mutants/missing_output_8x8_stream6/milan_datapath.sv"
+    ],
+    "exit": 1,
+    "built": true,
+    "passed": true,
+    "required": [
+      "[FAIL] WIRE_STREAM_DELIVERY edits stream 6",
+      "[FAIL] WIRE_STREAM_DELIVERY clipped stream 6",
+      "[FAIL] WIRE_STREAM_COMPLETE edits stream 6",
+      "[FAIL] WIRE_STREAM_COMPLETE clipped stream 6"
+    ],
+    "log_sha256": "e102455017a4e3940cd0ec0e8d024b82f2652bc232556630f2f0a1be622239b0"
+  },
+  {
+    "name": "missing_output_8x8_stream7",
+    "command": [
+      "/usr/bin/python3",
+      "$CHECKOUT/tb/verilator/input_loopback_dp/run.py",
+      "--shape",
+      "8",
+      "--work",
+      "$SCRATCH/parent-mutants/missing_output_8x8_stream7",
+      "--dp-source",
+      "$SCRATCH/parent-mutants/missing_output_8x8_stream7/milan_datapath.sv"
+    ],
+    "exit": 1,
+    "built": true,
+    "passed": true,
+    "required": [
+      "[FAIL] WIRE_STREAM_DELIVERY edits stream 7",
+      "[FAIL] WIRE_STREAM_DELIVERY clipped stream 7",
+      "[FAIL] WIRE_STREAM_COMPLETE edits stream 7",
+      "[FAIL] WIRE_STREAM_COMPLETE clipped stream 7"
+    ],
+    "log_sha256": "af32509a53e039e970e7edbaf103c71943b85da13d6032ccf6ee78499c926c95"
+  },
+  {
+    "name": "missing_output_1x1_stream0",
+    "command": [
+      "/usr/bin/python3",
+      "$CHECKOUT/tb/verilator/input_loopback_dp/run.py",
+      "--shape",
+      "1",
+      "--work",
+      "$SCRATCH/parent-mutants/missing_output_1x1_stream0",
+      "--dp-source",
+      "$SCRATCH/parent-mutants/missing_output_1x1_stream0/milan_datapath.sv"
+    ],
+    "exit": 1,
+    "built": true,
+    "passed": true,
+    "required": [
+      "[FAIL] WIRE_STREAM_DELIVERY edits stream 0",
+      "[FAIL] WIRE_STREAM_DELIVERY clipped stream 0",
+      "[FAIL] WIRE_STREAM_COMPLETE edits stream 0",
+      "[FAIL] WIRE_STREAM_COMPLETE clipped stream 0"
+    ],
+    "log_sha256": "f8bf1fe392619e5831e8e57a415919c35caaebf58c7dc70f15854f7d02fd67ac"
+  }
+]

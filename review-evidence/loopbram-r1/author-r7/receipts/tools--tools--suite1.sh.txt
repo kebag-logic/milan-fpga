@@ -1,0 +1,15 @@
+#!/bin/bash
+# suite1.sh <out> <suite>: one default suite exactly as run_all_suites.sh runs it (its suite_timeout arm,
+# timeout ... make -C, then suite_tally.py --verdict on the log), then the tally of <out>.
+out=$1 suite=$2
+ROOT=$(git rev-parse --show-toplevel)
+mkdir -p "$out"
+TMO=$(bash -c "source <(sed -n '/^suite_timeout() {/,/^}/p' $ROOT/scripts/run_all_suites.sh); suite_timeout $suite")
+start=$(date +%s.%N)
+timeout "$TMO" make -C "$ROOT/tb/verilator/$suite" > "$out/$suite.log" 2>&1
+rc=$?
+end=$(date +%s.%N)
+verdict=$(python3 "$ROOT/scripts/suite_tally.py" --verdict "$out/$suite.log" 2>&1); vrc=$?
+printf '%s: suite_timeout %s s, make rc %s, %.1f s, tally verdict rc %s %s\n' "$suite" "$TMO" "$rc" \
+  "$(echo "$end - $start" | bc)" "$vrc" "$verdict"
+[ "$rc" = 0 ] && [ "$vrc" = 0 ]

@@ -1,0 +1,15 @@
+| Image | Load bytes (base / dev / head) | head = dev | head = base | Generated headers differing, head vs base |
+|---|---|---|---|---|
+| `srp-image/endstation_ax7101_1x1_tdm8-if1--with-aecp` | 119080 / 120120 / 120120 | yes | no | none |
+| `srp-image/endstation_ax7101_1x1_tdm8-if1--without-srp` | 27864 / 27864 / 27864 | yes | yes | none |
+| `srp-image/endstation_ax7101_1x1_tdm8-if1-srp` | 58850 / 59826 / 59826 | yes | no | none |
+| `srp-image/endstation_ax7101_1x1_tdm8-if2--with-aecp` | 120792 / 122032 / 122032 | yes | no | variant/aecp/aecp.h, variant/aecp/aecp_internal.h, variant/loop/ctrl_loop.h, variant/plat/ctrl_plat_phy.h, variant/srp/srp_mbx.h |
+| `srp-image/endstation_ax7101_1x1_tdm8-if2--without-srp` | 28960 / 28960 / 28960 | yes | yes | variant/aecp/aecp.h, variant/aecp/aecp_internal.h, variant/loop/ctrl_loop.h, variant/plat/ctrl_plat_phy.h, variant/srp/srp_mbx.h |
+| `srp-image/endstation_ax7101_1x1_tdm8-if2-srp` | 60866 / 62042 / 62042 | yes | no | variant/aecp/aecp.h, variant/aecp/aecp_internal.h, variant/loop/ctrl_loop.h, variant/plat/ctrl_plat_phy.h, variant/srp/srp_mbx.h |
+| `srp-image/endstation_ax7101_8x8-if1--with-aecp` | 133304 / 134360 / 134360 | yes | no | none |
+| `srp-image/endstation_ax7101_8x8-if1--without-srp` | 27864 / 27864 / 27864 | yes | yes | none |
+| `srp-image/endstation_ax7101_8x8-if1-srp` | 58970 / 59946 / 59946 | yes | no | none |
+| `srp-image/endstation_ax7101_8x8-if2--with-aecp` | 135064 / 136336 / 136336 | yes | no | variant/aecp/aecp.h, variant/aecp/aecp_internal.h, variant/loop/ctrl_loop.h, variant/plat/ctrl_plat_phy.h, variant/srp/srp_mbx.h |
+| `srp-image/endstation_ax7101_8x8-if2--without-srp` | 28960 / 28960 / 28960 | yes | yes | variant/aecp/aecp.h, variant/aecp/aecp_internal.h, variant/loop/ctrl_loop.h, variant/plat/ctrl_plat_phy.h, variant/srp/srp_mbx.h |
+| `srp-image/endstation_ax7101_8x8-if2-srp` | 61018 / 62218 / 62218 | yes | no | variant/aecp/aecp.h, variant/aecp/aecp_internal.h, variant/loop/ctrl_loop.h, variant/plat/ctrl_plat_phy.h, variant/srp/srp_mbx.h |
+head = dev for every image: PASS

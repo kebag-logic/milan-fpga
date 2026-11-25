@@ -1,0 +1,15 @@
+#!/bin/bash
+# ciexec.sh <log> <command...>: run one rtl-fast step command in this checkout on the booked CPUs with the
+# job's CPU-derived budgets, the pinned Verilator first on PATH, and scratch TMPDIR; append to <log>.
+log=$1; shift
+R=$SCRATCH
+V=$TOOLS/verilator-v5.050/bin
+cpus=8
+start=$(date +%s)
+env PATH="$V:/usr/local/bin:/usr/bin:/bin" VERILATOR="$V/verilator" TMPDIR="$R/tmp" PYTHONDONTWRITEBYTECODE=1 \
+  CI_BUILD_JOBS=$cpus CI_TOOL_BUILD_JOBS=8 CI_CAMPAIGN_JOBS=4 VERILATOR_JOBS=$cpus SIM_JOBS=4 \
+  MAKEFLAGS="-j1 --no-print-directory" LC_ALL=C \
+  taskset -c 48-55 timeout 590 bash --noprofile --norc -eo pipefail -c "$*" >> "$log" 2>&1
+rc=$?
+echo "command: $* -> exit $rc ($(( $(date +%s) - start )) s) at $(git rev-parse HEAD)" | tee -a "$log"
+exit $rc

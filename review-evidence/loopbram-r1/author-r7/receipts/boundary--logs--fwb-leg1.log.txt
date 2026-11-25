@@ -1,0 +1,5 @@
+tsn-c-stack at 715589c1db7cf67e2f3259fd7083ebc7f0923376
+leg 1/2: running sw/firmware/gtest/fw_rv32_selftest.py, sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py, sw/firmware/gtest/fw_coverage.py, sw/litex/test_ctrl_memory.py, tb/verilator/milan_dp/stream_counter_f5.py under a capture at $SCRATCH/fwb/firmware-boundary-capture-1
+    sw/firmware/gtest/fw_rv32_selftest.py --require-rv32: exit 0 (15 s)
+    sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py --require-rv32: exit 0 (146 s)
+command: python3 sw/firmware/ctrl/test/ctrl_boundary.py --require-rv32 --without verilator --leg 1/2 --capture-out $SCRATCH/fwb/firmware-boundary-capture-1 -> exit 124 (590 s) at 12382bc88fcbcf2094fe3d91bb3632e81b949fd7

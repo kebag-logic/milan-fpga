@@ -1,0 +1,12 @@
+"""Try loopback figures against the merged planner at the workflow's worker count (scratch probe)."""
+import sys
+from pathlib import Path
+root = Path(sys.argv[1])
+sys.path.insert(0, str(root / "scripts"))
+import suite_shards as s
+wf = (root / ".github/workflows/rtl.yml").read_text()
+suites = s.expand_suites(s.sweep_suites(root / "tb/verilator"))
+for leaf, dp in [(300, 300), (1, 300), (300, 1), (1, 1), (120, 300), (150, 300), (200, 300), (100, 250), (120, 240), (60, 240)]:
+    sec = dict(s.SUITE_SECONDS, input_loopback=leaf, input_loopback_dp=dp)
+    probs, load, bounds = s.headroom_problems(suites, wf, sec)
+    print(leaf, dp, "fails" if probs else "fits", max(load[:-1]), len(probs))
