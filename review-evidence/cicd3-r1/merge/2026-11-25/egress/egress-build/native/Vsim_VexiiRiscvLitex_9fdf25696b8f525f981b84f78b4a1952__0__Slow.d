@@ -1,0 +1,3 @@
+Vsim_VexiiRiscvLitex_9fdf25696b8f525f981b84f78b4a1952__0__Slow.o: \
+ Vsim_VexiiRiscvLitex_9fdf25696b8f525f981b84f78b4a1952__0__Slow.cpp \
+ Vsim__pch.h
