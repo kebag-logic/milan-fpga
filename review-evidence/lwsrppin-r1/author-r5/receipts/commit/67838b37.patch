@@ -1,0 +1,180 @@
+commit 67838b379f9e9ecb6cf6fbd0f162a5bb852ca570
+Author: hackerman-kl <hackerman-kl@kebag-logic.com>
+Date:   Tue Nov 24 23:51:51 2026 +0100
+
+    Restate the held-egress ledger at 8x8/1if at the flip train's and the lwSRP pin merge's measurements
+---
+ docs/design/SPLIT_CONTROL_MEMORY.md               | 22 ++++---
+ tb/verilator/ctrl_service_budget/README.md        |  4 +-
+ tb/verilator/ctrl_service_budget/egress_ledger.py | 70 +++++++++++++++--------
+ 3 files changed, 62 insertions(+), 34 deletions(-)
+
+diff --git a/docs/design/SPLIT_CONTROL_MEMORY.md b/docs/design/SPLIT_CONTROL_MEMORY.md
+index 0a067de021..5e2aa041b6 100644
+--- a/docs/design/SPLIT_CONTROL_MEMORY.md
++++ b/docs/design/SPLIT_CONTROL_MEMORY.md
+@@ -3044,16 +3044,20 @@ The source comments name these three by their subject, with the item they rest o
+ - **The growth is #902's merged code's.** `backlog-owed` run alone on the bare merge of `234bc149` (`647d5c4a`), before this lane's commits after it, gives all seven rows identical to the head's to the microsecond; what grew is the service behind the hold, the owed ACMP frames and the records behind them, as #902 restated ACMP's owed frame on the same move of the code after the map edit. The rows stay recorded misses: a new or larger miss still fails the leg, and a later restatement needs a ruling, only for growth reproduced at a ruled upstream head (item 3).
+ - **Restated by ruling on the composition with #901** ([#894's ruling of 2026-11-16](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6914952893), item 1). On the image that merges dev-soft-core `70f4056f` six rows grew, by 0.31 to 0.44 ms over the merged image's, the service behind the hold with ACMP's owed frame at 80 us against 75: growth reproduced at a ruled upstream head, #901 merged. Each figure derives from the larger of the two measurements (`MEASURED`), so the six take the rule's figures at the composed measurement, 63.86, 64.10, 64.36, 64.61, 64.86 and 62.62 ms, and `service.aecp.last`, which shrank to 61.753, keeps its 61.94. The rows remain owed to the stack issue.
+ - **Restated by ruling on the Listener copies** ([#894's ruling of 2026-11-17](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6934688411)). On the image whose SRP adapter copies a Listener's change where lwSRP reports it ([#930](https://github.com/kebag-logic/milan-fpga/issues/930), `46cf2a7d`), `service.aecp.last` measured 62.04905 ms, over its 61.94 by 0.10905 ms, and the other six rows 0.22 to 0.37 ms under theirs. It grew by phase, not cost: the cheaper SRP records open the composed window 290 us earlier, so the hold releases 237.5 us past a millisecond instead of 527.5, no AECP frame is queued at the release, and the first pass after it sends ACMP's owed frame before AECP's. Its figure moves to the rule's 62.16 ms at that measurement; the other six keep theirs, which their composed measurements derive. `egress_ledger.py` states the three measurements (`MERGED`, `COMPOSED`, `LISTENED`) and derives each figure from the largest.
++- **Restated by ruling on the lwSRP pin's merge with the flip train** ([#992's ruling of 2026-11-24](https://github.com/kebag-logic/milan-fpga/pull/992#issuecomment-7146658362), item 1, by #894's ledger rule, item 3: growth reproduced at a ruled upstream head). Two measurements join the three, `backlog-owed` at 8x8/1if, arm A, each image the point's ledger image, and each head's share is stated apart:
++  - **The flip train's** (#988, dev-soft-core `2509db68`; `TRAIN`). Every row grew by 0.75 to 1.50 ms over the earlier lwSRP pin point `402834ac`'s, which were within their figures, so 5 of 7 rows were over them (by 0.037 to 0.911 ms) on the train's own image, before this merge. That growth is recorded debt, not accepted as final: its per-row, per-PR cost or phase attribution is [#1005](https://github.com/kebag-logic/milan-fpga/issues/1005). Its measurement sets `service.aecp.last`'s figure, 63.23 ms at 63.07053.
++  - **The lwSRP `d1bb4f4e` pin's merge's** (#992, `507bce7f`; `PINNED`), whose image differs from the train's only in lwSRP's `mrp_mad.o` (`.text` +60 B): +0.08568 to +0.09425 ms on six rows against the train's (`owed_behind1` and `owed_behind2` +0.08647, `service.acmp.last` +0.09425, the other three +0.08568), and -0.22290 ms on `service.aecp.last`. Its measurement sets the six rows' figures, 64.31, 64.51, 64.71, 64.91, 65.11 and 63.29 ms.
++  - Each figure is the rule's at the largest of the five measurements (`MEASURED`), as `egress_ledger.py` derives it. The rows remain owed to the stack issue, and a new or larger miss still fails the leg.
+ 
+-| Row the egress decides (at 8x8/1if) | Measured at 716a8ae7, ms | Measured on #902's 234bc149 merged, ms | Measured on dev-soft-core 70f4056f composed, ms | Measured with the Listener copies (#930) 46cf2a7d, ms | Ledger, ms |
+-|---|---:|---:|---:|---:|---:|
+-| `backlog.owed.if0` | 63.083 | 63.23710 | 63.67337 | 63.51129 | 63.86 |
+-| `backlog.owed_behind0.if0` | 63.305 | 63.45889 | 63.90106 | 63.74479 | 64.10 |
+-| `backlog.owed_behind1.if0` | 63.526 | 63.73898 | 64.14858 | 64.02681 | 64.36 |
+-| `backlog.owed_behind2.if0` | 63.747 | 63.95746 | 64.38819 | 64.24822 | 64.61 |
+-| `backlog.owed_behind3.if0` | 63.969 | 64.19076 | 64.62511 | 64.48987 | 64.86 |
+-| `backlog-owed.service.acmp.last.if0` | 62.025 | 62.18386 | 62.49045 | 62.40080 | 62.62 |
+-| `backlog-owed.service.aecp.last.if0` | 61.680 | 61.84625 | 61.75319 | 62.04905 | 62.16 |
++| Row the egress decides (at 8x8/1if) | Measured at 716a8ae7, ms | Measured on #902's 234bc149 merged, ms | Measured on dev-soft-core 70f4056f composed, ms | Measured with the Listener copies (#930) 46cf2a7d, ms | Measured on the flip train (#988) 2509db68, ms | Measured on the lwSRP d1bb4f4e pin merged (#992) 507bce7f, ms | Ledger, ms |
++|---|---:|---:|---:|---:|---:|---:|---:|
++| `backlog.owed.if0` | 63.083 | 63.23710 | 63.67337 | 63.51129 | 64.01426 | 64.09994 | 64.31 |
++| `backlog.owed_behind0.if0` | 63.305 | 63.45889 | 63.90106 | 63.74479 | 64.20677 | 64.29245 | 64.51 |
++| `backlog.owed_behind1.if0` | 63.526 | 63.73898 | 64.14858 | 64.02681 | 64.39672 | 64.48319 | 64.71 |
++| `backlog.owed_behind2.if0` | 63.747 | 63.95746 | 64.38819 | 64.24822 | 64.58746 | 64.67393 | 64.91 |
++| `backlog.owed_behind3.if0` | 63.969 | 64.19076 | 64.62511 | 64.48987 | 64.77829 | 64.86397 | 65.11 |
++| `backlog-owed.service.acmp.last.if0` | 62.025 | 62.18386 | 62.49045 | 62.40080 | 63.03567 | 63.12992 | 63.29 |
++| `backlog-owed.service.aecp.last.if0` | 61.680 | 61.84625 | 61.75319 | 62.04905 | 63.07053 | 62.84763 | 63.23 |
+ 
+ **THE RETRY's round costs at 8x8/1if** ([the round 3 ruling](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6878014227), item 1). Round 2's measurement held 1,654 of THE RETRY's rounds in the `answering-every-port` arm over their stated cost (`round_grade.py`), every one a round of no notice beside 1, 2 or 4 refused attempts: up to 12,547, 19,326 and 23,343 cycles against 11,900, 15,300 and 22,100. A round's cold start, `AECP_ROUND_COLD_US` (`aecp_mbx.h`), was keyed on `MBX_N_IF`, so 8x8/1if took the 1x1's 85 us; a refused attempt's, `AECP_ATTEMPT_US` (`aecp.h`), was one 34 us at every shape. A stated cost under its measurement is the defect ([the round 2 ruling](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6871343905), item (b)(ii)). Both are now stated for each shape in THE SHAPES (`CTRL_LOOP_RETRY_COLD_US`, `CTRL_LOOP_RETRY_ATTEMPT_US`, the table above), and the two AECP names are those names, never the interface count's.
+ - **The measurement.** Round 2's rounds at 8x8/1if, the dearest at each count of refused attempts with notices charged at `AECP_NOTICE_US`: 2,206 cycles with none, 12,547 with one, 19,326 with two and 23,343 with four, every port. The rule is #665's definition of the attempt, what a round of `AECP_ROUND_PORTS` refusals costs past its cold start, a refusal, and of the cold start, what any round implies at it: the line that holds every round and a round of every port refused at its cost, and of those the one with the least cold start. It runs through the rounds of two and of four refused attempts, 15,309 cycles once and 2,008.5 a refused attempt (153.09 and 20.09 us); plus 5 %, rounded up to 5 us, 165 and 25 us. The other arms' rounds were within the earlier 85 + 34 k us, which lies under that line for every k up to the four ports. The 125 us round 2 reported was the cold start implied at the 34 us attempt; measuring the attempt too gives this line.
+diff --git a/tb/verilator/ctrl_service_budget/README.md b/tb/verilator/ctrl_service_budget/README.md
+index 92b5b1462f..33f72ab0b6 100644
+--- a/tb/verilator/ctrl_service_budget/README.md
++++ b/tb/verilator/ctrl_service_budget/README.md
+@@ -200,11 +200,11 @@ The testbench traces a pass's first and last firmware poll and every item ([`pol
+ [`egress_ledger.py`](egress_ledger.py) holds the rows the egress decides to their ledger ([#894's held-egress ruling](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6871343905), item (a)).
+ `backlog-owed`'s seven rows are set by the scenario's 60 ms egress hold, which no CPU lever moves: they miss their budget at every point, and a run with `--record-budget-findings` records every miss and fails none.
+ [FR_NFR.md 3.4.1](../../../docs/reference/FR_NFR.md#341-control-service-budget-and-normative-timing) charges TX backpressure to the service budget, so they stay recorded misses, not passes, and a new or larger miss fails the leg.
+-- **The ledger** (`LEDGER`) is derived at 8x8/1if, the one point that has one, by #894's round-6 ruling: each figure is the scenario's egress hold (`HOLD_MS`, read from `scenario.py`'s `backlog-owed` group) plus the service behind it at its measurement (`MEASURED`, the larger of the merged image's and the composed image's, `MERGED` and `COMPOSED`, by [#894's ruling of 2026-11-16](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6914952893) on the composition with #901, item 1) plus 5 %, rounded up to 0.01 ms (`figure`). [Section 13](../../../docs/design/SPLIT_CONTROL_MEMORY.md#the-shapes-and-8x81if)'s table states both measurements and the figures; the self-test holds the table to the tool, row for row and figure for figure, and the derivation to the rule, computed apart.
++- **The ledger** (`LEDGER`) is derived at 8x8/1if, the one point that has one, by #894's round-6 ruling: each figure is the scenario's egress hold (`HOLD_MS`, read from `scenario.py`'s `backlog-owed` group) plus the service behind it at its measurement (`MEASURED`, the largest of five images' measurements: the merged image's and the composed image's, `MERGED` and `COMPOSED`, by [#894's ruling of 2026-11-16](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6914952893) on the composition with #901, item 1; the Listener copies' image's, `LISTENED`, by [its ruling of 2026-11-17](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6934688411); and the flip train's and the lwSRP pin merge's, `TRAIN` and `PINNED`, by [#992's ruling of 2026-11-24](https://github.com/kebag-logic/milan-fpga/pull/992#issuecomment-7146658362), item 1) plus 5 %, rounded up to 0.01 ms (`figure`). [Section 13](../../../docs/design/SPLIT_CONTROL_MEMORY.md#the-shapes-and-8x81if)'s table states the five measurements and the figures; the self-test holds the table to the tool, row for row and figure for figure, and the derivation to the rule, computed apart.
+ - **A larger miss.** A measured instance of a ledger row over its figure fails, by as little as one cycle of the bus, whatever its name; so does one never released or answered, whose time is a lower bound.
+ - **A new miss.** A budget miss of any other row fails, and so do a ledger row with no measured instance and any instance not measured.
+ - **Its inputs** are the harness's own: a results directory's group grades, whose figures are exact to 10 ns, beside its run's `results.json`, whose refusals fail (a group the harness refused has no grade of its own), or a run's log, whose `BUDGET` lines name every instance over its budget to 1 us. A row read from a log is held at the most its printed figure can be, so one printed at its ledger figure fails, and a log must end in its run's summary, with no refusal and one `BUDGET` line a budget miss.
+-- `egress_ledger.py --selftest` runs its controls in its own process and as a process of their own, whose exit status is the verdict. The unchanged ledger passes, and each row one cycle over its figure, and 36.76 ms over, exits 1 naming it. It refuses fourteen mutants, among them one that waives a ledger row by its name whatever its size, one that reads no run's refusals, a figure with no 5 % on its service, the 5 % taken on the hold too, a hold not the scenario's, and a figure at the merged image's measurement where the composed one is larger.
++- `egress_ledger.py --selftest` runs its controls in its own process and as a process of their own, whose exit status is the verdict. The unchanged ledger passes, and each row one cycle over its figure, and 36.76 ms over, exits 1 naming it. It refuses eighteen mutants, among them one that waives a ledger row by its name whatever its size, one that reads no run's refusals, a figure with no 5 % on its service, the 5 % taken on the hold too, a hold not the scenario's, a figure at the merged image's measurement where the composed one is larger, and a figure at an earlier image's measurement where the train's or the pin merge's is larger.
+ 
+ [`load_grade.py`](load_grade.py) is the long-window load of every source at its stated arrival bound (#665, the round 24 ruling, item 2): each source's rate, a contract rate or a protocol timer, its clause in the module's term list and its value read from the tree, times its stated cost, at 1x1/1if, 8x8/2if and 32x32/2if.
+ Its stated costs are `poll_grade.STATED_US`'s for the polls and `ctrl_loop.h`'s for THE TRANSMIT's builds and THE STEP at the two harness points, and its own `STATED_US` for the records, the events and a centisecond's consumers there and for every cost at 32x32/2if, measured on the 32x32 simulation shape (#859).
+diff --git a/tb/verilator/ctrl_service_budget/egress_ledger.py b/tb/verilator/ctrl_service_budget/egress_ledger.py
+index 2f17cf3f9c..c48563dd46 100644
+--- a/tb/verilator/ctrl_service_budget/egress_ledger.py
++++ b/tb/verilator/ctrl_service_budget/egress_ledger.py
+@@ -12,7 +12,7 @@ backpressure to the service budget. A new or larger miss fails the leg (#894's h
+ 
+ The ledger is derived at 8x8/1if, the one point that has one (#894's ledger ruling, items 2 and
+ 3): each row's figure is the scenario's egress hold (HOLD_MS, read from scenario.py's backlog-owed group) plus the
+-service behind it at its measurement (MEASURED, the largest of three images') plus 5 %, rounded up to 0.01 ms (figure).
++service behind it at its measurement (MEASURED, the largest of five images') plus 5 %, rounded up to 0.01 ms (figure).
+ Section 13's table states those figures, and the self-test holds the two together and the derivation to the rule.
+ The tool reads the harness's own output: a results directory's group grades (run.py's <group>.json), whose ms is the
+ bus cycles' time to 10 ns, one cycle at 100 MHz, beside its run's results.json, whose refusals fail; or a run's log,
+@@ -75,11 +75,21 @@ COMPOSED = {'backlog.owed.if0': 63.67337, 'backlog.owed_behind0.if0': 63.90106,
+ LISTENED = {'backlog.owed.if0': 63.51129, 'backlog.owed_behind0.if0': 63.74479, 'backlog.owed_behind1.if0': 64.02681,
+             'backlog.owed_behind2.if0': 64.24822, 'backlog.owed_behind3.if0': 64.48987,
+             'backlog-owed.service.acmp.last.if0': 62.40080, 'backlog-owed.service.aecp.last.if0': 62.04905}
+-#: The measurement each figure derives from, the largest of the three (#894's ruling of 2026-11-16 on the composition
+-#: with #901, item 1, and its ruling of 2026-11-17 on the Listener copies): the six rows that grew on the composed
+-#: image at their composed measurement, and service.aecp.last, which shrank there and grew with the Listener copies,
+-#: at the latter's.
+-MEASURED = {'8x8-1if': {row: max(MERGED[row], COMPOSED[row], LISTENED[row]) for row in MERGED}}
++#: And on the image of dev-soft-core 2509db68, the flip train (#988), whose growth of every row is recorded debt
++#: attributed apart (#1005), and on the image that merges it into the lwSRP d1bb4f4e pin (#992, 507bce7f's), which
++#: adds 0.086 to 0.094 ms to six rows and takes 0.223 ms off service.aecp.last (#992's ruling of 2026-11-24, item 1).
++TRAIN = {'backlog.owed.if0': 64.01426, 'backlog.owed_behind0.if0': 64.20677, 'backlog.owed_behind1.if0': 64.39672,
++         'backlog.owed_behind2.if0': 64.58746, 'backlog.owed_behind3.if0': 64.77829,
++         'backlog-owed.service.acmp.last.if0': 63.03567, 'backlog-owed.service.aecp.last.if0': 63.07053}
++PINNED = {'backlog.owed.if0': 64.09994, 'backlog.owed_behind0.if0': 64.29245, 'backlog.owed_behind1.if0': 64.48319,
++          'backlog.owed_behind2.if0': 64.67393, 'backlog.owed_behind3.if0': 64.86397,
++          'backlog-owed.service.acmp.last.if0': 63.12992, 'backlog-owed.service.aecp.last.if0': 62.84763}
++#: The measurement each figure derives from, the largest of the five (#894's ruling of 2026-11-16 on the composition
++#: with #901, item 1, its ruling of 2026-11-17 on the Listener copies, and #992's ruling of 2026-11-24, item 1): the
++#: six rows that grew again on the pin's merge at its measurement, and service.aecp.last, which shrank there, at the
++#: train's.
++MEASURED = {'8x8-1if': {row: max(MERGED[row], COMPOSED[row], LISTENED[row], TRAIN[row], PINNED[row])
++                        for row in MERGED}}
+ 
+ 
+ def figure(measured_ms: float, hold: int = HOLD_MS) -> float:
+@@ -258,29 +268,33 @@ def main(argv: list[str] | None = None) -> int:
+ # ---- the self-test -----------------------------------------------------------------------------------------------
+ 
+ #: Section 13's table of the rows the egress decides at 8x8/1if: the row, the measurement at 716a8ae7, the merged
+-#: image's, the composed image's, the Listener copies' image's, and the ledger figure derived from the largest of
+-#: those three.
++#: image's, the composed image's, the Listener copies' image's, the train's, the pin merge's, and the ledger figure
++#: derived from the largest of those five.
+ DOC_HEAD = ('| Row the egress decides (at 8x8/1if) | Measured at 716a8ae7, ms | '
+             'Measured on #902\'s 234bc149 merged, ms | Measured on dev-soft-core 70f4056f composed, ms '
+-            '| Measured with the Listener copies (#930) 46cf2a7d, ms | Ledger, ms |')
++            '| Measured with the Listener copies (#930) 46cf2a7d, ms | Measured on the flip train (#988) 2509db68, ms '
++            '| Measured on the lwSRP d1bb4f4e pin merged (#992) 507bce7f, ms | Ledger, ms |')
++#: One row of that table: its name, the 716a8ae7 measurement, the five it derives from, and its figure.
++DOC_ROW = re.compile(r'^\| `([^`]+)` \| [\d.]+' + r' \| ([\d.]+)' * 5 + r' \| ([\d.]+) \|$', re.M)
++
++
++def doc_rows(text: str) -> list[tuple[str, ...]]:
++    """Section 13's table's rows, each its name, its five measurements and its figure."""
++    return DOC_ROW.findall(text.split(DOC_HEAD, 1)[1].split('\n\n', 1)[0])
+ 
+ 
+ def doc_ledger(text: str) -> tuple[dict[str, float], dict[str, float]]:
+     """Section 13's table of the rows the egress decides at 8x8/1if: each row's ledger figure and the measurement it
+-    derives from."""
+-    merged, composed, listened = doc_measurements(text)
+-    block = text.split(DOC_HEAD, 1)[1].split('\n\n', 1)[0]
+-    rows = re.findall(r'^\| `([^`]+)` \| [\d.]+ \| [\d.]+ \| [\d.]+ \| [\d.]+ \| ([\d.]+) \|$', block, re.M)
+-    return {n: float(f) for n, f in rows}, {n: max(merged[n], composed[n], listened[n]) for n, _ in rows}
++    derives from, the largest of its five."""
++    rows = doc_rows(text)
++    return {r[0]: float(r[-1]) for r in rows}, {r[0]: max(float(m) for m in r[1:-1]) for r in rows}
+ 
+ 
+-def doc_measurements(text: str) -> tuple[dict[str, float], dict[str, float], dict[str, float]]:
+-    """Section 13's table's three measurements of each row: the merged image's, the composed image's and the Listener
+-    copies' image's."""
+-    block = text.split(DOC_HEAD, 1)[1].split('\n\n', 1)[0]
+-    rows = re.findall(r'^\| `([^`]+)` \| [\d.]+ \| ([\d.]+) \| ([\d.]+) \| ([\d.]+) \| [\d.]+ \|$', block, re.M)
+-    return ({n: float(m) for n, m, _, _ in rows}, {n: float(c) for n, _, c, _ in rows},
+-            {n: float(s) for n, _, _, s in rows})
++def doc_measurements(text: str) -> tuple[dict[str, float], ...]:
++    """Section 13's table's five measurements of each row: the merged image's, the composed image's, the Listener
++    copies' image's, the train's and the pin merge's."""
++    rows = doc_rows(text)
++    return tuple({r[0]: float(r[1 + k]) for r in rows} for k in range(5))
+ 
+ 
+ def grade_dir(base: Path, name: str, figures: dict[str, float], extra: tuple[dict, ...] = (),
+@@ -350,8 +364,9 @@ def controls(base: Path, run: Callable[[list[str]], tuple[int, str]]) -> list[tu
+     out = [("the ledger is section 13's table, row for row and figure for figure", doc_figures == ledger,
+             str(doc_figures)),
+            ("section 13's measurement is the one the ledger derives from", measured == MEASURED[point], str(measured)),
+-           ("section 13's three measurements are the three images'",
+-            doc_measurements(DOC.read_text()) == (MERGED, COMPOSED, LISTENED), str(doc_measurements(DOC.read_text()))),
++           ("section 13's five measurements are the five images'",
++            doc_measurements(DOC.read_text()) == (MERGED, COMPOSED, LISTENED, TRAIN, PINNED),
++            str(doc_measurements(DOC.read_text()))),
+            ('each figure is the hold plus the service behind it plus 5 %, rounded up to 0.01 ms', ledger == rule,
+             str(rule)),
+            ("the hold is scenario.py's backlog-owed hold, and a planted hold of another length is read as it",
+@@ -435,6 +450,15 @@ MUTANTS = {
+         m.MEASURED['8x8-1if'], dict(m.MERGED)),
+     "a figure at the composed image's measurement where the Listener copies' is larger": lambda m: patch.dict(
+         m.MEASURED['8x8-1if'], {row: max(m.MERGED[row], m.COMPOSED[row]) for row in m.MERGED}),
++    "a figure at the earlier images' measurements where the train's and the pin merge's are larger": lambda m: (
++        patch.dict(m.MEASURED['8x8-1if'], {row: max(m.MERGED[row], m.COMPOSED[row], m.LISTENED[row])
++                                           for row in m.MERGED})),
++    "a figure at the train's measurement where the pin merge's is larger": lambda m: patch.dict(
++        m.MEASURED['8x8-1if'], {row: max(m.MERGED[row], m.COMPOSED[row], m.LISTENED[row], m.TRAIN[row])
++                                for row in m.MERGED}),
++    "service.aecp.last at the pin merge's measurement where the train's is larger": lambda m: patch.dict(
++        m.MEASURED['8x8-1if'], {row: max(m.MERGED[row], m.COMPOSED[row], m.LISTENED[row], m.PINNED[row])
++                                for row in m.MERGED}),
+     "a run's refusals not read": lambda m: patch.object(m, 'run_refusals', lambda path: []),
+     "a ledger row's name taken in any group": lambda m: patch.object(
+         m, 'is_row', lambda p, ledger: p['probe'] in ledger),

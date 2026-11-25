@@ -1,0 +1,11 @@
+hold 60 ms (scenario.py); figure = hold + (largest - hold) x 1.05, rounded up to 0.01 ms
+| Row | Largest, ms | Set by | Service x 1.05, ms | Tool figure | Rule apart (Decimal) | Ruling expects | Equal |
+|---|---:|---|---:|---:|---:|---:|---|
+| `backlog.owed.if0` | 64.09994 | PINNED | 4.3049370 | 64.31 | 64.31 | 64.31 | yes |
+| `backlog.owed_behind0.if0` | 64.29245 | PINNED | 4.5070725 | 64.51 | 64.51 | 64.51 | yes |
+| `backlog.owed_behind1.if0` | 64.48319 | PINNED | 4.7073495 | 64.71 | 64.71 | 64.71 | yes |
+| `backlog.owed_behind2.if0` | 64.67393 | PINNED | 4.9076265 | 64.91 | 64.91 | 64.91 | yes |
+| `backlog.owed_behind3.if0` | 64.86397 | PINNED | 5.1071685 | 65.11 | 65.11 | 65.11 | yes |
+| `backlog-owed.service.acmp.last.if0` | 63.12992 | PINNED | 3.2864160 | 63.29 | 63.29 | 63.29 | yes |
+| `backlog-owed.service.aecp.last.if0` | 63.07053 | TRAIN | 3.2240565 | 63.23 | 63.23 | 63.23 | yes |
+RESULT: all 7 equal

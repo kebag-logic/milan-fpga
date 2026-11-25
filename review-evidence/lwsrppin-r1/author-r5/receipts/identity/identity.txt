@@ -1,0 +1,29 @@
+Image identity: 67838b37 against 507bce7f
+
+== git diff --name-only 507bce7f 67838b37 (every path the commit changes)
+docs/design/SPLIT_CONTROL_MEMORY.md
+tb/verilator/ctrl_service_budget/README.md
+tb/verilator/ctrl_service_budget/egress_ledger.py
+
+== git diff --stat
+ docs/design/SPLIT_CONTROL_MEMORY.md               | 22 ++++---
+ tb/verilator/ctrl_service_budget/README.md        |  4 +-
+ tb/verilator/ctrl_service_budget/egress_ledger.py | 70 +++++++++++++++--------
+ 3 files changed, 62 insertions(+), 34 deletions(-)
+
+== no changed path is a recorded input of the harness images (round 4's build.json, sources/inputs)
+b-8x8-1if: 0 mention(s) of the three paths
+b-1x1: 0 mention(s) of the three paths
+b-8x8-1if-every: 0 mention(s) of the three paths
+b-1x1-every: 0 mention(s) of the three paths
+b-8x8-1if-later: 0 mention(s) of the three paths
+b-1x1-later: 0 mention(s) of the three paths
+
+== plat_ledger.py --build-dir at 67838b37 (head 67838b379f9e9ecb6cf6fbd0f162a5bb852ca570, porcelain before/after 0/0, rc 0, 2026-11-24T23:52:03+01:00 -> 2026-11-24T23:52:51+01:00)
+every ELF/bin/hex its build writes, sha256, against round 3's same build at 507bce7f (r3/ledger/sha-head.txt):
+IDENTICAL: 28 of 28 files, byte for byte
+
+== the harness images this round's leg grades are those builds' mapped images
+79c5326cba02dca37fd82946c2f2c13153d8ecf07875ab673536188107d43f89  ./endstation_ax7101_1x1_tdm8/split-soc/mapped/image/ctrl_app.elf
+eed56acc86f3c48db1e537b06c72c5e78478e1dc79c1b0c3daeec3a8dd4771c0  ./endstation_ax7101_8x8/split-soc/mapped/image/ctrl_app.elf
+round-4 arm A harness ELFs: 8x8/1if eed56acc86f3c48db1e537b06c72c5e78478e1dc79c1b0c3daeec3a8dd4771c0, 1x1/1if 79c5326cba02dca37fd82946c2f2c13153d8ecf07875ab673536188107d43f89
