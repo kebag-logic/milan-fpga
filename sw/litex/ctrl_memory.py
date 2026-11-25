@@ -277,8 +277,8 @@ LEDGERED: dict[str, Ledgered] = {
                                         "plans 133,128 B of rom and 98,848 B of sram at 57.5, the other arms and "
                                         "plants 57.0, by the same rule: ROM debt of 1.5 RAMB36 owed to S14; 58.0 "
                                         "with the saved-state store's delta frames (#1009): the fixture plans "
-                                        "134,464 B of rom at 57.5, its declaring-outputs arm 135,248 B of rom and "
-                                        "98,912 B of sram, past 57.5, by the same rule: ROM debt of 2.0 RAMB36 owed "
+                                        "134,704 B of rom at 57.5, its declaring-outputs arm 135,488 B of rom and "
+                                        "98,928 B of sram, past 57.5, by the same rule: ROM debt of 2.0 RAMB36 owed "
                                         "to S14"),
     "8x8-two-interfaces": Ledgered("8x8, two interfaces", ((STAGE_SYMBOL, 14_250), ("image_allocation", 16)),
                                    62.0, "lane S14, the hybrid XIP (#665 decision D3, rulings 6412739248 and "
@@ -309,7 +309,7 @@ LEDGERED: dict[str, Ledgered] = {
                                          "(declaring-outputs; answering-ports and the saved-state harness's guard "
                                          "probe also past 61.0), the stage 14,250 B, by the same rule: ROM debt of "
                                          "5.5 RAMB36 owed to S14; 62.0 with the saved-state store's delta frames "
-                                         "(#1009): the fixture needs 136,144 B of rom and 116,432 B of sram, past "
+                                         "(#1009): the fixture needs 136,392 B of rom and 116,448 B of sram, past "
                                          "61.5, by the same rule: ROM debt of 6.0 RAMB36 owed to S14"),
     "platform-8x8-two-interfaces": Ledgered("target platform's 8x8, two interfaces",
                                             ((STAGE_SYMBOL, 14_250), ("ctrl_plat", 21_888)), 65.0,
@@ -363,7 +363,7 @@ LEDGERED: dict[str, Ledgered] = {
                                             "#954, #948, #584, #969, #973, #972), 143,368 B of rom and 117,632 B "
                                             "of sram, ctrl_plat at its measured 21,888 B, by the same rule: debt "
                                             "of 8.5 RAMB36 owed to S14; and 65.0 with the saved-state store's "
-                                            "delta frames (#1009), 145,488 B of rom and 117,712 B of sram, "
+                                            "delta frames (#1009), 145,736 B of rom and 117,712 B of sram, "
                                             "ctrl_plat unchanged, by the same rule: debt of 9.0 RAMB36 owed to "
                                             "S14"),
     "platform-8x8-one-interface": Ledgered("target platform's 8x8, one interface",
@@ -402,7 +402,7 @@ LEDGERED: dict[str, Ledgered] = {
                                            "#954, #948, #584, #969, #973, #972), 141,616 B of rom and 100,096 B "
                                            "of sram, ctrl_plat at its measured 19,136 B, by the same rule: ROM "
                                            "debt of 3.5 RAMB36 owed to S14; and 60.0 with the saved-state store's "
-                                           "delta frames (#1009), 143,736 B of rom and 100,176 B of sram, 376 B of "
+                                           "delta frames (#1009), 143,984 B of rom and 100,176 B of sram, 624 B of "
                                            "rom past the 143,360 B 59.5 holds, ctrl_plat unchanged, by the same "
                                            "rule: ROM debt of 4.0 RAMB36 owed to S14"),
 }
