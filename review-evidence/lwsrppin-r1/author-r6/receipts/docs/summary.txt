@@ -1,0 +1,12 @@
+scripts/docs_check.py                                   rc=0 9s  docs_check: 0 finding(s) across 223 md files + 1942 scrubbed text files, scrub self-test 23/23, routing arms 4
+scripts/check_doc_style.py                              rc=0 0s  documentation style: OK (25 current documents)
+scripts/docs_inventory.py --check                       rc=0 2s  documentation inventory: OK (538 lines, docs/DOCUMENTATION_AUDIT.md is fresh)
+docs/diagrams/submodule_boundaries.gen.py --check       rc=0 1s  submodule diagram: OK (6 exact gitlinks, decoded PNG)
+docs/diagrams/submodule_boundaries.gen.py --selftest    rc=0 1s  submodule diagram selftest: OK (valid wrong-raster control)
+docs/diagrams/timesync_chain.gen.py --check             rc=0 0s  time-sync diagram: OK (RTL, features, Gitlink, decoded PNG)
+docs/diagrams/timesync_chain.gen.py --selftest          rc=0 0s  time-sync diagram selftest: OK (source, status, XML, raster)
+docs/DOC_MAP.gen.py --check                             rc=0 1s  documentation map: OK (4 roles, 24 valid paths, decoded PNG)
+docs/DOC_MAP.gen.py --selftest                          rc=0 0s  documentation map selftest: OK (valid wrong-raster control)
+scripts/check_submodule_docs.py                         rc=0 1s  submodule documentation: OK (6 exact gitlinks)
+scripts/check_diagram_pngs.py                           rc=0 0s  diagram PNGs: OK (6 decoded, source-bound, review-pinned rasters)
+scripts/check_diagram_pngs.py --selftest                rc=0 7s  diagram PNG selftest: OK (6 rasters, 28 mutation controls)

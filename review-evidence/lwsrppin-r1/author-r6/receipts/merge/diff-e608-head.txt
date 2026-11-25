@@ -1,0 +1,69 @@
+# head 2b98e219a5e2b0681f76be90083fc05e47a8f6c0
+## git diff e608f8d8 HEAD --stat
+ docs/design/MAILBOX_SPLIT.md                      |   2 +-
+ docs/design/SPLIT_CONTROL_MEMORY.md               |  22 +-
+ docs/diagrams/PNG_MANIFEST.json                   |   4 +-
+ docs/diagrams/submodule_boundaries.drawio         |   2 +-
+ docs/diagrams/submodule_boundaries.png            | Bin 437525 -> 436306 bytes
+ docs/diagrams/submodule_boundaries.svg            |   2 +-
+ docs/reference/SUBMODULES.md                      |   2 +-
+ sw/firmware/ctrl/README.md                        |   4 +-
+ sw/firmware/ctrl/srp/README.md                    |   6 +-
+ sw/firmware/ctrl/test/ctrl_arms.py                |   4 +-
+ sw/firmware/ctrl/test/srp_arms.py                 |   8 +
+ sw/firmware/ctrl/test/srp_own_leaveall.cpp        | 276 ++++++++++++++++++++++
+ sw/firmware/ctrl/test/test_ctrl_firmware.py       |  13 +-
+ tb/verilator/ctrl_service_budget/README.md        |   4 +-
+ tb/verilator/ctrl_service_budget/egress_ledger.py |  70 ++++--
+ tb/verilator/milan_dp/Makefile                    |   4 +
+ tb/verilator/milan_dp/README.md                   |  27 ++-
+ tb/verilator/milan_dp/twin_compare.py             |   2 +-
+ tb/verilator/milan_dp/twin_mrp.py                 | 168 +++++++++++--
+ tb/verilator/milan_dp/twin_plants.py              |   2 +-
+ third_party/lwSRP                                 |   2 +-
+ 21 files changed, 540 insertions(+), 84 deletions(-)
+## ours since base (2509db68..67838b37) --name-only
+docs/design/MAILBOX_SPLIT.md
+docs/design/SPLIT_CONTROL_MEMORY.md
+docs/diagrams/PNG_MANIFEST.json
+docs/diagrams/submodule_boundaries.drawio
+docs/diagrams/submodule_boundaries.png
+docs/diagrams/submodule_boundaries.svg
+docs/reference/SUBMODULES.md
+sw/firmware/ctrl/README.md
+sw/firmware/ctrl/srp/README.md
+sw/firmware/ctrl/test/ctrl_arms.py
+sw/firmware/ctrl/test/srp_arms.py
+sw/firmware/ctrl/test/srp_own_leaveall.cpp
+sw/firmware/ctrl/test/test_ctrl_firmware.py
+tb/verilator/ctrl_service_budget/README.md
+tb/verilator/ctrl_service_budget/egress_ledger.py
+tb/verilator/milan_dp/Makefile
+tb/verilator/milan_dp/README.md
+tb/verilator/milan_dp/twin_compare.py
+tb/verilator/milan_dp/twin_mrp.py
+tb/verilator/milan_dp/twin_plants.py
+third_party/lwSRP
+## e608 vs HEAD --name-only
+docs/design/MAILBOX_SPLIT.md
+docs/design/SPLIT_CONTROL_MEMORY.md
+docs/diagrams/PNG_MANIFEST.json
+docs/diagrams/submodule_boundaries.drawio
+docs/diagrams/submodule_boundaries.png
+docs/diagrams/submodule_boundaries.svg
+docs/reference/SUBMODULES.md
+sw/firmware/ctrl/README.md
+sw/firmware/ctrl/srp/README.md
+sw/firmware/ctrl/test/ctrl_arms.py
+sw/firmware/ctrl/test/srp_arms.py
+sw/firmware/ctrl/test/srp_own_leaveall.cpp
+sw/firmware/ctrl/test/test_ctrl_firmware.py
+tb/verilator/ctrl_service_budget/README.md
+tb/verilator/ctrl_service_budget/egress_ledger.py
+tb/verilator/milan_dp/Makefile
+tb/verilator/milan_dp/README.md
+tb/verilator/milan_dp/twin_compare.py
+tb/verilator/milan_dp/twin_mrp.py
+tb/verilator/milan_dp/twin_plants.py
+third_party/lwSRP
+NAMESETS EQUAL

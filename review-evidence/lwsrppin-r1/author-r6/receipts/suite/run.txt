@@ -1,0 +1,10 @@
+run.py --self-test (taskset -c 64-95), from the lane root
+head 2b98e219a5e2b0681f76be90083fc05e47a8f6c0
+start 2026-11-25T02:56:37+01:00
+end 2026-11-25T03:22:14+01:00
+rc 0
+porcelain after: 0 lines
+counts: PASS 1015, FAIL 0, MUTANT caught 295, MUTANT ESCAPED 0
+last line: self-test: 0 failures
+An earlier run of the same command this round was stopped by hand at about half way (143 of 295 mutants) before the call's time limit; it is not evidence.
+Against round 4's run.py --self-test log (head 507bce7f, the same 968,357 B): 2 of 5,500+ lines differ (5522, 5539), both 'MUTANT caught: polls: …' lines. Each differs only in a temporary directory path (round 4 ran with TMPDIR under the lane's scratch, this run in /tmp) and so in where the self-test's fixed 160-character detail cut falls. The verdicts are the same

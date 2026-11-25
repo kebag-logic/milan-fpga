@@ -1,0 +1,28 @@
+Conflicts at 'git merge --no-ff --no-commit e608f8d8' on 67838b37: docs/diagrams/PNG_MANIFEST.json, docs/diagrams/submodule_boundaries.drawio, docs/diagrams/submodule_boundaries.png (binary). submodule_boundaries.svg and docs/reference/SUBMODULES.md merged by git.
+Resolution: 'git checkout --theirs' of the three files (a parseable starting point), staged, then 'python3 docs/diagrams/submodule_boundaries.gen.py' (reads each gitlink from the index at stage 0: gptp-processor 1213ac5b, third_party/lwSRP d1bb4f4e) wrote the drawio, SVG, PNG and its PNG_MANIFEST.json entry. No hand edit.
+The SVG the generator wrote is byte-identical to git's textual merge of it (cmp).
+
+== word diff of the drawio and SVG against each parent (git diff --word-diff=porcelain, changed words only)
+-- against 67838b37
+-1616fc8f062f&lt;br&gt;wrapper:&lt;br&gt;hdl/ieee8021as/gptp_plane/&lt;br&gt;KL_gptp_shadow.sv&lt;br&gt;test:
++1213ac5b9e09&lt;br&gt;wrapper:&lt;br&gt;hdl/ieee8021as/gptp_plane/&lt;br&gt;KL_gptp_shadow.sv&lt;br&gt;test:
+-1616fc8f062f</text>
++1213ac5b9e09</text>
+-- against e608f8d8
+-08ee86e812a0&lt;br&gt;mailbox
++d1bb4f4e5954&lt;br&gt;mailbox
+-08ee86e812a0</text>
++d1bb4f4e5954</text>
+
+== pins named in the regenerated files
+-- drawio
+      1 1213ac5b9e09
+      1 d1bb4f4e5954
+-- svg
+      1 1213ac5b9e09
+      1 d1bb4f4e5954
+PNG: inspected visually; gptp-processor card 'pin 1213ac5b9e09', third_party/lwSRP card 'pin d1bb4f4e5954'.
+
+== generator at the head
+submodule diagram: OK (6 exact gitlinks, decoded PNG)
+submodule diagram selftest: OK (valid wrong-raster control)

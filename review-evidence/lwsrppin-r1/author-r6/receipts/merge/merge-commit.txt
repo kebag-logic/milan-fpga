@@ -1,0 +1,67 @@
+Merge commit 2b98e219a5e2b0681f76be90083fc05e47a8f6c0
+parents 67838b379f9e9ecb6cf6fbd0f162a5bb852ca570 e608f8d82a88bca8b3996677ff4113aef353ce88
+subject Merge dev-soft-core e608f8d8 (PRs #1001 and #995, the FPGA-gPTP 1213ac5b pin) into the lwSRP d1bb4f4e pin
+body-lines 
+
+== git diff --stat 67838b37 HEAD (dev-soft-core's side)
+ CHANGELOG.md                                      |  29 ++
+ ci/image/command-table.json                       |  14 +-
+ docs/design/GM_LOSS_RECOVERY.md                   |  14 +
+ docs/design/GPTP_PLANE.md                         |  16 +-
+ docs/design/TIME_SYNC.md                          |   2 +-
+ docs/diagrams/PNG_MANIFEST.json                   |   8 +-
+ docs/diagrams/submodule_boundaries.drawio         |   2 +-
+ docs/diagrams/submodule_boundaries.png            | Bin 435870 -> 436306 bytes
+ docs/diagrams/submodule_boundaries.svg            |   2 +-
+ docs/diagrams/timesync_chain.drawio               |   2 +-
+ docs/diagrams/timesync_chain.png                  | Bin 313723 -> 314244 bytes
+ docs/diagrams/timesync_chain.svg                  |   2 +-
+ docs/guides/gptp/HDL_DEVELOPER.md                 |   8 +-
+ docs/guides/gptp/MANAGER.md                       |   4 +-
+ docs/guides/gptp/SYSTEM_INTEGRATOR.md             |   2 +-
+ docs/guides/gptp/TEST_DEVELOPER.md                |   4 +-
+ docs/reference/STRICTER_READINGS.md               |   8 +-
+ docs/reference/SUBMODULES.md                      | 132 ++++-
+ docs/testing/TESTING.md                           |  10 +
+ docs/traceability/ieee8021as.md                   |   2 +-
+ gptp-processor                                    |   2 +-
+ scripts/run_all_suites.sh                         |  10 +
+ syn/yosys/rom_digests.tsv                         |   1 +
+ tb/verilator/aaf_clock_meter/Makefile             |   6 +-
+ tb/verilator/aaf_clock_meter/probes.vlt           |  13 +
+ tb/verilator/crf_rx/Makefile                      |  13 +-
+ tb/verilator/crf_rx/probes.vlt                    |  18 +
+ tb/verilator/ctrl_service_budget/build.py         |   4 +-
+ tb/verilator/gptp_shadow/README.md                |  14 +-
+ tb/verilator/gptp_shadow/gptp_shadow_wrap.sv      |   8 +-
+ tb/verilator/gptp_shadow/mutants.py               | 104 +++-
+ tb/verilator/gptp_shadow/sim_main.cpp             | 599 +++++++++++++++++++++-
+ tb/verilator/gptp_shadow/test_mutant_lifecycle.py |  22 +-
+ tb/verilator/maap/Makefile                        |   2 +-
+ tb/verilator/maap/probes.vlt                      |  12 +
+ tb/verilator/mmcm_servo/Makefile                  |   6 +-
+ tb/verilator/mmcm_servo/probes.vlt                |  17 +
+ 37 files changed, 1043 insertions(+), 69 deletions(-)
+
+== diagram files: git diff e608f8d8 HEAD (the regenerated result against dev-soft-core)
+ docs/diagrams/PNG_MANIFEST.json           |   4 ++--
+ docs/diagrams/submodule_boundaries.drawio |   2 +-
+ docs/diagrams/submodule_boundaries.png    | Bin 437525 -> 436306 bytes
+ docs/diagrams/submodule_boundaries.svg    |   2 +-
+ 4 files changed, 4 insertions(+), 4 deletions(-)
+diff --git a/docs/diagrams/PNG_MANIFEST.json b/docs/diagrams/PNG_MANIFEST.json
+index c9d0865edf..25b9732094 100644
+--- a/docs/diagrams/PNG_MANIFEST.json
++++ b/docs/diagrams/PNG_MANIFEST.json
+@@ -9,9 +9,9 @@
+     },
+     "docs/diagrams/submodule_boundaries.png": {
+       "height": 1936,
+-      "raster_sha256": "8d7abcf753f4c92226c7d922bd52668d7f94c380b834dad217f301bcfcc931fe",
++      "raster_sha256": "a23a7847c574d03697e59b1c6c272b7a0ee1324f5e6e5e96163845d1c908a877",
+       "source": "docs/diagrams/submodule_boundaries.drawio",
+-      "source_sha256": "849b96c19559c18b2fc420a5b82c4473ed4a6d5c8f32017b6471a7d1a9539338",
++      "source_sha256": "8d0fe1218d0b93eeab2d1981e9d3aa03fb988c6c98c775221c521ffdbc761e93",
+       "width": 2400
+     },
+     "docs/diagrams/timesync_chain.png": {

@@ -1,0 +1,4 @@
+Whole-patch comparison, diagram files excluded: git diff --binary --full-index 67838b37 HEAD vs 2509db68 e608f8d8
+c6c0d1702b4f7893451db745fbd02c7789c6cd8103feecd99a01470893a6a9f7  /data-2/milan/tmp/lwsrppin-a834/r6/a.patch
+0d6684379529d2f3f8f0a33001272b092c8d6a79777e2607e0ea0d8588a5b3eb  /data-2/milan/tmp/lwsrppin-a834/r6/b.patch
+Not byte-equal as whole patches: the first difference is at docs/reference/SUBMODULES.md (patch line 11333), the one non-diagram path both sides changed, whose context lines carry the other side's change. dev-delta-per-path.txt compares path by path: every other path's change is identical, and SUBMODULES.md is the clean three-way merge.
