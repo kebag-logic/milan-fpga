@@ -2154,6 +2154,9 @@ TEST_F(Srp, AnOwedFrameComesBeforeTheBuild) {
     for (unsigned n=0;n<8u;++n) {
         mbx_model_advance_ms(&model,MBX_TICK_MS);
         ctrl_loop_service(&loop);
+        // The posted tick must not be the reason the owed frame wins: give
+        // the build another opportunity before advancing either clock.
+        ctrl_loop_service(&loop);
     }
     ASSERT_GT(adapter.owed_len,0u);
     EXPECT_NE(adapter.tx_due&(1u<<adapter.owed_if),0u)<<"the interface stays due";
