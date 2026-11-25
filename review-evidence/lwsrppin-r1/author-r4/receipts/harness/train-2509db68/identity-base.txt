@@ -1,0 +1,6 @@
+build b-base-8x8-1if: variant none, shape endstation_ax7101_8x8, interfaces 1
+  harness ELF /data-2/milan/tmp/lwsrppin-a834/r4/harness/b-base-8x8-1if/image/ctrl_app.elf: sha256 74f8d3c781e3dca640a2fab9fff56515c4b4126120961ca23490248bb30594f5
+  build.json records             74f8d3c781e3dca640a2fab9fff56515c4b4126120961ca23490248bb30594f5
+  ledger ELF  /data-2/milan/tmp/lwsrppin-a834/r3/ledger/b-base/endstation_ax7101_8x8/split-soc/mapped/image/ctrl_app.elf: sha256 74f8d3c781e3dca640a2fab9fff56515c4b4126120961ca23490248bb30594f5
+  harness = ledger: SAME
+DIFFERS 31-mrp_mad.o

@@ -1,0 +1,21 @@
+git version 2.56.1
+parents: 30796098256670c76115610498a3cdad4d8281ba 2509db684b58b920e215b0d5d327b4a845bac3f4 
+merge-base: aa30d77f75cd97b3a29878ca0ed68010a7629266
+message: Merge dev-soft-core 2509db68 (the flip train, PR #988) into the lwSRP d1bb4f4e pin
+
+pin paths (base..^1): 18
+train paths (base..^2): 145
+both: docs/design/MAILBOX_SPLIT.md docs/reference/SUBMODULES.md sw/firmware/ctrl/README.md sw/firmware/ctrl/srp/README.md sw/firmware/ctrl/test/srp_arms.py sw/firmware/ctrl/test/test_ctrl_firmware.py tb/verilator/milan_dp/Makefile tb/verilator/milan_dp/README.md 
+head vs train (^2..head): 18 paths, = pin paths: yes
+--- git merge-tree --write-tree ^1 ^2:
+sw/firmware/ctrl/test/srp_arms.py
+sw/firmware/ctrl/test/test_ctrl_firmware.py
+Auto-merging docs/design/MAILBOX_SPLIT.md
+Auto-merging docs/reference/SUBMODULES.md
+Auto-merging sw/firmware/ctrl/README.md
+Auto-merging sw/firmware/ctrl/srp/README.md
+Auto-merging sw/firmware/ctrl/test/srp_arms.py
+CONFLICT (content): Merge conflict in sw/firmware/ctrl/test/srp_arms.py
+Auto-merging sw/firmware/ctrl/test/test_ctrl_firmware.py
+CONFLICT (content): Merge conflict in sw/firmware/ctrl/test/test_ctrl_firmware.py
+--- head tree bb8ac51a1ab36184c9e0fddd6a335473c16a0b4a; gitlink lwSRP d1bb4f4e5954af6dabe7f210a6bf7adbb76bdd6b

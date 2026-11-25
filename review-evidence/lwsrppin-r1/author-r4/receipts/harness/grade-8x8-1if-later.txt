@@ -1,0 +1,15 @@
+run 8x8-1if-later: rc 0, head 507bce7f9fe50fcaf7b0abe6a198bdb4d0ea4698, 2026-11-24T14:55:29+01:00 -> 2026-11-24T16:25:37+01:00
+build b-8x8-1if-later: variant answering-later, shape endstation_ax7101_8x8, interfaces 1
+  harness ELF /data-2/milan/tmp/lwsrppin-a834/r4/harness/b-8x8-1if-later/image/ctrl_app.elf: sha256 7fe58d1e69773df3c9b91a1d686449bdf99b17ddb1ab9cae79ffea80e5d76da2
+  build.json records             7fe58d1e69773df3c9b91a1d686449bdf99b17ddb1ab9cae79ffea80e5d76da2
+  ledger ELF  /data-2/milan/tmp/lwsrppin-a834/r3/ledger/b-head/endstation_ax7101_8x8/split-soc/mapped/image/ctrl_app.elf: sha256 eed56acc86f3c48db1e537b06c72c5e78478e1dc79c1b0c3daeec3a8dd4771c0
+  harness = ledger: DIFFERENT
+run-8x8-1if-later.log summary: 8 groups graded, 0 refusals, 0 budget misses (0 of 56 probe instances, 0 of 7 paths), 0 of 13771 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+  longest pass 155,638 cycles (THE SHARE 200,000)
+  MRPDU probes 8; worst 0.858 ms, budget 49 ms, ceiling 49 ms, fits (`notice-retried-2.mrpdu.periodic.if0`)
+  probes 56; MISS 0
+  notice commits 8; worst 8.279 ms
+/data-2/milan/tmp/lwsrppin-a834/r4/harness/b-8x8-1if-later/results: 13771 work passes in 8 logs; 0 over THE SHARE 200,000; longest 155,638 (notice-retried-1)
+  no group has a pass over THE SHARE
+run.py's closing verdict lines (REFUSED/BUDGET/SHARE/OWED/STATED/RESULT and the summary):
+8 groups graded, 0 refusals, 0 budget misses (0 of 56 probe instances, 0 of 7 paths), 0 of 13771 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)

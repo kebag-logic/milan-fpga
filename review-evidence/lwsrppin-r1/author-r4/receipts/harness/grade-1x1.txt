@@ -1,0 +1,37 @@
+run 1x1: rc 0, head 507bce7f9fe50fcaf7b0abe6a198bdb4d0ea4698, 2026-11-24T14:55:29+01:00 -> 2026-11-24T22:05:57+01:00
+build b-1x1: variant none, shape endstation_ax7101_1x1_tdm8, interfaces 1
+  harness ELF /data-2/milan/tmp/lwsrppin-a834/r4/harness/b-1x1/image/ctrl_app.elf: sha256 79c5326cba02dca37fd82946c2f2c13153d8ecf07875ab673536188107d43f89
+  build.json records             79c5326cba02dca37fd82946c2f2c13153d8ecf07875ab673536188107d43f89
+  ledger ELF  /data-2/milan/tmp/lwsrppin-a834/r3/ledger/b-head/endstation_ax7101_1x1_tdm8/split-soc/mapped/image/ctrl_app.elf: sha256 79c5326cba02dca37fd82946c2f2c13153d8ecf07875ab673536188107d43f89
+  harness = ledger: SAME
+run-1x1.log summary: 101 groups graded, 0 refusals, 7 budget misses (7 of 968 probe instances, 4 of 98 paths), 0 of 180084 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+  longest pass 154,510 cycles (THE SHARE 200,000)
+  MRPDU probes 6; worst 2.345 ms, budget 49 ms, ceiling 49 ms, fits (`save-starved.mrpdu.periodic.if0`)
+  probes 968; MISS 7
+    MISS `backlog.owed.if0`: 62.555 ms, budget 20, ceiling 20 (a response with 7 frames owed ahead of it)
+    MISS `backlog.owed_behind0.if0`: 62.71 ms, budget 20, ceiling 20 (an ACMP command behind the owed input)
+    MISS `backlog.owed_behind1.if0`: 62.863 ms, budget 20, ceiling 20 (an ACMP command behind the owed input)
+    MISS `backlog.owed_behind2.if0`: 63.015 ms, budget 20, ceiling 20 (an ACMP command behind the owed input)
+    MISS `backlog.owed_behind3.if0`: 63.168 ms, budget 20, ceiling 20 (an ACMP command behind the owed input)
+    MISS `backlog-owed.service.acmp.last.if0`: 61.813 ms, budget 20, ceiling 20 (ACMP record released under the composed load, last)
+    MISS `backlog-owed.service.aecp.last.if0`: 61.598 ms, budget 20, ceiling 24 (AECP record released under the composed load, last)
+/data-2/milan/tmp/lwsrppin-a834/r4/harness/b-1x1/results: 180084 work passes in 101 logs; 0 over THE SHARE 200,000; longest 154,510 (save-burst)
+  no group has a pass over THE SHARE
+run.py's closing verdict lines (REFUSED/BUDGET/SHARE/OWED/STATED/RESULT and the summary):
+BUDGET backlog.owed.if0: 62.555 ms over its budget 20 ms
+BUDGET backlog.owed_behind0.if0: 62.710 ms over its budget 20 ms
+BUDGET backlog.owed_behind1.if0: 62.863 ms over its budget 20 ms
+BUDGET backlog.owed_behind2.if0: 63.015 ms over its budget 20 ms
+BUDGET backlog.owed_behind3.if0: 63.168 ms over its budget 20 ms
+BUDGET backlog-owed.service.acmp.last.if0: 61.813 ms over its budget 20 ms
+BUDGET backlog-owed.service.aecp.last.if0: 61.598 ms over its budget 20 ms
+101 groups graded, 0 refusals, 7 budget misses (7 of 968 probe instances, 4 of 98 paths), 0 of 180084 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+OWED srp.kept_advertise.if0: a record of 33,909 CPU cycles, 360 us by the rule, over CTRL_LOOP_SRP_UNIT_US 285 us, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)
+OWED srp.kept_recount.if0: a record of 31,348 CPU cycles, 330 us by the rule, over CTRL_LOOP_SRP_UNIT_US 285 us, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)
+OWED srp.kept_failed.if0: a record of 36,377 CPU cycles, 385 us by the rule, over CTRL_LOOP_SRP_UNIT_US 285 us, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)
+OWED srp.bound_advertise.if0: a record of 39,005 CPU cycles, 410 us by the rule, over CTRL_LOOP_SRP_UNIT_US 285 us, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)
+OWED srp-kept: an SRP record's apply of 33,607 CPU cycles, over its stated 28,500, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)
+OWED srp-kept: an SRP record's apply of 30,978 CPU cycles, over its stated 28,500, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)
+OWED srp-kept: an SRP record's apply of 35,976 CPU cycles, over its stated 28,500, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)
+OWED srp-bound: a walk item of 3,890 CPU cycles, over its stated 3,500, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)
+OWED srp-bound: an SRP record's apply of 38,703 CPU cycles, over its stated 28,500, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)

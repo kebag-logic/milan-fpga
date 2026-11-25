@@ -1,0 +1,30 @@
+build b-1x1: variant none, shape endstation_ax7101_1x1_tdm8, interfaces 1
+  harness ELF /data-2/milan/tmp/lwsrppin-a834/r4/harness/b-1x1/image/ctrl_app.elf: sha256 79c5326cba02dca37fd82946c2f2c13153d8ecf07875ab673536188107d43f89
+  build.json records             79c5326cba02dca37fd82946c2f2c13153d8ecf07875ab673536188107d43f89
+  ledger ELF  /data-2/milan/tmp/lwsrppin-a834/r3/ledger/b-head/endstation_ax7101_1x1_tdm8/split-soc/mapped/image/ctrl_app.elf: sha256 79c5326cba02dca37fd82946c2f2c13153d8ecf07875ab673536188107d43f89
+  harness = ledger: SAME
+build b-1x1-every: variant answering-every-port, shape endstation_ax7101_1x1_tdm8, interfaces 1
+  harness ELF /data-2/milan/tmp/lwsrppin-a834/r4/harness/b-1x1-every/image/ctrl_app.elf: sha256 948ac36cbf4aca4fe58636d867ddd7bbf55e4bac1a1001859f12c5dac09f3ad7
+  build.json records             948ac36cbf4aca4fe58636d867ddd7bbf55e4bac1a1001859f12c5dac09f3ad7
+  ledger ELF  /data-2/milan/tmp/lwsrppin-a834/r3/ledger/b-head/endstation_ax7101_1x1_tdm8/split-soc/mapped/image/ctrl_app.elf: sha256 79c5326cba02dca37fd82946c2f2c13153d8ecf07875ab673536188107d43f89
+  harness = ledger: DIFFERENT
+build b-1x1-later: variant answering-later, shape endstation_ax7101_1x1_tdm8, interfaces 1
+  harness ELF /data-2/milan/tmp/lwsrppin-a834/r4/harness/b-1x1-later/image/ctrl_app.elf: sha256 2af01ce87a1527da4d054cba81f68eb8d4071d9b02a8147700e4014f715d569c
+  build.json records             2af01ce87a1527da4d054cba81f68eb8d4071d9b02a8147700e4014f715d569c
+  ledger ELF  /data-2/milan/tmp/lwsrppin-a834/r3/ledger/b-head/endstation_ax7101_1x1_tdm8/split-soc/mapped/image/ctrl_app.elf: sha256 79c5326cba02dca37fd82946c2f2c13153d8ecf07875ab673536188107d43f89
+  harness = ledger: DIFFERENT
+build b-8x8-1if: variant none, shape endstation_ax7101_8x8, interfaces 1
+  harness ELF /data-2/milan/tmp/lwsrppin-a834/r4/harness/b-8x8-1if/image/ctrl_app.elf: sha256 eed56acc86f3c48db1e537b06c72c5e78478e1dc79c1b0c3daeec3a8dd4771c0
+  build.json records             eed56acc86f3c48db1e537b06c72c5e78478e1dc79c1b0c3daeec3a8dd4771c0
+  ledger ELF  /data-2/milan/tmp/lwsrppin-a834/r3/ledger/b-head/endstation_ax7101_8x8/split-soc/mapped/image/ctrl_app.elf: sha256 eed56acc86f3c48db1e537b06c72c5e78478e1dc79c1b0c3daeec3a8dd4771c0
+  harness = ledger: SAME
+build b-8x8-1if-every: variant answering-every-port, shape endstation_ax7101_8x8, interfaces 1
+  harness ELF /data-2/milan/tmp/lwsrppin-a834/r4/harness/b-8x8-1if-every/image/ctrl_app.elf: sha256 3b372920450f159daef22fe926734da22b8b7c0525dc97251c3b48663cac0357
+  build.json records             3b372920450f159daef22fe926734da22b8b7c0525dc97251c3b48663cac0357
+  ledger ELF  /data-2/milan/tmp/lwsrppin-a834/r3/ledger/b-head/endstation_ax7101_8x8/split-soc/mapped/image/ctrl_app.elf: sha256 eed56acc86f3c48db1e537b06c72c5e78478e1dc79c1b0c3daeec3a8dd4771c0
+  harness = ledger: DIFFERENT
+build b-8x8-1if-later: variant answering-later, shape endstation_ax7101_8x8, interfaces 1
+  harness ELF /data-2/milan/tmp/lwsrppin-a834/r4/harness/b-8x8-1if-later/image/ctrl_app.elf: sha256 7fe58d1e69773df3c9b91a1d686449bdf99b17ddb1ab9cae79ffea80e5d76da2
+  build.json records             7fe58d1e69773df3c9b91a1d686449bdf99b17ddb1ab9cae79ffea80e5d76da2
+  ledger ELF  /data-2/milan/tmp/lwsrppin-a834/r3/ledger/b-head/endstation_ax7101_8x8/split-soc/mapped/image/ctrl_app.elf: sha256 eed56acc86f3c48db1e537b06c72c5e78478e1dc79c1b0c3daeec3a8dd4771c0
+  harness = ledger: DIFFERENT
