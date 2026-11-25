@@ -1,0 +1,23 @@
+=== 7163800342 manager-account 2026-11-25T13:27:16Z
+[A10] Decision on the composition finding R923-4-C1 (option b), made under the owner's delegation.
+
+**The facts.** After PR #995's gptp-processor pin (1213ac5b), the composed tree's `gptp_shadow` suite runs about 520 s hosted (13 controls), against the 393 s in `scripts/suite_shards.py`. This PR's own reviewed tree is unaffected: its `gptp_shadow` costs about 290 s (9 controls).
+
+**Effect of the stale figure.** On the shipped deal, worker 1 projects 1,250 s, and every hosted job stays within its limit. With the composed figure re-dealt at 26 workers, four workers would project 2 to 4 s over the 1,276 s slow-runner bound.
+
+**Decision.** The stale figure is accepted until the composed tree's first hosted windows replace it.
+- **Expected overshoot:** up to 4 s on the 1.41x-runner projection, on at most four workers. No hosted limit is threatened.
+- **Follow-up, owned by the CICD lane under #1008:**
+  - re-key `gptp_shadow` from the merged head's first two complete hosted runs;
+  - re-deal, adding a worker or splitting a piece, so that every regular worker projects at most 1,276 s again;
+  - record the figure's derivation with the other #998 figures.
+
+#1008 already holds the over-limit jobs this PR does not touch.
+
+=== 7163817913 manager-account 2026-11-25T13:28:00Z
+[A10] INDEPENDENT REVIEW STARTED: R923-5
+
+R923 (composition reviewer) reconstructs issue kebag-logic/milan-fpga#998 / PR #1003 at exact head `4f0d7a837512064d67f89938c32e4a064c39ed75`, tree `9bc16d519883acd97ddfbfbb31a8b8f3dce73c55`, in a cleared context from public scope, requirements, diff and evidence, applying all five lenses with a reviewer-owned ledger. No source edits or merge while this review runs; merge still requires two independent positive reviews and the full completion bar.
+
+=== 7163801037 manager-account 2026-11-25T13:27:18Z https://github.com/kebag-logic/milan-fpga/issues/1008#issuecomment-7163801037
+[A10] Added to this issue: re-key `gptp_shadow` (about 520 s hosted since PR #995's gptp-processor pin, against the 393 s figure) and re-deal so that every regular worker projects at most 1,276 s. Do it from the first two complete hosted runs after PR #1003 merges. Decision: PR #1003's comments.

@@ -1,0 +1,22 @@
+workers=26 budget=1276 headroom=60% limits(min)=[45, 60]
+
+ gptp_shadow=393: shipped deal worker 1 -> 1250 s; max over workers 1530 s
+  shipped-deal regular workers over budget: []
+  re-dealt loads over budget (idx,load,over): [(25, 1530, 254)]
+  re-dealt max: 1530  dedicated: [1530]
+  headroom vs job limits (stale deal): []
+  hard limit vs stale deal: []
+
+ gptp_shadow=520: shipped deal worker 1 -> 1377 s; max over workers 1530 s
+  shipped-deal regular workers over budget: [(1, 1377)]
+  re-dealt loads over budget (idx,load,over): [(10, 1280, 4), (20, 1278, 2), (22, 1279, 3), (23, 1280, 4), (25, 1530, 254)]
+  re-dealt max: 1530  dedicated: [1530]
+  headroom vs job limits (stale deal): []
+  hard limit vs stale deal: []
+
+ gptp_shadow=530: shipped deal worker 1 -> 1387 s; max over workers 1530 s
+  shipped-deal regular workers over budget: [(1, 1387)]
+  re-dealt loads over budget (idx,load,over): [(10, 1280, 4), (20, 1284, 8), (22, 1279, 3), (23, 1280, 4), (25, 1530, 254)]
+  re-dealt max: 1530  dedicated: [1530]
+  headroom vs job limits (stale deal): []
+  hard limit vs stale deal: []
