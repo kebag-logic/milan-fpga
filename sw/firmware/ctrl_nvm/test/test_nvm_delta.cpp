@@ -206,19 +206,28 @@ TEST_P(NvmBoth, lag_read_at_boot) {
 }
 
 // What the other slot lacks, not known at boot, makes the next save a whole one: the slot is blank, or its header
-// differs from the chosen one's past the sequence (a container of the previous minor chosen).
+// differs from the chosen one's past the sequence (a container of the previous minor chosen). The change is the
+// first record's, next to the header, so a frame taken for the header would fit any shape's buffer.
 TEST_P(NvmBoth, lag_unknown_written_whole) {
-    const std::pair<const char*, const char*> cases[] = {{"erased@0", "bind8@8/minor1"},
-                                                         {"golden@5/minor1", "golden@6"}};
     const unsigned rb = bind_rid();
-    for (const auto& [a, b] : cases) {
-        Files f = fx().files({{"a5.bin", a}, {"b6.bin", b}});
+    const unsigned first = rids().front();
+    struct Case {
+        std::pair<const char*, const char*> slots;
+        unsigned rid;
+        long long seq;  // the commit's: the chosen slot's next
+    };
+    const Case cases[] = {{{"erased@0", "bind8@8/minor1"}, rb, 9}, {{"golden@5/minor1", "golden@6"}, first, 7}};
+    for (const auto& [slots, rid, seq] : cases) {
+        Files f = fx().files({{"a5.bin", slots.first}, {"b6.bin", slots.second}});
         const Result r = go(port(), f,
-                            concat(kTwin, concat({"--boot", "--set", set_word(rb, value(rb, 9)), "--until-idle"},
+                            concat(kTwin, concat({"--boot", "--set", set_word(rid, value(rid, 9)), "--until-idle"},
                                                  kDump)));
-        EXPECT_TRUE(r.at("ok") == 1 && r.at("deltas") == 0 && r.at("erases") == 1) << a << ": " << r.text();
-        boot_dumped(port(), f);
-        expect_state(f, "st", with(fx().payloads("golden"), {{rb, value(rb, 9)}}), a);
+        EXPECT_TRUE(r.at("ok") == 1 && r.at("deltas") == 0 && r.at("erases") == 1) << slots.first << ": " << r.text();
+        const Result b = boot_dumped(port(), f);
+        EXPECT_TRUE(b.at("vd_a") == NVM_VD_OK && b.at("auth") == 0 && b.at("seq") == seq)
+            << slots.first << ": " << b.text();
+        expect_state(f, "st", with(fx().payloads("golden"), {{rid, value(rid, 9)}}),
+                     slots.first);
     }
 }
 
@@ -336,13 +345,18 @@ TEST_F(NvmModel, chain_end_reads_twice) {
     }
 }
 
-// The chosen slot's frames read again at its re-stage: a re-stage whose frame cannot be read, every time, leaves it
-// UNREAD, and the other slot is offered (#665 decision 2).
+// The chosen slot's frames read again at its re-stage: the re-stage applies them, so the state staged is the
+// frame's; a re-stage whose frame cannot be read, every time, leaves it UNREAD, and the other slot is offered (#665
+// decision 2).
 TEST_F(NvmModel, restage_reads_frames) {
     char in_frame[16];
     std::snprintf(in_frame, sizeof in_frame, "%x", static_cast<unsigned>(NVM_SLOT_A + NVM_DELTA_BASE + 40u));
-    // the judgement reads the frame's byte 40 twice, its CRC and its span; the re-stage's CRC read is the third
     Files f = fx().files({{"a5.bin", "slot/g5+b7"}, {"b6.bin", "golden@6/minor1"}});
+    const Result ok = go(port(), f, concat(kTwin, {"--boot", "--dump-state", "st"}));
+    EXPECT_TRUE(ok.at("auth") == 0 && ok.at("seq") == 7 && ok.at("unread") == 0 && ok.at("phase") == NVM_P_IDLE)
+        << "the re-stage applies the frame: " << ok.text();
+    expect_state(f, "st", fx().payloads("bind7"), "the re-staged frame");
+    // the judgement reads the frame's byte 40 twice, its CRC and its span; the re-stage's CRC read is the third
     const Result r = go(port(), f,
                         concat(kTwin, {"--boot-fault", std::string("read-fail-at:999:2:0x") + in_frame, "--boot",
                                        "--dump-state", "st"}));
