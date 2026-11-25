@@ -106,8 +106,12 @@ TIMER_NOW = """static uint64_t ls_now_us(void *ctx)
 """ + TO_US + "\n}"
 CALL_TICKS = ("const uint32_t nvm_flash_litespi_call_ticks = "
               "(uint32_t)(LS_CALL_US * LS_HZ / 1000000u);")
-RESTAGE_SEQ = ("\treturn nvm_klj2_check(nvm_stage, NVM_IMG_LEN) == NVM_VD_OK &&\n"
-               "\t       nvm_klj2_seq(nvm_stage) == seq;")
+RESTAGE_SEQ = ("\tif (f->read(f->ctx, nvm_slot_addr(slot), nvm_stage, NVM_IMG_LEN) ||\n"
+               "\t    nvm_klj2_check(nvm_stage, NVM_IMG_LEN) != NVM_VD_OK)\n\t\treturn 0;\n"
+               "\tgot = nvm_klj2_seq(nvm_stage);\n\trd.vd = nvm_chain(slot, &got, &rd);\n"
+               "\treturn (rd.vd == NVM_VD_OK || rd.vd == NVM_ENDED) && got == seq;")
+#: the re-stage's last line: its verdict and the sequence it was chosen by (#1009)
+RESTAGE_LAST = "\treturn (rd.vd == NVM_VD_OK || rd.vd == NVM_ENDED) && got == seq;"
 FAILED_READ_PASSES = "\t\tn = nvm_min(NVM_READ_BYTES, NVM_IMG_LEN - nvm.pos);\n"
 STANDS = "\t\tif (seen[n].vd == NVM_VD_OK || nvm_agrees(seen, n))"
 SAME_BYTES = ("seen[j].vd == seen[n].vd && seen[j].digest == seen[n].digest &&\n"
@@ -246,19 +250,20 @@ MUTANTS = (
        "\t\tnvm.st.last_verdict = (nvm.st.verdict_a != NVM_VD_BLANK) ?\n"
        "\t\t\t\t      nvm.st.verdict_a : nvm.st.verdict_b;",
        "\t\tnvm.st.last_verdict = NVM_VD_BLANK;", "both_torn_blank"),
-    _m("stage_not_rechecked", STORE, RESTAGE_SEQ, "\t(void)seq;\n\treturn 1;", "read_flip_at_stage"),
-    _m("stage_seq_unchecked", STORE, RESTAGE_SEQ,
-       "\t(void)seq;\n\treturn nvm_klj2_check(nvm_stage, NVM_IMG_LEN) == NVM_VD_OK;",
+    _m("stage_not_rechecked", STORE, RESTAGE_SEQ,
+       "\t(void)f;\n\t(void)slot;\n\t(void)seq;\n\t(void)rd;\n\t(void)got;\n\treturn 1;", "read_flip_at_stage"),
+    _m("stage_seq_unchecked", STORE, RESTAGE_LAST,
+       "\t(void)seq;\n\treturn rd.vd == NVM_VD_OK || rd.vd == NVM_ENDED;",
        "read_alias_at_stage"),
     # the sequence taken from a read after the CRC passed, unchecked, and
     # never compared again
     Mutant("select_on_unchecked_reread",
-           ((STORE, "\t\tif (vd == NVM_VD_OK)\n\t\t\t*seq = nvm_klj2_seq(nvm_stage);",
-             "\t\tif (vd == NVM_VD_OK &&\n"
-             "\t\t    !nvm.flash->read(nvm.flash->ctx, addr, nvm_stage, NVM_KLJ_HDR))\n"
-             "\t\t\t*seq = nvm_klj2_seq(nvm_stage);"),
-            (STORE, RESTAGE_SEQ,
-             "\t(void)seq;\n\treturn nvm_klj2_check(nvm_stage, NVM_IMG_LEN) == NVM_VD_OK;")),
+           ((STORE, "\t\tif (vd == NVM_VD_OK) {\n\t\t\t*seq = nvm_klj2_seq(nvm_stage);",
+             "\t\tif (vd == NVM_VD_OK) {\n"
+             "\t\t\tif (!nvm.flash->read(nvm.flash->ctx, addr, nvm_stage, NVM_KLJ_HDR))\n"
+             "\t\t\t\t*seq = nvm_klj2_seq(nvm_stage);"),
+            (STORE, RESTAGE_LAST,
+             "\t(void)seq;\n\treturn rd.vd == NVM_VD_OK || rd.vd == NVM_ENDED;")),
            ("read_flip_boot",)),
     _m("slot_read_fail_ignored", STORE,
        "\t\tif (nvm_take(rd, addr, nvm_stage, img_len))\n\t\t\treturn NVM_UNREAD;\n",
@@ -455,8 +460,8 @@ MUTANTS = (
        "\t    f->erase(f->ctx, nvm_slot_addr(nvm.target) + nvm.block * NVM_ERASE_BLOCK)) {",
        "\t    f->erase(f->ctx, nvm_slot_addr(nvm.target))) {", "capacity_commit_over_stale"),
     _m("blankcheck_first_stretch_only", STORE,
-       "\tnvm.pos += n;\n\tif (nvm.pos >= NVM_IMG_LEN) {\n\t\tnvm.pos = 0;",
-       "\tnvm.pos = NVM_IMG_LEN;\n\tif (nvm.pos >= NVM_IMG_LEN) {\n\t\tnvm.pos = 0;",
+       "\tnvm.pos += n;\n\tif (nvm.pos >= nvm.wlen) {\n\t\tnvm.pos = 0;",
+       "\tnvm.pos = nvm.wlen;\n\tif (nvm.pos >= nvm.wlen) {\n\t\tnvm.pos = 0;",
        "blankcheck_tail"),
     _m("read_back_a_whole_page", HEADER, "#define NVM_READ_BYTES (NVM_FLASH_PAGE / 2u)",
        "#define NVM_READ_BYTES NVM_FLASH_PAGE", "service_bound"),
@@ -480,20 +485,20 @@ MUTANTS = (
     _m("blankcheck_read_fail_ignored", STORE, "\tif (!n || !nvm_all_erased(nvm_chunk, n)) {",
        "\tif (!n)\n" + FAILED_READ_PASSES + "\telse if (!nvm_all_erased(nvm_chunk, n)) {",
        "media_verdicts"),
-    _m("no_verify", STORE, "\t\tif (nvm_chunk[i] != nvm_stage[nvm.pos + i]) {", "\t\tif (0) {",
+    _m("no_verify", STORE, "\t\tif (nvm_chunk[i] != nvm.wsrc[nvm.pos + i]) {", "\t\tif (0) {",
        "media_failures", "failed_commit_not_skipped"),
     _m("verify_skips_last_stretch", STORE,
-       "\tnvm.pos += n;\n\tif (nvm.pos >= NVM_IMG_LEN)\n\t\tnvm_commit_done();",
-       "\tnvm.pos += n;\n\tif (nvm.pos + NVM_READ_BYTES >= NVM_IMG_LEN)\n\t\tnvm_commit_done();",
+       "\tnvm.pos += n;\n\tif (nvm.pos >= nvm.wlen)\n\t\tnvm_commit_done();",
+       "\tnvm.pos += n;\n\tif (nvm.pos + NVM_READ_BYTES >= nvm.wlen)\n\t\tnvm_commit_done();",
        "verify_tail"),
     _m("verify_read_fail_ignored", STORE,
        "\tif (!n) {\n\t\tnvm_fail(NVM_VD_VERIFY);\n\t\treturn;\n\t}\n\tfor (i = 0; i < n; ++i) {",
        "\tif (!n)\n" + FAILED_READ_PASSES + "\telse\n\tfor (i = 0; i < n; ++i) {",
        "media_verdicts"),
     _m("program_refusal_ignored", STORE,
-       "\tif (f->program(f->ctx, nvm_slot_addr(nvm.target) + nvm.pos, nvm_stage + nvm.pos, n)) {\n"
+       "\tif (f->program(f->ctx, nvm_slot_addr(nvm.target) + nvm.wbase + nvm.pos, nvm.wsrc + nvm.pos, n)) {\n"
        "\t\tnvm_fail(NVM_VD_PROGRAM);\n\t\treturn;\n\t}",
-       "\t(void)f->program(f->ctx, nvm_slot_addr(nvm.target) + nvm.pos, nvm_stage + nvm.pos, n);",
+       "\t(void)f->program(f->ctx, nvm_slot_addr(nvm.target) + nvm.wbase + nvm.pos, nvm.wsrc + nvm.pos, n);",
        "media_verdicts"),
     _m("no_timeout", STORE,
        "\tif (busy < 0 || nvm.now_us - nvm.op_start_us > timeout_us)\n\t\tnvm_fail(vd);",
@@ -512,19 +517,23 @@ MUTANTS = (
             (STORE, "\tif (nvm.target == nvm.st.auth ||\n\t    f->erase", "\tif (f->erase")),
            ("change_commit_bytes", "powercut")),
     Mutant("descending_pages",
-           ((STORE, "\tuint32_t n = nvm_min(NVM_FLASH_PAGE, NVM_IMG_LEN - nvm.pos);\n\n"
-                    "\tif (f->program(f->ctx, nvm_slot_addr(nvm.target) + nvm.pos, nvm_stage + nvm.pos, n)) {",
-             "\tuint32_t at = ((NVM_IMG_LEN - 1u) / NVM_FLASH_PAGE) * NVM_FLASH_PAGE - nvm.pos;\n"
-             "\tuint32_t n = nvm_min(NVM_FLASH_PAGE, NVM_IMG_LEN - at);\n\n"
-             "\tif (f->program(f->ctx, nvm_slot_addr(nvm.target) + at, nvm_stage + at, n)) {"),
+           ((STORE, "\tuint32_t n = nvm_min(NVM_FLASH_PAGE, nvm.wlen - nvm.pos);\n\n"
+                    "\tif (f->program(f->ctx, nvm_slot_addr(nvm.target) + nvm.wbase + nvm.pos, nvm.wsrc + nvm.pos, n)) {",
+             "\tuint32_t at = ((nvm.wlen - 1u) / NVM_FLASH_PAGE) * NVM_FLASH_PAGE - nvm.pos;\n"
+             "\tuint32_t n = nvm_min(NVM_FLASH_PAGE, nvm.wlen - at);\n\n"
+             "\tif (f->program(f->ctx, nvm_slot_addr(nvm.target) + nvm.wbase + at, nvm.wsrc + at, n)) {"),
             (STORE, "\t\t\tnvm.pos += nvm.len;", "\t\t\tnvm.pos += NVM_FLASH_PAGE;")),
            ("first_commit_bytes",)),
     Mutant("capture_in_one_step",
            ((STORE, "\tnvm.cursor = nvm_rec_next(r);\n\tnvm_open_take(&nvm.dirty, r.id);\n"
-                    "\tnvm_open_set(&nvm.inflight, r.id);\n\tnvm_latch(r);\n}",
+                    "\tnvm_open_set(&nvm.inflight, r.id);\n"
+                    "\tnvm_grow(&nvm.cap_lo, &nvm.cap_hi, NVM_KLJ_HDR + r.off, NVM_KLJ_HDR + r.off + NVM_REC_HDR + r.plen);\n"
+                    "\tnvm_latch(r);\n}",
              "\twhile (r.ok) {\n\t\tif (nvm_bit(&nvm.dirty, r.id)) {\n"
              "\t\t\tnvm_open_take(&nvm.dirty, r.id);\n"
-             "\t\t\tnvm_open_set(&nvm.inflight, r.id);\n\t\t\tnvm_latch(r);\n\t\t}\n"
+             "\t\t\tnvm_open_set(&nvm.inflight, r.id);\n"
+             "\t\t\tnvm_grow(&nvm.cap_lo, &nvm.cap_hi, NVM_KLJ_HDR + r.off, NVM_KLJ_HDR + r.off + NVM_REC_HDR + r.plen);\n"
+             "\t\t\tnvm_latch(r);\n\t\t}\n"
              "\t\tr = nvm_rec_next(r);\n\t}\n\tnvm.cursor = r;\n}"),),
            ("service_bound",)),
     # a latched record's crc16 counted over the layout 2 header's six bytes
