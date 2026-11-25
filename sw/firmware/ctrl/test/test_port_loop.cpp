@@ -394,6 +394,31 @@ std::uint32_t& adp_rx_tail_word() {
 
 using Driver = Model;
 
+TEST_F(Driver, PendingTickScanPreservesEventsAcrossRingWrap) {
+    ASSERT_TRUE(mbx_open());
+    mbx_tick_enable(true);
+    mbx_event event{};
+    for (unsigned n = 0; n < MBX_EVT_WORDS / MBX_EV_WORDS + 1u; ++n) {
+        mbx_model_gm_change(&model, 0, n + 1u, 0);
+        EXPECT_FALSE(mbx_tick_pending());
+        ASSERT_TRUE(mbx_event_take(&event));
+        EXPECT_EQ(event.type, MBX_EV_TYPE_GM);
+    }
+    mbx_model_gm_change(&model, 0, 0x12345678u, 0);
+    mbx_model_advance_ms(&model, MBX_TICK_MS);
+    const auto tail = model.evt_tail;
+    EXPECT_TRUE(mbx_tick_pending());
+    EXPECT_EQ(model.evt_tail, tail);
+    ASSERT_TRUE(mbx_event_take(&event));
+    EXPECT_EQ(event.type, MBX_EV_TYPE_GM);
+    EXPECT_TRUE(mbx_tick_pending());
+    ASSERT_TRUE(mbx_event_take(&event));
+    EXPECT_EQ(event.type, MBX_EV_TYPE_TICK);
+    EXPECT_FALSE(mbx_tick_pending());
+    model.evt_head = static_cast<std::uint16_t>(model.evt_tail + MBX_EVT_WORDS + MBX_EV_WORDS);
+    EXPECT_TRUE(mbx_tick_pending()) << "an invalid producer distance cannot license a timer arm";
+}
+
 TEST_F(Driver, D0RxRecordByteForByte) {
     static mbx_frame got;
     std::uint8_t f[82];

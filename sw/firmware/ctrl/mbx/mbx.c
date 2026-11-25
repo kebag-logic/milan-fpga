@@ -677,6 +677,22 @@ static void event_decode(struct mbx_event *ev, uint32_t w1, uint32_t w2, uint32_
 	}
 }
 
+bool mbx_tick_pending(void)
+{
+	const uint16_t head = counter(MBX_REG_EVT_HEAD);
+	const uint16_t words = (uint16_t)(head - evt_tail);
+	if (words > MBX_EVT_WORDS) {
+		return true;
+	}
+	for (unsigned n = 0; n < words; n += MBX_EV_WORDS) {
+		const uint32_t word = evt_word((uint32_t)evt_tail + n);
+		if (mbx_field(word, MBX_EVREC_W0_TYPE_LSB, MBX_EVREC_W0_TYPE_WIDTH) == MBX_EV_TYPE_TICK) {
+			return true;
+		}
+	}
+	return false;
+}
+
 bool mbx_event_take(struct mbx_event *ev)
 {
 	uint16_t head = counter(MBX_REG_EVT_HEAD);

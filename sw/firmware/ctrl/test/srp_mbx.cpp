@@ -3,6 +3,23 @@
 #include <array>
 FW_TALLY_LABEL("ctrl SRP mailbox");
 namespace {
+TEST_F(Srp, PostedTickPrecedesANewJoinTimerEvenWithGrandmasterEvents) {
+    adapter.tx_owed = 1u;
+    mbx_model_gm_change(&model,0,0x12345678u,0);
+    EXPECT_TRUE(loop.transmit_aged(loop.transmit_ctx));
+    const auto tail = model.evt_tail;
+    mbx_model_advance_ms(&model,MBX_TICK_MS);
+    EXPECT_FALSE(loop.transmit_aged(loop.transmit_ctx))
+        << "a tick posted before the build must not shorten the new join timer";
+    EXPECT_EQ(model.evt_tail,tail) << "eligibility must not consume an event";
+    mbx_event event{};
+    while (mbx_event_take(&event)) {}
+    loop.ticks_owed = 1u;
+    EXPECT_FALSE(loop.transmit_aged(loop.transmit_ctx));
+    loop.ticks_owed = 0u;
+    EXPECT_TRUE(loop.transmit_aged(loop.transmit_ctx));
+}
+
 std::vector<uint8_t> talker_value(const msrp_stream_id &sid, const uint8_t da[6], uint16_t vid) {
     std::vector<uint8_t> value(25);
     std::copy(sid.bytes,sid.bytes+8,value.begin());

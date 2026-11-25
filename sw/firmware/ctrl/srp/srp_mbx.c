@@ -1799,7 +1799,10 @@ static void transmit(void *ctx, unsigned most)
 static bool transmit_aged(void *ctx)
 {
     const struct srp_mbx *m = ctx;
-    return m->tx_owed != 0u && !m->owed_len;
+    // A tick posted during the preceding ordinary pass must age the old
+    // timers before a build arms a new join timer. GM changes may keep the
+    // event ring nonempty, so only pending ticks defer this build.
+    return m->tx_owed != 0u && !m->owed_len && !m->loop->ticks_owed && !mbx_tick_pending();
 }
 
 bool srp_mbx_attach(struct srp_mbx *m, struct ctrl_loop *loop)

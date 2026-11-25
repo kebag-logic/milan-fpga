@@ -220,6 +220,10 @@ bool mbx_tx_commit(unsigned ch);
 // Take the next fabric event and release it (EVT_TAIL); false when none.
 bool mbx_event_take(struct mbx_event *ev);
 
+// A posted centisecond still precedes a new timer arm. Inspect the bounded
+// event-ring prefix without consuming it; other event types do not block.
+bool mbx_tick_pending(void);
+
 // NOW_MS, the time base of every timer deadline.
 uint32_t mbx_now_ms(void);
 
