@@ -99,7 +99,7 @@ After booting and raising every link, each case but the planted guard asks two q
 
 | Case | Image | Journal | Must show |
 |---|---|---|---|
-| `commit` | `capture-all` | blank | Every record of the shape is marked changed once the boot releases. SET_NAME renames the entity and BIND_RX binds sink 0 to a talker. The store captures every record from its owners and commits: one erase and the container's pages. The journal it leaves decodes, by the reference codec, with the saved name and sink 0's binding; both questions answer them. |
+| `commit` | `capture-all` | blank | SET_NAME renames the entity and BIND_RX binds sink 0 to a talker, and every record of the shape is marked changed at the first centisecond after the rename. The rename's own first-dirty window is 1,000 ms; the binding records' ends it 100 ms after the marks (DR2a, #1009), past the bind. The store captures every record from its owners and commits: one erase, at that window's end and not at the rename's, and the container's pages. The journal it leaves decodes, by the reference codec, with the saved name and sink 0's binding; both questions answer them. |
 | `valid` | fixture | the commit's | Both questions answer the saved values, the apply order is the container's, and nothing is written. |
 | `absent` | fixture | blank | No owner applies anything, the name is not a saved one, sink 0 is unbound, and nothing is written. |
 | `torn` | fixture | the commit's container in slot A; in slot B the next sequence renaming the entity, its last page never programmed | Slot A's values are applied in its order, the newer torn slot is refused, and nothing is written. |
