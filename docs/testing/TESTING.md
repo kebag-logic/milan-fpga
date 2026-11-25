@@ -468,10 +468,15 @@ Its hosted window is owed by the first hosted run of a head that carries it.
 #979 adds two default suites, `input_loopback` and `input_loopback_dp`.
 Both are provisional under the new-suite steps in the selector's docstring: each figure in `scripts/suite_shards.py` is 300 s.
 That is the `suite_timeout` arm `scripts/run_all_suites.sh` gives each suite, as for `reboot_ctrl`.
-The `*` arm's 1800 s cannot be the figure, because no regular worker holds it within its 1620 s bound.
+The `*` arm's 1800 s cannot be the figure, because no regular worker holds it within #998's 1276 s budget.
 The sweep's own `make -C tb/verilator/<suite>` command, run cold on four pinned CPUs, took at most 34.2 s and 98.0 s.
 Those runs were at a host load average near 206, so each arm keeps at least three times its slowest run.
 Measured hosted windows replace both figures after the first hosted run of a head that carries them.
+Hosted run 45469087943 at `1516b2ff` cancelled both owning workers before either suite ran, so neither window exists yet.
+With both 300 s figures, #998's twenty-six workers leave four regular workers over the 1276 s budget, up to 1306 s.
+Either figure alone leaves three over it.
+So #979 adds a twenty-seventh worker, as its N1 decision provides when the self-test requires one.
+The largest regular worker stays at 1275 s, and `input_loopback_dp` and `input_loopback` land on workers 14 and 15.
 
 #645's [bind round](https://github.com/kebag-logic/milan-fpga/issues/645#issuecomment-6187595500)
 added a fifth default leg, `bind`, bench lane B17's binds at INTERNAL.
@@ -671,20 +676,20 @@ preflight runs `scripts/suite_shards.py --selftest`, and so does every hosted
 worker's ownership step before its suites. That self-test refuses to start until the selector's
 `SUITE_SECONDS` names every default suite, so a change that adds a suite first
 records a provisional figure for it, by the new-suite steps in the selector's
-docstring. GitHub runs twenty-six isolated `--ci-pieces --shard INDEX/26`
+docstring. GitHub runs twenty-seven isolated `--ci-pieces --shard INDEX/27`
 workers to reduce wall time. `--ci-pieces` expands eight long suites into
 driver-derived case partitions, so `milan_dp` runs as eight legs on separate
 workers, and the last worker runs media-clock leg A, `milan_dp_mclk__0`,
 alone. The workflow template's six-worker matrix is generator input only;
-`scripts/ci_gate_workflows.py` writes the twenty-six-worker workflow from it
+`scripts/ci_gate_workflows.py` writes the twenty-seven-worker workflow from it
 ([CI workflow policy](CI_WORKFLOWS.md#exhaustive-validation)). GitHub then
 keeps `verilator-suites` as a small aggregate required check. That aggregate
 requires every divided suite's case union, compares the uploaded log names with
 the live default suite inventory, and fails on a missing, unexpected, or
 multiply-owned suite before trusting the combined tally.
-`scripts/run_all_suites.sh --ci-pieces --shard 0/26 --list` shows a worker's
+`scripts/run_all_suites.sh --ci-pieces --shard 0/27 --list` shows a worker's
 deterministic selection without building it; sharding is a scheduling detail,
-not permission to validate only one twenty-sixth locally.
+not permission to validate only one twenty-seventh locally.
 
 **Case start order in a piece.** `scripts/ci_make_cases.py` runs a piece's
 cases on two workers. It starts them longest first by its `CASE_SECONDS`

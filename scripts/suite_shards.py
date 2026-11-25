@@ -18,7 +18,7 @@ hide a new suite by omitting it from selection. A changed count or timeout is re
 from the generated workflow, and omission, ownership, overflow and deterministic
 selection controls must still pass.
 
-    python3 scripts/suite_shards.py --suite-root tb/verilator --ci-pieces --shard 0/26
+    python3 scripts/suite_shards.py --suite-root tb/verilator --ci-pieces --shard 0/27
     python3 scripts/suite_shards.py --measure worker.log
     python3 scripts/suite_shards.py --selftest
 """
@@ -147,16 +147,14 @@ SUITE_SECONDS = {
     "tsn_fuzz": 62,
 }
 
-#: Suites whose SUITE_SECONDS figure is provisional: the wall clock the
-#: driver's suite_timeout gives a new suite, until the change's own hosted run
-#: measures it (step 3 of the module docstring's new-suite steps).
+#: Suites whose SUITE_SECONDS figure is provisional: the wall clock the driver's suite_timeout gives a new suite,
+#: until the change's own hosted run measures it (step 3 of the module docstring's new-suite steps).
 PROVISIONAL_SUITES: frozenset[str] = frozenset({"input_loopback", "input_loopback_dp", "reboot_ctrl"})
 
-#: Seconds of each worker's job outside its suite windows in the same dev run:
-#: checkout, the Verilator cache, tsn-gen on worker 1, Yosys and sv2v on worker
-#: 3, the ownership step and the sweep's preflight self-tests, then the tally.
-#: #781 and #799 add three regular 45-minute workers and #998 seven (CI_BUDGET_SECONDS); all 26 carry 122 s.
-WORKER_OVERHEAD_SECONDS = (122,) * 26
+#: Seconds of each worker's job outside its suite windows in the same dev run: checkout, the Verilator cache, tsn-gen
+#: on worker 1, Yosys and sv2v on worker 3, the ownership step and the sweep's preflight self-tests, then the tally.
+#: #781 and #799 add three regular 45-minute workers, #998 seven and #979 one (CI_BUDGET_SECONDS); all 27 carry 122 s.
+WORKER_OVERHEAD_SECONDS = (122,) * 27
 
 # Physical inventory stays available to the serial gate and log ownership.
 SERIAL_SUITE_SECONDS = SUITE_SECONDS.copy()
