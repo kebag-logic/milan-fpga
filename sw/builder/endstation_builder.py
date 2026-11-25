@@ -1602,6 +1602,7 @@ class ClusterRules:
     pools: dict = None
     lb_backed: bool = True
     render_ports: str = "every"
+    input_loopback: bool = False
 
 
 def _cluster_widths(rules):
@@ -1671,17 +1672,21 @@ def _role_pool(rules, direction, port_index, widths, render_from=0):
     ph_render, ph_capture = widths
     pools = rules.pools or {}
     segs, off = [], 0
+    loop_width = min(8, 64 - ph_render - port_index * 8) if rules.input_loopback else 0
     if rules.render_ports != "first":
         render_from = 0
     if direction == "input":
-        roles = (("physical", max(0, ph_render - render_from)),)
+        roles = (("physical", max(0, ph_render - render_from)),
+                 ("input_loopback", loop_width))
     else:
         roles = (("physical", ph_capture),
+                 ("input_loopback", loop_width),
                  ("pilot", 1 if pools.get("pilot") else 0),
                  ("loopback", int(pools.get("loopback", 0))))
     for role, width in roles:
         if width > 0:
             first = (render_from if role == "physical" and direction == "input"
+                     else port_index * 8 if role == "input_loopback"
                      else port_index if role == "loopback" else 0)
             segs.append(dict(role=role, offset=off, width=width, first=first))
             off += width
@@ -1867,8 +1872,8 @@ def validate_cluster_minimum(ports_in: list[dict[str, Any]],
 #: mappings for a subset that has none - so declaring less is conformant,
 #: while declaring a source that cannot exist is merely undetectable.
 PRIMARY_ROLE_ORDER = {
-    "input": ("physical", "virtual"),
-    "output": ("physical", "loopback", "pilot", "virtual"),
+    "input": ("physical", "input_loopback", "virtual"),
+    "output": ("physical", "input_loopback", "loopback", "pilot", "virtual"),
 }
 
 
@@ -1939,6 +1944,11 @@ def _name_unrouted(ctx, first, n):
     return f"Unrouted S{first}"
 
 
+def _name_input_loopback(ctx, first, n):
+    """A stable destination identity, unaffected by live input mappings."""
+    return f"Input Loopback {first + n}"
+
+
 def _name_loopback(ctx, first, n):
     """Walk the rx channel space from THIS talker's own stream index, so
     talker t defaults to rx stream t (per-channel-distinct audio, not eight
@@ -1961,6 +1971,7 @@ CLUSTER_NAMERS = {
     "pilot":    _name_pilot,
     "loopback": _name_loopback,
     "unrouted": _name_unrouted,
+    "input_loopback": _name_input_loopback,
 }
 
 
@@ -2813,12 +2824,15 @@ def aem_name_count(overlay: dict[str, Any]) -> int:
     return 1 + sum(int(descriptor_counts[name]) for name in named_types)
 
 
-def _adp_name_entries(overlay):
+def _adp_name_entries(overlay, placement="all-fabric"):
     """SET_NAME/GET_NAME entries this exact AEM model needs, refused above
     the saved-state backend's NAME capacity (nvm_name_capacity)."""
     aem_name_entries = aem_name_count(overlay)
     # The shape header binds this count to KL_nvm_backend's N_NAME_P, which
     # refuses it above the NAME block only at elaboration (#652).
+    if placement == "split":
+        emit_nvm_split(overlay)
+        return aem_name_count(overlay)
     capacity, where = nvm_name_capacity()
     if aem_name_entries > capacity:
         raise ConfigError(
@@ -3332,7 +3346,7 @@ def emit_adp_shape_svh(cfg: dict[str, Any],
         overlay = emit_aem_overlay(cfg)
     sys.path.insert(0, str(ROOT / "avdecc"))
     import gen_aem_store as aem_store
-    aem_name_entries = _adp_name_entries(overlay)
+    aem_name_entries = _adp_name_entries(overlay, cfg["control"]["placement"])
     dm = _adp_dyn_in_geometry(cfg, overlay)
     od = _adp_dyn_out_geometry(cfg, overlay, aem_store)
     ln = _adp_banner(cfg)
@@ -3695,6 +3709,8 @@ def model_shape(cfg: dict[str, Any]) -> dict[str, Any]:
         # exactly as before.
         if "cluster_render_ports" in i:
             shape["cluster_pools"]["render_ports"] = i["cluster_render_ports"]
+    if i.get("cluster_fabric", {}).get("input_loopback_lane"):
+        shape["input_loopback_lane"] = True
     return shape
 
 
@@ -4441,11 +4457,13 @@ def _load_cluster_pools(aif, iinfo, kind, policy):
     # drives BOTH the milan_soc argv and the power-on map, so they cannot
     # drift apart again. Omitted entirely => today's answers exactly.
     fab = cm.get("fabric") or {}
-    if not isinstance(fab, dict) or set(fab) - {"loopback_lane"}:
+    if not isinstance(fab, dict) or set(fab) - {"loopback_lane", "input_loopback_lane"}:
         raise ConfigError(
             "audio_interface.cluster_mapping.fabric must be a mapping with "
-            "keys loopback_lane (bool: milan_soc --loopback-lane, the rx -> "
+            "keys loopback_lane/input_loopback_lane (bool: legacy or mapped "
             "talker LOOP bucket)")
+    if "input_loopback_lane" in fab and type(fab["input_loopback_lane"]) is not bool:
+        raise ConfigError("input_loopback_lane must be bool")
     if fab and policy != "role-pools":
         raise ConfigError(
             "audio_interface.cluster_mapping.fabric is only read by the "
@@ -4533,7 +4551,10 @@ def _load_interface(cfg, path, clocking):
         cluster_policy=policy, rtl=iinfo["rtl"],
         physical_channels=phys, cluster_pools=pools,
         channel_names=names,
-        cluster_fabric=dict(loopback_lane=lb_lane),
+        cluster_fabric=dict(loopback_lane=lb_lane,
+            **({"input_loopback_lane": True} if
+               (aif.get("cluster_mapping", {}).get("fabric") or {}).get("input_loopback_lane")
+               else {})),
     )
     # #584: carried only when declared, so a config that states no binding
     # derives exactly what it derived before
@@ -4688,6 +4709,33 @@ def with_placement(cfg: dict[str, Any], placement: str) -> dict[str, Any]:
     return {**cfg, "entity": entity, "control": {"placement": placement}}
 
 
+def _validate_input_loopback(interface: dict, listeners: list, talkers: list, phys: dict) -> None:
+    """Refuse geometries outside the two approved independent-key topologies."""
+    if interface["cluster_fabric"].get("input_loopback_lane"):
+        shape_ok = ((len(listeners), len(talkers), phys["render"]) in
+                    ((1, 1, 8), (8, 8, 1)))
+        independent = len(listeners) == 1 or interface.get("cluster_render_ports") == "first"
+        if not shape_ok or not independent or any(
+                s.get("map_mode") != "dynamic" for s in listeners + talkers):
+            raise ConfigError("input_loopback_lane requires the approved dynamic 1x1/8-physical "
+                              "or 8x8/first-port/1-physical topology")
+
+
+def _configured_cluster_layout(interface: dict, listeners: list, talkers: list,
+                               phys: dict, pools: dict, policy: str) -> tuple:
+    """Validate and construct both directions from the same fabric declaration."""
+    _validate_input_loopback(interface, listeners, talkers, phys)
+
+    # per-stream port layout (needed by the model-id hash and the overlay)
+    return cluster_layout(
+        listeners, talkers,
+        ClusterRules(
+            policy, interface["channels"], phys=phys, pools=pools,
+            lb_backed=interface["cluster_fabric"]["loopback_lane"],
+            render_ports=interface.get("cluster_render_ports", "every"),
+            input_loopback=interface["cluster_fabric"].get("input_loopback_lane", False)))
+
+
 def load_config(path: str) -> dict[str, Any]:
     """Load + validate + normalize a YAML end-station config. Returns the
     normalized config dict; raises ConfigError on any violation."""
@@ -4751,13 +4799,9 @@ def load_config(path: str) -> dict[str, Any]:
     )
     validate_render_lane(out)
 
-    # per-stream port layout (needed by the model-id hash and the overlay)
-    out["ports_in"], out["ports_out"] = cluster_layout(
-        listeners, talkers,
-        ClusterRules(
-            policy, interface["channels"], phys=phys, pools=pools,
-            lb_backed=interface["cluster_fabric"]["loopback_lane"],
-            render_ports=interface.get("cluster_render_ports", "every")))
+    # Per-stream layout is shared by model identity and descriptor generation.
+    out["ports_in"], out["ports_out"] = _configured_cluster_layout(
+        interface, listeners, talkers, phys, pools, policy)
 
     # entity_model_id resolution: pin > hash-derived > literal. The vendor OUI
     # (schema 1.2) prefixes the hash; a pin or a literal is a whole EUI-64 and
@@ -5208,6 +5252,8 @@ def emit_design_opts(cfg: dict[str, Any]) -> list[str]:
     # one fact, so an AEM can never advertise a lane the bitstream lacks.
     if cfg["interface"].get("cluster_fabric", {}).get("loopback_lane"):
         argv += ["--loopback-lane"]
+    if cfg["interface"].get("cluster_fabric", {}).get("input_loopback_lane"):
+        argv += ["--input-loopback-lane"]
     # fabric_gptp false never survives load_config (#259), so the emitted
     # owner flag is unconditionally the fabric plane.
     argv += ["--fabric-gptp"]
@@ -5317,6 +5363,8 @@ def datapath_params(cfg: dict[str, Any]) -> dict[str, int]:
         out["TALKER_WIRE_CHANS_P"] = wire_chans
     if cfg["interface"].get("cluster_fabric", {}).get("loopback_lane"):
         out["LOOPBACK_P"] = 1
+    if cfg["interface"].get("cluster_fabric", {}).get("input_loopback_lane"):
+        out["INPUT_LOOPBACK_P"] = 1
     if slots and tdm_bus_master():
         fs_hz, slot_bits = cfg["clocking"]["sampling_rate_hz"], tdm_slot_bits(cfg)
         out["AUDIO_IF_MASTER_P"] = 1
@@ -5638,6 +5686,9 @@ def _overlay_ports(cfg):
         # the port's role pool (D8), port-relative like 7.2.19 offsets
         q["pool"] = [{"role": g["role"], "offset": g["offset"],
                       "width": g["width"]} for g in p["pool"]]
+        for public, group in zip(q["pool"], p["pool"]):
+            if group["role"] == "input_loopback":
+                public["first"] = group["first"]
         q["primary_role"] = (primary_segment(p, direction) or {}).get("role")
         return q
     return ([port_public(p, "input") for p in P_in],

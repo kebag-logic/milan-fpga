@@ -155,9 +155,9 @@ So does an invocation the compiler could not expand: the expansion failed, print
 So does a precompiled header read first that no compile in the capture made.
 So does a compiler run by a path no wrapper stands on: one a Python builder starts, which the audit hook sees, or one a Makefile builder's recipe names, which make's own dry run shows under the capture's `PATH`.
 Three such compilers are not seen, and no builder has one: one a shell runs by its path (a shell script's, or a command a builder runs through a shell), one a compiled helper runs by its path, and one a Python builder started with `-I` or `-E` runs by its path, since that process loads no audit hook.
-`--without verilator` leaves out the builders that need Verilator (the mailbox bench, the MAAP differential and the AECP wire comparison) and names each; `firmware-boundary` has no Verilator.
-`--only verilator` judges those three alone, under the gate's own capture, and names the others.
-Each runs every configuration its own list holds: the bench's default target, the differential with its self-test, and the wire comparison at each processor reference it pins (`--every`, one and two interfaces).
+`--without verilator` leaves out the builders that need Verilator (the mailbox bench, the MAAP differential, the AECP wire comparison and the enabled parent loopback harness, #979) and names each; `firmware-boundary` has no Verilator.
+`--only verilator` judges those four alone, under the gate's own capture, and names the others.
+Each runs every configuration its own list holds: the bench's default target, the differential with its self-test, the wire comparison at each processor reference it pins (`--every`, one and two interfaces), and the loopback harness's build at both shapes (`--build-only`), which compiles the AECP sources into the library its model links.
 The required `firmware-verilator` job runs it with the pinned Verilator from the cache.
 The two jobs split the builders, never an invocation: each recorded compile is judged whole, in the job that ran it.
 The builders are also found by text, as a cross-check that can only refuse: every Python module and Makefile that names `sw/firmware/ctrl` or `ctrl_build`.
