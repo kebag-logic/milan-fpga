@@ -1,0 +1,8 @@
+rc=0; make pullin LEG_BUILD= || rc=1; make small-pullin LEG_BUILD= || rc=1; exit $rc
+make[1]: Entering directory 'ROOT/tb/verilator/follow_ring'
+ROOT/tb/verilator/follow_ring/obj_dir/Vfollow_ring --case pullin --latency-us 210.42 --after-s 1.5
+make[1]: Leaving directory 'ROOT/tb/verilator/follow_ring'
+make[1]: Entering directory 'ROOT/tb/verilator/follow_ring'
+python3 small_pulls.py --exe ROOT/tb/verilator/follow_ring/obj_dir_fine/Vfollow_ring \
+  --out ROOT/tb/verilator/follow_ring/obj_dir_fine/results --jobs 4
+make[1]: Leaving directory 'ROOT/tb/verilator/follow_ring'

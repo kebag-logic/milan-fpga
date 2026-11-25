@@ -1,0 +1,29 @@
+== control: capture-job fail-fast lines (template | workflow):
+.github/ci-templates/rtl-fast.yml:       fail-fast: true
+.github/workflows/rtl-fast.yml:       fail-fast: true
+render check rc=0
+contract check rc=0
+ci_events: OK (2378 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)
+== both-false: capture-job fail-fast lines (template | workflow):
+.github/ci-templates/rtl-fast.yml:       fail-fast: false
+.github/workflows/rtl-fast.yml:       fail-fast: false
+render check rc=0
+contract check rc=1
+  FAIL .github/workflows/rtl-fast.yml: job `firmware-boundary-capture` strategy must be exactly {'fail-fast': True, 'matrix': {'leg': [0, 1]}} (found {'fail-fast': False, 'matrix': {'leg': [0, 1]}}): one leg per entry of ctrl_runs.LEGS, which firmware-boundary
+== both-absent: capture-job fail-fast lines (template | workflow):
+.github/ci-templates/rtl-fast.yml: (none)
+.github/workflows/rtl-fast.yml: (none)
+render check rc=0
+contract check rc=1
+  FAIL .github/workflows/rtl-fast.yml: job `firmware-boundary-capture` strategy must be exactly {'fail-fast': True, 'matrix': {'leg': [0, 1]}} (found {'matrix': {'leg': [0, 1]}}): one leg per entry of ctrl_runs.LEGS, which firmware-boundary downloads one by on
+== template-only-false: capture-job fail-fast lines (template | workflow):
+.github/ci-templates/rtl-fast.yml:       fail-fast: false
+.github/workflows/rtl-fast.yml:       fail-fast: true
+render check rc=1
+contract check rc=1
+  FAIL .github/workflows/rtl-fast.yml: job `firmware-boundary-capture` strategy must be exactly {'fail-fast': True, 'matrix': {'leg': [0, 1]}} (found {'fail-fast': False, 'matrix': {'leg': [0, 1]}}): one leg per entry of ctrl_runs.LEGS, which firmware-boundary
+== workflow-only-false: capture-job fail-fast lines (template | workflow):
+.github/ci-templates/rtl-fast.yml:       fail-fast: true
+.github/workflows/rtl-fast.yml:       fail-fast: false
+render check rc=1
+contract check rc=1

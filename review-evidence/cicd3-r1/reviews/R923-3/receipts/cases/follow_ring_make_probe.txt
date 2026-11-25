@@ -1,0 +1,19 @@
+13e6d869d8: exec-pullin-small: no such target
+13e6d869d8: jobserver warnings: 0
+9c62539365: exec-pullin-small rebuild lines (verilator/dp_glue): 0
+9c62539365: jobserver warnings: 1
+b0f2bc1a78: exec-pullin-small rebuild lines (verilator/dp_glue): 0
+b0f2bc1a78: jobserver warnings: 0
+make -n run 13e6d869d8 vs 9c62539365: DIFFERS
+11,17d10
+< python3 settle_control.py --sim verilator \
+<   --out ROOT/tb/verilator/follow_ring/obj_dir_control --jobs 4
+< make[2]: Entering directory 'ROOT/tb/verilator/follow_ring'
+< mkdir -p ROOT/tb/verilator/follow_ring/obj_dir_fine
+< python3 dp_glue.py ../../../hdl/milan/milan_datapath.sv ROOT/tb/verilator/follow_ring/obj_dir_fine/dp_glue.svh
+< verilator --cc --exe --build -j 16 --top-module follow_ring_wrap --public-flat-rw -GCLK_HZ_P=25000000 -GFRAME_DIV_P=64 -GTICK_CYC_P=3072 +incdir+../../../conf
+< make[2]: Leaving directory 'ROOT/tb/verilator/follow_ring'
+19a13,14
+> python3 settle_control.py --sim verilator \
+>   --out ROOT/tb/verilator/follow_ring/obj_dir_control --jobs 4
+make -n run 13e6d869d8 vs b0f2bc1a78: IDENTICAL
