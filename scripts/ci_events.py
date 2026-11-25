@@ -1361,7 +1361,7 @@ FIRMWARE_BOUNDARY_JOB = "firmware-boundary"
 #: runner of its own (ctrl_runs.LEGS); firmware-boundary judges every leg's capture. One leg per entry.
 FIRMWARE_BOUNDARY_CAPTURE_JOB = "firmware-boundary-capture"
 FIRMWARE_BOUNDARY_LEGS = (0, 1)
-FIRMWARE_BOUNDARY_STRATEGY = {"fail-fast": False, "matrix": {"leg": list(FIRMWARE_BOUNDARY_LEGS)}}
+FIRMWARE_BOUNDARY_STRATEGY = {"fail-fast": True, "matrix": {"leg": list(FIRMWARE_BOUNDARY_LEGS)}}
 #: #697: the fast job that judges the TSN stack boundary over the compiles of the builders that need Verilator.
 FIRMWARE_VERILATOR_JOB = "firmware-verilator"
 #: #665 F-INT: the fast job that runs the mailbox publication census in every
@@ -3883,8 +3883,10 @@ def gate_leg_count(source: str) -> int:
 
 
 def check_boundary_legs(c: Contract, wf: YamlMap, legs: int) -> None:
-    """#1003: the capture job runs one matrix leg per entry of ctrl_runs.LEGS (`legs`), none cancelled by another's
-    failure; the judge needs it, and both keep the 30 minutes the legs were cut to fit."""
+    """#1003: the capture job runs one matrix leg per entry of ctrl_runs.LEGS (`legs`) under GitHub's own fail-fast, so
+    a failed leg cancels the other on every event, a fork's included, with no token (docs/testing/CI_WORKFLOWS.md:
+    hosted matrices retain `fail-fast: true`); the judge needs it, and both keep the 30 minutes the legs were cut to
+    fit."""
     capture = jobs(wf).get(FIRMWARE_BOUNDARY_CAPTURE_JOB, {})
     c.item(capture.get("strategy") == FIRMWARE_BOUNDARY_STRATEGY, RTL_FAST,
            f"job `{FIRMWARE_BOUNDARY_CAPTURE_JOB}` strategy must be exactly {FIRMWARE_BOUNDARY_STRATEGY!r} "
@@ -8406,10 +8408,13 @@ def _boundary_leg_arms() -> list[Arm]:
     return [
         ("boundary legs one leg dropped",
          _m_job_key_any(RTL_FAST, FIRMWARE_BOUNDARY_CAPTURE_JOB, "strategy",
-                        {"fail-fast": False, "matrix": {"leg": [0]}}), strategy),
-        ("boundary legs fail-fast",
+                        {"fail-fast": True, "matrix": {"leg": [0]}}), strategy),
+        ("boundary legs cancellation disabled",
          _m_job_key_any(RTL_FAST, FIRMWARE_BOUNDARY_CAPTURE_JOB, "strategy",
-                        {"fail-fast": True, "matrix": {"leg": [0, 1]}}), strategy),
+                        {"fail-fast": False, "matrix": {"leg": [0, 1]}}), strategy),
+        ("boundary legs fail-fast left to the default",
+         _m_job_key_any(RTL_FAST, FIRMWARE_BOUNDARY_CAPTURE_JOB, "strategy",
+                        {"matrix": {"leg": [0, 1]}}), strategy),
         ("boundary legs judge needs no capture",
          _m_job_key_any(RTL_FAST, FIRMWARE_BOUNDARY_JOB, "needs", ["changes"]),
          f"job `{FIRMWARE_BOUNDARY_JOB}` must need `{FIRMWARE_BOUNDARY_CAPTURE_JOB}`"),

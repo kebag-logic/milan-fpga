@@ -570,13 +570,16 @@ jobs:
   # controls, the image builders and the stack's own gate. The legs hold the
   # job's 30 minutes on a runner 1.41 times as slow as the one that set their
   # figures; the whole step alone did not (docs/testing/CI_WORKFLOWS.md).
+  # The matrix keeps GitHub's own fail-fast, as every hosted matrix does: a
+  # failed leg cancels the other, on a fork too, with no token, so the
+  # judge is skipped and the aggregate fails on the capture's result.
   firmware-boundary-capture:
     needs: changes
     if: ${{ needs.changes.outputs.rtl == 'true' }}
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     strategy:
-      fail-fast: false
+      fail-fast: true
       matrix:
         leg: [0, 1]
     steps:

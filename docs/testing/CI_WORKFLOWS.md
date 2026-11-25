@@ -121,7 +121,8 @@ pull-request update and on every push to `dev`. It produces one stable
   The judgement is the whole run's: a local replica of the three jobs at one checkout path printed the same lines as the whole step, but for the eight builder lines the legs print, down to the same counts and verdict.
   Given one leg's capture alone, the gate refuses, naming each builder the other leg holds.
   The aggregate requires `firmware-boundary-capture` too: a failed leg skips the judge, and the aggregate counts a skipped job as a pass.
-  `ci_events.py` pins the matrix to one leg per entry of `ctrl_runs.LEGS`, the judge's need of the legs, and each job's 30 minutes.
+  The matrix keeps GitHub's own `fail-fast: true`, as every hosted matrix does (below): a failed leg cancels the other on every event, a fork's included, with no token, and its result still fails the aggregate.
+  `ci_events.py` pins the matrix to one leg per entry of `ctrl_runs.LEGS` under `fail-fast: true`, the judge's need of the legs, and each job's 30 minutes.
 - the same TSN stack boundary over the compiles only the builders that need
   Verilator make, `firmware-verilator` (#697), when RTL or its tooling
   changes: the mailbox bench at its default target, the MAAP differential
