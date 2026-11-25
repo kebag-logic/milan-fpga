@@ -1,0 +1,10 @@
+plain PASS   rc=0 control:  
+plain CAUGHT rc=1 target-from-after-surplus: AdpInputControl.LongLengthKeepsOtherRefusals 
+plain CAUGHT rc=1 long-skips-foreign-target-check: AdpInputControl.LongLengthKeepsOtherRefusals 
+plain CAUGHT rc=1 long-skips-version-check: AdpInputControl.LongLengthKeepsOtherRefusals 
+plain CAUGHT rc=1 long-skips-message-type-check: AdpInputControl.LongLengthKeepsOtherRefusals 
+asan  PASS   rc=0 control:  
+asan  CAUGHT rc=1 target-from-after-surplus: AdpInputControl.LongLengthKeepsOtherRefusals 
+asan  CAUGHT rc=1 long-skips-foreign-target-check: AdpInputControl.LongLengthKeepsOtherRefusals 
+asan  CAUGHT rc=1 long-skips-version-check: AdpInputControl.LongLengthKeepsOtherRefusals 
+asan  CAUGHT rc=1 long-skips-message-type-check: AdpInputControl.LongLengthKeepsOtherRefusals 

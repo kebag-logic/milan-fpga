@@ -1,0 +1,26 @@
+diff --git a/tests/test_adp.cpp b/tests/test_adp.cpp
+index 7f44510..0bc1c18 100644
+--- a/tests/test_adp.cpp
++++ b/tests/test_adp.cpp
+@@ -879,6 +879,21 @@ TEST_P(AdpInputControl, ValidDiscovery) {
+     }
+ }
+ 
++TEST_P(AdpInputControl, LongLengthKeepsOtherRefusals) {
++    adp a;
++    discovery_state(&a, GetParam());
++    for (unsigned length = 57; length < 2048; ++length) {
++        for (unsigned kind = 0; kind < 3; ++kind) {
++            uint8_t frame[82];
++            discover(frame, kind == 1u ? 0u : 2u, kind == 0u ? entity.entity_id ^ UINT64_C(1) : UINT64_C(0));
++            if (kind == 2u) frame[15] |= 0x10;
++            wire_put_be(frame + 16, length, 2);
++            refused_discovery(&a, frame, sizeof frame);
++            if (HasFailure()) return;
++        }
++    }
++}
++
+ INSTANTIATE_TEST_SUITE_P(AllStates, AdpInputControl, ::testing::Values(0u, 1u, 2u, 3u, 4u));
+ 
+ }

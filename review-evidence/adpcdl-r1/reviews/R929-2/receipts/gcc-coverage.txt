@@ -1,0 +1,30 @@
+Test project gcc
+      Start  1: adp_tests
+      Start  2: acmp_tests
+      Start  3: acmp_wide
+      Start  4: acmp_walk
+ 1/10 Test  #3: acmp_wide ........................   Passed    0.01 sec
+      Start  5: maap_tests
+ 2/10 Test  #2: acmp_tests .......................   Passed    0.02 sec
+      Start  6: entity_tests
+ 3/10 Test  #6: entity_tests .....................   Passed    0.01 sec
+      Start  7: port_tests
+ 4/10 Test  #7: port_tests .......................   Passed    0.01 sec
+      Start  8: adp_release
+ 5/10 Test  #8: adp_release ......................   Passed    0.01 sec
+      Start  9: adp_debug
+ 6/10 Test  #5: maap_tests .......................   Passed    0.07 sec
+      Start 10: maap_debug
+ 7/10 Test  #1: adp_tests ........................   Passed    0.14 sec
+ 8/10 Test  #9: adp_debug ........................   Passed    0.37 sec
+ 9/10 Test #10: maap_debug .......................   Passed    0.44 sec
+10/10 Test  #4: acmp_walk ........................   Passed    0.66 sec
+
+100% tests passed out of 10
+
+Total Test time (real) =   0.67 sec
+file                                                 lines    branches   after exclusions
+include/wire.h                                    14/14        2/2       lines 100.00 %  branches 100.00 %
+src/acmp.c                                       847/847     436/436     lines 100.00 %  branches 100.00 %
+src/adp.c                                        205/207      97/104     lines 100.00 %  branches 100.00 %
+src/maap.c                                       209/209     140/140     lines 100.00 %  branches 100.00 %
