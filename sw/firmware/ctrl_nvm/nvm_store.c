@@ -56,9 +56,10 @@
  * stage into the slot's erased room past its container: its blank check, its
  * page and its verify cover the frame alone, and nothing is erased. A boot
  * applies a slot's frames over its container and judges the result again, so
- * old or new at every cut holds as for a whole commit. A save written whole
- * is the path above; a slot whose room is full is written whole while nothing
- * waits.
+ * old or new at every cut holds as for a whole commit. A boot reads the lag
+ * off the other slot's container against the staged one, so the first save
+ * after it is a frame too. A save written whole is the path above; a slot
+ * whose room is full is written whole while nothing waits.
  *
  * Every step is bounded and returns: the media's waits are polled, never
  * spun on, so the event loop serves every other protocol through a 3 s
@@ -117,12 +118,12 @@ struct nvm_store {
 	uint32_t lag_lo;                /* the span the slot that is not authoritative lacks */
 	uint32_t lag_hi;
 	int lag_known;                  /* the lag holds every byte it lacks */
-	int lag_from;                   /* the slot whose read left its last frame's span in the lag, or none */
 	uint32_t cap_lo;                /* the span of the records this save took */
 	uint32_t cap_hi;
 	uint32_t tail[2];               /* each slot's next frame's offset, 0 while it takes none */
 	uint32_t tseq[2];               /* each slot's sequence, its last frame's */
-	uint32_t area[2];               /* each slot's record area's CRC-32, as its last read staged it */
+	uint32_t fr_lo[2];              /* each slot's frames' span, as its last read applied them */
+	uint32_t fr_hi[2];
 	uint32_t dlen;                  /* the delta frame in flight's length; 0 when the save is written whole */
 	uint8_t *wsrc;                  /* what the commit in flight writes: the stage, or the frame */
 	uint32_t wbase;                 /* where in its slot, and how many bytes */
@@ -197,6 +198,22 @@ static void nvm_publish(void)
 	nvm.st.n_inflight = nvm.inflight.count;
 }
 
+/* [*lo, *hi) grown to hold [a, b); an empty span (lo == hi) holds nothing. */
+static void nvm_grow(uint32_t *lo, uint32_t *hi, uint32_t a, uint32_t b)
+{
+	if (a == b)
+		return;
+	if (*lo == *hi) {
+		*lo = a;
+		*hi = b;
+		return;
+	}
+	if (a < *lo)
+		*lo = a;
+	if (*hi < b)
+		*hi = b;
+}
+
 /* ---- the boot path ------------------------------------------------------- */
 
 /* Not a verdict: the port did not deliver the bytes. */
@@ -265,8 +282,7 @@ static int nvm_delta_head(const uint8_t *h, uint32_t seq, uint32_t room)
  * refusal there refuses the slot. What ends the frames, an erased header, a refused one or a frame cut short, stands
  * only when a second read returns the same bytes, as a verdict does (#665 decision 2): else NVM_UNREAD. The slot's
  * next frame goes after an erased header; after any other end the slot takes none until it is written whole. Sets
- * the slot's sequence, its room, its record area's CRC-32, and, for a slot that had frames, lag to its last frame's
- * span. */
+ * the slot's sequence, its room and its frames' span. */
 static enum nvm_verdict nvm_chain(int slot, uint32_t *seq, struct nvm_read *rd)
 {
 	uint32_t addr = nvm_slot_addr(slot);
@@ -274,11 +290,14 @@ static enum nvm_verdict nvm_chain(int slot, uint32_t *seq, struct nvm_read *rd)
 	enum nvm_verdict vd = NVM_VD_OK;
 
 	nvm.tail[slot] = 0u;
-	nvm.lag_from = NVM_NONE;
+	nvm.fr_lo[slot] = 0u;
+	nvm.fr_hi[slot] = 0u;
 	while (nvm_rd32le(nvm_stage + 4) == NVM_KLJ3_FMT_VER && pos + NVM_DHDR <= NVM_DELTA_END) {
 		uint8_t h[NVM_DHDR];
 		uint32_t crc = 0;
 		uint32_t len;
+		uint32_t off;
+		uint32_t n;
 
 		if (nvm_take(rd, addr + pos, h, NVM_DHDR) || nvm_take(rd, addr + pos, nvm_chunk, NVM_DHDR) ||
 		    memcmp(h, nvm_chunk, NVM_DHDR) != 0)
@@ -299,9 +318,9 @@ static enum nvm_verdict nvm_chain(int slot, uint32_t *seq, struct nvm_read *rd)
 			vd = NVM_ENDED;         /* a frame cut short, or a misread */
 			break;
 		}
-		nvm.lag_lo = nvm_rd32le(h + 16);
-		nvm.lag_hi = nvm.lag_lo + nvm_rd32le(h + 20);
-		if (nvm_take(rd, addr + pos + NVM_DHDR, nvm_stage + nvm.lag_lo, nvm.lag_hi - nvm.lag_lo))
+		off = nvm_rd32le(h + 16);
+		n = nvm_rd32le(h + 20);
+		if (nvm_take(rd, addr + pos + NVM_DHDR, nvm_stage + off, n))
 			return NVM_UNREAD;
 		*seq = nvm_rd32le(h + 8);
 		nvm_wr32le(nvm_stage + 8, *seq);
@@ -309,13 +328,12 @@ static enum nvm_verdict nvm_chain(int slot, uint32_t *seq, struct nvm_read *rd)
 		vd = nvm_klj2_check(nvm_stage, NVM_IMG_LEN);
 		if (vd != NVM_VD_OK)
 			return vd;
-		nvm.lag_from = slot;
+		nvm_grow(&nvm.fr_lo[slot], &nvm.fr_hi[slot], off, off + n);
 		pos += (len + NVM_FLASH_PAGE - 1u) & ~(NVM_FLASH_PAGE - 1u);
 		if (pos + NVM_DHDR > NVM_DELTA_END)
 			nvm.tail[slot] = pos;
 	}
 	nvm.tseq[slot] = *seq;
-	nvm.area[slot] = nvm_crc32_update(0xffffffffu, nvm_stage + NVM_KLJ_HDR, NVM_AREA_LEN);
 	return vd;
 }
 
@@ -597,24 +615,46 @@ static int nvm_model_proven(void)
 	return 0;
 }
 
-/* What the slot that is not authoritative lacks at boot (#1009): nothing when
- * its record area is the chosen one's; the chosen slot's last frame's span
- * when its sequence is the one before the chosen one's, since a frame carries
- * every byte the slot it went to lacked and the other slot was the one written
- * before it; else not known, and its next commit is written whole. */
+/* What the slot that is not authoritative lacks at boot (#1009): every byte where its container differs from the
+ * staged one but the sequence, read once against the stage with its CRC-32 streamed, and its own frames' span, which
+ * its container does not show. Known when that CRC closes and the two differ past the header alone; else, and for a
+ * slot that takes no frame, which is not read, its next commit is written whole. */
 static void nvm_boot_lag(int chosen)
 {
 	int other = !chosen;
+	uint32_t addr = nvm_slot_addr(other);
+	uint32_t lo = nvm.fr_lo[other];
+	uint32_t hi = nvm.fr_hi[other];
+	uint32_t pos = 0;
+	uint32_t crc;
+	struct nvm_read rd = {NVM_VD_OK, 0xffffffffu, 0u};
 
-	if ((other ? nvm.st.verdict_b : nvm.st.verdict_a) != NVM_VD_OK)
+	if (nvm.tail[other] == 0u)
 		return;
-	if (nvm.area[other] == nvm.area[chosen]) {
-		nvm.lag_lo = 0u;
-		nvm.lag_hi = 0u;
-		nvm.lag_known = 1;
-		return;
+	while (pos < NVM_IMG_LEN - NVM_KLJ_TRAILER) {
+		uint32_t n = nvm_min(NVM_STEP_BYTES, NVM_IMG_LEN - NVM_KLJ_TRAILER - pos);
+		uint32_t i;
+
+		if (nvm_take(&rd, addr + pos, nvm_chunk, n))
+			return;
+		for (i = 0; i < n; ++i) {
+			uint32_t at = pos + i;
+
+			/* the sequence, at 8, is the frame's own */
+			if (nvm_chunk[i] == nvm_stage[at] || (at >= 8u && at < 12u))
+				continue;
+			if (at < NVM_KLJ_HDR)
+				return;
+			nvm_grow(&lo, &hi, at, at + 1u);
+		}
+		pos += n;
 	}
-	nvm.lag_known = nvm.lag_from == chosen && nvm.tseq[other] + 1u == nvm.tseq[chosen];
+	crc = rd.digest;
+	if (nvm_take(&rd, addr + pos, nvm_chunk, NVM_KLJ_TRAILER) || ~crc != nvm_rd32le(nvm_chunk))
+		return;
+	nvm.lag_lo = lo;
+	nvm.lag_hi = hi;
+	nvm.lag_known = 1;
 }
 
 /* The restore of section 8.1: the slots judged and one staged (step 3), the
@@ -832,22 +872,6 @@ static int nvm_joined_behind(void)
 		if (nvm.dirty.bit[i] & ~nvm.inflight.bit[i])
 			return 1;
 	return 0;
-}
-
-/* [*lo, *hi) grown to hold [a, b); an empty span (lo == hi) holds nothing. */
-static void nvm_grow(uint32_t *lo, uint32_t *hi, uint32_t a, uint32_t b)
-{
-	if (a == b)
-		return;
-	if (*lo == *hi) {
-		*lo = a;
-		*hi = b;
-		return;
-	}
-	if (a < *lo)
-		*lo = a;
-	if (*hi < b)
-		*hi = b;
 }
 
 /* One record a step, in ascending id. At the end, a change marked behind the cursor that joined (nvm_mark) has the

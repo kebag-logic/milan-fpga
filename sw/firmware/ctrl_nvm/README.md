@@ -311,11 +311,12 @@ in the status), so the next change's save is a frame again; a failure of that
 commit leaves its slot taking no frame, so it is not begun again, and leaves
 no claim stale.
 
-At boot, the lag is known when the two slots' record areas are the same
-(nothing is lacking), or when the other slot's sequence is the one before the
-authoritative slot's and that slot's last frame is read: the other slot then
-lacks at most that frame's span. Else the first save after the boot is
-written whole.
+At boot, the lag is read: the other slot's container once more, compared
+with the staged state byte by byte but its sequence, with its CRC-32 streamed
+through the read, and joined with that slot's own frames' span, which its
+container does not show. It is known when that CRC closes and the two differ
+past the header alone; so the first save after any boot is a frame whenever
+the other slot takes one. A slot that takes no frame is not read.
 
 **One step a centisecond, in a pass that has room for it (THE STEP).** The
 event loop owes the store a step for each centisecond it dispatches
@@ -569,8 +570,8 @@ store in process, over the flash model directly and over the LiteSPI port on
 the command-master model ([`test/nvm_rig.cpp`](test/nvm_rig.cpp)). Every
 byte and every verdict is compared with the fixture
 [`test/nvm_fixture.py`](test/nvm_fixture.py) writes from
-`scripts/nvm_klj3.py`, the reference codec. Per shape, 76 checks in 127
-tests: 51 on both ports, fourteen on the model port alone (its read and refusal
+`scripts/nvm_klj3.py`, the reference codec. Per shape, 78 checks in 130
+tests: 52 on both ports, fifteen on the model port alone (its read and refusal
 faults do not reach memory-mapped LiteSPI reads), five on the LiteSPI port
 alone (the PHC, `timer0`, the command master and the guard exist only
 there), four that ask the codec directly and two on GoogleMock's flash
@@ -665,9 +666,13 @@ under any shape header but the host suite's own, which alone defines
     container's header, past the room left, frames to the room's last byte,
     a frame whose CRC closes over a refused record or a wrong trailer, and
     what the next save then does;
-  - the lag not known (another record area and no frame, a blank slot), a
-    frame's span not erased, a frame that fails, a frame past its buffer or
-    its room: each written whole;
+  - the lag read at boot off the other slot's container: a binding the
+    chosen slot's last commit changed, and one the other slot's own frame
+    changed, each carried by the next frame and booted back;
+  - the lag not known (a blank slot, a header that differs past the
+    sequence, the boot's read of the other slot failed or not closing its
+    CRC-32), a frame's span not erased, a frame that fails, a frame past its
+    buffer or its room: each written whole;
   - the model's read faults on a frame's blank check and verify, on every
     read of a frame at boot (each end on two reads of the same bytes, #665
     decision 2) and at the re-stage;

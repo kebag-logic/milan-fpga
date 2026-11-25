@@ -273,6 +273,8 @@ The split store saves in proportion to the change without the journal above, and
 - A save writes one **delta frame** of the span those records and its own cover into that slot's erased room past its container, with no erase.
   The frame carries the new container's sequence and trailer, and its own CRC-32 trailer (`sw/firmware/ctrl_nvm/nvm_shape.h`).
 - A boot copies each frame's span over its slot's container and judges the whole container again, so old or new at every cut holds as for a whole commit.
+- A boot also reads what the other slot lacks: where its container differs from the chosen state, with its own frames' span, its CRC-32 closing.
+  So the first save after a boot is a frame too.
 - The room is inside the blocks a whole commit erases, at most 4,096 bytes; a full room is written whole while nothing waits.
 - Anything else is the whole-image commit: no authoritative slot, a previous-minor container, a lag not known, a frame past its buffer or room.
 

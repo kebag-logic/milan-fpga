@@ -622,8 +622,8 @@ MUTANTS = (
     # a frame's result not judged again
     _m("delta_result_unjudged", STORE,
        "\t\tvd = nvm_klj2_check(nvm_stage, NVM_IMG_LEN);\n\t\tif (vd != NVM_VD_OK)\n\t\t\treturn vd;\n"
-       "\t\tnvm.lag_from = slot;",
-       "\t\tnvm.lag_from = slot;", "chain_ends"),
+       "\t\tnvm_grow(&nvm.fr_lo[slot], &nvm.fr_hi[slot], off, off + n);",
+       "\t\tnvm_grow(&nvm.fr_lo[slot], &nvm.fr_hi[slot], off, off + n);", "chain_ends"),
     # the frames' end stands on one read: its header once, a frame cut short at once
     _m("delta_header_read_once", STORE,
        "\t\tif (nvm_take(rd, addr + pos, h, NVM_DHDR) || nvm_take(rd, addr + pos, nvm_chunk, NVM_DHDR) ||\n"
@@ -632,18 +632,20 @@ MUTANTS = (
     _m("delta_end_on_one_read", STORE, "\t\tif (seen[n].vd == NVM_VD_OK || nvm_agrees(seen, n))",
        "\t\tif (seen[n].vd == NVM_VD_OK || seen[n].vd == NVM_ENDED || nvm_agrees(seen, n))",
        "chain_end_reads_twice"),
-    # what the other slot lacks never known at boot, known without the sequences, or known whatever
-    _m("delta_boot_lag_never", STORE,
-       "\tif ((other ? nvm.st.verdict_b : nvm.st.verdict_a) != NVM_VD_OK)\n\t\treturn;",
-       "\tif (1)\n\t\treturn;", "bind_save_is_a_frame", "frames_chain", "chain_ends"),
-    _m("delta_boot_lag_no_sequence", STORE,
-       "\tnvm.lag_known = nvm.lag_from == chosen && nvm.tseq[other] + 1u == nvm.tseq[chosen];",
-       "\tnvm.lag_known = nvm.lag_from == chosen;", "chain_ends"),
-    _m("delta_boot_lag_always", STORE,
-       "\tnvm.lag_known = nvm.lag_from == chosen && nvm.tseq[other] + 1u == nvm.tseq[chosen];",
-       "\tnvm.lag_known = 1;", "lag_unknown_written_whole", "chain_ends"),
-    _m("delta_boot_area_ignored", STORE, "\tif (nvm.area[other] == nvm.area[chosen]) {", "\tif (0) {",
-       "bind_save_is_a_frame", "chain_ends"),
+    # what the other slot lacks never read at boot; its sequence taken for a difference; a header that differs past
+    # the sequence taken for a record's; the other slot's own frames left out; a read whose CRC does not close trusted
+    _m("delta_boot_lag_never", STORE, "\tif (nvm.tail[other] == 0u)\n\t\treturn;", "\tif (1)\n\t\treturn;",
+       "bind_save_is_a_frame", "frames_chain", "chain_ends", "lag_read_at_boot"),
+    _m("delta_boot_lag_seq_compared", STORE,
+       "\t\t\tif (nvm_chunk[i] == nvm_stage[at] || (at >= 8u && at < 12u))",
+       "\t\t\tif (nvm_chunk[i] == nvm_stage[at])", "bind_save_is_a_frame", "lag_read_at_boot"),
+    _m("delta_boot_lag_header_ignored", STORE, "\t\t\tif (at < NVM_KLJ_HDR)\n\t\t\t\treturn;\n", "",
+       "lag_unknown_written_whole"),
+    _m("delta_boot_lag_frames_ignored", STORE, "\tuint32_t lo = nvm.fr_lo[other];\n\tuint32_t hi = nvm.fr_hi[other];",
+       "\tuint32_t lo = 0u;\n\tuint32_t hi = 0u;", "lag_read_at_boot"),
+    _m("delta_boot_lag_crc_ignored", STORE,
+       "\tif (nvm_take(&rd, addr + pos, nvm_chunk, NVM_KLJ_TRAILER) || ~crc != nvm_rd32le(nvm_chunk))",
+       "\tif (nvm_take(&rd, addr + pos, nvm_chunk, NVM_KLJ_TRAILER))", "boot_lag_read_faults"),
     # a frame's span not erased fails the attempt instead of writing the save whole
     _m("delta_span_dirty_fails", STORE, "\tif (n && !nvm_all_erased(nvm_chunk, n) && nvm.dlen) {",
        "\tif (0) {", "frame_span_not_erased"),

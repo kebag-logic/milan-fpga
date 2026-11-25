@@ -91,7 +91,7 @@ TEST_P(NvmBoth, bind_save_is_a_frame) {
 }
 
 // Frames alternate between the slots, each carrying what its slot lacks; after a boot, what the other slot lacks
-// is the authoritative one's last frame's records, so the next save is a frame again.
+// is read off its container, so the next save is a frame again.
 TEST_P(NvmBoth, frames_chain) {
     Files f = twin();
     const unsigned rb = bind_rid();
@@ -154,7 +154,7 @@ TEST_P(NvmBoth, chain_ends) {
         {"slot/g5+badrec", NVM_VD_REC, 0, 1, 1, "golden"},  // a frame whose CRC closes over a refused record
         {"slot/g5+badcrc", NVM_VD_CRC, 0, 1, 1, "golden"},  // a frame whose result's CRC does not close
         {"slot/g5+e9", NVM_VD_OK, 9, 0, 0, "golden"},       // a later frame of nothing: the areas are the same
-        {"slot/g5+b9", NVM_VD_OK, 9, 0, 1, "bind9"},        // the other slot not the one before: its lack unknown
+        {"slot/g5+b9", NVM_VD_OK, 9, 0, 0, "bind9"},        // the other slot not the one before: its lack read
         {"slot/g5+older", NVM_VD_OK, 5, 1, 1, "golden"},    // a frame whose sequence is not newer
         {"slot/g5+highoff", NVM_VD_OK, 5, 1, 1, "golden"},  // a span starting past the record area
         {"slot/g5+magic", NVM_VD_OK, 5, 1, 1, "golden"},    // another kind of frame
@@ -179,16 +179,73 @@ TEST_P(NvmBoth, chain_ends) {
     }
 }
 
-// What the other slot lacks, not known at boot, makes the next save a whole one: its container is the
-// authoritative one's with no frame and other records, or it is blank.
+// What the other slot lacks is read at boot off its container: the records where it differs from the chosen slot's
+// state, and its own frames' span, which its container does not show. The next save is a frame of that and its own,
+// and boots the new state: a binding the chosen slot's last commit changed, carried with the new one; a binding the
+// other slot's own frame changed, carried back by a console commit of nothing.
+TEST_P(NvmBoth, lag_read_at_boot) {
+    const unsigned rb = bind_rid();
+    struct Case {
+        const char* a;
+        const char* b;
+        std::vector<std::string> change;
+        Payloads want;
+    };
+    const Case cases[] = {
+        {"golden@5/minor1", "bind8@8/minor1", {"--set", set_word(rb, value(rb, 9))},
+         with(fx().payloads("golden"), {{rb, value(rb, 9)}})},
+        {"slot/g5+b7", "golden@8/minor1", {"--commit"}, fx().payloads("golden")}};
+    for (const Case& c : cases) {
+        Files f = fx().files({{"a5.bin", c.a}, {"b6.bin", c.b}});
+        const Result r = go(port(), f, concat(kTwin, concat(concat({"--boot"}, c.change), concat({"--until-idle"}, kDump))));
+        EXPECT_TRUE(r.at("ok") == 1 && r.at("deltas") == 1 && r.at("erases") == 0) << c.a << ": " << r.text();
+        const Result b = boot_dumped(port(), f);
+        EXPECT_TRUE(b.at("vd_a") == NVM_VD_OK && b.at("auth") == 0 && b.at("seq") == 9) << c.a << ": " << b.text();
+        expect_state(f, "st", c.want, c.a);
+    }
+}
+
+// What the other slot lacks, not known at boot, makes the next save a whole one: the slot is blank, or its header
+// differs from the chosen one's past the sequence (a container of the previous minor chosen).
 TEST_P(NvmBoth, lag_unknown_written_whole) {
-    const std::pair<const char*, const char*> cases[] = {{"golden@5/minor1", "bind8@8/minor1"},
-                                                         {"erased@0", "bind8@8/minor1"}};
+    const std::pair<const char*, const char*> cases[] = {{"erased@0", "bind8@8/minor1"},
+                                                         {"golden@5/minor1", "golden@6"}};
     const unsigned rb = bind_rid();
     for (const auto& [a, b] : cases) {
         Files f = fx().files({{"a5.bin", a}, {"b6.bin", b}});
-        const Result r = go(port(), f, concat(kTwin, {"--boot", "--set", set_word(rb, value(rb, 9)), "--until-idle"}));
+        const Result r = go(port(), f,
+                            concat(kTwin, concat({"--boot", "--set", set_word(rb, value(rb, 9)), "--until-idle"},
+                                                 kDump)));
         EXPECT_TRUE(r.at("ok") == 1 && r.at("deltas") == 0 && r.at("erases") == 1) << a << ": " << r.text();
+        boot_dumped(port(), f);
+        expect_state(f, "st", with(fx().payloads("golden"), {{rb, value(rb, 9)}}), a);
+    }
+}
+
+// The boot's read of the other slot's container stands only on its CRC-32: a read the port fails, of its records or
+// of its trailer, or one that returns other bytes, leaves the lag unknown and the next save whole.
+TEST_F(NvmModel, boot_lag_read_faults) {
+    const auto hex = [](uint32_t v) {
+        char s[16];
+        std::snprintf(s, sizeof s, "0x%x", static_cast<unsigned>(v));
+        return std::string(s);
+    };
+    const uint32_t area = NVM_SLOT_A + NVM_KLJ_HDR + 100u;
+    const uint32_t trailer = NVM_SLOT_A + NVM_IMG_LEN - NVM_KLJ_TRAILER;
+    // the slot's judgement reads each byte once; the boot's lag read is the second
+    const std::string faults[] = {"read-fail-at:1:1:" + hex(area), "read-fail-at:1:1:" + hex(trailer),
+                                  "read-flip-at:1:1:" + hex(area)};
+    const unsigned rb = bind_rid();
+    for (const std::string& fault : faults) {
+        Files f = twin();
+        const Result r = go(port(), f,
+                            concat(kTwin, concat({"--boot-fault", fault, "--boot", "--set", set_word(rb, value(rb, 7)),
+                                                  "--until-idle"},
+                                                 kDump)));
+        EXPECT_TRUE(r.at("ok") == 1 && r.at("deltas") == 0 && r.at("erases") == 1 && r.at("unread") == 0)
+            << fault << ": " << r.text();
+        boot_dumped(port(), f);
+        expect_state(f, "st", fx().payloads("bind7"), fault);
     }
 }
 

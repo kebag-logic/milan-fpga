@@ -507,6 +507,9 @@ def delta_fixture(w: Writer, b: Bench) -> None:
     w.blob("slot/g5+bigroom", with_frames_after(base, kept + [big]))
     w.num("bigroom_seq", prev)
     w.blob("golden@40/minor1", image(b, "golden@40/minor1"))
+    # the boot's lag read off the other slot: a newer slot whose records are the older one's container's, the older
+    # one's own frame changing one of them
+    w.blob("golden@8/minor1", image(b, "golden@8/minor1"))
     w.num("bind_rid2", binding_ids(b)[1])
     # an erased header over a frame's span that is not erased: the blank check's to find
     stray = bytearray(with_frames_after(base, [])) + bytes([0xFF]) * PAGE
