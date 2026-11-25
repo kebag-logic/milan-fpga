@@ -1,0 +1,12 @@
+PINNED == round-4 merge receipt: True
+TRAIN  == round-4 train receipt: True
+hold 60
+backlog.owed.if0: largest 64.09994 set by ['PINNED'] -> 64.31; ruling 64.31; tool 64.31; ok
+backlog.owed_behind0.if0: largest 64.29245 set by ['PINNED'] -> 64.51; ruling 64.51; tool 64.51; ok
+backlog.owed_behind1.if0: largest 64.48319 set by ['PINNED'] -> 64.71; ruling 64.71; tool 64.71; ok
+backlog.owed_behind2.if0: largest 64.67393 set by ['PINNED'] -> 64.91; ruling 64.91; tool 64.91; ok
+backlog.owed_behind3.if0: largest 64.86397 set by ['PINNED'] -> 65.11; ruling 65.11; tool 65.11; ok
+backlog-owed.service.acmp.last.if0: largest 63.12992 set by ['PINNED'] -> 63.29; ruling 63.29; tool 63.29; ok
+backlog-owed.service.aecp.last.if0: largest 63.07053 set by ['TRAIN'] -> 63.23; ruling 63.23; tool 63.23; ok
+RESULT PASS
+rc=0
