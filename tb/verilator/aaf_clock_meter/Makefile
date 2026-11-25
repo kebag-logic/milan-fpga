@@ -35,13 +35,15 @@ SRCS = $(RTL_DIR)/ieee1722/avtp/avtp_subtype_pkg.sv $(METER_RTL) \
 # The servo with the meter in front of it (sim_servo.cpp): the servo at its
 # silicon loop parameters, TICK_CYC the one value for the RTL's 1 ms tick at
 # the harness's 24.576 MHz / 32 audio clock and for the harness itself.
-# --public-flat-rw: the harness reads the servo's tick divider (to run clk_i
+# probes.vlt: the harness reads the servo's tick divider (to run clk_i
 # fine around each tick) and its window error; it writes nothing through it.
+# probes.vlt keeps exactly those signals public, in place of --public-flat-rw,
+# which kept every signal unoptimised.
 TICK_CYC   ?= 768
 SERVO_RTL  ?= $(RTL_DIR)/ieee1722/crf/KL_mmcm_drp_servo.sv
 SERVO_MDIR ?= obj_servo
 SERVO_FLAGS = --cc --exe --build -j $(VERILATOR_JOBS) --top-module meter_servo_wrap \
-         --public-flat-rw -GTICK_CYC_P=$(TICK_CYC) \
+         probes.vlt -GTICK_CYC_P=$(TICK_CYC) \
          -Wall -Wno-fatal -Werror-UNDRIVEN -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL \
          -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-PINCONNECTEMPTY \
          -Wno-EOFNEWLINE \

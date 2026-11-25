@@ -21,7 +21,7 @@ from process_test_support import (  # noqa: E402
     FACILITY_MODES, FACILITY_SITE, Probe, assert_reaped, commit, eventually, git, identity, install,
     parent as parent_of, running, snapshot, write,
 )
-from mutants import MUTATIONS, NOT_SEPARATELY_OBSERVABLE  # noqa: E402
+from mutants import MUTATIONS, NOT_SEPARATELY_OBSERVABLE, planted  # noqa: E402
 
 DRIVER = "tb/verilator/gptp_shadow/mutants.py"
 SUITE = "tb/verilator/gptp_shadow"
@@ -115,10 +115,16 @@ def fixture(parent: Path, label: str) -> tuple[Path, Probe]:
             DRIVER, "tb/verilator/gptp_shadow/private_inputs.py", "scripts/owned_process.py"}):
         install(root, relative)
     git(root, "init", "-q")
+    #: a control may plant its defect in a pinned dependency file, whose
+    #: anchors must then be there: those files are the real ones
+    targets = {str(row[1].relative_to(ROOT)) for row in MUTATIONS}
     for name in DEPENDENCIES:
         for relative in sorted(population - first_party) + [UNRELATED_DEPENDENCY]:
             if relative.startswith(name + "/"):
-                write(root / relative, f"pinned dependency input {relative}\n")
+                if relative in targets:
+                    install(root, relative)
+                else:
+                    write(root / relative, f"pinned dependency input {relative}\n")
         git(root / name, "init", "-q")
         commit(root / name)
     commit(root)
@@ -127,7 +133,7 @@ def fixture(parent: Path, label: str) -> tuple[Path, Probe]:
     for name, path, old, new, expect in MUTATIONS:
         original = path.read_text()
         catalog.append(dict(name=name, path=str(path.relative_to(ROOT)), new=new, expect=expect,
-                            hash=hashlib.sha256(original.replace(old, new, 1).encode()).hexdigest()))
+                            hash=hashlib.sha256(planted(original, old, new).encode()).hexdigest()))
     write(probe.control / "mutation.json", json.dumps(catalog))
     writes = [min(name for name in population if name.startswith(dependency + "/"))
               for dependency in DEPENDENCIES]
@@ -155,9 +161,9 @@ def normal(parent: Path, mode: str, repeat: bool = False) -> None:
         if mode == "detect":
             for name, _path, _old, _new, expect in MUTATIONS:
                 assert f'{name}: caught by "{expect}"' in output, output
-            assert "controls: 9   failures: 0\nRESULT: PASS" in output, output
+            assert "controls: 13   failures: 0\nRESULT: PASS" in output, output
         else:
-            assert "RESULT: PASS" not in output and "controls: 9   failures: 9" in output, output
+            assert "RESULT: PASS" not in output and "controls: 13   failures: 13" in output, output
             assert ("no completed suite tally" if mode == "build" else "stayed green") in output, output
         probe.save(dict(exit=status, iteration=iteration, mutations=seen,
                         source_unchanged=True, scratch_removed=True))
@@ -185,10 +191,10 @@ def accepted(parent: Path, kind: str) -> None:
     before = snapshot(root)
     probe.start([sys.executable, str(root / DRIVER)])
     status, output = probe.finish()
-    assert status == 0 and "controls: 9   failures: 0\nRESULT: PASS" in output, output
+    assert status == 0 and "controls: 13   failures: 0\nRESULT: PASS" in output, output
     assert snapshot(root) == before, "caller inputs changed"
     assert not Path((probe.control / "workspace").read_text()).exists(), "scratch survived"
-    probe.save(dict(exit=status, accepted=kind, controls=9, source_unchanged=True))
+    probe.save(dict(exit=status, accepted=kind, controls=13, source_unchanged=True))
 
 
 def interrupted(parent: Path, signum: int, unsafe: bool = False) -> None:
@@ -424,7 +430,7 @@ def main() -> int:
                 interrupted(parent, signal.SIGKILL, unsafe=True)
             for signum in (signal.SIGINT, signal.SIGTERM):
                 outer_cancellation(parent, signum)
-    print("mutant lifecycle: PASS (normal/repeat, nine named defects, survivor, build, unread-file and "
+    print("mutant lifecycle: PASS (normal/repeat, thirteen named defects, survivor, build, unread-file and "
           "Git-setting acceptance, input/Git-redirect/record/facility refusals, INT/TERM/KILL, "
           "unsafe negative controls)")
     return 0
