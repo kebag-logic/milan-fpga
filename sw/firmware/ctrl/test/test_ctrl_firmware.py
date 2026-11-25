@@ -77,10 +77,14 @@ pinned tsn-c-stack submodule (#697), built into the same arms:
            against the reference walk over random record sequences (#930,
            srp_listeners.cpp) at 1x1/1if and 8x8/1if, and the SRP cut's
            reclaim and receive filter against the adapter before it
-           (#665's ruling of 2026-11-20, item 3) in the same suite; a link
-           that comes up at each phase of a loop pass as SRP's first UP
-           (#973, srp_link_pass.cpp) at 1x1/1if and 8x8/1if, each run a
-           process of its own;
+           (#665's ruling of 2026-11-20, item 3) in the same suite; a
+           Listener withdrawn 5 to 200 ms after the board's own LeaveAll
+           sent as Lv within 240 ms, and none deregistered across
+           LeaveAlls when none is withdrawn, against an lwSRP MSRP peer
+           (lwSRP #20, srp_own_leaveall.cpp) at 8x8/1if on every input
+           and at 1x1/1if; a link that comes up at each phase of a loop
+           pass as SRP's first UP (#973, srp_link_pass.cpp) at 1x1/1if
+           and 8x8/1if, each run a process of its own;
   srpcmp   srp_wire_compare.py's own self-test: the independent Clause 10.8
            decoder and transmit-opportunity comparator the placement switch
            compares the two placements' SRP frames with (#665, ruling
@@ -213,6 +217,7 @@ def run_suites(args: argparse.Namespace, tree: Tree) -> list:
                 outcomes.append(srp_arms.arm_srp(tree, args.lwsrp.resolve(), i, test=suite))
         outcomes.extend(srp_arms.talker_arms(tree, args.lwsrp.resolve()))
         outcomes.extend(srp_arms.listener_arms(tree, args.lwsrp.resolve()))
+        outcomes.extend(srp_arms.own_leaveall_arms(tree, args.lwsrp.resolve()))
         outcomes.extend(srp_arms.link_pass_arms(tree, args.lwsrp.resolve()))
         outcomes.extend(srp_arms.mbx_entity_arms(tree, args.lwsrp.resolve()))
         outcomes.extend(srp_arms.all_shapes(tree, args.lwsrp.resolve(), args.require_rv32))
