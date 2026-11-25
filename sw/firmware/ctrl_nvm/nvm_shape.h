@@ -172,6 +172,18 @@
 #define NVM_DELTA_END \
 	(NVM_DELTA_BASE + ((NVM_DELTA_SPAN - NVM_DELTA_BASE < NVM_DELTA_ROOM_MAX) ? \
 			   NVM_DELTA_SPAN - NVM_DELTA_BASE : NVM_DELTA_ROOM_MAX))
+/* A slot's room is full, and written whole while nothing waits, once it no longer holds two of the largest frames
+ * (nvm_delta_fits), or half the room where that is less. A change that arrives while the full slot is written goes as
+ * a frame into the other slot: that slot held two when its last save chose it, and one when that save was a
+ * largest frame (#1009). */
+#define NVM_DELTA_PAGES_MAX ((NVM_PAYLOAD_MAX + NVM_FLASH_PAGE - 1u) / NVM_FLASH_PAGE)
+#define NVM_DELTA_RESERVE \
+	((2u * NVM_DELTA_PAGES_MAX * NVM_FLASH_PAGE < (NVM_DELTA_END - NVM_DELTA_BASE) / 2u) ? \
+	 2u * NVM_DELTA_PAGES_MAX * NVM_FLASH_PAGE : (NVM_DELTA_END - NVM_DELTA_BASE) / 2u)
+/* The binding class's first-dirty window (DR2a, amended for that class alone, #1009): Milan v1.2 5.5.3.5.3 saves the
+ * binding parameters before it sends the BIND_RX_RESPONSE, and 5.3.8.3 counts a stream input's started/stopped state
+ * with them; both are the one binding record (NVM_G_BIND). Every other class keeps MILAN_NVM_DEBOUNCE_MS. */
+#define NVM_BIND_DEBOUNCE_MS 100u
 /* Today's journal, the all-fabric placement's KLJ2: read, never written. */
 #define NVM_LEGACY_A       MILAN_FLASH_JOURNAL_OFFSET
 #define NVM_LEGACY_B       (MILAN_FLASH_JOURNAL_OFFSET + MILAN_FLASH_JOURNAL_SIZE / 2u)

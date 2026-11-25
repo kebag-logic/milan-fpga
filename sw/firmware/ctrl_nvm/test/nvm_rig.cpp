@@ -61,6 +61,8 @@ struct Rig {
     std::vector<State> states;  // the power-cut enumeration's state snapshots 0, 1 and 2
     std::uint64_t erase_us = 0;    // the model's erase and page-program times (--times)
     std::uint64_t program_us = 0;
+    std::uint64_t gate_us = 0;     // --sweep-gate: a cut this long after the change or later boots the new values
+    bool sweep_free = false;       // --sweep-free: the save moves the authoritative slot, so the one at boot is not guarded
     std::vector<std::pair<std::uint64_t, std::uint64_t>> effects;  // each media effect's start and end, model us
     bool keep_effects = false;
 };
@@ -350,7 +352,9 @@ void sweep_boot() {
 int sweep_one(std::uint64_t t, std::uint64_t landed, unsigned* old, unsigned* new_set) {
     restore_snapshot();
     sweep_boot();
-    protect_auth();
+    if (!rig->sweep_free) {
+        protect_auth();
+    }
     arm_cut(t);
     sweep_change();
     run_ms((t + 999u) / 1000u);
@@ -359,6 +363,9 @@ int sweep_one(std::uint64_t t, std::uint64_t landed, unsigned* old, unsigned* ne
     }
     sweep_boot();
     const State now = capture_state();
+    if (now == rig->states[0] && rig->gate_us != 0u && t >= rig->gate_us) {
+        return 6;
+    }
     if (now == rig->states[1]) {
         (*new_set)++;
     } else if (now == rig->states[0] && t < landed) {
@@ -368,7 +375,7 @@ int sweep_one(std::uint64_t t, std::uint64_t landed, unsigned* old, unsigned* ne
     }
     set_pattern(0x77u, false);
     until_idle();
-    if (nvm_store_status()->commits_ok != 1u || nvm_store_status()->stale) {
+    if (nvm_store_status()->commits_ok < 1u || nvm_store_status()->stale) {
         return 4;
     }
     rig->states[2] = capture_state();
@@ -393,10 +400,14 @@ void sweep(unsigned step_ms) {
     rig->keep_effects = true;
     sweep_change();
     until_idle();
-    rig->keep_effects = false;
     const std::uint64_t durable = nvm_fmodel_now_us() - change;
+    if (rig->sweep_free) {
+        run_ms(50);
+        until_idle();
+    }
+    rig->keep_effects = false;
     const bool delta = nvm_store_status()->deltas == 1u;
-    const bool committed = nvm_store_status()->commits_ok == 1u;
+    const bool committed = nvm_store_status()->commits_ok >= 1u;
     sweep_boot();
     rig->states[1] = capture_state();
     if (rig->states[1] == rig->states[0] || !committed) {
@@ -420,7 +431,8 @@ void sweep(unsigned step_ms) {
         const int why = sweep_one(t, landed, &old, &new_set);
         if (why != 0) {
             // 1 the authoritative slot or outside the journal written, 2 the old values once every effect had
-            // landed, 3 neither set, 4 the next change not committed, 5 it did not boot back
+            // landed, 3 neither set, 4 the next change not committed, 5 it did not boot back, 6 the old values at or
+            // after the gate (--sweep-gate)
             char line[96];
             std::snprintf(line, sizeof line, "SWEEP-BAD t_us=%llu check=%d", static_cast<unsigned long long>(t), why);
             rig->run.fails.emplace_back(line);
@@ -662,6 +674,8 @@ bool word(const std::string& a) {
         rig->run.clocks.emplace_back(rig->port->now_us(rig->port->ctx), nvm_fmodel_now_us());
     } else if (a == "--boot") {
         boot();
+    } else if (a == "--sweep-free") {
+        rig->sweep_free = true;
     } else if (a == "--blank") {
         nvm_fmodel_blank();
     } else if (a == "--until-idle") {
@@ -696,6 +710,8 @@ bool word_arg(const std::string& a, const std::string& v, Files& files) {
         dump(files, v, nvm_fmodel_mem + NVM_LEGACY_A, MILAN_FLASH_JOURNAL_SIZE);
     } else if (a == "--sweep-cut") {
         sweep(static_cast<unsigned>(number(v.c_str(), nullptr)));
+    } else if (a == "--sweep-gate") {
+        rig->gate_us = static_cast<std::uint64_t>(number(v.c_str(), nullptr)) * 1000u;
     } else if (a == "--cut-at") {
         // K:FRAC: the power fails inside the K-th media effect since the power came on, FRAC/256 of it landed
         const std::size_t colon = v.find(':');

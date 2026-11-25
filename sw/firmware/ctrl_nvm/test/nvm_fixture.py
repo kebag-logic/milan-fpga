@@ -461,6 +461,9 @@ def delta_fixture(w: Writer, b: Bench) -> None:
     w.blob("slot/g5+full", with_frames_after(base, chain))
     w.num("full_seq", seq)
     w.num("full_frames", len(chain))
+    # each of those frames by itself, its sequence 5 + 2 * (n + 1), for a room filled to a chosen page
+    for n, one in enumerate(chain):
+        w.blob(f"kld/chain@{n}", one)
     w.blob("slot/g5+e9", with_frames_after(base, [klj3_delta(image(b, "golden@9/minor1"), [], expect, 5)]))
     w.blob("slot/g5+b9", with_frames_after(base, [klj3_delta(image(b, "bind9@9/minor1"), [rb], expect, 5)]))
     # every record erased: a record still erased in the stage goes in no frame

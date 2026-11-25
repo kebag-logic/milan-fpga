@@ -860,7 +860,8 @@ TEST_P(NvmBoth, service_bound) {
     if (port() == Port::Model) {
         EXPECT_EQ(r.at("max_read"), 128) << "a read-back step reads half a page, 0.7 ms of a pass's 2.0 ms share (#665)";
     }
-    EXPECT_TRUE(r.at("max_call_us") <= kNominalCallUs && r.at("calls") >= 3000000 / 100 && r.at("max_polls_call") <= 3)
+    // a call is at most 120 us apart on either port, and the 100 ms window before the 3 s erase adds some
+    EXPECT_TRUE(r.at("max_call_us") <= kNominalCallUs && r.at("calls") >= 3000000 / 120 && r.at("max_polls_call") <= 3)
         << "the loop did not keep running: " << r.text();
 }
 

@@ -32,8 +32,9 @@
  * KLJ2 one in `legacy`, and nothing here writes it, so an all-fabric image
  * rolled back to finds its saved state (decision 2).
  *
- * THE WRITE PATH. A change marks its record dirty. After the 1,000 ms
- * first-dirty window (DR2a) a capture latches the dirty records from their
+ * THE WRITE PATH. A change marks its record dirty. After the first-dirty
+ * window (DR2a), 100 ms for a binding record (#1009) and 1,000 ms for any
+ * other, a capture latches the dirty records from their
  * owners into the stage, ONE RECORD PER STEP; the stage is sealed under the
  * next sequence, NVM_STEP_BYTES of CRC per step; the erase blocks the
  * container spans in the slot that is NOT authoritative are erased one by
@@ -95,7 +96,7 @@ struct nvm_store {
 	struct nvm_open inflight;       /* captured, not yet in a verified slot */
 	struct nvm_rec cursor;          /* the capture's next record */
 	uint64_t now_us;                /* this step's time */
-	uint64_t dirty_since_us;
+	uint64_t due_us;                /* the first-dirty windows' earliest end, while one is open */
 	uint64_t retry_at_us;
 	uint64_t op_start_us;
 	uint32_t pos;                   /* seal, blank-check, program, verify */
@@ -105,7 +106,7 @@ struct nvm_store {
 	uint32_t next_seq;
 	uint32_t step_bytes;
 	int target;                     /* the slot being written: 0 A, 1 B */
-	int dirty_armed;                /* the first-dirty window is open */
+	int dirty_armed;                /* a first-dirty window is open */
 	int retry_armed;                /* a failed attempt's backoff runs */
 	int force;                      /* a console commit: write even if unchanged */
 	int stage_changed;              /* the capture changed a staged byte */
@@ -738,18 +739,20 @@ static void nvm_capture_begin(void)
 	nvm.st.phase = NVM_P_CAPTURE;
 }
 
-/* 1 when the slot the next save goes to holds its frames' room full: less than two pages are left (#1009). A failed
- * attempt leaves its slot taking no frame (nvm_fail), so a failed one is not begun again. */
+/* 1 when the slot the next save goes to holds its frames' room full: less than NVM_DELTA_RESERVE is left (#1009). A
+ * failed attempt leaves its slot taking no frame (nvm_fail), so a failed one is not begun again. */
 static int nvm_full(void)
 {
 	return nvm.st.auth != NVM_NONE && nvm.tail[!nvm.st.auth] != 0u &&
-	       nvm.tail[!nvm.st.auth] + 2u * NVM_FLASH_PAGE > NVM_DELTA_END;
+	       nvm.tail[!nvm.st.auth] + NVM_DELTA_RESERVE > NVM_DELTA_END;
 }
 
 /* DR2c spaces every attempt 1,000 ms after a failed one; DR2a starts a
- * capture 1,000 ms after the first change it takes, and a change the save in
- * flight left (nvm_mark) at the first idle step after that save (#920); a
- * failed work set is retried while it has attempts left. With no change
+ * capture at the earliest end of the first-dirty windows of the changes it
+ * takes, 100 ms after the first binding change and 1,000 ms after the first
+ * of any other (nvm_mark, #1009), and a change of any other class the save in
+ * flight left at the first idle step after that save (#920); a failed work
+ * set is retried while it has attempts left. With no change
  * waiting, a slot whose frames' room is full is written whole (#1009), so the
  * next change's save is a frame again; a work set left in flight has spent
  * its attempts on that slot, whose room each failure emptied (nvm_fail). */
@@ -760,7 +763,7 @@ static void nvm_idle(void)
 	if (nvm.retry_armed && nvm.now_us < nvm.retry_at_us)
 		return;
 	due = nvm_any(&nvm.dirty) &&
-	      (nvm.next_now || (nvm.dirty_armed && nvm.now_us - nvm.dirty_since_us >= NVM_US(MILAN_NVM_DEBOUNCE_MS)));
+	      (nvm.next_now || (nvm.dirty_armed && nvm.now_us >= nvm.due_us));
 	if (due || (nvm_any(&nvm.inflight) && !nvm.st.exhausted)) {
 		nvm_capture_begin();
 	} else if (!nvm_any(&nvm.dirty) && nvm_full()) {
@@ -1248,9 +1251,16 @@ uint32_t nvm_store_clock(void *ctx)
 	return (uint32_t)nvm_now();
 }
 
+/* 1 for a record of the binding class: a stream input's binding and its started/stopped state. */
+static int nvm_binding(unsigned int id)
+{
+	return id - NVM3_ID_BIND < NVM3_CAP_BIND;
+}
+
 /* Mark record id changed; the callers hold it to a record of the shape. */
 static void nvm_mark(unsigned int id)
 {
+	uint64_t due;
 	int joins;
 
 	if (nvm.st.phase == NVM_P_OFF)
@@ -1265,13 +1275,18 @@ static void nvm_mark(unsigned int id)
 		nvm_publish();
 		return;
 	}
-	/* a change the save in flight cannot take is the next save's, which then
-	 * starts at the first idle step after it, not after a window (#920) */
-	if (nvm_in_flight())
+	/* a change the save in flight cannot take is the next save's: one of the
+	 * binding class opens the next window (#1009), and any other starts it at
+	 * the first idle step after this save, not after a window (#920) */
+	if (nvm_in_flight() && !nvm_binding(id))
 		nvm.next_now = 1;
-	if (!nvm.dirty_armed) {
+	/* a window starts at its class's first change and is not restarted: a
+	 * later one of the class ends later, so the earliest end of the open ones
+	 * starts the capture, which takes everything dirty */
+	due = nvm_now() + NVM_US(nvm_binding(id) ? NVM_BIND_DEBOUNCE_MS : MILAN_NVM_DEBOUNCE_MS);
+	if (!nvm.dirty_armed || due < nvm.due_us) {
 		nvm.dirty_armed = 1;
-		nvm.dirty_since_us = nvm_now();
+		nvm.due_us = due;
 	}
 	nvm_publish();
 }

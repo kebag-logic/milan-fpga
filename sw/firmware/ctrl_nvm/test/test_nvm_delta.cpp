@@ -11,6 +11,7 @@
 
 #include <cstdint>
 #include <string>
+#include <tuple>
 #include <utility>
 #include <vector>
 
@@ -64,8 +65,8 @@ TEST_P(NvmBoth, delta_room) {
 }
 
 // #1009's save: a BIND_RX's one record goes as a one-page frame into the older slot, after its container, with no
-// erase; the authoritative slot is untouched; the stage holds the whole new container; its window is DR2a's and the
-// save is durable a few steps after it; the next boot restores it.
+// erase; the authoritative slot is untouched; the stage holds the whole new container; its window is the binding
+// class's and the save is durable a few steps after it; the next boot restores it.
 TEST_P(NvmBoth, bind_save_is_a_frame) {
     Files f = twin();
     const unsigned rb = bind_rid();
@@ -80,8 +81,8 @@ TEST_P(NvmBoth, bind_save_is_a_frame) {
         << "slot A is not its container and the reference's frame";
     EXPECT_TRUE(slot_holds(f.blobs["b.bin"], fx().blob("golden@6/minor1"))) << "the authoritative slot changed";
     EXPECT_TRUE(f.blobs["stage.bin"] == fx().blob("bind7@7/minor1")) << "the stage is not the whole new container";
-    EXPECT_TRUE(in(sealed_after_mark(r, 0), 1000 * kMs, 1050 * kMs) && !r.ok_at.empty() &&
-                in(static_cast<long long>(r.ok_at[0] - r.marks.back()), 1000 * kMs, 1050 * kMs))
+    EXPECT_TRUE(in(sealed_after_mark(r, 0), 100 * kMs, 150 * kMs) && !r.ok_at.empty() &&
+                in(static_cast<long long>(r.ok_at[0] - r.marks.back()), 100 * kMs, 150 * kMs))
         << "sealed " << sealed_after_mark(r, 0) << " us after the change: " << r.text();
     const Result b = boot_dumped(port(), f);
     EXPECT_TRUE(b.at("auth") == 0 && b.at("seq") == 7 && b.at("seq_a") == 7 && b.at("terminal") == NVM_T_COMPLETE &&
@@ -280,7 +281,7 @@ TEST_P(NvmBoth, frame_failure_written_whole) {
     for (const auto& [fault, vd] : faults) {
         Files f = twin();
         const std::vector<std::string> head = {"--boot", "--fault", fault, "--set", set_word(rb, value(rb, 7)),
-                                               "--run-ms", "1200"};
+                                               "--run-ms", "500"};
         Result r = go(port(), f, concat(kTwin, head), {"ls_refused"});
         EXPECT_TRUE(r.at("ok") == 0 && r.at("failed") == 1 && r.at("last") == vd && r.at("stale") == 1)
             << fault << ": the frame's failure: " << r.text();
@@ -307,7 +308,7 @@ TEST_F(NvmModel, frame_read_faults) {
     for (const auto& [fault, vd] : faults) {
         Files f = twin();
         const std::vector<std::string> head = {"--boot-fault", fault, "--boot", "--set", set_word(rb, value(rb, 7)),
-                                               "--run-ms", "1200"};
+                                               "--run-ms", "500"};
         Result r = go(port(), f, concat(kTwin, head));
         EXPECT_TRUE(r.at("ok") == 0 && r.at("failed") == 1 && r.at("last") == vd) << fault << ": " << r.text();
         r = go(port(), f, concat(kTwin, concat(head, {"--run-ms", "3000", "--until-idle"})));
@@ -538,11 +539,20 @@ TEST_P(NvmBoth, store_of_2509db68) {
 // save's media effects, with the part's erase and page times; every cut boots the old binding or the new one, never
 // neither and never a mix, and the next change commits. Once as a frame, once written whole.
 TEST_P(NvmBoth, swept_cut) {
-    const std::pair<std::pair<const char*, const char*>, long long> cases[] = {
-        {{"golden@5/minor1", "golden@6/minor1"}, 1}, {{"golden@5", "golden@6"}, 0}};
-    for (const auto& [slots, delta] : cases) {
+    // as a frame, written whole (a container of the previous minor), and as a frame into the slot whose commit of
+    // a full room follows it: each with the time, the frame's 250 ms or a whole commit's 800 ms, from which every
+    // cut must boot the new binding
+    const std::tuple<std::pair<const char*, const char*>, long long, const char*> cases[] = {
+        {{"golden@5/minor1", "golden@6/minor1"}, 1, "250"},
+        {{"golden@5", "golden@6"}, 0, "800"},
+        {{"slot/g5+full", "golden@6/minor1"}, 1, "250"}};
+    for (const auto& [slots, delta, gate] : cases) {
         Files f = fx().files({{"a5.bin", slots.first}, {"b6.bin", slots.second}});
-        const Result r = go(port(), f, concat(kTwin, {"--times", "150:500", "--sweep-cut", "10"}));
+        const bool full = std::string(slots.first) == "slot/g5+full";
+        const Result r = go(port(), f,
+                            concat(concat(kTwin, {"--times", "150:500"}),
+                                   concat(full ? std::vector<std::string>{"--sweep-free"} : std::vector<std::string>{},
+                                          {"--sweep-gate", gate, "--sweep-cut", "10"})));
         const auto at = [&r](const char* k) { return r.sweep.count(k) != 0u ? r.sweep.at(k) : -1; };
         EXPECT_TRUE(at("bad") == 0 && at("cases") >= 301 && at("old") > 0 && at("new") > 0 && at("delta") == delta)
             << slots.first << ": cases " << at("cases") << " old " << at("old") << " new " << at("new") << " bad "
