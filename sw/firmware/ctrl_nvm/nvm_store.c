@@ -25,10 +25,12 @@
  * because a commit could restart the sequence below a container that
  * survives it.
  *
- * THE FORMAT is the split placement's KLJ3 in journal_klj3 (#823, nvm_shape.h).
- * Today's journal is the all-fabric placement's KLJ2: the boot reads its two
- * headers and records a KLJ2 one in `legacy`, and nothing here writes it, so
- * an all-fabric image rolled back to finds its saved state (decision 2).
+ * THE FORMAT is the split placement's KLJ3 in journal_klj3 (#823, nvm_shape.h),
+ * minor 1: delta frames may follow a slot's container (#1009). A container of
+ * minor 0 is read as before and takes no frame. Today's journal is the
+ * all-fabric placement's KLJ2: the boot reads its two headers and records a
+ * KLJ2 one in `legacy`, and nothing here writes it, so an all-fabric image
+ * rolled back to finds its saved state (decision 2).
  *
  * THE WRITE PATH. A change marks its record dirty. After the 1,000 ms
  * first-dirty window (DR2a) a capture latches the dirty records from their
@@ -46,6 +48,17 @@
  * failure, and a capture that changes a staged byte starts a new one (DR2c).
  * A capture that changed no staged byte of a verified container is not
  * written (DR2b).
+ *
+ * THE DELTA FRAME (#1009). The slot that is not authoritative holds the commit
+ * before the authoritative one, so it lacks only that commit's records: their
+ * span is kept (lag). A save whose own records' span and the lag's together
+ * fit a frame writes, after the container's seal, a frame of that span of the
+ * stage into the slot's erased room past its container: its blank check, its
+ * page and its verify cover the frame alone, and nothing is erased. A boot
+ * applies a slot's frames over its container and judges the result again, so
+ * old or new at every cut holds as for a whole commit. A save written whole
+ * is the path above; a slot whose room is full is written whole while nothing
+ * waits.
  *
  * Every step is bounded and returns: the media's waits are polled, never
  * spun on, so the event loop serves every other protocol through a 3 s

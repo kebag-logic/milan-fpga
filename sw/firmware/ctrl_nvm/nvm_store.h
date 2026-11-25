@@ -40,7 +40,10 @@
  * them; docs/design/SPLIT_CONTROL_MEMORY.md section 13 gives the figures at
  * each shape. A flash part's busy time adds at most its erase time and each
  * page program's: on the part of SAVED_STATE_FASTCONNECT.md section 9.4, tSE
- * plus the container's pages times tPP a save.
+ * plus the container's pages times tPP a save. A save that goes as a delta
+ * frame (#1009) takes fewer steps: the frame's seal, blank check, pages and
+ * verify in place of the container's, no erase and no tSE; these bounds,
+ * stated for a save written whole, hold for it.
  */
 #ifndef NVM_STORE_H
 #define NVM_STORE_H

@@ -167,7 +167,15 @@ call `nvm_store_changed()` or `nvm_store_changed_id()`.
    streamed only to name the refusal in the 6.2 order. One difference from
    the shipping writer: a framed record whose length runs past the record
    area is `VD_LEN` here, as in `klj3_decode`, where the shipping writer says
-   `VD_REC`.
+   `VD_REC`. **The delta frames** after a container of this store's minor
+   (Write-back, #1009) are then applied over it in order: each frame whose
+   header follows the slot's sequence and whose CRC-32 closes has its span
+   copied over the staged container, with its sequence and trailer, and the
+   whole container is judged by the 6.2 order again; a refusal there refuses
+   the slot, as `scripts/nvm_klj3.py`'s `klj3_slot` does. The frames end at an
+   erased header, whose two reads must return the same bytes, or at a header
+   refused or a frame cut short, which stands only as a refusal does (item
+   3): on two reads of the same bytes.
 3. **A slot's verdict stands on at most `NVM_READ_TRIES` = 3 reads.** An OK
    verdict stands on one read, because its CRC-32 covers every byte, the
    sequence included. Any other verdict, BLANK included, stands only when
@@ -255,14 +263,59 @@ so a mark costs the same in any pass. Each
 
 | Phase | One step |
 |---|---|
-| idle | after the 1,000 ms first-dirty window (DR2a) and any backoff, start a capture; or retry a failed work set |
+| idle | after the 1,000 ms first-dirty window (DR2a) and any backoff, start a capture; or retry a failed work set; with no change waiting, write whole a slot whose frames' room is full (below) |
 | capture | latch ONE dirty record from its owner, compare it, frame it into the stage |
-| seal | decide (DR2b, DR2c below); then the header at the next sequence, then 256 bytes of CRC-32 per step |
-| erase | start the erase of the next block the container spans, in the slot that is NOT authoritative |
-| erase wait, blank check | poll once; then read back 128 bytes per step, all `0xFF` |
+| seal | decide (DR2b, DR2c below); then the header at the next sequence, then 256 bytes of CRC-32 per step; then, for a delta frame (below), the frame's header and span made in the payload buffer and its CRC-32 |
+| erase | start the erase of the next block the container spans, in the slot that is NOT authoritative; a delta frame erases nothing |
+| erase wait, blank check | poll once; then read back 128 bytes per step, all `0xFF`: the container's span, or the frame's |
 | program, program wait | one page, in ascending order: the header page first, the trailer last |
-| verify | read back 128 bytes per step and compare with the stage |
+| verify | read back 128 bytes per step and compare with the stage, or with the frame |
 | held | nothing, until reset: a slot is UNREAD (Boot, item 9) |
+
+**Delta frames (#1009).** A save writes only the bytes the slot it writes
+lacks. That slot, the one that is not authoritative, holds the state of the
+commit before the authoritative one's: it lacks exactly the records that
+commit took. So the store keeps that span, `lag` (one span of the container,
+from the first byte of the first record to the last byte of the last), and
+a save whose own records' span and the lag's together fit a frame goes as a
+**delta frame** into that slot's erased room past its container, with no
+erase:
+
+- the frame is `{magic KLD3, version, seq, prev, off, n, img_crc}`, the `n`
+  bytes of the new container from `off`, a pad to a word and a CRC-32
+  trailer ([`nvm_shape.h`](nvm_shape.h)); `img_crc` is the new container's
+  own trailer, sealed in the stage as for a whole commit, and `prev` is the
+  slot's sequence before the frame;
+- a frame starts on a page, in the room from the first page past the
+  container to `NVM_DELTA_END`, inside the blocks a whole commit erases and
+  at most `NVM_DELTA_ROOM_MAX`, 4,096 bytes, so a boot reads at most that
+  much more a slot;
+- it is made in the payload buffer, which no capture uses while a save is in
+  flight, so it is at most `NVM_PAYLOAD_MAX` bytes: 576 at 8x8, 136 at 1x1
+  and 66 at the Arty shapes, one binding (64 bytes) at every shape;
+- the blank check, the program and the verify cover the frame's span only,
+  and the authoritative slot is never erased or programmed, as before;
+- only a verified frame moves the authority, and the slot that was
+  authoritative then lacks this save's span.
+
+A save is written whole, as before #1009, when there is no authoritative
+slot, the slot it goes to holds a container of another minor (the previous
+minor 0 included: its first save after the upgrade is whole), its room took
+a frame cut short or bytes this store did not write, what it lacks is not
+known, or the frame does not fit the buffer or the room. A frame's span that
+does not read erased under an erased header makes the same save whole, in the
+same attempt. A failed attempt leaves its slot taking no frame until it is
+written whole. When the slot the next save goes to has less than two pages of
+room left and no change waits, the store writes it whole by itself (`tidied`
+in the status), so the next change's save is a frame again; a failure of that
+commit leaves its slot taking no frame, so it is not begun again, and leaves
+no claim stale.
+
+At boot, the lag is known when the two slots' record areas are the same
+(nothing is lacking), or when the other slot's sequence is the one before the
+authoritative slot's and that slot's last frame is read: the other slot then
+lacks at most that frame's span. Else the first save after the boot is
+written whole.
 
 **One step a centisecond, in a pass that has room for it (THE STEP).** The
 event loop owes the store a step for each centisecond it dispatches
@@ -516,8 +569,8 @@ store in process, over the flash model directly and over the LiteSPI port on
 the command-master model ([`test/nvm_rig.cpp`](test/nvm_rig.cpp)). Every
 byte and every verdict is compared with the fixture
 [`test/nvm_fixture.py`](test/nvm_fixture.py) writes from
-`scripts/nvm_klj3.py`, the reference codec. Per shape, 60 checks in 98
-tests: 38 on both ports, eleven on the model port alone (its read and refusal
+`scripts/nvm_klj3.py`, the reference codec. Per shape, 76 checks in 127
+tests: 51 on both ports, fourteen on the model port alone (its read and refusal
 faults do not reach memory-mapped LiteSPI reads), five on the LiteSPI port
 alone (the PHC, `timer0`, the command master and the guard exist only
 there), four that ask the codec directly and two on GoogleMock's flash
@@ -597,6 +650,34 @@ under any shape header but the host suite's own, which alone defines
     and dead; slowed in ten waits, in twelve and in every wait (the per-call
     deadline);
   - the service bound through a 3 s erase, and the port guard.
+- **Delta frames** ([`test/test_nvm_delta.cpp`](test/test_nvm_delta.cpp), #1009):
+  - a BIND_RX's one record saved as a one-page frame into the older slot,
+    with no erase, byte for byte the reference's `klj3_delta`, its window
+    DR2a's, the authoritative slot untouched and the stage the whole new
+    container, then booted back;
+  - frames alternating between the slots, each carrying the other slot's
+    last span with its own, lower or higher, and booted back; after a boot
+    the next save a frame again;
+  - a container of the previous minor written whole by its first save, the
+    save after the next a frame into it;
+  - each end of a slot's frames at boot: a frame cut short, after another
+    sequence, not newer, of another kind, a span past or inside the
+    container's header, past the room left, frames to the room's last byte,
+    a frame whose CRC closes over a refused record or a wrong trailer, and
+    what the next save then does;
+  - the lag not known (another record area and no frame, a blank slot), a
+    frame's span not erased, a frame that fails, a frame past its buffer or
+    its room: each written whole;
+  - the model's read faults on a frame's blank check and verify, on every
+    read of a frame at boot (each end on two reads of the same bytes, #665
+    decision 2) and at the re-stage;
+  - a full room written whole while nothing waits, and that commit failing;
+  - a console commit of nothing, and an erased record, as frames;
+  - **the swept cut**: from a binding change to 3 s after it, a cut every
+    10 ms and at the start and middle of each media effect, with an erase of
+    150 ms and a page of 0.5 ms, once as a frame and once written whole:
+    every cut boots the old binding or the new one, never neither, and the
+    next change commits and boots back.
 - **Power loss.** `--powercut` cuts the power inside every media effect of a
   commit, at 0, 1/256, 1/2 and 255/256 of it, and during the read-back. It
   starts from blank media, one slot and two slots. Every case boots the old
@@ -636,7 +717,7 @@ under any shape header but the host suite's own, which alone defines
 
 `--self-test` plants every defect of [`test/nvm_mutants.py`](test/nvm_mutants.py),
 one per copy, and requires each check it names to fail; every check is named
-by at least one (127 defects, and five controls of the compile-time rules: the NAME block, the two map widths, the input limit one entry early and the doctored build's `#error`). They are graded at the 1x1 shape, except a defect that only
+by at least one (152 defects, and five controls of the compile-time rules: the NAME block, the two map widths, the input limit one entry early and the doctored build's `#error`). They are graded at the 1x1 shape, except a defect that only
 shows at a clock that is not a whole number of MHz. That one,
 `ticks_per_us_truncated`, is graded at `endstation_arty_current`.
 

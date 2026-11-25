@@ -266,6 +266,18 @@ A power cut at any page of an append leaves the last closing delta authoritative
 A cut during compaction leaves the old slot authoritative, with every delta it holds.
 So nothing durable is lost, which is the owner's condition for compaction.
 
+**What #1009 builds now: delta frames in the other slot.**
+The split store saves in proportion to the change without the journal above, and without writing the authoritative slot.
+
+- The slot that is not authoritative holds the commit before the authoritative one, so it lacks only that commit's records.
+- A save writes one **delta frame** of the span those records and its own cover into that slot's erased room past its container, with no erase.
+  The frame carries the new container's sequence and trailer, and its own CRC-32 trailer (`sw/firmware/ctrl_nvm/nvm_shape.h`).
+- A boot copies each frame's span over its slot's container and judges the whole container again, so old or new at every cut holds as for a whole commit.
+- The room is inside the blocks a whole commit erases, at most 4,096 bytes; a full room is written whole while nothing waits.
+- Anything else is the whole-image commit: no authoritative slot, a previous-minor container, a lag not known, a frame past its buffer or room.
+
+This keeps FASTCONNECT section 7's rule that the authoritative slot is never erased or programmed, which #1009 requires; rules 1, 4 and 6 above do not apply to it.
+
 ### The worst case at 32x32, from datasheet maxima
 
 The figures are the N25Q128 maxima the tree already cites (`Micron N25Q128 Table 32` in `scripts/nvm_contract.py`): tSE <!-- fig:t_se_s -->3<!-- /fig --> s per <!-- fig:slot_now_kib -->64<!-- /fig --> KiB block, tPP <!-- fig:t_pp_ms -->5<!-- /fig --> ms per page.
@@ -377,6 +389,9 @@ Both writers would keep a KLJ2 decoder and an id translation for one boot.
 **The VERSION chain step.**
 
 - The container's magic becomes `KLJ3` and its `FMT_VER` major 3; acceptance rule 3's cap becomes the slot. Done.
+- `FMT_VER` minor 1 (#1009): delta frames may follow the container in its slot (section 4). The store writes minor 1.
+  A minor 0 container is read as before and takes no frame: its slot's first save after the upgrade is written whole.
+  A reader of minor 0, any major 3 reader before #1009, reads the container alone, so an image rolled back to restores each slot's last whole commit. Done.
 - A KLJ2 header in either journal is recognised as the previous format, hence `VD_VER`. Done.
 - F07.8 `layout_version` goes from 2 to 3: a <!-- fig:rec_hdr_bytes -->10<!-- /fig -->-byte header with a 16-bit `record_id`. Done.
 - **The gateware VERSION is not moved, as ruled (#823).**
