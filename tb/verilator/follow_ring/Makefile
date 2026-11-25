@@ -92,7 +92,10 @@ run:
 	+$(MAKE) -j4 b8 pullin bind small-pullin settle-control
 
 # A leg's build. The CI pieces below build first and then run each leg with it
-# empty, so a leg never rebuilds what its piece has just built.
+# empty, so a leg never rebuilds what its piece has just built. A line that
+# runs FINE_BUILD starts with '+': make sees $(MAKE) only in the line itself,
+# and without the '+' the fine build would leave the jobserver (make -n would
+# not recurse into it, and a pipe jobserver warns).
 LEG_BUILD ?= build
 FINE_BUILD = $(MAKE) build CLK_HZ=25000000 FRAME_DIV=64 MDIR=$(abspath $(MDIR))_fine
 
@@ -126,7 +129,7 @@ bind: $(LEG_BUILD)
 # The review's sub-arm pulls at 25 MHz: audio edges resolve 1/64 sample,
 # with the real 1 ms servo tick.
 small-pullin:
-	$(if $(LEG_BUILD),$(FINE_BUILD))
+	+$(if $(LEG_BUILD),$(FINE_BUILD))
 	python3 small_pulls.py --exe $(abspath $(MDIR))_fine/Vfollow_ring \
 	  --out $(abspath $(MDIR))_fine/results --jobs $(SWEEP_JOBS)
 
@@ -151,7 +154,7 @@ ci-prepare:
 
 build-b8 build-bind-settle: build
 build-pullin-small: build
-	$(FINE_BUILD)
+	+$(FINE_BUILD)
 
 exec-b8:
 	@$(MAKE) b8 LEG_BUILD=
