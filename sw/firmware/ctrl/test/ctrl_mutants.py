@@ -647,16 +647,17 @@ PUB_BINDING_ENTRY = ("bool mbx_pub_sink_binding(unsigned interface, unsigned sin
                      "bool sid_valid)\n{\n")
 PUB_SINK_REFUSAL = "\tif (interface >= MBX_N_IF || sink >= MBX_N_PUB_SINKS) {"
 ACMP_PUB_MOVED = "if (s->bound != s->published_bound || s->started != s->published_started || moved) {"
-ACMP_FINISH = ("\tpublish(a);\n\trearm(a);\n\tadmit(a);\n\tfor (unsigned k = 0; k < a->cfg.n_sinks; ++k) {\n"
-               "\t\tif (!marked(a, k)) {\n\t\t\tcontinue;\n\t\t}\n"
-               "\t\tstruct acmp_sink *s = &a->sinks[k];\n\t\tuint8_t record[ACMP_BINDING_BYTES];\n"
-               "\t\trecord_of(s, record);\n\t\tif (!same_record(record, s->saved)) {\n"
-               "\t\t\tmemcpy(s->saved, record, ACMP_BINDING_BYTES);\n\t\t\tp_persist(a, k);\n\t\t}\n"
-               "\t\tstruct acmp_sink_view v;\n\t\tview_of(s, &v);\n"
-               "\t\tif (s->change_owed == 0u && !view_equal(&v, &s->reported)) {\n"
-               "\t\t\ts->reported = v;\n\t\t\tp_changed(a, k);\n\t\t}\n\t}\n")
+ACMP_FINISH = ("\tpublish(a);\n\trearm(a);\n\tadmit(a);\n\tuint32_t bits = 0u;\n"
+               "\tfor (unsigned k = 0; k < a->cfg.n_sinks; ++k, bits >>= 1) {\n"
+               "\t\tif (k % 32u == 0u) {\n\t\t\tbits = a->dirty[k / 32u];\n\t\t}\n"
+               "\t\tif ((bits & 1u) == 0u) {\n\t\t\tcontinue;\n\t\t}\n"
+               "\t\tstruct acmp_sink *s = &a->sinks[k];\n"
+               "\t\tif (record_moved(s)) {\n\t\t\trecord_of(s, s->saved);\n\t\t\tp_persist(a, k);\n\t\t}\n"
+               "\t\tif (s->change_owed == 0u && view_moved(s, &s->reported)) {\n"
+               "\t\t\tview_of(s, &s->reported);\n\t\t\tp_changed(a, k);\n\t\t}\n\t}\n")
 #: The walk's marks are cleared last (tsn-c-stack#32), so a publication moved behind the report still sees them.
-ACMP_FINISH_CLEAR = "\tmemset(a->dirty, 0, sizeof a->dirty);\n\ta->dirty_if = 0u;\n}"
+ACMP_FINISH_CLEAR = ("\tfor (unsigned w = 0; w < ACMP_DIRTY_WORDS; ++w) {\n\t\ta->dirty[w] = 0u;\n\t}\n"
+                     "\ta->dirty_if = 0u;\n}")
 ACMP_REBIND = "\t\ts->started = !sw;\n\t\tbind_response(a, interface, k, cmd);\n\t\treturn;"
 A31S = "AcmpCore.A31TheStartedLevelIsPublishedBeforeItIsPromised"
 B12 = "AcmpMailbox.B12TheStartedLevelIsOneBindingWriteThatKeepsTheStream"
