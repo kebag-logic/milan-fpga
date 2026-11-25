@@ -299,16 +299,21 @@ def responses(log: grader.Log) -> dict[int, tuple[int, int]]:
     return out
 
 
-def journal(path: Path, image: int, base: int) -> tuple[int | None, dict[int, bytes]]:
+def newer(path: Path, image: int) -> tuple[int | None, bytes]:
     """The journal a cut leaves: its authoritative container (section 7: the newer accepted slot, wrap-safe, slot A
-    on a tie) and its names, or (None, {}) with no slot accepted."""
+    on a tie), its sequence and bytes, or (None, b'') with no slot accepted."""
     data = path.read_bytes()
     half = len(data) // 2
     slots = [(accepted(data[o:o + image], image), data[o:o + image]) for o in (0, half)]
     good = [(s, b) for s, b in slots if s is not None]
     if not good:
-        return None, {}
-    seq, blob = good[0] if len(good) == 1 or ((good[0][0] - good[1][0]) & 0xFFFFFFFF) < 1 << 31 else good[1]
+        return None, b''
+    return good[0] if len(good) == 1 or ((good[0][0] - good[1][0]) & 0xFFFFFFFF) < 1 << 31 else good[1]
+
+
+def journal(path: Path, image: int, base: int) -> tuple[int | None, dict[int, bytes]]:
+    """The authoritative container's names at the cut (newer), or (None, {}) with no slot accepted."""
+    seq, blob = newer(path, image)
     return seq, held_names(blob, image, base)
 
 
@@ -382,3 +387,8 @@ def misses(result: dict, group: str) -> list[str]:
         out.append(f"{group}: {n['steps']} steps between the save in flight's verify and the next save's erase, "
                    f"{n['gap_ms']} ms, want {n['want']}: its capture did not start at the first idle step")
     return out
+
+
+def late(results: list[dict]) -> list[str]:
+    """Every burst's and change in flight's misses."""
+    return [m for g in results if g.get('burst') for m in misses(g['burst'], g['group'])]
