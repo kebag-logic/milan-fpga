@@ -1,0 +1,12 @@
+COMMAND clang++ -std=c++20 -g -O0 -fsanitize=address,undefined -fno-omit-frame-pointer -I$REVIEWS/r930-1-adpcdl/tests -I$REVIEWS/r930-1-adpcdl/include -I$VALIDATION_TOOLS/gtest-1.14.0/include -c $REVIEWS/adpcdl-r930-1-packet/boundary_probe.cpp -o $REVIEWS/adpcdl-r930-1-packet/scratch/boundary/tests.o
+In file included from $REVIEWS/adpcdl-r930-1-packet/boundary_probe.cpp:2:
+In file included from $REVIEWS/r930-1-adpcdl/tests/test_adp.cpp:4:
+In file included from $VALIDATION_TOOLS/gtest-1.14.0/include/gtest/gtest.h:65:
+In file included from $VALIDATION_TOOLS/gtest-1.14.0/include/gtest/gtest-death-test.h:43:
+In file included from $VALIDATION_TOOLS/gtest-1.14.0/include/gtest/internal/gtest-death-test-internal.h:47:
+In file included from $VALIDATION_TOOLS/gtest-1.14.0/include/gtest/gtest-matchers.h:49:
+$VALIDATION_TOOLS/gtest-1.14.0/include/gtest/gtest-printers.h:502:35: warning: implicit conversion from 'char8_t' to 'char32_t' may change the meaning of the represented code unit [-Wcharacter-conversion]
+  502 |   PrintTo(ImplicitCast_<char32_t>(c), os);
+      |           ~~~~~~~~~~~~~           ^
+1 warning generated.
+RETURN 0

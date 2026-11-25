@@ -1,0 +1,5 @@
+Insert before target decode in src/adp.c:
+	if ((wire_be16(frame + 16u) & 0x07FFu) > 56u) {
+		volatile uint8_t surplus = frame[82];
+		(void)surplus;
+	}

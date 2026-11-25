@@ -1,0 +1,2 @@
+COMMAND clang++ -g -O0 -fsanitize=address,undefined -fno-omit-frame-pointer $REVIEWS/adpcdl-r930-1-packet/scratch/boundary/head.o $REVIEWS/adpcdl-r930-1-packet/scratch/boundary/tests.o $REVIEWS/adpcdl-r930-1-packet/scratch/boundary/main.o -I$VALIDATION_TOOLS/gtest-1.14.0/include -DGTEST_HAS_PTHREAD=1 -L$VALIDATION_TOOLS/gtest-1.14.0/lib -lgmock -lgtest -o $REVIEWS/adpcdl-r930-1-packet/scratch/boundary/head
+RETURN 0

@@ -1,0 +1,34 @@
+COMMAND $REVIEWS/adpcdl-r930-1-packet/scratch/boundary/overread --gtest_filter=IndependentBoundary.*
+Note: Google Test filter = IndependentBoundary.*
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from IndependentBoundary
+[ RUN      ] IndependentBoundary.PhysicalEndOfBuffer
+AddressSanitizer:DEADLYSIGNAL
+=================================================================
+==3290258==ERROR: AddressSanitizer: SEGV on unknown address 0x7f975f296000 (pc 0x563595056849 bp 0x7ffe57a50bd0 sp 0x7ffe57a50a10 T0)
+==3290258==The signal is caused by a READ memory access.
+    #0 0x563595056849 in adp_rx $REVIEWS/adpcdl-r930-1-packet/scratch/boundary/overread.c:320:30
+    #1 0x56359505fbaa in (anonymous namespace)::accepted_discovery(unsigned int, unsigned char const*, unsigned long) $REVIEWS/r930-1-adpcdl/tests/test_adp.cpp:744:5
+    #2 0x56359505dad9 in IndependentBoundary_PhysicalEndOfBuffer_Test::TestBody() $REVIEWS/adpcdl-r930-1-packet/boundary_probe.cpp:26:25
+    #3 0x5635951b80b1 in void testing::internal::HandleExceptionsInMethodIfSupported<testing::Test, void>(testing::Test*, void (testing::Test::*)(), char const*) ($REVIEWS/adpcdl-r930-1-packet/scratch/boundary/overread+0x3310b1) (BuildId: fc23599931d064348d1b05bc134464a1dff2ad41)
+    #4 0x5635951a7f49 in testing::Test::Run() (.part.0) gtest-all.cc
+    #5 0x5635951a84d3 in testing::TestInfo::Run() ($REVIEWS/adpcdl-r930-1-packet/scratch/boundary/overread+0x3214d3) (BuildId: fc23599931d064348d1b05bc134464a1dff2ad41)
+    #6 0x5635951a9cf0 in testing::TestSuite::Run() (.part.0) gtest-all.cc
+    #7 0x5635951af4f1 in testing::internal::UnitTestImpl::RunAllTests() ($REVIEWS/adpcdl-r930-1-packet/scratch/boundary/overread+0x3284f1) (BuildId: fc23599931d064348d1b05bc134464a1dff2ad41)
+    #8 0x5635951afc10 in testing::UnitTest::Run() ($REVIEWS/adpcdl-r930-1-packet/scratch/boundary/overread+0x328c10) (BuildId: fc23599931d064348d1b05bc134464a1dff2ad41)
+    #9 0x56359516734c in RUN_ALL_TESTS() $VALIDATION_TOOLS/gtest-1.14.0/include/gtest/gtest.h:2317:73
+    #10 0x5635951671a6 in main $REVIEWS/r930-1-adpcdl/tests/main.cpp:8:24
+    #11 0x7f975f027780  (/usr/lib/libc.so.6+0x27780) (BuildId: 6961407ef2e7877eabf5ed8c5a39aea9de7194c1)
+    #12 0x7f975f0278b8 in __libc_start_main (/usr/lib/libc.so.6+0x278b8) (BuildId: 6961407ef2e7877eabf5ed8c5a39aea9de7194c1)
+    #13 0x563594f58604 in _start ($REVIEWS/adpcdl-r930-1-packet/scratch/boundary/overread+0xd1604) (BuildId: fc23599931d064348d1b05bc134464a1dff2ad41)
+
+==3290258==Register values:
+rax = 0x00007f975f296000  rbx = 0x00007ffe57a50be0  rcx = 0x0000000000000001  rdx = 0x00007f975f295fae  
+rdi = 0x00007f975f295fbe  rsi = 0x00007f975f296001  rbp = 0x00007ffe57a50bd0  rsp = 0x00007ffe57a50a10  
+ r8 = 0x0000000000000000   r9 = 0x000000000000000f  r10 = 0x0000000000000004  r11 = 0x0000000000000000  
+r12 = 0x0000000000000000  r13 = 0x00007cf75e3e0080  r14 = 0x00005635951dbd4d  r15 = 0x00007bb75e3e0538  
+AddressSanitizer can not provide additional info.
+SUMMARY: AddressSanitizer: SEGV $REVIEWS/adpcdl-r930-1-packet/scratch/boundary/overread.c:320:30 in adp_rx
+==3290258==ABORTING
+RETURN 1

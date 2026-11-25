@@ -1,0 +1,2 @@
+COMMAND clang -std=c11 -g -O0 -fsanitize=address,undefined -fno-omit-frame-pointer -DNDEBUG -I$REVIEWS/r930-1-adpcdl/include -c $REVIEWS/r930-1-adpcdl/src/adp.c -o $REVIEWS/adpcdl-r930-1-packet/scratch/boundary/head.o
+RETURN 0

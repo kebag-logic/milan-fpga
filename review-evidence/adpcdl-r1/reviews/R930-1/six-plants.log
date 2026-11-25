@@ -1,0 +1,9 @@
+COMMAND python3 scripts/mutation.py --work $REVIEWS/adpcdl-r930-1-packet/scratch/plants --jobs 5 --select control-length
+CAUGHT adp-control-length-off-by-one
+CAUGHT adp-short-control-length-accepted
+CAUGHT adp-long-control-length-refused
+CAUGHT adp-control-length-includes-valid-time
+CAUGHT adp-long-control-length-needs-surplus
+CAUGHT adp-minimum-control-length-refused
+{"CAUGHT": 6, "ESCAPED": 0, "ERROR": 0}
+RETURN 0
