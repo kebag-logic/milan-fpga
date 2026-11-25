@@ -28815,12 +28815,13 @@ def _raising_census() -> list[int] | None:
     raise RuntimeError("planted census failure")
 
 
-def _key_map_rows(doc: str) -> dict[str, list[str]]:
+def _key_map_rows(doc: str, heading: str = KEY_MAP_HEADING) -> dict[str, list[str]]:
     """{config key path: the row numbers that carry it}, from the section 3
-    table's key column. The key column is the second cell of every row
+    table's key column (or the table under `heading`, gate 41's section 6).
+    The key column is the second cell of every row
     below the header; a backticked dotted path is a key, `{a,b}` expands,
     anything else in the cell (a derived fact, prose) is not a key."""
-    start = doc.index(KEY_MAP_HEADING)
+    start = doc.index(heading)
     end = doc.find("\n## ", start + 1)
     rows: dict[str, list[str]] = {}
     for line in doc[start:end if end > 0 else None].splitlines():
@@ -30583,6 +30584,496 @@ def test_split_record_space_bounds_the_split_output() -> None:
     print(f"  [gate 39] {len(caught)}/{len(caught)} planted defects turned their check red: {'; '.join(caught)}")
 
 
+# --------------------------------- gates 41 and 42: the host profile (#983) --
+HOST_EXAMPLE = ROOT / "configs/host/endstation_host_example.yaml"
+#: The host profile's section of the builder page; it ends at the next `## `.
+HOST_SECTION_HEADING = "## 6. The descriptor-only host profile"
+#: The firmware generators the host profile feeds, each run as its own CLI.
+HOST_GENERATORS = ("sw/firmware/ctrl/adp/adp_entity.py", "sw/firmware/ctrl/aecp/aecp_entity.py",
+                   "sw/firmware/ctrl/srp/srp_entity.py")
+#: Where the stated gPTP dataset lands in AVB_INTERFACE (IEEE 1722.1-2021
+#: Table 7-13): (dataset key, offset, octets).
+AVB_INTERFACE_GPTP_FIELDS = (
+    ("priority1", 86, 1), ("clock_class", 87, 1), ("offset_scaled_log_variance", 88, 2),
+    ("clock_accuracy", 90, 1), ("priority2", 91, 1), ("domain", 92, 1), ("log_sync_interval", 93, 1),
+    ("log_announce_interval", 94, 1), ("log_pdelay_interval", 95, 1), ("port_number", 96, 2))
+#: The figures of one THE SHAPES row (ctrl_loop.h), printed by gate 41's probe.
+SHAPE_FIGURES = ("CTRL_LOOP_SOURCES", "CTRL_LOOP_SINKS", "CTRL_LOOP_SLICE_US", "CTRL_LOOP_BUILD_PASS_US",
+                 "CTRL_LOOP_BUILD_ONE_PASS_US", "CTRL_LOOP_SRP_UNIT_US", "CTRL_LOOP_RETRY_COLD_US",
+                 "CTRL_LOOP_RETRY_ATTEMPT_US", "CTRL_LOOP_QUEUED_MS", "CTRL_LOOP_TX_MS")
+
+
+def _host_generated(tmp: Path, config: Path = HOST_EXAMPLE) -> dict[str, Path]:
+    """Each firmware generator's header for `config`, written into `tmp`, by
+    its stem."""
+    out = {}
+    for tool in HOST_GENERATORS:
+        dest = tmp / f"{config.stem}.{Path(tool).stem}.h"
+        ran = subprocess.run([sys.executable, "-B", str(ROOT / tool), str(config), "-o", str(dest)],
+                             capture_output=True, text=True, check=False)
+        assert ran.returncode == 0, f"gate 41: {tool} refused {config.name}: {ran.stderr}"
+        out[Path(tool).stem] = dest
+    return out
+
+
+def _check_host_model(cfg: dict, overlay: dict, blob: bytes) -> None:
+    """The first user's inventory (#983), as the overlay states it and the
+    image serves it: STREAM_INPUT 0 AAF and 1 CRF, STREAM_OUTPUT 0 AAF, no
+    CRF output, ADP 1 source and 2 sinks; AVB_INTERFACE carries the stated
+    gPTP dataset, octet for octet."""
+    aaf = f"0x{eb.aaf_pcm32(8, 48000):016X}"
+    inputs, outputs = overlay["stream_inputs"], overlay["stream_outputs"]
+    assert [(s["kind"], s["formats"][0]) for s in inputs] == [("aaf", aaf), ("crf", eb.CRF_FORMAT_DEFAULT)], \
+        f"gate 41: the host example's STREAM_INPUTs are {inputs}"
+    assert [(s["kind"], s["formats"]) for s in outputs] == [("aaf", [aaf])], \
+        f"gate 41: the host example's STREAM_OUTPUTs are {outputs}"
+    entity = image_descriptor(blob, 0x0000)
+    sources, sinks = (int.from_bytes(entity[at:at + 2], "big") for at in (24, 28))
+    assert (sources, sinks) == (1, 2), f"gate 41: the image's ENTITY advertises {sources}/{sinks}"
+    avb = image_descriptor(blob, 0x0009)
+    for key, at, width in AVB_INTERFACE_GPTP_FIELDS:
+        want = cfg["gptp"][key] & ((1 << 8 * width) - 1)
+        got = int.from_bytes(avb[at:at + width], "big")
+        assert got == want, f"gate 41: AVB_INTERFACE {key} at {at} reads {got:#x}, the config states {want:#x}"
+
+
+def _check_host_headers(headers: dict[str, Path], blob: bytes) -> None:
+    """The three generated headers agree with the model: ADP's counts, the
+    shape header's (1, 2), the AEM image's CRC."""
+    adp = headers["adp_entity"].read_text(encoding="utf-8")
+    for field in (".talker_stream_sources = 0x1u", ".listener_stream_sinks = 0x2u"):
+        assert field in adp, f"gate 41: adp_entity.py's header lacks {field}"
+    shape = headers["srp_entity"].read_text(encoding="utf-8")
+    for line in ("#define CTRL_SRP_SOURCES 1u", "#define CTRL_SRP_SINKS 2u"):
+        assert line in shape, f"gate 41: srp_entity.py's header lacks {line}"
+    crc = f"#define AECP_ENTITY_CRC 0x{binascii.crc32(blob):08x}u"
+    assert crc in headers["aecp_entity"].read_text(encoding="utf-8"), \
+        f"gate 41: aecp_entity.py's image is not the builder's ({crc} absent)"
+
+
+def _contract_at(n_if: int, tmp: Path) -> Path:
+    """The mailbox contract at `n_if` interfaces, written into `tmp` for a
+    probe to force-include ahead of the tree's (its include guard then keeps
+    the tree's out), as a two-interface arm's build does."""
+    text = (ROOT / "sw/firmware/ctrl/mbx/mbx_contract.h").read_text(encoding="utf-8")
+    assert text.count("#define MBX_N_IF 1u\n") == 1, "gate 41: mbx_contract.h does not state MBX_N_IF 1u once"
+    dest = tmp / f"mbx_contract_if{n_if}.h"
+    dest.write_text(text.replace("#define MBX_N_IF 1u\n", f"#define MBX_N_IF {n_if}u\n"), encoding="utf-8")
+    return dest
+
+
+def _shape_figures(cc: str, shape_h: Path, host: bool, tmp: Path, n_if: int = 1) -> dict[str, int] | str:
+    """THE SHAPES row ctrl_loop.h selects for `shape_h` at `n_if` interfaces,
+    with or without CTRL_HOST_PLATFORM: its figures and MBX_N_IF, or the
+    compiler's words when refused."""
+    probe = tmp / "shape_probe.c"
+    names = ("MBX_N_IF", *SHAPE_FIGURES)
+    probe.write_text('#include <stdio.h>\n#include "ctrl_loop.h"\nint main(void) {\n'
+                     + "".join(f'    printf("%u\\n", (unsigned){name});\n' for name in names)
+                     + "    return 0;\n}\n", encoding="utf-8")
+    exe = tmp / "shape_probe"
+    ctrl = ROOT / "sw/firmware/ctrl"
+    built = subprocess.run([cc, "-std=c11", "-Werror", "-pedantic", *(["-DCTRL_HOST_PLATFORM"] if host else []),
+                            "-include", str(_contract_at(n_if, tmp)), "-include", str(shape_h),
+                            f"-I{ctrl / 'loop'}", f"-I{ctrl / 'mbx'}", str(probe), "-o", str(exe)],
+                           capture_output=True, text=True, check=False)
+    if built.returncode:
+        return built.stderr
+    printed = subprocess.run([str(exe)], capture_output=True, text=True, check=True).stdout.split()
+    figures = dict(zip(names, map(int, printed)))
+    assert figures.pop("MBX_N_IF") == n_if, f"gate 41: the shape probe did not build at {n_if} interfaces"
+    return figures
+
+
+#: The tracked files that may name CTRL_HOST_PLATFORM: the guard that selects
+#: the host shape, the host shape's header, its documentation and this gate. A
+#: build input of this repository naming it would let an FPGA image take the
+#: host shape.
+HOST_MACRO_FILES = ("docs/ENDSTATION_BUILDER.md", "sw/builder/test_builder.py",
+                    "sw/firmware/ctrl/host/ctrl_loop_host.h", "sw/firmware/ctrl/loop/ctrl_loop.h")
+SHAPES_WORDS = "THE SHAPES: the shape (MBX_N_IF, CTRL_SRP_SOURCES, CTRL_SRP_SINKS) is not one ctrl_loop.h lists"
+#: THE SHAPES' text reader, which the service-budget harness's gates read the
+#: table through, and the header the host shape is stated in.
+SHAPES_READER = ROOT / "tb/verilator/ctrl_service_budget/shape_costs.py"
+LOOP_HEADER = ROOT / "sw/firmware/ctrl/loop/ctrl_loop.h"
+HOST_SHAPE_HEADER = ROOT / "sw/firmware/ctrl/host/ctrl_loop_host.h"
+#: The host profile's shape (interfaces, talker sources, listener sinks).
+HOST_SHAPE = (1, 1, 2)
+#: The guard in ctrl_loop.h that selects the host shape before THE SHAPES.
+HOST_SHAPE_GUARD = ('#if defined(CTRL_HOST_PLATFORM) && CTRL_LOOP_SHAPE(1u, 1u, 2u)\n'
+                    '#include "../host/ctrl_loop_host.h"\n#else\n')
+
+
+def _shapes_reader() -> types.ModuleType:
+    """shape_costs.py, loaded from its source without a bytecode cache."""
+    module = types.ModuleType("shape_costs")
+    module.__file__ = str(SHAPES_READER)
+    exec(compile(SHAPES_READER.read_text(encoding="utf-8"), str(SHAPES_READER), "exec"), module.__dict__)
+    return module
+
+
+def _shapes_as_read(reader: types.ModuleType, text: str) -> dict[tuple[int, int, int], dict[str, int]]:
+    """THE SHAPES as the tree's reader takes ctrl_loop.h's text
+    (shape_costs.listed): the table must read, list no host shape, and
+    every figure it reads must be defined in the text once per listed row and
+    nowhere else, so that a reader taking a figure's first definition takes
+    an FPGA row's. Returns the table by shape."""
+    try:
+        table = {tuple(s): row for s, row in reader.listed(text).items()}
+    except ValueError as refused:
+        raise AssertionError(f"gate 41: shape_costs.py does not read THE SHAPES: {refused}") from None
+    assert HOST_SHAPE not in table, f"gate 41: THE SHAPES list the host shape {HOST_SHAPE} as an FPGA row"
+    for name in reader.NAMES + reader.BOUNDS:
+        defined = len(re.findall(rf"^#define {name} ", text, re.M))
+        assert defined == len(table), \
+            f"gate 41: ctrl_loop.h defines {name} {defined} times, not once for each of its {len(table)} listed shapes"
+    return table
+
+
+def _check_shapes_text() -> dict[tuple[int, int, int], dict[str, int]]:
+    """ctrl_loop.h reads through shape_costs.py with the host shape outside
+    THE SHAPES; the two placements that would break that are refused: the
+    host row inside the #if chain (where shape_costs.listed raises), and its
+    figures stated in ctrl_loop.h beside the chain. Returns the table."""
+    reader = _shapes_reader()
+    text = LOOP_HEADER.read_text(encoding="utf-8")
+    table = _shapes_as_read(reader, text)
+    assert text.count(HOST_SHAPE_GUARD) == 1, "gate 41: ctrl_loop.h does not select the host shape by its guard"
+    host_rows = "".join(line + "\n" for line in HOST_SHAPE_HEADER.read_text(encoding="utf-8").splitlines()
+                        if line.startswith("#define CTRL_LOOP_") and not line.startswith("#define CTRL_LOOP_HOST_H"))
+    assert len(host_rows.splitlines()) == len(reader.NAMES + reader.BOUNDS), \
+        f"gate 41: ctrl_loop_host.h states {len(host_rows.splitlines())} figures, not THE SHAPES' row of names"
+    unlisted = f'#else\n#error "{SHAPES_WORDS}"\n'
+    assert text.count(unlisted) == 1, "gate 41: THE SHAPES do not end in their #error once"
+    plants = {
+        "the host row inside THE SHAPES' chain": (text.replace(
+            unlisted, "#elif defined(CTRL_HOST_PLATFORM) && CTRL_LOOP_SHAPE(1u, 1u, 2u)\n" + host_rows + unlisted),
+            "shape_costs.py does not read THE SHAPES: ctrl_loop.h lists a shape not as three numbers"),
+        "the host row's figures stated in ctrl_loop.h beside THE SHAPES": (text.replace(
+            '#include "../host/ctrl_loop_host.h"\n', host_rows),
+            f"ctrl_loop.h defines {reader.NAMES[0]} {len(table) + 1} times"),
+    }
+    for name, (planted, reason) in plants.items():
+        assert planted != text, f"gate 41: the plant '{name}' did not apply"
+        _expect_red(name, lambda p=planted: _shapes_as_read(reader, p), reason, "gate 41")
+    return table
+
+
+def _check_fpga_rows(cc: str, table: dict, host: dict[str, int], tmp: Path) -> tuple[list[str], list[str]]:
+    """At one and at two interfaces, every FPGA config's row as the compiler
+    selects it is the row shape_costs.py reads for its shape, and is the same
+    with CTRL_HOST_PLATFORM defined; a shape THE SHAPES do not list is refused
+    with the macro as without it, unless it is the host shape, which the
+    macro gives the host figures (`host`) as it does the host profile.
+    Returns the points THE SHAPES refuse, and those of them at the host
+    shape."""
+    unlisted, at_host = [], []
+    for name, path in CONFIGS.items():
+        fpga_h = _host_generated(tmp, path)["srp_entity"]
+        streams = tuple(int(n) for n in re.findall(r"^#define CTRL_SRP_(?:SOURCES|SINKS) (\d+)u$",
+                                                    fpga_h.read_text(encoding="utf-8"), re.M))
+        for n_if in (1, 2):
+            plain = _shape_figures(cc, fpga_h, False, tmp, n_if)
+            marked = _shape_figures(cc, fpga_h, True, tmp, n_if)
+            if isinstance(plain, str):
+                assert SHAPES_WORDS in plain, f"gate 41: {name}'s shape probe failed for another cause: {plain}"
+                if (n_if, *streams) == HOST_SHAPE:
+                    assert marked == host, \
+                        f"gate 41: CTRL_HOST_PLATFORM gave {name} at the host shape {marked}, not the host figures"
+                    at_host.append(f"{name}/{n_if}if")
+                else:
+                    assert isinstance(marked, str) and SHAPES_WORDS in marked, \
+                        f"gate 41: CTRL_HOST_PLATFORM let {name} at {n_if} interfaces past THE SHAPES: {marked}"
+                unlisted.append(f"{name}/{n_if}if")
+                continue
+            assert plain == marked, \
+                f"gate 41: CTRL_HOST_PLATFORM moved {name}'s THE SHAPES row at {n_if} interfaces: {plain} -> {marked}"
+            shape = (n_if, plain["CTRL_LOOP_SOURCES"], plain["CTRL_LOOP_SINKS"])
+            row = {k: v for k, v in plain.items() if k not in ("CTRL_LOOP_SOURCES", "CTRL_LOOP_SINKS")}
+            assert table.get(shape) == row, \
+                f"gate 41: {name} at {shape} compiles {row}, but shape_costs.py reads {table.get(shape)}"
+    return unlisted, at_host
+
+
+def _host_macro_files() -> list[str]:
+    """Every tracked file naming CTRL_HOST_PLATFORM."""
+    listed = subprocess.run(["git", "grep", "-l", "CTRL_HOST_PLATFORM"], cwd=ROOT,
+                            capture_output=True, text=True, check=False)
+    assert listed.returncode in (0, 1), f"gate 41: git grep failed: {listed.stderr}"
+    return sorted(listed.stdout.split())
+
+
+def _check_host_shape(cc: str, host_h: Path, tmp: Path, table: dict) -> tuple[list[str], list[str]]:
+    """The host shape (1, 1, 2) for a CTRL_HOST_PLATFORM build alone, outside
+    THE SHAPES, whose rows shape_costs.py read as `table`
+    (_check_shapes_text): the macro selects the host figures, which are the
+    FPGA 1x1/1if row's as ctrl_loop_host.h states; without the macro, and at
+    two interfaces with it, the host shape is refused by THE SHAPES' #error;
+    every FPGA config's row is the same with and without the macro and is
+    the one shape_costs.py reads (_check_fpga_rows); and no build input of
+    this tree names the macro. Returns the FPGA points THE SHAPES refuse (an
+    all-fabric shape no split image is built at), and those of them at the
+    host shape."""
+    refused = _shape_figures(cc, host_h, False, tmp)
+    assert isinstance(refused, str) and SHAPES_WORDS in refused, \
+        f"gate 41: (1, 1, 2) without CTRL_HOST_PLATFORM was not refused by THE SHAPES: {refused}"
+    two = _shape_figures(cc, host_h, True, tmp, 2)
+    assert isinstance(two, str) and SHAPES_WORDS in two, \
+        f"gate 41: the host shape's streams at two interfaces were not refused by THE SHAPES: {two}"
+    host = _shape_figures(cc, host_h, True, tmp)
+    assert isinstance(host, dict) and (host["CTRL_LOOP_SOURCES"], host["CTRL_LOOP_SINKS"]) == (1, 2), \
+        f"gate 41: the host shape did not build at (1, 1, 2): {host}"
+    host_row = {k: v for k, v in host.items() if k not in ("CTRL_LOOP_SOURCES", "CTRL_LOOP_SINKS")}
+    assert host_row == table[(1, 2, 2)], \
+        f"gate 41: the host figures {host_row} are not the 1x1/1if row's {table[(1, 2, 2)]}, as ctrl_loop_host.h states"
+    unlisted, at_host = _check_fpga_rows(cc, table, host, tmp)
+    named = set(_host_macro_files())
+    assert named <= set(HOST_MACRO_FILES), \
+        f"gate 41: CTRL_HOST_PLATFORM is named outside its guard, header, docs and gate: " \
+        f"{sorted(named - set(HOST_MACRO_FILES))}"
+    return unlisted, at_host
+
+
+def _host_key_paths() -> set[str]:
+    """Every config key the loaders read on the host example, recorded as
+    gate 32 records the FPGA configs' (`_KeyRecorder`)."""
+    seen: set[str] = set()
+    real_yaml = eb.yaml
+    eb.yaml = types.SimpleNamespace(safe_load=lambda fh: _KeyRecorder(real_yaml.safe_load(fh), "", seen))
+    try:
+        eb.load_config(str(HOST_EXAMPLE))
+    finally:
+        eb.yaml = real_yaml
+    return {p for p in seen if not any(q.startswith((p + ".", p + "[]")) for q in seen)}
+
+
+def _host_key_map_diff(doc: str, accepted: set[str]) -> tuple[set[str], set[str]]:
+    """(host keys in neither section 3 nor section 6, section 6 rows naming no
+    host key). A key that only contains documented keys is a section."""
+    host_rows = set(_key_map_rows(doc, HOST_SECTION_HEADING))
+    documented = set(_key_map_rows(doc)) | host_rows
+    missing = {k for k in accepted
+               if k not in documented and not any(d.startswith((k + ".", k + "[]")) for d in documented)}
+    return missing, host_rows - accepted
+
+
+def _check_host_key_map() -> int:
+    """Gate 32's twin for the host profile: every key its loaders read on the
+    host example has a row in section 3 or section 6, and section 6 names no
+    key they do not read; a planted row and a dropped one are both refused."""
+    accepted = _host_key_paths()
+    doc = BUILDER_DOC_MD.read_text(encoding="utf-8")
+    missing, stale = _host_key_map_diff(doc, accepted)
+    assert not missing and not stale, (f"gate 41: section 6 disagrees with the host loaders - no row: "
+                                       f"{sorted(missing)}; naming no host key: {sorted(stale)}")
+    planted = doc.replace(HOST_SECTION_HEADING, HOST_SECTION_HEADING + "\n\n| H0 | `planted.key` | - | - |", 1)
+    assert _host_key_map_diff(planted, accepted)[1] == {"planted.key"}, "gate 41: a planted row was not refused"
+    dropped = doc.replace("`audio_interface.channels`", "`(dropped)`")
+    assert _host_key_map_diff(dropped, accepted)[0] == {"audio_interface.channels"}, \
+        "gate 41: dropping the audio_interface.channels row was not refused"
+    return len(accepted)
+
+
+def _check_host_tspec() -> tuple[int, int]:
+    """The host TSpec rule (section 6): MaxFrameSize is the widest advertised
+    AAF format's frame at clocking.sampling_rate_hz, not the current format's.
+    A talker whose current format is two channels and which also advertises
+    eight reserves the eight-channel frame, and the unedited example (current
+    and widest both eight) its own. Returns (reserved, current-format) octets
+    for the report line."""
+    def widen(doc: dict) -> None:
+        """Current two channels; supported two and eight."""
+        talker = doc["streams"]["talkers"][0]
+        talker["channels"] = 2
+        talker["formats"] = [f"0x{eb.aaf_pcm32(n, 48000):016X}" for n in (2, 8)]
+
+    def reserved(cfg: dict) -> int:
+        """The talker row's MaxFrameSize."""
+        return next(r["max_frame_bytes"] for r in cfg["srp"]["rows"] if r["direction"] == "talker")
+
+    example = eb.load_config(str(HOST_EXAMPLE))
+    eight = eb.srp_frame_geometry(8, 48000, example["srp"]["intervals_ps"])["max_frame_bytes"]
+    two = eb.srp_frame_geometry(2, 48000, example["srp"]["intervals_ps"])["max_frame_bytes"]
+    assert reserved(example) == eight, \
+        "gate 41: the host example's talker does not reserve its eight-channel frame"
+    path = _variant(HOST_EXAMPLE, widen)
+    try:
+        cfg = eb.load_config(str(path))
+        got = reserved(cfg)
+        assert eb.fmt_channels(cfg["talkers"][0]["formats"][0]) == 2, \
+            "gate 41: the widened talker's current format is not two channels"
+        assert got == eight != two, \
+            (f"gate 41: a host talker with a two-channel current format that advertises eight reserves "
+             f"{got} octets; the widest advertised format's frame is {eight} (the current format's {two})")
+        eb._entity_model_image(cfg, eb.emit_aem_overlay(cfg))
+    finally:
+        path.unlink()
+    return got, two
+
+
+def test_host_profile_feeds_the_generators() -> None:
+    """Gate 41 (#983): the descriptor-only host profile feeds the existing
+    generators. Its example loads through load_config's unchanged checks,
+    the overlay and the AEM image (the processor packer and its lint) carry
+    the first user's inventory and the stated gPTP dataset, and adp_entity.py,
+    aecp_entity.py and srp_entity.py each generate from it, agreeing with the
+    image; build() refuses it by name. ctrl_loop.h selects its (1, 1, 2)
+    shape for a CTRL_HOST_PLATFORM build alone, before and outside THE
+    SHAPES, whose FPGA rows shape_costs.py reads as before and the compiler
+    selects with or without the macro, and the shape is refused without the
+    macro. Section 6 of the builder page documents every key the host
+    loaders read."""
+    cfg = eb.load_config(str(HOST_EXAMPLE))
+    overlay = eb.emit_aem_overlay(cfg)
+    blob = eb._entity_model_image(cfg, overlay)["aem_desc.bin"]
+    _check_host_model(cfg, overlay, blob)
+    _expect_red("build() of the host profile", lambda: eb.build(str(HOST_EXAMPLE), str(OUT)),
+                "descriptor-only host profile (#983)", "gate 41")
+    keys = _check_host_key_map()
+    tspec, current = _check_host_tspec()
+    table = _check_shapes_text()
+    with tempfile.TemporaryDirectory(prefix="gate41.") as tmp:
+        headers = _host_generated(Path(tmp))
+        _check_host_headers(headers, blob)
+        cc = shutil.which("cc") or shutil.which("gcc")
+        unlisted = at_host = None
+        if cc is None:
+            skip("gate 41", "no host C compiler: the host shape and THE SHAPES' rows not compiled")
+        else:
+            unlisted, at_host = _check_host_shape(cc, headers["srp_entity"], Path(tmp), table)
+    print(f"  [gate 41] {HOST_EXAMPLE.relative_to(ROOT)}: ADP 1 source, 2 sinks; STREAM_INPUT AAF + CRF, "
+          f"STREAM_OUTPUT AAF; AVB_INTERFACE carries the stated dataset; three generators agree with the "
+          f"{len(blob)}-byte image; build() refuses it; {keys} host loader keys documented; a talker "
+          f"advertising 2 and 8 channels at current 2 reserves {tspec} octets, the widest format's, "
+          f"not the current {current}")
+    print(f"  [gate 41] THE SHAPES: shape_costs.py reads {len(table)} FPGA rows "
+          f"{', '.join(str(s) for s in sorted(table))} and no host row; the host row inside the chain and its "
+          f"figures beside it in ctrl_loop.h are both refused")
+    if unlisted is not None and at_host is not None:
+        apart = [p for p in unlisted if p not in at_host]
+        print(f"  [gate 41] THE SHAPES: (1, 1, 2) builds with CTRL_HOST_PLATFORM alone, at the 1x1/1if row's "
+              f"figures, and is refused without it and at two interfaces; at 1 and 2 interfaces the macro moves "
+              f"none of the {2 * len(CONFIGS) - len(unlisted)} FPGA points' rows, each the row shape_costs.py "
+              f"reads; {', '.join(apart) or 'no point'} refused with and without it; "
+              f"{', '.join(at_host) or 'no point'} at the host shape, refused without it and given the host "
+              f"figures with it; only {', '.join(HOST_MACRO_FILES)} name the macro")
+
+
+#: Gate 42's value for a deletion rather than an edit.
+HOST_DELETE = object()
+
+
+def _host_mutation(path: str, value: Any) -> Callable[[dict], None]:
+    """A config edit at a dotted `path` (a list element by its index): set it
+    to `value`, or delete it when `value` is HOST_DELETE."""
+    *parents, leaf = path.split(".")
+
+    def mutate(doc: dict) -> None:
+        """Walk to the parent mapping and edit the leaf."""
+        node = doc
+        for key in parents:
+            node = node[int(key)] if isinstance(node, list) else node.setdefault(key, {})
+        if value is HOST_DELETE:
+            node.pop(leaf)
+        else:
+            node[leaf] = value
+    return mutate
+
+
+#: The planted defects of gate 42: (label, base config, dotted path, value or
+#: HOST_DELETE for a deletion, the words the refusal must carry).
+HOST_REFUSALS = (
+    ("a board that is an empty list", "fpga", "board", [], "board: missing required key 'target'"),
+    ("a board that is an empty string", "fpga", "board", "", "board: missing required key 'target'"),
+    ("a board that is a list naming a target", "fpga", "board", ["ax7101"],
+     "board: missing required key 'target'"),
+    ("an FPGA target naming a host PHC owner", "fpga", "board.gptp_owner", "host-phc",
+     "board.gptp_owner: ax7101 is an FPGA target"),
+    ("an FPGA target with fabric_gptp false", "fpga", "board.features.fabric_gptp", False,
+     "fabric_gptp: false is retired (#259)"),
+    ("an FPGA target with no gptp section", "fpga", "gptp", HOST_DELETE, "requires a gptp: section"),
+    ("an FPGA config retargeted at host", "fpga", "board.target", "host", "on board.target 'host'"),
+    ("usb_audio on an FPGA target", "fpga", "audio_interface.kind", "usb_audio",
+     "audio_interface.kind 'usb_audio' not in"),
+    ("no gptp_owner", "host", "board.gptp_owner", HOST_DELETE, "missing required key 'gptp_owner'"),
+    ("a fabric gptp_owner", "host", "board.gptp_owner", "fabric", "is not one of ['host-phc']"),
+    ("fabric blocks", "host", "board.features", {"maap": True}, "board: ['features'] on board.target 'host'"),
+    ("an FPGA constraint", "host", "board.constraints.milan_clk_hz", 50000000,
+     "board.constraints: board.target 'host' takes"),
+    ("no link rate", "host", "board.constraints.link_mbps", HOST_DELETE, "missing required key 'link_mbps'"),
+    ("an unknown link rate", "host", "board.constraints.link_mbps", 10, "link_mbps 10 not in [100, 1000]"),
+    ("a SoC", "host", "soc", {"xlen": 32}, "builds no SoC"),
+    ("the all-fabric placement", "host", "control.placement", "all-fabric",
+     "control.placement 'all-fabric' on board.target 'host'"),
+    ("a fabric latency correction", "host", "gptp.ingress_latency_ns", 0, "a PHC owner does not take"),
+    ("an unstated port number", "host", "gptp.port_number", HOST_DELETE,
+     "gptp.port_number is required on board.target 'host'"),
+    ("an unstated clockClass", "host", "gptp.clock_class", HOST_DELETE,
+     "gptp.clock_class is required on board.target 'host'"),
+    ("port number 0", "host", "gptp.port_number", 0, "gptp.port_number 0 outside 1..65534"),
+    ("gPTP domain 1 (802.1AS-2011 8.1)", "host", "gptp.domain", 1, "gptp.domain 1 is not 0"),
+    ("a reserved clockAccuracy", "host", "gptp.clock_accuracy", 0x10, "is not a clockAccuracy"),
+    ("an FPGA audio front-end", "host", "audio_interface.kind", "tdm8",
+     "audio_interface.kind 'tdm8' not in ['usb_audio']"),
+    ("no interface width", "host", "audio_interface.channels", HOST_DELETE, "missing required key 'channels'"),
+    ("role pools", "host", "audio_interface.cluster_mapping", {"policy": "role-pools"},
+     "role-pools on board.target 'host'"),
+    ("two AAF inputs, no CRF output (Milan v1.2 7.2.3)", "host", "streams.listeners",
+     [{"name": "In 0", "channels": 8}, {"name": "In 1", "channels": 8}],
+     "require a CRF Media Clock Output (Milan v1.2 7.2.3)"),
+    ("a CRF source with no CRF input (#389)", "host", "clocking.crf_sink", False,
+     "the CRF CLOCK_SOURCE is located on that sink's"),
+    ("an output with no INTERNAL source (Milan v1.2 5.3.3.6)", "host", "clocking",
+     {"sampling_rate_hz": 48000, "media_clock_sources": ["crf"], "default_source": "crf"},
+     "every Stream Output requires INTERNAL"),
+    ("a static input map (Milan v1.2 5.3.3.9)", "host", "streams.listeners.0.map_mode", "static",
+     "Milan v1.2 5.3.3.9"),
+    ("an input buffer under the floor (Milan v1.2 5.3.3.4)", "host", "streams.listeners.0.buffer_length_ns", 1000,
+     "listener buffer floor"),
+    ("a zero model id (Milan v1.2 5.3.3.1)", "host", "entity.entity_model_id", "0x0",
+     "must not be zero or all ones"),
+)
+
+
+def _host_refused(label: str, base: Path, mutate: Callable[[dict], None], words: str) -> str:
+    """One planted defect: the edited copy of `base` is refused, in `words`."""
+    path = _variant(base, mutate)
+    try:
+        eb.load_config(str(path))
+    except eb.ConfigError as exc:
+        assert words in str(exc), f"gate 42 {label}: refused for another cause: {exc}"
+    else:
+        raise AssertionError(f"gate 42 {label}: accepted")
+    finally:
+        path.unlink()
+    return label
+
+
+def test_host_profile_refusals() -> None:
+    """Gate 42 (#983): planted defects. A board that is not a mapping is
+    refused through ConfigError before the host dispatch reads its target,
+    in the words load_config used before the profile. An FPGA config still refuses a missing
+    fabric gPTP owner, by both refusals it had (fabric_gptp false, no gptp
+    section) and by the new one (a gptp_owner on an FPGA target), and refuses
+    being retargeted at the host profile or the host's interface family. The
+    host profile refuses each fabric declaration and each unstated gPTP
+    field, and every shared Milan and IEEE check refuses there in the words
+    it uses for an FPGA config. Each copy is edited at one key; the unedited
+    copy of each base is the control and loads."""
+    bases = {"fpga": CONFIGS["ax7101_1x1_tdm8"], "host": HOST_EXAMPLE}
+    for base in bases.values():
+        control = _variant(base, lambda _doc: None)
+        try:
+            eb.load_config(str(control))
+        finally:
+            control.unlink()
+    caught = [_host_refused(label, bases[base], _host_mutation(path, value), words)
+              for label, base, path, value, words in HOST_REFUSALS]
+    fpga = sum(1 for row in HOST_REFUSALS if row[1] == "fpga")
+    print(f"  [gate 42] both unedited copies load; {len(caught)}/{len(HOST_REFUSALS)} planted defects refused "
+          f"in their own words ({fpga} on the FPGA 1x1, {len(caught) - fpga} on the host example)")
+
+
 if __name__ == "__main__":
     from test_declarations import test_declaration_contracts
     from test_clock_contract import (
@@ -30714,7 +31205,9 @@ if __name__ == "__main__":
                test_pp_shadow_audio_unit_rates_match_config,
                test_descriptor_fields_name_this_device,
                test_name_count_fits_the_nvm_name_block,
-               test_split_record_space_bounds_the_split_output)):
+               test_split_record_space_bounds_the_split_output,
+               test_host_profile_feeds_the_generators,
+               test_host_profile_refusals)):
         print(f"{fn.__name__}:")
         before = len(SKIPPED)
         fn()

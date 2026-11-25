@@ -1,0 +1,78 @@
+# SPDX-FileCopyrightText: 2026 Kebag Logic
+# SPDX-License-Identifier: CERN-OHL-W-2.0
+#
+# The descriptor-only HOST PROFILE (#983), annotated. An end station whose
+# control firmware is the split placement's, run as a host program on the
+# mailbox model (sw/firmware/ctrl/host/mbx_model.c) of another board, whose
+# gPTP owner is that board's own PHC. Nothing here is elaborated:
+# endstation_builder.py refuses to build it, and these read it instead:
+#   sw/firmware/ctrl/adp/adp_entity.py    the ADP fields (struct adp_entity)
+#   sw/firmware/ctrl/aecp/aecp_entity.py  the AEM image AECP serves, its CRC
+#                                          and storage sizes
+#   sw/firmware/ctrl/srp/srp_entity.py    the shape header (CTRL_SRP_SOURCES
+#                                          1, CTRL_SRP_SINKS 2 here)
+# Every stream, clocking, format, SRP and model-id check is the FPGA
+# profiles'; docs/ENDSTATION_BUILDER.md section 6 lists what differs.
+#
+# The stream inventory is #983's first user: one 8-channel AAF input, the
+# CRF input an AAF talker requires (Milan v1.2 7.2.2), and one 8-channel AAF
+# output. There is no CRF output, because there is no second AAF input
+# (7.2.3). ADP advertises 1 source and 2 sinks.
+
+schema: kebag-logic/milan-endstation-config
+schema_version: "1.3.0"
+
+entity:
+  name: "Host profile example"
+  entity_model_id: hash-derived
+  entity_id: mac-derived
+  vendor_name: "Kebag Logic"
+  serial_number: "HOST-0001"
+  group_name: ""
+
+board:
+  target: host                       # the descriptor-only host profile
+  gptp_owner: host-phc               # the board's own PHC, the only value
+  constraints:
+    link_mbps: 1000                  # the port's rate: SRP's class A ceiling
+
+platform:
+  # The station MAC the image is generated with. A board whose MAC is read
+  # at run time substitutes its own for the three mac-derived fields
+  # (ENTITY entity_id, AVB_INTERFACE mac_address and clock_identity).
+  mac_address: "02:00:00:00:00:01"
+
+control:
+  placement: split                   # required: the host program is this firmware
+
+# The Announce dataset the board's own gPTP program sends, every field
+# stated: no fabric engine supplies a pin (ENDSTATION_BUILDER.md section 6).
+gptp:
+  priority1: 248
+  priority2: 248
+  clock_class: 248
+  clock_accuracy: 0xFE               # unknown (802.1AS-2011 8.6.2.3 b)
+  offset_scaled_log_variance: 0xFFFF
+  domain: 0
+  log_sync_interval: -3
+  log_announce_interval: 0
+  log_pdelay_interval: 0
+  port_number: 1
+
+clocking:
+  sampling_rate_hz: 48000
+  audio_unit_rates_hz: [48000]
+  media_clock_sources: [internal, crf]   # INTERNAL 0, CRF 1
+  default_source: internal
+  crf_sink: true                     # STREAM_INPUT 1 (Milan v1.2 7.2.2)
+
+audio_interface:
+  kind: usb_audio                    # a USB Audio Class 2 function
+  channels: 8
+  word_length_bits: 32
+
+streams:
+  listeners:
+    - { name: "Stream In 0", channels: 8 }
+  talkers:
+    - { name: "Stream Out 0", channels: 8 }

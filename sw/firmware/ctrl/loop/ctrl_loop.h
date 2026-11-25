@@ -358,6 +358,14 @@ extern "C" {
 #endif
 #define CTRL_LOOP_SHAPE(n_if, sources, sinks) \
 	(MBX_N_IF == (n_if) && CTRL_LOOP_SOURCES == (sources) && CTRL_LOOP_SINKS == (sinks))
+// THE HOST PLATFORM's shape (#983) is selected here, before THE SHAPES, and
+// stated apart from them (host/ctrl_loop_host.h, which says what it claims):
+// the table below is the FPGA images' alone, as its readers take it
+// (shape_costs.py). Only a build that defines CTRL_HOST_PLATFORM, which no image
+// of this repository does, takes it, and only at the host profile's (1, 1, 2).
+#if defined(CTRL_HOST_PLATFORM) && CTRL_LOOP_SHAPE(1u, 1u, 2u)
+#include "../host/ctrl_loop_host.h"
+#else
 #if CTRL_LOOP_SHAPE(1u, 2u, 2u)        // one interface, the 1x1's streams
 #define CTRL_LOOP_SLICE_US 950u
 #define CTRL_LOOP_BUILD_PASS_US 1010u
@@ -397,6 +405,7 @@ extern "C" {
 #else
 #error "THE SHAPES: the shape (MBX_N_IF, CTRL_SRP_SOURCES, CTRL_SRP_SINKS) is not one ctrl_loop.h lists"
 #endif
+#endif // the host platform's shape, or THE SHAPES
 // The passes given whole that may stand in a row: what a queue of notices needs
 // at its point's recipients, at no record's cost, since none stands in a row
 // beside a record of THE DRAIN's channel or a full pass's events.
