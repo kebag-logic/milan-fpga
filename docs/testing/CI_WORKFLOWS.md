@@ -116,7 +116,7 @@ pull-request update and on every push to `dev`. It produces one stable
   The step later outgrew #998's budget (below): over fourteen hosted runs, 45147231523 to 45481508222, the job took 1302-1667 s and its builds 1033-1366 s, and run 45514146566's was cut at its 30-minute limit.
   So #1003 runs the builders in `firmware-boundary-capture`, two matrix legs, each on a runner of its own under a capture of its own (`--leg K/2 --capture-out <capture>`, `ctrl_runs.LEGS`).
   Leg 0 runs the control gate's build, leg 1 every other builder; each uploads its capture as this head's artifact.
-  `firmware-boundary` needs both legs and runs no builder itself.
+  `firmware-boundary` needs both legs and runs none of their builders itself.
   It restores each capture at the path its leg made it at and judges both together (`--capture`, once per leg), with the image builders, the stack's own gate, the controls, the pin controls and the figures.
   The judgement is the whole run's: a local replica of the three jobs at one checkout path printed the same lines as the whole step, but for the eight builder lines the legs print, down to the same counts and verdict.
   Given one leg's capture alone, the gate refuses, naming each builder the other leg holds.
@@ -648,7 +648,7 @@ Those not re-dealt now carry its window: `aaf_audio_loop` 22, `clkvalid` 18,
 `tcam` 29, `milan_dp_mclk` leg 2 1051, and `milan_dp_render` legs 0 and 1 620
 and 90. `capture_coherence` legs 0 and 1 (1618 and 1204) enter its new legs'
 figures as their old legs'. Each new piece's figure, with the two local walls
-it scales by, is recorded on #998; its first hosted windows replace it.
+it scales by, is in PR #1003's description (its derivation table); its first hosted windows replace it.
 
 Every selected leg writes source-bound case receipts. Each of eight union jobs
 waits for the native worker matrix, independently enumerates its suite's

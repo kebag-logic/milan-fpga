@@ -178,7 +178,8 @@ def main() -> int:
     with ThreadPoolExecutor(max_workers=args.jobs) as pool:
         results = list(pool.map(lambda rate: run(rate, source, args.out.resolve(), args.sim), RATES))
     # One line per passing rate in RATES order, from this thread, so the transcript
-    # is the same whichever rate ends first (a CI piece's receipt digests it, #998).
+    # is the same whichever rate ends first (a CI piece's receipt digests it).
+    # Issue #998; REQ-VER-01 and REQ-VER-04.
     for rate, rc in zip(RATES, results):
         if rc == 0:
             print(f"settle control {rate} Hz: PASS", flush=True)

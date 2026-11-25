@@ -628,7 +628,8 @@ python3 sw/firmware/ctrl/test/ctrl_boundary.py --require-rv32 --selftest --captu
 `--build-only` builds and links every arm's binaries and runs none; it plants nothing and ends `BUILT`, never `PASS`.
 The first boundary command runs every known builder by its builds under a capture of its own first (Verilator from `VERILATOR` or `PATH`).
 The second judges every known builder but those that need Verilator, as `firmware-boundary` does (see [CI workflows](../../../docs/testing/CI_WORKFLOWS.md)).
-That job runs no builder itself: `firmware-boundary-capture` runs them in two legs, each with `--leg K/2 --capture-out <capture>`, and `firmware-boundary` judges both captures, each given by `--capture` (`ctrl_runs.LEGS`, #1003).
+Those standalone builders run in firmware-boundary-capture; firmware-boundary still runs its owned image builders, the stack gate and controls, then judges the joined captures.
+`firmware-boundary-capture` runs them in two legs, each with `--leg K/2 --capture-out <capture>`, and `firmware-boundary` judges both captures, each given by `--capture` (`ctrl_runs.LEGS`, #1003).
 The third judges a capture made of any builder's commands, each run as `ctrl_capture.py --out <capture> -- <command>`.
 
 Needs host C/C++ compilers, GoogleTest, GoogleMock, and PyYAML (the

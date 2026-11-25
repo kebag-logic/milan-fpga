@@ -74,7 +74,8 @@ def main() -> int:
         futures += [pool.submit(run_two_pulls, args.exe.resolve(), args.out, case) for case in TWO_PULLS]
         results = [future.result() for future in futures]
     # One line per case in case order, from this thread, so the transcript is
-    # the same whichever case ends first (a CI piece's receipt digests it, #998).
+    # the same whichever case ends first (a CI piece's receipt digests it).
+    # Issue #998; REQ-VER-01 and REQ-VER-04.
     for (name, *_), rc in zip(CASES + TWO_PULLS, results):
         print(f"SMALL PULL {name}: rc {rc}", flush=True)
     print(f"small pulls: {sum(rc == 0 for rc in results)}/{len(results)} passed")

@@ -76,7 +76,8 @@ runs only leg K of those builders (ctrl_runs, THE LEGS) under a capture of
 its own at DIR, a new directory, and judges nothing: the hosted
 firmware-boundary-capture job runs each leg on a runner of its own, and
 firmware-boundary judges every leg's capture, given once each (--capture),
-with the controls (#1003). The stack's own gate, its
+with the controls (#1003; Issue #998; REQ-VER-01 and REQ-VER-04). The
+stack's own gate, its
 scripts/check_boundary.py (the same rule under its own CMake build with gcc
 and clang, and its objects' symbols), runs as well.
 

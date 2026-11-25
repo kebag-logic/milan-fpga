@@ -267,7 +267,8 @@ PHYSICAL_GPTP_CONCURRENCY = (
 
 POLICY = "docs/testing/CI_WORKFLOWS.md"
 WORKFLOWS = (RTL_FULL, RTL_FAST, DOCS, ELABORATE)
-#: The boundary gate's legs (#1003): the capture job's matrix holds one leg per entry of its LEGS.
+#: The boundary gate's legs (#1003): the capture job's matrix holds one leg per entry of its LEGS. Issue #998;
+#: REQ-VER-01 and REQ-VER-04.
 GATE_LEGS = "sw/firmware/ctrl/test/ctrl_runs.py"
 FILES = WORKFLOWS + (POLICY, GATE_LEGS)
 #: Every other workflow file under this directory is read too (maintainer
@@ -1358,7 +1359,8 @@ FIRMWARE_PHASE_STEPS = ("Run the control-plane firmware suites and RV32 builds",
 #: run by its builds (ctrl_configs.BUILDERS), not its suites.
 FIRMWARE_BOUNDARY_JOB = "firmware-boundary"
 #: #1003: the fast job whose matrix legs run firmware-boundary's builders, each leg under a capture of its own on a
-#: runner of its own (ctrl_runs.LEGS); firmware-boundary judges every leg's capture. One leg per entry.
+#: runner of its own (ctrl_runs.LEGS); firmware-boundary judges every leg's capture. One leg per entry. Issue #998;
+#: REQ-VER-01 and REQ-VER-04.
 FIRMWARE_BOUNDARY_CAPTURE_JOB = "firmware-boundary-capture"
 FIRMWARE_BOUNDARY_LEGS = (0, 1)
 FIRMWARE_BOUNDARY_STRATEGY = {"fail-fast": True, "matrix": {"leg": list(FIRMWARE_BOUNDARY_LEGS)}}
@@ -2262,7 +2264,8 @@ RTL_YOSYS_INSTALL_SCRIPT = (
     'yosys -V | grep -F "Yosys ${YOSYS_VERSION#v}"',
 )
 
-#: #697, #1003: the setup firmware-boundary and each leg of its capture job share, before their own steps.
+#: #697, #1003: the setup firmware-boundary and each leg of its capture job share, before their own steps. Issue
+#: #998; REQ-VER-01 and REQ-VER-04.
 FIRMWARE_BOUNDARY_SETUP = (
     {"uses": "actions/checkout@v4"},
     {"name": "Fetch RTL dependencies",
@@ -2609,7 +2612,8 @@ RTL_STEP_LISTS = {
     # reads them from its own known set, ctrl_configs.BUILDERS), its controls and the stack's own gate; the job
     # has no Verilator, so the builders needing it are named and left out. #1003: the builders run in the
     # capture job's legs, each under a capture of its own uploaded as this head's artifact, and the judge
-    # restores each at the path it was made at and is given each by --capture.
+    # restores each at the path it was made at and is given each by --capture. Issue #998; REQ-VER-01 and
+    # REQ-VER-04.
     (RTL_FAST, FIRMWARE_BOUNDARY_CAPTURE_JOB): (
         *FIRMWARE_BOUNDARY_SETUP,
         {"name": "Capture one leg of the firmware builders' compiles",
@@ -3886,7 +3890,7 @@ def check_boundary_legs(c: Contract, wf: YamlMap, legs: int) -> None:
     """#1003: the capture job runs one matrix leg per entry of ctrl_runs.LEGS (`legs`) under GitHub's own fail-fast, so
     a failed leg cancels the other on every event, a fork's included, with no token (docs/testing/CI_WORKFLOWS.md:
     hosted matrices retain `fail-fast: true`); the judge needs it, and both keep the 30 minutes the legs were cut to
-    fit."""
+    fit. Issue #998; REQ-VER-01 and REQ-VER-04."""
     capture = jobs(wf).get(FIRMWARE_BOUNDARY_CAPTURE_JOB, {})
     c.item(capture.get("strategy") == FIRMWARE_BOUNDARY_STRATEGY, RTL_FAST,
            f"job `{FIRMWARE_BOUNDARY_CAPTURE_JOB}` strategy must be exactly {FIRMWARE_BOUNDARY_STRATEGY!r} "
@@ -8403,7 +8407,7 @@ def _install_cache_arms(pristine: World) -> list[Arm]:
 
 def _boundary_leg_arms() -> list[Arm]:
     """#1003: the capture job's matrix, its judge's needs, both timeouts and the gate's leg count refuse their
-    planted defects."""
+    planted defects. Issue #998; REQ-VER-01 and REQ-VER-04."""
     strategy = f"job `{FIRMWARE_BOUNDARY_CAPTURE_JOB}` strategy must be exactly"
     return [
         ("boundary legs one leg dropped",

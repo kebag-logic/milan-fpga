@@ -108,7 +108,7 @@ class Builder:
 #: through the gate's own capture (--only verilator). Each runs every configuration its own list holds: the
 #: bench's default target, the differential with its self-test, the wire comparison at every reference it pins
 #: (--every); the differential and the comparison keep what they build in the run's directory, where a control
-#: replays it.
+#: replays it. Issue #998; REQ-VER-01 and REQ-VER-04.
 BUILDERS = (
     Builder("sw/firmware/gtest/fw_rv32_selftest.py",
             (("{python}", "sw/firmware/gtest/fw_rv32_selftest.py", "--require-rv32"),)),

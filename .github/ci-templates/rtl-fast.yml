@@ -573,6 +573,7 @@ jobs:
   # The matrix keeps GitHub's own fail-fast, as every hosted matrix does: a
   # failed leg cancels the other, on a fork too, with no token, so the
   # judge is skipped and the aggregate fails on the capture's result.
+  # Issue #998; REQ-VER-01 and REQ-VER-04.
   firmware-boundary-capture:
     needs: changes
     if: ${{ needs.changes.outputs.rtl == 'true' }}

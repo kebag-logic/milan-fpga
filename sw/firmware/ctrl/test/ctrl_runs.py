@@ -28,7 +28,8 @@ builders in legs, each on a runner of its own under a capture of its own
 (ctrl_boundary.py --leg K/N --capture-out DIR), and firmware-boundary judges
 every leg's capture together (--capture, once per leg), as one capture of
 them all. A leg is the builders it names, by their own commands; the last
-names none and holds every other builder the run judges.
+names none and holds every other builder the run judges. Issue #998;
+REQ-VER-01 and REQ-VER-04.
 
 THE STACK'S GATE (stack_gate) and THE CONTROLS' BUILDERS (planted_run,
 replayed, control_capture): the stack's own gate's CMake build runs under the

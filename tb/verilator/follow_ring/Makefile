@@ -95,7 +95,8 @@ run:
 # empty, so a leg never rebuilds what its piece has just built. A line that
 # runs FINE_BUILD starts with '+': make sees $(MAKE) only in the line itself,
 # and without the '+' the fine build would leave the jobserver (make -n would
-# not recurse into it, and a pipe jobserver warns).
+# not recurse into it, and a pipe jobserver warns). Issue #998; REQ-VER-01
+# and REQ-VER-04.
 LEG_BUILD ?= build
 FINE_BUILD = $(MAKE) build CLK_HZ=25000000 FRAME_DIV=64 MDIR=$(abspath $(MDIR))_fine
 
