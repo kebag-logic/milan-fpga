@@ -1,0 +1,55 @@
+{
+  "reviewer": "R924",
+  "heads": {
+    "13e6d869": {
+      "different_tmpdirs_same_parent": {
+        "same_physical_slot": true,
+        "first_survived": false,
+        "second_survived": false,
+        "stderr": ""
+      },
+      "tmpdir_alias": {
+        "same_physical_slot": true,
+        "first_survived": false,
+        "second_survived": false,
+        "stderr": ""
+      }
+    },
+    "9c625393": {
+      "different_tmpdirs_same_parent": {
+        "same_physical_slot": false,
+        "first_survived": true,
+        "second_survived": true,
+        "stderr": ""
+      },
+      "tmpdir_alias": {
+        "same_physical_slot": false,
+        "first_survived": true,
+        "second_survived": true,
+        "stderr": ""
+      }
+    }
+  },
+  "refused_roots": {
+    "symlink": {
+      "fallback": true,
+      "own_marker_survived": true,
+      "outside_unchanged": true
+    },
+    "writable": {
+      "fallback": true,
+      "own_marker_survived": true,
+      "outside_unchanged": true
+    },
+    "file": {
+      "fallback": true,
+      "own_marker_survived": true,
+      "outside_unchanged": true
+    },
+    "nonsticky": {
+      "fallback": true,
+      "own_marker_survived": true,
+      "outside_unchanged": true
+    }
+  }
+}

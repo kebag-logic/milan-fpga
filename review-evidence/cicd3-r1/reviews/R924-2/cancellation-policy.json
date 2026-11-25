@@ -1,0 +1,19 @@
+{
+  "reviewer": "R924",
+  "head": "9c62539365fea8316dae2b9fd7c68defeff5cb31",
+  "capture_matrix": {
+    "fail-fast": false,
+    "matrix": {
+      "leg": [
+        0,
+        1
+      ]
+    }
+  },
+  "watcher_if": "${{ github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository) }}",
+  "production_false_findings": [],
+  "counterfactual_true_findings": [
+    ".github/workflows/rtl-fast.yml: job `firmware-boundary-capture` strategy must be exactly {'fail-fast': False, 'matrix': {'leg': [0, 1]}} (found {'fail-fast': True, 'matrix': {'leg': [0, 1]}}): one leg per entry of ctrl_runs.LEGS, which firmware-boundary downloads one by one"
+  ],
+  "failure_control": "static policy probe; no hosted failure injected"
+}

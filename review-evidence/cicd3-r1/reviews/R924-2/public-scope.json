@@ -1,0 +1,21 @@
+{
+  "reviewer": "R924",
+  "source_head": "9c62539365fea8316dae2b9fd7c68defeff5cb31",
+  "issue_url": "https://github.com/kebag-logic/milan-fpga/issues/998",
+  "issue_comment_count": 0,
+  "pr_url": "https://github.com/kebag-logic/milan-fpga/pull/1003",
+  "pr_state": "open",
+  "pr_draft": false,
+  "scope_decisions_in_pr_body": "## Review findings answered\n\n| Finding | Answer | Where |\n|---|---|---|\n| R924-1-F1 MAJOR: in-tree staging can erase a held slot across TMPDIRs | Fixed: one lock per physical slot directory; independent-process controls | `d95e95e8` |\n| R923-1-F1 MINOR: stage root trusted without proof; lock keyed by an unresolved path | Fixed: root proved or refused with its reason; lock keyed by the resolved inode | `d95e95e8` |\n| R923-1-F2 MINOR: shard 1 38.6 minutes | Attributed to the runner; stale `milan_dp` figures refreshed | `59f4f478` |\n| R924-1-R1, R923-1-R1, R2 (wording) | Applied | `d95e95e8`, `45d5c35a` |\n| R923-1-R3 (PR body wording) | Applied | — |\n| #998 acceptance 2, the owner's ruling: every hosted job within 30 minutes, no runner-speed qualifier | Every regular worker projects within 1276 s (30 minutes on a 1.41× runner); leg A, indivisible, is stated over it | `feb03206`, `96df313f` |\n| #998 acceptance 2, the manager's ruling on round 5's stop: rtl-fast's `firmware-boundary` is a hosted job too | Split into two capture legs and a judge; each projects within 1276 s | `9c625393` |\n| #998 acceptance 2, the manager's ruling on round 6's finding 1: other hosted jobs over the bound | For this PR, the criterion is that every job the PR touches is within the bound with margin and no job gets slower; both hold (Hosted runs). The untouched jobs are [#1008](https://github.com/kebag-logic/milan-fpga/issues/1008). The four \"Fail fast across this head\" watchers span their run by design: a documented exception, recorded in #1008 with rtl-full's nightly physical gPTP job | — |\n| #998 acceptance 1, the manager's ruling on round 6's finding 2: `milan_dp`'s `gptp` and `gptp-lat` receipts differ | The cause is the base, not the change and not nondeterminism. #995 re-pinned the gPTP processor between the two hosted runs. At one base the receipts are identical with and without this change, under either deal, and each pin's local output digest equals its hosted receipt | — |\n\n",
+  "prior_review_urls": [
+    {
+      "url": "https://github.com/kebag-logic/milan-fpga/pull/1003#issuecomment-7140670982",
+      "header": "[R924] NEGATIVE - exact head 13e6d869d842fc06155ef5dae9b0347596d6d4df"
+    },
+    {
+      "url": "https://github.com/kebag-logic/milan-fpga/pull/1003#issuecomment-7142915497",
+      "header": "[R923] NEGATIVE - exact head 13e6d869d842fc06155ef5dae9b0347596d6d4df"
+    }
+  ],
+  "review_start": "https://github.com/kebag-logic/milan-fpga/pull/1003#issuecomment-7152675110"
+}
