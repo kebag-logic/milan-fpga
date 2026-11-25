@@ -90,8 +90,17 @@ TEST_P(NvmBoth, binding_window_not_restarted) {
                                               "--set", set_word(rb2, value(rb2, 7)), "--run-ms", "30", "--set",
                                               set_word(rb, value(rb, 8)), "--until-idle"},
                                              kDump)));
-    EXPECT_TRUE(r.at("ok") == 1 && in(ok_after_mark(r, 0), kBindLo, kBindLo + kSlack))
-        << "committed " << ok_after_mark(r, 0) << " us after the first change: " << r.text();
+    // both changes at once, the time the staggered ones must keep: a window restarted at the third change would
+    // commit 90 ms after this one, at any shape (how long a save takes after its window differs by shape)
+    Files g = twin();
+    const Result at_once = go(port(), g,
+                              concat(kTwin, {"--boot", "--mark", "--set", set_word(rb, value(rb, 7)), "--set",
+                                             set_word(rb2, value(rb2, 7)), "--until-idle"}));
+    const long long t2 = ok_after_mark(at_once, 0);
+    EXPECT_TRUE(at_once.at("ok") == 1 && t2 >= kBindLo) << "both at once: committed " << t2 << " us after: " << at_once.text();
+    EXPECT_TRUE(r.at("ok") == 1 && in(ok_after_mark(r, 0), t2 - 20 * kMs, t2 + 45 * kMs))
+        << "committed " << ok_after_mark(r, 0) << " us after the first change, " << t2 << " us when both came at once: "
+        << r.text();
     const Result b = go(port(), f, {"--slot-a", "a.bin", "--slot-b", "b.bin", "--boot", "--dump-state", "st"});
     EXPECT_TRUE(b.at("terminal") == NVM_T_COMPLETE) << b.text();
     expect_state(f, "st", with(fx().payloads("golden"), {{rb, value(rb, 8)}, {rb2, value(rb2, 7)}}), "both changes");
@@ -147,7 +156,7 @@ TEST_P(NvmBoth, binding_change_in_flight_opens_window) {
                           "--set", set_word(other, value(other, 7)), "--set", set_word(rb2, value(rb2, 7)),
                           "--until-idle"}));
     EXPECT_TRUE(r.at("ok") == 2 && ok_after_mark(r, 1) >= 0 && ok_after_mark(r, 1) < 1000 * kMs &&
-                static_cast<long long>(r.sealed[1] - r.ok_at[0]) < kBindLo)
+                static_cast<long long>(r.sealed[1] - r.ok_at[0]) < kBindLo / 2)
         << "another record's change in flight: the next save at the first idle step, " << r.text();
 }
 
