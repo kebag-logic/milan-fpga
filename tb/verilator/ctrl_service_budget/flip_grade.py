@@ -23,10 +23,11 @@ when ctrl_loop.h states THE TRANSMIT's figure under its row. The flip at 1x1/1if
 8x8/2if's rows by every source are reported, not held (#894, the owner's decision of 2026-11-12, owed to #872).
 
 8x8/1if is the flip's other point (#894's shape ruling, items (a) and (b)), held by --check --point
-8x8/1if to its load, at most 0.75, the 8x8 shape's stated costs with THE TRANSMIT's builds at its own shape
-(load_grade.NEAREST), and to ctrl_loop.h's table of shapes (shape_costs.findings: its slice at most 1,600 us). Its
-measured rows are the CPU budget harness's on its built image (run.py --point 8x8-1if: 0 budget misses, every row
-within its bound and its join intervals in range); its rows by every source are reported, not held, owed to #872.
+8x8/1if to its load, at most 0.76 (#977's owner decision of 2026-11-25; 0.75 before), the 8x8 shape's stated costs
+with THE TRANSMIT's builds at its own shape (load_grade.NEAREST), and to ctrl_loop.h's table of shapes
+(shape_costs.findings: its slice at most 1,600 us). Its measured rows are the CPU budget harness's on its built
+image (run.py --point 8x8-1if: 0 budget misses, every row within its bound and its join intervals in range); its
+rows by every source are reported, not held, owed to #872.
 THE TRANSMIT's figure there is held all the same (tx_held): a withdrawn Talker's hold-off counts CTRL_LOOP_TX_MS
 inside its two longest LeaveAll periods (srp_mbx.c, SRP_REDECLARE_CS; IEEE 802.1Q-2018 35.2.2.8; #956), so the check
 fails when ctrl_loop.h states it under the point's tx row by every source, the row rows_tiers derives at 8x8/1if's own
@@ -59,8 +60,9 @@ import shape_costs  # noqa: E402
 
 ROOT = load_grade.ROOT
 #: The points whose load the flip check holds, and each one's ceiling: 8x8/2if's 0.70 (#665, option D) and 8x8/1if's
-#: 0.75 (#894's shape ruling, item (b)).
-FLIP = {'8x8/2if': 0.70, '8x8/1if': 0.75}
+#: 0.76 (#894's shape ruling, item (b), at 0.75; raised to 0.76 by #977's owner decision of 2026-11-25,
+#: issuecomment-7160202807).
+FLIP = {'8x8/2if': 0.70, '8x8/1if': 0.76}
 #: The points the flip check names: the rows' (rows_grade.POINTS) and 8x8/1if, whose rows by every source are reported
 #: apart, owed to #872 (REPORTED), and whose measured rows the CPU budget harness holds.
 POINTS = (*rows_grade.POINTS, '8x8/1if')
@@ -183,8 +185,8 @@ def controls(root: Path) -> list[str]:
         escaped.append('a stated cost missing')
     # the held point and its ceiling (#665: the 0.70 long-window ceiling, option D), read at the pin (#665, #890:
     # item 6), never on the graded column
-    if FLIP != {'8x8/2if': 0.70, '8x8/1if': 0.75}:
-        escaped.append('the flip ceilings not 0.70 at 8x8/2if and 0.75 at 8x8/1if')
+    if FLIP != {'8x8/2if': 0.70, '8x8/1if': 0.76}:
+        escaped.append('the flip ceilings not 0.70 at 8x8/2if and 0.76 at 8x8/1if')
     if COLUMN is not load_grade.STATED_US:
         escaped.append('the graded column read, not the pin')
     # ctrl_loop.h's table of shapes, which the flip check holds at every point (#894's shape ruling,
@@ -404,7 +406,7 @@ def rule_controls(root: Path) -> list[str]:
 
 #: The planted defects controls() plants, in its order: the load's, then the rows'.
 CONTROLS = ('an over-ceiling row', 'a row within its ceiling', 'a cost raised over the ceiling',
-            'a stated cost missing', 'the flip ceilings not 0.70 at 8x8/2if and 0.75 at 8x8/1if',
+            'a stated cost missing', 'the flip ceilings not 0.70 at 8x8/2if and 0.76 at 8x8/1if',
             'the graded column read, not the pin', 'an over-ceiling row at 8x8/1if',
             'a row within its ceiling at 8x8/1if', *(f'the table of shapes: {name}' for name in shape_costs.CONTROLS),
             *TX_HELD_CONTROLS, CHECK_HELD_CONTROL)

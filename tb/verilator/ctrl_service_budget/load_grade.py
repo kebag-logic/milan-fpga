@@ -122,12 +122,12 @@ POINTS = {'1x1/1if': dict(n_if=1, sinks_per_if=2, registrations=16, counter_desc
           '8x8/1if': dict(n_if=1, sinks_per_if=8, registrations=16, counter_descriptors=20),
           '32x32/2if': dict(n_if=2, sinks_per_if=16, registrations=16, counter_descriptors=68)}
 #: The points whose stated costs are another's, the nearest shape each is measured at in both columns (#894's shape
-#: ruling, item (b): 8x8/1if's load at most 0.75): 8x8/1if's records, events and THE STEP's pass are
-#: 8x8/2if's, the 8x8 shape's at two interfaces, measured over every group of both arms there, as #894 derived that
-#: load; THE TRANSMIT's builds and an owed MRPDU, a build of one's, are its own shape's (ctrl_loop.h, THE SHAPES), and
-#: the polls' base and items its own shape's (poll_grade.STATED_US; the held-egress ruling, item (b)(iii)),
-#: each measured on its built image on the tree that merges #902. stated() reads them so; its own measurement of the
-#: rest is owed to #872.
+#: ruling, item (b): 8x8/1if's load at most 0.75, 0.76 by #977's owner decision of 2026-11-25): 8x8/1if's records,
+#: events and THE STEP's pass are 8x8/2if's, the 8x8 shape's at two interfaces, measured over every group of both arms
+#: there, as #894 derived that load; THE TRANSMIT's builds and an owed MRPDU, a build of one's, are its own shape's
+#: (ctrl_loop.h, THE SHAPES), and the polls' base and items its own shape's (poll_grade.STATED_US; the held-egress
+#: ruling, item (b)(iii)), each measured on its built image on the tree that merges #902. stated() reads them so; its
+#: own measurement of the rest is owed to #872.
 NEAREST = {'8x8/1if': '8x8/2if'}
 #: A NEAREST point's own statements, where its measurement passes its nearest point's (#894's ledger ruling, item 4):
 #: the nearest point supplies a cost only while the point's measurement is within it, so where it is not, the point
