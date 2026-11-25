@@ -314,8 +314,10 @@ def slot_state(slot: bytes, image: int) -> tuple[int | None, bytes]:
 def frame_saves(log: grader.Log, image: int, blocks: list[int]) -> list[dict]:
     """Every delta frame the log shows (#1009): the page programs into a slot's room from the first, whose bytes
     begin with the frame's kind, until the frame's length its header gives; its slot's block the erased block that
-    holds it; durable at the read-back after its last page, before the next save, that completes reading back every
-    byte it programmed (as save_grade.first_save's verify)."""
+    holds it; durable at the end of the read-back runs of its bytes that end after its last page, before the next
+    save, once they cover every byte it programmed (as save_grade.first_save's verify). A frame's blank check, page
+    and verify come a step apart, within the millisecond in which the testbench merges reads of a span into one run
+    (sim_main.cpp's read_gap), so its blank check and verify may be one run that ends after its page."""
     import grade
     import save_grade
     room = delta_room(image)
@@ -344,8 +346,8 @@ def frame_saves(log: grader.Log, image: int, blocks: list[int]) -> list[dict]:
         stop = next((c for c in starts if c > s['start']), 1 << 62)
         done, s['durable'] = 0, None
         for first, end_, address, n in reads:
-            if last < first < stop and lo <= address < lo + total:
-                done += n
+            if last < end_ and first < stop and address < lo + total and lo < address + n:
+                done += min(address + n, lo + total) - max(address, lo)
                 if done >= total:
                     s['durable'] = end_
                     break

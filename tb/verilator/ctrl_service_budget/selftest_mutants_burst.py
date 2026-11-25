@@ -20,6 +20,17 @@ def _burst_cut_any_slot(path: Path, image: int, base: int) -> tuple:
     return seq, save_burst.held_names(data[:image], image, base) if seq is not None else {}
 
 
+def _frame_saves_late_verify(log, image: int, blocks: list[int], _f=save_burst.frame_saves) -> list[dict]:
+    """save_burst.frame_saves taking only a read run that starts after a frame's last page for its verify."""
+    out = _f(log, image, blocks)
+    reads = save_grade.merged_reads(log)
+    for s in out:
+        last, lo = s['pages'][-1][0], s['pages'][0][1]
+        if not any(first > last and a <= lo < a + n for first, _, a, n in reads):
+            s['durable'] = None
+    return out
+
+
 MUTANTS: dict[str, Callable[[], list]] = {
     'burst: a container is accepted whatever its CRC': lambda: [patch.object(
         save_burst, 'accepted', lambda blob, image: int.from_bytes(blob[8:12], 'little'))],
@@ -30,6 +41,8 @@ MUTANTS: dict[str, Callable[[], list]] = {
         save_burst, 'journal', _burst_cut_any_slot)],
     "burst: a SET_NAME's status is not read": lambda: [patch.object(
         save_burst, 'responses', lambda log, _r=save_burst.responses: {k: (c, 0) for k, (c, _) in _r(log).items()})],
+    "burst: a delta frame's verify only a read run that starts after its page": lambda: [patch.object(
+        save_burst, 'frame_saves', _frame_saves_late_verify)],
     'burst: a delta frame is not a save': lambda: [patch.object(
         save_burst, 'frame_saves', lambda log, image, blocks: [])],
     "burst: a slot's delta frames are not applied": lambda: [patch.object(

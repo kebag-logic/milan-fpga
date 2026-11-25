@@ -91,10 +91,12 @@ def graded(m: ModuleType, kind: str, blob: bytes, durable_ms: float, journal: by
     lines += save_lines(blob, 2000, end)
     if 'frame' in opts:
         # a delta frame after the whole save, into its slot's room, verified frame_ms after the responses
+        # (opts' merged: its blank check and verify one read run across its page, as the testbench merges them)
         frame_, frame_ms = opts['frame']
         done, at = 1000 + int(frame_ms * ms), SLOT + save_burst.delta_room(IMAGE)[0]
+        first = done - 300 if opts.get('merged') else done - 100
         lines += [f'FLASHOP {done - 200} {grade.FLASH_PROGRAM} {at:06x} {len(frame_)}',
-                  f'FLASHDATA {done - 200} {at:06x} {frame_.hex()}', f'FLASHRD {done - 100} {done} {at:06x} {len(frame_)}']
+                  f'FLASHDATA {done - 200} {at:06x} {frame_.hex()}', f'FLASHRD {first} {done} {at:06x} {len(frame_)}']
     lines += [f'STEPPASS {n} {end + 10 + n} 1 100 store=50' for n in range(steps)]
     if kind == 'flight':
         lines += save_lines(blob, end + 10 + steps, end + 10 + steps + 2 * ms, SLOT + 0x50000)
@@ -153,6 +155,17 @@ def burst_checks(m: ModuleType) -> list[Check]:
                 'with the frame applied, and the cut reads the slot through its frames',
                 not words and [s['kind'] for s in g['saves']] == ['whole', 'frame'] and ms[0] is not None
                 and abs(ms[0] - 1500) < 1 and ms[1] is not None and abs(ms[1] - 2500) < 1, f'{words} {g["saves"]} {ms}'))
+    g = run('burst', base, 1500, journal(base + frame_), frame=(frame_, 2500), merged=True)
+    words = save_burst.misses(g, 'synthetic-burst')
+    ms = {r['ordinal']: r['ms'] for r in g['rows']}
+    out.append(('burst: a delta frame whose blank check and verify are one read run across its page is durable at '
+                'that run\'s end', not words and ms[1] is not None and abs(ms[1] - 2500) < 1, f'{words} {ms}'))
+    torn = frame_[:-4] + bytes(4)
+    g = run('burst', base, 1500, journal(base + torn), frame=(torn, 2500))
+    words = save_burst.misses(g, 'synthetic-burst')
+    out.append(('burst: a delta frame whose CRC does not close is not durable, nor applied at the cut',
+                words == ['synthetic-burst: name 1 not durable 5,000 ms after its response, when the run ended',
+                          'synthetic-burst: name 1 not in the authoritative container at the cut'], str(words)))
     for name, kw, want in (('refused', dict(status=1), 'answered status 1'),
                            ('unanswered', dict(answered=False), 'was never answered')):
         try:
