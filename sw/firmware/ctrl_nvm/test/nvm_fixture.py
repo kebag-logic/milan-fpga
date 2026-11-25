@@ -517,11 +517,40 @@ def delta_fixture(w: Writer, b: Bench) -> None:
     w.blob("slot/g5+stray", bytes(stray))
 
 
+#: Slots the 2509db68 image's own store wrote, per shape (data/2509db68/README.md): <config stem>-a.hex and -b.hex.
+OLD_STORE = HERE / "data" / "2509db68"
+#: The shapes whose save harness point wrote them, which must have them.
+OLD_STORE_SHAPES = ("endstation_ax7101_8x8", "endstation_ax7101_1x1_tdm8")
+
+
+def old_store_fixture(w: Writer, b: Bench) -> None:
+    """#1009: a store the previous image wrote, at the minor before frames: each slot as that image left it, its
+    sequence, and the state the newer one holds; old_store 0 at a shape no data was written for."""
+    slots = [OLD_STORE / f"{b.stem}-{s}.hex" for s in ("a", "b")]
+    if not all(p.exists() for p in slots):
+        if b.stem in OLD_STORE_SHAPES:
+            raise SystemExit(f"nvm_fixture: no store of 2509db68 for {b.stem} under {OLD_STORE}")
+        w.num("old_store", 0)
+        return
+    seqs = []
+    blobs = [bytes.fromhex(path.read_text()) for path in slots]
+    for name, path, blob in zip(("a", "b"), slots, blobs):
+        if verdict(b, blob) != VD_OK or struct.unpack_from("<I", blob, 4)[0] != KLJ3_FMT_VER_0:
+            raise SystemExit(f"nvm_fixture: {path.name} is not a minor 0 container this shape accepts")
+        w.blob(f"old/{name}", blob)
+        seqs.append(struct.unpack_from("<I", blob, 8)[0])
+        w.num(f"old_seq_{name}", seqs[-1])
+    newer = blobs[0] if (seqs[0] - seqs[1]) % 2**32 < 2**31 else blobs[1]
+    w.payloads("old", rid_payloads(b, newer))
+    w.num("old_store", 1)
+
+
 def write_fixture(b: Bench, out: Path) -> Path:
     """The fixture of test_nvm_boot.cpp and test_nvm_write.cpp for one shape."""
     w = Writer(out)
     facts(w, b)
     delta_fixture(w, b)
+    old_store_fixture(w, b)
     for name in main_images():
         w.blob(name, image(b, name))
     cases = parity(b)

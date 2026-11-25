@@ -570,8 +570,8 @@ store in process, over the flash model directly and over the LiteSPI port on
 the command-master model ([`test/nvm_rig.cpp`](test/nvm_rig.cpp)). Every
 byte and every verdict is compared with the fixture
 [`test/nvm_fixture.py`](test/nvm_fixture.py) writes from
-`scripts/nvm_klj3.py`, the reference codec. Per shape, 78 checks in 130
-tests: 52 on both ports, fifteen on the model port alone (its read and refusal
+`scripts/nvm_klj3.py`, the reference codec. Per shape, 81 checks in 136
+tests: 55 on both ports, fifteen on the model port alone (its read and refusal
 faults do not reach memory-mapped LiteSPI reads), five on the LiteSPI port
 alone (the PHC, `timer0`, the command master and the guard exist only
 there), four that ask the codec directly and two on GoogleMock's flash
@@ -677,6 +677,17 @@ under any shape header but the host suite's own, which alone defines
     read of a frame at boot (each end on two reads of the same bytes, #665
     decision 2) and at the re-stage;
   - a full room written whole while nothing waits, and that commit failing;
+  - **a torn delta frame**: the power cut inside the frame's page program, a
+    quarter, half and all but one of its bytes landed: the old binding boots,
+    the torn slot takes no frame, and its next save is written whole;
+  - **a full delta area**: frames to the room's last byte boot as their last
+    one, the next save into that slot is written whole, the one after it is a
+    frame again;
+  - **a store written by 2509db68**: at the two AX7101 shapes, both slots as
+    that image's own store left them in the save harness
+    ([`test/data/2509db68`](test/data/2509db68/README.md)): the boot restores
+    the newer one's state, the first save into each slot is written whole at
+    minor 1 and the save after both is a frame;
   - a console commit of nothing, and an erased record, as frames;
   - **the swept cut**: from a binding change to 3 s after it, a cut every
     10 ms and at the start and middle of each media effect, with an erase of

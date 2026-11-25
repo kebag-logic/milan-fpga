@@ -696,6 +696,11 @@ bool word_arg(const std::string& a, const std::string& v, Files& files) {
         dump(files, v, nvm_fmodel_mem + NVM_LEGACY_A, MILAN_FLASH_JOURNAL_SIZE);
     } else if (a == "--sweep-cut") {
         sweep(static_cast<unsigned>(number(v.c_str(), nullptr)));
+    } else if (a == "--cut-at") {
+        // K:FRAC: the power fails inside the K-th media effect since the power came on, FRAC/256 of it landed
+        const std::size_t colon = v.find(':');
+        nvm_fmodel_cut(static_cast<unsigned>(number(v.substr(0, colon).c_str(), nullptr)),
+                       static_cast<unsigned>(number(v.substr(colon + 1).c_str(), nullptr)));
     } else if (a == "--times") {
         times_arg(v);
     } else if (a == "--refuse") {

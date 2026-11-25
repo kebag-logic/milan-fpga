@@ -615,7 +615,7 @@ MUTANTS = (
     _m("delta_lag_dropped", STORE, "\tnvm_grow(&lo, &hi, nvm.lag_lo, nvm.lag_hi);\n", "", "frames_carry_the_lag"),
     # a frame cut short applied
     _m("delta_crc_ignored", STORE, "\t\tif (~crc != nvm_rd32le(nvm_chunk)) {\n\t\t\tvd = NVM_ENDED;",
-       "\t\tif (0) {\n\t\t\tvd = NVM_ENDED;", "chain_ends"),
+       "\t\tif (0) {\n\t\t\tvd = NVM_ENDED;", "chain_ends", "torn_frame"),
     # a slot whose frames end on an erased header takes none
     _m("delta_erased_end_no_room", STORE, "\t\tif (nvm_all_erased(h, NVM_DHDR)) {\n\t\t\tnvm.tail[slot] = pos;",
        "\t\tif (nvm_all_erased(h, NVM_DHDR)) {\n\t\t\tnvm.tail[slot] = 0u;", "bind_save_is_a_frame"),
@@ -667,14 +667,14 @@ MUTANTS = (
     # a container of the previous minor takes frames
     _m("delta_minor_ignored", STORE,
        "\twhile (nvm_rd32le(nvm_stage + 4) == NVM_KLJ3_FMT_VER && pos + NVM_DHDR <= NVM_DELTA_END) {",
-       "\twhile (pos + NVM_DHDR <= NVM_DELTA_END) {", "previous_minor_written_whole_first"),
+       "\twhile (pos + NVM_DHDR <= NVM_DELTA_END) {", "previous_minor_written_whole_first", "store_of_2509db68"),
     # the store writes the previous minor
     _m("delta_minor_not_bumped", "nvm_shape.h", "#define NVM_KLJ3_FMT_VER 0x00030001u",
        "#define NVM_KLJ3_FMT_VER 0x00030000u", "bind_save_is_a_frame", "first_commit_bytes"),
     # a frame past its buffer, or past its room
     _m("delta_buffer_unbounded", STORE, " || len > NVM_PAYLOAD_MAX ||", " ||", "frame_too_big_written_whole"),
     _m("delta_room_unbounded", STORE, "\t    nvm.tail[t] + len > NVM_DELTA_END)",
-       "\t    nvm.tail[t] + len > NVM_DELTA_END + NVM_FLASH_PAGE)", "frame_too_big_written_whole"),
+       "\t    nvm.tail[t] + len > NVM_DELTA_END + NVM_FLASH_PAGE)", "frame_too_big_written_whole", "full_delta_area"),
     # a re-stage that does not apply the slot's frames again
     _m("delta_restage_no_frames", STORE, "\trd.vd = nvm_chain(slot, &got, &rd);", "\trd.vd = NVM_VD_OK;",
        "bind_save_is_a_frame", "restage_reads_frames"),

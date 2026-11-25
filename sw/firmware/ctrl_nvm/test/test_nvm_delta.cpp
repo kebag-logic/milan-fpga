@@ -446,6 +446,94 @@ TEST_P(NvmBoth, frame_of_nothing) {
         << "slot A's frame holds an erased record";
 }
 
+// A delta frame torn by a power cut inside its page program, a quarter, half or all but the last of its bytes
+// landed: its slot's container is untouched, the boot ends that slot's frames at the torn one, and the old binding
+// boots from the other slot. The torn slot then takes no frame: its next save is written whole and boots back.
+TEST_P(NvmBoth, torn_frame) {
+    const unsigned rb = bind_rid();
+    const std::size_t room = static_cast<std::size_t>(fx().num("delta_base"));
+    for (const unsigned frac : {64u, 128u, 255u}) {
+        Files f = twin();
+        const std::string what = "cut at " + num(frac) + "/256 of the frame's page";
+        Result r = go(port(), f,
+                      concat(kTwin, concat({"--boot", "--cut-at", "1:" + num(frac), "--set", set_word(rb, value(rb, 7)),
+                                            "--run-ms", "1500"},
+                                           kDump)));
+        EXPECT_TRUE(r.at("erases") == 0 && r.at("programs") == 1 && r.at("ok") == 0) << what << ": " << r.text();
+        const Bytes& a = f.blobs["a.bin"];
+        Bytes base = fx().blob("golden@5/minor1");
+        base.resize(room, 0xffu);
+        EXPECT_TRUE(a.size() > room && a[room] != 0xffu &&
+                    Bytes(a.begin(), a.begin() + static_cast<std::ptrdiff_t>(room)) == base)
+            << what << ": slot A is not its container and a torn frame after it";
+        const Result b = boot_dumped(port(), f);
+        EXPECT_TRUE(b.at("vd_a") == NVM_VD_OK && b.at("seq_a") == 5 && b.at("auth") == 1 && b.at("seq") == 6 &&
+                    b.at("unread") == 0 && b.at("phase") == NVM_P_IDLE)
+            << what << ": " << b.text();
+        expect_state(f, "st", fx().payloads("golden"), what);
+        r = go(port(), f, concat({"--slot-a", "a.bin", "--slot-b", "b.bin", "--boot", "--set",
+                                  set_word(rb, value(rb, 8)), "--until-idle"},
+                                 kDump));
+        EXPECT_TRUE(r.at("ok") == 1 && r.at("erases") == 1 && r.at("deltas") == 0) << what << ": " << r.text();
+        boot_dumped(port(), f);
+        expect_state(f, "st", fx().payloads("bind8"), what + ", then the next save");
+    }
+}
+
+// A full delta area: frames to its room's last byte boot as their last one, and the next save into that slot is
+// written whole, whatever waits; the save after it is a frame again, into the other slot.
+TEST_P(NvmBoth, full_delta_area) {
+    const unsigned rb = bind_rid();
+    Files f = fx().files({{"a5.bin", "golden@40/minor1"}, {"b6.bin", "slot/g5+brim"}});
+    Result r = go(port(), f, concat(kTwin, {"--boot", "--dump-state", "st"}));
+    EXPECT_TRUE(r.at("vd_b") == NVM_VD_OK && r.at("seq_b") == fx().num("brim_seq") && r.at("auth") == 0)
+        << "the full slot's boot: " << r.text();
+    expect_state(f, "st", fx().payloads("golden"), "the full slot");
+    r = go(port(), f, concat(kTwin, concat({"--boot", "--set", set_word(rb, value(rb, 7)), "--until-idle"}, kDump)));
+    EXPECT_TRUE(r.at("ok") == 1 && r.at("erases") == 1 && r.at("deltas") == 0 && r.at("tidied") == 0)
+        << "the save into the full slot: " << r.text();
+    Result b = boot_dumped(port(), f);
+    EXPECT_TRUE(b.at("auth") == 1 && b.at("seq") == 0x41) << b.text();
+    expect_state(f, "st", fx().payloads("bind7"), "the full slot written whole");
+    r = go(port(), f, concat({"--slot-a", "a.bin", "--slot-b", "b.bin", "--boot", "--set", set_word(rb, value(rb, 8)),
+                              "--until-idle"},
+                             kDump));
+    EXPECT_TRUE(r.at("ok") == 1 && r.at("erases") == 0 && r.at("deltas") == 1) << "the save after: " << r.text();
+    b = boot_dumped(port(), f);
+    EXPECT_TRUE(b.at("auth") == 0 && b.at("seq") == 0x42) << b.text();
+    expect_state(f, "st", fx().payloads("bind8"), "a frame again");
+}
+
+// A store the 2509db68 image wrote: both slots as its own store left them in the save harness, at the minor before
+// frames (data/2509db68). The boot reads both and restores the newer one's state; the first save into each slot is
+// written whole, at minor 1, and the save after both is a frame. A shape no such store was written for has none.
+TEST_P(NvmBoth, store_of_2509db68) {
+    if (fx().num("old_store") == 0) {
+        return;
+    }
+    const unsigned rb = bind_rid();
+    const long long newer = (fx().num("old_seq_b") - fx().num("old_seq_a")) % (1LL << 32) < (1LL << 31) ? 1 : 0;
+    const long long seq = newer ? fx().num("old_seq_b") : fx().num("old_seq_a");
+    Files f = fx().files({{"a5.bin", "old/a"}, {"b6.bin", "old/b"}});
+    Result r = go(port(), f, concat(kTwin, {"--boot", "--dump-state", "st"}));
+    EXPECT_TRUE(r.at("vd_a") == NVM_VD_OK && r.at("vd_b") == NVM_VD_OK && r.at("seq_a") == fx().num("old_seq_a") &&
+                r.at("seq_b") == fx().num("old_seq_b") && r.at("auth") == newer && r.at("terminal") == NVM_T_COMPLETE &&
+                r.at("phase") == NVM_P_IDLE)
+        << "the old store's boot: " << r.text();
+    expect_state(f, "st", fx().payloads("old"), "the old store's boot");
+    r = go(port(), f,
+           concat(kTwin, concat({"--boot", "--set", set_word(rb, value(rb, 7)), "--until-idle", "--set",
+                                 set_word(rb, value(rb, 8)), "--until-idle", "--set", set_word(rb, value(rb, 9)),
+                                 "--until-idle"},
+                                kDump)));
+    EXPECT_TRUE(r.at("ok") == 3 && r.at("erases") == 2 && r.at("deltas") == 1 && r.at("seq") == seq + 3)
+        << "two whole, then a frame: " << r.text();
+    const Result b = boot_dumped(port(), f);
+    // the saves alternate: the older slot, the newer, the older again
+    EXPECT_TRUE(b.at("seq") == seq + 3 && b.at("auth") == 1 - newer && b.at("terminal") == NVM_T_COMPLETE) << b.text();
+    expect_state(f, "st", with(fx().payloads("old"), {{rb, value(rb, 9)}}), "the old store after three saves");
+}
+
 // #1009's acceptance: the power cut every 10 ms from a binding change to 3 s after it, and inside each of its
 // save's media effects, with the part's erase and page times; every cut boots the old binding or the new one, never
 // neither and never a mix, and the next change commits. Once as a frame, once written whole.
