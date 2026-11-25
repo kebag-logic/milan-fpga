@@ -1,0 +1,46 @@
+Candidate head: 09201d35d7ea720b3ba205da185ba35c159ec24a
+Source: route/endstation_ax7101_8x8/gateware/ExtraTimingOpt/alinx_ax7101_signoff_clock_interaction.rpt
+Original SHA256: f1e75a534673eb14ba5b38e71a76082125aa92380e7cc951591d7bdffbed7982
+Scope: complete text; paths and host fields normalized
+
+Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2026 Advanced Micro Devices, Inc. All Rights Reserved.
+---------------------------------------------------------------------------------------------------------------------------------------------
+| Tool Version : Vivado v.2026.1 (lin64) Build 6511674 Tue Jun 16 11:01:26 MDT 2026
+| Date         : Wed Nov 25 19:16:29 2026
+| Host         : $HOST running 64-bit unknown
+| Command      : report_clock_interaction -delay_type min_max -file alinx_ax7101_signoff_clock_interaction.rpt
+| Design       : alinx_ax7101
+| Device       : 7a100t-fgg484
+| Speed File   : -2  PRODUCTION 1.23 2018-06-13
+| Design State : Physopt postRoute
+---------------------------------------------------------------------------------------------------------------------------------------------
+
+Clock Interaction Report
+
+Clock Interaction Table
+-----------------------
+
+                                                          WNS                            TNS Failing  TNS Total    WNS Path         WHS                            THS Failing  THS Total    WHS Path         Clock-Pair           Inter-Clock              
+From Clock                   To Clock                     Clock Edges  WNS(ns)  TNS(ns)    Endpoints    Endpoints  Requirement(ns)  Clock Edges  WHS(ns)  THS(ns)    Endpoints    Endpoints  Requirement(ns)  Classification       Constraints              
+---------------------------  ---------------------------  -----------  -------  -------  -----------  -----------  ---------------  -----------  -------  -------  -----------  -----------  ---------------  -------------------  -----------------------  
+clk200_p                     clk200_p                     rise - rise     3.68     0.00            0            7             5.00  rise - rise     0.24     0.00            0            7             0.00  Clean                Timed                    
+eth_clocks0_rx               eth_clocks0_rx               rise - rise     0.59     0.00            0         1677             8.00  rise - rise     0.12     0.00            0         1677             0.00  Clean                Partial False Path       
+eth_clocks0_rx               milansoc_crg_clkout0         rise - rise     6.47     0.00            0           13             8.00                                           0           13                   Ignored              Max Delay Datapath Only  
+eth_clocks0_rx               milansoc_crg_clkout1         rise - rise     6.73     0.00            0           51             8.00                                           0           51                   Ignored              Max Delay Datapath Only  
+milansoc_crg_audio_mclk_raw  milansoc_crg_audio_mclk_raw  rise - rise    36.55     0.00            0           33            40.69  rise - rise     0.11     0.00            0           33             0.00  Clean                Timed                    
+milansoc_crg_audio_mclk_raw  milansoc_crg_clkout1                                                  0            1                                                            0            1                   Ignored              Asynchronous Groups      
+milansoc_crg_audio_tdm_raw   milansoc_crg_audio_tdm_raw   rise - rise     3.05     0.00            0         1016            10.17  rise - rise     0.04     0.00            0         1016             0.00  Clean                Timed                    
+milansoc_crg_audio_tdm_raw   milansoc_crg_clkout1                                                  0           61                                                            0           61                   Ignored              Asynchronous Groups      
+milansoc_crg_clkout0         eth_clocks0_rx               rise - rise     6.80     0.00            0           16             8.00                                           0           16                   Ignored              Max Delay Datapath Only  
+milansoc_crg_clkout0         milansoc_crg_clkout0         rise - rise     0.05     0.00            0        51998            10.00  rise - rise     0.06     0.00            0        51998             0.00  Clean                Partial False Path       
+milansoc_crg_clkout0         milansoc_crg_clkout1                                                  0         3247                                                            0         3247                   Ignored              Asynchronous Groups      
+milansoc_crg_clkout1         eth_clocks0_rx               rise - rise     6.85     0.00            0           14             8.00                                           0           14                   Ignored              Max Delay Datapath Only  
+milansoc_crg_clkout1         milansoc_crg_audio_mclk_raw                                           0            1                                                            0            1                   Ignored              Asynchronous Groups      
+milansoc_crg_clkout1         milansoc_crg_audio_tdm_raw                                            0           33                                                            0           33                   Ignored              Asynchronous Groups      
+milansoc_crg_clkout1         milansoc_crg_clkout0                                                  0          365                                                            0          365                   Ignored              Asynchronous Groups      
+milansoc_crg_clkout1         milansoc_crg_clkout1         rise - rise     0.39     0.00            0       108400            20.00  rise - rise     0.04     0.00            0       108400             0.00  Clean                Partial False Path       
+milansoc_crg_clkout1         milansoc_crg_clkout2         rise - rise     2.37     0.00            0           17             5.00  rise - rise     0.15     0.00            0           17             0.00  Clean                Partial False Path       
+milansoc_crg_clkout2         milansoc_crg_clkout1         rise - rise     2.79     0.00            0            3             5.00  rise - rise     0.18     0.00            0            3             0.00  Clean                Timed                    
+milansoc_crg_clkout2         milansoc_crg_clkout2         rise - rise     1.35     0.00            0          172             5.00  rise - rise     0.16     0.00            0          172             0.00  Clean                Timed                    
+
+

@@ -1,0 +1,61 @@
+Candidate head: 09201d35d7ea720b3ba205da185ba35c159ec24a
+Source: bind_end.py
+Original SHA256: 8162deb414608b91df4224aff4cf22a282ed54a4b8dcea9103394a078c673a33
+Scope: complete text; paths and host fields normalized
+
+"""The binding record, the slot record and the control-memory record, written once both route units have ended."""
+import json
+import re
+import subprocess
+import sys
+from pathlib import Path
+
+w = Path(__file__).resolve().parent
+sys.path.insert(0, str(w))
+import binding  # noqa: E402
+
+ROUTED = '9acb9b828b29aba71bd51303a4836f86c2278267'
+ident = binding.identity()
+start = json.loads((w / 'identity-prepare.json').read_text())
+units = {}
+for n in ('endstation_ax7101_1x1_tdm8', 'endstation_ax7101_8x8'):
+    ev = [json.loads(x) for x in (w / f'route-{n}.events').read_text().splitlines()]
+    units[n] = {'end': ev[-1], 'inputs_after_synthesis': [e for e in ev if e['step'] == 'inputs-after-synthesis'],
+                'checkpoint_sha256': [e['sha256'] for e in ev if e['step'] == 'checkpoint']}
+g = lambda *a: binding.git(*a)  # noqa: E731
+(w / 'source-binding.json').write_text(json.dumps({
+    'reviewed_head': binding.HEAD, 'identity_start': start, 'identity_end': ident, 'identity_unchanged': ident == start,
+    'dev_soft_core_merged_in': '5de21ff3661436ea5598718aca36934361e35340', 'is_ancestor_rc': subprocess.run(
+        ['git', 'merge-base', '--is-ancestor', '5de21ff3661436ea5598718aca36934361e35340', 'HEAD'], cwd=binding.ROOT).returncode,
+    'earlier_rounds_routed_source': ROUTED, 'hdl_tree_then': g('rev-parse', ROUTED + ':hdl'), 'hdl_tree_now': ident['trees']['hdl'],
+    'hdl_files_changed_since': g('diff', '--name-only', ROUTED, 'HEAD', '--', 'hdl').splitlines(),
+    'gitlinks_changed_since': g('diff', '--raw', ROUTED, 'HEAD', '--', 'external', *binding.HDL_SUBMODULES).splitlines(),
+    'units': units}, indent=2) + '\n')
+slots = []
+for log in sorted(w.glob('route/**/measure_*.log')):
+    m = re.search(r'vivado-slot: slot (\d+) \((\S+)\), MemAvailable (\d+) GB, (\S+)', log.read_text(errors='replace'))
+    run = json.loads(log.with_suffix('.json').read_text())
+    slots.append({'log': str(log.relative_to(w)), 'slot': int(m[1]), 'mem_available_gb': int(m[3]), 'start': m[4],
+                  'exit': run['exit'], 'seconds_including_slot_wait': round(run['seconds_including_slot_wait'], 1)})
+(w / 'slot-usage.json').write_text(json.dumps({'VIVADO_SLOTS': 2, 'VIVADO_MIN_GB': 20, 'vendor_runs': len(slots),
+                                               'slots_used': sorted({s['slot'] for s in slots}),
+                                               'min_mem_available_gb': min(s['mem_available_gb'] for s in slots), 'runs': slots}, indent=2) + '\n')
+mem = {}
+sys.path.insert(0, str(binding.ROOT / 'sw/litex'))
+import ctrl_memory  # noqa: E402
+for n in ('endstation_ax7101_1x1_tdm8', 'endstation_ax7101_8x8'):
+    elf = w / 'builds' / (n + '-on') / 'ctrl_app.elf'
+    ordinary, measure = (w / d / n / 'export.log' for d in ('ordinary', 'route'))
+    refusal = re.search(r'Refusal: (.*)$', ordinary.read_text(), re.M)
+    alloc = re.search(r'^S14 MEASURED ALLOCATION: (.*)$', measure.read_text(), re.M)
+    plan = json.loads(alloc[1]) if alloc else ctrl_memory.plan(ctrl_memory.read_elf(elf)).summary()
+    ev = [json.loads(x) for x in (w / 'prepare.events').read_text().splitlines()]
+    mem[n] = {'elf_sha256': binding.sha(elf), 'ordinary_export_exit': next(e['exit'] for e in ev if e.get('kind') == 'ordinary' and e['shape'] == n),
+              'ordinary_refusal': refusal[1] if refusal else None, 'allocation': plan}
+led = ctrl_memory.LEDGERED['platform-8x8-one-interface'].tiles
+t = mem['endstation_ax7101_8x8']['allocation']['tiles']
+mem['ledger'] = {'platform-8x8-one-interface tiles at this head': led, 'enabled 8x8 over it': t - led,
+                 'default budget tiles': 56, 'enabled 8x8 over the default': t - 56}
+(w / 'firmware-memory.json').write_text(json.dumps(mem, indent=2) + '\n')
+print(json.dumps(mem['ledger']), {k: v['allocation']['tiles'] for k, v in mem.items() if 'allocation' in v},
+      {k: v.get('ordinary_refusal') for k, v in mem.items()})

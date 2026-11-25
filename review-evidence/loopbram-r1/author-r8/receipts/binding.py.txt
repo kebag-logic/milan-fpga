@@ -1,0 +1,41 @@
+Candidate head: 09201d35d7ea720b3ba205da185ba35c159ec24a
+Source: binding.py
+Original SHA256: 94c60a61ff07af829c97941e05fa5cdbad7bf2cf06aa68c570311ce6b63aa341
+Scope: complete text; paths and host fields normalized
+
+"""Source identity used by every round-8 step: the exact head, its trees and gitlinks, and a clean-tree check."""
+import hashlib
+import subprocess
+from pathlib import Path
+
+ROOT = Path('$CHECKOUT')
+HEAD = '09201d35d7ea720b3ba205da185ba35c159ec24a'
+HDL_SUBMODULES = ('gptp-processor', 'protocol-processor', 'third_party/lwSRP', 'third_party/tsn-c-stack',
+                  'third_party/verilog-axis')
+
+
+def git(*a, cwd=ROOT):
+    return subprocess.check_output(['git', *a], cwd=cwd, text=True).strip('\n')
+
+
+def sha(p):
+    h = hashlib.sha256()
+    with open(p, 'rb') as f:
+        for block in iter(lambda: f.read(1 << 20), b''):
+            h.update(block)
+    return h.hexdigest()
+
+
+def identity():
+    head = git('rev-parse', 'HEAD')
+    assert head == HEAD, head
+    out = {'head': head, 'tree': git('rev-parse', 'HEAD^{tree}'),
+           'trees': {p: git('rev-parse', 'HEAD:' + p) for p in ('hdl', 'sw', 'configs', 'tb', 'scripts', 'avdecc', 'syn')},
+           'gitlinks': {p: git('rev-parse', 'HEAD:' + p) for p in ('external', *HDL_SUBMODULES)},
+           'dirty_tracked': git('status', '--porcelain', '--untracked-files=no')}
+    out['submodule_heads'] = {p: git('rev-parse', 'HEAD', cwd=ROOT / p) for p in HDL_SUBMODULES}
+    out['submodule_dirty'] = {p: git('status', '--porcelain', cwd=ROOT / p) for p in HDL_SUBMODULES}
+    assert not out['dirty_tracked'] and not any(out['submodule_dirty'].values()), out
+    for p in HDL_SUBMODULES:
+        assert out['submodule_heads'][p] == out['gitlinks'][p], p
+    return out

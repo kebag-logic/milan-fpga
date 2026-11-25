@@ -1,0 +1,20 @@
+Candidate head: 09201d35d7ea720b3ba205da185ba35c159ec24a
+Source: builds/endstation_ax7101_8x8-builder.log
+Original SHA256: 5bace1086c6408cecc2bfa10952dc5e64668dd99ab7c48b6e837609b2de523f9
+Scope: complete text; paths and host fields normalized
+
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+[endstation_builder] endstation_ax7101_8x8: 8x8 AAF + CRF, tdm32, 199 clusters (role-pools), model_id 0x001BC56D83BB4A56 (hash); 5 planned element(s); resources OVER (worst LUT 85.4%)
+  wrote sw/builder/out/loopbram_measure_r8/endstation_ax7101_8x8/soc_params.json
+  wrote sw/builder/out/loopbram_measure_r8/endstation_ax7101_8x8/aem_overlay.json
+  wrote sw/builder/out/loopbram_measure_r8/endstation_ax7101_8x8/build_plan.md
+  wrote sw/builder/out/loopbram_measure_r8/endstation_ax7101_8x8/lwsrp_table.json
+  wrote sw/builder/out/loopbram_measure_r8/endstation_ax7101_8x8/lwsrp_table.svh
+  wrote sw/builder/out/loopbram_measure_r8/endstation_ax7101_8x8/lwsrp_csr_defaults.svh
+  wrote sw/builder/out/loopbram_measure_r8/endstation_ax7101_8x8/adp_shape_defaults.svh
+  wrote sw/builder/out/loopbram_measure_r8/endstation_ax7101_8x8/gen/adp_shape_defaults.svh
+  wrote sw/builder/out/loopbram_measure_r8/endstation_ax7101_8x8/platform_shape.json
+  wrote configs/generated/sweep_opts_ax7101.sh
+  wrote sw/builder/out/loopbram_measure_r8/endstation_ax7101_8x8/nvm_split.json
+  wrote sw/builder/out/loopbram_measure_r8/endstation_ax7101_8x8/gptp_ucode.hex
+  wrote sw/builder/out/loopbram_measure_r8/endstation_ax7101_8x8/aecp_aem_rom.svh

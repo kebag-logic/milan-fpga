@@ -1,0 +1,1512 @@
+Candidate head: 09201d35d7ea720b3ba205da185ba35c159ec24a
+Source: route/endstation_ax7101_8x8/gateware/measure_synth.log
+Original SHA256: d68988562e1c6773384082576f70e707fc3fdb3ee9c46d256b7a62ec223b6a39
+Scope: complete text; paths and host fields normalized
+
+Finished RTL Optimization Phase 2 : Time (s): cpu = 00:01:50 ; elapsed = 00:01:50 . Memory (MB): peak = 3651.820 ; gain = 1649.250 ; free physical = 998 ; free virtual = 85893
+---------------------------------------------------------------------------------
+RAM Pipeline Warning: Read Address Register Found For RAM sram_bank1_reg. We will not be able to pipeline it. This may degrade performance. 
+RAM Pipeline Warning: Read Address Register Found For RAM sram_bank2_reg. We will not be able to pipeline it. This may degrade performance. 
+RAM Pipeline Warning: Read Address Register Found For RAM sram_bank3_reg. We will not be able to pipeline it. This may degrade performance. 
+RAM Pipeline Warning: Read Address Register Found For RAM sram_bank4_reg. We will not be able to pipeline it. This may degrade performance. 
+RAM Pipeline Warning: Read Address Register Found For RAM sram_bank0_reg. We will not be able to pipeline it. This may degrade performance. 
+---------------------------------------------------------------------------------
+Start RTL Component Statistics 
+---------------------------------------------------------------------------------
+Detailed RTL Component Info : 
++---Adders : 
+	   4 Input   88 Bit       Adders := 1     
+	   2 Input   64 Bit       Adders := 7     
+	   3 Input   64 Bit       Adders := 4     
+	   3 Input   63 Bit       Adders := 1     
+	   3 Input   49 Bit       Adders := 2     
+	   2 Input   48 Bit       Adders := 2     
+	   3 Input   40 Bit       Adders := 1     
+	   3 Input   34 Bit       Adders := 3     
+	   3 Input   33 Bit       Adders := 1     
+	   2 Input   33 Bit       Adders := 2     
+	   2 Input   32 Bit       Adders := 78    
+	   3 Input   32 Bit       Adders := 24    
+	   5 Input   32 Bit       Adders := 1     
+	   4 Input   32 Bit       Adders := 4     
+	   2 Input   30 Bit       Adders := 3     
+	   2 Input   28 Bit       Adders := 1     
+	   2 Input   27 Bit       Adders := 1     
+	   2 Input   26 Bit       Adders := 1     
+	   3 Input   25 Bit       Adders := 1     
+	   2 Input   24 Bit       Adders := 2     
+	   2 Input   22 Bit       Adders := 2     
+	   2 Input   20 Bit       Adders := 3     
+	   4 Input   18 Bit       Adders := 1     
+	   3 Input   18 Bit       Adders := 2     
+	   2 Input   18 Bit       Adders := 3     
+	   2 Input   17 Bit       Adders := 26    
+	   3 Input   17 Bit       Adders := 2     
+	   2 Input   16 Bit       Adders := 45    
+	   3 Input   16 Bit       Adders := 12    
+	   2 Input   15 Bit       Adders := 26    
+	   3 Input   15 Bit       Adders := 2     
+	   2 Input   14 Bit       Adders := 2     
+	   2 Input   13 Bit       Adders := 4     
+	   2 Input   12 Bit       Adders := 7     
+	   2 Input   11 Bit       Adders := 12    
+	   3 Input   11 Bit       Adders := 1     
+	   2 Input   10 Bit       Adders := 26    
+	   3 Input   10 Bit       Adders := 17    
+	   4 Input   10 Bit       Adders := 6     
+	   2 Input    9 Bit       Adders := 28    
+	   3 Input    9 Bit       Adders := 5     
+	   2 Input    8 Bit       Adders := 32    
+	   3 Input    8 Bit       Adders := 7     
+	   2 Input    7 Bit       Adders := 27    
+	   3 Input    7 Bit       Adders := 1     
+	   4 Input    7 Bit       Adders := 1     
+	   2 Input    6 Bit       Adders := 103   
+	   3 Input    6 Bit       Adders := 10    
+	   4 Input    6 Bit       Adders := 3     
+	   2 Input    5 Bit       Adders := 53    
+	   3 Input    5 Bit       Adders := 5     
+	   2 Input    4 Bit       Adders := 87    
+	   8 Input    4 Bit       Adders := 1     
+	   3 Input    4 Bit       Adders := 10    
+	   2 Input    3 Bit       Adders := 85    
+	   4 Input    3 Bit       Adders := 3     
+	   3 Input    3 Bit       Adders := 2     
+	   5 Input    3 Bit       Adders := 1     
+	   2 Input    2 Bit       Adders := 39    
+	   3 Input    2 Bit       Adders := 13    
+	   5 Input    2 Bit       Adders := 1     
+	   2 Input    1 Bit       Adders := 10    
++---XORs : 
+	   2 Input     64 Bit         XORs := 1     
+	   2 Input     48 Bit         XORs := 16    
+	   2 Input     32 Bit         XORs := 2     
+	   2 Input     20 Bit         XORs := 1     
+	   2 Input     16 Bit         XORs := 4     
+	  16 Input     16 Bit         XORs := 4     
+	   2 Input     10 Bit         XORs := 2     
+	   2 Input      9 Bit         XORs := 4     
+	   8 Input      6 Bit         XORs := 1     
+	   2 Input      6 Bit         XORs := 4     
+	   2 Input      5 Bit         XORs := 24    
+	   2 Input      4 Bit         XORs := 5     
+	   2 Input      3 Bit         XORs := 12    
+	   3 Input      3 Bit         XORs := 2     
+	   3 Input      2 Bit         XORs := 1     
+	   2 Input      1 Bit         XORs := 78    
+	   6 Input      1 Bit         XORs := 5     
+	   3 Input      1 Bit         XORs := 8     
+	   4 Input      1 Bit         XORs := 21    
+	   5 Input      1 Bit         XORs := 14    
+	   7 Input      1 Bit         XORs := 7     
+	   8 Input      1 Bit         XORs := 1     
++---Registers : 
+	             2671 Bit    Registers := 1     
+	             2192 Bit    Registers := 2     
+	             1024 Bit    Registers := 1     
+	              832 Bit    Registers := 2     
+	              512 Bit    Registers := 6     
+	              448 Bit    Registers := 3     
+	              240 Bit    Registers := 1     
+	              192 Bit    Registers := 2     
+	              188 Bit    Registers := 1     
+	              114 Bit    Registers := 2     
+	              112 Bit    Registers := 2     
+	              110 Bit    Registers := 1     
+	               88 Bit    Registers := 1     
+	               82 Bit    Registers := 3     
+	               80 Bit    Registers := 1     
+	               74 Bit    Registers := 4     
+	               72 Bit    Registers := 2     
+	               69 Bit    Registers := 4     
+	               68 Bit    Registers := 54    
+	               66 Bit    Registers := 6     
+	               65 Bit    Registers := 2     
+	               64 Bit    Registers := 100   
+	               63 Bit    Registers := 1     
+	               62 Bit    Registers := 2     
+	               58 Bit    Registers := 1     
+	               52 Bit    Registers := 1     
+	               48 Bit    Registers := 53    
+	               47 Bit    Registers := 1     
+	               46 Bit    Registers := 5     
+	               42 Bit    Registers := 2     
+	               40 Bit    Registers := 2     
+	               38 Bit    Registers := 1     
+	               36 Bit    Registers := 4     
+	               35 Bit    Registers := 3     
+	               34 Bit    Registers := 5     
+	               32 Bit    Registers := 604   
+	               31 Bit    Registers := 1     
+	               30 Bit    Registers := 2     
+	               28 Bit    Registers := 2     
+	               27 Bit    Registers := 1     
+	               26 Bit    Registers := 2     
+	               25 Bit    Registers := 5     
+	               24 Bit    Registers := 147   
+	               22 Bit    Registers := 4     
+	               21 Bit    Registers := 2     
+	               20 Bit    Registers := 3     
+	               19 Bit    Registers := 1     
+	               18 Bit    Registers := 5     
+	               17 Bit    Registers := 4     
+	               16 Bit    Registers := 142   
+	               15 Bit    Registers := 8     
+	               14 Bit    Registers := 5     
+	               13 Bit    Registers := 71    
+	               12 Bit    Registers := 22    
+	               11 Bit    Registers := 9     
+	               10 Bit    Registers := 46    
+	                9 Bit    Registers := 47    
+	                8 Bit    Registers := 145   
+	                7 Bit    Registers := 29    
+	                6 Bit    Registers := 72    
+	                5 Bit    Registers := 160   
+	                4 Bit    Registers := 231   
+	                3 Bit    Registers := 305   
+	                2 Bit    Registers := 178   
+	                1 Bit    Registers := 1414  
++---Multipliers : 
+	              32x32  Multipliers := 1     
+	              25x30  Multipliers := 1     
+	               6x32  Multipliers := 1     
+	               2x28  Multipliers := 1     
++---RAMs : 
+	             512K Bit	(16384 X 32 bit)          RAMs := 1     
+	             256K Bit	(8192 X 32 bit)          RAMs := 1     
+	             128K Bit	(4096 X 32 bit)          RAMs := 1     
+	             100K Bit	(4096 X 25 bit)          RAMs := 2     
+	              64K Bit	(2048 X 32 bit)          RAMs := 4     
+	              41K Bit	(512 X 82 bit)          RAMs := 1     
+	              37K Bit	(512 X 74 bit)          RAMs := 1     
+	              32K Bit	(1024 X 32 bit)          RAMs := 2     
+	              24K Bit	(512 X 48 bit)          RAMs := 1     
+	              17K Bit	(256 X 69 bit)          RAMs := 2     
+	              16K Bit	(512 X 32 bit)          RAMs := 4     
+	              16K Bit	(256 X 65 bit)          RAMs := 1     
+	              12K Bit	(512 X 24 bit)          RAMs := 1     
+	               8K Bit	(256 X 32 bit)          RAMs := 5     
+	               4K Bit	(128 X 32 bit)          RAMs := 4     
+	               2K Bit	(32 X 64 bit)          RAMs := 1     
+	               2K Bit	(64 X 32 bit)          RAMs := 2     
+	               2K Bit	(128 X 21 bit)          RAMs := 2     
+	               2K Bit	(128 X 22 bit)          RAMs := 1     
+	               2K Bit	(64 X 36 bit)          RAMs := 1     
+	               2K Bit	(32 X 82 bit)          RAMs := 2     
+	             1024 Bit	(32 X 32 bit)          RAMs := 2     
+	               1K Bit	(16 X 72 bit)          RAMs := 2     
+	              768 Bit	(16 X 48 bit)          RAMs := 1     
+	              512 Bit	(64 X 8 bit)          RAMs := 1     
+	              512 Bit	(16 X 32 bit)          RAMs := 1     
+	              416 Bit	(8 X 52 bit)          RAMs := 1     
+	              256 Bit	(4 X 64 bit)          RAMs := 1     
+	              256 Bit	(8 X 32 bit)          RAMs := 1     
+	              256 Bit	(256 X 1 bit)          RAMs := 2     
+	              192 Bit	(16 X 12 bit)          RAMs := 1     
+	              188 Bit	(4 X 47 bit)          RAMs := 1     
+	              160 Bit	(4 X 40 bit)          RAMs := 1     
+	              160 Bit	(16 X 10 bit)          RAMs := 4     
+	              144 Bit	(4 X 36 bit)          RAMs := 1     
+	              136 Bit	(4 X 34 bit)          RAMs := 1     
+	              128 Bit	(4 X 32 bit)          RAMs := 5     
+	              128 Bit	(128 X 1 bit)          RAMs := 2     
+	               68 Bit	(4 X 17 bit)          RAMs := 1     
+	               60 Bit	(5 X 12 bit)          RAMs := 1     
+	               52 Bit	(4 X 13 bit)          RAMs := 1     
+	               32 Bit	(4 X 8 bit)          RAMs := 3     
+	               20 Bit	(4 X 5 bit)          RAMs := 1     
+	                8 Bit	(4 X 2 bit)          RAMs := 1     
+	                4 Bit	(4 X 1 bit)          RAMs := 5     
++---ROMs : 
+	                    ROMs := 7     
++---Muxes : 
+	   2 Input 1024 Bit        Muxes := 16    
+	   6 Input 1024 Bit        Muxes := 3     
+	   6 Input  832 Bit        Muxes := 3     
+	   2 Input  832 Bit        Muxes := 4     
+	   2 Input  512 Bit        Muxes := 16    
+	   8 Input  512 Bit        Muxes := 1     
+	   6 Input  512 Bit        Muxes := 4     
+	   2 Input  240 Bit        Muxes := 2     
+	   2 Input   88 Bit        Muxes := 3     
+	   2 Input   80 Bit        Muxes := 1     
+	   8 Input   80 Bit        Muxes := 1     
+	   4 Input   64 Bit        Muxes := 6     
+	   2 Input   64 Bit        Muxes := 131   
+	   3 Input   64 Bit        Muxes := 8     
+	   7 Input   64 Bit        Muxes := 2     
+	   6 Input   64 Bit        Muxes := 4     
+	  11 Input   64 Bit        Muxes := 2     
+	   2 Input   58 Bit        Muxes := 11    
+	   8 Input   58 Bit        Muxes := 1     
+	   2 Input   48 Bit        Muxes := 7     
+	   6 Input   48 Bit        Muxes := 1     
+	   4 Input   48 Bit        Muxes := 1     
+	   2 Input   46 Bit        Muxes := 5     
+	   2 Input   41 Bit        Muxes := 7     
+	   2 Input   40 Bit        Muxes := 3     
+	   4 Input   40 Bit        Muxes := 1     
+	   2 Input   37 Bit        Muxes := 1     
+	   2 Input   36 Bit        Muxes := 1     
+	   2 Input   35 Bit        Muxes := 11    
+	   2 Input   34 Bit        Muxes := 5     
+	   4 Input   34 Bit        Muxes := 1     
+	   2 Input   33 Bit        Muxes := 2     
+	   7 Input   32 Bit        Muxes := 2     
+	   2 Input   32 Bit        Muxes := 324   
+	   5 Input   32 Bit        Muxes := 8     
+	  93 Input   32 Bit        Muxes := 1     
+	   6 Input   32 Bit        Muxes := 14    
+	   3 Input   32 Bit        Muxes := 7     
+	  11 Input   32 Bit        Muxes := 2     
+	   4 Input   32 Bit        Muxes := 15    
+	   8 Input   32 Bit        Muxes := 3     
+	  13 Input   32 Bit        Muxes := 1     
+	   9 Input   32 Bit        Muxes := 2     
+	 353 Input   32 Bit        Muxes := 1     
+	   2 Input   31 Bit        Muxes := 2     
+	   2 Input   30 Bit        Muxes := 2     
+	   7 Input   30 Bit        Muxes := 1     
+	   5 Input   30 Bit        Muxes := 1     
+	   9 Input   30 Bit        Muxes := 1     
+	   2 Input   29 Bit        Muxes := 1     
+	   2 Input   28 Bit        Muxes := 6     
+	   2 Input   27 Bit        Muxes := 1     
+	   2 Input   26 Bit        Muxes := 3     
+	   2 Input   25 Bit        Muxes := 2     
+	   2 Input   24 Bit        Muxes := 201   
+	   8 Input   24 Bit        Muxes := 2     
+	   4 Input   24 Bit        Muxes := 1     
+	   2 Input   23 Bit        Muxes := 1     
+	   3 Input   22 Bit        Muxes := 2     
+	   2 Input   22 Bit        Muxes := 3     
+	   2 Input   21 Bit        Muxes := 1     
+	   2 Input   20 Bit        Muxes := 3     
+	   2 Input   19 Bit        Muxes := 6     
+	   2 Input   18 Bit        Muxes := 8     
+	  10 Input   18 Bit        Muxes := 1     
+	   2 Input   17 Bit        Muxes := 133   
+	   2 Input   16 Bit        Muxes := 151   
+	   7 Input   16 Bit        Muxes := 3     
+	   4 Input   16 Bit        Muxes := 4     
+	   3 Input   16 Bit        Muxes := 7     
+	  10 Input   16 Bit        Muxes := 1     
+	   8 Input   16 Bit        Muxes := 2     
+	   9 Input   16 Bit        Muxes := 2     
+	   2 Input   15 Bit        Muxes := 13    
+	   3 Input   15 Bit        Muxes := 2     
+	   2 Input   14 Bit        Muxes := 484   
+	   3 Input   14 Bit        Muxes := 1     
+	   5 Input   14 Bit        Muxes := 1     
+	   7 Input   13 Bit        Muxes := 3     
+	   2 Input   13 Bit        Muxes := 15    
+	   4 Input   13 Bit        Muxes := 3     
+	   6 Input   13 Bit        Muxes := 1     
+	   2 Input   12 Bit        Muxes := 119   
+	   8 Input   12 Bit        Muxes := 1     
+	  11 Input   12 Bit        Muxes := 2     
+	   6 Input   12 Bit        Muxes := 1     
+	   4 Input   11 Bit        Muxes := 2     
+	   7 Input   11 Bit        Muxes := 2     
+	   2 Input   11 Bit        Muxes := 8     
+	   3 Input   11 Bit        Muxes := 1     
+	   5 Input   11 Bit        Muxes := 4     
+	   7 Input   10 Bit        Muxes := 1     
+	   2 Input   10 Bit        Muxes := 39    
+	   4 Input   10 Bit        Muxes := 4     
+	   6 Input   10 Bit        Muxes := 2     
+	   3 Input   10 Bit        Muxes := 2     
+	   5 Input   10 Bit        Muxes := 3     
+	   9 Input   10 Bit        Muxes := 1     
+	   2 Input    9 Bit        Muxes := 32    
+	   5 Input    9 Bit        Muxes := 1     
+	   4 Input    9 Bit        Muxes := 1     
+	   9 Input    9 Bit        Muxes := 2     
+	   2 Input    8 Bit        Muxes := 389   
+	  11 Input    8 Bit        Muxes := 5     
+	   4 Input    8 Bit        Muxes := 19    
+	   6 Input    8 Bit        Muxes := 5     
+	   5 Input    8 Bit        Muxes := 3     
+	   3 Input    8 Bit        Muxes := 6     
+	   8 Input    8 Bit        Muxes := 2     
+	   6 Input    7 Bit        Muxes := 2     
+	   7 Input    7 Bit        Muxes := 2     
+	   3 Input    7 Bit        Muxes := 1     
+	   2 Input    7 Bit        Muxes := 124   
+	  64 Input    7 Bit        Muxes := 2     
+	   5 Input    7 Bit        Muxes := 1     
+	   4 Input    7 Bit        Muxes := 8     
+	  10 Input    7 Bit        Muxes := 1     
+	   4 Input    6 Bit        Muxes := 3     
+	   7 Input    6 Bit        Muxes := 3     
+	   2 Input    6 Bit        Muxes := 86    
+	   6 Input    6 Bit        Muxes := 4     
+	  11 Input    6 Bit        Muxes := 16    
+	   8 Input    6 Bit        Muxes := 4     
+	   9 Input    6 Bit        Muxes := 1     
+	   2 Input    5 Bit        Muxes := 62    
+	   3 Input    5 Bit        Muxes := 3     
+	   4 Input    5 Bit        Muxes := 6     
+	   6 Input    5 Bit        Muxes := 6     
+	   7 Input    5 Bit        Muxes := 2     
+	   5 Input    5 Bit        Muxes := 3     
+	  13 Input    5 Bit        Muxes := 1     
+	   2 Input    4 Bit        Muxes := 186   
+	   3 Input    4 Bit        Muxes := 9     
+	  12 Input    4 Bit        Muxes := 2     
+	   4 Input    4 Bit        Muxes := 8     
+	   8 Input    4 Bit        Muxes := 3     
+	   6 Input    4 Bit        Muxes := 4     
+	  11 Input    4 Bit        Muxes := 1     
+	   5 Input    4 Bit        Muxes := 5     
+	  10 Input    4 Bit        Muxes := 1     
+	  65 Input    4 Bit        Muxes := 1     
+	   7 Input    4 Bit        Muxes := 17    
+	   9 Input    4 Bit        Muxes := 1     
+	   8 Input    3 Bit        Muxes := 3     
+	   2 Input    3 Bit        Muxes := 130   
+	   5 Input    3 Bit        Muxes := 6     
+	   6 Input    3 Bit        Muxes := 6     
+	   4 Input    3 Bit        Muxes := 4     
+	  11 Input    3 Bit        Muxes := 1     
+	  10 Input    3 Bit        Muxes := 1     
+	   3 Input    3 Bit        Muxes := 5     
+	   7 Input    3 Bit        Muxes := 3     
+	   9 Input    3 Bit        Muxes := 1     
+	  13 Input    3 Bit        Muxes := 1     
+	   2 Input    2 Bit        Muxes := 196   
+	   4 Input    2 Bit        Muxes := 22    
+	   8 Input    2 Bit        Muxes := 4     
+	   5 Input    2 Bit        Muxes := 5     
+	   3 Input    2 Bit        Muxes := 15    
+	   6 Input    2 Bit        Muxes := 3     
+	  12 Input    2 Bit        Muxes := 2     
+	  10 Input    2 Bit        Muxes := 1     
+	   9 Input    2 Bit        Muxes := 1     
+	  13 Input    2 Bit        Muxes := 2     
+	   2 Input    1 Bit        Muxes := 3033  
+	  12 Input    1 Bit        Muxes := 4     
+	   3 Input    1 Bit        Muxes := 98    
+	   4 Input    1 Bit        Muxes := 218   
+	  16 Input    1 Bit        Muxes := 1     
+	   7 Input    1 Bit        Muxes := 33    
+	  11 Input    1 Bit        Muxes := 69    
+	   5 Input    1 Bit        Muxes := 29    
+	   8 Input    1 Bit        Muxes := 15    
+	   6 Input    1 Bit        Muxes := 103   
+	   9 Input    1 Bit        Muxes := 33    
+	  13 Input    1 Bit        Muxes := 22    
+	  10 Input    1 Bit        Muxes := 24    
+	  32 Input    1 Bit        Muxes := 124   
+---------------------------------------------------------------------------------
+Finished RTL Component Statistics 
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Part Resource Summary
+---------------------------------------------------------------------------------
+Part Resources:
+DSPs: 240 (col length:80)
+BRAMs: 270 (col length: RAMB18 80 RAMB36 40)
+---------------------------------------------------------------------------------
+Finished Part Resource Summary
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Cross Boundary and Area Optimization
+---------------------------------------------------------------------------------
+WARNING: [Synth 8-3917] design alinx_ax7101 has port user_led0 driven by constant 0
+WARNING: [Synth 8-3917] design avtp_stream_parser__GB0 has port O2[4] driven by constant 1
+WARNING: [Synth 8-3917] design avtp_stream_parser__GB0 has port O2[3] driven by constant 1
+WARNING: [Synth 8-3917] design avtp_stream_parser__GB0 has port O2[2] driven by constant 0
+WARNING: [Synth 8-3917] design avtp_stream_parser__GB0 has port O2[1] driven by constant 0
+WARNING: [Synth 8-3917] design avtp_stream_parser__GB0 has port O2[0] driven by constant 0
+WARNING: [Synth 8-3917] design avtp_stream_parser__GB0 has port O4[6] driven by constant 1
+WARNING: [Synth 8-3917] design avtp_stream_parser__GB0 has port O4[4] driven by constant 1
+WARNING: [Synth 8-3917] design avtp_stream_parser__GB0 has port O4[3] driven by constant 0
+WARNING: [Synth 8-3917] design avtp_stream_parser__GB0 has port O4[2] driven by constant 0
+WARNING: [Synth 8-3917] design avtp_stream_parser__GB0 has port O4[1] driven by constant 0
+WARNING: [Synth 8-3917] design avtp_stream_parser__GB0 has port O4[0] driven by constant 0
+WARNING: [Synth 8-3917] design avtp_stream_parser__GB0 has port O5[4] driven by constant 1
+WARNING: [Synth 8-3917] design avtp_stream_parser__GB0 has port O5[3] driven by constant 0
+WARNING: [Synth 8-3917] design avtp_stream_parser__GB0 has port O5[2] driven by constant 0
+WARNING: [Synth 8-3917] design avtp_stream_parser__GB0 has port O5[1] driven by constant 0
+WARNING: [Synth 8-3917] design avtp_stream_parser__GB0 has port O5[0] driven by constant 0
+WARNING: [Synth 8-3917] design avtp_stream_parser__GB0 has port O6[4] driven by constant 1
+WARNING: [Synth 8-3917] design avtp_stream_parser__GB0 has port O6[3] driven by constant 1
+WARNING: [Synth 8-3917] design avtp_stream_parser__GB0 has port O6[2] driven by constant 0
+WARNING: [Synth 8-3917] design avtp_stream_parser__GB0 has port O6[1] driven by constant 0
+WARNING: [Synth 8-3917] design avtp_stream_parser__GB0 has port O6[0] driven by constant 0
+WARNING: [Synth 8-3917] design avtp_stream_parser__GB0 has port O7[4] driven by constant 0
+WARNING: [Synth 8-3917] design avtp_stream_parser__GB0 has port O7[3] driven by constant 1
+WARNING: [Synth 8-3917] design avtp_stream_parser__GB0 has port O7[2] driven by constant 0
+WARNING: [Synth 8-3917] design avtp_stream_parser__GB0 has port O7[1] driven by constant 0
+WARNING: [Synth 8-3917] design avtp_stream_parser__GB0 has port O7[0] driven by constant 0
+WARNING: [Synth 8-3917] design avtp_stream_parser__GB0 has port O8[6] driven by constant 1
+WARNING: [Synth 8-3917] design avtp_stream_parser__GB0 has port O8[4] driven by constant 0
+WARNING: [Synth 8-3917] design avtp_stream_parser__GB0 has port O8[3] driven by constant 0
+WARNING: [Synth 8-3917] design avtp_stream_parser__GB0 has port O8[2] driven by constant 0
+WARNING: [Synth 8-3917] design avtp_stream_parser__GB0 has port O8[1] driven by constant 0
+WARNING: [Synth 8-3917] design avtp_stream_parser__GB0 has port O8[0] driven by constant 0
+WARNING: [Synth 8-3917] design avtp_stream_parser__GB0 has port O10[4] driven by constant 1
+WARNING: [Synth 8-3917] design avtp_stream_parser__GB0 has port O10[3] driven by constant 0
+WARNING: [Synth 8-3917] design avtp_stream_parser__GB0 has port O10[2] driven by constant 0
+WARNING: [Synth 8-3917] design avtp_stream_parser__GB0 has port O10[1] driven by constant 0
+WARNING: [Synth 8-3917] design avtp_stream_parser__GB0 has port O10[0] driven by constant 0
+WARNING: [Synth 8-3917] design avtp_stream_parser__GB0 has port O11[6] driven by constant 0
+WARNING: [Synth 8-3917] design avtp_stream_parser__GB0 has port O11[4] driven by constant 0
+WARNING: [Synth 8-3917] design avtp_stream_parser__GB0 has port O11[3] driven by constant 0
+WARNING: [Synth 8-3917] design avtp_stream_parser__GB0 has port O11[2] driven by constant 0
+WARNING: [Synth 8-3917] design avtp_stream_parser__GB0 has port O11[1] driven by constant 0
+WARNING: [Synth 8-3917] design avtp_stream_parser__GB0 has port O11[0] driven by constant 0
+WARNING: [Synth 8-3917] design avtp_stream_parser__GB0 has port O13[6] driven by constant 1
+WARNING: [Synth 8-3917] design avtp_stream_parser__GB0 has port O13[4] driven by constant 0
+WARNING: [Synth 8-3917] design avtp_stream_parser__GB0 has port O13[3] driven by constant 1
+WARNING: [Synth 8-3917] design avtp_stream_parser__GB0 has port O13[2] driven by constant 0
+WARNING: [Synth 8-3917] design avtp_stream_parser__GB0 has port O13[1] driven by constant 0
+WARNING: [Synth 8-3917] design avtp_stream_parser__GB0 has port O13[0] driven by constant 0
+WARNING: [Synth 8-3917] design avtp_stream_parser__GB0 has port O14[6] driven by constant 0
+WARNING: [Synth 8-3917] design avtp_stream_parser__GB0 has port O14[4] driven by constant 0
+WARNING: [Synth 8-3917] design avtp_stream_parser__GB0 has port O14[3] driven by constant 1
+WARNING: [Synth 8-3917] design avtp_stream_parser__GB0 has port O14[2] driven by constant 0
+WARNING: [Synth 8-3917] design avtp_stream_parser__GB0 has port O14[1] driven by constant 0
+WARNING: [Synth 8-3917] design avtp_stream_parser__GB0 has port O14[0] driven by constant 0
+WARNING: [Synth 8-3917] design avtp_stream_parser__GB0 has port O15[6] driven by constant 0
+WARNING: [Synth 8-3917] design avtp_stream_parser__GB0 has port O15[4] driven by constant 1
+WARNING: [Synth 8-3917] design avtp_stream_parser__GB0 has port O15[3] driven by constant 0
+WARNING: [Synth 8-3917] design avtp_stream_parser__GB0 has port O15[2] driven by constant 0
+WARNING: [Synth 8-3917] design avtp_stream_parser__GB0 has port O15[1] driven by constant 0
+WARNING: [Synth 8-3917] design avtp_stream_parser__GB0 has port O15[0] driven by constant 0
+WARNING: [Synth 8-3917] design avtp_stream_parser__GB0 has port O16[4] driven by constant 0
+WARNING: [Synth 8-3917] design avtp_stream_parser__GB0 has port O16[3] driven by constant 0
+WARNING: [Synth 8-3917] design avtp_stream_parser__GB0 has port O16[2] driven by constant 0
+WARNING: [Synth 8-3917] design avtp_stream_parser__GB0 has port O16[1] driven by constant 0
+WARNING: [Synth 8-3917] design avtp_stream_parser__GB0 has port O16[0] driven by constant 0
+WARNING: [Synth 8-3917] design avtp_stream_parser__GB3 has port P[4] driven by constant 0
+WARNING: [Synth 8-3917] design avtp_stream_parser__GB3 has port P[3] driven by constant 1
+WARNING: [Synth 8-3917] design avtp_stream_parser__GB3 has port P[2] driven by constant 0
+WARNING: [Synth 8-3917] design avtp_stream_parser__GB3 has port P[1] driven by constant 0
+WARNING: [Synth 8-3917] design avtp_stream_parser__GB3 has port P[0] driven by constant 0
+WARNING: [Synth 8-3917] design avtp_stream_parser__GB3 has port O29[4] driven by constant 0
+WARNING: [Synth 8-3917] design avtp_stream_parser__GB3 has port O29[3] driven by constant 0
+WARNING: [Synth 8-3917] design avtp_stream_parser__GB3 has port O29[2] driven by constant 0
+WARNING: [Synth 8-3917] design avtp_stream_parser__GB3 has port O29[1] driven by constant 0
+WARNING: [Synth 8-3917] design avtp_stream_parser__GB3 has port O29[0] driven by constant 0
+WARNING: [Synth 8-3917] design avtp_stream_parser__GB3 has port O30[6] driven by constant 0
+WARNING: [Synth 8-3917] design avtp_stream_parser__GB3 has port O30[4] driven by constant 0
+WARNING: [Synth 8-3917] design avtp_stream_parser__GB3 has port O30[3] driven by constant 1
+WARNING: [Synth 8-3917] design avtp_stream_parser__GB3 has port O30[2] driven by constant 0
+WARNING: [Synth 8-3917] design avtp_stream_parser__GB3 has port O30[1] driven by constant 0
+WARNING: [Synth 8-3917] design avtp_stream_parser__GB3 has port O30[0] driven by constant 0
+WARNING: [Synth 8-3917] design avtp_stream_parser__GB3 has port O31[4] driven by constant 0
+WARNING: [Synth 8-3917] design avtp_stream_parser__GB3 has port O31[3] driven by constant 0
+WARNING: [Synth 8-3917] design avtp_stream_parser__GB3 has port O31[2] driven by constant 0
+WARNING: [Synth 8-3917] design avtp_stream_parser__GB3 has port O31[1] driven by constant 0
+WARNING: [Synth 8-3917] design avtp_stream_parser__GB3 has port O31[0] driven by constant 0
+WARNING: [Synth 8-3917] design avtp_stream_parser__GB3 has port O32[6] driven by constant 0
+WARNING: [Synth 8-3917] design avtp_stream_parser__GB3 has port O32[4] driven by constant 0
+WARNING: [Synth 8-3917] design avtp_stream_parser__GB3 has port O32[3] driven by constant 0
+WARNING: [Synth 8-3917] design avtp_stream_parser__GB3 has port O32[2] driven by constant 0
+WARNING: [Synth 8-3917] design avtp_stream_parser__GB3 has port O32[1] driven by constant 0
+WARNING: [Synth 8-3917] design avtp_stream_parser__GB3 has port O32[0] driven by constant 0
+WARNING: [Synth 8-3917] design avtp_stream_parser__GB3 has port O33[4] driven by constant 1
+WARNING: [Synth 8-3917] design avtp_stream_parser__GB3 has port O33[3] driven by constant 1
+WARNING: [Synth 8-3917] design avtp_stream_parser__GB3 has port O33[2] driven by constant 0
+WARNING: [Synth 8-3917] design avtp_stream_parser__GB3 has port O33[1] driven by constant 0
+WARNING: [Synth 8-3917] design avtp_stream_parser__GB3 has port O33[0] driven by constant 0
+WARNING: [Synth 8-3917] design avtp_stream_parser__GB3 has port O34[4] driven by constant 1
+INFO: [Common 17-14] Message 'Synth 8-3917' appears 100 times and further instances of the messages will be disabled. Use the Tcl command set_msg_config to change the current settings.
+INFO: [Synth 8-5546] ROM "mtype_r" won't be mapped to RAM because it is too sparse
+INFO: [Synth 8-5546] ROM "msg_end_r" won't be mapped to RAM because it is too sparse
+INFO: [Synth 8-5544] ROM "min_end_w" won't be mapped to Block RAM because address size (4) smaller than threshold (5)
+INFO: [Synth 8-5587] ROM size for "bank_addr_o" is below threshold of ROM address width. It will be mapped to LUTs
+INFO: [Synth 8-5546] ROM "flags_r" won't be mapped to RAM because it is too sparse
+INFO: [Synth 8-5546] ROM "seq_r" won't be mapped to RAM because it is too sparse
+INFO: [Synth 8-5546] ROM "mtype_r" won't be mapped to RAM because it is too sparse
+INFO: [Synth 8-5546] ROM "msg_end_r" won't be mapped to RAM because it is too sparse
+INFO: [Synth 8-5544] ROM "min_end_w" won't be mapped to Block RAM because address size (4) smaller than threshold (5)
+INFO: [Synth 8-5587] ROM size for "bank_addr_o" is below threshold of ROM address width. It will be mapped to LUTs
+INFO: [Synth 8-5546] ROM "flags_r" won't be mapped to RAM because it is too sparse
+INFO: [Synth 8-5546] ROM "seq_r" won't be mapped to RAM because it is too sparse
+INFO: [Synth 8-12192] Not enough pipeline registers after wide multiplier. Pipeline registers present is 1. Recommended levels of pipeline registers is 4. [$CHECKOUT/gptp-processor/hdl/ucpu/KL_gptp_ucpu.sv:226]
+INFO: [Synth 8-5544] ROM "fld_len_w" won't be mapped to Block RAM because address size (2) smaller than threshold (5)
+INFO: [Synth 8-5544] ROM "st_wstrb_o" won't be mapped to Block RAM because address size (2) smaller than threshold (5)
+DSP Report: Generating DSP md_p_r0, operation Mode is: A2*B2.
+DSP Report: register opa_e_r_reg is absorbed into DSP md_p_r0.
+DSP Report: register md_p_r0 is absorbed into DSP md_p_r0.
+DSP Report: operator md_p_r0 is absorbed into DSP md_p_r0.
+DSP Report: operator md_p_r0 is absorbed into DSP md_p_r0.
+DSP Report: Generating DSP md_p_r_reg, operation Mode is: (PCIN>>17)+A2*B2.
+DSP Report: register opb_e_r_reg is absorbed into DSP md_p_r_reg.
+DSP Report: register opa_e_r_reg is absorbed into DSP md_p_r_reg.
+DSP Report: register md_p_r_reg is absorbed into DSP md_p_r_reg.
+DSP Report: operator md_p_r0 is absorbed into DSP md_p_r_reg.
+DSP Report: operator md_p_r0 is absorbed into DSP md_p_r_reg.
+DSP Report: Generating DSP md_p_r0, operation Mode is: A2*B2.
+DSP Report: register md_p_r0 is absorbed into DSP md_p_r0.
+DSP Report: register md_p_r0 is absorbed into DSP md_p_r0.
+DSP Report: operator md_p_r0 is absorbed into DSP md_p_r0.
+DSP Report: operator md_p_r0 is absorbed into DSP md_p_r0.
+DSP Report: Generating DSP md_p_r_reg, operation Mode is: (PCIN>>17)+A2*B2.
+DSP Report: register opb_e_r_reg is absorbed into DSP md_p_r_reg.
+DSP Report: register md_p_r_reg is absorbed into DSP md_p_r_reg.
+DSP Report: register md_p_r_reg is absorbed into DSP md_p_r_reg.
+DSP Report: operator md_p_r0 is absorbed into DSP md_p_r_reg.
+DSP Report: operator md_p_r0 is absorbed into DSP md_p_r_reg.
+INFO: [Synth 8-12192] Not enough pipeline registers after wide multiplier. Pipeline registers present is 1. Recommended levels of pipeline registers is 2. [$CHECKOUT/gptp-processor/hdl/top/KL_gptp_engine.sv:965]
+DSP Report: Generating DSP tlv_prod_w, operation Mode is: A2*(B:0x1999a).
+DSP Report: register tlv_dlt_r_reg is absorbed into DSP tlv_prod_w.
+DSP Report: operator tlv_prod_w is absorbed into DSP tlv_prod_w.
+DSP Report: operator tlv_prod_w is absorbed into DSP tlv_prod_w.
+DSP Report: Generating DSP tlv_freq_r_reg, operation Mode is: (PCIN>>17)+A2*B.
+DSP Report: register tlv_dlt_r_reg is absorbed into DSP tlv_freq_r_reg.
+DSP Report: register tlv_freq_r_reg is absorbed into DSP tlv_freq_r_reg.
+DSP Report: operator tlv_prod_w is absorbed into DSP tlv_freq_r_reg.
+DSP Report: operator tlv_prod_w is absorbed into DSP tlv_freq_r_reg.
+INFO: [Synth 8-4471] merging register 'gb_idx_r_reg[2:0]' into 'gb_idx_r_reg[2:0]' [$CHECKOUT/hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv:805]
+INFO: [Common 17-14] Message 'Synth 8-3917' appears 100 times and further instances of the messages will be disabled. Use the Tcl command set_msg_config to change the current settings.
+INFO: [Synth 8-5546] ROM "strm_dir_r" won't be mapped to RAM because it is too sparse
+INFO: [Synth 8-5546] ROM "acmp_lobs" won't be mapped to RAM because it is too sparse
+INFO: [Synth 8-5546] ROM "mac_ahi" won't be mapped to RAM because it is too sparse
+INFO: [Synth 8-5546] ROM "mac_alo" won't be mapped to RAM because it is too sparse
+INFO: [Synth 8-5546] ROM "eth_guard" won't be mapped to RAM because it is too sparse
+INFO: [Synth 8-5546] ROM "link_ctrl" won't be mapped to RAM because it is too sparse
+INFO: [Synth 8-5546] ROM "crf_ctrl" won't be mapped to RAM because it is too sparse
+INFO: [Synth 8-5546] ROM "crft_ctrl" won't be mapped to RAM because it is too sparse
+INFO: [Synth 8-5546] ROM "mcsrv_ctrl" won't be mapped to RAM because it is too sparse
+INFO: [Synth 8-5546] ROM "ltap_en_r" won't be mapped to RAM because it is too sparse
+INFO: [Synth 8-5546] ROM "chmap_ctrl" won't be mapped to RAM because it is too sparse
+INFO: [Synth 8-5546] ROM "chmap_sel" won't be mapped to RAM because it is too sparse
+INFO: [Synth 8-5546] ROM "mac_ctrl" won't be mapped to RAM because it is too sparse
+INFO: [Synth 8-5546] ROM "mac_ifg" won't be mapped to RAM because it is too sparse
+INFO: [Synth 8-5546] ROM "mc_lo" won't be mapped to RAM because it is too sparse
+INFO: [Synth 8-5546] ROM "mc_hi" won't be mapped to RAM because it is too sparse
+INFO: [Synth 8-5546] ROM "ptp_ctrl" won't be mapped to RAM because it is too sparse
+INFO: [Synth 8-5546] ROM "ptp_incr" won't be mapped to RAM because it is too sparse
+INFO: [Synth 8-5546] ROM "ptp_adj" won't be mapped to RAM because it is too sparse
+INFO: [Synth 8-5546] ROM "ptp_twlo" won't be mapped to RAM because it is too sparse
+INFO: [Synth 8-5546] ROM "ptp_twhi" won't be mapped to RAM because it is too sparse
+INFO: [Synth 8-5546] ROM "ptp_oflo" won't be mapped to RAM because it is too sparse
+INFO: [Synth 8-5546] ROM "ptp_ofhi" won't be mapped to RAM because it is too sparse
+INFO: [Synth 8-5546] ROM "pps_tglo" won't be mapped to RAM because it is too sparse
+INFO: [Synth 8-5546] ROM "pps_tghi" won't be mapped to RAM because it is too sparse
+INFO: [Synth 8-5546] ROM "adp_ctrl" won't be mapped to RAM because it is too sparse
+INFO: [Synth 8-5546] ROM "adp_eidlo" won't be mapped to RAM because it is too sparse
+INFO: [Synth 8-5546] ROM "adp_eidhi" won't be mapped to RAM because it is too sparse
+INFO: [Synth 8-5546] ROM "adp_midlo" won't be mapped to RAM because it is too sparse
+INFO: [Synth 8-5546] ROM "adp_midhi" won't be mapped to RAM because it is too sparse
+INFO: [Synth 8-5546] ROM "adp_ecaps" won't be mapped to RAM because it is too sparse
+INFO: [Synth 8-5546] ROM "adp_ccaps" won't be mapped to RAM because it is too sparse
+INFO: [Synth 8-5546] ROM "adp_idx0" won't be mapped to RAM because it is too sparse
+INFO: [Synth 8-5546] ROM "adp_idx1" won't be mapped to RAM because it is too sparse
+INFO: [Synth 8-5546] ROM "adp_aslo" won't be mapped to RAM because it is too sparse
+INFO: [Synth 8-5546] ROM "adp_ashi" won't be mapped to RAM because it is too sparse
+INFO: [Synth 8-5546] ROM "lwsrp_ctrl" won't be mapped to RAM because it is too sparse
+INFO: [Synth 8-5546] ROM "lwsrp_vid" won't be mapped to RAM because it is too sparse
+INFO: [Synth 8-5546] ROM "lwsrp_dmlo" won't be mapped to RAM because it is too sparse
+INFO: [Synth 8-5546] ROM "lwsrp_dmhi" won't be mapped to RAM because it is too sparse
+INFO: [Synth 8-5546] ROM "lwsrp_tspec" won't be mapped to RAM because it is too sparse
+INFO: [Synth 8-5546] ROM "lwsrp_lat" won't be mapped to RAM because it is too sparse
+INFO: [Synth 8-5546] ROM "maap_ctrl" won't be mapped to RAM because it is too sparse
+INFO: [Synth 8-5546] ROM "tone_ctrl" won't be mapped to RAM because it is too sparse
+INFO: [Synth 8-5546] ROM "ent_name_hi" won't be mapped to RAM because it is too sparse
+INFO: [Synth 8-5546] ROM "ent_name_lo" won't be mapped to RAM because it is too sparse
+INFO: [Synth 8-5546] ROM "lpf_ctrl" won't be mapped to RAM because it is too sparse
+INFO: [Synth 8-5546] ROM "crf_sidlo" won't be mapped to RAM because it is too sparse
+INFO: [Synth 8-5546] ROM "crf_sidhi" won't be mapped to RAM because it is too sparse
+INFO: [Synth 8-5546] ROM "crft_sidlo" won't be mapped to RAM because it is too sparse
+INFO: [Synth 8-5546] ROM "crft_sidhi" won't be mapped to RAM because it is too sparse
+INFO: [Synth 8-5546] ROM "crft_dmlo" won't be mapped to RAM because it is too sparse
+INFO: [Synth 8-5546] ROM "crft_dmhi" won't be mapped to RAM because it is too sparse
+INFO: [Synth 8-5546] ROM "tcam_ctrl" won't be mapped to RAM because it is too sparse
+INFO: [Synth 8-5546] ROM "tcam_klo" won't be mapped to RAM because it is too sparse
+INFO: [Synth 8-5546] ROM "tcam_khi" won't be mapped to RAM because it is too sparse
+INFO: [Synth 8-5546] ROM "tcam_mlo" won't be mapped to RAM because it is too sparse
+INFO: [Synth 8-5546] ROM "tcam_mhi" won't be mapped to RAM because it is too sparse
+INFO: [Synth 8-5546] ROM "tcam_act" won't be mapped to RAM because it is too sparse
+INFO: [Synth 8-5546] ROM "rest_tklo" won't be mapped to RAM because it is too sparse
+INFO: [Synth 8-5546] ROM "rest_tkhi" won't be mapped to RAM because it is too sparse
+INFO: [Synth 8-5546] ROM "rest_meta" won't be mapped to RAM because it is too sparse
+INFO: [Synth 8-5546] ROM "rest_ctlo" won't be mapped to RAM because it is too sparse
+INFO: [Synth 8-5546] ROM "rest_cthi" won't be mapped to RAM because it is too sparse
+INFO: [Synth 8-5546] ROM "jnl_wr_p" won't be mapped to RAM because it is too sparse
+INFO: [Synth 8-5546] ROM "aemp_wdata_r" won't be mapped to RAM because it is too sparse
+INFO: [Synth 8-5546] ROM "aemp_sel_p" won't be mapped to RAM because it is too sparse
+INFO: [Synth 8-5546] ROM "aemp_field_p" won't be mapped to RAM because it is too sparse
+INFO: [Synth 8-5546] ROM "aemp_data_p" won't be mapped to RAM because it is too sparse
+INFO: [Synth 8-5546] ROM "irq_mask" won't be mapped to RAM because it is too sparse
+INFO: [Synth 8-5546] ROM "strm_dir_r" won't be mapped to RAM because it is too sparse
+INFO: [Synth 8-5546] ROM "acmp_lobs" won't be mapped to RAM because it is too sparse
+INFO: [Synth 8-5546] ROM "mac_ahi" won't be mapped to RAM because it is too sparse
+INFO: [Synth 8-5546] ROM "mac_alo" won't be mapped to RAM because it is too sparse
+INFO: [Synth 8-5546] ROM "eth_guard" won't be mapped to RAM because it is too sparse
+INFO: [Synth 8-5546] ROM "link_ctrl" won't be mapped to RAM because it is too sparse
+INFO: [Synth 8-5546] ROM "crf_ctrl" won't be mapped to RAM because it is too sparse
+INFO: [Synth 8-5546] ROM "crft_ctrl" won't be mapped to RAM because it is too sparse
+INFO: [Synth 8-5546] ROM "mcsrv_ctrl" won't be mapped to RAM because it is too sparse
+INFO: [Synth 8-5546] ROM "ltap_en_r" won't be mapped to RAM because it is too sparse
+INFO: [Synth 8-5546] ROM "chmap_ctrl" won't be mapped to RAM because it is too sparse
+INFO: [Synth 8-5546] ROM "chmap_sel" won't be mapped to RAM because it is too sparse
+INFO: [Synth 8-5546] ROM "mac_ctrl" won't be mapped to RAM because it is too sparse
+INFO: [Synth 8-5546] ROM "mac_ifg" won't be mapped to RAM because it is too sparse
+INFO: [Synth 8-5546] ROM "mc_lo" won't be mapped to RAM because it is too sparse
+INFO: [Synth 8-5546] ROM "mc_hi" won't be mapped to RAM because it is too sparse
+INFO: [Synth 8-5546] ROM "ptp_ctrl" won't be mapped to RAM because it is too sparse
+INFO: [Synth 8-5546] ROM "ptp_incr" won't be mapped to RAM because it is too sparse
+INFO: [Synth 8-5546] ROM "ptp_adj" won't be mapped to RAM because it is too sparse
+INFO: [Synth 8-5546] ROM "ptp_twlo" won't be mapped to RAM because it is too sparse
+INFO: [Synth 8-5546] ROM "ptp_twhi" won't be mapped to RAM because it is too sparse
+INFO: [Synth 8-5546] ROM "ptp_oflo" won't be mapped to RAM because it is too sparse
+INFO: [Common 17-14] Message 'Synth 8-5546' appears 100 times and further instances of the messages will be disabled. Use the Tcl command set_msg_config to change the current settings.
+INFO: [Common 17-14] Message 'Synth 8-5546' appears 100 times and further instances of the messages will be disabled. Use the Tcl command set_msg_config to change the current settings.
+INFO: [Common 17-14] Message 'Synth 8-7129' appears 100 times and further instances of the messages will be disabled. Use the Tcl command set_msg_config to change the current settings.
+INFO: [Synth 8-4471] merging register 'beat_r_reg[4:0]' into 'beat_r_reg[4:0]' [$CHECKOUT/hdl/ieee1722/aaf/KL_aaf_packetizer.sv:553]
+INFO: [Synth 8-4471] merging register 'txp_idx_r_reg[2:0]' into 'txp_idx_r_reg[2:0]' [$CHECKOUT/hdl/milan/KL_ctrl_split.sv:305]
+WARNING: [Synth 8-3936] Found unconnected internal register 'rx_fifo/m_axis_pipe_reg_reg[1]' and it is trimmed from '74' to '73' bits. [$CHECKOUT/third_party/verilog-axis/rtl/axis_fifo.v:230]
+INFO: [Synth 8-12589] Found 1 bits of RAM  (\g_sp_ctrl.ctrl_split /i_1) with no load. RAM width may be reduced from 74 to 73 
+DSP Report: Generating DSP frame_octets1, operation Mode is: A*B.
+DSP Report: operator frame_octets1 is absorbed into DSP frame_octets1.
+DSP Report: Generating DSP frame_octets0, operation Mode is: C+A*B.
+DSP Report: operator frame_octets0 is absorbed into DSP frame_octets0.
+DSP Report: operator frame_octets1 is absorbed into DSP frame_octets0.
+INFO: [Synth 8-5544] ROM "amap_in_ent_q_r5" won't be mapped to Block RAM because address size (3) smaller than threshold (5)
+INFO: [Synth 8-5544] ROM "amap_in_ent_q_r5" won't be mapped to Block RAM because address size (3) smaller than threshold (5)
+INFO: [Synth 8-5544] ROM "amap_page_ok_w1" won't be mapped to Block RAM because address size (3) smaller than threshold (5)
+INFO: [Synth 8-5544] ROM "amap_edit_in_key_v_w6" won't be mapped to Block RAM because address size (3) smaller than threshold (5)
+INFO: [Synth 8-5544] ROM "amap_edit_in_key_v_w2" won't be mapped to Block RAM because address size (3) smaller than threshold (5)
+INFO: [Synth 8-5544] ROM "amap_edit_in_key_v_w6" won't be mapped to Block RAM because address size (3) smaller than threshold (5)
+INFO: [Synth 8-5544] ROM "amap_edit_in_key_v_w2" won't be mapped to Block RAM because address size (3) smaller than threshold (5)
+DSP Report: Generating DSP servo_lsb_w1, operation Mode is: A*(B:0x32).
+DSP Report: operator servo_lsb_w1 is absorbed into DSP servo_lsb_w1.
+INFO: [Synth 8-4471] merging register 'slip_r_reg[4:0]' into 'slip_r_reg[4:0]' [$CHECKOUT/hdl/ieee1722/crf/KL_media_grid_align.sv:228]
+INFO: [Synth 8-5544] ROM "gsi_ans_raw_w3" won't be mapped to Block RAM because address size (3) smaller than threshold (5)
+INFO: [Common 17-14] Message 'Synth 8-7129' appears 100 times and further instances of the messages will be disabled. Use the Tcl command set_msg_config to change the current settings.
+INFO: [Synth 8-5544] ROM "iprog_word_f" won't be mapped to Block RAM because address size (3) smaller than threshold (5)
+INFO: [Synth 8-5544] ROM "ctr_col_v_w" won't be mapped to Block RAM because address size (4) smaller than threshold (5)
+INFO: [Synth 8-5544] ROM "mon_diag_col_w" won't be mapped to Block RAM because address size (4) smaller than threshold (5)
+INFO: [Synth 8-4471] merging register 'lane_r_reg[1:0]' into 'lane_r_reg[1:0]' [$CHECKOUT/hdl/milan/mailbox/KL_mbx_rx.sv:620]
+INFO: [Synth 8-5544] ROM "rule_pass_w2" won't be mapped to Block RAM because address size (4) smaller than threshold (5)
+INFO: [Synth 8-5544] ROM "rule_pass_w3" won't be mapped to Block RAM because address size (4) smaller than threshold (5)
+INFO: [Synth 8-5544] ROM "rule_pass_w2" won't be mapped to Block RAM because address size (4) smaller than threshold (5)
+INFO: [Synth 8-5544] ROM "rule_pass_w3" won't be mapped to Block RAM because address size (4) smaller than threshold (5)
+INFO: [Synth 8-5544] ROM "MBX_CH_MAX_FRAME_BYTES_TBL_C" won't be mapped to Block RAM because address size (3) smaller than threshold (5)
+INFO: [Synth 8-5544] ROM "MBX_CH_RX_WORDS_TBL_C" won't be mapped to Block RAM because address size (3) smaller than threshold (5)
+INFO: [Synth 8-5544] ROM "rule_pass_w4" won't be mapped to Block RAM because address size (4) smaller than threshold (5)
+INFO: [Synth 8-5544] ROM "rule_pass_w2" won't be mapped to Block RAM because address size (4) smaller than threshold (5)
+INFO: [Synth 8-5544] ROM "rule_pass_w4" won't be mapped to Block RAM because address size (4) smaller than threshold (5)
+INFO: [Synth 8-5544] ROM "rule_pass_w2" won't be mapped to Block RAM because address size (4) smaller than threshold (5)
+INFO: [Synth 8-5544] ROM "MBX_CH_TX_WORDS_TBL_C" won't be mapped to Block RAM because address size (3) smaller than threshold (5)
+INFO: [Synth 8-5544] ROM "MBX_CH_TX_WORDS_TBL_C" won't be mapped to Block RAM because address size (3) smaller than threshold (5)
+INFO: [Synth 8-5544] ROM "MBX_CH_TX_WORDS_TBL_C" won't be mapped to Block RAM because address size (3) smaller than threshold (5)
+INFO: [Synth 8-5544] ROM "MBX_CH_MAX_FRAME_BYTES_TBL_C" won't be mapped to Block RAM because address size (3) smaller than threshold (5)
+INFO: [Synth 8-4652] Swapped enable and write-enable on 1 RAM instances of RAM u_srp_rx/mem_r_reg to conserve power
+INFO: [Synth 8-5544] ROM "_zz_io_output_tracker_last" won't be mapped to Block RAM because address size (3) smaller than threshold (5)
+INFO: [Synth 8-4471] merging register 'LsuL1Plugin_logic_c_pip_ctrl_2_up_WAYS_HITS_reg[0:0]' into 'LsuL1Plugin_logic_c_pip_ctrl_2_up_WAYS_HIT_reg' [$LITEX/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51.v:23420]
+INFO: [Synth 8-4471] merging register 'execute_ctrl3_up_BYPASSED_AT_3_lane0_reg' into 'execute_ctrl3_up_LsuL1_ATOMIC_lane0_reg' [$LITEX/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51.v:24328]
+INFO: [Synth 8-4471] merging register 'execute_ctrl4_up_BYPASSED_AT_4_lane0_reg' into 'execute_ctrl4_up_LsuL1_ATOMIC_lane0_reg' [$LITEX/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51.v:24377]
+INFO: [Synth 8-4471] merging register 'execute_ctrl3_up_LsuL1_INVALID_lane0_reg' into 'execute_ctrl3_up_LsuL1_CLEAN_lane0_reg' [$LITEX/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51.v:24351]
+INFO: [Synth 8-4471] merging register 'execute_ctrl4_up_LsuL1_INVALID_lane0_reg' into 'execute_ctrl4_up_LsuL1_CLEAN_lane0_reg' [$LITEX/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51.v:24396]
+INFO: [Synth 8-4471] merging register 'execute_ctrl3_up_AguPlugin_STORE_lane0_reg' into 'execute_ctrl3_up_LsuL1_STORE_lane0_reg' [$LITEX/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51.v:24332]
+INFO: [Synth 8-4471] merging register 'execute_ctrl4_up_AguPlugin_STORE_lane0_reg' into 'execute_ctrl4_up_LsuL1_STORE_lane0_reg' [$LITEX/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51.v:24380]
+WARNING: [Synth 8-3936] Found unconnected internal register 'execute_ctrl4_up_early0_MulPlugin_logic_steps_0_adders_1_lane0_reg' and it is trimmed from '5' to '3' bits. [$LITEX/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51.v:24404]
+INFO: [Synth 8-5544] ROM "TrapPlugin_logic_harts_0_crsPorts_write_valid" won't be mapped to Block RAM because address size (4) smaller than threshold (5)
+INFO: [Synth 8-5544] ROM "TrapPlugin_logic_harts_0_crsPorts_read_valid" won't be mapped to Block RAM because address size (4) smaller than threshold (5)
+DSP Report: Generating DSP execute_ctrl3_up_early0_MulPlugin_logic_mul_VALUES_1_lane0_reg, operation Mode is: (A2*B)'.
+DSP Report: register execute_ctrl3_up_early0_MulPlugin_logic_mul_VALUES_1_lane0_reg is absorbed into DSP execute_ctrl3_up_early0_MulPlugin_logic_mul_VALUES_1_lane0_reg.
+DSP Report: register execute_ctrl3_up_early0_MulPlugin_logic_mul_VALUES_1_lane0_reg is absorbed into DSP execute_ctrl3_up_early0_MulPlugin_logic_mul_VALUES_1_lane0_reg.
+DSP Report: operator _zz_execute_ctrl2_down_early0_MulPlugin_logic_mul_VALUES_1_lane0_1 is absorbed into DSP execute_ctrl3_up_early0_MulPlugin_logic_mul_VALUES_1_lane0_reg.
+DSP Report: Generating DSP execute_ctrl3_up_early0_MulPlugin_logic_mul_VALUES_2_lane0_reg, operation Mode is: (A2*B)'.
+DSP Report: register execute_ctrl3_up_early0_MulPlugin_logic_mul_VALUES_2_lane0_reg is absorbed into DSP execute_ctrl3_up_early0_MulPlugin_logic_mul_VALUES_2_lane0_reg.
+DSP Report: register execute_ctrl3_up_early0_MulPlugin_logic_mul_VALUES_2_lane0_reg is absorbed into DSP execute_ctrl3_up_early0_MulPlugin_logic_mul_VALUES_2_lane0_reg.
+DSP Report: operator _zz_execute_ctrl2_down_early0_MulPlugin_logic_mul_VALUES_2_lane0_1 is absorbed into DSP execute_ctrl3_up_early0_MulPlugin_logic_mul_VALUES_2_lane0_reg.
+DSP Report: Generating DSP execute_ctrl3_up_early0_MulPlugin_logic_mul_VALUES_3_lane0_reg, operation Mode is: (A*B)'.
+DSP Report: register execute_ctrl3_up_early0_MulPlugin_logic_mul_VALUES_3_lane0_reg is absorbed into DSP execute_ctrl3_up_early0_MulPlugin_logic_mul_VALUES_3_lane0_reg.
+DSP Report: operator _zz_execute_ctrl2_down_early0_MulPlugin_logic_mul_VALUES_3_lane0_1 is absorbed into DSP execute_ctrl3_up_early0_MulPlugin_logic_mul_VALUES_3_lane0_reg.
+DSP Report: Generating DSP execute_ctrl3_up_early0_MulPlugin_logic_mul_VALUES_0_lane0_reg, operation Mode is: (A2*B2)'.
+DSP Report: register execute_ctrl3_up_early0_MulPlugin_logic_mul_VALUES_2_lane0_reg is absorbed into DSP execute_ctrl3_up_early0_MulPlugin_logic_mul_VALUES_0_lane0_reg.
+DSP Report: register execute_ctrl3_up_early0_MulPlugin_logic_mul_VALUES_1_lane0_reg is absorbed into DSP execute_ctrl3_up_early0_MulPlugin_logic_mul_VALUES_0_lane0_reg.
+DSP Report: register execute_ctrl3_up_early0_MulPlugin_logic_mul_VALUES_0_lane0_reg is absorbed into DSP execute_ctrl3_up_early0_MulPlugin_logic_mul_VALUES_0_lane0_reg.
+DSP Report: operator execute_ctrl2_down_early0_MulPlugin_logic_mul_VALUES_0_lane0 is absorbed into DSP execute_ctrl3_up_early0_MulPlugin_logic_mul_VALUES_0_lane0_reg.
+INFO: [Synth 8-5544] ROM "toTileink/_zz_io_down_d_tracker_last" won't be mapped to Block RAM because address size (3) smaller than threshold (5)
+INFO: [Synth 8-5544] ROM "a_arbiter/_zz_io_output_tracker_last" won't be mapped to Block RAM because address size (3) smaller than threshold (5)
+INFO: [Synth 8-5544] ROM "a_arbiter/_zz_io_output_tracker_last" won't be mapped to Block RAM because address size (3) smaller than threshold (5)
+INFO: [Synth 8-5544] ROM "a_arbiter/_zz_io_output_tracker_last" won't be mapped to Block RAM because address size (3) smaller than threshold (5)
+INFO: [Synth 8-5544] ROM "_zz_io_up_a_tracker_last" won't be mapped to Block RAM because address size (3) smaller than threshold (5)
+INFO: [Synth 8-5544] ROM "_zz_io_up_d_tracker_last" won't be mapped to Block RAM because address size (3) smaller than threshold (5)
+INFO: [Synth 8-5544] ROM "_zz_io_down_d_tracker_last" won't be mapped to Block RAM because address size (3) smaller than threshold (5)
+INFO: [Synth 8-5544] ROM "streamArbiter_12/_zz_io_output_tracker_last" won't be mapped to Block RAM because address size (3) smaller than threshold (5)
+INFO: [Synth 8-5544] ROM "_zz_backend_stages_0_LAST" won't be mapped to Block RAM because address size (3) smaller than threshold (5)
+INFO: [Synth 8-5544] ROM "_zz_frontendA_spawn_LAST" won't be mapped to Block RAM because address size (3) smaller than threshold (5)
+INFO: [Synth 8-5544] ROM "_zz_io_down_d_tracker_last" won't be mapped to Block RAM because address size (3) smaller than threshold (5)
+INFO: [Synth 8-5544] ROM "_zz_factory_unburstify_last" won't be mapped to Block RAM because address size (3) smaller than threshold (5)
+INFO: [Synth 8-5544] ROM "_zz_io_up_a_tracker_last" won't be mapped to Block RAM because address size (3) smaller than threshold (5)
+INFO: [Synth 8-5544] ROM "_zz__zz_io_up_d_tracker_last" won't be mapped to Block RAM because address size (3) smaller than threshold (5)
+INFO: [Synth 8-5544] ROM "_zz__zz_a_buffered_fork2_io_outputs_0_tracker_last" won't be mapped to Block RAM because address size (3) smaller than threshold (5)
+INFO: [Synth 8-5544] ROM "d_arbiter/_zz_io_output_tracker_last" won't be mapped to Block RAM because address size (3) smaller than threshold (5)
+INFO: [Common 17-14] Message 'Synth 8-7129' appears 100 times and further instances of the messages will be disabled. Use the Tcl command set_msg_config to change the current settings.
+INFO: [Synth 8-12589] Found 5 bits of RAM  (VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/vexiis_0_logic_core/LsuL1Plugin_logic_bus_toTilelink_coherent_onC_rspFifo/i_2) with no load. RAM width may be reduced from 41 to 36 
+INFO: [Synth 8-3971] The signal "VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/vexiis_0_logic_core/integer_RegFilePlugin_logic_regfile_fpga/asMem_ram_reg" was recognized as a true dual port RAM template.
+INFO: [Synth 8-3971] The signal "VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/vexiis_0_logic_core/LsuL1Plugin_logic_ways_0_mem_reg" was recognized as a true dual port RAM template.
+INFO: [Synth 8-5544] ROM "da_oct_w" won't be mapped to Block RAM because address size (3) smaller than threshold (5)
+INFO: [Synth 8-5544] ROM "p_2_out0" won't be mapped to Block RAM because address size (3) smaller than threshold (5)
+INFO: [Synth 8-5544] ROM "p_2_out0" won't be mapped to Block RAM because address size (3) smaller than threshold (5)
+INFO: [Synth 8-5544] ROM "milansoc_milanmac_liteethmaccore_tx_preamble_source_payload_data" won't be mapped to Block RAM because address size (3) smaller than threshold (5)
+INFO: [Synth 8-7082] The signal storage_16_reg is implemented as Block RAM but is better mapped onto distributed LUT RAM for the following reason(s): The depth (2 address bits) is shallow. Please use attribute (* ram_style = "distributed" *) to instruct Vivado to infer distributed LUT RAM.
+RAM Pipeline Warning: Read Address Register Found For RAM sram_bank1_reg. We will not be able to pipeline it. This may degrade performance. 
+RAM Pipeline Warning: Read Address Register Found For RAM sram_bank1_reg. We will not be able to pipeline it. This may degrade performance. 
+RAM Pipeline Warning: Read Address Register Found For RAM sram_bank1_reg. We will not be able to pipeline it. This may degrade performance. 
+WARNING: [Synth 8-6841] Block RAM (sram_bank1_reg) originally specified as a Byte Wide Write Enable RAM cannot take advantage of ByteWide feature and is implemented with single write enable per RAM due to following reason.
+(address width (13) is more than optimal threshold of 12. Implementing using BWWE will require more logic and timing would be suboptimal. Please use attribute ram_decomp = power if BWWE is desired.)
+RAM Pipeline Warning: Read Address Register Found For RAM sram_bank2_reg. We will not be able to pipeline it. This may degrade performance. 
+RAM Pipeline Warning: Read Address Register Found For RAM sram_bank2_reg. We will not be able to pipeline it. This may degrade performance. 
+RAM Pipeline Warning: Read Address Register Found For RAM sram_bank2_reg. We will not be able to pipeline it. This may degrade performance. 
+RAM Pipeline Warning: Read Address Register Found For RAM sram_bank3_reg. We will not be able to pipeline it. This may degrade performance. 
+RAM Pipeline Warning: Read Address Register Found For RAM sram_bank3_reg. We will not be able to pipeline it. This may degrade performance. 
+RAM Pipeline Warning: Read Address Register Found For RAM sram_bank3_reg. We will not be able to pipeline it. This may degrade performance. 
+RAM Pipeline Warning: Read Address Register Found For RAM sram_bank4_reg. We will not be able to pipeline it. This may degrade performance. 
+RAM Pipeline Warning: Read Address Register Found For RAM sram_bank4_reg. We will not be able to pipeline it. This may degrade performance. 
+RAM Pipeline Warning: Read Address Register Found For RAM sram_bank4_reg. We will not be able to pipeline it. This may degrade performance. 
+RAM Pipeline Warning: Read Address Register Found For RAM sram_bank0_reg. We will not be able to pipeline it. This may degrade performance. 
+RAM Pipeline Warning: Read Address Register Found For RAM sram_bank0_reg. We will not be able to pipeline it. This may degrade performance. 
+RAM Pipeline Warning: Read Address Register Found For RAM sram_bank0_reg. We will not be able to pipeline it. This may degrade performance. 
+WARNING: [Synth 8-6841] Block RAM (sram_bank0_reg) originally specified as a Byte Wide Write Enable RAM cannot take advantage of ByteWide feature and is implemented with single write enable per RAM due to following reason.
+(address width (14) is more than optimal threshold of 12. Implementing using BWWE will require more logic and timing would be suboptimal. Please use attribute ram_decomp = power if BWWE is desired.)
+INFO: [Synth 8-12589] Found 9 bits of RAM  (i_198) with no load. RAM width may be reduced from 82 to 73 
+INFO: [Synth 8-5784] Optimized 9 bits of RAM "storage_5_reg" due to constant propagation. Old ram width 82 bits, new ram width 73 bits.
+INFO: [Synth 8-7082] The signal storage_14_reg is implemented as Block RAM but is better mapped onto distributed LUT RAM for the following reason(s): The depth (2 address bits) is shallow. Please use attribute (* ram_style = "distributed" *) to instruct Vivado to infer distributed LUT RAM.
+INFO: [Synth 8-12589] Found 1 bits of RAM  (i_548) with no load. RAM width may be reduced from 82 to 81 
+INFO: [Synth 8-12589] Found 1 bits of RAM  (i_428) with no load. RAM width may be reduced from 10 to 9 
+INFO: [Synth 8-12589] Found 1 bits of RAM  (i_431) with no load. RAM width may be reduced from 10 to 9 
+RAM Pipeline Warning: Read Address Register Found For RAM sram_bank1_reg. We will not be able to pipeline it. This may degrade performance. 
+RAM Pipeline Warning: Read Address Register Found For RAM sram_bank2_reg. We will not be able to pipeline it. This may degrade performance. 
+RAM Pipeline Warning: Read Address Register Found For RAM sram_bank3_reg. We will not be able to pipeline it. This may degrade performance. 
+RAM Pipeline Warning: Read Address Register Found For RAM sram_bank4_reg. We will not be able to pipeline it. This may degrade performance. 
+RAM Pipeline Warning: Read Address Register Found For RAM sram_bank0_reg. We will not be able to pipeline it. This may degrade performance. 
+---------------------------------------------------------------------------------
+Start Pre Area Optimization
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Iterative Area Optimization
+---------------------------------------------------------------------------------
+INFO: [Synth 8-7067] Removed DRAM instance g_gptp_plane.u_gptp_shadow/u_engine/i_0/i_0/evq_r_reg_0_3_6_11 from module extram__117 due to constant propagation
+INFO: [Synth 8-3886] merging instance 'g_gptp_plane.u_gptp_shadow/rx_fifo/mark_frame_reg_reg' (FDRE) to 'g_gptp_plane.u_gptp_shadow/tx_fifo/mark_frame_reg_reg'
+INFO: [Synth 8-3886] merging instance 'g_gptp_plane.u_gptp_shadow/u_engine/gx_data_r_reg[34]' (FDRE) to 'g_gptp_plane.u_gptp_shadow/u_engine/gx_data_r_reg[32]'
+INFO: [Synth 8-3886] merging instance 'g_gptp_plane.u_gptp_shadow/u_engine/gx_data_r_reg[35]' (FDRE) to 'g_gptp_plane.u_gptp_shadow/u_engine/gx_data_r_reg[32]'
+INFO: [Synth 8-3886] merging instance 'g_gptp_plane.u_gptp_shadow/u_engine/gx_data_r_reg[32]' (FDRE) to 'g_gptp_plane.u_gptp_shadow/u_engine/gx_data_r_reg[33]'
+INFO: [Synth 8-3886] merging instance 'g_gptp_plane.u_gptp_shadow/u_engine/gx_data_r_reg[33]' (FDRE) to 'g_gptp_plane.u_gptp_shadow/u_engine/gx_data_r_reg[36]'
+INFO: [Synth 8-3886] merging instance 'g_gptp_plane.u_gptp_shadow/u_engine/gx_data_r_reg[40]' (FDRE) to 'g_gptp_plane.u_gptp_shadow/u_engine/gx_data_r_reg[36]'
+INFO: [Synth 8-3886] merging instance 'g_gptp_plane.u_gptp_shadow/u_engine/gx_data_r_reg[41]' (FDRE) to 'g_gptp_plane.u_gptp_shadow/u_engine/gx_data_r_reg[36]'
+INFO: [Synth 8-3886] merging instance 'g_gptp_plane.u_gptp_shadow/u_engine/gx_data_r_reg[38]' (FDRE) to 'g_gptp_plane.u_gptp_shadow/u_engine/gx_data_r_reg[36]'
+INFO: [Synth 8-3886] merging instance 'g_gptp_plane.u_gptp_shadow/u_engine/gx_data_r_reg[39]' (FDRE) to 'g_gptp_plane.u_gptp_shadow/u_engine/gx_data_r_reg[36]'
+INFO: [Synth 8-3886] merging instance 'g_gptp_plane.u_gptp_shadow/u_engine/gx_data_r_reg[36]' (FDRE) to 'g_gptp_plane.u_gptp_shadow/u_engine/gx_data_r_reg[37]'
+INFO: [Synth 8-3886] merging instance 'g_gptp_plane.u_gptp_shadow/u_engine/gx_data_r_reg[37]' (FDRE) to 'g_gptp_plane.u_gptp_shadow/u_engine/gx_data_r_reg[42]'
+INFO: [Synth 8-3886] merging instance 'g_gptp_plane.u_gptp_shadow/u_engine/gx_data_r_reg[46]' (FDRE) to 'g_gptp_plane.u_gptp_shadow/u_engine/gx_data_r_reg[42]'
+INFO: [Synth 8-3886] merging instance 'g_gptp_plane.u_gptp_shadow/u_engine/gx_data_r_reg[47]' (FDRE) to 'g_gptp_plane.u_gptp_shadow/u_engine/gx_data_r_reg[42]'
+INFO: [Synth 8-3886] merging instance 'g_gptp_plane.u_gptp_shadow/u_engine/gx_data_r_reg[44]' (FDRE) to 'g_gptp_plane.u_gptp_shadow/u_engine/gx_data_r_reg[42]'
+INFO: [Synth 8-3886] merging instance 'g_gptp_plane.u_gptp_shadow/u_engine/gx_data_r_reg[45]' (FDRE) to 'g_gptp_plane.u_gptp_shadow/u_engine/gx_data_r_reg[42]'
+INFO: [Synth 8-3886] merging instance 'g_gptp_plane.u_gptp_shadow/u_engine/gx_data_r_reg[42]' (FDRE) to 'g_gptp_plane.u_gptp_shadow/u_engine/gx_data_r_reg[43]'
+INFO: [Synth 8-3886] merging instance 'g_gptp_plane.u_gptp_shadow/u_engine/gx_data_r_reg[43]' (FDRE) to 'g_gptp_plane.u_gptp_shadow/u_engine/gx_data_r_reg[48]'
+INFO: [Synth 8-3886] merging instance 'g_gptp_plane.u_gptp_shadow/u_engine/gx_data_r_reg[52]' (FDRE) to 'g_gptp_plane.u_gptp_shadow/u_engine/gx_data_r_reg[48]'
+INFO: [Synth 8-3886] merging instance 'g_gptp_plane.u_gptp_shadow/u_engine/gx_data_r_reg[53]' (FDRE) to 'g_gptp_plane.u_gptp_shadow/u_engine/gx_data_r_reg[48]'
+INFO: [Synth 8-3886] merging instance 'g_gptp_plane.u_gptp_shadow/u_engine/gx_data_r_reg[50]' (FDRE) to 'g_gptp_plane.u_gptp_shadow/u_engine/gx_data_r_reg[48]'
+INFO: [Synth 8-3886] merging instance 'g_gptp_plane.u_gptp_shadow/u_engine/gx_data_r_reg[51]' (FDRE) to 'g_gptp_plane.u_gptp_shadow/u_engine/gx_data_r_reg[48]'
+INFO: [Synth 8-3886] merging instance 'g_gptp_plane.u_gptp_shadow/u_engine/gx_data_r_reg[48]' (FDRE) to 'g_gptp_plane.u_gptp_shadow/u_engine/gx_data_r_reg[49]'
+INFO: [Synth 8-3886] merging instance 'g_gptp_plane.u_gptp_shadow/u_engine/gx_data_r_reg[49]' (FDRE) to 'g_gptp_plane.u_gptp_shadow/u_engine/gx_data_r_reg[54]'
+INFO: [Synth 8-3886] merging instance 'g_gptp_plane.u_gptp_shadow/u_engine/gx_data_r_reg[58]' (FDRE) to 'g_gptp_plane.u_gptp_shadow/u_engine/gx_data_r_reg[54]'
+INFO: [Synth 8-3886] merging instance 'g_gptp_plane.u_gptp_shadow/u_engine/gx_data_r_reg[59]' (FDRE) to 'g_gptp_plane.u_gptp_shadow/u_engine/gx_data_r_reg[54]'
+INFO: [Synth 8-3886] merging instance 'g_gptp_plane.u_gptp_shadow/u_engine/gx_data_r_reg[56]' (FDRE) to 'g_gptp_plane.u_gptp_shadow/u_engine/gx_data_r_reg[54]'
+INFO: [Synth 8-3886] merging instance 'g_gptp_plane.u_gptp_shadow/u_engine/gx_data_r_reg[57]' (FDRE) to 'g_gptp_plane.u_gptp_shadow/u_engine/gx_data_r_reg[54]'
+INFO: [Synth 8-3886] merging instance 'g_gptp_plane.u_gptp_shadow/u_engine/gx_data_r_reg[54]' (FDRE) to 'g_gptp_plane.u_gptp_shadow/u_engine/gx_data_r_reg[55]'
+INFO: [Synth 8-3886] merging instance 'g_gptp_plane.u_gptp_shadow/u_engine/gx_data_r_reg[55]' (FDRE) to 'g_gptp_plane.u_gptp_shadow/u_engine/gx_data_r_reg[60]'
+INFO: [Synth 8-3886] merging instance 'g_gptp_plane.u_gptp_shadow/u_engine/gx_data_r_reg[62]' (FDRE) to 'g_gptp_plane.u_gptp_shadow/u_engine/gx_data_r_reg[60]'
+INFO: [Synth 8-3886] merging instance 'g_gptp_plane.u_gptp_shadow/u_engine/gx_data_r_reg[63]' (FDRE) to 'g_gptp_plane.u_gptp_shadow/u_engine/gx_data_r_reg[60]'
+INFO: [Synth 8-3886] merging instance 'g_gptp_plane.u_gptp_shadow/u_engine/gx_data_r_reg[60]' (FDRE) to 'g_gptp_plane.u_gptp_shadow/u_engine/gx_data_r_reg[61]'
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\g_gptp_plane.u_gptp_shadow/u_engine /\gx_data_r_reg[61] )
+INFO: [Synth 8-3886] merging instance 'g_gptp_plane.u_gptp_shadow/u_engine/disp_upc_r_reg[0]' (FDE) to 'g_gptp_plane.u_gptp_shadow/u_engine/disp_upc_r_reg[1]'
+INFO: [Synth 8-3886] merging instance 'g_gptp_plane.u_gptp_shadow/u_engine/disp_upc_r_reg[1]' (FDE) to 'g_gptp_plane.u_gptp_shadow/u_engine/disp_upc_r_reg[2]'
+INFO: [Synth 8-3886] merging instance 'g_gptp_plane.u_gptp_shadow/u_engine/disp_upc_r_reg[2]' (FDE) to 'g_gptp_plane.u_gptp_shadow/u_engine/disp_upc_r_reg[3]'
+INFO: [Synth 8-3886] merging instance 'g_gptp_plane.u_gptp_shadow/u_engine/disp_upc_r_reg[3]' (FDE) to 'g_gptp_plane.u_gptp_shadow/u_engine/disp_upc_r_reg[5]'
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\g_gptp_plane.u_gptp_shadow/u_engine /\disp_upc_r_reg[5] )
+INFO: [Synth 8-3886] merging instance 'g_gptp_plane.u_gptp_shadow/u_engine/i_0/disp_ev_r_reg[40]' (FDE) to 'g_gptp_plane.u_gptp_shadow/u_engine/i_0/disp_ev_r_reg[63]'
+INFO: [Synth 8-3886] merging instance 'g_gptp_plane.u_gptp_shadow/u_engine/i_0/disp_ev_r_reg[41]' (FDE) to 'g_gptp_plane.u_gptp_shadow/u_engine/i_0/disp_ev_r_reg[63]'
+INFO: [Synth 8-3886] merging instance 'g_gptp_plane.u_gptp_shadow/u_engine/i_0/disp_ev_r_reg[46]' (FDE) to 'g_gptp_plane.u_gptp_shadow/u_engine/i_0/disp_ev_r_reg[63]'
+INFO: [Synth 8-3886] merging instance 'g_gptp_plane.u_gptp_shadow/u_engine/i_0/disp_ev_r_reg[47]' (FDE) to 'g_gptp_plane.u_gptp_shadow/u_engine/i_0/disp_ev_r_reg[63]'
+INFO: [Synth 8-3886] merging instance 'g_gptp_plane.u_gptp_shadow/u_engine/i_0/disp_ev_r_reg[44]' (FDE) to 'g_gptp_plane.u_gptp_shadow/u_engine/i_0/disp_ev_r_reg[63]'
+INFO: [Synth 8-3886] merging instance 'g_gptp_plane.u_gptp_shadow/u_engine/i_0/disp_ev_r_reg[45]' (FDE) to 'g_gptp_plane.u_gptp_shadow/u_engine/i_0/disp_ev_r_reg[63]'
+INFO: [Synth 8-3886] merging instance 'g_gptp_plane.u_gptp_shadow/u_engine/i_0/disp_ev_r_reg[42]' (FDE) to 'g_gptp_plane.u_gptp_shadow/u_engine/i_0/disp_ev_r_reg[63]'
+INFO: [Synth 8-3886] merging instance 'g_gptp_plane.u_gptp_shadow/u_engine/i_0/disp_ev_r_reg[43]' (FDE) to 'g_gptp_plane.u_gptp_shadow/u_engine/i_0/disp_ev_r_reg[63]'
+INFO: [Synth 8-3886] merging instance 'g_gptp_plane.u_gptp_shadow/u_engine/i_0/disp_ev_r_reg[52]' (FDE) to 'g_gptp_plane.u_gptp_shadow/u_engine/i_0/disp_ev_r_reg[63]'
+INFO: [Synth 8-3886] merging instance 'g_gptp_plane.u_gptp_shadow/u_engine/i_0/disp_ev_r_reg[53]' (FDE) to 'g_gptp_plane.u_gptp_shadow/u_engine/i_0/disp_ev_r_reg[63]'
+INFO: [Synth 8-3886] merging instance 'g_gptp_plane.u_gptp_shadow/u_engine/i_0/disp_ev_r_reg[50]' (FDE) to 'g_gptp_plane.u_gptp_shadow/u_engine/i_0/disp_ev_r_reg[63]'
+INFO: [Synth 8-3886] merging instance 'g_gptp_plane.u_gptp_shadow/u_engine/i_0/disp_ev_r_reg[51]' (FDE) to 'g_gptp_plane.u_gptp_shadow/u_engine/i_0/disp_ev_r_reg[63]'
+INFO: [Synth 8-3886] merging instance 'g_gptp_plane.u_gptp_shadow/u_engine/i_0/disp_ev_r_reg[48]' (FDE) to 'g_gptp_plane.u_gptp_shadow/u_engine/i_0/disp_ev_r_reg[63]'
+INFO: [Synth 8-3886] merging instance 'g_gptp_plane.u_gptp_shadow/u_engine/i_0/disp_ev_r_reg[49]' (FDE) to 'g_gptp_plane.u_gptp_shadow/u_engine/i_0/disp_ev_r_reg[63]'
+INFO: [Synth 8-3886] merging instance 'g_gptp_plane.u_gptp_shadow/u_engine/i_0/disp_ev_r_reg[58]' (FDE) to 'g_gptp_plane.u_gptp_shadow/u_engine/i_0/disp_ev_r_reg[63]'
+INFO: [Synth 8-3886] merging instance 'g_gptp_plane.u_gptp_shadow/u_engine/i_0/disp_ev_r_reg[59]' (FDE) to 'g_gptp_plane.u_gptp_shadow/u_engine/i_0/disp_ev_r_reg[63]'
+INFO: [Synth 8-3886] merging instance 'g_gptp_plane.u_gptp_shadow/u_engine/i_0/disp_ev_r_reg[56]' (FDE) to 'g_gptp_plane.u_gptp_shadow/u_engine/i_0/disp_ev_r_reg[63]'
+INFO: [Synth 8-3886] merging instance 'g_gptp_plane.u_gptp_shadow/u_engine/i_0/disp_ev_r_reg[57]' (FDE) to 'g_gptp_plane.u_gptp_shadow/u_engine/i_0/disp_ev_r_reg[63]'
+INFO: [Synth 8-3886] merging instance 'g_gptp_plane.u_gptp_shadow/u_engine/i_0/disp_ev_r_reg[54]' (FDE) to 'g_gptp_plane.u_gptp_shadow/u_engine/i_0/disp_ev_r_reg[63]'
+INFO: [Synth 8-3886] merging instance 'g_gptp_plane.u_gptp_shadow/u_engine/i_0/disp_ev_r_reg[55]' (FDE) to 'g_gptp_plane.u_gptp_shadow/u_engine/i_0/disp_ev_r_reg[63]'
+INFO: [Synth 8-3886] merging instance 'g_gptp_plane.u_gptp_shadow/u_engine/i_0/disp_ev_r_reg[62]' (FDE) to 'g_gptp_plane.u_gptp_shadow/u_engine/i_0/disp_ev_r_reg[63]'
+INFO: [Synth 8-3886] merging instance 'g_gptp_plane.u_gptp_shadow/u_engine/i_0/disp_ev_r_reg[63]' (FDE) to 'g_gptp_plane.u_gptp_shadow/u_engine/i_0/disp_ev_r_reg[61]'
+INFO: [Synth 8-3886] merging instance 'g_gptp_plane.u_gptp_shadow/u_engine/i_0/disp_ev_r_reg[60]' (FDE) to 'g_gptp_plane.u_gptp_shadow/u_engine/i_0/disp_ev_r_reg[61]'
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\g_gptp_plane.u_gptp_shadow/u_engine /i_0/\disp_ev_r_reg[61] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\g_gptp_plane.u_gptp_shadow/tx_fifo/mark_frame_reg_reg )
+INFO: [Synth 8-3886] merging instance 'g_gptp_plane.u_gptp_shadow/u_engine/u_parser/ev_code_o_reg[6]' (FDRE) to 'g_gptp_plane.u_gptp_shadow/u_engine/u_parser/ev_code_o_reg[3]'
+INFO: [Synth 8-3886] merging instance 'g_gptp_plane.u_gptp_shadow/u_engine/u_parser/ev_code_o_reg[7]' (FDRE) to 'g_gptp_plane.u_gptp_shadow/u_engine/u_parser/ev_code_o_reg[3]'
+INFO: [Synth 8-3886] merging instance 'g_gptp_plane.u_gptp_shadow/u_engine/u_parser/ev_code_o_reg[5]' (FDRE) to 'g_gptp_plane.u_gptp_shadow/u_engine/u_parser/ev_code_o_reg[3]'
+INFO: [Synth 8-3886] merging instance 'g_gptp_plane.u_gptp_shadow/u_engine/u_parser/ev_code_o_reg[4]' (FDRE) to 'g_gptp_plane.u_gptp_shadow/u_engine/u_parser/ev_code_o_reg[3]'
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\g_gptp_plane.u_gptp_shadow/u_engine /u_parser/\ev_code_o_reg[3] )
+INFO: [Synth 8-3886] merging instance 'amap_edit_iwr_addr_r_reg[0]' (FDCE) to 'amap_edit_iwr_addr_r_reg[2]'
+INFO: [Synth 8-3886] merging instance 'amap_edit_iwr_addr_r_reg[2]' (FDCE) to 'amap_edit_iwr_addr_r_reg[3]'
+INFO: [Synth 8-3886] merging instance 'amap_edit_iwr_addr_r_reg[3]' (FDCE) to 'amap_edit_iwr_addr_r_reg[4]'
+INFO: [Synth 8-3886] merging instance 'amap_edit_iwr_addr_r_reg[4]' (FDCE) to 'amap_edit_iwr_addr_r_reg[5]'
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\amap_edit_iwr_addr_r_reg[5] )
+INFO: [Synth 8-7067] Removed DRAM instance g_gptp_plane.u_gptp_shadow/u_engine/i_0/i_0/evq_r_reg_0_3_6_11 from module extram__117 due to constant propagation
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[47]) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[46]) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[45]) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[44]) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[43]) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[42]) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[41]) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[40]) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[39]) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[38]) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[37]) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[36]) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[35]) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[34]) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[33]) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[32]) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[31]) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[30]) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[29]) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[28]) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[27]) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[26]) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[25]) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[24]) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[23]) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[22]) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[21]) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[20]) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[19]) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[18]) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[17]) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[47]__0) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[46]__0) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[45]__0) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[44]__0) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[43]__0) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[42]__0) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[41]__0) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[40]__0) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[39]__0) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[38]__0) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[37]__0) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[36]__0) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[35]__0) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[34]__0) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[33]__0) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[32]__0) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[31]__0) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[30]__0) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[29]__0) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[28]__0) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[27]__0) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[26]__0) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[25]__0) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[24]__0) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[23]__0) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[22]__0) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[21]__0) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[20]__0) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[19]__0) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[18]__0) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[17]__0) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (tlv_freq_r_reg[47]) is unused and will be removed from module KL_gptp_engine.
+WARNING: [Synth 8-3332] Sequential element (tlv_freq_r_reg[46]) is unused and will be removed from module KL_gptp_engine.
+WARNING: [Synth 8-3332] Sequential element (tlv_freq_r_reg[45]) is unused and will be removed from module KL_gptp_engine.
+WARNING: [Synth 8-3332] Sequential element (tlv_freq_r_reg[44]) is unused and will be removed from module KL_gptp_engine.
+WARNING: [Synth 8-3332] Sequential element (tlv_freq_r_reg[43]) is unused and will be removed from module KL_gptp_engine.
+WARNING: [Synth 8-3332] Sequential element (tlv_freq_r_reg[42]) is unused and will be removed from module KL_gptp_engine.
+WARNING: [Synth 8-3332] Sequential element (tlv_freq_r_reg[41]) is unused and will be removed from module KL_gptp_engine.
+WARNING: [Synth 8-3332] Sequential element (tlv_freq_r_reg[40]) is unused and will be removed from module KL_gptp_engine.
+WARNING: [Synth 8-3332] Sequential element (tlv_freq_r_reg[39]) is unused and will be removed from module KL_gptp_engine.
+WARNING: [Synth 8-3332] Sequential element (tlv_freq_r_reg[38]) is unused and will be removed from module KL_gptp_engine.
+WARNING: [Synth 8-3332] Sequential element (tlv_freq_r_reg[37]) is unused and will be removed from module KL_gptp_engine.
+WARNING: [Synth 8-3332] Sequential element (tlv_freq_r_reg[36]) is unused and will be removed from module KL_gptp_engine.
+WARNING: [Synth 8-3332] Sequential element (tlv_freq_r_reg[35]) is unused and will be removed from module KL_gptp_engine.
+WARNING: [Synth 8-3332] Sequential element (tlv_freq_r_reg[34]) is unused and will be removed from module KL_gptp_engine.
+WARNING: [Synth 8-3332] Sequential element (tlv_freq_r_reg[33]) is unused and will be removed from module KL_gptp_engine.
+WARNING: [Synth 8-3332] Sequential element (tlv_freq_r_reg[32]) is unused and will be removed from module KL_gptp_engine.
+WARNING: [Synth 8-3332] Sequential element (tlv_freq_r_reg[31]) is unused and will be removed from module KL_gptp_engine.
+WARNING: [Synth 8-3332] Sequential element (tlv_freq_r_reg[30]) is unused and will be removed from module KL_gptp_engine.
+WARNING: [Synth 8-3332] Sequential element (tlv_freq_r_reg[29]) is unused and will be removed from module KL_gptp_engine.
+WARNING: [Synth 8-3332] Sequential element (tlv_freq_r_reg[28]) is unused and will be removed from module KL_gptp_engine.
+WARNING: [Synth 8-3332] Sequential element (tlv_freq_r_reg[27]) is unused and will be removed from module KL_gptp_engine.
+WARNING: [Synth 8-3332] Sequential element (tlv_freq_r_reg[26]) is unused and will be removed from module KL_gptp_engine.
+WARNING: [Synth 8-3332] Sequential element (tlv_freq_r_reg[25]) is unused and will be removed from module KL_gptp_engine.
+WARNING: [Synth 8-3332] Sequential element (tlv_freq_r_reg[24]) is unused and will be removed from module KL_gptp_engine.
+WARNING: [Synth 8-3332] Sequential element (tlv_freq_r_reg[23]) is unused and will be removed from module KL_gptp_engine.
+WARNING: [Synth 8-3332] Sequential element (tlv_freq_r_reg[22]) is unused and will be removed from module KL_gptp_engine.
+WARNING: [Synth 8-3332] Sequential element (tlv_freq_r_reg[21]) is unused and will be removed from module KL_gptp_engine.
+WARNING: [Synth 8-3332] Sequential element (tlv_freq_r_reg[20]) is unused and will be removed from module KL_gptp_engine.
+WARNING: [Synth 8-3332] Sequential element (tlv_freq_r_reg[19]) is unused and will be removed from module KL_gptp_engine.
+WARNING: [Synth 8-3332] Sequential element (tlv_freq_r_reg[18]) is unused and will be removed from module KL_gptp_engine.
+WARNING: [Synth 8-3332] Sequential element (tlv_freq_r_reg[17]) is unused and will be removed from module KL_gptp_engine.
+WARNING: [Synth 8-3332] Sequential element (tlv_freq_r_reg[15]) is unused and will be removed from module KL_gptp_engine.
+WARNING: [Synth 8-3332] Sequential element (tlv_freq_r_reg[14]) is unused and will be removed from module KL_gptp_engine.
+WARNING: [Synth 8-3332] Sequential element (tlv_freq_r_reg[13]) is unused and will be removed from module KL_gptp_engine.
+WARNING: [Synth 8-3332] Sequential element (tlv_freq_r_reg[12]) is unused and will be removed from module KL_gptp_engine.
+WARNING: [Synth 8-3332] Sequential element (tlv_freq_r_reg[11]) is unused and will be removed from module KL_gptp_engine.
+WARNING: [Synth 8-3332] Sequential element (tlv_freq_r_reg[10]) is unused and will be removed from module KL_gptp_engine.
+WARNING: [Synth 8-3332] Sequential element (tlv_freq_r_reg[9]) is unused and will be removed from module KL_gptp_engine.
+INFO: [Common 17-14] Message 'Synth 8-3332' appears 100 times and further instances of the messages will be disabled. Use the Tcl command set_msg_config to change the current settings.
+INFO: [Common 17-14] Message 'Synth 8-3332' appears 100 times and further instances of the messages will be disabled. Use the Tcl command set_msg_config to change the current settings.
+INFO: [Synth 8-3886] merging instance 'g_gptp_plane.u_gptp_shadow/u_engine/i_0/disp_ev_r_reg[38]' (FDE) to 'g_gptp_plane.u_gptp_shadow/u_engine/i_0/disp_ev_r_reg[39]'
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\g_gptp_plane.u_gptp_shadow/u_engine /i_0/\disp_ev_r_reg[39] )
+INFO: [Synth 8-3886] merging instance 'csr/acmp_state_q_r_reg[0]' (FDRE) to 'csr/acmp_flags_q_r_reg[0]'
+INFO: [Synth 8-3886] merging instance 'csr/acmp_state_q_r_reg[1]' (FDRE) to 'csr/acmp_flags_q_r_reg[0]'
+INFO: [Synth 8-3886] merging instance 'csr/acmp_state_q_r_reg[2]' (FDRE) to 'csr/acmp_flags_q_r_reg[0]'
+INFO: [Synth 8-3886] merging instance 'csr/acmp_probing_q_r_reg[0]' (FDRE) to 'csr/acmp_flags_q_r_reg[0]'
+INFO: [Synth 8-3886] merging instance 'csr/acmp_probing_q_r_reg[1]' (FDRE) to 'csr/acmp_flags_q_r_reg[0]'
+INFO: [Synth 8-3886] merging instance 'csr/acmp_status_q_r_reg[0]' (FDRE) to 'csr/acmp_flags_q_r_reg[0]'
+INFO: [Synth 8-3886] merging instance 'csr/acmp_status_q_r_reg[1]' (FDRE) to 'csr/acmp_flags_q_r_reg[0]'
+INFO: [Synth 8-3886] merging instance 'csr/acmp_status_q_r_reg[2]' (FDRE) to 'csr/acmp_flags_q_r_reg[0]'
+INFO: [Synth 8-3886] merging instance 'csr/acmp_status_q_r_reg[3]' (FDRE) to 'csr/acmp_flags_q_r_reg[0]'
+INFO: [Synth 8-3886] merging instance 'csr/acmp_status_q_r_reg[4]' (FDRE) to 'csr/acmp_flags_q_r_reg[0]'
+INFO: [Synth 8-3886] merging instance 'csr/g_pp_csr.pp_sprdata_r_reg[0]' (FDRE) to 'csr/g_pp_csr.pp_sprdata_r_reg[1]'
+INFO: [Synth 8-3886] merging instance 'csr/acmp_tuid_q_r_reg[0]' (FDRE) to 'csr/acmp_flags_q_r_reg[0]'
+INFO: [Synth 8-3886] merging instance 'csr/acmp_ctlr_q_r_reg[32]' (FDRE) to 'csr/acmp_flags_q_r_reg[0]'
+INFO: [Synth 8-3886] merging instance 'csr/acmp_ctlr_q_r_reg[0]' (FDRE) to 'csr/acmp_flags_q_r_reg[0]'
+INFO: [Synth 8-3886] merging instance 'csr/acmp_dmac_q_r_reg[32]' (FDRE) to 'csr/acmp_flags_q_r_reg[0]'
+INFO: [Synth 8-3886] merging instance 'csr/acmp_dmac_q_r_reg[0]' (FDRE) to 'csr/acmp_flags_q_r_reg[0]'
+INFO: [Synth 8-3886] merging instance 'csr/acmp_sid_q_r_reg[32]' (FDRE) to 'csr/acmp_flags_q_r_reg[0]'
+INFO: [Synth 8-3886] merging instance 'csr/acmp_sid_q_r_reg[0]' (FDRE) to 'csr/acmp_flags_q_r_reg[0]'
+INFO: [Synth 8-3886] merging instance 'csr/irq_status_reg[0]' (FDRE) to 'csr/acmp_flags_q_r_reg[0]'
+INFO: [Synth 8-3886] merging instance 'csr/g_pp_csr.pp_sprdata_r_reg[1]' (FDRE) to 'csr/g_pp_csr.pp_sprdata_r_reg[2]'
+INFO: [Synth 8-3886] merging instance 'csr/acmp_tuid_q_r_reg[1]' (FDRE) to 'csr/acmp_flags_q_r_reg[0]'
+INFO: [Synth 8-3886] merging instance 'csr/acmp_ctlr_q_r_reg[33]' (FDRE) to 'csr/acmp_flags_q_r_reg[0]'
+INFO: [Synth 8-3886] merging instance 'csr/acmp_ctlr_q_r_reg[1]' (FDRE) to 'csr/acmp_flags_q_r_reg[0]'
+INFO: [Synth 8-3886] merging instance 'csr/acmp_dmac_q_r_reg[33]' (FDRE) to 'csr/acmp_flags_q_r_reg[0]'
+INFO: [Synth 8-3886] merging instance 'csr/acmp_dmac_q_r_reg[1]' (FDRE) to 'csr/acmp_flags_q_r_reg[0]'
+INFO: [Synth 8-3886] merging instance 'csr/acmp_sid_q_r_reg[33]' (FDRE) to 'csr/acmp_flags_q_r_reg[0]'
+INFO: [Synth 8-3886] merging instance 'csr/acmp_sid_q_r_reg[1]' (FDRE) to 'csr/acmp_flags_q_r_reg[0]'
+INFO: [Synth 8-3886] merging instance 'csr/g_pp_csr.pp_sprdata_r_reg[2]' (FDRE) to 'csr/g_pp_csr.pp_sprdata_r_reg[3]'
+INFO: [Synth 8-3886] merging instance 'csr/acmp_tuid_q_r_reg[2]' (FDRE) to 'csr/acmp_flags_q_r_reg[0]'
+INFO: [Synth 8-3886] merging instance 'csr/acmp_ctlr_q_r_reg[34]' (FDRE) to 'csr/acmp_flags_q_r_reg[0]'
+INFO: [Synth 8-3886] merging instance 'csr/acmp_ctlr_q_r_reg[2]' (FDRE) to 'csr/acmp_flags_q_r_reg[0]'
+INFO: [Synth 8-3886] merging instance 'csr/acmp_dmac_q_r_reg[34]' (FDRE) to 'csr/acmp_flags_q_r_reg[0]'
+INFO: [Common 17-14] Message 'Synth 8-3886' appears 100 times and further instances of the messages will be disabled. Use the Tcl command set_msg_config to change the current settings.
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (csr/cmrd_unsup_r_reg)
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (csr/\rest_stat_r_reg[1] )
+INFO: [Common 17-14] Message 'Synth 8-3886' appears 100 times and further instances of the messages will be disabled. Use the Tcl command set_msg_config to change the current settings.
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (csr/\cmrd_data_r_reg[15] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (csr/adp_disc_seen_cnt_r0_inferred/\adp_disc_seen_cnt_r_reg[0] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (csr/adp_disc_seen_cnt_r0_inferred/\adp_disc_seen_cnt_r_reg[1] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (csr/adp_disc_seen_cnt_r0_inferred/\adp_disc_seen_cnt_r_reg[2] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (csr/adp_disc_seen_cnt_r0_inferred/\adp_disc_seen_cnt_r_reg[3] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (csr/adp_disc_seen_cnt_r0_inferred/\adp_disc_seen_cnt_r_reg[4] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (csr/adp_disc_seen_cnt_r0_inferred/\adp_disc_seen_cnt_r_reg[5] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (csr/adp_disc_seen_cnt_r0_inferred/\adp_disc_seen_cnt_r_reg[6] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (csr/adp_disc_seen_cnt_r0_inferred/\adp_disc_seen_cnt_r_reg[7] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (csr/rest_done_r_reg)
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (csr/\g_pp_csr.pp_sprdata_r_reg[31] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (csr/\snap_kind_r_reg[0][1] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (csr/\snap_kind_r_reg[11][1] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (csr/srp_fresh_r_reg)
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (csr/acmp_fresh_r_reg)
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (csr/\irq_status_reg[31] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (csr/\tctx_wr_addr_r_reg[3] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (csr/\lctx_wr_addr_r_reg[4] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (csr/\rds_word_r_reg[4] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\txarb_abort_sticky_r_reg[1] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\txarb_abort_sticky_r_reg[5] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\txarb_abort_sticky_r_reg[6] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\txarb_abort_sticky_r_reg[7] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\txarb_stall_sticky_r_reg[1] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\txarb_stall_sticky_r_reg[5] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\txarb_stall_sticky_r_reg[6] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\txarb_stall_sticky_r_reg[7] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (csr/\snap_kind_r_reg[0][0] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (aaf_rx_depkt/i_27/\rs_r_reg[3] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\amap_edit_iclaim_word_r_reg[510] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\amap_edit_iclaim_word_r_reg[502] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\amap_edit_iclaim_word_r_reg[494] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\amap_edit_iclaim_word_r_reg[486] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\amap_edit_iclaim_word_r_reg[478] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\amap_edit_iclaim_word_r_reg[470] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\amap_edit_iclaim_word_r_reg[462] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\amap_edit_iclaim_word_r_reg[454] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\amap_edit_iclaim_word_r_reg[446] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\amap_edit_iclaim_word_r_reg[438] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\amap_edit_iclaim_word_r_reg[430] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\amap_edit_iclaim_word_r_reg[422] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\amap_edit_iclaim_word_r_reg[414] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\amap_edit_iclaim_word_r_reg[406] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\amap_edit_iclaim_word_r_reg[398] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\amap_edit_iclaim_word_r_reg[390] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\amap_edit_iclaim_word_r_reg[382] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\amap_edit_iclaim_word_r_reg[374] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\amap_edit_iclaim_word_r_reg[366] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\amap_edit_iclaim_word_r_reg[358] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\amap_edit_iclaim_word_r_reg[350] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\amap_edit_iclaim_word_r_reg[342] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\amap_edit_iclaim_word_r_reg[334] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\amap_edit_iclaim_word_r_reg[326] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\amap_edit_iclaim_word_r_reg[318] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\amap_edit_iclaim_word_r_reg[310] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\amap_edit_iclaim_word_r_reg[302] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\amap_edit_iclaim_word_r_reg[294] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\amap_edit_iclaim_word_r_reg[286] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\amap_edit_iclaim_word_r_reg[278] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\amap_edit_iclaim_word_r_reg[270] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\amap_edit_iclaim_word_r_reg[262] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\amap_edit_iclaim_word_r_reg[254] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\amap_edit_iclaim_word_r_reg[246] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\amap_edit_iclaim_word_r_reg[238] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\amap_edit_iclaim_word_r_reg[230] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\amap_edit_iclaim_word_r_reg[222] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\amap_edit_iclaim_word_r_reg[214] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\amap_edit_iclaim_word_r_reg[206] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\amap_edit_iclaim_word_r_reg[198] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\amap_edit_iclaim_word_r_reg[190] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\amap_edit_iclaim_word_r_reg[182] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\amap_edit_iclaim_word_r_reg[174] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\amap_edit_iclaim_word_r_reg[166] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\amap_edit_iclaim_word_r_reg[158] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\amap_edit_iclaim_word_r_reg[150] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\amap_edit_iclaim_word_r_reg[142] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\amap_edit_iclaim_word_r_reg[134] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\amap_edit_iclaim_word_r_reg[126] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\amap_edit_iclaim_word_r_reg[118] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\amap_edit_iclaim_word_r_reg[110] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\amap_edit_iclaim_word_r_reg[102] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\amap_edit_iclaim_word_r_reg[94] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\amap_edit_iclaim_word_r_reg[86] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\amap_edit_iclaim_word_r_reg[78] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\amap_edit_iclaim_word_r_reg[70] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\amap_edit_iclaim_word_r_reg[62] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\amap_edit_iclaim_word_r_reg[54] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\amap_edit_iclaim_word_r_reg[46] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\amap_edit_iclaim_word_r_reg[38] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\amap_edit_iclaim_word_r_reg[30] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\amap_edit_iclaim_word_r_reg[22] )
+INFO: [Common 17-14] Message 'Synth 8-3333' appears 100 times and further instances of the messages will be disabled. Use the Tcl command set_msg_config to change the current settings.
+INFO: [Common 17-14] Message 'Synth 8-3333' appears 100 times and further instances of the messages will be disabled. Use the Tcl command set_msg_config to change the current settings.
+INFO: [Common 17-14] Message 'Synth 8-3886' appears 100 times and further instances of the messages will be disabled. Use the Tcl command set_msg_config to change the current settings.
+INFO: [Synth 8-7067] Removed DRAM instance chan_map_capture/i_14/beat_bank_r_reg_0_3_54_59 from module KL_chan_map_capture due to constant propagation
+INFO: [Synth 8-7067] Removed DRAM instance chan_map_capture/i_14/beat_bank_r_reg_0_3_6_11 from module KL_chan_map_capture due to constant propagation
+INFO: [Synth 8-7067] Removed DRAM instance chan_map_capture/i_14/beat_bank_r_reg_0_3_30_35 from module KL_chan_map_capture due to constant propagation
+INFO: [Synth 8-7067] Removed DRAM instance chan_map_capture/i_14/beat_bank_r_reg_0_3_48_53 from module KL_chan_map_capture due to constant propagation
+INFO: [Synth 8-7067] Removed DRAM instance chan_map_capture/i_14/beat_bank_r_reg_0_3_0_5 from module KL_chan_map_capture due to constant propagation
+INFO: [Synth 8-7067] Removed DRAM instance chan_map_capture/i_14/beat_bank_r_reg_0_3_24_29 from module KL_chan_map_capture due to constant propagation
+INFO: [Synth 8-7067] Removed DRAM instance chan_map_capture/i_14/beat_bank_r_reg_0_3_42_47 from module KL_chan_map_capture due to constant propagation
+INFO: [Synth 8-7067] Removed DRAM instance chan_map_capture/i_14/beat_bank_r_reg_0_3_18_23 from module KL_chan_map_capture due to constant propagation
+INFO: [Synth 8-7067] Removed DRAM instance chan_map_capture/i_14/beat_bank_r_reg_0_3_36_41 from module KL_chan_map_capture due to constant propagation
+INFO: [Synth 8-7067] Removed DRAM instance chan_map_capture/i_14/beat_bank_r_reg_0_3_12_17 from module KL_chan_map_capture due to constant propagation
+INFO: [Synth 8-7067] Removed DRAM instance chan_map_capture/i_14/beat_bank_r_reg_0_3_66_71 from module KL_chan_map_capture due to constant propagation
+INFO: [Synth 8-7067] Removed DRAM instance chan_map_capture/i_14/beat_bank_r_reg_0_3_60_65 from module KL_chan_map_capture due to constant propagation
+INFO: [Synth 8-7067] Removed DRAM instance chan_map_capture/i_14/beat_bank_r_reg_0_3_6_11 from module KL_chan_map_capture due to constant propagation
+WARNING: [Synth 8-13374] Removed Unreachable instance chan_map_capture/i_0 containing BRAMs/URAMs in constant propagation
+WARNING: [Synth 8-13373] Removed Macro Instance : chan_map_capture/i_0/lb_q_r_reg, of type : RAMB36E1 in constant propagation
+INFO: [Common 17-14] Message 'Synth 8-3886' appears 100 times and further instances of the messages will be disabled. Use the Tcl command set_msg_config to change the current settings.
+INFO: [Common 17-14] Message 'Synth 8-3886' appears 100 times and further instances of the messages will be disabled. Use the Tcl command set_msg_config to change the current settings.
+INFO: [Common 17-14] Message 'Synth 8-3333' appears 100 times and further instances of the messages will be disabled. Use the Tcl command set_msg_config to change the current settings.
+INFO: [Common 17-14] Message 'Synth 8-3886' appears 100 times and further instances of the messages will be disabled. Use the Tcl command set_msg_config to change the current settings.
+INFO: [Synth 8-7067] Removed DRAM instance i_15/i_0/storage_12_reg_0_3_0_0 from module extram__169 due to constant propagation
+INFO: [Synth 8-7067] Removed DRAM instance i_15/i_0/storage_12_reg_0_3_1_1 from module extram__169 due to constant propagation
+INFO: [Synth 8-7067] Removed DRAM instance i_15/i_0/storage_12_reg_0_3_1_1 from module extram__169 due to constant propagation
+WARNING: [Synth 8-13374] Removed Unreachable instance i_15 containing BRAMs/URAMs in constant propagation
+---------------------------------------------------------------------------------
+Start Post Area Optimization : Time (s): cpu = 00:12:46 ; elapsed = 00:12:54 . Memory (MB): peak = 6665.254 ; gain = 4662.684 ; free physical = 17489 ; free virtual = 86619
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Cross Boundary and Area Optimization : Time (s): cpu = 00:12:57 ; elapsed = 00:13:06 . Memory (MB): peak = 6665.254 ; gain = 4662.684 ; free physical = 17406 ; free virtual = 86548
+---------------------------------------------------------------------------------
+ Sort Area is milan_datapath__GCB0 md_p_r0_0 : 0 0 : 3137 5871 : Used 1 time 100
+ Sort Area is milan_datapath__GCB0 md_p_r0_0 : 0 1 : 2734 5871 : Used 1 time 100
+ Sort Area is milan_datapath__GCB0 md_p_r0_3 : 0 0 : 2667 5230 : Used 1 time 100
+ Sort Area is milan_datapath__GCB0 md_p_r0_3 : 0 1 : 2563 5230 : Used 1 time 100
+ Sort Area is milan_datapath__GCB0 tlv_prod_w_6 : 0 0 : 2093 4790 : Used 1 time 0
+ Sort Area is milan_datapath__GCB0 tlv_prod_w_6 : 0 1 : 2697 4790 : Used 1 time 0
+ Sort Area is alinx_ax7101__GCB0 execute_ctrl3_up_early0_MulPlugin_logic_mul_VALUES_0_lane0_reg_0 : 0 0 : 2249 2249 : Used 1 time 0
+ Sort Area is alinx_ax7101__GCB0 execute_ctrl3_up_early0_MulPlugin_logic_mul_VALUES_1_lane0_reg_6 : 0 0 : 2178 2178 : Used 1 time 0
+ Sort Area is alinx_ax7101__GCB0 execute_ctrl3_up_early0_MulPlugin_logic_mul_VALUES_2_lane0_reg_4 : 0 0 : 2178 2178 : Used 1 time 0
+ Sort Area is alinx_ax7101__GCB0 execute_ctrl3_up_early0_MulPlugin_logic_mul_VALUES_3_lane0_reg_2 : 0 0 : 1967 1967 : Used 1 time 0
+ Sort Area is milan_datapath__GCB5 frame_octets0_2 : 0 0 : 788 788 : Used 1 time 0
+ Sort Area is milan_datapath__GCB5 frame_octets1_0 : 0 0 : 723 723 : Used 1 time 0
+ Sort Area is milan_datapath__GCB17 servo_lsb_w1_0 : 0 0 : 252 252 : Used 1 time 0
+---------------------------------------------------------------------------------
+Start ROM, RAM, DSP, Shift Register and Retiming Reporting
+---------------------------------------------------------------------------------
+
+ROM: Preliminary Mapping Report
++------------+----------------------+---------------+----------------+
+|Module Name | RTL Object           | Depth x Width | Implemented As | 
++------------+----------------------+---------------+----------------+
+|KL_tone_gen | tone_step.TONE_TAB_C | 64x24         | LUT            | 
+|KL_tone_gen | tone_step.TONE_TAB_C | 64x24         | LUT            | 
++------------+----------------------+---------------+----------------+
+
+
+Block RAM: Preliminary Mapping Report (see note below)
++------------------------------------------------------------------------------+----------------------------------------------+------------------------+---+---+------------------------+---+---+------------------+--------+--------+
+|Module Name                                                                   | RTL Object                                   | PORT A (Depth x Width) | W | R | PORT B (Depth x Width) | W | R | Ports driving FF | RAMB18 | RAMB36 | 
++------------------------------------------------------------------------------+----------------------------------------------+------------------------+---+---+------------------------+---+---+------------------+--------+--------+
+|milan_datapath__GCB0                                                          | g_gptp_plane.u_gptp_shadow/rx_fifo/mem_reg   | 256 x 69(READ_FIRST)   | W |   | 256 x 69(WRITE_FIRST)  |   | R | Port A and B     | 0      | 1      | 
+|milan_datapath__GCB0                                                          | g_gptp_plane.u_gptp_shadow/tx_fifo/mem_reg   | 256 x 69(READ_FIRST)   | W |   | 256 x 69(WRITE_FIRST)  |   | R | Port A and B     | 0      | 1      | 
+|csr                                                                           | shadow_ram_reg                               | 512 x 32(READ_FIRST)   | W |   | 512 x 32(WRITE_FIRST)  |   | R | Port A and B     | 1      | 0      | 
+|aaf_rx_depkt                                                                  | fmem_r_reg                                   | 256 x 65(READ_FIRST)   | W |   | 256 x 65(WRITE_FIRST)  |   | R | Port A and B     | 0      | 1      | 
+|alinx_ax7101                                                                  | render_queue/bank0_r_reg                     | 4 K x 25(READ_FIRST)   | W |   | 4 K x 25(WRITE_FIRST)  |   | R | Port A and B     | 0      | 3      | 
+|alinx_ax7101                                                                  | render_queue/bank1_r_reg                     | 4 K x 25(READ_FIRST)   | W |   | 4 K x 25(WRITE_FIRST)  |   | R | Port A and B     | 0      | 3      | 
+|alinx_ax7101                                                                  | render_queue/g_input_loopback.samples_r_reg  | 512 x 24(READ_FIRST)   | W |   | 512 x 24(WRITE_FIRST)  |   | R | Port A and B     | 1      | 0      | 
+|aaf_packetizer                                                                | tctx_r_reg                                   | 128 x 32(READ_FIRST)   | W |   | 128 x 32(WRITE_FIRST)  |   | R | Port A and B     | 1      | 0      | 
+|aaf_packetizer                                                                | stg_r_reg                                    | 512 x 48(READ_FIRST)   | W |   | 512 x 48(WRITE_FIRST)  |   | R | Port A and B     | 0      | 1      | 
+|\g_sp_ctrl.ctrl_split                                                         | rx_fifo/mem_reg                              | 512 x 73(READ_FIRST)   | W |   | 512 x 73(WRITE_FIRST)  |   | R | Port A and B     | 1      | 1      | 
+|avtp_rx_monitor                                                               | lctx_r_reg                                   | 256 x 32(READ_FIRST)   | W |   | 256 x 32(WRITE_FIRST)  |   | R | Port A and B     | 1      | 0      | 
+|crf_rx                                                                        | ts_hist_r_reg                                | 256 x 32(READ_FIRST)   | W |   | 256 x 32(WRITE_FIRST)  |   | R | Port A and B     | 1      | 0      | 
+|KL_mbx__GB0                                                                   | u_adp_tx/mem_r_reg                           | 128 x 32(READ_FIRST)   | W |   | 128 x 32(WRITE_FIRST)  |   | R | Port A and B     | 1      | 0      | 
+|KL_mbx__GB0                                                                   | u_acmp_tx/mem_r_reg                          | 256 x 32(READ_FIRST)   | W |   | 256 x 32(WRITE_FIRST)  |   | R | Port A and B     | 1      | 0      | 
+|KL_mbx__GB0                                                                   | u_aecp_tx/mem_r_reg                          | 512 x 32(READ_FIRST)   | W |   | 512 x 32(WRITE_FIRST)  |   | R | Port A and B     | 1      | 0      | 
+|KL_mbx__GB0                                                                   | u_maap_tx/mem_r_reg                          | 128 x 32(READ_FIRST)   | W |   | 128 x 32(WRITE_FIRST)  |   | R | Port A and B     | 1      | 0      | 
+|KL_mbx__GB0                                                                   | u_srp_tx/mem_r_reg                           | 512 x 32(READ_FIRST)   | W |   | 512 x 32(WRITE_FIRST)  |   | R | Port A and B     | 1      | 0      | 
+|KL_mbx__GB1                                                                   | u_srp_rx/mem_r_reg                           | 1 K x 32(READ_FIRST)   | W |   | 1 K x 32(WRITE_FIRST)  |   | R | Port A and B     | 0      | 1      | 
+|KL_mbx__GB1                                                                   | u_maap_rx/mem_r_reg                          | 128 x 32(READ_FIRST)   | W |   | 128 x 32(WRITE_FIRST)  |   | R | Port A and B     | 1      | 0      | 
+|KL_mbx__GB1                                                                   | u_aecp_rx/mem_r_reg                          | 512 x 32(READ_FIRST)   | W |   | 512 x 32(WRITE_FIRST)  |   | R | Port A and B     | 1      | 0      | 
+|KL_mbx__GB1                                                                   | u_acmp_rx/mem_r_reg                          | 256 x 32(READ_FIRST)   | W |   | 256 x 32(WRITE_FIRST)  |   | R | Port A and B     | 1      | 0      | 
+|KL_mbx__GB1                                                                   | u_adp_rx/mem_r_reg                           | 256 x 32(READ_FIRST)   | W |   | 256 x 32(WRITE_FIRST)  |   | R | Port A and B     | 1      | 0      | 
+|KL_mbx__GB1                                                                   | u_evt_ring/mem_r_reg                         | 64 x 32(READ_FIRST)    | W |   | 64 x 32(WRITE_FIRST)   |   | R | Port A and B     | 1      | 0      | 
+|VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/vexiis_0_logic_core          | LsuL1Plugin_logic_banks_0_mem/ram_block_reg  | 2 K x 32(READ_FIRST)   | W |   | 2 K x 32(WRITE_FIRST)  |   | R | Port A and B     | 0      | 2      | 
+|VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/vexiis_0_logic_core          | FetchL1Plugin_logic_ways_1_mem_reg           | 128 x 21(READ_FIRST)   | W |   | 128 x 21(WRITE_FIRST)  |   | R | Port A and B     | 1      | 0      | 
+|VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/vexiis_0_logic_core          | FetchL1Plugin_logic_banks_1_mem_reg          | 2 K x 32(READ_FIRST)   | W |   | 2 K x 32(WRITE_FIRST)  |   | R | Port A and B     | 0      | 2      | 
+|VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/vexiis_0_logic_core          | FetchL1Plugin_logic_banks_0_mem_reg          | 2 K x 32(READ_FIRST)   | W |   | 2 K x 32(WRITE_FIRST)  |   | R | Port A and B     | 0      | 2      | 
+|VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/vexiis_0_logic_core          | FetchL1Plugin_logic_ways_0_mem_reg           | 128 x 21(READ_FIRST)   | W |   | 128 x 21(WRITE_FIRST)  |   | R | Port A and B     | 1      | 0      | 
+|VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/vexiis_0_logic_core          | LsuL1Plugin_logic_writeback_victimBuffer_reg | 16 x 32(READ_FIRST)    | W |   | 16 x 32(WRITE_FIRST)   |   | R | Port A and B     | 1      | 0      | 
+|VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_read_bridge       | aligner/rData_mem_reg                        | 64 x 32(READ_FIRST)    | W |   | 64 x 32(WRITE_FIRST)   |   | R | Port A and B     | 1      | 0      | 
+|VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/splited_wc_hub_hub_logic_hub | frontendA_buffer_ram_reg                     | 64 x 36(READ_FIRST)    | W |   | 64 x 36(WRITE_FIRST)   |   | R | Port A and B     | 1      | 0      | 
+|alinx_ax7101__GCB1                                                            | storage_16_reg                               | 4 x 34(NO_CHANGE)      | W |   | 4 x 34(WRITE_FIRST)    |   | R | Port A and B     | 1      | 0      | 
+|alinx_ax7101__GCB1                                                            | sram_bank1_reg                               | 8 K x 32(WRITE_FIRST)  | W | R |                        |   |   | Port A           | 0      | 8      | 
+|alinx_ax7101__GCB1                                                            | sram_bank2_reg                               | 4 K x 32(WRITE_FIRST)  | W | R |                        |   |   | Port A           | 0      | 4      | 
+|alinx_ax7101__GCB1                                                            | sram_bank3_reg                               | 2 K x 32(WRITE_FIRST)  | W | R |                        |   |   | Port A           | 0      | 2      | 
+|alinx_ax7101__GCB1                                                            | sram_bank4_reg                               | 1 K x 32(WRITE_FIRST)  | W | R |                        |   |   | Port A           | 0      | 1      | 
+|alinx_ax7101__GCB1                                                            | sram_bank0_reg                               | 16 K x 32(WRITE_FIRST) | W | R |                        |   |   | Port A           | 0      | 16     | 
+|alinx_ax7101__GCB1                                                            | storage_7_reg                                | 16 x 72(NO_CHANGE)     | W |   | 16 x 72(WRITE_FIRST)   |   | R | Port A and B     | 0      | 1      | 
+|alinx_ax7101__GCB1                                                            | storage_2_reg                                | 32 x 73(NO_CHANGE)     | W |   | 32 x 73(WRITE_FIRST)   |   | R | Port A and B     | 1      | 1      | 
+|alinx_ax7101__GCB1                                                            | storage_5_reg                                | 512 x 82(READ_FIRST)   | W |   | 512 x 82(WRITE_FIRST)  |   | R | Port A and B     | 1      | 1      | 
+|alinx_ax7101__GCB1                                                            | storage_14_reg                               | 4 x 36(NO_CHANGE)      | W |   | 4 x 36(WRITE_FIRST)    |   | R | Port A and B     | 1      | 0      | 
+|alinx_ax7101__GCB1                                                            | storage_4_reg                                | 32 x 81(NO_CHANGE)     | W |   | 32 x 81(WRITE_FIRST)   |   | R | Port A and B     | 1      | 1      | 
+|alinx_ax7101__GCB1                                                            | storage_9_reg                                | 16 x 72(NO_CHANGE)     | W |   | 16 x 72(WRITE_FIRST)   |   | R | Port A and B     | 0      | 1      | 
++------------------------------------------------------------------------------+----------------------------------------------+------------------------+---+---+------------------------+---+---+------------------+--------+--------+
+
+Note: The table above is a preliminary report that shows the Block RAMs at the current stage of the synthesis flow. Some Block RAMs may be reimplemented as non Block RAM primitives later in the synthesis flow. Multiple instantiated Block RAMs are reported only once. 
+
+Distributed RAM: Preliminary Mapping Report (see note below)
++---------------------------------------------------------------------------------------------------------------------------+---------------------------------------------------+----------------+----------------------+----------------+
+|Module Name                                                                                                                | RTL Object                                        | Inference      | Size (Depth x Width) | Primitives     | 
++---------------------------------------------------------------------------------------------------------------------------+---------------------------------------------------+----------------+----------------------+----------------+
+|\g_gptp_plane.u_gptp_shadow/u_engine /u_timer                                                                              | deadline_r_reg                                    | User Attribute | 8 x 32               | RAM32M x 6     | 
+|\g_gptp_plane.u_gptp_shadow/u_engine /u_ucpu                                                                               | rf_r_reg                                          | User Attribute | 16 x 64              | RAM32M x 33    | 
+|\g_gptp_plane.u_gptp_shadow/u_engine /u_txslot                                                                             | slot_r_reg                                        | User Attribute | 128 x 8              | RAM64M x 6     | 
+|\g_gptp_plane.u_gptp_shadow/u_engine                                                                                       | evq_r_reg                                         | Implied        | 4 x 40               | RAM32M x 7     | 
+|\g_gptp_plane.u_gptp_shadow/u_engine                                                                                       | evq_pd_ctx_r_reg                                  | User Attribute | 4 x 144              | RAM32M x 24    | 
+|\g_gptp_plane.u_gptp_shadow/u_engine                                                                                       | bank_r_reg                                        | User Attribute | 64 x 64              | RAM64M x 22    | 
+|\g_gptp_plane.u_gptp_shadow/u_engine                                                                                       | ann_ctx_r_reg                                     | User Attribute | 32 x 64              | RAM32M x 11    | 
+|\g_gptp_plane.u_gptp_shadow/u_engine                                                                                       | scratch_r_reg                                     | User Attribute | 64 x 64              | RAM64X1S x 64  | 
+|milan_datapath__GCB0                                                                                                       | g_gptp_plane.u_gptp_shadow/u_txret/led_seq_r_reg  | User Attribute | 8 x 16               | RAM32M x 3     | 
+|milan_datapath__GCB0                                                                                                       | g_gptp_plane.u_gptp_shadow/u_txret/led_type_r_reg | User Attribute | 8 x 4                | RAM32M x 1     | 
+|milan_datapath__GCB0                                                                                                       | g_gptp_plane.u_gptp_shadow/u_txret/led_tag_r_reg  | User Attribute | 8 x 1                | RAM16X1D x 1   | 
+|milan_datapath__GCB0                                                                                                       | g_gptp_plane.u_gptp_shadow/u_txret/res_ns_r_reg   | User Attribute | 8 x 64               | RAM32M x 11    | 
+|milan_datapath__GCB0                                                                                                       | g_gptp_plane.u_gptp_shadow/u_txret/res_seq_r_reg  | User Attribute | 8 x 16               | RAM32M x 3     | 
+|milan_datapath__GCB0                                                                                                       | g_gptp_plane.u_gptp_shadow/u_txret/res_type_r_reg | User Attribute | 8 x 4                | RAM32M x 1     | 
+|milan_datapath__GCB0                                                                                                       | g_gptp_plane.u_gptp_shadow/u_txret/res_ok_r_reg   | User Attribute | 8 x 1                | RAM16X1D x 1   | 
+|milan_datapath__GCB0                                                                                                       | g_gptp_plane.u_gptp_shadow/u_txret/res_gen_r_reg  | User Attribute | 8 x 4                | RAM32M x 1     | 
+|milan_datapath__GCB0                                                                                                       | g_gptp_plane.u_gptp_shadow/tsf_r_reg              | Implied        | 32 x 64              | RAM32M x 11    | 
+|aaf_rx_depkt                                                                                                               | rq_msk_r_reg                                      | Implied        | 4 x 8                | RAM32M x 2     | 
+|aaf_rx_depkt                                                                                                               | idxq_r_reg                                        | Implied        | 64 x 8               | RAM64M x 3     | 
+|avtp_rx_monitor                                                                                                            | pq_ring_r_reg[0][tu]                              | Implied        | 4 x 1                | RAM16X1D x 1   | 
+|avtp_rx_monitor                                                                                                            | pq_ring_r_reg[0][late]                            | Implied        | 4 x 1                | RAM16X1D x 1   | 
+|avtp_rx_monitor                                                                                                            | pq_ring_r_reg[0][early]                           | Implied        | 4 x 1                | RAM16X1D x 1   | 
+|avtp_rx_monitor                                                                                                            | pq_ring_r_reg[0][fsh]                             | Implied        | 4 x 64               | RAM32M x 11    | 
+|avtp_rx_monitor                                                                                                            | pq_ring_r_reg[0][subtype]                         | Implied        | 4 x 8                | RAM32M x 2     | 
+|avtp_rx_monitor                                                                                                            | pq_ring_r_reg[0][mr]                              | Implied        | 4 x 1                | RAM16X1D x 1   | 
+|avtp_rx_monitor                                                                                                            | pq_ring_r_reg[0][seq]                             | Implied        | 4 x 8                | RAM32M x 2     | 
+|avtp_rx_monitor                                                                                                            | pq_ring_r_reg[0][ts]                              | Implied        | 4 x 32               | RAM32M x 6     | 
+|avtp_rx_monitor                                                                                                            | pq_ring_r_reg[0][tsd]                             | Implied        | 4 x 32               | RAM32M x 6     | 
+|avtp_rx_monitor                                                                                                            | pq_ring_r_reg[0][tv]                              | Implied        | 4 x 1                | RAM16X1D x 1   | 
+|avtp_rx_monitor                                                                                                            | cnt_mirror_r_reg                                  | User Attribute | 128 x 32             | RAM64M x 22    | 
+|\g_tdm_render_live.g_master.chan_tdm_render                                                                                | u_fcdc/g_mem.mem_r_reg                            | User Attribute | 4 x 24               | RAM32M x 4     | 
+|\g_aif_tdm_master.g_solo.aaf_capture                                                                                       | u_tcdc/g_mem.mem_r_reg                            | Implied        | 8 x 52               | RAM32M x 9     | 
+|\g_aaf_meter.aaf_clock_meter                                                                                               | ring_r_reg                                        | Implied        | 8 x 32               | RAM16X1S x 32  | 
+|u_rx                                                                                                                       | rb_mem_r_reg                                      | Implied        | 32 x 32              | RAM32M x 6     | 
+|VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/vexiis_0_logic_core/LsuL1Plugin_logic_bus_toTilelink_coherent_onC_rspFifo | logic_ram/ram_block_reg                           | User Attribute | 2 x 36               | RAM32M x 6     | 
+|VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/vexiis_0_logic_core                                                       | CsrRamPlugin_logic_mem_reg                        | Implied        | 4 x 32               | RAM32M x 6     | 
+|VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/vexiis_0_logic_core                                                       | FetchL1Plugin_logic_plru_mem_reg                  | Implied        | 128 x 1              | RAM128X1D x 1  | 
+|VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/vexiis_0_logic_core                                                       | LsuL1Plugin_logic_shared_mem_reg                  | Implied        | 128 x 1              | RAM128X1D x 2  | 
+|VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_read_bridge                                                    | aligner/context_mem_reg                           | Implied        | 4 x 13               | RAM32M x 3     | 
+|VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_read_bridge                                                    | compactor/context_mem_reg                         | Implied        | 16 x 12              | RAM32M x 2     | 
+|VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge                                                   | aligner/context_mem_reg                           | Implied        | 4 x 5                | RAM32M x 1     | 
+|VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/splited_wc_hub_hub_logic_hub                                              | setsBusy_target_mem_reg                           | Implied        | 256 x 1              | RAM128X1D x 2  | 
+|VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/splited_wc_hub_hub_logic_hub                                              | probe_ctxMem_reg                                  | Implied        | 4 x 47               | RAM32M x 8     | 
+|VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/splited_wc_hub_hub_logic_hub                                              | slots_ctx_reg                                     | Implied        | 4 x 17               | RAM32M x 3     | 
+|VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/splited_wc_hub_hub_logic_hub                                              | setsBusy_hit_mem_reg                              | Implied        | 256 x 1              | RAM128X1D x 2  | 
+|alinx_ax7101__GCB1                                                                                                         | storage_3_reg                                     | Implied        | 8 x 12               | RAM32M x 2     | 
+|alinx_ax7101__GCB1                                                                                                         | storage_1_reg                                     | Implied        | 16 x 8               | RAM32M x 2     | 
+|alinx_ax7101__GCB1                                                                                                         | storage_reg                                       | Implied        | 16 x 8               | RAM32M x 2     | 
+|alinx_ax7101__GCB1                                                                                                         | storage_11_reg                                    | Implied        | 4 x 32               | RAM32M x 6     | 
+|alinx_ax7101__GCB1                                                                                                         | storage_13_reg                                    | Implied        | 4 x 32               | RAM32M x 6     | 
+|alinx_ax7101__GCB1                                                                                                         | storage_29_reg                                    | Implied        | 16 x 9               | RAM32M x 2     | 
+|alinx_ax7101__GCB1                                                                                                         | storage_28_reg                                    | Implied        | 16 x 9               | RAM32M x 2     | 
+|alinx_ax7101__GCB1                                                                                                         | storage_8_reg                                     | User Attribute | 16 x 2               | RAM16X1D x 2   | 
+|alinx_ax7101__GCB1                                                                                                         | storage_10_reg                                    | User Attribute | 16 x 2               | RAM16X1D x 2   | 
++---------------------------------------------------------------------------------------------------------------------------+---------------------------------------------------+----------------+----------------------+----------------+
+
+Note: The table above is a preliminary report that shows the Distributed RAMs at the current stage of the synthesis flow. Some Distributed RAMs may be reimplemented as non Distributed RAM primitives later in the synthesis flow. Multiple instantiated RAMs are reported only once.
+
+DSP: Preliminary Mapping Report (see note below. The ' indicates corresponding REG is set)
++-----------------------+------------------+--------+--------+--------+--------+--------+------+------+------+------+-------+------+------+
+|Module Name            | DSP Mapping      | A Size | B Size | C Size | D Size | P Size | AREG | BREG | CREG | DREG | ADREG | MREG | PREG | 
++-----------------------+------------------+--------+--------+--------+--------+--------+------+------+------+------+-------+------+------+
+|KL_gptp_ucpu           | A2*B2            | 18     | 15     | -      | -      | 48     | 1    | 1    | -    | -    | -     | 0    | 0    | 
+|KL_gptp_ucpu           | (PCIN>>17)+A2*B2 | 15     | 15     | -      | -      | 48     | 1    | 1    | -    | -    | -     | 0    | 1    | 
+|KL_gptp_ucpu           | A2*B2            | 18     | 18     | -      | -      | 48     | 1    | 1    | -    | -    | -     | 0    | 0    | 
+|KL_gptp_ucpu           | (PCIN>>17)+A2*B2 | 18     | 15     | -      | -      | 48     | 1    | 1    | -    | -    | -     | 0    | 1    | 
+|KL_gptp_engine         | A2*(B:0x1999a)   | 25     | 18     | -      | -      | 48     | 1    | 0    | -    | -    | -     | 0    | 0    | 
+|KL_gptp_engine         | (PCIN>>17)+A2*B  | 25     | 13     | -      | -      | 48     | 1    | 0    | -    | -    | -     | 0    | 1    | 
+|KL_avtp_rx_monitor_ctx | A*B              | 10     | 10     | -      | -      | 20     | 0    | 0    | -    | -    | -     | 0    | 0    | 
+|KL_avtp_rx_monitor_ctx | C+A*B            | 10     | 10     | 21     | -      | 22     | 0    | 0    | 0    | -    | -     | 0    | 0    | 
+|KL_media_nco           | A*(B:0x32)       | 16     | 7      | -      | -      | 24     | 0    | 0    | -    | -    | -     | 0    | 0    | 
+|VexiiRiscv             | (A2*B)'          | 18     | 16     | -      | -      | 34     | 1    | 0    | -    | -    | -     | 1    | 0    | 
+|VexiiRiscv             | (A2*B)'          | 18     | 16     | -      | -      | 34     | 1    | 0    | -    | -    | -     | 1    | 0    | 
+|VexiiRiscv             | (A*B)'           | 16     | 16     | -      | -      | 32     | 0    | 0    | -    | -    | -     | 1    | 0    | 
+|VexiiRiscv             | (A2*B2)'         | 17     | 17     | -      | -      | 34     | 1    | 1    | -    | -    | -     | 1    | 0    | 
++-----------------------+------------------+--------+--------+--------+--------+--------+------+------+------+------+-------+------+------+
+
+Note: The table above is a preliminary report that shows the DSPs inferred at the current stage of the synthesis flow. Some DSP may be reimplemented as non DSP primitives later in the synthesis flow. Multiple instantiated DSPs are reported only once.
+---------------------------------------------------------------------------------
+Finished ROM, RAM, DSP, Shift Register and Retiming Reporting
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Applying XDC Timing Constraints
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Applying XDC Timing Constraints : Time (s): cpu = 00:26:37 ; elapsed = 00:13:23 . Memory (MB): peak = 6669.172 ; gain = 4666.602 ; free physical = 20603 ; free virtual = 89884
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Timing Optimization
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Timing Optimization : Time (s): cpu = 00:29:06 ; elapsed = 00:15:57 . Memory (MB): peak = 6669.172 ; gain = 4666.602 ; free physical = 19733 ; free virtual = 89242
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start ROM, RAM, DSP, Shift Register and Retiming Reporting
+---------------------------------------------------------------------------------
+
+Block RAM: Final Mapping Report
++------------------------------------------------------------------------------+----------------------------------------------+------------------------+---+---+------------------------+---+---+------------------+--------+--------+
+|Module Name                                                                   | RTL Object                                   | PORT A (Depth x Width) | W | R | PORT B (Depth x Width) | W | R | Ports driving FF | RAMB18 | RAMB36 | 
++------------------------------------------------------------------------------+----------------------------------------------+------------------------+---+---+------------------------+---+---+------------------+--------+--------+
+|milan_datapath__GCB0                                                          | g_gptp_plane.u_gptp_shadow/rx_fifo/mem_reg   | 256 x 69(READ_FIRST)   | W |   | 256 x 69(WRITE_FIRST)  |   | R | Port A and B     | 0      | 1      | 
+|milan_datapath__GCB0                                                          | g_gptp_plane.u_gptp_shadow/tx_fifo/mem_reg   | 256 x 69(READ_FIRST)   | W |   | 256 x 69(WRITE_FIRST)  |   | R | Port A and B     | 0      | 1      | 
+|csr                                                                           | shadow_ram_reg                               | 512 x 32(READ_FIRST)   | W |   | 512 x 32(WRITE_FIRST)  |   | R | Port A and B     | 1      | 0      | 
+|aaf_rx_depkt                                                                  | fmem_r_reg                                   | 256 x 65(READ_FIRST)   | W |   | 256 x 65(WRITE_FIRST)  |   | R | Port A and B     | 0      | 1      | 
+|alinx_ax7101                                                                  | render_queue/bank0_r_reg                     | 4 K x 25(READ_FIRST)   | W |   | 4 K x 25(WRITE_FIRST)  |   | R | Port A and B     | 0      | 3      | 
+|alinx_ax7101                                                                  | render_queue/bank1_r_reg                     | 4 K x 25(READ_FIRST)   | W |   | 4 K x 25(WRITE_FIRST)  |   | R | Port A and B     | 0      | 3      | 
+|alinx_ax7101                                                                  | render_queue/g_input_loopback.samples_r_reg  | 512 x 24(READ_FIRST)   | W |   | 512 x 24(WRITE_FIRST)  |   | R | Port A and B     | 1      | 0      | 
+|aaf_packetizer                                                                | tctx_r_reg                                   | 128 x 32(READ_FIRST)   | W |   | 128 x 32(WRITE_FIRST)  |   | R | Port A and B     | 1      | 0      | 
+|aaf_packetizer                                                                | stg_r_reg                                    | 512 x 48(READ_FIRST)   | W |   | 512 x 48(WRITE_FIRST)  |   | R | Port A and B     | 0      | 1      | 
+|\g_sp_ctrl.ctrl_split                                                         | rx_fifo/mem_reg                              | 512 x 73(READ_FIRST)   | W |   | 512 x 73(WRITE_FIRST)  |   | R | Port A and B     | 1      | 1      | 
+|avtp_rx_monitor                                                               | lctx_r_reg                                   | 256 x 32(READ_FIRST)   | W |   | 256 x 32(WRITE_FIRST)  |   | R | Port A and B     | 1      | 0      | 
+|crf_rx                                                                        | ts_hist_r_reg                                | 256 x 32(READ_FIRST)   | W |   | 256 x 32(WRITE_FIRST)  |   | R | Port A and B     | 1      | 0      | 
+|VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/vexiis_0_logic_core          | LsuL1Plugin_logic_banks_0_mem/ram_block_reg  | 2 K x 32(READ_FIRST)   | W |   | 2 K x 32(WRITE_FIRST)  |   | R | Port A and B     | 0      | 2      | 
+|VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/vexiis_0_logic_core          | FetchL1Plugin_logic_ways_1_mem_reg           | 128 x 21(READ_FIRST)   | W |   | 128 x 21(WRITE_FIRST)  |   | R | Port A and B     | 1      | 0      | 
+|VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/vexiis_0_logic_core          | FetchL1Plugin_logic_banks_1_mem_reg          | 2 K x 32(READ_FIRST)   | W |   | 2 K x 32(WRITE_FIRST)  |   | R | Port A and B     | 0      | 2      | 
+|VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/vexiis_0_logic_core          | FetchL1Plugin_logic_banks_0_mem_reg          | 2 K x 32(READ_FIRST)   | W |   | 2 K x 32(WRITE_FIRST)  |   | R | Port A and B     | 0      | 2      | 
+|VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/vexiis_0_logic_core          | FetchL1Plugin_logic_ways_0_mem_reg           | 128 x 21(READ_FIRST)   | W |   | 128 x 21(WRITE_FIRST)  |   | R | Port A and B     | 1      | 0      | 
+|VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/vexiis_0_logic_core          | LsuL1Plugin_logic_writeback_victimBuffer_reg | 16 x 32(READ_FIRST)    | W |   | 16 x 32(WRITE_FIRST)   |   | R | Port A and B     | 1      | 0      | 
+|VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_read_bridge       | aligner/rData_mem_reg                        | 64 x 32(READ_FIRST)    | W |   | 64 x 32(WRITE_FIRST)   |   | R | Port A and B     | 1      | 0      | 
+|VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/splited_wc_hub_hub_logic_hub | frontendA_buffer_ram_reg                     | 64 x 36(READ_FIRST)    | W |   | 64 x 36(WRITE_FIRST)   |   | R | Port A and B     | 1      | 0      | 
+|alinx_ax7101__GCB1                                                            | storage_16_reg                               | 4 x 34(NO_CHANGE)      | W |   | 4 x 34(WRITE_FIRST)    |   | R | Port A and B     | 1      | 0      | 
+|alinx_ax7101__GCB1                                                            | sram_bank1_reg                               | 8 K x 32(WRITE_FIRST)  | W | R |                        |   |   | Port A           | 0      | 8      | 
+|alinx_ax7101__GCB1                                                            | sram_bank2_reg                               | 4 K x 32(WRITE_FIRST)  | W | R |                        |   |   | Port A           | 0      | 4      | 
+|alinx_ax7101__GCB1                                                            | sram_bank3_reg                               | 2 K x 32(WRITE_FIRST)  | W | R |                        |   |   | Port A           | 0      | 2      | 
+|alinx_ax7101__GCB1                                                            | sram_bank4_reg                               | 1 K x 32(WRITE_FIRST)  | W | R |                        |   |   | Port A           | 0      | 1      | 
+|alinx_ax7101__GCB1                                                            | sram_bank0_reg                               | 16 K x 32(WRITE_FIRST) | W | R |                        |   |   | Port A           | 0      | 16     | 
+|alinx_ax7101__GCB1                                                            | storage_7_reg                                | 16 x 72(NO_CHANGE)     | W |   | 16 x 72(WRITE_FIRST)   |   | R | Port A and B     | 0      | 1      | 
+|alinx_ax7101__GCB1                                                            | storage_2_reg                                | 32 x 73(NO_CHANGE)     | W |   | 32 x 73(WRITE_FIRST)   |   | R | Port A and B     | 1      | 1      | 
+|alinx_ax7101__GCB1                                                            | storage_5_reg                                | 512 x 82(READ_FIRST)   | W |   | 512 x 82(WRITE_FIRST)  |   | R | Port A and B     | 1      | 1      | 
+|alinx_ax7101__GCB1                                                            | storage_14_reg                               | 4 x 36(NO_CHANGE)      | W |   | 4 x 36(WRITE_FIRST)    |   | R | Port A and B     | 1      | 0      | 
+|alinx_ax7101__GCB1                                                            | storage_4_reg                                | 32 x 81(NO_CHANGE)     | W |   | 32 x 81(WRITE_FIRST)   |   | R | Port A and B     | 1      | 1      | 
+|alinx_ax7101__GCB1                                                            | storage_9_reg                                | 16 x 72(NO_CHANGE)     | W |   | 16 x 72(WRITE_FIRST)   |   | R | Port A and B     | 0      | 1      | 
+|KL_mbx__GB0                                                                   | u_adp_tx/mem_r_reg                           | 128 x 32(READ_FIRST)   | W |   | 128 x 32(WRITE_FIRST)  |   | R | Port A and B     | 1      | 0      | 
+|KL_mbx__GB0                                                                   | u_acmp_tx/mem_r_reg                          | 256 x 32(READ_FIRST)   | W |   | 256 x 32(WRITE_FIRST)  |   | R | Port A and B     | 1      | 0      | 
+|KL_mbx__GB0                                                                   | u_aecp_tx/mem_r_reg                          | 512 x 32(READ_FIRST)   | W |   | 512 x 32(WRITE_FIRST)  |   | R | Port A and B     | 1      | 0      | 
+|KL_mbx__GB0                                                                   | u_maap_tx/mem_r_reg                          | 128 x 32(READ_FIRST)   | W |   | 128 x 32(WRITE_FIRST)  |   | R | Port A and B     | 1      | 0      | 
+|KL_mbx__GB0                                                                   | u_srp_tx/mem_r_reg                           | 512 x 32(READ_FIRST)   | W |   | 512 x 32(WRITE_FIRST)  |   | R | Port A and B     | 1      | 0      | 
+|KL_mbx__GB1                                                                   | u_srp_rx/mem_r_reg                           | 1 K x 32(READ_FIRST)   | W |   | 1 K x 32(WRITE_FIRST)  |   | R | Port A and B     | 0      | 1      | 
+|KL_mbx__GB1                                                                   | u_maap_rx/mem_r_reg                          | 128 x 32(READ_FIRST)   | W |   | 128 x 32(WRITE_FIRST)  |   | R | Port A and B     | 1      | 0      | 
+|KL_mbx__GB1                                                                   | u_aecp_rx/mem_r_reg                          | 512 x 32(READ_FIRST)   | W |   | 512 x 32(WRITE_FIRST)  |   | R | Port A and B     | 1      | 0      | 
+|KL_mbx__GB1                                                                   | u_acmp_rx/mem_r_reg                          | 256 x 32(READ_FIRST)   | W |   | 256 x 32(WRITE_FIRST)  |   | R | Port A and B     | 1      | 0      | 
+|KL_mbx__GB1                                                                   | u_adp_rx/mem_r_reg                           | 256 x 32(READ_FIRST)   | W |   | 256 x 32(WRITE_FIRST)  |   | R | Port A and B     | 1      | 0      | 
+|KL_mbx__GB1                                                                   | u_evt_ring/mem_r_reg                         | 64 x 32(READ_FIRST)    | W |   | 64 x 32(WRITE_FIRST)   |   | R | Port A and B     | 1      | 0      | 
++------------------------------------------------------------------------------+----------------------------------------------+------------------------+---+---+------------------------+---+---+------------------+--------+--------+
+
+
+Distributed RAM: Final Mapping Report
++---------------------------------------------------------------------------------------------------------------------------+---------------------------------------------------+----------------+----------------------+----------------+
+|Module Name                                                                                                                | RTL Object                                        | Inference      | Size (Depth x Width) | Primitives     | 
++---------------------------------------------------------------------------------------------------------------------------+---------------------------------------------------+----------------+----------------------+----------------+
+|\g_gptp_plane.u_gptp_shadow/u_engine /u_timer                                                                              | deadline_r_reg                                    | User Attribute | 8 x 32               | RAM32M x 6     | 
+|\g_gptp_plane.u_gptp_shadow/u_engine /u_ucpu                                                                               | rf_r_reg                                          | User Attribute | 16 x 64              | RAM32M x 33    | 
+|\g_gptp_plane.u_gptp_shadow/u_engine /u_txslot                                                                             | slot_r_reg                                        | User Attribute | 128 x 8              | RAM64M x 6     | 
+|\g_gptp_plane.u_gptp_shadow/u_engine                                                                                       | evq_r_reg                                         | Implied        | 4 x 40               | RAM32M x 7     | 
+|\g_gptp_plane.u_gptp_shadow/u_engine                                                                                       | evq_pd_ctx_r_reg                                  | User Attribute | 4 x 144              | RAM32M x 24    | 
+|\g_gptp_plane.u_gptp_shadow/u_engine                                                                                       | bank_r_reg                                        | User Attribute | 64 x 64              | RAM64M x 22    | 
+|\g_gptp_plane.u_gptp_shadow/u_engine                                                                                       | ann_ctx_r_reg                                     | User Attribute | 32 x 64              | RAM32M x 11    | 
+|\g_gptp_plane.u_gptp_shadow/u_engine                                                                                       | scratch_r_reg                                     | User Attribute | 64 x 64              | RAM64X1S x 64  | 
+|milan_datapath__GCB0                                                                                                       | g_gptp_plane.u_gptp_shadow/u_txret/led_seq_r_reg  | User Attribute | 8 x 16               | RAM32M x 3     | 
+|milan_datapath__GCB0                                                                                                       | g_gptp_plane.u_gptp_shadow/u_txret/led_type_r_reg | User Attribute | 8 x 4                | RAM32M x 1     | 
+|milan_datapath__GCB0                                                                                                       | g_gptp_plane.u_gptp_shadow/u_txret/led_tag_r_reg  | User Attribute | 8 x 1                | RAM16X1D x 1   | 
+|milan_datapath__GCB0                                                                                                       | g_gptp_plane.u_gptp_shadow/u_txret/res_ns_r_reg   | User Attribute | 8 x 64               | RAM32M x 11    | 
+|milan_datapath__GCB0                                                                                                       | g_gptp_plane.u_gptp_shadow/u_txret/res_seq_r_reg  | User Attribute | 8 x 16               | RAM32M x 3     | 
+|milan_datapath__GCB0                                                                                                       | g_gptp_plane.u_gptp_shadow/u_txret/res_type_r_reg | User Attribute | 8 x 4                | RAM32M x 1     | 
+|milan_datapath__GCB0                                                                                                       | g_gptp_plane.u_gptp_shadow/u_txret/res_ok_r_reg   | User Attribute | 8 x 1                | RAM16X1D x 1   | 
+|milan_datapath__GCB0                                                                                                       | g_gptp_plane.u_gptp_shadow/u_txret/res_gen_r_reg  | User Attribute | 8 x 4                | RAM32M x 1     | 
+|milan_datapath__GCB0                                                                                                       | g_gptp_plane.u_gptp_shadow/tsf_r_reg              | Implied        | 32 x 64              | RAM32M x 11    | 
+|aaf_rx_depkt                                                                                                               | rq_msk_r_reg                                      | Implied        | 4 x 8                | RAM32M x 2     | 
+|aaf_rx_depkt                                                                                                               | idxq_r_reg                                        | Implied        | 64 x 8               | RAM64M x 3     | 
+|avtp_rx_monitor                                                                                                            | pq_ring_r_reg[0][tu]                              | Implied        | 4 x 1                | RAM16X1D x 1   | 
+|avtp_rx_monitor                                                                                                            | pq_ring_r_reg[0][late]                            | Implied        | 4 x 1                | RAM16X1D x 1   | 
+|avtp_rx_monitor                                                                                                            | pq_ring_r_reg[0][early]                           | Implied        | 4 x 1                | RAM16X1D x 1   | 
+|avtp_rx_monitor                                                                                                            | pq_ring_r_reg[0][fsh]                             | Implied        | 4 x 64               | RAM32M x 11    | 
+|avtp_rx_monitor                                                                                                            | pq_ring_r_reg[0][subtype]                         | Implied        | 4 x 8                | RAM32M x 2     | 
+|avtp_rx_monitor                                                                                                            | pq_ring_r_reg[0][mr]                              | Implied        | 4 x 1                | RAM16X1D x 1   | 
+|avtp_rx_monitor                                                                                                            | pq_ring_r_reg[0][seq]                             | Implied        | 4 x 8                | RAM32M x 2     | 
+|avtp_rx_monitor                                                                                                            | pq_ring_r_reg[0][ts]                              | Implied        | 4 x 32               | RAM32M x 6     | 
+|avtp_rx_monitor                                                                                                            | pq_ring_r_reg[0][tsd]                             | Implied        | 4 x 32               | RAM32M x 6     | 
+|avtp_rx_monitor                                                                                                            | pq_ring_r_reg[0][tv]                              | Implied        | 4 x 1                | RAM16X1D x 1   | 
+|avtp_rx_monitor                                                                                                            | cnt_mirror_r_reg                                  | User Attribute | 128 x 32             | RAM64M x 22    | 
+|\g_tdm_render_live.g_master.chan_tdm_render                                                                                | u_fcdc/g_mem.mem_r_reg                            | User Attribute | 4 x 24               | RAM32M x 4     | 
+|\g_aif_tdm_master.g_solo.aaf_capture                                                                                       | u_tcdc/g_mem.mem_r_reg                            | Implied        | 8 x 52               | RAM32M x 9     | 
+|\g_aaf_meter.aaf_clock_meter                                                                                               | ring_r_reg                                        | Implied        | 8 x 32               | RAM16X1S x 32  | 
+|VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/vexiis_0_logic_core/LsuL1Plugin_logic_bus_toTilelink_coherent_onC_rspFifo | logic_ram/ram_block_reg                           | User Attribute | 2 x 36               | RAM32M x 6     | 
+|VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/vexiis_0_logic_core                                                       | CsrRamPlugin_logic_mem_reg                        | Implied        | 4 x 32               | RAM32M x 6     | 
+|VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/vexiis_0_logic_core                                                       | FetchL1Plugin_logic_plru_mem_reg                  | Implied        | 128 x 1              | RAM128X1D x 1  | 
+|VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/vexiis_0_logic_core                                                       | LsuL1Plugin_logic_shared_mem_reg                  | Implied        | 128 x 1              | RAM128X1D x 2  | 
+|VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_read_bridge                                                    | aligner/context_mem_reg                           | Implied        | 4 x 13               | RAM32M x 3     | 
+|VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_read_bridge                                                    | compactor/context_mem_reg                         | Implied        | 16 x 12              | RAM32M x 2     | 
+|VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge                                                   | aligner/context_mem_reg                           | Implied        | 4 x 5                | RAM32M x 1     | 
+|VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/splited_wc_hub_hub_logic_hub                                              | setsBusy_target_mem_reg                           | Implied        | 256 x 1              | RAM128X1D x 2  | 
+|VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/splited_wc_hub_hub_logic_hub                                              | probe_ctxMem_reg                                  | Implied        | 4 x 47               | RAM32M x 8     | 
+|VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/splited_wc_hub_hub_logic_hub                                              | slots_ctx_reg                                     | Implied        | 4 x 17               | RAM32M x 3     | 
+|VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/splited_wc_hub_hub_logic_hub                                              | setsBusy_hit_mem_reg                              | Implied        | 256 x 1              | RAM128X1D x 2  | 
+|alinx_ax7101__GCB1                                                                                                         | storage_3_reg                                     | Implied        | 8 x 12               | RAM32M x 2     | 
+|alinx_ax7101__GCB1                                                                                                         | storage_1_reg                                     | Implied        | 16 x 8               | RAM32M x 2     | 
+|alinx_ax7101__GCB1                                                                                                         | storage_reg                                       | Implied        | 16 x 8               | RAM32M x 2     | 
+|alinx_ax7101__GCB1                                                                                                         | storage_11_reg                                    | Implied        | 4 x 32               | RAM32M x 6     | 
+|alinx_ax7101__GCB1                                                                                                         | storage_13_reg                                    | Implied        | 4 x 32               | RAM32M x 6     | 
+|alinx_ax7101__GCB1                                                                                                         | storage_29_reg                                    | Implied        | 16 x 9               | RAM32M x 2     | 
+|alinx_ax7101__GCB1                                                                                                         | storage_28_reg                                    | Implied        | 16 x 9               | RAM32M x 2     | 
+|alinx_ax7101__GCB1                                                                                                         | storage_8_reg                                     | User Attribute | 16 x 2               | RAM16X1D x 2   | 
+|alinx_ax7101__GCB1                                                                                                         | storage_10_reg                                    | User Attribute | 16 x 2               | RAM16X1D x 2   | 
+|u_rx                                                                                                                       | rb_mem_r_reg                                      | Implied        | 32 x 32              | RAM32M x 6     | 
++---------------------------------------------------------------------------------------------------------------------------+---------------------------------------------------+----------------+----------------------+----------------+
+
+---------------------------------------------------------------------------------
+Finished ROM, RAM, DSP, Shift Register and Retiming Reporting
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Technology Mapping
+---------------------------------------------------------------------------------
+INFO: [Synth 8-7052] The timing for the instance milan_datapathi_12/render_queue/bank0_r_reg_0 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance milan_datapathi_12/render_queue/bank0_r_reg_1 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance milan_datapathi_12/render_queue/bank0_r_reg_2 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance milan_datapathi_12/render_queue/bank1_r_reg_0 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance milan_datapathi_12/render_queue/bank1_r_reg_1 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance milan_datapathi_12/render_queue/bank1_r_reg_2 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance milan_datapathi_12/render_queue/g_input_loopback.samples_r_reg (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance milan_datapathi_13/aaf_packetizer/tctx_r_reg (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance milan_datapathi_13/aaf_packetizer/stg_r_reg (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance milan_datapathi_14/milan_datapath/avtp_rx_monitor/lctx_r_reg (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance milan_datapathi_28/milan_datapath/crf_rx/ts_hist_r_reg (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance i_0/VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/vexiis_0_logic_core/integer_RegFilePlugin_logic_regfile_fpga/asMem_ram_reg_1 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance i_0/VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/vexiis_0_logic_core/integer_RegFilePlugin_logic_regfile_fpga/asMem_ram_reg_2 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance i_0/VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/vexiis_0_logic_core/LsuL1Plugin_logic_banks_0_mem/ram_block_reg_0 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance i_0/VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/vexiis_0_logic_core/LsuL1Plugin_logic_banks_0_mem/ram_block_reg_1 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance i_0/VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/vexiis_0_logic_core/FetchL1Plugin_logic_ways_1_mem_reg (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance i_0/VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/vexiis_0_logic_core/FetchL1Plugin_logic_banks_1_mem_reg_0 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance i_0/VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/vexiis_0_logic_core/FetchL1Plugin_logic_banks_1_mem_reg_1 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance i_0/VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/vexiis_0_logic_core/FetchL1Plugin_logic_banks_0_mem_reg_0 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance i_0/VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/vexiis_0_logic_core/FetchL1Plugin_logic_banks_0_mem_reg_1 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance i_0/VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/vexiis_0_logic_core/FetchL1Plugin_logic_ways_0_mem_reg (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance i_0/VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/vexiis_0_logic_core/LsuL1Plugin_logic_ways_0_mem_reg_1 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance i_0/VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/vexiis_0_logic_core/LsuL1Plugin_logic_ways_0_mem_reg_2 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance i_0/VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/vexiis_0_logic_core/LsuL1Plugin_logic_writeback_victimBuffer_reg (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance i_0/VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/splited_wc_hub_hub_logic_hub/frontendA_buffer_ram_reg (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance i_1/storage_16_reg (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance i_1/sram_bank1_reg_0_0 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance i_1/sram_bank1_reg_0_1 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance i_1/sram_bank1_reg_1_0 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance i_1/sram_bank1_reg_1_1 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance i_1/sram_bank1_reg_2_0 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance i_1/sram_bank1_reg_2_1 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance i_1/sram_bank1_reg_3_0 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance i_1/sram_bank1_reg_3_1 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance i_1/sram_bank2_reg_0 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance i_1/sram_bank2_reg_1 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance i_1/sram_bank2_reg_2 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance i_1/sram_bank2_reg_3 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance i_1/sram_bank3_reg_0 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance i_1/sram_bank3_reg_1 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance i_1/sram_bank4_reg (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance i_1/sram_bank0_reg_0_0 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance i_1/sram_bank0_reg_0_1 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance i_1/sram_bank0_reg_0_2 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance i_1/sram_bank0_reg_0_3 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance i_1/sram_bank0_reg_1_0 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance i_1/sram_bank0_reg_1_1 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance i_1/sram_bank0_reg_1_2 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance i_1/sram_bank0_reg_1_3 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance i_1/sram_bank0_reg_2_0 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance i_1/sram_bank0_reg_2_1 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance i_1/sram_bank0_reg_2_2 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance i_1/sram_bank0_reg_2_3 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance i_1/sram_bank0_reg_3_0 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance i_1/sram_bank0_reg_3_1 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance i_1/sram_bank0_reg_3_2 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance i_1/sram_bank0_reg_3_3 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance i_1/storage_2_reg_0 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance i_1/storage_2_reg_1 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance i_1/storage_5_reg_0 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance i_1/storage_5_reg_1 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance i_1/storage_14_reg (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance i_1/storage_4_reg_0 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance i_1/storage_4_reg_1 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance i_1/mem_dat0_reg (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance i_1/rom_bank1_dat0_reg_0 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance i_1/rom_bank1_dat0_reg_1 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance i_1/rom_bank1_dat0_reg_2 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance i_1/rom_bank1_dat0_reg_3 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance i_1/rom_bank2_dat0_reg_0 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance i_1/rom_bank2_dat0_reg_1 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance i_1/rom_bank3_dat0_reg (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance i_1/rom_bank0_dat0_reg_0_0 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance i_1/rom_bank0_dat0_reg_0_1 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance i_1/rom_bank0_dat0_reg_0_2 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance i_1/rom_bank0_dat0_reg_0_3 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance i_1/rom_bank0_dat0_reg_0_4 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance i_1/rom_bank0_dat0_reg_0_5 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance i_1/rom_bank0_dat0_reg_0_6 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance i_1/rom_bank0_dat0_reg_0_7 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance i_1/rom_bank0_dat0_reg_0_8 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance i_1/rom_bank0_dat0_reg_0_9 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance i_1/rom_bank0_dat0_reg_0_10 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance i_1/rom_bank0_dat0_reg_0_11 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance i_1/rom_bank0_dat0_reg_0_12 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance i_1/rom_bank0_dat0_reg_0_13 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance i_1/rom_bank0_dat0_reg_0_14 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance i_1/rom_bank0_dat0_reg_0_15 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance i_1/rom_bank0_dat0_reg_0_16 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance i_1/rom_bank0_dat0_reg_0_17 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance i_1/rom_bank0_dat0_reg_0_18 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance i_1/rom_bank0_dat0_reg_0_19 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.

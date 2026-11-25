@@ -1,0 +1,7 @@
+Candidate head: 09201d35d7ea720b3ba205da185ba35c159ec24a
+Source: builds/endstation_ax7101_8x8-on.log
+Original SHA256: 179fe864f6fe8e7c86acfc3c01ac8de9c178c1fa523f7364b6991e3bbc593e51
+Scope: complete text; paths and host fields normalized
+
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+REFUSED: allocation over budget: the override 'platform-8x8-one-interface' is for the target platform's 8x8, one interface image alone, the one carrying {'nvm_stage': 14250, 'ctrl_plat': 19136}; this image carries {'nvm_stage': 23502, 'ctrl_plat': 19136}

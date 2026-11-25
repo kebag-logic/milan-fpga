@@ -1,0 +1,77 @@
+Candidate head: 09201d35d7ea720b3ba205da185ba35c159ec24a
+Source: prepare.py
+Original SHA256: c2cacd6ead55aa66d19184a6bd5cba9f7be4ef620c2ed024e4fff650434964ed
+Scope: complete text; paths and host fields normalized
+
+"""Both shapes: firmware link, ordinary export (8x8 refusal retained), measurement export. No Vivado."""
+import json
+import subprocess
+import sys
+import time
+from pathlib import Path
+
+w = Path(__file__).resolve().parent
+sys.path.insert(0, str(w))
+import binding  # noqa: E402
+root = binding.ROOT
+events = (w / 'prepare.events').open('a')
+
+
+def event(**kw):
+    kw['time'] = time.strftime('%Y-%m-%dT%H:%M:%S%z')
+    events.write(json.dumps(kw) + '\n')
+    events.flush()
+    print(json.dumps(kw), flush=True)
+
+
+def logged(cmd, log):
+    with log.open('w') as f:
+        return subprocess.run(cmd, cwd=root, stdout=f, stderr=subprocess.STDOUT, timeout=3600).returncode
+
+
+ident = binding.identity()
+(w / 'identity-prepare.json').write_text(json.dumps(ident, indent=2) + '\n')
+event(step='identity', head=ident['head'], tree=ident['tree'])
+sys.path.insert(0, str(root / 'tb/verilator/ctrl_split_boot'))
+sys.path.insert(0, str(root / 'sw/builder'))
+import run as boot  # noqa: E402
+import plat_ledger  # noqa: E402
+import endstation_builder as b  # noqa: E402
+builds = w / 'builds'
+archives = boot.runtime(builds)
+for name in sys.argv[1:] or ('endstation_ax7101_1x1_tdm8', 'endstation_ax7101_8x8'):
+    cfgfile = w / (name + '.yaml')
+    csr, flash = plat_ledger.maps(builds, name)
+    out = builds / (name + '-on')
+    args = [sys.executable, '-B', str(root / 'sw/firmware/ctrl/test/ctrl_plat_image.py'), '--config', str(cfgfile),
+            '--csr-csv', str(csr), '--flash-map', str(flash), '--output', str(out), '--libc', str(archives[0]),
+            '--compiler-runtime', str(archives[1])]
+    if '8x8' in name:
+        args += ['--ledgered-point', 'platform-8x8-one-interface']
+    rc = logged(args, builds / (name + '-on.log'))
+    elf = out / 'ctrl_app.elf'
+    event(step='link', shape=name, exit=rc, elf_exists=elf.exists(), elf_sha256=binding.sha(elf) if elf.exists() else None)
+    assert elf.exists()
+    gen = root / 'sw/builder/out/loopbram_measure_r8'
+    rc = logged([sys.executable, str(root / 'sw/builder/endstation_builder.py'), str(cfgfile), '-o', str(gen)],
+                builds / (name + '-builder.log'))
+    event(step='builder', shape=name, exit=rc)
+    assert rc == 0
+    for kind, script, where in (('ordinary', 'ordinary_soc.py', w / 'ordinary' / name),
+                                ('measurement', 'measure_soc.py', w / 'route' / name)):
+        where.mkdir(parents=True, exist_ok=True)
+        sargs = b.emit_soc_argv(b.load_config(cfgfile))
+        sargs[sargs.index('--ctrl-firmware') + 1] = str(elf)
+        sargs += ['--entity-gen-dir', str(gen / name), '--output-dir', str(where), '--no-compile-software',
+                  '--synth-directive', 'AreaOptimized_high', '--opt-directive', 'ExploreArea',
+                  '--place-directive', 'ExtraPostPlacementOpt', '--vivado-max-threads', '16']
+        cmd = [sys.executable, str(w / script), *sargs]
+        (where / 'export-command.json').write_text(json.dumps(cmd, indent=2))
+        rc = logged(cmd, where / 'export.log')
+        tcl = where / 'gateware/alinx_ax7101.tcl'
+        event(step='export', kind=kind, shape=name, exit=rc, tcl_written=tcl.exists())
+        if kind == 'ordinary':
+            assert (rc != 0) == ('8x8' in name), 'the ordinary 8x8 export must be refused, and only it'
+        else:
+            assert rc == 0
+event(step='end', same_identity=binding.identity() == ident)

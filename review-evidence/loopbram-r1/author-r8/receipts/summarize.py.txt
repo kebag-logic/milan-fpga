@@ -1,0 +1,94 @@
+Candidate head: 09201d35d7ea720b3ba205da185ba35c159ec24a
+Source: summarize.py
+Original SHA256: ef76fa7be9eeac82a36668d71dd49ed67d9e65c4e5bb0677f6d1e36578ffa336
+Scope: complete text; paths and host fields normalized
+
+"""Summarize both enabled shapes: every directive's corners, resources, routing status, floor verdict and selection."""
+import json
+import re
+import sys
+from pathlib import Path
+
+w = Path(__file__).resolve().parent
+sys.path.insert(0, str(w))
+import binding  # noqa: E402
+
+SHAPES = ('endstation_ax7101_1x1_tdm8', 'endstation_ax7101_8x8')
+DIRECTIVES = ('ExtraPostPlacementOpt', 'AltSpreadLogic_high', 'ExtraTimingOpt')
+CORNERS = ('Slow_0C', 'Slow_85C', 'Fast_0C', 'Fast_85C')
+
+
+def util(p):
+    text = p.read_text()
+    ans = {}
+    for k in ('Slice LUTs', 'Slice Registers', 'Block RAM Tile', 'RAMB36/FIFO', 'RAMB18', 'F7 Muxes', 'F8 Muxes', 'DSPs'):
+        ans[k] = float(re.search(r'^\| +' + re.escape(k) + r'\*? +\| +([0-9.]+) +\|', text, re.M)[1])
+    ans['Occupied slices'] = float(re.search(r'^\| +Slice +\| +([0-9.]+) +\|', text, re.M)[1])
+    return ans
+
+
+def timing(p):
+    text = p.read_text()
+    m = re.search(r'WNS\(ns\).*?\n[^\n]*\n\s*(-?\d+\.\d+)\s+(-?\d+\.\d+)\s+(\d+)\s+(\d+)\s+(-?\d+\.\d+)', text, re.S)
+    v = text[m.start():].splitlines()[2].split()
+    return {'WNS_ns': float(v[0]), 'TNS_ns': float(v[1]), 'setup_failing_endpoints': int(v[2]),
+            'setup_total_endpoints': int(v[3]), 'WHS_ns': float(v[4]), 'THS_ns': float(v[5]),
+            'hold_failing_endpoints': int(v[6]), 'hold_total_endpoints': int(v[7]), 'WPWS_ns': float(v[8]),
+            'pulse_failing_endpoints': int(v[10]),
+            'sha256': binding.sha(p)}
+
+
+def worst_setup(p):
+    """The smallest-slack setup (Max at Slow) path in the corner's report: its slack, source and destination."""
+    text = p.read_text()
+    best = None
+    for m in re.finditer(r'^Slack \((MET|VIOLATED)\) :\s+(-?[0-9.]+)ns[^\n]*\n\s+Source:\s+(\S+)[^\n]*\n(?:[^\n]*\n)*?\s+Destination:\s+(\S+)[^\n]*\n(?:[^\n]*\n)*?\s+Path Group:\s+(\S+)[^\n]*\n\s+Path Type:\s+(Setup|Hold|Recovery|Removal)', text, re.M):
+        if m[6] == 'Setup' and (best is None or float(m[2]) < best[0]):
+            best = (float(m[2]), m[3], m[4], m[5])
+    return best
+
+
+rows = []
+for shape in SHAPES:
+    gate = w / 'route' / shape / 'gateware'
+    for directive in DIRECTIVES:
+        d = gate / directive
+        row = {'shape': shape, 'directive': directive}
+        rows.append(row)
+        if not (d / 'measure_route.json').exists():
+            row['run'] = 'NOT RUN'
+            continue
+        row['run_exit'] = json.loads((d / 'measure_route.json').read_text())['exit']
+        row['corners'] = {c: timing(p) for c in CORNERS if (p := d / f'alinx_ax7101_signoff_{c}_timing.rpt').exists()}
+        st = d / 'alinx_ax7101_route_status.rpt'
+        if st.exists():
+            t = st.read_text()
+            row['routing'] = {k: int(re.search(re.escape(k) + r'[^:]*:\s*(\d+)', t)[1])
+                              for k in ('routable nets', 'fully routed nets', 'nets with routing errors')}
+        if (d / 'routed_util.rpt').exists():
+            row['utilization'] = util(d / 'routed_util.rpt')
+        row['complete'] = (len(row['corners']) == 4 and 'utilization' in row and 'routing' in row and row['run_exit'] == 0)
+        if not row['complete']:
+            continue
+        cs = row['corners'].values()
+        row['min_WNS_ns'] = min(c['WNS_ns'] for c in cs)
+        row['min_WHS_ns'] = min(c['WHS_ns'] for c in cs)
+        row['worst_setup_path'] = worst_setup(d / 'alinx_ax7101_signoff_Slow_85C_timing.rpt')
+        row['floor_pass'] = (row['min_WNS_ns'] >= .030 and row['min_WHS_ns'] >= 0
+                             and row['routing']['nets with routing errors'] == 0
+                             and row['routing']['routable nets'] == row['routing']['fully routed nets']
+                             and all(c['setup_failing_endpoints'] == 0 and c['hold_failing_endpoints'] == 0
+                                     and c['pulse_failing_endpoints'] == 0 for c in cs))
+for shape in SHAPES:
+    passing = [r for r in rows if r['shape'] == shape and r.get('complete')]
+    best = max(passing, key=lambda r: (r['min_WNS_ns'], r['min_WHS_ns']), default=None)
+    for r in rows:
+        if r['shape'] == shape:
+            r['selected'] = r is best
+            r['selected_passes_floor'] = bool(best and best['floor_pass'])
+(w / 'route-summary.json').write_text(json.dumps(rows, indent=2) + '\n')
+for r in rows:
+    u = r.get('utilization', {})
+    print(r['shape'], r['directive'], 'WNS', r.get('min_WNS_ns'), 'WHS', r.get('min_WHS_ns'), 'floor', r.get('floor_pass'),
+          'selected', r.get('selected'), {k: u.get(k) for k in ('Slice LUTs', 'Slice Registers', 'Block RAM Tile', 'RAMB36/FIFO', 'RAMB18', 'Occupied slices', 'DSPs')},
+          r.get('routing'), r.get('worst_setup_path'))

@@ -1,0 +1,22 @@
+Candidate head: 09201d35d7ea720b3ba205da185ba35c159ec24a
+Source: ordinary_soc.py
+Original SHA256: fef3050cd4e82513c923a37879d2a20c0084160cf70d59e5d258971ff1ccb02a
+Scope: complete text; paths and host fields normalized
+
+"""The ordinary SoC export: the product allocation check is untouched; only the generated-directory lookup is scratch."""
+import sys
+from pathlib import Path
+root = Path('$CHECKOUT')
+sys.path.insert(0, str(root / 'sw/litex'))
+import milan_soc  # noqa: E402
+
+
+def scratch_output(entity_gen_dir, name):
+    path = Path(entity_gen_dir) / name
+    if not path.is_file():
+        raise RuntimeError(path)
+    return str(path)
+
+
+milan_soc._builder_out = scratch_output
+milan_soc.main()

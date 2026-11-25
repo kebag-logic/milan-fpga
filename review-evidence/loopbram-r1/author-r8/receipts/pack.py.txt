@@ -1,0 +1,125 @@
+Candidate head: 09201d35d7ea720b3ba205da185ba35c159ec24a
+Source: pack.py
+Original SHA256: ba9e5ad1b99d7ac7bf94c949f4ab780a4687d570e9b594d024143a3303914d91
+Scope: complete text; paths and host fields normalized
+
+"""Pack round-8 text receipts (each under 190 KB, never compressed), their manifest and index."""
+import codecs
+import hashlib
+import json
+import re
+import socket
+import sys
+from pathlib import Path
+
+w = Path(__file__).resolve().parent
+sys.path.insert(0, str(w))
+import binding  # noqa: E402
+
+out = Path('$MANAGEMENT/loopbram-a826/round8/receipts')
+out.mkdir(parents=True, exist_ok=True)
+for old in out.iterdir():
+    old.unlink()
+LIMIT = 185000
+SHAPES = {'endstation_ax7101_1x1_tdm8': '1x1', 'endstation_ax7101_8x8': '8x8'}
+# The model tokens are stored rot13-encoded so that this script spells none of them.
+MODEL = re.compile(r'\b(?:' + '|'.join(codecs.decode(t, 'rot13') for t in (
+    'pynhqr', 'bchf', 'fbaarg', 'unvxh', 'naguebcvp', 'bcranv', 'pbqrk', 'trzvav', 'pbcvybg', 'snoyr')) + r')\b', re.I)
+
+# What the published index states for every route: its own files' hashes, published or not.
+unpublished = {}
+for shape in SHAPES:
+    gate = w / 'route' / shape / 'gateware'
+    for p in sorted([*gate.glob('*'), *gate.glob('*/*')]):
+        if p.is_file() and '.Xil' not in p.parts and p.suffix in ('.rpt', '.txt', '.dcp', '.tcl', '.log', '.json', '.xdc', '.v', '.init'):
+            unpublished[f'{SHAPES[shape]}/{p.relative_to(gate)}'] = {'bytes': p.stat().st_size, 'sha256': binding.sha(p)}
+(w / 'route-outputs-sha256.json').write_text(json.dumps(unpublished, indent=1) + '\n')
+
+patterns = ['source-binding.json', 'identity-prepare.json', 'generated-hex.start.txt', 'generated-hex.end.txt', 'inputs-*.json', 'prepare.events',
+            'route-*.events', 'unit-*.log', 'unit-*.rc', 'route-summary.json', 'route-outputs-sha256.json', 'slot-usage.json',
+            'firmware-memory.json', 'endstation_*.yaml', 'builds/*-on.log', 'builds/*-builder.log', 'builds/runtime.log',
+            'ordinary/*/export-command.json', 'ordinary/*/export.log', 'route/*/export-command.json', 'route/*/export.log',
+            'route/*/gateware/alinx_ax7101.tcl', 'route/*/gateware/alinx_ax7101.xdc', 'route/*/gateware/alinx_ax7101_utilization_synth.rpt',
+            'route/**/measure_*.json', 'route/**/measure_*.tcl', 'route/**/measure_*.log', 'route/**/*signoff_*C_timing.rpt',
+            'route/**/*signoff_*C_operating.rpt', 'route/**/*signoff_*C_negative.rpt', 'route/**/*signoff_grade.txt',
+            'route/**/*signoff_check_timing.rpt', 'route/**/*route_status.rpt', 'route/**/routed_util.rpt', 'route/**/routed_hier.rpt',
+            'route/**/*iob_pack.rpt', 'route/**/*_drc.rpt', 'route/**/*exceptions.rpt', 'route/**/*clock_interaction.rpt']
+files = {p for pat in patterns for p in w.glob(pat) if p.is_file() and '.Xil' not in p.parts}
+files |= {w / n for n in ('binding.py', 'prepare.py', 'route_shape.py', 'bind_end.py', 'measure_soc.py', 'ordinary_soc.py', 'summarize.py', 'pack.py', 'audit.py', 'env.sh')}
+rows = []
+for p in sorted(files):
+    raw = p.read_bytes()
+    data = raw.decode('utf-8', errors='replace')
+    if 'utilization_synth' in p.name and len(raw) > 60000:
+        continue
+    data = data.replace(str(w), '$SCRATCH').replace(str(binding.ROOT), '$CHECKOUT').replace('$LITEX', '$LITEX')
+    data = data.replace('$MANAGEMENT', '$MANAGEMENT').replace('$HOME', '$HOME')
+    data = data.replace(socket.gethostname(), '$HOST')
+    data = re.sub(r'(?m)^(\|?\s*(?:Host|Hostname)\s*:\s*)\S+', r'\1$HOST', data)
+    data = re.sub(r'\.Xil/[A-Za-z][^/\s"]*-\d+-[^/\s"]+', '.Xil/$RUN', data)
+    header = (f'Candidate head: {binding.HEAD}\nSource: {p.relative_to(w)}\nOriginal SHA256: {hashlib.sha256(raw).hexdigest()}\n'
+              'Scope: complete text; paths and host fields normalized\n\n')
+    parts, chunk = [], header
+    for line in data.splitlines(True):
+        for offset in range(0, len(line), 40000):
+            piece = line[offset:offset + 40000]
+            if len((chunk + piece).encode()) > LIMIT:
+                parts.append(chunk)
+                chunk = header
+            chunk += piece
+    if chunk != header:
+        parts.append(chunk)
+    stem = str(p.relative_to(w)).replace('/', '--').replace('route--endstation_ax7101_1x1_tdm8--gateware', 'route-1x1').replace('route--endstation_ax7101_8x8--gateware', 'route-8x8')
+    for i, part in enumerate(parts):
+        name = stem + (f'.part{i + 1:03d}' if len(parts) > 1 else '') + '.txt'
+        blob = part.encode()
+        assert len(blob) < 190000, name
+        hit = MODEL.search(part)
+        assert not hit, (name, hit.group(0))
+        (out / name).write_bytes(blob)
+        rows.append(dict(file=name, source=str(p.relative_to(w)), bytes=len(blob), sha256=hashlib.sha256(blob).hexdigest(),
+                         original_sha256=hashlib.sha256(raw).hexdigest()))
+for i in range(0, len(rows), 150):
+    blob = ''.join(json.dumps(r, sort_keys=True) + '\n' for r in rows[i:i + 150]).encode()
+    assert len(blob) < 190000
+    (out / f'manifest-{i // 150 + 1:03d}.jsonl').write_bytes(blob)
+summary = json.loads((w / 'route-summary.json').read_text())
+
+
+def cell(shape, directive, what):
+    hits = [r['file'] for r in rows if r['file'].startswith(f'route-{SHAPES[shape]}--{directive}--{what}')]
+    return ' '.join(f'[{i + 1 if len(hits) > 1 else "report"}]({h})' for i, h in enumerate(hits))
+
+
+index = ['# Round 8 receipts: enabled routes at both shapes', '', f'Exact head: {binding.HEAD} (tree a3b3dca8a55b738e714ada4662a309a50118a481).', '',
+         'Plain text only; every file is under 190 KB (longer reports are split into parts); nothing is compressed.',
+         'Each file starts with the head, its source path and the SHA256 of the original bytes; local roots are normalized.',
+         'manifest-*.jsonl binds every receipt by size, SHA256 and original SHA256.', '',
+         '## Source and configuration binding', '',
+         '- [Head, tree, subtrees, gitlinks and the files that changed since the routed source of the earlier rounds](source-binding.json.txt); [identity at preparation](identity-prepare.json.txt)',
+         '- Input hashes, taken before synthesis and re-read after synthesis and at the end: [1x1](inputs-endstation_ax7101_1x1_tdm8.json.txt), [8x8](inputs-endstation_ax7101_8x8.json.txt); processor ROM images at [start](generated-hex.start.txt.txt) and [end](generated-hex.end.txt.txt)',
+         '- Configurations: [1x1](endstation_ax7101_1x1_tdm8.yaml.txt), [8x8](endstation_ax7101_8x8.yaml.txt)',
+         '- [Preparation events](prepare.events.txt); route events [1x1](route-endstation_ax7101_1x1_tdm8.events.txt), [8x8](route-endstation_ax7101_8x8.events.txt); [slot use](slot-usage.json.txt)',
+         '- Drivers: [prepare](prepare.py.txt), [route](route_shape.py.txt), [binding](binding.py.txt), [measurement export](measure_soc.py.txt), [ordinary export](ordinary_soc.py.txt), [summarize](summarize.py.txt)',
+         '', '## Control memory', '',
+         '- [Summary](firmware-memory.json.txt); ordinary export [1x1 accepted](ordinary--endstation_ax7101_1x1_tdm8--export.log.txt), [8x8 refused](ordinary--endstation_ax7101_8x8--export.log.txt); image link [1x1](builds--endstation_ax7101_1x1_tdm8-on.log.txt), [8x8 refused](builds--endstation_ax7101_8x8-on.log.txt)',
+         '', '## Routes', '',
+         '[All figures](route-summary.json.txt); [hash of every output file, published or not](route-outputs-sha256.json.txt).', '']
+for shape, short in SHAPES.items():
+    index += [f'### {short}', '', '| Directive | Setup | Hold | Floor | Slow 0 C | Slow 85 C | Fast 0 C | Fast 85 C | Routing | Utilization | Hierarchy |', '|---|---:|---:|---|---|---|---|---|---|---|---|']
+    for r in (r for r in summary if r['shape'] == shape):
+        d = r['directive']
+        index.append(f"| {d}{' (selected)' if r.get('selected') else ''} | {r['min_WNS_ns']:+.3f} | {r['min_WHS_ns']:+.3f} | {'PASS' if r['floor_pass'] else 'MISS'} | "
+                     + ' | '.join(cell(shape, d, f'alinx_ax7101_signoff_{c}_timing') for c in ('Slow_0C', 'Slow_85C', 'Fast_0C', 'Fast_85C'))
+                     + f" | {cell(shape, d, 'alinx_ax7101_route_status')} | {cell(shape, d, 'routed_util')} | {cell(shape, d, 'routed_hier')} |")
+    index.append('')
+index += ['## Every receipt', '', '| Index part | Receipts |', '|---|---|']
+for i in range(0, len(rows), 100):
+    name = f'INDEX-{i // 100 + 1:03d}.md'
+    table = [f'# Receipt index part {i // 100 + 1}', '', '| Receipt | Bytes | Source |', '|---|---:|---|']
+    table += [f"| [{r['file']}]({r['file']}) | {r['bytes']} | `{r['source']}` |" for r in rows[i:i + 100]]
+    (out / name).write_text('\n'.join(table) + '\n')
+    index.append(f'| [{name}]({name}) | {i + 1}-{min(i + 100, len(rows))} |')
+(out / 'INDEX.md').write_text('\n'.join(index) + '\n')
+assert all(p.stat().st_size < 190000 and p.suffix != '.gz' for p in out.iterdir())
+print('PACKED', len(rows), 'receipts', sum(r['bytes'] for r in rows), 'bytes')

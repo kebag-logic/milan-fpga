@@ -1,0 +1,53 @@
+Candidate head: 09201d35d7ea720b3ba205da185ba35c159ec24a
+Source: audit.py
+Original SHA256: ccaa85319b4de221fc40317f0839ee27e561ecc7d76e7f9671afc534e80c087f
+Scope: complete text; paths and host fields normalized
+
+"""Audit the round-8 packet: sizes, text, links, manifests, handoff shape and forbidden names."""
+import codecs
+import hashlib
+import json
+import re
+import subprocess
+from pathlib import Path
+
+packet = Path('$MANAGEMENT/loopbram-a826/round8')
+root = Path('$CHECKOUT')
+head = subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=root, text=True).strip()
+assert not subprocess.check_output(['git', 'status', '--porcelain'], cwd=root, text=True).strip()
+handoff = (packet / 'HANDOFF-r8.md').read_text()
+assert handoff.startswith('Status: ') and handoff.splitlines()[1].startswith('ETA: ')
+assert handoff.rstrip().splitlines()[-1] == 'REVIEW READY ' + head
+MODEL = [codecs.decode(t, 'rot13') for t in ['pynhqr', 'bchf', 'fbaarg', 'unvxh', 'naguebcvp', 'bcranv', 'pbqrk',
+                                             'trzvav', 'pbcvybg', 'snoyr']]
+TOOLS = [codecs.decode(t, 'rot13') for t in ['ivinqb', 'irevyngbe', 'lbflf', 'kvyvak', 'nyvak', 'nk7101', 'RkgenGvzvatBcg', 'NygFcernqYbtvp', 'RkgenCbfgCynprzragBcg']]
+model_re = re.compile(r'\b(?:' + '|'.join(MODEL) + r')\b|\bgpt\b|\bgpt-?\d', re.I)
+for p in packet.rglob('*'):
+    if p.is_file():
+        assert p.stat().st_size < 190000 and p.suffix != '.gz', p
+        hit = model_re.search(p.read_text())
+        assert not hit, (p, hit.group(0))
+        assert '$HOME' not in p.read_text() or p.suffix == '.md', p
+for p in packet.rglob('*.md'):
+    for target in re.findall(r'\]\(([^)]+)\)', p.read_text()):
+        if '://' not in target and not target.startswith('#'):
+            assert (p.parent / target.split('#')[0]).exists(), (p, target)
+body = (packet / 'PR-BODY.md').read_text()
+assert not re.search('|'.join(TOOLS), body, re.I), re.search('|'.join(TOOLS), body, re.I).group(0)
+WRONG = 'R909-5 and R910-3 POSITIVE'
+assert not any(WRONG in (packet / n).read_text() for n in ('HANDOFF-r8.md', 'REVIEW-READY.md', 'PR-BODY.md'))
+FIX = ('R909-5 POSITIVE at 1516b2ffe321337858389ec8e42897f8a80644bb; R910-3 POSITIVE at 9acb9b828b29aba71bd51303a4836f86c2278267')
+assert FIX in (packet / 'REVIEW-READY.md').read_text() and FIX in handoff
+receipts, count = packet / 'receipts', 0
+listed = set()
+for m in sorted(receipts.glob('manifest-*.jsonl')):
+    for line in m.read_text().splitlines():
+        row = json.loads(line)
+        blob = (receipts / row['file']).read_bytes()
+        assert len(blob) == row['bytes'] and hashlib.sha256(blob).hexdigest() == row['sha256'], row['file']
+        assert b'Candidate head: ' + head.encode() in blob[:200]
+        listed.add(row['file'])
+        count += 1
+extra = {p.name for p in receipts.iterdir()} - listed
+assert all(n.startswith(('INDEX', 'manifest-')) for n in extra), extra
+print('PACKET PASS', head, 'receipts', count)

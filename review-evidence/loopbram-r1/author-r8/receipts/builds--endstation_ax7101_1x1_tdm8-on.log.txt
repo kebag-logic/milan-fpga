@@ -1,0 +1,102 @@
+Candidate head: 09201d35d7ea720b3ba205da185ba35c159ec24a
+Source: builds/endstation_ax7101_1x1_tdm8-on.log
+Original SHA256: f0e7db0f928914f203eb7db20d8d9394315f65d627d363ad2fec44ed212d3df2
+Scope: complete text; paths and host fields normalized
+
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+{
+  "shape": "endstation_ax7101_1x1_tdm8",
+  "interfaces": 1,
+  "entry": "plat/ctrl_plat_main.c",
+  "sections": {
+    ".text": 114224,
+    ".rodata": 15838,
+    ".data": 128,
+    ".bss": 52032,
+    ".stack": 8192,
+    ".riscv.attributes": 42
+  },
+  "largest_bss": [
+    {
+      "symbol": "arena",
+      "bytes": 9920
+    },
+    {
+      "symbol": "owed",
+      "bytes": 9216
+    },
+    {
+      "symbol": "ctrl_plat.app",
+      "bytes": 9184
+    },
+    {
+      "symbol": "values",
+      "bytes": 5967
+    },
+    {
+      "symbol": "nvm_stage",
+      "bytes": 4766
+    }
+  ],
+  "ctrl_plat_members": {
+    "acmp": 96,
+    "aecp": 3584,
+    "aecp_config": 64,
+    "app": 9184,
+    "binding": 40,
+    "bridge": 144,
+    "config": 56,
+    "console": 588,
+    "face": 100,
+    "maap_csr": 32,
+    "sources": 64,
+    "srp": 3600,
+    "srp_config": 32,
+    "state": 200
+  },
+  "split": {
+    "rom": {
+      "bytes": 130192,
+      "banks": [
+        131072
+      ],
+      "RAMB36": 32,
+      "RAMB18": 0
+    },
+    "sram": {
+      "bytes": 60352,
+      "banks": [
+        32768,
+        16384,
+        8192,
+        4096
+      ],
+      "RAMB36": 15,
+      "RAMB18": 0
+    },
+    "tiles": 47.0,
+    "budget_tiles": 56
+  },
+  "artifacts": [
+    {
+      "name": "libc.a",
+      "size": 5478,
+      "sha256": "8ada3e55c653ed343987e1e64f90d5d8984c13eee625978f393bcefcfe283442"
+    },
+    {
+      "name": "libcompiler_rt.a",
+      "size": 29128,
+      "sha256": "14795535a674edc37504159840b58fcb6e21e1f6d02980d4dda916cfc39c2a71"
+    },
+    {
+      "name": "ctrl_app.elf",
+      "size": 163668,
+      "sha256": "48816277205e00ab14ac47dac802703a7541ad150628fca855517b5a6c69776a"
+    },
+    {
+      "name": "ctrl_app.map",
+      "size": 165863,
+      "sha256": "cdbc525be859c5a20f53d26ea873b3f67e8e55dc6bbcd1da81f2d5b3cfb91ce7"
+    }
+  ]
+}

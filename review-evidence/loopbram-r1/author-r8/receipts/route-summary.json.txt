@@ -1,0 +1,529 @@
+Candidate head: 09201d35d7ea720b3ba205da185ba35c159ec24a
+Source: route-summary.json
+Original SHA256: 14da7c1f8de2990c11c66ba6f70975c3d13658ae2b3582f95d526265a0dd311d
+Scope: complete text; paths and host fields normalized
+
+[
+  {
+    "shape": "endstation_ax7101_1x1_tdm8",
+    "directive": "ExtraPostPlacementOpt",
+    "run_exit": 0,
+    "corners": {
+      "Slow_0C": {
+        "WNS_ns": 0.125,
+        "TNS_ns": 0.0,
+        "setup_failing_endpoints": 0,
+        "setup_total_endpoints": 129382,
+        "WHS_ns": 0.102,
+        "THS_ns": 0.0,
+        "hold_failing_endpoints": 0,
+        "hold_total_endpoints": 129300,
+        "WPWS_ns": 1.1,
+        "pulse_failing_endpoints": 0,
+        "sha256": "6c60567f65ff98761aec0ca771689cb2a2720455ad0d18f0860ada3a8aef92f1"
+      },
+      "Slow_85C": {
+        "WNS_ns": 0.125,
+        "TNS_ns": 0.0,
+        "setup_failing_endpoints": 0,
+        "setup_total_endpoints": 129382,
+        "WHS_ns": 0.102,
+        "THS_ns": 0.0,
+        "hold_failing_endpoints": 0,
+        "hold_total_endpoints": 129300,
+        "WPWS_ns": 1.1,
+        "pulse_failing_endpoints": 0,
+        "sha256": "5c0a35e7ca150a3b6a16091f5da4eac242132d043d16a8fb268bf7059bf1b48c"
+      },
+      "Fast_0C": {
+        "WNS_ns": 1.687,
+        "TNS_ns": 0.0,
+        "setup_failing_endpoints": 0,
+        "setup_total_endpoints": 129382,
+        "WHS_ns": 0.036,
+        "THS_ns": 0.0,
+        "hold_failing_endpoints": 0,
+        "hold_total_endpoints": 129300,
+        "WPWS_ns": 1.1,
+        "pulse_failing_endpoints": 0,
+        "sha256": "64d35576e4d9870d6f04a22158cc4f883c5fce5d3cde0341422b841a3af821ad"
+      },
+      "Fast_85C": {
+        "WNS_ns": 1.687,
+        "TNS_ns": 0.0,
+        "setup_failing_endpoints": 0,
+        "setup_total_endpoints": 129382,
+        "WHS_ns": 0.036,
+        "THS_ns": 0.0,
+        "hold_failing_endpoints": 0,
+        "hold_total_endpoints": 129300,
+        "WPWS_ns": 1.1,
+        "pulse_failing_endpoints": 0,
+        "sha256": "aa36e5858bc85cde6479dad760dc9474e799822d6575658f73614d4771f542eb"
+      }
+    },
+    "routing": {
+      "routable nets": 73572,
+      "fully routed nets": 73572,
+      "nets with routing errors": 0
+    },
+    "utilization": {
+      "Slice LUTs": 32653.0,
+      "Slice Registers": 42822.0,
+      "Block RAM Tile": 82.5,
+      "RAMB36/FIFO": 65.0,
+      "RAMB18": 35.0,
+      "F7 Muxes": 786.0,
+      "F8 Muxes": 105.0,
+      "DSPs": 13.0,
+      "Occupied slices": 13951.0
+    },
+    "complete": true,
+    "min_WNS_ns": 0.125,
+    "min_WHS_ns": 0.036,
+    "worst_setup_path": [
+      0.125,
+      "VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/peripheral_toAxiLite4_logic_bridge/d_counter_reg[2]/C",
+      "VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/splited_wc_hub_hub_logic_hub/slots_ctx_reg_0_3_6_11/RAMA/WE",
+      "milansoc_crg_clkout0"
+    ],
+    "floor_pass": true,
+    "selected": false,
+    "selected_passes_floor": true
+  },
+  {
+    "shape": "endstation_ax7101_1x1_tdm8",
+    "directive": "AltSpreadLogic_high",
+    "run_exit": 0,
+    "corners": {
+      "Slow_0C": {
+        "WNS_ns": 0.147,
+        "TNS_ns": 0.0,
+        "setup_failing_endpoints": 0,
+        "setup_total_endpoints": 129379,
+        "WHS_ns": 0.102,
+        "THS_ns": 0.0,
+        "hold_failing_endpoints": 0,
+        "hold_total_endpoints": 129297,
+        "WPWS_ns": 1.1,
+        "pulse_failing_endpoints": 0,
+        "sha256": "2bb9d2c676648361fde66b0d6294c74cf43078902a8b45a9dfde9cafca9549b8"
+      },
+      "Slow_85C": {
+        "WNS_ns": 0.147,
+        "TNS_ns": 0.0,
+        "setup_failing_endpoints": 0,
+        "setup_total_endpoints": 129379,
+        "WHS_ns": 0.102,
+        "THS_ns": 0.0,
+        "hold_failing_endpoints": 0,
+        "hold_total_endpoints": 129297,
+        "WPWS_ns": 1.1,
+        "pulse_failing_endpoints": 0,
+        "sha256": "285c6dbd4971bb0a56e34a64da5eb8c14117ec42bfbf0a00eb679ba9f2aef059"
+      },
+      "Fast_0C": {
+        "WNS_ns": 1.636,
+        "TNS_ns": 0.0,
+        "setup_failing_endpoints": 0,
+        "setup_total_endpoints": 129379,
+        "WHS_ns": 0.036,
+        "THS_ns": 0.0,
+        "hold_failing_endpoints": 0,
+        "hold_total_endpoints": 129297,
+        "WPWS_ns": 1.1,
+        "pulse_failing_endpoints": 0,
+        "sha256": "e968a92b6b925448f42ce4436539b9fabf5b21ab448179de9c26c4cebdfab3bf"
+      },
+      "Fast_85C": {
+        "WNS_ns": 1.636,
+        "TNS_ns": 0.0,
+        "setup_failing_endpoints": 0,
+        "setup_total_endpoints": 129379,
+        "WHS_ns": 0.036,
+        "THS_ns": 0.0,
+        "hold_failing_endpoints": 0,
+        "hold_total_endpoints": 129297,
+        "WPWS_ns": 1.1,
+        "pulse_failing_endpoints": 0,
+        "sha256": "49664009ca9eef272b6610a4a5b037961af74fb063ab9b6ac5a96297302b98b5"
+      }
+    },
+    "routing": {
+      "routable nets": 73564,
+      "fully routed nets": 73564,
+      "nets with routing errors": 0
+    },
+    "utilization": {
+      "Slice LUTs": 32669.0,
+      "Slice Registers": 42821.0,
+      "Block RAM Tile": 82.5,
+      "RAMB36/FIFO": 65.0,
+      "RAMB18": 35.0,
+      "F7 Muxes": 786.0,
+      "F8 Muxes": 105.0,
+      "DSPs": 13.0,
+      "Occupied slices": 14225.0
+    },
+    "complete": true,
+    "min_WNS_ns": 0.147,
+    "min_WHS_ns": 0.036,
+    "worst_setup_path": [
+      0.147,
+      "KL_mbx/rd_off_r_reg[8]/C",
+      "KL_mbx/reg_rdata_r_reg[5]/D",
+      "milansoc_crg_clkout0"
+    ],
+    "floor_pass": true,
+    "selected": true,
+    "selected_passes_floor": true
+  },
+  {
+    "shape": "endstation_ax7101_1x1_tdm8",
+    "directive": "ExtraTimingOpt",
+    "run_exit": 0,
+    "corners": {
+      "Slow_0C": {
+        "WNS_ns": 0.02,
+        "TNS_ns": 0.0,
+        "setup_failing_endpoints": 0,
+        "setup_total_endpoints": 129379,
+        "WHS_ns": 0.102,
+        "THS_ns": 0.0,
+        "hold_failing_endpoints": 0,
+        "hold_total_endpoints": 129297,
+        "WPWS_ns": 1.1,
+        "pulse_failing_endpoints": 0,
+        "sha256": "122d9ac67c848c009925c63e96ed002aaeac4f98eb1f8eec986e4604edca9c6a"
+      },
+      "Slow_85C": {
+        "WNS_ns": 0.02,
+        "TNS_ns": 0.0,
+        "setup_failing_endpoints": 0,
+        "setup_total_endpoints": 129379,
+        "WHS_ns": 0.102,
+        "THS_ns": 0.0,
+        "hold_failing_endpoints": 0,
+        "hold_total_endpoints": 129297,
+        "WPWS_ns": 1.1,
+        "pulse_failing_endpoints": 0,
+        "sha256": "6cbd728d41ccfa89f48cc892488dedf8db82455c69c835a1d69a4f2822f3ee8e"
+      },
+      "Fast_0C": {
+        "WNS_ns": 1.636,
+        "TNS_ns": 0.0,
+        "setup_failing_endpoints": 0,
+        "setup_total_endpoints": 129379,
+        "WHS_ns": 0.036,
+        "THS_ns": 0.0,
+        "hold_failing_endpoints": 0,
+        "hold_total_endpoints": 129297,
+        "WPWS_ns": 1.1,
+        "pulse_failing_endpoints": 0,
+        "sha256": "581644161ccc4b48178bee38d7800e1741c9440056fc923ca7d033a41d00ffe0"
+      },
+      "Fast_85C": {
+        "WNS_ns": 1.636,
+        "TNS_ns": 0.0,
+        "setup_failing_endpoints": 0,
+        "setup_total_endpoints": 129379,
+        "WHS_ns": 0.036,
+        "THS_ns": 0.0,
+        "hold_failing_endpoints": 0,
+        "hold_total_endpoints": 129297,
+        "WPWS_ns": 1.1,
+        "pulse_failing_endpoints": 0,
+        "sha256": "7fad95a7ad0fd2a542401e6e16b6a4e155edb66b79089877334664b186d04585"
+      }
+    },
+    "routing": {
+      "routable nets": 73552,
+      "fully routed nets": 73552,
+      "nets with routing errors": 0
+    },
+    "utilization": {
+      "Slice LUTs": 32668.0,
+      "Slice Registers": 42821.0,
+      "Block RAM Tile": 82.5,
+      "RAMB36/FIFO": 65.0,
+      "RAMB18": 35.0,
+      "F7 Muxes": 786.0,
+      "F8 Muxes": 105.0,
+      "DSPs": 13.0,
+      "Occupied slices": 14225.0
+    },
+    "complete": true,
+    "min_WNS_ns": 0.02,
+    "min_WHS_ns": 0.036,
+    "worst_setup_path": [
+      0.02,
+      "FSM_onehot_socbushandler_axilite2wishbone_state_reg[3]/C",
+      "KL_mbx/face_f_pt_offset_r_reg[0][3][3]/CE",
+      "milansoc_crg_clkout0"
+    ],
+    "floor_pass": false,
+    "selected": false,
+    "selected_passes_floor": true
+  },
+  {
+    "shape": "endstation_ax7101_8x8",
+    "directive": "ExtraPostPlacementOpt",
+    "run_exit": 0,
+    "corners": {
+      "Slow_0C": {
+        "WNS_ns": 0.117,
+        "TNS_ns": 0.0,
+        "setup_failing_endpoints": 0,
+        "setup_total_endpoints": 163393,
+        "WHS_ns": 0.135,
+        "THS_ns": 0.0,
+        "hold_failing_endpoints": 0,
+        "hold_total_endpoints": 163311,
+        "WPWS_ns": 1.1,
+        "pulse_failing_endpoints": 0,
+        "sha256": "27aeec16d71a35f666f4a5ee7caac7d2f455359de43a3fcddf256b5178ec9caf"
+      },
+      "Slow_85C": {
+        "WNS_ns": 0.117,
+        "TNS_ns": 0.0,
+        "setup_failing_endpoints": 0,
+        "setup_total_endpoints": 163393,
+        "WHS_ns": 0.135,
+        "THS_ns": 0.0,
+        "hold_failing_endpoints": 0,
+        "hold_total_endpoints": 163311,
+        "WPWS_ns": 1.1,
+        "pulse_failing_endpoints": 0,
+        "sha256": "176ad9c82b1d2036e118e49dbfaf8e37de399636f3701812f28bc5fedae193bf"
+      },
+      "Fast_0C": {
+        "WNS_ns": 1.636,
+        "TNS_ns": 0.0,
+        "setup_failing_endpoints": 0,
+        "setup_total_endpoints": 163393,
+        "WHS_ns": 0.015,
+        "THS_ns": 0.0,
+        "hold_failing_endpoints": 0,
+        "hold_total_endpoints": 163311,
+        "WPWS_ns": 1.1,
+        "pulse_failing_endpoints": 0,
+        "sha256": "15776301d666456bde3605c201de2ac78d6e2a95f245b67f17a1771538bcf991"
+      },
+      "Fast_85C": {
+        "WNS_ns": 1.636,
+        "TNS_ns": 0.0,
+        "setup_failing_endpoints": 0,
+        "setup_total_endpoints": 163393,
+        "WHS_ns": 0.015,
+        "THS_ns": 0.0,
+        "hold_failing_endpoints": 0,
+        "hold_total_endpoints": 163311,
+        "WPWS_ns": 1.1,
+        "pulse_failing_endpoints": 0,
+        "sha256": "b7ece372f1d0a146e4d8fd1f7ed55c24cc316b33d5b0e80be4a1646958af8ddd"
+      }
+    },
+    "routing": {
+      "routable nets": 97439,
+      "fully routed nets": 97439,
+      "nets with routing errors": 0
+    },
+    "utilization": {
+      "Slice LUTs": 48508.0,
+      "Slice Registers": 54964.0,
+      "Block RAM Tile": 110.5,
+      "RAMB36/FIFO": 94.0,
+      "RAMB18": 33.0,
+      "F7 Muxes": 3090.0,
+      "F8 Muxes": 763.0,
+      "DSPs": 13.0,
+      "Occupied slices": 15823.0
+    },
+    "complete": true,
+    "min_WNS_ns": 0.117,
+    "min_WHS_ns": 0.015,
+    "worst_setup_path": [
+      0.117,
+      "FSM_onehot_socbushandler_axilite2wishbone_state_reg[1]/C",
+      "KL_mbx/face_f_fmt_in_lo_r_reg[0][2][0]/CE",
+      "milansoc_crg_clkout0"
+    ],
+    "floor_pass": true,
+    "selected": false,
+    "selected_passes_floor": true
+  },
+  {
+    "shape": "endstation_ax7101_8x8",
+    "directive": "AltSpreadLogic_high",
+    "run_exit": 0,
+    "corners": {
+      "Slow_0C": {
+        "WNS_ns": 0.309,
+        "TNS_ns": 0.0,
+        "setup_failing_endpoints": 0,
+        "setup_total_endpoints": 163396,
+        "WHS_ns": 0.102,
+        "THS_ns": 0.0,
+        "hold_failing_endpoints": 0,
+        "hold_total_endpoints": 163314,
+        "WPWS_ns": 1.1,
+        "pulse_failing_endpoints": 0,
+        "sha256": "3ec06a21fc6a4a782df1ac11641c70dbac8c1b8a1cad7279d9aea83b5599288c"
+      },
+      "Slow_85C": {
+        "WNS_ns": 0.309,
+        "TNS_ns": 0.0,
+        "setup_failing_endpoints": 0,
+        "setup_total_endpoints": 163396,
+        "WHS_ns": 0.102,
+        "THS_ns": 0.0,
+        "hold_failing_endpoints": 0,
+        "hold_total_endpoints": 163314,
+        "WPWS_ns": 1.1,
+        "pulse_failing_endpoints": 0,
+        "sha256": "75cf344677005cfa8c57c3b9eb654a15ed4f45f38e8a99e6878bde39719b69f3"
+      },
+      "Fast_0C": {
+        "WNS_ns": 1.66,
+        "TNS_ns": 0.0,
+        "setup_failing_endpoints": 0,
+        "setup_total_endpoints": 163396,
+        "WHS_ns": 0.036,
+        "THS_ns": 0.0,
+        "hold_failing_endpoints": 0,
+        "hold_total_endpoints": 163314,
+        "WPWS_ns": 1.1,
+        "pulse_failing_endpoints": 0,
+        "sha256": "fab92235e23d6a59a8063e29266cfe4a85ef9272f6b151cdf4240e1a272a0afb"
+      },
+      "Fast_85C": {
+        "WNS_ns": 1.66,
+        "TNS_ns": 0.0,
+        "setup_failing_endpoints": 0,
+        "setup_total_endpoints": 163396,
+        "WHS_ns": 0.036,
+        "THS_ns": 0.0,
+        "hold_failing_endpoints": 0,
+        "hold_total_endpoints": 163314,
+        "WPWS_ns": 1.1,
+        "pulse_failing_endpoints": 0,
+        "sha256": "e87ea71b4f438b633fe1692284a569720199e9646224cde336ecb6668132a72a"
+      }
+    },
+    "routing": {
+      "routable nets": 97416,
+      "fully routed nets": 97416,
+      "nets with routing errors": 0
+    },
+    "utilization": {
+      "Slice LUTs": 48485.0,
+      "Slice Registers": 54965.0,
+      "Block RAM Tile": 110.5,
+      "RAMB36/FIFO": 94.0,
+      "RAMB18": 33.0,
+      "F7 Muxes": 3090.0,
+      "F8 Muxes": 763.0,
+      "DSPs": 13.0,
+      "Occupied slices": 15792.0
+    },
+    "complete": true,
+    "min_WNS_ns": 0.309,
+    "min_WHS_ns": 0.036,
+    "worst_setup_path": [
+      0.309,
+      "KL_mbx/u_evt/asp_cnt_r_reg[0][11]/C",
+      "KL_mbx/u_evt/asp_cnt_r_reg[0][13]/R",
+      "milansoc_crg_clkout0"
+    ],
+    "floor_pass": true,
+    "selected": true,
+    "selected_passes_floor": true
+  },
+  {
+    "shape": "endstation_ax7101_8x8",
+    "directive": "ExtraTimingOpt",
+    "run_exit": 0,
+    "corners": {
+      "Slow_0C": {
+        "WNS_ns": 0.049,
+        "TNS_ns": 0.0,
+        "setup_failing_endpoints": 0,
+        "setup_total_endpoints": 163396,
+        "WHS_ns": 0.102,
+        "THS_ns": 0.0,
+        "hold_failing_endpoints": 0,
+        "hold_total_endpoints": 163314,
+        "WPWS_ns": 1.1,
+        "pulse_failing_endpoints": 0,
+        "sha256": "da22c65fd1f11136c5f3cd533f65922452f8344b3d5d422e1f7023df72eb942b"
+      },
+      "Slow_85C": {
+        "WNS_ns": 0.049,
+        "TNS_ns": 0.0,
+        "setup_failing_endpoints": 0,
+        "setup_total_endpoints": 163396,
+        "WHS_ns": 0.102,
+        "THS_ns": 0.0,
+        "hold_failing_endpoints": 0,
+        "hold_total_endpoints": 163314,
+        "WPWS_ns": 1.1,
+        "pulse_failing_endpoints": 0,
+        "sha256": "57497c670e1e9bad57e985a58b4942cd4498ce5784832774eaf0d26fc79bd74c"
+      },
+      "Fast_0C": {
+        "WNS_ns": 1.66,
+        "TNS_ns": 0.0,
+        "setup_failing_endpoints": 0,
+        "setup_total_endpoints": 163396,
+        "WHS_ns": 0.036,
+        "THS_ns": 0.0,
+        "hold_failing_endpoints": 0,
+        "hold_total_endpoints": 163314,
+        "WPWS_ns": 1.1,
+        "pulse_failing_endpoints": 0,
+        "sha256": "07308c70b32c3975dfcb828b1a9c39ff799f5a3521047b76dca81216f027d68b"
+      },
+      "Fast_85C": {
+        "WNS_ns": 1.66,
+        "TNS_ns": 0.0,
+        "setup_failing_endpoints": 0,
+        "setup_total_endpoints": 163396,
+        "WHS_ns": 0.036,
+        "THS_ns": 0.0,
+        "hold_failing_endpoints": 0,
+        "hold_total_endpoints": 163314,
+        "WPWS_ns": 1.1,
+        "pulse_failing_endpoints": 0,
+        "sha256": "123a6f14200934bc5e944f749a07ff8979785afa12114793d5caf86f11317c6f"
+      }
+    },
+    "routing": {
+      "routable nets": 97423,
+      "fully routed nets": 97423,
+      "nets with routing errors": 0
+    },
+    "utilization": {
+      "Slice LUTs": 48501.0,
+      "Slice Registers": 54965.0,
+      "Block RAM Tile": 110.5,
+      "RAMB36/FIFO": 94.0,
+      "RAMB18": 33.0,
+      "F7 Muxes": 3090.0,
+      "F8 Muxes": 763.0,
+      "DSPs": 13.0,
+      "Occupied slices": 15793.0
+    },
+    "complete": true,
+    "min_WNS_ns": 0.049,
+    "min_WHS_ns": 0.036,
+    "worst_setup_path": [
+      0.049,
+      "KL_mbx/rd_off_r_reg[13]/C",
+      "KL_mbx/reg_rdata_r_reg[8]/D",
+      "milansoc_crg_clkout0"
+    ],
+    "floor_pass": true,
+    "selected": false,
+    "selected_passes_floor": true
+  }
+]

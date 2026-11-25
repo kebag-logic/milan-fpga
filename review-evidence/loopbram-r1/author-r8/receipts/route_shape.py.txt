@@ -1,0 +1,93 @@
+Candidate head: 09201d35d7ea720b3ba205da185ba35c159ec24a
+Source: route_shape.py
+Original SHA256: e1492df82bbacd6e604601ee761f0773af3274345d2271883e1b8f680546d4ff
+Scope: complete text; paths and host fields normalized
+
+"""One enabled shape: synthesis, then all three prescribed placement directives from one post-opt checkpoint.
+
+The recipe is round 5's (8x8) and round 4's (1x1) unchanged: AreaOptimized_high synthesis, ExploreArea opt, the
+directive, AggressiveExplore physical optimization and routing, the signoff reports. Every Vivado run goes through
+vivado-slot.sh with VIVADO_SLOTS=2 and VIVADO_MIN_GB=20. All three directives always run; the best is selected.
+"""
+import json
+import os
+import re
+import subprocess
+import sys
+import time
+from pathlib import Path
+
+w = Path(__file__).resolve().parent
+sys.path.insert(0, str(w))
+import binding  # noqa: E402
+
+name = sys.argv[1]
+SLOT = '$MANAGEMENT/vivado-slot.sh'
+VIVADO = '$HOME/Xilinx2/2026.1/Vivado/bin/vivado'
+ENV = dict(os.environ, VIVADO_SLOTS='2', VIVADO_MIN_GB='20')
+DIRECTIVES = ('ExtraPostPlacementOpt', 'AltSpreadLogic_high', 'ExtraTimingOpt')
+gate = w / 'route' / name / 'gateware'
+log = (w / f'route-{name}.events').open('a')
+
+
+def event(**kw):
+    kw['time'] = time.strftime('%Y-%m-%dT%H:%M:%S%z')
+    log.write(json.dumps(kw) + '\n')
+    log.flush()
+    print(json.dumps(kw), flush=True)
+
+
+def inputs():
+    """Every file the project reads, and what it holds: sources, memory images, constraints, sourced TCL, config, ELF."""
+    text = (gate / 'alinx_ax7101.tcl').read_text()
+    files = {Path(p) if p.startswith('/') else gate / p
+             for p in re.findall(r'(?:read_verilog|read_vhdl|read_xdc|source|read_ip|read_mem|add_files)\s+(?:-\S+\s+)*\{?([^\s{}]+)\}?', text)}
+    files |= set(gate.glob('*.init')) | set(gate.glob('*.tcl')) | set(gate.glob('*.xdc')) | set(gate.glob('*.v'))
+    files |= {Path(a) for a in re.findall(r'(/data-2/[^\s{}"]+\.(?:svh|vh|hex|mem|init|sv|v|tcl|xdc))', text)}
+    for d in re.findall(r'(?:-include_dirs|include_dirs)\s+\{([^}]*)\}', text) + re.findall(r'-include_dirs\s+(/\S+)', text):
+        for one in d.split():
+            files |= {p for p in Path(one).rglob('*') if p.suffix in ('.svh', '.vh', '.hex', '.mem')}
+    files |= {w / (name + '.yaml'), w / 'builds' / (name + '-on') / 'ctrl_app.elf', w / 'measure_soc.py'}
+    gen = binding.ROOT / 'sw/builder/out/loopbram_measure_r8' / name
+    files |= {p for p in gen.rglob('*') if p.is_file()}
+    return {str(p): binding.sha(p) for p in sorted(files) if p.is_file() and 'measure_' not in p.name
+            or p.name == 'measure_soc.py'}
+
+
+def vrun(cwd, tcl):
+    cmd = [SLOT, VIVADO, '-mode', 'batch', '-nojournal', '-nolog', '-source', str(tcl)]
+    start = time.time()
+    with tcl.with_suffix('.log').open('w') as s:
+        rc = subprocess.run(cmd, cwd=cwd, env=ENV, stdout=s, stderr=subprocess.STDOUT).returncode
+    tcl.with_suffix('.json').write_text(json.dumps(
+        {'command': cmd, 'cwd': str(cwd), 'exit': rc, 'seconds_including_slot_wait': time.time() - start,
+         'VIVADO_SLOTS': '2', 'VIVADO_MIN_GB': '20'}, indent=2) + '\n')
+    event(step='vivado', tcl=str(tcl.relative_to(w)), exit=rc, seconds=round(time.time() - start, 1))
+    return rc
+
+
+ident, hashes = binding.identity(), inputs()
+(w / f'inputs-{name}.json').write_text(json.dumps({'identity': ident, 'inputs': hashes}, indent=2) + '\n')
+event(step='start', shape=name, head=ident['head'], tree=ident['tree'], inputs=len(hashes))
+text = (gate / 'alinx_ax7101.tcl').read_text()
+pre, post = text.split('# Add pre-placement commands', 1)
+synth = gate / 'measure_synth.tcl'
+synth.write_text('set_msg_config -id {Synth 8-324} -new_severity ERROR\n' + pre +
+                 '\nwrite_checkpoint -force measure_opt.dcp\nquit\n')
+if vrun(gate, synth) or not (gate / 'measure_opt.dcp').exists():
+    event(step='end', failed='synthesis')
+    sys.exit(1)
+event(step='checkpoint', sha256=binding.sha(gate / 'measure_opt.dcp'))
+after = inputs()
+event(step='inputs-after-synthesis', unchanged=after == hashes, same_identity=binding.identity() == ident)
+for directive in DIRECTIVES:
+    d = gate / directive
+    d.mkdir(exist_ok=True)
+    rest = post.split('# Bitstream generation')[0].replace(
+        'place_design -directive ExtraPostPlacementOpt', 'place_design -directive ' + directive)
+    assert 'place_design -directive ' + directive in rest
+    rest += '\nreport_utilization -hierarchical -file routed_hier.rpt\nreport_utilization -file routed_util.rpt\nquit\n'
+    tcl = d / 'measure_route.tcl'
+    tcl.write_text('set_param general.maxThreads 16\nopen_checkpoint ../measure_opt.dcp\n' + rest)
+    vrun(d, tcl)
+event(step='end', inputs_unchanged=inputs() == hashes, same_identity=binding.identity() == ident)
