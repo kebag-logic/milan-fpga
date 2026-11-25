@@ -1,0 +1,23 @@
+Dealer at 45d5c35a (figures refreshed from runs 45383854694 and 45457006166).
+projected = 122 s allowance + figures; observed-max = 122 s + each suite's largest window in those two runs.
+every figure >= every window measured in the two runs: True
+worker projected  obs-max  suites
+     0      1615     1019  follow_ring
+     1      1579     1161  capture_coherence__2, maap__1, milan_dp__2, tsn_fuzz
+     2      1558     1347  capture_coherence__0
+     3      1593     1258  pp_shadow__1, pp_shadow__3, chmap_capture, gptp_tables
+     4      1534     1089  i2spb, media_phase, tcam_csr
+     5      1533     1523  milan_dp__1, aaf_latency_taps, cls, link_guard, nvm_backend, pair_fill, ptp
+     6      1533     1528  milan_dp__0, aaf, cdc, fw_service_budget, ifg, ptp_sync
+     7      1549     1549  capture_coherence__1, mbx
+     8      1584     1108  maap__2, mmcm_servo
+     9      1533      904  maap__3, aaf_clock_meter, aes3, avtp_stream, crf_tx, pcmlpf
+    10      1531     1305  aaf_audio_loop, adp_tx, chmap_render, csr, gptp_txts, lat_history_ring, milan_dp_gm_steps, rx_filter
+    11      1591     1023  pp_shadow__2, crf_rx, reboot_ctrl
+    12      1566     1394  maap__0, milan_dp_render__2, media_grid_align
+    13      1556      978  milan_dp_render__3, gptp_shadow, nvm_cosim
+    14      1573     1343  milan_dp__3, pp_shadow__0, gptp_plane
+    15      1532     1418  milan_dp_mclk__1, aaf_latency_tap_bank, avtp_rxmon, classifier, controller_rate, mmcm_servo_autorepair, ptp_ts, tdm_render, tkdiag
+    16      1533     1355  capture_coherence__3, milan_dp_mclk__3, avtp_parser, cbs, datapath, mac_rmon, media_nco, queues, render_queue
+    17      1533     1295  milan_dp_mclk__2, milan_dp_render__0, milan_dp_render__1, clkvalid, eth_tx_reset, shaper_core, tcam, tdm
+    18      1530     1530  milan_dp_mclk__0

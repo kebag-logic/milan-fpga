@@ -1,0 +1,27 @@
+FPGA-gPTP make -C tb/verilator/engine run; base 1213ac5 (serial recipe) vs head 661e4c3; each arm its own clone, pinned (one thread per physical core), core dumps off (ulimit -c 0; the host's core_pattern pipes cores, so '(core dumped)' still prints), MAKEFLAGS='-jN --no-print-directory', shared ccache. tools/logcmp.py (round 3's, unchanged) removes only host text.
+
+Pair 1, concurrent (22:04-22:12): c-base-j4 on 72, c-head-j4 on 74,76,78,80, c-head-j1 on 82, c-base-j1 on 84; abort pair on 86 and 64,66,68,70.
+Pair 2, concurrent (22:12-22:23): r-base-j4 on 72, r-head-j4 on 74,76,78,80, r-head-j4-b on 64,66,68,70.
+
+arm               commit        wall       CPU    cycles     instr rc
+c-base-j4         1213ac5     453.32    451.63    1.666T    7.518T rc=0
+c-head-j4         661e4c3     221.25    588.38    2.165T    7.540T rc=0
+r-base-j4         1213ac5     653.04     650.6    2.398T    7.518T rc=0
+r-head-j4         661e4c3     221.42    542.93    1.997T    7.540T rc=0
+r-head-j4-b       661e4c3     181.36    493.12    1.815T    7.540T rc=0
+c-base-j1         1213ac5     460.64    458.77    1.693T    7.518T rc=0
+c-head-j1         661e4c3     476.95    475.07    1.752T    7.521T rc=0
+c-base-abort-j4   1213ac5     228.39    227.42    0.837T    2.469T rc=2
+c-head-abort-j4   661e4c3     154.85    155.32    0.571T    2.483T rc=2
+
+Transcripts:
+  c-base-j4 vs c-head-j4             IDENTICAL (171 normalised lines) 
+  r-base-j4 vs r-head-j4             IDENTICAL (171 normalised lines) 
+  r-base-j4 vs r-head-j4-b           IDENTICAL (171 normalised lines) 
+  c-base-j1 vs c-head-j1             IDENTICAL (170 normalised lines) 
+  c-base-abort-j4 vs c-head-abort-j4 DIFFER (60 vs 60 lines, 2 changed) --- A +++ B @@ -60 +60 @@ -make: *** [Makefile:55: run] Aborted (core dumped) +make: *** [Makefile:74: run] Aborted (core dumped) 
+  c-base-j1 vs c-base-j4             DIFFER (170 vs 171 lines, 1 changed) --- A +++ B @@ -3,0 +4 @@ +make[1]: warning: jobserver unavailable: using -j1.  Add '+' to parent make rule. 
+
+Per-pass end times (each pass record's mtime after the run's start):
+  c-head-j4 (read at 22:09, before the rerun reused its clone): pass 3 +7.5 s, pass 0 +149.0 s, pass 2 +214.5 s, pass 1 +220.7 s
+  r-head-j4: pass 3 +13.2 s, pass 2 +149.0 s, pass 1 +163.6 s, pass 0 +220.8 s

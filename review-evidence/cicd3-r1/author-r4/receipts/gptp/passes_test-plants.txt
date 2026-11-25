@@ -1,0 +1,39 @@
+CAUGHT rc=1 plant: the four passes in one job (the round-3 recipe's shape) (5 failing checks)
+    [FAIL] make -j1 run: at most 4 passes at once (budget 1)
+    [FAIL] make -j2 run: at most 4 passes at once (budget 2)
+    [FAIL] a parent make -j3 with two other jobs: 4 passes ran, at most 6 jobs at once in all (budget 3, reached)
+    [FAIL] make -j1: pass 1 fails and the run ends in 0.5 s; passes started ['pass0', 'pass1', 'pass2', 'pass3'], all ended
+CAUGHT rc=1 plant: the pass-0 echo printed under -s (9 failing checks)
+    [FAIL] clean, make -j4 -s: rc 0 vs serial 0
+    [FAIL] pass 0 fails, make -j4 -s: rc 2 vs serial 2
+    [FAIL] pass 1 fails, make -j4 -s: rc 2 vs serial 2
+    [FAIL] pass 3 fails, make -j4 -s: rc 2 vs serial 2
+CAUGHT rc=1 plant: -i not passed to the passes (7 failing checks)
+    [FAIL] pass 0 fails, make -j4 -i: rc 0 vs serial 0
+    [FAIL] pass 1 fails, make -j4 -i: rc 0 vs serial 0
+    [FAIL] passes 1 and 2 fail, make -j4 -i: rc 0 vs serial 0
+    [FAIL] pass 2 SIGSEGV, make -j4 -i: rc 0 vs serial 0
+CAUGHT rc=1 plant: a replay after a failure prints (make -k) (7 failing checks)
+    [FAIL] pass 0 fails, make -j4 -k: rc 2 vs serial 2
+    [FAIL] pass 1 fails, make -j4 -k: rc 2 vs serial 2
+    [FAIL] passes 1 and 2 fail, make -j4 -k: rc 2 vs serial 2
+    [FAIL] pass 2 SIGSEGV, make -j4 -k: rc 2 vs serial 2
+CAUGHT rc=1 plant: a signal death replayed as status 128+n (10 failing checks)
+    [FAIL] pass 2 SIGSEGV, make -j4: rc 2 vs serial 2
+    [FAIL] pass 2 SIGSEGV, make -j1: rc 2 vs serial 2
+    [FAIL] pass 2 SIGSEGV, make -j4 -s: rc 2 vs serial 2
+    [FAIL] pass 2 SIGSEGV, make -j4 -i: rc 0 vs serial 0
+CAUGHT rc=1 plant: no fail-fast stop (2 failing checks)
+    [FAIL] make -j4: pass 1 fails and the run ends in 30.3 s; passes started ['pass0', 'pass1', 'pass2', 'pass3'], all ended
+    [FAIL] make -j1: pass 1 fails and the run ends in 61.0 s; passes started ['pass0', 'pass1', 'pass2', 'pass3'], all ended
+CAUGHT rc=1 plant: a transcript that cannot be printed is skipped (1 failing checks)
+    [FAIL] pass 1's kept transcript made unreadable: rc 0, pass 0 printed, the diagnostic missing, nothing after it
+CAUGHT rc=1 plant: signals not passed to the simulator (1 failing checks)
+    [FAIL] SIGTERM to make's own process: make ended (-15), 4 simulators left
+CAUGHT rc=1 plant: standard error kept with standard output (46 failing checks)
+    [FAIL] clean, make -j4: rc 0 vs serial 0
+    [FAIL] clean, make -j1: rc 0 vs serial 0
+    [FAIL] clean, make -j4 -s: rc 0 vs serial 0
+    [FAIL] clean, make -j4 -i: rc 0 vs serial 0
+9/9 plants caught
+rc=0

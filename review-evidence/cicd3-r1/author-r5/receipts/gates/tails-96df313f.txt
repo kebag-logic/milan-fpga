@@ -1,0 +1,146 @@
+== check_archive
+archive gate: OK (21 historical page(s), each indexed with metadata and a current successor)
+== check_doc_paths
+doc path gate: OK (1765 cited paths all resolve, 2 allowlisted; 10 line anchor(s) within their file)
+== check_doc_style
+documentation style: OK (25 current documents)
+== check_em_dash
+check_em_dash: 0 finding(s) over 178 added line(s) in 3 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [fcbc31f3..HEAD]
+== check_hygiene
+  superproject: trailing whitespace 0<=0, missing EOF newline 0<=0, CRLF line ending 0<=0, UTF-8 BOM 0<=0, tab in SystemVerilog 0<=0
+  protocol-processor: trailing whitespace 0<=1, missing EOF newline 0<=0, CRLF line ending 0<=0, UTF-8 BOM 0<=0, tab in SystemVerilog 0<=0
+  gptp-processor: trailing whitespace 0<=0, missing EOF newline 0<=0, CRLF line ending 0<=0, UTF-8 BOM 0<=0, tab in SystemVerilog 0<=0
+HYGIENE RATCHET: PASS (3 population(s), 1542 file(s))
+== check_py_idiom
+  unmanaged open: 0 <= 0
+  too many parameters: 7 <= 7
+  global statement: 0 <= 0
+  over-long line: 0 <= 0
+== check_sh_idiom
+  shebang without the executable bit: 0
+  no strict mode: 5 <= 5
+  unquoted expansion: 3 <= 3
+  top-heavy long script: 0 <= 0
+== check_sweep_shape
+  [sweep-shape] build.sh cfg_ax8x8: 29 design flags on the dry-run launch line agree with endstation_ax7101_8x8.yaml flag for flag, --entity-gen-dir names it, and sw/builder/out/endstation_ax7101_8x8/soc_params.json is its current emission
+  [sweep-shape] build.sh: `export PYTHONHASHSEED=0` on line 521 precedes the milan_soc.py launch on line 522
+  [sweep-shape] sweep.sh: `export PYTHONHASHSEED=0` on line 29 precedes the milan_soc.py launch on line 119
+sweep shape gate: OK
+== check_todo_ownership
+TODO ownership gate: OK (0 owned marker(s), 0 unowned; 80 near-miss occurrence(s) on 73 line(s) correctly not treated as markers; 1621 first-party file(s) read)
+== ci_capture_cases_selftest
+[i]  1 builds on 1 worker(s), one per CPU this process may use; the datapath builds start first
+/data-2/milan/tmp/cicd-a839/r5/tmp/capture-case-controls-q5wv45fi/second checked 23
+capture scheduling controls: 43 units, unchanged registration arguments
+capture observations: full/sharded values match; failed unit remains failed
+== ci_case_receipts_selftest
+case union: 36 cases exactly once; observations verified
+receipt control: changed receipt output digest refused
+receipt control: changed checked value and its digest refused by comparison
+case receipt self-test: 36 driver cases, union and comparison controls pass
+== ci_events_check
+  note cron `17 1 * * *` renders 01:17 UTC; the policy page states both
+ci_events: OK (2287 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)
+== ci_events_selftest
+  ok   default-branch: pull_request on main warns and continues
+  ok   default-branch: push on main warns and continues
+  ok   default-branch: a missing event cannot run
+selftest: PASS (2287 contract items, 5811 arms)
+== ci_fail_fast_selftest
+elaborate: generated graph, collector failure, watcher-tail failure, raw skipped matrices PASS
+rtl: generated graph, collector failure, watcher-tail failure, raw skipped matrices PASS
+rtl-fast: generated graph, collector failure, watcher-tail failure, raw skipped matrices PASS
+fail-fast controls: first failure, complete success, sibling selection, fork zero-write PASS
+== ci_gate_workflows_check
+== ci_gate_workflows_selftest
+LiteX legs refused a changed inventory: LiteX leg 1: inventory differs from the runner
+LiteX legs refused a changed schema: LiteX leg receipt schema differs
+LiteX union: every simulation exactly once, each a pass PASS
+gate workflow and union controls: PASS
+== ci_install_cache_selftest
+install caches: version/source/recipe controls and unchanged test commands PASS
+constraint source: a0b20a1df6e831386d5d5241d3b839f5572e4c7cfd20bbf2231ee81c8f7bede5
+== ci_maap_cases_selftest
+
+MAAP observation controls: raw status and checked output preserved
+MAAP dropped-everywhere control: refused against the driver inventory
+MAAP scheduling controls: 66 cases retain their source and checks
+== ci_make_cases_selftest
+make case start order control: an unmeasured suite keeps driver order
+make case start order: milan_dp's 26 measured costs name live cases
+make case start order: media_phase's 13 measured costs name live cases
+make case runner: all controls pass
+== ci_manifest_selftest
+two identical cancelled collections refused
+forged completeness refused
+duplicate JSON key refused
+manifest comparison controls: PASS
+== ci_runtime_evidence_selftest
+runtime control refused: missing retained tree
+runtime control refused: changed retained tree
+no-metadata recorder: actual checkout retained; failure remains failure
+runtime manifest collectors: all controls PASS
+== ci_suite_collect_selftest
+collection refused: missing-owned-log
+collection refused: forged-union-verdicts
+collection refused: changed-union-log
+physical suite collection: all controls PASS
+== ci_suite_pieces_selftest
+media_phase: refused changed tree
+media_phase: refused masked failing log
+media_phase: refused missing executed log
+suite pieces: 65 parents, 94 scheduled units, all controls PASS
+== ci_workflow_plan_selftest
+plan control: forged plan refused against committed source
+plan control: forged tree refused against committed source
+plan control: dirty bytes and another head cannot redefine committed inputs
+workflow planner: all controls pass
+== docs_check
+docs_check: 0 finding(s) across 223 md files + 1943 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+== docs_inventory
+documentation inventory: OK (538 lines, docs/DOCUMENTATION_AUDIT.md is fresh)
+== generate_ci_evidence_pins
+== gen_toc_anchors
+anchor check: 759 existing cross-page fragment links reproduced
+== gen_toc_check
+TOC gate: OK (160 page(s) carry an annotated contents list, 18 below the 3-section threshold)
+== gptp_shadow_lifecycle
+unsafe-SIGKILL: {"caller_changed": true, "cleanup_required": false, "exit": -9, "handshake": {"child": 2568918, "cwd": "/data-2/milan/tmp/cicd-a839/r5/tmp/mutant-lifecycle-4nj6uxua/unsafe-SIGKILL input [523]/tb/verilator/gptp_shadow", "identities": {"2568797": ["17315391", "S"], "2568918": ["17315395", "S"]}, "mutations": ["abort_counts_as_completion"], "pid": 2568797, "private": "/data-2/milan/tmp/cicd-a839/r5/tmp/mutant-lifecycle-4nj6uxua/unsafe-SIGKILL input [523]"}, "signal": "SIGKILL", "unsafe_control_detected": true}
+nested-SIGINT: {"exit": 130, "handshake": {"child": 2570942, "cwd": "/data-2/milan/tmp/cicd-a839/r5/tmp/mutant-lifecycle-4nj6uxua/nested-SIGINT-control/milan-mutant-stage-1000/gptp-shadow-mutants-0/tb/verilator/gptp_shadow", "identities": {"2570910": ["17315808", "S"], "2570942": ["17315815", "S"]}, "mutations": ["abort_counts_as_completion"], "pid": 2570910, "private": "/data-2/milan/tmp/cicd-a839/r5/tmp/mutant-lifecycle-4nj6uxua/nested-SIGINT-control/milan-mutant-stage-1000/gptp-shadow-mutants-0"}, "nested_driver": true, "next_suite": false, "scratch_removed": true, "source_unchanged": true}
+nested-SIGTERM: {"exit": 143, "handshake": {"child": 2574475, "cwd": "/data-2/milan/tmp/cicd-a839/r5/tmp/mutant-lifecycle-4nj6uxua/nested-SIGTERM-control/milan-mutant-stage-1000/gptp-shadow-mutants-0/tb/verilator/gptp_shadow", "identities": {"2574424": ["17316308", "S"], "2574475": ["17316319", "S"]}, "mutations": ["abort_counts_as_completion"], "pid": 2574424, "private": "/data-2/milan/tmp/cicd-a839/r5/tmp/mutant-lifecycle-4nj6uxua/nested-SIGTERM-control/milan-mutant-stage-1000/gptp-shadow-mutants-0"}, "nested_driver": true, "next_suite": false, "scratch_removed": true, "source_unchanged": true}
+mutant lifecycle: PASS (normal/repeat, nine named defects, survivor, build, unread-file and Git-setting acceptance, input/Git-redirect/record/facility refusals, INT/TERM/KILL, unsafe negative controls)
+== measure_fail_fast
+   .github/workflows/rtl.yml:327  the grep IS the version assertion; its status is the verdict
+
+FAIL-FAST RATCHET: PASS (80 <= 84 modules without an elaboration contract, 3 <= 4 masked pipeline(s), 0 <= 0 discarded captured verdict(s), 2 waived by site)
+  the ratchets can be lowered to 80, 3 and 0
+== measure_naming
+
+95 candidate(s): 91 boundary name(s) hide a documented unit and 4 are named for a different unit than documented (4525 ports and 691 parameters scanned, 385 with no //! and so not judged here, 561 match(es) excluded with a reason)
+
+NAMING RATCHET: PASS (95 candidate(s), all recorded by identity; 95 recorded)
+== measure_test_evidence
+runner evidence contract: OK
+
+TEST-EVIDENCE RATCHET: PASS (67 <= 77 suite(s) without a mutation arm, 10 <= 10 unseeded draw site(s), 0 <= 0 unexplained DUT-source reader(s), 3 <= 3 wall-clock-dependent suite file(s))
+  the mutation ratchet can be lowered to 67
+== mutant_stage
+mutant stage control: a root that is owned by uid is refused, and the driver stages elsewhere
+mutant stage control: a TMPDIR others may write without the sticky bit is refused
+mutant stage control: an earlier readable root is made private and used, its old entries ignored
+mutant stage: all controls PASS
+== suite_shards
+  ok   reject '5/4'
+  ok   reject '0/0'
+  ok   reject 'a/4'
+selftest: PASS
+== suite_tally_selftest
+  ok   cli-verdict-refuses-marker       rc=1  -- ...and refuses one that printed [FAIL], with a non-zero exit
+  ok   cli-verdict-refuses-tally        rc=1  -- ...and one whose tally counts a failure
+  ok   cli-verdict-unreadable-log       rc=2  -- a log that cannot be read is an unknown, never a pass
+selftest: PASS
+== test_suite_cancellation
+facility-prctl-fails: {"exit": 2, "facility": "prctl-fails", "refused": true, "sweep_started": false}
+facility-no-pidfd-open: {"exit": 2, "facility": "no-pidfd-open", "refused": true, "sweep_started": false}
+facility-no-pidfd-signal: {"exit": 2, "facility": "no-pidfd-signal", "refused": true, "sweep_started": false}
+suite cancellation: PASS (INT/TERM boundaries, reaped identities, foreign sibling, partial logs, attributed cancellation reports, lock wait, next-suite sentinel, ordinary/masked/timeout, hard KILL/HUP stops, facility refusals, owner report, re-parenting, late exit, stall, shell window, survivor, late cancel, stated seconds, reused identity, unsafe negative controls)

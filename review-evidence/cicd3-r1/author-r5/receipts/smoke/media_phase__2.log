@@ -1,0 +1,185 @@
+%Warning-GENUNNAMED: ../../../hdl/ieee1722/aaf/KL_pair_blend.sv:94:5: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                    : ... Suggest assign a label with 'begin : gen_<label_name>'
+   94 |     $error("KL_pair_blend: TDM_SLOTS_P=%0d needs 1 + %0d merged pair slots, which does not fit the 4-bit capture pair-slot bus (16). The blend ships as I2S + TDM8; widen the pair-slot bus before asking for more.",
+      |     ^~~~~~
+                     ... For warning description see https://verilator.org/warn/GENUNNAMED?v=5.050
+                     ... Use "/* verilator lint_off GENUNNAMED */" and lint_on around source to disable this message.
+%Warning-SYNCASYNCNET: ../../../hdl/ieee1722/aaf/KL_aaf_capture_i2s.sv:42:25: Signal flopped as both synchronous and async: 'blend_wrap.u_i2s.rst_n'
+                       ../../../hdl/ieee1722/aaf/KL_aaf_capture_i2s.sv:143:10: ... Location of async usage
+  143 |     if (!rst_n) begin
+      |          ^~~~~
+                       ../../../hdl/ieee1722/aaf/KL_aaf_capture_i2s.sv:71:33: ... Location of sync usage
+   71 |     tarst_n_r <= {tarst_n_r[0], rst_n};
+      |                                 ^~~~~
+                       ... For warning description see https://verilator.org/warn/SYNCASYNCNET?v=5.050
+                       ... Use "/* verilator lint_off SYNCASYNCNET */" and lint_on around source to disable this message.
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.554 MB sources in 9 modules, into 0.503 MB in 7 C++ files needing 0.001 MB
+- Verilator: Walltime 5.513 s (elab=0.008, cvt=0.034, bld=5.455); cpu 0.064 s on 4 threads; allocated 351.250 MB
+%Warning-PINMISSING: media_phase_wrap.sv:144:13: Instance has missing pin: 'tspec_max_frame_o'
+  144 |   KL_crf_tx u_tx (
+      |             ^~~~
+                     ../../../hdl/ieee1722/crf/KL_crf_tx.sv:234:23: ... Location of port declaration
+  234 |   output logic [15:0] tspec_max_frame_o
+      |                       ^~~~~~~~~~~~~~~~~
+                     ... For warning description see https://verilator.org/warn/PINMISSING?v=5.050
+                     ... Use "/* verilator lint_off PINMISSING */" and lint_on around source to disable this message.
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.579 MB sources in 8 modules, into 0.489 MB in 6 C++ files needing 0.001 MB
+- Verilator: Walltime 5.522 s (elab=0.008, cvt=0.034, bld=5.463); cpu 0.064 s on 4 threads; allocated 351.348 MB
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.000 MB sources in 0 modules, into 0.000 MB in 0 C++ files needing 0.000 MB
+- Verilator: Walltime 0.009 s (elab=0.000, cvt=0.000, bld=0.009); cpu 0.001 s on 4 threads; allocated 16.496 MB
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.000 MB sources in 0 modules, into 0.000 MB in 0 C++ files needing 0.000 MB
+- Verilator: Walltime 0.009 s (elab=0.000, cvt=0.000, bld=0.009); cpu 0.001 s on 4 threads; allocated 16.496 MB
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.000 MB sources in 0 modules, into 0.000 MB in 0 C++ files needing 0.000 MB
+- Verilator: Walltime 0.009 s (elab=0.000, cvt=0.000, bld=0.009); cpu 0.001 s on 4 threads; allocated 16.496 MB
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.000 MB sources in 0 modules, into 0.000 MB in 0 C++ files needing 0.000 MB
+- Verilator: Walltime 0.009 s (elab=0.000, cvt=0.000, bld=0.009); cpu 0.001 s on 4 threads; allocated 16.496 MB
+======== media_phase/blend ========
+======================================================================
+[blend] the Arty I2S + TDM8 capture of one domain, graded at its pins
+  info: [blend 0] 144 banked frames; I2S frame start - banked instant -29.1 .. -15.8 ns, TDM frame start - banked instant 11.5 .. 24.9 ns, I2S against TDM of one bank max 40.7 ns
+  [ ok ] [blend 0] every banked pair names a frame its codec sent (144 banked)
+  [ ok ] [blend 0] the I2S pair of every banked frame started at its pins inside +/-5 % of Ps of the banked instant, unfolded (max 29.1 ns)
+  [ ok ] [blend 0] every TDM pair of every banked frame started at its pins inside +/-5 % of Ps of the banked instant, unfolded (max 24.9 ns)
+  [ ok ] [blend 0] ...the I2S pair inside the I2S marker latency's derivation, +/-40 ns (-29.1 .. -15.8 ns)
+  info: [blend 1] 144 banked frames; I2S frame start - banked instant -24.6 .. -11.3 ns, TDM frame start - banked instant 16.1 .. 29.4 ns, I2S against TDM of one bank max 40.7 ns
+  [ ok ] [blend 1] every banked pair names a frame its codec sent (144 banked)
+  [ ok ] [blend 1] the I2S pair of every banked frame started at its pins inside +/-5 % of Ps of the banked instant, unfolded (max 24.6 ns)
+  [ ok ] [blend 1] every TDM pair of every banked frame started at its pins inside +/-5 % of Ps of the banked instant, unfolded (max 29.4 ns)
+  [ ok ] [blend 1] ...the I2S pair inside the I2S marker latency's derivation, +/-40 ns (-24.6 .. -11.3 ns)
+  info: [blend 2] 144 banked frames; I2S frame start - banked instant -26.7 .. -13.4 ns, TDM frame start - banked instant 14.0 .. 27.3 ns, I2S against TDM of one bank max 40.7 ns
+  [ ok ] [blend 2] every banked pair names a frame its codec sent (144 banked)
+  [ ok ] [blend 2] the I2S pair of every banked frame started at its pins inside +/-5 % of Ps of the banked instant, unfolded (max 26.7 ns)
+  [ ok ] [blend 2] every TDM pair of every banked frame started at its pins inside +/-5 % of Ps of the banked instant, unfolded (max 27.3 ns)
+  [ ok ] [blend 2] ...the I2S pair inside the I2S marker latency's derivation, +/-40 ns (-26.7 .. -13.4 ns)
+  info: [blend 3] 144 banked frames; I2S frame start - banked instant -28.8 .. -15.5 ns, TDM frame start - banked instant 11.9 .. 25.2 ns, I2S against TDM of one bank max 40.7 ns
+  [ ok ] [blend 3] every banked pair names a frame its codec sent (144 banked)
+  [ ok ] [blend 3] the I2S pair of every banked frame started at its pins inside +/-5 % of Ps of the banked instant, unfolded (max 28.8 ns)
+  [ ok ] [blend 3] every TDM pair of every banked frame started at its pins inside +/-5 % of Ps of the banked instant, unfolded (max 25.2 ns)
+  [ ok ] [blend 3] ...the I2S pair inside the I2S marker latency's derivation, +/-40 ns (-28.8 .. -15.5 ns)
+  info: [blend 4] 144 banked frames; I2S frame start - banked instant -25.0 .. -11.6 ns, TDM frame start - banked instant 15.7 .. 29.1 ns, I2S against TDM of one bank max 40.7 ns
+  [ ok ] [blend 4] every banked pair names a frame its codec sent (144 banked)
+  [ ok ] [blend 4] the I2S pair of every banked frame started at its pins inside +/-5 % of Ps of the banked instant, unfolded (max 25.0 ns)
+  [ ok ] [blend 4] every TDM pair of every banked frame started at its pins inside +/-5 % of Ps of the banked instant, unfolded (max 29.1 ns)
+  [ ok ] [blend 4] ...the I2S pair inside the I2S marker latency's derivation, +/-40 ns (-25.0 .. -11.6 ns)
+  info: [blend 5] 144 banked frames; I2S frame start - banked instant -27.1 .. -13.7 ns, TDM frame start - banked instant 13.6 .. 26.9 ns, I2S against TDM of one bank max 40.7 ns
+  [ ok ] [blend 5] every banked pair names a frame its codec sent (144 banked)
+  [ ok ] [blend 5] the I2S pair of every banked frame started at its pins inside +/-5 % of Ps of the banked instant, unfolded (max 27.1 ns)
+  [ ok ] [blend 5] every TDM pair of every banked frame started at its pins inside +/-5 % of Ps of the banked instant, unfolded (max 26.9 ns)
+  [ ok ] [blend 5] ...the I2S pair inside the I2S marker latency's derivation, +/-40 ns (-27.1 .. -13.7 ns)
+== media_phase blend: checks: 24   failures: 0 ==
+RESULT: PASS
+======== media_phase/engage ========
+======================================================================
+[engage] media-clock phase loop, silicon window, clk 3.125 MHz, audio 768 kHz
+  [ ok ] [engage] phase inside +/-5 % of Ps within 45 s of the event
+  info: [engage] inside the band 27.46 s after the event
+  [ ok ] [engage] phase held inside +/-5 % of Ps to the end (max 723.3 ns)
+  [ ok ] [engage] the DUT's CRF output on the reference's grid (max 880.8 ns)
+  [ ok ] [engage] the servo reports settled at the end
+  [ ok ] [engage] still LOCKED at the end
+  [ ok ] [engage] engaged +0.4413 Ps from the reference's grid
+  [ ok ] [engage] the pull is slew-limited: <= 400 ns of phase per window (max 304.7)
+  [ ok ] [engage] the pull went the short way (max |phase| 0.4413 Ps after engaging)
+  [ ok ] [engage] every DUT CRF timestamp is a frame instant of its own grid (max 160.9 ns)
+  [ ok ] [engage] fine-PS protocol clean
+  [ ok ] [engage] settled never read 1 with the true phase outside the band (0 windows, worst 0.0 ns)
+  [ ok ] [engage] MCSRV_STAT[9] mirrors phase_o[21] on every cycle
+== media_phase engage: checks: 12   failures: 0 ==
+RESULT: PASS
+======== media_phase/edge2 ========
+======================================================================
+[edge2] media-clock phase loop, silicon window, clk 3.125 MHz, audio 768 kHz
+  [ ok ] [pre] phase inside +/-5 % of Ps within 14 s of the event
+  info: [pre] inside the band 0.06 s after the event
+  [ ok ] [pre] phase held inside +/-5 % of Ps to the end (max 228.6 ns)
+  [ ok ] [pre] the DUT's CRF output on the reference's grid (max 396.2 ns)
+  [ ok ] [pre] the servo reports settled at the end
+  [ ok ] [pre] still LOCKED at the end
+  info: [edge2] the reference stepped to put the phase at +0.5000 Ps at 15.00 s
+  [ ok ] [edge2] phase inside +/-5 % of Ps within 45 s of the event
+  info: [edge2] inside the band 26.64 s after the event
+  [ ok ] [edge2] phase held inside +/-5 % of Ps to the end (max 598.7 ns)
+  [ ok ] [edge2] the DUT's CRF output on the reference's grid (max 811.3 ns)
+  [ ok ] [edge2] the servo reports settled at the end
+  [ ok ] [edge2] still LOCKED at the end
+  [ ok ] [edge2] re-engaged at the fold (-0.4913 Ps from the reference's grid)
+  [ ok ] [edge2] the pull is slew-limited: <= 400 ns of phase per window (max 329.9)
+  [ ok ] [edge2] the phase term let go at the reference's history restart (within 10 ms)
+  [ ok ] [edge2] the settled flag fell at the reference's history restart
+  [ ok ] [edge2] every DUT CRF timestamp is a frame instant of its own grid (max 160.8 ns)
+  [ ok ] [edge2] fine-PS protocol clean
+  [ ok ] [edge2] settled never read 1 with the true phase outside the band (0 windows, worst 0.0 ns)
+  [ ok ] [edge2] MCSRV_STAT[9] mirrors phase_o[21] on every cycle
+== media_phase edge2: checks: 18   failures: 0 ==
+RESULT: PASS
+======== media_phase/holdover ========
+======================================================================
+[holdover] media-clock phase loop, silicon window, clk 3.125 MHz, audio 768 kHz
+  [ ok ] [pre] phase inside +/-5 % of Ps within 14 s of the event
+  info: [pre] inside the band 0.06 s after the event
+  [ ok ] [pre] phase held inside +/-5 % of Ps to the end (max 210.4 ns)
+  [ ok ] [pre] the DUT's CRF output on the reference's grid (max 370.2 ns)
+  [ ok ] [pre] the servo reports settled at the end
+  [ ok ] [pre] still LOCKED at the end
+  [ ok ] [holdover] the servo holds over while the reference is silent
+  info: [holdover] the reference returns at 30.00 s, phase +0.4820 Ps
+  [ ok ] [holdover] phase inside +/-5 % of Ps within 40 s of the event
+  info: [holdover] inside the band 27.33 s after the event
+  [ ok ] [holdover] phase held inside +/-5 % of Ps to the end (max 741.5 ns)
+  [ ok ] [holdover] the DUT's CRF output on the reference's grid (max 906.2 ns)
+  [ ok ] [holdover] the servo reports settled at the end
+  [ ok ] [holdover] still LOCKED at the end
+  [ ok ] [holdover] the phase term let go at HOLDOVER (within 200 ms)
+  [ ok ] [holdover] the settled flag fell at HOLDOVER
+  [ ok ] [holdover] every DUT CRF timestamp is a frame instant of its own grid (max 160.8 ns)
+  [ ok ] [holdover] fine-PS protocol clean
+  [ ok ] [holdover] settled never read 1 with the true phase outside the band (0 windows, worst 0.0 ns)
+  [ ok ] [holdover] MCSRV_STAT[9] mirrors phase_o[21] on every cycle
+== media_phase holdover: checks: 17   failures: 0 ==
+RESULT: PASS
+======== media_phase/slew ========
+======================================================================
+[slew] media-clock phase loop, silicon window, clk 3.125 MHz, audio 768 kHz
+  [ ok ] [pre] phase inside +/-5 % of Ps within 14 s of the event
+  info: [pre] inside the band 0.06 s after the event
+  [ ok ] [pre] phase held inside +/-5 % of Ps to the end (max 210.4 ns)
+  [ ok ] [pre] the DUT's CRF output on the reference's grid (max 370.2 ns)
+  [ ok ] [pre] the servo reports settled at the end
+  [ ok ] [pre] still LOCKED at the end
+  info: [slew] the local PHC slews +27 us at 200 ppm from 15.00 s
+  info: [slew] phase +0.3019 Ps when the slew ends
+  [ ok ] [slew] phase inside +/-5 % of Ps within 40 s of the event
+  info: [slew] inside the band 20.04 s after the event
+  [ ok ] [slew] phase held inside +/-5 % of Ps to the end (max 661.5 ns)
+  [ ok ] [slew] the DUT's CRF output on the reference's grid (max 823.5 ns)
+  [ ok ] [slew] the servo reports settled at the end
+  [ ok ] [slew] still LOCKED at the end
+  [ ok ] [slew] the pull went the short way (max |phase| 0.3223 Ps after the slew)
+  [ ok ] [slew] the phase term let go at the slew level (within 5 ms)
+  [ ok ] [slew] the settled flag fell at the slew level
+  [ ok ] [slew] every DUT CRF timestamp is a frame instant of its own grid (max 160.9 ns)
+  [ ok ] [slew] fine-PS protocol clean
+  [ ok ] [slew] settled never read 1 with the true phase outside the band (0 windows, worst 0.0 ns)
+  [ ok ] [slew] MCSRV_STAT[9] mirrors phase_o[21] on every cycle
+== media_phase slew: checks: 17   failures: 0 ==
+RESULT: PASS
+======== media_phase/carry ========
+======================================================================
+[carry] media-clock phase loop, silicon window, clk 3.125 MHz, audio 768 kHz
+  [ ok ] [carry] LOCKED on rate alone
+  info: [carry] 40 windows, 15 odd errors, sum(e) 255, integrator moved 32640/256
+  [ ok ] [carry] the window sample is wide enough to grade (odd errors seen)
+  [ ok ] [carry] the integrator moved by exactly sum(e) / 2 (no LSB floored)
+  [ ok ] [carry] the phase term stayed off (never engaged)
+  [ ok ] [carry] every DUT CRF timestamp is a frame instant of its own grid (max 160.8 ns)
+  [ ok ] [carry] fine-PS protocol clean
+  [ ok ] [carry] settled never read 1 with the true phase outside the band (0 windows, worst 0.0 ns)
+  [ ok ] [carry] MCSRV_STAT[9] mirrors phase_o[21] on every cycle
+== media_phase carry: checks: 8   failures: 0 ==
+RESULT: PASS

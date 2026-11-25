@@ -1,0 +1,8 @@
+leg 0: ['sw/firmware/ctrl/test/test_ctrl_firmware.py']
+leg 1: ['sw/firmware/gtest/fw_rv32_selftest.py', 'sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py', 'sw/firmware/gtest/fw_coverage.py', 'sw/litex/test_ctrl_memory.py', 'tb/verilator/milan_dp/stream_counter_f5.py']
+refused 0 : THE LEGS name sw/firmware/ctrl/test/no_such.py, which is no known builder with commands this run judges
+refused 1 : THE LEGS name sw/firmware/ctrl/test/no_such.py, which is no known builder with commands this run judges
+refused 0 : THE LEGS name tb/verilator/mbx/Makefile, which is no known builder with commands this run judges
+refused 1 : THE LEGS name tb/verilator/mbx/Makefile, which is no known builder with commands this run judges
+NOT REFUSED 0 ['sw/firmware/gtest/fw_rv32_selftest.py', 'sw/firmware/ctrl/test/test_ctrl_firmware.py', 'sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py', 'sw/firmware/gtest/fw_coverage.py', 'sw/litex/test_ctrl_memory.py', 'tb/verilator/milan_dp/stream_counter_f5.py']
+refused 1 : leg 1/2 runs no builder this run judges

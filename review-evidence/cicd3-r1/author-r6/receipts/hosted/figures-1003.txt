@@ -1,0 +1,10 @@
+fourteen hosted firmware-boundary jobs, runs 45147231523..45481508222
+setup (job - step)                            min    45 mean    86.4 max   152
+leg 0 content: control gate build             min   571 mean   660.6 max   769
+leg 1 content: rv32+nvm+coverage+memory+f5    min   446 mean   498.8 max   597
+judge content: step - builders                min   197 mean   211.6 max   247
+whole job                                     min  1302 mean  1457.8 max  1667
+projection leg 0: figure 769 + slowest setup 152 = 921 s (budget 1276)
+projection leg 1: figure 597 + slowest setup 152 = 749 s (budget 1276)
+projection judge: figure 247 + slowest setup 152 = 399 s (budget 1276)
+whole job max 1667 s; whole projection by the same method 1613 + 152 = 1765

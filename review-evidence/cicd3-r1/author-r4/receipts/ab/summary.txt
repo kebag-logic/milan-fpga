@@ -1,0 +1,46 @@
+Local same-host A/B, both arms concurrent, each pinned to 2 whole cores (4 logical CPUs, the hosted shape),
+hosted job budgets, MAKEFLAGS=-j1, no ccache (OBJCACHE=), SUITE_TIMEOUT=7200; the session pool (64-95; 0-63 all booked).
+shard 1: base fcbc31f3 on 72-75, head 13e6d869 on 76-79; shard 18: base on 80-83, head on 84-87. Command: scripts/run_all_suites.sh LOGS --ci-pieces --shard N/19
+
+== s1base-p1 (fcbc31f3): 1855.50 wall 4532.83 user 110.47 sys; task-clock:u 4657743.97; cycles:u 16512965537940; instructions:u 26195196534279; 
+   capture_coherence__3   421 s
+   milan_dp__1           1115 s
+   aaf                     67 s
+   cbs                      6 s
+   eth_tx_reset             6 s
+   mac_rmon                13 s
+   media_nco               14 s
+   nvm_backend             36 s
+   queues                   6 s
+   tsn_fuzz                15 s
+== s1head-p1 (13e6d869): 1693.37 wall 4360.54 user 114.93 sys; task-clock:u 4489084.46; cycles:u 15883652196235; instructions:u 26212978508364; 
+   capture_coherence__3   398 s
+   milan_dp__1            962 s
+   aaf                     62 s
+   cbs                      6 s
+   eth_tx_reset             6 s
+   mac_rmon                11 s
+   media_nco               14 s
+   nvm_backend             36 s
+   queues                   6 s
+   tsn_fuzz                17 s
+== s18base-p1 (fcbc31f3): 1348.49 wall 2436.46 user 63.07 sys; task-clock:u 2507445.10; cycles:u 8840703896182; instructions:u 13310001737177; 
+   milan_dp_mclk__0      1185 s
+== s18head-p1 (13e6d869): 1244.25 wall 2026.04 user 69.05 sys; task-clock:u 2100076.63; cycles:u 7354874732459; instructions:u 13327897281352; 
+   milan_dp_mclk__0      1073 s
+
+Identity (tools/logcmp4.py: round 3's masks plus the clone path, the staging directory and RENDER-PHASE timing fields; aaf as a multiset, its arms print as they finish at base too):
+   aaf                    IDENTICAL (5434 normalised lines)
+   cbs                    IDENTICAL (26 normalised lines)
+   eth_tx_reset           IDENTICAL (43 normalised lines)
+   mac_rmon               IDENTICAL (64 normalised lines)
+   media_nco              IDENTICAL (163 normalised lines)
+   nvm_backend            IDENTICAL (20 normalised lines)
+   queues                 IDENTICAL (6 normalised lines)
+   tsn_fuzz               IDENTICAL (84 normalised lines)
+   capture_coherence__3   IDENTICAL (13 normalised lines)
+   milan_dp__1            IDENTICAL (3041 normalised lines)
+   milan_dp_mclk__0       IDENTICAL (116 normalised lines)
+   receipt capture_coherence__3   10 cases per-case outcome/rc/output_sha256 identical: True; other differing keys: ['head', 'tree']
+   receipt milan_dp__1            7 cases per-case outcome/rc/output_sha256 identical: True; other differing keys: ['head', 'tree']
+   receipt milan_dp_mclk__0       9 cases per-case outcome/rc/output_sha256 identical: True; other differing keys: ['head', 'tree']

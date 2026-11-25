@@ -1,0 +1,22 @@
+== old root
+fresh-root: ACCEPTED; staged at fresh-root/milan-mutant-stage-1000/probe-0; root is_symlink=False root mode=0o755 slot mode=0o700
+world-writable-root: ACCEPTED; staged at world-writable-root/milan-mutant-stage-1000/probe-0; root is_symlink=False root mode=0o777 slot mode=0o700
+symlinked-root: ACCEPTED; staged at symlinked-root/chosen-by-another-account/probe-0; root is_symlink=True root mode=0o777 slot mode=0o700
+locks-is-a-file: RAISED FileExistsError: [Errno 17] File exists: 'probes/r923-old-root/locks-is-a-file/milan-mutant-stage-1000/locks'
+tempfile.mkdtemp (the base's call): probe-lfg2c5qu mode=0o700, random name, created atomically
+== old alias
+first holder:  tmp/milan-mutant-stage-1000/alias-0
+second holder: tmp-alias/milan-mutant-stage-1000/alias-0
+same physical slot while both held: True; first holder's file survived: False
+== new root
+mutant_stage: probes/r923-new-root/world-writable-root/milan-mutant-stage-1000 may be written by others (mode 0777); staging at a random private directory instead (correct, but the compiler cache cannot answer it)
+mutant_stage: probes/r923-new-root/symlinked-root/milan-mutant-stage-1000 is a symbolic link; staging at a random private directory instead (correct, but the compiler cache cannot answer it)
+fresh-root: ACCEPTED; staged at fresh-root/milan-mutant-stage-1000/probe-0; root is_symlink=False root mode=0o700 slot mode=0o700
+world-writable-root: ACCEPTED; staged at world-writable-root/probe-ijtibx6d; root is_symlink=False root mode=0o777 slot mode=0o700
+symlinked-root: ACCEPTED; staged at symlinked-root/probe-yz5bw8_e; root is_symlink=True root mode=0o777 slot mode=0o700
+locks-is-a-file: ACCEPTED; staged at locks-is-a-file/milan-mutant-stage-1000/probe-0; root is_symlink=False root mode=0o700 slot mode=0o700
+tempfile.mkdtemp (the base's call): probe-e9wf6_va mode=0o700, random name, created atomically
+== new alias
+first holder:  tmp/milan-mutant-stage-1000/alias-0
+second holder: tmp/milan-mutant-stage-1000/alias-1
+same physical slot while both held: False; first holder's file survived: True

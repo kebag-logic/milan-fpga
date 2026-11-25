@@ -1,0 +1,17 @@
+1c1
+< ^[[36;1mpython3 sw/firmware/ctrl/test/ctrl_boundary.py --require-rv32 --selftest --without verilator^[[0m
+---
+> [36;1mpython3 sw/firmware/ctrl/test/ctrl_boundary.py --require-rv32 --selftest --without verilator --capture "$RUNNER_TEMP/firmware-boundary-capture-0" --capture "$RUNNER_TEMP/firmware-boundary-capture-1"[0m
+3,10d2
+< no capture given: running every known builder the run judges under one
+<     sw/firmware/gtest/fw_rv32_selftest.py --require-rv32: exit 0 (<s> s)
+<     sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32: exit 0 (<s> s)
+<     sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py --require-rv32: exit 0 (<s> s)
+<     sw/firmware/gtest/fw_coverage.py --build-only: exit 0 (<s> s)
+<     sw/litex/test_ctrl_memory.py --build-only: exit 0 (<s> s)
+<     tb/verilator/milan_dp/stream_counter_f5.py --build-only: exit 0 (<s> s)
+<     tb/verilator/milan_dp/stream_counter_f5.py --build-only: exit 0 (<s> s)
+15c7
+<   1 compile(s) failed, each with its dependency pass, and compiled nothing: sw/firmware/gtest/fw_gtest.py, sw/firmware/gtest/fw_rv32_selftest.py ran riscv32-linux-gcc -march=rv32i -mabi=ilp32 -fno-stack-protector -fstack-usage -Os -std=c11 -Wall -Werror --sysroot=/tmp/fw-rv32-3ee2qe7c/sysroot -nostdinc -isystem <home-path>/br-milan-rv32/host/bin/ ...
+---
+>   1 compile(s) failed, each with its dependency pass, and compiled nothing: sw/firmware/gtest/fw_gtest.py, sw/firmware/gtest/fw_rv32_selftest.py ran riscv32-linux-gcc -march=rv32i -mabi=ilp32 -fno-stack-protector -fstack-usage -Os -std=c11 -Wall -Werror --sysroot=/tmp/fw-rv32-y_8g0sig/sysroot -nostdinc -isystem <home-path>/br-milan-rv32/host/bin/ ...

@@ -1,0 +1,235 @@
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.637 MB sources in 9 modules, into 0.941 MB in 8 C++ files needing 0.001 MB
+- Verilator: Walltime 5.586 s (elab=0.012, cvt=0.059, bld=5.492); cpu 0.104 s on 4 threads; allocated 354.316 MB
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.146 MB sources in 4 modules, into 0.270 MB in 6 C++ files needing 0.000 MB
+- Verilator: Walltime 5.503 s (elab=0.004, cvt=0.021, bld=5.468); cpu 0.038 s on 4 threads; allocated 349.012 MB
+%Warning-PINMISSING: media_phase_wrap.sv:144:13: Instance has missing pin: 'tspec_max_frame_o'
+  144 |   KL_crf_tx u_tx (
+      |             ^~~~
+                     ../../../hdl/ieee1722/crf/KL_crf_tx.sv:234:23: ... Location of port declaration
+  234 |   output logic [15:0] tspec_max_frame_o
+      |                       ^~~~~~~~~~~~~~~~~
+                     ... For warning description see https://verilator.org/warn/PINMISSING?v=5.050
+                     ... Use "/* verilator lint_off PINMISSING */" and lint_on around source to disable this message.
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.579 MB sources in 8 modules, into 0.489 MB in 6 C++ files needing 0.001 MB
+- Verilator: Walltime 5.522 s (elab=0.008, cvt=0.042, bld=5.454); cpu 0.065 s on 4 threads; allocated 351.348 MB
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.000 MB sources in 0 modules, into 0.000 MB in 0 C++ files needing 0.000 MB
+- Verilator: Walltime 0.009 s (elab=0.000, cvt=0.000, bld=0.009); cpu 0.001 s on 4 threads; allocated 16.496 MB
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.000 MB sources in 0 modules, into 0.000 MB in 0 C++ files needing 0.000 MB
+- Verilator: Walltime 0.009 s (elab=0.000, cvt=0.000, bld=0.009); cpu 0.001 s on 4 threads; allocated 16.496 MB
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.000 MB sources in 0 modules, into 0.000 MB in 0 C++ files needing 0.000 MB
+- Verilator: Walltime 0.009 s (elab=0.000, cvt=0.000, bld=0.009); cpu 0.001 s on 4 threads; allocated 16.496 MB
+======== media_phase/render ========
+======================================================================
+[render] two render interfaces on one clock domain, post-grid delays a frame apart, graded at their pins
+  info: 231 PDUs, frames 130..1190, A out-lead 2, B out-lead 3
+  info: [render A] 4072 samples (3208 at |phi| <= 4 %), 4472 silent slots, max |pin - PT| 833.5 ns at |phi| <= 4 %, 9375.1 ns at any phi, max |pin - (PT - phi)| 0.2 ns
+  [ ok ] [render A] every slot of every frame carries its mapped stream and channel or silence (0 misplaced)
+  [ ok ] [render A] every sample's slot-MSB pin instant, less its slot offset, is its presentation time inside +/-5 % of Ps (max 833.5 ns over 3208 samples)
+  [ ok ] [render A] ...and is the frame instant nearest its presentation time at every phase up to +/-0.45 Ps, inside 100 ns (max 0.2 ns)
+  [ ok ] [render A] every sample a presented PDU carries reaches the pins, at holds of 0.1 to 2.6 ms, and nothing else does (4072 of 4072, 0 missing, 0 unexpected)
+  info: [render B] 2688 samples (2112 at |phi| <= 4 %), 1584 silent slots, max |pin - PT| 874.2 ns at |phi| <= 4 %, 9415.9 ns at any phi, max |pin - (PT - phi)| 40.9 ns
+  [ ok ] [render B] every slot of every frame carries its mapped stream and channel or silence (0 misplaced)
+  [ ok ] [render B] every sample's slot-MSB pin instant, less its slot offset, is its presentation time inside +/-5 % of Ps (max 874.2 ns over 2112 samples)
+  [ ok ] [render B] ...and is the frame instant nearest its presentation time at every phase up to +/-0.45 Ps, inside 100 ns (max 40.9 ns)
+  [ ok ] [render B] every sample a presented PDU carries reaches the pins, at holds of 0.1 to 2.6 ms, and nothing else does (2688 of 2688, 0 missing, 0 unexpected)
+  info: [render] late 2, early 2, untimed 1, slips 6 (runs 6)
+  [ ok ] [render late] each late PDU (its first two events consumed; its timestamp 1 ms past) is counted once (2 of 2)
+  [ ok ] [render early] each too-early PDU (its last two events past the queue; 3 ms ahead) is counted once (2 of 2)
+  [ ok ] [render untimed] the PDU without tv is counted once (1 of 1)
+  [ ok ] [render] slips_o counts every run of presented frames that ends (6 of 6)
+  [ ok ] [render] B's out-lead (3) is at least a frame past A's (2): post-grid delays a frame apart
+== media_phase render: checks: 13   failures: 0 ==
+RESULT: PASS
+======== media_phase/det ========
+======================================================================
+[det inband] the phase detector alone, 256 PDUs a window
+  [ ok ] [det inband] engaged, the window phase inside the band (theta 0)
+  [ ok ] [det inband] settled first reads 1 at the close of the fourth full in-band window (at 4)
+  [ ok ] [det inband] MCSRV_STAT[9] mirrors phase_o[21] on every cycle
+== media_phase det inband: checks: 3   failures: 0 ==
+RESULT: PASS
+======================================================================
+[det events] the phase detector alone, 256 PDUs a window
+  [ ok ] [det events] settled before the restart
+  [ ok ] [det events] settled reads 0 on the cycle after an mr restart
+  [ ok ] [det events] after the restart settled rises only at the close of the fourth clean window (at 4)
+  [ ok ] [det events] settled falls at the first window with a sample out of the band and stays low
+  [ ok ] [det events] MCSRV_STAT[9] mirrors phase_o[21] on every cycle
+== media_phase det events: checks: 5   failures: 0 ==
+RESULT: PASS
+======================================================================
+[det meanin] the phase detector alone, 256 PDUs a window
+  [ ok ] [det meanin] the window phase is the samples' mean, inside the band (theta 0)
+  [ ok ] [det meanin] settled never asserts with every sample outside the band
+== media_phase det meanin: checks: 2   failures: 0 ==
+RESULT: PASS
+======================================================================
+[det balanced] the phase detector alone, 256 PDUs a window
+  [ ok ] [det balanced] the window phase reads the half-period phase (theta -31250, |theta| >= 28125)
+  [ ok ] [det balanced] the committed correction is the slew limit's (-32768/256)
+  [ ok ] [det balanced] settled never asserts
+== media_phase det balanced: checks: 3   failures: 0 ==
+RESULT: PASS
+======================================================================
+[det unbal129] the phase detector alone, 256 PDUs a window
+  [ ok ] [det unbal129] the window phase reads the half-period phase (theta 31249, |theta| >= 28125)
+  [ ok ] [det unbal129] the committed correction is the slew limit's (32768/256)
+  [ ok ] [det unbal129] settled never asserts
+== media_phase det unbal129: checks: 3   failures: 0 ==
+RESULT: PASS
+======================================================================
+[det unbal160] the phase detector alone, 256 PDUs a window
+  [ ok ] [det unbal160] the window phase reads the half-period phase (theta 31249, |theta| >= 28125)
+  [ ok ] [det unbal160] the committed correction is the slew limit's (32768/256)
+  [ ok ] [det unbal160] settled never asserts
+== media_phase det unbal160: checks: 3   failures: 0 ==
+RESULT: PASS
+======================================================================
+[det jitter] the phase detector alone, 256 PDUs a window
+  [ ok ] [det jitter] the window phase reads the half-period phase (theta 31186, |theta| >= 28125)
+  [ ok ] [det jitter] the committed correction is the slew limit's (32768/256)
+  [ ok ] [det jitter] settled never asserts
+== media_phase det jitter: checks: 3   failures: 0 ==
+RESULT: PASS
+======================================================================
+[det cross] the phase detector alone, 256 PDUs a window
+  [ ok ] [det cross] before the crossing the window phase reads +Ps/2 - 100 ns (30951)
+  [ ok ] [det cross] past +Ps/2 the window phase re-folds to the short way, -Ps/2 + 100 ns (-30951)
+== media_phase det cross: checks: 2   failures: 0 ==
+RESULT: PASS
+======================================================================
+[det afterhold] the phase detector alone, 256 PDUs a window
+  [ ok ] [det afterhold] settled near 0 before the hold (theta 0)
+  [ ok ] [det afterhold] after a hold, samples either side of +/-Ps/2 read the half-period phase (theta -31250, |theta| >= 28125)
+  [ ok ] [det afterhold] ...and the committed correction is the slew limit's (-32768/256)
+  [ ok ] [det afterhold] settled never asserts after the hold
+== media_phase det afterhold: checks: 4   failures: 0 ==
+RESULT: PASS
+======================================================================
+[det range] the phase detector alone, 256 PDUs a window
+  [ ok ] [det range] d = 33554431 ns, inside +/-2^25 ns, is sampled (257 a window)
+  [ ok ] [det range] d = -33554431 ns, inside +/-2^25 ns, is sampled (257 a window)
+  [ ok ] [det range] a timestamp 2^25 ns from the domain event is not sampled (d = 33554432 ns: 0 a window)
+  [ ok ] [det range] a timestamp 2^25 ns from the domain event is not sampled (d = -33554432 ns: 0 a window)
+== media_phase det range: checks: 4   failures: 0 ==
+RESULT: PASS
+======================================================================
+[det snap] the phase detector alone, 256 PDUs a window
+  [ ok ] [det snap] mr one cycle before the closing edge: committed phase contribution 0/256 (want 0)
+  [ ok ] [det snap] mr on the closing edge: committed phase contribution 0/256 (want 0)
+  [ ok ] [det snap] mr one cycle after the closing edge: committed phase contribution 3000/256 (want 3000)
+  [ ok ] [det snap] term disabled one cycle before the closing edge: committed phase contribution 0/256 (want 0)
+  [ ok ] [det snap] term disabled on the closing edge: committed phase contribution 0/256 (want 0)
+  [ ok ] [det snap] term disabled one cycle after the closing edge: committed phase contribution 3000/256 (want 3000)
+  [ ok ] [det snap] broken history one cycle before the closing edge: committed phase contribution 0/256 (want 0)
+  [ ok ] [det snap] broken history on the closing edge: committed phase contribution 0/256 (want 0)
+  [ ok ] [det snap] broken history one cycle after the closing edge: committed phase contribution 3000/256 (want 3000)
+  [ ok ] [det snap] not LOCKED one cycle before the closing edge: committed phase contribution 0/256 (want 0)
+  [ ok ] [det snap] not LOCKED on the closing edge: committed phase contribution 0/256 (want 0)
+  [ ok ] [det snap] not LOCKED one cycle after the closing edge: committed phase contribution 3000/256 (want 3000)
+  [ ok ] [det snap] PHC step one cycle before the closing edge: committed phase contribution 0/256 (want 0)
+  [ ok ] [det snap] PHC step on the closing edge: committed phase contribution 0/256 (want 0)
+  [ ok ] [det snap] PHC step one cycle after the closing edge: committed phase contribution 3000/256 (want 3000)
+  [ ok ] [det snap] slew level one cycle before the closing edge: committed phase contribution 0/256 (want 0)
+  [ ok ] [det snap] slew level on the closing edge: committed phase contribution 0/256 (want 0)
+  [ ok ] [det snap] slew level one cycle after the closing edge: committed phase contribution 3000/256 (want 3000)
+== media_phase det snap: checks: 18   failures: 0 ==
+RESULT: PASS
+======== media_phase/edge ========
+======================================================================
+[edge] media-clock phase loop, silicon window, clk 3.125 MHz, audio 768 kHz
+  [ ok ] [pre] phase inside +/-5 % of Ps within 14 s of the event
+  info: [pre] inside the band 0.06 s after the event
+  [ ok ] [pre] phase held inside +/-5 % of Ps to the end (max 228.6 ns)
+  [ ok ] [pre] the DUT's CRF output on the reference's grid (max 396.2 ns)
+  [ ok ] [pre] the servo reports settled at the end
+  [ ok ] [pre] still LOCKED at the end
+  info: [edge] the reference stepped to put the phase at +0.4999 Ps at 15.00 s
+  [ ok ] [edge] phase inside +/-5 % of Ps within 45 s of the event
+  info: [edge] inside the band 26.44 s after the event
+  [ ok ] [edge] phase held inside +/-5 % of Ps to the end (max 618.9 ns)
+  [ ok ] [edge] the DUT's CRF output on the reference's grid (max 827.3 ns)
+  [ ok ] [edge] the servo reports settled at the end
+  [ ok ] [edge] still LOCKED at the end
+  [ ok ] [edge] re-engaged at the fold (-0.4912 Ps from the reference's grid)
+  [ ok ] [edge] the pull is slew-limited: <= 400 ns of phase per window (max 337.3)
+  [ ok ] [edge] the phase term let go at the reference's history restart (within 10 ms)
+  [ ok ] [edge] the settled flag fell at the reference's history restart
+  [ ok ] [edge] every DUT CRF timestamp is a frame instant of its own grid (max 161.0 ns)
+  [ ok ] [edge] fine-PS protocol clean
+  [ ok ] [edge] settled never read 1 with the true phase outside the band (0 windows, worst 0.0 ns)
+  [ ok ] [edge] MCSRV_STAT[9] mirrors phase_o[21] on every cycle
+== media_phase edge: checks: 18   failures: 0 ==
+RESULT: PASS
+======== media_phase/ramp ========
+======================================================================
+[ramp] media-clock phase loop, silicon window, clk 3.125 MHz, audio 768 kHz
+  [ ok ] [pre] phase inside +/-5 % of Ps within 14 s of the event
+  info: [pre] inside the band 0.06 s after the event
+  [ ok ] [pre] phase held inside +/-5 % of Ps to the end (max 210.4 ns)
+  [ ok ] [pre] the DUT's CRF output on the reference's grid (max 370.2 ns)
+  [ ok ] [pre] the servo reports settled at the end
+  [ ok ] [pre] still LOCKED at the end
+  [ ok ] [ramp] phase held inside +/-5 % of Ps through a 4 ppm ramp (max 642.9 ns)
+  [ ok ] [ramp] the DUT's CRF output on the reference's grid (max 837.2 ns)
+  [ ok ] [ramp] still LOCKED
+  [ ok ] [ramp] every DUT CRF timestamp is a frame instant of its own grid (max 160.9 ns)
+  [ ok ] [ramp] fine-PS protocol clean
+  [ ok ] [ramp] settled never read 1 with the true phase outside the band (0 windows, worst 0.0 ns)
+  [ ok ] [ramp] MCSRV_STAT[9] mirrors phase_o[21] on every cycle
+== media_phase ramp: checks: 12   failures: 0 ==
+RESULT: PASS
+======== media_phase/mr ========
+======================================================================
+[mr] media-clock phase loop, silicon window, clk 3.125 MHz, audio 768 kHz
+  [ ok ] [pre] phase inside +/-5 % of Ps within 14 s of the event
+  info: [pre] inside the band 0.06 s after the event
+  [ ok ] [pre] phase held inside +/-5 % of Ps to the end (max 210.4 ns)
+  [ ok ] [pre] the DUT's CRF output on the reference's grid (max 370.2 ns)
+  [ ok ] [pre] the servo reports settled at the end
+  [ ok ] [pre] still LOCKED at the end
+  info: [mr] mr toggled with a 1.8 us jump at 15.00 s
+  [ ok ] [mr] phase inside +/-5 % of Ps within 30 s of the event
+  info: [mr] inside the band 0.38 s after the event
+  [ ok ] [mr] phase held inside +/-5 % of Ps to the end (max 144.3 ns)
+  [ ok ] [mr] the DUT's CRF output on the reference's grid (max 303.2 ns)
+  [ ok ] [mr] the servo reports settled at the end
+  [ ok ] [mr] still LOCKED at the end
+  [ ok ] [mr] the phase term let go at the mr toggle (within 5 ms)
+  [ ok ] [mr] the settled flag fell at the mr toggle
+  [ ok ] [mr] every DUT CRF timestamp is a frame instant of its own grid (max 160.8 ns)
+  [ ok ] [mr] fine-PS protocol clean
+  [ ok ] [mr] settled never read 1 with the true phase outside the band (0 windows, worst 0.0 ns)
+  [ ok ] [mr] MCSRV_STAT[9] mirrors phase_o[21] on every cycle
+== media_phase mr: checks: 16   failures: 0 ==
+RESULT: PASS
+======== media_phase/burst ========
+======================================================================
+[burst] media-clock phase loop, silicon window, clk 3.125 MHz, audio 768 kHz
+  [ ok ] [pre] phase inside +/-5 % of Ps within 14 s of the event
+  info: [pre] inside the band 0.06 s after the event
+  [ ok ] [pre] phase held inside +/-5 % of Ps to the end (max 210.4 ns)
+  [ ok ] [pre] the DUT's CRF output on the reference's grid (max 370.2 ns)
+  [ ok ] [pre] the servo reports settled at the end
+  [ ok ] [pre] still LOCKED at the end
+  info: [burst] the talker sends every 1.92 ms from 15.05 s for 0.6 s
+  [ ok ] [burst] phase inside +/-5 % of Ps within 30 s of the event
+  info: [burst] inside the band 0.06 s after the event
+  [ ok ] [burst] phase held inside +/-5 % of Ps to the end (max 142.0 ns)
+  [ ok ] [burst] the DUT's CRF output on the reference's grid (max 303.2 ns)
+  [ ok ] [burst] the servo reports settled at the end
+  [ ok ] [burst] still LOCKED at the end
+  [ ok ] [burst] the burst put more than 264 PDUs in some 512 ms (267)
+  [ ok ] [burst] the window the burst filled kept exactly 264 samples, the cap (max 264)
+  [ ok ] [burst] every DUT CRF timestamp is a frame instant of its own grid (max 160.9 ns)
+  [ ok ] [burst] fine-PS protocol clean
+  [ ok ] [burst] settled never read 1 with the true phase outside the band (0 windows, worst 0.0 ns)
+  [ ok ] [burst] MCSRV_STAT[9] mirrors phase_o[21] on every cycle
+== media_phase burst: checks: 16   failures: 0 ==
+RESULT: PASS

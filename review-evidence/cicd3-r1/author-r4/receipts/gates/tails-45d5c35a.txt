@@ -1,0 +1,356 @@
+===== check_archive.log (last 15 lines of 1)
+archive gate: OK (21 historical page(s), each indexed with metadata and a current successor)
+===== check_doc_paths.log (last 15 lines of 1)
+doc path gate: OK (1764 cited paths all resolve, 2 allowlisted; 10 line anchor(s) within their file)
+===== check_doc_style.log (last 15 lines of 1)
+documentation style: OK (25 current documents)
+===== check_em_dash.log (last 15 lines of 1)
+check_em_dash: 0 finding(s) over 91 added line(s) in 2 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [fcbc31f3..HEAD]
+===== check_hygiene.log (last 15 lines of 37)
+  tb/utests/1722/kl-avtp-common-parser/tb_top.tcl
+  tb/utests/ptp_timestamp/tb_ptp_ts_core.tcl
+  tb/utests/ptp_timestamp/tb_timestamp_counter.tcl
+
+                                superproject  protocol-processor      gptp-processor
+  trailing whitespace                      0                   0                   0
+  missing EOF newline                      0                   0                   0
+  CRLF line ending                         0                   0                   0
+  UTF-8 BOM                                0                   0                   0
+  tab in SystemVerilog                     0                   0                   0
+
+  superproject: trailing whitespace 0<=0, missing EOF newline 0<=0, CRLF line ending 0<=0, UTF-8 BOM 0<=0, tab in SystemVerilog 0<=0
+  protocol-processor: trailing whitespace 0<=1, missing EOF newline 0<=0, CRLF line ending 0<=0, UTF-8 BOM 0<=0, tab in SystemVerilog 0<=0
+  gptp-processor: trailing whitespace 0<=0, missing EOF newline 0<=0, CRLF line ending 0<=0, UTF-8 BOM 0<=0, tab in SystemVerilog 0<=0
+HYGIENE RATCHET: PASS (3 population(s), 1542 file(s))
+===== check_py_idiom.log (last 15 lines of 17)
+  mutable default argument: 0
+  shell invocation: 0
+  shadowed builtin: 0
+  wildcard import: 0
+  dynamic eval/exec: 0
+  unparseable source: 0
+  long function: 9 <= 9
+  long module: 10 <= 10
+  unannotated public function: 0 <= 0
+  undocumented public function: 0 <= 0
+  os.path use: 1 <= 1
+  unmanaged open: 0 <= 0
+  too many parameters: 7 <= 7
+  global statement: 0 <= 0
+  over-long line: 0 <= 0
+===== check_sh_idiom.log (last 15 lines of 8)
+sh idiom: 24 first-party scripts
+  backtick substitution: 0
+  cd without a failure path: 0
+  branch on $?: 0
+  shebang without the executable bit: 0
+  no strict mode: 5 <= 5
+  unquoted expansion: 3 <= 3
+  top-heavy long script: 0 <= 0
+===== check_todo_ownership.log (last 15 lines of 1)
+TODO ownership gate: OK (0 owned marker(s), 0 unowned; 80 near-miss occurrence(s) on 73 line(s) correctly not treated as markers; 1621 first-party file(s) read)
+===== ci_capture_cases_selftest.log (last 15 lines of 11)
+[i]  3 builds on 2 worker(s), one per CPU this process may use; the datapath builds start first
+/data-2/milan/tmp/cicd-a839/r4/tmp/capture-case-controls-2myow3vc/first checked 23
+/data-2/milan/tmp/cicd-a839/r4/tmp/capture-case-controls-2myow3vc/second checked 23
+/data-2/milan/tmp/cicd-a839/r4/tmp/capture-case-controls-2myow3vc/third checked 23
+[i]  2 builds on 1 worker(s), one per CPU this process may use; the datapath builds start first
+/data-2/milan/tmp/cicd-a839/r4/tmp/capture-case-controls-2myow3vc/first checked 23
+/data-2/milan/tmp/cicd-a839/r4/tmp/capture-case-controls-2myow3vc/third checked 23
+[i]  1 builds on 1 worker(s), one per CPU this process may use; the datapath builds start first
+/data-2/milan/tmp/cicd-a839/r4/tmp/capture-case-controls-2myow3vc/second checked 23
+capture scheduling controls: 43 units, unchanged registration arguments
+capture observations: full/sharded values match; failed unit remains failed
+===== ci_case_receipts_selftest.log (last 15 lines of 37)
+receipt control: changed inventory refused
+receipt control: changed result case refused
+receipt control: changed result outcome refused
+receipt control: changed result outcome refused
+receipt control: changed result returncode refused
+receipt control: changed result returncode refused
+receipt control: changed result output_sha256 refused
+receipt control: shard -1/4 refused
+receipt control: shard 4/4 refused
+receipt control: shard 0/0 refused
+receipt control: shard 0/37 refused
+case union: 36 cases exactly once; observations verified
+receipt control: changed receipt output digest refused
+receipt control: changed checked value and its digest refused by comparison
+case receipt self-test: 36 driver cases, union and comparison controls pass
+===== ci_events_check.log (last 15 lines of 2)
+  note cron `17 1 * * *` renders 01:17 UTC; the policy page states both
+ci_events: OK (2287 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)
+===== ci_events_selftest.log (last 15 lines of 5757)
+  ok   rtl-script-439 firmware-verilator step 9 stale record
+  ok   rtl-script-439 firmware-verilator step 9 maintained record
+  ok   canonical pins are whitespace-invariant (assert step, decision step, ownership step, the aggregates' tally and worker-result steps, fast scope step, fast verdict step, verifier step, the four documentation gate steps and the elaborat
+  ok   rtl-script-439 every body accepts existing whitespace normalization
+  ok   default-branch: schedule on dev passes
+  ok   default-branch: dispatch on dev passes
+  ok   default-branch: schedule on main refuses, naming main
+  ok   default-branch: dispatch on main refuses
+  ok   default-branch: schedule with an unreadable value refuses
+  ok   default-branch: schedule with an empty value refuses
+  ok   default-branch: schedule with surrounding whitespace still passes
+  ok   default-branch: pull_request on main warns and continues
+  ok   default-branch: push on main warns and continues
+  ok   default-branch: a missing event cannot run
+selftest: PASS (2287 contract items, 5755 arms)
+===== ci_fail_fast_selftest.log (last 15 lines of 14)
+Observer unavailable: HTTPError
+Observer unavailable: HTTPError
+Observer unavailable: HTTPError
+Observer unavailable: TimeoutError
+Observer unavailable: URLError
+Watcher read refused: HTTP 400
+Watcher read refused: HTTP 401
+Watcher read refused: HTTP 404
+Observer controls: 403, 429, 502, timeout, transport, bounded retries and recovery PASS; 400, 401 and 404 fail the watcher
+docs: generated graph, collector failure, watcher-tail failure, raw skipped matrices PASS
+elaborate: generated graph, collector failure, watcher-tail failure, raw skipped matrices PASS
+rtl: generated graph, collector failure, watcher-tail failure, raw skipped matrices PASS
+rtl-fast: generated graph, collector failure, watcher-tail failure, raw skipped matrices PASS
+fail-fast controls: first failure, complete success, sibling selection, fork zero-write PASS
+===== ci_gate_workflows_check.log (last 15 lines of 0)
+===== ci_gate_workflows_selftest.log (last 15 lines of 278)
+LiteX legs refused a simulation dropped from its leg's selection and results: LiteX leg 0: selection differs from its measured leg
+LiteX legs refused a simulation run in a second leg: LiteX leg 0 did not run its selection exactly once: order or extra simulations
+LiteX legs refused a simulation outside the inventory: LiteX leg 1 ran test_rogue, which is not in the inventory
+LiteX legs refused a failed simulation: test_retained_cdc_storage: FAIL in LiteX leg 1
+LiteX legs refused a skipped simulation: test_retained_cdc_storage: SKIP in LiteX leg 1
+LiteX legs refused a timed-out simulation: test_retained_cdc_storage: TIMEOUT in LiteX leg 1
+LiteX legs refused a red runner exit: LiteX leg 0: the runner exited 1
+LiteX legs refused a boolean runner exit: LiteX leg 0: the runner exited False
+LiteX legs refused a lost leg: LiteX simulations ran in no leg: test_ctrl_memory, test_soc_timing_cuts
+LiteX legs refused a duplicated leg: unknown or duplicated LiteX leg
+LiteX legs refused a changed head: LiteX leg source identity differs from the run
+LiteX legs refused a changed inventory: LiteX leg 1: inventory differs from the runner
+LiteX legs refused a changed schema: LiteX leg receipt schema differs
+LiteX union: every simulation exactly once, each a pass PASS
+gate workflow and union controls: PASS
+===== ci_install_cache_selftest.log (last 15 lines of 2)
+install caches: version/source/recipe controls and unchanged test commands PASS
+constraint source: a0b20a1df6e831386d5d5241d3b839f5572e4c7cfd20bbf2231ee81c8f7bede5
+===== ci_maap_cases_selftest.log (last 15 lines of 14)
+[ok] fixture: rc=0
+[ok] fixture: rc=1
+  named rejection: named check
+[ESCAPED] fixture: rc=0
+[FAIL] named check
+
+[ESCAPED] fixture: rc=1
+[FAIL] different check
+
+[ESCAPED] fixture: rc=-9
+
+MAAP observation controls: raw status and checked output preserved
+MAAP dropped-everywhere control: refused against the driver inventory
+MAAP scheduling controls: 66 cases retain their source and checks
+===== ci_make_cases_selftest.log (last 15 lines of 18)
+make case control: empty: failed
+make case control: uncounted: failed
+make: *** [Makefile:10: build-buildfail] Error 1
+make case control: buildfail: build-failed
+make receipt form control: invalid registration refused
+make receipt form control: invalid registration refused
+make receipt form control: invalid registration refused
+make inventory control: 'good good' refused
+make inventory control: '' refused
+make inventory control: '../outside' refused
+make case start order control, 1 job(s): results in driver order
+make case start order control, 3 job(s): results in driver order
+make case start order control: an unmeasured suite keeps driver order
+make case start order: milan_dp's 26 measured costs name live cases
+make case runner: all controls pass
+===== ci_manifest_selftest.log (last 15 lines of 26)
+manifest difference refused: execution.check/test/0
+manifest difference refused: inventories.suite.legs
+manifest difference refused: inventories.suite.legs
+manifest difference refused: inventories.suite.verdicts_sha256
+manifest difference refused: results.check/test/0
+manifest difference refused: results.check/test/0
+manifest extra job refused: plan
+manifest extra job refused: execution
+manifest extra job refused: results
+two identical skipped-step collections refused
+two identical skipped-step collections refused
+two identical cancelled collections refused
+forged completeness refused
+duplicate JSON key refused
+manifest comparison controls: PASS
+===== ci_runtime_evidence_selftest.log (last 15 lines of 75)
+incomplete manifest: execution: missing or extra job/leg; execution..github/workflows/rtl.yml:ci-cancel-tail: missing or extra step; execution..github/workflows/rtl.yml:ci-fail-fast: missing or extra step; execution..github/workflows/rtl.ym
+Collector shared read budget: 480.0s within 600s; the same reads take 960.0s unshared
+runtime control refused: unknown tool and image provenance
+runtime control refused: identical incomplete collections
+isolated collector: candidate imports excluded; changed helper refused
+Interrupted upload has no completed evidence: partial.zip
+Interrupted upload has no completed evidence: partial.zip
+Interrupted upload has no completed evidence: partial.zip
+Interrupted upload has no completed evidence: partial.zip
+runtime control refused: other identity consumer
+runtime control refused: another retained head
+runtime control refused: missing retained tree
+runtime control refused: changed retained tree
+no-metadata recorder: actual checkout retained; failure remains failure
+runtime manifest collectors: all controls PASS
+===== ci_suite_collect_selftest.log (last 15 lines of 6)
+collection refused: extra-worker
+collection refused: wrong-worker-head
+collection refused: missing-owned-log
+collection refused: forged-union-verdicts
+collection refused: changed-union-log
+physical suite collection: all controls PASS
+===== ci_suite_pieces_selftest.log (last 15 lines of 49)
+milan_dp_render: refused case dropped from all legs and every claimed inventory
+milan_dp_render: refused missing leg
+milan_dp_render: refused duplicate leg
+milan_dp_render: refused changed head
+milan_dp_render: refused changed tree
+milan_dp_render: refused masked failing log
+milan_dp_render: refused missing executed log
+pp_shadow: refused case dropped from all legs and every claimed inventory
+pp_shadow: refused missing leg
+pp_shadow: refused duplicate leg
+pp_shadow: refused changed head
+pp_shadow: refused changed tree
+pp_shadow: refused masked failing log
+pp_shadow: refused missing executed log
+suite pieces: 65 parents, 83 scheduled units, all controls PASS
+===== ci_workflow_plan_selftest.log (last 15 lines of 22)
+plan control: missing dependency refused
+plan control: cycle refused
+plan control: dynamic matrix refused
+plan control: float coordinate refused
+plan control: duplicate coordinate refused
+plan control: empty coordinate refused
+plan control: name expression refused
+plan control: name collision refused
+plan control: missing body refused
+plan control: alias refused
+plan control: forged definitions refused against committed source
+plan control: forged plan refused against committed source
+plan control: forged tree refused against committed source
+plan control: dirty bytes and another head cannot redefine committed inputs
+workflow planner: all controls pass
+===== docs_check.log (last 15 lines of 1)
+docs_check: 0 finding(s) across 223 md files + 1943 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+===== docs_inventory.log (last 15 lines of 1)
+documentation inventory: OK (538 lines, docs/DOCUMENTATION_AUDIT.md is fresh)
+===== generate_ci_evidence_pins.log (last 15 lines of 0)
+===== gen_toc_anchors.log (last 15 lines of 1)
+anchor check: 759 existing cross-page fragment links reproduced
+===== gen_toc_check.log (last 15 lines of 1)
+TOC gate: OK (160 page(s) carry an annotated contents list, 18 below the 3-section threshold)
+===== gptp_shadow_lifecycle.log (last 15 lines of 50)
+git-env-GIT_CONFIG_COUNT: {"exit": 2, "input_unchanged": true, "make_started": false, "reason": "Git environment redirects the checkout: GIT_CONFIG_COUNT", "refusal": "git-env-GIT_CONFIG_COUNT"}
+git-env-GIT_CONFIG_GLOBAL: {"exit": 2, "input_unchanged": true, "make_started": false, "reason": "Git environment redirects the checkout: GIT_CONFIG_GLOBAL", "refusal": "git-env-GIT_CONFIG_GLOBAL"}
+git-env-GIT_CONFIG_SYSTEM: {"exit": 2, "input_unchanged": true, "make_started": false, "reason": "Git environment redirects the checkout: GIT_CONFIG_SYSTEM", "refusal": "git-env-GIT_CONFIG_SYSTEM"}
+facility-no-prctl: {"exit": 2, "facility": "no-prctl", "make_started": false, "refused": true}
+facility-prctl-fails: {"exit": 2, "facility": "prctl-fails", "make_started": false, "refused": true}
+facility-no-pidfd-open: {"exit": 2, "facility": "no-pidfd-open", "make_started": false, "refused": true}
+facility-no-pidfd-signal: {"exit": 2, "facility": "no-pidfd-signal", "make_started": false, "refused": true}
+isolated-SIGINT: {"caller_changed": false, "cleanup_required": true, "exit": 130, "handshake": {"child": 783630, "cwd": "/data-2/milan/tmp/cicd-a839/r4/tmp/mutant-lifecycle-bw5n19s1/isolated-SIGINT-control/milan-mutant-stage-1000/gptp-shado
+isolated-SIGTERM: {"caller_changed": false, "cleanup_required": true, "exit": 143, "handshake": {"child": 783740, "cwd": "/data-2/milan/tmp/cicd-a839/r4/tmp/mutant-lifecycle-bw5n19s1/isolated-SIGTERM-control/milan-mutant-stage-1000/gptp-sha
+isolated-SIGKILL: {"caller_changed": false, "cleanup_required": false, "exit": -9, "handshake": {"child": 783808, "cwd": "/data-2/milan/tmp/cicd-a839/r4/tmp/mutant-lifecycle-bw5n19s1/isolated-SIGKILL-control/milan-mutant-stage-1000/gptp-sha
+unsafe-SIGTERM: {"caller_changed": true, "cleanup_required": true, "exit": 143, "handshake": {"child": 783849, "cwd": "/data-2/milan/tmp/cicd-a839/r4/tmp/mutant-lifecycle-bw5n19s1/unsafe-SIGTERM input [523]/tb/verilator/gptp_shadow", "ident
+unsafe-SIGKILL: {"caller_changed": true, "cleanup_required": false, "exit": -9, "handshake": {"child": 783960, "cwd": "/data-2/milan/tmp/cicd-a839/r4/tmp/mutant-lifecycle-bw5n19s1/unsafe-SIGKILL input [523]/tb/verilator/gptp_shadow", "ident
+nested-SIGINT: {"exit": 130, "handshake": {"child": 784127, "cwd": "/data-2/milan/tmp/cicd-a839/r4/tmp/mutant-lifecycle-bw5n19s1/nested-SIGINT-control/milan-mutant-stage-1000/gptp-shadow-mutants-0/tb/verilator/gptp_shadow", "identities": {"
+nested-SIGTERM: {"exit": 143, "handshake": {"child": 784268, "cwd": "/data-2/milan/tmp/cicd-a839/r4/tmp/mutant-lifecycle-bw5n19s1/nested-SIGTERM-control/milan-mutant-stage-1000/gptp-shadow-mutants-0/tb/verilator/gptp_shadow", "identities": 
+mutant lifecycle: PASS (normal/repeat, nine named defects, survivor, build, unread-file and Git-setting acceptance, input/Git-redirect/record/facility refusals, INT/TERM/KILL, unsafe negative controls)
+===== measure_fail_fast.log (last 15 lines of 97)
+measured shell population: 26 shell scripts, 5 workflow files, 113 Makefiles (recipe lines); Python and Tcl are not measured
+
+pipelines that discard their producer's exit code (3):
+   gptp-processor/syn/ooc/run.sh:41  grep -A2 "Slice LUTs\|Block RAM Tile\|DSPs" ucpu_util.rpt | head -20
+   gptp-processor/syn/ooc/run.sh:43  grep -A2 "Slice LUTs\|Block RAM Tile\|DSPs" engine_util.rpt | head -20
+   tb/verilator/avtp_rxmon/Makefile:136  verilator_coverage --annotate cov_annotated --annotate-min 1 coverage.dat | tail -2
+
+captured verdicts whose exit status is discarded (0):
+
+waived by site, with a reason (2):
+   .github/workflows/rtl-fast.yml:167  the grep IS the version assertion; its status is the verdict
+   .github/workflows/rtl.yml:320  the grep IS the version assertion; its status is the verdict
+
+FAIL-FAST RATCHET: PASS (80 <= 84 modules without an elaboration contract, 3 <= 4 masked pipeline(s), 0 <= 0 discarded captured verdict(s), 2 waived by site)
+  the ratchets can be lowered to 80, 3 and 0
+===== measure_naming.log (last 15 lines of 105)
+protocol-processor/hdl/srp/KL_srp_top.sv:KL_srp_top: draw_kind_o — documented in ms, not named for it: constant 3 = 10000..15000 ms (F08.2)
+protocol-processor/hdl/top/protocol_processor_top.sv:protocol_processor_top: DESC_BASE_P — documented in bytes, not named for it: ---- descriptor image in the integrator's MAIN MEMORY (07 §3.3) ------ The entity model does NOT live on chip:
+protocol-processor/hdl/top/protocol_processor_top.sv:protocol_processor_top: RESP_BASE_P — documented in bytes, not named for it: ---- AECP response buffer in the integrator's MAIN MEMORY (03 §7) --- The response an AECP command builds is u
+protocol-processor/hdl/top/protocol_processor_top.sv:protocol_processor_top: nvm_unflushed_o — documented in cycles, not named for it: per-sink UNFLUSHED binding state, the manager's own dirty vector (KL_acmp_nvm_shadow dirty_r, a clk_i reg
+protocol-processor/hdl/top/protocol_processor_top.sv:protocol_processor_top: srp_acc_latency_o — documented in ns, not named for it: per-sink registered accumulated_latency, ns, RAW — the consumer adds its own ingress delay
+
+tree                 files  ports params documented undocumented unit-named matches excluded mismatched candidates
+gptp-processor           6    127      6        109           24          7      30       29          0          1
+protocol-processor      46   1790    307       1977          120        114     241      219          1         22
+superproject            89   2608    378       2745          241        206     385      313          3         72
+total                  141   4525    691       4831          385        327     656      561          4         95
+
+95 candidate(s): 91 boundary name(s) hide a documented unit and 4 are named for a different unit than documented (4525 ports and 691 parameters scanned, 385 with no //! and so not judged here, 561 match(es) excluded with a reason)
+
+NAMING RATCHET: PASS (95 candidate(s), all recorded by identity; 95 recorded)
+===== measure_test_evidence.log (last 15 lines of 201)
+   tb/verilator/tcam/mutants.py: mutation campaign; it injects three RTL defects and requires failure
+   tb/verilator/tdm_render/master_mutants.py: mutation campaign (#584); it plants one KL_tdm_render_master lane-width defect from its own table into a copy, elaborates the copy through the suite's own recipe (RM_SRC) and requires the named 
+   tb/verilator/tkdiag/mcr_mutants.py: mutation campaign; it plants one of four restart-engine defects against the #387 pending-restart merge and its wire boundary into a copy and requires a named failure
+
+suite files using host wall-clock/process deadlines (3):
+   tb/verilator/tcam/mutants.py
+   tb/verilator/tsn_fuzz/cosim.py
+   tb/verilator/tsn_fuzz/tsn_model.py
+
+Verilator scheduling: 65 default suites; physical selection: milan_dp_gptp
+
+runner evidence contract: OK
+
+TEST-EVIDENCE RATCHET: PASS (67 <= 77 suite(s) without a mutation arm, 10 <= 10 unseeded draw site(s), 0 <= 0 unexplained DUT-source reader(s), 3 <= 3 wall-clock-dependent suite file(s))
+  the mutation ratchet can be lowered to 67
+===== mutant_stage.log (last 15 lines of 18)
+mutant stage control: with every slot held, a random directory, still correct
+mutant stage control: a caller's CCACHE_BASEDIR wins
+mutant stage control: an in-tree directory leaves nothing else in the tree
+mutant stage control: a prefix naming more than one directory is refused
+mutant stage control: six drivers racing for one slot each hold their own, none emptied
+mutant stage control: two in-tree drivers under different TMPDIRs share one lock domain
+mutant stage control: a resolved and an unresolved spelling of one directory share one lock
+mutant stage control: another user's slot is never emptied or taken
+mutant stage control: a root that is a symbolic link is refused, and the driver stages elsewhere
+mutant stage control: a root that may be written by others is refused, and the driver stages elsewhere
+mutant stage control: a root that is not a directory is refused, and the driver stages elsewhere
+mutant stage control: a root that is owned by uid is refused, and the driver stages elsewhere
+mutant stage control: a TMPDIR others may write without the sticky bit is refused
+mutant stage control: an earlier readable root is made private and used, its old entries ignored
+mutant stage: all controls PASS
+===== suite_shards.log (last 15 lines of 63)
+  [ok]    1620-second regular worker passes the absolute budget
+  [ok]    1621-second regular worker is refused below its own-limit bound
+  [ok]    a provisional suite at 1800 s, suite_timeout's figure for it, passes, and at 1801 s is refused
+  [ok]    with suite_timeout's `*` arm planted at 1860 s, 1860 s passes and 1800 s is refused
+  [ok]    with its own arm planted at 1920 s, 1920 s passes and 1800 s is refused
+  [ok]    a provisional suite with no figure in SUITE_SECONDS is refused
+  ok   reject ''
+  ok   reject '1'
+  ok   reject '-1/4'
+  ok   reject '01/4'
+  ok   reject '4/4'
+  ok   reject '5/4'
+  ok   reject '0/0'
+  ok   reject 'a/4'
+selftest: PASS
+===== test_suite_cancellation.log (last 15 lines of 53)
+cancel-command-SIGTERM--ci-pieces--no-preflight: {"exit": 143, "foreign_untouched": true, "handshake": {"child": 780952, "cwd": "/data-2/milan/tmp/cicd-a839/r4/tmp/suite-cancellation-afddwg1m/cancel-command-SIGTERM--ci-pieces--no-preflight 
+cancel-transition-SIGTERM--ci-pieces--no-preflight: {"exit": 143, "foreign_untouched": true, "handshake": {"child": 781117, "cwd": "/data-2/milan/tmp/cicd-a839/r4/tmp/suite-cancellation-afddwg1m/cancel-transition-SIGTERM--ci-pieces--no-pref
+suite preflight modes: PASS (preflight-only and no-preflight sweeps, their refusals, INT/TERM in each)
+cancel-lock-wait-SIGINT: {"exit": 130, "phase": "lock-wait", "previous_logs_kept": true, "unprepared_reported": true}
+cancel-lock-wait-SIGTERM: {"exit": 143, "phase": "lock-wait", "previous_logs_kept": true, "unprepared_reported": true}
+unsafe-command-SIGTERM: {"exit": 1, "foreign_untouched": true, "handshake": {"child": 781201, "cwd": "/data-2/milan/tmp/cicd-a839/r4/tmp/suite-cancellation-afddwg1m/unsafe-command-SIGTERM input [523]", "identities": {"781197": ["16130994", 
+hard-KILL: {"exit": -9, "lock_owner_left": true, "next_suite": false, "output_after_death": "", "stop": "KILL", "sweep_shell_exited": true, "unsafe_control_detected": false}
+hard-HUP: {"exit": -1, "lock_owner_left": true, "next_suite": false, "output_after_death": "", "stop": "HUP", "sweep_shell_exited": true, "unsafe_control_detected": false}
+hard-HUP-group: {"exit": -1, "lock_owner_left": true, "next_suite": false, "output_after_death": "", "stop": "HUP-group", "sweep_shell_exited": true, "unsafe_control_detected": false}
+unsafe-KILL: {"exit": -9, "lock_owner_left": false, "next_suite": true, "output_after_death": "PASS     alpha\nPASS     omega\n----------------------------------------------------------------\nsuites: 2   passed: 2   failed: 0   timed out: 
+facility-no-prctl: {"exit": 2, "facility": "no-prctl", "refused": true, "sweep_started": false}
+facility-prctl-fails: {"exit": 2, "facility": "prctl-fails", "refused": true, "sweep_started": false}
+facility-no-pidfd-open: {"exit": 2, "facility": "no-pidfd-open", "refused": true, "sweep_started": false}
+facility-no-pidfd-signal: {"exit": 2, "facility": "no-pidfd-signal", "refused": true, "sweep_started": false}
+suite cancellation: PASS (INT/TERM boundaries, reaped identities, foreign sibling, partial logs, attributed cancellation reports, lock wait, next-suite sentinel, ordinary/masked/timeout, hard KILL/HUP stops, facility refusals, owner report,

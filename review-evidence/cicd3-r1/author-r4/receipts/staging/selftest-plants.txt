@@ -1,0 +1,31 @@
+CAUGHT rc=1 plant: lock in a TMPDIR- and uid-named lock directory, not on the slot itself (the round-3 domain)
+    last control passed: six drivers racing for one slot each hold their own, none emptied
+    failure: FileNotFoundError: [Errno 2] No such file or directory: '/tmp/mutant-stage-selftest-txuuf1lq/tree/split-0'
+CAUGHT rc=1 plant: TMPDIR not resolved
+    last control passed: two in-tree drivers under different TMPDIRs share one lock domain
+    failure: AssertionError: [{'path': '/tmp/mutant-stage-selftest-48g5falm/tmp/milan-mutant-stage-1000/alias-0', 'token': 'holder-0', 'all_held': True, 'kept': True, 'stderr': ''}, {'path': '/tmp/mutant-stage-selftest-48g5falm/alias
+CAUGHT rc=1 plant: a slot owned by another user is taken
+    last control passed: a resolved and an unresolved spelling of one directory share one lock
+    failure: AssertionError: [{'path': '/tmp/mutant-stage-selftest-_0rc8pds/tree/theirs-0', 'token': 'holder-0', 'all_held': True, 'kept': True, 'stderr': ''}]
+CAUGHT rc=1 plant: a symbolic-link root is accepted
+    last control passed: another user's slot is never emptied or taken
+    failure: AssertionError: {'path': '/tmp/mutant-stage-selftest-dufw7kgl/case_link_root/root-j_gmyn5k', 'token': 'holder-0', 'all_held': True, 'kept': True, 'stderr': 'mutant_stage: /tmp/mutant-stage-selftest-dufw7kgl/case_link_roo
+CAUGHT rc=1 plant: a root others may write is accepted
+    last control passed: a root that is a symbolic link is refused, and the driver stages elsewhere
+    failure: AssertionError: {'path': '/tmp/mutant-stage-selftest-r7nnwvm3/case_writable_root/milan-mutant-stage-1000/root-0', 'token': 'holder-0', 'all_held': True, 'kept': True, 'stderr': ''}
+CAUGHT rc=1 plant: a root owned by another user is accepted
+    last control passed: a root that is not a directory is refused, and the driver stages elsewhere
+    failure: AssertionError: {'path': '/tmp/root-yt6u6z95', 'token': 'holder-0', 'all_held': True, 'kept': True, 'stderr': ''}
+CAUGHT rc=1 plant: a non-sticky TMPDIR others may write is accepted
+    last control passed: a root that is owned by uid is refused, and the driver stages elsewhere
+    failure: AssertionError: {'path': '/tmp/mutant-stage-selftest-klisr3t9/shared/milan-mutant-stage-1000/root-0', 'token': 'holder-0', 'all_held': True, 'kept': True, 'stderr': ''}
+CAUGHT rc=1 plant: a non-directory root is accepted
+    last control passed: a root that may be written by others is refused, and the driver stages elsewhere
+    failure: NotADirectoryError: [Errno 20] Not a directory: '/tmp/mutant-stage-selftest-mpa18m0t/case_regular_root/milan-mutant-stage-1000'
+CAUGHT rc=1 plant: emptying a taken slot follows a link
+    last control passed: the same path in every run, and empty
+    failure: AssertionError: /tmp/mutant-stage-selftest-2y3h33y1/tmp/milan-mutant-stage-1000/ctl-0
+CAUGHT rc=1 plant: an earlier readable root is not made private
+    last control passed: a TMPDIR others may write without the sticky bit is refused
+    failure: AssertionError
+10/10 plants caught

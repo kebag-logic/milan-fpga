@@ -1,0 +1,45 @@
+Runner speed index per job of run 45481508309: median ratio, new/reference, of the build walls of the same suites' Verilator models (same sources, same flags), wherever each dealer put each suite.
+
+== reference: run 45383854694 (base fcbc31f3)
+ job   min  index pairs  suites (window s)
+   0  15.2   1.23     2  follow_ring 883
+   1  16.1   0.82     7  capture_coherence__2 390, maap__1 268, milan_dp__2 228
+  10  20.4   1.03    17  milan_dp_gm_steps 805, csr 222, gptp_txts 107
+  11  15.6   1.05     6  crf_rx 545, pp_shadow__2 236, reboot_ctrl 144
+  12  19.8   1.00     7  milan_dp_render__2 692, maap__0 279, media_grid_align 183
+  13  16.1   1.11     2  nvm_cosim 573, gptp_shadow 290, milan_dp_render__3 90
+  14  20.5   1.00     7  gptp_plane 572, milan_dp__3 386, pp_shadow__0 240
+  15  21.6   0.97    23  milan_dp_mclk__1 670, avtp_rxmon 443, ptp_ts 95
+  16  15.5   1.00    13  milan_dp_mclk__3 380, capture_coherence__3 346, render_queue 126
+  17  30.7   1.41    10  milan_dp_mclk__2 1051, milan_dp_render__0 620, milan_dp_render__1 90
+  18  13.2   0.69     1  milan_dp_mclk__0 779
+   2  27.4    nan     0  capture_coherence__0 1618
+   3  19.0   0.99     7  gptp_tables 421, pp_shadow__3 324, pp_shadow__1 229, chmap_capture 134
+   4  12.7   0.77     8  media_phase 720
+   5  15.6   0.99    18  milan_dp__1 836
+   6  19.2   0.94    13  milan_dp__0 1048
+   7  25.3   1.31     6  capture_coherence__1 1204, mbx 299
+   8  16.8   1.02     3  mmcm_servo 755, maap__2 214
+   9  13.0   0.98     7  aaf_clock_meter 513, maap__3 215
+
+== reference: run 45457006166 (13e6d869)
+ job   min  index pairs  suites (window s)
+   0  15.2   0.91     2  follow_ring 883
+   1  16.1   1.03     7  capture_coherence__2 390, maap__1 268, milan_dp__2 228
+  10  20.4   0.98    17  milan_dp_gm_steps 805, csr 222, gptp_txts 107
+  11  15.6   1.04     6  crf_rx 545, pp_shadow__2 236, reboot_ctrl 144
+  12  19.8   0.96     7  milan_dp_render__2 692, maap__0 279, media_grid_align 183
+  13  16.1   1.23     2  nvm_cosim 573, gptp_shadow 290, milan_dp_render__3 90
+  14  20.5   0.92     7  gptp_plane 572, milan_dp__3 386, pp_shadow__0 240
+  15  21.6   0.98    23  milan_dp_mclk__1 670, avtp_rxmon 443, ptp_ts 95
+  16  15.5   1.02    13  milan_dp_mclk__3 380, capture_coherence__3 346, render_queue 126
+  17  30.7   1.45    10  milan_dp_mclk__2 1051, milan_dp_render__0 620, milan_dp_render__1 90
+  18  13.2   0.68     1  milan_dp_mclk__0 779
+   2  27.4    nan     0  capture_coherence__0 1618
+   3  19.0   1.12     7  gptp_tables 421, pp_shadow__3 324, pp_shadow__1 229, chmap_capture 134
+   4  12.7   0.99     8  media_phase 720
+   5  15.6   0.72    18  milan_dp__1 836
+   6  19.2   1.03    13  milan_dp__0 1048
+   7  25.3   1.60     6  capture_coherence__1 1204, mbx 299
+   8  16.8   0.97     3  mmcm_servo 755, maap__2 214
+   9  13.0   0.98     7  aaf_clock_meter 513, maap__3 215

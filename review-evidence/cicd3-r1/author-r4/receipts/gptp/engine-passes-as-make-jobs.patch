@@ -1,0 +1,777 @@
+From 661e4c3a45904d2d8f3e061c67103a945651d9ff Mon Sep 17 00:00:00 2001
+From: (author address removed)
+Date: Tue, 24 Nov 2026 21:49:55 +0100
+Subject: [PATCH] Make each engine pass its own make job, so the four run
+ within the caller's job budget and a parent's jobserver, and replay each from
+ its own line of run as the serial recipe printed and ended it, under -s, -i
+ and -k and by signal name, with the first failure stopping the later passes
+
+---
+ docs/TEST_DEVELOPER.md             |  25 ++-
+ tb/verilator/engine/Makefile       |  79 ++++---
+ tb/verilator/engine/pass_run.py    | 264 +++++++++++++++++++++++
+ tb/verilator/engine/passes_test.py | 329 +++++++++++++++++++++++++++++
+ 4 files changed, 661 insertions(+), 36 deletions(-)
+ create mode 100644 tb/verilator/engine/pass_run.py
+ create mode 100644 tb/verilator/engine/passes_test.py
+
+diff --git a/docs/TEST_DEVELOPER.md b/docs/TEST_DEVELOPER.md
+index 15a2b43..db4806f 100644
+--- a/docs/TEST_DEVELOPER.md
++++ b/docs/TEST_DEVELOPER.md
+@@ -49,6 +49,7 @@ No handwritten C harness exists.
+ | `make -C tb/verilator/engine mutants` | Engine mutation controls |
+ | `make -C tb/verilator/engine mutants-jobs-test` | Engine mutation output across jobs and ccache states |
+ | `make -C tb/verilator/engine mutants-order-test` | Engine verdict order, with stubbed builds and runs |
++| `make -C tb/verilator/engine passes-test` | Engine pass order, budget and signals, stub tools |
+ | `make -C tb/verilator/parser mutants` | Parser receive-error, PathTrace and TLV-walk mutation controls |
+ | `make -C tb/verilator/gaskets` | Bench MII gasket loopback and its mutation controls |
+ | `make -C tb/tsngen` | Independent frame decode; skips without its checkout |
+@@ -59,13 +60,23 @@ No handwritten C harness exists.
+ 
+ Bare `make` in parser, engine, gaskets and tsngen adds mutants.
+ 
+-The engine suite's four passes run at once.
++The engine suite's four passes are four make jobs.
+ 
+-Their outputs print afterwards, in the serial order.
++`make -j4` runs them at once.
+ 
+-The first failing pass in order sets the exit status.
++`-j1`, or no `-j`, runs one at a time.
+ 
+-Four free cores run it in about its longest pass.
++A parent make's budget counts each as one job.
++
++Outputs print afterwards, in the serial order.
++
++That holds under `-s`, `-i` and `-k` too.
++
++The first failing pass in order sets the status.
++
++It also stops the later passes.
++
++Four free job slots take about its longest pass.
+ 
+ By default, up to eight engine mutants run at once.
+ 
+@@ -85,9 +96,11 @@ A ccache that cannot write its cache fails the build.
+ 
+ Point `CCACHE_DIR` somewhere writable, or set `OBJCACHE=`.
+ 
+-Bare engine `make` also runs the order check.
++Bare engine `make` also runs the order and passes checks.
++
++The order check takes seconds.
+ 
+-That check takes seconds.
++The passes check takes about 90 seconds.
+ 
+ The jobs test runs the arm six times.
+ 
+diff --git a/tb/verilator/engine/Makefile b/tb/verilator/engine/Makefile
+index 292cfb0..a15a4bb 100644
+--- a/tb/verilator/engine/Makefile
++++ b/tb/verilator/engine/Makefile
+@@ -34,7 +34,7 @@ run: export CCACHE_BASEDIR ?= $(abspath ../../..)
+ 
+ .PHONY: all run mutants mutants-jobs-test mutants-order-test clean
+ .DEFAULT_GOAL := all
+-all: run mutants-order-test mutants
++all: run passes-test mutants-order-test mutants
+ 
+ # The suite runs FOUR times against the same build. Regression images seed
+ # the request and Sync counters independently above 16 bits, where an
+@@ -47,36 +47,55 @@ all: run mutants-order-test mutants
+ # That image also states clockAccuracy 0xFE, so the pass proves the #100
+ # --clock-accuracy build parameter against the 0x22 of the shipping image.
+ #
+-# The four passes are independent: each reads its own image from its own
+-# directory, and none writes anything another reads. So the images are written
+-# first and the passes run at once. Each pass's output is kept, then printed in
+-# the serial order under the serial echo lines, so the transcript is the one
+-# the passes printed one after another; the recipe stops at the first failing
+-# pass in that order, with that pass's status, after its output. On four free
+-# cores the run takes about as long as its longest pass. An INT or a TERM to
+-# the recipe stops all four passes.
+-run: gptp_ucode.hex
++# #111: the four passes are independent: each reads its own image from its own
++# directory, and none writes anything another reads. Each pass is a target of
++# its own, so make runs them within the caller's job budget: one at a time with
++# no -j or -j1, all four with -j4, each one job of a parent make's jobserver.
++# pass_run.py runs a pass and keeps what it printed and how it ended. `run`'s
++# rules then print each pass in the serial order, from its own recipe line,
++# under the serial echo lines, and end that line as the serial line ended (its
++# exit status, or the signal that killed it), so the transcript and make's own
++# messages are the serial run's, under -s, -i and -k too; only the recipe line
++# numbers in make's messages differ. The first failing pass in order stops the
++# later ones, whose output the serial recipe never printed; -i runs and prints
++# all four, as the serial recipe did. An INT, TERM, QUIT or HUP stops every
++# pass. On four free job slots the run takes about as long as its longest pass.
++# `make passes-test` proves all of this with stub tools in about 90 s.
++PASS = python3 pass_run.py $(if $(findstring i,$(firstword -$(MAKEFLAGS))),--ignore-errors)
++PASSES = engine-pass0 engine-pass1 engine-pass2 engine-pass3
++.PHONY: engine-fresh $(PASSES) passes-test
++run:: engine-fresh gptp_ucode.hex
+ 	$(VERILATOR) $(VFLAGS) $(SRCS) $(CPP) -o Vengine_sim
+-	@mkdir -p seedrun syncseedrun p1run
+-	@python3 $(GEN) $(GENARGS) --seq-seed 0x200000 -o seedrun/gptp_ucode.hex >/dev/null
+-	@python3 $(GEN) $(GENARGS) --sync-seq-seed 0x10000 -o syncseedrun/gptp_ucode.hex >/dev/null
+-	@python3 $(GEN) $(GENARGS) --p1 255 --clock-accuracy 0xFE -o p1run/gptp_ucode.hex >/dev/null
+-	@echo ./obj_dir/Vengine_sim
+-	@p0= p1= p2= p3=; \
+-	 trap 'kill $$p0 $$p1 $$p2 $$p3 2>/dev/null; exit 130' INT; \
+-	 trap 'kill $$p0 $$p1 $$p2 $$p3 2>/dev/null; exit 143' TERM; \
+-	 ./obj_dir/Vengine_sim > obj_dir/pass0.out 2>&1 & p0=$$!; \
+-	 (cd seedrun && exec ../obj_dir/Vengine_sim) > obj_dir/pass1.out 2>&1 & p1=$$!; \
+-	 (cd syncseedrun && exec ../obj_dir/Vengine_sim) > obj_dir/pass2.out 2>&1 & p2=$$!; \
+-	 (cd p1run && exec ../obj_dir/Vengine_sim +not-gm-capable) > obj_dir/pass3.out 2>&1 & p3=$$!; \
+-	 wait $$p0; r0=$$?; wait $$p1; r1=$$?; wait $$p2; r2=$$?; wait $$p3; r3=$$?; \
+-	 cat obj_dir/pass0.out; [ $$r0 -eq 0 ] || exit $$r0; \
+-	 echo "-- again, with the request counter seeded above 16 bits --"; \
+-	 cat obj_dir/pass1.out; [ $$r1 -eq 0 ] || exit $$r1; \
+-	 echo "-- again, with the Sync counter seeded above 16 bits --"; \
+-	 cat obj_dir/pass2.out; [ $$r2 -eq 0 ] || exit $$r2; \
+-	 echo "-- the self publication again, not grandmaster-capable (priority1 255), clockAccuracy 0xFE --"; \
+-	 cat obj_dir/pass3.out; exit $$r3
++	@mkdir -p obj_dir/engine-passes && touch obj_dir/engine-passes/build.ok
++run:: $(PASSES)
++	@$(PASS) replay 0 $(if $(findstring s,$(firstword -$(MAKEFLAGS))),,--banner ./obj_dir/Vengine_sim)
++run::
++	@$(PASS) replay-gen 1
++	@$(PASS) replay 1 --banner "-- again, with the request counter seeded above 16 bits --"
++run::
++	@$(PASS) replay-gen 2
++	@$(PASS) replay 2 --banner "-- again, with the Sync counter seeded above 16 bits --"
++run::
++	@$(PASS) replay-gen 3
++	@$(PASS) replay 3 --banner "-- the self publication again, not grandmaster-capable (priority1 255), clockAccuracy 0xFE --"
++engine-fresh:
++	@rm -rf obj_dir/engine-passes
++engine-pass0:
++	@$(PASS) run 0 -- ./obj_dir/Vengine_sim
++engine-pass1:
++	@$(PASS) run 1 --mkdir seedrun --gen 'python3 $(GEN) $(GENARGS) --seq-seed 0x200000 -o seedrun/gptp_ucode.hex' \
++	  --shell 'cd seedrun && ../obj_dir/Vengine_sim'
++engine-pass2:
++	@$(PASS) run 2 --mkdir syncseedrun --gen 'python3 $(GEN) $(GENARGS) --sync-seq-seed 0x10000 -o syncseedrun/gptp_ucode.hex' \
++	  --shell 'cd syncseedrun && ../obj_dir/Vengine_sim'
++engine-pass3:
++	@$(PASS) run 3 --mkdir p1run --gen 'python3 $(GEN) $(GENARGS) --p1 255 --clock-accuracy 0xFE -o p1run/gptp_ucode.hex' \
++	  --shell 'cd p1run && ../obj_dir/Vengine_sim +not-gm-capable'
++
++# #111: the serial order, the budget, the fail-fast stop and the signals, all
++# against the serial recipe, with stub tools in a scratch copy; about 90 s.
++passes-test:
++	python3 passes_test.py
+ 
+ # Rule 8: prove the checks above are load-bearing. Defects are injected into
+ # the real engine RTL and the real micro-code generator, one per mutant, and
+diff --git a/tb/verilator/engine/pass_run.py b/tb/verilator/engine/pass_run.py
+new file mode 100644
+index 0000000..d54d469
+--- /dev/null
++++ b/tb/verilator/engine/pass_run.py
+@@ -0,0 +1,264 @@
++#!/usr/bin/env python3
++# SPDX-FileCopyrightText: 2026 Kebag Logic
++# SPDX-License-Identifier: CERN-OHL-W-2.0
++"""#111: one engine pass in make's job slot, and its replay in the serial order.
++
++usage: pass_run.py [--ignore-errors] run N [--mkdir DIR] [--gen COMMAND] (--shell COMMAND | -- SIMULATOR [ARG...])
++       pass_run.py [--ignore-errors] replay-gen N
++       pass_run.py [--ignore-errors] replay N [--banner LINE]
++
++The Makefile's `run` makes each of the suite's four passes its own target, so
++make schedules them within the caller's job budget: `make -j1 run` runs one
++at a time, `make -j4 run` all four at once, and a parent make's jobserver
++counts each pass as one job. `run` makes DIR and writes pass N's image with
++the generator COMMAND (its standard output discarded), then runs the pass as
++the serial recipe ran it: the simulator itself, as make ran a line with no
++shell syntax, or the serial line's own `cd DIR && ...` through /bin/sh. It
++keeps what each wrote to standard output and standard error and records how
++the pass ended: its exit status, or the signal that killed it and whether it
++dumped core. It always exits 0, so a failing pass never stops make before the
++passes are printed.
++
++`replay-gen N` and `replay N` then print pass N exactly where the serial
++recipe printed it, each from its own recipe line of `run`, and end as the
++serial line ended: with the generator's or the simulator's exit status, or by
++the same signal, so make reports `Error 1`, `Aborted` or `Killed` just as it
++did. A transcript that cannot be printed fails the line with a diagnostic.
++
++Fail fast: unless make ignores errors (-i), the first failing pass in order
++stops every later pass, whose output the serial recipe would never have
++printed, and a replay after a failure prints nothing, since the serial recipe
++had stopped there (make -k goes on to `run`'s next rule; the serial recipe
++did not). With -i every pass runs and prints, as the serial recipe's did.
++
++An INT, TERM, QUIT or HUP to a pass is passed to its simulator, and once the
++simulator has ended the pass dies of the same signal, so make sees its job
++killed as it saw the serial recipe's.
++"""
++
++from __future__ import annotations
++
++import argparse
++import json
++import os
++import resource
++import selectors
++import signal
++import subprocess
++import sys
++from pathlib import Path
++
++#: Everything one `make run` records, removed by `run`'s first rule.
++STATE = Path("obj_dir/engine-passes")
++FORWARDED = (signal.SIGINT, signal.SIGTERM, signal.SIGQUIT, signal.SIGHUP)
++
++
++def failed_before(n: int) -> bool:
++    """True when the build or an earlier pass failed: the serial recipe stopped there."""
++    return not (STATE / "build.ok").exists() or any((STATE / f"{k}.stop").exists() for k in range(n))
++
++
++def descendants(pid: int) -> list[int]:
++    """`pid` and every process below it, so a shell that did not exec its simulator is no shelter."""
++    parents: dict[int, list[int]] = {}
++    for stat in Path("/proc").glob("[0-9]*/stat"):
++        try:
++            fields = stat.read_text().rsplit(")", 1)[1].split()
++        except OSError:
++            continue
++        parents.setdefault(int(fields[1]), []).append(int(stat.parent.name))
++    found, todo = [], [pid]
++    while todo:
++        current = todo.pop()
++        found.append(current)
++        todo.extend(parents.get(current, []))
++    return found
++
++
++def signal_all(pid: int, signum: int) -> None:
++    """Send `signum` to `pid` and everything below it."""
++    for target in descendants(pid):
++        try:
++            os.kill(target, signum)
++        except OSError:
++            pass
++
++
++def write_atomic(path: Path, data: str) -> None:
++    """Write `path` whole or not at all."""
++    temporary = path.with_suffix(".tmp")
++    temporary.write_text(data)
++    temporary.replace(path)
++
++
++def run(n: int, directory: str | None, generate: str | None, argv: list[str], ignoring: bool) -> int:
++    """Run pass N and record it; exit 0 unless a signal interrupted it."""
++    STATE.mkdir(parents=True, exist_ok=True)
++    log = (STATE / f"{n}.log").open("wb")
++    record: dict = {}
++    received: list[int] = []
++    child: list[subprocess.Popen] = []
++
++    def chunk(stream: int, data: bytes) -> None:
++        log.write(bytes([stream]) + len(data).to_bytes(4, "big") + data)
++
++    def forward(signum: int, _frame: object) -> None:
++        received.append(signum)
++        if child and child[0].returncode is None:
++            signal_all(child[0].pid, signum)
++
++    def stop(_signum: int, _frame: object) -> None:
++        if failed_before(n):
++            record["stopped"] = True
++            if child and child[0].returncode is None:
++                signal_all(child[0].pid, signal.SIGTERM)
++
++    for signum in FORWARDED:
++        if signal.getsignal(signum) is not signal.SIG_IGN:
++            signal.signal(signum, forward)
++    signal.signal(signal.SIGUSR1, stop)
++    (STATE / f"{n}.pid").write_text(str(os.getpid()))
++    if not ignoring and failed_before(n):
++        record["stopped"] = True  # an earlier pass failed: the serial recipe never ran this one
++    if directory is not None:
++        Path(directory).mkdir(parents=True, exist_ok=True)
++    if generate is not None and "stopped" not in record:
++        done = subprocess.run(["/bin/sh", "-c", generate], stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
++        if done.stderr:
++            record["gen_stderr"] = done.stderr.decode(errors="surrogateescape")
++        record["gen"] = done.returncode
++        if done.returncode and not ignoring:
++            stop_later(n)
++            record["stopped"] = True
++    if "stopped" not in record and not received:
++        try:
++            child.append(subprocess.Popen(argv, stdout=subprocess.PIPE, stderr=subprocess.PIPE))
++            if record.get("stopped"):
++                signal_all(child[0].pid, signal.SIGTERM)  # an earlier pass failed as this one started
++        except OSError as exc:
++            chunk(2, f"make: {argv[0]}: {exc.strerror}\n".encode())
++            record["exit"] = 127
++        else:
++            proc = child[0]
++            selector = selectors.DefaultSelector()
++            selector.register(proc.stdout, selectors.EVENT_READ, 1)
++            selector.register(proc.stderr, selectors.EVENT_READ, 2)
++            while selector.get_map():
++                for key, _ in selector.select():
++                    data = os.read(key.fd, 65536)
++                    if data:
++                        chunk(key.data, data)
++                    else:
++                        selector.unregister(key.fileobj)
++            _, status = os.waitpid(proc.pid, 0)
++            proc.returncode = os.waitstatus_to_exitcode(status)
++            if os.WIFSIGNALED(status):
++                record.update(signal=os.WTERMSIG(status), core=os.WCOREDUMP(status))
++            else:
++                record["exit"] = os.WEXITSTATUS(status)
++            if not record.get("stopped") and (record.get("signal") or record.get("exit")) and not ignoring:
++                stop_later(n)
++    log.close()
++    if received:
++        (STATE / f"{n}.json").unlink(missing_ok=True)
++        signal.signal(received[0], signal.SIG_DFL)
++        os.kill(os.getpid(), received[0])
++    write_atomic(STATE / f"{n}.json", json.dumps(record))
++    return 0
++
++
++def stop_later(n: int) -> None:
++    """Pass N failed: mark it, then stop every later pass still running."""
++    (STATE / f"{n}.stop").touch()
++    for later in range(n + 1, 4):
++        try:
++            os.kill(int((STATE / f"{later}.pid").read_text()), signal.SIGUSR1)
++        except (OSError, ValueError):
++            pass  # not started (it will see the mark) or already finished
++
++
++def emit(fd: int, data: bytes) -> None:
++    """Write all of `data` to `fd`."""
++    view = memoryview(data)
++    while view:
++        view = view[os.write(fd, view):]
++
++
++def load(n: int) -> dict:
++    """Pass N's record, or exit 1 with the reason it cannot be replayed."""
++    try:
++        return json.loads((STATE / f"{n}.json").read_text())
++    except (OSError, ValueError) as exc:
++        print(f"engine pass {n}: no record to print ({exc})", file=sys.stderr)
++        raise SystemExit(1) from None
++
++
++def replay_gen(n: int, ignoring: bool) -> int:
++    """Pass N's image generator: its standard error, then its status."""
++    if not ignoring and failed_before(n):
++        return 0
++    record = load(n)
++    try:
++        emit(2, record.get("gen_stderr", "").encode(errors="surrogateescape"))
++    except OSError as exc:
++        print(f"engine pass {n}: its image generator's output could not be printed ({exc})", file=sys.stderr)
++        return 1
++    if record.get("gen"):
++        (STATE / f"{n}.stop").touch()
++    return record.get("gen", 0)
++
++
++def replay(n: int, banner: str | None, ignoring: bool) -> int:
++    """Pass N's banner, what it printed, then its own ending."""
++    if not ignoring and failed_before(n):
++        return 0
++    record = load(n)
++    try:
++        if banner is not None:
++            emit(1, (banner + "\n").encode())
++        with (STATE / f"{n}.log").open("rb") as log:
++            while header := log.read(5):
++                emit(header[0], log.read(int.from_bytes(header[1:], "big")))
++    except OSError as exc:
++        print(f"engine pass {n}: its transcript could not be printed ({exc})", file=sys.stderr)
++        (STATE / f"{n}.stop").touch()
++        return 1
++    if record.get("exit") or record.get("signal"):
++        (STATE / f"{n}.stop").touch()
++    if record.get("signal"):
++        if not record.get("core"):
++            resource.setrlimit(resource.RLIMIT_CORE, (0, resource.getrlimit(resource.RLIMIT_CORE)[1]))
++        if record["signal"] != signal.SIGKILL:
++            signal.signal(record["signal"], signal.SIG_DFL)
++        os.kill(os.getpid(), record["signal"])
++    return record.get("exit", 0)
++
++
++def main() -> int:
++    parser = argparse.ArgumentParser(description=__doc__.split("\n", 1)[0])
++    parser.add_argument("--ignore-errors", action="store_true", help="make runs with -i")
++    sub = parser.add_subparsers(dest="what", required=True)
++    one = sub.add_parser("run")
++    one.add_argument("n", type=int, choices=range(4))
++    one.add_argument("--mkdir")
++    one.add_argument("--gen")
++    one.add_argument("--shell", help="the serial recipe's own line, run through /bin/sh")
++    one.add_argument("argv", nargs="*")
++    gen = sub.add_parser("replay-gen")
++    gen.add_argument("n", type=int, choices=range(4))
++    show = sub.add_parser("replay")
++    show.add_argument("n", type=int, choices=range(4))
++    show.add_argument("--banner")
++    args = parser.parse_args()
++    if args.what == "run":
++        if bool(args.shell) == bool(args.argv):
++            parser.error("run takes either --shell COMMAND or -- SIMULATOR [ARG...]")
++        argv = ["/bin/sh", "-c", args.shell] if args.shell else args.argv
++        return run(args.n, args.mkdir, args.gen, argv, args.ignore_errors)
++    if args.what == "replay-gen":
++        return replay_gen(args.n, args.ignore_errors)
++    return replay(args.n, args.banner, args.ignore_errors)
++
++
++if __name__ == "__main__":
++    sys.exit(main())
+diff --git a/tb/verilator/engine/passes_test.py b/tb/verilator/engine/passes_test.py
+new file mode 100644
+index 0000000..89942fc
+--- /dev/null
++++ b/tb/verilator/engine/passes_test.py
+@@ -0,0 +1,329 @@
++#!/usr/bin/env python3
++# SPDX-FileCopyrightText: 2026 Kebag Logic
++# SPDX-License-Identifier: CERN-OHL-W-2.0
++"""#111: `make run`'s scheduled passes against the serial recipe, with stub tools.
++
++usage: passes_test.py
++
++Copies this Makefile and pass_run.py into a scratch tree, beside a reference
++Makefile whose `run` is the serial recipe the passes replaced, and runs both
++with a stub Verilator, a stub image generator and a stub simulator. Each stub
++pass prints to standard output and standard error and ends as a plan says.
++The checks:
++
++1. The transcript and the exit status equal the serial recipe's, byte for
++   byte apart from the recipe line numbers in make's own messages, for a clean
++   run, a failing pass at each position, two failing passes, a pass killed by
++   SIGSEGV, SIGABRT and SIGKILL, a failing image generator and a failing
++   build; each with no option, -s, -i and -k, and at -j4 and -j1. Standard
++   output and standard error are compared apart, with only the tree's own
++   path and make's recipe line numbers masked. The clean -j4 run must have
++   finished its passes out of order, or the ordering was not exercised.
++2. The job budget: at most one pass at a time at -j1, two at -j2, four at
++   -j4 (and four reached), and under a parent make at -j3 whose two other
++   targets hold job slots, at most three jobs at once in all.
++3. Fail fast: when pass 1 fails, passes 2 and 3 are stopped at -j4 and never
++   start at -j1.
++4. INT, TERM, QUIT and HUP to make's process group, and TERM to make alone,
++   leave no stub simulator running.
++5. A pass's kept transcript that cannot be read back fails the run with a
++   diagnostic, after the passes before it and with nothing after it.
++Nothing is built or simulated; it takes seconds.
++"""
++
++from __future__ import annotations
++
++import json
++import os
++import re
++import resource
++import shutil
++import signal
++import subprocess
++import sys
++import tempfile
++import time
++from pathlib import Path
++
++HERE = Path(__file__).resolve().parent
++START = "# #111: the four passes are independent"
++END = "# #111: the serial order, the budget"
++SERIAL = """run: gptp_ucode.hex
++\t$(VERILATOR) $(VFLAGS) $(SRCS) $(CPP) -o Vengine_sim
++\t./obj_dir/Vengine_sim
++\t@mkdir -p seedrun
++\t@python3 $(GEN) $(GENARGS) --seq-seed 0x200000 -o seedrun/gptp_ucode.hex >/dev/null
++\t@echo "-- again, with the request counter seeded above 16 bits --"
++\t@cd seedrun && ../obj_dir/Vengine_sim
++\t@mkdir -p syncseedrun
++\t@python3 $(GEN) $(GENARGS) --sync-seq-seed 0x10000 -o syncseedrun/gptp_ucode.hex >/dev/null
++\t@echo "-- again, with the Sync counter seeded above 16 bits --"
++\t@cd syncseedrun && ../obj_dir/Vengine_sim
++\t@mkdir -p p1run
++\t@python3 $(GEN) $(GENARGS) --p1 255 --clock-accuracy 0xFE -o p1run/gptp_ucode.hex >/dev/null
++\t@echo "-- the self publication again, not grandmaster-capable (priority1 255), clockAccuracy 0xFE --"
++\t@cd p1run && ../obj_dir/Vengine_sim +not-gm-capable
++
++"""
++SIM = r'''#!/usr/bin/env python3
++import fcntl, json, os, signal, sys, time
++plan = json.loads(os.environ["STUB_PLAN"])
++n = {"engine": 0, "seedrun": 1, "syncseedrun": 2, "p1run": 3}[os.path.basename(os.getcwd())]
++assert (n == 3) == ("+not-gm-capable" in sys.argv[1:])
++me = plan.get(str(n), {})
++def event(what):
++    with open(os.environ["STUB_EVENTS"], "a") as f:
++        fcntl.flock(f, fcntl.LOCK_EX)
++        f.write(json.dumps({"what": what, "job": f"pass{n}", "pid": os.getpid(), "t": time.monotonic()}) + "\n")
++def die(signum, _frame):
++    event("end")
++    signal.signal(signum, signal.SIG_DFL)
++    os.kill(os.getpid(), signum)
++for signum in (signal.SIGINT, signal.SIGTERM, signal.SIGQUIT, signal.SIGHUP):
++    signal.signal(signum, die)
++event("start")
++print(f"pass {n}: first line", flush=True)
++print(f"pass {n}: a note on standard error", file=sys.stderr, flush=True)
++time.sleep(me.get("sleep", 0.3 - 0.07 * n))
++if me.get("unreadable"):
++    os.chmod(f"{'.' if n == 0 else '..'}/obj_dir/engine-passes/{n}.log", 0)
++print(f"pass {n}: 12 checks: {12 - bool(me.get('exit'))} PASS, {int(bool(me.get('exit')))} FAIL", flush=True)
++event("end")
++if "signal" in me:
++    signal.signal(me["signal"], signal.SIG_DFL)
++    os.kill(os.getpid(), me["signal"])
++sys.exit(me.get("exit", 0))
++'''
++VERILATOR = r'''#!/usr/bin/env python3
++import json, os, shutil, sys
++print("stub verilator: Vengine_sim from", len(sys.argv) - 1, "arguments")
++if json.loads(os.environ["STUB_PLAN"]).get("build"):
++    print("%Error: stub verilator: a planted build failure", file=sys.stderr)
++    sys.exit(1)
++os.makedirs("obj_dir", exist_ok=True)
++shutil.copy(os.environ["STUB_SIM"], "obj_dir/Vengine_sim")
++os.chmod("obj_dir/Vengine_sim", 0o755)
++'''
++GEN = r'''import json, os, sys
++out = sys.argv[sys.argv.index("-o") + 1]
++if json.loads(os.environ["STUB_PLAN"]).get("gen") == os.path.dirname(out):
++    print(f"gen_gptp_ucode: a planted refusal for {out}", file=sys.stderr)
++    sys.exit(1)
++print("image written", out)
++open(out, "w").write("0\n")
++'''
++HOG = r'''import fcntl, json, os, sys, time
++def event(what):
++    with open(os.environ["STUB_EVENTS"], "a") as f:
++        fcntl.flock(f, fcntl.LOCK_EX)
++        f.write(json.dumps({"what": what, "job": sys.argv[1], "pid": os.getpid(), "t": time.monotonic()}) + "\n")
++event("start"); time.sleep(float(sys.argv[2])); event("end")
++'''
++TOP = """.PHONY: all engine hog1 hog2
++all: engine hog1 hog2
++engine:
++\t+$(MAKE) --no-print-directory -C engine run
++hog1 hog2:
++\tpython3 ../stub/hog.py $@ 1.5
++"""
++PLANS = {
++    "clean": {},
++    "pass 0 fails": {"0": {"exit": 1}},
++    "pass 1 fails": {"1": {"exit": 1}},
++    "pass 3 fails": {"3": {"exit": 1}},
++    "passes 1 and 2 fail": {"1": {"exit": 3}, "2": {"exit": 7}},
++    "pass 2 SIGSEGV": {"2": {"signal": signal.SIGSEGV}},
++    "pass 1 SIGABRT": {"1": {"signal": signal.SIGABRT}},
++    "pass 3 SIGKILL": {"3": {"signal": signal.SIGKILL}},
++    "pass 2 image refused": {"gen": "syncseedrun"},
++    "build fails": {"build": 1},
++}
++LINE = re.compile(r"(make(?:\[\d+\])?: (?:\*\*\* )?\[)[^\]:]+:\d+: run\]")
++
++
++def norm(text: str, engine: Path) -> str:
++    """Only host text differs: the tree's own path (the build's -I$(CURDIR)) and make's recipe line numbers."""
++    return LINE.sub(r"\1MK: run]", text.replace(str(engine), "<engine>"))
++
++
++def tree(scratch: Path) -> dict[str, Path]:
++    """Scratch engines: `serial` with the serial recipe, `parallel` with this one; shared stubs."""
++    stub = scratch / "stub"
++    stub.mkdir()
++    for name, text in (("sim.py", SIM), ("verilator.py", VERILATOR), ("gen.py", GEN), ("hog.py", HOG)):
++        (stub / name).write_text(text)
++    (stub / "verilator.py").chmod(0o755)
++    real = (HERE / "Makefile").read_text()
++    assert real.count(START) == 1 and real.count(END) == 1, "the Makefile's #111 anchors moved"
++    serial = real[:real.index(START)] + SERIAL + real[real.index(END):]
++    trees = {}
++    for name, text in (("serial", serial), ("parallel", real)):
++        engine = scratch / name / "engine"
++        engine.mkdir(parents=True)
++        (engine / "Makefile").write_text(text)
++        shutil.copy(HERE / "pass_run.py", engine)
++        trees[name] = engine
++    (scratch / "parallel" / "Makefile").write_text(TOP)
++    return trees
++
++
++def make(engine: Path, flags: list[str], plan: dict, events: Path, stdout: int | None = None,
++         directory: Path | None = None, target: str = "run") -> subprocess.CompletedProcess:
++    """One make run with the stubs; its captured streams and status."""
++    stub = engine.parents[1] / "stub"
++    env = {**os.environ, "STUB_PLAN": json.dumps(plan), "STUB_EVENTS": str(events),
++           "STUB_SIM": str(stub / "sim.py"), "MAKEFLAGS": ""}
++    env.pop("MAKELEVEL", None)
++    args = ["make", *flags, target, "VERILATOR=../../stub/verilator.py", "GEN=../../stub/gen.py"]
++    subprocess.run(["make", "-s", "clean"], cwd=engine, check=True, env=env)
++    return subprocess.run(args, cwd=directory or engine, env=env, text=True, preexec_fn=no_cores, timeout=120,
++                          stdout=subprocess.PIPE if stdout is None else stdout, stderr=subprocess.PIPE)
++
++
++def no_cores() -> None:
++    """No core files, INT and QUIT at their defaults, as from a terminal."""
++    resource.setrlimit(resource.RLIMIT_CORE, (0, 0))
++    signal.signal(signal.SIGINT, signal.SIG_DFL)
++    signal.signal(signal.SIGQUIT, signal.SIG_DFL)
++
++
++def read(events: Path) -> list[dict]:
++    return [json.loads(line) for line in events.read_text().splitlines()] if events.exists() else []
++
++
++def peak(events: list[dict]) -> int:
++    """The most jobs running at once."""
++    live, most = 0, 0
++    for event in sorted(events, key=lambda e: (e["t"], e["what"] == "start")):
++        live += 1 if event["what"] == "start" else -1
++        most = max(most, live)
++    return most
++
++
++def transcripts(trees: dict[str, Path], scratch: Path) -> int:
++    """Check 1: the scheduled run prints and ends as the serial recipe did."""
++    bad = 0
++    for plan_name, plan in PLANS.items():
++        for mode in ([], ["-s"], ["-i"], ["-k"]):
++            for jobs in (["-j4"], ["-j1"]) if not mode else (["-j4"],):
++                events = scratch / "events.jsonl"
++                events.unlink(missing_ok=True)
++                want = make(trees["serial"], [*jobs, *mode], plan, events)
++                events.unlink(missing_ok=True)
++                got = make(trees["parallel"], [*jobs, *mode], plan, events)
++                same = (got.returncode == want.returncode
++                        and norm(got.stdout, trees["parallel"]) == norm(want.stdout, trees["serial"])
++                        and norm(got.stderr, trees["parallel"]) == norm(want.stderr, trees["serial"]))
++                label = f"{plan_name}, make {' '.join(jobs + mode)}"
++                if not same:
++                    bad += 1
++                    print(f"[FAIL] {label}: rc {got.returncode} vs serial {want.returncode}\n"
++                          f"--- serial stdout\n{want.stdout}--- stdout\n{got.stdout}"
++                          f"--- serial stderr\n{want.stderr}--- stderr\n{got.stderr}")
++                else:
++                    print(f"[PASS] {label}: the serial transcript and status (rc {got.returncode})")
++                if plan_name == "clean" and jobs == ["-j4"] and not mode:
++                    ends = [e["job"] for e in read(events) if e["what"] == "end"]
++                    ordered = ends == sorted(ends)
++                    bad += ordered
++                    print(f"[{'FAIL' if ordered else 'PASS'}] the clean -j4 passes finished out of order: {ends}")
++    return bad
++
++
++def budget(trees: dict[str, Path], scratch: Path) -> int:
++    """Check 2: never more jobs than the caller allowed."""
++    bad = 0
++    slow = {str(n): {"sleep": 0.6} for n in range(4)}
++    for jobs, limit, reach in (("-j1", 1, 1), ("-j2", 2, 2), ("-j4", 4, 4)):
++        events = scratch / f"budget{jobs}.jsonl"
++        done = make(trees["parallel"], [jobs], slow, events)
++        most = peak(read(events))
++        ok = done.returncode == 0 and most <= limit and most >= reach
++        bad += not ok
++        print(f"[{'PASS' if ok else 'FAIL'}] make {jobs} run: at most {most} passes at once (budget {limit})")
++    events = scratch / "budget-recursive.jsonl"
++    done = make(trees["parallel"], ["-j3"], slow, events, directory=trees["parallel"].parent, target="all")
++    jobs = read(events)
++    most = peak(jobs)
++    hogs = {e["job"] for e in jobs if e["job"].startswith("hog")}
++    passes = {e["job"] for e in jobs if e["job"].startswith("pass")}
++    ok = done.returncode == 0 and most == 3 and hogs == {"hog1", "hog2"} and len(passes) == 4
++    bad += not ok
++    print(f"[{'PASS' if ok else 'FAIL'}] a parent make -j3 with two other jobs: {len(passes)} passes ran, "
++          f"at most {most} jobs at once in all (budget 3, reached)")
++    return bad
++
++
++def fail_fast(trees: dict[str, Path], scratch: Path) -> int:
++    """Check 3: the first failing pass stops the later ones."""
++    bad = 0
++    plan = {"0": {"sleep": 0.2}, "1": {"exit": 1, "sleep": 0.1}, "2": {"sleep": 30}, "3": {"sleep": 30}}
++    for jobs in ("-j4", "-j1"):
++        events = scratch / f"fast{jobs}.jsonl"
++        began = time.monotonic()
++        done = make(trees["parallel"], [jobs], plan, events)
++        took = time.monotonic() - began
++        started = sorted({e["job"] for e in read(events) if e["what"] == "start"})
++        ended = sorted({e["job"] for e in read(events) if e["what"] == "end"})
++        expect = ["pass0", "pass1", "pass2", "pass3"] if jobs == "-j4" else ["pass0", "pass1"]
++        ok = done.returncode == 2 and took < 15 and started == expect and ended == expect
++        bad += not ok
++        print(f"[{'PASS' if ok else 'FAIL'}] make {jobs}: pass 1 fails and the run ends in {took:.1f} s; "
++              f"passes started {started}, all ended")
++    return bad
++
++
++def signals(trees: dict[str, Path], scratch: Path) -> int:
++    """Check 4: an interrupt leaves no simulator running."""
++    bad = 0
++    plan = {str(n): {"sleep": 60} for n in range(4)}
++    for signum, group in ((signal.SIGINT, True), (signal.SIGTERM, True), (signal.SIGQUIT, True),
++                          (signal.SIGHUP, True), (signal.SIGTERM, False)):
++        events = scratch / f"signal{signum}{group}.jsonl"
++        engine = trees["parallel"]
++        env = {**os.environ, "STUB_PLAN": json.dumps(plan), "STUB_EVENTS": str(events),
++               "STUB_SIM": str(engine.parents[1] / "stub" / "sim.py"), "MAKEFLAGS": ""}
++        subprocess.run(["make", "-s", "clean"], cwd=engine, check=True, env=env)
++        proc = subprocess.Popen(["make", "-j4", "run", "VERILATOR=../../stub/verilator.py", "GEN=../../stub/gen.py"],
++                                cwd=engine, env=env, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
++                                preexec_fn=no_cores, start_new_session=True)
++        deadline = time.monotonic() + 30
++        while sum(e["what"] == "start" for e in read(events)) < 4 and time.monotonic() < deadline:
++            time.sleep(0.05)
++        (os.killpg if group else os.kill)(proc.pid, signum)
++        try:
++            rc = proc.wait(timeout=20)
++        except subprocess.TimeoutExpired:
++            os.killpg(proc.pid, signal.SIGKILL)
++            rc = None
++        time.sleep(0.2)
++        pids = {e["pid"] for e in read(events) if e["what"] == "start"}
++        alive = [pid for pid in pids if subprocess.run(["kill", "-0", str(pid)], capture_output=True).returncode == 0]
++        ok = rc not in (None, 0) and len(pids) == 4 and not alive
++        bad += not ok
++        print(f"[{'PASS' if ok else 'FAIL'}] {signal.Signals(signum).name} to make's "
++              f"{'process group' if group else 'own process'}: make ended ({rc}), {len(alive)} simulators left")
++    return bad
++
++
++def unprintable(trees: dict[str, Path], scratch: Path) -> int:
++    """Check 5: a transcript that cannot be printed fails the run, after the passes before it."""
++    done = make(trees["parallel"], ["-j4"], {"1": {"unreadable": 1}}, scratch / "unreadable.jsonl")
++    ok = (done.returncode == 2 and "engine pass 1: its transcript could not be printed" in done.stderr
++          and "pass 0: 12 checks: 12 PASS" in done.stdout and "pass 2:" not in done.stdout)
++    print(f"[{'PASS' if ok else 'FAIL'}] pass 1's kept transcript made unreadable: rc {done.returncode}, "
++          f"pass 0 printed, the diagnostic {'printed' if ok else 'missing'}, nothing after it")
++    return not ok
++
++
++def main() -> int:
++    with tempfile.TemporaryDirectory(prefix="engine-passes-test-") as name:
++        scratch = Path(name)
++        trees = tree(scratch)
++        bad = sum(check(trees, scratch) for check in (transcripts, budget, fail_fast, signals, unprintable))
++    print(f"engine passes test: {'PASS' if not bad else f'{bad} FAIL'}")
++    return 1 if bad else 0
++
++
++if __name__ == "__main__":
++    sys.exit(main())
+-- 
+2.56.1
+

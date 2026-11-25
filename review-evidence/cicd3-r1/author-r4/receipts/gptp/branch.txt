@@ -1,0 +1,7 @@
+branch engine-run-passes-at-once
+661e4c3a45904d2d8f3e061c67103a945651d9ff
+bbda770befae8748c1139c4e843c5874c5330048
+1213ac5b9e09b8759ba76cc70c53652b5e108996
+661e4c3 Make each engine pass its own make job, so the four run within the caller's job budget and a parent's jobserver, and replay each from its own line of run as the serial recipe printed and ended it, under -s, -i and -k and by signal name, with the first failure stopping the later passes
+bbda770 Run the engine suite's four passes at once and print each in the serial order under its serial echo line, stopping at the first failing pass with its status, so make run takes about its longest pass rather than their sum
+1213ac5 Merge pull request #108 from Mister-M-alt/106-107-announce-rate

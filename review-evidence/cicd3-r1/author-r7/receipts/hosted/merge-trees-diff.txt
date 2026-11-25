@@ -1,0 +1,52 @@
+Hosted merge trees: dd5cf579 (run 45481508309) vs 241f036e (run 45528738040)
+ 43 files changed, 1816 insertions(+), 228 deletions(-)
+
+The PR's own files (45d5c35a..9c625393):
+.github/ci-templates/rtl-fast.yml
+.github/workflows/rtl-fast.yml
+.github/workflows/rtl.yml
+docs/testing/CI_WORKFLOWS.md
+docs/testing/RUNNING_TESTS.md
+docs/testing/TESTING.md
+scripts/ci_events.py
+scripts/ci_make_cases.py
+scripts/ci_suite_pieces_selftest.py
+scripts/suite_shards.py
+sw/firmware/ctrl/README.md
+sw/firmware/ctrl/test/ctrl_boundary.py
+sw/firmware/ctrl/test/ctrl_configs.py
+sw/firmware/ctrl/test/ctrl_runs.py
+tb/verilator/follow_ring/Makefile
+tb/verilator/follow_ring/settle_control.py
+tb/verilator/follow_ring/small_pulls.py
+tb/verilator/media_phase/Makefile
+
+Every other differing file (each one is #995's: 2f2a8152..e608f8d8):
+CHANGELOG.md
+docs/design/GM_LOSS_RECOVERY.md
+docs/design/GPTP_PLANE.md
+docs/design/TIME_SYNC.md
+docs/diagrams/PNG_MANIFEST.json
+docs/diagrams/submodule_boundaries.drawio
+docs/diagrams/submodule_boundaries.png
+docs/diagrams/submodule_boundaries.svg
+docs/diagrams/timesync_chain.drawio
+docs/diagrams/timesync_chain.png
+docs/diagrams/timesync_chain.svg
+docs/guides/gptp/HDL_DEVELOPER.md
+docs/guides/gptp/MANAGER.md
+docs/guides/gptp/SYSTEM_INTEGRATOR.md
+docs/guides/gptp/TEST_DEVELOPER.md
+docs/reference/STRICTER_READINGS.md
+docs/reference/SUBMODULES.md
+docs/traceability/ieee8021as.md
+gptp-processor
+syn/yosys/rom_digests.tsv
+tb/verilator/gptp_shadow/gptp_shadow_wrap.sv
+tb/verilator/gptp_shadow/mutants.py
+tb/verilator/gptp_shadow/README.md
+tb/verilator/gptp_shadow/sim_main.cpp
+tb/verilator/gptp_shadow/test_mutant_lifecycle.py
+
+Of those, files also changed by #995: 25 of 25
+#995 merge: e608f8d82a88bca8b3996677ff4113aef353ce88 committed 2026-11-25T02:33:46+01:00

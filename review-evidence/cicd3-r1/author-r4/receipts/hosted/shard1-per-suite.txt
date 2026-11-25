@@ -1,0 +1,14 @@
+Hosted shard 1/19: run 45383854694 (base fcbc31f3, 27.3 min) vs run 45457006166 (13e6d869, 38.6 min).
+Suite windows from the job logs' PASS timestamps; Verilator build reports (same models, same flags) from suite-logs-1.
+suite                   base s  head s     x   builds  build-wall base->head    x
+capture_coherence__3     352.3   723.7  2.05     0   (no Verilator build report)
+milan_dp__1              994.3  1312.5  1.32     6     194.3 ->   315.2   1.62
+aaf                       50.4    76.6  1.52     3      12.7 ->    17.7   1.39
+cbs                        4.2     5.8  1.40     1       4.1 ->     5.7   1.39
+eth_tx_reset               4.1     5.7  1.40     1       4.0 ->     5.6   1.40
+mac_rmon                   8.3    11.2  1.36     2       8.1 ->    11.1   1.36
+media_nco                 13.5    16.6  1.22     1       4.1 ->     5.5   1.36
+nvm_backend               26.9    37.1  1.38     9      26.2 ->    36.1   1.38
+queues                     4.2     5.8  1.38     1       4.1 ->     5.7   1.38
+tsn_fuzz                  38.4    61.8  1.61     2       8.5 ->    11.8   1.38
+8 small suites           149.8   220.6  1.47

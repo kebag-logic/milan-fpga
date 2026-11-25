@@ -1,0 +1,39 @@
+# runA-45481508309: milan_dp__2.json head dd5cf5798833 tree 23af3e5f69f2 shard 2/4
+# runA-45481508309: milan_dp__3.json head dd5cf5798833 tree 23af3e5f69f2 shard 3/4
+# runA-45481508309: milan_dp__1.json head dd5cf5798833 tree 23af3e5f69f2 shard 1/4
+# runA-45481508309: milan_dp__0.json head dd5cf5798833 tree 23af3e5f69f2 shard 0/4
+# runB-45528738040: milan_dp__1.json head 241f036e9e93 tree af158eaa0b82 shard 1/8
+# runB-45528738040: milan_dp__3.json head 241f036e9e93 tree af158eaa0b82 shard 3/8
+# runB-45528738040: milan_dp__0.json head 241f036e9e93 tree af158eaa0b82 shard 0/8
+# runB-45528738040: milan_dp__5.json head 241f036e9e93 tree af158eaa0b82 shard 5/8
+# runB-45528738040: milan_dp__7.json head 241f036e9e93 tree af158eaa0b82 shard 7/8
+# runB-45528738040: milan_dp__6.json head 241f036e9e93 tree af158eaa0b82 shard 6/8
+# runB-45528738040: milan_dp__2.json head 241f036e9e93 tree af158eaa0b82 shard 2/8
+# runB-45528738040: milan_dp__4.json head 241f036e9e93 tree af158eaa0b82 shard 4/8
+case              runA-45481508309            runB-45528738040            verdict
+counters-1        pass/0/1ebfa8311853a0a6     pass/0/1ebfa8311853a0a6     same
+base              pass/0/1a98562295648973     pass/0/1a98562295648973     same
+sidmove           pass/0/f3570957ae8ad536     pass/0/f3570957ae8ad536     same
+nxndv             pass/0/7a9fa2984b4b0d60     pass/0/7a9fa2984b4b0d60     same
+prune             pass/0/73423b3ddf2f4ef7     pass/0/73423b3ddf2f4ef7     same
+maprec4           pass/0/3025fdaa8d325110     pass/0/3025fdaa8d325110     same
+counters-8        pass/0/bb7323bd8a701c01     pass/0/bb7323bd8a701c01     same
+notify            pass/0/8e943ec217811300     pass/0/8e943ec217811300     same
+sidmove8          pass/0/73b193efe6a911e3     pass/0/73b193efe6a911e3     same
+nxn8              pass/0/72dcf411abdbc45f     pass/0/72dcf411abdbc45f     same
+ax1x1             pass/0/b378f37bb22f4dd7     pass/0/b378f37bb22f4dd7     same
+split             pass/0/b411555d236dc482     pass/0/b411555d236dc482     same
+gptp-lat          pass/0/699262f363514f8c     pass/0/691b82a4fe5abcda     DIFFER
+counters-8-frames pass/0/8c57b75c082f2ed9     pass/0/8c57b75c082f2ed9     same
+tspec8            pass/0/c66b11c2c036df8f     pass/0/c66b11c2c036df8f     same
+nxn               pass/0/cac3eabf0064d96a     pass/0/cac3eabf0064d96a     same
+nolpf             pass/0/1a98562295648973     pass/0/1a98562295648973     same
+maprec8           pass/0/dcd3a52cd46007fd     pass/0/dcd3a52cd46007fd     same
+render-mutants    pass/0/1656ad8449e5456a     pass/0/1656ad8449e5456a     same
+gptp              pass/0/767854b00c58fb0b     pass/0/fded66ab69042994     DIFFER
+counters-1-frames pass/0/8c7f840e3a33730f     pass/0/8c7f840e3a33730f     same
+crflic            pass/0/657e2bead82def5b     pass/0/657e2bead82def5b     same
+dynmap            pass/0/006771ac426c6144     pass/0/006771ac426c6144     same
+nxn4c             pass/0/a6189bc3189d2abc     pass/0/a6189bc3189d2abc     same
+aclk              pass/0/bf7db2afb987b164     pass/0/bf7db2afb987b164     same
+bootsa            pass/0/dc8a79df3d67a5af     pass/0/dc8a79df3d67a5af     same

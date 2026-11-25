@@ -1,0 +1,74 @@
+receipts capture_coherence     43 cases, legs 4 -> 8: IDENTICAL
+receipts follow_ring          only in the new run: 3 cases, 2 legs
+receipts maap                  66 cases, legs 4 -> 4: IDENTICAL
+receipts media_phase          only in the new run: 18 cases, 3 legs
+receipts milan_dp              26 cases, legs 4 -> 8: DIFFER ['gptp', 'gptp-lat']
+receipts milan_dp_mclk         36 cases, legs 4 -> 4: IDENTICAL
+receipts milan_dp_render        4 cases, legs 4 -> 4: IDENTICAL
+receipts pp_shadow              4 cases, legs 4 -> 4: IDENTICAL
+verdicts aaf                     13 lines: IDENTICAL
+verdicts aaf_audio_loop           1 lines: IDENTICAL
+verdicts aaf_clock_meter         42 lines: IDENTICAL
+verdicts aaf_latency_tap_bank    48 lines: IDENTICAL
+verdicts aaf_latency_taps        74 lines: IDENTICAL
+verdicts adp_tx                   4 lines: IDENTICAL
+verdicts aes3                     2 lines: IDENTICAL
+verdicts avtp_parser             10 lines: IDENTICAL
+verdicts avtp_rxmon              82 lines: IDENTICAL
+verdicts avtp_stream              4 lines: IDENTICAL
+verdicts capture_coherence       50 lines: DIFFER (old 50, new 54)
+verdicts cbs                     17 lines: IDENTICAL
+verdicts cdc                      3 lines: IDENTICAL
+verdicts chmap_capture           11 lines: IDENTICAL
+verdicts chmap_render             1 lines: IDENTICAL
+verdicts classifier               2 lines: IDENTICAL
+verdicts clkvalid                58 lines: IDENTICAL
+verdicts cls                     11 lines: IDENTICAL
+verdicts controller_rate          0 lines: IDENTICAL
+verdicts crf_rx                 259 lines: IDENTICAL
+verdicts crf_tx                 129 lines: IDENTICAL
+verdicts csr                   1790 lines: IDENTICAL
+verdicts datapath                 2 lines: IDENTICAL
+verdicts eth_tx_reset            41 lines: IDENTICAL
+verdicts follow_ring              6 lines: IDENTICAL
+verdicts fw_service_budget        5 lines: IDENTICAL
+verdicts gptp_plane              11 lines: IDENTICAL
+verdicts gptp_shadow             11 lines: DIFFER (old 11, new 15)
+verdicts gptp_tables             29 lines: IDENTICAL
+verdicts gptp_txts               20 lines: IDENTICAL
+verdicts i2spb                    0 lines: IDENTICAL
+verdicts ifg                      0 lines: IDENTICAL
+verdicts lat_history_ring         1 lines: IDENTICAL
+verdicts link_guard             105 lines: IDENTICAL
+verdicts maap                    69 lines: IDENTICAL
+verdicts mac_rmon                 0 lines: IDENTICAL
+verdicts mbx                     54 lines: IDENTICAL
+verdicts media_grid_align         4 lines: IDENTICAL
+verdicts media_nco                1 lines: IDENTICAL
+verdicts media_phase             56 lines: IDENTICAL
+verdicts milan_dp             13777 lines: IDENTICAL
+verdicts milan_dp_gm_steps        9 lines: IDENTICAL
+verdicts milan_dp_mclk           43 lines: IDENTICAL
+verdicts milan_dp_render         12 lines: IDENTICAL
+verdicts mmcm_servo               4 lines: IDENTICAL
+verdicts mmcm_servo_autorepair     0 lines: IDENTICAL
+verdicts nvm_backend              2 lines: IDENTICAL
+verdicts nvm_cosim                2 lines: IDENTICAL
+verdicts pair_fill               43 lines: IDENTICAL
+verdicts pcmlpf                   0 lines: IDENTICAL
+verdicts pp_shadow             2575 lines: IDENTICAL
+verdicts ptp                     13 lines: IDENTICAL
+verdicts ptp_sync                18 lines: IDENTICAL
+verdicts ptp_ts                 124 lines: IDENTICAL
+verdicts queues                   2 lines: IDENTICAL
+verdicts reboot_ctrl             36 lines: IDENTICAL
+verdicts render_queue            33 lines: IDENTICAL
+verdicts rx_filter               14 lines: IDENTICAL
+verdicts shaper_core             13 lines: IDENTICAL
+verdicts tcam                     7 lines: IDENTICAL
+verdicts tcam_csr                 0 lines: IDENTICAL
+verdicts tdm                      1 lines: IDENTICAL
+verdicts tdm_render               9 lines: IDENTICAL
+verdicts tkdiag                 107 lines: IDENTICAL
+verdicts tsn_fuzz                 4 lines: IDENTICAL
+case tables identical 5/6; suite verdict sets identical 63/65; problems 0

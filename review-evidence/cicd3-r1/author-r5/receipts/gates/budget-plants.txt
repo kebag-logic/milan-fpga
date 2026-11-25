@@ -1,0 +1,11 @@
+clean tree: suite_shards --selftest rc=0, ci_suite_pieces_selftest rc=0
+CAUGHT  the budget loosened to the old 1620 s: suite_shards rc=1, ci_suite_pieces_selftest rc=0
+CAUGHT  the budget rule removed: suite_shards rc=1, ci_suite_pieces_selftest rc=0
+CAUGHT  the budget off by one (>= instead of >): suite_shards rc=1, ci_suite_pieces_selftest rc=0
+CAUGHT  the budget applied to leg A's worker too: suite_shards rc=1, ci_suite_pieces_selftest rc=0
+CAUGHT  worker count back to 19: suite_shards rc=1, ci_suite_pieces_selftest rc=1
+CAUGHT  milan_dp back to its four round-4 legs: suite_shards rc=1, ci_suite_pieces_selftest rc=1
+CAUGHT  follow_ring's piece figures dropped (whole again): suite_shards rc=1, ci_suite_pieces_selftest rc=1
+CAUGHT  the 60% bound removed for leg A: suite_shards rc=1, ci_suite_pieces_selftest rc=0
+ESCAPED the pieces self-test bound loosened to 1620: suite_shards rc=0, ci_suite_pieces_selftest rc=0
+8/9 plants caught; clean tree after: (0, 0)

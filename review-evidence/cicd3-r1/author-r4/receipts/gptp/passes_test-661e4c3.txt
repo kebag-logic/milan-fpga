@@ -1,0 +1,66 @@
+[PASS] clean, make -j4: the serial transcript and status (rc 0)
+[PASS] the clean -j4 passes finished out of order: ['pass3', 'pass2', 'pass1', 'pass0']
+[PASS] clean, make -j1: the serial transcript and status (rc 0)
+[PASS] clean, make -j4 -s: the serial transcript and status (rc 0)
+[PASS] clean, make -j4 -i: the serial transcript and status (rc 0)
+[PASS] clean, make -j4 -k: the serial transcript and status (rc 0)
+[PASS] pass 0 fails, make -j4: the serial transcript and status (rc 2)
+[PASS] pass 0 fails, make -j1: the serial transcript and status (rc 2)
+[PASS] pass 0 fails, make -j4 -s: the serial transcript and status (rc 2)
+[PASS] pass 0 fails, make -j4 -i: the serial transcript and status (rc 0)
+[PASS] pass 0 fails, make -j4 -k: the serial transcript and status (rc 2)
+[PASS] pass 1 fails, make -j4: the serial transcript and status (rc 2)
+[PASS] pass 1 fails, make -j1: the serial transcript and status (rc 2)
+[PASS] pass 1 fails, make -j4 -s: the serial transcript and status (rc 2)
+[PASS] pass 1 fails, make -j4 -i: the serial transcript and status (rc 0)
+[PASS] pass 1 fails, make -j4 -k: the serial transcript and status (rc 2)
+[PASS] pass 3 fails, make -j4: the serial transcript and status (rc 2)
+[PASS] pass 3 fails, make -j1: the serial transcript and status (rc 2)
+[PASS] pass 3 fails, make -j4 -s: the serial transcript and status (rc 2)
+[PASS] pass 3 fails, make -j4 -i: the serial transcript and status (rc 0)
+[PASS] pass 3 fails, make -j4 -k: the serial transcript and status (rc 2)
+[PASS] passes 1 and 2 fail, make -j4: the serial transcript and status (rc 2)
+[PASS] passes 1 and 2 fail, make -j1: the serial transcript and status (rc 2)
+[PASS] passes 1 and 2 fail, make -j4 -s: the serial transcript and status (rc 2)
+[PASS] passes 1 and 2 fail, make -j4 -i: the serial transcript and status (rc 0)
+[PASS] passes 1 and 2 fail, make -j4 -k: the serial transcript and status (rc 2)
+[PASS] pass 2 SIGSEGV, make -j4: the serial transcript and status (rc 2)
+[PASS] pass 2 SIGSEGV, make -j1: the serial transcript and status (rc 2)
+[PASS] pass 2 SIGSEGV, make -j4 -s: the serial transcript and status (rc 2)
+[PASS] pass 2 SIGSEGV, make -j4 -i: the serial transcript and status (rc 0)
+[PASS] pass 2 SIGSEGV, make -j4 -k: the serial transcript and status (rc 2)
+[PASS] pass 1 SIGABRT, make -j4: the serial transcript and status (rc 2)
+[PASS] pass 1 SIGABRT, make -j1: the serial transcript and status (rc 2)
+[PASS] pass 1 SIGABRT, make -j4 -s: the serial transcript and status (rc 2)
+[PASS] pass 1 SIGABRT, make -j4 -i: the serial transcript and status (rc 0)
+[PASS] pass 1 SIGABRT, make -j4 -k: the serial transcript and status (rc 2)
+[PASS] pass 3 SIGKILL, make -j4: the serial transcript and status (rc 2)
+[PASS] pass 3 SIGKILL, make -j1: the serial transcript and status (rc 2)
+[PASS] pass 3 SIGKILL, make -j4 -s: the serial transcript and status (rc 2)
+[PASS] pass 3 SIGKILL, make -j4 -i: the serial transcript and status (rc 0)
+[PASS] pass 3 SIGKILL, make -j4 -k: the serial transcript and status (rc 2)
+[PASS] pass 2 image refused, make -j4: the serial transcript and status (rc 2)
+[PASS] pass 2 image refused, make -j1: the serial transcript and status (rc 2)
+[PASS] pass 2 image refused, make -j4 -s: the serial transcript and status (rc 2)
+[PASS] pass 2 image refused, make -j4 -i: the serial transcript and status (rc 0)
+[PASS] pass 2 image refused, make -j4 -k: the serial transcript and status (rc 2)
+[PASS] build fails, make -j4: the serial transcript and status (rc 2)
+[PASS] build fails, make -j1: the serial transcript and status (rc 2)
+[PASS] build fails, make -j4 -s: the serial transcript and status (rc 2)
+[PASS] build fails, make -j4 -i: the serial transcript and status (rc 0)
+[PASS] build fails, make -j4 -k: the serial transcript and status (rc 2)
+[PASS] make -j1 run: at most 1 passes at once (budget 1)
+[PASS] make -j2 run: at most 2 passes at once (budget 2)
+[PASS] make -j4 run: at most 4 passes at once (budget 4)
+[PASS] a parent make -j3 with two other jobs: 4 passes ran, at most 3 jobs at once in all (budget 3, reached)
+[PASS] make -j4: pass 1 fails and the run ends in 0.6 s; passes started ['pass0', 'pass1', 'pass2', 'pass3'], all ended
+[PASS] make -j1: pass 1 fails and the run ends in 0.9 s; passes started ['pass0', 'pass1'], all ended
+[PASS] SIGINT to make's process group: make ended (-2), 0 simulators left
+[PASS] SIGTERM to make's process group: make ended (-15), 0 simulators left
+[PASS] SIGQUIT to make's process group: make ended (1), 0 simulators left
+[PASS] SIGHUP to make's process group: make ended (-1), 0 simulators left
+[PASS] SIGTERM to make's own process: make ended (-15), 0 simulators left
+[PASS] pass 1's kept transcript made unreadable: rc 2, pass 0 printed, the diagnostic printed, nothing after it
+engine passes test: PASS
+95.98 s wall
+rc=0

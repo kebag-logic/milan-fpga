@@ -1,0 +1,29 @@
+gptp_shadow verdict lines, run 45481508309 (merge into 2509db68) then run 45528738040 (merge into e608f8d8):
+== old: old/suite-logs-13/gptp_shadow.log
+326 checks: 326 PASS, 0 FAIL
+[ ok ] abort_counts_as_completion: caught by "aborted episode: the demand survives it"
+[ ok ] no_generation_check: caught by "generation zero: the ledger refused it and raised a barrier"
+[ ok ] no_tag_check: caught by "foreign tag: the ledger refused it and raised a barrier"
+[ ok ] age_never_expires: caught by "aged head: the age expired and was counted"
+[ ok ] observer_latency_off_by_one: caught, though not by "launch: the reconstruction is the launch instant"; broke ['every measured result reconstructs its own launch']
+[ ok ] crossing_latency_off_by_one: caught, though not by "launch: the reconstruction is the launch instant"; broke ['every measured result reconstructs its own launch', 'phc: a held disable keeps the
+[ ok ] no_fence: caught by "torn frame: a frame was mid-egress when the fence closed"
+[ ok ] unseal_without_echo: caught by "echo: the seal outlasts it"
+[ ok ] credit_never_withheld: caught, though not by "credit: the engine is held off at the reserve"; broke ['aged head: a record is held back', 'aged head: an expiry is not a barrier', 'aged head: the
+RESULT: PASS
+== new: new/suite-logs-1/gptp_shadow.log
+424 checks: 424 PASS, 0 FAIL
+[ ok ] abort_counts_as_completion: caught by "aborted episode: the demand survives it"
+[ ok ] no_generation_check: caught by "generation zero: the ledger refused it and raised a barrier"
+[ ok ] no_tag_check: caught by "foreign tag: the ledger refused it and raised a barrier"
+[ ok ] age_never_expires: caught by "aged head: the age expired and was counted"
+[ ok ] observer_latency_off_by_one: caught, though not by "launch: the reconstruction is the launch instant"; broke ['every measured result reconstructs its own launch']
+[ ok ] crossing_latency_off_by_one: caught, though not by "launch: the reconstruction is the launch instant"; broke ['every measured result reconstructs its own launch', 'phc: a held disable keeps the
+[ ok ] no_fence: caught by "torn frame: a frame was mid-egress when the fence closed"
+[ ok ] unseal_without_echo: caught by "echo: the seal outlasts it"
+[ ok ] credit_never_withheld: caught, though not by "credit: the engine is held off at the reserve"; broke ['#106 reserve: the plane starts with no egress result owed', '#106 seal: the plane starts wi
+[ ok ] first_master_announce_waits_for_a_beat: caught by "#106 race: one master Announce reaches the lane before the re-election"
+[ ok ] word3_applies_only_during_a_slew: caught by "#107 settled +100 ppm: the mastership's PHC rate is this oscillator's, 0"
+[ ok ] announce_leg_ignores_the_credit: caught by "#106 reserve: no master Announce reaches the lane without credit"
+[ ok ] master_announce_reaches_the_lane_after_the_re_election: caught by "#106 race: one master Announce reaches the lane before the re-election"
+RESULT: PASS

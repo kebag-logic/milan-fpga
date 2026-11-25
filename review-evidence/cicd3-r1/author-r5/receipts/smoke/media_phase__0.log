@@ -1,0 +1,312 @@
+%Warning-PINMISSING: pin_wrap.sv:139:13: Instance has missing pin: 'tspec_max_frame_o'
+  139 |   KL_crf_tx u_tx (
+      |             ^~~~
+                     ../../../hdl/ieee1722/crf/KL_crf_tx.sv:234:23: ... Location of port declaration
+  234 |   output logic [15:0] tspec_max_frame_o
+      |                       ^~~~~~~~~~~~~~~~~
+                     ... For warning description see https://verilator.org/warn/PINMISSING?v=5.050
+                     ... Use "/* verilator lint_off PINMISSING */" and lint_on around source to disable this message.
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.344 MB sources in 7 modules, into 0.352 MB in 7 C++ files needing 0.000 MB
+- Verilator: Walltime 5.536 s (elab=0.005, cvt=0.026, bld=5.492); cpu 0.048 s on 4 threads; allocated 349.863 MB
+%Warning-PINMISSING: ofs_wrap.sv:92:36: Instance has missing pin: 'tspec_max_frame_o'
+   92 |   KL_crf_tx #(.ROUND_MTT_P (1'b0)) u_crf (
+      |                                    ^~~~~
+                     ../../../hdl/ieee1722/crf/KL_crf_tx.sv:234:23: ... Location of port declaration
+  234 |   output logic [15:0] tspec_max_frame_o
+      |                       ^~~~~~~~~~~~~~~~~
+                     ... For warning description see https://verilator.org/warn/PINMISSING?v=5.050
+                     ... Use "/* verilator lint_off PINMISSING */" and lint_on around source to disable this message.
+%Warning-GENUNNAMED: ../../../hdl/ieee1722/aaf/KL_aaf_packetizer.sv:243:5: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                         : ... Suggest assign a label with 'begin : gen_<label_name>'
+  243 |     $error("KL_aaf_packetizer: WIRE_CHANS_P=%0d is not an even 2..%0d. This is the channels_per_frame the framer emits (IEEE 1722-2016 7.3.3); the pair stream is 2-channel-granular so odd widths cannot be produced.",
+      |     ^~~~~~
+                     ... For warning description see https://verilator.org/warn/GENUNNAMED?v=5.050
+                     ... Use "/* verilator lint_off GENUNNAMED */" and lint_on around source to disable this message.
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.260 MB sources in 5 modules, into 0.348 MB in 7 C++ files needing 0.000 MB
+- Verilator: Walltime 5.533 s (elab=0.006, cvt=0.024, bld=5.490); cpu 0.047 s on 4 threads; allocated 349.875 MB
+%Warning-PINMISSING: media_phase_wrap.sv:144:13: Instance has missing pin: 'tspec_max_frame_o'
+  144 |   KL_crf_tx u_tx (
+      |             ^~~~
+                     ../../../hdl/ieee1722/crf/KL_crf_tx.sv:234:23: ... Location of port declaration
+  234 |   output logic [15:0] tspec_max_frame_o
+      |                       ^~~~~~~~~~~~~~~~~
+                     ... For warning description see https://verilator.org/warn/PINMISSING?v=5.050
+                     ... Use "/* verilator lint_off PINMISSING */" and lint_on around source to disable this message.
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.579 MB sources in 8 modules, into 0.489 MB in 6 C++ files needing 0.001 MB
+- Verilator: Walltime 5.556 s (elab=0.008, cvt=0.034, bld=5.497); cpu 0.064 s on 4 threads; allocated 351.344 MB
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.000 MB sources in 0 modules, into 0.000 MB in 0 C++ files needing 0.000 MB
+- Verilator: Walltime 0.009 s (elab=0.000, cvt=0.000, bld=0.009); cpu 0.001 s on 4 threads; allocated 16.496 MB
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.000 MB sources in 0 modules, into 0.000 MB in 0 C++ files needing 0.000 MB
+- Verilator: Walltime 0.009 s (elab=0.000, cvt=0.000, bld=0.009); cpu 0.001 s on 4 threads; allocated 16.496 MB
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.000 MB sources in 0 modules, into 0.000 MB in 0 C++ files needing 0.000 MB
+- Verilator: Walltime 0.009 s (elab=0.000, cvt=0.000, bld=0.009); cpu 0.001 s on 4 threads; allocated 16.496 MB
+======== media_phase/pins ========
+======================================================================
+[pins] three interfaces on one clock domain: A TDM8 owner, B TDM4, C TDM32, graded at their pins
+  info: [pins A] 1435 stamps, 11480 slot grades, max |stamp - (slot MSB - offset)| 30.2 ns
+  [ ok ] [pins A] stamps graded at every slot (11480)
+  [ ok ] [pins A] every stamped frame instant is each slot's MSB pin instant less its offset, inside +/-5 % of Ps (max 30.2 ns)
+  [ ok ] [pins A] ...and inside the derivation, +/-40 ns (max 30.2 ns)
+  info: [pins B] 1435 stamps, 5740 slot grades, max |stamp - (slot MSB - offset)| 29.5 ns
+  [ ok ] [pins B] stamps graded at every slot (5740)
+  [ ok ] [pins B] every stamped frame instant is each slot's MSB pin instant less its offset, inside +/-5 % of Ps (max 29.5 ns)
+  [ ok ] [pins B] ...and inside the derivation, +/-40 ns (max 29.5 ns)
+  info: [pins C] 1435 stamps, 45920 slot grades, max |stamp - (slot MSB - offset)| 30.6 ns
+  [ ok ] [pins C] stamps graded at every slot (45920)
+  [ ok ] [pins C] every stamped frame instant is each slot's MSB pin instant less its offset, inside +/-5 % of Ps (max 30.6 ns)
+  [ ok ] [pins C] ...and inside the derivation, +/-40 ns (max 30.6 ns)
+  [ ok ] [pins] every CRF timing point is a frame instant of ALL three interfaces' pins, inside +/-5 % of Ps (14 points, max A 29.7 ns, B 15.8 ns, C 95.8 ns)
+  [ ok ] [pins] the interfaces' constants differ (A 20964.0 ns, B 20801.3 ns, C 5308.5 ns): at least 162.8 ns apart, beyond the derivation band, so a swap cannot pass
+== media_phase pins: checks: 11   failures: 0 ==
+RESULT: PASS
+======== media_phase/ofs ========
+======================================================================
+[ofs] four AAF outputs and the CRF output of one domain, each its own offset
+  [ ok ] [ofs A] in reset the CRF row reads its factory value rounded up to whole periods, all 33 bits
+  info: [ofs A] row 0 set 0 ns, GET_STREAM_INFO reads 0
+  info: [ofs A] row 1 set 1 ns, GET_STREAM_INFO reads 1
+  info: [ofs A] row 2 set 20833 ns, GET_STREAM_INFO reads 20833
+  info: [ofs A] row 3 set 20834 ns, GET_STREAM_INFO reads 20834
+  info: [ofs A] row 4 set 0 ns, GET_STREAM_INFO reads 0, applied 0 ns (0.0000 periods)
+  [ ok ] [ofs A] the CRF row reads back as applied, rounded up to whole periods by Equation 14, all 33 bits
+  [ ok ] [ofs A] GET_STREAM_INFO reads every AAF row as set
+  [ ok ] [ofs A] GET_STREAM_INFO reads the CRF row as applied, 0xFFFFFFFF past 32 bits
+  [ ok ] [ofs A] every AAF timestamp is a frame instant plus its row as set, to the ns (65 65 65 65 PDUs)
+  [ ok ] [ofs A] every CRF timing point is a frame instant plus the CRF row as read back (4)
+  [ ok ] [ofs A] every CRF timestamp, all 64 bits, is a frame instant plus the CRF row rounded by Equation 14
+  [ ok ] [ofs A] every CRF timestamp lies on the frame grid modulo Ps, inside +/-5 % of Ps (max 0.33 ns)
+  [ ok ] [ofs A] every AAF output's phase against the CRF timing points is its row as set less the CRF row as applied, modulo Ps (max 0.33 ns, talker 0)
+  [ ok ] [ofs B] in reset the CRF row reads its factory value rounded up to whole periods, all 33 bits
+  info: [ofs B] row 0 set 62500 ns, GET_STREAM_INFO reads 62500
+  info: [ofs B] row 1 set 2000000 ns, GET_STREAM_INFO reads 2000000
+  info: [ofs B] row 2 set 2010000 ns, GET_STREAM_INFO reads 2010000
+  info: [ofs B] row 3 set 4294967295 ns, GET_STREAM_INFO reads 4294967295
+  info: [ofs B] row 4 set 1 ns, GET_STREAM_INFO reads 20834, applied 20834 ns (1.0000 periods)
+  [ ok ] [ofs B] the CRF row reads back as applied, rounded up to whole periods by Equation 14, all 33 bits
+  [ ok ] [ofs B] GET_STREAM_INFO reads every AAF row as set
+  [ ok ] [ofs B] GET_STREAM_INFO reads the CRF row as applied, 0xFFFFFFFF past 32 bits
+  [ ok ] [ofs B] every AAF timestamp is a frame instant plus its row as set, to the ns (65 65 65 65 PDUs)
+  [ ok ] [ofs B] every CRF timing point is a frame instant plus the CRF row as read back (4)
+  [ ok ] [ofs B] every CRF timestamp, all 64 bits, is a frame instant plus the CRF row rounded by Equation 14
+  [ ok ] [ofs B] every CRF timestamp lies on the frame grid modulo Ps, inside +/-5 % of Ps (max 1.00 ns)
+  [ ok ] [ofs B] every AAF output's phase against the CRF timing points is its row as set less the CRF row as applied, modulo Ps (max 0.33 ns, talker 0)
+  info: [ofs C] row 0 set 2010000 ns, GET_STREAM_INFO reads 2010000
+  info: [ofs C] row 1 set 0 ns, GET_STREAM_INFO reads 0
+  info: [ofs C] row 2 set 1 ns, GET_STREAM_INFO reads 1
+  info: [ofs C] row 3 set 20833 ns, GET_STREAM_INFO reads 20833
+  info: [ofs C] row 4 set 20833 ns, GET_STREAM_INFO reads 20834, applied 20834 ns (1.0000 periods)
+  [ ok ] [ofs C] the CRF row reads back as applied, rounded up to whole periods by Equation 14, all 33 bits
+  [ ok ] [ofs C] GET_STREAM_INFO reads every AAF row as set
+  [ ok ] [ofs C] GET_STREAM_INFO reads the CRF row as applied, 0xFFFFFFFF past 32 bits
+  [ ok ] [ofs C] every AAF timestamp is a frame instant plus its row as set, to the ns (65 65 65 65 PDUs)
+  [ ok ] [ofs C] every CRF timing point is a frame instant plus the CRF row as read back (4)
+  [ ok ] [ofs C] every CRF timestamp, all 64 bits, is a frame instant plus the CRF row rounded by Equation 14
+  [ ok ] [ofs C] every CRF timestamp lies on the frame grid modulo Ps, inside +/-5 % of Ps (max 1.00 ns)
+  [ ok ] [ofs C] every AAF output's phase against the CRF timing points is its row as set less the CRF row as applied, modulo Ps (max 0.33 ns, talker 0)
+  [ ok ] [ofs D] in reset the CRF row reads its factory value rounded up to whole periods, all 33 bits
+  info: [ofs D] row 0 set 20834 ns, GET_STREAM_INFO reads 20834
+  info: [ofs D] row 1 set 62500 ns, GET_STREAM_INFO reads 62500
+  info: [ofs D] row 2 set 4294967295 ns, GET_STREAM_INFO reads 4294967295
+  info: [ofs D] row 3 set 2000000 ns, GET_STREAM_INFO reads 2000000
+  info: [ofs D] row 4 set 20834 ns, GET_STREAM_INFO reads 41667, applied 41667 ns (2.0000 periods)
+  [ ok ] [ofs D] the CRF row reads back as applied, rounded up to whole periods by Equation 14, all 33 bits
+  [ ok ] [ofs D] GET_STREAM_INFO reads every AAF row as set
+  [ ok ] [ofs D] GET_STREAM_INFO reads the CRF row as applied, 0xFFFFFFFF past 32 bits
+  [ ok ] [ofs D] every AAF timestamp is a frame instant plus its row as set, to the ns (65 65 65 65 PDUs)
+  [ ok ] [ofs D] every CRF timing point is a frame instant plus the CRF row as read back (4)
+  [ ok ] [ofs D] every CRF timestamp, all 64 bits, is a frame instant plus the CRF row rounded by Equation 14
+  [ ok ] [ofs D] every CRF timestamp lies on the frame grid modulo Ps, inside +/-5 % of Ps (max 0.67 ns)
+  [ ok ] [ofs D] every AAF output's phase against the CRF timing points is its row as set less the CRF row as applied, modulo Ps (max 0.33 ns, talker 0)
+  info: [ofs E] row 0 set 4294967295 ns, GET_STREAM_INFO reads 4294967295
+  info: [ofs E] row 1 set 20834 ns, GET_STREAM_INFO reads 20834
+  info: [ofs E] row 2 set 62500 ns, GET_STREAM_INFO reads 62500
+  info: [ofs E] row 3 set 0 ns, GET_STREAM_INFO reads 0
+  info: [ofs E] row 4 set 62500 ns, GET_STREAM_INFO reads 62500, applied 62500 ns (3.0000 periods)
+  [ ok ] [ofs E] the CRF row reads back as applied, rounded up to whole periods by Equation 14, all 33 bits
+  [ ok ] [ofs E] GET_STREAM_INFO reads every AAF row as set
+  [ ok ] [ofs E] GET_STREAM_INFO reads the CRF row as applied, 0xFFFFFFFF past 32 bits
+  [ ok ] [ofs E] every AAF timestamp is a frame instant plus its row as set, to the ns (65 65 65 65 PDUs)
+  [ ok ] [ofs E] every CRF timing point is a frame instant plus the CRF row as read back (4)
+  [ ok ] [ofs E] every CRF timestamp, all 64 bits, is a frame instant plus the CRF row rounded by Equation 14
+  [ ok ] [ofs E] every CRF timestamp lies on the frame grid modulo Ps, inside +/-5 % of Ps (max 0.33 ns)
+  [ ok ] [ofs E] every AAF output's phase against the CRF timing points is its row as set less the CRF row as applied, modulo Ps (max 0.33 ns, talker 1)
+  [ ok ] [ofs F] in reset the CRF row reads its factory value rounded up to whole periods, all 33 bits
+  info: [ofs F] row 0 set 2000000 ns, GET_STREAM_INFO reads 2000000
+  info: [ofs F] row 1 set 2010000 ns, GET_STREAM_INFO reads 2010000
+  info: [ofs F] row 2 set 0 ns, GET_STREAM_INFO reads 0
+  info: [ofs F] row 3 set 1 ns, GET_STREAM_INFO reads 1
+  info: [ofs F] row 4 set 2000000 ns, GET_STREAM_INFO reads 2000000, applied 2000000 ns (96.0000 periods)
+  [ ok ] [ofs F] the CRF row reads back as applied, rounded up to whole periods by Equation 14, all 33 bits
+  [ ok ] [ofs F] GET_STREAM_INFO reads every AAF row as set
+  [ ok ] [ofs F] GET_STREAM_INFO reads the CRF row as applied, 0xFFFFFFFF past 32 bits
+  [ ok ] [ofs F] every AAF timestamp is a frame instant plus its row as set, to the ns (65 65 65 65 PDUs)
+  [ ok ] [ofs F] every CRF timing point is a frame instant plus the CRF row as read back (4)
+  [ ok ] [ofs F] every CRF timestamp, all 64 bits, is a frame instant plus the CRF row rounded by Equation 14
+  [ ok ] [ofs F] every CRF timestamp lies on the frame grid modulo Ps, inside +/-5 % of Ps (max 0.33 ns)
+  [ ok ] [ofs F] every AAF output's phase against the CRF timing points is its row as set less the CRF row as applied, modulo Ps (max 0.33 ns, talker 0)
+  info: [ofs G] row 0 set 1 ns, GET_STREAM_INFO reads 1
+  info: [ofs G] row 1 set 0 ns, GET_STREAM_INFO reads 0
+  info: [ofs G] row 2 set 2010000 ns, GET_STREAM_INFO reads 2010000
+  info: [ofs G] row 3 set 62500 ns, GET_STREAM_INFO reads 62500
+  info: [ofs G] row 4 set 2010000 ns, GET_STREAM_INFO reads 2020834, applied 2020834 ns (97.0000 periods)
+  [ ok ] [ofs G] the CRF row reads back as applied, rounded up to whole periods by Equation 14, all 33 bits
+  [ ok ] [ofs G] GET_STREAM_INFO reads every AAF row as set
+  [ ok ] [ofs G] GET_STREAM_INFO reads the CRF row as applied, 0xFFFFFFFF past 32 bits
+  [ ok ] [ofs G] every AAF timestamp is a frame instant plus its row as set, to the ns (65 65 65 65 PDUs)
+  [ ok ] [ofs G] every CRF timing point is a frame instant plus the CRF row as read back (4)
+  [ ok ] [ofs G] every CRF timestamp, all 64 bits, is a frame instant plus the CRF row rounded by Equation 14
+  [ ok ] [ofs G] every CRF timestamp lies on the frame grid modulo Ps, inside +/-5 % of Ps (max 1.00 ns)
+  [ ok ] [ofs G] every AAF output's phase against the CRF timing points is its row as set less the CRF row as applied, modulo Ps (max 0.33 ns, talker 0)
+  [ ok ] [ofs H] in reset the CRF row reads its factory value rounded up to whole periods, all 33 bits
+  info: [ofs H] row 0 set 2000000 ns, GET_STREAM_INFO reads 2000000
+  info: [ofs H] row 1 set 2010000 ns, GET_STREAM_INFO reads 2010000
+  info: [ofs H] row 2 set 20833 ns, GET_STREAM_INFO reads 20833
+  info: [ofs H] row 3 set 4294967295 ns, GET_STREAM_INFO reads 4294967295
+  info: [ofs H] row 4 set 4294967295 ns, GET_STREAM_INFO reads 4294967295, applied 4294979167 ns (206159.0000 periods)
+  [ ok ] [ofs H] the CRF row reads back as applied, rounded up to whole periods by Equation 14, all 33 bits
+  [ ok ] [ofs H] GET_STREAM_INFO reads every AAF row as set
+  [ ok ] [ofs H] GET_STREAM_INFO reads the CRF row as applied, 0xFFFFFFFF past 32 bits
+  [ ok ] [ofs H] every AAF timestamp is a frame instant plus its row as set, to the ns (65 65 65 65 PDUs)
+  [ ok ] [ofs H] every CRF timing point is a frame instant plus the CRF row as read back (4)
+  [ ok ] [ofs H] every CRF timestamp, all 64 bits, is a frame instant plus the CRF row rounded by Equation 14
+  [ ok ] [ofs H] every CRF timestamp lies on the frame grid modulo Ps, inside +/-5 % of Ps (max 0.67 ns)
+  [ ok ] [ofs H] every AAF output's phase against the CRF timing points is its row as set less the CRF row as applied, modulo Ps (max 0.33 ns, talker 0)
+  info: [ofs I] row 0 set 2010000 ns, GET_STREAM_INFO reads 2010000
+  info: [ofs I] row 1 set 2000000 ns, GET_STREAM_INFO reads 2000000
+  info: [ofs I] row 2 set 1 ns, GET_STREAM_INFO reads 1
+  info: [ofs I] row 3 set 0 ns, GET_STREAM_INFO reads 0
+  info: [ofs I] row 4 set 4294958333 ns, GET_STREAM_INFO reads 4294958334, applied 4294958334 ns (206158.0000 periods)
+  [ ok ] [ofs I] the CRF row reads back as applied, rounded up to whole periods by Equation 14, all 33 bits
+  [ ok ] [ofs I] GET_STREAM_INFO reads every AAF row as set
+  [ ok ] [ofs I] GET_STREAM_INFO reads the CRF row as applied, 0xFFFFFFFF past 32 bits
+  [ ok ] [ofs I] every AAF timestamp is a frame instant plus its row as set, to the ns (65 65 65 65 PDUs)
+  [ ok ] [ofs I] every CRF timing point is a frame instant plus the CRF row as read back (4)
+  [ ok ] [ofs I] every CRF timestamp, all 64 bits, is a frame instant plus the CRF row rounded by Equation 14
+  [ ok ] [ofs I] every CRF timestamp lies on the frame grid modulo Ps, inside +/-5 % of Ps (max 1.00 ns)
+  [ ok ] [ofs I] every AAF output's phase against the CRF timing points is its row as set less the CRF row as applied, modulo Ps (max 0.33 ns, talker 0)
+  info: [ofs J] row 0 set 2010000 ns, GET_STREAM_INFO reads 2010000
+  info: [ofs J] row 1 set 2000000 ns, GET_STREAM_INFO reads 2000000
+  info: [ofs J] row 2 set 1 ns, GET_STREAM_INFO reads 1
+  info: [ofs J] row 3 set 0 ns, GET_STREAM_INFO reads 0
+  info: [ofs J] row 4 set 4294958334 ns, GET_STREAM_INFO reads 4294967295, applied 4294979167 ns (206159.0000 periods)
+  [ ok ] [ofs J] the CRF row reads back as applied, rounded up to whole periods by Equation 14, all 33 bits
+  [ ok ] [ofs J] GET_STREAM_INFO reads every AAF row as set
+  [ ok ] [ofs J] GET_STREAM_INFO reads the CRF row as applied, 0xFFFFFFFF past 32 bits
+  [ ok ] [ofs J] every AAF timestamp is a frame instant plus its row as set, to the ns (64 64 64 64 PDUs)
+  [ ok ] [ofs J] every CRF timing point is a frame instant plus the CRF row as read back (4)
+  [ ok ] [ofs J] every CRF timestamp, all 64 bits, is a frame instant plus the CRF row rounded by Equation 14
+  [ ok ] [ofs J] every CRF timestamp lies on the frame grid modulo Ps, inside +/-5 % of Ps (max 0.67 ns)
+  [ ok ] [ofs J] every AAF output's phase against the CRF timing points is its row as set less the CRF row as applied, modulo Ps (max 0.33 ns, talker 0)
+  info: [ofs K] row 0 set 2000000 ns, GET_STREAM_INFO reads 2000000
+  info: [ofs K] row 1 set 2010000 ns, GET_STREAM_INFO reads 2010000
+  info: [ofs K] row 2 set 0 ns, GET_STREAM_INFO reads 0
+  info: [ofs K] row 3 set 20833 ns, GET_STREAM_INFO reads 20833
+  info: [ofs K] row 4 set 2000000 ns, GET_STREAM_INFO reads 2000000, applied 2000000 ns (96.0000 periods)
+  [ ok ] [ofs K] the CRF row reads back as applied, rounded up to whole periods by Equation 14, all 33 bits
+  [ ok ] [ofs K] GET_STREAM_INFO reads every AAF row as set
+  [ ok ] [ofs K] GET_STREAM_INFO reads the CRF row as applied, 0xFFFFFFFF past 32 bits
+  [ ok ] [ofs K] every AAF timestamp is a frame instant plus its row as set, to the ns (65 65 65 65 PDUs)
+  [ ok ] [ofs K] every CRF timing point is a frame instant plus the CRF row as read back (4)
+  [ ok ] [ofs K] every CRF timestamp, all 64 bits, is a frame instant plus the CRF row rounded by Equation 14
+  [ ok ] [ofs K] every CRF timestamp lies on the frame grid modulo Ps, inside +/-5 % of Ps (max 0.33 ns)
+  [ ok ] [ofs K] every AAF output's phase against the CRF timing points is its row as set less the CRF row as applied, modulo Ps (max 0.33 ns, talker 0)
+== media_phase ofs: checks: 93   failures: 0 ==
+RESULT: PASS
+======== media_phase/engage2 ========
+======================================================================
+[engage2] media-clock phase loop, silicon window, clk 3.125 MHz, audio 768 kHz
+  [ ok ] [engage2] phase inside +/-5 % of Ps within 45 s of the event
+  info: [engage2] inside the band 23.36 s after the event
+  [ ok ] [engage2] phase held inside +/-5 % of Ps to the end (max 679.9 ns)
+  [ ok ] [engage2] the DUT's CRF output on the reference's grid (max 839.8 ns)
+  [ ok ] [engage2] the servo reports settled at the end
+  [ ok ] [engage2] still LOCKED at the end
+  [ ok ] [engage2] engaged -0.3587 Ps from the reference's grid
+  [ ok ] [engage2] the pull is slew-limited: <= 400 ns of phase per window (max 328.5)
+  [ ok ] [engage2] the pull went the short way (max |phase| 0.3587 Ps after engaging)
+  [ ok ] [engage2] every DUT CRF timestamp is a frame instant of its own grid (max 160.9 ns)
+  [ ok ] [engage2] fine-PS protocol clean
+  [ ok ] [engage2] settled never read 1 with the true phase outside the band (0 windows, worst 0.0 ns)
+  [ ok ] [engage2] MCSRV_STAT[9] mirrors phase_o[21] on every cycle
+== media_phase engage2: checks: 12   failures: 0 ==
+RESULT: PASS
+======== media_phase/step ========
+======================================================================
+[step] media-clock phase loop, silicon window, clk 3.125 MHz, audio 768 kHz
+  [ ok ] [pre] phase inside +/-5 % of Ps within 14 s of the event
+  info: [pre] inside the band 0.06 s after the event
+  [ ok ] [pre] phase held inside +/-5 % of Ps to the end (max 210.4 ns)
+  [ ok ] [pre] the DUT's CRF output on the reference's grid (max 370.2 ns)
+  [ ok ] [pre] the servo reports settled at the end
+  [ ok ] [pre] still LOCKED at the end
+  info: [step] the reference stepped by 0.37 Ps at 15.00 s
+  [ ok ] [step] phase inside +/-5 % of Ps within 35 s of the event
+  info: [step] inside the band 21.70 s after the event
+  [ ok ] [step] phase held inside +/-5 % of Ps to the end (max 570.4 ns)
+  [ ok ] [step] the DUT's CRF output on the reference's grid (max 748.5 ns)
+  [ ok ] [step] the servo reports settled at the end
+  [ ok ] [step] still LOCKED at the end
+  [ ok ] [step] the phase term let go at the reference's history restart (within 10 ms)
+  [ ok ] [step] the settled flag fell at the reference's history restart
+  [ ok ] [step] every DUT CRF timestamp is a frame instant of its own grid (max 160.8 ns)
+  [ ok ] [step] fine-PS protocol clean
+  [ ok ] [step] settled never read 1 with the true phase outside the band (0 windows, worst 0.0 ns)
+  [ ok ] [step] MCSRV_STAT[9] mirrors phase_o[21] on every cycle
+== media_phase step: checks: 16   failures: 0 ==
+RESULT: PASS
+======== media_phase/internal ========
+======================================================================
+[internal] media-clock phase loop, silicon window, clk 3.125 MHz, audio 768 kHz
+  [ ok ] [pre] phase inside +/-5 % of Ps within 14 s of the event
+  info: [pre] inside the band 0.06 s after the event
+  [ ok ] [pre] phase held inside +/-5 % of Ps to the end (max 210.4 ns)
+  [ ok ] [pre] the DUT's CRF output on the reference's grid (max 370.2 ns)
+  [ ok ] [pre] the servo reports settled at the end
+  [ ok ] [pre] still LOCKED at the end
+  [ ok ] [internal] INTERNAL idles the servo
+  info: [internal] CRF selected again at 30.00 s, phase +0.2448 Ps
+  [ ok ] [internal] phase inside +/-5 % of Ps within 45 s of the event
+  info: [internal] inside the band 24.32 s after the event
+  [ ok ] [internal] phase held inside +/-5 % of Ps to the end (max 706.1 ns)
+  [ ok ] [internal] the DUT's CRF output on the reference's grid (max 838.2 ns)
+  [ ok ] [internal] the servo reports settled at the end
+  [ ok ] [internal] still LOCKED at the end
+  [ ok ] [internal] the phase term let go at INTERNAL (within 5 ms)
+  [ ok ] [internal] the settled flag fell at INTERNAL
+  [ ok ] [internal] every DUT CRF timestamp is a frame instant of its own grid (max 160.9 ns)
+  [ ok ] [internal] fine-PS protocol clean
+  [ ok ] [internal] settled never read 1 with the true phase outside the band (0 windows, worst 0.0 ns)
+  [ ok ] [internal] MCSRV_STAT[9] mirrors phase_o[21] on every cycle
+== media_phase internal: checks: 17   failures: 0 ==
+RESULT: PASS
+======== media_phase/phcstep ========
+======================================================================
+[phcstep] media-clock phase loop, silicon window, clk 3.125 MHz, audio 768 kHz
+  [ ok ] [pre] phase inside +/-5 % of Ps within 14 s of the event
+  info: [pre] inside the band 0.06 s after the event
+  [ ok ] [pre] phase held inside +/-5 % of Ps to the end (max 210.4 ns)
+  [ ok ] [pre] the DUT's CRF output on the reference's grid (max 370.2 ns)
+  [ ok ] [pre] the servo reports settled at the end
+  [ ok ] [pre] still LOCKED at the end
+  info: [phcstep] the local PHC steps +7000 ns at 15.00 s
+  info: [phcstep] phase +0.3395 Ps after the step
+  [ ok ] [phcstep] phase inside +/-5 % of Ps within 40 s of the event
+  info: [phcstep] inside the band 22.27 s after the event
+  [ ok ] [phcstep] phase held inside +/-5 % of Ps to the end (max 562.7 ns)
+  [ ok ] [phcstep] the DUT's CRF output on the reference's grid (max 751.8 ns)
+  [ ok ] [phcstep] the servo reports settled at the end
+  [ ok ] [phcstep] still LOCKED at the end
+  [ ok ] [phcstep] the phase term let go at the PHC step (within 5 ms)
+  [ ok ] [phcstep] the settled flag fell at the PHC step
+  [ ok ] [phcstep] every DUT CRF timestamp is a frame instant of its own grid (max 160.9 ns)
+  [ ok ] [phcstep] fine-PS protocol clean
+  [ ok ] [phcstep] settled never read 1 with the true phase outside the band (0 windows, worst 0.0 ns)
+  [ ok ] [phcstep] MCSRV_STAT[9] mirrors phase_o[21] on every cycle
+== media_phase phcstep: checks: 16   failures: 0 ==
+RESULT: PASS

@@ -1,0 +1,61 @@
+2026-11-24T23:57:01.8819512Z   printf 'SIM_JOBS=%s\n' "$simulations"
+2026-11-24T23:57:01.8819822Z   printf 'MAKEFLAGS=-j1 --no-print-directory\n'
+2026-11-24T23:57:01.8820212Z } >> "$GITHUB_ENV"
+2026-11-24T23:57:02.1392362Z shell: /usr/bin/bash -e {0}
+2026-11-24T23:57:02.1392720Z env:
+2026-11-24T23:57:02.1393039Z   VERILATOR_VERSION: v5.050
+2026-11-24T23:57:02.1393287Z   YOSYS_VERSION: v0.66
+2026-11-24T23:57:02.1393570Z   TSN_GEN_REV: deca300c9eb4863fa13383b45ba6cb6fd0828671
+2026-11-24T23:57:02.1393894Z ##[endgroup]
+2026-11-24T23:57:02.1542660Z ##[group]Run python3 scripts/ci_fail_fast.py watch
+2026-11-24T23:57:02.1543028Z python3 scripts/ci_fail_fast.py watch
+2026-11-24T23:57:02.1567420Z shell: /usr/bin/bash -e {0}
+2026-11-24T23:57:02.1567729Z env:
+2026-11-24T23:57:02.1567965Z   VERILATOR_VERSION: v5.050
+2026-11-24T23:57:02.1568214Z   YOSYS_VERSION: v0.66
+2026-11-24T23:57:02.1568523Z   TSN_GEN_REV: deca300c9eb4863fa13383b45ba6cb6fd0828671
+2026-11-24T23:57:02.1568819Z   CI_BUILD_JOBS: 4
+2026-11-24T23:57:02.1569041Z   CI_TOOL_BUILD_JOBS: 4
+2026-11-24T23:57:02.1569288Z   CI_CAMPAIGN_JOBS: 4
+2026-11-24T23:57:02.1569537Z   VERILATOR_JOBS: 4
+2026-11-24T23:57:02.1569781Z   SIM_JOBS: 4
+2026-11-24T23:57:02.1570046Z   MAKEFLAGS: -j1 --no-print-directory
+2026-11-24T23:57:02.1572222Z   GH_TOKEN: ***
+2026-11-24T23:57:02.1574581Z   EXPECTED_JOBS: ["Collect CI manifest","full-ci-gate","Physical gPTP (nightly and manual)","Union capture_coherence","Union follow_ring","Union maap","Union media_phase",
+2026-11-24T23:57:02.1578269Z   SKIPPED_MATRICES: {"Verilator shard /":["Verilator shard 0/26","Verilator shard 1/26","Verilator shard 2/26","Verilator shard 3/26","Verilator shard 4/26","Verilator sha
+2026-11-24T23:57:02.1579884Z ##[endgroup]
+2026-11-25T00:29:20.4532349Z ##[error]The operation was canceled.
+2026-11-25T00:29:20.4606442Z ##[group]Run python3 scripts/ci_runtime_evidence.py record --workflow .github/workflows/rtl.yml --job ci-fail-fast --output "$RUNNER_TEMP/job-evidence.json"
+2026-11-25T00:29:20.4607348Z python3 scripts/ci_runtime_evidence.py record --workflow .github/workflows/rtl.yml --job ci-fail-fast --output "$RUNNER_TEMP/job-evidence.json"
+2026-11-25T00:29:20.4633239Z shell: /usr/bin/bash -e {0}
+2026-11-25T00:29:20.4633558Z env:
+2026-11-25T00:29:20.4633782Z   VERILATOR_VERSION: v5.050
+2026-11-25T00:29:20.4634027Z   YOSYS_VERSION: v0.66
+2026-11-25T00:29:20.4634330Z   TSN_GEN_REV: deca300c9eb4863fa13383b45ba6cb6fd0828671
+2026-11-25T00:29:20.4634626Z   CI_BUILD_JOBS: 4
+2026-11-25T00:29:20.4634830Z   CI_TOOL_BUILD_JOBS: 4
+2026-11-25T00:29:20.4635080Z   CI_CAMPAIGN_JOBS: 4
+2026-11-25T00:29:20.4635324Z   VERILATOR_JOBS: 4
+2026-11-25T00:29:20.4635562Z   SIM_JOBS: 4
+2026-11-25T00:29:20.4635789Z   MAKEFLAGS: -j1 --no-print-directory
+2026-11-25T00:29:20.4636969Z   CI_STEP_RESULTS: {
+  "ci_step_0": {
+    "outputs": {
+      "commit": "54cc9bb7000e2b4797aafe9bbceb14a6fe533439",
+      "ref": "refs/pull/1003/merge"
+    },
+    "outcome": "success",
+    "conclusion": "success"
+  },
+  "ci_step_1": {
+    "outputs": {},
+    "outcome": "success",
+    "conclusion": "success"
+  },
+  "ci_observe": {
+    "outputs": {},
+    "outcome": "cancelled",
+    "conclusion": "cancelled"
+  },
+  "ci_step_3": {
+    "outputs": {},

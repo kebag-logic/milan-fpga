@@ -1,0 +1,41 @@
+Mutation drivers through the SHARED ccache (CCACHE_DIR untouched), each run's compile results from its own CCACHE_STATSLOG.
+Trees: s1head = 13e6d869 (round 3), gates = 45d5c35a (this round). Order: old run1, old run2, new run1, new run2 per driver.
+Pinned to 91,93,94,95; hosted job budgets; MAKEFLAGS=-j1; OBJCACHE=ccache.
+
+s1head-run1 tcam-mutants 5.64 wall 5.67 user 0.98 sys rc=0 hit=11 miss=5
+s1head-run2 tcam-mutants 0.93 wall 0.63 user 0.64 sys rc=0 hit=16 miss=0
+gates-run1 tcam-mutants 1.64 wall 1.36 user 0.73 sys rc=0 hit=15 miss=1
+gates-run2 tcam-mutants 0.90 wall 0.64 user 0.64 sys rc=0 hit=16 miss=0
+s1head-run1 rx_filter-binding_mutant 3.06 wall 3.86 user 0.57 sys rc=0 hit=5 miss=3
+s1head-run2 rx_filter-binding_mutant 0.64 wall 0.46 user 0.37 sys rc=0 hit=8 miss=0
+gates-run1 rx_filter-binding_mutant 2.19 wall 1.91 user 0.51 sys rc=0 hit=7 miss=1
+gates-run2 rx_filter-binding_mutant 0.93 wall 0.64 user 0.46 sys rc=0 hit=8 miss=0
+s1head-run1 avtp_rxmon-depkt_mutants 26.70 wall 26.21 user 3.25 sys rc=0 hit=35 miss=13
+s1head-run2 avtp_rxmon-depkt_mutants 8.86 wall 7.47 user 2.24 sys rc=0 hit=48 miss=0
+gates-run1 avtp_rxmon-depkt_mutants 11.09 wall 11.55 user 2.40 sys rc=0 hit=46 miss=2
+gates-run2 avtp_rxmon-depkt_mutants 7.67 wall 6.52 user 2.07 sys rc=0 hit=48 miss=0
+s1head-run1 crf_rx-mutants 152.22 wall 164.73 user 7.39 sys rc=0 hit=77 miss=38
+s1head-run2 crf_rx-mutants 135.92 wall 133.08 user 4.26 sys rc=0 hit=115 miss=0
+gates-run1 crf_rx-mutants 141.49 wall 140.94 user 5.77 sys rc=0 hit=100 miss=15
+gates-run2 crf_rx-mutants 121.22 wall 118.59 user 4.14 sys rc=0 hit=115 miss=0
+s1head-run1 milan_dp-split_mutants 400.02 wall 850.15 user 79.68 sys rc=0 hit=434 miss=424
+s1head-run2 milan_dp-split_mutants 195.71 wall 199.23 user 77.68 sys rc=0 hit=858 miss=0
+gates-run1 milan_dp-split_mutants 209.32 wall 218.32 user 76.66 sys rc=0 hit=858 miss=0
+gates-run2 milan_dp-split_mutants 191.26 wall 205.72 user 69.91 sys rc=0 hit=858 miss=0
+
+Identity (tools/logcmp4.py):
+  tcam-mutants               s1head-run1 vs s1head-run2  IDENTICAL (6 normalised lines)
+  tcam-mutants               s1head-run1 vs gates-run1   IDENTICAL (6 normalised lines)
+  tcam-mutants               s1head-run1 vs gates-run2   IDENTICAL (6 normalised lines)
+  rx_filter-binding_mutant   s1head-run1 vs s1head-run2  IDENTICAL (6 normalised lines)
+  rx_filter-binding_mutant   s1head-run1 vs gates-run1   IDENTICAL (6 normalised lines)
+  rx_filter-binding_mutant   s1head-run1 vs gates-run2   IDENTICAL (6 normalised lines)
+  avtp_rxmon-depkt_mutants   s1head-run1 vs s1head-run2  IDENTICAL (25 normalised lines)
+  avtp_rxmon-depkt_mutants   s1head-run1 vs gates-run1   IDENTICAL (25 normalised lines)
+  avtp_rxmon-depkt_mutants   s1head-run1 vs gates-run2   IDENTICAL (25 normalised lines)
+  crf_rx-mutants             s1head-run1 vs s1head-run2  IDENTICAL (44 normalised lines)
+  crf_rx-mutants             s1head-run1 vs gates-run1   IDENTICAL (44 normalised lines)
+  crf_rx-mutants             s1head-run1 vs gates-run2   IDENTICAL (44 normalised lines)
+  milan_dp-split_mutants     s1head-run1 vs s1head-run2  IDENTICAL (34 normalised lines)
+  milan_dp-split_mutants     s1head-run1 vs gates-run1   IDENTICAL (34 normalised lines)
+  milan_dp-split_mutants     s1head-run1 vs gates-run2   IDENTICAL (34 normalised lines)
