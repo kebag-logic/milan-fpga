@@ -1101,6 +1101,36 @@ Its campaign plants the clamp's removal, which fails by name.
 
 The `milan_dp` gPTP legs grade the CSR and GET_AVB_INFO.
 
+The release images were routed at the merge `d0483d08`.
+
+Its base is `dev-soft-core` at `c34e7d8b`, routed alike.
+
+Both use the release recipe: the split image, one interface.
+
+The head and base differ only in ROM contents.
+
+| Image, directive | WNS / WHS, worst corner | LUT | FF | Slice | RAMB36 / tiles | DSP |
+|---|---|---:|---:|---:|---:|---:|
+| 1x1/1if base, ExtraPostPlacementOpt | +0.178 / +0.021 ns | 32,582 | 42,803 | 13,590 | 63 / 80.5 | 13 |
+| 1x1/1if, ExtraPostPlacementOpt, selected | +0.178 / +0.021 ns | 32,582 | 42,803 | 13,590 | 63 / 80.5 | 13 |
+| 8x8/1if base, ExtraPostPlacementOpt, misses the floor | +0.008 / +0.036 ns | 45,920 | 53,383 | 15,603 | 82 / 98.5 | 13 |
+| 8x8/1if base, ExtraTimingOpt | +0.283 / +0.036 ns | 45,810 | 53,378 | 15,600 | 82 / 98.5 | 13 |
+| 8x8/1if, ExtraPostPlacementOpt, misses the floor | +0.008 / +0.036 ns | 45,920 | 53,383 | 15,603 | 82 / 98.5 | 13 |
+| 8x8/1if, ExtraTimingOpt, selected | +0.283 / +0.036 ns | 45,810 | 53,378 | 15,600 | 82 / 98.5 | 13 |
+| 8x8/1if, AltSpreadLogic_high | +0.146 / +0.036 ns | 45,814 | 53,381 | 15,594 | 82 / 98.5 | 13 |
+
+Every figure equals the base's at the same directive.
+
+At 8x8 the first directive misses, as on the base.
+
+So all three were routed, and ExtraTimingOpt ships (#818).
+
+Each selected image meets the build floor at every corner.
+
+No route has a failing endpoint or routing error.
+
+Every image passes the split image identity gate.
+
 The ROM ledger records current and earlier pins.
 
 The boundary diagram follows the current pin.
