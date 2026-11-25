@@ -1,0 +1,30 @@
+PACKAGES=libc libcompiler_rt libbase libfatfs liblitespi liblitedram libliteeth liblitesdcard liblitesata bios
+PACKAGE_DIRS=$WORKSPACE_HOME/litex-milan/litex/litex/soc/software/libc $WORKSPACE_HOME/litex-milan/litex/litex/soc/software/libcompiler_rt $WORKSPACE_HOME/litex-milan/litex/litex/soc/software/libbase $WORKSPACE_HOME/litex-milan/litex/litex/soc/software/libfatfs $WORKSPACE_HOME/litex-milan/litex/litex/soc/software/liblitespi $WORKSPACE_HOME/litex-milan/litex/litex/soc/software/liblitedram $WORKSPACE_HOME/litex-milan/litex/litex/soc/software/libliteeth $WORKSPACE_HOME/litex-milan/litex/litex/soc/software/liblitesdcard $WORKSPACE_HOME/litex-milan/litex/litex/soc/software/liblitesata $WORKSPACE_HOME/litex-milan/litex/litex/soc/software/bios
+LIBS=libc libcompiler_rt libbase libfatfs liblitespi liblitedram libliteeth liblitesdcard liblitesata
+ALWAYS_LINK_LIBS=
+TRIPLE=riscv32-linux
+CPU=vexiiriscv
+CPUFAMILY=riscv
+CPUFLAGS= -march=rv32i2p0_m -mabi=ilp32 -D__VexiiRiscv__ -D__riscv_plic__
+CPUENDIANNESS=little
+CLANG=0
+CPU_DIRECTORY=$WORKSPACE_HOME/litex-milan/litex/litex/soc/cores/cpu/vexiiriscv
+SOC_DIRECTORY=$WORKSPACE_HOME/litex-milan/litex/litex/soc
+PICOLIBC_DIRECTORY=$WORKSPACE_HOME/litex-milan/pythondata-software-picolibc/pythondata_software_picolibc/data
+PICOLIBC_FORMAT=integer
+LIBC_MODE=minimal
+COMPILER_RT_DIRECTORY=$WORKSPACE_HOME/litex-milan/pythondata-software-compiler_rt/pythondata_software_compiler_rt/data
+export BUILDINC_DIRECTORY
+BUILDINC_DIRECTORY=$VALIDATION_STORAGE/lwsrppin-candidate-0923/egress/egress-build/split-soc/mapped/soc/software/include
+LIBC_DIRECTORY=$WORKSPACE_HOME/litex-milan/litex/litex/soc/software/libc
+LIBCOMPILER_RT_DIRECTORY=$WORKSPACE_HOME/litex-milan/litex/litex/soc/software/libcompiler_rt
+LIBBASE_DIRECTORY=$WORKSPACE_HOME/litex-milan/litex/litex/soc/software/libbase
+LIBFATFS_DIRECTORY=$WORKSPACE_HOME/litex-milan/litex/litex/soc/software/libfatfs
+LIBLITESPI_DIRECTORY=$WORKSPACE_HOME/litex-milan/litex/litex/soc/software/liblitespi
+LIBLITEDRAM_DIRECTORY=$WORKSPACE_HOME/litex-milan/litex/litex/soc/software/liblitedram
+LIBLITEETH_DIRECTORY=$WORKSPACE_HOME/litex-milan/litex/litex/soc/software/libliteeth
+LIBLITESDCARD_DIRECTORY=$WORKSPACE_HOME/litex-milan/litex/litex/soc/software/liblitesdcard
+LIBLITESATA_DIRECTORY=$WORKSPACE_HOME/litex-milan/litex/litex/soc/software/liblitesata
+BIOS_DIRECTORY=$WORKSPACE_HOME/litex-milan/litex/litex/soc/software/bios
+LTO=0
+BIOS_CONSOLE_FULL=1

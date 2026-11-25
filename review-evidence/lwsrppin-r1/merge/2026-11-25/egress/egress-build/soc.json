@@ -1,0 +1,169 @@
+{
+  "sources": [
+    "$LANES/lwsrppin-cand-egress/hdl/milan/mailbox/KL_mbx_pkg.sv",
+    "$LANES/lwsrppin-cand-egress/hdl/milan/mailbox/KL_mbx_ring.sv",
+    "$LANES/lwsrppin-cand-egress/hdl/milan/mailbox/KL_mbx_rx.sv",
+    "$LANES/lwsrppin-cand-egress/hdl/milan/mailbox/KL_mbx_tx.sv",
+    "$LANES/lwsrppin-cand-egress/hdl/milan/mailbox/KL_mbx_evt.sv",
+    "$LANES/lwsrppin-cand-egress/hdl/milan/mailbox/KL_mbx.sv",
+    "$LANES/lwsrppin-cand-egress/hdl/milan/mailbox/KL_mbx_wb.sv",
+    "$LANES/lwsrppin-cand-egress/hdl/milan/mailbox/KL_mbx_dma.sv",
+    "$WORKSPACE_HOME/litex-milan/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/Ram_1w_1rs_Generic.v",
+    "$WORKSPACE_HOME/litex-milan/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/Ram_1w_1ra_Generic.v",
+    "$WORKSPACE_HOME/litex-milan/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/VexiiRiscvLitex_9fdf25696b8f525f981b84f78b4a1952.v",
+    "$VALIDATION_STORAGE/lwsrppin-candidate-0923/egress/egress-build/gateware/sim.v"
+  ],
+  "includes": [],
+  "sys_hz": 100000000,
+  "cpu_cd": "sys",
+  "cpu_hz": 100000000,
+  "milan_hz": 50000000,
+  "shape": "endstation_ax7101_8x8",
+  "interfaces": 1,
+  "addresses": {
+    "mailbox": 2147483648,
+    "mbx_dma": 4026591232,
+    "spiflash": 4026537984,
+    "timer0": 4026540032,
+    "flash": 16777216,
+    "flash_size": 16777216
+  },
+  "window_bytes": 32768,
+  "netlist": "VexiiRiscvLitex_9fdf25696b8f525f981b84f78b4a1952",
+  "vexii_soc_args": {
+    "cpu_count": "1",
+    "imsic_interrupt_number": "0",
+    "l2_bytes": "0",
+    "l2_self_flush": "None",
+    "l2_ways": "4",
+    "mac_sg": "[]",
+    "video": "[]",
+    "with_aplic": "False",
+    "with_axi3": "False",
+    "with_axilite_xlen": "False",
+    "with_cpu_clk": "False",
+    "with_dma": "True",
+    "with_jtag_instruction": "False",
+    "with_jtag_tap": "False"
+  },
+  "vexii_args": " --with-isa=,zicsr,m,zifencei,zmmul,i --xlen=32 --with-mul --with-div --fetch-l1 --fetch-l1-sets=128 --fetch-l1-ways=2 --lsu-l1 --lsu-l1-sets=128 --lsu-l1-ways=1 --reset-vector 0",
+  "memory_regions": [
+    [
+      0,
+      229376,
+      "rxc",
+      "p"
+    ],
+    [
+      268435456,
+      229376,
+      "rwxc",
+      "p"
+    ],
+    [
+      2147483648,
+      32768,
+      "rw",
+      "p"
+    ],
+    [
+      16777216,
+      16777216,
+      "r",
+      "p"
+    ],
+    [
+      4026531840,
+      65536,
+      "rw",
+      "p"
+    ]
+  ],
+  "cpu_regions": "cover",
+  "cpu_memory_regions": [
+    [
+      0,
+      131072,
+      "rxc",
+      "p"
+    ],
+    [
+      131072,
+      65536,
+      "rxc",
+      "p"
+    ],
+    [
+      196608,
+      32768,
+      "rxc",
+      "p"
+    ],
+    [
+      268435456,
+      131072,
+      "rwxc",
+      "p"
+    ],
+    [
+      268566528,
+      65536,
+      "rwxc",
+      "p"
+    ],
+    [
+      268632064,
+      32768,
+      "rwxc",
+      "p"
+    ],
+    [
+      2147483648,
+      32768,
+      "rw",
+      "p"
+    ],
+    [
+      16777216,
+      16777216,
+      "r",
+      "p"
+    ],
+    [
+      4026531840,
+      65536,
+      "rw",
+      "p"
+    ]
+  ],
+  "fetch_l1": "split",
+  "fetch_l1_geometry": [
+    128,
+    2
+  ],
+  "ctrl_plan": {
+    "rom": {
+      "bytes": 132400,
+      "banks": [
+        131072,
+        2048
+      ],
+      "RAMB36": 32,
+      "RAMB18": 1
+    },
+    "sram": {
+      "bytes": 98832,
+      "banks": [
+        65536,
+        32768,
+        2048
+      ],
+      "RAMB36": 24,
+      "RAMB18": 1
+    },
+    "tiles": 57.0,
+    "budget_tiles": 56,
+    "ledgered": "8x8-one-interface",
+    "ledgered_tiles": 57.5
+  }
+}
