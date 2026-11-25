@@ -1,0 +1,27 @@
+docs/reference/SUBMODULES.md | The release images were routed at lane commit `973f2f20`.
+docs/reference/SUBMODULES.md | The [owner accepted that growth](https://github.com/Mister-M-alt/FPGA-gPTP/pull/108#issuecomment-7121892317) as a recorded exception.
+docs/reference/SUBMODULES.md | The fourth stalls the harness lane across the race.
+tb/verilator/gptp_shadow/README.md | | 20 | FPGA-gPTP #106: a grandmaster announcing at a 1 s interval stops announcing while its pairs continue, so the announce receipt timeout ages the port three intervals after it
+tb/verilator/gptp_shadow/README.md | | 21 | FPGA-gPTP #106: a takeover without transmit credit. The reserve arm holds one Sync's launch record, so no result returns, and the master's own Announces fill the ticket pas
+tb/verilator/gptp_shadow/README.md | The last stalls this harness's own lane across the race.
+tb/verilator/gptp_shadow/mutants.py | in this suite's own harness: its lane, held across the race, delivers the
+tb/verilator/gptp_shadow/mutants.py | WORD3 = ("                phc_addend_we_o <= 1'b1;\n"
+tb/verilator/gptp_shadow/mutants.py |         "#106 race: one master Announce reaches the lane before the re-election",
+tb/verilator/gptp_shadow/mutants.py |         "                  phc_addend_we_o <= 1'b1;\n"
+tb/verilator/gptp_shadow/mutants.py |         #: master Announce then reaches the lane
+tb/verilator/gptp_shadow/mutants.py |         "#106 reserve: no master Announce reaches the lane without credit",
+tb/verilator/gptp_shadow/mutants.py |         #: the bench's lane held from before the takeover until the queued
+tb/verilator/gptp_shadow/mutants.py |         "#106 race: one master Announce reaches the lane before the re-election",
+tb/verilator/gptp_shadow/sim_main.cpp |   // and the frames on the wide lane. Each arm starts and ends in mastership.
+tb/verilator/gptp_shadow/sim_main.cpp |   //! The TLV of the last master Follow_Up the lane carried before `mark`.
+tb/verilator/gptp_shadow/sim_main.cpp |   //! the lane at or after clock `from`: grandmasterIdentity is message
+tb/verilator/gptp_shadow/sim_main.cpp |     //! lane first, and the queued Announce then re-elects GMID.
+tb/verilator/gptp_shadow/sim_main.cpp |     //! The boundary is the lane's handshake: a frame reaches the lane on
+tb/verilator/gptp_shadow/sim_main.cpp |     //! lane, counts nothing here; and with no recorded fall nothing counts.
+tb/verilator/gptp_shadow/sim_main.cpp |     expect("#106 race: one master Announce reaches the lane before the "
+tb/verilator/gptp_shadow/sim_main.cpp |   //! the lane, so the reserve arm grades the gate itself. The seal is the
+tb/verilator/gptp_shadow/sim_main.cpp |   //! second, but its fence also holds the lane, so that arm grades the
+tb/verilator/gptp_shadow/sim_main.cpp |     expect("#106 seal: no master Announce reaches the lane while sealed",
+tb/verilator/gptp_shadow/sim_main.cpp |   //! lane open; GMID is elected only then, and its silence makes the
+tb/verilator/gptp_shadow/sim_main.cpp |     expect("#106 reserve: no master Announce reaches the lane without credit",
+tb/verilator/gptp_shadow/sim_main.cpp |     expect("#106 reserve: the lane stayed open, unsealed and with no barrier",

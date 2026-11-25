@@ -1,0 +1,9 @@
+REMOVED-ABSENT | `third_party/lwSRP` | `08ee86e812a0eb5e1dc6cd61b494d8baf3491348` | Bare-metal
+PRESENT | `third_party/lwSRP` | `d1bb4f4e5954af6dabe7f210a6bf7adbb76bdd6b` | Bare-metal
+REMOVED-ABSENT - The zero-cluster 8x8 input pools violate that minimum.
+REMOVED-ABSENT - Parent [#584](https://github.com/kebag-logic/milan-fpga/issues/584) owns the 
+PRESENT - The 8x8 input pools violated that minimum until parent [#584](https://github.
+PRESENT - Since #584 each 8x8 input port owns one cluster.
+PRESENT - The model lint therefore needs no waiver.
+REMOVED-ABSENT | C8 lints the descriptor model inside `build()` by default | Both image emitte
+PRESENT | C8 lints the descriptor model inside `build()` by default | Both image emitte

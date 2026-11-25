@@ -1,0 +1,34 @@
+diff --git a/docs/reference/SUBMODULES.md b/docs/reference/SUBMODULES.md
+index a8780e5de1..18f69ab7e3 100644
+--- a/docs/reference/SUBMODULES.md
++++ b/docs/reference/SUBMODULES.md
+@@ -23,7 +23,7 @@ Dirty submodules invalidate local evidence.
+ | `external` | `efeb541ae5fe1e078332d8462dca2fc2d9cb8db5` | Historical Ethernet MAC RTL | No active product consumer |
+ | `gptp-processor` | `1616fc8f062fbf58c35ad31674b5b233207bbdb8` | Fabric gPTP engine | `KL_gptp_shadow.sv` |
+ | `protocol-processor` | `801ef2283ec793e35a2590fc6593c90313a64041` | ADP, ACMP, AECP, and SRP | `KL_pp_shadow.sv` |
+-| `third_party/lwSRP` | `08ee86e812a0eb5e1dc6cd61b494d8baf3491348` | Bare-metal MRP, MSRP and MVRP | `sw/firmware/ctrl/srp/srp_mbx.c` |
++| `third_party/lwSRP` | `d1bb4f4e5954af6dabe7f210a6bf7adbb76bdd6b` | Bare-metal MRP, MSRP and MVRP | `sw/firmware/ctrl/srp/srp_mbx.c` |
+ | `third_party/tsn-c-stack` | `715589c1db7cf67e2f3259fd7083ebc7f0923376` | Portable ADP, ACMP and MAAP cores | `sw/firmware/ctrl` mailbox adapters |
+ | `third_party/verilog-axis` | `48ff7a7e2ef782cf778d47910cf85835c64b1bce` | AXI-Stream primitives | Multiple RTL consumers |
+ <!-- submodule-pins:end -->
+@@ -68,8 +68,9 @@ Issue #580 adopted processor pin `16be6768`.
+ - [Processor PR 124](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/124) rejects body/key type and index mismatches.
+ - [Processor PR 126](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/126) documents descriptor ownership.
+ - [Processor #122](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/122#issuecomment-5853884588) retains Milan 5.3.3.8's cluster minimum.
+-- The zero-cluster 8x8 input pools violate that minimum.
+-- Parent [#584](https://github.com/kebag-logic/milan-fpga/issues/584) owns the D8 product correction.
++- The 8x8 input pools violated that minimum until parent [#584](https://github.com/kebag-logic/milan-fpga/issues/584).
++- Since #584 each 8x8 input port owns one cluster.
++- The model lint therefore needs no waiver.
+ - All five configurations retain identical AEM images and builder outputs.
+ 
+ Issues #606 and #608 adopted processor pin `c951a9ff`.
+@@ -148,7 +149,7 @@ The parent can observe these processor changes.
+ | P2 answers a silent NVM device at that deadline: err, cause DEADLINE | Three failed attempts raise `nvm_alarm`; the [D3 contract](../design/SAVED_STATE_MATERIALIZATION.md) is amended (W13, section 8.8, section 15 item 4) |
+ | P1 adds the name stage; the channel maps are the parent's ([processor #83 ruling](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/83#issuecomment-5967611704)) | The D3 contract is amended; the map writer, restore and roll-back are #637's |
+ | P1 keeps `pend_i`'s sticky live-name term | A parent lane transfers names to `d3_unflushed_o` |
+-| C8 lints the descriptor model inside `build()` by default | Both image emitters run it; the 8x8 configuration carries its #584 waiver; the parent's duplicate L6/L10 checker is retired |
++| C8 lints the descriptor model inside `build()` by default | Both image emitters run it; the 8x8 configuration's #584 waiver is removed since its input ports own clusters; the parent's duplicate L6/L10 checker is retired |
+ | C10 names six modules as Yosys tops and declares before use | `processor_yosys_tops.budget` is empty and the xvlog ratchet banks the fix |
+ | #232 drops the `pd_ix_w` use-before-declaration | The xvlog ratchet banks it |
+ | #85 resets `available_index` to 0 after ENTITY_DEPARTING (IEEE 1722.1-2021 Section 6.2.2.15) | The [register map](REGISTER_MAP.md) `0x644` note says so |
