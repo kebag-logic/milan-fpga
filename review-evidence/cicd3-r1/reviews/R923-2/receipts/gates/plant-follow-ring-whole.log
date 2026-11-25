@@ -1,0 +1,50 @@
+  ok    1 shard(s): complete=True disjoint=True deterministic=True
+  ok    2 shard(s): complete=True disjoint=True deterministic=True
+  ok    4 shard(s): complete=True disjoint=True deterministic=True
+  ok    5 shard(s): complete=True disjoint=True deterministic=True
+  ok    7 shard(s): complete=True disjoint=True deterministic=True
+  ok   23 shard(s): complete=True disjoint=True deterministic=True
+  ok    2 shard(s): dedicated alone=True balanced owners unchanged=True
+  ok    4 shard(s): dedicated alone=True balanced owners unchanged=True
+  ok    5 shard(s): dedicated alone=True balanced owners unchanged=True
+  ok    7 shard(s): dedicated alone=True balanced owners unchanged=True
+  ok   23 shard(s): dedicated alone=True balanced owners unchanged=True
+  ok   a rule without the dedicated worker is caught (alone with none set aside=False, alone while sharing worker 0=False)
+  ok   scheduled/default partition: default=['future_suite', 'milan_dp'] physical=['milan_dp_gptp']
+  ok   log windows {'alpha': 11, 'beta': 120}, overhead 62 s, truncated log without overhead=True, refused timeout/no shard line/short count=[True, True, True]
+  ok   head provisional figures {'reboot_ctrl': 300} are what run_all_suites.sh's suite_timeout gives
+  FAIL head worker 0/26 predicted 1615 s (26.9 min), bound 1276 s
+  ok   head worker 1/26 predicted 1236 s (20.6 min), bound 1276 s
+  ok   head worker 2/26 predicted 1275 s (21.2 min), bound 1276 s
+  ok   head worker 3/26 predicted 1176 s (19.6 min), bound 1276 s
+  ok   head worker 4/26 predicted 1267 s (21.1 min), bound 1276 s
+  ok   head worker 5/26 predicted 1217 s (20.3 min), bound 1276 s
+  ok   head worker 6/26 predicted 1177 s (19.6 min), bound 1276 s
+  ok   head worker 7/26 predicted 1179 s (19.6 min), bound 1276 s
+  ok   head worker 8/26 predicted 1176 s (19.6 min), bound 1276 s
+  ok   head worker 9/26 predicted 1179 s (19.6 min), bound 1276 s
+  ok   head worker 10/26 predicted 1179 s (19.6 min), bound 1276 s
+  ok   head worker 11/26 predicted 1222 s (20.4 min), bound 1276 s
+  ok   head worker 12/26 predicted 1226 s (20.4 min), bound 1276 s
+  ok   head worker 13/26 predicted 1222 s (20.4 min), bound 1276 s
+  ok   head worker 14/26 predicted 1206 s (20.1 min), bound 1276 s
+  ok   head worker 15/26 predicted 1181 s (19.7 min), bound 1276 s
+  ok   head worker 16/26 predicted 1176 s (19.6 min), bound 1276 s
+  ok   head worker 17/26 predicted 1175 s (19.6 min), bound 1276 s
+  ok   head worker 18/26 predicted 1176 s (19.6 min), bound 1276 s
+  ok   head worker 19/26 predicted 1234 s (20.6 min), bound 1276 s
+  ok   head worker 20/26 predicted 1231 s (20.5 min), bound 1276 s
+  ok   head worker 21/26 predicted 1175 s (19.6 min), bound 1276 s
+  ok   head worker 22/26 predicted 1174 s (19.6 min), bound 1276 s
+  ok   head worker 23/26 predicted 1218 s (20.3 min), bound 1276 s
+  ok   head worker 24/26 predicted 1174 s (19.6 min), bound 1276 s
+  ok   head worker 25/26 predicted 1530 s (25.5 min), bound 2160 s
+  ok   reject ''
+  ok   reject '1'
+  ok   reject '-1/4'
+  ok   reject '01/4'
+  ok   reject '4/4'
+  ok   reject '5/4'
+  ok   reject '0/0'
+  ok   reject 'a/4'
+selftest: 1 FAILURE(S)

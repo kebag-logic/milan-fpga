@@ -1,0 +1,6 @@
+run-old TARGET_SHA dd5cf5798833575a051a7dccf4e248ba290702a7 union.head dd5cf5798833575a051a7dccf4e248ba290702a7 23af3e5f69f2df6d9ac1afc7fecb76dee4170cb2 pass
+  gptp: hosted section (lines 2896-2906) vs published gptp.old-pin.out: EQUAL; sha256 767854b00c58fb0b; [#207] [#207] full-queue window: level 1, rp 0->0, wp 1->1
+  gptp-lat: hosted section (lines 10012-10022) vs published gptp-lat.old-pin.out: EQUAL; sha256 699262f363514f8c; [#207] [#207] full-queue window: level 1, rp 0->0, wp 1->1
+run-new TARGET_SHA 241f036e9e93c6cb84acca8bf9c78beefa8b1e94 union.head 241f036e9e93c6cb84acca8bf9c78beefa8b1e94 af158eaa0b8273e0615eee7874a708f4d2251b25 pass
+  gptp: hosted section (lines 1963-1973) vs published gptp.new-pin.out: EQUAL; sha256 fded66ab69042994; [#207] [#207] full-queue window: level 1, rp 1->1, wp 2->2
+  gptp-lat: hosted section (lines 6892-6902) vs published gptp-lat.new-pin.out: EQUAL; sha256 691b82a4fe5abcda; [#207] [#207] full-queue window: level 1, rp 1->1, wp 2->2

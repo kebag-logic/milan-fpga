@@ -1,0 +1,8 @@
+mutant_stage: <SCRATCH>/world-writable-root/milan-mutant-stage-1000 may be written by others (mode 0777); staging at a random private directory instead (correct, but the compiler cache cannot answer it)
+mutant_stage: <SCRATCH>/symlinked-root/milan-mutant-stage-1000 is a symbolic link; staging at a random private directory instead (correct, but the compiler cache cannot answer it)
+fresh-root: ACCEPTED; staged at fresh-root/milan-mutant-stage-1000/probe-0; root is_symlink=False root mode=0o700 slot mode=0o700
+world-writable-root: ACCEPTED; staged at world-writable-root/probe-xkuar_2n; root is_symlink=False root mode=0o777 slot mode=0o700
+symlinked-root: ACCEPTED; staged at symlinked-root/probe-m465l_jg; root is_symlink=True root mode=0o777 slot mode=0o700
+locks-is-a-file: ACCEPTED; staged at locks-is-a-file/milan-mutant-stage-1000/probe-0; root is_symlink=False root mode=0o700 slot mode=0o700
+tempfile.mkdtemp (the base's call): probe-ytn8mdp7 mode=0o700, random name, created atomically
+rc=0
