@@ -1,0 +1,341 @@
+===== sw/firmware/ctrl/README.md PR side
+diff --git a/sw/firmware/ctrl/README.md b/sw/firmware/ctrl/README.md
+index 27e5ae0f8..4711dc6fc 100644
+--- a/sw/firmware/ctrl/README.md
++++ b/sw/firmware/ctrl/README.md
+@@ -129,7 +129,7 @@ Its output and dependency options are dropped as the expansion drops them, its o
+ The recorder resolves every file the pass names while it is there, and keeps the list and the tree in the capture.
+ It then runs the compile itself, waits for it, and records its exit status with the invocation.
+ Python builders load an audit hook that names, for each compile, the builder files on the stack that started it, and records any compiler a builder runs by a path no wrapper stands on.
+-Run without `--capture`, as the hosted `firmware-boundary` and `firmware-verilator` jobs run it, the gate first runs every known builder it judges under a capture of its own, by that builder's own build commands: its builds, not its suites.
++Run without `--capture`, as the hosted `firmware-verilator` job runs it, the gate first runs every known builder it judges under a capture of its own, by that builder's own build commands: its builds, not its suites.
+ A suite builder's builds are its `--build-only` (`test_ctrl_firmware.py`, `test_ctrl_nvm.py` and `fw_coverage.py`): every binary and image its suites build, built and linked, none run and no defect planted.
+ The sixth capture builds both F5 gap-check shapes with `stream_counter_f5.py --build-only`.
+ It links the AECP core and mailbox adapter without running tests.
+@@ -627,7 +627,9 @@ python3 sw/firmware/ctrl/test/ctrl_boundary.py --require-rv32 --selftest --captu
+ 
+ `--build-only` builds and links every arm's binaries and runs none; it plants nothing and ends `BUILT`, never `PASS`.
+ The first boundary command runs every known builder by its builds under a capture of its own first (Verilator from `VERILATOR` or `PATH`).
+-The second is the `firmware-boundary` job's: every known builder but those that need Verilator (see [CI workflows](../../../docs/testing/CI_WORKFLOWS.md)).
++The second judges every known builder but those that need Verilator, as `firmware-boundary` does (see [CI workflows](../../../docs/testing/CI_WORKFLOWS.md)).
++Those standalone builders run in firmware-boundary-capture; firmware-boundary still runs its owned image builders, the stack gate and controls, then judges the joined captures.
++`firmware-boundary-capture` runs them in two legs, each with `--leg K/2 --capture-out <capture>`, and `firmware-boundary` judges both captures, each given by `--capture` (`ctrl_runs.LEGS`, #1003).
+ The third judges a capture made of any builder's commands, each run as `ctrl_capture.py --out <capture> -- <command>`.
+ 
+ Needs host C/C++ compilers, GoogleTest, GoogleMock, and PyYAML (the
+===== sw/firmware/ctrl/README.md DEV side
+diff --git a/sw/firmware/ctrl/README.md b/sw/firmware/ctrl/README.md
+index 27e5ae0f8..5c7eb865c 100644
+--- a/sw/firmware/ctrl/README.md
++++ b/sw/firmware/ctrl/README.md
+@@ -644,9 +644,9 @@ The CI firmware step also requires the control mutation campaign.
+ 
+ Initialize `third_party/lwSRP` and `third_party/tsn-c-stack` at their recorded gitlinks before running the gate.
+ An alternate `--lwsrp` checkout must match `ctrl_arms.LWSRP_REV`, currently
+-`08ee86e812a0eb5e1dc6cd61b494d8baf3491348`, with every compiled source unchanged.
++`d1bb4f4e5954af6dabe7f210a6bf7adbb76bdd6b`, with every compiled source unchanged.
+ Moving either pin requires a reviewed change.
+-The pin is published on public lwSRP `main`, including PR #12, PR #15 and PR #18.
++The pin is published on public lwSRP `main`, including PR #12, PR #15, PR #18 and PR #21.
+ Anonymous HTTPS checkout needs no repository credentials.
+ 
+ ## Linked size
+===== tb/verilator/gptp_shadow/mutants.py PR side
+diff --git a/tb/verilator/gptp_shadow/mutants.py b/tb/verilator/gptp_shadow/mutants.py
+index 3087dbb4d..207c67c5d 100644
+--- a/tb/verilator/gptp_shadow/mutants.py
++++ b/tb/verilator/gptp_shadow/mutants.py
+@@ -34,7 +34,6 @@ KILL can leave private scratch/children, but cannot modify caller source.
+ import argparse
+ import re
+ import sys
+-import tempfile
+ from pathlib import Path
+ 
+ HERE = Path(__file__).resolve().parent
+@@ -42,6 +41,7 @@ REPO = HERE.parent.parent.parent
+ sys.path.insert(0, str(REPO / "scripts"))
+ from owned_process import Cancelled, OwnedProcesses  # noqa: E402
+ from private_inputs import InputRefused, copy_inputs  # noqa: E402
++import mutant_stage  # noqa: E402
+ 
+ PLANE = REPO / "hdl" / "ieee8021as" / "gptp_plane"
+ RET = PLANE / "KL_gptp_txret.sv"
+@@ -252,7 +252,7 @@ def main() -> int:
+ 
+     try:
+         with OwnedProcesses() as owner:
+-            with tempfile.TemporaryDirectory(prefix="gptp-shadow-mutants-") as scratch:
++            with mutant_stage.directory("gptp-shadow-mutants-") as scratch:
+                 private = Path(scratch)
+                 targets = {row[1] for row in MUTATIONS + NOT_SEPARATELY_OBSERVABLE}
+                 copy_inputs(REPO, HERE, private, owner, targets)
+===== tb/verilator/gptp_shadow/mutants.py DEV side
+diff --git a/tb/verilator/gptp_shadow/mutants.py b/tb/verilator/gptp_shadow/mutants.py
+index 3087dbb4d..949da9994 100644
+--- a/tb/verilator/gptp_shadow/mutants.py
++++ b/tb/verilator/gptp_shadow/mutants.py
+@@ -17,7 +17,13 @@ recovery demand, and which measured terms the egress reconstruction is made
+ of. The defects that need the SHIPPING MAC and the two real seams - the
+ observation point itself and the register stages between the launch and the
+ capture - live with `tb/verilator/gptp_txts`, which pays for a converted MAC
+-to carry them.
++to carry them. Two more restore defects of the pinned engine the parent
++adopted a repair for: the first master Announce waiting for a beat
++(FPGA-gPTP #106), and a mastership keeping a settled slave's rate (#107).
++A third drops the Announce leg's transmit-credit gate. One more is planted
++in this suite's own harness: its lane, held across the race, delivers the
++master Announce only after the re-election. It shows the race check grades
++that order, not only that the Announce exists.
+ 
+ Each control names the check it must break, and the run prints whether that
+ check really failed rather than only that something did.
+@@ -47,8 +53,33 @@ PLANE = REPO / "hdl" / "ieee8021as" / "gptp_plane"
+ RET = PLANE / "KL_gptp_txret.sv"
+ OBS = PLANE / "KL_gptp_gmii_launch.sv"
+ TIC = PLANE / "KL_gptp_txticket.sv"
++#: The pinned engine and its micro-code generator. The two controls on them
++#: restore the defects FPGA-gPTP #106 and #107 repaired, with the donor's
++#: own anchors (its p106_mutants.py and p107_mutants.py), so this platform
++#: suite is shown to notice the adopted behaviour, not only the donor's.
++ENGINE = REPO / "gptp-processor" / "hdl" / "top" / "KL_gptp_engine.sv"
++GENERATOR = REPO / "gptp-processor" / "hdl" / "ucode" / "gen_gptp_ucode.py"
++#: SELF's tail, which continues into ANNTX since #106
++SELF_TAIL = ("    p.emit(\"COMMIT\")\n"
++             "    p.emit(\"BR\", label=LB[\"ANNTX\"])\n")
++#: BECOME's Sync arm, behind which the old engine also armed the Announce beat
++BECOME_SYNC = ("    p.emit(\"WRST\", ra=RT, imm=RG_TMR | 1, fmt=FMT_Q)"
++               "  # sync now\n")
++#: ANNTX's gates, whose credit gate the third control drops
++ANNTX_GATES = ("    e_flag_gate(p, FL_ASCAP_C, FL_ASCAP_C, \"ac\", \"skip\")\n"
++               "    e_credit_gate(p, \"skip\")\n"
++               "    p.emit(\"RDST\", rd=RA, imm=RG_SCR | S_ASEQ, fmt=FMT_Q)\n")
++#: this suite's own harness, and the race arm's queued Announce in it
++HARNESS = HERE / "sim_main.cpp"
++RACE_ANNOUNCE = ("        run_to(t0 + a1_after);\n"
++                 "        announce(tk_seq++, 100, GMID, PEER_CID, 0x00);\n")
++#: the engine's PHC word-3 rate write
++WORD3 = ("                phc_addend_we_o <= 1'b1;\n"
++         "                phc_addend_o    <= st_wdata_w[31:0];\n"
++         "                phc_slew_left_r   <= 2'd0;\n")
+ 
+-#: (name, file, old text, new text, the check this must break)
++#: (name, file, old text, new text, the check this must break). A control
++#: that edits two places gives a tuple of old texts and one of new texts.
+ MUTATIONS = [
+     (
+         "abort_counts_as_completion",
+@@ -127,6 +158,52 @@ MUTATIONS = [
+         "assign tx_credit_o = 1'b1 | ~credit_hold_i &",
+         "credit: the engine is held off at the reserve",
+     ),
++    (
++        #: #106's defect: the first master Announce waits 2 ms for a beat,
++        #: so an Announce queued at the receipt timeout instant re-elects
++        #: first and disarms it
++        "first_master_announce_waits_for_a_beat",
++        GENERATOR,
++        (SELF_TAIL, BECOME_SYNC),
++        ("    p.emit(\"COMMIT\")\n    p.emit(\"END\")\n",
++         BECOME_SYNC + "    p.emit(\"MOVE\", rd=RT, ra=0, imm=2)\n"
++                       "    p.emit(\"WRST\", ra=RT, imm=RG_TMR | 3, fmt=FMT_Q)\n"),
++        "#106 race: one master Announce reaches the lane before the re-election",
++    ),
++    (
++        #: #107's defect: word 3 applies only while a slew is active, so a
++        #: settled slave's trim outlives its mastership
++        "word3_applies_only_during_a_slew",
++        ENGINE,
++        WORD3,
++        "                if (phc_slew_active_o) begin\n"
++        "                  phc_addend_we_o <= 1'b1;\n"
++        "                  phc_addend_o    <= st_wdata_w[31:0];\n"
++        "                end\n"
++        "                phc_slew_left_r   <= 2'd0;\n",
++        "#107 settled +100 ppm: the mastership's PHC rate is this oscillator's, 0",
++    ),
++    (
++        #: the Announce leg without its credit gate: with the credit
++        #: withheld by the ticket reserve, which no fence backs, the first
++        #: master Announce then reaches the lane
++        "announce_leg_ignores_the_credit",
++        GENERATOR,
++        ANNTX_GATES,
++        ANNTX_GATES.replace("    e_credit_gate(p, \"skip\")\n", ""),
++        "#106 reserve: no master Announce reaches the lane without credit",
++    ),
++    (
++        #: the bench's lane held from before the takeover until the queued
++        #: Announce is sent: the master Announce still leaves, but its last
++        #: beat follows the re-election
++        "master_announce_reaches_the_lane_after_the_re_election",
++        HARNESS,
++        RACE_ANNOUNCE,
++        "        dut->tx_tready_i = 0;\n" + RACE_ANNOUNCE +
++        "        dut->tx_tready_i = 1;\n",
++        "#106 race: one master Announce reaches the lane before the re-election",
++    ),
+ ]
+ 
+ 
+@@ -225,13 +302,26 @@ def suite_failed(status: int, output: str) -> bool:
+     return False
+ 
+ 
+-def apply_control(path: Path, old: str, new: str) -> bool:
+-    """Plant one defect. False when its anchor is no longer in the source,
++def planted(text: str, old: str | tuple[str, ...],
++            new: str | tuple[str, ...]) -> str | None:
++    """The text with one control's edits made, each anchor's first
++    occurrence; None when an anchor is no longer in it."""
++    pairs = zip(old, new, strict=True) if isinstance(old, tuple) else [(old, new)]
++    for anchor, replacement in pairs:
++        if anchor not in text:
++            return None
++        text = text.replace(anchor, replacement, 1)
++    return text
++
++
++def apply_control(path: Path, old: str | tuple[str, ...],
++                  new: str | tuple[str, ...]) -> bool:
++    """Plant one defect. False when an anchor is no longer in the source,
+     which is a finding about this file and not a passing control."""
+-    text = path.read_text(encoding="utf-8")
+-    if old not in text:
++    text = planted(path.read_text(encoding="utf-8"), old, new)
++    if text is None:
+         return False
+-    path.write_text(text.replace(old, new, 1), encoding="utf-8")
++    path.write_text(text, encoding="utf-8")
+     return True
+ 
+ 
+===== tb/verilator/gptp_shadow/test_mutant_lifecycle.py PR side
+diff --git a/tb/verilator/gptp_shadow/test_mutant_lifecycle.py b/tb/verilator/gptp_shadow/test_mutant_lifecycle.py
+index a4baf9722..4f32e0717 100644
+--- a/tb/verilator/gptp_shadow/test_mutant_lifecycle.py
++++ b/tb/verilator/gptp_shadow/test_mutant_lifecycle.py
+@@ -112,7 +112,8 @@ def fixture(parent: Path, label: str) -> tuple[Path, Probe]:
+     population = declared()
+     first_party = {name for name in population if not name.startswith(DEPENDENCIES)}
+     for relative in sorted(first_party | set(UNRELATED) | {
+-            DRIVER, "tb/verilator/gptp_shadow/private_inputs.py", "scripts/owned_process.py"}):
++            DRIVER, "tb/verilator/gptp_shadow/private_inputs.py", "scripts/owned_process.py",
++            "scripts/mutant_stage.py"}):
+         install(root, relative)
+     git(root, "init", "-q")
+     for name in DEPENDENCIES:
+@@ -308,6 +309,12 @@ def prepare_refusal(root: Path, probe: Probe, kind: str) -> str:
+     return "Git environment redirects the checkout: " + variable
+ 
+ 
++def scratch_left(control: Path) -> list[Path]:
++    """The driver's staging directories under the probe's TMPDIR: tempfile's name, or a
++    scripts/mutant_stage.py slot."""
++    return [*control.glob("gptp-shadow-mutants-*"), *control.glob("milan-mutant-stage-*/gptp-shadow-mutants-*")]
++
++
+ def refusal(parent: Path, kind: str) -> None:
+     """Dirty, index-hidden, linked, redirected or unreadable input fails before make."""
+     root, probe = fixture(parent, kind)
+@@ -318,7 +325,7 @@ def refusal(parent: Path, kind: str) -> None:
+     assert status == 2 and "REFUSED:" in output and reason in output, (reason, output)
+     assert "Traceback" not in output, output
+     assert snapshot(root) == before and not (probe.control / "seen").exists(), output
+-    assert not list(probe.control.glob("gptp-shadow-mutants-*")), "refusal left scratch"
++    assert not scratch_left(probe.control), "refusal left scratch"
+     probe.save(dict(exit=status, refusal=kind, reason=reason, input_unchanged=True, make_started=False))
+ 
+ 
+@@ -332,7 +339,7 @@ def unsupported(parent: Path, mode: str) -> None:
+     status, output = probe.finish()
+     assert status == 2 and "REFUSED:" in output and "Traceback" not in output, output
+     assert snapshot(root) == before and not (probe.control / "seen").exists(), output
+-    assert not list(probe.control.glob("gptp-shadow-mutants-*")), "refusal left scratch"
++    assert not scratch_left(probe.control), "refusal left scratch"
+     probe.save(dict(exit=status, facility=mode, refused=True, make_started=False))
+ 
+ 
+@@ -360,6 +367,7 @@ def outer_cancellation(parent: Path, signum: int) -> None:
+     for relative in ("hdl", "tb/common", "tb/verilator/gptp_shadow", "gptp-processor",
+                      "third_party/verilog-axis"):
+         shutil.copytree(original / relative, root / relative, dirs_exist_ok=True)
++    shutil.copy2(original / "scripts/mutant_stage.py", root / "scripts/mutant_stage.py")
+     git(root, "init", "-q")
+     commit(root)
+     for name in ("mutation.json", "private-writes.json"):
+===== tb/verilator/gptp_shadow/test_mutant_lifecycle.py DEV side
+diff --git a/tb/verilator/gptp_shadow/test_mutant_lifecycle.py b/tb/verilator/gptp_shadow/test_mutant_lifecycle.py
+index a4baf9722..d16d484ee 100644
+--- a/tb/verilator/gptp_shadow/test_mutant_lifecycle.py
++++ b/tb/verilator/gptp_shadow/test_mutant_lifecycle.py
+@@ -21,7 +21,7 @@ from process_test_support import (  # noqa: E402
+     FACILITY_MODES, FACILITY_SITE, Probe, assert_reaped, commit, eventually, git, identity, install,
+     parent as parent_of, running, snapshot, write,
+ )
+-from mutants import MUTATIONS, NOT_SEPARATELY_OBSERVABLE  # noqa: E402
++from mutants import MUTATIONS, NOT_SEPARATELY_OBSERVABLE, planted  # noqa: E402
+ 
+ DRIVER = "tb/verilator/gptp_shadow/mutants.py"
+ SUITE = "tb/verilator/gptp_shadow"
+@@ -115,10 +115,16 @@ def fixture(parent: Path, label: str) -> tuple[Path, Probe]:
+             DRIVER, "tb/verilator/gptp_shadow/private_inputs.py", "scripts/owned_process.py"}):
+         install(root, relative)
+     git(root, "init", "-q")
++    #: a control may plant its defect in a pinned dependency file, whose
++    #: anchors must then be there: those files are the real ones
++    targets = {str(row[1].relative_to(ROOT)) for row in MUTATIONS}
+     for name in DEPENDENCIES:
+         for relative in sorted(population - first_party) + [UNRELATED_DEPENDENCY]:
+             if relative.startswith(name + "/"):
+-                write(root / relative, f"pinned dependency input {relative}\n")
++                if relative in targets:
++                    install(root, relative)
++                else:
++                    write(root / relative, f"pinned dependency input {relative}\n")
+         git(root / name, "init", "-q")
+         commit(root / name)
+     commit(root)
+@@ -127,7 +133,7 @@ def fixture(parent: Path, label: str) -> tuple[Path, Probe]:
+     for name, path, old, new, expect in MUTATIONS:
+         original = path.read_text()
+         catalog.append(dict(name=name, path=str(path.relative_to(ROOT)), new=new, expect=expect,
+-                            hash=hashlib.sha256(original.replace(old, new, 1).encode()).hexdigest()))
++                            hash=hashlib.sha256(planted(original, old, new).encode()).hexdigest()))
+     write(probe.control / "mutation.json", json.dumps(catalog))
+     writes = [min(name for name in population if name.startswith(dependency + "/"))
+               for dependency in DEPENDENCIES]
+@@ -155,9 +161,9 @@ def normal(parent: Path, mode: str, repeat: bool = False) -> None:
+         if mode == "detect":
+             for name, _path, _old, _new, expect in MUTATIONS:
+                 assert f'{name}: caught by "{expect}"' in output, output
+-            assert "controls: 9   failures: 0\nRESULT: PASS" in output, output
++            assert "controls: 13   failures: 0\nRESULT: PASS" in output, output
+         else:
+-            assert "RESULT: PASS" not in output and "controls: 9   failures: 9" in output, output
++            assert "RESULT: PASS" not in output and "controls: 13   failures: 13" in output, output
+             assert ("no completed suite tally" if mode == "build" else "stayed green") in output, output
+         probe.save(dict(exit=status, iteration=iteration, mutations=seen,
+                         source_unchanged=True, scratch_removed=True))
+@@ -185,10 +191,10 @@ def accepted(parent: Path, kind: str) -> None:
+     before = snapshot(root)
+     probe.start([sys.executable, str(root / DRIVER)])
+     status, output = probe.finish()
+-    assert status == 0 and "controls: 9   failures: 0\nRESULT: PASS" in output, output
++    assert status == 0 and "controls: 13   failures: 0\nRESULT: PASS" in output, output
+     assert snapshot(root) == before, "caller inputs changed"
+     assert not Path((probe.control / "workspace").read_text()).exists(), "scratch survived"
+-    probe.save(dict(exit=status, accepted=kind, controls=9, source_unchanged=True))
++    probe.save(dict(exit=status, accepted=kind, controls=13, source_unchanged=True))
+ 
+ 
+ def interrupted(parent: Path, signum: int, unsafe: bool = False) -> None:
+@@ -424,7 +430,7 @@ def main() -> int:
+                 interrupted(parent, signal.SIGKILL, unsafe=True)
+             for signum in (signal.SIGINT, signal.SIGTERM):
+                 outer_cancellation(parent, signum)
+-    print("mutant lifecycle: PASS (normal/repeat, nine named defects, survivor, build, unread-file and "
++    print("mutant lifecycle: PASS (normal/repeat, thirteen named defects, survivor, build, unread-file and "
+           "Git-setting acceptance, input/Git-redirect/record/facility refusals, INT/TERM/KILL, "
+           "unsafe negative controls)")
+     return 0

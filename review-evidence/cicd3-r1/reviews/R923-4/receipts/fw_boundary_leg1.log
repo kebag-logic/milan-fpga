@@ -1,0 +1,10 @@
+tsn-c-stack at 715589c1db7cf67e2f3259fd7083ebc7f0923376
+leg 1/2: running sw/firmware/gtest/fw_rv32_selftest.py, sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py, sw/firmware/gtest/fw_coverage.py, sw/litex/test_ctrl_memory.py, tb/verilator/milan_dp/stream_counter_f5.py under a capture at $REVIEWS/cicd3-r923-4-packet/scratch/cap/leg1
+    sw/firmware/gtest/fw_rv32_selftest.py --require-rv32: exit 0 (17 s)
+    sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py --require-rv32: exit 0 (173 s)
+    sw/firmware/gtest/fw_coverage.py --build-only: exit 0 (676 s)
+    sw/litex/test_ctrl_memory.py --build-only: exit 1 (0 s)
+REFUSED: sw/litex/test_ctrl_memory.py exited 1 under the capture, so it may have compiled less than it does: Traceback (most recent call last):
+  File "$REVIEWS/r923-4-cicd3/sw/litex/test_ctrl_memory.py", line 80, in <module>
+    from migen import ClockDomain, Module, run_simulation
+ModuleNotFoundError: No module named 'migen'

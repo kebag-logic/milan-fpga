@@ -1,0 +1,13 @@
+figure=520 selftest rc=1
+  FAIL head worker 10/26 predicted 1280 s (21.3 min), bound 1276 s
+  FAIL head worker 20/26 predicted 1278 s (21.3 min), bound 1276 s
+  FAIL head worker 22/26 predicted 1279 s (21.3 min), bound 1276 s
+  FAIL head worker 23/26 predicted 1280 s (21.3 min), bound 1276 s
+selftest: 4 FAILURE(S)
+22:21: capture_coherence__3 aaf_latency_tap_bank gptp_shadow ptp_ts tcam_csr tdm 
+restored scripts/suite_shards.py
+figure=393 selftest rc=0
+  [ok]    1276-second regular worker passes the absolute budget
+  [ok]    the budget 1276 s is 1800 s / 1.41 rounded down, computed without the constant
+2:1: capture_coherence__7 milan_dp__3 gptp_shadow tsn_fuzz 
+restored scripts/suite_shards.py

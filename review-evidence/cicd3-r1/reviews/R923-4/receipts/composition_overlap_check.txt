@@ -1,0 +1,26 @@
+##### sw/firmware/ctrl/README.md
+-- candidate vs PR source head (must equal dev side's hunks):
+  IDENTICAL change lines
+-- candidate vs dev parent (must equal PR side's hunks):
+  IDENTICAL change lines
+##### tb/verilator/gptp_shadow/mutants.py
+-- candidate vs PR source head (must equal dev side's hunks):
+  IDENTICAL change lines
+-- candidate vs dev parent (must equal PR side's hunks):
+  IDENTICAL change lines
+##### tb/verilator/gptp_shadow/test_mutant_lifecycle.py
+-- candidate vs PR source head (must equal dev side's hunks):
+  IDENTICAL change lines
+-- candidate vs dev parent (must equal PR side's hunks):
+  IDENTICAL change lines
+##### merge-tree recomputation
+git merge-tree --write-tree HEAD^1 HEAD^2 = 9bc16d519883acd97ddfbfbb31a8b8f3dce73c55
+candidate tree = 9bc16d519883acd97ddfbfbb31a8b8f3dce73c55
+both-sides files:
+sw/firmware/ctrl/README.md
+tb/verilator/gptp_shadow/mutants.py
+tb/verilator/gptp_shadow/test_mutant_lifecycle.py
+duplicate-definition check in composed mutants.py:
+3
+  no stray tempfile import
+  py_compile OK
