@@ -1,0 +1,20 @@
+tsn-c-stack at e0b144904e57c96928f1dd3fca36a00df42f6ed3
+adp arm rc 0 ['== ctrl ADP slice (fake ports and host model): checks: 64   failures: 0 ==', 'RESULT: PASS']
+[ok] mutant foreign-discover-answered (adp): 3 check(s) failed
+    first: [FAIL] AdpCore.A3toA5DiscoverAndDiscard: A4 a foreign DISCOVER, an AVAILABLE and a truncated ADPDU are discarded (5.6.3.1)
+[ok] mutant pin-adp-short-discovery (adp): 124 check(s) failed
+    first: [FAIL] AdpAdapter.PinRejectsEveryTruncatedDiscovery: malformed discovery changes only the discard count through the parent adapter
+[ok] mutant pin-adp-discovery-version (adp): 26 check(s) failed
+    first: [FAIL] AdpAdapter.PinRejectsUnsupportedDiscoveryVersions: malformed discovery changes only the discard count through the parent adapter
+[ok] mutant pin-adp-discovery-length (adp): 20 check(s) failed
+    first: [FAIL] AdpAdapter.PinRejectsShortDiscoveryControlLength: malformed discovery changes only the discard count through the parent adapter
+[ok] mutant pin-adp-discovery-valid-time (adp): 16 check(s) failed
+    first: [FAIL] AdpAdapter.PinRejectsShortDiscoveryControlLength: malformed discovery changes only the discard count through the parent adapter
+[ok] mutant pin-adp-long-discovery (adp): 372 check(s) failed
+    first: [FAIL] AdpAdapter.PinAcceptsLongDiscoveryThroughMailbox: a longer discovery restarts advertising through the mailbox
+[ok] mutant pin-adp-valid-discovery (adp): 99 check(s) failed
+    first: [FAIL] AdpCore.A3toA5DiscoverAndDiscard: A3 RCV_ADP_DISCOVER in DELAY is ignored (Table 5.51)
+[ESCAPED] mutant extra-mask-0x00FF (adp): 0 check(s) failed, none named adp: AdpAdapter.PinAcceptsLongDiscoveryThroughMailbox on 'a longer discovery restarts advertising through the mailbox'
+[ok] mutant extra-mask-0x003F (adp): 128 check(s) failed
+    first: [FAIL] AdpAdapter.PinAcceptsLongDiscoveryThroughMailbox: a longer discovery restarts advertising through the mailbox
+mutants: 8 of 9 caught
