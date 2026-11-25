@@ -335,11 +335,15 @@
                 pop issue per pair, one data-return drain), then a slot costs
                 one CM_STEP_S cycle plus the GAP_CYC_P+1 cycles CM_GAP_S
                 takes to count GAP_CYC_P down to zero AND advance, so the
-                walk is 1 + (LB_PAIRS_C + 1) + N_SLOTS_P * (GAP_CYC_P + 2)
+                walk is 1 + (LB_PAIRS_C + 1) + N_SLOTS_P *
+                (GAP_CYC_P + 2 + 2 * INPUT_LOOPBACK_P)
                 cycles including the CM_IDLE_S cycle that starts it, and it
                 must fit inside one media tick. At the shipping 8x8 that is
                 1 + 33 + 32*26 = 866 against MILAN_CLK_FREQ_HZ/48000 (2083
-                at 100 MHz, 1041 at 50 MHz - the worst-case budget). Covering
+                at 100 MHz, 1041 at 50 MHz - the worst-case budget).
+                Input loopback adds two synchronous-read cycles per slot:
+                930 cycles with 32 legacy pre-walk pairs; 899 when the
+                legacy bucket is disabled and has one pair. Covering
                 the unmapped slots does not raise that ceiling - a fully
                 mapped board already pays all 32, and the shipped 8x8 map is
                 fully mapped - it only stops a sparsely mapped board from
@@ -373,6 +377,7 @@
 `default_nettype none
 
 module KL_chan_map_capture #(
+  parameter int INPUT_LOOPBACK_P = 0, //! synchronous input-buffer source
   parameter int unsigned N_SLOTS_P = 32,   //! TX pair slots (prefix-sum space)
   parameter int unsigned N_TDM_P   = 8,    //! TDM slots (pairs = N_TDM_P/2)
   //! TDM FRAME HANDOFF (#617): the pairs one front-end frame delivers into
@@ -468,7 +473,7 @@ module KL_chan_map_capture #(
   //! ALL DEFAULTED: an integration that has not wired the listener side
   //! leaves them off and gets a bucket that is permanently silent - a
   //! DEFINED state, not a dangling pin.
-  input  wire [63:0]  lb_tdata_i  = 64'd0, //! 2 consecutive S32BE samples,
+  input  wire [63+24*(INPUT_LOOPBACK_P != 0):0] lb_tdata_i  = 64'd0, //! 2 consecutive S32BE samples,
                                          //! wire (channel-interleaved) order
   input  wire         lb_tvalid_i = 1'b0, //! accepted-beat strobe
   input  wire         lb_tlast_i  = 1'b0, //! one AXIS frame per PDU
@@ -511,7 +516,7 @@ module KL_chan_map_capture #(
   output logic [15:0] tdm_skip_cnt_o,    //! frame over unread frame (grid slow)
   //! #632: the instant of the frame the walk reads (tdm_close_ns_i), held
   //! for the whole walk with the walk bank
-  output logic [31:0] tdm_walk_ns_o
+  output logic [31+8*(INPUT_LOOPBACK_P != 0):0] tdm_walk_ns_o
 );
 
   // ---------------------------------------------------------------------- //
@@ -1282,7 +1287,7 @@ module KL_chan_map_capture #(
     if (!rst_n) begin
       tdm_snap_late_r <= 1'b0;
       for (int t = 0; t < N_TDM_PAIRS_C; t++) tdm_walk_r[t] <= '0;
-      tdm_walk_ns_o <= '0;
+      tdm_walk_ns_o[31:0] <= '0;
     end
     else begin
       tdm_snap_late_r <= tdm_snap_take_w;
@@ -1290,7 +1295,7 @@ module KL_chan_map_capture #(
       //! can never name a frame the walk does not read (#632)
       if ((tdm_snap_w && !tdm_snap_take_w) || tdm_snap_late_r) begin
         for (int t = 0; t < N_TDM_PAIRS_C; t++) tdm_walk_r[t] <= tdm_frame_r[t];
-        tdm_walk_ns_o <= tdm_frame_ns_r;
+        tdm_walk_ns_o[31:0] <= tdm_frame_ns_r;
       end
     end
   end : tdm_walk_snapshot
@@ -1362,9 +1367,64 @@ module KL_chan_map_capture #(
   wire [23:0] out_l_w = (32'(row_l_w) < N_CAND_C) ? cand_w[row_l_w] : 24'd0;
   wire [23:0] out_r_w = (32'(row_r_w) < N_CAND_C) ? cand_w[row_r_w] : 24'd0;
 
-  // ---------------------------------------------------------------------- //
-  // Emit walk FSM (pre-walk pop, then the slot walk)                        //
-  // ---------------------------------------------------------------------- //
+  wire input_step_done_w;
+  wire [23:0] input_pair_l_w, input_pair_r_w;
+  //! Only the enabled branch owns the two extra synchronous-read phases.
+  //! Enabled-only extensions: lb_tdata_i[87:64] returns the mono sample;
+  //! tdm_walk_ns_o[39:32] carries {claim, read, destination[5:0]}.
+  //! With the option off both ports retain their original widths.
+  if (INPUT_LOOPBACK_P != 0) begin : g_input_loopback
+    wire [23:0] input_sample_i = lb_tdata_i[87:64];
+    wire input_capture_o, input_read_o;
+    wire [5:0] input_addr_o;
+    assign tdm_walk_ns_o[39:32] = {input_capture_o, input_read_o, input_addr_o};
+    typedef enum logic [1:0] { INPUT_REQ_S, INPUT_LEFT_S, INPUT_RIGHT_S } input_state_t;
+    input_state_t input_state_r;
+    logic [23:0] input_left_r, input_right_r;
+    logic input_left_select_r, input_right_select_r;
+    logic [5:0] input_right_addr_r;
+    wire input_right_w = (input_state_r == INPUT_LEFT_S);
+    assign input_step_done_w = (input_state_r == INPUT_RIGHT_S);
+    assign input_pair_l_w = input_left_r;
+    assign input_pair_r_w = input_right_select_r ? input_sample_i : input_right_r;
+    assign input_capture_o = (st_r == CM_POP_S) && (pop_idx_r == '0);
+    assign input_read_o = (st_r == CM_STEP_S) && !input_step_done_w;
+    assign input_addr_o = input_right_w ? input_right_addr_r
+        : {ent_l_w[6:4], ent_l_w[1:0], ent_l_w[11]};
+    always_ff @(posedge clk_i) begin : input_pair_read
+      if (!rst_n) begin
+        input_state_r <= INPUT_REQ_S;
+        input_left_r <= '0;
+        input_right_r <= '0;
+        input_right_addr_r <= '0;
+        input_left_select_r <= 1'b0;
+        input_right_select_r <= 1'b0;
+      end else if (st_r == CM_STEP_S) begin
+        case (input_state_r)
+          INPUT_REQ_S: begin
+            input_left_r <= out_l_w;
+            input_right_r <= out_r_w;
+            input_right_addr_r <= {ent_r_w[6:4], ent_r_w[1:0], ent_r_w[11]};
+            input_left_select_r <= ent_l_w[12] && (ent_l_w[10:8] == 3'd6)
+                                   && !ent_l_w[7] && (ent_l_w[3:2] == '0);
+            input_right_select_r <= ent_r_w[12] && (ent_r_w[10:8] == 3'd6)
+                                    && !ent_r_w[7] && (ent_r_w[3:2] == '0);
+            input_state_r <= INPUT_LEFT_S;
+          end
+          INPUT_LEFT_S: begin
+            if (input_left_select_r) input_left_r <= input_sample_i;
+            input_state_r <= INPUT_RIGHT_S;
+          end
+          default: input_state_r <= INPUT_REQ_S;
+        endcase
+      end
+    end : input_pair_read
+  end else begin : g_no_input_loopback
+    assign input_step_done_w = 1'b1;
+    assign input_pair_l_w = '0;
+    assign input_pair_r_w = '0;
+  end
+
   logic [$clog2(GAP_CYC_P+1)-1:0] gap_r;
   wire  last_slot_w = (32'(slot_r) == N_SLOTS_P - 1);
 
@@ -1421,9 +1481,20 @@ module KL_chan_map_capture #(
           pair_r_o     <= out_r_w;
           gap_r        <= ($clog2(GAP_CYC_P+1))'(GAP_CYC_P);
           st_r         <= CM_GAP_S;
+          if (INPUT_LOOPBACK_P != 0) begin
+            if (input_step_done_w) begin
+              pair_l_o <= input_pair_l_w;
+              pair_r_o <= input_pair_r_w;
+            end else begin
+              pair_valid_o <= 1'b0;
+              pair_slot_o <= pair_slot_o;
+              pair_l_o <= pair_l_o;
+              pair_r_o <= pair_r_o;
+              gap_r <= gap_r;
+              st_r <= CM_STEP_S;
+            end
+          end
         end
-
-        // -------- settle gap between injects ------------------------------
         CM_GAP_S : begin
           pair_valid_o <= 1'b0;            //! the pulse was one cycle only
           if (gap_r == '0) begin
@@ -1450,6 +1521,7 @@ module KL_chan_map_capture #(
       end
     end
   end : emit_engine
+
 
 endmodule
 

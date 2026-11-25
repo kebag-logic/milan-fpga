@@ -63,11 +63,14 @@
                 clone format (lanes without a valid sample carry zero, tlast
                 on the last beat, streams in index order), then
                 render_tick_p_o[i] fires. Interfaces are read one after the
-                other on the one read port.
+                other on the one read port. With INPUT_LOOPBACK_P enabled,
+                mapped mono reads then fill a separate eight-page RAM before
+                the consumed rows are scrubbed.
 
                 CONSUMED ROWS. After the reads of event n, frame
                 R = n + K_min has been read by every interface: R advances to
-                it and its rows are invalidated (written invalid through the
+                it and, after the optional mapped copy, its rows are
+                invalidated (written invalid through the
                 write ports, the push first), and only then may the next
                 event's reads begin. A row therefore holds either invalid or
                 the one frame of the window that maps to it.
@@ -124,12 +127,16 @@
 
                 HOLD. A hold of the frame grid (a stopped serial clock, a
                 media-clock holdover) delays the frames already queued by the
-                hold: their rows keep their frame numbers. The stream's later
+                hold when INPUT_LOOPBACK_P is disabled: their rows keep
+                their frame numbers. With it enabled, two missing domain
+                periods invalidate loop pages and flush every source stream.
+                The stream's later
                 PDUs, placed against the moved grid, take over within the
                 queue's lead, and the snapping leaves one gap or overlap,
                 counted in slips_o.
 
-                FLUSH (bind loss) and reset invalidate every row of the
+                FLUSH (bind loss), enabled loopback clock loss, and reset
+                invalidate every row of the
                 stream (a walker on the write ports' idle cycles); its writes
                 are dropped and its reads present silence until the walk has
                 covered it.
@@ -188,6 +195,10 @@ module KL_render_queue #(
   parameter int unsigned MAX_EV_P      = 504, //! the most events one PDU
                                               //! walks (two per payload
                                               //! beat, one channel)
+  parameter int unsigned INPUT_LOOPBACK_P = 0, //! optional mapped copy
+  parameter int unsigned INPUT_KEYS_P = 64, //! committed input-map entries
+  parameter int unsigned INPUT_FIRST_P = 1, //! first loopback destination
+  parameter int unsigned INPUT_CH_P = 63, //! mono buffer destinations
   parameter int unsigned CLK_FREQ_HZ_P = 100_000_000 //! clk_i, Hz (the
                                               //! observer's millisecond)
 )(
@@ -204,7 +215,7 @@ module KL_render_queue #(
   input  wire                      hdr_tv_i,     //! tv
 
   //! --- depacketizer payload clone (accepted beats, never backpressured) --
-  input  wire [63:0]               s_tdata_i,    //! 2 consecutive S32BE
+  input  wire [63+(INPUT_KEYS_P*8+41)*(INPUT_LOOPBACK_P != 0):0] s_tdata_i,    //! 2 consecutive S32BE
                                                  //! samples, wire order
   input  wire                      s_tvalid_i,   //! accepted-beat strobe
   input  wire                      s_tlast_i,    //! one AXIS frame per PDU
@@ -221,7 +232,7 @@ module KL_render_queue #(
                                                  //! bind loss, empty it
 
   //! --- to the render crossbars (KL_chan_map_render s_* and tick_i) ------
-  output logic [63:0]              m_tdata_o,    //! S32BE sample pair, wire
+  output logic [63+24*(INPUT_LOOPBACK_P != 0):0] m_tdata_o,    //! S32BE sample pair, wire
                                                  //! order; empty lanes zero
   output logic [N_IF_P-1:0]        m_tvalid_o,   //! beat strobe, per
                                                  //! interface
@@ -499,6 +510,10 @@ module KL_render_queue #(
   wire        far_in_w = !sof_r && pdu_early_r;
 
   //! the stream's flush state (declared with the walker below)
+  //! A stopped domain cannot retain rows whose frame indices stop with it.
+  //! Enabled only with the mapped input source; map edits do not flush RX.
+  wire input_clock_flush_w;
+  wire [N_STREAMS_P-1:0] flush_w = flush_i | {N_STREAMS_P{input_clock_flush_w}};
   logic [N_STREAMS_P-1:0] flpend_r;
   logic                   fl_busy_r;
   logic [3:0]             fl_s_r;
@@ -607,13 +622,14 @@ module KL_render_queue #(
 
   //! the invalidation writes both banks at one address, on a cycle the push
   //! leaves both free
+  wire copy_active_w;
   wire        both_free_w = !pw0_w && !pw1_w;
-  wire        scrub_go_w  = (sst_r == S_SCRUB_S) && both_free_w;
+  wire        scrub_go_w  = (sst_r == S_SCRUB_S && !copy_active_w) && both_free_w;
 
   // the flush walker: a stream's every word, when the scrub does not need
   // the ports
   logic [$clog2(SPAN_C2)-1:0] fl_a_r; //! the stream's word being invalidated
-  wire  fl_go_w   = fl_busy_r && both_free_w && !(sst_r == S_SCRUB_S);
+  wire  fl_go_w   = fl_busy_r && both_free_w && !(sst_r == S_SCRUB_S && !copy_active_w);
   wire  fl_last_w = (32'(fl_a_r) == SPAN_C2 - 1);
   wire  [AW_C-1:0] fl_addr_w = AW_C'(32'(fl_s_r) * SPAN_C2 + 32'(fl_a_r));
 
@@ -638,7 +654,12 @@ module KL_render_queue #(
 
   //! the read port: the schedule's (slot, frame, pair)
   wire rd_go_w = (sst_r == S_READ_S);
-  assign ra_w = waddr(slot_r, rd_fr_w[RW_C-1:0], beat_r);
+  wire [3:0] copy_stream_w;
+  wire [2:0] copy_channel_w;
+  wire copy_done_w;
+  assign ra_w = copy_active_w
+      ? waddr(copy_stream_w, cons_w[RW_C-1:0], {2'b00, copy_channel_w[2:1]})
+      : waddr(slot_r, rd_fr_w[RW_C-1:0], beat_r);
 
   //! the beat being read, one cycle behind its address (the banks' read
   //! register)
@@ -655,7 +676,7 @@ module KL_render_queue #(
   //! this event had a sample on some beat
   wire         any_w  = rany_r || rd0_r[24] || rd1_r[24];
 
-  assign m_tdata_o = {8'h00, odd_w[7:0],  odd_w[15:8],  odd_w[23:16],
+  assign m_tdata_o[63:0] = {8'h00, odd_w[7:0],  odd_w[15:8],  odd_w[23:16],
                       8'h00, even_w[7:0], even_w[15:8], even_w[23:16]};
   assign m_tlast_o = rlast_r;
   assign m_tuser_o = rs_r;
@@ -667,7 +688,7 @@ module KL_render_queue #(
   always_comb begin : fl_rd_lookup
     fl_rd_w = 1'b0;
     for (int unsigned s = 0; s < N_STREAMS_P; s++)
-      if (32'(slot_r) == s) fl_rd_w = flpend_r[s] || (fl_busy_r && (32'(fl_s_r) == s));
+      if (32'(copy_active_w ? copy_stream_w : slot_r) == s) fl_rd_w = flpend_r[s] || (fl_busy_r && (32'(fl_s_r) == s));
   end : fl_rd_lookup
 
   always_ff @(posedge clk_i) begin : schedule
@@ -752,6 +773,173 @@ module KL_render_queue #(
       endcase
     end
   end : schedule
+
+  //! Eight pages retain complete mapped frames, never a prior sample hold.
+  //! A claimed page stays readable through the entire capture walk.
+  //! Capture can overlap the next domain event at the two-frame lead.
+  //! Eight pages prevent that event from overwriting the claimed page.
+  //! Expiry and invalidation clear metadata; the sample RAM has no reset.
+  if (INPUT_LOOPBACK_P != 0 && KMIN_C > 2) begin : g_input_loop_lead_refused
+    $error("input loopback eight-page retention requires KMIN_C <= 2");
+  end
+  //! The optional extension leaves the disabled port list and widths intact.
+  //! Above s_tdata_i[63:0]: {map, invalidate, claim, read, address, stamp}.
+  //! m_tdata_o[87:64] returns the synchronous mono sample.
+  if (INPUT_LOOPBACK_P != 0) begin : g_input_loopback
+    wire [INPUT_KEYS_P*8-1:0] input_map_i = s_tdata_i[105 +: INPUT_KEYS_P*8];
+    wire input_invalidate_i = s_tdata_i[104];
+    wire input_capture_i = s_tdata_i[103];
+    wire input_read_i = s_tdata_i[102];
+    wire [5:0] input_addr_i = s_tdata_i[101:96];
+    wire [31:0] input_capture_ns_i = s_tdata_i[95:64];
+    wire [23:0] input_sample_o;
+    assign m_tdata_o[87:64] = input_sample_o;
+    localparam int SAMPLE_PAGES_C = 8;
+    localparam int META_PAGES_C = 4;
+    localparam int META_W_C = $clog2(META_PAGES_C);
+    localparam int IDLE_CYC_C = 2 * (CLK_FREQ_HZ_P / FS_HZ_P);
+    localparam int IDLE_W_C = $clog2(IDLE_CYC_C + 1);
+    (* ram_style = "block" *) logic [23:0] samples_r [0:SAMPLE_PAGES_C*64-1];
+    //! Four metadata slots cover unclaimed frames at KMIN_C <= 2.
+    //! A claim saves the full RAM page before metadata reuse.
+    logic [META_PAGES_C-1:0] page_valid_r;
+    logic [FW_C-1:0] page_frame_r [META_PAGES_C];
+    logic [31:0] page_capture_ns_r [META_PAGES_C];
+    logic [IDLE_W_C-1:0] idle_cyc_r;
+    logic [6:0] cursor_r;
+    logic return_r, return_bank_r, return_valid_r, bad_r;
+    logic [5:0] return_addr_r;
+    logic [23:0] read_data_r;
+    logic read_valid_r;
+    logic [META_W_C-1:0] read_page_w;
+    logic [2:0] active_page_r;
+    logic active_valid_r;
+    localparam int STAMP_CYCLE_NS_C = (1_000_000_000 + CLK_FREQ_HZ_P - 1) / CLK_FREQ_HZ_P;
+    localparam int STAMP_RATE_NS_C = int'(((64'(KMIN_C) + 1) * PS3_L + 2999) / 3000);
+    localparam int STAMP_TOL_NS_C = 4 * STAMP_CYCLE_NS_C + STAMP_RATE_NS_C + 1;
+    logic read_valid_w;
+    wire [7:0] entry_w = input_map_i[(INPUT_FIRST_P + 32'(cursor_r[5:0]))*8 +: 8];
+    logic copy_active_r;
+    wire copy_w = copy_active_r;
+    assign copy_active_w = copy_active_r;
+    wire copy_issue_w = copy_w && (32'(cursor_r) < INPUT_CH_P);
+    wire start_w = (sst_r == S_READ_S) && last_beat_w && last_slot_w && last_if_w;
+    wire invalidate_w = input_invalidate_i || (|flush_i)
+                         || (32'(idle_cyc_r) == IDLE_CYC_C);
+    wire [FW_C-1:0] age_w = n_now_w - cons_w;
+    wire [31:0] target_ns_w = ev_ns_i + 32'((64'(KMIN_C + 1) * PS3_L) / 3);
+    wire [24:0] returned_w = return_bank_r ? rd1_r : rd0_r;
+    assign input_clock_flush_w = (32'(idle_cyc_r) == IDLE_CYC_C);
+    assign copy_stream_w = {1'b0, entry_w[5:3]};
+    assign copy_channel_w = entry_w[2:0];
+    assign copy_done_w = copy_w && (32'(cursor_r) == INPUT_CH_P);
+    assign input_sample_o = (read_valid_r && !invalidate_w) ? read_data_r : 24'd0;
+
+    function automatic logic stamp_matches(input logic [31:0] capture_ns,
+                                            input logic [31:0] page_ns);
+      logic signed [31:0] delta;
+      begin
+        delta = $signed(capture_ns - page_ns);
+        stamp_matches = (delta >= -STAMP_TOL_NS_C) && (delta <= STAMP_TOL_NS_C);
+      end
+    endfunction
+
+    //! Match the actual capture instant, not the independently phased tick.
+    //! Four clock cycles cover marker synchronization and stamp quantization.
+    //! Add 1000 ppm across KMIN_C+1 periods, and one ns for rounding.
+    //! This window is below half a period: only one frame can match.
+    always_comb begin : select_page
+      read_page_w = '0;
+      read_valid_w = 1'b0;
+      for (int p = 0; p < META_PAGES_C; p++) begin
+        if (page_valid_r[p] && stamp_matches(input_capture_ns_i, page_capture_ns_r[p])) begin
+          read_page_w = META_W_C'(p);
+          read_valid_w = 1'b1;
+        end
+      end
+    end : select_page
+
+    always_ff @(posedge clk_i) begin : input_ram_write
+      if (return_r)
+        samples_r[{cons_w[2:0], return_addr_r}] <=
+            (return_valid_r && returned_w[24]) ? returned_w[23:0] : 24'd0;
+    end : input_ram_write
+    always_ff @(posedge clk_i) begin : input_ram_read
+      if (input_read_i) read_data_r <= samples_r[{active_page_r, input_addr_i}];
+    end : input_ram_read
+
+    always_ff @(posedge clk_i) begin : input_metadata
+      if (!rst_n) begin
+        page_valid_r <= '0;
+        for (int p = 0; p < META_PAGES_C; p++) begin
+          page_frame_r[p] <= '0;
+          page_capture_ns_r[p] <= '0;
+        end
+        copy_active_r <= 1'b0;
+        cursor_r <= '0;
+        return_r <= 1'b0;
+        return_bank_r <= 1'b0;
+        return_valid_r <= 1'b0;
+        return_addr_r <= '0;
+        bad_r <= 1'b1;
+        idle_cyc_r <= '0;
+        read_valid_r <= 1'b0;
+        active_page_r <= '0;
+        active_valid_r <= 1'b0;
+      end else begin
+        if (ev_p_i) idle_cyc_r <= '0;
+        else if (32'(idle_cyc_r) < IDLE_CYC_C) idle_cyc_r <= idle_cyc_r + 1'b1;
+        read_valid_r <= input_read_i && active_valid_r && !invalidate_w
+                         && (32'(input_addr_i) < INPUT_CH_P);
+        return_r <= copy_issue_w;
+        if (copy_issue_w) begin
+          cursor_r <= cursor_r + 1'b1;
+          return_addr_r <= cursor_r[5:0];
+          return_bank_r <= copy_channel_w[0] ^ cons_w[0];
+          return_valid_r <= entry_w[7] && !entry_w[6]
+                            && (32'(copy_stream_w) < N_STREAMS_P)
+                            && (32'(copy_channel_w) < N_CH_P);
+        end
+        //! Expire before the modulo page can alias a later frame.
+        for (int p = 0; p < META_PAGES_C; p++) begin
+          if (ev_p_i && ((n_now_w - page_frame_r[p]) == FW_C'(2)))
+            page_valid_r[p] <= 1'b0;
+        end
+        if (input_capture_i) begin
+          active_page_r <= page_frame_r[read_page_w][2:0];
+          active_valid_r <= read_valid_w && !invalidate_w;
+          if (read_valid_w) page_valid_r[read_page_w] <= 1'b0;
+        end
+        if (copy_done_w) copy_active_r <= 1'b0;
+        if (start_w) begin
+          copy_active_r <= 1'b1;
+          cursor_r <= '0;
+          bad_r <= invalidate_w || (sn_r != n_r);
+          page_valid_r[cons_w[META_W_C-1:0]] <= 1'b0;
+          page_frame_r[cons_w[META_W_C-1:0]] <= cons_w;
+          page_capture_ns_r[cons_w[META_W_C-1:0]] <= target_ns_w;
+        end
+        if (copy_done_w && !bad_r && !invalidate_w
+            && (age_w[FW_C-1] || age_w == '0))
+          page_valid_r[cons_w[META_W_C-1:0]] <= 1'b1;
+        if (invalidate_w) begin
+          page_valid_r <= '0;
+          bad_r <= 1'b1;
+          active_valid_r <= 1'b0;
+          read_valid_r <= 1'b0;
+        end
+      end
+    end : input_metadata
+  end else begin : g_no_input_loopback
+    assign input_clock_flush_w = 1'b0;
+    assign copy_stream_w = '0;
+    assign copy_channel_w = '0;
+    assign copy_done_w = 1'b0;
+    assign copy_active_w = 1'b0;
+  end
+
+
+
 
   // ------------------------------------------------------------------ //
   // Header, divider and the PDU walk                                    //
@@ -850,7 +1038,7 @@ module KL_render_queue #(
       pop_p_o <= '0;
       for (int unsigned s = 0; s < N_STREAMS_P; s++) begin : per_stream
         //! a stream with nothing queued past R has no lead
-        if (lwv_r[s] && (sst_r == S_SCRUB_S) && (lead_s_w[s][FW_C-1] || (lead_s_w[s] == '0)))
+        if (lwv_r[s] && (sst_r == S_SCRUB_S && !copy_active_w) && (lead_s_w[s][FW_C-1] || (lead_s_w[s] == '0)))
           lwv_r[s] <= 1'b0;
         if (lw_adv_w && (32'(s_tuser_i) == s)) begin
           lw_r[s]  <= fnew_w;
@@ -868,7 +1056,7 @@ module KL_render_queue #(
           if (32'(conv_ms_r[s]) != CONV_DWELL_C) conv_ms_r[s] <= conv_ms_r[s] + 7'd1;
           else                                    converged_r[s] <= 1'b1;
         end
-        if (flush_i[s]) begin
+        if (flush_w[s]) begin
           flpend_r[s]    <= 1'b1;
           lwv_r[s]       <= 1'b0;
           live_r[s]      <= 1'b0;
@@ -886,7 +1074,7 @@ module KL_render_queue #(
           fl_s_r    <= fl_low_w;
           fl_a_r    <= '0;
           for (int unsigned s = 0; s < N_STREAMS_P; s++)
-            if ((32'(fl_low_w) == s) && !flush_i[s]) flpend_r[s] <= 1'b0;
+            if ((32'(fl_low_w) == s) && !flush_w[s]) flpend_r[s] <= 1'b0;
         end
       end else if (fl_go_w) begin
         fl_a_r <= fl_a_r + 1'b1;
@@ -945,6 +1133,7 @@ module KL_render_queue #(
       m_wire_chans_o[s*4 +: 4] = 4'(2 * PAIRS_C);
     end
   end : taps
+
 
 endmodule
 

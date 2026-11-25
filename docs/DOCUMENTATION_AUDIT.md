@@ -27,18 +27,18 @@ Findings cite source lines at dev `1f29f189` and its submodule pins.
 
 | Status | Pages |
 |---|---:|
-| current | 186 |
+| current | 189 |
 | stale | 16 |
 | superseded | 0 |
 | obsolete | 21 |
-| **total** | **223** |
+| **total** | **226** |
 
 | Lane | Pages | Current | Stale | Superseded | Obsolete | Verified by D0 |
 |---|---:|---:|---:|---:|---:|---:|
 | archive | 22 | 1 | 0 | 0 | 21 | 0 |
-| design | 28 | 27 | 1 | 0 | 0 | 0 |
+| design | 29 | 28 | 1 | 0 | 0 | 0 |
 | findings | 23 | 23 | 0 | 0 | 0 | 0 |
-| module READMEs | 88 | 88 | 0 | 0 | 0 | 0 |
+| module READMEs | 90 | 90 | 0 | 0 | 0 | 0 |
 | overview and guides | 21 | 19 | 2 | 0 | 0 | 12 |
 | reference | 23 | 11 | 12 | 0 | 0 | 18 |
 | repository contract | 4 | 4 | 0 | 0 | 0 | 0 |
@@ -72,13 +72,13 @@ The README count includes subdirectories.
 | `sw/litex/` | no | 1 |
 | `sw/mailbox/` | no | 0 |
 | `sw/trace/` | yes | 1 |
-| `tb/` | no | 34 |
+| `tb/` | no | 36 |
 | `tb/avtp_packet_gen_sv/` | yes | 1 |
 | `tb/common/` | no | 0 |
 | `tb/itests/` | yes | 1 |
 | `tb/tools/` | no | 0 |
 | `tb/utests/` | no | 1 |
-| `tb/verilator/` | yes | 31 |
+| `tb/verilator/` | yes | 33 |
 | `syn/` | no | 2 |
 | `syn/ooc/` | no | 0 |
 | `syn/resmap/` | no | 0 |
@@ -95,7 +95,7 @@ Areas follow the directory tree.
 - [.github](#github) (1)
 - [avdecc](#avdecc) (1)
 - [docs](#docs) (10)
-- [docs/design](#docsdesign) (18)
+- [docs/design](#docsdesign) (19)
 - [docs/development](#docsdevelopment) (1)
 - [docs/diagrams](#docsdiagrams) (1)
 - [docs/findings](#docsfindings) (23)
@@ -113,7 +113,7 @@ Areas follow the directory tree.
 - [hdl](#hdl) (36)
 - [sw](#sw) (12)
 - [syn](#syn) (2)
-- [tb](#tb) (34)
+- [tb](#tb) (36)
 - [tests](#tests) (1)
 
 ### root
@@ -163,6 +163,7 @@ Areas follow the directory tree.
 | [docs/design/CSR_REGISTER_NOTES.md](design/CSR_REGISTER_NOTES.md) | maintainer | CSR register design notes | `hdl/milan`, `configs`, `tb/verilator/milan_dp`, Milan v1.2, 1722.1-2021, 1722-2016, 802.1Q, 802.1AS | current | no recorded contradiction | area lane | design |
 | [docs/design/GM_LOSS_RECOVERY.md](design/GM_LOSS_RECOVERY.md) | maintainer | Grandmaster loss and recovery | `tb/verilator/milan_dp_gm_steps`, 1722-2016, 802.1AS | current | no recorded contradiction | area lane | design |
 | [docs/design/GPTP_PLANE.md](design/GPTP_PLANE.md) | maintainer | Fabric gPTP plane | `tb/verilator/gptp_txts`, `tb/verilator/milan_dp`, `sw/litex`, Milan v1.2, 802.1AS | current | no recorded contradiction | area lane | design |
+| [docs/design/INPUT_MAPPED_LOOPBACK.md](design/INPUT_MAPPED_LOOPBACK.md) | maintainer | Input-mapped block-RAM loopback | 1722.1-2021 | current | no recorded contradiction | area lane | design |
 | [docs/design/MAAP_FABRIC.md](design/MAAP_FABRIC.md) | maintainer | MAAP in fabric - design + reference contract (task #18) | `hdl/ieee1722/maap`, `hdl/milan`, `tb/verilator/maap`, Milan v1.2, 1722.1-2021, 1722-2016, 802.1Q | current | no recorded contradiction | area lane | design |
 | [docs/design/MAILBOX_SPLIT.md](design/MAILBOX_SPLIT.md) | firmware developer | Packet mailbox split: the contract, the HAL and the ADP slice (#665 lane F0) | `sw/firmware/ctrl`, `sw/mailbox`, `hdl/milan/mailbox`, Milan v1.2, 1722.1-2021, 1722-2016, 802.1Q | current | no recorded contradiction | area lane | design |
 | [docs/design/MARK_II_AREA_PLAN.md](design/MARK_II_AREA_PLAN.md) | maintainer | Mark II area plan | `syn/ooc`, `sw/litex`, `hdl/milan`, Milan v1.2, 1722.1-2021, 1722-2016, 802.1Q, 802.1AS | current | no recorded contradiction | area lane | design |
@@ -438,6 +439,8 @@ Areas follow the directory tree.
 | [tb/verilator/gptp_shadow/README.md](../tb/verilator/gptp_shadow/README.md) | verification | gptp_shadow -- the fabric slice, wide faces, loop closed in fabric | `tb/verilator/gptp_shadow`, `tb/verilator/gptp_plane`, `third_party/verilog-axis` | current | no recorded contradiction | area lane | module READMEs |
 | [tb/verilator/gptp_tables/README.md](../tb/verilator/gptp_tables/README.md) | verification | gptp_tables -- per-table lockstep of the fabric gPTP plane | `tb/verilator/gptp_tables`, `scripts`, `tb/verilator/gptp_shadow` | current | no recorded contradiction | area lane | module READMEs |
 | [tb/verilator/gptp_txts/README.md](../tb/verilator/gptp_txts/README.md) | verification | `gptp_txts` - the gPTP egress timestamp closed loop | `tb/verilator/gptp_txts`, `sw/litex`, `hdl/common` | current | no recorded contradiction | area lane | module READMEs |
+| [tb/verilator/input_loopback/README.md](../tb/verilator/input_loopback/README.md) | verification | Input-mapped loopback wire test | `tb/verilator/input_loopback`, `tb/verilator/input_loopback_dp`, Milan v1.2, 1722.1-2021 | current | no recorded contradiction | area lane | module READMEs |
+| [tb/verilator/input_loopback_dp/README.md](../tb/verilator/input_loopback_dp/README.md) | verification | Enabled parent loopback integration | `tb/verilator/input_loopback_dp`, `tb/verilator/input_loopback` | current | no recorded contradiction | area lane | module READMEs |
 | [tb/verilator/mbx/README.md](../tb/verilator/mbx/README.md) | verification | mbx: the packet-mailbox fabric skeleton, through both bus adapters | `tb/verilator/mbx`, `sw/mailbox`, `sw/firmware/ctrl`, 1722-2016 | current | no recorded contradiction | area lane | module READMEs |
 | [tb/verilator/media_grid_align/README.md](../tb/verilator/media_grid_align/README.md) | verification | media_grid_align - the #74 grid-alignment loop, closed over the real NCO | `tb/verilator/media_grid_align`, `tb/verilator/milan_dp` | current | no recorded contradiction | area lane | module READMEs |
 | [tb/verilator/media_nco/README.md](../tb/verilator/media_nco/README.md) | verification | `media_nco` - the steerable media sample grid | `tb/verilator/media_nco`, `hdl/ieee1722/crf`, `tb/verilator/capture_coherence`, Milan v1.2 | current | no recorded contradiction | area lane | module READMEs |

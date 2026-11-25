@@ -360,7 +360,7 @@ def block_rule(r: dict) -> str:
         built = ", ".join(f"{num(n)}: {num(v)}" for n, v in pts)
         rows.append([f"`{cfg}` rows", built, f"{num(const)} + {num(per)} x N",
                      num(r["rule"][(fam, "refused")])])
-    return table(["Family", "N: names, as built", "Rule", "First refusal, names"], rows, right=3)
+    return table(["Family", "N: names, as built", "Rule", "First all-fabric refusal, names"], rows, right=3)
 
 
 def block_space(r: dict) -> str:
