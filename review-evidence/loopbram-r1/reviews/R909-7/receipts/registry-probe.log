@@ -1,0 +1,14 @@
+capture ran: ['tb/verilator/input_loopback_dp/run.py'] invocations: 59
+entries: 1 needs: verilator
+  argv: {python} tb/verilator/input_loopback_dp/run.py --shape 1 --work {work}/input-loopback-1 --build-only
+  argv: {python} tb/verilator/input_loopback_dp/run.py --shape 8 --work {work}/input-loopback-8 --build-only
+[without verilator, entry present] reasons naming the harness: 0
+[without verilator, entry REMOVED] reasons naming the harness: 1
+    tb/verilator/input_loopback_dp/run.py names the firmware's tree and is a program, and is neither a known builder (ctrl_configs.BUILDERS) nor listed as one that runs under another (PART_OF), compiles none of the firmware's (OUTSIDE) or compiles only in a suite (SUITES)
+[only verilator, entry present, its capture given] reasons naming the harness: 0
+[only verilator, the harness's own capture missing] reasons: 1
+    the capture holds no invocation of tb/verilator/input_loopback_dp/run.py from a run of its own, a builder of the firmware that compiles (its compiles under another builder's run are that one's)
+found by text under the two suites: ['tb/verilator/input_loopback_dp/run.py']
+candidates under the two suites: ['sw/builder/test_input_loopback.py', 'tb/verilator/input_loopback/Makefile', 'tb/verilator/input_loopback/bounds.py', 'tb/verilator/input_loopback/mutants.py', 'tb/verilator/input_loopback_dp/Makefile', 'tb/verilator/input_loopback_dp/mutants.py', 'tb/verilator/input_loopback_dp/run.py']
+legs: [['sw/firmware/ctrl/test/test_ctrl_firmware.py'], ['sw/firmware/gtest/fw_rv32_selftest.py', 'sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py', 'sw/firmware/gtest/fw_coverage.py', 'sw/litex/test_ctrl_memory.py', 'tb/verilator/milan_dp/stream_counter_f5.py']]
+captured invocations naming the AECP sources: 57

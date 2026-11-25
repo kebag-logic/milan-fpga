@@ -1,0 +1,8 @@
+ok  control rc=0 first='PASS input-loopback streams=8 channels=63 lead=1: 79587 checks, 0 failures, packets=468' last='PASS input-loopback streams=8 channels=63 lead=1: 79587 checks, 0 failures, packets=468'
+ok  no_enqueue rc=2 first='FAIL COPY_SAMPLE_L frame=19 phase=306 got=000000 want=9e0012' last='FAIL input-loopback streams=8 channels=63 lead=1: 79587 checks, 5589 failures, packets=468'
+ok  no_done rc=2 first='FAIL COPY_SAMPLE_L frame=19 phase=306 got=000000 want=9e0012' last='FAIL input-loopback streams=8 channels=63 lead=1: 79587 checks, 5589 failures, packets=468'
+ok  mask_zero rc=2 first='FAIL COPY_SAMPLE_L frame=19 phase=306 got=000000 want=9e0012' last='FAIL input-loopback streams=8 channels=63 lead=1: 79587 checks, 5589 failures, packets=468'
+ok  mask_stream0_only rc=2 first='FAIL COPY_SAMPLE_L frame=19 phase=306 got=000000 want=9e0012' last='FAIL input-loopback streams=8 channels=63 lead=1: 79587 checks, 5588 failures, packets=468'
+ok  mask_all rc=2 first='FAIL COPY_SAMPLE_L frame=19 phase=306 got=fe0012 want=9e0012' last='FAIL input-loopback streams=8 channels=63 lead=1: 79587 checks, 3924 failures, packets=468'
+ok  mask_drops_top rc=2 first='FAIL COPY_SAMPLE_L frame=188 phase=306 got=000000 want=fe00bb' last='FAIL input-loopback streams=8 channels=63 lead=1: 79587 checks, 1664 failures, packets=468'
+ok  mask_reversed rc=2 first='FAIL COPY_SAMPLE_L frame=19 phase=306 got=ee0012 want=9e0012' last='FAIL input-loopback streams=8 channels=63 lead=1: 79587 checks, 5588 failures, packets=468'

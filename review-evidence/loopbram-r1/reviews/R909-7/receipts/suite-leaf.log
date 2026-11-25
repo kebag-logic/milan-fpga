@@ -1,0 +1,18 @@
+make: Entering directory '$SCRATCH/wc/tb/verilator/input_loopback'
+$TOOLS/pinned-verilator-5.050/verilator --cc --exe --build -j 4 --top-module loopback_wrap \
+ ../../../hdl/common/ethernet_packet_pkg.sv ../../../hdl/ieee1722/avtp/avtp_subtype_pkg.sv ../../../hdl/ieee1722/aaf/KL_aaf_packetizer.sv ../../../hdl/ieee1722/avtp/avtp_stream_parser.sv ../../../hdl/ieee1722/avtp/KL_avtp_rx_monitor.sv ../../../hdl/ieee1722/aaf/KL_aaf_rx_depacketizer.sv ../../../hdl/ieee1722/aaf/KL_render_queue.sv ../../../hdl/ieee1722/aaf/KL_chan_map_capture.sv ../../../third_party/verilog-axis/rtl/axis_fifo.v loopback_wrap.sv sim_main.cpp -o Vinput_loopback
+python3 $VERILATOR_ROOT/bin/verilator_includer -DVL_INCLUDE_OPT=include Vloopback_wrap.cpp Vloopback_wrap___024root__0.cpp Vloopback_wrap_KL_avtp_rx_monitor__C2ee0000__0.cpp Vloopback_wrap__Dpi.cpp Vloopback_wrap__ConstPool__0__Slow.cpp Vloopback_wrap___024root__Slow.cpp Vloopback_wrap___024root__0__Slow.cpp Vloopback_wrap___024unit__Slow.cpp Vloopback_wrap_KL_avtp_rx_monitor__C2ee0000__Slow.cpp Vloopback_wrap_KL_avtp_rx_monitor__C2ee0000__0__Slow.cpp Vloopback_wrap__Syms__Slow.cpp > Vloopback_wrap__ALL.cpp
+rm Vloopback_wrap__ALL.verilator_deplist.tmp
+- Verilator: Walltime 5.793 s (elab=0.031, cvt=0.133, bld=5.574); cpu 0.231 s on 4 threads; allocated 360.336 MB
+$SCRATCH/obj_leaf/Vinput_loopback
+PASS input-loopback streams=8 channels=63 lead=1: 79587 checks, 0 failures, packets=468
+make[1]: Entering directory '$SCRATCH/wc/tb/verilator/input_loopback'
+$TOOLS/pinned-verilator-5.050/verilator --cc --exe --build -j 4 --top-module loopback_wrap \
+ ../../../hdl/common/ethernet_packet_pkg.sv ../../../hdl/ieee1722/avtp/avtp_subtype_pkg.sv ../../../hdl/ieee1722/aaf/KL_aaf_packetizer.sv ../../../hdl/ieee1722/avtp/avtp_stream_parser.sv ../../../hdl/ieee1722/avtp/KL_avtp_rx_monitor.sv ../../../hdl/ieee1722/aaf/KL_aaf_rx_depacketizer.sv ../../../hdl/ieee1722/aaf/KL_render_queue.sv ../../../hdl/ieee1722/aaf/KL_chan_map_capture.sv ../../../third_party/verilog-axis/rtl/axis_fifo.v loopback_wrap.sv sim_main.cpp -o Vinput_loopback
+python3 $VERILATOR_ROOT/bin/verilator_includer -DVL_INCLUDE_OPT=include Vloopback_wrap.cpp Vloopback_wrap___024root__0.cpp Vloopback_wrap__Dpi.cpp Vloopback_wrap__ConstPool__0__Slow.cpp Vloopback_wrap___024root__Slow.cpp Vloopback_wrap___024root__0__Slow.cpp Vloopback_wrap___024unit__Slow.cpp Vloopback_wrap__Syms__Slow.cpp > Vloopback_wrap__ALL.cpp
+rm Vloopback_wrap__ALL.verilator_deplist.tmp
+- Verilator: Walltime 5.733 s (elab=0.021, cvt=0.080, bld=5.595); cpu 0.148 s on 4 threads; allocated 357.363 MB
+$SCRATCH/obj_leaf_one/Vinput_loopback
+PASS input-loopback streams=1 channels=8 lead=2: 76017 checks, 0 failures, packets=447
+make[1]: Leaving directory '$SCRATCH/wc/tb/verilator/input_loopback'
+make: Leaving directory '$SCRATCH/wc/tb/verilator/input_loopback'

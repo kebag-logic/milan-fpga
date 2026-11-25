@@ -1,0 +1,22 @@
+# hosted excerpts at 09201d35
+== job 139359479597
+2026-11-25T17:14:11.2606538Z ctrl_boundary: leg 0/2: 1888 compiler invocations from 1 builder runs, judged where every leg's capture is given (--capture)
+== job 139359479579
+2026-11-25T17:24:12.3681711Z ctrl_boundary: leg 1/2: 1716 compiler invocations from 6 builder runs, judged where every leg's capture is given (--capture)
+== job 139382634099
+2026-11-25T17:30:00.8846566Z capture: 4379 compiler invocations from 26 builder runs; every known builder held: sw/firmware/gtest/fw_rv32_selftest.py, sw/firmware/ctrl/test/test_ctrl_firmware.py, sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py, sw/firmware/gtest/fw_coverage.py, sw/litex/test_ctrl_memory.py, tb/verilator/milan_dp/stream_counter_f5.py, third_party/tsn-c-stack/scripts/check_boundary.py, sw/firmware/ctrl/test/ctrl_image.py, sw/firmware/ctrl/test/ctrl_srp_image.py, sw/firmware/ctrl/test/ctrl_plat_image.py, sw/firmware/ctrl/test/ctrl_image_selftest.py
+2026-11-25T17:30:00.8852335Z   LEFT OUT: tb/verilator/input_loopback_dp/run.py, which needs Verilator, which this run has none of (--without verilator)
+2026-11-25T17:33:18.4266727Z ctrl_boundary: 4084 compiled sources of 4379 recorded invocations (2500 the firmware's, 431 the stack's, 1153 test equipment's and builders' own), each judged by what its dependency output lists, host and RV32, every Makefile builder's pin prerequisites and the pin proof's census; 0 finding(s), 112 boundary, 192 pin and 4 figure controls, 0 misbehaved
+2026-11-25T17:33:18.4268272Z ctrl_boundary: PASS
+== job 139359479658
+2026-11-25T17:36:27.5120278Z     tb/verilator/input_loopback_dp/run.py --shape: exit 0 (16 s)
+2026-11-25T17:36:45.9601175Z     tb/verilator/input_loopback_dp/run.py --shape: exit 0 (18 s)
+2026-11-25T17:37:33.9858706Z capture: 1438 compiler invocations from 24 builder runs; every known builder held: third_party/tsn-c-stack/scripts/check_boundary.py, sw/firmware/ctrl/test/ctrl_image.py, sw/firmware/ctrl/test/ctrl_srp_image.py, sw/firmware/ctrl/test/ctrl_plat_image.py, sw/firmware/ctrl/test/ctrl_image_selftest.py, tb/verilator/mbx/Makefile, sw/firmware/ctrl/test/maap_differential.py, sw/firmware/ctrl/test/aecp_wire.py, tb/verilator/input_loopback_dp/run.py
+2026-11-25T17:40:17.3507483Z ctrl_boundary: 1296 compiled sources of 1438 recorded invocations (566 the firmware's, 106 the stack's, 624 test equipment's and builders' own), each judged by what its dependency output lists, host and RV32, every Makefile builder's pin prerequisites and the pin proof's census; 0 finding(s), 6 boundary, 192 pin and 4 figure controls, 0 misbehaved
+2026-11-25T17:40:17.3509854Z ctrl_boundary: PASS
+== job 139359343186
+2026-11-25T17:16:49.0382978Z PASS     gptp_plane
+2026-11-25T17:17:42.4174362Z PASS     input_loopback_dp
+== job 139359343052
+2026-11-25T17:04:58.9523542Z PASS     ifg
+2026-11-25T17:05:09.2936644Z PASS     input_loopback
