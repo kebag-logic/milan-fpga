@@ -37,7 +37,6 @@ module loopback_wrap #(
   wire [31:0] ts_w;
   wire [63:0] fsh_w;
   wire [N_STREAMS_P-1:0] accept_w;
-  logic [3:0] accept_idx_w;
   for (genvar i = 0; i < N_STREAMS_P; i++) begin : g_monitor
     assign sid_w[64*i +: 64] = 64'h0200_0000_0002_0000 + 64'(i);
     KL_avtp_rx_monitor #(.CLK_FREQ_HZ_P(49_152_000)) mon (
@@ -49,11 +48,6 @@ module loopback_wrap #(
       .ptp_now_i(frame_ns_i), .pres_ofs_i(32'd2_000_000),
       .clk_src_i(16'd0), .servo_conv_i(1'b1), .pdu_accept_p_o(accept_w[i])
     );
-  end
-  always_comb begin : accepted_index
-    accept_idx_w = '0;
-    for (int i = 0; i < N_STREAMS_P; i++)
-      if (accept_w[i]) accept_idx_w = 4'(i);
   end
   avtp_stream_parser #(.N_STREAMS(N_STREAMS_P)) parser (
     .clk(clk), .resetn(rst_n), .cfg_stream_id_i(sid_w), .cfg_stream_en_i('1),
@@ -67,10 +61,12 @@ module loopback_wrap #(
   wire pcm_valid_w, pcm_last_w, hdr_w, hdr_tv_w;
   wire [3:0] pcm_stream_w;
   wire [31:0] hdr_ts_w;
-  KL_aaf_rx_depacketizer #(.PAY_LEAD_CYC_P(16)) depacketizer (
+  //! each flat monitor's accept lands in the frame's flight and is its PDU's one verdict: it queues the PDU and
+  //! completes it at once, the accepting monitors its done mask (#948's verdict protocol)
+  KL_aaf_rx_depacketizer #(.N_STREAMS_P(N_STREAMS_P), .PAY_LEAD_CYC_P(16)) depacketizer (
     .clk_i(clk), .rst_n(rst_n), .s_tdata_i(rx_data_i), .s_tkeep_i(rx_keep_i),
     .s_tvalid_i(rx_valid_i), .s_tready_i(1'b1), .s_tlast_i(rx_last_i),
-    .pdu_accept_p_i(|accept_w), .pdu_accept_idx_i(accept_idx_w),
+    .pdu_enq_p_i(|accept_w), .pdu_done_p_i(|accept_w), .pdu_done_mask_i(accept_w),
     .m_axis_tdata(pcm_w), .m_axis_tvalid(pcm_valid_w), .m_axis_tlast(pcm_last_w),
     .m_axis_tuser(pcm_stream_w), .m_axis_tready(1'b1),
     .hdr_p_o(hdr_w), .hdr_ts_o(hdr_ts_w), .hdr_tv_o(hdr_tv_w), .pdus_o(pdus_o)
