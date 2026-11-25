@@ -22,9 +22,13 @@
  * A CHANGE'S WORST CASE. Under input that leaves no pass empty the loop takes
  * the owed step once every CTRL_LOOP_STEP_AGE + 1 centiseconds and no pass
  * takes another, the slowest pace. A change is durable once the save that
- * captures it is. With no save in flight that is at most MILAN_NVM_DEBOUNCE_MS
- * after the change, plus that many centiseconds for each step of its save after
- * the window (the step that starts the capture, one for each changed record and
+ * captures it is. With no save in flight that is at most its class's
+ * first-dirty window after the change, MILAN_NVM_DEBOUNCE_MS, or
+ * NVM_BIND_DEBOUNCE_MS for a binding record (#1009; a window is the first
+ * change's and is not restarted, so it is at most that for any change, and the
+ * earliest end of the open ones starts the capture of all of them), plus that
+ * many centiseconds for each step of its save after the window (the step that
+ * starts the capture, one for each changed record and
  * one more, the seal's NVM_STEP_BYTES stretches, the erase and its wait,
  * NVM_IMG_LEN / NVM_READ_BYTES read-backs for the blank check and as many for
  * the verify, and each page's issue and its wait), plus the few passes between
@@ -32,7 +36,9 @@
  * capture joins it (nvm_mark): a record it has yet to reach, or one no capture
  * holds, for which it walks again, one step more a walk. A change to a record
  * the save in flight has taken, or marked after its capture, is the next
- * save's, which starts at the first idle step after that save, with no window:
+ * save's, which starts at the first idle step after that save, with no window
+ * (a binding change's at the later of that step and the end of the
+ * NVM_BIND_DEBOUNCE_MS window it opened, #1009):
  * it waits first for the rest of the save in flight, at worst all its steps but
  * the two that started its capture and took the record, then for its own
  * save's steps, at the same pace. The budget harness's save_window.bound_ms

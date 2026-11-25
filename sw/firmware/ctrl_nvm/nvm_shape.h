@@ -147,6 +147,10 @@
 #define NVM_ERASE_BLOCKS   ((NVM_IMG_LEN + NVM_ERASE_BLOCK - 1u) / NVM_ERASE_BLOCK)
 /* KLJ3 rule 3: a container is never longer than its slot. */
 #define NVM_KLJ3_MAX       NVM_SLOT_BYTES
+/* The binding class's first-dirty window (DR2a, amended for that class alone, #1009): Milan v1.2 5.5.3.5.3 saves the
+ * binding parameters before it sends the BIND_RX_RESPONSE, and 5.3.8.3 counts a stream input's started/stopped state
+ * with them; both are the one binding record (NVM_G_BIND). Every other class keeps MILAN_NVM_DEBOUNCE_MS. */
+#define NVM_BIND_DEBOUNCE_MS 100u
 /* Today's journal, the all-fabric placement's KLJ2: read, never written. */
 #define NVM_LEGACY_A       MILAN_FLASH_JOURNAL_OFFSET
 #define NVM_LEGACY_B       (MILAN_FLASH_JOURNAL_OFFSET + MILAN_FLASH_JOURNAL_SIZE / 2u)

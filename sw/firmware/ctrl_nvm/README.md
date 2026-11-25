@@ -42,7 +42,7 @@ is an integration obligation, not a target-time result established here.
 - **[Write-back](#write-back)** -- One bounded step per service call: capture, seal, erase, blank check, program, read back.
 - **[The service bound](#the-service-bound)** -- What one step can cost, what is asserted, the capture's time by the owner's decision, what the split CPU measures, and on what assumptions.
 - **[Static sizes](#static-sizes)** -- What each shipped shape costs, measured on the RV32I build.
-- **[The host suite](#the-host-suite)** -- Sixty checks per shape at its own clock, 38 of them on both ports, the NAME capacity, the power-cut sweep and the planted defects.
+- **[The host suite](#the-host-suite)** -- Seventy-six checks per shape at its own clock, 52 of them on both ports, the NAME capacity, the power-cut sweep, the first-dirty windows and the planted defects.
 - **[What this does not prove](#what-this-does-not-prove)** -- The board, the host suite's maps, a shipping image, the owners on the host, and a read fault that repeats itself exactly.
 
 ## Layout
@@ -255,7 +255,7 @@ so a mark costs the same in any pass. Each
 
 | Phase | One step |
 |---|---|
-| idle | after the 1,000 ms first-dirty window (DR2a) and any backoff, start a capture; or retry a failed work set |
+| idle | after the first-dirty window of the change's class (DR2a: 1,000 ms, and 100 ms for a binding record, #1009) and any backoff, start a capture; or retry a failed work set |
 | capture | latch ONE dirty record from its owner, compare it, frame it into the stage |
 | seal | decide (DR2b, DR2c below); then the header at the next sequence, then 256 bytes of CRC-32 per step |
 | erase | start the erase of the next block the container spans, in the slot that is NOT authoritative |
@@ -300,8 +300,8 @@ both arms, with and without the drafts, the longest step is 96,579 cycles,
 #920's step a pass it is 78,825 cycles at 1x1/1if and 78,737 at 8x8/1if, over
 every group at each.
 
-A save at 1x1/1if takes 1,081.8 ms from the change to durable on a flash
-with no busy time, 1,308.8 ms at 8x8/1if: the 1,000 ms first-dirty window,
+A SET_NAME's save at 1x1/1if takes 1,081.8 ms from the change to durable on a
+flash with no busy time, 1,308.8 ms at 8x8/1if: the 1,000 ms first-dirty window,
 then its steps a pass each (2,018 ms at 1x1 and 4,697 ms at 8x8/2if when it
 took a step a tick, before #920). A real part's erase and program waits add to
 it. No deadline of this store is that figure: the owner's 0.5 s (#823) belongs
@@ -309,15 +309,18 @@ to the append-only design.
 
 **A change's worst case.** Under input that leaves no pass empty a step comes
 at most three ticks after the one before. With no save in flight a change is
-durable at most 1,000 ms after it plus 30 ms for each step of its save after
-that window (the step that starts the capture, one for each changed record and
+durable at most its window (1,000 ms; 100 ms for a binding record) after it
+plus 30 ms for each step of its save after that window (the step that starts
+the capture, one for each changed record and
 one more, the seal's 256-byte stretches, the erase and its wait, the read-backs
 of the blank check and of the verify, each page's issue and its wait), and
 10 ms for the change's own pass and the ticks' dispatch (`nvm_store.h`). A
 change marked during a running capture joins it; one to a record the capture
 has taken, or marked after the capture, is the next save's, which starts at
 the first idle step after the save in flight with no window, so it waits first
-for the rest of that save, at worst all its steps but two (#920). A SET_NAME of
+for the rest of that save, at worst all its steps but two (#920); a binding
+record's change marked so opens the next 100 ms window, and its save starts at
+the later of that step and that window's end (#1009). A SET_NAME of
 the entity, which marks both its names, is 382 steps at 8x8 (KLJ3's 13,584 B
 container, one interface or two): 12,470 ms alone and 22,870 ms beside
 another's save in flight, 4,070 and 6,070 ms at 1x1, with no flash busy time;
@@ -343,14 +346,20 @@ The atomicity rules, from section 7 and the D3 register:
   covered the whole container. A power cut at any step boots the old values
   or the new ones, never a mix.
 - **DR2a.** The window opens at the first change still waiting for a
-  capture. A change marked during a running capture joins it and opens no
-  window: one the capture has yet to reach, and one to a record no capture
+  capture: 1,000 ms, and 100 ms for a binding record (`NVM_BIND_DEBOUNCE_MS`:
+  a bind, an unbind, the started and stopped state, one record a sink;
+  #1009, Milan v1.2 5.3.8.3 and 5.5.3.5.3, DR2a amended for that class
+  alone). A window is its class's first change's and is not restarted; a later
+  change only brings the capture nearer (a binding change in a 1,000 ms window
+  ends it 100 ms after itself), and the capture takes everything dirty. A
+  change marked during a running capture joins it and opens no window: one the capture has yet to reach, and one to a record no capture
   holds, for which the capture walks again from the first record, taking only
   such records, so it takes each record once and ends (#920). A change to a
   record the capture has taken, or one marked after the capture, is the next
   save's, which starts at the first idle step after the save in flight with no
-  window (#920; #665, the ruling of issuecomment-6899740728, item 1). A first
-  change keeps its 1,000 ms window.
+  window (#920; #665, the ruling of issuecomment-6899740728, item 1), except
+  that a binding record's change opens its 100 ms window even then (#1009). A
+  first change keeps its window.
 - **DR2c.** A failed attempt names its step (`VD_ERASE`, `VD_PROGRAM`,
   `VD_VERIFY`), keeps its records in flight and marks the claim stale. The
   captured work set gets three attempts in all, the first included. Each
@@ -516,11 +525,11 @@ store in process, over the flash model directly and over the LiteSPI port on
 the command-master model ([`test/nvm_rig.cpp`](test/nvm_rig.cpp)). Every
 byte and every verdict is compared with the fixture
 [`test/nvm_fixture.py`](test/nvm_fixture.py) writes from
-`scripts/nvm_klj3.py`, the reference codec. Per shape, 60 checks in 98
-tests: 38 on both ports, eleven on the model port alone (its read and refusal
+`scripts/nvm_klj3.py`, the reference codec. Per shape, 76 checks in 128
+tests: 52 on both ports, twelve on the model port alone (its read and refusal
 faults do not reach memory-mapped LiteSPI reads), five on the LiteSPI port
 alone (the PHC, `timer0`, the command master and the guard exist only
-there), four that ask the codec directly and two on GoogleMock's flash
+there), five that ask the codec directly and two on GoogleMock's flash
 port. The recorded vector's round trip runs on both ports at the two shapes
 that have one. At the shipping 1x1 shape four more binaries run: two
 builds against a doctored shape header, one with its names at the layout 3
@@ -624,6 +633,26 @@ under any shape header but the host suite's own, which alone defines
   - [`test/test_nvm_litespi.cpp`](test/test_nvm_litespi.cpp): the port's
     own refusals before the command master is touched, and a drain that ends
     on the call's deadline.
+- **The first-dirty windows** ([`test/test_nvm_window.cpp`](test/test_nvm_window.cpp), #1009),
+  each on both ports (the burst with an erase of 120 ms and a page of 0.5 ms
+  modelled, the swept cuts with an erase of 150 ms):
+  - every binding record's 100 ms window, beside the 1,000 ms of the records
+    just below and just above the BINDING block;
+  - the window not restarted by a later binding change, and the earliest
+    window, a binding change's inside a name's, taking everything dirty;
+  - the next binding change's own window after a save;
+  - a binding change while a save is in flight opening the next window,
+    where any other record's starts the next save at the first idle step,
+    and one in a failed attempt's backoff waiting for the backoff;
+  - a burst of 64 bindings, 10 ms apart over every sink: its saves, one
+    erase each, and every sink as last commanded;
+  - the swept cut: from a binding change's response to 3 s after it, a cut
+    every 10 ms and at the start and middle of each media effect, on an
+    idle store: every cut boots the old binding or the new one, never
+    neither, and the new one from 800 ms on (#1009's acceptance), and the
+    next change commits and boots back; and the same for a binding change
+    at each of nine phases of another record's save, the new one from 450 ms
+    on at a shape of at most 16 pages and 950 ms past it.
 - **The round trip** ([`test/test_nvm_vector.cpp`](test/test_nvm_vector.cpp)).
   Given the records of the recorded vectors
   [`records_endstation_ax7101_1x1_tdm8.txt`](../../../tb/verilator/nvm_backend/records_endstation_ax7101_1x1_tdm8.txt)
@@ -648,8 +677,10 @@ The three related defects restore `end` or shift `loaded`.
 ## What this does not prove
 
 - The board: the real LiteSPI timing, a real power cut, the real N25Q128.
-  The split CPU's figures are a simulation's, with a flash model whose
-  erase and program waits are zero.
+  The split CPU's figures are a simulation's. The CPU budget harness's
+  binding groups model the part's erase (120 ms) and page program (0.5 ms),
+  calibrated on one board reading of a whole save; every other figure is on
+  a flash model whose erase and program waits are zero.
 - A read fault that repeats itself exactly. Two reads of a slot that return
   the same bytes are taken as its content. A fault that corrupts a valid
   slot the same way on every boot read, without the port reporting it,

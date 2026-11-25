@@ -352,9 +352,56 @@ MUTANTS = (
        "\t\tif (nvm.state->rollback(nvm.state->ctx, NVM_W_BIND) != 0)\n\t\t\treturn NVM_T_CLOSED;\n",
        "", "binding_walk"),
     # ---- DR2a ----
-    _m("quiet_period", STORE, "\tif (!nvm.dirty_armed) {\n\t\tnvm.dirty_armed = 1;",
-       "\tif (1) {\n\t\tnvm.dirty_armed = 1;", "debounce"),
-    _m("no_debounce", STORE, "nvm.now_us - nvm.dirty_since_us >= NVM_US(MILAN_NVM_DEBOUNCE_MS)", "1", "debounce"),
+    _m("quiet_period", STORE, "\tif (!nvm.dirty_armed || due < nvm.due_us) {\n\t\tnvm.dirty_armed = 1;",
+       "\tif (1) {\n\t\tnvm.dirty_armed = 1;", "debounce", "binding_window_not_restarted"),
+    _m("no_debounce", STORE, "nvm.now_us >= nvm.due_us", "1", "debounce", "binding_window"),
+    # ---- the binding class's window (#1009, DR2a amended for that class) ----
+    # every record waits 1,000 ms, or every one 100 ms
+    _m("bind_window_none", STORE, "nvm_binding(id) ? NVM_BIND_DEBOUNCE_MS : MILAN_NVM_DEBOUNCE_MS",
+       "MILAN_NVM_DEBOUNCE_MS", "binding_window", "swept_cut", "burst_of_64_bindings"),
+    _m("bind_window_for_all", STORE, "nvm_binding(id) ? NVM_BIND_DEBOUNCE_MS : MILAN_NVM_DEBOUNCE_MS",
+       "NVM_BIND_DEBOUNCE_MS", "binding_window", "debounce"),
+    # the window longer, or shorter, than 100 ms
+    _m("bind_window_longer", "nvm_shape.h", "#define NVM_BIND_DEBOUNCE_MS 100u", "#define NVM_BIND_DEBOUNCE_MS 130u",
+       "binding_window"),
+    _m("bind_window_shorter", "nvm_shape.h", "#define NVM_BIND_DEBOUNCE_MS 100u", "#define NVM_BIND_DEBOUNCE_MS 80u",
+       "binding_window"),
+    # the class is the binding block alone: the record above it, or every record below it, counted in; its first or its
+    # last record left out
+    _m("bind_class_past_block", STORE, "return id - NVM3_ID_BIND < NVM3_CAP_BIND;",
+       "return id - NVM3_ID_BIND <= NVM3_CAP_BIND;", "binding_window"),
+    _m("bind_class_no_lower_bound", STORE, "return id - NVM3_ID_BIND < NVM3_CAP_BIND;",
+       "return id < NVM3_ID_BIND + NVM3_CAP_BIND;", "binding_window"),
+    _m("bind_class_first_only", STORE, "return id - NVM3_ID_BIND < NVM3_CAP_BIND;",
+       "return id == NVM3_ID_BIND;", "binding_window"),
+    _m("bind_class_not_first", STORE, "return id - NVM3_ID_BIND < NVM3_CAP_BIND;",
+       "return id - NVM3_ID_BIND - 1u < NVM3_CAP_BIND - 1u;", "binding_window"),
+    # the earliest end of the open windows does not start the capture: a binding change inside another's window
+    # waits that window out; or the binding's window is measured from the window already open
+    _m("bind_window_latest_end", STORE, "\tif (!nvm.dirty_armed || due < nvm.due_us) {",
+       "\tif (!nvm.dirty_armed) {", "earliest_window_takes_everything"),
+    _m("bind_window_ends_open_one", STORE, "\tif (!nvm.dirty_armed || due < nvm.due_us) {",
+       "\tif (nvm.dirty_armed && nvm_binding(id))\n\t\tdue = nvm_now();\n"
+       "\tif (!nvm.dirty_armed || due < nvm.due_us) {", "earliest_window_takes_everything",
+       "binding_window_not_restarted"),
+    # a capture that leaves its window armed shortens the next change's
+    _m("window_left_armed", STORE, "\tnvm.dirty_armed = 0;\n", "", "next_binding_window"),
+    # a binding change in flight starts the next save at the first idle step, or another record's waits for a window
+    _m("bind_in_flight_no_window", STORE, "if (nvm_in_flight() && !nvm_binding(id))", "if (nvm_in_flight())",
+       "binding_change_in_flight_opens_window"),
+    _m("other_in_flight_windowed", STORE, "if (nvm_in_flight() && !nvm_binding(id))", "if (0)",
+       "binding_change_in_flight_opens_window"),
+    # a binding change in flight withdraws the immediate save another record's change asked for
+    _m("bind_in_flight_clears_next", STORE, "\tif (nvm_in_flight() && !nvm_binding(id))\n\t\tnvm.next_now = 1;",
+       "\tif (nvm_in_flight())\n\t\tnvm.next_now = !nvm_binding(id);", "binding_change_in_flight_opens_window"),
+    # a binding change in flight, or any binding change, is forgotten
+    _m("bind_in_flight_lost", STORE, "\tnvm_open_set(&nvm.dirty, id);\n\tif (joins) {",
+       "\tif (!(nvm_in_flight() && nvm_binding(id)))\n\t\tnvm_open_set(&nvm.dirty, id);\n\tif (joins) {",
+       "binding_change_in_flight_opens_window", "swept_cut_in_flight"),
+    # a window's end cuts a failed attempt's backoff short (DR2c)
+    _m("bind_window_ends_backoff", STORE, "\tif (nvm.retry_armed && nvm.now_us < nvm.retry_at_us)\n\t\treturn;\n\tdue",
+       "\tif (nvm.retry_armed && nvm.now_us < nvm.retry_at_us && !(nvm.dirty_armed && nvm.now_us >= nvm.due_us))\n"
+       "\t\treturn;\n\tdue", "binding_change_in_backoff"),
     # a change the running capture takes still arms the window
     _m("capture_leaves_window_armed", STORE, "\tif (joins) {\n\t\tnvm_publish();\n\t\treturn;\n\t}\n", "",
        "debounce"),
