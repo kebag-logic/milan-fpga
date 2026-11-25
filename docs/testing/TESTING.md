@@ -168,6 +168,17 @@ Its README provides measurement commands and the complete receipt.
 
 Where `ccache` is installed, the sweep sets `OBJCACHE=ccache` unless the caller set `OBJCACHE`.
 Mutant rebuilds then reuse the Verilator runtime and testbench objects.
+Verilator writes each source's path into the model's C++, so a mutant staged at a random path misses in every run.
+Every mutation driver therefore stages through [`scripts/mutant_stage.py`](../../scripts/mutant_stage.py).
+Its directory is `$TMPDIR/milan-mutant-stage-<uid>/<prefix><slot>`, with `$TMPDIR` resolved, the same from any checkout and in every run.
+The two in-tree `milan_dp` drivers, `split_mutants.py` and `srptx_mutants.py`, use `tb/verilator/milan_dp/<prefix><slot>` instead, stable within one checkout.
+The stage root is used only when it is a real directory owned by the user, not a link, and writable by nobody else.
+Its parent must be the user's or root's, and sticky if others may write it; otherwise the driver names the reason and stages at a random private path.
+A slot's lock is the slot directory itself, so every caller naming one directory, by any path or as any user, meets the same lock.
+A held slot is never emptied or reused, another user's slot is never touched, and a slot is emptied when taken.
+With every slot held a driver stages at a random path.
+A later run's mutant models are then answered by the warm cache; the mutants and their verdicts are unchanged.
+Run `python3 scripts/mutant_stage.py --selftest` to see the slot, lock-domain, root-proof, cleanup and fallback controls.
 A harness that touches internal signals lists exactly those in its suite's `probes.vlt`.
 `--public-flat-rw` makes every signal public, which disables most of Verilator's optimisation.
 A signal missing from `probes.vlt` still compiles, so list every `rootp->` name the harness uses.
@@ -245,6 +256,12 @@ A suite already running may finish, holding the lock until then.
 Partial suite logs remain under the requested output directory.
 Prerequisite logs remain within its `preflight/` directory.
 Old logs are cleared after locking, before preflight starts.
+`--preflight-only` runs those self-tests and no suite, under the same lock, log clearing and traps.
+It exits 0 when every self-test holds and 2 when one fails.
+`--no-preflight` skips them and is refused without `--ci-pieces`.
+Only the hosted workers use it; their run's preflight job runs the self-tests once for the head.
+The serial sweep, `--physical-gptp` and every local run keep the preflight.
+Both modes, their refusals and their INT/TERM boundaries are among the controls below.
 Relative output paths retain their caller's location.
 Cancellation before log preparation reports that boundary explicitly.
 The sweep's normal preflight owns these deterministic cancellation controls:
@@ -641,23 +658,38 @@ watching the printed total not move). Rerun the sweep for both figures.
 
 With no options the script remains the mandatory serial local sweep. Its
 preflight runs `scripts/suite_shards.py --selftest`, and so does every hosted
-worker before its suites. That self-test refuses to start until the selector's
+worker's ownership step before its suites. That self-test refuses to start until the selector's
 `SUITE_SECONDS` names every default suite, so a change that adds a suite first
 records a provisional figure for it, by the new-suite steps in the selector's
-docstring. GitHub runs nineteen isolated `--ci-pieces --shard INDEX/19`
-workers to reduce wall time. `--ci-pieces` expands six long suites into
-driver-derived case partitions, so `milan_dp` runs as four legs on separate
+docstring. GitHub runs twenty-six isolated `--ci-pieces --shard INDEX/26`
+workers to reduce wall time. `--ci-pieces` expands eight long suites into
+driver-derived case partitions, so `milan_dp` runs as eight legs on separate
 workers, and the last worker runs media-clock leg A, `milan_dp_mclk__0`,
 alone. The workflow template's six-worker matrix is generator input only;
-`scripts/ci_gate_workflows.py` writes the nineteen-worker workflow from it
+`scripts/ci_gate_workflows.py` writes the twenty-six-worker workflow from it
 ([CI workflow policy](CI_WORKFLOWS.md#exhaustive-validation)). GitHub then
 keeps `verilator-suites` as a small aggregate required check. That aggregate
 requires every divided suite's case union, compares the uploaded log names with
 the live default suite inventory, and fails on a missing, unexpected, or
 multiply-owned suite before trusting the combined tally.
-`scripts/run_all_suites.sh --ci-pieces --shard 0/19 --list` shows a worker's
+`scripts/run_all_suites.sh --ci-pieces --shard 0/26 --list` shows a worker's
 deterministic selection without building it; sharding is a scheduling detail,
-not permission to validate only one nineteenth locally.
+not permission to validate only one twenty-sixth locally.
+
+**Case start order in a piece.** `scripts/ci_make_cases.py` runs a piece's
+cases on two workers. It starts them longest first by its `CASE_SECONDS`
+table, and prints and records every result in driver order. So a piece's
+transcript and receipt do not depend on the table, and a stale figure can only
+slow a piece, never change a verdict. A case missing from the table starts
+last, in driver order. The figures are each case's `exec-<case>` alone on one
+core of its own, in CPU seconds; only their order is used. Retake them after a
+change that moves a case's cost by more than its neighbours': build every case
+(`make -C tb/verilator/milan_dp ci-prepare build-<case>...`), then time each
+`make -s -C tb/verilator/milan_dp exec-<case>` pinned to one core.
+`scripts/ci_make_cases_selftest.py` refuses a table entry that names no live
+case. `media_phase`'s figures (#998) are each `cases` case's log span in one
+`make -C tb/verilator/media_phase`, three at once on four CPUs: wall seconds of
+its one single-threaded simulation, which only order the starts likewise.
 
 > **This table SHRANK on 2026-08-13, and that is the first time it ever has.**
 > The standing rule was that every round grows it. Thirteen suites — `aecp`,

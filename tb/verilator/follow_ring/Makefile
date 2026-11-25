@@ -91,6 +91,15 @@ all: run
 run:
 	+$(MAKE) -j4 b8 pullin bind small-pullin settle-control
 
+# A leg's build. The CI pieces below build first and then run each leg with it
+# empty, so a leg never rebuilds what its piece has just built. A line that
+# runs FINE_BUILD starts with '+': make sees $(MAKE) only in the line itself,
+# and without the '+' the fine build would leave the jobserver (make -n would
+# not recurse into it, and a pipe jobserver warns). Issue #998; REQ-VER-01
+# and REQ-VER-04.
+LEG_BUILD ?= build
+FINE_BUILD = $(MAKE) build CLK_HZ=25000000 FRAME_DIV=64 MDIR=$(abspath $(MDIR))_fine
+
 build:
 	mkdir -p $(MDIR)
 	python3 dp_glue.py $(DP_SRC) $(MDIR)/dp_glue.svh
@@ -102,10 +111,10 @@ build:
 # law after each. pullin feeds at the latency whose 52 us hold moved the
 # retired setpoint stage off its law (#647), and the presentation stage must
 # hold its law across it.
-b8: build
+b8: $(LEG_BUILD)
 	$(abspath $(MDIR))/Vfollow_ring --case b8 --dwell-s 1.0 --set-phase 0.0 --hold-s 16 --switch-hold-s 15
 
-pullin: build
+pullin: $(LEG_BUILD)
 	$(abspath $(MDIR))/Vfollow_ring --case pullin --latency-us 210.42 --after-s 1.5
 
 # bind (#645, bench lane B17): three of B17's ten bind cycles as measured -
@@ -114,20 +123,50 @@ pullin: build
 # (the latest first PDU, 161 ms after the bind) - with the first PDU at the
 # phase that primes the ring mid B17's window and uniform 0 to 5 us lateness
 # (B17's p99.9 was 4.4 to 6.1 us); then cycle 5 under CRF following.
-bind: build
+bind: $(LEG_BUILD)
 	$(abspath $(MDIR))/Vfollow_ring --case bind --b17-cycles 5,4,9 --bind-phase 0.125 --jitter-us 5 \
 	  --dwell-s 0.5 --follow-binds 1
 
 # The review's sub-arm pulls at 25 MHz: audio edges resolve 1/64 sample,
 # with the real 1 ms servo tick.
 small-pullin:
-	$(MAKE) build CLK_HZ=25000000 FRAME_DIV=64 MDIR=$(abspath $(MDIR))_fine
+	+$(if $(LEG_BUILD),$(FINE_BUILD))
 	python3 small_pulls.py --exe $(abspath $(MDIR))_fine/Vfollow_ring \
 	  --out $(abspath $(MDIR))_fine/results --jobs $(SWEEP_JOBS)
 
 settle-control:
 	python3 settle_control.py --sim $(VERILATOR) \
 	  --out $(abspath $(MDIR))_control --jobs $(SWEEP_JOBS)
+
+# The CI pieces' case inventory (Issue #998; REQ-VER-01, REQ-VER-04): the
+# five legs of the default run as three cases, since small-pullin and
+# settle-control print no counted tally of their own and a case must carry one.
+# Each case runs its legs one after another, so its transcript is fixed;
+# scripts/ci_make_cases.py deals the cases round-robin.
+RUN_CASES = b8 pullin-small bind-settle
+
+ci-list:
+	@printf '%s\n' $(RUN_CASES)
+
+ci-receipts:
+	@$(foreach case,$(RUN_CASES),printf '%s\ttally\n' '$(case)';)
+
+ci-prepare:
+
+build-b8 build-bind-settle: build
+build-pullin-small: build
+	+$(FINE_BUILD)
+
+exec-b8:
+	@$(MAKE) b8 LEG_BUILD=
+
+exec-pullin-small:
+	@rc=0; $(MAKE) pullin LEG_BUILD= || rc=1; $(MAKE) small-pullin LEG_BUILD= || rc=1; exit $$rc
+
+exec-bind-settle:
+	@rc=0; $(MAKE) bind LEG_BUILD= || rc=1; $(MAKE) settle-control LEG_BUILD= || rc=1; exit $$rc
+
+.PHONY: ci-list ci-receipts ci-prepare $(addprefix build-,$(RUN_CASES)) $(addprefix exec-,$(RUN_CASES))
 
 mutants:
 	python3 mutants.py --jobs $(SWEEP_JOBS)

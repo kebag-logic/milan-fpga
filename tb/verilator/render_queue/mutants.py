@@ -43,13 +43,13 @@ import os
 import signal
 import subprocess
 import sys
-import tempfile
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 RTL = HERE / "../../../hdl/ieee1722/aaf/KL_render_queue.sv"
 sys.path.insert(0, str(HERE / "../../../scripts"))
 from suite_tally import log_reports_failure  # noqa: E402
+import mutant_stage  # noqa: E402
 
 #: the shipping shape (`make odd`): one stream, one interface, 7 lanes
 ODD_SHAPE = ("N_STREAMS=1", "N_CH=7", "N_IF=1", "LEAD1=0")
@@ -262,7 +262,7 @@ def main() -> int:
     src = RTL.read_text()
     passes = fails = 0
     signal.signal(signal.SIGTERM, lambda *_: sys.exit(143))
-    with tempfile.TemporaryDirectory(prefix="render-queue-mutants-") as td:
+    with mutant_stage.directory("render-queue-mutants-") as td:
         work = Path(td)
         clean = work / "KL_render_queue.sv"
         clean.write_text(src)

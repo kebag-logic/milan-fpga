@@ -5,10 +5,12 @@
 
 from pathlib import Path
 import subprocess
-import tempfile
+import sys
 
 
 HERE = Path(__file__).resolve().parent
+sys.path.insert(0, str(HERE.parents[2] / "scripts"))
+import mutant_stage  # noqa: E402
 ROOT = HERE.parents[2]
 
 
@@ -43,7 +45,7 @@ def main() -> None:
                             || (aecp_nvm_mark_w == 8'd7));"""
     if original.count(live) != 1:
         raise SystemExit("REFUSED: live-trigger mutation anchor changed")
-    with tempfile.TemporaryDirectory(prefix="pp-pending-") as temporary:
+    with mutant_stage.directory("pp-pending-") as temporary:
         directory = Path(temporary)
         rc, text = run_build(directory, "control")
         if rc != 0 or "RESULT: PASS" not in text:

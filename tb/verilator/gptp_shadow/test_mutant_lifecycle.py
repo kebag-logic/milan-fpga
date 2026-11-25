@@ -112,7 +112,8 @@ def fixture(parent: Path, label: str) -> tuple[Path, Probe]:
     population = declared()
     first_party = {name for name in population if not name.startswith(DEPENDENCIES)}
     for relative in sorted(first_party | set(UNRELATED) | {
-            DRIVER, "tb/verilator/gptp_shadow/private_inputs.py", "scripts/owned_process.py"}):
+            DRIVER, "tb/verilator/gptp_shadow/private_inputs.py", "scripts/owned_process.py",
+            "scripts/mutant_stage.py"}):
         install(root, relative)
     git(root, "init", "-q")
     #: a control may plant its defect in a pinned dependency file, whose
@@ -314,6 +315,12 @@ def prepare_refusal(root: Path, probe: Probe, kind: str) -> str:
     return "Git environment redirects the checkout: " + variable
 
 
+def scratch_left(control: Path) -> list[Path]:
+    """The driver's staging directories under the probe's TMPDIR: tempfile's name, or a
+    scripts/mutant_stage.py slot."""
+    return [*control.glob("gptp-shadow-mutants-*"), *control.glob("milan-mutant-stage-*/gptp-shadow-mutants-*")]
+
+
 def refusal(parent: Path, kind: str) -> None:
     """Dirty, index-hidden, linked, redirected or unreadable input fails before make."""
     root, probe = fixture(parent, kind)
@@ -324,7 +331,7 @@ def refusal(parent: Path, kind: str) -> None:
     assert status == 2 and "REFUSED:" in output and reason in output, (reason, output)
     assert "Traceback" not in output, output
     assert snapshot(root) == before and not (probe.control / "seen").exists(), output
-    assert not list(probe.control.glob("gptp-shadow-mutants-*")), "refusal left scratch"
+    assert not scratch_left(probe.control), "refusal left scratch"
     probe.save(dict(exit=status, refusal=kind, reason=reason, input_unchanged=True, make_started=False))
 
 
@@ -338,7 +345,7 @@ def unsupported(parent: Path, mode: str) -> None:
     status, output = probe.finish()
     assert status == 2 and "REFUSED:" in output and "Traceback" not in output, output
     assert snapshot(root) == before and not (probe.control / "seen").exists(), output
-    assert not list(probe.control.glob("gptp-shadow-mutants-*")), "refusal left scratch"
+    assert not scratch_left(probe.control), "refusal left scratch"
     probe.save(dict(exit=status, facility=mode, refused=True, make_started=False))
 
 
@@ -366,6 +373,7 @@ def outer_cancellation(parent: Path, signum: int) -> None:
     for relative in ("hdl", "tb/common", "tb/verilator/gptp_shadow", "gptp-processor",
                      "third_party/verilog-axis"):
         shutil.copytree(original / relative, root / relative, dirs_exist_ok=True)
+    shutil.copy2(original / "scripts/mutant_stage.py", root / "scripts/mutant_stage.py")
     git(root, "init", "-q")
     commit(root)
     for name in ("mutation.json", "private-writes.json"):

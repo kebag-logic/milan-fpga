@@ -31,7 +31,6 @@ Exit 0 = every mutant was caught and the clean leg still passes.
 import signal
 import subprocess
 import sys
-import tempfile
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
@@ -44,6 +43,7 @@ CLEAN_INPUTS = [CSR_RTL, HERE / "milan_csr_ref.sv", HERE / "gen_lockstep.py",
                 HERE / "../../common/verilator_harness.hpp"]
 sys.path.insert(0, str(HERE / "../../../scripts"))
 from suite_tally import log_reports_failure  # noqa: E402
+import mutant_stage  # noqa: E402
 
 # (name, the ONE text it replaces, its replacement, the check it must fail,
 #  the leg that can reach it)
@@ -171,7 +171,7 @@ def main() -> int:
     src = CSR_RTL.read_text()
     passes = 0
     fails = 0
-    with tempfile.TemporaryDirectory(prefix="csr-lock-mutants-") as td:
+    with mutant_stage.directory("csr-lock-mutants-") as td:
         work = Path(td)
         exe = CLEAN_MDIR / EXE_NAME
         if not is_fresh(exe):

@@ -98,16 +98,17 @@ class Builder:
     needs: str = ""
 
 
-#: The known set: every builder of the firmware that compiles. The hosted firmware-boundary job runs the first
-#: six through the gate's own capture (--without verilator, rtl-fast.yml), the suite builders by their
-#: --build-only: every arm's binaries and RV32 build, every shape's store binaries and RV32 build, and both
-#: gates' coverage builds, none run and no defect planted (the RV32 self-test compiles its planted header,
-#: ABI and runtime cases and runs no binary); the gate runs the stack's gate and the image builders itself on
+#: The known set: every builder of the firmware that compiles. The hosted firmware-boundary-capture job runs the
+#: first six through the gate's own capture, in two legs (--without verilator --leg, ctrl_runs.LEGS,
+#: rtl-fast.yml), and firmware-boundary judges both; the suite builders run by their --build-only: every arm's
+#: binaries and RV32 build, every shape's store binaries and RV32 build, and both gates' coverage builds, none
+#: run and no defect planted (the RV32 self-test compiles its planted header, ABI and runtime cases and runs no
+#: binary); the gate runs the stack's gate and the image builders itself on
 #: every run (ctrl_runs.owned); the last three need Verilator, and the hosted firmware-verilator job runs them
 #: through the gate's own capture (--only verilator). Each runs every configuration its own list holds: the
 #: bench's default target, the differential with its self-test, the wire comparison at every reference it pins
 #: (--every); the differential and the comparison keep what they build in the run's directory, where a control
-#: replays it.
+#: replays it. Issue #998; REQ-VER-01 and REQ-VER-04.
 BUILDERS = (
     Builder("sw/firmware/gtest/fw_rv32_selftest.py",
             (("{python}", "sw/firmware/gtest/fw_rv32_selftest.py", "--require-rv32"),)),

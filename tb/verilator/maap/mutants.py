@@ -25,12 +25,12 @@ import os
 import signal
 import subprocess
 import sys
-import tempfile
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 RTL = HERE / "../../../hdl/ieee1722/maap/KL_maap.sv"
 sys.path.insert(0, str(HERE.parents[2] / "scripts"))
+import mutant_stage  # noqa: E402
 from ci_case_receipts import Receipt, partition
 
 
@@ -335,7 +335,7 @@ def main() -> int:
     if items != {1, 2, 3, 4}:
         print(f"[ESCAPED] campaign: #686 items without a mutant: {sorted({1, 2, 3, 4} - items)}")
         return 1
-    with tempfile.TemporaryDirectory(prefix="maap-mutants-") as directory:
+    with mutant_stage.directory("maap-mutants-") as directory:
         results = campaign(Path(directory), selected, receipt)
     failures = sum(not passed for passed in results)
     print(f"== maap mutants: checks: {len(results)}   failures: {failures} ==")

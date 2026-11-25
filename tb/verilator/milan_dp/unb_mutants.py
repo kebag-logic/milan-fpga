@@ -46,7 +46,6 @@ import shutil
 import signal
 import subprocess
 import sys
-import tempfile
 from pathlib import Path
 from typing import NamedTuple
 
@@ -59,6 +58,7 @@ CLEAN_MDIR = HERE / "obj_notify"
 EXE_NAME = "Vmilan_dp_notify"
 sys.path.insert(0, str(HERE / "../../../scripts"))
 from suite_tally import log_reports_failure  # noqa: E402
+import mutant_stage  # noqa: E402
 
 #: the ACMP lane's request, which arb_req_w passes to the TX arbiter, verbatim at the pin
 PP_ACMP_REQ = "  assign arb_want_w[LANE_ACMP_C]     = laneq_acmp_cnt_r != 4'd0;"
@@ -260,7 +260,7 @@ def main() -> int:
     signal.signal(signal.SIGTERM, on_sigterm)
     passes = 0
     fails = 0
-    with tempfile.TemporaryDirectory(prefix="unb-mutants-") as td:
+    with mutant_stage.directory("unb-mutants-") as td:
         work = Path(td)
         clean = CLEAN_MDIR / EXE_NAME
         exe = clean if clean.is_file() else build(CRF_RTL, PP_HDL, work / "obj_clean")

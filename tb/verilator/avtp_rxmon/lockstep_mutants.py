@@ -43,7 +43,6 @@ Exit 0 = every mutant was caught and the clean harness still passes.
 import signal
 import subprocess
 import sys
-import tempfile
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
@@ -59,6 +58,7 @@ EXE_NAME = "Vavtp_rxmon_lockstep"
 SHAPES = ("1", "8")
 sys.path.insert(0, str(HERE / "../../../scripts"))
 from suite_tally import log_reports_failure  # noqa: E402
+import mutant_stage  # noqa: E402
 
 #: the GET_COUNTERS mirror's write port, as the engine writes it
 MIRROR_WRITE = """  always_ff @(posedge clk_i) begin : mirror_wr
@@ -266,7 +266,7 @@ def main() -> int:
     ref = REF.read_text()
     passes = 0
     fails = 0
-    with tempfile.TemporaryDirectory(prefix="rxmon-lockstep-mutants-") as td:
+    with mutant_stage.directory("rxmon-lockstep-mutants-") as td:
         work = Path(td)
         exes: list[Path] | None = [Path(f"{CLEAN_MDIR}{shape}") / EXE_NAME for shape in SHAPES]
         if not is_fresh(exes):

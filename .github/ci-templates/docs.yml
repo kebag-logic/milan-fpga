@@ -508,6 +508,7 @@ jobs:
           python3 scripts/generate_ci_evidence_pins.py --check
           python3 scripts/ci_workflow_plan_selftest.py
           python3 scripts/ci_manifest_selftest.py
+          python3 scripts/mutant_stage.py --selftest
 
 
   # ==========================================================================

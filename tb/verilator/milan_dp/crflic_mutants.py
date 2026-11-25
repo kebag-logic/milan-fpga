@@ -72,7 +72,6 @@ import shutil
 import signal
 import subprocess
 import sys
-import tempfile
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
@@ -85,6 +84,7 @@ LEGS = {
 }
 sys.path.insert(0, str(HERE / "../../../scripts"))
 from suite_tally import log_reports_failure  # noqa: E402
+import mutant_stage  # noqa: E402
 
 # (name, the exact source fragment, its replacement, the check it must fail)
 MUTATIONS = [
@@ -295,7 +295,7 @@ def main() -> int:
     src = DP_RTL.read_text()
     passes = 0
     fails = 0
-    with tempfile.TemporaryDirectory(prefix="crflic-mutants-") as td:
+    with mutant_stage.directory("crflic-mutants-") as td:
         work = Path(td)
         for leg, (_, _, clean_mdir, exe_name) in LEGS.items():
             clean = clean_mdir / exe_name
