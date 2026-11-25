@@ -1,0 +1,55 @@
+{
+  "head": "09201d35d7ea720b3ba205da185ba35c159ec24a",
+  "budget_arms": {
+    "capture_coherence": "2400",
+    "input_loopback": "300",
+    "input_loopback_dp": "300",
+    "milan_dp": "4800",
+    "milan_dp_gptp": "6900",
+    "milan_dp_mclk": "3600",
+    "media_phase": "1400",
+    "reboot_ctrl": "300",
+    "*": "1800"
+  },
+  "budget_table_matches": true,
+  "wording_fix_matches": true,
+  "results": [
+    {
+      "name": "docs-hygiene",
+      "argv": [
+        "python3",
+        "scripts/docs_check.py"
+      ],
+      "rc": 0
+    },
+    {
+      "name": "docs-style",
+      "argv": [
+        "python3",
+        "scripts/check_doc_style.py"
+      ],
+      "rc": 0
+    },
+    {
+      "name": "docs-em-dash",
+      "argv": [
+        "python3",
+        "scripts/check_em_dash.py",
+        "--base",
+        "c413d33a"
+      ],
+      "rc": 2
+    },
+    {
+      "name": "whitespace",
+      "argv": [
+        "git",
+        "diff",
+        "--check",
+        "c413d33a",
+        "09201d35d7ea720b3ba205da185ba35c159ec24a"
+      ],
+      "rc": 0
+    }
+  ]
+}

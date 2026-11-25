@@ -1,0 +1,162 @@
+{
+  "source_binding_matches": true,
+  "inputs": {
+    "endstation_ax7101_1x1_tdm8": {
+      "total_inputs": 161,
+      "checkout_inputs_matched": 138,
+      "generated_inputs": "Published before/after binding only; no regeneration in review."
+    },
+    "endstation_ax7101_8x8": {
+      "total_inputs": 165,
+      "checkout_inputs_matched": 138,
+      "generated_inputs": "Published before/after binding only; no regeneration in review."
+    }
+  },
+  "corners_compared_to_raw_reports": 24,
+  "routes": [
+    {
+      "shape": "endstation_ax7101_1x1_tdm8",
+      "directive": "ExtraPostPlacementOpt",
+      "min_WNS_ns": 0.125,
+      "min_WHS_ns": 0.036,
+      "selected": false,
+      "floor_pass": true,
+      "routing": {
+        "routable nets": 73572,
+        "fully routed nets": 73572,
+        "nets with routing errors": 0
+      },
+      "utilization": {
+        "Slice LUTs": 32653.0,
+        "Slice Registers": 42822.0,
+        "Block RAM Tile": 82.5,
+        "RAMB36/FIFO": 65.0,
+        "RAMB18": 35.0,
+        "F7 Muxes": 786.0,
+        "F8 Muxes": 105.0,
+        "DSPs": 13.0,
+        "Occupied slices": 13951.0
+      }
+    },
+    {
+      "shape": "endstation_ax7101_1x1_tdm8",
+      "directive": "AltSpreadLogic_high",
+      "min_WNS_ns": 0.147,
+      "min_WHS_ns": 0.036,
+      "selected": true,
+      "floor_pass": true,
+      "routing": {
+        "routable nets": 73564,
+        "fully routed nets": 73564,
+        "nets with routing errors": 0
+      },
+      "utilization": {
+        "Slice LUTs": 32669.0,
+        "Slice Registers": 42821.0,
+        "Block RAM Tile": 82.5,
+        "RAMB36/FIFO": 65.0,
+        "RAMB18": 35.0,
+        "F7 Muxes": 786.0,
+        "F8 Muxes": 105.0,
+        "DSPs": 13.0,
+        "Occupied slices": 14225.0
+      }
+    },
+    {
+      "shape": "endstation_ax7101_1x1_tdm8",
+      "directive": "ExtraTimingOpt",
+      "min_WNS_ns": 0.02,
+      "min_WHS_ns": 0.036,
+      "selected": false,
+      "floor_pass": false,
+      "routing": {
+        "routable nets": 73552,
+        "fully routed nets": 73552,
+        "nets with routing errors": 0
+      },
+      "utilization": {
+        "Slice LUTs": 32668.0,
+        "Slice Registers": 42821.0,
+        "Block RAM Tile": 82.5,
+        "RAMB36/FIFO": 65.0,
+        "RAMB18": 35.0,
+        "F7 Muxes": 786.0,
+        "F8 Muxes": 105.0,
+        "DSPs": 13.0,
+        "Occupied slices": 14225.0
+      }
+    },
+    {
+      "shape": "endstation_ax7101_8x8",
+      "directive": "ExtraPostPlacementOpt",
+      "min_WNS_ns": 0.117,
+      "min_WHS_ns": 0.015,
+      "selected": false,
+      "floor_pass": true,
+      "routing": {
+        "routable nets": 97439,
+        "fully routed nets": 97439,
+        "nets with routing errors": 0
+      },
+      "utilization": {
+        "Slice LUTs": 48508.0,
+        "Slice Registers": 54964.0,
+        "Block RAM Tile": 110.5,
+        "RAMB36/FIFO": 94.0,
+        "RAMB18": 33.0,
+        "F7 Muxes": 3090.0,
+        "F8 Muxes": 763.0,
+        "DSPs": 13.0,
+        "Occupied slices": 15823.0
+      }
+    },
+    {
+      "shape": "endstation_ax7101_8x8",
+      "directive": "AltSpreadLogic_high",
+      "min_WNS_ns": 0.309,
+      "min_WHS_ns": 0.036,
+      "selected": true,
+      "floor_pass": true,
+      "routing": {
+        "routable nets": 97416,
+        "fully routed nets": 97416,
+        "nets with routing errors": 0
+      },
+      "utilization": {
+        "Slice LUTs": 48485.0,
+        "Slice Registers": 54965.0,
+        "Block RAM Tile": 110.5,
+        "RAMB36/FIFO": 94.0,
+        "RAMB18": 33.0,
+        "F7 Muxes": 3090.0,
+        "F8 Muxes": 763.0,
+        "DSPs": 13.0,
+        "Occupied slices": 15792.0
+      }
+    },
+    {
+      "shape": "endstation_ax7101_8x8",
+      "directive": "ExtraTimingOpt",
+      "min_WNS_ns": 0.049,
+      "min_WHS_ns": 0.036,
+      "selected": false,
+      "floor_pass": true,
+      "routing": {
+        "routable nets": 97423,
+        "fully routed nets": 97423,
+        "nets with routing errors": 0
+      },
+      "utilization": {
+        "Slice LUTs": 48501.0,
+        "Slice Registers": 54965.0,
+        "Block RAM Tile": 110.5,
+        "RAMB36/FIFO": 94.0,
+        "RAMB18": 33.0,
+        "F7 Muxes": 3090.0,
+        "F8 Muxes": 763.0,
+        "DSPs": 13.0,
+        "Occupied slices": 15793.0
+      }
+    }
+  ]
+}
