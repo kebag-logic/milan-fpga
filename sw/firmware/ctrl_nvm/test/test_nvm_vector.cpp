@@ -66,7 +66,7 @@ std::vector<std::vector<long long>> walk(const Bytes& blob) {
 TEST_P(NvmBoth, vector_round_trip) {
     Files f = fx().files({{"v6.bin", "erased@6"}});
     Result r = go(port(), f, {"--slot-a", "v6.bin", "--boot", "--set-pattern", "0", "--commit", "--dump-slot-b", "v7.bin"});
-    const Bytes& want = fx().blob("frames@7");
+    const Bytes& want = fx().blob("frames@7/minor1");
     const Bytes& slot = f.blobs["v7.bin"];
     const Bytes got(slot.begin(), slot.begin() + static_cast<std::ptrdiff_t>(std::min(want.size(), slot.size())));
     EXPECT_TRUE(r.at("ok") == 1 && r.at("seq") == 7 && r.at("auth") == 1) << "vector commit: " << r.text();

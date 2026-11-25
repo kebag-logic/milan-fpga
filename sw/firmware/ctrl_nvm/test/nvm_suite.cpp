@@ -311,6 +311,13 @@ bool slot_holds(const Bytes& got, const Bytes& image) { return !image.empty() &&
 
 long long pages() { return (fx().num("img_len") + 255) / 256; }
 
+long long sealed_after_mark(const Result& r, std::size_t k) {
+    if (r.sealed.size() <= k || r.marks.empty()) {
+        return -1;
+    }
+    return static_cast<long long>(r.sealed[k]) - static_cast<long long>(r.marks.back());
+}
+
 bool in(long long value, long long lo, long long hi) { return value >= 0 && lo <= value && value <= hi; }
 
 long long after_mark(const Result& r, std::size_t k) {

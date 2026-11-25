@@ -592,6 +592,86 @@ MUTANTS = (
        "\tif (ls_window(&ls_wren, 1u) || ls_window(cmd, 4u + len))\n\t\treturn -1;",
        "\t(void)ls_window(&ls_wren, 1u);\n\t(void)ls_window(cmd, 4u + len);",
        "port_stall"),
+    # ---- the delta frames (#1009) ----
+    # the room the boot reads past a container is not the reference's
+    _m("delta_room_wrong", "nvm_shape.h", "#define NVM_DELTA_ROOM_MAX 4096u", "#define NVM_DELTA_ROOM_MAX 3840u",
+       "delta_room"),
+    # every save written whole, as before #1009
+    _m("delta_never", STORE,
+       "\tif (nvm.tidy || nvm.st.auth == NVM_NONE || !nvm.lag_known || nvm.tail[t] == 0u || len > NVM_PAYLOAD_MAX ||",
+       "\tif (1 || nvm.tidy || nvm.st.auth == NVM_NONE || !nvm.lag_known || nvm.tail[t] == 0u || "
+       "len > NVM_PAYLOAD_MAX ||",
+       "bind_save_is_a_frame", "frames_chain", "frame_of_nothing", "swept_cut", "frames_carry_the_lag"),
+    # a frame without the bytes its slot lacks from the other slot's last save
+    _m("delta_lag_dropped", STORE, "\tnvm_grow(&lo, &hi, nvm.lag_lo, nvm.lag_hi);\n", "", "frames_carry_the_lag"),
+    # a frame cut short applied
+    _m("delta_crc_ignored", STORE, "\t\tif (~crc != nvm_rd32le(nvm_chunk)) {\n\t\t\tvd = NVM_ENDED;",
+       "\t\tif (0) {\n\t\t\tvd = NVM_ENDED;", "chain_ends"),
+    # a slot whose frames end on an erased header takes none
+    _m("delta_erased_end_no_room", STORE, "\t\tif (nvm_all_erased(h, NVM_DHDR)) {\n\t\t\tnvm.tail[slot] = pos;",
+       "\t\tif (nvm_all_erased(h, NVM_DHDR)) {\n\t\t\tnvm.tail[slot] = 0u;", "bind_save_is_a_frame"),
+    # a frame's result not judged again
+    _m("delta_result_unjudged", STORE,
+       "\t\tvd = nvm_klj2_check(nvm_stage, NVM_IMG_LEN);\n\t\tif (vd != NVM_VD_OK)\n\t\t\treturn vd;\n"
+       "\t\tnvm.lag_from = slot;",
+       "\t\tnvm.lag_from = slot;", "chain_ends"),
+    # the frames' end stands on one read: its header once, a frame cut short at once
+    _m("delta_header_read_once", STORE,
+       "\t\tif (nvm_take(rd, addr + pos, h, NVM_DHDR) || nvm_take(rd, addr + pos, nvm_chunk, NVM_DHDR) ||\n"
+       "\t\t    memcmp(h, nvm_chunk, NVM_DHDR) != 0)",
+       "\t\tif (nvm_take(rd, addr + pos, h, NVM_DHDR))", "chain_end_reads_twice"),
+    _m("delta_end_on_one_read", STORE, "\t\tif (seen[n].vd == NVM_VD_OK || nvm_agrees(seen, n))",
+       "\t\tif (seen[n].vd == NVM_VD_OK || seen[n].vd == NVM_ENDED || nvm_agrees(seen, n))",
+       "chain_end_reads_twice"),
+    # what the other slot lacks never known at boot, known without the sequences, or known whatever
+    _m("delta_boot_lag_never", STORE,
+       "\tif ((other ? nvm.st.verdict_b : nvm.st.verdict_a) != NVM_VD_OK)\n\t\treturn;",
+       "\tif (1)\n\t\treturn;", "bind_save_is_a_frame", "frames_chain", "chain_ends"),
+    _m("delta_boot_lag_no_sequence", STORE,
+       "\tnvm.lag_known = nvm.lag_from == chosen && nvm.tseq[other] + 1u == nvm.tseq[chosen];",
+       "\tnvm.lag_known = nvm.lag_from == chosen;", "chain_ends"),
+    _m("delta_boot_lag_always", STORE,
+       "\tnvm.lag_known = nvm.lag_from == chosen && nvm.tseq[other] + 1u == nvm.tseq[chosen];",
+       "\tnvm.lag_known = 1;", "lag_unknown_written_whole", "chain_ends"),
+    _m("delta_boot_area_ignored", STORE, "\tif (nvm.area[other] == nvm.area[chosen]) {", "\tif (0) {",
+       "bind_save_is_a_frame", "chain_ends"),
+    # a frame's span not erased fails the attempt instead of writing the save whole
+    _m("delta_span_dirty_fails", STORE, "\tif (n && !nvm_all_erased(nvm_chunk, n) && nvm.dlen) {",
+       "\tif (0) {", "frame_span_not_erased"),
+    # a failed frame's slot still takes frames
+    _m("delta_fail_keeps_room", STORE, "\tnvm.tail[nvm.target] = 0u;\n\tnvm.dlen = 0;\n\tnvm.st.last_verdict = vd;",
+       "\tnvm.dlen = 0;\n\tnvm.st.last_verdict = vd;", "frame_failure_written_whole"),
+    # a full room never written whole while idle, or written as a frame
+    _m("delta_no_tidy", STORE, "\t} else if (!nvm_any(&nvm.dirty) && nvm_full()) {",
+       "\t} else if (0 && nvm_full()) {", "full_room_written_whole_idle"),
+    _m("delta_tidy_as_frame", STORE, "\tif (nvm.tidy || nvm.st.auth == NVM_NONE",
+       "\tif (nvm.st.auth == NVM_NONE", "full_room_written_whole_idle"),
+    # the room's next frame at the same place
+    _m("delta_room_not_advanced", STORE,
+       "\t\tnvm.tail[nvm.target] += (nvm.dlen + NVM_FLASH_PAGE - 1u) & ~(NVM_FLASH_PAGE - 1u);",
+       "\t\tnvm.tail[nvm.target] += 0u;", "frames_chain"),
+    # a frame naming the authoritative slot's sequence as the one it follows
+    _m("delta_prev_of_auth", STORE, "nvm.next_seq, nvm.tseq[t], lo, hi - lo,", "nvm.next_seq, nvm.st.seq, lo, hi - lo,",
+       "bind_save_is_a_frame"),
+    # a container of the previous minor takes frames
+    _m("delta_minor_ignored", STORE,
+       "\twhile (nvm_rd32le(nvm_stage + 4) == NVM_KLJ3_FMT_VER && pos + NVM_DHDR <= NVM_DELTA_END) {",
+       "\twhile (pos + NVM_DHDR <= NVM_DELTA_END) {", "previous_minor_written_whole_first"),
+    # the store writes the previous minor
+    _m("delta_minor_not_bumped", "nvm_shape.h", "#define NVM_KLJ3_FMT_VER 0x00030001u",
+       "#define NVM_KLJ3_FMT_VER 0x00030000u", "bind_save_is_a_frame", "first_commit_bytes"),
+    # a frame past its buffer, or past its room
+    _m("delta_buffer_unbounded", STORE, " || len > NVM_PAYLOAD_MAX ||", " ||", "frame_too_big_written_whole"),
+    _m("delta_room_unbounded", STORE, "\t    nvm.tail[t] + len > NVM_DELTA_END)",
+       "\t    nvm.tail[t] + len > NVM_DELTA_END + NVM_FLASH_PAGE)", "frame_too_big_written_whole"),
+    # a re-stage that does not apply the slot's frames again
+    _m("delta_restage_no_frames", STORE, "\trd.vd = nvm_chain(slot, &got, &rd);", "\trd.vd = NVM_VD_OK;",
+       "bind_save_is_a_frame", "restage_reads_frames"),
+    # a frame of nothing at offset 0, outside the record area
+    _m("delta_empty_span_at_zero", STORE, "\t\tlo = hi = NVM_KLJ_HDR;", "\t\tlo = hi = 0u;", "frame_of_nothing"),
+    # a frame's blank-check read that fails counted as erased
+    _m("delta_blank_read_passes", STORE, "\tif (!n || !nvm_all_erased(nvm_chunk, n)) {\n\t\tnvm_fail(NVM_VD_ERASE);",
+       "\tif (n && !nvm_all_erased(nvm_chunk, n)) {\n\t\tnvm_fail(NVM_VD_ERASE);", "frame_read_faults"),
 )
 
 

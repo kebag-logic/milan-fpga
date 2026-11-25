@@ -21,6 +21,11 @@ and 2, and nothing else:
     KLJ2 container is the previous format: refused VD_VER, never
     reinterpreted (decision 2).
 
+Minor 1 (#1009) adds the delta frames that may follow a container in its
+slot (klj3_delta, klj3_slot): a save writes only the records the slot it
+writes lacks. A minor 0 container is the previous minor, which the store
+reads and never appends a frame to.
+
 The all-fabric placement keeps KLJ2 and layout 2; nothing here changes it.
 """
 
@@ -48,7 +53,18 @@ from nvm_shape import output_map_entries                      # noqa: E402
 LAYOUT = nvm_layout3.read()
 REC_HDR3 = LAYOUT.rec_hdr
 KLJ3_MAGIC = 0x334A4C4B     # 'KLJ3' when hexdumped
-KLJ3_FMT_VER = 0x0003_0000  # {major, minor}
+KLJ3_FMT_VER = 0x0003_0001  # {major, minor}: minor 1, delta frames may follow the container (#1009)
+KLJ3_FMT_VER_0 = 0x0003_0000  # the previous minor: the container alone
+#: The delta frame (#1009; sw/firmware/ctrl_nvm/nvm_shape.h): its magic ('KLD3' when hexdumped), version and header
+#: {magic, version, seq, prev, off, n, img_crc}, little-endian, then n bytes of the container from off; frames start
+#: on a page past the container.
+KLD3_MAGIC = 0x33444C4B
+KLD3_VER = 0x0001_0000
+DHDR = 28
+PAGE = 256
+#: The bytes a boot reads past a container for its frames, at most.
+DELTA_ROOM_MAX = 4096
+ERASE_BLOCK = 0x10000
 #: The container's header and trailer: KLJ2's, word for word.
 HDR = KLJ2_HDR
 TRAILER = KLJ2_TRAILER
@@ -130,8 +146,8 @@ def frame_record3(rid: int, payload: bytes) -> bytes:
     return hdr + struct.pack(">H", crc16_ccitt(hdr + payload)) + payload
 
 
-def klj3_assemble(frames: dict[int, bytes], ident: Ident) -> tuple[bytes, dict[int, int]]:
-    """The frames in ascending record_id inside a KLJ3 container: (blob,
+def klj3_assemble(frames: dict[int, bytes], ident: Ident, ver: int = KLJ3_FMT_VER) -> tuple[bytes, dict[int, int]]:
+    """The frames in ascending record_id inside a KLJ3 container of format word `ver`: (blob,
     {record_id: offset inside the record area})."""
     body, offs = b"", {}
     for rid in sorted(frames):
@@ -139,7 +155,7 @@ def klj3_assemble(frames: dict[int, bytes], ident: Ident) -> tuple[bytes, dict[i
         body += frames[rid]
     body += b"\x00" * ((-len(body)) % ALIGN)
     img_len = HDR + len(body) + TRAILER
-    hdr = struct.pack("<10I", KLJ3_MAGIC, KLJ3_FMT_VER, ident.seq, len(frames), img_len,
+    hdr = struct.pack("<10I", KLJ3_MAGIC, ver, ident.seq, len(frames), img_len,
                       ident.entity_id & 0xFFFFFFFF, (ident.entity_id >> 32) & 0xFFFFFFFF,
                       ident.model_id & 0xFFFFFFFF, (ident.model_id >> 32) & 0xFFFFFFFF,
                       LAYOUT.layout)
@@ -215,6 +231,83 @@ def klj3_decode(blob: bytes, ident: Ident, expect: dict[Key, int]) -> tuple[int,
     if set(expect) - set(applied) - erased:
         return VD_INCOMPLETE, {}
     return VD_OK, applied
+
+
+def delta_base(img_len: int) -> int:
+    """A slot's first delta frame offset: the first page past its container (#1009)."""
+    return (img_len + PAGE - 1) // PAGE * PAGE
+
+
+def delta_end(img_len: int) -> int:
+    """The end of a slot's delta frames' room: inside the erase blocks the container spans, at most
+    DELTA_ROOM_MAX past the first frame (nvm_shape.h, NVM_DELTA_END)."""
+    span = (img_len + ERASE_BLOCK - 1) // ERASE_BLOCK * ERASE_BLOCK
+    return delta_base(img_len) + min(span - delta_base(img_len), DELTA_ROOM_MAX)
+
+
+def record_places(expect: dict[Key, int]) -> dict[int, tuple[int, int]]:
+    """record_id -> (its frame's offset in a container, its payload length), from the shape alone."""
+    places, at = {}, HDR
+    for rid, plen in sorted((rid_of_key3(k), p) for k, p in expect.items()):
+        places[rid] = (at, plen)
+        at += REC_HDR3 + plen
+    return places
+
+
+def frame_len(n: int) -> int:
+    """A delta frame's length for a span of n bytes: the header, the span, its pad to a word, the trailer."""
+    return DHDR + n + (-n) % ALIGN + TRAILER
+
+
+def klj3_delta(container: bytes, rids: list[int], expect: dict[Key, int], prev: int) -> bytes:
+    """The delta frame that takes a slot at sequence `prev` to `container` (#1009): one span of `container`,
+    from the first byte of the first of `rids`' frames to the last byte of the last (a span of nothing names
+    the record area's first byte), then the pad and the trailer; its header carries the container's sequence
+    and trailer."""
+    places = record_places(expect)
+    spans = [(places[r][0], places[r][0] + REC_HDR3 + places[r][1]) for r in rids]
+    lo, hi = (min(a for a, _ in spans), max(b for _, b in spans)) if spans else (HDR, HDR)
+    seq = struct.unpack_from("<I", container, 8)[0]
+    img_crc = struct.unpack_from("<I", container, len(container) - TRAILER)[0]
+    blob = struct.pack("<7I", KLD3_MAGIC, KLD3_VER, seq, prev, lo, hi - lo, img_crc) + container[lo:hi]
+    blob += b"\x00" * ((-len(blob)) % ALIGN)
+    return blob + struct.pack("<I", zlib.crc32(blob) & 0xFFFFFFFF)
+
+
+def klj3_slot(slot: bytes, ident: Ident, expect: dict[Key, int]) -> tuple[int, bytes, int, int]:
+    """A slot's state (#1009): its container decoded, then each delta frame after it applied while it
+    follows the one before and its CRC closes, and the result decoded again; (verdict, the container the
+    slot amounts to, its sequence, the frames applied). A container of another minor takes no frame; a
+    frame whose CRC closes but whose result is refused refuses the slot, as the store does."""
+    if len(slot) < HDR or all(b == ERASED for b in slot[:HDR]):
+        return VD_BLANK, b"", 0, 0
+    img_len = struct.unpack_from("<I", slot, 16)[0]
+    blob = bytes(slot[:img_len])
+    vd, _ = klj3_decode(blob, ident, expect)
+    if vd != VD_OK:
+        return vd, b"", 0, 0
+    seq = struct.unpack_from("<I", blob, 8)[0]
+    frames, pos, end = 0, delta_base(img_len), delta_end(img_len)
+    if struct.unpack_from("<I", blob, 4)[0] != KLJ3_FMT_VER:
+        return VD_OK, blob, seq, 0
+    while pos + DHDR <= end:
+        magic, ver, dseq, prev, off, n, img_crc = struct.unpack_from("<7I", slot, pos)
+        if magic != KLD3_MAGIC or ver != KLD3_VER or prev != seq or not 0 < (dseq - seq) % 2**32 < 2**31 or \
+                not HDR <= off <= img_len - TRAILER or n > img_len - TRAILER - off or frame_len(n) > end - pos:
+            break
+        frame = slot[pos:pos + frame_len(n)]
+        if zlib.crc32(frame[:-TRAILER]) & 0xFFFFFFFF != struct.unpack_from("<I", frame, len(frame) - TRAILER)[0]:
+            break
+        out = bytearray(blob)
+        out[off:off + n] = frame[DHDR:DHDR + n]
+        struct.pack_into("<I", out, 8, dseq)
+        struct.pack_into("<I", out, img_len - TRAILER, img_crc)
+        vd, _ = klj3_decode(bytes(out), ident, expect)
+        if vd != VD_OK:
+            return vd, b"", 0, 0
+        blob, seq, frames = bytes(out), dseq, frames + 1
+        pos += (len(frame) + PAGE - 1) // PAGE * PAGE
+    return VD_OK, blob, seq, frames
 
 
 def split_counts(space: dict) -> dict[str, int]:

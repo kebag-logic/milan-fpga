@@ -62,7 +62,7 @@ TEST_P(NvmBoth, capacity_round_trip) {
                 r.at("erases") == static_cast<long long>(NVM_ERASE_BLOCKS) && NVM_ERASE_BLOCKS > 1u &&
                 r.at("programs") == pages())
         << "the commit at capacity: " << r.text();
-    EXPECT_TRUE(slot_holds(f.blobs["a.bin"], fx().blob("golden@1")))
+    EXPECT_TRUE(slot_holds(f.blobs["a.bin"], fx().blob("golden@1/minor1")))
         << "the container at capacity differs from nvm_klj3.py's";
     r = go(port(), f, {"--slot-a", "a.bin", "--boot", "--dump-state", "st"});
     EXPECT_TRUE(r.at("terminal") == NVM_T_COMPLETE && r.at("applied") == static_cast<long long>(rids().size()))
@@ -89,7 +89,7 @@ TEST_P(NvmBoth, capacity_commit_over_stale) {
         EXPECT_EQ(static_cast<long long>(r.erase_at[static_cast<std::size_t>(n)]), want)
             << "erase " << n << " of commit " << n / blocks + 1;
     }
-    EXPECT_TRUE(slot_holds(f.blobs["a.bin"], fx().blob("golden@3")))
+    EXPECT_TRUE(slot_holds(f.blobs["a.bin"], fx().blob("golden@3/minor1")))
         << "the third container, over the first, differs from nvm_klj3.py's";
 }
 

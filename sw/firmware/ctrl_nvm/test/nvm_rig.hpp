@@ -53,11 +53,13 @@ struct Files {
 struct Result {
     std::map<std::string, long long> s;          //!< the summary, under the runner's names
     std::map<std::string, long long> powercut;   //!< effects, cases, old, new, bad
+    std::map<std::string, long long> sweep;      //!< the swept cut (#1009): cases, old, new, bad, effects, delta, times
     long long guard = -1;                        //!< writes outside the journal the port took
     std::vector<std::uint64_t> erases;           //!< model time of the first sixteen erases
     std::vector<std::uint32_t> erase_at;         //!< the block each of them erased
     std::vector<std::uint64_t> fail_at;          //!< failed attempts and verified commits
     std::vector<std::uint64_t> ok_at;
+    std::vector<std::uint64_t> sealed;           //!< each attempt's seal's end: its media work begins (#1009)
     std::vector<std::uint64_t> marks;            //!< each --mark
     std::vector<std::pair<std::uint64_t, std::uint64_t>> clocks;  //!< each --clock: port, model
     std::vector<std::string> fails;              //!< the rig's own refusals of a script

@@ -42,7 +42,7 @@ TEST_P(NvmBoth, blank_boot) {
                 r.at("releases") == 1 && r.at("sm_releases") == 1 && r.at("sm_applies") == 0 && r.at("auth") == -1 &&
                 r.at("phase") == 1)
         << "blank boot state: " << r.text();
-    EXPECT_TRUE(f.blobs["stage.bin"] == fx().blob("erased@0"))
+    EXPECT_TRUE(f.blobs["stage.bin"] == fx().blob("erased@0/minor1"))
         << "the staged blank container differs from nvm_klj3.py's";
 }
 
@@ -157,7 +157,7 @@ TEST_P(NvmBoth, klj2_journal_refused) {
             << "KLJ2 journal in today's slot " << slot << ", then a commit: " << r.text();
         expect_state(f, "st", {});
         EXPECT_TRUE(f.blobs["before"] == f.blobs["after"]) << "today's journal was written";
-        EXPECT_TRUE(slot_holds(f.blobs["a.bin"], fx().blob("erased@1"))) << "the commit is not in journal_klj3";
+        EXPECT_TRUE(slot_holds(f.blobs["a.bin"], fx().blob("erased@1/minor1"))) << "the commit is not in journal_klj3";
     }
     Files f = fx().files({{"k.bin", "klj2@5"}});
     const Result r = go(port(), f, {"--blank", "--legacy-a", "k.bin", "--boot"});

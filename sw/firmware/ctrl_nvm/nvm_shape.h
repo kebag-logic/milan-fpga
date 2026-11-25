@@ -35,9 +35,11 @@
 #include "nvm_shape_gen.h"
 
 /* The container, section 6.1: a 40-byte little-endian header, the record
- * area, the CRC-32 trailer. KLJ3 and KLJ2 share the geometry. */
+ * area, the CRC-32 trailer. KLJ3 and KLJ2 share the geometry. Minor 1
+ * (#1009): delta frames may follow the container in its slot (below); a
+ * reader of minor 0 reads the container alone. */
 #define NVM_KLJ3_MAGIC   0x334a4c4bu
-#define NVM_KLJ3_FMT_VER 0x00030000u
+#define NVM_KLJ3_FMT_VER 0x00030001u
 #define NVM_KLJ_HDR      40u
 #define NVM_KLJ_TRAILER  4u
 #define NVM_KLJ_MIN      (NVM_KLJ_HDR + NVM_KLJ_TRAILER)
@@ -147,6 +149,29 @@
 #define NVM_ERASE_BLOCKS   ((NVM_IMG_LEN + NVM_ERASE_BLOCK - 1u) / NVM_ERASE_BLOCK)
 /* KLJ3 rule 3: a container is never longer than its slot. */
 #define NVM_KLJ3_MAX       NVM_SLOT_BYTES
+/* The delta frames (#1009): a save writes only the bytes the slot it writes
+ * lacks, into the erased room past that slot's container, never erasing. A
+ * frame starts on a page: a 28-byte little-endian header {magic KLD3,
+ * version, seq, prev, off, n, img_crc}, n bytes of the container from offset
+ * off (the span of the records changed, inside the record area), zero padding
+ * to a word, a CRC-32 trailer over every byte before it. Applied over the
+ * slot's container, the span replaces its bytes, seq becomes the container's
+ * sequence and img_crc its trailer, and the result must pass the whole
+ * section 6.2 order. prev is the slot's sequence before the frame. The room
+ * is inside the blocks a whole commit erases, so a whole commit leaves it
+ * erased, and is bounded so that a boot reads at most NVM_DELTA_ROOM_MAX more
+ * bytes a slot. */
+#define NVM_KLD3_MAGIC     0x33444c4bu
+#define NVM_KLD3_VER       0x00010000u
+#define NVM_DHDR           28u
+/* A frame's length for a span of n bytes. */
+#define NVM_DLEN(n)        (NVM_DHDR + (((n) + 3u) & ~3u) + NVM_KLJ_TRAILER)
+#define NVM_DELTA_BASE     ((NVM_IMG_LEN + NVM_FLASH_PAGE - 1u) & ~(NVM_FLASH_PAGE - 1u))
+#define NVM_DELTA_ROOM_MAX 4096u
+#define NVM_DELTA_SPAN     (NVM_ERASE_BLOCKS * NVM_ERASE_BLOCK)
+#define NVM_DELTA_END \
+	(NVM_DELTA_BASE + ((NVM_DELTA_SPAN - NVM_DELTA_BASE < NVM_DELTA_ROOM_MAX) ? \
+			   NVM_DELTA_SPAN - NVM_DELTA_BASE : NVM_DELTA_ROOM_MAX))
 /* Today's journal, the all-fabric placement's KLJ2: read, never written. */
 #define NVM_LEGACY_A       MILAN_FLASH_JOURNAL_OFFSET
 #define NVM_LEGACY_B       (MILAN_FLASH_JOURNAL_OFFSET + MILAN_FLASH_JOURNAL_SIZE / 2u)
@@ -189,6 +214,8 @@ _Static_assert(NVM_SUM32(NVM_MAPO_WIDE) == 0u, "an output map's entries outgrow 
 _Static_assert(NVM_ID_SPACE <= 65536u, "the record space outgrows record_id[15:0]");
 _Static_assert(NVM_N_REC <= NVM_ID_SPACE, "the record set outgrows the record space");
 _Static_assert(NVM_IMG_LEN <= NVM_SLOT_BYTES, "the container outgrows one slot");
+_Static_assert(NVM_DELTA_END <= NVM_DELTA_SPAN && NVM_DELTA_SPAN <= NVM_SLOT_BYTES,
+	       "the delta frames' room is outside the blocks a whole commit erases");
 _Static_assert(NVM_SLOT_BYTES % NVM_ERASE_BLOCK == 0u, "a slot is whole erase blocks");
 _Static_assert((NVM_SLOT_A % NVM_ERASE_BLOCK) == 0u, "slot A is not block aligned");
 _Static_assert(NVM_SLOT_B + NVM_SLOT_BYTES <= NVM_LEGACY_A || NVM_SLOT_A >= NVM_LEGACY_A + MILAN_FLASH_JOURNAL_SIZE,

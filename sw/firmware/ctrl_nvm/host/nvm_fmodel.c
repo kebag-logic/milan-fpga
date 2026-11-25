@@ -78,6 +78,14 @@ void nvm_fmodel_slots(uint32_t a, uint32_t span)
 }
 
 /* The address a read-alias answers from: the same place in the other slot. */
+/* 0 or 1 for an address in slot A or B, 2 outside both. */
+static unsigned int fm_slot_of(uint32_t addr)
+{
+	if (addr >= fm.slot_a && addr - fm.slot_a < 2u * fm.slot_span)
+		return (addr - fm.slot_a) / fm.slot_span;
+	return 2u;
+}
+
 static uint32_t fm_other_slot(uint32_t addr)
 {
 	if (addr >= fm.slot_a && addr - fm.slot_a < fm.slot_span)
@@ -251,7 +259,10 @@ int nvm_fmodel_program(void *ctx, uint32_t addr, const uint8_t *src, uint32_t le
 	if (!fm_admit(addr, len) || fm_take(NVM_F_PROGRAM_REFUSE))
 		return -1;
 	fm.now_ns += (uint64_t)(5u + len) * FM_SPI_BYTE_NS;
-	if (fm.n.programs && addr < fm.last_program)
+	/* a commit programs one slot, in ascending order; a delta frame erases
+	 * nothing first (#1009), so a program in the other slot starts the order
+	 * afresh, as an erase does */
+	if (fm.n.programs && addr < fm.last_program && fm_slot_of(addr) == fm_slot_of(fm.last_program))
 		fm.n.descending++;
 	fm.last_program = addr;
 	fm.n.programs++;

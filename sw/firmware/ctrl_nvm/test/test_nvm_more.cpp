@@ -60,7 +60,7 @@ TEST_P(NvmBoth, console_commit_unchanged) {
     const Result r = go(port(), f, {"--slot-b", "g.bin", "--boot", "--commit", "--dump-slot-a", "a.bin"});
     EXPECT_TRUE(r.at("ok") == 1 && r.at("seq") == 6 && r.at("auth") == 0 && r.at("skipped") == 0)
         << "console commit of an unchanged container: " << r.text();
-    EXPECT_TRUE(slot_holds(f.blobs["a.bin"], fx().blob("golden@6"))) << "slot A is not the container at sequence 6";
+    EXPECT_TRUE(slot_holds(f.blobs["a.bin"], fx().blob("golden@6/minor1"))) << "slot A is not the container at sequence 6";
 }
 
 // DR5 with no blank slot: neither slot accepted and neither blank, the first
@@ -73,7 +73,7 @@ TEST_P(NvmBoth, first_commit_no_blank_slot) {
                          "--until-idle", "--dump-slot-a", "a1.bin", "--dump-slot-b", "b1.bin"});
     EXPECT_TRUE(r.at("terminal") == NVM_T_BLANK && r.at("ok") == 1 && r.at("auth") == 0 && r.at("seq") == 1)
         << "first commit with both slots refused: " << r.text();
-    EXPECT_TRUE(slot_holds(f.blobs["a1.bin"], fx().blob("erased_one7@1"))) << "slot A is not the first container";
+    EXPECT_TRUE(slot_holds(f.blobs["a1.bin"], fx().blob("erased_one7@1/minor1"))) << "slot A is not the first container";
     EXPECT_TRUE(slot_holds(f.blobs["b1.bin"], fx().blob("golden@a~43"))) << "slot B's refused image was touched";
 }
 
@@ -85,7 +85,7 @@ TEST_P(NvmBoth, nothing_to_save) {
                         {"--blank", "--boot", "--touch", num(rids().back()), "--until-idle", "--dump-slot-a", "a.bin"});
     EXPECT_TRUE(r.at("ok") == 1 && r.at("seq") == 1 && r.at("dirty") == 0 && r.at("pending") == 0)
         << "a change with nothing to save: " << r.text();
-    EXPECT_TRUE(slot_holds(f.blobs["a.bin"], fx().blob("erased@1"))) << "the staged bytes did not stand";
+    EXPECT_TRUE(slot_holds(f.blobs["a.bin"], fx().blob("erased@1/minor1"))) << "the staged bytes did not stand";
 }
 
 // A change to a group past the last, or an index past a group's count, marks

@@ -110,6 +110,9 @@ long long pages();
 bool in(long long value, long long lo, long long hi);
 //! The k-th erase's start, in us after the run's last mark (-1 when there is none).
 long long after_mark(const Result& r, std::size_t k);
+//! Model us from the last --mark to the end of attempt k's seal, when its media work begins: its erase, or its delta
+//! frame's blank check (#1009); -1 when there is no such seal or mark.
+long long sealed_after_mark(const Result& r, std::size_t k);
 
 const char* port_name(Port port);
 

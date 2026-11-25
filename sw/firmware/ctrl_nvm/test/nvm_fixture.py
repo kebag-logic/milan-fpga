@@ -41,8 +41,9 @@ sys.path.insert(0, str(ROOT / "scripts"))
 
 from nvm_contract import KLJ2_HDR, VD_LEN, VD_OK, Donor, Ident          # noqa: E402
 from nvm_klj2 import crc16_ccitt, frame_record, key_of_id, klj2_assemble, payload_bytes  # noqa: E402
-from nvm_klj3 import (LAYOUT, REC_HDR3, erased_record3, frame_record3,  # noqa: E402
-                      inventory3, rid_of_key3)
+from nvm_klj3 import (DHDR, HDR, KLD3_MAGIC, KLD3_VER, KLJ3_FMT_VER, KLJ3_FMT_VER_0, LAYOUT, PAGE, REC_HDR3,  # noqa: E402
+                      delta_base, delta_end, erased_record3, frame_record3, inventory3, klj3_delta, record_places,
+                      rid_of_key3)
 from nvm_shape import binding_base, inventory, layout_version          # noqa: E402
 
 from nvm_bench import JOURNAL, LEGACY, LEGACY_SLOT, SLOT, Bench        # noqa: E402
@@ -59,10 +60,15 @@ FLIP_PAIRS = ((5, 6), (6, 5), (0xFFFF_FFFF, 0), (0, 0xFFFF_FFFF))
 #: The seeds of the test's one-record changes whose committed slot is compared.
 ONE_SEEDS = (3, 6, 22, 25, 26, 27)
 #: Every payload set a test compares a restored state with.
-PAYLOAD_SETS = ("golden", "half", "changed2b", "changed41", "changed37", "changed5c", "changed60", "changed61")
+PAYLOAD_SETS = ("golden", "half", "changed2b", "changed41", "changed37", "changed5c", "changed60", "changed61",
+                "bind7", "bind8", "bind9")
+#: #1009's delta frames: the base sequences of the two slots, and the binding saves after them (seed, sequence,
+#: the sequence of the slot the frame goes to).
+DELTA_SAVES = ((7, 7, 5), (8, 8, 6), (9, 9, 7))
 
-_RECIPE = re.compile(r"^(?P<set>golden|frames|erased_one|erased|half|changed|one)(?P<seed>[0-9a-f]+)?"
-                     r"@(?P<seq>[0-9a-f]+)(?:~(?P<at>\d+)|/major(?P<major>\d+)|/(?P<foreign>foreign))?$")
+_RECIPE = re.compile(r"^(?P<set>golden|frames|erased_one|erased|half|changed|one|bind)(?P<seed>[0-9a-f]+)?"
+                     r"@(?P<seq>[0-9a-f]+)(?:~(?P<at>\d+)|/major(?P<major>\d+)|/(?P<foreign>foreign)"
+                     r"|/(?P<minor1>minor1))?$")
 
 
 def reseal(blob: bytes) -> bytes:
@@ -110,6 +116,12 @@ def frameset(b: Bench, name: str, seed: int | None) -> dict[int, bytes]:
         return {rid: (erased[rid] if n % 2 == 0 else fr) for n, (rid, fr) in enumerate(sorted(b.frames.items()))}
     if name == "changed" and seed is not None:
         return changed_frames(b, seed)[0]
+    if name == "bind" and seed is not None:
+        # #1009: the first binding record changed, what a BIND_RX saves
+        frames = dict(b.frames)
+        rid = binding_ids(b)[0]
+        frames[rid] = frame_record3(rid, value(b, rid, seed))
+        return frames
     if name in ("one", "erased_one") and seed is not None:
         frames = b.erased_frames() if name == "erased_one" else dict(b.frames)
         frames[last] = frame_record3(last, value(b, last, seed))
@@ -126,7 +138,10 @@ def image(b: Bench, recipe: str) -> bytes:
         raise ValueError(f"not a recipe: {recipe!r}")
     name, seed = m.group("set"), m.group("seed")
     seed_value = None if seed is None else int(seed, 16 if name == "changed" else 10)
-    blob = b.assemble(frameset(b, name, seed_value), int(m.group("seq"), 16))
+    # a slot's image is the previous minor (#1009), which every boot test reads as the old format; /minor1 is the
+    # minor the store writes, what a commit is compared with
+    ver = KLJ3_FMT_VER if m.group("minor1") else KLJ3_FMT_VER_0
+    blob = b.assemble(frameset(b, name, seed_value), int(m.group("seq"), 16), ver=ver)
     if m.group("at"):
         at = int(m.group("at"))
         return blob[:at] + bytes([blob[at] ^ 0x80]) + blob[at + 1:]
@@ -314,6 +329,10 @@ def main_images() -> list[str]:
     names += [f"golden@{a:x}" for a, _ in FLIP_PAIRS] + [f"changed37@{b:x}" for _, b in FLIP_PAIRS]
     names += [f"one{seed}@6" for seed in ONE_SEEDS]
     names += [f"changed6{x}@{seq:x}" for x in (0, 1) for seq in AUTH_SEQS]
+    # what the store writes (#1009's minor 1), each compared with a commit or the stage
+    names += [f"{n}/minor1" for n in ("erased@0", "erased@1", "golden@6", "erased_one7@1", "changed5c@6", "one3@6",
+                                      "one6@6", "one22@6")]
+    names += [f"one{seed}@6/minor1" for seed in ONE_SEEDS]
     return sorted(set(names))
 
 
@@ -400,10 +419,106 @@ def facts(w: Writer, b: Bench) -> None:
     w.num("erase_block", literal("FLASH_ERASE_BLOCK"))
 
 
+def resealed_frame(frame: bytes) -> bytes:
+    """A delta frame with its trailer computed again over its bytes."""
+    return frame[:-4] + struct.pack("<I", zlib.crc32(frame[:-4]) & 0xFFFF_FFFF)
+
+
+def with_frames_after(base: bytes, frames: list[bytes]) -> bytes:
+    """A slot's bytes: the container, erased bytes to its first frame's page, each frame on its own page."""
+    out = bytearray(base) + bytes([0xFF]) * (delta_base(len(base)) - len(base))
+    for frame in frames:
+        out += frame + bytes([0xFF]) * ((-len(frame)) % PAGE)
+    return bytes(out)
+
+
+def delta_fixture(w: Writer, b: Bench) -> None:
+    """#1009's delta frames: those the store must write for the binding saves of DELTA_SAVES and a console commit
+    of nothing, the slots they leave, a slot whose frames fill its room, and the frames a boot must refuse or end
+    its walk at, each named by what it plants."""
+    rb = binding_ids(b)[0]
+    expect = b.expect
+    w.num("bind_rid", rb)
+    base = image(b, "golden@5/minor1")
+    w.num("delta_base", delta_base(len(base)))
+    w.num("delta_end", delta_end(len(base)))
+    kld = {}
+    for seed, seq, prev in DELTA_SAVES:
+        kld[seq] = klj3_delta(image(b, f"bind{seed}@{seq:x}/minor1"), [rb], expect, prev)
+        w.blob(f"kld/bind{seed}@{seq}", kld[seq])
+        w.blob(f"bind{seed}@{seq:x}/minor1", image(b, f"bind{seed}@{seq:x}/minor1"))
+    w.blob("kld/empty@7", klj3_delta(image(b, "golden@7/minor1"), [], expect, 5))
+    w.blob("golden@5/minor1", base)
+    w.blob("golden@7/minor1", image(b, "golden@7/minor1"))
+    w.blob("slot/g5+b7", with_frames_after(base, [kld[7]]))
+    w.blob("slot/g6+b8", with_frames_after(image(b, "golden@6/minor1"), [kld[8]]))
+    w.blob("slot/g5+b7+b9", with_frames_after(base, [kld[7], kld[9]]))
+    # a chain that leaves less than two pages of room: empty frames, sequences two apart, each on its page
+    chain, seq = [], 5
+    while delta_base(len(base)) + PAGE * (len(chain) + 2) <= delta_end(len(base)):
+        chain.append(klj3_delta(image(b, f"golden@{seq + 2:x}/minor1"), [], expect, seq))
+        seq += 2
+    w.blob("slot/g5+full", with_frames_after(base, chain))
+    w.num("full_seq", seq)
+    w.num("full_frames", len(chain))
+    w.blob("slot/g5+e9", with_frames_after(base, [klj3_delta(image(b, "golden@9/minor1"), [], expect, 5)]))
+    w.blob("slot/g5+b9", with_frames_after(base, [klj3_delta(image(b, "bind9@9/minor1"), [rb], expect, 5)]))
+    # every record erased: a record still erased in the stage goes in no frame
+    w.blob("erased@5/minor1", image(b, "erased@5/minor1"))
+    w.blob("erased@6/minor1", image(b, "erased@6/minor1"))
+    w.blob("kld/erased@7", klj3_delta(image(b, "erased@7/minor1"), [rb], expect, 5))
+    d7 = kld[7]
+    torn = bytearray(d7)
+    torn[DHDR + 12] ^= 0x01
+    w.blob("slot/g5+torn", with_frames_after(base, [bytes(torn)]))
+    torn9 = bytearray(kld[9])
+    torn9[DHDR + 12] ^= 0x01
+    w.blob("slot/g5+b7+torn", with_frames_after(base, [d7, bytes(torn9)]))
+    # a frame after another sequence; its result's trailer wrong; a span past the record area; a span inside the
+    # container's header
+    planted = {"prev4": (12, 4), "badcrc": (24, 0x0BAD_C0DE), "long": (20, delta_end(len(base))), "lowoff": (16, 8)}
+    for name, (at, v) in planted.items():
+        f = bytearray(d7)
+        struct.pack_into("<I", f, at, v)
+        w.blob(f"slot/g5+{name}", with_frames_after(base, [resealed_frame(bytes(f))]))
+    # a frame whose CRC closes over a result whose binding record's crc16 does not
+    bad = bytearray(image(b, "bind7@7/minor1"))
+    at = record_places(expect)[rb][0]
+    bad[at + REC_HDR3] ^= 0x01
+    struct.pack_into("<I", bad, len(bad) - 4, zlib.crc32(bytes(bad[:-4])) & 0xFFFF_FFFF)
+    w.blob("slot/g5+badrec", with_frames_after(base, [klj3_delta(bytes(bad), [rb], expect, 5)]))
+    # a frame whose sequence is not newer; a span starting past the record area; another kind of frame
+    for name, (at, v) in {"older": (8, 4), "highoff": (16, len(base)), "magic": (0, 0x33444C4C)}.items():
+        f = bytearray(d7)
+        struct.pack_into("<I", f, at, v)
+        w.blob(f"slot/g5+{name}", with_frames_after(base, [resealed_frame(bytes(f))]))
+    # frames filling the room to its last byte; and a frame longer than the room its page leaves
+    brim, seq = [], 5
+    while delta_base(len(base)) + PAGE * (len(brim) + 1) <= delta_end(len(base)):
+        brim.append(klj3_delta(image(b, f"golden@{seq + 2:x}/minor1"), [], expect, seq))
+        seq += 2
+    w.blob("slot/g5+brim", with_frames_after(base, brim))
+    w.num("brim_seq", seq)
+    kept = brim[:-2]
+    prev = 5 + 2 * len(kept)
+    big = struct.pack("<7I", KLD3_MAGIC, KLD3_VER, prev + 2, prev, HDR, 600, 0) + base[HDR:HDR + 600]
+    big += bytes((-len(big)) % 4)
+    big += struct.pack("<I", zlib.crc32(big) & 0xFFFF_FFFF)
+    w.blob("slot/g5+bigroom", with_frames_after(base, kept + [big]))
+    w.num("bigroom_seq", prev)
+    w.blob("golden@40/minor1", image(b, "golden@40/minor1"))
+    w.num("bind_rid2", binding_ids(b)[1])
+    # an erased header over a frame's span that is not erased: the blank check's to find
+    stray = bytearray(with_frames_after(base, [])) + bytes([0xFF]) * PAGE
+    stray[delta_base(len(base)) + 40] = 0x5A
+    w.blob("slot/g5+stray", bytes(stray))
+
+
 def write_fixture(b: Bench, out: Path) -> Path:
     """The fixture of test_nvm_boot.cpp and test_nvm_write.cpp for one shape."""
     w = Writer(out)
     facts(w, b)
+    delta_fixture(w, b)
     for name in main_images():
         w.blob(name, image(b, name))
     cases = parity(b)
@@ -437,9 +552,9 @@ def write_capacity_fixture(b: Bench, out: Path) -> Path:
     container, and the same container with one record past the block."""
     w = Writer(out)
     facts(w, b)
-    golden = image(b, "golden@1")
-    w.blob("golden@1", golden)
-    w.blob("golden@3", image(b, "golden@3"))
+    golden = image(b, "golden@1/minor1")
+    w.blob("golden@1/minor1", golden)
+    w.blob("golden@3/minor1", image(b, "golden@3/minor1"))
     w.payloads("golden", rid_payloads(b, golden))
     last = max(b.frames)
     past = dict(b.frames)
@@ -464,8 +579,8 @@ def write_vector_fixture(vb: Bench, out: Path) -> Path:
     w = Writer(out)
     facts(w, vb)
     w.blob("erased@6", image(vb, "erased@6"))
-    want = image(vb, "frames@7")
-    w.blob("frames@7", want)
+    want = image(vb, "frames@7/minor1")
+    w.blob("frames@7/minor1", want)
     w.payloads("frames", rid_payloads(vb, want))
     head, rows = tab["head"], tab["rows"]
     base = binding_base()

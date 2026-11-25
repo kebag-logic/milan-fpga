@@ -58,6 +58,8 @@
  */
 #include "nvm_store.h"
 
+#include <string.h>
+
 #define NVM_US(ms) ((uint64_t)(ms) * 1000u)
 #define NVM_NONE (-1)
 #define NVM_WORDS ((NVM_ID_SPACE + 31u) / 32u)
@@ -97,6 +99,22 @@ struct nvm_store {
 	int owed;                       /* a centisecond owes a step (THE STEP) */
 	int rewound;                    /* the capture walks again for changes marked behind it (#920) */
 	int next_now;                   /* the save in flight left a change: the next save waits for no window */
+	/* #1009: a save writes a delta frame of the bytes the slot it writes lacks, when they are known: one span of
+	 * the container, [lo, hi), empty when lo == hi */
+	uint32_t lag_lo;                /* the span the slot that is not authoritative lacks */
+	uint32_t lag_hi;
+	int lag_known;                  /* the lag holds every byte it lacks */
+	int lag_from;                   /* the slot whose read left its last frame's span in the lag, or none */
+	uint32_t cap_lo;                /* the span of the records this save took */
+	uint32_t cap_hi;
+	uint32_t tail[2];               /* each slot's next frame's offset, 0 while it takes none */
+	uint32_t tseq[2];               /* each slot's sequence, its last frame's */
+	uint32_t area[2];               /* each slot's record area's CRC-32, as its last read staged it */
+	uint32_t dlen;                  /* the delta frame in flight's length; 0 when the save is written whole */
+	uint8_t *wsrc;                  /* what the commit in flight writes: the stage, or the frame */
+	uint32_t wbase;                 /* where in its slot, and how many bytes */
+	uint32_t wlen;
+	int tidy;                       /* a whole commit the store began with no change: a full slot's room */
 };
 
 static const struct nvm_store nvm_reset_value;
@@ -170,6 +188,9 @@ static void nvm_publish(void)
 
 /* Not a verdict: the port did not deliver the bytes. */
 #define NVM_UNREAD NVM_VD_COUNT
+/* Not a verdict either: OK, but its delta frames end on a frame cut short or a refused header (#1009), which stands
+ * only when a second read returns the same bytes, as a refusal does (nvm_slot_check); then OK. */
+#define NVM_ENDED (NVM_VD_COUNT + 1)
 
 /* What one read of a slot returned: its verdict, and a CRC-32 over every
  * byte the port delivered for it, with their count. The verdict is judged on
@@ -192,9 +213,103 @@ static int nvm_take(struct nvm_read *rd, uint32_t addr, uint8_t *dst, uint32_t l
 	return 0;
 }
 
+/* The CRC-32 of the frame at addr's first len bytes, streamed through the chunk; 1 when the port fails a read. */
+static int nvm_frame_crc(struct nvm_read *rd, uint32_t addr, uint32_t len, uint32_t *crc)
+{
+	uint32_t pos = 0;
+
+	*crc = 0xffffffffu;
+	while (pos < len) {
+		uint32_t n = nvm_min(NVM_STEP_BYTES, len - pos);
+
+		if (nvm_take(rd, addr + pos, nvm_chunk, n))
+			return 1;
+		*crc = nvm_crc32_update(*crc, nvm_chunk, n);
+		pos += n;
+	}
+	return 0;
+}
+
+/* A delta frame's header (#1009): its magic and version, the slot's sequence it follows, a newer one, and a span of
+ * the record area whose frame the room left holds. */
+static int nvm_delta_head(const uint8_t *h, uint32_t seq, uint32_t room)
+{
+	static const uint8_t kind[8] = {(uint8_t)NVM_KLD3_MAGIC, (uint8_t)(NVM_KLD3_MAGIC >> 8),
+					(uint8_t)(NVM_KLD3_MAGIC >> 16), (uint8_t)(NVM_KLD3_MAGIC >> 24),
+					(uint8_t)NVM_KLD3_VER, (uint8_t)(NVM_KLD3_VER >> 8),
+					(uint8_t)(NVM_KLD3_VER >> 16), (uint8_t)(NVM_KLD3_VER >> 24)};
+	uint32_t off = nvm_rd32le(h + 16);
+	uint32_t n = nvm_rd32le(h + 20);
+
+	return memcmp(h, kind, sizeof kind) == 0 && nvm_rd32le(h + 12) == seq && (int32_t)(nvm_rd32le(h + 8) - seq) > 0 &&
+	       off >= NVM_KLJ_HDR && off <= NVM_IMG_LEN - NVM_KLJ_TRAILER && n <= NVM_IMG_LEN - NVM_KLJ_TRAILER - off &&
+	       NVM_DLEN(n) <= room;
+}
+
+/* The delta frames past the slot's container, applied in order over the staged one while each follows the one
+ * before and its CRC closes (#1009); only a container of this store's minor takes them. A frame's span is copied over
+ * the staged container, its sequence and trailer with it, and the whole container is judged by section 6.2 again: a
+ * refusal there refuses the slot. What ends the frames, an erased header, a refused one or a frame cut short, stands
+ * only when a second read returns the same bytes, as a verdict does (#665 decision 2): else NVM_UNREAD. The slot's
+ * next frame goes after an erased header; after any other end the slot takes none until it is written whole. Sets
+ * the slot's sequence, its room, its record area's CRC-32, and, for a slot that had frames, lag to its last frame's
+ * span. */
+static enum nvm_verdict nvm_chain(int slot, uint32_t *seq, struct nvm_read *rd)
+{
+	uint32_t addr = nvm_slot_addr(slot);
+	uint32_t pos = NVM_DELTA_BASE;
+	enum nvm_verdict vd = NVM_VD_OK;
+
+	nvm.tail[slot] = 0u;
+	nvm.lag_from = NVM_NONE;
+	while (nvm_rd32le(nvm_stage + 4) == NVM_KLJ3_FMT_VER && pos + NVM_DHDR <= NVM_DELTA_END) {
+		uint8_t h[NVM_DHDR];
+		uint32_t crc = 0;
+		uint32_t len;
+
+		if (nvm_take(rd, addr + pos, h, NVM_DHDR) || nvm_take(rd, addr + pos, nvm_chunk, NVM_DHDR) ||
+		    memcmp(h, nvm_chunk, NVM_DHDR) != 0)
+			return NVM_UNREAD;
+		if (nvm_all_erased(h, NVM_DHDR)) {
+			nvm.tail[slot] = pos;
+			break;
+		}
+		if (!nvm_delta_head(h, *seq, NVM_DELTA_END - pos)) {
+			vd = NVM_ENDED;
+			break;
+		}
+		len = NVM_DLEN(nvm_rd32le(h + 20));
+		if (nvm_frame_crc(rd, addr + pos, len - NVM_KLJ_TRAILER, &crc) ||
+		    nvm_take(rd, addr + pos + len - NVM_KLJ_TRAILER, nvm_chunk, NVM_KLJ_TRAILER))
+			return NVM_UNREAD;
+		if (~crc != nvm_rd32le(nvm_chunk)) {
+			vd = NVM_ENDED;         /* a frame cut short, or a misread */
+			break;
+		}
+		nvm.lag_lo = nvm_rd32le(h + 16);
+		nvm.lag_hi = nvm.lag_lo + nvm_rd32le(h + 20);
+		if (nvm_take(rd, addr + pos + NVM_DHDR, nvm_stage + nvm.lag_lo, nvm.lag_hi - nvm.lag_lo))
+			return NVM_UNREAD;
+		*seq = nvm_rd32le(h + 8);
+		nvm_wr32le(nvm_stage + 8, *seq);
+		nvm_wr32le(nvm_stage + NVM_IMG_LEN - NVM_KLJ_TRAILER, nvm_rd32le(h + 24));
+		vd = nvm_klj2_check(nvm_stage, NVM_IMG_LEN);
+		if (vd != NVM_VD_OK)
+			return vd;
+		nvm.lag_from = slot;
+		pos += (len + NVM_FLASH_PAGE - 1u) & ~(NVM_FLASH_PAGE - 1u);
+		if (pos + NVM_DHDR > NVM_DELTA_END)
+			nvm.tail[slot] = pos;
+	}
+	nvm.tseq[slot] = *seq;
+	nvm.area[slot] = nvm_crc32_update(0xffffffffu, nvm_stage + NVM_KLJ_HDR, NVM_AREA_LEN);
+	return vd;
+}
+
 /* Section 6.2 over one read of the slot at `slot`, recorded in `rd`. A
  * container that fits the stage is read in once and judged there, so its
- * CRC, its records and the sequence returned are the same bytes. A longer one
+ * CRC, its records and the sequence returned are the same bytes; the delta
+ * frames after it are then applied over it (nvm_chain). A longer one
  * can never be this shape's: its CRC is streamed through the stage for the
  * verdict order alone. NVM_UNREAD when the port fails a read. */
 static enum nvm_verdict nvm_slot_read(int slot, uint32_t *seq, struct nvm_read *rd)
@@ -208,6 +323,7 @@ static enum nvm_verdict nvm_slot_read(int slot, uint32_t *seq, struct nvm_read *
 
 	rd->digest = 0xffffffffu;
 	rd->bytes = 0;
+	nvm.tail[slot] = 0u;
 	if (nvm_take(rd, addr, nvm_stage, NVM_KLJ_HDR))
 		return NVM_UNREAD;
 	vd = nvm_klj2_check_head(nvm_stage, &img_len);
@@ -217,8 +333,10 @@ static enum nvm_verdict nvm_slot_read(int slot, uint32_t *seq, struct nvm_read *
 		if (nvm_take(rd, addr, nvm_stage, img_len))
 			return NVM_UNREAD;
 		vd = nvm_klj2_check(nvm_stage, img_len);
-		if (vd == NVM_VD_OK)
+		if (vd == NVM_VD_OK) {
 			*seq = nvm_klj2_seq(nvm_stage);
+			vd = nvm_chain(slot, seq, rd);
+		}
 		return vd;
 	}
 	while (pos < img_len - NVM_KLJ_TRAILER) {
@@ -282,7 +400,7 @@ static enum nvm_verdict nvm_slot_check(int slot, uint32_t *seq)
 			continue;       /* the port failed a read: read the slot again */
 		}
 		if (seen[n].vd == NVM_VD_OK || nvm_agrees(seen, n))
-			return seen[n].vd;
+			return (seen[n].vd == NVM_ENDED) ? NVM_VD_OK : seen[n].vd;
 		if (n)
 			nvm.st.read_faults++;   /* other bytes than every earlier read */
 		n++;
@@ -302,16 +420,21 @@ static int nvm_pick(void)
 	return (s->verdict_b == NVM_VD_OK) ? 1 : NVM_NONE;
 }
 
-/* One re-stage of the chosen slot, judged again with its CRC: 1 when the
- * bytes pass under the sequence the slot was chosen by. */
+/* One re-stage of the chosen slot, judged again with its CRC and its delta
+ * frames applied again (#1009): 1 when the bytes pass under the sequence the
+ * slot was chosen by. */
 static int nvm_restage_once(int slot, uint32_t seq)
 {
 	const struct nvm_flash *f = nvm.flash;
+	struct nvm_read rd = {NVM_VD_OK, 0xffffffffu, 0u};
+	uint32_t got;
 
-	if (f->read(f->ctx, nvm_slot_addr(slot), nvm_stage, NVM_IMG_LEN))
+	if (f->read(f->ctx, nvm_slot_addr(slot), nvm_stage, NVM_IMG_LEN) ||
+	    nvm_klj2_check(nvm_stage, NVM_IMG_LEN) != NVM_VD_OK)
 		return 0;
-	return nvm_klj2_check(nvm_stage, NVM_IMG_LEN) == NVM_VD_OK &&
-	       nvm_klj2_seq(nvm_stage) == seq;
+	got = nvm_klj2_seq(nvm_stage);
+	rd.vd = nvm_chain(slot, &got, &rd);
+	return (rd.vd == NVM_VD_OK || rd.vd == NVM_ENDED) && got == seq;
 }
 
 /* The chosen slot into the stage: only bytes that pass again are applied.
@@ -461,6 +584,26 @@ static int nvm_model_proven(void)
 	return 0;
 }
 
+/* What the slot that is not authoritative lacks at boot (#1009): nothing when
+ * its record area is the chosen one's; the chosen slot's last frame's span
+ * when its sequence is the one before the chosen one's, since a frame carries
+ * every byte the slot it went to lacked and the other slot was the one written
+ * before it; else not known, and its next commit is written whole. */
+static void nvm_boot_lag(int chosen)
+{
+	int other = !chosen;
+
+	if ((other ? nvm.st.verdict_b : nvm.st.verdict_a) != NVM_VD_OK)
+		return;
+	if (nvm.area[other] == nvm.area[chosen]) {
+		nvm.lag_lo = 0u;
+		nvm.lag_hi = 0u;
+		nvm.lag_known = 1;
+		return;
+	}
+	nvm.lag_known = nvm.lag_from == chosen && nvm.tseq[other] + 1u == nvm.tseq[chosen];
+}
+
 /* The restore of section 8.1: the slots judged and one staged (step 3), the
  * binding walk, which needs no entity model (steps 4 and 5), the model
  * check (step 6), then the D3 walk (steps 7 and 8). */
@@ -483,6 +626,7 @@ static void nvm_restore(void)
 		nvm.st.seq = nvm_klj2_seq(nvm_stage);
 		nvm.st.last_verdict = NVM_VD_OK;
 		nvm.stage_durable = 1;
+		nvm_boot_lag(chosen);
 		nvm.st.bind_terminal = nvm_walk_bind();
 	}
 	if (nvm.st.bind_terminal == NVM_T_CLOSED) {
@@ -541,10 +685,21 @@ static void nvm_capture_begin(void)
 	nvm.st.phase = NVM_P_CAPTURE;
 }
 
+/* 1 when the slot the next save goes to holds its frames' room full: less than two pages are left (#1009). A failed
+ * attempt leaves its slot taking no frame (nvm_fail), so a failed one is not begun again. */
+static int nvm_full(void)
+{
+	return nvm.st.auth != NVM_NONE && nvm.tail[!nvm.st.auth] != 0u &&
+	       nvm.tail[!nvm.st.auth] + 2u * NVM_FLASH_PAGE > NVM_DELTA_END;
+}
+
 /* DR2c spaces every attempt 1,000 ms after a failed one; DR2a starts a
  * capture 1,000 ms after the first change it takes, and a change the save in
  * flight left (nvm_mark) at the first idle step after that save (#920); a
- * failed work set is retried while it has attempts left. */
+ * failed work set is retried while it has attempts left. With no change
+ * waiting, a slot whose frames' room is full is written whole (#1009), so the
+ * next change's save is a frame again; a work set left in flight has spent
+ * its attempts on that slot, whose room each failure emptied (nvm_fail). */
 static void nvm_idle(void)
 {
 	int due;
@@ -553,8 +708,14 @@ static void nvm_idle(void)
 		return;
 	due = nvm_any(&nvm.dirty) &&
 	      (nvm.next_now || (nvm.dirty_armed && nvm.now_us - nvm.dirty_since_us >= NVM_US(MILAN_NVM_DEBOUNCE_MS)));
-	if (due || (nvm_any(&nvm.inflight) && !nvm.st.exhausted))
+	if (due || (nvm_any(&nvm.inflight) && !nvm.st.exhausted)) {
 		nvm_capture_begin();
+	} else if (!nvm_any(&nvm.dirty) && nvm_full()) {
+		nvm_capture_begin();
+		nvm.tidy = 1;
+		nvm.force = 1;
+		nvm.st.tidied++;
+	}
 }
 
 /* 1 when the staged span of r is a frame of r (its crc is then the payload's:
@@ -602,6 +763,16 @@ static void nvm_heal(void)
 		nvm.st.stale = 0;
 }
 
+/* The commit in flight written whole: the stage's container from the slot's first byte (#1009). */
+static void nvm_whole(void)
+{
+	nvm.dlen = 0;
+	nvm.pos = 0;
+	nvm.wsrc = nvm_stage;
+	nvm.wbase = 0;
+	nvm.wlen = NVM_IMG_LEN;
+}
+
 /* The capture is over: decide whether its work set is written. */
 static void nvm_seal_begin(void)
 {
@@ -619,6 +790,7 @@ static void nvm_seal_begin(void)
 	} else if (nvm.stage_durable && !nvm.force) {
 		/* DR2b: the verified container already holds every value */
 		nvm_open_clear(&nvm.inflight);
+		nvm.cap_lo = nvm.cap_hi = 0u;
 		nvm.st.commits_skipped++;
 		nvm_heal();
 		nvm.st.phase = NVM_P_IDLE;
@@ -628,7 +800,7 @@ static void nvm_seal_begin(void)
 	nvm_klj2_header(nvm_stage, nvm.next_seq);
 	nvm.stage_durable = 0;
 	nvm.crc = 0xffffffffu;
-	nvm.pos = 0;
+	nvm_whole();
 	nvm.st.phase = NVM_P_SEAL;
 }
 
@@ -647,6 +819,22 @@ static int nvm_joined_behind(void)
 		if (nvm.dirty.bit[i] & ~nvm.inflight.bit[i])
 			return 1;
 	return 0;
+}
+
+/* [*lo, *hi) grown to hold [a, b); an empty span (lo == hi) holds nothing. */
+static void nvm_grow(uint32_t *lo, uint32_t *hi, uint32_t a, uint32_t b)
+{
+	if (a == b)
+		return;
+	if (*lo == *hi) {
+		*lo = a;
+		*hi = b;
+		return;
+	}
+	if (a < *lo)
+		*lo = a;
+	if (*hi < b)
+		*hi = b;
 }
 
 /* One record a step, in ascending id. At the end, a change marked behind the cursor that joined (nvm_mark) has the
@@ -671,33 +859,97 @@ static void nvm_capture_step(void)
 	nvm.cursor = nvm_rec_next(r);
 	nvm_open_take(&nvm.dirty, r.id);
 	nvm_open_set(&nvm.inflight, r.id);
+	nvm_grow(&nvm.cap_lo, &nvm.cap_hi, NVM_KLJ_HDR + r.off, NVM_KLJ_HDR + r.off + NVM_REC_HDR + r.plen);
 	nvm_latch(r);
 }
 
+/* ---- the delta frame (#1009) ---------------------------------------------- */
+
+static int nvm_target_slot(void);
+
+/* At the seal's end: the span of the records this save took (what the slot written last will lack once this commit
+ * is verified), and 1 when the save goes as a delta frame: it is not a full room's whole commit, an authoritative slot
+ * exists, the slot written takes frames, what it lacks is known, and the frame of that and this save's span fits the
+ * payload buffer, which holds it while it is written (no capture runs then), and the slot's room. The frame is made
+ * there: its header, its span as the stage holds it, the pad; its trailer is sealed next. */
+static int nvm_delta_fits(void)
+{
+	uint32_t lo;
+	uint32_t hi;
+	uint32_t len;
+	uint32_t i;
+	int t = nvm_target_slot();
+
+	lo = nvm.cap_lo;
+	hi = nvm.cap_hi;
+	nvm_grow(&lo, &hi, nvm.lag_lo, nvm.lag_hi);
+	if (lo == hi)
+		lo = hi = NVM_KLJ_HDR;  /* a frame of nothing still names a span inside the record area */
+	len = NVM_DLEN(hi - lo);
+	if (nvm.tidy || nvm.st.auth == NVM_NONE || !nvm.lag_known || nvm.tail[t] == 0u || len > NVM_PAYLOAD_MAX ||
+	    nvm.tail[t] + len > NVM_DELTA_END)
+		return 0;
+	{
+		const uint32_t head[NVM_DHDR / 4u] = {NVM_KLD3_MAGIC, NVM_KLD3_VER, nvm.next_seq, nvm.tseq[t], lo, hi - lo,
+						      nvm_rd32le(nvm_stage + NVM_IMG_LEN - NVM_KLJ_TRAILER)};
+
+		for (i = 0; i < NVM_DHDR / 4u; ++i)
+			nvm_wr32le(nvm_payload + 4u * i, head[i]);
+		memcpy(nvm_payload + NVM_DHDR, nvm_stage + lo, hi - lo);
+		nvm_wr32le(nvm_payload + NVM_DHDR + hi - lo, 0u);  /* the pad, before the trailer */
+	}
+	nvm.step_bytes += len;
+	nvm.target = t;
+	nvm.dlen = len;
+	nvm.wsrc = nvm_payload;
+	nvm.wbase = nvm.tail[t];
+	nvm.wlen = len;
+	return 1;
+}
+
+/* The CRC of what the commit writes, NVM_STEP_BYTES a step, then its trailer: the container's, then, for a save that
+ * goes as a delta frame, the frame's, which goes to the blank check of its span; one written whole goes to the
+ * erase. */
 static void nvm_seal_step(void)
 {
-	uint32_t end = NVM_IMG_LEN - NVM_KLJ_TRAILER;
+	uint32_t end = nvm.wlen - NVM_KLJ_TRAILER;
 	uint32_t n = nvm_min(NVM_STEP_BYTES, end - nvm.pos);
 
-	nvm.crc = nvm_crc32_update(nvm.crc, nvm_stage + nvm.pos, n);
+	nvm.crc = nvm_crc32_update(nvm.crc, nvm.wsrc + nvm.pos, n);
 	nvm.pos += n;
 	nvm.step_bytes += n;
 	if (nvm.pos < end)
 		return;
-	nvm_wr32le(nvm_stage + end, ~nvm.crc);
+	nvm_wr32le(nvm.wsrc + end, ~nvm.crc);
+	nvm.pos = 0;
+	nvm.crc = 0xffffffffu;
 	nvm.block = 0;
-	nvm.st.phase = NVM_P_ERASE;
+	if (nvm.dlen)
+		nvm.st.phase = NVM_P_BLANKCHECK;
+	else
+		nvm.st.phase = nvm_delta_fits() ? NVM_P_SEAL : NVM_P_ERASE;
 }
 
 /* A failed attempt: its records stay in flight, the claim is stale, and the
  * next attempt waits NVM_TXN_BACKOFF_MS (DR2c). The third failure of one
- * work set abandons it, and the reset-sticky record says so. */
+ * work set abandons it, and the reset-sticky record says so. The slot written
+ * may hold a frame cut short: it takes no frame until it is written whole
+ * (#1009). A failed whole commit the store began with no change leaves no
+ * work out of a slot: it only stops the store beginning another. */
 static void nvm_fail(enum nvm_verdict vd)
 {
-	if (nvm.st.attempts == 0u)
-		nvm.st.first_failed = vd;
+	nvm.tail[nvm.target] = 0u;
+	nvm.dlen = 0;
 	nvm.st.last_verdict = vd;
 	nvm.st.commits_failed++;
+	nvm.force = 0;
+	nvm.st.phase = NVM_P_IDLE;
+	if (nvm.tidy) {
+		nvm.tidy = 0;
+		return;
+	}
+	if (nvm.st.attempts == 0u)
+		nvm.st.first_failed = vd;
 	nvm.st.attempts++;
 	nvm.st.stale = 1;
 	if (nvm.st.attempts >= NVM_TXN_ATTEMPTS) {
@@ -707,8 +959,6 @@ static void nvm_fail(enum nvm_verdict vd)
 	}
 	nvm.retry_at_us = nvm.now_us + NVM_US(NVM_TXN_BACKOFF_MS);
 	nvm.retry_armed = 1;
-	nvm.force = 0;
-	nvm.st.phase = NVM_P_IDLE;
 }
 
 /* With no authoritative slot, a blank slot takes the commit before a refused
@@ -751,28 +1001,36 @@ static int nvm_wait(uint64_t timeout_us, enum nvm_verdict vd)
 	return 0;
 }
 
-/* Read the next step of the target slot into the chunk; 0 on a read fault. */
+/* Read the next step of what the commit writes into the chunk; 0 on a read fault. */
 static uint32_t nvm_read_step(void)
 {
 	const struct nvm_flash *f = nvm.flash;
-	uint32_t n = nvm_min(NVM_READ_BYTES, NVM_IMG_LEN - nvm.pos);
+	uint32_t n = nvm_min(NVM_READ_BYTES, nvm.wlen - nvm.pos);
 
-	if (f->read(f->ctx, nvm_slot_addr(nvm.target) + nvm.pos, nvm_chunk, n))
+	if (f->read(f->ctx, nvm_slot_addr(nvm.target) + nvm.wbase + nvm.pos, nvm_chunk, n))
 		return 0;
 	nvm.step_bytes += n;
 	return n;
 }
 
+/* Every byte the commit programs reads erased first. A delta frame's span that does not (a frame cut short, or
+ * bytes this store did not write there) takes no frame: the save is written whole instead, erase first (#1009). */
 static void nvm_blankcheck_step(void)
 {
 	uint32_t n = nvm_read_step();
 
+	if (n && !nvm_all_erased(nvm_chunk, n) && nvm.dlen) {
+		nvm.tail[nvm.target] = 0u;
+		nvm_whole();
+		nvm.st.phase = NVM_P_ERASE;
+		return;
+	}
 	if (!n || !nvm_all_erased(nvm_chunk, n)) {
 		nvm_fail(NVM_VD_ERASE);
 		return;
 	}
 	nvm.pos += n;
-	if (nvm.pos >= NVM_IMG_LEN) {
+	if (nvm.pos >= nvm.wlen) {
 		nvm.pos = 0;
 		nvm.st.phase = NVM_P_PROGRAM;
 	}
@@ -781,9 +1039,9 @@ static void nvm_blankcheck_step(void)
 static void nvm_program_step(void)
 {
 	const struct nvm_flash *f = nvm.flash;
-	uint32_t n = nvm_min(NVM_FLASH_PAGE, NVM_IMG_LEN - nvm.pos);
+	uint32_t n = nvm_min(NVM_FLASH_PAGE, nvm.wlen - nvm.pos);
 
-	if (f->program(f->ctx, nvm_slot_addr(nvm.target) + nvm.pos, nvm_stage + nvm.pos, n)) {
+	if (f->program(f->ctx, nvm_slot_addr(nvm.target) + nvm.wbase + nvm.pos, nvm.wsrc + nvm.pos, n)) {
 		nvm_fail(NVM_VD_PROGRAM);
 		return;
 	}
@@ -793,9 +1051,25 @@ static void nvm_program_step(void)
 	nvm.st.phase = NVM_P_PROGRAM_WAIT;
 }
 
-/* The authority moves; nothing clears the abandoned-set record (DR2c). */
+/* The authority moves; nothing clears the abandoned-set record (DR2c). The
+ * slot written takes its next frame after this one, or at its room's start
+ * when written whole; the slot that was authoritative now lacks this save's
+ * records' span, and nothing else (#1009). */
 static void nvm_commit_done(void)
 {
+	if (nvm.dlen) {
+		nvm.tail[nvm.target] += (nvm.dlen + NVM_FLASH_PAGE - 1u) & ~(NVM_FLASH_PAGE - 1u);
+		nvm.st.deltas++;
+	} else {
+		nvm.tail[nvm.target] = NVM_DELTA_BASE;
+	}
+	nvm.tseq[nvm.target] = nvm.next_seq;
+	nvm.lag_lo = nvm.cap_lo;
+	nvm.lag_hi = nvm.cap_hi;
+	nvm.cap_lo = nvm.cap_hi = 0u;
+	nvm.lag_known = 1;
+	nvm.dlen = 0;
+	nvm.tidy = 0;
 	nvm_open_clear(&nvm.inflight);
 	nvm.st.auth = nvm.target;
 	nvm.st.seq = nvm.next_seq;
@@ -809,6 +1083,8 @@ static void nvm_commit_done(void)
 	nvm.st.phase = NVM_P_IDLE;
 }
 
+/* Read back what the commit wrote and compare: the stage's container, or the
+ * delta frame. */
 static void nvm_verify_step(void)
 {
 	uint32_t n = nvm_read_step();
@@ -819,13 +1095,13 @@ static void nvm_verify_step(void)
 		return;
 	}
 	for (i = 0; i < n; ++i) {
-		if (nvm_chunk[i] != nvm_stage[nvm.pos + i]) {
+		if (nvm_chunk[i] != nvm.wsrc[nvm.pos + i]) {
 			nvm_fail(NVM_VD_VERIFY);
 			return;
 		}
 	}
 	nvm.pos += n;
-	if (nvm.pos >= NVM_IMG_LEN)
+	if (nvm.pos >= nvm.wlen)
 		nvm_commit_done();
 }
 
@@ -859,7 +1135,7 @@ static void nvm_step(void)
 	case NVM_P_PROGRAM_WAIT:
 		if (nvm_wait(NVM_US(MILAN_NVM_PROGRAM_TIMEOUT_MS), NVM_VD_PROGRAM)) {
 			nvm.pos += nvm.len;
-			nvm.st.phase = (nvm.pos < NVM_IMG_LEN) ? NVM_P_PROGRAM : NVM_P_VERIFY;
+			nvm.st.phase = (nvm.pos < nvm.wlen) ? NVM_P_PROGRAM : NVM_P_VERIFY;
 			if (nvm.st.phase == NVM_P_VERIFY)
 				nvm.pos = 0;
 		}

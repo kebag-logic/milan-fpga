@@ -72,7 +72,7 @@ TEST_P(NvmBoth, first_commit_bytes) {
     EXPECT_TRUE(r.at("ok") == 1 && r.at("seq") == 1 && r.at("auth") == 0 && r.at("erases") == 1 &&
                 r.at("programs") == pages())
         << "first commit: " << r.text();
-    EXPECT_TRUE(slot_holds(f.blobs["a.bin"], fx().blob("erased@1"))) << "the first container differs from nvm_klj3.py's";
+    EXPECT_TRUE(slot_holds(f.blobs["a.bin"], fx().blob("erased@1/minor1"))) << "the first container differs from nvm_klj3.py's";
     if (port() == Port::Litespi) {
         EXPECT_TRUE(r.at("ls_se") == 1 && r.at("ls_pp") == pages() && r.at("ls_wren") == r.at("ls_se") + r.at("ls_pp"))
             << "LiteSPI command sequence: " << r.text();
@@ -94,7 +94,7 @@ TEST_P(NvmBoth, change_commit_bytes) {
     EXPECT_TRUE(r.at("ok") == 1 && r.at("seq") == 6 && r.at("auth") == 0 && r.at("stale") == 0 && r.at("dirty") == 0 &&
                 r.at("pending") == 0)
         << "change commit: " << r.text();
-    EXPECT_TRUE(slot_holds(f.blobs["a.bin"], fx().blob("changed5c@6")))
+    EXPECT_TRUE(slot_holds(f.blobs["a.bin"], fx().blob("changed5c@6/minor1")))
         << "the committed container differs from nvm_klj3.py's for the same records";
     EXPECT_TRUE(slot_holds(f.blobs["b.bin"], fx().blob("golden@5"))) << "the authoritative slot changed";
     if (port() == Port::Litespi) {
@@ -231,7 +231,9 @@ TEST_P(NvmBoth, capture_joins) {
 }
 
 // #920, DR2a: after the immediate save of a change left in flight, a later
-// first change must get its full first-dirty window again.
+// first change must get its full first-dirty window again. The third save
+// goes as a delta frame (#1009): it erases nothing, so its window is read off
+// the end of its seal.
 TEST_P(NvmBoth, first_change_after_flight) {
     Files f = fx().files({{"g.bin", "golden@5"}});
     const auto [last, payload] = one_change(1);
@@ -240,10 +242,10 @@ TEST_P(NvmBoth, first_change_after_flight) {
                        {"--slot-b", "g.bin", "--boot", "--set", set_word(last, payload), "--until-phase",
                         num(NVM_P_SEAL), "--set", set_word(first, value(first, 9)), "--until-idle", "--run-ms",
                         "5000", "--mark", "--set", set_word(first, value(first, 10)), "--until-idle"});
-    EXPECT_TRUE(r.at("ok") == 3 && r.erases.size() == 3u &&
-                in(after_mark(r, 2), 1000 * kMs, 1050 * kMs))
-        << "first change after an immediate save must wait its full first-dirty window: erase "
-        << after_mark(r, 2) << " us after it, want 1,000 to 1,050 ms: " << r.text();
+    EXPECT_TRUE(r.at("ok") == 3 && r.at("deltas") == 1 && r.erases.size() == 2u &&
+                in(sealed_after_mark(r, 2), 1000 * kMs, 1050 * kMs))
+        << "first change after an immediate save must wait its full first-dirty window: sealed "
+        << sealed_after_mark(r, 2) << " us after it, want 1,000 to 1,050 ms: " << r.text();
 }
 
 // #920, DR2c: a capture that walked again must not leave a later retry
@@ -371,7 +373,7 @@ TEST_P(NvmBoth, failed_commit_not_skipped) {
                       "--until-idle", "--dump-slot-a", "a.bin"});
     EXPECT_TRUE(r.at("failed") == 1 && r.at("ok") == 1 && r.at("last") == NVM_VD_OK && r.at("skipped") == 0)
         << "retry after a failed attempt: " << r.text();
-    EXPECT_TRUE(slot_holds(f.blobs["a.bin"], fx().blob("one3@6"))) << "the retried change is not in the slot";
+    EXPECT_TRUE(slot_holds(f.blobs["a.bin"], fx().blob("one3@6/minor1"))) << "the retried change is not in the slot";
 }
 
 // DR2c: an erase, program or read-back that fails names its verdict, keeps
@@ -444,7 +446,7 @@ TEST_P(NvmBoth, recovers_after_failure) {
     EXPECT_TRUE(r.at("ok") == 1 && r.at("failed") == 3 && r.at("exhausted") == 0 && r.at("stale") == 0 &&
                 r.at("abandoned") == 1 && r.at("abandoned_vd") == NVM_VD_VERIFY)
         << "new work set after exhaustion: " << r.text();
-    EXPECT_TRUE(slot_holds(f.blobs["a.bin"], fx().blob("one6@6"))) << "the new work set is not in the slot";
+    EXPECT_TRUE(slot_holds(f.blobs["a.bin"], fx().blob("one6@6/minor1"))) << "the new work set is not in the slot";
 }
 
 // DR2c: an unchanged captured work set gets three attempts in all. A change
@@ -471,7 +473,7 @@ TEST_P(NvmBoth, dr2c_unchanged_set) {
     EXPECT_TRUE(r.at("ok") == 1 && r.at("failed") == 3 && r.at("erases") == 4 && r.at("stale") == 0 &&
                 r.at("abandoned") == 1 && r.at("abandoned_vd") == NVM_VD_VERIFY)
         << "a changed set after exhaustion: " << r.text();
-    EXPECT_TRUE(slot_holds(f.blobs["a.bin"], fx().blob("one22@6"))) << "the changed set is not in the slot";
+    EXPECT_TRUE(slot_holds(f.blobs["a.bin"], fx().blob("one22@6/minor1"))) << "the changed set is not in the slot";
 }
 
 // DR2c binds the console too: a commit asked for inside a failed attempt's
@@ -518,7 +520,7 @@ void fails_then_recovers(Port port, const std::string& fault, long long verdict,
     r = go(port, f, concat(head, {"--until-idle", "--dump-slot-a", "a.bin"}));
     EXPECT_TRUE(r.at("failed") == 1 && r.at("ok") == 1 && r.at("auth") == 0 && r.at("seq") == 6)
         << fault << ": no recovery: " << r.text();
-    EXPECT_TRUE(slot_holds(f.blobs["a.bin"], fx().blob("one" + num(seed) + "@6")))
+    EXPECT_TRUE(slot_holds(f.blobs["a.bin"], fx().blob("one" + num(seed) + "@6/minor1")))
         << fault << ": the retried change is not in the slot";
 }
 
@@ -838,7 +840,7 @@ TEST_P(NvmBoth, refused_slot_kept) {
     EXPECT_TRUE(r.at("terminal") == NVM_T_BLANK && r.at("vd_a") == NVM_VD_SHAPE && r.at("auth") == 1 && r.at("ok") == 1)
         << "refused slot A: " << r.text();
     EXPECT_TRUE(slot_holds(f.blobs["a.bin"], fx().blob("golden@5/foreign"))) << "the refused image was erased";
-    EXPECT_TRUE(slot_holds(f.blobs["b.bin"], fx().blob("erased_one7@1")))
+    EXPECT_TRUE(slot_holds(f.blobs["b.bin"], fx().blob("erased_one7@1/minor1")))
         << "slot B is not the container nvm_klj3.py assembles for the change";
 }
 

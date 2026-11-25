@@ -170,6 +170,11 @@ struct nvm_status {
 	uint32_t step_bytes_max;        /* the most bytes one service step touched */
 	uint32_t steps;
 	uint32_t deferred;              /* passes an owed step found no room in */
+	/* #1009: verified commits written as a delta frame (the others were
+	 * written whole), and whole commits the store began with no change, a
+	 * slot's frames' room being full */
+	uint32_t deltas;
+	uint32_t tidied;
 };
 
 /* Boot: judge both slots, stage the newer accepted one, run its binding

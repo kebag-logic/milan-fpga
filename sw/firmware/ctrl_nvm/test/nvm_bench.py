@@ -37,8 +37,8 @@ import fw_gtest                                                         # noqa: 
 
 from nvm_contract import Ident, Shape                                  # noqa: E402
 from nvm_klj2 import payload_bytes                                     # noqa: E402
-from nvm_klj3 import (LAYOUT, REC_HDR3, erased_record3, expected3,     # noqa: E402
-                      frame_record3, inventory3, klj3_assemble, klj3_decode, split_constants)
+from nvm_klj3 import (KLJ3_FMT_VER, LAYOUT, REC_HDR3, erased_record3,  # noqa: E402
+                      expected3, frame_record3, inventory3, klj3_assemble, klj3_decode, split_constants)
 from nvm_shape import WRITER_TIMING_MS, build                          # noqa: E402
 from flash_map import literal                                          # noqa: E402
 
@@ -70,7 +70,7 @@ class Binary:
 RIG = ("nvm_rig.cpp", "nvm_suite.cpp")
 #: Every shape: the boot and write paths, the codec and the extra store paths.
 SUITE = Binary("suite", (*RIG, "test_nvm_boot.cpp", "test_nvm_write.cpp", "test_nvm_codec.cpp", "test_nvm_more.cpp",
-                         "test_nvm_flashmock.cpp"))
+                         "test_nvm_flashmock.cpp", "test_nvm_delta.cpp"))
 #: The shapes tb/verilator/nvm_backend records a vector of, under its identity.
 VECTOR = Binary("vector", (*RIG, "test_nvm_vector.cpp"), vector=True)
 #: The shipping 1x1 shape only: two doctored builds (a map the codec's byte
@@ -126,10 +126,12 @@ class Bench:
         """The shape's config name."""
         return self.cfg.stem
 
-    def assemble(self, frames: dict[int, bytes], seq: int, ident: Ident | None = None) -> bytes:
-        """The Python encoder's container for `frames` at sequence `seq`."""
+    def assemble(self, frames: dict[int, bytes], seq: int, ident: Ident | None = None,
+                 ver: int = KLJ3_FMT_VER) -> bytes:
+        """The Python encoder's container for `frames` at sequence `seq`, of format word `ver`: the minor the
+        store writes unless given."""
         who = ident or self.ident
-        return klj3_assemble(frames, Ident(seq=seq, entity_id=who.entity_id, model_id=who.model_id))[0]
+        return klj3_assemble(frames, Ident(seq=seq, entity_id=who.entity_id, model_id=who.model_id), ver)[0]
 
     def offsets(self) -> dict[int, int]:
         """record_id -> offset of its frame inside the record area."""
