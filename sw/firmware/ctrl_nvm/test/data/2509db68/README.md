@@ -1,7 +1,7 @@
 # A store written by 2509db68
 
 Each slot of the saved-state store as the `2509db68` image's own store left it, at the minor before delta frames
-(KLJ3 minor 0, #1009): the bytes `store_of_2509db68` ([`test_nvm_delta.cpp`](../test_nvm_delta.cpp)) boots on.
+(KLJ3 minor 0, #1009): the bytes `store_of_2509db68` ([`test_nvm_delta.cpp`](../../test_nvm_delta.cpp)) boots on.
 
 | File | Shape | What |
 |---|---|---|
@@ -15,5 +15,5 @@ talker, its PROBE_TX answered, left 3 s (the store's first save, written whole i
 container's length (its header's length word at 16), as hex, 64 bytes a line; the rest of the slot was erased. The
 containers hold the harness's synthetic identifiers and names only.
 
-A build of a shape whose shape has no such file reads none of them ([`nvm_fixture.py`](../nvm_fixture.py)); the two
+A shape with no such file reads none of them ([`nvm_fixture.py`](../../nvm_fixture.py)); the two
 AX7101 shapes must.
