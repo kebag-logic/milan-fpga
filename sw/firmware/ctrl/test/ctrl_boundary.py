@@ -61,16 +61,22 @@ WHERE A FILE LIVES (Places), by its resolved path, in a checkout root judged
   host's libraries).
 
 THE CAPTURE. Without --capture the gate makes it, as the hosted
-firmware-boundary and firmware-verilator jobs do, by running every known
+firmware-verilator job does, by running every known
 builder the run judges (ctrl_configs.BUILDERS) under it, each by its builds
 and not its suites: the suite builders by their --build-only, which builds
 every binary and image the suites build and runs and plants nothing. A
-capture given (--capture, made by ctrl_capture.py around any command) is
-judged instead. Either way the stack's own gate and the image builders run
+capture given (--capture, made by ctrl_capture.py around any command, or by
+--leg) is judged instead, as the hosted firmware-boundary job judges its
+legs'. Either way the stack's own gate and the image builders run
 under it here (ctrl_runs.py). --without verilator leaves out the builders
 that need Verilator, as the hosted firmware-boundary job does, and --only
 verilator judges them alone, as the hosted firmware-verilator job does; each
-builder and control left out is named on the run. The stack's own gate, its
+builder and control left out is named on the run. --leg K/N --capture-out DIR
+runs only leg K of those builders (ctrl_runs, THE LEGS) under a capture of
+its own at DIR, a new directory, and judges nothing: the hosted
+firmware-boundary-capture job runs each leg on a runner of its own, and
+firmware-boundary judges every leg's capture, given once each (--capture),
+with the controls (#1003). The stack's own gate, its
 scripts/check_boundary.py (the same rule under its own CMake build with gcc
 and clang, and its objects' symbols), runs as well.
 
@@ -105,6 +111,7 @@ Usage:
     python3 sw/firmware/ctrl/test/ctrl_boundary.py --require-rv32 --selftest --without verilator
     python3 sw/firmware/ctrl/test/ctrl_boundary.py --require-rv32 --selftest --only verilator
     python3 sw/firmware/ctrl/test/ctrl_boundary.py --require-rv32 --selftest --capture DIR --without verilator
+    python3 sw/firmware/ctrl/test/ctrl_boundary.py --require-rv32 --without verilator --leg 0/2 --capture-out DIR
 
 Exit 0 = both sides hold; 1 = a finding or a control that misbehaved; 2 =
 refused (no compiler, cmake or clang, the stack's gate could not run, or the
@@ -132,7 +139,8 @@ from ctrl_capture import Capture, CaptureError, Deps, Invocation  # noqa: E402
 from ctrl_configs import BUILDERS, COMPILED, NEEDS, Scope, command, failed, held, makefiles, once  # noqa: E402
 from ctrl_pin import makefile_findings, named_compilers, pin_controls, proof_census  # noqa: E402
 from ctrl_plants import BASE, PLANTS, Plant  # noqa: E402
-from ctrl_runs import captures, control_capture, owned, stack_gate  # noqa: E402
+from ctrl_runs import LEGS, captures, control_capture, leg_builders, owned, stack_gate  # noqa: E402
+from ctrl_runs import standalone, verilator_of  # noqa: E402
 
 #: Where the stack lives in a checkout root.
 STACK_REL = STACK.relative_to(ROOT).as_posix()
@@ -461,6 +469,31 @@ def summary(capture: Capture, scope: Scope, ran: list[str]) -> None:
     print("\n".join(ran), flush=True)
 
 
+def leg_capture(spec: str, out: Path, scope: Scope) -> int:
+    """--leg K/N: leg K's builders (ctrl_runs, THE LEGS) run under a capture of their own at `out`, a new
+    directory; nothing is judged here, for the run given every leg's capture (--capture) judges them all."""
+    found = re.fullmatch(r"(\d+)/(\d+)", spec)
+    if found is None or int(found[2]) != len(LEGS) or int(found[1]) >= len(LEGS):
+        print(f"REFUSED: --leg {spec}: a leg is K/{len(LEGS)}, K from 0 to {len(LEGS) - 1} (ctrl_runs.LEGS)")
+        return 2
+    leg, out = int(found[1]), out.resolve()
+    try:
+        if out.exists():
+            raise Refusal(f"{out} exists: a leg's capture is made in a new directory, never appended to")
+        names = leg_builders(scope, leg)
+        print(f"tsn-c-stack at {stack_pin()}", flush=True)
+        print(f"leg {spec}: running {', '.join(names)} under a capture at {out}", flush=True)
+        with tempfile.TemporaryDirectory(prefix="ctrl-boundary-leg-") as tmp:
+            standalone(out, Path(tmp) / "builders", scope, verilator_of(), leg)
+        capture = ctrl_capture.load(out)
+    except (Refusal, CaptureError) as exc:
+        print(f"REFUSED: {exc}")
+        return 2
+    print(f"ctrl_boundary: leg {spec}: {len(capture.invocations)} compiler invocations from {len(capture.commands)} "
+          f"builder runs, judged where every leg's capture is given (--capture)")
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     """Hold both sides and every Makefile builder's pin prerequisites, with the stack's own gate beside them; with
     --selftest, the controls first."""
@@ -475,14 +508,21 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--only", choices=sorted(NEEDS), default="",
                     help="judge only the builders that need this, and the controls that need them (each other one "
                          "is named)")
+    ap.add_argument("--leg", metavar="K/N", help="run only leg K of the builders (ctrl_runs.LEGS) under a capture "
+                    "at --capture-out and judge nothing: the run given every leg's capture (--capture) judges them")
+    ap.add_argument("--capture-out", type=Path, help="the new directory --leg makes its capture in")
     args = ap.parse_args(argv)
     if args.only in args.without:
         ap.error("--only and --without name the same builders")
+    if (args.leg is None) != (args.capture_out is None) or args.leg and (args.selftest or args.capture or args.only):
+        ap.error("--leg needs --capture-out, and judges nothing: no --selftest, --capture or --only")
     scope = Scope(frozenset(args.without), args.only)
     rv32 = fw_rv32.compiler()
     if rv32 is None and args.require_rv32:
         print("REFUSED: no RV32 compiler (the pinned SDK's riscv32-linux-gcc or MILAN_RV32_CC)")
         return 2
+    if args.leg:
+        return leg_capture(args.leg, args.capture_out, scope)
     if rv32 is None:
         print("  SKIPPED: the RV32 arm, no RV32 compiler; --require-rv32 refuses instead")
     try:

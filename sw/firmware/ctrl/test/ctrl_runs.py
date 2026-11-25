@@ -16,12 +16,19 @@ archives that do not exist, so it compiles every object and then stops at its
 link, and it must stop there and nowhere else. The images themselves are
 never this gate's: the capture needs the invocations only.
 
-STANDALONE, when the gate is given no capture (the hosted firmware-boundary
-and firmware-verilator jobs): every other builder of ctrl_configs.BUILDERS,
+STANDALONE, when the gate is given no capture (the hosted
+firmware-verilator job), or makes one leg's (THE LEGS): every other builder of ctrl_configs.BUILDERS,
 by its own build commands (a suite builder's --build-only: its builds, not
 its suites), from the checkout's root, but the ones the run leaves out
 (ctrl_configs.Scope). Each must exit 0: a builder that fails may have
 compiled less than it does.
+
+THE LEGS (LEGS, #1003): the hosted firmware-boundary-capture job runs those
+builders in legs, each on a runner of its own under a capture of its own
+(ctrl_boundary.py --leg K/N --capture-out DIR), and firmware-boundary judges
+every leg's capture together (--capture, once per leg), as one capture of
+them all. A leg is the builders it names, by their own commands; the last
+names none and holds every other builder the run judges.
 
 THE STACK'S GATE (stack_gate) and THE CONTROLS' BUILDERS (planted_run,
 replayed, control_capture): the stack's own gate's CMake build runs under the
@@ -58,6 +65,31 @@ from ctrl_plants import Plant
 ABSENT = "absent-runtime"
 #: Image builder runs at once.
 JOBS = 4
+#: The legs of a standalone run (THE LEGS): the control gate's build, 703 s of the builds' 1228 s in the
+#: whole hosted run 45481508222, then every other builder (None).
+LEGS: tuple[frozenset[str] | None, ...] = (frozenset({"sw/firmware/ctrl/test/test_ctrl_firmware.py"}), None)
+
+
+def in_leg(path: str, leg: int | None) -> bool:
+    """Whether a known builder is leg `leg`'s (THE LEGS); with no leg, every builder is."""
+    if leg is None:
+        return True
+    named = LEGS[leg]
+    return path in named if named is not None else not any(path in n for n in LEGS if n is not None)
+
+
+def leg_builders(scope: Scope, leg: int) -> list[str]:
+    """The builders leg `leg` runs (THE LEGS). A builder a leg names that is no known builder with commands the
+    run judges, or a leg that runs nothing, refuses: its capture would hold less than its name says."""
+    out = {b.path for b in scope.left_out()}
+    runnable = [b.path for b in BUILDERS if b.runs and b.path not in out]
+    stray = sorted(set().union(*(n for n in LEGS if n is not None)) - set(runnable))
+    if stray:
+        raise Refusal(f"THE LEGS name {', '.join(stray)}, which is no known builder with commands this run judges")
+    mine = [path for path in runnable if in_leg(path, leg)]
+    if not mine:
+        raise Refusal(f"leg {leg}/{len(LEGS)} runs no builder this run judges")
+    return mine
 
 
 def image_runs(work: Path) -> list[tuple[str, list[str]]]:
@@ -125,13 +157,13 @@ def owned(capture: Path, work: Path) -> list[str]:
     return lines
 
 
-def standalone(capture: Path, work: Path, scope: Scope, verilator: str | None) -> list[str]:
-    """Every builder of BUILDERS with commands, but those the run leaves out, run under the capture; one line
-    each. A builder that does not exit 0 refuses the gate."""
+def standalone(capture: Path, work: Path, scope: Scope, verilator: str | None, leg: int | None = None) -> list[str]:
+    """Every builder of BUILDERS with commands, but those the run leaves out (and those of other legs than `leg`,
+    THE LEGS), run under the capture; one line each. A builder that does not exit 0 refuses the gate."""
     out = {b.path for b in scope.left_out()}
     lines = []
     for b in BUILDERS:
-        if b.path in out or not b.runs:
+        if b.path in out or not b.runs or not in_leg(b.path, leg):
             continue
         if b.needs == "verilator" and verilator is None:
             raise Refusal(f"{b.path} needs Verilator (VERILATOR, or on PATH); --without verilator leaves it out")

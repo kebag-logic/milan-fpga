@@ -125,6 +125,7 @@ or unparseable, usage).
 from __future__ import annotations
 
 import argparse
+import ast
 import copy
 import json
 import itertools
@@ -266,7 +267,9 @@ PHYSICAL_GPTP_CONCURRENCY = (
 
 POLICY = "docs/testing/CI_WORKFLOWS.md"
 WORKFLOWS = (RTL_FULL, RTL_FAST, DOCS, ELABORATE)
-FILES = WORKFLOWS + (POLICY,)
+#: The boundary gate's legs (#1003): the capture job's matrix holds one leg per entry of its LEGS.
+GATE_LEGS = "sw/firmware/ctrl/test/ctrl_runs.py"
+FILES = WORKFLOWS + (POLICY, GATE_LEGS)
 #: Every other workflow file under this directory is read too (maintainer
 #: review on PR #293): GitHub binds a required check by NAME across every
 #: workflow, so a fifth file carrying `docs-check` is a second carrier the
@@ -514,6 +517,7 @@ JOB_KEY_EXTRAS = {
     (RTL_FAST, "changes"): ("outputs",),
     (RTL_FULL, "verilator-shards"): ("strategy",),
     (RTL_FULL, "yosys-shards"): ("strategy",),
+    (RTL_FAST, "firmware-boundary-capture"): ("strategy",),
 }
 STEP_KEYS = ("name", "run", "uses", "with", "id", "env", "if",
              "continue-on-error")
@@ -618,7 +622,8 @@ INHERITED_STEP_ENV = {
     (RTL_FULL, "yosys-shards"): ("TARGET_SHA",),
     (RTL_FULL, "yosys-portability"): ("GATE_SHA", "SHARD_RESULT"),
     (RTL_FAST, "changes"): ("EVENT_NAME", "PR_BASE_REF", "PR_HEAD_SHA", "PUSH_BEFORE_SHA"),
-    (RTL_FAST, "rtl-fast"): ("BDD_CONFORMANCE_RESULT", "CHANGES_RESULT", "FIRMWARE_BOUNDARY_RESULT",
+    (RTL_FAST, "rtl-fast"): ("BDD_CONFORMANCE_RESULT", "CHANGES_RESULT", "FIRMWARE_BOUNDARY_CAPTURE_RESULT",
+                             "FIRMWARE_BOUNDARY_RESULT",
                              "FIRMWARE_UNIT_RESULT", "FIRMWARE_VERILATOR_RESULT",
                              "FIRMWARE_CONTROL_MUTANTS_RESULT", "FIRMWARE_AECP_MUTANTS_RESULT",
                              "FIRMWARE_SRP_MUTANTS_RESULT",
@@ -1352,6 +1357,11 @@ FIRMWARE_PHASE_STEPS = ("Run the control-plane firmware suites and RV32 builds",
 #: #697: the fast job that judges the TSN stack boundary over the compiles of every other builder it judges, each
 #: run by its builds (ctrl_configs.BUILDERS), not its suites.
 FIRMWARE_BOUNDARY_JOB = "firmware-boundary"
+#: #1003: the fast job whose matrix legs run firmware-boundary's builders, each leg under a capture of its own on a
+#: runner of its own (ctrl_runs.LEGS); firmware-boundary judges every leg's capture. One leg per entry.
+FIRMWARE_BOUNDARY_CAPTURE_JOB = "firmware-boundary-capture"
+FIRMWARE_BOUNDARY_LEGS = (0, 1)
+FIRMWARE_BOUNDARY_STRATEGY = {"fail-fast": False, "matrix": {"leg": list(FIRMWARE_BOUNDARY_LEGS)}}
 #: #697: the fast job that judges the TSN stack boundary over the compiles of the builders that need Verilator.
 FIRMWARE_VERILATOR_JOB = "firmware-verilator"
 #: #665 F-INT: the fast job that runs the mailbox publication census in every
@@ -2252,6 +2262,25 @@ RTL_YOSYS_INSTALL_SCRIPT = (
     'yosys -V | grep -F "Yosys ${YOSYS_VERSION#v}"',
 )
 
+#: #697, #1003: the setup firmware-boundary and each leg of its capture job share, before their own steps.
+FIRMWARE_BOUNDARY_SETUP = (
+    {"uses": "actions/checkout@v4"},
+    {"name": "Fetch RTL dependencies",
+     "run": (RTL_FETCH_SCRIPT[0] + " third_party/lwSRP third_party/tsn-c-stack",)},
+    {"name": "Install GoogleTest and GoogleMock and print the versions",
+     "run": (
+         'set -euo pipefail',
+         'sudo apt-get update -qq',
+         'sudo apt-get install -y --no-install-recommends libgtest-dev libgmock-dev',
+         'python3 -m pip install --quiet pyyaml -r sw/litex/litex_pins.txt',
+         'dpkg-query -W libgtest-dev libgmock-dev',
+         'g++ --version | head -n 1',
+     )},
+    {"name": "Cache the pinned RV32 SDK", "uses": "actions/cache@v4",
+     "with": RV32_CACHE_WITH},
+    {"name": "Install and verify the pinned RV32 SDK",
+     "run": RV32_INSTALL},
+)
 RTL_STEP_LISTS = {
     (RTL_FULL, "verilator-shards"): (
         {"uses": "actions/checkout@v4"},
@@ -2578,27 +2607,32 @@ RTL_STEP_LISTS = {
     # #697: the TSN stack's boundary from both sides over the compiles of every builder it judges but those
     # that need Verilator, each run by its builds and not its suites under the gate's own capture (the gate
     # reads them from its own known set, ctrl_configs.BUILDERS), its controls and the stack's own gate; the job
-    # has no Verilator, so the builders needing it are named and left out.
-    (RTL_FAST, FIRMWARE_BOUNDARY_JOB): (
-        {"uses": "actions/checkout@v4"},
-        {"name": "Fetch RTL dependencies",
-         "run": (RTL_FETCH_SCRIPT[0] + " third_party/lwSRP third_party/tsn-c-stack",)},
-        {"name": "Install GoogleTest and GoogleMock and print the versions",
+    # has no Verilator, so the builders needing it are named and left out. #1003: the builders run in the
+    # capture job's legs, each under a capture of its own uploaded as this head's artifact, and the judge
+    # restores each at the path it was made at and is given each by --capture.
+    (RTL_FAST, FIRMWARE_BOUNDARY_CAPTURE_JOB): (
+        *FIRMWARE_BOUNDARY_SETUP,
+        {"name": "Capture one leg of the firmware builders' compiles",
          "run": (
-             'set -euo pipefail',
-             'sudo apt-get update -qq',
-             'sudo apt-get install -y --no-install-recommends libgtest-dev libgmock-dev',
-             'python3 -m pip install --quiet pyyaml -r sw/litex/litex_pins.txt',
-             'dpkg-query -W libgtest-dev libgmock-dev',
-             'g++ --version | head -n 1',
+             'python3 sw/firmware/ctrl/test/ctrl_boundary.py --require-rv32 --without verilator --leg '
+             '"${{ matrix.leg }}/' + str(len(FIRMWARE_BOUNDARY_LEGS)) + '" --capture-out '
+             '"$RUNNER_TEMP/firmware-boundary-capture-${{ matrix.leg }}"',
          )},
-        {"name": "Cache the pinned RV32 SDK", "uses": "actions/cache@v4",
-         "with": RV32_CACHE_WITH},
-        {"name": "Install and verify the pinned RV32 SDK",
-         "run": RV32_INSTALL},
+        {"name": "Upload this leg's capture", "uses": "actions/upload-artifact@v4",
+         "with": {"name": "firmware-boundary-capture-${{ matrix.leg }}-${{ github.sha }}",
+                  "path": "${{ runner.temp }}/firmware-boundary-capture-${{ matrix.leg }}",
+                  "if-no-files-found": "error", "retention-days": 3}},
+    ),
+    (RTL_FAST, FIRMWARE_BOUNDARY_JOB): (
+        *FIRMWARE_BOUNDARY_SETUP,
+        *({"name": f"Download leg {leg}'s capture", "uses": "actions/download-artifact@v4",
+           "with": {"name": f"firmware-boundary-capture-{leg}-${{{{ github.sha }}}}",
+                    "path": f"${{{{ runner.temp }}}}/firmware-boundary-capture-{leg}"}}
+          for leg in FIRMWARE_BOUNDARY_LEGS),
         {"name": "Hold the TSN stack boundary over the firmware builders' compiles",
          "run": (
-             'python3 sw/firmware/ctrl/test/ctrl_boundary.py --require-rv32 --selftest --without verilator',
+             'python3 sw/firmware/ctrl/test/ctrl_boundary.py --require-rv32 --selftest --without verilator '
+             + " ".join(f'--capture "$RUNNER_TEMP/firmware-boundary-capture-{leg}"' for leg in FIRMWARE_BOUNDARY_LEGS),
          )},
     ),
     # #697: the same boundary over the compiles only the builders that need Verilator make, each run by its own
@@ -3838,6 +3872,34 @@ def check_firmware_layout(c: Contract, wf: YamlMap, policy: str) -> None:
         c.item(row in policy, POLICY, f"firmware budget row must state `{row}`")
 
 
+def gate_leg_count(source: str) -> int:
+    """How many legs ctrl_runs.LEGS holds, read from its assignment in `source` (the module is not imported here:
+    it imports the firmware's builders)."""
+    for node in ast.parse(source).body:
+        if isinstance(node, ast.AnnAssign) and getattr(node.target, "id", "") == "LEGS" and \
+                isinstance(node.value, ast.Tuple):
+            return len(node.value.elts)
+    return -1
+
+
+def check_boundary_legs(c: Contract, wf: YamlMap, legs: int) -> None:
+    """#1003: the capture job runs one matrix leg per entry of ctrl_runs.LEGS (`legs`), none cancelled by another's
+    failure; the judge needs it, and both keep the 30 minutes the legs were cut to fit."""
+    capture = jobs(wf).get(FIRMWARE_BOUNDARY_CAPTURE_JOB, {})
+    c.item(capture.get("strategy") == FIRMWARE_BOUNDARY_STRATEGY, RTL_FAST,
+           f"job `{FIRMWARE_BOUNDARY_CAPTURE_JOB}` strategy must be exactly {FIRMWARE_BOUNDARY_STRATEGY!r} "
+           f"(found {capture.get('strategy')!r}): one leg per entry of ctrl_runs.LEGS, which firmware-boundary "
+           "downloads one by one")
+    c.item(legs == len(FIRMWARE_BOUNDARY_LEGS), RTL_FAST,
+           f"ctrl_runs.LEGS must hold {len(FIRMWARE_BOUNDARY_LEGS)} legs, one per capture job leg (found {legs})")
+    needs = jobs(wf).get(FIRMWARE_BOUNDARY_JOB, {}).get("needs")
+    c.item(isinstance(needs, list) and FIRMWARE_BOUNDARY_CAPTURE_JOB in needs, RTL_FAST,
+           f"job `{FIRMWARE_BOUNDARY_JOB}` must need `{FIRMWARE_BOUNDARY_CAPTURE_JOB}` (found {needs!r})")
+    for jid in (FIRMWARE_BOUNDARY_CAPTURE_JOB, FIRMWARE_BOUNDARY_JOB):
+        c.item(jobs(wf).get(jid, {}).get("timeout-minutes") == 30, RTL_FAST,
+               f"job `{jid}` timeout must remain 30 minutes")
+
+
 def check_rtl_fast(c: Contract, wf: YamlMap) -> None:
     """Everything rtl-fast.yml owes: triggers, concurrency, one carrier per
     public name, the selector, the verdict, the ooc.sh self-test and the
@@ -4428,6 +4490,7 @@ def check_semantic(parsed: World, c: Contract | None = None) -> Contract:
     check_aggregate_scripts(c, parsed[RTL_FULL])
     check_rtl_fast(c, parsed[RTL_FAST])
     check_firmware_layout(c, parsed[RTL_FAST], parsed[POLICY])
+    check_boundary_legs(c, parsed[RTL_FAST], gate_leg_count(parsed[GATE_LEGS]))
     check_sequence_pin_coverage(c, parsed)
     check_docs(c, parsed[DOCS])
     check_elaborate(c, parsed[ELABORATE])
@@ -8144,6 +8207,9 @@ RV32_REQUIRED_STEPS = {
     FIRMWARE_BOUNDARY_JOB: (
         ("ctrl_boundary.py", "Hold the TSN stack boundary over the firmware builders' compiles"),
     ),
+    FIRMWARE_BOUNDARY_CAPTURE_JOB: (
+        ("ctrl_boundary.py", "Capture one leg of the firmware builders' compiles"),
+    ),
 }
 
 
@@ -8154,7 +8220,8 @@ def _rv32_sdk_arms() -> list[Arm]:
                              (ELABORATE, "elaborate", 21),
                              *((RTL_FAST, job, len(RTL_STEP_LISTS[(RTL_FAST, job)]))
                                for job in FIRMWARE_JOBS),
-                             (RTL_FAST, FIRMWARE_BOUNDARY_JOB, 6)):
+                             *((RTL_FAST, job, len(RTL_STEP_LISTS[(RTL_FAST, job)]))
+                               for job in (FIRMWARE_BOUNDARY_CAPTURE_JOB, FIRMWARE_BOUNDARY_JOB))):
         for label, key, value in (
                 ("digest", "key", RV32_CACHE_WITH["key"].replace(
                     "d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f", "wrong")),
@@ -8332,6 +8399,31 @@ def _install_cache_arms(pristine: World) -> list[Arm]:
     return arms
 
 
+def _boundary_leg_arms() -> list[Arm]:
+    """#1003: the capture job's matrix, its judge's needs, both timeouts and the gate's leg count refuse their
+    planted defects."""
+    strategy = f"job `{FIRMWARE_BOUNDARY_CAPTURE_JOB}` strategy must be exactly"
+    return [
+        ("boundary legs one leg dropped",
+         _m_job_key_any(RTL_FAST, FIRMWARE_BOUNDARY_CAPTURE_JOB, "strategy",
+                        {"fail-fast": False, "matrix": {"leg": [0]}}), strategy),
+        ("boundary legs fail-fast",
+         _m_job_key_any(RTL_FAST, FIRMWARE_BOUNDARY_CAPTURE_JOB, "strategy",
+                        {"fail-fast": True, "matrix": {"leg": [0, 1]}}), strategy),
+        ("boundary legs judge needs no capture",
+         _m_job_key_any(RTL_FAST, FIRMWARE_BOUNDARY_JOB, "needs", ["changes"]),
+         f"job `{FIRMWARE_BOUNDARY_JOB}` must need `{FIRMWARE_BOUNDARY_CAPTURE_JOB}`"),
+        *((f"boundary legs {jid} timeout raised", _m_job_key_any(RTL_FAST, jid, "timeout-minutes", 31),
+           f"job `{jid}` timeout must remain 30 minutes")
+          for jid in (FIRMWARE_BOUNDARY_CAPTURE_JOB, FIRMWARE_BOUNDARY_JOB)),
+        ("boundary legs gate holds a third leg",
+         lambda w: w.__setitem__(GATE_LEGS, w[GATE_LEGS].replace(
+             'frozenset({"sw/firmware/ctrl/test/test_ctrl_firmware.py"}), None)',
+             'frozenset({"sw/firmware/ctrl/test/test_ctrl_firmware.py"}), frozenset(), None)')),
+         "ctrl_runs.LEGS must hold 2 legs"),
+    ]
+
+
 def _firmware_layout_arms() -> list[Arm]:
     """The new census and budget checks must catch their own planted defects."""
     arms = [
@@ -8380,7 +8472,7 @@ def _mutations(pristine: World) -> list[Arm]:
             + _rv32_sdk_arms()
             + _tool_cache_arms(pristine)
             + _install_cache_arms(pristine)
-            + _firmware_layout_arms()
+            + _firmware_layout_arms() + _boundary_leg_arms()
             + _docs_carrier_arms()
             + _elaborate_arms()
             + _decoy_name_arms()

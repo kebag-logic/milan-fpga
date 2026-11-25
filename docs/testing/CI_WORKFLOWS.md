@@ -113,6 +113,15 @@ pull-request update and on every push to `dev`. It produces one stable
   Its budget is the job's own 30 minutes.
   On the runner's Ubuntu 24.04 with four CPUs, a replica of the step at `0a9c5fa8` took 682 s, 38% of 1800 s.
   Of that the builds took 614 s: the control gate's 299 s, the coverage gate's 226 s, the store's 80 s and the RV32 self-test's 9 s.
+  The step later outgrew #998's budget (below): over fourteen hosted runs, 45147231523 to 45481508222, the job took 1302-1667 s and its builds 1033-1366 s, and run 45514146566's was cut at its 30-minute limit.
+  So #1003 runs the builders in `firmware-boundary-capture`, two matrix legs, each on a runner of its own under a capture of its own (`--leg K/2 --capture-out <capture>`, `ctrl_runs.LEGS`).
+  Leg 0 runs the control gate's build, leg 1 every other builder; each uploads its capture as this head's artifact.
+  `firmware-boundary` needs both legs and runs no builder itself.
+  It restores each capture at the path its leg made it at and judges both together (`--capture`, once per leg), with the image builders, the stack's own gate, the controls, the pin controls and the figures.
+  The judgement is the whole run's: a local replica of the three jobs at one checkout path printed the same lines as the whole step, but for the eight builder lines the legs print, down to the same counts and verdict.
+  Given one leg's capture alone, the gate refuses, naming each builder the other leg holds.
+  The aggregate requires `firmware-boundary-capture` too: a failed leg skips the judge, and the aggregate counts a skipped job as a pass.
+  `ci_events.py` pins the matrix to one leg per entry of `ctrl_runs.LEGS`, the judge's need of the legs, and each job's 30 minutes.
 - the same TSN stack boundary over the compiles only the builders that need
   Verilator make, `firmware-verilator` (#697), when RTL or its tooling
   changes: the mailbox bench at its default target, the MAAP differential
@@ -124,7 +133,7 @@ pull-request update and on every push to `dev`. It produces one stable
   The step is `ctrl_boundary.py --require-rv32 --selftest --only verilator`: the same judgement over that capture, with the controls that need it and the pin controls.
   Those controls replay the wire comparison's and the differential's own recorded compiles on a planted copy, and drop the wire comparison's compiles from the capture.
   It names the firmware builders and their controls as `firmware-boundary`'s.
-  Each recorded compile is judged whole, in the job that ran it.
+  Each recorded compile is judged whole, in the job that ran it; `firmware-boundary` judges its legs' compiles from their captures.
   Its budget is the job's own 40 minutes.
   On a hosted runner at `5b4f6fbe`, before the dependency pass, the step took 438 s (job 114344992708) and the job 473 s, a fifth of the 40 minutes.
   A replica of the step took 486 s on four CPUs of a shared host, where `5b4f6fbe`'s took 452 s, on the runner's Ubuntu 24.04 with its GCC 13.3, CPython 3.12.3, static GoogleTest 1.14.0 and clang 18.
@@ -143,7 +152,7 @@ It also runs the tally checks and complete coverage ratchet.
 The normal shard includes the SRP wire comparator self-test.
 Both SRP interface campaigns retain F-INT's publication mutants.
 The aggregate also requires the separate `publication-census` and `split-cdc` jobs.
-It also requires the two TSN stack boundary jobs above (#697), which run none of the four phases.
+It also requires the two TSN stack boundary jobs above (#697) and `firmware-boundary-capture` (#1003), which run none of the four phases.
 All jobs verify the same pinned SDK.
 Only that authenticated SDK is cached; builds remain fresh.
 
@@ -552,6 +561,20 @@ projection is therefore stated, not hidden: 1530 seconds, 254 over the
 budget, so 36 minutes on a runner 1.41 times as slow as its figure's run. That
 figure's run is itself the slowest of three hosted windows: 857, 1408 and 779
 seconds.
+
+rtl-fast's `firmware-boundary` is a hosted job too, under the same budget
+(#1003). Whole, it projected 1765 seconds by the same method: its slowest
+step, 1613 seconds, plus its slowest setup, 152 seconds, over the fourteen
+hosted runs 45147231523 to 45481508222. Its builders now run in two capture
+legs, and the judgement in the job itself (the job list above). Each job's
+figure is the slowest window of its part of the step in those runs; its
+projection adds that slowest setup:
+
+| Job | Figure | Projection |
+|---|---|---|
+| `firmware-boundary-capture` leg 0, the control gate's build | 769 s | 921 s |
+| `firmware-boundary-capture` leg 1, the other five builders | 597 s | 749 s |
+| `firmware-boundary`, the step less its builds | 247 s | 399 s |
 
 The seventeenth worker is #781's: `media_phase` timed out at 900 seconds on
 hosted, and its 1400-second budget plus the 122-second allowance fits no

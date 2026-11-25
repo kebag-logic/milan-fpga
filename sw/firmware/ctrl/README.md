@@ -129,7 +129,7 @@ Its output and dependency options are dropped as the expansion drops them, its o
 The recorder resolves every file the pass names while it is there, and keeps the list and the tree in the capture.
 It then runs the compile itself, waits for it, and records its exit status with the invocation.
 Python builders load an audit hook that names, for each compile, the builder files on the stack that started it, and records any compiler a builder runs by a path no wrapper stands on.
-Run without `--capture`, as the hosted `firmware-boundary` and `firmware-verilator` jobs run it, the gate first runs every known builder it judges under a capture of its own, by that builder's own build commands: its builds, not its suites.
+Run without `--capture`, as the hosted `firmware-verilator` job runs it, the gate first runs every known builder it judges under a capture of its own, by that builder's own build commands: its builds, not its suites.
 A suite builder's builds are its `--build-only` (`test_ctrl_firmware.py`, `test_ctrl_nvm.py` and `fw_coverage.py`): every binary and image its suites build, built and linked, none run and no defect planted.
 The sixth capture builds both F5 gap-check shapes with `stream_counter_f5.py --build-only`.
 It links the AECP core and mailbox adapter without running tests.
@@ -627,7 +627,8 @@ python3 sw/firmware/ctrl/test/ctrl_boundary.py --require-rv32 --selftest --captu
 
 `--build-only` builds and links every arm's binaries and runs none; it plants nothing and ends `BUILT`, never `PASS`.
 The first boundary command runs every known builder by its builds under a capture of its own first (Verilator from `VERILATOR` or `PATH`).
-The second is the `firmware-boundary` job's: every known builder but those that need Verilator (see [CI workflows](../../../docs/testing/CI_WORKFLOWS.md)).
+The second judges every known builder but those that need Verilator, as `firmware-boundary` does (see [CI workflows](../../../docs/testing/CI_WORKFLOWS.md)).
+That job runs no builder itself: `firmware-boundary-capture` runs them in two legs, each with `--leg K/2 --capture-out <capture>`, and `firmware-boundary` judges both captures, each given by `--capture` (`ctrl_runs.LEGS`, #1003).
 The third judges a capture made of any builder's commands, each run as `ctrl_capture.py --out <capture> -- <command>`.
 
 Needs host C/C++ compilers, GoogleTest, GoogleMock, and PyYAML (the
