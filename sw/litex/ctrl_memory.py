@@ -267,7 +267,7 @@ class Ledgered:
 #: so a stale ctrl_plat size or a plan past its tiles is refused where it happens.
 LEDGERED: dict[str, Ledgered] = {
     "8x8-one-interface": Ledgered("8x8, one interface", ((STAGE_SYMBOL, 14_250), ("image_allocation", 8)),
-                                  57.5, "lane S14, the hybrid XIP (#665 decision D3: cold code to flash); 57.0 since "
+                                  58.0, "lane S14, the hybrid XIP (#665 decision D3: cold code to flash); 57.0 since "
                                         "#584 gave each 8x8 STREAM_PORT_INPUT an AUDIO_CLUSTER (Milan v1.2 5.3.3.8): "
                                         "131,368 B of rom and 98,672 B of sram, its arms up to 132,152 B of rom "
                                         "(declaring-outputs), past the 56 it held within, by the "
@@ -275,9 +275,13 @@ LEDGERED: dict[str, Ledgered] = {
                                         "RAMB36 owed to S14; 57.5 on the post-flip composition train (#956, #957, "
                                         "#950, #954, #948, #584, #969, #973, #972): its declaring-outputs arm "
                                         "plans 133,128 B of rom and 98,848 B of sram at 57.5, the other arms and "
-                                        "plants 57.0, by the same rule: ROM debt of 1.5 RAMB36 owed to S14"),
+                                        "plants 57.0, by the same rule: ROM debt of 1.5 RAMB36 owed to S14; 58.0 "
+                                        "with the saved-state store's delta frames (#1009): the fixture plans "
+                                        "134,464 B of rom at 57.5, its declaring-outputs arm 135,248 B of rom and "
+                                        "98,912 B of sram, past 57.5, by the same rule: ROM debt of 2.0 RAMB36 owed "
+                                        "to S14"),
     "8x8-two-interfaces": Ledgered("8x8, two interfaces", ((STAGE_SYMBOL, 14_250), ("image_allocation", 16)),
-                                   61.5, "lane S14, the hybrid XIP (#665 decision D3, rulings 6412739248 and "
+                                   62.0, "lane S14, the hybrid XIP (#665 decision D3, rulings 6412739248 and "
                                          "6425357821); 58.0 since a TX record's commit judges its own move, "
                                          "+112 to 120 B an image, with tsn-c-stack 715589c; 58.5, the cap of the "
                                          "owner's decision of 2026-11-12, since the KLJ3 stage's sram takes a 56th "
@@ -304,9 +308,11 @@ LEDGERED: dict[str, Ledgered] = {
                                          "rom and 116,064 B of sram, its arms up to 133,696 B and 116,080 B "
                                          "(declaring-outputs; answering-ports and the saved-state harness's guard "
                                          "probe also past 61.0), the stage 14,250 B, by the same rule: ROM debt of "
-                                         "5.5 RAMB36 owed to S14"),
+                                         "5.5 RAMB36 owed to S14; 62.0 with the saved-state store's delta frames "
+                                         "(#1009): the fixture needs 136,144 B of rom and 116,432 B of sram, past "
+                                         "61.5, by the same rule: ROM debt of 6.0 RAMB36 owed to S14"),
     "platform-8x8-two-interfaces": Ledgered("target platform's 8x8, two interfaces",
-                                            ((STAGE_SYMBOL, 14_250), ("ctrl_plat", 21_888)), 64.5,
+                                            ((STAGE_SYMBOL, 14_250), ("ctrl_plat", 21_888)), 65.0,
                                             "lane S14, the hybrid XIP (#665 decision D3: the boot and the CSR "
                                             "policy are cold code; ruling 6505997821, amending 6425357821 for this "
                                             "image); 60.0, capped at 60.5, by the owner's decision of 2026-11-12 "
@@ -356,9 +362,12 @@ LEDGERED: dict[str, Ledgered] = {
                                             "S14; and 64.5 on the post-flip composition train (#956, #957, #950, "
                                             "#954, #948, #584, #969, #973, #972), 143,368 B of rom and 117,632 B "
                                             "of sram, ctrl_plat at its measured 21,888 B, by the same rule: debt "
-                                            "of 8.5 RAMB36 owed to S14"),
+                                            "of 8.5 RAMB36 owed to S14; and 65.0 with the saved-state store's "
+                                            "delta frames (#1009), 145,488 B of rom and 117,712 B of sram, "
+                                            "ctrl_plat unchanged, by the same rule: debt of 9.0 RAMB36 owed to "
+                                            "S14"),
     "platform-8x8-one-interface": Ledgered("target platform's 8x8, one interface",
-                                           ((STAGE_SYMBOL, 14_250), ("ctrl_plat", 19_136)), 59.5,
+                                           ((STAGE_SYMBOL, 14_250), ("ctrl_plat", 19_136)), 60.0,
                                            "lane S14, the hybrid XIP (#665 decision D3: cold code to flash); 56.5, "
                                            "a product image, with SRP's Talker declarations (#895) and the PHY "
                                            "poll and its 1000BASE-T-only advertisement (#919, #840), 1,132 B of "
@@ -392,7 +401,10 @@ LEDGERED: dict[str, Ledgered] = {
                                            "S14; and 59.5 on the post-flip composition train (#956, #957, #950, "
                                            "#954, #948, #584, #969, #973, #972), 141,616 B of rom and 100,096 B "
                                            "of sram, ctrl_plat at its measured 19,136 B, by the same rule: ROM "
-                                           "debt of 3.5 RAMB36 owed to S14"),
+                                           "debt of 3.5 RAMB36 owed to S14; and 60.0 with the saved-state store's "
+                                           "delta frames (#1009), 143,736 B of rom and 100,176 B of sram, 376 B of "
+                                           "rom past the 143,360 B 59.5 holds, ctrl_plat unchanged, by the same "
+                                           "rule: ROM debt of 4.0 RAMB36 owed to S14"),
 }
 
 
