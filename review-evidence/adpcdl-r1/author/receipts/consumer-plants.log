@@ -1,0 +1,167 @@
+toolchain: {'cc': 'gcc (GCC) 16.2.1 20260810', 'cxx': 'g++ (GCC) 16.2.1 20260810', 'gcov': 'gcov (GCC) 16.2.1 20260810', 'gtest': '1.14.0', 'gmock': '1.14.0'}
+tsn-c-stack at e0b144904e57c96928f1dd3fca36a00df42f6ed3
+selected: ['own-discover-discarded', 'foreign-discover-answered', 'foreign-free-uncounted', 'other-subtype-accepted', 'foreign-frame-uncounted', 'pin-adp-short-discovery', 'pin-adp-discovery-version', 'pin-adp-discovery-length', 'pin-adp-discovery-valid-time', 'pin-adp-long-discovery', 'pin-adp-valid-discovery']
+[ESCAPED] no defect names the test AcmpMailbox.B1TheChannelCarriesCommandsAndResponsesInOrder
+[ESCAPED] no defect names the test AcmpMailbox.B2OwnUnicastIsAToleranceAndForeignUnicastIsRefused
+[ESCAPED] no defect names the test AcmpMailbox.B3TheTimersRunOnTheInterfaceSlot
+[ESCAPED] no defect names the test AcmpMailbox.B4AnExpiryThatRacedAStopOrAReArmIsDiscarded
+[ESCAPED] no defect names the test AcmpMailbox.B5TheTapHandsAvailableToDiscoveryAndTheRestToAdp
+[ESCAPED] no defect names the test AcmpMailbox.F3bComposedGateExpiresAfterIdleTickWake
+[ESCAPED] no defect names the test AcmpMailbox.F3bListenerRequiresSourceDestination
+[ESCAPED] no defect names the test AcmpMailbox.F3bProbeRequiresSourceDestination
+[ESCAPED] no defect names the test AcmpMailbox.B6TheGrandmasterIsTheInterfaces
+[ESCAPED] no defect names the test AcmpAdapterUnit.B7RefusalsOfTheAdapter
+[ESCAPED] no defect names the test AcmpMailbox.B8TheBoundTalkerTableFollowsEachBinding
+[ESCAPED] no defect names the test AcmpMailbox.B9AnotherAvtpVersionPassesTheFilterAndChangesNothing
+[ESCAPED] no defect names the test AcmpMailbox.B10ThePublicationBlockFollowsEachBindingAheadOfItsResponse
+[ESCAPED] no defect names the test AcmpMailbox.B11RestoredBindingsArePublishedAtOpen
+[ESCAPED] no defect names the test AcmpMailbox.B12TheStartedLevelIsOneBindingWriteThatKeepsTheStream
+[ESCAPED] no defect names the test AcmpMailbox.B13AMoveWithNoStreamLeavesSidValidClearOverAStaleStream
+[ESCAPED] no defect names the test AcmpMailbox.C0ToC4CommandsAreAnsweredInThePassThatTakesThem
+[ESCAPED] no defect names the test AcmpMailbox.C5ToC9TimerPathsAreServedInThePassThatTakesTheExpiry
+[ESCAPED] no defect names the test AcmpMailbox.C10C11DiscoveryPathsAreServedInThePassThatTakesTheRecord
+[ESCAPED] no defect names the test AcmpMailbox.C12AgingIsServedInThePassThatTakesTheExpiry
+[ESCAPED] no defect names the test AcmpMailbox.E1AnOwedResponseLeavesFirstAndItsChangeAfterIt
+[ESCAPED] no defect names the test AcmpMailbox.E2AnOwedResponseIsCommittedInPassKPlus1
+[ESCAPED] no defect names the test AcmpMailbox.E3OneOwedFrameAloneKeepsTheLoopAwake
+[ESCAPED] no defect names the test AcmpMailbox.K1ACommandDeclinedAtTheOwedBoundIsKeptAndAnsweredInArrivalOrder
+[ESCAPED] no defect names the test AcmpMailbox.K2ABindDeclinedAtTheFullSetWaitsForTwoSlotsAndLosesNoProbe
+[ESCAPED] no defect names the test AcmpMailbox.K3AStartDropsTheKeptCommand
+[ESCAPED] no defect names the test AcmpMailbox.K4ACommandBehindFramesThatNeedNoAnswerKeepsItsPass
+[ESCAPED] no defect names the test AcmpMailbox.K5RecordsBehindTheReceiveBudgetAreOfferedAfterTheSend
+[ESCAPED] no defect names the test AcmpMailbox.K6ARecordTheDriverRefusesEndsTheRedeliveryCounted
+[ESCAPED] no defect names the test AcmpMailbox.K7TheRedeliveryTakesAFullRingInThePassThatSends
+[ESCAPED] no defect names the test AcmpMailbox.K8ACommandTheRedeliveryDeclinesKeepsItsPlaceAheadOfTheNext
+[ESCAPED] no defect names the test AcmpMailbox.F0ToF3FullRingsAreTakenWithinTheBound
+[ESCAPED] no defect names the test AcmpMailbox.F4TheSmallestRecordsTheFilterPassesFillTheRing
+[ESCAPED] no defect names the test AcmpMailbox.F5AnAvailableBehindAFullAdpRingIsServedWithinTheBound
+[ESCAPED] no defect names the test AcmpMailbox.F6WithMaapComposedEveryPassStaysWithinTheThreeWayBound
+[ESCAPED] no defect names the test AcmpMailbox.U5AcmpComesAfterAdpAndReadsNothingBeforeTheContract
+[ESCAPED] no defect names the test AcmpMailbox.U6AdpAcmpAndMaapShareTheLoopOnDisjointSlotsWithEveryChannelOpen
+[ESCAPED] no defect names the test AcmpMailbox.U7TheThreeWayCompositionRefusesWithNothingOpened
+[ESCAPED] no defect names the test ListenerWalk.Graded
+[ESCAPED] no defect names the test ListenerScenario.LD3TheLockRefusalStatus
+[ESCAPED] no defect names the test ListenerScenario.LW2GuardsUnknownSinksAndForeignMessages
+[ESCAPED] no defect names the test DiscoveryWalk.Graded
+[ESCAPED] no defect names the test TalkerWalk.TW1ProbeTheFlagLawAndTheSource
+[ESCAPED] no defect names the test TalkerWalk.TW2GetTxStateReadsRegisteringFailedLive
+[ESCAPED] no defect names the test TalkerWalk.TW3DisconnectAndGetTxConnection
+[ESCAPED] no defect names the test TalkerWalk.TW4TheInterfaceAndTheStatelessProperty
+[ESCAPED] no defect names the test AcmpStore.N1ABindSurvivesAPowerCycleAndFastConnects
+[ESCAPED] no defect names the test AcmpStore.N2AnUnbindIsSavedAsAnUnboundRecord
+[ESCAPED] no defect names the test AcmpStore.N3EachSinksStartedStateIsSaved
+[ESCAPED] no defect names the test AcmpStore.N4AnUnreadSlotRefusesPersistence
+[ESCAPED] no defect names the test AcmpStore.N5ARecordTheCoreRefusesKeepsItsDefault
+[ESCAPED] no defect names the test AcmpStore.N6TheRollBackAndEveryOtherGroup
+[ESCAPED] no defect names the test AcmpStore.N7AD3RollBackKeepsTheBindings
+[ESCAPED] no defect names the test Plat.C1IdentityIsMilnAndReadsVersion
+[ESCAPED] no defect names the test Plat.C2PolicyIsConfigureFabricsFifteenWritesInOrder
+[ESCAPED] no defect names the test Plat.C3StatusIsReadInMilanStatusOrder
+[ESCAPED] no defect names the test Plat.C4TimeOfDayIsSnapshotThenAgreeingHighWords
+[ESCAPED] no defect names the test Plat.C5SinkFormatSelectsTheInputWritesItsFormatAndRestores
+[ESCAPED] no defect names the test Plat.C6SinkContextIsAnAafInputAboveZeroOnInterfaceZero
+[ESCAPED] no defect names the test Plat.K1MilanStatusAnswersTheGradersLines
+[ESCAPED] no defect names the test Plat.K2MilanGettimeAnswersTaiNs
+[ESCAPED] no defect names the test Plat.K3LinesEndOnceAndOthersAreRefused
+[ESCAPED] no defect names the test Plat.K4EachPassIsBounded
+[ESCAPED] no defect names the test Plat.K5TextPastTheRingIsDroppedAndCounted
+[ESCAPED] no defect names the test Plat.K6NumbersAtTheirEdges
+[ESCAPED] no defect names the test PlatMmio.I1ReadIsTheWordAtTheAddress
+[ESCAPED] no defect names the test PlatMmio.I2WriteIsTheWordAtTheAddressAlone
+[ESCAPED] no defect names the test Boot.B1ReachesReadyInStepOrder
+[ESCAPED] no defect names the test Boot.B2ForeignWindowStopsAtIdentity
+[ESCAPED] no defect names the test Boot.B3RefusedImageStopsAtImage
+[ESCAPED] no defect names the test Boot.B4RefusedStreamCountStopsAfterThePolicy
+[ESCAPED] no defect names the test Boot.B5OtherContractStopsAtMailbox
+[ESCAPED] no defect names the test Boot.B6UnacknowledgedFaceStopsAtAecp
+[ESCAPED] no defect names the test Boot.B7OnlyAReadyBootServicesTheLoop
+[ESCAPED] no defect names the test Boot.B8PlatformPortsAnswerAsDocumented
+[ESCAPED] no defect names the test Boot.B9SrpSourcesCarryTheGeneratedStreams
+[ESCAPED] no defect names the test Boot.B10ABindAfterReadyIsWrittenBackThroughTheLoop
+[ESCAPED] no defect names the test Boot.B11ARebootIsAnsweredNotifiedDepartsAndThenResets
+[ESCAPED] no defect names the test Boot.B12TheResetWaitsForTheResponseToLeave
+[ESCAPED] no defect names the test Boot.B13RefusalsLeaveTheEntityInService
+[ESCAPED] no defect names the test Boot.B14WithoutAResetPortRebootIsNotImplemented
+[ESCAPED] no defect names the test Boot.B15TheResetRestoresTheSavedStateAndAdvertisesAgain
+[ESCAPED] no defect names the test Boot.B16ARebootDuringTheJournalWriteKeepsTheChange
+[ESCAPED] no defect names the test Boot.B17NothingIsTakenOrSentOnceTheResetPortFired
+[ESCAPED] no defect names the test Boot.B18ADepartingTheRingRefusedHoldsTheReset
+[ESCAPED] no defect names the test Boot.B19NoFrameOfAnyChannelIsTakenFromTheSuccess
+[ESCAPED] no defect names the test Boot.B20NoOtherChannelTransmitsAfterTheDeparting
+[ESCAPED] no defect names the test Boot.B21TheDepartingWaitsForEveryOtherRing
+[ESCAPED] no defect names the test Boot.B22TheGateHoldsInThePassThatTakesTheReboot
+[ESCAPED] no defect names the test Boot.B23TheGateHoldsWhileTheResponseCannotBeHandedOver
+[ESCAPED] no defect names the test Boot.B24GetAsPathAnswersTheDatapathsSequence
+[ESCAPED] no defect names the test Phy.B11ArmedPastTheIdentityCheck
+[ESCAPED] no defect names the test Phy.B12StepCarriesTheStoresSaveOrAPhyFrame
+[ESCAPED] no defect names the test Phy.L1ReadyLoopPublishesTheLink
+[ESCAPED] no defect names the test Phy.L2EveryEdgeIsCounted
+[ESCAPED] no defect names the test Phy.L3EachEdgeNotifiesTheCounters
+[ESCAPED] no defect names the test Phy.L4ReturnEndsTheCeaseWithinAPoll
+[ESCAPED] no defect names the test Phy.L5ASaveKeepsThePollItsPeriod
+[ESCAPED] no defect names the test Phy.L6AProbeThatAlwaysMissesLeavesTheSaveItsWorstCase
+[ESCAPED] no defect names the test PlatPhy.P1OneAddressIsProbedACall
+[ESCAPED] no defect names the test PlatPhy.P2PollsArePaced
+[ESCAPED] no defect names the test PlatPhy.P3LatchedLossPublishesBothEdges
+[ESCAPED] no defect names the test PlatPhy.P4ResolvedModesAreTheReleases
+[ESCAPED] no defect names the test PlatPhy.P5ErrorsAreLinkDown
+[ESCAPED] no defect names the test PlatPhy.P6FramesAreClause22Reads
+[ESCAPED] no defect names the test PlatPhy.P7OneFrameACallWithItsRoom
+[ESCAPED] no defect names the test PlatPhy.P8OwedWhileAFrameIsDue
+[ESCAPED] no defect names the test PlatPhy.P9NoMdioArmsNothing
+[ESCAPED] no defect names the test PlatPhy.P10TheClockWraps
+[ESCAPED] no defect names the test PlatPhy.P11TheBootAdvertisesGigabitOnly
+[ESCAPED] no defect names the test PlatPhy.P12A10100PhyIsNeverWritten
+[ESCAPED] no defect names the test PlatPhy.P13ALossWritesAndVerifiesItAgain
+[ESCAPED] no defect names the test PlatPhy.P14AResetPhyIsAdvertisedAgain
+[ESCAPED] no defect names the test PlatPhy.P15AnUnverifiedAdvertisementStaysOwed
+[ESCAPED] no defect names the test PlatPhy.P16AnUnacknowledgedReadWritesNothing
+[ESCAPED] no defect names the test PlatPhy.P17TheRepairedAdvertisementIsTheOneInForce
+[ESCAPED] no defect names the test PlatPhy.P18TheRestartIsVerifiedByItsOutcome
+[ESCAPED] no defect names the test PlatPhy.P18OneRestartAPollUntilOneTakes
+[ESCAPED] no defect names the test PlatPhy.P18OnlyAMissingGigabitLinkOwesARestart
+[ESCAPED] no defect names the test PlatPhy.P19TheBootFormsTheLinkOnce
+[ESCAPED] no defect names the test PlatPhy.P20TheArmPublishesLinkDownFirst
+[ESCAPED] no defect names the test PlatPhy.P21TheOutcomeStandsBehindTheBoot
+[ESCAPED] no defect names the test PlatPhy.P22TheBootRestartsAPhyNotNegotiating
+[ESCAPED] no defect names the test PlatPhy.P23AForcedModeIsNeverPublishedUp
+[ESCAPED] no defect names the test Sinks.S1EveryAafInputAboveZeroHoldsItsFormatAtReady
+[ESCAPED] no defect names the test Sinks.S2SetStreamFormatMovesOnlyThatContextAndABoundInputRefuses
+[ESCAPED] no defect names the test Sinks.S3AnUnacknowledgedCommitWritesNoContext
+[ESCAPED] no defect names the test Sinks.S4AChangeWaitingForItsAcknowledgementIsWrittenOnceInForce
+[ESCAPED] no defect names the test Sinks.S5AChangeOfAnotherKindWritesNoContext
+[ESCAPED] no defect names the test Sinks.S6AWaitingChangeIsNotDoneAgainOntoAnInputBoundAndSettledMeanwhile
+[ESCAPED] no defect names the test Sinks.S7AWaitingChangeIsNotDoneAgainOntoAnInputBoundWithItsProbeUnanswered
+[ESCAPED] no defect names the test Sinks.S8AChangeNeverAcknowledgedInItsWaitKeepsTheFormatInForce
+[ESCAPED] no defect names the test Sinks.S9AChangeWhoseInputIsUnboundAgainIsDoneAgainBeforeARebind
+[ESCAPED] no defect names the test Sinks.S10SetConfigurationWritesEveryContextAndOneWaitingIsNotDoneAgainOntoABoundInput
+[ESCAPED] no defect names the test Sinks.S11AChangeOfAnotherTypeOrKindAtAContextsIndexIsTakenAndWritesNoContext
+[ESCAPED] no defect names the test Sinks.S12ANarrowedInputFormatIsKeptAcrossAPowerCut
+[ESCAPED] no defect names the test Streams.S13AWaitingFormatChangeIsRefusedOntoAnInputWithNoContextBoundMeanwhile
+[ESCAPED] no defect names the test Streams.S14AWaitingFormatChangeIsRefusedOntoAnOutputStartedMeanwhile
+[ESCAPED] no defect names the test Streams.T1GetTxStateCarriesRegisteringFailedWhileAListenerAskingFailedIsRegistered
+[ESCAPED] no defect names the test Early.S13ASavedBindingRestoredAtPowerOnDeclaresATalkerRegisteredBeforeItSettled
+[ESCAPED] no defect names the test Early.S14ABindWhileBoundToAStreamDeclaredAllAlongIsDeclaredWithinOneTransmit
+[ok] mutant own-discover-discarded (walk): 4 check(s) failed
+    first: [FAIL] Table551/AdpWalkCell.Graded/RCV_ADP_DISCOVER_own_eid_x_WAITING: RCV_ADP_DISCOVER(own eid) x WAITING: advertise state after
+[ok] mutant foreign-discover-answered (adp): 3 check(s) failed
+    first: [FAIL] AdpCore.A3toA5DiscoverAndDiscard: A4 a foreign DISCOVER, an AVAILABLE and a truncated ADPDU are discarded (5.6.3.1)
+[ok] mutant foreign-free-uncounted (port): 3 check(s) failed
+    first: [FAIL] Pool.P2ReleaseAndBadFrees: P2 a free of a pointer the pool never handed out is refused
+[ok] mutant other-subtype-accepted (adp): 2 check(s) failed
+    first: [FAIL] AdpCore.A24OtherEtherTypeOrSubtypeDiscarded: A24 a DISCOVER under another EtherType or subtype is discarded and counted
+[ok] mutant foreign-frame-uncounted (unit): 1 check(s) failed
+    first: [FAIL] AdpAdapterUnit.B3ForeignInterfaceCounted: B3 a record, a LINK and a GM naming an interface with no instance are counted
+[ok] mutant pin-adp-short-discovery (adp): 124 check(s) failed
+    first: [FAIL] AdpAdapter.PinRejectsEveryTruncatedDiscovery: malformed discovery changes only the discard count through the parent adapter
+[ok] mutant pin-adp-discovery-version (adp): 26 check(s) failed
+    first: [FAIL] AdpAdapter.PinRejectsUnsupportedDiscoveryVersions: malformed discovery changes only the discard count through the parent adapter
+[ok] mutant pin-adp-discovery-length (adp): 20 check(s) failed
+    first: [FAIL] AdpAdapter.PinRejectsShortDiscoveryControlLength: malformed discovery changes only the discard count through the parent adapter
+[ok] mutant pin-adp-discovery-valid-time (adp): 16 check(s) failed
+    first: [FAIL] AdpAdapter.PinRejectsShortDiscoveryControlLength: malformed discovery changes only the discard count through the parent adapter
+[ok] mutant pin-adp-long-discovery (adp): 372 check(s) failed
+    first: [FAIL] AdpAdapter.PinAcceptsLongDiscoveryThroughMailbox: a longer discovery restarts advertising through the mailbox
+[ok] mutant pin-adp-valid-discovery (adp): 99 check(s) failed
+    first: [FAIL] AdpCore.A3toA5DiscoverAndDiscard: A3 RCV_ADP_DISCOVER in DELAY is ignored (Table 5.51)
+mutants: 11 of 11 caught; 141 test(s) named by no defect

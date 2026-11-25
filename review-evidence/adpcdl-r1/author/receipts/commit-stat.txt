@@ -1,0 +1,17 @@
+commit e0b144904e57c96928f1dd3fca36a00df42f6ed3
+Author: hackerman-kl <hackerman-kl@kebag-logic.com>
+Date:   Wed Nov 25 19:32:55 2026 +0100
+
+    Read an ENTITY_DISCOVER whose control_data_length is above 56 by its first 56 octets and ignore the rest
+
+ CHANGELOG.md           |   1 +
+ docs/PORTING.md        |   7 ++-
+ docs/REQUIREMENTS.md   |   9 ++-
+ docs/TESTS.md          |   9 +--
+ docs/TRACEABILITY.md   |   6 +-
+ docs/VERIFICATION.md   |   2 +-
+ docs/requirements.json |   6 +-
+ src/adp.c              |   3 +-
+ tests/mutations.json   | 154 ++++++++++++++++++++++++++++++++++++++++++++++---
+ tests/test_adp.cpp     |  75 +++++++++++++++---------
+ 10 files changed, 222 insertions(+), 50 deletions(-)

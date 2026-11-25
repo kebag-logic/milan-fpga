@@ -1,0 +1,2851 @@
+Note: Google Test filter = *AdpInputControl*
+[==========] Running 25 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 25 tests from AllStates/AdpInputControl
+[ RUN      ] AllStates/AdpInputControl.RejectsUnsupportedVersion/0
+[       OK ] AllStates/AdpInputControl.RejectsUnsupportedVersion/0 (0 ms)
+[ RUN      ] AllStates/AdpInputControl.RejectsUnsupportedVersion/1
+[       OK ] AllStates/AdpInputControl.RejectsUnsupportedVersion/1 (0 ms)
+[ RUN      ] AllStates/AdpInputControl.RejectsUnsupportedVersion/2
+[       OK ] AllStates/AdpInputControl.RejectsUnsupportedVersion/2 (0 ms)
+[ RUN      ] AllStates/AdpInputControl.RejectsUnsupportedVersion/3
+[       OK ] AllStates/AdpInputControl.RejectsUnsupportedVersion/3 (0 ms)
+[ RUN      ] AllStates/AdpInputControl.RejectsUnsupportedVersion/4
+[       OK ] AllStates/AdpInputControl.RejectsUnsupportedVersion/4 (0 ms)
+[ RUN      ] AllStates/AdpInputControl.RejectsShortFrame/0
+[       OK ] AllStates/AdpInputControl.RejectsShortFrame/0 (0 ms)
+[ RUN      ] AllStates/AdpInputControl.RejectsShortFrame/1
+[       OK ] AllStates/AdpInputControl.RejectsShortFrame/1 (0 ms)
+[ RUN      ] AllStates/AdpInputControl.RejectsShortFrame/2
+[       OK ] AllStates/AdpInputControl.RejectsShortFrame/2 (0 ms)
+[ RUN      ] AllStates/AdpInputControl.RejectsShortFrame/3
+[       OK ] AllStates/AdpInputControl.RejectsShortFrame/3 (0 ms)
+[ RUN      ] AllStates/AdpInputControl.RejectsShortFrame/4
+[       OK ] AllStates/AdpInputControl.RejectsShortFrame/4 (0 ms)
+[ RUN      ] AllStates/AdpInputControl.RejectsShortControlDataLength/0
+[       OK ] AllStates/AdpInputControl.RejectsShortControlDataLength/0 (0 ms)
+[ RUN      ] AllStates/AdpInputControl.RejectsShortControlDataLength/1
+[       OK ] AllStates/AdpInputControl.RejectsShortControlDataLength/1 (0 ms)
+[ RUN      ] AllStates/AdpInputControl.RejectsShortControlDataLength/2
+[       OK ] AllStates/AdpInputControl.RejectsShortControlDataLength/2 (0 ms)
+[ RUN      ] AllStates/AdpInputControl.RejectsShortControlDataLength/3
+[       OK ] AllStates/AdpInputControl.RejectsShortControlDataLength/3 (0 ms)
+[ RUN      ] AllStates/AdpInputControl.RejectsShortControlDataLength/4
+[       OK ] AllStates/AdpInputControl.RejectsShortControlDataLength/4 (0 ms)
+[ RUN      ] AllStates/AdpInputControl.AcceptsLongControlDataLength/0
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:745: Failure
+Expected equality of these values:
+  a.discarded
+    Which is: 1
+  0u
+    Which is: 0
+valid discovery is never discarded
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:755: Failure
+Expected equality of these values:
+  std::memcmp(&a, &before, sizeof a)
+    Which is: 1
+  0
+valid discovery preserves inactive or delaying state
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:745: Failure
+Expected equality of these values:
+  a.discarded
+    Which is: 1
+  0u
+    Which is: 0
+valid discovery is never discarded
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:755: Failure
+Expected equality of these values:
+  std::memcmp(&a, &before, sizeof a)
+    Which is: 1
+  0
+valid discovery preserves inactive or delaying state
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:745: Failure
+Expected equality of these values:
+  a.discarded
+    Which is: 1
+  0u
+    Which is: 0
+valid discovery is never discarded
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:755: Failure
+Expected equality of these values:
+  std::memcmp(&a, &before, sizeof a)
+    Which is: 1
+  0
+valid discovery preserves inactive or delaying state
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:745: Failure
+Expected equality of these values:
+  a.discarded
+    Which is: 1
+  0u
+    Which is: 0
+valid discovery is never discarded
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:755: Failure
+Expected equality of these values:
+  std::memcmp(&a, &before, sizeof a)
+    Which is: 1
+  0
+valid discovery preserves inactive or delaying state
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:745: Failure
+Expected equality of these values:
+  a.discarded
+    Which is: 1
+  0u
+    Which is: 0
+valid discovery is never discarded
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:755: Failure
+Expected equality of these values:
+  std::memcmp(&a, &before, sizeof a)
+    Which is: 1
+  0
+valid discovery preserves inactive or delaying state
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:745: Failure
+Expected equality of these values:
+  a.discarded
+    Which is: 1
+  0u
+    Which is: 0
+valid discovery is never discarded
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:755: Failure
+Expected equality of these values:
+  std::memcmp(&a, &before, sizeof a)
+    Which is: 1
+  0
+valid discovery preserves inactive or delaying state
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:745: Failure
+Expected equality of these values:
+  a.discarded
+    Which is: 1
+  0u
+    Which is: 0
+valid discovery is never discarded
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:755: Failure
+Expected equality of these values:
+  std::memcmp(&a, &before, sizeof a)
+    Which is: 1
+  0
+valid discovery preserves inactive or delaying state
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:745: Failure
+Expected equality of these values:
+  a.discarded
+    Which is: 1
+  0u
+    Which is: 0
+valid discovery is never discarded
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:755: Failure
+Expected equality of these values:
+  std::memcmp(&a, &before, sizeof a)
+    Which is: 1
+  0
+valid discovery preserves inactive or delaying state
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:745: Failure
+Expected equality of these values:
+  a.discarded
+    Which is: 1
+  0u
+    Which is: 0
+valid discovery is never discarded
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:755: Failure
+Expected equality of these values:
+  std::memcmp(&a, &before, sizeof a)
+    Which is: 1
+  0
+valid discovery preserves inactive or delaying state
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:745: Failure
+Expected equality of these values:
+  a.discarded
+    Which is: 1
+  0u
+    Which is: 0
+valid discovery is never discarded
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:755: Failure
+Expected equality of these values:
+  std::memcmp(&a, &before, sizeof a)
+    Which is: 1
+  0
+valid discovery preserves inactive or delaying state
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:745: Failure
+Expected equality of these values:
+  a.discarded
+    Which is: 1
+  0u
+    Which is: 0
+valid discovery is never discarded
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:755: Failure
+Expected equality of these values:
+  std::memcmp(&a, &before, sizeof a)
+    Which is: 1
+  0
+valid discovery preserves inactive or delaying state
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:745: Failure
+Expected equality of these values:
+  a.discarded
+    Which is: 1
+  0u
+    Which is: 0
+valid discovery is never discarded
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:755: Failure
+Expected equality of these values:
+  std::memcmp(&a, &before, sizeof a)
+    Which is: 1
+  0
+valid discovery preserves inactive or delaying state
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:745: Failure
+Expected equality of these values:
+  a.discarded
+    Which is: 1
+  0u
+    Which is: 0
+valid discovery is never discarded
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:755: Failure
+Expected equality of these values:
+  std::memcmp(&a, &before, sizeof a)
+    Which is: 1
+  0
+valid discovery preserves inactive or delaying state
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:745: Failure
+Expected equality of these values:
+  a.discarded
+    Which is: 1
+  0u
+    Which is: 0
+valid discovery is never discarded
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:755: Failure
+Expected equality of these values:
+  std::memcmp(&a, &before, sizeof a)
+    Which is: 1
+  0
+valid discovery preserves inactive or delaying state
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:745: Failure
+Expected equality of these values:
+  a.discarded
+    Which is: 1
+  0u
+    Which is: 0
+valid discovery is never discarded
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:755: Failure
+Expected equality of these values:
+  std::memcmp(&a, &before, sizeof a)
+    Which is: 1
+  0
+valid discovery preserves inactive or delaying state
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:745: Failure
+Expected equality of these values:
+  a.discarded
+    Which is: 1
+  0u
+    Which is: 0
+valid discovery is never discarded
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:755: Failure
+Expected equality of these values:
+  std::memcmp(&a, &before, sizeof a)
+    Which is: 1
+  0
+valid discovery preserves inactive or delaying state
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:745: Failure
+Expected equality of these values:
+  a.discarded
+    Which is: 1
+  0u
+    Which is: 0
+valid discovery is never discarded
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:755: Failure
+Expected equality of these values:
+  std::memcmp(&a, &before, sizeof a)
+    Which is: 1
+  0
+valid discovery preserves inactive or delaying state
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:745: Failure
+Expected equality of these values:
+  a.discarded
+    Which is: 1
+  0u
+    Which is: 0
+valid discovery is never discarded
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:755: Failure
+Expected equality of these values:
+  std::memcmp(&a, &before, sizeof a)
+    Which is: 1
+  0
+valid discovery preserves inactive or delaying state
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:745: Failure
+Expected equality of these values:
+  a.discarded
+    Which is: 1
+  0u
+    Which is: 0
+valid discovery is never discarded
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:755: Failure
+Expected equality of these values:
+  std::memcmp(&a, &before, sizeof a)
+    Which is: 1
+  0
+valid discovery preserves inactive or delaying state
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:745: Failure
+Expected equality of these values:
+  a.discarded
+    Which is: 1
+  0u
+    Which is: 0
+valid discovery is never discarded
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:755: Failure
+Expected equality of these values:
+  std::memcmp(&a, &before, sizeof a)
+    Which is: 1
+  0
+valid discovery preserves inactive or delaying state
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:745: Failure
+Expected equality of these values:
+  a.discarded
+    Which is: 1
+  0u
+    Which is: 0
+valid discovery is never discarded
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:755: Failure
+Expected equality of these values:
+  std::memcmp(&a, &before, sizeof a)
+    Which is: 1
+  0
+valid discovery preserves inactive or delaying state
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:745: Failure
+Expected equality of these values:
+  a.discarded
+    Which is: 1
+  0u
+    Which is: 0
+valid discovery is never discarded
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:755: Failure
+Expected equality of these values:
+  std::memcmp(&a, &before, sizeof a)
+    Which is: 1
+  0
+valid discovery preserves inactive or delaying state
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:745: Failure
+Expected equality of these values:
+  a.discarded
+    Which is: 1
+  0u
+    Which is: 0
+valid discovery is never discarded
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:755: Failure
+Expected equality of these values:
+  std::memcmp(&a, &before, sizeof a)
+    Which is: 1
+  0
+valid discovery preserves inactive or delaying state
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:745: Failure
+Expected equality of these values:
+  a.discarded
+    Which is: 1
+  0u
+    Which is: 0
+valid discovery is never discarded
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:755: Failure
+Expected equality of these values:
+  std::memcmp(&a, &before, sizeof a)
+    Which is: 1
+  0
+valid discovery preserves inactive or delaying state
+
+[  FAILED  ] AllStates/AdpInputControl.AcceptsLongControlDataLength/0, where GetParam() = 0 (0 ms)
+[ RUN      ] AllStates/AdpInputControl.AcceptsLongControlDataLength/1
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:745: Failure
+Expected equality of these values:
+  a.discarded
+    Which is: 1
+  0u
+    Which is: 0
+valid discovery is never discarded
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:755: Failure
+Expected equality of these values:
+  std::memcmp(&a, &before, sizeof a)
+    Which is: 1
+  0
+valid discovery preserves inactive or delaying state
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:745: Failure
+Expected equality of these values:
+  a.discarded
+    Which is: 1
+  0u
+    Which is: 0
+valid discovery is never discarded
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:755: Failure
+Expected equality of these values:
+  std::memcmp(&a, &before, sizeof a)
+    Which is: 1
+  0
+valid discovery preserves inactive or delaying state
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:745: Failure
+Expected equality of these values:
+  a.discarded
+    Which is: 1
+  0u
+    Which is: 0
+valid discovery is never discarded
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:755: Failure
+Expected equality of these values:
+  std::memcmp(&a, &before, sizeof a)
+    Which is: 1
+  0
+valid discovery preserves inactive or delaying state
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:745: Failure
+Expected equality of these values:
+  a.discarded
+    Which is: 1
+  0u
+    Which is: 0
+valid discovery is never discarded
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:755: Failure
+Expected equality of these values:
+  std::memcmp(&a, &before, sizeof a)
+    Which is: 1
+  0
+valid discovery preserves inactive or delaying state
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:745: Failure
+Expected equality of these values:
+  a.discarded
+    Which is: 1
+  0u
+    Which is: 0
+valid discovery is never discarded
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:755: Failure
+Expected equality of these values:
+  std::memcmp(&a, &before, sizeof a)
+    Which is: 1
+  0
+valid discovery preserves inactive or delaying state
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:745: Failure
+Expected equality of these values:
+  a.discarded
+    Which is: 1
+  0u
+    Which is: 0
+valid discovery is never discarded
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:755: Failure
+Expected equality of these values:
+  std::memcmp(&a, &before, sizeof a)
+    Which is: 1
+  0
+valid discovery preserves inactive or delaying state
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:745: Failure
+Expected equality of these values:
+  a.discarded
+    Which is: 1
+  0u
+    Which is: 0
+valid discovery is never discarded
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:755: Failure
+Expected equality of these values:
+  std::memcmp(&a, &before, sizeof a)
+    Which is: 1
+  0
+valid discovery preserves inactive or delaying state
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:745: Failure
+Expected equality of these values:
+  a.discarded
+    Which is: 1
+  0u
+    Which is: 0
+valid discovery is never discarded
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:755: Failure
+Expected equality of these values:
+  std::memcmp(&a, &before, sizeof a)
+    Which is: 1
+  0
+valid discovery preserves inactive or delaying state
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:745: Failure
+Expected equality of these values:
+  a.discarded
+    Which is: 1
+  0u
+    Which is: 0
+valid discovery is never discarded
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:755: Failure
+Expected equality of these values:
+  std::memcmp(&a, &before, sizeof a)
+    Which is: 1
+  0
+valid discovery preserves inactive or delaying state
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:745: Failure
+Expected equality of these values:
+  a.discarded
+    Which is: 1
+  0u
+    Which is: 0
+valid discovery is never discarded
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:755: Failure
+Expected equality of these values:
+  std::memcmp(&a, &before, sizeof a)
+    Which is: 1
+  0
+valid discovery preserves inactive or delaying state
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:745: Failure
+Expected equality of these values:
+  a.discarded
+    Which is: 1
+  0u
+    Which is: 0
+valid discovery is never discarded
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:755: Failure
+Expected equality of these values:
+  std::memcmp(&a, &before, sizeof a)
+    Which is: 1
+  0
+valid discovery preserves inactive or delaying state
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:745: Failure
+Expected equality of these values:
+  a.discarded
+    Which is: 1
+  0u
+    Which is: 0
+valid discovery is never discarded
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:755: Failure
+Expected equality of these values:
+  std::memcmp(&a, &before, sizeof a)
+    Which is: 1
+  0
+valid discovery preserves inactive or delaying state
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:745: Failure
+Expected equality of these values:
+  a.discarded
+    Which is: 1
+  0u
+    Which is: 0
+valid discovery is never discarded
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:755: Failure
+Expected equality of these values:
+  std::memcmp(&a, &before, sizeof a)
+    Which is: 1
+  0
+valid discovery preserves inactive or delaying state
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:745: Failure
+Expected equality of these values:
+  a.discarded
+    Which is: 1
+  0u
+    Which is: 0
+valid discovery is never discarded
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:755: Failure
+Expected equality of these values:
+  std::memcmp(&a, &before, sizeof a)
+    Which is: 1
+  0
+valid discovery preserves inactive or delaying state
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:745: Failure
+Expected equality of these values:
+  a.discarded
+    Which is: 1
+  0u
+    Which is: 0
+valid discovery is never discarded
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:755: Failure
+Expected equality of these values:
+  std::memcmp(&a, &before, sizeof a)
+    Which is: 1
+  0
+valid discovery preserves inactive or delaying state
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:745: Failure
+Expected equality of these values:
+  a.discarded
+    Which is: 1
+  0u
+    Which is: 0
+valid discovery is never discarded
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:755: Failure
+Expected equality of these values:
+  std::memcmp(&a, &before, sizeof a)
+    Which is: 1
+  0
+valid discovery preserves inactive or delaying state
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:745: Failure
+Expected equality of these values:
+  a.discarded
+    Which is: 1
+  0u
+    Which is: 0
+valid discovery is never discarded
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:755: Failure
+Expected equality of these values:
+  std::memcmp(&a, &before, sizeof a)
+    Which is: 1
+  0
+valid discovery preserves inactive or delaying state
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:745: Failure
+Expected equality of these values:
+  a.discarded
+    Which is: 1
+  0u
+    Which is: 0
+valid discovery is never discarded
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:755: Failure
+Expected equality of these values:
+  std::memcmp(&a, &before, sizeof a)
+    Which is: 1
+  0
+valid discovery preserves inactive or delaying state
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:745: Failure
+Expected equality of these values:
+  a.discarded
+    Which is: 1
+  0u
+    Which is: 0
+valid discovery is never discarded
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:755: Failure
+Expected equality of these values:
+  std::memcmp(&a, &before, sizeof a)
+    Which is: 1
+  0
+valid discovery preserves inactive or delaying state
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:745: Failure
+Expected equality of these values:
+  a.discarded
+    Which is: 1
+  0u
+    Which is: 0
+valid discovery is never discarded
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:755: Failure
+Expected equality of these values:
+  std::memcmp(&a, &before, sizeof a)
+    Which is: 1
+  0
+valid discovery preserves inactive or delaying state
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:745: Failure
+Expected equality of these values:
+  a.discarded
+    Which is: 1
+  0u
+    Which is: 0
+valid discovery is never discarded
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:755: Failure
+Expected equality of these values:
+  std::memcmp(&a, &before, sizeof a)
+    Which is: 1
+  0
+valid discovery preserves inactive or delaying state
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:745: Failure
+Expected equality of these values:
+  a.discarded
+    Which is: 1
+  0u
+    Which is: 0
+valid discovery is never discarded
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:755: Failure
+Expected equality of these values:
+  std::memcmp(&a, &before, sizeof a)
+    Which is: 1
+  0
+valid discovery preserves inactive or delaying state
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:745: Failure
+Expected equality of these values:
+  a.discarded
+    Which is: 1
+  0u
+    Which is: 0
+valid discovery is never discarded
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:755: Failure
+Expected equality of these values:
+  std::memcmp(&a, &before, sizeof a)
+    Which is: 1
+  0
+valid discovery preserves inactive or delaying state
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:745: Failure
+Expected equality of these values:
+  a.discarded
+    Which is: 1
+  0u
+    Which is: 0
+valid discovery is never discarded
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:755: Failure
+Expected equality of these values:
+  std::memcmp(&a, &before, sizeof a)
+    Which is: 1
+  0
+valid discovery preserves inactive or delaying state
+
+[  FAILED  ] AllStates/AdpInputControl.AcceptsLongControlDataLength/1, where GetParam() = 1 (0 ms)
+[ RUN      ] AllStates/AdpInputControl.AcceptsLongControlDataLength/2
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:745: Failure
+Expected equality of these values:
+  a.discarded
+    Which is: 1
+  0u
+    Which is: 0
+valid discovery is never discarded
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:755: Failure
+Expected equality of these values:
+  std::memcmp(&a, &before, sizeof a)
+    Which is: 1
+  0
+valid discovery preserves inactive or delaying state
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:745: Failure
+Expected equality of these values:
+  a.discarded
+    Which is: 1
+  0u
+    Which is: 0
+valid discovery is never discarded
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:755: Failure
+Expected equality of these values:
+  std::memcmp(&a, &before, sizeof a)
+    Which is: 1
+  0
+valid discovery preserves inactive or delaying state
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:745: Failure
+Expected equality of these values:
+  a.discarded
+    Which is: 1
+  0u
+    Which is: 0
+valid discovery is never discarded
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:755: Failure
+Expected equality of these values:
+  std::memcmp(&a, &before, sizeof a)
+    Which is: 1
+  0
+valid discovery preserves inactive or delaying state
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:745: Failure
+Expected equality of these values:
+  a.discarded
+    Which is: 1
+  0u
+    Which is: 0
+valid discovery is never discarded
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:755: Failure
+Expected equality of these values:
+  std::memcmp(&a, &before, sizeof a)
+    Which is: 1
+  0
+valid discovery preserves inactive or delaying state
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:745: Failure
+Expected equality of these values:
+  a.discarded
+    Which is: 1
+  0u
+    Which is: 0
+valid discovery is never discarded
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:755: Failure
+Expected equality of these values:
+  std::memcmp(&a, &before, sizeof a)
+    Which is: 1
+  0
+valid discovery preserves inactive or delaying state
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:745: Failure
+Expected equality of these values:
+  a.discarded
+    Which is: 1
+  0u
+    Which is: 0
+valid discovery is never discarded
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:755: Failure
+Expected equality of these values:
+  std::memcmp(&a, &before, sizeof a)
+    Which is: 1
+  0
+valid discovery preserves inactive or delaying state
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:745: Failure
+Expected equality of these values:
+  a.discarded
+    Which is: 1
+  0u
+    Which is: 0
+valid discovery is never discarded
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:755: Failure
+Expected equality of these values:
+  std::memcmp(&a, &before, sizeof a)
+    Which is: 1
+  0
+valid discovery preserves inactive or delaying state
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:745: Failure
+Expected equality of these values:
+  a.discarded
+    Which is: 1
+  0u
+    Which is: 0
+valid discovery is never discarded
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:755: Failure
+Expected equality of these values:
+  std::memcmp(&a, &before, sizeof a)
+    Which is: 1
+  0
+valid discovery preserves inactive or delaying state
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:745: Failure
+Expected equality of these values:
+  a.discarded
+    Which is: 1
+  0u
+    Which is: 0
+valid discovery is never discarded
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:755: Failure
+Expected equality of these values:
+  std::memcmp(&a, &before, sizeof a)
+    Which is: 1
+  0
+valid discovery preserves inactive or delaying state
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:745: Failure
+Expected equality of these values:
+  a.discarded
+    Which is: 1
+  0u
+    Which is: 0
+valid discovery is never discarded
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:755: Failure
+Expected equality of these values:
+  std::memcmp(&a, &before, sizeof a)
+    Which is: 1
+  0
+valid discovery preserves inactive or delaying state
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:745: Failure
+Expected equality of these values:
+  a.discarded
+    Which is: 1
+  0u
+    Which is: 0
+valid discovery is never discarded
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:755: Failure
+Expected equality of these values:
+  std::memcmp(&a, &before, sizeof a)
+    Which is: 1
+  0
+valid discovery preserves inactive or delaying state
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:745: Failure
+Expected equality of these values:
+  a.discarded
+    Which is: 1
+  0u
+    Which is: 0
+valid discovery is never discarded
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:755: Failure
+Expected equality of these values:
+  std::memcmp(&a, &before, sizeof a)
+    Which is: 1
+  0
+valid discovery preserves inactive or delaying state
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:745: Failure
+Expected equality of these values:
+  a.discarded
+    Which is: 1
+  0u
+    Which is: 0
+valid discovery is never discarded
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:755: Failure
+Expected equality of these values:
+  std::memcmp(&a, &before, sizeof a)
+    Which is: 1
+  0
+valid discovery preserves inactive or delaying state
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:745: Failure
+Expected equality of these values:
+  a.discarded
+    Which is: 1
+  0u
+    Which is: 0
+valid discovery is never discarded
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:755: Failure
+Expected equality of these values:
+  std::memcmp(&a, &before, sizeof a)
+    Which is: 1
+  0
+valid discovery preserves inactive or delaying state
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:745: Failure
+Expected equality of these values:
+  a.discarded
+    Which is: 1
+  0u
+    Which is: 0
+valid discovery is never discarded
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:755: Failure
+Expected equality of these values:
+  std::memcmp(&a, &before, sizeof a)
+    Which is: 1
+  0
+valid discovery preserves inactive or delaying state
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:745: Failure
+Expected equality of these values:
+  a.discarded
+    Which is: 1
+  0u
+    Which is: 0
+valid discovery is never discarded
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:755: Failure
+Expected equality of these values:
+  std::memcmp(&a, &before, sizeof a)
+    Which is: 1
+  0
+valid discovery preserves inactive or delaying state
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:745: Failure
+Expected equality of these values:
+  a.discarded
+    Which is: 1
+  0u
+    Which is: 0
+valid discovery is never discarded
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:755: Failure
+Expected equality of these values:
+  std::memcmp(&a, &before, sizeof a)
+    Which is: 1
+  0
+valid discovery preserves inactive or delaying state
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:745: Failure
+Expected equality of these values:
+  a.discarded
+    Which is: 1
+  0u
+    Which is: 0
+valid discovery is never discarded
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:755: Failure
+Expected equality of these values:
+  std::memcmp(&a, &before, sizeof a)
+    Which is: 1
+  0
+valid discovery preserves inactive or delaying state
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:745: Failure
+Expected equality of these values:
+  a.discarded
+    Which is: 1
+  0u
+    Which is: 0
+valid discovery is never discarded
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:755: Failure
+Expected equality of these values:
+  std::memcmp(&a, &before, sizeof a)
+    Which is: 1
+  0
+valid discovery preserves inactive or delaying state
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:745: Failure
+Expected equality of these values:
+  a.discarded
+    Which is: 1
+  0u
+    Which is: 0
+valid discovery is never discarded
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:755: Failure
+Expected equality of these values:
+  std::memcmp(&a, &before, sizeof a)
+    Which is: 1
+  0
+valid discovery preserves inactive or delaying state
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:745: Failure
+Expected equality of these values:
+  a.discarded
+    Which is: 1
+  0u
+    Which is: 0
+valid discovery is never discarded
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:755: Failure
+Expected equality of these values:
+  std::memcmp(&a, &before, sizeof a)
+    Which is: 1
+  0
+valid discovery preserves inactive or delaying state
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:745: Failure
+Expected equality of these values:
+  a.discarded
+    Which is: 1
+  0u
+    Which is: 0
+valid discovery is never discarded
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:755: Failure
+Expected equality of these values:
+  std::memcmp(&a, &before, sizeof a)
+    Which is: 1
+  0
+valid discovery preserves inactive or delaying state
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:745: Failure
+Expected equality of these values:
+  a.discarded
+    Which is: 1
+  0u
+    Which is: 0
+valid discovery is never discarded
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:755: Failure
+Expected equality of these values:
+  std::memcmp(&a, &before, sizeof a)
+    Which is: 1
+  0
+valid discovery preserves inactive or delaying state
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:745: Failure
+Expected equality of these values:
+  a.discarded
+    Which is: 1
+  0u
+    Which is: 0
+valid discovery is never discarded
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:755: Failure
+Expected equality of these values:
+  std::memcmp(&a, &before, sizeof a)
+    Which is: 1
+  0
+valid discovery preserves inactive or delaying state
+
+[  FAILED  ] AllStates/AdpInputControl.AcceptsLongControlDataLength/2, where GetParam() = 2 (0 ms)
+[ RUN      ] AllStates/AdpInputControl.AcceptsLongControlDataLength/3
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:745: Failure
+Expected equality of these values:
+  a.discarded
+    Which is: 1
+  0u
+    Which is: 0
+valid discovery is never discarded
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:755: Failure
+Expected equality of these values:
+  std::memcmp(&a, &before, sizeof a)
+    Which is: 1
+  0
+valid discovery preserves inactive or delaying state
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:745: Failure
+Expected equality of these values:
+  a.discarded
+    Which is: 1
+  0u
+    Which is: 0
+valid discovery is never discarded
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:755: Failure
+Expected equality of these values:
+  std::memcmp(&a, &before, sizeof a)
+    Which is: 1
+  0
+valid discovery preserves inactive or delaying state
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:745: Failure
+Expected equality of these values:
+  a.discarded
+    Which is: 1
+  0u
+    Which is: 0
+valid discovery is never discarded
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:755: Failure
+Expected equality of these values:
+  std::memcmp(&a, &before, sizeof a)
+    Which is: 1
+  0
+valid discovery preserves inactive or delaying state
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:745: Failure
+Expected equality of these values:
+  a.discarded
+    Which is: 1
+  0u
+    Which is: 0
+valid discovery is never discarded
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:755: Failure
+Expected equality of these values:
+  std::memcmp(&a, &before, sizeof a)
+    Which is: 1
+  0
+valid discovery preserves inactive or delaying state
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:745: Failure
+Expected equality of these values:
+  a.discarded
+    Which is: 1
+  0u
+    Which is: 0
+valid discovery is never discarded
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:755: Failure
+Expected equality of these values:
+  std::memcmp(&a, &before, sizeof a)
+    Which is: 1
+  0
+valid discovery preserves inactive or delaying state
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:745: Failure
+Expected equality of these values:
+  a.discarded
+    Which is: 1
+  0u
+    Which is: 0
+valid discovery is never discarded
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:755: Failure
+Expected equality of these values:
+  std::memcmp(&a, &before, sizeof a)
+    Which is: 1
+  0
+valid discovery preserves inactive or delaying state
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:745: Failure
+Expected equality of these values:
+  a.discarded
+    Which is: 1
+  0u
+    Which is: 0
+valid discovery is never discarded
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:755: Failure
+Expected equality of these values:
+  std::memcmp(&a, &before, sizeof a)
+    Which is: 1
+  0
+valid discovery preserves inactive or delaying state
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:745: Failure
+Expected equality of these values:
+  a.discarded
+    Which is: 1
+  0u
+    Which is: 0
+valid discovery is never discarded
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:755: Failure
+Expected equality of these values:
+  std::memcmp(&a, &before, sizeof a)
+    Which is: 1
+  0
+valid discovery preserves inactive or delaying state
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:745: Failure
+Expected equality of these values:
+  a.discarded
+    Which is: 1
+  0u
+    Which is: 0
+valid discovery is never discarded
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:755: Failure
+Expected equality of these values:
+  std::memcmp(&a, &before, sizeof a)
+    Which is: 1
+  0
+valid discovery preserves inactive or delaying state
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:745: Failure
+Expected equality of these values:
+  a.discarded
+    Which is: 1
+  0u
+    Which is: 0
+valid discovery is never discarded
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:755: Failure
+Expected equality of these values:
+  std::memcmp(&a, &before, sizeof a)
+    Which is: 1
+  0
+valid discovery preserves inactive or delaying state
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:745: Failure
+Expected equality of these values:
+  a.discarded
+    Which is: 1
+  0u
+    Which is: 0
+valid discovery is never discarded
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:755: Failure
+Expected equality of these values:
+  std::memcmp(&a, &before, sizeof a)
+    Which is: 1
+  0
+valid discovery preserves inactive or delaying state
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:745: Failure
+Expected equality of these values:
+  a.discarded
+    Which is: 1
+  0u
+    Which is: 0
+valid discovery is never discarded
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:755: Failure
+Expected equality of these values:
+  std::memcmp(&a, &before, sizeof a)
+    Which is: 1
+  0
+valid discovery preserves inactive or delaying state
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:745: Failure
+Expected equality of these values:
+  a.discarded
+    Which is: 1
+  0u
+    Which is: 0
+valid discovery is never discarded
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:755: Failure
+Expected equality of these values:
+  std::memcmp(&a, &before, sizeof a)
+    Which is: 1
+  0
+valid discovery preserves inactive or delaying state
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:745: Failure
+Expected equality of these values:
+  a.discarded
+    Which is: 1
+  0u
+    Which is: 0
+valid discovery is never discarded
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:755: Failure
+Expected equality of these values:
+  std::memcmp(&a, &before, sizeof a)
+    Which is: 1
+  0
+valid discovery preserves inactive or delaying state
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:745: Failure
+Expected equality of these values:
+  a.discarded
+    Which is: 1
+  0u
+    Which is: 0
+valid discovery is never discarded
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:755: Failure
+Expected equality of these values:
+  std::memcmp(&a, &before, sizeof a)
+    Which is: 1
+  0
+valid discovery preserves inactive or delaying state
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:745: Failure
+Expected equality of these values:
+  a.discarded
+    Which is: 1
+  0u
+    Which is: 0
+valid discovery is never discarded
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:755: Failure
+Expected equality of these values:
+  std::memcmp(&a, &before, sizeof a)
+    Which is: 1
+  0
+valid discovery preserves inactive or delaying state
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:745: Failure
+Expected equality of these values:
+  a.discarded
+    Which is: 1
+  0u
+    Which is: 0
+valid discovery is never discarded
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:755: Failure
+Expected equality of these values:
+  std::memcmp(&a, &before, sizeof a)
+    Which is: 1
+  0
+valid discovery preserves inactive or delaying state
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:745: Failure
+Expected equality of these values:
+  a.discarded
+    Which is: 1
+  0u
+    Which is: 0
+valid discovery is never discarded
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:755: Failure
+Expected equality of these values:
+  std::memcmp(&a, &before, sizeof a)
+    Which is: 1
+  0
+valid discovery preserves inactive or delaying state
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:745: Failure
+Expected equality of these values:
+  a.discarded
+    Which is: 1
+  0u
+    Which is: 0
+valid discovery is never discarded
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:755: Failure
+Expected equality of these values:
+  std::memcmp(&a, &before, sizeof a)
+    Which is: 1
+  0
+valid discovery preserves inactive or delaying state
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:745: Failure
+Expected equality of these values:
+  a.discarded
+    Which is: 1
+  0u
+    Which is: 0
+valid discovery is never discarded
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:755: Failure
+Expected equality of these values:
+  std::memcmp(&a, &before, sizeof a)
+    Which is: 1
+  0
+valid discovery preserves inactive or delaying state
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:745: Failure
+Expected equality of these values:
+  a.discarded
+    Which is: 1
+  0u
+    Which is: 0
+valid discovery is never discarded
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:755: Failure
+Expected equality of these values:
+  std::memcmp(&a, &before, sizeof a)
+    Which is: 1
+  0
+valid discovery preserves inactive or delaying state
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:745: Failure
+Expected equality of these values:
+  a.discarded
+    Which is: 1
+  0u
+    Which is: 0
+valid discovery is never discarded
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:755: Failure
+Expected equality of these values:
+  std::memcmp(&a, &before, sizeof a)
+    Which is: 1
+  0
+valid discovery preserves inactive or delaying state
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:745: Failure
+Expected equality of these values:
+  a.discarded
+    Which is: 1
+  0u
+    Which is: 0
+valid discovery is never discarded
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:755: Failure
+Expected equality of these values:
+  std::memcmp(&a, &before, sizeof a)
+    Which is: 1
+  0
+valid discovery preserves inactive or delaying state
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:745: Failure
+Expected equality of these values:
+  a.discarded
+    Which is: 1
+  0u
+    Which is: 0
+valid discovery is never discarded
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:755: Failure
+Expected equality of these values:
+  std::memcmp(&a, &before, sizeof a)
+    Which is: 1
+  0
+valid discovery preserves inactive or delaying state
+
+[  FAILED  ] AllStates/AdpInputControl.AcceptsLongControlDataLength/3, where GetParam() = 3 (0 ms)
+[ RUN      ] AllStates/AdpInputControl.AcceptsLongControlDataLength/4
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:745: Failure
+Expected equality of these values:
+  a.discarded
+    Which is: 1
+  0u
+    Which is: 0
+valid discovery is never discarded
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:748: Failure
+Expected equality of these values:
+  a.state
+    Which is: 3
+  ADP_STATE_DELAY
+    Which is: 2
+valid discovery enters DELAY from WAITING
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:749: Failure
+Expected equality of these values:
+  fk.starts
+    Which is: 2
+  port_before.starts + 1u
+    Which is: 3
+valid discovery starts one delay timer
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:750: Failure
+Expected equality of these values:
+  fk.stops
+    Which is: 0
+  port_before.stops + 1u
+    Which is: 1
+valid discovery stops the advertisement timer
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:751: Failure
+Expected equality of these values:
+  a.timer
+    Which is: 2
+  ADP_TIMER_DELAY
+    Which is: 1
+valid discovery selects the delay timer
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:752: Failure
+Expected equality of these values:
+  a.draws
+    Which is: 1
+  before.draws + 1u
+    Which is: 2
+valid discovery draws one delay
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:753: Failure
+Expected equality of these values:
+  a.last_draw
+    Which is: 1
+  ADP_DRAW_DELAY
+    Which is: 2
+valid discovery uses the normal delay range
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:745: Failure
+Expected equality of these values:
+  a.discarded
+    Which is: 1
+  0u
+    Which is: 0
+valid discovery is never discarded
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:748: Failure
+Expected equality of these values:
+  a.state
+    Which is: 3
+  ADP_STATE_DELAY
+    Which is: 2
+valid discovery enters DELAY from WAITING
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:749: Failure
+Expected equality of these values:
+  fk.starts
+    Which is: 2
+  port_before.starts + 1u
+    Which is: 3
+valid discovery starts one delay timer
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:750: Failure
+Expected equality of these values:
+  fk.stops
+    Which is: 0
+  port_before.stops + 1u
+    Which is: 1
+valid discovery stops the advertisement timer
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:751: Failure
+Expected equality of these values:
+  a.timer
+    Which is: 2
+  ADP_TIMER_DELAY
+    Which is: 1
+valid discovery selects the delay timer
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:752: Failure
+Expected equality of these values:
+  a.draws
+    Which is: 1
+  before.draws + 1u
+    Which is: 2
+valid discovery draws one delay
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:753: Failure
+Expected equality of these values:
+  a.last_draw
+    Which is: 1
+  ADP_DRAW_DELAY
+    Which is: 2
+valid discovery uses the normal delay range
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:745: Failure
+Expected equality of these values:
+  a.discarded
+    Which is: 1
+  0u
+    Which is: 0
+valid discovery is never discarded
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:748: Failure
+Expected equality of these values:
+  a.state
+    Which is: 3
+  ADP_STATE_DELAY
+    Which is: 2
+valid discovery enters DELAY from WAITING
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:749: Failure
+Expected equality of these values:
+  fk.starts
+    Which is: 2
+  port_before.starts + 1u
+    Which is: 3
+valid discovery starts one delay timer
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:750: Failure
+Expected equality of these values:
+  fk.stops
+    Which is: 0
+  port_before.stops + 1u
+    Which is: 1
+valid discovery stops the advertisement timer
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:751: Failure
+Expected equality of these values:
+  a.timer
+    Which is: 2
+  ADP_TIMER_DELAY
+    Which is: 1
+valid discovery selects the delay timer
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:752: Failure
+Expected equality of these values:
+  a.draws
+    Which is: 1
+  before.draws + 1u
+    Which is: 2
+valid discovery draws one delay
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:753: Failure
+Expected equality of these values:
+  a.last_draw
+    Which is: 1
+  ADP_DRAW_DELAY
+    Which is: 2
+valid discovery uses the normal delay range
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:745: Failure
+Expected equality of these values:
+  a.discarded
+    Which is: 1
+  0u
+    Which is: 0
+valid discovery is never discarded
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:748: Failure
+Expected equality of these values:
+  a.state
+    Which is: 3
+  ADP_STATE_DELAY
+    Which is: 2
+valid discovery enters DELAY from WAITING
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:749: Failure
+Expected equality of these values:
+  fk.starts
+    Which is: 2
+  port_before.starts + 1u
+    Which is: 3
+valid discovery starts one delay timer
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:750: Failure
+Expected equality of these values:
+  fk.stops
+    Which is: 0
+  port_before.stops + 1u
+    Which is: 1
+valid discovery stops the advertisement timer
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:751: Failure
+Expected equality of these values:
+  a.timer
+    Which is: 2
+  ADP_TIMER_DELAY
+    Which is: 1
+valid discovery selects the delay timer
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:752: Failure
+Expected equality of these values:
+  a.draws
+    Which is: 1
+  before.draws + 1u
+    Which is: 2
+valid discovery draws one delay
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:753: Failure
+Expected equality of these values:
+  a.last_draw
+    Which is: 1
+  ADP_DRAW_DELAY
+    Which is: 2
+valid discovery uses the normal delay range
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:745: Failure
+Expected equality of these values:
+  a.discarded
+    Which is: 1
+  0u
+    Which is: 0
+valid discovery is never discarded
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:748: Failure
+Expected equality of these values:
+  a.state
+    Which is: 3
+  ADP_STATE_DELAY
+    Which is: 2
+valid discovery enters DELAY from WAITING
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:749: Failure
+Expected equality of these values:
+  fk.starts
+    Which is: 2
+  port_before.starts + 1u
+    Which is: 3
+valid discovery starts one delay timer
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:750: Failure
+Expected equality of these values:
+  fk.stops
+    Which is: 0
+  port_before.stops + 1u
+    Which is: 1
+valid discovery stops the advertisement timer
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:751: Failure
+Expected equality of these values:
+  a.timer
+    Which is: 2
+  ADP_TIMER_DELAY
+    Which is: 1
+valid discovery selects the delay timer
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:752: Failure
+Expected equality of these values:
+  a.draws
+    Which is: 1
+  before.draws + 1u
+    Which is: 2
+valid discovery draws one delay
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:753: Failure
+Expected equality of these values:
+  a.last_draw
+    Which is: 1
+  ADP_DRAW_DELAY
+    Which is: 2
+valid discovery uses the normal delay range
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:745: Failure
+Expected equality of these values:
+  a.discarded
+    Which is: 1
+  0u
+    Which is: 0
+valid discovery is never discarded
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:748: Failure
+Expected equality of these values:
+  a.state
+    Which is: 3
+  ADP_STATE_DELAY
+    Which is: 2
+valid discovery enters DELAY from WAITING
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:749: Failure
+Expected equality of these values:
+  fk.starts
+    Which is: 2
+  port_before.starts + 1u
+    Which is: 3
+valid discovery starts one delay timer
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:750: Failure
+Expected equality of these values:
+  fk.stops
+    Which is: 0
+  port_before.stops + 1u
+    Which is: 1
+valid discovery stops the advertisement timer
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:751: Failure
+Expected equality of these values:
+  a.timer
+    Which is: 2
+  ADP_TIMER_DELAY
+    Which is: 1
+valid discovery selects the delay timer
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:752: Failure
+Expected equality of these values:
+  a.draws
+    Which is: 1
+  before.draws + 1u
+    Which is: 2
+valid discovery draws one delay
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:753: Failure
+Expected equality of these values:
+  a.last_draw
+    Which is: 1
+  ADP_DRAW_DELAY
+    Which is: 2
+valid discovery uses the normal delay range
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:745: Failure
+Expected equality of these values:
+  a.discarded
+    Which is: 1
+  0u
+    Which is: 0
+valid discovery is never discarded
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:748: Failure
+Expected equality of these values:
+  a.state
+    Which is: 3
+  ADP_STATE_DELAY
+    Which is: 2
+valid discovery enters DELAY from WAITING
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:749: Failure
+Expected equality of these values:
+  fk.starts
+    Which is: 2
+  port_before.starts + 1u
+    Which is: 3
+valid discovery starts one delay timer
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:750: Failure
+Expected equality of these values:
+  fk.stops
+    Which is: 0
+  port_before.stops + 1u
+    Which is: 1
+valid discovery stops the advertisement timer
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:751: Failure
+Expected equality of these values:
+  a.timer
+    Which is: 2
+  ADP_TIMER_DELAY
+    Which is: 1
+valid discovery selects the delay timer
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:752: Failure
+Expected equality of these values:
+  a.draws
+    Which is: 1
+  before.draws + 1u
+    Which is: 2
+valid discovery draws one delay
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:753: Failure
+Expected equality of these values:
+  a.last_draw
+    Which is: 1
+  ADP_DRAW_DELAY
+    Which is: 2
+valid discovery uses the normal delay range
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:745: Failure
+Expected equality of these values:
+  a.discarded
+    Which is: 1
+  0u
+    Which is: 0
+valid discovery is never discarded
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:748: Failure
+Expected equality of these values:
+  a.state
+    Which is: 3
+  ADP_STATE_DELAY
+    Which is: 2
+valid discovery enters DELAY from WAITING
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:749: Failure
+Expected equality of these values:
+  fk.starts
+    Which is: 2
+  port_before.starts + 1u
+    Which is: 3
+valid discovery starts one delay timer
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:750: Failure
+Expected equality of these values:
+  fk.stops
+    Which is: 0
+  port_before.stops + 1u
+    Which is: 1
+valid discovery stops the advertisement timer
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:751: Failure
+Expected equality of these values:
+  a.timer
+    Which is: 2
+  ADP_TIMER_DELAY
+    Which is: 1
+valid discovery selects the delay timer
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:752: Failure
+Expected equality of these values:
+  a.draws
+    Which is: 1
+  before.draws + 1u
+    Which is: 2
+valid discovery draws one delay
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:753: Failure
+Expected equality of these values:
+  a.last_draw
+    Which is: 1
+  ADP_DRAW_DELAY
+    Which is: 2
+valid discovery uses the normal delay range
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:745: Failure
+Expected equality of these values:
+  a.discarded
+    Which is: 1
+  0u
+    Which is: 0
+valid discovery is never discarded
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:748: Failure
+Expected equality of these values:
+  a.state
+    Which is: 3
+  ADP_STATE_DELAY
+    Which is: 2
+valid discovery enters DELAY from WAITING
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:749: Failure
+Expected equality of these values:
+  fk.starts
+    Which is: 2
+  port_before.starts + 1u
+    Which is: 3
+valid discovery starts one delay timer
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:750: Failure
+Expected equality of these values:
+  fk.stops
+    Which is: 0
+  port_before.stops + 1u
+    Which is: 1
+valid discovery stops the advertisement timer
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:751: Failure
+Expected equality of these values:
+  a.timer
+    Which is: 2
+  ADP_TIMER_DELAY
+    Which is: 1
+valid discovery selects the delay timer
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:752: Failure
+Expected equality of these values:
+  a.draws
+    Which is: 1
+  before.draws + 1u
+    Which is: 2
+valid discovery draws one delay
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:753: Failure
+Expected equality of these values:
+  a.last_draw
+    Which is: 1
+  ADP_DRAW_DELAY
+    Which is: 2
+valid discovery uses the normal delay range
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:745: Failure
+Expected equality of these values:
+  a.discarded
+    Which is: 1
+  0u
+    Which is: 0
+valid discovery is never discarded
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:748: Failure
+Expected equality of these values:
+  a.state
+    Which is: 3
+  ADP_STATE_DELAY
+    Which is: 2
+valid discovery enters DELAY from WAITING
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:749: Failure
+Expected equality of these values:
+  fk.starts
+    Which is: 2
+  port_before.starts + 1u
+    Which is: 3
+valid discovery starts one delay timer
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:750: Failure
+Expected equality of these values:
+  fk.stops
+    Which is: 0
+  port_before.stops + 1u
+    Which is: 1
+valid discovery stops the advertisement timer
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:751: Failure
+Expected equality of these values:
+  a.timer
+    Which is: 2
+  ADP_TIMER_DELAY
+    Which is: 1
+valid discovery selects the delay timer
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:752: Failure
+Expected equality of these values:
+  a.draws
+    Which is: 1
+  before.draws + 1u
+    Which is: 2
+valid discovery draws one delay
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:753: Failure
+Expected equality of these values:
+  a.last_draw
+    Which is: 1
+  ADP_DRAW_DELAY
+    Which is: 2
+valid discovery uses the normal delay range
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:745: Failure
+Expected equality of these values:
+  a.discarded
+    Which is: 1
+  0u
+    Which is: 0
+valid discovery is never discarded
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:748: Failure
+Expected equality of these values:
+  a.state
+    Which is: 3
+  ADP_STATE_DELAY
+    Which is: 2
+valid discovery enters DELAY from WAITING
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:749: Failure
+Expected equality of these values:
+  fk.starts
+    Which is: 2
+  port_before.starts + 1u
+    Which is: 3
+valid discovery starts one delay timer
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:750: Failure
+Expected equality of these values:
+  fk.stops
+    Which is: 0
+  port_before.stops + 1u
+    Which is: 1
+valid discovery stops the advertisement timer
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:751: Failure
+Expected equality of these values:
+  a.timer
+    Which is: 2
+  ADP_TIMER_DELAY
+    Which is: 1
+valid discovery selects the delay timer
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:752: Failure
+Expected equality of these values:
+  a.draws
+    Which is: 1
+  before.draws + 1u
+    Which is: 2
+valid discovery draws one delay
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:753: Failure
+Expected equality of these values:
+  a.last_draw
+    Which is: 1
+  ADP_DRAW_DELAY
+    Which is: 2
+valid discovery uses the normal delay range
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:745: Failure
+Expected equality of these values:
+  a.discarded
+    Which is: 1
+  0u
+    Which is: 0
+valid discovery is never discarded
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:748: Failure
+Expected equality of these values:
+  a.state
+    Which is: 3
+  ADP_STATE_DELAY
+    Which is: 2
+valid discovery enters DELAY from WAITING
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:749: Failure
+Expected equality of these values:
+  fk.starts
+    Which is: 2
+  port_before.starts + 1u
+    Which is: 3
+valid discovery starts one delay timer
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:750: Failure
+Expected equality of these values:
+  fk.stops
+    Which is: 0
+  port_before.stops + 1u
+    Which is: 1
+valid discovery stops the advertisement timer
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:751: Failure
+Expected equality of these values:
+  a.timer
+    Which is: 2
+  ADP_TIMER_DELAY
+    Which is: 1
+valid discovery selects the delay timer
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:752: Failure
+Expected equality of these values:
+  a.draws
+    Which is: 1
+  before.draws + 1u
+    Which is: 2
+valid discovery draws one delay
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:753: Failure
+Expected equality of these values:
+  a.last_draw
+    Which is: 1
+  ADP_DRAW_DELAY
+    Which is: 2
+valid discovery uses the normal delay range
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:745: Failure
+Expected equality of these values:
+  a.discarded
+    Which is: 1
+  0u
+    Which is: 0
+valid discovery is never discarded
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:748: Failure
+Expected equality of these values:
+  a.state
+    Which is: 3
+  ADP_STATE_DELAY
+    Which is: 2
+valid discovery enters DELAY from WAITING
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:749: Failure
+Expected equality of these values:
+  fk.starts
+    Which is: 2
+  port_before.starts + 1u
+    Which is: 3
+valid discovery starts one delay timer
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:750: Failure
+Expected equality of these values:
+  fk.stops
+    Which is: 0
+  port_before.stops + 1u
+    Which is: 1
+valid discovery stops the advertisement timer
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:751: Failure
+Expected equality of these values:
+  a.timer
+    Which is: 2
+  ADP_TIMER_DELAY
+    Which is: 1
+valid discovery selects the delay timer
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:752: Failure
+Expected equality of these values:
+  a.draws
+    Which is: 1
+  before.draws + 1u
+    Which is: 2
+valid discovery draws one delay
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:753: Failure
+Expected equality of these values:
+  a.last_draw
+    Which is: 1
+  ADP_DRAW_DELAY
+    Which is: 2
+valid discovery uses the normal delay range
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:745: Failure
+Expected equality of these values:
+  a.discarded
+    Which is: 1
+  0u
+    Which is: 0
+valid discovery is never discarded
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:748: Failure
+Expected equality of these values:
+  a.state
+    Which is: 3
+  ADP_STATE_DELAY
+    Which is: 2
+valid discovery enters DELAY from WAITING
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:749: Failure
+Expected equality of these values:
+  fk.starts
+    Which is: 2
+  port_before.starts + 1u
+    Which is: 3
+valid discovery starts one delay timer
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:750: Failure
+Expected equality of these values:
+  fk.stops
+    Which is: 0
+  port_before.stops + 1u
+    Which is: 1
+valid discovery stops the advertisement timer
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:751: Failure
+Expected equality of these values:
+  a.timer
+    Which is: 2
+  ADP_TIMER_DELAY
+    Which is: 1
+valid discovery selects the delay timer
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:752: Failure
+Expected equality of these values:
+  a.draws
+    Which is: 1
+  before.draws + 1u
+    Which is: 2
+valid discovery draws one delay
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:753: Failure
+Expected equality of these values:
+  a.last_draw
+    Which is: 1
+  ADP_DRAW_DELAY
+    Which is: 2
+valid discovery uses the normal delay range
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:745: Failure
+Expected equality of these values:
+  a.discarded
+    Which is: 1
+  0u
+    Which is: 0
+valid discovery is never discarded
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:748: Failure
+Expected equality of these values:
+  a.state
+    Which is: 3
+  ADP_STATE_DELAY
+    Which is: 2
+valid discovery enters DELAY from WAITING
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:749: Failure
+Expected equality of these values:
+  fk.starts
+    Which is: 2
+  port_before.starts + 1u
+    Which is: 3
+valid discovery starts one delay timer
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:750: Failure
+Expected equality of these values:
+  fk.stops
+    Which is: 0
+  port_before.stops + 1u
+    Which is: 1
+valid discovery stops the advertisement timer
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:751: Failure
+Expected equality of these values:
+  a.timer
+    Which is: 2
+  ADP_TIMER_DELAY
+    Which is: 1
+valid discovery selects the delay timer
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:752: Failure
+Expected equality of these values:
+  a.draws
+    Which is: 1
+  before.draws + 1u
+    Which is: 2
+valid discovery draws one delay
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:753: Failure
+Expected equality of these values:
+  a.last_draw
+    Which is: 1
+  ADP_DRAW_DELAY
+    Which is: 2
+valid discovery uses the normal delay range
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:745: Failure
+Expected equality of these values:
+  a.discarded
+    Which is: 1
+  0u
+    Which is: 0
+valid discovery is never discarded
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:748: Failure
+Expected equality of these values:
+  a.state
+    Which is: 3
+  ADP_STATE_DELAY
+    Which is: 2
+valid discovery enters DELAY from WAITING
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:749: Failure
+Expected equality of these values:
+  fk.starts
+    Which is: 2
+  port_before.starts + 1u
+    Which is: 3
+valid discovery starts one delay timer
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:750: Failure
+Expected equality of these values:
+  fk.stops
+    Which is: 0
+  port_before.stops + 1u
+    Which is: 1
+valid discovery stops the advertisement timer
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:751: Failure
+Expected equality of these values:
+  a.timer
+    Which is: 2
+  ADP_TIMER_DELAY
+    Which is: 1
+valid discovery selects the delay timer
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:752: Failure
+Expected equality of these values:
+  a.draws
+    Which is: 1
+  before.draws + 1u
+    Which is: 2
+valid discovery draws one delay
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:753: Failure
+Expected equality of these values:
+  a.last_draw
+    Which is: 1
+  ADP_DRAW_DELAY
+    Which is: 2
+valid discovery uses the normal delay range
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:745: Failure
+Expected equality of these values:
+  a.discarded
+    Which is: 1
+  0u
+    Which is: 0
+valid discovery is never discarded
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:748: Failure
+Expected equality of these values:
+  a.state
+    Which is: 3
+  ADP_STATE_DELAY
+    Which is: 2
+valid discovery enters DELAY from WAITING
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:749: Failure
+Expected equality of these values:
+  fk.starts
+    Which is: 2
+  port_before.starts + 1u
+    Which is: 3
+valid discovery starts one delay timer
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:750: Failure
+Expected equality of these values:
+  fk.stops
+    Which is: 0
+  port_before.stops + 1u
+    Which is: 1
+valid discovery stops the advertisement timer
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:751: Failure
+Expected equality of these values:
+  a.timer
+    Which is: 2
+  ADP_TIMER_DELAY
+    Which is: 1
+valid discovery selects the delay timer
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:752: Failure
+Expected equality of these values:
+  a.draws
+    Which is: 1
+  before.draws + 1u
+    Which is: 2
+valid discovery draws one delay
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:753: Failure
+Expected equality of these values:
+  a.last_draw
+    Which is: 1
+  ADP_DRAW_DELAY
+    Which is: 2
+valid discovery uses the normal delay range
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:745: Failure
+Expected equality of these values:
+  a.discarded
+    Which is: 1
+  0u
+    Which is: 0
+valid discovery is never discarded
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:748: Failure
+Expected equality of these values:
+  a.state
+    Which is: 3
+  ADP_STATE_DELAY
+    Which is: 2
+valid discovery enters DELAY from WAITING
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:749: Failure
+Expected equality of these values:
+  fk.starts
+    Which is: 2
+  port_before.starts + 1u
+    Which is: 3
+valid discovery starts one delay timer
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:750: Failure
+Expected equality of these values:
+  fk.stops
+    Which is: 0
+  port_before.stops + 1u
+    Which is: 1
+valid discovery stops the advertisement timer
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:751: Failure
+Expected equality of these values:
+  a.timer
+    Which is: 2
+  ADP_TIMER_DELAY
+    Which is: 1
+valid discovery selects the delay timer
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:752: Failure
+Expected equality of these values:
+  a.draws
+    Which is: 1
+  before.draws + 1u
+    Which is: 2
+valid discovery draws one delay
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:753: Failure
+Expected equality of these values:
+  a.last_draw
+    Which is: 1
+  ADP_DRAW_DELAY
+    Which is: 2
+valid discovery uses the normal delay range
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:745: Failure
+Expected equality of these values:
+  a.discarded
+    Which is: 1
+  0u
+    Which is: 0
+valid discovery is never discarded
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:748: Failure
+Expected equality of these values:
+  a.state
+    Which is: 3
+  ADP_STATE_DELAY
+    Which is: 2
+valid discovery enters DELAY from WAITING
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:749: Failure
+Expected equality of these values:
+  fk.starts
+    Which is: 2
+  port_before.starts + 1u
+    Which is: 3
+valid discovery starts one delay timer
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:750: Failure
+Expected equality of these values:
+  fk.stops
+    Which is: 0
+  port_before.stops + 1u
+    Which is: 1
+valid discovery stops the advertisement timer
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:751: Failure
+Expected equality of these values:
+  a.timer
+    Which is: 2
+  ADP_TIMER_DELAY
+    Which is: 1
+valid discovery selects the delay timer
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:752: Failure
+Expected equality of these values:
+  a.draws
+    Which is: 1
+  before.draws + 1u
+    Which is: 2
+valid discovery draws one delay
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:753: Failure
+Expected equality of these values:
+  a.last_draw
+    Which is: 1
+  ADP_DRAW_DELAY
+    Which is: 2
+valid discovery uses the normal delay range
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:745: Failure
+Expected equality of these values:
+  a.discarded
+    Which is: 1
+  0u
+    Which is: 0
+valid discovery is never discarded
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:748: Failure
+Expected equality of these values:
+  a.state
+    Which is: 3
+  ADP_STATE_DELAY
+    Which is: 2
+valid discovery enters DELAY from WAITING
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:749: Failure
+Expected equality of these values:
+  fk.starts
+    Which is: 2
+  port_before.starts + 1u
+    Which is: 3
+valid discovery starts one delay timer
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:750: Failure
+Expected equality of these values:
+  fk.stops
+    Which is: 0
+  port_before.stops + 1u
+    Which is: 1
+valid discovery stops the advertisement timer
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:751: Failure
+Expected equality of these values:
+  a.timer
+    Which is: 2
+  ADP_TIMER_DELAY
+    Which is: 1
+valid discovery selects the delay timer
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:752: Failure
+Expected equality of these values:
+  a.draws
+    Which is: 1
+  before.draws + 1u
+    Which is: 2
+valid discovery draws one delay
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:753: Failure
+Expected equality of these values:
+  a.last_draw
+    Which is: 1
+  ADP_DRAW_DELAY
+    Which is: 2
+valid discovery uses the normal delay range
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:745: Failure
+Expected equality of these values:
+  a.discarded
+    Which is: 1
+  0u
+    Which is: 0
+valid discovery is never discarded
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:748: Failure
+Expected equality of these values:
+  a.state
+    Which is: 3
+  ADP_STATE_DELAY
+    Which is: 2
+valid discovery enters DELAY from WAITING
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:749: Failure
+Expected equality of these values:
+  fk.starts
+    Which is: 2
+  port_before.starts + 1u
+    Which is: 3
+valid discovery starts one delay timer
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:750: Failure
+Expected equality of these values:
+  fk.stops
+    Which is: 0
+  port_before.stops + 1u
+    Which is: 1
+valid discovery stops the advertisement timer
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:751: Failure
+Expected equality of these values:
+  a.timer
+    Which is: 2
+  ADP_TIMER_DELAY
+    Which is: 1
+valid discovery selects the delay timer
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:752: Failure
+Expected equality of these values:
+  a.draws
+    Which is: 1
+  before.draws + 1u
+    Which is: 2
+valid discovery draws one delay
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:753: Failure
+Expected equality of these values:
+  a.last_draw
+    Which is: 1
+  ADP_DRAW_DELAY
+    Which is: 2
+valid discovery uses the normal delay range
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:745: Failure
+Expected equality of these values:
+  a.discarded
+    Which is: 1
+  0u
+    Which is: 0
+valid discovery is never discarded
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:748: Failure
+Expected equality of these values:
+  a.state
+    Which is: 3
+  ADP_STATE_DELAY
+    Which is: 2
+valid discovery enters DELAY from WAITING
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:749: Failure
+Expected equality of these values:
+  fk.starts
+    Which is: 2
+  port_before.starts + 1u
+    Which is: 3
+valid discovery starts one delay timer
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:750: Failure
+Expected equality of these values:
+  fk.stops
+    Which is: 0
+  port_before.stops + 1u
+    Which is: 1
+valid discovery stops the advertisement timer
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:751: Failure
+Expected equality of these values:
+  a.timer
+    Which is: 2
+  ADP_TIMER_DELAY
+    Which is: 1
+valid discovery selects the delay timer
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:752: Failure
+Expected equality of these values:
+  a.draws
+    Which is: 1
+  before.draws + 1u
+    Which is: 2
+valid discovery draws one delay
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:753: Failure
+Expected equality of these values:
+  a.last_draw
+    Which is: 1
+  ADP_DRAW_DELAY
+    Which is: 2
+valid discovery uses the normal delay range
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:745: Failure
+Expected equality of these values:
+  a.discarded
+    Which is: 1
+  0u
+    Which is: 0
+valid discovery is never discarded
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:748: Failure
+Expected equality of these values:
+  a.state
+    Which is: 3
+  ADP_STATE_DELAY
+    Which is: 2
+valid discovery enters DELAY from WAITING
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:749: Failure
+Expected equality of these values:
+  fk.starts
+    Which is: 2
+  port_before.starts + 1u
+    Which is: 3
+valid discovery starts one delay timer
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:750: Failure
+Expected equality of these values:
+  fk.stops
+    Which is: 0
+  port_before.stops + 1u
+    Which is: 1
+valid discovery stops the advertisement timer
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:751: Failure
+Expected equality of these values:
+  a.timer
+    Which is: 2
+  ADP_TIMER_DELAY
+    Which is: 1
+valid discovery selects the delay timer
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:752: Failure
+Expected equality of these values:
+  a.draws
+    Which is: 1
+  before.draws + 1u
+    Which is: 2
+valid discovery draws one delay
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:753: Failure
+Expected equality of these values:
+  a.last_draw
+    Which is: 1
+  ADP_DRAW_DELAY
+    Which is: 2
+valid discovery uses the normal delay range
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:745: Failure
+Expected equality of these values:
+  a.discarded
+    Which is: 1
+  0u
+    Which is: 0
+valid discovery is never discarded
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:748: Failure
+Expected equality of these values:
+  a.state
+    Which is: 3
+  ADP_STATE_DELAY
+    Which is: 2
+valid discovery enters DELAY from WAITING
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:749: Failure
+Expected equality of these values:
+  fk.starts
+    Which is: 2
+  port_before.starts + 1u
+    Which is: 3
+valid discovery starts one delay timer
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:750: Failure
+Expected equality of these values:
+  fk.stops
+    Which is: 0
+  port_before.stops + 1u
+    Which is: 1
+valid discovery stops the advertisement timer
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:751: Failure
+Expected equality of these values:
+  a.timer
+    Which is: 2
+  ADP_TIMER_DELAY
+    Which is: 1
+valid discovery selects the delay timer
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:752: Failure
+Expected equality of these values:
+  a.draws
+    Which is: 1
+  before.draws + 1u
+    Which is: 2
+valid discovery draws one delay
+
+/data-2/milan/tmp/adpcdl-a849/tsn-c-stack/tests/test_adp.cpp:753: Failure
+Expected equality of these values:
+  a.last_draw
+    Which is: 1
+  ADP_DRAW_DELAY
+    Which is: 2
+valid discovery uses the normal delay range
+
+[  FAILED  ] AllStates/AdpInputControl.AcceptsLongControlDataLength/4, where GetParam() = 4 (1 ms)
+[ RUN      ] AllStates/AdpInputControl.ValidDiscovery/0
+[       OK ] AllStates/AdpInputControl.ValidDiscovery/0 (0 ms)
+[ RUN      ] AllStates/AdpInputControl.ValidDiscovery/1
+[       OK ] AllStates/AdpInputControl.ValidDiscovery/1 (0 ms)
+[ RUN      ] AllStates/AdpInputControl.ValidDiscovery/2
+[       OK ] AllStates/AdpInputControl.ValidDiscovery/2 (0 ms)
+[ RUN      ] AllStates/AdpInputControl.ValidDiscovery/3
+[       OK ] AllStates/AdpInputControl.ValidDiscovery/3 (0 ms)
+[ RUN      ] AllStates/AdpInputControl.ValidDiscovery/4
+[       OK ] AllStates/AdpInputControl.ValidDiscovery/4 (0 ms)
+[----------] 25 tests from AllStates/AdpInputControl (4 ms total)
+
+[----------] Global test environment tear-down
+[==========] 25 tests from 1 test suite ran. (4 ms total)
+[  PASSED  ] 20 tests.
+[  FAILED  ] 5 tests, listed below:
+[  FAILED  ] AllStates/AdpInputControl.AcceptsLongControlDataLength/0, where GetParam() = 0
+[  FAILED  ] AllStates/AdpInputControl.AcceptsLongControlDataLength/1, where GetParam() = 1
+[  FAILED  ] AllStates/AdpInputControl.AcceptsLongControlDataLength/2, where GetParam() = 2
+[  FAILED  ] AllStates/AdpInputControl.AcceptsLongControlDataLength/3, where GetParam() = 3
+[  FAILED  ] AllStates/AdpInputControl.AcceptsLongControlDataLength/4, where GetParam() = 4
+
+ 5 FAILED TESTS

@@ -1,0 +1,151 @@
+toolchain: {'cc': 'gcc (GCC) 16.2.1 20260810', 'cxx': 'g++ (GCC) 16.2.1 20260810', 'gcov': 'gcov (GCC) 16.2.1 20260810', 'gtest': '1.14.0', 'gmock': '1.14.0'}
+tsn-c-stack at e0b144904e57c96928f1dd3fca36a00df42f6ed3
+[ok] arm adp
+    C0 LINK_UP -> TMR_DELAY armed                 11 accesses (bound 11)
+    C1 TMR_DELAY -> ENTITY_AVAILABLE, TMR_ADVERTISE  38 accesses (bound 39)
+    C2 RCV_ADP_DISCOVER -> TMR_DELAY armed        31 accesses (bound 31)
+    C3 TMR_ADVERTISE -> TMR_DELAY armed           11 accesses (bound 11)
+    C4 GM_CHANGE -> TMR_DELAY armed               11 accesses (bound 11)
+    C5 LINK_DOWN -> timer cancelled                9 accesses (bound 11)
+    C6 SHUTDOWN -> ENTITY_DEPARTING committed     28 accesses (bound 29)
+    G1 64 LINK_UPs: the first ENTITY_AVAILABLE 64 distinct delays, the latest 3990 ms after LINK_UP (its draw 0 to 4000 ms; the declared discovery time 6000 ms)
+    G5 the TMR_ADVERTISE delays after them: 63 distinct, the latest 3966 ms (0 to 4000)
+    G1 the LINK_UP delays, by 4 parts of 0 to 4000 ms: 17 9 19 19
+    G5 the TMR_ADVERTISE delays, by 4 parts of 0 to 4000 ms: 18 11 15 20
+    G2 32 startups with the link up: the first ENTITY_AVAILABLE 32 distinct delays, the latest 1981 ms (its draw 0 to 2000 ms)
+    G2 the startup delays, by 2 parts of 0 to 2000 ms: 18 14
+    G3 32 LINK_UPs with a grandmaster change in the delay: the first ENTITY_AVAILABLE the latest 3649 ms after LINK_UP
+    G4 32 LINK_UPs, a grandmaster change 4.5 s after each: the first ENTITY_AVAILABLE the latest 3697 ms after LINK_UP, the new grandmaster's the latest 3994 ms after the change
+    G4 the grandmaster change's delays, by 2 parts of 0 to 4000 ms: 6 26
+    backlog: 16 event records, 30 centiseconds, 8 receive records
+    passes: events by 2, ENTITY_AVAILABLE in 2 (170 accesses), receive ring by 5 (223 accesses), idle at 16; worst pass 100 accesses
+    F5 the costliest pass of the backlog         100 accesses (bound 407)
+    E5 1 SHUTDOWNs, expiry taken before the room: room to ENTITY_AVAILABLE  62 accesses (bound 1628)
+    E5 1 SHUTDOWNs, expiry taken after the room: room to ENTITY_AVAILABLE  68 accesses (bound 1628)
+    E5 2 SHUTDOWNs, expiry taken before the room: room to ENTITY_AVAILABLE  91 accesses (bound 1628)
+    E5 2 SHUTDOWNs, expiry taken after the room: room to ENTITY_AVAILABLE  97 accesses (bound 1628)
+    E5 64 SHUTDOWNs, expiry taken before the room: room to ENTITY_AVAILABLE  91 accesses (bound 1628)
+    E5 64 SHUTDOWNs, expiry taken after the room: room to ENTITY_AVAILABLE  97 accesses (bound 1628)
+    == ctrl ADP slice (fake ports and host model): checks: 64   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (64 tests, 0 failures, exit 0)
+[ok] arm port
+    == ctrl port, driver and loop (host model): checks: 51   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (51 tests, 0 failures, exit 0)
+[ok] arm walk
+    walked 36 cells of the processor's ADV table (N 10, I 16, S 4, C 6); 9 draw-in-flight cells not applicable
+    == ctrl ADP walk (processor stimulus, host model): checks: 41   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (41 tests, 0 failures, exit 0)
+[ok] arm acmp
+    C0 BIND_RX -> response, PROBE_TX, TMR_NO_RESP, talker admitted, interface 0   75 accesses (bound 77)
+    C1 GET_RX_STATE -> response, interface 0                                   46 accesses (bound 47)
+    C2 PROBE_TX_RESPONSE -> TMR_NO_TK armed, interface 0                       32 accesses (bound 32)
+    C3 UNBIND_RX -> response, timer stopped, talker withdrawn, interface 0     49 accesses (bound 50)
+    C4 talker command -> response, interface 0                                 47 accesses (bound 48)
+    C4 talker command -> response, interface 0                                 46 accesses (bound 48)
+    C4 talker command -> response, interface 0                                 46 accesses (bound 48)
+    C4 talker command -> response, interface 0                                 46 accesses (bound 48)
+    C2 PROBE_TX_RESPONSE (failed) -> TMR_RETRY armed, interface 0              28 accesses (bound 32)
+    C5 TMR_NO_RESP -> duplicate PROBE_TX, TMR_NO_RESP, interface 0             34 accesses (bound 35)
+    C6 TMR_NO_RESP -> TMR_RETRY armed, interface 0                             12 accesses (bound 14)
+    C7 TMR_RETRY -> TMR_DELAY armed, interface 0                               13 accesses (bound 14)
+    C8 TMR_DELAY -> PROBE_TX, TMR_NO_RESP, interface 0                         34 accesses (bound 35)
+    C9 TMR_NO_TK -> TMR_DELAY armed, interface 0                               13 accesses (bound 14)
+    C9 TMR_NO_TK, the run's first draw -> TMR_DELAY armed, interface 0         14 accesses (bound 14)
+    C10 ENTITY_AVAILABLE from its RX_HEAD -> TMR_DELAY armed (H-DISC), interface 0   35 accesses (bound 35)
+    C11 ENTITY_DEPARTING from its RX_HEAD -> timer stopped (H-DISC), interface 0   29 accesses (bound 30)
+    C12 TMR_NO_ADP -> TK_NOT_DISCOVERED, timer re-armed (H-DISC), interface 0   12 accesses (bound 12)
+    E2 0 owed ahead: room to response                                          26 accesses (bound 24786)
+    E2 3 owed ahead: room to response                                         101 accesses (bound 24786)
+    E2 7 owed ahead: room to response                                         201 accesses (bound 24786)
+    K1 the worst pass of the drain, a kept command offered again               46 accesses (bound 2754)
+    backlog: 16 event records, 12 acmp records of 70 bytes; worst pass 189 accesses
+    F3 the worst pass of the backlog                                          189 accesses (bound 2754)
+    adp backlog: 26 records through the filter, the ENTITY_AVAILABLE served in pass 13
+    F5 ENTITY_AVAILABLE behind a full adp ring, from its RX_HEAD (H-DISC)     333 accesses (bound 60588)
+    three-way backlog: 15 event records, 12 acmp and 7 maap records; worst pass 227 accesses
+    F6 the worst pass of the three-way backlog                                227 accesses (bound 3507)
+    == ctrl ACMP core and adapter (fake ports and host model): checks: 165   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (165 tests, 0 failures, exit 0)
+[ok] arm acmpif2
+    C0 BIND_RX -> response, PROBE_TX, TMR_NO_RESP, talker admitted, interface 0   75 accesses (bound 77)
+    C1 GET_RX_STATE -> response, interface 0                                   46 accesses (bound 47)
+    C2 PROBE_TX_RESPONSE -> TMR_NO_TK armed, interface 0                       32 accesses (bound 32)
+    C3 UNBIND_RX -> response, timer stopped, talker withdrawn, interface 0     49 accesses (bound 50)
+    C4 talker command -> response, interface 0                                 47 accesses (bound 48)
+    C4 talker command -> response, interface 0                                 46 accesses (bound 48)
+    C4 talker command -> response, interface 0                                 46 accesses (bound 48)
+    C4 talker command -> response, interface 0                                 46 accesses (bound 48)
+    C2 PROBE_TX_RESPONSE (failed) -> TMR_RETRY armed, interface 0              28 accesses (bound 32)
+    C0 BIND_RX -> response, PROBE_TX, TMR_NO_RESP, talker admitted, interface 1   75 accesses (bound 77)
+    C1 GET_RX_STATE -> response, interface 1                                   46 accesses (bound 47)
+    C2 PROBE_TX_RESPONSE -> TMR_NO_TK armed, interface 1                       32 accesses (bound 32)
+    C3 UNBIND_RX -> response, timer stopped, talker withdrawn, interface 1     49 accesses (bound 50)
+    C4 talker command -> response, interface 1                                 47 accesses (bound 48)
+    C4 talker command -> response, interface 1                                 46 accesses (bound 48)
+    C4 talker command -> response, interface 1                                 46 accesses (bound 48)
+    C4 talker command -> response, interface 1                                 46 accesses (bound 48)
+    C2 PROBE_TX_RESPONSE (failed) -> TMR_RETRY armed, interface 1              28 accesses (bound 32)
+    C5 TMR_NO_RESP -> duplicate PROBE_TX, TMR_NO_RESP, interface 0             34 accesses (bound 35)
+    C6 TMR_NO_RESP -> TMR_RETRY armed, interface 0                             12 accesses (bound 14)
+    C7 TMR_RETRY -> TMR_DELAY armed, interface 0                               13 accesses (bound 14)
+    C8 TMR_DELAY -> PROBE_TX, TMR_NO_RESP, interface 0                         34 accesses (bound 35)
+    C9 TMR_NO_TK -> TMR_DELAY armed, interface 0                               13 accesses (bound 14)
+    C9 TMR_NO_TK, the run's first draw -> TMR_DELAY armed, interface 0         14 accesses (bound 14)
+    C5 TMR_NO_RESP -> duplicate PROBE_TX, TMR_NO_RESP, interface 1             34 accesses (bound 35)
+    C6 TMR_NO_RESP -> TMR_RETRY armed, interface 1                             12 accesses (bound 14)
+    C7 TMR_RETRY -> TMR_DELAY armed, interface 1                               13 accesses (bound 14)
+    C8 TMR_DELAY -> PROBE_TX, TMR_NO_RESP, interface 1                         34 accesses (bound 35)
+    C9 TMR_NO_TK -> TMR_DELAY armed, interface 1                               13 accesses (bound 14)
+    C9 TMR_NO_TK, the run's first draw -> TMR_DELAY armed, interface 1         14 accesses (bound 14)
+    C10 ENTITY_AVAILABLE from its RX_HEAD -> TMR_DELAY armed (H-DISC), interface 0   35 accesses (bound 35)
+    C11 ENTITY_DEPARTING from its RX_HEAD -> timer stopped (H-DISC), interface 0   29 accesses (bound 30)
+    C10 ENTITY_AVAILABLE from its RX_HEAD -> TMR_DELAY armed (H-DISC), interface 1   35 accesses (bound 35)
+    C11 ENTITY_DEPARTING from its RX_HEAD -> timer stopped (H-DISC), interface 1   29 accesses (bound 30)
+    C12 TMR_NO_ADP -> TK_NOT_DISCOVERED, timer re-armed (H-DISC), interface 0   12 accesses (bound 12)
+    C12 TMR_NO_ADP -> TK_NOT_DISCOVERED, timer re-armed (H-DISC), interface 1   12 accesses (bound 12)
+    E2 0 owed ahead: room to response                                          26 accesses (bound 25065)
+    E2 3 owed ahead: room to response                                         101 accesses (bound 25065)
+    E2 7 owed ahead: room to response                                         201 accesses (bound 25065)
+    K1 the worst pass of the drain, a kept command offered again               46 accesses (bound 2785)
+    backlog: 16 event records, 12 acmp records of 70 bytes; worst pass 191 accesses
+    F3 the worst pass of the backlog                                          191 accesses (bound 2785)
+    adp backlog: 26 records through the filter, the ENTITY_AVAILABLE served in pass 13
+    F5 ENTITY_AVAILABLE behind a full adp ring, from its RX_HEAD (H-DISC)     333 accesses (bound 61270)
+    three-way backlog: 14 event records, 12 acmp and 7 maap records; worst pass 229 accesses
+    F6 the worst pass of the three-way backlog                                229 accesses (bound 3603)
+    == ctrl ACMP adapter on the two-interface contract (host model): checks: 38   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (38 tests, 0 failures, exit 0)
+[ok] arm unit
+    == ctrl units on the HAL and port-layer mocks: checks: 26   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (26 tests, 0 failures, exit 0)
+    == ctrl MMIO platform (host window): checks: 2   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (2 tests, 0 failures, exit 0)
+    == ctrl mailbox driver on the MMIO window (host window): checks: 1   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (1 tests, 0 failures, exit 0)
+    == ctrl mailbox driver with the record mover (host register model): checks: 10   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (10 tests, 0 failures, exit 0)
+    == ctrl memory primitives (host): checks: 5   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (5 tests, 0 failures, exit 0)
+[ok] arm reentry_debug
+    == ADP debug re-entry: checks: 122   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (122 tests, 0 failures, exit 0)
+[ok] arm reentry_release
+    == ADP release re-entry: checks: 122   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (122 tests, 0 failures, exit 0)
+[ok] arm portable
+    Portable.CompilerExtensionsOnlyInThePlatformHeader: 0 finding(s)
+    == ctrl port, driver and loop (host model): checks: 51   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (51 tests, 0 failures, exit 0)

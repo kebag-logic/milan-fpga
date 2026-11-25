@@ -1,0 +1,49 @@
+toolchain: {'cc': 'gcc (GCC) 16.2.1 20260810', 'cxx': 'g++ (GCC) 16.2.1 20260810', 'gcov': 'gcov (GCC) 16.2.1 20260810', 'gtest': '1.14.0', 'gmock': '1.14.0'}
+tsn-c-stack at e0b144904e57c96928f1dd3fca36a00df42f6ed3
+[FAIL] arm adp
+    std::memcmp(adp0(), &expected, sizeof expected)
+    Which is: -1
+    0
+    [FAIL] AdpAdapter.PinRejectsWrongDiscoveryControlLength: malformed discovery changes only the discard count through the parent adapter
+    model.tmr_ops
+    Which is: 4
+    timers
+    Which is: 2
+    [FAIL] AdpAdapter.PinRejectsWrongDiscoveryControlLength: malformed discovery touches no timer
+    std::memcmp(adp0(), &expected, sizeof expected)
+    Which is: -1
+    0
+    [FAIL] AdpAdapter.PinRejectsWrongDiscoveryControlLength: malformed discovery changes only the discard count through the parent adapter
+    model.tmr_ops
+    Which is: 4
+    timers
+    Which is: 2
+    [FAIL] AdpAdapter.PinRejectsWrongDiscoveryControlLength: malformed discovery touches no timer
+    C0 LINK_UP -> TMR_DELAY armed                 11 accesses (bound 11)
+    C1 TMR_DELAY -> ENTITY_AVAILABLE, TMR_ADVERTISE  38 accesses (bound 39)
+    C2 RCV_ADP_DISCOVER -> TMR_DELAY armed        31 accesses (bound 31)
+    C3 TMR_ADVERTISE -> TMR_DELAY armed           11 accesses (bound 11)
+    C4 GM_CHANGE -> TMR_DELAY armed               11 accesses (bound 11)
+    C5 LINK_DOWN -> timer cancelled                9 accesses (bound 11)
+    C6 SHUTDOWN -> ENTITY_DEPARTING committed     28 accesses (bound 29)
+    G1 64 LINK_UPs: the first ENTITY_AVAILABLE 64 distinct delays, the latest 3990 ms after LINK_UP (its draw 0 to 4000 ms; the declared discovery time 6000 ms)
+    G5 the TMR_ADVERTISE delays after them: 63 distinct, the latest 3966 ms (0 to 4000)
+    G1 the LINK_UP delays, by 4 parts of 0 to 4000 ms: 17 9 19 19
+    G5 the TMR_ADVERTISE delays, by 4 parts of 0 to 4000 ms: 18 11 15 20
+    G2 32 startups with the link up: the first ENTITY_AVAILABLE 32 distinct delays, the latest 1981 ms (its draw 0 to 2000 ms)
+    G2 the startup delays, by 2 parts of 0 to 2000 ms: 18 14
+    G3 32 LINK_UPs with a grandmaster change in the delay: the first ENTITY_AVAILABLE the latest 3649 ms after LINK_UP
+    G4 32 LINK_UPs, a grandmaster change 4.5 s after each: the first ENTITY_AVAILABLE the latest 3697 ms after LINK_UP, the new grandmaster's the latest 3994 ms after the change
+    G4 the grandmaster change's delays, by 2 parts of 0 to 4000 ms: 6 26
+    backlog: 16 event records, 30 centiseconds, 8 receive records
+    passes: events by 2, ENTITY_AVAILABLE in 2 (170 accesses), receive ring by 5 (223 accesses), idle at 16; worst pass 100 accesses
+    F5 the costliest pass of the backlog         100 accesses (bound 407)
+    E5 1 SHUTDOWNs, expiry taken before the room: room to ENTITY_AVAILABLE  62 accesses (bound 1628)
+    E5 1 SHUTDOWNs, expiry taken after the room: room to ENTITY_AVAILABLE  68 accesses (bound 1628)
+    E5 2 SHUTDOWNs, expiry taken before the room: room to ENTITY_AVAILABLE  91 accesses (bound 1628)
+    E5 2 SHUTDOWNs, expiry taken after the room: room to ENTITY_AVAILABLE  97 accesses (bound 1628)
+    E5 64 SHUTDOWNs, expiry taken before the room: room to ENTITY_AVAILABLE  91 accesses (bound 1628)
+    E5 64 SHUTDOWNs, expiry taken after the room: room to ENTITY_AVAILABLE  97 accesses (bound 1628)
+    == ctrl ADP slice (fake ports and host model): checks: 63   failures: 1 ==
+    RESULT: FAIL
+    verdict: FAIL (its tallies report 1 failure(s) across 63 checks, exit 1)
