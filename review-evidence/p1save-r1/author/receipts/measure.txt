@@ -1,0 +1,24 @@
+# The save harness's bind groups with the part's busy times modelled (tb/verilator/ctrl_service_budget, BUDGET_FLASH_US=120000:500:
+# erase 120 ms, page program 0.5 ms), head fcdf0b2df's firmware and, as the calibration, 2509db68's (save-bind group, its board's bind-to-durable 1.490-1.502 s).
+== calibration, 2509db68 at 8x8/1if: the base image's save-bind (whole commit)
+STEPS 1627 passes carry the store's step; the longest 114,657 CPU cycles (1.147 ms), save-bind; the longest step 78,684 (0.787 ms), save-bind
+SAVE save-bind: durable 1451.526 ms after its change (stated worst case 12,920 ms, 397 steps, longest gap between flash steps 106.514 ms) within
+1 groups graded, 0 refusals, 0 budget misses (0 of 0 probe instances, 0 of 0 paths), 0 of 1783 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+== 8x8/1if, the window firmware, every group (run.py's own grading; the bind groups and #920's, flash modelled)
+BURST save-burst: 115 name(s), the latest durable 1507.883 ms after its response (name 0; target 5,000 ms), 6 save(s), the cut's container sequence 6, 0 name(s) missing within
+BURST save-flight: 1 name(s), the latest durable 964.716 ms after its response (name 0; target 5,000 ms), 2 save(s), 61 steps to the next save's erase (want 61) within
+BIND save-bind-burst: 64 command(s), the latest durable 155.319 ms after its response (sink 2; target 250 ms), 6 save(s), 6 frame(s), 0 erase(s), 0 sink(s) not as last commanded at the cut within
+BIND save-bind-frame: 1 command(s), the latest durable 134.280 ms after its response (sink 0; target 250 ms), 1 save(s), 1 frame(s), 0 erase(s), 0 sink(s) not as last commanded at the cut within
+BIND save-bind: 1 command(s), the latest durable 561.489 ms after its response (sink 0; target 800 ms), 1 save(s), 0 frame(s), 1 erase(s), 0 sink(s) not as last commanded at the cut within
+STEPS 18963 passes carry the store's step; the longest 121,825 CPU cycles (1.218 ms), save-bind-burst; the longest step 80,763 (0.808 ms), save-burst
+SAVE save: durable 1452.762 ms after its change (stated worst case 12,950 ms, 398 steps, longest gap between flash steps 107.468 ms) within
+6 groups graded, 0 refusals, 0 budget misses (0 of 14 probe instances, 0 of 6 paths), 0 of 14740 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+== 1x1/1if, the window firmware, every group (run.py's own grading; the bind groups and #920's, flash modelled)
+BURST save-flight: 1 name(s), the latest durable 402.135 ms after its response (name 0; target 5,000 ms), 2 save(s), 19 steps to the next save's erase (want 19) within
+BURST save-burst: 39 name(s), the latest durable 1230.588 ms after its response (name 0; target 5,000 ms), 1 save(s), the cut's container sequence 1, 0 name(s) missing within
+BIND save-bind-burst: 64 command(s), the latest durable 46.867 ms after its response (sink 0; target 250 ms), 6 save(s), 6 frame(s), 0 erase(s), 0 sink(s) not as last commanded at the cut within
+BIND save-bind-frame: 1 command(s), the latest durable 116.067 ms after its response (sink 0; target 250 ms), 1 save(s), 1 frame(s), 0 erase(s), 0 sink(s) not as last commanded at the cut within
+BIND save-bind: 1 command(s), the latest durable 305.153 ms after its response (sink 0; target 800 ms), 1 save(s), 0 frame(s), 1 erase(s), 0 sink(s) not as last commanded at the cut within
+STEPS 12306 passes carry the store's step; the longest 96,649 CPU cycles (0.966 ms), save-bind-burst; the longest step 79,554 (0.796 ms), save-flight
+SAVE save: durable 1203.538 ms after its change (stated worst case 4,070 ms, 102 steps, longest gap between flash steps 25.131 ms) within
+6 groups graded, 0 refusals, 0 budget misses (0 of 12 probe instances, 0 of 6 paths), 0 of 11148 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)

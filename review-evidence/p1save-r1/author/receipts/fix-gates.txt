@@ -1,0 +1,100 @@
+# The fix's gates: each unit's head line, then its verdict lines (logs under the lane's scratch logs/).
+# What a dirty head held: nvmgate2 (aa69bacd dirty 8) the boot-lag rework committed as 1d778c47 and the harness grader
+# committed as d9e60df5; superseded by mut5. mut5 (26db406e dirty 1) the strengthened test committed as 47a7d0dd: the
+# head's store, tests and fixture. ctrlfw and memtest3 (3014bb01 dirty 2) the ledger strings committed as e4378d31.
+# Nothing the gates build changed after them: 47a7d0dd differs from 26db406e in test_nvm_delta.cpp alone.
+# The three tests the re-ruling names (ea34781d, data README 3a833fa6): ng1 (an Arty shape) and ng2 (both AX7101
+# shapes) the store suite; mut6 the suite at all five shapes with every planted defect; cov6 the coverage.
+
+## nvmgate2
+== nvmgate2 HEAD aa69bacd dirty 8 start 08:30:08
+  RESULT: PASS
+  RESULT: PASS
+  RESULT: PASS
+  RESULT: PASS
+  RESULT: PASS
+  RESULT: PASS
+saved-state store gate (#665 F1): OK across 5 shape(s), 726 tests
+== nvmgate2 END rc=0 08:34:07
+
+## mut5
+== mut5 HEAD 26db406e dirty 1 start 12:03:47
+  RESULT: PASS
+  RESULT: PASS
+  RESULT: PASS
+  RESULT: PASS
+  RESULT: PASS
+  RESULT: PASS
+saved-state store gate (#665 F1): OK across 5 shape(s), 726 tests, and all 180 planted defects reddened
+== mut5 END rc=0 13:04:51
+
+## cov5
+== cov5 HEAD 7a89e146 dirty 0 start 11:07:57
+  RESULT: PASS
+sw/firmware/ctrl_nvm/nvm_store.c                 676/676     429/438     lines 100.00 %  branches 100.00 %
+firmware coverage: PASS (40 files)
+== cov5 END rc=0 11:18:17
+
+## bst2
+== bst2 HEAD 26db406e dirty 0 start 12:02:13
+self-test: 0 failures
+== bst2 END rc=0 12:30:49
+
+## ctrlfw
+== ctrlfw HEAD 3014bb01 dirty 2 start 11:24:55
+    RESULT: PASS
+    RESULT: PASS
+    RESULT: PASS
+    RESULT: PASS
+    RESULT: PASS
+    RESULT: PASS
+    RESULT: PASS
+== ctrlfw END rc=0 11:38:53
+
+## plat4
+== plat4 HEAD 3014bb01 dirty 0 start 11:19:51
+POINT 1x1-if1: rom 129,872 B, sram 56,816 B, 46 RAMB36 (the 56-RAMB36 budget), ctrl_plat 18048 B: PASS
+POINT 1x1-if2: rom 131,656 B, sram 59,248 B, 47 RAMB36 (the 56-RAMB36 budget), ctrl_plat 19840 B: PASS
+POINT 8x8-if1: rom 143,984 B, sram 100,176 B, 60 RAMB36 (platform-8x8-one-interface), ctrl_plat 19136 B: PASS
+POINT 8x8-if2: rom 145,736 B, sram 117,712 B, 65 RAMB36 (platform-8x8-two-interfaces), ctrl_plat 21888 B: PASS
+plat_ledger: PASS (0 finding(s))
+== plat4 END rc=0 11:21:01
+
+## memtest3
+== memtest3 HEAD 3014bb01 dirty 2 start 11:24:49
+test_ctrl_memory: the split placement's firmware memory (#640 M8a)
+test_ctrl_memory: 0 failure(s)
+RESULT: PASS
+== memtest3 END rc=0 11:27:13
+
+## docs (worktree at 47a7d0dd)
+docs_check: 0 finding(s); documentation style: OK
+
+## ng1 (endstation_arty_4x4)
+== ng1 HEAD 47a7d0dd dirty 3 start 17:31:52
+  == ctrl_nvm saved-state store, boot and write paths (endstation_arty_4x4): checks: 148   failures: 0 ==
+  RESULT: PASS
+
+## ng2 (both AX7101 shapes)
+== ng2 HEAD 47a7d0dd dirty 6 start 18:27:35
+  == ctrl_nvm saved-state store, boot and write paths (endstation_ax7101_1x1_tdm8): checks: 148   failures: 0 ==
+  == ctrl_nvm saved-state store, recorded vector (endstation_ax7101_1x1_tdm8): checks: 2   failures: 0 ==
+  == ctrl_nvm saved-state store, a build whose record walk and sizes disagree: checks: 1   failures: 0 ==
+  == ctrl_nvm saved-state store, a shape with no name record: checks: 1   failures: 0 ==
+  == ctrl_nvm saved-state store, layout 3 NAME capacity (endstation_ax7101_1x1_tdm8): checks: 6   failures: 0 ==
+  == ctrl_nvm LiteSPI port (command master and timer0 mocked): checks: 3   failures: 0 ==
+  == NVM erased prefixes under AddressSanitizer: checks: 1   failures: 0 ==
+  == ctrl_nvm saved-state store, boot and write paths (endstation_ax7101_8x8): checks: 148   failures: 0 ==
+  == ctrl_nvm saved-state store, recorded vector (endstation_ax7101_8x8): checks: 2   failures: 0 ==
+saved-state store gate (#665 F1): OK across 2 shape(s), 312 tests
+
+## mut6
+== mut6 HEAD ea34781d dirty 0 start 18:30:50
+saved-state store gate (#665 F1): OK across 5 shape(s), 756 tests, and all 180 planted defects reddened
+== mut6 END rc=0 19:22:52
+
+## cov6
+== cov6 HEAD ea34781d dirty 0 start 18:30:50
+sw/firmware/ctrl_nvm/nvm_store.c                 676/676     429/438     lines 100.00 %  branches 100.00 %
+firmware coverage: PASS (40 files)
+== cov6 END rc=0 18:44:58

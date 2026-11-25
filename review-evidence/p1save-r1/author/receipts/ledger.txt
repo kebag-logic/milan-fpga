@@ -1,0 +1,17 @@
+# The platform memory ledger (tb/verilator/ctrl_split_boot/plat_ledger.py), base 5de21ff3 (its own clone, its submodules) and head fcdf0b2df
+# (the save policy: 100 ms binding window, the room's reserve). Every point PASS at its ledger's cap.
+== base 5de21ff3
+POINT 1x1-if1: rom 127,568 B, sram 56,736 B, 45.5 RAMB36 (the 56-RAMB36 budget), ctrl_plat 18048 B: PASS
+POINT 1x1-if2: rom 129,352 B, sram 59,168 B, 46.5 RAMB36 (the 56-RAMB36 budget), ctrl_plat 19840 B: PASS
+POINT 8x8-if1: rom 141,680 B, sram 100,096 B, 59.5 RAMB36 (platform-8x8-one-interface), ctrl_plat 19136 B: PASS
+POINT 8x8-if2: rom 143,432 B, sram 117,632 B, 64.5 RAMB36 (platform-8x8-two-interfaces), ctrl_plat 21888 B: PASS
+plat_ledger: PASS (0 finding(s))
+== platbase END rc=0 20:11:39
+== head fcdf0b2df
+POINT 1x1-if1: rom 130,000 B, sram 56,816 B, 46 RAMB36 (the 56-RAMB36 budget), ctrl_plat 18048 B: PASS
+POINT 1x1-if2: rom 131,784 B, sram 59,248 B, 47 RAMB36 (the 56-RAMB36 budget), ctrl_plat 19840 B: PASS
+POINT 8x8-if1: rom 144,112 B, sram 100,176 B, 60 RAMB36 (platform-8x8-one-interface), ctrl_plat 19136 B: PASS
+POINT 8x8-if2: rom 145,864 B, sram 117,712 B, 65 RAMB36 (platform-8x8-two-interfaces), ctrl_plat 21888 B: PASS
+plat_ledger: PASS (0 finding(s))
+== plat5 END rc=0 20:09:00
+== delta head - base: rom +2,432 B at every point, sram +80 B, +0.5 RAMB36 at every point (the S14 debt at both 8x8 points)

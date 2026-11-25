@@ -1,0 +1,88 @@
+# Gates of the binding-window round (tree: 407acc8ff code and tests, docs/ledger commits after it)
+== w5 rc 0
+== bst3 rc 0
+== ctrlfw2 rc 0
+== cov7 rc 0
+== memtest5 rc 0
+== plat5 rc 0
+== plat6 rc 0
+== platbase rc 0
+== armplan-head rc 0
+== armplan-base rc 0
+== mutsome rc 0
+== mut8 rc 0
+== cov8 rc 0
+-- store suite, five shapes (w5):
+  == ctrl_nvm saved-state store, boot and write paths (endstation_arty_4x4): checks: 162   failures: 0 ==
+  RESULT: PASS
+  verdict: PASS (162 tests, 0 failures, exit 0)
+  == ctrl_nvm saved-state store, boot and write paths (endstation_arty_8ch): checks: 162   failures: 0 ==
+  RESULT: PASS
+  verdict: PASS (162 tests, 0 failures, exit 0)
+  == ctrl_nvm saved-state store, boot and write paths (endstation_arty_current): checks: 162   failures: 0 ==
+  RESULT: PASS
+  verdict: PASS (162 tests, 0 failures, exit 0)
+  == ctrl_nvm saved-state store, boot and write paths (endstation_ax7101_1x1_tdm8): checks: 162   failures: 0 ==
+  RESULT: PASS
+  verdict: PASS (162 tests, 0 failures, exit 0)
+  == ctrl_nvm saved-state store, recorded vector (endstation_ax7101_1x1_tdm8): checks: 2   failures: 0 ==
+  RESULT: PASS
+  verdict: PASS (2 tests, 0 failures, exit 0)
+  == ctrl_nvm saved-state store, a build whose record walk and sizes disagree: checks: 1   failures: 0 ==
+  RESULT: PASS
+  verdict: PASS (1 tests, 0 failures, exit 0)
+  == ctrl_nvm saved-state store, a shape with no name record: checks: 1   failures: 0 ==
+  RESULT: PASS
+  verdict: PASS (1 tests, 0 failures, exit 0)
+  == ctrl_nvm saved-state store, layout 3 NAME capacity (endstation_ax7101_1x1_tdm8): checks: 6   failures: 0 ==
+  RESULT: PASS
+  verdict: PASS (6 tests, 0 failures, exit 0)
+  == ctrl_nvm LiteSPI port (command master and timer0 mocked): checks: 3   failures: 0 ==
+  RESULT: PASS
+  verdict: PASS (3 tests, 0 failures, exit 0)
+  RESULT: PASS
+  verdict: PASS (1 tests, 0 failures, exit 0)
+  == ctrl_nvm saved-state store, boot and write paths (endstation_ax7101_8x8): checks: 162   failures: 0 ==
+  RESULT: PASS
+  verdict: PASS (162 tests, 0 failures, exit 0)
+  == ctrl_nvm saved-state store, recorded vector (endstation_ax7101_8x8): checks: 2   failures: 0 ==
+  RESULT: PASS
+  verdict: PASS (2 tests, 0 failures, exit 0)
+-- planted defects of the window (mutsome, the first round's two findings fixed in 407acc8ff):
+  self-test OK: quiet_period               caught by debounce, binding_window_not_restarted, burst_of_64_bindings; first: [FAIL] Ports/NvmBoth.binding_window_not_restarted/model: committed 193310 us after the first change, 103310 us
+
+ALL CAUGHT (1 planted)
+-- all planted defects, final tests (mut8):
+== mut8 HEAD 407acc8f dirty 1 start 21:10:29
+== mut8 END rc=0 21:57:16
+189 self-test OK lines
+-- harness self-test (bst3):
+== bst3 END rc=0 20:55:23
+306 MUTANT caught lines
+-- control firmware (ctrlfw2):
+test_ctrl_firmware: PASS
+== ctrlfw2 END rc=0 21:34:01
+-- coverage (cov7, cov8 --write):
+sw/firmware/ctrl_nvm/nvm_store.c                 679/679     435/444     lines 100.00 %  branches 100.00 %
+firmware coverage: PASS (40 files)
+== cov8 END rc=0 21:46:20
+-- memory ledger (memtest5):
+== memtest5 END rc=0 21:39:11
+POINT 1x1-if1: rom 130,000 B, sram 56,816 B, 46 RAMB36 (the 56-RAMB36 budget), ctrl_plat 18048 B: PASS
+POINT 1x1-if2: rom 131,784 B, sram 59,248 B, 47 RAMB36 (the 56-RAMB36 budget), ctrl_plat 19840 B: PASS
+POINT 8x8-if1: rom 144,112 B, sram 100,176 B, 60 RAMB36 (platform-8x8-one-interface), ctrl_plat 19136 B: PASS
+POINT 8x8-if2: rom 145,864 B, sram 117,712 B, 65 RAMB36 (platform-8x8-two-interfaces), ctrl_plat 21888 B: PASS
+plat_ledger: PASS (0 finding(s))
+-- size fixture arms, head then base 5de21ff3 (arm plans):
+if1 none: built |     "ledgered_tiles": 58.0
+if1 declaring-outputs: built |     "ledgered_tiles": 58.0
+if1 answering-ports: built |     "ledgered_tiles": 58.0
+if2 none: built |     "ledgered_tiles": 62.0
+if2 declaring-outputs: $WORKSPACE_HOME/litex-milan/venv/bin/python3 exited 2; see image. | REFUSED: allocation over budget: 62.5 RAMB36 (rom 137344 bytes in 139264, sram 116448 bytes in 116736) exceeds the
+if2 answering-ports: built |     "ledgered_tiles": 62.0
+if1 none: built |     "ledgered_tiles": 57.5
+if1 declaring-outputs: built |     "ledgered_tiles": 57.5
+if1 answering-ports: built |     "ledgered_tiles": 57.5
+if2 none: built |     "ledgered_tiles": 61.5
+if2 declaring-outputs: built |     "ledgered_tiles": 61.5
+if2 answering-ports: built |     "ledgered_tiles": 61.5

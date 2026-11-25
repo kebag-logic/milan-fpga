@@ -1,0 +1,18 @@
+# The fix's first save from blank media (whole, as before), built and run at 7a89e146 (runs/fix2-<point>)
+
+## 8x8-1if
+{"label": "save-bind-8x8-1if", "kind": "whole", "bytes_programmed": 14240, "pages": 56, "at": "e40000", "change_to_durable_ms": 1318.931, "window_ms": 1007.876, "capture_and_seals_ms": 23.859, "erase_ms": 0.573, "blankcheck_ms": 110.827, "program_ms": 68.259, "verify_ms": 107.536, "program_and_verify_ms": 175.796, "blankcheck_and_verify_one_read_run": false, "bytes_erased": 65536, "bytes_blankchecked": 14240, "bytes_verified": 14240, "steps_window_end_to_durable": 397}
+{"label": "save-8x8-1if", "kind": "whole", "bytes_programmed": 14240, "pages": 56, "at": "e40000", "change_to_durable_ms": 1306.504, "window_ms": 1007.833, "capture_and_seals_ms": 23.315, "erase_ms": 0.391, "blankcheck_ms": 106.473, "program_ms": 65.324, "verify_ms": 103.168, "program_and_verify_ms": 168.492, "blankcheck_and_verify_one_read_run": false, "bytes_erased": 65536, "bytes_blankchecked": 14240, "bytes_verified": 14240, "steps_window_end_to_durable": 398}
+SAVE save: durable 1306.504 ms after its change (stated worst case 12,950 ms, 398 steps, longest gap between flash steps 106.473 ms) within
+SAVE save-bind: durable 1318.931 ms after its change (stated worst case 12,920 ms, 397 steps, longest gap between flash steps 110.827 ms) within
+
+## 1x1
+{"label": "save-bind-1x1", "kind": "whole", "bytes_programmed": 3444, "pages": 14, "at": "e40000", "change_to_durable_ms": 1079.03, "window_ms": 1008.684, "capture_and_seals_ms": 5.482, "erase_ms": 0.306, "blankcheck_ms": 26.09, "program_ms": 14.56, "verify_ms": 23.908, "program_and_verify_ms": 38.468, "blankcheck_and_verify_one_read_run": false, "bytes_erased": 65536, "bytes_blankchecked": 3444, "bytes_verified": 3444, "steps_window_end_to_durable": 101}
+{"label": "save-1x1", "kind": "whole", "bytes_programmed": 3444, "pages": 14, "at": "e40000", "change_to_durable_ms": 1076.984, "window_ms": 1008.669, "capture_and_seals_ms": 5.792, "erase_ms": 0.297, "blankcheck_ms": 25.03, "program_ms": 13.93, "verify_ms": 23.265, "program_and_verify_ms": 37.196, "blankcheck_and_verify_one_read_run": false, "bytes_erased": 65536, "bytes_blankchecked": 3444, "bytes_verified": 3444, "steps_window_end_to_durable": 102}
+SAVE save: durable 1076.984 ms after its change (stated worst case 4,070 ms, 102 steps, longest gap between flash steps 25.03 ms) within
+SAVE save-bind: durable 1079.030 ms after its change (stated worst case 4,040 ms, 101 steps, longest gap between flash steps 26.09 ms) within
+
+## the base e608f8d8 at 8x8-1if, its own harness with the save-bind stimulus (save-bind-2509db68.diff), runs/ge608-8x8-1if
+{"label": "save-bind-e608f8d8-8x8-1if", "kind": "whole", "bytes_programmed": 14240, "pages": 56, "at": "e40000", "change_to_durable_ms": 1310.253, "window_ms": 1007.177, "capture_and_seals_ms": 23.072, "erase_ms": 0.386, "blankcheck_ms": 106.521, "program_ms": 66.502, "verify_ms": 106.595, "program_and_verify_ms": 173.097, "blankcheck_and_verify_one_read_run": false, "bytes_erased": 65536, "bytes_blankchecked": 14240, "bytes_verified": 14240, "steps_window_end_to_durable": 397}
+STEPS 951 passes carry the store's step; the longest 114,657 CPU cycles (1.147 ms), save-bind; the longest step 78,684 (0.787 ms), save-bind
+SAVE save-bind: durable 1310.253 ms after its change (stated worst case 12,920 ms, 397 steps, longest gap between flash steps 106.521 ms) within

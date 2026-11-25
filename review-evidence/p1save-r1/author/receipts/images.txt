@@ -1,0 +1,320 @@
+== signoff-1x1-AltSpreadLogic_high.txt
+Slow_85C: WNS +0.185 ns (0 failing), WHS +0.102 ns (0 failing)
+Slow_0C: WNS +0.185 ns (0 failing), WHS +0.102 ns (0 failing)
+Fast_85C: WNS +1.641 ns (0 failing), WHS +0.036 ns (0 failing)
+Fast_0C: WNS +1.641 ns (0 failing), WHS +0.036 ns (0 failing)
+issue floors (WNS >= +0.030, WHS >= 0) met at every corner
+ruling floors (WNS and WHS >= +0.030) met at every corner
+== signoff-1x1-base-AltSpreadLogic_high.txt
+Slow_85C: WNS +0.222 ns (0 failing), WHS +0.102 ns (0 failing)
+Slow_0C: WNS +0.222 ns (0 failing), WHS +0.102 ns (0 failing)
+Fast_85C: WNS +1.536 ns (0 failing), WHS +0.013 ns (0 failing)
+Fast_0C: WNS +1.536 ns (0 failing), WHS +0.013 ns (0 failing)
+issue floors (WNS >= +0.030, WHS >= 0) met at every corner
+ruling floors NOT met
+== signoff-1x1-base-AltSpreadLogic_high.txt
+Slow_85C: WNS +0.222 ns (0 failing), WHS +0.102 ns (0 failing)
+Slow_0C: WNS +0.222 ns (0 failing), WHS +0.102 ns (0 failing)
+Fast_85C: WNS +1.536 ns (0 failing), WHS +0.013 ns (0 failing)
+Fast_0C: WNS +1.536 ns (0 failing), WHS +0.013 ns (0 failing)
+issue floors (WNS >= +0.030, WHS >= 0) met at every corner
+ruling floors NOT met
+== signoff-8x8-AltSpreadLogic_high.txt
+Slow_85C: WNS +0.050 ns (0 failing), WHS +0.144 ns (0 failing)
+Slow_0C: WNS +0.050 ns (0 failing), WHS +0.144 ns (0 failing)
+Fast_85C: WNS +1.566 ns (0 failing), WHS +0.036 ns (0 failing)
+Fast_0C: WNS +1.566 ns (0 failing), WHS +0.036 ns (0 failing)
+issue floors (WNS >= +0.030, WHS >= 0) met at every corner
+ruling floors (WNS and WHS >= +0.030) met at every corner
+== signoff-8x8-base-ExtraPostPlacementOpt.txt
+Slow_85C: WNS +0.008 ns (0 failing), WHS +0.102 ns (0 failing)
+Slow_0C: WNS +0.008 ns (0 failing), WHS +0.102 ns (0 failing)
+Fast_85C: WNS +1.584 ns (0 failing), WHS +0.036 ns (0 failing)
+Fast_0C: WNS +1.584 ns (0 failing), WHS +0.036 ns (0 failing)
+issue floors NOT met
+ruling floors NOT met
+== signoff-8x8-ExtraPostPlacementOpt.txt
+Slow_85C: WNS +0.037 ns (0 failing), WHS +0.102 ns (0 failing)
+Slow_0C: WNS +0.037 ns (0 failing), WHS +0.102 ns (0 failing)
+Fast_85C: WNS +1.588 ns (0 failing), WHS +0.036 ns (0 failing)
+Fast_0C: WNS +1.588 ns (0 failing), WHS +0.036 ns (0 failing)
+issue floors (WNS >= +0.030, WHS >= 0) met at every corner
+ruling floors (WNS and WHS >= +0.030) met at every corner
+== signoff-8x8-base-ExtraPostPlacementOpt.txt
+Slow_85C: WNS +0.008 ns (0 failing), WHS +0.102 ns (0 failing)
+Slow_0C: WNS +0.008 ns (0 failing), WHS +0.102 ns (0 failing)
+Fast_85C: WNS +1.584 ns (0 failing), WHS +0.036 ns (0 failing)
+Fast_0C: WNS +1.584 ns (0 failing), WHS +0.036 ns (0 failing)
+issue floors NOT met
+ruling floors NOT met
+== build records
+---- buildrec-1x1-AltSpreadLogic_high.txt
+# image: $VALIDATION_STORAGE/p1save-a844-scratch/img/work/1x1/build_AltSpreadLogic_high (clone fcdf0b2df2c4436f90c8e92bacfa22faf24d2428, status '')
+build 2026-11-25T20:35:56+01:00 -> 2026-11-25T20:54:13+01:00 rc 0, cpus 56-63
+argv: --board ax7101 --milan-clk-freq 50e6 --gtx-tx-invert --floorplan --eth-port e1 --no-i2s-playback --no-render-lpf --num-streams 1 --audio-interface tdm8 --audio-interface-master --audio-interface
+--- signoff (signoff.py over the four corner reports)
+Slow_85C: WNS +0.185 ns (0 failing), WHS +0.102 ns (0 failing)
+Slow_0C: WNS +0.185 ns (0 failing), WHS +0.102 ns (0 failing)
+Fast_85C: WNS +1.641 ns (0 failing), WHS +0.036 ns (0 failing)
+Fast_0C: WNS +1.641 ns (0 failing), WHS +0.036 ns (0 failing)
+issue floors (WNS >= +0.030, WHS >= 0) met at every corner
+ruling floors (WNS and WHS >= +0.030) met at every corner
+signoff rc=0
+--- identity gate
+image identity: a split image whose manifest, ident, firmware, bitstream and placement agree, with no DDR3
+identity gate rc=0
+--- manifest
+{
+  "schema": 1,
+  "placement": "split",
+  "ident": "Milan TSN SoC - VexiiRiscv RV32 1-core baremetal split",
+  "version": "0x00030060",
+  "mailbox": {
+    "major": 2,
+    "minor": 4
+  },
+  "ctrl_firmware": {
+    "path": "sw/builder/out/endstation_ax7101_1x1_tdm8/ctrl_app.elf",
+    "sha256": "14698f39ef0777b4d1bbc7a9c9a166a15ea2d42267c245bbfbaa086481399722",
+    "bytes": 163820
+  },
+  "bitstream": {
+    "bitstream_payload_sha256": "4704681d5cf1a069359ba6209fa2e7e48f22648568ed6cc429a8041c6911c8db",
+    "bitstream_fpga_part": "7a100tfgg484"
+  }
+}
+
+--- artefacts (sha256 size)
+ad1cdc2bcf51b2f2510b6df6b48e20b90ba536d145f3c380647abce03fbd6cf8 3825992 gateware/alinx_ax7101.bit
+fb9841fc6bf6b815fc3639645ce28187404a05fbb29d3a6c052d24271061cb26 7512 aem_desc.bin
+b52d5bcaae14a0d7936f4c85d4a83113f577e05eaa2eb019245dcc89a4964965 10280 csr.csv
+28bf7437a1d6b8fcc9faad1e042bdc9cdb95725b8115b5e6debc9ae7a942dab7 1005 flashboot_layout.json
+74a6ad7bd2b6e4f0b13d82d49271b5201864cacff28828f9310de554a82b2d86 551 image_manifest.json
+ctrl_app.elf in the clone: 14698f39ef0777b4d1bbc7a9c9a166a15ea2d42267c245bbfbaa086481399722
+--- route status
+       # of routable nets..................... :       73110 :
+           # of fully routed nets............. :       73110 :
+       # of nets with routing errors.......... :           0 :
+--- utilization (placed)
+| Slice LUTs                 | 32496 |     0 |          0 |     63400 | 51.26 |
+| Slice Registers            | 42769 |     0 |          0 |    126800 | 33.73 |
+| Slice                                      | 14229 |     0 |          0 |     15850 | 89.77 |
+| Slice Registers                            | 42769 |     0 |          0 |    126800 | 33.73 |
+| Block RAM Tile    |   82 |     0 |          0 |       135 | 60.74 |
+| DSPs           |   13 |     0 |          0 |       240 |  5.42 |
+---- buildrec-1x1-base-AltSpreadLogic_high.txt
+# image: $VALIDATION_STORAGE/p1save-a844-scratch/img/work/1x1-base/build_AltSpreadLogic_high (clone 5de21ff3661436ea5598718aca36934361e35340, status '')
+build 2026-11-25T22:01:05+01:00 -> 2026-11-25T22:17:19+01:00 rc 0, cpus 48-63
+argv: --board ax7101 --milan-clk-freq 50e6 --gtx-tx-invert --floorplan --eth-port e1 --no-i2s-playback --no-render-lpf --num-streams 1 --audio-interface tdm8 --audio-interface-master --audio-interface
+--- signoff (signoff.py over the four corner reports)
+Slow_85C: WNS +0.222 ns (0 failing), WHS +0.102 ns (0 failing)
+Slow_0C: WNS +0.222 ns (0 failing), WHS +0.102 ns (0 failing)
+Fast_85C: WNS +1.536 ns (0 failing), WHS +0.013 ns (0 failing)
+Fast_0C: WNS +1.536 ns (0 failing), WHS +0.013 ns (0 failing)
+issue floors (WNS >= +0.030, WHS >= 0) met at every corner
+ruling floors NOT met
+signoff rc=1
+--- identity gate
+image identity: a split image whose manifest, ident, firmware, bitstream and placement agree, with no DDR3
+identity gate rc=0
+--- manifest
+{
+  "schema": 1,
+  "placement": "split",
+  "ident": "Milan TSN SoC - VexiiRiscv RV32 1-core baremetal split",
+  "version": "0x00030060",
+  "mailbox": {
+    "major": 2,
+    "minor": 4
+  },
+  "ctrl_firmware": {
+    "path": "sw/builder/out/endstation_ax7101_1x1_tdm8/ctrl_app.elf",
+    "sha256": "e50f893a8fb8e8bc9d5e796ad1d7a69759b057c503c5930cffb5dd75cc30fb58",
+    "bytes": 163668
+  },
+  "bitstream": {
+    "bitstream_payload_sha256": "fc5290b6dc24f50430adec975ea12565d3ab9f38a11198cb93aed175e4b97962",
+    "bitstream_fpga_part": "7a100tfgg484"
+  }
+}
+
+--- artefacts (sha256 size)
+4d8272004afc8faf5807c0c2eda7f08868c7db83ff826fb3cca210827782688e 3825992 gateware/alinx_ax7101.bit
+fb9841fc6bf6b815fc3639645ce28187404a05fbb29d3a6c052d24271061cb26 7512 aem_desc.bin
+32eeaf92d4abf985ee9ba3bfaf38e93f4b4011df824e38dc1e8b2e37ab68c138 10280 csr.csv
+bfa649886b472e124cf43b0af1674c4911bfdbe652bbc7a653c0a8c7f774cf9e 1005 flashboot_layout.json
+5b669531f9dcaa6b15555df0d132d004e1cdd722545e1854413291b6c8c3030d 551 image_manifest.json
+ctrl_app.elf in the clone: e50f893a8fb8e8bc9d5e796ad1d7a69759b057c503c5930cffb5dd75cc30fb58
+--- route status
+       # of routable nets..................... :       73455 :
+           # of fully routed nets............. :       73455 :
+       # of nets with routing errors.......... :           0 :
+--- utilization (placed)
+| Slice LUTs                 | 32656 |     0 |          0 |     63400 | 51.51 |
+| Slice Registers            | 42803 |     0 |          0 |    126800 | 33.76 |
+| Slice                                      | 14273 |     0 |          0 |     15850 | 90.05 |
+| Slice Registers                            | 42803 |     0 |          0 |    126800 | 33.76 |
+| Block RAM Tile    | 80.5 |     0 |          0 |       135 | 59.63 |
+| DSPs           |   13 |     0 |          0 |       240 |  5.42 |
+---- buildrec-8x8-AltSpreadLogic_high.txt
+# image: $VALIDATION_STORAGE/p1save-a844-scratch/img/work/8x8/build_AltSpreadLogic_high (clone fcdf0b2df2c4436f90c8e92bacfa22faf24d2428, status '')
+build 2026-11-25T21:10:19+01:00 -> 2026-11-25T21:47:51+01:00 rc 0, cpus 48-63
+argv: --board ax7101 --milan-clk-freq 50e6 --gtx-tx-invert --floorplan --eth-port e1 --no-latency-taps --no-i2s-playback --no-render-lpf --no-datapath-probes --num-streams 8 --audio-interface tdm32 --
+--- signoff (signoff.py over the four corner reports)
+Slow_85C: WNS +0.050 ns (0 failing), WHS +0.144 ns (0 failing)
+Slow_0C: WNS +0.050 ns (0 failing), WHS +0.144 ns (0 failing)
+Fast_85C: WNS +1.566 ns (0 failing), WHS +0.036 ns (0 failing)
+Fast_0C: WNS +1.566 ns (0 failing), WHS +0.036 ns (0 failing)
+issue floors (WNS >= +0.030, WHS >= 0) met at every corner
+ruling floors (WNS and WHS >= +0.030) met at every corner
+signoff rc=0
+--- identity gate
+image identity: a split image whose manifest, ident, firmware, bitstream and placement agree, with no DDR3
+identity gate rc=0
+--- manifest
+{
+  "schema": 1,
+  "placement": "split",
+  "ident": "Milan TSN SoC - VexiiRiscv RV32 1-core baremetal split",
+  "version": "0x00030060",
+  "mailbox": {
+    "major": 2,
+    "minor": 4
+  },
+  "ctrl_firmware": {
+    "path": "sw/builder/out/endstation_ax7101_8x8/ctrl_app.elf",
+    "sha256": "e145b1a7782d930b7c19357aca06092a1c0c2a5bb4ab6a03825a9e5ad95a2231",
+    "bytes": 180596
+  },
+  "bitstream": {
+    "bitstream_payload_sha256": "a54722d353b0b987c6de2f5bd54bf2ebd3ebf976cae9ac8d292c32faee7d905a",
+    "bitstream_fpga_part": "7a100tfgg484"
+  }
+}
+
+--- artefacts (sha256 size)
+d4fc4e127f7bf4f42f90ea37ff73e07d152143ca7d9589c991662bb25810203c 3825992 gateware/alinx_ax7101.bit
+a34ea856596ff765fd1f34ab3ae85a1cfba564442cf5e0c582a144b3a4f45b5c 20800 aem_desc.bin
+2b4fdee08bc35c73e882c82cb71c32aba05ac243ece810a00c56c4cf7d9972c5 10299 csr.csv
+4a73920d04674d94b439e5da17d9314eb888c59c272939dbaf8e371512c55e1f 1006 flashboot_layout.json
+e92f8061ee8fa8fa6b615bab49f4938dd9e4edc74dddfb79df87390695c65a45 546 image_manifest.json
+ctrl_app.elf in the clone: e145b1a7782d930b7c19357aca06092a1c0c2a5bb4ab6a03825a9e5ad95a2231
+--- route status
+       # of routable nets..................... :       93690 :
+           # of fully routed nets............. :       93690 :
+       # of nets with routing errors.......... :           0 :
+--- utilization (placed)
+| Slice LUTs                 | 45912 |     0 |          0 |     63400 | 72.42 |
+| Slice Registers            | 53379 |     0 |          0 |    126800 | 42.10 |
+| Slice                                      | 15455 |     0 |          0 |     15850 | 97.51 |
+| Slice Registers                            | 53379 |     0 |          0 |    126800 | 42.10 |
+| Block RAM Tile    | 99.5 |     0 |          0 |       135 | 73.70 |
+| DSPs           |   13 |     0 |          0 |       240 |  5.42 |
+---- buildrec-8x8-base-ExtraPostPlacementOpt.txt
+# image: $VALIDATION_STORAGE/p1save-a844-scratch/img/work/8x8-base/build_ExtraPostPlacementOpt (clone 5de21ff3661436ea5598718aca36934361e35340, status '')
+build 2026-11-25T21:15:35+01:00 -> 2026-11-25T21:55:11+01:00 rc 0, cpus 32-47
+argv: --board ax7101 --milan-clk-freq 50e6 --gtx-tx-invert --floorplan --eth-port e1 --no-latency-taps --no-i2s-playback --no-render-lpf --no-datapath-probes --num-streams 8 --audio-interface tdm32 --
+--- signoff (signoff.py over the four corner reports)
+Slow_85C: WNS +0.008 ns (0 failing), WHS +0.102 ns (0 failing)
+Slow_0C: WNS +0.008 ns (0 failing), WHS +0.102 ns (0 failing)
+Fast_85C: WNS +1.584 ns (0 failing), WHS +0.036 ns (0 failing)
+Fast_0C: WNS +1.584 ns (0 failing), WHS +0.036 ns (0 failing)
+issue floors NOT met
+ruling floors NOT met
+signoff rc=1
+--- identity gate
+image identity: a split image whose manifest, ident, firmware, bitstream and placement agree, with no DDR3
+identity gate rc=0
+--- manifest
+{
+  "schema": 1,
+  "placement": "split",
+  "ident": "Milan TSN SoC - VexiiRiscv RV32 1-core baremetal split",
+  "version": "0x00030060",
+  "mailbox": {
+    "major": 2,
+    "minor": 4
+  },
+  "ctrl_firmware": {
+    "path": "sw/builder/out/endstation_ax7101_8x8/ctrl_app.elf",
+    "sha256": "a2be09e110e22095a1bfd76bd87260f5dba448672407981008c423d9e6d0b1e7",
+    "bytes": 176348
+  },
+  "bitstream": {
+    "bitstream_payload_sha256": "816f946c0eb4e66f08df48501381466558b76dbaad6fd066f40494f399fdea7a",
+    "bitstream_fpga_part": "7a100tfgg484"
+  }
+}
+
+--- artefacts (sha256 size)
+8fad965615eccd205f16a2b08dbf73cf9640be4cb585c783e805b96751c53452 3825992 gateware/alinx_ax7101.bit
+a34ea856596ff765fd1f34ab3ae85a1cfba564442cf5e0c582a144b3a4f45b5c 20800 aem_desc.bin
+3c6434f2da96c120260a2d2fd541955f941c1ecf23275798b33f15404c4554c2 10299 csr.csv
+90f8b47e1f4389a408f3633fb2e95e1b2ae9e6f69867cbec0e35eab847b2196b 1006 flashboot_layout.json
+d8bced7bbc5e1398a4cf575660652a231545adc65e0c1149115dfc9d579f177c 546 image_manifest.json
+ctrl_app.elf in the clone: a2be09e110e22095a1bfd76bd87260f5dba448672407981008c423d9e6d0b1e7
+--- route status
+       # of routable nets..................... :       93689 :
+           # of fully routed nets............. :       93689 :
+       # of nets with routing errors.......... :           0 :
+--- utilization (placed)
+| Slice LUTs                 | 45920 |     0 |          0 |     63400 | 72.43 |
+| Slice Registers            | 53383 |     0 |          0 |    126800 | 42.10 |
+| Slice                                      | 15603 |     0 |          0 |     15850 | 98.44 |
+| Slice Registers                            | 53383 |     0 |          0 |    126800 | 42.10 |
+| Block RAM Tile    | 98.5 |     0 |          0 |       135 | 72.96 |
+| DSPs           |   13 |     0 |          0 |       240 |  5.42 |
+---- buildrec-8x8-ExtraPostPlacementOpt.txt
+# image: $VALIDATION_STORAGE/p1save-a844-scratch/img/work/8x8/build_ExtraPostPlacementOpt (clone fcdf0b2df2c4436f90c8e92bacfa22faf24d2428, status '')
+build 2026-11-25T20:39:15+01:00 -> 2026-11-25T21:04:46+01:00 rc 0, cpus 0-15
+argv: --board ax7101 --milan-clk-freq 50e6 --gtx-tx-invert --floorplan --eth-port e1 --no-latency-taps --no-i2s-playback --no-render-lpf --no-datapath-probes --num-streams 8 --audio-interface tdm32 --
+--- signoff (signoff.py over the four corner reports)
+Slow_85C: WNS +0.037 ns (0 failing), WHS +0.102 ns (0 failing)
+Slow_0C: WNS +0.037 ns (0 failing), WHS +0.102 ns (0 failing)
+Fast_85C: WNS +1.588 ns (0 failing), WHS +0.036 ns (0 failing)
+Fast_0C: WNS +1.588 ns (0 failing), WHS +0.036 ns (0 failing)
+issue floors (WNS >= +0.030, WHS >= 0) met at every corner
+ruling floors (WNS and WHS >= +0.030) met at every corner
+signoff rc=0
+--- identity gate
+image identity: a split image whose manifest, ident, firmware, bitstream and placement agree, with no DDR3
+identity gate rc=0
+--- manifest
+{
+  "schema": 1,
+  "placement": "split",
+  "ident": "Milan TSN SoC - VexiiRiscv RV32 1-core baremetal split",
+  "version": "0x00030060",
+  "mailbox": {
+    "major": 2,
+    "minor": 4
+  },
+  "ctrl_firmware": {
+    "path": "sw/builder/out/endstation_ax7101_8x8/ctrl_app.elf",
+    "sha256": "e145b1a7782d930b7c19357aca06092a1c0c2a5bb4ab6a03825a9e5ad95a2231",
+    "bytes": 180596
+  },
+  "bitstream": {
+    "bitstream_payload_sha256": "78c84e6c5d7f4bb10d2650d29f755bdee8f45bd9f5116e625c7acf30bf2cd5a8",
+    "bitstream_fpga_part": "7a100tfgg484"
+  }
+}
+
+--- artefacts (sha256 size)
+d46add39790f1e1f1c5df039b3aaa43c6500591a5fb3dff58547c03bbfb134e2 3825992 gateware/alinx_ax7101.bit
+a34ea856596ff765fd1f34ab3ae85a1cfba564442cf5e0c582a144b3a4f45b5c 20800 aem_desc.bin
+2b849178ad4470215f4ae684158c1082c6f85867da67fa105388b268d7dfb6a1 10299 csr.csv
+1ff934f28849470d74595b0c7740d298dd533a946d84945132e75f3720117692 1006 flashboot_layout.json
+a60b39200e78fae1ee45b41a38aa92f04ef60a436e1deb649eab50803825cbaf 546 image_manifest.json
+ctrl_app.elf in the clone: e145b1a7782d930b7c19357aca06092a1c0c2a5bb4ab6a03825a9e5ad95a2231
+--- route status
+       # of routable nets..................... :       93696 :
+           # of fully routed nets............. :       93696 :
+       # of nets with routing errors.......... :           0 :
+--- utilization (placed)
+| Slice LUTs                 | 45787 |     0 |          0 |     63400 | 72.22 |
+| Slice Registers            | 53377 |     0 |          0 |    126800 | 42.10 |
+| Slice                                      | 15627 |     0 |          0 |     15850 | 98.59 |
+| Slice Registers                            | 53377 |     0 |          0 |    126800 | 42.10 |
+| Block RAM Tile    | 99.5 |     0 |          0 |       135 | 73.70 |
+| DSPs           |   13 |     0 |          0 |       240 |  5.42 |

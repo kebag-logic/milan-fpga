@@ -1,0 +1,21 @@
+# #920's burst and change in flight on the fix, built, run and graded at 7a89e146 (runs/fix2-<point>);
+# 8x8's graded again at 26db406e (run.py --regrade, the frame-verify rule): the same figures, 0 refusals.
+# Every save of both groups at both points is whole (a burst's span of names is past the frame buffer).
+
+## 8x8-1if
+BURST save-burst: 115 name(s), the latest durable 1360.894 ms after its response (name 0; target 5,000 ms), 7 save(s), the cut's container sequence 7, 0 name(s) missing within
+BURST save-flight: 1 name(s), the latest durable 664.879 ms after its response (name 0; target 5,000 ms), 2 save(s), 61 steps to the next save's erase (want 61) within
+SAVE save: durable 1306.504 ms after its change (stated worst case 12,950 ms, 398 steps, longest gap between flash steps 106.473 ms) within
+SAVE save-bind: durable 1318.931 ms after its change (stated worst case 12,920 ms, 397 steps, longest gap between flash steps 110.827 ms) within
+5 groups graded, 0 refusals, 0 budget misses (0 of 14 probe instances, 0 of 6 paths), 0 of 9824 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+save-burst: names 115, worst 1360.894 ms (name 0), target 5000 ms, never [], over [], saves 7 (7 whole, 0 frames), cut seq 7 missing []
+save-flight: names 1, worst 664.879 ms (name 0), target 5000 ms, never [], over [], saves 2 (2 whole, 0 frames), next save steps {'steps': 61, 'want': 61, 'gap_ms': 24.611}
+
+## 1x1
+BURST save-flight: 1 name(s), the latest durable 148.322 ms after its response (name 0; target 5,000 ms), 2 save(s), 19 steps to the next save's erase (want 19) within
+BURST save-burst: 39 name(s), the latest durable 1099.750 ms after its response (name 0; target 5,000 ms), 1 save(s), the cut's container sequence 1, 0 name(s) missing within
+SAVE save: durable 1076.984 ms after its change (stated worst case 4,070 ms, 102 steps, longest gap between flash steps 25.03 ms) within
+SAVE save-bind: durable 1079.030 ms after its change (stated worst case 4,040 ms, 101 steps, longest gap between flash steps 26.09 ms) within
+5 groups graded, 0 refusals, 0 budget misses (0 of 12 probe instances, 0 of 6 paths), 0 of 10165 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+save-flight: names 1, worst 148.322 ms (name 0), target 5000 ms, never [], over [], saves 2 (2 whole, 0 frames), next save steps {'steps': 19, 'want': 19, 'gap_ms': 5.888}
+save-burst: names 39, worst 1099.75 ms (name 0), target 5000 ms, never [], over [], saves 1 (1 whole, 0 frames), cut seq 1 missing []
