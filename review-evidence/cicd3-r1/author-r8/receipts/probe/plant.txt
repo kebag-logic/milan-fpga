@@ -1,0 +1,16 @@
+== A: template and generated workflow both set fail-fast: false (regenerated)
+ .github/ci-templates/rtl-fast.yml | 2 +-  .github/workflows/rtl-fast.yml    | 2 +-  2 files changed, 2 insertions(+), 2 deletions(-) 
+ci_gate_workflows --check rc=0
+ci_events --check rc=1
+  FAIL .github/workflows/rtl-fast.yml: job `firmware-boundary-capture` strategy must be exactly {'fail-fast': True, 'matrix': {'leg': [0, 1]}} (found {'fail-fast': False, 'matrix': {'leg': [0, 1]}}): one leg per entry of ctrl_runs.LEGS, which firmware-boundary
+== B: generated workflow only set to false (template unchanged)
+ .github/workflows/rtl-fast.yml | 2 +-  1 file changed, 1 insertion(+), 1 deletion(-) 
+ci_gate_workflows --check rc=1
+.github/workflows/rtl-fast.yml: regenerate the gate jobs
+ci_events --check rc=1
+== C: fail-fast key removed from template (regenerated)
+ .github/ci-templates/rtl-fast.yml | 1 -  .github/workflows/rtl-fast.yml    | 1 -  2 files changed, 2 deletions(-) 
+ci_events --check rc=1
+  FAIL .github/workflows/rtl-fast.yml: job `firmware-boundary-capture` strategy must be exactly {'fail-fast': True, 'matrix': {'leg': [0, 1]}} (found {'matrix': {'leg': [0, 1]}}): one leg per entry of ctrl_runs.LEGS, which firmware-boundary downloads one by on
+== restored: 0 changed paths; ci_events --check: ci_events: OK (2378 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)
+== note on B: ci_events --check's one finding there is "generated gate jobs must match their complete inventory and aggregate: every original body, binding, condition and checkout is preserved; ..." (the generated file no longer equals its template's rendering); the strategy item fires when the template itself carries the change (A, C).

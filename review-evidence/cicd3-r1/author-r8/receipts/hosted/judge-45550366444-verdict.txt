@@ -1,0 +1,4 @@
+2026-11-25T06:22:25.1262313Z ##[group]Run python3 sw/firmware/ctrl/test/ctrl_boundary.py --require-rv32 --selftest --without verilator --capture "$RUNNER_TEMP/firmware-boundary-capture-0" --capture "$RUNNER_TEMP/firmware-boundary-capture-1"
+2026-11-25T06:22:25.1263621Z python3 sw/firmware/ctrl/test/ctrl_boundary.py --require-rv32 --selftest --without verilator --capture "$RUNNER_TEMP/firmware-boundary-capture-0" --capture "$RUNNER_TEMP/firmware-boundary-capture-1"
+2026-11-25T06:25:57.3225617Z ctrl_boundary: 4032 compiled sources of 4325 recorded invocations (2464 the firmware's, 425 the stack's, 1143 test equipment's and builders' own), each judged by what its dependency output lists, host and RV32, every Makefile builder's pin prerequisites and the pin proof's census; 0 finding(s), 112 boundary, 192 pin and 4 figure controls, 0 misbehaved
+2026-11-25T06:25:57.3226879Z ctrl_boundary: PASS

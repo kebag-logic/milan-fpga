@@ -1,0 +1,27 @@
+{
+  "capture_matrix": {
+    "fail-fast": true,
+    "matrix": {
+      "leg": [
+        0,
+        1
+      ]
+    }
+  },
+  "capture_permissions": null,
+  "watcher_if": "${{ github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository) }}",
+  "judge_needs": [
+    "changes",
+    "firmware-boundary-capture"
+  ],
+  "production_findings": [],
+  "planted_findings": {
+    "fail-fast false": [
+      ".github/workflows/rtl-fast.yml: job `firmware-boundary-capture` strategy must be exactly {'fail-fast': True, 'matrix': {'leg': [0, 1]}} (found {'fail-fast': False, 'matrix': {'leg': [0, 1]}}): one leg per entry of ctrl_runs.LEGS, which firmware-boundary downloads one by one"
+    ],
+    "fail-fast key removed": [
+      ".github/workflows/rtl-fast.yml: job `firmware-boundary-capture` strategy must be exactly {'fail-fast': True, 'matrix': {'leg': [0, 1]}} (found {'matrix': {'leg': [0, 1]}}): one leg per entry of ctrl_runs.LEGS, which firmware-boundary downloads one by one"
+    ]
+  }
+}
+PROBE PASS

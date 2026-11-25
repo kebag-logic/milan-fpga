@@ -1,0 +1,56 @@
+make build CLK_HZ=25000000 FRAME_DIV=64 MDIR=/data-2/milan/tmp/cicd-a839/r8/ROOT/tb/verilator/follow_ring/obj_dir_fine
+make[1]: Entering directory '/data-2/milan/tmp/cicd-a839/r8/ROOT/tb/verilator/follow_ring'
+mkdir -p /data-2/milan/tmp/cicd-a839/r8/ROOT/tb/verilator/follow_ring/obj_dir_fine
+python3 dp_glue.py ../../../hdl/milan/milan_datapath.sv /data-2/milan/tmp/cicd-a839/r8/ROOT/tb/verilator/follow_ring/obj_dir_fine/dp_glue.svh
+true --cc --exe --build -j 16 --top-module follow_ring_wrap --public-flat-rw -GCLK_HZ_P=25000000 -GFRAME_DIV_P=64 -GTICK_CYC_P=3072 +incdir+../../../configs/generated/endstation_ax7101_1x1_tdm8 +incdir+/data-2/milan/tmp/cicd-a839/r8/ROOT/tb/verilator/follow_ring/obj_dir_fine  -Wall -Wno-fatal -Werror-UNDRIVEN -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-PINCONNECTEMPTY -Wno-EOFNEWLINE -CFLAGS "-std=c++17 -O2 -Wall -Wextra -DCLK_HZ_TB=25000000 -DFRAME_DIV_TB=64" -Mdir /data-2/milan/tmp/cicd-a839/r8/ROOT/tb/verilator/follow_ring/obj_dir_fine ../../../hdl/ieee1722/avtp/avtp_subtype_pkg.sv ../../../hdl/common/cdc_pulse.sv ../../../hdl/common/cdc_handshake.sv ../../../hdl/ieee1722/crf/KL_aaf_clock_meter.sv ../../../hdl/ieee1722/crf/KL_crf_rx.sv ../../../hdl/ieee1722/crf/KL_mmcm_drp_servo.sv ../../../hdl/ieee1722/crf/KL_media_nco.sv ../../../hdl/ieee1722/crf/KL_media_grid_align.sv ../../../hdl/ieee1722/aaf/KL_chan_map_capture.sv ../../../hdl/ieee1722/crf/KL_media_domain_event.sv ../../../hdl/ieee1722/aaf/KL_render_queue.sv follow_ring_wrap.sv sim_main.cpp -o Vfollow_ring
+make[1]: Leaving directory '/data-2/milan/tmp/cicd-a839/r8/ROOT/tb/verilator/follow_ring'
+python3 small_pulls.py --exe /data-2/milan/tmp/cicd-a839/r8/ROOT/tb/verilator/follow_ring/obj_dir_fine/Vfollow_ring \
+  --out /data-2/milan/tmp/cicd-a839/r8/ROOT/tb/verilator/follow_ring/obj_dir_fine/results --jobs 1
+Traceback (most recent call last):
+  File "/data-2/milan/tmp/cicd-a839/r8/ROOT/tb/verilator/follow_ring/small_pulls.py", line 82, in <module>
+    raise SystemExit(main())
+                     ~~~~^^
+  File "/data-2/milan/tmp/cicd-a839/r8/ROOT/tb/verilator/follow_ring/small_pulls.py", line 76, in main
+    results = [future.result() for future in futures]
+               ~~~~~~~~~~~~~^^
+  File "/usr/lib/python3.14/concurrent/futures/_base.py", line 447, in result
+    return self.__get_result()
+           ~~~~~~~~~~~~~~~~~^^
+  File "/usr/lib/python3.14/concurrent/futures/_base.py", line 396, in __get_result
+    raise self._exception
+  File "/usr/lib/python3.14/concurrent/futures/thread.py", line 86, in run
+    result = ctx.run(self.task)
+  File "/usr/lib/python3.14/concurrent/futures/thread.py", line 73, in run
+    return fn(*args, **kwargs)
+  File "/data-2/milan/tmp/cicd-a839/r8/ROOT/tb/verilator/follow_ring/small_pulls.py", line 39, in run_case
+    return run_argv(out, name, argv)
+  File "/data-2/milan/tmp/cicd-a839/r8/ROOT/tb/verilator/follow_ring/small_pulls.py", line 57, in run_argv
+    rc = subprocess.run(argv, stdout=log, stderr=subprocess.STDOUT, check=False).returncode
+         ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/subprocess.py", line 1875, in _execute_child
+    self._posix_spawn(args, executable, env, restore_signals, close_fds,
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                      p2cread, p2cwrite,
+                      ^^^^^^^^^^^^^^^^^^
+                      c2pread, c2pwrite,
+                      ^^^^^^^^^^^^^^^^^^
+                      errread, errwrite)
+                      ^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/subprocess.py", line 1819, in _posix_spawn
+    self.pid = os.posix_spawn(executable, args, env, **kwargs)
+               ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/data-2/milan/tmp/cicd-a839/r8/ROOT/tb/verilator/follow_ring/obj_dir_fine/Vfollow_ring'
+make: *** [Makefile:125: small-pullin] Error 1
