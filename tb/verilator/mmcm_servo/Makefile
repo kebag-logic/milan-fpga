@@ -50,10 +50,12 @@ UNIT_G = -GTICK_CYC_P=3072 -GWIN_LOG2_P=5 "-GNOM_WIN_NS_P=64'd4000000" \
 all: run
 
 # the step harness reads integ_r / u_cmd_r / ew_r / pp_seq_r / pp_run_r, so it
-# is built with --public-flat-rw at the servo's DEFAULT (silicon) parameters
+# is built with probes.vlt (exactly those signals public, in place of
+# --public-flat-rw, which kept every signal unoptimised) at the servo's
+# DEFAULT (silicon) parameters
 STEP_NS ?= 150000
 phc_step_build:
-	$(VERILATOR) $(VFLAGS) --public-flat-rw --top-module KL_mmcm_drp_servo \
+	$(VERILATOR) $(VFLAGS) probes.vlt --top-module KL_mmcm_drp_servo \
 	  -Mdir $(PHC_MDIR) $(COMMON) sim_phc_step.cpp -o Vphc_step
 
 trace: phc_step_build
