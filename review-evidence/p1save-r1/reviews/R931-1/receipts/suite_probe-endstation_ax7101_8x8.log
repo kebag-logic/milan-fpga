@@ -1,0 +1,13 @@
+toolchain: {'cc': 'gcc (GCC) 16.2.1 20260810', 'cxx': 'g++ (GCC) 16.2.1 20260810', 'gcov': 'gcov (GCC) 16.2.1 20260810', 'gtest': '1.18.0', 'gmock': '1.18.0'}
+endstation_ax7101_8x8        clock=100000000 Hz
+  longest service call, model time: 210 us with no stall armed, 2189 us with a command-master stall
+  == ctrl_nvm saved-state store, boot and write paths (endstation_ax7101_8x8): checks: 166   failures: 0 ==
+  RESULT: PASS
+  verdict: PASS (166 tests, 0 failures, exit 0)
+  longest service call, model time: 210 us with no stall armed, 0 us with a command-master stall
+  == ctrl_nvm saved-state store, recorded vector (endstation_ax7101_8x8): checks: 2   failures: 0 ==
+  RESULT: PASS
+  verdict: PASS (2 tests, 0 failures, exit 0)
+  rv32 at 100000000 Hz: text=16820 data=24 bss=15746 stage=14250 payload=576 chunk=256 store=640 clock=24 (bytes)
+  largest static frame: 304 bytes (not a call-chain bound)
+saved-state store gate (#665 F1): OK across 1 shape(s), 168 tests

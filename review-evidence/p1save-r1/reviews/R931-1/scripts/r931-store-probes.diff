@@ -1,0 +1,94 @@
+diff --git a/sw/firmware/ctrl_nvm/test/nvm_fixture.py b/sw/firmware/ctrl_nvm/test/nvm_fixture.py
+index 5a5a978b3..24a69f99d 100644
+--- a/sw/firmware/ctrl_nvm/test/nvm_fixture.py
++++ b/sw/firmware/ctrl_nvm/test/nvm_fixture.py
+@@ -451,6 +451,7 @@ def delta_fixture(w: Writer, b: Bench) -> None:
+     w.blob("golden@5/minor1", base)
+     w.blob("golden@7/minor1", image(b, "golden@7/minor1"))
+     w.blob("slot/g5+b7", with_frames_after(base, [kld[7]]))
++    w.blob("r931/old-image-save", image(b, "bind7@7"))
+     w.blob("slot/g6+b8", with_frames_after(image(b, "golden@6/minor1"), [kld[8]]))
+     w.blob("slot/g5+b7+b9", with_frames_after(base, [kld[7], kld[9]]))
+     # a chain that leaves less than two pages of room: empty frames, sequences two apart, each on its page
+diff --git a/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp b/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp
+index 1fed9915a..ef74b62e6 100644
+--- a/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp
++++ b/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp
+@@ -10,6 +10,8 @@
+ // flight cannot take opens the next window.
+ 
+ #include <algorithm>
++#include <cstdio>
++#define R931P(...) do { FILE* fp = std::fopen("$PACKET/scratch/probe.out", "a"); std::fprintf(fp, __VA_ARGS__); std::fclose(fp); } while (0)
+ #include <cstdint>
+ #include <string>
+ #include <vector>
+@@ -234,5 +236,68 @@ TEST_P(NvmBoth, burst_of_64_bindings) {
+     expect_state(f, "st", want, "the burst's last values");
+ }
+ 
++// R931 probe P1: a change joins the full room's own capture, then that commit fails.
++TEST_P(NvmBoth, r931_tidy_joined_then_fails) {
++    const unsigned rb = bind_rid();
++    const unsigned rb2 = bind_rid2();
++    Files f = fx().files({{"a5.bin", "slot/g5+full"}, {"b6.bin", "golden@6/minor1"}});
++    for (const char* fault : {"erase-refuse:1", "erase-refuse:4"}) {
++        for (const char* ms : {"300", "900", "8000"}) {
++            const Result r = go(port(), f,
++                                concat(kTwin, {"--boot", "--set", set_word(rb, value(rb, 7)), "--until-phase",
++                                               num(NVM_P_IDLE), "--until-phase", num(NVM_P_VERIFY), "--until-idle",
++                                               "--until-phase", num(NVM_P_CAPTURE), "--fault", fault, "--mark", "--set",
++                                               set_word(rb2, value(rb2, 8)), "--run-ms", ms}),
++                                {"ls_refused"});
++            R931P("R931-P1 %s run %s ms: tidied %lld failed %lld ok %lld attempts %lld stale %lld exhausted %lld "
++                        "abandoned %lld pending %lld dirty %lld fail_at",
++                        fault, ms, r.at("tidied"), r.at("failed"), r.at("ok"), r.at("attempts"), r.at("stale"),
++                        r.at("exhausted"), r.at("abandoned"), r.at("pending"), r.at("dirty"));
++            for (const auto t : r.fail_at) {
++                R931P(" %lld", static_cast<long long>(t) - static_cast<long long>(r.marks.back()));
++            }
++            R931P(" ok_at");
++            for (const auto t : r.ok_at) {
++                R931P(" %lld", static_cast<long long>(t) - static_cast<long long>(r.marks.back()));
++            }
++            R931P(" us after the joined change\n");
++        }
++    }
++}
++
++// R931 probe P2: the time a binding change takes when it arrives in another record's whole save, in a full room's
++// commit, and inside another record's frame, with the part's times.
++TEST_P(NvmBoth, r931_bind_in_flight_times) {
++    const unsigned rb = bind_rid();
++    const unsigned last = rids().back();
++    for (const unsigned phase : {unsigned(NVM_P_SEAL), unsigned(NVM_P_ERASE_WAIT), unsigned(NVM_P_BLANKCHECK)}) {
++        Files f = twin();
++        const Result r = go(port(), f,
++                            concat(kTwin, {"--boot", "--times", "120:500", "--set", set_word(rids().front(), value(rids().front(), 7)), "--set", set_word(last, value(last, 7)),
++                                           "--until-phase", num(phase), "--mark", "--set", set_word(rb, value(rb, 7)),
++                                           "--until-idle"}));
++        R931P("R931-P2 bind in phase %u of another record's whole save: ok %lld deltas %lld erases %lld bind durable %lld us "
++                    "after it\n",
++                    phase, r.at("ok"), r.at("deltas"), r.at("erases"), ok_after_mark(r, 1));
++    }
++    Files f = fx().files({{"a5.bin", "slot/g5+full"}, {"b6.bin", "golden@6/minor1"}});
++    const Result r = go(port(), f,
++                        concat(kTwin, {"--boot", "--times", "120:500", "--set", set_word(rb, value(rb, 7)), "--until-idle", "--until-phase",
++                                       num(NVM_P_CAPTURE), "--until-phase", num(NVM_P_ERASE_WAIT), "--mark", "--set",
++                                       set_word(bind_rid2(), value(bind_rid2(), 8)), "--until-idle"}));
++    R931P("R931-P2 bind in a full room's commit: ok %lld tidied %lld deltas %lld durable %lld us after it\n", r.at("ok"),
++                r.at("tidied"), r.at("deltas"), ok_after_mark(r, r.ok_at.empty() ? 0 : r.ok_at.size() - 1));
++}
++
++// R931 probe P3: rolled back to the previous minor, one bind saved there, rolled forward. Slot B holds the pre-rollback
++// container 6 and a frame to 8; the old image, which reads containers alone, took B's 6 as newest and saved the bind
++// whole into A at 7, minor 0.
++TEST_P(NvmBoth, r931_rollback_then_forward) {
++    Files f = fx().files({{"a5.bin", "r931/old-image-save"}, {"b6.bin", "slot/g6+b8"}});
++    const Result b = go(port(), f, concat(kTwin, {"--boot", "--dump-state", "st"}));
++    EXPECT_EQ(b.at("auth"), 0) << "the last save, the rolled-back image's, is not the one restored: " << b.text();
++    expect_state(f, "st", fx().payloads("bind7"), "the last durable binding");
++}
++
+ }  // namespace
+ }  // namespace nvm_test

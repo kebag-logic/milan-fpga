@@ -1,0 +1,9 @@
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+COMMAND $PACKET/scratch/b8/native/Vsim $PACKET/scratch/b8/res-flight2/r931-bind-flight.txt -
+BIND r931-bind-flight: 1 command(s), the latest durable 890.730 ms after its response (sink 0; target 800 ms), 1 save(s), 0 frame(s), 1 erase(s), 0 sink(s) not as last commanded at the cut OVER
+STEPS 2242 passes carry the store's step; the longest 117,194 CPU cycles (1.172 ms), r931-bind-flight; the longest step 80,312 (0.803 ms), r931-bind-flight
+SLICES 14518 tier-2 slices; the longest SRP's records 0, THE TRANSMIT's build 26,361, THE RETRY's round 10,191 CPU cycles, against the stated slice 147,500 (THE TIERS)
+JOINS r931-bind-flight: 3 join interval(s), the shortest 187.749 ms and the longest 190.115 ms, against 181.0 to 239.0; MRP timers' run-outs: 7 released, 6 empty
+1 groups graded, 0 refusals, 0 budget misses (0 of 0 probe instances, 0 of 0 paths), 0 of 611 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+rc 1

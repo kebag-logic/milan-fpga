@@ -1,0 +1,35 @@
+diff --git a/tb/verilator/ctrl_service_budget/bind_save.py b/tb/verilator/ctrl_service_budget/bind_save.py
+index 82d7b2c7f..ff2c1c9a3 100644
+--- a/tb/verilator/ctrl_service_budget/bind_save.py
++++ b/tb/verilator/ctrl_service_budget/bind_save.py
+@@ -106,12 +106,28 @@ def save_base() -> int:
+ def groups(p: scenario.Point, build: dict) -> list[scenario.Group]:
+     """The three groups, at one interface."""
+     image = save_window.container(build)
+-    return [whole(p, image), frame(p, image), burst(p, image)]
++    return [whole(p, image), frame(p, image), burst(p, image), r931_flight(p, build, image)]
++
++
++def r931_flight(p: scenario.Point, build: dict, image: int) -> scenario.Group:
++    """R931 probe: both slots written; a SET_NAME; at its save's erase (or first page) a BIND_RX of sink 0."""
++    table = save_burst.names(build)
++    entity = next(k for k, (kind, _, n) in enumerate(table) if kind == 0 and n == 0)
++    ops = [op('BIND_RX', 0, 0x9602)]
++    g = scenario.Group('r931-bind-flight', sim_ms=6000, save=dict(journal=True, bind=dict(
++        kind='whole', image=image, base=save_base(), ops=ops, target_ms=WHOLE_MS)))
++    scenario.ready(g, p)
++    ms = scenario.MS
++    name = save_burst.name_command(p, save_burst.SET_NAME, save_burst.SEQ, table[entity],
++                                   save_burst.value(entity, b'first'))
++    g.add(f'frame 0 {name.hex()}', f'wait flash erase 1 within {3000 * ms}',
++          command(p, 'BIND_RX', 0, 0x9602), f'wait cycles {1200 * ms}')
++    return g
+ 
+ 
+ def names_of_groups() -> list[str]:
+     """The groups' names."""
+-    return ['save-bind', 'save-bind-frame', 'save-bind-burst']
++    return ['save-bind', 'save-bind-frame', 'save-bind-burst', 'r931-bind-flight']
+ 
+ 
+ # ---- the grade ---------------------------------------------------------------------------------------------------
