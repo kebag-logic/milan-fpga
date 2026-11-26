@@ -48,7 +48,7 @@ module KL_usbnet_tx_inject
   parameter int unsigned  BURST_OCTETS_P  = 3200,
   parameter int unsigned  DEPTH_P         = 512,          //! 64-bit words of frame buffer
   parameter int unsigned  DESC_P          = 16,
-  parameter int unsigned  MAX_LEN_P       = 1515          //! FX3 from_host limit, including USB padding
+  parameter int unsigned  MAX_LEN_OCTETS_P       = 1515          //! FX3 from_host limit, including USB padding
 )(
   input  wire              clk_i,   //! the system clock, the MAC wrapper's
   input  wire              rst_ni,   //! synchronous reset, active low
@@ -86,8 +86,8 @@ module KL_usbnet_tx_inject
   localparam logic [TOK_W_C-1:0] CAP_C = TOK_W_C'(longint'(BURST_OCTETS_P) << FRAC_C);
   localparam int unsigned MS_CYC_C = CLK_HZ_P / 1000;
 
-  if (BURST_OCTETS_P < MAX_LEN_P + 24 || INC_C == 0 || MAX_LEN_P > 4095
-      || (MAX_LEN_P + 7) / 8 > DEPTH_P) begin : g_refuse
+  if (BURST_OCTETS_P < MAX_LEN_OCTETS_P + 24 || INC_C == 0 || MAX_LEN_OCTETS_P > 4095
+      || (MAX_LEN_OCTETS_P + 7) / 8 > DEPTH_P) begin : g_refuse
     $error("KL_usbnet_tx_inject: the burst must hold one longest frame, the rate must be nonzero");
   end
 
@@ -229,7 +229,7 @@ module KL_usbnet_tx_inject
         P_KIND: if (take_w) begin
           case (s_data_i)
             REC_FRAME_C: begin
-              if (len_r < 16'd14 || len_r > 16'(MAX_LEN_P)) begin
+              if (len_r < 16'd14 || len_r > 16'(MAX_LEN_OCTETS_P)) begin
                 verdict_valid_o <= 1'b1;
                 verdict_o       <= TXV_LENGTH;
                 if (dropped_o != '1) dropped_o <= dropped_o + 1'b1;
