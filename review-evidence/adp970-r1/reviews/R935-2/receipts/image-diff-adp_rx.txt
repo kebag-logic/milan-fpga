@@ -1,0 +1,18 @@
+== c34e7d8b
+    a490:	00871713          	slli	a4,a4,0x8
+    a494:	0087d793          	srli	a5,a5,0x8
+    a498:	00e7e7b3          	or	a5,a5,a4
+    a49c:	7ff7f793          	andi	a5,a5,2047
+    a4a0:	03800713          	li	a4,56
+    a4a4:	00e79863          	bne	a5,a4,a4b4 <adp_rx+0x98>
+    a4a8:	00f6f693          	andi	a3,a3,15
+    a4ac:	00200793          	li	a5,2
+== 4df125b8
+    a490:	00871713          	slli	a4,a4,0x8
+    a494:	0087d793          	srli	a5,a5,0x8
+    a498:	00e7e7b3          	or	a5,a5,a4
+    a49c:	7ff7f793          	andi	a5,a5,2047
+    a4a0:	03700713          	li	a4,55
+    a4a4:	00f75863          	bge	a4,a5,a4b4 <adp_rx+0x98>
+    a4a8:	00f6f693          	andi	a3,a3,15
+    a4ac:	00200793          	li	a5,2
