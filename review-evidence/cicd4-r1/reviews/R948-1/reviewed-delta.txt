@@ -1,0 +1,15 @@
+ .github/workflows/docs.yml                         | 324 +++++++++++++++++++--
+ .github/workflows/rtl-fast.yml                     | 215 ++++++++++----
+ docs/testing/CI_WORKFLOWS.md                       |  82 ++++--
+ scripts/ci_events.py                               |  86 ++++++
+ scripts/ci_fast_legs.py                            | 124 ++++++++
+ scripts/ci_fast_legs_selftest.py                   | 144 +++++++++
+ scripts/ci_fast_tool_selftest.py                   |  68 ++++-
+ scripts/ci_gate_workflows.py                       |  38 ++-
+ scripts/ci_gate_workflows_selftest.py              |  19 +-
+ scripts/suite_shards.py                            |   2 +-
+ sw/firmware/ctrl/test/test_ctrl_firmware.py        |  39 ++-
+ sw/firmware/ctrl/test/test_ctrl_firmware_shards.py |  46 ++-
+ sw/mailbox/census_legs.py                          | 142 +++++++++
+ sw/mailbox/census_selftest.py                      |  15 +-
+ 14 files changed, 1205 insertions(+), 139 deletions(-)

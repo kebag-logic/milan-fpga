@@ -1,0 +1,6 @@
+COMMAND: python3 sw/firmware/ctrl/test/test_ctrl_firmware_shards.py
+PASS: shard inventory rejects planted missing suite
+PASS: shard inventory rejects planted duplicate suite
+PASS: a newly discovered suite is assigned without an ownership list
+PASS: 2005 live invocations in exactly one shard; shard sizes [98, 845, 399, 663]
+PASS: nine invalid shard combinations refuse; failed normal suites still stop mutations

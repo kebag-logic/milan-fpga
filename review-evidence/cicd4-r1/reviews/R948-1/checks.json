@@ -1,0 +1,78 @@
+[
+  {
+    "name": "generator-check",
+    "command": [
+      "python3",
+      "scripts/ci_gate_workflows.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 1.321
+  },
+  {
+    "name": "generator-controls",
+    "command": [
+      "python3",
+      "scripts/ci_gate_workflows_selftest.py"
+    ],
+    "rc": 0,
+    "seconds": 27.878
+  },
+  {
+    "name": "event-check",
+    "command": [
+      "python3",
+      "scripts/ci_events.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 1.621
+  },
+  {
+    "name": "event-controls",
+    "command": [
+      "python3",
+      "scripts/ci_events.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 503.206
+  },
+  {
+    "name": "suite-controls",
+    "command": [
+      "python3",
+      "scripts/suite_shards.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 4.829
+  },
+  {
+    "name": "firmware-dispatch",
+    "command": [
+      "python3",
+      "sw/firmware/ctrl/test/test_ctrl_firmware_shards.py"
+    ],
+    "rc": 0,
+    "seconds": 1.37
+  },
+  {
+    "name": "runtime-controls",
+    "command": [
+      "python3",
+      "scripts/ci_runtime_evidence_selftest.py"
+    ],
+    "rc": 0,
+    "seconds": 9.601
+  },
+  {
+    "name": "cancel-controls",
+    "command": [
+      "python3",
+      "scripts/ci_fail_fast_selftest.py"
+    ],
+    "rc": 0,
+    "seconds": 2.023
+  }
+]
