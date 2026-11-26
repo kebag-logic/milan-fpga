@@ -114,6 +114,9 @@ produces that toggle and leaves the computer's frames out of it. It announces
 each grant across to the transmit clock. The frame end that answers the
 announcement is the injected frame, the only frame in the MAC since the grant.
 
+**The MAC's RMON counters** count every frame the MAC sends, the computer's
+included; the tap's own counters (section 7) separate them.
+
 **The gPTP egress observer** attributes frames by their gPTP destination and
 EtherType (`KL_gptp_gmii_launch`). The computer's frames can carry neither, so
 the observer's frame ordinal is unchanged.
