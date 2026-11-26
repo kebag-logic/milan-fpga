@@ -24,7 +24,7 @@ Dirty submodules invalidate local evidence.
 | `gptp-processor` | `1213ac5b9e09b8759ba76cc70c53652b5e108996` | Fabric gPTP engine | `KL_gptp_shadow.sv` |
 | `protocol-processor` | `801ef2283ec793e35a2590fc6593c90313a64041` | ADP, ACMP, AECP, and SRP | `KL_pp_shadow.sv` |
 | `third_party/lwSRP` | `73007b4807977517045e8aa485c61ebb8f5ee843` | Bare-metal MRP, MSRP and MVRP | `sw/firmware/ctrl/srp/srp_mbx.c` |
-| `third_party/tsn-c-stack` | `f71c88701e016ef4550bc64207159c8cfb28a645` | Portable ADP, ACMP and MAAP cores | `sw/firmware/ctrl` mailbox adapters |
+| `third_party/tsn-c-stack` | `175cf9e052d5f38d81274436262b08a666447edb` | Portable ADP, ACMP and MAAP cores | `sw/firmware/ctrl` mailbox adapters |
 | `third_party/verilog-axis` | `48ff7a7e2ef782cf778d47910cf85835c64b1bce` | AXI-Stream primitives | Multiple RTL consumers |
 <!-- submodule-pins:end -->
 
@@ -1106,13 +1106,14 @@ Issue #665 adopts stack pin `715589c1`.
 | [33](https://github.com/kebag-logic/tsn-c-stack/pull/33) (issue 31) | The owed-release mask is sized from `ACMP_MAX_SINKS`; one word at the firmware's 16 sinks |
 | [34](https://github.com/kebag-logic/tsn-c-stack/pull/34) (issue 32) | Each ACMP entry walks only the sinks it changed |
 | [36](https://github.com/kebag-logic/tsn-c-stack/pull/36) | ADP's grandmaster-change tests prove a fresh draw in WAITING; tests and documents only, no source change |
+| [38](https://github.com/kebag-logic/tsn-c-stack/pull/38) (issue 37) | An ENTITY_DISCOVER whose control-data length is above 56 is read by its first 56 octets; shorter ones are still refused |
 | branch `977-settle` (#977) | An entry's completion walks only its marked sinks, loading each mark word once, and builds the saved binding record and the reported view only where a sink's own fields changed; the calls, their order and their arguments are unchanged (ACMP-13) |
 
-Issue #977 moves the pin to `f71c8870`.
+Issue #977 moves the pin to `175cf9e0`.
 
 That commit heads tsn-c-stack branch `977-settle`.
 
-The branch adds two commits on `main` `69bac7c`.
+The branch adds two commits on `main` `a795471c`.
 
 Its cut shortens ACMP's completion of each sink.
 
@@ -1154,9 +1155,9 @@ tsn-c-stack uses HTTPS and needs no credentials.
 
 The pin heads tsn-c-stack branch `977-settle`.
 
-That branch builds on PR 36's merge on `main`.
+That branch builds on PR 38's merge on `main`.
 
-The previous pin, `715589c1`, is its ancestor on `main`.
+The previous pin, `f71c8870`, put them on PR 36's merge.
 
 The current pin includes #19's `src/adp.c` discovery refusals.
 
@@ -1164,7 +1165,7 @@ It holds the ADP, ACMP and MAAP cores.
 
 The [control firmware](../../sw/firmware/ctrl/README.md) uses its public headers.
 
-tsn-c-stack is licensed under [MIT](https://github.com/kebag-logic/tsn-c-stack/blob/f71c88701e016ef4550bc64207159c8cfb28a645/LICENSE).
+tsn-c-stack is licensed under [MIT](https://github.com/kebag-logic/tsn-c-stack/blob/175cf9e052d5f38d81274436262b08a666447edb/LICENSE).
 
 The unused external import uses SSH.
 
@@ -1209,7 +1210,7 @@ The cleanliness command must print nothing.
 | `gptp-processor` | `make -C gptp-processor` | `make -C tb/verilator/gptp_shadow` |
 | `third_party/verilog-axis` | Upstream evidence | `make -C tb/verilator/queues` |
 | `third_party/lwSRP` | cgreen and behave | `python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4` |
-| `third_party/tsn-c-stack` | [Quality workflow](https://github.com/kebag-logic/tsn-c-stack/blob/f71c88701e016ef4550bc64207159c8cfb28a645/.github/workflows/quality.yml) | `python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4` |
+| `third_party/tsn-c-stack` | [Quality workflow](https://github.com/kebag-logic/tsn-c-stack/blob/175cf9e052d5f38d81274436262b08a666447edb/.github/workflows/quality.yml) | `python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4` |
 | `external` | Upstream evidence | Not applicable; no active product consumer |
 
 ## Known documentation conflicts
