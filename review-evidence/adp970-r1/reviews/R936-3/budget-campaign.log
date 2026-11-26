@@ -1,0 +1,300 @@
+MODEL COUNTS 1 interface(s): 0 stale count(s) in the scenario; the planted 11 found 6 time(s): ok
+MODEL COUNTS 2 interface(s): 0 stale count(s) in the scenario; the planted 11 found 11 time(s): ok
+Running baseline and 295 existing mutations with 16 local workers
+PASS marker: a held record's commit goes to the last frame ended (earlier rule)
+PASS burst: a container is accepted whatever its CRC
+PASS marker: a held record's commit before its hold is taken (no ordering guard)
+PASS marker: a later frame's commit overtakes the record its channel holds (no ordering guard)
+PASS burst: the cut is not read
+PASS marker: an entry start takes any function entry
+PASS marker: a timer path starts when its record is posted
+PASS flight: the next save's steps are not counted
+PASS baseline
+PASS marker: the first required output ends the path
+PASS burst: the cut reads slot A whatever the sequences
+PASS marker: the frame tag is ignored
+PASS burst: a SET_NAME's status is not read
+PASS marker: a receive commit goes to the oldest pending frame (earlier rule)
+PASS marker: a timer path starts one millisecond after its deadline
+PASS marker: any response on the channel ends the path
+PASS marker: the interface is ignored
+PASS answers: a response's status is not checked
+PASS marker: the expected-response check is skipped
+PASS answers: an MVU response read as an AEM response
+PASS answers: a response's command or message type is not checked
+PASS answers: a probe's response is the first on its channel, whatever its sequence_id
+PASS answers: a refusal row need not name its refusal
+PASS answers: a row that ends at a response need not state it (earlier rule)
+PASS run: a group whose row states no response is graded as any other
+PASS scenario: get_avb_info sent as GET_AS_PATH on AVB_INTERFACE 9, the refused command (earlier rule)
+PASS scenario: the face's getters stated SUCCESS on the image as linked
+PASS scenario: get_as_path stated SUCCESS on the image as linked
+PASS scenario: get_as_path sent as GET_AVB_INFO
+PASS scenario: get_as_path sent on AVB_INTERFACE 9, a descriptor no image has
+PASS scenario: the talker's refusals stated SUCCESS
+PASS flip: an over-ceiling row passes
+PASS flip: read on the column graded with tsn-c-stack#32
+PASS flip: 8x8/2if held to a looser ceiling
+PASS flip: --check does not call tx_held, so 8x8/1if's THE TRANSMIT figure goes unheld
+PASS shapes: the slice and builds keyed on the interface count alone (earlier rule)
+PASS shapes: the slice held at the interface count (earlier rule)
+PASS flip: 8x8/1if held to a looser ceiling
+PASS load: 1x1/1if held with tsn-c-stack#32 alone (earlier rule)
+PASS shapes: 8x8/1if's polls held at the interface count's (earlier rule)
+PASS load: 8x8/1if's polls at 8x8/2if's, the nearest point's (earlier rule)
+PASS shapes: an owed MRPDU held to the interface count's build of one (earlier rule)
+PASS load: 8x8/2if held by the merge gate again (earlier rule)
+PASS rows: the rows by every source not held
+PASS shapes: a pass given whole held to its builds at the interface count (earlier rule)
+PASS shapes: the slice cap not held
+PASS rows: the built design's rows by every source not held
+PASS rows: SRP's rows held to T_svc's 20 ms
+PASS shapes: a shape not listed taken at the shipping shape's costs
+PASS rows: the grandmaster events left out of a row's window
+PASS rows: SRP's arrivals ahead of R4's record cut by AECP's whole burst (earlier rule)
+PASS rows: a retained record retried once a pass (earlier rule)
+PASS rows: a retained record's retry counted in SRP's own rows
+PASS rows: the arrival rules not held
+PASS rows: read on the column graded with tsn-c-stack#32
+PASS load: the pin's name bound to the donor's table
+PASS notify: the first recipient's commit ends the fan-out
+PASS notify: any unsolicited response counts as the change
+PASS notify: the first unsolicited response on any interface ends it (earlier rule)
+PASS worst pass: the run's last pass is dropped
+PASS composition: the load is the stimulus's own declaration (earlier rule)
+PASS rows: a datapath event neither counted nor excluded
+PASS notify: a missing recipient is not refused
+PASS notify: a recipient outside the set is not refused
+PASS clock ratio: CPU cycles equal bus cycles
+PASS clock ratio: CPU cycles rounded down
+PASS flash: the hybrid-XIP arm is held to the uncached window
+PASS clock ratio: inverted
+PASS clock ratio: a pass's bus cycles equal its CPU cycles
+PASS clock ratio: milliseconds from the CPU clock
+PASS clock ratio: a pass's milliseconds from the bus clock
+PASS composition: the window's population is not checked
+PASS pass bound: it starts at the input, not at the running pass
+PASS composition: the composed maximum is the run's worst pass
+PASS composition: the composed maximum is the window's first pass
+PASS passes: the pass the script's end cuts counts as idle (earlier rule)
+PASS composition: a window that committed more than its load is accepted
+PASS pacing: an AECP group's frames meet an empty token bucket
+PASS flash: a cached window is taken
+PASS opening: the records released are not counted
+PASS opening: a backlog window opens without waiting for the drained event ring
+PASS opening: the window opens with records held
+PASS opening: the refusal does not name the records held
+PASS tables: the composed maximum line drops its lower-bound label
+PASS tables: the composed maximum line drops its partial label
+PASS composition: the backlog stimulus omits SRP
+PASS composition: the backlog stimulus omits MAAP
+PASS composition: the owed row omits the ACMP commands behind its input (earlier rule)
+PASS service: a record never released is omitted
+PASS service: a window that left its load unreleased reports it released (earlier rule)
+PASS composition: the composed maximum is taken over the windows that released their load (earlier rule)
+PASS composition: the composed maximum is no lower bound where a window left its load unreleased
+PASS composition: the composed maximum includes the fixture's short window
+PASS composition: the composed maximum is a lower bound only where its own window left its load unreleased
+PASS composition: the composed maximum does not name the backlog rows a run did not include
+PASS tables: results.json omits the composed maximum
+PASS service: the records ahead count only those never released
+PASS owed: the responses ahead are not checked
+PASS service: a record's service ends at its release, not at its pass's end
+PASS notify: the cost a recipient divides by the recipients, not the gaps
+PASS notify: the fan-out registers one controller an interface (earlier rule)
+PASS owed: a command never answered fits
+PASS deadline: T_svc pinned at the 10 ms proposal (earlier rule)
+PASS deadline: each family graded against its ceiling alone, not T_svc
+PASS deadline: strictly below the budget
+PASS deadline: the ceiling drops the normative wait
+PASS deadline: the normative wait is not added
+PASS deadline: the ACMP ceiling is the transaction timeout
+PASS run: a CPU trap is not refused
+PASS run: a budget miss never fails the run
+PASS run: a refusal does not fail the run
+PASS run: the as-built control is caught by an instruction access fault only (earlier rule)
+PASS run: the as-built control is caught by any trap
+PASS run: the as-built control matches the cause's leading digit
+PASS reuse: an input outside the checkout is not rechecked (earlier rule)
+PASS reuse: the ROM files are not attested
+PASS run: the as-built control is caught whatever the boot does
+PASS regrade: a selected group without its log is dropped (earlier rule)
+PASS tables: a path's first instance is reported, not its worst (earlier rule)
+PASS tables: misses are counted per probe instance only (earlier rule)
+PASS tables: a control instance is its own path (earlier rule)
+PASS build: the 1x1 point names the ledgered override too
+PASS tables: a starved instance is not its path's worst
+PASS fetch bus: the cacheless observers on a cached CPU
+PASS build: arm B's path port answers no entries at once, reading no window (earlier rule)
+PASS build: arm B anchors the fixture's own observation callbacks (earlier rule)
+PASS fetch bus: one beat a refill
+PASS load: any window may hold the flood's last change
+PASS lsu bus: the cacheless observers on a data-cached CPU
+PASS reuse: the fetch L1 and the arm are not compared
+PASS reuse: a reused build is not compared with the selection
+PASS build: an XIP build records the block-RAM arm
+PASS build: the CPU is built with the split's cache whatever the selection
+PASS xip: the reset entry moves to flash with the other code
+PASS xip: the flash driver moves to flash with the other code
+PASS share: the bound over eight passes
+PASS xip: the hot code and the rest stay in rom
+PASS share: a pass at the share is over it
+PASS share: in bus cycles, not CPU time
+PASS share: the passes are not held to it
+PASS share: a pass over it is no finding
+PASS share: the planted store step is judged as a budget control
+PASS load: an aged window may hold no more than its row's
+PASS share: a pass with no mailbox write is not held to it
+PASS stated: no pass is held to its cost
+PASS stated: a pass over its cost is no finding
+PASS stated: one point's costs at both
+PASS stated: a build of one is held to a build of two's cost
+PASS stated: a pass whose round did something is held too
+PASS stated: a round that found nothing leaves no work alone
+PASS stated: an aged step's silent pass is not held
+PASS save: a save's window carries no defined load
+PASS stated: an aged step is not held
+PASS stated: in bus cycles, not CPU time
+PASS save: a window outside its flash phase is graded
+PASS save: the phase read off the last save, not the first
+PASS save: the program phase ends at the window's last page, not the save's
+PASS save: the bound counts one tick a step, not the age limit's
+PASS save: a verify window is graded after its read-backs read back the container
+PASS save: durable at the verify's first read-back, not the one that completes it
+PASS save: the bound leaves out the verify's read-backs
+PASS save: a save never durable in the run is within its bound
+PASS save: the age limit's plant is judged as a budget control
+PASS save: a save over its stated worst case is no finding
+PASS save: a held group that commits fewer records than it offered is graded
+PASS save: a channel left out of the held load
+PASS save: the held load a burst once, then nothing
+PASS save: the in-flight change's bound leaves out the save in flight
+PASS save: the in-flight change waits for every step of the save in flight
+PASS save: the in-flight change waits for its own first-dirty window where that is longer (earlier rule)
+PASS save: the second change timed to the save in flight
+PASS save: a second change not marked while the save is in flight is graded
+PASS save: the second change the same name as the first
+PASS save: the second change marked before the save in flight's capture
+PASS aged: the opening age counts TICK records, not their centiseconds
+PASS aged: the age counted from the window's lead, not from its last step
+PASS aged: a pass that took nothing before the window does not end the age
+PASS aged: a window opened at another age than its name declares is graded
+PASS aged: an aged step's work pass is read as not aged
+PASS aged: a window at the limit that drains before its aged step is refused
+PASS aged: a window at the age limit with no aged step in it is graded
+PASS aged: a window that closed before its centisecond is refused
+PASS aged: a step a pass that took nothing ran is not counted
+PASS aged: the program phase's aged step need not be a page's issue
+PASS aged: the heavier aged step's plant is judged as a budget control
+PASS notice: a retried notice later than its bound is a budget finding only
+PASS notice: a retried notice is held to its ceiling, not its bound
+PASS notice: the age-less plant is judged as a budget control
+PASS notice: the port answers before the load
+PASS transmit: the aged build's plant is judged as a budget control
+PASS transmit: any row over its bound catches the aged build's plant
+PASS transmit: a timer's row ends at the first build, with no frame
+PASS transmit: THE TRANSMIT's row held one over CTRL_LOOP_TX_BOUND_MS
+PASS transmit: a timer's row starts at its entry, not at the deadline
+PASS transmit: THE TRANSMIT's row held to T_svc's 20 ms (earlier rule)
+PASS notice: a queued notice's bound is the first's
+PASS notice: the first of a queue is held to the queue's bound
+PASS notice: the first of a queue is held to T_svc at both points (earlier rule)
+PASS round: one point's costs at both
+PASS round: a refused attempt is free
+PASS round: no round is held to its cost
+PASS round: 8x8/1if's round costs at the interface count's (earlier rule)
+PASS round: a round held at its point's interface count, not the image's shape (earlier rule)
+PASS round: the notices it built are not counted
+PASS round: calls outside it are counted
+PASS round: in bus cycles, not CPU time
+PASS slice: no slice is held to its length
+PASS slice: the stated length doubled
+PASS slice: SRP's slice from its first record
+PASS slice: one point's length at both
+PASS slice: a build pass is not a slice
+PASS slice: SRP's records are not a slice
+PASS slice: a build pass's round a slice of its own
+PASS polls: no base is held to its cost
+PASS polls: no item is held to its cost
+PASS slice: in bus cycles, not CPU time
+PASS polls: a long notice's item is held to no cost
+PASS polls: the items are not taken from the base
+PASS polls: a long notice is the aecp item's
+PASS polls: no SRP record's apply is held to its retry's cost
+PASS polls: a long notice is any AECP frame over the fan port's
+PASS long notice: a group that measured none is taken
+PASS polls: an ACMP or AECP call that sent nothing is an item
+PASS polls: an item after the polls is theirs
+PASS polls: no offer is the kept record's re-offer, so none is told declined
+PASS polls: an item nested in another is counted twice
+PASS polls: no declined ACMP offer is held to its cost
+PASS polls: an ACMP item carries the redelivery's offers (earlier rule)
+PASS polls: no kept command's accepted offer is held to its cost
+PASS polls: the declined offers held to no bound
+PASS joins: the range from the armed 190 ms
+PASS polls: a kept command's accepted offer held to the send's cost, not the record's
+PASS joins: no join interval held to its range
+PASS joins: an MRPDU a join timer did not release taken for a join's
+PASS joins: a periodic or LeaveAll timer's MRPDU taken for a join's
+PASS joins: a run-out's builds sought within 100 ms of it (earlier rule)
+PASS joins: the participants' applications not told apart
+PASS joins: any two MRPDUs, with no join timer between
+PASS joins: the wire's 180.0 to 240.0 ms held at the commit, T_egress uncounted
+PASS joins: a late build taken for an on-time one
+PASS joins: a late build's run-out not failing the run
+PASS joins: an absent build taken for an unresolved one
+PASS joins: an unresolved build taken for one that owes nothing
+PASS joins: a frame its build left owed not the build's
+PASS transmit: an MRPDU a timer owes timed from its run-out, not its participant's transmit opportunity (earlier rule)
+PASS transmit: an expiry with no owner recorded given the participant whose opportunity is latest (the fallback restored)
+PASS transmit: a run-out with no build after it held to the latest of every participant's opportunity (earlier rule)
+PASS transmit: another participant's MRPDU credited to a run-out, timed from its owner
+PASS transmit: an unowned run-out not failing the run
+PASS transmit: a build's first frame answering a run-out whichever participant's, timed from that participant's opportunity (earlier rule)
+PASS transmit: a build's recorded participant ignored, every build from the owner's opportunity taken for the owner's
+PASS transmit: a run-out settled by the first build after it, whichever participant's (earlier rule)
+PASS transmit: a build with no participant recorded that sends nothing taken for the owner's
+PASS transmit: the owner's own build before its transmit opportunity settling its run-out
+PASS transmit: a build that sends nothing late only past the last join callback before it, any participant's (earlier rule)
+PASS transmit: a timer's row started at the earliest opportunity of its commit's participants (earlier rule)
+PASS transmit: the participant's join timer run out a centisecond early
+PASS leaveall: a LeaveAll past its first transmit opportunity not failing the run
+PASS leaveall: a late LeaveAll not failing the run
+PASS leaveall: any MRPDU taken for the LeaveAll
+PASS leaveall: the participants' applications not told apart
+PASS leaveall: a Listener vector's FourPackedEvents not skipped
+PASS leaveall: an expiry bound to the participant whose LeaveAll comes first after it, not its recorded owner (earlier rule)
+PASS leaveall: an expiry with no owner, or its owner unresolved, taken for interface 0's MSRP
+PASS leaveall: the participants' interfaces not told apart
+PASS leaveall: an unowned LeaveAll not failing the run
+PASS leaveall: an absent LeaveAll taken for an unresolved one
+PASS polls: the declined offers held to three a send
+PASS polls: in bus cycles, not CPU time
+PASS polls: one point's costs at both
+PASS polls: a reference control held to no margin
+PASS polls: a reference control read against its own planted run
+PASS polls: a reference control's refusals ignored
+PASS polls: a reference control's other run without its variant
+PASS polls: a reference control's other run in the planted build's place
+PASS aged: one delay an aged window
+PASS polls: the SRP record cut's control held to its stated cost
+PASS aged: the delays across the tick's first 8.75 ms only
+PASS aged: the program phase's window one step short of a page's issue
+PASS aged: windows at the age limit only
+PASS steps: a pass that carries a step and writes nothing to the mailbox is left out
+PASS steps: a work pass that carries a step is left out
+PASS save: the held AECP channel bursts with its change, the SET_NAME's token not yet back
+PASS save: the starved save without its grandmaster flood
+PASS save: four tick phases a flash phase
+PASS save: the program phase spread across one tick, not its step's two
+PASS save: the blank check staged after the first page program
+PASS share: the rows option records the passes too
+PASS share: a pass over it fails the run only beside a row miss
+PASS save: the verify staged while the pages are programmed
+PASS clock: the CPU is built on the Milan clock
+PASS clock: build.json records the point's Milan clock as the CPU's
+PASS clock: no CPU clock refusal
+PASS clock: the CPU's domain is not checked
+PASS clock: the CPU's clock is not checked against the bus clock
+PASS clock: a reused build is not checked
+budget campaign: 296 completed, 0 failures

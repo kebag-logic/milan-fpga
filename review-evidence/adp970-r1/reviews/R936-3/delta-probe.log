@@ -1,0 +1,29 @@
+PASS 1x1: 6 LINK_UP fields 11 -> 12; all stimuli, waits, budgets and other fields identical; both sites and all five checked paths detect stale values
+PASS 8x8: 11 LINK_UP fields 11 -> 12; all stimuli, waits, budgets and other fields identical; both sites and all five checked paths detect stale values
+PASS 8x8-1if: 6 LINK_UP fields 11 -> 12; all stimuli, waits, budgets and other fields identical; both sites and all five checked paths detect stale values
+PASS recorded fixture: every timing, verdict, measured access count and composed result unchanged
+Generated corrected table row: | LINK_UP | `fixture.link_up.if0` | 5,281 | 0.106 | 20 | 200 | fits | 248,452 | 88 (12) | 0.886 |
+MODEL COUNTS 1 interface(s): 0 stale count(s) in the scenario; the planted 11 found 6 time(s): ok
+MODEL COUNTS 2 interface(s): 0 stale count(s) in the scenario; the planted 11 found 11 time(s): ok
+MODEL COUNTS 1 interface(s): 6 stale count(s) in the scenario; the planted 11 found 6 time(s): FAIL
+  adp-link: adp.link_up.if0 publishes 11 model accesses, ADP_MBX_LAT_LINK is 12
+  adp-gm: adp.link_up.if0 publishes 11 model accesses, ADP_MBX_LAT_LINK is 12
+  adp-discover: adp.link_up.if0 publishes 11 model accesses, ADP_MBX_LAT_LINK is 12
+  adp-advertise: adp.link_up.if0 publishes 11 model accesses, ADP_MBX_LAT_LINK is 12
+  control: adp.link_up.if0 publishes 11 model accesses, ADP_MBX_LAT_LINK is 12
+  fixture: fixture.link_up.if0 publishes 11 model accesses, ADP_MBX_LAT_LINK is 12
+MODEL COUNTS 2 interface(s): 11 stale count(s) in the scenario; the planted 11 found 11 time(s): FAIL
+  adp-link: adp.link_up.if0 publishes 11 model accesses, ADP_MBX_LAT_LINK is 12
+  adp-link: adp.link_up.if1 publishes 11 model accesses, ADP_MBX_LAT_LINK is 12
+  adp-gm: adp.link_up.if0 publishes 11 model accesses, ADP_MBX_LAT_LINK is 12
+  adp-gm: adp.link_up.if1 publishes 11 model accesses, ADP_MBX_LAT_LINK is 12
+  adp-discover: adp.link_up.if0 publishes 11 model accesses, ADP_MBX_LAT_LINK is 12
+  adp-discover: adp.link_up.if1 publishes 11 model accesses, ADP_MBX_LAT_LINK is 12
+  adp-advertise: adp.link_up.if0 publishes 11 model accesses, ADP_MBX_LAT_LINK is 12
+  adp-advertise: adp.link_up.if1 publishes 11 model accesses, ADP_MBX_LAT_LINK is 12
+  control: adp.link_up.if0 publishes 11 model accesses, ADP_MBX_LAT_LINK is 12
+  control: adp.link_up.if1 publishes 11 model accesses, ADP_MBX_LAT_LINK is 12
+  fixture: fixture.link_up.if0 publishes 11 model accesses, ADP_MBX_LAT_LINK is 12
+MODEL COUNTS 1 interface(s): 0 stale count(s) in the scenario; the planted 11 found 6 time(s): ok
+MODEL COUNTS 2 interface(s): 0 stale count(s) in the scenario; the planted 11 found 11 time(s): ok
+PASS dispatch: stale metadata fails before fixture; clean metadata reaches fixture and propagates its failure

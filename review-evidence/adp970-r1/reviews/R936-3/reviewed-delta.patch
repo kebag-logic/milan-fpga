@@ -1,0 +1,183 @@
+diff --git a/docs/reference/SUBMODULES.md b/docs/reference/SUBMODULES.md
+index b77fe2bc1..d145fa14a 100644
+--- a/docs/reference/SUBMODULES.md
++++ b/docs/reference/SUBMODULES.md
+@@ -1198,16 +1198,16 @@ The `adp` channel keeps frames of at most 128 octets.
+ 
+ Parent tests accept 57 to 2047.
+ 
++They refuse 0 and 55.
++
++Parent adapter tests exercise every ADP refusal and valid discovery.
++
+ Issue #970 adopts stack pin `c3bff8f3`, the merge of PR #40.
+ 
+ | Stack PR | Parent-visible result |
+ |---|---|
+ | [40](https://github.com/kebag-logic/tsn-c-stack/pull/40) (issue 39) | ADP takes one fresh clock sample at each transition out of DOWN: the startup draw and each qualified LINK_UP (Milan v1.2 5.6.3.5.2, 5.6.3.5.3), none at a duplicate or disabled LINK_UP. The seed sums the MAC address and the sample (IEEE 1722.1-2021 6.2.4.2.2) and mixes in the entity ID, the interface and the earlier state. The parent's seed port returns the platform's microsecond clock. |
+ 
+-They refuse 0 and 55.
+-
+-Parent adapter tests exercise every ADP refusal and valid discovery.
+-
+ The mailbox publishes the stack declaration predicate as `DA_GATE`.
+ 
+ ## Initialize safely
+diff --git a/sw/firmware/ctrl/test/adp_first_mutants.py b/sw/firmware/ctrl/test/adp_first_mutants.py
+index f1d58e3e9..43541f564 100644
+--- a/sw/firmware/ctrl/test/adp_first_mutants.py
++++ b/sw/firmware/ctrl/test/adp_first_mutants.py
+@@ -118,7 +118,7 @@ MUTANTS: tuple[Mutant, ...] = (
+     Mutant("later-link-up-not-reseeded", ADP_C, "\t\t\tleave_down(a, ADP_DRAW_DELAY);  ",
+            "\t\t\t(a->draws == 0u ? leave_down : enter_delay)(a, ADP_DRAW_DELAY);  ", "adp", H8,
+            "H8 a LINK_UP after a link loss draws from a fresh sample"),
+-    # #970, the reviews of PR #1015: each qualified rise samples, through the adapter and the platform
++    # #970: each qualified rise samples through the adapter and platform (IEEE 1722.1-2021 6.2.4.2.2).
+     Mutant("link-up-not-sampled", ADP_C, RISE, "\t\t\tenter_delay(a, ADP_DRAW_DELAY);  ", "adp", H9,
+            "H9 each qualified LINK_UP reads the clock once through the adapter",
+            also=(("platboot1", B27, "B27 boots apart only in the clock at the LINK_UP draw apart"),)),
+diff --git a/tb/verilator/ctrl_service_budget/README.md b/tb/verilator/ctrl_service_budget/README.md
+index 33f72ab0b..aeb41f883 100644
+--- a/tb/verilator/ctrl_service_budget/README.md
++++ b/tb/verilator/ctrl_service_budget/README.md
+@@ -1323,6 +1323,7 @@ Its checks:
+ - the fixture's digest, each of its seven rows with its pass bound and the records ahead, each loaded channel's first and last record served in its window, its worst pass and its composed maximum with the window's population and its release;
+ - a planted over-budget path (the recorded BIND_RX response moved past its 20 ms budget) must miss; the window with its MAAP record's commit deleted, and with that record also left out of its declaration, must be refused by name, and so must the window against a defined load one record smaller; with SRP's release deleted, SRP must be reported never released and the window must report its load unreleased;
+ - every clock conversion; T_svc, the ceilings and each family's budget, restated in [`selftest.py`](selftest.py) so a changed value or table fails;
++- before the fixture, [`model_counts.py`](model_counts.py) holds each ADP probe's published model count (`accesses`, the report's model column) to the adapter's `ADP_MBX_LAT_*` (`adp_mbx.h`). The budget image wires no clock, so LINK_UP's count is the NOW_MS fallback's 12; the wired platform's LINK_UP is 11 and is not this harness's. The same scenario with LINK_UP's count planted at 11 must be found;
+ - an exact-budget path passes and one bus cycle more misses;
+ - each family against min(T_svc, its ceiling): an SRP instance at its 20 ms bound fits, and one cycle over it and one at 21 ms miss; an AECP instance at 22 ms and a MAAP instance at 30 ms miss T_svc within their ceilings;
+ - W plus the budget passes, one cycle more misses within W plus the ceiling, and past that it is over the ceiling; for SRP, whose budget is its ceiling, one cycle past W plus 20 ms misses both;
+diff --git a/tb/verilator/ctrl_service_budget/model_counts.py b/tb/verilator/ctrl_service_budget/model_counts.py
+new file mode 100644
+index 000000000..8f4000d3b
+--- /dev/null
++++ b/tb/verilator/ctrl_service_budget/model_counts.py
+@@ -0,0 +1,90 @@
++# SPDX-FileCopyrightText: 2026 Kebag Logic
++# SPDX-License-Identifier: CERN-OHL-W-2.0
++"""The host model's access counts the scenario publishes for ADP's paths, held to the adapter's own bounds.
++
++Each ADP probe carries `accesses`, the mailbox accesses the host model measures or bounds for its pass
++(scenario.Probe). grade.py copies it to a row's `model_accesses` and run.py prints it beside the measured row. The
++adapter states the same counts as ADP_MBX_LAT_* (sw/firmware/ctrl/adp/adp_mbx.h), and test_adp.cpp's C0 to C6
++measure them on the host model.
++
++The budget image is the size fixture's composition, which wires no clock (adp_mbx_set_clock), so the seed's sample
++is the NOW_MS fallback: LINK_UP's pass is 12 accesses (ADP_MBX_LAT_LINK). The platform wires the microsecond clock,
++and its LINK_UP pass is 11; that path is the platform's, not this harness's.
++
++A probe whose count differs from the header's is a finding: a stale count in the evidence. The self-test runs the
++real scenario (no finding) and the same scenario with LINK_UP's count planted back at 11 (one finding a point).
++"""
++
++from __future__ import annotations
++
++import json
++import re
++import sys
++from dataclasses import replace
++from pathlib import Path
++
++HERE = Path(__file__).resolve().parent
++sys.path.insert(0, str(HERE))
++import scenario  # noqa: E402
++
++HEADER = HERE.parents[2] / 'sw/firmware/ctrl/adp/adp_mbx.h'
++ORACLE = HERE / 'oracle.json'
++#: Each ADP path the scenario probes, and the ADP_MBX_LAT_* bound its count is.
++PATHS = {'adp.link_up': 'LINK', 'adp.gm_change': 'GM', 'adp.discover': 'DISCOVER', 'adp.tmr_delay': 'DELAY',
++         'adp.tmr_advertise': 'ADVERTISE'}
++
++
++def bounds(text: str) -> dict[str, int]:
++    """ADP_MBX_LAT_<path> -> its count, from the adapter header's text."""
++    return {name: int(count) for name, count in re.findall(r'#define ADP_MBX_LAT_(\w+) (\d+)u', text)}
++
++
++def path_of(probe: scenario.Probe) -> str:
++    """The path a probe is an instance of: its own, else its name without `.if<n>`."""
++    return probe.path or re.sub(r'\.if\d+$', '', probe.name)
++
++
++def findings(groups: list[scenario.Group], counts: dict[str, int]) -> list[str]:
++    """Each ADP probe whose published count differs from the adapter's bound for its path."""
++    out = []
++    for g in groups:
++        for probe in g.probes:
++            name = PATHS.get(path_of(probe))
++            if name is not None and probe.accesses != counts[name]:
++                out.append(f'{g.name}: {probe.name} publishes {probe.accesses} model accesses, '
++                           f'ADP_MBX_LAT_{name} is {counts[name]}')
++    return out
++
++
++def groups_at(p: scenario.Point) -> list[scenario.Group]:
++    """The scenario's groups that carry ADP's counts: the advertised links, the ADP groups, the fixture's."""
++    return [*scenario.adp_groups(p), *scenario.control_groups(p), *scenario.fixture_groups(p)]
++
++
++def stale(groups: list[scenario.Group]) -> list[scenario.Group]:
++    """The same groups with LINK_UP's count planted back at 11, the count before the fallback's sample."""
++    for g in groups:
++        g.probes = [replace(pr, accesses=11) if path_of(pr) == 'adp.link_up' else pr for pr in g.probes]
++    return groups
++
++
++def main() -> int:
++    """The check at one and two interfaces, and its planted stale count; 0 when both behave."""
++    counts = bounds(HEADER.read_text(encoding='utf-8'))
++    base = json.loads(ORACLE.read_text(encoding='utf-8'))['point']
++    failures = 0
++    for interfaces in (1, 2):
++        p = scenario.Point(**dict(base, interfaces=interfaces))
++        found = findings(groups_at(p), counts)
++        planted = findings(stale(groups_at(p)), counts)
++        ok = not found and len(planted) >= interfaces
++        failures += not ok
++        print(f'MODEL COUNTS {interfaces} interface(s): {len(found)} stale count(s) in the scenario; '
++              f'the planted 11 found {len(planted)} time(s): {"ok" if ok else "FAIL"}')
++        for line in found:
++            print(f'  {line}')
++    return 1 if failures else 0
++
++
++if __name__ == '__main__':
++    sys.exit(main())
+diff --git a/tb/verilator/ctrl_service_budget/run.py b/tb/verilator/ctrl_service_budget/run.py
+index 27ba1b2ab..57551ae5b 100644
+--- a/tb/verilator/ctrl_service_budget/run.py
++++ b/tb/verilator/ctrl_service_budget/run.py
+@@ -895,8 +895,8 @@ def main() -> int:
+     """Build or reuse a point, run its groups, grade them and write the tables."""
+     parser, args = arguments()
+     if args.self_test:
+-        import selftest
+-        return selftest.main([])
++        import model_counts, selftest   # the published ADP counts against the adapter's (model_counts.py)
++        return model_counts.main() or selftest.main([])
+     if not args.point or not args.build_dir:
+         parser.error('--point and --build-dir are required unless --self-test')
+     build_dir = args.build_dir.resolve()
+diff --git a/tb/verilator/ctrl_service_budget/scenario.py b/tb/verilator/ctrl_service_budget/scenario.py
+index 33ec5b267..fdca18f7c 100644
+--- a/tb/verilator/ctrl_service_budget/scenario.py
++++ b/tb/verilator/ctrl_service_budget/scenario.py
+@@ -263,7 +263,7 @@ def advertised(g: Group, p: Point) -> None:
+     """Links up, then each interface's first ENTITY_AVAILABLE within 4.2 s (LINK_UP's TMR_DELAY, 0 to 4 s)."""
+     adp = CH['adp']
+     ifs = range(p.interfaces)
+-    g.together([(Probe(f'adp.link_up.if{i}', 'LINK_UP', 'adp', f'pad:LINK:{i}', [f'arm:{i}'], accesses=11),
++    g.together([(Probe(f'adp.link_up.if{i}', 'LINK_UP', 'adp', f'pad:LINK:{i}', [f'arm:{i}'], accesses=12),
+                  [f'link {i} 1']) for i in ifs], [f'tmr {i} 1 within {300 * MS}' for i in ifs], settle='')
+     g.together([(Probe(f'adp.tmr_delay.if{i}', 'TMR_DELAY expiry', 'adp', f'deadline:{i}',
+                        [f'tx:{adp}', f'arm:{i}'], accesses=39, expect=f'adp_available:{i}'), []) for i in ifs],
+@@ -941,7 +941,7 @@ def fixture_groups(p: Point) -> list[Group]:
+     acmp, adp, aecp, srp = CH['acmp'], CH['adp'], CH['aecp'], CH['srp']
+     g = Group('fixture', sim_ms=2500)
+     ready(g, p, link=False)
+-    g.probe(Probe('fixture.link_up.if0', 'LINK_UP', 'adp', 'pad:LINK:0', ['arm:0'], accesses=11,
++    g.probe(Probe('fixture.link_up.if0', 'LINK_UP', 'adp', 'pad:LINK:0', ['arm:0'], accesses=12,
+                   path='adp.link_up'),
+             'link 0 1', wait=f'tmr 0 1 within {300 * MS}')
+     g.add(f'wait cycles {100 * MS}', 'wait quiet 3 within 2000000')

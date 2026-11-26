@@ -1,0 +1,28 @@
+UNCHANGED sw/firmware/ctrl/adp
+UNCHANGED sw/firmware/ctrl/plat
+UNCHANGED sw/firmware/ctrl/test/test_adp.cpp
+UNCHANGED sw/firmware/ctrl/test/test_plat_boot.cpp
+UNCHANGED sw/firmware/ctrl/test/ctrl_aecp_image.c
+UNCHANGED third_party/tsn-c-stack
+UNCHANGED hdl
+UNCHANGED sw/mailbox
+UNCHANGED sw/litex
+UNCHANGED tb/verilator/ctrl_service_budget/build.py
+UNCHANGED tb/verilator/ctrl_service_budget/grade.py
+UNCHANGED tb/verilator/ctrl_service_budget/fixture.log
+UNCHANGED tb/verilator/ctrl_service_budget/oracle.json
+UNCHANGED tb/verilator/ctrl_service_budget/selftest.py
+Published ADP arms at preceding head: [('adp', '0'), ('portable', '0'), ('unit', '0'), ('walk', '0'), ('platboot1', '0'), ('platboot2', '0')]
+Published gate: C0 LINK_UP -> TMR_DELAY armed                 12 accesses (bound 12)
+Published gate: == ctrl ADP slice (fake ports and host model): checks: 84   failures: 0 ==
+Published gate: gate rc=0
+Published budget self-test: 0 failures, rc=0
+Published CPU comparison 1x1: 75 paired; 0 base and head misses
+Published execution: 10 groups graded, 0 refusals, 0 budget misses (0 of 75 probe instances, 0 of 46 paths), 0 of 3520 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+Published execution: rc=0
+Published CPU comparison 8x8: 90 paired; 7 base and head misses
+Published execution: 11 groups graded, 0 refusals, 7 budget misses (7 of 90 probe instances, 4 of 48 paths), 0 of 2826 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+Published execution: rc=0
+Prior execution is carried only through unchanged runtime, inputs and grading dependencies.
+No round-6 author packet or independent signature was available in the inspected evidence branch.
+No manager source bank or current-dev candidate execution is asserted.
