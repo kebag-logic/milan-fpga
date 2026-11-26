@@ -436,6 +436,19 @@ def fast_tool_emission_planted(template: dict, generated: dict) -> None:
     print("Fast Yosys tool emission refused a key binding that drops a self-test: " + found[0])
 
 
+def shared_recipe_edit(template: dict, step_name: str, old: str, new: str) -> dict:
+    """The rtl-fast template with one yosys-elaboration step's text replaced, in the census too when the step is
+    of the Yosys recipe the census legs share (#1008)."""
+    changed = copy.deepcopy(template)
+    step = named_step(changed["jobs"][FAST_TOOL_CONSUMER], step_name)
+    assert step["run"].count(old) == 1, (step_name, old)
+    twins = [named_step(changed["jobs"]["publication-census"], step_name)] if step_name in YOSYS_BUILD_STEPS else []
+    assert all(twin == step for twin in twins), step_name
+    for each in (step, *twins):
+        each["run"] = each["run"].replace(old, new)
+    return changed
+
+
 def fast_tool_key_inputs(template: dict, generated: dict) -> None:
     """The key follows every input the emitted tool job feeds its build: the template build step, the
     workflow's and the job's environment, what the transforms after the derivation add to or rewrite in the
@@ -444,16 +457,8 @@ def fast_tool_key_inputs(template: dict, generated: dict) -> None:
     key = tool_cache(generated["jobs"])["key"]
 
     def template_with(step_name: str, old: str, new: str) -> dict:
-        """The rtl-fast template with one yosys-elaboration step's text replaced, in the census too when the
-        step is of the Yosys recipe the census legs share (#1008)."""
-        changed = copy.deepcopy(template)
-        step = named_step(changed["jobs"][FAST_TOOL_CONSUMER], step_name)
-        assert step["run"].count(old) == 1, (step_name, old)
-        twins = [named_step(changed["jobs"]["publication-census"], step_name)] if step_name in YOSYS_BUILD_STEPS else []
-        assert all(twin == step for twin in twins), step_name
-        for each in (step, *twins):
-            each["run"] = each["run"].replace(old, new)
-        return changed
+        """The rtl-fast template with one yosys-elaboration step's text replaced (shared_recipe_edit)."""
+        return shared_recipe_edit(template, step_name, old, new)
 
     def tool_key(changed: dict) -> str:
         """The tool key generated from one template."""

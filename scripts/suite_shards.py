@@ -105,9 +105,7 @@ SUITE_SECONDS = {
     "follow_ring": 1493,
     "fw_service_budget": 2,
     "gptp_plane": 784,
-    # #1008: the larger of its windows, worker 22/27 of runs 45657606190 (478 s) and 45751066654 (517 s), the
-    # first two complete hosted runs after #1003 at gptp-processor 1213ac5b (#995's pin).
-    "gptp_shadow": 517,
+    "gptp_shadow": 517,  # #1008: max(478, 517), runs 45657606190 and 45751066654 at gptp-processor 1213ac5b
     "gptp_tables": 568,
     "gptp_txts": 107,
     "i2spb": 15,

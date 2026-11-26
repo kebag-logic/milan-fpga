@@ -3913,10 +3913,11 @@ def check_boundary_legs(c: Contract, wf: YamlMap, legs: int) -> None:
 
 
 def check_fast_legs(c: Contract, wf: YamlMap) -> None:
-    """#1008: in the generated rtl-fast.yml, each divided fast job runs exactly its legs under GitHub's own fail-fast, so a failed leg cancels its
-    siblings on every event, a fork's included, with no token (docs/testing/CI_WORKFLOWS.md: hosted matrices retain
-    `fail-fast: true`). The census legs keep 30 minutes, their judge needs them and the verdict reads their result,
-    so a failed leg that skips the judge still fails rtl-fast. Issue #1008; REQ-VER-01 and REQ-VER-04."""
+    """#1008: in the generated rtl-fast.yml, each divided fast job runs exactly its legs under GitHub's own
+    fail-fast, so a failed leg cancels its siblings on every event, a fork's included, with no token
+    (docs/testing/CI_WORKFLOWS.md: hosted matrices retain `fail-fast: true`). The census legs keep 30 minutes,
+    their judge needs them and the verdict reads their result, so a failed leg that skips the judge still fails
+    rtl-fast. Issue #1008; REQ-VER-01 and REQ-VER-04."""
     aggregate = jobs(wf).get(FAST_AGGREGATE_JOB, {})
     verdict = "\n".join(str(step.get("run", "")) for step in aggregate.get("steps", []))
     for jid, count in FAST_LEG_JOBS.items():
@@ -8446,8 +8447,8 @@ def _fast_leg_arms() -> list[Arm]:
             (f"{jid} one leg dropped", _m_job_key_any(RTL_FAST, jid, "strategy",
                                                       {"fail-fast": True, "matrix": {"leg": list(range(count - 1))}}),
              strategy),
-            (f"{jid} cancellation disabled", _m_job_key_any(RTL_FAST, jid, "strategy",
-                                                            {"fail-fast": False, "matrix": {"leg": list(range(count))}}),
+            (f"{jid} cancellation disabled",
+             _m_job_key_any(RTL_FAST, jid, "strategy", {"fail-fast": False, "matrix": {"leg": list(range(count))}}),
              strategy),
             (f"{jid} fail-fast left to the default", _m_job_key_any(RTL_FAST, jid, "strategy",
                                                                     {"matrix": {"leg": list(range(count))}}), strategy),
