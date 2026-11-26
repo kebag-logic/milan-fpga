@@ -75,10 +75,12 @@ That limit is outside #823, which sizes the record space for this model anyway, 
 
 The builder uses neither formula.
 It counts the writable names of the exact model it builds: one plus every named descriptor (`def aem_name_count(` in `sw/builder/endstation_builder.py`).
-The two formulas are that count for two config families:
+The two formulas are that count for two config families.
+The refusal column applies the all-fabric backend's NAME bound explicitly.
+Split placement uses layout 3's separate capacity below.
 
 <!-- nvm-format: begin rule -->
-| Family | N: names, as built | Rule | First refusal, names |
+| Family | N: names, as built | Rule | First all-fabric refusal, names |
 |---|---|---|---:|
 | `endstation_ax7101_1x1_tdm8` rows | 1: 39, 2: 67, 3: 95, 4: 123 | 11 + 28 x N | 151 |
 | `endstation_ax7101_8x8` rows | 1: 24, 2: 37, 4: 63, 8: 115, 9: 128 | 11 + 13 x N | 141 |

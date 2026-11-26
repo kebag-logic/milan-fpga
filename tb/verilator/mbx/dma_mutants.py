@@ -24,12 +24,13 @@ import argparse
 import shutil
 import subprocess
 import sys
-import tempfile
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
+sys.path.insert(0, str(HERE.parents[2] / "scripts"))
+import mutant_stage  # noqa: E402
 RTL = HERE.parents[2] / "hdl" / "milan" / "mailbox"
 RTL_FILES = ("KL_mbx_pkg.sv", "KL_mbx_dma.sv")
 
@@ -146,7 +147,7 @@ def main() -> int:
     parser.add_argument("--keep", type=Path, help="keep the scratch builds here")
     args = parser.parse_args()
     flags = vflags()
-    with tempfile.TemporaryDirectory(prefix="mbx-dma-mutants-") as tmp:
+    with mutant_stage.directory("mbx-dma-mutants-") as tmp:
         root = args.keep or Path(tmp)
         root.mkdir(parents=True, exist_ok=True)
         with ThreadPoolExecutor(max_workers=args.jobs) as pool:

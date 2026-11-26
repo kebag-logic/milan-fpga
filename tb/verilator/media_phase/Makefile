@@ -165,6 +165,53 @@ cases: build
 	  test "$$(cat $(OUT)/$$c.rc)" = 0 || { echo "CASE $$c FAILED"; rc=1; }; \
 	done; exit $$rc
 
+# The CI pieces' case inventory (Issue #998; REQ-VER-01, REQ-VER-04): the
+# default run's five harness targets, then each of `cases`' thirteen. Every
+# case prints what the default run prints for it, so the pieces' union carries
+# the same checks; scripts/ci_make_cases.py deals them round-robin.
+RUN_CASES = pins render blend ofs det $(CASES)
+
+ci-list:
+	@printf '%s\n' $(RUN_CASES)
+
+ci-receipts:
+	@$(foreach case,$(RUN_CASES),printf '%s\ttally\n' '$(case)';)
+
+ci-prepare:
+	@mkdir -p $(OUT)
+
+$(addprefix build-,pins render blend ofs det): build-%: %-build
+$(addprefix build-,$(CASES)): build
+
+exec-pins:
+	@echo "======================================================================"
+	$(PIN_MDIR)/Vpin_wrap
+
+exec-render:
+	@echo "======================================================================"
+	$(REND_MDIR)/Vrender_wrap
+
+exec-blend:
+	@echo "======================================================================"
+	$(BLEND_MDIR)/Vblend_wrap
+
+exec-ofs:
+	@echo "======================================================================"
+	$(OFS_MDIR)/Vofs_wrap
+
+exec-det:
+	@rc=0; for c in $(DET_CASES); do \
+	  echo "======================================================================"; \
+	  $(DET_MDIR)/Vdet +case=$$c || rc=1; \
+	done; exit $$rc
+
+$(addprefix exec-,$(CASES)): exec-%:
+	@echo "======================================================================"
+	@$(MDIR)/Vmedia_phase +case=$* > $(OUT)/$*.log 2>&1; echo $$? > $(OUT)/$*.rc
+	@grep -v '^  t=' $(OUT)/$*.log; test "$$(cat $(OUT)/$*.rc)" = 0 || { echo "CASE $* FAILED"; exit 1; }
+
+.PHONY: ci-list ci-receipts ci-prepare $(addprefix build-,$(RUN_CASES)) $(addprefix exec-,$(RUN_CASES))
+
 MUTANT_JOBS ?= 4
 mutants:
 	@echo "======================================================================"

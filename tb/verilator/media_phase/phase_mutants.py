@@ -19,12 +19,13 @@ import os
 import signal
 import subprocess
 import sys
-import tempfile
 import threading
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
+sys.path.insert(0, str(HERE.parents[2] / "scripts"))
+import mutant_stage  # noqa: E402
 HDL = HERE / "../../../hdl/ieee1722/crf"
 SERVO = "KL_mmcm_drp_servo.sv"
 DOMEV = "KL_media_domain_event.sv"
@@ -383,7 +384,7 @@ def main() -> int:
     signal.signal(signal.SIGTERM, interrupted)
     originals = {f: path.read_text() for f, path in SOURCES.items()}
     results = []
-    with tempfile.TemporaryDirectory(prefix="media-phase-mutants-") as directory:
+    with mutant_stage.directory("media-phase-mutants-") as directory:
         work = Path(directory)
         clean = {h: build(work, "clean", {}, h) for h in sorted({harness_of(c) for c in cases})}
         if any(b is None for b in clean.values()):

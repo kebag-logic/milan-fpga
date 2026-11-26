@@ -65,6 +65,65 @@ python3 scripts/ci_suite_pieces.py union """ + suite + """ \
     }
 
 
+PREFLIGHT_JOB = "verilator-preflight"
+PREFLIGHT_ARTIFACT = "suite-preflight"
+#: The worker setup the preflight keeps: the same checkout and SHA record. Its
+#: self-tests read no submodule and need no Verilator, Yosys, sv2v or tsn-gen:
+#: `--preflight-only` passes in a tree exported without submodules.
+PREFLIGHT_SETUP = ("Record the tree this worker validates",)
+
+
+def preflight_job(worker: dict) -> dict:
+    """The sweep's preflight self-tests once per head, beside the workers, which skip them.
+
+    Every worker ran the same eight self-tests on the same tree before its suites. This job
+    runs them once, in parallel with the workers so that its own setup is not on their
+    critical path, and verilator-suites requires its success and its SHA record.
+    Issue #998; REQ-VER-01 and REQ-VER-04."""
+    steps = [{"uses": "actions/checkout@v4"}]
+    for step in worker["steps"]:
+        if step.get("name") in PREFLIGHT_SETUP:
+            kept = copy.deepcopy(step)
+            if kept["name"] == "Record the tree this worker validates":
+                if kept["run"].count("/suite-logs") != 2:
+                    raise ValueError("template worker's SHA record lacks its two suite-logs paths")
+                kept["run"] = kept["run"].replace("/suite-logs", "/" + PREFLIGHT_ARTIFACT)
+            steps.append(kept)
+    if [step.get("name") for step in steps[1:]] != list(PREFLIGHT_SETUP):
+        raise ValueError("template worker lacks the preflight's setup steps")
+    steps += [
+        {"name": "Run the sweep's preflight self-tests once for this head",
+         "run": 'scripts/run_all_suites.sh "$RUNNER_TEMP/' + PREFLIGHT_ARTIFACT + '" --preflight-only\n'},
+        {"name": "Upload this head's preflight logs", "if": "${{ always() }}",
+         "uses": "actions/upload-artifact@v4",
+         "with": {"name": PREFLIGHT_ARTIFACT, "path": "${{ runner.temp }}/" + PREFLIGHT_ARTIFACT,
+                  "if-no-files-found": "error", "retention-days": 3}},
+    ]
+    return {"name": "Verilator preflight", "needs": worker["needs"], "if": worker["if"],
+            "runs-on": worker["runs-on"], "timeout-minutes": 15, "steps": steps}
+
+
+def preflight_checks() -> list[dict]:
+    """verilator-suites' binding of the preflight: its artifact for this SHA, and its success."""
+    return [
+        {"name": "Download this head's preflight logs", "uses": "actions/download-artifact@v4",
+         "continue-on-error": True,
+         "with": {"name": PREFLIGHT_ARTIFACT, "path": "${{ runner.temp }}/" + PREFLIGHT_ARTIFACT}},
+        {"name": "Require the preflight to have passed for this run's SHA", "if": "${{ always() }}",
+         "env": {"GATE_SHA": "${{ needs.full-ci-gate.outputs.target_sha }}",
+                 "PREFLIGHT_RESULT": "${{ needs." + PREFLIGHT_JOB + ".result }}"},
+         "run": """python3 scripts/ci_events.py --require-target-sha --expect 1 \\
+  --sha gate="$GATE_SHA" --sha run="$GITHUB_SHA" \\
+  --sha checkout="$(git rev-parse HEAD)" -- "$RUNNER_TEMP/""" + PREFLIGHT_ARTIFACT + """"
+if [ "$PREFLIGHT_RESULT" != success ]; then
+  echo "the Verilator preflight ended: $PREFLIGHT_RESULT; no worker ran the self-tests" >&2
+  exit 1
+fi
+echo "verilator-suites: the preflight self-tests passed once at $GITHUB_SHA"
+"""},
+    ]
+
+
 def separate_yosys_build(source: dict) -> None:
     """Build the unchanged pinned tool once before the timed synthesis workers."""
     worker = source["jobs"]["yosys-shards"]
@@ -111,8 +170,14 @@ def generate(source: dict) -> dict:
             step["run"] = step["run"].replace("--shard", "--ci-pieces --shard").replace(
                 "  " + dedicated_arm, "")
         if step.get("name") == "Run this exhaustive suite shard":
-            step["run"] = step["run"].replace("--shard", "--ci-pieces --shard")
+            step["run"] = step["run"].replace("--shard", "--ci-pieces --no-preflight --shard")
     worker["timeout-minutes"] = "${{ matrix.shard == " + str(total - 1) + " && 60 || 45 }}"
+    jobs = {}
+    for job_id, job in source["jobs"].items():
+        if job_id == "verilator-shards":
+            jobs[PREFLIGHT_JOB] = preflight_job(worker)
+        jobs[job_id] = job
+    source["jobs"] = jobs
     source["jobs"]["yosys-shards"]["timeout-minutes"] = 29
     separate_yosys_build(source)
     for suite in PIECE_SECONDS:
@@ -120,6 +185,7 @@ def generate(source: dict) -> dict:
     aggregate = source["jobs"]["verilator-suites"]
     aggregate["timeout-minutes"] = 3
     aggregate["needs"].extend("union-" + suite for suite in PIECE_SECONDS)
+    aggregate["needs"].append(PREFLIGHT_JOB)
     # The original aggregate still verifies every worker's target SHA first.
     for step in aggregate["steps"]:
         if step.get("name") == "Require every shard to have validated this run's SHA":
@@ -149,4 +215,5 @@ PY
 """,
     })
     aggregate["steps"].insert(1, inventory_dependencies())
+    aggregate["steps"].extend(preflight_checks())
     return source

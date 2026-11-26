@@ -2,14 +2,13 @@
 r"""Balance the physical serial inventory and the case-partitioned CI inventory.
 
 The serial sweep still discovers every Makefile and excludes only the scheduled
-physical gPTP suite. CI expands six registered parents into driver-owned case
+physical gPTP suite. CI expands eight registered parents into driver-owned case
 partitions. Only leg counts and measured duration estimates are registered here;
 the case names come from each driver, and executed receipts prove their union.
 
-Longest-first scheduling balances eighteen regular workers of nineteen (#781, #799). The tsn-gen owner
-stays at worker 1 and the netlist owner at worker 3. One continuous media-clock
-history runs alone on the final worker under issue 737s explicit timing exception.
-Every other worker must project at most 1620 seconds including setup. The older
+Longest-first scheduling balances the regular workers (#781, #799, #998); the tsn-gen owner stays at worker 1 and
+the netlist owner at worker 3. Leg A, one continuous media-clock history, runs alone on the final worker under #737's
+explicit timing exception. Every other worker must project at most CI_BUDGET_SECONDS including setup. The older
 60-percent timeout bound remains an additional gate, including for the exception.
 
 New suites must enter both the discovered inventory and duration table. Until a
@@ -19,7 +18,7 @@ hide a new suite by omitting it from selection. A changed count or timeout is re
 from the generated workflow, and omission, ownership, overflow and deterministic
 selection controls must still pass.
 
-    python3 scripts/suite_shards.py --suite-root tb/verilator --ci-pieces --shard 0/19
+    python3 scripts/suite_shards.py --suite-root tb/verilator --ci-pieces --shard 0/27
     python3 scripts/suite_shards.py --measure worker.log
     python3 scripts/suite_shards.py --selftest
 """
@@ -54,6 +53,9 @@ PINNED_SUITES = {"tsn_fuzz": 1, "chmap_capture": 3}
 #: #727: no worker may be predicted above this share of its job timeout.
 HEADROOM_PERCENT = 60
 
+#: Issue #998, REQ-VER-01, REQ-VER-04: 30 minutes on a runner 1.41 times as slow (CI_WORKFLOWS.md, "The #998 budget").
+CI_BUDGET_SECONDS = int(30 * 60 / 1.41)
+
 #: The tree this file belongs to, and the three things its head arms read.
 HERE = Path(__file__).resolve()
 ROOT = HERE.parents[1]
@@ -73,18 +75,18 @@ VERILATOR_JOB = "verilator-shards"
 #: 582 s passing on worker 4/17 of pull-request run 40131149135 at 8a4fa2f9
 #: (job 120983200812, whose suite step ran 655 s for its four suites), while
 #: three earlier hosted windows ran past 900 s to TIMEOUT, so its variance is wide.
-#: #799: the ruled replay set (see CI_WORKFLOWS.md), except media_phase, carries its
-#: largest window in runs 40724689169 and 40740015218; follow_ring 1493 s, dev run 40460559108.
+#: #799: the ruled replay set (CI_WORKFLOWS.md) but media_phase carries its largest window in runs 40724689169 and
+#: 40740015218; follow_ring 1493 s, dev run 40460559108. #998 raises what its three runs exceeded (CI_WORKFLOWS.md).
 SUITE_SECONDS = {
-    "aaf": 75,
-    "aaf_audio_loop": 7,
+    "aaf": 77,
+    "aaf_audio_loop": 22,
     "aaf_clock_meter": 1055,
     "aaf_latency_tap_bank": 16,
-    "aaf_latency_taps": 6,
+    "aaf_latency_taps": 15,
     "adp_tx": 12,
     "aes3": 6,
     "avtp_parser": 27,
-    "avtp_rxmon": 73,
+    "avtp_rxmon": 455,
     "avtp_stream": 11,
     "capture_coherence": 1737,
     "cbs": 6,
@@ -92,7 +94,7 @@ SUITE_SECONDS = {
     "chmap_capture": 176,
     "chmap_render": 6,
     "classifier": 6,
-    "clkvalid": 16,
+    "clkvalid": 18,
     "cls": 6,
     "controller_rate": 9,
     "crf_rx": 832,
@@ -105,14 +107,16 @@ SUITE_SECONDS = {
     "gptp_plane": 784,
     "gptp_shadow": 393,
     "gptp_tables": 568,
-    "gptp_txts": 72,
-    "i2spb": 6,
+    "gptp_txts": 107,
+    "i2spb": 15,
     "ifg": 6,
+    "input_loopback": 300,
+    "input_loopback_dp": 300,
     "lat_history_ring": 6,
     "link_guard": 7,
     "maap": 1375,
-    "mac_rmon": 11,
-    "mbx": 73,
+    "mac_rmon": 12,
+    "mbx": 299,
     "media_grid_align": 255,
     "media_nco": 17,
     "media_phase": 1400,
@@ -132,39 +136,39 @@ SUITE_SECONDS = {
     "ptp_ts": 127,
     "queues": 6,
     "reboot_ctrl": 300,
-    "render_queue": 93,
+    "render_queue": 126,
     "rx_filter": 18,
-    "shaper_core": 6,
-    "tcam": 27,
+    "shaper_core": 7,
+    "tcam": 29,
     "tcam_csr": 6,
     "tdm": 7,
-    "tdm_render": 6,
+    "tdm_render": 21,
     "tkdiag": 28,
-    "tsn_fuzz": 60,
+    "tsn_fuzz": 62,
 }
 
-#: Suites whose SUITE_SECONDS figure is provisional: the wall clock the
-#: driver's suite_timeout gives a new suite, until the change's own hosted run
-#: measures it (step 3 of the module docstring's new-suite steps): reboot_ctrl.
-PROVISIONAL_SUITES: frozenset[str] = frozenset({"reboot_ctrl"})
+#: Suites whose SUITE_SECONDS figure is provisional: the wall clock the driver's suite_timeout gives a new suite,
+#: until the change's own hosted run measures it (step 3 of the module docstring's new-suite steps).
+PROVISIONAL_SUITES: frozenset[str] = frozenset({"input_loopback", "input_loopback_dp", "reboot_ctrl"})
 
-#: Seconds of each worker's job outside its suite windows in the same dev run:
-#: checkout, the Verilator cache, tsn-gen on worker 1, Yosys and sv2v on worker
-#: 3, the ownership step and the sweep's preflight self-tests, then the tally.
-#: #781 and #799 add three regular 45-minute workers; all 19, the dedicated last one too, carry the 122 s allowance.
-WORKER_OVERHEAD_SECONDS = (122,) * 19
+#: Seconds of each worker's job outside its suite windows in the same dev run: checkout, the Verilator cache, tsn-gen
+#: on worker 1, Yosys and sv2v on worker 3, the ownership step and the sweep's preflight self-tests, then the tally.
+#: #781 and #799 add three regular 45-minute workers, #998 seven and #979 one (CI_BUDGET_SECONDS); all 27 carry 122 s.
+WORKER_OVERHEAD_SECONDS = (122,) * 27
 
 # Physical inventory stays available to the serial gate and log ownership.
 SERIAL_SUITE_SECONDS = SUITE_SECONDS.copy()
-# Hosted leg windows, as SUITE_SECONDS' #799 figures. Keyed by leg index while the driver
-# deals cases round-robin, so an inserted case re-targets them (#804). See CI_WORKFLOWS.md.
+# Hosted leg windows, as SUITE_SECONDS' figures; #998's new legs scale their old leg's by local walls (CI_WORKFLOWS.md).
+# Keyed by leg index while the driver deals cases round-robin, so an inserted case re-targets them (#804).
 PIECE_SECONDS = {
-    "milan_dp": (1429, 508, 325, 1307),
-    "milan_dp_mclk": (988, 742, 717, 488),
-    "capture_coherence": (1436, 1108, 695, 642),
-    "maap": (311, 425, 317, 327),
-    "milan_dp_render": (549, 83, 812, 240),  # leg 3, #584's ship8: a scaled local run (TESTING.md)
+    "milan_dp": (637, 1153, 145, 220, 1019, 362, 150, 243),
+    "milan_dp_mclk": (1408, 742, 1051, 488),
+    "capture_coherence": (1095, 890, 348, 411, 421, 430, 344, 453),
+    "maap": (377, 425, 317, 327),
+    "milan_dp_render": (620, 90, 812, 240),  # leg 3, #584's ship8: a scaled local run (TESTING.md)
     "pp_shadow": (268, 292, 337, 435),
+    "follow_ring": (589, 1075),
+    "media_phase": (489, 487, 524),
 }
 
 
@@ -186,7 +190,6 @@ def concrete_job_limits(workflow: str) -> tuple[int, ...] | None:
     if set(workers) != set(range(len(workers))):
         raise ValueError("materialized worker inventory or timeouts differ")
     return tuple(workers[index] for index in range(len(workers)))
-
 
 
 def expand_suites(suites: list[str]) -> list[str]:
@@ -345,8 +348,6 @@ def verilator_job_limits(workflow: str) -> tuple[int, int]:
     return max(limits), len(limits)
 
 
-
-
 SUITE_TIMEOUT_ARM_RE = re.compile(
     r" +([A-Za-z0-9_]+|\*)\) +printf '%s\\n' \"\$\{SUITE_TIMEOUT:-([0-9]+)\}\" ;;")
 
@@ -424,10 +425,9 @@ def headroom_problems(suites: Sequence[str], workflow: str,
     problems += [f"worker {worker}/{workers} is predicted at {value} s, over "
                  f"{bounds[worker]} s ({HEADROOM_PERCENT}% of timeout-minutes {limits[worker]})"
                  for worker, value in enumerate(load) if value > bounds[worker]]
-    # The continuous media-clock history has an explicit owner exception.
-    # Every other worker has a stricter, absolute 27-minute scheduling budget.
-    problems += [f"worker {worker}/{workers} exceeds the 1620 s CI budget: {value} s"
-                 for worker, value in enumerate(load[:-len(DEDICATED_SUITES)]) if value > 1620]
+    # Leg A keeps #737's explicit owner exception; every other worker has the absolute #998 budget.
+    problems += [f"worker {worker}/{workers} exceeds the {CI_BUDGET_SECONDS} s CI budget: {value} s"
+                 for worker, value in enumerate(load[:-len(DEDICATED_SUITES)]) if value > CI_BUDGET_SECONDS]
     return problems, load, bounds
 
 
@@ -764,21 +764,17 @@ def planted_selftest(suites: Sequence[str], workflow: str,
                   any(p.startswith("WORKER_OVERHEAD_SECONDS describes")
                       for p in found))
 
-    # Planted heavy durations. The dedicated suite exactly at the bound with
-    # its worker's overhead passes and one second more does not; a balanced
-    # suite grown past every balanced worker's spare time together must put
-    # one of them over, wherever the rule places it.
-    last = workers - len(DEDICATED_SUITES)
-    dedicated = DEDICATED_SUITES[0]
-    at = bound - WORKER_OVERHEAD_SECONDS[last]
-    found_at, _, _ = headroom_problems(suites, workflow,
-                                       {**SUITE_SECONDS, dedicated: at})
-    found_over, _, _ = headroom_problems(suites, workflow,
-                                         {**SUITE_SECONDS, dedicated: at + 1})
-    bad += report(f"{dedicated} at {at} s puts worker {last} exactly at the "
-                  "bound and passes", not found_at)
+    # Planted heavy durations. The dedicated suite exactly at the 60% bound of a 35-minute job (1260 s, where that
+    # bound is the tighter) passes and one second more does not; a balanced suite grown past every balanced worker's
+    # spare time together must put one of them over, wherever the rule places it.
+    last, dedicated = workers - len(DEDICATED_SUITES), DEDICATED_SUITES[0]
+    narrow, ones = with_verilator_key(workflow, "    timeout-minutes", 35), {suite: 1 for suite in suites}
+    at = bound_seconds(35) - WORKER_OVERHEAD_SECONDS[last]
+    found_at, _, _ = headroom_problems(suites, narrow, {**ones, dedicated: at})
+    found_over, _, _ = headroom_problems(suites, narrow, {**ones, dedicated: at + 1})
+    bad += report(f"{dedicated} at {at} s puts worker {last} exactly at the 35-minute bound and passes", not found_at)
     bad += report(f"{dedicated} at {at + 1} s puts it over and is refused",
-                  bool(found_over))
+                  any("60% of timeout-minutes 35" in problem for problem in found_over))
     spare = sum(bound - load[worker] for worker in range(last))
     heavy = max((suite for suite in suites
                  if suite not in DEDICATED_SUITES and suite not in PINNED_SUITES),
@@ -796,14 +792,16 @@ def planted_selftest(suites: Sequence[str], workflow: str,
     # Isolate the absolute rule from the percentage rule with deliberately wide limits.
     wide = with_verilator_key(workflow, "    timeout-minutes", 120)
     over_budget = {suite: 1 for suite in suites}
-    over_budget[heavy] = 1621 - WORKER_OVERHEAD_SECONDS[0]
+    over_budget[heavy] = CI_BUDGET_SECONDS + 1 - WORKER_OVERHEAD_SECONDS[0]
     found_at, at_load, _ = headroom_problems(
         suites, wide, {**over_budget, heavy: over_budget[heavy] - 1})
-    bad += report("1620-second regular worker passes the absolute budget",
-                  not found_at and max(at_load) == 1620)
+    bad += report(f"{CI_BUDGET_SECONDS}-second regular worker passes the absolute budget",
+                  not found_at and max(at_load) == CI_BUDGET_SECONDS)
     found, _, _ = headroom_problems(suites, wide, over_budget)
-    bad += report("1621-second regular worker is refused below its own-limit bound",
-                  any("exceeds the 1620 s CI budget" in problem for problem in found))
+    bad += report(f"{CI_BUDGET_SECONDS + 1}-second regular worker is refused below its own-limit bound",
+                  any(f"exceeds the {CI_BUDGET_SECONDS} s CI budget" in problem for problem in found))
+    bad += report(f"the budget {CI_BUDGET_SECONDS} s is 1800 s / 1.41 rounded down, computed without the constant",
+                  CI_BUDGET_SECONDS == 1276 and 1276 * 1.41 <= 1800 < 1277 * 1.41)
     return bad
 
 
@@ -872,10 +870,12 @@ def head_selftest() -> int:
     # worker over the bound, printed once on its own worker's line.
     for problem in problems if not load else ():
         print(f"  FAIL head: {problem}")
+    binding = [min(b, CI_BUDGET_SECONDS) if w < len(load) - len(DEDICATED_SUITES) else b  # leg A: its 60% alone
+               for w, b in enumerate(bounds)]
     for worker, value in enumerate(load):
-        print(f"  {'ok  ' if value <= bounds[worker] else 'FAIL'} head worker "
+        print(f"  {'ok  ' if value <= binding[worker] else 'FAIL'} head worker "
               f"{worker}/{len(load)} predicted {value} s ({value / 60:.1f} "
-              f"min), bound {bounds[worker]} s")
+              f"min), bound {binding[worker]} s")
     if problems or provisional:
         return len(problems) + len(provisional)
 

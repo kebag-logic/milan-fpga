@@ -36,12 +36,12 @@ cleaned; 1 = a control was not caught; 2 = input or cleanup refusal;
 import argparse
 import re
 import sys
-import tempfile
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 REPO = HERE.parent.parent.parent
 sys.path.insert(0, str(REPO / "scripts"))
+import mutant_stage  # noqa: E402
 sys.path.insert(0, str(HERE.parent / "gptp_shadow"))
 from owned_process import Cancelled, OwnedProcesses  # noqa: E402
 from private_inputs import InputRefused, copy_inputs  # noqa: E402
@@ -299,7 +299,7 @@ def main() -> int:
 
     try:
         with OwnedProcesses() as owner:
-            with tempfile.TemporaryDirectory(prefix="gptp-tables-mutants-") as scratch:
+            with mutant_stage.directory("gptp-tables-mutants-") as scratch:
                 private = Path(scratch)
                 targets = {row[1] for row in MUTATIONS}
                 copy_inputs(REPO, HERE, private, owner, targets)

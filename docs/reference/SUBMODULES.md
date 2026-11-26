@@ -21,10 +21,10 @@ Dirty submodules invalidate local evidence.
 | Path | Pin | Purpose | Root integration |
 |---|---|---|---|
 | `external` | `efeb541ae5fe1e078332d8462dca2fc2d9cb8db5` | Historical Ethernet MAC RTL | No active product consumer |
-| `gptp-processor` | `1213ac5b9e09b8759ba76cc70c53652b5e108996` | Fabric gPTP engine | `KL_gptp_shadow.sv` |
+| `gptp-processor` | `3ce71b768a2f6f6a5274c127080146e755d02275` | Fabric gPTP engine | `KL_gptp_shadow.sv` |
 | `protocol-processor` | `801ef2283ec793e35a2590fc6593c90313a64041` | ADP, ACMP, AECP, and SRP | `KL_pp_shadow.sv` |
 | `third_party/lwSRP` | `73007b4807977517045e8aa485c61ebb8f5ee843` | Bare-metal MRP, MSRP and MVRP | `sw/firmware/ctrl/srp/srp_mbx.c` |
-| `third_party/tsn-c-stack` | `175cf9e052d5f38d81274436262b08a666447edb` | Portable ADP, ACMP and MAAP cores | `sw/firmware/ctrl` mailbox adapters |
+| `third_party/tsn-c-stack` | `5d03517f2ab42416654a8f2be2f71cfc51d82440` | Portable ADP, ACMP and MAAP cores | `sw/firmware/ctrl` mailbox adapters |
 | `third_party/verilog-axis` | `48ff7a7e2ef782cf778d47910cf85835c64b1bce` | AXI-Stream primitives | Multiple RTL consumers |
 <!-- submodule-pins:end -->
 
@@ -1068,6 +1068,86 @@ It reproduces at both pins.
 
 This adoption did not cause it.
 
+Issue #1013 moves the gPTP gitlink to `3ce71b76`.
+
+It fast-forwards `1213ac5b` on the donor's `main`.
+
+The processor stays at `801ef228`.
+
+| gPTP issue | Merged PR | Parent-visible result |
+|---|---|---|
+| #109, a negative link delay is a good exchange | [110](https://github.com/Mister-M-alt/FPGA-gPTP/pull/110) | A negative computed link delay of any magnitude keeps asCapable (802.1AS-2011 11.2.2 b) and Figure 11-8 clear it only above 800 ns; Milan v1.2 4.2.6.2.7 sets a minimum tolerance). Before, a delay below -80 ns lost it. The Sync path uses the delay signed (802.1AS-2011 11.2.13.2.1 f)), floored at -800 ns, and publishes that value. 801 ns still clears asCapable. The ROM is word-neutral, 1,013 of 1,024. `NPD_LO_C` is retired |
+
+No engine port or parameter changes.
+
+No top-level port, parameter or register changes.
+
+The generator's options are unchanged, so the builder is too.
+
+`gptp_ucode.hex` changes; its new ledger row matches the donor's image.
+
+The donor's next merge, PR 112, is not adopted.
+
+It changes only the engine's test runner.
+
+Its two Python files exceed two of this tree's ratchets.
+
+A later pin adopts it, once they fit.
+
+The public bank's clamp to 0 is unchanged.
+
+The published and used delays differ by design.
+
+`gptp_plane` grades the engine's signed word to the nanosecond.
+
+Its `link_delay.py` plants eight defects; each fails by name.
+
+`gptp_shadow` phase 22 grades the real transport.
+
+Its campaign plants the clamp's removal, which fails by name.
+
+The `milan_dp` gPTP legs grade the CSR and GET_AVB_INFO.
+
+The release images were routed at the merge `d0483d08`.
+
+Its gPTP gitlink was `3009f9a2`, PR 112's merge.
+
+Its `hdl/` and `syn/` trees equal `3ce71b76`'s.
+
+So the routes stand for this pin.
+
+Its base is `dev-soft-core` at `c34e7d8b`, routed alike.
+
+Both use the release recipe: the split image, one interface.
+
+The head and base differ only in ROM contents.
+
+| Image, directive | WNS / WHS, worst corner | LUT | FF | Slice | RAMB36 / tiles | DSP |
+|---|---|---:|---:|---:|---:|---:|
+| 1x1/1if base, ExtraPostPlacementOpt | +0.178 / +0.021 ns | 32,582 | 42,803 | 13,590 | 63 / 80.5 | 13 |
+| 1x1/1if, ExtraPostPlacementOpt, selected | +0.178 / +0.021 ns | 32,582 | 42,803 | 13,590 | 63 / 80.5 | 13 |
+| 8x8/1if base, ExtraPostPlacementOpt, misses the floor | +0.008 / +0.036 ns | 45,920 | 53,383 | 15,603 | 82 / 98.5 | 13 |
+| 8x8/1if base, ExtraTimingOpt | +0.283 / +0.036 ns | 45,810 | 53,378 | 15,600 | 82 / 98.5 | 13 |
+| 8x8/1if, ExtraPostPlacementOpt, misses the floor | +0.008 / +0.036 ns | 45,920 | 53,383 | 15,603 | 82 / 98.5 | 13 |
+| 8x8/1if, ExtraTimingOpt, selected | +0.283 / +0.036 ns | 45,810 | 53,378 | 15,600 | 82 / 98.5 | 13 |
+| 8x8/1if, AltSpreadLogic_high, no base pair | +0.146 / +0.036 ns | 45,814 | 53,381 | 15,594 | 82 / 98.5 | 13 |
+
+Three routes have a base pair at the same directive.
+
+Each equals its pair in every figure.
+
+The head's AltSpreadLogic_high route has no base pair.
+
+At 8x8 the first directive misses, as on the base.
+
+So all three were routed, and ExtraTimingOpt ships (#818).
+
+Each selected image meets the build floor at every corner.
+
+No route has a failing endpoint or routing error.
+
+Every image passes the split image identity gate.
+
 The ROM ledger records current and earlier pins.
 
 The boundary diagram follows the current pin.
@@ -1106,14 +1186,37 @@ Issue #665 adopts stack pin `715589c1`.
 | [33](https://github.com/kebag-logic/tsn-c-stack/pull/33) (issue 31) | The owed-release mask is sized from `ACMP_MAX_SINKS`; one word at the firmware's 16 sinks |
 | [34](https://github.com/kebag-logic/tsn-c-stack/pull/34) (issue 32) | Each ACMP entry walks only the sinks it changed |
 | [36](https://github.com/kebag-logic/tsn-c-stack/pull/36) | ADP's grandmaster-change tests prove a fresh draw in WAITING; tests and documents only, no source change |
-| [38](https://github.com/kebag-logic/tsn-c-stack/pull/38) (issue 37) | An ENTITY_DISCOVER whose control-data length is above 56 is read by its first 56 octets; shorter ones are still refused |
-| branch `977-settle` (#977) | An entry's completion walks only its marked sinks, loading each mark word once, and builds the saved binding record and the reported view only where a sink's own fields changed; the calls, their order and their arguments are unchanged (ACMP-13) |
 
-Issue #977 moves the pin to `175cf9e0`.
+Issue #1013 adopts stack pin `a795471c`.
+
+| Stack PR | Parent-visible result |
+|---|---|
+| [38](https://github.com/kebag-logic/tsn-c-stack/pull/38) (issue 37) | An ENTITY_DISCOVER whose control_data_length is above 56 is read by its first 56 octets after entity_id (IEEE 1722.1-2021 6.2.2.6 and 6.2.7.1.3; Milan v1.2 5.6.3.1). Below 56 it is discarded and counted, as before |
+
+Only `src/adp.c` changes, by one comparison.
+
+The `adp` channel keeps frames of at most 128 octets.
+
+Parent tests accept 57 to 2047.
+
+They refuse 0 and 55.
+
+Parent adapter tests exercise every ADP refusal and valid discovery.
+
+The mailbox publishes the stack declaration predicate as `DA_GATE`.
+
+Issue #977 moves the pin to `5d03517f`.
+
+| Stack PR | Parent-visible result |
+|---|---|
+| [40](https://github.com/kebag-logic/tsn-c-stack/pull/40) | ADP's delay generator is seeded on each transition out of DOWN from the sum of the MAC address and the local clock (IEEE 1722.1-2021 6.2.4.2.2), mixed with the entity ID and the interface; the draw ranges are unchanged |
+| branch `977-settle` (#977) | An entry's completion walks only its marked sinks, loading each mark word once, and builds the saved binding record and the reported view only where a sink's own fields changed; the calls, their order and their arguments are unchanged (ACMP-13) |
 
 That commit heads tsn-c-stack branch `977-settle`.
 
-The branch adds two commits on `main` `a795471c`.
+Its two commits sit on `main` `a795471c`.
+
+It then merges `main` `c3bff8f3`, PR 40's merge.
 
 Its cut shortens ACMP's completion of each sink.
 
@@ -1123,9 +1226,9 @@ The cut reaches `main` through tsn-c-stack's own review.
 
 The pin then moves to that merge.
 
-Parent adapter tests exercise every ADP refusal and valid discovery.
+PR 40 asks for the `seed` on each exit from DOWN.
 
-The mailbox publishes the stack declaration predicate as `DA_GATE`.
+The ADP adapter answers with `NOW_MS`, the mailbox's only clock.
 
 ## Initialize safely
 
@@ -1155,17 +1258,19 @@ tsn-c-stack uses HTTPS and needs no credentials.
 
 The pin heads tsn-c-stack branch `977-settle`.
 
-That branch builds on PR 38's merge on `main`.
+That branch merges PR 40's merge on `main`, `c3bff8f3`.
 
-The previous pin, `f71c8870`, put them on PR 36's merge.
+The previous pin, `a795471c`, PR 38's merge on `main`, is its ancestor.
 
 The current pin includes #19's `src/adp.c` discovery refusals.
+
+PR 38 relaxes #19's length refusal above 56 octets.
 
 It holds the ADP, ACMP and MAAP cores.
 
 The [control firmware](../../sw/firmware/ctrl/README.md) uses its public headers.
 
-tsn-c-stack is licensed under [MIT](https://github.com/kebag-logic/tsn-c-stack/blob/175cf9e052d5f38d81274436262b08a666447edb/LICENSE).
+tsn-c-stack is licensed under [MIT](https://github.com/kebag-logic/tsn-c-stack/blob/5d03517f2ab42416654a8f2be2f71cfc51d82440/LICENSE).
 
 The unused external import uses SSH.
 
@@ -1210,7 +1315,7 @@ The cleanliness command must print nothing.
 | `gptp-processor` | `make -C gptp-processor` | `make -C tb/verilator/gptp_shadow` |
 | `third_party/verilog-axis` | Upstream evidence | `make -C tb/verilator/queues` |
 | `third_party/lwSRP` | cgreen and behave | `python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4` |
-| `third_party/tsn-c-stack` | [Quality workflow](https://github.com/kebag-logic/tsn-c-stack/blob/175cf9e052d5f38d81274436262b08a666447edb/.github/workflows/quality.yml) | `python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4` |
+| `third_party/tsn-c-stack` | [Quality workflow](https://github.com/kebag-logic/tsn-c-stack/blob/5d03517f2ab42416654a8f2be2f71cfc51d82440/.github/workflows/quality.yml) | `python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4` |
 | `external` | Upstream evidence | Not applicable; no active product consumer |
 
 ## Known documentation conflicts
@@ -1223,10 +1328,10 @@ The parent carries it to the CRF servo (#545).
 
 Window overlap preserves lock until measured correction completes.
 
-- [Manager guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/1213ac5b9e09b8759ba76cc70c53652b5e108996/docs/MANAGER.md)
-- [Integration guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/1213ac5b9e09b8759ba76cc70c53652b5e108996/docs/INTEGRATION.md)
-- [HDL guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/1213ac5b9e09b8759ba76cc70c53652b5e108996/docs/HDL_DEVELOPER.md)
-- [Test guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/1213ac5b9e09b8759ba76cc70c53652b5e108996/docs/TEST_DEVELOPER.md)
+- [Manager guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/3ce71b768a2f6f6a5274c127080146e755d02275/docs/MANAGER.md)
+- [Integration guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/3ce71b768a2f6f6a5274c127080146e755d02275/docs/INTEGRATION.md)
+- [HDL guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/3ce71b768a2f6f6a5274c127080146e755d02275/docs/HDL_DEVELOPER.md)
+- [Test guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/3ce71b768a2f6f6a5274c127080146e755d02275/docs/TEST_DEVELOPER.md)
 
 Processor PR 156 resolves both former RX-interface contradictions.
 

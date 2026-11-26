@@ -36,7 +36,6 @@ Exit 0 = every mutant was caught and the clean harness still passes.
 import signal
 import subprocess
 import sys
-import tempfile
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
@@ -51,6 +50,7 @@ EXE_NAME = "Vchmap_lockstep"
 SHAPES = ("1", "8")
 sys.path.insert(0, str(HERE / "../../../scripts"))
 from suite_tally import log_reports_failure  # noqa: E402
+import mutant_stage  # noqa: E402
 
 # (name, the ONE text it replaces, its replacement, the check it must fail)
 MUTATIONS = [
@@ -169,7 +169,7 @@ def main() -> int:
     src = RTL.read_text()
     passes = 0
     fails = 0
-    with tempfile.TemporaryDirectory(prefix="chmap-lockstep-mutants-") as td:
+    with mutant_stage.directory("chmap-lockstep-mutants-") as td:
         work = Path(td)
         exes: list[Path] | None = [Path(f"{CLEAN_MDIR}{shape}") / EXE_NAME for shape in SHAPES]
         if not is_fresh(exes):

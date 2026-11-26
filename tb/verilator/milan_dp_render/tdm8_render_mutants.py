@@ -89,7 +89,6 @@ import os
 import signal
 import subprocess
 import sys
-import tempfile
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
@@ -100,6 +99,7 @@ SHAPE_SVH = (HERE / "../../../configs/generated/endstation_ax7101_1x1_tdm8"
              / "gen/adp_shape_defaults.svh")
 sys.path.insert(0, str(HERE / "../../../scripts"))
 from suite_tally import log_reports_failure  # noqa: E402
+import mutant_stage  # noqa: E402
 
 #: the two ELABORATIONS this leg has, each with the Makefile target that
 #: builds it, the object-directory override that target reads, the executable
@@ -175,8 +175,8 @@ MUTATIONS = [
      "T6 IDENTITY: every decoded frame is a complete 24-bit match against "
      "the injection record"),
     ("shared identity corruption: one pdu bit of EVERY channel", "datapath",
-     [("    .s_tdata_i  (rq_tdata_w),",
-       "    .s_tdata_i  (rq_tdata_w ^ 64'h0000_0001_0000_0001),")],
+     [("    .s_tdata_i  (rq_tdata_w[63:0]),",
+       "    .s_tdata_i  (rq_tdata_w[63:0] ^ 64'h0000_0001_0000_0001),")],
      "ship", "--serial-only",
      "T6 IDENTITY: every decoded frame is a complete 24-bit match against "
      "the injection record"),
@@ -718,7 +718,7 @@ def main() -> int:
     leg_defects_only = mode == "--leg-defects"
     signal.signal(signal.SIGTERM, on_sigterm)
     rounds = []
-    with tempfile.TemporaryDirectory(prefix="tdm8-render-mutants-") as td:
+    with mutant_stage.directory("tdm8-render-mutants-") as td:
         work = Path(td)
         clean = clean_legs(work, leg_defects_only)
         rounds.append(run_positive_controls(

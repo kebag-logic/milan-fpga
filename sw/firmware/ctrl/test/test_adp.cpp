@@ -893,32 +893,39 @@ TEST(AdpAdapter, PinRejectsUnsupportedDiscoveryVersions) {
     }
 }
 
-// IEEE 1722.1-2021 6.2.7.1.3: an ENTITY_DISCOVER whose control_data_length is under 56 is refused, valid_time bits
-// above the length's eleven never making a short one long; one above 56 is read by its first 56 octets (the pin's
-// tsn-c-stack PR 38).
 TEST(AdpAdapter, PinRejectsShortDiscoveryControlLength) {
     uint8_t frame[82];
     discover(frame, 2u, 0u);
-    for (unsigned field : {0u, 55u, (31u << 11) | 55u}) {
-        wire_put_be(frame + 16, field, 2);
-        refused_discovery(frame, sizeof frame);
+    for (unsigned valid_time : {0u, 31u}) {
+        for (unsigned length : {0u, 55u}) {
+            wire_put_be(frame + 16, (valid_time << 11) | length, 2);
+            refused_discovery(frame, sizeof frame);
+        }
     }
 }
 
-TEST(AdpAdapter, PinAcceptsLongDiscoveryControlLengthThroughMailbox) {
-    for (unsigned length : {57u, 2047u}) {
-        boot();
-        mbx_model_set_link(&model, 0, true);
-        settle();
-        to_waiting();
-        uint8_t frame[82];
-        discover(frame, 2u, entity.entity_id);
-        wire_put_be(frame + 16, length, 2);
-        const auto discarded = adp0()->discarded;
-        ASSERT_TRUE(mbx_model_rx(&model, frame, sizeof frame, 0));
-        pass();
-        EXPECT_EQ(adp0()->state, ADP_STATE_DELAY) << "long discovery restarts advertising through the mailbox";
-        EXPECT_EQ(adp0()->discarded, discarded) << "a control_data_length above 56 is read by its first 56 octets";
+// A longer PDU is read by its first 56 octets (IEEE 1722.1-2021 6.2.2.6 and 6.2.7.1.3, Milan v1.2 5.6.3.1), whole or
+// with the surplus absent; 102 fills the channel's largest frame, so 256 and 2047 arrive without theirs.
+TEST(AdpAdapter, PinAcceptsLongDiscoveryThroughMailbox) {
+    for (unsigned length : {57u, 84u, 102u, 256u, 2047u}) {
+        for (size_t octets : {size_t{82}, size_t{26} + length}) {
+            if (octets > MBX_CH_ADP_MAX_FRAME_BYTES) {
+                continue;
+            }
+            boot();
+            mbx_model_set_link(&model, 0, true);
+            settle();
+            to_waiting();
+            uint8_t frame[MBX_CH_ADP_MAX_FRAME_BYTES];
+            std::memset(frame, 0xFF, sizeof frame);
+            discover(frame, 2u, entity.entity_id);
+            wire_put_be(frame + 16, length, 2);
+            const auto discarded = adp0()->discarded;
+            ASSERT_TRUE(mbx_model_rx(&model, frame, octets, 0)) << "the adp channel keeps a longer discovery";
+            pass();
+            EXPECT_EQ(adp0()->state, ADP_STATE_DELAY) << "a longer discovery restarts advertising through the mailbox";
+            EXPECT_EQ(adp0()->discarded, discarded) << "a longer discovery is not discarded";
+        }
     }
 }
 
