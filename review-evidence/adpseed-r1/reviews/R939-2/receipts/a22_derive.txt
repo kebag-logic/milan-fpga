@@ -1,0 +1,6 @@
+modular: 1 sample(s) mix to zero, sample 0xDE81995D
+end-around: 1 sample(s) mix to zero, sample 0xDE81995C
+mac low32 0x921122AA + 0xDE81995D carries out of bit 31: yes
+core: sample 0xDE81995D -> rng after first draw 0x00042021 (state 2, draws 1)
+core: sample 0xDE81995C -> rng after first draw 0xA54FC701 (state 2, draws 1)
+xorshift32(1) = 0x00042021

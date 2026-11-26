@@ -1,0 +1,348 @@
+[
+  {
+    "name": "seed-left-at-zero",
+    "status": "CAUGHT",
+    "killing_messages": {
+      "AdpCore.A22GeneratorNeverStuckAtZero": [
+        "A22 a seed that mixes to zero starts the generator at 1"
+      ]
+    }
+  },
+  {
+    "name": "adp-every-draw-reseeded",
+    "status": "CAUGHT",
+    "killing_messages": {
+      "AdpCore.A28EachLeaveOfDownTakesAFreshSample": [
+        "A28 one sample is taken at LINK_UP and none with the link down",
+        "A28 a draw outside DOWN takes no sample",
+        "A28 the next LINK_UP takes a fresh sample",
+        "A28 one sample is taken at startup with the link up"
+      ]
+    }
+  },
+  {
+    "name": "adp-seed-without-interface",
+    "status": "CAUGHT",
+    "killing_messages": {
+      "AdpCore.A27EverySeedTermIsMixedIn": [
+        "A27 interfaces 0, 1, 2 and 255 sampled together draw apart",
+        "A27 interfaces 0, 1, 2 and 255 sampled together draw apart"
+      ]
+    }
+  },
+  {
+    "name": "adp-seed-interface-low-bit-only",
+    "status": "CAUGHT",
+    "killing_messages": {
+      "AdpCore.A27EverySeedTermIsMixedIn": [
+        "A27 interfaces 0, 1, 2 and 255 sampled together draw apart",
+        "A27 interfaces 0, 1, 2 and 255 sampled together draw apart"
+      ]
+    }
+  },
+  {
+    "name": "adp-seed-end-around-carry-added",
+    "status": "CAUGHT",
+    "killing_messages": {
+      "AdpCore.A27EverySeedTermIsMixedIn": [
+        "A27 the seed is the sum's least significant 32 bits, modulo 2^32 (6.2.4.2.2)",
+        "A27 the seed is the sum's least significant 32 bits, modulo 2^32 (6.2.4.2.2)"
+      ]
+    }
+  },
+  {
+    "name": "adp-discover-draw-sampled",
+    "status": "CAUGHT",
+    "killing_messages": {
+      "AdpCore.A32ADiscoverDrawTakesNoSample": [
+        "A32 an ENTITY_DISCOVER in WAITING draws its delay and takes no sample",
+        "A32 an ENTITY_DISCOVER in WAITING draws its delay and takes no sample"
+      ]
+    }
+  },
+  {
+    "name": "adp-seed-port-unflagged",
+    "status": "CAUGHT",
+    "killing_messages": {
+      "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/100": [
+        "callback leaves core state unchanged",
+        "each port callback is counted"
+      ],
+      "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/101": [
+        "callback leaves core state unchanged",
+        "each port callback is counted"
+      ],
+      "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/102": [
+        "callback leaves core state unchanged",
+        "each port callback is counted"
+      ],
+      "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/103": [
+        "callback leaves core state unchanged",
+        "each port callback is counted"
+      ],
+      "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/104": [
+        "callback leaves core state unchanged",
+        "each port callback is counted"
+      ],
+      "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/105": [
+        "callback leaves core state unchanged",
+        "each port callback is counted"
+      ],
+      "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/106": [
+        "callback leaves core state unchanged",
+        "each port callback is counted"
+      ],
+      "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/107": [
+        "callback leaves core state unchanged",
+        "each port callback is counted"
+      ],
+      "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/108": [
+        "callback leaves core state unchanged",
+        "each port callback is counted"
+      ],
+      "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/109": [
+        "callback leaves core state unchanged",
+        "each port callback is counted"
+      ],
+      "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/110": [
+        "callback leaves core state unchanged",
+        "each port callback is counted"
+      ],
+      "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/111": [
+        "callback leaves core state unchanged",
+        "each port callback is counted"
+      ],
+      "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/112": [
+        "callback leaves core state unchanged",
+        "each port callback is counted"
+      ],
+      "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/113": [
+        "callback leaves core state unchanged",
+        "each port callback is counted"
+      ],
+      "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/114": [
+        "each port callback is counted"
+      ],
+      "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/115": [
+        "each port callback is counted"
+      ],
+      "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/116": [
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "each port callback is counted"
+      ],
+      "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/117": [
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "callback leaves output unchanged",
+        "each port callback is counted"
+      ],
+      "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/118": [
+        "each port callback is counted"
+      ],
+      "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/119": [
+        "each port callback is counted"
+      ]
+    }
+  },
+  {
+    "name": "adp-later-rise-not-sampled",
+    "status": "CAUGHT",
+    "killing_messages": {
+      "AdpCore.A30EachQualifiedRiseTakesOneSample": [
+        "A30 each qualified LINK_UP takes one sample",
+        "A30 a duplicate LINK_UP takes no sample",
+        "A30 each qualified LINK_UP takes one sample",
+        "A30 a duplicate LINK_UP takes no sample",
+        "A30 the other interface's LINK_UP takes its own sample",
+        "A30 a LINK_UP while disabled takes no sample",
+        "A30 the startup draw takes one sample"
+      ]
+    }
+  },
+  {
+    "name": "adp-duplicate-up-sampled",
+    "status": "CAUGHT",
+    "killing_messages": {
+      "AdpCore.A30EachQualifiedRiseTakesOneSample": [
+        "A30 a duplicate LINK_UP takes no sample",
+        "A30 each qualified LINK_UP takes one sample",
+        "A30 a duplicate LINK_UP takes no sample",
+        "A30 each qualified LINK_UP takes one sample",
+        "A30 a duplicate LINK_UP takes no sample",
+        "A30 the other interface's LINK_UP takes its own sample",
+        "A30 a LINK_UP while disabled takes no sample",
+        "A30 the startup draw takes one sample"
+      ]
+    }
+  },
+  {
+    "name": "adp-disabled-up-sampled",
+    "status": "CAUGHT",
+    "killing_messages": {
+      "AdpCore.A30EachQualifiedRiseTakesOneSample": [
+        "A30 a LINK_UP while disabled takes no sample",
+        "A30 the startup draw takes one sample"
+      ]
+    }
+  }
+]
