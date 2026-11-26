@@ -34,6 +34,7 @@
 #include <array>
 #include <cstdint>
 #include <cstdio>
+#include <string>
 #include <vector>
 #include <verilated.h>
 #include "Vgptp_shadow_wrap.h"
@@ -213,6 +214,7 @@ class GptpShadowHarness {
     check_each_mastership_runs_on_this_oscillator();
     check_the_first_master_announce_leaves_at_once();
     check_withheld_credit_postpones_the_first_announce();
+    check_the_link_delay_verdict();
 
     milan::tb::GptpTxFlags tx_flags;
     for (const auto& frame : txf) tx_flags.observe(frame);
@@ -320,6 +322,10 @@ class GptpShadowHarness {
   //! after the launch the peer measured. Phases that grade the delay wait
   //! for an undelayed exchange rather than widening their tolerance.
   bool pd_expect_valid = false;
+  int pd_answers = 0;                   // requests this peer answered
+  //! Phase 22's peer answers so that the plane's own four stamps give
+  //! exactly `pd_target`: see `answer_exactly`.
+  bool pd_exact = false;
 
   size_t tx_seen = 0;
 
@@ -468,6 +474,32 @@ class GptpShadowHarness {
     dut->rx_tlast_i = 0;
   }
 
+  //! Answer the request whose result is `stamps[ei]` from a peer whose
+  //! clock is this counter plus a constant. t1 is the plane's own result
+  //! and t4 the stamp the tap pushed for the response, so t3 = t4 + K makes
+  //! the neighborRateRatio window exactly 1 and t2 = t1 + K + 2 pd_target
+  //! makes the delay exactly pd_target, whatever the servo is trimming.
+  bool answer_exactly(uint16_t seq, size_t ei) {
+    constexpr uint64_t kPeerAhead = 5000000ull;
+    for (int w = 0; w < 4000 && stamps.size() <= ei; w++) tick();
+    if (stamps.size() <= ei) return false;
+    Frame f = ptp(0x3, seq, 0, 0x0200, 20);
+    f.ts(stamps[ei].ns + kPeerAhead + static_cast<uint64_t>(2 * pd_target));
+    f.u64(OUR_CID); f.u16(1);
+    g_pushed.clear();
+    g_ts_capture = true;
+    send_wide(f.b);
+    run(50);
+    g_ts_capture = false;
+    if (g_pushed.size() != 1) return false;
+    Frame g = ptp(0xA, seq, 0, 0x0000, 20);
+    g.ts(g_pushed[0] + kPeerAhead);
+    g.u64(OUR_CID); g.u16(1);
+    send_wide(g.b);
+    run(50);
+    return true;
+  }
+
   void service_pdelay() {
     while (pd_seen < txf.size()) {
       size_t i = pd_seen;
@@ -496,6 +528,11 @@ class GptpShadowHarness {
       uint64_t t1 = launch_ns[ei];
       pd_expect_valid = (ei >= rec_delayed.size()) || !rec_delayed[ei];
       run(300);                                // a real turnaround, > 2*D_NOM
+      if (pd_exact) {
+        if (!answer_exactly(seq, ei)) continue;
+        pd_answers++;
+        continue;
+      }
       uint64_t t2 = 5000000ull + phc();
       Frame f = ptp(0x3, seq, 0, 0x0200, 20);
       f.ts(t2); f.u64(OUR_CID); f.u16(1);
@@ -511,6 +548,7 @@ class GptpShadowHarness {
       g.ts(t3); g.u64(OUR_CID); g.u16(1);
       send_wide(g.b);
       run(50);
+      pd_answers++;
     }
   }
 
@@ -2929,6 +2967,107 @@ class GptpShadowHarness {
       expect(say("and the cadence runs 1 s on from it"),
              near(static_cast<int64_t>(txf_cyc[ann[1]] - txf_cyc[ann[0]]),
                   static_cast<int64_t>(kAnnTicks), kMsTicks), 1);
+  }
+
+  // ---- 22: FPGA-gPTP #109 through this slice and the real PHC -----------
+  // The computed link delay is judged only against the 800 ns threshold
+  // (802.1AS-2011 11.2.2 b), Figure 11-8; Milan v1.2 4.2.6.1.1): a negative
+  // one, whatever its magnitude, keeps asCapable (Milan v1.2 4.2.6.2.7 is a
+  // minimum tolerance). The Sync path uses it signed (802.1AS-2011
+  // 11.2.13.2.1 f)), floored at -800 ns. This slice's public bank is the
+  // only clamp to 0: the unsigned word the CSR and GET_AVB_INFO serve.
+  // gptp_plane grades the engine's signed word to the nanosecond; here the
+  // transport, the tap's stamps and the real counter make the delay, and
+  // the public bank is what is read.
+
+  static constexpr int64_t kDelayThreshNs = 800;
+  static constexpr int64_t kFarNegativeNs = -5000000;
+  //! How near the offset of a graded pair must be to its expected 0: the
+  //! stamps quantise to the 8 ns tick, and the nearest wrong link value
+  //! (-263 ns used as 0) is 263 ns away.
+  static constexpr int64_t kOffsetNearNs = 64;
+
+  //! The delay the Sync path uses for a computed delay `d`.
+  static int64_t used_delay(int64_t d) {
+    return d < -kDelayThreshNs ? -kDelayThreshNs : d;
+  }
+
+  //! A Sync/Follow_Up pair from `m` as the plane would see it on a link of
+  //! `link` ns. `gm_pair` presents `D_NOM`; the difference is the origin's.
+  void gm_pair_on_link(const ModelGm &m, int64_t link) {
+    gm_pair(m, D_NOM - link);
+  }
+
+  bool slave_of_gmid() {
+    const uint32_t mask = FL_ASCAP | FL_AMGM | FL_PRESENT;
+    return (dut->pub_flags_o & mask) == (FL_ASCAP | FL_PRESENT) &&
+           dut->pub_gm_id_o == GMID;
+  }
+
+  //! Keep GMID's Announce and Sync flowing until the peer has answered
+  //! `answers` requests and the plane has read the last of them, the pairs
+  //! on a link of `link` ns.
+  bool ride_to_answer(const ModelGm &m, int answers, int64_t link) {
+    for (int k = 0; k < 24 && pd_answers < answers; k++) {
+      if (k % 6 == 0) announce(tk_seq++, 100, GMID);
+      run_svc(kSyncTicks);
+      if (pd_answers < answers) gm_pair_on_link(m, used_delay(link));
+    }
+    run(6000);
+    return pd_answers >= answers;
+  }
+
+  //! One exchange the plane computes as exactly `d`, and the pair after it.
+  //! `link` is the delay the exchange before it left the Sync path using.
+  void delay_trial(const ModelGm &m, int64_t link, int64_t d, bool kept) {
+    const std::string tag = "#109 " + std::to_string(d) + " ns: ";
+    const auto check = [&](const char *what, uint64_t got, uint64_t exp) {
+      expect((tag + what).c_str(), got, exp);
+    };
+    check("runs from a capable slave", slave_of_gmid() ? 1 : 0, 1);
+    pd_target = d;
+    check("the exchange is answered",
+          ride_to_answer(m, pd_answers + 1, link) ? 1 : 0, 1);
+    check(kept ? "asCapable kept" : "asCapable clears",
+          dut->pub_flags_o & FL_ASCAP, kept ? FL_ASCAP : 0);
+    if (d >= 0)
+      check("the public bank reads the delay", dut->pub_pdelay_ns_o,
+            static_cast<uint32_t>(d));
+    else
+      check("the public bank reads 0", dut->pub_pdelay_ns_o, 0);
+    if (!kept) return;
+    const uint64_t steps0 = phc_steps;
+    gm_pair_on_link(m, used_delay(d));
+    check("the next Follow_Up is used with the delay floored at -800 ns",
+          near(static_cast<int32_t>(dut->pub_offset_o), 0, kOffsetNearNs), 1);
+    check("no PHC step", phc_steps - steps0, 0);
+    check("the grandmaster stays elected", slave_of_gmid() ? 1 : 0, 1);
+  }
+
+  void check_the_link_delay_verdict() {
+    drop_epoch();
+    pd_on = true;
+    pd_seen = txf.size();
+    if (!start_from_a_quiet_master("#109")) return;
+    pd_exact = true;
+    pd_target = D_NOM;
+    const ModelGm m = model_gm(0, 0);
+    elect_gm(m);
+    expect("#109: GMID is elected", dut->pub_gm_id_o, GMID);
+    expect("#109: ordinary exchanges leave a capable slave",
+           ride_to_answer(m, pd_answers + 2, D_NOM) && slave_of_gmid() ? 1 : 0,
+           1);
+    expect("#109: an ordinary exchange publishes exactly its delay",
+           dut->pub_pdelay_ns_o, D_NOM);
+    int64_t link = D_NOM;
+    for (const int64_t d : {int64_t{-3}, int64_t{-80}, int64_t{-81},
+                            int64_t{-263}, -kDelayThreshNs - 1,
+                            kFarNegativeNs, kDelayThreshNs}) {
+      delay_trial(m, link, d, true);
+      link = d;
+    }
+    delay_trial(m, link, kDelayThreshNs + 1, false);
+    pd_exact = false;
   }
 
   //! Measurements delivered since the PHC-loss count was `pl0`. Every

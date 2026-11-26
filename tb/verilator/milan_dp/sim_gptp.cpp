@@ -544,6 +544,7 @@ class GptpPlaneHarness {
   int pd_answers = 0;
   int64_t pd_target = 600;
   int64_t pd_expect = 0;
+  int64_t pd_bias = 0;  // the plane's delay less `pd_expect`, at 600 ns
   //! FPGA-gPTP #94: when nonzero, a second clock identity answers every
   //! request too, the Milan v1.2 4.2.6.2.5 multiple-responder shape
   uint64_t pd_second = 0;
@@ -1015,6 +1016,7 @@ class GptpPlaneHarness {
            static_cast<int64_t>(static_cast<int32_t>(pdelay)) >= pd_expect - 32
            && static_cast<int64_t>(static_cast<int32_t>(pdelay)) <= pd_expect + 32, 1);
     expect("fabric asCapable reached the CSR", (axi_read(dut, 0x77C) >> 16) & 1, 1);
+    pd_bias = static_cast<int32_t>(pdelay) - pd_expect;
 
     // Drive a legal small negative symmetric-delay result. The donor keeps the
     // signed value for acceptance, but every parent public consumer is unsigned:
@@ -1671,6 +1673,48 @@ class GptpPlaneHarness {
            same_from(head_push, path_new_head, 38), 1);
   }
 
+  //! FPGA-gPTP #109 at the product's public faces. The engine keeps a
+  //! negative computed delay signed (floored at -800 ns) and a good
+  //! exchange whatever its magnitude (802.1AS-2011 11.2.2 b), Figure 11-8;
+  //! Milan v1.2 4.2.6.2.7 is only a minimum tolerance). Every public
+  //! consumer is unsigned: each delay reads 0 in the CSR and byte-exact in
+  //! GET_AVB_INFO, and the port keeps asCapable. The peer presents each
+  //! delay through the real tap, MAC launch record and PHC.
+  void prove_every_negative_delay_reads_zero_publicly(Vmilan_datapath *dut) {
+    uint16_t seq = 0x7140;
+    const int64_t target_before = pd_target;
+    for (const int64_t d : {int64_t{-3}, int64_t{-80}, int64_t{-81},
+                            int64_t{-263}, int64_t{-5000000}}) {
+      const std::string tag =
+          "[#109] delay " + std::to_string(static_cast<long long>(d)) + " ns: ";
+      const auto check = [&](const char *what, uint64_t got, uint64_t exp) {
+        expect((tag + what).c_str(), got, exp);
+      };
+      //! `pd_expect` is the model's prediction, so the peer's residence is
+      //! biased by what the plane measures beside it
+      pd_target = d - pd_bias - (pd_expect - pd_target);
+      const int before = pd_answers;
+      for (uint64_t n = 0; n < 10000000ull && pd_answers == before; n++) {
+        tick(dut);
+        if ((n & 255) == 0) service_pdelay(dut);
+      }
+      check("the exchange is answered", pd_answers > before, 1);
+      run(dut, 10000);
+      printf("[#109] %lld ns: the plane's delay is predicted at %lld ns\n",
+             static_cast<long long>(d), static_cast<long long>(pd_expect + pd_bias));
+      check("the peer's exchange is negative", pd_expect + pd_bias < 0, 1);
+      check("the public CSR reads 0", axi_read(dut, 0x6E4), 0);
+      check("asCapable kept", (axi_read(dut, 0x77C) >> 16) & 1, 1);
+      aecp_scan = tx_frames.size();
+      const std::vector<uint8_t> avb =
+          aecp_xact(dut, 0x0027, seq++, {0x00, 0x09, 0x00, 0x00});
+      check("GET_AVB_INFO SUCCESS", aecp_status(avb), 0);
+      check("GET_AVB_INFO propagation delay reads 0",
+            avb.size() >= 54 ? be32(avb, 50) : ~0u, 0);
+    }
+    pd_target = target_before;
+  }
+
   // ---- FPGA-gPTP #94: the engine's portEnabled is eff_link ---------------
   //! fabric cycles per gPTP millisecond and per Pdelay_Req interval at this
   //! leg's 2 MHz clock (the engine's timer counts these, not kPpMsCyc)
@@ -2134,6 +2178,7 @@ int GptpPlaneHarness::run() {
   prove_the_announce_carries_the_config_clock_accuracy();
   prove_the_served_head_is_the_received_head(dut);
   prove_an_entry_zero_change_is_a_path_change(dut);
+  prove_every_negative_delay_reads_zero_publicly(dut);
   prove_ascapable_falls_at_a_link_loss(dut);
   prove_ascapable_falls_when_link_ctrl_withdraws_the_link(dut);
   prove_a_link_loss_inside_the_cease_ends_it(dut);
