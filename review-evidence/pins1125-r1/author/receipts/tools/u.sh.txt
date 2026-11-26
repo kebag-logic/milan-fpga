@@ -1,0 +1,5 @@
+# lane tool u.sh
+#!/bin/bash
+# u.sh NAME CMD...: run CMD as user unit milan-pins1125-a850-NAME, log and rc under units/
+S=<scratch>; N=$1; shift; L=$S/units/$N.log; : > $L; [ -f $S/units/$N.rc ] && mv $S/units/$N.rc $S/units/$N.rc.prev
+systemd-run --user --quiet --collect --unit milan-pins1125-a850-$N -p MemoryMax=${MEM:-12G} -p MemorySwapMax=0 -p CPUWeight=${W:-50} --working-directory=${D:-$S} /bin/bash -c ". $S/bin/env.sh; export TERM=dumb; \"\$@\" >> $L 2>&1; echo \$? > $S/units/$N.rc" bash "$@" && echo started $N

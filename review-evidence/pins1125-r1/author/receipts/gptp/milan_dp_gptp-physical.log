@@ -1,0 +1,81 @@
+# make -C tb/verilator/milan_dp_gptp (the physical leg) at d0483d08e6722404b54f3ce4aa13b885001c500b
+  [ ok ] AAF uncertainty matches public stable state got=0 exp=0
+  [ ok ] all scheduled Pdelay ingress events met deadlines got=0 exp=0
+  [ ok ] all epochs retain real Pdelay cadence
+  [ ok ] Sync TX flags: frames observed           got=1 exp=1
+  [ ok ] Sync TX flags: every wire word (Table 11-4) got=512 exp=512
+  [ ok ] Follow_Up TX flags: frames observed      got=1 exp=1
+  [ ok ] Follow_Up TX flags: every wire word (Table 11-4) got=0 exp=0
+  [ ok ] Pdelay_Req TX flags: frames observed     got=1 exp=1
+  [ ok ] Pdelay_Req TX flags: every wire word (Table 11-4) got=0 exp=0
+  [ ok ] Pdelay_Resp TX flags: frames observed    got=1 exp=1
+  [ ok ] Pdelay_Resp TX flags: every wire word (Table 11-4) got=512 exp=512
+  [ ok ] Pdelay_Resp_Follow_Up TX flags: frames observed got=1 exp=1
+  [ ok ] Pdelay_Resp_Follow_Up TX flags: every wire word (Table 11-4) got=0 exp=0
+  [ ok ] all monitored audio payload errors, excluding declared warm-up got=0 exp=0
+  [ ok ] all monitored audio sample ordering errors got=0 exp=0
+  [ ok ] all monitored AAF packet sequence errors got=0 exp=0
+  [ ok ] every emitted audio PDU has its capture order plan got=0 exp=0
+  [ ok ] declared recentre is consecutive within at most two output PDUs got=0 exp=0
+  [ ok ] every declared recentre step reached the wire got=2 exp=2
+  [ ok ] declared recentres leave both loopback slip counters unchanged got=0 exp=0
+== ax1x1gptp physical: checks: 151   failures: 0 ==
+RESULT: PASS
+[ ok ] setup error exits nonzero
+[ ok ] setup failure runs zero cycles
+[ ok ] only the executed setup failure is counted
+[ ok ] uncounted omission: all monitored audio payload errors, excluding declared warm-up
+[ ok ] uncounted omission: all monitored audio sample ordering errors
+[ ok ] uncounted omission: all monitored AAF packet sequence errors
+== ax1x1gptp setup abort: checks: 6   failures: 0 ==
+[ ok ] --no-tx-control: silent talker retains a nonzero DUT verdict
+[ ok ] --no-tx-control: silent window has RX traffic and zero TX or samples
+[ ok ] --no-tx-control: activity and payload assertions still fail
+[ ok ] --no-tx-control: comparison history matches the selected control
+[ ok ] --no-tx-control: uncounted window omission: audio sample order, no duplicates or gaps
+[ ok ] --no-tx-control: passes only from executed windows: audio sample order, no duplicates or gaps
+[ ok ] --no-tx-control: uncounted window omission: AAF packet sequence order
+[ ok ] --no-tx-control: passes only from executed windows: AAF packet sequence order
+[ ok ] --no-tx-control: uncounted window omission: AAF uncertainty matches public stable state
+[ ok ] --no-tx-control: passes only from executed windows: AAF uncertainty matches public stable state
+[ ok ] --stop-tx-control: silent talker retains a nonzero DUT verdict
+[ ok ] --stop-tx-control: silent window has RX traffic and zero TX or samples
+[ ok ] --stop-tx-control: activity and payload assertions still fail
+[ ok ] --stop-tx-control: comparison history matches the selected control
+[ ok ] --stop-tx-control: uncounted window omission: audio sample order, no duplicates or gaps
+[ ok ] --stop-tx-control: passes only from executed windows: audio sample order, no duplicates or gaps
+[ ok ] --stop-tx-control: uncounted window omission: AAF packet sequence order
+[ ok ] --stop-tx-control: passes only from executed windows: AAF packet sequence order
+[ ok ] --stop-tx-control: uncounted window omission: AAF uncertainty matches public stable state
+[ ok ] --stop-tx-control: passes only from executed windows: AAF uncertainty matches public stable state
+== ax1x1gptp no-TX accounting: checks: 20   failures: 0 ==
+[ ok ] --no-pdelay-control: missing response retains a nonzero DUT verdict
+[ ok ] --no-pdelay-control: a real request was unanswered
+[ ok ] --no-pdelay-control: missing response assertion still fails
+[ ok ] --no-pdelay-control: first exchange remains incomplete
+[ ok ] --no-pdelay-control: the unchanged acquisition deadline actually elapsed
+[ ok ] --no-pdelay-control: acquired publication was reached and retains its health failure
+[ ok ] --no-pdelay-control: uncounted omission: one response cannot assert asCapable
+[ ok ] --no-pdelay-control: no unexecuted pass: one response cannot assert asCapable
+[ ok ] --no-pdelay-control: uncounted omission: first peer delay matches independent event oracle within 28 ns
+[ ok ] --no-pdelay-control: no unexecuted pass: first peer delay matches independent event oracle within 28 ns
+[ ok ] --no-pdelay-control: uncounted omission after acquisition timeout: scheduled peer ingress met its event times
+[ ok ] --no-pdelay-control: no unexecuted pass after acquisition timeout: scheduled peer ingress met its event times
+[ ok ] --no-pdelay-control: uncounted omission after acquisition timeout: peer delay equals independent event oracle within 28 ns
+[ ok ] --no-pdelay-control: no unexecuted pass after acquisition timeout: peer delay equals independent event oracle within 28 ns
+== ax1x1gptp no-Pdelay accounting: checks: 14   failures: 0 ==
+[ ok ] --extra-repeat-control: control ran
+[ ok ] --extra-repeat-control: wire ordering oracle rejects the planted step
+[ ok ] --extra-repeat-control: error belongs to the required PDU location
+[ ok ] --extra-repeat-control: the measured wire step is the planted fault
+[ ok ] --extra-repeat-control: payload and packet sequence remain valid
+[ ok ] --extra-repeat-control: declared step and both unchanged counters were observed
+[ ok ] --extra-repeat-control: no unrelated failing assertion
+[ ok ] --large-step-control: control ran
+[ ok ] --large-step-control: wire ordering oracle rejects the planted step
+[ ok ] --large-step-control: error belongs to the required PDU location
+[ ok ] --large-step-control: the measured wire step is the planted fault
+[ ok ] --large-step-control: payload and packet sequence remain valid
+[ ok ] --large-step-control: declared step and both unchanged counters were observed
+[ ok ] --large-step-control: no unrelated failing assertion
+== ax1x1gptp recentre controls: checks: 14   failures: 0 ==

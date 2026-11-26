@@ -1,0 +1,20 @@
+# make -C tb/verilator/gptp_plane at a6864a49293ba3d0df37029abfa581468ef78dce (gPTP 3ce71b76)
+102 checks: 102 PASS, 0 FAIL
+PASS planted defect delay-below-80-refused: link delay -81: asCapable kept | link delay -263: asCapable kept | link delay -800: asCapable kept | link delay -801: asCapable kept | link delay -5000000: asCapable kept
+PASS planted defect no-floor: link delay -801: its offset uses the delay exactly | link delay -801: the engine publishes the used delay | link delay -5000000: no PHC step
+PASS planted defect used-delay-clamped-to-zero: link delay -3: its offset uses the delay exactly | link delay -80: its offset uses the delay exactly | link delay -81: its offset uses the delay exactly | link delay -263: its offset uses the delay exactly
+PASS planted defect floor-at-zero: link delay -263: its offset uses the delay exactly | link delay -263: the engine publishes the used delay
+PASS planted defect floor-at-799: link delay -800: its offset uses the delay exactly | link delay -800: the engine publishes the used delay
+PASS planted defect published-before-the-floor: link delay -801: the engine publishes the used delay | link delay -5000000: the engine publishes the used delay
+PASS planted defect 801-is-good: link delay 801: asCapable clears | link delay 801: the next Follow_Up is not used
+PASS planted defect 800-is-bad: link delay 800: asCapable kept
+link_delay campaign: 9 checks: 9 PASS, 0 FAIL
+== phc_step: checks: 62   failures: 0 ==
+RESULT: PASS
+PASS planted defect stale-rate-window: asCapable never falls after step
+PASS planted defect crossing-exchange: no invalid link-delay publication
+PASS planted defect never-rearm-measurement: real excessive delay still clears asCapable
+PASS planted defect liveness-not-marked: asCapable falls at the fifth unanswered request after a crossing exchange
+PASS planted defect r571-no-liveness: asCapable falls at the fifth unanswered request after a crossing exchange
+PASS planted defect credit-on-step: asCapable falls at the fourth unanswered request after an unanswered crossing request
+phc_step campaign: 8 checks: 8 PASS, 0 FAIL

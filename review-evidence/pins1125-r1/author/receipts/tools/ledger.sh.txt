@@ -1,0 +1,8 @@
+# lane tool ledger.sh
+#!/bin/bash
+# ledger.sh NAME REV: plat_ledger.py on a clean clone, then the digests of each point's image
+S=<scratch>; n=$1; . $S/bin/env.sh
+bash $S/bin/mkclone.sh $n $2 || exit 3
+cd $S/clones/$n; echo "HEAD $(git rev-parse HEAD)"
+python3 -B tb/verilator/ctrl_split_boot/plat_ledger.py --build-dir $S/led/$n; echo "plat_ledger rc=$?"
+(cd $S/led/$n && find . -name ctrl_app.elf -o -name ctrl_app.bin | LC_ALL=C sort | xargs -r sha256sum)

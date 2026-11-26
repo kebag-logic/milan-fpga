@@ -1,0 +1,36 @@
+# make -C tb/verilator/gptp_plane (run, phc-step, link-delay) and gptp_shadow lifecycle at d0483d08e6722404b54f3ce4aa13b885001c500b
+102 checks: 102 PASS, 0 FAIL
+PASS control clean: every check passes
+PASS planted defect delay-below-80-refused: link delay -81: asCapable kept | link delay -263: asCapable kept | link delay -800: asCapable kept | link delay -801: asCapable kept | link delay -5000000: asCapable kept
+PASS planted defect no-floor: link delay -801: its offset uses the delay exactly | link delay -801: the engine publishes the used delay | link delay -5000000: no PHC step
+PASS planted defect used-delay-clamped-to-zero: link delay -3: its offset uses the delay exactly | link delay -80: its offset uses the delay exactly | link delay -81: its offset uses the delay exactly | link delay -263: its offset uses the delay exactly
+PASS planted defect floor-at-zero: link delay -263: its offset uses the delay exactly | link delay -263: the engine publishes the used delay
+PASS planted defect floor-at-799: link delay -800: its offset uses the delay exactly | link delay -800: the engine publishes the used delay
+PASS planted defect published-before-the-floor: link delay -801: the engine publishes the used delay | link delay -5000000: the engine publishes the used delay
+PASS planted defect 801-is-good: link delay 801: asCapable clears | link delay 801: the next Follow_Up is not used
+PASS planted defect 800-is-bad: link delay 800: asCapable kept
+link_delay campaign: 9 checks: 9 PASS, 0 FAIL
+== phc_step: checks: 62   failures: 0 ==
+RESULT: PASS
+PASS control nocease-control: every check passes
+PASS planted defect stale-rate-window: asCapable never falls after step
+PASS planted defect crossing-exchange: no invalid link-delay publication
+PASS planted defect never-rearm-measurement: real excessive delay still clears asCapable
+PASS planted defect liveness-not-marked: asCapable falls at the fifth unanswered request after a crossing exchange
+PASS planted defect r571-no-liveness: asCapable falls at the fifth unanswered request after a crossing exchange
+PASS planted defect credit-on-step: asCapable falls at the fourth unanswered request after an unanswered crossing request
+phc_step campaign: 8 checks: 8 PASS, 0 FAIL
+python3 test_mutant_lifecycle.py
+make-owner: {"exit": 2, "failure_propagated": true, "normal_make_owns_lifecycle": true}
+dirty-input: {"exit": 2, "input_unchanged": true, "make_started": false, "reason": "modified input bytes/mode: <scratch>/tmp/mutant-lifecycle-enx9oy17/dirty-input input [523]/hdl/common/cdc_pulse.sv", "refusal": "dirty-input"}
+dirty-header: {"exit": 2, "input_unchanged": true, "make_started": false, "reason": "modified input bytes/mode: <scratch>/tmp/mutant-lifecycle-enx9oy17/dirty-header input [523]/tb/common/gptp_tx_flags.hpp", "refusal": "dirty-header"}
+dirty-anchor: {"exit": 2, "input_unchanged": true, "make_started": false, "reason": "modified input bytes/mode: <scratch>/tmp/mutant-lifecycle-enx9oy17/dirty-anchor input [523]/hdl/ieee8021as/gptp_plane/KL_gptp_gmii_launch.sv", "refusal": "dirty-anchor"}
+dependency: {"exit": 2, "input_unchanged": true, "make_started": false, "reason": "modified input bytes/mode: <scratch>/tmp/mutant-lifecycle-enx9oy17/dependency input [523]/gptp-processor/hdl/common/KL_gptp_timer.sv", "refusal": "dependency"}
+isolated-SIGINT: {"caller_changed": false, "cleanup_required": true, "exit": 130, "handshake": {"child": 790085, "cwd": "<scratch>/tmp/mutant-lifecycle-enx9oy17/isolated-SIGINT-control/milan-mutant-stage-1000/gptp-shadow-mutants-0/tb/verilator/gptp_shadow", "identities": {"790081": ["4096670", "S"], "790085": ["4096674", "S"]}, "mutations": ["abort_counts_as_completion"], "pid": 790081, "private": "<scratch>/tmp/mutant-lifecycle-enx9oy17/isolated-SIGINT-control/milan-mutant-stage-1000/gptp-shadow-mutants-0"}, "signal": "SIGINT", "unsafe_control_detected": false}
+isolated-SIGTERM: {"caller_changed": false, "cleanup_required": true, "exit": 143, "handshake": {"child": 790460, "cwd": "<scratch>/tmp/mutant-lifecycle-enx9oy17/isolated-SIGTERM-control/milan-mutant-stage-1000/gptp-shadow-mutants-0/tb/verilator/gptp_shadow", "identities": {"790456": ["4096999", "S"], "790460": ["4097004", "S"]}, "mutations": ["abort_counts_as_completion"], "pid": 790456, "private": "<scratch>/tmp/mutant-lifecycle-enx9oy17/isolated-SIGTERM-control/milan-mutant-stage-1000/gptp-shadow-mutants-0"}, "signal": "SIGTERM", "unsafe_control_detected": false}
+isolated-SIGKILL: {"caller_changed": false, "cleanup_required": false, "exit": -9, "handshake": {"child": 790882, "cwd": "<scratch>/tmp/mutant-lifecycle-enx9oy17/isolated-SIGKILL-control/milan-mutant-stage-1000/gptp-shadow-mutants-0/tb/verilator/gptp_shadow", "identities": {"790881": ["4097321", "S"], "790882": ["4097324", "S"]}, "mutations": ["abort_counts_as_completion"], "pid": 790881, "private": "<scratch>/tmp/mutant-lifecycle-enx9oy17/isolated-SIGKILL-control/milan-mutant-stage-1000/gptp-shadow-mutants-0"}, "signal": "SIGKILL", "unsafe_control_detected": false}
+unsafe-SIGTERM: {"caller_changed": true, "cleanup_required": true, "exit": 143, "handshake": {"child": 791097, "cwd": "<scratch>/tmp/mutant-lifecycle-enx9oy17/unsafe-SIGTERM input [523]/tb/verilator/gptp_shadow", "identities": {"791096": ["4097563", "S"], "791097": ["4097568", "S"]}, "mutations": ["abort_counts_as_completion"], "pid": 791096, "private": "<scratch>/tmp/mutant-lifecycle-enx9oy17/unsafe-SIGTERM input [523]"}, "signal": "SIGTERM", "unsafe_control_detected": true}
+unsafe-SIGKILL: {"caller_changed": true, "cleanup_required": false, "exit": -9, "handshake": {"child": 791480, "cwd": "<scratch>/tmp/mutant-lifecycle-enx9oy17/unsafe-SIGKILL input [523]/tb/verilator/gptp_shadow", "identities": {"791476": ["4097818", "S"], "791480": ["4097822", "S"]}, "mutations": ["abort_counts_as_completion"], "pid": 791476, "private": "<scratch>/tmp/mutant-lifecycle-enx9oy17/unsafe-SIGKILL input [523]"}, "signal": "SIGKILL", "unsafe_control_detected": true}
+nested-SIGINT: {"exit": 130, "handshake": {"child": 791953, "cwd": "<scratch>/tmp/mutant-lifecycle-enx9oy17/nested-SIGINT-control/milan-mutant-stage-1000/gptp-shadow-mutants-0/tb/verilator/gptp_shadow", "identities": {"791952": ["4098191", "S"], "791953": ["4098194", "S"]}, "mutations": ["abort_counts_as_completion"], "pid": 791952, "private": "<scratch>/tmp/mutant-lifecycle-enx9oy17/nested-SIGINT-control/milan-mutant-stage-1000/gptp-shadow-mutants-0"}, "nested_driver": true, "next_suite": false, "scratch_removed": true, "source_unchanged": true}
+nested-SIGTERM: {"exit": 143, "handshake": {"child": 792484, "cwd": "<scratch>/tmp/mutant-lifecycle-enx9oy17/nested-SIGTERM-control/milan-mutant-stage-1000/gptp-shadow-mutants-0/tb/verilator/gptp_shadow", "identities": {"792478": ["4098561", "S"], "792484": ["4098566", "S"]}, "mutations": ["abort_counts_as_completion"], "pid": 792478, "private": "<scratch>/tmp/mutant-lifecycle-enx9oy17/nested-SIGTERM-control/milan-mutant-stage-1000/gptp-shadow-mutants-0"}, "nested_driver": true, "next_suite": false, "scratch_removed": true, "source_unchanged": true}
+mutant lifecycle: PASS (normal/repeat, fourteen named defects, survivor, build, unread-file and Git-setting acceptance, input/Git-redirect/record/facility refusals, INT/TERM/KILL, unsafe negative controls)

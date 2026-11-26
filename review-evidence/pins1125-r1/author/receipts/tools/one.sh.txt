@@ -1,0 +1,19 @@
+# route tool one.sh
+#!/usr/bin/env bash
+# one.sh <point> <directive>: one more placement directive of chain.sh's per-directive step on the point's existing
+# clone and prep (the same synthesis inputs), through vivado-slot.sh (VIVADO_SLOTS=2); then signoff.py and the
+# image identity gate, logged to chain.log like chain.sh.
+set -u
+P=$1; D=$2; S=<scratch>/viv; X=$S/tools; Q=$S/q
+V=<mgmt>/2026-09-23/vivado-slot.sh
+export MAKEFLAGS="-j8 --no-print-directory"
+if [ "$P" = 1x1 ]; then STEM=endstation_ax7101_1x1_tdm8; else STEM=endstation_ax7101_8x8; fi
+C=<scratch>/clones/viv$P; W=$S/work/$P
+log() { echo "$(date -Iseconds) $*" | tee -a "$Q/chain.log"; }
+while [ "$(awk '/MemAvailable/{print int($2/1048576)}' /proc/meminfo)" -lt 20 ]; do sleep 60; done
+log "build $P $D (best of three: the first directive missed)"
+VIVADO_SLOTS=2 "$V" bash "$X/gbuild.sh" "$C" "$STEM" "$D" "$W" > "$Q/build-$P-$D.log" 2>&1; echo $? > "$Q/build-$P-$D.rc"
+O=$W/build_$D
+python3 -I "$X/signoff.py" "$O/gateware" > "$Q/signoff-$P-$D.txt" 2>&1; echo "rc=$?" >> "$Q/signoff-$P-$D.txt"
+<home>/litex-milan/venv/bin/python3 "$C/sw/litex/check_image_identity.py" "$O" > "$Q/identity-$P-$D.log" 2>&1
+log "done $P $D build rc=$(cat "$Q/build-$P-$D.rc") $(grep -h 'floors' "$Q/signoff-$P-$D.txt" | tr '\n' ' ')"

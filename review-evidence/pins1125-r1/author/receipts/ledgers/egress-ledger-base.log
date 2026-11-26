@@ -1,0 +1,46 @@
+# CPU-budget harness backlog-owed,srp-bound at 8x8-1if, then egress_ledger.py --point 8x8-1if and --selftest, at c34e7d8b06739a22cc79997a9a1f4cbcd9bd0350; run rc 1 is the srp-bound-alone STATED line, the same at both
+Legend:
+  [Gen]: Auto-generated instance name.
+  [BB:NAME]: Blackbox instance (verilog Instance).
+
+INFO:SoC:--------------------------------------------------------------------------------
+COMMAND verilator --cc --exe -Wno-fatal -Werror-USERERROR -Wno-BLKANDNBLK -Wno-WIDTH -Wno-COMBDLY -Wno-CASEINCOMPLETE --top-module sim --Mdir <scratch>/eg/megb/native -O3 --output-split 5000 --output-split-cfuncs 500 -CFLAGS '-O3 -std=c++17 -Wall -Wextra -I<scratch>/clones/megb/tb/common -I<scratch>/eg/megb -I<scratch>/clones/megb/tb/verilator/fw_service_budget' <scratch>/clones/megb/tb/verilator/ctrl_service_budget/observe.vlt <scratch>/clones/megb/hdl/milan/mailbox/KL_mbx_pkg.sv <scratch>/clones/megb/hdl/milan/mailbox/KL_mbx_ring.sv <scratch>/clones/megb/hdl/milan/mailbox/KL_mbx_rx.sv <scratch>/clones/megb/hdl/milan/mailbox/KL_mbx_tx.sv <scratch>/clones/megb/hdl/milan/mailbox/KL_mbx_evt.sv <scratch>/clones/megb/hdl/milan/mailbox/KL_mbx.sv <scratch>/clones/megb/hdl/milan/mailbox/KL_mbx_wb.sv <scratch>/clones/megb/hdl/milan/mailbox/KL_mbx_dma.sv <home>/litex-milan/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/Ram_1w_1rs_Generic.v <home>/litex-milan/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/Ram_1w_1ra_Generic.v <home>/litex-milan/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/VexiiRiscvLitex_9fdf25696b8f525f981b84f78b4a1952.v <scratch>/eg/megb/gateware/sim.v <scratch>/clones/megb/tb/verilator/ctrl_service_budget/sim_main.cpp
+COMMAND make -j16 -C <scratch>/eg/megb/native -f Vsim.mk Vsim OPT_FAST=-O3
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+COMMAND <scratch>/eg/megb/native/Vsim <scratch>/eg/megb/results/srp-bound.txt -
+COMMAND <scratch>/eg/megb/native/Vsim <scratch>/eg/megb/results/backlog-owed.txt -
+BUDGET backlog.owed.if0: 64.100 ms over its budget 20 ms
+BUDGET backlog.owed_behind0.if0: 64.292 ms over its budget 20 ms
+BUDGET backlog.owed_behind1.if0: 64.483 ms over its budget 20 ms
+BUDGET backlog.owed_behind2.if0: 64.674 ms over its budget 20 ms
+BUDGET backlog.owed_behind3.if0: 64.864 ms over its budget 20 ms
+BUDGET backlog-owed.service.acmp.last.if0: 63.130 ms over its budget 20 ms
+BUDGET backlog-owed.service.aecp.last.if0: 62.848 ms over its budget 20 ms
+SHARE srp-bound: 1 of 5820 work passes over the per-pass share 2.000 ms (200,000 CPU cycles); the longest 210,174 (2.102 ms)
+STEPS 3144 passes carry the store's step; the longest 119,979 CPU cycles (1.200 ms), srp-bound; the longest step 79,513 (0.795 ms), srp-bound
+SLICES 51478 tier-2 slices; the longest SRP's records 147,798, THE TRANSMIT's build 108,391, THE RETRY's round 11,534 CPU cycles, against the stated slice 147,500 (THE TIERS)
+JOINS srp-bound: 6 join interval(s), the shortest 187.309 ms and the longest 190.696 ms, against 181.0 to 239.0; MRP timers' run-outs: 20 released, 14 empty
+JOINS backlog-owed: 3 join interval(s), the shortest 187.309 ms and the longest 190.018 ms, against 181.0 to 239.0; MRP timers' run-outs: 7 released, 6 empty
+2 groups graded, 0 refusals, 7 budget misses (7 of 16 probe instances, 4 of 13 paths), 1 of 6128 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+STATED srp-bound: a pass's polls base of 60,719 CPU cycles, over its stated 30,000
+STATED srp-bound: a walk item of 13,656 CPU cycles, over its stated 12,000
+STATED srp-bound: an SRP record's apply of 139,114 CPU cycles, over its stated 37,500
+STATED srp-bound: a tier-2 slice of SRP's records of 147,798 CPU cycles, over the stated slice 147,500
+STATED #977 (https://github.com/kebag-logic/milan-fpga/issues/977): srp-kept and srp-bound are graded together on one image, this run graded srp-bound alone
+# 8x8-1if: the rows the egress decides against their ledger; 16 instance(s) read (16 measured) from 1 path(s)
+| Row the egress decides | Measured, ms | Ledger, ms | Difference, ms | Within |
+|---|---:|---:|---:|---|
+| `backlog.owed.if0` | 64.09994 | 64.31 | -0.21006 | yes |
+| `backlog.owed_behind0.if0` | 64.29245 | 64.51 | -0.21755 | yes |
+| `backlog.owed_behind1.if0` | 64.48319 | 64.71 | -0.22681 | yes |
+| `backlog.owed_behind2.if0` | 64.67393 | 64.91 | -0.23607 | yes |
+| `backlog.owed_behind3.if0` | 64.86397 | 65.11 | -0.24603 | yes |
+| `backlog-owed.service.acmp.last.if0` | 63.12992 | 63.29 | -0.16008 | yes |
+| `backlog-owed.service.aecp.last.if0` | 62.84763 | 63.23 | -0.38237 | yes |
+RESULT: PASS: no ledger row over its figure, every one measured, no new budget miss
+egress_ledger rc=0
+caught mutant "a run's refusals not read": a results directory whose run refused a group fails
+caught mutant "a ledger row's name taken in any group": a ledger row's name in another group is a new miss
+RESULT: PASS: 18 mutants, 0 failure(s)
+run rc=1

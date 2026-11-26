@@ -1,0 +1,5 @@
+# lane tool w.sh
+#!/bin/bash
+# w.sh SECONDS NAME...: wait for units to end (bounded), print rc and tails
+S=<scratch>; T=$1; shift; end=$((SECONDS+T))
+for n in "$@"; do while [ ! -f $S/units/$n.rc ] && [ $SECONDS -lt $end ]; do read -t 5 <> <(:) || true; done; echo "$n rc=$(cat $S/units/$n.rc 2>/dev/null || echo RUNNING)"; done

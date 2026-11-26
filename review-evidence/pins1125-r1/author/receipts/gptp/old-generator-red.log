@@ -1,0 +1,53 @@
+# the new phases against the 1213ac5b generator
+# head 37a98e1798c472cdad21186426715494bb257ecb; gptp-processor/hdl/ucode/gen_gptp_ucode.py replaced by 1213ac5b's
+== make -C tb/verilator/gptp_plane run
+FAIL link delay -81: asCapable kept got 0000000000000000 exp 0000000000000004
+FAIL link delay -81: the next Follow_Up is used got 0000000000000000 exp 0000000000000001
+FAIL link delay -81: its offset uses the delay exactly got 000000000000000b exp 0000000000000000
+FAIL link delay -81: the grandmaster stays elected got 0000000000000000 exp 0000000000000001
+FAIL link delay -263: runs from a capable slave got 0000000000000000 exp 0000000000000001
+FAIL link delay -263: asCapable kept got 0000000000000000 exp 0000000000000004
+FAIL link delay -263: the next Follow_Up is used got 0000000000000000 exp 0000000000000001
+FAIL link delay -263: its offset uses the delay exactly got 000000000000000b exp 0000000000000000
+FAIL link delay -263: the grandmaster stays elected got 0000000000000000 exp 0000000000000001
+FAIL link delay -800: runs from a capable slave got 0000000000000000 exp 0000000000000001
+FAIL link delay -800: asCapable kept got 0000000000000000 exp 0000000000000004
+FAIL link delay -800: the next Follow_Up is used got 0000000000000000 exp 0000000000000001
+FAIL link delay -800: its offset uses the delay exactly got 000000000000000b exp 0000000000000000
+FAIL link delay -800: the grandmaster stays elected got 0000000000000000 exp 0000000000000001
+FAIL link delay -801: runs from a capable slave got 0000000000000000 exp 0000000000000001
+FAIL link delay -801: asCapable kept got 0000000000000000 exp 0000000000000004
+FAIL link delay -801: the engine publishes the used delay got 00000000fffffcdf exp 00000000fffffce0
+FAIL link delay -801: the next Follow_Up is used got 0000000000000000 exp 0000000000000001
+FAIL link delay -801: its offset uses the delay exactly got 000000000000000b exp 0000000000000000
+FAIL link delay -801: the grandmaster stays elected got 0000000000000000 exp 0000000000000001
+FAIL link delay -5000000: runs from a capable slave got 0000000000000000 exp 0000000000000001
+FAIL link delay -5000000: asCapable kept got 0000000000000000 exp 0000000000000004
+FAIL link delay -5000000: the engine publishes the used delay got 00000000ffb3b4c0 exp 00000000fffffce0
+FAIL link delay -5000000: the next Follow_Up is used got 0000000000000000 exp 0000000000000001
+FAIL link delay -5000000: its offset uses the delay exactly got 000000000000000b exp 0000000000000000
+FAIL link delay -5000000: the grandmaster stays elected got 0000000000000000 exp 0000000000000001
+FAIL link delay 800: runs from a capable slave got 0000000000000000 exp 0000000000000001
+FAIL link delay 800: asCapable kept got 0000000000000000 exp 0000000000000004
+FAIL link delay 800: the next Follow_Up is used got 0000000000000000 exp 0000000000000001
+FAIL link delay 800: its offset uses the delay exactly got 000000000000000b exp 0000000000000000
+FAIL link delay 800: the grandmaster stays elected got 0000000000000000 exp 0000000000000001
+FAIL link delay 801: runs from a capable slave got 0000000000000000 exp 0000000000000001
+102 checks: 70 PASS, 32 FAIL
+== make -C tb/verilator/gptp_shadow run
+FAIL #109 -81 ns: asCapable kept      got 0000000000000000 exp 0000000000000004
+FAIL #109 -81 ns: the grandmaster stays elected got 0000000000000000 exp 0000000000000001
+FAIL #109 -263 ns: runs from a capable slave got 0000000000000000 exp 0000000000000001
+FAIL #109 -263 ns: asCapable kept     got 0000000000000000 exp 0000000000000004
+FAIL #109 -263 ns: the grandmaster stays elected got 0000000000000000 exp 0000000000000001
+FAIL #109 -801 ns: runs from a capable slave got 0000000000000000 exp 0000000000000001
+FAIL #109 -801 ns: asCapable kept     got 0000000000000000 exp 0000000000000004
+FAIL #109 -801 ns: the grandmaster stays elected got 0000000000000000 exp 0000000000000001
+FAIL #109 -5000000 ns: runs from a capable slave got 0000000000000000 exp 0000000000000001
+FAIL #109 -5000000 ns: asCapable kept got 0000000000000000 exp 0000000000000004
+FAIL #109 -5000000 ns: the grandmaster stays elected got 0000000000000000 exp 0000000000000001
+FAIL #109 800 ns: runs from a capable slave got 0000000000000000 exp 0000000000000001
+FAIL #109 800 ns: asCapable kept      got 0000000000000000 exp 0000000000000004
+FAIL #109 800 ns: the grandmaster stays elected got 0000000000000000 exp 0000000000000001
+FAIL #109 801 ns: runs from a capable slave got 0000000000000000 exp 0000000000000001
+483 checks: 468 PASS, 15 FAIL

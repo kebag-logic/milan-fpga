@@ -1,0 +1,858 @@
+# test_ctrl_firmware.py --require-rv32 --self-test --jobs 4 --shard 1/4 at d0483d08e6722404b54f3ce4aa13b885001c500b (clean clone); verdict lines
+HEAD d0483d08e6722404b54f3ce4aa13b885001c500b porcelain 0 shard 1/4 cpus 0-95 start 22:11:08
+    first: [FAIL] AdpReentry.AdvertiseInlineExpiry: inline ADVERTISE expiry asserts
+    first: [FAIL] AdpReentry.AdvertiseInlineExpiry: inline ADVERTISE expiry is counted
+    first: [FAIL] AdpReentry.AdvertiseInlineExpiry: callback leaves core state unchanged
+    first: [FAIL] AdpWalk.P7DepartingAndRestart: P7 the restart advertises from index 0
+    first: [FAIL] AdpCore.A6toA8DeferredSends: A8 a link loss does not drop it; the next poll sends it with the index current at SHUTDOWN
+    first: [FAIL] AdpCore.A15OwedDepartingAcrossARestart: A15 that TMR_DELAY expires before the ring has room: ENTITY_AVAILABLE owed behind it, no timer
+    first: [FAIL] AdpCore.A17RoomBackBeforeAPoll: A17 room back and TMR_DELAY expiring before a poll: the ENTITY_AVAILABLE does not pass the owed DEPARTING
+    first: [FAIL] AdpCore.A16SecondShutdownQueuesItsOwn: A16 a SHUTDOWN while one is owed queues its own ENTITY_DEPARTING and drops the owed AVAILABLE
+    first: [FAIL] AdpCore.A16SecondShutdownQueuesItsOwn: A16 a SHUTDOWN while one is owed queues its own ENTITY_DEPARTING and drops the owed AVAILABLE
+    first: [FAIL] AdpCore.A18LinkLossKeepsTheOwedDeparting: A18 a link loss during the restart stops it and keeps the owed ENTITY_DEPARTING, index 1
+    first: [FAIL] AdpCore.A19IgnoredInputsKeepTheOwedAvailable: A19 a GM change in DELAY leaves the owed ENTITY_AVAILABLE owed, no timer started
+    first: [FAIL] AdpCore.A19IgnoredInputsKeepTheOwedAvailable: A19 so does an ENTITY_DISCOVER
+    first: [FAIL] AdpCore.A19IgnoredInputsKeepTheOwedAvailable: A19 and a stray expiry, which is counted
+    first: [FAIL] AdpCore.A18LinkLossKeepsTheOwedDeparting: A18 a link loss with that run's ENTITY_AVAILABLE owed drops the AVAILABLE and keeps the DEPARTING
+    first: [FAIL] AdpCore.A21DepartingCapacity: A21 the next SHUTDOWN is coalesced into the queued one and counted; its run's owed AVAILABLE is dropped
+    first: [FAIL] AdpCore.A21DepartingCapacity: A21 the next SHUTDOWN is coalesced into the queued one and counted; its run's owed AVAILABLE is dropped
+    first: [FAIL] AdpCore.A21DepartingCapacity: A21 the next SHUTDOWN is coalesced into the queued one and counted; its run's owed AVAILABLE is dropped
+    first: [FAIL] AdpCore.A21DepartingCapacity: A21 the next SHUTDOWN is coalesced into the queued one and counted; its run's owed AVAILABLE is dropped
+    first: [FAIL] Table551/AdpWalkCell.Graded/RCV_ADP_DISCOVER_own_eid_x_WAITING: RCV_ADP_DISCOVER(own eid) x WAITING: advertise state after
+    first: [FAIL] Table551/AdpWalkCell.Graded/RCV_ADP_DISCOVER_eid_0_x_DOWN: RCV_ADP_DISCOVER(eid 0) x DOWN: advertise state after
+    first: [FAIL] Table551/AdpWalkCell.Graded/LINK_DOWN_x_WAITING: LINK_DOWN x WAITING: frames committed
+    first: [FAIL] Table551/AdpWalkCell.Graded/LINK_DOWN_x_DELAY_timer_armed: LINK_DOWN x DELAY(timer armed): advertise state after
+    first: [FAIL] Table551/AdpWalkCell.Graded/SHUTDOWN_x_DOWN: SHUTDOWN x DOWN: no cancel where the slot is untouched
+    first: [FAIL] AdpWalk.P1toP5FirstAdvertAndCadence: P3 into DELAY with a 0..4 s draw
+    first: [FAIL] AdpWalk.P1toP5FirstAdvertAndCadence: P3 TMR_ADVERTISE fires 5000 ms after the send
+    first: [FAIL] AdpCore.A3toA5DiscoverAndDiscard: A4 a foreign DISCOVER, an AVAILABLE and a truncated ADPDU are discarded (5.6.3.1)
+    first: [FAIL] AdpWalk.P1toP5FirstAdvertAndCadence: P2 the first ENTITY_AVAILABLE is the processor's model frame, index 0
+    first: [FAIL] AdpAdapter.B1StaleTagDiscarded: B1 an expiry of the arm a GM_CHANGE replaced is discarded by its tag
+    first: [FAIL] AdpLatency.C0toC6EveryResponsePath: C0 LINK_UP -> TMR_DELAY armed
+    first: [FAIL] Portable.CompilerExtensionsOnlyInThePlatformHeader: srp/srp_mbx.c:93 a compiler extension outside plat/ctrl_cc.h
+    first: [FAIL] Pool.P10AFreedBlocksLinkIsWrittenOverItsClientsBytes: P10 then the one freed before it, through the link its free wrote
+    first: [FAIL] Pool.P10AFreedBlocksLinkIsWrittenOverItsClientsBytes: P10 then the one freed before it, through the link its free wrote
+    first: [FAIL] Pool.P2ReleaseAndBadFrees: P2 a released block is the next one handed out
+    first: [FAIL] Pool.P3CallocZeroesAndRefusesAWrap: P3 calloc refuses a count times size that wraps to a small size
+    first: [FAIL] Pool.P2ReleaseAndBadFrees: P2 a double free is refused and counted
+    first: [FAIL] DebugSink.S2TruncatedToTheLine: S2 the truncation is counted
+    first: [FAIL] Loop.L4TickFanOut: L4 every centisecond reaches the first consumer
+    first: [FAIL] Loop.L2PerPassRxBound: L2 a pass takes at most CTRL_LOOP_RX_PER_PASS records of a channel
+    first: [FAIL] AdpOwed.E0toE3PendingWake: E1 the loop does not sleep while a frame is owed
+    first: [FAIL] AdpBacklog.F0toF7FullBacklogs: F2 all 16 event records are taken by pass CTRL_LOOP_EVT_PASSES
+    first: [FAIL] AdpLatency.C0toC6EveryResponsePath: C2 RCV_ADP_DISCOVER -> TMR_DELAY armed
+    first: [FAIL] Loop.L8TickRecordWhileCarried: L8 a TICK record taken while centiseconds are carried adds to them: all 41 reach the consumer
+    first: [FAIL] Loop.L7TickSlices: L7 at most CTRL_LOOP_TICKS_PER_PASS of them per pass
+    first: [FAIL] Loop.L7TickSlices: L7 every one of 40 coalesced centiseconds reaches the consumer
+    first: [FAIL] LoopBring.L1OpenOrder: L1 OWN_EID is written before any channel opens
+    first: [FAIL] Driver.D1MalformedRecordResynchronises: D1 and the ring is resynchronised to RX_HEAD, the next record included
+    first: [FAIL] Driver.D3HeldMergeFillsAndOrderAcrossChannels: D3 a held merge fills the ring to its last whole record
+    first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/AdpFilter: F1 frame byte k is ring word 2 + k/4, bits 8*(k%4) (little-endian lanes)
+    first: [FAIL] Fabric/EntityField.MatchesTheFabric/talker_stream_sources: endstation_arty_current: talker_stream_sources is 0x2 in the firmware ADPDU, 0x1 in the fabric
+    first: [FAIL] Pool.P4ShlanFunctionsDrawOnTheBoundPool: P4 shlan_malloc and shlan_calloc draw on the bound pool
+    first: [FAIL] the split platform calls __lshrdi3, the 64-bit shift helper (tsn-c-stack#27)
+    first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/RateLimit: T0 only the frame behind the held one counts in RATE_DROP
+    first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/RateLimit: T0 only the frame behind the held one counts in RATE_DROP
+    first: [FAIL] Driver.D3HeldMergeFillsAndOrderAcrossChannels: D3 ACMP, ACMP, AECP committed by the driver behind a held merge leave in that order
+    first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/TxCommitOrder: X2 ACMP, ACMP, then AECP committed behind a stalled ACMP frame leave as 1, 1, 2
+    first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/GmSnapshot: G0 GM_HI reads the snapshot GM_LO took
+    first: [FAIL] Pool.P5ClassTablesAndArenasRefused: P5 a class of zero-byte blocks is refused
+    first: [FAIL] Pool.P1ClassesExhaustionAndRefusals: P1 refusals are counted
+    first: [FAIL] Pool.P2ReleaseAndBadFrees: P2 a free of a pointer the pool never handed out is refused
+    first: [FAIL] Pool.P8PortLayerUnbound: P8 the bound pool is the one reported
+    first: [FAIL] Pool.P9AFreeListShorterThanItsCountIsExhausted: crashed on signal 11
+    first: [FAIL] Pool.P9AFreeListShorterThanItsCountIsExhausted: P9 a class whose list ends before its count is exhausted, not followed: the next class serves
+    first: [FAIL] DebugSink.S3UnencodablePrintDiscarded: S3 an encoding failure is returned as the formatter's negative value
+    first: [FAIL] LoopBring.L9TablesRefuseNullAndOverflow: L9 a channel bound to no function is refused
+    first: [FAIL] AdpCore.A22GeneratorNeverStuckAtZero: A22 an entity id whose words cancel the seed constant starts the generator at 1
+    first: [FAIL] AdpCore.A23RepeatedEnableOrDisableChangesNothing: A23 an enable while enabled draws and arms nothing
+    first: [FAIL] AdpCore.A24OtherEtherTypeOrSubtypeDiscarded: A24 a DISCOVER under another EtherType or subtype is discarded and counted
+    first: [FAIL] AppComposition.U1BindsTheAppPoolBehindLwsrpBeforeTheMailbox:            Actual: never called - unsatisfied and active
+    first: [FAIL] AppComposition.U1AnUncarvablePoolStartsNothing:            Actual: called once - over-saturated and active
+    first: [FAIL] AppComposition.U1AnotherContractOpensNothing:            Actual: called once - over-saturated and active
+    first: [FAIL] IdAndCaps/ContractField.U2RefusedAndNothingMoreRead/evt_words:            Actual: called once - over-saturated and active
+    first: [FAIL] LoopRun.U3TurnsForEverAndSleepsWhenNothingIsOwed: U3 every turn is one pass, and a pass that owed nothing then sleeps
+    first: [FAIL] DriverUnit.D6MaapRangeWritten: D6 MAAP_BASE_LO holds the base's low word
+    first: [FAIL] DriverUnit.D8TransmitRefusals: D8 a TX_TAIL more than a ring behind TX_HEAD is no room, never a negative fill
+    first: [FAIL] DriverUnit.D9UnknownEventTypeGrandmasterAndInterrupt: D9 an event of a type the contract does not define is taken with no field decoded
+    first: [FAIL] DriverUnit.D9UnknownEventTypeGrandmasterAndInterrupt: D9 an event of a type the contract does not define is taken with no field decoded
+    first: [FAIL] DriverUnit.D10LanesAndFieldsAtTheirBounds: D10 and reads whole
+    first: [FAIL] AdpAdapterUnit.B2SlotsPastTheTimerBankRefused: B2 slots past the fabric's timer bank are refused
+    first: [FAIL] AdpAdapterUnit.B3ForeignInterfaceCounted: B3 a record, a LINK and a GM naming an interface with no instance are counted
+    first: [FAIL] AdpAdapterUnit.B4LoopWithNoRoomRefused: B4 a loop with no room for the poll is refused
+    first: [FAIL] MmioPlatform.M1OneWordAtBasePlusOffset: M1 a write lands in the word at base + offset
+    first: [FAIL] MmioPlatform.M2WaitIsThePlatformWfi: M2 each mbx_hal_wait() waits once, through CTRL_MBX_WFI
+    first: [FAIL] DriverUnit.D15PayloadWordsAtEveryLengthAlignmentAndAcrossTheRingEnd: D15 RX: a 14-byte record's bytes are the frame's, alignment 0
+    first: [FAIL] DriverUnit.D15PayloadWordsAtEveryLengthAlignmentAndAcrossTheRingEnd: D15 TX word 1 of a 14-byte frame at alignment 0
+    first: [FAIL] DriverUnit.D15PayloadWordsAtEveryLengthAlignmentAndAcrossTheRingEnd: D15 TX word 0 of a 14-byte frame at alignment 0
+    first: [FAIL] DriverUnit.D15PayloadWordsAtEveryLengthAlignmentAndAcrossTheRingEnd: D15 TX word 0 of a 14-byte frame at alignment 1
+    first: [FAIL] MmioDriver.M3EveryAccessInPlaceAtBasePlusOffset: M3 the driver opens on the window's ID and CAPS
+    first: [FAIL] MmioDriver.M3EveryAccessInPlaceAtBasePlusOffset: M3 and released at RX_TAIL
+    first: [FAIL] Pool.P9BlockIndexByShiftAndByDivide: P9 every taken block's flag is set, stride 64
+    first: [FAIL] Pool.P2ReleaseAndBadFrees: P2 a free into the middle of a block is refused
+    first: [FAIL] Pool.P9BlockIndexByShiftAndByDivide: P9 a free into the middle of a block is refused, stride 48
+    first: [FAIL] Pool.P3CallocZeroesAndRefusesAWrap: P3 calloc hands out a zeroed block, even a reused one
+    first: [FAIL] CtrlMem.W1MemcpyEveryAlignmentAndLength: W1 memcpy byte 16 dst+0 src+1 n 11
+    first: [FAIL] CtrlMem.W2MemmoveEveryOverlap: W2 memmove byte 18 src+0 dst+1 n 2
+    first: [FAIL] CtrlMem.W2MemmoveEveryOverlap: W2 memmove byte 20 src+0 dst+1 n 7
+    first: [FAIL] CtrlMem.W4NoAccessOutsideEitherRange: crashed on signal 11
+    first: [FAIL] CtrlMem.W3MemsetEveryAlignmentLengthAndValue: W3 memset byte 18 dst+0 n 4 c 165
+    first: [FAIL] CtrlMem.W4NoAccessOutsideEitherRange: crashed on signal 11
+    first: [FAIL] CtrlMem.W6MemcmpEveryAlignmentLengthAndPosition: W6 memcmp a+0 b+0 n 4 at 0 delta 1
+    first: [FAIL] CtrlMem.W6MemcmpEveryAlignmentLengthAndPosition: W6 memcmp a+0 b+0 n 1 at 0 delta 1
+    first: [FAIL] CtrlMem.W1MemcpyEveryAlignmentAndLength: W5 memcpy returns dst
+    first: [FAIL] CtrlMem.W1MemcpyEveryAlignmentAndLength: W1 memcpy byte 40 dst+0 src+0 n 32
+    first: [FAIL] CtrlMem.W1MemcpyEveryAlignmentAndLength: W1 memcpy byte 16 dst+0 src+0 n 2
+    first: [FAIL] CtrlMem.W1MemcpyEveryAlignmentAndLength: W1 memcpy byte 16 dst+0 src+0 n 1
+    first: [FAIL] CtrlMem.W3MemsetEveryAlignmentLengthAndValue: W3 memset byte 44 dst+0 n 32 c 0
+    first: [FAIL] CtrlMem.W3MemsetEveryAlignmentLengthAndValue: W3 memset byte 32 dst+0 n 17 c 0
+    first: [FAIL] CtrlMem.W3MemsetEveryAlignmentLengthAndValue: W3 memset byte 16 dst+0 n 2 c 0
+    first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/Classification: C4 a tagged frame, a foreign EtherType and a frame ending before the subtype pass nowhere
+    first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/TupleRejections: Q1 tagged, it (adp): FILTER_MISMATCH does not count it
+    first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/TupleRejections: Q2 to another destination MAC, it (adp): no RX record, no delivery
+    first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/TupleRejections: Q3 under another control EtherType, it (adp): no RX record, no delivery
+    first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/Classification: C0 ACMP to this talker or this listener passes; to neither does not
+    first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/TupleRejections: Q2 to another destination MAC, it (acmp, multicast): no RX record, no delivery
+    first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/OwnMacPerInterface: Q8 another interface's own MAC, or one on an index with no interface, reaches no ring
+    first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/ResetIdentityAndRegisterMasks: R1 OWN_MAC_LO keeps every bit and OWN_MAC_HI keeps MAC[47:32] only, per interface
+    first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/TupleControls: Q0 a valid frame reaches its channel (aecp, response)
+    first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/TupleRejections: Q2 to another destination MAC, it (adp): FILTER_MISMATCH counts it once
+    first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/TupleRejections: Q5 ENTITY_DISCOVER for another entity: FILTER_MISMATCH does not count it
+    first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/FilterMismatchCount: Q9 a mismatch sets IRQ_STATUS.ERR
+    first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/TupleControls: Q0 a valid frame reaches its channel (maap, DEFEND to own unicast)
+    first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/MaapDefendToOwnUnicast: Q11 a PROBE to this interface's own MAC: no RX record, no delivery
+    first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/MaapDefendToOwnUnicast: Q11 a PROBE to this interface's own MAC: FILTER_MISMATCH counts it once
+    first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/TupleRejections: Q2 to another destination MAC, it (maap, DEFEND to own unicast): no RX record, no delivery
+    first: [FAIL] DriverUnit.D11OwnMacPerInterfaceAndTheMismatchCount: D11 an interface past the contract's is refused
+    first: [FAIL] AppComposition.U4EveryInterfaceOwnsTheEntityMacBeforeAChannelOpens: U4 interface 0's OWN_MAC is the entity's MAC
+    first: [FAIL] DriverUnit.D11OwnMacPerInterfaceAndTheMismatchCount: D11 FILTER_MISMATCH is read as its COUNT field
+    first: [FAIL] LoopBring.L1OpenOrder: L1 every interface's OWN_MAC is written before any channel opens
+    first: [FAIL] AppComposition.U4EveryInterfaceOwnsTheEntityMacBeforeAChannelOpens: U4 interface 0's OWN_MAC is the entity's MAC
+    first: [FAIL] AcmpCore.A0InitRefusesWhatTheStaticSizesCannotHold: A0 no interface is refused
+    first: [FAIL] AcmpCore.A0InitRefusesWhatTheStaticSizesCannotHold: A0 more sinks than ACMP_MAX_SINKS are refused
+    first: [FAIL] AcmpCore.A0InitRefusesWhatTheStaticSizesCannotHold: A0 more sources than ACMP_MAX_SOURCES are refused
+    first: [FAIL] AcmpCore.A0InitRefusesWhatTheStaticSizesCannotHold: A0 a sink on an interface the entity lacks is refused
+    first: [FAIL] AcmpCore.A0InitRefusesWhatTheStaticSizesCannotHold: A0 a source on an interface the entity lacks is refused
+    first: [FAIL] AcmpCore.A0EverySinkStartsUnboundAndNothingIsCalled: A0 init calls no port: nothing reads the mailbox before it is open
+    first: [FAIL] AcmpCore.A1BindFromUnboundRespondsThenProbes: A1 and TMR_NO_RESP armed 200 ms out on the interface's timer (Table 5.26)
+    first: [FAIL] AcmpCore.A9FailureWaitsForTheRetry: A9 and TMR_RETRY 4 s
+    first: [FAIL] AcmpCore.A8SuccessSettles: A8 TMR_NO_RESP stopped and TMR_NO_TK 10 s started
+    first: [FAIL] AcmpCore.A13NoTalkerAttributeReprobes: A13 talker discovered: TMR_DELAY, PRB_W_DELAY, ACTIVE, status 0 (step 3)
+    first: [FAIL] AcmpCore.A2UnknownSinkIsAnsweredListenerUnknownId: A2 LISTENER_UNKNOWN_ID, the command's fields echoed (Table 5.27)
+    first: [FAIL] AcmpCore.A2GetRxStateReportsStreamingWaitAndRegisteringFailed: A2 SETTLED_RSV_OK on a Talker Failed: STREAMING_WAIT saved, REGISTERING_FAILED 1 (Table 5.39)
+    first: [FAIL] AcmpCore.A1BindFromUnboundRespondsThenProbes: A1 every frame goes to the ACMP multicast address from the interface's MAC, cdl 44 (8.2.1, 5.5.2.2)
+    first: [FAIL] AcmpCore.A1BindFromUnboundRespondsThenProbes: A1 BIND_RX_RESPONSE is Table 5.32 field by field
+    first: [FAIL] AcmpCore.A1BindFromUnboundRespondsThenProbes: A1 PROBE_TX_COMMAND is Table 5.33 field by field
+    first: [FAIL] AcmpCore.A1BindFromUnboundRespondsThenProbes: A1 BIND_RX_RESPONSE is Table 5.32 field by field
+    first: [FAIL] AcmpCore.A1BindFromUnboundRespondsThenProbes: A1 and TMR_NO_RESP armed 200 ms out on the interface's timer (Table 5.26)
+    first: [FAIL] AcmpCore.A1BindFromUnboundRespondsThenProbes: A1 the discovery machine starts, talker not discovered
+    first: [FAIL] AcmpCore.A1BindFromUnboundRespondsThenProbes: A1 the change is reported after the response was taken (#653)
+    first: [FAIL] AcmpCore.A1BindFromUnboundRespondsThenProbes: A1 the binding is saved (5.5.2.4)
+    first: [FAIL] AcmpStore.N2AnUnbindIsSavedAsAnUnboundRecord: N2 the unbind marks the record (5.5.3.5.8 step 3)
+    first: [FAIL] AcmpStore.N2AnUnbindIsSavedAsAnUnboundRecord: N2 the unbind marks the record (5.5.3.5.8 step 3)
+    first: [FAIL] AcmpCore.A1BindFromUnboundRespondsThenProbes: A1 the binding parameters are the command's; STREAMING_WAIT binds it stopped
+    first: [FAIL] AcmpCore.A2GetRxStateReportsStreamingWaitAndRegisteringFailed: A2 SETTLED_RSV_OK on a Talker Failed: STREAMING_WAIT saved, REGISTERING_FAILED 1 (Table 5.39)
+    first: [FAIL] AcmpCore.A2GetRxStateInEveryState: A2 GET_RX_STATE_RESPONSE is Table 5.34/5.37/5.38/5.39 in state 0
+    first: [FAIL] AcmpCore.A2GetRxStateInEveryState: A2 GET_RX_STATE_RESPONSE is Table 5.34/5.37/5.38/5.39 in state 1
+    first: [FAIL] AcmpCore.A2GetRxStateReportsStreamingWaitAndRegisteringFailed: A2 SETTLED_RSV_OK on a Talker Failed: STREAMING_WAIT saved, REGISTERING_FAILED 1 (Table 5.39)
+    first: [FAIL] AcmpCore.A2UnknownSinkIsAnsweredListenerUnknownId: A2 a command for a sink the entity lacks is answered, msg 6
+    first: [FAIL] AcmpCore.A3UnbindInEveryState: A3 UNBIND_RX_RESPONSE is Table 5.36: talker_entity_id and talker_unique_id 0, in state 0
+    first: [FAIL] AcmpCore.A3UnbindInEveryState: A3 a settled sink stops SRP before the response (5.5.3.5.39, .45)
+    first: [FAIL] AcmpCore.A3UnbindInEveryState: A3 a settled sink stops SRP before the response (5.5.3.5.39, .45)
+    first: [FAIL] AcmpCore.A3UnbindInEveryState: A3 then UNBOUND, binding cleared, nothing running, in state 1
+    first: [FAIL] AcmpCore.A3UnbindInEveryState: A3 the change is reported after the response (#653), in state 1
+    first: [FAIL] AcmpCore.A4LockedByAnotherControllerRefusesBindAndUnbind: A4 CONTROLLER_NOT_AUTHORIZED (16, IEEE 1722.1-2021 Table 8-3), fields echoed (Tables 5.31, 5.35)
+    first: [FAIL] AcmpCore.A4LockedByAnotherControllerRefusesBindAndUnbind: A4 one response
+    first: [FAIL] AcmpCore.A4TheLockingControllerPassesAndGetRxStateIsNotLocked: A4 the locking controller binds
+    first: [FAIL] AcmpCore.A4TheLockingControllerPassesAndGetRxStateIsNotLocked: A4 GET_RX_STATE asks no lock (5.5.3.5.4)
+    first: [FAIL] AcmpCore.A5RebindTheSameSourceUpdatesAndExits: A5 a re-bind of the same source sends the response alone, state 1
+    first: [FAIL] AcmpCore.A5RebindTheSameSourceUpdatesAndExits: A5 the controller and STREAMING_WAIT are updated, state 1
+    first: [FAIL] AcmpCore.A6BindAnotherSourceRestartsTheSink: A6 SRP is stopped and its parameters cleared only when settled (5.5.3.5.37, .43), state 6
+    first: [FAIL] AcmpCore.A6TheSameTalkerAnotherSourceIsANewBinding: A6 the same talker with another talker_unique_id is a new source: a new probe
+    first: [FAIL] AcmpCore.A12DelaySendsANewProbe: A12 a new PROBE_TX_COMMAND with the next sequence_id, its copy kept
+    first: [FAIL] AcmpCore.A1BindFromUnboundRespondsThenProbes: A1 PROBE_TX_COMMAND is Table 5.33 field by field
+    first: [FAIL] AcmpCore.A7ResponsesKeyOnTheListenerUniqueId: A7 the response belongs to the sink its listener_unique_id names, not to every sink probing that source
+    first: [FAIL] AcmpCore.A7EachGuardTermIsChecked: A7 a response with another controller, talker, talker_unique_id or sequence_id is ignored (5.5.3.5.18 step 1)
+    first: [FAIL] AcmpCore.A7EachGuardTermIsChecked: A7 a response with another controller, talker, talker_unique_id or sequence_id is ignored (5.5.3.5.18 step 1)
+    first: [FAIL] AcmpCore.A7EachGuardTermIsChecked: A7 a response with another controller, talker, talker_unique_id or sequence_id is ignored (5.5.3.5.18 step 1)
+    first: [FAIL] AcmpCore.A7EachGuardTermIsChecked: A7 a response with another controller, talker, talker_unique_id or sequence_id is ignored (5.5.3.5.18 step 1)
+    first: [FAIL] AcmpCore.A7TheGuardReadsTheSentProbeNotTheBinding: A7 the answer to the probe sent before a re-bind still matches the probe that was sent
+    first: [FAIL] AcmpCore.A7ResponsesOutsideProbingAreIgnored: A7 RCV_PROBE_TX_RESP is ignored outside PRB_W_RESP and PRB_W_RESP2 (Table 5.30 -), state 0
+    first: [FAIL] AcmpCore.A8SuccessSettles: A8 with the response's stream_id, stream_dest_mac and stream_vlan_id exactly
+    first: [FAIL] AcmpCore.A8SuccessSettles: A8 TMR_NO_RESP stopped and TMR_NO_TK 10 s started
+    first: [FAIL] AcmpCore.A8SuccessSettles: A8 SRP is started
+    first: [FAIL] AcmpCore.A2GetRxStateInEveryState: A2 GET_RX_STATE_RESPONSE is Table 5.34/5.37/5.38/5.39 in state 6
+    first: [FAIL] AcmpCore.A9FailureWaitsForTheRetry: A9 a failed response: PRB_W_RETRY, the ACMP status is its status (5.5.3.5.18 step 3), state 3
+    first: [FAIL] AcmpCore.A9FailureWaitsForTheRetry: A9 and TMR_RETRY 4 s
+    first: [FAIL] AcmpCore.A10NoResponseSendsTheDuplicateThenGivesUp: A10 an exact duplicate of the first probe, same sequence_id (5.5.3.5.16)
+    first: [FAIL] AcmpCore.A10NoResponseSendsTheDuplicateThenGivesUp: A10 the second: no frame, LISTENER_TALKER_TIMEOUT, TMR_RETRY 4 s (5.5.3.5.23)
+    first: [FAIL] AcmpCore.A8SuccessSettles: A8 SUCCESS: SETTLED_NO_RSV, PROBING_COMPLETED, state 4
+    first: [FAIL] AcmpCore.A11RetryWaitsForTheTalkerOrDelays: A11 TMR_RETRY, talker discovered: TMR_DELAY 0 to 1 s, PRB_W_DELAY (5.5.3.5.30 step 2)
+    first: [FAIL] AcmpCore.A11RetryWaitsForTheTalkerOrDelays: A11 and the ACMP status stays: step 2 sets none
+    first: [FAIL] AcmpCore.A12DelaySendsANewProbe: A12 a new PROBE_TX_COMMAND with the next sequence_id, its copy kept
+    first: [FAIL] AcmpCore.A13NoTalkerAttributeReprobes: A13 TMR_NO_TK clears the SRP parameters and stops SRP (5.5.3.5.36 step 1)
+    first: [FAIL] AcmpCore.A13NoTalkerAttributeReprobes: A13 talker discovered: TMR_DELAY, PRB_W_DELAY, ACTIVE, status 0 (step 3)
+    first: [FAIL] AcmpCore.A14RegisteredSettlesTheReservation: A14 EVT_TK_REGISTERED anywhere else is Table 5.30's x: counted, nothing changes, state 0
+    first: [FAIL] AcmpCore.A14RegisteredSettlesTheReservation: A14 EVT_TK_REGISTERED: TMR_NO_TK cleared, SETTLED_RSV_OK (5.5.3.5.42)
+    first: [FAIL] AcmpCore.A2GetRxStateReportsStreamingWaitAndRegisteringFailed: A2 SETTLED_RSV_OK on a Talker Failed: STREAMING_WAIT saved, REGISTERING_FAILED 1 (Table 5.39)
+    first: [FAIL] AcmpCore.A15UnregisteredReprobes: A15 EVT_TK_UNREGISTERED anywhere else is Table 5.30's x, state 0
+    first: [FAIL] AcmpCore.KindChangesOnlyTheSettledView: kind updates the reported view
+    first: [FAIL] AcmpCore.KindChangesOnlyTheSettledView: kind change notifies once
+    first: [FAIL] AcmpCore.KindChangesOnlyTheSettledView: kind refuses non-settled state
+    first: [FAIL] AcmpCore.A15UnregisteredReprobes: A15 EVT_TK_UNREGISTERED, talker not discovered: SRP stopped, PRB_W_AVAIL (5.5.3.5.48 steps 1, 2)
+    first: [FAIL] AcmpCore.A17EachInterfaceTimerHoldsItsEarliestDeadline: A17 each interface's timer is armed at the earliest deadline of its own sinks
+    first: [FAIL] AcmpCore.A17EachInterfaceTimerHoldsItsEarliestDeadline: A17 a change that leaves an interface's earliest deadline keeps its timer
+    first: [FAIL] AcmpCore.A3UnbindInEveryState: A3 and the interface's timer is stopped, in state 1
+    first: [FAIL] AcmpCore.A17EachInterfaceTimerHoldsItsEarliestDeadline: A17 an expiry takes the due timers only, of its own interface's sinks
+    first: [FAIL] AcmpCore.A17EachInterfaceTimerHoldsItsEarliestDeadline: A17 an expiry with nothing due changes nothing and re-arms the timer it consumed
+    first: [FAIL] AcmpCore.A18AZeroDelayProbesInTheSameExpiry: A18 TMR_RETRY drawing 0 ms sends its probe in the same expiry
+    first: [FAIL] AcmpCore.A18AZeroDelayProbesInTheSameExpiry: A18 the longest draw is 1000 ms (Table 5.29)
+    first: [FAIL] AcmpCore.A18TheSeedIsTakenAtTheFirstDraw: A18 and never again
+    first: [FAIL] AcmpCore.A18TheSeedIsTakenAtTheFirstDraw: A18 a seed that cancels the state to 0 leaves it 1: xorshift never leaves 0
+    first: [FAIL] AcmpCore.A20ProbeTxIsAnsweredFromTheSource: A20 PROBE_TX_RESPONSE is Table 5.43: cc 0, FAST_CONNECT and STREAMING_WAIT echoed, REGISTERING_FAILED 0
+    first: [FAIL] TalkerWalk.TW1ProbeTheFlagLawAndTheSource: TW1 PROBE_TX: SUCCESS, FAST_CONNECT and STREAMING_WAIT echoed, REGISTERING_FAILED forced 0, the source's stream (F05.11; Milan v1.2 Table 5.43)
+    first: [FAIL] AcmpCore.A20ProbeTxIsAnsweredFromTheSource: A20 a probe from another interface than the source's: INCOMPATIBLE_REQUEST (5.5.4.1 step 2, Table 5.41)
+    first: [FAIL] AcmpCore.A20ProbeTxIsAnsweredFromTheSource: A20 no destination MAC: TALKER_DEST_MAC_FAILED (Table 5.42)
+    first: [FAIL] AcmpCore.A20DisconnectGetTxStateAndGetTxConnection: A20 DISCONNECT_TX of an unknown source: TALKER_UNKNOWN_ID (Table 5.44)
+    first: [FAIL] AcmpCore.A20ProbeTxIsAnsweredFromTheSource: A20 an unknown source: TALKER_UNKNOWN_ID (Table 5.40)
+    first: [FAIL] AcmpCore.A20DisconnectGetTxStateAndGetTxConnection: A20 GET_TX_STATE: listener fields 0, cc 0, REGISTERING_FAILED live, the stream (Table 5.47)
+    first: [FAIL] AcmpCore.A20DisconnectGetTxStateAndGetTxConnection: A20 GET_TX_STATE: listener fields 0, cc 0, REGISTERING_FAILED live, the stream (Table 5.47)
+    first: [FAIL] AcmpCore.A20DisconnectGetTxStateAndGetTxConnection: A20 with no destination MAC held, none is reported
+    first: [FAIL] AcmpCore.A20DisconnectGetTxStateAndGetTxConnection: A20 GET_TX_CONNECTION: NOT_SUPPORTED, fields echoed (5.5.4.4, Table 5.48)
+    first: [FAIL] AcmpCore.A21MessagesNotForThisEntityAreIgnored: A21 commands for another listener or talker, every response but PROBE_TX_RESPONSE and the reserved types are ignored (5.5.3.1, 8.2.1.9, 8.2.1.10)
+    first: [FAIL] AcmpCore.A21MessagesNotForThisEntityAreIgnored: A21 commands for another listener or talker, every response but PROBE_TX_RESPONSE and the reserved types are ignored (5.5.3.1, 8.2.1.9, 8.2.1.10)
+    first: [FAIL] AcmpCore.A21MalformedFramesAreCounted: A21 a frame shorter than the Milan ACMPDU, another EtherType or subtype, or an unknown interface is counted and not read (5.5.2.2)
+    first: [FAIL] AcmpCore.A21MalformedFramesAreCounted: A21 the longer IEEE 1722.1-2021 PDU is accepted (5.5.2.2)
+    first: [FAIL] AcmpCore.A22AvailableDiscoversWhenTheGrandmasterMatches: A22 TK_NOT_DISCOVERED: an AVAILABLE from another grandmaster is ignored (5.6.4.5.1 step 1)
+    first: [FAIL] AcmpCore.A22AvailableDiscoversWhenTheGrandmasterMatches: A22 and from another domain
+    first: [FAIL] AcmpCore.A13NoTalkerAttributeReprobes: A13 talker discovered: TMR_DELAY, PRB_W_DELAY, ACTIVE, status 0 (step 3)
+    first: [FAIL] AcmpCore.A22DiscoveredStateCells: A22 TK_DISCOVERED: an AVAILABLE with another interface_index is ignored (5.6.4.5.2 step 1)
+    first: [FAIL] AcmpCore.A22DiscoveredStateCells: A22 available_index 700 <= last: EVT_TK_DEPARTED then EVT_TK_DISCOVERED, the index noted (5.6.4.5.2 steps 2a, 2c, 3)
+    first: [FAIL] AcmpCore.A22DiscoveredStateCells: A22 available_index 700 <= last: EVT_TK_DEPARTED then EVT_TK_DISCOVERED, the index noted (5.6.4.5.2 steps 2a, 2c, 3)
+    first: [FAIL] AcmpCore.A22DiscoveredStateCells: A22 index <= last from another grandmaster: EVT_TK_DEPARTED, TMR_NO_ADP stopped, TK_NOT_DISCOVERED (2b)
+    first: [FAIL] AcmpCore.A22DiscoveredStateCells: A22 a rising available_index is noted and TMR_NO_ADP restarted, no event (step 3)
+    first: [FAIL] AcmpCore.A22DepartingAndAging: A22 a DEPARTING in TK_NOT_DISCOVERED is ignored (Table 5.54 -)
+    first: [FAIL] AcmpCore.A22DepartingAndAging: A22 a DEPARTING with another interface_index is ignored (5.6.4.5.3 step 1)
+    first: [FAIL] AcmpCore.A22DepartingAndAging: A22 a DEPARTING: TMR_NO_ADP stopped, TK_NOT_DISCOVERED, EVT_TK_DEPARTED (5.6.4.5.3)
+    first: [FAIL] AcmpCore.A22DepartingAndAging: A22 TMR_NO_ADP: TK_NOT_DISCOVERED and EVT_TK_DEPARTED (5.6.4.5.4)
+    first: [FAIL] AcmpCore.A22OnlyBoundSinksOfThatTalkerOnThatInterface: A22 every bound sink of the talker processes it (5.6.4.1), only on the interface it arrived on
+    first: [FAIL] AcmpCore.A22OnlyBoundSinksOfThatTalkerOnThatInterface: A22 an unbound sink runs no discovery
+    first: [FAIL] AcmpCore.A22DiscoveredStateCells: A22 TK_DISCOVERED: an AVAILABLE with another interface_index is ignored (5.6.4.5.2 step 1)
+    first: [FAIL] AcmpCore.A22OnlyBoundSinksOfThatTalkerOnThatInterface: A22 and the grandmaster is sampled once for the frame
+    first: [FAIL] AcmpCore.A23EveryEntryRefusesACallFromInsideAPort: A23 a call made from inside the send port is refused, counted and trapped, entry 0
+    first: [FAIL] AcmpCore.A23EveryEntryRefusesACallFromInsideAPort: A23 a call made from inside the send port is refused, counted and trapped, entry 0
+    first: [FAIL] AcmpCore.A23EveryEntryRefusesACallFromInsideAPort: A23 a call made from inside the send port is refused, counted and trapped, entry 0
+    first: [FAIL] AcmpCore.A23EveryPortIsGuarded: A23 the port kind 1 is guarded
+    first: [FAIL] AcmpCore.A23EveryPortIsGuarded: A23 the port kind 2 is guarded
+    first: [FAIL] AcmpCore.A23EveryPortIsGuarded: A23 the port kind 3 is guarded
+    first: [FAIL] AcmpCore.A23EveryPortIsGuarded: A23 the port kind 4 is guarded
+    first: [FAIL] AcmpCore.A23EveryPortIsGuarded: A23 the port kind 5 is guarded
+    first: [FAIL] AcmpCore.A23EveryPortIsGuarded: A23 the port kind 6 is guarded
+    first: [FAIL] AcmpCore.A23EveryPortIsGuarded: A23 the port kind 7 is guarded
+    first: [FAIL] AcmpCore.A23EveryPortIsGuarded: A23 the port kind 8 is guarded
+    first: [FAIL] AcmpCore.A23EveryPortIsGuarded: A23 the port kind 9 is guarded
+    first: [FAIL] AcmpCore.A22DiscoveredStartsTheProbeFromPrbWAvail: A22 EVT_TK_DISCOVERED in PRB_W_AVAIL: TMR_DELAY 0 to 1 s, PRB_W_DELAY, ACTIVE (5.5.3.5.9)
+    first: [FAIL] AcmpCore.A22DiscoveredStartsTheProbeFromPrbWAvail: A22 EVT_TK_DISCOVERED in PRB_W_AVAIL: TMR_DELAY 0 to 1 s, PRB_W_DELAY, ACTIVE (5.5.3.5.9)
+    first: [FAIL] AcmpStore.N1ABindSurvivesAPowerCycleAndFastConnects: N1 probing saves nothing
+    first: [FAIL] AcmpStore.N1ABindSurvivesAPowerCycleAndFastConnects: N1 the binding parameters come back (5.3.8.2, 5.3.8.3)
+    first: [FAIL] AcmpCore.A24ARestoredBindingFastConnects: A24 the latch gives the same record back
+    first: [FAIL] AcmpCore.A24ARestoredBindingFastConnects: A24 the record's flags and parameters, big-endian (the processor's BINDING payload)
+    first: [FAIL] AcmpCore.A24UnboundRecordsRefusalsAndRollback: A24 the roll-back drops every restored binding, keeps each sink's interface, calls no port
+    first: [FAIL] AcmpCore.A3UnbindInEveryState: A3 the cleared binding is saved, unless there was none, in state 0
+    first: [FAIL] AcmpCore.A19AProbeInTheSlotOfAnEarlierResponseHoldsNoSink: A19 a change of the last sink is reported at once
+    first: [FAIL] AcmpCore.A25OnlyTable522ItemsAreReported: A25 discovery noted while settled moves no Table 5.22 item
+    first: [FAIL] AcmpCore.A25OnlyTable522ItemsAreReported: A25 the ACMP status LISTENER_TALKER_TIMEOUT does
+    first: [FAIL] Table530/ListenerWalk.Graded/TK_DISC_PWA: LW TK_DISC x PWA: notified exactly when a Table 5.22 item moved
+    first: [FAIL] AcmpMailbox.B1TheChannelCarriesCommandsAndResponsesInOrder: B1 the response, then the probe, on the acmp channel, 70 bytes each, in commit order
+    first: [FAIL] AcmpMailbox.B3TheTimersRunOnTheInterfaceSlot: B3 TMR_NO_RESP is armed on interface 0's ACMP slot at NOW_MS + 200 (Table 5.26)
+    first: [FAIL] AcmpMailbox.B3TheTimersRunOnTheInterfaceSlot: B3 TMR_NO_RESP is armed on interface 0's ACMP slot at NOW_MS + 200 (Table 5.26)
+    first: [FAIL] AcmpMailbox.B4AnExpiryThatRacedAStopOrAReArmIsDiscarded: B4 the expiry of a replaced arm carries its old tag and is discarded; the new arm stands, interface 0
+    first: [FAIL] AcmpMailbox.B4AnExpiryThatRacedAStopOrAReArmIsDiscarded: B4 the expiry of a replaced arm carries its old tag and is discarded; the new arm stands, interface 0
+    first: [FAIL] AcmpMailbox.B4AnExpiryThatRacedAStopOrAReArmIsDiscarded: B4 the expiry of a stopped arm is counted, never acted on, interface 0
+    first: [FAIL] AcmpMailbox.B5TheTapHandsAvailableToDiscoveryAndTheRestToAdp: B5 an ENTITY_DISCOVER still goes to ADP's own handler (5.6.3.5.4)
+    first: [FAIL] AcmpMailbox.B5TheTapHandsAvailableToDiscoveryAndTheRestToAdp: B5 an ENTITY_DISCOVER still goes to ADP's own handler (5.6.3.5.4)
+    first: [FAIL] AcmpMailbox.B4AnExpiryThatRacedAStopOrAReArmIsDiscarded: B4 the expiry of a replaced arm carries its old tag and is discarded; the new arm stands, interface 0
+    first: [FAIL] AcmpMailbox.B6TheGrandmasterIsTheInterfaces: B6 one from interface 0's grandmaster and domain is taken
+    first: [FAIL] AcmpAdapterUnit.B7RefusalsOfTheAdapter: B7 attaching before ADP bound the adp channel is refused
+    first: [FAIL] AcmpAdapterUnit.B7RefusalsOfTheAdapter: B7 a loop with no room for the event sink is refused
+    first: [FAIL] AcmpAdapterUnit.B7RefusalsOfTheAdapter: B7 a loop with no room for the poll is refused
+    first: [FAIL] AcmpAdapterUnit.B7RefusalsOfTheAdapter: B7 a first slot of 16 is refused: past the bank, wrapping the sum, or truncating to a slot
+    first: [FAIL] AcmpAdapterUnit.B7RefusalsOfTheAdapter: B7 more interfaces than the mailbox has are refused
+    first: [FAIL] AcmpCore.A23EveryPortIsGuarded: A23 the port kind 3 is guarded
+    first: [FAIL] AcmpCore.CommandPortBudgets: GET_RX_STATE needs no clock
+    first: [FAIL] AcmpCore.CommandPortBudgets: successful probe response starts one reservation timer
+    first: [FAIL] AcmpCore.CommandPortBudgets: UNBIND needs no clock
+    first: [FAIL] AcmpCore.CommandPortBudgets: talker response needs no clock
+    first: [FAIL] AcmpCore.TimerPortBudgets: timer clock budget for state PRB_W_DELAY
+    first: [FAIL] AcmpCore.DiscoveryPortBudgets: AVAILABLE starts one discovery deadline
+    first: [FAIL] AcmpCore.DiscoveryPortBudgets: DEPARTING needs no grandmaster
+    first: [FAIL] AcmpCore.DiscoveryPortBudgets: aging needs no grandmaster
+    first: [FAIL] AcmpMailbox.K7TheRedeliveryTakesAFullRingInThePassThatSends:     Which is: 18
+    first: [FAIL] AcmpMailbox.K1ACommandDeclinedAtTheOwedBoundIsKeptAndAnsweredInArrivalOrder: K1 the worst pass of the drain, a kept command offered again
+    first: [FAIL] AcmpMailbox.F5AnAvailableBehindAFullAdpRingIsServedWithinTheBound: F5 ENTITY_AVAILABLE behind a full adp ring, from its RX_HEAD (H-DISC)
+    first: [FAIL] AcmpCore.A22OnlyBoundSinksOfThatTalkerOnThatInterface: A22 every bound sink of the talker processes it (5.6.4.1), only on the interface it arrived on
+    first: [FAIL] AcmpMailbox.F0ToF3FullRingsAreTakenWithinTheBound: F2 every acmp record is taken by ACMP_MBX_RX_PASSES
+    first: [FAIL] AcmpCore.TimerPortBudgets: timer expiry never samples the grandmaster in PRB_W_RESP2
+    first: [FAIL] AcmpCore.TimerPortBudgets: timer expiry never samples the grandmaster in PRB_W_RETRY
+    first: [FAIL] AcmpCore.TimerPortBudgets: timer clock budget for state PRB_W_DELAY
+    first: [FAIL] AcmpCore.TimerPortBudgets: timer expiry never samples the grandmaster in SETTLED_NO_RSV
+    first: [FAIL] AcmpMailbox.K7TheRedeliveryTakesAFullRingInThePassThatSends:     Which is: 9
+    first: [FAIL] AcmpMailbox.F0ToF3FullRingsAreTakenWithinTheBound: F0 the event ring is full
+    first: [FAIL] AcmpCore.A1BindWithoutStreamingWaitBindsStarted: A1 a bind without STREAMING_WAIT lands started (IEEE 1722.1-2021 7.4.35)
+    first: [FAIL] AcmpCore.A1BindWithoutStreamingWaitBindsStarted: A1 a bind without STREAMING_WAIT lands started (IEEE 1722.1-2021 7.4.35)
+    first: [FAIL] AcmpCore.A2GetRxStateReportsStreamingWaitAndRegisteringFailed: A2 and the view says so (5.3.8.8)
+    first: [FAIL] AcmpCore.A22DiscoveredStartsTheProbeFromPrbWAvail: A22 EVT_TK_DISCOVERED in PRB_W_AVAIL: TMR_DELAY 0 to 1 s, PRB_W_DELAY, ACTIVE (5.5.3.5.9)
+    first: [FAIL] AcmpCore.A22DiscoveredStartsTheProbeFromPrbWAvail: A22 the grandmaster is sampled once for the frame
+    first: [FAIL] AcmpCore.A22OtherAdpFramesAreIgnored: A22 a short ADPDU, a DISCOVER, another subtype or EtherType, or an unknown interface is not discovery's
+    first: [FAIL] AcmpCore.A22OtherAdpFramesAreIgnored: A22 a short ADPDU, a DISCOVER, another subtype or EtherType, or an unknown interface is not discovery's
+    first: [FAIL] AcmpCore.A22OtherAdpFramesAreIgnored: A22 a short ADPDU, a DISCOVER, another subtype or EtherType, or an unknown interface is not discovery's
+    first: [FAIL] AcmpCore.A22OtherAdpFramesAreIgnored: A22 a short ADPDU, a DISCOVER, another subtype or EtherType, or an unknown interface is not discovery's
+    first: [FAIL] AcmpCore.A1BindFromUnboundRespondsThenProbes: A1 every frame goes to the ACMP multicast address from the interface's MAC, cdl 44 (8.2.1, 5.5.2.2)
+    first: [FAIL] AcmpMailbox.B1TheChannelCarriesCommandsAndResponsesInOrder: B0 the app with ACMP starts on the model
+    first: [FAIL] AcmpMailbox.B1TheChannelCarriesCommandsAndResponsesInOrder: B1 the filter passes a BIND_RX for this listener
+    first: [FAIL] AcmpStore.N1ABindSurvivesAPowerCycleAndFastConnects: N1 the binding parameters come back (5.3.8.2, 5.3.8.3)
+    first: [FAIL] AcmpStore.N5ARecordTheCoreRefusesKeepsItsDefault: N5 a binding record of a sink the configuration lacks is refused (nvm_state.h REFUSED), the walk goes on
+    first: [FAIL] AcmpStore.N6TheRollBackAndEveryOtherGroup: N6 every other group, settle, the D3 roll-back and the release go to the other owners unchanged
+    first: [FAIL] AcmpStore.N6TheRollBackAndEveryOtherGroup: N6 a latch of another length gives nothing
+    first: [FAIL] AcmpStore.N1ABindSurvivesAPowerCycleAndFastConnects: N1 the binding parameters come back (5.3.8.2, 5.3.8.3)
+    first: [FAIL] AcmpStore.N6TheRollBackAndEveryOtherGroup: N6 every other group, settle, the D3 roll-back and the release go to the other owners unchanged
+    first: [FAIL] AcmpStore.N6TheRollBackAndEveryOtherGroup: N6 every other group, settle, the D3 roll-back and the release go to the other owners unchanged
+    first: [FAIL] AcmpStore.N6TheRollBackAndEveryOtherGroup: N6 the model's readiness is the other owners'
+    first: [FAIL] AcmpCore.A19NothingPassesAnOwedFrame: A19 a response does not pass one already owed
+    first: [FAIL] AcmpCore.A19AResponseWithoutRoomIsOwedAndItsChangeWaits: A19 one frame per poll: the probe is still owed after the response
+    first: [FAIL] AcmpCore.A19AResponseWithoutRoomIsOwedAndItsChangeWaits: A19 but its change is not reported while its response waits (#653)
+    first: [FAIL] AcmpCore.A19AFullQueueDeclinesTheCommandBeforeItActs: A19 a full queue declines a BIND_RX to its caller
+    first: [FAIL] AcmpCore.A19AProbeWithoutRoomIsLostAndRecovered: A19 a probe the full queue cannot take is lost and counted; TMR_NO_RESP will send its duplicate
+    first: [FAIL] AcmpCore.A19TwoOwedResponsesForOneSinkReleaseTogether: A19 the bind's response left but the unbind's is still owed: the sink's change still waits
+    first: [FAIL] AcmpCore.A19AResponseWithoutRoomIsOwedAndItsChangeWaits: A19 the oldest first: the response
+    first: [FAIL] AcmpMailbox.E1AnOwedResponseLeavesFirstAndItsChangeAfterIt: E1 nothing reported yet, and the loop does not sleep while frames are owed
+    first: [FAIL] AcmpMailbox.E3OneOwedFrameAloneKeepsTheLoopAwake: E3 the ACMP poll says it still owes its one frame behind the held egress
+    first: [FAIL] AcmpMailbox.K1ACommandDeclinedAtTheOwedBoundIsKeptAndAnsweredInArrivalOrder: K1 the first command behind the full owed set is declined once and kept, the second left in the ring
+    first: [FAIL] AcmpMailbox.K1ACommandDeclinedAtTheOwedBoundIsKeptAndAnsweredInArrivalOrder: K1 the first command behind the full owed set is declined once and kept, the second left in the ring
+    first: [FAIL] AcmpMailbox.K1ACommandDeclinedAtTheOwedBoundIsKeptAndAnsweredInArrivalOrder: K1 the kept command is answered in pass ACMP_OWED_MAX + 1 after the room returns
+    first: [FAIL] AcmpMailbox.K1ACommandDeclinedAtTheOwedBoundIsKeptAndAnsweredInArrivalOrder: K1 the command kept behind it in pass n + 1 + f, f = 1: the response ahead of it
+    first: [FAIL] AcmpMailbox.C0ToC4CommandsAreAnsweredInThePassThatTakesThem: C2 PROBE_TX_RESPONSE -> TMR_NO_TK armed, interface 0
+    first: [FAIL] AcmpMailbox.K1ACommandDeclinedAtTheOwedBoundIsKeptAndAnsweredInArrivalOrder: K1 on the interface it arrived on
+    first: [FAIL] AcmpMailbox.K2ABindDeclinedAtTheFullSetWaitsForTwoSlotsAndLosesNoProbe: K2 offered again after the first send, one slot free: declined again and still kept
+    first: [FAIL] AcmpMailbox.K3AStartDropsTheKeptCommand: K3 a start keeps no command from the run before
+    first: [FAIL] AcmpMailbox.K4ACommandBehindFramesThatNeedNoAnswerKeepsItsPass: K4 the command behind two frames that need no answer in pass n + 1 + f, f = 1, ahead of the timer probe that falls due in the third pass
+    first: [FAIL] AcmpMailbox.K8ACommandTheRedeliveryDeclinesKeepsItsPlaceAheadOfTheNext: K8 the owed frames, then each command answered once, in arrival order
+    first: [FAIL] AcmpMailbox.K5RecordsBehindTheReceiveBudgetAreOfferedAfterTheSend: K5 a command the receive service left waiting is offered after the first send and answered in pass n + 1, ahead of the timer probe that falls due in the second pass
+    first: [FAIL] AcmpMailbox.K6ARecordTheDriverRefusesEndsTheRedeliveryCounted: K6 the kept command taken, the refused record counted in rx_bad and the ring left empty
+    first: [FAIL] AcmpMailbox.K7TheRedeliveryTakesAFullRingInThePassThatSends: K7 the kept command and the full ring behind it are taken, and counted, in the pass that sends
+    first: [FAIL] AcmpMailbox.K7TheRedeliveryTakesAFullRingInThePassThatSends: K7 the kept command and the full ring behind it are taken, and counted, in the pass that sends
+    first: [FAIL] AcmpCore.A26AnotherAvtpVersionIsDiscardedBeforeItIsRead: A26 a BIND_RX of AVTP version 1 binds nothing, calls no port, counts as malformed
+    first: [FAIL] AcmpCore.A26AnotherAvtpVersionIsDiscardedBeforeItIsRead: A26 an ENTITY_AVAILABLE of version 1 discovers nothing
+    first: [FAIL] AcmpCore.A26AnotherAvtpVersionIsDiscardedBeforeItIsRead: A26 a BIND_RX of AVTP version 1 binds nothing, calls no port, counts as malformed
+    first: [FAIL] AcmpCore.A1BindFromUnboundRespondsThenProbes: A1 BIND_RX sends two frames: the response and the probe
+    first: [FAIL] AcmpCore.A23EveryEntryRefusesACallFromInsideAPort: A23 and the outer call completes as if it had not been made: TMR_NO_RESP held for the owed probe, entry 0
+    first: [FAIL] AcmpCore.A27AnOwedProbeStartsItsTimerWhenItLeaves: A27 the probe leaves 5 ms late and TMR_NO_RESP runs 200 ms from that send
+    first: [FAIL] AcmpCore.A27AnOwedProbeStartsItsTimerWhenItLeaves: A27 the probe leaves 5 ms late and TMR_NO_RESP runs 200 ms from that send
+    first: [FAIL] AcmpCore.A27AProbeOwedPastAnUnbindARebindOrASuccessStartsNothing: A27 the old probe leaving starts no timer for the new one
+    first: [FAIL] AcmpCore.A19AProbeInTheSlotOfAnEarlierResponseHoldsNoSink: A19 sink 3's probe is owed in the slot that held the last sink's response
+    first: [FAIL] AcmpCore.A19AProbeInTheSlotOfAnEarlierResponseHoldsNoSink: A19 sink 3's probe is owed in the slot that held the last sink's response
+    first: [FAIL] AcmpCore.A30AProbeTakenAtOnceRunsFromTheClockAfterItsSend: A30 the probe taken at once: TMR_NO_RESP 200 ms from the clock after its send
+    first: [FAIL] AcmpCore.A30ADuplicateTakenAtOnceRunsFromTheClockAfterItsSend: A30 the duplicate taken at once: TMR_NO_RESP 200 ms from the clock after its send, not the expiry's
+    first: [FAIL] AcmpCore.A30ATimerDueAfterAnEarlierSinksSendIsTakenInTheSameExpiry: A30 sink 1's 0 ms TMR_DELAY, drawn after sink 0's duplicate moved the clock, probes in the same expiry
+    first: [FAIL] AcmpCore.A27AnOwedProbeStartsItsTimerWhenItLeaves: A27 an expiry of the interface while the probe is owed takes nothing: a held timer is never due
+    first: [FAIL] AcmpCore.A23EveryEntryRefusesACallFromInsideAPort: A23 and the outer call completes as if it had not been made: TMR_NO_RESP held for the owed probe, entry 0
+    first: [FAIL] AcmpCore.A19AProbeWithoutRoomIsLostAndRecovered: A19 and it does
+    first: [FAIL] AcmpCore.A27AProbeOwedPastAnUnbindARebindOrASuccessStartsNothing: A27 an UNBIND_RX while the probe is owed stops its timer
+    first: [FAIL] AcmpAdapterUnit.B7RefusalsOfTheAdapter: B7 a first slot of 4294967295 is refused: past the bank, wrapping the sum, or truncating to a slot
+    first: [FAIL] AcmpAdapterUnit.B7RefusalsOfTheAdapter: B7 a first slot of 256 is refused: past the bank, wrapping the sum, or truncating to a slot
+    first: [FAIL] AcmpAdapterUnit.B7RefusalsOfTheAdapter: B7 the last slot range that fits is taken
+    first: [FAIL] AcmpMailbox.B3TheTimersRunOnTheInterfaceSlot: B3 TMR_NO_RESP is armed on interface 1's ACMP slot at NOW_MS + 200 (Table 5.26)
+    first: [FAIL] AcmpMailbox.B3TheTimersRunOnTheInterfaceSlot: B3 the duplicate leaves at 200 ms exactly, on interface 1 (5.5.3.5.16)
+    first: [FAIL] AcmpMailbox.B6TheGrandmasterIsTheInterfaces: B6 one from interface 1's grandmaster and domain is taken
+    first: [FAIL] AcmpCore.A24TheRecordIsTheProcessorsPayloadOneFlagAtATime: A24 bound and started: flags 0x03, then the parameters, byte for byte
+    first: [FAIL] AcmpCore.A22DiscoveredStartsTheProbeFromPrbWAvail: A22 EVT_TK_DISCOVERED in PRB_W_AVAIL: TMR_DELAY 0 to 1 s, PRB_W_DELAY, ACTIVE (5.5.3.5.9)
+    first: [FAIL] AcmpCore.A24UnboundRecordsRefusalsAndRollback: A24 a payload of 21 bytes is refused, the longer ones too, before a byte is read
+    first: [FAIL] AcmpStore.N7AD3RollBackKeepsTheBindings: N7 and leaves the applied binding as the binding walk left it: bound, PRB_W_AVAIL, discovery running
+    first: [FAIL] AcmpCore.A28EveryTimerExpiresAtItsDeadlineAcrossTheWrap: A28 TMR_NO_RESP: nothing at the wrap or 1 ms before its deadline
+    first: [FAIL] AcmpCore.A28TheEarliestDeadlineIsChosenAcrossTheWrap: A28 the interface timer holds the earlier deadline, the numerically larger one before the wrap
+    first: [FAIL] AcmpCore.A28EveryTimerExpiresAtItsDeadlineAcrossTheWrap: A28 TMR_NO_ADP: nothing before its deadline
+    first: [FAIL] AcmpCore.A28EveryTimerExpiresAtItsDeadlineAcrossTheWrap: A28 TMR_NO_RESP armed 100 ms before the wrap ends 100 ms after it
+    first: [FAIL] AcmpCore.A28EveryTimerExpiresAtItsDeadlineAcrossTheWrap: A28 TMR_RETRY armed 999 ms before the wrap ends 3 s after it
+    first: [FAIL] AcmpCore.A28EveryTimerExpiresAtItsDeadlineAcrossTheWrap: A28 TMR_NO_TK armed 4999 ms before the wrap ends 5 s after it
+    first: [FAIL] AcmpCore.A28EveryTimerExpiresAtItsDeadlineAcrossTheWrap: A28 TMR_DELAY drawn at the last millisecond before the wrap ends after it
+    first: [FAIL] AcmpCore.A28EveryTimerExpiresAtItsDeadlineAcrossTheWrap: A28 TMR_DELAY: nothing before its deadline
+    first: [FAIL] AcmpCore.A23EveryPortIsGuarded: A23 the port kind 10 is guarded
+    first: [FAIL] AcmpCore.A22DiscoveredStateCells: A22 TK_DISCOVERED: an AVAILABLE with another interface_index is ignored (5.6.4.5.2 step 1)
+    first: [FAIL] AcmpCore.A29TheAdmitPortFollowsEachSinksBoundTalker: A29 re-binding emits one admission
+    first: [FAIL] AcmpCore.A29TheAdmitPortFollowsEachSinksBoundTalker: A29 sink 2's talker on interface 1
+    first: [FAIL] AcmpCore.A23EveryPortIsGuarded: A23 the port kind 10 is guarded
+    first: [FAIL] AcmpCore.A29RestoredBindingsAreAdmittedWhenTheTransportOpens: A29 opening after reset emits one withdrawal
+    first: [FAIL] AcmpCore.A23EveryEntryRefusesACallFromInsideAPort: A23 a call made from inside the send port is refused, counted and trapped, entry 10
+    first: [FAIL] AcmpCore.A23EveryEntryRefusesACallFromInsideAPort: A23 a call made from inside the send port is refused, counted and trapped, entry 10
+    first: [FAIL] AcmpMailbox.B5TheTapHandsAvailableToDiscoveryAndTheRestToAdp: B5 the open wrote the restored binding's talker into interface 0's bound-talker table
+    first: [FAIL] AcmpMailbox.U5AcmpComesAfterAdpAndReadsNothingBeforeTheContract: U5 and writes the bound-talker entry of the binding restored between compose and open, only that one
+    first: [FAIL] AcmpMailbox.B8TheBoundTalkerTableFollowsEachBinding: B8 an UNBIND_RX clears the entry's BOUND_EN
+    first: [FAIL] DriverUnit.D13BoundTalkerEntries: D13 an interface past the contract's is refused
+    first: [FAIL] DriverUnit.D13BoundTalkerEntries: D13 an entry past the table's is refused
+    first: [FAIL] DriverUnit.D13BoundTalkerEntries: D13 a withdrawn entry: BOUND_EN cleared, one write
+    first: [FAIL] DriverUnit.D13BoundTalkerEntries: D13 BOUND_EN is cleared before the identity is written, and set after it
+    first: [FAIL] DriverUnit.D13BoundTalkerEntries: D13 BOUND_EID_LO holds talker[31:0]
+    first: [FAIL] DriverUnit.D13BoundTalkerEntries: D13 BOUND_EN is cleared before the identity is written, and set after it
+    first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/AdpBoundTalkers: Q12 an ENTITY_AVAILABLE of a bound talker reaches the adp ring
+    first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/AdpFilter: F2 ENTITY_DISCOVER for another entity, and AVAILABLE or DEPARTING, are not passed
+    first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/AdpBoundTalkers: Q12 an entity_id differing from the entry in [63:32] only: no RX record, no delivery
+    first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/AdpBoundTalkers: Q13 on another interface, or an index with no interface, it reaches no ring and counts nothing
+    first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/AdpBoundTalkers: Q12 no other message_type of a bound talker passes on its entity_id, ENTITY_DISCOVER included
+    first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/ResetIdentityAndRegisterMasks: R1 each bound-talker entry keeps BOUND_EID's every bit and BOUND_EN's EN only, per interface and entry
+    first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/ResetIdentityAndRegisterMasks: R1 each bound-talker entry keeps BOUND_EID's every bit and BOUND_EN's EN only, per interface and entry
+    first: [FAIL] AcmpMailbox.U6AdpAcmpAndMaapShareTheLoopOnDisjointSlotsWithEveryChannelOpen: U6 every interface's ADP, ACMP and MAAP slots are distinct and inside the timer bank
+    first: [FAIL] MaapHost.ExplicitAppComposition: protocol timer slots disjoint
+    first: [FAIL] AcmpMailbox.F6WithMaapComposedEveryPassStaysWithinTheThreeWayBound: F6 events, acmp and maap records wait
+    first: [FAIL] AcmpMailbox.U6AdpAcmpAndMaapShareTheLoopOnDisjointSlotsWithEveryChannelOpen: U6 ADP, then ACMP, then MAAP attach, each with its sink and its poll
+    first: [FAIL] AcmpMailbox.F6WithMaapComposedEveryPassStaysWithinTheThreeWayBound: F6 events, acmp and maap records wait
+    first: [FAIL] AcmpMailbox.F3bComposedGateExpiresAfterIdleTickWake: Expected: true
+    first: [FAIL] AcmpMailbox.F6WithMaapComposedEveryPassStaysWithinTheThreeWayBound: F6 events, acmp and maap records wait
+    first: [FAIL] AcmpMailbox.U7TheThreeWayCompositionRefusesWithNothingOpened: U7 a preferred range below the B.4 pool is refused
+    first: [FAIL] AcmpMailbox.U7TheThreeWayCompositionRefusesWithNothingOpened: U7 the pool's last range is not
+    first: [FAIL] AcmpMailbox.U7TheThreeWayCompositionRefusesWithNothingOpened: U7 one that runs past the pool's end is refused
+    first: [FAIL] AcmpMailbox.F3bComposedGateExpiresAfterIdleTickWake: composed mailbox publishes the accepted probe demand
+    first: [FAIL] AcmpMailbox.U5AcmpComesAfterAdpAndReadsNothingBeforeTheContract: U5 an ACMP configuration the module refuses fails the composition
+    first: [FAIL] AcmpMailbox.U7TheThreeWayCompositionRefusesWithNothingOpened: U7 the explicit MAAP entry refuses a missing stream-address port
+    first: [FAIL] MaapHost.ExplicitAppComposition: Expected: false
+    first: [FAIL] AcmpMailbox.F6WithMaapComposedEveryPassStaysWithinTheThreeWayBound: F6 the worst pass of the three-way backlog
+    first: [FAIL] AcmpMailbox.U6AdpAcmpAndMaapShareTheLoopOnDisjointSlotsWithEveryChannelOpen: U6 MAAP sends from its own unicast MAC, where a DEFEND is admitted, interface 1
+    first: [FAIL] AcmpMailbox.U6AdpAcmpAndMaapShareTheLoopOnDisjointSlotsWithEveryChannelOpen: U6 MAAP sends from its own unicast MAC, where a DEFEND is admitted, interface 1
+    first: [FAIL] AcmpMailbox.F6WithMaapComposedEveryPassStaysWithinTheThreeWayBound: F6 the three-way bound is both modules' passes with each event record taken once
+    first: [FAIL] AcmpMailbox.F6WithMaapComposedEveryPassStaysWithinTheThreeWayBound: F6 the three-way bound is both modules' passes with each event record taken once
+    first: [FAIL] MaapCore.ReleaseLossAndRetry: starting down withdraws the prior owner
+    first: [FAIL] MaapCore.InitialAndThreeRetransmissions: initial PROBE is immediate
+    first: [FAIL] MaapCore.InitialAndThreeRetransmissions: three retransmissions remain
+    first: [FAIL] MaapCore.InitialAndThreeRetransmissions: retransmission decrements once
+    first: [FAIL] MaapCore.InitialAndThreeRetransmissions: B.2 complete PROBE bytes
+    first: [FAIL] MaapCore.InitialAndThreeRetransmissions: B.2 complete PROBE bytes
+    first: [FAIL] MaapCore.InitialAndThreeRetransmissions: B.2 complete PROBE bytes
+    first: [FAIL] MaapCore.InitialAndThreeRetransmissions: B.2 complete PROBE bytes
+    first: [FAIL] MaapCore.ConstantsStrictTimersAndSeed: probe base interval
+    first: [FAIL] MaapCore.ConstantsStrictTimersAndSeed: probe interval variation
+    first: [FAIL] MaapCore.ConstantsStrictTimersAndSeed: announce base interval
+    first: [FAIL] MaapCore.ConstantsStrictTimersAndSeed: announce interval variation
+    first: [FAIL] MaapCore.ConstantsStrictTimersAndSeed: clock seed spans the probe interval
+    first: [FAIL] MaapCore.ConstantsStrictTimersAndSeed: zero sum cannot lock generator
+    first: [FAIL] MaapCore.UniformDrawRejectsIncompleteBucket: incomplete random bucket rejected
+    first: [FAIL] MaapCore.ReverseOctetPriority: least significant octet decides first
+    first: [FAIL] MaapCore.DefendEchoAndIntersection: echo request and exact intersection
+    first: [FAIL] MaapCore.DefendEchoAndIntersection: echo request and exact intersection
+    first: [FAIL] MaapCore.DefendEchoAndIntersection: echo request and exact intersection
+    first: [FAIL] MaapCore.DisjointAdjacentZeroAndDefendRange: half open intervals and zero count do not conflict
+    first: [FAIL] MaapCore.DisjointAdjacentZeroAndDefendRange: half open intervals and zero count do not conflict
+    first: [FAIL] MaapCore.DisjointAdjacentZeroAndDefendRange: DEFEND tests conflict fields
+    first: [FAIL] MaapCore.MalformedAndVersionCompatibility: malformed input is rejected
+    first: [FAIL] MaapCore.MalformedAndVersionCompatibility: malformed input is rejected
+    first: [FAIL] MaapCore.MalformedAndVersionCompatibility: malformed input is rejected
+    first: [FAIL] MaapCore.MalformedAndVersionCompatibility: malformed input is rejected
+    first: [FAIL] MaapCore.MalformedAndVersionCompatibility: malformed input is rejected
+    first: [FAIL] MaapCore.MalformedAndVersionCompatibility: malformed input is rejected
+    first: [FAIL] MaapCore.MalformedAndVersionCompatibility: malformed input is rejected
+    first: [FAIL] MaapCore.MalformedAndVersionCompatibility: malformed input is rejected
+    first: [FAIL] MaapCore.MalformedAndVersionCompatibility: malformed input is rejected
+    first: [FAIL] MaapCore.MalformedAndVersionCompatibility: malformed input is rejected
+    first: [FAIL] MaapCore.MalformedAndVersionCompatibility: malformed input is rejected
+    first: [FAIL] MaapCore.MalformedAndVersionCompatibility: malformed input is rejected
+    first: [FAIL] MaapCore.MalformedAndVersionCompatibility: B.2.3 recognized future and older messages
+    first: [FAIL] MaapCore.MalformedAndVersionCompatibility: B.2.3 recognized future and older messages
+    first: [FAIL] MaapCore.InitAndPreferredRangeBounds: range past pool end is refused
+    first: [FAIL] MaapCore.ReleaseLossAndRetry: loss of PortOperational invalidates the acquired address
+    first: [FAIL] MaapCore.ReleaseLossAndRetry: Expected: false
+    first: [FAIL] MaapCore.StalledOutputRetainsOrderAndOriginalExpiry: Expected: true
+    first: [FAIL] MaapCore.StalledOutputRetainsOrderAndOriginalExpiry: allocation waits for committed ANNOUNCE
+    first: [FAIL] MaapCore.InitialAndThreeRetransmissions:     Which is: { '\x91' (145), '\xE0' (224), '\xF0' (240), '\0', '\xFF' (255), '\0', '\x2' (2), '\0', '\0', '\0', '\0', '\x80' (128), '"' (34, 0x22), '\xF0' (240), '\xFE' (254), '\x1' (1), '\b' (8), '\x10' (16), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\x91' (145), '\xE0' (224), '\xF0' (240), '\0', '\x1' (1), '\0', ... }
+    first: [FAIL] MaapCore.QueueBoundAndWithdrawal: overload is counted as failure
+    first: [FAIL] MaapCore.QueueBoundAndWithdrawal: Expected: true
+    first: [FAIL] MaapCore.QueueBoundAndWithdrawal: release clears pending output
+    first: [FAIL] MaapCore.ReentrantPortsAreCountedAndIgnored: all input guards fire
+    first: [FAIL] MaapDebug.SynchronousExpiryAsserts: debug reentry assertion
+    first: [FAIL] MaapCsr.EveryStreamAddressAndLossGate: stream destination base plus index
+    first: [FAIL] MaapCsr.EveryStreamAddressAndLossGate: selection restored
+    first: [FAIL] MaapCsr.EveryStreamAddressAndLossGate: fabric MAAP disabled without touching seed
+    first: [FAIL] MaapCsr.EveryStreamAddressAndLossGate:     Which is: 2
+    first: [FAIL] MaapCsr.ShapesAndCountRefusal:     Which is: 1
+    first: [FAIL] MaapCsr.EveryStreamAddressAndLossGate:     Which is: 4026532104
+    first: [FAIL] MaapHost.StaleTagsForeignInputsAndLinkEdges: old timer tag ignored
+    first: [FAIL] MaapHost.StaleTagsForeignInputsAndLinkEdges:     Which is: 2
+    first: [FAIL] MaapHost.AttachRefusalsAndTimerWrap: Expected: false
+    first: [FAIL] MaapHost.InterfaceIsolationAndRangeEnvelope: record index selects state
+    first: [FAIL] MaapHost.DaGateIsPublishedBeforeEachAllocationIsReported: Expected: true
+    first: [FAIL] MaapHost.HMaapFilterTupleAndRate: Expected: false
+    first: [FAIL] MaapHost.HMaapTimerCommitsAndIntervals: H-MAAP original timer deadline to TX_HEAD within 10 ms
+    first: [FAIL] MaapCore.StalledOutputRetainsOrderAndOriginalExpiry:     Which is: 1
+    first: [FAIL] MaapHost.DaGateIsPublishedBeforeEachAllocationIsReported: Expected: true
+    first: [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: final probe and ANNOUNCE cost, DA_GATE included
+    first: [FAIL] MaapHost.HMaapConflictLossAndRetry: H-MAAP RX_HEAD to DEFEND TX_HEAD within 10 ms
+    first: [FAIL] AllStates/MaapCell.TableB7/0: Table B.7 output count
+    first: [FAIL] AllStates/MaapCell.TableB7/1: Table B.7 output count
+    first: [FAIL] AllStates/MaapCell.TableB7/2: Table B.7 output count
+    first: [FAIL] AllStates/MaapCell.TableB7/3: Table B.7 output count
+    first: [FAIL] AllStates/MaapCell.TableB7/4: Table B.7 output count
+    first: [FAIL] AllStates/MaapCell.TableB7/5: Table B.7 output count
+    first: [FAIL] MaapCore.MalformedAndVersionCompatibility: malformed input is rejected
+    first: [FAIL] MaapCore.MalformedAndVersionCompatibility: malformed input is rejected
+    first: [FAIL] MaapCore.MalformedAndVersionCompatibility: B.2.3 recognized future and older messages
+    first: [FAIL] AllStates/MaapCell.TableB7/9: Table B.7 output count
+    first: [FAIL] AllStates/MaapCell.TableB7/10: Table B.7 conflict decision
+    first: [FAIL] AllStates/MaapCell.TableB7/11: Table B.7 conflict decision
+    first: [FAIL] MaapCore.DefendEchoAndIntersection: echo request and exact intersection
+    first: [FAIL] MaapCore.DisjointAdjacentZeroAndDefendRange: DEFEND conflict wins over echoed request
+    first: [FAIL] MaapCore.RestartDrawsNewRange:     Which is: 1
+    first: [FAIL] AllStates/MaapCell.TableB7/15: Table B.7 output count
+    first: [FAIL] AllStates/MaapCell.TableB7/16: Table B.7 output count
+    first: [FAIL] AllStates/MaapCell.TableB7/17: Table B.7 output count
+    first: [FAIL] MaapCore.InitialAndThreeRetransmissions: accepted ANNOUNCE publishes allocation
+    first: [FAIL] MaapHost.AppWaitWakesForMaapWithinBudget: MAAP wake preserves ADP and event interrupts
+    first: [FAIL] MaapCore.BeginBeforePortOperationalRetainsRange: Begin supplied range survives port down
+    first: [FAIL] MaapCore.RestartDrawsNewRange: fixed seed Restart draws a new range
+    first: [FAIL] MaapCore.PriorityAfterTiedOctets: every reversed octet decides, including first: 0
+    first: [FAIL] MaapCore.PriorityAfterTiedOctets: every reversed octet decides, including first: 0
+    first: [FAIL] MaapCsr.EveryStreamAddressAndLossGate: stream destination base plus index
+    first: [FAIL] MaapCsr.AdmissionAfterEveryDestinationWrite: enables follow every destination word
+    first: [FAIL] MaapHost.InterfaceOneStallDrainsWithinBudget: interface 1 poll drains deferred output
+    first: [FAIL] AllStates/MaapCell.TableB7/0: Table B.7 conflict decision
+    first: [FAIL] MaapCore.ReverseOctetPriority: least significant octet decides first
+    first: [FAIL] AllStates/MaapCell.TableB7/10: Table B.7 conflict decision
+    first: [FAIL] MaapCore.ReverseOctetPriority: equal MAC is not lower
+    first: [FAIL] MaapCore.LinkBounceDrawsAfterSuppliedRange: link bounce draws after consuming supplied range
+    first: [FAIL] MbxDma.R2AMoveEndingInErrorResynchronises: R2 a move that ends in ERR leaves no record
+    first: [FAIL] MbxDma.R1ARecordsPayloadIsMovedAndReleased: R1 the move starts at the payload's first ring word, 60 bytes
+    first: [FAIL] MbxDma.T2AMoveEndingInErrorIsNotCommitted: T2 a move that ends in ERR is refused
+    first: [FAIL] MbxDma.T4ARecordTheWordLoopWroteInheritsNoEarlierMovesError: T4 a frame off a word sent after a failed move is committed
+    first: [FAIL] MbxDma.T1AFrameOnAWordIsMovedAndCommitted: T1 the mover is started once, 60 bytes
+    first: [FAIL] MbxDma.T2AMoveEndingInErrorIsNotCommitted: T2 a begin that finds the record before it ended in ERR reports it lost
+    first: [FAIL] MbxDma.T5TheNoticeFanPortReportsALostFrameForItself: T5 the fan after a frame whose move failed reports that frame lost
+    first: [FAIL] MbxDma.T5TheNoticeFanPortReportsALostFrameForItself: T5 fan_end reports a last frame whose move failed lost
+    first: [FAIL] MbxDma.T6AWalkLeftOwedKeepsNoCompletion: T6 fan_end of a walk left owed after a mid-walk loss keeps no completion
+    first: [FAIL] MbxDma.T7AFullCompletionQueueRefusesOnlyOnceTheLastFrameIsCommitted: T7 the last frame is committed before REFUSED, and no completion is kept
+    first: [FAIL] MbxDma.T3AFrameOffAWordTakesTheWordLoop: T3 a frame off a word takes the word loop
+    first: [FAIL] MbxDma.R1ARecordsPayloadIsMovedAndReleased: R1 the driver polls STATUS until BUSY falls, 60 bytes
+    first: [FAIL] MbxDma.R2AMoveEndingInErrorResynchronises: R2 a move that ends in ERR leaves no record
+    first: [FAIL] MbxDma.R1ARecordsPayloadIsMovedAndReleased: R1 CFG names the ring's base and size, 60 bytes
+    first: [FAIL] MbxDma.T1AFrameOnAWordIsMovedAndCommitted: T1 the move runs memory to the ring from the payload's first word, 60 bytes
+    first: [FAIL] Plat.C2PolicyIsConfigureFabricsFifteenWritesInOrder: C2 configure_fabric's writes, in its order, from the policy
+    first: [FAIL] Plat.C2PolicyIsConfigureFabricsFifteenWritesInOrder: C2 configure_fabric's writes, in its order, from the policy
+    first: [FAIL] Plat.C2PolicyIsConfigureFabricsFifteenWritesInOrder: C2 configure_fabric's writes, in its order, from the policy
+    first: [FAIL] Plat.C2PolicyIsConfigureFabricsFifteenWritesInOrder: C2 configure_fabric's writes, in its order, from the policy
+    first: [FAIL] Plat.C1IdentityIsMilnAndReadsVersion: C1 any other ID is refused
+    first: [FAIL] Plat.C3StatusIsReadInMilanStatusOrder: C3 each pair low then high, the gPTP half first
+    first: [FAIL] Plat.C4TimeOfDayIsSnapshotThenAgreeingHighWords: C4 the snapshot strobe comes first
+    first: [FAIL] Plat.C4TimeOfDayIsSnapshotThenAgreeingHighWords: C4 the agreeing high word
+    first: [FAIL] Plat.K1MilanStatusAnswersTheGradersLines: K1 milan_status's lines, field for field
+    first: [FAIL] Plat.K2MilanGettimeAnswersTaiNs: K2 a torn read prints no number
+    first: [FAIL] Plat.K3LinesEndOnceAndOthersAreRefused: K3 a prefix is no command
+    first: [FAIL] Plat.K3LinesEndOnceAndOthersAreRefused: K3 an overflowed line is dropped whole
+    first: [FAIL] Plat.K3LinesEndOnceAndOthersAreRefused: crashed on signal 6
+    first: [FAIL] Plat.K1MilanStatusAnswersTheGradersLines: K1 milan_status's lines, field for field
+    first: [FAIL] Plat.K1MilanStatusAnswersTheGradersLines: K1 milan_status's lines, field for field
+    first: [FAIL] Plat.K5TextPastTheRingIsDroppedAndCounted: K5 the ring holds TX_BYTES and drops the rest
+    first: [FAIL] Plat.K4EachPassIsBounded: K4 at most TX_PER_PASS bytes out
+    first: [FAIL] Plat.K4EachPassIsBounded: K4 a full slice of input is owed another pass
+    first: [FAIL] Plat.K4EachPassIsBounded: K4 never into a full FIFO
+    first: [FAIL] Plat.K4EachPassIsBounded: K4 a command runs only with room for the longest response
+    first: [FAIL] Plat.K4EachPassIsBounded: K4 output is owed after the pass
+    first: [FAIL] Plat.K3LinesEndOnceAndOthersAreRefused: K3 a line holding a NUL is no command
+    first: [FAIL] PlatMmio.I1ReadIsTheWordAtTheAddress: I1 a read returns the word at the address
+    first: [FAIL] PlatMmio.I2WriteIsTheWordAtTheAddressAlone: I2 a write lands in the word at the address
+    first: [FAIL] Boot.B1ReachesReadyInStepOrder: B1 ADP's first timer after the face commit
+    first: [FAIL] Boot.B1ReachesReadyInStepOrder: B1 ADP's first timer after the face commit
+    first: [FAIL] Boot.B1ReachesReadyInStepOrder: B1 ADP's first timer after the face commit
+    first: [FAIL] Boot.B1ReachesReadyInStepOrder: B1 the mailbox only after the policy and the one MAAP owner
+    first: [FAIL] Boot.B4RefusedStreamCountStopsAfterThePolicy: B4 MAAP's port refuses nine AAF outputs
+    first: [FAIL] Boot.B3RefusedImageStopsAtImage: B3 a refused image stops the boot
+    first: [FAIL] Boot.B5OtherContractStopsAtMailbox: B5 another contract stops the boot
+    first: [FAIL] Boot.B6UnacknowledgedFaceStopsAtAecp: B6 no acknowledgement, no AECP
+    first: [FAIL] Boot.B1ReachesReadyInStepOrder: B1 the saved state is read before the mailbox's first access
+    first: [FAIL] Boot.B10ABindAfterReadyIsWrittenBackThroughTheLoop: B10 the bind is written back by the store's service on the loop's tick
+    first: [FAIL] Boot.B10ABindAfterReadyIsWrittenBackThroughTheLoop: B10 the bind is written back by the store's service on the loop's tick
+    first: [FAIL] Boot.B7OnlyAReadyBootServicesTheLoop: B7 and never services the loop
+    first: [FAIL] Boot.B8PlatformPortsAnswerAsDocumented: B8 a source past the reported count has no destination
+    first: [FAIL] Boot.B8PlatformPortsAnswerAsDocumented: B8 source n holds base + n
+    first: [FAIL] Boot.B3RefusedImageStopsAtImage: B3 after the policy and the one MAAP owner
+    first: [FAIL] Boot.B8PlatformPortsAnswerAsDocumented: B8 a revocation clears it
+    first: [FAIL] Boot.B9SrpSourcesCarryTheGeneratedStreams: B9 on the SR class VID
+    first: [FAIL] Boot.B24GetAsPathAnswersTheDatapathsSequence: B24 GET_AS_PATH answers SUCCESS on AVB interface 0
+    first: [FAIL] Boot.B11ARebootIsAnsweredNotifiedDepartsAndThenResets: B11 every interface sends ENTITY_DEPARTING
+    first: [FAIL] Boot.B11ARebootIsAnsweredNotifiedDepartsAndThenResets: B11 the reset port is written once
+    first: [FAIL] Boot.B11ARebootIsAnsweredNotifiedDepartsAndThenResets: B11 every interface sends ENTITY_DEPARTING
+    first: [FAIL] Boot.B18ADepartingTheRingRefusedHoldsTheReset: B18 ENTITY_DEPARTING leaves before the reset
+    first: [FAIL] Boot.B12TheResetWaitsForTheResponseToLeave: B12 no reset while the mailbox holds ENTITY_DEPARTING
+    first: [FAIL] Boot.B14WithoutAResetPortRebootIsNotImplemented: B14 without a reset port REBOOT is NOT_IMPLEMENTED
+    first: [FAIL] Boot.B13RefusalsLeaveTheEntityInService: B13 ENTITY_LOCKED under another controller's lock
+    first: [FAIL] Boot.B16ARebootDuringTheJournalWriteKeepsTheChange: B16 the drain ends because the write completed, not at its deadline
+    first: [FAIL] Boot.B16ARebootDuringTheJournalWriteKeepsTheChange: B16 the drain ends because the write completed, not at its deadline
+    first: [FAIL] Boot.B17NothingIsTakenOrSentOnceTheResetPortFired: B17 nothing is sent once the reset port fired
+    first: [FAIL] Boot.B19NoFrameOfAnyChannelIsTakenFromTheSuccess: B19 no ADP frame is taken after the REBOOT's SUCCESS
+    first: [FAIL] Boot.B20NoOtherChannelTransmitsAfterTheDeparting: B20 no other channel starts a transmission after ENTITY_DEPARTING
+    first: [FAIL] Boot.B21TheDepartingWaitsForEveryOtherRing: B21 no ENTITY_DEPARTING while the ACMP ring holds a frame
+    first: [FAIL] Boot.B22TheGateHoldsInThePassThatTakesTheReboot: B22 no MAAP frame queued with the REBOOT is taken
+    first: [FAIL] Boot.B19NoFrameOfAnyChannelIsTakenFromTheSuccess: B19 no ADP frame is taken after the REBOOT's SUCCESS
+    first: [FAIL] Boot.B19NoFrameOfAnyChannelIsTakenFromTheSuccess: B19 no ACMP frame is taken after the REBOOT's SUCCESS
+    first: [FAIL] Boot.B19NoFrameOfAnyChannelIsTakenFromTheSuccess: B19 no AECP frame is taken after the REBOOT's SUCCESS
+    first: [FAIL] Boot.B19NoFrameOfAnyChannelIsTakenFromTheSuccess: B19 no MAAP frame is taken after the REBOOT's SUCCESS
+    first: [FAIL] Boot.B19NoFrameOfAnyChannelIsTakenFromTheSuccess: B19 no SRP frame is taken after the REBOOT's SUCCESS
+    first: [FAIL] Boot.B21TheDepartingWaitsForEveryOtherRing: B21 no ENTITY_DEPARTING while the ACMP ring holds a frame
+    first: [FAIL] Boot.B21TheDepartingWaitsForEveryOtherRing: B21 no ENTITY_DEPARTING while the MAAP ring holds a frame
+    first: [FAIL] Boot.B21TheDepartingWaitsForEveryOtherRing: B21 no ENTITY_DEPARTING while the SRP ring holds a frame
+    first: [FAIL] Phy.B11ArmedPastTheIdentityCheck: B11 a stage refused past the identity check keeps publishing the link
+    first: [FAIL] Phy.L2EveryEdgeIsCounted: L2 a loss that recovered between two polls moves LINK_DOWN and LINK_UP by one each
+    first: [FAIL] Phy.B12StepCarriesTheStoresSaveOrAPhyFrame: B12 the client owes a step while the PHY owes a frame
+    first: [FAIL] Phy.L2EveryEdgeIsCounted: L2 a 3 s loss moves LINK_DOWN and LINK_UP by one each
+    first: [FAIL] Phy.L3EachEdgeNotifiesTheCounters: L3 each link edge sends one unsolicited GET_COUNTERS, LINK_DOWN then LINK_UP moved by one
+    first: [FAIL] PlatMap.M1AllThreeRowsGiveTheirAddresses: M1 the PHY's three rows give their addresses (exit 0, {'CTRL_PLAT_CSR_BASE': 2415919104, 'CTRL_MBX_BASE': 2147483648, 'CTRL_PLAT_UART_RXTX': 4026535936, 'CTRL_PLAT_UART_TXFULL': 4026535940, 'CTRL_PLAT_UART_RXEMPTY': 4026535944, 'CTRL_PLAT_UART_EV_PENDING': 4026535952, 'CTRL_PLAT_REBOOT': 4026537984, 'CTRL_PLAT_PHY_MDIO_W': 0, 'CTRL_PLAT_PHY_MDIO_R': 0, 'CTRL_PLAT_LINK_STATUS': 0})
+    first: [FAIL] PlatMap.M3SomeRowsAreRefused: M3 some but not all of the PHY's rows are refused, naming milan_mac_phy_mdio_w (exit 0)
+    first: [FAIL] PlatMap.M2NoRowsGiveZero: M2 a SoC with no MDIO gives 0 for each, the poll arms nothing (exit 2, {})
+    first: [FAIL] Phy.B11ArmedPastTheIdentityCheck: B11 a foreign window's MDIO pins are never touched
+    first: [FAIL] Phy.B11ArmedPastTheIdentityCheck: B11 a stage refused past the identity check keeps publishing the link
+    first: [FAIL] Phy.B12StepCarriesTheStoresSaveOrAPhyFrame: B12 a call whose store takes a step of its save carries no PHY frame
+    first: [FAIL] Phy.B12StepCarriesTheStoresSaveOrAPhyFrame: B12 the client owes a step while the store owes one
+    first: [FAIL] Phy.B12StepCarriesTheStoresSaveOrAPhyFrame: B12 a call whose store step is an idle one carries one PHY frame
+    first: [FAIL] Phy.B12StepCarriesTheStoresSaveOrAPhyFrame: B12 a call with no store step carries the PHY's frame
+    first: [FAIL] Phy.B12StepCarriesTheStoresSaveOrAPhyFrame: B12 the yielding call leaves the store's step count unchanged
+    first: [FAIL] Phy.B12StepCarriesTheStoresSaveOrAPhyFrame: B12 the store's owed step is taken first
+    first: [FAIL] Phy.B12StepCarriesTheStoresSaveOrAPhyFrame: B12 a call with no frame owed takes the extra step
+    first: [FAIL] PlatPhy.P1OneAddressIsProbedACall: P1 one address an opportunity, no scan in one call
+    first: [FAIL] Phy.B11ArmedPastTheIdentityCheck: B11 a stage refused past the identity check keeps publishing the link
+    first: [FAIL] Phy.B12StepCarriesTheStoresSaveOrAPhyFrame: B12 a call with no frame owed takes the extra step
+    first: [FAIL] PlatPhy.P10TheClockWraps: P10 a poll is not due again before the clock wraps
+    first: [FAIL] PlatPhy.P4ResolvedModesAreTheReleases: P4 the highest common mode of 4 and 5, case 0
+    first: [FAIL] PlatPhy.P4ResolvedModesAreTheReleases: P4 a master-slave configuration fault is link down
+    first: [FAIL] PlatPhy.P5ErrorsAreLinkDown: P5 a NAKed register is link down: 0xffff would resolve 100 full
+    first: [FAIL] Phy.B11ArmedPastTheIdentityCheck: the turnaround or data driven by the STA
+    first: [FAIL] Phy.B12StepCarriesTheStoresSaveOrAPhyFrame: B12 a call whose store takes a step of its save carries no PHY frame
+    first: [FAIL] Phy.B12StepCarriesTheStoresSaveOrAPhyFrame: B12 the client owes a step while the PHY owes a frame
+    first: [FAIL] PlatPhy.P9NoMdioArmsNothing: P9 the half period at the SoC's clock: 200 ns, a turn a cycle
+    first: [FAIL] PlatPhy.P9NoMdioArmsNothing: P9 a run of 277 us: one turn holds 200 ns
+    first: [FAIL] PlatPhy.P9NoMdioArmsNothing: P9 a run of 205 us bounds a turn under 200 ns: the cycle bound's 20
+    first: [FAIL] PlatPhy.P3LatchedLossPublishesBothEdges: P3 the latched BMSR, then the current one
+    first: [FAIL] PlatPhy.P3LatchedLossPublishesBothEdges: P3 the latched BMSR, then the current one
+    first: [FAIL] PlatPhy.P11TheBootAdvertisesGigabitOnly: P11 reserved bit 14 cleared, first arm
+    first: [FAIL] PlatPhy.P3LatchedLossPublishesBothEdges: P3 the latched BMSR, then the current one
+    first: [FAIL] PlatPhy.P11TheBootAdvertisesGigabitOnly: P11 MASTER-SLAVE kept, first arm
+    first: [FAIL] PlatPhy.P11TheBootAdvertisesGigabitOnly: P11 the test mode cleared, first arm
+    first: [FAIL] PlatPhy.P11TheBootAdvertisesGigabitOnly: P11 autonegotiation restarted, first arm
+    first: [FAIL] PlatPhy.P11TheBootAdvertisesGigabitOnly: P11 reset cleared, first arm
+    first: [FAIL] PlatPhy.P11TheBootAdvertisesGigabitOnly: P11 a PHY that holds the advertisement at boot is not restarted
+    first: [FAIL] PlatPhy.P20TheArmPublishesLinkDownFirst: P20 arming publishes link down
+    first: [FAIL] Phy.B11ArmedPastTheIdentityCheck: a write's turnaround or data not driven
+    first: [FAIL] PlatPhy.P5ErrorsAreLinkDown: P5 the register answering again resolves
+    first: [FAIL] PlatPhy.P4ResolvedModesAreTheReleases: P4 an extended status without 1000BASE-T resolves from 4 and 5
+    first: [FAIL] PlatPhy.P3LatchedLossPublishesBothEdges: Expected: (regs.size()) >= (10u), actual: 6 vs 10
+    first: [FAIL] PlatPhy.P3LatchedLossPublishesBothEdges: P3 the latched BMSR, then the current one
+    first: [FAIL] PlatPhy.P7OneFrameACallWithItsRoom: P7 seven misses, the probe, then the first poll's six frames (BMSR twice: nothing published up yet) and the boot's advertisement's nine
+    first: [FAIL] PlatPhy.P14AResetPhyIsAdvertisedAgain: P14 a PHY that lost the advertisement is written and restarted once, register 4 alone
+    first: [FAIL] PlatPhy.P14AResetPhyIsAdvertisedAgain: P14 a PHY that lost the advertisement is written and restarted once, register 9 alone
+    first: [FAIL] PlatPhy.P15AnUnverifiedAdvertisementStaysOwed: P15 an advertisement that does not read back is written again each poll, register 4, poll 0
+    first: [FAIL] PlatPhy.P15AnUnverifiedAdvertisementStaysOwed: P15 an advertisement that does not read back is written again each poll, register 4, poll 0
+    first: [FAIL] PlatPhy.P16AnUnacknowledgedReadWritesNothing: P16 no write before its read: register 4 unacknowledged
+    first: [FAIL] PlatPhy.P18TheRestartIsVerifiedByItsOutcome: P18 the outcome's restart is counted[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+    first: [FAIL] PlatPhy.P18TheRestartIsVerifiedByItsOutcome: P18 one extra restart
+    first: [FAIL] PlatPhy.P18TheRestartIsVerifiedByItsOutcome: P18 the outcome's restart is counted
+    first: [FAIL] PlatPhy.P18OneRestartAPollUntilOneTakes: P18 the count saturates at 0xffff
+    first: [FAIL] PlatPhy.P4ResolvedModesAreTheReleases: P4 1000BASE-T half duplex
+    first: [FAIL] PlatPhy.P17TheRepairedAdvertisementIsTheOneInForce: P17 the repair restarts negotiation itself, THE OUTCOME owing none, at boot
+    first: [FAIL] PlatPhy.P18OnlyAMissingGigabitLinkOwesARestart: P18 a PHY the advertisement is not for owes no restart
+    first: [FAIL] PlatPhy.P22TheBootRestartsAPhyNotNegotiating: P22 the boot's first poll restarts a forced PHY
+    first: [FAIL] PlatPhy.P22TheBootRestartsAPhyNotNegotiating: P22 the boot's first poll restarts a PHY not negotiating, case 3
+    first: [FAIL] PlatPhy.P22TheBootRestartsAPhyNotNegotiating: P22 the boot's first poll restarts a PHY not negotiating, case 4
+    first: [FAIL] PlatPhy.P23AForcedModeIsNeverPublishedUp: P23 a forced mode on a PHY the advertisement is for is published down
+    first: [FAIL] PlatPhy.P23AForcedModeIsNeverPublishedUp: P23 a PHY the advertisement is not for: the forced mode BMCR names, case 0
+    first: [FAIL] LoopBring.L10StepBindingRefusals: L10 a second step is refused
+    first: [FAIL] LoopBring.L10StepBindingRefusals: L10 a step with no function is refused
+    first: [FAIL] LoopBring.L10StepBindingRefusals: L10 a step with no clock is refused
+    first: [FAIL] Loop.L11StepLastWithTheDeadlineReadAtTheStart: L11 after every poll
+    first: [FAIL] Loop.L11StepLastWithTheDeadlineReadAtTheStart: L11 the clock is read once a pass
+    first: [FAIL] Loop.L11StepLastWithTheDeadlineReadAtTheStart: L11 the deadline is the share past the clock read as the pass starts
+    first: [FAIL] Loop.L12StepOnlyInAPassThatTakesNoInput: L12 a pass that takes a record does not take the step
+    first: [FAIL] Loop.L11StepLastWithTheDeadlineReadAtTheStart: L11 a step still owed asks for the next pass at once
+    first: [FAIL] Loop.L13AnAgedStepIsAPassOfItsOwn: L13 the next pass takes the step though input waits
+    first: [FAIL] Loop.L13AnAgedStepIsAPassOfItsOwn: L13 the next pass takes the step though input waits
+    first: [FAIL] Loop.L13AnAgedStepIsAPassOfItsOwn: L13 the pass that dispatches one more takes its input, not the step
+    first: [FAIL] Loop.L13AnAgedStepIsAPassOfItsOwn: L13 and takes nothing else: no event, no record, no poll
+    first: [FAIL] Loop.L13AnAgedStepIsAPassOfItsOwn: L13 the step's pass asks for the next pass at once
+    first: [FAIL] Loop.L13AnAgedStepIsAPassOfItsOwn: L13 with the deadline read as it starts
+    first: [FAIL] Loop.L13AnAgedStepIsAPassOfItsOwn: L13 the pass is counted as an aged step's
+    first: [FAIL] Loop.L13AnAgedStepIsAPassOfItsOwn: L13 (a pass that takes nothing runs the step)
+    first: [FAIL] Loop.L13AnAgedStepIsAPassOfItsOwn: L13 a step run in a pass that takes nothing starts its age again
+    first: [FAIL] Loop.L13AnAgedStepIsAPassOfItsOwn: L13 a step it had no room for keeps its age
+    first: [FAIL] Loop.L14TheAgeCountsCentisecondsNotDispatches: L14 one dispatch of CTRL_LOOP_STEP_AGE + 1 centiseconds makes the next pass the step's alone
+    first: [FAIL] LoopBring.L15RetryBindingRefusals: L15 a second retry client is refused
+    first: [FAIL] LoopBring.L15RetryBindingRefusals: L15 a retry client with no function is refused
+    first: [FAIL] LoopBring.L15RetryBindingRefusals: L15 a retry client with no age is refused
+    first: [FAIL] Loop.L16TheRetryOnlyInAPassThatTakesNothing: L16 a pass that takes a record does not call the retry
+    first: [FAIL] Loop.L16TheRetryOnlyInAPassThatTakesNothing: L16 nor one that dispatches a centisecond, though it takes no input
+    first: [FAIL] Loop.L16TheRetryOnlyInAPassThatTakesNothing: L16 a pass that takes a record does not call the retry
+    first: [FAIL] Loop.L16TheRetryOnlyInAPassThatTakesNothing: L16 after its polls
+    first: [FAIL] Loop.L16TheRetryOnlyInAPassThatTakesNothing: L16 and before THE STEP
+    first: [FAIL] Loop.L16TheRetryOnlyInAPassThatTakesNothing: L16 a retry still owed asks for the next pass at once
+    first: [FAIL] Loop.L16TheRetryOnlyInAPassThatTakesNothing: L16 the pass is counted as one that called the retry
+    first: [FAIL] Loop.L16TheRetryOnlyInAPassThatTakesNothing: L16 the pass given whole to an aged step calls it after the step, once it is aged
+    first: [FAIL] Loop.L13AnAgedStepIsAPassOfItsOwn: L13 and takes nothing else: no event, no record, no poll
+    first: [FAIL] Loop.L13AnAgedStepIsAPassOfItsOwn: L13 the step's pass asks for the next pass at once
+    first: [FAIL] Loop.L16TheRetryOnlyInAPassThatTakesNothing: L16 the pass is counted as one that called the retry
+    first: [FAIL] Loop.L16TheRetryOnlyInAPassThatTakesNothing: L16 the pass given whole to an aged step calls it after the step, once it is aged
+    first: [FAIL] Loop.L17AnAgedRetryIsAPassOfItsOwn: L17 a round beside a step has what the step left of the pass, a slice at most
+    first: [FAIL] Loop.L17AnAgedRetryIsAPassOfItsOwn: L17 a round in a pass of its own has a whole slice under the margin, with no clock
+    first: [FAIL] LoopBring.L18TransmitBindingRefusals: L18 a second transmit client is refused
+    first: [FAIL] LoopBring.L18TransmitBindingRefusals: L18 a transmit client with no function is refused
+    first: [FAIL] LoopBring.L18TransmitBindingRefusals: L18 a transmit client with no age is refused
+    first: [FAIL] Loop.L20AnOwedBuildIsAPassOfItsOwn: L20 the build is read once as the pass starts, before it takes any input
+    first: [FAIL] Loop.L13AnAgedStepIsAPassOfItsOwn: L13 and takes nothing else: no event, no record, no poll
+    first: [FAIL] Loop.L13AnAgedStepIsAPassOfItsOwn: L13 the step's pass asks for the next pass at once
+    first: [FAIL] Loop.L20AnOwedBuildIsAPassOfItsOwn: L20 the pass is counted as the transmit's
+    first: [FAIL] Loop.L20AnOwedBuildIsAPassOfItsOwn: L20 the next pass calls the transmit though input waits, then an aged round: its ordinary pass before it left tier 1 holding nothing, so one slice, then tier 1 (THE TIERS)
+    first: [FAIL] Loop.L20AnOwedBuildIsAPassOfItsOwn: L20 a build owed comes before an aged step
+    first: [FAIL] Loop.L20AnOwedBuildIsAPassOfItsOwn: L20 the aged step's pass may follow it, the second in a row
+    first: [FAIL] Loop.L20AnOwedBuildIsAPassOfItsOwn: L20 a take that stops at its cap may leave a record: tier 1 is not done
+    first: [FAIL] Loop.L2PerPassRxBound: L2 a pass takes at most CTRL_LOOP_RX_PER_PASS records of a channel
+    first: [FAIL] Loop.L20AnOwedBuildIsAPassOfItsOwn: L20 a take that stops at its cap may leave a record: tier 1 is not done
+    first: [FAIL] Loop.L22PassesGivenWholeStandApartAsInputWaits: L22 a fourth may not
+    first: [FAIL] Loop.L22PassesGivenWholeStandApartAsInputWaits: L22 and a third
+    first: [FAIL] Loop.L22PassesGivenWholeStandApartAsInputWaits: L22 and no second while records wait and the client yields
+    first: [FAIL] Loop.L22PassesGivenWholeStandApartAsInputWaits: L22 none follows another while events wait
+    first: [FAIL] Loop.L22PassesGivenWholeStandApartAsInputWaits: L22 and none follows another while a record of THE DRAIN's channel waits
+    first: [FAIL] Loop.L20AnOwedBuildIsAPassOfItsOwn: L20 a build owed comes before an aged step
+    first: [FAIL] Loop.L20AnOwedBuildIsAPassOfItsOwn: L20 which leaves tier 1 holding nothing
+    first: [FAIL] Loop.L23TheDrainIsTierTwoInASlice: L23 and starts none once its slice has no room for a record's stated cost
+    first: [FAIL] Loop.L23TheDrainIsTierTwoInASlice: L23 with a clock it goes past its cap while the slice has room
+    first: [FAIL] Loop.L20AnOwedBuildIsAPassOfItsOwn: L20 a build owed comes before an aged step
+    first: [FAIL] Loop.L20AnOwedBuildIsAPassOfItsOwn: L20 a build owed comes before an aged step
+    first: [FAIL] Loop.L25WhatAPassHasLeftGoesToTheRecordsStillWaiting: L23 one a channel in turn
+    first: [FAIL] Loop.L23TheDrainIsTierTwoInASlice: L23 and stops at CTRL_LOOP_DRAIN_RECORDS
+    first: [FAIL] Loop.L25WhatAPassHasLeftGoesToTheRecordsStillWaiting: L25 a pass whose poll owes a heavy step stops at its cap
+    first: [FAIL] Loop.L25WhatAPassHasLeftGoesToTheRecordsStillWaiting: L25 each pass starts one channel on
+    first: [FAIL] Loop.L25WhatAPassHasLeftGoesToTheRecordsStillWaiting: L25 and wraps past the last
+    first: [FAIL] Loop.L25WhatAPassHasLeftGoesToTheRecordsStillWaiting: L25 the channel a pass starts at has the time first
+    first: [FAIL] Loop.L24ARecordFollowsOnlyTheEventsPostedBeforeIt: L24 the mark is read before the events
+    first: [FAIL] Loop.L24ARecordFollowsOnlyTheEventsPostedBeforeIt: L24 a pass that leaves events keeps the order where it was
+    first: [FAIL] Loop.L26TierOnesFirstChannelGoesFirst: L26 and no other tier-1 channel's record while it holds one it would take
+    first: [FAIL] Loop.L26TierOnesFirstChannelGoesFirst: L26 with a clock it goes past its cap while the pass has room
+    first: [FAIL] Loop.L26TierOnesFirstChannelGoesFirst: L26 and stops once the pass has spent CTRL_LOOP_DRAIN_US
+    first: [FAIL] Loop.L26TierOnesFirstChannelGoesFirst: L26 a first channel whose module is not ready holds the others back no longer
+    first: [FAIL] Loop.L20AnOwedBuildIsAPassOfItsOwn: L20 the build is read once as the pass starts, before it takes any input
+    first: [FAIL] Loop.L20AnOwedBuildIsAPassOfItsOwn: L20 a take that stops at its cap may leave a record: tier 1 is not done
+    first: [FAIL] Loop.L20AnOwedBuildIsAPassOfItsOwn: L20 a take that finds its ring empty leaves tier 1 holding nothing
+    first: [FAIL] Loop.L22PassesGivenWholeStandApartAsInputWaits: L22 a tier-1 record whose module is not ready holds none back (THE TIERS)
+    first: [FAIL] Loop.L20AnOwedBuildIsAPassOfItsOwn: L20 the next pass takes the input it held off
+    first: [FAIL] Loop.L28AnOrdinaryPassesRoundIsToldItStandsAlone: L28 (told it stands beside held work)
+    first: [FAIL] Loop.L28AnOrdinaryPassesRoundIsToldItStandsAlone: L28 (the ordinary pass leaves THE DRAIN's channel its record)
+    first: [FAIL] Loop.L22PassesGivenWholeStandApartAsInputWaits: L22 a queue's first notice after that pass, though a record waits
+    first: [FAIL] Loop.L22PassesGivenWholeStandApartAsInputWaits: L22 and none follows another while a tier-1 record is held (THE TIERS)
+    first: [FAIL] Loop.L28AnOrdinaryPassesRoundIsToldItStandsAlone: L28 an ordinary pass's round is told it stands alone
+    first: [FAIL] Loop.L27TierTwoRoundsComeAfterTheDrainInSlices: L27 a round in a pass given whole has a slice from the pass's start
+    first: [FAIL] Loop.L27TierTwoRoundsComeAfterTheDrainInSlices: L27 a round in a pass that took nothing has a slice from its start, and never past the pass's deadline
+    first: [FAIL] Loop.L23TheDrainIsTierTwoInASlice: L23 and starts none once its slice has no room for a record's stated cost
+    first: [FAIL] Loop.L20AnOwedBuildIsAPassOfItsOwn: L20 told the MRPDUs its slice holds (THE TIERS)
+    first: [FAIL] MaapHost.HMaapTimerCommitsAndIntervals: declaration query stays outside MAAP callbacks
+    first: [FAIL] AcmpMailbox.F3bComposedGateExpiresAfterIdleTickWake: composed mailbox publishes the accepted probe demand
+    first: [FAIL] AcmpMailbox.F3bComposedGateExpiresAfterIdleTickWake: service tick wakes an idle platform for freshness expiry
+    first: [FAIL] AcmpMailbox.F3bComposedGateExpiresAfterIdleTickWake: mailbox composition supplies the Milan freshness interval
+    first: [FAIL] MaapHost.DaGateFreshProbeDeclaresOnlyItsSource: fresh probe opens only its configured source
+    first: [FAIL] MaapHost.DaGateIsPublishedBeforeEachAllocationIsReported: DA gate opens the eight sources before the allocation is reported
+    first: [FAIL] MaapHost.DaGateFreshProbeDeclaresOnlyItsSource: fresh probe opens only its configured source
+    first: [FAIL] AcmpMailbox.F3bListenerRequiresSourceDestination: published source predicate includes destination validity and interface
+    first: [FAIL] MaapHost.DaGateProbeExpiresAtFifteenSeconds: probe expires at 15000 milliseconds without a Listener
+    first: [FAIL] MaapHost.DaGateListenerDeclaresWithoutProbe: last Listener withdrawal closes a gate without probe demand
+    first: [FAIL] AdpWalk.P1toP5FirstAdvertAndCadence: P5 GM_CHANGE re-advertises with the new grandmaster sampled at build (5.6.3.5.7)
+    first: [FAIL] Table551/AdpWalkCell.Graded/LINK_UP_x_DOWN: LINK_UP x DOWN: the draw is the 0..4 s kind
+    first: [FAIL] AdpCore.A9DrawKinds: A9 every startup draw is 0..2 s and every other draw 0..4 s
+    first: [FAIL] AdpCore.A9DrawKinds: A9 the two kinds are distinct: the 0..4 s draws pass 2 s
+    first: [FAIL] AdpCore.A9DrawKinds: A9 and both reach near their maxima
+    first: [FAIL] AdpCore.A19IgnoredInputsKeepTheOwedAvailable: A19 a GM change in DELAY leaves the owed ENTITY_AVAILABLE owed, no timer started
+    first: [FAIL] AdpCore.A0toA2Schedule: A2 GM_CHANGE in WAITING: DELAY with a 0..4 s draw (5.6.3.5.7)
+    first: [FAIL] AdpFirstAvailable.G1G5WithinTheLinkUpDrawOfEveryLinkUp: G1 each ENTITY_AVAILABLE carries the next available_index, across every link-up (6.2.2.15)
+    first: [FAIL] Sinks.S1EveryAafInputAboveZeroHoldsItsFormatAtReady: S1 every AAF input above 0 holds its current format: input 1 holds none
+    first: [FAIL] Sinks.S2SetStreamFormatMovesOnlyThatContextAndABoundInputRefuses: S2 SET_STREAM_FORMAT's new format reaches input 7's context
+    first: [FAIL] Sinks.S3AnUnacknowledgedCommitWritesNoContext: S3 a commit never acknowledged writes no context
+    first: [FAIL] Sinks.S2SetStreamFormatMovesOnlyThatContextAndABoundInputRefuses: S2 written after the change's acknowledged commit
+    first: [FAIL] Sinks.S4AChangeWaitingForItsAcknowledgementIsWrittenOnceInForce: S4 a change waiting for its acknowledgement writes no context
+    first: [FAIL] Sinks.S4AChangeWaitingForItsAcknowledgementIsWrittenOnceInForce: S4 the change done again reaches input 7's context
+    first: [FAIL] Sinks.S6AWaitingChangeIsNotDoneAgainOntoAnInputBoundAndSettledMeanwhile: S6 a change whose input was bound meanwhile is answered ENTITY_MISBEHAVING at the wait's bound
+    first: [FAIL] Sinks.S2SetStreamFormatMovesOnlyThatContextAndABoundInputRefuses: S2 SET_STREAM_FORMAT's new format reaches input 7's context
+    first: [FAIL] Sinks.S7AWaitingChangeIsNotDoneAgainOntoAnInputBoundWithItsProbeUnanswered: S7 a change whose input is bound, its probe unanswered, is answered ENTITY_MISBEHAVING at the wait's bound
+    first: [FAIL] Sinks.S10SetConfigurationWritesEveryContextAndOneWaitingIsNotDoneAgainOntoABoundInput: S10 a SET_CONFIGURATION whose input was bound meanwhile is answered ENTITY_MISBEHAVING at the wait's bound
+    first: [FAIL] Sinks.S8AChangeNeverAcknowledgedInItsWaitKeepsTheFormatInForce: S8 the refusal ends with the wait: another input's change is taken
+    first: [FAIL] Sinks.S11AChangeOfAnotherTypeOrKindAtAContextsIndexIsTakenAndWritesNoContext: S11 output 7's SET_STREAM_FORMAT is taken while input 7 is bound
+    first: [FAIL] Sinks.S11AChangeOfAnotherTypeOrKindAtAContextsIndexIsTakenAndWritesNoContext: S11 SET_NAME of input 7 writes no context
+    first: [FAIL] Sinks.S10SetConfigurationWritesEveryContextAndOneWaitingIsNotDoneAgainOntoABoundInput: S10 SET_CONFIGURATION rewrites every context at its format in force: input 1 holds none
+    first: [FAIL] Sinks.S2SetStreamFormatMovesOnlyThatContextAndABoundInputRefuses: S2 that input's context alone is written
+    first: [FAIL] Sinks.S5AChangeOfAnotherKindWritesNoContext: S5 SET_NAME writes no context
+    first: [FAIL] Sinks.S2SetStreamFormatMovesOnlyThatContextAndABoundInputRefuses: S2 that input's context alone is written
+    first: [FAIL] Plat.C6SinkContextIsAnAafInputAboveZeroOnInterfaceZero: C6 not input 0
+    first: [FAIL] Plat.C6SinkContextIsAnAafInputAboveZeroOnInterfaceZero: C6 not a CRF input
+    first: [FAIL] Plat.C6SinkContextIsAnAafInputAboveZeroOnInterfaceZero: C6 not a STREAM_OUTPUT
+    first: [FAIL] Plat.C6SinkContextIsAnAafInputAboveZeroOnInterfaceZero: C6 not another interface's input
+    first: [FAIL] Plat.C6SinkContextIsAnAafInputAboveZeroOnInterfaceZero: C6 not an input of a configuration not in force
+    first: [FAIL] Plat.C6SinkContextIsAnAafInputAboveZeroOnInterfaceZero: C6 not a descriptor too short to hold its interface
+    first: [FAIL] Plat.C5SinkFormatSelectsTheInputWritesItsFormatAndRestores: C5 listener 5 selected, FMT_LO then FMT_HI, the selection written back
+    first: [FAIL] Plat.C5SinkFormatSelectsTheInputWritesItsFormatAndRestores: C5 listener 5 selected, FMT_LO then FMT_HI, the selection written back
+    first: [FAIL] Plat.C5SinkFormatSelectsTheInputWritesItsFormatAndRestores: C5 listener 5 selected, FMT_LO then FMT_HI, the selection written back
+    first: [FAIL] Plat.C5SinkFormatSelectsTheInputWritesItsFormatAndRestores: C5 listener 5 selected, FMT_LO then FMT_HI, the selection written back
+    first: [FAIL] Sinks.S2SetStreamFormatMovesOnlyThatContextAndABoundInputRefuses: S2 a bound input refuses SET_STREAM_FORMAT
+    first: [FAIL] Sinks.S12ANarrowedInputFormatIsKeptAcrossAPowerCut: S12 input 0's narrowed format is restored after the cut
+    first: [FAIL] Early.S13ASavedBindingRestoredAtPowerOnDeclaresATalkerRegisteredBeforeItSettled: S13 a Talker Advertise registered before the restored binding settled: the Listener is declared in THE TRANSMIT's next MRPDU, input 0
+    first: [FAIL] Streams.S13AWaitingFormatChangeIsRefusedOntoAnInputWithNoContextBoundMeanwhile: S13 a waiting SET_STREAM_FORMAT of an input bound meanwhile is refused STREAM_IS_RUNNING once acknowledged: input 0
+    first: [FAIL] Streams.S13AWaitingFormatChangeIsRefusedOntoAnInputWithNoContextBoundMeanwhile: S13 a waiting SET_STREAM_FORMAT of an input bound meanwhile is refused STREAM_IS_RUNNING once acknowledged: input 1
+    first: [FAIL] Streams.T1GetTxStateCarriesRegisteringFailedWhileAListenerAskingFailedIsRegistered: T1 REGISTERING_FAILED while a Listener Asking Failed is registered for its stream, and not for Ready or Ready Failed (Table 5.47): output 0, declaration 1
+    first: [FAIL] Streams.T1GetTxStateCarriesRegisteringFailedWhileAListenerAskingFailedIsRegistered: T1 REGISTERING_FAILED while a Listener Asking Failed is registered for its stream, and not for Ready or Ready Failed (Table 5.47): output 0, declaration 2
+    first: [FAIL] Streams.T1GetTxStateCarriesRegisteringFailedWhileAListenerAskingFailedIsRegistered: T1 no REGISTERING_FAILED with no Listener registered: output 0
+    first: [FAIL] Streams.T1GetTxStateCarriesRegisteringFailedWhileAListenerAskingFailedIsRegistered: T1 no other output carries output 0's Listener: output 1, Asking Failed
+[ok] mutant pin-adp-short-discovery (adp): 124 check(s) failed
+    first: [FAIL] AdpAdapter.PinRejectsEveryTruncatedDiscovery: malformed discovery changes only the discard count through the parent adapter
+[ok] mutant pin-adp-discovery-version (adp): 26 check(s) failed
+    first: [FAIL] AdpAdapter.PinRejectsUnsupportedDiscoveryVersions: malformed discovery changes only the discard count through the parent adapter
+[ok] mutant pin-adp-discovery-length (adp): 20 check(s) failed
+    first: [FAIL] AdpAdapter.PinRejectsShortDiscoveryControlLength: malformed discovery changes only the discard count through the parent adapter
+[ok] mutant pin-adp-discovery-valid-time (adp): 16 check(s) failed
+    first: [FAIL] AdpAdapter.PinRejectsShortDiscoveryControlLength: malformed discovery changes only the discard count through the parent adapter
+[ok] mutant pin-adp-discovery-length-octet (adp): 17 check(s) failed
+    first: [FAIL] AdpAdapter.PinAcceptsLongDiscoveryThroughMailbox: a longer discovery restarts advertising through the mailbox
+[ok] mutant pin-adp-long-discovery (adp): 31 check(s) failed
+    first: [FAIL] AdpAdapter.PinAcceptsLongDiscoveryThroughMailbox: a longer discovery restarts advertising through the mailbox
+[ok] mutant pin-adp-valid-discovery (adp): 99 check(s) failed
+    first: [FAIL] AdpCore.A3toA5DiscoverAndDiscard: A3 RCV_ADP_DISCOVER in DELAY is ignored (Table 5.51)
+    first: [FAIL] DriverUnit.D14PublicationBlock: D14 SID_VALID is clear while the stream_id is written, and set after it
+    first: [FAIL] DriverUnit.D14PublicationBlock: D14 SID_LO holds stream_id[31:0]
+    first: [FAIL] DriverUnit.D14PublicationBlock: D14 SR_DOMAIN holds VID, PRIORITY and ADOPTED in their fields
+    first: [FAIL] DriverUnit.D14PublicationBlock: D14 DA_GATE.OPEN holds the gate
+    first: [FAIL] DriverUnit.D14PublicationBlock: D14 a sink past the block's is refused
+    first: [FAIL] DriverUnit.D14PublicationBlock: D14 a sink past the block's is refused
+    first: [FAIL] DriverUnit.D14PublicationBlock: D14 SID_VALID is clear while the stream_id is written, and set after it
+    first: [FAIL] DriverUnit.D14PublicationBlock: D14 a stop with the stream unchanged: BINDING alone, STARTED clear, SID_VALID kept, one write
+    first: [FAIL] DriverUnit.D14PublicationBlock: D14 LICENCE.ACTIVE holds the licences
+    first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/Publication: P2 every field reaches the datapath on its own output, for its own interface and sink
+    first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/Publication: P1 DA_GATE keeps OPEN, LICENCE ACTIVE, IDLE_SLOPE every bit, SR_DOMAIN VID, PRIORITY and ADOPTED, TALKER_DECL DECLARED, BINDING BOUND, SID_VALID and STARTED only, per interface and sink
+    first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/Publication: P1 DA_GATE keeps OPEN, LICENCE ACTIVE, IDLE_SLOPE every bit, SR_DOMAIN VID, PRIORITY and ADOPTED, TALKER_DECL DECLARED, BINDING BOUND, SID_VALID and STARTED only, per interface and sink
+    first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/Publication: P1 DA_GATE keeps OPEN, LICENCE ACTIVE, IDLE_SLOPE every bit, SR_DOMAIN VID, PRIORITY and ADOPTED, TALKER_DECL DECLARED, BINDING BOUND, SID_VALID and STARTED only, per interface and sink
+    first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/Publication: P2 every field reaches the datapath on its own output, for its own interface and sink
+    first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/Face: F4 CTR an answer under another tag is discarded: still BUSY, no DATA
+    first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/Face: F4 CTR unanswered past its wait bound it closes with TIMEOUT, the last answer kept
+    first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/Face: F3 every setting and entry write, and a second commit, is refused while BUSY and counted
+    first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/Face: F2 every setting, entry and request field reaches the datapath on its own port, for its own interface
+    first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/Face: F8 one face event posts its record, on its interface, with COUNT 1 and NOW_MS
+    first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/Face: F9 the next epoch posts the descriptor that changed meanwhile, once, its changes coalesced
+    first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/Publication: P1 each source's entry reads back the stream_id written to it, at its own interface, and only that
+    first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/Publication: P2 each source's SRC_SID_HI:SRC_SID_LO reaches the datapath on pub_src_sid_o, for its own interface and source
+    first: [FAIL] AcmpCore.A31TheBindingIsPublishedBeforeTheResponseThatPromisesIt: A31 the binding is published before the BIND_RX response
+    first: [FAIL] AcmpCore.A31TheBindingIsPublishedBeforeTheResponseThatPromisesIt: A31 a PROBE_TX_RESPONSE that settles publishes the stream
+    first: [FAIL] AcmpCore.A31TheBindingIsPublishedBeforeTheResponseThatPromisesIt: A31 the stream_id the response carried (5.5.3.5.18 step 4)
+    first: [FAIL] AcmpCore.A31LeavingSettlementTakesTheStreamOffTheDatapath: A31 TMR_NO_TK publishes the sink without its stream (5.5.3.5.36 step 1)
+    first: [FAIL] AcmpCore.A31TheBindingIsPublishedBeforeTheResponseThatPromisesIt: A31 a BIND_RX publishes the sink's binding once
+    first: [FAIL] AcmpCore.A31ACallBackFromThePublishPortIsRefused: A31 an UNBIND_RX and a poll from inside the publish port are counted and change nothing (#678)
+    first: [FAIL] AcmpCore.A31RestoredBindingsArePublishedWhenTheTransportOpens: A31 a sink the store resets is published unbound at the next open
+    first: [FAIL] AcmpMailbox.B10ThePublicationBlockFollowsEachBindingAheadOfItsResponse: B10 a BIND_RX publishes its sink bound, with no stream, interface 0
+    first: [FAIL] AcmpCore.A31TheStartedLevelIsPublishedBeforeItIsPromised: A31 the started move is published before the BIND_RX response
+    first: [FAIL] AcmpCore.A31TheBindingIsPublishedBeforeTheResponseThatPromisesIt: A31 and before the notifier hears of the settled sink
+    first: [FAIL] AcmpCore.A31TheStartedLevelIsPublishedBeforeItIsPromised: A31 a bind with STREAMING_WAIT is published bound and stopped
+    first: [FAIL] AcmpCore.A31TheStartedLevelIsPublishedBeforeItIsPromised: A31 a re-bind to the same talker without STREAMING_WAIT publishes once
+    first: [FAIL] AcmpMailbox.B12TheStartedLevelIsOneBindingWriteThatKeepsTheStream: B12 a started move is one write to the sink's entry, interface 0
+    first: [FAIL] AcmpMailbox.B12TheStartedLevelIsOneBindingWriteThatKeepsTheStream: B12 that write is BINDING, with SID_VALID kept and STARTED moved, interface 0
+    first: [FAIL] AcmpMailbox.B13AMoveWithNoStreamLeavesSidValidClearOverAStaleStream: B13 a BIND_RX of a sink with no settled stream writes only BINDING, SID_VALID clear, interface 0
+    first: [FAIL] MaapHost.DaGateIsPublishedBeforeEachAllocationIsReported: DA gate opens the eight sources before the allocation is reported
+    first: [FAIL] MaapHost.DaGateIsPublishedBeforeEachAllocationIsReported: DA gate opens the eight sources before the allocation is reported
+    first: [FAIL] MaapHost.DaGateIsPublishedBeforeEachAllocationIsReported: DA gate opens the eight sources before the allocation is reported
+    first: [FAIL] MaapHost.DaGateIsPublishedBeforeEachAllocationIsReported: DA gate closed while the range is only probed, interface 0
+    first: [FAIL] MaapHost.DaGateOpensOnTheAcquiringInterfaceAloneBeforeItsReport: DA gate of the acquiring interface opens before its own report
+    first: [FAIL] MaapHost.DaGateIsPublishedBeforeEachAllocationIsReported: DA gate: more sources than the publication block has are refused
+mutants: 847 of 847 caught
+porcelain-after 0 END rc=0 22:52:54

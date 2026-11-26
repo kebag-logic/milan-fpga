@@ -1,0 +1,79 @@
+# lane tool package.py
+#!/usr/bin/env python3
+"""package.py: copy the lane's receipts into the packet, host paths and the host name replaced by placeholders;
+refuse a file at 200 KB or naming an assistant tool or model; write INDEX.md (path, size, sha256 prefix, first line)."""
+import hashlib, re, subprocess, sys
+from pathlib import Path
+S = Path("<scratch>"); U = S / "units"
+O = Path("<mgmt>/2026-09-23/pins1125-a850/receipts")
+SUBS = ((str(S), "<scratch>"), ("<lane>", "<lane>"), ("<mgmt>", "<mgmt>"),
+        ("<tools>", "<tools>"), ("<tools>", "<tools>"), ("<home>", "<home>"),
+        ("<data2>", "<data2>"), ("<data>", "<data>"), ("<host>", "<host>"))
+_W = [w[::-1] for w in ("edualc", "ciporhtna", "ianepo", "tpgtahc", "xedoc", "supo", "tennos", "ukiah", "inimeg", "tolipoc")]
+BANNED = re.compile("|".join([r"\b" + w + r"\b" for w in _W] + [r"\bgpt-\d"]), re.I)
+def clean(t):
+    for a, b in SUBS: t = t.replace(a, b)
+    return t
+def put(dest, text, head):
+    p = O / dest; p.parent.mkdir(parents=True, exist_ok=True)
+    t = clean(head.rstrip() + "\n" + text)
+    assert not BANNED.search(t), dest
+    p.write_text(t); assert p.stat().st_size < 200_000, (dest, p.stat().st_size)
+def src(path, pick=None, tail=None):
+    t = Path(path).read_text(errors="replace"); lines = t.splitlines()
+    if pick: lines = [l for l in lines if re.search(pick, l)]
+    if tail: lines = lines[-tail:]
+    return "\n".join(lines) + "\n"
+H = "a6864a49293ba3d0df37029abfa581468ef78dce"; M = "d0483d08e6722404b54f3ce4aa13b885001c500b"; B = "c34e7d8b06739a22cc79997a9a1f4cbcd9bd0350"
+P = "1a76c9de2b684be5ed3e1f9a068020937f8d7d6b"
+for k in range(4):
+    put(f"firmware/shard-{k}.log", src(U/f"mfw{k}.log", r"^HEAD|END rc|RESULT|mutant pin-adp|first: \[FAIL\] AdpAdapter|mutants: |\[FAIL\]|caught"), f"# test_ctrl_firmware.py --require-rv32 --self-test --jobs 4 --shard {k}/4 at {M} (clean clone); verdict lines")
+put("firmware/boundary-without-verilator.log", src(U/"mbdhead.log", tail=60), f"# ctrl_boundary.py --require-rv32 --selftest --without verilator at {M}; last 60 lines")
+put("firmware/boundary-only-verilator.log", src(U/"mbdver.log", tail=60), f"# ctrl_boundary.py --require-rv32 --selftest --only verilator at {M} (compiler cache off); last 60 lines")
+put("firmware/boundary-pre-merge-refusal.txt", src(U/"boundary.log", r"REFUSED", tail=2)[:3000], f"# ctrl_boundary.py --require-rv32 --selftest (every builder) at {P}, compiler cache on: refused on a precompiled header the cache made; not a finding of the change, re-run as the two CI legs above")
+for n, rev in (("megh", M), ("megb", B)):
+    put(f"ledgers/egress-ledger-{'head' if n=='megh' else 'base'}.log", src(U/f"{n}.log", tail=45), f"# CPU-budget harness backlog-owed,srp-bound at 8x8-1if, then egress_ledger.py --point 8x8-1if and --selftest, at {rev}; run rc 1 is the srp-bound-alone STATED line, the same at both")
+for n, rev in (("mledh", M), ("mledb", B)):
+    put(f"ledgers/plat-ledger-{'head' if n=='mledh' else 'base'}.log", src(U/f"{n}.log", r"POINT|plat_ledger|ctrl_app|HEAD"), f"# plat_ledger.py at {rev}: points and image digests")
+put("gptp/gptp_plane.log", src(U/"mplane.log", r"checks|PASS|FAIL|campaign|RESULT|lifecycle|real"), f"# make -C tb/verilator/gptp_plane (run, phc-step, link-delay) and gptp_shadow lifecycle at {M}")
+put("gptp/gptp_shadow.log", src(U/"mshcamp.log", r"checks|\[ ok \]|\[FAIL\]|controls|RESULT|lifecycle|real"), f"# make -C tb/verilator/gptp_shadow (lifecycle and the 14-control campaign) at {M}")
+put("gptp/gptp_shadow-run-prelim.log", src(U/"shcamp.log", r"checks:|INFO #109|\[ ok \]|controls|real"), f"# gptp_shadow run, mutants and lifecycle at {P} (before the merge)")
+put("gptp/milan_dp-gptp-legs.log", src(U/"mgptp.log", r"\[#109\]|checks:|^FAIL|\[CA\]|\[T-LAT\]"), f"# make -C tb/verilator/milan_dp gptp && gptp-lat at {M}")
+put("gptp/gptp_tables-txts.log", src(U/"mtabtx.log", r"checks|controls|RESULT|FAIL"), f"# make -C tb/verilator/gptp_tables and gptp_txts at {M}")
+put("gptp/tsn_fuzz.log", src(U/"mfuzz.log", tail=40), f"# make -C tb/verilator/tsn_fuzz at {M}, TSN_GEN_ROOT set; last 40 lines")
+put("gptp/milan_dp_gm_steps.log", src(U/"mgmsteps.log", r"checks|controls|RESULT|FAIL|caught"), f"# make -C tb/verilator/milan_dp_gm_steps at {M}")
+put("gptp/milan_dp_gptp-physical.log", src(U/"mphys.log", r"checks|controls|RESULT|FAIL|ok \]", tail=80), f"# make -C tb/verilator/milan_dp_gptp (the physical leg) at {M}")
+put("gptp/old-generator-red.log", src(U/"oldred.log"), "# the new phases against the 1213ac5b generator")
+for c in ("old-80-floor", "floor-removed", "clamp-removed"):
+    put(f"gptp/probe-{c}.log", src(U/f"probe-{c}.log"), f"# disposable probe at {P}: {c} planted, gptp_shadow run; every FAIL line")
+for n, what in (("eng-j1", "MAKEFLAGS=-j1 make run"), ("eng-j8", "MAKEFLAGS=-j8 make run, then make passes-test"), ("eng-js", "a parent make -j4 whose recipe is +$(MAKE) -C engine run, beside one other job")):
+    put(f"engine/{n}.log", src(U/f"{n}.log", r"checks:|real|rc=|\[PASS\]|\[FAIL\]|passes test"), f"# gptp-processor at 3009f9a2, tb/verilator/engine: {what}")
+put("engine/passes-test-with-donor-fix.log", src(U/"donorfix.log", r"\[PASS\]|\[FAIL\]|passes test"), "# make passes-test with receipts/donor-idiom-fix.patch applied to 3009f9a2")
+put("docs/py-idiom-with-and-without-donor-fix.log", (S/"idiom.txt").read_text(), "# the Python idiom gate on a clean clone of the merge")
+put("docs/docs-workflow-steps.log", src(U/"docs4.log"), f"# every run: step of docs.yml's gate jobs at {H} (docs_steps.py)")
+put("pin/image-inputs.txt", (S/"image-inputs.txt").read_text(), "# the ruled pin against the routed gitlink")
+for n, what in (("rplane", "make -C tb/verilator/gptp_plane"), ("rshadow", "make -C tb/verilator/gptp_shadow"), ("rdp", "make -C tb/verilator/milan_dp gptp && make gptp-lat")):
+    put(f"pin/{n}.log", src(U/f"{n}.log", r"checks:|campaign|controls:|RESULT|lifecycle: PASS|\[ ok \]|\[FAIL\]|^FAIL|\[#109\]|PASS planted"), f"# {what} at {H} (gPTP 3ce71b76)")
+put("docs/ratchet-steps.log", "".join(src(p, tail=14) for p in sorted((S/"docs4/logs").glob("*Test_evidence*")) + sorted((S/"docs4/logs").glob("*Python_idiom*"))), f"# the test evidence and Python idiom steps at {H} (both rc 0), each step's last lines")
+for q, tag in (("q", "head"), ("qb", "base")):
+    for f in sorted((S/"viv"/q).glob("signoff-*.txt")):
+        put(f"routes/{tag}-{f.stem.replace('signoff-','')}-signoff.txt", f.read_text(), f"# {tag} ({M if tag=='head' else B}) {f.stem}: signoff corners")
+    for f in sorted((S/"viv"/q).glob("identity-*.log")):
+        put(f"routes/{tag}-{f.stem.replace('identity-','')}-identity.txt", f.read_text(), f"# {tag} {f.stem}: check_image_identity.py")
+for w, tag in (("work", "head"), ("workb", "base")):
+    for g in sorted((S/"viv"/w).glob("*/build_*/gateware")):
+        r = subprocess.run(["python3", str(S/"viv/tools/util.py"), str(g)], capture_output=True, text=True).stdout
+        put(f"routes/{tag}-{g.parent.parent.name}-{g.parent.name[6:]}-utilization.txt", r, f"# {tag} {g.parent.parent.name} {g.parent.name}: placed utilization")
+put("routes/chain.log", (S/"viv/q/chain.log").read_text() + (S/"viv/qb/chain.log").read_text(), "# route chains: head then base")
+put("routes/oom-first-attempt.txt", (S/"viv/q-oom/chain.log").read_text(), "# the first chains at 9b40757e, ended at 21:10 by the unit's 12 GB memory cap (oom-kill); not used")
+for t in ("chain.sh", "chain_base.sh", "gbuild.sh", "gprep.sh", "boot.sh", "one.sh", "signoff.py", "util.py"):
+    put(f"tools/{t}.txt", (S/"viv/tools"/t).read_text(), f"# route tool {t}")
+for t in ("eg.sh", "ledger.sh", "fwgate.sh", "mkclone.sh", "probe.py", "probes.sh", "oldred.sh", "docs_steps.py", "u.sh", "w.sh", "package.py"):
+    put(f"tools/{t}.txt", (S/"bin"/t).read_text(), f"# lane tool {t}")
+rows = []
+for p in sorted(O.rglob("*")):
+    if p.is_file() and p.name != "INDEX.md":
+        b = p.read_bytes(); first = b.split(b"\n", 1)[0].decode(errors="replace")[:150].replace("|", "/")
+        rows.append(f"| `{p.relative_to(O)}` | {len(b):,} | `{hashlib.sha256(b).hexdigest()[:16]}` | {first} |")
+(O / "INDEX.md").write_text(f"# Receipts (generated)\n\n{len(rows)} files, none at 200 KB; host paths and the host name are placeholders.\n\n| File | Bytes | sha256 | First line |\n|---|---:|---|---|\n" + "\n".join(rows) + "\n")
+print(len(rows), "files")

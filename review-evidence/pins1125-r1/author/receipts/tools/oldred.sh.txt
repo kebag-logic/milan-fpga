@@ -1,0 +1,8 @@
+# lane tool oldred.sh
+#!/bin/bash
+# oldred.sh: the new gptp_plane and gptp_shadow phases against the 1213ac5b generator (the image the old pin made), in a disposable clone
+S=<scratch>; . $S/bin/env.sh; C=$S/clones/oldgen
+bash $S/bin/mkclone.sh oldgen $1 >/dev/null || exit 3
+git -C <lane>/gptp-processor show 1213ac5b9e09b8759ba76cc70c53652b5e108996:hdl/ucode/gen_gptp_ucode.py > $C/gptp-processor/hdl/ucode/gen_gptp_ucode.py
+echo "# head $1; gptp-processor/hdl/ucode/gen_gptp_ucode.py replaced by 1213ac5b's"
+for s in gptp_plane gptp_shadow; do echo "== make -C tb/verilator/$s run"; make -C $C/tb/verilator/$s run 2>&1 | awk '/^FAIL|checks:/'; done

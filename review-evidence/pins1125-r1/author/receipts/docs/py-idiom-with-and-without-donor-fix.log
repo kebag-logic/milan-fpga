@@ -1,0 +1,25 @@
+# the Python idiom gate on a clean clone of the merge
+# check_py_idiom.py at d0483d08e6722404b54f3ce4aa13b885001c500b, gptp-processor 3009f9a2 with donor-idiom-fix.patch applied in the working tree
+py idiom: 711 first-party modules, 338107 lines
+  bare except: 0
+  mutable default argument: 0
+  shell invocation: 0
+  shadowed builtin: 0
+  wildcard import: 0
+  dynamic eval/exec: 0
+  unparseable source: 0
+  long function: 9 <= 9
+  long module: 10 <= 10
+  unannotated public function: 0 <= 0
+  undocumented public function: 0 <= 0
+  os.path use: 1 <= 1
+  unmanaged open: 0 <= 0
+  too many parameters: 7 <= 7
+  global statement: 0 <= 0
+  over-long line: 0 <= 0
+rc=0
+# and without it
+FAIL: unannotated public function 1 > ratchet 0. New Python complies immediately; see Rule 12 in docs/development/CODE_QUALITY.md.
+FAIL: undocumented public function 7 > ratchet 0. New Python complies immediately; see Rule 12 in docs/development/CODE_QUALITY.md.
+FAIL: too many parameters 8 > ratchet 7. New Python complies immediately; see Rule 12 in docs/development/CODE_QUALITY.md.
+rc=1

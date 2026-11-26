@@ -1,0 +1,12 @@
+# lane tool mkclone.sh
+#!/bin/bash
+# mkclone.sh NAME REV: a --shared clone of the lane at REV with its submodules (not external), clean
+set -eu
+S=<scratch>/clones; L=<lane>; C=$S/$1
+[ -d $C ] || git clone -q --shared --no-checkout $L $C
+cd $C; git fetch -q $L $2; git -c advice.detachedHead=false checkout -q -f --detach $2
+for d in $(git config -f .gitmodules --get-regexp '^submodule\..*\.path$' | awk '{print $2}' | grep -vx external); do
+  git config submodule.$d.url $L/$d
+done
+git -c protocol.file.allow=always submodule update -q --init --force $(git config -f .gitmodules --get-regexp '^submodule\..*\.path$' | awk '{print $2}' | grep -vx external)
+echo "$1 at $(git rev-parse HEAD) porcelain $(git status --porcelain --untracked-files=no | wc -l)"

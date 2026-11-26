@@ -1,0 +1,19 @@
+# make -C tb/verilator/gptp_shadow at a6864a49293ba3d0df37029abfa581468ef78dce (gPTP 3ce71b76)
+483 checks: 483 PASS, 0 FAIL
+mutant lifecycle: PASS (normal/repeat, fourteen named defects, survivor, build, unread-file and Git-setting acceptance, input/Git-redirect/record/facility refusals, INT/TERM/KILL, unsafe negative controls)
+[ ok ] abort_counts_as_completion: caught by "aborted episode: the demand survives it"
+[ ok ] no_generation_check: caught by "generation zero: the ledger refused it and raised a barrier"
+[ ok ] no_tag_check: caught by "foreign tag: the ledger refused it and raised a barrier"
+[ ok ] age_never_expires: caught by "aged head: the age expired and was counted"
+[ ok ] observer_latency_off_by_one: caught, though not by "launch: the reconstruction is the launch instant"; broke ['every measured result reconstructs its own launch']
+[ ok ] crossing_latency_off_by_one: caught, though not by "launch: the reconstruction is the launch instant"; broke ['every measured result reconstructs its own launch', 'phc: a held disable keeps the guard loaded', 'phc: a settime reloads the guard']
+[ ok ] no_fence: caught by "torn frame: a frame was mid-egress when the fence closed"
+[ ok ] unseal_without_echo: caught by "echo: the seal outlasts it"
+[ ok ] credit_never_withheld: caught, though not by "credit: the engine is held off at the reserve"; broke ['#106 reserve: the plane starts with no egress result owed', '#106 seal: the plane starts with no egress result owed', '#106: the plane starts with no egress result owed']
+[ ok ] first_master_announce_waits_for_a_beat: caught by "#106 race: one master Announce reaches the lane before the re-election"
+[ ok ] word3_applies_only_during_a_slew: caught by "#107 settled +100 ppm: the mastership's PHC rate is this oscillator's, 0"
+[ ok ] announce_leg_ignores_the_credit: caught by "#106 reserve: no master Announce reaches the lane without credit"
+[ ok ] master_announce_reaches_the_lane_after_the_re_election: caught by "#106 race: one master Announce reaches the lane before the re-election"
+[ ok ] public_bank_publishes_a_negative_delay: caught by "#109 -263 ns: the public bank reads 0"
+controls: 14   failures: 0
+RESULT: PASS

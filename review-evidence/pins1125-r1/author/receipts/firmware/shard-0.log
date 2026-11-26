@@ -1,0 +1,110 @@
+# test_ctrl_firmware.py --require-rv32 --self-test --jobs 4 --shard 0/4 at d0483d08e6722404b54f3ce4aa13b885001c500b (clean clone); verdict lines
+HEAD d0483d08e6722404b54f3ce4aa13b885001c500b porcelain 0 shard 0/4 cpus 0-95 start 22:11:08
+    RESULT: PASS
+    RESULT: PASS
+    RESULT: PASS
+    RESULT: PASS
+    RESULT: PASS
+    RESULT: PASS
+    RESULT: PASS
+    RESULT: PASS
+    RESULT: PASS
+    RESULT: PASS
+    RESULT: PASS
+    RESULT: PASS
+    RESULT: PASS
+    RESULT: PASS
+    RESULT: PASS
+    RESULT: PASS
+    RESULT: PASS
+    RESULT: PASS
+    RESULT: PASS
+    RESULT: PASS
+    RESULT: PASS
+    RESULT: PASS
+    RESULT: PASS
+    RESULT: PASS
+    RESULT: PASS
+    RESULT: PASS
+    RESULT: PASS
+    18 planted defects caught: swapped-opportunities, collapsed-opportunities, plus-k-off-by-one, wrong-AttributeEvent, wrong-FourPackedEvent, dropped-declaration, extra-declaration, duplicated-declaration, LeaveAll-wrong-attribute-type, malformed-PDU-EndMark, malformed-list-EndMark, wrong-ProtocolVersion, wrong-AttributeLength, wrong-AttributeListLength, reserved-ThreePackedEvents, reserved-LeaveAllEvent, truncated-PDU-EndMark, oversized-frame
+    [caught] stale-name: LINKED: hot-list name *-ctrl_loop.o(.text.ctrl_loop_service_old) is no section of the linked image
+    [caught] absent-from-image: LINKED: hot-list name *-ctrl_loop.o(.text.ctrl_loop_service) is no section of the linked image
+    [caught] only-discarded: LINKED: hot-list name *-ctrl_loop.o(.text.ctrl_loop_service) is no section of the linked image
+    [caught] reordered: ORDER: the hot list is not the order ctrl_split_hot.txt records: entry 1 is *-nvm_store.o(.text.nvm_store_clock), recorded *-ctrl_loop.o(.text.ctrl_loop_service)
+    [caught] dropped: ORDER: the hot list is not the order ctrl_split_hot.txt records: entry 2 is *-nvm_store.o(.text.nvm_now), recorded *-nvm_store.o(.text.nvm_store_clock)
+    [caught] unrecorded: ORDER: the hot list is not the order ctrl_split_hot.txt records: entry 267 is *-mbx.o(.text.mbx_open), recorded the end
+    [caught] recorded-elsewhere: ORDER: the hot list is not the order ctrl_split_hot.txt records: entry 2 is *-nvm_store.o(.text.nvm_store_clock), recorded *-nvm_store.o(.text.nvm_now)
+    [caught] no-end-marker: ORDER: ctrl_split.ld holds no hot list of entries alone between _ctrl_hot_start = .; and _ctrl_hot_end = .;
+    named plants not caught: none
+    RESULT: PASS
+    RESULT: PASS
+    RESULT: PASS
+    RESULT: PASS
+    RESULT: PASS
+    RESULT: PASS
+    RESULT: PASS
+    RESULT: PASS
+    RESULT: PASS
+    RESULT: PASS
+    RESULT: PASS
+    RESULT: PASS
+    RESULT: PASS
+    RESULT: PASS
+    RESULT: PASS
+    RESULT: PASS
+    RESULT: PASS
+    RESULT: PASS
+    RESULT: PASS
+    RESULT: PASS
+    RESULT: PASS
+    RESULT: PASS
+    RESULT: PASS
+    RESULT: PASS
+    RESULT: PASS
+    RESULT: PASS
+    RESULT: PASS
+    RESULT: PASS
+    RESULT: PASS
+    RESULT: PASS
+    RESULT: PASS
+    RESULT: PASS
+    RESULT: PASS
+    RESULT: PASS
+    RESULT: PASS
+    RESULT: PASS
+    RESULT: PASS
+    RESULT: PASS
+    RESULT: PASS
+    RESULT: PASS
+    RESULT: PASS
+    RESULT: PASS
+    RESULT: PASS
+    RESULT: PASS
+    RESULT: PASS
+    RESULT: PASS
+    RESULT: PASS
+    RESULT: PASS
+    RESULT: PASS
+    RESULT: PASS
+    RESULT: PASS
+    RESULT: PASS
+    RESULT: PASS
+    RESULT: PASS
+    RESULT: PASS
+    RESULT: PASS
+    RESULT: PASS
+    RESULT: PASS
+    RESULT: PASS
+    RESULT: PASS
+    RESULT: PASS
+    RESULT: PASS
+    RESULT: PASS
+    plant a write skipped: caught
+    plant two writes reordered: caught
+    plant a wrong word: caught
+    RESULT: PASS
+    RESULT: PASS
+    RESULT: PASS
+    RESULT: PASS
+porcelain-after 0 END rc=0 22:28:03

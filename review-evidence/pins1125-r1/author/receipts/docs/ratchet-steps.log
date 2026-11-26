@@ -1,0 +1,29 @@
+# the test evidence and Python idiom steps at a6864a49293ba3d0df37029abfa581468ef78dce (both rc 0), each step's last lines
+[PASS] a changed suite budget is rejected: SUITE_TIMEOUT:-3600
+[PASS] a changed suite budget is rejected: SUITE_TIMEOUT:-4800
+[PASS] a changed suite budget is rejected: SUITE_TIMEOUT:-6900
+[PASS] a changed suite budget is rejected: capture_coherence)
+[PASS] a changed suite budget is rejected: milan_dp_gptp)
+[PASS] a changed suite budget is rejected: milan_dp_mclk)
+[PASS] a changed suite budget is rejected: milan_dp)
+[PASS] a changed suite budget is rejected: TMO=$(suite_timeout "$suite")
+[PASS] the live scan sees the suites
+[PASS] both sides of the mutation split are non-empty
+[PASS] every live arm sits on a target the entry executes
+[PASS] every DUT-source reader has a current disposition
+
+105 checks: 105 PASS, 0 FAIL
+[PASS] a count equal to its budget passes with no note
+[PASS] a count below its budget passes and names the lowerable value
+[PASS] a missing budget entry fails the ratchet
+[PASS] a malformed budget value is no entry
+[PASS] the scan reaches over 100 first-party modules
+[PASS] the scan reaches protocol-processor
+[PASS] the scan reaches gptp-processor
+[PASS] the live population is complete
+[PASS] an empty population is refused
+[PASS] a population missing a tree is refused
+[PASS] the ratcheted populations are non-empty
+[PASS] the checked-in budget carries every ratcheted key
+
+54 checks: 54 PASS, 0 FAIL

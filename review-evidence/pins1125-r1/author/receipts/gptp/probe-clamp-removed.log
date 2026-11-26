@@ -1,0 +1,11 @@
+# disposable probe at 1a76c9de2b684be5ed3e1f9a068020937f8d7d6b: clamp-removed planted, gptp_shadow run; every FAIL line
+planted clamp-removed
+FAIL pdelay matches the records       got 0000000000000000 exp 0000000000000001
+FAIL negative pdelay clamps at the unsigned publication boundary got 00000000ffffffd1 exp 0000000000000000
+FAIL #109 -3 ns: the public bank reads 0 got 00000000fffffffd exp 0000000000000000
+FAIL #109 -80 ns: the public bank reads 0 got 00000000ffffffb0 exp 0000000000000000
+FAIL #109 -81 ns: the public bank reads 0 got 00000000ffffffaf exp 0000000000000000
+FAIL #109 -263 ns: the public bank reads 0 got 00000000fffffef9 exp 0000000000000000
+FAIL #109 -801 ns: the public bank reads 0 got 00000000fffffce0 exp 0000000000000000
+FAIL #109 -5000000 ns: the public bank reads 0 got 00000000fffffce0 exp 0000000000000000
+483 checks: 475 PASS, 8 FAIL

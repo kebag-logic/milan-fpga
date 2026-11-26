@@ -1,0 +1,19 @@
+# lane tool probe.py
+#!/usr/bin/env python3
+"""probe.py CLONE CASE: plant one donor/parent defect in a disposable clone, run the shadow suite and report the named failures."""
+import subprocess, sys
+from pathlib import Path
+clone, case = Path(sys.argv[1]), sys.argv[2]
+gen = clone/"gptp-processor/hdl/ucode/gen_gptp_ucode.py"
+FLOOR = ('    p.emit("ALU", rd=RT, ra=RD_, rb=0, cnd=ALU_ADD, imm=NPD_HI_C)\n    p.emit("ALU", rd=RU, ra=RT, rb=0, cnd=ALU_SAR, imm=63)\n'
+ '    p.emit("ALU", rd=RT, ra=RT, rb=RU, cnd=ALU_AND)\n    p.emit("ALU", rd=RD_, ra=RD_, rb=RT, cnd=ALU_SUB)\n')
+VERDICT = ('    p.emit("ALU", rd=RT, ra=RD_, rb=0, cnd=ALU_SUB, imm=NPD_HI_C + 1)\n    p.emit("ALU", rd=RT, ra=RT, rb=0, cnd=ALU_SHR, imm=63)\n'
+ '    p.emit("CMP", ra=RT, rb=0, fmt=FMT_D, imm=0)\n    p.emit("BRS", cnd=BRS_Z, label="bad")            # D - 801 >= 0\n')
+OLD = ('    p.emit("ALU", rd=RT, ra=RD_, rb=0, cnd=ALU_ADD, imm=80)\n    p.emit("CMP", ra=RT, rb=0, fmt=FMT_D, imm=NPD_HI_C + 80 + 1)\n'
+ '    p.emit("BRS", cnd=BRS_LT, label="good")\n    p.emit("BR", label="bad")\n')
+bank = clone/"hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv"
+CL = "        pub_pdelay_ns_o <= pub_pdelay_raw_w[31] ? 32'd0\n                                                : pub_pdelay_raw_w;\n"
+cases = {"old-80-floor": (gen, VERDICT, OLD), "floor-removed": (gen, FLOOR, ""), "clamp-removed": (bank, CL, "        pub_pdelay_ns_o <= pub_pdelay_raw_w;\n")}
+f, old, new = cases[case]
+t = f.read_text(); assert t.count(old) == 1, (case, t.count(old)); f.write_text(t.replace(old, new))
+print("planted", case, flush=True)

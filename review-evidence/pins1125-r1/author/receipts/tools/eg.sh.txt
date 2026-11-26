@@ -1,0 +1,8 @@
+# lane tool eg.sh
+#!/bin/bash
+# eg.sh NAME REV: the CPU-budget harness's backlog-owed and srp-bound groups at 8x8/1if, and the egress ledger on their results
+S=<scratch>; n=$1; . $S/bin/env.sh; export TSN_GEN_ROOT GIT_ALLOW_PROTOCOL
+bash $S/bin/mkclone.sh $n $2 || exit 3
+cd $S/clones/$n; echo "HEAD $(git rev-parse HEAD)"
+python3 -B tb/verilator/ctrl_service_budget/run.py --point 8x8-1if --build-dir $S/eg/$n --groups backlog-owed,srp-bound --record-budget-findings --record-share-findings --jobs 4; rc=$?
+(cd tb/verilator/ctrl_service_budget && python3 -I egress_ledger.py --point 8x8-1if $S/eg/$n/results); echo "egress_ledger rc=$?"; (cd tb/verilator/ctrl_service_budget && python3 -I egress_ledger.py --selftest | tail -3); echo "run rc=$rc"

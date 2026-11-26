@@ -1,0 +1,3 @@
+# lane tool probes.sh
+#!/bin/bash
+S=<scratch>; . $S/bin/env.sh; H=$2; c=$1; for leg in shadow; do n=pr-$c; bash $S/bin/mkclone.sh $n $H >/dev/null && python3 $S/bin/probe.py $S/clones/$n $c && make -C $S/clones/$n/tb/verilator/gptp_shadow run 2>&1 | awk '/^FAIL|checks:/'; done

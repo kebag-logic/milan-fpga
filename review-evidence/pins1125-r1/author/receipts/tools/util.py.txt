@@ -1,0 +1,52 @@
+# route tool util.py
+#!/usr/bin/env python3
+"""util.py <gateware-dir>... : the placed utilization of each build (Slice LUTs, LUT as Logic, LUT as Memory, Slice
+Registers, Slice, Block RAM Tile, RAMB36/RAMB18, DSPs) from alinx_ax7101_utilization_place.rpt, one line per build,
+and for the hierarchy rows that hold the receive path (the parser, the monitor, the depacketizer) their LUT, FF, and
+RAMB counts from alinx_ax7101_utilization_hierarchical_place.rpt."""
+import re
+import sys
+from pathlib import Path
+
+KEYS = ["Slice LUTs", "LUT as Logic", "LUT as Memory", "Slice Registers", "Slice", "Block RAM Tile", "RAMB36/FIFO",
+        "RAMB18", "DSPs"]
+HIER = ["avtp_rx_parser", "avtp_rx_monitor", "aaf_rx_depkt", "u_dp"]
+
+
+def flat(rpt: Path) -> dict:
+    out = {}
+    for line in rpt.read_text(errors="replace").splitlines():
+        m = re.match(r"\|\s*([A-Za-z0-9/ ]+?)\s*\|\s*([0-9.]+)\s*\|", line)
+        if m and m[1] in KEYS and m[1] not in out:
+            out[m[1]] = m[2]
+    return out
+
+
+def hier(rpt: Path) -> list:
+    rows = []
+    lines = rpt.read_text(errors="replace").splitlines()
+    head = next((i for i, l in enumerate(lines) if "Instance" in l and "Total LUTs" in l), None)
+    if head is None:
+        return rows
+    cols = [c.strip() for c in lines[head].split("|")]
+    for line in lines[head + 1:]:
+        cells = [c.strip() for c in line.split("|")]
+        if len(cells) != len(cols):
+            continue
+        name = cells[1]
+        if any(name == h or name.startswith(h + " ") for h in HIER):
+            rows.append(dict(zip(cols, cells)))
+    return rows
+
+
+def main() -> int:
+    for d in map(Path, sys.argv[1:]):
+        f = flat(d / "alinx_ax7101_utilization_place.rpt")
+        print(d.as_posix().split("/work/")[-1] if "/work/" in d.as_posix() else d.name, " ".join(f"{k}={f.get(k, '?')}" for k in KEYS))
+        for r in hier(d / "alinx_ax7101_utilization_hierarchical_place.rpt"):
+            print("   ", r.get("Instance"), " ".join(f"{k}={r.get(k)}" for k in ("Total LUTs", "Logic LUTs", "LUTRAMs", "FFs", "RAMB36", "RAMB18")))
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
