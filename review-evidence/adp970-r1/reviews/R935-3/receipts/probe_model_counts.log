@@ -1,0 +1,35 @@
+header bounds: {'ADVERTISE': 11, 'DELAY': 39, 'DISCOVER': 31, 'GM': 11, 'LINK': 12, 'SHUTDOWN': 29}
+--- 1 interface(s); ADP paths seen (path, count, checked-as):
+    ('adp.discover', 31, 'DISCOVER')
+    ('adp.gm_change', 11, 'GM')
+    ('adp.link_down', 9, '-')
+    ('adp.link_up', 12, 'LINK')
+    ('adp.shutdown', 29, '-')
+    ('adp.tmr_advertise', 11, 'ADVERTISE')
+    ('adp.tmr_delay', 39, 'DELAY')
+  LINK_UP stale 11 (planted): planted in 6 probe(s), findings 6 -> DETECTED
+  GM_CHANGE 12 (planted): planted in 1 probe(s), findings 1 -> DETECTED
+  DISCOVER 30 (planted): planted in 2 probe(s), findings 2 -> DETECTED
+  TMR_DELAY 40 (planted): planted in 5 probe(s), findings 5 -> DETECTED
+  TMR_ADVERTISE 10 (planted): planted in 1 probe(s), findings 1 -> DETECTED
+  LINK_DOWN 8 (planted): planted in 2 probe(s), findings 0 -> MISSED
+  SHUTDOWN 28 (planted, shutdown_groups): planted in 2 probe(s), findings 0 -> MISSED
+  header LINK=11 vs real scenario: findings 6 -> DETECTED
+  header SHUTDOWN=30 vs real scenario: findings 0 -> MISSED
+--- 2 interface(s); ADP paths seen (path, count, checked-as):
+    ('adp.discover', 31, 'DISCOVER')
+    ('adp.gm_change', 11, 'GM')
+    ('adp.link_down', 9, '-')
+    ('adp.link_up', 12, 'LINK')
+    ('adp.shutdown', 29, '-')
+    ('adp.tmr_advertise', 11, 'ADVERTISE')
+    ('adp.tmr_delay', 39, 'DELAY')
+  LINK_UP stale 11 (planted): planted in 11 probe(s), findings 11 -> DETECTED
+  GM_CHANGE 12 (planted): planted in 2 probe(s), findings 2 -> DETECTED
+  DISCOVER 30 (planted): planted in 3 probe(s), findings 3 -> DETECTED
+  TMR_DELAY 40 (planted): planted in 10 probe(s), findings 10 -> DETECTED
+  TMR_ADVERTISE 10 (planted): planted in 2 probe(s), findings 2 -> DETECTED
+  LINK_DOWN 8 (planted): planted in 3 probe(s), findings 0 -> MISSED
+  SHUTDOWN 28 (planted, shutdown_groups): planted in 3 probe(s), findings 0 -> MISSED
+  header LINK=11 vs real scenario: findings 11 -> DETECTED
+  header SHUTDOWN=30 vs real scenario: findings 0 -> MISSED
