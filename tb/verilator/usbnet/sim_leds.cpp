@@ -8,40 +8,52 @@
 #include "VKL_status_leds.h"
 #include "verilated.h"
 
+#include <array>
 #include <cstdio>
+#include <memory>
 
-static int g_fail = 0;
+static int &fails() { static int n = 0; return n; }
 #define CHECK(c, ...) do { if (!(c)) { std::printf("FAIL %s:%d: ", __FILE__, __LINE__); \
-    std::printf(__VA_ARGS__); std::printf("\n"); ++g_fail; } } while (0)
+    std::printf(__VA_ARGS__); std::printf("\n"); ++fails(); } } while (0)
 
-static VKL_status_leds *d;
-static unsigned on_cnt[4], tot;
+struct Leds {
+    std::unique_ptr<VKL_status_leds> model = std::make_unique<VKL_status_leds>();
+    VKL_status_leds *d = model.get();
+    std::array<unsigned, 4> on_cnt{};
+    unsigned tot = 0;
 
-static void cyc(int n = 1)
-{
-    for (int i = 0; i < n; ++i) {
-        d->clk_i = 0; d->eval(); d->clk_i = 1; d->eval();
-        for (int k = 0; k < 4; ++k) on_cnt[k] += (d->led_o >> k) & 1;
-        ++tot;
+    void cyc(int n = 1)
+    {
+        for (int i = 0; i < n; ++i) {
+            d->clk_i = 0; d->eval(); d->clk_i = 1; d->eval();
+            for (int k = 0; k < 4; ++k) on_cnt[k] += (d->led_o >> k) & 1;
+            ++tot;
+        }
     }
-}
-static void clear() { for (auto &c : on_cnt) c = 0; tot = 0; }
-static int st(int k) { return (d->state_o >> k) & 1; }
+    void clear() { on_cnt.fill(0); tot = 0; }
+    int st(int k) const { return (d->state_o >> k) & 1; }
 
-// over whole PWM periods: an on LED is lit 16/256 of the time, an off one never
-static void duty(const char *what, unsigned mask)
-{
-    clear(); cyc(256 * 8);
-    for (int k = 0; k < 4; ++k) {
-        unsigned want = ((mask >> k) & 1) ? 16 * 8 : 0;
-        CHECK(on_cnt[k] == want, "%s: LD%d lit %u of %u clocks, expected %u", what, k, on_cnt[k], tot, want);
+    // over whole PWM periods: an on LED is lit 16/256 of the time, an off one never
+    void duty(const char *what, unsigned mask)
+    {
+        clear(); cyc(256 * 8);
+        for (int k = 0; k < 4; ++k) {
+            unsigned want = ((mask >> k) & 1) ? 16 * 8 : 0;
+            CHECK(on_cnt[k] == want, "%s: LD%d lit %u of %u clocks, expected %u", what, k, on_cnt[k], tot, want);
+        }
     }
-}
+    ~Leds() { d->final(); }
+};
 
 int main(int argc, char **argv)
 {
     Verilated::commandArgs(argc, argv);
-    d = new VKL_status_leds;
+    Leds bench;
+    VKL_status_leds *d = bench.d;
+    auto cyc = [&](int n = 1) { bench.cyc(n); };
+    auto clear = [&] { bench.clear(); };
+    auto st = [&](int k) { return bench.st(k); };
+    auto duty = [&](const char *what, unsigned mask) { bench.duty(what, mask); };
     d->rst_ni = 0; d->link_up_i = 0; d->act_i = 0; d->usb_ok_i = 0; d->stat_i = 0;
     cyc(4); d->rst_ni = 1; cyc(4);
 
@@ -81,7 +93,6 @@ int main(int argc, char **argv)
     d->link_up_i = 1; cyc(2);
     CHECK(st(0), "link back: LD0 on at once, no stale blink");
 
-    d->final(); delete d;
-    std::printf("%s leds: %d failure(s)\n", g_fail ? "FAIL" : "PASS", g_fail);
-    return g_fail ? 1 : 0;
+    std::printf("%s leds: %d failure(s)\n", fails() ? "FAIL" : "PASS", fails());
+    return fails() ? 1 : 0;
 }

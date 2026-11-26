@@ -44,8 +44,8 @@ module KL_usbnet_rx_copy
   parameter int unsigned DESC_P    = 16,    //! frames the buffer can hold
   parameter int unsigned MAX_LEN_P = 2000   //! longest frame copied, octets
 )(
-  input  wire              clk_i,
-  input  wire              rst_ni,
+  input  wire              clk_i,   //! the system clock, the MAC wrapper's
+  input  wire              rst_ni,   //! synchronous reset, active low
   //! the device's receive stream, one accepted beat per valid
   input  wire              s_valid_i,
   input  wire [63:0]       s_data_i,

@@ -56,8 +56,8 @@ module KL_usbnet_tx_inject
   parameter int unsigned  MAX_LEN_P       = 1518,         //! a tagged frame without its FCS
   parameter int unsigned  HOST_TIMEOUT_MS_P = 3000
 )(
-  input  wire              clk_i,
-  input  wire              rst_ni,
+  input  wire              clk_i,   //! the system clock, the MAC wrapper's
+  input  wire              rst_ni,   //! synchronous reset, active low
   //! from the computer's side
   input  wire              s_valid_i,
   output logic             s_ready_o,

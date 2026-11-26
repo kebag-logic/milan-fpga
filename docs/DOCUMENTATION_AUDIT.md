@@ -27,16 +27,16 @@ Findings cite source lines at dev `1f29f189` and its submodule pins.
 
 | Status | Pages |
 |---|---:|
-| current | 189 |
+| current | 190 |
 | stale | 16 |
 | superseded | 0 |
 | obsolete | 21 |
-| **total** | **226** |
+| **total** | **227** |
 
 | Lane | Pages | Current | Stale | Superseded | Obsolete | Verified by D0 |
 |---|---:|---:|---:|---:|---:|---:|
 | archive | 22 | 1 | 0 | 0 | 21 | 0 |
-| design | 29 | 28 | 1 | 0 | 0 | 0 |
+| design | 30 | 29 | 1 | 0 | 0 | 0 |
 | findings | 23 | 23 | 0 | 0 | 0 | 0 |
 | module READMEs | 90 | 90 | 0 | 0 | 0 | 0 |
 | overview and guides | 21 | 19 | 2 | 0 | 0 | 12 |
@@ -66,6 +66,7 @@ The README count includes subdirectories.
 | `hdl/ieee8021as/` | no | 2 |
 | `hdl/ieee8021q/` | no | 2 |
 | `hdl/milan/` | yes | 2 |
+| `hdl/usbnet/` | no | 0 |
 | `sw/` | yes | 12 |
 | `sw/builder/` | yes | 1 |
 | `sw/firmware/` | no | 8 |
@@ -95,7 +96,7 @@ Areas follow the directory tree.
 - [.github](#github) (1)
 - [avdecc](#avdecc) (1)
 - [docs](#docs) (10)
-- [docs/design](#docsdesign) (19)
+- [docs/design](#docsdesign) (20)
 - [docs/development](#docsdevelopment) (1)
 - [docs/diagrams](#docsdiagrams) (1)
 - [docs/findings](#docsfindings) (23)
@@ -178,6 +179,7 @@ Areas follow the directory tree.
 | [docs/design/SPLIT_CONTROL_MEMORY.md](design/SPLIT_CONTROL_MEMORY.md) | firmware developer | Split placement control memory | `tb/verilator/ctrl_service_budget`, `sw/firmware/ctrl`, `sw/litex`, Milan v1.2, 1722.1-2021, 1722-2016, 802.1Q, 802.1AS | current | no recorded contradiction | area lane | design |
 | [docs/design/TIME_SYNC.md](design/TIME_SYNC.md) | maintainer | Time synchronization | `tb/verilator/capture_coherence`, `tb/verilator/ptp`, `scripts`, Milan v1.2, 1722-2016, 802.1AS | current | no recorded contradiction | area lane | design |
 | [docs/design/TRACE_LOGGING.md](design/TRACE_LOGGING.md) | firmware developer | Fault tracing: bare-metal DRAM ring and workstation bundles | `sw/trace` | current | no recorded contradiction | area lane | design |
+| [docs/design/USB_NET_PATH.md](design/USB_NET_PATH.md) | FPGA and firmware developers, and the USB device firmware's developers (kebag-logic/usb-audio#5). | USB network path and Arty status LEDs (#1011, #1018) | `hdl/milan`, `sw/firmware/ctrl`, `sw/litex`, Milan v1.2, 1722.1-2021, 1722-2016, 802.1Q, 802.1BA | current | no recorded contradiction | area lane | design |
 
 ### docs/development
 
