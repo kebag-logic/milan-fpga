@@ -3509,13 +3509,15 @@ The owner bounds are load 0.70, txL 49 ms, THE SHARE 2 ms, last notice 140 ms
 and ACMP 30 ms.
 The service harness still holds each other row to its own budget.
 
-The Arty row states a 950 us slice, a 9 ms AECP pace, a 125 ms queued-notice
-bound and a 30 ms ordinary transmit bound.
-The complete 80 MHz campaign qualifies these statements over 145 native cases
-across eight image variants. The seven held-egress misses remain recorded
-under their ledger; every other service row meets its bound.
-The measured build of both MRPDUs exceeds the slice, so the existing scheduler
-builds one MRPDU per pass at this point.
+The Arty row states a 1250 us slice, a 10 ms AECP pace, a 125 ms queued-notice
+bound and a 35 ms ordinary transmit bound.
+The merge of dev-soft-core `c34e7d8b` raised the measured AECP, ACMP and MAAP costs at this point.
+By the same rules, the first row (950 us, 9 ms, 30 ms) became this one.
+Its costs are the larger of each measurement on the merged firmware and the one before it.
+The row is qualified only by a complete native campaign at this row; the seven held-egress
+misses remain recorded under their ledger, and every other service row must meet its bound.
+The slice holds the measured build of both MRPDUs, so `CTRL_LOOP_BUILD_MOST`
+builds both in one pass at this point.
 
 | Work | Statement, us |
 |---|---:|
@@ -3525,25 +3527,25 @@ builds one MRPDU per pass at this point.
 | Aged SRP step | 1060 |
 | Centisecond work | 150 |
 | SRP record | 300 |
-| ACMP record | 240 |
-| ADP or MAAP record | 120 |
-| Ordinary AECP record | 285 |
-| Long AECP record | 1095 |
-| Retry cold start | 125 |
+| ACMP record | 245 |
+| ADP record | 120 |
+| MAAP record | 125 |
+| Ordinary AECP record | 290 |
+| Long AECP record | 1105 |
+| Retry cold start | 130 |
 | Retry refused attempt | 30 |
 | Retry notice | 230 |
 | Transmit notice | 205 |
 | Transmit response | 45 |
-| Transmit long response | 380 |
+| Transmit long response | 385 |
 
-The retry fit measures 9285 cycles cold, 1947 cycles per refused attempt and
-17196 cycles per notice before applying the cost rule.
+The retry fit measures 9767 cycles cold, 1929 cycles per refused attempt and
+17193 cycles per notice before applying the cost rule.
 These are measurements of the complete retry rounds, distinct from the
 transmit-only spans.
-The slice and pace rules give load 0.4966771140, txL 48.74 ms, last notice
-121.84 ms and ACMP 28.82 ms.
-The observed maximum whole pass in the fresh qualification is 134507 cycles,
-or 1.6813375 ms at 80 MHz.
+The slice and pace rules give load 0.4994646140, txL 48.54 ms, last notice
+116.77 ms and ACMP 29.56 ms.
+THE SHARE's 2 ms bound is held by that campaign's measured whole passes.
 The MII PHY frame statement is 195 us from 14487 cycles, or 181.0875 us,
 with the same 5 percent and 5 us rounding rule.
 
