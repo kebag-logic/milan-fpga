@@ -260,8 +260,7 @@ def probe_answer(interface: int, status: int = 0) -> str:
 
 
 def advertised(g: Group, p: Point) -> None:
-    """Links up, then each interface's ENTITY_AVAILABLE after the LINK_UP draw out of DOWN (TMR_DELAY 0 to 4 s,
-    Milan v1.2 5.6.3.5.3 and Table 5.50; the 0 to 2 s startup draw of 5.6.3.5.2 is an enable with the link up)."""
+    """Links up after enable, then each interface's ENTITY_AVAILABLE: LINK_UP's draw, TMR_DELAY 0 to 4 s (5.6.3.5.3)."""
     adp = CH['adp']
     ifs = range(p.interfaces)
     g.together([(Probe(f'adp.link_up.if{i}', 'LINK_UP', 'adp', f'pad:LINK:{i}', [f'arm:{i}'], accesses=12),
