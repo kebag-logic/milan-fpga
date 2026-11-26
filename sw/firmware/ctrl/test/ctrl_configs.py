@@ -310,6 +310,8 @@ OUTSIDE = {
                                                           "compiles nothing",
     "tb/verilator/ctrl_service_budget/save_window.py": "writes the stimulus of a save's windows and names the "
                                                        "store's source whose phases it stages; it compiles nothing",
+    "tb/verilator/ctrl_service_budget/model_counts.py": "holds scenario.py's ADP model counts to the counts adp_mbx.h "
+                                                        "states, read as text; it compiles nothing",
     "tb/verilator/ctrl_service_budget/scenario.py": "writes the harness's stimulus and reads AECP_REGISTRATIONS from "
                                                     "aecp.h; it compiles nothing",
     "tb/verilator/ctrl_service_budget/selftest.py": "the harness's grader self-test; it reads AECP_REGISTRATIONS from "
