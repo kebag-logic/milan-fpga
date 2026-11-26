@@ -17,6 +17,7 @@
 #ifdef CTRL_PLAT_LEDS
 #include "ctrl_plat_io.h"
 #include "ctrl_plat_leds.h"
+#include "ctrl_plat_leds_ports.h"
 #endif
 
 static const struct ctrl_plat_policy policy = CTRL_PLAT_POLICY_INIT;
@@ -42,7 +43,8 @@ static void leds_tick(void)
 		return;
 	}
 	centis = 0u;
-	ctrl_plat_io_write32(CTRL_PLAT_LEDS, ctrl_plat_leds_word(&ctrl_plat.aecp.core));
+	ctrl_plat_io_write32(CTRL_PLAT_LEDS,
+			    ctrl_plat_leds_word(&ctrl_plat.aecp.core, ctrl_plat_leds_counter_pair, ctrl_plat_leds_stream));
 }
 #endif
 

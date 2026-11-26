@@ -256,7 +256,15 @@ The control firmware writes LD2 and LD3 every 250 ms
 
 A lock state is read from its two counters. Each counts edges into its state
 from an unlocked reset, so the state is locked when LOCKED − UNLOCKED is odd;
-the parity survives a wrap of either counter. The firmware compiles this code
+the parity survives a wrap of either counter. The LED observation reads only
+quadlets 0, 1 and 32 (the two values and their validity) through the bounded
+counter window. Either missing validity bit or any failed read leaves the
+lock indication off. INTERNAL needs no clock-domain counter read. The full
+GET_COUNTERS response and the full output-stream observation are unchanged.
+Input binding is read directly from the ACMP owner's bound state, the same
+state `acmp_view` reports; no stream-window transaction is needed for that
+software-owned bit. Media reception still requires the valid lock counters.
+The firmware compiles this code
 only where the SoC has the register: `ctrl_plat_gen.py` emits `CTRL_PLAT_LEDS`
 from the SoC's `csr.csv`.
 

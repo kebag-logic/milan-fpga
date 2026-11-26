@@ -42,6 +42,8 @@
 
 #include "aecp.h"
 #include "aecp_internal.h"
+#include "../mbx/mbx.h"
+#include "../mbx/mbx_wire.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -63,44 +65,71 @@ static inline uint16_t ctrl_plat_leds_be16(const uint8_t *p)
 	return (uint16_t)((unsigned)p[0] << 8 | p[1]);
 }
 
+typedef bool (*ctrl_plat_leds_counters_fn)(void *, unsigned, uint16_t, uint16_t, struct aecp_counters *);
+typedef bool (*ctrl_plat_leds_stream_fn)(void *, unsigned, uint16_t, uint16_t, struct aecp_stream_info *);
+
+// The platform needs only LOCKED, UNLOCKED and counters_valid. Read those
+// three quadlets through the same bounded window GET_COUNTERS uses. Reading
+// its other 30 quadlets here exceeded the Arty tick's service cost (#1018).
+// The ordinary GET_COUNTERS port and every image without LEDs are unchanged.
+static inline bool ctrl_plat_leds_counter_pair(void *ctx, unsigned interface, uint16_t type, uint16_t index,
+					     struct aecp_counters *out)
+{
+	(void)ctx;
+	const uint32_t words[] = {0u, 1u, 32u};
+	uint32_t request[2] = {mbx_place(type, MBX_CTR_REQ_TYPE_LSB, MBX_CTR_REQ_TYPE_WIDTH) |
+				       mbx_place(index, MBX_CTR_REQ_INDEX_LSB, MBX_CTR_REQ_INDEX_WIDTH), 0u};
+	for (unsigned n = 0u; n < 3u; ++n) {
+		uint64_t value = 0u;
+		request[1] = mbx_place(words[n], MBX_CTR_WORD_WORD_LSB, MBX_CTR_WORD_WORD_WIDTH);
+		if (mbx_win_read(interface, MBX_WIN_CTR, request, &value) != MBX_STATUS_OK) return false;
+		if (words[n] == 32u) out->valid = (uint32_t)value;
+		else out->value[words[n]] = (uint32_t)value;
+	}
+	return true;
+}
+
 // The lock state two counters give, quadlets 0 (LOCKED or MEDIA_LOCKED) and 1.
-static inline bool ctrl_plat_leds_locked(struct aecp *a, uint16_t type, uint16_t index)
+static inline bool ctrl_plat_leds_locked(struct aecp *a, ctrl_plat_leds_counters_fn counters,
+				       uint16_t type, uint16_t index)
 {
 	struct aecp_counters c;
 	memset(&c, 0, sizeof c);
-	if (!a->ports->counters(a->ports->ctx, 0u, type, index, &c) || (c.valid & 3u) != 3u) return false;
+	if (!counters(a->ports->ctx, 0u, type, index, &c) || (c.valid & 3u) != 3u) return false;
 	return ((c.value[0] - c.value[1]) & 1u) != 0u;
 }
 
-static inline bool ctrl_plat_leds_receiving(struct aecp *a, uint16_t index)
+static inline bool ctrl_plat_leds_receiving(struct aecp *a, ctrl_plat_leds_counters_fn counters,
+					  ctrl_plat_leds_stream_fn stream, uint16_t index)
 {
 	struct aecp_stream_info s;
 	memset(&s, 0, sizeof s);
 	s.brief = true;   // bound is all this reads
-	if (!a->ports->stream(a->ports->ctx, 0u, CTRL_PLAT_LEDS_STREAM_INPUT, index, &s) || !s.bound) return false;
-	return ctrl_plat_leds_locked(a, CTRL_PLAT_LEDS_STREAM_INPUT, index);
+	if (!stream(a->ports->ctx, 0u, CTRL_PLAT_LEDS_STREAM_INPUT, index, &s) || !s.bound) return false;
+	return ctrl_plat_leds_locked(a, counters, CTRL_PLAT_LEDS_STREAM_INPUT, index);
 }
 
-static inline bool ctrl_plat_leds_listened(struct aecp *a, uint16_t index)
+static inline bool ctrl_plat_leds_listened(struct aecp *a, ctrl_plat_leds_stream_fn stream, uint16_t index)
 {
 	struct aecp_stream_info s;
 	memset(&s, 0, sizeof s);   // observed whole: flags_ex is not a brief observation's
-	return a->ports->stream(a->ports->ctx, 0u, CTRL_PLAT_LEDS_STREAM_OUTPUT, index, &s) && (s.flags_ex & 1u) != 0u;
+	return stream(a->ports->ctx, 0u, CTRL_PLAT_LEDS_STREAM_OUTPUT, index, &s) && (s.flags_ex & 1u) != 0u;
 }
 
 // LD2 and LD3 as the status register takes them.
-static inline uint32_t ctrl_plat_leds_word(struct aecp *a)
+static inline uint32_t ctrl_plat_leds_word(struct aecp *a, ctrl_plat_leds_counters_fn counters,
+					ctrl_plat_leds_stream_fn stream)
 {
 	uint32_t word = 0u;
 	for (uint16_t i = 0u; aecp_find(a, a->configuration, CTRL_PLAT_LEDS_STREAM_INPUT, i) != NULL; ++i) {
-		if (ctrl_plat_leds_receiving(a, i)) {
+		if (ctrl_plat_leds_receiving(a, counters, stream, i)) {
 			word |= CTRL_PLAT_LEDS_STREAM;
 			break;
 		}
 	}
 	for (uint16_t i = 0u; (word & CTRL_PLAT_LEDS_STREAM) == 0u &&
 	     aecp_find(a, a->configuration, CTRL_PLAT_LEDS_STREAM_OUTPUT, i) != NULL; ++i) {
-		if (ctrl_plat_leds_listened(a, i)) word |= CTRL_PLAT_LEDS_STREAM;
+		if (ctrl_plat_leds_listened(a, stream, i)) word |= CTRL_PLAT_LEDS_STREAM;
 	}
 	const struct aecp_descriptor *domain = aecp_find(a, a->configuration, CTRL_PLAT_LEDS_CLOCK_DOMAIN, 0u);
 	if (domain == NULL || domain->length < 72u) return word;
@@ -108,12 +137,13 @@ static inline uint32_t ctrl_plat_leds_word(struct aecp *a)
 	const struct aecp_descriptor *source = aecp_find(a, a->configuration, CTRL_PLAT_LEDS_CLOCK_SOURCE, at);
 	if (source == NULL || source->length < 86u) return word;
 	uint16_t kind = ctrl_plat_leds_be16(source->value + 72);
-	bool domain_locked = ctrl_plat_leds_locked(a, CTRL_PLAT_LEDS_CLOCK_DOMAIN, 0u);
+	bool domain_locked = kind != CTRL_PLAT_LEDS_INTERNAL &&
+			     ctrl_plat_leds_locked(a, counters, CTRL_PLAT_LEDS_CLOCK_DOMAIN, 0u);
 	if (kind == CTRL_PLAT_LEDS_INTERNAL) {
 		word |= CTRL_PLAT_LEDS_CLOCK;
 	} else if (kind == CTRL_PLAT_LEDS_INPUT_STREAM) {
 		uint16_t type = ctrl_plat_leds_be16(source->value + 82), index = ctrl_plat_leds_be16(source->value + 84);
-		if (type == CTRL_PLAT_LEDS_STREAM_INPUT && ctrl_plat_leds_receiving(a, index) && domain_locked) {
+		if (type == CTRL_PLAT_LEDS_STREAM_INPUT && ctrl_plat_leds_receiving(a, counters, stream, index) && domain_locked) {
 			word |= CTRL_PLAT_LEDS_CLOCK;
 		}
 	} else if (kind == CTRL_PLAT_LEDS_EXTERNAL && domain_locked) {
