@@ -1,0 +1,12 @@
+si0-report
+  declared before bind      -1.005  (receipt t-1.005)
+  relay off                 1.551  (t+1.551)   relay on 12.627 (t+12.627)
+  withdraw                  3.068  (t+3.068); after return 2.067: 1.001 (1.001); after last frame 1.782: 1.286 (1.286)
+  withdraw after cut issued 2.068  (the drain counts from the command's return, not the issue)
+  last frame after relay off 0.231; return after relay off 0.516; durable before last frame 1.196 (1.196)
+  declaration               16.807; after relay on 4.180 (4.18); after test ref (on-0.56) 4.74 (4.74)
+  probe response after declaration 3.974 (3.974); after relay on 8.154
+fail-8x8-input0 (cut, relay off, return, withdraw, last frame, probe, relay on, own declaration)
+  attempt 1: return-off 0.382; last-off 0.419; last-return +0.037; probe-withdraw +0.0390; probe-cut +0.909; probe before off -0.421; decl-probe 20.64; decl after relay on 11.071 vs stated 11.68 (difference 0.609)
+  attempt 2: return-off 0.441; last-off 0.442; last-return +0.001; probe-withdraw +0.0010; probe-cut +1.022; probe before off -0.442; decl-probe 20.63; decl after relay on 11.037 vs stated 11.63 (difference 0.593)
+  attempt 3: return-off 0.595; last-off 0.185; last-return -0.410; probe-withdraw -0.9930; probe-cut +0.235; probe before off +0.398; decl-probe 21.56; decl after relay on 11.017 vs stated 11.56 (difference 0.543)
