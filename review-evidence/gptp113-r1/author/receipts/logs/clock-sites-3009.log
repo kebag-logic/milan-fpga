@@ -1,0 +1,14 @@
+uses_wall_clock: True
+  88: clock/sleep  f.write(json.dumps({"what": what, "job": f"pass{n}", "pid": os.getpid(), "t": time.monotonic()}) + "
+  98: clock/sleep  time.sleep(me.get("sleep", 0.3 - 0.07 * n))
+ 132: clock/sleep  f.write(json.dumps({"what": what, "job": sys.argv[1], "pid": os.getpid(), "t": time.monotonic()}) + 
+ 133: clock/sleep  event("start"); time.sleep(float(sys.argv[2])); event("end")
+ 193: timeout=     return subprocess.run(args, cwd=directory or engine, env=env, text=True, preexec_fn=no_cores, timeou
+ 277: clock/sleep  began = time.monotonic()
+ 279: clock/sleep  took = time.monotonic() - began
+ 304: clock/sleep  deadline = time.monotonic() + 30
+ 305: clock/sleep  while sum(e["what"] == "start" for e in read(events)) < 4 and time.monotonic() < deadline:
+ 306: clock/sleep  time.sleep(0.05)
+ 309: timeout=     rc = proc.wait(timeout=20)
+ 313: clock/sleep  time.sleep(0.2)
+ 351: timeout=     stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=60)

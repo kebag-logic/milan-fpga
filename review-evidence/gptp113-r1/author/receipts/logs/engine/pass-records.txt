@@ -1,0 +1,24 @@
+== base-abort
+  0.json {"exit": 0}
+  1.json {"gen": 0, "signal": 6, "core": true}
+  2.json {"gen": 0, "stopped": true, "signal": 15, "core": false}
+  3.json {"gen": 0, "stopped": true, "signal": 15, "core": false}
+0.json 0.log 1.json 1.log 1.stop 2.json 2.log 3.json 3.log build.ok 
+== head-abort
+  0.json {"exit": 0}
+  1.json {"gen": 0, "signal": 6, "core": true}
+  2.json {"gen": 0, "stopped": true, "signal": 15, "core": false}
+  3.json {"gen": 0, "stopped": true, "signal": 15, "core": false}
+0.json 0.log 1.json 1.log 1.stop 2.json 2.log 3.json 3.log build.ok 
+== base
+  0.json {"exit": 0}
+  1.json {"gen": 0, "exit": 0}
+  2.json {"gen": 0, "exit": 0}
+  3.json {"gen": 0, "exit": 0}
+0.json 0.log 1.json 1.log 2.json 2.log 3.json 3.log build.ok 
+== head
+  0.json {"exit": 0}
+  1.json {"gen": 0, "exit": 0}
+  2.json {"gen": 0, "exit": 0}
+  3.json {"gen": 0, "exit": 0}
+0.json 0.log 1.json 1.log 2.json 2.log 3.json 3.log build.ok 

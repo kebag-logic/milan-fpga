@@ -1,0 +1,116 @@
+diff --git a/tb/verilator/engine/pass_run.py b/tb/verilator/engine/pass_run.py
+index cbf387b..9da6b6a 100644
+--- a/tb/verilator/engine/pass_run.py
++++ b/tb/verilator/engine/pass_run.py
+@@ -101,15 +101,15 @@ def run(n: int, directory: str | None, generate: str | None, argv: list[str], ig
+     received: list[int] = []
+     child: list[subprocess.Popen] = []
+ 
+-    def chunk(stream: int, data: bytes) -> None:
++    def _chunk(stream: int, data: bytes) -> None:
+         log.write(bytes([stream]) + len(data).to_bytes(4, "big") + data)
+ 
+-    def forward(signum: int, _frame: object) -> None:
++    def _forward(signum: int, _frame: object) -> None:
+         received.append(signum)
+         if child and child[0].returncode is None:
+             signal_all(child[0].pid, signum)
+ 
+-    def stop(_signum: int, _frame: object) -> None:
++    def _stop(_signum: int, _frame: object) -> None:
+         if failed_before(n):
+             record["stopped"] = True
+             if child and child[0].returncode is None:
+@@ -117,8 +117,8 @@ def run(n: int, directory: str | None, generate: str | None, argv: list[str], ig
+ 
+     for signum in FORWARDED:
+         if signal.getsignal(signum) is not signal.SIG_IGN:
+-            signal.signal(signum, forward)
+-    signal.signal(signal.SIGUSR1, stop)
++            signal.signal(signum, _forward)
++    signal.signal(signal.SIGUSR1, _stop)
+     (STATE / f"{n}.pid").write_text(str(os.getpid()))
+     if not ignoring and failed_before(n):
+         record["stopped"] = True  # an earlier pass failed: the serial recipe never ran this one
+@@ -150,7 +150,7 @@ def run(n: int, directory: str | None, generate: str | None, argv: list[str], ig
+             if received:
+                 signal_all(child[0].pid, received[0])  # a signal that came before the child was known
+         except OSError as exc:
+-            chunk(2, f"make: {argv[0]}: {exc.strerror}\n".encode())
++            _chunk(2, f"make: {argv[0]}: {exc.strerror}\n".encode())
+             record["exit"] = 127
+         else:
+             proc = child[0]
+@@ -161,7 +161,7 @@ def run(n: int, directory: str | None, generate: str | None, argv: list[str], ig
+                 for key, _ in selector.select():
+                     data = os.read(key.fd, 65536)
+                     if data:
+-                        chunk(key.data, data)
++                        _chunk(key.data, data)
+                     else:
+                         selector.unregister(key.fileobj)
+             _, status = os.waitpid(proc.pid, 0)
+@@ -262,6 +262,7 @@ def reraise(signum: int, core: bool) -> None:
+ 
+ 
+ def main() -> int:
++    """Run or replay one pass, as the command line names it."""
+     parser = argparse.ArgumentParser(description=__doc__.split("\n", 1)[0])
+     parser.add_argument("--ignore-errors", action="store_true", help="make runs with -i")
+     sub = parser.add_subparsers(dest="what", required=True)
+diff --git a/tb/verilator/engine/passes_test.py b/tb/verilator/engine/passes_test.py
+index 772de32..40c5eb8 100644
+--- a/tb/verilator/engine/passes_test.py
++++ b/tb/verilator/engine/passes_test.py
+@@ -181,7 +181,7 @@ def tree(scratch: Path) -> dict[str, Path]:
+     return trees
+ 
+ 
+-def make(engine: Path, flags: list[str], plan: dict, events: Path, stdout: int | None = None,
++def make(engine: Path, flags: list[str], plan: dict, events: Path,
+          directory: Path | None = None, target: str = "run") -> subprocess.CompletedProcess:
+     """One make run with the stubs; its captured streams and status."""
+     stub = engine.parents[1] / "stub"
+@@ -191,7 +191,7 @@ def make(engine: Path, flags: list[str], plan: dict, events: Path, stdout: int |
+     args = ["make", *flags, target, "VERILATOR=../../stub/verilator.py", "GEN=../../stub/gen.py"]
+     subprocess.run(["make", "-s", "clean"], cwd=engine, check=True, env=env)
+     return subprocess.run(args, cwd=directory or engine, env=env, text=True, preexec_fn=no_cores, timeout=120,
+-                          stdout=subprocess.PIPE if stdout is None else stdout, stderr=subprocess.PIPE)
++                          stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+ 
+ 
+ def no_cores() -> None:
+@@ -202,6 +202,7 @@ def no_cores() -> None:
+ 
+ 
+ def read(events: Path) -> list[dict]:
++    """The stub jobs' recorded events, none before the first."""
+     return [json.loads(line) for line in events.read_text().splitlines()] if events.exists() else []
+ 
+ 
+@@ -391,7 +392,7 @@ def no_core_replay(trees: dict[str, Path], scratch: Path) -> int:
+     die = (f"exec python3 -c 'import ctypes, os; ctypes.CDLL(None).prctl(4, 0, 0, 0, 0); "
+            f"os.kill(os.getpid(), {int(signal.SIGSEGV)})'")
+     for limit in ((0, 0), (1, resource.RLIM_INFINITY)):
+-        def caller(limit=limit) -> None:
++        def _caller(limit=limit) -> None:
+             hard = resource.getrlimit(resource.RLIMIT_CORE)[1]
+             unlimited = limit[1] == resource.RLIM_INFINITY
+             want = (min(1, hard), hard) if unlimited and hard != resource.RLIM_INFINITY else limit
+@@ -409,7 +410,7 @@ def no_core_replay(trees: dict[str, Path], scratch: Path) -> int:
+             line = f"python3 {tool} replay 0" if form == "replay" else die
+             (d / "Makefile").write_text(f"all:\n\t@{line}\n")
+             runs[form] = subprocess.run(["make", "--no-print-directory"], cwd=d, capture_output=True, text=True,
+-                                        preexec_fn=caller, env={**os.environ, "MAKEFLAGS": ""})
++                                        preexec_fn=_caller, env={**os.environ, "MAKEFLAGS": ""})
+         same = runs["replay"].returncode == runs["serial"].returncode and runs["replay"].stderr == runs["serial"].stderr
+         bad += not same
+         hard = resource.getrlimit(resource.RLIMIT_CORE)[1]
+@@ -421,6 +422,7 @@ def no_core_replay(trees: dict[str, Path], scratch: Path) -> int:
+ 
+ 
+ def main() -> int:
++    """Every check against a scratch tree of stubs; 1 when any failed."""
+     with tempfile.TemporaryDirectory(prefix="engine-passes-test-") as name:
+         scratch = Path(name)
+         trees = tree(scratch)

@@ -1,0 +1,16 @@
+verilator --lint-only -Wall -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL \
+  -Wno-UNUSEDPARAM -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC \
+  --top-module KL_gptp_engine \
+  hdl/ucpu/gptp_ucpu_pkg.sv hdl/ucpu/KL_gptp_ucpu.sv \
+  hdl/wire/KL_gptp_rx_parser.sv hdl/wire/KL_gptp_tx_slot.sv \
+  hdl/common/KL_gptp_timer.sv hdl/top/KL_gptp_engine.sv
+- V e r i l a t i o n   R e p o r t: Verilator 5.054 2026-11-01 rev v5.054
+- Verilator: Built from 0.365 MB sources in 8 modules, into 0.426 MB in 3 C++ files needing 0.000 MB
+- Verilator: Walltime 0.094 s (elab=0.013, cvt=0.053, bld=0.000); cpu 0.093 s on 1 threads; allocated 21.758 MB
+/usr/bin/make -C bench/arty lint
+make[1]: Entering directory '<gptp>/bench/arty'
+verilator --lint-only -Wall -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-UNUSEDPARAM -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-PINCONNECTEMPTY --top-module bench_arty_top ../../hdl/ucpu/gptp_ucpu_pkg.sv ../../hdl/ucpu/KL_gptp_ucpu.sv ../../hdl/wire/KL_gptp_rx_parser.sv ../../hdl/wire/KL_gptp_tx_slot.sv ../../hdl/common/KL_gptp_timer.sv ../../hdl/top/KL_gptp_engine.sv bench_afifo.sv bench_mii_rx.sv bench_mii_tx.sv bench_phc.sv bench_uart_report.sv bench_arty_top.sv
+- V e r i l a t i o n   R e p o r t: Verilator 5.054 2026-11-01 rev v5.054
+- Verilator: Built from 1.084 MB sources in 14 modules, into 0.575 MB in 3 C++ files needing 0.000 MB
+- Verilator: Walltime 0.098 s (elab=0.012, cvt=0.059, bld=0.000); cpu 0.097 s on 1 threads; allocated 23.629 MB
+make[1]: Leaving directory '<gptp>/bench/arty'

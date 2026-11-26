@@ -1,0 +1,90 @@
+PASS [old] control, no plant: rc=0, 73 PASS, 0 FAIL
+CAUGHT [old] the four passes in one job: rc=1, 5 failing checks
+    [FAIL] make -j1 run: at most 4 passes at once (budget 1)
+    [FAIL] make -j2 run: at most 4 passes at once (budget 2)
+    [FAIL] a parent make -j3 with two other jobs: 4 passes ran, at most 6 jobs at once in all (budget 3, reached)
+CAUGHT [old] the pass-0 echo printed under -s: rc=1, 10 failing checks
+    [FAIL] clean, make -j4 -s: rc 0 vs serial 0
+    [FAIL] pass 0 fails, make -j4 -s: rc 2 vs serial 2
+    [FAIL] pass 1 fails, make -j4 -s: rc 2 vs serial 2
+CAUGHT [old] -i not passed to the passes: rc=1, 8 failing checks
+    [FAIL] pass 0 fails, make -j4 -i: rc 0 vs serial 0
+    [FAIL] pass 1 fails, make -j4 -i: rc 0 vs serial 0
+    [FAIL] passes 1 and 2 fail, make -j4 -i: rc 0 vs serial 0
+CAUGHT [old] the -k suppression removed (a replay after a failure prints): rc=1, 8 failing checks
+    [FAIL] pass 0 fails, make -j4 -k: rc 2 vs serial 2
+    [FAIL] pass 1 fails, make -j4 -k: rc 2 vs serial 2
+    [FAIL] passes 1 and 2 fail, make -j4 -k: rc 2 vs serial 2
+CAUGHT [old] a simulator's signal death replayed as status 128+n: rc=1, 13 failing checks
+    [FAIL] pass 2 SIGSEGV, make -j4: rc 2 vs serial 2
+    [FAIL] pass 2 SIGSEGV, make -j1: rc 2 vs serial 2
+    [FAIL] pass 2 SIGSEGV, make -j4 -s: rc 2 vs serial 2
+CAUGHT [old] no fail-fast stop: rc=1, 2 failing checks
+    [FAIL] make -j4: pass 1 fails and the run ends in 30.3 s; passes started ['pass0', 'pass1', 'pass2', 'pass3'], all ended
+    [FAIL] make -j1: pass 1 fails and the run ends in 60.9 s; passes started ['pass0', 'pass1', 'pass2', 'pass3'], all ended
+CAUGHT [old] a print failure ignored: rc=1, 1 failing checks
+    [FAIL] pass 1's kept transcript made unreadable: rc 0, pass 0 printed, the diagnostic missing, nothing after it
+CAUGHT [old] signals not forwarded: rc=1, 1 failing checks
+    [FAIL] SIGTERM to make's own process: make ended (-15), 4 simulators left
+CAUGHT [old] standard error merged into standard output: rc=1, 51 failing checks
+    [FAIL] clean, make -j4: rc 0 vs serial 0
+    [FAIL] clean, make -j1: rc 0 vs serial 0
+    [FAIL] clean, make -j4 -s: rc 0 vs serial 0
+CAUGHT [old] the generator without the serial redirection, its signal death replayed as 256-n: rc=1, 5 failing checks
+    [FAIL] pass 1 image generator SIGSEGV, make -j4: rc 2 vs serial 2
+    [FAIL] pass 1 image generator SIGSEGV, make -j1: rc 2 vs serial 2
+    [FAIL] pass 1 image generator SIGSEGV, make -j4 -s: rc 2 vs serial 2
+CAUGHT [old] a generator's own signal death not re-raised at replay: rc=1, 2 failing checks
+    [FAIL] an image generator killed by SIGSEGV replays as the serial line ended: '' vs 'make: *** [Makefile:2: all] Segmentation fault'
+    [FAIL] an image generator killed by SIGKILL replays as the serial line ended: '' vs 'make: *** [Makefile:2: all] Killed'
+CAUGHT [old] the replay re-raising in make's directory: rc=1, 1 failing checks
+    [FAIL] a replayed signal death is re-raised from <scratch><tmp>/engine-passes-test-l57nrztm/cwd
+CAUGHT [old] a no-core replay left dumpable: rc=1, 2 failing checks
+    [FAIL] an image generator killed by SIGSEGV replays as the serial line ended: 'make: *** [Makefile:2: all] Segmentation fault (core dumped)' vs 'make: *** [Make
+    [FAIL] a no-core signal death replays as a non-dumpable one at core limit 0: 'make: *** [Makefile:2: all] Segmentation fault (core dumped)' vs 'make: *** [Makef
+PASS [new] control, no plant: rc=0, 73 PASS, 0 FAIL
+CAUGHT [new] the four passes in one job: rc=1, 5 failing checks
+    [FAIL] make -j1 run: at most 4 passes at once (budget 1)
+    [FAIL] make -j2 run: at most 4 passes at once (budget 2)
+    [FAIL] a parent make -j3 with two other jobs: 4 passes ran, at most 6 jobs at once in all (budget 3, reached)
+CAUGHT [new] the pass-0 echo printed under -s: rc=1, 10 failing checks
+    [FAIL] clean, make -j4 -s: rc 0 vs serial 0
+    [FAIL] pass 0 fails, make -j4 -s: rc 2 vs serial 2
+    [FAIL] pass 1 fails, make -j4 -s: rc 2 vs serial 2
+CAUGHT [new] -i not passed to the passes: rc=1, 8 failing checks
+    [FAIL] pass 0 fails, make -j4 -i: rc 0 vs serial 0
+    [FAIL] pass 1 fails, make -j4 -i: rc 0 vs serial 0
+    [FAIL] passes 1 and 2 fail, make -j4 -i: rc 0 vs serial 0
+CAUGHT [new] the -k suppression removed (a replay after a failure prints): rc=1, 8 failing checks
+    [FAIL] pass 0 fails, make -j4 -k: rc 2 vs serial 2
+    [FAIL] pass 1 fails, make -j4 -k: rc 2 vs serial 2
+    [FAIL] passes 1 and 2 fail, make -j4 -k: rc 2 vs serial 2
+CAUGHT [new] a simulator's signal death replayed as status 128+n: rc=1, 13 failing checks
+    [FAIL] pass 2 SIGSEGV, make -j4: rc 2 vs serial 2
+    [FAIL] pass 2 SIGSEGV, make -j1: rc 2 vs serial 2
+    [FAIL] pass 2 SIGSEGV, make -j4 -s: rc 2 vs serial 2
+CAUGHT [new] no fail-fast stop: rc=1, 2 failing checks
+    [FAIL] make -j4: pass 1 fails and the run ends in 30.3 s; passes started ['pass0', 'pass1', 'pass2', 'pass3'], all ended
+    [FAIL] make -j1: pass 1 fails and the run ends in 61.0 s; passes started ['pass0', 'pass1', 'pass2', 'pass3'], all ended
+CAUGHT [new] a print failure ignored: rc=1, 1 failing checks
+    [FAIL] pass 1's kept transcript made unreadable: rc 0, pass 0 printed, the diagnostic missing, nothing after it
+CAUGHT [new] signals not forwarded: rc=1, 1 failing checks
+    [FAIL] SIGTERM to make's own process: make ended (-15), 4 simulators left
+CAUGHT [new] standard error merged into standard output: rc=1, 51 failing checks
+    [FAIL] clean, make -j4: rc 0 vs serial 0
+    [FAIL] clean, make -j1: rc 0 vs serial 0
+    [FAIL] clean, make -j4 -s: rc 0 vs serial 0
+CAUGHT [new] the generator without the serial redirection, its signal death replayed as 256-n: rc=1, 5 failing checks
+    [FAIL] pass 1 image generator SIGSEGV, make -j4: rc 2 vs serial 2
+    [FAIL] pass 1 image generator SIGSEGV, make -j1: rc 2 vs serial 2
+    [FAIL] pass 1 image generator SIGSEGV, make -j4 -s: rc 2 vs serial 2
+CAUGHT [new] a generator's own signal death not re-raised at replay: rc=1, 2 failing checks
+    [FAIL] an image generator killed by SIGSEGV replays as the serial line ended: '' vs 'make: *** [Makefile:2: all] Segmentation fault'
+    [FAIL] an image generator killed by SIGKILL replays as the serial line ended: '' vs 'make: *** [Makefile:2: all] Killed'
+CAUGHT [new] the replay re-raising in make's directory: rc=1, 1 failing checks
+    [FAIL] a replayed signal death is re-raised from <scratch><tmp>/engine-passes-test-f2vz63w3/cwd
+CAUGHT [new] a no-core replay left dumpable: rc=1, 2 failing checks
+    [FAIL] an image generator killed by SIGSEGV replays as the serial line ended: 'make: *** [Makefile:2: all] Segmentation fault (core dumped)' vs 'make: *** [Make
+    [FAIL] a no-core signal death replays as a non-dumpable one at core limit 0: 'make: *** [Makefile:2: all] Segmentation fault (core dumped)' vs 'make: *** [Makef
+[old] 13/13 plants caught
+[new] 13/13 plants caught

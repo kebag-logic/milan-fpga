@@ -1,0 +1,93 @@
+From f3b24f3cf5624d3ba88a910a9243ab0bb6de6811 Mon Sep 17 00:00:00 2001
+From: hackerman-kl <hackerman-kl@kebag-logic.com>
+Date: Thu, 26 Nov 2026 07:54:42 +0100
+Subject: [PATCH 1/2] Document and annotate the engine runner's public
+ functions, and drop make()'s unused stdout parameter
+
+---
+ tb/verilator/engine/pass_run.py    |  4 ++++
+ tb/verilator/engine/passes_test.py | 10 +++++++---
+ 2 files changed, 11 insertions(+), 3 deletions(-)
+
+diff --git a/tb/verilator/engine/pass_run.py b/tb/verilator/engine/pass_run.py
+index cbf387b..e4c53f1 100644
+--- a/tb/verilator/engine/pass_run.py
++++ b/tb/verilator/engine/pass_run.py
+@@ -102,14 +102,17 @@ def run(n: int, directory: str | None, generate: str | None, argv: list[str], ig
+     child: list[subprocess.Popen] = []
+ 
+     def chunk(stream: int, data: bytes) -> None:
++        """Keep `data` as one record of the transcript: the stream (1 or 2), its length, then the bytes."""
+         log.write(bytes([stream]) + len(data).to_bytes(4, "big") + data)
+ 
+     def forward(signum: int, _frame: object) -> None:
++        """Pass an INT, TERM, QUIT or HUP on to the simulator and all below it, and remember it for the end."""
+         received.append(signum)
+         if child and child[0].returncode is None:
+             signal_all(child[0].pid, signum)
+ 
+     def stop(_signum: int, _frame: object) -> None:
++        """An earlier pass's SIGUSR1: if that pass failed, mark this one stopped and end its simulator."""
+         if failed_before(n):
+             record["stopped"] = True
+             if child and child[0].returncode is None:
+@@ -262,6 +265,7 @@ def reraise(signum: int, core: bool) -> None:
+ 
+ 
+ def main() -> int:
++    """Run or replay one pass, as the command line names it."""
+     parser = argparse.ArgumentParser(description=__doc__.split("\n", 1)[0])
+     parser.add_argument("--ignore-errors", action="store_true", help="make runs with -i")
+     sub = parser.add_subparsers(dest="what", required=True)
+diff --git a/tb/verilator/engine/passes_test.py b/tb/verilator/engine/passes_test.py
+index 772de32..ca50def 100644
+--- a/tb/verilator/engine/passes_test.py
++++ b/tb/verilator/engine/passes_test.py
+@@ -181,7 +181,7 @@ def tree(scratch: Path) -> dict[str, Path]:
+     return trees
+ 
+ 
+-def make(engine: Path, flags: list[str], plan: dict, events: Path, stdout: int | None = None,
++def make(engine: Path, flags: list[str], plan: dict, events: Path,
+          directory: Path | None = None, target: str = "run") -> subprocess.CompletedProcess:
+     """One make run with the stubs; its captured streams and status."""
+     stub = engine.parents[1] / "stub"
+@@ -191,7 +191,7 @@ def make(engine: Path, flags: list[str], plan: dict, events: Path, stdout: int |
+     args = ["make", *flags, target, "VERILATOR=../../stub/verilator.py", "GEN=../../stub/gen.py"]
+     subprocess.run(["make", "-s", "clean"], cwd=engine, check=True, env=env)
+     return subprocess.run(args, cwd=directory or engine, env=env, text=True, preexec_fn=no_cores, timeout=120,
+-                          stdout=subprocess.PIPE if stdout is None else stdout, stderr=subprocess.PIPE)
++                          stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+ 
+ 
+ def no_cores() -> None:
+@@ -202,6 +202,7 @@ def no_cores() -> None:
+ 
+ 
+ def read(events: Path) -> list[dict]:
++    """The stub jobs' recorded events, none before the first."""
+     return [json.loads(line) for line in events.read_text().splitlines()] if events.exists() else []
+ 
+ 
+@@ -391,7 +392,9 @@ def no_core_replay(trees: dict[str, Path], scratch: Path) -> int:
+     die = (f"exec python3 -c 'import ctypes, os; ctypes.CDLL(None).prctl(4, 0, 0, 0, 0); "
+            f"os.kill(os.getpid(), {int(signal.SIGSEGV)})'")
+     for limit in ((0, 0), (1, resource.RLIM_INFINITY)):
+-        def caller(limit=limit) -> None:
++        def caller(limit: tuple[int, int] = limit) -> None:
++            """In the make child: the core limit `limit`, held within the hard limit, and INT and QUIT at their
++            defaults."""
+             hard = resource.getrlimit(resource.RLIMIT_CORE)[1]
+             unlimited = limit[1] == resource.RLIM_INFINITY
+             want = (min(1, hard), hard) if unlimited and hard != resource.RLIM_INFINITY else limit
+@@ -421,6 +424,7 @@ def no_core_replay(trees: dict[str, Path], scratch: Path) -> int:
+ 
+ 
+ def main() -> int:
++    """Every check against a scratch tree of stubs; 1 when any failed."""
+     with tempfile.TemporaryDirectory(prefix="engine-passes-test-") as name:
+         scratch = Path(name)
+         trees = tree(scratch)
+-- 
+2.56.1
+
