@@ -1,0 +1,10 @@
+firmware LED defect rows (aecp_leds_mutants.py), AECP campaign code, app arm at two interfaces, shipping model
+caught  leds-internal-source-dark  Leds.ClockSourceInternalLightsLd3: internal: LD3 on
+caught  leds-stream-source-without-the-domain-lock  Leds.FollowingAFlowingStreamLightsLd3: the media clock not recovered: LD3 off
+caught  leds-stream-source-not-the-named-input  Leds.FollowingAFlowingStreamLightsLd3: following a flowing stream, recovered: LD3 on
+caught  leds-lock-read-as-a-comparison  Leds.FollowingAFlowingStreamLightsLd3: LOCKED - UNLOCKED odd across the wrap: locked
+caught  leds-receiving-without-the-media-lock  Leds.FollowingAStoppedStreamDarkensLd3: following a stream that stopped: LD3 off | Leds.Ld2IsABoundReceivingInputOrAListenedOutput: bound, not receiving: LD2 off
+caught  leds-receiving-unbound  Leds.FollowingAStoppedStreamDarkensLd3: following an unbound stream: LD3 off | Leds.Ld2IsABoundReceivingInputOrAListenedOutput: receiving, unbound: LD2 off
+caught  leds-ld2-ignores-the-outputs  Leds.Ld2IsABoundReceivingInputOrAListenedOutput: with a Listener: LD2 on
+caught  leds-ld2-ignores-the-inputs  Leds.Ld2IsABoundReceivingInputOrAListenedOutput: bound and receiving: LD2 on
+8 of 8 caught; table control (every test claimed) passed

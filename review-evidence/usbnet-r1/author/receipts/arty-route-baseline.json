@@ -1,0 +1,99 @@
+{
+ "ExtraTimingOpt-none-splitbase": {
+  "inputs": {
+   "head": "49b534fc9fac58d896e547b4ec337834ae054df0",
+   "extra": [
+    "--none"
+   ],
+   "firmware_sha256": "b9935f68728392c61fbb93c362c912d8b0272bc5973320cbfb327285f2fc6f80"
+  },
+  "corners": {
+   "Slow_0C": {
+    "WNS": 0.433,
+    "TNS": 0.0,
+    "setup_fail": 0,
+    "WHS": 0.138,
+    "THS": 0.0,
+    "hold_fail": 0,
+    "pulse_fail": 0
+   },
+   "Slow_85C": {
+    "WNS": 0.433,
+    "TNS": 0.0,
+    "setup_fail": 0,
+    "WHS": 0.138,
+    "THS": 0.0,
+    "hold_fail": 0,
+    "pulse_fail": 0
+   },
+   "Fast_0C": {
+    "WNS": 1.606,
+    "TNS": 0.0,
+    "setup_fail": 0,
+    "WHS": 0.05,
+    "THS": 0.0,
+    "hold_fail": 0,
+    "pulse_fail": 0
+   },
+   "Fast_85C": {
+    "WNS": 1.606,
+    "TNS": 0.0,
+    "setup_fail": 0,
+    "WHS": 0.05,
+    "THS": 0.0,
+    "hold_fail": 0,
+    "pulse_fail": 0
+   }
+  },
+  "routing_errors": 0,
+  "utilisation": {
+   "Slice LUTs": 33015,
+   "LUT as Logic": 31841,
+   "LUT as Memory": 1174,
+   "Slice Registers": 40369,
+   "Slice": 13791,
+   "Block RAM Tile": 78,
+   "DSPs": 13
+  },
+  "hierarchy": {
+   "digilent_arty (top)": {
+    "LUT": 33015,
+    "FF": 40369,
+    "RAMB36": 61,
+    "RAMB18": 34
+   },
+   "(digilent_arty) (top)": {
+    "LUT": 1041,
+    "FF": 2443,
+    "RAMB36": 47,
+    "RAMB18": 7
+   }
+  },
+  "bitstream_sha256": "09ae61dbc097dd04125848692ea1cc90a857e54cadf488b140c0b7aea3989bd2",
+  "bitstream_bytes": 3270263,
+  "manifest": {
+   "schema": 1,
+   "placement": "split",
+   "ident": "Milan TSN SoC - VexiiRiscv RV32 1-core baremetal split",
+   "version": "0x00030060",
+   "mailbox": {
+    "major": 2,
+    "minor": 4
+   },
+   "ctrl_firmware": {
+    "path": "$VALIDATION_STORAGE/usbnet-a855/route/ctrl_app.base.elf",
+    "sha256": "b9935f68728392c61fbb93c362c912d8b0272bc5973320cbfb327285f2fc6f80",
+    "bytes": 159620
+   },
+   "bitstream": {
+    "bitstream_payload_sha256": "e6c104aa3896059c40ff32902a7ba102b7b5b9d576dac507db64dcb90e5b99d2",
+    "bitstream_fpga_part": "7a100tcsg324"
+   }
+  },
+  "worst": {
+   "WNS": 0.433,
+   "WHS": 0.05,
+   "fails": 0
+  }
+ }
+}

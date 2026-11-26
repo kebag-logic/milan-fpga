@@ -1,0 +1,18 @@
+baseline: pristine Arty split merge 49b534fc9fac firmware b9935f687283 ExtraTimingOpt, the split recipe argv
+image:    integration 660ed296780e firmware 18c9b4046214 AltSpreadLogic_high (selected), --usb-net
+baseline           worst WNS 0.433 ns, WHS 0.05 ns, failing 0, routing errors 0
+image (selected)   worst WNS 0.601 ns, WHS 0.05 ns, failing 0, routing errors 0
+image, ExtraTimingOpt worst WNS 0.072 ns, WHS 0.05 ns, failing 0 (met; not selected)
+Slice LUTs          33015 ->    34236  delta +1221
+LUT as Logic        31841 ->    33047  delta +1206
+LUT as Memory        1174 ->     1189  delta +15
+Slice Registers     40369 ->    41201  delta +832
+Slice               13791 ->    14206  delta +415
+Block RAM Tile         78 ->       80  delta +2
+DSPs                   13 ->       13  delta +0
+of which the tap (DONT_TOUCH instance): 1019 LUT, 791 FF, 2 RAMB36
+  u_rx KL_usbnet_rx_copy: 339 LUT, 278 FF, 1 RAMB36
+  u_tx KL_usbnet_tx_inject: 585 LUT, 479 FF, 1 RAMB36
+  u_arb KL_usbnet_tx_arb: 95 LUT, 34 FF, 0 RAMB36
+the rest (status LEDs and their two registers, the tap's three registers, the SoC glue): +202 LUT, +41 FF
+bitstream ddddd0f03d79291b033662b6872e8cc99d92256780a7732d0a6ec1909f62e77f 3290455 B; payload 0086e52fde37c929c90610c6cdd1d4c99fde0550afe37f3a0f35c481faa0200f

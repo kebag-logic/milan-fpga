@@ -1,0 +1,486 @@
+{
+ "ExtraTimingOpt": {
+  "inputs": {
+   "head": "38ec75b7d80ac0a3ac858287cf01a1b48ebe4cbb",
+   "extra": [
+    "--usb-net"
+   ],
+   "firmware_sha256": "b9935f68728392c61fbb93c362c912d8b0272bc5973320cbfb327285f2fc6f80"
+  },
+  "corners": {
+   "Slow_0C": {
+    "WNS": 0.417,
+    "TNS": 0.0,
+    "setup_fail": 0,
+    "WHS": 0.093,
+    "THS": 0.0,
+    "hold_fail": 0,
+    "pulse_fail": 0
+   },
+   "Slow_85C": {
+    "WNS": 0.417,
+    "TNS": 0.0,
+    "setup_fail": 0,
+    "WHS": 0.093,
+    "THS": 0.0,
+    "hold_fail": 0,
+    "pulse_fail": 0
+   },
+   "Fast_0C": {
+    "WNS": 1.656,
+    "TNS": 0.0,
+    "setup_fail": 0,
+    "WHS": 0.013,
+    "THS": 0.0,
+    "hold_fail": 0,
+    "pulse_fail": 0
+   },
+   "Fast_85C": {
+    "WNS": 1.656,
+    "TNS": 0.0,
+    "setup_fail": 0,
+    "WHS": 0.013,
+    "THS": 0.0,
+    "hold_fail": 0,
+    "pulse_fail": 0
+   }
+  },
+  "routing_errors": 0,
+  "utilisation": {
+   "Slice LUTs": 34150,
+   "LUT as Logic": 32961,
+   "LUT as Memory": 1189,
+   "Slice Registers": 41124,
+   "Slice": 14131,
+   "Block RAM Tile": 80,
+   "DSPs": 13
+  },
+  "hierarchy": {
+   "digilent_arty (top)": {
+    "LUT": 34150,
+    "FF": 41124,
+    "RAMB36": 63,
+    "RAMB18": 34
+   },
+   "(digilent_arty) (top)": {
+    "LUT": 1035,
+    "FF": 2448,
+    "RAMB36": 47,
+    "RAMB18": 7
+   },
+   "usbnet_tap KL_usbnet_tap": {
+    "LUT": 1009,
+    "FF": 717,
+    "RAMB36": 2,
+    "RAMB18": 0
+   },
+   "u_tx KL_usbnet_tx_inject": {
+    "LUT": 594,
+    "FF": 479,
+    "RAMB36": 1,
+    "RAMB18": 0
+   },
+   "u_arb KL_usbnet_tx_arb": {
+    "LUT": 93,
+    "FF": 34,
+    "RAMB36": 0,
+    "RAMB18": 0
+   },
+   "u_rx KL_usbnet_rx_copy": {
+    "LUT": 323,
+    "FF": 204,
+    "RAMB36": 1,
+    "RAMB18": 0
+   }
+  },
+  "bitstream_sha256": "9e4494e30a3e02e267d3a769c39ddc65c8720f897874835266f83a2c00e905ea",
+  "bitstream_bytes": 3273091,
+  "manifest": {
+   "schema": 1,
+   "placement": "split",
+   "ident": "Milan TSN SoC - VexiiRiscv RV32 1-core baremetal split",
+   "version": "0x00030060",
+   "mailbox": {
+    "major": 2,
+    "minor": 4
+   },
+   "ctrl_firmware": {
+    "path": "$VALIDATION_STORAGE/usbnet-a855/route/ctrl_app.base.elf",
+    "sha256": "b9935f68728392c61fbb93c362c912d8b0272bc5973320cbfb327285f2fc6f80",
+    "bytes": 159620
+   },
+   "bitstream": {
+    "bitstream_payload_sha256": "7db0f946ee08a78d591142b4309e874825760c67141eb4da2d03aa665aaeb004",
+    "bitstream_fpga_part": "7a100tcsg324"
+   }
+  },
+  "worst": {
+   "WNS": 0.417,
+   "WHS": 0.013,
+   "fails": 0
+  }
+ },
+ "ExtraTimingOpt-final": {
+  "inputs": {
+   "head": "b1a1b4cb58939735e1f71eb0c457bd7ac189fe9f",
+   "extra": [
+    "--usb-net"
+   ],
+   "firmware_sha256": "18c9b4046214a60b0e7168e183473bb20fa950f52d999efeca47e664fbbf9771"
+  },
+  "corners": {
+   "Slow_0C": {
+    "WNS": 0.212,
+    "TNS": 0.0,
+    "setup_fail": 0,
+    "WHS": 0.17,
+    "THS": 0.0,
+    "hold_fail": 0,
+    "pulse_fail": 0
+   },
+   "Slow_85C": {
+    "WNS": 0.212,
+    "TNS": 0.0,
+    "setup_fail": 0,
+    "WHS": 0.17,
+    "THS": 0.0,
+    "hold_fail": 0,
+    "pulse_fail": 0
+   },
+   "Fast_0C": {
+    "WNS": 1.656,
+    "TNS": 0.0,
+    "setup_fail": 0,
+    "WHS": 0.05,
+    "THS": 0.0,
+    "hold_fail": 0,
+    "pulse_fail": 0
+   },
+   "Fast_85C": {
+    "WNS": 1.656,
+    "TNS": 0.0,
+    "setup_fail": 0,
+    "WHS": 0.05,
+    "THS": 0.0,
+    "hold_fail": 0,
+    "pulse_fail": 0
+   }
+  },
+  "routing_errors": 0,
+  "utilisation": {
+   "Slice LUTs": 34214,
+   "LUT as Logic": 33025,
+   "LUT as Memory": 1189,
+   "Slice Registers": 41127,
+   "Slice": 14115,
+   "Block RAM Tile": 80,
+   "DSPs": 13
+  },
+  "hierarchy": {
+   "digilent_arty (top)": {
+    "LUT": 34214,
+    "FF": 41127,
+    "RAMB36": 63,
+    "RAMB18": 34
+   },
+   "(digilent_arty) (top)": {
+    "LUT": 1038,
+    "FF": 2451,
+    "RAMB36": 47,
+    "RAMB18": 7
+   },
+   "usbnet_tap KL_usbnet_tap": {
+    "LUT": 1011,
+    "FF": 717,
+    "RAMB36": 2,
+    "RAMB18": 0
+   },
+   "u_tx KL_usbnet_tx_inject": {
+    "LUT": 596,
+    "FF": 479,
+    "RAMB36": 1,
+    "RAMB18": 0
+   },
+   "u_arb KL_usbnet_tx_arb": {
+    "LUT": 93,
+    "FF": 34,
+    "RAMB36": 0,
+    "RAMB18": 0
+   },
+   "u_rx KL_usbnet_rx_copy": {
+    "LUT": 323,
+    "FF": 204,
+    "RAMB36": 1,
+    "RAMB18": 0
+   }
+  },
+  "bitstream_sha256": "d74fb24dbc26e51644fe9b61f8dde5b8926d739d7451ae22430684b10e064309",
+  "bitstream_bytes": 3288967,
+  "manifest": {
+   "schema": 1,
+   "placement": "split",
+   "ident": "Milan TSN SoC - VexiiRiscv RV32 1-core baremetal split",
+   "version": "0x00030060",
+   "mailbox": {
+    "major": 2,
+    "minor": 4
+   },
+   "ctrl_firmware": {
+    "path": "$VALIDATION_STORAGE/usbnet-a855/route/ctrl_app.leds.elf",
+    "sha256": "18c9b4046214a60b0e7168e183473bb20fa950f52d999efeca47e664fbbf9771",
+    "bytes": 159824
+   },
+   "bitstream": {
+    "bitstream_payload_sha256": "6edaab6d9e175f41465d8cbf5808c289fdc072965637d2baed59ab5c5cc71e45",
+    "bitstream_fpga_part": "7a100tcsg324"
+   }
+  },
+  "worst": {
+   "WNS": 0.212,
+   "WHS": 0.05,
+   "fails": 0
+  }
+ },
+ "ExtraTimingOpt-final2": {
+  "inputs": {
+   "head": "660ed296780e3ff1e5cdc88b9b1ce32d08e94b49",
+   "extra": [
+    "--usb-net"
+   ],
+   "firmware_sha256": "18c9b4046214a60b0e7168e183473bb20fa950f52d999efeca47e664fbbf9771"
+  },
+  "corners": {
+   "Slow_0C": {
+    "WNS": 0.072,
+    "TNS": 0.0,
+    "setup_fail": 0,
+    "WHS": 0.126,
+    "THS": 0.0,
+    "hold_fail": 0,
+    "pulse_fail": 0
+   },
+   "Slow_85C": {
+    "WNS": 0.072,
+    "TNS": 0.0,
+    "setup_fail": 0,
+    "WHS": 0.126,
+    "THS": 0.0,
+    "hold_fail": 0,
+    "pulse_fail": 0
+   },
+   "Fast_0C": {
+    "WNS": 1.613,
+    "TNS": 0.0,
+    "setup_fail": 0,
+    "WHS": 0.05,
+    "THS": 0.0,
+    "hold_fail": 0,
+    "pulse_fail": 0
+   },
+   "Fast_85C": {
+    "WNS": 1.613,
+    "TNS": 0.0,
+    "setup_fail": 0,
+    "WHS": 0.05,
+    "THS": 0.0,
+    "hold_fail": 0,
+    "pulse_fail": 0
+   }
+  },
+  "routing_errors": 0,
+  "utilisation": {
+   "Slice LUTs": 34236,
+   "LUT as Logic": 33047,
+   "LUT as Memory": 1189,
+   "Slice Registers": 41201,
+   "Slice": 14206,
+   "Block RAM Tile": 80,
+   "DSPs": 13
+  },
+  "hierarchy": {
+   "digilent_arty (top)": {
+    "LUT": 34236,
+    "FF": 41201,
+    "RAMB36": 63,
+    "RAMB18": 34
+   },
+   "(digilent_arty) (top)": {
+    "LUT": 1055,
+    "FF": 2452,
+    "RAMB36": 47,
+    "RAMB18": 7
+   },
+   "usbnet_tap KL_usbnet_tap": {
+    "LUT": 1019,
+    "FF": 791,
+    "RAMB36": 2,
+    "RAMB18": 0
+   },
+   "u_tx KL_usbnet_tx_inject": {
+    "LUT": 585,
+    "FF": 479,
+    "RAMB36": 1,
+    "RAMB18": 0
+   },
+   "u_arb KL_usbnet_tx_arb": {
+    "LUT": 95,
+    "FF": 34,
+    "RAMB36": 0,
+    "RAMB18": 0
+   },
+   "u_rx KL_usbnet_rx_copy": {
+    "LUT": 339,
+    "FF": 278,
+    "RAMB36": 1,
+    "RAMB18": 0
+   }
+  },
+  "bitstream_sha256": "59771def09d732e36b1e21b76a3690800f9312a98c1c343dd776527f88d5fa96",
+  "bitstream_bytes": 3292475,
+  "manifest": {
+   "schema": 1,
+   "placement": "split",
+   "ident": "Milan TSN SoC - VexiiRiscv RV32 1-core baremetal split",
+   "version": "0x00030060",
+   "mailbox": {
+    "major": 2,
+    "minor": 4
+   },
+   "ctrl_firmware": {
+    "path": "$VALIDATION_STORAGE/usbnet-a855/route/ctrl_app.leds.elf",
+    "sha256": "18c9b4046214a60b0e7168e183473bb20fa950f52d999efeca47e664fbbf9771",
+    "bytes": 159824
+   },
+   "bitstream": {
+    "bitstream_payload_sha256": "0c79c3b0ded057c8fe857857fbfd207cb6dde5d9e1597be1d231753b199e6334",
+    "bitstream_fpga_part": "7a100tcsg324"
+   }
+  },
+  "worst": {
+   "WNS": 0.072,
+   "WHS": 0.05,
+   "fails": 0
+  }
+ },
+ "AltSpreadLogic_high-final2": {
+  "inputs": {
+   "head": "660ed296780e3ff1e5cdc88b9b1ce32d08e94b49",
+   "extra": [
+    "--usb-net"
+   ],
+   "firmware_sha256": "18c9b4046214a60b0e7168e183473bb20fa950f52d999efeca47e664fbbf9771"
+  },
+  "corners": {
+   "Slow_0C": {
+    "WNS": 0.601,
+    "TNS": 0.0,
+    "setup_fail": 0,
+    "WHS": 0.126,
+    "THS": 0.0,
+    "hold_fail": 0,
+    "pulse_fail": 0
+   },
+   "Slow_85C": {
+    "WNS": 0.601,
+    "TNS": 0.0,
+    "setup_fail": 0,
+    "WHS": 0.126,
+    "THS": 0.0,
+    "hold_fail": 0,
+    "pulse_fail": 0
+   },
+   "Fast_0C": {
+    "WNS": 1.613,
+    "TNS": 0.0,
+    "setup_fail": 0,
+    "WHS": 0.05,
+    "THS": 0.0,
+    "hold_fail": 0,
+    "pulse_fail": 0
+   },
+   "Fast_85C": {
+    "WNS": 1.613,
+    "TNS": 0.0,
+    "setup_fail": 0,
+    "WHS": 0.05,
+    "THS": 0.0,
+    "hold_fail": 0,
+    "pulse_fail": 0
+   }
+  },
+  "routing_errors": 0,
+  "utilisation": {
+   "Slice LUTs": 34236,
+   "LUT as Logic": 33047,
+   "LUT as Memory": 1189,
+   "Slice Registers": 41201,
+   "Slice": 14206,
+   "Block RAM Tile": 80,
+   "DSPs": 13
+  },
+  "hierarchy": {
+   "digilent_arty (top)": {
+    "LUT": 34236,
+    "FF": 41201,
+    "RAMB36": 63,
+    "RAMB18": 34
+   },
+   "(digilent_arty) (top)": {
+    "LUT": 1055,
+    "FF": 2452,
+    "RAMB36": 47,
+    "RAMB18": 7
+   },
+   "usbnet_tap KL_usbnet_tap": {
+    "LUT": 1019,
+    "FF": 791,
+    "RAMB36": 2,
+    "RAMB18": 0
+   },
+   "u_tx KL_usbnet_tx_inject": {
+    "LUT": 585,
+    "FF": 479,
+    "RAMB36": 1,
+    "RAMB18": 0
+   },
+   "u_arb KL_usbnet_tx_arb": {
+    "LUT": 95,
+    "FF": 34,
+    "RAMB36": 0,
+    "RAMB18": 0
+   },
+   "u_rx KL_usbnet_rx_copy": {
+    "LUT": 339,
+    "FF": 278,
+    "RAMB36": 1,
+    "RAMB18": 0
+   }
+  },
+  "bitstream_sha256": "ddddd0f03d79291b033662b6872e8cc99d92256780a7732d0a6ec1909f62e77f",
+  "bitstream_bytes": 3290455,
+  "manifest": {
+   "schema": 1,
+   "placement": "split",
+   "ident": "Milan TSN SoC - VexiiRiscv RV32 1-core baremetal split",
+   "version": "0x00030060",
+   "mailbox": {
+    "major": 2,
+    "minor": 4
+   },
+   "ctrl_firmware": {
+    "path": "$VALIDATION_STORAGE/usbnet-a855/route/ctrl_app.leds.elf",
+    "sha256": "18c9b4046214a60b0e7168e183473bb20fa950f52d999efeca47e664fbbf9771",
+    "bytes": 159824
+   },
+   "bitstream": {
+    "bitstream_payload_sha256": "0086e52fde37c929c90610c6cdd1d4c99fde0550afe37f3a0f35c481faa0200f",
+    "bitstream_fpga_part": "7a100tcsg324"
+   }
+  },
+  "worst": {
+   "WNS": 0.601,
+   "WHS": 0.05,
+   "fails": 0
+  }
+ }
+}
