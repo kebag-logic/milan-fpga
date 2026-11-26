@@ -1,0 +1,20 @@
+head 079c4fa1514be460949ddc28ae3277ea1873cb48
+tree be2122cbd487361b4ed8a99ff283565c1bec3eb2
+status entries 0
+submodule -efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 external
+submodule  1213ac5b9e09b8759ba76cc70c53652b5e108996 gptp-processor (1213ac5)
+submodule  801ef2283ec793e35a2590fc6593c90313a64041 protocol-processor (v2.0-912-g801ef22)
+submodule  d1bb4f4e5954af6dabe7f210a6bf7adbb76bdd6b third_party/lwSRP (d1bb4f4)
+submodule  715589c1db7cf67e2f3259fd7083ebc7f0923376 third_party/tsn-c-stack (715589c1)
+submodule  48ff7a7e2ef782cf778d47910cf85835c64b1bce third_party/verilog-axis (heads/master)
+command python3 -B tb/verilator/ctrl_service_budget/run.py --point 1x1 --build-dir <build>/r2-full-1x1 --out <out>/1x1 --jobs 16 --record-budget-findings
+start 2026-11-26T07:38:51+01:00
+end 2026-11-26T10:45:14+01:00
+rc 0
+status entries after 0
+build.json executable_sha256 d295b6ac9ed9f37da3fd63bdd13f648c67e49094ca77dbca45872b75a7367b1b
+sha256 native/Vsim d295b6ac9ed9f37da3fd63bdd13f648c67e49094ca77dbca45872b75a7367b1b
+sha256 image/ctrl_app.elf f4bbbb4d0107ec8e54d9bcec04add8d11c16bfdfd4137e32d4bb34bcc6a9448e
+9a7c045e18930661c6ca09fa38d00645e49e603d4de25ddc84661c32af5d79fd  <scratch>/runs/r2-full-1x1/results.json
+555dff21c0b1c09fb134810c9c649e6c567091c900dff11588ef9a23168f38d4  <scratch>/runs/r2-full-1x1/table.md
+8b821068312bb041bd840e359afab20890cde9f1e92e2414c6ee937f855dcc35  <scratch>/runs/r2-full-1x1/run.out

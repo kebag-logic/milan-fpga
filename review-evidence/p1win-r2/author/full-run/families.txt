@@ -1,0 +1,34 @@
+== 1x1: every path's worst instance by family (ms, its budget), misses
+  acmp        19 paths, worst 63.215 ms (backlog.owed_behind) against 20 ms; over budget: ['backlog.owed', 'backlog.owed_behind', 'service.acmp.last']
+  adp         10 paths, worst 4.840 ms (service.adp.last) against 20 ms; over budget: []
+  aecp        33 paths, worst 61.645 ms (service.aecp.last) against 20 ms; over budget: ['service.aecp.last']
+  disc         5 paths, worst 4.142 ms (backlog.adp_available) against 20 ms; over budget: []
+  maap         8 paths, worst 4.878 ms (service.maap.last) against 20 ms; over budget: []
+  notify      11 paths, worst 3.179 ms (aecp_fanout.add_audio_mappings) against 20 ms; over budget: []
+  srp         12 paths, worst 9.238 ms (service.srp.last) against 20 ms; over budget: []
+  share misses 0, save misses 0, refusals 0, budget misses 7
+== 8x8-1if: every path's worst instance by family (ms, its budget), misses
+  acmp        19 paths, worst 64.762 ms (backlog.owed_behind) against 20 ms; over budget: ['backlog.owed', 'backlog.owed_behind', 'service.acmp.last']
+  adp         10 paths, worst 6.907 ms (service.adp.last) against 20 ms; over budget: []
+  aecp        33 paths, worst 63.038 ms (service.aecp.last) against 20 ms; over budget: ['service.aecp.last']
+  disc         5 paths, worst 6.510 ms (backlog.adp_available) against 20 ms; over budget: []
+  maap         8 paths, worst 6.944 ms (service.maap.last) against 20 ms; over budget: []
+  notify      11 paths, worst 3.263 ms (aecp_long.add_audio_mappings) against 20 ms; over budget: []
+  srp         12 paths, worst 11.483 ms (service.srp.last) against 20 ms; over budget: []
+  share misses 0, save misses 0, refusals 0, budget misses 7
+== 1x1: 968 measured instances; without the backlog-owed group (its seven rows are the 60 ms egress hold):
+  acmp     worst 4.847 ms (backlog-adp@program-6.service.acmp.last.if0), budget 20 ms, ceiling 20.0 ms, over budget 0
+  adp      worst 4.840 ms (backlog-adp@program-6.service.adp.last.if0), budget 20 ms, ceiling 200.0 ms, over budget 0
+  aecp     worst 5.203 ms (aecp.held.read_descriptor.if0), budget 20 ms, ceiling 24.0 ms, over budget 0
+  disc     worst 4.142 ms (backlog-adp@program-aged2-7.adp_available.if0), budget 20 ms, ceiling 20.0 ms, over budget 0
+  maap     worst 4.878 ms (backlog-adp@program-6.service.maap.last.if0), budget 20 ms, ceiling 50.0 ms, over budget 0
+  notify   worst 3.179 ms (aecp_fanout.add_audio_mappings.if0), budget 20 ms, ceiling 24.0 ms, over budget 0
+  srp      worst 9.238 ms (backlog-adp@program-aged2-3.service.srp.last.if0), budget 20 ms, ceiling 20.0 ms, over budget 0
+== 8x8-1if: 974 measured instances; without the backlog-owed group (its seven rows are the 60 ms egress hold):
+  acmp     worst 8.291 ms (backlog-adp@program-aged2-5.service.acmp.last.if0), budget 20 ms, ceiling 20.0 ms, over budget 0
+  adp      worst 6.907 ms (backlog-adp@verify-aged2-7.service.adp.last.if0), budget 20 ms, ceiling 200.0 ms, over budget 0
+  aecp     worst 5.594 ms (save-flight.held.aecp.if0), budget 20 ms, ceiling 24.0 ms, over budget 0
+  disc     worst 6.510 ms (backlog-adp@program-aged2-6.adp_available.if0), budget 20 ms, ceiling 20.0 ms, over budget 0
+  maap     worst 6.944 ms (backlog-adp@verify-aged2-7.service.maap.last.if0), budget 20 ms, ceiling 50.0 ms, over budget 0
+  notify   worst 3.263 ms (aecp_long.add_audio_mappings.if0), budget 20 ms, ceiling 24.0 ms, over budget 0
+  srp      worst 11.483 ms (backlog-adp@verify-aged2-3.service.srp.last.if0), budget 20 ms, ceiling 20.0 ms, over budget 0

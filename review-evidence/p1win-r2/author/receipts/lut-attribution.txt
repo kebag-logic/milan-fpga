@@ -1,0 +1,24 @@
+# The routed LUT difference, attributed (R941-1-S1, R942-1-F1): the four images of round 1, AltSpreadLogic_high each
+## netlist inputs, head against base (the generated top Verilog, every memory image it names)
+8x8: Verilog lines differing other than the generation date and the clone path of three hex files: 0; the three hex files' contents identical: gptp_ucode.hex, ltn_rom.hex, ucode.hex
+8x8: memory init files differing: alinx_ax7101_rom_bank0.init alinx_ax7101_rom_bank1.init alinx_ax7101_rom_bank2.init (the firmware ROM's banks; every other init file identical)
+1x1: Verilog lines differing other than the generation date and the clone path of three hex files: 0; the three hex files' contents identical: gptp_ucode.hex, ltn_rom.hex, ucode.hex
+1x1: memory init files differing: alinx_ax7101_rom_bank0.init alinx_ax7101_rom_bank1.init alinx_ax7101_rom_bank2.init alinx_ax7101_rom_bank3.init alinx_ax7101_rom_bank4.init alinx_ax7101_rom_bank5.init (the firmware ROM's banks; every other init file identical)
+## the firmware ROM banks' block-RAM cells after synthesis (Synth 8-7052 'implemented as a Block RAM'), base = head
+8x8-base:  32 rom_bank0; 2 rom_bank1;
+8x8:  32 rom_bank0; 2 rom_bank1;
+1x1-base:  16 rom_bank0; 8 rom_bank1; 4 rom_bank2; 2 rom_bank3; 1 rom_bank4;
+1x1:  16 rom_bank0; 8 rom_bank1; 4 rom_bank2; 2 rom_bank3; 1 rom_bank4;
+(8x8's bank2 and 1x1's bank5, the last, partial banks, have no block-RAM cell: synthesis maps them to logic, so their contents count in LUTs)
+## counts, after synthesis and after placement (utilization_synth.rpt, utilization_place.rpt)
+| image | synth LUTs | synth registers | placed LUTs | placed registers | block RAM tiles |
+|---|---:|---:|---:|---:|---:|
+| 8x8-base | 48021 | 53477 | 45814 | 53381 | 98.5 |
+| 8x8 | 48044 | 53475 | 45973 | 53375 | 98.5 |
+| 1x1-base | 34476 | 42993 | 32656 | 42803 | 80.5 |
+| 1x1 | 34495 | 42993 | 32647 | 42803 | 80.5 |
+## per instance (hierarchical reports, leaf and parent rows alike, own-cell rows left out): how the difference spreads
+8x8 synth: 9 instances differ, 6 up, 3 down; largest KL_mbx +40, KL_mbx_cdc -25, milan_datapath +25, a_buffered_fork2 +8
+8x8 place: 44 instances differ, 24 up, 20 down; largest milan_datapath +70, u_edit +53, KL_mbx +51, KL_mbx_cdc +42
+1x1 synth: 2 instances differ, 2 up, 0 down; largest VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51 +19, peripheral_toAxiLite4_logic_bridge +19
+1x1 place: 46 instances differ, 24 up, 22 down; largest render_queue -16, KL_mbx_dma -11, g_gptp_plane.u_gptp_shadow +9, u_tx -8

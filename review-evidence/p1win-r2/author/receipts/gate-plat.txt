@@ -1,0 +1,9 @@
+head 079c4fa1514be460949ddc28ae3277ea1873cb48 tree be2122cbd487361b4ed8a99ff283565c1bec3eb2 status-entries 0
+command python3 -B tb/verilator/ctrl_split_boot/plat_ledger.py --build-dir <build>/r2-plat
+start 2026-11-26T07:52:00+01:00
+POINT 1x1-if1: rom 127,640 B, sram 56,736 B, 45.5 RAMB36 (the 56-RAMB36 budget), ctrl_plat 18048 B: PASS
+POINT 1x1-if2: rom 129,424 B, sram 59,168 B, 46.5 RAMB36 (the 56-RAMB36 budget), ctrl_plat 19840 B: PASS
+POINT 8x8-if1: rom 141,744 B, sram 100,096 B, 59.5 RAMB36 (platform-8x8-one-interface), ctrl_plat 19136 B: PASS
+POINT 8x8-if2: rom 143,496 B, sram 117,632 B, 64.5 RAMB36 (platform-8x8-two-interfaces), ctrl_plat 21888 B: PASS
+plat_ledger: PASS (0 finding(s))
+end 2026-11-26T07:53:17+01:00 rc 0 status-entries 0

@@ -1,0 +1,16 @@
+(1) response to durable, off the console: 24 changes asked, 0 with no record
+  bind             n   6: durable by min 0.3034 median 0.31335 max 0.3323 s (gate 0.8); over the gate 0; brackets 0.0318..0.0346 s wide, 0 of 6 within 10 ms; no durable reading 0
+  stop_streaming   n   6: durable by min 0.3054 median 0.33025000000000004 max 0.3348 s (gate 0.8); over the gate 0; brackets 0.0319..0.0325 s wide, 0 of 6 within 10 ms; no durable reading 0
+  start_streaming  n   6: durable by min 0.3052 median 0.31975 max 0.3336 s (gate 0.8); over the gate 0; brackets 0.0319..0.0328 s wide, 0 of 6 within 10 ms; no durable reading 0
+  unbind           n   6: durable by min 0.3025 median 0.32430000000000003 max 0.3354 s (gate 0.8); over the gate 0; brackets 0.0318..0.0325 s wide, 0 of 6 within 10 ms; no durable reading 0
+(2) power cuts: 9, durable readings in holds: 8, DUT frames captured: 5325
+  sink 0: power off 1.534 s after the response; idle at the bind True (first sample 0.125 s); durable by 0.3145 s (bracket 0.0334 s); the DUT's last frame 2.104 s; durable 1.79 s before it (at least 0.25) PASS
+  sink 1: power off 1.615 s after the response; idle at the bind True (first sample 0.137 s); durable by 0.3188 s (bracket 0.0323 s); the DUT's last frame 2.127 s; durable 1.808 s before it (at least 0.25) PASS
+  sink 0: power off 1.526 s after the response; idle at the bind True (first sample 0.182 s); durable by 0.3051 s (bracket 0.0324 s); the DUT's last frame 1.982 s; durable 1.677 s before it (at least 0.25) PASS
+  sink 1: power off 1.476 s after the response; idle at the bind True (first sample 0.086 s); durable by 0.3274 s (bracket 0.032 s); the DUT's last frame 2.062 s; durable 1.735 s before it (at least 0.25) PASS
+  sink 0: power off 1.486 s after the response; idle at the bind True (first sample 0.086 s); durable by 0.3284 s (bracket 0.0322 s); the DUT's last frame 1.91 s; durable 1.582 s before it (at least 0.25) PASS
+  sink 1: power off 1.540 s after the response; idle at the bind True (first sample 0.082 s); durable by 0.3234 s (bracket 0.0319 s); the DUT's last frame 1.97 s; durable 1.646 s before it (at least 0.25) PASS
+  sink 0: power off 1.574 s after the response; idle at the bind True (first sample 0.084 s); durable by 0.3263 s (bracket 0.0321 s); the DUT's last frame 2.069 s; durable 1.743 s before it (at least 0.25) PASS
+  sink 1: power off 1.550 s after the response; idle at the bind True (first sample 0.087 s); durable by 0.3301 s (bracket 0.0322 s); the DUT's last frame 2.026 s; durable 1.696 s before it (at least 0.25) PASS
+  scenarios: 4 scenarios passed, 0 failed
+power cuts failing the rule: 0 of 8

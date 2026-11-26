@@ -1,0 +1,8 @@
+head 079c4fa1514be460949ddc28ae3277ea1873cb48 tree be2122cbd487361b4ed8a99ff283565c1bec3eb2 status-entries 0
+command python3 -B sw/firmware/gtest/fw_coverage.py --check --jobs 8
+start 2026-11-26T08:47:49+01:00
+sw/firmware/ctrl_nvm/nvm_klj2.c                  212/213     120/124     lines 100.00 %  branches 100.00 %
+sw/firmware/ctrl_nvm/nvm_store.c                 513/513     317/326     lines 100.00 %  branches 100.00 %
+sw/firmware/ctrl_nvm/plat/nvm_flash_litespi.c    108/108      63/64      lines 100.00 %  branches 100.00 %
+firmware coverage: PASS (40 files)
+end 2026-11-26T09:08:26+01:00 rc 0 status-entries 0
