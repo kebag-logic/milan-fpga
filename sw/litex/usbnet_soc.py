@@ -22,7 +22,7 @@ only, so no other board's build sees a line of this module:
       KL_status_leds on the RGB LEDs LD0 to LD3, green only, and the status
       register the control firmware writes for LD2 and LD3
       (`status_leds_ctrl`, read back with the LED states in
-      `status_leds_state`).
+      `status_leds_state`), on a pinned CSR page so no other bank moves.
 """
 from __future__ import annotations
 
@@ -170,5 +170,9 @@ def add_status_leds(soc, platform, sys_clk_freq, repo_root, mac) -> None:
     soc.comb += activity.eq((core.source.valid & core.source.ready & core.source.last) |
                             (core.sink.valid & core.sink.ready & core.sink.last))
     usb_ok = getattr(mac, "usbnet_ok", 0)
+    # Pinned below the REBOOT port's bank (n_locs - 4), as the SoC pins its
+    # late banks, so no automatically placed bank (timer0, uart) moves and an
+    # image linked against the map without the LEDs keeps every address.
+    soc.csr.add("status_leds", n=soc.csr.n_locs - 5)
     soc.status_leds = StatusLeds(platform, sys_clk_freq, repo_root, mac.link_status.fields.link_up,
                                  activity, usb_ok)
