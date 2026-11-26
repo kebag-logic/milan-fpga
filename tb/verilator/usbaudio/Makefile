@@ -65,3 +65,10 @@ media-build:
 	  $(RTL)/KL_usbaudio_media.sv media_tb.sv
 media: media-build
 	$(abspath $(MDIR))/Vmedia_tb
+
+levels-build:
+	$(RTL_SIMULATOR) --binary --timing --top-module levels_tb -Wall \
+	  -Wno-fatal -Wno-TIMESCALEMOD --build-jobs $(JOBS) --Mdir $(abspath $(MDIR)) \
+	  $(wildcard $(RTL)/*.sv) ../../../third_party/verilog-axis/rtl/axis_async_fifo.v levels_tb.sv
+levels: levels-build
+	$(abspath $(MDIR))/Vlevels_tb

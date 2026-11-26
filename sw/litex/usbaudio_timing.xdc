@@ -9,7 +9,8 @@ set_multicycle_path -setup 2 -from [get_clocks usb_gpif_pin] -to $usb_capture_cl
 set_input_delay -clock usb_gpif_pin -max 16.870 [get_ports usbaudio_flaga]
 set_input_delay -clock usb_gpif_pin -min 0.410 [get_ports usbaudio_flaga]
 set_max_delay -datapath_only -from [get_ports usbaudio_flaga] -to [get_cells usb_gpif/flag_meta_r_reg] 21.870
-set_max_delay -datapath_only -from [get_cells usb_gpif/flag_meta_r_reg] -to [get_cells usb_gpif/flag_sync_r_reg] 2.000
+# These stages share a clock: retain the ordinary hold check between them.
+set_max_delay -from [get_cells usb_gpif/flag_meta_r_reg] -to [get_cells usb_gpif/flag_sync_r_reg] 2.000
 set_output_delay -clock usb_gpif_pin -max 4.050 [get_ports {usbaudio_dq[*]}]
 set_output_delay -clock usb_gpif_pin -min -5.610 [get_ports {usbaudio_dq[*]}]
 set usb_controls [get_ports {usbaudio_addr[*] usbaudio_slwr_n usbaudio_slrd_n usbaudio_sloe_n usbaudio_pktend_n}]

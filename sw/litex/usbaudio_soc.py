@@ -183,3 +183,11 @@ class UsbAudio(LiteXModule):
             "kl_audio_pack_check {build_name}_audio_packing.rpt")
         platform.toolchain.additional_commands.append(
             "kl_timing_grade_reports {build_name}_audio")
+        platform.toolchain.additional_commands.append(
+            "report_bus_skew -file {build_name}_audio_bus_skew.rpt")
+        platform.toolchain.additional_commands.append(
+            "report_utilization -file {build_name}_audio_utilization_route.rpt")
+        platform.toolchain.additional_commands.append(
+            "report_timing -from [get_cells usb_gpif/flag_meta_r_reg] "
+            "-to [get_cells usb_gpif/flag_sync_r_reg] -delay_type min_max "
+            "-max_paths 2 -file {build_name}_audio_flag_sync.rpt")

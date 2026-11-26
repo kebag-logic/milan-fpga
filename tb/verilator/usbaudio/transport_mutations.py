@@ -19,7 +19,17 @@ import shutil
 import subprocess
 
 # name, test, source leaf, edits, named detection
-PLANTS = (('reference_magic',
+PLANTS = (
+ ('levels_clock_launch', 'levels', 'bridge',
+  (('lock_r <= {lock_r[0], media_levels_r[2]};',
+    'lock_r <= {lock_r[0], media_locked_i};'),), 'LEVEL_CLOCK_GLITCH'),
+ ('levels_playback_launch', 'levels', 'bridge',
+  (('running_meta_r <= media_levels_r[1:0];',
+    'running_meta_r <= {media_running_w[1], media_levels_r[0]};'),), 'LEVEL_PLAYBACK_GLITCH'),
+ ('levels_capture_launch', 'levels', 'bridge',
+  (('running_meta_r <= media_levels_r[1:0];',
+    'running_meta_r <= {media_levels_r[1], media_running_w[0]};'),), 'LEVEL_CAPTURE_GLITCH'),
+ ('reference_magic',
   'reference',
   'ingress',
   (("data_i != 16'h5549", "1'b0"), ("reference_r[15:0] == 16'h5549", "1'b1")),
@@ -231,7 +241,9 @@ def main() -> int:
             os.fsync(ledger.fileno())
         command = [args.engine, "--binary", "--timing", "--top-module", test+"_tb",
                    "-Wall", "-Wno-fatal", "-Wno-TIMESCALEMOD", "--build-jobs", str(args.jobs),
-                   "--Mdir", str(obj), *sources, str(here / (test+"_tb.sv"))]
+                   "--Mdir", str(obj), *sources,
+                   str(here.parents[2] / "third_party/verilog-axis/rtl/axis_async_fifo.v"),
+                   str(here / (test+"_tb.sv"))]
         with (case / "compile.log").open("w") as log:
             compiled = subprocess.run(command, stdout=log, stderr=subprocess.STDOUT, check=False)
         result = {"plant": name, "check": expected}

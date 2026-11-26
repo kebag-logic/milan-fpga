@@ -46,7 +46,10 @@ records. Length and the record discriminator determine boundaries; socket
 ready transitions do not. A complete state snapshot crosses to the media
 domain atomically. Each PCM FIFO beat contains one complete eight-channel
 frame and its epoch. The independent clocks use asynchronous frame FIFOs
-and locally synchronized reset release.
+and locally synchronized reset release. Decoded clock-health and running
+levels register in the media domain before entering the bus synchronizers;
+logic hazards between source edges cannot become status or qualification
+changes.
 
 USB playback feeds the capture mapper as four ordered 32-bit pairs, followed
 by its frame-snapshot strobe. Twelve complete frames prime playback. Before
@@ -116,7 +119,9 @@ The transport harness uses independent bus, media and oscillator clocks,
 full-width channel-distinct samples, stalls, and strict ordering scores.
 Separate tests exercise reference rejection, raw timestamp correction,
 independent epochs, packet fences, phased bus sampling, and the shared AAF
-storage paths at both widths. Planted defects must trigger their named runtime
+storage paths at both widths. Source-level tests inject decode hazards between
+source clock edges across a receiving edge, and check stable changes and reset.
+Planted defects must trigger their named runtime
 checks; build errors do not count as detections.
 The default audio regression runs those bounded tests, both storage widths,
 a shortened-window duplex check, and representative reference, epoch, packet
@@ -129,6 +134,9 @@ forwarded clock. Each register must occupy the input or output logic site
 of its own pad. Missing, disconnected, unregistered or misplaced endpoints
 stop the build. The default regression includes twelve negative controls of
 this check; those controls do not replace the actual placement receipt.
+The bus-ready synchronizer retains ordinary hold analysis between its two
+same-clock stages under the 2 ns maximum bound. Physical reports include this
+pair's setup and hold paths and direct timestamp/FIFO pointer skew results.
 
 Route closure at both speed models, complete-image comparisons, and exact
 resource differences require their own recorded results. A successful simulation

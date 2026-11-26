@@ -64,6 +64,13 @@ module KL_usbaudio_bridge #(
   (* ASYNC_REG = "TRUE" *) logic [1:0] lock_r, error_r;
   wire media_error_w;
   wire [1:0] media_running_w;
+  logic [2:0] media_levels_r;
+  // Decoded levels may glitch as their source flops settle. Launch only
+  // registered levels into the independent bus-domain synchronizers.
+  always_ff @(posedge media_clk_i) begin : launch_status_levels
+    if (!media_rst_n_w) media_levels_r <= 0;
+    else media_levels_r <= {media_locked_i, media_running_w};
+  end : launch_status_levels
   (* ASYNC_REG = "TRUE" *) logic [1:0] running_meta_r, running_sync_r;
   always_ff @(posedge bus_clk_i) begin : status_levels
     if (!bus_rst_n_w) begin
@@ -72,9 +79,9 @@ module KL_usbaudio_bridge #(
       running_meta_r <= 0;
       running_sync_r <= 0;
     end else begin
-      lock_r <= {lock_r[0], media_locked_i};
+      lock_r <= {lock_r[0], media_levels_r[2]};
       error_r <= {error_r[0], media_error_w};
-      running_meta_r <= media_running_w;
+      running_meta_r <= media_levels_r[1:0];
       running_sync_r <= running_meta_r;
     end
   end : status_levels
