@@ -1,0 +1,35 @@
+Evidence commit 4b3b21e2104d37db96040622edfe75a5acbf2a76: signature status=N; N means unsigned, no cryptographic signature claim
+PASS pins1125-r1: 81 author files match published SHA-256 manifest
+PASS pins1125-r2: 14 author files match published SHA-256 manifest
+PASS unchanged input: 040000 tree 244c59e030d9078054fc88744f22e4e3e7d59246	hdl
+PASS unchanged input: 040000 tree b095a94728b60964cd7078bfb13197c36ef9deff	syn
+PASS unchanged input: 040000 tree 23f6ea594ca39c1b3d65bebedd256b7e9347d016	sw
+PASS unchanged input: 040000 tree 645784f4fa209c130642a2955bae930b97b82957	configs
+PASS unchanged input: 040000 tree 2f424e896203cee037362bf02eb8c2d38962dd2f	constraints
+PASS unchanged input: 040000 tree c6dfa92a051fc58b9d14ac24bc02de83dd88b072	avdecc
+PASS unchanged input: 160000 commit 3ce71b768a2f6f6a5274c127080146e755d02275	gptp-processor
+PASS unchanged input: 160000 commit a795471c0abc4e38f7e5146b4e539dd607b6f501	third_party/tsn-c-stack
+PASS unchanged input: 160000 commit 801ef2283ec793e35a2590fc6593c90313a64041	protocol-processor
+PASS unchanged input: 160000 commit 48ff7a7e2ef782cf778d47910cf85835c64b1bce	third_party/verilog-axis
+PASS unchanged budget scripts/py_idiom.budget
+PASS unchanged budget scripts/test_evidence.budget
+PASS donor hdl tree identical: 48cb05252bc4cb23dd269cea3272fd70e815d37d
+PASS donor syn tree identical: ae1d026c3f0474e5cc82d604b4b87880ded15ab7
+PAIR 1x1-ExtraPostPlacementOpt: Slow_85C: WNS +0.178 ns (0 failing), WHS +0.102 ns (0 failing)
+PAIR 1x1-ExtraPostPlacementOpt: Slow_0C: WNS +0.178 ns (0 failing), WHS +0.102 ns (0 failing)
+PAIR 1x1-ExtraPostPlacementOpt: Fast_85C: WNS +1.660 ns (0 failing), WHS +0.021 ns (0 failing)
+PAIR 1x1-ExtraPostPlacementOpt: Fast_0C: WNS +1.660 ns (0 failing), WHS +0.021 ns (0 failing)
+PASS matched timing and utilization: 1x1-ExtraPostPlacementOpt
+PAIR 8x8-ExtraPostPlacementOpt: Slow_85C: WNS +0.008 ns (0 failing), WHS +0.102 ns (0 failing)
+PAIR 8x8-ExtraPostPlacementOpt: Slow_0C: WNS +0.008 ns (0 failing), WHS +0.102 ns (0 failing)
+PAIR 8x8-ExtraPostPlacementOpt: Fast_85C: WNS +1.584 ns (0 failing), WHS +0.036 ns (0 failing)
+PAIR 8x8-ExtraPostPlacementOpt: Fast_0C: WNS +1.584 ns (0 failing), WHS +0.036 ns (0 failing)
+PASS matched timing and utilization: 8x8-ExtraPostPlacementOpt
+PAIR 8x8-ExtraTimingOpt: Slow_85C: WNS +0.283 ns (0 failing), WHS +0.102 ns (0 failing)
+PAIR 8x8-ExtraTimingOpt: Slow_0C: WNS +0.283 ns (0 failing), WHS +0.102 ns (0 failing)
+PAIR 8x8-ExtraTimingOpt: Fast_85C: WNS +1.636 ns (0 failing), WHS +0.036 ns (0 failing)
+PAIR 8x8-ExtraTimingOpt: Fast_0C: WNS +1.636 ns (0 failing), WHS +0.036 ns (0 failing)
+PASS matched timing and utilization: 8x8-ExtraTimingOpt
+UNPAIRED head-8x8-AltSpreadLogic_high; no equality claimed
+PASS selected route governing floors: 1x1-ExtraPostPlacementOpt
+PASS selected route governing floors: 8x8-ExtraTimingOpt

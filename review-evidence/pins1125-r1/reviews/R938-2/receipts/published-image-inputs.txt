@@ -1,0 +1,25 @@
+# round 2 changes no image input
+# image inputs: a6864a49 (round 1 head) against e5d8a71b6fa90352eca72314c7bd2275a1b20285 (round 2 head)
+files changed under hdl gptp-processor third_party protocol-processor syn sw configs constraints avdecc:
+(none above)
+all files changed:
+CHANGELOG.md
+docs/design/GPTP_PLANE.md
+docs/reference/SUBMODULES.md
+tb/verilator/gptp_plane/README.md
+tb/verilator/gptp_shadow/README.md
+tb/verilator/gptp_shadow/mutants.py
+tb/verilator/gptp_shadow/sim_main.cpp
+tb/verilator/gptp_shadow/test_mutant_lifecycle.py
+tb/verilator/milan_dp/sim_gptp.cpp
+hdl tree: 244c59e030d9078054fc88744f22e4e3e7d59246 244c59e030d9078054fc88744f22e4e3e7d59246
+syn tree: b095a94728b60964cd7078bfb13197c36ef9deff b095a94728b60964cd7078bfb13197c36ef9deff
+sw tree: 23f6ea594ca39c1b3d65bebedd256b7e9347d016 23f6ea594ca39c1b3d65bebedd256b7e9347d016
+configs tree: 645784f4fa209c130642a2955bae930b97b82957 645784f4fa209c130642a2955bae930b97b82957
+constraints tree: 2f424e896203cee037362bf02eb8c2d38962dd2f 2f424e896203cee037362bf02eb8c2d38962dd2f
+avdecc tree: c6dfa92a051fc58b9d14ac24bc02de83dd88b072 c6dfa92a051fc58b9d14ac24bc02de83dd88b072
+160000 commit 3ce71b768a2f6f6a5274c127080146e755d02275	gptp-processor
+160000 commit a795471c0abc4e38f7e5146b4e539dd607b6f501	third_party/tsn-c-stack
+160000 commit 3ce71b768a2f6f6a5274c127080146e755d02275	gptp-processor
+160000 commit a795471c0abc4e38f7e5146b4e539dd607b6f501	third_party/tsn-c-stack
+ratchet budgets: byte-identical to the base c34e7d8b
