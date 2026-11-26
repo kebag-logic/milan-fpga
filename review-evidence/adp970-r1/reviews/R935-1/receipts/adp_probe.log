@@ -1,0 +1,69 @@
+[ESCAPED] table gm-change-ignored: 6 failed check(s); missed walk: Table551/AdpWalkCell.Graded/GM_CHANGE_x_WAITING on 'GM_CHANGE x WAITING'
+    first: [FAIL] AdpCore.A0toA2Schedule: A2 GM_CHANGE in WAITING re-advertises (5.6.3.5.7)
+[ESCAPED] table link-up-draws-startup-kind: 13 failed check(s); missed walk: Table551/AdpWalkCell.Graded/LINK_UP_x_DOWN on 'LINK_UP x DOWN'
+    first: [FAIL] AdpCore.A0toA2Schedule: A0 LINK_UP: DELAY with a 0..4 s draw (5.6.3.5.3)
+[ok] table draw-kinds-merged: 7 failed check(s)
+    first: [FAIL] AdpCore.A9DrawKinds: A9 every startup draw is 0..2 s and every other draw 0..4 s
+[ok] table link-up-draws-half-a-second: 10 failed check(s)
+    first: [FAIL] AdpCore.A9DrawKinds: A9 the two kinds are distinct: the 0..4 s draws pass 2 s
+[ok] table first-delays-not-drawn: 7 failed check(s)
+    first: [FAIL] AdpCore.A9DrawKinds: A9 and both reach near their maxima
+[ok] table gm-change-in-delay-restarts-the-delay: 4 failed check(s)
+    first: [FAIL] AdpCore.A19IgnoredInputsKeepTheOwedAvailable: A19 a GM change in DELAY leaves the owed ENTITY_AVAILABLE owed, no timer started
+[ok] table gm-change-draws-the-startup-kind: 1 failed check(s)
+    first: [FAIL] AdpFirstAvailable.G4AGrandmasterChangeAfterItIsAnnounced: G4 the grandmaster change's delay is the 0 to 4 s draw: across the link-ups it passes 2 s
+[ok] table link-loss-resets-the-index: 1 failed check(s)
+    first: [FAIL] AdpFirstAvailable.G1G5WithinTheLinkUpDrawOfEveryLinkUp: G1 each ENTITY_AVAILABLE carries the next available_index, across every link-up (6.2.2.15)
+[ok] table seed-is-now-ms: 6 failed check(s)
+    first: [FAIL] AdpDraw.H5BootsDrawUniformly: H5 one entity's boots draw their first delay uniformly
+[ok] table seed-fallback-constant: 2 failed check(s)
+    first: [FAIL] AdpDraw.H6WithoutAClockBootsDrawUniformly: H6 without a clock the seed's NOW_MS still spreads one entity's boots
+[ok] table seed-mix-is-the-identity: 9 failed check(s)
+    first: [FAIL] AdpDraw.H4NeighbouringEntitiesDrawUniformly: H4 neighbouring entities started together draw their first delay uniformly
+[ok] table seed-one-round: 2 failed check(s)
+    first: [FAIL] AdpDraw.H4NeighbouringEntitiesDrawUniformly: H4 neighbouring entities started together draw their first delay uniformly
+[ok] table seed-without-the-entity-id: 2 failed check(s)
+    first: [FAIL] AdpDraw.H4NeighbouringEntitiesDrawUniformly: H4 neighbouring entities started together draw their first delay uniformly
+[ok] table seed-without-the-mac: 2 failed check(s)
+    first: [FAIL] AdpDraw.H7TheSeedIsTheSumOfMacAndClockMixedWithTheEntityId: H7 the MAC address is in the seed
+[ok] table seed-mac-not-summed: 2 failed check(s)
+    first: [FAIL] AdpDraw.H7TheSeedIsTheSumOfMacAndClockMixedWithTheEntityId: H7 the seed is the sum of MAC address and clock
+[ok] table seed-carry-dropped: 1 failed check(s)
+    first: [FAIL] AdpDraw.H7TheSeedIsTheSumOfMacAndClockMixedWithTheEntityId: H7 the sum carries end around
+wrote $PACKET/scratch/probe/root/work/build/platboot-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $PACKET/scratch/probe/root/work/build/platboot-if2/contract/KL_mbx.sv (2 interfaces)
+wrote $PACKET/scratch/probe/root/work/build/platboot-if2/contract/mbx_contract.h (2 interfaces)
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+[ok] table seed-without-the-interface: 1 failed check(s)
+    first: [FAIL] Boot.B26TwoInterfacesAreSeededApart: B26 two interfaces enabled at one clock reading are seeded apart
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+[ok] table seed-clock-not-wired: 1 failed check(s)
+    first: [FAIL] Boot.B25TheAdpDrawIsSeededFromThePlatformsClock: B25 boots that differ only in the clock's origin seed ADP's draw differently (#970)
+[ok] table latency-extra-read: 4 failed check(s)
+    first: [FAIL] AdpLatency.C0toC6EveryResponsePath: C0 LINK_UP -> TMR_DELAY armed
+TABLE: 17 of 19 caught by their own test's words
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+wrote $PACKET/scratch/probe/root/work/build/platboot-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $PACKET/scratch/probe/root/work/build/platboot-if2/contract/KL_mbx.sv (2 interfaces)
+wrote $PACKET/scratch/probe/root/work/build/platboot-if2/contract/mbx_contract.h (2 interfaces)
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+[ESCAPED] probe r-plat-clock-in-ms (platboot1 rc=0, platboot2 rc=0, plat rc=0): 0 failed check(s)
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+wrote $PACKET/scratch/probe/root/work/build/platboot-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $PACKET/scratch/probe/root/work/build/platboot-if2/contract/KL_mbx.sv (2 interfaces)
+wrote $PACKET/scratch/probe/root/work/build/platboot-if2/contract/mbx_contract.h (2 interfaces)
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+[ESCAPED] probe r-plat-clock-1024us-granule (platboot1 rc=0, platboot2 rc=0): 0 failed check(s)
+wrote $PACKET/scratch/probe/root/work/build/platboot-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $PACKET/scratch/probe/root/work/build/platboot-if2/contract/KL_mbx.sv (2 interfaces)
+wrote $PACKET/scratch/probe/root/work/build/platboot-if2/contract/mbx_contract.h (2 interfaces)
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+[CAUGHT] probe r-seed-interface-not-set (platboot2 rc=1, adp rc=0): 1 failed check(s)
+    [FAIL] Boot.B26TwoInterfacesAreSeededApart: B26 two interfaces enabled at one clock reading are seeded apart
+[CAUGHT] probe r-seed-sample-low-bits-dropped (adp rc=1): 6 failed check(s)
+    [FAIL] AdpDraw.H5BootsDrawUniformly: H5 one entity's boots draw their first delay uniformly
+    [FAIL] AdpDraw.H5BootsDrawUniformly: H5 one entity's boots draw their first delay uniformly
+    [FAIL] AdpDraw.H6WithoutAClockBootsDrawUniformly: H6 without a clock the seed's NOW_MS still spreads one entity's boots
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+[ESCAPED] probe r-plat-clock-wired-after-release (platboot1 rc=0): 0 failed check(s)
+RESULT: FAIL

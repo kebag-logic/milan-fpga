@@ -1,0 +1,30 @@
+HEAD 0ad0e5180558a376f6064d0b33884ed40af6e196 tree d89ab4e42af51456f1bd2855a4025668bfa0ca57
+worktree+index == HEAD: yes
+unstaged diff: none
+staged diff: none
+index tree d89ab4e42af51456f1bd2855a4025668bfa0ca57
+untracked: 0
+ignored (new): 7
+!! avdecc/__pycache__/
+!! configs/generated/ltn_rom.hex
+!! configs/generated/ucode.hex
+!! scripts/__pycache__/
+!! sw/builder/out/
+-efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 external
+ 1213ac5b9e09b8759ba76cc70c53652b5e108996 gptp-processor (1213ac5)
+ 801ef2283ec793e35a2590fc6593c90313a64041 protocol-processor (v2.0-912-g801ef22)
+ d1bb4f4e5954af6dabe7f210a6bf7adbb76bdd6b third_party/lwSRP (d1bb4f4)
+ 715589c1db7cf67e2f3259fd7083ebc7f0923376 third_party/tsn-c-stack (715589c1)
+ 48ff7a7e2ef782cf778d47910cf85835c64b1bce third_party/verilog-axis (heads/master)
+gptp-processor gitlink=1213ac5b9e09b8759ba76cc70c53652b5e108996 checkout=1213ac5b9e09b8759ba76cc70c53652b5e108996 clean=0
+protocol-processor gitlink=801ef2283ec793e35a2590fc6593c90313a64041 checkout=801ef2283ec793e35a2590fc6593c90313a64041 clean=0
+third_party/lwSRP gitlink=d1bb4f4e5954af6dabe7f210a6bf7adbb76bdd6b checkout=d1bb4f4e5954af6dabe7f210a6bf7adbb76bdd6b clean=0
+third_party/tsn-c-stack gitlink=715589c1db7cf67e2f3259fd7083ebc7f0923376 checkout=715589c1db7cf67e2f3259fd7083ebc7f0923376 clean=0
+third_party/verilog-axis gitlink=48ff7a7e2ef782cf778d47910cf85835c64b1bce checkout=48ff7a7e2ef782cf778d47910cf85835c64b1bce clean=0
+after removing 7 ignored build outputs this session created (pycache, configs/generated/*.hex, sw/builder/out):
+ignored now: 0
+worktree+index == HEAD: yes
+index tree d89ab4e42af51456f1bd2855a4025668bfa0ca57
+configs/generated/.gitignore
+configs/generated/endstation_arty_4x4/gen/adp_shape_defaults.svh
+configs/generated/endstation_arty_8ch/gen/adp_shape_defaults.svh

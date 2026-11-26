@@ -1,0 +1,16 @@
+PASS S1 EUI-64 neighbours, one sample, startup: n=1024 chi2=5.6 (<= 30.58) KS=0.0231 (<= 0.0509) min=1 max=1999 distinct=781
+PASS S2 EUI-64 neighbours, jitter 0..63 us, startup: n=1024 chi2=13.6 (<= 30.58) KS=0.0241 (<= 0.0509) min=1 max=1998 distinct=811
+PASS S3 stride 2 neighbours, startup: n=1024 chi2=7.8 (<= 30.58) KS=0.0290 (<= 0.0509) min=1 max=1999 distinct=787
+PASS S3 stride 256 neighbours, startup: n=1024 chi2=4.5 (<= 30.58) KS=0.0143 (<= 0.0509) min=1 max=2000 distinct=793
+PASS S4 one entity, boots 1 us apart, startup: n=1024 chi2=22.3 (<= 30.58) KS=0.0352 (<= 0.0509) min=0 max=1995 distinct=794
+PASS S5 interface 1 against interface 0 (difference mod range), startup: n=1024 chi2=16.2 (<= 30.58) KS=0.0222 (<= 0.0509) min=0 max=2000 distinct=813
+PASS S6 consecutive neighbours within 5 ms, startup: 6 of 1023 (independent draws expect about 5.6)
+PASS S1 EUI-64 neighbours, one sample, LINK_UP: n=1024 chi2=5.3 (<= 30.58) KS=0.0230 (<= 0.0509) min=2 max=3998 distinct=905
+PASS S2 EUI-64 neighbours, jitter 0..63 us, LINK_UP: n=1024 chi2=14.1 (<= 30.58) KS=0.0239 (<= 0.0509) min=2 max=3996 distinct=901
+PASS S3 stride 2 neighbours, LINK_UP: n=1024 chi2=7.5 (<= 30.58) KS=0.0290 (<= 0.0509) min=3 max=3998 distinct=899
+PASS S3 stride 256 neighbours, LINK_UP: n=1024 chi2=5.1 (<= 30.58) KS=0.0144 (<= 0.0509) min=2 max=3999 distinct=901
+PASS S4 one entity, boots 1 us apart, LINK_UP: n=1024 chi2=21.3 (<= 30.58) KS=0.0353 (<= 0.0509) min=1 max=3990 distinct=899
+PASS S5 interface 1 against interface 0 (difference mod range), LINK_UP: n=1024 chi2=16.2 (<= 30.58) KS=0.0224 (<= 0.0509) min=1 max=3998 distinct=907
+PASS S6 consecutive neighbours within 5 ms, LINK_UP: 1 of 1023 (independent draws expect about 2.8)
+INFO contrast, the base seed (NOW_MS=900) for 16 EUI-64 neighbours: min 339 max 343 ms
+RESULT: PASS (14 of 14)

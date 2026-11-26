@@ -1,0 +1,24 @@
+POINT 1x1-if1: 457 unique functions in both; 216 at their base address; 241 moved (0 of them below the first changed function at 0xe7a0)
+  resized: adp_mbx_set_enable 4->12 B @0xe8f0, ctrl_plat_boot 1724->1748 B @0x122a4
+  only in head: adp_clock 40 B @0x11eb8, adp_mbx_set_clock 20 B @0xe870, mix 60 B @0xe7a0
+  only in base: none
+POINT 1x1-if2: 455 unique functions in both; 216 at their base address; 239 moved (0 of them below the first changed function at 0xed20)
+  resized: adp_mbx_set_enable 56->80 B @0xeea0, ctrl_plat_boot 1776->1808 B @0x12978
+  only in head: adp_clock 40 B @0x125ac, adp_mbx_set_clock 20 B @0xee00, mix 60 B @0xed20
+  only in base: none
+POINT 8x8-if1: 457 unique functions in both; 216 at their base address; 241 moved (0 of them below the first changed function at 0xe75c)
+  resized: adp_mbx_set_enable 4->12 B @0xe8ac, ctrl_plat_boot 1720->1744 B @0x12260
+  only in head: adp_clock 40 B @0x11e74, adp_mbx_set_clock 20 B @0xe82c, mix 60 B @0xe75c
+  only in base: none
+POINT 8x8-if2: 455 unique functions in both; 216 at their base address; 239 moved (0 of them below the first changed function at 0xeccc)
+  resized: adp_mbx_set_enable 56->80 B @0xee4c, ctrl_plat_boot 1816->1836 B @0x12924
+  only in head: adp_clock 40 B @0x12558, adp_mbx_set_clock 20 B @0xedac, mix 60 B @0xeccc
+  only in base: none
+_ctrl_hot_end=0000dde4 _ctrl_hot_start=0000008c  ledger-base3 1x1-if1
+_ctrl_hot_end=0000e30c _ctrl_hot_start=0000008c  ledger-base3 1x1-if2
+_ctrl_hot_end=0000dda0 _ctrl_hot_start=0000008c  ledger-base3 8x8-if1
+_ctrl_hot_end=0000e2b8 _ctrl_hot_start=0000008c  ledger-base3 8x8-if2
+_ctrl_hot_end=0000dde4 _ctrl_hot_start=0000008c  ledger-head2 1x1-if1
+_ctrl_hot_end=0000e30c _ctrl_hot_start=0000008c  ledger-head2 1x1-if2
+_ctrl_hot_end=0000dda0 _ctrl_hot_start=0000008c  ledger-head2 8x8-if1
+_ctrl_hot_end=0000e2b8 _ctrl_hot_start=0000008c  ledger-head2 8x8-if2

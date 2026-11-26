@@ -1,0 +1,20 @@
+rc=0 python3 scripts/check_sh_idiom.py ::   top-heavy long script: 0 <= 0
+rc=0 python3 scripts/check_doc_paths.py :: doc path gate: OK (1777 cited paths all resolve, 1 allowlisted; 10 line anchor(s) within their file)
+rc=0 python3 scripts/check_archive.py :: archive gate: OK (21 historical page(s), each indexed with metadata and a current successor)
+rc=0 python3 scripts/docs_inventory.py --check :: documentation inventory: OK (541 lines, docs/DOCUMENTATION_AUDIT.md is fresh)
+rc=0 python3 scripts/check_cpp_idiom.py ::   build without warnings: 0 <= 0
+rc=0 python3 scripts/check_hygiene.py --check :: HYGIENE RATCHET: PASS (3 population(s), 1558 file(s))
+rc=0 python3 scripts/check_doc_style.py :: documentation style: OK (25 current documents)
+rc=0 python3 scripts/docs_check.py :: docs_check: 0 finding(s) across 226 md files + 1958 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+rc=0 python3 scripts/measure_test_evidence.py --check ::   the mutation ratchet can be lowered to 69
+rc=0 python3(md-venv) scripts/gen_toc.py --verify-anchors :: anchor check: 759 existing cross-page fragment links reproduced
+rc=1 python3(md-venv) scripts/gen_toc.py --check :: then WRITE the description for each entry - the generator cannot, and a list that only repeats the headings is not worth the space it takes.
+rc=0 python3(md-venv) scripts/check_em_dash.py --base c34e7d8b06739a22cc79997a9a1f4cbcd9bd0350 :: check_em_dash: 0 finding(s) over 22 added line(s) in 5 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [c34e7d8b..HEAD]
+rc=1 python3 scripts/check_py_idiom.py :: FAIL: long module 11 > ratchet 10; FAIL: over-long line 3 > ratchet 0 (base c34e7d8b: rc=0)
+rc=0 python3 scripts/check_baremetal_only.py --check :: baremetal-only: OK (0 findings across 1956 tracked first-party file(s))
+rc=0 python3 scripts/check_port_contracts.py ::   review inventory: 94 open and 50 literal-bound named connection(s), 58 without a local rationale (all recorded; none may be added); 477 te
+rc=0 python3 scripts/check_todo_ownership.py :: TODO ownership gate: OK (0 owned marker(s), 0 unowned; 80 near-miss occurrence(s) on 73 line(s) correctly not treated as markers; 1638 first
+rc=0 python3 scripts/measure_fail_fast.py --check ::   the ratchets can be lowered to 80, 3 and 0
+rc=0 python3 scripts/measure_naming.py --check :: NAMING RATCHET: PASS (95 candidate(s), all recorded by identity; 95 recorded)
+rc=0 python3 scripts/check_soc_sources.py :: SoC source gate: OK (47 instantiated modules all registered, 85 sources all present)
+rc=0 python3 scripts/check_rtl_source_lists.py :: RTL source-list gate: OK (113 files in the milan_datapath closure, 4 of 4 consumer list(s) carry all of them; protocol-processor 42/42 tops,
