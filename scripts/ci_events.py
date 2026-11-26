@@ -1364,6 +1364,11 @@ FIRMWARE_BOUNDARY_JOB = "firmware-boundary"
 FIRMWARE_BOUNDARY_CAPTURE_JOB = "firmware-boundary-capture"
 FIRMWARE_BOUNDARY_LEGS = (0, 1)
 FIRMWARE_BOUNDARY_STRATEGY = {"fail-fast": True, "matrix": {"leg": list(FIRMWARE_BOUNDARY_LEGS)}}
+#: #1008: the fast jobs the generator (scripts/ci_fast_legs.py) runs as matrix legs, each with its leg count. Each
+#: leg runs on a runner of its own under GitHub's own fail-fast; the census legs' judge needs them, and the verdict
+#: reads the legs' result itself, since a failed leg skips the judge. Issue #1008; REQ-VER-01 and REQ-VER-04.
+FAST_LEG_JOBS = {"firmware-unit": 3, "firmware-control-mutants": 4, "publication-census-legs": 5}
+FAST_LEG_JUDGE = {"publication-census-legs": "publication-census"}
 #: #697: the fast job that judges the TSN stack boundary over the compiles of the builders that need Verilator.
 FIRMWARE_VERILATOR_JOB = "firmware-verilator"
 #: #665 F-INT: the fast job that runs the mailbox publication census in every
@@ -3906,6 +3911,29 @@ def check_boundary_legs(c: Contract, wf: YamlMap, legs: int) -> None:
                f"job `{jid}` timeout must remain 30 minutes")
 
 
+def check_fast_legs(c: Contract, wf: YamlMap) -> None:
+    """#1008: in the generated rtl-fast.yml, each divided fast job runs exactly its legs under GitHub's own fail-fast, so a failed leg cancels its
+    siblings on every event, a fork's included, with no token (docs/testing/CI_WORKFLOWS.md: hosted matrices retain
+    `fail-fast: true`). The census legs keep 30 minutes, their judge needs them and the verdict reads their result,
+    so a failed leg that skips the judge still fails rtl-fast. Issue #1008; REQ-VER-01 and REQ-VER-04."""
+    aggregate = jobs(wf).get(FAST_AGGREGATE_JOB, {})
+    verdict = "\n".join(str(step.get("run", "")) for step in aggregate.get("steps", []))
+    for jid, count in FAST_LEG_JOBS.items():
+        want = {"fail-fast": True, "matrix": {"leg": list(range(count))}}
+        found = jobs(wf).get(jid, {}).get("strategy")
+        c.item(found == want, RTL_FAST, f"job `{jid}` strategy must be exactly {want!r} (found {found!r})")
+        needs = aggregate.get("needs")
+        env = fast_result_env_name(jid)
+        c.item(isinstance(needs, list) and jid in needs and f'"{jid}:${env}"' in verdict, RTL_FAST,
+               f"job `{FAST_AGGREGATE_JOB}` must need `{jid}` and judge its result")
+    for legs, judge in FAST_LEG_JUDGE.items():
+        needs = jobs(wf).get(judge, {}).get("needs")
+        c.item(isinstance(needs, list) and legs in needs, RTL_FAST,
+               f"job `{judge}` must need `{legs}` (found {needs!r})")
+        c.item(jobs(wf).get(legs, {}).get("timeout-minutes") == 30, RTL_FAST,
+               f"job `{legs}` timeout must remain 30 minutes")
+
+
 def check_rtl_fast(c: Contract, wf: YamlMap) -> None:
     """Everything rtl-fast.yml owes: triggers, concurrency, one carrier per
     public name, the selector, the verdict, the ooc.sh self-test and the
@@ -4542,6 +4570,8 @@ def check(parsed: World) -> Contract:
     if isinstance(parsed, SemanticWorld):
         return check_semantic(parsed)
     c = Contract()
+    # #1008: the generator makes these legs, so they are held in the generated file, which no template holds.
+    check_fast_legs(c, parsed[RTL_FAST])
     return check_semantic(project_gate_templates(parsed, c), c)
 
 
@@ -8405,6 +8435,42 @@ def _install_cache_arms(pristine: World) -> list[Arm]:
     return arms
 
 
+def _fast_leg_arms() -> list[Arm]:
+    """#1008: each divided fast job's matrix, the census judge's needs, the legs' timeout and the verdict's reading
+    of each legs job refuse their planted defects. Issue #1008; REQ-VER-01 and REQ-VER-04."""
+    arms: list[Arm] = []
+    for jid, count in FAST_LEG_JOBS.items():
+        strategy = f"job `{jid}` strategy must be exactly"
+        arms += [
+            (f"{jid} one leg dropped", _m_job_key_any(RTL_FAST, jid, "strategy",
+                                                      {"fail-fast": True, "matrix": {"leg": list(range(count - 1))}}),
+             strategy),
+            (f"{jid} cancellation disabled", _m_job_key_any(RTL_FAST, jid, "strategy",
+                                                            {"fail-fast": False, "matrix": {"leg": list(range(count))}}),
+             strategy),
+            (f"{jid} fail-fast left to the default", _m_job_key_any(RTL_FAST, jid, "strategy",
+                                                                    {"matrix": {"leg": list(range(count))}}), strategy),
+            (f"{jid} unread by the verdict", _m_fast_verdict_drops(jid),
+             f"job `{FAST_AGGREGATE_JOB}` must need `{jid}` and judge its result")]
+    for legs, judge in FAST_LEG_JUDGE.items():
+        arms += [(f"{judge} needs no legs", _m_job_key_any(RTL_FAST, judge, "needs", ["changes"]),
+                  f"job `{judge}` must need `{legs}`"),
+                 (f"{legs} timeout raised", _m_job_key_any(RTL_FAST, legs, "timeout-minutes", 31),
+                  f"job `{legs}` timeout must remain 30 minutes")]
+    return arms
+
+
+def _m_fast_verdict_drops(jid: str) -> Mutator:
+    """The fast verdict with `jid`'s result pair removed from its loop."""
+    def f(w: World) -> None:
+        """Apply the arm's edit to `w` in place."""
+        step = jobs(w[RTL_FAST])[FAST_AGGREGATE_JOB]["steps"][0]
+        pair = f'"{jid}:${fast_result_env_name(jid)}" \\\n'
+        lines = [line for line in step["run"].split("\n") if line.strip() != pair.strip()]
+        step["run"] = "\n".join(lines)
+    return f
+
+
 def _boundary_leg_arms() -> list[Arm]:
     """#1003: the capture job's matrix, its judge's needs, both timeouts and the gate's leg count refuse their
     planted defects. Issue #998; REQ-VER-01 and REQ-VER-04."""
@@ -8481,7 +8547,7 @@ def _mutations(pristine: World) -> list[Arm]:
             + _rv32_sdk_arms()
             + _tool_cache_arms(pristine)
             + _install_cache_arms(pristine)
-            + _firmware_layout_arms() + _boundary_leg_arms()
+            + _firmware_layout_arms() + _boundary_leg_arms() + _fast_leg_arms()
             + _docs_carrier_arms()
             + _elaborate_arms()
             + _decoy_name_arms()

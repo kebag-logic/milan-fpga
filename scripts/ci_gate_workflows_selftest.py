@@ -69,9 +69,11 @@ def scheduling_controls() -> None:
     cases = case_inventory("docs", docs)
     leg = "End-station builder gates, leg {} of " + str(LEGS)
     assert [case["name"] for case in cases if case["leg"] == 1] == [leg.format(0)]
-    assert {case["name"] for case in cases if case["leg"] == 2} == {
-        leg.format(1), "CI event and SHA contract gate", "Local act runner contract gate"}
-    assert worker_legs("docs", docs) == [0, 1, 2]
+    assert [case["name"] for case in cases if case["leg"] == 2] == [leg.format(1)]
+    assert [case["name"] for case in cases if case["leg"] == 3] == [
+        "Compiler-absent firmware controls", "CI event and SHA contract gate", "Local act runner contract gate"]
+    assert [case["name"] for case in cases if case["leg"] == 4] == ["Saved-state writer gate"]
+    assert worker_legs("docs", docs) == [0, 1, 2, 3, 4]
     assert builder_command("docs", docs)[2:] == ["--require-rv32"]
     assert builder_command("elaborate", load_template(ROOT, "elaborate"))[2:] == [
         "--require-elaboration", "--require-rv32"]
@@ -344,13 +346,14 @@ def census_controls() -> None:
     owners = [(name, job_id) for name in ("docs", "elaborate", "rtl", "rtl-fast")
               for job_id, job in generate(name, load_template(ROOT, name))["jobs"].items()
               if any(step.get("name") == census_budget_step()["name"] for step in job["steps"])]
-    assert owners == [("rtl-fast", "publication-census")], owners
-    steps = generate("rtl-fast", load_template(ROOT, "rtl-fast"))["jobs"]["publication-census"]["steps"]
+    # #1008: the census legs run every elaboration; their judge elaborates nothing and sets no budget.
+    assert owners == [("rtl-fast", "publication-census-legs")], owners
+    steps = generate("rtl-fast", load_template(ROOT, "rtl-fast"))["jobs"]["publication-census-legs"]["steps"]
     names = [step.get("name") for step in steps]
-    census = next(i for i, step in enumerate(steps) if "publication_census.py" in step.get("run", ""))
+    census = next(i for i, step in enumerate(steps) if "census_legs.py run" in step.get("run", ""))
     assert names.index(census_budget_step()["name"]) < census
     assert '--jobs "$CI_CENSUS_JOBS"' in steps[census]["run"] and "CI_CAMPAIGN_JOBS" not in steps[census]["run"]
-    print("Census budget: only publication-census sets CI_CENSUS_JOBS, before its census")
+    print("Census budget: only publication-census-legs sets CI_CENSUS_JOBS, before its census")
 
 
 def builder_receipts(identity: tuple[str, str], names: list[str] | None = None,
@@ -551,6 +554,8 @@ def main() -> int:
     inventory_controls()
     scheduling_controls()
     fast_tool_controls()
+    from ci_fast_legs_selftest import main as fast_leg_controls
+    assert fast_leg_controls() == 0
     builder_split_controls()
     suite_generator_controls()
     cpu_controls()

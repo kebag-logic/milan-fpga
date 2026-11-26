@@ -24,7 +24,12 @@ ROOT = Path(__file__).resolve().parents[1]
 CARRIERS = {"docs": "docs-check", "elaborate": "elaborate"}
 TEMPLATES = {name: ".github/ci-templates/" + name + ".yml"
              for name in (*CARRIERS, "rtl", "rtl-fast")}
-CONTRACT_GATES = {"CI event and SHA contract gate", "Local act runner contract gate"}
+#: The docs steps that run on a worker of their own (#1008), each whole, with its command and receipt unchanged.
+#: Over the 20 measured runs docs-gates-0 reached 1717 s and docs-gates-2 1389 s. The firmware controls (at most
+#: 479 s) and the two contract gates (373 s and 109 s) take worker 3, the saved-state writer (603 s) worker 4,
+#: and every docs worker then sums to at most 1046 s of its steps' largest windows and its setup.
+DOCS_WORKERS = {"Compiler-absent firmware controls": 3, "Saved-state writer gate": 4,
+                "CI event and SHA contract gate": 3, "Local act runner contract gate": 3}
 #: The one template step per workflow whose driver command is divided by its
 #: measured gate legs (scripts/ci_builder_legs.py), and the worker each leg
 #: runs on: the docs legs beside the contract gates, the elaboration legs
@@ -72,6 +77,9 @@ SETUP_PREFIXES = ("Install ", "Cache ", "Fetch ", "Apply ", "Place ", "Put ", "K
 #: and a recipe change rebuilds in a job whose only work is the build.
 FAST_TOOL_JOB = "yosys-tool"
 FAST_TOOL_CONSUMER = "yosys-elaboration"
+#: The census legs carry the consumer's own Yosys recipe and restore the same tree (#1008). Built in each
+#: of five legs on a miss, it took 732 to 838 s of a leg's window in 6 of the 20 measured runs.
+FAST_TOOL_SHARED = ("publication-census-legs",)
 FAST_AGGREGATE = "rtl-fast"
 #: The owner's 30-minute hosted budget (#789); no job's timeout is raised.
 FAST_TOOL_TIMEOUT = 30
@@ -152,7 +160,7 @@ def case_inventory(name: str, template: dict) -> list[dict]:
         case = {"id": "gate_" + str(index), "index": index,
                 "name": step.get("name", "Run " + step.get("uses", "")),
                 "condition": step.get("if", "success()"),
-                "leg": 2 if name == "docs" and step.get("name") in CONTRACT_GATES else 0}
+                "leg": DOCS_WORKERS.get(step.get("name"), 0) if name == "docs" else 0}
         if step.get("name") == BUILDER_SPLIT[name]:
             cases.extend(divided(case, workers, "builder", LEGS))
         elif step.get("name") == LITEX_SPLIT.get(name):
@@ -333,8 +341,9 @@ def bind_fast_tool_key(workflow: dict) -> None:
         recipe += "-${{ hashFiles(" + ", ".join("'" + path + "'" for path in reads) + ") }}"
     keyed = [(job_id, step.get("name")) for job_id, job in workflow["jobs"].items() for step in job["steps"]
              if FAST_TOOL_RECIPE in str(step.get("with", {}).get("key", ""))]
-    if keyed != [(FAST_TOOL_JOB, YOSYS_BUILD_STEPS[0]), (FAST_TOOL_CONSUMER, FAST_TOOL_RESTORE)]:
-        raise ValueError(FAST_TOOL_JOB + ": the recipe stand-in must key exactly its cache and the one restore")
+    if keyed != [(FAST_TOOL_JOB, YOSYS_BUILD_STEPS[0]), (FAST_TOOL_CONSUMER, FAST_TOOL_RESTORE),
+                 *((shared, FAST_TOOL_RESTORE) for shared in FAST_TOOL_SHARED)]:
+        raise ValueError(FAST_TOOL_JOB + ": the recipe stand-in must key exactly its cache and its restores")
     for job_id, name in keyed:
         step = next(step for step in workflow["jobs"][job_id]["steps"] if step.get("name") == name)
         step["with"]["key"] = step["with"]["key"].replace(FAST_TOOL_RECIPE, recipe)
@@ -397,9 +406,21 @@ def fast_yosys_tool(source: dict) -> dict:
     needs = consumer["needs"]
     consumer["needs"] = [*([needs] if isinstance(needs, str) else needs), FAST_TOOL_JOB]
     # The tool job's exact tree or a refusal: no fallback key, and no build here.
-    consumer["steps"][at:at + 2] = [{"name": FAST_TOOL_RESTORE, "uses": cache["uses"],
-                                     "with": {"path": cache["with"]["path"], "key": key,
-                                              "fail-on-cache-miss": True}}]
+    restore = {"name": FAST_TOOL_RESTORE, "uses": cache["uses"],
+               "with": {"path": cache["with"]["path"], "key": key, "fail-on-cache-miss": True}}
+    consumer["steps"][at:at + 2] = [restore]
+    for shared_id in FAST_TOOL_SHARED:
+        # A job restores the tree only if it carries the consumer's recipe unchanged, on the same runner.
+        shared = jobs[shared_id]
+        held = [step.get("name") for step in shared["steps"]]
+        if ([name for name in held if name in YOSYS_BUILD_STEPS] != list(YOSYS_BUILD_STEPS)
+                or shared["runs-on"] != consumer["runs-on"]
+                or shared["steps"][held.index(YOSYS_BUILD_STEPS[0]):][:2] != [cache, build]):
+            raise ValueError(shared_id + ": its Yosys recipe is not " + FAST_TOOL_CONSUMER + "'s")
+        where = held.index(YOSYS_BUILD_STEPS[0])
+        shared["steps"][where:where + 2] = [copy.deepcopy(restore)]
+        needs = shared["needs"]
+        shared["needs"] = [*([needs] if isinstance(needs, str) else needs), FAST_TOOL_JOB]
     require_fast_tool(jobs[FAST_AGGREGATE])
     ordered = {}
     for job_id, job in jobs.items():
@@ -420,7 +441,8 @@ def gate_graph(name: str, template: dict) -> dict:
             from ci_suite_workflows import generate as suite_workflows
             return suite_workflows(source)
         if name == "rtl-fast":
-            return fast_yosys_tool(source)
+            from ci_fast_legs import generate as fast_legs
+            return fast_yosys_tool(fast_legs(source))
         return source
     original = source["jobs"].pop(CARRIERS[name])
     cases: dict[int, list[dict]] = {}
