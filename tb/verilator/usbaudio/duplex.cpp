@@ -2,26 +2,27 @@
 // SPDX-License-Identifier: CERN-OHL-W-2.0
 // Independent bus, oscillator and media-grid drivers with exact sample scoring.
 #include "VKL_usbaudio_bridge.h"
+#include "../../common/verilator_harness.hpp"
 #include <cstdint>
 #include <cstdio>
 #include <cstdlib>
 #include <deque>
+#include <stdexcept>
 #include <string>
 #include <vector>
 #ifndef WINDOW_LOG2_TB
 #define WINDOW_LOG2_TB 13
 #endif
 
-static void check(bool value, const char *name) {
-  if (!value) { std::fprintf(stderr, "CHECK %s\n", name); std::exit(1); }
-}
 static uint32_t sample(uint32_t frame, unsigned channel) {
   return (frame * 0x1020305U) ^ (0x89abcdefU + channel * 0x31415927U);
 }
 static uint32_t swap_bytes(uint32_t value) { return __builtin_bswap32(value); }
 
 struct Bench {
-  VKL_usbaudio_bridge dut;
+  milan::tb::Model<VKL_usbaudio_bridge> model;
+  VKL_usbaudio_bridge &dut = *model;
+  milan::tb::Checker checks{"usbaudio_duplex"};
   uint64_t steps = 0;
   uint64_t oscillator_phase = 0;
   uint64_t oscillator_cycles = 0;
@@ -52,6 +53,13 @@ struct Bench {
   uint32_t capture_epoch = 1;
   uint64_t stream_start = 0;
   uint64_t next_pcm = 0;
+
+  void check(bool value, const char *name) {
+    if (!checks.that(name, value)) {
+      checks.report();
+      throw std::runtime_error(name);
+    }
+  }
 
   void push32(uint32_t value) {
     incoming.push_back(uint16_t(value)); incoming.push_back(uint16_t(value >> 16));
@@ -174,28 +182,36 @@ struct Bench {
   }
 };
 
-int main(int argc, char **argv) {
+static int run(uint32_t target) {
   Bench b;
-  uint32_t target = argc > 1 ? unsigned(std::strtoul(argv[1], nullptr, 10)) : 100000;
   b.dut.reset_i = 1; b.dut.media_locked_i = 0; b.dut.latency_qualified_i = 0;
   b.run(100); b.dut.reset_i = 0; b.dut.media_locked_i = 1;
   b.run((uint64_t(1U << (WINDOW_LOG2_TB-3))+16)*50000);
-  check(!b.dut.locked_o, "PHYSICAL_QUALIFICATION_REQUIRED");
+  b.check(!b.dut.locked_o, "PHYSICAL_QUALIFICATION_REQUIRED");
   b.dut.latency_qualified_i = 1; b.run(10);
-  check(b.dut.locked_o, "COMPLETE_WINDOW_REQUIRED");
-  check(b.dut.feedback_q16_o >= 0x5fff0 && b.dut.feedback_q16_o <= 0x60010, "FEEDBACK_MEASURED_RATE");
+  b.check(b.dut.locked_o, "COMPLETE_WINDOW_REQUIRED");
+  b.check(b.dut.feedback_q16_o >= 0x5fff0 && b.dut.feedback_q16_o <= 0x60010, "FEEDBACK_MEASURED_RATE");
   while (!b.incoming.empty()) b.cycle();
   b.state(0); b.state(7); b.state(7); b.state(7); b.state(3);
   b.streaming = true; b.stream_start = b.bus_cycles; b.next_pcm = b.bus_cycles+6250;
   while (b.playback_seen < target) b.cycle();
-  check(b.capture_seen > target-100, "CAPTURE_LONG_RUN_COUNT");
-  check(!b.dut.error_o && b.dut.playback_drops_o == 0 && b.dut.playback_gaps_o == 0
+  b.check(b.capture_seen > target-100, "CAPTURE_LONG_RUN_COUNT");
+  b.check(!b.dut.error_o && b.dut.playback_drops_o == 0 && b.dut.playback_gaps_o == 0
         && b.dut.capture_drops_o == 0, "DUPLEX_ZERO_GAPS_DROPS");
   std::printf("PASS duplex: %u playback frames, %u capture frames, all eight channels and all 32 bits\n",
               b.playback_seen, b.capture_seen);
   std::printf("PASS qualified feedback: %08x, reference losses %u\n", b.dut.feedback_q16_o, b.dut.reference_losses_o);
   b.dut.media_locked_i = 0; b.run(20);
-  check(!b.dut.locked_o && b.dut.feedback_q16_o == 0, "CLOCK_LOSS_NO_NOMINAL");
+  b.check(!b.dut.locked_o && b.dut.feedback_q16_o == 0, "CLOCK_LOSS_NO_NOMINAL");
   std::puts("PASS clock loss clears feedback");
-  return 0;
+  return b.checks.report();
+}
+
+int main(int argc, char **argv) {
+  try {
+    return run(argc > 1 ? unsigned(std::strtoul(argv[1], nullptr, 10)) : 100000);
+  } catch (const std::runtime_error &error) {
+    std::fprintf(stderr, "CHECK %s\n", error.what());
+    return 1;
+  }
 }
