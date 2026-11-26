@@ -166,12 +166,13 @@ ROWS += (
      ("LedEvents.InternalFlowingAndStoppedSourcesUseAecp", "stopped stream LD3 off")),
     ("led-event-clock-proposal-shown", APP, "c->led_settings = true;", "c->led_settings = false; leds_publish(c);",
      ("LedEvents.WaitingClockChangesKeepTheSourceInForce", "waiting clock change leaves internal source lit")),
-    ("led-event-idle-scan", APP, "if (c->led_settings) {", "leds_refresh(c); if (c->led_settings) {",
+    ("led-event-idle-scan", APP, "if (c->led_retry_pending || c->led_settings) leds_service(c);",
+     "leds_refresh(c); if (c->led_retry_pending || c->led_settings) leds_service(c);",
      ("LedEvents.TicksAndIdlePollsNeverObserveLeds", "ticks and idle polls read no LED counters")),
 )
 
 ROWS += (
-    ("led-event-retry-lost", APP, "leds_retry(c);", "if (false) leds_retry(c);",
+    ("led-event-retry-lost", EVENTS, "leds_retry(c);", "if (false) leds_retry(c);",
      ("LedEvents.FailedDomainObservationRetriesWithoutAnotherLockEdge",
       "failed domain read recovers without another domain edge"),
      ("LedEvents.FailedInactiveOutputRetriesWithoutTrafficOrListenerChange",

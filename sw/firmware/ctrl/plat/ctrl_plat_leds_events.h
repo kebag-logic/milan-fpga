@@ -5,6 +5,7 @@
 #ifndef CTRL_PLAT_LEDS_EVENTS_H
 #define CTRL_PLAT_LEDS_EVENTS_H
 
+#include "ctrl_cc.h"
 #include "ctrl_plat_io.h"
 #include "ctrl_plat_leds_ports.h"
 
@@ -118,6 +119,20 @@ static void leds_refresh(struct ctrl_app_aecp *c)
 	for (uint16_t n = 0u; n < c->app->acmp.acmp.cfg.n_sources; ++n) leds_output(c, n);
 	leds_counters(c, CTRL_PLAT_LEDS_CLOCK_DOMAIN, 0u);
 	leds_publish(c);
+}
+
+// Only pending state-change work enters this cold path. Keep healthy
+// delivery limited to the two cached pending flags.
+static CTRL_CC_NOINLINE void leds_service(struct ctrl_app_aecp *c)
+{
+	leds_retry(c);
+	if (c->led_settings) {
+		c->led_settings = false;
+		if (c->led_configuration) {
+			c->led_configuration = false;
+			leds_refresh(c);
+		} else leds_publish(c);
+	}
 }
 
 #endif
