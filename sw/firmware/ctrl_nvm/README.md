@@ -307,6 +307,14 @@ took a step a tick, before #920). A real part's erase and program waits add to
 it. No deadline of this store is that figure: the owner's 0.5 s (#823) belongs
 to the append-only design.
 
+A binding record's save waits 100 ms instead (#1009). With the part's erase of
+120 ms and page program of 0.5 ms modelled, the CPU budget harness has a bind,
+an unbind, a stop or a start on an idle store durable at most 304.5 ms after its
+response at 1x1/1if and 550.5 ms at 8x8/1if, within #1009's 800 ms; one that
+arrives during another save waits for the rest of that save and one more, at
+most 395.0 ms and 891.2 ms, just after that save's capture, against the stated
+450 ms and 950 ms (`bind_save.py` in the harness).
+
 **A change's worst case.** Under input that leaves no pass empty a step comes
 at most three ticks after the one before. With no save in flight a change is
 durable at most its window (1,000 ms; 100 ms for a binding record) after it
@@ -665,7 +673,7 @@ under any shape header but the host suite's own, which alone defines
 
 `--self-test` plants every defect of [`test/nvm_mutants.py`](test/nvm_mutants.py),
 one per copy, and requires each check it names to fail; every check is named
-by at least one (127 defects, and five controls of the compile-time rules: the NAME block, the two map widths, the input limit one entry early and the doctored build's `#error`). They are graded at the 1x1 shape, except a defect that only
+by at least one (165 defects, and five controls of the compile-time rules: the NAME block, the two map widths, the input limit one entry early and the doctored build's `#error`). They are graded at the 1x1 shape, except a defect that only
 shows at a clock that is not a whole number of MHz. That one,
 `ticks_per_us_truncated`, is graded at `endstation_arty_current`.
 

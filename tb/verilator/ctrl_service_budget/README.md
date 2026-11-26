@@ -144,6 +144,15 @@ A run of a bind group models the part's erase and page-program times (`BUDGET_FL
 A save is durable only when its read-backs after its last page cover every programmed byte, each counted once (`save_grade.read_back`); the testbench ends a run of reads at each erase and page program, so no line's reads come from both sides of a write, and a log whose reads span one is refused (`save_grade.in_order`).
 Every miss is named by its group and fails the run (`run.burst_misses`); the run prints a `BIND` line for each group and the table a section.
 [`selftest_bind.py`](selftest_bind.py) grades synthetic logs of each rule and [`selftest_mutants_bind.py`](selftest_mutants_bind.py) plants a defect in each, the verify's byte coverage among them.
+At the head of #1009's step 1, from each command's response to durable:
+
+| Group | 8x8/1if | 1x1/1if | Bound |
+|---|---:|---:|---:|
+| `save-bind`: BIND_RX, STOP_STREAMING, START_STREAMING, UNBIND_RX, the latest | 550.5 ms | 304.5 ms | 800 ms |
+| `save-bind-in-capture`, just after the save in flight's capture | 891.2 ms | 395.0 ms | 950 / 450 ms |
+| `save-bind-in-<arrival>`, the other nine | 552.8 to 880.3 ms | 298.5 to 392.9 ms | 950 / 450 ms |
+| `save-bind-burst`, each sink's last command, the latest | 646.4 ms | 306.5 ms | 950 / 450 ms |
+| `save-bind-burst`, its saves, one erase each | 2 | 4 | at most 3 / 4 |
 
 **A retried notice under sustained input.**
 [`notice_window.py`](notice_window.py)'s groups, `notice-retried-<k>`, time a change notice whose observation port does not answer and then answers.
