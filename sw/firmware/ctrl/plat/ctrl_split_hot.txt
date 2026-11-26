@@ -32,22 +32,58 @@
 # Dropped: aecp owe; the size fixture's 8x8/2if images lack it, in every arm.
 # Dropped: aecp owed_drain; the size fixture's 8x8/2if images lack it, in every arm.
 # The traces' sha256 (each window's PC lines, as the harness printed them):
-#   backlog              e3efd43419d684b6115b6d1e30835824976539eb011d35f31c5bb4b093993b09
-#   backlog-adp          83c73afb9dad61acc809fbc5f731b7500a37043d41828101891a02608dd77f6b
-#   aecp-largest-notice  7b2ed7e010362ed4f4d3098c1e2d8fd5960e54b753fc5e8afc222abc3551840c
-# The backlog windows' traces end with their groups, at 204,258 and 274,521 PCs; the third's at 900,000.
+#   backlog              69c5bcfc4de9020625c853b34b566ee5af328f3bd682691d0701db3495d6e473
+#   backlog-adp          9737979a7edc3fb06ef2b168eeaa80b636f2a31fabc60ab4ffe079aae54eb834
+#   aecp-largest-notice  759c767e90df48eb5100bf20122b21269210588986ae9968035f327a46f8cc10
+# The backlog windows' traces end with their groups, at 205,700 and 273,797 PCs; the third's at 900,000.
 #
 # sw/firmware/ctrl/test/ctrl_hot.py requires the script's list to be this one,
 # entry for entry, and every entry to name a section of the linked image.
 # One entry a line: the object, then the function's section name. A firmware
 # object is its source's stem; a runtime archive's member is <archive>:<member>.
+ctrl_app_aecp ctrl_app_aecp_store_words
+ctrl_app_aecp publish_store
+aecp_face aecp_face_status
+ctrl_app_aecp deliver
+aecp_face aecp_face_poll
 ctrl_loop ctrl_loop_service
-ctrl_loop service_rx
-acmp_mbx on_rx_ready
-mbx mbx_rx_take
+srp_mbx poll
+srp_mbx enter
+mbx mbx_link_up
+srp_mbx snapshot
+srp_mbx reclaim
+ctrl_app_srp deliver
+srp_mbx srp_mbx_gate
 nvm_store nvm_store_clock
 nvm_store nvm_now
 nvm_flash_litespi ls_now_us
+ctrl_loop round_of
+aecp_mbx retry
+aecp aecp_retry
+aecp aecp_enter
+aecp round_waits
+aecp now
+aecp_mbx now
+mbx mbx_now_ms
+aecp scan
+aecp arm
+aecp_mbx timer
+nvm_store nvm_store_step
+ctrl_loop ctrl_loop_step
+mbx_plat_mmio mbx_hal_wait
+ctrl_loop ctrl_loop_run
+aecp_mbx retry_aged
+aecp aecp_retry_aged
+srp_mbx transmit_aged
+ctrl_app_srp settle
+mbx mbx_rx_mark
+ctrl_loop dispatch_ticks
+mbx mbx_event_take
+ctrl_loop service_rx
+aecp_mbx ready
+aecp aecp_ready
+mbx mbx_rx_take
+acmp_mbx on_rx_ready
 srp_mbx rx_ready
 mbx mbx_rx_waiting
 adp_mbx on_poll
@@ -69,45 +105,9 @@ maap pump
 maap_mbx declaring
 aecp_mbx poll
 aecp aecp_poll
-aecp aecp_enter
-aecp now
-aecp_mbx now
-mbx mbx_now_ms
 aecp transmit
-aecp arm
-aecp_mbx timer
-ctrl_app_aecp deliver
 aecp_nvm aecp_nvm_poll
-ctrl_app_aecp publish_store
 nvm_store nvm_store_status
-ctrl_app_aecp ctrl_app_aecp_store_words
-aecp_face aecp_face_status
-aecp_face aecp_face_poll
-srp_mbx poll
-srp_mbx enter
-mbx mbx_link_up
-srp_mbx snapshot
-srp_mbx reclaim
-ctrl_app_srp deliver
-srp_mbx srp_mbx_gate
-ctrl_loop round_of
-aecp_mbx retry
-aecp aecp_retry
-aecp round_waits
-aecp scan
-nvm_store nvm_store_step
-ctrl_loop ctrl_loop_step
-mbx_plat_mmio mbx_hal_wait
-ctrl_loop ctrl_loop_run
-aecp_mbx retry_aged
-aecp aecp_retry_aged
-srp_mbx transmit_aged
-ctrl_app_srp settle
-mbx mbx_rx_mark
-ctrl_loop dispatch_ticks
-mbx mbx_event_take
-aecp_mbx ready
-aecp aecp_ready
 srp_mbx tick
 timer shlan_timer_tick
 mrp_mad mrp_port_status
@@ -229,6 +229,7 @@ maap mac_at
 acmp_mbx on_adp_frame
 adp_mbx on_frame
 adp adp_rx
+mbx mbx_tick_pending
 srp_mbx transmit
 srp_mbx rx_charge
 mbx mbx_rx_next_len
