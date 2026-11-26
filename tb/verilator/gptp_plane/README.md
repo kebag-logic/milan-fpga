@@ -21,7 +21,6 @@ What it proves:
 | 3 | a better announce is adopted; the publish bank carries the GM identity and role flags |
 | 4 | closed loop vs a +100 ppm master 1 ms ahead in counter time: ONE adjtime re-base near +1 ms (the correction negates the offset), the latched adjfine level lands at the +100 ppm ideal (13,421 Q8.24 units, within 15%), the measured offset locks under 150 ns, and the REAL counter's advance tracks the master's within 100 ns over the last four sync intervals |
 | 5 | announce silence rides to grandmaster; the two-step Sync's ten reserved octets are zero (802.1AS-2011 Table 11-8) and its paired Follow_Up carries a plausible event-specific egress timestamp |
-
 | 6 | FPGA-gPTP #109: the link delay verdict, to the nanosecond, against the real counter. The peer's clock is this one plus a constant, so the neighborRateRatio is exactly 1 and the residence sets the delay. -3, -80, -81, -263, -800, -801 and -5,000,000 ns keep asCapable, publish the delay floored at -800 ns, and are subtracted exactly by the next Follow_Up with no PHC step; 800 ns keeps asCapable; 801 ns clears it, its next Follow_Up is not used, and an ordinary exchange requalifies the port. The engine's word is signed here: the public clamp to 0 is `gptp_shadow`'s and `milan_dp`'s |
 
 `make link-delay` (part of the default target) plants eight defects in the

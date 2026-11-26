@@ -79,7 +79,7 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - The mailbox's `adp` frame limit stays 128 octets.
 - No top-level port, parameter or register changes.
 - The ROM ledger adds the row; `gptp_ucode.hex` changes.
-- Both release images route as the base's, figure for figure.
+- Each selected image routes as the base's, figure for figure.
 - 8x8/1if: 45,810 LUTs, on ExtraTimingOpt.
 - 1x1/1if: 32,582 LUTs.
 - Both meet the build floor at every corner.
