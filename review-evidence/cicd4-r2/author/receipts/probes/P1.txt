@@ -1,0 +1,21 @@
+head d1b420054dbe37f1c52ed3d9c9d09051c57c5542
+== unplanted
+gate --check rc=0
+ci_events: OK (2409 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)
+events --check rc=0
+== P1: the generator emits COUNT+1, workflow regenerated
+ scripts/ci_fast_legs.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+1006:          python3 sw/firmaign-shard "${{ matrix.leg }}" 5
+1111:          python3 sw/firmaign-shard "${{ matrix.leg }}" 3
+1213:          python3 sw/firmaign-shard "${{ matrix.leg }}" 3
+gate --check rc=0 (regenerated, so it matches)
+  FAIL .github/workflows/rtl-fast.yml: job `firmware-control-mutants` must run its campaign once as `--campaign-shard "${{ matrix.leg }}" COUNT`, COUNT its matrix's leg count (found [('"${{ matrix.leg }}"', '5')] for legs [0, 1, 2, 3])
+  FAIL .github/workflows/rtl-fast.yml: job `firmware-aecp-mutants` must run its campaign once as `--campaign-shard "${{ matrix.leg }}" COUNT`, COUNT its matrix's leg count (found [('"${{ matrix.leg }}"', '3')] for legs [0, 1])
+  FAIL .github/workflows/rtl-fast.yml: job `firmware-srp-mutants` must run its campaign once as `--campaign-shard "${{ matrix.leg }}" COUNT`, COUNT its matrix's leg count (found [('"${{ matrix.leg }}"', '3')] for legs [0, 1])
+ci_events: 3 finding(s) over 2409 contract item(s)
+events --check rc=1
+fast-legs selftest rc=1
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: firmware-control-mutants
+0

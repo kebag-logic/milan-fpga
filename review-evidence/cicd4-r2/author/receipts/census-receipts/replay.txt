@@ -1,0 +1,15 @@
+census-leg-0.json: OK
+census-leg-1.json: OK
+census-leg-2.json: OK
+census-leg-3.json: OK
+census-leg-4.json: OK
+union rc=0
+unplanted: rc=0 mutations: 0 of 57 rule(s) no arm proves
+planted leg 2 failed its arm: rc=1 census legs refused: failed arm or missing rule-removal judgement: R583-5 S2: a read inside a generate loop with no iteration at one stream
+planted leg 3 exit 1: rc=1 census legs refused: census leg failed
+planted leg 1 rule removal held: rc=1 mutations: 1 of 57 rule(s) no arm proves
+planted leg 4 lost an arm: rc=1 census legs refused: missing, duplicated or extra executed census arm
+planted leg 0 missing: rc=1 census legs refused: incomplete census union
+planted leg 1 twice: rc=1 census legs refused: duplicate census leg or changed selection
+planted leg 2 another head: rc=1 census legs refused: census receipt source or inventory differs
+every planted census failure refused

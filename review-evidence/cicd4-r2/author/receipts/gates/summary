@@ -1,0 +1,42 @@
+head 6841c5e3be421dc59900b392b51cbc3c0a110471
+ci_gate_workflows_check rc=0 1s :: 
+ci_events_check rc=0 2s :: ci_events: OK (2409 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)
+ci_gate_workflows_selftest rc=0 26s :: gate workflow and union controls: PASS
+ci_fast_legs_selftest rc=0 1s :: PASS: original unit command bytes and exhaustive matrix conditions
+ci_case_receipts_selftest rc=0 1s :: case receipt self-test: 36 driver cases, union and comparison controls pass
+ci_make_cases_selftest rc=0 0s :: make case runner: all controls pass
+ci_maap_cases_selftest rc=0 0s :: MAAP scheduling controls: 66 cases retain their source and checks
+ci_capture_cases_selftest rc=0 1s :: capture observations: full/sharded values match; failed unit remains failed
+ci_suite_pieces_selftest rc=0 14s :: suite pieces: 67 parents, 96 scheduled units, all controls PASS
+ci_suite_collect_selftest rc=0 5s :: physical suite collection: all controls PASS
+ci_fail_fast_selftest rc=0 2s :: fail-fast controls: first failure, complete success, sibling selection, fork zero-write PASS
+ci_runtime_evidence_selftest rc=0 10s :: runtime manifest collectors: all controls PASS
+ci_install_cache_selftest rc=0 0s :: constraint source: a0b20a1df6e831386d5d5241d3b839f5572e4c7cfd20bbf2231ee81c8f7bede5
+ci_workflow_plan_selftest rc=0 0s :: workflow planner: all controls pass
+ci_manifest_selftest rc=0 0s :: manifest comparison controls: PASS
+boundary_text_scan rc=0 1s :: unlisted programs naming the firmware's tree: none
+ctrl_firmware_shards rc=0 1s :: PASS: nine invalid shard combinations refuse; failed normal suites still stop mutations
+generate_ci_evidence_pins rc=0 0s :: 
+mutant_stage rc=0 1s :: mutant stage: all controls PASS
+suite_shards rc=0 4s :: selftest: PASS
+test_suite_cancellation rc=0 75s :: suite cancellation: PASS (INT/TERM boundaries, reaped identities, foreign sibling, partial logs, attributed cancellation reports, lock wait,
+gptp_shadow_lifecycle rc=0 46s :: mutant lifecycle: PASS (normal/repeat, sixteen named defects, survivor, build, unread-file and Git-setting acceptance, input/Git-redirect/re
+check_py_idiom rc=0 8s ::   over-long line: 0 <= 0
+check_sh_idiom rc=0 0s ::   top-heavy long script: 0 <= 0
+check_hygiene rc=0 0s :: HYGIENE RATCHET: PASS (3 population(s), 1563 file(s))
+measure_naming rc=0 1s :: NAMING RATCHET: PASS (95 candidate(s), all recorded by identity; 95 recorded)
+measure_fail_fast rc=0 2s ::   the ratchets can be lowered to 80, 3 and 0
+measure_test_evidence rc=0 11s ::   the mutation ratchet can be lowered to 69
+check_todo_ownership rc=0 2s :: TODO ownership gate: OK (0 owned marker(s), 0 unowned; 80 near-miss occurrence(s) on 73 line(s) correctly not treated as markers; 1643 first
+check_doc_paths rc=0 0s :: doc path gate: OK (1781 cited paths all resolve, 1 allowlisted; 10 line anchor(s) within their file)
+check_doc_style rc=0 0s :: documentation style: OK (25 current documents)
+docs_check rc=0 10s :: docs_check: 0 finding(s) across 226 md files + 1962 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+check_archive rc=0 0s :: archive gate: OK (21 historical page(s), each indexed with metadata and a current successor)
+docs_inventory rc=0 2s :: documentation inventory: OK (541 lines, docs/DOCUMENTATION_AUDIT.md is fresh)
+gen_toc_check rc=0 11s :: TOC gate: OK (161 page(s) carry an annotated contents list, 20 below the 3-section threshold)
+gen_toc_anchors rc=0 6s :: anchor check: 759 existing cross-page fragment links reproduced
+check_em_dash rc=0 3s :: check_em_dash: 0 finding(s) over 65 added line(s) in 1 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [4df125b8..HEAD]
+check_sweep_shape rc=0 3s :: sweep shape gate: OK
+suite_tally_selftest rc=0 0s :: selftest: PASS
+ci_events_selftest rc=0 361s :: selftest: PASS (2409 contract items, 6174 arms)
+done
