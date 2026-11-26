@@ -109,7 +109,7 @@ bucket holds its cost; no frame is dropped for rate.
 
 **The REBOOT account.** The AECP REBOOT sequence counts the datapath's frames
 out of the MAC by a toggle that flips on each frame end at the PHY
-(`KL_reboot_ctrl`, docs/design/REBOOT_RESET.md). With this path the arbiter
+(`KL_reboot_ctrl`, [REBOOT_RESET.md](REBOOT_RESET.md)). With this path the arbiter
 produces that toggle and leaves the computer's frames out of it. It announces
 each grant across to the transmit clock. The frame end that answers the
 announcement is the injected frame, the only frame in the MAC since the grant.

@@ -43,8 +43,8 @@ module KL_usbnet_tap
   parameter int unsigned     BURST_OCTETS_P    = 3200,
   parameter int unsigned     HOST_TIMEOUT_MS_P = 3000
 )(
-  input  wire         clk_i,
-  input  wire         rst_ni,
+  input  wire         clk_i,   //! the system clock, the MAC wrapper's
+  input  wire         rst_ni,   //! synchronous reset, active low
   //! the device's receive stream, accepted beats
   input  wire         rx_valid_i,
   input  wire [63:0]  rx_data_i,

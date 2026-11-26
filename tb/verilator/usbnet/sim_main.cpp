@@ -20,14 +20,15 @@
 #include <deque>
 #include <functional>
 #include <map>
+#include <memory>
 #include <string>
 #include <vector>
 
 using Bytes = std::vector<uint8_t>;
 
-static int g_fail = 0;
+static int &fails() { static int n = 0; return n; }
 #define CHECK(c, ...) do { if (!(c)) { std::printf("FAIL %s:%d: ", __FILE__, __LINE__); \
-    std::printf(__VA_ARGS__); std::printf("\n"); ++g_fail; } } while (0)
+    std::printf(__VA_ARGS__); std::printf("\n"); ++fails(); } } while (0)
 
 // ---------------------------------------------------------------------------
 //  Frames
@@ -63,7 +64,7 @@ static Bytes frame(Mac dst, Mac src, uint16_t etype, int len, int subtype = -1,
     b.push_back(uint8_t(etype >> 8)); b.push_back(uint8_t(etype));
     if (subtype >= 0) b.push_back(uint8_t(subtype));
     uint8_t x = seed;
-    while ((int)b.size() < len) { x = uint8_t(x * 13 + 7); b.push_back(x); }
+    while (static_cast<int>(b.size()) < len) { x = uint8_t(x * 13 + 7); b.push_back(x); }
     b.resize(len);
     return b;
 }
@@ -104,7 +105,7 @@ static bool want_copy(const Bytes &b, bool host_ok)
     return !reserved(d);
 }
 
-enum { TXV_PASS, TXV_SOURCE, TXV_LINKLOCAL, TXV_STREAM, TXV_PRIORITY, TXV_LENGTH, TXV_SHAPE };
+enum TxVerdict { TXV_PASS, TXV_SOURCE, TXV_LINKLOCAL, TXV_STREAM, TXV_PRIORITY, TXV_LENGTH, TXV_SHAPE };
 static int want_tx(const Bytes &b, Mac host, bool host_ok)
 {
     if (b.size() < 14) return TXV_LENGTH;
@@ -126,32 +127,42 @@ static int want_tx(const Bytes &b, Mac host, bool host_ok)
 struct Sent { Bytes b; uint64_t first; bool lo; };
 
 struct Bench {
+    std::unique_ptr<VKL_usbnet_tap> model;
     VKL_usbnet_tap *d;
-    uint64_t t = 0, tsys = 0, teth = 0, ncyc = 0, necyc = 0;
+    uint64_t tsys = 0;
+    uint64_t teth = 0;
+    uint64_t ncyc = 0;
+    uint64_t necyc = 0;
     // stimulus
     std::deque<Bytes> rx_q;                     // frames the device receives
     size_t rx_off = 0;
     std::deque<std::pair<uint64_t, Bytes>> hi_q; // datapath frames, with their release cycle
     size_t hi_off = 0;
     std::deque<uint16_t> dn_q;                  // bus words from the computer
-    bool up_ready = true, m_stall = false, m_hold = false;
+    bool up_ready = true;
+    bool m_stall = false;
+    bool m_hold = false;
     unsigned rnd = 12345;
     // observation
     std::vector<uint16_t> up_words;
     std::vector<Sent> out;                      // frames at the MAC core input
     Bytes cur; bool cur_lo = false; uint64_t cur_first = 0;
-    std::vector<int> rx_verdicts, tx_verdicts;
-    std::vector<uint64_t> hi_release, hi_start; // per datapath frame
+    std::vector<int> rx_verdicts;
+    std::vector<int> tx_verdicts;
+    std::vector<uint64_t> hi_release; // per datapath frame
+    std::vector<uint64_t> hi_start;
     // the MAC model, transmit clock side
     std::deque<std::pair<uint64_t, int>> mac_q; // (ready eth cycle, octets on the wire)
     int mac_left = 0; bool end_pulse = false;
     uint32_t tgl_flips = 0; uint8_t last_tgl = 0;
     unsigned hi_in_mac_max = 0;
     bool lo_overlap = false;                    // an injected frame shared the MAC with a datapath frame
-    int in_mac_hi = 0, in_mac_lo = 0;
-    bool prev_inj = false, prev_hi_valid = false;
+    int in_mac_hi = 0;
+    int in_mac_lo = 0;
+    bool prev_inj = false;
+    bool prev_hi_valid = false;
 
-    explicit Bench(VKL_usbnet_tap *dut) : d(dut) {
+    Bench() : model(std::make_unique<VKL_usbnet_tap>()), d(model.get()) {
         d->clk_i = 0; d->eth_clk_i = 0; d->rst_ni = 0; d->eth_rst_ni = 0;
         d->inject_en_i = 1; d->bus_alive_i = 1; d->m_ready_i = 1; d->up_ready_i = 1;
         d->eval();
@@ -254,7 +265,8 @@ struct Bench {
 
     void step() {
         // the next edge of whichever clock comes first
-        uint64_t ns = tsys + 5, ne = teth + 7;
+        uint64_t ns = tsys + 5;
+        uint64_t ne = teth + 7;
         if (ns <= ne) {
             tsys = ns; d->clk_i = !d->clk_i; d->eval();
             if (d->clk_i) ++ncyc;
@@ -301,31 +313,30 @@ struct Bench {
                 if (i >= up_words.size()) { *ok = false; return r; }
                 uint16_t w = up_words[i++];
                 f.push_back(uint8_t(w));
-                if ((int)f.size() < len) f.push_back(uint8_t(w >> 8));
+                if (static_cast<int>(f.size()) < len) f.push_back(uint8_t(w >> 8));
                 else if (w >> 8) *ok = false;   // the pad octet is zero
             }
             r.push_back(f);
         }
         return r;
     }
+    ~Bench() { d->final(); }
 };
 
-static Bench *mk() {
-    auto *d = new VKL_usbnet_tap;
-    return new Bench(d);
-}
-static void done(Bench *b) { b->d->final(); delete b->d; delete b; }
+using BenchPtr = std::unique_ptr<Bench>;
+static BenchPtr mk() { return std::make_unique<Bench>(); }
+static void done(BenchPtr &b) { b.reset(); }
 
 // ---------------------------------------------------------------------------
 //  Cases
 // ---------------------------------------------------------------------------
 static void host_record()
 {
-    Bench *b = mk();
+    BenchPtr b = mk();
     CHECK(!b->d->host_ok_o && !b->d->usb_ok_o, "no computer at reset");
     b->host(HOST, 0x0003); b->drain_dn();
     CHECK(b->d->host_ok_o && b->d->host_mac_o == HOST, "host record sets the address (%012llx)",
-          (unsigned long long)b->d->host_mac_o);
+          static_cast<unsigned long long>(b->d->host_mac_o));
     CHECK(b->d->host_state_o == 0x0003, "state word kept");
     CHECK(b->d->usb_ok_o, "LD1 input: SuperSpeed, fresh, bus alive");
     b->d->bus_alive_i = 0; b->cycles(4);
@@ -382,7 +393,7 @@ static void rx_classes()
         {"long broadcast",                   frame(BCAST, PEER, 0x0800, 1514)},
     };
     for (int attached = 0; attached < 2; ++attached) {
-        Bench *b = mk();
+        BenchPtr b = mk();
         if (attached) { b->host(HOST, 3); b->drain_dn(); }
         std::vector<Bytes> want;
         for (auto &c : cs) { b->rx_q.push_back(c.f); if (want_copy(c.f, attached)) want.push_back(c.f); }
@@ -406,7 +417,7 @@ static void rx_classes()
 
 static void rx_full()
 {
-    Bench *b = mk();
+    BenchPtr b = mk();
     b->host(HOST, 3); b->drain_dn();
     b->up_ready = false;
     int n = 12;
@@ -428,7 +439,7 @@ struct TxCase { const char *name; Bytes f; };
 
 static void tx_drops()
 {
-    Bench *b = mk();
+    BenchPtr b = mk();
     b->host(HOST, 3); b->drain_dn();
     std::vector<TxCase> cs = {
         {"unicast IPv4",                frame(PEER, HOST, 0x0800, 98)},
@@ -493,9 +504,10 @@ static void tx_drops()
 // RATE: 800 kb/s at a 1 MHz clock: 0.1 octet per clock; burst 3200 octets.
 static void tx_rate()
 {
-    Bench *b = mk();
+    BenchPtr b = mk();
     b->host(HOST, 3); b->drain_dn();
-    const int n = 24, len = 1000;   // cost 1024 octets each
+    const int n = 24;
+    const int len = 1000;   // cost 1024 octets each
     for (int i = 0; i < n; ++i) b->rec(0, frame(PEER, HOST, 0x0800, len, -1, {}, uint8_t(i)));
     uint64_t t0 = b->ncyc;
     for (int i = 0; i < 600000 && b->out.size() < size_t(n); ++i) b->cycles(1);
@@ -505,7 +517,7 @@ static void tx_rate()
     uint64_t span = b->out.back().first - b->out[3].first;
     double rate = double(n - 4) * 1024 * 8 / (double(span) / 1e6);   // bits per second
     std::printf("  rate: %d frames, steady %.0f b/s over %llu clocks (limit 800000)\n", n, rate,
-                (unsigned long long)span);
+                static_cast<unsigned long long>(span));
     CHECK(rate <= 800000 * 1.01, "the steady rate stays at the limit (%.0f)", rate);
     CHECK(rate >= 800000 * 0.95, "the limiter does not throttle below it (%.0f)", rate);
     uint64_t burst = b->out[2].first - t0;
@@ -522,7 +534,7 @@ static void tx_rate()
 // frame-end toggle counts the datapath frames only.
 static void tx_priority(bool stall)
 {
-    Bench *b = mk();
+    BenchPtr b = mk();
     b->m_stall = stall;
     b->host(HOST, 3); b->drain_dn();
     std::vector<Bytes> hi;
@@ -546,13 +558,13 @@ static void tx_priority(bool stall)
     for (size_t i = 0; i < b->hi_start.size() && i < b->hi_release.size(); ++i)
         worst = std::max(worst, b->hi_start[i] - b->hi_release[i]);
     std::printf("  priority (stall=%d): %zu datapath, %zu injected, worst datapath wait %llu clocks\n",
-                stall, got_hi.size(), n_lo, (unsigned long long)worst);
+                stall, got_hi.size(), n_lo, static_cast<unsigned long long>(worst));
     // the injected frame's 190 beats into the core (more under stalls), the
     // model's 30-clock pipeline (42 system clocks), its 1542 octets on the
     // wire (2159 system clocks) and the crossings
     const uint64_t bound = (stall ? 220 : 190) + 42 + 2159 + 30;
     CHECK(worst <= bound, "a datapath frame waits at most one injected frame (%llu > %llu)",
-          (unsigned long long)worst, (unsigned long long)bound);
+          static_cast<unsigned long long>(worst), static_cast<unsigned long long>(bound));
     CHECK(b->tgl_flips == uint32_t(n_hi), "the frame-end toggle counts the datapath frames only (%u of %d)",
           b->tgl_flips, n_hi);
     CHECK(b->d->tx_injected_o == n_lo, "injected counter");
@@ -565,7 +577,7 @@ static void tx_priority(bool stall)
 // datapath frame waited keeps its grant: the decision is made at the grant.)
 static void tx_contention()
 {
-    Bench *b = mk();
+    BenchPtr b = mk();
     b->host(HOST, 3); b->drain_dn();
     b->m_hold = true;
     Bytes dp = frame(AAF_MC, DEVICE, 0x22F0, 120, 0x02, {{3, 2, 0x8100}});
@@ -585,13 +597,13 @@ static void tx_contention()
 // Without the computer the datapath passes with no added clock.
 static void tx_transparent()
 {
-    Bench *b = mk();
+    BenchPtr b = mk();
     for (int i = 0; i < 20; ++i) b->hi_q.push_back({uint64_t(100 + 300 * i), frame(PEER, DEVICE, 0x0800, 64 + i)});
     for (int i = 0; i < 20000 && !b->hi_q.empty(); ++i) b->cycles(1);
     b->cycles(5000);
     uint64_t worst = 0;
     for (size_t i = 0; i < b->hi_start.size(); ++i) worst = std::max(worst, b->hi_start[i] - b->hi_release[i]);
-    CHECK(b->hi_start.size() == 20 && worst <= 1, "no added clock (%llu)", (unsigned long long)worst);
+    CHECK(b->hi_start.size() == 20 && worst <= 1, "no added clock (%llu)", static_cast<unsigned long long>(worst));
     CHECK(b->tgl_flips == 20u, "every datapath frame end counts (%u)", b->tgl_flips);
     done(b);
 }
@@ -607,10 +619,10 @@ int main(int argc, char **argv)
         {"tx_contention", tx_contention}, {"tx_transparent", tx_transparent},
     };
     for (auto &c : cases) {
-        int before = g_fail;
+        int before = fails();
         c.f();
-        std::printf("%s %s\n", g_fail == before ? "PASS" : "FAIL", c.n);
+        std::printf("%s %s\n", fails() == before ? "PASS" : "FAIL", c.n);
     }
-    std::printf("%s: %d failure(s)\n", g_fail ? "FAIL" : "PASS", g_fail);
-    return g_fail ? 1 : 0;
+    std::printf("%s: %d failure(s)\n", fails() ? "FAIL" : "PASS", fails());
+    return fails() ? 1 : 0;
 }

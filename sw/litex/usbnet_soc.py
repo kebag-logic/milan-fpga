@@ -26,6 +26,9 @@ only, so no other board's build sees a line of this module:
 """
 from __future__ import annotations
 
+from dataclasses import dataclass
+from pathlib import Path
+
 from migen import Cat, ClockSignal, Instance, ResetSignal, Signal
 from litex.gen import LiteXModule
 from litex.soc.interconnect import stream
@@ -53,7 +56,8 @@ LED_BLINK_OFF_MS, LED_BLINK_ON_MS = 40, 60
 LED_PWM_BITS, LED_DUTY = 8, 16
 
 
-def add_sources(platform, repo_root, names) -> None:
+def add_sources(platform: object, repo_root: Path, names: tuple[str, ...]) -> None:
+    """Add the named RTL files, relative to the repository root, to the platform's sources."""
     for name in names:
         platform.add_source(str(repo_root / name))
 
@@ -61,13 +65,14 @@ def add_sources(platform, repo_root, names) -> None:
 class UsbNetBus:
     """The bus side a slave-FIFO master binds: `up` toward the computer, `dn` from it."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.up = stream.Endpoint([("data", 16)])   # source: valid, ready, data, last
         self.dn = stream.Endpoint([("data", 16)])   # sink: valid, ready, data
         self.alive = Signal(name="usbnet_bus_alive")
 
 
-def add_usb_net(mac, platform, sys_clk_freq, repo_root, rx_dp_sys, inject_en) -> None:
+def add_usb_net(mac: object, platform: object, sys_clk_freq: float, repo_root: Path, rx_dp_sys: object,
+                inject_en: object) -> None:
     """Insert the tap at `mac.core.sink` and take the frame-end toggle (see the module doc)."""
     add_sources(platform, repo_root, USBNET_SOURCES)
     bus = UsbNetBus()
@@ -135,10 +140,18 @@ def add_usb_net(mac, platform, sys_clk_freq, repo_root, rx_dp_sys, inject_en) ->
     ]
 
 
+@dataclass(frozen=True)
+class LedInputs:
+    """The three hardware inputs of the LEDs: the link level, a pulse per frame, and LD1's level."""
+    link_up: object
+    activity: object
+    usb_ok: object
+
+
 class StatusLeds(LiteXModule):
     """LD0 to LD3 (#1018): the RTL block, its two registers and the green pads."""
 
-    def __init__(self, platform, sys_clk_freq, repo_root, link_up, activity, usb_ok):
+    def __init__(self, platform: object, sys_clk_freq: float, repo_root: Path, inputs: LedInputs) -> None:
         add_sources(platform, repo_root, LED_SOURCES)
         self.ctrl = CSRStorage(fields=[
             CSRField("stream", size=1, offset=0, description="LD2: a stream is connected (IEEE 1722.1-2021 "
@@ -154,7 +167,7 @@ class StatusLeds(LiteXModule):
             p_CLK_HZ_P=int(sys_clk_freq), p_PWM_BITS_P=LED_PWM_BITS, p_DUTY_P=LED_DUTY,
             p_BLINK_OFF_MS_P=LED_BLINK_OFF_MS, p_BLINK_ON_MS_P=LED_BLINK_ON_MS,
             i_clk_i=ClockSignal("sys"), i_rst_ni=~ResetSignal("sys"),
-            i_link_up_i=link_up, i_act_i=activity, i_usb_ok_i=usb_ok,
+            i_link_up_i=inputs.link_up, i_act_i=inputs.activity, i_usb_ok_i=inputs.usb_ok,
             i_stat_i=self.ctrl.storage, o_state_o=self.state.fields.leds, o_led_o=leds)
         # one colour channel: green; red and blue held dark
         for i in range(4):
@@ -162,7 +175,7 @@ class StatusLeds(LiteXModule):
             self.comb += [pads.g.eq(leds[i]), pads.r.eq(0), pads.b.eq(0)]
 
 
-def add_status_leds(soc, platform, sys_clk_freq, repo_root, mac) -> None:
+def add_status_leds(soc: object, platform: object, sys_clk_freq: float, repo_root: Path, mac: object) -> None:
     """The LEDs on the Arty; LD0 from the MAC's link and frames, LD1 from the tap when it is built."""
     activity = Signal(name="status_leds_act")
     core = mac.core
@@ -174,5 +187,5 @@ def add_status_leds(soc, platform, sys_clk_freq, repo_root, mac) -> None:
     # late banks, so no automatically placed bank (timer0, uart) moves and an
     # image linked against the map without the LEDs keeps every address.
     soc.csr.add("status_leds", n=soc.csr.n_locs - 5)
-    soc.status_leds = StatusLeds(platform, sys_clk_freq, repo_root, mac.link_status.fields.link_up,
-                                 activity, usb_ok)
+    soc.status_leds = StatusLeds(platform, sys_clk_freq, repo_root,
+                                 LedInputs(mac.link_status.fields.link_up, activity, usb_ok))

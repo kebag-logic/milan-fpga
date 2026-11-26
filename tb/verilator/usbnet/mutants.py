@@ -181,7 +181,9 @@ CONTROLS = [
 ]
 
 
-def run(name, harness, fname, old, new, want, scratch):
+def run(control: tuple[str, str, str, str, str, str], scratch: Path) -> str | None:
+    """Plant one control in a copy of the RTL and run its harness: None when its named check failed, else why not."""
+    name, harness, fname, old, new, want = control
     work = scratch / name
     rtl = work / "rtl"
     shutil.rmtree(work, ignore_errors=True)
@@ -205,7 +207,8 @@ def run(name, harness, fname, old, new, want, scratch):
     return None
 
 
-def main():
+def main() -> int:
+    """Run the selected controls; 0 when each was caught by its named check."""
     ap = argparse.ArgumentParser()
     ap.add_argument("--list", action="store_true")
     ap.add_argument("names", nargs="*")
@@ -218,7 +221,7 @@ def main():
     scratch = Path(os.environ.get("MUTANT_DIR") or tempfile.mkdtemp(prefix="usbnet-mut-"))
     bad = 0
     for c in sel:
-        r = run(*c, scratch)
+        r = run(c, scratch)
         print(f"{'caught' if r is None else 'MISSED'}  {c[0]}" + ("" if r is None else f": {r}"), flush=True)
         bad += r is not None
     print(f"{len(sel) - bad} of {len(sel)} controls caught by their named check")

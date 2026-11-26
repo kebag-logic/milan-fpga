@@ -52,8 +52,8 @@ module KL_usbnet_tx_arb #(
   parameter int unsigned PW_P = 72,   //! payload bits beside valid/ready/last
   parameter int unsigned OUT_W_P = 6  //! datapath frames the MAC can hold, log2
 )(
-  input  wire              clk_i,
-  input  wire              rst_ni,
+  input  wire              clk_i,   //! the system clock, the MAC wrapper's
+  input  wire              rst_ni,   //! synchronous reset, active low
   //! the datapath
   input  wire              hi_valid_i,
   output logic             hi_ready_o,
@@ -77,7 +77,7 @@ module KL_usbnet_tx_arb #(
   output logic             txend_tgl_o,     //! datapath frames only
   //! observation
   output logic             lo_active_o,     //! an injected frame owns the MAC
-  output logic [15:0]      injected_o
+  output logic [15:0]      injected_o   //! frames injected, saturating
 );
   typedef enum logic [1:0] {A_IDLE, A_HI, A_LO, A_WAIT} astate_e;
   astate_e            ast_r;

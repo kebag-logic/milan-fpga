@@ -37,14 +37,14 @@ module KL_status_leds #(
   parameter int unsigned BLINK_OFF_MS_P  = 40,
   parameter int unsigned BLINK_ON_MS_P   = 60
 )(
-  input  wire        clk_i,
-  input  wire        rst_ni,
-  input  wire        link_up_i,
+  input  wire        clk_i,   //! the system clock, the MAC wrapper's
+  input  wire        rst_ni,   //! synchronous reset, active low
+  input  wire        link_up_i,   //! the Ethernet link is up (LD0)
   input  wire        act_i,        //! one pulse per frame, either direction
-  input  wire        usb_ok_i,
-  input  wire [1:0]  stat_i,
-  output logic [3:0] state_o,
-  output logic [3:0] led_o
+  input  wire        usb_ok_i,   //! the USB 3.0 path works (LD1)
+  input  wire [1:0]  stat_i,   //! the firmware's register: [0] LD2, [1] LD3
+  output logic [3:0] state_o,   //! LD0 to LD3 as shown, before the PWM
+  output logic [3:0] led_o   //! LD0 to LD3 at the PWM duty, to the green pads
 );
   localparam int unsigned MS_CYC_C = CLK_HZ_P / 1000;
   localparam int unsigned MS_W_C   = $clog2(BLINK_OFF_MS_P + BLINK_ON_MS_P + 1);
