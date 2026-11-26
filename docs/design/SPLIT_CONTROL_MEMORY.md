@@ -3575,17 +3575,17 @@ Memory fit does not waive the service-budget or routed timing checks.
 
 | Item | Bytes or RAMB36 equivalent |
 |---|---:|
-| Linked ELF file | 159532 bytes |
-| `.text` | 112748 bytes |
+| Linked ELF file | 159620 bytes |
+| `.text` | 113908 bytes |
 | `.rodata` | 11558 bytes |
 | `.data` | 100 bytes |
-| `.bss` | 45072 bytes |
+| `.bss` | 45136 bytes |
 | `.stack` | 8192 bytes |
-| ROM live extent, including initial data | 124412 bytes |
-| SRAM live extent, including stack | 53392 bytes |
-| ROM allocation | 30.5 RAMB36 |
+| ROM live extent, including initial data | 125572 bytes |
+| SRAM live extent, including stack | 53456 bytes |
+| ROM allocation | 31 RAMB36 |
 | SRAM allocation | 13.5 RAMB36 |
-| Total allocation | 44 RAMB36 |
+| Total allocation | 44.5 RAMB36 |
 | Budget | 56 RAMB36 |
 
 The linked image's `size.json` records the sections and bank decomposition.
