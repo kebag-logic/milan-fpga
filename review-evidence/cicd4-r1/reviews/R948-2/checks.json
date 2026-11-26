@@ -1,0 +1,60 @@
+[
+  {
+    "name": "workflow-bytes",
+    "command": [
+      "python3",
+      "$REVIEWS/r948-2-cicd4/scripts/ci_gate_workflows.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 1.268
+  },
+  {
+    "name": "event-contract",
+    "command": [
+      "python3",
+      "$REVIEWS/r948-2-cicd4/scripts/ci_events.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 1.569
+  },
+  {
+    "name": "fast-legs",
+    "command": [
+      "python3",
+      "$REVIEWS/r948-2-cicd4/scripts/ci_fast_legs_selftest.py"
+    ],
+    "rc": 0,
+    "seconds": 1.268
+  },
+  {
+    "name": "schedule",
+    "command": [
+      "python3",
+      "$REVIEWS/r948-2-cicd4/scripts/suite_shards.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 4.777
+  },
+  {
+    "name": "documentation",
+    "command": [
+      "python3",
+      "$REVIEWS/r948-2-cicd4/scripts/docs_check.py"
+    ],
+    "rc": 0,
+    "seconds": 11.237
+  },
+  {
+    "name": "delta-probes",
+    "command": [
+      "python3",
+      "$REVIEWS/cicd4-r948-2-packet/probe_delta.py",
+      "$REVIEWS/r948-2-cicd4"
+    ],
+    "rc": 0,
+    "seconds": 2.87
+  }
+]

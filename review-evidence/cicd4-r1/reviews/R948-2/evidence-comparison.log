@@ -1,0 +1,39 @@
+PASS 45735453538-gptp-worker.log: gptp_shadow 672 s, pin 3ce71b76
+PASS 45755846909-22of27.log: gptp_shadow 679 s, pin 3ce71b76
+PASS historical control verdicts including first-failure details: 844, leg sizes [211, 211, 211, 211]
+PASS historical aecp verdicts including first-failure details: 398, leg sizes [199, 199]
+PASS historical srp verdicts including first-failure details: 662, leg sizes [332, 330]
+PASS firmware boundary text classification, with actual self-test dispatch stood in for
+PASS killing control: removing count checks makes all three COUNT+1 planted-arm assertions fail
+PUBLIC SCOPE https://github.com/kebag-logic/milan-fpga/pull/1003#issuecomment-7163800342 [A10] Decision on the composition finding R923-4-C1 (option b), made under the owner's delegation.
+
+**The facts.** After PR #995's gptp-processor pin (1213ac5b), the composed tree's `gptp_shadow` suite runs about 520 s hosted (13 controls), against the 393 s in `scripts/suite_shards.py`. This PR's own reviewed tree is unaffected: its `gptp_shadow` costs about 290 s (9 controls).
+
+**Effect of the stale figure.** On the shipped deal, worker 1 projects 1,250 s, and every hosted job stays within its limit. With the composed figure re-dealt at 26 workers, four workers would project 2 to 4 s over the 1,276 s slow-runner bound.
+
+**Decision.** The stale figure is accepted until the composed tree's first hosted windows replace it.
+- **Expected overshoot:** up to 4 s on the 1.41x-runner projection, on at most four workers. No hosted limit is threatened.
+- **Follow-up, owned by the CICD lane under #1008:**
+  - re-key `gptp_shadow` from the merged head's first two complete hosted runs;
+  - re-deal, adding a worker or splitting a piece, so that every regular worker projects at most 1,276 s again;
+  - record the figure's derivation with the other #998 figures.
+
+#1008 already holds the over-limit jobs this PR does not touch.
+
+PUBLIC SCOPE https://github.com/kebag-logic/milan-fpga/pull/1003#issuecomment-7164094739 [A10] **Corrected decision on R923-4-C1 (option b).** It supersedes comment 7163800342, which named the wrong overshoot: its "2 to 4 s on four workers" is the re-deal's figure, not the accepted state's (R923-5-D1).
+
+**Accepted condition.** Until the re-key, `gptp_shadow` stays on worker 1/26.
+- At the composed window (about 520 s), worker 1 projects about **1,377 s, about 101 s over** the 1,276 s bound. That is about 32.4 min on the 1.41x runner, on one worker.
+- Hosted run 45550366428 measured that worker ("Verilator shard 1/26") at **1,373 s, 22.9 min**, on an ordinary runner.
+- The job's hosted `timeout-minutes` is 45, so no hosted job is cancelled by it.
+
+**Why accept it now.**
+- The overshoot comes from PR #995's pin, not from this PR's change.
+- This PR's own reviewed tree is within the bound.
+- The re-key needs the merged head's own hosted windows, and those exist only after the merge.
+
+**Follow-up, on #1008, owned by the CICD lane:**
+1. Re-key `gptp_shadow` from the merged head's first two complete hosted runs.
+2. Re-deal, adding a worker or splitting a piece, until every regular worker projects at most 1,276 s.
+3. Record the figure's derivation with the other #998 figures.
+
