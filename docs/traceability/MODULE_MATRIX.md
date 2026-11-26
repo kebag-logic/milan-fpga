@@ -21,7 +21,7 @@ test is possible and is reproduced verbatim below.
 
 Legend: ✅ dedicated Verilator TB · ➰ exercised transitively in a broader TB's design · 🔬 in the tsn_fuzz field campaign · 📦 package · 🗄️ archived by a stated decision · ⚪ not compiled by any TB.
 
-**Totals:** 84 modules · 83 with a dedicated TB · 0 exercised-only · 32 field-fuzzed · 0 archived · **0 not in any TB**
+**Totals:** 90 modules · 89 with a dedicated TB · 0 exercised-only · 32 field-fuzzed · 0 archived · **0 not in any TB**
 
 ## Coverage by spec family
 
