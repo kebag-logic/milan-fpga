@@ -1,0 +1,386 @@
+make: Entering directory '<packet>/scratch/runs/pt-head-noignore/tb/verilator/engine'
+python3 ../../engine_passes_test.py
+[PASS] clean, make -j4: the serial transcript and status (rc 0)
+[PASS] the clean -j4 passes finished out of order: ['pass1', 'pass3', 'pass2', 'pass0']
+[PASS] clean, make -j1: the serial transcript and status (rc 0)
+[PASS] clean, make -j4 -s: the serial transcript and status (rc 0)
+[PASS] clean, make -j4 -i: the serial transcript and status (rc 0)
+[PASS] clean, make -j4 -k: the serial transcript and status (rc 0)
+[PASS] pass 0 fails, make -j4: the serial transcript and status (rc 2)
+[PASS] pass 0 fails, make -j1: the serial transcript and status (rc 2)
+[PASS] pass 0 fails, make -j4 -s: the serial transcript and status (rc 2)
+[FAIL] pass 0 fails, make -j4 -i: rc 0 vs serial 0
+--- serial stdout
+python3 ../../stub/gen.py --clk-hz 2000000 --cease-ms 3000 -o gptp_ucode.hex
+image written gptp_ucode.hex
+../../stub/verilator.py --cc --exe --build -j 0 --top-module KL_gptp_engine -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -GUCODE_HEX_P='"gptp_ucode.hex"' -GCLK_HZ_P=2000000 -CFLAGS "-std=c++17 -O2 -I/tmp/engine-passes-test-uwxqv2m7/serial/engine -Wall -Wextra" ../../../hdl/ucpu/gptp_ucpu_pkg.sv ../../../hdl/ucpu/KL_gptp_ucpu.sv ../../../hdl/wire/KL_gptp_rx_parser.sv ../../../hdl/wire/KL_gptp_tx_slot.sv ../../../hdl/common/KL_gptp_timer.sv ../../../hdl/top/KL_gptp_engine.sv sim_main.cpp -o Vengine_sim
+stub verilator: Vengine_sim from 27 arguments
+./obj_dir/Vengine_sim
+pass 0: first line
+pass 0: 12 checks: 11 PASS, 1 FAIL
+-- again, with the request counter seeded above 16 bits --
+pass 1: first line
+pass 1: 12 checks: 12 PASS, 0 FAIL
+-- again, with the Sync counter seeded above 16 bits --
+pass 2: first line
+pass 2: 12 checks: 12 PASS, 0 FAIL
+-- the self publication again, not grandmaster-capable (priority1 255), clockAccuracy 0xFE --
+pass 3: first line
+pass 3: 12 checks: 12 PASS, 0 FAIL
+--- stdout
+python3 ../../stub/gen.py --clk-hz 2000000 --cease-ms 3000 -o gptp_ucode.hex
+image written gptp_ucode.hex
+../../stub/verilator.py --cc --exe --build -j 0 --top-module KL_gptp_engine -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -GUCODE_HEX_P='"gptp_ucode.hex"' -GCLK_HZ_P=2000000 -CFLAGS "-std=c++17 -O2 -I/tmp/engine-passes-test-uwxqv2m7/parallel/engine -Wall -Wextra" ../../../hdl/ucpu/gptp_ucpu_pkg.sv ../../../hdl/ucpu/KL_gptp_ucpu.sv ../../../hdl/wire/KL_gptp_rx_parser.sv ../../../hdl/wire/KL_gptp_tx_slot.sv ../../../hdl/common/KL_gptp_timer.sv ../../../hdl/top/KL_gptp_engine.sv sim_main.cpp -o Vengine_sim
+stub verilator: Vengine_sim from 27 arguments
+./obj_dir/Vengine_sim
+pass 0: first line
+pass 0: 12 checks: 11 PASS, 1 FAIL
+--- serial stderr
+pass 0: a note on standard error
+make: [Makefile:52: run] Error 1 (ignored)
+pass 1: a note on standard error
+pass 2: a note on standard error
+pass 3: a note on standard error
+--- stderr
+pass 0: a note on standard error
+make: [Makefile:71: run] Error 1 (ignored)
+
+[PASS] pass 0 fails, make -j4 -k: the serial transcript and status (rc 2)
+[PASS] pass 1 fails, make -j4: the serial transcript and status (rc 2)
+[PASS] pass 1 fails, make -j1: the serial transcript and status (rc 2)
+[PASS] pass 1 fails, make -j4 -s: the serial transcript and status (rc 2)
+[FAIL] pass 1 fails, make -j4 -i: rc 0 vs serial 0
+--- serial stdout
+python3 ../../stub/gen.py --clk-hz 2000000 --cease-ms 3000 -o gptp_ucode.hex
+image written gptp_ucode.hex
+../../stub/verilator.py --cc --exe --build -j 0 --top-module KL_gptp_engine -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -GUCODE_HEX_P='"gptp_ucode.hex"' -GCLK_HZ_P=2000000 -CFLAGS "-std=c++17 -O2 -I/tmp/engine-passes-test-uwxqv2m7/serial/engine -Wall -Wextra" ../../../hdl/ucpu/gptp_ucpu_pkg.sv ../../../hdl/ucpu/KL_gptp_ucpu.sv ../../../hdl/wire/KL_gptp_rx_parser.sv ../../../hdl/wire/KL_gptp_tx_slot.sv ../../../hdl/common/KL_gptp_timer.sv ../../../hdl/top/KL_gptp_engine.sv sim_main.cpp -o Vengine_sim
+stub verilator: Vengine_sim from 27 arguments
+./obj_dir/Vengine_sim
+pass 0: first line
+pass 0: 12 checks: 12 PASS, 0 FAIL
+-- again, with the request counter seeded above 16 bits --
+pass 1: first line
+pass 1: 12 checks: 11 PASS, 1 FAIL
+-- again, with the Sync counter seeded above 16 bits --
+pass 2: first line
+pass 2: 12 checks: 12 PASS, 0 FAIL
+-- the self publication again, not grandmaster-capable (priority1 255), clockAccuracy 0xFE --
+pass 3: first line
+pass 3: 12 checks: 12 PASS, 0 FAIL
+--- stdout
+python3 ../../stub/gen.py --clk-hz 2000000 --cease-ms 3000 -o gptp_ucode.hex
+image written gptp_ucode.hex
+../../stub/verilator.py --cc --exe --build -j 0 --top-module KL_gptp_engine -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -GUCODE_HEX_P='"gptp_ucode.hex"' -GCLK_HZ_P=2000000 -CFLAGS "-std=c++17 -O2 -I/tmp/engine-passes-test-uwxqv2m7/parallel/engine -Wall -Wextra" ../../../hdl/ucpu/gptp_ucpu_pkg.sv ../../../hdl/ucpu/KL_gptp_ucpu.sv ../../../hdl/wire/KL_gptp_rx_parser.sv ../../../hdl/wire/KL_gptp_tx_slot.sv ../../../hdl/common/KL_gptp_timer.sv ../../../hdl/top/KL_gptp_engine.sv sim_main.cpp -o Vengine_sim
+stub verilator: Vengine_sim from 27 arguments
+./obj_dir/Vengine_sim
+pass 0: first line
+pass 0: 12 checks: 12 PASS, 0 FAIL
+-- again, with the request counter seeded above 16 bits --
+pass 1: first line
+pass 1: 12 checks: 11 PASS, 1 FAIL
+--- serial stderr
+pass 0: a note on standard error
+pass 1: a note on standard error
+make: [Makefile:56: run] Error 1 (ignored)
+pass 2: a note on standard error
+pass 3: a note on standard error
+--- stderr
+pass 0: a note on standard error
+pass 1: a note on standard error
+make: [Makefile:74: run] Error 1 (ignored)
+
+[PASS] pass 1 fails, make -j4 -k: the serial transcript and status (rc 2)
+[PASS] pass 3 fails, make -j4: the serial transcript and status (rc 2)
+[PASS] pass 3 fails, make -j1: the serial transcript and status (rc 2)
+[PASS] pass 3 fails, make -j4 -s: the serial transcript and status (rc 2)
+[PASS] pass 3 fails, make -j4 -i: the serial transcript and status (rc 0)
+[PASS] pass 3 fails, make -j4 -k: the serial transcript and status (rc 2)
+[PASS] passes 1 and 2 fail, make -j4: the serial transcript and status (rc 2)
+[PASS] passes 1 and 2 fail, make -j1: the serial transcript and status (rc 2)
+[PASS] passes 1 and 2 fail, make -j4 -s: the serial transcript and status (rc 2)
+[FAIL] passes 1 and 2 fail, make -j4 -i: rc 0 vs serial 0
+--- serial stdout
+python3 ../../stub/gen.py --clk-hz 2000000 --cease-ms 3000 -o gptp_ucode.hex
+image written gptp_ucode.hex
+../../stub/verilator.py --cc --exe --build -j 0 --top-module KL_gptp_engine -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -GUCODE_HEX_P='"gptp_ucode.hex"' -GCLK_HZ_P=2000000 -CFLAGS "-std=c++17 -O2 -I/tmp/engine-passes-test-uwxqv2m7/serial/engine -Wall -Wextra" ../../../hdl/ucpu/gptp_ucpu_pkg.sv ../../../hdl/ucpu/KL_gptp_ucpu.sv ../../../hdl/wire/KL_gptp_rx_parser.sv ../../../hdl/wire/KL_gptp_tx_slot.sv ../../../hdl/common/KL_gptp_timer.sv ../../../hdl/top/KL_gptp_engine.sv sim_main.cpp -o Vengine_sim
+stub verilator: Vengine_sim from 27 arguments
+./obj_dir/Vengine_sim
+pass 0: first line
+pass 0: 12 checks: 12 PASS, 0 FAIL
+-- again, with the request counter seeded above 16 bits --
+pass 1: first line
+pass 1: 12 checks: 11 PASS, 1 FAIL
+-- again, with the Sync counter seeded above 16 bits --
+pass 2: first line
+pass 2: 12 checks: 11 PASS, 1 FAIL
+-- the self publication again, not grandmaster-capable (priority1 255), clockAccuracy 0xFE --
+pass 3: first line
+pass 3: 12 checks: 12 PASS, 0 FAIL
+--- stdout
+python3 ../../stub/gen.py --clk-hz 2000000 --cease-ms 3000 -o gptp_ucode.hex
+image written gptp_ucode.hex
+../../stub/verilator.py --cc --exe --build -j 0 --top-module KL_gptp_engine -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -GUCODE_HEX_P='"gptp_ucode.hex"' -GCLK_HZ_P=2000000 -CFLAGS "-std=c++17 -O2 -I/tmp/engine-passes-test-uwxqv2m7/parallel/engine -Wall -Wextra" ../../../hdl/ucpu/gptp_ucpu_pkg.sv ../../../hdl/ucpu/KL_gptp_ucpu.sv ../../../hdl/wire/KL_gptp_rx_parser.sv ../../../hdl/wire/KL_gptp_tx_slot.sv ../../../hdl/common/KL_gptp_timer.sv ../../../hdl/top/KL_gptp_engine.sv sim_main.cpp -o Vengine_sim
+stub verilator: Vengine_sim from 27 arguments
+./obj_dir/Vengine_sim
+pass 0: first line
+pass 0: 12 checks: 12 PASS, 0 FAIL
+-- again, with the request counter seeded above 16 bits --
+pass 1: first line
+pass 1: 12 checks: 11 PASS, 1 FAIL
+--- serial stderr
+pass 0: a note on standard error
+pass 1: a note on standard error
+make: [Makefile:56: run] Error 3 (ignored)
+pass 2: a note on standard error
+make: [Makefile:60: run] Error 7 (ignored)
+pass 3: a note on standard error
+--- stderr
+pass 0: a note on standard error
+pass 1: a note on standard error
+make: [Makefile:74: run] Error 3 (ignored)
+
+[PASS] passes 1 and 2 fail, make -j4 -k: the serial transcript and status (rc 2)
+[PASS] pass 2 SIGSEGV, make -j4: the serial transcript and status (rc 2)
+[PASS] pass 2 SIGSEGV, make -j1: the serial transcript and status (rc 2)
+[PASS] pass 2 SIGSEGV, make -j4 -s: the serial transcript and status (rc 2)
+[FAIL] pass 2 SIGSEGV, make -j4 -i: rc 0 vs serial 0
+--- serial stdout
+python3 ../../stub/gen.py --clk-hz 2000000 --cease-ms 3000 -o gptp_ucode.hex
+image written gptp_ucode.hex
+../../stub/verilator.py --cc --exe --build -j 0 --top-module KL_gptp_engine -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -GUCODE_HEX_P='"gptp_ucode.hex"' -GCLK_HZ_P=2000000 -CFLAGS "-std=c++17 -O2 -I/tmp/engine-passes-test-uwxqv2m7/serial/engine -Wall -Wextra" ../../../hdl/ucpu/gptp_ucpu_pkg.sv ../../../hdl/ucpu/KL_gptp_ucpu.sv ../../../hdl/wire/KL_gptp_rx_parser.sv ../../../hdl/wire/KL_gptp_tx_slot.sv ../../../hdl/common/KL_gptp_timer.sv ../../../hdl/top/KL_gptp_engine.sv sim_main.cpp -o Vengine_sim
+stub verilator: Vengine_sim from 27 arguments
+./obj_dir/Vengine_sim
+pass 0: first line
+pass 0: 12 checks: 12 PASS, 0 FAIL
+-- again, with the request counter seeded above 16 bits --
+pass 1: first line
+pass 1: 12 checks: 12 PASS, 0 FAIL
+-- again, with the Sync counter seeded above 16 bits --
+pass 2: first line
+pass 2: 12 checks: 12 PASS, 0 FAIL
+-- the self publication again, not grandmaster-capable (priority1 255), clockAccuracy 0xFE --
+pass 3: first line
+pass 3: 12 checks: 12 PASS, 0 FAIL
+--- stdout
+python3 ../../stub/gen.py --clk-hz 2000000 --cease-ms 3000 -o gptp_ucode.hex
+image written gptp_ucode.hex
+../../stub/verilator.py --cc --exe --build -j 0 --top-module KL_gptp_engine -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -GUCODE_HEX_P='"gptp_ucode.hex"' -GCLK_HZ_P=2000000 -CFLAGS "-std=c++17 -O2 -I/tmp/engine-passes-test-uwxqv2m7/parallel/engine -Wall -Wextra" ../../../hdl/ucpu/gptp_ucpu_pkg.sv ../../../hdl/ucpu/KL_gptp_ucpu.sv ../../../hdl/wire/KL_gptp_rx_parser.sv ../../../hdl/wire/KL_gptp_tx_slot.sv ../../../hdl/common/KL_gptp_timer.sv ../../../hdl/top/KL_gptp_engine.sv sim_main.cpp -o Vengine_sim
+stub verilator: Vengine_sim from 27 arguments
+./obj_dir/Vengine_sim
+pass 0: first line
+pass 0: 12 checks: 12 PASS, 0 FAIL
+-- again, with the request counter seeded above 16 bits --
+pass 1: first line
+pass 1: 12 checks: 12 PASS, 0 FAIL
+-- again, with the Sync counter seeded above 16 bits --
+pass 2: first line
+pass 2: 12 checks: 12 PASS, 0 FAIL
+--- serial stderr
+pass 0: a note on standard error
+pass 1: a note on standard error
+pass 2: a note on standard error
+make: [Makefile:60: run] Segmentation fault (core dumped) (ignored)
+pass 3: a note on standard error
+--- stderr
+pass 0: a note on standard error
+pass 1: a note on standard error
+pass 2: a note on standard error
+make: [Makefile:77: run] Segmentation fault (core dumped) (ignored)
+
+[PASS] pass 2 SIGSEGV, make -j4 -k: the serial transcript and status (rc 2)
+[PASS] pass 1 SIGABRT, make -j4: the serial transcript and status (rc 2)
+[PASS] pass 1 SIGABRT, make -j1: the serial transcript and status (rc 2)
+[PASS] pass 1 SIGABRT, make -j4 -s: the serial transcript and status (rc 2)
+[FAIL] pass 1 SIGABRT, make -j4 -i: rc 0 vs serial 0
+--- serial stdout
+python3 ../../stub/gen.py --clk-hz 2000000 --cease-ms 3000 -o gptp_ucode.hex
+image written gptp_ucode.hex
+../../stub/verilator.py --cc --exe --build -j 0 --top-module KL_gptp_engine -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -GUCODE_HEX_P='"gptp_ucode.hex"' -GCLK_HZ_P=2000000 -CFLAGS "-std=c++17 -O2 -I/tmp/engine-passes-test-uwxqv2m7/serial/engine -Wall -Wextra" ../../../hdl/ucpu/gptp_ucpu_pkg.sv ../../../hdl/ucpu/KL_gptp_ucpu.sv ../../../hdl/wire/KL_gptp_rx_parser.sv ../../../hdl/wire/KL_gptp_tx_slot.sv ../../../hdl/common/KL_gptp_timer.sv ../../../hdl/top/KL_gptp_engine.sv sim_main.cpp -o Vengine_sim
+stub verilator: Vengine_sim from 27 arguments
+./obj_dir/Vengine_sim
+pass 0: first line
+pass 0: 12 checks: 12 PASS, 0 FAIL
+-- again, with the request counter seeded above 16 bits --
+pass 1: first line
+pass 1: 12 checks: 12 PASS, 0 FAIL
+-- again, with the Sync counter seeded above 16 bits --
+pass 2: first line
+pass 2: 12 checks: 12 PASS, 0 FAIL
+-- the self publication again, not grandmaster-capable (priority1 255), clockAccuracy 0xFE --
+pass 3: first line
+pass 3: 12 checks: 12 PASS, 0 FAIL
+--- stdout
+python3 ../../stub/gen.py --clk-hz 2000000 --cease-ms 3000 -o gptp_ucode.hex
+image written gptp_ucode.hex
+../../stub/verilator.py --cc --exe --build -j 0 --top-module KL_gptp_engine -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -GUCODE_HEX_P='"gptp_ucode.hex"' -GCLK_HZ_P=2000000 -CFLAGS "-std=c++17 -O2 -I/tmp/engine-passes-test-uwxqv2m7/parallel/engine -Wall -Wextra" ../../../hdl/ucpu/gptp_ucpu_pkg.sv ../../../hdl/ucpu/KL_gptp_ucpu.sv ../../../hdl/wire/KL_gptp_rx_parser.sv ../../../hdl/wire/KL_gptp_tx_slot.sv ../../../hdl/common/KL_gptp_timer.sv ../../../hdl/top/KL_gptp_engine.sv sim_main.cpp -o Vengine_sim
+stub verilator: Vengine_sim from 27 arguments
+./obj_dir/Vengine_sim
+pass 0: first line
+pass 0: 12 checks: 12 PASS, 0 FAIL
+-- again, with the request counter seeded above 16 bits --
+pass 1: first line
+pass 1: 12 checks: 12 PASS, 0 FAIL
+--- serial stderr
+pass 0: a note on standard error
+pass 1: a note on standard error
+make: [Makefile:56: run] Aborted (core dumped) (ignored)
+pass 2: a note on standard error
+pass 3: a note on standard error
+--- stderr
+pass 0: a note on standard error
+pass 1: a note on standard error
+make: [Makefile:74: run] Aborted (core dumped) (ignored)
+
+[PASS] pass 1 SIGABRT, make -j4 -k: the serial transcript and status (rc 2)
+[PASS] pass 3 SIGKILL, make -j4: the serial transcript and status (rc 2)
+[PASS] pass 3 SIGKILL, make -j1: the serial transcript and status (rc 2)
+[PASS] pass 3 SIGKILL, make -j4 -s: the serial transcript and status (rc 2)
+[PASS] pass 3 SIGKILL, make -j4 -i: the serial transcript and status (rc 0)
+[PASS] pass 3 SIGKILL, make -j4 -k: the serial transcript and status (rc 2)
+[PASS] pass 2 image refused, make -j4: the serial transcript and status (rc 2)
+[PASS] pass 2 image refused, make -j1: the serial transcript and status (rc 2)
+[PASS] pass 2 image refused, make -j4 -s: the serial transcript and status (rc 2)
+[FAIL] pass 2 image refused, make -j4 -i: rc 0 vs serial 0
+--- serial stdout
+python3 ../../stub/gen.py --clk-hz 2000000 --cease-ms 3000 -o gptp_ucode.hex
+image written gptp_ucode.hex
+../../stub/verilator.py --cc --exe --build -j 0 --top-module KL_gptp_engine -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -GUCODE_HEX_P='"gptp_ucode.hex"' -GCLK_HZ_P=2000000 -CFLAGS "-std=c++17 -O2 -I/tmp/engine-passes-test-uwxqv2m7/serial/engine -Wall -Wextra" ../../../hdl/ucpu/gptp_ucpu_pkg.sv ../../../hdl/ucpu/KL_gptp_ucpu.sv ../../../hdl/wire/KL_gptp_rx_parser.sv ../../../hdl/wire/KL_gptp_tx_slot.sv ../../../hdl/common/KL_gptp_timer.sv ../../../hdl/top/KL_gptp_engine.sv sim_main.cpp -o Vengine_sim
+stub verilator: Vengine_sim from 27 arguments
+./obj_dir/Vengine_sim
+pass 0: first line
+pass 0: 12 checks: 12 PASS, 0 FAIL
+-- again, with the request counter seeded above 16 bits --
+pass 1: first line
+pass 1: 12 checks: 12 PASS, 0 FAIL
+-- again, with the Sync counter seeded above 16 bits --
+pass 2: first line
+pass 2: 12 checks: 12 PASS, 0 FAIL
+-- the self publication again, not grandmaster-capable (priority1 255), clockAccuracy 0xFE --
+pass 3: first line
+pass 3: 12 checks: 12 PASS, 0 FAIL
+--- stdout
+python3 ../../stub/gen.py --clk-hz 2000000 --cease-ms 3000 -o gptp_ucode.hex
+image written gptp_ucode.hex
+../../stub/verilator.py --cc --exe --build -j 0 --top-module KL_gptp_engine -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -GUCODE_HEX_P='"gptp_ucode.hex"' -GCLK_HZ_P=2000000 -CFLAGS "-std=c++17 -O2 -I/tmp/engine-passes-test-uwxqv2m7/parallel/engine -Wall -Wextra" ../../../hdl/ucpu/gptp_ucpu_pkg.sv ../../../hdl/ucpu/KL_gptp_ucpu.sv ../../../hdl/wire/KL_gptp_rx_parser.sv ../../../hdl/wire/KL_gptp_tx_slot.sv ../../../hdl/common/KL_gptp_timer.sv ../../../hdl/top/KL_gptp_engine.sv sim_main.cpp -o Vengine_sim
+stub verilator: Vengine_sim from 27 arguments
+./obj_dir/Vengine_sim
+pass 0: first line
+pass 0: 12 checks: 12 PASS, 0 FAIL
+-- again, with the request counter seeded above 16 bits --
+pass 1: first line
+pass 1: 12 checks: 12 PASS, 0 FAIL
+-- again, with the Sync counter seeded above 16 bits --
+--- serial stderr
+pass 0: a note on standard error
+pass 1: a note on standard error
+gen_gptp_ucode: a planted refusal for syncseedrun/gptp_ucode.hex
+make: [Makefile:58: run] Error 1 (ignored)
+pass 2: a note on standard error
+pass 3: a note on standard error
+--- stderr
+pass 0: a note on standard error
+pass 1: a note on standard error
+gen_gptp_ucode: a planted refusal for syncseedrun/gptp_ucode.hex
+make: [Makefile:76: run] Error 1 (ignored)
+
+[PASS] pass 2 image refused, make -j4 -k: the serial transcript and status (rc 2)
+[PASS] pass 1 image generator SIGSEGV, make -j4: the serial transcript and status (rc 2)
+[PASS] pass 1 image generator SIGSEGV, make -j1: the serial transcript and status (rc 2)
+[PASS] pass 1 image generator SIGSEGV, make -j4 -s: the serial transcript and status (rc 2)
+[FAIL] pass 1 image generator SIGSEGV, make -j4 -i: rc 0 vs serial 0
+--- serial stdout
+python3 ../../stub/gen.py --clk-hz 2000000 --cease-ms 3000 -o gptp_ucode.hex
+image written gptp_ucode.hex
+../../stub/verilator.py --cc --exe --build -j 0 --top-module KL_gptp_engine -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -GUCODE_HEX_P='"gptp_ucode.hex"' -GCLK_HZ_P=2000000 -CFLAGS "-std=c++17 -O2 -I/tmp/engine-passes-test-uwxqv2m7/serial/engine -Wall -Wextra" ../../../hdl/ucpu/gptp_ucpu_pkg.sv ../../../hdl/ucpu/KL_gptp_ucpu.sv ../../../hdl/wire/KL_gptp_rx_parser.sv ../../../hdl/wire/KL_gptp_tx_slot.sv ../../../hdl/common/KL_gptp_timer.sv ../../../hdl/top/KL_gptp_engine.sv sim_main.cpp -o Vengine_sim
+stub verilator: Vengine_sim from 27 arguments
+./obj_dir/Vengine_sim
+pass 0: first line
+pass 0: 12 checks: 12 PASS, 0 FAIL
+-- again, with the request counter seeded above 16 bits --
+pass 1: first line
+pass 1: 12 checks: 12 PASS, 0 FAIL
+-- again, with the Sync counter seeded above 16 bits --
+pass 2: first line
+pass 2: 12 checks: 12 PASS, 0 FAIL
+-- the self publication again, not grandmaster-capable (priority1 255), clockAccuracy 0xFE --
+pass 3: first line
+pass 3: 12 checks: 12 PASS, 0 FAIL
+--- stdout
+python3 ../../stub/gen.py --clk-hz 2000000 --cease-ms 3000 -o gptp_ucode.hex
+image written gptp_ucode.hex
+../../stub/verilator.py --cc --exe --build -j 0 --top-module KL_gptp_engine -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -GUCODE_HEX_P='"gptp_ucode.hex"' -GCLK_HZ_P=2000000 -CFLAGS "-std=c++17 -O2 -I/tmp/engine-passes-test-uwxqv2m7/parallel/engine -Wall -Wextra" ../../../hdl/ucpu/gptp_ucpu_pkg.sv ../../../hdl/ucpu/KL_gptp_ucpu.sv ../../../hdl/wire/KL_gptp_rx_parser.sv ../../../hdl/wire/KL_gptp_tx_slot.sv ../../../hdl/common/KL_gptp_timer.sv ../../../hdl/top/KL_gptp_engine.sv sim_main.cpp -o Vengine_sim
+stub verilator: Vengine_sim from 27 arguments
+./obj_dir/Vengine_sim
+pass 0: first line
+pass 0: 12 checks: 12 PASS, 0 FAIL
+-- again, with the request counter seeded above 16 bits --
+--- serial stderr
+pass 0: a note on standard error
+make: [Makefile:54: run] Error 139 (ignored)
+pass 1: a note on standard error
+pass 2: a note on standard error
+pass 3: a note on standard error
+--- stderr
+pass 0: a note on standard error
+make: [Makefile:73: run] Error 139 (ignored)
+
+[PASS] pass 1 image generator SIGSEGV, make -j4 -k: the serial transcript and status (rc 2)
+[PASS] build fails, make -j4: the serial transcript and status (rc 2)
+[PASS] build fails, make -j1: the serial transcript and status (rc 2)
+[PASS] build fails, make -j4 -s: the serial transcript and status (rc 2)
+[FAIL] build fails, make -j4 -i: rc 0 vs serial 0
+--- serial stdout
+python3 ../../stub/gen.py --clk-hz 2000000 --cease-ms 3000 -o gptp_ucode.hex
+image written gptp_ucode.hex
+../../stub/verilator.py --cc --exe --build -j 0 --top-module KL_gptp_engine -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -GUCODE_HEX_P='"gptp_ucode.hex"' -GCLK_HZ_P=2000000 -CFLAGS "-std=c++17 -O2 -I/tmp/engine-passes-test-uwxqv2m7/serial/engine -Wall -Wextra" ../../../hdl/ucpu/gptp_ucpu_pkg.sv ../../../hdl/ucpu/KL_gptp_ucpu.sv ../../../hdl/wire/KL_gptp_rx_parser.sv ../../../hdl/wire/KL_gptp_tx_slot.sv ../../../hdl/common/KL_gptp_timer.sv ../../../hdl/top/KL_gptp_engine.sv sim_main.cpp -o Vengine_sim
+stub verilator: Vengine_sim from 27 arguments
+./obj_dir/Vengine_sim
+-- again, with the request counter seeded above 16 bits --
+-- again, with the Sync counter seeded above 16 bits --
+-- the self publication again, not grandmaster-capable (priority1 255), clockAccuracy 0xFE --
+--- stdout
+python3 ../../stub/gen.py --clk-hz 2000000 --cease-ms 3000 -o gptp_ucode.hex
+image written gptp_ucode.hex
+../../stub/verilator.py --cc --exe --build -j 0 --top-module KL_gptp_engine -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -GUCODE_HEX_P='"gptp_ucode.hex"' -GCLK_HZ_P=2000000 -CFLAGS "-std=c++17 -O2 -I/tmp/engine-passes-test-uwxqv2m7/parallel/engine -Wall -Wextra" ../../../hdl/ucpu/gptp_ucpu_pkg.sv ../../../hdl/ucpu/KL_gptp_ucpu.sv ../../../hdl/wire/KL_gptp_rx_parser.sv ../../../hdl/wire/KL_gptp_tx_slot.sv ../../../hdl/common/KL_gptp_timer.sv ../../../hdl/top/KL_gptp_engine.sv sim_main.cpp -o Vengine_sim
+stub verilator: Vengine_sim from 27 arguments
+./obj_dir/Vengine_sim
+--- serial stderr
+%Error: stub verilator: a planted build failure
+make: [Makefile:51: run] Error 1 (ignored)
+make: ./obj_dir/Vengine_sim: No such file or directory
+make: [Makefile:52: run] Error 127 (ignored)
+/bin/sh: line 1: ../obj_dir/Vengine_sim: No such file or directory
+make: [Makefile:56: run] Error 127 (ignored)
+/bin/sh: line 1: ../obj_dir/Vengine_sim: No such file or directory
+make: [Makefile:60: run] Error 127 (ignored)
+/bin/sh: line 1: ../obj_dir/Vengine_sim: No such file or directory
+make: [Makefile:64: run] Error 127 (ignored)
+--- stderr
+%Error: stub verilator: a planted build failure
+make: [Makefile:68: run] Error 1 (ignored)
+make: ./obj_dir/Vengine_sim: No such file or directory
+make: [Makefile:71: run] Error 127 (ignored)
+
+[PASS] build fails, make -j4 -k: the serial transcript and status (rc 2)
+[PASS] make -j1 run: at most 1 passes at once (budget 1)
+[PASS] make -j2 run: at most 2 passes at once (budget 2)
+[FAIL] make -j4 run: at most 3 passes at once (budget 4)
+[PASS] a parent make -j3 with two other jobs: 4 passes ran, at most 3 jobs at once in all (budget 3, reached)
+[PASS] make -j4: pass 1 fails and the run ends in 1.1 s; passes started ['pass0', 'pass1', 'pass2', 'pass3'], all ended
+[PASS] make -j1: pass 1 fails and the run ends in 2.3 s; passes started ['pass0', 'pass1'], all ended
+[PASS] SIGINT to make's process group: make ended (-2), 0 simulators left
+[PASS] SIGTERM to make's process group: make ended (-15), 0 simulators left
+[PASS] SIGQUIT to make's process group: make ended (1), 0 simulators left
+[PASS] SIGHUP to make's process group: make ended (2), 0 simulators left
+[PASS] SIGTERM to make's own process: make ended (-15), 0 simulators left
+[PASS] pass 1's kept transcript made unreadable: rc 2, pass 0 printed, the diagnostic printed, nothing after it
+[PASS] a replayed signal death is re-raised from /tmp/engine-passes-test-uwxqv2m7/cwd/obj_dir/engine-passes
+[PASS] an image generator killed by SIGSEGV replays as the serial line ended: 'make[1]: *** [Makefile:2: all] Segmentation fault' vs 'make[1]: *** [Makefile:2: all] Segmentation fault'
+[PASS] an image generator killed by SIGKILL replays as the serial line ended: 'make[1]: *** [Makefile:2: all] Killed' vs 'make[1]: *** [Makefile:2: all] Killed'
+[PASS] a no-core signal death replays as a non-dumpable one at core limit 0: 'make[1]: *** [Makefile:2: all] Segmentation fault' vs 'make[1]: *** [Makefile:2: all] Segmentation fault'
+[PASS] a no-core signal death replays as a non-dumpable one at core limit 1: 'make[1]: *** [Makefile:2: all] Segmentation fault' vs 'make[1]: *** [Makefile:2: all] Segmentation fault'
+engine passes test: 9 FAIL
+make: *** [Makefile:100: passes-test] Error 1
+make: Leaving directory '<packet>/scratch/runs/pt-head-noignore/tb/verilator/engine'
+Command exited with non-zero status 2
+wall 304.78 s

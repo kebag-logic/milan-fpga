@@ -1,0 +1,99 @@
+== control: base engine passes test: 1 FAIL (73 checks) | head engine passes test: PASS (73 checks) | non-load-sensitive failing set IDENTICAL (0 vs 0)
+   base only LOAD-SENSITIVE [FAIL] make -j4 run
+== failfast: base engine passes test: 3 FAIL (73 checks) | head engine passes test: 3 FAIL (73 checks) | non-load-sensitive failing set IDENTICAL (0 vs 0)
+   both      LOAD-SENSITIVE [FAIL] make -j1
+   both      LOAD-SENSITIVE [FAIL] make -j4
+   both      LOAD-SENSITIVE [FAIL] make -j4 run
+== noforward: base engine passes test: 3 FAIL (73 checks) | head engine passes test: 1 FAIL (73 checks) | non-load-sensitive failing set IDENTICAL (1 vs 1)
+   base only LOAD-SENSITIVE [FAIL] make -j4
+   base only LOAD-SENSITIVE [FAIL] make -j4 run
+   both      [FAIL] SIGTERM to make's own process
+== exit128: base engine passes test: 15 FAIL (73 checks) | head engine passes test: 13 FAIL (73 checks) | non-load-sensitive failing set IDENTICAL (13 vs 13)
+   base only LOAD-SENSITIVE [FAIL] make -j4
+   base only LOAD-SENSITIVE [FAIL] make -j4 run
+   both      [FAIL] a no-core signal death replays as a non-dumpable one at core limit 0
+   both      [FAIL] a no-core signal death replays as a non-dumpable one at core limit 1
+   both      [FAIL] a replayed signal death is re-raised from None
+   both      [FAIL] pass 1 SIGABRT, make -j1
+   both      [FAIL] pass 1 SIGABRT, make -j4
+   both      [FAIL] pass 1 SIGABRT, make -j4 -i
+   both      [FAIL] pass 1 SIGABRT, make -j4 -k
+   both      [FAIL] pass 1 SIGABRT, make -j4 -s
+   both      [FAIL] pass 2 SIGSEGV, make -j1
+   both      [FAIL] pass 2 SIGSEGV, make -j4
+   both      [FAIL] pass 2 SIGSEGV, make -j4 -i
+   both      [FAIL] pass 2 SIGSEGV, make -j4 -k
+   both      [FAIL] pass 2 SIGSEGV, make -j4 -s
+== merged: base engine passes test: 52 FAIL (73 checks) | head engine passes test: 51 FAIL (73 checks) | non-load-sensitive failing set IDENTICAL (51 vs 51)
+   base only LOAD-SENSITIVE [FAIL] make -j4 run
+   both      [FAIL] build fails, make -j4 -i
+   both      [FAIL] clean, make -j1
+   both      [FAIL] clean, make -j4
+   both      [FAIL] clean, make -j4 -i
+   both      [FAIL] clean, make -j4 -k
+   both      [FAIL] clean, make -j4 -s
+   both      [FAIL] pass 0 fails, make -j1
+   both      [FAIL] pass 0 fails, make -j4
+   both      [FAIL] pass 0 fails, make -j4 -i
+   both      [FAIL] pass 0 fails, make -j4 -k
+   both      [FAIL] pass 0 fails, make -j4 -s
+   both      [FAIL] pass 1 SIGABRT, make -j1
+   both      [FAIL] pass 1 SIGABRT, make -j4
+   both      [FAIL] pass 1 SIGABRT, make -j4 -i
+   both      [FAIL] pass 1 SIGABRT, make -j4 -k
+   both      [FAIL] pass 1 SIGABRT, make -j4 -s
+   both      [FAIL] pass 1 fails, make -j1
+   both      [FAIL] pass 1 fails, make -j4
+   both      [FAIL] pass 1 fails, make -j4 -i
+   both      [FAIL] pass 1 fails, make -j4 -k
+   both      [FAIL] pass 1 fails, make -j4 -s
+   both      [FAIL] pass 1 image generator SIGSEGV, make -j1
+   both      [FAIL] pass 1 image generator SIGSEGV, make -j4
+   both      [FAIL] pass 1 image generator SIGSEGV, make -j4 -i
+   both      [FAIL] pass 1 image generator SIGSEGV, make -j4 -k
+   both      [FAIL] pass 1 image generator SIGSEGV, make -j4 -s
+   both      [FAIL] pass 2 SIGSEGV, make -j1
+   both      [FAIL] pass 2 SIGSEGV, make -j4
+   both      [FAIL] pass 2 SIGSEGV, make -j4 -i
+   both      [FAIL] pass 2 SIGSEGV, make -j4 -k
+   both      [FAIL] pass 2 SIGSEGV, make -j4 -s
+   both      [FAIL] pass 2 image refused, make -j1
+   both      [FAIL] pass 2 image refused, make -j4
+   both      [FAIL] pass 2 image refused, make -j4 -i
+   both      [FAIL] pass 2 image refused, make -j4 -k
+   both      [FAIL] pass 2 image refused, make -j4 -s
+   both      [FAIL] pass 3 SIGKILL, make -j1
+   both      [FAIL] pass 3 SIGKILL, make -j4
+   both      [FAIL] pass 3 SIGKILL, make -j4 -i
+   both      [FAIL] pass 3 SIGKILL, make -j4 -k
+   both      [FAIL] pass 3 SIGKILL, make -j4 -s
+   both      [FAIL] pass 3 fails, make -j1
+   both      [FAIL] pass 3 fails, make -j4
+   both      [FAIL] pass 3 fails, make -j4 -i
+   both      [FAIL] pass 3 fails, make -j4 -k
+   both      [FAIL] pass 3 fails, make -j4 -s
+   both      [FAIL] passes 1 and 2 fail, make -j1
+   both      [FAIL] passes 1 and 2 fail, make -j4
+   both      [FAIL] passes 1 and 2 fail, make -j4 -i
+   both      [FAIL] passes 1 and 2 fail, make -j4 -k
+   both      [FAIL] passes 1 and 2 fail, make -j4 -s
+== nochdir: base engine passes test: 2 FAIL (73 checks) | head engine passes test: 3 FAIL (73 checks) | non-load-sensitive failing set IDENTICAL (1 vs 1)
+   both      LOAD-SENSITIVE [FAIL] make -j4
+   head only LOAD-SENSITIVE [FAIL] make -j4 run
+   both      [FAIL] a replayed signal death is re-raised from <tmp>/cwd
+== noprctl: base engine passes test: 2 FAIL (73 checks) | head engine passes test: 3 FAIL (73 checks) | non-load-sensitive failing set IDENTICAL (2 vs 2)
+   head only LOAD-SENSITIVE [FAIL] make -j4
+   both      [FAIL] a no-core signal death replays as a non-dumpable one at core limit 0
+   both      [FAIL] an image generator killed by SIGSEGV replays as the serial line ended
+== noignore: base engine passes test: 9 FAIL (73 checks) | head engine passes test: 9 FAIL (73 checks) | non-load-sensitive failing set IDENTICAL (8 vs 8)
+   both      LOAD-SENSITIVE [FAIL] make -j4 run
+   both      [FAIL] build fails, make -j4 -i
+   both      [FAIL] pass 0 fails, make -j4 -i
+   both      [FAIL] pass 1 SIGABRT, make -j4 -i
+   both      [FAIL] pass 1 fails, make -j4 -i
+   both      [FAIL] pass 1 image generator SIGSEGV, make -j4 -i
+   both      [FAIL] pass 2 SIGSEGV, make -j4 -i
+   both      [FAIL] pass 2 image refused, make -j4 -i
+   both      [FAIL] passes 1 and 2 fail, make -j4 -i
+== pt-head-control-c0: engine passes test: 1 FAIL (73 checks)
+    LOAD-SENSITIVE [FAIL] a parent make -j3 with two other jobs

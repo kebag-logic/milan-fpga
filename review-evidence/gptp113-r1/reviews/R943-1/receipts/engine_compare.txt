@@ -1,0 +1,10 @@
+eng-base-clean vs eng-head-clean: IDENTICAL (175 normalised lines of 189 / 175 of 189); rc 0 / 0
+eng-base-abort vs eng-head-abort: IDENTICAL (61 normalised lines of 75 / 61 of 75); rc 2 / 2
+eng-base-clean: records {'0.json': {'exit': 0}, '1.json': {'gen': 0, 'exit': 0}, '2.json': {'gen': 0, 'exit': 0}, '3.json': {'gen': 0, 'exit': 0}}; stop marks []; build.ok True
+   check lines in order: ['2302 checks: 2302 PASS, 0 FAIL', '2302 checks: 2302 PASS, 0 FAIL', '2302 checks: 2302 PASS, 0 FAIL', '61 checks: 61 PASS, 0 FAIL']
+eng-head-clean: records {'0.json': {'exit': 0}, '1.json': {'gen': 0, 'exit': 0}, '2.json': {'gen': 0, 'exit': 0}, '3.json': {'gen': 0, 'exit': 0}}; stop marks []; build.ok True
+   check lines in order: ['2302 checks: 2302 PASS, 0 FAIL', '2302 checks: 2302 PASS, 0 FAIL', '2302 checks: 2302 PASS, 0 FAIL', '61 checks: 61 PASS, 0 FAIL']
+eng-base-abort: records {'0.json': {'exit': 0}, '1.json': {'gen': 0, 'signal': 6, 'core': True}, '2.json': {'gen': 0, 'stopped': True, 'signal': 15, 'core': False}, '3.json': {'gen': 0, 'stopped': True, 'signal': 15, 'core': False}}; stop marks ['1.stop']; build.ok True
+   check lines in order: ['2302 checks: 2302 PASS, 0 FAIL']
+eng-head-abort: records {'0.json': {'exit': 0}, '1.json': {'gen': 0, 'signal': 6, 'core': True}, '2.json': {'gen': 0, 'stopped': True, 'signal': 15, 'core': False}, '3.json': {'gen': 0, 'stopped': True, 'signal': 15, 'core': False}}; stop marks ['1.stop']; build.ok True
+   check lines in order: ['2302 checks: 2302 PASS, 0 FAIL']
