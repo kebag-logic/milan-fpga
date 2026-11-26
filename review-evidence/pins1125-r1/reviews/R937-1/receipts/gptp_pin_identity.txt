@@ -1,0 +1,19 @@
+3ce71b768a2f6f6a5274c127080146e755d02275 3ce71b768a2f6f6a5274c127080146e755d02275 hdl=48cb05252bc4cb23dd269cea3272fd70e815d37d syn=ae1d026c3f0474e5cc82d604b4b87880ded15ab7
+3009f9a2 3009f9a2a2d69375211d8355490675879033d940 hdl=48cb05252bc4cb23dd269cea3272fd70e815d37d syn=ae1d026c3f0474e5cc82d604b4b87880ded15ab7
+--- 3ce71b76..3009f9a2 stat
+ docs/TEST_DEVELOPER.md             |  27 ++-
+ tb/verilator/engine/Makefile       |  67 ++++--
+ tb/verilator/engine/pass_run.py    | 291 +++++++++++++++++++++++++
+ tb/verilator/engine/passes_test.py | 434 +++++++++++++++++++++++++++++++++++++
+ 4 files changed, 801 insertions(+), 18 deletions(-)
+3009f9a 3ce71b768a2f6f6a5274c127080146e755d02275 a2352e723b481b011b32b0f6892a7920a079443b Merge pull request #112 from M
+a2352e7 dfd13a1079d265d68edc806b2d8111d0e5f89493 Drop the soft core limit fallback that prctl makes redundant, and label
+dfd13a1 a54e9eee922cb632364e864b2bce6aaf06c9c6ea Re-raise a no-core signal death non-dumpable, whatever the caller's cor
+a54e9ee dcf1caef6966221fda86684bf6406fe3134a0b11 Replay a no-core signal death without a dump on a piped core_pattern, a
+dcf1cae f1b566a881573611637e7bd6ecd257799b8c991c Re-raise an image generator's own signal death at replay, as a shell th
+f1b566a 0ba80c4f1a7e506a9bc727f162582bfc6212f771 Replay an image generator's signal death and a core dump as the serial 
+0ba80c4 661e4c3a45904d2d8f3e061c67103a945651d9ff State the -i exception to the first-failure rule in the test guide
+661e4c3 bbda770befae8748c1139c4e843c5874c5330048 Make each engine pass its own make job, so the four run within the call
+bbda770 1213ac5b9e09b8759ba76cc70c53652b5e108996 Run the engine suite's four passes at once and print each in the serial
+--- 3009f9a2 on main?
+  origin/main

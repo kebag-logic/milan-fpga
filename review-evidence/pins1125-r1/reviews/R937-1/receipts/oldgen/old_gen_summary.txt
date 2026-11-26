@@ -1,0 +1,16 @@
+# reviewer probe: head-built gptp_plane / gptp_shadow binaries run against microcode from the 1213ac5b and 3ce71b76 generators (scripts/old_gen_probe.sh, then scripts/old_gen_probe2.sh).
+# lines 1-8: the first chain, stopped by the reviewer during its last arm (a duplicate); lines 9-14: the re-run of the remaining arms. Every repeated arm agrees.
+plane 1213ac5b rc=1
+plane-ldonly 1213ac5b rc=1
+4e2304259b26ae08afac5f31ee049b132975b4b153b0f82d57f4612c6ab8d7e0  plane-1213ac5b/gptp_ucode.hex
+shadow 1213ac5b rc=1
+38d4506ab8c56937496c5183c58eb267106a21b6d2bf49b12f93b2b9501bc233  shadow-1213ac5b/gptp_ucode.hex
+plane 3ce71b76 rc=0
+plane-ldonly 3ce71b76 rc=0
+3e5dffa26eef54e5f1b2b5726f566d2211aad8946ea85d848b82c728bddfcca6  plane-3ce71b76/gptp_ucode.hex
+plane 3ce71b76 rc=0
+3e5dffa26eef54e5f1b2b5726f566d2211aad8946ea85d848b82c728bddfcca6  plane-3ce71b76/gptp_ucode.hex
+shadow 1213ac5b rc=1
+38d4506ab8c56937496c5183c58eb267106a21b6d2bf49b12f93b2b9501bc233  shadow-1213ac5b/gptp_ucode.hex
+shadow 3ce71b76 rc=0
+d89ed02e7eb4eacfe309c57ed54982ea0bedc80a1b949e3f17350f485da5591b  shadow-3ce71b76/gptp_ucode.hex

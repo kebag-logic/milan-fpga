@@ -1,0 +1,29 @@
+# restore check of the review clone at 2026-11-26T03:03Z
+HEAD a6864a49293ba3d0df37029abfa581468ef78dce tree 282773485cda391903a7e3bf8b1a0374bb882563
+index-tree 282773485cda391903a7e3bf8b1a0374bb882563
+really-refresh rc=0
+diff-files: 0 paths
+diff-index --cached HEAD: 0 paths
+assume-unchanged/skip-worktree flags: 0
+untracked (not ignored): 0
+status porcelain:
+gitlinks (index):
+160000 3ce71b768a2f6f6a5274c127080146e755d02275 0	gptp-processor
+160000 801ef2283ec793e35a2590fc6593c90313a64041 0	protocol-processor
+160000 d1bb4f4e5954af6dabe7f210a6bf7adbb76bdd6b 0	third_party/lwSRP
+160000 a795471c0abc4e38f7e5146b4e539dd607b6f501 0	third_party/tsn-c-stack
+160000 48ff7a7e2ef782cf778d47910cf85835c64b1bce 0	third_party/verilog-axis
+submodule status:
+-efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 external
+ 3ce71b768a2f6f6a5274c127080146e755d02275 gptp-processor (3ce71b7)
+ 801ef2283ec793e35a2590fc6593c90313a64041 protocol-processor (v2.0-912-g801ef22)
+ d1bb4f4e5954af6dabe7f210a6bf7adbb76bdd6b third_party/lwSRP (heads/main)
+ a795471c0abc4e38f7e5146b4e539dd607b6f501 third_party/tsn-c-stack (heads/main)
+ 48ff7a7e2ef782cf778d47910cf85835c64b1bce third_party/verilog-axis (heads/master)
+gptp-processor: porcelain=0 untracked-incl-ignored=0 head=3ce71b768a2f6f6a5274c127080146e755d02275
+third_party/tsn-c-stack: porcelain=0 untracked-incl-ignored=0 head=a795471c0abc4e38f7e5146b4e539dd607b6f501
+protocol-processor: porcelain=0 untracked-incl-ignored=1 head=801ef2283ec793e35a2590fc6593c90313a64041
+third_party/verilog-axis: porcelain=0 untracked-incl-ignored=0 head=48ff7a7e2ef782cf778d47910cf85835c64b1bce
+third_party/lwSRP: porcelain=0 untracked-incl-ignored=0 head=d1bb4f4e5954af6dabe7f210a6bf7adbb76bdd6b
+protocol-processor after removing a bytecode cache this run wrote: untracked-incl-ignored=0
+superproject ignored build outputs left in place (obj dirs, generated hex): 27 entries
