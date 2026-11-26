@@ -1,0 +1,37 @@
+Traceback (most recent call last):
+  File "$REVIEWS/r936-1-adp970/sw/firmware/ctrl/test/ctrl_build.py", line 149, in compile_tests
+    return fw_gtest.compile_tests(tree.build, [*includes(tree), f"-I{STACK_TESTS}", *extra],
+           ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                                  [test_source(n) for n in names], tree.out / tag)
+                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$REVIEWS/r936-1-adp970/sw/firmware/gtest/fw_gtest.py", line 167, in compile_tests
+    raise BuildError(f"{src.name} does not preprocess:\n{pre.stderr}")
+fw_gtest.BuildError: adp_walk.cpp does not preprocess:
+$REVIEWS/r936-1-adp970/sw/firmware/ctrl/test/adp_walk.cpp:48:10: fatal error: pp_adp_reuse.inc: No such file or directory
+   48 | #include "pp_adp_reuse.inc"
+      |          ^~~~~~~~~~~~~~~~~~
+compilation terminated.
+
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "$REVIEWS/adp970-r936-1-packet/focused_checks.py", line 90, in <module>
+    raise SystemExit(main())
+                     ~~~~^^
+  File "$REVIEWS/adp970-r936-1-packet/focused_checks.py", line 69, in main
+    task, rc = worker(args.source.resolve(), packet, args.worker, args.jobs)
+               ~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$REVIEWS/adp970-r936-1-packet/focused_checks.py", line 51, in worker
+    result = arms[arm](planted)
+  File "$REVIEWS/r936-1-adp970/sw/firmware/ctrl/test/ctrl_arms.py", line 273, in arm_walk
+    objs = firmware(tree, PORTABLE, "walk") + compile_tests(tree, ("adp_walk.cpp",), "walk/tests", extra)
+                                              ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$REVIEWS/r936-1-adp970/sw/firmware/ctrl/test/ctrl_build.py", line 152, in compile_tests
+    raise Refusal(str(exc)) from exc
+ctrl_build.Refusal: adp_walk.cpp does not preprocess:
+$REVIEWS/r936-1-adp970/sw/firmware/ctrl/test/adp_walk.cpp:48:10: fatal error: pp_adp_reuse.inc: No such file or directory
+   48 | #include "pp_adp_reuse.inc"
+      |          ^~~~~~~~~~~~~~~~~~
+compilation terminated.
+

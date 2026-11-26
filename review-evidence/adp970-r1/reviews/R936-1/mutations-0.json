@@ -1,0 +1,63 @@
+[
+  {
+    "name": "gm-change-ignored",
+    "kills": [
+      {
+        "arm": "walk",
+        "test": "Table551/AdpWalkCell.Graded/GM_CHANGE_x_WAITING",
+        "words": "GM_CHANGE x WAITING",
+        "caught": true
+      },
+      {
+        "arm": "adp",
+        "test": "AdpFirstAvailable.G4AGrandmasterChangeAfterItIsAnnounced",
+        "words": "G4 a grandmaster change after the first ENTITY_AVAILABLE starts a delay at once",
+        "caught": true
+      }
+    ]
+  },
+  {
+    "name": "first-delays-not-drawn",
+    "kills": [
+      {
+        "arm": "adp",
+        "test": "AdpFirstAvailable.G2WithinTheStartupDraw",
+        "words": "G2 the startup delay is spread over 0 to 2 s",
+        "caught": true
+      }
+    ]
+  },
+  {
+    "name": "seed-is-now-ms",
+    "kills": [
+      {
+        "arm": "adp",
+        "test": "AdpDraw.H5BootsDrawUniformly",
+        "words": "H5 one entity's boots draw their first delay uniformly",
+        "caught": true
+      }
+    ]
+  },
+  {
+    "name": "seed-without-the-entity-id",
+    "kills": [
+      {
+        "arm": "adp",
+        "test": "AdpDraw.H4NeighbouringEntitiesDrawUniformly",
+        "words": "H4 neighbouring entities started together draw their first delay uniformly",
+        "caught": true
+      }
+    ]
+  },
+  {
+    "name": "seed-without-the-interface",
+    "kills": [
+      {
+        "arm": "platboot2",
+        "test": "Boot.B26TwoInterfacesAreSeededApart",
+        "words": "B26 two interfaces enabled at one clock reading are seeded apart",
+        "caught": true
+      }
+    ]
+  }
+]

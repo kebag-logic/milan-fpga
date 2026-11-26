@@ -1,0 +1,63 @@
+[
+  {
+    "name": "draw-kinds-merged",
+    "kills": [
+      {
+        "arm": "adp",
+        "test": "AdpCore.A9DrawKinds",
+        "words": "A9 every startup draw",
+        "caught": true
+      },
+      {
+        "arm": "adp",
+        "test": "AdpFirstAvailable.G2WithinTheStartupDraw",
+        "words": "G2 the first ENTITY_AVAILABLE, index 0, leaves within its 0 to 2 s draw",
+        "caught": true
+      }
+    ]
+  },
+  {
+    "name": "gm-change-draws-the-startup-kind",
+    "kills": [
+      {
+        "arm": "adp",
+        "test": "AdpFirstAvailable.G4AGrandmasterChangeAfterItIsAnnounced",
+        "words": "G4 the grandmaster change's delay is the 0 to 4 s draw",
+        "caught": true
+      }
+    ]
+  },
+  {
+    "name": "seed-mix-is-the-identity",
+    "kills": [
+      {
+        "arm": "adp",
+        "test": "AdpDraw.H5BootsDrawUniformly",
+        "words": "H5 one entity's boots draw their first delay uniformly",
+        "caught": true
+      }
+    ]
+  },
+  {
+    "name": "seed-mac-not-summed",
+    "kills": [
+      {
+        "arm": "adp",
+        "test": "AdpDraw.H7TheSeedIsTheSumOfMacAndClockMixedWithTheEntityId",
+        "words": "H7 the seed is the sum of MAC address and clock",
+        "caught": true
+      }
+    ]
+  },
+  {
+    "name": "latency-extra-read",
+    "kills": [
+      {
+        "arm": "adp",
+        "test": "AdpLatency.C0toC6EveryResponsePath",
+        "words": "C0 LINK_UP -> TMR_DELAY armed",
+        "caught": true
+      }
+    ]
+  }
+]

@@ -1,0 +1,233 @@
+{
+  "count": 19,
+  "caught": 19,
+  "records": [
+    {
+      "name": "gm-change-ignored",
+      "kills": [
+        {
+          "arm": "walk",
+          "test": "Table551/AdpWalkCell.Graded/GM_CHANGE_x_WAITING",
+          "words": "GM_CHANGE x WAITING",
+          "caught": true
+        },
+        {
+          "arm": "adp",
+          "test": "AdpFirstAvailable.G4AGrandmasterChangeAfterItIsAnnounced",
+          "words": "G4 a grandmaster change after the first ENTITY_AVAILABLE starts a delay at once",
+          "caught": true
+        }
+      ]
+    },
+    {
+      "name": "first-delays-not-drawn",
+      "kills": [
+        {
+          "arm": "adp",
+          "test": "AdpFirstAvailable.G2WithinTheStartupDraw",
+          "words": "G2 the startup delay is spread over 0 to 2 s",
+          "caught": true
+        }
+      ]
+    },
+    {
+      "name": "seed-is-now-ms",
+      "kills": [
+        {
+          "arm": "adp",
+          "test": "AdpDraw.H5BootsDrawUniformly",
+          "words": "H5 one entity's boots draw their first delay uniformly",
+          "caught": true
+        }
+      ]
+    },
+    {
+      "name": "seed-without-the-entity-id",
+      "kills": [
+        {
+          "arm": "adp",
+          "test": "AdpDraw.H4NeighbouringEntitiesDrawUniformly",
+          "words": "H4 neighbouring entities started together draw their first delay uniformly",
+          "caught": true
+        }
+      ]
+    },
+    {
+      "name": "seed-without-the-interface",
+      "kills": [
+        {
+          "arm": "platboot2",
+          "test": "Boot.B26TwoInterfacesAreSeededApart",
+          "words": "B26 two interfaces enabled at one clock reading are seeded apart",
+          "caught": true
+        }
+      ]
+    },
+    {
+      "name": "link-up-draws-startup-kind",
+      "kills": [
+        {
+          "arm": "walk",
+          "test": "Table551/AdpWalkCell.Graded/LINK_UP_x_DOWN",
+          "words": "LINK_UP x DOWN",
+          "caught": true
+        },
+        {
+          "arm": "adp",
+          "test": "AdpFirstAvailable.G1G5WithinTheLinkUpDrawOfEveryLinkUp",
+          "words": "G1 the LINK_UP delay is spread over 0 to 4 s",
+          "caught": true
+        }
+      ]
+    },
+    {
+      "name": "gm-change-in-delay-restarts-the-delay",
+      "kills": [
+        {
+          "arm": "adp",
+          "test": "AdpFirstAvailable.G3AGrandmasterChangeBeforeItIsCarriedByIt",
+          "words": "G3 a grandmaster change before the first ENTITY_AVAILABLE re-arms nothing",
+          "caught": true
+        }
+      ]
+    },
+    {
+      "name": "seed-fallback-constant",
+      "kills": [
+        {
+          "arm": "adp",
+          "test": "AdpDraw.H6WithoutAClockBootsDrawUniformly",
+          "words": "H6 without a clock the seed's NOW_MS still spreads one entity's boots",
+          "caught": true
+        }
+      ]
+    },
+    {
+      "name": "seed-without-the-mac",
+      "kills": [
+        {
+          "arm": "adp",
+          "test": "AdpDraw.H7TheSeedIsTheSumOfMacAndClockMixedWithTheEntityId",
+          "words": "H7 the MAC address is in the seed",
+          "caught": true
+        }
+      ]
+    },
+    {
+      "name": "seed-clock-not-wired",
+      "kills": [
+        {
+          "arm": "platboot1",
+          "test": "Boot.B25TheAdpDrawIsSeededFromThePlatformsClock",
+          "words": "B25 boots that differ only in the clock's origin",
+          "caught": true
+        }
+      ]
+    },
+    {
+      "name": "draw-kinds-merged",
+      "kills": [
+        {
+          "arm": "adp",
+          "test": "AdpCore.A9DrawKinds",
+          "words": "A9 every startup draw",
+          "caught": true
+        },
+        {
+          "arm": "adp",
+          "test": "AdpFirstAvailable.G2WithinTheStartupDraw",
+          "words": "G2 the first ENTITY_AVAILABLE, index 0, leaves within its 0 to 2 s draw",
+          "caught": true
+        }
+      ]
+    },
+    {
+      "name": "gm-change-draws-the-startup-kind",
+      "kills": [
+        {
+          "arm": "adp",
+          "test": "AdpFirstAvailable.G4AGrandmasterChangeAfterItIsAnnounced",
+          "words": "G4 the grandmaster change's delay is the 0 to 4 s draw",
+          "caught": true
+        }
+      ]
+    },
+    {
+      "name": "seed-mix-is-the-identity",
+      "kills": [
+        {
+          "arm": "adp",
+          "test": "AdpDraw.H5BootsDrawUniformly",
+          "words": "H5 one entity's boots draw their first delay uniformly",
+          "caught": true
+        }
+      ]
+    },
+    {
+      "name": "seed-mac-not-summed",
+      "kills": [
+        {
+          "arm": "adp",
+          "test": "AdpDraw.H7TheSeedIsTheSumOfMacAndClockMixedWithTheEntityId",
+          "words": "H7 the seed is the sum of MAC address and clock",
+          "caught": true
+        }
+      ]
+    },
+    {
+      "name": "latency-extra-read",
+      "kills": [
+        {
+          "arm": "adp",
+          "test": "AdpLatency.C0toC6EveryResponsePath",
+          "words": "C0 LINK_UP -> TMR_DELAY armed",
+          "caught": true
+        }
+      ]
+    },
+    {
+      "name": "link-up-draws-half-a-second",
+      "kills": [
+        {
+          "arm": "adp",
+          "test": "AdpFirstAvailable.G1G5WithinTheLinkUpDrawOfEveryLinkUp",
+          "words": "G1 the LINK_UP delay is spread over 0 to 4 s",
+          "caught": true
+        }
+      ]
+    },
+    {
+      "name": "link-loss-resets-the-index",
+      "kills": [
+        {
+          "arm": "adp",
+          "test": "AdpFirstAvailable.G1G5WithinTheLinkUpDrawOfEveryLinkUp",
+          "words": "G1 each ENTITY_AVAILABLE carries the next available_index, across every link-up",
+          "caught": true
+        }
+      ]
+    },
+    {
+      "name": "seed-one-round",
+      "kills": [
+        {
+          "arm": "adp",
+          "test": "AdpDraw.H4NeighbouringEntitiesDrawUniformly",
+          "words": "H4 neighbouring entities started together draw their first delay uniformly",
+          "caught": true
+        }
+      ]
+    },
+    {
+      "name": "seed-carry-dropped",
+      "kills": [
+        {
+          "arm": "adp",
+          "test": "AdpDraw.H7TheSeedIsTheSumOfMacAndClockMixedWithTheEntityId",
+          "words": "H7 the sum carries end around",
+          "caught": true
+        }
+      ]
+    }
+  ]
+}

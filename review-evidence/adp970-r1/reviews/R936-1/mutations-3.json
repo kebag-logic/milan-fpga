@@ -1,0 +1,46 @@
+[
+  {
+    "name": "link-up-draws-half-a-second",
+    "kills": [
+      {
+        "arm": "adp",
+        "test": "AdpFirstAvailable.G1G5WithinTheLinkUpDrawOfEveryLinkUp",
+        "words": "G1 the LINK_UP delay is spread over 0 to 4 s",
+        "caught": true
+      }
+    ]
+  },
+  {
+    "name": "link-loss-resets-the-index",
+    "kills": [
+      {
+        "arm": "adp",
+        "test": "AdpFirstAvailable.G1G5WithinTheLinkUpDrawOfEveryLinkUp",
+        "words": "G1 each ENTITY_AVAILABLE carries the next available_index, across every link-up",
+        "caught": true
+      }
+    ]
+  },
+  {
+    "name": "seed-one-round",
+    "kills": [
+      {
+        "arm": "adp",
+        "test": "AdpDraw.H4NeighbouringEntitiesDrawUniformly",
+        "words": "H4 neighbouring entities started together draw their first delay uniformly",
+        "caught": true
+      }
+    ]
+  },
+  {
+    "name": "seed-carry-dropped",
+    "kills": [
+      {
+        "arm": "adp",
+        "test": "AdpDraw.H7TheSeedIsTheSumOfMacAndClockMixedWithTheEntityId",
+        "words": "H7 the sum carries end around",
+        "caught": true
+      }
+    ]
+  }
+]

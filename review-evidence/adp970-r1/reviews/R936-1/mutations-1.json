@@ -1,0 +1,63 @@
+[
+  {
+    "name": "link-up-draws-startup-kind",
+    "kills": [
+      {
+        "arm": "walk",
+        "test": "Table551/AdpWalkCell.Graded/LINK_UP_x_DOWN",
+        "words": "LINK_UP x DOWN",
+        "caught": true
+      },
+      {
+        "arm": "adp",
+        "test": "AdpFirstAvailable.G1G5WithinTheLinkUpDrawOfEveryLinkUp",
+        "words": "G1 the LINK_UP delay is spread over 0 to 4 s",
+        "caught": true
+      }
+    ]
+  },
+  {
+    "name": "gm-change-in-delay-restarts-the-delay",
+    "kills": [
+      {
+        "arm": "adp",
+        "test": "AdpFirstAvailable.G3AGrandmasterChangeBeforeItIsCarriedByIt",
+        "words": "G3 a grandmaster change before the first ENTITY_AVAILABLE re-arms nothing",
+        "caught": true
+      }
+    ]
+  },
+  {
+    "name": "seed-fallback-constant",
+    "kills": [
+      {
+        "arm": "adp",
+        "test": "AdpDraw.H6WithoutAClockBootsDrawUniformly",
+        "words": "H6 without a clock the seed's NOW_MS still spreads one entity's boots",
+        "caught": true
+      }
+    ]
+  },
+  {
+    "name": "seed-without-the-mac",
+    "kills": [
+      {
+        "arm": "adp",
+        "test": "AdpDraw.H7TheSeedIsTheSumOfMacAndClockMixedWithTheEntityId",
+        "words": "H7 the MAC address is in the seed",
+        "caught": true
+      }
+    ]
+  },
+  {
+    "name": "seed-clock-not-wired",
+    "kills": [
+      {
+        "arm": "platboot1",
+        "test": "Boot.B25TheAdpDrawIsSeededFromThePlatformsClock",
+        "words": "B25 boots that differ only in the clock's origin",
+        "caught": true
+      }
+    ]
+  }
+]
