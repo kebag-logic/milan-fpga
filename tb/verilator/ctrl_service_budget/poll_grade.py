@@ -113,8 +113,11 @@ FIRST, LAST, ITEMS = poll_items.FIRST, poll_items.LAST, poll_items.ITEMS
 #: rule's 5 % it would state 155, which moves the last queued notice's row past AECP_QUEUED_MS, the stated 130 ms
 #: (the queued rule's figure; the owner's bound is 140 ms). With #977's round 3 the walk after a registering record is
 #: gone (the sink index, a declaration's walk owed only for a source's StreamID): its heaviest in that group 343
-#: cycles, so the walk is stated 35 us again, as before round 2, within it every arm's.
-ONE = dict(base=225, withdraw=90, rebuild=290, walk=35, reclaim=25, retained=285, mrpdu=0, acmp=55, aecp=150,
+#: cycles, so the walk is stated 35 us again, as before round 2, within it every arm's. With #977's round 5 (the
+#: tsn-c-stack completion cut and the hot list relearned on it) the AECP notice item is 15,464 CPU cycles in the
+#: answering-ports arm, the most over every arm and group, 165 us by the rule, restated by the ruling of 2026-11-26
+#: on #977 (item 1), so the last queued notice's bound is 135 ms (queued_bound.py; the owner's stays 140).
+ONE = dict(base=225, withdraw=90, rebuild=290, walk=35, reclaim=25, retained=285, mrpdu=0, acmp=55, aecp=165,
            aecp_long=315, acmp_declined=20)
 TWO = dict(base=345, withdraw=245, rebuild=690, walk=60, reclaim=35, retained=365, mrpdu=0, acmp=70, aecp=275,
            aecp_long=700, acmp_declined=20)

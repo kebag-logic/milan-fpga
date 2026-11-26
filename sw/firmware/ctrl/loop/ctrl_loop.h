@@ -218,9 +218,9 @@
 // every source bound each tier at the slice (tb/verilator/ctrl_service_budget/
 // rows_tiers.py, the built design): R4 and the first queued notice at tier 1's
 // 20 ms, SRP's R5 and R6 at 90 ms, and the last queued notice at decision D's
-// 125 ms (#665), at 1x1/1if AECP_QUEUED_MS's 130 ms (aecp_mbx.h; the queued
-// rule's figure for its row at the slice rule's 950 us, the owner's decision
-// of 2026-11-20 on #665, ruling item 4, under the owner's 140 ms).
+// 125 ms (#665), at 1x1/1if AECP_QUEUED_MS's 135 ms (aecp_mbx.h; the queued
+// rule's figure for its row at the slice rule's 950 us, its AECP notice item
+// at 165 us by #977's ruling of 2026-11-26, item 1, under the owner's 140 ms).
 //
 // THE SETTLE (#977, its ruling of 2026-11-23, item 3). One client's deferred work
 // of a record THE DRAIN took: ACMP's completion of the sinks a record's Talker
@@ -374,7 +374,8 @@ extern "C" {
 // bound): 1x1/1if's, 130 and 35 ms, are the queued rule's figure for its row
 // of 127.31 ms at the slice rule's 950 us on the SRP cut's head, its
 // notice-path statements restated as the owner decided on 2026-11-20 (#665,
-// ruling item 4; the owner's bound stays 140 ms), and
+// ruling item 4; the owner's bound stays 140 ms), 135 ms since its AECP notice
+// item is 165 us (#977's ruling of 2026-11-26, item 1: its row 132.95 ms), and
 // #897's (its tx row's 34.20 with GET_AS_PATH's read composed on them; 33.44
 // at that head, the figure not lowered),
 // 8x8/1if's its own, 130 ms, as #894 states it there, and its tx row rounded
@@ -399,7 +400,7 @@ extern "C" {
 #define CTRL_LOOP_SRP_UNIT_US 285u
 #define CTRL_LOOP_RETRY_COLD_US 85u
 #define CTRL_LOOP_RETRY_ATTEMPT_US 34u
-#define CTRL_LOOP_QUEUED_MS 130u
+#define CTRL_LOOP_QUEUED_MS 135u
 #define CTRL_LOOP_TX_MS 35u
 #elif CTRL_LOOP_SHAPE(1u, 9u, 9u)      // one interface, the 8x8's streams
 #define CTRL_LOOP_SLICE_US 1475u
