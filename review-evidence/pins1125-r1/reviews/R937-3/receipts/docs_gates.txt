@@ -1,0 +1,10 @@
+# docs gates at d3cb3cf180f846a969f5baacf8b2bec34e4acd50
+== python3 -I scripts/check_doc_style.py
+documentation style: OK (25 current documents)
+rc=0
+== python3 -I scripts/docs_check.py
+docs_check: 0 finding(s) across 226 md files + 1959 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+rc=0
+== python3 -I scripts/check_em_dash.py --base c34e7d8b06739a22cc79997a9a1f4cbcd9bd0350
+check_em_dash: cannot judge: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r tools/markdown/requirements.txt
+rc=2

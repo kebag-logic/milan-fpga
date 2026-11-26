@@ -1,0 +1,72 @@
+# claims at d3cb3cf180f846a969f5baacf8b2bec34e4acd50
+== r2 packet: sha256 against MANIFEST.json
+OK  author/HANDOFF-r2.md 7df783585c297913
+OK  author/PR-BODY.md 16702535b0c035cd
+OK  author/REVIEW-READY.md e7dff1433519b8ec
+OK  author/receipts/INDEX.md 232d2d59d5667cdf
+OK  author/receipts/docs-workflow-steps.log 87e73ee88e1945cc
+OK  author/receipts/gptp_plane.log 681fa0eb34c6caa9
+OK  author/receipts/gptp_shadow.log b97a4a3b14077f32
+OK  author/receipts/image-inputs.txt 8cb811c016b6eb09
+OK  author/receipts/milan_dp-gptp-legs.log 9bf54cd050e1ab0b
+OK  author/receipts/old-generator-red.log fc916d4a2a5d1d49
+OK  author/receipts/ratchet-steps.log c7ec305e504f688f
+OK  author/receipts/tools/docs_steps.py.txt f7050addd31431a8
+OK  author/receipts/tools/oldred2.sh.txt 4c61fae180692b73
+OK  author/receipts/tools/package2.py.txt 791bf5ea1ccf4375
+== R938-2 F2: tolerance comment and the assertion it describes
+2986:  //! the offset before it less kGradedOffsetNs: the stamps quantise to the
+2989:  static constexpr int64_t kOffsetNearNs = 64;
+2991:  //! 0: far outside kOffsetNearNs, and inside the servo's slew band.
+2992:  static constexpr int64_t kGradedOffsetNs = 400;
+3048:    gm_pair(m, D_NOM - used_delay(d) + kGradedOffsetNs);
+3051:          near(after, before, kGradedOffsetNs / 2) ? 0 : 1, 1);
+3053:          near(after, before - kGradedOffsetNs, kOffsetNearNs), 1);
+  static constexpr int64_t kDelayThreshNs = 800;
+  static constexpr int64_t kFarNegativeNs = -5000000;
+  //! How near the offset after a graded pair must be to its expected value,
+  //! the offset before it less kGradedOffsetNs: the stamps quantise to the
+  //! 8 ns tick. Used delays less than this far apart are not told apart here;
+  //! gptp_plane's phase 6 grades the used delay to the nanosecond.
+  static constexpr int64_t kOffsetNearNs = 64;
+  //! The offset each graded pair is built for, against the background pairs'
+  //! 0: far outside kOffsetNearNs, and inside the servo's slew band.
+  static constexpr int64_t kGradedOffsetNs = 400;
+171:static bool near(int64_t v, int64_t c, int64_t tol) {
+172-  return v >= c - tol && v <= c + tol;
+173-}
+-- the phase-6 claim: gptp_plane checks the used delay exactly
+687:      check("the engine publishes the used delay", dut->pub_pdelay_ns_o,
+688-            static_cast<uint32_t>(used_delay(d)));
+--
+693:      check("its offset uses the delay exactly",
+694-            static_cast<uint32_t>(r.offset), 0);
+== R937-2 F2: #109 planted defects new since c34e7d8b06739a22cc79997a9a1f4cbcd9bd0350 (base count, head count)
+delay-below-80-refused base=0 head=1
+no-floor base=0 head=1
+used-delay-clamped-to-zero base=0 head=1
+floor-at-zero base=0 head=1
+floor-at-799 base=0 head=1
+published-before-the-floor base=0 head=1
+801-is-good base=0 head=1
+800-is-bad base=0 head=1
+public_bank_publishes_a_negative_delay base=0 head=1
+public_bank_keeps_a_stale_offset base=0 head=1
+graded_follow_up_not_sent base=0 head=1
+-- receipts: gptp_plane link_delay planted lines, gptp_shadow #109 controls
+8
+[ ok ] public_bank_publishes_a_negative_delay: caught by "#109 -263 ns: the public bank reads 0"
+[ ok ] public_bank_keeps_a_stale_offset: caught by "#109 -263 ns: the graded Follow_Up is used: its offset is fresh"
+[ ok ] graded_follow_up_not_sent: caught by "#109 -263 ns: the graded Follow_Up is used: its offset is fresh"
+-- CHANGELOG line
+75:- Eleven planted defects each fail a named check.
+-- PR table rows under 'Planted defects, each caught by name'
+11 defect rows
+== R938-2 F1: old-generator shadow tally and the PR instruction
+36:102 checks: 70 PASS, 32 FAIL
+63:490 checks: 465 PASS, 25 FAIL
+68:242 checks: 239 PASS, 3 FAIL
+193:To see the regression go red, replace `gptp-processor/hdl/ucode/gen_gptp_ucode.py` with 1213ac5b's and run `make -C tb/verilator/gptp_plane run` (32 FAIL) and `make -C tb/verilator/gptp_shadow run` (25 FAIL).
+== R937-2 F1: the phase-22 row's wording
+within 64 ns, as it does when the plane uses that pair
+within 64 ns, as it does when the plane subtracts the delay floored

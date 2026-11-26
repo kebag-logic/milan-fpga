@@ -1,0 +1,10 @@
+94c94
+< | `tb/verilator/gptp_shadow` phase 22 | -3, -80, -81, -263, -801, -5,000,000 ns, then 800 and 801 ns | The slice: the tap's stamps, the frame FIFO, the ledger, the real counter and the public bank. The peer answers from the plane's own t1 and the tap's own t4, so the delay is exact. Each negative trial reads 0 in the public bank. A graded Sync/Follow_Up pair then follows, built 400 ns off where the background pairs are built at 0. Its offset must move by those 400 ns, within 64 ns, which it does only when the plane uses that pair with the delay floored at -800 ns. A pair the plane does not use, or a bank that keeps a stale offset, fails. No PHC step. 800 reads 800 | 25 of 490 checks fail, from -81 on, among them `#109 -81 ns: the graded Follow_Up is used: its offset is fresh` |
+---
+> | `tb/verilator/gptp_shadow` phase 22 | -3, -80, -81, -263, -801, -5,000,000 ns, then 800 and 801 ns | The slice: the tap's stamps, the frame FIFO, the ledger, the real counter and the public bank. The peer answers from the plane's own t1 and the tap's own t4, so the delay is exact. Each negative trial reads 0 in the public bank. A graded Sync/Follow_Up pair then follows, built 400 ns off where the background pairs are built at 0. Its offset must move by those 400 ns, within 64 ns, as it does when the plane uses that pair with the delay floored at -800 ns. A pair the plane does not use, or a bank that keeps a stale offset, fails. No PHC step. 800 reads 800 | 25 of 490 checks fail, from -81 on, among them `#109 -81 ns: the graded Follow_Up is used: its offset is fresh` |
+193c193
+< To see the regression go red, replace `gptp-processor/hdl/ucode/gen_gptp_ucode.py` with 1213ac5b's and run `make -C tb/verilator/gptp_plane run` (32 FAIL) and `make -C tb/verilator/gptp_shadow run` (15 FAIL).
+---
+> To see the regression go red, replace `gptp-processor/hdl/ucode/gen_gptp_ucode.py` with 1213ac5b's and run `make -C tb/verilator/gptp_plane run` (32 FAIL) and `make -C tb/verilator/gptp_shadow run` (25 FAIL).
+218a219
+> 
