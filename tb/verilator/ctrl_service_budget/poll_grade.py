@@ -142,7 +142,7 @@ STATED_US = {shape_costs.Shape(1, 2, 2): ONE, shape_costs.Shape(1, 9, 9): EIGHT_
 
 # Arty FPGA measurements at exactly 80 MHz; no interface-count fallback.
 STATED_US[shape_costs.Shape(1, 1, 2)] = {
-    'base': 225, 'withdraw': 90, 'rebuild': 255, 'walk': 30, 'reclaim': 20, 'retained': 300, 'mrpdu': 0,
+    'base': 235, 'withdraw': 95, 'rebuild': 255, 'walk': 30, 'reclaim': 20, 'retained': 300, 'mrpdu': 0,
     'acmp': 60, 'aecp': 200, 'aecp_long': 385, 'acmp_declined': 20}
 
 

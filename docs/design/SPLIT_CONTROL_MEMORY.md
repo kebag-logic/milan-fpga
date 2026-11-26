@@ -3513,7 +3513,10 @@ The Arty row states a 1250 us slice, a 10 ms AECP pace, a 125 ms queued-notice
 bound and a 35 ms ordinary transmit bound.
 The merge of dev-soft-core `c34e7d8b` raised the measured AECP, ACMP and MAAP costs at this point.
 By the same rules, the first row (950 us, 9 ms, 30 ms) became this one.
+A complete campaign at it then raised the poll base, centisecond, LINK, MAAP and withdrawal statements, again by the rule.
 Its costs are the larger of each measurement on the merged firmware and the one before it.
+The `srp-kept` and `srp-bound` registrations over their statements are owed to #977 under #969's disposition,
+as at the other points (`kept_grade.py`), and do not restate the row; their other measurements do.
 The row is qualified only by a complete native campaign at this row; the seven held-egress
 misses remain recorded under their ledger, and every other service row must meet its bound.
 The slice holds the measured build of both MRPDUs, so `CTRL_LOOP_BUILD_MOST`
@@ -3521,11 +3524,11 @@ builds both in one pass at this point.
 
 | Work | Statement, us |
 |---|---:|
-| Poll base | 225 |
+| Poll base | 235 |
 | Both MRPDU builds | 1035 |
 | One MRPDU build | 660 |
 | Aged SRP step | 1060 |
-| Centisecond work | 150 |
+| Centisecond work | 160 |
 | SRP record | 300 |
 | ACMP record | 245 |
 | ADP record | 120 |
@@ -3543,8 +3546,8 @@ The retry fit measures 9767 cycles cold, 1929 cycles per refused attempt and
 17193 cycles per notice before applying the cost rule.
 These are measurements of the complete retry rounds, distinct from the
 transmit-only spans.
-The slice and pace rules give load 0.4994646140, txL 48.54 ms, last notice
-116.77 ms and ACMP 29.56 ms.
+The slice and pace rules give load 0.5004771140, txL 48.82 ms, last notice
+117.47 ms and ACMP 29.77 ms.
 THE SHARE's 2 ms bound is held by that campaign's measured whole passes.
 The MII PHY frame statement is 195 us from 14487 cycles, or 181.0875 us,
 with the same 5 percent and 5 us rounding rule.

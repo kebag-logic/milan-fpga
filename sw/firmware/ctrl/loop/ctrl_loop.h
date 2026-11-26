@@ -409,7 +409,7 @@ extern "C" {
 #define CTRL_LOOP_QUEUED_MS 125u
 #define CTRL_LOOP_TX_MS 35u
 #define CTRL_LOOP_STEP_PASS_US 1060u
-#define CTRL_LOOP_TICK_US 150u
+#define CTRL_LOOP_TICK_US 160u
 #define AECP_NOTICE_US 230u
 #define AECP_PACE_MS 10u
 #else
