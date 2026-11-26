@@ -24,13 +24,19 @@ static Bytes frame(uint64_t dst, size_t length, uint8_t seed)
 }
 struct Bench {
     VKL_usbnet_local_rx d;
-    std::deque<Bytes> local, network;
-    size_t loff = 0, noff = 0;
+    std::deque<Bytes> local;
+    std::deque<Bytes> network;
+    size_t loff = 0;
+    size_t noff = 0;
     std::vector<Bytes> got;
     Bytes current;
     unsigned cycle = 0;
-    bool stall = false, hold = false, previous_hold = false, only_network = false;
-    unsigned previous_data = 0, previous_last = 0;
+    bool stall = false;
+    bool hold = false;
+    bool previous_hold = false;
+    bool only_network = false;
+    unsigned previous_data = 0;
+    unsigned previous_last = 0;
     Bench() {
         d.clk_i = 0; d.rst_ni = 0; d.station_mac_i = 0x024B4C000101ull;
         tick(); tick(); d.rst_ni = 1;
@@ -100,7 +106,8 @@ int main(int argc, char **argv)
     }
     {
         Bench b;
-        const auto local = frame(device, 1515, 44), net = frame(device, 61, 77);
+        const auto local = frame(device, 1515, 44);
+        const auto net = frame(device, 61, 77);
         b.local.push_back(local); b.run(230);
         b.hold = true; b.run(3);
         b.network.push_back(net); b.run(20);
