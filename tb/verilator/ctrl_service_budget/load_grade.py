@@ -349,8 +349,12 @@ TX_PER_JOIN = 3
 #: registering groups: at 8x8/1if the none arm's record of the burst, 114,450 cycles, 76,950 past the unit, and its
 #: settle, 35,720, over nine values, 12,519 cycles, 135 us by the rule (the answering-ports arm's 12,508); at 1x1/1if
 #: the none arm's, 43,072 cycles, 14,572 past the unit, and its settle, 7,079, over two values, 10,826 cycles, 115 us
-#: by the rule (the answering-ports arm's 10,292).
-REGISTRATION_US = {'1x1/1if': 115, '8x8/1if': 135}
+#: by the rule (the answering-ports arm's 10,292). Measured on round 6's image (fda89791: tsn-c-stack 175cf9e0, the join
+#: timer's fix, and the hot list relearned on it) over both arms: at 8x8/1if the answering-ports arm's record of the
+#: burst, 116,302 cycles, 78,802 past the unit, and its settle, 35,604, over nine values, 12,712 cycles, 135 us by the
+#: rule (the none arm's 12,468); at 1x1/1if the answering-ports arm's, 43,725 cycles, 15,225 past the unit, and its
+#: settle, 7,076, over two values, 11,150 cycles, 120 us by the rule (the none arm's 10,193).
+REGISTRATION_US = {'1x1/1if': 120, '8x8/1if': 135}
 #: The poll items the load counts (poll_grade.py's names); AECP's owed frame is the table's, by what each source sends.
 ITEMS = ('base', 'reclaim', 'retained', 'mrpdu', 'acmp', 'walk', 'acmp_declined')
 #: THE TRANSMIT's and THE STEP's stated costs (ctrl_loop.h), at a point the headers state them for.
