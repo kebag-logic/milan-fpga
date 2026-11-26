@@ -1,0 +1,31 @@
+paired 90 probes, 0 only in base, 0 only in head
+pairs apart by more than 0.1 ms: 26
+  ('backlog', 'backlog.service.acmp.last.if0', 0): base 6.212 ms, head 6.833 ms (+0.621)
+  ('backlog', 'backlog.acmp_command.if0', 0): base 6.049 ms, head 6.470 ms (+0.421)
+  ('backlog-owed', 'backlog-owed.service.srp.last.if0', 0): base 7.503 ms, head 7.922 ms (+0.419)
+  ('backlog-adp', 'backlog-adp.service.srp.last.if0', 0): base 10.508 ms, head 10.882 ms (+0.374)
+  ('backlog-adp-refill', 'backlog-adp-refill.service.srp.last.if0', 0): base 10.389 ms, head 10.758 ms (+0.369)
+  ('backlog', 'backlog.service.srp.last.if0', 0): base 7.247 ms, head 7.567 ms (+0.321)
+  ('backlog', 'backlog.service.srp.first.if0', 0): base 6.581 ms, head 6.863 ms (+0.282)
+  ('backlog-owed', 'backlog-owed.service.aecp.last.if0', 0): base 62.848 ms, head 63.103 ms (+0.255)
+  ('backlog-adp', 'backlog.adp_available.if0', 0): base 5.559 ms, head 5.745 ms (+0.186)
+  ('backlog', 'backlog.service.maap.last.if0', 0): base 6.242 ms, head 6.411 ms (+0.169)
+  ('backlog', 'backlog.service.adp.last.if0', 0): base 6.258 ms, head 6.427 ms (+0.169)
+  ('backlog-owed', 'backlog-owed.service.adp.last.if0', 0): base 4.314 ms, head 4.469 ms (+0.155)
+verdict values seen: ['None']
+base misses: 7
+    ('backlog-owed', 'backlog-owed.service.acmp.last.if0', 0) 63.12992
+    ('backlog-owed', 'backlog-owed.service.aecp.last.if0', 0) 62.84763
+    ('backlog-owed', 'backlog.owed.if0', 0) 64.09994
+    ('backlog-owed', 'backlog.owed_behind0.if0', 0) 64.29245
+    ('backlog-owed', 'backlog.owed_behind1.if0', 0) 64.48319
+    ('backlog-owed', 'backlog.owed_behind2.if0', 0) 64.67393
+    ('backlog-owed', 'backlog.owed_behind3.if0', 0) 64.86397
+head misses: 7
+    ('backlog-owed', 'backlog-owed.service.acmp.last.if0', 0) 63.06791
+    ('backlog-owed', 'backlog-owed.service.aecp.last.if0', 0) 63.10277
+    ('backlog-owed', 'backlog.owed.if0', 0) 64.12474
+    ('backlog-owed', 'backlog.owed_behind0.if0', 0) 64.33653
+    ('backlog-owed', 'backlog.owed_behind1.if0', 0) 64.54734
+    ('backlog-owed', 'backlog.owed_behind2.if0', 0) 64.75815
+    ('backlog-owed', 'backlog.owed_behind3.if0', 0) 64.96905

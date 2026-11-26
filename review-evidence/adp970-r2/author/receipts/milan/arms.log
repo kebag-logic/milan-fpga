@@ -1,0 +1,645 @@
+=== adp: Outcome(arm='adp', rc=0, log="[==========] Running 84 tests from 9 test suites.\n[----------] Global test environment set-up.\n[----------] 27 tests from AdpCore\n[ RUN      ] AdpCore.A0toA2Schedule\n[       OK ] AdpCore.A0toA2Schedule (0 ms)\n[ RUN      ] AdpCore.A3toA5DiscoverAndDiscard\n[       OK ] AdpCore.A3toA5DiscoverAndDiscard (0 ms)\n[ RUN      ] AdpCore.A6toA8DeferredSends\n[       OK ] AdpCore.A6toA8DeferredSends (0 ms)\n[ RUN      ] AdpCore.A9DrawKinds\n[       OK ] AdpCore.A9DrawKinds (0 ms)\n[ RUN      ] AdpCore.A10toA14DepartingIndex\n[       OK ] AdpCore.A10toA14DepartingIndex (0 ms)\n[ RUN      ] AdpCore.A15OwedDepartingAcrossARestart\n[       OK ] AdpCore.A15OwedDepartingAcrossARestart (0 ms)\n[ RUN      ] AdpCore.A16SecondShutdownQueuesItsOwn\n[       OK ] AdpCore.A16SecondShutdownQueuesItsOwn (0 ms)\n[ RUN      ] AdpCore.A17RoomBackBeforeAPoll\n[       OK ] AdpCore.A17RoomBackBeforeAPoll (0 ms)\n[ RUN      ] AdpCore.A18LinkLossKeepsTheOwedDeparting\n[       OK ] AdpCore.A18LinkLossKeepsTheOwedDeparting (0 ms)\n[ RUN      ] AdpCore.A19IgnoredInputsKeepTheOwedAvailable\n[       OK ] AdpCore.A19IgnoredInputsKeepTheOwedAvailable (0 ms)\n[ RUN      ] AdpCore.A20LinkLossDropsTheOwedAvailable\n[       OK ] AdpCore.A20LinkLossDropsTheOwedAvailable (0 ms)\n[ RUN      ] AdpCore.A21DepartingCapacity\n[       OK ] AdpCore.A21DepartingCapacity (1 ms)\n[ RUN      ] AdpCore.A22GeneratorNeverStuckAtZero\n[       OK ] AdpCore.A22GeneratorNeverStuckAtZero (0 ms)\n[ RUN      ] AdpCore.A23RepeatedEnableOrDisableChangesNothing\n[       OK ] AdpCore.A23RepeatedEnableOrDisableChangesNothing (0 ms)\n[ RUN      ] AdpCore.A24OtherEtherTypeOrSubtypeDiscarded\n[       OK ] AdpCore.A24OtherEtherTypeOrSubtypeDiscarded (0 ms)\n[ RUN      ] AdpCore.A25FirstDrawsAreUniformOverSamples\n[       OK ] AdpCore.A25FirstDrawsAreUniformOverSamples (0 ms)\n[ RUN      ] AdpCore.A26NeighbouringHostsDrawUniformly\n[       OK ] AdpCore.A26NeighbouringHostsDrawUniformly (0 ms)\n[ RUN      ] AdpCore.A27EverySeedTermIsMixedIn\n[       OK ] AdpCore.A27EverySeedTermIsMixedIn (0 ms)\n[ RUN      ] AdpCore.A28EachLeaveOfDownTakesAFreshSample\n[       OK ] AdpCore.A28EachLeaveOfDownTakesAFreshSample (0 ms)\n[ RUN      ] AdpCore.A29SequenceIsOfMaximumLength\n[       OK ] AdpCore.A29SequenceIsOfMaximumLength (0 ms)\n[ RUN      ] AdpCore.A30EachQualifiedRiseTakesOneSample\n[       OK ] AdpCore.A30EachQualifiedRiseTakesOneSample (0 ms)\n[ RUN      ] AdpCore.A31TheLinkUpsSampleSetsItsDraw\n[       OK ] AdpCore.A31TheLinkUpsSampleSetsItsDraw (0 ms)\n[ RUN      ] AdpCore.A32ADiscoverDrawTakesNoSample\n[       OK ] AdpCore.A32ADiscoverDrawTakesNoSample (0 ms)\n[ RUN      ] AdpCore.LinkLevelsAndDisabledInputs\n[       OK ] AdpCore.LinkLevelsAndDisabledInputs (0 ms)\n[ RUN      ] AdpCore.EntityFieldsUseIndependentCounts\n[       OK ] AdpCore.EntityFieldsUseIndependentCounts (0 ms)\n[ RUN      ] AdpCore.AdvertisementFieldsMatchCaller\n[       OK ] AdpCore.AdvertisementFieldsMatchCaller (0 ms)\n[ RUN      ] AdpCore.MockedPortOrder\n[       OK ] AdpCore.MockedPortOrder (0 ms)\n[----------] 27 tests from AdpCore (3 ms total)\n\n[----------] 7 tests from AdpDraw\n[ RUN      ] AdpDraw.H4NeighbouringEntitiesDrawUniformly\n  H4 neighbours, startup: 1024 draws over 0 to 2000 ms, chi-square 25.1 (99 %: 30.6)\n  H4 neighbours, startup: 1024 draws over 0 to 2000 ms, chi-square 8.2 (99 %: 30.6)\n  H4 neighbours, LINK_UP: 1024 draws over 0 to 4000 ms, chi-square 25.5 (99 %: 30.6)\n  H4 neighbours, LINK_UP: 1024 draws over 0 to 4000 ms, chi-square 8.3 (99 %: 30.6)\n[       OK ] AdpDraw.H4NeighbouringEntitiesDrawUniformly (8 ms)\n[ RUN      ] AdpDraw.H5BootsDrawUniformly\n  H5 boots, startup: 1024 draws over 0 to 2000 ms, chi-square 16.5 (99 %: 30.6)\n  H5 boots, startup: 1024 draws over 0 to 2000 ms, chi-square 18.2 (99 %: 30.6)\n  H5 boots, LINK_UP: 1024 draws over 0 to 4000 ms, chi-square 17.2 (99 %: 30.6)\n  H5 boots, LINK_UP: 1024 draws over 0 to 4000 ms, chi-square 17.5 (99 %: 30.6)\n[       OK ] AdpDraw.H5BootsDrawUniformly (8 ms)\n[ RUN      ] AdpDraw.H6WithoutAClockBootsDrawUniformly\n  H6 no clock, startup: 1024 draws over 0 to 2000 ms, chi-square 15.7 (99 %: 30.6)\n  H6 no clock, LINK_UP: 1024 draws over 0 to 4000 ms, chi-square 15.7 (99 %: 30.6)\n[       OK ] AdpDraw.H6WithoutAClockBootsDrawUniformly (59 ms)\n[ RUN      ] AdpDraw.H7TheSeedIsTheSumOfMacAndClockMixedWithTheEntityId\n[       OK ] AdpDraw.H7TheSeedIsTheSumOfMacAndClockMixedWithTheEntityId (0 ms)\n[ RUN      ] AdpDraw.H8ALaterLinkUpTakesAFreshSample\n  H8 a later LINK_UP: 1024 draws over 0 to 4000 ms, chi-square 13.3 (99 %: 30.6)\n[       OK ] AdpDraw.H8ALaterLinkUpTakesAFreshSample (2 ms)\n[ RUN      ] AdpDraw.H9EachQualifiedRiseReadsTheClockOnce\n[       OK ] AdpDraw.H9EachQualifiedRiseReadsTheClockOnce (0 ms)\n[ RUN      ] AdpDraw.H10TheClockAtTheLinkUpSetsItsDraw\n  H10 915 distinct first delays of 1024 boots apart only at the LINK_UP\n  H10 the first LINK_UP: 1024 draws over 0 to 4000 ms, chi-square 17.2 (99 %: 30.6)\n[       OK ] AdpDraw.H10TheClockAtTheLinkUpSetsItsDraw (2 ms)\n[----------] 7 tests from AdpDraw (81 ms total)\n\n[----------] 6 tests from AdpAdapter\n[ RUN      ] AdpAdapter.B1StaleTagDiscarded\n[       OK ] AdpAdapter.B1StaleTagDiscarded (0 ms)\n[ RUN      ] AdpAdapter.PinRejectsEveryTruncatedDiscovery\n[       OK ] AdpAdapter.PinRejectsEveryTruncatedDiscovery (0 ms)\n[ RUN      ] AdpAdapter.PinRejectsUnsupportedDiscoveryVersions\n[       OK ] AdpAdapter.PinRejectsUnsupportedDiscoveryVersions (0 ms)\n[ RUN      ] AdpAdapter.PinRejectsShortDiscoveryControlLength\n[       OK ] AdpAdapter.PinRejectsShortDiscoveryControlLength (0 ms)\n[ RUN      ] AdpAdapter.PinAcceptsLongDiscoveryThroughMailbox\n[       OK ] AdpAdapter.PinAcceptsLongDiscoveryThroughMailbox (0 ms)\n[ RUN      ] AdpAdapter.PinAcceptsCompleteDiscoveryThroughMailbox\n[       OK ] AdpAdapter.PinAcceptsCompleteDiscoveryThroughMailbox (0 ms)\n[----------] 6 tests from AdpAdapter (0 ms total)\n\n[----------] 1 test from AdpLatency\n[ RUN      ] AdpLatency.C0toC6EveryResponsePath\n  C0 LINK_UP -> TMR_DELAY armed                 12 accesses (bound 12)\n  C1 TMR_DELAY -> ENTITY_AVAILABLE, TMR_ADVERTISE  38 accesses (bound 39)\n  C2 RCV_ADP_DISCOVER -> TMR_DELAY armed        31 accesses (bound 31)\n  C3 TMR_ADVERTISE -> TMR_DELAY armed           11 accesses (bound 11)\n  C4 GM_CHANGE -> TMR_DELAY armed               11 accesses (bound 11)\n  C5 LINK_DOWN -> timer cancelled                9 accesses (bound 12)\n  C6 SHUTDOWN -> ENTITY_DEPARTING committed     28 accesses (bound 29)\n[       OK ] AdpLatency.C0toC6EveryResponsePath (0 ms)\n[----------] 1 test from AdpLatency (0 ms total)\n\n[----------] 2 tests from AdpOwed\n[ RUN      ] AdpOwed.E0toE3PendingWake\n[       OK ] AdpOwed.E0toE3PendingWake (0 ms)\n[ RUN      ] AdpOwed.E4OwedDepartingWake\n[       OK ] AdpOwed.E4OwedDepartingWake (0 ms)\n[----------] 2 tests from AdpOwed (0 ms total)\n\n[----------] 4 tests from AdpFirstAvailable\n[ RUN      ] AdpFirstAvailable.G1G5WithinTheLinkUpDrawOfEveryLinkUp\n  G1 64 LINK_UPs: the first ENTITY_AVAILABLE 64 distinct delays, the latest 3973 ms after LINK_UP (its draw 0 to 4000 ms; the declared discovery time 6000 ms)\n  G5 the TMR_ADVERTISE delays after them: 63 distinct, the latest 3976 ms (0 to 4000)\n  G1 the LINK_UP delays, by 4 parts of 0 to 4000 ms: 14 16 18 16\n  G5 the TMR_ADVERTISE delays, by 4 parts of 0 to 4000 ms: 17 15 17 15\n[       OK ] AdpFirstAvailable.G1G5WithinTheLinkUpDrawOfEveryLinkUp (46 ms)\n[ RUN      ] AdpFirstAvailable.G2WithinTheStartupDraw\n  G2 32 startups with the link up: the first ENTITY_AVAILABLE 32 distinct delays, the latest 1959 ms (its draw 0 to 2000 ms)\n  G2 the startup delays, by 2 parts of 0 to 2000 ms: 17 15\n[       OK ] AdpFirstAvailable.G2WithinTheStartupDraw (2 ms)\n[ RUN      ] AdpFirstAvailable.G3AGrandmasterChangeBeforeItIsCarriedByIt\n  G3 32 LINK_UPs with a grandmaster change in the delay: the first ENTITY_AVAILABLE the latest 3969 ms after LINK_UP\n[       OK ] AdpFirstAvailable.G3AGrandmasterChangeBeforeItIsCarriedByIt (5 ms)\n[ RUN      ] AdpFirstAvailable.G4AGrandmasterChangeAfterItIsAnnounced\n  G4 32 LINK_UPs, a grandmaster change 4.5 s after each: the first ENTITY_AVAILABLE the latest 3916 ms after LINK_UP, the new grandmaster's the latest 3867 ms after the change\n  G4 the grandmaster change's delays, by 2 parts of 0 to 4000 ms: 13 19\n[       OK ] AdpFirstAvailable.G4AGrandmasterChangeAfterItIsAnnounced (17 ms)\n[----------] 4 tests from AdpFirstAvailable (73 ms total)\n\n[----------] 1 test from AdpBacklog\n[ RUN      ] AdpBacklog.F0toF7FullBacklogs\n  backlog: 16 event records, 30 centiseconds, 8 receive records\n  passes: events by 2, ENTITY_AVAILABLE in 2 (170 accesses), receive ring by 5 (223 accesses), idle at 16; worst pass 100 accesses\n  F5 the costliest pass of the backlog         100 accesses (bound 407)\n[       OK ] AdpBacklog.F0toF7FullBacklogs (0 ms)\n[----------] 1 test from AdpBacklog (0 ms total)\n\n[----------] 30 tests from AllStates/AdpInputControl\n[ RUN      ] AllStates/AdpInputControl.RejectsUnsupportedVersion/0\n[       OK ] AllStates/AdpInputControl.RejectsUnsupportedVersion/0 (0 ms)\n[ RUN      ] AllStates/AdpInputControl.RejectsUnsupportedVersion/1\n[       OK ] AllStates/AdpInputControl.RejectsUnsupportedVersion/1 (0 ms)\n[ RUN      ] AllStates/AdpInputControl.RejectsUnsupportedVersion/2\n[       OK ] AllStates/AdpInputControl.RejectsUnsupportedVersion/2 (0 ms)\n[ RUN      ] AllStates/AdpInputControl.RejectsUnsupportedVersion/3\n[       OK ] AllStates/AdpInputControl.RejectsUnsupportedVersion/3 (0 ms)\n[ RUN      ] AllStates/AdpInputControl.RejectsUnsupportedVersion/4\n[       OK ] AllStates/AdpInputControl.RejectsUnsupportedVersion/4 (0 ms)\n[ RUN      ] AllStates/AdpInputControl.RejectsShortFrame/0\n[       OK ] AllStates/AdpInputControl.RejectsShortFrame/0 (0 ms)\n[ RUN      ] AllStates/AdpInputControl.RejectsShortFrame/1\n[       OK ] AllStates/AdpInputControl.RejectsShortFrame/1 (0 ms)\n[ RUN      ] AllStates/AdpInputControl.RejectsShortFrame/2\n[       OK ] AllStates/AdpInputControl.RejectsShortFrame/2 (0 ms)\n[ RUN      ] AllStates/AdpInputControl.RejectsShortFrame/3\n[       OK ] AllStates/AdpInputControl.RejectsShortFrame/3 (0 ms)\n[ RUN      ] AllStates/AdpInputControl.RejectsShortFrame/4\n[       OK ] AllStates/AdpInputControl.RejectsShortFrame/4 (0 ms)\n[ RUN      ] AllStates/AdpInputControl.RejectsShortControlDataLength/0\n[       OK ] AllStates/AdpInputControl.RejectsShortControlDataLength/0 (0 ms)\n[ RUN      ] AllStates/AdpInputControl.RejectsShortControlDataLength/1\n[       OK ] AllStates/AdpInputControl.RejectsShortControlDataLength/1 (0 ms)\n[ RUN      ] AllStates/AdpInputControl.RejectsShortControlDataLength/2\n[       OK ] AllStates/AdpInputControl.RejectsShortControlDataLength/2 (0 ms)\n[ RUN      ] AllStates/AdpInputControl.RejectsShortControlDataLength/3\n[       OK ] AllStates/AdpInputControl.RejectsShortControlDataLength/3 (0 ms)\n[ RUN      ] AllStates/AdpInputControl.RejectsShortControlDataLength/4\n[       OK ] AllStates/AdpInputControl.RejectsShortControlDataLength/4 (0 ms)\n[ RUN      ] AllStates/AdpInputControl.AcceptsLongControlDataLength/0\n[       OK ] AllStates/AdpInputControl.AcceptsLongControlDataLength/0 (0 ms)\n[ RUN      ] AllStates/AdpInputControl.AcceptsLongControlDataLength/1\n[       OK ] AllStates/AdpInputControl.AcceptsLongControlDataLength/1 (0 ms)\n[ RUN      ] AllStates/AdpInputControl.AcceptsLongControlDataLength/2\n[       OK ] AllStates/AdpInputControl.AcceptsLongControlDataLength/2 (0 ms)\n[ RUN      ] AllStates/AdpInputControl.AcceptsLongControlDataLength/3\n[       OK ] AllStates/AdpInputControl.AcceptsLongControlDataLength/3 (0 ms)\n[ RUN      ] AllStates/AdpInputControl.AcceptsLongControlDataLength/4\n[       OK ] AllStates/AdpInputControl.AcceptsLongControlDataLength/4 (0 ms)\n[ RUN      ] AllStates/AdpInputControl.ReadsNoOctetPastTheFrame/0\n[       OK ] AllStates/AdpInputControl.ReadsNoOctetPastTheFrame/0 (0 ms)\n[ RUN      ] AllStates/AdpInputControl.ReadsNoOctetPastTheFrame/1\n[       OK ] AllStates/AdpInputControl.ReadsNoOctetPastTheFrame/1 (0 ms)\n[ RUN      ] AllStates/AdpInputControl.ReadsNoOctetPastTheFrame/2\n[       OK ] AllStates/AdpInputControl.ReadsNoOctetPastTheFrame/2 (0 ms)\n[ RUN      ] AllStates/AdpInputControl.ReadsNoOctetPastTheFrame/3\n[       OK ] AllStates/AdpInputControl.ReadsNoOctetPastTheFrame/3 (1 ms)\n[ RUN      ] AllStates/AdpInputControl.ReadsNoOctetPastTheFrame/4\n[       OK ] AllStates/AdpInputControl.ReadsNoOctetPastTheFrame/4 (1 ms)\n[ RUN      ] AllStates/AdpInputControl.ValidDiscovery/0\n[       OK ] AllStates/AdpInputControl.ValidDiscovery/0 (0 ms)\n[ RUN      ] AllStates/AdpInputControl.ValidDiscovery/1\n[       OK ] AllStates/AdpInputControl.ValidDiscovery/1 (0 ms)\n[ RUN      ] AllStates/AdpInputControl.ValidDiscovery/2\n[       OK ] AllStates/AdpInputControl.ValidDiscovery/2 (0 ms)\n[ RUN      ] AllStates/AdpInputControl.ValidDiscovery/3\n[       OK ] AllStates/AdpInputControl.ValidDiscovery/3 (0 ms)\n[ RUN      ] AllStates/AdpInputControl.ValidDiscovery/4\n[       OK ] AllStates/AdpInputControl.ValidDiscovery/4 (0 ms)\n[----------] 30 tests from AllStates/AdpInputControl (8 ms total)\n\n[----------] 6 tests from Shutdowns/AdpOwedBound\n[ RUN      ] Shutdowns/AdpOwedBound.E5CommittedInPassKPlusOne/0\n  E5 1 SHUTDOWNs, expiry taken before the room: room to ENTITY_AVAILABLE  62 accesses (bound 1628)\n[       OK ] Shutdowns/AdpOwedBound.E5CommittedInPassKPlusOne/0 (0 ms)\n[ RUN      ] Shutdowns/AdpOwedBound.E5CommittedInPassKPlusOne/1\n  E5 1 SHUTDOWNs, expiry taken after the room: room to ENTITY_AVAILABLE  68 accesses (bound 1628)\n[       OK ] Shutdowns/AdpOwedBound.E5CommittedInPassKPlusOne/1 (0 ms)\n[ RUN      ] Shutdowns/AdpOwedBound.E5CommittedInPassKPlusOne/2\n  E5 2 SHUTDOWNs, expiry taken before the room: room to ENTITY_AVAILABLE  91 accesses (bound 1628)\n[       OK ] Shutdowns/AdpOwedBound.E5CommittedInPassKPlusOne/2 (0 ms)\n[ RUN      ] Shutdowns/AdpOwedBound.E5CommittedInPassKPlusOne/3\n  E5 2 SHUTDOWNs, expiry taken after the room: room to ENTITY_AVAILABLE  97 accesses (bound 1628)\n[       OK ] Shutdowns/AdpOwedBound.E5CommittedInPassKPlusOne/3 (0 ms)\n[ RUN      ] Shutdowns/AdpOwedBound.E5CommittedInPassKPlusOne/4\n  E5 64 SHUTDOWNs, expiry taken before the room: room to ENTITY_AVAILABLE  91 accesses (bound 1628)\n[       OK ] Shutdowns/AdpOwedBound.E5CommittedInPassKPlusOne/4 (0 ms)\n[ RUN      ] Shutdowns/AdpOwedBound.E5CommittedInPassKPlusOne/5\n  E5 64 SHUTDOWNs, expiry taken after the room: room to ENTITY_AVAILABLE  97 accesses (bound 1628)\n[       OK ] Shutdowns/AdpOwedBound.E5CommittedInPassKPlusOne/5 (0 ms)\n[----------] 6 tests from Shutdowns/AdpOwedBound (0 ms total)\n\n[----------] Global test environment tear-down\n[==========] 84 tests from 9 test suites ran. (169 ms total)\n[  PASSED  ] 84 tests.\n== ctrl ADP slice (fake ports and host model): checks: 84   failures: 0 ==\nRESULT: PASS\n  verdict: PASS (84 tests, 0 failures, exit 0)")
+[----------] 30 tests from AllStates/AdpInputControl
+[ RUN      ] AllStates/AdpInputControl.RejectsUnsupportedVersion/0
+[       OK ] AllStates/AdpInputControl.RejectsUnsupportedVersion/0 (0 ms)
+[ RUN      ] AllStates/AdpInputControl.RejectsUnsupportedVersion/1
+[       OK ] AllStates/AdpInputControl.RejectsUnsupportedVersion/1 (0 ms)
+[ RUN      ] AllStates/AdpInputControl.RejectsUnsupportedVersion/2
+[       OK ] AllStates/AdpInputControl.RejectsUnsupportedVersion/2 (0 ms)
+[ RUN      ] AllStates/AdpInputControl.RejectsUnsupportedVersion/3
+[       OK ] AllStates/AdpInputControl.RejectsUnsupportedVersion/3 (0 ms)
+[ RUN      ] AllStates/AdpInputControl.RejectsUnsupportedVersion/4
+[       OK ] AllStates/AdpInputControl.RejectsUnsupportedVersion/4 (0 ms)
+[ RUN      ] AllStates/AdpInputControl.RejectsShortFrame/0
+[       OK ] AllStates/AdpInputControl.RejectsShortFrame/0 (0 ms)
+[ RUN      ] AllStates/AdpInputControl.RejectsShortFrame/1
+[       OK ] AllStates/AdpInputControl.RejectsShortFrame/1 (0 ms)
+[ RUN      ] AllStates/AdpInputControl.RejectsShortFrame/2
+[       OK ] AllStates/AdpInputControl.RejectsShortFrame/2 (0 ms)
+[ RUN      ] AllStates/AdpInputControl.RejectsShortFrame/3
+[       OK ] AllStates/AdpInputControl.RejectsShortFrame/3 (0 ms)
+[ RUN      ] AllStates/AdpInputControl.RejectsShortFrame/4
+[       OK ] AllStates/AdpInputControl.RejectsShortFrame/4 (0 ms)
+[ RUN      ] AllStates/AdpInputControl.RejectsShortControlDataLength/0
+[       OK ] AllStates/AdpInputControl.RejectsShortControlDataLength/0 (0 ms)
+[ RUN      ] AllStates/AdpInputControl.RejectsShortControlDataLength/1
+[       OK ] AllStates/AdpInputControl.RejectsShortControlDataLength/1 (0 ms)
+[ RUN      ] AllStates/AdpInputControl.RejectsShortControlDataLength/2
+[       OK ] AllStates/AdpInputControl.RejectsShortControlDataLength/2 (0 ms)
+[ RUN      ] AllStates/AdpInputControl.RejectsShortControlDataLength/3
+[       OK ] AllStates/AdpInputControl.RejectsShortControlDataLength/3 (0 ms)
+[ RUN      ] AllStates/AdpInputControl.RejectsShortControlDataLength/4
+[       OK ] AllStates/AdpInputControl.RejectsShortControlDataLength/4 (0 ms)
+[ RUN      ] AllStates/AdpInputControl.AcceptsLongControlDataLength/0
+[       OK ] AllStates/AdpInputControl.AcceptsLongControlDataLength/0 (0 ms)
+[ RUN      ] AllStates/AdpInputControl.AcceptsLongControlDataLength/1
+[       OK ] AllStates/AdpInputControl.AcceptsLongControlDataLength/1 (0 ms)
+[ RUN      ] AllStates/AdpInputControl.AcceptsLongControlDataLength/2
+[       OK ] AllStates/AdpInputControl.AcceptsLongControlDataLength/2 (0 ms)
+[ RUN      ] AllStates/AdpInputControl.AcceptsLongControlDataLength/3
+[       OK ] AllStates/AdpInputControl.AcceptsLongControlDataLength/3 (0 ms)
+[ RUN      ] AllStates/AdpInputControl.AcceptsLongControlDataLength/4
+[       OK ] AllStates/AdpInputControl.AcceptsLongControlDataLength/4 (0 ms)
+[ RUN      ] AllStates/AdpInputControl.ReadsNoOctetPastTheFrame/0
+[       OK ] AllStates/AdpInputControl.ReadsNoOctetPastTheFrame/0 (0 ms)
+[ RUN      ] AllStates/AdpInputControl.ReadsNoOctetPastTheFrame/1
+[       OK ] AllStates/AdpInputControl.ReadsNoOctetPastTheFrame/1 (0 ms)
+[ RUN      ] AllStates/AdpInputControl.ReadsNoOctetPastTheFrame/2
+[       OK ] AllStates/AdpInputControl.ReadsNoOctetPastTheFrame/2 (0 ms)
+[ RUN      ] AllStates/AdpInputControl.ReadsNoOctetPastTheFrame/3
+[       OK ] AllStates/AdpInputControl.ReadsNoOctetPastTheFrame/3 (1 ms)
+[ RUN      ] AllStates/AdpInputControl.ReadsNoOctetPastTheFrame/4
+[       OK ] AllStates/AdpInputControl.ReadsNoOctetPastTheFrame/4 (1 ms)
+[ RUN      ] AllStates/AdpInputControl.ValidDiscovery/0
+[       OK ] AllStates/AdpInputControl.ValidDiscovery/0 (0 ms)
+[ RUN      ] AllStates/AdpInputControl.ValidDiscovery/1
+[       OK ] AllStates/AdpInputControl.ValidDiscovery/1 (0 ms)
+[ RUN      ] AllStates/AdpInputControl.ValidDiscovery/2
+[       OK ] AllStates/AdpInputControl.ValidDiscovery/2 (0 ms)
+[ RUN      ] AllStates/AdpInputControl.ValidDiscovery/3
+[       OK ] AllStates/AdpInputControl.ValidDiscovery/3 (0 ms)
+[ RUN      ] AllStates/AdpInputControl.ValidDiscovery/4
+[       OK ] AllStates/AdpInputControl.ValidDiscovery/4 (0 ms)
+[----------] 30 tests from AllStates/AdpInputControl (8 ms total)
+
+[----------] 6 tests from Shutdowns/AdpOwedBound
+[ RUN      ] Shutdowns/AdpOwedBound.E5CommittedInPassKPlusOne/0
+  E5 1 SHUTDOWNs, expiry taken before the room: room to ENTITY_AVAILABLE  62 accesses (bound 1628)
+[       OK ] Shutdowns/AdpOwedBound.E5CommittedInPassKPlusOne/0 (0 ms)
+[ RUN      ] Shutdowns/AdpOwedBound.E5CommittedInPassKPlusOne/1
+  E5 1 SHUTDOWNs, expiry taken after the room: room to ENTITY_AVAILABLE  68 accesses (bound 1628)
+[       OK ] Shutdowns/AdpOwedBound.E5CommittedInPassKPlusOne/1 (0 ms)
+[ RUN      ] Shutdowns/AdpOwedBound.E5CommittedInPassKPlusOne/2
+  E5 2 SHUTDOWNs, expiry taken before the room: room to ENTITY_AVAILABLE  91 accesses (bound 1628)
+[       OK ] Shutdowns/AdpOwedBound.E5CommittedInPassKPlusOne/2 (0 ms)
+[ RUN      ] Shutdowns/AdpOwedBound.E5CommittedInPassKPlusOne/3
+  E5 2 SHUTDOWNs, expiry taken after the room: room to ENTITY_AVAILABLE  97 accesses (bound 1628)
+[       OK ] Shutdowns/AdpOwedBound.E5CommittedInPassKPlusOne/3 (0 ms)
+[ RUN      ] Shutdowns/AdpOwedBound.E5CommittedInPassKPlusOne/4
+  E5 64 SHUTDOWNs, expiry taken before the room: room to ENTITY_AVAILABLE  91 accesses (bound 1628)
+[       OK ] Shutdowns/AdpOwedBound.E5CommittedInPassKPlusOne/4 (0 ms)
+[ RUN      ] Shutdowns/AdpOwedBound.E5CommittedInPassKPlusOne/5
+  E5 64 SHUTDOWNs, expiry taken after the room: room to ENTITY_AVAILABLE  97 accesses (bound 1628)
+[       OK ] Shutdowns/AdpOwedBound.E5CommittedInPassKPlusOne/5 (0 ms)
+[----------] 6 tests from Shutdowns/AdpOwedBound (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 84 tests from 9 test suites ran. (169 ms total)
+[  PASSED  ] 84 tests.
+== ctrl ADP slice (fake ports and host model): checks: 84   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (84 tests, 0 failures, exit 0)
+=== portable: Outcome(arm='portable', rc=0, log='  Portable.CompilerExtensionsOnlyInThePlatformHeader: 0 finding(s)\n[==========] Running 51 tests from 5 test suites.\n[----------] Global test environment set-up.\n[----------] 12 tests from Pool\n[ RUN      ] Pool.P0Refusals\n[       OK ] Pool.P0Refusals (0 ms)\n[ RUN      ] Pool.P1ClassesExhaustionAndRefusals\n[       OK ] Pool.P1ClassesExhaustionAndRefusals (0 ms)\n[ RUN      ] Pool.P2ReleaseAndBadFrees\n[       OK ] Pool.P2ReleaseAndBadFrees (0 ms)\n[ RUN      ] Pool.P3CallocZeroesAndRefusesAWrap\n[       OK ] Pool.P3CallocZeroesAndRefusesAWrap (0 ms)\n[ RUN      ] Pool.P4ShlanFunctionsDrawOnTheBoundPool\n[       OK ] Pool.P4ShlanFunctionsDrawOnTheBoundPool (0 ms)\n[ RUN      ] Pool.P5ClassTablesAndArenasRefused\n[       OK ] Pool.P5ClassTablesAndArenasRefused (0 ms)\n[ RUN      ] Pool.P6CallocOfNothingAndOnAnExhaustedPool\n[       OK ] Pool.P6CallocOfNothingAndOnAnExhaustedPool (0 ms)\n[ RUN      ] Pool.P7FreeBelowTheArenaRefused\n[       OK ] Pool.P7FreeBelowTheArenaRefused (0 ms)\n[ RUN      ] Pool.P8PortLayerUnbound\n[       OK ] Pool.P8PortLayerUnbound (0 ms)\n[ RUN      ] Pool.P9BlockIndexByShiftAndByDivide\n[       OK ] Pool.P9BlockIndexByShiftAndByDivide (0 ms)\n[ RUN      ] Pool.P9AFreeListShorterThanItsCountIsExhausted\n[       OK ] Pool.P9AFreeListShorterThanItsCountIsExhausted (0 ms)\n[ RUN      ] Pool.P10AFreedBlocksLinkIsWrittenOverItsClientsBytes\n[       OK ] Pool.P10AFreedBlocksLinkIsWrittenOverItsClientsBytes (0 ms)\n[----------] 12 tests from Pool (0 ms total)\n\n[----------] 4 tests from DebugSink\n[ RUN      ] DebugSink.S0NoSinkDiscardsAndCounts\n[       OK ] DebugSink.S0NoSinkDiscardsAndCounts (0 ms)\n[ RUN      ] DebugSink.S1FormattedToTheSink\n[       OK ] DebugSink.S1FormattedToTheSink (0 ms)\n[ RUN      ] DebugSink.S2TruncatedToTheLine\n[       OK ] DebugSink.S2TruncatedToTheLine (0 ms)\n[ RUN      ] DebugSink.S3UnencodablePrintDiscarded\n[       OK ] DebugSink.S3UnencodablePrintDiscarded (0 ms)\n[----------] 4 tests from DebugSink (0 ms total)\n\n[----------] 7 tests from Driver\n[ RUN      ] Driver.D0RxRecordByteForByte\n[       OK ] Driver.D0RxRecordByteForByte (0 ms)\n[ RUN      ] Driver.D1MalformedRecordResynchronises\n[       OK ] Driver.D1MalformedRecordResynchronises (0 ms)\n[ RUN      ] Driver.D2TxRecordAndRefusals\n[       OK ] Driver.D2TxRecordAndRefusals (0 ms)\n[ RUN      ] Driver.D3HeldMergeFillsAndOrderAcrossChannels\n[       OK ] Driver.D3HeldMergeFillsAndOrderAcrossChannels (0 ms)\n[ RUN      ] Driver.D4EveryEventTypeDecoded\n[       OK ] Driver.D4EveryEventTypeDecoded (0 ms)\n[ RUN      ] Driver.D5CoherentGrandmasterRead\n[       OK ] Driver.D5CoherentGrandmasterRead (0 ms)\n[ RUN      ] Driver.D12OwnMacAndMismatchOnTheModel\n[       OK ] Driver.D12OwnMacAndMismatchOnTheModel (0 ms)\n[----------] 7 tests from Driver (0 ms total)\n\n[----------] 6 tests from LoopBring\n[ RUN      ] LoopBring.L0BindingsFitTheirTables\n[       OK ] LoopBring.L0BindingsFitTheirTables (0 ms)\n[ RUN      ] LoopBring.L1OpenOrder\n[       OK ] LoopBring.L1OpenOrder (0 ms)\n[ RUN      ] LoopBring.L9TablesRefuseNullAndOverflow\n[       OK ] LoopBring.L9TablesRefuseNullAndOverflow (0 ms)\n[ RUN      ] LoopBring.L10StepBindingRefusals\n[       OK ] LoopBring.L10StepBindingRefusals (0 ms)\n[ RUN      ] LoopBring.L15RetryBindingRefusals\n[       OK ] LoopBring.L15RetryBindingRefusals (0 ms)\n[ RUN      ] LoopBring.L18TransmitBindingRefusals\n[       OK ] LoopBring.L18TransmitBindingRefusals (0 ms)\n[----------] 6 tests from LoopBring (0 ms total)\n\n[----------] 22 tests from Loop\n[ RUN      ] Loop.L2PerPassRxBound\n[       OK ] Loop.L2PerPassRxBound (0 ms)\n[ RUN      ] Loop.L3PerPassEventBound\n[       OK ] Loop.L3PerPassEventBound (0 ms)\n[ RUN      ] Loop.L4TickFanOut\n[       OK ] Loop.L4TickFanOut (0 ms)\n[ RUN      ] Loop.L5MalformedRecordCounted\n[       OK ] Loop.L5MalformedRecordCounted (0 ms)\n[ RUN      ] Loop.L6OwedOutputKeepsPassing\n[       OK ] Loop.L6OwedOutputKeepsPassing (0 ms)\n[ RUN      ] Loop.L7TickSlices\n[       OK ] Loop.L7TickSlices (0 ms)\n[ RUN      ] Loop.L8TickRecordWhileCarried\n[       OK ] Loop.L8TickRecordWhileCarried (0 ms)\n[ RUN      ] Loop.L11StepLastWithTheDeadlineReadAtTheStart\n[       OK ] Loop.L11StepLastWithTheDeadlineReadAtTheStart (0 ms)\n[ RUN      ] Loop.L12StepOnlyInAPassThatTakesNoInput\n[       OK ] Loop.L12StepOnlyInAPassThatTakesNoInput (0 ms)\n[ RUN      ] Loop.L13AnAgedStepIsAPassOfItsOwn\n[       OK ] Loop.L13AnAgedStepIsAPassOfItsOwn (0 ms)\n[ RUN      ] Loop.L14TheAgeCountsCentisecondsNotDispatches\n[       OK ] Loop.L14TheAgeCountsCentisecondsNotDispatches (0 ms)\n[ RUN      ] Loop.L16TheRetryOnlyInAPassThatTakesNothing\n[       OK ] Loop.L16TheRetryOnlyInAPassThatTakesNothing (0 ms)\n[ RUN      ] Loop.L17AnAgedRetryIsAPassOfItsOwn\n[       OK ] Loop.L17AnAgedRetryIsAPassOfItsOwn (0 ms)\n[ RUN      ] Loop.L20AnOwedBuildIsAPassOfItsOwn\n[       OK ] Loop.L20AnOwedBuildIsAPassOfItsOwn (0 ms)\n[ RUN      ] Loop.L21APassThatDispatchesACentisecondTakesOneRecordOfAChannel\n[       OK ] Loop.L21APassThatDispatchesACentisecondTakesOneRecordOfAChannel (0 ms)\n[ RUN      ] Loop.L22PassesGivenWholeStandApartAsInputWaits\n[       OK ] Loop.L22PassesGivenWholeStandApartAsInputWaits (0 ms)\n[ RUN      ] Loop.L23TheDrainIsTierTwoInASlice\n[       OK ] Loop.L23TheDrainIsTierTwoInASlice (0 ms)\n[ RUN      ] Loop.L25WhatAPassHasLeftGoesToTheRecordsStillWaiting\n[       OK ] Loop.L25WhatAPassHasLeftGoesToTheRecordsStillWaiting (0 ms)\n[ RUN      ] Loop.L26TierOnesFirstChannelGoesFirst\n[       OK ] Loop.L26TierOnesFirstChannelGoesFirst (0 ms)\n[ RUN      ] Loop.L28AnOrdinaryPassesRoundIsToldItStandsAlone\n[       OK ] Loop.L28AnOrdinaryPassesRoundIsToldItStandsAlone (0 ms)\n[ RUN      ] Loop.L27TierTwoRoundsComeAfterTheDrainInSlices\n[       OK ] Loop.L27TierTwoRoundsComeAfterTheDrainInSlices (0 ms)\n[ RUN      ] Loop.L24ARecordFollowsOnlyTheEventsPostedBeforeIt\n[       OK ] Loop.L24ARecordFollowsOnlyTheEventsPostedBeforeIt (0 ms)\n[----------] 22 tests from Loop (0 ms total)\n\n[----------] Global test environment tear-down\n[==========] 51 tests from 5 test suites ran. (0 ms total)\n[  PASSED  ] 51 tests.\n== ctrl port, driver and loop (host model): checks: 51   failures: 0 ==\nRESULT: PASS\n  verdict: PASS (51 tests, 0 failures, exit 0)')
+
+[ RUN      ] Pool.P0Refusals
+[       OK ] Pool.P0Refusals (0 ms)
+[ RUN      ] Pool.P1ClassesExhaustionAndRefusals
+[       OK ] Pool.P1ClassesExhaustionAndRefusals (0 ms)
+[ RUN      ] Pool.P2ReleaseAndBadFrees
+[       OK ] Pool.P2ReleaseAndBadFrees (0 ms)
+[ RUN      ] Pool.P3CallocZeroesAndRefusesAWrap
+[       OK ] Pool.P3CallocZeroesAndRefusesAWrap (0 ms)
+[ RUN      ] Pool.P4ShlanFunctionsDrawOnTheBoundPool
+[       OK ] Pool.P4ShlanFunctionsDrawOnTheBoundPool (0 ms)
+[ RUN      ] Pool.P5ClassTablesAndArenasRefused
+[       OK ] Pool.P5ClassTablesAndArenasRefused (0 ms)
+[ RUN      ] Pool.P6CallocOfNothingAndOnAnExhaustedPool
+[       OK ] Pool.P6CallocOfNothingAndOnAnExhaustedPool (0 ms)
+[ RUN      ] Pool.P7FreeBelowTheArenaRefused
+[       OK ] Pool.P7FreeBelowTheArenaRefused (0 ms)
+[ RUN      ] Pool.P8PortLayerUnbound
+[       OK ] Pool.P8PortLayerUnbound (0 ms)
+[ RUN      ] Pool.P9BlockIndexByShiftAndByDivide
+[       OK ] Pool.P9BlockIndexByShiftAndByDivide (0 ms)
+[ RUN      ] Pool.P9AFreeListShorterThanItsCountIsExhausted
+[       OK ] Pool.P9AFreeListShorterThanItsCountIsExhausted (0 ms)
+[ RUN      ] Pool.P10AFreedBlocksLinkIsWrittenOverItsClientsBytes
+[       OK ] Pool.P10AFreedBlocksLinkIsWrittenOverItsClientsBytes (0 ms)
+[----------] 12 tests from Pool (0 ms total)
+
+[----------] 4 tests from DebugSink
+[ RUN      ] DebugSink.S0NoSinkDiscardsAndCounts
+[       OK ] DebugSink.S0NoSinkDiscardsAndCounts (0 ms)
+[ RUN      ] DebugSink.S1FormattedToTheSink
+[       OK ] DebugSink.S1FormattedToTheSink (0 ms)
+[ RUN      ] DebugSink.S2TruncatedToTheLine
+[       OK ] DebugSink.S2TruncatedToTheLine (0 ms)
+[ RUN      ] DebugSink.S3UnencodablePrintDiscarded
+[       OK ] DebugSink.S3UnencodablePrintDiscarded (0 ms)
+[----------] 4 tests from DebugSink (0 ms total)
+
+[----------] 7 tests from Driver
+[ RUN      ] Driver.D0RxRecordByteForByte
+[       OK ] Driver.D0RxRecordByteForByte (0 ms)
+[ RUN      ] Driver.D1MalformedRecordResynchronises
+[       OK ] Driver.D1MalformedRecordResynchronises (0 ms)
+[ RUN      ] Driver.D2TxRecordAndRefusals
+[       OK ] Driver.D2TxRecordAndRefusals (0 ms)
+[ RUN      ] Driver.D3HeldMergeFillsAndOrderAcrossChannels
+[       OK ] Driver.D3HeldMergeFillsAndOrderAcrossChannels (0 ms)
+[ RUN      ] Driver.D4EveryEventTypeDecoded
+[       OK ] Driver.D4EveryEventTypeDecoded (0 ms)
+[ RUN      ] Driver.D5CoherentGrandmasterRead
+[       OK ] Driver.D5CoherentGrandmasterRead (0 ms)
+[ RUN      ] Driver.D12OwnMacAndMismatchOnTheModel
+[       OK ] Driver.D12OwnMacAndMismatchOnTheModel (0 ms)
+[----------] 7 tests from Driver (0 ms total)
+
+[----------] 6 tests from LoopBring
+[ RUN      ] LoopBring.L0BindingsFitTheirTables
+[       OK ] LoopBring.L0BindingsFitTheirTables (0 ms)
+[ RUN      ] LoopBring.L1OpenOrder
+[       OK ] LoopBring.L1OpenOrder (0 ms)
+[ RUN      ] LoopBring.L9TablesRefuseNullAndOverflow
+[       OK ] LoopBring.L9TablesRefuseNullAndOverflow (0 ms)
+[ RUN      ] LoopBring.L10StepBindingRefusals
+[       OK ] LoopBring.L10StepBindingRefusals (0 ms)
+[ RUN      ] LoopBring.L15RetryBindingRefusals
+[       OK ] LoopBring.L15RetryBindingRefusals (0 ms)
+[ RUN      ] LoopBring.L18TransmitBindingRefusals
+[       OK ] LoopBring.L18TransmitBindingRefusals (0 ms)
+[----------] 6 tests from LoopBring (0 ms total)
+
+[----------] 22 tests from Loop
+[ RUN      ] Loop.L2PerPassRxBound
+[       OK ] Loop.L2PerPassRxBound (0 ms)
+[ RUN      ] Loop.L3PerPassEventBound
+[       OK ] Loop.L3PerPassEventBound (0 ms)
+[ RUN      ] Loop.L4TickFanOut
+[       OK ] Loop.L4TickFanOut (0 ms)
+[ RUN      ] Loop.L5MalformedRecordCounted
+[       OK ] Loop.L5MalformedRecordCounted (0 ms)
+[ RUN      ] Loop.L6OwedOutputKeepsPassing
+[       OK ] Loop.L6OwedOutputKeepsPassing (0 ms)
+[ RUN      ] Loop.L7TickSlices
+[       OK ] Loop.L7TickSlices (0 ms)
+[ RUN      ] Loop.L8TickRecordWhileCarried
+[       OK ] Loop.L8TickRecordWhileCarried (0 ms)
+[ RUN      ] Loop.L11StepLastWithTheDeadlineReadAtTheStart
+[       OK ] Loop.L11StepLastWithTheDeadlineReadAtTheStart (0 ms)
+[ RUN      ] Loop.L12StepOnlyInAPassThatTakesNoInput
+[       OK ] Loop.L12StepOnlyInAPassThatTakesNoInput (0 ms)
+[ RUN      ] Loop.L13AnAgedStepIsAPassOfItsOwn
+[       OK ] Loop.L13AnAgedStepIsAPassOfItsOwn (0 ms)
+[ RUN      ] Loop.L14TheAgeCountsCentisecondsNotDispatches
+[       OK ] Loop.L14TheAgeCountsCentisecondsNotDispatches (0 ms)
+[ RUN      ] Loop.L16TheRetryOnlyInAPassThatTakesNothing
+[       OK ] Loop.L16TheRetryOnlyInAPassThatTakesNothing (0 ms)
+[ RUN      ] Loop.L17AnAgedRetryIsAPassOfItsOwn
+[       OK ] Loop.L17AnAgedRetryIsAPassOfItsOwn (0 ms)
+[ RUN      ] Loop.L20AnOwedBuildIsAPassOfItsOwn
+[       OK ] Loop.L20AnOwedBuildIsAPassOfItsOwn (0 ms)
+[ RUN      ] Loop.L21APassThatDispatchesACentisecondTakesOneRecordOfAChannel
+[       OK ] Loop.L21APassThatDispatchesACentisecondTakesOneRecordOfAChannel (0 ms)
+[ RUN      ] Loop.L22PassesGivenWholeStandApartAsInputWaits
+[       OK ] Loop.L22PassesGivenWholeStandApartAsInputWaits (0 ms)
+[ RUN      ] Loop.L23TheDrainIsTierTwoInASlice
+[       OK ] Loop.L23TheDrainIsTierTwoInASlice (0 ms)
+[ RUN      ] Loop.L25WhatAPassHasLeftGoesToTheRecordsStillWaiting
+[       OK ] Loop.L25WhatAPassHasLeftGoesToTheRecordsStillWaiting (0 ms)
+[ RUN      ] Loop.L26TierOnesFirstChannelGoesFirst
+[       OK ] Loop.L26TierOnesFirstChannelGoesFirst (0 ms)
+[ RUN      ] Loop.L28AnOrdinaryPassesRoundIsToldItStandsAlone
+[       OK ] Loop.L28AnOrdinaryPassesRoundIsToldItStandsAlone (0 ms)
+[ RUN      ] Loop.L27TierTwoRoundsComeAfterTheDrainInSlices
+[       OK ] Loop.L27TierTwoRoundsComeAfterTheDrainInSlices (0 ms)
+[ RUN      ] Loop.L24ARecordFollowsOnlyTheEventsPostedBeforeIt
+[       OK ] Loop.L24ARecordFollowsOnlyTheEventsPostedBeforeIt (0 ms)
+[----------] 22 tests from Loop (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 51 tests from 5 test suites ran. (0 ms total)
+[  PASSED  ] 51 tests.
+== ctrl port, driver and loop (host model): checks: 51   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (51 tests, 0 failures, exit 0)
+=== unit: Outcome(arm='unit', rc=0, log='[==========] Running 26 tests from 6 test suites.\n[----------] Global test environment set-up.\n[----------] 4 tests from AppComposition\n[ RUN      ] AppComposition.U1BindsTheAppPoolBehindLwsrpBeforeTheMailbox\n[       OK ] AppComposition.U1BindsTheAppPoolBehindLwsrpBeforeTheMailbox (0 ms)\n[ RUN      ] AppComposition.U1AnotherContractOpensNothing\n[       OK ] AppComposition.U1AnotherContractOpensNothing (0 ms)\n[ RUN      ] AppComposition.U4EveryInterfaceOwnsTheEntityMacBeforeAChannelOpens\n[       OK ] AppComposition.U4EveryInterfaceOwnsTheEntityMacBeforeAChannelOpens (0 ms)\n[ RUN      ] AppComposition.U1AnUncarvablePoolStartsNothing\n[       OK ] AppComposition.U1AnUncarvablePoolStartsNothing (0 ms)\n[----------] 4 tests from AppComposition (0 ms total)\n\n[----------] 1 test from LoopRun\n[ RUN      ] LoopRun.U3TurnsForEverAndSleepsWhenNothingIsOwed\n[       OK ] LoopRun.U3TurnsForEverAndSleepsWhenNothingIsOwed (0 ms)\n[----------] 1 test from LoopRun (0 ms total)\n\n[----------] 8 tests from DriverUnit\n[ RUN      ] DriverUnit.D6MaapRangeWritten\n[       OK ] DriverUnit.D6MaapRangeWritten (0 ms)\n[ RUN      ] DriverUnit.D8TransmitRefusals\n[       OK ] DriverUnit.D8TransmitRefusals (0 ms)\n[ RUN      ] DriverUnit.D9UnknownEventTypeGrandmasterAndInterrupt\n[       OK ] DriverUnit.D9UnknownEventTypeGrandmasterAndInterrupt (0 ms)\n[ RUN      ] DriverUnit.D10LanesAndFieldsAtTheirBounds\n[       OK ] DriverUnit.D10LanesAndFieldsAtTheirBounds (0 ms)\n[ RUN      ] DriverUnit.D15PayloadWordsAtEveryLengthAlignmentAndAcrossTheRingEnd\n[       OK ] DriverUnit.D15PayloadWordsAtEveryLengthAlignmentAndAcrossTheRingEnd (0 ms)\n[ RUN      ] DriverUnit.D11OwnMacPerInterfaceAndTheMismatchCount\n[       OK ] DriverUnit.D11OwnMacPerInterfaceAndTheMismatchCount (0 ms)\n[ RUN      ] DriverUnit.D13BoundTalkerEntries\n[       OK ] DriverUnit.D13BoundTalkerEntries (0 ms)\n[ RUN      ] DriverUnit.D14PublicationBlock\n[       OK ] DriverUnit.D14PublicationBlock (0 ms)\n[----------] 8 tests from DriverUnit (0 ms total)\n\n[----------] 3 tests from AdpAdapterUnit\n[ RUN      ] AdpAdapterUnit.B2SlotsPastTheTimerBankRefused\n[       OK ] AdpAdapterUnit.B2SlotsPastTheTimerBankRefused (0 ms)\n[ RUN      ] AdpAdapterUnit.B3ForeignInterfaceCounted\n[       OK ] AdpAdapterUnit.B3ForeignInterfaceCounted (0 ms)\n[ RUN      ] AdpAdapterUnit.B4LoopWithNoRoomRefused\n[       OK ] AdpAdapterUnit.B4LoopWithNoRoomRefused (0 ms)\n[----------] 3 tests from AdpAdapterUnit (0 ms total)\n\n[----------] 6 tests from IdAndCaps/ContractField\n[ RUN      ] IdAndCaps/ContractField.U2RefusedAndNothingMoreRead/magic\n[       OK ] IdAndCaps/ContractField.U2RefusedAndNothingMoreRead/magic (0 ms)\n[ RUN      ] IdAndCaps/ContractField.U2RefusedAndNothingMoreRead/major\n[       OK ] IdAndCaps/ContractField.U2RefusedAndNothingMoreRead/major (0 ms)\n[ RUN      ] IdAndCaps/ContractField.U2RefusedAndNothingMoreRead/n_ch\n[       OK ] IdAndCaps/ContractField.U2RefusedAndNothingMoreRead/n_ch (0 ms)\n[ RUN      ] IdAndCaps/ContractField.U2RefusedAndNothingMoreRead/n_if\n[       OK ] IdAndCaps/ContractField.U2RefusedAndNothingMoreRead/n_if (0 ms)\n[ RUN      ] IdAndCaps/ContractField.U2RefusedAndNothingMoreRead/n_timers\n[       OK ] IdAndCaps/ContractField.U2RefusedAndNothingMoreRead/n_timers (0 ms)\n[ RUN      ] IdAndCaps/ContractField.U2RefusedAndNothingMoreRead/evt_words\n[       OK ] IdAndCaps/ContractField.U2RefusedAndNothingMoreRead/evt_words (0 ms)\n[----------] 6 tests from IdAndCaps/ContractField (0 ms total)\n\n[----------] 4 tests from Records/DriverMalformed\n[ RUN      ] Records/DriverMalformed.D7RefusedAndResynchronised/shorter_than_a_header\n[       OK ] Records/DriverMalformed.D7RefusedAndResynchronised/shorter_than_a_header (0 ms)\n[ RUN      ] Records/DriverMalformed.D7RefusedAndResynchronised/longer_than_the_channel_takes\n[       OK ] Records/DriverMalformed.D7RefusedAndResynchronised/longer_than_the_channel_takes (0 ms)\n[ RUN      ] Records/DriverMalformed.D7RefusedAndResynchronised/RX_HEAD_past_the_ring\n[       OK ] Records/DriverMalformed.D7RefusedAndResynchronised/RX_HEAD_past_the_ring (0 ms)\n[ RUN      ] Records/DriverMalformed.D7RefusedAndResynchronised/record_past_RX_HEAD\n[       OK ] Records/DriverMalformed.D7RefusedAndResynchronised/record_past_RX_HEAD (0 ms)\n[----------] 4 tests from Records/DriverMalformed (0 ms total)\n\n[----------] Global test environment tear-down\n[==========] 26 tests from 6 test suites ran. (0 ms total)\n[  PASSED  ] 26 tests.\n== ctrl units on the HAL and port-layer mocks: checks: 26   failures: 0 ==\nRESULT: PASS\n  verdict: PASS (26 tests, 0 failures, exit 0)\n[==========] Running 2 tests from 1 test suite.\n[----------] Global test environment set-up.\n[----------] 2 tests from MmioPlatform\n[ RUN      ] MmioPlatform.M1OneWordAtBasePlusOffset\n[       OK ] MmioPlatform.M1OneWordAtBasePlusOffset (0 ms)\n[ RUN      ] MmioPlatform.M2WaitIsThePlatformWfi\n[       OK ] MmioPlatform.M2WaitIsThePlatformWfi (0 ms)\n[----------] 2 tests from MmioPlatform (0 ms total)\n\n[----------] Global test environment tear-down\n[==========] 2 tests from 1 test suite ran. (0 ms total)\n[  PASSED  ] 2 tests.\n== ctrl MMIO platform (host window): checks: 2   failures: 0 ==\nRESULT: PASS\n  verdict: PASS (2 tests, 0 failures, exit 0)\n[==========] Running 1 test from 1 test suite.\n[----------] Global test environment set-up.\n[----------] 1 test from MmioDriver\n[ RUN      ] MmioDriver.M3EveryAccessInPlaceAtBasePlusOffset\n[       OK ] MmioDriver.M3EveryAccessInPlaceAtBasePlusOffset (0 ms)\n[----------] 1 test from MmioDriver (0 ms total)\n\n[----------] Global test environment tear-down\n[==========] 1 test from 1 test suite ran. (0 ms total)\n[  PASSED  ] 1 test.\n== ctrl mailbox driver on the MMIO window (host window): checks: 1   failures: 0 ==\nRESULT: PASS\n  verdict: PASS (1 tests, 0 failures, exit 0)\n[==========] Running 10 tests from 1 test suite.\n[----------] Global test environment set-up.\n[----------] 10 tests from MbxDma\n[ RUN      ] MbxDma.R1ARecordsPayloadIsMovedAndReleased\n[       OK ] MbxDma.R1ARecordsPayloadIsMovedAndReleased (0 ms)\n[ RUN      ] MbxDma.R2AMoveEndingInErrorResynchronises\n[       OK ] MbxDma.R2AMoveEndingInErrorResynchronises (0 ms)\n[ RUN      ] MbxDma.T1AFrameOnAWordIsMovedAndCommitted\n[       OK ] MbxDma.T1AFrameOnAWordIsMovedAndCommitted (0 ms)\n[ RUN      ] MbxDma.T2AMoveEndingInErrorIsNotCommitted\n[       OK ] MbxDma.T2AMoveEndingInErrorIsNotCommitted (0 ms)\n[ RUN      ] MbxDma.T3AFrameOffAWordTakesTheWordLoop\n[       OK ] MbxDma.T3AFrameOffAWordTakesTheWordLoop (0 ms)\n[ RUN      ] MbxDma.T4ARecordTheWordLoopWroteInheritsNoEarlierMovesError\n[       OK ] MbxDma.T4ARecordTheWordLoopWroteInheritsNoEarlierMovesError (0 ms)\n[ RUN      ] MbxDma.T5TheNoticeFanPortReportsALostFrameForItself\n[       OK ] MbxDma.T5TheNoticeFanPortReportsALostFrameForItself (0 ms)\n[ RUN      ] MbxDma.T6AWalkLeftOwedKeepsNoCompletion\n[       OK ] MbxDma.T6AWalkLeftOwedKeepsNoCompletion (0 ms)\n[ RUN      ] MbxDma.T7AFullCompletionQueueRefusesOnlyOnceTheLastFrameIsCommitted\n[       OK ] MbxDma.T7AFullCompletionQueueRefusesOnlyOnceTheLastFrameIsCommitted (0 ms)\n[ RUN      ] MbxDma.T8ARecordTheWordLoopWroteIsCommittedByTheNextBeginJudgingNoMove\n[       OK ] MbxDma.T8ARecordTheWordLoopWroteIsCommittedByTheNextBeginJudgingNoMove (0 ms)\n[----------] 10 tests from MbxDma (0 ms total)\n\n[----------] Global test environment tear-down\n[==========] 10 tests from 1 test suite ran. (0 ms total)\n[  PASSED  ] 10 tests.\n== ctrl mailbox driver with the record mover (host register model): checks: 10   failures: 0 ==\nRESULT: PASS\n  verdict: PASS (10 tests, 0 failures, exit 0)\n[==========] Running 5 tests from 1 test suite.\n[----------] Global test environment set-up.\n[----------] 5 tests from CtrlMem\n[ RUN      ] CtrlMem.W1MemcpyEveryAlignmentAndLength\n[       OK ] CtrlMem.W1MemcpyEveryAlignmentAndLength (42 ms)\n[ RUN      ] CtrlMem.W2MemmoveEveryOverlap\n[       OK ] CtrlMem.W2MemmoveEveryOverlap (284 ms)\n[ RUN      ] CtrlMem.W3MemsetEveryAlignmentLengthAndValue\n[       OK ] CtrlMem.W3MemsetEveryAlignmentLengthAndValue (12 ms)\n[ RUN      ] CtrlMem.W6MemcmpEveryAlignmentLengthAndPosition\n[       OK ] CtrlMem.W6MemcmpEveryAlignmentLengthAndPosition (120 ms)\n[ RUN      ] CtrlMem.W4NoAccessOutsideEitherRange\n[       OK ] CtrlMem.W4NoAccessOutsideEitherRange (0 ms)\n[----------] 5 tests from CtrlMem (460 ms total)\n\n[----------] Global test environment tear-down\n[==========] 5 tests from 1 test suite ran. (460 ms total)\n[  PASSED  ] 5 tests.\n== ctrl memory primitives (host): checks: 5   failures: 0 ==\nRESULT: PASS\n  verdict: PASS (5 tests, 0 failures, exit 0)')
+ IdAndCaps/ContractField.U2RefusedAndNothingMoreRead/magic (0 ms)
+[ RUN      ] IdAndCaps/ContractField.U2RefusedAndNothingMoreRead/major
+[       OK ] IdAndCaps/ContractField.U2RefusedAndNothingMoreRead/major (0 ms)
+[ RUN      ] IdAndCaps/ContractField.U2RefusedAndNothingMoreRead/n_ch
+[       OK ] IdAndCaps/ContractField.U2RefusedAndNothingMoreRead/n_ch (0 ms)
+[ RUN      ] IdAndCaps/ContractField.U2RefusedAndNothingMoreRead/n_if
+[       OK ] IdAndCaps/ContractField.U2RefusedAndNothingMoreRead/n_if (0 ms)
+[ RUN      ] IdAndCaps/ContractField.U2RefusedAndNothingMoreRead/n_timers
+[       OK ] IdAndCaps/ContractField.U2RefusedAndNothingMoreRead/n_timers (0 ms)
+[ RUN      ] IdAndCaps/ContractField.U2RefusedAndNothingMoreRead/evt_words
+[       OK ] IdAndCaps/ContractField.U2RefusedAndNothingMoreRead/evt_words (0 ms)
+[----------] 6 tests from IdAndCaps/ContractField (0 ms total)
+
+[----------] 4 tests from Records/DriverMalformed
+[ RUN      ] Records/DriverMalformed.D7RefusedAndResynchronised/shorter_than_a_header
+[       OK ] Records/DriverMalformed.D7RefusedAndResynchronised/shorter_than_a_header (0 ms)
+[ RUN      ] Records/DriverMalformed.D7RefusedAndResynchronised/longer_than_the_channel_takes
+[       OK ] Records/DriverMalformed.D7RefusedAndResynchronised/longer_than_the_channel_takes (0 ms)
+[ RUN      ] Records/DriverMalformed.D7RefusedAndResynchronised/RX_HEAD_past_the_ring
+[       OK ] Records/DriverMalformed.D7RefusedAndResynchronised/RX_HEAD_past_the_ring (0 ms)
+[ RUN      ] Records/DriverMalformed.D7RefusedAndResynchronised/record_past_RX_HEAD
+[       OK ] Records/DriverMalformed.D7RefusedAndResynchronised/record_past_RX_HEAD (0 ms)
+[----------] 4 tests from Records/DriverMalformed (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 26 tests from 6 test suites ran. (0 ms total)
+[  PASSED  ] 26 tests.
+== ctrl units on the HAL and port-layer mocks: checks: 26   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (26 tests, 0 failures, exit 0)
+[==========] Running 2 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 2 tests from MmioPlatform
+[ RUN      ] MmioPlatform.M1OneWordAtBasePlusOffset
+[       OK ] MmioPlatform.M1OneWordAtBasePlusOffset (0 ms)
+[ RUN      ] MmioPlatform.M2WaitIsThePlatformWfi
+[       OK ] MmioPlatform.M2WaitIsThePlatformWfi (0 ms)
+[----------] 2 tests from MmioPlatform (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 2 tests from 1 test suite ran. (0 ms total)
+[  PASSED  ] 2 tests.
+== ctrl MMIO platform (host window): checks: 2   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (2 tests, 0 failures, exit 0)
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from MmioDriver
+[ RUN      ] MmioDriver.M3EveryAccessInPlaceAtBasePlusOffset
+[       OK ] MmioDriver.M3EveryAccessInPlaceAtBasePlusOffset (0 ms)
+[----------] 1 test from MmioDriver (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+== ctrl mailbox driver on the MMIO window (host window): checks: 1   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (1 tests, 0 failures, exit 0)
+[==========] Running 10 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 10 tests from MbxDma
+[ RUN      ] MbxDma.R1ARecordsPayloadIsMovedAndReleased
+[       OK ] MbxDma.R1ARecordsPayloadIsMovedAndReleased (0 ms)
+[ RUN      ] MbxDma.R2AMoveEndingInErrorResynchronises
+[       OK ] MbxDma.R2AMoveEndingInErrorResynchronises (0 ms)
+[ RUN      ] MbxDma.T1AFrameOnAWordIsMovedAndCommitted
+[       OK ] MbxDma.T1AFrameOnAWordIsMovedAndCommitted (0 ms)
+[ RUN      ] MbxDma.T2AMoveEndingInErrorIsNotCommitted
+[       OK ] MbxDma.T2AMoveEndingInErrorIsNotCommitted (0 ms)
+[ RUN      ] MbxDma.T3AFrameOffAWordTakesTheWordLoop
+[       OK ] MbxDma.T3AFrameOffAWordTakesTheWordLoop (0 ms)
+[ RUN      ] MbxDma.T4ARecordTheWordLoopWroteInheritsNoEarlierMovesError
+[       OK ] MbxDma.T4ARecordTheWordLoopWroteInheritsNoEarlierMovesError (0 ms)
+[ RUN      ] MbxDma.T5TheNoticeFanPortReportsALostFrameForItself
+[       OK ] MbxDma.T5TheNoticeFanPortReportsALostFrameForItself (0 ms)
+[ RUN      ] MbxDma.T6AWalkLeftOwedKeepsNoCompletion
+[       OK ] MbxDma.T6AWalkLeftOwedKeepsNoCompletion (0 ms)
+[ RUN      ] MbxDma.T7AFullCompletionQueueRefusesOnlyOnceTheLastFrameIsCommitted
+[       OK ] MbxDma.T7AFullCompletionQueueRefusesOnlyOnceTheLastFrameIsCommitted (0 ms)
+[ RUN      ] MbxDma.T8ARecordTheWordLoopWroteIsCommittedByTheNextBeginJudgingNoMove
+[       OK ] MbxDma.T8ARecordTheWordLoopWroteIsCommittedByTheNextBeginJudgingNoMove (0 ms)
+[----------] 10 tests from MbxDma (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 10 tests from 1 test suite ran. (0 ms total)
+[  PASSED  ] 10 tests.
+== ctrl mailbox driver with the record mover (host register model): checks: 10   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (10 tests, 0 failures, exit 0)
+[==========] Running 5 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 5 tests from CtrlMem
+[ RUN      ] CtrlMem.W1MemcpyEveryAlignmentAndLength
+[       OK ] CtrlMem.W1MemcpyEveryAlignmentAndLength (42 ms)
+[ RUN      ] CtrlMem.W2MemmoveEveryOverlap
+[       OK ] CtrlMem.W2MemmoveEveryOverlap (284 ms)
+[ RUN      ] CtrlMem.W3MemsetEveryAlignmentLengthAndValue
+[       OK ] CtrlMem.W3MemsetEveryAlignmentLengthAndValue (12 ms)
+[ RUN      ] CtrlMem.W6MemcmpEveryAlignmentLengthAndPosition
+[       OK ] CtrlMem.W6MemcmpEveryAlignmentLengthAndPosition (120 ms)
+[ RUN      ] CtrlMem.W4NoAccessOutsideEitherRange
+[       OK ] CtrlMem.W4NoAccessOutsideEitherRange (0 ms)
+[----------] 5 tests from CtrlMem (460 ms total)
+
+[----------] Global test environment tear-down
+[==========] 5 tests from 1 test suite ran. (460 ms total)
+[  PASSED  ] 5 tests.
+== ctrl memory primitives (host): checks: 5   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (5 tests, 0 failures, exit 0)
+=== walk: Outcome(arm='walk', rc=0, log="[==========] Running 41 tests from 2 test suites.\n[----------] Global test environment set-up.\n[----------] 5 tests from AdpWalk\n[ RUN      ] AdpWalk.EveryCellOutsideTheDrawColumnIsWalked\n  walked 36 cells of the processor's ADV table (N 10, I 16, S 4, C 6); 9 draw-in-flight cells not applicable\n[       OK ] AdpWalk.EveryCellOutsideTheDrawColumnIsWalked (0 ms)\n[ RUN      ] AdpWalk.P12BootGate\n[       OK ] AdpWalk.P12BootGate (0 ms)\n[ RUN      ] AdpWalk.P1toP5FirstAdvertAndCadence\n[       OK ] AdpWalk.P1toP5FirstAdvertAndCadence (1 ms)\n[ RUN      ] AdpWalk.P7DepartingAndRestart\n[       OK ] AdpWalk.P7DepartingAndRestart (0 ms)\n[ RUN      ] AdpWalk.P11ConfigurationIndexBytes\n[       OK ] AdpWalk.P11ConfigurationIndexBytes (0 ms)\n[----------] 5 tests from AdpWalk (2 ms total)\n\n[----------] 36 tests from Table551/AdpWalkCell\n[ RUN      ] Table551/AdpWalkCell.Graded/RCV_ADP_DISCOVER_eid_0_x_NOT_STARTED_DOWN\n[       OK ] Table551/AdpWalkCell.Graded/RCV_ADP_DISCOVER_eid_0_x_NOT_STARTED_DOWN (0 ms)\n[ RUN      ] Table551/AdpWalkCell.Graded/RCV_ADP_DISCOVER_eid_0_x_DOWN\n[       OK ] Table551/AdpWalkCell.Graded/RCV_ADP_DISCOVER_eid_0_x_DOWN (0 ms)\n[ RUN      ] Table551/AdpWalkCell.Graded/RCV_ADP_DISCOVER_eid_0_x_WAITING\n[       OK ] Table551/AdpWalkCell.Graded/RCV_ADP_DISCOVER_eid_0_x_WAITING (0 ms)\n[ RUN      ] Table551/AdpWalkCell.Graded/RCV_ADP_DISCOVER_eid_0_x_DELAY_timer_armed\n[       OK ] Table551/AdpWalkCell.Graded/RCV_ADP_DISCOVER_eid_0_x_DELAY_timer_armed (0 ms)\n[ RUN      ] Table551/AdpWalkCell.Graded/RCV_ADP_DISCOVER_own_eid_x_NOT_STARTED_DOWN\n[       OK ] Table551/AdpWalkCell.Graded/RCV_ADP_DISCOVER_own_eid_x_NOT_STARTED_DOWN (0 ms)\n[ RUN      ] Table551/AdpWalkCell.Graded/RCV_ADP_DISCOVER_own_eid_x_DOWN\n[       OK ] Table551/AdpWalkCell.Graded/RCV_ADP_DISCOVER_own_eid_x_DOWN (0 ms)\n[ RUN      ] Table551/AdpWalkCell.Graded/RCV_ADP_DISCOVER_own_eid_x_WAITING\n[       OK ] Table551/AdpWalkCell.Graded/RCV_ADP_DISCOVER_own_eid_x_WAITING (0 ms)\n[ RUN      ] Table551/AdpWalkCell.Graded/RCV_ADP_DISCOVER_own_eid_x_DELAY_timer_armed\n[       OK ] Table551/AdpWalkCell.Graded/RCV_ADP_DISCOVER_own_eid_x_DELAY_timer_armed (0 ms)\n[ RUN      ] Table551/AdpWalkCell.Graded/ENTITY_DISCOVER_foreign_eid_x_NOT_STARTED_DOWN\n[       OK ] Table551/AdpWalkCell.Graded/ENTITY_DISCOVER_foreign_eid_x_NOT_STARTED_DOWN (0 ms)\n[ RUN      ] Table551/AdpWalkCell.Graded/ENTITY_DISCOVER_foreign_eid_x_DOWN\n[       OK ] Table551/AdpWalkCell.Graded/ENTITY_DISCOVER_foreign_eid_x_DOWN (0 ms)\n[ RUN      ] Table551/AdpWalkCell.Graded/ENTITY_DISCOVER_foreign_eid_x_WAITING\n[       OK ] Table551/AdpWalkCell.Graded/ENTITY_DISCOVER_foreign_eid_x_WAITING (0 ms)\n[ RUN      ] Table551/AdpWalkCell.Graded/ENTITY_DISCOVER_foreign_eid_x_DELAY_timer_armed\n[       OK ] Table551/AdpWalkCell.Graded/ENTITY_DISCOVER_foreign_eid_x_DELAY_timer_armed (0 ms)\n[ RUN      ] Table551/AdpWalkCell.Graded/TMR_ADVERTISE_x_NOT_STARTED_DOWN\n[       OK ] Table551/AdpWalkCell.Graded/TMR_ADVERTISE_x_NOT_STARTED_DOWN (0 ms)\n[ RUN      ] Table551/AdpWalkCell.Graded/TMR_ADVERTISE_x_DOWN\n[       OK ] Table551/AdpWalkCell.Graded/TMR_ADVERTISE_x_DOWN (0 ms)\n[ RUN      ] Table551/AdpWalkCell.Graded/TMR_ADVERTISE_x_WAITING\n[       OK ] Table551/AdpWalkCell.Graded/TMR_ADVERTISE_x_WAITING (0 ms)\n[ RUN      ] Table551/AdpWalkCell.Graded/TMR_ADVERTISE_x_DELAY_timer_armed\n[       OK ] Table551/AdpWalkCell.Graded/TMR_ADVERTISE_x_DELAY_timer_armed (0 ms)\n[ RUN      ] Table551/AdpWalkCell.Graded/TMR_DELAY_x_NOT_STARTED_DOWN\n[       OK ] Table551/AdpWalkCell.Graded/TMR_DELAY_x_NOT_STARTED_DOWN (0 ms)\n[ RUN      ] Table551/AdpWalkCell.Graded/TMR_DELAY_x_DOWN\n[       OK ] Table551/AdpWalkCell.Graded/TMR_DELAY_x_DOWN (0 ms)\n[ RUN      ] Table551/AdpWalkCell.Graded/TMR_DELAY_x_WAITING\n[       OK ] Table551/AdpWalkCell.Graded/TMR_DELAY_x_WAITING (0 ms)\n[ RUN      ] Table551/AdpWalkCell.Graded/TMR_DELAY_x_DELAY_timer_armed\n[       OK ] Table551/AdpWalkCell.Graded/TMR_DELAY_x_DELAY_timer_armed (0 ms)\n[ RUN      ] Table551/AdpWalkCell.Graded/LINK_UP_x_NOT_STARTED_DOWN\n[       OK ] Table551/AdpWalkCell.Graded/LINK_UP_x_NOT_STARTED_DOWN (0 ms)\n[ RUN      ] Table551/AdpWalkCell.Graded/LINK_UP_x_DOWN\n[       OK ] Table551/AdpWalkCell.Graded/LINK_UP_x_DOWN (0 ms)\n[ RUN      ] Table551/AdpWalkCell.Graded/LINK_UP_x_WAITING\n[       OK ] Table551/AdpWalkCell.Graded/LINK_UP_x_WAITING (0 ms)\n[ RUN      ] Table551/AdpWalkCell.Graded/LINK_UP_x_DELAY_timer_armed\n[       OK ] Table551/AdpWalkCell.Graded/LINK_UP_x_DELAY_timer_armed (0 ms)\n[ RUN      ] Table551/AdpWalkCell.Graded/LINK_DOWN_x_NOT_STARTED_DOWN\n[       OK ] Table551/AdpWalkCell.Graded/LINK_DOWN_x_NOT_STARTED_DOWN (0 ms)\n[ RUN      ] Table551/AdpWalkCell.Graded/LINK_DOWN_x_DOWN\n[       OK ] Table551/AdpWalkCell.Graded/LINK_DOWN_x_DOWN (0 ms)\n[ RUN      ] Table551/AdpWalkCell.Graded/LINK_DOWN_x_WAITING\n[       OK ] Table551/AdpWalkCell.Graded/LINK_DOWN_x_WAITING (0 ms)\n[ RUN      ] Table551/AdpWalkCell.Graded/LINK_DOWN_x_DELAY_timer_armed\n[       OK ] Table551/AdpWalkCell.Graded/LINK_DOWN_x_DELAY_timer_armed (0 ms)\n[ RUN      ] Table551/AdpWalkCell.Graded/GM_CHANGE_x_NOT_STARTED_DOWN\n[       OK ] Table551/AdpWalkCell.Graded/GM_CHANGE_x_NOT_STARTED_DOWN (0 ms)\n[ RUN      ] Table551/AdpWalkCell.Graded/GM_CHANGE_x_DOWN\n[       OK ] Table551/AdpWalkCell.Graded/GM_CHANGE_x_DOWN (0 ms)\n[ RUN      ] Table551/AdpWalkCell.Graded/GM_CHANGE_x_WAITING\n[       OK ] Table551/AdpWalkCell.Graded/GM_CHANGE_x_WAITING (0 ms)\n[ RUN      ] Table551/AdpWalkCell.Graded/GM_CHANGE_x_DELAY_timer_armed\n[       OK ] Table551/AdpWalkCell.Graded/GM_CHANGE_x_DELAY_timer_armed (0 ms)\n[ RUN      ] Table551/AdpWalkCell.Graded/SHUTDOWN_x_NOT_STARTED_DOWN\n[       OK ] Table551/AdpWalkCell.Graded/SHUTDOWN_x_NOT_STARTED_DOWN (0 ms)\n[ RUN      ] Table551/AdpWalkCell.Graded/SHUTDOWN_x_DOWN\n[       OK ] Table551/AdpWalkCell.Graded/SHUTDOWN_x_DOWN (0 ms)\n[ RUN      ] Table551/AdpWalkCell.Graded/SHUTDOWN_x_WAITING\n[       OK ] Table551/AdpWalkCell.Graded/SHUTDOWN_x_WAITING (0 ms)\n[ RUN      ] Table551/AdpWalkCell.Graded/SHUTDOWN_x_DELAY_timer_armed\n[       OK ] Table551/AdpWalkCell.Graded/SHUTDOWN_x_DELAY_timer_armed (0 ms)\n[----------] 36 tests from Table551/AdpWalkCell (0 ms total)\n\n[----------] Global test environment tear-down\n[==========] 41 tests from 2 test suites ran. (3 ms total)\n[  PASSED  ] 41 tests.\n== ctrl ADP walk (processor stimulus, host model): checks: 41   failures: 0 ==\nRESULT: PASS\n  verdict: PASS (41 tests, 0 failures, exit 0)")
+vertAndCadence
+[       OK ] AdpWalk.P1toP5FirstAdvertAndCadence (1 ms)
+[ RUN      ] AdpWalk.P7DepartingAndRestart
+[       OK ] AdpWalk.P7DepartingAndRestart (0 ms)
+[ RUN      ] AdpWalk.P11ConfigurationIndexBytes
+[       OK ] AdpWalk.P11ConfigurationIndexBytes (0 ms)
+[----------] 5 tests from AdpWalk (2 ms total)
+
+[----------] 36 tests from Table551/AdpWalkCell
+[ RUN      ] Table551/AdpWalkCell.Graded/RCV_ADP_DISCOVER_eid_0_x_NOT_STARTED_DOWN
+[       OK ] Table551/AdpWalkCell.Graded/RCV_ADP_DISCOVER_eid_0_x_NOT_STARTED_DOWN (0 ms)
+[ RUN      ] Table551/AdpWalkCell.Graded/RCV_ADP_DISCOVER_eid_0_x_DOWN
+[       OK ] Table551/AdpWalkCell.Graded/RCV_ADP_DISCOVER_eid_0_x_DOWN (0 ms)
+[ RUN      ] Table551/AdpWalkCell.Graded/RCV_ADP_DISCOVER_eid_0_x_WAITING
+[       OK ] Table551/AdpWalkCell.Graded/RCV_ADP_DISCOVER_eid_0_x_WAITING (0 ms)
+[ RUN      ] Table551/AdpWalkCell.Graded/RCV_ADP_DISCOVER_eid_0_x_DELAY_timer_armed
+[       OK ] Table551/AdpWalkCell.Graded/RCV_ADP_DISCOVER_eid_0_x_DELAY_timer_armed (0 ms)
+[ RUN      ] Table551/AdpWalkCell.Graded/RCV_ADP_DISCOVER_own_eid_x_NOT_STARTED_DOWN
+[       OK ] Table551/AdpWalkCell.Graded/RCV_ADP_DISCOVER_own_eid_x_NOT_STARTED_DOWN (0 ms)
+[ RUN      ] Table551/AdpWalkCell.Graded/RCV_ADP_DISCOVER_own_eid_x_DOWN
+[       OK ] Table551/AdpWalkCell.Graded/RCV_ADP_DISCOVER_own_eid_x_DOWN (0 ms)
+[ RUN      ] Table551/AdpWalkCell.Graded/RCV_ADP_DISCOVER_own_eid_x_WAITING
+[       OK ] Table551/AdpWalkCell.Graded/RCV_ADP_DISCOVER_own_eid_x_WAITING (0 ms)
+[ RUN      ] Table551/AdpWalkCell.Graded/RCV_ADP_DISCOVER_own_eid_x_DELAY_timer_armed
+[       OK ] Table551/AdpWalkCell.Graded/RCV_ADP_DISCOVER_own_eid_x_DELAY_timer_armed (0 ms)
+[ RUN      ] Table551/AdpWalkCell.Graded/ENTITY_DISCOVER_foreign_eid_x_NOT_STARTED_DOWN
+[       OK ] Table551/AdpWalkCell.Graded/ENTITY_DISCOVER_foreign_eid_x_NOT_STARTED_DOWN (0 ms)
+[ RUN      ] Table551/AdpWalkCell.Graded/ENTITY_DISCOVER_foreign_eid_x_DOWN
+[       OK ] Table551/AdpWalkCell.Graded/ENTITY_DISCOVER_foreign_eid_x_DOWN (0 ms)
+[ RUN      ] Table551/AdpWalkCell.Graded/ENTITY_DISCOVER_foreign_eid_x_WAITING
+[       OK ] Table551/AdpWalkCell.Graded/ENTITY_DISCOVER_foreign_eid_x_WAITING (0 ms)
+[ RUN      ] Table551/AdpWalkCell.Graded/ENTITY_DISCOVER_foreign_eid_x_DELAY_timer_armed
+[       OK ] Table551/AdpWalkCell.Graded/ENTITY_DISCOVER_foreign_eid_x_DELAY_timer_armed (0 ms)
+[ RUN      ] Table551/AdpWalkCell.Graded/TMR_ADVERTISE_x_NOT_STARTED_DOWN
+[       OK ] Table551/AdpWalkCell.Graded/TMR_ADVERTISE_x_NOT_STARTED_DOWN (0 ms)
+[ RUN      ] Table551/AdpWalkCell.Graded/TMR_ADVERTISE_x_DOWN
+[       OK ] Table551/AdpWalkCell.Graded/TMR_ADVERTISE_x_DOWN (0 ms)
+[ RUN      ] Table551/AdpWalkCell.Graded/TMR_ADVERTISE_x_WAITING
+[       OK ] Table551/AdpWalkCell.Graded/TMR_ADVERTISE_x_WAITING (0 ms)
+[ RUN      ] Table551/AdpWalkCell.Graded/TMR_ADVERTISE_x_DELAY_timer_armed
+[       OK ] Table551/AdpWalkCell.Graded/TMR_ADVERTISE_x_DELAY_timer_armed (0 ms)
+[ RUN      ] Table551/AdpWalkCell.Graded/TMR_DELAY_x_NOT_STARTED_DOWN
+[       OK ] Table551/AdpWalkCell.Graded/TMR_DELAY_x_NOT_STARTED_DOWN (0 ms)
+[ RUN      ] Table551/AdpWalkCell.Graded/TMR_DELAY_x_DOWN
+[       OK ] Table551/AdpWalkCell.Graded/TMR_DELAY_x_DOWN (0 ms)
+[ RUN      ] Table551/AdpWalkCell.Graded/TMR_DELAY_x_WAITING
+[       OK ] Table551/AdpWalkCell.Graded/TMR_DELAY_x_WAITING (0 ms)
+[ RUN      ] Table551/AdpWalkCell.Graded/TMR_DELAY_x_DELAY_timer_armed
+[       OK ] Table551/AdpWalkCell.Graded/TMR_DELAY_x_DELAY_timer_armed (0 ms)
+[ RUN      ] Table551/AdpWalkCell.Graded/LINK_UP_x_NOT_STARTED_DOWN
+[       OK ] Table551/AdpWalkCell.Graded/LINK_UP_x_NOT_STARTED_DOWN (0 ms)
+[ RUN      ] Table551/AdpWalkCell.Graded/LINK_UP_x_DOWN
+[       OK ] Table551/AdpWalkCell.Graded/LINK_UP_x_DOWN (0 ms)
+[ RUN      ] Table551/AdpWalkCell.Graded/LINK_UP_x_WAITING
+[       OK ] Table551/AdpWalkCell.Graded/LINK_UP_x_WAITING (0 ms)
+[ RUN      ] Table551/AdpWalkCell.Graded/LINK_UP_x_DELAY_timer_armed
+[       OK ] Table551/AdpWalkCell.Graded/LINK_UP_x_DELAY_timer_armed (0 ms)
+[ RUN      ] Table551/AdpWalkCell.Graded/LINK_DOWN_x_NOT_STARTED_DOWN
+[       OK ] Table551/AdpWalkCell.Graded/LINK_DOWN_x_NOT_STARTED_DOWN (0 ms)
+[ RUN      ] Table551/AdpWalkCell.Graded/LINK_DOWN_x_DOWN
+[       OK ] Table551/AdpWalkCell.Graded/LINK_DOWN_x_DOWN (0 ms)
+[ RUN      ] Table551/AdpWalkCell.Graded/LINK_DOWN_x_WAITING
+[       OK ] Table551/AdpWalkCell.Graded/LINK_DOWN_x_WAITING (0 ms)
+[ RUN      ] Table551/AdpWalkCell.Graded/LINK_DOWN_x_DELAY_timer_armed
+[       OK ] Table551/AdpWalkCell.Graded/LINK_DOWN_x_DELAY_timer_armed (0 ms)
+[ RUN      ] Table551/AdpWalkCell.Graded/GM_CHANGE_x_NOT_STARTED_DOWN
+[       OK ] Table551/AdpWalkCell.Graded/GM_CHANGE_x_NOT_STARTED_DOWN (0 ms)
+[ RUN      ] Table551/AdpWalkCell.Graded/GM_CHANGE_x_DOWN
+[       OK ] Table551/AdpWalkCell.Graded/GM_CHANGE_x_DOWN (0 ms)
+[ RUN      ] Table551/AdpWalkCell.Graded/GM_CHANGE_x_WAITING
+[       OK ] Table551/AdpWalkCell.Graded/GM_CHANGE_x_WAITING (0 ms)
+[ RUN      ] Table551/AdpWalkCell.Graded/GM_CHANGE_x_DELAY_timer_armed
+[       OK ] Table551/AdpWalkCell.Graded/GM_CHANGE_x_DELAY_timer_armed (0 ms)
+[ RUN      ] Table551/AdpWalkCell.Graded/SHUTDOWN_x_NOT_STARTED_DOWN
+[       OK ] Table551/AdpWalkCell.Graded/SHUTDOWN_x_NOT_STARTED_DOWN (0 ms)
+[ RUN      ] Table551/AdpWalkCell.Graded/SHUTDOWN_x_DOWN
+[       OK ] Table551/AdpWalkCell.Graded/SHUTDOWN_x_DOWN (0 ms)
+[ RUN      ] Table551/AdpWalkCell.Graded/SHUTDOWN_x_WAITING
+[       OK ] Table551/AdpWalkCell.Graded/SHUTDOWN_x_WAITING (0 ms)
+[ RUN      ] Table551/AdpWalkCell.Graded/SHUTDOWN_x_DELAY_timer_armed
+[       OK ] Table551/AdpWalkCell.Graded/SHUTDOWN_x_DELAY_timer_armed (0 ms)
+[----------] 36 tests from Table551/AdpWalkCell (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 41 tests from 2 test suites ran. (3 ms total)
+[  PASSED  ] 41 tests.
+== ctrl ADP walk (processor stimulus, host model): checks: 41   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (41 tests, 0 failures, exit 0)
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+=== platboot1: Outcome(arm='platboot', rc=0, log='[==========] Running 59 tests from 3 test suites.\n[----------] Global test environment set-up.\n[----------] 26 tests from Boot\n[ RUN      ] Boot.B1ReachesReadyInStepOrder\n[       OK ] Boot.B1ReachesReadyInStepOrder (6 ms)\n[ RUN      ] Boot.B2ForeignWindowStopsAtIdentity\n[       OK ] Boot.B2ForeignWindowStopsAtIdentity (0 ms)\n[ RUN      ] Boot.B3RefusedImageStopsAtImage\n[       OK ] Boot.B3RefusedImageStopsAtImage (0 ms)\n[ RUN      ] Boot.B4RefusedStreamCountStopsAfterThePolicy\n[       OK ] Boot.B4RefusedStreamCountStopsAfterThePolicy (0 ms)\n[ RUN      ] Boot.B5OtherContractStopsAtMailbox\n[       OK ] Boot.B5OtherContractStopsAtMailbox (0 ms)\n[ RUN      ] Boot.B6UnacknowledgedFaceStopsAtAecp\n[       OK ] Boot.B6UnacknowledgedFaceStopsAtAecp (0 ms)\n[ RUN      ] Boot.B7OnlyAReadyBootServicesTheLoop\n[       OK ] Boot.B7OnlyAReadyBootServicesTheLoop (0 ms)\n[ RUN      ] Boot.B8PlatformPortsAnswerAsDocumented\n[       OK ] Boot.B8PlatformPortsAnswerAsDocumented (0 ms)\n[ RUN      ] Boot.B9SrpSourcesCarryTheGeneratedStreams\n[       OK ] Boot.B9SrpSourcesCarryTheGeneratedStreams (0 ms)\n[ RUN      ] Boot.B10ABindAfterReadyIsWrittenBackThroughTheLoop\n[       OK ] Boot.B10ABindAfterReadyIsWrittenBackThroughTheLoop (1 ms)\n[ RUN      ] Boot.B11ARebootIsAnsweredNotifiedDepartsAndThenResets\n[       OK ] Boot.B11ARebootIsAnsweredNotifiedDepartsAndThenResets (0 ms)\n[ RUN      ] Boot.B12TheResetWaitsForTheResponseToLeave\n[       OK ] Boot.B12TheResetWaitsForTheResponseToLeave (0 ms)\n[ RUN      ] Boot.B13RefusalsLeaveTheEntityInService\n[       OK ] Boot.B13RefusalsLeaveTheEntityInService (0 ms)\n[ RUN      ] Boot.B14WithoutAResetPortRebootIsNotImplemented\n[       OK ] Boot.B14WithoutAResetPortRebootIsNotImplemented (0 ms)\n[ RUN      ] Boot.B15TheResetRestoresTheSavedStateAndAdvertisesAgain\n[       OK ] Boot.B15TheResetRestoresTheSavedStateAndAdvertisesAgain (1 ms)\n[ RUN      ] Boot.B16ARebootDuringTheJournalWriteKeepsTheChange\n[       OK ] Boot.B16ARebootDuringTheJournalWriteKeepsTheChange (0 ms)\n[ RUN      ] Boot.B17NothingIsTakenOrSentOnceTheResetPortFired\n[       OK ] Boot.B17NothingIsTakenOrSentOnceTheResetPortFired (1 ms)\n[ RUN      ] Boot.B18ADepartingTheRingRefusedHoldsTheReset\n[       OK ] Boot.B18ADepartingTheRingRefusedHoldsTheReset (0 ms)\n[ RUN      ] Boot.B19NoFrameOfAnyChannelIsTakenFromTheSuccess\n[       OK ] Boot.B19NoFrameOfAnyChannelIsTakenFromTheSuccess (0 ms)\n[ RUN      ] Boot.B20NoOtherChannelTransmitsAfterTheDeparting\n[       OK ] Boot.B20NoOtherChannelTransmitsAfterTheDeparting (0 ms)\n[ RUN      ] Boot.B21TheDepartingWaitsForEveryOtherRing\n[       OK ] Boot.B21TheDepartingWaitsForEveryOtherRing (0 ms)\n[ RUN      ] Boot.B22TheGateHoldsInThePassThatTakesTheReboot\n[       OK ] Boot.B22TheGateHoldsInThePassThatTakesTheReboot (0 ms)\n[ RUN      ] Boot.B23TheGateHoldsWhileTheResponseCannotBeHandedOver\n[       OK ] Boot.B23TheGateHoldsWhileTheResponseCannotBeHandedOver (0 ms)\n[ RUN      ] Boot.B24GetAsPathAnswersTheDatapathsSequence\n[       OK ] Boot.B24GetAsPathAnswersTheDatapathsSequence (0 ms)\n[ RUN      ] Boot.B25TheAdpDrawIsSeededFromThePlatformsClock\n[       OK ] Boot.B25TheAdpDrawIsSeededFromThePlatformsClock (0 ms)\n[ RUN      ] Boot.B27ALinkUpReadsThePlatformsClockAtTheLinkUp\n[       OK ] Boot.B27ALinkUpReadsThePlatformsClockAtTheLinkUp (0 ms)\n[----------] 26 tests from Boot (19 ms total)\n\n[----------] 8 tests from Phy\n[ RUN      ] Phy.B11ArmedPastTheIdentityCheck\n[       OK ] Phy.B11ArmedPastTheIdentityCheck (0 ms)\n[ RUN      ] Phy.B12StepCarriesTheStoresSaveOrAPhyFrame\n[       OK ] Phy.B12StepCarriesTheStoresSaveOrAPhyFrame (0 ms)\n[ RUN      ] Phy.L1ReadyLoopPublishesTheLink\n[       OK ] Phy.L1ReadyLoopPublishesTheLink (0 ms)\n[ RUN      ] Phy.L2EveryEdgeIsCounted\n[       OK ] Phy.L2EveryEdgeIsCounted (8 ms)\n[ RUN      ] Phy.L3EachEdgeNotifiesTheCounters\n[       OK ] Phy.L3EachEdgeNotifiesTheCounters (6 ms)\n[ RUN      ] Phy.L4ReturnEndsTheCeaseWithinAPoll\n[       OK ] Phy.L4ReturnEndsTheCeaseWithinAPoll (3 ms)\n[ RUN      ] Phy.L5ASaveKeepsThePollItsPeriod\n[       OK ] Phy.L5ASaveKeepsThePollItsPeriod (1 ms)\n[ RUN      ] Phy.L6AProbeThatAlwaysMissesLeavesTheSaveItsWorstCase\n[       OK ] Phy.L6AProbeThatAlwaysMissesLeavesTheSaveItsWorstCase (15 ms)\n[----------] 8 tests from Phy (37 ms total)\n\n[----------] 25 tests from PlatPhy\n[ RUN      ] PlatPhy.P1OneAddressIsProbedACall\n[       OK ] PlatPhy.P1OneAddressIsProbedACall (0 ms)\n[ RUN      ] PlatPhy.P2PollsArePaced\n[       OK ] PlatPhy.P2PollsArePaced (0 ms)\n[ RUN      ] PlatPhy.P3LatchedLossPublishesBothEdges\n[       OK ] PlatPhy.P3LatchedLossPublishesBothEdges (0 ms)\n[ RUN      ] PlatPhy.P4ResolvedModesAreTheReleases\n[       OK ] PlatPhy.P4ResolvedModesAreTheReleases (0 ms)\n[ RUN      ] PlatPhy.P5ErrorsAreLinkDown\n[       OK ] PlatPhy.P5ErrorsAreLinkDown (0 ms)\n[ RUN      ] PlatPhy.P6FramesAreClause22Reads\n[       OK ] PlatPhy.P6FramesAreClause22Reads (0 ms)\n[ RUN      ] PlatPhy.P7OneFrameACallWithItsRoom\n[       OK ] PlatPhy.P7OneFrameACallWithItsRoom (0 ms)\n[ RUN      ] PlatPhy.P8OwedWhileAFrameIsDue\n[       OK ] PlatPhy.P8OwedWhileAFrameIsDue (0 ms)\n[ RUN      ] PlatPhy.P9NoMdioArmsNothing\n[       OK ] PlatPhy.P9NoMdioArmsNothing (0 ms)\n[ RUN      ] PlatPhy.P10TheClockWraps\n[       OK ] PlatPhy.P10TheClockWraps (0 ms)\n[ RUN      ] PlatPhy.P11TheBootAdvertisesGigabitOnly\n[       OK ] PlatPhy.P11TheBootAdvertisesGigabitOnly (0 ms)\n[ RUN      ] PlatPhy.P12A10100PhyIsNeverWritten\n[       OK ] PlatPhy.P12A10100PhyIsNeverWritten (0 ms)\n[ RUN      ] PlatPhy.P13ALossWritesAndVerifiesItAgain\n[       OK ] PlatPhy.P13ALossWritesAndVerifiesItAgain (0 ms)\n[ RUN      ] PlatPhy.P14AResetPhyIsAdvertisedAgain\n[       OK ] PlatPhy.P14AResetPhyIsAdvertisedAgain (0 ms)\n[ RUN      ] PlatPhy.P15AnUnverifiedAdvertisementStaysOwed\n[       OK ] PlatPhy.P15AnUnverifiedAdvertisementStaysOwed (0 ms)\n[ RUN      ] PlatPhy.P16AnUnacknowledgedReadWritesNothing\n[       OK ] PlatPhy.P16AnUnacknowledgedReadWritesNothing (0 ms)\n[ RUN      ] PlatPhy.P17TheRepairedAdvertisementIsTheOneInForce\n[       OK ] PlatPhy.P17TheRepairedAdvertisementIsTheOneInForce (0 ms)\n[ RUN      ] PlatPhy.P18TheRestartIsVerifiedByItsOutcome\n[       OK ] PlatPhy.P18TheRestartIsVerifiedByItsOutcome (0 ms)\n[ RUN      ] PlatPhy.P18OneRestartAPollUntilOneTakes\n[       OK ] PlatPhy.P18OneRestartAPollUntilOneTakes (0 ms)\n[ RUN      ] PlatPhy.P18OnlyAMissingGigabitLinkOwesARestart\n[       OK ] PlatPhy.P18OnlyAMissingGigabitLinkOwesARestart (0 ms)\n[ RUN      ] PlatPhy.P19TheBootFormsTheLinkOnce\n[       OK ] PlatPhy.P19TheBootFormsTheLinkOnce (0 ms)\n[ RUN      ] PlatPhy.P20TheArmPublishesLinkDownFirst\n[       OK ] PlatPhy.P20TheArmPublishesLinkDownFirst (0 ms)\n[ RUN      ] PlatPhy.P21TheOutcomeStandsBehindTheBoot\n[       OK ] PlatPhy.P21TheOutcomeStandsBehindTheBoot (0 ms)\n[ RUN      ] PlatPhy.P22TheBootRestartsAPhyNotNegotiating\n[       OK ] PlatPhy.P22TheBootRestartsAPhyNotNegotiating (0 ms)\n[ RUN      ] PlatPhy.P23AForcedModeIsNeverPublishedUp\n[       OK ] PlatPhy.P23AForcedModeIsNeverPublishedUp (0 ms)\n[----------] 25 tests from PlatPhy (3 ms total)\n\n[----------] Global test environment tear-down\n[==========] 59 tests from 3 test suites ran. (60 ms total)\n[  PASSED  ] 59 tests.\n== ctrl split platform boot (host model, endstation_ax7101_1x1_tdm8 if1): checks: 59   failures: 0 ==\nRESULT: PASS\n  verdict: PASS (59 tests, 0 failures, exit 0)')
+ (0 ms)
+[ RUN      ] Boot.B12TheResetWaitsForTheResponseToLeave
+[       OK ] Boot.B12TheResetWaitsForTheResponseToLeave (0 ms)
+[ RUN      ] Boot.B13RefusalsLeaveTheEntityInService
+[       OK ] Boot.B13RefusalsLeaveTheEntityInService (0 ms)
+[ RUN      ] Boot.B14WithoutAResetPortRebootIsNotImplemented
+[       OK ] Boot.B14WithoutAResetPortRebootIsNotImplemented (0 ms)
+[ RUN      ] Boot.B15TheResetRestoresTheSavedStateAndAdvertisesAgain
+[       OK ] Boot.B15TheResetRestoresTheSavedStateAndAdvertisesAgain (1 ms)
+[ RUN      ] Boot.B16ARebootDuringTheJournalWriteKeepsTheChange
+[       OK ] Boot.B16ARebootDuringTheJournalWriteKeepsTheChange (0 ms)
+[ RUN      ] Boot.B17NothingIsTakenOrSentOnceTheResetPortFired
+[       OK ] Boot.B17NothingIsTakenOrSentOnceTheResetPortFired (1 ms)
+[ RUN      ] Boot.B18ADepartingTheRingRefusedHoldsTheReset
+[       OK ] Boot.B18ADepartingTheRingRefusedHoldsTheReset (0 ms)
+[ RUN      ] Boot.B19NoFrameOfAnyChannelIsTakenFromTheSuccess
+[       OK ] Boot.B19NoFrameOfAnyChannelIsTakenFromTheSuccess (0 ms)
+[ RUN      ] Boot.B20NoOtherChannelTransmitsAfterTheDeparting
+[       OK ] Boot.B20NoOtherChannelTransmitsAfterTheDeparting (0 ms)
+[ RUN      ] Boot.B21TheDepartingWaitsForEveryOtherRing
+[       OK ] Boot.B21TheDepartingWaitsForEveryOtherRing (0 ms)
+[ RUN      ] Boot.B22TheGateHoldsInThePassThatTakesTheReboot
+[       OK ] Boot.B22TheGateHoldsInThePassThatTakesTheReboot (0 ms)
+[ RUN      ] Boot.B23TheGateHoldsWhileTheResponseCannotBeHandedOver
+[       OK ] Boot.B23TheGateHoldsWhileTheResponseCannotBeHandedOver (0 ms)
+[ RUN      ] Boot.B24GetAsPathAnswersTheDatapathsSequence
+[       OK ] Boot.B24GetAsPathAnswersTheDatapathsSequence (0 ms)
+[ RUN      ] Boot.B25TheAdpDrawIsSeededFromThePlatformsClock
+[       OK ] Boot.B25TheAdpDrawIsSeededFromThePlatformsClock (0 ms)
+[ RUN      ] Boot.B27ALinkUpReadsThePlatformsClockAtTheLinkUp
+[       OK ] Boot.B27ALinkUpReadsThePlatformsClockAtTheLinkUp (0 ms)
+[----------] 26 tests from Boot (19 ms total)
+
+[----------] 8 tests from Phy
+[ RUN      ] Phy.B11ArmedPastTheIdentityCheck
+[       OK ] Phy.B11ArmedPastTheIdentityCheck (0 ms)
+[ RUN      ] Phy.B12StepCarriesTheStoresSaveOrAPhyFrame
+[       OK ] Phy.B12StepCarriesTheStoresSaveOrAPhyFrame (0 ms)
+[ RUN      ] Phy.L1ReadyLoopPublishesTheLink
+[       OK ] Phy.L1ReadyLoopPublishesTheLink (0 ms)
+[ RUN      ] Phy.L2EveryEdgeIsCounted
+[       OK ] Phy.L2EveryEdgeIsCounted (8 ms)
+[ RUN      ] Phy.L3EachEdgeNotifiesTheCounters
+[       OK ] Phy.L3EachEdgeNotifiesTheCounters (6 ms)
+[ RUN      ] Phy.L4ReturnEndsTheCeaseWithinAPoll
+[       OK ] Phy.L4ReturnEndsTheCeaseWithinAPoll (3 ms)
+[ RUN      ] Phy.L5ASaveKeepsThePollItsPeriod
+[       OK ] Phy.L5ASaveKeepsThePollItsPeriod (1 ms)
+[ RUN      ] Phy.L6AProbeThatAlwaysMissesLeavesTheSaveItsWorstCase
+[       OK ] Phy.L6AProbeThatAlwaysMissesLeavesTheSaveItsWorstCase (15 ms)
+[----------] 8 tests from Phy (37 ms total)
+
+[----------] 25 tests from PlatPhy
+[ RUN      ] PlatPhy.P1OneAddressIsProbedACall
+[       OK ] PlatPhy.P1OneAddressIsProbedACall (0 ms)
+[ RUN      ] PlatPhy.P2PollsArePaced
+[       OK ] PlatPhy.P2PollsArePaced (0 ms)
+[ RUN      ] PlatPhy.P3LatchedLossPublishesBothEdges
+[       OK ] PlatPhy.P3LatchedLossPublishesBothEdges (0 ms)
+[ RUN      ] PlatPhy.P4ResolvedModesAreTheReleases
+[       OK ] PlatPhy.P4ResolvedModesAreTheReleases (0 ms)
+[ RUN      ] PlatPhy.P5ErrorsAreLinkDown
+[       OK ] PlatPhy.P5ErrorsAreLinkDown (0 ms)
+[ RUN      ] PlatPhy.P6FramesAreClause22Reads
+[       OK ] PlatPhy.P6FramesAreClause22Reads (0 ms)
+[ RUN      ] PlatPhy.P7OneFrameACallWithItsRoom
+[       OK ] PlatPhy.P7OneFrameACallWithItsRoom (0 ms)
+[ RUN      ] PlatPhy.P8OwedWhileAFrameIsDue
+[       OK ] PlatPhy.P8OwedWhileAFrameIsDue (0 ms)
+[ RUN      ] PlatPhy.P9NoMdioArmsNothing
+[       OK ] PlatPhy.P9NoMdioArmsNothing (0 ms)
+[ RUN      ] PlatPhy.P10TheClockWraps
+[       OK ] PlatPhy.P10TheClockWraps (0 ms)
+[ RUN      ] PlatPhy.P11TheBootAdvertisesGigabitOnly
+[       OK ] PlatPhy.P11TheBootAdvertisesGigabitOnly (0 ms)
+[ RUN      ] PlatPhy.P12A10100PhyIsNeverWritten
+[       OK ] PlatPhy.P12A10100PhyIsNeverWritten (0 ms)
+[ RUN      ] PlatPhy.P13ALossWritesAndVerifiesItAgain
+[       OK ] PlatPhy.P13ALossWritesAndVerifiesItAgain (0 ms)
+[ RUN      ] PlatPhy.P14AResetPhyIsAdvertisedAgain
+[       OK ] PlatPhy.P14AResetPhyIsAdvertisedAgain (0 ms)
+[ RUN      ] PlatPhy.P15AnUnverifiedAdvertisementStaysOwed
+[       OK ] PlatPhy.P15AnUnverifiedAdvertisementStaysOwed (0 ms)
+[ RUN      ] PlatPhy.P16AnUnacknowledgedReadWritesNothing
+[       OK ] PlatPhy.P16AnUnacknowledgedReadWritesNothing (0 ms)
+[ RUN      ] PlatPhy.P17TheRepairedAdvertisementIsTheOneInForce
+[       OK ] PlatPhy.P17TheRepairedAdvertisementIsTheOneInForce (0 ms)
+[ RUN      ] PlatPhy.P18TheRestartIsVerifiedByItsOutcome
+[       OK ] PlatPhy.P18TheRestartIsVerifiedByItsOutcome (0 ms)
+[ RUN      ] PlatPhy.P18OneRestartAPollUntilOneTakes
+[       OK ] PlatPhy.P18OneRestartAPollUntilOneTakes (0 ms)
+[ RUN      ] PlatPhy.P18OnlyAMissingGigabitLinkOwesARestart
+[       OK ] PlatPhy.P18OnlyAMissingGigabitLinkOwesARestart (0 ms)
+[ RUN      ] PlatPhy.P19TheBootFormsTheLinkOnce
+[       OK ] PlatPhy.P19TheBootFormsTheLinkOnce (0 ms)
+[ RUN      ] PlatPhy.P20TheArmPublishesLinkDownFirst
+[       OK ] PlatPhy.P20TheArmPublishesLinkDownFirst (0 ms)
+[ RUN      ] PlatPhy.P21TheOutcomeStandsBehindTheBoot
+[       OK ] PlatPhy.P21TheOutcomeStandsBehindTheBoot (0 ms)
+[ RUN      ] PlatPhy.P22TheBootRestartsAPhyNotNegotiating
+[       OK ] PlatPhy.P22TheBootRestartsAPhyNotNegotiating (0 ms)
+[ RUN      ] PlatPhy.P23AForcedModeIsNeverPublishedUp
+[       OK ] PlatPhy.P23AForcedModeIsNeverPublishedUp (0 ms)
+[----------] 25 tests from PlatPhy (3 ms total)
+
+[----------] Global test environment tear-down
+[==========] 59 tests from 3 test suites ran. (60 ms total)
+[  PASSED  ] 59 tests.
+== ctrl split platform boot (host model, endstation_ax7101_1x1_tdm8 if1): checks: 59   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (59 tests, 0 failures, exit 0)
+wrote $VALIDATION_STORAGE/adp970-a847-scratch/pin-arms/checkout/platboot-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $VALIDATION_STORAGE/adp970-a847-scratch/pin-arms/checkout/platboot-if2/contract/KL_mbx.sv (2 interfaces)
+wrote $VALIDATION_STORAGE/adp970-a847-scratch/pin-arms/checkout/platboot-if2/contract/mbx_contract.h (2 interfaces)
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+=== platboot2: Outcome(arm='platboot', rc=0, log='[==========] Running 60 tests from 3 test suites.\n[----------] Global test environment set-up.\n[----------] 27 tests from Boot\n[ RUN      ] Boot.B1ReachesReadyInStepOrder\n[       OK ] Boot.B1ReachesReadyInStepOrder (8 ms)\n[ RUN      ] Boot.B2ForeignWindowStopsAtIdentity\n[       OK ] Boot.B2ForeignWindowStopsAtIdentity (0 ms)\n[ RUN      ] Boot.B3RefusedImageStopsAtImage\n[       OK ] Boot.B3RefusedImageStopsAtImage (0 ms)\n[ RUN      ] Boot.B4RefusedStreamCountStopsAfterThePolicy\n[       OK ] Boot.B4RefusedStreamCountStopsAfterThePolicy (0 ms)\n[ RUN      ] Boot.B5OtherContractStopsAtMailbox\n[       OK ] Boot.B5OtherContractStopsAtMailbox (0 ms)\n[ RUN      ] Boot.B6UnacknowledgedFaceStopsAtAecp\n[       OK ] Boot.B6UnacknowledgedFaceStopsAtAecp (0 ms)\n[ RUN      ] Boot.B7OnlyAReadyBootServicesTheLoop\n[       OK ] Boot.B7OnlyAReadyBootServicesTheLoop (0 ms)\n[ RUN      ] Boot.B8PlatformPortsAnswerAsDocumented\n[       OK ] Boot.B8PlatformPortsAnswerAsDocumented (0 ms)\n[ RUN      ] Boot.B9SrpSourcesCarryTheGeneratedStreams\n[       OK ] Boot.B9SrpSourcesCarryTheGeneratedStreams (0 ms)\n[ RUN      ] Boot.B10ABindAfterReadyIsWrittenBackThroughTheLoop\n[       OK ] Boot.B10ABindAfterReadyIsWrittenBackThroughTheLoop (1 ms)\n[ RUN      ] Boot.B11ARebootIsAnsweredNotifiedDepartsAndThenResets\n[       OK ] Boot.B11ARebootIsAnsweredNotifiedDepartsAndThenResets (0 ms)\n[ RUN      ] Boot.B12TheResetWaitsForTheResponseToLeave\n[       OK ] Boot.B12TheResetWaitsForTheResponseToLeave (0 ms)\n[ RUN      ] Boot.B13RefusalsLeaveTheEntityInService\n[       OK ] Boot.B13RefusalsLeaveTheEntityInService (0 ms)\n[ RUN      ] Boot.B14WithoutAResetPortRebootIsNotImplemented\n[       OK ] Boot.B14WithoutAResetPortRebootIsNotImplemented (0 ms)\n[ RUN      ] Boot.B15TheResetRestoresTheSavedStateAndAdvertisesAgain\n[       OK ] Boot.B15TheResetRestoresTheSavedStateAndAdvertisesAgain (1 ms)\n[ RUN      ] Boot.B16ARebootDuringTheJournalWriteKeepsTheChange\n[       OK ] Boot.B16ARebootDuringTheJournalWriteKeepsTheChange (1 ms)\n[ RUN      ] Boot.B17NothingIsTakenOrSentOnceTheResetPortFired\n[       OK ] Boot.B17NothingIsTakenOrSentOnceTheResetPortFired (1 ms)\n[ RUN      ] Boot.B18ADepartingTheRingRefusedHoldsTheReset\n[       OK ] Boot.B18ADepartingTheRingRefusedHoldsTheReset (0 ms)\n[ RUN      ] Boot.B19NoFrameOfAnyChannelIsTakenFromTheSuccess\n[       OK ] Boot.B19NoFrameOfAnyChannelIsTakenFromTheSuccess (0 ms)\n[ RUN      ] Boot.B20NoOtherChannelTransmitsAfterTheDeparting\n[       OK ] Boot.B20NoOtherChannelTransmitsAfterTheDeparting (0 ms)\n[ RUN      ] Boot.B21TheDepartingWaitsForEveryOtherRing\n[       OK ] Boot.B21TheDepartingWaitsForEveryOtherRing (0 ms)\n[ RUN      ] Boot.B22TheGateHoldsInThePassThatTakesTheReboot\n[       OK ] Boot.B22TheGateHoldsInThePassThatTakesTheReboot (0 ms)\n[ RUN      ] Boot.B23TheGateHoldsWhileTheResponseCannotBeHandedOver\n[       OK ] Boot.B23TheGateHoldsWhileTheResponseCannotBeHandedOver (0 ms)\n[ RUN      ] Boot.B24GetAsPathAnswersTheDatapathsSequence\n[       OK ] Boot.B24GetAsPathAnswersTheDatapathsSequence (0 ms)\n[ RUN      ] Boot.B25TheAdpDrawIsSeededFromThePlatformsClock\n[       OK ] Boot.B25TheAdpDrawIsSeededFromThePlatformsClock (0 ms)\n[ RUN      ] Boot.B27ALinkUpReadsThePlatformsClockAtTheLinkUp\n[       OK ] Boot.B27ALinkUpReadsThePlatformsClockAtTheLinkUp (0 ms)\n[ RUN      ] Boot.B26TwoInterfacesAreSeededApart\n[       OK ] Boot.B26TwoInterfacesAreSeededApart (0 ms)\n[----------] 27 tests from Boot (25 ms total)\n\n[----------] 8 tests from Phy\n[ RUN      ] Phy.B11ArmedPastTheIdentityCheck\n[       OK ] Phy.B11ArmedPastTheIdentityCheck (0 ms)\n[ RUN      ] Phy.B12StepCarriesTheStoresSaveOrAPhyFrame\n[       OK ] Phy.B12StepCarriesTheStoresSaveOrAPhyFrame (0 ms)\n[ RUN      ] Phy.L1ReadyLoopPublishesTheLink\n[       OK ] Phy.L1ReadyLoopPublishesTheLink (0 ms)\n[ RUN      ] Phy.L2EveryEdgeIsCounted\n[       OK ] Phy.L2EveryEdgeIsCounted (10 ms)\n[ RUN      ] Phy.L3EachEdgeNotifiesTheCounters\n[       OK ] Phy.L3EachEdgeNotifiesTheCounters (6 ms)\n[ RUN      ] Phy.L4ReturnEndsTheCeaseWithinAPoll\n[       OK ] Phy.L4ReturnEndsTheCeaseWithinAPoll (4 ms)\n[ RUN      ] Phy.L5ASaveKeepsThePollItsPeriod\n[       OK ] Phy.L5ASaveKeepsThePollItsPeriod (1 ms)\n[ RUN      ] Phy.L6AProbeThatAlwaysMissesLeavesTheSaveItsWorstCase\n[       OK ] Phy.L6AProbeThatAlwaysMissesLeavesTheSaveItsWorstCase (31 ms)\n[----------] 8 tests from Phy (57 ms total)\n\n[----------] 25 tests from PlatPhy\n[ RUN      ] PlatPhy.P1OneAddressIsProbedACall\n[       OK ] PlatPhy.P1OneAddressIsProbedACall (0 ms)\n[ RUN      ] PlatPhy.P2PollsArePaced\n[       OK ] PlatPhy.P2PollsArePaced (0 ms)\n[ RUN      ] PlatPhy.P3LatchedLossPublishesBothEdges\n[       OK ] PlatPhy.P3LatchedLossPublishesBothEdges (0 ms)\n[ RUN      ] PlatPhy.P4ResolvedModesAreTheReleases\n[       OK ] PlatPhy.P4ResolvedModesAreTheReleases (0 ms)\n[ RUN      ] PlatPhy.P5ErrorsAreLinkDown\n[       OK ] PlatPhy.P5ErrorsAreLinkDown (0 ms)\n[ RUN      ] PlatPhy.P6FramesAreClause22Reads\n[       OK ] PlatPhy.P6FramesAreClause22Reads (0 ms)\n[ RUN      ] PlatPhy.P7OneFrameACallWithItsRoom\n[       OK ] PlatPhy.P7OneFrameACallWithItsRoom (0 ms)\n[ RUN      ] PlatPhy.P8OwedWhileAFrameIsDue\n[       OK ] PlatPhy.P8OwedWhileAFrameIsDue (0 ms)\n[ RUN      ] PlatPhy.P9NoMdioArmsNothing\n[       OK ] PlatPhy.P9NoMdioArmsNothing (0 ms)\n[ RUN      ] PlatPhy.P10TheClockWraps\n[       OK ] PlatPhy.P10TheClockWraps (0 ms)\n[ RUN      ] PlatPhy.P11TheBootAdvertisesGigabitOnly\n[       OK ] PlatPhy.P11TheBootAdvertisesGigabitOnly (0 ms)\n[ RUN      ] PlatPhy.P12A10100PhyIsNeverWritten\n[       OK ] PlatPhy.P12A10100PhyIsNeverWritten (0 ms)\n[ RUN      ] PlatPhy.P13ALossWritesAndVerifiesItAgain\n[       OK ] PlatPhy.P13ALossWritesAndVerifiesItAgain (0 ms)\n[ RUN      ] PlatPhy.P14AResetPhyIsAdvertisedAgain\n[       OK ] PlatPhy.P14AResetPhyIsAdvertisedAgain (0 ms)\n[ RUN      ] PlatPhy.P15AnUnverifiedAdvertisementStaysOwed\n[       OK ] PlatPhy.P15AnUnverifiedAdvertisementStaysOwed (0 ms)\n[ RUN      ] PlatPhy.P16AnUnacknowledgedReadWritesNothing\n[       OK ] PlatPhy.P16AnUnacknowledgedReadWritesNothing (0 ms)\n[ RUN      ] PlatPhy.P17TheRepairedAdvertisementIsTheOneInForce\n[       OK ] PlatPhy.P17TheRepairedAdvertisementIsTheOneInForce (0 ms)\n[ RUN      ] PlatPhy.P18TheRestartIsVerifiedByItsOutcome\n[       OK ] PlatPhy.P18TheRestartIsVerifiedByItsOutcome (0 ms)\n[ RUN      ] PlatPhy.P18OneRestartAPollUntilOneTakes\n[       OK ] PlatPhy.P18OneRestartAPollUntilOneTakes (0 ms)\n[ RUN      ] PlatPhy.P18OnlyAMissingGigabitLinkOwesARestart\n[       OK ] PlatPhy.P18OnlyAMissingGigabitLinkOwesARestart (0 ms)\n[ RUN      ] PlatPhy.P19TheBootFormsTheLinkOnce\n[       OK ] PlatPhy.P19TheBootFormsTheLinkOnce (0 ms)\n[ RUN      ] PlatPhy.P20TheArmPublishesLinkDownFirst\n[       OK ] PlatPhy.P20TheArmPublishesLinkDownFirst (0 ms)\n[ RUN      ] PlatPhy.P21TheOutcomeStandsBehindTheBoot\n[       OK ] PlatPhy.P21TheOutcomeStandsBehindTheBoot (0 ms)\n[ RUN      ] PlatPhy.P22TheBootRestartsAPhyNotNegotiating\n[       OK ] PlatPhy.P22TheBootRestartsAPhyNotNegotiating (0 ms)\n[ RUN      ] PlatPhy.P23AForcedModeIsNeverPublishedUp\n[       OK ] PlatPhy.P23AForcedModeIsNeverPublishedUp (0 ms)\n[----------] 25 tests from PlatPhy (3 ms total)\n\n[----------] Global test environment tear-down\n[==========] 60 tests from 3 test suites ran. (87 ms total)\n[  PASSED  ] 60 tests.\n== ctrl split platform boot (host model, endstation_ax7101_1x1_tdm8 if2): checks: 60   failures: 0 ==\nRESULT: PASS\n  verdict: PASS (60 tests, 0 failures, exit 0)')
+sponseToLeave (0 ms)
+[ RUN      ] Boot.B13RefusalsLeaveTheEntityInService
+[       OK ] Boot.B13RefusalsLeaveTheEntityInService (0 ms)
+[ RUN      ] Boot.B14WithoutAResetPortRebootIsNotImplemented
+[       OK ] Boot.B14WithoutAResetPortRebootIsNotImplemented (0 ms)
+[ RUN      ] Boot.B15TheResetRestoresTheSavedStateAndAdvertisesAgain
+[       OK ] Boot.B15TheResetRestoresTheSavedStateAndAdvertisesAgain (1 ms)
+[ RUN      ] Boot.B16ARebootDuringTheJournalWriteKeepsTheChange
+[       OK ] Boot.B16ARebootDuringTheJournalWriteKeepsTheChange (1 ms)
+[ RUN      ] Boot.B17NothingIsTakenOrSentOnceTheResetPortFired
+[       OK ] Boot.B17NothingIsTakenOrSentOnceTheResetPortFired (1 ms)
+[ RUN      ] Boot.B18ADepartingTheRingRefusedHoldsTheReset
+[       OK ] Boot.B18ADepartingTheRingRefusedHoldsTheReset (0 ms)
+[ RUN      ] Boot.B19NoFrameOfAnyChannelIsTakenFromTheSuccess
+[       OK ] Boot.B19NoFrameOfAnyChannelIsTakenFromTheSuccess (0 ms)
+[ RUN      ] Boot.B20NoOtherChannelTransmitsAfterTheDeparting
+[       OK ] Boot.B20NoOtherChannelTransmitsAfterTheDeparting (0 ms)
+[ RUN      ] Boot.B21TheDepartingWaitsForEveryOtherRing
+[       OK ] Boot.B21TheDepartingWaitsForEveryOtherRing (0 ms)
+[ RUN      ] Boot.B22TheGateHoldsInThePassThatTakesTheReboot
+[       OK ] Boot.B22TheGateHoldsInThePassThatTakesTheReboot (0 ms)
+[ RUN      ] Boot.B23TheGateHoldsWhileTheResponseCannotBeHandedOver
+[       OK ] Boot.B23TheGateHoldsWhileTheResponseCannotBeHandedOver (0 ms)
+[ RUN      ] Boot.B24GetAsPathAnswersTheDatapathsSequence
+[       OK ] Boot.B24GetAsPathAnswersTheDatapathsSequence (0 ms)
+[ RUN      ] Boot.B25TheAdpDrawIsSeededFromThePlatformsClock
+[       OK ] Boot.B25TheAdpDrawIsSeededFromThePlatformsClock (0 ms)
+[ RUN      ] Boot.B27ALinkUpReadsThePlatformsClockAtTheLinkUp
+[       OK ] Boot.B27ALinkUpReadsThePlatformsClockAtTheLinkUp (0 ms)
+[ RUN      ] Boot.B26TwoInterfacesAreSeededApart
+[       OK ] Boot.B26TwoInterfacesAreSeededApart (0 ms)
+[----------] 27 tests from Boot (25 ms total)
+
+[----------] 8 tests from Phy
+[ RUN      ] Phy.B11ArmedPastTheIdentityCheck
+[       OK ] Phy.B11ArmedPastTheIdentityCheck (0 ms)
+[ RUN      ] Phy.B12StepCarriesTheStoresSaveOrAPhyFrame
+[       OK ] Phy.B12StepCarriesTheStoresSaveOrAPhyFrame (0 ms)
+[ RUN      ] Phy.L1ReadyLoopPublishesTheLink
+[       OK ] Phy.L1ReadyLoopPublishesTheLink (0 ms)
+[ RUN      ] Phy.L2EveryEdgeIsCounted
+[       OK ] Phy.L2EveryEdgeIsCounted (10 ms)
+[ RUN      ] Phy.L3EachEdgeNotifiesTheCounters
+[       OK ] Phy.L3EachEdgeNotifiesTheCounters (6 ms)
+[ RUN      ] Phy.L4ReturnEndsTheCeaseWithinAPoll
+[       OK ] Phy.L4ReturnEndsTheCeaseWithinAPoll (4 ms)
+[ RUN      ] Phy.L5ASaveKeepsThePollItsPeriod
+[       OK ] Phy.L5ASaveKeepsThePollItsPeriod (1 ms)
+[ RUN      ] Phy.L6AProbeThatAlwaysMissesLeavesTheSaveItsWorstCase
+[       OK ] Phy.L6AProbeThatAlwaysMissesLeavesTheSaveItsWorstCase (31 ms)
+[----------] 8 tests from Phy (57 ms total)
+
+[----------] 25 tests from PlatPhy
+[ RUN      ] PlatPhy.P1OneAddressIsProbedACall
+[       OK ] PlatPhy.P1OneAddressIsProbedACall (0 ms)
+[ RUN      ] PlatPhy.P2PollsArePaced
+[       OK ] PlatPhy.P2PollsArePaced (0 ms)
+[ RUN      ] PlatPhy.P3LatchedLossPublishesBothEdges
+[       OK ] PlatPhy.P3LatchedLossPublishesBothEdges (0 ms)
+[ RUN      ] PlatPhy.P4ResolvedModesAreTheReleases
+[       OK ] PlatPhy.P4ResolvedModesAreTheReleases (0 ms)
+[ RUN      ] PlatPhy.P5ErrorsAreLinkDown
+[       OK ] PlatPhy.P5ErrorsAreLinkDown (0 ms)
+[ RUN      ] PlatPhy.P6FramesAreClause22Reads
+[       OK ] PlatPhy.P6FramesAreClause22Reads (0 ms)
+[ RUN      ] PlatPhy.P7OneFrameACallWithItsRoom
+[       OK ] PlatPhy.P7OneFrameACallWithItsRoom (0 ms)
+[ RUN      ] PlatPhy.P8OwedWhileAFrameIsDue
+[       OK ] PlatPhy.P8OwedWhileAFrameIsDue (0 ms)
+[ RUN      ] PlatPhy.P9NoMdioArmsNothing
+[       OK ] PlatPhy.P9NoMdioArmsNothing (0 ms)
+[ RUN      ] PlatPhy.P10TheClockWraps
+[       OK ] PlatPhy.P10TheClockWraps (0 ms)
+[ RUN      ] PlatPhy.P11TheBootAdvertisesGigabitOnly
+[       OK ] PlatPhy.P11TheBootAdvertisesGigabitOnly (0 ms)
+[ RUN      ] PlatPhy.P12A10100PhyIsNeverWritten
+[       OK ] PlatPhy.P12A10100PhyIsNeverWritten (0 ms)
+[ RUN      ] PlatPhy.P13ALossWritesAndVerifiesItAgain
+[       OK ] PlatPhy.P13ALossWritesAndVerifiesItAgain (0 ms)
+[ RUN      ] PlatPhy.P14AResetPhyIsAdvertisedAgain
+[       OK ] PlatPhy.P14AResetPhyIsAdvertisedAgain (0 ms)
+[ RUN      ] PlatPhy.P15AnUnverifiedAdvertisementStaysOwed
+[       OK ] PlatPhy.P15AnUnverifiedAdvertisementStaysOwed (0 ms)
+[ RUN      ] PlatPhy.P16AnUnacknowledgedReadWritesNothing
+[       OK ] PlatPhy.P16AnUnacknowledgedReadWritesNothing (0 ms)
+[ RUN      ] PlatPhy.P17TheRepairedAdvertisementIsTheOneInForce
+[       OK ] PlatPhy.P17TheRepairedAdvertisementIsTheOneInForce (0 ms)
+[ RUN      ] PlatPhy.P18TheRestartIsVerifiedByItsOutcome
+[       OK ] PlatPhy.P18TheRestartIsVerifiedByItsOutcome (0 ms)
+[ RUN      ] PlatPhy.P18OneRestartAPollUntilOneTakes
+[       OK ] PlatPhy.P18OneRestartAPollUntilOneTakes (0 ms)
+[ RUN      ] PlatPhy.P18OnlyAMissingGigabitLinkOwesARestart
+[       OK ] PlatPhy.P18OnlyAMissingGigabitLinkOwesARestart (0 ms)
+[ RUN      ] PlatPhy.P19TheBootFormsTheLinkOnce
+[       OK ] PlatPhy.P19TheBootFormsTheLinkOnce (0 ms)
+[ RUN      ] PlatPhy.P20TheArmPublishesLinkDownFirst
+[       OK ] PlatPhy.P20TheArmPublishesLinkDownFirst (0 ms)
+[ RUN      ] PlatPhy.P21TheOutcomeStandsBehindTheBoot
+[       OK ] PlatPhy.P21TheOutcomeStandsBehindTheBoot (0 ms)
+[ RUN      ] PlatPhy.P22TheBootRestartsAPhyNotNegotiating
+[       OK ] PlatPhy.P22TheBootRestartsAPhyNotNegotiating (0 ms)
+[ RUN      ] PlatPhy.P23AForcedModeIsNeverPublishedUp
+[       OK ] PlatPhy.P23AForcedModeIsNeverPublishedUp (0 ms)
+[----------] 25 tests from PlatPhy (3 ms total)
+
+[----------] Global test environment tear-down
+[==========] 60 tests from 3 test suites ran. (87 ms total)
+[  PASSED  ] 60 tests.
+== ctrl split platform boot (host model, endstation_ax7101_1x1_tdm8 if2): checks: 60   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (60 tests, 0 failures, exit 0)
