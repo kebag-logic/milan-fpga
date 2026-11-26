@@ -94,8 +94,11 @@ module KL_usbaudio_record #(
       if (accept_w && state_r == PAYLOAD_S) begin
         // Drain the declared length even when refused. Odd invalid lengths
         // occupy a final bus word. Only a session reset restarts lost framing.
-        if (payload_word_r < 112)
-          pcm_o[11'(payload_word_r << 4) +: 16] <= data_i;
+        // Decode each fixed word enable instead of constructing a wide
+        // variable write mask and data shifter for the complete record.
+        for (int unsigned word_index = 0; word_index < 112; word_index++)
+          if (payload_word_r == 16'(word_index))
+            pcm_o[word_index*16 +: 16] <= data_i;
         payload_word_r <= payload_word_r + 1'b1;
       end
       if (finish_w) begin
