@@ -1,0 +1,28 @@
+Focused binding/verify controls: 33 checks, 0 failures
+CAUGHT bind: a command's status is not read
+CAUGHT bind: an unanswered command is not refused
+CAUGHT bind: the target is not held
+CAUGHT bind: a save erased before the response counts
+CAUGHT bind: a save's contents are not read
+CAUGHT bind: the cut's container is not read
+CAUGHT bind: the cut reads slot A whatever the sequences
+CAUGHT bind: a missing journal passes
+CAUGHT bind: the part's times the run modelled are not checked
+CAUGHT bind: a group's run does not model the part
+CAUGHT bind: a group's run keeps the part's times the harness was started with
+CAUGHT bind: a save that is not a whole container read back passes
+CAUGHT idle: a command with a save in flight is graded as one to an idle store
+CAUGHT idle: a command that took two saves is graded
+CAUGHT idle: a save erased before the command's window is graded as its own
+CAUGHT flight: a bind the save in flight took in its capture is graded
+CAUGHT flight: a bind whose response came outside its arrival's phase is graded
+CAUGHT flight: a run of other saves than the two is graded
+CAUGHT flight: the seal measured from the first CRC call in the log
+CAUGHT burst: more erases than the cap are graded
+CAUGHT burst: a burst of one save is graded
+CAUGHT arrivals: none just after the capture
+CAUGHT verify: a byte read twice counts twice
+CAUGHT verify: a read before the last page was programmed counts
+CAUGHT verify: a run of reads across a write is graded
+CAUGHT verify: runs of reads merged across a write
+PASS 26 planted defects caught; no source mutation

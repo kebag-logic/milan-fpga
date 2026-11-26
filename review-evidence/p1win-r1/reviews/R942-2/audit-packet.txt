@@ -1,0 +1,47 @@
+BYTES source: 1987 blobs, modes and index equal 079c4fa1514be460949ddc28ae3277ea1873cb48
+BYTES protocol-processor: 868 blobs, modes and index equal 801ef2283ec793e35a2590fc6593c90313a64041
+GITLINK protocol-processor 801ef2283ec793e35a2590fc6593c90313a64041
+BYTES gptp-processor: 120 blobs, modes and index equal 1213ac5b9e09b8759ba76cc70c53652b5e108996
+GITLINK gptp-processor 1213ac5b9e09b8759ba76cc70c53652b5e108996
+BYTES verilog-axis: 214 blobs, modes and index equal 48ff7a7e2ef782cf778d47910cf85835c64b1bce
+GITLINK third_party/verilog-axis 48ff7a7e2ef782cf778d47910cf85835c64b1bce
+BYTES tsn-c-stack: 100 blobs, modes and index equal 715589c1db7cf67e2f3259fd7083ebc7f0923376
+GITLINK third_party/tsn-c-stack 715589c1db7cf67e2f3259fd7083ebc7f0923376
+BYTES lwSRP: 67 blobs, modes and index equal d1bb4f4e5954af6dabe7f210a6bf7adbb76bdd6b
+GITLINK third_party/lwSRP d1bb4f4e5954af6dabe7f210a6bf7adbb76bdd6b
+DELTA one file; comment-stripped bytes identical; no executable or gitlink delta
+PACKET p1win-r1: 6 author files match published SHA256 and pinned commit
+PACKET p1win-r2: 26 author files match published SHA256 and pinned commit
+AUTHOR MANIFEST all entries match
+SIGNATURE: archive commit has no signature; integrity verified by immutable commit and SHA256, not signer authentication
+GATE RECEIPTS 9 exact-head clean-checkout records with successful exits
+TABLE 1x1: regenerated table and counts match published results
+RUN 1x1: 113 unique groups; 968 measurements; seven held-egress misses; no refusals or save misses
+FAMILY 1x1 acmp max_ms=4.84739
+FAMILY 1x1 notify max_ms=3.17894
+FAMILY 1x1 srp max_ms=9.23753
+SHARE 1x1: []
+FIRMWARE 1x1 f4bbbb4d0107ec8e54d9bcec04add8d11c16bfdfd4137e32d4bb34bcc6a9448e
+STEPS 1x1: pass_max_ms=0.99412, store_max_ms=0.78914
+OTHER 1x1 save-flight max_ms=147.073
+OTHER 1x1 save-burst max_ms=1097.438
+BIND 1x1 save-bind max_ms=304.535 saves=4 erases=4
+BIND 1x1 save-bind-in-capture max_ms=394.959 saves=2 erases=2
+BIND 1x1 save-bind-burst max_ms=306.463 saves=4 erases=4
+TABLE 8x8-1if: regenerated table and counts match published results
+RUN 8x8-1if: 113 unique groups; 974 measurements; seven held-egress misses; no refusals or save misses
+FAMILY 8x8-1if acmp max_ms=8.29073
+FAMILY 8x8-1if notify max_ms=3.26262
+FAMILY 8x8-1if srp max_ms=11.48331
+SHARE 8x8-1if: [('srp-bound', 1, 2.12037)]
+FIRMWARE 8x8-1if 57c023afc9e6a7b0c4f022f75aa8e27ae2149945b3f88447d5addd90b789336d
+STEPS 8x8-1if: pass_max_ms=1.15805, store_max_ms=0.79312
+OTHER 8x8-1if save-burst max_ms=1353.998
+OTHER 8x8-1if save-flight max_ms=650.995
+BIND 8x8-1if save-bind max_ms=550.481 saves=4 erases=4
+BIND 8x8-1if save-bind-in-capture max_ms=891.169 saves=2 erases=2
+BIND 8x8-1if save-bind-burst max_ms=646.392 saves=2 erases=2
+EGRESS all seven rows within unchanged ledger
+BOARD 1x1: 8 cut rows internally consistent; no bracket <=10 ms; summaries only, no raw acquisition or deployed-image identity in these files
+BOARD 8x8: 36 cut rows internally consistent; no bracket <=10 ms; summaries only, no raw acquisition or deployed-image identity in these files
+AUDIT PASS (evidence integrity and consistency; not a hardware or merge verdict)

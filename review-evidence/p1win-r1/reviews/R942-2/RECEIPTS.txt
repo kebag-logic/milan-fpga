@@ -1,0 +1,22 @@
+R942-2 reproduction and receipt scope
+
+Run from the exact source checkout. PACKET is the directory containing these files.
+
+1. Obtain only the pinned public author evidence:
+   git fetch --no-tags origin e2d4a1d3ca42c07812cb2112446eb6b8c73120ef
+   mkdir -p "$PACKET/scratch"
+   git archive e2d4a1d3ca42c07812cb2112446eb6b8c73120ef review-evidence/p1win-r1/author review-evidence/p1win-r1/MANIFEST.json review-evidence/p1win-r2/author review-evidence/p1win-r2/MANIFEST.json | tar -x -C "$PACKET/scratch"
+2. python3 -B "$PACKET/audit_packet.py" . "$PACKET"
+   Receipt: audit-packet.txt; exit 0. Final verification repeated after the focused probe.
+3. python3 -B "$PACKET/probe_grade.py" . "$PACKET/scratch/probes"
+   Receipt: probe-grade.txt; exit 0. 33 checks pass, 26 defects caught, in-process patches only.
+4. python3 -B tb/verilator/ctrl_service_budget/load_grade.py --check
+   Receipt: load-check.txt; exit 0. Static calculation; not hardware load measurement.
+
+All commands ran in the foreground. No build campaign or hardware execution occurred.
+The reviewer checked public author summaries and structured group results, regenerated their tables, and ran focused controls.
+The reviewer did not independently replay original physical acquisitions, rehash unpublished firmware binaries,
+rebuild routed images, replay full service traces, or assert a manager source bank.
+The two temporary audit-driver failures were schema-adapter mistakes in the reviewer script; corrected before the successful receipt.
+They did not modify source, evidence, measured results or grading rules.
+Only MANIFEST.sha256-listed files and REPORT.md are publishable; scratch is excluded.
