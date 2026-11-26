@@ -1,0 +1,19 @@
+head 079c4fa1514be460949ddc28ae3277ea1873cb48
+tree be2122cbd487361b4ed8a99ff283565c1bec3eb2
+status entries 0
+submodule -efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 external
+submodule  1213ac5b9e09b8759ba76cc70c53652b5e108996 gptp-processor (1213ac5)
+submodule  801ef2283ec793e35a2590fc6593c90313a64041 protocol-processor (v2.0-912-g801ef22)
+submodule  d1bb4f4e5954af6dabe7f210a6bf7adbb76bdd6b third_party/lwSRP (d1bb4f4)
+submodule  715589c1db7cf67e2f3259fd7083ebc7f0923376 third_party/tsn-c-stack (715589c1)
+submodule  48ff7a7e2ef782cf778d47910cf85835c64b1bce third_party/verilog-axis (heads/master)
+command python3 -B tb/verilator/ctrl_service_budget/run.py --point 1x1 --variant answering-every-port --build-dir <build>/r3-answering-every-port-1x1 --out <out>/answering-every-port-1x1 --jobs 4
+start 2026-11-26T11:17:00+01:00
+end 2026-11-26T12:40:25+01:00
+rc 0
+status entries after 0
+sha256 native/Vsim aeebd0312b26c76f260445d530380f94dee6a905a83b18b3723cab77a19a2b29
+sha256 image/ctrl_app.elf 0510f11acf184cd093bba95e1864855913fa49ca53c8886ebafa381601de4b68
+3f91ea778ba54eb24b4d93ead574867cd80a841906486e500fce8c869e15dd5f  <scratch>/runs/r3-answering-every-port-1x1/results.json
+856229040793198e46883026b470156800f572298c8a68273b158a3f435c8df7  <scratch>/runs/r3-answering-every-port-1x1/table.md
+ffa28287044504239095428c197983f7fb9e83d501a4fa3afe86313d2da79cf8  <scratch>/runs/r3-answering-every-port-1x1/run.out

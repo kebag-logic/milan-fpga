@@ -1,0 +1,237 @@
+# every power cut of the 8x8/1if power-cycle run (CERT_CUT_HOLD_S 1.0), in order of the outlet's power-off instant;
+# per cut: the last bind before it (the junit report's BIND_RX lines, which carry their time), whether that bind came after the previous cut,
+# and whether the steps took the hold reading (a request line at that bind's response time). Made by cuts.py <run log> <junit report>.
+cut  1: off 03:55:33Z, 1.479 s after the last BIND_RX | a Talker Advertise declared 10 s after power-on gives Listener Ready New and REG | STREAM_INPUT 0 | a bind since the previous cut: True | hold reading: yes
+cut  2: off 03:56:12Z, 1.488 s after the last BIND_RX | a Talker Advertise declared 10 s after power-on gives Listener Ready New and REG | STREAM_INPUT 1 | a bind since the previous cut: True | hold reading: yes
+cut  3: off 03:56:54Z, 1.483 s after the last BIND_RX | a Talker Advertise declared 10 s after power-on gives Listener Ready New and REG | STREAM_INPUT 2 | a bind since the previous cut: True | hold reading: yes
+cut  4: off 03:57:36Z, 1.581 s after the last BIND_RX | a Talker Advertise declared 10 s after power-on gives Listener Ready New and REG | STREAM_INPUT 3 | a bind since the previous cut: True | hold reading: yes
+cut  5: off 03:58:18Z, 1.469 s after the last BIND_RX | a Talker Advertise declared 10 s after power-on gives Listener Ready New and REG | STREAM_INPUT 4 | a bind since the previous cut: True | hold reading: yes
+cut  6: off 03:59:00Z, 1.535 s after the last BIND_RX | a Talker Advertise declared 10 s after power-on gives Listener Ready New and REG | STREAM_INPUT 5 | a bind since the previous cut: True | hold reading: yes
+cut  7: off 03:59:42Z, 1.556 s after the last BIND_RX | a Talker Advertise declared 10 s after power-on gives Listener Ready New and REG | STREAM_INPUT 6 | a bind since the previous cut: True | hold reading: yes
+cut  8: off 04:00:24Z, 1.564 s after the last BIND_RX | a Talker Advertise declared 10 s after power-on gives Listener Ready New and REG | STREAM_INPUT 7 | a bind since the previous cut: True | hold reading: yes
+cut  9: off 04:01:06Z, 1.662 s after the last BIND_RX | a Talker Advertise declared 10 s after power-on gives Listener Ready New and REG | STREAM_INPUT 8 | a bind since the previous cut: True | hold reading: yes
+cut 10: off 04:01:48Z, 1.550 s after the last BIND_RX | a Talker Failed declared 10 s after power-on gives Listener Asking Failed New an | STREAM_INPUT 0 | a bind since the previous cut: True | hold reading: yes
+cut 11: off 04:02:26Z, 1.484 s after the last BIND_RX | a Talker Failed declared 10 s after power-on gives Listener Asking Failed New an | STREAM_INPUT 1 | a bind since the previous cut: True | hold reading: yes
+cut 12: off 04:03:08Z, 1.624 s after the last BIND_RX | a Talker Failed declared 10 s after power-on gives Listener Asking Failed New an | STREAM_INPUT 2 | a bind since the previous cut: True | hold reading: yes
+cut 13: off 04:03:50Z, 1.674 s after the last BIND_RX | a Talker Failed declared 10 s after power-on gives Listener Asking Failed New an | STREAM_INPUT 3 | a bind since the previous cut: True | hold reading: yes
+cut 14: off 04:04:32Z, 1.535 s after the last BIND_RX | a Talker Failed declared 10 s after power-on gives Listener Asking Failed New an | STREAM_INPUT 4 | a bind since the previous cut: True | hold reading: yes
+cut 15: off 04:05:14Z, 1.542 s after the last BIND_RX | a Talker Failed declared 10 s after power-on gives Listener Asking Failed New an | STREAM_INPUT 5 | a bind since the previous cut: True | hold reading: yes
+cut 16: off 04:05:56Z, 1.618 s after the last BIND_RX | a Talker Failed declared 10 s after power-on gives Listener Asking Failed New an | STREAM_INPUT 6 | a bind since the previous cut: True | hold reading: yes
+cut 17: off 04:06:38Z, 1.606 s after the last BIND_RX | a Talker Failed declared 10 s after power-on gives Listener Asking Failed New an | STREAM_INPUT 7 | a bind since the previous cut: True | hold reading: yes
+cut 18: off 04:07:21Z, 1.600 s after the last BIND_RX | a Talker Failed declared 10 s after power-on gives Listener Asking Failed New an | STREAM_INPUT 8 | a bind since the previous cut: True | hold reading: yes
+cut 19: off 04:08:03Z, 1.617 s after the last BIND_RX | a Talker Advertise declared at the DUT's first ENTITY_AVAILABLE after power-on g | STREAM_INPUT 0 | a bind since the previous cut: True | hold reading: yes
+cut 20: off 04:08:41Z, 1.537 s after the last BIND_RX | a Talker Advertise declared at the DUT's first ENTITY_AVAILABLE after power-on g | STREAM_INPUT 1 | a bind since the previous cut: True | hold reading: yes
+cut 21: off 04:09:22Z, 1.591 s after the last BIND_RX | a Talker Advertise declared at the DUT's first ENTITY_AVAILABLE after power-on g | STREAM_INPUT 2 | a bind since the previous cut: True | hold reading: yes
+cut 22: off 04:10:04Z, 1.622 s after the last BIND_RX | a Talker Advertise declared at the DUT's first ENTITY_AVAILABLE after power-on g | STREAM_INPUT 3 | a bind since the previous cut: True | hold reading: yes
+cut 23: off 04:10:46Z, 1.523 s after the last BIND_RX | a Talker Advertise declared at the DUT's first ENTITY_AVAILABLE after power-on g | STREAM_INPUT 4 | a bind since the previous cut: True | hold reading: yes
+cut 24: off 04:11:28Z, 1.611 s after the last BIND_RX | a Talker Advertise declared at the DUT's first ENTITY_AVAILABLE after power-on g | STREAM_INPUT 5 | a bind since the previous cut: True | hold reading: yes
+cut 25: off 04:12:10Z, 1.510 s after the last BIND_RX | a Talker Advertise declared at the DUT's first ENTITY_AVAILABLE after power-on g | STREAM_INPUT 6 | a bind since the previous cut: True | hold reading: yes
+cut 26: off 04:12:53Z, 1.605 s after the last BIND_RX | a Talker Advertise declared at the DUT's first ENTITY_AVAILABLE after power-on g | STREAM_INPUT 7 | a bind since the previous cut: True | hold reading: yes
+cut 27: off 04:13:35Z, 1.535 s after the last BIND_RX | a Talker Advertise declared at the DUT's first ENTITY_AVAILABLE after power-on g | STREAM_INPUT 8 | a bind since the previous cut: True | hold reading: yes
+cut 28: off 04:14:17Z, 1.488 s after the last BIND_RX | a Talker Failed declared at the DUT's first ENTITY_AVAILABLE after power-on give | STREAM_INPUT 0 | a bind since the previous cut: True | hold reading: yes
+cut 29: off 04:14:39Z, 23.130 s after the last BIND_RX | a Talker Failed declared at the DUT's first ENTITY_AVAILABLE after power-on give | STREAM_INPUT 0 | a bind since the previous cut: False | hold reading: no
+cut 30: off 04:15:00Z, 44.836 s after the last BIND_RX | a Talker Failed declared at the DUT's first ENTITY_AVAILABLE after power-on give | STREAM_INPUT 0 | a bind since the previous cut: False | hold reading: no
+cut 31: off 04:15:36Z, 1.607 s after the last BIND_RX | a Talker Failed declared at the DUT's first ENTITY_AVAILABLE after power-on give | STREAM_INPUT 1 | a bind since the previous cut: True | hold reading: yes
+cut 32: off 04:16:18Z, 1.569 s after the last BIND_RX | a Talker Failed declared at the DUT's first ENTITY_AVAILABLE after power-on give | STREAM_INPUT 2 | a bind since the previous cut: True | hold reading: yes
+cut 33: off 04:17:01Z, 1.484 s after the last BIND_RX | a Talker Failed declared at the DUT's first ENTITY_AVAILABLE after power-on give | STREAM_INPUT 3 | a bind since the previous cut: True | hold reading: yes
+cut 34: off 04:17:43Z, 1.569 s after the last BIND_RX | a Talker Failed declared at the DUT's first ENTITY_AVAILABLE after power-on give | STREAM_INPUT 4 | a bind since the previous cut: True | hold reading: yes
+cut 35: off 04:18:25Z, 1.484 s after the last BIND_RX | a Talker Failed declared at the DUT's first ENTITY_AVAILABLE after power-on give | STREAM_INPUT 5 | a bind since the previous cut: True | hold reading: yes
+cut 36: off 04:19:07Z, 1.540 s after the last BIND_RX | a Talker Failed declared at the DUT's first ENTITY_AVAILABLE after power-on give | STREAM_INPUT 6 | a bind since the previous cut: True | hold reading: yes
+cut 37: off 04:19:49Z, 1.490 s after the last BIND_RX | a Talker Failed declared at the DUT's first ENTITY_AVAILABLE after power-on give | STREAM_INPUT 7 | a bind since the previous cut: True | hold reading: yes
+cut 38: off 04:20:31Z, 1.583 s after the last BIND_RX | a Talker Failed declared at the DUT's first ENTITY_AVAILABLE after power-on give | STREAM_INPUT 8 | a bind since the previous cut: True | hold reading: yes
+
+## the attempts as the steps logged them (the junit report): bind, cut, verdict
+  Scenario: a Talker Advertise declared 10 s after power-on gives Listener Ready New and REGISTERING within
+  FOREACH STREAM_INPUT 0: start
+  BIND_RX STREAM_INPUT 0 <- T 0: SUCCESS at 1795665332.065
+  PRESETTLE-CUT STREAM_INPUT 0: issued 1.0 s
+  PRESETTLE Advertise T 0: PASS
+  PASS at attempt 1
+  FOREACH STREAM_INPUT 1: start
+  BIND_RX STREAM_INPUT 1 <- T 0: SUCCESS at 1795665371.267
+  PRESETTLE-CUT STREAM_INPUT 1: issued 1.0 s
+  PRESETTLE Advertise T 0: PASS
+  PASS at attempt 1
+  FOREACH STREAM_INPUT 2: start
+  BIND_RX STREAM_INPUT 2 <- T 0: SUCCESS at 1795665412.665
+  PRESETTLE-CUT STREAM_INPUT 2: issued 1.0 s
+  PRESETTLE Advertise T 0: PASS
+  PASS at attempt 1
+  FOREACH STREAM_INPUT 3: start
+  BIND_RX STREAM_INPUT 3 <- T 0: SUCCESS at 1795665454.626
+  PRESETTLE-CUT STREAM_INPUT 3: issued 1.0 s
+  PRESETTLE Advertise T 0: PASS
+  PASS at attempt 1
+  FOREACH STREAM_INPUT 4: start
+  BIND_RX STREAM_INPUT 4 <- T 0: SUCCESS at 1795665496.719
+  PRESETTLE-CUT STREAM_INPUT 4: issued 1.0 s
+  PRESETTLE Advertise T 0: PASS
+  PASS at attempt 1
+  FOREACH STREAM_INPUT 5: start
+  BIND_RX STREAM_INPUT 5 <- T 0: SUCCESS at 1795665538.837
+  PRESETTLE-CUT STREAM_INPUT 5: issued 1.0 s
+  PRESETTLE Advertise T 0: PASS
+  PASS at attempt 1
+  FOREACH STREAM_INPUT 6: start
+  BIND_RX STREAM_INPUT 6 <- T 0: SUCCESS at 1795665581.071
+  PRESETTLE-CUT STREAM_INPUT 6: issued 1.0 s
+  PRESETTLE Advertise T 0: PASS
+  PASS at attempt 1
+  FOREACH STREAM_INPUT 7: start
+  BIND_RX STREAM_INPUT 7 <- T 0: SUCCESS at 1795665623.095
+  PRESETTLE-CUT STREAM_INPUT 7: issued 1.0 s
+  PRESETTLE Advertise T 0: PASS
+  PASS at attempt 1
+  FOREACH STREAM_INPUT 8: start
+  BIND_RX STREAM_INPUT 8 <- T 0: SUCCESS at 1795665665.309
+  PRESETTLE-CUT STREAM_INPUT 8: issued 1.0 s
+  PRESETTLE Advertise T 0: PASS
+  PASS at attempt 1
+  Scenario: a Talker Failed declared 10 s after power-on gives Listener Asking Failed New and REGISTERING_F
+  FOREACH STREAM_INPUT 0: start
+  BIND_RX STREAM_INPUT 0 <- T 0: SUCCESS at 1795665707.418
+  PRESETTLE-CUT STREAM_INPUT 0: issued 1.0 s
+  PRESETTLE Failed T 0: PASS
+  PASS at attempt 1
+  FOREACH STREAM_INPUT 1: start
+  BIND_RX STREAM_INPUT 1 <- T 0: SUCCESS at 1795665745.424
+  PRESETTLE-CUT STREAM_INPUT 1: issued 1.0 s
+  PRESETTLE Failed T 0: PASS
+  PASS at attempt 1
+  FOREACH STREAM_INPUT 2: start
+  BIND_RX STREAM_INPUT 2 <- T 0: SUCCESS at 1795665786.666
+  PRESETTLE-CUT STREAM_INPUT 2: issued 1.0 s
+  PRESETTLE Failed T 0: PASS
+  PASS at attempt 1
+  FOREACH STREAM_INPUT 3: start
+  BIND_RX STREAM_INPUT 3 <- T 0: SUCCESS at 1795665828.781
+  PRESETTLE-CUT STREAM_INPUT 3: issued 1.0 s
+  PRESETTLE Failed T 0: PASS
+  PASS at attempt 1
+  FOREACH STREAM_INPUT 4: start
+  BIND_RX STREAM_INPUT 4 <- T 0: SUCCESS at 1795665870.900
+  PRESETTLE-CUT STREAM_INPUT 4: issued 1.0 s
+  PRESETTLE Failed T 0: PASS
+  PASS at attempt 1
+  FOREACH STREAM_INPUT 5: start
+  BIND_RX STREAM_INPUT 5 <- T 0: SUCCESS at 1795665912.984
+  PRESETTLE-CUT STREAM_INPUT 5: issued 1.0 s
+  PRESETTLE Failed T 0: PASS
+  PASS at attempt 1
+  FOREACH STREAM_INPUT 6: start
+  BIND_RX STREAM_INPUT 6 <- T 0: SUCCESS at 1795665955.106
+  PRESETTLE-CUT STREAM_INPUT 6: issued 1.0 s
+  PRESETTLE Failed T 0: PASS
+  PASS at attempt 1
+  FOREACH STREAM_INPUT 7: start
+  BIND_RX STREAM_INPUT 7 <- T 0: SUCCESS at 1795665997.228
+  PRESETTLE-CUT STREAM_INPUT 7: issued 1.0 s
+  PRESETTLE Failed T 0: PASS
+  PASS at attempt 1
+  FOREACH STREAM_INPUT 8: start
+  BIND_RX STREAM_INPUT 8 <- T 0: SUCCESS at 1795666039.457
+  PRESETTLE-CUT STREAM_INPUT 8: issued 1.0 s
+  PRESETTLE Failed T 0: PASS
+  PASS at attempt 1
+  Scenario: a Talker Advertise declared at the DUT's first ENTITY_AVAILABLE after power-on gives Listener R
+  FOREACH STREAM_INPUT 0: start
+  BIND_RX STREAM_INPUT 0 <- T 0: SUCCESS at 1795666081.563
+  PRESETTLE-CUT STREAM_INPUT 0: issued 1.0 s
+  PRESETTLE Advertise T 0: PASS
+  PASS at attempt 1
+  FOREACH STREAM_INPUT 1: start
+  BIND_RX STREAM_INPUT 1 <- T 0: SUCCESS at 1795666119.717
+  PRESETTLE-CUT STREAM_INPUT 1: issued 1.0 s
+  PRESETTLE Advertise T 0: PASS
+  PASS at attempt 1
+  FOREACH STREAM_INPUT 2: start
+  BIND_RX STREAM_INPUT 2 <- T 0: SUCCESS at 1795666160.963
+  PRESETTLE-CUT STREAM_INPUT 2: issued 1.0 s
+  PRESETTLE Advertise T 0: PASS
+  PASS at attempt 1
+  FOREACH STREAM_INPUT 3: start
+  BIND_RX STREAM_INPUT 3 <- T 0: SUCCESS at 1795666203.045
+  PRESETTLE-CUT STREAM_INPUT 3: issued 1.0 s
+  PRESETTLE Advertise T 0: PASS
+  PASS at attempt 1
+  FOREACH STREAM_INPUT 4: start
+  BIND_RX STREAM_INPUT 4 <- T 0: SUCCESS at 1795666245.148
+  PRESETTLE-CUT STREAM_INPUT 4: issued 1.0 s
+  PRESETTLE Advertise T 0: PASS
+  PASS at attempt 1
+  FOREACH STREAM_INPUT 5: start
+  BIND_RX STREAM_INPUT 5 <- T 0: SUCCESS at 1795666287.252
+  PRESETTLE-CUT STREAM_INPUT 5: issued 1.0 s
+  PRESETTLE Advertise T 0: PASS
+  PASS at attempt 1
+  FOREACH STREAM_INPUT 6: start
+  BIND_RX STREAM_INPUT 6 <- T 0: SUCCESS at 1795666329.401
+  PRESETTLE-CUT STREAM_INPUT 6: issued 1.0 s
+  PRESETTLE Advertise T 0: PASS
+  PASS at attempt 1
+  FOREACH STREAM_INPUT 7: start
+  BIND_RX STREAM_INPUT 7 <- T 0: SUCCESS at 1795666371.611
+  PRESETTLE-CUT STREAM_INPUT 7: issued 1.0 s
+  PRESETTLE Advertise T 0: PASS
+  PASS at attempt 1
+  FOREACH STREAM_INPUT 8: start
+  BIND_RX STREAM_INPUT 8 <- T 0: SUCCESS at 1795666413.745
+  PRESETTLE-CUT STREAM_INPUT 8: issued 1.0 s
+  PRESETTLE Advertise T 0: PASS
+  PASS at attempt 1
+  FAIL at attempt 3
+  FAIL at attempt 3
+  Scenario: a Talker Failed declared at the DUT's first ENTITY_AVAILABLE after power-on gives Listener Aski
+  FOREACH STREAM_INPUT 0: start
+  BIND_RX STREAM_INPUT 0 <- T 0: SUCCESS at 1795666455.973
+  PRESETTLE-CUT STREAM_INPUT 0: issued 1.0 s
+  PRESETTLE Failed T 0: RETRY
+  PRESETTLE-CUT STREAM_INPUT 0: issued 22.55 s
+  PRESETTLE Failed T 0: RETRY
+  PRESETTLE-CUT STREAM_INPUT 0: issued 44.203 s
+  PRESETTLE Failed T 0: RETRY
+  FAIL at attempt 3
+  FOREACH STREAM_INPUT 1: start
+  BIND_RX STREAM_INPUT 1 <- T 0: SUCCESS at 1795666534.972
+  PRESETTLE-CUT STREAM_INPUT 1: issued 1.0 s
+  PRESETTLE Failed T 0: PASS
+  PASS at attempt 1
+  FOREACH STREAM_INPUT 2: start
+  BIND_RX STREAM_INPUT 2 <- T 0: SUCCESS at 1795666577.425
+  PRESETTLE-CUT STREAM_INPUT 2: issued 1.0 s
+  PRESETTLE Failed T 0: PASS
+  PASS at attempt 1
+  FOREACH STREAM_INPUT 3: start
+  BIND_RX STREAM_INPUT 3 <- T 0: SUCCESS at 1795666619.559
+  PRESETTLE-CUT STREAM_INPUT 3: issued 1.0 s
+  PRESETTLE Failed T 0: PASS
+  PASS at attempt 1
+  FOREACH STREAM_INPUT 4: start
+  BIND_RX STREAM_INPUT 4 <- T 0: SUCCESS at 1795666661.666
+  PRESETTLE-CUT STREAM_INPUT 4: issued 1.0 s
+  PRESETTLE Failed T 0: PASS
+  PASS at attempt 1
+  FOREACH STREAM_INPUT 5: start
+  BIND_RX STREAM_INPUT 5 <- T 0: SUCCESS at 1795666703.780
+  PRESETTLE-CUT STREAM_INPUT 5: issued 1.0 s
+  PRESETTLE Failed T 0: PASS
+  PASS at attempt 1
+  FOREACH STREAM_INPUT 6: start
+  BIND_RX STREAM_INPUT 6 <- T 0: SUCCESS at 1795666746.001
+  PRESETTLE-CUT STREAM_INPUT 6: issued 1.0 s
+  PRESETTLE Failed T 0: PASS
+  PASS at attempt 1
+  FOREACH STREAM_INPUT 7: start
+  BIND_RX STREAM_INPUT 7 <- T 0: SUCCESS at 1795666788.103
+  PRESETTLE-CUT STREAM_INPUT 7: issued 1.0 s
+  PRESETTLE Failed T 0: PASS
+  PASS at attempt 1
+  FOREACH STREAM_INPUT 8: start
+  BIND_RX STREAM_INPUT 8 <- T 0: SUCCESS at 1795666830.212
+  PRESETTLE-CUT STREAM_INPUT 8: issued 1.0 s
+  PRESETTLE Failed T 0: PASS
+  PASS at attempt 1
+  Scenario: a re-bind to the same stream, its Talker Failed declared all along, gives Listener Asking Faile
+  Scenario: a re-bind to the same stream, its Talker Advertise declared all along, gives Listener Ready New
+  Scenario: a re-bind to another stream whose Talker Failed has been declared all along gives Listener Aski
+  Scenario: a re-bind to another stream whose Talker Advertise has been declared all along gives Listener R

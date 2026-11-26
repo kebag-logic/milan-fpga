@@ -1,0 +1,19 @@
+head 079c4fa1514be460949ddc28ae3277ea1873cb48
+tree be2122cbd487361b4ed8a99ff283565c1bec3eb2
+status entries 0
+submodule -efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 external
+submodule  1213ac5b9e09b8759ba76cc70c53652b5e108996 gptp-processor (1213ac5)
+submodule  801ef2283ec793e35a2590fc6593c90313a64041 protocol-processor (v2.0-912-g801ef22)
+submodule  d1bb4f4e5954af6dabe7f210a6bf7adbb76bdd6b third_party/lwSRP (d1bb4f4)
+submodule  715589c1db7cf67e2f3259fd7083ebc7f0923376 third_party/tsn-c-stack (715589c1)
+submodule  48ff7a7e2ef782cf778d47910cf85835c64b1bce third_party/verilog-axis (heads/master)
+command python3 -B tb/verilator/ctrl_service_budget/run.py --point 8x8-1if --variant answering-later --build-dir <build>/r3-answering-later-8x8-1if --out <out>/answering-later-8x8-1if --jobs 4
+start 2026-11-26T11:16:20+01:00
+end 2026-11-26T12:13:03+01:00
+rc 0
+status entries after 0
+sha256 native/Vsim 1f7566a2d3123f78674d7fdb17ae61c6d76e0a2652878960d5aa43eaadfd39e1
+sha256 image/ctrl_app.elf 2f3fd3888244d12dd68a08a299fe6bc070ac6a501f6cf4962bca379a3eba376a
+022780881d101e6302c4e9ea8be2f4eb4bfbe9803ac8673f25a902c46d8a928d  <scratch>/runs/r3-answering-later-8x8-1if/results.json
+38075da673579e325c7f27845f68988b009c6f9b80e0637dd51aad00e01ac927  <scratch>/runs/r3-answering-later-8x8-1if/table.md
+68d6e149573cfa36765d82eb1a486ce95e80d8064793397c9adc3df831162243  <scratch>/runs/r3-answering-later-8x8-1if/run.out

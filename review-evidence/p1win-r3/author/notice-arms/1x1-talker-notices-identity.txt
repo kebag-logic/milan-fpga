@@ -1,0 +1,19 @@
+head 079c4fa1514be460949ddc28ae3277ea1873cb48
+tree be2122cbd487361b4ed8a99ff283565c1bec3eb2
+status entries 0
+submodule -efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 external
+submodule  1213ac5b9e09b8759ba76cc70c53652b5e108996 gptp-processor (1213ac5)
+submodule  801ef2283ec793e35a2590fc6593c90313a64041 protocol-processor (v2.0-912-g801ef22)
+submodule  d1bb4f4e5954af6dabe7f210a6bf7adbb76bdd6b third_party/lwSRP (d1bb4f4)
+submodule  715589c1db7cf67e2f3259fd7083ebc7f0923376 third_party/tsn-c-stack (715589c1)
+submodule  48ff7a7e2ef782cf778d47910cf85835c64b1bce third_party/verilog-axis (heads/master)
+command python3 -B tb/verilator/ctrl_service_budget/run.py --point 1x1 --variant talker-notices --build-dir <build>/r3-talker-notices-1x1 --out <out>/talker-notices-1x1 --jobs 4
+start 2026-11-26T11:18:00+01:00
+end 2026-11-26T12:17:43+01:00
+rc 0
+status entries after 0
+sha256 native/Vsim a7f5ab28cb6fece8e7291e1b750b9a1c09a00bcf7c1e4d99e465a584bd1d07e8
+sha256 image/ctrl_app.elf 880525e42162b4f2ca40219210c65e38d78d843b67f5fd6edcd72b132e102b78
+64aa4e661c0694e3a8a243540f59071fc41d9bd4ec8cf4f1e1b11dfcd7b47a89  <scratch>/runs/r3-talker-notices-1x1/results.json
+14f6f749affd47804937bba29d3d7c9f03b9dbd52eb3bda7cf6f27ca65a6722d  <scratch>/runs/r3-talker-notices-1x1/table.md
+e80a3d42ad253a8066cd890f02fb76b19f17dd80c334288b5d275e408453357f  <scratch>/runs/r3-talker-notices-1x1/run.out

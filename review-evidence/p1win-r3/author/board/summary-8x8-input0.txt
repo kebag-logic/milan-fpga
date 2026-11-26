@@ -1,0 +1,10 @@
+  sink 0: 1 readings in a row, not 4: kinds not assigned
+(1) response to durable, off the console: 1 changes asked, 0 with no record
+  bind             n   0: durable by min None median None max None s (gate 0.8); over the gate 0; brackets None..None s wide, 0 of 0 within 10 ms; no durable reading 0
+  stop_streaming   n   0: durable by min None median None max None s (gate 0.8); over the gate 0; brackets None..None s wide, 0 of 0 within 10 ms; no durable reading 0
+  start_streaming  n   0: durable by min None median None max None s (gate 0.8); over the gate 0; brackets None..None s wide, 0 of 0 within 10 ms; no durable reading 0
+  unbind           n   0: durable by min None median None max None s (gate 0.8); over the gate 0; brackets None..None s wide, 0 of 0 within 10 ms; no durable reading 0
+(2) power cuts: 1, durable readings in holds: 1, DUT frames captured: 366
+  sink 0: power off 1.551 s after the response; idle at the bind True (first sample 0.079 s); durable by 0.5859 s (bracket 0.0488 s); the DUT's last frame 1.782 s; durable 1.196 s before it (at least 0.25) PASS
+  scenarios: 1 scenario passed, 0 failed
+power cuts failing the rule: 0 of 1
