@@ -22,6 +22,17 @@ struct ctrl_app_aecp {
 	uint16_t start_index;
 	bool start_pending;
 	bool start_value;
+#ifdef CTRL_PLAT_LEDS
+	// Event-owned observations; absent from images without the LED register.
+	uint32_t led_media;
+	uint32_t led_enabled;
+	uint32_t led_outputs;
+	uint32_t led_word;
+	bool led_domain_locked;
+	bool led_ready;
+	bool led_settings;
+	bool led_configuration;
+#endif
 };
 
 // After ctrl_app_compose, before restore/open. The caller initializes state

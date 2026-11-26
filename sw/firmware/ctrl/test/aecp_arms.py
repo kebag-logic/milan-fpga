@@ -93,7 +93,7 @@ def application_sources(tree: Tree) -> tuple[list, list, list]:
 def core_arm(tree: Tree, config: Path, interfaces: int = 1, mode: str = "core",
              selected: str = "*") -> Outcome:
     """The protocol owner against explicit environment ports at either interface count."""
-    app = mode == "app"
+    app = mode in ("app", "leds")
     debug = mode == "debug"
     work = mode == "work"
     mailbox = app or mode == "mailbox"
@@ -134,6 +134,8 @@ def core_arm(tree: Tree, config: Path, interfaces: int = 1, mode: str = "core",
         inc += ["-DCTRL_REENTRY_ASSERT"]
     if work:
         inc += ["-DAECP_MAP_WORK"]  # the map edits' work counted (aecp_maps.c), in this arm alone
+    if mode == "leds":
+        inc += ["-DCTRL_PLAT_LEDS=0xf000d800u"]
     test_source = "test_aecp_debug.cpp" if debug else "test_aecp.cpp"
     try:
         objects = fw_gtest.compile_c(tree.build, C_FLAGS, inc, sources, out / "firmware", measured=not (debug or work))
@@ -191,6 +193,8 @@ def all_arms(tree: Tree) -> list[Outcome]:
     shipping = ROOT / "configs/endstation_ax7101_1x1_tdm8.yaml"
     eight = ROOT / "configs/endstation_ax7101_8x8.yaml"
     results = [core_arm(tree, shipping, i, mode="app") for i in (1, 2)]
+    results += [core_arm(Tree(tree.src, tree.out / "led-events", tree.reuse, tree.build, tree.stack),
+                        shipping, i, mode="leds", selected="LedEvents.*") for i in (1, 2)]
     results.append(core_arm(tree, eight, 1, mode="mailbox", selected=EIGHT_ONE))
     results.append(core_arm(Tree(tree.src, tree.out / "outputs", tree.reuse, tree.build, tree.stack), eight, 1,
                             mode="app", selected=OUTPUTS))

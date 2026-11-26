@@ -250,11 +250,15 @@ LD0 to LD3 are the Arty's RGB LEDs, on the green channel only, at a PWM duty of
 | LD2 | a stream is connected | `status_leds_ctrl` bit 0, written by the control firmware |
 | LD3 | the clock source is satisfied | `status_leds_ctrl` bit 1, written by the control firmware |
 
-The control firmware writes LD2 and LD3 every 250 ms
-(`sw/firmware/ctrl/plat/ctrl_plat_leds.h`), from the AECP core's own state:
+State-change handlers write LD2 and LD3 together.
+They use one two-bit register (`status_leds_ctrl`).
+The tick performs no LED observation or write.
+LD0 and LD1 stay entirely in fabric.
+
+The firmware follows the AECP core's own state:
 
 - **LD2:**
-  - some STREAM_INPUT is bound with its media locked (IEEE 1722.1-2021 7.4.42,
+  - some STREAM_INPUT is bound and started with its media locked (IEEE 1722.1-2021 7.4.42,
     STREAM_INPUT counters MEDIA_LOCKED and MEDIA_UNLOCKED); or
   - some STREAM_OUTPUT has a connected Listener. A Milan Talker keeps no ACMP
     connection_count, so the Listener's SRP registration for the stream
@@ -262,7 +266,7 @@ The control firmware writes LD2 and LD3 every 250 ms
 - **LD3:** CLOCK_DOMAIN 0's clock source, as SET_CLOCK_SOURCE set it
   (IEEE 1722.1-2021 7.4.23), is:
   - INTERNAL; or
-  - INPUT_STREAM (CRF or AAF), with its STREAM_INPUT bound, the input's media
+  - INPUT_STREAM (CRF or AAF), with its STREAM_INPUT bound and started, the input's media
     locked and the clock domain locked (CLOCK_DOMAIN counters LOCKED and
     UNLOCKED); or
   - EXTERNAL, with the clock domain locked.
@@ -272,7 +276,7 @@ from an unlocked reset, so the state is locked when LOCKED − UNLOCKED is odd;
 the parity survives a wrap of either counter. The LED observation reads only
 quadlets 0, 1 and 32 (the two values and their validity) through the bounded
 counter window. Either missing validity bit or any failed read leaves the
-lock indication off. INTERNAL needs no clock-domain counter read. The full
+lock indication off. INTERNAL ignores the cached clock-domain lock. The full
 GET_COUNTERS and GET_STREAM_INFO responses are unchanged. The LED output
 observation reads GSI status word 0. A declaring output takes its extended
 Listener flag from the SRP owner, as GET_STREAM_INFO does; otherwise word 6
@@ -282,6 +286,18 @@ initializes every field it consumes to zero, without clearing unused fields.
 Input binding is read directly from the ACMP owner's bound state, the same
 state `acmp_view` reports; no stream-window transaction is needed for that
 software-owned bit. Media reception still requires the valid lock counters.
+`ctrl_plat_leds_events.h` keeps per-input and per-output bits.
+ACMP bind, unbind, start and stop update input eligibility.
+Counter-event handlers refresh only their descriptor's lock pair.
+An ALL event refreshes every served descriptor's observation.
+SRP listener and declaration handlers update their output alone.
+Clock-source handlers publish the descriptor currently in force.
+A waiting or failed change keeps its previous source.
+Boot and configuration changes initialize the complete observation.
+Unchanged indications cause no register write.
+No idle callback scans the production adapter context.
+Counter observations follow the existing counter-event delivery cadence.
+
 The firmware compiles this code
 only where the SoC has the register: `ctrl_plat_gen.py` emits `CTRL_PLAT_LEDS`
 from the SoC's `csr.csv`.

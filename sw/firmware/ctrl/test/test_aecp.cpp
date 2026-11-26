@@ -41,6 +41,15 @@ extern "C" {
 #include "mbx_contract.h"
 #include "plat/ctrl_plat_leds.h"
 }
+#ifdef CTRL_PLAT_LEDS
+static std::vector<uint32_t> led_writes;
+extern "C" void ctrl_plat_io_write32(uintptr_t address,uint32_t value)
+{
+    EXPECT_EQ(address,uintptr_t(CTRL_PLAT_LEDS))<<"LED handler writes its single status register";
+    EXPECT_EQ(value&~3u,0u)<<"LED write contains LD2 and LD3 alone";
+    led_writes.push_back(value);
+}
+#endif
 // The core under test is given AECP_TEST_INTERFACES interfaces, so it is compiled at that many: its contract's, and
 // so the shape whose costs it charges (THE SHAPES, ctrl_loop.h; aecp.h, AECP_ATTEMPT_US; #894's retry-cost ruling,
 // item 1). aecp_arms.core_arm gives each arm its interfaces' own contract; one at another's fails here.
@@ -4860,6 +4869,7 @@ struct Far {
     unsigned requests[MBX_WINDOWS]{};
     std::vector<unsigned> counter_words;
     unsigned silent_counter=33u;
+    std::map<std::pair<unsigned,unsigned>,std::array<uint32_t,3>> led_counts;
     unsigned silent_gsi=16u;
     uint32_t output_flags=0xf2000000u;
     uint32_t output_flags_ex=7u;
@@ -4935,6 +4945,10 @@ struct Far {
         if(w==MBX_WIN_GSI)f.selectors.push_back((r[1]>>4)&15u);
         if(w==MBX_WIN_GSI&&(r[1]&3u)==2u){f.asked.push_back({i,r[0],r[1]});*d=f.path(i,r[1]);return f.reply;}
         *d=word(i,w,r,f.verdict);
+        if(w==MBX_WIN_CTR){
+            auto at=f.led_counts.find({r[0]&0xffffu,r[0]>>16});unsigned q=r[1]&63u;
+            if(at!=f.led_counts.end()&&(q<2u||q==32u))*d=at->second[q==32u?2u:q];
+        }
         if(w==MBX_WIN_GSI&&(r[0]&0xffffu)==6u&&(r[1]&3u)==0u){
             unsigned sel=(r[1]>>4)&15u;
             f.output_requests.push_back({i,r[0],r[1],r[2],r[3],sel});
@@ -6036,6 +6050,126 @@ struct AppFace : Nvm {
     }
 };
 }
+
+#ifdef CTRL_PLAT_LEDS
+namespace {
+struct LedEvents : AppFace {
+    srp_mbx reservation{};
+    void SetUp() override {
+        led_writes.clear();AppFace::SetUp();application.srp=&reservation;
+        for(unsigned n=0;n<connection.n_sinks;++n)lock(5,n,false);
+        lock(36,0,false);led_writes.clear();
+    }
+    void TearDown() override {application.srp=nullptr;AppFace::TearDown();}
+    void event(unsigned type,unsigned index,bool every=false) {
+        mbx_event e{};e.type=MBX_EV_TYPE_COUNTERS_CHANGED;e.desc_type=type;e.desc_index=index;e.every=every;
+        for(unsigned n=0;n<application.loop.n_sinks;++n)application.loop.sinks[n].fn(application.loop.sinks[n].ctx,&e);
+    }
+    void lock(unsigned type,unsigned index,bool on) {
+        far.led_counts[{type,index}]={on?1u:0u,0u,3u};event(type,index);
+    }
+    void binding(unsigned index,bool on) {
+        acmp_test::Pdu p{};p.msg=on?6:8;p.controller=CTLR;p.listener=ENTITY;p.talker=0xabcdef0102030405;
+        p.listener_uid=index;p.talker_uid=0;p.seq=0x4567;
+        auto bytes=acmp_test::acmpdu(p);ASSERT_TRUE(mbx_model_rx(&fabric,bytes.data(),bytes.size(),0));service();
+        EXPECT_EQ(application.acmp.acmp.sinks[index].bound,on)<<"ACMP binding handler took the command";
+    }
+    unsigned source(unsigned kind,unsigned input=0) {
+        for(auto &d:descriptors)if(d.configuration==adapter.core.configuration&&d.type==10&&
+            get(d.value+72,2)==kind&&(kind!=2||get(d.value+84,2)==input))return d.index;
+        ADD_FAILURE()<<"clock source exists";return 0;
+    }
+    void clock(unsigned kind,unsigned input=0) {
+        unsigned index=source(kind,input);auto b=target(36,0,8);put(b,4,index,2);aem(22,b);
+        EXPECT_EQ(get(aecp_find(&adapter.core,adapter.core.configuration,36,0)->value+70,2),index)
+            <<"SET_CLOCK_SOURCE took in the production adapter";
+    }
+    uint32_t word() const {return bridge.led_word;}
+};
+}
+
+TEST_F(LedEvents, InternalFlowingAndStoppedSourcesUseAecp)
+{
+    clock(0);EXPECT_EQ(word(),2u)<<"internal LD3 on";
+    unsigned input=0;for(auto &d:descriptors)if(d.type==10&&get(d.value+72,2)==2){input=get(d.value+84,2);break;}
+    clock(2,input);EXPECT_EQ(word(),0u)<<"stopped stream LD3 off";
+    binding(input,true);lock(5,input,true);lock(36,0,true);
+    clock(2,input);EXPECT_EQ(word(),3u)<<"flowing recovered selected stream lights both LEDs";
+    lock(36,0,false);EXPECT_EQ(word(),1u)<<"domain lock loss darkens LD3";
+    lock(36,0,true);lock(5,input,false);EXPECT_EQ(word(),0u)<<"media loss darkens both LEDs";
+    clock(0);EXPECT_EQ(word(),2u)<<"internal restored over AECP";
+}
+
+TEST_F(LedEvents, BindUnbindAndStartStopChangeOnlyOneRegister)
+{
+    clock(0);lock(5,0,true);EXPECT_EQ(word(),2u)<<"unbound media never connects LD2";
+    auto reads=far.requests[MBX_WIN_CTR];binding(0,true);EXPECT_EQ(word(),3u)<<"binding uses cached media state";
+    EXPECT_EQ(far.requests[MBX_WIN_CTR],reads)<<"binding reads no counter window";
+    aem(35,target(5,0));EXPECT_EQ(word(),2u)<<"STOP_STREAMING darkens LD2 before a lock-loss event";
+    aem(34,target(5,0));EXPECT_EQ(word(),3u)<<"START_STREAMING restores the receiving input";
+    binding(0,false);EXPECT_EQ(word(),2u)<<"unbind darkens LD2";
+    ASSERT_FALSE(led_writes.empty());EXPECT_EQ(led_writes.back(),2u)<<"status register matches the handlers";
+}
+
+TEST_F(LedEvents, SelectedInputAndLastListenerOwnTheirLights)
+{
+    unsigned input=0;for(auto &d:descriptors)if(d.type==10&&get(d.value+72,2)==2){input=get(d.value+84,2);break;}
+    clock(2,input);lock(36,0,true);unsigned other=input==0?1:0;
+    binding(other,true);lock(5,other,true);EXPECT_EQ(word(),1u)<<"another input cannot satisfy LD3";
+    binding(other,false);EXPECT_EQ(word(),0u);
+    for(unsigned i=0;i<2;++i){reservation.ifs[0].listener_present[i]=true;application.srp_noticed|=1u<<i;service();}
+    EXPECT_EQ(word(),1u)<<"output listeners light LD2";
+    reservation.ifs[0].listener_present[0]=false;application.srp_noticed=1u;service();
+    EXPECT_EQ(word(),1u)<<"one listener remains";
+    reservation.ifs[0].listener_present[1]=false;application.srp_noticed=2u;service();
+    EXPECT_EQ(word(),0u)<<"the last listener leaving darkens LD2";
+}
+
+TEST_F(LedEvents, CounterEventsAreScopedAndFailuresClearThenRecover)
+{
+    binding(0,true);lock(5,0,true);auto writes=led_writes.size();auto reads=far.requests[MBX_WIN_CTR];
+    event(9,0);EXPECT_EQ(far.requests[MBX_WIN_CTR],reads)<<"unrelated counters read no LED windows";
+    event(5,0);EXPECT_EQ(far.requests[MBX_WIN_CTR],reads+3u)<<"one event reads one pair and validity";
+    EXPECT_EQ(led_writes.size(),writes)<<"unchanged state writes nothing";
+    for(unsigned q:{0u,1u,32u}){
+        far.silent_counter=q;event(5,0);EXPECT_EQ(word()&1u,0u)<<"failed lock observation is dark";
+        far.silent_counter=33u;event(5,0);EXPECT_EQ(word()&1u,1u)<<"the next event recovers";
+    }
+    far.led_counts[{5,0}]={0u,0xffffffffu,3u};event(5,0);EXPECT_EQ(word()&1u,1u)<<"counter wrap stays locked";
+    far.led_counts[{5,0}]={1u,0xffffffffu,3u};event(5,0);EXPECT_EQ(word()&1u,0u)<<"even parity is unlocked";
+    for(unsigned valid:{0u,1u,2u}){far.led_counts[{5,0}]={1u,0u,valid};event(5,0);EXPECT_EQ(word()&1u,0u);}
+}
+
+TEST_F(LedEvents, AllCounterEventsRebuildOnlyTheServedState)
+{
+    binding(0,true);far.led_counts[{5,0}]={1u,0u,3u};event(0,0,true);
+    EXPECT_EQ(word()&1u,1u)<<"ALL event includes input lock acquisition";
+    far.led_counts[{5,0}]={1u,1u,3u};event(0,0,true);
+    EXPECT_EQ(word()&1u,0u)<<"ALL event includes input lock loss";
+}
+
+TEST_F(LedEvents, TicksAndIdlePollsNeverObserveLeds)
+{
+    // Consume the fixture's bootstrap counter notifications before idling.
+    service(200);
+    auto ctr=far.requests[MBX_WIN_CTR];auto gsi=far.requests[MBX_WIN_GSI];auto writes=led_writes.size();
+    for(unsigned n=0;n<300;++n){mbx_model_advance_ms(&fabric,10);service(1);}
+    EXPECT_EQ(far.requests[MBX_WIN_CTR],ctr)<<"ticks and idle polls read no LED counters";
+    EXPECT_EQ(far.requests[MBX_WIN_GSI],gsi)<<"ticks and idle polls read no LED stream state";
+    EXPECT_EQ(led_writes.size(),writes)<<"ticks and idle polls never write the LED register";
+}
+
+TEST_F(LedEvents, WaitingClockChangesKeepTheSourceInForce)
+{
+    clock(0);unsigned input=0;for(auto &d:descriptors)if(d.type==10&&get(d.value+72,2)==2){input=get(d.value+84,2);break;}
+    auto b=target(36,0,8);put(b,4,source(2,input),2);far.ack=false;aem(22,b);
+    ASSERT_TRUE(adapter.core.waiting);EXPECT_EQ(word(),2u)<<"waiting clock change leaves internal source lit";
+    mbx_model_advance_ms(&fabric,AECP_WAIT_MS);service();
+    EXPECT_FALSE(adapter.core.waiting);EXPECT_EQ(word(),2u)<<"failed clock change leaves internal source lit";
+    far.ack=true;for(unsigned i=0;i<MBX_N_IF;++i)mbx_model_face_ack(&fabric,i);service();clock(2,input);
+    EXPECT_EQ(word(),0u)<<"accepted stopped source is dark";
+}
+#endif
 
 // Compare the LED observer with the complete production mailbox/app/face chain.
 // The raw window flags and the SRP registration deliberately disagree in both
