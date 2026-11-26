@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="2" failures="2" disabled="0" errors="0" time="0.004" timestamp="2026-11-26T03:46:53.494" name="AllTests">
+  <testsuite name="AdpCore" tests="2" failures="2" disabled="0" skipped="0" errors="0" time="0.004" timestamp="2026-11-26T03:46:53.494">
+    <testcase name="A30EachQualifiedRiseTakesOneSample" file="<SOURCE>/tests/test_adp.cpp" line="864" status="run" result="completed" time="0." timestamp="2026-11-26T03:46:53.494" classname="AdpCore">
+      <failure message="<SOURCE>/tests/test_adp.cpp:661&#x0A;Expected equality of these values:&#x0A;  seed_calls&#x0A;    Which is: 2&#x0A;  0u&#x0A;    Which is: 0&#x0A;A30 an enable with the link down takes no sample&#x0A;" type=""><![CDATA[<SOURCE>/tests/test_adp.cpp:661
+Expected equality of these values:
+  seed_calls
+    Which is: 2
+  0u
+    Which is: 0
+A30 an enable with the link down takes no sample
+]]></failure>
+      <failure message="<SOURCE>/tests/test_adp.cpp:665&#x0A;Value of: seed_calls == rise &amp;&amp; a.draws == draws + 1u&#x0A;  Actual: false&#x0A;Expected: true&#x0A;A30 each qualified LINK_UP takes one sample&#x0A;" type=""><![CDATA[<SOURCE>/tests/test_adp.cpp:665
+Value of: seed_calls == rise && a.draws == draws + 1u
+  Actual: false
+Expected: true
+A30 each qualified LINK_UP takes one sample
+]]></failure>
+      <failure message="<SOURCE>/tests/test_adp.cpp:667&#x0A;Value of: seed_calls == rise &amp;&amp; a.draws == draws + 1u&#x0A;  Actual: false&#x0A;Expected: true&#x0A;A30 a duplicate LINK_UP takes no sample&#x0A;" type=""><![CDATA[<SOURCE>/tests/test_adp.cpp:667
+Value of: seed_calls == rise && a.draws == draws + 1u
+  Actual: false
+Expected: true
+A30 a duplicate LINK_UP takes no sample
+]]></failure>
+      <failure message="<SOURCE>/tests/test_adp.cpp:665&#x0A;Value of: seed_calls == rise &amp;&amp; a.draws == draws + 1u&#x0A;  Actual: false&#x0A;Expected: true&#x0A;A30 each qualified LINK_UP takes one sample&#x0A;" type=""><![CDATA[<SOURCE>/tests/test_adp.cpp:665
+Value of: seed_calls == rise && a.draws == draws + 1u
+  Actual: false
+Expected: true
+A30 each qualified LINK_UP takes one sample
+]]></failure>
+      <failure message="<SOURCE>/tests/test_adp.cpp:667&#x0A;Value of: seed_calls == rise &amp;&amp; a.draws == draws + 1u&#x0A;  Actual: false&#x0A;Expected: true&#x0A;A30 a duplicate LINK_UP takes no sample&#x0A;" type=""><![CDATA[<SOURCE>/tests/test_adp.cpp:667
+Value of: seed_calls == rise && a.draws == draws + 1u
+  Actual: false
+Expected: true
+A30 a duplicate LINK_UP takes no sample
+]]></failure>
+      <failure message="<SOURCE>/tests/test_adp.cpp:672&#x0A;Value of: seed_calls == 4u &amp;&amp; other.rng != untouched &amp;&amp; other.last_draw == ADP_DRAW_DELAY&#x0A;  Actual: false&#x0A;Expected: true&#x0A;A30 the other interface&apos;s LINK_UP takes its own sample&#x0A;" type=""><![CDATA[<SOURCE>/tests/test_adp.cpp:672
+Value of: seed_calls == 4u && other.rng != untouched && other.last_draw == ADP_DRAW_DELAY
+  Actual: false
+Expected: true
+A30 the other interface's LINK_UP takes its own sample
+]]></failure>
+      <failure message="<SOURCE>/tests/test_adp.cpp:677&#x0A;Expected equality of these values:&#x0A;  seed_calls&#x0A;    Which is: 2&#x0A;  4u&#x0A;    Which is: 4&#x0A;A30 a LINK_UP while disabled takes no sample&#x0A;" type=""><![CDATA[<SOURCE>/tests/test_adp.cpp:677
+Expected equality of these values:
+  seed_calls
+    Which is: 2
+  4u
+    Which is: 4
+A30 a LINK_UP while disabled takes no sample
+]]></failure>
+      <failure message="<SOURCE>/tests/test_adp.cpp:681&#x0A;Value of: seed_calls == 5u &amp;&amp; a.last_draw == ADP_DRAW_STARTUP&#x0A;  Actual: false&#x0A;Expected: true&#x0A;A30 the startup draw takes one sample&#x0A;" type=""><![CDATA[<SOURCE>/tests/test_adp.cpp:681
+Value of: seed_calls == 5u && a.last_draw == ADP_DRAW_STARTUP
+  Actual: false
+Expected: true
+A30 the startup draw takes one sample
+]]></failure>
+    </testcase>
+    <testcase name="A31TheLinkUpsSampleSetsItsDraw" file="<SOURCE>/tests/test_adp.cpp" line="866" status="run" result="completed" time="0.004" timestamp="2026-11-26T03:46:53.494" classname="AdpCore">
+      <failure message="<SOURCE>/tests/test_adp.cpp:706&#x0A;Expected: (distinct) &gt;= (2400u), actual: 1 vs 2400&#x0A;A31 boots that differ only in the sample at a LINK_UP draw apart&#x0A;" type=""><![CDATA[<SOURCE>/tests/test_adp.cpp:706
+Expected: (distinct) >= (2400u), actual: 1 vs 2400
+A31 boots that differ only in the sample at a LINK_UP draw apart
+]]></failure>
+      <failure message="<SOURCE>/tests/test_adp.cpp:707&#x0A;Expected: (chi_square_x16(first, 4000u)) &lt;= (kChiSquareX16), actual: 983040 vs 490&#x0A;A31 and draw uniformly from the sample taken at that LINK_UP&#x0A;" type=""><![CDATA[<SOURCE>/tests/test_adp.cpp:707
+Expected: (chi_square_x16(first, 4000u)) <= (kChiSquareX16), actual: 983040 vs 490
+A31 and draw uniformly from the sample taken at that LINK_UP
+]]></failure>
+      <failure message="<SOURCE>/tests/test_adp.cpp:706&#x0A;Expected: (distinct) &gt;= (2400u), actual: 1 vs 2400&#x0A;A31 boots that differ only in the sample at a LINK_UP draw apart&#x0A;" type=""><![CDATA[<SOURCE>/tests/test_adp.cpp:706
+Expected: (distinct) >= (2400u), actual: 1 vs 2400
+A31 boots that differ only in the sample at a LINK_UP draw apart
+]]></failure>
+      <failure message="<SOURCE>/tests/test_adp.cpp:707&#x0A;Expected: (chi_square_x16(first, 4000u)) &lt;= (kChiSquareX16), actual: 983040 vs 490&#x0A;A31 and draw uniformly from the sample taken at that LINK_UP&#x0A;" type=""><![CDATA[<SOURCE>/tests/test_adp.cpp:707
+Expected: (chi_square_x16(first, 4000u)) <= (kChiSquareX16), actual: 983040 vs 490
+A31 and draw uniformly from the sample taken at that LINK_UP
+]]></failure>
+    </testcase>
+  </testsuite>
+</testsuites>

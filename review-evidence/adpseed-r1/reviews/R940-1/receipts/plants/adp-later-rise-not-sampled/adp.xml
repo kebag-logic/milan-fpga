@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="1" failures="1" disabled="0" errors="0" time="0." timestamp="2026-11-26T03:45:16.897" name="AllTests">
+  <testsuite name="AdpCore" tests="1" failures="1" disabled="0" skipped="0" errors="0" time="0." timestamp="2026-11-26T03:45:16.897">
+    <testcase name="A30EachQualifiedRiseTakesOneSample" file="<PACKET>/scratch/plants/baseline/tests/test_adp.cpp" line="864" status="run" result="completed" time="0." timestamp="2026-11-26T03:45:16.897" classname="AdpCore">
+      <failure message="<PACKET>/scratch/plants/baseline/tests/test_adp.cpp:665&#x0A;Value of: seed_calls == rise &amp;&amp; a.draws == draws + 1u&#x0A;  Actual: false&#x0A;Expected: true&#x0A;&#x0A;TSN_MESSAGE_BEGIN_ebfc8cb690fe73b1d0e7d60aa16e7e5e&#x0A;A30 each qualified LINK_UP takes one sample&#x0A;TSN_MESSAGE_END_4db25b85dfe81df5eabc055131f01bbd&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/plants/baseline/tests/test_adp.cpp:665
+Value of: seed_calls == rise && a.draws == draws + 1u
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_ebfc8cb690fe73b1d0e7d60aa16e7e5e
+A30 each qualified LINK_UP takes one sample
+TSN_MESSAGE_END_4db25b85dfe81df5eabc055131f01bbd
+
+]]></failure>
+      <failure message="<PACKET>/scratch/plants/baseline/tests/test_adp.cpp:667&#x0A;Value of: seed_calls == rise &amp;&amp; a.draws == draws + 1u&#x0A;  Actual: false&#x0A;Expected: true&#x0A;&#x0A;TSN_MESSAGE_BEGIN_ebfc8cb690fe73b1d0e7d60aa16e7e5e&#x0A;A30 a duplicate LINK_UP takes no sample&#x0A;TSN_MESSAGE_END_4db25b85dfe81df5eabc055131f01bbd&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/plants/baseline/tests/test_adp.cpp:667
+Value of: seed_calls == rise && a.draws == draws + 1u
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_ebfc8cb690fe73b1d0e7d60aa16e7e5e
+A30 a duplicate LINK_UP takes no sample
+TSN_MESSAGE_END_4db25b85dfe81df5eabc055131f01bbd
+
+]]></failure>
+      <failure message="<PACKET>/scratch/plants/baseline/tests/test_adp.cpp:665&#x0A;Value of: seed_calls == rise &amp;&amp; a.draws == draws + 1u&#x0A;  Actual: false&#x0A;Expected: true&#x0A;&#x0A;TSN_MESSAGE_BEGIN_ebfc8cb690fe73b1d0e7d60aa16e7e5e&#x0A;A30 each qualified LINK_UP takes one sample&#x0A;TSN_MESSAGE_END_4db25b85dfe81df5eabc055131f01bbd&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/plants/baseline/tests/test_adp.cpp:665
+Value of: seed_calls == rise && a.draws == draws + 1u
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_ebfc8cb690fe73b1d0e7d60aa16e7e5e
+A30 each qualified LINK_UP takes one sample
+TSN_MESSAGE_END_4db25b85dfe81df5eabc055131f01bbd
+
+]]></failure>
+      <failure message="<PACKET>/scratch/plants/baseline/tests/test_adp.cpp:667&#x0A;Value of: seed_calls == rise &amp;&amp; a.draws == draws + 1u&#x0A;  Actual: false&#x0A;Expected: true&#x0A;&#x0A;TSN_MESSAGE_BEGIN_ebfc8cb690fe73b1d0e7d60aa16e7e5e&#x0A;A30 a duplicate LINK_UP takes no sample&#x0A;TSN_MESSAGE_END_4db25b85dfe81df5eabc055131f01bbd&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/plants/baseline/tests/test_adp.cpp:667
+Value of: seed_calls == rise && a.draws == draws + 1u
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_ebfc8cb690fe73b1d0e7d60aa16e7e5e
+A30 a duplicate LINK_UP takes no sample
+TSN_MESSAGE_END_4db25b85dfe81df5eabc055131f01bbd
+
+]]></failure>
+      <failure message="<PACKET>/scratch/plants/baseline/tests/test_adp.cpp:672&#x0A;Value of: seed_calls == 4u &amp;&amp; other.rng != untouched &amp;&amp; other.last_draw == ADP_DRAW_DELAY&#x0A;  Actual: false&#x0A;Expected: true&#x0A;&#x0A;TSN_MESSAGE_BEGIN_ebfc8cb690fe73b1d0e7d60aa16e7e5e&#x0A;A30 the other interface&apos;s LINK_UP takes its own sample&#x0A;TSN_MESSAGE_END_4db25b85dfe81df5eabc055131f01bbd&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/plants/baseline/tests/test_adp.cpp:672
+Value of: seed_calls == 4u && other.rng != untouched && other.last_draw == ADP_DRAW_DELAY
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_ebfc8cb690fe73b1d0e7d60aa16e7e5e
+A30 the other interface's LINK_UP takes its own sample
+TSN_MESSAGE_END_4db25b85dfe81df5eabc055131f01bbd
+
+]]></failure>
+      <failure message="<PACKET>/scratch/plants/baseline/tests/test_adp.cpp:677&#x0A;Expected equality of these values:&#x0A;  seed_calls&#x0A;    Which is: 2&#x0A;  4u&#x0A;    Which is: 4&#x0A;&#x0A;TSN_MESSAGE_BEGIN_ebfc8cb690fe73b1d0e7d60aa16e7e5e&#x0A;A30 a LINK_UP while disabled takes no sample&#x0A;TSN_MESSAGE_END_4db25b85dfe81df5eabc055131f01bbd&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/plants/baseline/tests/test_adp.cpp:677
+Expected equality of these values:
+  seed_calls
+    Which is: 2
+  4u
+    Which is: 4
+
+TSN_MESSAGE_BEGIN_ebfc8cb690fe73b1d0e7d60aa16e7e5e
+A30 a LINK_UP while disabled takes no sample
+TSN_MESSAGE_END_4db25b85dfe81df5eabc055131f01bbd
+
+]]></failure>
+      <failure message="<PACKET>/scratch/plants/baseline/tests/test_adp.cpp:681&#x0A;Value of: seed_calls == 5u &amp;&amp; a.last_draw == ADP_DRAW_STARTUP&#x0A;  Actual: false&#x0A;Expected: true&#x0A;&#x0A;TSN_MESSAGE_BEGIN_ebfc8cb690fe73b1d0e7d60aa16e7e5e&#x0A;A30 the startup draw takes one sample&#x0A;TSN_MESSAGE_END_4db25b85dfe81df5eabc055131f01bbd&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/plants/baseline/tests/test_adp.cpp:681
+Value of: seed_calls == 5u && a.last_draw == ADP_DRAW_STARTUP
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_ebfc8cb690fe73b1d0e7d60aa16e7e5e
+A30 the startup draw takes one sample
+TSN_MESSAGE_END_4db25b85dfe81df5eabc055131f01bbd
+
+]]></failure>
+    </testcase>
+  </testsuite>
+</testsuites>

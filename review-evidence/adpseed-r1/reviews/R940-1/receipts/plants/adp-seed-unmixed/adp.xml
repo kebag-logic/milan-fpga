@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="1" failures="1" disabled="0" errors="0" time="0.001" timestamp="2026-11-26T03:45:15.038" name="AllTests">
+  <testsuite name="AdpCore" tests="1" failures="1" disabled="0" skipped="0" errors="0" time="0.001" timestamp="2026-11-26T03:45:15.038">
+    <testcase name="A25FirstDrawsAreUniformOverSamples" file="<PACKET>/scratch/plants/baseline/tests/test_adp.cpp" line="854" status="run" result="completed" time="0.001" timestamp="2026-11-26T03:45:15.038" classname="AdpCore">
+      <failure message="<PACKET>/scratch/plants/baseline/tests/test_adp.cpp:561&#x0A;Expected: (chi_square_x16(draws, max_ms)) &lt;= (kChiSquareX16), actual: 170395 vs 490&#x0A;&#x0A;TSN_MESSAGE_BEGIN_ebfc8cb690fe73b1d0e7d60aa16e7e5e&#x0A;A25 one host&apos;s first draws over neighbouring samples are uniform (6.2.4.2.2)&#x0A;TSN_MESSAGE_END_4db25b85dfe81df5eabc055131f01bbd&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/plants/baseline/tests/test_adp.cpp:561
+Expected: (chi_square_x16(draws, max_ms)) <= (kChiSquareX16), actual: 170395 vs 490
+
+TSN_MESSAGE_BEGIN_ebfc8cb690fe73b1d0e7d60aa16e7e5e
+A25 one host's first draws over neighbouring samples are uniform (6.2.4.2.2)
+TSN_MESSAGE_END_4db25b85dfe81df5eabc055131f01bbd
+
+]]></failure>
+      <failure message="<PACKET>/scratch/plants/baseline/tests/test_adp.cpp:561&#x0A;Expected: (chi_square_x16(draws, max_ms)) &lt;= (kChiSquareX16), actual: 170200 vs 490&#x0A;&#x0A;TSN_MESSAGE_BEGIN_ebfc8cb690fe73b1d0e7d60aa16e7e5e&#x0A;A25 one host&apos;s first draws over neighbouring samples are uniform (6.2.4.2.2)&#x0A;TSN_MESSAGE_END_4db25b85dfe81df5eabc055131f01bbd&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/plants/baseline/tests/test_adp.cpp:561
+Expected: (chi_square_x16(draws, max_ms)) <= (kChiSquareX16), actual: 170200 vs 490
+
+TSN_MESSAGE_BEGIN_ebfc8cb690fe73b1d0e7d60aa16e7e5e
+A25 one host's first draws over neighbouring samples are uniform (6.2.4.2.2)
+TSN_MESSAGE_END_4db25b85dfe81df5eabc055131f01bbd
+
+]]></failure>
+    </testcase>
+  </testsuite>
+</testsuites>

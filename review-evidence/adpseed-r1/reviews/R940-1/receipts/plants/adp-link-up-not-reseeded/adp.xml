@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="1" failures="1" disabled="0" errors="0" time="0.003" timestamp="2026-11-26T03:45:14.576" name="AllTests">
+  <testsuite name="AdpCore" tests="1" failures="1" disabled="0" skipped="0" errors="0" time="0." timestamp="2026-11-26T03:45:14.579">
+    <testcase name="A28EachLeaveOfDownTakesAFreshSample" file="<PACKET>/scratch/plants/baseline/tests/test_adp.cpp" line="860" status="run" result="completed" time="0." timestamp="2026-11-26T03:45:14.579" classname="AdpCore">
+      <failure message="<PACKET>/scratch/plants/baseline/tests/test_adp.cpp:621&#x0A;Expected equality of these values:&#x0A;  seed_calls&#x0A;    Which is: 0&#x0A;  1u&#x0A;    Which is: 1&#x0A;&#x0A;TSN_MESSAGE_BEGIN_ebfc8cb690fe73b1d0e7d60aa16e7e5e&#x0A;A28 one sample is taken at LINK_UP and none with the link down&#x0A;TSN_MESSAGE_END_4db25b85dfe81df5eabc055131f01bbd&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/plants/baseline/tests/test_adp.cpp:621
+Expected equality of these values:
+  seed_calls
+    Which is: 0
+  1u
+    Which is: 1
+
+TSN_MESSAGE_BEGIN_ebfc8cb690fe73b1d0e7d60aa16e7e5e
+A28 one sample is taken at LINK_UP and none with the link down
+TSN_MESSAGE_END_4db25b85dfe81df5eabc055131f01bbd
+
+]]></failure>
+      <failure message="<PACKET>/scratch/plants/baseline/tests/test_adp.cpp:627&#x0A;Expected equality of these values:&#x0A;  seed_calls&#x0A;    Which is: 0&#x0A;  1u&#x0A;    Which is: 1&#x0A;&#x0A;TSN_MESSAGE_BEGIN_ebfc8cb690fe73b1d0e7d60aa16e7e5e&#x0A;A28 a draw outside DOWN takes no sample&#x0A;TSN_MESSAGE_END_4db25b85dfe81df5eabc055131f01bbd&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/plants/baseline/tests/test_adp.cpp:627
+Expected equality of these values:
+  seed_calls
+    Which is: 0
+  1u
+    Which is: 1
+
+TSN_MESSAGE_BEGIN_ebfc8cb690fe73b1d0e7d60aa16e7e5e
+A28 a draw outside DOWN takes no sample
+TSN_MESSAGE_END_4db25b85dfe81df5eabc055131f01bbd
+
+]]></failure>
+      <failure message="<PACKET>/scratch/plants/baseline/tests/test_adp.cpp:632&#x0A;Expected equality of these values:&#x0A;  seed_calls&#x0A;    Which is: 0&#x0A;  2u&#x0A;    Which is: 2&#x0A;&#x0A;TSN_MESSAGE_BEGIN_ebfc8cb690fe73b1d0e7d60aa16e7e5e&#x0A;A28 the next LINK_UP takes a fresh sample&#x0A;TSN_MESSAGE_END_4db25b85dfe81df5eabc055131f01bbd&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/plants/baseline/tests/test_adp.cpp:632
+Expected equality of these values:
+  seed_calls
+    Which is: 0
+  2u
+    Which is: 2
+
+TSN_MESSAGE_BEGIN_ebfc8cb690fe73b1d0e7d60aa16e7e5e
+A28 the next LINK_UP takes a fresh sample
+TSN_MESSAGE_END_4db25b85dfe81df5eabc055131f01bbd
+
+]]></failure>
+      <failure message="<PACKET>/scratch/plants/baseline/tests/test_adp.cpp:637&#x0A;Expected: (later.rng) != (a.rng), actual: 0 vs 0&#x0A;&#x0A;TSN_MESSAGE_BEGIN_ebfc8cb690fe73b1d0e7d60aa16e7e5e&#x0A;A28 the next LINK_UP mixes its sample in&#x0A;TSN_MESSAGE_END_4db25b85dfe81df5eabc055131f01bbd&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/plants/baseline/tests/test_adp.cpp:637
+Expected: (later.rng) != (a.rng), actual: 0 vs 0
+
+TSN_MESSAGE_BEGIN_ebfc8cb690fe73b1d0e7d60aa16e7e5e
+A28 the next LINK_UP mixes its sample in
+TSN_MESSAGE_END_4db25b85dfe81df5eabc055131f01bbd
+
+]]></failure>
+    </testcase>
+  </testsuite>
+</testsuites>

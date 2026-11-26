@@ -1,0 +1,27 @@
+Note: Google Test filter = AdpCore.A29SequenceIsOfMaximumLength
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from AdpCore
+[ RUN      ] AdpCore.A29SequenceIsOfMaximumLength
+<PACKET>/scratch/plants/baseline/tests/test_adp.cpp:761: Failure
+Expected equality of these values:
+  power(m, 0xFFFFFFFFu)
+    Which is: { 4076833751, 1575638621, 1990763630, 3133340845, 2622316182, 1768560443, 1698869542, 3424906342, 1476709946, 1714333648, 3162930018, 2477525991, 1909936167, 3182063954, 1490894050, 2461479558, 2440857379, 4177416419, 1427607468, 2473071973, 247051685, 2811211746, 4267689719, 1616273803, 3639514995, 3446854731, 1852296202, 3725873792, 4247834022, 2002746120, 2602441417, 729015170 }
+  identity
+    Which is: { 1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32768, 65536, 131072, 262144, 524288, 1048576, 2097152, 4194304, 8388608, 16777216, 33554432, 67108864, 134217728, 268435456, 536870912, 1073741824, 2147483648 }
+
+TSN_MESSAGE_BEGIN_ebfc8cb690fe73b1d0e7d60aa16e7e5e
+A29 the sequence returns after 2^32 - 1 draws
+TSN_MESSAGE_END_4db25b85dfe81df5eabc055131f01bbd
+
+
+[  FAILED  ] AdpCore.A29SequenceIsOfMaximumLength (2 ms)
+[----------] 1 test from AdpCore (2 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (4 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] AdpCore.A29SequenceIsOfMaximumLength
+
+ 1 FAILED TEST

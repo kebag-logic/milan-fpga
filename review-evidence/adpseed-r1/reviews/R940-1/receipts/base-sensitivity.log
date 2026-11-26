@@ -1,0 +1,101 @@
+RETURN 0
+RETURN 0
+Note: Google Test filter = AdpCore.A30*:AdpCore.A31*
+[==========] Running 2 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 2 tests from AdpCore
+[ RUN      ] AdpCore.A30EachQualifiedRiseTakesOneSample
+<SOURCE>/tests/test_adp.cpp:661: Failure
+Expected equality of these values:
+  seed_calls
+    Which is: 2
+  0u
+    Which is: 0
+A30 an enable with the link down takes no sample
+
+<SOURCE>/tests/test_adp.cpp:665: Failure
+Value of: seed_calls == rise && a.draws == draws + 1u
+  Actual: false
+Expected: true
+A30 each qualified LINK_UP takes one sample
+
+<SOURCE>/tests/test_adp.cpp:667: Failure
+Value of: seed_calls == rise && a.draws == draws + 1u
+  Actual: false
+Expected: true
+A30 a duplicate LINK_UP takes no sample
+
+<SOURCE>/tests/test_adp.cpp:665: Failure
+Value of: seed_calls == rise && a.draws == draws + 1u
+  Actual: false
+Expected: true
+A30 each qualified LINK_UP takes one sample
+
+<SOURCE>/tests/test_adp.cpp:667: Failure
+Value of: seed_calls == rise && a.draws == draws + 1u
+  Actual: false
+Expected: true
+A30 a duplicate LINK_UP takes no sample
+
+<SOURCE>/tests/test_adp.cpp:672: Failure
+Value of: seed_calls == 4u && other.rng != untouched && other.last_draw == ADP_DRAW_DELAY
+  Actual: false
+Expected: true
+A30 the other interface's LINK_UP takes its own sample
+
+<SOURCE>/tests/test_adp.cpp:677: Failure
+Expected equality of these values:
+  seed_calls
+    Which is: 2
+  4u
+    Which is: 4
+A30 a LINK_UP while disabled takes no sample
+
+<SOURCE>/tests/test_adp.cpp:681: Failure
+Value of: seed_calls == 5u && a.last_draw == ADP_DRAW_STARTUP
+  Actual: false
+Expected: true
+A30 the startup draw takes one sample
+
+[  FAILED  ] AdpCore.A30EachQualifiedRiseTakesOneSample (0 ms)
+[ RUN      ] AdpCore.A31TheLinkUpsSampleSetsItsDraw
+<SOURCE>/tests/test_adp.cpp:706: Failure
+Expected: (distinct) >= (2400u), actual: 1 vs 2400
+A31 boots that differ only in the sample at a LINK_UP draw apart
+
+<SOURCE>/tests/test_adp.cpp:707: Failure
+Expected: (chi_square_x16(first, 4000u)) <= (kChiSquareX16), actual: 983040 vs 490
+A31 and draw uniformly from the sample taken at that LINK_UP
+
+<SOURCE>/tests/test_adp.cpp:706: Failure
+Expected: (distinct) >= (2400u), actual: 1 vs 2400
+A31 boots that differ only in the sample at a LINK_UP draw apart
+
+<SOURCE>/tests/test_adp.cpp:707: Failure
+Expected: (chi_square_x16(first, 4000u)) <= (kChiSquareX16), actual: 983040 vs 490
+A31 and draw uniformly from the sample taken at that LINK_UP
+
+[  FAILED  ] AdpCore.A31TheLinkUpsSampleSetsItsDraw (4 ms)
+[----------] 2 tests from AdpCore (4 ms total)
+
+[----------] Global test environment tear-down
+[==========] 2 tests from 1 test suite ran. (4 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 2 tests, listed below:
+[  FAILED  ] AdpCore.A30EachQualifiedRiseTakesOneSample
+[  FAILED  ] AdpCore.A31TheLinkUpsSampleSetsItsDraw
+
+ 2 FAILED TESTS
+RETURN 1
+Note: Google Test filter = AdpCore.A29*
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from AdpCore
+[ RUN      ] AdpCore.A29SequenceIsOfMaximumLength
+[       OK ] AdpCore.A29SequenceIsOfMaximumLength (5 ms)
+[----------] 1 test from AdpCore (5 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (5 ms total)
+[  PASSED  ] 1 test.
+RETURN 0

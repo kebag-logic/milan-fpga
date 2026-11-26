@@ -1,0 +1,67 @@
+COMMAND cmake -S . -B <PACKET>/scratch/sanitize -DCMAKE_BUILD_TYPE=Debug -DTSN_SANITIZERS=ON -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++
+-- The C compiler identification is Clang 23.1.5
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /usr/bin/clang - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- The CXX compiler identification is Clang 23.1.5
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: /usr/bin/clang++ - skipped
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success
+-- Found Threads: TRUE
+-- Configuring done (2.1s)
+-- Generating done (0.1s)
+-- Build files have been written to: <PACKET>/scratch/sanitize
+RETURN 0
+COMMAND cmake --build <PACKET>/scratch/sanitize --target adp_tests adp_release adp_debug port_tests -j4
+[ 28%] Building C object CMakeFiles/tsn_test.dir/src/adp.c.o
+[ 14%] Building C object CMakeFiles/tsn_test.dir/src/maap.c.o
+[ 42%] Building C object CMakeFiles/tsn_test.dir/src/acmp.c.o
+[ 57%] Linking C static library libtsn_test.a
+[ 57%] Built target tsn_test
+[ 71%] Building CXX object CMakeFiles/adp_tests.dir/tests/main.cpp.o
+[ 85%] Building CXX object CMakeFiles/adp_tests.dir/tests/test_adp.cpp.o
+[100%] Linking CXX executable adp_tests
+[100%] Built target adp_tests
+[ 57%] Built target tsn_test
+[ 71%] Building CXX object CMakeFiles/adp_release.dir/tests/test_adp_reentry.cpp.o
+[ 85%] Building CXX object CMakeFiles/adp_release.dir/tests/main.cpp.o
+[100%] Linking CXX executable adp_release
+[100%] Built target adp_release
+[ 33%] Building C object CMakeFiles/tsn_debug.dir/src/maap.c.o
+[ 16%] Building C object CMakeFiles/tsn_debug.dir/src/adp.c.o
+[ 50%] Linking C static library libtsn_debug.a
+[ 50%] Built target tsn_debug
+[ 83%] Building CXX object CMakeFiles/adp_debug.dir/tests/main.cpp.o
+[ 66%] Building CXX object CMakeFiles/adp_debug.dir/tests/test_adp_reentry.cpp.o
+[100%] Linking CXX executable adp_debug
+[100%] Built target adp_debug
+[ 44%] Built target tsn_test
+[ 55%] Building C object CMakeFiles/example_port.dir/examples/adp_port.c.o
+[ 66%] Linking C static library libexample_port.a
+[ 66%] Built target example_port
+[ 77%] Building CXX object CMakeFiles/port_tests.dir/tests/test_port.cpp.o
+[ 88%] Building CXX object CMakeFiles/port_tests.dir/tests/main.cpp.o
+[100%] Linking CXX executable port_tests
+[100%] Built target port_tests
+RETURN 0
+COMMAND ctest --test-dir <PACKET>/scratch/sanitize -R adp|port --output-on-failure -j4
+Test project <PACKET>/scratch/sanitize
+    Start 1: adp_tests
+    Start 7: port_tests
+    Start 8: adp_release
+    Start 9: adp_debug
+1/4 Test #7: port_tests .......................   Passed    0.04 sec
+2/4 Test #8: adp_release ......................   Passed    0.06 sec
+3/4 Test #1: adp_tests ........................   Passed    0.52 sec
+4/4 Test #9: adp_debug ........................   Passed    1.10 sec
+
+100% tests passed out of 4
+
+Total Test time (real) =   1.10 sec
+RETURN 0

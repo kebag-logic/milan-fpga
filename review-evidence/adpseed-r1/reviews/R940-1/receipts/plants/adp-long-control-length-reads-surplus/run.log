@@ -1,0 +1,87 @@
+Note: Google Test filter = AllStates/AdpInputControl.ReadsNoOctetPastTheFrame/0:AllStates/AdpInputControl.ReadsNoOctetPastTheFrame/1:AllStates/AdpInputControl.ReadsNoOctetPastTheFrame/2:AllStates/AdpInputControl.ReadsNoOctetPastTheFrame/3:AllStates/AdpInputControl.ReadsNoOctetPastTheFrame/4
+[==========] Running 5 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 5 tests from AllStates/AdpInputControl
+[ RUN      ] AllStates/AdpInputControl.ReadsNoOctetPastTheFrame/0
+<PACKET>/scratch/plants/baseline/tests/test_adp.cpp:1134: Failure
+Death test: read_up_to_a_protected_page(GetParam())
+    Result: died but not with expected exit code:
+            Terminated by signal 11 (core dumped)
+Actual msg:
+[  DEATH   ] 
+
+TSN_MESSAGE_BEGIN_ebfc8cb690fe73b1d0e7d60aa16e7e5e
+discovery of every length is read within its 82 octets
+TSN_MESSAGE_END_4db25b85dfe81df5eabc055131f01bbd
+
+
+[  FAILED  ] AllStates/AdpInputControl.ReadsNoOctetPastTheFrame/0, where GetParam() = 0 (186 ms)
+[ RUN      ] AllStates/AdpInputControl.ReadsNoOctetPastTheFrame/1
+<PACKET>/scratch/plants/baseline/tests/test_adp.cpp:1134: Failure
+Death test: read_up_to_a_protected_page(GetParam())
+    Result: died but not with expected exit code:
+            Terminated by signal 11 (core dumped)
+Actual msg:
+[  DEATH   ] 
+
+TSN_MESSAGE_BEGIN_ebfc8cb690fe73b1d0e7d60aa16e7e5e
+discovery of every length is read within its 82 octets
+TSN_MESSAGE_END_4db25b85dfe81df5eabc055131f01bbd
+
+
+[  FAILED  ] AllStates/AdpInputControl.ReadsNoOctetPastTheFrame/1, where GetParam() = 1 (176 ms)
+[ RUN      ] AllStates/AdpInputControl.ReadsNoOctetPastTheFrame/2
+<PACKET>/scratch/plants/baseline/tests/test_adp.cpp:1134: Failure
+Death test: read_up_to_a_protected_page(GetParam())
+    Result: died but not with expected exit code:
+            Terminated by signal 11 (core dumped)
+Actual msg:
+[  DEATH   ] 
+
+TSN_MESSAGE_BEGIN_ebfc8cb690fe73b1d0e7d60aa16e7e5e
+discovery of every length is read within its 82 octets
+TSN_MESSAGE_END_4db25b85dfe81df5eabc055131f01bbd
+
+
+[  FAILED  ] AllStates/AdpInputControl.ReadsNoOctetPastTheFrame/2, where GetParam() = 2 (182 ms)
+[ RUN      ] AllStates/AdpInputControl.ReadsNoOctetPastTheFrame/3
+<PACKET>/scratch/plants/baseline/tests/test_adp.cpp:1134: Failure
+Death test: read_up_to_a_protected_page(GetParam())
+    Result: died but not with expected exit code:
+            Terminated by signal 11 (core dumped)
+Actual msg:
+[  DEATH   ] 
+
+TSN_MESSAGE_BEGIN_ebfc8cb690fe73b1d0e7d60aa16e7e5e
+discovery of every length is read within its 82 octets
+TSN_MESSAGE_END_4db25b85dfe81df5eabc055131f01bbd
+
+
+[  FAILED  ] AllStates/AdpInputControl.ReadsNoOctetPastTheFrame/3, where GetParam() = 3 (200 ms)
+[ RUN      ] AllStates/AdpInputControl.ReadsNoOctetPastTheFrame/4
+<PACKET>/scratch/plants/baseline/tests/test_adp.cpp:1134: Failure
+Death test: read_up_to_a_protected_page(GetParam())
+    Result: died but not with expected exit code:
+            Terminated by signal 11 (core dumped)
+Actual msg:
+[  DEATH   ] 
+
+TSN_MESSAGE_BEGIN_ebfc8cb690fe73b1d0e7d60aa16e7e5e
+discovery of every length is read within its 82 octets
+TSN_MESSAGE_END_4db25b85dfe81df5eabc055131f01bbd
+
+
+[  FAILED  ] AllStates/AdpInputControl.ReadsNoOctetPastTheFrame/4, where GetParam() = 4 (262 ms)
+[----------] 5 tests from AllStates/AdpInputControl (1007 ms total)
+
+[----------] Global test environment tear-down
+[==========] 5 tests from 1 test suite ran. (1007 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 5 tests, listed below:
+[  FAILED  ] AllStates/AdpInputControl.ReadsNoOctetPastTheFrame/0, where GetParam() = 0
+[  FAILED  ] AllStates/AdpInputControl.ReadsNoOctetPastTheFrame/1, where GetParam() = 1
+[  FAILED  ] AllStates/AdpInputControl.ReadsNoOctetPastTheFrame/2, where GetParam() = 2
+[  FAILED  ] AllStates/AdpInputControl.ReadsNoOctetPastTheFrame/3, where GetParam() = 3
+[  FAILED  ] AllStates/AdpInputControl.ReadsNoOctetPastTheFrame/4, where GetParam() = 4
+
+ 5 FAILED TESTS

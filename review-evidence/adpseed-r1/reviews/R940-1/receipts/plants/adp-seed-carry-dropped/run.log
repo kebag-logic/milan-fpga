@@ -1,0 +1,39 @@
+Note: Google Test filter = AdpCore.A27EverySeedTermIsMixedIn
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from AdpCore
+[ RUN      ] AdpCore.A27EverySeedTermIsMixedIn
+<PACKET>/scratch/plants/baseline/tests/test_adp.cpp:612: Failure
+Expected equality of these values:
+  first_draw(wrapped).rng
+    Which is: 495843637
+  first_draw(carried).rng
+    Which is: 472821687
+
+TSN_MESSAGE_BEGIN_ebfc8cb690fe73b1d0e7d60aa16e7e5e
+A27 the sum carries end around (6.2.4.2.2)
+TSN_MESSAGE_END_4db25b85dfe81df5eabc055131f01bbd
+
+
+<PACKET>/scratch/plants/baseline/tests/test_adp.cpp:612: Failure
+Expected equality of these values:
+  first_draw(wrapped).rng
+    Which is: 495843637
+  first_draw(carried).rng
+    Which is: 472821687
+
+TSN_MESSAGE_BEGIN_ebfc8cb690fe73b1d0e7d60aa16e7e5e
+A27 the sum carries end around (6.2.4.2.2)
+TSN_MESSAGE_END_4db25b85dfe81df5eabc055131f01bbd
+
+
+[  FAILED  ] AdpCore.A27EverySeedTermIsMixedIn (0 ms)
+[----------] 1 test from AdpCore (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] AdpCore.A27EverySeedTermIsMixedIn
+
+ 1 FAILED TEST
