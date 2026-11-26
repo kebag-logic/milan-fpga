@@ -144,7 +144,7 @@ module KL_usbnet_tap
     .verdict_valid_o (own_verdict_valid_unused_w), .verdict_o (own_verdict_unused_w),
     .copied_o (own_copied_w), .dropped_full_o (own_full_w)
   );
-  logic        lo_valid_w, lo_ready_w, lo_last_w;
+  logic        lo_valid_w, lo_ready_w, lo_last_w, lo_done_w, lo_abort_w;
   logic [63:0] lo_data_w;
   logic [7:0]  lo_keep_w;
 
@@ -167,6 +167,7 @@ module KL_usbnet_tap
     .s_valid_i (dn_valid_i), .s_ready_o (dn_ready_o), .s_data_i (dn_data_i),
     .m_valid_o (lo_valid_w), .m_ready_i (lo_ready_w), .m_data_o (lo_data_w),
     .m_keep_o  (lo_keep_w),  .m_last_o  (lo_last_w),
+    .retired_i (lo_done_w), .abort_i (lo_abort_w),
     .host_mac_o, .host_ok_o, .host_state_o, .host_fresh_o (host_fresh_w),
     .verdict_valid_o (tx_verdict_valid_o), .verdict_o (tx_verdict_o),
     .passed_o (tx_passed_o), .dropped_o (tx_dropped_o), .skipped_o (tx_skipped_o)
@@ -183,7 +184,7 @@ module KL_usbnet_tap
     .m_valid_o, .m_ready_i, .m_last_o, .m_data_o ({m_be_o, m_data_o}),
     .inject_en_i,
     .eth_clk_i, .eth_rst_ni, .eth_end_i, .txend_tgl_o,
-    .lo_active_o (inj_active_o), .injected_o (tx_injected_o)
+    .lo_abort_o (lo_abort_w), .lo_done_o (lo_done_w), .lo_active_o (inj_active_o), .injected_o (tx_injected_o)
   );
 
   assign usb_ok_o = bus_alive_i && host_ok_o && host_fresh_w && host_state_o[0] && host_state_o[1] && host_state_o[2];

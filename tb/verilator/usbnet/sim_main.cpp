@@ -26,8 +26,9 @@
 
 using Bytes = std::vector<uint8_t>;
 
+static int &checks() { static int n = 0; return n; }
 static int &fails() { static int n = 0; return n; }
-#define CHECK(c, ...) do { if (!(c)) { std::printf("FAIL %s:%d: ", __FILE__, __LINE__); \
+#define CHECK(c, ...) do { ++checks(); if (!(c)) { std::printf("FAIL %s:%d: ", __FILE__, __LINE__); \
     std::printf(__VA_ARGS__); std::printf("\n"); ++fails(); } } while (0)
 
 // ---------------------------------------------------------------------------
@@ -97,7 +98,7 @@ static Look look(const Bytes &b)
 
 static bool want_copy(const Bytes &b, bool host_ok)
 {
-    if (!host_ok) return false;
+    if (!host_ok || b.size() > 1514) return false;
     Look l = look(b);
     if (l.shape || l.stream) return false;
     Mac d = rd_mac(b, 0);
@@ -145,6 +146,11 @@ struct Bench {
     unsigned rnd = 12345;
     // observation
     std::vector<uint16_t> up_words;
+    std::vector<bool> up_last;
+    bool up_held = false;
+    uint16_t held_data = 0;
+    bool held_last = false;
+    std::vector<Sent> wire_starts, wire_ends;
     std::vector<Sent> out;                      // frames at the MAC core input
     Bytes cur; bool cur_lo = false; uint64_t cur_first = 0;
     std::vector<int> rx_verdicts;
@@ -215,7 +221,13 @@ struct Bench {
             if (d->hi_last_i) { hi_q.pop_front(); hi_off = 0; }
         }
         if (d->dn_valid_i && d->dn_ready_o) dn_q.pop_front();
-        if (d->up_valid_o && d->up_ready_i) up_words.push_back(d->up_data_o);
+        if (up_held) CHECK(d->up_valid_o && d->up_data_o == held_data && d->up_last_o == held_last,
+                           "record data and terminator stable while stalled");
+        up_held = d->up_valid_o && !d->up_ready_i;
+        held_data = d->up_data_o; held_last = d->up_last_o;
+        if (d->up_valid_o && d->up_ready_i) {
+            up_words.push_back(d->up_data_o); up_last.push_back(d->up_last_o);
+        }
         if (d->rx_verdict_valid_o) rx_verdicts.push_back(d->rx_verdict_o);
         if (d->tx_verdict_valid_o) tx_verdicts.push_back(d->tx_verdict_o);
         // the core's transmit input takes a frame with no gap inside it
@@ -250,6 +262,10 @@ struct Bench {
         end_pulse = false;
         if (mac_left == 0 && !mac_q.empty() && mac_q.front().first <= necyc) {
             mac_left = mac_q.front().second; mac_q.pop_front();
+            const size_t in_flight = size_t(in_mac_hi + in_mac_lo);
+            if (in_flight && in_flight <= out.size()) {
+                Sent sent = out[out.size() - in_flight]; sent.first = ncyc; wire_starts.push_back(sent);
+            }
         }
         if (mac_left > 0 && --mac_left == 0) {
             end_pulse = true;
@@ -257,6 +273,7 @@ struct Bench {
             size_t inm = size_t(in_mac_hi + in_mac_lo);
             if (inm > 0 && inm <= out.size()) {
                 size_t k = out.size() - inm;
+                Sent sent = out[k]; sent.first = ncyc; wire_ends.push_back(sent);
                 if (out[k].lo) --in_mac_lo; else --in_mac_hi;
             }
         }
@@ -311,6 +328,7 @@ struct Bench {
     std::vector<Bytes> up_frames(bool *ok) {
         std::vector<Bytes> r; size_t i = 0; *ok = true;
         while (i < up_words.size()) {
+            const size_t begin = i;
             uint16_t h = up_words[i++];
             if (i >= up_words.size() || up_words[i++] != 0x4E01) { *ok = false; break; }
             int len = h; Bytes f;
@@ -321,6 +339,8 @@ struct Bench {
                 if (static_cast<int>(f.size()) < len) f.push_back(uint8_t(w >> 8));
                 else if (w >> 8) *ok = false;   // the pad octet is zero
             }
+            for (size_t k = begin; k < i; ++k)
+                CHECK(up_last[k] == (k + 1 == i), "exactly one record terminator on final accepted word");
             r.push_back(f);
         }
         return r;
@@ -428,6 +448,13 @@ static void rx_classes()
         {"double tag",                       frame(BCAST, PEER, 0x0800, 80, -1, {{0, 2, 0x88A8}, {0, 3, 0x8100}})},
         {"odd length broadcast",             frame(BCAST, PEER, 0x0800, 61)},
         {"long broadcast",                   frame(BCAST, PEER, 0x0800, 1514)},
+        {"maximum minus one",                frame(BCAST, PEER, 0x0800, 1513)},
+        {"over receive maximum",             frame(BCAST, PEER, 0x0800, 1515)},
+        {"recovery after oversized",          frame(BCAST, PEER, 0x0800, 61)},
+        {"short Ethernet header",             frame(BCAST, PEER, 0x0800, 13)},
+        {"short AVTP header",                 frame(BCAST, PEER, 0x22F0, 14, 0xFA)},
+        {"short C-tag header",                frame(BCAST, PEER, 0x0800, 18, -1, {{0, 2, 0x8100}})},
+        {"short S-tag header",                frame(BCAST, PEER, 0x0800, 18, -1, {{0, 2, 0x88A8}})},
     };
     for (int attached = 0; attached < 2; ++attached) {
         BenchPtr b = mk();
@@ -449,6 +476,21 @@ static void rx_classes()
         }
         CHECK(b->d->rx_copied_o == want.size(), "copied counter");
         done(b);
+    }
+}
+
+static void rx_boundaries()
+{
+    for (int length : {1513, 1514, 1515}) {
+        BenchPtr b = mk(); b->host(HOST, 15); b->drain_dn();
+        const Bytes candidate = frame(BCAST, PEER, 0x0800, length);
+        const Bytes following = frame(BCAST, PEER, 0x0800, 61);
+        b->rx_q.push_back(candidate); b->cycles(7000);
+        b->rx_q.push_back(following); b->cycles(7000);
+        bool ok; const auto got = b->up_frames(&ok);
+        const auto want = length <= 1514 ? std::vector<Bytes>{candidate, following} : std::vector<Bytes>{following};
+        CHECK(ok && got == want && b->rx_verdicts.size() == 2 &&
+              b->rx_verdicts[0] == (length <= 1514 ? 1 : 5), "receive maximum boundary and recovery: %d", length);
     }
 }
 
@@ -499,6 +541,10 @@ static void tx_drops()
         {"double tag",                  frame(PEER, HOST, 0x0800, 90, -1, {{0, 2, 0x88A8}, {0, 3, 0x8100}})},
         {"too long",                    frame(PEER, HOST, 0x0800, 1516)},
         {"longest",                     frame(PEER, HOST, 0x0800, 1515)},
+        {"maximum minus one",           frame(PEER, HOST, 0x0800, 1514)},
+        {"short AVTP header",           frame(PEER, HOST, 0x22F0, 14, 0xFA)},
+        {"short C-tag header",          frame(PEER, HOST, 0x0800, 18, -1, {{0, 2, 0x8100}})},
+        {"short S-tag header",          frame(PEER, HOST, 0x0800, 18, -1, {{0, 2, 0x88A8}})},
         {"too short",                   frame(PEER, HOST, 0x0800, 13)},
         {"odd length",                  frame(PEER, HOST, 0x0800, 61)},
     };
@@ -562,6 +608,44 @@ static void tx_rate()
     CHECK(b->out[3].first - b->out[2].first > 5000, "the fourth frame waits for tokens");
     (void)burst;
     done(b);
+}
+
+// A departure ledger, independent of token registers and their fixed-point
+// representation. Check every interval, charging complete Ethernet wire cost
+// at the first accepted beat. Holds cover disabled injection, waiting behind
+// the device's traffic, and a MAC which refuses a granted frame.
+static void tx_held_envelope()
+{
+    for (int len : {60, 1000, 1515}) for (int hold = 0; hold < 3; ++hold) {
+        BenchPtr b = mk(); b->host(HOST, 15); b->drain_dn();
+        if (hold == 0) b->d->inject_en_i = 0;
+        else b->m_hold = true;
+        if (hold == 1) {
+            b->hi_q.push_back({b->ncyc, frame(PEER, DEVICE, 0x0800, 64)});
+            b->cycles(20);
+        }
+        const int count = len == 60 ? 100 : 12;
+        for (int i = 0; i < count; ++i)
+            b->rec(0x4E01, frame(PEER, HOST, 0x0800, len, -1, {}, uint8_t(i)));
+        b->cycles(60000);
+        b->d->inject_en_i = 1; b->m_hold = false; b->m_stall = true;
+        b->cycles(300000);
+        for (const auto *ledger : {&b->out, &b->wire_starts, &b->wire_ends}) {
+            std::vector<Sent> injected;
+            for (const auto &sent : *ledger) if (sent.lo) injected.push_back(sent);
+            CHECK(injected.size() == size_t(count), "held injection recovers every frame: length %d hold %d", len, hold);
+            bool within = true;
+            for (size_t first = 0; first < injected.size(); ++first) {
+                uint64_t charge = 0;
+                for (size_t last = first; last < injected.size(); ++last) {
+                    charge += std::max<size_t>(60, injected[last].b.size()) + 24;
+                    // 800,000 bit/s / 8 / 1,000,000 Hz = 1/10 octet/clock.
+                    if (10 * charge > 32000 + injected[last].first - injected[first].first) within = false;
+                }
+            }
+            CHECK(within, "cumulative wire-octet envelope after hold: length %d hold %d", len, hold);
+        }
+    }
 }
 
 // BEST EFFORT ONLY. A class A-like datapath stream (a 100-octet frame every
@@ -630,6 +714,42 @@ static void tx_contention()
         CHECK(b->out[1].lo, "the injected frame after it");
     }
     done(b);
+}
+
+// Each one-sided reset, at both request parities, must recover without a
+// fabricated frame-end or a permanently occupied MAC account.
+static void tx_reset_domains()
+{
+    for (bool system : {false, true}) for (int grants : {1, 2}) for (bool active : {false, true}) {
+        BenchPtr b = mk(); b->host(HOST, 15); b->drain_dn();
+        for (int i = 0; i < grants; ++i) {
+            b->rec(0x4E01, frame(PEER, HOST, 0x0800, 60)); b->drain_dn(); b->cycles(2000);
+        }
+        if (active) {
+            b->rec(0x4E01, frame(PEER, HOST, 0x0800, 1000));
+            b->drain_dn(); b->cycles(10);
+        }
+        // A reset discards in-flight MAC data. Complete input beats first,
+        // then reset before the pending frame reaches the PHY end.
+        b->cycles(300);
+        b->mac_q.clear(); b->mac_left = 0; b->in_mac_lo = 0; b->in_mac_hi = 0;
+        if (system) b->d->rst_ni = 0; else b->d->eth_rst_ni = 0;
+        b->cycles(20);
+        b->d->rst_ni = 1; b->d->eth_rst_ni = 1;
+        b->cycles(100);
+        b->host(HOST, 15); b->drain_dn();
+        const size_t before = b->out.size();
+        const unsigned ends = b->tgl_flips;
+        for (int i = 0; i < 4; ++i) {
+            b->hi_q.push_back({b->ncyc, frame(PEER, DEVICE, 0x0800, 70)});
+            b->cycles(2000);
+            if (i != 3) { b->rec(0x4E01, frame(PEER, HOST, 0x0800, 60)); b->drain_dn(); b->cycles(2000); }
+        }
+        CHECK(b->out.size() == before + 7, "one-sided reset resumes injection: system %d parity %d active %d",
+              system, grants, active);
+        CHECK(b->tgl_flips - ends == 4, "one-sided reset preserves datapath end count: system %d parity %d active %d",
+              system, grants, active);
+    }
 }
 
 // Without the computer the datapath passes with no added clock.
@@ -703,10 +823,10 @@ int main(int argc, char **argv)
     std::setvbuf(stdout, nullptr, _IOLBF, 0);   // a crash keeps every line printed so far
     Verilated::commandArgs(argc, argv);
     struct { const char *n; std::function<void()> f; } cases[] = {
-        {"host_record", host_record}, {"rx_classes", rx_classes}, {"rx_full", rx_full},
-        {"tx_drops", tx_drops}, {"tx_rate", tx_rate},
+        {"host_record", host_record}, {"rx_classes", rx_classes}, {"rx_boundaries", rx_boundaries}, {"rx_full", rx_full},
+        {"tx_drops", tx_drops}, {"tx_rate", tx_rate}, {"tx_held_envelope", tx_held_envelope},
         {"tx_priority", [] { tx_priority(false); }}, {"tx_priority_stall", [] { tx_priority(true); }},
-        {"tx_contention", tx_contention}, {"tx_transparent", tx_transparent},
+        {"tx_reset_domains", tx_reset_domains}, {"tx_contention", tx_contention}, {"tx_transparent", tx_transparent},
         {"local_tx_copy", local_tx_copy},
     };
     for (auto &c : cases) {
@@ -714,6 +834,6 @@ int main(int argc, char **argv)
         c.f();
         std::printf("%s %s\n", fails() == before ? "PASS" : "FAIL", c.n);
     }
-    std::printf("%s: %d failure(s)\n", fails() ? "FAIL" : "PASS", fails());
+    std::printf("%d checks: %d PASS, %d FAIL\n", checks(), checks() - fails(), fails());
     return fails() ? 1 : 0;
 }

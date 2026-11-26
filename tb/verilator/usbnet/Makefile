@@ -3,7 +3,7 @@
 #
 # The USB network path (#1011) and the status LEDs (#1018).
 #
-#   make          - build and run both harnesses
+#   make          - build and run all three harnesses
 #   make tap      - KL_usbnet_tap: the filter classes, the transmit drops, the
 #                   best-effort-only injection and its rate limit
 #   make leds     - KL_status_leds: each LED rule, the blink and the PWM
@@ -25,9 +25,9 @@ TAP_SRCS = $(RTL)/KL_usbnet_pkg.sv $(RTL)/KL_usbnet_rx_copy.sv $(RTL)/KL_usbnet_
            $(RTL)/KL_usbnet_tx_arb.sv $(RTL)/KL_usbnet_tap.sv
 TAP_G    = -GCLK_HZ_P=1000000 -GRATE_BPS_P=800000 -GBURST_OCTETS_P=3200
 
-.PHONY: all run tap leds mutants clean
+.PHONY: all run tap leds local mutants clean
 all: run
-run: tap leds
+run: tap leds local
 
 tap:
 	mkdir -p $(OBJ)/tap
@@ -40,6 +40,12 @@ leds:
 	$(VERILATOR) $(VFLAGS) --top-module KL_status_leds -GCLK_HZ_P=100000 --Mdir $(OBJ)/leds \
 	  $(RTL)/KL_status_leds.sv sim_leds.cpp -o Vleds
 	$(abspath $(OBJ))/leds/Vleds
+
+local:
+	mkdir -p $(OBJ)/local
+	$(VERILATOR) $(VFLAGS) --top-module KL_usbnet_local_rx --Mdir $(OBJ)/local \
+	  $(RTL)/KL_usbnet_pkg.sv $(RTL)/KL_usbnet_rx_copy.sv $(RTL)/KL_usbnet_local_rx.sv sim_local.cpp -o Vlocal
+	$(abspath $(OBJ))/local/Vlocal
 
 mutants:
 	python3 mutants.py

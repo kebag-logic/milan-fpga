@@ -329,6 +329,20 @@ TEST_F(Leds, ClockSourceInternalLightsLd3)
     EXPECT_EQ(word()&CTRL_PLAT_LEDS_CLOCK,CTRL_PLAT_LEDS_CLOCK)<<"internal: LD3 on";
 }
 
+// Supply an EXTERNAL descriptor in the fixture without changing a shipping
+// model. The descriptor key stays the same; SET_CLOCK_SOURCE still selects it.
+TEST_F(Leds, ExternalSourceRequiresDomainLock)
+{
+    unsigned index;ASSERT_TRUE(source(0,&index));
+    for(auto &d:descriptors) if(d.type==10&&d.configuration==a.configuration&&d.index==index)
+        put(d.value+72,1,2);
+    set_clock(index);
+    lock(36,0,false);
+    EXPECT_EQ(word()&CTRL_PLAT_LEDS_CLOCK,0u)<<"external unlocked: LD3 off";
+    lock(36,0,true);
+    EXPECT_EQ(word()&CTRL_PLAT_LEDS_CLOCK,CTRL_PLAT_LEDS_CLOCK)<<"external locked: LD3 on";
+}
+
 TEST_F(Leds, FollowingAFlowingStreamLightsLd3)
 {
     unsigned follow,input;ASSERT_TRUE(source(2,&follow,&input))<<"the model has an INPUT_STREAM clock source";

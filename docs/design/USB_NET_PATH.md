@@ -33,6 +33,27 @@ master crosses them to its bus clock. Until one is attached, the image
 terminates the bus side: nothing arrives from the computer, records toward it
 are taken and discarded, and the bus reads as down (LD1 off).
 
+### Local reception in the split placement
+
+The computer also reaches the device's own control receiver.
+Its checked transmissions are observed at their accepted MAC beats.
+Unicast to the device, broadcast and multicast receive local copies.
+The device's live station address crosses through a coherent handshake.
+Another station's unicast receives no local copy.
+
+`KL_usbnet_local_rx` owns an independent whole-frame buffer.
+It serializes local copies into the split mailbox's byte input.
+The mailbox applies its normal protocol filters to both sources.
+Network control bytes win arbitration at each frame boundary.
+A granted frame retains ownership through backpressure and its end.
+A full local buffer drops whole copies and counts them.
+
+The network MAC, timestamping and media receiver wiring stays unchanged.
+Local copies cannot backpressure any of those paths.
+Buffered control delivery can wait behind one local frame.
+This queueing affects firmware delivery, not network ingress timestamps.
+The attachment requires the split control mailbox.
+
 ## 2. Receive copy (frames toward the computer)
 
 Two independent copies read the frames the device takes from the MAC and
@@ -110,6 +131,8 @@ stage below the SR classes (IEEE 802.1Q-2018 8.6.8).
 tenth of the Arty's link) with a 3200-octet burst. Each frame costs at least 60
 octets, plus 24 for preamble, FCS and interframe gap. A frame waits until the
 bucket holds its cost; no frame is dropped for rate.
+The reserved cost stays outside the refill ceiling until the frame ends at the PHY.
+Thus arbitration delays and MAC stalls cannot create another burst.
 
 **The REBOOT account.** The AECP REBOOT sequence counts the datapath's frames
 out of the MAC by a toggle that flips on each frame end at the PHY
@@ -124,6 +147,12 @@ included; the tap's own counters (section 7) separate them.
 **The gPTP egress observer** attributes frames by their gPTP destination and
 EtherType (`KL_gptp_gmii_launch`). The computer's frames can carry neither, so
 the observer's frame ordinal is unchanged.
+
+A reset of either arbiter clock domain starts a flush handshake.
+Both domains must acknowledge and release it before traffic resumes.
+The outstanding frame count resets; the frame-end toggle does not.
+Both clocks must run for recovery.
+Reset discards interrupted MAC frames, as the MAC reset contract specifies.
 
 ## 4. The bus records
 
@@ -227,6 +256,9 @@ from the SoC's `csr.csv`.
 | `milan_mac_usbnet_host_hi` | RO | bits 15:0 octets 0 and 1; bit 16 an address is held; bit 17 LD1 |
 | `milan_mac_usbnet_counts` | RO | 16-bit saturating counters from bit 0: copied, dropped for room, passed, dropped by a rule, records skipped, frames injected |
 
+`milan_mac_usbnet_local_counts` reports local receive copies and overflows.
+Each count saturates at 65,535; copies occupy the low half.
+
 The LED bank is pinned to its own CSR page, below the REBOOT port's. The tap's
 registers follow every other register of the MAC's bank. No address of an
 image without them moves.
@@ -247,6 +279,9 @@ image without them moves.
     multicast pass; other unicast, stream subtypes, reserved destinations
     and oversized records do not. With USB draining or stalled, the device
     has identical transmit departure cycles and frame-end accounting.
+  - **Local receiver harness.** Device unicast, broadcast and multicast;
+    odd and maximum lengths; full-buffer recovery and byte-stream stalls.
+    Network control traffic wins at boundaries and never interleaves.
   - **LED harness.** Each LED through each state, the blink and its hold, and
     the duty.
   - **planted defects.** One per rule, each required to fail its named check
@@ -258,3 +293,16 @@ image without them moves.
   rule (`aecp_leds_mutants.py`).
 - **The stand-alone shaper suites** (`tb/verilator/cbs`, `shaper_core`,
   `queues`) are unchanged by this path and pass.
+
+The sweep registers this suite with its provisional timeout.
+Every harness reports executed checks and failures to the sweep tally.
+Boundary tests cover both direction-specific maxima and following-frame recovery.
+Record tests grade every accepted terminator, including stalled final words.
+Held-injection tests independently sum wire octets over every departure interval.
+They cover short and maximum frames, arbitration waits and MAC backpressure.
+Reset tests cover each domain alone, both request parities and activity.
+The firmware fixture also exercises the EXTERNAL source's lock requirement.
+
+Station records share the incoming queue with frame records.
+A frame waiting for space can delay a later station update.
+Freshness expires normally while waiting; it is not extended by congestion.

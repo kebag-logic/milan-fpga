@@ -107,6 +107,10 @@ stream the PHY's transmit register stage consumes and the seam `KL_gptp_gmii_lau
 reaches the datapath as `i_ethtxend_tgl` and is synchronised there like the link guard's three toggles. The wait ends
 on a tick once no frame is half taken at the port and none is in the MAC, and the path has stayed so on every clock
 since the previous tick: a whole quiet millisecond after the last frame, which covers the PHY's own transmit path.
+With the Arty USB network path, `KL_usbnet_tx_arb` owns this toggle.
+It counts only the device's frames, excluding computer injections.
+The observation point and reset-less output remain unchanged.
+See [USB network injection](USB_NET_PATH.md#3-transmit-injection-frames-from-the-computer) for arbitration.
 Everything is parent code; LiteEth is used as pinned.
 
 **What it does not stop.** The MAC port is not gated: no gate may sit between the MAC-boundary arbiter and the MAC

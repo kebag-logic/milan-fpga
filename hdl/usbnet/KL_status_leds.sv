@@ -37,7 +37,7 @@ module KL_status_leds #(
   parameter int unsigned BLINK_OFF_MS_P  = 40,
   parameter int unsigned BLINK_ON_MS_P   = 60
 )(
-  input  wire        clk_i,   //! the system clock, the MAC wrapper's
+  input  wire        clk_i,   //! the SoC system clock
   input  wire        rst_ni,   //! synchronous reset, active low
   input  wire        link_up_i,   //! the Ethernet link is up (LD0)
   input  wire        act_i,        //! one pulse per frame, either direction

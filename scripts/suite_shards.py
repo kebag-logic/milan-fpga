@@ -145,11 +145,11 @@ SUITE_SECONDS = {
     "tdm_render": 21,
     "tkdiag": 28,
     "tsn_fuzz": 62,
+    "usbnet": 300,
 }
-
 #: Suites whose SUITE_SECONDS figure is provisional: the wall clock the driver's suite_timeout gives a new suite,
 #: until the change's own hosted run measures it (step 3 of the module docstring's new-suite steps).
-PROVISIONAL_SUITES: frozenset[str] = frozenset({"input_loopback", "input_loopback_dp", "reboot_ctrl"})
+PROVISIONAL_SUITES: frozenset[str] = frozenset({"input_loopback", "input_loopback_dp", "reboot_ctrl", "usbnet"})
 
 #: Seconds of each worker's job outside its suite windows in the same dev run: checkout, the Verilator cache, tsn-gen
 #: on worker 1, Yosys and sv2v on worker 3, the ownership step and the sweep's preflight self-tests, then the tally.
