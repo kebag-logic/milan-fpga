@@ -1,0 +1,52 @@
+{
+  "source": {
+    "csr.csv": "15d754fba56545b3902480731df63eef9c8d51b63c75edc98e351c2d3dfb8a2f",
+    "csr.h": "b94048d93382dd515beff10418fcfd983725261a8f854dc1dc554f39fa621a30"
+  },
+  "registers": {
+    "spiflash_master_cs": 4026538000,
+    "spiflash_master_phyconfig": 4026538004,
+    "spiflash_master_rxtx": 4026538008,
+    "spiflash_master_status": 4026538012,
+    "timer0_load": 4026540032,
+    "timer0_reload": 4026540036,
+    "timer0_en": 4026540040,
+    "timer0_update_value": 4026540044,
+    "timer0_value": 4026540048
+  },
+  "fields": {
+    "CSR_SPIFLASH_MASTER_PHYCONFIG_LEN": [
+      0,
+      8
+    ],
+    "CSR_SPIFLASH_MASTER_PHYCONFIG_MASK": [
+      16,
+      8
+    ],
+    "CSR_SPIFLASH_MASTER_PHYCONFIG_WIDTH": [
+      8,
+      4
+    ],
+    "CSR_SPIFLASH_MASTER_STATUS_RX_READY": [
+      1,
+      1
+    ],
+    "CSR_SPIFLASH_MASTER_STATUS_TX_READY": [
+      0,
+      1
+    ]
+  },
+  "banks": {
+    "spiflash": 4026537984,
+    "timer0": 4026540032
+  },
+  "flash": {
+    "base": 16777216,
+    "size": 16777216
+  },
+  "journal": {
+    "offset": 14942208,
+    "size": 655360
+  },
+  "clock_hz": 100000000
+}
