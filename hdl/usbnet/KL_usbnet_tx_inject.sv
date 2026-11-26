@@ -62,6 +62,8 @@ module KL_usbnet_tx_inject
   output logic [63:0]      m_data_o,
   output logic [7:0]       m_keep_o,
   output logic             m_last_o,
+  input  wire              abort_i,        //! discard an interrupted injection on MAC reset
+  input  wire              retired_i,      //! injected frame ended at the PHY
   //! the station record
   output logic [47:0]      host_mac_o,
   output logic             host_ok_o,      //! an address is held
@@ -79,7 +81,7 @@ module KL_usbnet_tx_inject
   localparam int unsigned FRAC_C = 16;
   //! octets on the wire per clock, Q.16
   localparam longint unsigned INC_C =
-      (RATE_BPS_P * (longint'(1) << FRAC_C) + 4 * longint'(CLK_HZ_P)) / (8 * longint'(CLK_HZ_P));
+      (RATE_BPS_P * (longint'(1) << FRAC_C)) / (8 * longint'(CLK_HZ_P));
   localparam int unsigned TOK_W_C = $clog2(BURST_OCTETS_P + 1) + FRAC_C + 1;
   localparam logic [TOK_W_C-1:0] CAP_C = TOK_W_C'(longint'(BURST_OCTETS_P) << FRAC_C);
   localparam int unsigned MS_CYC_C = CLK_HZ_P / 1000;
@@ -321,15 +323,18 @@ module KL_usbnet_tx_inject
   // --------------------------------------------------------------------------
   //  The injection side
   // --------------------------------------------------------------------------
-  logic [TOK_W_C-1:0] tok_r;
-  logic               send_r;
+  logic [TOK_W_C-1:0] tok_r, reserved_r;
+  logic               send_r, reserved_active_r;
+  //! Reserved credit stays outside the refill ceiling until the complete
+  //! frame reaches the PHY end. Arbitration or MAC stalls cannot refill it twice.
+  wire [TOK_W_C-1:0] refill_cap_w = reserved_active_r ? CAP_C - reserved_r : CAP_C;
   logic [2:0]         olen_r;   //! the length's octets past the last whole beat
   logic [8:0]         beats_r;    //! 64-bit beats still to send
   logic [63:0]        q_r;
   wire [11:0]         dlen_w  = desc_r[drd_r[DW_C-1:0]];
   wire [11:0]         wire_w  = ((dlen_w < 12'd60) ? 12'd60 : dlen_w) + 12'd24;
   wire [TOK_W_C-1:0]  cost_w  = TOK_W_C'(longint'(wire_w) << FRAC_C);
-  wire                start_w = !send_r && !desc_empty_w && tok_r >= cost_w;
+  wire                start_w = !abort_i && !send_r && !reserved_active_r && !desc_empty_w && tok_r >= cost_w;
   wire                beat_w  = m_valid_o && m_ready_i;
   wire [2:0]          tail_w  = olen_r[2:0];
   //! GAPLESS: the read looks one word ahead, so q_r always holds the word at
@@ -349,6 +354,8 @@ module KL_usbnet_tx_inject
   always_ff @(posedge clk_i) begin : injector
     if (!rst_ni) begin
       tok_r    <= CAP_C;
+      reserved_r <= '0;
+      reserved_active_r <= 1'b0;
       send_r   <= 1'b0;
       olen_r   <= '0;
       beats_r  <= '0;
@@ -357,18 +364,29 @@ module KL_usbnet_tx_inject
     end else begin
       if (start_w) begin
         tok_r   <= tok_r - cost_w;
+        reserved_r <= cost_w;
+        reserved_active_r <= 1'b1;
         send_r  <= 1'b1;
         olen_r  <= dlen_w[2:0];
         beats_r <= 9'((dlen_w + 12'd7) >> 3);
-      end else if (tok_r < CAP_C) begin
-        tok_r <= (CAP_C - tok_r < TOK_W_C'(INC_C)) ? CAP_C : tok_r + TOK_W_C'(INC_C);
+      end else if (tok_r < refill_cap_w) begin
+        tok_r <= (refill_cap_w - tok_r < TOK_W_C'(INC_C)) ? refill_cap_w : tok_r + TOK_W_C'(INC_C);
       end
+      if (retired_i) reserved_active_r <= 1'b0;
       if (beat_w) begin
         rd_ptr_r <= rd_ptr_r + 1'b1;
         beats_r  <= beats_r - 1'b1;
         if (m_last_o) begin
           send_r <= 1'b0;
           drd_r  <= drd_r + 1'b1;
+        end
+      end
+      if (abort_i) begin
+        reserved_active_r <= 1'b0;
+        send_r <= 1'b0;
+        if (send_r) begin
+          rd_ptr_r <= rd_ptr_r + (AW_C+1)'(beats_r);
+          drd_r <= drd_r + 1'b1;
         end
       end
     end

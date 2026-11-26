@@ -13,6 +13,10 @@ LD2 = 'Leds.Ld2IsABoundReceivingInputOrAListenedOutput'
 LEDS = 'plat/ctrl_plat_leds.h'
 
 ROWS = (
+    ('leds-external-without-domain-lock', LEDS,
+     'kind == CTRL_PLAT_LEDS_EXTERNAL && domain_locked',
+     'kind == CTRL_PLAT_LEDS_EXTERNAL',
+     ('Leds.ExternalSourceRequiresDomainLock', 'external unlocked: LD3 off')),
     ('leds-internal-source-dark', LEDS,
      '\tif (kind == CTRL_PLAT_LEDS_INTERNAL) {\n\t\tword |= CTRL_PLAT_LEDS_CLOCK;',
      '\tif (kind == CTRL_PLAT_LEDS_INTERNAL) {\n\t\tword |= 0u;',

@@ -12,8 +12,9 @@
 #include <cstdio>
 #include <memory>
 
+static int &checks() { static int n = 0; return n; }
 static int &fails() { static int n = 0; return n; }
-#define CHECK(c, ...) do { if (!(c)) { std::printf("FAIL %s:%d: ", __FILE__, __LINE__); \
+#define CHECK(c, ...) do { ++checks(); if (!(c)) { std::printf("FAIL %s:%d: ", __FILE__, __LINE__); \
     std::printf(__VA_ARGS__); std::printf("\n"); ++fails(); } } while (0)
 
 struct Leds {
@@ -93,6 +94,6 @@ int main(int argc, char **argv)
     d->link_up_i = 1; cyc(2);
     CHECK(st(0), "link back: LD0 on at once, no stale blink");
 
-    std::printf("%s leds: %d failure(s)\n", fails() ? "FAIL" : "PASS", fails());
+    std::printf("%d checks: %d PASS, %d FAIL\n", checks(), checks() - fails(), fails());
     return fails() ? 1 : 0;
 }

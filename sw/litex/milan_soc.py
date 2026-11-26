@@ -2290,6 +2290,8 @@ class MilanMAC(LiteXModule):
             i_i_ethrx_tgl = self.ethrx_tgl, i_i_ethtx_tgl = self.ethtx_tgl,
             i_i_ethact_tgl = self.ethact_tgl,
         )
+        if usb_net_clk_hz is not None:
+            self.dp_ports["o_o_mac_addr"] = self.usbnet_station_mac_dp
 
 
 class _PPMemDiag(LiteXModule):
@@ -3317,8 +3319,12 @@ class CtrlMailbox(LiteXModule):
             ctl["i_ctl_tx_valid"].eq(tx.dp.valid), ctl["i_ctl_tx_data"].eq(tx.dp.data),
             ctl["i_ctl_tx_last"].eq(tx.dp.last), tx.dp.ready.eq(ctl["o_ctl_tx_ready"]),
         ]
-        side.update(i_rx_valid_i=rx.sys.valid, o_rx_ready_o=rx.sys.ready, i_rx_data_i=rx.sys.data,
-                    i_rx_last_i=rx.sys.last, o_tx_valid_o=tx.sys.valid, i_tx_ready_i=tx.sys.ready,
+        received = rx.sys
+        if hasattr(dp, "usbnet_network"):
+            self.comb += rx.sys.connect(dp.usbnet_network)
+            received = dp.usbnet_receiver
+        side.update(i_rx_valid_i=received.valid, o_rx_ready_o=received.ready, i_rx_data_i=received.data,
+                    i_rx_last_i=received.last, o_tx_valid_o=tx.sys.valid, i_tx_ready_i=tx.sys.ready,
                     o_tx_data_o=tx.sys.data, o_tx_last_o=tx.sys.last)
         # the rest through KL_mbx_cdc: the mailbox's outputs in, its inputs out
         link, gm_p, gm_id, gm_dom = Signal(), Signal(), Signal(64), Signal(8)
@@ -4428,6 +4434,11 @@ class MilanSoC(SoCCore):
 
         # #665 lane F0: the packet mailbox, ONLY under --ctrl-mailbox (default
         # off, so the default build is untouched; see CtrlMailbox).
+        if usb_net:
+            if not ctrl_mailbox:
+                raise ValueError("--usb-net requires the split control receiver (--ctrl-mailbox)")
+            from usbnet_local_soc import add_local_receiver
+            add_local_receiver(self, self.milan_mac, self.milan)
         if ctrl_mailbox:
             add_ctrl_mailbox(self, platform, sys_clk_freq, dp=getattr(self, "milan", None))
 

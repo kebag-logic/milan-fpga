@@ -41,6 +41,7 @@ USBNET_SOURCES = (
     "hdl/usbnet/KL_usbnet_tx_inject.sv",
     "hdl/usbnet/KL_usbnet_tx_arb.sv",
     "hdl/usbnet/KL_usbnet_tap.sv",
+    "hdl/usbnet/KL_usbnet_local_rx.sv",
 )
 LED_SOURCES = ("hdl/usbnet/KL_status_leds.sv",)
 
@@ -78,12 +79,18 @@ def add_usb_net(mac: object, platform: object, sys_clk_freq: float, repo_root: P
     # Terminated until a bus master binds it: nothing arrives, everything leaving is taken.
     mac.comb += [bus.dn.valid.eq(0), bus.up.ready.eq(1), bus.alive.eq(0)]
 
+    mac.usbnet_station_mac_dp = Signal(48, name="usbnet_station_mac_dp")
+    mac.usbnet_inj_active = Signal(name="usbnet_inj_active")
     mac.usbnet_ok = Signal(name="usbnet_ok")
     host_mac = Signal(48, name="usbnet_host_mac")
     host_ok = Signal(name="usbnet_host_ok")
     host_state = Signal(16, name="usbnet_host_state")
     cnt = {n: Signal(16, name=f"usbnet_{n}") for n in
            ("rx_copied", "rx_full", "tx_passed", "tx_dropped", "tx_skipped", "tx_injected")}
+    mac.usbnet_local_copied = Signal(16)
+    mac.usbnet_local_full = Signal(16)
+    mac.usbnet_local_counts = CSRStatus(32, description="Local USB receive counts: copied then full, 16 bits each.")
+    mac.comb += mac.usbnet_local_counts.status.eq(Cat(mac.usbnet_local_copied, mac.usbnet_local_full))
     txend = Signal(name="usbnet_txend_tgl")
     src, snk = mac.tx_sf.source, mac.core.sink
     mac.specials += Instance("KL_usbnet_tap", name="usbnet_tap",
@@ -114,7 +121,7 @@ def add_usb_net(mac: object, platform: object, sys_clk_freq: float, repo_root: P
         o_rx_copied_o=cnt["rx_copied"], o_rx_full_o=cnt["rx_full"],
         o_tx_passed_o=cnt["tx_passed"], o_tx_dropped_o=cnt["tx_dropped"],
         o_tx_skipped_o=cnt["tx_skipped"], o_tx_injected_o=cnt["tx_injected"],
-        o_inj_active_o=Signal())
+        o_inj_active_o=mac.usbnet_inj_active)
     mac.comb += [snk.error.eq(0), mac.ethtxend_tgl.eq(txend)]
     # Read-only status for the console and the bench: the computer's address and
     # USB state, and the six counters (saturating at 65,535).
@@ -136,6 +143,7 @@ def add_usb_net(mac: object, platform: object, sys_clk_freq: float, repo_root: P
         mac.usbnet_counts.status.eq(Cat(*(cnt[n] for n in
             ("rx_copied", "rx_full", "tx_passed", "tx_dropped", "tx_skipped", "tx_injected")))),
     ]
+
 
 
 @dataclass(frozen=True)
