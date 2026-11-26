@@ -1,0 +1,55 @@
+[
+  {
+    "name": "baseline",
+    "rc": 0,
+    "tests": 57,
+    "failures": [],
+    "named_killer_verified": false
+  },
+  {
+    "name": "seed-left-at-zero",
+    "rc": 1,
+    "tests": 57,
+    "failures": [
+      "AdpCore.A22GeneratorNeverStuckAtZero"
+    ],
+    "named_killer_verified": true
+  },
+  {
+    "name": "adp-seed-without-interface",
+    "rc": 1,
+    "tests": 57,
+    "failures": [
+      "AdpCore.A27EverySeedTermIsMixedIn"
+    ],
+    "named_killer_verified": true
+  },
+  {
+    "name": "adp-seed-interface-low-bit-only",
+    "rc": 1,
+    "tests": 57,
+    "failures": [
+      "AdpCore.A27EverySeedTermIsMixedIn"
+    ],
+    "named_killer_verified": true
+  },
+  {
+    "name": "adp-seed-end-around-carry-added",
+    "rc": 1,
+    "tests": 57,
+    "failures": [
+      "AdpCore.A22GeneratorNeverStuckAtZero",
+      "AdpCore.A27EverySeedTermIsMixedIn"
+    ],
+    "named_killer_verified": true
+  },
+  {
+    "name": "adp-discover-draw-sampled",
+    "rc": 1,
+    "tests": 57,
+    "failures": [
+      "AdpCore.A32ADiscoverDrawTakesNoSample"
+    ],
+    "named_killer_verified": true
+  }
+]

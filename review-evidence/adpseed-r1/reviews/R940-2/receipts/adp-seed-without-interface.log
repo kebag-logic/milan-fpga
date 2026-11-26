@@ -1,0 +1,141 @@
+[==========] Running 57 tests from 2 test suites.
+[----------] Global test environment set-up.
+[----------] 27 tests from AdpCore
+[ RUN      ] AdpCore.A0toA2Schedule
+[       OK ] AdpCore.A0toA2Schedule (0 ms)
+[ RUN      ] AdpCore.A3toA5DiscoverAndDiscard
+[       OK ] AdpCore.A3toA5DiscoverAndDiscard (0 ms)
+[ RUN      ] AdpCore.A6toA8DeferredSends
+[       OK ] AdpCore.A6toA8DeferredSends (0 ms)
+[ RUN      ] AdpCore.A9DrawKinds
+[       OK ] AdpCore.A9DrawKinds (0 ms)
+[ RUN      ] AdpCore.A10toA14DepartingIndex
+[       OK ] AdpCore.A10toA14DepartingIndex (0 ms)
+[ RUN      ] AdpCore.A15OwedDepartingAcrossARestart
+[       OK ] AdpCore.A15OwedDepartingAcrossARestart (0 ms)
+[ RUN      ] AdpCore.A16SecondShutdownQueuesItsOwn
+[       OK ] AdpCore.A16SecondShutdownQueuesItsOwn (0 ms)
+[ RUN      ] AdpCore.A17RoomBackBeforeAPoll
+[       OK ] AdpCore.A17RoomBackBeforeAPoll (0 ms)
+[ RUN      ] AdpCore.A18LinkLossKeepsTheOwedDeparting
+[       OK ] AdpCore.A18LinkLossKeepsTheOwedDeparting (0 ms)
+[ RUN      ] AdpCore.A19IgnoredInputsKeepTheOwedAvailable
+[       OK ] AdpCore.A19IgnoredInputsKeepTheOwedAvailable (0 ms)
+[ RUN      ] AdpCore.A20LinkLossDropsTheOwedAvailable
+[       OK ] AdpCore.A20LinkLossDropsTheOwedAvailable (0 ms)
+[ RUN      ] AdpCore.A21DepartingCapacity
+[       OK ] AdpCore.A21DepartingCapacity (5 ms)
+[ RUN      ] AdpCore.A22GeneratorNeverStuckAtZero
+[       OK ] AdpCore.A22GeneratorNeverStuckAtZero (0 ms)
+[ RUN      ] AdpCore.A23RepeatedEnableOrDisableChangesNothing
+[       OK ] AdpCore.A23RepeatedEnableOrDisableChangesNothing (0 ms)
+[ RUN      ] AdpCore.A24OtherEtherTypeOrSubtypeDiscarded
+[       OK ] AdpCore.A24OtherEtherTypeOrSubtypeDiscarded (0 ms)
+[ RUN      ] AdpCore.A25FirstDrawsAreUniformOverSamples
+[       OK ] AdpCore.A25FirstDrawsAreUniformOverSamples (1 ms)
+[ RUN      ] AdpCore.A26NeighbouringHostsDrawUniformly
+[       OK ] AdpCore.A26NeighbouringHostsDrawUniformly (1 ms)
+[ RUN      ] AdpCore.A27EverySeedTermIsMixedIn
+SOURCE/tests/test_adp.cpp:599: Failure
+Value of: std::unique(interfaces.begin(), interfaces.end()) == interfaces.end()
+  Actual: false
+Expected: true
+A27 interfaces 0, 1, 2 and 255 sampled together draw apart
+
+SOURCE/tests/test_adp.cpp:599: Failure
+Value of: std::unique(interfaces.begin(), interfaces.end()) == interfaces.end()
+  Actual: false
+Expected: true
+A27 interfaces 0, 1, 2 and 255 sampled together draw apart
+
+[  FAILED  ] AdpCore.A27EverySeedTermIsMixedIn (0 ms)
+[ RUN      ] AdpCore.A28EachLeaveOfDownTakesAFreshSample
+[       OK ] AdpCore.A28EachLeaveOfDownTakesAFreshSample (0 ms)
+[ RUN      ] AdpCore.A29SequenceIsOfMaximumLength
+[       OK ] AdpCore.A29SequenceIsOfMaximumLength (1 ms)
+[ RUN      ] AdpCore.A30EachQualifiedRiseTakesOneSample
+[       OK ] AdpCore.A30EachQualifiedRiseTakesOneSample (0 ms)
+[ RUN      ] AdpCore.A31TheLinkUpsSampleSetsItsDraw
+[       OK ] AdpCore.A31TheLinkUpsSampleSetsItsDraw (1 ms)
+[ RUN      ] AdpCore.A32ADiscoverDrawTakesNoSample
+[       OK ] AdpCore.A32ADiscoverDrawTakesNoSample (0 ms)
+[ RUN      ] AdpCore.LinkLevelsAndDisabledInputs
+[       OK ] AdpCore.LinkLevelsAndDisabledInputs (0 ms)
+[ RUN      ] AdpCore.EntityFieldsUseIndependentCounts
+[       OK ] AdpCore.EntityFieldsUseIndependentCounts (0 ms)
+[ RUN      ] AdpCore.AdvertisementFieldsMatchCaller
+[       OK ] AdpCore.AdvertisementFieldsMatchCaller (0 ms)
+[ RUN      ] AdpCore.MockedPortOrder
+[       OK ] AdpCore.MockedPortOrder (0 ms)
+[----------] 27 tests from AdpCore (12 ms total)
+
+[----------] 30 tests from AllStates/AdpInputControl
+[ RUN      ] AllStates/AdpInputControl.RejectsUnsupportedVersion/0
+[       OK ] AllStates/AdpInputControl.RejectsUnsupportedVersion/0 (0 ms)
+[ RUN      ] AllStates/AdpInputControl.RejectsUnsupportedVersion/1
+[       OK ] AllStates/AdpInputControl.RejectsUnsupportedVersion/1 (0 ms)
+[ RUN      ] AllStates/AdpInputControl.RejectsUnsupportedVersion/2
+[       OK ] AllStates/AdpInputControl.RejectsUnsupportedVersion/2 (0 ms)
+[ RUN      ] AllStates/AdpInputControl.RejectsUnsupportedVersion/3
+[       OK ] AllStates/AdpInputControl.RejectsUnsupportedVersion/3 (0 ms)
+[ RUN      ] AllStates/AdpInputControl.RejectsUnsupportedVersion/4
+[       OK ] AllStates/AdpInputControl.RejectsUnsupportedVersion/4 (0 ms)
+[ RUN      ] AllStates/AdpInputControl.RejectsShortFrame/0
+[       OK ] AllStates/AdpInputControl.RejectsShortFrame/0 (0 ms)
+[ RUN      ] AllStates/AdpInputControl.RejectsShortFrame/1
+[       OK ] AllStates/AdpInputControl.RejectsShortFrame/1 (0 ms)
+[ RUN      ] AllStates/AdpInputControl.RejectsShortFrame/2
+[       OK ] AllStates/AdpInputControl.RejectsShortFrame/2 (0 ms)
+[ RUN      ] AllStates/AdpInputControl.RejectsShortFrame/3
+[       OK ] AllStates/AdpInputControl.RejectsShortFrame/3 (0 ms)
+[ RUN      ] AllStates/AdpInputControl.RejectsShortFrame/4
+[       OK ] AllStates/AdpInputControl.RejectsShortFrame/4 (0 ms)
+[ RUN      ] AllStates/AdpInputControl.RejectsShortControlDataLength/0
+[       OK ] AllStates/AdpInputControl.RejectsShortControlDataLength/0 (0 ms)
+[ RUN      ] AllStates/AdpInputControl.RejectsShortControlDataLength/1
+[       OK ] AllStates/AdpInputControl.RejectsShortControlDataLength/1 (0 ms)
+[ RUN      ] AllStates/AdpInputControl.RejectsShortControlDataLength/2
+[       OK ] AllStates/AdpInputControl.RejectsShortControlDataLength/2 (0 ms)
+[ RUN      ] AllStates/AdpInputControl.RejectsShortControlDataLength/3
+[       OK ] AllStates/AdpInputControl.RejectsShortControlDataLength/3 (0 ms)
+[ RUN      ] AllStates/AdpInputControl.RejectsShortControlDataLength/4
+[       OK ] AllStates/AdpInputControl.RejectsShortControlDataLength/4 (0 ms)
+[ RUN      ] AllStates/AdpInputControl.AcceptsLongControlDataLength/0
+[       OK ] AllStates/AdpInputControl.AcceptsLongControlDataLength/0 (2 ms)
+[ RUN      ] AllStates/AdpInputControl.AcceptsLongControlDataLength/1
+[       OK ] AllStates/AdpInputControl.AcceptsLongControlDataLength/1 (1 ms)
+[ RUN      ] AllStates/AdpInputControl.AcceptsLongControlDataLength/2
+[       OK ] AllStates/AdpInputControl.AcceptsLongControlDataLength/2 (2 ms)
+[ RUN      ] AllStates/AdpInputControl.AcceptsLongControlDataLength/3
+[       OK ] AllStates/AdpInputControl.AcceptsLongControlDataLength/3 (3 ms)
+[ RUN      ] AllStates/AdpInputControl.AcceptsLongControlDataLength/4
+[       OK ] AllStates/AdpInputControl.AcceptsLongControlDataLength/4 (4 ms)
+[ RUN      ] AllStates/AdpInputControl.ReadsNoOctetPastTheFrame/0
+[       OK ] AllStates/AdpInputControl.ReadsNoOctetPastTheFrame/0 (1 ms)
+[ RUN      ] AllStates/AdpInputControl.ReadsNoOctetPastTheFrame/1
+[       OK ] AllStates/AdpInputControl.ReadsNoOctetPastTheFrame/1 (1 ms)
+[ RUN      ] AllStates/AdpInputControl.ReadsNoOctetPastTheFrame/2
+[       OK ] AllStates/AdpInputControl.ReadsNoOctetPastTheFrame/2 (1 ms)
+[ RUN      ] AllStates/AdpInputControl.ReadsNoOctetPastTheFrame/3
+[       OK ] AllStates/AdpInputControl.ReadsNoOctetPastTheFrame/3 (3 ms)
+[ RUN      ] AllStates/AdpInputControl.ReadsNoOctetPastTheFrame/4
+[       OK ] AllStates/AdpInputControl.ReadsNoOctetPastTheFrame/4 (3 ms)
+[ RUN      ] AllStates/AdpInputControl.ValidDiscovery/0
+[       OK ] AllStates/AdpInputControl.ValidDiscovery/0 (0 ms)
+[ RUN      ] AllStates/AdpInputControl.ValidDiscovery/1
+[       OK ] AllStates/AdpInputControl.ValidDiscovery/1 (0 ms)
+[ RUN      ] AllStates/AdpInputControl.ValidDiscovery/2
+[       OK ] AllStates/AdpInputControl.ValidDiscovery/2 (0 ms)
+[ RUN      ] AllStates/AdpInputControl.ValidDiscovery/3
+[       OK ] AllStates/AdpInputControl.ValidDiscovery/3 (0 ms)
+[ RUN      ] AllStates/AdpInputControl.ValidDiscovery/4
+[       OK ] AllStates/AdpInputControl.ValidDiscovery/4 (0 ms)
+[----------] 30 tests from AllStates/AdpInputControl (27 ms total)
+
+[----------] Global test environment tear-down
+[==========] 57 tests from 2 test suites ran. (39 ms total)
+[  PASSED  ] 56 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] AdpCore.A27EverySeedTermIsMixedIn
+
+ 1 FAILED TEST

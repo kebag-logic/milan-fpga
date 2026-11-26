@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="57" failures="2" disabled="0" errors="0" time="0.052" timestamp="2026-11-26T05:47:33.119" name="AllTests">
+  <testsuite name="AdpCore" tests="27" failures="2" disabled="0" skipped="0" errors="0" time="0.015" timestamp="2026-11-26T05:47:33.119">
+    <testcase name="A0toA2Schedule" file="SOURCE/tests/test_adp.cpp" line="824" status="run" result="completed" time="0." timestamp="2026-11-26T05:47:33.119" classname="AdpCore" />
+    <testcase name="A3toA5DiscoverAndDiscard" file="SOURCE/tests/test_adp.cpp" line="828" status="run" result="completed" time="0." timestamp="2026-11-26T05:47:33.119" classname="AdpCore" />
+    <testcase name="A6toA8DeferredSends" file="SOURCE/tests/test_adp.cpp" line="832" status="run" result="completed" time="0." timestamp="2026-11-26T05:47:33.119" classname="AdpCore" />
+    <testcase name="A9DrawKinds" file="SOURCE/tests/test_adp.cpp" line="836" status="run" result="completed" time="0." timestamp="2026-11-26T05:47:33.119" classname="AdpCore" />
+    <testcase name="A10toA14DepartingIndex" file="SOURCE/tests/test_adp.cpp" line="840" status="run" result="completed" time="0." timestamp="2026-11-26T05:47:33.119" classname="AdpCore" />
+    <testcase name="A15OwedDepartingAcrossARestart" file="SOURCE/tests/test_adp.cpp" line="844" status="run" result="completed" time="0." timestamp="2026-11-26T05:47:33.119" classname="AdpCore" />
+    <testcase name="A16SecondShutdownQueuesItsOwn" file="SOURCE/tests/test_adp.cpp" line="848" status="run" result="completed" time="0." timestamp="2026-11-26T05:47:33.119" classname="AdpCore" />
+    <testcase name="A17RoomBackBeforeAPoll" file="SOURCE/tests/test_adp.cpp" line="852" status="run" result="completed" time="0." timestamp="2026-11-26T05:47:33.119" classname="AdpCore" />
+    <testcase name="A18LinkLossKeepsTheOwedDeparting" file="SOURCE/tests/test_adp.cpp" line="856" status="run" result="completed" time="0." timestamp="2026-11-26T05:47:33.119" classname="AdpCore" />
+    <testcase name="A19IgnoredInputsKeepTheOwedAvailable" file="SOURCE/tests/test_adp.cpp" line="860" status="run" result="completed" time="0." timestamp="2026-11-26T05:47:33.119" classname="AdpCore" />
+    <testcase name="A20LinkLossDropsTheOwedAvailable" file="SOURCE/tests/test_adp.cpp" line="864" status="run" result="completed" time="0." timestamp="2026-11-26T05:47:33.119" classname="AdpCore" />
+    <testcase name="A21DepartingCapacity" file="SOURCE/tests/test_adp.cpp" line="868" status="run" result="completed" time="0.006" timestamp="2026-11-26T05:47:33.119" classname="AdpCore" />
+    <testcase name="A22GeneratorNeverStuckAtZero" file="SOURCE/tests/test_adp.cpp" line="872" status="run" result="completed" time="0." timestamp="2026-11-26T05:47:33.126" classname="AdpCore">
+      <failure message="SOURCE/tests/test_adp.cpp:546&#x0A;Expected equality of these values:&#x0A;  a.rng&#x0A;    Which is: 1437981058&#x0A;  0x42021u&#x0A;    Which is: 270369&#x0A;A22 a seed that mixes to zero starts the generator at 1&#x0A;" type=""><![CDATA[SOURCE/tests/test_adp.cpp:546
+Expected equality of these values:
+  a.rng
+    Which is: 1437981058
+  0x42021u
+    Which is: 270369
+A22 a seed that mixes to zero starts the generator at 1
+]]></failure>
+    </testcase>
+    <testcase name="A23RepeatedEnableOrDisableChangesNothing" file="SOURCE/tests/test_adp.cpp" line="874" status="run" result="completed" time="0." timestamp="2026-11-26T05:47:33.126" classname="AdpCore" />
+    <testcase name="A24OtherEtherTypeOrSubtypeDiscarded" file="SOURCE/tests/test_adp.cpp" line="876" status="run" result="completed" time="0." timestamp="2026-11-26T05:47:33.126" classname="AdpCore" />
+    <testcase name="A25FirstDrawsAreUniformOverSamples" file="SOURCE/tests/test_adp.cpp" line="878" status="run" result="completed" time="0.001" timestamp="2026-11-26T05:47:33.126" classname="AdpCore" />
+    <testcase name="A26NeighbouringHostsDrawUniformly" file="SOURCE/tests/test_adp.cpp" line="880" status="run" result="completed" time="0.001" timestamp="2026-11-26T05:47:33.128" classname="AdpCore" />
+    <testcase name="A27EverySeedTermIsMixedIn" file="SOURCE/tests/test_adp.cpp" line="882" status="run" result="completed" time="0." timestamp="2026-11-26T05:47:33.130" classname="AdpCore">
+      <failure message="SOURCE/tests/test_adp.cpp:618&#x0A;Expected equality of these values:&#x0A;  first_draw(wrapped).rng&#x0A;    Which is: 472821687&#x0A;  first_draw(modular).rng&#x0A;    Which is: 495843637&#x0A;A27 the seed is the sum&apos;s least significant 32 bits, modulo 2^32 (6.2.4.2.2)&#x0A;" type=""><![CDATA[SOURCE/tests/test_adp.cpp:618
+Expected equality of these values:
+  first_draw(wrapped).rng
+    Which is: 472821687
+  first_draw(modular).rng
+    Which is: 495843637
+A27 the seed is the sum's least significant 32 bits, modulo 2^32 (6.2.4.2.2)
+]]></failure>
+      <failure message="SOURCE/tests/test_adp.cpp:618&#x0A;Expected equality of these values:&#x0A;  first_draw(wrapped).rng&#x0A;    Which is: 472821687&#x0A;  first_draw(modular).rng&#x0A;    Which is: 495843637&#x0A;A27 the seed is the sum&apos;s least significant 32 bits, modulo 2^32 (6.2.4.2.2)&#x0A;" type=""><![CDATA[SOURCE/tests/test_adp.cpp:618
+Expected equality of these values:
+  first_draw(wrapped).rng
+    Which is: 472821687
+  first_draw(modular).rng
+    Which is: 495843637
+A27 the seed is the sum's least significant 32 bits, modulo 2^32 (6.2.4.2.2)
+]]></failure>
+    </testcase>
+    <testcase name="A28EachLeaveOfDownTakesAFreshSample" file="SOURCE/tests/test_adp.cpp" line="884" status="run" result="completed" time="0." timestamp="2026-11-26T05:47:33.130" classname="AdpCore" />
+    <testcase name="A29SequenceIsOfMaximumLength" file="SOURCE/tests/test_adp.cpp" line="886" status="run" result="completed" time="0.002" timestamp="2026-11-26T05:47:33.130" classname="AdpCore" />
+    <testcase name="A30EachQualifiedRiseTakesOneSample" file="SOURCE/tests/test_adp.cpp" line="888" status="run" result="completed" time="0." timestamp="2026-11-26T05:47:33.132" classname="AdpCore" />
+    <testcase name="A31TheLinkUpsSampleSetsItsDraw" file="SOURCE/tests/test_adp.cpp" line="890" status="run" result="completed" time="0.002" timestamp="2026-11-26T05:47:33.132" classname="AdpCore" />
+    <testcase name="A32ADiscoverDrawTakesNoSample" file="SOURCE/tests/test_adp.cpp" line="892" status="run" result="completed" time="0." timestamp="2026-11-26T05:47:33.135" classname="AdpCore" />
+    <testcase name="LinkLevelsAndDisabledInputs" file="SOURCE/tests/test_adp.cpp" line="895" status="run" result="completed" time="0." timestamp="2026-11-26T05:47:33.135" classname="AdpCore" />
+    <testcase name="EntityFieldsUseIndependentCounts" file="SOURCE/tests/test_adp.cpp" line="917" status="run" result="completed" time="0." timestamp="2026-11-26T05:47:33.135" classname="AdpCore" />
+    <testcase name="AdvertisementFieldsMatchCaller" file="SOURCE/tests/test_adp.cpp" line="933" status="run" result="completed" time="0." timestamp="2026-11-26T05:47:33.135" classname="AdpCore" />
+    <testcase name="MockedPortOrder" file="SOURCE/tests/test_adp.cpp" line="976" status="run" result="completed" time="0." timestamp="2026-11-26T05:47:33.135" classname="AdpCore" />
+  </testsuite>
+  <testsuite name="AllStates/AdpInputControl" tests="30" failures="0" disabled="0" skipped="0" errors="0" time="0.036" timestamp="2026-11-26T05:47:33.135">
+    <testcase name="RejectsUnsupportedVersion/0" value_param="0" file="SOURCE/tests/test_adp.cpp" line="1081" status="run" result="completed" time="0." timestamp="2026-11-26T05:47:33.135" classname="AllStates/AdpInputControl" />
+    <testcase name="RejectsUnsupportedVersion/1" value_param="1" file="SOURCE/tests/test_adp.cpp" line="1081" status="run" result="completed" time="0." timestamp="2026-11-26T05:47:33.135" classname="AllStates/AdpInputControl" />
+    <testcase name="RejectsUnsupportedVersion/2" value_param="2" file="SOURCE/tests/test_adp.cpp" line="1081" status="run" result="completed" time="0." timestamp="2026-11-26T05:47:33.135" classname="AllStates/AdpInputControl" />
+    <testcase name="RejectsUnsupportedVersion/3" value_param="3" file="SOURCE/tests/test_adp.cpp" line="1081" status="run" result="completed" time="0." timestamp="2026-11-26T05:47:33.135" classname="AllStates/AdpInputControl" />
+    <testcase name="RejectsUnsupportedVersion/4" value_param="4" file="SOURCE/tests/test_adp.cpp" line="1081" status="run" result="completed" time="0." timestamp="2026-11-26T05:47:33.135" classname="AllStates/AdpInputControl" />
+    <testcase name="RejectsShortFrame/0" value_param="0" file="SOURCE/tests/test_adp.cpp" line="1098" status="run" result="completed" time="0." timestamp="2026-11-26T05:47:33.135" classname="AllStates/AdpInputControl" />
+    <testcase name="RejectsShortFrame/1" value_param="1" file="SOURCE/tests/test_adp.cpp" line="1098" status="run" result="completed" time="0." timestamp="2026-11-26T05:47:33.135" classname="AllStates/AdpInputControl" />
+    <testcase name="RejectsShortFrame/2" value_param="2" file="SOURCE/tests/test_adp.cpp" line="1098" status="run" result="completed" time="0." timestamp="2026-11-26T05:47:33.135" classname="AllStates/AdpInputControl" />
+    <testcase name="RejectsShortFrame/3" value_param="3" file="SOURCE/tests/test_adp.cpp" line="1098" status="run" result="completed" time="0." timestamp="2026-11-26T05:47:33.136" classname="AllStates/AdpInputControl" />
+    <testcase name="RejectsShortFrame/4" value_param="4" file="SOURCE/tests/test_adp.cpp" line="1098" status="run" result="completed" time="0." timestamp="2026-11-26T05:47:33.136" classname="AllStates/AdpInputControl" />
+    <testcase name="RejectsShortControlDataLength/0" value_param="0" file="SOURCE/tests/test_adp.cpp" line="1115" status="run" result="completed" time="0." timestamp="2026-11-26T05:47:33.136" classname="AllStates/AdpInputControl" />
+    <testcase name="RejectsShortControlDataLength/1" value_param="1" file="SOURCE/tests/test_adp.cpp" line="1115" status="run" result="completed" time="0." timestamp="2026-11-26T05:47:33.136" classname="AllStates/AdpInputControl" />
+    <testcase name="RejectsShortControlDataLength/2" value_param="2" file="SOURCE/tests/test_adp.cpp" line="1115" status="run" result="completed" time="0." timestamp="2026-11-26T05:47:33.137" classname="AllStates/AdpInputControl" />
+    <testcase name="RejectsShortControlDataLength/3" value_param="3" file="SOURCE/tests/test_adp.cpp" line="1115" status="run" result="completed" time="0." timestamp="2026-11-26T05:47:33.137" classname="AllStates/AdpInputControl" />
+    <testcase name="RejectsShortControlDataLength/4" value_param="4" file="SOURCE/tests/test_adp.cpp" line="1115" status="run" result="completed" time="0." timestamp="2026-11-26T05:47:33.137" classname="AllStates/AdpInputControl" />
+    <testcase name="AcceptsLongControlDataLength/0" value_param="0" file="SOURCE/tests/test_adp.cpp" line="1135" status="run" result="completed" time="0.002" timestamp="2026-11-26T05:47:33.137" classname="AllStates/AdpInputControl" />
+    <testcase name="AcceptsLongControlDataLength/1" value_param="1" file="SOURCE/tests/test_adp.cpp" line="1135" status="run" result="completed" time="0.002" timestamp="2026-11-26T05:47:33.140" classname="AllStates/AdpInputControl" />
+    <testcase name="AcceptsLongControlDataLength/2" value_param="2" file="SOURCE/tests/test_adp.cpp" line="1135" status="run" result="completed" time="0.003" timestamp="2026-11-26T05:47:33.143" classname="AllStates/AdpInputControl" />
+    <testcase name="AcceptsLongControlDataLength/3" value_param="3" file="SOURCE/tests/test_adp.cpp" line="1135" status="run" result="completed" time="0.005" timestamp="2026-11-26T05:47:33.146" classname="AllStates/AdpInputControl" />
+    <testcase name="AcceptsLongControlDataLength/4" value_param="4" file="SOURCE/tests/test_adp.cpp" line="1135" status="run" result="completed" time="0.006" timestamp="2026-11-26T05:47:33.151" classname="AllStates/AdpInputControl" />
+    <testcase name="ReadsNoOctetPastTheFrame/0" value_param="0" file="SOURCE/tests/test_adp.cpp" line="1159" status="run" result="completed" time="0.001" timestamp="2026-11-26T05:47:33.158" classname="AllStates/AdpInputControl" />
+    <testcase name="ReadsNoOctetPastTheFrame/1" value_param="1" file="SOURCE/tests/test_adp.cpp" line="1159" status="run" result="completed" time="0.001" timestamp="2026-11-26T05:47:33.160" classname="AllStates/AdpInputControl" />
+    <testcase name="ReadsNoOctetPastTheFrame/2" value_param="2" file="SOURCE/tests/test_adp.cpp" line="1159" status="run" result="completed" time="0.001" timestamp="2026-11-26T05:47:33.162" classname="AllStates/AdpInputControl" />
+    <testcase name="ReadsNoOctetPastTheFrame/3" value_param="3" file="SOURCE/tests/test_adp.cpp" line="1159" status="run" result="completed" time="0.003" timestamp="2026-11-26T05:47:33.163" classname="AllStates/AdpInputControl" />
+    <testcase name="ReadsNoOctetPastTheFrame/4" value_param="4" file="SOURCE/tests/test_adp.cpp" line="1159" status="run" result="completed" time="0.003" timestamp="2026-11-26T05:47:33.167" classname="AllStates/AdpInputControl" />
+    <testcase name="ValidDiscovery/0" value_param="0" file="SOURCE/tests/test_adp.cpp" line="1167" status="run" result="completed" time="0." timestamp="2026-11-26T05:47:33.171" classname="AllStates/AdpInputControl" />
+    <testcase name="ValidDiscovery/1" value_param="1" file="SOURCE/tests/test_adp.cpp" line="1167" status="run" result="completed" time="0." timestamp="2026-11-26T05:47:33.171" classname="AllStates/AdpInputControl" />
+    <testcase name="ValidDiscovery/2" value_param="2" file="SOURCE/tests/test_adp.cpp" line="1167" status="run" result="completed" time="0." timestamp="2026-11-26T05:47:33.171" classname="AllStates/AdpInputControl" />
+    <testcase name="ValidDiscovery/3" value_param="3" file="SOURCE/tests/test_adp.cpp" line="1167" status="run" result="completed" time="0." timestamp="2026-11-26T05:47:33.171" classname="AllStates/AdpInputControl" />
+    <testcase name="ValidDiscovery/4" value_param="4" file="SOURCE/tests/test_adp.cpp" line="1167" status="run" result="completed" time="0." timestamp="2026-11-26T05:47:33.171" classname="AllStates/AdpInputControl" />
+  </testsuite>
+</testsuites>
