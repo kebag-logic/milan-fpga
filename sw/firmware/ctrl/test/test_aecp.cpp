@@ -34,6 +34,7 @@ extern "C" {
 #endif
 #ifdef AECP_TEST_APP
 #include "ctrl_app_aecp.h"
+#include "plat/ctrl_plat_leds_ports.h"
 #include "acmp_nvm.h"
 #include "srp_mbx.h"
 #endif
@@ -294,13 +295,14 @@ namespace {
 struct Leds : Core {
     std::map<std::pair<unsigned,unsigned>,std::pair<uint32_t,uint32_t>> counts; // (type, index) -> (LOCKED, UNLOCKED)
     std::set<unsigned> bound_inputs, listened_outputs;
+    uint32_t valid=0xf3fu;
     void SetUp() override {
         Core::SetUp();
         ON_CALL(mock,Stream).WillByDefault([this](unsigned,uint16_t t,uint16_t i,aecp_stream_info*v){
             bool brief=v->brief;*v={};v->brief=brief;
             v->bound=t==5&&bound_inputs.count(i);v->flags_ex=t==6&&listened_outputs.count(i)?1u:0u;return true;});
         ON_CALL(mock,Counters).WillByDefault([this](unsigned,uint16_t t,uint16_t i,aecp_counters*v){
-            *v={};v->valid=0xf3f;auto c=counts.find({t,i});
+            *v={};v->valid=valid;auto c=counts.find({t,i});
             if(c!=counts.end()){v->value[0]=c->second.first;v->value[1]=c->second.second;}return true;});
     }
     // the first CLOCK_SOURCE of the configuration in force of this kind, and its STREAM_INPUT
@@ -316,13 +318,14 @@ struct Leds : Core {
         EXPECT_EQ(get(desc(36).value+70,2),index)<<"SET_CLOCK_SOURCE took";
     }
     void lock(unsigned type,unsigned index,bool locked) { counts[{type,index}]={locked?5u:4u,4u}; }
-    uint32_t word() { return ctrl_plat_leds_word(&a); }
+    uint32_t word() { return ctrl_plat_leds_word(&a,a.ports->counters,a.ports->stream); }
 };
 
 TEST_F(Leds, ClockSourceInternalLightsLd3)
 {
     unsigned internal;ASSERT_TRUE(source(0,&internal))<<"the model has an INTERNAL clock source";
     set_clock(internal);
+    EXPECT_CALL(mock,Counters(_,36,0,_)).Times(0);
     lock(36,0,false);
     EXPECT_EQ(word()&CTRL_PLAT_LEDS_CLOCK,CTRL_PLAT_LEDS_CLOCK)<<"internal: LD3 on, the domain unlocked or not";
     lock(36,0,true);
@@ -341,6 +344,20 @@ TEST_F(Leds, ExternalSourceRequiresDomainLock)
     EXPECT_EQ(word()&CTRL_PLAT_LEDS_CLOCK,0u)<<"external unlocked: LD3 off";
     lock(36,0,true);
     EXPECT_EQ(word()&CTRL_PLAT_LEDS_CLOCK,CTRL_PLAT_LEDS_CLOCK)<<"external locked: LD3 on";
+}
+
+TEST_F(Leds, BothLockCountersMustBeValid)
+{
+    unsigned follow,input;ASSERT_TRUE(source(2,&follow,&input));
+    set_clock(follow);bound_inputs={input};lock(5,input,true);lock(36,0,true);
+    for(auto mask:{0u,1u,2u}) {
+        valid=mask;
+        EXPECT_EQ(word()&(CTRL_PLAT_LEDS_CLOCK|CTRL_PLAT_LEDS_STREAM),0u)
+            <<"both lock counters must be valid";
+    }
+    valid=3u;
+    EXPECT_EQ(word()&(CTRL_PLAT_LEDS_CLOCK|CTRL_PLAT_LEDS_STREAM),3u)
+        <<"the two valid lock counters suffice";
 }
 
 TEST_F(Leds, FollowingAFlowingStreamLightsLd3)
@@ -824,6 +841,26 @@ TEST_F(App, EntityReadSeesTheLastAdvertisedIndex)
         EXPECT_EQ(read(),0u)<<"ENTITY reads 0 after its ENTITY_DEPARTING";
         adp_mbx_set_enable(&application.adp,true);mbx_model_set_link(&fabric,interface,false);service();
     }
+}
+
+TEST_F(App, LedsReadTheAcmpBindingWithoutTheStreamWindow)
+{
+    ASSERT_EQ(adapter.core.ports->ctx,&adapter)<<"LED observes through the real mailbox adapter context";
+    auto observe=[&](unsigned index){
+        aecp_stream_info info{};info.brief=true;
+        acmp_sink_view view{};bool exists=acmp_view(&application.acmp.acmp,index,&view);
+        EXPECT_CALL(mock,Stream).Times(0);
+        EXPECT_EQ(ctrl_plat_leds_stream(adapter.core.ports->ctx,0,5,index,&info),exists)<<"LED input index follows ACMP";
+        if(exists){EXPECT_EQ(info.bound,view.bound)<<"LED bound bit is the ACMP owner's state";}
+        testing::Mock::VerifyAndClearExpectations(&mock);
+    };
+    observe(0);acmp(6);observe(0);observe(1);acmp(8);observe(0);
+    observe(application.acmp.acmp.cfg.n_sinks);observe(65535u);
+    aecp_stream_info output{};
+    EXPECT_CALL(mock,Stream(0,6,0,_)).WillOnce([](unsigned,uint16_t,uint16_t,aecp_stream_info *v){
+        EXPECT_FALSE(v->brief)<<"LED output keeps the full observation";v->flags_ex=1u;return true;});
+    EXPECT_TRUE(ctrl_plat_leds_stream(adapter.core.ports->ctx,0,6,0,&output));
+    EXPECT_EQ(output.flags_ex,1u)<<"LED output retains the extended Listener flag";
 }
 
 TEST_F(App, DeferredStartAndLockUseTheRealAcmpOwner)
@@ -4806,6 +4843,8 @@ struct Far {
     std::vector<std::pair<unsigned,std::vector<uint32_t>>> commits;   // interface, the block it took
     std::vector<uint64_t> taken_at;                                   // the trace clock at each
     unsigned requests[MBX_WINDOWS]{};
+    std::vector<unsigned> counter_words;
+    unsigned silent_counter=33u;
     std::array<std::vector<uint64_t>,MBX_N_IF> asp{};   // the path sequence each interface's datapath serves
     uint64_t asp_count=~0ull;                           // a count word other than the sequence's length, when set
     std::vector<std::array<uint32_t,3>> asked;          // each GSI kind 2 request: interface, GSI_REQ, GSI_SEL
@@ -4870,6 +4909,10 @@ struct Far {
     }
     static mbx_model_reply answer(void *p,unsigned i,unsigned w,const uint32_t *r,uint64_t *d) {
         auto &f=*static_cast<Far*>(p);++f.requests[w];
+        if(w==MBX_WIN_CTR){
+            unsigned word=r[1]&63u;f.counter_words.push_back(word);
+            if(word==f.silent_counter)return MBX_MODEL_SILENT;
+        }
         if(w==MBX_WIN_GSI)f.selectors.push_back((r[1]>>4)&15u);
         if(w==MBX_WIN_GSI&&(r[1]&3u)==2u){f.asked.push_back({i,r[0],r[1]});*d=f.path(i,r[1]);return f.reply;}
         *d=word(i,w,r,f.verdict);
@@ -5097,6 +5140,38 @@ TEST_F(Face, LockExpiryIsPublishedBeforeItsNotification)
 }
 
 // GET_COUNTERS reads its 33 quadlets through the CTR window of its interface,
+TEST_F(Face, LedsReadOnlyTheLockPairAndValidity)
+{
+    for(unsigned i=0;i<MBX_N_IF;++i)for(unsigned type:{5u,36u})for(unsigned index:{0u,7u}) {
+        aecp_counters c{};
+        for(auto &v:c.value)v=0x12345678u;
+        far.counter_words.clear();auto before=far.requests[MBX_WIN_CTR];
+        ASSERT_TRUE(ctrl_plat_leds_counter_pair(nullptr,i,type,index,&c));
+        EXPECT_EQ(far.requests[MBX_WIN_CTR]-before,3u)<<"LED observation reads exactly three counter words";
+        EXPECT_EQ(far.counter_words,(std::vector<unsigned>{0u,1u,32u}))<<"LOCKED, UNLOCKED and validity selectors";
+        EXPECT_EQ(c.valid,0xf3fu)<<"LED validity comes from quadlet 32";
+        for(unsigned q=0;q<2;++q)
+            EXPECT_EQ(c.value[q],0x80000000u|(i<<24)|(type<<16)|(index<<8)|q)
+                <<"LED counter request preserves interface, descriptor and word";
+        for(unsigned q=2;q<32;++q)EXPECT_EQ(c.value[q],0x12345678u)<<"unused counters are not read";
+    }
+}
+
+TEST_F(Face, LedsRefuseEveryUnansweredCounterWord)
+{
+    for(unsigned silent:{0u,1u,32u}) {
+        far.silent_counter=silent;far.counter_words.clear();
+        EXPECT_FALSE(ctrl_plat_leds_locked(&adapter.core,ctrl_plat_leds_counter_pair,5u,7u))
+            <<"an unanswered LED counter cannot report locked";
+        ASSERT_FALSE(far.counter_words.empty());
+        EXPECT_EQ(far.counter_words.back(),silent)<<"LED reads stop at the unanswered word";
+        EXPECT_EQ(far.counter_words.size(),silent==32u?3u:silent+1u)<<"no read follows a failed LED word";
+    }
+    far.silent_counter=33u;
+    EXPECT_TRUE(ctrl_plat_leds_locked(&adapter.core,ctrl_plat_leds_counter_pair,5u,7u))
+        <<"LED observation recovers after the failed window";
+}
+
 // each read bounded.
 TEST_F(Face, CountersAreReadThroughTheWindowEachWithinItsBound)
 {
