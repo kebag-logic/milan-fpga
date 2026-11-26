@@ -1,0 +1,31 @@
+# The failing run's receipt for the diagnosis: the power-cycle run at 8x8/1if (the PR's round 1 and 2 board run,
+# 2026-11-26), the case where T's Talker Failed is declared at the DUT's first ENTITY_AVAILABLE after power-on,
+# STREAM_INPUT 0: three attempts, each RETRY, so the case failed at attempt 3.
+# Sources: the run's log over that input's 56 lines (bind, cut, withdraw, probe, declaration and verdict lines, with
+# the test machine's times); the relay's power-off and power-on lines in the same log; and the DUT's frames in the run's
+# captures (by its source MAC). All times are seconds after the attempt's bind response, BIND_RX SUCCESS at
+# 1795666455.973 (2026-11-26T05:14:15.973+01:00). Attempts 2 and 3 power-cycle again without a new bind.
+
+| | attempt 1 | attempt 2 | attempt 3 |
+|---|---:|---:|---:|
+| cut issued | 1.000 | 22.550 | 44.203 |
+| the relay's power-off instant | 1.488 | 23.130 | 44.836 |
+| the test's power-off command returned | 1.870 (0.382 after the off instant) | 23.571 (0.441) | 45.431 (0.595) |
+| T's Talker withdrawn | 1.870 (0.4 ms after the return) | 23.571 (0.2 ms) | 45.431 (0.2 ms) |
+| the DUT's last frame before power-on | 1.907 (0.419 after the off instant) | 23.572 (0.442) | 45.021 (0.185) |
+| the probe the attempt took as its settle (T's PROBE_TX_RESPONSE) | 1.909, sequence 2: 38.3 ms after the withdraw, the DUT's last frame | 23.572, sequence 0: 0.8 ms after the withdraw, the DUT's last frame | 44.438, sequence 0: 0.235 s after the cut was issued, before the power-off |
+| the boot that answered it | the one this attempt cut, still sending after the command returned | attempt 1's (powered on at 11.477), still sending | attempt 2's (powered on at 33.164) |
+| the relay's power-on instant | 11.477 | 33.164 | 54.977 |
+| this attempt's own declaration after power-on | 22.548 (11.68 s after power-on) | 44.201 (11.63 s) | 65.994 (11.56 s) |
+| verdict | RETRY: the Talker was not declared before the settle (the probe graded came 20.64 s before the declaration) | RETRY (20.63 s before) | RETRY (21.56 s before) |
+
+Reading. In every attempt the test withdrew T's Talker within 1 ms of its power-off command returning. The board does
+not go down at that return: over the run's 36 graded cuts at 8x8/1if the DUT's last frame comes 0.39 to 0.62 s after
+the relay's power-off instant (0.42 to 0.59 s over the 8 at 1x1/1if). The command returns 0.38 to 0.60 s after that
+instant. At attempts 1 and 2 the DUT was still up at the withdraw and answered a probe within 39 ms of it, as its
+last frame. At attempt 3 the probe came from the boot that attempt 2 powered on, after the attempt began and before
+its cut. Each attempt counted that probe as its settle, before its own post-power-on declaration, so none exercised
+the pre-settle registration: RETRY, three times. The store's side holds: the bind of attempt 1 was durable 0.579 s
+after its response, 1.328 s before the DUT's last frame (the regraded summary, cut 28). The corrected test (the
+manager's ruling, comment 7191672753) waits 1.0 s after the cut before the withdraw, and counts only probes answered
+after the attempt's own power-on.

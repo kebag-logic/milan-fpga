@@ -1,0 +1,25 @@
+# The rerun's report (8x8/1if, STREAM_INPUT 0; identity in si0-identity.txt), as numbers
+# Times are the test machine's clock (UNIX seconds, NTP). "t+" is seconds after the bind's response. The outlet's
+# instants are the relay's own log lines. The DUT's frames are from the run's capture.
+
+T's Talker Failed declared                                  1795687229.213   t-1.005
+BIND_RX STREAM_INPUT 0 <- T stream 0: SUCCESS response      1795687230.218   t+0      (2026-11-26T11:00:30.218+01:00)
+  the store at the bind: idle, its own save under way at the first sample (t+0.079), no sample with both bits set
+  durable, read off the console in the hold                                    t+0.586  (bracket t+0.537 to t+0.586)
+power cut: issued (the cut hold, 1.0 s, unchanged)                             t+1.000
+  the relay's power-off instant (2026-11-26T10:00:31.769Z)                     t+1.551
+  the DUT's last frame on the wire                                             t+1.782  (durable 1.196 s before it)
+  the test's power-off command returned                                        t+2.067
+  T's Talker withdrawn (after the 1.0 s drain)               1795687233.286   t+3.068  (1.001 s after the return,
+                                                                                         1.286 s after the last frame)
+power on: the relay's power-on instant (2026-11-26T10:00:42.845Z)              t+12.627
+  the test's power-on reference (its power-on command + 1.0 s)                 about 0.56 s before the relay's instant
+  the DUT's first ENTITY_AVAILABLE after power-on                              4.73 s after the test's reference
+  T's Talker Failed declared, at that ENTITY_AVAILABLE       1795687247.025   4.74 s after the test's reference
+                                                                               (4.18 s after the relay's instant)
+  T's PROBE_TX_RESPONSE (the DUT's probe, answered by T)     1795687250.999   3.974 s after the declaration
+  the DUT's Listener declaration: Asking Failed, event New                     0.2 ms after the PROBE_TX_RESPONSE
+  the DUT reports REGISTERING_FAILED on STREAM_INPUT 0                         1.9 ms after the PROBE_TX_RESPONSE
+  the window for both                                                          1.0 s; T re-declared nothing; no LeaveAll
+verdict: PASS at attempt 1 (Talker declared before the settle: the case exercises the pre-settle registration)
+afterwards: T's declarations withdrawn (1795687252.608), STREAM_INPUT 0 unbound, the test machine's AVB stack stopped

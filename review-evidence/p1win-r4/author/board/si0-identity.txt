@@ -1,0 +1,39 @@
+# The rerun of the one inconclusive power-cycle case (8x8/1if, STREAM_INPUT 0): its identity
+
+PR head            079c4fa1514be460949ddc28ae3277ea1873cb48 (tree be2122cbd487361b4ed8a99ff283565c1bec3eb2)
+test revision      private replica commit 27734fa09e0fd3961b2ce0755930e9fb635aa9f4 (tree fc24bd8fc62c23f6f7403bce87fa3cf92bea7af3),
+                   accepted by the manager's ruling on R941-3-F1 (PR #1017, comment 7191672753). It is the run's recorded
+                   test-tree commit plus that tree's 13 uncommitted files at the run, frozen afterwards. None of the
+                   13 files was modified after 2026-11-26T07:45:36+01:00, before the run's start.
+
+## The image flashed for the run (8x8/1if, placement directive AltSpreadLogic_high)
+flashed            2026-11-26T10:58:41+01:00, flash rc 0. The flash checked the installed bitstream's sha256 against the
+                   wanted one (equal), wrote and verified the descriptor and bitstream, and the board booted
+                   ("Milan split control firmware: ready" at 2026-11-26T10:59:32.987+01:00, VERSION 00030060)
+bitstream sha256   aaf4a60a99a1bdc96048c468949226841c79049d2433d19435e3ec13aca91132 (3,825,992 B)
+payload sha256     e67d67cfcbcc4c8fb049c6e380f01528dc09ed5a28a73243af68bb4aa0314162 (the image manifest's bitstream payload)
+ctrl_app.elf       6c82d9626ebf898252b5843bfeed48c362f6df2e4786007c57cd4782e4bbed21 (176,348 B, the control firmware in its ROM)
+AEM descriptor     a34ea856596ff765fd1f34ab3ae85a1cfba564442cf5e0c582a144b3a4f45b5c (20,800 B)
+built from         a clean clone of 8a4ad2c4a9009693d45d2178bf538e02ef7cdfa2 (0 status entries), the
+                   image the PR's routed figures come from (Slow WNS +0.045 ns, least WHS +0.036 ns, 45,973 LUTs)
+
+## Why that image is the head's
+8a4ad2c4..079c4fa15 changes six files, none of them HDL, SoC, gateware or compiled firmware source:
+  docs/DOCUMENTATION_AUDIT.md, docs/design/SPLIT_CONTROL_MEMORY.md, sw/firmware/ctrl_nvm/README.md,
+  sw/firmware/ctrl_nvm/nvm_store.h (one comment, the same line count), sw/firmware/gtest/coverage.ratchet (a test
+  ratchet), tb/verilator/ctrl_service_budget/README.md.
+The firmware rebuilt at the head: ctrl_plat_image.py --config configs/endstation_ax7101_8x8.yaml --interfaces 1 from a
+fresh clean clone of 079c4fa15 (0 status entries before and after; the same submodule commits as the image's clone),
+on the image's own CSR map, flash map and runtime archives, 2026-11-26T13:13:12+01:00, rc 0:
+  6c82d9626ebf898252b5843bfeed48c362f6df2e4786007c57cd4782e4bbed21, byte-identical to the image's ctrl_app.elf.
+
+## The run
+start              2026-11-26T10:59:53+01:00 (the bench lock taken 10:59:54.235+01:00)
+end                2026-11-26T11:00:59.784+01:00 (the case's group ended; the bench released at 11:01:05+01:00)
+what ran           the power-cycle test's one case for STREAM_INPUT 0 at 8x8/1if (T's Talker Failed declared at the DUT's
+                   first ENTITY_AVAILABLE after power-on), selected by its power-cycle tag (up to 3 attempts)
+environment        CERT_CUT_HOLD_S=1.0 (the cut no sooner than 1.0 s after the bind's response, unchanged),
+                   CERT_POWER_DRAIN_S=1.0 (the wait after the cut before T's withdraw, the ruling's item 1),
+                   CERT_DURABLE_READ=1 (the durable reading in the hold), CERT_POWER_APPROVED=1
+result             1 scenario passed, 0 failed; 4 steps passed; at attempt 1
+rc                 0 (the test's run, its group and the run script)
