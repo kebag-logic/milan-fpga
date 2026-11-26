@@ -2019,12 +2019,6 @@ class MilanMAC(LiteXModule):
             ),
         ]
 
-        if usb_net_clk_hz is not None:
-            # #1011, Arty only: the computer's frames below every datapath frame,
-            # held while the internal loopback runs
-            import usbnet_soc
-            usbnet_soc.add_usb_net(self, platform, usb_net_clk_hz, REPO_ROOT, rx_dp.sys, ~lb)
-
         # ---- PHY/MAC link status (MAC_STATUS 0x110 / REQ-MAC-03) --------------------
         # WHY A CSR AND NOT A WIRE: LiteEth's GMII/MII PHY wrappers expose NO link,
         # speed or duplex output. `LiteEthPHYGMII`/`LiteEthPHYMII` carry the TX/RX
@@ -2087,6 +2081,13 @@ class MilanMAC(LiteXModule):
             MultiReg(self.link_status.fields.link_up,     link_up_cd,     odomain=milan_cd),
             MultiReg(self.link_status.fields.full_duplex, full_duplex_cd, odomain=milan_cd),
         ]
+
+        if usb_net_clk_hz is not None:
+            # #1011, Arty only: the computer's frames below every datapath frame,
+            # held while the internal loopback runs. Its registers come after
+            # every other register of this bank, so none of theirs moves.
+            import usbnet_soc
+            usbnet_soc.add_usb_net(self, platform, usb_net_clk_hz, REPO_ROOT, rx_dp.sys, ~lb)
 
         # ---- RMON event pulses (STAT window 0x210..0x230 / STATS_CAP 0x204) -------
         # THE FIX for "RMON reads zero on both boards" (root-caused 2026-07-22,
