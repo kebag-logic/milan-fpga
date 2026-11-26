@@ -50,7 +50,7 @@ module KL_usbnet_local_rx (
   //! Verdict is redundant with the copy/drop counters at this filtered seam.
   wire verdict_valid_unused_w;
   wire [2:0] verdict_unused_w;
-  KL_usbnet_rx_copy #(.MAX_LEN_P(1515)) copy (
+  KL_usbnet_rx_copy #(.MAX_LEN_OCTETS_P(1515)) copy (
     .clk_i, .rst_ni, .s_valid_i, .s_data_i, .s_keep_i, .s_last_i,
     //! This is the device receiver; its identity does not depend on USB attachment.
     .host_mac_i(station_mac_i), .host_ok_i(1'b1),

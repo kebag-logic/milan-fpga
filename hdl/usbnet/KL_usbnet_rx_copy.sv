@@ -42,7 +42,7 @@ module KL_usbnet_rx_copy
 #(
   parameter int unsigned DEPTH_P   = 512,   //! 64-bit words of frame buffer
   parameter int unsigned DESC_P    = 16,    //! frames the buffer can hold
-  parameter int unsigned MAX_LEN_P = 1514   //! FX3 to_host record limit, octets
+  parameter int unsigned MAX_LEN_OCTETS_P = 1514   //! FX3 to_host record limit, octets
 )(
   input  wire              clk_i,   //! the system clock, the MAC wrapper's
   input  wire              rst_ni,   //! synchronous reset, active low
@@ -82,8 +82,8 @@ module KL_usbnet_rx_copy
   localparam int unsigned AW_C = $clog2(DEPTH_P);
   localparam int unsigned DW_C = $clog2(DESC_P);
 
-  if (MAX_LEN_P > 4095 || (MAX_LEN_P + 7) / 8 > DEPTH_P) begin : g_refuse
-    $error("KL_usbnet_rx_copy: MAX_LEN_P=%0d must fit 12 bits and the buffer", MAX_LEN_P);
+  if (MAX_LEN_OCTETS_P > 4095 || (MAX_LEN_OCTETS_P + 7) / 8 > DEPTH_P) begin : g_refuse
+    $error("KL_usbnet_rx_copy: MAX_LEN_OCTETS_P=%0d must fit 12 bits and the buffer", MAX_LEN_OCTETS_P);
   end
 
   (* ram_style = "block" *) logic [63:0] ram_r [DEPTH_P];
@@ -127,7 +127,7 @@ module KL_usbnet_rx_copy
 
   wire [11:0]  base_w  = in_frame_r ? len_r : 12'd0;
   wire [12:0]  len_w   = {1'b0, base_w} + 13'(keep_octets(s_last_q ? s_keep_q : 8'hFF));
-  wire         long_w  = len_w > 13'(MAX_LEN_P);
+  wire         long_w  = len_w > 13'(MAX_LEN_OCTETS_P);
   //! ROLLBACK: a frame always starts at the committed pointer, so a frame
   //! that is not copied leaves nothing behind
   wire [AW_C:0] start_w = in_frame_r ? wr_cur_r : wr_ptr_r;
@@ -194,7 +194,7 @@ module KL_usbnet_rx_copy
           in_frame_r <= 1'b1;
           spoil_r    <= spoil_w;
           long_r     <= too_long_w;
-          len_r      <= long_w ? 12'(MAX_LEN_P + 1) : len_w[11:0];
+          len_r      <= long_w ? 12'(MAX_LEN_OCTETS_P + 1) : len_w[11:0];
           if (beat_r != 2'd3) beat_r <= beat_r + 1'b1;
           if (!spoil_w) wr_cur_r <= start_w + 1'b1;
         end

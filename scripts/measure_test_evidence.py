@@ -676,6 +676,7 @@ def runner_contract(text: str) -> list[str]:
     milan_dp_mclk)     printf '%s\\n' "${SUITE_TIMEOUT:-3600}" ;;
     media_phase)       printf '%s\\n' "${SUITE_TIMEOUT:-1400}" ;;
     reboot_ctrl)       printf '%s\\n' "${SUITE_TIMEOUT:-300}" ;;
+    usbnet)            printf '%s\\n' "${SUITE_TIMEOUT:-300}" ;;
     *)                 printf '%s\\n' "${SUITE_TIMEOUT:-1800}" ;;
   esac
 }'''
