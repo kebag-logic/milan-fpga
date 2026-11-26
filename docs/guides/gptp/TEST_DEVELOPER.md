@@ -27,7 +27,7 @@ C firmware never judges gPTP correctness.
 
 Python models must not mirror implementation blindly.
 
-Read the [engine test guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/1213ac5b9e09b8759ba76cc70c53652b5e108996/docs/TEST_DEVELOPER.md).
+Read the [engine test guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/3ce71b768a2f6f6a5274c127080146e755d02275/docs/TEST_DEVELOPER.md).
 
 ## Choose a suite
 
@@ -39,8 +39,8 @@ Read the [engine test guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/1213
 | Donor `gaskets` | Bench MII gasket loopback and FIFO wedge |
 | Parent `ptp` | PHC accumulator arithmetic |
 | Parent `ptp_ts` | Stand-alone record stamper, absent from the product |
-| Parent `gptp_shadow` | Transport, pairing, publication, ledger laws, takeover rate and first Announce |
-| Parent `gptp_plane` | Closed-loop PHC steering |
+| Parent `gptp_shadow` | Transport, pairing, publication, ledger laws, takeover rate, first Announce and the public delay clamp |
+| Parent `gptp_plane` | Closed-loop PHC steering; the link delay verdict, planted by `link_delay.py` |
 | Parent `gptp_txts` | Egress launch time over the converted product MAC |
 | Parent `clkvalid` | Discontinuity and holdover |
 | Parent `milan_dp` | Product wiring and public consumers |

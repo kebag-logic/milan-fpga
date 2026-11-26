@@ -26,12 +26,17 @@ SRCS = gptp_plane_wrap.sv \
        $(GPTP_DIR)/hdl/top/KL_gptp_engine.sv
 CPP  = sim_main.cpp
 
-.PHONY: all phc-step
+.PHONY: all phc-step link-delay
 .DEFAULT_GOAL := all
-all: run phc-step
+all: run phc-step link-delay
 
 phc-step:
 	python3 phc_step.py --mutants
+
+#: phase 6's planted defects (FPGA-gPTP #109), each against an image of its
+#: own, on the binary `run` built
+link-delay: run
+	python3 link_delay.py
 
 run: gptp_ucode.hex
 	$(VERILATOR) $(VFLAGS) $(SRCS) $(CPP) -o Vgptp_plane_sim
