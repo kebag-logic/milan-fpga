@@ -152,7 +152,7 @@ It also runs the tally checks and complete coverage ratchet.
 `firmware-srp-mutants` runs both SRP campaigns and pin controls.
 The normal shard includes the SRP wire comparator self-test.
 Both SRP interface campaigns retain F-INT's publication mutants.
-The aggregate also requires the separate `publication-census` and `split-cdc` jobs.
+The aggregate also requires the separate `publication-census-legs`, `publication-census` and `split-cdc` jobs.
 It also requires the two TSN stack boundary jobs above (#697) and `firmware-boundary-capture` (#1003), which run none of the four phases.
 All jobs verify the same pinned SDK.
 Only that authenticated SDK is cached; builds remain fresh.
@@ -170,6 +170,31 @@ Scale them using the original job's hosted-to-local ratio.
 Include checkout, installation, cache, and completion overhead.
 Issue #716 records measurements and the hosted acceptance table.
 
+#1008 holds each firmware job and the census to #998's 1276-second budget, 30 minutes on a runner 1.41 times
+as slow, by running them as matrix legs (`scripts/ci_fast_legs.py`, applied by the generator; the templates
+keep each complete command). Over the 20 successful hosted runs measured, the control campaign step took up to
+2402 s, the AECP campaign 1554 s, the SRP campaigns 1789 s, firmware-unit 1880 s and the census 2657 s.
+- `firmware-control-mutants` runs four legs, `firmware-aecp-mutants` and `firmware-srp-mutants` two each:
+  `--campaign-shard INDEX COUNT` deals each live table in order, every defect to exactly one leg, and every leg
+  runs its phase's controls (the SRP pin controls included). Each leg proves, through the real driver, that the
+  legs together plant each defect of the phase once and that a dropped or a duplicated leg is refused.
+- `firmware-unit` runs three legs, each step whole and unchanged on one leg: the tally proof and the
+  control-plane suites, the saved-state suites, and the coverage ratchet.
+- `publication-census-legs` runs five legs: leg 0 checks every shape (`publication_census.py --check`), legs 1-4
+  the self-test's arms, each netlist rider beside its host (`sw/mailbox/census_legs.py`). Each leg uploads a
+  receipt of its source, inventory, selection and verdicts. `publication-census` then judges the union: every
+  arm exactly once and passing, the same source and inventory, and each rule's removal by the unchanged judge. A
+  planted failed, missing or duplicated leg, a changed head, tree, inventory or selection, and a rule removal
+  that escapes, are each refused. The legs restore the tree `yosys-tool` built (`fail-on-cache-miss`), so a
+  cache miss builds Yosys once, not in each leg; in 6 of the 20 runs that build took 732-838 s of the census
+  job's window.
+Every matrix keeps GitHub's own `fail-fast: true`, so a failed leg cancels its siblings on every event, a
+fork's included, with no token, and the matrix result fails the aggregate. The aggregate also requires
+`publication-census-legs`, since a failed leg skips the judge. `ci_events.py` holds each matrix exactly,
+the judge's need of its legs, the legs' 30 minutes and the aggregate's reading of each, in the generated file.
+No job's limit changed. The docs gates run on five workers: the firmware controls and both contract gates on
+`docs-gates-3`, the saved-state writer on `docs-gates-4`, each step whole with its receipt (below).
+
 The control driver's `--shard INDEX/4` selects complete phases.
 Its default invocation remains complete and ordered.
 Every sharded run checks the live default invocation inventory.
@@ -182,7 +207,7 @@ The generated command census retains each command's conditions.
 It also pins every worker and its 45-minute timeout.
 
 A change containing only documentation skips the Verilator and Yosys setup
-jobs (`yosys-tool` included), `publication-census`, `split-cdc`, all four firmware jobs, `firmware-boundary` and `firmware-verilator`.
+jobs (`yosys-tool` included), `publication-census-legs`, `publication-census`, `split-cdc`, all four firmware jobs, `firmware-boundary` and `firmware-verilator`.
 Documentation is a top-level `*.md`, anything under `LICENSES/`, or a
 `*.md`, `*.drawio`, `*.svg` or `*.png` under `docs/`, less the pages a gated
 module reads (#444). A gated module is code under the six roots named below,
@@ -421,11 +446,12 @@ only whole-list hold, as item 4 of the sequence pin states.
 keep every derived step, unchanged unless it is an `Install ` or `Build `
 step.
 
-The mailbox publication census runs in a job of its own, `publication-census`
-(`sw/mailbox/publication_census.py --check --selftest --jobs "$CI_CENSUS_JOBS"`,
-#665, comment 6100024293). It installs the pinned Yosys through its own cache
-and build steps, under a key bound to the workflow files like `rtl-full`'s, and
-does not need `yosys-tool`. It installs the same pinned sv2v release. It
+The mailbox publication census runs in jobs of its own, `publication-census-legs` and its judge
+`publication-census` (the template's `sw/mailbox/publication_census.py --check --selftest --jobs
+"$CI_CENSUS_JOBS"`, #665, comment 6100024293, run as #1008's legs, above). The template carries the
+pinned Yosys's cache and build steps, byte for byte `yosys-elaboration`'s; the generator replaces them in the
+legs with `yosys-tool`'s exact restore, as in `yosys-elaboration`, and refuses a census recipe that differs.
+It installs the same pinned sv2v release. It
 elaborates `milan_datapath` with the recipe `syn/yosys/run.sh --emit
 milan_datapath` prints, in every shape the builder builds (the recipe's, and
 each `configs/*.yaml` with its generated header and the parameters
@@ -3421,9 +3447,11 @@ workers', which is #998's budget (below).
 
 | Worker | Projected seconds | Own bound | Margin, seconds |
 |---|---:|---:|---:|
-| `docs-gates-0` | 1395 | 1620 | 225 |
-| `docs-gates-1` | 1248 | 1620 | 372 |
-| `docs-gates-2` | 1073 | 1620 | 547 |
+| `docs-gates-0` | 738 | 1620 | 882 |
+| `docs-gates-1` | 1302 | 1620 | 318 |
+| `docs-gates-2` | 981 | 1620 | 639 |
+| `docs-gates-3` | 1237 | 1620 | 383 |
+| `docs-gates-4` | 879 | 1620 | 741 |
 | `elaborate-gates-0` | 1869 | 2700 | 831 |
 | `elaborate-gates-1` | 1858 | 2700 | 842 |
 | `elaborate-gates-2 (cold)` | 1651 | 2700 | 1049 |
@@ -3435,31 +3463,31 @@ workers', which is #998's budget (below).
 | `yosys-shards 2/4` | 92 | 1044 | 952 |
 | `yosys-shards 3/4` | 91 | 1044 | 953 |
 | `verilator-shards 0/27` | 1275 | 1276 | 1 |
-| `verilator-shards 1/27` | 1249 | 1276 | 27 |
+| `verilator-shards 1/27` | 1234 | 1276 | 42 |
 | `verilator-shards 2/27` | 1267 | 1276 | 9 |
-| `verilator-shards 3/27` | 1180 | 1276 | 96 |
+| `verilator-shards 3/27` | 1184 | 1276 | 92 |
 | `verilator-shards 4/27` | 1217 | 1276 | 59 |
 | `verilator-shards 5/27` | 1197 | 1276 | 79 |
-| `verilator-shards 6/27` | 1177 | 1276 | 99 |
+| `verilator-shards 6/27` | 1183 | 1276 | 93 |
 | `verilator-shards 7/27` | 1179 | 1276 | 97 |
-| `verilator-shards 8/27` | 1176 | 1276 | 100 |
-| `verilator-shards 9/27` | 1176 | 1276 | 100 |
-| `verilator-shards 10/27` | 1180 | 1276 | 96 |
+| `verilator-shards 8/27` | 1180 | 1276 | 96 |
+| `verilator-shards 9/27` | 1184 | 1276 | 92 |
+| `verilator-shards 10/27` | 1252 | 1276 | 24 |
 | `verilator-shards 11/27` | 1246 | 1276 | 30 |
 | `verilator-shards 12/27` | 1233 | 1276 | 43 |
 | `verilator-shards 13/27` | 1223 | 1276 | 53 |
 | `verilator-shards 14/27` | 1206 | 1276 | 70 |
-| `verilator-shards 15/27` | 1177 | 1276 | 99 |
-| `verilator-shards 16/27` | 1180 | 1276 | 96 |
-| `verilator-shards 17/27` | 1176 | 1276 | 100 |
-| `verilator-shards 18/27` | 1176 | 1276 | 100 |
-| `verilator-shards 19/27` | 1179 | 1276 | 97 |
-| `verilator-shards 20/27` | 1237 | 1276 | 39 |
-| `verilator-shards 21/27` | 1243 | 1276 | 33 |
-| `verilator-shards 22/27` | 1175 | 1276 | 101 |
-| `verilator-shards 23/27` | 1177 | 1276 | 99 |
-| `verilator-shards 24/27` | 1238 | 1276 | 38 |
-| `verilator-shards 25/27` | 1220 | 1276 | 56 |
+| `verilator-shards 15/27` | 1179 | 1276 | 97 |
+| `verilator-shards 16/27` | 1184 | 1276 | 92 |
+| `verilator-shards 17/27` | 1184 | 1276 | 92 |
+| `verilator-shards 18/27` | 1184 | 1276 | 92 |
+| `verilator-shards 19/27` | 1184 | 1276 | 92 |
+| `verilator-shards 20/27` | 1262 | 1276 | 14 |
+| `verilator-shards 21/27` | 1256 | 1276 | 20 |
+| `verilator-shards 22/27` | 1180 | 1276 | 96 |
+| `verilator-shards 23/27` | 1182 | 1276 | 94 |
+| `verilator-shards 24/27` | 1178 | 1276 | 98 |
+| `verilator-shards 25/27` | 1250 | 1276 | 26 |
 | `verilator-shards 26/27` | 1530 | 2160 | 630 |
 
 Verilator figures already include their 122-second overhead allowance.
