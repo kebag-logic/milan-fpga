@@ -1,0 +1,50 @@
+{
+  "head": "8156dc7aeb2cae7f86843ba9946acae99ff885f4",
+  "results": [
+    {
+      "command": [
+        "python3",
+        "tb/verilator/ctrl_service_budget/run.py",
+        "--point",
+        "8x8-1if",
+        "--groups",
+        "backlog-owed",
+        "--record-budget-findings",
+        "--build-dir",
+        "$VALIDATION_STORAGE/cicd4-candidate-0923/egress/egress-build",
+        "--jobs",
+        "8"
+      ],
+      "cwd": "$LANES/cicd4-cand-egress",
+      "exit_code": 0,
+      "seconds": 649.318,
+      "log": "$VALIDATION_STORAGE/cicd4-candidate-0923/egress/01.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-I",
+        "egress_ledger.py",
+        "--selftest"
+      ],
+      "cwd": "$LANES/cicd4-cand-egress/tb/verilator/ctrl_service_budget",
+      "exit_code": 0,
+      "seconds": 3.318,
+      "log": "$VALIDATION_STORAGE/cicd4-candidate-0923/egress/02.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-I",
+        "egress_ledger.py",
+        "--point",
+        "8x8-1if",
+        "$VALIDATION_STORAGE/cicd4-candidate-0923/egress/egress-build/results"
+      ],
+      "cwd": "$LANES/cicd4-cand-egress/tb/verilator/ctrl_service_budget",
+      "exit_code": 0,
+      "seconds": 0.091,
+      "log": "$VALIDATION_STORAGE/cicd4-candidate-0923/egress/03.log"
+    }
+  ]
+}

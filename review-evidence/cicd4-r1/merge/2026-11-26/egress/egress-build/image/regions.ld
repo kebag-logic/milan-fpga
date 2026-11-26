@@ -1,0 +1,5 @@
+MEMORY
+{
+	rom (rx) : ORIGIN = 0x00000000, LENGTH = 0x00038000
+	sram (rwx) : ORIGIN = 0x10000000, LENGTH = 0x00038000
+}

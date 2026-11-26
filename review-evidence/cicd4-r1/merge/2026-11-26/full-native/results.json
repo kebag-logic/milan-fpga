@@ -1,0 +1,84 @@
+{
+  "head": "8156dc7aeb2cae7f86843ba9946acae99ff885f4",
+  "base": "4df125b8c11f0e1706b3c1e489f3e66a5d856b18",
+  "results": [
+    {
+      "command": [
+        "env",
+        "PATH=$VALIDATION_STORAGE/cicd4-candidate-0923/pinned-tool-bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+        "VERILATOR_ROOT=$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator",
+        "SUITE_TIMEOUT=7200",
+        "python3",
+        "$MANAGEMENT/2026-09-23/parallel-suites.py",
+        "$VALIDATION_STORAGE/cicd4-candidate-0923/full-suite-logs",
+        "5"
+      ],
+      "exit_code": 0,
+      "seconds": 6415.717,
+      "log": "$VALIDATION_STORAGE/cicd4-candidate-0923/full-native/01.log"
+    },
+    {
+      "command": [
+        "env",
+        "PATH=$VALIDATION_STORAGE/cicd4-candidate-0923/pinned-tool-bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+        "VERILATOR_ROOT=$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator",
+        "bash",
+        "syn/yosys/run.sh",
+        "--results",
+        "$VALIDATION_STORAGE/cicd4-candidate-0923/yosys-results"
+      ],
+      "exit_code": 0,
+      "seconds": 6039.625,
+      "log": "$VALIDATION_STORAGE/cicd4-candidate-0923/full-native/02.log"
+    },
+    {
+      "command": [
+        "env",
+        "PATH=$VALIDATION_STORAGE/cicd4-candidate-0923/pinned-tool-bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+        "VERILATOR_ROOT=$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator",
+        "python3",
+        "$MANAGEMENT/2026-09-23/pin-receipt.py",
+        "run",
+        "protocol-processor",
+        "--",
+        "bash",
+        "-c",
+        "cd protocol-processor && bash scripts/run_suites.sh"
+      ],
+      "exit_code": 0,
+      "seconds": 7237.991,
+      "log": "$VALIDATION_STORAGE/cicd4-candidate-0923/full-native/03.log"
+    },
+    {
+      "command": [
+        "env",
+        "PATH=$VALIDATION_STORAGE/cicd4-candidate-0923/pinned-tool-bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+        "VERILATOR_ROOT=$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator",
+        "python3",
+        "$MANAGEMENT/2026-09-23/pin-receipt.py",
+        "run",
+        "gptp-processor",
+        "--",
+        "make",
+        "-C",
+        "gptp-processor",
+        "all"
+      ],
+      "exit_code": 0,
+      "seconds": 15655.189,
+      "log": "$VALIDATION_STORAGE/cicd4-candidate-0923/full-native/04.log"
+    },
+    {
+      "command": [
+        "env",
+        "PATH=$VALIDATION_STORAGE/cicd4-candidate-0923/pinned-tool-bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+        "VERILATOR_ROOT=$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator",
+        "behave",
+        "tests/features"
+      ],
+      "exit_code": 0,
+      "seconds": 40.094,
+      "log": "$VALIDATION_STORAGE/cicd4-candidate-0923/full-native/05.log"
+    }
+  ]
+}

@@ -1,0 +1,90 @@
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+{
+  "shape": "endstation_ax7101_8x8",
+  "interfaces": 1,
+  "srp": true,
+  "aecp": true,
+  "sections": {
+    ".text": 105872,
+    ".rodata": 26078,
+    ".data": 448,
+    ".bss": 90192,
+    ".stack": 8192,
+    ".riscv.attributes": 42
+  },
+  "static_storage": {
+    "image_acmp": 96,
+    "image_aecp": 3584,
+    "image_aecp_bridge": 144,
+    "image_allocation": 8,
+    "image_app": 9184,
+    "image_arena": 24032,
+    "image_binding": 40,
+    "image_descriptors": 2112,
+    "image_entity": 40,
+    "image_env": 24,
+    "image_events": 3168,
+    "image_face": 100,
+    "image_latency": 36,
+    "image_licences": 9,
+    "image_map_pools": 448,
+    "image_maps": 4672,
+    "image_map_scratch": 576,
+    "image_model": 12,
+    "image_names": 110,
+    "image_owed": 9216,
+    "image_platform": 68,
+    "image_sources": 288,
+    "image_srp": 4408,
+    "image_state": 200,
+    "image_values": 12473
+  },
+  "artifacts": [
+    {
+      "name": "libc.a",
+      "size": 5542,
+      "sha256": "379c4ec4d4c2665ee5289cdb47e0203c0da44337cafab9841e73b0a48b9cff7b"
+    },
+    {
+      "name": "libcompiler_rt.a",
+      "size": 29432,
+      "sha256": "442133e0552b17fc52bcf73db89fdf795fb382742b52dbaebecab8c7e71ecabf"
+    },
+    {
+      "name": "ctrl_app.elf",
+      "size": 166380,
+      "sha256": "d6bbc56728a545e35c4bce1c08cef974ecc5c84b7a1e1a1f7e0eb8ef2f0e4aee"
+    },
+    {
+      "name": "ctrl_app.map",
+      "size": 146026,
+      "sha256": "db96921661bd3947e4f9b1bbfb45411a9ba9601ac06cf56e72f031bdcb679d6d"
+    }
+  ],
+  "ram_sections": 230782,
+  "split": {
+    "rom": {
+      "bytes": 132400,
+      "banks": [
+        131072,
+        2048
+      ],
+      "RAMB36": 32,
+      "RAMB18": 1
+    },
+    "sram": {
+      "bytes": 98832,
+      "banks": [
+        65536,
+        32768,
+        2048
+      ],
+      "RAMB36": 24,
+      "RAMB18": 1
+    },
+    "tiles": 57.0,
+    "budget_tiles": 56,
+    "ledgered": "8x8-one-interface",
+    "ledgered_tiles": 57.5
+  }
+}
