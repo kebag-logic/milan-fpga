@@ -6,14 +6,16 @@
 import copy
 import hashlib
 import json
+import os
 from pathlib import Path
+import subprocess
 import tempfile
 
 from ci_case_receipts import canonical, partition
 from ci_suite_pieces import PIECE_SECONDS, expand_suites, inventory, piece_identity, union
-from suite_shards import ROOT, SUITE_SECONDS, WORKER_OVERHEAD_SECONDS, balance, sweep_suites
+from suite_shards import CI_BUDGET_SECONDS, ROOT, SUITE_SECONDS, WORKER_OVERHEAD_SECONDS, balance, sweep_suites
 from ci_gate_workflows import generate, load_template
-from ci_suite_workflows import inventory_dependencies
+from ci_suite_workflows import PREFLIGHT_ARTIFACT, PREFLIGHT_JOB, inventory_dependencies
 
 
 def write_leg(root: Path, suite: str, leg: int, names: list[str]) -> Path:
@@ -76,6 +78,44 @@ def suite_controls(suite: str, root: Path) -> None:
     refused("missing executed log", roots)
 
 
+def preflight_controls(workflow: dict) -> None:
+    """The workers skip the self-tests only because one job runs them for the head, and
+    verilator-suites is red unless that job succeeded and recorded this run's SHA."""
+    jobs = workflow["jobs"]
+    shards, preflight, aggregate = jobs["verilator-shards"], jobs[PREFLIGHT_JOB], jobs["verilator-suites"]
+    assert preflight["needs"] == shards["needs"] and preflight["if"] == shards["if"], preflight
+    runs = [step["run"] for step in preflight["steps"] if "scripts/run_all_suites.sh" in step.get("run", "")]
+    assert len(runs) == 1 and "--preflight-only" in runs[0] and "--shard" not in runs[0], runs
+    worker = [step["run"] for step in shards["steps"] if step.get("name") == "Run this exhaustive suite shard"]
+    assert len(worker) == 1 and "--ci-pieces --no-preflight --shard" in worker[0], worker
+    assert PREFLIGHT_JOB in aggregate["needs"], aggregate["needs"]
+    [check] = [step for step in aggregate["steps"] if PREFLIGHT_JOB in json.dumps(step.get("env", {}))]
+    assert check["if"] == "${{ always() }}" and "continue-on-error" not in check, check
+    [watcher] = [step["env"]["EXPECTED_JOBS"] for step in jobs["ci-fail-fast"]["steps"]
+                 if step.get("name") == "Observe the first failed job"]
+    assert preflight["name"] in json.loads(watcher), "fail-fast does not watch the preflight"
+    head = subprocess.run(["git", "rev-parse", "HEAD"], cwd=ROOT, capture_output=True, text=True,
+                          check=True).stdout.strip()
+    other = "0" * 40 if head != "0" * 40 else "1" * 40
+    with tempfile.TemporaryDirectory(prefix="preflight-binding-") as directory:
+        temp = Path(directory)
+        for label, result, recorded, expect in (
+                ("passed for this SHA", "success", head, 0), ("failed", "failure", head, 1),
+                ("cancelled", "cancelled", head, 1), ("skipped", "skipped", head, 1),
+                ("passed for another SHA", "success", other, 1), ("left no record", "success", None, 1)):
+            root = temp / label.replace(" ", "-")
+            (root / PREFLIGHT_ARTIFACT).mkdir(parents=True)
+            if recorded is not None:
+                (root / PREFLIGHT_ARTIFACT / "TARGET_SHA").write_text(recorded + "\n")
+            env = dict(os.environ, RUNNER_TEMP=str(root), GITHUB_SHA=head, GATE_SHA=head,
+                       PREFLIGHT_RESULT=result)
+            ran = subprocess.run(["bash", "--noprofile", "--norc", "-eo", "pipefail", "-c", check["run"]],
+                                 cwd=ROOT, env=env, capture_output=True, text=True)
+            assert (ran.returncode == 0) == (expect == 0), (label, ran.returncode, ran.stdout, ran.stderr)
+            print(f"preflight binding control: a preflight that {label}: "
+                  + ("verilator-suites passes" if expect == 0 else "verilator-suites fails"))
+
+
 def main() -> int:
     """Cover complete ownership, source inventories and each fail-closed union."""
     physical = sweep_suites(ROOT / "tb/verilator")
@@ -89,14 +129,16 @@ def main() -> int:
         readers = [index for index, step in enumerate(steps)
                    if any(name in step.get("run", "") for name in ("ci_suite_pieces.py", "ci_suite_collect.py"))]
         assert readers and matches[0] < min(readers)
+    preflight_controls(workflow)
     pieces = expand_suites(physical)
     assert set(SUITE_SECONDS) == set(pieces)
     assert "milan_dp_gptp" not in pieces
     owners, load = balance(pieces, len(WORKER_OVERHEAD_SECONDS))
     assert owners["tsn_fuzz"] == 1 and owners["chmap_capture"] == 3
-    assert max(load[:-1]) <= 1620 and load[-1] <= 2160
+    assert max(load[:-1]) <= CI_BUDGET_SECONDS and load[-1] <= 2160, load
     assert [name for name in pieces if owners[name] == len(load) - 1] == ["milan_dp_mclk__0"]
-    for bad in ("milan_dp", "milan_dp__04", "milan_dp__4", "other__0", "milan_dp__-1"):
+    legs = len(PIECE_SECONDS["milan_dp"])
+    for bad in ("milan_dp", "milan_dp__04", f"milan_dp__{legs}", "other__0", "milan_dp__-1"):
         try:
             piece_identity(bad)
         except ValueError:

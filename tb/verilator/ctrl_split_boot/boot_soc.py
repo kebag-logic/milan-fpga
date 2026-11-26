@@ -22,7 +22,7 @@ devices the platform adds, so this one adds them:
   - the PHY's MDIO bit-bang pair and link-status word (#919), named as the
     product's MilanMAC names them (milan_mac_phy_mdio_w and _r, LiteEth's
     LiteEthPHYMDIO, its input through the same two-register synchroniser;
-    milan_mac_link_status, at its reset value), their pins on pads: the
+    milan_mac_link_status, at the split's reset value, link down: #972), their pins on pads: the
     testbench is the PHY, and reads each publication.
 
 The datapath is not built: the window answers as the datapath's reset
@@ -52,6 +52,7 @@ from litex.soc.interconnect.csr import CSRStatus, CSRStorage  # noqa: E402
 from migen.genlib.cdc import MultiReg  # noqa: E402
 
 milan_soc = split_soc.milan_soc
+import mac_link_status  # noqa: E402  beside milan_soc, on its path: the word's reset (#972)
 capture_soc = split_soc.capture_soc
 #: The window's Wishbone signals on the testbench's pads.
 CSR_FIELDS = (('cyc', 1), ('stb', 1), ('we', 1), ('adr', 30), ('dat_w', 32), ('sel', 4), ('dat_r', 32), ('ack', 1))
@@ -70,9 +71,10 @@ class CsrWindow(LiteXModule):
 #: The PHY boundary's signals on the testbench's pads (#919): MDIO's three pins (MDC, the output enable, the driven
 #: bit), the PHY's reply, and the link-status word with its write strobe.
 PHY_FIELDS = (('pins', 3), ('reply', 1), ('status', 4), ('publish', 1))
-#: milan_mac_link_status's reset value, as milan_soc.py's MilanMAC resets its fields on a gmii board: link up (bit 0),
-#: 1000 Mb/s (speed 0b10 at bits 2:1) and full duplex (bit 3).
-LINK_STATUS_RESET = 1 | 0b10 << 1 | 1 << 3
+#: milan_mac_link_status's reset value, as milan_soc.py's MilanMAC resets its fields on a gmii board whose firmware
+#: owns the PHY, the split placement with an MDIO pair (mac_link_status.py, #972): link down (bit 0), 1000 Mb/s
+#: (speed 0b10 at bits 2:1) and full duplex (bit 3).
+LINK_STATUS_RESET = mac_link_status.word_reset('gmii', fw_link_owner=True)
 
 
 class PhyBoundary(LiteXModule):

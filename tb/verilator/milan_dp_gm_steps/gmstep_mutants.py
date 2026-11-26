@@ -50,7 +50,6 @@ import argparse
 import signal
 import subprocess
 import sys
-import tempfile
 from pathlib import Path
 from typing import NamedTuple
 
@@ -68,6 +67,7 @@ SOURCES = {
 MAKE_VAR = {"datapath": "DP_SRC", "clkv": "CLKV_SRC", "stage": "RQ_SRC", "restart": "MCR_SRC"}
 sys.path.insert(0, str(HERE / "../../../scripts"))
 from suite_tally import log_reports_failure  # noqa: E402
+import mutant_stage  # noqa: E402
 
 #: the render presentation stage's flush: the bind wipe, and nothing else
 #: (#632). The render controls OR a re-base cause into it.
@@ -394,7 +394,7 @@ def main() -> int:
                 (c.name.startswith("the policy level") if args.slew else args.all or c.acceptance)]
     passes = 0
     fails = 0
-    with tempfile.TemporaryDirectory(prefix="gmstep-mutants-") as td:
+    with mutant_stage.directory("gmstep-mutants-") as td:
         work = Path(td)
         for key in dict.fromkeys(c.leg for c in selected):
             leg = LEGS[key]

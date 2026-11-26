@@ -22,6 +22,7 @@ import shutil
 from pathlib import Path
 
 import acmp_mutants
+import adp_first_mutants
 import ctrl_arms
 import fw_gtest
 import maap_gate_mutants
@@ -133,11 +134,6 @@ MUTANTS = (
            ("\tif (a->state != ADP_STATE_DOWN) {\n\t\t(void)send(a, ADP_MSG_ENTITY_DEPARTING, a->available_index);\n"
             "\t\ttimer_stop(a); // Milan v1.2 5.6.3.5.6 / 5.6.3.5.10\n\t\ta->available_owed = false;\n"),
            "walk", "Table551/AdpWalkCell.Graded/LINK_DOWN_x_WAITING", "LINK_DOWN x WAITING: frames committed"),
-    Mutant("gm-change-ignored", ADP_C,
-           ("\tif (a->enabled && a->state == ADP_STATE_WAITING) {\n"
-            "\t\tenter_delay(a, ADP_DRAW_DELAY);                         // Milan v1.2 5.6.3.5.7\n\t}\n"),
-           "\tif (a->enabled && a->state == ADP_STATE_WAITING) {\n\t\t(void)0;\n\t}\n",
-           "walk", "Table551/AdpWalkCell.Graded/GM_CHANGE_x_WAITING", "GM_CHANGE x WAITING"),
     Mutant("delay-ignores-link-down", ADP_C, "\tif (a->state != ADP_STATE_DOWN) {\n\t\ttimer_stop(a);",
            "\tif (a->state == ADP_STATE_WAITING) {\n\t\ttimer_stop(a);",
            "walk", "Table551/AdpWalkCell.Graded/LINK_DOWN_x_DELAY_timer_armed", "LINK_DOWN x DELAY"),
@@ -153,14 +149,6 @@ MUTANTS = (
     Mutant("advertise-period-wrong", ADP_C, "timer_start(a, ADP_TIMER_ADVERTISE, ADP_ADVERTISE_MS);",
            "timer_start(a, ADP_TIMER_ADVERTISE, ADP_ADVERTISE_MS + 1000u);",
            "walk", "Table551/AdpWalkCell.Graded/TMR_DELAY_x_DELAY_timer_armed", "TMR_DELAY x DELAY(timer armed)"),
-    Mutant("link-up-draws-startup-kind", ADP_C,
-           ("\t\tif (a->state == ADP_STATE_DOWN) {\n"
-            "\t\t\tenter_delay(a, ADP_DRAW_DELAY);                 // Milan v1.2 5.6.3.5.3\n\t\t}\n"),
-           ("\t\tif (a->state == ADP_STATE_DOWN) {\n"
-            "\t\t\tenter_delay(a, ADP_DRAW_STARTUP);               // Milan v1.2 5.6.3.5.3\n\t\t}\n"),
-           "walk", "Table551/AdpWalkCell.Graded/LINK_UP_x_DOWN", "LINK_UP x DOWN"),
-    Mutant("draw-kinds-merged", ADP_C, "kind == ADP_DRAW_STARTUP ? ADP_DELAY_STARTUP_MAX_MS : ADP_DELAY_MAX_MS",
-           "ADP_DELAY_MAX_MS", "adp", "AdpCore.A9DrawKinds", "A9 every startup draw"),
     Mutant("foreign-discover-answered", ADP_C, "if (target != 0u && target != a->entity->entity_id) {",
            "if (target == 1u) {", "adp", "AdpCore.A3toA5DiscoverAndDiscard", "A4 a foreign DISCOVER"),
     Mutant("frame-misses-config-index", ADP_C, "wire_put_be(pdu + 50, a->current_configuration_index, 2);",
@@ -577,6 +565,7 @@ MUTANTS += mbx_dma_mutants.MUTANTS
 MUTANTS += plat_mutants.mutants(Mutant)
 MUTANTS += loop_step_mutants.mutants(Mutant)
 MUTANTS += maap_gate_mutants.MUTANTS
+MUTANTS += adp_first_mutants.MUTANTS
 MUTANTS += sink_mutants.mutants(Mutant)
 
 MUTANTS += (

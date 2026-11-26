@@ -120,7 +120,7 @@ Flash prefill and destination poisoning happen before timing.
 Accepted RELOAD closes every allocated record before measurement.
 Every destination byte is poisoned using its live value XOR 255.
 The byte oracle therefore detects copying omitted from unchanged images.
-The full 8x8 copy covers 13,210 bytes and 164 records.
+The full 8x8 copy covers 13,850 bytes and 172 records (#584: one cluster per input port).
 That includes 4,672 output-map bytes.
 The 1x1 copy covers 3,290 bytes and 54 records.
 Materialization does not reduce either copy.

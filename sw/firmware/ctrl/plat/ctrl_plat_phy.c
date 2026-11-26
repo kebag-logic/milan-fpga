@@ -35,7 +35,11 @@ void ctrl_plat_phy_arm(struct ctrl_plat_phy *phy, const struct ctrl_plat_phy_bus
 	phy->bus = *bus;
 	phy->clock = clock;
 	phy->ctx = ctx;
-	phy->adv = CTRL_PLAT_PHY_ADV_OWED | CTRL_PLAT_PHY_ADV_RENEGOTIATE;
+	// THE LINK BEFORE THE FIRST POLL (#972): link down until a poll publishes the PHY's verified link. The word resets
+	// to it; a CPU reset alone keeps the word, so the arm writes it again. The advertisement is owed, its restart only
+	// where the PHY does not hold it
+	ctrl_plat_io_write32(bus->link_status, 0u);
+	phy->adv = CTRL_PLAT_PHY_ADV_OWED;
 	// THE BIT: CYCLES_HALF turns, or one where a timed run of more than TIMED_ONE us (at least TIMED_ONE, less the
 	// clock's resolution) shows a turn alone holds 200 ns
 	phy->spin = CYCLES_HALF;
@@ -117,6 +121,24 @@ static bool gigabit_only(uint32_t anar, uint32_t gctrl)
 #endif
 }
 
+// BMCR (22.2.4.1) as THE ADVERTISEMENT's restart leaves it: autonegotiation enabled (0.12), not in reset (0.15), not
+// isolated (0.10). Else the PHY is forced to a mode (22.2.4.1.4), cut off the MII (22.2.4.1.6) or resetting, and no
+// advertisement is in force (#840).
+static bool negotiating(uint32_t bmcr)
+{
+	return (bmcr & (CTRL_PLAT_PHY_BMCR_AN_ENABLE | CTRL_PLAT_PHY_BMCR_RESET | CTRL_PLAT_PHY_BMCR_ISOLATE)) ==
+	       CTRL_PLAT_PHY_BMCR_AN_ENABLE;
+}
+
+// The negotiation in force is not THE ADVERTISEMENT's: written and restarted by the next poll, counted (saturating).
+static void renegotiate(struct ctrl_plat_phy *phy)
+{
+	phy->adv = CTRL_PLAT_PHY_ADV_OWED | CTRL_PLAT_PHY_ADV_RENEGOTIATE;
+	if (phy->renegotiations != 0xffffu) {
+		++phy->renegotiations;
+	}
+}
+
 // A word published to the link status, kept as the word the next poll's latched loss is judged against. A link
 // that was published up and is not now is a loss: THE ADVERTISEMENT is owed again (#840, #919).
 static void publish(struct ctrl_plat_phy *phy, uint32_t word)
@@ -141,7 +163,9 @@ static void take(struct ctrl_plat_phy *phy)
 #else
 	const uint32_t advertised = 0u;
 #endif
-	uint32_t lo = (CTRL_PLAT_PHY_READ_OP << 10 | (uint32_t)phy->address << 5 | reg) << (32u - CTRL_PLAT_PHY_COMMAND_BITS);
+	// PHYAD and REGAD where the frame's command puts them (22.2.4.5), shared by a read and a write
+	const uint32_t at = ((uint32_t)phy->address << 5 | reg) << (32u - CTRL_PLAT_PHY_COMMAND_BITS);
+	uint32_t lo = CTRL_PLAT_PHY_READ_OP << 28 | at;
 	uint32_t driven = CTRL_PLAT_PHY_PREAMBLE_BITS + CTRL_PLAT_PHY_COMMAND_BITS;
 	if (stage - CTRL_PLAT_PHY_ADV_SET_GIG <= CTRL_PLAT_PHY_ADV_RESTART - CTRL_PLAT_PHY_ADV_SET_GIG) {
 		const uint32_t data =
@@ -151,14 +175,14 @@ static void take(struct ctrl_plat_phy *phy)
 				((uint32_t)phy->local & ~(CTRL_PLAT_PHY_ANAR_BELOW_GIGABIT | CTRL_PLAT_PHY_ANAR_RESERVED)) | advertised :
 				((uint32_t)phy->control | CTRL_PLAT_PHY_BMCR_AN_ENABLE | CTRL_PLAT_PHY_BMCR_AN_RESTART) &
 					~(CTRL_PLAT_PHY_BMCR_RESET | CTRL_PLAT_PHY_BMCR_ISOLATE);
-		lo = CTRL_PLAT_PHY_WRITE_OP << 28 | (uint32_t)phy->address << 23 | reg << 18 | CTRL_PLAT_PHY_WRITE_TA << 16 |
-		     data;
+		lo = CTRL_PLAT_PHY_WRITE_OP << 28 | at | CTRL_PLAT_PHY_WRITE_TA << 16 | data;
 		driven = CTRL_PLAT_PHY_FRAME_BITS;
 	}
 	const int32_t v = frame(phy, lo, driven);
 	const uint32_t u = (uint32_t)v;
 	uint32_t next = stage + 1u;
 	uint32_t status = 0u;
+	bool owed = false;   // the negotiation in force is not THE ADVERTISEMENT's (renegotiate)
 	switch (stage) {
 	case CTRL_PLAT_PHY_PROBE:
 		if ((uint32_t)v - 1u < 0xfffeu) {   // 1 to 0xfffe: not 0, all ones, or unacknowledged (-1)
@@ -188,10 +212,14 @@ static void take(struct ctrl_plat_phy *phy)
 		next = (u & CTRL_PLAT_PHY_BMSR_LINK) == 0u || u >= 0xffffu ? CTRL_PLAT_PHY_IDLE : CTRL_PLAT_PHY_CONTROL;
 		break;
 	case CTRL_PLAT_PHY_CONTROL: {
-		// BMCR (22.2.4.1): the forced mode with autonegotiation off; else the extended status once it is complete
+		// BMCR (22.2.4.1): on a PHY THE ADVERTISEMENT is for, a forced mode, an isolated or a resetting PHY is link
+		// down and renegotiated, never published up (#840); on another, the forced mode with autonegotiation off;
+		// else the extended status once it is complete
 		const uint32_t bmsr = (uint32_t)phy->bmsr;
 		next = CTRL_PLAT_PHY_IDLE;
-		if (v >= 0 && (u & CTRL_PLAT_PHY_BMCR_AN_ENABLE) == 0u) {
+		if (v >= 0 && phy->adv != CTRL_PLAT_PHY_ADV_NONE && !negotiating(u)) {
+			owed = true;
+		} else if (v >= 0 && (u & CTRL_PLAT_PHY_BMCR_AN_ENABLE) == 0u) {
 			status = up((u & CTRL_PLAT_PHY_BMCR_SPEED_MSB) != 0u ? CTRL_PLAT_PHY_SPEED_1000 :
 				    (u & CTRL_PLAT_PHY_BMCR_SPEED_LSB) != 0u ? CTRL_PLAT_PHY_SPEED_100 : CTRL_PLAT_PHY_SPEED_10,
 				    u & CTRL_PLAT_PHY_BMCR_FULL);
@@ -248,10 +276,11 @@ static void take(struct ctrl_plat_phy *phy)
 		break;
 	case CTRL_PLAT_PHY_ADV_SET_LOCAL:
 		// negotiation restarts after every write that repaired the advertisement, so the abilities in force are the
-		// ones written (28.2.4.1.3), and whatever the PHY held at boot (the release's init) and after THE OUTCOME
-		// found the negotiation in force not the verified one; a PHY that still held it is written and not
-		// restarted, so a restart's own latched loss never restarts again
-		if ((phy->adv & CTRL_PLAT_PHY_ADV_RENEGOTIATE) == 0u &&
+		// ones written (28.2.4.1.3), and whatever the PHY held after THE OUTCOME found the negotiation in force not
+		// the verified one; a PHY that still held it, BMCR negotiating and 4 and 9 the advertisement, at boot as
+		// after a loss, is written and not restarted, so the boot forms the link once (#972) and a restart's own
+		// latched loss never restarts again; a forced, isolated or resetting PHY is restarted (#840)
+		if ((phy->adv & CTRL_PLAT_PHY_ADV_RENEGOTIATE) == 0u && negotiating((uint32_t)phy->control) &&
 		    gigabit_only((uint32_t)phy->local, (uint32_t)phy->gig)) {
 			next = CTRL_PLAT_PHY_ADV_CHECK_LOCAL;
 		}
@@ -281,10 +310,7 @@ static void take(struct ctrl_plat_phy *phy)
 			// THE OUTCOME: no 1000BASE-T mode negotiated, the advertisement verified, is the negotiation before
 			// a restart the PHY dropped: negotiated again by the next poll, counted
 			if (next != CTRL_PLAT_PHY_IDLE && phy->adv == 0u) {
-				phy->adv = CTRL_PLAT_PHY_ADV_OWED | CTRL_PLAT_PHY_ADV_RENEGOTIATE;
-				if (phy->renegotiations != 0xffffu) {
-					++phy->renegotiations;
-				}
+				owed = true;
 			}
 		}
 		break;
@@ -314,9 +340,12 @@ static void take(struct ctrl_plat_phy *phy)
 	// completed negotiation still resolves another mode, retry a lost restart.
 	if (status != 0u && status != up(CTRL_PLAT_PHY_SPEED_100, 1u)) {
 		status = 0u;
-		phy->adv = CTRL_PLAT_PHY_ADV_OWED | CTRL_PLAT_PHY_ADV_RENEGOTIATE;
+		owed = true;
 	}
 #endif
+	if (owed) {
+		renegotiate(phy);
+	}
 	if (next == CTRL_PLAT_PHY_IDLE) {
 		publish(phy, status);
 	}

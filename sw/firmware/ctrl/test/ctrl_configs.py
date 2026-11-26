@@ -98,16 +98,17 @@ class Builder:
     needs: str = ""
 
 
-#: The known set: every builder of the firmware that compiles. The hosted firmware-boundary job runs the first
-#: six through the gate's own capture (--without verilator, rtl-fast.yml), the suite builders by their
-#: --build-only: every arm's binaries and RV32 build, every shape's store binaries and RV32 build, and both
-#: gates' coverage builds, none run and no defect planted (the RV32 self-test compiles its planted header,
-#: ABI and runtime cases and runs no binary); the gate runs the stack's gate and the image builders itself on
-#: every run (ctrl_runs.owned); the last three need Verilator, and the hosted firmware-verilator job runs them
+#: The known set: every builder of the firmware that compiles. The hosted firmware-boundary-capture job runs the
+#: first six through the gate's own capture, in two legs (--without verilator --leg, ctrl_runs.LEGS,
+#: rtl-fast.yml), and firmware-boundary judges both; the suite builders run by their --build-only: every arm's
+#: binaries and RV32 build, every shape's store binaries and RV32 build, and both gates' coverage builds, none
+#: run and no defect planted (the RV32 self-test compiles its planted header, ABI and runtime cases and runs no
+#: binary); the gate runs the stack's gate and the image builders itself on
+#: every run (ctrl_runs.owned); the last four need Verilator, and the hosted firmware-verilator job runs them
 #: through the gate's own capture (--only verilator). Each runs every configuration its own list holds: the
 #: bench's default target, the differential with its self-test, the wire comparison at every reference it pins
-#: (--every); the differential and the comparison keep what they build in the run's directory, where a control
-#: replays it.
+#: (--every), the loopback harness's build at both shapes; the differential and the comparison keep what they
+#: build in the run's directory, where a control replays it. Issue #998; REQ-VER-01 and REQ-VER-04.
 BUILDERS = (
     Builder("sw/firmware/gtest/fw_rv32_selftest.py",
             (("{python}", "sw/firmware/gtest/fw_rv32_selftest.py", "--require-rv32"),)),
@@ -136,6 +137,10 @@ BUILDERS = (
     Builder("sw/firmware/ctrl/test/aecp_wire.py",
             (("{python}", "sw/firmware/ctrl/test/aecp_wire.py", "--every", "--output", "{work}/aecp-wire",
               "--verilator", "{verilator}"),), "verilator"),
+    # the enabled parent loopback harness (#979): the AECP sources into libaecp.a, linked into its model
+    Builder("tb/verilator/input_loopback_dp/run.py",
+            tuple(("{python}", "tb/verilator/input_loopback_dp/run.py", "--shape", shape, "--work",
+                   "{work}/input-loopback-" + shape, "--build-only") for shape in ("1", "8")), "verilator"),
 )
 #: What a run may say it has none of: each builder that needs it is left out of the capture, and named.
 NEEDS = {"verilator": "Verilator"}
@@ -159,6 +164,8 @@ OUTSIDE = {
     "sw/litex/ctrl_memory.py": "reads linked ELF bytes and plans memory banks; it compiles nothing",
     "sw/litex/milan_soc.py": "loads a prelinked control image; its optional BIOS and milan_baremetal builds "
                             "compile no control-stack source",
+    "sw/litex/mac_link_status.py": "the MAC link-status word's reset (#972), which milan_soc.py's MilanMAC reads and "
+                                  "a harness elaborates; it compiles nothing",
     "docs/diagrams/submodule_boundaries.gen.py": "draws the submodule diagram; it compiles nothing",
     "scripts/ci_events.py": "models the CI workflows; it compiles nothing",
     "scripts/ci_scope.py": "selects the CI scope from the paths a change touches; it compiles nothing",
@@ -177,6 +184,8 @@ OUTSIDE = {
     "sw/firmware/ctrl/test/srp_reclaim_mutants.py": "the SRP cut's planted defects (#665's ruling of 2026-11-20, "
                                                     "item 3), which the SRP campaign (srp_mutants.py) plants; it "
                                                     "compiles nothing",
+    "sw/firmware/ctrl/test/srp_link_mutants.py": "SRP's link level's planted defects (#973), which the SRP campaign "
+                                                 "(srp_mutants.py) plants; it compiles nothing",
     "sw/firmware/ctrl/plat/ctrl_plat_gen.py": "writes the split platform's policy and bus map headers (#665 S3); it "
                                               "compiles nothing",
     "tb/verilator/ctrl_split_boot/run.py": "the split boot simulation (#665 S3), which no hosted job can run (the "

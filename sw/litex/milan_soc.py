@@ -44,6 +44,7 @@ from boot_policy import fabric_constants
 import check_image_identity
 import ctrl_memory
 from gptp_owner_contract import GPTP_OWNER_CODES
+import mac_link_status
 from qspi_owner_transition import aem_image_binding, bitstream_binding
 
 from migen import (ClockDomain, ClockDomainsRenamer, ClockSignal, ResetSignal,
@@ -537,6 +538,7 @@ class MilanNIC(LiteXModule):
                  gptp_ingress_lat_ns=0, gptp_egress_lat_ns=0,
                  gptp_lat_writable=False,
                  loopback_lane=False,
+                 input_loopback_lane=False,
                  render_lpf=True, optional_blocks=None,
                  entity_gen_dir=None, ctrl_split=False):
         # AECP IDENTIFY control level (Milan FR-MGT-01) - wired to a board LED
@@ -562,6 +564,7 @@ class MilanNIC(LiteXModule):
                            gptp_egress_lat_ns=gptp_egress_lat_ns,
                            gptp_lat_writable=gptp_lat_writable,
                            loopback_lane=loopback_lane,
+                           input_loopback_lane=input_loopback_lane,
                            render_lpf=render_lpf, optional_blocks=optional_blocks,
                            entity_gen_dir=entity_gen_dir,
                            ctrl_split=ctrl_split)
@@ -877,6 +880,7 @@ def add_milan_datapath(host: Module, platform: object,
                        gptp_egress_lat_ns: int = 0,
                        gptp_lat_writable: bool = False,
                        loopback_lane: bool = False,
+                       input_loopback_lane: bool = False,
                        render_lpf: bool = True,
                        optional_blocks: dict[str, bool] | None = None,
                        entity_gen_dir: str | None = None,
@@ -1118,6 +1122,8 @@ def add_milan_datapath(host: Module, platform: object,
     dp_params["p_PP_RESP_BASE_P"] = resp_base
     if int(talker_wire_chans) != 2:
         dp_params["p_TALKER_WIRE_CHANS_P"] = int(talker_wire_chans)
+    if input_loopback_lane:
+        dp_params["p_INPUT_LOOPBACK_P"] = 1
     if loopback_lane:
         # task #65 rx -> talker LOOPBACK bucket. The SV parameter is
         # LOOPBACK_P. Passed only when asked for, so a build that does not
@@ -1678,7 +1684,7 @@ class MilanMAC(LiteXModule):
     validated on hardware (there is no RGMII PHY to exercise in sim). See
     docs/integration/FULLY_FPGA_RISCV_MIGRATION.md §A.7 and the protocol/test matrix."""
     def __init__(self, platform, data_width=64, phy_index=0, milan_cd="sys",
-                 gtx_tx_invert=False, phy_model="gmii", **_rgmii):
+                 gtx_tx_invert=False, phy_model="gmii", fw_link_owner=False, **_rgmii):
         from liteeth.phy.gmii import LiteEthPHYGMII
         from liteeth.mac.core import LiteEthMACCore
         from liteeth.common import eth_phy_description
@@ -2029,19 +2035,29 @@ class MilanMAC(LiteXModule):
         # the link. Reset values REPRODUCE the old constants exactly, so a build whose
         # software never writes this register behaves bit-identically to before; the
         # difference is that software CAN now publish the truth.
+        #
+        # #972: EXCEPT where firmware owns the PHY. The split placement's firmware
+        # (fw_link_owner, --ctrl-mailbox) publishes the PHY's verified link, so there
+        # link_up resets to 0: the effective link stays down from reset until that
+        # publication, on a reload that kept the PHY's link and on a refused boot too.
+        # A PHY without an MDIO pair has no firmware owner; it keeps reset 1
+        # (mac_link_status.py).
+        self.fw_link_owner = bool(fw_link_owner) and hasattr(self.phy, "mdio")
         self.link_status = CSRStorage(fields=[
-            CSRField("link_up", size=1, offset=0, reset=1,
+            CSRField("link_up", size=1, offset=0,
+                     reset=mac_link_status.link_up_reset(self.fw_link_owner),
                      description="PHY link is up (MAC_STATUS[0]). Software-published "
-                                 "from the MDIO autoneg result; reset 1 = the "
-                                 "pre-2026-07-26 hardwired constant."),
+                                 "from the MDIO autoneg result; reset 0 where firmware "
+                                 "owns the PHY (#972), else 1 = the pre-2026-07-26 "
+                                 "hardwired constant."),
             CSRField("speed", size=2, offset=1,
-                     reset=(0b01 if phy_model == "mii" else 0b10),
+                     reset=mac_link_status.speed_reset(phy_model),
                      description="Negotiated speed (MAC_STATUS[2:1]): 0=10, 1=100, "
                                  "2=1000 Mb/s. Feeds milan_csr i_speed, hence "
                                  "o_mac_is_1g (REQ-MAC-03) unless MAC_CTRL[5] "
                                  "manual-override is set. Reset = the board's PHY "
                                  "wiring (mii -> 100, gmii -> 1000)."),
-            CSRField("full_duplex", size=1, offset=3, reset=1,
+            CSRField("full_duplex", size=1, offset=3, reset=mac_link_status.full_duplex_reset(),
                      description="Full-duplex indication (MAC_STATUS[3])."),
         ], description="PHY/MAC link status published by software (MDIO). See "
                        "MAC_STATUS 0x110 in docs/reference/REGISTER_MAP.md.")
@@ -3637,6 +3653,7 @@ class MilanSoC(SoCCore):
                  audio_fs_hz=AUDIO_IF_FS_HZ_DEFAULT,
                  audio_word_bits=AUDIO_IF_WORD_BITS_DEFAULT, pps=False,
                  loopback_lane=False,
+                 input_loopback_lane=False,
                  bus_standard="wishbone",
                  software_profile="baremetal",
                  gptp_plane=None,
@@ -3926,6 +3943,7 @@ class MilanSoC(SoCCore):
                                           gtx_tx_invert=gtx_tx_invert,
                                           phy_index=eth_phy_index,
                                           phy_model=_BOARD_PHY_MODEL[board],
+                                          fw_link_owner=ctrl_mailbox,
                                           rgmii_tx_delay=rgmii_tx_delay,
                                           rgmii_rx_delay=rgmii_rx_delay)
                 if board == "ax7101":
@@ -4149,6 +4167,7 @@ class MilanSoC(SoCCore):
                                   gptp_egress_lat_ns=int(gptp_egress_lat_ns),
                                   gptp_lat_writable=bool(gptp_lat_writable),
                                   loopback_lane=bool(loopback_lane),
+                                  input_loopback_lane=bool(input_loopback_lane),
                                   render_lpf=bool(render_lpf),
                                   optional_blocks=optional_blocks,
                                   entity_gen_dir=entity_gen_dir)
@@ -4757,6 +4776,8 @@ def main() -> None:
                          "byte-identical. The endstation config "
                          "declares it (cluster_mapping.fabric.loopback_lane) so the AEM's "
                          "power-on map and this flag can never disagree.")
+    ap.add_argument("--input-loopback-lane", action="store_true",
+                    help="Build the input-mapped block-RAM loopback source.")
     ap.add_argument("--pps", action="store_true",
                     help="METROLOGY: build the PPS output (milan_datapath "
                          "PPS_P -> the timestamp counter's own comparator) and "
@@ -5087,6 +5108,7 @@ def main() -> None:
                    gptp_egress_lat_ns=args.gptp_egress_lat_ns,
                    gptp_lat_writable=args.gptp_lat_writable,
                    loopback_lane=args.loopback_lane,
+                   input_loopback_lane=args.input_loopback_lane,
                    render_lpf=not args.no_render_lpf,
                    # tier-1 optional blocks: a key is emitted only when the
                    # flag is set, and False is the ONLY value that prunes.

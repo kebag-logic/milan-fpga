@@ -43,13 +43,13 @@ import os
 import signal
 import subprocess
 import sys
-import tempfile
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 RTL = HERE / "../../../hdl/ieee1722/aaf/KL_render_queue.sv"
 sys.path.insert(0, str(HERE / "../../../scripts"))
 from suite_tally import log_reports_failure  # noqa: E402
+import mutant_stage  # noqa: E402
 
 #: the shipping shape (`make odd`): one stream, one interface, 7 lanes
 ODD_SHAPE = ("N_STREAMS=1", "N_CH=7", "N_IF=1", "LEAD1=0")
@@ -101,8 +101,8 @@ MUTATIONS = [
        "  wire        inval_w = fl_go_w;"),),
      "[lap] every event presented to every interface is the frame the law names", ()),
     ("a bind wipe ignored",
-     (("        if (flush_i[s]) begin\n          flpend_r[s]    <= 1'b1;",
-       "        if (flush_i[s]) begin\n          flpend_r[s]    <= 1'b0;"),),
+     (("        if (flush_w[s]) begin\n          flpend_r[s]    <= 1'b1;",
+       "        if (flush_w[s]) begin\n          flpend_r[s]    <= 1'b0;"),),
      "[flush] every event presented to every interface is the frame the law names", ()),
     ("tv ignored",
      (("        pst_r  <= !hdr_tv_i ? P_UNTIMED_S",
@@ -142,7 +142,8 @@ MUTATIONS = [
        "  assign b_slip_w = 1'b0;"),),
      "[slip] gaps and overlaps counted", ()),
     ("lead_o kept after the stream drains",
-     (("        if (lwv_r[s] && (sst_r == S_SCRUB_S) && (lead_s_w[s][FW_C-1] || (lead_s_w[s] == '0)))\n"
+     (("        if (lwv_r[s] && (sst_r == S_SCRUB_S && !copy_active_w) && "
+       "(lead_s_w[s][FW_C-1] || (lead_s_w[s] == '0)))\n"
        "          lwv_r[s] <= 1'b0;",
        "        if (1'b0)\n          lwv_r[s] <= 1'b0;"),),
      "[place] lead_o and idle_o follow the model at every frame end", ()),
@@ -262,7 +263,7 @@ def main() -> int:
     src = RTL.read_text()
     passes = fails = 0
     signal.signal(signal.SIGTERM, lambda *_: sys.exit(143))
-    with tempfile.TemporaryDirectory(prefix="render-queue-mutants-") as td:
+    with mutant_stage.directory("render-queue-mutants-") as td:
         work = Path(td)
         clean = work / "KL_render_queue.sv"
         clean.write_text(src)

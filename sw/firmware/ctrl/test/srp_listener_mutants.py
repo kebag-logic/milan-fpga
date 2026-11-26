@@ -5,7 +5,7 @@ the registrar walk owed for it.
 
 A Listener's indication copies its declaration (listener) and lwSRP's transition observer its presence (moved,
 listener_moved), with no walk; a Registrar change owes none, since each change of what the walk copies comes with an
-indication, and a Talker's marks the walk owed (talker_changed). srp_mutants.py plants each into a copy of
+indication, and a bound Talker's marks the walk owed (talker_changed). srp_mutants.py plants each into a copy of
 sw/firmware/ctrl with the rest of its table, and srp_listeners.cpp's differential, whose reference run restores the
 walk's schedule as #665 left it, must fail on its own words. The one-interface campaigns plant them at 1x1/1if and
 at 8x8/1if (ENTITY; test_ctrl_firmware.run_srp_mutants), the two-interface campaign at 8x8/2if.
@@ -28,7 +28,8 @@ DECLARATION = ("            i->registered[n] = declaration == MSRP_LISTENER_DECL
                "                               declaration == MSRP_LISTENER_DECL_READY_FAILED;\n")
 PRESENCE = "            i->listener_present[n] = t->reg_to != MRP_REG_STATE_MT;\n"
 DISPATCH = "    if (slot == 0u && t->attr_type == MSRP_ATTR_TYPE_LISTENER && t->reg_from != t->reg_to) {\n"
-TALKER = "    i->stale = true; // what an indication writes, snapshot copies (#665)\n"
+#: talker_changed's mark of the walk a bound StreamID's indication owes (#969: one of a StreamID none binds owes none)
+TALKER = "    i->stale = i->stale || bound;\n"
 
 
 def defects(kind: Callable[..., T]) -> tuple[T, ...]:

@@ -207,6 +207,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! prune it. Priced at the instantiation below (+2303 LUT / +1542 FF OOC
   //! at 8x8) - a real feature with a real bill, not a free connection.
   parameter int LOOPBACK_P = 0,
+  parameter int INPUT_LOOPBACK_P = 0, //! mapped block-RAM source, default absent
   //! BANKED AREA LEVER (docs/CHANNEL_MAP_64.md): 1 (default) keeps the
   //! render-tap Butterworth LPF; 0 prunes KL_pcm_lpf and ties its outputs to
   //! the exact nets the runtime bypass (LPF_CTRL[0] = 0) already produces, so
@@ -1158,12 +1159,12 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //     both directions share one frame;
   //   - it cannot be wider than the crossbar's TDM key lane, because keys
   //     beyond it do not exist and would silently truncate onto the DAC lane;
-  //   - and it cannot be NARROWER than the bus either. The serializer's bit
-  //     schedule is indexed by the bus frame position the capture master
-  //     exports, so its own frame is the WHOLE bus frame: a master render
-  //     lane is the full bus width or it is pruned. Without this the case
-  //     reached KL_tdm_render_master's FRAME_POS_W_P guard and failed there,
-  //     which is an internal parameter message rather than the product rule.
+  //   - and a SLAVE lane cannot be NARROWER than the bus either: the slave
+  //     serializer frames its bank as the whole bus frame. A MASTER lane may
+  //     be (#584): KL_tdm_render_master frames the bus's AUDIO_IF_SLOTS_P
+  //     slots (BUS_SLOTS_P) off the position the capture master exports and
+  //     stores only the first AUDIO_IF_RENDER_SLOTS_P, serializing zero in
+  //     the rest - the 8x8's TDM32 bus backs its first slot that way.
   // ==========================================================================
   if (AUDIO_IF_RENDER_SLOTS_P < 0)
     $error("milan_datapath: AUDIO_IF_RENDER_SLOTS_P=%0d is negative. It is a slot COUNT (0 prunes the render lane).",
@@ -1179,11 +1180,10 @@ module milan_datapath import ethernet_packet_pkg::*; #(
            AUDIO_IF_RENDER_SLOTS_P, CHMAP_RPHYS_TDM_N_C,
            CHMAP_RPHYS_TDM_BASE_C,
            CHMAP_RPHYS_TDM_BASE_C + CHMAP_RPHYS_TDM_N_C - 1);
-  else if (AUDIO_IF_RENDER_SLOTS_P > 0 &&
+  else if (AUDIO_IF_RENDER_SLOTS_P > 0 && AUDIO_IF_MASTER_P == 0 &&
            AUDIO_IF_RENDER_SLOTS_P < AUDIO_IF_SLOTS_P)
-    $error("milan_datapath: AUDIO_IF_RENDER_SLOTS_P=%0d is NARROWER than AUDIO_IF_SLOTS_P=%0d. Both directions ride ONE frame, and the render serializer schedules its bits off the bus frame position the capture master exports, so a MASTER render lane is the FULL bus width: declare AUDIO_IF_RENDER_SLOTS_P=%0d, or 0 to prune the lane. A bus wider than the crossbar's TDM key lane (CHMAP_RPHYS_TDM_N_C=%0d) therefore backs no render lane at all.",
-           AUDIO_IF_RENDER_SLOTS_P, AUDIO_IF_SLOTS_P, AUDIO_IF_SLOTS_P,
-           CHMAP_RPHYS_TDM_N_C);
+    $error("milan_datapath: AUDIO_IF_RENDER_SLOTS_P=%0d is NARROWER than AUDIO_IF_SLOTS_P=%0d on a codec-driven (slave) bus. The slave render serializer frames its bank as the whole bus frame, so a SLAVE render lane is the FULL bus width: declare AUDIO_IF_RENDER_SLOTS_P=%0d, or 0 to prune the lane. Only a MASTER lane (BUS_SLOTS_P) may be narrower.",
+           AUDIO_IF_RENDER_SLOTS_P, AUDIO_IF_SLOTS_P, AUDIO_IF_SLOTS_P);
 
   //! The MASTER bus timing, exported by its one owner for the render half to
   //! consume (issue #447). Zero on every shape that elaborates no TDM master,
@@ -1484,9 +1484,14 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! cycle), and the instant of the frame the capture walk reads, which the
   //! crossbar banks with the frame itself: the AAF talkers' time base
   wire [63:0] dom_mark_ns_w;
-  wire [31:0] cmap_walk_ns_w;
+  wire [31+8*(INPUT_LOOPBACK_P != 0):0] cmap_walk_ns_w;
+  wire input_loop_invalidate_w;
+  localparam int INPUT_LOOP_FIRST_C = (N_STREAMS == 1) ? 8 : 1;
+  localparam int INPUT_LOOP_CH_C = (N_STREAMS == 1) ? 8 : 63;
+
 
   KL_chan_map_capture #(
+    .INPUT_LOOPBACK_P (INPUT_LOOPBACK_P),
     .N_SLOTS_P (N_STREAMS*4),
     .N_TDM_P   (CMAP_TDM_SLOTS_C),
     //! the walk's gap, one value with the talkers' walk term (#773)
@@ -1552,7 +1557,8 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     //! task #65: the LOOP bucket's feed - the depacketizer payload clone,
     //! same accepted-beat discipline as the render crossbar's tap
     //! (tvalid && tready; this port never backpressures).
-    .lb_tdata_i (lb_tap_tdata_w), .lb_tvalid_i (lb_tap_tvalid_w),
+    .lb_tdata_i ({{(INPUT_LOOPBACK_P != 0){24'(rq_tdata_w >> 64)}}, lb_tap_tdata_w}),
+    .lb_tvalid_i (lb_tap_tvalid_w),
     .lb_tlast_i (lb_tap_tlast_w), .lb_tuser_i (lb_tap_tuser_w),
     .lb_wire_chans_i (lb_tap_chans_w),
     //! 0x0036 paced-replay rework: a sink's bind wipe (task #32 eviction
@@ -1690,7 +1696,8 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   localparam longint TLK_AGE_CYC_C    = KL_media_if_latency_pkg::age_max_cyc(
       64'(MILAN_CLK_FREQ_HZ), 64'(AUDIO_IF_FS_HZ_P));
   localparam longint TLK_WALK_CYC_C   = KL_media_if_latency_pkg::walk_pair_cyc(
-      TLK_LB_PAIRS_C, CMAP_GAP_CYC_C, 4 * N_STREAMS - 1);
+      TLK_LB_PAIRS_C, CMAP_GAP_CYC_C, 4 * N_STREAMS - 1)
+      + ((INPUT_LOOPBACK_P != 0) ? 64'(2 * 4 * N_STREAMS) : 64'd0);
   localparam int          TLK_AAF_IN_NS_C  = int'(TLK_SPAN_NS_C + KL_media_if_latency_pkg::cyc_ns(
       TLK_AGE_CYC_C + TLK_WALK_CYC_C, 64'(MILAN_CLK_FREQ_HZ)));
   //! the CRF timing point's ev_p_i: the marker, then the event's register
@@ -5031,6 +5038,13 @@ module milan_datapath import ethernet_packet_pkg::*; #(
             && (c < 32'(amap_decl_ch(1'b0, p)))
             && ((32'(ADP_DMAP_IN_PBASE_C[p]) + c) < AMAP_IN_KEYS_C))
           r[(32'(ADP_DMAP_IN_PBASE_C[p]) + c)*8 +: 8] = {2'b10, 3'(p), 3'(c)};
+    if (INPUT_LOOPBACK_P != 0)
+      for (int p = 0; p < AMAP_IN_PORTS_C; p++)
+        for (int c = 0; c < 8; c++)
+          if ((INPUT_LOOP_FIRST_C + 8*p + c < AMAP_IN_KEYS_C)
+              && (c < 32'(ADP_DMAP_IN_SCH_C[p]))
+              && (c < 32'(amap_decl_ch(1'b0, p))))
+            r[(INPUT_LOOP_FIRST_C + 8*p + c)*8 +: 8] = {2'b10, 3'(p), 3'(c)};
     return r;
   endfunction
 
@@ -5189,6 +5203,29 @@ module milan_datapath import ethernet_packet_pkg::*; #(
                           ? AMAP_OUT_WORDS_C[k*13 +: 13] : 13'd0;
       end
   end : amap_boot_slot
+
+  if (INPUT_LOOPBACK_P != 0) begin : g_input_invalidation
+    logic invalidate_r;
+    wire edit_change_w = pp_amap_edit_req_w && amap_edit_beat_w
+        && (pp_amap_edit_phase_w == 3'd5)
+        && amap_edit_context_w && amap_edit_in_change_w;
+    wire direct_change_w = !pp_amap_edit_req_w && !amap_edit_txn_active_r
+        && !amap_boot_busy_w && !aecp_locked
+        && cfg_chmap_wr_en && !cfg_chmap_wr_side
+        && (32'(cfg_chmap_wr_addr) < AMAP_IN_KEYS_C)
+        && (amap_in_store_r[32'(cfg_chmap_wr_addr)*8 +: 8]
+            != {cfg_chmap_wr_data[15], cfg_chmap_wr_data[12],
+                cfg_chmap_wr_data[6:4], cfg_chmap_wr_data[2:0]});
+    wire restore_change_w = (amap_boot_r || amr_rb_r)
+        && (amap_in_store_r != amap_in_boot_w);
+    always_ff @(posedge axis_clk or negedge axis_resetn) begin : invalidate_input
+      if (!axis_resetn) invalidate_r <= 1'b1;
+      else invalidate_r <= edit_change_w || direct_change_w || restore_change_w;
+    end : invalidate_input
+    assign input_loop_invalidate_w = invalidate_r;
+  end else begin : g_no_input_invalidation
+    assign input_loop_invalidate_w = 1'b0;
+  end
 
   always_ff @(posedge axis_clk or negedge axis_resetn) begin : amap_edit_commit
     if (!axis_resetn) begin
@@ -7038,6 +7075,9 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! public: the #447 multi-stream render arm counts accepts PER STREAM, so
   //! "the second stream really is delivering" is observed and not assumed
   wire [NSIDX_W_C-1:0]    avtprx_idx /* verilator public_flat_rd */;
+  //! every table entry a PDU's stream_id matched: one stream may be bound to
+  //! several Stream Inputs (IEEE 1722.1-2021 8.2), and each receives it (#948)
+  wire [N_STREAMS-1:0]    avtprx_vec_w;
 
   //! P12 window commit glue (NXN §1.1/§1.3): the CSR window's listener
   //! writes land in the LCTX (monitor CFG words); the classification table
@@ -7345,6 +7385,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .s_tlast_i  (rx_axis_from_mac.tlast),
     .match_valid_o (avtprx_match),
     .match_index_o (avtprx_idx),
+    .match_vec_o   (avtprx_vec_w),
     .stream_id_o   (avtprx_sid_frame),
     .avtp_ts_o     (avtprx_ts),
     .subtype_o     (avtprx_subtype),
@@ -7513,8 +7554,12 @@ module milan_datapath import ethernet_packet_pkg::*; #(
       .follow_idx_i  (aaf_follow_idx_r),
       .bind_rise_i   (strtbl_bind_rise_w),
       .stopped_i     (acmpl_stopped_v_w[N_STREAMS-1:0]),
-      .match_p_i     (avtprx_match),
-      .match_idx_i   (avtprx_idx),
+      //! the followed input's PDUs, whichever other inputs the stream is
+      //! bound to as well (#948): the selection is the followed entry's bit
+      //! of the match vector, so the meter's index compare holds by
+      //! construction here (one index cannot name several matches)
+      .match_p_i     (avtprx_match && avtprx_vec_w[aaf_follow_idx_r]),
+      .match_idx_i   (aaf_follow_idx_r),
       .subtype_i     (avtprx_subtype),
       .tv_i          (avtprx_tv_bit),
       .tu_i          (avtprx_tu_bit),
@@ -7625,7 +7670,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! .md, Talker capture handoff). A time base latched at the tick named the
   //! frame before on the first of these, a whole sample off. So the crossbar
   //! banks each frame's instant with the frame and hands the walk's out.
-  assign aaf_tbase_w = dom_live_w ? {ptp_now_w[63:32], cmap_walk_ns_w} : ptp_now_w;
+  assign aaf_tbase_w = dom_live_w ? {ptp_now_w[63:32], cmap_walk_ns_w[31:0]} : ptp_now_w;
 
   // ==========================================================================
   //  Media-clock recovery ACTUATOR (Milan 7.3.4): the audio-MMCM servo. It
@@ -7896,7 +7941,12 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   wire        avtprx_accept_p_w;
   wire [3:0]  avtprx_accept_idx_w;
   wire        pcmrx_pdu_p_w, pcmrx_drop_p_w;
-  wire [3:0]  pcmrx_pdu_idx_w, pcmrx_drop_idx_w;
+  wire [3:0]  pcmrx_pdu_idx_w;
+  wire [N_STREAMS-1:0] pcmrx_drop_mask_w;
+  //! the monitor's verdicts for the depacketizer (#948): a PDU queued in its
+  //! frame's flight, then the inputs that accepted it
+  wire        avtprx_enq_p_w, avtprx_done_p_w;
+  wire [N_STREAMS-1:0] avtprx_done_mask_w;
   //! Milan v1.2 §5.3.8.7: "A PAAD-AE having a stopped Stream Input shall
   //! DISCARD the Stream AVTPDUs it receives." The discard belongs HERE, on
   //! the accept pulse that feeds the depacketizer, not on the classification
@@ -7921,6 +7971,10 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   end : accept_stop_sel
 
   assign avtprx_accept_p = avtprx_accept_p_w && !avtprx_stopped_w;
+  //! ...and the same gate on the depacketizer's verdict, input by input: a
+  //! stopped input's share of a PDU is discarded, the others receive it
+  wire [N_STREAMS-1:0] avtprx_deliver_w =
+      avtprx_done_mask_w & ~acmpl_stopped_v_w[N_STREAMS-1:0];
 
   KL_avtp_rx_monitor_ctx #(
     .N_LISTENERS_P (N_STREAMS),
@@ -7929,7 +7983,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   ) avtp_rx_monitor (
     .clk_i (axis_clk), .rst_n (axis_resetn),
     .match_valid_i  (avtprx_match),
-    .match_index_i  (4'(avtprx_idx)),
+    .match_vec_i    (avtprx_vec_w),
     .subtype_i      (avtprx_subtype),
     .seq_num_i      (avtprx_seq),
     .ts_uncertain_i (avtprx_tu_bit),
@@ -7960,7 +8014,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .depkt_pdu_p_i    (pcmrx_pdu_p_w),
     .depkt_pdu_idx_i  (pcmrx_pdu_idx_w),
     .depkt_drop_p_i   (pcmrx_drop_p_w),
-    .depkt_drop_idx_i (pcmrx_drop_idx_w),
+    .depkt_drop_mask_i (pcmrx_drop_mask_w),
     //! P12: LCTX window port <- the CSR 0x800 window (listener dir)
     .lctx_wr_en_i (csr_lctx_wr_p_w), .lctx_wr_addr_i (csr_lctx_wr_addr_w),
     .lctx_wr_data_i (lctx_wr_data_sane_w), .lctx_wr_rdy_o (lctx_wr_rdy_w),
@@ -7997,15 +8051,19 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .dirty_p_o      (avtprx_dirty_p_w),
     .pdu_accept_p_o   (avtprx_accept_p_w),
     .pdu_accept_idx_o (avtprx_accept_idx_w),
+    .pdu_enq_p_o      (avtprx_enq_p_w),
+    .pdu_done_p_o     (avtprx_done_p_w),
+    .pdu_done_mask_o  (avtprx_done_mask_w),
     .last_ts_o      (avtprx_last_ts),
     .last_tsd_o     (avtprx_last_tsd)
   );
 
   // ==========================================================================
-  //  AAF RX depacketizer (listener media path) — same RX tap; the monitor's
-  //  accept pulse is the commit verdict, so fabric render receives exactly
-  //  the PDUs FRAMES_RX counts. Payload leaves as full 8-byte beats in wire
-  //  order (S32BE interleaved) toward the render path.
+  //  AAF RX depacketizer (listener media path), on the same RX tap: the
+  //  monitor's enqueue commits the frame and its done mask names the inputs
+  //  that accepted it (#948), so each input's render path receives exactly
+  //  the PDUs its FRAMES_RX counts. Payload leaves as full 8-byte beats in
+  //  wire order (S32BE interleaved) toward the render path, once per input.
   // ==========================================================================
   //! #632: the payload follows the header's timestamp by the cycles the
   //! render stage takes to place the PDU (its divider: a quotient bit per
@@ -8021,6 +8079,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   wire [31:0] dpkt_hdr_ts_w;
   wire        dpkt_hdr_tv_w;
   KL_aaf_rx_depacketizer #(
+    .N_STREAMS_P      (N_STREAMS),
     .FIFO_DEPTH_BYTES (DPKT_FIFO_BYTES_C),
     .PAY_LEAD_CYC_P   (RENDER_PAY_LEAD_C)
   ) aaf_rx_depkt (
@@ -8031,9 +8090,12 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .s_tvalid_i (rx_axis_from_mac.tvalid),
     .s_tready_i (rx_axis_from_mac.tready),
     .s_tlast_i  (rx_axis_from_mac.tlast),
-    .pdu_accept_p_i (avtprx_accept_p),
-    //! NXN §1.1 tuser tag: the shared monitor's per-stream accept index
-    .pdu_accept_idx_i (avtprx_accept_idx_w),
+    //! #948: the frame is committed on the monitor's enqueue and read out
+    //! once for each input that accepted its PDU, tuser that input (the
+    //! NXN §1.1 tuser tag)
+    .pdu_enq_p_i     (avtprx_enq_p_w),
+    .pdu_done_p_i    (avtprx_done_p_w),
+    .pdu_done_mask_i (avtprx_deliver_w),
     .m_axis_tdata (dpkt_pcm_tdata_w),
     .m_axis_tkeep (), //! Listener PCM output is always a full 8-byte beat.
     .m_axis_tvalid(dpkt_pcm_tvalid_w),
@@ -8046,7 +8108,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .pdus_o  (pcmrx_pdus),
     .drops_o (pcmrx_drops),
     .pdu_out_p_o (pcmrx_pdu_p_w), .pdu_out_idx_o (pcmrx_pdu_idx_w),
-    .drop_p_o (pcmrx_drop_p_w), .drop_idx_o (pcmrx_drop_idx_w)
+    .drop_p_o (pcmrx_drop_p_w), .drop_mask_o (pcmrx_drop_mask_w)
   );
 
   // ==========================================================================
@@ -8435,7 +8497,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
 
   //! public: the render legs decode the presented event's identity off its
   //! beats (its samples name their PDU, event and channel)
-  wire [TDATA_WIDTH-1:0] rq_tdata_w  /* verilator public_flat_rd */;
+  wire [TDATA_WIDTH+24*(INPUT_LOOPBACK_P != 0)-1:0] rq_tdata_w  /* verilator public_flat_rd */;
   wire                   rq_tvalid_w /* verilator public_flat_rd */;
   wire                   rq_tlast_w;
   wire [3:0]             rq_tuser_w;
@@ -8461,7 +8523,15 @@ module milan_datapath import ethernet_packet_pkg::*; #(
          rq_lead_w[s*8 +: 8]};
   end : g_render_status
 
+  if (INPUT_LOOPBACK_P != 0 && (ADP_DMAP_IN_KEYS_C != INPUT_LOOP_FIRST_C + INPUT_LOOP_CH_C))
+  begin : g_input_loop_shape
+    $error("input loopback requires its generated 16-key or 64-key topology");
+  end
   KL_render_queue #(
+    .INPUT_LOOPBACK_P (INPUT_LOOPBACK_P),
+    .INPUT_KEYS_P (AMAP_IN_KEYS_C),
+    .INPUT_FIRST_P (INPUT_LOOP_FIRST_C),
+    .INPUT_CH_P (INPUT_LOOP_CH_C),
     .N_STREAMS_P    (N_STREAMS),
     .N_CH_P         (RX_WIRE_CHANS_C),
     .FS_HZ_P        (AUDIO_IF_FS_HZ_P),
@@ -8479,7 +8549,9 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .hdr_tv_i     (dpkt_hdr_tv_w),
     //! the clone the crossbar consumed directly before #386: accepted
     //! beats, never backpressured
-    .s_tdata_i    (dpkt_pcm_tdata_w),
+    .s_tdata_i    ({{(INPUT_LOOPBACK_P != 0){amap_in_store_r,
+                     (input_loop_invalidate_w || !dom_live_w),
+                     8'(cmap_walk_ns_w >> 32), cmap_walk_ns_w[31:0]}}, dpkt_pcm_tdata_w}),
     .s_tvalid_i   (dpkt_pcm_tvalid_w && dpkt_pcm_tready_w),
     .s_tlast_i    (dpkt_pcm_tlast_w),
     .s_tuser_i    (dpkt_pcm_tuser_w),
@@ -8522,7 +8594,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .clk_i (axis_clk), .rst_n (axis_resetn),
     //! #632: the presentation stage's event beats, one event per stream per
     //! domain event, in the clone format (never backpressured)
-    .s_tdata_i  (rq_tdata_w),
+    .s_tdata_i  (rq_tdata_w[63:0]),
     .s_tvalid_i (rq_tvalid_w),
     .s_tlast_i  (rq_tlast_w),
     .s_tuser_i  (rq_tuser_w),
@@ -8763,8 +8835,11 @@ module milan_datapath import ethernet_packet_pkg::*; #(
       //! The fabric owns this bus, so the serializer consumes the ONE timing
       //! owner's exported schedule rather than generating a second frame
       //! phase of its own.
+      //! #584: the lane renders the first AUDIO_IF_RENDER_SLOTS_P slots of
+      //! the bus's AUDIO_IF_SLOTS_P; the rest serialize zero
       KL_tdm_render_master #(
         .SLOTS_P       (AUDIO_IF_RENDER_SLOTS_P),
+        .BUS_SLOTS_P   (AUDIO_IF_SLOTS_P),
         .SLOT_BITS_P   (AIF_WORD_BITS_C),
         .FIFO_LOG2_P   (2),
         .FRAME_POS_W_P (AIF_FPOS_W_C)

@@ -96,7 +96,6 @@ import os
 import signal
 import subprocess
 import sys
-import tempfile
 import threading
 from collections.abc import Callable
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -114,6 +113,7 @@ NCO = HERE / "../../../hdl/ieee1722/crf/KL_media_nco.sv"
 sys.path.insert(0, str(HERE / "../../../scripts"))
 from suite_tally import log_reports_failure  # noqa: E402
 from ci_case_receipts import Receipt, canonical, partition  # noqa: E402
+import mutant_stage  # noqa: E402
 
 TORN = "[A] AAF columns mixing two TDM frames"
 MISCOUNT = "[C] walks whose repeat or skip the junction counters did not count"
@@ -187,7 +187,7 @@ WRAP_MARKER = ("    .frame_ev_i (cap_pv_w && (32'(cap_slot_w) == TDM_SLOTS_P / 2
 SNAP = "  wire tdm_snap_w = (st_r == CM_IDLE_S) && (tick_pend_r ? tick_late_r : tick_i);"
 NCO_EQ = (("    else if (32'(cnt_r) >= end_w) begin", "    else if (32'(cnt_r) == end_w) begin"),)
 #: the AAF talkers' time base in milan_datapath: the crossbar's walk instant (#632)
-TBASE = "  assign aaf_tbase_w = dom_live_w ? {ptp_now_w[63:32], cmap_walk_ns_w} : ptp_now_w;"
+TBASE = "  assign aaf_tbase_w = dom_live_w ? {ptp_now_w[63:32], cmap_walk_ns_w[31:0]} : ptp_now_w;"
 
 #: (leg, name, ((pattern, replacement), ...), the check(s) this defect must
 #: break, spelled as the harness prints them)
@@ -321,8 +321,8 @@ MUTATIONS = [
      "F1: col 0 carries its own pair-0 frame (L)"),
     ("chmap", "the walk's instant latched at the snapshot, not loaded with its frame: a close on the tick "
               "cycle with none pending names the frame before (#632)",
-     (("        tdm_walk_ns_o <= tdm_frame_ns_r;\n      end",
-       "      end\n      if (tdm_snap_w) tdm_walk_ns_o <= tdm_frame_ns_r;"),),
+     (("        tdm_walk_ns_o[31:0] <= tdm_frame_ns_r;\n      end",
+       "      end\n      if (tdm_snap_w) tdm_walk_ns_o[31:0] <= tdm_frame_ns_r;"),),
      "F: tick-cycle: col 1 walk instant is frame 2's"),
 ]
 
@@ -714,7 +714,7 @@ def main() -> int:
         parser.error(str(exc))
     for sig in (signal.SIGTERM, signal.SIGINT):
         signal.signal(sig, stop)
-    with tempfile.TemporaryDirectory(prefix="capture-coherence-mutants-") as td:
+    with mutant_stage.directory("capture-coherence-mutants-") as td:
         made, lines = rom_images_result(Path(td))
         if not made:
             emit(lines)

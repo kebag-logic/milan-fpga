@@ -105,6 +105,29 @@ TEST_F(ArtyPhy, ForcedTenWithDroppedRestartNeverPublishesUp) {
         EXPECT_EQ(p.word, 0u) << "MII forced 10 Mb/s must stay down";
     }
     EXPECT_NE(phy.adv, 0u) << "MII unsupported mode keeps negotiation owed";
+    EXPECT_GT(phy.renegotiations, 0u) << "MII forced mode retry is counted";
+}
+
+TEST_F(ArtyPhy, AdvertisementDriftNeverPublishesUnsupportedMode) {
+    poll();
+    ASSERT_EQ(peer.word, 11u);
+    // A changed advertisement negotiates a lower mode between polls,
+    // without a latched loss that would trigger the advertisement repair.
+    peer.regs[4] = peer.regs[5] = 0x0061u;
+    peer.negotiate();
+    peer.latched_down = false;
+    ASSERT_EQ(peer.active_speed, 10u);
+    const auto before = peer.published.size();
+    next();
+    ASSERT_GT(peer.published.size(), before);
+    for (auto k = before; k < peer.published.size(); ++k) {
+        EXPECT_EQ(peer.published[k].word, 0u) << "MII drifted 10 Mb/s must stay down";
+    }
+    EXPECT_NE(phy.adv, 0u) << "MII unsupported mode keeps negotiation owed";
+    peer.regs[5] = 0x0101u;
+    next();
+    EXPECT_EQ(peer.word, 11u);
+    EXPECT_EQ(peer.active_anar, 0x0101u);
 }
 
 TEST_F(ArtyPhy, LatchedLossRechecksWithoutAnotherRestart) {

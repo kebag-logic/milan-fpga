@@ -21,9 +21,9 @@ Dirty submodules invalidate local evidence.
 | Path | Pin | Purpose | Root integration |
 |---|---|---|---|
 | `external` | `efeb541ae5fe1e078332d8462dca2fc2d9cb8db5` | Historical Ethernet MAC RTL | No active product consumer |
-| `gptp-processor` | `1616fc8f062fbf58c35ad31674b5b233207bbdb8` | Fabric gPTP engine | `KL_gptp_shadow.sv` |
+| `gptp-processor` | `1213ac5b9e09b8759ba76cc70c53652b5e108996` | Fabric gPTP engine | `KL_gptp_shadow.sv` |
 | `protocol-processor` | `801ef2283ec793e35a2590fc6593c90313a64041` | ADP, ACMP, AECP, and SRP | `KL_pp_shadow.sv` |
-| `third_party/lwSRP` | `08ee86e812a0eb5e1dc6cd61b494d8baf3491348` | Bare-metal MRP, MSRP and MVRP | `sw/firmware/ctrl/srp/srp_mbx.c` |
+| `third_party/lwSRP` | `d1bb4f4e5954af6dabe7f210a6bf7adbb76bdd6b` | Bare-metal MRP, MSRP and MVRP | `sw/firmware/ctrl/srp/srp_mbx.c` |
 | `third_party/tsn-c-stack` | `715589c1db7cf67e2f3259fd7083ebc7f0923376` | Portable ADP, ACMP and MAAP cores | `sw/firmware/ctrl` mailbox adapters |
 | `third_party/verilog-axis` | `48ff7a7e2ef782cf778d47910cf85835c64b1bce` | AXI-Stream primitives | Multiple RTL consumers |
 <!-- submodule-pins:end -->
@@ -68,8 +68,9 @@ Issue #580 adopted processor pin `16be6768`.
 - [Processor PR 124](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/124) rejects body/key type and index mismatches.
 - [Processor PR 126](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/126) documents descriptor ownership.
 - [Processor #122](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/122#issuecomment-5853884588) retains Milan 5.3.3.8's cluster minimum.
-- The zero-cluster 8x8 input pools violate that minimum.
-- Parent [#584](https://github.com/kebag-logic/milan-fpga/issues/584) owns the D8 product correction.
+- The 8x8 input pools violated that minimum until parent [#584](https://github.com/kebag-logic/milan-fpga/issues/584).
+- Since #584 each 8x8 input port owns one cluster.
+- The model lint therefore needs no waiver.
 - All five configurations retain identical AEM images and builder outputs.
 
 Issues #606 and #608 adopted processor pin `c951a9ff`.
@@ -148,7 +149,7 @@ The parent can observe these processor changes.
 | P2 answers a silent NVM device at that deadline: err, cause DEADLINE | Three failed attempts raise `nvm_alarm`; the [D3 contract](../design/SAVED_STATE_MATERIALIZATION.md) is amended (W13, section 8.8, section 15 item 4) |
 | P1 adds the name stage; the channel maps are the parent's ([processor #83 ruling](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/83#issuecomment-5967611704)) | The D3 contract is amended; the map writer, restore and roll-back are #637's |
 | P1 keeps `pend_i`'s sticky live-name term | A parent lane transfers names to `d3_unflushed_o` |
-| C8 lints the descriptor model inside `build()` by default | Both image emitters run it; the 8x8 configuration carries its #584 waiver; the parent's duplicate L6/L10 checker is retired |
+| C8 lints the descriptor model inside `build()` by default | Both image emitters run it; the 8x8 configuration's #584 waiver is removed since its input ports own clusters; the parent's duplicate L6/L10 checker is retired |
 | C10 names six modules as Yosys tops and declares before use | `processor_yosys_tops.budget` is empty and the xvlog ratchet banks the fix |
 | #232 drops the `pd_ix_w` use-before-declaration | The xvlog ratchet banks it |
 | #85 resets `available_index` to 0 after ENTITY_DEPARTING (IEEE 1722.1-2021 Section 6.2.2.15) | The [register map](REGISTER_MAP.md) `0x644` note says so |
@@ -945,6 +946,128 @@ Against it, `check` and `check-baseline` exit 0.
 
 The [area budget](../design/AREA_BUDGET.md) gives the figures.
 
+Issue #994 moves the gPTP gitlink to `1213ac5b`.
+
+It fast-forwards `1616fc8f` on the donor's `main`.
+
+The processor stays at `801ef228`.
+
+| gPTP issue | Merged PR | Parent-visible result |
+|---|---|---|
+| #102, the engine mutation arm at once | [103](https://github.com/Mister-M-alt/FPGA-gPTP/pull/103) | Test infrastructure only: the engine suite's mutants run concurrently. No `hdl/` or `syn/` change |
+| #104, the engine builds' ccache | [105](https://github.com/Mister-M-alt/FPGA-gPTP/pull/105) | Test infrastructure only: the engine suite and its mutants compile through ccache. No `hdl/` or `syn/` change |
+| #106, a new master's first Announce at once | [108](https://github.com/Mister-M-alt/FPGA-gPTP/pull/108) | The handler that takes the grandmaster role sends the first Announce and arms the 1 s cadence from it (IEEE 802.1AS-2011 Figure 10-15). Before, it armed a 2 ms beat, and an Announce at the receipt-timeout instant re-elected its grandmaster first, so the aged port's mastership never reached the wire. The role, asCapable and transmit-credit gates stay. The ROM shrinks by two words, to 1,013 of 1,024 |
+| #107, each mastership on this oscillator | [108](https://github.com/Mister-M-alt/FPGA-gPTP/pull/108) | Taking the role always writes rate 0, so the time base runs on its LocalClock (IEEE 802.1AS-2020 10.1.2.1, 10.2.4.14). Before, the write applied only during a slew, so a mastership kept the slave's last trim, which a phase transient can wind to the +200 ppm rail. scaledLastGmFreqChange is the negated slave estimate, 0 when no slave rate was written since reset or the last mastership (10.2.8.2.1 l), 11.4.4.3.9) |
+
+No engine port or parameter changes.
+
+No top-level port, parameter or register changes.
+
+The generator's options are unchanged, so the builder is too.
+
+`gptp_ucode.hex` changes; its new ledger row matches the donor's tracked image.
+
+The donor's reviewed head `331e27de` has the merged tree, `7b579e33`.
+
+The release images were routed at lane commit `973f2f20`.
+
+That commit is the gitlink move.
+
+Later commits change no synthesis input.
+
+The base is `300da99b`, whose image inputs were routed at `c2b2ba1a`.
+
+Both use the release recipe: the split image, one interface.
+
+Directives run in the recipe's order.
+
+An image meeting the floor on the first directive ships.
+
+Otherwise all three are routed.
+
+The best worst-corner WNS ships (#818).
+
+At 1x1 the first missed, as on the base.
+
+So all three were routed there.
+
+| Image, directive | WNS / WHS, worst corner | LUT | FF | Slice | BRAM tiles | DSP |
+|---|---|---:|---:|---:|---:|---:|
+| 8x8/1if base, ExtraPostPlacementOpt | +0.105 / +0.036 ns | 46,621 | 53,338 | 15,570 | 98.5 | 13 |
+| 8x8/1if, ExtraPostPlacementOpt, selected | +0.066 / +0.036 ns | 46,246 | 53,381 | 15,622 | 98.5 | 13 |
+| 1x1/1if base, ExtraTimingOpt | +0.384 / +0.036 ns | 32,680 | 42,805 | 14,297 | 80.5 | 13 |
+| 1x1/1if, ExtraPostPlacementOpt, misses the floor | +0.007 / +0.036 ns | 32,555 | 42,803 | 13,598 | 80.5 | 13 |
+| 1x1/1if, ExtraTimingOpt, selected | +0.170 / +0.024 ns | 32,639 | 42,805 | 14,147 | 80.5 | 13 |
+| 1x1/1if, AltSpreadLogic_high | +0.072 / +0.024 ns | 32,633 | 42,803 | 14,142 | 80.5 | 13 |
+
+Every route completes with no routing error.
+
+No route has a failing endpoint.
+
+Each selected image meets the build floor at every corner.
+
+The 8x8/1if image is 375 LUTs smaller.
+
+It has 43 more FFs and 52 more slices.
+
+The 1x1/1if image is 41 LUTs smaller.
+
+It has equal FFs and 150 fewer slices.
+
+BRAM and DSP are equal at both shapes.
+
+The donor measured +455 LUTs at 8x8/1if.
+
+Its base was an older parent.
+
+The [owner accepted that growth](https://github.com/Mister-M-alt/FPGA-gPTP/pull/108#issuecomment-7121892317) as a recorded exception.
+
+On this base the growth does not appear.
+
+The 8x8 worst setup path is `KL_mbx` read data.
+
+At 1x1 it ends at the SoC's UART FIFO.
+
+Its worst hold path is in `chan_map_render`.
+
+None is in the gPTP plane.
+
+The [`gptp_shadow` suite](../../tb/verilator/gptp_shadow/README.md) grades both changes on the platform.
+
+It runs the real engine, PHC and slice transport.
+
+Phase 19 takes four masterships from slaves at +-100 ppm.
+
+Each runs at rate 0 and steps no phase.
+
+The real counter then advances exactly 8 ns a clock.
+
+Phase 20 sends an Announce in the deadline's own millisecond.
+
+The master Announce's last beat precedes its re-election clock.
+
+Phase 21 withholds the transmit credit at the instant.
+
+The ticket reserve withholds it, with the plane unsealed.
+
+The seal withholds it too, behind its fence.
+
+The withheld Announce leaves one announce interval later.
+
+Its campaign plants four defects; each fails by name.
+
+Two are the donor defects; one drops the credit gate.
+
+The fourth stalls the harness lane across the race.
+
+[Issue #997](https://github.com/kebag-logic/milan-fpga/issues/997) tracks a takeover anomaly the donor review found.
+
+A -100 ppm takeover left two GET_COUNTERS windows unanswered.
+
+It reproduces at both pins.
+
+This adoption did not cause it.
+
 The ROM ledger records current and earlier pins.
 
 The boundary diagram follows the current pin.
@@ -1081,10 +1204,10 @@ The parent carries it to the CRF servo (#545).
 
 Window overlap preserves lock until measured correction completes.
 
-- [Manager guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/1616fc8f062fbf58c35ad31674b5b233207bbdb8/docs/MANAGER.md)
-- [Integration guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/1616fc8f062fbf58c35ad31674b5b233207bbdb8/docs/INTEGRATION.md)
-- [HDL guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/1616fc8f062fbf58c35ad31674b5b233207bbdb8/docs/HDL_DEVELOPER.md)
-- [Test guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/1616fc8f062fbf58c35ad31674b5b233207bbdb8/docs/TEST_DEVELOPER.md)
+- [Manager guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/1213ac5b9e09b8759ba76cc70c53652b5e108996/docs/MANAGER.md)
+- [Integration guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/1213ac5b9e09b8759ba76cc70c53652b5e108996/docs/INTEGRATION.md)
+- [HDL guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/1213ac5b9e09b8759ba76cc70c53652b5e108996/docs/HDL_DEVELOPER.md)
+- [Test guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/1213ac5b9e09b8759ba76cc70c53652b5e108996/docs/TEST_DEVELOPER.md)
 
 Processor PR 156 resolves both former RX-interface contradictions.
 

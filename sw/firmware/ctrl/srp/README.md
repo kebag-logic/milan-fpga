@@ -31,10 +31,14 @@ Do not rebind or destroy the pool while any participant owns storage.
 There is no firmware heap or operating-system dependency.
 
 The pool has two small and two large blocks per interface, plus
-`16 + 3 * sources + 4 * sinks` medium blocks per interface.
+`16 + 3 * sources + 4 * sinks` medium blocks per interface. The fixed 16 hold the
+Domain's and the default VID's attributes, at most four while a Domain is adopted,
+and fund up to 12 Talkers kept for StreamIDs no binding holds, one for each sink
+(`SRP_KEPT_TALKERS`, #969; a static assertion holds the sum).
 The arena includes conservative allocator overhead for each block.
 Receive-interest filters retain every valid Class A Domain value, output Listener
-IDs, bound input Talker IDs and required VLANs.
+IDs, bound input Talker IDs and required VLANs, and up to `SRP_KEPT_TALKERS` Talker
+attributes of StreamIDs no binding holds (#969, below).
 Quiescent, undeclared MT attributes are reclaimed under Table 10-3 note 11.
 `refused` counts unsuccessful attempts, including retries, rather than records.
 Exhaustion is counted and refused; it cannot overwrite another reservation.
@@ -73,8 +77,8 @@ Observation follows each wire AttributeEvent and centisecond tick.
 Talker indications copy registration kinds into per-sink adapter state.
 The receive-interest callback observes the preceding event from those copies.
 It never calls its owning application.
-This obeys lwSRP's [integrator contract](https://github.com/kebag-logic/lwSRP/blob/08ee86e812a0eb5e1dc6cd61b494d8baf3491348/doc/integrator.md#L324-L326)
-and [filter contract](https://github.com/kebag-logic/lwSRP/blob/08ee86e812a0eb5e1dc6cd61b494d8baf3491348/src/include/shish_lan/mrp.h#L292-L294).
+This obeys lwSRP's [integrator contract](https://github.com/kebag-logic/lwSRP/blob/d1bb4f4e5954af6dabe7f210a6bf7adbb76bdd6b/doc/integrator.md#L327-L329)
+and [filter contract](https://github.com/kebag-logic/lwSRP/blob/d1bb4f4e5954af6dabe7f210a6bf7adbb76bdd6b/src/include/shish_lan/mrp.h#L292-L294).
 Registrar visits run outside callbacks, before and after receive.
 A visit walks the registrar only after a change to what it copies (#665).
 Such a change is a Talker's indication, a binding, or one of the adapter's own declarations, which rewrite the value of an attribute a registration may share.
@@ -91,7 +95,7 @@ Receive return observes the last event, including partial allocation refusal.
 Thus atomic JoinIn/JoinMt replacements remain continuous registrations.
 Lv then New remains two transitions, even inside one PDU.
 Expiry before receive remains visible, as does interface reset.
-Poll observation covers a newly accepted binding's existing registrations.
+Poll observation covers a newly accepted binding's existing registrations, a Talker's kept before the binding too (#969).
 No observer calls ACMP or delivers a port action.
 
 Pending ACMP intent gates obsolete feedback immediately.
@@ -111,6 +115,26 @@ Destroy before reinitializing an already initialized instance.
 Attach reads each interface's current mailbox link level.
 Polling reconciles that level even without another LINK record.
 A held DOWN record can disappear when the level recovers.
+The poll takes a DOWN as the LINK register reads it, so a link lost while a full ring holds its record fails closed.
+It takes an UP while the last LINK the loop dispatched carried one, or attach read one (`link_carried`, #973).
+Otherwise it takes an UP only once no LINK is owed (`carried_up`).
+A poll that reads such an UP marks it; a later poll takes it if no LINK came and its pass's take emptied the ring.
+The fabric posts a LINK first once the ring has room, and one pass takes fewer records than a full ring holds.
+So a LINK owed at the mark has been taken by then.
+A poll that reads a DOWN clears the mark, so the mark holds only while each poll reads the link up.
+A DOWN can elide the marked UP's record; the UP after it is owed a LINK of its own, posted after the takes the mark saw.
+So an UP after a DOWN is taken from its LINK: the first keeps the startup participants, and a later one resets once.
+A DOWN that no poll reads ends between two polls, sooner than a dropped link renegotiates (IEEE 802.3-2022 28.3.2).
+The register can rise after the loop took a pass's events, before SRP's poll reads it.
+A reset on that level would make the next pass's LINK a repeated UP, which resets the interface again.
+So a first UP would lose the clean startup participants, and a later UP would reset twice.
+The same rule follows the link after a re-attach that read a DOWN whose record the fabric then elided.
+It also takes an UP that SRP's sink dropped on a re-entry, counted in `reentries`.
+A DOWN inside a pass still resets the interface twice: the poll's reset, then its LINK's.
+Nothing transmits on the down link between the two.
+`srp_link_pass.cpp` moves the link at each phase of a pass, behind a full event ring, across a DOWN that elides an UP,
+and across a re-attach.
+It runs in a process of its own at 1x1/1if and 8x8/1if.
 
 `ctrl_app_attach_srp` wires the ACMP environment's SRP port into a static
 latest-request slot per sink. It refuses a sink count beyond the generated
@@ -226,26 +250,32 @@ its licence closes first, its `TALKER_DECL` bit and bandwidth go before the
 Leave is sent. MSRP does not support a changed FirstValue on a StreamID (IEEE
 802.1Q-2018 35.2.2.8): a source valid again with an unchanged destination
 declares at once, while a changed destination waits `SRP_REDECLARE_CS` after
-the Leave's request: two nominal longest LeaveAll periods, with a JoinTime and
-THE TRANSMIT's MRPDU by every source, `CTRL_LOOP_TX_MS`, the latest the Leave
-departs. That is 3,023 cs at 1x1/1if (35 ms), 3,027 at 8x8/1if (77 ms) and 3,030
-at two interfaces (105 ms), each figure stated for its shape (THE SHAPES,
-`ctrl_loop.h`) and held to its row by `flip_grade.py --check`
+the Leave's request: two nominal longest LeaveAll periods less a JoinTime and
+THE TRANSMIT's MRPDU by every source, `CTRL_LOOP_TX_MS`, the most the count's
+end leaves before the declaration is on the wire. Both terms are counted inside
+the two periods (#956, the owner's decision of 2026-11-21), so the declaration
+is made two longest periods less both terms after the request and reaches the
+wire no later than 30 s after it. That is 2,977 cs at 1x1/1if (35 ms), 2,973 at
+8x8/1if (77 ms) and 2,970 at two interfaces (105 ms), each figure stated for its
+shape (THE SHAPES, `ctrl_loop.h`) and held to its row by `flip_grade.py --check`
 (`rows_tiers.tx_statements`, and at 8x8/1if `tx_held`, apart from that point's
 reported rows;
 [#895's ruling of 2026-11-15 on that figure](https://github.com/kebag-logic/milan-fpga/issues/895#issuecomment-6895331865),
 items 1 and 2). A destination that changes while valid withdraws the old one
 first. 35.2.2.8 asks for at least two LeaveAllTime periods, and 10.7.4.3 draws
 each LeaveAll period, nominally, between LeaveAllTime and 1.5 times it, so two
-nominal periods span 20 to 30 s. The hold-off covers the nominal longest two,
+nominal periods span 20 to 30 s. The hold-off spans the nominal longest two,
 1.5 times the LeaveAllTime the participants are configured with
 (`SRP_LEAVEALL_CS`, 1000 cs, Table 10-7 and Milan v1.2 Table 4.3) each, 3,000 cs
 ([#665's ruling of 2026-11-19](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-7007273447),
-item 2; #951). Milan v1.2 Table 4.3 also tolerates a leavealltimer up to
-15.5 s. The hold-off does not cover that tolerance: two periods at its upper
-edge reach 31 s, past the nominal 30 s the ruling sets. Before #951 the hold-off
-covered the shortest two, 2,000 cs, as acceptance 2 of #895 words it; a longer
-hold still meets 35.2.2.8, which sets only the least. Each source counts its
+item 2; #951), from the request to the wire. #951 added both terms past the two
+periods, 3,023 cs at 1x1/1if, so its declaration reached the wire about 30.26 s
+after the Leave at 8x8/1if on the flip bench (#956). Milan v1.2 Table 4.3 also
+tolerates a leavealltimer up to 15.5 s. The hold-off does not cover that
+tolerance: two periods at its upper edge reach 31 s, past the nominal 30 s the
+ruling sets. Before #951 the hold-off covered the shortest two, 2,000 cs, and
+both terms, as acceptance 2 of #895 words it; any of these still meets
+35.2.2.8, which sets only the least. Each source counts its
 hold-off down in `held_cs`, 16 bits, and the adapter does not compile with a
 hold-off the count cannot hold. An admission change swaps the type in place,
 the new type joined
@@ -293,6 +323,51 @@ Tests: `srp_talker.cpp` (`DeclarationAndWithdrawalAreNoticed`,
 `NoPassIsIdleWhileAStreamOutputsNoticeIsOwed`; plants `talker-notice-*`
 (`srp_talker_mutants.py`) and `app-output-notice-*` (`aecp_notice_mutants.py`).
 
+A STREAM_OUTPUT's GET_STREAM_INFO also shows the Listener registered for its
+stream on its own interface (#943: REGISTERING, and REGISTERING_FAILED for
+Asking Failed) while the face reports the output declaring, its DA gate, and
+Table 5.22 names that registration state too, so each change of it owes the
+output's notice (#957). lwSRP indicates every registration's start and end,
+Ignore at the end (`left`), and every change of a registered Listener's
+declaration, so the declaration the indication copies (`listener`, into
+`declaration`: Asking Failed, Ready or Ready Failed, Ignore with none) is what
+the output shows while its gate is open. Each change of it while the source's
+bit of `gate` is set on the interface is recorded in `noticed`, the record a
+Talker declaration's change is, so the composition and AECP take it the same
+way. MAAP opens a source's gate on its own interface only (`maap_mbx.c`), so a
+Listener on another interface records nothing, and behind a closed gate the
+face shows neither flag. A Listener declared again unchanged, New or JoinIn,
+records nothing, and one registered again after a LeaveAll is not indicated. A
+Ready replaced by a Ready Failed is recorded, though its flags are the same,
+since the release processor's LISTENER_REG_CHANGE follows the registration
+state. A link reset is not recorded here: it closes the output's declaration as
+a reset does for the Talker (above). It destroys the interface's participants
+and the Listener registrations they hold with no indication, so
+`reset_interface` clears `declaration` with `listener_present`: the record then
+agrees with what the answer shows, no Listener, and the first registration after
+the reset is recorded whatever it declares, the destroyed one's declaration
+included. The record and that clear take 44 bytes of code at 8x8/1if (#957).
+With THE TRANSMIT's sliced build keeping what came due between its slices
+(#956, below), whose build is of interface 0 at compile time at one interface,
+the image has 128 bytes of its 34 RAMB36 of `rom` left (139,136 bytes); with a
+waiting SET_STREAM_FORMAT's check made again and the source port's Asking Failed
+beside it (#950, #954) it holds 139,240 bytes, 24 under those 34 RAMB36, within
+its 58.5 entry. On the post-flip composition train, with each 8x8
+STREAM_PORT_INPUT's AUDIO_CLUSTER (#584) and the kept Talkers (#969) beside them,
+it holds 141,616 bytes and its entry is 59.5
+([split control memory](../../../../docs/design/SPLIT_CONTROL_MEMORY.md#5-fit)).
+Tests: `srp_talker.cpp`'s `ListenerRegistrationChangeIsNoticed` and
+`ListenerRegistrationAfterAResetIsNoticed` (each declaration, the link's edges
+apart, coalesced into one service and twice over, the other interface's record
+kept; at 1x1/1if, 8x8/1if and 8x8/2if) and `test_aecp.cpp`'s
+`ListenerRegistrationChangeIsItsStreamOutputsNotice` and
+`ListenerRegistrationAfterALinkResetIsItsStreamOutputsNotice` (real Listener
+MRPDUs, the notices read on the wire, one with the new flags to every registered
+controller, at every output of the 1x1 shape at one and two interfaces and of
+the 8x8 at one, and across a link reset at the first output); plants
+`talker-registration-*` (`srp_talker_mutants.py`) and `registration-notice-*`
+(`aecp_registration_mutants.py`).
+
 A binding declares Ready for a matching Advertise, AskingFailed for a matching
 Failed, and withdraws when its retained registration expires.
 A talker declares one of the two for a stream and moves directly between them
@@ -315,16 +390,75 @@ whatever its destination, and a binding made later, or one replaced in place,
 takes it from them. A StreamID whose last binding ends while both kinds stay
 registered is held with its latest (`srp_held`) for its interface's next
 binding of it, until either kind leaves or the interface resets; its
-registrations' leave timers still run, as the talker's messages for a StreamID
-no binding has are ignored. Each registration is an lwSRP attribute in a medium
-or large pool block, so half those blocks bound the StreamIDs held, and the
-table does not fill. `srp_mbx.cpp`'s `SrpTalkerKinds` and `test_acmp_mbx.cpp`'s
+registrations are kept (#969, below), and their leave timers run. A StreamID no
+binding has is held too from a registration it is kept for, with the kind
+registered latest, until either kind leaves, so a binding made later takes the
+latest as one made earlier does. Each registration is an lwSRP attribute in a
+medium or large pool block, a StreamID held with one kind has a kept one, and
+the kept are bounded per interface, so half those blocks and half the kept bound
+the StreamIDs held, and the table does not fill. `srp_mbx.cpp`'s `SrpTalkerKinds` and `test_acmp_mbx.cpp`'s
 `SrpFeedback` tests hold both replacements, each New in turn, either leave,
 coincident registrations in one MRPDU, a replacement before a message that
 changes nothing (the Listener declaration and ACMP's GET_RX_STATE), a later
 binding, one replaced in place, a final unbinding, the hold's ends and its
 interface, each with a planted defect in `srp_kind_mutants.py`. No SRP timer
 changes.
+A Talker registered before the binding that wants it is declared within one
+transmit of the binding (#969). ACMP initiates the SRP reservation only once the
+talker answers its probe (Milan v1.2 5.5.3.5.18 step 4), after a power-on settle
+of a saved binding and after a BIND_RX alike, and a talker's applicant declares
+once and then stays quiet (QA) until a LeaveAll (IEEE 802.1Q-2018 Table 10-3).
+A receive filter that refused a Talker of a StreamID no binding holds left the
+registrar without it, so the walk a binding owes found nothing, and the Listener
+waited for the talker's next declaration, up to a LeaveAll period. Milan v1.2
+5.3.8.5 has a settled input declare Ready while a matching Advertise is being
+received, and 802.1Q-2018 10.7.8's NOTE keeps a Registrar for an attribute of
+immediate interest "as a Member or as a likely future Member". So the filter
+keeps a Talker attribute of a StreamID none of the interface's bindings holds,
+one already kept or while the interface keeps fewer than `SRP_KEPT_TALKERS`, one
+for each STREAM_INPUT of the shape, each a pool block of the fixed 16; the
+release processor's listener keeps the same count of port registrars
+(`KL_srp_listener_fsm.sv`, protocol-processor #212). Its registration is then
+the registrar's, and the walk a binding made later owes takes it as one made
+after the binding is taken; the binding declares in THE TRANSMIT's next MRPDU.
+A receive starts from exactly the attributes kept: before it, outside lwSRP's
+callbacks, `count_kept` counts every Talker the participant does not declare
+and no binding holds, registered or left with its block not yet freed by
+`mrp_reclaim`, and each one the filter keeps since adds one. That count is made
+again when a binding changed since it, or when one counted or kept since may
+have ended and a block was returned since: a kept attribute ends only when
+`mrp_reclaim` frees it, after its Registrar left IN (an indication) or after a
+creation with no registration (a Leave lwSRP creates it for), or when a reset
+destroys the participants, which zeroes the count with them
+(`reset_interface`). So after a reset, or once a kept
+one's block is freed, below the bound as at it, one receive of every input's
+Talker is kept whole; while nothing is pending a block returned owes no count.
+Within one receive the count rises only by what the filter keeps, so the bound
+refuses a Talker only at an occupancy the fixed blocks fund no further. The
+filter reads no walk's result, so the walk's schedule moves none of its answers
+(#930's differential holds it), and an unbound StreamID's indication owes no
+walk, since it changes no binding.
+Past the bound, a Talker no binding holds is ignored, as every one
+was before #969, and a binding made later declares with the talker's next
+declaration. A New of the other kind of a kept StreamID registers beside it, an
+attribute of its own, and is kept only within the bound; a JoinIn of the other
+kind, which replaces the kept one (35.2.6), is kept the same way, so at the bound
+the old kind stays until the talker's Leave of it, or its LeaveAll, ends it.
+`srp_mbx.cpp`'s `SrpEarlyTalker` tests hold, on every STREAM_INPUT of the shape
+at 1x1 and 8x8, one and two interfaces, registration then binding (at a
+power-on's spacing, within the DUT's first LeaveAll period), binding then
+registration with the kept ones at their bound, a bind while bound to a stream
+declared all along, the latest of two kinds, a JoinIn replacement, a registration
+that ended before the binding, the bound, a kept registration that left before
+its block is freed, and one receive of every input's Talker (one vector, or a
+message each) kept whole into a fresh registrar, after a reset, after a kept
+one's block was freed, after a Leave kept for a StreamID never registered, and
+beside a kept one refreshed, with a flood of unbound Talkers and UNBIND_RX then
+BIND_RX as controls; `test_plat_sinks.cpp`'s S13 and S14 hold the platform's
+power-on restore and bind while bound through ACMP's probe, with GET_STREAM_INFO's
+REGISTERING and REGISTERING_FAILED (Milan v1.2 Tables 5.9, 5.10), at 8x8/1if and
+1x1/1if. Each rule has a planted defect in `srp_early_mutants.py`, and the
+platform's in `sink_mutants.py`.
 Ready follows the accepted MVRP membership request (802.1Q 35.1.2.2).
 
 Startup declares Domain class 6, priority 3, VID 2 and MVRP membership in VID 2.
@@ -362,7 +496,7 @@ An MRPDU owed takes a tier-2 slice of a pass given whole, the first the loop giv
 What owes that pass: a participant's join count ending, a LeaveAll where no join timer holds it (IEEE 802.1Q 10.7.4.1, Table 10-5), an Applicant moved outside a build with its own join timer idle, a walk that changes a binding's declaration, an unbinding that withdraws a declared Listener or VLAN, a new participant, or the first link up (a binding itself owes none: the walk that finds its declaration does).
 lwSRP arms a join timer as it sends and reports no expiry, so the adapter keeps the same count, restarted by what a build sent and by nothing else.
 The call makes every interface's declarations, then sends both MRPDUs of the first interface that owes one (`SRP_MBX_TRANSMIT_FRAMES`, `srp_bounds.h`), and the next such pass takes the next interface; then it makes that interface's declarations again, for what a first VLAN send licensed.
-A slice holds `CTRL_LOOP_BUILD_MOST` MRPDUs, one at every point (a 950 us slice at 1x1/1if, against 1,010 us for both of an interface's MRPDUs, `CTRL_LOOP_BUILD_PASS_US`; 1,475 us at 8x8/1if against 1,795, each stated for its shape, THE SHAPES in `ctrl_loop.h`): a build the slice cannot hold stops after them, reclaims as the next build would, and resumes in the next slice at the next participant (`tx_resume`) with its declarations already made, so the frames are those of the build made whole (`Srp.ABuildResumedAcrossSlicesSendsTheFramesOfTheBuildMadeWhole`); an interface reset ends the build it was resuming.
+A slice holds `CTRL_LOOP_BUILD_MOST` MRPDUs, one at every point (a 950 us slice at 1x1/1if, against 1,010 us for both of an interface's MRPDUs, `CTRL_LOOP_BUILD_PASS_US`; 1,475 us at 8x8/1if against 1,795, each stated for its shape, THE SHAPES in `ctrl_loop.h`): a build the slice cannot hold stops after them, reclaims as the next build would, and resumes in the next slice at the next participant (`tx_resume`) with its declarations already made, so the frames are those of the build made whole (`Srp.ABuildResumedAcrossSlicesSendsTheFramesOfTheBuildMadeWhole`); an interface reset ends the build it was resuming. The pause takes its interface's due, and the build waiting for its next slice is THE TRANSMIT's due and the poll's owed (`tx_owed`, the due and `tx_resume` read whole), so what comes due between the two slices, a join timer's end among the centiseconds dispatched there or a declaration another pass made owed, is owed again once the build ends, as after a build made whole, a build with nothing due between its slices ends owing nothing, what its own sends moved included, and a frame the ring refuses in the second slice stays the poll's with its interface due, as in a build made whole (A3) (#956; `Srp.ABuildPausedBetweenSlicesStaysOwedAndKeepsWhatCameDue`). Before it, the resumed slice's end cleared a due a join timer's end set again between the slices, so a declaration that timer held waited for the next periodic MRPDU, past two longest LeaveAll periods after a withdrawal with the loop held (`Talker.ChangedDestinationReachesTheWireWithinTwoLongestLeaveAllPeriodsWithTheJoinTimerRunning`, and `EveryPhase/TalkerPhase.*`, every centisecond of a second, the loop held and serviced).
 An MRPDU a join, periodic or LeaveAll timer owes now waits for tier 1's records. At 1x1/1if it is held within 49 ms of the centisecond that owes it ([#894's ruling of 2026-11-13](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6840564634), item 1; [its contingent ruling](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6858269025), item 3; [its egress ruling](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6867990126), item 1): `CTRL_LOOP_TX_BOUND_MS`, the most lateness the MRP timer budget holds, since the join timer is armed as an MRPDU is committed and the armed join time (`CTRL_LOOP_JOIN_CS`, 190 ms, which `SRP_JOIN_CS` configures lwSRP with) plus the lateness and the frame's `T_egress` (`CTRL_LOOP_T_EGRESS_MS`, 1 ms) must stay within Milan Table 4.3's 240 ms. By every source it is 34.00 ms there at the slice rule's 900 us, the last queued notice's bound at 140 ms, at the Talker declarations' costs composed with #894's SET_CONFIGURATION cut and measured again, which `CTRL_LOOP_TX_MS` states as 34 ms, and 35 ms since GET_AS_PATH's read composed with them puts the row at 34.20 (#897) (34.05 at 950 us after the one cut, 33.88 at the composed tables, 33.69 before that cut, 33.64 at 900 us, 33.39 at the edit cut's composed tables, 33.20 before that cut, 33.01 at its own; `rows_tiers.py`, the tx row, which `CTRL_LOOP_TX_MS` states as 35 ms; `ctrl_loop.c` holds it to the bound at compile time; #895), and the flip check holds it with every AECP notice the largest legal one too (txL) ([FR_NFR.md 3.4.1](../../../../docs/reference/FR_NFR.md#341-control-service-budget-and-normative-timing)).
 Where a slice holds both MRPDUs (`CTRL_LOOP_BUILD_MOST` 2, a slice of at least `CTRL_LOOP_BUILD_PASS_US`; no point's at this tree), a Domain adopted in that call is sent in it, so no poll sees the new VID unlicensed between the adoption and its MVRP commit.
 Where a slice holds one (every point), the MVRP MRPDU follows in the next slice and an ordinary pass and its polls may run between the two; the Talker's licence still waits for the MVRP commit (`vlan_sent`; Milan v1.2 4.3.2), as `Srp.ASlicedAdoptionLicensesItsTalkerOnlyOnceItsVlanIsSent` checks with a poll between the slices.
@@ -533,9 +667,9 @@ against `srp_bounds.h`'s terms. Through the composition, `test_acmp_mbx.cpp`'s
 `SrpGate` tests run at 8x8/2if: a probe declares its source at MAAP's base + n
 and the 15 s expiry withdraws it, a registered Listener keeps it declared past
 the window, and a range MAAP loses to a peer's ANNOUNCE withdraws it, the new
-range's destination declared only after the hold-off, two nominal longest
-LeaveAll periods after the Leave and not the two LeaveAllTime periods it was
-before #951. A named test refuses each
+range's destination declared only after the hold-off, held at 29 s and on
+the wire by two nominal longest LeaveAll periods after the conflict, neither at
+the two LeaveAllTime periods it was before #951 nor with #951's terms added. A named test refuses each
 allocation of a link restart's re-creation in turn, a source's join among
 them, so a creation that fails part way and still shows a declaration fails
 it too.
@@ -555,6 +689,7 @@ of every processor state. The complete original processor suites run separately.
 | D1, resolved | `srp_stream_fsms` section E expects immediate loss on Talker Lv from IN | Firmware agrees under Milan v1.2 4.2.7.2.2. A later Lv in LV retains the original LeaveTime deadline; the #608 cases remain covered. |
 | D2 | Sections B/E encode Listener withdrawal with FourPackedEvent Ignore (0) | Retain the last declaration subtype on Lv. IEEE 802.1Q-2018 35.2.2.7.2: Ignore is not a Listener declaration to register or withdraw. |
 | D3 | `KL_srp_listener_fsm.sv` holds one Talker registrar a sink, whose type a registering event of either swaps in place: a Talker Lv of either type on IN unregisters it | With both kinds registered the latest decides; its Lv hands the declaration to the older kind, still registered, and the older's Lv changes nothing (`SrpTalkerKinds.LeaveOfEitherKindLeavesTheOtherDeciding`). The registrations that remain decide (IEEE 802.1Q-2018 35.2.6, Milan v1.2 5.3.8.5, the ruling on #925). |
+| D4 | `KL_srp_listener_fsm.sv` keeps N port registrars, N the sink count, one a {stream_id, DA, VLAN} value whatever its type, which a settle on that value starts its sink's registrar from (#212) | The same count of Talker attributes kept for StreamIDs no binding holds, each lwSRP's attribute of one type and StreamID, the destination and VID matched by the walk a binding owes (#969). Past the count both ignore a new value until the talker's next declaration; a New of the other kind is a second attribute here, a swap there. |
 
 Milan v1.2 4.2.7.2.2 governs D1; IEEE 802.1Q-2018 35.2.2.7.2 governs D2.
 JoinIn/JoinMt replacing Advertise with Failed or the reverse uses 35.2.6. Of a
@@ -591,7 +726,7 @@ source MAAP has allocated, no split source holds a licence. Each source's
 [maap README](../maap/README.md)), and that check's `[SID]` holds a split
 talker's stream frames to the stream_id its Talker Advertise declares.
 
-The lwSRP pin is public `main` at `08ee86e8`.
+The lwSRP pin is public `main` at `d1bb4f4e`, which merges PR #21: an Applicant takes one event at its own LeaveAll (lwSRP #20).
 Its PR #18 sends one Message per AttributeType in each MRPDU (IEEE 802.1Q-2018 10.8.1.2).
 Decoded events are unchanged; the H-SRP LeaveAll walk reads every vector to each EndMark.
 Round 6 adapts to its recoverable receive-allocation contract.

@@ -20,6 +20,7 @@ TDM/AES3/SPDIF ser/des families sibling selections of this module.
 - **[Config-driven ports (not parameters, still schema-owned)](#config-driven-ports-not-parameters-still-schema-owned)** -- Three inputs that behave like configuration but arrive as ports, including `wire_chans_i` - which is explicitly *not* config: the render mapping follows channels-per-frame off the last accepted PDU regardless of declared format.
 - **[Cross-parameter / cross-module pairings (STRICT)](#cross-parameter--cross-module-pairings-strict)** -- Three must-match pairs and the failure each produces, all of them quiet: a wrong `CLK_FREQ_HZ` skews the convergence window silently, a wrong audio clock drifts the FIFO to a permanent rail, and a `SETPOINT_P` at or above the FIFO depth means playback never restarts after a rail event.
 - **[Validation](#validation)** -- What the builder actually checks versus what it does not: clock consistency raises `ConfigError`, but the `FIFO_LOG2` and `SETPOINT_P` bounds have no elaboration assert today.
+- **[Optional input-mapped loopback](#optional-input-mapped-loopback)** -- The default-off `INPUT_LOOPBACK_P` copy, its map-slice parameters and the two approved shapes, with the packed port fields it adds when enabled
 
 ## Parameters
 
@@ -69,3 +70,40 @@ The runtime clock-consumption claim is checked against the
   board table).
 - `FIFO_LOG2` / `SETPOINT_P` bounds: UNCHECKED in RTL today (no elaboration
   assert) - flagged for the item-4 parameterization round.
+
+## Optional input-mapped loopback
+
+`INPUT_LOOPBACK_P=0` leaves the existing capture and render schedule in place.
+At one, `KL_render_queue` reads each committed logical input destination after
+physical rendering and before scrubbing the consumed source frame.
+`INPUT_KEYS_P`, `INPUT_FIRST_P`, and `INPUT_CH_P` describe that map slice.
+The two approved tuples are `(16,8,8)` and `(64,1,63)`.
+
+Enabled ports append these fields; disabled widths retain their originals:
+
+| Module port | Original field | Enabled extension, high to low |
+|---|---|---|
+| Capture `lb_tdata_i` | `[63:0]` payload | `[87:64]` synchronous mono return |
+| Capture `tdm_walk_ns_o` | `[31:0]` instant | `[39]` claim, `[38]` read, `[37:32]` destination |
+| Queue `s_tdata_i` | `[63:0]` payload | `[105 +: INPUT_KEYS_P*8]` map, `[104]` invalidate, `[103]` claim, `[102]` read, `[101:96]` destination, `[95:64]` capture instant |
+| Queue `m_tdata_o` | `[63:0]` payload | `[87:64]` synchronous mono return |
+
+Both instance names remain unchanged.
+
+An eight-page, 512 by 24-bit sample RAM has one write port and one synchronous read port.
+Four metadata slots cover unclaimed frames at the supported leads.
+A claim saves the full RAM page before metadata reuse.
+Only a complete, current frame may publish; absent source words write zero.
+
+`KL_chan_map_capture` uses source bucket 6 for these destinations.
+The mono address is `{idxh[2:0],idx[1:0],half}`; reserved upper bits select silence.
+Two extra cycles per output pair issue and collect its two synchronous reads.
+A capture walk claims one page by its capture timestamp and can fan it out.
+One-shot claim prevents replay; its isolation remains untested.
+Input-map changes, reset, unbind and
+clock loss invalidate availability. Two missing domain periods also flush
+source rows, preventing old future rows from shifting across a clock restart.
+The disabled option has neither this RAM nor this additional flush behavior.
+
+See [the complete contract](../../../docs/design/INPUT_MAPPED_LOOPBACK.md)
+and [the wire test](../../../tb/verilator/input_loopback/README.md).

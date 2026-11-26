@@ -9,13 +9,16 @@ import shutil
 from dataclasses import dataclass, asdict
 from pathlib import Path
 
+import aecp_again_mutants
 import aecp_arms
 import aecp_configuration_mutants
+import aecp_input_mutants
 import aecp_index_mutants
 import aecp_map_mutants
 import aecp_face_mutants
 import aecp_notice_mutants
 import aecp_output_mutants
+import aecp_registration_mutants
 import aecp_fan_mutants
 import aecp_owed_mutants
 import aecp_reboot_mutants
@@ -723,17 +726,17 @@ DEFECTS = (
            ('Core.AChangeThePlatformHasNotAppliedWaitsUndoneAndIsAnsweredOnce',
             'IN_PROGRESS reports the IDENTIFY in force')),
     defect('waiting-change-not-redone', 'aecp.c',
-           '\t\tif (taken) {\n\t\t\tswap(a);\n\t\t}\n', '',
+           '\t\tif (status == AECP_SUCCESS) {\n\t\t\tswap(a);\n\t\t}\n', '',
            ('Core.AChangeThePlatformHasNotAppliedWaitsUndoneAndIsAnsweredOnce',
             'done again once applied')),
     defect('waiting-success-not-notified', 'aecp.c',
-           'a->notify = taken;', 'a->notify = false;',
+           'a->notify = status == AECP_SUCCESS;', 'a->notify = false;',
            ('Core.AChangeThePlatformHasNotAppliedWaitsUndoneAndIsAnsweredOnce',
             'the final response, then its notification'),
            ('Face.APendingChangeIsAnsweredOnceTheDatapathTakesIt',
             'the response, its notification and the notification that waited')),
     defect('waiting-failure-notified', 'aecp.c',
-           'a->notify = taken;', 'a->notify = true;',
+           'a->notify = status == AECP_SUCCESS;', 'a->notify = true;',
            ('Core.AChangeThePlatformHasNotAppliedWaitsUndoneAndIsAnsweredOnce',
             'one final response, no notification'),
            ('Face.ALateCommitIsOwedAndPublishedAgainWhole',
@@ -747,12 +750,12 @@ DEFECTS = (
            ('Core.AChangeThePlatformHasNotAppliedWaitsUndoneAndIsAnsweredOnce',
             'waits its whole bound')),
     defect('waiting-failure-not-republished', 'aecp.c',
-           '\t\taecp_note(a, a->noted, a->noted_type, a->noted_index);\n\t\ta->notify = taken;\n',
-           '\t\ta->notify = taken;\n',
+           '\t\taecp_note(a, a->noted, a->noted_type, a->noted_index);\n\t\ta->notify = status == AECP_SUCCESS;\n',
+           '\t\ta->notify = status == AECP_SUCCESS;\n',
            ('Face.APartialAcknowledgementFailsTheChangeUntilEveryInterfaceTakesIt',
             'the interface that took it is given the value in force again')),
     defect('waiting-failure-reports-the-request', 'aecp.c',
-           'refuse(a, AECP_ENTITY_MISBEHAVING);', 'finish(a, AECP_ENTITY_MISBEHAVING, a->held_bytes - 38u);',
+           'refuse(a, status);', 'finish(a, status, a->held_bytes - 38u);',
            ('Core.AChangeThePlatformHasNotAppliedWaitsUndoneAndIsAnsweredOnce',
             'the values in force, as IN_PROGRESS reported them'),
            ('Face.ALateCommitIsOwedAndPublishedAgainWhole',
@@ -885,7 +888,10 @@ DEFECTS = (
     + tuple(defect(*row) for row in aecp_map_mutants.ROWS) + tuple(defect(*row) for row in aecp_face_mutants.ROWS) \
     + tuple(defect(*row) for row in aecp_notice_mutants.ROWS) \
     + tuple(defect(*row) for row in aecp_output_mutants.ROWS) \
-    + tuple(defect(*row) for row in aecp_configuration_mutants.ROWS)
+    + tuple(defect(*row) for row in aecp_registration_mutants.ROWS) \
+    + tuple(defect(*row) for row in aecp_again_mutants.ROWS) \
+    + tuple(defect(*row) for row in aecp_configuration_mutants.ROWS) \
+    + tuple(defect(*row) for row in aecp_input_mutants.ROWS)
 
 
 def caught(test: str, words: str, result: Outcome) -> bool:

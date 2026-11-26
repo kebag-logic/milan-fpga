@@ -6,10 +6,11 @@
 // the split's control loop. It reads the PHY's Clause-22 registers through
 // the SoC's MDIO bit-bang pair and publishes the resolved link, speed and
 // duplex to milan_mac_link_status, the datapath's link input (REQ-MAC-03).
-// Without it that word keeps its reset value, link up, and no consumer of the
-// datapath's effective link (the AVB_INTERFACE LINK_UP and LINK_DOWN
-// counters and their GET_COUNTERS notification, the gPTP plane's port
-// enable, the mailbox's LINK level and event) sees a link change.
+// Without it that word keeps its reset value, link down where the poll owns it
+// (#972), and no consumer of the datapath's effective link (the AVB_INTERFACE
+// LINK_UP and LINK_DOWN counters and their GET_COUNTERS notification, the gPTP
+// plane's port enable, the mailbox's LINK level and event, which the split's
+// MAAP, ADP and SRP follow) sees a link.
 //
 // THE POLL, as the release's: no PHY found, one address probed per
 // opportunity (PHYID1, register 2), a miss publishing link down and moving to
@@ -44,10 +45,31 @@
 // repaired the advertisement, the registers as read not holding it (a PHY
 // reset to its defaults, a write the PHY dropped), so the abilities in force
 // are always the ones written and verified (28.2.4.1.3: a changed
-// advertisement is negotiated again), and once at boot whatever the PHY held,
-// as the release's init. A PHY that still held the advertisement is written
-// and not restarted, so a restart, which latches a loss of its own, never
-// restarts again; a PHY that never takes a write is restarted at each try.
+// advertisement is negotiated again). A PHY that still held the advertisement,
+// at boot as after a loss, is written and not restarted (#972): the boot forms
+// the link once, where the release's init restarts negotiation at every boot
+// whatever the PHY held, and a restart, which latches a loss of its own, never
+// restarts again. Holding it is BMCR as read negotiating, autonegotiation
+// enabled (0.12) with reset (0.15) and isolate (0.10) clear, and registers 4
+// and 9 as read the advertisement (#840): a PHY forced to a mode with
+// autonegotiation off (22.2.4.1.4), isolated (22.2.4.1.6) or resetting is
+// restarted, whatever 4 and 9 hold. A negotiation in force that predates the
+// advertisement is THE OUTCOME's, below; a PHY that never takes a write is
+// restarted at each try.
+//
+// THE LINK BEFORE THE FIRST POLL (#972). Where this poll owns the word, the
+// split placement with an MDIO pair, milan_mac_link_status resets to link
+// down (milan_soc.py's MilanMAC, sw/litex/mac_link_status.py), and arming
+// publishes link down again before the poll's first frame, for a CPU reset
+// alone (LiteX's cpu_rst), which keeps the word. So the datapath's effective
+// link, which the gPTP plane's port and the mailbox's LINK level follow (the
+// split builds no fabric MAAP engine), is down from reset until a poll publishes
+// the PHY's verified link: nothing is sent on a link the advertisement then
+// renegotiates, on a reload that kept the PHY's link, or by a boot refused
+// before the arm (the CSR identity check), and ADP starts DOWN and draws its
+// LINK_UP delay on the published link (Milan v1.2 5.6.3.5.3). A bus with no
+// MDIO pair has no owner here and publishes nothing: its word resets to link
+// up, the only link such a board has, as the all-fabric placement's does.
 // An unacknowledged read writes nothing; the next poll retries.
 //
 // THE OUTCOME. The restart's own write is never read back: its bit clears
@@ -63,8 +85,12 @@
 // completes, and the check waits for both: a poll that restarted negotiation
 // reads BMSR again after the restart and resolves from that, never from the
 // read before it. So it restarts at most once a poll and never during a
-// negotiation. A forced mode (BMCR's autonegotiation enable clear) is
-// published as the release publishes it.
+// negotiation. BMCR not negotiating on a PHY the advertisement is for, a
+// forced mode, isolate or a reset, is no negotiation in force either: link
+// down, the advertisement owed again with its restart, counted, so a forced
+// mode is never published up (#840), a restart the PHY lost included. On a PHY
+// the advertisement is not for, a forced mode is published as the release
+// publishes it.
 //
 // THE PACE. A poll starts CTRL_PLAT_PHY_POLL_US after the last one started,
 // the release's PHY_POLL_NS by its own derivation: half the writer's 250 ms
@@ -198,8 +224,7 @@ struct ctrl_plat_phy_bus {
 #define CTRL_PLAT_PHY_DATA_BITS 16u
 #define CTRL_PLAT_PHY_FRAME_BITS 64u
 // THE ADVERTISEMENT's state (struct ctrl_plat_phy's adv), 0 once verified: owed; owed with its restart taken
-// whatever the PHY holds (the boot's, as the release's init, and THE OUTCOME's); not the PHY's, a 10/100 PHY never
-// written.
+// whatever the PHY holds (THE OUTCOME's); not the PHY's, a 10/100 PHY never written.
 #define CTRL_PLAT_PHY_ADV_OWED 0x1u
 #define CTRL_PLAT_PHY_ADV_RENEGOTIATE 0x2u
 #define CTRL_PLAT_PHY_ADV_NONE 0x4u
@@ -272,8 +297,9 @@ struct ctrl_plat_phy {
 };
 
 // Arm the poll on `bus`: called once the CSR window passed its identity check, so nothing touches the MDIO pins
-// of a fabric that failed it. A bus with no MDIO pair arms nothing. `clock` (microseconds, counting up; the flash
-// port's, which THE STEP's deadline is read on) paces the poll and times the spin's turns (THE BIT).
+// of a fabric that failed it. It publishes link down first (THE LINK BEFORE THE FIRST POLL). A bus with no MDIO pair
+// arms nothing and publishes nothing. `clock` (microseconds, counting up; the flash port's, which THE STEP's deadline
+// is read on) paces the poll and times the spin's turns (THE BIT).
 void ctrl_plat_phy_arm(struct ctrl_plat_phy *phy, const struct ctrl_plat_phy_bus *bus, uint64_t (*clock)(void *ctx),
 		       void *ctx);
 

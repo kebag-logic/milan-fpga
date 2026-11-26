@@ -67,7 +67,7 @@ struct Peer {
     bool negotiates = false;                   // a restart latches the abilities in force and sets the link
     std::uint16_t active_anar = 0, active_gctrl = 0;
     unsigned active_speed = 0;                 // Mb/s of the link negotiated on them, 0: none
-    std::uint32_t word = 13u;                  // link_status's value: the reset value, 1000 Mb/s full duplex, up
+    std::uint32_t word = 13u;                  // link_status's value; a suite sets the reset it models
     std::vector<Frame> frames;
     std::vector<Publication> published;
     std::string fault;

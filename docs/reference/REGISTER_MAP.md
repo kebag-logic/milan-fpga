@@ -519,11 +519,19 @@ RTL name: `A_MAC_STATUS`.
 
 These bits mirror the LiteX `milan_mac_link_status` CSR.
 
-Its reset: link up, full duplex, gigabit on GMII. MII resets to 100 Mb/s.
+Its reset: full duplex, gigabit on GMII. MII resets to 100 Mb/s.
 
-So this word reads `0x0000000D` on the AX7101 until firmware writes.
+The link bit resets up on the all-fabric image.
 
-Firmware publishes it on each boot path reaching `nvm_boot()`.
+So that word reads `0x0000000D` on the AX7101 until firmware writes.
+
+Where firmware owns the PHY, it resets down (#972).
+
+That is the split image with an MDIO pair: `0x0000000C`.
+
+The all-fabric firmware publishes it on each boot path reaching `nvm_boot()`.
+
+The split's PHY poll publishes it past the identity check.
 
 After a CSR identity mismatch, nothing writes it.
 
@@ -2028,7 +2036,7 @@ RTL name: `A_PCMRX_CNT`.
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
-| 31:16 | `DROPPED` | R | X | Whole frames dropped: FIFO overflow. |
+| 31:16 | `DROPPED` | R | X | Whole frames dropped: FIFO overflow, or a queued PDU's frame short of its payload (#948). |
 | 15:0 | `PDUS` | R | X | PDU payloads emitted to the fabric. |
 
 Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#pcmrx_cnt-offset-0x6c4).
@@ -4543,7 +4551,7 @@ LiteX assigns these banks; each spans one CSR page.
 | `0xF0001810` | `milan_mac_core_rx_datapath_preamble_errors` | 1 | RO | LiteEth RX preamble error count. |
 | `0xF0001814` | `milan_mac_core_rx_datapath_crc_errors` | 1 | RO | LiteEth RX CRC error count. |
 | `0xF0001818` | `milan_mac_loopback` | 1 | RW | 1 = internal MAC TX to MAC RX loopback. |
-| `0xF000181C` | `milan_mac_link_status` | 1 | RW | Link, speed and duplex published by firmware; mirrored into `MAC_STATUS` (0x110). Reset: link up, 1000 Mb/s on GMII (100 on MII), full duplex. |
+| `0xF000181C` | `milan_mac_link_status` | 1 | RW | Link, speed and duplex published by firmware; mirrored into `MAC_STATUS` (0x110). Reset: link up, 1000 Mb/s on GMII (100 on MII), full duplex; link down where firmware owns the PHY, the split placement with an MDIO pair (#972, `sw/litex/mac_link_status.py`). |
 | `0xF000F800` | `ppmem_desc_req` | 1 | RO | descriptor-image read bridge: `[31:16]` accesses **ISSUED** (one per bus access, counted at its start, not per held cycle), `[15:0]` accesses the bus **ACKED** without `err` |
 | `0xF000F804` | `ppmem_desc_fault` | 1 | RO | `[31:16]` accesses answered with **err**, `[15:0]` accesses the watchdog **abandoned** with no answer at all |
 | `0xF000F808` | `ppmem_resp_req` | 1 | RO | AECP response-buffer read+write bridge, same two fields. This face writes as well as reads: a write that faults voids the response rather than putting a half-written one on the wire |

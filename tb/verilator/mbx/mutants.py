@@ -32,12 +32,13 @@ import argparse
 import shutil
 import subprocess
 import sys
-import tempfile
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
+sys.path.insert(0, str(HERE.parents[2] / "scripts"))
+import mutant_stage  # noqa: E402
 RTL = HERE.parents[2] / "hdl" / "milan" / "mailbox"
 GEN = HERE.parents[2] / "sw" / "mailbox" / "gen_mailbox.py"
 CONTRACT_INC = HERE.parents[2] / "sw" / "firmware" / "ctrl" / "mbx"   # the Makefile's CONTRACT_INC
@@ -769,7 +770,7 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--quick", action="store_true", help="QUICK arms only, no controls (the default make)")
     args = ap.parse_args(argv)
     arms = tuple(a for a in ARMS if a.name in QUICK) if args.quick else ARMS
-    with tempfile.TemporaryDirectory(prefix="mbx-mutants-") as tmp:
+    with mutant_stage.directory("mbx-mutants-") as tmp:
         root = args.keep.resolve() if args.keep else Path(tmp)
         bad = 0
         try:

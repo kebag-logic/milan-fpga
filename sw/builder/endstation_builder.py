@@ -182,7 +182,20 @@ CLUSTER_POLICIES = ("cap-at-interface", "cluster-per-stream-channel",
 #:              (D8's stream-loopback lane; same media-clock domain, so
 #:              coherent). On a board with no audio input this is the only
 #:              source that can give a talker per-channel-distinct audio.
-CLUSTER_ROLES = ("physical", "virtual", "pilot", "loopback")
+#:   unrouted - the one mono cluster of a STREAM_PORT_INPUT that owns no
+#:              physical render channel (#584): Milan v1.2 5.3.3.8 requires
+#:              at least one AUDIO_CLUSTER in every Stream Port Input. It
+#:              projects onto no render key, so a mapping to it is stored,
+#:              returned and saved and changes no route. No input mapping
+#:              steers the loopback lane (its feed is the depacketizer
+#:              clone), so no input cluster is named for it.
+CLUSTER_ROLES = ("physical", "virtual", "pilot", "loopback", "unrouted")
+
+#: audio_interface.cluster_mapping.render_ports (#584): which STREAM_PORT_INPUTs
+#: own the physical render channels under role-pools. `every` is D8's model and
+#: the default; `first` binds every one of them to STREAM_PORT_INPUT 0's
+#: clusters, in order.
+RENDER_PORTS = ("every", "first")
 
 #: role -> AUDIO_CLUSTER object_name template (D10). {n} is the index WITHIN
 #: the role segment; the physical/virtual names carry the interface label so
@@ -1006,13 +1019,18 @@ def validate_render_lane(cfg: dict[str, Any]) -> None:
     the wire-accountability gate exists to stop, so it is refused at build time
     rather than advertised.
 
-    THE TDM LANE IS ALL-OR-NOTHING, which the width bound alone does not say.
-    Capture and render ride ONE serial frame and the master serializer
-    schedules its bits off the bus frame position its capture half exports, so
-    its frame IS the bus frame: a TDM render lane is the full bus width or it
-    is pruned. A narrower count passed every bound here and then failed inside
-    KL_tdm_render_master on an internal parameter guard, which tells a config
-    author nothing about the product rule, so it is named here instead.
+    THE SLAVE TDM LANE IS ALL-OR-NOTHING, which the width bound alone does not
+    say: KL_tdm_render frames its bank as the whole bus frame, so on a
+    codec-driven bus a render lane is the full bus width or it is pruned.
+
+    A MASTER lane may be NARROWER than its bus (#584). Capture and render ride
+    ONE serial frame and KL_tdm_render_master schedules its bits off the bus
+    frame position its capture half exports, so its frame IS the bus frame -
+    and since #584 it frames all of the bus's slots (BUS_SLOTS_P) while
+    storing only the first `render` of them, serializing zero in the rest.
+    That is what lets the 8x8's TDM32 bus back its first render channel alone
+    through the crossbar's 8-key TDM window, which a full 32-slot lane could
+    never fit.
     """
     want = int(cfg["interface"]["physical_channels"]["render"])
     if want <= 0:
@@ -1035,18 +1053,19 @@ def validate_render_lane(cfg: dict[str, Any]) -> None:
             " channel width; a cluster beyond it would reach no pin.")
     if lane == "tdm":
         slots = AUDIO_IF_SLOTS.get(cfg["interface"]["kind"], 0)
-        if want != slots:
+        if want != slots and not (want < slots and tdm_bus_master()):
             keys = RENDER_PHYS_LANES["tdm"][1]
             fix = (f"declare render: {slots}" if slots <= keys else
                    f"the crossbar's {keys}-key TDM lane cannot back a "
                    f"{slots}-slot frame, so this bus backs no render lane")
             raise ConfigError(
                 f"audio_interface.physical_channels.render {want} on a "
-                f"{cfg['interface']['kind']} bus of {slots} slots. Both "
-                "directions ride ONE frame and the master render serializer "
-                "schedules its bits off the bus frame position, so a TDM "
-                f"render lane is the FULL bus width: {fix}, or render: 0 to "
-                "leave the lane pruned.")
+                f"codec-driven {cfg['interface']['kind']} bus of {slots} "
+                "slots. Both directions ride ONE frame and the slave render "
+                "serializer frames its bank as the whole bus frame, so a "
+                f"slave TDM render lane is the FULL bus width: {fix}, or "
+                "render: 0 to leave the lane pruned. Only a MASTER lane "
+                "(KL_tdm_render_master, BUS_SLOTS_P) may be narrower.")
 
 
 def render_lane(cfg: dict[str, Any]) -> str | None:
@@ -1573,12 +1592,17 @@ class ClusterRules:
       lb_backed       does THIS build elaborate the rx -> talker LOOP bucket
                       (task #65), so a loopback cluster may be a power-on
                       source.
+      render_ports    which input ports own the physical render channels
+                      (#584): `every` (D8) or `first` (all to input port 0,
+                      in order).
     """
     policy: str
     iface_channels: int
     phys: dict = None
     pools: dict = None
     lb_backed: bool = True
+    render_ports: str = "every"
+    input_loopback: bool = False
 
 
 def _cluster_widths(rules):
@@ -1614,38 +1638,66 @@ def _legacy_pool(dir_base, n, ph):
     return segs
 
 
-def _role_pool(rules, direction, port_index, widths):
+#: The named refusal of a STREAM_PORT that would own no AUDIO_CLUSTER (#584).
+#: Milan v1.2 5.3.3.8: each Stream Port Input and each Stream Port Output of
+#: a Configuration contains at least one AUDIO_CLUSTER.
+CLUSTER_MINIMUM_CHECK = "STREAM_PORT_CLUSTER_MINIMUM"
+
+
+def _cluster_minimum_error(direction, port_index, detail):
+    """The ConfigError every zero-cluster port is refused with, by name."""
+    return ConfigError(
+        f"{CLUSTER_MINIMUM_CHECK}: STREAM_PORT_{direction.upper()} "
+        f"{port_index} would own no AUDIO_CLUSTER, and Milan v1.2 5.3.3.8 "
+        f"requires at least one in every Stream Port Input and Output. "
+        f"{detail}")
+
+
+def _role_pool(rules, direction, port_index, widths, render_from=0):
     """D8 pools. Order is fixed so base_cluster arithmetic is readable:
-    physical, then (talker ports only) pilot and loopback."""
+    physical, then (talker ports only) pilot and loopback.
+
+    WHICH INPUT PORTS OWN THE PHYSICAL RENDER CHANNELS is the config's
+    `render_ports` (#584). Under `every` (D8, the default) each input port
+    carries all of them. Under `first` every one of them binds to
+    STREAM_PORT_INPUT 0's clusters, in order, the wire-truth rule D2 states
+    per direction: `render_from` is how many the earlier input ports took (port
+    0 takes them all), so a channel is owned by one cluster and its render key
+    is never the projection of two. A single-listener
+    shape (the 1x1) is the same under both: its port 0 takes them all.
+
+    An input port left with none owns ONE `unrouted` mono cluster: Milan
+    v1.2 5.3.3.8 asks for a cluster, not a jack, and the cluster's name and
+    its invalid projection say it reaches no pin."""
     ph_render, ph_capture = widths
     pools = rules.pools or {}
     segs, off = [], 0
-    for role, width in (
-            ("physical", ph_render if direction == "input" else ph_capture),
-            ("pilot", (1 if pools.get("pilot") else 0)
-                      if direction == "output" else 0),
-            ("loopback", int(pools.get("loopback", 0))
-                         if direction == "output" else 0)):
+    loop_width = min(8, 64 - ph_render - port_index * 8) if rules.input_loopback else 0
+    if rules.render_ports != "first":
+        render_from = 0
+    if direction == "input":
+        roles = (("physical", max(0, ph_render - render_from)),
+                 ("input_loopback", loop_width))
+    else:
+        roles = (("physical", ph_capture),
+                 ("input_loopback", loop_width),
+                 ("pilot", 1 if pools.get("pilot") else 0),
+                 ("loopback", int(pools.get("loopback", 0))))
+    for role, width in roles:
         if width > 0:
-            segs.append(dict(role=role, offset=off, width=width,
-                             first=0 if role != "loopback" else port_index))
+            first = (render_from if role == "physical" and direction == "input"
+                     else port_index * 8 if role == "input_loopback"
+                     else port_index if role == "loopback" else 0)
+            segs.append(dict(role=role, offset=off, width=width, first=first))
             off += width
-    # A listener with no physical render endpoint is deliberately
-    # headless. Its STREAM_PORT_INPUT still
-    # exists (and remains dynamically mapped per Milan 5.3.3.9), but it
-    # truthfully owns zero local AUDIO_CLUSTER descriptors.  The receive
-    # stream can still feed fabric-only consumers such as the loopback
-    # lane.  Output ports may never be empty: a talker needs a source.
-    if not segs and direction == "input" and ph_render == 0:
-        return []
+    if not segs and direction == "input":
+        return [dict(role="unrouted", offset=0, width=1, first=port_index)]
     if not segs:
-        raise ConfigError(
-            f"cluster_mapping.policy role-pools: STREAM_PORT_"
-            f"{direction.upper()} {port_index} would carry ZERO clusters - "
-            "every declared pool (physical/pilot/loopback) is 0 wide. "
-            "A STREAM_PORT with no cluster block cannot carry audio; "
-            "declare at least one pool (audio_interface.cluster_mapping."
-            "pools) or use another policy")
+        raise _cluster_minimum_error(
+            direction, port_index,
+            "Under cluster_mapping.policy role-pools every declared pool "
+            "(physical/pilot/loopback) is 0 wide; declare at least one pool "
+            "(audio_interface.cluster_mapping.pools) or use another policy")
     return segs
 
 
@@ -1657,7 +1709,9 @@ def _input_ports(listeners, rules):
     ports_in, base, next_map, dir_base = [], 0, 0, 0
     for i, s in enumerate(listeners):
         if rules.policy == "role-pools":
-            pool = _role_pool(rules, "input", i, widths)
+            bound = sum(g["width"] for p in ports_in for g in p["pool"]
+                        if g["role"] == "physical")
+            pool = _role_pool(rules, "input", i, widths, render_from=bound)
             n = sum(g["width"] for g in pool)
         else:
             n = _effective_clusters(rules, s)
@@ -1758,7 +1812,11 @@ def cluster_layout(
         `clusters` at all: it is the sum of the declared ROLE POOLS
         (physical / pilot / loopback), each width derived from the
         platform declaration. `clusters` is then unused for that port and the
-        config says so.
+        config says so. An input port that the physical render channels do
+        not reach owns one `unrouted` mono cluster instead (#584).
+
+    Every port of every policy owns at least one cluster, or the layout is
+    refused by name, STREAM_PORT_CLUSTER_MINIMUM (Milan v1.2 5.3.3.8).
 
     Every port comes back with a `pool` list of {role, offset, width}
     segments covering 0..clusters-1 exactly, which is what names the
@@ -1776,7 +1834,22 @@ def cluster_layout(
         talkers, rules,
         base=sum(p["clusters"] for p in ports_in),
         next_map=sum(p["maps"] for p in ports_in))
+    validate_cluster_minimum(ports_in, ports_out)
     return ports_in, ports_out
+
+
+def validate_cluster_minimum(ports_in: list[dict[str, Any]],
+                             ports_out: list[dict[str, Any]]) -> None:
+    """STREAM_PORT_CLUSTER_MINIMUM over a RESOLVED layout, both directions and
+    every policy (#584; Milan v1.2 5.3.3.8). The pool builders cannot emit an
+    empty port today; this is the one check that says so whatever produced
+    the layout, and the builder suite drives it with resolved layouts."""
+    for direction, ports in (("input", ports_in), ("output", ports_out)):
+        for port in ports:
+            if int(port["clusters"]) < 1 or not port.get("pool", [None]):
+                raise _cluster_minimum_error(
+                    direction, port["index"],
+                    f"Its resolved cluster block is {port['clusters']} wide.")
 
 
 #: static-AUDIO_MAP source preference under role-pools: the segment the
@@ -1799,8 +1872,8 @@ def cluster_layout(
 #: mappings for a subset that has none - so declaring less is conformant,
 #: while declaring a source that cannot exist is merely undetectable.
 PRIMARY_ROLE_ORDER = {
-    "input": ("physical", "virtual"),
-    "output": ("physical", "loopback", "pilot", "virtual"),
+    "input": ("physical", "input_loopback", "virtual"),
+    "output": ("physical", "input_loopback", "loopback", "pilot", "virtual"),
 }
 
 
@@ -1864,6 +1937,18 @@ def _name_pilot(ctx, first, n):
     return "Pilot Tone"
 
 
+def _name_unrouted(ctx, first, n):
+    """#584: the one cluster of an input port the render channels do not
+    reach, named for what it is - a destination of stream `first` that
+    reaches no pin."""
+    return f"Unrouted S{first}"
+
+
+def _name_input_loopback(ctx, first, n):
+    """A stable destination identity, unaffected by live input mappings."""
+    return f"Input Loopback {first + n}"
+
+
 def _name_loopback(ctx, first, n):
     """Walk the rx channel space from THIS talker's own stream index, so
     talker t defaults to rx stream t (per-channel-distinct audio, not eight
@@ -1876,8 +1961,8 @@ def _name_loopback(ctx, first, n):
 
 
 #: one namer per pool role. The set is closed: `legacy_pool` emits physical
-#: and virtual, `role_pool` emits physical, pilot and loopback, and nothing
-#: else constructs a pool entry. Naming them in a table rather than an
+#: and virtual, `role_pool` emits physical, pilot, loopback and unrouted, and
+#: nothing else constructs a pool entry. Naming them in a table rather than an
 #: if/elif chain ending in a bare `else` means a role this builder does not
 #: know is refused by name instead of silently named as a loopback channel.
 CLUSTER_NAMERS = {
@@ -1885,6 +1970,8 @@ CLUSTER_NAMERS = {
     "virtual":  _name_virtual,
     "pilot":    _name_pilot,
     "loopback": _name_loopback,
+    "unrouted": _name_unrouted,
+    "input_loopback": _name_input_loopback,
 }
 
 
@@ -2737,12 +2824,15 @@ def aem_name_count(overlay: dict[str, Any]) -> int:
     return 1 + sum(int(descriptor_counts[name]) for name in named_types)
 
 
-def _adp_name_entries(overlay):
+def _adp_name_entries(overlay, placement="all-fabric"):
     """SET_NAME/GET_NAME entries this exact AEM model needs, refused above
     the saved-state backend's NAME capacity (nvm_name_capacity)."""
     aem_name_entries = aem_name_count(overlay)
     # The shape header binds this count to KL_nvm_backend's N_NAME_P, which
     # refuses it above the NAME block only at elaboration (#652).
+    if placement == "split":
+        emit_nvm_split(overlay)
+        return aem_name_count(overlay)
     capacity, where = nvm_name_capacity()
     if aem_name_entries > capacity:
         raise ConfigError(
@@ -3256,7 +3346,7 @@ def emit_adp_shape_svh(cfg: dict[str, Any],
         overlay = emit_aem_overlay(cfg)
     sys.path.insert(0, str(ROOT / "avdecc"))
     import gen_aem_store as aem_store
-    aem_name_entries = _adp_name_entries(overlay)
+    aem_name_entries = _adp_name_entries(overlay, cfg["control"]["placement"])
     dm = _adp_dyn_in_geometry(cfg, overlay)
     od = _adp_dyn_out_geometry(cfg, overlay, aem_store)
     ln = _adp_banner(cfg)
@@ -3614,6 +3704,14 @@ def model_shape(cfg: dict[str, Any]) -> dict[str, Any]:
             "pilot": bool(i["cluster_pools"].get("pilot", False)),
             "loopback": int(i["cluster_pools"].get("loopback", 0)),
         }
+        # #584: which input ports own the physical render clusters is model
+        # shape (#495: what the generator decides about the descriptors is
+        # hashed). CONDITIONAL, so a config that declares no binding hashes
+        # exactly as before.
+        if "cluster_render_ports" in i:
+            shape["cluster_pools"]["render_ports"] = i["cluster_render_ports"]
+    if i.get("cluster_fabric", {}).get("input_loopback_lane"):
+        shape["input_loopback_lane"] = True
     return shape
 
 
@@ -4368,16 +4466,34 @@ def _load_cluster_pools(aif, iinfo, kind, policy):
     # drives BOTH the milan_soc argv and the power-on map, so they cannot
     # drift apart again. Omitted entirely => today's answers exactly.
     fab = cm.get("fabric") or {}
-    if not isinstance(fab, dict) or set(fab) - {"loopback_lane"}:
+    if not isinstance(fab, dict) or set(fab) - {"loopback_lane", "input_loopback_lane"}:
         raise ConfigError(
             "audio_interface.cluster_mapping.fabric must be a mapping with "
-            "keys loopback_lane (bool: milan_soc --loopback-lane, the rx -> "
+            "keys loopback_lane/input_loopback_lane (bool: legacy or mapped "
             "talker LOOP bucket)")
+    if "input_loopback_lane" in fab and type(fab["input_loopback_lane"]) is not bool:
+        raise ConfigError("input_loopback_lane must be bool")
     if fab and policy != "role-pools":
         raise ConfigError(
             "audio_interface.cluster_mapping.fabric is only read by the "
             f"role-pools policy; this config selects '{policy}'")
     lb_lane = bool(fab.get("loopback_lane", False))
+    # #584: WHICH STREAM_PORT_INPUTs OWN THE PHYSICAL RENDER CHANNELS. `every`
+    # (D8, the default) gives each port its own copy of them, so a render key
+    # is the projection of one cluster per port and the last edit drives it;
+    # `first` binds every one of them to STREAM_PORT_INPUT 0's clusters, in
+    # order (D2's wire-truth rule), so each render key is the projection of ONE
+    # cluster.
+    render_ports = cm.get("render_ports")
+    if render_ports is not None:
+        if render_ports not in RENDER_PORTS:
+            raise ConfigError(
+                f"audio_interface.cluster_mapping.render_ports "
+                f"{render_ports!r} not in {RENDER_PORTS}")
+        if policy != "role-pools":
+            raise ConfigError(
+                "audio_interface.cluster_mapping.render_ports is only read by "
+                f"the role-pools policy; this config selects '{policy}'")
     if lb_lane and not int(pools.get("loopback", 0)):
         raise ConfigError(
             "cluster_mapping.fabric.loopback_lane is set but pools.loopback "
@@ -4388,7 +4504,7 @@ def _load_cluster_pools(aif, iinfo, kind, policy):
     # of every stream port; loopback/physical names are role-prefixed.
     # 1722.1-2021 6.2.2.8 excludes object_name from the model
     # shape, so names never move a hash-derived entity_model_id.
-    return phys, pools, lb_lane
+    return phys, pools, lb_lane, render_ports
 
 
 def _load_channel_names(aif, phys):
@@ -4436,15 +4552,23 @@ def _load_interface(cfg, path, clocking):
     # (every existing config keeps exactly the roles it had), but a platform
     # that routes no audio pins says so HERE rather than letting the model
     # advertise a pool the fabric cannot back - see CLUSTER_ROLES.
-    phys, pools, lb_lane = _load_cluster_pools(aif, iinfo, kind, policy)
+    phys, pools, lb_lane, render_ports = _load_cluster_pools(
+        aif, iinfo, kind, policy)
     names = _load_channel_names(aif, phys)
     interface = dict(
         kind=kind, channels=iinfo["channels"], word_length_bits=wl,
         cluster_policy=policy, rtl=iinfo["rtl"],
         physical_channels=phys, cluster_pools=pools,
         channel_names=names,
-        cluster_fabric=dict(loopback_lane=lb_lane),
+        cluster_fabric=dict(loopback_lane=lb_lane,
+            **({"input_loopback_lane": True} if
+               (aif.get("cluster_mapping", {}).get("fabric") or {}).get("input_loopback_lane")
+               else {})),
     )
+    # #584: carried only when declared, so a config that states no binding
+    # derives exactly what it derived before
+    if render_ports is not None:
+        interface["cluster_render_ports"] = render_ports
     # AES3/S-PDIF: the serial clock is a HARD consequence of the media clock
     # (sampling_rate_hz x 128 UI/frame x OVERSAMPLE_P). A config whose audio
     # PLL cannot produce it would emit a KL_aes3_tx that transmits at the
@@ -4594,6 +4718,33 @@ def with_placement(cfg: dict[str, Any], placement: str) -> dict[str, Any]:
     return {**cfg, "entity": entity, "control": {"placement": placement}}
 
 
+def _validate_input_loopback(interface: dict, listeners: list, talkers: list, phys: dict) -> None:
+    """Refuse geometries outside the two approved independent-key topologies."""
+    if interface["cluster_fabric"].get("input_loopback_lane"):
+        shape_ok = ((len(listeners), len(talkers), phys["render"]) in
+                    ((1, 1, 8), (8, 8, 1)))
+        independent = len(listeners) == 1 or interface.get("cluster_render_ports") == "first"
+        if not shape_ok or not independent or any(
+                s.get("map_mode") != "dynamic" for s in listeners + talkers):
+            raise ConfigError("input_loopback_lane requires the approved dynamic 1x1/8-physical "
+                              "or 8x8/first-port/1-physical topology")
+
+
+def _configured_cluster_layout(interface: dict, listeners: list, talkers: list,
+                               phys: dict, pools: dict, policy: str) -> tuple:
+    """Validate and construct both directions from the same fabric declaration."""
+    _validate_input_loopback(interface, listeners, talkers, phys)
+
+    # per-stream port layout (needed by the model-id hash and the overlay)
+    return cluster_layout(
+        listeners, talkers,
+        ClusterRules(
+            policy, interface["channels"], phys=phys, pools=pools,
+            lb_backed=interface["cluster_fabric"]["loopback_lane"],
+            render_ports=interface.get("cluster_render_ports", "every"),
+            input_loopback=interface["cluster_fabric"].get("input_loopback_lane", False)))
+
+
 def load_config(path: str) -> dict[str, Any]:
     """Load + validate + normalize a YAML end-station config. Returns the
     normalized config dict; raises ConfigError on any violation."""
@@ -4657,12 +4808,9 @@ def load_config(path: str) -> dict[str, Any]:
     )
     validate_render_lane(out)
 
-    # per-stream port layout (needed by the model-id hash and the overlay)
-    out["ports_in"], out["ports_out"] = cluster_layout(
-        listeners, talkers,
-        ClusterRules(
-            policy, interface["channels"], phys=phys, pools=pools,
-            lb_backed=interface["cluster_fabric"]["loopback_lane"]))
+    # Per-stream layout is shared by model identity and descriptor generation.
+    out["ports_in"], out["ports_out"] = _configured_cluster_layout(
+        interface, listeners, talkers, phys, pools, policy)
 
     # entity_model_id resolution: pin > hash-derived > literal. The vendor OUI
     # (schema 1.2) prefixes the hash; a pin or a literal is a whole EUI-64 and
@@ -5113,6 +5261,8 @@ def emit_design_opts(cfg: dict[str, Any]) -> list[str]:
     # one fact, so an AEM can never advertise a lane the bitstream lacks.
     if cfg["interface"].get("cluster_fabric", {}).get("loopback_lane"):
         argv += ["--loopback-lane"]
+    if cfg["interface"].get("cluster_fabric", {}).get("input_loopback_lane"):
+        argv += ["--input-loopback-lane"]
     # fabric_gptp false never survives load_config (#259), so the emitted
     # owner flag is unconditionally the fabric plane.
     argv += ["--fabric-gptp"]
@@ -5227,6 +5377,8 @@ def datapath_params(cfg: dict[str, Any]) -> dict[str, int]:
         out["TALKER_WIRE_CHANS_P"] = wire_chans
     if cfg["interface"].get("cluster_fabric", {}).get("loopback_lane"):
         out["LOOPBACK_P"] = 1
+    if cfg["interface"].get("cluster_fabric", {}).get("input_loopback_lane"):
+        out["INPUT_LOOPBACK_P"] = 1
     if slots and tdm_bus_master():
         fs_hz, slot_bits = cfg["clocking"]["sampling_rate_hz"], tdm_slot_bits(cfg)
         out["AUDIO_IF_MASTER_P"] = 1
@@ -5548,6 +5700,9 @@ def _overlay_ports(cfg):
         # the port's role pool (D8), port-relative like 7.2.19 offsets
         q["pool"] = [{"role": g["role"], "offset": g["offset"],
                       "width": g["width"]} for g in p["pool"]]
+        for public, group in zip(q["pool"], p["pool"]):
+            if group["role"] == "input_loopback":
+                public["first"] = group["first"]
         q["primary_role"] = (primary_segment(p, direction) or {}).get("role")
         return q
     return ([port_public(p, "input") for p in P_in],
@@ -5954,11 +6109,16 @@ def _plan_ports(cfg):
           f"| {pool} | {prim} |")
     a("")
     ph = i["physical_channels"]
+    names = ["`Virtual`", "`Pilot Tone`", "`Loopback S<s> ch <c>`"]
+    # #584: `Unrouted S<p>` is listed where a config has one, so every other
+    # config's plan is unchanged
+    if any(g["role"] == "unrouted" for p in cfg["ports_in"] for g in p["pool"]):
+        names.append("`Unrouted S<p>`")
     a(f"Physical audio channels the BOARD routes: {ph['capture']} capture / "
       f"{ph['render']} render (`audio_interface.physical_channels`; default = "
       f"the {i['channels']}-channel `{i['kind']}` interface width). Clusters "
       "past that are non-physical by construction and are named for what they "
-      "ARE - `Virtual`, `Pilot Tone`, `Loopback S<s> ch <c>` - so a "
+      f"ARE - {', '.join(names)} - so a "
       "controller operator can tell a live source from a dead slot.")
     a("")
     return ln

@@ -20,10 +20,12 @@ control; the suite's own run is the clean control of the other two harnesses.
 import os
 import signal
 import subprocess
-import tempfile
+import sys
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
+sys.path.insert(0, str(HERE.parents[2] / "scripts"))
+import mutant_stage  # noqa: E402
 RTL = {
     "meter": HERE / "../../../hdl/ieee1722/crf/KL_aaf_clock_meter.sv",
     "servo": HERE / "../../../hdl/ieee1722/crf/KL_mmcm_drp_servo.sv",
@@ -299,7 +301,7 @@ def main() -> int:
     signal.signal(signal.SIGTERM, interrupted)
     sources = {key: path.read_text() for key, path in RTL.items()}
     results = []
-    with tempfile.TemporaryDirectory(prefix="aaf-meter-mutants-") as directory:
+    with mutant_stage.directory("aaf-meter-mutants-") as directory:
         work = Path(directory)
         clean = build(work, "clean", "meter", sources["meter"], "cases:selection")
         results.append(clean is not None and run_case(clean, "clean", "cases:selection", None))

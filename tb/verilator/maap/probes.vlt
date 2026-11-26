@@ -1,0 +1,12 @@
+// SPDX-FileCopyrightText: 2026 Kebag Logic
+// SPDX-License-Identifier: CERN-OHL-W-2.0
+// The internal signals the harnesses touch, and only those (in place of
+// --public-flat-rw, see the Makefile). sim_main.cpp preloads the LFSR, so lfsr_r is writable; the rest are read.
+// A signal missing here still compiles (Verilator keeps it in the root
+// structure, unoptimised or not), so every internal name the harnesses use
+// must be listed.
+`verilator_config
+public_flat_rw -module "KL_maap" -var "lfsr_r"
+public_flat_rd -module "KL_maap" -var "timer_ms_r"
+public_flat_rd -module "KL_maap" -var "PROBE_MIN_MS_C"
+public_flat_rd -module "KL_maap" -var "POOL_SIZE_C"

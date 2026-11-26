@@ -117,7 +117,7 @@ def _out_cluster_sources(ovl, j, p):
     """Capture-crossbar source templates for a dynamic OUTPUT port's
     clusters, derived from the overlay's D8 role pool. One dict per
     cluster: {src, idxh, idx, half, valid} in KL_chan_map_capture bucket
-    terms (2 PHYSICAL / 4 TONE / 5 LOOP). Encoding 3 is retired and remains
+    terms (2 PHYSICAL / 4 TONE / 5 LOOP / 6 INPUT LOOP). Encoding 3 is retired and remains
     reserved-zero in RTL. Bounds are the fabric's: 4 physical pairs and
     8 loopback streams x 4 pairs. Static ports need no templates and return
     None. A dynamic port without its builder-emitted role pool is ambiguous:
@@ -180,6 +180,11 @@ def _out_cluster_sources(ovl, j, p):
                                  # the LOOP bucket only exists when
                                  # milan_datapath was built with LOOPBACK_P
                                  valid=lb_lane and si < 8 and c < 8))
+            elif g["role"] == "input_loopback":
+                a = int(g["first"]) + n
+                srcs.append(dict(src=6, idxh=a // 8, idx=(a % 8) // 2,
+                                 half=a % 2, valid=bool(fab.get("input_loopback_lane"))
+                                 and 0 <= a < 64))
             elif g["role"] == "virtual":
                 srcs.append(dict(src=0, idxh=0, idx=0, half=n % 2,
                                  valid=False))

@@ -218,7 +218,8 @@ def build_all(out: Path) -> tuple[dict, dict]:
             overlay = json.loads((out / cfg.stem / "aem_overlay.json").read_text())
             rule[(family, n)] = builder_names(overlay["descriptor_counts"])
         cfg = scaled_config(family, REFUSED_STREAMS[family], out)
-        res = subprocess.run([sys.executable, str(BUILDER), str(cfg), "-o", str(out)],
+        res = subprocess.run([sys.executable, str(BUILDER), str(cfg), "-o", str(out),
+                              "--placement", "all-fabric"],
                              cwd=ROOT, capture_output=True, text=True, check=False)
         refused = re.search(r"has (\d+) writable names", res.stdout + res.stderr)
         rule[(family, "refused")] = int(refused.group(1)) if res.returncode and refused else None

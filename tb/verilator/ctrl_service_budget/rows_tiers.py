@@ -849,9 +849,12 @@ def tree_controls(root: Path) -> list[str]:
     # header whose slice is another is refused
     loop = 'sw/firmware/ctrl/loop/ctrl_loop.h'
     tree, text = built_constants(root, '1x1/1if')[0], (root / loop).read_text()
-    stated = f'#define CTRL_LOOP_SLICE_US {tree}u\n'
-    other = text.replace(stated, '#define CTRL_LOOP_SLICE_US 600u\n')
-    if ruled(root) != tree or built_constants(root, '1x1/1if', {loop: other})[0] == tree or text.count(stated) != 1:
+    shape = shape_costs.of_point('1x1/1if', root)
+    other = shape_costs.planted_at(text, shape, shape_costs.SLICE, 600)
+    before, after = shape_costs.listed(text), shape_costs.listed(other)
+    expected = {s: dict(costs, **{shape_costs.SLICE: 600}) if s == shape else costs
+                for s, costs in before.items()}
+    if ruled(root) != tree or built_constants(root, '1x1/1if', {loop: other})[0] != 600 or after != expected:
         escaped.append("the built design's slice not the rule's")
     escaped += long_rows.controls(root) + paced_rows.controls(root) + edit_rows.controls(root)
     # condition (c): the model counts the owed-notice queue's depth, read from aecp_mbx.h: a shallower queue lengthens

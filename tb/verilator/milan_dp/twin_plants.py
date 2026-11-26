@@ -231,7 +231,7 @@ def plant_leave_all_omission(fabric: dict, split: dict) -> dict:
     """The split's first MSRP LeaveAll frame at or after 20000 ms that carries the declared Domain, its Domain
     value's vector taken out and the Message's AttributeListLength shortened, its LeaveAll kept: a txLA! that
     sends nothing for a declared attribute, which Table 10-3 allows only from a state whose txLA! action is
-    none or bracketed (IEEE 802.1Q-2018 10.7.6.6, 10.7.9; twin_mrp.py)."""
+    none or bracketed (IEEE 802.1Q-2022 10.7.5.8), the frame having room for the value (10.7.5.9; twin_mrp.py)."""
     del fabric
     for entry in split["frames"]:
         found = frame_fields(entry)

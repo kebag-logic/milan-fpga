@@ -47,10 +47,11 @@ import re
 import signal
 import subprocess
 import sys
-import tempfile
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
+sys.path.insert(0, str(HERE.parents[2] / "scripts"))
+import mutant_stage  # noqa: E402
 sys.path.insert(0, str(HERE))
 from lockstep_mutants import build as build_lockstep  # noqa: E402
 from lockstep_mutants import failed_checks, verdict  # noqa: E402
@@ -232,7 +233,7 @@ def main() -> int:
     ref_src = REF.read_text()
     passes = 0
     fails = 0
-    with tempfile.TemporaryDirectory(prefix="rxmon-format-mutants-") as td:
+    with mutant_stage.directory("rxmon-format-mutants-") as td:
         work = Path(td)
         exe = build(RTL, work / "obj_clean")
         answer = verdict(*run_harness(exe), None) if exe else "did not compile"

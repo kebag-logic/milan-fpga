@@ -13,7 +13,7 @@ restart request and CLOCK_DOMAIN counters.
 
 - **[The elaboration](#the-elaboration)** -- The two-stream shape, the 4 MHz fabric and true-ratio audio clocks, the modelled MMCM fine phase shift and the `tu` test double.
 - **[The legs](#the-legs)** -- The planted talker offsets and which rows legs A, B and C run.
-- **[Mutants](#mutants)** -- The eighteen named defects, planted once as mutant schemata, each with its short leg and the check it must fail.
+- **[Mutants](#mutants)** -- The nineteen named defects, planted once as mutant schemata, each with its short leg and the check it must fail.
 - **[Running](#running)** -- The default target, the pool width and the single legs.
 - **[Limits](#limits)** -- Where this suite departs from the design's test plan, and why.
 
@@ -54,6 +54,11 @@ Every leg grades the C1 invariant every millisecond: LOCKED equals UNLOCKED
 or UNLOCKED + 1. Leg C repeats A's AAF lock so the pool runs the two side by
 side.
 
+The short leg `--shared` (#948) binds AAF input 1 to AAF input 0's stream as
+well and silences AAF input 1's talker. Each PDU then reaches both inputs
+(IEEE 1722.1-2021 8.2), and the meter locks on whichever is followed: input 0,
+then input 1. It runs among the controls and mutant 19's leg.
+
 ## Mutants
 
 `mclk_mutants.py` plants the design's named root defects, and two the
@@ -73,7 +78,7 @@ pass every short leg.
 | 6 | the meter's raw lock-fall edge as the disruption | `--switch` | switch: no request pulse at any switch |
 | 7 | the meter's enable tied high | `--dwell` | (iii) INTERNAL dwell: AAF0's mr toggle raises no request |
 | 8 | `disrupt_p` not ORed into the request | `--aafloss` | AAF loss: one request at the meter's timeout |
-| 9 | the echo ungated | `--echo` | echo: the unfollowed AAF1's toggle raises no request |
+| 9 | the echo ungated: the followed input's bit of the match vector ignored (#948 moved the selection there) | `--echo` | echo: the unfollowed AAF1's toggle raises no request |
 | 10 | C0's level | `--select` | C1: UNLOCKED moves at the switch onto AAF0 |
 | 11 | C2's level | `--select` | C1: LOCKED holds until the servo reads LOCKED |
 | 12 | the meter's held lock cleared on a sequence gap | `--loss` | loss leg: the servo stays LOCKED through single lost PDUs |
@@ -83,6 +88,7 @@ pass every short leg.
 | 16 | a change of the followed listener keeping a held lock | `--silent` | switch (iv): the meter's lock clears at the switch |
 | 17 | the selected CRF's lock-gain edge dropped (#761) | `--crfloss` | CRF return: one request at the sink's re-lock |
 | 18 | the selected CRF's lock-loss edge dropped | `--crfloss` | CRF loss: one request at the sink's timeout |
+| 19 | the meter given the parser's one index, the highest match (#948's defect) | `--shared` | SHARED: the meter locked on listener 0 while listener 1 shares its stream |
 
 ## Running
 

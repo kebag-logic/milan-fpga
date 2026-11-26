@@ -95,8 +95,22 @@ def storage(overlay: dict, blob: bytes) -> list[str]:
             start = len(defaults)
             if index < len(streams) and streams[index].get("kind", "aaf") == "aaf":
                 channels = (int(streams[index]["formats"][0], 16) >> 22) & 1023
-                defaults += [f"{{{index},{channel},{channel},0}}"
-                             for channel in range(min(8, channels, port["clusters"]))]
+                initial = {channel: (index, channel)
+                           for channel in range(min(8, channels, port["clusters"]))}
+                if typ == 14 and overlay.get("cluster_fabric", {}).get("input_loopback_lane"):
+                    for pool in port["pool"]:
+                        if pool["role"] == "input_loopback":
+                            for offset in range(pool["width"]):
+                                destination = pool["first"] + offset
+                                source, channel = divmod(destination, 8)
+                                source_channels = (int(streams[source]["formats"][0], 16) >> 22) & 1023
+                                key = pool["offset"] + offset
+                                if channel < source_channels:
+                                    initial[key] = (source, channel)
+                                else:
+                                    initial.pop(key, None)
+                defaults += [f"{{{source},{channel},{cluster},0}}"
+                             for cluster, (source, channel) in sorted(initial.items())]
             count = len(defaults) - start
             page = port["map_page"] if typ == 14 else 176
             maps.append(f"{{{typ},{index},0,{page},(rows)+{total},0,{capacity},"

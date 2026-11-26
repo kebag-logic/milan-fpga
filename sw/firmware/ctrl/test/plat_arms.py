@@ -91,6 +91,15 @@ def generated(tree: Tree, config: Path, out: Path) -> list[str]:
     return [f"-I{out}", f"-I{out / 'gen'}"]
 
 
+def split_link_reset(mii: bool = False) -> int:
+    """milan_mac_link_status's reset on the shipping board where firmware owns the PHY, the split's (#972): read from
+    sw/litex/mac_link_status.py, which milan_soc.py's MilanMAC resets the word from, so the PHY suites start where the
+    gateware does."""
+    sys.path.insert(0, str(ROOT / "sw/litex"))
+    import mac_link_status  # noqa: E402
+    return mac_link_status.word_reset("mii" if mii else "gmii", fw_link_owner=True)
+
+
 def arm_platboot(tree: Tree, interfaces: int, mii: bool = False) -> Outcome:
     """ctrl_plat.c's boot and composition at the shipping shape, one or two interfaces."""
     from aecp_arms import AECP_SOURCES
@@ -113,6 +122,7 @@ def arm_platboot(tree: Tree, interfaces: int, mii: bool = False) -> Outcome:
     firmware += [store / "nvm_klj2.c", store / "nvm_store.c"]
     models = [tree.src / n for n in HOST if mii or n != "host/mbx_plat_host.c"] + [store / "host/nvm_fmodel.c"]
     label = f"-DPLAT_TEST_SHAPE=\"{config.stem} if{interfaces}\""
+    link_reset = f"-DPLAT_TEST_LINK_RESET={split_link_reset(mii)}u"
     # The variant's include path alone, so its two-interface contract is the one every unit sees
     # (srp_arms.prepared); the harness's build and grade, as aecp_arms.core_arm uses them.
     try:
@@ -121,7 +131,7 @@ def arm_platboot(tree: Tree, interfaces: int, mii: bool = False) -> Outcome:
         objs += fw_gtest.compile_c(tree.build, ("-std=c11", "-O2", "-Wall", "-Wextra", "-Wpedantic"), inc,
                                    [lw / "src" / n for n in LWSRP_SOURCES], out / "lwsrp", measured=False)
         # the stack's ACMPDU builder (acmp_fake.hpp) for B10's bind, last, so it shadows no firmware header
-        objs += fw_gtest.compile_tests(tree.build, [*inc, label, f"-I{STACK_TESTS}"],
+        objs += fw_gtest.compile_tests(tree.build, [*inc, label, link_reset, f"-I{STACK_TESTS}"],
                                        [HERE / "plat_bus.cpp", *([HERE / "test_plat_phy_mii.cpp"] if mii else
                                         [HERE / "test_plat_boot.cpp", HERE / "test_plat_phy.cpp"])], out / "tests")
     except fw_gtest.BuildError as exc:
