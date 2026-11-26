@@ -8,6 +8,7 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 
 ## Contents
 
+- **[Unreleased - pins 3ce71b76 and a795471c](#unreleased---pins-3ce71b76-and-a795471c)** -- Negative link delay; long ENTITY_DISCOVER.
 - **[Unreleased - gPTP pin 1213ac5b](#unreleased---gptp-pin-1213ac5b)** -- A new master announces at once.
 - **[Unreleased - the boot forms its link once](#unreleased---the-boot-forms-its-link-once)** -- No boot restart.
 - **[Unreleased - a link-up inside a loop pass](#unreleased---a-link-up-inside-a-loop-pass)** -- SRP resets once.
@@ -62,6 +63,28 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - **[Release 0x0002_0055 — fabric gPTP product ownership](#release-0x0002_0055--fabric-gptp-product-ownership)** -- Shipping time owner.
 - **[Release 0x0002_0054 — generated names](#release-0x0002_0054--generated-names)** -- Serves generated names and writable overlays.
 - **[Release 0x0002_0053 — stream setters](#release-0x0002_0053--stream-setters)** -- Adds supported stream setters.
+
+## Unreleased - pins 3ce71b76 and a795471c
+
+- Issue #1013 adopts gPTP `3ce71b76` and stack `a795471c`.
+- gPTP #109: a negative link delay is a good exchange.
+- Before, a delay below -80 ns lost asCapable.
+- The Sync path uses it signed, floored at -800 ns.
+- 800 ns is good; 801 ns still clears asCapable.
+- The CSR and GET_AVB_INFO still read 0.
+- `gptp_plane`, `gptp_shadow` and the `milan_dp` legs grade it.
+- Eleven planted defects each fail a named check.
+- tsn-c-stack #37: a longer ENTITY_DISCOVER is accepted.
+- Its first 56 octets after entity_id decide.
+- Below 56 it is refused and counted, as before.
+- The mailbox's `adp` frame limit stays 128 octets.
+- No top-level port, parameter or register changes.
+- The ROM ledger adds the row; `gptp_ucode.hex` changes.
+- Each selected image routes as the base's, figure for figure.
+- 8x8/1if: 45,810 LUTs, on ExtraTimingOpt.
+- 1x1/1if: 32,582 LUTs.
+- Both meet the build floor at every corner.
+- VERSION is unchanged; the release step owns the bump.
 
 ## Unreleased - gPTP pin 1213ac5b
 

@@ -38,6 +38,9 @@ from ctrl_mutant import ACMP_C, ADP_C, WIRE_H, Mutant
 
 from ctrl_mutant_fixtures import (APP_BRING, APP_BRING_LATE, LOOP_OPEN, LOOP_OWN_MAC,
                                   MODEL_CLASSIFY, MODEL_CLASSIFY_UNTAGGED, MODEL_GROUP, TX_ROOM)
+#: adp_rx's bound on the 11-bit control_data_length
+CDL_BOUND = "(wire_be16(frame + ADP_HEADER_BYTES + 2u) & 0x07FFu) < ADP_CONTROL_DATA_LENGTH ||"
+
 
 MUTANTS = (
     Mutant("reentry-guard-removed", ADP_C,
@@ -577,13 +580,19 @@ MUTANTS += (
            "(frame[ADP_HEADER_BYTES + 1u] & 0x70u) != 0u ||", "false ||",
            "adp", "AdpAdapter.PinRejectsUnsupportedDiscoveryVersions",
            "malformed discovery changes only the discard count"),
-    Mutant("pin-adp-discovery-length", ADP_C,
-           "(wire_be16(frame + ADP_HEADER_BYTES + 2u) & 0x07FFu) != ADP_CONTROL_DATA_LENGTH ||",
-           "false ||", "adp", "AdpAdapter.PinRejectsWrongDiscoveryControlLength",
+    Mutant("pin-adp-discovery-length", ADP_C, CDL_BOUND, "false ||",
+           "adp", "AdpAdapter.PinRejectsShortDiscoveryControlLength",
            "malformed discovery changes only the discard count"),
-    Mutant("pin-adp-valid-discovery", ADP_C,
-           "(wire_be16(frame + ADP_HEADER_BYTES + 2u) & 0x07FFu) != ADP_CONTROL_DATA_LENGTH ||",
-           "wire_be16(frame + ADP_HEADER_BYTES + 2u) != ADP_CONTROL_DATA_LENGTH ||",
+    Mutant("pin-adp-discovery-valid-time", ADP_C, CDL_BOUND, CDL_BOUND.replace(" & 0x07FFu", ""),
+           "adp", "AdpAdapter.PinRejectsShortDiscoveryControlLength",
+           "malformed discovery changes only the discard count"),
+    Mutant("pin-adp-discovery-length-octet", ADP_C, CDL_BOUND, CDL_BOUND.replace("0x07FF", "0x00FF"),
+           "adp", "AdpAdapter.PinAcceptsLongDiscoveryThroughMailbox",
+           "a longer discovery restarts advertising through the mailbox"),
+    Mutant("pin-adp-long-discovery", ADP_C, CDL_BOUND, CDL_BOUND.replace("<", "!="),
+           "adp", "AdpAdapter.PinAcceptsLongDiscoveryThroughMailbox",
+           "a longer discovery restarts advertising through the mailbox"),
+    Mutant("pin-adp-valid-discovery", ADP_C, CDL_BOUND, CDL_BOUND.replace("<", "<="),
            "adp", "AdpAdapter.PinAcceptsCompleteDiscoveryThroughMailbox",
            "complete discovery restarts advertising through the mailbox"),
 )
