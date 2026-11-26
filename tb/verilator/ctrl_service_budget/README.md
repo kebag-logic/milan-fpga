@@ -218,6 +218,8 @@ It also includes the scenario, stimulus, and any journal bytes.
 Numbered text parts stay below 190 KB, with whole-file hashes.
 The script reconstructs every grade using the normal native graders.
 Every resulting field must equal its original recorded value.
+Its cross-case step applies `run.py`'s disposition of `srp-kept` and `srp-bound` (`kept_grade.Disposition`),
+so a line #977 owes is printed OWED while every condition holds, and each breach is a finding.
 Timing manifests likewise preserve complete reports as numbered text parts.
 Their checks include setup/hold floors and failing endpoint counts.
 Full-log hashes identify local originals; extracts cannot authenticate omitted bytes.

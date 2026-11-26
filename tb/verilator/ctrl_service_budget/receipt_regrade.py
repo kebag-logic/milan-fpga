@@ -91,12 +91,19 @@ def qualify(packet: Path, staged: Path, results: list[dict]) -> None:
     import arty_grade
     import declaring_outputs
     import egress_ledger
+    import kept_grade
     import long_notice
     import record_classes
     import run
-    found = (run.share_misses(results) + run.stated_misses(results)
+    # run.py's disposition of #969's registrations, over the staged srp-kept and srp-bound extracts: their owed STATED
+    # and SHARE lines fail nothing while kept_grade's conditions hold, and each breach of one is a finding.
+    owed = kept_grade.Disposition(results, staged / 'none', dict(
+        shape='endstation_arty_current', interfaces=1, variant='none', sys_hz=80_000_000, cpu_hz=80_000_000))
+    found = (owed.shares(run.share_misses(results)) + owed.stated(run.stated_misses(results))
              + run.save_misses(results) + run.burst_misses(results)
              + run.notice_misses(results, 1) + long_notice.missing(results))
+    for line in owed.owed:
+        print('OWED', line)
     legs, instances = [], []
     for directory in sorted(staged.iterdir()):
         spec = dict(shape='endstation_arty_current', interfaces=1, variant=directory.name,
