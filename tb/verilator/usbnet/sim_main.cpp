@@ -112,7 +112,7 @@ static int want_tx(const Bytes &b, Mac host, bool host_ok)
     Look l = look(b);
     if (l.shape && !l.tagged) return TXV_LENGTH;
     if (l.tagged && b.size() < 19) return TXV_LENGTH;
-    if (b.size() > 1518) return TXV_LENGTH;
+    if (b.size() > 1515) return TXV_LENGTH;
     if (!host_ok || rd_mac(b, 6) != host) return TXV_SOURCE;
     if (reserved(rd_mac(b, 0))) return TXV_LINKLOCAL;
     if (l.shape) return TXV_SHAPE;
@@ -291,13 +291,18 @@ struct Bench {
 
     // ---- bus records --------------------------------------------------------
     void rec(int type, const Bytes &p) {
-        dn_q.push_back(uint16_t((type << 12) | (p.size() & 0xFFF)));
+        dn_q.push_back(uint16_t(p.size()));
+        dn_q.push_back(uint16_t(type));
         for (size_t i = 0; i < p.size(); i += 2)
             dn_q.push_back(uint16_t(p[i] | ((i + 1 < p.size() ? p[i + 1] : 0) << 8)));
     }
-    void host(Mac m, uint16_t state) {
-        Bytes p; put_mac(p, m); p.push_back(uint8_t(state)); p.push_back(uint8_t(state >> 8));
-        rec(1, p);
+    uint16_t station_seq = 0;
+    void host(Mac m, uint16_t state, uint16_t heartbeat_ms = 1000) {
+        Bytes p; put_mac(p, m);
+        for (uint16_t word : {state, uint16_t(0x001C), station_seq++, heartbeat_ms, uint16_t(0xCAFE)}) {
+            p.push_back(uint8_t(word)); p.push_back(uint8_t(word >> 8));
+        }
+        rec(0x4E02, p);
     }
     void raw_hdr(uint16_t w) { dn_q.push_back(w); }
     void drain_dn() { for (int i = 0; i < 200000 && !dn_q.empty(); ++i) cycles(1); cycles(20); }
@@ -307,8 +312,8 @@ struct Bench {
         std::vector<Bytes> r; size_t i = 0; *ok = true;
         while (i < up_words.size()) {
             uint16_t h = up_words[i++];
-            if ((h >> 12) != 0) { *ok = false; break; }
-            int len = h & 0xFFF; Bytes f;
+            if (i >= up_words.size() || up_words[i++] != 0x4E01) { *ok = false; break; }
+            int len = h; Bytes f;
             for (int k = 0; k < (len + 1) / 2; ++k) {
                 if (i >= up_words.size()) { *ok = false; return r; }
                 uint16_t w = up_words[i++];
@@ -334,29 +339,61 @@ static void host_record()
 {
     BenchPtr b = mk();
     CHECK(!b->d->host_ok_o && !b->d->usb_ok_o, "no computer at reset");
-    b->host(HOST, 0x0003); b->drain_dn();
-    CHECK(b->d->host_ok_o && b->d->host_mac_o == HOST, "host record sets the address (%012llx)",
+    b->host(HOST, 0x000F); b->drain_dn();
+    CHECK(b->d->host_ok_o && b->d->host_mac_o == HOST, "station record sets the address (%012llx)",
           static_cast<unsigned long long>(b->d->host_mac_o));
-    CHECK(b->d->host_state_o == 0x0003, "state word kept");
+    CHECK(b->d->host_state_o == 0x000F, "state word kept");
     CHECK(b->d->usb_ok_o, "LD1 input: SuperSpeed, fresh, bus alive");
     b->d->bus_alive_i = 0; b->cycles(4);
     CHECK(!b->d->usb_ok_o, "LD1 input needs the bus clock");
     b->d->bus_alive_i = 1; b->cycles(4);
-    b->host(HOST, 0x0002); b->drain_dn();
+    b->host(HOST, 0x0003); b->drain_dn();
     CHECK(!b->d->usb_ok_o, "LD1 input needs SuperSpeed");
-    b->host(HOST, 0x0003); b->drain_dn();
+    b->host(HOST, 0x000F, 1); b->drain_dn();
     CHECK(b->d->usb_ok_o, "back at SuperSpeed");
-    b->cycles(3200);   // HOST_TIMEOUT_MS_P = 3 at 1 MHz
-    CHECK(!b->d->usb_ok_o && b->d->host_ok_o, "a stale host record drops LD1, keeps the address");
-    b->host(0x0B0000000001ull | (1ull << 40), 0x0003); b->drain_dn();
+    b->cycles(3200);   // three 1 ms heartbeats at 1 MHz
+    CHECK(!b->d->usb_ok_o && !b->d->host_ok_o && b->d->host_mac_o == 0, "a stale station record clears LD1 and the address");
+    b->host(0x0B0000000001ull | (1ull << 40), 0x000F); b->drain_dn();
     CHECK(!b->d->host_ok_o, "a group address is refused");
-    b->host(0x001B21000001ull, 0x0003); b->drain_dn();
+    b->host(0x001B21000001ull, 0x000F); b->drain_dn();
     CHECK(!b->d->host_ok_o, "a universally administered address is refused");
-    b->host(HOST, 0x0003); b->drain_dn();
+    b->host(HOST, 0x000F); b->drain_dn();
     CHECK(b->d->host_ok_o, "accepted again");
-    b->rec(2, {}); b->drain_dn();
+    b->host(HOST, 0); b->drain_dn();
     CHECK(!b->d->host_ok_o && !b->d->usb_ok_o && b->d->host_mac_o == 0, "detach clears the computer");
     CHECK(b->d->tx_skipped_o == 2, "the two refused addresses are counted (%u)", b->d->tx_skipped_o);
+    b->host(HOST, 5); b->drain_dn();
+    CHECK(!b->d->usb_ok_o, "LD1 input needs CONFIGURED");
+    b->host(HOST, 7); b->drain_dn();
+    CHECK(b->d->usb_ok_o, "LD1 does not require DATA_ACTIVE");
+    const auto skipped = b->d->tx_skipped_o;
+    b->host(HOST, 15, 0); b->drain_dn();
+    CHECK(!b->d->host_ok_o && b->d->tx_skipped_o == skipped + 1, "zero heartbeat is refused");
+    b->station_seq = 65535;
+    b->cycles(10);
+    b->host(HOST, 15, 1); b->drain_dn();
+    CHECK(b->d->usb_ok_o, "station sequence may restart after expiry");
+    b->host(HOST, 15, 1); b->drain_dn();
+    CHECK(b->d->usb_ok_o, "station sequence wraps");
+    b->cycles(1800);
+    b->station_seq = 0;
+    b->host(HOST, 15, 1); b->drain_dn();
+    b->cycles(1400);
+    CHECK(!b->d->host_ok_o, "duplicate station does not renew freshness");
+    b->host(HOST, 15, 1); b->drain_dn();
+    b->cycles(1800);
+    b->station_seq = 0;
+    b->host(HOST, 15, 1); b->drain_dn();
+    b->cycles(1400);
+    CHECK(!b->d->host_ok_o, "older station does not renew freshness");
+    // A maximum-length unknown record, odd padding and two malformed station
+    // lengths must be skipped without treating payload words as headers.
+    b->rec(0xFFFF, Bytes(65535, 0x4E));
+    b->rec(0x4E02, Bytes(8, 0xFF));
+    b->rec(0x4E02, {});
+    b->host(HOST, 15, 65535); b->drain_dn();
+    b->cycles(200000);
+    CHECK(b->d->usb_ok_o && b->d->host_mac_o == HOST, "full length records preserve framing and heartbeat width");
     done(b);
 }
 
@@ -394,7 +431,7 @@ static void rx_classes()
     };
     for (int attached = 0; attached < 2; ++attached) {
         BenchPtr b = mk();
-        if (attached) { b->host(HOST, 3); b->drain_dn(); }
+        if (attached) { b->host(HOST, 15); b->drain_dn(); }
         std::vector<Bytes> want;
         for (auto &c : cs) { b->rx_q.push_back(c.f); if (want_copy(c.f, attached)) want.push_back(c.f); }
         for (int i = 0; i < 400000 && (!b->rx_q.empty() || b->up_words.size() < 1); ++i) b->cycles(1);
@@ -418,7 +455,7 @@ static void rx_classes()
 static void rx_full()
 {
     BenchPtr b = mk();
-    b->host(HOST, 3); b->drain_dn();
+    b->host(HOST, 15); b->drain_dn();
     b->up_ready = false;
     int n = 12;
     for (int i = 0; i < n; ++i) b->rx_q.push_back(frame(BCAST, PEER, 0x0800, 1000, -1, {}, uint8_t(i + 1)));
@@ -441,7 +478,7 @@ struct TxCase { const char *name; Bytes f; };
 static void tx_drops()
 {
     BenchPtr b = mk();
-    b->host(HOST, 3); b->drain_dn();
+    b->host(HOST, 15); b->drain_dn();
     std::vector<TxCase> cs = {
         {"unicast IPv4",                frame(PEER, HOST, 0x0800, 98)},
         {"AECP to the device",          frame(DEVICE, HOST, 0x22F0, 100, 0xFB)},
@@ -460,21 +497,21 @@ static void tx_drops()
         {"tagged priority 2",           frame(PEER, HOST, 0x0800, 90, -1, {{2, 2, 0x8100}})},
         {"tagged priority 7",           frame(PEER, HOST, 0x0800, 90, -1, {{7, 2, 0x8100}})},
         {"double tag",                  frame(PEER, HOST, 0x0800, 90, -1, {{0, 2, 0x88A8}, {0, 3, 0x8100}})},
-        {"too long",                    frame(PEER, HOST, 0x0800, 1519)},
-        {"longest",                     frame(PEER, HOST, 0x0800, 1518)},
+        {"too long",                    frame(PEER, HOST, 0x0800, 1516)},
+        {"longest",                     frame(PEER, HOST, 0x0800, 1515)},
         {"too short",                   frame(PEER, HOST, 0x0800, 13)},
         {"odd length",                  frame(PEER, HOST, 0x0800, 61)},
     };
     std::vector<Bytes> want; std::vector<int> wantv;
     for (auto &c : cs) {
-        b->rec(0, c.f);
+        b->rec(0x4E01, c.f);
         int v = want_tx(c.f, HOST, true); wantv.push_back(v);
         if (v == TXV_PASS) want.push_back(c.f);
     }
     // an unknown record between frames keeps the parser in step
     b->rec(7, Bytes(33, 0xEE));
     Bytes after = frame(PEER, HOST, 0x0800, 70, -1, {}, 99);
-    b->rec(0, after); wantv.push_back(TXV_PASS); want.push_back(after);
+    b->rec(0x4E01, after); wantv.push_back(TXV_PASS); want.push_back(after);
     b->drain_dn();
     b->cycles(200000);
     CHECK(b->tx_verdicts.size() == wantv.size(), "one verdict per frame record (%zu of %zu)",
@@ -488,14 +525,14 @@ static void tx_drops()
     for (size_t i = 0; i < got.size() && i < want.size(); ++i) CHECK(got[i] == want[i], "injected frame %zu exact", i);
     CHECK(b->d->tx_skipped_o == 1, "the unknown record is counted");
     // no computer: nothing passes
-    b->rec(2, {}); b->drain_dn();
+    b->host(HOST, 0); b->drain_dn();
     size_t before = b->out.size();
-    b->rec(0, frame(PEER, HOST, 0x0800, 98)); b->drain_dn(); b->cycles(30000);
+    b->rec(0x4E01, frame(PEER, HOST, 0x0800, 98)); b->drain_dn(); b->cycles(30000);
     CHECK(b->out.size() == before && b->tx_verdicts.back() == TXV_SOURCE, "after detach the source check refuses");
     // injection disabled: the frame waits, and leaves once enabled
-    b->host(HOST, 3); b->drain_dn();
+    b->host(HOST, 15); b->drain_dn();
     b->d->inject_en_i = 0;
-    b->rec(0, frame(PEER, HOST, 0x0800, 98)); b->drain_dn(); b->cycles(30000);
+    b->rec(0x4E01, frame(PEER, HOST, 0x0800, 98)); b->drain_dn(); b->cycles(30000);
     CHECK(b->out.size() == before, "inject_en_i low holds the computer's frames");
     b->d->inject_en_i = 1; b->cycles(30000);
     CHECK(b->out.size() == before + 1, "and they leave once it rises");
@@ -506,10 +543,10 @@ static void tx_drops()
 static void tx_rate()
 {
     BenchPtr b = mk();
-    b->host(HOST, 3); b->drain_dn();
+    b->host(HOST, 15); b->drain_dn();
     const int n = 24;
     const int len = 1000;   // cost 1024 octets each
-    for (int i = 0; i < n; ++i) b->rec(0, frame(PEER, HOST, 0x0800, len, -1, {}, uint8_t(i)));
+    for (int i = 0; i < n; ++i) b->rec(0x4E01, frame(PEER, HOST, 0x0800, len, -1, {}, uint8_t(i)));
     uint64_t t0 = b->ncyc;
     for (int i = 0; i < 600000 && b->out.size() < size_t(n); ++i) b->cycles(1);
     CHECK(b->out.size() == size_t(n), "every frame left (%zu)", b->out.size());
@@ -537,14 +574,14 @@ static void tx_priority(bool stall)
 {
     BenchPtr b = mk();
     b->m_stall = stall;
-    b->host(HOST, 3); b->drain_dn();
+    b->host(HOST, 15); b->drain_dn();
     std::vector<Bytes> hi;
     const int n_hi = 120;
     for (int i = 0; i < n_hi; ++i) {
         hi.push_back(frame(AAF_MC, DEVICE, 0x22F0, 100 + (i % 7), 0x02, {{3, 2, 0x8100}}, uint8_t(i)));
         b->hi_q.push_back({uint64_t(2000 + 1250 * i), hi.back()});
     }
-    for (int i = 0; i < 60; ++i) b->rec(0, frame(PEER, HOST, 0x0800, 1518, -1, {}, uint8_t(i)));
+    for (int i = 0; i < 60; ++i) b->rec(0x4E01, frame(PEER, HOST, 0x0800, 1515, -1, {}, uint8_t(i)));
     for (int i = 0; i < 400000 && (!b->hi_q.empty() || !b->dn_q.empty()); ++i) b->cycles(1);
     b->cycles(20000);
     std::vector<Bytes> got_hi; size_t n_lo = 0;
@@ -552,8 +589,8 @@ static void tx_priority(bool stall)
     CHECK(got_hi == hi, "the datapath frames leave in order and intact (%zu)", got_hi.size());
     CHECK(n_lo > 0, "the computer's frames were injected meanwhile (%zu)", n_lo);
     CHECK(!b->lo_overlap, "no injected frame shared the MAC with a datapath frame");
-    // the longest wait of a datapath frame: one injected 1518-octet frame on
-    // the wire (1542 transmit clocks of 14 units = 2159 system clocks) plus
+    // the longest wait of a datapath frame: one injected 1515-octet frame on
+    // the wire (1539 transmit clocks of 14 units, rounded up to 2155 system clocks) plus
     // the MAC model's pipeline and the crossings
     uint64_t worst = 0;
     for (size_t i = 0; i < b->hi_start.size() && i < b->hi_release.size(); ++i)
@@ -561,9 +598,9 @@ static void tx_priority(bool stall)
     std::printf("  priority (stall=%d): %zu datapath, %zu injected, worst datapath wait %llu clocks\n",
                 stall, got_hi.size(), n_lo, static_cast<unsigned long long>(worst));
     // the injected frame's 190 beats into the core (more under stalls), the
-    // model's 30-clock pipeline (42 system clocks), its 1542 octets on the
-    // wire (2159 system clocks) and the crossings
-    const uint64_t bound = (stall ? 220 : 190) + 42 + 2159 + 30;
+    // model's 30-clock pipeline (42 system clocks), its 1539 octets on the
+    // wire (2155 system clocks) and the crossings
+    const uint64_t bound = (stall ? 220 : 190) + 42 + 2155 + 30;
     CHECK(worst <= bound, "a datapath frame waits at most one injected frame (%llu > %llu)",
           static_cast<unsigned long long>(worst), static_cast<unsigned long long>(bound));
     CHECK(b->tgl_flips == uint32_t(n_hi), "the frame-end toggle counts the datapath frames only (%u of %d)",
@@ -579,12 +616,12 @@ static void tx_priority(bool stall)
 static void tx_contention()
 {
     BenchPtr b = mk();
-    b->host(HOST, 3); b->drain_dn();
+    b->host(HOST, 15); b->drain_dn();
     b->m_hold = true;
     Bytes dp = frame(AAF_MC, DEVICE, 0x22F0, 120, 0x02, {{3, 2, 0x8100}});
     b->hi_q.push_back({b->ncyc + 5, dp});
     b->cycles(20);
-    b->rec(0, frame(PEER, HOST, 0x0800, 200)); b->drain_dn(); b->cycles(200);
+    b->rec(0x4E01, frame(PEER, HOST, 0x0800, 200)); b->drain_dn(); b->cycles(200);
     b->m_hold = false;
     b->cycles(5000);
     CHECK(b->out.size() == 2, "both frames left (%zu)", b->out.size());
@@ -609,6 +646,58 @@ static void tx_transparent()
     done(b);
 }
 
+// The device's own transmit path uses the same receive-copy rule. With USB
+// stopped, both observers may fill but neither may delay a MAC beat. A second
+// run with USB draining must have precisely the same TX departure cycles.
+static void local_tx_copy()
+{
+    std::vector<Bytes> frames = {
+        frame(HOST, DEVICE, 0x22F0, 101, 0xFB),
+        frame(BCAST, DEVICE, 0x0806, 61),
+        frame(ADP_MC, DEVICE, 0x22F0, 82, 0xFA),
+        frame(PEER, DEVICE, 0x0800, 98),
+        frame(GPTP, DEVICE, 0x88F7, 64),
+        frame(MVRP, DEVICE, 0x88F5, 64),
+        frame(AAF_MC, DEVICE, 0x22F0, 300, 2),
+        frame(HOST, DEVICE, 0x22F0, 100, 4, {{3, 2, 0x8100}}),
+        frame(BCAST, DEVICE, 0x0800, 1514),
+        frame(BCAST, DEVICE, 0x0800, 1515),
+    };
+    std::vector<uint64_t> departures;
+    for (bool stopped : {false, true}) {
+        BenchPtr b = mk();
+        b->host(HOST, 15); b->drain_dn();
+        b->up_ready = !stopped;
+        const uint64_t start = b->ncyc + 20;
+        std::vector<Bytes> want;
+        for (size_t i = 0; i < frames.size(); ++i) {
+            b->hi_q.push_back({start + i * 1500, frames[i]});
+            if (want_copy(frames[i], true) && frames[i].size() <= 1514) want.push_back(frames[i]);
+        }
+        b->cycles(25000);
+        CHECK(b->out.size() == frames.size(), "own TX leaves despite USB backpressure");
+        std::vector<uint64_t> times;
+        for (const auto &f : b->out) times.push_back(f.first);
+        if (!stopped) departures = times;
+        else CHECK(times == departures, "own TX timing is independent of USB copying");
+        b->up_ready = true; b->cycles(25000);
+        bool ok; const auto got = b->up_frames(&ok);
+        CHECK(ok && got == want, "local TX copy follows receive rule and FX3 framing");
+        CHECK(b->tgl_flips == frames.size(), "own TX egress account unchanged by copying");
+    }
+    // Concurrent receive and transmit copies must remain separate whole
+    // records even when they become ready together and USB stalls mid-record.
+    BenchPtr b = mk(); b->host(HOST, 15); b->drain_dn();
+    const Bytes wire = frame(HOST, PEER, 0x0800, 1514);
+    const Bytes own = frame(HOST, DEVICE, 0x22F0, 101, 0xFB);
+    b->rx_q.push_back(wire); b->hi_q.push_back({b->ncyc, own});
+    b->cycles(6000);
+    bool ok; auto got = b->up_frames(&ok);
+    CHECK(ok && got.size() == 2 &&
+          ((got[0] == wire && got[1] == own) || (got[0] == own && got[1] == wire)),
+          "simultaneous local and network copies never interleave");
+}
+
 int main(int argc, char **argv)
 {
     std::setvbuf(stdout, nullptr, _IOLBF, 0);   // a crash keeps every line printed so far
@@ -618,6 +707,7 @@ int main(int argc, char **argv)
         {"tx_drops", tx_drops}, {"tx_rate", tx_rate},
         {"tx_priority", [] { tx_priority(false); }}, {"tx_priority_stall", [] { tx_priority(true); }},
         {"tx_contention", tx_contention}, {"tx_transparent", tx_transparent},
+        {"local_tx_copy", local_tx_copy},
     };
     for (auto &c : cases) {
         int before = fails();

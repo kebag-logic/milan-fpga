@@ -48,8 +48,6 @@ LED_SOURCES = ("hdl/usbnet/KL_status_leds.sv",)
 #: the Arty's 100 Mb/s link, and two longest frames of burst.
 USBNET_RATE_BPS = 10_000_000
 USBNET_BURST_OCTETS = 3200
-#: A host record older than this drops LD1 (the computer's side sends one a second).
-USBNET_HOST_TIMEOUT_MS = 3000
 #: LD0's blink: off, then held on.
 LED_BLINK_OFF_MS, LED_BLINK_ON_MS = 40, 60
 #: The PWM: 16 of 256 clocks, 6.25 %.
@@ -91,7 +89,7 @@ def add_usb_net(mac: object, platform: object, sys_clk_freq: float, repo_root: P
     mac.specials += Instance("KL_usbnet_tap", name="usbnet_tap",
         attr={("DONT_TOUCH", "TRUE")},
         p_CLK_HZ_P=int(sys_clk_freq), p_RATE_BPS_P=USBNET_RATE_BPS,
-        p_BURST_OCTETS_P=USBNET_BURST_OCTETS, p_HOST_TIMEOUT_MS_P=USBNET_HOST_TIMEOUT_MS,
+        p_BURST_OCTETS_P=USBNET_BURST_OCTETS,
         i_clk_i=ClockSignal("macsys"), i_rst_ni=~ResetSignal("macsys"),
         i_rx_valid_i=rx_dp_sys.valid & rx_dp_sys.ready, i_rx_data_i=rx_dp_sys.data,
         i_rx_keep_i=rx_dp_sys.keep, i_rx_last_i=rx_dp_sys.last,

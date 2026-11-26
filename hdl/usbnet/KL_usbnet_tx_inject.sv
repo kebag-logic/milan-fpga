@@ -11,21 +11,16 @@
                 frames among them checked by KL_usbnet_pkg::tx_rule, and the
                 passing frames handed whole, at a limited rate, to the
                 best-effort injection port (KL_usbnet_tx_arb).
-                THE RECORDS (docs/design/USB_NET_PATH.md). Each starts with
-                one 16-bit header word {type[3:0], length in octets[11:0]}
-                and carries that many octets, two per word, the first octet
-                in bits 7:0. The bus has no packet boundary, so the length is
-                the only framing.
-                  REC_FRAME_C   an Ethernet frame without its FCS.
-                  REC_HOST_C    8 octets: the computer's address (6) and a
-                                16-bit USB state word, first octet first.
-                                Bit 0 of the state word: configured at
-                                SuperSpeed. Bit 1: the network function is
-                                active. Sent at every connection and then at
-                                least once a second.
-                  REC_DETACH_C  0 octets: the computer left.
-                Any other type, or a host or detach record of the wrong
-                length, is skipped by its length and counted.
+                THE RECORDS (usb-audio PR #7, docs/NETWORK.md). A 16-bit
+                payload length and 16-bit kind precede the payload, little
+                endian, padded to a 16-bit word. REC_FRAME_C carries a frame;
+                REC_STATION_C carries 16 octets: MAC, flags, packet filter,
+                sequence, heartbeat period in ms, configuration digest.
+                MAC_VALID clear is detach. The station expires after three
+                heartbeat periods. Repeated or older sequence numbers do not
+                refresh it; after expiry the next sequence may start afresh.
+                Unknown kinds and wrong lengths are consumed in full, including
+                lengths above the frame buffer limit, without losing framing.
                 WHOLE FRAMES ONLY. A frame header is held until the buffer
                 has room for the whole frame (backpressure, never a drop),
                 so a frame leaves gapless or not at all. The rule decides on
@@ -53,8 +48,7 @@ module KL_usbnet_tx_inject
   parameter int unsigned  BURST_OCTETS_P  = 3200,
   parameter int unsigned  DEPTH_P         = 512,          //! 64-bit words of frame buffer
   parameter int unsigned  DESC_P          = 16,
-  parameter int unsigned  MAX_LEN_P       = 1518,         //! a tagged frame without its FCS
-  parameter int unsigned  HOST_TIMEOUT_MS_P = 3000
+  parameter int unsigned  MAX_LEN_P       = 1515          //! FX3 from_host limit, including USB padding
 )(
   input  wire              clk_i,   //! the system clock, the MAC wrapper's
   input  wire              rst_ni,   //! synchronous reset, active low
@@ -68,11 +62,11 @@ module KL_usbnet_tx_inject
   output logic [63:0]      m_data_o,
   output logic [7:0]       m_keep_o,
   output logic             m_last_o,
-  //! the host record
+  //! the station record
   output logic [47:0]      host_mac_o,
   output logic             host_ok_o,      //! an address is held
-  output logic [15:0]      host_state_o,   //! the last USB state word
-  output logic             host_fresh_o,   //! a host record arrived within the timeout
+  output logic [15:0]      host_state_o,   //! FX3 flags: MAC_VALID, CONFIGURED, SUPERSPEED, DATA_ACTIVE
+  output logic             host_fresh_o,   //! a station record arrived within three heartbeat periods
   //! one verdict per frame record
   output logic             verdict_valid_o,
   output tx_verdict_e      verdict_o,
@@ -105,31 +99,33 @@ module KL_usbnet_tx_inject
   // --------------------------------------------------------------------------
   //  The record parser
   // --------------------------------------------------------------------------
-  typedef enum logic [2:0] {P_HDR, P_ROOM, P_DATA, P_HOST, P_SKIP} pstate_e;
+  typedef enum logic [2:0] {P_HDR, P_KIND, P_ROOM, P_DATA, P_STATION, P_SKIP} pstate_e;
   pstate_e     pst_r;
-  logic [11:0] len_r;
-  logic [10:0] left_r;        //! words of the record still to take
-  logic [10:0] widx_r;        //! word index inside the record
+  logic [15:0] len_r;
+  logic [15:0] left_r;        //! words of the record still to take
+  logic [15:0] widx_r;        //! word index inside the record
   logic [63:0] beat_r;
   logic [7:0]  hb_r [HDR_OCTETS_C + 1];   //! octets 0 to 19
   logic [47:0] mac_r;
-  logic [15:0] ms_r;
+  logic [17:0] ms_r, timeout_ms_r;
+  logic [15:0] flags_r, seq_r, station_seq_r, heartbeat_ms_r;
+  logic        seq_valid_r;
+  wire [15:0] seq_delta_w = station_seq_r - seq_r;
+  wire new_station_w = !seq_valid_r || (seq_delta_w != 16'd0 && !seq_delta_w[15]);
   logic [$clog2(MS_CYC_C)-1:0] div_r;
 
   wire        take_w  = s_valid_i && s_ready_o;
-  wire [3:0]  rtype_w = s_data_i[15:12];
-  wire [11:0] rlen_w  = s_data_i[11:0];
-  wire [10:0] rwords_w = 11'((rlen_w + 12'd1) >> 1);
-  wire        last_w  = left_r == 11'd1;
+  wire [15:0] rwords_w = 16'(({1'b0, s_data_i} + 17'd1) >> 1);
+  wire        last_w  = left_r == 16'd1;
   wire [AW_C:0] used_w = wr_cur_r - rd_ptr_r;
-  wire [AW_C:0] need_w = (AW_C+1)'((len_r + 12'd7) >> 3);
+  wire [AW_C:0] need_w = (AW_C+1)'((len_r + 16'd7) >> 3);
   wire        room_w  = ((AW_C+1)'(DEPTH_P) - used_w) >= need_w && !desc_full_w;
 
   //! the header octets with this word in place
   logic [7:0] hn_w [HDR_OCTETS_C + 1];
   always_comb begin : hdr_next
     for (int i = 0; i <= HDR_OCTETS_C; i++) hn_w[i] = hb_r[i];
-    if (pst_r == P_DATA && take_w && widx_r < 11'd10) begin
+    if (pst_r == P_DATA && take_w && widx_r < 16'd10) begin
       hn_w[2*widx_r]     = s_data_i[7:0];
       hn_w[2*widx_r + 1] = s_data_i[15:8];
     end
@@ -149,7 +145,7 @@ module KL_usbnet_tx_inject
   end : hdr_parse
 
   tx_verdict_e rule_w;
-  assign rule_w = tx_rule(hdr_w, len_r, host_mac_o, host_ok_o);
+  assign rule_w = tx_rule(hdr_w, len_r[11:0], host_mac_o, host_ok_o);
 
   //! the beat with this word in its lane
   wire [1:0]  lane_w = widx_r[1:0];
@@ -168,12 +164,12 @@ module KL_usbnet_tx_inject
   end : wr_ram
 
   always_ff @(posedge clk_i) begin : wr_desc
-    if (commit_w) desc_r[dwr_r[DW_C-1:0]] <= len_r;
+    if (commit_w) desc_r[dwr_r[DW_C-1:0]] <= len_r[11:0];
   end : wr_desc
 
   always_comb begin : ready
     case (pst_r)
-      P_HDR, P_DATA, P_HOST, P_SKIP: s_ready_o = 1'b1;
+      P_HDR, P_KIND, P_DATA, P_STATION, P_SKIP: s_ready_o = 1'b1;
       default:                       s_ready_o = 1'b0;   //! P_ROOM
     endcase
   end : ready
@@ -193,7 +189,13 @@ module KL_usbnet_tx_inject
       host_mac_o      <= '0;
       host_ok_o       <= 1'b0;
       host_state_o    <= '0;
-      ms_r            <= 16'hFFFF;
+      ms_r            <= '1;
+      timeout_ms_r    <= '0;
+      flags_r         <= '0;
+      seq_r           <= '0;
+      station_seq_r   <= '0;
+      heartbeat_ms_r  <= '0;
+      seq_valid_r     <= 1'b0;
       div_r           <= '0;
       verdict_valid_o <= 1'b0;
       verdict_o       <= TXV_PASS;
@@ -202,39 +204,46 @@ module KL_usbnet_tx_inject
       skipped_o       <= '0;
     end else begin
       verdict_valid_o <= 1'b0;
-      //! milliseconds since the last host record, saturating
+      //! milliseconds since the last new station record, saturating
       if (div_r == ($clog2(MS_CYC_C))'(MS_CYC_C - 1)) begin
         div_r <= '0;
-        if (ms_r != 16'hFFFF) ms_r <= ms_r + 1'b1;
+        if (ms_r != '1) ms_r <= ms_r + 1'b1;
       end else begin
         div_r <= div_r + 1'b1;
       end
+      if (ms_r >= timeout_ms_r) begin
+        host_ok_o    <= 1'b0;
+        host_mac_o   <= '0;
+        host_state_o <= '0;
+        seq_valid_r  <= 1'b0;
+      end
       case (pst_r)
         P_HDR: if (take_w) begin
-          len_r  <= rlen_w;
+          len_r  <= s_data_i;
           left_r <= rwords_w;
           widx_r <= '0;
-          unique case (1'b1)
-            rtype_w == REC_FRAME_C: begin
-              if (rlen_w < 12'd14 || rlen_w > 12'(MAX_LEN_P)) begin
+          pst_r  <= P_KIND;
+        end
+        P_KIND: if (take_w) begin
+          case (s_data_i)
+            REC_FRAME_C: begin
+              if (len_r < 16'd14 || len_r > 16'(MAX_LEN_P)) begin
                 verdict_valid_o <= 1'b1;
                 verdict_o       <= TXV_LENGTH;
                 if (dropped_o != '1) dropped_o <= dropped_o + 1'b1;
-                pst_r <= (rlen_w == 12'd0) ? P_HDR : P_SKIP;
+                pst_r <= (len_r == 16'd0) ? P_HDR : P_SKIP;
               end else begin
                 pst_r <= P_ROOM;
               end
             end
-            rtype_w == REC_HOST_C && rlen_w == 12'd8: pst_r <= P_HOST;
-            rtype_w == REC_DETACH_C && rlen_w == 12'd0: begin
-              host_ok_o    <= 1'b0;
-              host_mac_o   <= '0;
-              host_state_o <= '0;
-              ms_r         <= 16'hFFFF;
+            REC_STATION_C: begin
+              pst_r <= (len_r == 16'd16) ? P_STATION :
+                       (len_r == 16'd0) ? P_HDR : P_SKIP;
+              if (len_r != 16'd16 && skipped_o != '1) skipped_o <= skipped_o + 1'b1;
             end
             default: begin
               if (skipped_o != '1) skipped_o <= skipped_o + 1'b1;
-              pst_r <= (rlen_w == 12'd0) ? P_HDR : P_SKIP;
+              pst_r <= (len_r == 16'd0) ? P_HDR : P_SKIP;
             end
           endcase
         end
@@ -263,30 +272,39 @@ module KL_usbnet_tx_inject
             end
           end
         end
-        P_HOST: if (take_w) begin
+        P_STATION: if (take_w) begin
           widx_r <= widx_r + 1'b1;
           left_r <= left_r - 1'b1;
-          case (widx_r[1:0])
-            2'd0: mac_r[47:32] <= {s_data_i[7:0], s_data_i[15:8]};
-            2'd1: mac_r[31:16] <= {s_data_i[7:0], s_data_i[15:8]};
-            2'd2: mac_r[15:0]  <= {s_data_i[7:0], s_data_i[15:8]};
-            default: begin
+          case (widx_r[2:0])
+            3'd0: mac_r[47:32] <= {s_data_i[7:0], s_data_i[15:8]};
+            3'd1: mac_r[31:16] <= {s_data_i[7:0], s_data_i[15:8]};
+            3'd2: mac_r[15:0]  <= {s_data_i[7:0], s_data_i[15:8]};
+            3'd3: flags_r <= s_data_i;
+            //! Packet filter and digest are owned by the FX3. Consume their
+            //! words to retain framing; neither is an LD1 condition.
+            3'd5: station_seq_r <= s_data_i;
+            3'd6: heartbeat_ms_r <= s_data_i;
+            3'd7: begin
               pst_r <= P_HDR;
-              if (host_mac_ok(mac_r)) begin
-                host_mac_o   <= mac_r;
-                host_ok_o    <= 1'b1;
-                //! the state word: its first octet is its low byte
-                host_state_o <= s_data_i;
+              if (new_station_w) begin
+                seq_r        <= station_seq_r;
+                seq_valid_r  <= 1'b1;
+                timeout_ms_r <= 18'(heartbeat_ms_r) * 18'd3;
                 ms_r         <= '0;
-              end else begin
-                //! an unusable address detaches the computer: no stale one is kept
-                host_ok_o    <= 1'b0;
-                host_mac_o   <= '0;
-                host_state_o <= '0;
-                ms_r         <= 16'hFFFF;
-                if (skipped_o != '1) skipped_o <= skipped_o + 1'b1;
-              end
+                div_r        <= '0;
+                if (flags_r[0] && host_mac_ok(mac_r) && heartbeat_ms_r != 16'd0) begin
+                  host_mac_o   <= mac_r;
+                  host_ok_o    <= 1'b1;
+                  host_state_o <= flags_r;
+                end else begin
+                  host_ok_o    <= 1'b0;
+                  host_mac_o   <= '0;
+                  host_state_o <= '0;
+                  if (flags_r[0] && skipped_o != '1) skipped_o <= skipped_o + 1'b1;
+                end
+              end else if (skipped_o != '1) skipped_o <= skipped_o + 1'b1;
             end
+            default: ;
           endcase
         end
         P_SKIP: if (take_w) begin
@@ -298,7 +316,7 @@ module KL_usbnet_tx_inject
     end
   end : parser
 
-  assign host_fresh_o = host_ok_o && (ms_r < 16'(HOST_TIMEOUT_MS_P));
+  assign host_fresh_o = host_ok_o && (ms_r < timeout_ms_r);
 
   // --------------------------------------------------------------------------
   //  The injection side

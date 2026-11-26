@@ -23,7 +23,7 @@
                 other frame rolls back. A frame that meets a full buffer or a
                 full descriptor FIFO is dropped whole (verdict RXV_FULL).
                 THE BUS SIDE: a 16-bit stream, one record per frame: a header
-                word {REC_FRAME_C, length in octets}, then the frame's octets
+                length word, then REC_FRAME_C, then the frame's octets
                 two per word, the first octet in bits 7:0, the last word
                 padded with zero when the length is odd. last is set on the
                 record's final word, so a slave-FIFO master can end the USB
@@ -42,7 +42,7 @@ module KL_usbnet_rx_copy
 #(
   parameter int unsigned DEPTH_P   = 512,   //! 64-bit words of frame buffer
   parameter int unsigned DESC_P    = 16,    //! frames the buffer can hold
-  parameter int unsigned MAX_LEN_P = 2000   //! longest frame copied, octets
+  parameter int unsigned MAX_LEN_P = 1514   //! FX3 to_host record limit, octets
 )(
   input  wire              clk_i,   //! the system clock, the MAC wrapper's
   input  wire              rst_ni,   //! synchronous reset, active low
@@ -51,7 +51,7 @@ module KL_usbnet_rx_copy
   input  wire [63:0]       s_data_i,
   input  wire [7:0]        s_keep_i,
   input  wire              s_last_i,
-  //! the computer's address (KL_usbnet_tx_inject's host record)
+  //! the computer's address (KL_usbnet_tx_inject's station record)
   input  wire [47:0]       host_mac_i,
   input  wire              host_ok_i,
   //! toward the computer
@@ -205,7 +205,7 @@ module KL_usbnet_rx_copy
   // --------------------------------------------------------------------------
   //  The bus side
   // --------------------------------------------------------------------------
-  typedef enum logic [1:0] {O_IDLE, O_HDR, O_DATA} ostate_e;
+  typedef enum logic [1:0] {O_IDLE, O_HDR, O_KIND, O_DATA} ostate_e;
   ostate_e     ost_r;
   logic [10:0] words_r;          //! 16-bit words of the record still to send
   logic [1:0]  lane_r;
@@ -226,7 +226,11 @@ module KL_usbnet_rx_copy
     case (ost_r)
       O_HDR: begin
         m_valid_o = 1'b1;
-        m_data_o  = {REC_FRAME_C, olen_r};
+        m_data_o  = {4'b0, olen_r};
+      end
+      O_KIND: begin
+        m_valid_o = 1'b1;
+        m_data_o  = REC_FRAME_C;
       end
       O_DATA: begin
         m_valid_o = q_ok_r;
@@ -258,7 +262,8 @@ module KL_usbnet_rx_copy
           lane_r  <= '0;
           ost_r   <= O_HDR;
         end
-        O_HDR: if (take_w) ost_r <= O_DATA;
+        O_HDR: if (take_w) ost_r <= O_KIND;
+        O_KIND: if (take_w) ost_r <= O_DATA;
         O_DATA: if (take_w) begin
           lane_r  <= lane_r + 1'b1;
           words_r <= words_r - 1'b1;
