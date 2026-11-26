@@ -16,6 +16,16 @@ the feedback window to the firmware contract. The board's internal media
 oscillator and frame grid remain authoritative. The audio harness owns the
 external bus pins instead of the physical audio headers.
 
+The Arty profile uses the existing split control-firmware placement. Its
+control image must be linked against the selected image's generated register
+and flash maps. The CPU and its bus use the split placement's measured
+100 MHz clock; the media and external bus clocks remain unchanged.
+This leaves room for the audio transport; the fabric-control
+variant exceeds the device's placement capacity even after reducing audio
+staging logic. Resource comparisons use the same split profile with audio
+enabled and disabled. As in the existing single-stream Milan profile, one
+CRF input and output accompany the eight-channel AAF input and output.
+
 `--usb-audio` and `--usb-net` are rejected together before board construction.
 Each remains independently selectable. Audio addresses sockets 0, 1 and 3
 on A1:A0. The network sockets 5 and 6 need A2 before the attachments can
