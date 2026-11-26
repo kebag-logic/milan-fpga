@@ -21,16 +21,13 @@
 // tells the loop it is still owed, so the loop does not sleep on it.
 //
 // THE DRAW (#970; IEEE 1722.1-2021 6.2.4.2.2, Milan v1.2 Table 5.49: several
-// entities powered up together). The core asks for a seed at its enable. The
-// seed is the least significant 32 bits of the sum, with an end-around carry,
-// of the MAC address and the platform's microsecond clock as it is asked
-// (adp_mbx_set_clock; NOW_MS where the composition gives none), mixed with the
-// entity ID and the interface by two rounds of a bijection without
-// multiplication (rv32i), so the sample's low bits reach every bit of the
-// seed: the core folds it in by exclusive-or and draws from the top 16 bits
-// of one xorshift step. NOW_MS alone, as it was, drew 640 to 890 ms at every
-// boot of one entity and 719 to 724 ms for sixteen neighbouring entity IDs.
-// No mailbox access is added to a pass: the core asks at the enable alone.
+// entities powered up together). The core asks for a sample on each transition
+// out of DOWN, a startup with the link up and a LINK_UP (none at a duplicate
+// or disabled LINK_UP), and seeds its
+// generator with the sum of the MAC address and the sample, mixed with the
+// entity ID, the interface and its earlier state. The sample is the platform's
+// microsecond clock as it is asked (adp_mbx_set_clock), NOW_MS where the
+// composition gives none, which adds that path's one mailbox access.
 //
 // SERVICE LATENCY (the D3 ruling on #640: a deterministic bound per response
 // path, stated and tested), under the assumptions A1 to A4 of ctrl_loop.h.
@@ -123,7 +120,7 @@ extern "C" {
 #define ADP_MBX_LAT_DELAY 39u           // TIMER -> ENTITY_AVAILABLE and TMR_ADVERTISE: 6 + 3 + 25 + 3 + 2
 #define ADP_MBX_LAT_ADVERTISE 11u       // TIMER -> TMR_DELAY armed: 6 + 3 + 2
 #define ADP_MBX_LAT_GM 11u              // GM event -> TMR_DELAY armed: 6 + 3 + 2
-#define ADP_MBX_LAT_LINK 11u            // LINK up -> TMR_DELAY armed: 6 + 3 + 2 (down, a stop: 9)
+#define ADP_MBX_LAT_LINK 12u            // LINK up -> TMR_DELAY armed: 6 + the seed's NOW_MS 1 + 3 + 2 (down, a stop: 9)
 #define ADP_MBX_LAT_SHUTDOWN 29u        // disable -> ENTITY_DEPARTING committed: 1 + 3 + 25 (no pass)
 
 // The costliest action per input, and the pass and path bounds they compose.

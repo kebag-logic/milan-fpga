@@ -218,9 +218,9 @@ The boot path adds nothing either ([#972](https://github.com/kebag-logic/milan-f
 A boot whose PHY must be advertised again (#840), or whose BMCR does not negotiate (forced, isolated or resetting), renegotiates before that first publication, so before the link-up this derivation starts from.
 `sw/firmware/ctrl/test/test_adp.cpp` G1 to G5 hold ADP's part on the host model: each first `ENTITY_AVAILABLE` within its draw, inside the 6,000 ms stated here.
 **The draw is uniform** (IEEE 1722.1-2021 6.2.4.2.2, and Milan v1.2 Table 5.49: several entities powered up together).
-The core's generator is xorshift32, whose sequence has the maximum length of 2^32 - 1; the core seeds it at its enable, and the adapter's seed is the sum of the MAC address and the platform's microsecond clock, mixed with the entity ID and the interface (`adp_mbx.h`, THE DRAW).
-H4 to H7 hold the first draws of neighbouring entities started together, and of one entity's boots, uniform over both ranges.
-The core of this revision takes no fresh sample at a later LINK_UP.
+The core's generator is xorshift32, whose sequence has the maximum length of 2^32 - 1; the core seeds it on each transition out of DOWN, a startup with the link up and a LINK_UP, with the sum of the MAC address and the platform's microsecond clock, mixed with the entity ID and the interface (`adp_mbx.h`, THE DRAW).
+H4 to H6 hold the first draws of neighbouring entities started together, and of one entity's boots, uniform over both ranges; H7 holds the seed's terms.
+H8 to H10 hold one fresh sample at each qualified LINK_UP and at the startup draw, none at a duplicate or disabled LINK_UP, and the draw set by the clock at the LINK_UP; `test_plat_boot.cpp` B25 to B27 hold the platform's microsecond clock, its wiring before ADP starts, and the reading at a LINK_UP on either interface.
 The all-fabric placement's boot path is not covered by #972, and this derivation does not claim it.
 
 ### 2.2 Enumeration & control  -  AECP/AEM  *(1722.1-2021 Sections 7 and 9; Milan v1.2 Section 5.3–5.4)*

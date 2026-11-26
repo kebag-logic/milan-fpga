@@ -214,15 +214,17 @@ against one generated header.
 layer, ADP, ACMP, the app), compiled as C11 exactly as the target builds it, and
 answers `mbx_hal.h` once with Wishbone transactions on the RTL and once with
 the host model. One scenario runs on each: a link rise, two advertising
-cycles, an ENTITY_DISCOVER, a grandmaster change and a shutdown, 21 modeled
-seconds. Lane F3 adds ACMP to it: a BIND_RX the talker never answers (its
+cycles, an ENTITY_DISCOVER, a grandmaster change and a shutdown, 33 modeled
+seconds: the shutdown at 32 s follows the fourth ENTITY_AVAILABLE whatever the
+draws (Milan v1.2 Table 5.50). Lane F3 adds ACMP to it: a BIND_RX the talker never answers (its
 response and probe in one pass, the duplicate after TMR_NO_RESP, then
 TMR_RETRY), the bound talker's ENTITY_AVAILABLE, which both filters pass
 through the bound-talker table the firmware wrote, so TMR_RETRY delays and
 probes again (5.5.3.5.30 step 2), GET_TX_STATE, PROBE_TX, GET_RX_STATE and
 UNBIND_RX, and two frames both filters refuse, a BIND_RX for another
 listener and another talker's ENTITY_AVAILABLE. The firmware's random delays
-are seeded from NOW_MS, so the two runs must commit the same frames at the
+are seeded from NOW_MS (this composition wires no clock; the core mixes it with the MAC address, the entity ID and
+the interface), so the two runs must commit the same frames at the
 same millisecond; they do, fourteen frames (five ADP, nine ACMP), and the
 model run must carry the nine ACMP frames in the scenario's order. When two frames are committed
 in one pass, the RTL run waits for the second one too. It starts on the

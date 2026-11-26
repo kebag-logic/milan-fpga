@@ -537,8 +537,9 @@ One instance per AVB interface implements Milan v1.2 5.6.3 over the IEEE
   a link-up comes within the entity's declared 6.0 s discovery time, derived
   term by term in [FR_NFR.md](../reference/FR_NFR.md#211-the-declared-discovery-time)
   (#970), the draw its largest term and the boot path none (#972);
-- the seed of the draw: the sum of the MAC address and the platform's
-  microsecond clock, mixed with the entity ID and the interface (`adp_mbx.h`,
+- the seed of the draw, taken afresh on each transition out of DOWN and at no
+  duplicate or disabled LINK_UP: the sum of
+  the MAC address and the platform's microsecond clock, mixed with the entity ID and the interface (`adp_mbx.h`,
   THE DRAW; IEEE 1722.1-2021 6.2.4.2.2), so entities powered up together draw
   apart (Milan v1.2 Table 5.49);
 - the ENTITY_DISCOVER answer for entity_id 0 or this entity, in WAITING
@@ -693,7 +694,7 @@ nothing else pending:
 | TMR_DELAY expiry | 39 | ENTITY_AVAILABLE committed, TMR_ADVERTISE armed |
 | TMR_ADVERTISE expiry | 11 | TMR_DELAY armed |
 | GM_CHANGE | 11 | TMR_DELAY armed |
-| LINK_UP / LINK_DOWN | 11 / 9 | TMR_DELAY armed / timer stopped |
+| LINK_UP / LINK_DOWN | 12 / 9 | TMR_DELAY armed / timer stopped |
 | SHUTDOWN | 29 | ENTITY_DEPARTING committed |
 
 The figures are `ADP_MBX_LAT_*`, `ADP_MBX_PASS_MAX`, `ADP_MBX_EVT_ACCESSES`

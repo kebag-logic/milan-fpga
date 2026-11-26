@@ -857,8 +857,22 @@ void gm_change_after_first(void) {
 // ---- H: THE DRAW (#970; IEEE 1722.1-2021 6.2.4.2.2) ----------------------------------
 
 // The seed's clock in these tests: the value in *ctx, as the platform's microseconds would give it.
+unsigned clock_reads = 0;
 uint32_t fixed_clock(void* ctx) {
+    ++clock_reads;
     return *static_cast<uint32_t*>(ctx);
+}
+
+// A LINK event of interface 0 at `up`, handed to every sink of the loop as the loop hands one it takes: the model
+// posts one only on a change, so a duplicate comes this way.
+void link_event(bool up) {
+    struct mbx_event ev{};
+    ev.type = MBX_EV_TYPE_LINK;
+    ev.interface = 0;
+    ev.link_up = up;
+    for (unsigned k = 0; k < app.loop.n_sinks; ++k) {
+        app.loop.sinks[k].fn(app.loop.sinks[k].ctx, &ev);
+    }
 }
 
 // The clock port is the composition's, not the app's: each test leaves none behind.
@@ -981,6 +995,82 @@ TEST_F(AdpDraw, H7TheSeedIsTheSumOfMacAndClockMixedWithTheEntityId) {
     const uint32_t wrapped = seeded(e, 5u);
     e.mac = 0;
     EXPECT_EQ(seeded(e, 5u), wrapped) << "H7 the sum carries end around";
+}
+
+// H8 a LINK_UP after a link loss takes a fresh sample: over samples one microsecond apart its delay is uniform too.
+TEST_F(AdpDraw, H8ALaterLinkUpTakesAFreshSample) {
+    Spread d;
+    for (uint32_t k = 0; k < kHosts; ++k) {
+        sample = 41000u;
+        ASSERT_NO_FATAL_FAILURE(draw_first(entity, false));
+        mbx_model_set_link(&model, 0, false);
+        settle();
+        sample = 90000u + k;
+        mbx_model_set_link(&model, 0, true);
+        settle();
+        ASSERT_EQ(adp0()->draws, 2u) << "H8 the second LINK_UP draws";
+        d.add(adp0()->last_draw_ms);
+    }
+    EXPECT_TRUE(uniform("H8 a later LINK_UP", d, kLinkUpDrawMaxMs) <= kChiSquare99)
+        << "H8 a LINK_UP after a link loss draws from a fresh sample";
+}
+
+// H9 through the adapter, the clock is read once for each qualified rise and for the startup draw, and never for a
+// duplicate LINK_UP or a LINK_UP while disabled (IEEE 1722.1-2021 6.2.4.2.2; Milan v1.2 5.6.3.5.2, 5.6.3.5.3).
+TEST_F(AdpDraw, H9EachQualifiedRiseReadsTheClockOnce) {
+    sample = 41000u;
+    clock_reads = 0;
+    mbx_model_reset(&model);
+    mbx_model_bind(&model, nullptr, nullptr);
+    mbx_model_set_gm(&model, 0, kGmA, 0);
+    struct ctrl_app_config cfg = {&entity, 2, arena, sizeof arena, classes, 1, nullptr, nullptr, nullptr, nullptr,
+                                   nullptr, nullptr, 0};
+    ASSERT_TRUE(ctrl_app_start(&app, &cfg)) << "H9 the app starts on the model";
+    settle();
+    EXPECT_EQ(clock_reads, 0u) << "H9 a start with the link down reads no clock";
+    for (unsigned rise = 1; rise <= 3u; ++rise) {
+        const uint32_t draws = adp0()->draws;
+        mbx_model_set_link(&model, 0, true);
+        settle();
+        EXPECT_TRUE(clock_reads == rise && adp0()->draws == draws + 1u)
+            << "H9 each qualified LINK_UP reads the clock once through the adapter";
+        link_event(true);
+        EXPECT_TRUE(clock_reads == rise && adp0()->draws == draws + 1u) << "H9 a duplicate LINK_UP reads no clock";
+        mbx_model_set_link(&model, 0, false);
+        settle();
+    }
+    adp_mbx_set_enable(&app.adp, false);
+    mbx_model_set_link(&model, 0, true);
+    settle();
+    EXPECT_EQ(clock_reads, 3u) << "H9 a LINK_UP while disabled reads no clock";
+    adp_mbx_set_enable(&app.adp, true);
+    EXPECT_TRUE(clock_reads == 4u && adp0()->last_draw == ADP_DRAW_STARTUP)
+        << "H9 the startup draw reads the clock once";
+}
+
+// H10 boots alike up to a LINK_UP, their clocks apart only when it comes: the LINK_UP's sample sets its draw.
+TEST_F(AdpDraw, H10TheClockAtTheLinkUpSetsItsDraw) {
+    Spread d;
+    for (uint32_t k = 0; k < kHosts; ++k) {
+        sample = 7u;
+        mbx_model_reset(&model);
+        mbx_model_bind(&model, nullptr, nullptr);
+        mbx_model_set_gm(&model, 0, kGmA, 0);
+        struct ctrl_app_config cfg = {&entity, 2, arena, sizeof arena, classes, 1, nullptr, nullptr, nullptr,
+                                       nullptr, nullptr, nullptr, 0};
+        ASSERT_TRUE(ctrl_app_start(&app, &cfg)) << "H10 the app starts on the model";
+        settle();
+        sample = 41000u + k;
+        mbx_model_set_link(&model, 0, true);
+        settle();
+        ASSERT_EQ(adp0()->draws, 1u) << "H10 the LINK_UP draws";
+        d.add(adp0()->last_draw_ms);
+    }
+    std::printf("  H10 %u distinct first delays of %u boots apart only at the LINK_UP\n",
+                static_cast<unsigned>(d.values.size()), static_cast<unsigned>(kHosts));
+    EXPECT_TRUE(d.values.size() >= 600u) << "H10 boots apart only at the LINK_UP draw apart";
+    EXPECT_TRUE(uniform("H10 the first LINK_UP", d, kLinkUpDrawMaxMs) <= kChiSquare99)
+        << "H10 and draw uniformly from the clock read at the LINK_UP";
 }
 
 TEST(AdpAdapter, B1StaleTagDiscarded) {
