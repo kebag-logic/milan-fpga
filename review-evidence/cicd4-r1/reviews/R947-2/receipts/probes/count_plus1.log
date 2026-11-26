@@ -1,0 +1,16 @@
+ scripts/ci_fast_legs.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+regenerate rc=0
+--shard 1/4 --campaign-shard "${{ matrix.leg }}" 5
+--shard 2/4 --campaign-shard "${{ matrix.leg }}" 3
+--shard 3/4 --campaign-shard "${{ matrix.leg }}" 3
+planted ci_events --check rc=1
+3
+  FAIL .github/workflows/rtl-fast.yml: job `firmware-control-mutants` must run its campaign once as `--campaign-shard "${{ matrix.leg }}" COUNT`, COUNT its matrix's leg count (found [('"${{ matrix.leg }}"', '5')] for leg
+  FAIL .github/workflows/rtl-fast.yml: job `firmware-aecp-mutants` must run its campaign once as `--campaign-shard "${{ matrix.leg }}" COUNT`, COUNT its matrix's leg count (found [('"${{ matrix.leg }}"', '3')] for legs [
+  FAIL .github/workflows/rtl-fast.yml: job `firmware-srp-mutants` must run its campaign once as `--campaign-shard "${{ matrix.leg }}" COUNT`, COUNT its matrix's leg count (found [('"${{ matrix.leg }}"', '3')] for legs [0
+planted ci_fast_legs_selftest rc=1
+    raise CensusError(f"{what}: {' '.join(why.group().split()) if why else f'exit {done.returncode}'}")
+census_elab.CensusError: syn/yosys/run.sh --emit refused the recipe: $REVIEWS/cicd4-r947-2-packet/scratch/probe/protocol-processor/hdl not found. The protocol-processor submodule is not checked out;
+restored ci_events --check rc=0
+0

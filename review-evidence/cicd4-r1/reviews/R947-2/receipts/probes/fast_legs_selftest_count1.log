@@ -1,0 +1,46 @@
+PASS: campaign legs reject a planted dropped leg
+PASS: campaign legs reject a planted duplicated leg
+PASS: 847 live defects of phase 1 in exactly one of 4 legs, leg sizes [212, 212, 212, 211]; six invalid campaign combinations refuse
+PASS: campaign legs reject a planted dropped leg
+PASS: campaign legs reject a planted duplicated leg
+PASS: 398 live defects of phase 2 in exactly one of 2 legs, leg sizes [199, 199]; six invalid campaign combinations refuse
+PASS: campaign legs reject a planted dropped leg
+PASS: campaign legs reject a planted duplicated leg
+PASS: 662 live defects of phase 3 in exactly one of 2 legs, leg sizes [332, 330]; six invalid campaign combinations refuse
+PASS: phase 1, a failed campaign in each of its 4 legs fails that leg
+PASS: phase 2, a failed campaign in each of its 2 legs fails that leg
+PASS: phase 3, a failed campaign in each of its 2 legs fails that leg
+PASS: census refuses planted failed leg 0
+PASS: census refuses planted missing leg 0
+PASS: census refuses planted failed leg 1
+PASS: census refuses planted missing leg 1
+PASS: census refuses planted failed leg 2
+PASS: census refuses planted missing leg 2
+PASS: census refuses planted failed leg 3
+PASS: census refuses planted missing leg 3
+PASS: census refuses planted failed leg 4
+PASS: census refuses planted missing leg 4
+PASS: census refuses planted head
+PASS: census refuses planted tree
+PASS: census refuses planted inventory
+PASS: census refuses planted selected
+PASS: census refuses planted rows
+PASS: census refuses planted duplicate leg
+PASS: census refuses planted rule removal escaped in leg 1
+PASS: census refuses planted rule removal escaped in leg 2
+PASS: census refuses planted rule removal escaped in leg 3
+PASS: census refuses planted rule removal escaped in leg 4
+PASS: census 164 executed arms exactly once with unchanged rule judge
+Traceback (most recent call last):
+  File "$REVIEWS/cicd4-r947-2-packet/scratch/probe/scripts/ci_fast_legs_selftest.py", line 150, in <module>
+    raise SystemExit(main())
+                     ~~~~^^
+  File "$REVIEWS/cicd4-r947-2-packet/scratch/probe/scripts/ci_fast_legs_selftest.py", line 145, in main
+    workflow_controls()
+    ~~~~~~~~~~~~~~~~~^^
+  File "$REVIEWS/cicd4-r947-2-packet/scratch/probe/scripts/ci_fast_legs_selftest.py", line 114, in workflow_controls
+    assert len(runs) == 1 and runs[0].rstrip().endswith(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        '--campaign-shard "${{ matrix.leg }}" ' + str(len(jobs[name]["strategy"]["matrix"]["leg"]))), name
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: firmware-control-mutants
