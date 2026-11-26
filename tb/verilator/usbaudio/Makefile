@@ -21,7 +21,8 @@ WINDOW_LOG2 ?= 13
 duplex-build:
 	$(RTL_SIMULATOR) --cc --exe --build --top-module KL_usbaudio_bridge \
 	  -Wall -Wno-fatal -Wno-TIMESCALEMOD --build-jobs $(JOBS) \
-	  -GWINDOW_LOG2_P=$(WINDOW_LOG2) -CFLAGS "-O3 -std=c++17 -DWINDOW_LOG2_TB=$(WINDOW_LOG2)" --Mdir $(abspath $(MDIR)) \
+	  -GWINDOW_LOG2_P=$(WINDOW_LOG2) -CFLAGS "-O3 -std=c++17 -Wall -Wextra -DWINDOW_LOG2_TB=$(WINDOW_LOG2)" \
+	  --Mdir $(abspath $(MDIR)) \
 	  $(wildcard $(RTL)/*.sv) ../../../third_party/verilog-axis/rtl/axis_async_fifo.v \
 	  $(abspath duplex.cpp)
 duplex: duplex-build

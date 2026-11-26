@@ -12,6 +12,7 @@ import yaml
 
 
 def main() -> None:
+    """Check option ownership and the generated eight-channel descriptor."""
     root = Path(__file__).resolve().parents[3]
     spec = importlib.util.spec_from_file_location("audio_selection", root / "sw/litex/usbaudio_build.py")
     module = importlib.util.module_from_spec(spec)

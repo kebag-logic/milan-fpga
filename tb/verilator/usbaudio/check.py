@@ -13,6 +13,7 @@ import time
 
 
 def main() -> None:
+    """Run each required baseline and representative planted defect."""
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--engine", required=True)
     parser.add_argument("--out", type=Path, required=True)
@@ -47,7 +48,8 @@ def main() -> None:
                     "--temporary-suffix", suffix, "--discard-builds",
                     "--only", "reference_count_alignment", "--only", "media_epoch_trailing",
                     "--only", "gpif_blocked_status", "--only", "packet_fence"], check=True)
-    print("PASS default audio regression: selection, protocol, references, media, packets, bus, both widths, duplex and defect controls")
+    print("PASS default audio regression: selection, protocol, references, media, packets, bus, "
+          "both widths, duplex and defect controls")
 
 
 if __name__ == "__main__":

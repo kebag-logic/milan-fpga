@@ -89,6 +89,7 @@ puts "PASS all 55 audio pad registers"
 
 
 def main() -> None:
+    """Require the complete pad fixture and reject each broken placement."""
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--out", required=True, type=Path)
     args = parser.parse_args()

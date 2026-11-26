@@ -34,6 +34,7 @@ def main() -> None:
         original = milan_soc.add_milan_datapath
 
         def audio_datapath(host: object, platform: object, axil: object, **kwargs: object) -> None:
+            """Bind the transport to the selected eight-channel media grid."""
             if (kwargs.get("num_streams") != 1 or kwargs.get("talker_wire_chans") != 8
                     or kwargs.get("audio_if_slots") != 8 or not kwargs.get("audio_if_master")):
                 raise ValueError("USB audio needs one eight-channel stream and a TDM8 master media grid")

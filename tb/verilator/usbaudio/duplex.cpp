@@ -22,19 +22,36 @@ static uint32_t swap_bytes(uint32_t value) { return __builtin_bswap32(value); }
 
 struct Bench {
   VKL_usbaudio_bridge dut;
-  uint64_t steps = 0, oscillator_phase = 0, oscillator_cycles = 0;
-  uint64_t bus_cycles = 0, frames = 0, next_reference = 2000;
-  uint32_t reference_sequence = 0, playback_sent = 0, playback_seen = 0;
-  uint32_t capture_seen = 0, capture_first = 0, last_status_epoch = 0;
-  unsigned render_phase = 0, playback_pair = 0, capture_word = 0;
-  unsigned status_word = 0, packet_words = 0, previous_status_sequence = 0;
+  uint64_t steps = 0;
+  uint64_t oscillator_phase = 0;
+  uint64_t oscillator_cycles = 0;
+  uint64_t bus_cycles = 0;
+  uint64_t frames = 0;
+  uint64_t next_reference = 2000;
+  uint32_t reference_sequence = 0;
+  uint32_t playback_sent = 0;
+  uint32_t playback_seen = 0;
+  uint32_t capture_seen = 0;
+  uint32_t capture_first = 0;
+  uint32_t last_status_epoch = 0;
+  unsigned render_phase = 0;
+  unsigned playback_pair = 0;
+  unsigned capture_word = 0;
+  unsigned status_word = 0;
+  unsigned packet_words = 0;
+  unsigned previous_status_sequence = 0;
   uint16_t capture_low = 0;
   uint32_t capture_frame_candidate = 0;
-  bool capture_started = false, streaming = false, first_status = true, playback_started = false;
+  bool capture_started = false;
+  bool streaming = false;
+  bool first_status = true;
+  bool playback_started = false;
   uint16_t status[10]{};
   std::deque<uint16_t> incoming;
-  uint32_t playback_epoch = 1, capture_epoch = 1;
-  uint64_t stream_start = 0, next_pcm = 0;
+  uint32_t playback_epoch = 1;
+  uint32_t capture_epoch = 1;
+  uint64_t stream_start = 0;
+  uint64_t next_pcm = 0;
 
   void push32(uint32_t value) {
     incoming.push_back(uint16_t(value)); incoming.push_back(uint16_t(value >> 16));

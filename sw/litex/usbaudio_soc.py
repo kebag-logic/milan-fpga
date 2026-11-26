@@ -18,45 +18,7 @@ class UsbAudio(LiteXModule):
     """Whole-frame audio transport plus the fixed public A1:A0 harness."""
 
     def __init__(self, platform: object, repo: Path, media_domain: str) -> None:
-        profile = yaml.safe_load((repo / "configs/endstation_arty_usbaudio.yaml").read_text())["usb_audio"]
-        window = profile["feedback_window_log2"]
-        digest = profile["digest"]
-        if window != 13 or digest != 0x84ff:
-            raise ValueError("USB audio profile must match the pinned eight-channel firmware contract")
-        self.control = CSRStorage(fields=[
-            CSRField("armed", offset=0, description="Release all session queues after coordinated receiver reset."),
-            CSRField("qualified", offset=1, description="Physical interval latency bound has been measured.")],
-            name="control")
-        self.health = CSRStatus(2, name="health")
-        self.feedback = CSRStatus(32, name="feedback")
-        self.drops = CSRStatus(32, name="drops")
-        self.gaps = CSRStatus(32, name="gaps")
-        self.capture_drops = CSRStatus(32, name="capture_drops")
-        self.reference_losses = CSRStatus(32, name="reference_losses")
-        self.rejected_records = CSRStatus(32, name="rejected_records")
-        self.digest_errors = CSRStatus(32, name="digest_errors")
-        self.media_frames = CSRStatus(32, name="media_frames")
-        self.playback_extremes = CSRStatus(14, name="playback_extremes")
-        self.capture_extremes = CSRStatus(14, name="capture_extremes")
-        self.cd_usb_bus = ClockDomain("usb_bus")
-        self.cd_usb_capture = ClockDomain("usb_capture")
-        self.cd_usb_forward = ClockDomain("usb_forward")
-        locked = Signal()
-        feedback_raw = Signal()
-        feedback_clock = Signal()
-        raw = [Signal() for _ in range(3)]
-        self.specials += Instance("MMCME2_BASE", name="usb_mmcm",
-            p_BANDWIDTH="OPTIMIZED", p_CLKIN1_PERIOD=10.0, p_DIVCLK_DIVIDE=1,
-            p_CLKFBOUT_MULT_F=6.0, p_CLKOUT0_DIVIDE_F=12.0,
-            p_CLKOUT1_DIVIDE=12, p_CLKOUT1_PHASE=198.75,
-            p_CLKOUT2_DIVIDE=12, p_CLKOUT2_PHASE=217.5,
-            i_CLKIN1=platform.lookup_request("clk100"), i_CLKFBIN=feedback_clock,
-            o_CLKFBOUT=feedback_raw, o_CLKOUT0=raw[0], o_CLKOUT1=raw[1], o_CLKOUT2=raw[2],
-            i_RST=ResetSignal("sys"), i_PWRDWN=0, o_LOCKED=locked)
-        self.specials += Instance("BUFG", i_I=feedback_raw, o_O=feedback_clock)
-        for source, domain in zip(raw, (self.cd_usb_bus, self.cd_usb_forward, self.cd_usb_capture)):
-            self.specials += Instance("BUFG", i_I=source, o_O=domain.clk)
-            self.specials += AsyncResetSynchronizer(domain, ~locked)
+        window, digest = self._control_and_clocks(platform, repo)
         armed, qualified = Signal(), Signal()
         self.specials += MultiReg(self.control.fields.armed, armed, "usb_bus")
         self.specials += MultiReg(self.control.fields.qualified, qualified, "usb_bus")
@@ -135,7 +97,8 @@ class UsbAudio(LiteXModule):
         media_diag_ready = Signal()
         self.specials += Instance("KL_usbaudio_crossing", name="usb_media_diagnostics",
             p_WIDTH_P=110, p_DEPTH_P=4, i_s_clk_i=ClockSignal(media_domain), i_s_rst_n=local_resets[media_domain],
-            i_data_i=Cat(gaps, cap_drops, media_frames, playback_extremes), i_valid_i=media_diag_ready, o_ready_o=media_diag_ready,
+            i_data_i=Cat(gaps, cap_drops, media_frames, playback_extremes),
+            i_valid_i=media_diag_ready, o_ready_o=media_diag_ready,
             i_m_clk_i=ClockSignal("sys"), i_m_rst_n=local_resets["sys"],
             o_data_o=media_diag, o_valid_o=media_diag_valid, i_ready_i=1)
         self.sync += If(media_diag_valid, self.gaps.status.eq(media_diag[:32]),
@@ -152,6 +115,54 @@ class UsbAudio(LiteXModule):
             i_capture_last_i=cap_last, i_capture_abort_i=cap_abort,
             i_status_valid_i=status_valid, o_status_ready_o=status_ready,
             i_status_data_i=status_data, i_status_last_i=status_last)
+        self._add_sources_and_constraints(platform, repo)
+
+    def _control_and_clocks(self, platform: object, repo: Path) -> tuple[int, int]:
+        """Create controls and the phased external clock domains."""
+        profile = yaml.safe_load((repo / "configs/endstation_arty_usbaudio.yaml").read_text())["usb_audio"]
+        window = profile["feedback_window_log2"]
+        digest = profile["digest"]
+        if window != 13 or digest != 0x84ff:
+            raise ValueError("USB audio profile must match the pinned eight-channel firmware contract")
+        self.control = CSRStorage(fields=[
+            CSRField("armed", offset=0, description="Release all session queues after coordinated receiver reset."),
+            CSRField("qualified", offset=1, description="Physical interval latency bound has been measured.")],
+            name="control")
+        self.health = CSRStatus(2, name="health")
+        self.feedback = CSRStatus(32, name="feedback")
+        self.drops = CSRStatus(32, name="drops")
+        self.gaps = CSRStatus(32, name="gaps")
+        self.capture_drops = CSRStatus(32, name="capture_drops")
+        self.reference_losses = CSRStatus(32, name="reference_losses")
+        self.rejected_records = CSRStatus(32, name="rejected_records")
+        self.digest_errors = CSRStatus(32, name="digest_errors")
+        self.media_frames = CSRStatus(32, name="media_frames")
+        self.playback_extremes = CSRStatus(14, name="playback_extremes")
+        self.capture_extremes = CSRStatus(14, name="capture_extremes")
+        self.cd_usb_bus = ClockDomain("usb_bus")
+        self.cd_usb_capture = ClockDomain("usb_capture")
+        self.cd_usb_forward = ClockDomain("usb_forward")
+        locked = Signal()
+        feedback_raw = Signal()
+        feedback_clock = Signal()
+        raw = [Signal() for _ in range(3)]
+        self.specials += Instance("MMCME2_BASE", name="usb_mmcm",
+            p_BANDWIDTH="OPTIMIZED", p_CLKIN1_PERIOD=10.0, p_DIVCLK_DIVIDE=1,
+            p_CLKFBOUT_MULT_F=6.0, p_CLKOUT0_DIVIDE_F=12.0,
+            p_CLKOUT1_DIVIDE=12, p_CLKOUT1_PHASE=198.75,
+            p_CLKOUT2_DIVIDE=12, p_CLKOUT2_PHASE=217.5,
+            i_CLKIN1=platform.lookup_request("clk100"), i_CLKFBIN=feedback_clock,
+            o_CLKFBOUT=feedback_raw, o_CLKOUT0=raw[0], o_CLKOUT1=raw[1], o_CLKOUT2=raw[2],
+            i_RST=ResetSignal("sys"), i_PWRDWN=0, o_LOCKED=locked)
+        self.specials += Instance("BUFG", i_I=feedback_raw, o_O=feedback_clock)
+        for source, domain in zip(raw, (self.cd_usb_bus, self.cd_usb_forward, self.cd_usb_capture)):
+            self.specials += Instance("BUFG", i_I=source, o_O=domain.clk)
+            self.specials += AsyncResetSynchronizer(domain, ~locked)
+        return window, digest
+
+    @staticmethod
+    def _add_sources_and_constraints(platform: object, repo: Path) -> None:
+        """Load the transport and its mandatory clock, crossing and pad checks."""
         for source in sorted((repo / "hdl/milan/usbaudio").glob("*.sv")):
             platform.add_source(str(source))
         platform.add_source(str(repo / "third_party/verilog-axis/rtl/axis_async_fifo.v"))
