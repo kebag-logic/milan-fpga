@@ -1,0 +1,41 @@
+.github/workflows/docs.yml: 101 distinct step bodies at base, 109 at head
+
+== only at base (0)
+
+== only at head (8)
+- 'Record actual job execution' in ['docs-gates-3 if ${{ always() }}']
+    'python3 scripts/ci_runtime_evidence.py record --workflow .github/workflows/docs.yml --job docs-gates-3 --output "$RUNNER_TEMP/job-evidence.json"'
+- 'Record actual job execution' in ['docs-gates-4 if ${{ always() }}']
+    'python3 scripts/ci_runtime_evidence.py record --workflow .github/workflows/docs.yml --job docs-gates-4 --output "$RUNNER_TEMP/job-evidence.json"'
+- 'Record executed gate outcomes' in ['docs-gates-3 if ${{ always() }}']
+    'python3 scripts/ci_gate_receipts.py record --workflow docs --leg 3 --output "$RUNNER_TEMP/gate-results/receipt.json"'
+- 'Record executed gate outcomes' in ['docs-gates-4 if ${{ always() }}']
+    'python3 scripts/ci_gate_receipts.py record --workflow docs --leg 4 --output "$RUNNER_TEMP/gate-results/receipt.json"'
+- 'Upload actual job execution' in ['docs-gates-3 if ${{ always() }}']
+    '{"uses": "actions/upload-artifact@v4", "with": {"if-no-files-found": "error", "name": "job-evidence-docs-docs-gates-3-${{ strategy.job-index }}-${{ github.sha }}", "path": "${{ runner.temp }}/job-evidence.json", "retention-days": 3}}'
+- 'Upload actual job execution' in ['docs-gates-4 if ${{ always() }}']
+    '{"uses": "actions/upload-artifact@v4", "with": {"if-no-files-found": "error", "name": "job-evidence-docs-docs-gates-4-${{ strategy.job-index }}-${{ github.sha }}", "path": "${{ runner.temp }}/job-evidence.json", "retention-days": 3}}'
+- 'Upload executed gate outcomes' in ['docs-gates-3 if ${{ always() }}']
+    '{"uses": "actions/upload-artifact@v4", "with": {"if-no-files-found": "error", "name": "gate-docs-3-${{ github.sha }}", "path": "${{ runner.temp }}/gate-results/receipt.json"}}'
+- 'Upload executed gate outcomes' in ['docs-gates-4 if ${{ always() }}']
+    '{"uses": "actions/upload-artifact@v4", "with": {"if-no-files-found": "error", "name": "gate-docs-4-${{ github.sha }}", "path": "${{ runner.temp }}/gate-results/receipt.json"}}'
+
+== same body, carrier changed (18)
+- 'CI event and SHA contract gate': ['docs-gates-2'] -> ['docs-gates-3']
+- 'Cache exact Python downloads': ['wire-accountability', 'docs-gates-0', 'docs-gates-1', 'docs-gates-2', 'docs-check'] -> ['wire-accountability', 'docs-gates-0', 'docs-gates-1', 'docs-gates-2', 'docs-gates-3', 'docs-gates-4', 'docs-check']
+- 'Cache exact package downloads 4': ['docs-gates-1', 'docs-gates-2'] -> ['docs-gates-1', 'docs-gates-2', 'docs-gates-3', 'docs-gates-4']
+- 'Cache the pinned Markdown renderer downloads': ['docs-gates-0', 'docs-gates-1', 'docs-gates-2'] -> ['docs-gates-0', 'docs-gates-1', 'docs-gates-2', 'docs-gates-3', 'docs-gates-4']
+- 'Cache the pinned RV32 SDK': ['docs-gates-0', 'docs-gates-1', 'docs-gates-2'] -> ['docs-gates-0', 'docs-gates-1', 'docs-gates-2', 'docs-gates-3', 'docs-gates-4']
+- 'Cache verified sv2v archive': ['docs-gates-0', 'docs-gates-1', 'docs-gates-2'] -> ['docs-gates-0', 'docs-gates-1', 'docs-gates-2', 'docs-gates-3', 'docs-gates-4']
+- 'Compiler-absent firmware controls': ['docs-gates-0'] -> ['docs-gates-3']
+- 'Fetch the builder source dependencies': ['docs-gates-0', 'docs-gates-1', 'docs-gates-2'] -> ['docs-gates-0', 'docs-gates-1', 'docs-gates-2', 'docs-gates-3', 'docs-gates-4']
+- 'Install and verify the pinned RV32 SDK': ['docs-gates-0', 'docs-gates-1', 'docs-gates-2'] -> ['docs-gates-0', 'docs-gates-1', 'docs-gates-2', 'docs-gates-3', 'docs-gates-4']
+- 'Install diagram gate dependencies': ['docs-gates-1', 'docs-gates-2'] -> ['docs-gates-1', 'docs-gates-2', 'docs-gates-3', 'docs-gates-4']
+- 'Install the pinned Markdown renderer': ['docs-gates-0', 'docs-gates-1', 'docs-gates-2'] -> ['docs-gates-0', 'docs-gates-1', 'docs-gates-2', 'docs-gates-3', 'docs-gates-4']
+- 'Install the pinned sv2v release': ['docs-gates-0', 'docs-gates-1', 'docs-gates-2'] -> ['docs-gates-0', 'docs-gates-1', 'docs-gates-2', 'docs-gates-3', 'docs-gates-4']
+- 'Install the python gate dependencies': ['docs-gates-0', 'docs-gates-1', 'docs-gates-2'] -> ['docs-gates-0', 'docs-gates-1', 'docs-gates-2', 'docs-gates-3', 'docs-gates-4']
+- 'Local act runner contract gate': ['docs-gates-2'] -> ['docs-gates-3']
+- 'Resolve exact package downloads 4': ['docs-gates-1', 'docs-gates-2'] -> ['docs-gates-1', 'docs-gates-2', 'docs-gates-3', 'docs-gates-4']
+- 'Run actions/checkout@v4': ['docs-gates-0', 'docs-gates-1', 'docs-gates-2', 'docs-check'] -> ['docs-gates-0', 'docs-gates-1', 'docs-gates-2', 'docs-gates-3', 'docs-gates-4', 'docs-check']
+- 'Saved-state writer gate': ['docs-gates-0'] -> ['docs-gates-4']
+- 'Set CPU-derived job budgets': ['wire-accountability', 'docs-check-no-git', 'docs-gates-0', 'docs-gates-1', 'docs-gates-2', 'docs-check', 'ci-manifest', 'ci-fail-fast', 'ci-cancel-tail'] -> ['wire-accountability', 'docs-check-no-git', 'docs-gates-0', 'docs-gates-1', 'docs-gates-2', 'docs-gates-3', 'docs-gates-4', 'docs-check', 'ci-manifest', 'ci-fail-fast', 'ci-cancel-tail']

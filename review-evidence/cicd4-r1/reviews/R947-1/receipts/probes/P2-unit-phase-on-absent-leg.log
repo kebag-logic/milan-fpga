@@ -1,0 +1,85 @@
+# probe P2-unit-phase-on-absent-leg: scripts/ci_fast_legs.py
+# regenerate rc=0
+
+## gate_workflows_check rc=0
+
+## events_check rc=0
+  note cron `17 1 * * *` renders 01:17 UTC; the policy page states both
+ci_events: OK (2390 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)
+
+## gate_workflows_selftest rc=1
+erated build rewrite and budget exports, the scripts the build runs and the runner image
+Fast Yosys tool key unchanged by an edit outside the build recipe or of the tool job's schedule
+Fast Yosys tool generator refused yosys-tool: steps after the build that its key does not bind: Touch the built tree
+Fast Yosys tool generator refused a template key without its workflow-file digest: yosys-elaboration: Yosys cache key lacks its one workflow-file digest
+Fast Yosys tool generator refused a template build step removed: yosys-elaboration: missing or reordered Yosys build recipe
+Fast Yosys tool generator refused a template build before its cache: yosys-elaboration: missing or reordered Yosys build recipe
+Fast Yosys tool generator refused a template step between the cache and its build: yosys-elaboration: missing or reordered Yosys build recipe
+Fast Yosys tool generator refused a template consumer in a container the tool job would not carry: yosys-elaboration: job keys the tool job does not carry into the build: container
+Fast Yosys tool generator refused a template census recipe that is not the consumer's: publication-census-legs: its Yosys recipe is not yosys-elaboration's
+Fast Yosys tool generator refused a template verdict without the elaboration pair: rtl-fast: verdict lacks its one yosys-elaboration result pair
+Fast Yosys tool: one cached build, an exact restore, a verdict that reads it PASS
+PASS: campaign legs reject a planted dropped leg
+PASS: campaign legs reject a planted duplicated leg
+PASS: 844 live defects of phase 1 in exactly one of 4 legs, leg sizes [211, 211, 211, 211]; six invalid campaign combinations refuse
+PASS: campaign legs reject a planted dropped leg
+PASS: campaign legs reject a planted duplicated leg
+PASS: 398 live defects of phase 2 in exactly one of 2 legs, leg sizes [199, 199]; six invalid campaign combinations refuse
+PASS: campaign legs reject a planted dropped leg
+PASS: campaign legs reject a planted duplicated leg
+PASS: 662 live defects of phase 3 in exactly one of 2 legs, leg sizes [332, 330]; six invalid campaign combinations refuse
+PASS: phase 1, a failed campaign in each of its 4 legs fails that leg
+PASS: phase 2, a failed campaign in each of its 2 legs fails that leg
+PASS: phase 3, a failed campaign in each of its 2 legs fails that leg
+PASS: census refuses planted failed leg 0
+PASS: census refuses planted missing leg 0
+PASS: census refuses planted failed leg 1
+PASS: census refuses planted missing leg 1
+PASS: census refuses planted failed leg 2
+PASS: census refuses planted missing leg 2
+PASS: census refuses planted failed leg 3
+PASS: census refuses planted missing leg 3
+PASS: census refuses planted failed leg 4
+PASS: census refuses planted missing leg 4
+PASS: census refuses planted head
+PASS: census refuses planted tree
+PASS: census refuses planted inventory
+PASS: census refuses planted selected
+PASS: census refuses planted rows
+PASS: census refuses planted duplicate leg
+PASS: census refuses planted rule removal escaped in leg 1
+PASS: census refuses planted rule removal escaped in leg 2
+PASS: census refuses planted rule removal escaped in leg 3
+PASS: census refuses planted rule removal escaped in leg 4
+PASS: census 164 executed arms exactly once with unchanged rule judge
+PASS: planted firmware-control-mutants failure fails required rtl-fast shell
+PASS: planted firmware-control-mutants cancelled fails required rtl-fast shell
+PASS: planted firmware-aecp-mutants failure fails required rtl-fast shell
+PASS: planted firmware-aecp-mutants cancelled fails required rtl-fast shell
+PASS: planted firmware-srp-mutants failure fails required rtl-fast shell
+PASS: planted firmware-srp-mutants cancelled fails required rtl-fast shell
+PASS: planted firmware-unit failure fails required rtl-fast shell
+PASS: planted firmware-unit cancelled fails required rtl-fast shell
+PASS: planted publication-census-legs failure fails required rtl-fast shell
+PASS: planted publication-census-legs cancelled fails required rtl-fast shell
+Traceback (most recent call last):
+  File "<probe-clone>/scripts/ci_gate_workflows_selftest.py", line 653, in <module>
+    raise SystemExit(main())
+                     ~~~~^^
+  File "<probe-clone>/scripts/ci_gate_workflows_selftest.py", line 558, in main
+    assert fast_leg_controls() == 0
+           ~~~~~~~~~~~~~~~~~^^
+  File "<probe-clone>/scripts/ci_fast_legs_selftest.py", line 139, in main
+    workflow_controls()
+    ~~~~~~~~~~~~~~~~~^^
+  File "<probe-clone>/scripts/ci_fast_legs_selftest.py", line 131, in workflow_controls
+    assert same[0]["if"] in ("${{ matrix.leg == 0 }}", "${{ matrix.leg == 1 }}", "${{ matrix.leg == 2 }}")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError
+
+## ctrl_firmware_shards rc=0
+PASS: shard inventory rejects planted missing suite
+PASS: shard inventory rejects planted duplicate suite
+PASS: a newly discovered suite is assigned without an ownership list
+PASS: 2005 live invocations in exactly one shard; shard sizes [98, 845, 399, 663]
+PASS: nine invalid shard combinations refuse; failed normal suites still stop mutations

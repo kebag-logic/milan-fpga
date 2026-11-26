@@ -1,0 +1,27 @@
+== control
+serial: 844 verdict lines; summaries ['mutants: 844 of 844 caught', 'test_ctrl_firmware: PASS']
+local/control/leg0.log: 211 verdict lines; summaries ['PASS: 844 live defects of phase 1 in exactly one of 4 legs, leg sizes [211, 211, 211, 211]; six invalid campaign combinations refuse', 'mutants: 211 of 211 caught', 'test_ctrl_firmware: PASS']
+local/control/leg1.log: 211 verdict lines; summaries ['PASS: 844 live defects of phase 1 in exactly one of 4 legs, leg sizes [211, 211, 211, 211]; six invalid campaign combinations refuse', 'mutants: 211 of 211 caught', 'test_ctrl_firmware: PASS']
+local/control/leg2.log: 211 verdict lines; summaries ['PASS: 844 live defects of phase 1 in exactly one of 4 legs, leg sizes [211, 211, 211, 211]; six invalid campaign combinations refuse', 'mutants: 211 of 211 caught', 'test_ctrl_firmware: PASS']
+local/control/leg3.log: 211 verdict lines; summaries ['PASS: 844 live defects of phase 1 in exactly one of 4 legs, leg sizes [211, 211, 211, 211]; six invalid campaign combinations refuse', 'mutants: 211 of 211 caught', 'test_ctrl_firmware: PASS']
+union of legs 844 lines; identical multiset: True
+non-[ok] verdict lines in legs: 0
+lines present in every leg (controls): 0
+== aecp
+serial: 398 verdict lines; summaries ['test_ctrl_firmware: PASS']
+local/aecp-srp/aecp-leg0.log: 199 verdict lines; summaries ['PASS: 398 live defects of phase 2 in exactly one of 2 legs, leg sizes [199, 199]; six invalid campaign combinations refuse', 'test_ctrl_firmware: PASS']
+local/aecp-srp/aecp-leg1.log: 199 verdict lines; summaries ['PASS: 398 live defects of phase 2 in exactly one of 2 legs, leg sizes [199, 199]; six invalid campaign combinations refuse', 'test_ctrl_firmware: PASS']
+union of legs 398 lines; identical multiset: True
+non-[ok] verdict lines in legs: 0
+lines present in every leg (controls): 0
+== srp
+serial: 664 verdict lines; summaries ['test_ctrl_firmware: PASS']
+local/aecp-srp/srp-leg0.log: 334 verdict lines; summaries ['PASS: 662 live defects of phase 3 in exactly one of 2 legs, leg sizes [332, 330]; six invalid campaign combinations refuse', 'test_ctrl_firmware: PASS']
+local/aecp-srp/srp-leg1.log: 332 verdict lines; summaries ['PASS: 662 live defects of phase 3 in exactly one of 2 legs, leg sizes [332, 330]; six invalid campaign combinations refuse', 'test_ctrl_firmware: PASS']
+union of legs 666 lines; identical multiset: False
+  only legs x1: [ok] lwSRP pin, a compiled source edited: lwSRP's src/ differs from the pinned d1bb4f4e: src/core/mrp_mad.c
+  only legs x1: [ok] lwSRP pin, another revision checked out: lwSRP at 97677fcb249bc69c7acec94690419480e839f5b4 is not the pinned d1bb4f4e5954af6dabe7f210a6bf7adbb76bdd6b (fetch https://github.com/kebag-logic/lwSRP and check the pin out
+non-[ok] verdict lines in legs: 0
+lines present in every leg (controls): 2
+  every leg: [ok] lwSRP pin, a compiled source edited: lwSRP's src/ differs from the pinned d1bb4f4e: src/core/mrp_mad.c
+  every leg: [ok] lwSRP pin, another revision checked out: lwSRP at 97677fcb249bc69c7acec94690419480e839f5b4 is not the pinned d1bb4f4e5954af6dabe7f210a6bf7adbb76bdd6b (fetch https://github.com/kebag-logic/lwSRP a

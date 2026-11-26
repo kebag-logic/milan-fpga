@@ -1,0 +1,70 @@
+.github/workflows/rtl-fast.yml: 104 distinct step bodies at base, 110 at head
+
+== only at base (5)
+- 'Require every applicable fast gate to pass' in ['rtl-fast']
+    'set -euo pipefail\nbad=0\nfor pair in \\\n  "changes:$CHANGES_RESULT" \\\n  "verilator-lint:$VERILATOR_LINT_RESULT" \\\n  "bdd-conformance:$BDD_CONFORMANCE_RESULT" \\\n  "yosys-tool:$YOSYS_TOOL_RESULT" \\\n  "yosys-elaboration:$YOSYS_ELABORATION_RESULT" \\\n  "publication-census:$PUBLICATION_CENSUS_RESULT" \\\n  "s'
+- 'Run both SRP mutation campaigns and pin controls' in ['firmware-srp-mutants']
+    'python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs "$CI_CAMPAIGN_JOBS" --shard 3/4'
+- 'Run the AECP mutation campaign' in ['firmware-aecp-mutants']
+    'python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs "$CI_CAMPAIGN_JOBS" --shard 2/4'
+- 'Run the control mutation campaign' in ['firmware-control-mutants']
+    'python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs "$CI_CAMPAIGN_JOBS" --shard 1/4'
+- 'Run the publication census in every shape the builder builds' in ['publication-census']
+    'set -euo pipefail\npython3 -m pip install --quiet pyyaml\npython3 sw/mailbox/publication_census.py --check --selftest --jobs "$CI_CENSUS_JOBS"'
+
+== only at head (11)
+- 'Download executed census arms' in ['publication-census']
+    '{"uses": "actions/download-artifact@v4", "with": {"path": "${{ runner.temp }}/census-results", "pattern": "census-leg-*-${{ github.sha }}"}}'
+- 'Install census reader' in ['publication-census']
+    'python3 -m pip install --quiet pyyaml'
+- 'Judge the complete publication census' in ['publication-census']
+    'python3 sw/mailbox/census_legs.py union --root "$RUNNER_TEMP/census-results"'
+- 'Record actual job execution' in ['publication-census-legs[5 legs] if ${{ always() }}']
+    'python3 scripts/ci_runtime_evidence.py record --workflow .github/workflows/rtl-fast.yml --job publication-census-legs --output "$RUNNER_TEMP/job-evidence.json"'
+- 'Require every applicable fast gate to pass' in ['rtl-fast']
+    'set -euo pipefail\nbad=0\nfor pair in \\\n  "changes:$CHANGES_RESULT" \\\n  "verilator-lint:$VERILATOR_LINT_RESULT" \\\n  "bdd-conformance:$BDD_CONFORMANCE_RESULT" \\\n  "yosys-tool:$YOSYS_TOOL_RESULT" \\\n  "yosys-elaboration:$YOSYS_ELABORATION_RESULT" \\\n  "publication-census-legs:$PUBLICATION_CENSUS_LEGS_RESU'
+- 'Run both SRP mutation campaigns and pin controls' in ['firmware-srp-mutants[2 legs]']
+    'python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs "$CI_CAMPAIGN_JOBS" --shard 3/4 --campaign-shard "${{ matrix.leg }}" 2'
+- 'Run the AECP mutation campaign' in ['firmware-aecp-mutants[2 legs]']
+    'python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs "$CI_CAMPAIGN_JOBS" --shard 2/4 --campaign-shard "${{ matrix.leg }}" 2'
+- 'Run the control mutation campaign' in ['firmware-control-mutants[4 legs]']
+    'python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs "$CI_CAMPAIGN_JOBS" --shard 1/4 --campaign-shard "${{ matrix.leg }}" 4'
+- 'Run the publication census in every shape the builder builds' in ['publication-census-legs[5 legs]']
+    'set -euo pipefail\npython3 -m pip install --quiet pyyaml\npython3 sw/mailbox/census_legs.py run --leg "${{ matrix.leg }}" --jobs "$CI_CENSUS_JOBS" --receipt "$RUNNER_TEMP/census-leg-${{ matrix.leg }}.json"'
+- 'Upload actual job execution' in ['publication-census-legs[5 legs] if ${{ always() }}']
+    '{"uses": "actions/upload-artifact@v4", "with": {"if-no-files-found": "error", "name": "job-evidence-rtl-fast-publication-census-legs-${{ strategy.job-index }}-${{ github.sha }}", "path": "${{ runner.temp }}/job-evidence.json", "retention-days": 3}}'
+- 'Upload executed census arms' in ['publication-census-legs[5 legs] if ${{ always() }}']
+    '{"uses": "actions/upload-artifact@v4", "with": {"if-no-files-found": "error", "name": "census-leg-${{ matrix.leg }}-${{ github.sha }}", "path": "${{ runner.temp }}/census-leg-${{ matrix.leg }}.json", "retention-days": 3}}'
+
+== same body, carrier changed (31)
+- 'Build Yosys from source on cache miss': ["publication-census if ${{ steps.cache-yosys.outputs.cache-hit != 'true' }}", "split-cdc if ${{ steps.cache-yosys.outputs.cache-hit != 'true' }}"] -> ["split-cdc if ${{ steps.cache-yosys.outputs.cache-hit != 'true' }}"]
+- 'Cache exact Python downloads': ['bdd-conformance', 'publication-census', 'firmware-unit', 'firmware-control-mutants', 'firmware-aecp-mutants', 'firmware-srp-mutants', 'firmware-boundary-capture[2 legs]', 'firmware-boundary', 'firmware-verilator'] -> ['bdd-conformance', 'publication-census-legs[5 legs]', 'publication-census', 'firmware-unit[3 legs]', 'firmware-control-mutants[4 legs]', 'firmware-aecp-mutants[2 legs]', 'firmware-srp-mutants[2 legs]', 'firmware-boundary-capture[2 legs]', 'firmware-boundary', 'firmware-verilator']
+- 'Cache exact package downloads 2': ["yosys-tool if ${{ steps.cache-yosys.outputs.cache-hit != 'true' }}", 'firmware-unit', 'firmware-control-mutants', 'firmware-aecp-mutants', 'firmware-srp-mutants', 'firmware-boundary-capture[2 legs]', 'firmware-boundary', 'firmware-verilator'] -> ["yosys-tool if ${{ steps.cache-yosys.outputs.cache-hit != 'true' }}", 'firmware-unit[3 legs]', 'firmware-control-mutants[4 legs]', 'firmware-aecp-mutants[2 legs]', 'firmware-srp-mutants[2 legs]', 'firmware-boundary-capture[2 legs]', 'firmware-boundary', 'firmware-verilator']
+- 'Cache exact package downloads 3': ["verilator-lint if ${{ steps.cache-verilator.outputs.cache-hit != 'true' }}", "publication-census if ${{ steps.cache-yosys.outputs.cache-hit != 'true' }}", "split-cdc if ${{ steps.cache-yosys.outputs.cache-hit != 'true' }}"] -> ["verilator-lint if ${{ steps.cache-verilator.outputs.cache-hit != 'true' }}", "split-cdc if ${{ steps.cache-yosys.outputs.cache-hit != 'true' }}"]
+- 'Cache the pinned RV32 SDK': ['firmware-unit', 'firmware-control-mutants', 'firmware-aecp-mutants', 'firmware-srp-mutants', 'firmware-boundary-capture[2 legs]', 'firmware-boundary', 'firmware-verilator'] -> ['firmware-unit[3 legs]', 'firmware-control-mutants[4 legs]', 'firmware-aecp-mutants[2 legs]', 'firmware-srp-mutants[2 legs]', 'firmware-boundary-capture[2 legs]', 'firmware-boundary', 'firmware-verilator']
+- 'Cache the pinned Yosys build': ['publication-census', 'split-cdc'] -> ['split-cdc']
+- 'Cache verified sv2v archive': ['yosys-elaboration', 'publication-census', 'split-cdc'] -> ['yosys-elaboration', 'publication-census-legs[5 legs]', 'split-cdc']
+- 'Fetch RTL dependencies': ['verilator-lint', 'yosys-elaboration', 'publication-census', 'split-cdc'] -> ['verilator-lint', 'yosys-elaboration', 'publication-census-legs[5 legs]', 'publication-census', 'split-cdc']
+- 'Fetch RTL dependencies': ['firmware-unit', 'firmware-control-mutants', 'firmware-aecp-mutants', 'firmware-srp-mutants', 'firmware-boundary-capture[2 legs]', 'firmware-boundary', 'firmware-verilator'] -> ['firmware-unit[3 legs]', 'firmware-control-mutants[4 legs]', 'firmware-aecp-mutants[2 legs]', 'firmware-srp-mutants[2 legs]', 'firmware-boundary-capture[2 legs]', 'firmware-boundary', 'firmware-verilator']
+- 'Hold the firmware coverage ratchet': ['firmware-unit'] -> ['firmware-unit[3 legs] if ${{ matrix.leg == 2 }}']
+- 'Install GoogleTest and GoogleMock and print the versions': ['firmware-unit', 'firmware-control-mutants', 'firmware-aecp-mutants', 'firmware-srp-mutants'] -> ['firmware-unit[3 legs]', 'firmware-control-mutants[4 legs]', 'firmware-aecp-mutants[2 legs]', 'firmware-srp-mutants[2 legs]']
+- 'Install and verify the pinned RV32 SDK': ['firmware-unit', 'firmware-control-mutants', 'firmware-aecp-mutants', 'firmware-srp-mutants', 'firmware-boundary-capture[2 legs]', 'firmware-boundary', 'firmware-verilator'] -> ['firmware-unit[3 legs]', 'firmware-control-mutants[4 legs]', 'firmware-aecp-mutants[2 legs]', 'firmware-srp-mutants[2 legs]', 'firmware-boundary-capture[2 legs]', 'firmware-boundary', 'firmware-verilator']
+- 'Install the pinned Yosys and prove the version': ['yosys-elaboration', 'publication-census', 'split-cdc'] -> ['yosys-elaboration', 'publication-census-legs[5 legs]', 'split-cdc']
+- 'Install the pinned sv2v release': ['yosys-elaboration', 'publication-census', 'split-cdc'] -> ['yosys-elaboration', 'publication-census-legs[5 legs]', 'split-cdc']
+- 'Prove the tally reads a failing and a crashing test as failures': ['firmware-unit'] -> ['firmware-unit[3 legs] if ${{ matrix.leg == 0 }}']
+- 'Record actual job execution': ['firmware-aecp-mutants if ${{ always() }}'] -> ['firmware-aecp-mutants[2 legs] if ${{ always() }}']
+- 'Record actual job execution': ['firmware-control-mutants if ${{ always() }}'] -> ['firmware-control-mutants[4 legs] if ${{ always() }}']
+- 'Record actual job execution': ['firmware-srp-mutants if ${{ always() }}'] -> ['firmware-srp-mutants[2 legs] if ${{ always() }}']
+- 'Record actual job execution': ['firmware-unit if ${{ always() }}'] -> ['firmware-unit[3 legs] if ${{ always() }}']
+- 'Resolve exact package downloads 2': ['firmware-unit', 'firmware-control-mutants', 'firmware-aecp-mutants', 'firmware-srp-mutants'] -> ['firmware-unit[3 legs]', 'firmware-control-mutants[4 legs]', 'firmware-aecp-mutants[2 legs]', 'firmware-srp-mutants[2 legs]']
+- 'Resolve exact package downloads 3': ["publication-census if ${{ steps.cache-yosys.outputs.cache-hit != 'true' }}", "split-cdc if ${{ steps.cache-yosys.outputs.cache-hit != 'true' }}"] -> ["split-cdc if ${{ steps.cache-yosys.outputs.cache-hit != 'true' }}"]
+- 'Restore the pinned Yosys build': ['yosys-elaboration'] -> ['yosys-elaboration', 'publication-census-legs[5 legs]']
+- 'Run actions/checkout@v4': ['verilator-lint', 'bdd-conformance', 'yosys-tool', 'yosys-elaboration', 'publication-census', 'split-cdc', 'firmware-unit', 'firmware-control-mutants', 'firmware-aecp-mutants', 'firmware-srp-mutants', 'firmware-boundary-capture[2 legs]', 'firmware-boundary', 'firmware-verilator', 'rtl-fast', 'ci-fail-fast'] -> ['verilator-lint', 'bdd-conformance', 'yosys-tool', 'yosys-elaboration', 'publication-census-legs[5 legs]', 'publication-census', 'split-cdc', 'firmware-unit[3 legs]', 'firmware-control-mutants[4 legs]', 'firmware-aecp-mutants[2 legs]', 'firmware-srp-mutants[2 legs]', 'firmware-boundary-capture[2 legs]', 'firmware-boundary', 'firmware-verilator', 'rtl-fast', 'ci-fail-fast']
+- 'Run the control-plane firmware suites and RV32 builds': ['firmware-unit'] -> ['firmware-unit[3 legs] if ${{ matrix.leg == 0 }}']
+- 'Run the saved-state store suites and its RV32 build': ['firmware-unit'] -> ['firmware-unit[3 legs] if ${{ matrix.leg == 1 }}']
+- 'Set CPU-derived job budgets': ['changes', 'verilator-lint', 'bdd-conformance', 'yosys-tool', 'yosys-elaboration', 'publication-census', 'split-cdc', 'firmware-unit', 'firmware-control-mutants', 'firmware-aecp-mutants', 'firmware-srp-mutants', 'firmware-boundary-capture[2 legs]', 'firmware-boundary', 'firmware-verilator', 'rtl-fast', 'ci-manifest', 'ci-fail-fast', 'ci-cancel-tail'] -> ['changes', 'verilator-lint', 'bdd-conformance', 'yosys-tool', 'yosys-elaboration', 'publication-census-legs[5 legs]', 'publication-census', 'split-cdc', 'firmware-unit[3 legs]', 'firmware-control-mutants[4 legs]', 'firmware-aecp-mutants[2 legs]', 'firmware-srp-mutants[2 legs]', 'firmware-boundary-capture[2 legs]', 'firmware-boundary', 'firmware-verilator', 'rtl-fast', 'ci-manifest', 'ci-fail-fast', 'ci-cancel-tail']
+- 'Set memory-derived census workers': ['publication-census'] -> ['publication-census-legs[5 legs]']
+- 'Upload actual job execution': ['firmware-aecp-mutants if ${{ always() }}'] -> ['firmware-aecp-mutants[2 legs] if ${{ always() }}']
+- 'Upload actual job execution': ['firmware-control-mutants if ${{ always() }}'] -> ['firmware-control-mutants[4 legs] if ${{ always() }}']
+- 'Upload actual job execution': ['firmware-srp-mutants if ${{ always() }}'] -> ['firmware-srp-mutants[2 legs] if ${{ always() }}']
+- 'Upload actual job execution': ['firmware-unit if ${{ always() }}'] -> ['firmware-unit[3 legs] if ${{ always() }}']

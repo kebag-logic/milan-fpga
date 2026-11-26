@@ -1,0 +1,66 @@
+# probe P7-srp-8x8-table-unsliced: sw/firmware/ctrl/test/test_ctrl_firmware.py
+# regenerate rc=0
+
+## gate_workflows_check rc=0
+
+## events_check rc=0
+  note cron `17 1 * * *` renders 01:17 UTC; the policy page states both
+ci_events: OK (2390 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)
+
+## gate_workflows_selftest rc=1
+ys-tool drops Record actual job execution
+Fast Yosys tool emission refused yosys-tool without Upload actual job execution: emitted yosys-tool drops Upload actual job execution
+Fast Yosys tool emission refused a self-test body rewritten: emitted yosys-elaboration changes Prove the result cache refuses a planted entry
+Fast Yosys tool emission refused the tool build rewritten: emitted yosys-tool changes Build Yosys from source on cache miss
+Fast Yosys tool emission refused the tool evidence record rewritten: emitted yosys-tool changes Record actual job execution
+Fast Yosys tool emission refused a consumer step added: emitted yosys-elaboration adds Planted step
+Fast Yosys tool emission refused a tool step added before the cache save: emitted yosys-tool adds Planted step
+Fast Yosys tool emission refused two self-tests swapped: emitted yosys-elaboration reorders or repeats its steps
+Fast Yosys tool emission refused a consumer job key added: emitted yosys-elaboration's job keys differ from the transformed derivation's
+Fast Yosys tool emission refused a tool job key added: emitted yosys-tool's job keys differ from the transformed derivation's
+Fast Yosys tool emission refused another job's step dropped: emitted verilator-lint drops Fetch RTL dependencies
+Fast Yosys tool emission refused a job added: emitted jobs differ from the transformed derivation's: adds planted
+Fast Yosys tool emission refused the stand-in left in the restore: emitted yosys-elaboration's Restore the pinned Yosys build key is not its stand-in with one recipe bound; emitted yosys-elaboration changes Restore the pinned Yosys build
+Fast Yosys tool emission refused the restore bound to another recipe: emitted tool cache and its restore bind different recipes
+Fast Yosys tool emission refused a workflow env set after the digest: emitted workflow keys differ from the transformed derivation's: env
+Fast Yosys tool emission refused a key binding that drops a self-test: emitted yosys-elaboration drops Prove the result cache refuses a planted entry
+Fast Yosys tool key follows the build step, the workflow env and defaults, the job env, the generated build rewrite and budget exports, the scripts the build runs and the runner image
+Fast Yosys tool key unchanged by an edit outside the build recipe or of the tool job's schedule
+Fast Yosys tool generator refused yosys-tool: steps after the build that its key does not bind: Touch the built tree
+Fast Yosys tool generator refused a template key without its workflow-file digest: yosys-elaboration: Yosys cache key lacks its one workflow-file digest
+Fast Yosys tool generator refused a template build step removed: yosys-elaboration: missing or reordered Yosys build recipe
+Fast Yosys tool generator refused a template build before its cache: yosys-elaboration: missing or reordered Yosys build recipe
+Fast Yosys tool generator refused a template step between the cache and its build: yosys-elaboration: missing or reordered Yosys build recipe
+Fast Yosys tool generator refused a template consumer in a container the tool job would not carry: yosys-elaboration: job keys the tool job does not carry into the build: container
+Fast Yosys tool generator refused a template census recipe that is not the consumer's: publication-census-legs: its Yosys recipe is not yosys-elaboration's
+Fast Yosys tool generator refused a template verdict without the elaboration pair: rtl-fast: verdict lacks its one yosys-elaboration result pair
+Fast Yosys tool: one cached build, an exact restore, a verdict that reads it PASS
+PASS: campaign legs reject a planted dropped leg
+PASS: campaign legs reject a planted duplicated leg
+PASS: 844 live defects of phase 1 in exactly one of 4 legs, leg sizes [211, 211, 211, 211]; six invalid campaign combinations refuse
+PASS: campaign legs reject a planted dropped leg
+PASS: campaign legs reject a planted duplicated leg
+PASS: 398 live defects of phase 2 in exactly one of 2 legs, leg sizes [199, 199]; six invalid campaign combinations refuse
+e 653, in <module>
+    raise SystemExit(main())
+                     ~~~~^^
+  File "<probe-clone>/scripts/ci_gate_workflows_selftest.py", line 558, in main
+    assert fast_leg_controls() == 0
+           ~~~~~~~~~~~~~~~~~^^
+  File "<probe-clone>/scripts/ci_fast_legs_selftest.py", line 137, in main
+    campaign_controls()
+    ~~~~~~~~~~~~~~~~~^^
+  File "<probe-clone>/scripts/ci_fast_legs_selftest.py", line 34, in campaign_controls
+    dispatch.campaign_cases(firmware, (phases[job], 4), count)
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<probe-clone>/sw/firmware/ctrl/test/test_ctrl_firmware_shards.py", line 182, in campaign_cases
+    assert not any(differences(defects, planted).values()), differences(defects, planted)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {'missing': [], 'duplicate_or_unexpected': ['srp-if1-endstation_ax7101_8x8:feedback-early-any-kind-kept', 'srp-if1-endstation_ax7101_8x8:feedback-early-bound-first-sink-only', 'srp-if1-endstation_ax7101_8x8:feedback-early-count-adds', 'srp-if1-endstation_ax7101_8x8:feedback-early-count-forgets', 'srp-if1-endstation_ax7101_8x8:feedback-early-end-unowed', 'srp-if1-endstation_ax7101_8x8:feedback-early-freed-uncounted', 'srp-if1-endstation_ax7101_8x8:feedback-early-latest-unheld', 'srp-if1-endstation_ax7101_8x8:feedback-early-left-seen-unowed', 'srp-if1-endstation_ax7101_8x8:feedback-early-left-uncounted', 'srp-if1-endstation_ax7101_8x8:feedback-early-rebind-ignored', 'srp-if1-endstation_ax7101_8x8:feedback-early-refresh-counted-again', 'srp-if1-endstation_ax7101_8x8:feedback-early-reset-counted', 'srp-if1-endstation_ax7101_8x8:feedback-early-talker-ignored', 'srp-if1-endstation_ax7101_8x8:feedback-early-unbinding-uncounted', 'srp-if1-endstation_ax7101_8x8:feedback-early-unbounded', 'srp-if1-endstation_ax7101_8x8:feedback-early-unregistered-unowed', 'srp-if1-endstation_ax7101_8x8:link-pass-attach-carries-an-up', 'srp-if1-endstation_ax7101_8x8:link-pass-attach-carries-nothing', 'srp-if1-endstation_ax7101_8x8:link-pass-carried-never-recorded', 'srp-if1-endstation_ax7101_8x8:link-pass-carried-stays-up', 'srp-if1-endstation_ax7101_8x8:link-pass-down-waits-for-its-record', 'srp-if1-endstation_ax7101_8x8:link-pass-first-up-resets', 'srp-if1-endstation_ax7101_8x8:link-pass-mark-masked-before-the-shift', 'srp-if1-endstation_ax7101_8x8:link-pass-mark-survives-a-down', 'srp-if1-endstation_ax7101_8x8:link-pass-mark-survives-a-down-later', 'srp-if1-endstation_ax7101_8x8:link-pass-poll-or-instead-of-and', 'srp-if1-endstation_ax7101_8x8:link-pass-poll-takes-the-register', 'srp-if1-endstation_ax7101_8x8:link-pass-unowed-up-ignores-the-take', 'srp-if1-endstation_ax7101_8x8:link-pass-unowed-up-never-taken', 'srp-if1-endstation_ax7101_8x8:link-pass-unowed-up-taken-unmarked', 'srp-if1-endstation_ax7101_8x8:listener-copy-declaration-lost', 'srp-if1-endstation_ax7101_8x8:listener-copy-departure-dropped', 'srp-if1-endstation_ax7101_8x8:listener-copy-leaving-counted-absent', 'srp-if1-endstation_ax7101_8x8:listener-copy-presence-lost', 'srp-if1-endstation_ax7101_8x8:listener-copy-talker-indication-unwalked', 'srp-if1-endstation_ax7101_8x8:srp-cut-filter-pass-dropped', 'srp-if1-endstation_ax7101_8x8:srp-cut-filter-pass-inverted', 'srp-if1-endstation_ax7101_8x8:srp-cut-reclaim-any-registrar', 'srp-if1-endstation_ax7101_8x8:srp-cut-reclaim-creation-unowed', 'srp-if1-endstation_ax7101_8x8:srp-cut-reclaim-every-change', 'srp-if1-endstation_ax7101_8x8:srp-cut-reclaim-every-change-fresh', 'srp-if1-endstation_ax7101_8x8:srp-cut-reclaim-every-receive', 'srp-if1-endstation_ax7101_8x8:srp-cut-reclaim-very-anxious-kept', 'srp-if1-endstation_ax7101_8x8:srp-cut-same-id-last-byte-only', 'srp-if1-endstation_ax7101_8x8:srp-cut-snapshot-copy-over-withdrawal']}
+
+## ctrl_firmware_shards rc=0
+PASS: shard inventory rejects planted missing suite
+PASS: shard inventory rejects planted duplicate suite
+PASS: a newly discovered suite is assigned without an ownership list
+PASS: 2005 live invocations in exactly one shard; shard sizes [98, 845, 399, 663]
+PASS: nine invalid shard combinations refuse; failed normal suites still stop mutations
