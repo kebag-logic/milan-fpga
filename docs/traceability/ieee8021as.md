@@ -41,7 +41,7 @@ Simulation never becomes physical evidence.
 | AS-5 | 11.3 | Timestamp event messages only | Engine parser and timestamp paths | Donor; `gptp_shadow` | Covered |
 | AS-6 | 10.2–10.3 | Best-master selection | Imported engine | Donor; `tsn_fuzz` | Partial |
 | AS-7 | 11.1–11.2 | Sync and Follow_Up operation | Imported engine and PHC | Donor; `gptp_plane` | Covered |
-| AS-8 | 11.2.19 | Peer delay and `asCapable` | Imported engine | Donor; `tsn_fuzz` | Covered |
+| AS-8 | 11.2.19 | Peer delay and `asCapable`; a negative delay is a good exchange | Imported engine | Donor; `tsn_fuzz`; `gptp_plane`; `gptp_shadow`; `milan_dp` | Covered |
 | AS-9 | 8.1, 10.6 | Domain zero and profile intervals | Generated microcode | Donor; `tsn_fuzz` | Covered |
 | AS-10 | 11.4 (11.4.1, 11.4.2.3, Table 11-4) | Milan-selected message formats; exact Ethernet TX flags; ignored RX flags | Imported engine | `tsn_fuzz`; `gptp_plane`; `gptp_shadow`; `milan_dp` | Covered |
 | AS-11 | 12–16 | Non-Ethernet media layers | None | Product scope | Not applicable |
@@ -50,7 +50,7 @@ Simulation never becomes physical evidence.
 
 The [fabric guide](../design/GPTP_PLANE.md) defines boundaries.
 
-The [engine ledger](https://github.com/Mister-M-alt/FPGA-gPTP/blob/1213ac5b9e09b8759ba76cc70c53652b5e108996/docs/SOURCE_EVIDENCE.md) maps internals.
+The [engine ledger](https://github.com/Mister-M-alt/FPGA-gPTP/blob/3ce71b768a2f6f6a5274c127080146e755d02275/docs/SOURCE_EVIDENCE.md) maps internals.
 
 ## Requirement mapping
 
