@@ -72,7 +72,7 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - 800 ns is good; 801 ns still clears asCapable.
 - The CSR and GET_AVB_INFO still read 0.
 - `gptp_plane`, `gptp_shadow` and the `milan_dp` legs grade it.
-- Nine planted defects each fail a named check.
+- Eleven planted defects each fail a named check.
 - tsn-c-stack #37: a longer ENTITY_DISCOVER is accepted.
 - Its first 56 octets after entity_id decide.
 - Below 56 it is refused and counted, as before.

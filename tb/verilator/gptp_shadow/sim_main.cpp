@@ -2982,9 +2982,10 @@ class GptpShadowHarness {
 
   static constexpr int64_t kDelayThreshNs = 800;
   static constexpr int64_t kFarNegativeNs = -5000000;
-  //! How near the offset of a graded pair must be to its expected 0: the
-  //! stamps quantise to the 8 ns tick, and the nearest wrong link value
-  //! (-263 ns used as 0) is 263 ns away.
+  //! How near the offset after a graded pair must be to its expected value,
+  //! the offset before it less kGradedOffsetNs: the stamps quantise to the
+  //! 8 ns tick. Used delays less than this far apart are not told apart here;
+  //! gptp_plane's phase 6 grades the used delay to the nanosecond.
   static constexpr int64_t kOffsetNearNs = 64;
   //! The offset each graded pair is built for, against the background pairs'
   //! 0: far outside kOffsetNearNs, and inside the servo's slew band.
