@@ -1,0 +1,15 @@
+PASS exact head/tree and single-commit delta; exactly the stated comment and changelog replacement
+PASS all other tree entries, executable source bytes and modes unchanged from e5d8a71b6fa90352eca72314c7bd2275a1b20285
+PASS pins1125-r1: 78 public author receipt hashes match manifest at 4b3b21e2104d37db96040622edfe75a5acbf2a76
+PASS pins1125-r2: 11 public author receipt hashes match manifest at e185cf1181dac7690707428deda80b88537f16b0
+PASS prior probe receipt SHA-256: reviews/R937-2/receipts/probe_p6_used_as_zero.log
+PASS prior probe receipt SHA-256: reviews/R938-2/receipts/clean.log
+PASS prior probe receipt SHA-256: reviews/R938-2/receipts/probe-summary.txt
+PASS superproject: 1984 tracked blobs byte/mode exact; index exact
+EXCLUDED unused submodule external gitlink efeb541ae5fe1e078332d8462dca2fc2d9cb8db5
+PASS gptp-processor: gitlink/HEAD 3ce71b768a2f6f6a5274c127080146e755d02275; 121 tracked blobs byte/mode exact; index exact
+PASS protocol-processor: gitlink/HEAD 801ef2283ec793e35a2590fc6593c90313a64041; 868 tracked blobs byte/mode exact; index exact
+PASS third_party/lwSRP: gitlink/HEAD d1bb4f4e5954af6dabe7f210a6bf7adbb76bdd6b; 67 tracked blobs byte/mode exact; index exact
+PASS third_party/tsn-c-stack: gitlink/HEAD a795471c0abc4e38f7e5146b4e539dd607b6f501; 100 tracked blobs byte/mode exact; index exact
+PASS third_party/verilog-axis: gitlink/HEAD 48ff7a7e2ef782cf778d47910cf85835c64b1bce; 214 tracked blobs byte/mode exact; index exact
+PASS clean checkout; no source edits or mutation builds were needed
