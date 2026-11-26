@@ -3517,8 +3517,9 @@ A complete campaign at it then raised the poll base, centisecond, LINK, MAAP and
 Its costs are the larger of each measurement on the merged firmware and the one before it.
 The `srp-kept` and `srp-bound` registrations over their statements are owed to #977 under #969's disposition,
 as at the other points (`kept_grade.py`), and do not restate the row; their other measurements do.
-The row is qualified only by a complete native campaign at this row; the seven held-egress
-misses remain recorded under their ledger, and every other service row must meet its bound.
+The complete 80 MHz campaign qualifies the row over 147 native cases across eight image variants.
+The second step changed no firmware byte, so its census regrades the first step's traces against these statements.
+The seven held-egress misses remain recorded under their ledger; every other service row meets its bound.
 The slice holds the measured build of both MRPDUs, so `CTRL_LOOP_BUILD_MOST`
 builds both in one pass at this point.
 
@@ -3548,7 +3549,8 @@ These are measurements of the complete retry rounds, distinct from the
 transmit-only spans.
 The slice and pace rules give load 0.5004771140, txL 48.82 ms, last notice
 117.47 ms and ACMP 29.77 ms.
-THE SHARE's 2 ms bound is held by that campaign's measured whole passes.
+The observed maximum whole pass in that qualification is 142775 cycles,
+or 1.7846875 ms at 80 MHz.
 The MII PHY frame statement is 195 us from 14487 cycles, or 181.0875 us,
 with the same 5 percent and 5 us rounding rule.
 
@@ -3560,6 +3562,7 @@ Each ledger figure is the 60 ms hold plus measured service, with 5 percent on se
 The result is rounded up to 0.01 ms.
 These remain misses against the 20 ms budget.
 A new or larger miss fails.
+The campaign at the row above measured each row below its figure, 61.79729 to 63.29190 ms, and the ledger keeps the larger first measurements.
 
 | Arty held-egress row | Measured at 80 MHz, ms | Ledger, ms |
 |---|---:|---:|
