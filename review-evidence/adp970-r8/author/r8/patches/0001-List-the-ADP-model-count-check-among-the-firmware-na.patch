@@ -1,0 +1,26 @@
+From 35d29eb71d2cc76717a4550787ef53ff2b72181f Mon Sep 17 00:00:00 2001
+From: hackerman-kl <hackerman-kl@kebag-logic.com>
+Date: Thu, 26 Nov 2026 18:19:00 +0100
+Subject: [PATCH] List the ADP model-count check among the firmware-naming
+ programs that compile nothing (#970)
+
+---
+ sw/firmware/ctrl/test/ctrl_configs.py | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/sw/firmware/ctrl/test/ctrl_configs.py b/sw/firmware/ctrl/test/ctrl_configs.py
+index 2e436f642..7dff07fea 100644
+--- a/sw/firmware/ctrl/test/ctrl_configs.py
++++ b/sw/firmware/ctrl/test/ctrl_configs.py
+@@ -310,6 +310,8 @@ OUTSIDE = {
+                                                           "compiles nothing",
+     "tb/verilator/ctrl_service_budget/save_window.py": "writes the stimulus of a save's windows and names the "
+                                                        "store's source whose phases it stages; it compiles nothing",
++    "tb/verilator/ctrl_service_budget/model_counts.py": "holds scenario.py's ADP model counts to the counts adp_mbx.h "
++                                                        "states, read as text; it compiles nothing",
+     "tb/verilator/ctrl_service_budget/scenario.py": "writes the harness's stimulus and reads AECP_REGISTRATIONS from "
+                                                     "aecp.h; it compiles nothing",
+     "tb/verilator/ctrl_service_budget/selftest.py": "the harness's grader self-test; it reads AECP_REGISTRATIONS from "
+-- 
+2.56.1
+
