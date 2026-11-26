@@ -105,7 +105,7 @@ SUITE_SECONDS = {
     "follow_ring": 1493,
     "fw_service_budget": 2,
     "gptp_plane": 784,
-    "gptp_shadow": 393,
+    "gptp_shadow": 679,  # #1008: max(672, 679), runs 45735453538 and 45755846909 at gptp-processor 3ce71b76
     "gptp_tables": 568,
     "gptp_txts": 107,
     "i2spb": 15,
