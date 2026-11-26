@@ -127,7 +127,7 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - It mixes the entity ID and the interface in.
 - The sample is the platform's microsecond clock.
 - Milan's draw ranges and the 6.0 s stand.
-- tsn-c-stack moves to 5e6ab995 for it.
+- tsn-c-stack moves to 95902060 for it.
 
 ## Unreleased - the boot forms its link once
 

@@ -979,7 +979,7 @@ TEST_F(AdpDraw, H6WithoutAClockBootsDrawUniformly) {
     }
 }
 
-// H7 the seed's terms: the sum of MAC address and clock with an end-around carry (6.2.4.2.2), and the entity ID.
+// H7 the seed's terms: the sum of MAC address and clock, its least significant 32 bits (6.2.4.2.2), and the entity ID.
 TEST_F(AdpDraw, H7TheSeedIsTheSumOfMacAndClockMixedWithTheEntityId) {
     const auto seeded = [this](const struct adp_entity& e, uint32_t at) {
         sample = at;
@@ -994,7 +994,7 @@ TEST_F(AdpDraw, H7TheSeedIsTheSumOfMacAndClockMixedWithTheEntityId) {
     e.mac = 0xFFFFFFFFull;
     const uint32_t wrapped = seeded(e, 5u);
     e.mac = 0;
-    EXPECT_EQ(seeded(e, 5u), wrapped) << "H7 the sum carries end around";
+    EXPECT_EQ(seeded(e, 4u), wrapped) << "H7 the seed is the sum modulo 2^32";
 }
 
 // H8 a LINK_UP after a link loss takes a fresh sample: over samples one microsecond apart its delay is uniform too.

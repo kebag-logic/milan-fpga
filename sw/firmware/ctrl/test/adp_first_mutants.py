@@ -27,7 +27,7 @@ H7 = "AdpDraw.H7TheSeedIsTheSumOfMacAndClockMixedWithTheEntityId"
 NEIGHBOURS = "H4 neighbouring entities started together draw their first delay uniformly"
 BOOTS = "H5 one entity's boots draw their first delay uniformly"
 SEED_CLOCK = "clock_fn != NULL ? clock_fn(clock_ctx) : mbx_now_ms();"
-SEED_SUM = "\tuint32_t sum = (uint32_t)e->mac + sample;\n\tsum += sum < sample;\n"
+SEED_SUM = "\tuint32_t sum = (uint32_t)e->mac + sample;\n"
 SEED_MIX = "\tuint32_t x = mix(mix(a->rng ^ sum) ^ id ^ ((uint32_t)a->interface << 24));\n"
 MIX_BODY = ("\tx = ~x + (x << 15);\n\tx ^= x >> 12;\n\tx += x << 2;\n\tx ^= x >> 4;\n"
             "\tx += (x << 3) + (x << 11);\n\treturn x ^ (x >> 16);\n")
@@ -107,8 +107,8 @@ MUTANTS: tuple[Mutant, ...] = (
            "H7 the MAC address is in the seed"),
     Mutant("seed-mac-not-summed", ADP_C, SEED_SUM, "\tuint32_t sum = (uint32_t)e->mac ^ sample;\n", "adp", H7,
            "H7 the seed is the sum of MAC address and clock"),
-    Mutant("seed-carry-dropped", ADP_C, SEED_SUM, "\tuint32_t sum = (uint32_t)e->mac + sample;\n", "adp", H7,
-           "H7 the sum carries end around"),
+    Mutant("seed-end-around-carry-added", ADP_C, SEED_SUM, SEED_SUM + "\tsum += sum < sample;\n", "adp", H7,
+           "H7 the seed is the sum modulo 2^32"),
     Mutant("seed-without-the-interface", ADP_C, SEED_MIX,
            SEED_MIX.replace(" ^ ((uint32_t)a->interface << 24)", ""),
            "platboot2", "Boot.B26TwoInterfacesAreSeededApart",
