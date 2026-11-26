@@ -48,7 +48,7 @@ module KL_usbnet_tx_inject
   parameter int unsigned  BURST_OCTETS_P  = 3200,
   parameter int unsigned  DEPTH_P         = 512,          //! 64-bit words of frame buffer
   parameter int unsigned  DESC_P          = 16,
-  parameter int unsigned  MAX_LEN_OCTETS_P       = 1515          //! FX3 from_host limit, including USB padding
+  parameter int unsigned  MAX_LEN_OCTETS_P       = 1515          //! FPGA from_host envelope; the FX3 sender limits frames to 1514 octets
 )(
   input  wire              clk_i,   //! the system clock, the MAC wrapper's
   input  wire              rst_ni,   //! synchronous reset, active low

@@ -51,8 +51,6 @@ extern "C" {
 
 #define CTRL_PLAT_LEDS_STREAM 0x1u   // LD2
 #define CTRL_PLAT_LEDS_CLOCK  0x2u   // LD3
-// How often the platform reads and writes them, in milliseconds.
-#define CTRL_PLAT_LEDS_PERIOD_MS 250u
 
 enum {
 	CTRL_PLAT_LEDS_STREAM_INPUT = 5u, CTRL_PLAT_LEDS_STREAM_OUTPUT = 6u,
@@ -120,40 +118,48 @@ static inline bool ctrl_plat_leds_listened(struct aecp *a, ctrl_plat_leds_stream
 	return stream(a->ports->ctx, 0u, CTRL_PLAT_LEDS_STREAM_OUTPUT, index, &s) && (s.flags_ex & 1u) != 0u;
 }
 
-// LD2 and LD3 as the status register takes them.
-static inline uint32_t ctrl_plat_leds_word(struct aecp *a, ctrl_plat_leds_counters_fn counters,
-					ctrl_plat_leds_stream_fn stream)
+// The event cache and the complete-observation test oracle share this rule.
+// Each receiving bit means bound, started and media locked at that input.
+static inline uint32_t ctrl_plat_leds_state_word(struct aecp *a, uint32_t receiving,
+					      uint32_t outputs, bool domain_locked)
 {
-	uint32_t word = 0u;
-	for (uint16_t i = 0u; aecp_find(a, a->configuration, CTRL_PLAT_LEDS_STREAM_INPUT, i) != NULL; ++i) {
-		if (ctrl_plat_leds_receiving(a, counters, stream, i)) {
-			word |= CTRL_PLAT_LEDS_STREAM;
-			break;
-		}
-	}
-	for (uint16_t i = 0u; (word & CTRL_PLAT_LEDS_STREAM) == 0u &&
-	     aecp_find(a, a->configuration, CTRL_PLAT_LEDS_STREAM_OUTPUT, i) != NULL; ++i) {
-		if (ctrl_plat_leds_listened(a, stream, i)) word |= CTRL_PLAT_LEDS_STREAM;
-	}
+	uint32_t word = receiving != 0u || outputs != 0u ? CTRL_PLAT_LEDS_STREAM : 0u;
 	const struct aecp_descriptor *domain = aecp_find(a, a->configuration, CTRL_PLAT_LEDS_CLOCK_DOMAIN, 0u);
 	if (domain == NULL || domain->length < 72u) return word;
 	uint16_t at = ctrl_plat_leds_be16(domain->value + 70);
 	const struct aecp_descriptor *source = aecp_find(a, a->configuration, CTRL_PLAT_LEDS_CLOCK_SOURCE, at);
 	if (source == NULL || source->length < 86u) return word;
 	uint16_t kind = ctrl_plat_leds_be16(source->value + 72);
-	bool domain_locked = kind != CTRL_PLAT_LEDS_INTERNAL &&
-			     ctrl_plat_leds_locked(a, counters, CTRL_PLAT_LEDS_CLOCK_DOMAIN, 0u);
 	if (kind == CTRL_PLAT_LEDS_INTERNAL) {
 		word |= CTRL_PLAT_LEDS_CLOCK;
 	} else if (kind == CTRL_PLAT_LEDS_INPUT_STREAM) {
 		uint16_t type = ctrl_plat_leds_be16(source->value + 82), index = ctrl_plat_leds_be16(source->value + 84);
-		if (type == CTRL_PLAT_LEDS_STREAM_INPUT && ctrl_plat_leds_receiving(a, counters, stream, index) && domain_locked) {
+		if (type == CTRL_PLAT_LEDS_STREAM_INPUT && index < 32u && (receiving & (1u << index)) != 0u && domain_locked) {
 			word |= CTRL_PLAT_LEDS_CLOCK;
 		}
 	} else if (kind == CTRL_PLAT_LEDS_EXTERNAL && domain_locked) {
 		word |= CTRL_PLAT_LEDS_CLOCK;
 	}
 	return word;
+}
+
+// Complete observation for the behavioral oracle. Production uses the event
+// cache instead; neither this walk nor any adapter read runs from a tick.
+static inline uint32_t ctrl_plat_leds_word(struct aecp *a, ctrl_plat_leds_counters_fn counters,
+					ctrl_plat_leds_stream_fn stream)
+{
+	uint32_t receiving = 0u;
+	uint32_t outputs = 0u;
+	for (uint16_t i = 0u; i < 32u && aecp_find(a, a->configuration, CTRL_PLAT_LEDS_STREAM_INPUT, i) != NULL; ++i) {
+		if (ctrl_plat_leds_receiving(a, counters, stream, i)) receiving |= 1u << i;
+	}
+	for (uint16_t i = 0u; i < 32u && aecp_find(a, a->configuration, CTRL_PLAT_LEDS_STREAM_OUTPUT, i) != NULL; ++i) {
+		if (ctrl_plat_leds_listened(a, stream, i)) outputs |= 1u << i;
+	}
+	// Internal needs no observation of the domain's lock state.
+	bool needs_lock = (ctrl_plat_leds_state_word(a, 0u, 0u, false) & CTRL_PLAT_LEDS_CLOCK) == 0u;
+	bool locked = needs_lock && ctrl_plat_leds_locked(a, counters, CTRL_PLAT_LEDS_CLOCK_DOMAIN, 0u);
+	return ctrl_plat_leds_state_word(a, receiving, outputs, locked);
 }
 
 #ifdef __cplusplus
