@@ -108,6 +108,12 @@ def workflow_controls() -> None:
     for name, count in (*CAMPAIGNS.items(), ("firmware-unit", 3), ("publication-census-legs", census_legs.LEGS)):
         assert jobs[name]["strategy"] == {"fail-fast": True, "matrix": {"leg": list(range(count))}}
         assert "permissions" not in jobs[name]
+    for name, count in CAMPAIGNS.items():
+        # #1008: the leg count the command deals by is its own matrix's, so no share of a phase runs in no leg
+        runs = [step["run"] for step in jobs[name]["steps"] if "--campaign-shard" in step.get("run", "")]
+        assert len(runs) == 1 and runs[0].rstrip().endswith(
+            '--campaign-shard "${{ matrix.leg }}" ' + str(len(jobs[name]["strategy"]["matrix"]["leg"]))), name
+    print("PASS: each campaign command deals by its own matrix's leg count")
     assert jobs["ci-fail-fast"]["if"] == SAME_REPOSITORY
     step = next(step for step in jobs["rtl-fast"]["steps"]
                 if step["name"] == "Require every applicable fast gate to pass")

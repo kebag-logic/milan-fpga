@@ -1370,6 +1370,12 @@ FIRMWARE_BOUNDARY_STRATEGY = {"fail-fast": True, "matrix": {"leg": list(FIRMWARE
 FAST_LEG_JOBS = {"firmware-unit": 3, "firmware-control-mutants": 4, "firmware-aecp-mutants": 2,
                  "firmware-srp-mutants": 2, "publication-census-legs": 5}
 FAST_LEG_JUDGE = {"publication-census-legs": "publication-census"}
+#: The divided mutation jobs: each runs its phase once, as `--campaign-shard "${{ matrix.leg }}" COUNT`, and COUNT
+#: must be its own matrix's leg count. A COUNT above the matrix's would leave a share of the phase in no leg,
+#: and every leg would still pass (#1008).
+FAST_LEG_CAMPAIGNS = ("firmware-control-mutants", "firmware-aecp-mutants", "firmware-srp-mutants")
+CAMPAIGN_SHARD_RE = re.compile(r'--campaign-shard\s+("[^"]*"|\S+)\s+(\S+)')
+CAMPAIGN_LEG_INDEX = '"${{ matrix.leg }}"'
 #: #697: the fast job that judges the TSN stack boundary over the compiles of the builders that need Verilator.
 FIRMWARE_VERILATOR_JOB = "firmware-verilator"
 #: #665 F-INT: the fast job that runs the mailbox publication census in every
@@ -3928,6 +3934,16 @@ def check_fast_legs(c: Contract, wf: YamlMap) -> None:
         env = fast_result_env_name(jid)
         c.item(isinstance(needs, list) and jid in needs and f'"{jid}:${env}"' in verdict, RTL_FAST,
                f"job `{FAST_AGGREGATE_JOB}` must need `{jid}` and judge its result")
+    for jid, job in jobs(wf).items():
+        runs = [match for step in steps(job) for match in CAMPAIGN_SHARD_RE.findall(str(step.get("run", "")))]
+        if jid not in FAST_LEG_CAMPAIGNS:
+            c.item(not runs, RTL_FAST, f"job `{jid}` is no divided campaign, so it runs no `--campaign-shard`")
+            continue
+        legs = (job.get("strategy") or {}).get("matrix", {}).get("leg")
+        want = [(CAMPAIGN_LEG_INDEX, str(len(legs)))] if isinstance(legs, list) else None
+        c.item(runs == want, RTL_FAST,
+               f"job `{jid}` must run its campaign once as `--campaign-shard {CAMPAIGN_LEG_INDEX} COUNT`, COUNT its "
+               f"matrix's leg count (found {runs!r} for legs {legs!r})")
     for legs, judge in FAST_LEG_JUDGE.items():
         needs = jobs(wf).get(judge, {}).get("needs")
         c.item(isinstance(needs, list) and legs in needs, RTL_FAST,
@@ -8454,12 +8470,38 @@ def _fast_leg_arms() -> list[Arm]:
                                                                     {"matrix": {"leg": list(range(count))}}), strategy),
             (f"{jid} unread by the verdict", _m_fast_verdict_drops(jid),
              f"job `{FAST_AGGREGATE_JOB}` must need `{jid}` and judge its result")]
+    campaign = "must run its campaign once as `--campaign-shard"
+    for jid in FAST_LEG_CAMPAIGNS:
+        count = FAST_LEG_JOBS[jid]
+        tail = f"--campaign-shard {CAMPAIGN_LEG_INDEX} {count}"
+        head = f"--campaign-shard {CAMPAIGN_LEG_INDEX} "
+        arms += [
+            (f"{jid} command counts one leg more", _m_campaign_command(jid, tail, head + str(count + 1)),
+             f"job `{jid}` {campaign}"),
+            (f"{jid} command counts one leg fewer", _m_campaign_command(jid, tail, head + str(count - 1)),
+             f"job `{jid}` {campaign}"),
+            (f"{jid} command runs leg 0 everywhere", _m_campaign_command(jid, tail, f"--campaign-shard 0 {count}"),
+             f"job `{jid}` {campaign}"),
+            (f"{jid} command runs its phase twice", _m_campaign_command(jid, tail, tail + "\n" + tail),
+             f"job `{jid}` {campaign}")]
+    arms.append(("campaign shard in an undivided job",
+                 _m_campaign_command("firmware-unit", "--shard 0/4", "--shard 0/4 --campaign-shard 0 2"),
+                 "job `firmware-unit` is no divided campaign"))
     for legs, judge in FAST_LEG_JUDGE.items():
         arms += [(f"{judge} needs no legs", _m_job_key_any(RTL_FAST, judge, "needs", ["changes"]),
                   f"job `{judge}` must need `{legs}`"),
                  (f"{legs} timeout raised", _m_job_key_any(RTL_FAST, legs, "timeout-minutes", 31),
                   f"job `{legs}` timeout must remain 30 minutes")]
     return arms
+
+
+def _m_campaign_command(jid: str, old: str, new: str) -> Mutator:
+    """Job `jid`'s one step whose run holds `old`, with `old` replaced by `new`."""
+    def f(w: World) -> None:
+        """Apply the arm's edit to `w` in place."""
+        step, = (step for step in jobs(w[RTL_FAST])[jid]["steps"] if old in str(step.get("run", "")))
+        step["run"] = step["run"].replace(old, new)
+    return f
 
 
 def _m_fast_verdict_drops(jid: str) -> Mutator:

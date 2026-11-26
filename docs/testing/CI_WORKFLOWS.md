@@ -192,6 +192,9 @@ Every matrix keeps GitHub's own `fail-fast: true`, so a failed leg cancels its s
 fork's included, with no token, and the matrix result fails the aggregate. The aggregate also requires
 `publication-census-legs`, since a failed leg skips the judge. `ci_events.py` holds each matrix exactly,
 the judge's need of its legs, the legs' 30 minutes and the aggregate's reading of each, in the generated file.
+It also holds each campaign job to one `--campaign-shard "${{ matrix.leg }}" COUNT` whose COUNT is its own
+matrix's leg count, and every other job to none: a COUNT above the matrix's would leave a share of the phase
+in no leg while every leg passed.
 No job's limit changed. The docs gates run on five workers: the firmware controls and both contract gates on
 `docs-gates-3`, the saved-state writer on `docs-gates-4`, each step whole with its receipt (below).
 
