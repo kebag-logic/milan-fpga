@@ -26,9 +26,9 @@
  * first-dirty window after the change, MILAN_NVM_DEBOUNCE_MS, or
  * NVM_BIND_DEBOUNCE_MS for a binding record (#1009; a window is the first
  * change's and is not restarted, so it is at most that for any change, and the
- * earliest end of the open ones starts the capture of all of them), plus that
- * many centiseconds for each step of its save after the window (the step that
- * starts the capture, one for each changed record and
+ * earliest end of the open ones starts the capture of all of them), plus
+ * CTRL_LOOP_STEP_AGE + 1 centiseconds for each step of its save after the
+ * window (the step that starts the capture, one for each changed record and
  * one more, the seal's NVM_STEP_BYTES stretches, the erase and its wait,
  * NVM_IMG_LEN / NVM_READ_BYTES read-backs for the blank check and as many for
  * the verify, and each page's issue and its wait), plus the few passes between
