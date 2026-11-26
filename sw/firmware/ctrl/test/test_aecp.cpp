@@ -392,6 +392,25 @@ TEST_F(Leds, FollowingAStoppedStreamDarkensLd3)
     EXPECT_EQ(word()&CTRL_PLAT_LEDS_CLOCK,CTRL_PLAT_LEDS_CLOCK)<<"back to internal: LD3 on";
 }
 
+TEST_F(Leds, EmptyStreamObservationsStayDark)
+{
+    ON_CALL(mock,Stream).WillByDefault([](unsigned,uint16_t,uint16_t,aecp_stream_info*){return true;});
+    ON_CALL(mock,Counters).WillByDefault([](unsigned,uint16_t,uint16_t,aecp_counters *v){
+        v->valid=3u;v->value[0]=1u;v->value[1]=0u;return true;});
+    EXPECT_EQ(word()&CTRL_PLAT_LEDS_STREAM,0u)<<"unfilled bound and extended flags leave LD2 dark";
+}
+
+TEST_F(Leds, EveryConsumedCounterFieldDefaultsToZero)
+{
+    unsigned follow;unsigned input;ASSERT_TRUE(source(2,&follow,&input));set_clock(follow);bound_inputs={input};
+    ON_CALL(mock,Counters).WillByDefault([](unsigned,uint16_t,uint16_t,aecp_counters *v){
+        v->valid=3u;return true;});
+    EXPECT_EQ(word()&(CTRL_PLAT_LEDS_STREAM|CTRL_PLAT_LEDS_CLOCK),0u)<<"unfilled lock counters default to zero";
+    ON_CALL(mock,Counters).WillByDefault([](unsigned,uint16_t,uint16_t,aecp_counters *v){
+        v->value[0]=1u;v->value[1]=0u;return true;});
+    EXPECT_EQ(word()&(CTRL_PLAT_LEDS_STREAM|CTRL_PLAT_LEDS_CLOCK),0u)<<"unfilled counter validity defaults to zero";
+}
+
 TEST_F(Leds, Ld2IsABoundReceivingInputOrAListenedOutput)
 {
     EXPECT_EQ(word()&CTRL_PLAT_LEDS_STREAM,0u)<<"nothing connected: LD2 off";
@@ -6031,8 +6050,10 @@ TEST_F(AppFace, LedsOutputMatchesTheCompleteStreamObserver)
         far.selectors.clear();far.output_requests.clear();
         ASSERT_TRUE(ctrl_plat_leds_stream(adapter.core.ports->ctx,0,6,0,&led));
         EXPECT_EQ(led.flags_ex,full.flags_ex)<<"LED extended flags match the complete production observer";
-        EXPECT_EQ(far.selectors,(std::vector<unsigned>{0u,6u}))<<"LED output reads only flags and extended flags";
-        const std::vector<std::array<uint32_t,6>> expected{{0u,6u,0u,0u,0u,0u},{0u,6u,96u,0u,0u,6u}};
+        std::vector<unsigned> selectors{0u};
+        std::vector<std::array<uint32_t,6>> expected{{0u,6u,0u,0u,0u,0u}};
+        if((far.output_flags&0x10000000u)==0u){selectors.push_back(6u);expected.push_back({0u,6u,96u,0u,0u,6u});}
+        EXPECT_EQ(far.selectors,selectors)<<"LED output reads only the selected owner's status words";
         EXPECT_EQ(far.output_requests,expected)<<"LED GSI request names the output and exact selectors";
     };
     for(bool declaring:{false,true})for(bool listening:{false,true})for(bool registered:{false,true}){
@@ -6052,12 +6073,16 @@ TEST_F(AppFace, LedsOutputMatchesTheCompleteStreamObserver)
 
 TEST_F(AppFace, LedsOutputRefusesEitherUnansweredStatusWord)
 {
+    far.output_flags=0u;  // Both fabric words are required when the output is not declaring.
     for(unsigned selector:{0u,6u}){
         far.silent_gsi=selector;aecp_stream_info led{};
         EXPECT_FALSE(ctrl_plat_leds_stream(adapter.core.ports->ctx,0,6,0,&led))<<"LED output refuses each unanswered word";
         far.silent_gsi=16u;
         EXPECT_TRUE(ctrl_plat_leds_stream(adapter.core.ports->ctx,0,6,0,&led))<<"LED output recovers after the bounded timeout";
     }
+    far.output_flags=0x10000000u;far.silent_gsi=6u;far.selectors.clear();aecp_stream_info led{};
+    EXPECT_TRUE(ctrl_plat_leds_stream(adapter.core.ports->ctx,0,6,0,&led))<<"declaring output reads its SRP owner alone";
+    EXPECT_EQ(far.selectors,(std::vector<unsigned>{0u}))<<"declaring output does not wait on unused fabric flags";
 }
 
 // The store's restore and saved-state words reach the datapath, with READY,

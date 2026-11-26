@@ -12,9 +12,9 @@
 // Read the same member acmp_view returns, in the same single-threaded event
 // loop. No copied state or mailbox read is needed for that one bit. The LED
 // observer still checks the media-lock counters before declaring reception.
-// An output needs GSI words 0 and 6, not a brief observation: word 0 selects
-// the declaring owner, and word 6 carries the fabric extended flags. For a
-// declaring output, use the same SRP Listener state as ctrl_app_aecp output().
+// GSI word 0 selects an output's declaring owner. A declaring output uses
+// the same SRP Listener state as ctrl_app_aecp output(), without reading the
+// unused fabric flags. Otherwise word 6 supplies the fabric extended flags.
 static inline bool ctrl_plat_leds_stream(void *ctx, unsigned interface, uint16_t type, uint16_t index,
 					struct aecp_stream_info *out)
 {
@@ -38,13 +38,14 @@ static inline bool ctrl_plat_leds_stream(void *ctx, unsigned interface, uint16_t
 	uint64_t flags = 0u;
 	uint64_t extended = 0u;
 	if (mbx_win_read(interface, MBX_WIN_GSI, request, &flags) != MBX_STATUS_OK) return false;
-	request[1] = mbx_place(6u, MBX_GSI_SEL_SEL_LSB, MBX_GSI_SEL_SEL_WIDTH);
-	if (mbx_win_read(interface, MBX_WIN_GSI, request, &extended) != MBX_STATUS_OK) return false;
-	out->flags_ex = (uint32_t)extended;
 	if (((uint32_t)flags & 0x10000000u) != 0u) {
 		const struct srp_interface *srp = owner->app->srp != NULL && index < CTRL_SRP_SOURCES
 			? &owner->app->srp->ifs[cfg->source_interface[index]] : NULL;
 		out->flags_ex = srp != NULL && srp->listener_present[index] ? 1u : 0u;
+	} else {
+		request[1] = mbx_place(6u, MBX_GSI_SEL_SEL_LSB, MBX_GSI_SEL_SEL_WIDTH);
+		if (mbx_win_read(interface, MBX_WIN_GSI, request, &extended) != MBX_STATUS_OK) return false;
+		out->flags_ex = (uint32_t)extended;
 	}
 	return true;
 }

@@ -13,9 +13,31 @@ LD2 = 'Leds.Ld2IsABoundReceivingInputOrAListenedOutput'
 LEDS = 'plat/ctrl_plat_leds.h'
 
 ROWS = (
+    ('leds-empty-input-borrowed-bound', LEDS,
+     's.bound = false;', 's.bound = true;',
+     ('Leds.EmptyStreamObservationsStayDark', 'unfilled bound and extended flags leave LD2 dark')),
+    ('leds-empty-output-borrowed-listener', LEDS,
+     's.flags_ex = 0u;', 's.flags_ex = 1u;',
+     ('Leds.EmptyStreamObservationsStayDark', 'unfilled bound and extended flags leave LD2 dark')),
+    ('leds-empty-counter-borrowed-validity', LEDS,
+     'c.valid = 0u;', 'c.valid = 3u;',
+     ('Leds.EveryConsumedCounterFieldDefaultsToZero', 'unfilled counter validity defaults to zero')),
+    ('leds-empty-counter-borrowed-lock', LEDS,
+     'c.value[0] = 0u;', 'c.value[0] = 1u;',
+     ('Leds.EveryConsumedCounterFieldDefaultsToZero', 'unfilled lock counters default to zero')),
+    ('leds-empty-counter-borrowed-unlock', LEDS,
+     'c.value[1] = 0u;', 'c.value[1] = 1u;',
+     ('Leds.EveryConsumedCounterFieldDefaultsToZero', 'unfilled lock counters default to zero')),
+    ('leds-declaring-output-reads-unused-fabric-flags', 'plat/ctrl_plat_leds_ports.h',
+     'if (((uint32_t)flags & 0x10000000u) != 0u) {',
+     'if (((uint32_t)flags & 0x10000000u) != 0u) {\n'
+     '        request[1] = 6u << MBX_GSI_SEL_SEL_LSB;\n'
+     '        (void)mbx_win_read(interface, MBX_WIN_GSI, request, &extended);',
+     ('AppFace.LedsOutputMatchesTheCompleteStreamObserver',
+      "LED output reads only the selected owner's status words")),
     ('leds-output-observation-brief', LEDS,
-     'memset(&s, 0, sizeof s);   // observed whole:',
-     'memset(&s, 0, sizeof s); s.brief = true;   // observed whole:',
+     's.brief = false;   // observed whole:',
+     's.brief = true;   // observed whole:',
      (LD2, 'LED output keeps the extended observation')),
     ('leds-output-wrong-status-word', 'plat/ctrl_plat_leds_ports.h',
      'mbx_place(6u, MBX_GSI_SEL_SEL_LSB', 'mbx_place(5u, MBX_GSI_SEL_SEL_LSB',
@@ -42,7 +64,8 @@ ROWS = (
      '        request[1] = unused << MBX_GSI_SEL_SEL_LSB; uint64_t ignored = 0u;\n'
      '        (void)mbx_win_read(interface, MBX_WIN_GSI, request, &ignored);\n'
      '    }\n\tout->flags_ex = (uint32_t)extended;',
-     ('AppFace.LedsOutputMatchesTheCompleteStreamObserver', 'LED output reads only flags and extended flags')),
+     ('AppFace.LedsOutputMatchesTheCompleteStreamObserver',
+      'LED output reads only the selected owner\'s status words')),
     ('leds-binding-accepts-past-the-end', 'plat/ctrl_plat_leds_ports.h',
      'index >= acmp->cfg.n_sinks', 'index > acmp->cfg.n_sinks',
      ('App.LedsReadTheAcmpBindingWithoutTheStreamWindow', 'LED input index follows ACMP')),
