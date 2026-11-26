@@ -30,6 +30,7 @@ module KL_usbnet_local_rx (
   input wire clk_i,                       //! the MAC wrapper's system clock
   input wire rst_ni,                      //! synchronous active-low reset
   input wire [47:0] station_mac_i,         //! device MAC, first octet in bits 47:40
+  input wire s_active_i,                   //! injector owns the MAC, through PHY retirement
   input wire s_valid_i,                    //! accepted computer injection beat
   input wire [63:0] s_data_i,              //! little lane order
   input wire [7:0] s_keep_i,               //! contiguous octet mask
@@ -50,8 +51,17 @@ module KL_usbnet_local_rx (
   //! Verdict is redundant with the copy/drop counters at this filtered seam.
   wire verdict_valid_unused_w;
   wire [2:0] verdict_unused_w;
+  logic active_r;
+  always_ff @(posedge clk_i) begin : observe_grant
+    if (!rst_ni) active_r <= 1'b0;
+    else active_r <= s_active_i;
+  end : observe_grant
+  //! A cancelled grant may have no last beat. Successful grants retire only
+  //! after their final beat has committed, so this also safely sees retirement.
+  wire discard_w = active_r && !s_active_i;
   KL_usbnet_rx_copy #(.MAX_LEN_OCTETS_P(1515)) copy (
     .clk_i, .rst_ni, .s_valid_i, .s_data_i, .s_keep_i, .s_last_i,
+    .discard_i(discard_w),
     //! This is the device receiver; its identity does not depend on USB attachment.
     .host_mac_i(station_mac_i), .host_ok_i(1'b1),
     .m_valid_o(rec_valid_w), .m_ready_i(rec_ready_w),

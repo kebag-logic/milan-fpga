@@ -28,6 +28,7 @@ def add_local_receiver(soc: object, mac: object, dp: object) -> None:
         i_clk_i=ClockSignal("macsys"), i_rst_ni=~ResetSignal("macsys"),
         # The CSR convention puts the first wire octet in the low byte.
         i_station_mac_i=Cat(*(station[i:i + 8] for i in range(40, -1, -8))),
+        i_s_active_i=mac.usbnet_inj_active,
         i_s_valid_i=sent.valid & sent.ready & mac.usbnet_inj_active,
         i_s_data_i=sent.data,
         i_s_keep_i=Mux(sent.last, (sent.last_be << 1) - 1, 0xFF)[:8],

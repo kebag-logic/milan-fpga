@@ -35,6 +35,12 @@ PKG, RXC, TXI, ARB, TAP, LED = ("KL_usbnet_pkg.sv", "KL_usbnet_rx_copy.sv", "KL_
 
 # (name, harness, file, old, new, the FAIL text that must appear)
 CONTROLS = [
+    ("local_rx_abort_ignored", "local", "KL_usbnet_local_rx.sv",
+     ".discard_i(discard_w)", ".discard_i(1'b0)",
+     "aborted local copy preserves completed frames and restarts at the next header"),
+    ("local_rx_abort_flushes_committed", "local", "KL_usbnet_local_rx.sv",
+     ".clk_i, .rst_ni, .s_valid_i", ".clk_i, .rst_ni(rst_ni && !discard_w), .s_valid_i",
+     "local receiver output stable under backpressure"),
     ("local_rx_copy_missing", "local", "KL_usbnet_local_rx.sv",
      ".clk_i, .rst_ni, .s_valid_i, .s_data_i", ".clk_i, .rst_ni, .s_valid_i(1'b0), .s_data_i",
      "computer to device receiver"),

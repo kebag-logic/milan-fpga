@@ -31,6 +31,7 @@ struct Bench {
     std::vector<Bytes> got;
     Bytes current;
     unsigned cycle = 0;
+    unsigned active_tail = 0;
     bool stall = false;
     bool hold = false;
     bool previous_hold = false;
@@ -43,6 +44,8 @@ struct Bench {
     }
     void tick() {
         d.clk_i = 0;
+        d.s_active_i = !local.empty() || active_tail;
+        if (active_tail) --active_tail;
         d.s_valid_i = !local.empty(); d.s_data_i = 0; d.s_keep_i = 0; d.s_last_i = 0;
         if (!local.empty()) {
             const auto &b = local.front();
@@ -63,7 +66,10 @@ struct Bench {
                                  "local receiver output stable under backpressure");
         previous_hold = d.m_valid_o && !d.m_ready_i;
         previous_data = d.m_data_o; previous_last = d.m_last_o;
-        if (d.s_valid_i) { loff += 8; if (d.s_last_i) { local.pop_front(); loff = 0; } }
+        if (d.s_valid_i) {
+            loff += 8;
+            if (d.s_last_i) { local.pop_front(); loff = 0; active_tail = 2; }
+        }
         if (d.net_valid_i && d.net_ready_o) { ++noff; if (d.net_last_i) { network.pop_front(); noff = 0; } }
         if (d.m_valid_o && d.m_ready_i) {
             current.push_back(d.m_data_o);
@@ -113,6 +119,24 @@ int main(int argc, char **argv)
         b.network.push_back(net); b.run(20);
         b.hold = false; b.run(4000);
         CHECK(b.got == std::vector<Bytes>({local, net}), "network arrival cannot interrupt a local frame");
+    }
+    // A transmit-domain reset can revoke an injection before its final beat.
+    // Keep a completed local frame stalled at the receiver while cancelling
+    // the next one, then require a fresh local frame and network traffic intact.
+    for (unsigned beats : {1u, 2u, 3u, 4u, 189u}) {
+        Bench b; b.hold = true;
+        const auto kept = frame(device, 61, 31);
+        const auto after = frame(device, 60, 52);
+        const auto net = frame(device, 62, 77);
+        b.local.push_back(kept); b.run(20);
+        b.local.push_back(frame(device, 1515, 99)); b.run(beats);
+        b.local.clear(); b.loff = 0;
+        b.network.push_back(net); b.run(20);
+        b.local.push_back(after); b.run(20);
+        b.hold = false; b.run(4000);
+        CHECK(b.got == std::vector<Bytes>({kept, net, after}),
+              "aborted local copy preserves completed frames and restarts at the next header: %u beats", beats);
+        CHECK(b.d.copied_o == 2, "aborted local copy never commits a descriptor");
     }
     Bench b; b.hold = true;
     for (int i = 0; i < 16; ++i) b.local.push_back(frame(device, 1000, uint8_t(i)));
