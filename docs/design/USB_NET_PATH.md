@@ -170,7 +170,7 @@ Reset discards interrupted MAC frames, as the MAC reset contract specifies.
 
 ## 4. The bus records
 
-The byte contract is [usb-audio PR #7, docs/NETWORK.md](https://github.com/kebag-logic/usb-audio/blob/ca34e0d2272eb14e126f8f6d67a98ee596057ff6/docs/NETWORK.md),
+The byte contract is [usb-audio PR #7, docs/NETWORK.md](https://github.com/kebag-logic/usb-audio/blob/da91f5999a31d0965872ff153194ee817d1106d1/docs/NETWORK.md),
 adopted by the [interface amendment](https://github.com/kebag-logic/milan-fpga/issues/1011#issuecomment-7186353239).
 Both streams carry 16-bit words, low octet first. An odd payload ends with
 one zero pad octet. Each record starts with two words:
@@ -180,8 +180,11 @@ one zero pad octet. Each record starts with two words:
 | 0 | payload length in octets, header and padding excluded |
 | 1 | kind: 0x4E01 Ethernet frame, 0x4E02 station |
 
-A frame toward the computer has 14 to 1514 octets without FCS; a frame from
-it has 14 to 1515 octets, including the possible USB short-transfer pad.
+A frame toward the computer has 14 to 1514 octets without FCS. The merged
+FX3 contract sends at most 1514 octets from the computer too. This FPGA
+receiver retains its 1515-octet acceptance envelope, which that contract
+explicitly records as a compatible superset. There is no general extra-byte
+exception in the FX3 sender; its USB boundary workaround fits within 1514.
 Each record toward the computer ends with `last` on its final word, for the
 slave-FIFO master's PKTEND#. There is no incoming boundary signal.
 Unknown kinds and wrong lengths are consumed by the full 16-bit length and
@@ -204,6 +207,12 @@ locally administered. The packet filter and digest words are consumed; the
 FX3 owns the host's filter, and this thread-agnostic FPGA attachment does not
 compare configuration digests. It sends no separate detach record.
 
+The FX3 renews the MAC after USB bus or port reset, and clears MAC_VALID
+on reset or disconnection. Configuration zero clears CONFIGURED while
+retaining that enumeration's valid MAC; LD1 goes dark independently. The
+FPGA follows the received fields and does not infer a new address lifetime
+from CONFIGURED or DATA_ACTIVE. The sequence survives USB resets.
+
 The sequence comparison accepts a forward delta of 1 through 32767,
 including wrap. A duplicate or older record is counted and cannot renew
 freshness or replace the current station. Reset or expiry permits the next
@@ -224,6 +233,10 @@ DATA_ACTIVE is not an LD1 condition. At expiry both the address and LD1
 clear. The FX3 sends a station record at every state change and each
 heartbeat (100 ms in its example), including after disconnection with
 MAC_VALID clear. No separate register-write control path is required.
+The future slave-FIFO master must honor DATA_ACTIVE before waiting for the
+FPGA-to-FX3 socket: that producer channel exists only at data alternate
+setting 1. The station state exposes DATA_ACTIVE, but this image has no
+attached slave-FIFO master.
 
 ## 6. Status LEDs (#1018)
 
@@ -329,6 +342,14 @@ Held-injection tests independently sum wire octets over every departure interval
 They cover short and maximum frames, arbitration waits and MAC backpressure.
 Reset tests cover each domain alone, both request parities and activity.
 The firmware fixture also exercises the EXTERNAL source's lock requirement.
+
+The Arty service-cost census includes the actual LED observer. Its complete
+147-group run at 80 MHz measures a heaviest centisecond tick of 16,104 CPU
+cycles (201.3 us, or 215 us under the measurement rule), above the 150 us
+allowance in the #1004 integration. Behavioral regrading and every existing
+egress-ledger bound pass, but the installed service model is not qualified.
+Its 9 ms pacing, 950 us slice and 125 ms queued bound remain unchanged;
+service-cost reconciliation is still required before readiness.
 
 Station records share the incoming queue with frame records.
 A frame waiting for space can delay a later station update.
