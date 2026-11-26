@@ -1684,7 +1684,8 @@ class MilanMAC(LiteXModule):
     validated on hardware (there is no RGMII PHY to exercise in sim). See
     docs/integration/FULLY_FPGA_RISCV_MIGRATION.md §A.7 and the protocol/test matrix."""
     def __init__(self, platform, data_width=64, phy_index=0, milan_cd="sys",
-                 gtx_tx_invert=False, phy_model="gmii", fw_link_owner=False, **_rgmii):
+                 gtx_tx_invert=False, phy_model="gmii", fw_link_owner=False,
+                 usb_net_clk_hz=None, **_rgmii):
         from liteeth.phy.gmii import LiteEthPHYGMII
         from liteeth.mac.core import LiteEthMACCore
         from liteeth.common import eth_phy_description
@@ -1842,8 +1843,11 @@ class MilanMAC(LiteXModule):
         # come out here (#787). Reset-less like the toggles above: a reset
         # that flipped it back would count a frame that never left.
         self.ethtxend_tgl = Signal(reset_less=True)
-        self.sync.eth_tx += If(self.phy.sink.valid & self.phy.sink.ready & self.phy.sink.last,
-                               self.ethtxend_tgl.eq(~self.ethtxend_tgl))
+        # With the USB network path (#1011) the tap produces this toggle and
+        # leaves the computer's frames out of it (usbnet_soc.add_usb_net).
+        if usb_net_clk_hz is None:
+            self.sync.eth_tx += If(self.phy.sink.valid & self.phy.sink.ready & self.phy.sink.last,
+                                   self.ethtxend_tgl.eq(~self.ethtxend_tgl))
         # Sequenced eth-side CDC reset (gaps 5 RTL fix, 2026-07-22): the guard's
         # `eth_rst` re-initializes the MAC core's ETH-side CDC halves in hardware.
         # The MAC's eth domains are derived copies (maceth_tx/maceth_rx) whose reset
@@ -1917,7 +1921,8 @@ class MilanMAC(LiteXModule):
                                     # FIFO exists to provide is preserved (and
                                     # is a structural requirement of this boundary).
                                     buffered=True))
-        self.comb += self.tx_sf.source.connect(self.core.sink)
+        if usb_net_clk_hz is None:   # else the USB network path's arbiter sits here (#1011)
+            self.comb += self.tx_sf.source.connect(self.core.sink)
 
         nb = data_width // 8
         L  = [("data", data_width), ("keep", nb)]
@@ -2013,6 +2018,12 @@ class MilanMAC(LiteXModule):
                 self.core.source.ready.eq(rx_dp.sys.ready),
             ),
         ]
+
+        if usb_net_clk_hz is not None:
+            # #1011, Arty only: the computer's frames below every datapath frame,
+            # held while the internal loopback runs
+            import usbnet_soc
+            usbnet_soc.add_usb_net(self, platform, usb_net_clk_hz, REPO_ROOT, rx_dp.sys, ~lb)
 
         # ---- PHY/MAC link status (MAC_STATUS 0x110 / REQ-MAC-03) --------------------
         # WHY A CSR AND NOT A WIRE: LiteEth's GMII/MII PHY wrappers expose NO link,
@@ -3661,6 +3672,7 @@ class MilanSoC(SoCCore):
                  gptp_lat_writable=False,
                  render_lpf=True, optional_blocks=None,
                  entity_gen_dir=None, ctrl_mailbox=False, ctrl_firmware=None, ctrl_cpu_cd=None,
+                 usb_net=False,
                  **kwargs):
         self._cpu_xlen = int(xlen)
         if software_profile != "baremetal":
@@ -3944,6 +3956,7 @@ class MilanSoC(SoCCore):
                                           phy_index=eth_phy_index,
                                           phy_model=_BOARD_PHY_MODEL[board],
                                           fw_link_owner=ctrl_mailbox,
+                                          usb_net_clk_hz=sys_clk_freq if usb_net else None,
                                           rgmii_tx_delay=rgmii_tx_delay,
                                           rgmii_rx_delay=rgmii_rx_delay)
                 if board == "ax7101":
@@ -4418,6 +4431,10 @@ class MilanSoC(SoCCore):
                 self.comb += platform.request("user_led", 0).eq(self.milan.identify)
             except Exception:
                 print("[milan] no user_led pad - IDENTIFY LED not wired")
+            # #1018: the Arty's status LEDs LD0 to LD3 (its RGB LEDs)
+            if board == "arty" and with_mac:
+                import usbnet_soc
+                usbnet_soc.add_status_leds(self, platform, sys_clk_freq, REPO_ROOT, self.milan_mac)
 
         # #665 lane F0: the packet mailbox, ONLY under --ctrl-mailbox (default
         # off, so the default build is untouched; see CtrlMailbox).
@@ -4749,6 +4766,11 @@ def main() -> None:
     # SUBSTITUTED it for the legacy 1722.1/SRP plane, which is deleted, so
     # milan_datapath instantiates KL_pp_shadow unconditionally and every build
     # gets the processor. A flag that can only be "on" is not a flag.
+    ap.add_argument("--usb-net", action="store_true",
+                    help="Arty only (#1011): the USB network path's datapath tap - the attached "
+                         "computer's filtered receive copy and best-effort transmit injection, "
+                         "with its bus side terminated until a slave-FIFO master binds it "
+                         "(docs/design/USB_NET_PATH.md)")
     ap.add_argument("--ctrl-mailbox", action="store_true",
                     help="#665 lane F0: add the packet mailbox of the control-plane "
                          "firmware (sw/mailbox/mailbox.yaml: KL_mbx behind KL_mbx_wb at "
@@ -5040,6 +5062,8 @@ def main() -> None:
                 % (_flag, _val, AUDIO_IF_FS_HZ_DEFAULT,
                    AUDIO_IF_WORD_BITS_DEFAULT))
 
+    if args.usb_net and (args.board != "arty" or not (args.with_mac or args.full)):
+        ap.error("--usb-net is the Arty's USB network path (#1011): it needs --board arty and the MAC")
     if args.board == "arty":
         if args.fpga_part is not None:
             ap.error("--fpga-part names a die of the ax7101 board, not the arty")
@@ -5122,6 +5146,7 @@ def main() -> None:
                    },
                    entity_gen_dir=args.entity_gen_dir,
                    ctrl_mailbox=args.ctrl_mailbox,
+                   usb_net=args.usb_net,
                    ctrl_firmware=args.ctrl_firmware,
                    audio_if_slots={"i2s_philips": 0, "tdm8": 8, "tdm16": 16,
                                    "tdm32": 32}[args.audio_interface],
