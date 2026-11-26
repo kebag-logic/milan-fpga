@@ -893,12 +893,32 @@ TEST(AdpAdapter, PinRejectsUnsupportedDiscoveryVersions) {
     }
 }
 
-TEST(AdpAdapter, PinRejectsWrongDiscoveryControlLength) {
+// IEEE 1722.1-2021 6.2.7.1.3: an ENTITY_DISCOVER whose control_data_length is under 56 is refused, valid_time bits
+// above the length's eleven never making a short one long; one above 56 is read by its first 56 octets (the pin's
+// tsn-c-stack PR 38).
+TEST(AdpAdapter, PinRejectsShortDiscoveryControlLength) {
     uint8_t frame[82];
     discover(frame, 2u, 0u);
-    for (unsigned length : {0u, 55u, 57u, 2047u}) {
-        wire_put_be(frame + 16, length, 2);
+    for (unsigned field : {0u, 55u, (31u << 11) | 55u}) {
+        wire_put_be(frame + 16, field, 2);
         refused_discovery(frame, sizeof frame);
+    }
+}
+
+TEST(AdpAdapter, PinAcceptsLongDiscoveryControlLengthThroughMailbox) {
+    for (unsigned length : {57u, 2047u}) {
+        boot();
+        mbx_model_set_link(&model, 0, true);
+        settle();
+        to_waiting();
+        uint8_t frame[82];
+        discover(frame, 2u, entity.entity_id);
+        wire_put_be(frame + 16, length, 2);
+        const auto discarded = adp0()->discarded;
+        ASSERT_TRUE(mbx_model_rx(&model, frame, sizeof frame, 0));
+        pass();
+        EXPECT_EQ(adp0()->state, ADP_STATE_DELAY) << "long discovery restarts advertising through the mailbox";
+        EXPECT_EQ(adp0()->discarded, discarded) << "a control_data_length above 56 is read by its first 56 octets";
     }
 }
 
