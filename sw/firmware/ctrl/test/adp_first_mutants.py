@@ -30,9 +30,9 @@ MUTANTS: tuple[Mutant, ...] = (
            also=(("adp", G4, "G4 a grandmaster change after the first ENTITY_AVAILABLE starts a delay at once"),)),
     Mutant("link-up-draws-startup-kind", ADP_C,
            ("\t\tif (a->state == ADP_STATE_DOWN) {\n"
-            "\t\t\tenter_delay(a, ADP_DRAW_DELAY);                 // Milan v1.2 5.6.3.5.3\n\t\t}\n"),
+            "\t\t\tleave_down(a, ADP_DRAW_DELAY);                  // Milan v1.2 5.6.3.5.3\n\t\t}\n"),
            ("\t\tif (a->state == ADP_STATE_DOWN) {\n"
-            "\t\t\tenter_delay(a, ADP_DRAW_STARTUP);               // Milan v1.2 5.6.3.5.3\n\t\t}\n"),
+            "\t\t\tleave_down(a, ADP_DRAW_STARTUP);                // Milan v1.2 5.6.3.5.3\n\t\t}\n"),
            "walk", "Table551/AdpWalkCell.Graded/LINK_UP_x_DOWN", "LINK_UP x DOWN", also=(("adp", G1, SPREAD),)),
     Mutant("draw-kinds-merged", ADP_C, DRAW_RANGE, "ADP_DELAY_MAX_MS", "adp", "AdpCore.A9DrawKinds",
            "A9 every startup draw",
