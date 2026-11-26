@@ -1,0 +1,665 @@
+[==========] Running 84 tests from 9 test suites.
+[----------] Global test environment set-up.
+[----------] 27 tests from AdpCore
+[ RUN      ] AdpCore.A0toA2Schedule
+[       OK ] AdpCore.A0toA2Schedule (0 ms)
+[ RUN      ] AdpCore.A3toA5DiscoverAndDiscard
+[       OK ] AdpCore.A3toA5DiscoverAndDiscard (0 ms)
+[ RUN      ] AdpCore.A6toA8DeferredSends
+[       OK ] AdpCore.A6toA8DeferredSends (0 ms)
+[ RUN      ] AdpCore.A9DrawKinds
+[       OK ] AdpCore.A9DrawKinds (0 ms)
+[ RUN      ] AdpCore.A10toA14DepartingIndex
+[       OK ] AdpCore.A10toA14DepartingIndex (0 ms)
+[ RUN      ] AdpCore.A15OwedDepartingAcrossARestart
+[       OK ] AdpCore.A15OwedDepartingAcrossARestart (0 ms)
+[ RUN      ] AdpCore.A16SecondShutdownQueuesItsOwn
+[       OK ] AdpCore.A16SecondShutdownQueuesItsOwn (0 ms)
+[ RUN      ] AdpCore.A17RoomBackBeforeAPoll
+[       OK ] AdpCore.A17RoomBackBeforeAPoll (0 ms)
+[ RUN      ] AdpCore.A18LinkLossKeepsTheOwedDeparting
+[       OK ] AdpCore.A18LinkLossKeepsTheOwedDeparting (0 ms)
+[ RUN      ] AdpCore.A19IgnoredInputsKeepTheOwedAvailable
+[       OK ] AdpCore.A19IgnoredInputsKeepTheOwedAvailable (0 ms)
+[ RUN      ] AdpCore.A20LinkLossDropsTheOwedAvailable
+[       OK ] AdpCore.A20LinkLossDropsTheOwedAvailable (0 ms)
+[ RUN      ] AdpCore.A21DepartingCapacity
+[       OK ] AdpCore.A21DepartingCapacity (1 ms)
+[ RUN      ] AdpCore.A22GeneratorNeverStuckAtZero
+[       OK ] AdpCore.A22GeneratorNeverStuckAtZero (0 ms)
+[ RUN      ] AdpCore.A23RepeatedEnableOrDisableChangesNothing
+[       OK ] AdpCore.A23RepeatedEnableOrDisableChangesNothing (0 ms)
+[ RUN      ] AdpCore.A24OtherEtherTypeOrSubtypeDiscarded
+[       OK ] AdpCore.A24OtherEtherTypeOrSubtypeDiscarded (0 ms)
+[ RUN      ] AdpCore.A25FirstDrawsAreUniformOverSamples
+$REVIEWS/r936-2-adp970/third_party/tsn-c-stack/tests/test_adp.cpp:561: Failure
+Expected: (chi_square_x16(draws, max_ms)) <= (kChiSquareX16), actual: 983040 vs 490
+A25 one host's first draws over neighbouring samples are uniform (6.2.4.2.2)
+
+  [FAIL] AdpCore.A25FirstDrawsAreUniformOverSamples: A25 one host's first draws over neighbouring samples are uniform (6.2.4.2.2)
+$REVIEWS/r936-2-adp970/third_party/tsn-c-stack/tests/test_adp.cpp:561: Failure
+Expected: (chi_square_x16(draws, max_ms)) <= (kChiSquareX16), actual: 983040 vs 490
+A25 one host's first draws over neighbouring samples are uniform (6.2.4.2.2)
+
+  [FAIL] AdpCore.A25FirstDrawsAreUniformOverSamples: A25 one host's first draws over neighbouring samples are uniform (6.2.4.2.2)
+[  FAILED  ] AdpCore.A25FirstDrawsAreUniformOverSamples (0 ms)
+[ RUN      ] AdpCore.A26NeighbouringHostsDrawUniformly
+$REVIEWS/r936-2-adp970/third_party/tsn-c-stack/tests/test_adp.cpp:580: Failure
+Expected: (chi_square_x16(draws, max_ms)) <= (kChiSquareX16), actual: 983040 vs 490
+A26 neighbouring hosts started together draw uniformly (6.2.4.2.2)
+
+  [FAIL] AdpCore.A26NeighbouringHostsDrawUniformly: A26 neighbouring hosts started together draw uniformly (6.2.4.2.2)
+$REVIEWS/r936-2-adp970/third_party/tsn-c-stack/tests/test_adp.cpp:580: Failure
+Expected: (chi_square_x16(draws, max_ms)) <= (kChiSquareX16), actual: 983040 vs 490
+A26 neighbouring hosts started together draw uniformly (6.2.4.2.2)
+
+  [FAIL] AdpCore.A26NeighbouringHostsDrawUniformly: A26 neighbouring hosts started together draw uniformly (6.2.4.2.2)
+[  FAILED  ] AdpCore.A26NeighbouringHostsDrawUniformly (0 ms)
+[ RUN      ] AdpCore.A27EverySeedTermIsMixedIn
+$REVIEWS/r936-2-adp970/third_party/tsn-c-stack/tests/test_adp.cpp:599: Failure
+Value of: std::unique(interfaces.begin(), interfaces.end()) == interfaces.end()
+  Actual: false
+Expected: true
+A27 interfaces 0, 1, 2 and 255 sampled together draw apart
+
+  [FAIL] AdpCore.A27EverySeedTermIsMixedIn: A27 interfaces 0, 1, 2 and 255 sampled together draw apart
+$REVIEWS/r936-2-adp970/third_party/tsn-c-stack/tests/test_adp.cpp:603: Failure
+Expected: (first_draw(other).rng) != (base), actual: 0 vs 0
+A27 the low word of the entity ID is mixed in
+
+  [FAIL] AdpCore.A27EverySeedTermIsMixedIn: A27 the low word of the entity ID is mixed in
+$REVIEWS/r936-2-adp970/third_party/tsn-c-stack/tests/test_adp.cpp:606: Failure
+Expected: (first_draw(other).rng) != (base), actual: 0 vs 0
+A27 the high word of the entity ID is mixed in
+
+  [FAIL] AdpCore.A27EverySeedTermIsMixedIn: A27 the high word of the entity ID is mixed in
+$REVIEWS/r936-2-adp970/third_party/tsn-c-stack/tests/test_adp.cpp:609: Failure
+Expected: (first_draw(other).rng) != (base), actual: 0 vs 0
+A27 the MAC address is in the seed
+
+  [FAIL] AdpCore.A27EverySeedTermIsMixedIn: A27 the MAC address is in the seed
+[  FAILED  ] AdpCore.A27EverySeedTermIsMixedIn (0 ms)
+[ RUN      ] AdpCore.A28EachLeaveOfDownTakesAFreshSample
+$REVIEWS/r936-2-adp970/third_party/tsn-c-stack/tests/test_adp.cpp:628: Failure
+Expected equality of these values:
+  seed_calls
+    Which is: 0
+  1u
+    Which is: 1
+A28 one sample is taken at LINK_UP and none with the link down
+
+  [FAIL] AdpCore.A28EachLeaveOfDownTakesAFreshSample: A28 one sample is taken at LINK_UP and none with the link down
+$REVIEWS/r936-2-adp970/third_party/tsn-c-stack/tests/test_adp.cpp:634: Failure
+Expected equality of these values:
+  seed_calls
+    Which is: 0
+  1u
+    Which is: 1
+A28 a draw outside DOWN takes no sample
+
+  [FAIL] AdpCore.A28EachLeaveOfDownTakesAFreshSample: A28 a draw outside DOWN takes no sample
+$REVIEWS/r936-2-adp970/third_party/tsn-c-stack/tests/test_adp.cpp:639: Failure
+Expected equality of these values:
+  seed_calls
+    Which is: 0
+  2u
+    Which is: 2
+A28 the next LINK_UP takes a fresh sample
+
+  [FAIL] AdpCore.A28EachLeaveOfDownTakesAFreshSample: A28 the next LINK_UP takes a fresh sample
+$REVIEWS/r936-2-adp970/third_party/tsn-c-stack/tests/test_adp.cpp:644: Failure
+Expected: (later.rng) != (a.rng), actual: 0 vs 0
+A28 the next LINK_UP mixes its sample in
+
+  [FAIL] AdpCore.A28EachLeaveOfDownTakesAFreshSample: A28 the next LINK_UP mixes its sample in
+[  FAILED  ] AdpCore.A28EachLeaveOfDownTakesAFreshSample (0 ms)
+[ RUN      ] AdpCore.A29SequenceIsOfMaximumLength
+[       OK ] AdpCore.A29SequenceIsOfMaximumLength (0 ms)
+[ RUN      ] AdpCore.A30EachQualifiedRiseTakesOneSample
+$REVIEWS/r936-2-adp970/third_party/tsn-c-stack/tests/test_adp.cpp:672: Failure
+Value of: seed_calls == rise && a.draws == draws + 1u
+  Actual: false
+Expected: true
+A30 each qualified LINK_UP takes one sample
+
+  [FAIL] AdpCore.A30EachQualifiedRiseTakesOneSample: A30 each qualified LINK_UP takes one sample
+$REVIEWS/r936-2-adp970/third_party/tsn-c-stack/tests/test_adp.cpp:674: Failure
+Value of: seed_calls == rise && a.draws == draws + 1u
+  Actual: false
+Expected: true
+A30 a duplicate LINK_UP takes no sample
+
+  [FAIL] AdpCore.A30EachQualifiedRiseTakesOneSample: A30 a duplicate LINK_UP takes no sample
+$REVIEWS/r936-2-adp970/third_party/tsn-c-stack/tests/test_adp.cpp:672: Failure
+Value of: seed_calls == rise && a.draws == draws + 1u
+  Actual: false
+Expected: true
+A30 each qualified LINK_UP takes one sample
+
+  [FAIL] AdpCore.A30EachQualifiedRiseTakesOneSample: A30 each qualified LINK_UP takes one sample
+$REVIEWS/r936-2-adp970/third_party/tsn-c-stack/tests/test_adp.cpp:674: Failure
+Value of: seed_calls == rise && a.draws == draws + 1u
+  Actual: false
+Expected: true
+A30 a duplicate LINK_UP takes no sample
+
+  [FAIL] AdpCore.A30EachQualifiedRiseTakesOneSample: A30 a duplicate LINK_UP takes no sample
+$REVIEWS/r936-2-adp970/third_party/tsn-c-stack/tests/test_adp.cpp:672: Failure
+Value of: seed_calls == rise && a.draws == draws + 1u
+  Actual: false
+Expected: true
+A30 each qualified LINK_UP takes one sample
+
+  [FAIL] AdpCore.A30EachQualifiedRiseTakesOneSample: A30 each qualified LINK_UP takes one sample
+$REVIEWS/r936-2-adp970/third_party/tsn-c-stack/tests/test_adp.cpp:674: Failure
+Value of: seed_calls == rise && a.draws == draws + 1u
+  Actual: false
+Expected: true
+A30 a duplicate LINK_UP takes no sample
+
+  [FAIL] AdpCore.A30EachQualifiedRiseTakesOneSample: A30 a duplicate LINK_UP takes no sample
+$REVIEWS/r936-2-adp970/third_party/tsn-c-stack/tests/test_adp.cpp:679: Failure
+Value of: seed_calls == 4u && other.rng != untouched && other.last_draw == ADP_DRAW_DELAY
+  Actual: false
+Expected: true
+A30 the other interface's LINK_UP takes its own sample
+
+  [FAIL] AdpCore.A30EachQualifiedRiseTakesOneSample: A30 the other interface's LINK_UP takes its own sample
+$REVIEWS/r936-2-adp970/third_party/tsn-c-stack/tests/test_adp.cpp:684: Failure
+Expected equality of these values:
+  seed_calls
+    Which is: 0
+  4u
+    Which is: 4
+A30 a LINK_UP while disabled takes no sample
+
+  [FAIL] AdpCore.A30EachQualifiedRiseTakesOneSample: A30 a LINK_UP while disabled takes no sample
+$REVIEWS/r936-2-adp970/third_party/tsn-c-stack/tests/test_adp.cpp:688: Failure
+Value of: seed_calls == 5u && a.last_draw == ADP_DRAW_STARTUP
+  Actual: false
+Expected: true
+A30 the startup draw takes one sample
+
+  [FAIL] AdpCore.A30EachQualifiedRiseTakesOneSample: A30 the startup draw takes one sample
+[  FAILED  ] AdpCore.A30EachQualifiedRiseTakesOneSample (0 ms)
+[ RUN      ] AdpCore.A31TheLinkUpsSampleSetsItsDraw
+$REVIEWS/r936-2-adp970/third_party/tsn-c-stack/tests/test_adp.cpp:713: Failure
+Expected: (distinct) >= (2400u), actual: 1 vs 2400
+A31 boots that differ only in the sample at a LINK_UP draw apart
+
+  [FAIL] AdpCore.A31TheLinkUpsSampleSetsItsDraw: A31 boots that differ only in the sample at a LINK_UP draw apart
+$REVIEWS/r936-2-adp970/third_party/tsn-c-stack/tests/test_adp.cpp:714: Failure
+Expected: (chi_square_x16(first, 4000u)) <= (kChiSquareX16), actual: 983040 vs 490
+A31 and draw uniformly from the sample taken at that LINK_UP
+
+  [FAIL] AdpCore.A31TheLinkUpsSampleSetsItsDraw: A31 and draw uniformly from the sample taken at that LINK_UP
+$REVIEWS/r936-2-adp970/third_party/tsn-c-stack/tests/test_adp.cpp:713: Failure
+Expected: (distinct) >= (2400u), actual: 1 vs 2400
+A31 boots that differ only in the sample at a LINK_UP draw apart
+
+  [FAIL] AdpCore.A31TheLinkUpsSampleSetsItsDraw: A31 boots that differ only in the sample at a LINK_UP draw apart
+$REVIEWS/r936-2-adp970/third_party/tsn-c-stack/tests/test_adp.cpp:714: Failure
+Expected: (chi_square_x16(first, 4000u)) <= (kChiSquareX16), actual: 983040 vs 490
+A31 and draw uniformly from the sample taken at that LINK_UP
+
+  [FAIL] AdpCore.A31TheLinkUpsSampleSetsItsDraw: A31 and draw uniformly from the sample taken at that LINK_UP
+[  FAILED  ] AdpCore.A31TheLinkUpsSampleSetsItsDraw (0 ms)
+[ RUN      ] AdpCore.A32ADiscoverDrawTakesNoSample
+$REVIEWS/r936-2-adp970/third_party/tsn-c-stack/tests/test_adp.cpp:731: Failure
+Value of: a.state == ADP_STATE_DELAY && a.draws == draws + 1u && seed_calls == 1u
+  Actual: false
+Expected: true
+A32 an ENTITY_DISCOVER in WAITING draws its delay and takes no sample
+
+  [FAIL] AdpCore.A32ADiscoverDrawTakesNoSample: A32 an ENTITY_DISCOVER in WAITING draws its delay and takes no sample
+$REVIEWS/r936-2-adp970/third_party/tsn-c-stack/tests/test_adp.cpp:731: Failure
+Value of: a.state == ADP_STATE_DELAY && a.draws == draws + 1u && seed_calls == 1u
+  Actual: false
+Expected: true
+A32 an ENTITY_DISCOVER in WAITING draws its delay and takes no sample
+
+  [FAIL] AdpCore.A32ADiscoverDrawTakesNoSample: A32 an ENTITY_DISCOVER in WAITING draws its delay and takes no sample
+[  FAILED  ] AdpCore.A32ADiscoverDrawTakesNoSample (0 ms)
+[ RUN      ] AdpCore.LinkLevelsAndDisabledInputs
+[       OK ] AdpCore.LinkLevelsAndDisabledInputs (0 ms)
+[ RUN      ] AdpCore.EntityFieldsUseIndependentCounts
+[       OK ] AdpCore.EntityFieldsUseIndependentCounts (0 ms)
+[ RUN      ] AdpCore.AdvertisementFieldsMatchCaller
+[       OK ] AdpCore.AdvertisementFieldsMatchCaller (0 ms)
+[ RUN      ] AdpCore.MockedPortOrder
+[       OK ] AdpCore.MockedPortOrder (0 ms)
+[----------] 27 tests from AdpCore (6 ms total)
+
+[----------] 7 tests from AdpDraw
+[ RUN      ] AdpDraw.H4NeighbouringEntitiesDrawUniformly
+  H4 neighbours, startup: 1024 draws over 0 to 2000 ms, chi-square 25.1 (99 %: 30.6)
+  H4 neighbours, startup: 1024 draws over 0 to 2000 ms, chi-square 8.2 (99 %: 30.6)
+  H4 neighbours, LINK_UP: 1024 draws over 0 to 4000 ms, chi-square 15360.0 (99 %: 30.6)
+$REVIEWS/r936-2-adp970/sw/firmware/ctrl/test/test_adp.cpp:944: Failure
+Value of: uniform(startup ? "H4 neighbours, startup" : "H4 neighbours, LINK_UP", d, max_ms) <= kChiSquare99
+  Actual: false
+Expected: true
+H4 neighbouring entities started together draw their first delay uniformly
+
+  [FAIL] AdpDraw.H4NeighbouringEntitiesDrawUniformly: H4 neighbouring entities started together draw their first delay uniformly
+  H4 neighbours, LINK_UP: 1024 draws over 0 to 4000 ms, chi-square 15360.0 (99 %: 30.6)
+$REVIEWS/r936-2-adp970/sw/firmware/ctrl/test/test_adp.cpp:944: Failure
+Value of: uniform(startup ? "H4 neighbours, startup" : "H4 neighbours, LINK_UP", d, max_ms) <= kChiSquare99
+  Actual: false
+Expected: true
+H4 neighbouring entities started together draw their first delay uniformly
+
+  [FAIL] AdpDraw.H4NeighbouringEntitiesDrawUniformly: H4 neighbouring entities started together draw their first delay uniformly
+[  FAILED  ] AdpDraw.H4NeighbouringEntitiesDrawUniformly (17 ms)
+[ RUN      ] AdpDraw.H5BootsDrawUniformly
+  H5 boots, startup: 1024 draws over 0 to 2000 ms, chi-square 16.5 (99 %: 30.6)
+  H5 boots, startup: 1024 draws over 0 to 2000 ms, chi-square 18.2 (99 %: 30.6)
+  H5 boots, LINK_UP: 1024 draws over 0 to 4000 ms, chi-square 15360.0 (99 %: 30.6)
+$REVIEWS/r936-2-adp970/sw/firmware/ctrl/test/test_adp.cpp:961: Failure
+Value of: uniform(startup ? "H5 boots, startup" : "H5 boots, LINK_UP", d, max_ms) <= kChiSquare99
+  Actual: false
+Expected: true
+H5 one entity's boots draw their first delay uniformly
+
+  [FAIL] AdpDraw.H5BootsDrawUniformly: H5 one entity's boots draw their first delay uniformly
+  H5 boots, LINK_UP: 1024 draws over 0 to 4000 ms, chi-square 15360.0 (99 %: 30.6)
+$REVIEWS/r936-2-adp970/sw/firmware/ctrl/test/test_adp.cpp:961: Failure
+Value of: uniform(startup ? "H5 boots, startup" : "H5 boots, LINK_UP", d, max_ms) <= kChiSquare99
+  Actual: false
+Expected: true
+H5 one entity's boots draw their first delay uniformly
+
+  [FAIL] AdpDraw.H5BootsDrawUniformly: H5 one entity's boots draw their first delay uniformly
+[  FAILED  ] AdpDraw.H5BootsDrawUniformly (17 ms)
+[ RUN      ] AdpDraw.H6WithoutAClockBootsDrawUniformly
+  H6 no clock, startup: 1024 draws over 0 to 2000 ms, chi-square 15.7 (99 %: 30.6)
+  H6 no clock, LINK_UP: 1024 draws over 0 to 4000 ms, chi-square 15360.0 (99 %: 30.6)
+$REVIEWS/r936-2-adp970/sw/firmware/ctrl/test/test_adp.cpp:976: Failure
+Value of: uniform(startup ? "H6 no clock, startup" : "H6 no clock, LINK_UP", d, startup ? kStartupDrawMaxMs : kLinkUpDrawMaxMs) <= kChiSquare99
+  Actual: false
+Expected: true
+H6 without a clock the seed's NOW_MS still spreads one entity's boots
+
+  [FAIL] AdpDraw.H6WithoutAClockBootsDrawUniformly: H6 without a clock the seed's NOW_MS still spreads one entity's boots
+[  FAILED  ] AdpDraw.H6WithoutAClockBootsDrawUniformly (113 ms)
+[ RUN      ] AdpDraw.H7TheSeedIsTheSumOfMacAndClockMixedWithTheEntityId
+[       OK ] AdpDraw.H7TheSeedIsTheSumOfMacAndClockMixedWithTheEntityId (0 ms)
+[ RUN      ] AdpDraw.H8ALaterLinkUpTakesAFreshSample
+  H8 a later LINK_UP: 1024 draws over 0 to 4000 ms, chi-square 15360.0 (99 %: 30.6)
+$REVIEWS/r936-2-adp970/sw/firmware/ctrl/test/test_adp.cpp:1014: Failure
+Value of: uniform("H8 a later LINK_UP", d, kLinkUpDrawMaxMs) <= kChiSquare99
+  Actual: false
+Expected: true
+H8 a LINK_UP after a link loss draws from a fresh sample
+
+  [FAIL] AdpDraw.H8ALaterLinkUpTakesAFreshSample: H8 a LINK_UP after a link loss draws from a fresh sample
+[  FAILED  ] AdpDraw.H8ALaterLinkUpTakesAFreshSample (9 ms)
+[ RUN      ] AdpDraw.H9EachQualifiedRiseReadsTheClockOnce
+$REVIEWS/r936-2-adp970/sw/firmware/ctrl/test/test_adp.cpp:1035: Failure
+Value of: clock_reads == rise && adp0()->draws == draws + 1u
+  Actual: false
+Expected: true
+H9 each qualified LINK_UP reads the clock once through the adapter
+
+  [FAIL] AdpDraw.H9EachQualifiedRiseReadsTheClockOnce: H9 each qualified LINK_UP reads the clock once through the adapter
+$REVIEWS/r936-2-adp970/sw/firmware/ctrl/test/test_adp.cpp:1038: Failure
+Value of: clock_reads == rise && adp0()->draws == draws + 1u
+  Actual: false
+Expected: true
+H9 a duplicate LINK_UP reads no clock
+
+  [FAIL] AdpDraw.H9EachQualifiedRiseReadsTheClockOnce: H9 a duplicate LINK_UP reads no clock
+$REVIEWS/r936-2-adp970/sw/firmware/ctrl/test/test_adp.cpp:1035: Failure
+Value of: clock_reads == rise && adp0()->draws == draws + 1u
+  Actual: false
+Expected: true
+H9 each qualified LINK_UP reads the clock once through the adapter
+
+  [FAIL] AdpDraw.H9EachQualifiedRiseReadsTheClockOnce: H9 each qualified LINK_UP reads the clock once through the adapter
+$REVIEWS/r936-2-adp970/sw/firmware/ctrl/test/test_adp.cpp:1038: Failure
+Value of: clock_reads == rise && adp0()->draws == draws + 1u
+  Actual: false
+Expected: true
+H9 a duplicate LINK_UP reads no clock
+
+  [FAIL] AdpDraw.H9EachQualifiedRiseReadsTheClockOnce: H9 a duplicate LINK_UP reads no clock
+$REVIEWS/r936-2-adp970/sw/firmware/ctrl/test/test_adp.cpp:1035: Failure
+Value of: clock_reads == rise && adp0()->draws == draws + 1u
+  Actual: false
+Expected: true
+H9 each qualified LINK_UP reads the clock once through the adapter
+
+  [FAIL] AdpDraw.H9EachQualifiedRiseReadsTheClockOnce: H9 each qualified LINK_UP reads the clock once through the adapter
+$REVIEWS/r936-2-adp970/sw/firmware/ctrl/test/test_adp.cpp:1038: Failure
+Value of: clock_reads == rise && adp0()->draws == draws + 1u
+  Actual: false
+Expected: true
+H9 a duplicate LINK_UP reads no clock
+
+  [FAIL] AdpDraw.H9EachQualifiedRiseReadsTheClockOnce: H9 a duplicate LINK_UP reads no clock
+$REVIEWS/r936-2-adp970/sw/firmware/ctrl/test/test_adp.cpp:1045: Failure
+Expected equality of these values:
+  clock_reads
+    Which is: 0
+  3u
+    Which is: 3
+H9 a LINK_UP while disabled reads no clock
+
+  [FAIL] AdpDraw.H9EachQualifiedRiseReadsTheClockOnce: H9 a LINK_UP while disabled reads no clock
+$REVIEWS/r936-2-adp970/sw/firmware/ctrl/test/test_adp.cpp:1047: Failure
+Value of: clock_reads == 4u && adp0()->last_draw == ADP_DRAW_STARTUP
+  Actual: false
+Expected: true
+H9 the startup draw reads the clock once
+
+  [FAIL] AdpDraw.H9EachQualifiedRiseReadsTheClockOnce: H9 the startup draw reads the clock once
+[  FAILED  ] AdpDraw.H9EachQualifiedRiseReadsTheClockOnce (0 ms)
+[ RUN      ] AdpDraw.H10TheClockAtTheLinkUpSetsItsDraw
+  H10 1 distinct first delays of 1024 boots apart only at the LINK_UP
+$REVIEWS/r936-2-adp970/sw/firmware/ctrl/test/test_adp.cpp:1071: Failure
+Value of: d.values.size() >= 600u
+  Actual: false
+Expected: true
+H10 boots apart only at the LINK_UP draw apart
+
+  [FAIL] AdpDraw.H10TheClockAtTheLinkUpSetsItsDraw: H10 boots apart only at the LINK_UP draw apart
+  H10 the first LINK_UP: 1024 draws over 0 to 4000 ms, chi-square 15360.0 (99 %: 30.6)
+$REVIEWS/r936-2-adp970/sw/firmware/ctrl/test/test_adp.cpp:1072: Failure
+Value of: uniform("H10 the first LINK_UP", d, kLinkUpDrawMaxMs) <= kChiSquare99
+  Actual: false
+Expected: true
+H10 and draw uniformly from the clock read at the LINK_UP
+
+  [FAIL] AdpDraw.H10TheClockAtTheLinkUpSetsItsDraw: H10 and draw uniformly from the clock read at the LINK_UP
+[  FAILED  ] AdpDraw.H10TheClockAtTheLinkUpSetsItsDraw (5 ms)
+[----------] 7 tests from AdpDraw (164 ms total)
+
+[----------] 6 tests from AdpAdapter
+[ RUN      ] AdpAdapter.B1StaleTagDiscarded
+$REVIEWS/r936-2-adp970/sw/firmware/ctrl/test/test_adp.cpp:143: Failure
+Value of: adp0()->state == ADP_STATE_DELAY && app.adp.ifs[0].armed
+  Actual: false
+Expected: true
+B1 and the replacing TMR_DELAY stands
+
+  [FAIL] AdpAdapter.B1StaleTagDiscarded: B1 and the replacing TMR_DELAY stands
+[  FAILED  ] AdpAdapter.B1StaleTagDiscarded (0 ms)
+[ RUN      ] AdpAdapter.PinRejectsEveryTruncatedDiscovery
+[       OK ] AdpAdapter.PinRejectsEveryTruncatedDiscovery (0 ms)
+[ RUN      ] AdpAdapter.PinRejectsUnsupportedDiscoveryVersions
+[       OK ] AdpAdapter.PinRejectsUnsupportedDiscoveryVersions (0 ms)
+[ RUN      ] AdpAdapter.PinRejectsShortDiscoveryControlLength
+[       OK ] AdpAdapter.PinRejectsShortDiscoveryControlLength (0 ms)
+[ RUN      ] AdpAdapter.PinAcceptsLongDiscoveryThroughMailbox
+[       OK ] AdpAdapter.PinAcceptsLongDiscoveryThroughMailbox (0 ms)
+[ RUN      ] AdpAdapter.PinAcceptsCompleteDiscoveryThroughMailbox
+[       OK ] AdpAdapter.PinAcceptsCompleteDiscoveryThroughMailbox (0 ms)
+[----------] 6 tests from AdpAdapter (1 ms total)
+
+[----------] 1 test from AdpLatency
+[ RUN      ] AdpLatency.C0toC6EveryResponsePath
+$REVIEWS/r936-2-adp970/sw/firmware/ctrl/test/test_adp.cpp:151: Failure
+Value of: adp0()->state == ADP_STATE_DELAY
+  Actual: false
+Expected: true
+C0 LINK_UP -> TMR_DELAY armed, one pass
+
+  [FAIL] AdpLatency.C0toC6EveryResponsePath: C0 LINK_UP -> TMR_DELAY armed, one pass
+  C0 LINK_UP -> TMR_DELAY armed                 47 accesses (bound 12)
+$REVIEWS/r936-2-adp970/sw/firmware/ctrl/test/test_adp.cpp:108: Failure
+Value of: accesses <= limit
+  Actual: false
+Expected: true
+C0 LINK_UP -> TMR_DELAY armed
+
+  [FAIL] AdpLatency.C0toC6EveryResponsePath: C0 LINK_UP -> TMR_DELAY armed
+  C1 TMR_DELAY -> ENTITY_AVAILABLE, TMR_ADVERTISE  47 accesses (bound 39)
+$REVIEWS/r936-2-adp970/sw/firmware/ctrl/test/test_adp.cpp:108: Failure
+Value of: accesses <= limit
+  Actual: false
+Expected: true
+C1 TMR_DELAY -> ENTITY_AVAILABLE, TMR_ADVERTISE
+
+  [FAIL] AdpLatency.C0toC6EveryResponsePath: C1 TMR_DELAY -> ENTITY_AVAILABLE, TMR_ADVERTISE
+  C2 RCV_ADP_DISCOVER -> TMR_DELAY armed        31 accesses (bound 31)
+$REVIEWS/r936-2-adp970/sw/firmware/ctrl/test/test_adp.cpp:170: Failure
+Value of: adp0()->state == ADP_STATE_DELAY
+  Actual: false
+Expected: true
+C3 TMR_ADVERTISE -> TMR_DELAY armed, one pass
+
+  [FAIL] AdpLatency.C0toC6EveryResponsePath: C3 TMR_ADVERTISE -> TMR_DELAY armed, one pass
+  C3 TMR_ADVERTISE -> TMR_DELAY armed           47 accesses (bound 11)
+$REVIEWS/r936-2-adp970/sw/firmware/ctrl/test/test_adp.cpp:108: Failure
+Value of: accesses <= limit
+  Actual: false
+Expected: true
+C3 TMR_ADVERTISE -> TMR_DELAY armed
+
+  [FAIL] AdpLatency.C0toC6EveryResponsePath: C3 TMR_ADVERTISE -> TMR_DELAY armed
+$REVIEWS/r936-2-adp970/sw/firmware/ctrl/test/test_adp.cpp:175: Failure
+Value of: adp0()->state == ADP_STATE_DELAY
+  Actual: false
+Expected: true
+C4 GM_CHANGE -> TMR_DELAY armed, one pass
+
+  [FAIL] AdpLatency.C0toC6EveryResponsePath: C4 GM_CHANGE -> TMR_DELAY armed, one pass
+  C4 GM_CHANGE -> TMR_DELAY armed               47 accesses (bound 11)
+$REVIEWS/r936-2-adp970/sw/firmware/ctrl/test/test_adp.cpp:108: Failure
+Value of: accesses <= limit
+  Actual: false
+Expected: true
+C4 GM_CHANGE -> TMR_DELAY armed
+
+  [FAIL] AdpLatency.C0toC6EveryResponsePath: C4 GM_CHANGE -> TMR_DELAY armed
+  C5 LINK_DOWN -> timer cancelled                9 accesses (bound 12)
+  C6 SHUTDOWN -> ENTITY_DEPARTING committed     28 accesses (bound 29)
+[  FAILED  ] AdpLatency.C0toC6EveryResponsePath (1 ms)
+[----------] 1 test from AdpLatency (1 ms total)
+
+[----------] 2 tests from AdpOwed
+[ RUN      ] AdpOwed.E0toE3PendingWake
+$REVIEWS/r936-2-adp970/sw/firmware/ctrl/test/test_adp.cpp:222: Failure
+Expected equality of these values:
+  adp0()->state
+    Which is: 3
+  ADP_STATE_DELAY
+    Which is: 2
+E0 LINK_UP takes the machine to DELAY
+
+  [FAIL] AdpOwed.E0toE3PendingWake: E0 LINK_UP takes the machine to DELAY
+$REVIEWS/r936-2-adp970/sw/firmware/ctrl/test/test_adp.cpp:254: Failure
+Value of: waiter.waits > waits && waiter.dead == 0u && adp0()->state == ADP_STATE_DELAY
+  Actual: false
+Expected: true
+E3 then the loop sleeps, and the TMR_ADVERTISE expiry wakes it
+
+  [FAIL] AdpOwed.E0toE3PendingWake: E3 then the loop sleeps, and the TMR_ADVERTISE expiry wakes it
+[  FAILED  ] AdpOwed.E0toE3PendingWake (5 ms)
+[ RUN      ] AdpOwed.E4OwedDepartingWake
+[       OK ] AdpOwed.E4OwedDepartingWake (0 ms)
+[----------] 2 tests from AdpOwed (5 ms total)
+
+[----------] 4 tests from AdpFirstAvailable
+[ RUN      ] AdpFirstAvailable.G1G5WithinTheLinkUpDrawOfEveryLinkUp
+  G1 64 LINK_UPs: the first ENTITY_AVAILABLE 1 distinct delays, the latest 0 ms after LINK_UP (its draw 0 to 4000 ms; the declared discovery time 6000 ms)
+  G5 the TMR_ADVERTISE delays after them: 1 distinct, the latest 0 ms (0 to 4000)
+  G1 the LINK_UP delays, by 4 parts of 0 to 4000 ms: 64 0 0 0
+  G5 the TMR_ADVERTISE delays, by 4 parts of 0 to 4000 ms: 64 0 0 0
+$REVIEWS/r936-2-adp970/sw/firmware/ctrl/test/test_adp.cpp:719: Failure
+Value of: first.covers(kLinkUpDrawMaxMs, 4u, 8u)
+  Actual: false
+Expected: true
+G1 the LINK_UP delay is spread over 0 to 4 s: each quarter holds at least 8 of the 64
+
+  [FAIL] AdpFirstAvailable.G1G5WithinTheLinkUpDrawOfEveryLinkUp: G1 the LINK_UP delay is spread over 0 to 4 s: each quarter holds at least 8 of the 64
+$REVIEWS/r936-2-adp970/sw/firmware/ctrl/test/test_adp.cpp:724: Failure
+Value of: later.covers(kDelayMaxMs, 4u, 8u)
+  Actual: false
+Expected: true
+G5 the TMR_ADVERTISE delay is spread over 0 to 4 s: each quarter holds at least 8 of the 64
+
+  [FAIL] AdpFirstAvailable.G1G5WithinTheLinkUpDrawOfEveryLinkUp: G5 the TMR_ADVERTISE delay is spread over 0 to 4 s: each quarter holds at least 8 of the 64
+[  FAILED  ] AdpFirstAvailable.G1G5WithinTheLinkUpDrawOfEveryLinkUp (50 ms)
+[ RUN      ] AdpFirstAvailable.G2WithinTheStartupDraw
+  G2 32 startups with the link up: the first ENTITY_AVAILABLE 32 distinct delays, the latest 1959 ms (its draw 0 to 2000 ms)
+  G2 the startup delays, by 2 parts of 0 to 2000 ms: 17 15
+[       OK ] AdpFirstAvailable.G2WithinTheStartupDraw (5 ms)
+[ RUN      ] AdpFirstAvailable.G3AGrandmasterChangeBeforeItIsCarriedByIt
+  G3 0 LINK_UPs with a grandmaster change in the delay: the first ENTITY_AVAILABLE the latest 0 ms after LINK_UP
+$REVIEWS/r936-2-adp970/sw/firmware/ctrl/test/test_adp.cpp:800: Failure
+Value of: changed >= 24u
+  Actual: false
+Expected: true
+G3 the grandmaster changed inside the link-up's delay in at least 24 of 32
+
+  [FAIL] AdpFirstAvailable.G3AGrandmasterChangeBeforeItIsCarriedByIt: G3 the grandmaster changed inside the link-up's delay in at least 24 of 32
+[  FAILED  ] AdpFirstAvailable.G3AGrandmasterChangeBeforeItIsCarriedByIt (0 ms)
+[ RUN      ] AdpFirstAvailable.G4AGrandmasterChangeAfterItIsAnnounced
+  G4 32 LINK_UPs, a grandmaster change 4.5 s after each: the first ENTITY_AVAILABLE the latest 0 ms after LINK_UP, the new grandmaster's the latest 0 ms after the change
+  G4 the grandmaster change's delays, by 2 parts of 0 to 4000 ms: 32 0
+$REVIEWS/r936-2-adp970/sw/firmware/ctrl/test/test_adp.cpp:851: Failure
+Value of: announced
+  Actual: false
+Expected: true
+G4 a grandmaster change after the first ENTITY_AVAILABLE starts a delay at once and is announced by a new one, its next index
+
+  [FAIL] AdpFirstAvailable.G4AGrandmasterChangeAfterItIsAnnounced: G4 a grandmaster change after the first ENTITY_AVAILABLE starts a delay at once and is announced by a new one, its next index
+$REVIEWS/r936-2-adp970/sw/firmware/ctrl/test/test_adp.cpp:853: Failure
+Value of: change_to_new.all.size() == 32u && change_to_new.worst > kStartupDrawMaxMs + kPassMs
+  Actual: false
+Expected: true
+G4 the grandmaster change's delay is the 0 to 4 s draw: across the link-ups it passes 2 s
+
+  [FAIL] AdpFirstAvailable.G4AGrandmasterChangeAfterItIsAnnounced: G4 the grandmaster change's delay is the 0 to 4 s draw: across the link-ups it passes 2 s
+[  FAILED  ] AdpFirstAvailable.G4AGrandmasterChangeAfterItIsAnnounced (23 ms)
+[----------] 4 tests from AdpFirstAvailable (79 ms total)
+
+[----------] 1 test from AdpBacklog
+[ RUN      ] AdpBacklog.F0toF7FullBacklogs
+  backlog: 16 event records, 30 centiseconds, 8 receive records
+  passes: events by 2, ENTITY_AVAILABLE in 3 (197 accesses), receive ring by 5 (232 accesses), idle at 16; worst pass 73 accesses
+$REVIEWS/r936-2-adp970/sw/firmware/ctrl/test/test_adp.cpp:539: Failure
+Value of: s.answer_at != 0u && s.answer_at <= (((64u / 4u) + 8u - 1u) / 8u) && s.answer_at == s.evt_at
+  Actual: false
+Expected: true
+F2 the TMR_DELAY expiry, posted 16th, has its ENTITY_AVAILABLE committed in the pass that takes it
+
+  [FAIL] AdpBacklog.F0toF7FullBacklogs: F2 the TMR_DELAY expiry, posted 16th, has its ENTITY_AVAILABLE committed in the pass that takes it
+  F5 the costliest pass of the backlog          73 accesses (bound 407)
+[  FAILED  ] AdpBacklog.F0toF7FullBacklogs (0 ms)
+[----------] 1 test from AdpBacklog (0 ms total)
+
+[----------] 30 tests from AllStates/AdpInputControl
+[ RUN      ] AllStates/AdpInputControl.RejectsUnsupportedVersion/0
+[       OK ] AllStates/AdpInputControl.RejectsUnsupportedVersion/0 (0 ms)
+[ RUN      ] AllStates/AdpInputControl.RejectsUnsupportedVersion/1
+[       OK ] AllStates/AdpInputControl.RejectsUnsupportedVersion/1 (0 ms)
+[ RUN      ] AllStates/AdpInputControl.RejectsUnsupportedVersion/2
+[       OK ] AllStates/AdpInputControl.RejectsUnsupportedVersion/2 (0 ms)
+[ RUN      ] AllStates/AdpInputControl.RejectsUnsupportedVersion/3
+[       OK ] AllStates/AdpInputControl.RejectsUnsupportedVersion/3 (0 ms)
+[ RUN      ] AllStates/AdpInputControl.RejectsUnsupportedVersion/4
+[       OK ] AllStates/AdpInputControl.RejectsUnsupportedVersion/4 (0 ms)
+[ RUN      ] AllStates/AdpInputControl.RejectsShortFrame/0
+[       OK ] AllStates/AdpInputControl.RejectsShortFrame/0 (0 ms)
+[ RUN      ] AllStates/AdpInputControl.RejectsShortFrame/1
+[       OK ] AllStates/AdpInputControl.RejectsShortFrame/1 (0 ms)
+[ RUN      ] AllStates/AdpInputControl.RejectsShortFrame/2
+[       OK ] AllStates/AdpInputControl.RejectsShortFrame/2 (0 ms)
+[ RUN      ] AllStates/AdpInputControl.RejectsShortFrame/3
+[       OK ] AllStates/AdpInputControl.RejectsShortFrame/3 (0 ms)
+[ RUN      ] AllStates/AdpInputControl.RejectsShortFrame/4
+[       OK ] AllStates/AdpInputControl.RejectsShortFrame/4 (0 ms)
+[ RUN      ] AllStates/AdpInputControl.RejectsShortControlDataLength/0
+[       OK ] AllStates/AdpInputControl.RejectsShortControlDataLength/0 (0 ms)
+[ RUN      ] AllStates/AdpInputControl.RejectsShortControlDataLength/1
+[       OK ] AllStates/AdpInputControl.RejectsShortControlDataLength/1 (0 ms)
+[ RUN      ] AllStates/AdpInputControl.RejectsShortControlDataLength/2
+[       OK ] AllStates/AdpInputControl.RejectsShortControlDataLength/2 (0 ms)
+[ RUN      ] AllStates/AdpInputControl.RejectsShortControlDataLength/3
+[       OK ] AllStates/AdpInputControl.RejectsShortControlDataLength/3 (0 ms)
+[ RUN      ] AllStates/AdpInputControl.RejectsShortControlDataLength/4
+[       OK ] AllStates/AdpInputControl.RejectsShortControlDataLength/4 (0 ms)
+[ RUN      ] AllStates/AdpInputControl.AcceptsLongControlDataLength/0
+[       OK ] AllStates/AdpInputControl.AcceptsLongControlDataLength/0 (0 ms)
+[ RUN      ] AllStates/AdpInputControl.AcceptsLongControlDataLength/1
+[       OK ] AllStates/AdpInputControl.AcceptsLongControlDataLength/1 (0 ms)
+[ RUN      ] AllStates/AdpInputControl.AcceptsLongControlDataLength/2
+[       OK ] AllStates/AdpInputControl.AcceptsLongControlDataLength/2 (0 ms)
+[ RUN      ] AllStates/AdpInputControl.AcceptsLongControlDataLength/3
+[       OK ] AllStates/AdpInputControl.AcceptsLongControlDataLength/3 (1 ms)
+[ RUN      ] AllStates/AdpInputControl.AcceptsLongControlDataLength/4
+[       OK ] AllStates/AdpInputControl.AcceptsLongControlDataLength/4 (1 ms)
+[ RUN      ] AllStates/AdpInputControl.ReadsNoOctetPastTheFrame/0
+[       OK ] AllStates/AdpInputControl.ReadsNoOctetPastTheFrame/0 (1 ms)
+[ RUN      ] AllStates/AdpInputControl.ReadsNoOctetPastTheFrame/1
+[       OK ] AllStates/AdpInputControl.ReadsNoOctetPastTheFrame/1 (0 ms)
+[ RUN      ] AllStates/AdpInputControl.ReadsNoOctetPastTheFrame/2
+[       OK ] AllStates/AdpInputControl.ReadsNoOctetPastTheFrame/2 (1 ms)
+[ RUN      ] AllStates/AdpInputControl.ReadsNoOctetPastTheFrame/3
+[       OK ] AllStates/AdpInputControl.ReadsNoOctetPastTheFrame/3 (1 ms)
+[ RUN      ] AllStates/AdpInputControl.ReadsNoOctetPastTheFrame/4
+[       OK ] AllStates/AdpInputControl.ReadsNoOctetPastTheFrame/4 (1 ms)
+[ RUN      ] AllStates/AdpInputControl.ValidDiscovery/0
+[       OK ] AllStates/AdpInputControl.ValidDiscovery/0 (0 ms)
+[ RUN      ] AllStates/AdpInputControl.ValidDiscovery/1
+[       OK ] AllStates/AdpInputControl.ValidDiscovery/1 (0 ms)
+[ RUN      ] AllStates/AdpInputControl.ValidDiscovery/2
+[       OK ] AllStates/AdpInputControl.ValidDiscovery/2 (0 ms)
+[ RUN      ] AllStates/AdpInputControl.ValidDiscovery/3
+[       OK ] AllStates/AdpInputControl.ValidDiscovery/3 (0 ms)
+[ RUN      ] AllStates/AdpInputControl.ValidDiscovery/4
+[       OK ] AllStates/AdpInputControl.ValidDiscovery/4 (0 ms)
+[----------] 30 tests from AllStates/AdpInputControl (15 ms total)
+
+[----------] 6 tests from Shutdowns/AdpOwedBound
+[ RUN      ] Shutdowns/AdpOwedBound.E5CommittedInPassKPlusOne/0
+  E5 1 SHUTDOWNs, expiry taken before the room: room to ENTITY_AVAILABLE  62 accesses (bound 1628)
+[       OK ] Shutdowns/AdpOwedBound.E5CommittedInPassKPlusOne/0 (0 ms)
+[ RUN      ] Shutdowns/AdpOwedBound.E5CommittedInPassKPlusOne/1
+  E5 1 SHUTDOWNs, expiry taken after the room: room to ENTITY_AVAILABLE  68 accesses (bound 1628)
+[       OK ] Shutdowns/AdpOwedBound.E5CommittedInPassKPlusOne/1 (0 ms)
+[ RUN      ] Shutdowns/AdpOwedBound.E5CommittedInPassKPlusOne/2
+  E5 2 SHUTDOWNs, expiry taken before the room: room to ENTITY_AVAILABLE  91 accesses (bound 1628)
+[       OK ] Shutdowns/AdpOwedBound.E5CommittedInPassKPlusOne/2 (0 ms)
+[ RUN      ] Shutdowns/AdpOwedBound.E5CommittedInPassKPlusOne/3
+  E5 2 SHUTDOWNs, expiry taken after the room: room to ENTITY_AVAILABLE  97 accesses (bound 1628)
+[       OK ] Shutdowns/AdpOwedBound.E5CommittedInPassKPlusOne/3 (0 ms)
+[ RUN      ] Shutdowns/AdpOwedBound.E5CommittedInPassKPlusOne/4
+  E5 64 SHUTDOWNs, expiry taken before the room: room to ENTITY_AVAILABLE  91 accesses (bound 1628)
+[       OK ] Shutdowns/AdpOwedBound.E5CommittedInPassKPlusOne/4 (0 ms)
+[ RUN      ] Shutdowns/AdpOwedBound.E5CommittedInPassKPlusOne/5
+  E5 64 SHUTDOWNs, expiry taken after the room: room to ENTITY_AVAILABLE  97 accesses (bound 1628)
+[       OK ] Shutdowns/AdpOwedBound.E5CommittedInPassKPlusOne/5 (0 ms)
+[----------] 6 tests from Shutdowns/AdpOwedBound (1 ms total)
+
+[----------] Global test environment tear-down
+[==========] 84 tests from 9 test suites ran. (276 ms total)
+[  PASSED  ] 64 tests.
+[  FAILED  ] 20 tests, listed below:
+[  FAILED  ] AdpCore.A25FirstDrawsAreUniformOverSamples
+[  FAILED  ] AdpCore.A26NeighbouringHostsDrawUniformly
+[  FAILED  ] AdpCore.A27EverySeedTermIsMixedIn
+[  FAILED  ] AdpCore.A28EachLeaveOfDownTakesAFreshSample
+[  FAILED  ] AdpCore.A30EachQualifiedRiseTakesOneSample
+[  FAILED  ] AdpCore.A31TheLinkUpsSampleSetsItsDraw
+[  FAILED  ] AdpCore.A32ADiscoverDrawTakesNoSample
+[  FAILED  ] AdpDraw.H4NeighbouringEntitiesDrawUniformly
+[  FAILED  ] AdpDraw.H5BootsDrawUniformly
+[  FAILED  ] AdpDraw.H6WithoutAClockBootsDrawUniformly
+[  FAILED  ] AdpDraw.H8ALaterLinkUpTakesAFreshSample
+[  FAILED  ] AdpDraw.H9EachQualifiedRiseReadsTheClockOnce
+[  FAILED  ] AdpDraw.H10TheClockAtTheLinkUpSetsItsDraw
+[  FAILED  ] AdpAdapter.B1StaleTagDiscarded
+[  FAILED  ] AdpLatency.C0toC6EveryResponsePath
+[  FAILED  ] AdpOwed.E0toE3PendingWake
+[  FAILED  ] AdpFirstAvailable.G1G5WithinTheLinkUpDrawOfEveryLinkUp
+[  FAILED  ] AdpFirstAvailable.G3AGrandmasterChangeBeforeItIsCarriedByIt
+[  FAILED  ] AdpFirstAvailable.G4AGrandmasterChangeAfterItIsAnnounced
+[  FAILED  ] AdpBacklog.F0toF7FullBacklogs
+
+20 FAILED TESTS
+== ctrl ADP slice (fake ports and host model): checks: 84   failures: 20 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 20 failure(s) across 84 checks, exit 1)

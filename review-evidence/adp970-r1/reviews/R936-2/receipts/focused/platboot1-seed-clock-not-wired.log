@@ -1,0 +1,154 @@
+[==========] Running 59 tests from 3 test suites.
+[----------] Global test environment set-up.
+[----------] 26 tests from Boot
+[ RUN      ] Boot.B1ReachesReadyInStepOrder
+[       OK ] Boot.B1ReachesReadyInStepOrder (3 ms)
+[ RUN      ] Boot.B2ForeignWindowStopsAtIdentity
+[       OK ] Boot.B2ForeignWindowStopsAtIdentity (0 ms)
+[ RUN      ] Boot.B3RefusedImageStopsAtImage
+[       OK ] Boot.B3RefusedImageStopsAtImage (0 ms)
+[ RUN      ] Boot.B4RefusedStreamCountStopsAfterThePolicy
+[       OK ] Boot.B4RefusedStreamCountStopsAfterThePolicy (0 ms)
+[ RUN      ] Boot.B5OtherContractStopsAtMailbox
+[       OK ] Boot.B5OtherContractStopsAtMailbox (0 ms)
+[ RUN      ] Boot.B6UnacknowledgedFaceStopsAtAecp
+[       OK ] Boot.B6UnacknowledgedFaceStopsAtAecp (0 ms)
+[ RUN      ] Boot.B7OnlyAReadyBootServicesTheLoop
+[       OK ] Boot.B7OnlyAReadyBootServicesTheLoop (3 ms)
+[ RUN      ] Boot.B8PlatformPortsAnswerAsDocumented
+[       OK ] Boot.B8PlatformPortsAnswerAsDocumented (0 ms)
+[ RUN      ] Boot.B9SrpSourcesCarryTheGeneratedStreams
+[       OK ] Boot.B9SrpSourcesCarryTheGeneratedStreams (0 ms)
+[ RUN      ] Boot.B10ABindAfterReadyIsWrittenBackThroughTheLoop
+[       OK ] Boot.B10ABindAfterReadyIsWrittenBackThroughTheLoop (2 ms)
+[ RUN      ] Boot.B11ARebootIsAnsweredNotifiedDepartsAndThenResets
+[       OK ] Boot.B11ARebootIsAnsweredNotifiedDepartsAndThenResets (0 ms)
+[ RUN      ] Boot.B12TheResetWaitsForTheResponseToLeave
+[       OK ] Boot.B12TheResetWaitsForTheResponseToLeave (0 ms)
+[ RUN      ] Boot.B13RefusalsLeaveTheEntityInService
+[       OK ] Boot.B13RefusalsLeaveTheEntityInService (0 ms)
+[ RUN      ] Boot.B14WithoutAResetPortRebootIsNotImplemented
+[       OK ] Boot.B14WithoutAResetPortRebootIsNotImplemented (0 ms)
+[ RUN      ] Boot.B15TheResetRestoresTheSavedStateAndAdvertisesAgain
+[       OK ] Boot.B15TheResetRestoresTheSavedStateAndAdvertisesAgain (2 ms)
+[ RUN      ] Boot.B16ARebootDuringTheJournalWriteKeepsTheChange
+[       OK ] Boot.B16ARebootDuringTheJournalWriteKeepsTheChange (4 ms)
+[ RUN      ] Boot.B17NothingIsTakenOrSentOnceTheResetPortFired
+[       OK ] Boot.B17NothingIsTakenOrSentOnceTheResetPortFired (2 ms)
+[ RUN      ] Boot.B18ADepartingTheRingRefusedHoldsTheReset
+[       OK ] Boot.B18ADepartingTheRingRefusedHoldsTheReset (0 ms)
+[ RUN      ] Boot.B19NoFrameOfAnyChannelIsTakenFromTheSuccess
+[       OK ] Boot.B19NoFrameOfAnyChannelIsTakenFromTheSuccess (0 ms)
+[ RUN      ] Boot.B20NoOtherChannelTransmitsAfterTheDeparting
+[       OK ] Boot.B20NoOtherChannelTransmitsAfterTheDeparting (0 ms)
+[ RUN      ] Boot.B21TheDepartingWaitsForEveryOtherRing
+[       OK ] Boot.B21TheDepartingWaitsForEveryOtherRing (0 ms)
+[ RUN      ] Boot.B22TheGateHoldsInThePassThatTakesTheReboot
+[       OK ] Boot.B22TheGateHoldsInThePassThatTakesTheReboot (0 ms)
+[ RUN      ] Boot.B23TheGateHoldsWhileTheResponseCannotBeHandedOver
+[       OK ] Boot.B23TheGateHoldsWhileTheResponseCannotBeHandedOver (0 ms)
+[ RUN      ] Boot.B24GetAsPathAnswersTheDatapathsSequence
+[       OK ] Boot.B24GetAsPathAnswersTheDatapathsSequence (0 ms)
+[ RUN      ] Boot.B25TheAdpDrawIsSeededFromThePlatformsClock
+$REVIEWS/r936-2-adp970/sw/firmware/ctrl/test/test_plat_boot.cpp:1358: Failure
+Value of: seeded[0] != seeded[1] && seeded[1] != seeded[2] && seeded[0] != seeded[2]
+  Actual: false
+Expected: true
+B25 boots one microsecond apart in the clock's origin seed ADP's draw differently (#970)
+
+  [FAIL] Boot.B25TheAdpDrawIsSeededFromThePlatformsClock: B25 boots one microsecond apart in the clock's origin seed ADP's draw differently (#970)
+[  FAILED  ] Boot.B25TheAdpDrawIsSeededFromThePlatformsClock (0 ms)
+[ RUN      ] Boot.B27ALinkUpReadsThePlatformsClockAtTheLinkUp
+$REVIEWS/r936-2-adp970/sw/firmware/ctrl/test/test_plat_boot.cpp:1394: Failure
+Value of: rose[0] != rose[1] && rose[1] != rose[2] && rose[0] != rose[2]
+  Actual: false
+Expected: true
+B27 boots apart only in the clock at the LINK_UP draw apart (#970)
+
+  [FAIL] Boot.B27ALinkUpReadsThePlatformsClockAtTheLinkUp: B27 boots apart only in the clock at the LINK_UP draw apart (#970)
+[  FAILED  ] Boot.B27ALinkUpReadsThePlatformsClockAtTheLinkUp (0 ms)
+[----------] 26 tests from Boot (29 ms total)
+
+[----------] 8 tests from Phy
+[ RUN      ] Phy.B11ArmedPastTheIdentityCheck
+[       OK ] Phy.B11ArmedPastTheIdentityCheck (0 ms)
+[ RUN      ] Phy.B12StepCarriesTheStoresSaveOrAPhyFrame
+[       OK ] Phy.B12StepCarriesTheStoresSaveOrAPhyFrame (3 ms)
+[ RUN      ] Phy.L1ReadyLoopPublishesTheLink
+[       OK ] Phy.L1ReadyLoopPublishesTheLink (1 ms)
+[ RUN      ] Phy.L2EveryEdgeIsCounted
+[       OK ] Phy.L2EveryEdgeIsCounted (16 ms)
+[ RUN      ] Phy.L3EachEdgeNotifiesTheCounters
+[       OK ] Phy.L3EachEdgeNotifiesTheCounters (15 ms)
+[ RUN      ] Phy.L4ReturnEndsTheCeaseWithinAPoll
+[       OK ] Phy.L4ReturnEndsTheCeaseWithinAPoll (7 ms)
+[ RUN      ] Phy.L5ASaveKeepsThePollItsPeriod
+[       OK ] Phy.L5ASaveKeepsThePollItsPeriod (2 ms)
+[ RUN      ] Phy.L6AProbeThatAlwaysMissesLeavesTheSaveItsWorstCase
+[       OK ] Phy.L6AProbeThatAlwaysMissesLeavesTheSaveItsWorstCase (23 ms)
+[----------] 8 tests from Phy (70 ms total)
+
+[----------] 25 tests from PlatPhy
+[ RUN      ] PlatPhy.P1OneAddressIsProbedACall
+[       OK ] PlatPhy.P1OneAddressIsProbedACall (0 ms)
+[ RUN      ] PlatPhy.P2PollsArePaced
+[       OK ] PlatPhy.P2PollsArePaced (0 ms)
+[ RUN      ] PlatPhy.P3LatchedLossPublishesBothEdges
+[       OK ] PlatPhy.P3LatchedLossPublishesBothEdges (0 ms)
+[ RUN      ] PlatPhy.P4ResolvedModesAreTheReleases
+[       OK ] PlatPhy.P4ResolvedModesAreTheReleases (0 ms)
+[ RUN      ] PlatPhy.P5ErrorsAreLinkDown
+[       OK ] PlatPhy.P5ErrorsAreLinkDown (0 ms)
+[ RUN      ] PlatPhy.P6FramesAreClause22Reads
+[       OK ] PlatPhy.P6FramesAreClause22Reads (0 ms)
+[ RUN      ] PlatPhy.P7OneFrameACallWithItsRoom
+[       OK ] PlatPhy.P7OneFrameACallWithItsRoom (0 ms)
+[ RUN      ] PlatPhy.P8OwedWhileAFrameIsDue
+[       OK ] PlatPhy.P8OwedWhileAFrameIsDue (0 ms)
+[ RUN      ] PlatPhy.P9NoMdioArmsNothing
+[       OK ] PlatPhy.P9NoMdioArmsNothing (0 ms)
+[ RUN      ] PlatPhy.P10TheClockWraps
+[       OK ] PlatPhy.P10TheClockWraps (0 ms)
+[ RUN      ] PlatPhy.P11TheBootAdvertisesGigabitOnly
+[       OK ] PlatPhy.P11TheBootAdvertisesGigabitOnly (0 ms)
+[ RUN      ] PlatPhy.P12A10100PhyIsNeverWritten
+[       OK ] PlatPhy.P12A10100PhyIsNeverWritten (0 ms)
+[ RUN      ] PlatPhy.P13ALossWritesAndVerifiesItAgain
+[       OK ] PlatPhy.P13ALossWritesAndVerifiesItAgain (0 ms)
+[ RUN      ] PlatPhy.P14AResetPhyIsAdvertisedAgain
+[       OK ] PlatPhy.P14AResetPhyIsAdvertisedAgain (0 ms)
+[ RUN      ] PlatPhy.P15AnUnverifiedAdvertisementStaysOwed
+[       OK ] PlatPhy.P15AnUnverifiedAdvertisementStaysOwed (0 ms)
+[ RUN      ] PlatPhy.P16AnUnacknowledgedReadWritesNothing
+[       OK ] PlatPhy.P16AnUnacknowledgedReadWritesNothing (0 ms)
+[ RUN      ] PlatPhy.P17TheRepairedAdvertisementIsTheOneInForce
+[       OK ] PlatPhy.P17TheRepairedAdvertisementIsTheOneInForce (0 ms)
+[ RUN      ] PlatPhy.P18TheRestartIsVerifiedByItsOutcome
+[       OK ] PlatPhy.P18TheRestartIsVerifiedByItsOutcome (0 ms)
+[ RUN      ] PlatPhy.P18OneRestartAPollUntilOneTakes
+[       OK ] PlatPhy.P18OneRestartAPollUntilOneTakes (0 ms)
+[ RUN      ] PlatPhy.P18OnlyAMissingGigabitLinkOwesARestart
+[       OK ] PlatPhy.P18OnlyAMissingGigabitLinkOwesARestart (0 ms)
+[ RUN      ] PlatPhy.P19TheBootFormsTheLinkOnce
+[       OK ] PlatPhy.P19TheBootFormsTheLinkOnce (0 ms)
+[ RUN      ] PlatPhy.P20TheArmPublishesLinkDownFirst
+[       OK ] PlatPhy.P20TheArmPublishesLinkDownFirst (0 ms)
+[ RUN      ] PlatPhy.P21TheOutcomeStandsBehindTheBoot
+[       OK ] PlatPhy.P21TheOutcomeStandsBehindTheBoot (0 ms)
+[ RUN      ] PlatPhy.P22TheBootRestartsAPhyNotNegotiating
+[       OK ] PlatPhy.P22TheBootRestartsAPhyNotNegotiating (0 ms)
+[ RUN      ] PlatPhy.P23AForcedModeIsNeverPublishedUp
+[       OK ] PlatPhy.P23AForcedModeIsNeverPublishedUp (0 ms)
+[----------] 25 tests from PlatPhy (8 ms total)
+
+[----------] Global test environment tear-down
+[==========] 59 tests from 3 test suites ran. (108 ms total)
+[  PASSED  ] 57 tests.
+[  FAILED  ] 2 tests, listed below:
+[  FAILED  ] Boot.B25TheAdpDrawIsSeededFromThePlatformsClock
+[  FAILED  ] Boot.B27ALinkUpReadsThePlatformsClockAtTheLinkUp
+
+ 2 FAILED TESTS
+== ctrl split platform boot (host model, endstation_ax7101_1x1_tdm8 if1): checks: 59   failures: 2 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 2 failure(s) across 59 checks, exit 1)

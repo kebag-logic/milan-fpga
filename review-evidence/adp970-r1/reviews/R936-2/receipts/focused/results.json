@@ -1,0 +1,191 @@
+[
+  {
+    "arm": "adp",
+    "case": "baseline",
+    "rc": 0,
+    "pass": true
+  },
+  {
+    "arm": "adp",
+    "case": "seed-is-now-ms",
+    "rc": 1,
+    "pass": true,
+    "required_tests": [
+      "AdpDraw.H5BootsDrawUniformly"
+    ]
+  },
+  {
+    "arm": "adp",
+    "case": "seed-fallback-constant",
+    "rc": 1,
+    "pass": true,
+    "required_tests": [
+      "AdpDraw.H6WithoutAClockBootsDrawUniformly"
+    ]
+  },
+  {
+    "arm": "adp",
+    "case": "seed-mix-is-the-identity",
+    "rc": 1,
+    "pass": true,
+    "required_tests": [
+      "AdpDraw.H5BootsDrawUniformly"
+    ]
+  },
+  {
+    "arm": "adp",
+    "case": "seed-one-round",
+    "rc": 1,
+    "pass": true,
+    "required_tests": [
+      "AdpDraw.H4NeighbouringEntitiesDrawUniformly"
+    ]
+  },
+  {
+    "arm": "adp",
+    "case": "seed-without-the-entity-id",
+    "rc": 1,
+    "pass": true,
+    "required_tests": [
+      "AdpDraw.H4NeighbouringEntitiesDrawUniformly"
+    ]
+  },
+  {
+    "arm": "adp",
+    "case": "seed-without-the-mac",
+    "rc": 1,
+    "pass": true,
+    "required_tests": [
+      "AdpDraw.H7TheSeedIsTheSumOfMacAndClockMixedWithTheEntityId"
+    ]
+  },
+  {
+    "arm": "adp",
+    "case": "seed-mac-not-summed",
+    "rc": 1,
+    "pass": true,
+    "required_tests": [
+      "AdpDraw.H7TheSeedIsTheSumOfMacAndClockMixedWithTheEntityId"
+    ]
+  },
+  {
+    "arm": "adp",
+    "case": "seed-end-around-carry-added",
+    "rc": 1,
+    "pass": true,
+    "required_tests": [
+      "AdpDraw.H7TheSeedIsTheSumOfMacAndClockMixedWithTheEntityId"
+    ]
+  },
+  {
+    "arm": "adp",
+    "case": "later-link-up-not-reseeded",
+    "rc": 1,
+    "pass": true,
+    "required_tests": [
+      "AdpDraw.H8ALaterLinkUpTakesAFreshSample"
+    ]
+  },
+  {
+    "arm": "adp",
+    "case": "link-up-not-sampled",
+    "rc": 1,
+    "pass": true,
+    "required_tests": [
+      "AdpDraw.H9EachQualifiedRiseReadsTheClockOnce"
+    ]
+  },
+  {
+    "arm": "adp",
+    "case": "duplicate-up-sampled",
+    "rc": 1,
+    "pass": true,
+    "required_tests": [
+      "AdpDraw.H9EachQualifiedRiseReadsTheClockOnce"
+    ]
+  },
+  {
+    "arm": "adp",
+    "case": "disabled-up-sampled",
+    "rc": 1,
+    "pass": true,
+    "required_tests": [
+      "AdpDraw.H9EachQualifiedRiseReadsTheClockOnce"
+    ]
+  },
+  {
+    "arm": "adp",
+    "case": "link-up-sample-ignored",
+    "rc": 1,
+    "pass": true,
+    "required_tests": [
+      "AdpDraw.H10TheClockAtTheLinkUpSetsItsDraw"
+    ]
+  },
+  {
+    "arm": "platboot1",
+    "case": "baseline",
+    "rc": 0,
+    "pass": true
+  },
+  {
+    "arm": "platboot1",
+    "case": "seed-clock-not-wired",
+    "rc": 1,
+    "pass": true,
+    "required_tests": [
+      "Boot.B25TheAdpDrawIsSeededFromThePlatformsClock"
+    ]
+  },
+  {
+    "arm": "platboot1",
+    "case": "link-up-not-sampled",
+    "rc": 1,
+    "pass": true,
+    "required_tests": [
+      "Boot.B27ALinkUpReadsThePlatformsClockAtTheLinkUp"
+    ]
+  },
+  {
+    "arm": "platboot1",
+    "case": "plat-clock-in-milliseconds",
+    "rc": 1,
+    "pass": true,
+    "required_tests": [
+      "Boot.B25TheAdpDrawIsSeededFromThePlatformsClock"
+    ]
+  },
+  {
+    "arm": "platboot1",
+    "case": "plat-clock-1024-us-granule",
+    "rc": 1,
+    "pass": true,
+    "required_tests": [
+      "Boot.B25TheAdpDrawIsSeededFromThePlatformsClock"
+    ]
+  },
+  {
+    "arm": "platboot1",
+    "case": "plat-clock-wired-after-release",
+    "rc": 1,
+    "pass": true,
+    "required_tests": [
+      "Boot.B25TheAdpDrawIsSeededFromThePlatformsClock"
+    ]
+  },
+  {
+    "arm": "platboot2",
+    "case": "baseline",
+    "rc": 0,
+    "pass": true
+  },
+  {
+    "arm": "platboot2",
+    "case": "seed-without-the-interface",
+    "rc": 1,
+    "pass": true,
+    "required_tests": [
+      "Boot.B26TwoInterfacesAreSeededApart"
+    ]
+  }
+]
