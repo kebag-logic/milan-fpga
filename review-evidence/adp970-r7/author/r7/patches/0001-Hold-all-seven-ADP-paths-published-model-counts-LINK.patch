@@ -1,0 +1,167 @@
+From 57f32b28de9602bd239d7686cf4360912638d1f0 Mon Sep 17 00:00:00 2001
+From: hackerman-kl <hackerman-kl@kebag-logic.com>
+Date: Thu, 26 Nov 2026 12:51:02 +0100
+Subject: [PATCH] Hold all seven ADP paths' published model counts, LINK_DOWN
+ and SHUTDOWN included (#970)
+
+---
+ tb/verilator/ctrl_service_budget/README.md    |  2 +-
+ .../ctrl_service_budget/model_counts.py       | 82 ++++++++++++-------
+ 2 files changed, 55 insertions(+), 29 deletions(-)
+
+diff --git a/tb/verilator/ctrl_service_budget/README.md b/tb/verilator/ctrl_service_budget/README.md
+index aeb41f883..05697d8ef 100644
+--- a/tb/verilator/ctrl_service_budget/README.md
++++ b/tb/verilator/ctrl_service_budget/README.md
+@@ -1323,7 +1323,7 @@ Its checks:
+ - the fixture's digest, each of its seven rows with its pass bound and the records ahead, each loaded channel's first and last record served in its window, its worst pass and its composed maximum with the window's population and its release;
+ - a planted over-budget path (the recorded BIND_RX response moved past its 20 ms budget) must miss; the window with its MAAP record's commit deleted, and with that record also left out of its declaration, must be refused by name, and so must the window against a defined load one record smaller; with SRP's release deleted, SRP must be reported never released and the window must report its load unreleased;
+ - every clock conversion; T_svc, the ceilings and each family's budget, restated in [`selftest.py`](selftest.py) so a changed value or table fails;
+-- before the fixture, [`model_counts.py`](model_counts.py) holds each ADP probe's published model count (`accesses`, the report's model column) to the adapter's `ADP_MBX_LAT_*` (`adp_mbx.h`). The budget image wires no clock, so LINK_UP's count is the NOW_MS fallback's 12; the wired platform's LINK_UP is 11 and is not this harness's. The same scenario with LINK_UP's count planted at 11 must be found;
++- before the fixture, [`model_counts.py`](model_counts.py) holds the published model count (`accesses`, the report's model column) of every ADP probe in the build-free group sets to the adapter's counts in `adp_mbx.h`. That covers all seven ADP paths that publish one: LINK_UP, GM_CHANGE, DISCOVER, TMR_DELAY, TMR_ADVERTISE and SHUTDOWN against their `ADP_MBX_LAT_*`, and LINK_DOWN against the 9 stated in `ADP_MBX_LAT_LINK`'s comment. An ADP count on any other path is a finding. The budget image wires no clock, so LINK_UP's count is the NOW_MS fallback's 12; the wired platform's LINK_UP is 11 and is not this harness's. Each path's count planted one short must be found at every instance;
+ - an exact-budget path passes and one bus cycle more misses;
+ - each family against min(T_svc, its ceiling): an SRP instance at its 20 ms bound fits, and one cycle over it and one at 21 ms miss; an AECP instance at 22 ms and a MAAP instance at 30 ms miss T_svc within their ceilings;
+ - W plus the budget passes, one cycle more misses within W plus the ceiling, and past that it is over the ceiling; for SRP, whose budget is its ceiling, one cycle past W plus 20 ms misses both;
+diff --git a/tb/verilator/ctrl_service_budget/model_counts.py b/tb/verilator/ctrl_service_budget/model_counts.py
+index 8f4000d3b..6556b1412 100644
+--- a/tb/verilator/ctrl_service_budget/model_counts.py
++++ b/tb/verilator/ctrl_service_budget/model_counts.py
+@@ -1,18 +1,28 @@
+ # SPDX-FileCopyrightText: 2026 Kebag Logic
+ # SPDX-License-Identifier: CERN-OHL-W-2.0
+-"""The host model's access counts the scenario publishes for ADP's paths, held to the adapter's own bounds.
++"""The host model's access counts the scenario publishes for ADP's paths, held to the adapter's own counts.
+ 
+-Each ADP probe carries `accesses`, the mailbox accesses the host model measures or bounds for its pass
+-(scenario.Probe). grade.py copies it to a row's `model_accesses` and run.py prints it beside the measured row. The
+-adapter states the same counts as ADP_MBX_LAT_* (sw/firmware/ctrl/adp/adp_mbx.h), and test_adp.cpp's C0 to C6
+-measure them on the host model.
++A probe may carry `accesses`, the mailbox accesses the host model measures or bounds for its pass (scenario.Probe).
++grade.py copies it to a row's `model_accesses` and run.py prints it beside the measured row. The adapter states ADP's
++counts in sw/firmware/ctrl/adp/adp_mbx.h, and test_adp.cpp's C0 to C6 bound them on the host model.
++
++The scenario publishes counts for seven ADP paths, and this check holds all seven (PATHS):
++- adp.link_up, adp.gm_change, adp.discover, adp.tmr_delay, adp.tmr_advertise and adp.shutdown, each to its
++  ADP_MBX_LAT_* macro;
++- adp.link_down, to the count the header states in ADP_MBX_LAT_LINK's comment, "(down, a stop: 9)". It has no macro
++  of its own: C5 bounds it by ADP_MBX_LAT_LINK.
++A header that no longer states one of the seven counts makes the check raise, not pass.
+ 
+ The budget image is the size fixture's composition, which wires no clock (adp_mbx_set_clock), so the seed's sample
+ is the NOW_MS fallback: LINK_UP's pass is 12 accesses (ADP_MBX_LAT_LINK). The platform wires the microsecond clock,
+ and its LINK_UP pass is 11; that path is the platform's, not this harness's.
+ 
++The check reads every build-free group set (SETS). The build-dependent sets (AECP, the reboot, the save window, the
++long notice) publish no count. An ADP probe that publishes a count on a path outside the seven is a finding too.
++
+ A probe whose count differs from the header's is a finding: a stale count in the evidence. The self-test runs the
+-real scenario (no finding) and the same scenario with LINK_UP's count planted back at 11 (one finding a point).
++real scenario, which must give no finding. It then plants each path's count one short, and every instance of that
++path must be found.
+ """
+ 
+ from __future__ import annotations
+@@ -25,18 +35,24 @@ from pathlib import Path
+ 
+ HERE = Path(__file__).resolve().parent
+ sys.path.insert(0, str(HERE))
+-import scenario  # noqa: E402
++import datapath_window, held, kept_window, scenario  # noqa: E402,E401
+ 
+ HEADER = HERE.parents[2] / 'sw/firmware/ctrl/adp/adp_mbx.h'
+ ORACLE = HERE / 'oracle.json'
+-#: Each ADP path the scenario probes, and the ADP_MBX_LAT_* bound its count is.
+-PATHS = {'adp.link_up': 'LINK', 'adp.gm_change': 'GM', 'adp.discover': 'DISCOVER', 'adp.tmr_delay': 'DELAY',
+-         'adp.tmr_advertise': 'ADVERTISE'}
++#: Each ADP path the scenario publishes a count for, and the header's count it is held to.
++PATHS = {'adp.link_up': 'LINK', 'adp.link_down': 'LINK_DOWN', 'adp.gm_change': 'GM', 'adp.discover': 'DISCOVER',
++         'adp.tmr_delay': 'DELAY', 'adp.tmr_advertise': 'ADVERTISE', 'adp.shutdown': 'SHUTDOWN'}
++#: The build-free group sets of scenario.all_groups; the others publish no count.
++SETS = (scenario.acmp_groups, scenario.adp_groups, scenario.backlog_groups, scenario.bound_talker_groups,
++        scenario.control_groups, scenario.fixture_groups, scenario.maap_groups, scenario.shutdown_groups,
++        scenario.srp_groups, kept_window.groups, datapath_window.groups, held.groups)
+ 
+ 
+ def bounds(text: str) -> dict[str, int]:
+-    """ADP_MBX_LAT_<path> -> its count, from the adapter header's text."""
+-    return {name: int(count) for name, count in re.findall(r'#define ADP_MBX_LAT_(\w+) (\d+)u', text)}
++    """ADP_MBX_LAT_<path> -> its count, and LINK_DOWN's from the LINK macro's comment, from the header's text."""
++    counts = {name: int(count) for name, count in re.findall(r'#define ADP_MBX_LAT_(\w+) (\d+)u', text)}
++    down = re.search(r'#define ADP_MBX_LAT_LINK \d+u\s*//.*\(down, a stop: (\d+)\)', text)
++    return counts | ({'LINK_DOWN': int(down.group(1))} if down else {})
+ 
+ 
+ def path_of(probe: scenario.Probe) -> str:
+@@ -44,43 +60,53 @@ def path_of(probe: scenario.Probe) -> str:
+     return probe.path or re.sub(r'\.if\d+$', '', probe.name)
+ 
+ 
++def counted(groups: list[scenario.Group]) -> list[tuple[str, scenario.Probe]]:
++    """(group, probe) for each ADP probe that publishes a count."""
++    return [(g.name, pr) for g in groups for pr in g.probes if pr.family == 'adp' and pr.accesses is not None]
++
++
+ def findings(groups: list[scenario.Group], counts: dict[str, int]) -> list[str]:
+-    """Each ADP probe whose published count differs from the adapter's bound for its path."""
++    """Each ADP probe whose published count differs from the header's for its path, or whose path is not held."""
+     out = []
+-    for g in groups:
+-        for probe in g.probes:
+-            name = PATHS.get(path_of(probe))
+-            if name is not None and probe.accesses != counts[name]:
+-                out.append(f'{g.name}: {probe.name} publishes {probe.accesses} model accesses, '
+-                           f'ADP_MBX_LAT_{name} is {counts[name]}')
++    for group, probe in counted(groups):
++        name = PATHS.get(path_of(probe))
++        if name is None:
++            out.append(f'{group}: {probe.name} publishes {probe.accesses} model accesses on a path not held here')
++        elif probe.accesses != counts[name]:
++            out.append(f'{group}: {probe.name} publishes {probe.accesses} model accesses, the header states '
++                       f'{counts[name]} ({name})')
+     return out
+ 
+ 
+ def groups_at(p: scenario.Point) -> list[scenario.Group]:
+-    """The scenario's groups that carry ADP's counts: the advertised links, the ADP groups, the fixture's."""
+-    return [*scenario.adp_groups(p), *scenario.control_groups(p), *scenario.fixture_groups(p)]
++    """Every build-free group of a point, built afresh."""
++    return [g for make in SETS for g in make(p)]
+ 
+ 
+-def stale(groups: list[scenario.Group]) -> list[scenario.Group]:
+-    """The same groups with LINK_UP's count planted back at 11, the count before the fallback's sample."""
++def stale(groups: list[scenario.Group], path: str, count: int) -> list[scenario.Group]:
++    """The same groups with every instance of `path` publishing `count`."""
+     for g in groups:
+-        g.probes = [replace(pr, accesses=11) if path_of(pr) == 'adp.link_up' else pr for pr in g.probes]
++        g.probes = [replace(pr, accesses=count) if path_of(pr) == path else pr for pr in g.probes]
+     return groups
+ 
+ 
+ def main() -> int:
+-    """The check at one and two interfaces, and its planted stale count; 0 when both behave."""
++    """The check at one and two interfaces, and each path's planted stale count; 0 when all behave."""
+     counts = bounds(HEADER.read_text(encoding='utf-8'))
+     base = json.loads(ORACLE.read_text(encoding='utf-8'))['point']
+     failures = 0
+     for interfaces in (1, 2):
+         p = scenario.Point(**dict(base, interfaces=interfaces))
+         found = findings(groups_at(p), counts)
+-        planted = findings(stale(groups_at(p)), counts)
+-        ok = not found and len(planted) >= interfaces
++        instances = {path: sum(path_of(pr) == path for _, pr in counted(groups_at(p))) for path in PATHS}
++        caught = {path: len(findings(stale(groups_at(p), path, counts[name] - 1), counts))
++                  for path, name in PATHS.items()}
++        ok = not found and all(instances[path] and caught[path] == instances[path] for path in PATHS)
+         failures += not ok
++        plants = ', '.join(f'{path[4:]} {counts[name] - 1} {caught[path]}/{instances[path]}'
++                           for path, name in PATHS.items())
+         print(f'MODEL COUNTS {interfaces} interface(s): {len(found)} stale count(s) in the scenario; '
+-              f'the planted 11 found {len(planted)} time(s): {"ok" if ok else "FAIL"}')
++              f'each path planted one short, found/instances: {plants}: {"ok" if ok else "FAIL"}')
+         for line in found:
+             print(f'  {line}')
+     return 1 if failures else 0
+-- 
+2.56.1
+
