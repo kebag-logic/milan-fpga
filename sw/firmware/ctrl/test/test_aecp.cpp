@@ -300,6 +300,7 @@ struct Leds : Core {
         Core::SetUp();
         ON_CALL(mock,Stream).WillByDefault([this](unsigned,uint16_t t,uint16_t i,aecp_stream_info*v){
             bool brief=v->brief;*v={};v->brief=brief;
+            if(t==6){EXPECT_FALSE(brief)<<"LED output keeps the extended observation";}
             v->bound=t==5&&bound_inputs.count(i);v->flags_ex=t==6&&listened_outputs.count(i)?1u:0u;return true;});
         ON_CALL(mock,Counters).WillByDefault([this](unsigned,uint16_t t,uint16_t i,aecp_counters*v){
             *v={};v->valid=valid;auto c=counts.find({t,i});
@@ -856,11 +857,6 @@ TEST_F(App, LedsReadTheAcmpBindingWithoutTheStreamWindow)
     };
     observe(0);acmp(6);observe(0);observe(1);acmp(8);observe(0);
     observe(application.acmp.acmp.cfg.n_sinks);observe(65535u);
-    aecp_stream_info output{};
-    EXPECT_CALL(mock,Stream(0,6,0,_)).WillOnce([](unsigned,uint16_t,uint16_t,aecp_stream_info *v){
-        EXPECT_FALSE(v->brief)<<"LED output keeps the full observation";v->flags_ex=1u;return true;});
-    EXPECT_TRUE(ctrl_plat_leds_stream(adapter.core.ports->ctx,0,6,0,&output));
-    EXPECT_EQ(output.flags_ex,1u)<<"LED output retains the extended Listener flag";
 }
 
 TEST_F(App, DeferredStartAndLockUseTheRealAcmpOwner)
@@ -4845,6 +4841,10 @@ struct Far {
     unsigned requests[MBX_WINDOWS]{};
     std::vector<unsigned> counter_words;
     unsigned silent_counter=33u;
+    unsigned silent_gsi=16u;
+    uint32_t output_flags=0xf2000000u;
+    uint32_t output_flags_ex=7u;
+    std::vector<std::array<uint32_t,6>> output_requests;
     std::array<std::vector<uint64_t>,MBX_N_IF> asp{};   // the path sequence each interface's datapath serves
     uint64_t asp_count=~0ull;                           // a count word other than the sequence's length, when set
     std::vector<std::array<uint32_t,3>> asked;          // each GSI kind 2 request: interface, GSI_REQ, GSI_SEL
@@ -4916,6 +4916,13 @@ struct Far {
         if(w==MBX_WIN_GSI)f.selectors.push_back((r[1]>>4)&15u);
         if(w==MBX_WIN_GSI&&(r[1]&3u)==2u){f.asked.push_back({i,r[0],r[1]});*d=f.path(i,r[1]);return f.reply;}
         *d=word(i,w,r,f.verdict);
+        if(w==MBX_WIN_GSI&&(r[0]&0xffffu)==6u&&(r[1]&3u)==0u){
+            unsigned sel=(r[1]>>4)&15u;
+            f.output_requests.push_back({i,r[0],r[1],r[2],r[3],sel});
+            if(sel==f.silent_gsi)return MBX_MODEL_SILENT;
+            if(sel==0)*d=f.output_flags;
+            if(sel==6)*d=(uint64_t(2)<<48)|f.output_flags_ex;
+        }
         mbx_model_reply reply=f.reply;
         if(w==MBX_WIN_EDIT)*d=f.edit(r,&reply);
         return reply;
@@ -6009,6 +6016,48 @@ struct AppFace : Nvm {
         return n;
     }
 };
+}
+
+// Compare the LED observer with the complete production mailbox/app/face chain.
+// The raw window flags and the SRP registration deliberately disagree in both
+// directions; neither a brief observation nor one fixed owner can satisfy it.
+TEST_F(AppFace, LedsOutputMatchesTheCompleteStreamObserver)
+{
+    srp_mbx reservation{};application.srp=&reservation;
+    application.acmp.acmp.cfg.source_interface[0]=MBX_N_IF-1;
+    auto observe=[&]{
+        aecp_stream_info full{};aecp_stream_info led{};
+        ASSERT_TRUE(adapter.core.ports->stream(adapter.core.ports->ctx,0,6,0,&full));
+        far.selectors.clear();far.output_requests.clear();
+        ASSERT_TRUE(ctrl_plat_leds_stream(adapter.core.ports->ctx,0,6,0,&led));
+        EXPECT_EQ(led.flags_ex,full.flags_ex)<<"LED extended flags match the complete production observer";
+        EXPECT_EQ(far.selectors,(std::vector<unsigned>{0u,6u}))<<"LED output reads only flags and extended flags";
+        const std::vector<std::array<uint32_t,6>> expected{{0u,6u,0u,0u,0u,0u},{0u,6u,96u,0u,0u,6u}};
+        EXPECT_EQ(far.output_requests,expected)<<"LED GSI request names the output and exact selectors";
+    };
+    for(bool declaring:{false,true})for(bool listening:{false,true})for(bool registered:{false,true}){
+        far.output_flags=declaring?0x10000000u:0u;
+        for(unsigned i=0;i<MBX_N_IF;++i)reservation.ifs[i].listener_present[0]=!listening;
+        reservation.ifs[MBX_N_IF-1].listener_present[0]=listening;
+        reservation.ifs[MBX_N_IF-1].registered[0]=registered;
+        for(uint32_t flags:{0u,1u,6u,7u}){far.output_flags_ex=flags;observe();}
+    }
+    application.srp=nullptr;far.output_flags=0x10000000u;far.output_flags_ex=7u;observe();
+    for(unsigned index:{unsigned(application.acmp.acmp.cfg.n_sources),65535u}){
+        far.selectors.clear();aecp_stream_info led{};
+        EXPECT_FALSE(ctrl_plat_leds_stream(adapter.core.ports->ctx,0,6,index,&led))<<"LED output rejects absent sources";
+        EXPECT_TRUE(far.selectors.empty())<<"absent LED sources do not touch the window";
+    }
+}
+
+TEST_F(AppFace, LedsOutputRefusesEitherUnansweredStatusWord)
+{
+    for(unsigned selector:{0u,6u}){
+        far.silent_gsi=selector;aecp_stream_info led{};
+        EXPECT_FALSE(ctrl_plat_leds_stream(adapter.core.ports->ctx,0,6,0,&led))<<"LED output refuses each unanswered word";
+        far.silent_gsi=16u;
+        EXPECT_TRUE(ctrl_plat_leds_stream(adapter.core.ports->ctx,0,6,0,&led))<<"LED output recovers after the bounded timeout";
+    }
 }
 
 // The store's restore and saved-state words reach the datapath, with READY,
