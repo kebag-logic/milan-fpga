@@ -1,0 +1,85 @@
+# the images: 8x8/1if and 1x1/1if at the head (clone 8a4ad2c4a) and at the base dev-soft-core c34e7d8b, each AltSpreadLogic_high (pre-registered, the one directive tried), vivado-slot.sh
+## 8x8-base
+# image: 8x8-base/build_AltSpreadLogic_high (clone c34e7d8b06739a22cc79997a9a1f4cbcd9bd0350, status '')
+build 2026-11-26T00:33:51+01:00 -> 2026-11-26T01:00:18+01:00 rc 0, cpus 32-47
+--- signoff (signoff.py over the four corner reports)
+Slow_85C: WNS +0.146 ns (0 failing), WHS +0.102 ns (0 failing)
+Slow_0C: WNS +0.146 ns (0 failing), WHS +0.102 ns (0 failing)
+Fast_85C: WNS +1.636 ns (0 failing), WHS +0.036 ns (0 failing)
+Fast_0C: WNS +1.636 ns (0 failing), WHS +0.036 ns (0 failing)
+issue floors (WNS >= +0.030, WHS >= 0) met at every corner
+ruling floors (WNS and WHS >= +0.030) met at every corner
+signoff rc=0
+--- identity gate
+image identity: a split image whose manifest, ident, firmware, bitstream and placement agree, with no DDR3
+identity gate rc=0
+8ef09ecfba249d8367772ad67fff2a8d0b8d58c0e90ab1f81267bc0d4c1c69e1 3825992 gateware/alinx_ax7101.bit
+ctrl_app.elf in the clone: a2be09e110e22095a1bfd76bd87260f5dba448672407981008c423d9e6d0b1e7
+       # of nets with routing errors.......... :           0 :
+| Slice LUTs                 | 45814 |     0 |          0 |     63400 | 72.26 |
+| Slice Registers            | 53381 |     0 |          0 |    126800 | 42.10 |
+| Slice Registers                            | 53381 |     0 |          0 |    126800 | 42.10 |
+| Block RAM Tile    | 98.5 |     0 |          0 |       135 | 72.96 |
+## 8x8
+# image: 8x8/build_AltSpreadLogic_high (clone 8a4ad2c4a9009693d45d2178bf538e02ef7cdfa2, status '')
+build 2026-11-26T01:04:43+01:00 -> 2026-11-26T01:25:59+01:00 rc 0, cpus 32-47
+--- signoff (signoff.py over the four corner reports)
+Slow_85C: WNS +0.045 ns (0 failing), WHS +0.102 ns (0 failing)
+Slow_0C: WNS +0.045 ns (0 failing), WHS +0.102 ns (0 failing)
+Fast_85C: WNS +1.641 ns (0 failing), WHS +0.036 ns (0 failing)
+Fast_0C: WNS +1.641 ns (0 failing), WHS +0.036 ns (0 failing)
+issue floors (WNS >= +0.030, WHS >= 0) met at every corner
+ruling floors (WNS and WHS >= +0.030) met at every corner
+signoff rc=0
+--- identity gate
+image identity: a split image whose manifest, ident, firmware, bitstream and placement agree, with no DDR3
+identity gate rc=0
+aaf4a60a99a1bdc96048c468949226841c79049d2433d19435e3ec13aca91132 3825992 gateware/alinx_ax7101.bit
+ctrl_app.elf in the clone: 6c82d9626ebf898252b5843bfeed48c362f6df2e4786007c57cd4782e4bbed21
+       # of nets with routing errors.......... :           0 :
+| Slice LUTs                 | 45973 |     0 |          0 |     63400 | 72.51 |
+| Slice Registers            | 53375 |     0 |          0 |    126800 | 42.09 |
+| Slice Registers                            | 53375 |     0 |          0 |    126800 | 42.09 |
+| Block RAM Tile    | 98.5 |     0 |          0 |       135 | 72.96 |
+## 1x1-base
+# image: 1x1-base/build_AltSpreadLogic_high (clone c34e7d8b06739a22cc79997a9a1f4cbcd9bd0350, status '')
+build 2026-11-26T00:33:46+01:00 -> 2026-11-26T00:48:26+01:00 rc 0, cpus 48-63
+--- signoff (signoff.py over the four corner reports)
+Slow_85C: WNS +0.222 ns (0 failing), WHS +0.102 ns (0 failing)
+Slow_0C: WNS +0.222 ns (0 failing), WHS +0.102 ns (0 failing)
+Fast_85C: WNS +1.536 ns (0 failing), WHS +0.013 ns (0 failing)
+Fast_0C: WNS +1.536 ns (0 failing), WHS +0.013 ns (0 failing)
+issue floors (WNS >= +0.030, WHS >= 0) met at every corner
+ruling floors NOT met
+signoff rc=1
+--- identity gate
+image identity: a split image whose manifest, ident, firmware, bitstream and placement agree, with no DDR3
+identity gate rc=0
+a84c0627025824e38cb1355d99eb252ff76d32e73217241747d59d0f85300e7f 3825992 gateware/alinx_ax7101.bit
+ctrl_app.elf in the clone: e50f893a8fb8e8bc9d5e796ad1d7a69759b057c503c5930cffb5dd75cc30fb58
+       # of nets with routing errors.......... :           0 :
+| Slice LUTs                 | 32656 |     0 |          0 |     63400 | 51.51 |
+| Slice Registers            | 42803 |     0 |          0 |    126800 | 33.76 |
+| Slice Registers                            | 42803 |     0 |          0 |    126800 | 33.76 |
+| Block RAM Tile    | 80.5 |     0 |          0 |       135 | 59.63 |
+## 1x1
+# image: 1x1/build_AltSpreadLogic_high (clone 8a4ad2c4a9009693d45d2178bf538e02ef7cdfa2, status '')
+build 2026-11-26T00:59:36+01:00 -> 2026-11-26T01:14:22+01:00 rc 0, cpus 48-63
+--- signoff (signoff.py over the four corner reports)
+Slow_85C: WNS +0.126 ns (0 failing), WHS +0.102 ns (0 failing)
+Slow_0C: WNS +0.126 ns (0 failing), WHS +0.102 ns (0 failing)
+Fast_85C: WNS +1.636 ns (0 failing), WHS +0.036 ns (0 failing)
+Fast_0C: WNS +1.636 ns (0 failing), WHS +0.036 ns (0 failing)
+issue floors (WNS >= +0.030, WHS >= 0) met at every corner
+ruling floors (WNS and WHS >= +0.030) met at every corner
+signoff rc=0
+--- identity gate
+image identity: a split image whose manifest, ident, firmware, bitstream and placement agree, with no DDR3
+identity gate rc=0
+477d5e6c5d8663547a76bf83da54ef8fc97d68695732d044c548aec01f9f4815 3825992 gateware/alinx_ax7101.bit
+ctrl_app.elf in the clone: bf81ad95d6df374b6e746df92f83bbc6e5e5049e3d3a1b9918721d985939bca1
+       # of nets with routing errors.......... :           0 :
+| Slice LUTs                 | 32647 |     0 |          0 |     63400 | 51.49 |
+| Slice Registers            | 42803 |     0 |          0 |    126800 | 33.76 |
+| Slice Registers                            | 42803 |     0 |          0 |    126800 | 33.76 |
+| Block RAM Tile    | 80.5 |     0 |          0 |       135 | 59.63 |

@@ -1,0 +1,56 @@
+# bind groups, the CPU budget harness at the commits' harness (a8331f245's bind_save/save_grade; sim_main as committed but for one declaration split), the part's erase 120 ms and page 0.5 ms modelled; run.py --groups <the 12 bind groups>
+## 1x1
+== sb-1x1 HEAD c34e7d8b dirty 23 start 00:21:25
+BIND save-bind: 4 command(s), the latest durable 304.535 ms after its response (UNBIND_RX of sink 0; target 800 ms), 4 whole save(s), 4 erase(s), erase 120 ms and page 0.5 ms modelled, 0 sink(s) not as last commanded at the cut within
+BIND save-bind-in-capture: 1 command(s), the latest durable 394.959 ms after its response (BIND_RX of sink 0; target 450 ms), 2 whole save(s), 2 erase(s), erase 120 ms and page 0.5 ms modelled, 0 sink(s) not as last commanded at the cut within
+BIND save-bind-in-seal: 1 command(s), the latest durable 392.866 ms after its response (BIND_RX of sink 0; target 450 ms), 2 whole save(s), 2 erase(s), erase 120 ms and page 0.5 ms modelled, 0 sink(s) not as last commanded at the cut within
+BIND save-bind-in-erase: 1 command(s), the latest durable 391.169 ms after its response (BIND_RX of sink 0; target 450 ms), 2 whole save(s), 2 erase(s), erase 120 ms and page 0.5 ms modelled, 0 sink(s) not as last commanded at the cut within
+BIND save-bind-in-erase-late: 1 command(s), the latest durable 330.538 ms after its response (BIND_RX of sink 0; target 450 ms), 2 whole save(s), 2 erase(s), erase 120 ms and page 0.5 ms modelled, 0 sink(s) not as last commanded at the cut within
+BIND save-bind-in-blank: 1 command(s), the latest durable 298.809 ms after its response (BIND_RX of sink 0; target 450 ms), 2 whole save(s), 2 erase(s), erase 120 ms and page 0.5 ms modelled, 0 sink(s) not as last commanded at the cut within
+BIND save-bind-in-blank-late: 1 command(s), the latest durable 298.591 ms after its response (BIND_RX of sink 0; target 450 ms), 2 whole save(s), 2 erase(s), erase 120 ms and page 0.5 ms modelled, 0 sink(s) not as last commanded at the cut within
+BIND save-bind-in-program: 1 command(s), the latest durable 305.495 ms after its response (BIND_RX of sink 0; target 450 ms), 2 whole save(s), 2 erase(s), erase 120 ms and page 0.5 ms modelled, 0 sink(s) not as last commanded at the cut within
+BIND save-bind-in-program-late: 1 command(s), the latest durable 298.517 ms after its response (BIND_RX of sink 0; target 450 ms), 2 whole save(s), 2 erase(s), erase 120 ms and page 0.5 ms modelled, 0 sink(s) not as last commanded at the cut within
+BIND save-bind-in-verify: 1 command(s), the latest durable 305.254 ms after its response (BIND_RX of sink 0; target 450 ms), 2 whole save(s), 2 erase(s), erase 120 ms and page 0.5 ms modelled, 0 sink(s) not as last commanded at the cut within
+BIND save-bind-in-verify-late: 1 command(s), the latest durable 303.246 ms after its response (BIND_RX of sink 0; target 450 ms), 2 whole save(s), 2 erase(s), erase 120 ms and page 0.5 ms modelled, 0 sink(s) not as last commanded at the cut within
+BIND save-bind-burst: 64 command(s), the latest durable 306.463 ms after its response (UNBIND_RX of sink 0; target 450 ms), 4 whole save(s), 4 erase(s), erase 120 ms and page 0.5 ms modelled, 0 sink(s) not as last commanded at the cut within
+12 groups graded, 0 refusals, 0 budget misses (0 of 0 probe instances, 0 of 0 paths), 0 of 12372 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+== sb-1x1 END rc=0 01:07:24
+## 8x8-1if
+== sb-8x8-1if HEAD c34e7d8b dirty 23 start 00:21:25
+BIND save-bind: 4 command(s), the latest durable 550.481 ms after its response (START_STREAMING of sink 0; target 800 ms), 4 whole save(s), 4 erase(s), erase 120 ms and page 0.5 ms modelled, 0 sink(s) not as last commanded at the cut within
+BIND save-bind-in-capture: 1 command(s), the latest durable 891.169 ms after its response (BIND_RX of sink 0; target 950 ms), 2 whole save(s), 2 erase(s), erase 120 ms and page 0.5 ms modelled, 0 sink(s) not as last commanded at the cut within
+BIND save-bind-in-seal: 1 command(s), the latest durable 880.349 ms after its response (BIND_RX of sink 0; target 950 ms), 2 whole save(s), 2 erase(s), erase 120 ms and page 0.5 ms modelled, 0 sink(s) not as last commanded at the cut within
+BIND save-bind-in-erase: 1 command(s), the latest durable 870.845 ms after its response (BIND_RX of sink 0; target 950 ms), 2 whole save(s), 2 erase(s), erase 120 ms and page 0.5 ms modelled, 0 sink(s) not as last commanded at the cut within
+BIND save-bind-in-erase-late: 1 command(s), the latest durable 810.709 ms after its response (BIND_RX of sink 0; target 950 ms), 2 whole save(s), 2 erase(s), erase 120 ms and page 0.5 ms modelled, 0 sink(s) not as last commanded at the cut within
+BIND save-bind-in-blank: 1 command(s), the latest durable 750.094 ms after its response (BIND_RX of sink 0; target 950 ms), 2 whole save(s), 2 erase(s), erase 120 ms and page 0.5 ms modelled, 0 sink(s) not as last commanded at the cut within
+BIND save-bind-in-blank-late: 1 command(s), the latest durable 650.089 ms after its response (BIND_RX of sink 0; target 950 ms), 2 whole save(s), 2 erase(s), erase 120 ms and page 0.5 ms modelled, 0 sink(s) not as last commanded at the cut within
+BIND save-bind-in-program: 1 command(s), the latest durable 649.101 ms after its response (BIND_RX of sink 0; target 950 ms), 2 whole save(s), 2 erase(s), erase 120 ms and page 0.5 ms modelled, 0 sink(s) not as last commanded at the cut within
+BIND save-bind-in-program-late: 1 command(s), the latest durable 558.193 ms after its response (BIND_RX of sink 0; target 950 ms), 2 whole save(s), 2 erase(s), erase 120 ms and page 0.5 ms modelled, 0 sink(s) not as last commanded at the cut within
+BIND save-bind-in-verify: 1 command(s), the latest durable 553.369 ms after its response (BIND_RX of sink 0; target 950 ms), 2 whole save(s), 2 erase(s), erase 120 ms and page 0.5 ms modelled, 0 sink(s) not as last commanded at the cut within
+BIND save-bind-in-verify-late: 1 command(s), the latest durable 552.760 ms after its response (BIND_RX of sink 0; target 950 ms), 2 whole save(s), 2 erase(s), erase 120 ms and page 0.5 ms modelled, 0 sink(s) not as last commanded at the cut within
+BIND save-bind-burst: 64 command(s), the latest durable 646.392 ms after its response (BIND_RX of sink 1; target 950 ms), 2 whole save(s), 2 erase(s), erase 120 ms and page 0.5 ms modelled, 0 sink(s) not as last commanded at the cut within
+12 groups graded, 0 refusals, 0 budget misses (0 of 0 probe instances, 0 of 0 paths), 0 of 15812 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+== sb-8x8-1if END rc=0 01:05:39
+## the binds in flight: each response's phase in the save in flight (bind_save.phase_of), the first save without the bind, two saves
+### 1x1
+save-bind-in-blank-late: phase blank 0.87, first save holds the bind False, saves 2, durable 298.6 ms
+save-bind-in-blank: phase blank 0.03, first save holds the bind False, saves 2, durable 298.8 ms
+save-bind-in-capture: phase seal 0.06, first save holds the bind False, saves 2, durable 395.0 ms
+save-bind-in-erase-late: phase erase 0.50, first save holds the bind False, saves 2, durable 330.5 ms
+save-bind-in-erase: phase erase 0.00, first save holds the bind False, saves 2, durable 391.2 ms
+save-bind-in-program-late: phase program 0.82, first save holds the bind False, saves 2, durable 298.5 ms
+save-bind-in-program: phase program 0.01, first save holds the bind False, saves 2, durable 305.5 ms
+save-bind-in-seal: phase seal 0.50, first save holds the bind False, saves 2, durable 392.9 ms
+save-bind-in-verify-late: phase verify 0.91, first save holds the bind False, saves 2, durable 303.2 ms
+save-bind-in-verify: phase verify 0.03, first save holds the bind False, saves 2, durable 305.3 ms
+### 8x8-1if
+save-bind-in-blank-late: phase blank 0.97, first save holds the bind False, saves 2, durable 650.1 ms
+save-bind-in-blank: phase blank 0.01, first save holds the bind False, saves 2, durable 750.1 ms
+save-bind-in-capture: phase seal 0.01, first save holds the bind False, saves 2, durable 891.2 ms
+save-bind-in-erase-late: phase erase 0.50, first save holds the bind False, saves 2, durable 810.7 ms
+save-bind-in-erase: phase erase 0.00, first save holds the bind False, saves 2, durable 870.8 ms
+save-bind-in-program-late: phase program 0.96, first save holds the bind False, saves 2, durable 558.2 ms
+save-bind-in-program: phase program 0.00, first save holds the bind False, saves 2, durable 649.1 ms
+save-bind-in-seal: phase seal 0.49, first save holds the bind False, saves 2, durable 880.3 ms
+save-bind-in-verify-late: phase verify 0.98, first save holds the bind False, saves 2, durable 552.8 ms
+save-bind-in-verify: phase verify 0.01, first save holds the bind False, saves 2, durable 553.4 ms

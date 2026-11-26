@@ -1,0 +1,30 @@
+# KLJ3 minor 0 interchange with 2509db68, both directions (8x8/1if, the CPU budget harness's images; xchg.py, one-off, not committed)
+## the head's journal (save-bind-in-capture's cut), decoded by each tree's reference codec
+### codec at 8a4ad2c4a
+slot A: verdict 0 seq 1 frames 0
+slot B: verdict 0 seq 2 frames 0
+  BINDING 0: 030000010c0d0e0f101100010a0b0c0d0e0f0001
+### codec at 2509db684
+slot A: verdict 0 seq 1 frames 0
+slot B: verdict 0 seq 2 frames 0
+  BINDING 0: 030000010c0d0e0f101100010a0b0c0d0e0f0001
+## booted by the 2509db68 image
+boot on g2509db68-8x8-1if: Vsim rc 0, result PASS, traps 0
+  GET_RX_STATE_RESPONSE status 0 talker 0c0d0e0f10110001 talker_uid 0001 connection_count 1 flags 0002
+  AEM_RESPONSE command 0x0011 status 0 name b'save'
+## 2509db68's journal (written by its image: blank flash, SET_NAME, BIND_RX of sink 0, 4 s), decoded by each codec
+### codec at 8a4ad2c4a
+slot A: verdict 0 seq 1 frames 0
+  BINDING 0: 030000010c0d0e0f101100010a0b0c0d0e0f0001
+slot B: verdict 9 seq 0 frames 0
+### codec at 2509db684
+slot A: verdict 0 seq 1 frames 0
+  BINDING 0: 030000010c0d0e0f101100010a0b0c0d0e0f0001
+slot B: verdict 9 seq 0 frames 0
+## written by the 2509db68 image
+write on g2509db68-8x8-1if: Vsim rc 0, result PASS, traps 0
+  AEM_RESPONSE command 0x0010 status 0
+## booted by the head's image
+boot on hb-8x8-1if: Vsim rc 0, result PASS, traps 0
+  GET_RX_STATE_RESPONSE status 0 talker 0c0d0e0f10110001 talker_uid 0001 connection_count 1 flags 0002
+  AEM_RESPONSE command 0x0011 status 0 name b'interchange'
