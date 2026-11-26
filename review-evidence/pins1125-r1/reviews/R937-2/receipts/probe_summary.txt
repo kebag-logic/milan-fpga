@@ -1,0 +1,134 @@
+== p0_instr rc=0 490 checks: 490 PASS, 0 FAIL
+   PROBE #109 -3 ns:  before=1 after=-400 delta=-401
+   PROBE #109 -80 ns:  before=-12 after=-408 delta=-396
+   PROBE #109 -81 ns:  before=-19 after=-413 delta=-394
+   PROBE #109 -263 ns:  before=-12 after=-408 delta=-396
+   PROBE #109 -801 ns:  before=-12 after=-408 delta=-396
+   PROBE #109 -5000000 ns:  before=-12 after=-408 delta=-396
+   PROBE #109 800 ns:  before=-13 after=-408 delta=-395
+== p1_stale_bank rc=2 490 checks: 469 PASS, 21 FAIL
+   PROBE #109 -3 ns:  before=0 after=0 delta=0
+   FAIL #109 -3 ns: the graded Follow_Up is used: its offset is fresh got 0000000000000000 exp 0000000000000001
+   FAIL #109 -3 ns: its offset uses the delay floored at -800 ns got 0000000000000000 exp 0000000000000001
+   PROBE #109 -80 ns:  before=0 after=0 delta=0
+   FAIL #109 -80 ns: the graded Follow_Up is used: its offset is fresh got 0000000000000000 exp 0000000000000001
+   FAIL #109 -80 ns: its offset uses the delay floored at -800 ns got 0000000000000000 exp 0000000000000001
+   PROBE #109 -81 ns:  before=0 after=0 delta=0
+   FAIL #109 -81 ns: the graded Follow_Up is used: its offset is fresh got 0000000000000000 exp 0000000000000001
+   FAIL #109 -81 ns: its offset uses the delay floored at -800 ns got 0000000000000000 exp 0000000000000001
+   PROBE #109 -263 ns:  before=0 after=0 delta=0
+   FAIL #109 -263 ns: the graded Follow_Up is used: its offset is fresh got 0000000000000000 exp 0000000000000001
+   FAIL #109 -263 ns: its offset uses the delay floored at -800 ns got 0000000000000000 exp 0000000000000001
+   PROBE #109 -801 ns:  before=0 after=0 delta=0
+   FAIL #109 -801 ns: the graded Follow_Up is used: its offset is fresh got 0000000000000000 exp 0000000000000001
+   FAIL #109 -801 ns: its offset uses the delay floored at -800 ns got 0000000000000000 exp 0000000000000001
+   PROBE #109 -5000000 ns:  before=0 after=0 delta=0
+   FAIL #109 -5000000 ns: the graded Follow_Up is used: its offset is fresh got 0000000000000000 exp 0000000000000001
+   FAIL #109 -5000000 ns: its offset uses the delay floored at -800 ns got 0000000000000000 exp 0000000000000001
+   PROBE #109 800 ns:  before=0 after=0 delta=0
+   FAIL #109 800 ns: the graded Follow_Up is used: its offset is fresh got 0000000000000000 exp 0000000000000001
+   FAIL #109 800 ns: its offset uses the delay floored at -800 ns got 0000000000000000 exp 0000000000000001
+== p2_unsent rc=2 490 checks: 476 PASS, 14 FAIL
+   PROBE #109 -3 ns:  before=1 after=1 delta=0
+   FAIL #109 -3 ns: the graded Follow_Up is used: its offset is fresh got 0000000000000000 exp 0000000000000001
+   FAIL #109 -3 ns: its offset uses the delay floored at -800 ns got 0000000000000000 exp 0000000000000001
+   PROBE #109 -80 ns:  before=0 after=0 delta=0
+   FAIL #109 -80 ns: the graded Follow_Up is used: its offset is fresh got 0000000000000000 exp 0000000000000001
+   FAIL #109 -80 ns: its offset uses the delay floored at -800 ns got 0000000000000000 exp 0000000000000001
+   PROBE #109 -81 ns:  before=0 after=0 delta=0
+   FAIL #109 -81 ns: the graded Follow_Up is used: its offset is fresh got 0000000000000000 exp 0000000000000001
+   FAIL #109 -81 ns: its offset uses the delay floored at -800 ns got 0000000000000000 exp 0000000000000001
+   PROBE #109 -263 ns:  before=0 after=0 delta=0
+   FAIL #109 -263 ns: the graded Follow_Up is used: its offset is fresh got 0000000000000000 exp 0000000000000001
+   FAIL #109 -263 ns: its offset uses the delay floored at -800 ns got 0000000000000000 exp 0000000000000001
+   PROBE #109 -801 ns:  before=0 after=0 delta=0
+   FAIL #109 -801 ns: the graded Follow_Up is used: its offset is fresh got 0000000000000000 exp 0000000000000001
+   FAIL #109 -801 ns: its offset uses the delay floored at -800 ns got 0000000000000000 exp 0000000000000001
+   PROBE #109 -5000000 ns:  before=0 after=0 delta=0
+   FAIL #109 -5000000 ns: the graded Follow_Up is used: its offset is fresh got 0000000000000000 exp 0000000000000001
+   FAIL #109 -5000000 ns: its offset uses the delay floored at -800 ns got 0000000000000000 exp 0000000000000001
+   PROBE #109 800 ns:  before=0 after=0 delta=0
+   FAIL #109 800 ns: the graded Follow_Up is used: its offset is fresh got 0000000000000000 exp 0000000000000001
+   FAIL #109 800 ns: its offset uses the delay floored at -800 ns got 0000000000000000 exp 0000000000000001
+== p3_oldgen rc=2 490 checks: 465 PASS, 25 FAIL
+   PROBE #109 -3 ns:  before=0 after=-400 delta=-400
+   PROBE #109 -80 ns:  before=-12 after=-408 delta=-396
+   FAIL #109 -81 ns: asCapable kept      got 0000000000000000 exp 0000000000000004
+   PROBE #109 -81 ns:  before=-19 after=-19 delta=0
+   FAIL #109 -81 ns: the graded Follow_Up is used: its offset is fresh got 0000000000000000 exp 0000000000000001
+   FAIL #109 -81 ns: its offset uses the delay floored at -800 ns got 0000000000000000 exp 0000000000000001
+   FAIL #109 -81 ns: the grandmaster stays elected got 0000000000000000 exp 0000000000000001
+   FAIL #109 -263 ns: runs from a capable slave got 0000000000000000 exp 0000000000000001
+   FAIL #109 -263 ns: asCapable kept     got 0000000000000000 exp 0000000000000004
+   PROBE #109 -263 ns:  before=-19 after=-19 delta=0
+   FAIL #109 -263 ns: the graded Follow_Up is used: its offset is fresh got 0000000000000000 exp 0000000000000001
+   FAIL #109 -263 ns: its offset uses the delay floored at -800 ns got 0000000000000000 exp 0000000000000001
+   FAIL #109 -263 ns: the grandmaster stays elected got 0000000000000000 exp 0000000000000001
+   FAIL #109 -801 ns: runs from a capable slave got 0000000000000000 exp 0000000000000001
+   FAIL #109 -801 ns: asCapable kept     got 0000000000000000 exp 0000000000000004
+   PROBE #109 -801 ns:  before=-19 after=-19 delta=0
+   FAIL #109 -801 ns: the graded Follow_Up is used: its offset is fresh got 0000000000000000 exp 0000000000000001
+   FAIL #109 -801 ns: its offset uses the delay floored at -800 ns got 0000000000000000 exp 0000000000000001
+   FAIL #109 -801 ns: the grandmaster stays elected got 0000000000000000 exp 0000000000000001
+   FAIL #109 -5000000 ns: runs from a capable slave got 0000000000000000 exp 0000000000000001
+   FAIL #109 -5000000 ns: asCapable kept got 0000000000000000 exp 0000000000000004
+   PROBE #109 -5000000 ns:  before=-19 after=-19 delta=0
+   FAIL #109 -5000000 ns: the graded Follow_Up is used: its offset is fresh got 0000000000000000 exp 0000000000000001
+   FAIL #109 -5000000 ns: its offset uses the delay floored at -800 ns got 0000000000000000 exp 0000000000000001
+   FAIL #109 -5000000 ns: the grandmaster stays elected got 0000000000000000 exp 0000000000000001
+   FAIL #109 800 ns: runs from a capable slave got 0000000000000000 exp 0000000000000001
+   FAIL #109 800 ns: asCapable kept      got 0000000000000000 exp 0000000000000004
+   PROBE #109 800 ns:  before=-19 after=-19 delta=0
+   FAIL #109 800 ns: the graded Follow_Up is used: its offset is fresh got 0000000000000000 exp 0000000000000001
+   FAIL #109 800 ns: its offset uses the delay floored at -800 ns got 0000000000000000 exp 0000000000000001
+   FAIL #109 800 ns: the grandmaster stays elected got 0000000000000000 exp 0000000000000001
+   FAIL #109 801 ns: runs from a capable slave got 0000000000000000 exp 0000000000000001
+== p4_stale_on_negative rc=2 490 checks: 478 PASS, 12 FAIL
+   PROBE #109 -3 ns:  before=1 after=1 delta=0
+   FAIL #109 -3 ns: the graded Follow_Up is used: its offset is fresh got 0000000000000000 exp 0000000000000001
+   FAIL #109 -3 ns: its offset uses the delay floored at -800 ns got 0000000000000000 exp 0000000000000001
+   PROBE #109 -80 ns:  before=1 after=1 delta=0
+   FAIL #109 -80 ns: the graded Follow_Up is used: its offset is fresh got 0000000000000000 exp 0000000000000001
+   FAIL #109 -80 ns: its offset uses the delay floored at -800 ns got 0000000000000000 exp 0000000000000001
+   PROBE #109 -81 ns:  before=1 after=1 delta=0
+   FAIL #109 -81 ns: the graded Follow_Up is used: its offset is fresh got 0000000000000000 exp 0000000000000001
+   FAIL #109 -81 ns: its offset uses the delay floored at -800 ns got 0000000000000000 exp 0000000000000001
+   PROBE #109 -263 ns:  before=1 after=1 delta=0
+   FAIL #109 -263 ns: the graded Follow_Up is used: its offset is fresh got 0000000000000000 exp 0000000000000001
+   FAIL #109 -263 ns: its offset uses the delay floored at -800 ns got 0000000000000000 exp 0000000000000001
+   PROBE #109 -801 ns:  before=1 after=1 delta=0
+   FAIL #109 -801 ns: the graded Follow_Up is used: its offset is fresh got 0000000000000000 exp 0000000000000001
+   FAIL #109 -801 ns: its offset uses the delay floored at -800 ns got 0000000000000000 exp 0000000000000001
+   PROBE #109 -5000000 ns:  before=1 after=1 delta=0
+   FAIL #109 -5000000 ns: the graded Follow_Up is used: its offset is fresh got 0000000000000000 exp 0000000000000001
+   FAIL #109 -5000000 ns: its offset uses the delay floored at -800 ns got 0000000000000000 exp 0000000000000001
+   PROBE #109 800 ns:  before=-13 after=-408 delta=-395
+== p5_wrong_sign rc=2 490 checks: 483 PASS, 7 FAIL
+   PROBE #109 -3 ns:  before=1 after=400 delta=399
+   FAIL #109 -3 ns: its offset uses the delay floored at -800 ns got 0000000000000000 exp 0000000000000001
+   PROBE #109 -80 ns:  before=12 after=408 delta=396
+   FAIL #109 -80 ns: its offset uses the delay floored at -800 ns got 0000000000000000 exp 0000000000000001
+   PROBE #109 -81 ns:  before=19 after=412 delta=393
+   FAIL #109 -81 ns: its offset uses the delay floored at -800 ns got 0000000000000000 exp 0000000000000001
+   PROBE #109 -263 ns:  before=12 after=408 delta=396
+   FAIL #109 -263 ns: its offset uses the delay floored at -800 ns got 0000000000000000 exp 0000000000000001
+   PROBE #109 -801 ns:  before=13 after=408 delta=395
+   FAIL #109 -801 ns: its offset uses the delay floored at -800 ns got 0000000000000000 exp 0000000000000001
+   PROBE #109 -5000000 ns:  before=12 after=408 delta=396
+   FAIL #109 -5000000 ns: its offset uses the delay floored at -800 ns got 0000000000000000 exp 0000000000000001
+   PROBE #109 800 ns:  before=12 after=408 delta=396
+   FAIL #109 800 ns: its offset uses the delay floored at -800 ns got 0000000000000000 exp 0000000000000001
+== p6_used_as_zero rc=2 490 checks: 484 PASS, 6 FAIL
+   PROBE #109 -3 ns:  before=1 after=-397 delta=-398
+   PROBE #109 -80 ns:  before=-12 after=-328 delta=-316
+   FAIL #109 -80 ns: its offset uses the delay floored at -800 ns got 0000000000000000 exp 0000000000000001
+   PROBE #109 -81 ns:  before=-15 after=-329 delta=-314
+   FAIL #109 -81 ns: its offset uses the delay floored at -800 ns got 0000000000000000 exp 0000000000000001
+   PROBE #109 -263 ns:  before=-10 after=-144 delta=-134
+   FAIL #109 -263 ns: the graded Follow_Up is used: its offset is fresh got 0000000000000000 exp 0000000000000001
+   FAIL #109 -263 ns: its offset uses the delay floored at -800 ns got 0000000000000000 exp 0000000000000001
+   PROBE #109 -801 ns:  before=-4 after=397 delta=401
+   FAIL #109 -801 ns: its offset uses the delay floored at -800 ns got 0000000000000000 exp 0000000000000001
+   PROBE #109 -5000000 ns:  before=12 after=408 delta=396
+   FAIL #109 -5000000 ns: its offset uses the delay floored at -800 ns got 0000000000000000 exp 0000000000000001
+   PROBE #109 800 ns:  before=13 after=-392 delta=-405

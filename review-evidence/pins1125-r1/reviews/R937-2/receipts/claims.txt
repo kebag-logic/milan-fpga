@@ -1,0 +1,22 @@
+# claims quoted from the live PR #1016 body (equal to the r2 packet PR-BODY.md but for one trailing blank line) and from the head
+94:| `tb/verilator/gptp_shadow` phase 22 | -3, -80, -81, -263, -801, -5,000,000 ns, then 800 and 801 ns | The slice: the tap's stamps, the frame FIFO, the ledger, the real counter and the public bank. The peer answers from the plane's own t1 and the tap's own t4, so the delay is exact. Each negative trial reads 0 in the public bank. A graded Sync/Follow_Up pair then follows, built 400 ns off where
+
+CHANGELOG.md at e5d8a71b:
+- The CSR and GET_AVB_INFO still read 0.
+- `gptp_plane`, `gptp_shadow` and the `milan_dp` legs grade it.
+- Nine planted defects each fail a named check.
+- tsn-c-stack #37: a longer ENTITY_DISCOVER is accepted.
+
+PR body planted-defect table rows:
+| Defect | Where | Named check that fails |
+| the -80 ns floor restored (the 1213ac5b window) | `link_delay.py` | `link delay -81: asCapable kept`, and -263, -800, 
+| no floor | `link_delay.py` | `link delay -801: its offset uses the delay exactly`; `link delay -5000000: no PHC step` 
+| the used delay clamped to 0 | `link_delay.py` | `link delay -3: its offset uses the delay exactly`, and -80, -81, -263
+| a floor at 0 | `link_delay.py` | `link delay -263: its offset uses the delay exactly`, and its publication |
+| a floor at -799 ns | `link_delay.py` | `link delay -800: its offset uses the delay exactly`, and its publication |
+| publication before the floor | `link_delay.py` | `link delay -801` and `-5000000: the engine publishes the used delay`
+| 801 ns good | `link_delay.py` | `link delay 801: asCapable clears` |
+| 800 ns bad | `link_delay.py` | `link delay 800: asCapable kept` |
+| the public clamp removed | `gptp_shadow/mutants.py` | `#109 -263 ns: the public bank reads 0` |
+| the public bank keeps a stale offset | `gptp_shadow/mutants.py` | `#109 -263 ns: the graded Follow_Up is used: its off
+| the harness sends no graded Follow_Up (a control on the harness) | `gptp_shadow/mutants.py` | `#109 -263 ns: the grade
