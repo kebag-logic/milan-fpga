@@ -1,0 +1,44 @@
+# lane tool package2.py
+#!/usr/bin/env python3
+"""package.py: copy the lane's receipts into the packet, host paths and the host name replaced by placeholders;
+refuse a file at 200 KB or naming an assistant tool or model; write INDEX.md (path, size, sha256 prefix, first line)."""
+import hashlib, re, subprocess, sys
+from pathlib import Path
+S = Path("<scratch>"); U = S / "units"
+O = Path("<mgmt>/2026-09-23/pins1125-a850/receipts")
+SUBS = ((str(S), "<scratch>"), ("<lane>", "<lane>"), ("<mgmt>", "<mgmt>"),
+        ("<tools>", "<tools>"), ("<tools>", "<tools>"), ("<home>", "<home>"),
+        ("<data2>", "<data2>"), ("<data>", "<data>"), ("<host>", "<host>"))
+_W = [w[::-1] for w in ("edualc", "ciporhtna", "ianepo", "tpgtahc", "xedoc", "supo", "tennos", "ukiah", "inimeg", "tolipoc")]
+BANNED = re.compile("|".join([r"\b" + w + r"\b" for w in _W] + [r"\bgpt-\d"]), re.I)
+def clean(t):
+    for a, b in SUBS: t = t.replace(a, b)
+    return t
+def put(dest, text, head):
+    p = O / dest; p.parent.mkdir(parents=True, exist_ok=True)
+    t = clean(head.rstrip() + "\n" + text)
+    assert not BANNED.search(t), dest
+    p.write_text(t); assert p.stat().st_size < 200_000, (dest, p.stat().st_size)
+def src(path, pick=None, tail=None):
+    t = Path(path).read_text(errors="replace"); lines = t.splitlines()
+    if pick: lines = [l for l in lines if re.search(pick, l)]
+    if tail: lines = lines[-tail:]
+    return "\n".join(lines) + "\n"
+H = "e5d8a71b6fa90352eca72314c7bd2275a1b20285"
+O = Path("<mgmt>/2026-09-23/pins1125-a850/round2/receipts")
+put("image-inputs.txt", (S/"image-inputs-r2.txt").read_text(), "# round 2 changes no image input")
+put("gptp_shadow.log", src(U/"r2shadow.log", r"checks:|\[ ok \]|\[FAIL\]|controls:|RESULT|lifecycle: PASS|^FAIL"), f"# make -C tb/verilator/gptp_shadow (lifecycle, run, 16-control campaign) at {H}")
+put("gptp_plane.log", src(U/"r2plane.log", r"checks|campaign|RESULT|PASS planted|PASS control|^FAIL"), f"# make -C tb/verilator/gptp_plane at {H}")
+put("milan_dp-gptp-legs.log", src(U/"r2dp.log", r"\[#109\]|checks:|^FAIL"), f"# make -C tb/verilator/milan_dp gptp && make gptp-lat at {H}")
+put("old-generator-red.log", src(U/"r2old.log"), f"# gptp_plane run, gptp_shadow run and milan_dp gptp at {H} with the 1213ac5b generator")
+put("docs-workflow-steps.log", src(U/"docs5.log"), f"# every run: step of docs.yml's gate jobs at {H} (docs_steps.py)")
+put("ratchet-steps.log", "".join(src(p, tail=14) for p in sorted((S/"docs5/logs").glob("*Test_evidence*")) + sorted((S/"docs5/logs").glob("*Python_idiom*"))), f"# the test evidence and Python idiom steps at {H}")
+for t in ("oldred2.sh", "docs_steps.py", "package2.py"):
+    put(f"tools/{t}.txt", (S/"bin"/t).read_text(), f"# lane tool {t}")
+rows = []
+for p in sorted(O.rglob("*")):
+    if p.is_file() and p.name != "INDEX.md":
+        b = p.read_bytes(); first = b.split(b"\n", 1)[0].decode(errors="replace")[:150].replace("|", "/")
+        rows.append(f"| `{p.relative_to(O)}` | {len(b):,} | `{hashlib.sha256(b).hexdigest()[:16]}` | {first} |")
+(O / "INDEX.md").write_text(f"# Receipts (generated)\n\n{len(rows)} files, none at 200 KB; host paths and the host name are placeholders.\n\n| File | Bytes | sha256 | First line |\n|---|---:|---|---|\n" + "\n".join(rows) + "\n")
+print(len(rows), "files")
