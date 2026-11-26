@@ -1,0 +1,697 @@
+firmware-boundary-capture (1)	Set up job	﻿2026-11-25T17:13:52.1147953Z Current runner version: '2.338.2'
+firmware-boundary-capture (1)	Set up job	2026-11-25T17:13:52.1186956Z ##[group]Runner Image Provisioner
+firmware-boundary-capture (1)	Set up job	2026-11-25T17:13:52.1187727Z Hosted Compute Agent
+firmware-boundary-capture (1)	Set up job	2026-11-25T17:13:52.1188145Z Version: 20261111.635
+firmware-boundary-capture (1)	Set up job	2026-11-25T17:13:52.1188609Z Commit: b8a594ea514ff44cadb5342986c68b1eac6e22ed
+firmware-boundary-capture (1)	Set up job	2026-11-25T17:13:52.1189151Z Build Date: 2026-11-11T01:49:01Z
+firmware-boundary-capture (1)	Set up job	2026-11-25T17:13:52.1189633Z Worker ID: {c40dff83-e4bc-4a70-abcc-4e2b64eebeeb}
+firmware-boundary-capture (1)	Set up job	2026-11-25T17:13:52.1190197Z Region: us-west-2
+firmware-boundary-capture (1)	Set up job	2026-11-25T17:13:52.1190592Z Cloud: AWS
+firmware-boundary-capture (1)	Set up job	2026-11-25T17:13:52.1191205Z ##[endgroup]
+firmware-boundary-capture (1)	Set up job	2026-11-25T17:13:52.1192217Z ##[group]Operating System
+firmware-boundary-capture (1)	Set up job	2026-11-25T17:13:52.1192654Z Ubuntu
+firmware-boundary-capture (1)	Set up job	2026-11-25T17:13:52.1193051Z 24.04.5
+firmware-boundary-capture (1)	Set up job	2026-11-25T17:13:52.1193414Z LTS
+firmware-boundary-capture (1)	Set up job	2026-11-25T17:13:52.1193793Z ##[endgroup]
+firmware-boundary-capture (1)	Set up job	2026-11-25T17:13:52.1194183Z ##[group]Runner Image
+firmware-boundary-capture (1)	Set up job	2026-11-25T17:13:52.1194585Z Image: ubuntu-24.04
+firmware-boundary-capture (1)	Set up job	2026-11-25T17:13:52.1194967Z Version: 20261116.133.1
+firmware-boundary-capture (1)	Set up job	2026-11-25T17:13:52.1195744Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20261116.133/images/ubuntu/Ubuntu2404-Readme.md
+firmware-boundary-capture (1)	Set up job	2026-11-25T17:13:52.1197031Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20261116.133
+firmware-boundary-capture (1)	Set up job	2026-11-25T17:13:52.1197709Z ##[endgroup]
+firmware-boundary-capture (1)	Set up job	2026-11-25T17:13:52.1198569Z ##[group]GITHUB_TOKEN Permissions
+firmware-boundary-capture (1)	Set up job	2026-11-25T17:13:52.1200224Z Contents: read
+firmware-boundary-capture (1)	Set up job	2026-11-25T17:13:52.1200665Z Metadata: read
+firmware-boundary-capture (1)	Set up job	2026-11-25T17:13:52.1201341Z Packages: read
+firmware-boundary-capture (1)	Set up job	2026-11-25T17:13:52.1201742Z ##[endgroup]
+firmware-boundary-capture (1)	Set up job	2026-11-25T17:13:52.1203475Z Secret source: Actions
+firmware-boundary-capture (1)	Set up job	2026-11-25T17:13:52.1204171Z Cache mode: write
+firmware-boundary-capture (1)	Set up job	2026-11-25T17:13:52.1204732Z Prepare workflow directory
+firmware-boundary-capture (1)	Set up job	2026-11-25T17:13:52.1565637Z Prepare all required actions
+firmware-boundary-capture (1)	Set up job	2026-11-25T17:13:52.1603774Z Getting action download info
+firmware-boundary-capture (1)	Set up job	2026-11-25T17:13:52.5236539Z Download action repository 'actions/checkout@v4' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+firmware-boundary-capture (1)	Set up job	2026-11-25T17:13:54.6324052Z Download action repository 'actions/cache@v4' (SHA:0057852bfaa89a56745cba8c7296529d2fc39830)
+firmware-boundary-capture (1)	Set up job	2026-11-25T17:13:54.9558699Z Download action repository 'actions/upload-artifact@v4' (SHA:ea165f8d65b6e75b540449e92b4886f43607fa02)
+firmware-boundary-capture (1)	Set up job	2026-11-25T17:13:55.2935922Z Complete job name: firmware-boundary-capture (1)
+firmware-boundary-capture (1)	Run actions/checkout@v4	﻿2026-11-25T17:13:55.3566836Z ##[group]Run actions/checkout@v4
+firmware-boundary-capture (1)	Run actions/checkout@v4	2026-11-25T17:13:55.3567414Z with:
+firmware-boundary-capture (1)	Run actions/checkout@v4	2026-11-25T17:13:55.3567714Z   repository: kebag-logic/milan-fpga
+firmware-boundary-capture (1)	Run actions/checkout@v4	2026-11-25T17:13:55.3569652Z   token: ***
+firmware-boundary-capture (1)	Run actions/checkout@v4	2026-11-25T17:13:55.3569946Z   ssh-strict: true
+firmware-boundary-capture (1)	Run actions/checkout@v4	2026-11-25T17:13:55.3570254Z   ssh-user: git
+firmware-boundary-capture (1)	Run actions/checkout@v4	2026-11-25T17:13:55.3570571Z   persist-credentials: true
+firmware-boundary-capture (1)	Run actions/checkout@v4	2026-11-25T17:13:55.3571112Z   clean: true
+firmware-boundary-capture (1)	Run actions/checkout@v4	2026-11-25T17:13:55.3571401Z   sparse-checkout-cone-mode: true
+firmware-boundary-capture (1)	Run actions/checkout@v4	2026-11-25T17:13:55.3572073Z   fetch-depth: 1
+firmware-boundary-capture (1)	Run actions/checkout@v4	2026-11-25T17:13:55.3572344Z   fetch-tags: false
+firmware-boundary-capture (1)	Run actions/checkout@v4	2026-11-25T17:13:55.3572606Z   show-progress: true
+firmware-boundary-capture (1)	Run actions/checkout@v4	2026-11-25T17:13:55.3572920Z   lfs: false
+firmware-boundary-capture (1)	Run actions/checkout@v4	2026-11-25T17:13:55.3573178Z   submodules: false
+firmware-boundary-capture (1)	Run actions/checkout@v4	2026-11-25T17:13:55.3573473Z   set-safe-directory: true
+firmware-boundary-capture (1)	Run actions/checkout@v4	2026-11-25T17:13:55.3573874Z   allow-unsafe-pr-checkout: false
+firmware-boundary-capture (1)	Run actions/checkout@v4	2026-11-25T17:13:55.3574359Z env:
+firmware-boundary-capture (1)	Run actions/checkout@v4	2026-11-25T17:13:55.3574641Z   VERILATOR_VERSION: v5.050
+firmware-boundary-capture (1)	Run actions/checkout@v4	2026-11-25T17:13:55.3574955Z   YOSYS_VERSION: v0.66
+firmware-boundary-capture (1)	Run actions/checkout@v4	2026-11-25T17:13:55.3575358Z   PIP_CONSTRAINT: <home-path>/work/milan-fpga/milan-fpga/ci/constraints-ci.txt
+firmware-boundary-capture (1)	Run actions/checkout@v4	2026-11-25T17:13:55.3575862Z ##[endgroup]
+firmware-boundary-capture (1)	Run actions/checkout@v4	2026-11-25T17:13:57.6629818Z Syncing repository: kebag-logic/milan-fpga
+firmware-boundary-capture (1)	Run actions/checkout@v4	2026-11-25T17:13:57.6631725Z ##[group]Getting Git version info
+firmware-boundary-capture (1)	Run actions/checkout@v4	2026-11-25T17:13:57.6632213Z Working directory is '<home-path>/work/milan-fpga/milan-fpga'
+firmware-boundary-capture (1)	Run actions/checkout@v4	2026-11-25T17:13:57.6632828Z [command]/usr/bin/git version
+firmware-boundary-capture (1)	Run actions/checkout@v4	2026-11-25T17:13:57.9383038Z git version 2.56.1
+firmware-boundary-capture (1)	Run actions/checkout@v4	2026-11-25T17:13:57.9401962Z ##[endgroup]
+firmware-boundary-capture (1)	Run actions/checkout@v4	2026-11-25T17:13:57.9408270Z Temporarily overriding HOME='<home-path>/work/_temp/1ca55479-69c0-41bb-b072-682e235cee78' before making global git config changes
+firmware-boundary-capture (1)	Run actions/checkout@v4	2026-11-25T17:13:57.9408966Z Adding repository directory to the temporary git global config as a safe directory
+firmware-boundary-capture (1)	Run actions/checkout@v4	2026-11-25T17:13:57.9412913Z [command]/usr/bin/git config --global --add safe.directory <home-path>/work/milan-fpga/milan-fpga
+firmware-boundary-capture (1)	Run actions/checkout@v4	2026-11-25T17:13:57.9856214Z Deleting the contents of '<home-path>/work/milan-fpga/milan-fpga'
+firmware-boundary-capture (1)	Run actions/checkout@v4	2026-11-25T17:13:57.9859319Z ##[group]Initializing the repository
+firmware-boundary-capture (1)	Run actions/checkout@v4	2026-11-25T17:13:57.9863389Z [command]/usr/bin/git init <home-path>/work/milan-fpga/milan-fpga
+firmware-boundary-capture (1)	Run actions/checkout@v4	2026-11-25T17:13:58.0296713Z hint: Using 'master' as the name for the initial branch. This default branch name
+firmware-boundary-capture (1)	Run actions/checkout@v4	2026-11-25T17:13:58.0297459Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+firmware-boundary-capture (1)	Run actions/checkout@v4	2026-11-25T17:13:58.0297904Z hint: to use in all of your new repositories, which will suppress this warning,
+firmware-boundary-capture (1)	Run actions/checkout@v4	2026-11-25T17:13:58.0298306Z hint: call:
+firmware-boundary-capture (1)	Run actions/checkout@v4	2026-11-25T17:13:58.0298543Z hint:
+firmware-boundary-capture (1)	Run actions/checkout@v4	2026-11-25T17:13:58.0298868Z hint: 	git config --global init.defaultBranch <name>
+firmware-boundary-capture (1)	Run actions/checkout@v4	2026-11-25T17:13:58.0299198Z hint:
+firmware-boundary-capture (1)	Run actions/checkout@v4	2026-11-25T17:13:58.0299501Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+firmware-boundary-capture (1)	Run actions/checkout@v4	2026-11-25T17:13:58.0299952Z hint: 'development'. The just-created branch can be renamed via this command:
+firmware-boundary-capture (1)	Run actions/checkout@v4	2026-11-25T17:13:58.0300325Z hint:
+firmware-boundary-capture (1)	Run actions/checkout@v4	2026-11-25T17:13:58.0300545Z hint: 	git branch -m <name>
+firmware-boundary-capture (1)	Run actions/checkout@v4	2026-11-25T17:13:58.0301023Z hint:
+firmware-boundary-capture (1)	Run actions/checkout@v4	2026-11-25T17:13:58.0301378Z hint: Disable this message with "git config set advice.defaultBranchName false"
+firmware-boundary-capture (1)	Run actions/checkout@v4	2026-11-25T17:13:58.0302442Z Initialized empty Git repository in <home-path>/work/milan-fpga/milan-fpga/.git/
+firmware-boundary-capture (1)	Run actions/checkout@v4	2026-11-25T17:13:58.0312060Z [command]/usr/bin/git remote add origin https://github.com/kebag-logic/milan-fpga
+firmware-boundary-capture (1)	Run actions/checkout@v4	2026-11-25T17:13:58.0364202Z ##[endgroup]
+firmware-boundary-capture (1)	Run actions/checkout@v4	2026-11-25T17:13:58.0364765Z ##[group]Disabling automatic garbage collection
+firmware-boundary-capture (1)	Run actions/checkout@v4	2026-11-25T17:13:58.0367358Z [command]/usr/bin/git config --local gc.auto 0
+firmware-boundary-capture (1)	Run actions/checkout@v4	2026-11-25T17:13:58.0389898Z ##[endgroup]
+firmware-boundary-capture (1)	Run actions/checkout@v4	2026-11-25T17:13:58.0390330Z ##[group]Setting up auth
+firmware-boundary-capture (1)	Run actions/checkout@v4	2026-11-25T17:13:58.0395953Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+firmware-boundary-capture (1)	Run actions/checkout@v4	2026-11-25T17:13:58.0422962Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+firmware-boundary-capture (1)	Run actions/checkout@v4	2026-11-25T17:13:58.3788092Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+firmware-boundary-capture (1)	Run actions/checkout@v4	2026-11-25T17:13:58.3822285Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+firmware-boundary-capture (1)	Run actions/checkout@v4	2026-11-25T17:13:58.3993764Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+firmware-boundary-capture (1)	Run actions/checkout@v4	2026-11-25T17:13:58.4013658Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+firmware-boundary-capture (1)	Run actions/checkout@v4	2026-11-25T17:13:58.4155311Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+firmware-boundary-capture (1)	Run actions/checkout@v4	2026-11-25T17:13:58.4183044Z ##[endgroup]
+firmware-boundary-capture (1)	Run actions/checkout@v4	2026-11-25T17:13:58.4183575Z ##[group]Fetching the repository
+firmware-boundary-capture (1)	Run actions/checkout@v4	2026-11-25T17:13:58.4194498Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +649acf4c775dd7e9bfbdf81f5d7a3d91782cd327:refs/remotes/pull/987/merge
+firmware-boundary-capture (1)	Run actions/checkout@v4	2026-11-25T17:14:01.0168612Z From https://github.com/kebag-logic/milan-fpga
+firmware-boundary-capture (1)	Run actions/checkout@v4	2026-11-25T17:14:01.0169332Z  * [new ref]         649acf4c775dd7e9bfbdf81f5d7a3d91782cd327 -> pull/987/merge
+firmware-boundary-capture (1)	Run actions/checkout@v4	2026-11-25T17:14:01.0173522Z ##[endgroup]
+firmware-boundary-capture (1)	Run actions/checkout@v4	2026-11-25T17:14:01.0174009Z ##[group]Determining the checkout info
+firmware-boundary-capture (1)	Run actions/checkout@v4	2026-11-25T17:14:01.0176132Z ##[endgroup]
+firmware-boundary-capture (1)	Run actions/checkout@v4	2026-11-25T17:14:01.0182068Z [command]/usr/bin/git sparse-checkout disable
+firmware-boundary-capture (1)	Run actions/checkout@v4	2026-11-25T17:14:01.0258725Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+firmware-boundary-capture (1)	Run actions/checkout@v4	2026-11-25T17:14:01.0278406Z ##[group]Checking out the ref
+firmware-boundary-capture (1)	Run actions/checkout@v4	2026-11-25T17:14:01.0279567Z [command]/usr/bin/git checkout --progress --force refs/remotes/pull/987/merge
+firmware-boundary-capture (1)	Run actions/checkout@v4	2026-11-25T17:14:01.2734541Z Note: switching to 'refs/remotes/pull/987/merge'.
+firmware-boundary-capture (1)	Run actions/checkout@v4	2026-11-25T17:14:01.2735054Z 
+firmware-boundary-capture (1)	Run actions/checkout@v4	2026-11-25T17:14:01.2735451Z You are in 'detached HEAD' state. You can look around, make experimental
+firmware-boundary-capture (1)	Run actions/checkout@v4	2026-11-25T17:14:01.2735993Z changes and commit them, and you can discard any commits you make in this
+firmware-boundary-capture (1)	Run actions/checkout@v4	2026-11-25T17:14:01.2736938Z state without impacting any branches by switching back to a branch.
+firmware-boundary-capture (1)	Run actions/checkout@v4	2026-11-25T17:14:01.2737265Z 
+firmware-boundary-capture (1)	Run actions/checkout@v4	2026-11-25T17:14:01.2737467Z If you want to create a new branch to retain commits you create, you may
+firmware-boundary-capture (1)	Run actions/checkout@v4	2026-11-25T17:14:01.2737912Z do so (now or later) by using -c with the switch command. Example:
+firmware-boundary-capture (1)	Run actions/checkout@v4	2026-11-25T17:14:01.2738217Z 
+firmware-boundary-capture (1)	Run actions/checkout@v4	2026-11-25T17:14:01.2738396Z   git switch -c <new-branch-name>
+firmware-boundary-capture (1)	Run actions/checkout@v4	2026-11-25T17:14:01.2738565Z 
+firmware-boundary-capture (1)	Run actions/checkout@v4	2026-11-25T17:14:01.2738708Z Or undo this operation with:
+firmware-boundary-capture (1)	Run actions/checkout@v4	2026-11-25T17:14:01.2738875Z 
+firmware-boundary-capture (1)	Run actions/checkout@v4	2026-11-25T17:14:01.2739044Z   git switch -
+firmware-boundary-capture (1)	Run actions/checkout@v4	2026-11-25T17:14:01.2739179Z 
+firmware-boundary-capture (1)	Run actions/checkout@v4	2026-11-25T17:14:01.2739471Z Turn off this advice by setting config variable advice.detachedHead to false
+firmware-boundary-capture (1)	Run actions/checkout@v4	2026-11-25T17:14:01.2739822Z 
+firmware-boundary-capture (1)	Run actions/checkout@v4	2026-11-25T17:14:01.2740120Z HEAD is now at 649acf4 Merge 09201d35d7ea720b3ba205da185ba35c159ec24a into 5de21ff3661436ea5598718aca36934361e35340
+firmware-boundary-capture (1)	Run actions/checkout@v4	2026-11-25T17:14:01.2750281Z ##[endgroup]
+firmware-boundary-capture (1)	Run actions/checkout@v4	2026-11-25T17:14:01.2789561Z [command]/usr/bin/git log -1 --format=%H
+firmware-boundary-capture (1)	Run actions/checkout@v4	2026-11-25T17:14:01.2809432Z 649acf4c775dd7e9bfbdf81f5d7a3d91782cd327
+firmware-boundary-capture (1)	Set CPU-derived job budgets	﻿2026-11-25T17:14:01.2992123Z ##[group]Run set -euo pipefail
+firmware-boundary-capture (1)	Set CPU-derived job budgets	2026-11-25T17:14:01.2992482Z ^[[36;1mset -euo pipefail^[[0m
+firmware-boundary-capture (1)	Set CPU-derived job budgets	2026-11-25T17:14:01.2992734Z ^[[36;1mcpus="$(nproc)"^[[0m
+firmware-boundary-capture (1)	Set CPU-derived job budgets	2026-11-25T17:14:01.2993002Z ^[[36;1mtest "$cpus" -gt 0^[[0m
+firmware-boundary-capture (1)	Set CPU-derived job budgets	2026-11-25T17:14:01.2993265Z ^[[36;1mcampaign=$(( cpus < 4 ? cpus : 4 ))^[[0m
+firmware-boundary-capture (1)	Set CPU-derived job budgets	2026-11-25T17:14:01.2993556Z ^[[36;1msimulations=$(( cpus < 4 ? cpus : 4 ))^[[0m
+firmware-boundary-capture (1)	Set CPU-derived job budgets	2026-11-25T17:14:01.2993873Z ^[[36;1mtool_build=$(( cpus < 8 ? cpus : 8 ))^[[0m
+firmware-boundary-capture (1)	Set CPU-derived job budgets	2026-11-25T17:14:01.2994130Z ^[[36;1m{^[[0m
+firmware-boundary-capture (1)	Set CPU-derived job budgets	2026-11-25T17:14:01.2994375Z ^[[36;1m  printf 'CI_BUILD_JOBS=%s\n' "$cpus"^[[0m
+firmware-boundary-capture (1)	Set CPU-derived job budgets	2026-11-25T17:14:01.2994695Z ^[[36;1m  printf 'CI_TOOL_BUILD_JOBS=%s\n' "$tool_build"^[[0m
+firmware-boundary-capture (1)	Set CPU-derived job budgets	2026-11-25T17:14:01.2995038Z ^[[36;1m  printf 'CI_CAMPAIGN_JOBS=%s\n' "$campaign"^[[0m
+firmware-boundary-capture (1)	Set CPU-derived job budgets	2026-11-25T17:14:01.2995354Z ^[[36;1m  printf 'VERILATOR_JOBS=%s\n' "$cpus"^[[0m
+firmware-boundary-capture (1)	Set CPU-derived job budgets	2026-11-25T17:14:01.2995653Z ^[[36;1m  printf 'SIM_JOBS=%s\n' "$simulations"^[[0m
+firmware-boundary-capture (1)	Set CPU-derived job budgets	2026-11-25T17:14:01.2995981Z ^[[36;1m  printf 'MAKEFLAGS=-j1 --no-print-directory\n'^[[0m
+firmware-boundary-capture (1)	Set CPU-derived job budgets	2026-11-25T17:14:01.2996320Z ^[[36;1m} >> "$GITHUB_ENV"^[[0m
+firmware-boundary-capture (1)	Set CPU-derived job budgets	2026-11-25T17:14:01.6620497Z shell: /usr/bin/bash -e {0}
+firmware-boundary-capture (1)	Set CPU-derived job budgets	2026-11-25T17:14:01.6621201Z env:
+firmware-boundary-capture (1)	Set CPU-derived job budgets	2026-11-25T17:14:01.6621486Z   VERILATOR_VERSION: v5.050
+firmware-boundary-capture (1)	Set CPU-derived job budgets	2026-11-25T17:14:01.6621755Z   YOSYS_VERSION: v0.66
+firmware-boundary-capture (1)	Set CPU-derived job budgets	2026-11-25T17:14:01.6622111Z   PIP_CONSTRAINT: <home-path>/work/milan-fpga/milan-fpga/ci/constraints-ci.txt
+firmware-boundary-capture (1)	Set CPU-derived job budgets	2026-11-25T17:14:01.6622465Z ##[endgroup]
+firmware-boundary-capture (1)	Cache exact Python downloads	﻿2026-11-25T17:14:01.7783971Z ##[group]Run actions/cache@v4
+firmware-boundary-capture (1)	Cache exact Python downloads	2026-11-25T17:14:01.7784250Z with:
+firmware-boundary-capture (1)	Cache exact Python downloads	2026-11-25T17:14:01.7784477Z   path: ~/.cache/pip
+firmware-boundary-capture (1)	Cache exact Python downloads	2026-11-25T17:14:01.7785089Z   key: python-cpython3.12.3-0f4dff939fe11c9e2b6ca53bfda0ab835c6b8262ea97e72481db61f20ea4b311-aa130cde3f89d5df9ea7f65b2511a7df2485907f5edf91bb356a311b83c0f291-Linux
+firmware-boundary-capture (1)	Cache exact Python downloads	2026-11-25T17:14:01.7785727Z   enableCrossOsArchive: false
+firmware-boundary-capture (1)	Cache exact Python downloads	2026-11-25T17:14:01.7786000Z   fail-on-cache-miss: false
+firmware-boundary-capture (1)	Cache exact Python downloads	2026-11-25T17:14:01.7786243Z   lookup-only: false
+firmware-boundary-capture (1)	Cache exact Python downloads	2026-11-25T17:14:01.7786508Z   save-always: false
+firmware-boundary-capture (1)	Cache exact Python downloads	2026-11-25T17:14:01.7786758Z env:
+firmware-boundary-capture (1)	Cache exact Python downloads	2026-11-25T17:14:01.7786971Z   VERILATOR_VERSION: v5.050
+firmware-boundary-capture (1)	Cache exact Python downloads	2026-11-25T17:14:01.7787217Z   YOSYS_VERSION: v0.66
+firmware-boundary-capture (1)	Cache exact Python downloads	2026-11-25T17:14:01.7787542Z   PIP_CONSTRAINT: <home-path>/work/milan-fpga/milan-fpga/ci/constraints-ci.txt
+firmware-boundary-capture (1)	Cache exact Python downloads	2026-11-25T17:14:01.7787896Z   CI_BUILD_JOBS: 4
+firmware-boundary-capture (1)	Cache exact Python downloads	2026-11-25T17:14:01.7788135Z   CI_TOOL_BUILD_JOBS: 4
+firmware-boundary-capture (1)	Cache exact Python downloads	2026-11-25T17:14:01.7788352Z   CI_CAMPAIGN_JOBS: 4
+firmware-boundary-capture (1)	Cache exact Python downloads	2026-11-25T17:14:01.7788620Z   VERILATOR_JOBS: 4
+firmware-boundary-capture (1)	Cache exact Python downloads	2026-11-25T17:14:01.7788833Z   SIM_JOBS: 4
+firmware-boundary-capture (1)	Cache exact Python downloads	2026-11-25T17:14:01.7789186Z   MAKEFLAGS: -j1 --no-print-directory
+firmware-boundary-capture (1)	Cache exact Python downloads	2026-11-25T17:14:01.7789456Z ##[endgroup]
+firmware-boundary-capture (1)	Cache exact Python downloads	2026-11-25T17:14:01.8569883Z (node:2196) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+firmware-boundary-capture (1)	Cache exact Python downloads	2026-11-25T17:14:01.8570622Z (Use `node --trace-deprecation ...` to show where the warning was created)
+firmware-boundary-capture (1)	Cache exact Python downloads	2026-11-25T17:14:02.1778791Z Cache hit for: python-cpython3.12.3-0f4dff939fe11c9e2b6ca53bfda0ab835c6b8262ea97e72481db61f20ea4b311-aa130cde3f89d5df9ea7f65b2511a7df2485907f5edf91bb356a311b83c0f291-Linux
+firmware-boundary-capture (1)	Cache exact Python downloads	2026-11-25T17:14:02.1865838Z (node:2196) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+firmware-boundary-capture (1)	Cache exact Python downloads	2026-11-25T17:14:03.3212262Z Received 768944 of 768944 (100.0%), 0.9 MBs/sec
+firmware-boundary-capture (1)	Cache exact Python downloads	2026-11-25T17:14:03.3212937Z Cache Size: ~1 MB (768944 B)
+firmware-boundary-capture (1)	Cache exact Python downloads	2026-11-25T17:14:03.3230437Z [command]/usr/bin/tar -xf <home-path>/work/_temp/c53d7327-4e86-4324-a5ce-d6ea8ebeef18/cache.tzst -P -C <home-path>/work/milan-fpga/milan-fpga --use-compress-program unzstd
+firmware-boundary-capture (1)	Cache exact Python downloads	2026-11-25T17:14:03.3278285Z Cache restored successfully
+firmware-boundary-capture (1)	Cache exact Python downloads	2026-11-25T17:14:03.5096480Z Cache restored from key: python-cpython3.12.3-0f4dff939fe11c9e2b6ca53bfda0ab835c6b8262ea97e72481db61f20ea4b311-aa130cde3f89d5df9ea7f65b2511a7df2485907f5edf91bb356a311b83c0f291-Linux
+firmware-boundary-capture (1)	Fetch RTL dependencies	﻿2026-11-25T17:14:03.5168837Z ##[group]Run git submodule update --init third_party/verilog-axis protocol-processor gptp-processor third_party/lwSRP third_party/tsn-c-stack
+firmware-boundary-capture (1)	Fetch RTL dependencies	2026-11-25T17:14:03.5169745Z ^[[36;1mgit submodule update --init third_party/verilog-axis protocol-processor gptp-processor third_party/lwSRP third_party/tsn-c-stack^[[0m
+firmware-boundary-capture (1)	Fetch RTL dependencies	2026-11-25T17:14:03.5196173Z shell: /usr/bin/bash -e {0}
+firmware-boundary-capture (1)	Fetch RTL dependencies	2026-11-25T17:14:03.5196467Z env:
+firmware-boundary-capture (1)	Fetch RTL dependencies	2026-11-25T17:14:03.5196689Z   VERILATOR_VERSION: v5.050
+firmware-boundary-capture (1)	Fetch RTL dependencies	2026-11-25T17:14:03.5196989Z   YOSYS_VERSION: v0.66
+firmware-boundary-capture (1)	Fetch RTL dependencies	2026-11-25T17:14:03.5197357Z   PIP_CONSTRAINT: <home-path>/work/milan-fpga/milan-fpga/ci/constraints-ci.txt
+firmware-boundary-capture (1)	Fetch RTL dependencies	2026-11-25T17:14:03.5197726Z   CI_BUILD_JOBS: 4
+firmware-boundary-capture (1)	Fetch RTL dependencies	2026-11-25T17:14:03.5197951Z   CI_TOOL_BUILD_JOBS: 4
+firmware-boundary-capture (1)	Fetch RTL dependencies	2026-11-25T17:14:03.5198276Z   CI_CAMPAIGN_JOBS: 4
+firmware-boundary-capture (1)	Fetch RTL dependencies	2026-11-25T17:14:03.5198526Z   VERILATOR_JOBS: 4
+firmware-boundary-capture (1)	Fetch RTL dependencies	2026-11-25T17:14:03.5198740Z   SIM_JOBS: 4
+firmware-boundary-capture (1)	Fetch RTL dependencies	2026-11-25T17:14:03.5198982Z   MAKEFLAGS: -j1 --no-print-directory
+firmware-boundary-capture (1)	Fetch RTL dependencies	2026-11-25T17:14:03.5199269Z ##[endgroup]
+firmware-boundary-capture (1)	Fetch RTL dependencies	2026-11-25T17:14:03.5393824Z Submodule 'gptp-processor' (https://github.com/Mister-M-alt/FPGA-gPTP.git) registered for path 'gptp-processor'
+firmware-boundary-capture (1)	Fetch RTL dependencies	2026-11-25T17:14:03.5395809Z Submodule 'protocol-processor' (https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan.git) registered for path 'protocol-processor'
+firmware-boundary-capture (1)	Fetch RTL dependencies	2026-11-25T17:14:03.5398082Z Submodule 'third_party/lwSRP' (https://github.com/kebag-logic/lwSRP.git) registered for path 'third_party/lwSRP'
+firmware-boundary-capture (1)	Fetch RTL dependencies	2026-11-25T17:14:03.5400696Z Submodule 'third_party/tsn-c-stack' (https://github.com/kebag-logic/tsn-c-stack.git) registered for path 'third_party/tsn-c-stack'
+firmware-boundary-capture (1)	Fetch RTL dependencies	2026-11-25T17:14:03.5403315Z Submodule 'third_party/verilog-axis' (https://github.com/alexforencich/verilog-axis) registered for path 'third_party/verilog-axis'
+firmware-boundary-capture (1)	Fetch RTL dependencies	2026-11-25T17:14:03.5422899Z Cloning into '<home-path>/work/milan-fpga/milan-fpga/gptp-processor'...
+firmware-boundary-capture (1)	Fetch RTL dependencies	2026-11-25T17:14:04.4029820Z Cloning into '<home-path>/work/milan-fpga/milan-fpga/protocol-processor'...
+firmware-boundary-capture (1)	Fetch RTL dependencies	2026-11-25T17:14:06.0156931Z Cloning into '<home-path>/work/milan-fpga/milan-fpga/third_party/lwSRP'...
+firmware-boundary-capture (1)	Fetch RTL dependencies	2026-11-25T17:14:06.8840503Z Cloning into '<home-path>/work/milan-fpga/milan-fpga/third_party/tsn-c-stack'...
+firmware-boundary-capture (1)	Fetch RTL dependencies	2026-11-25T17:14:07.7731391Z Cloning into '<home-path>/work/milan-fpga/milan-fpga/third_party/verilog-axis'...
+firmware-boundary-capture (1)	Fetch RTL dependencies	2026-11-25T17:14:08.3553508Z Submodule path 'gptp-processor': checked out '1213ac5b9e09b8759ba76cc70c53652b5e108996'
+firmware-boundary-capture (1)	Fetch RTL dependencies	2026-11-25T17:14:08.4188732Z Submodule path 'protocol-processor': checked out '801ef2283ec793e35a2590fc6593c90313a64041'
+firmware-boundary-capture (1)	Fetch RTL dependencies	2026-11-25T17:14:08.4303378Z Submodule path 'third_party/lwSRP': checked out 'd1bb4f4e5954af6dabe7f210a6bf7adbb76bdd6b'
+firmware-boundary-capture (1)	Fetch RTL dependencies	2026-11-25T17:14:08.4473010Z Submodule path 'third_party/tsn-c-stack': checked out '715589c1db7cf67e2f3259fd7083ebc7f0923376'
+firmware-boundary-capture (1)	Fetch RTL dependencies	2026-11-25T17:14:08.4583742Z Submodule path 'third_party/verilog-axis': checked out '48ff7a7e2ef782cf778d47910cf85835c64b1bce'
+firmware-boundary-capture (1)	Resolve exact package downloads 2	﻿2026-11-25T17:14:08.4623416Z ##[group]Run python3 scripts/ci_install_cache.py --packages libgmock-dev libgtest-dev --recipe 0a7770834110cbf0bf2a242c3eefab212a9b9ff9f158f62eee30bd8188f9b335 --directory "$RUNNER_TEMP/ci_packages_2" --output "$GITHUB_OUTPUT"
+firmware-boundary-capture (1)	Resolve exact package downloads 2	2026-11-25T17:14:08.4625504Z ^[[36;1mpython3 scripts/ci_install_cache.py --packages libgmock-dev libgtest-dev --recipe 0a7770834110cbf0bf2a242c3eefab212a9b9ff9f158f62eee30bd8188f9b335 --directory "$RUNNER_TEMP/ci_packages_2" --output "$GITHUB_OUTPUT"^[[0m
+firmware-boundary-capture (1)	Resolve exact package downloads 2	2026-11-25T17:14:08.4655836Z shell: /usr/bin/bash -e {0}
+firmware-boundary-capture (1)	Resolve exact package downloads 2	2026-11-25T17:14:08.4656135Z env:
+firmware-boundary-capture (1)	Resolve exact package downloads 2	2026-11-25T17:14:08.4656383Z   VERILATOR_VERSION: v5.050
+firmware-boundary-capture (1)	Resolve exact package downloads 2	2026-11-25T17:14:08.4656637Z   YOSYS_VERSION: v0.66
+firmware-boundary-capture (1)	Resolve exact package downloads 2	2026-11-25T17:14:08.4656996Z   PIP_CONSTRAINT: <home-path>/work/milan-fpga/milan-fpga/ci/constraints-ci.txt
+firmware-boundary-capture (1)	Resolve exact package downloads 2	2026-11-25T17:14:08.4657361Z   CI_BUILD_JOBS: 4
+firmware-boundary-capture (1)	Resolve exact package downloads 2	2026-11-25T17:14:08.4657604Z   CI_TOOL_BUILD_JOBS: 4
+firmware-boundary-capture (1)	Resolve exact package downloads 2	2026-11-25T17:14:08.4657830Z   CI_CAMPAIGN_JOBS: 4
+firmware-boundary-capture (1)	Resolve exact package downloads 2	2026-11-25T17:14:08.4658058Z   VERILATOR_JOBS: 4
+firmware-boundary-capture (1)	Resolve exact package downloads 2	2026-11-25T17:14:08.4658285Z   SIM_JOBS: 4
+firmware-boundary-capture (1)	Resolve exact package downloads 2	2026-11-25T17:14:08.4658614Z   MAKEFLAGS: -j1 --no-print-directory
+firmware-boundary-capture (1)	Resolve exact package downloads 2	2026-11-25T17:14:08.4658873Z ##[endgroup]
+firmware-boundary-capture (1)	Resolve exact package downloads 2	2026-11-25T17:14:24.3954787Z {"archives": [{"bytes": 520880, "filename": "googletest_1.14.0-1_all.deb", "sha256": "196b763a2539c117ee2bbd5878ffa33b00ce8017ca6b63b89245b74c8889f1d1", "url": "mirror+file:/etc/apt/apt-mirrors.txt/pool/universe/g/googletest/googletest_1.14.0-1_all.deb"}, {"bytes": 268320, "filename": "libgtest-dev_1.14.0-1_amd64.deb", "sha256": "c7dd1ecf6b816bf13ab6e1d8813d1ff0ae7a4fa09326a0cd467c3943d952117f", "url": "mirror+file:/etc/apt/apt-mirrors.txt/pool/universe/g/googletest/libgtest-dev_1.14.0-1_amd64.deb"}, {"bytes": 134570, "filename": "libgmock-dev_1.14.0-1_amd64.deb", "sha256": "9e299726c3015d03324a81074224a43efbd444d83103357d83f1b99aed3fa9f6", "url": "mirror+file:/etc/apt/apt-mirrors.txt/pool/universe/g/googletest/libgmock-dev_1.14.0-1_amd64.deb"}], "key": "apt-e8d0be9d206f07f2e3d715a6587a1b5b849ef62be8dd33f0f8248fc9f9707847-3ee1f05265afcfbfe33b91fec69fbef4d3bad5399e2cd968ea7869725622ea6a-0a7770834110cbf0bf2a242c3eefab212a9b9ff9f158f62eee30bd8188f9b335", "packages": ["libgmock-dev", "libgtest-dev"], "versions": "libgmock-dev:\n  Installed: (none)\n  Candidate: 1.14.0-1\n  Version table:\n     1.14.0-1 500\n        500 mirror+file:/etc/apt/apt-mirrors.txt noble/universe amd64 Packages\nlibgtest-dev:\n  Installed: (none)\n  Candidate: 1.14.0-1\n  Version table:\n     1.14.0-1 500\n        500 mirror+file:/etc/apt/apt-mirrors.txt noble/universe amd64 Packages\n"}
+firmware-boundary-capture (1)	Cache exact package downloads 2	﻿2026-11-25T17:14:24.4638481Z ##[group]Run actions/cache@v4
+firmware-boundary-capture (1)	Cache exact package downloads 2	2026-11-25T17:14:24.4638811Z with:
+firmware-boundary-capture (1)	Cache exact package downloads 2	2026-11-25T17:14:24.4639056Z   path: <home-path>/work/_temp/ci_packages_2
+firmware-boundary-capture (1)	Cache exact package downloads 2	2026-11-25T17:14:24.4640132Z   key: Linux-apt-e8d0be9d206f07f2e3d715a6587a1b5b849ef62be8dd33f0f8248fc9f9707847-3ee1f05265afcfbfe33b91fec69fbef4d3bad5399e2cd968ea7869725622ea6a-0a7770834110cbf0bf2a242c3eefab212a9b9ff9f158f62eee30bd8188f9b335-aa130cde3f89d5df9ea7f65b2511a7df2485907f5edf91bb356a311b83c0f291
+firmware-boundary-capture (1)	Cache exact package downloads 2	2026-11-25T17:14:24.4641326Z   enableCrossOsArchive: false
+firmware-boundary-capture (1)	Cache exact package downloads 2	2026-11-25T17:14:24.4641583Z   fail-on-cache-miss: false
+firmware-boundary-capture (1)	Cache exact package downloads 2	2026-11-25T17:14:24.4641903Z   lookup-only: false
+firmware-boundary-capture (1)	Cache exact package downloads 2	2026-11-25T17:14:24.4642136Z   save-always: false
+firmware-boundary-capture (1)	Cache exact package downloads 2	2026-11-25T17:14:24.4642362Z env:
+firmware-boundary-capture (1)	Cache exact package downloads 2	2026-11-25T17:14:24.4642591Z   VERILATOR_VERSION: v5.050
+firmware-boundary-capture (1)	Cache exact package downloads 2	2026-11-25T17:14:24.4642910Z   YOSYS_VERSION: v0.66
+firmware-boundary-capture (1)	Cache exact package downloads 2	2026-11-25T17:14:24.4643314Z   PIP_CONSTRAINT: <home-path>/work/milan-fpga/milan-fpga/ci/constraints-ci.txt
+firmware-boundary-capture (1)	Cache exact package downloads 2	2026-11-25T17:14:24.4643680Z   CI_BUILD_JOBS: 4
+firmware-boundary-capture (1)	Cache exact package downloads 2	2026-11-25T17:14:24.4643914Z   CI_TOOL_BUILD_JOBS: 4
+firmware-boundary-capture (1)	Cache exact package downloads 2	2026-11-25T17:14:24.4644227Z   CI_CAMPAIGN_JOBS: 4
+firmware-boundary-capture (1)	Cache exact package downloads 2	2026-11-25T17:14:24.4644501Z   VERILATOR_JOBS: 4
+firmware-boundary-capture (1)	Cache exact package downloads 2	2026-11-25T17:14:24.4644716Z   SIM_JOBS: 4
+firmware-boundary-capture (1)	Cache exact package downloads 2	2026-11-25T17:14:24.4644955Z   MAKEFLAGS: -j1 --no-print-directory
+firmware-boundary-capture (1)	Cache exact package downloads 2	2026-11-25T17:14:24.4645230Z ##[endgroup]
+firmware-boundary-capture (1)	Cache exact package downloads 2	2026-11-25T17:14:24.5435689Z (node:2681) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+firmware-boundary-capture (1)	Cache exact package downloads 2	2026-11-25T17:14:24.5436679Z (Use `node --trace-deprecation ...` to show where the warning was created)
+firmware-boundary-capture (1)	Cache exact package downloads 2	2026-11-25T17:14:24.7998936Z Cache not found for input keys: Linux-apt-e8d0be9d206f07f2e3d715a6587a1b5b849ef62be8dd33f0f8248fc9f9707847-3ee1f05265afcfbfe33b91fec69fbef4d3bad5399e2cd968ea7869725622ea6a-0a7770834110cbf0bf2a242c3eefab212a9b9ff9f158f62eee30bd8188f9b335-aa130cde3f89d5df9ea7f65b2511a7df2485907f5edf91bb356a311b83c0f291
+firmware-boundary-capture (1)	Install GoogleTest and GoogleMock and print the versions	﻿2026-11-25T17:14:24.8067266Z ##[group]Run set -euo pipefail
+firmware-boundary-capture (1)	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:14:24.8067595Z ^[[36;1mset -euo pipefail^[[0m
+firmware-boundary-capture (1)	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:14:24.8067888Z ^[[36;1m: # package index prepared above^[[0m
+firmware-boundary-capture (1)	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:14:24.8068408Z ^[[36;1msudo apt-get -o Dir::Cache::archives="$RUNNER_TEMP/ci_packages_2" install -y --no-install-recommends libgtest-dev libgmock-dev^[[0m
+firmware-boundary-capture (1)	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:14:24.8068955Z ^[[36;1mpython3 -m pip install --quiet pyyaml -r sw/litex/litex_pins.txt^[[0m
+firmware-boundary-capture (1)	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:14:24.8069328Z ^[[36;1mdpkg-query -W libgtest-dev libgmock-dev^[[0m
+firmware-boundary-capture (1)	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:14:24.8069620Z ^[[36;1mg++ --version | head -n 1^[[0m
+firmware-boundary-capture (1)	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:14:24.8096145Z shell: /usr/bin/bash -e {0}
+firmware-boundary-capture (1)	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:14:24.8096494Z env:
+firmware-boundary-capture (1)	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:14:24.8096723Z   VERILATOR_VERSION: v5.050
+firmware-boundary-capture (1)	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:14:24.8096985Z   YOSYS_VERSION: v0.66
+firmware-boundary-capture (1)	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:14:24.8097383Z   PIP_CONSTRAINT: <home-path>/work/milan-fpga/milan-fpga/ci/constraints-ci.txt
+firmware-boundary-capture (1)	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:14:24.8097762Z   CI_BUILD_JOBS: 4
+firmware-boundary-capture (1)	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:14:24.8097997Z   CI_TOOL_BUILD_JOBS: 4
+firmware-boundary-capture (1)	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:14:24.8098223Z   CI_CAMPAIGN_JOBS: 4
+firmware-boundary-capture (1)	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:14:24.8098565Z   VERILATOR_JOBS: 4
+firmware-boundary-capture (1)	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:14:24.8098817Z   SIM_JOBS: 4
+firmware-boundary-capture (1)	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:14:24.8099054Z   MAKEFLAGS: -j1 --no-print-directory
+firmware-boundary-capture (1)	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:14:24.8099328Z ##[endgroup]
+firmware-boundary-capture (1)	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:14:24.8300032Z Reading package lists...
+firmware-boundary-capture (1)	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:14:25.0769576Z Building dependency tree...
+firmware-boundary-capture (1)	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:14:25.0774021Z Reading state information...
+firmware-boundary-capture (1)	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:14:25.2242790Z The following additional packages will be installed:
+firmware-boundary-capture (1)	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:14:25.2250119Z   googletest
+firmware-boundary-capture (1)	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:14:25.2382219Z The following NEW packages will be installed:
+firmware-boundary-capture (1)	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:14:25.2387502Z   googletest libgmock-dev libgtest-dev
+firmware-boundary-capture (1)	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:14:25.2548148Z 0 upgraded, 3 newly installed, 0 to remove and 77 not upgraded.
+firmware-boundary-capture (1)	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:14:25.2548838Z Need to get 924 kB of archives.
+firmware-boundary-capture (1)	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:14:25.2549173Z After this operation, 5933 kB of additional disk space will be used.
+firmware-boundary-capture (1)	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:14:25.2549646Z Get:1 file:/etc/apt/apt-mirrors.txt Mirrorlist [152 B]
+firmware-boundary-capture (1)	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:14:25.3863383Z Get:2 http://us-east-2.ec2.archive.ubuntu.com/ubuntu noble/universe amd64 googletest all 1.14.0-1 [521 kB]
+firmware-boundary-capture (1)	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:14:25.9243465Z Get:3 http://us-east-2.ec2.archive.ubuntu.com/ubuntu noble/universe amd64 libgtest-dev amd64 1.14.0-1 [268 kB]
+firmware-boundary-capture (1)	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:14:26.0474838Z Get:4 http://us-east-2.ec2.archive.ubuntu.com/ubuntu noble/universe amd64 libgmock-dev amd64 1.14.0-1 [135 kB]
+firmware-boundary-capture (1)	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:14:27.0473608Z Fetched 924 kB in 1s (1151 kB/s)
+firmware-boundary-capture (1)	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:14:27.1303302Z Selecting previously unselected package googletest.
+firmware-boundary-capture (1)	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:14:27.3622893Z (Reading database ... 
+firmware-boundary-capture (1)	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:14:27.3623436Z (Reading database ... 5%
+firmware-boundary-capture (1)	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:14:27.3623746Z (Reading database ... 10%
+firmware-boundary-capture (1)	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:14:27.3624924Z (Reading database ... 15%
+firmware-boundary-capture (1)	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:14:27.3625201Z (Reading database ... 20%
+firmware-boundary-capture (1)	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:14:27.3625479Z (Reading database ... 25%
+firmware-boundary-capture (1)	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:14:27.3625782Z (Reading database ... 30%
+firmware-boundary-capture (1)	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:14:27.3626137Z (Reading database ... 35%
+firmware-boundary-capture (1)	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:14:27.3626425Z (Reading database ... 40%
+firmware-boundary-capture (1)	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:14:27.3626746Z (Reading database ... 45%
+firmware-boundary-capture (1)	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:14:27.3627071Z (Reading database ... 50%
+firmware-boundary-capture (1)	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:14:27.4347376Z (Reading database ... 55%
+firmware-boundary-capture (1)	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:14:28.0498652Z (Reading database ... 60%
+firmware-boundary-capture (1)	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:14:28.2829207Z (Reading database ... 65%
+firmware-boundary-capture (1)	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:14:28.4455075Z (Reading database ... 70%
+firmware-boundary-capture (1)	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:14:28.5310555Z (Reading database ... 75%
+firmware-boundary-capture (1)	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:14:28.8265736Z (Reading database ... 80%
+firmware-boundary-capture (1)	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:14:30.1964268Z (Reading database ... 85%
+firmware-boundary-capture (1)	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:14:32.2064436Z (Reading database ... 90%
+firmware-boundary-capture (1)	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:14:33.6880034Z (Reading database ... 95%
+firmware-boundary-capture (1)	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:14:33.6881070Z (Reading database ... 100%
+firmware-boundary-capture (1)	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:14:33.6881430Z (Reading database ... 216720 files and directories currently installed.)
+firmware-boundary-capture (1)	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:14:33.6924650Z Preparing to unpack .../googletest_1.14.0-1_all.deb ...
+firmware-boundary-capture (1)	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:14:33.6956514Z Unpacking googletest (1.14.0-1) ...
+firmware-boundary-capture (1)	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:14:33.7677713Z Selecting previously unselected package libgtest-dev:amd64.
+firmware-boundary-capture (1)	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:14:33.7781973Z Preparing to unpack .../libgtest-dev_1.14.0-1_amd64.deb ...
+firmware-boundary-capture (1)	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:14:33.7786168Z Unpacking libgtest-dev:amd64 (1.14.0-1) ...
+firmware-boundary-capture (1)	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:14:33.8904320Z Selecting previously unselected package libgmock-dev:amd64.
+firmware-boundary-capture (1)	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:14:33.9008330Z Preparing to unpack .../libgmock-dev_1.14.0-1_amd64.deb ...
+firmware-boundary-capture (1)	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:14:33.9011972Z Unpacking libgmock-dev:amd64 (1.14.0-1) ...
+firmware-boundary-capture (1)	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:14:33.9307701Z Setting up googletest (1.14.0-1) ...
+firmware-boundary-capture (1)	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:14:33.9319775Z Setting up libgtest-dev:amd64 (1.14.0-1) ...
+firmware-boundary-capture (1)	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:14:33.9329920Z Setting up libgmock-dev:amd64 (1.14.0-1) ...
+firmware-boundary-capture (1)	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:14:34.7982843Z 
+firmware-boundary-capture (1)	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:14:34.7984002Z Running kernel seems to be up-to-date.
+firmware-boundary-capture (1)	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:14:34.7984320Z 
+firmware-boundary-capture (1)	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:14:34.7984446Z No services need to be restarted.
+firmware-boundary-capture (1)	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:14:34.7984878Z 
+firmware-boundary-capture (1)	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:14:34.7984980Z No containers need to be restarted.
+firmware-boundary-capture (1)	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:14:34.7985283Z 
+firmware-boundary-capture (1)	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:14:34.7985429Z No user sessions are running outdated binaries.
+firmware-boundary-capture (1)	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:14:34.7985599Z 
+firmware-boundary-capture (1)	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:14:34.7985832Z No VM guests are running outdated hypervisor (qemu) binaries on this host.
+firmware-boundary-capture (1)	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:14:35.7426727Z W: Download is performed unsandboxed as root as file '<home-path>/work/_temp/ci_packages_2/partial/googletest_1.14.0-1_all.deb' couldn't be accessed by user '_apt'. - pkgAcquire::Run (13: Permission denied)
+firmware-boundary-capture (1)	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:15:06.3236872Z libgmock-dev:amd64	1.14.0-1
+firmware-boundary-capture (1)	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:15:06.3237375Z libgtest-dev:amd64	1.14.0-1
+firmware-boundary-capture (1)	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:15:06.4381650Z g++ (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0
+firmware-boundary-capture (1)	Cache the pinned RV32 SDK	﻿2026-11-25T17:15:06.4882651Z ##[group]Run actions/cache@v4
+firmware-boundary-capture (1)	Cache the pinned RV32 SDK	2026-11-25T17:15:06.4882944Z with:
+firmware-boundary-capture (1)	Cache the pinned RV32 SDK	2026-11-25T17:15:06.4883187Z   path: ~/br-milan-rv32/host
+firmware-boundary-capture (1)	Cache the pinned RV32 SDK	2026-11-25T17:15:06.4883776Z   key: rv32-sdk-v1-Linux-X64-d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f-a11c5b5421386f4d8a8b14cf2eff259251ae3ee42716b3b69c5a314f2f1790f9
+firmware-boundary-capture (1)	Cache the pinned RV32 SDK	2026-11-25T17:15:06.4884394Z   enableCrossOsArchive: false
+firmware-boundary-capture (1)	Cache the pinned RV32 SDK	2026-11-25T17:15:06.4884662Z   fail-on-cache-miss: false
+firmware-boundary-capture (1)	Cache the pinned RV32 SDK	2026-11-25T17:15:06.4884906Z   lookup-only: false
+firmware-boundary-capture (1)	Cache the pinned RV32 SDK	2026-11-25T17:15:06.4885158Z   save-always: false
+firmware-boundary-capture (1)	Cache the pinned RV32 SDK	2026-11-25T17:15:06.4885401Z env:
+firmware-boundary-capture (1)	Cache the pinned RV32 SDK	2026-11-25T17:15:06.4885932Z   VERILATOR_VERSION: v5.050
+firmware-boundary-capture (1)	Cache the pinned RV32 SDK	2026-11-25T17:15:06.4886195Z   YOSYS_VERSION: v0.66
+firmware-boundary-capture (1)	Cache the pinned RV32 SDK	2026-11-25T17:15:06.4886522Z   PIP_CONSTRAINT: <home-path>/work/milan-fpga/milan-fpga/ci/constraints-ci.txt
+firmware-boundary-capture (1)	Cache the pinned RV32 SDK	2026-11-25T17:15:06.4886921Z   CI_BUILD_JOBS: 4
+firmware-boundary-capture (1)	Cache the pinned RV32 SDK	2026-11-25T17:15:06.4887142Z   CI_TOOL_BUILD_JOBS: 4
+firmware-boundary-capture (1)	Cache the pinned RV32 SDK	2026-11-25T17:15:06.4887380Z   CI_CAMPAIGN_JOBS: 4
+firmware-boundary-capture (1)	Cache the pinned RV32 SDK	2026-11-25T17:15:06.4887660Z   VERILATOR_JOBS: 4
+firmware-boundary-capture (1)	Cache the pinned RV32 SDK	2026-11-25T17:15:06.4887897Z   SIM_JOBS: 4
+firmware-boundary-capture (1)	Cache the pinned RV32 SDK	2026-11-25T17:15:06.4888222Z   MAKEFLAGS: -j1 --no-print-directory
+firmware-boundary-capture (1)	Cache the pinned RV32 SDK	2026-11-25T17:15:06.4888485Z ##[endgroup]
+firmware-boundary-capture (1)	Cache the pinned RV32 SDK	2026-11-25T17:15:06.5726315Z (node:3356) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+firmware-boundary-capture (1)	Cache the pinned RV32 SDK	2026-11-25T17:15:06.5726997Z (Use `node --trace-deprecation ...` to show where the warning was created)
+firmware-boundary-capture (1)	Cache the pinned RV32 SDK	2026-11-25T17:15:06.8404683Z Cache hit for: rv32-sdk-v1-Linux-X64-d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f-a11c5b5421386f4d8a8b14cf2eff259251ae3ee42716b3b69c5a314f2f1790f9
+firmware-boundary-capture (1)	Cache the pinned RV32 SDK	2026-11-25T17:15:06.8504609Z (node:3356) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+firmware-boundary-capture (1)	Cache the pinned RV32 SDK	2026-11-25T17:15:08.1743014Z Received 0 of 153250353 (0.0%), 0.0 MBs/sec
+firmware-boundary-capture (1)	Cache the pinned RV32 SDK	2026-11-25T17:15:09.1772565Z Received 50331648 of 153250353 (32.8%), 24.0 MBs/sec
+firmware-boundary-capture (1)	Cache the pinned RV32 SDK	2026-11-25T17:15:10.1791842Z Received 130023424 of 153250353 (84.8%), 41.3 MBs/sec
+firmware-boundary-capture (1)	Cache the pinned RV32 SDK	2026-11-25T17:15:11.1767997Z Received 149056049 of 153250353 (97.3%), 35.5 MBs/sec
+firmware-boundary-capture (1)	Cache the pinned RV32 SDK	2026-11-25T17:15:11.5147930Z Received 153250353 of 153250353 (100.0%), 33.7 MBs/sec
+firmware-boundary-capture (1)	Cache the pinned RV32 SDK	2026-11-25T17:15:11.5148879Z Cache Size: ~146 MB (153250353 B)
+firmware-boundary-capture (1)	Cache the pinned RV32 SDK	2026-11-25T17:15:11.5260668Z [command]/usr/bin/tar -xf <home-path>/work/_temp/4823066e-64df-4cc2-91c1-31c33b31ac9a/cache.tzst -P -C <home-path>/work/milan-fpga/milan-fpga --use-compress-program unzstd
+firmware-boundary-capture (1)	Cache the pinned RV32 SDK	2026-11-25T17:15:12.0680658Z Cache restored successfully
+firmware-boundary-capture (1)	Cache the pinned RV32 SDK	2026-11-25T17:15:12.0797300Z Cache restored from key: rv32-sdk-v1-Linux-X64-d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f-a11c5b5421386f4d8a8b14cf2eff259251ae3ee42716b3b69c5a314f2f1790f9
+firmware-boundary-capture (1)	Install and verify the pinned RV32 SDK	﻿2026-11-25T17:15:12.0901838Z ##[group]Run set -euo pipefail
+firmware-boundary-capture (1)	Install and verify the pinned RV32 SDK	2026-11-25T17:15:12.0902359Z ^[[36;1mset -euo pipefail^[[0m
+firmware-boundary-capture (1)	Install and verify the pinned RV32 SDK	2026-11-25T17:15:12.0902817Z ^[[36;1mpython3 scripts/ci_rv32_sdk_selftest.py^[[0m
+firmware-boundary-capture (1)	Install and verify the pinned RV32 SDK	2026-11-25T17:15:12.0903457Z ^[[36;1mpython3 scripts/ci_rv32_sdk.py --destination "$HOME/br-milan-rv32/host"^[[0m
+firmware-boundary-capture (1)	Install and verify the pinned RV32 SDK	2026-11-25T17:15:12.0942811Z shell: /usr/bin/bash -e {0}
+firmware-boundary-capture (1)	Install and verify the pinned RV32 SDK	2026-11-25T17:15:12.0943248Z env:
+firmware-boundary-capture (1)	Install and verify the pinned RV32 SDK	2026-11-25T17:15:12.0943507Z   VERILATOR_VERSION: v5.050
+firmware-boundary-capture (1)	Install and verify the pinned RV32 SDK	2026-11-25T17:15:12.0943806Z   YOSYS_VERSION: v0.66
+firmware-boundary-capture (1)	Install and verify the pinned RV32 SDK	2026-11-25T17:15:12.0944167Z   PIP_CONSTRAINT: <home-path>/work/milan-fpga/milan-fpga/ci/constraints-ci.txt
+firmware-boundary-capture (1)	Install and verify the pinned RV32 SDK	2026-11-25T17:15:12.0944578Z   CI_BUILD_JOBS: 4
+firmware-boundary-capture (1)	Install and verify the pinned RV32 SDK	2026-11-25T17:15:12.0944858Z   CI_TOOL_BUILD_JOBS: 4
+firmware-boundary-capture (1)	Install and verify the pinned RV32 SDK	2026-11-25T17:15:12.0945110Z   CI_CAMPAIGN_JOBS: 4
+firmware-boundary-capture (1)	Install and verify the pinned RV32 SDK	2026-11-25T17:15:12.0945369Z   VERILATOR_JOBS: 4
+firmware-boundary-capture (1)	Install and verify the pinned RV32 SDK	2026-11-25T17:15:12.0945587Z   SIM_JOBS: 4
+firmware-boundary-capture (1)	Install and verify the pinned RV32 SDK	2026-11-25T17:15:12.0945851Z   MAKEFLAGS: -j1 --no-print-directory
+firmware-boundary-capture (1)	Install and verify the pinned RV32 SDK	2026-11-25T17:15:12.0946129Z ##[endgroup]
+firmware-boundary-capture (1)	Install and verify the pinned RV32 SDK	2026-11-25T17:15:12.1716792Z test_archive_root (__main__.InstallerTests.test_archive_root)
+firmware-boundary-capture (1)	Install and verify the pinned RV32 SDK	2026-11-25T17:15:12.1895019Z SDK archive verified: /tmp/rv32-installer-test-ull7ocn2/wrong-root.tar.xz sha256=f6657b43254964b1b112305ccdcf8f39459e01f625baa6928ecbd246e2f71d4f
+firmware-boundary-capture (1)	Install and verify the pinned RV32 SDK	2026-11-25T17:15:12.1901660Z An authenticated archive with another root is still not extracted. ... ok
+firmware-boundary-capture (1)	Install and verify the pinned RV32 SDK	2026-11-25T17:15:12.1902319Z test_bad_archive (__main__.InstallerTests.test_bad_archive)
+firmware-boundary-capture (1)	Install and verify the pinned RV32 SDK	2026-11-25T17:15:12.1950995Z A wrong offline --archive never reaches tar or creates an installation. ... ok
+firmware-boundary-capture (1)	Install and verify the pinned RV32 SDK	2026-11-25T17:15:12.1952309Z test_bad_archive_with_cache (__main__.InstallerTests.test_bad_archive_with_cache)
+firmware-boundary-capture (1)	Install and verify the pinned RV32 SDK	2026-11-25T17:15:12.2175120Z Explicit offline inputs are checked even beside a valid cache. ... ok
+firmware-boundary-capture (1)	Install and verify the pinned RV32 SDK	2026-11-25T17:15:12.2176006Z test_changed_installer (__main__.InstallerTests.test_changed_installer)
+firmware-boundary-capture (1)	Install and verify the pinned RV32 SDK	2026-11-25T17:15:12.2378925Z A cache made by other installer bytes is refused before its tools run. ... ok
+firmware-boundary-capture (1)	Install and verify the pinned RV32 SDK	2026-11-25T17:15:12.2379829Z test_download_path (__main__.InstallerTests.test_download_path)
+firmware-boundary-capture (1)	Install and verify the pinned RV32 SDK	2026-11-25T17:15:12.2580103Z The hosted path, with no --archive, installs what the pin names. ... ok
+firmware-boundary-capture (1)	Install and verify the pinned RV32 SDK	2026-11-25T17:15:12.2581310Z test_download_path_refuses_unpinned_bytes (__main__.InstallerTests.test_download_path_refuses_unpinned_bytes)
+firmware-boundary-capture (1)	Install and verify the pinned RV32 SDK	2026-11-25T17:15:12.2691728Z A wrong download is refused before tar reads it or anything runs. ... ok
+firmware-boundary-capture (1)	Install and verify the pinned RV32 SDK	2026-11-25T17:15:12.2692517Z test_escaping_compiler (__main__.InstallerTests.test_escaping_compiler)
+firmware-boundary-capture (1)	Install and verify the pinned RV32 SDK	2026-11-25T17:15:12.2899135Z A compiler whose realpath leaves the prefix is never executed. ... ok
+firmware-boundary-capture (1)	Install and verify the pinned RV32 SDK	2026-11-25T17:15:12.2900069Z test_extra_receipt_section (__main__.InstallerTests.test_extra_receipt_section)
+firmware-boundary-capture (1)	Install and verify the pinned RV32 SDK	2026-11-25T17:15:12.3102563Z A receipt carrying an unexpected section is malformed. ... ok
+firmware-boundary-capture (1)	Install and verify the pinned RV32 SDK	2026-11-25T17:15:12.3103081Z test_failed_relocation (__main__.InstallerTests.test_failed_relocation)
+firmware-boundary-capture (1)	Install and verify the pinned RV32 SDK	2026-11-25T17:15:12.3177582Z A failed relocation leaves no success receipt and cannot become a hit. ... ok
+firmware-boundary-capture (1)	Install and verify the pinned RV32 SDK	2026-11-25T17:15:12.3178163Z test_fresh_and_cache_hit (__main__.InstallerTests.test_fresh_and_cache_hit)
+firmware-boundary-capture (1)	Install and verify the pinned RV32 SDK	2026-11-25T17:15:12.3435324Z Extraction relocates; a valid hit neither downloads nor extracts. ... ok
+firmware-boundary-capture (1)	Install and verify the pinned RV32 SDK	2026-11-25T17:15:12.3435937Z test_incomplete_and_corrupt_tree (__main__.InstallerTests.test_incomplete_and_corrupt_tree)
+firmware-boundary-capture (1)	Install and verify the pinned RV32 SDK	2026-11-25T17:15:12.3674627Z Deletion, replacement, mode change and extra files all refuse. ... ok
+firmware-boundary-capture (1)	Install and verify the pinned RV32 SDK	2026-11-25T17:15:12.3675237Z test_malformed_receipt (__main__.InstallerTests.test_malformed_receipt)
+firmware-boundary-capture (1)	Install and verify the pinned RV32 SDK	2026-11-25T17:15:12.3877326Z JSON of the wrong type cannot pass as provenance. ... ok
+firmware-boundary-capture (1)	Install and verify the pinned RV32 SDK	2026-11-25T17:15:12.3877894Z test_missing_receipt (__main__.InstallerTests.test_missing_receipt)
+firmware-boundary-capture (1)	Install and verify the pinned RV32 SDK	2026-11-25T17:15:12.3921234Z An existing directory is not an installed SDK. ... ok
+firmware-boundary-capture (1)	Install and verify the pinned RV32 SDK	2026-11-25T17:15:12.3921734Z test_moved_cache (__main__.InstallerTests.test_moved_cache)
+firmware-boundary-capture (1)	Install and verify the pinned RV32 SDK	2026-11-25T17:15:12.4121739Z A relocated tree is bound to the prefix where it was measured. ... ok
+firmware-boundary-capture (1)	Install and verify the pinned RV32 SDK	2026-11-25T17:15:12.4122584Z test_provenance_values (__main__.InstallerTests.test_provenance_values)
+firmware-boundary-capture (1)	Install and verify the pinned RV32 SDK	2026-11-25T17:15:12.4317603Z The installer digest and host are the ones measured here, independently. ... ok
+firmware-boundary-capture (1)	Install and verify the pinned RV32 SDK	2026-11-25T17:15:12.4318663Z test_retargeted_symlink (__main__.InstallerTests.test_retargeted_symlink)
+firmware-boundary-capture (1)	Install and verify the pinned RV32 SDK	2026-11-25T17:15:12.4525144Z Pointing the selector at another installed tool is cache drift. ... ok
+firmware-boundary-capture (1)	Install and verify the pinned RV32 SDK	2026-11-25T17:15:12.4525889Z test_special_file (__main__.InstallerTests.test_special_file)
+firmware-boundary-capture (1)	Install and verify the pinned RV32 SDK	2026-11-25T17:15:12.4741589Z A FIFO planted in the cache is refused before any tool runs. ... ok
+firmware-boundary-capture (1)	Install and verify the pinned RV32 SDK	2026-11-25T17:15:12.4742215Z test_symlink_destination (__main__.InstallerTests.test_symlink_destination)
+firmware-boundary-capture (1)	Install and verify the pinned RV32 SDK	2026-11-25T17:15:12.4786887Z Do not overwrite or adopt a tree reached through a selector symlink. ... ok
+firmware-boundary-capture (1)	Install and verify the pinned RV32 SDK	2026-11-25T17:15:12.4787460Z test_symlink_receipt (__main__.InstallerTests.test_symlink_receipt)
+firmware-boundary-capture (1)	Install and verify the pinned RV32 SDK	2026-11-25T17:15:12.4986700Z Provenance must be stored in the installation, not another tree. ... ok
+firmware-boundary-capture (1)	Install and verify the pinned RV32 SDK	2026-11-25T17:15:12.4987422Z test_truncated_receipt (__main__.InstallerTests.test_truncated_receipt)
+firmware-boundary-capture (1)	Install and verify the pinned RV32 SDK	2026-11-25T17:15:12.5188410Z An interrupted receipt write never becomes a usable cache. ... ok
+firmware-boundary-capture (1)	Install and verify the pinned RV32 SDK	2026-11-25T17:15:12.5189197Z test_unrelocated_sdk (__main__.InstallerTests.test_unrelocated_sdk)
+firmware-boundary-capture (1)	Install and verify the pinned RV32 SDK	2026-11-25T17:15:12.5384147Z SDK argv: ["/tmp/rv32-installer-test-0znq3pm1/installed/bin/riscv32-linux-gcc", "--version"]
+firmware-boundary-capture (1)	Install and verify the pinned RV32 SDK	2026-11-25T17:15:12.5397835Z SDK argv: ["/tmp/rv32-installer-test-0znq3pm1/installed/bin/riscv32-linux-gcc", "-dumpfullversion"]
+firmware-boundary-capture (1)	Install and verify the pinned RV32 SDK	2026-11-25T17:15:12.5412601Z SDK argv: ["/tmp/rv32-installer-test-0znq3pm1/installed/bin/riscv32-linux-gcc", "-dumpmachine"]
+firmware-boundary-capture (1)	Install and verify the pinned RV32 SDK	2026-11-25T17:15:12.5426993Z SDK argv: ["/tmp/rv32-installer-test-0znq3pm1/installed/bin/riscv32-linux-gcc", "-print-sysroot"]
+firmware-boundary-capture (1)	Install and verify the pinned RV32 SDK	2026-11-25T17:15:12.5446750Z Even a successful process must prove its relocation result. ... ok
+firmware-boundary-capture (1)	Install and verify the pinned RV32 SDK	2026-11-25T17:15:12.5447649Z test_unsupported_host (__main__.InstallerTests.test_unsupported_host)
+firmware-boundary-capture (1)	Install and verify the pinned RV32 SDK	2026-11-25T17:15:12.5493926Z The fixed x86-64 archive cannot silently adopt another host. ... ok
+firmware-boundary-capture (1)	Install and verify the pinned RV32 SDK	2026-11-25T17:15:12.5494736Z test_wrong_provenance (__main__.InstallerTests.test_wrong_provenance)
+firmware-boundary-capture (1)	Install and verify the pinned RV32 SDK	2026-11-25T17:15:12.5721352Z Every cache input is bound, including the whole digest and prefix. ... ok
+firmware-boundary-capture (1)	Install and verify the pinned RV32 SDK	2026-11-25T17:15:12.5721846Z test_wrong_tool (__main__.InstallerTests.test_wrong_tool)
+firmware-boundary-capture (1)	Install and verify the pinned RV32 SDK	2026-11-25T17:15:12.5916964Z SDK argv: ["/tmp/rv32-installer-test-8nna565m/installed/bin/riscv32-linux-gcc", "--version"]
+firmware-boundary-capture (1)	Install and verify the pinned RV32 SDK	2026-11-25T17:15:12.5931142Z SDK argv: ["/tmp/rv32-installer-test-8nna565m/installed/bin/riscv32-linux-gcc", "-dumpfullversion"]
+firmware-boundary-capture (1)	Install and verify the pinned RV32 SDK	2026-11-25T17:15:12.5945665Z SDK argv: ["/tmp/rv32-installer-test-8nna565m/installed/bin/riscv32-linux-gcc", "-dumpmachine"]
+firmware-boundary-capture (1)	Install and verify the pinned RV32 SDK	2026-11-25T17:15:12.5960190Z SDK argv: ["/tmp/rv32-installer-test-8nna565m/installed/bin/riscv32-linux-gcc", "-print-sysroot"]
+firmware-boundary-capture (1)	Install and verify the pinned RV32 SDK	2026-11-25T17:15:12.5977868Z SDK argv: ["/tmp/rv32-installer-test-8nna565m/installed/bin/riscv32-linux-gcc", "--version"]
+firmware-boundary-capture (1)	Install and verify the pinned RV32 SDK	2026-11-25T17:15:12.5992831Z SDK argv: ["/tmp/rv32-installer-test-8nna565m/installed/bin/riscv32-linux-gcc", "-dumpfullversion"]
+firmware-boundary-capture (1)	Install and verify the pinned RV32 SDK	2026-11-25T17:15:12.6006968Z SDK argv: ["/tmp/rv32-installer-test-8nna565m/installed/bin/riscv32-linux-gcc", "-dumpmachine"]
+firmware-boundary-capture (1)	Install and verify the pinned RV32 SDK	2026-11-25T17:15:12.6021305Z SDK argv: ["/tmp/rv32-installer-test-8nna565m/installed/bin/riscv32-linux-gcc", "-print-sysroot"]
+firmware-boundary-capture (1)	Install and verify the pinned RV32 SDK	2026-11-25T17:15:12.6037682Z SDK argv: ["/tmp/rv32-installer-test-8nna565m/installed/bin/riscv32-linux-gcc", "--version"]
+firmware-boundary-capture (1)	Install and verify the pinned RV32 SDK	2026-11-25T17:15:12.6052225Z SDK argv: ["/tmp/rv32-installer-test-8nna565m/installed/bin/riscv32-linux-gcc", "-dumpfullversion"]
+firmware-boundary-capture (1)	Install and verify the pinned RV32 SDK	2026-11-25T17:15:12.6066304Z SDK argv: ["/tmp/rv32-installer-test-8nna565m/installed/bin/riscv32-linux-gcc", "-dumpmachine"]
+firmware-boundary-capture (1)	Install and verify the pinned RV32 SDK	2026-11-25T17:15:12.6080501Z SDK argv: ["/tmp/rv32-installer-test-8nna565m/installed/bin/riscv32-linux-gcc", "-print-sysroot"]
+firmware-boundary-capture (1)	Install and verify the pinned RV32 SDK	2026-11-25T17:15:12.6098939Z A compiler with the wrong version or target cannot create a receipt. ... ok
+firmware-boundary-capture (1)	Install and verify the pinned RV32 SDK	2026-11-25T17:15:12.6099475Z test_wrong_tool_receipt (__main__.InstallerTests.test_wrong_tool_receipt)
+firmware-boundary-capture (1)	Install and verify the pinned RV32 SDK	2026-11-25T17:15:12.6301594Z SDK argv: ["/tmp/rv32-installer-test-9f2l9kuo/installed/bin/riscv32-linux-gcc", "--version"]
+firmware-boundary-capture (1)	Install and verify the pinned RV32 SDK	2026-11-25T17:15:12.6316133Z SDK argv: ["/tmp/rv32-installer-test-9f2l9kuo/installed/bin/riscv32-linux-gcc", "-dumpfullversion"]
+firmware-boundary-capture (1)	Install and verify the pinned RV32 SDK	2026-11-25T17:15:12.6330347Z SDK argv: ["/tmp/rv32-installer-test-9f2l9kuo/installed/bin/riscv32-linux-gcc", "-dumpmachine"]
+firmware-boundary-capture (1)	Install and verify the pinned RV32 SDK	2026-11-25T17:15:12.6344921Z SDK argv: ["/tmp/rv32-installer-test-9f2l9kuo/installed/bin/riscv32-linux-gcc", "-print-sysroot"]
+firmware-boundary-capture (1)	Install and verify the pinned RV32 SDK	2026-11-25T17:15:12.6363983Z Cached identification must agree with the program actually invoked. ... ok
+firmware-boundary-capture (1)	Install and verify the pinned RV32 SDK	2026-11-25T17:15:12.6364419Z 
+firmware-boundary-capture (1)	Install and verify the pinned RV32 SDK	2026-11-25T17:15:12.6364592Z ----------------------------------------------------------------------
+firmware-boundary-capture (1)	Install and verify the pinned RV32 SDK	2026-11-25T17:15:12.6364947Z Ran 25 tests in 0.465s
+firmware-boundary-capture (1)	Install and verify the pinned RV32 SDK	2026-11-25T17:15:12.6365107Z 
+firmware-boundary-capture (1)	Install and verify the pinned RV32 SDK	2026-11-25T17:15:12.6365201Z OK
+firmware-boundary-capture (1)	Install and verify the pinned RV32 SDK	2026-11-25T17:15:13.3522747Z SDK argv: ["<home-path>/br-milan-rv32/host/bin/riscv32-linux-gcc", "--version"]
+firmware-boundary-capture (1)	Install and verify the pinned RV32 SDK	2026-11-25T17:15:13.3536350Z SDK argv: ["<home-path>/br-milan-rv32/host/bin/riscv32-linux-gcc", "-dumpfullversion"]
+firmware-boundary-capture (1)	Install and verify the pinned RV32 SDK	2026-11-25T17:15:13.3547399Z SDK argv: ["<home-path>/br-milan-rv32/host/bin/riscv32-linux-gcc", "-dumpmachine"]
+firmware-boundary-capture (1)	Install and verify the pinned RV32 SDK	2026-11-25T17:15:13.3557666Z SDK argv: ["<home-path>/br-milan-rv32/host/bin/riscv32-linux-gcc", "-print-sysroot"]
+firmware-boundary-capture (1)	Install and verify the pinned RV32 SDK	2026-11-25T17:15:13.3578574Z SDK verified: {"archive_sha256": "d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f", "archive_url": "https://toolchains.bootlin.com/downloads/releases/toolchains/riscv32-ilp32d/tarballs/riscv32-ilp32d--glibc--stable-2025.08-1.tar.xz", "destination": "<home-path>/br-milan-rv32/host", "host": {"architecture": "x86_64", "os": "Linux"}, "installer_revision": 1, "installer_sha256": "ffcc5433d97209b00cac5155c61bc464a43a60fec49bce0330d81279e1df7cb4", "release": "riscv32-ilp32d--glibc--stable-2025.08-1"}
+firmware-boundary-capture (1)	Install and verify the pinned RV32 SDK	2026-11-25T17:15:13.3581950Z SDK tools: {"compiler": "<home-path>/br-milan-rv32/host/bin/riscv32-linux-gcc", "gcc_version": "14.3.0", "realpath": "<home-path>/br-milan-rv32/host/bin/toolchain-wrapper", "sysroot": "<home-path>/br-milan-rv32/host/riscv32-buildroot-linux-gnu/sysroot", "target": "riscv32-buildroot-linux-gnu", "version": "riscv32-linux-gcc.br_real (Buildroot 2021.11-18033-g83947c7bb6) 14.3.0\nCopyright (C) 2024 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE."}
+firmware-boundary-capture (1)	Install and verify the pinned RV32 SDK	2026-11-25T17:15:13.3584049Z SDK cache hit: verified
+firmware-boundary-capture (1)	Capture one leg of the firmware builders' compiles	﻿2026-11-25T17:15:13.3698697Z ##[group]Run python3 sw/firmware/ctrl/test/ctrl_boundary.py --require-rv32 --without verilator --leg "1/2" --capture-out "$RUNNER_TEMP/firmware-boundary-capture-1"
+firmware-boundary-capture (1)	Capture one leg of the firmware builders' compiles	2026-11-25T17:15:13.3699608Z ^[[36;1mpython3 sw/firmware/ctrl/test/ctrl_boundary.py --require-rv32 --without verilator --leg "1/2" --capture-out "$RUNNER_TEMP/firmware-boundary-capture-1"^[[0m
+firmware-boundary-capture (1)	Capture one leg of the firmware builders' compiles	2026-11-25T17:15:13.3726001Z shell: /usr/bin/bash -e {0}
+firmware-boundary-capture (1)	Capture one leg of the firmware builders' compiles	2026-11-25T17:15:13.3726470Z env:
+firmware-boundary-capture (1)	Capture one leg of the firmware builders' compiles	2026-11-25T17:15:13.3726715Z   VERILATOR_VERSION: v5.050
+firmware-boundary-capture (1)	Capture one leg of the firmware builders' compiles	2026-11-25T17:15:13.3726955Z   YOSYS_VERSION: v0.66
+firmware-boundary-capture (1)	Capture one leg of the firmware builders' compiles	2026-11-25T17:15:13.3727348Z   PIP_CONSTRAINT: <home-path>/work/milan-fpga/milan-fpga/ci/constraints-ci.txt
+firmware-boundary-capture (1)	Capture one leg of the firmware builders' compiles	2026-11-25T17:15:13.3727706Z   CI_BUILD_JOBS: 4
+firmware-boundary-capture (1)	Capture one leg of the firmware builders' compiles	2026-11-25T17:15:13.3727975Z   CI_TOOL_BUILD_JOBS: 4
+firmware-boundary-capture (1)	Capture one leg of the firmware builders' compiles	2026-11-25T17:15:13.3728201Z   CI_CAMPAIGN_JOBS: 4
+firmware-boundary-capture (1)	Capture one leg of the firmware builders' compiles	2026-11-25T17:15:13.3728424Z   VERILATOR_JOBS: 4
+firmware-boundary-capture (1)	Capture one leg of the firmware builders' compiles	2026-11-25T17:15:13.3728670Z   SIM_JOBS: 4
+firmware-boundary-capture (1)	Capture one leg of the firmware builders' compiles	2026-11-25T17:15:13.3728888Z   MAKEFLAGS: -j1 --no-print-directory
+firmware-boundary-capture (1)	Capture one leg of the firmware builders' compiles	2026-11-25T17:15:13.3729207Z ##[endgroup]
+firmware-boundary-capture (1)	Capture one leg of the firmware builders' compiles	2026-11-25T17:15:13.5757309Z tsn-c-stack at 715589c1db7cf67e2f3259fd7083ebc7f0923376
+firmware-boundary-capture (1)	Capture one leg of the firmware builders' compiles	2026-11-25T17:15:13.5758600Z leg 1/2: running sw/firmware/gtest/fw_rv32_selftest.py, sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py, sw/firmware/gtest/fw_coverage.py, sw/litex/test_ctrl_memory.py, tb/verilator/milan_dp/stream_counter_f5.py under a capture at <home-path>/work/_temp/firmware-boundary-capture-1
+firmware-boundary-capture (1)	Capture one leg of the firmware builders' compiles	2026-11-25T17:15:25.3886246Z     sw/firmware/gtest/fw_rv32_selftest.py --require-rv32: exit 0 (12 s)
+firmware-boundary-capture (1)	Capture one leg of the firmware builders' compiles	2026-11-25T17:16:56.1013536Z     sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py --require-rv32: exit 0 (91 s)
+firmware-boundary-capture (1)	Capture one leg of the firmware builders' compiles	2026-11-25T17:23:14.8309308Z     sw/firmware/gtest/fw_coverage.py --build-only: exit 0 (379 s)
+firmware-boundary-capture (1)	Capture one leg of the firmware builders' compiles	2026-11-25T17:23:15.1938202Z     sw/litex/test_ctrl_memory.py --build-only: exit 0 (0 s)
+firmware-boundary-capture (1)	Capture one leg of the firmware builders' compiles	2026-11-25T17:23:43.3354722Z     tb/verilator/milan_dp/stream_counter_f5.py --build-only: exit 0 (28 s)
+firmware-boundary-capture (1)	Capture one leg of the firmware builders' compiles	2026-11-25T17:24:11.4925965Z     tb/verilator/milan_dp/stream_counter_f5.py --build-only: exit 0 (28 s)
+firmware-boundary-capture (1)	Capture one leg of the firmware builders' compiles	2026-11-25T17:24:12.3681624Z ctrl_boundary: leg 1/2: 1716 compiler invocations from 6 builder runs, judged where every leg's capture is given (--capture)
+firmware-boundary-capture (1)	Upload this leg's capture	﻿2026-11-25T17:24:12.4108905Z ##[group]Run actions/upload-artifact@v4
+firmware-boundary-capture (1)	Upload this leg's capture	2026-11-25T17:24:12.4109213Z with:
+firmware-boundary-capture (1)	Upload this leg's capture	2026-11-25T17:24:12.4109576Z   name: firmware-boundary-capture-1-649acf4c775dd7e9bfbdf81f5d7a3d91782cd327
+firmware-boundary-capture (1)	Upload this leg's capture	2026-11-25T17:24:12.4110062Z   path: <home-path>/work/_temp/firmware-boundary-capture-1
+firmware-boundary-capture (1)	Upload this leg's capture	2026-11-25T17:24:12.4110384Z   if-no-files-found: error
+firmware-boundary-capture (1)	Upload this leg's capture	2026-11-25T17:24:12.4110676Z   retention-days: 3
+firmware-boundary-capture (1)	Upload this leg's capture	2026-11-25T17:24:12.4111104Z   compression-level: 6
+firmware-boundary-capture (1)	Upload this leg's capture	2026-11-25T17:24:12.4111412Z   overwrite: false
+firmware-boundary-capture (1)	Upload this leg's capture	2026-11-25T17:24:12.4111647Z   include-hidden-files: false
+firmware-boundary-capture (1)	Upload this leg's capture	2026-11-25T17:24:12.4111880Z env:
+firmware-boundary-capture (1)	Upload this leg's capture	2026-11-25T17:24:12.4112147Z   VERILATOR_VERSION: v5.050
+firmware-boundary-capture (1)	Upload this leg's capture	2026-11-25T17:24:12.4112391Z   YOSYS_VERSION: v0.66
+firmware-boundary-capture (1)	Upload this leg's capture	2026-11-25T17:24:12.4112753Z   PIP_CONSTRAINT: <home-path>/work/milan-fpga/milan-fpga/ci/constraints-ci.txt
+firmware-boundary-capture (1)	Upload this leg's capture	2026-11-25T17:24:12.4113141Z   CI_BUILD_JOBS: 4
+firmware-boundary-capture (1)	Upload this leg's capture	2026-11-25T17:24:12.4113643Z   CI_TOOL_BUILD_JOBS: 4
+firmware-boundary-capture (1)	Upload this leg's capture	2026-11-25T17:24:12.4113981Z   CI_CAMPAIGN_JOBS: 4
+firmware-boundary-capture (1)	Upload this leg's capture	2026-11-25T17:24:12.4114204Z   VERILATOR_JOBS: 4
+firmware-boundary-capture (1)	Upload this leg's capture	2026-11-25T17:24:12.4114473Z   SIM_JOBS: 4
+firmware-boundary-capture (1)	Upload this leg's capture	2026-11-25T17:24:12.4114835Z   MAKEFLAGS: -j1 --no-print-directory
+firmware-boundary-capture (1)	Upload this leg's capture	2026-11-25T17:24:12.4115116Z ##[endgroup]
+firmware-boundary-capture (1)	Upload this leg's capture	2026-11-25T17:24:12.5390546Z (node:17184) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+firmware-boundary-capture (1)	Upload this leg's capture	2026-11-25T17:24:12.5391846Z (Use `node --trace-deprecation ...` to show where the warning was created)
+firmware-boundary-capture (1)	Upload this leg's capture	2026-11-25T17:24:12.6519885Z With the provided path, there will be 1914 files uploaded
+firmware-boundary-capture (1)	Upload this leg's capture	2026-11-25T17:24:12.6520343Z Artifact name is valid!
+firmware-boundary-capture (1)	Upload this leg's capture	2026-11-25T17:24:12.6520552Z Root directory input is valid!
+firmware-boundary-capture (1)	Upload this leg's capture	2026-11-25T17:24:13.0982609Z Beginning upload of artifact content to blob storage
+firmware-boundary-capture (1)	Upload this leg's capture	2026-11-25T17:24:13.7061247Z (node:17184) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+firmware-boundary-capture (1)	Upload this leg's capture	2026-11-25T17:24:14.8486533Z Uploaded bytes 8388608
+firmware-boundary-capture (1)	Upload this leg's capture	2026-11-25T17:24:15.3607969Z Uploaded bytes 16777216
+firmware-boundary-capture (1)	Upload this leg's capture	2026-11-25T17:24:15.8721144Z Uploaded bytes 25165824
+firmware-boundary-capture (1)	Upload this leg's capture	2026-11-25T17:24:16.0035945Z Uploaded bytes 33554432
+firmware-boundary-capture (1)	Upload this leg's capture	2026-11-25T17:24:16.5496433Z Uploaded bytes 41943040
+firmware-boundary-capture (1)	Upload this leg's capture	2026-11-25T17:24:17.2796860Z Uploaded bytes 46548557
+firmware-boundary-capture (1)	Upload this leg's capture	2026-11-25T17:24:17.3729805Z Finished uploading artifact content to blob storage!
+firmware-boundary-capture (1)	Upload this leg's capture	2026-11-25T17:24:17.3732103Z SHA256 digest of uploaded artifact zip is 0c28d466b94d294565bf0aa6dcbd787e865770dda0da5f40821701095ebc72f4
+firmware-boundary-capture (1)	Upload this leg's capture	2026-11-25T17:24:17.3733757Z Finalizing artifact upload
+firmware-boundary-capture (1)	Upload this leg's capture	2026-11-25T17:24:17.7574147Z Artifact firmware-boundary-capture-1-649acf4c775dd7e9bfbdf81f5d7a3d91782cd327.zip successfully finalized. Artifact ID 15046402714
+firmware-boundary-capture (1)	Upload this leg's capture	2026-11-25T17:24:17.7575813Z Artifact firmware-boundary-capture-1-649acf4c775dd7e9bfbdf81f5d7a3d91782cd327 has been successfully uploaded! Final size is 46548557 bytes. Artifact ID is 15046402714
+firmware-boundary-capture (1)	Upload this leg's capture	2026-11-25T17:24:17.7582097Z Artifact download URL: https://github.com/kebag-logic/milan-fpga/actions/runs/45657606423/artifacts/15046402714
+firmware-boundary-capture (1)	Record actual job execution	﻿2026-11-25T17:24:17.7826292Z ##[group]Run python3 scripts/ci_runtime_evidence.py record --workflow .github/workflows/rtl-fast.yml --job firmware-boundary-capture --output "$RUNNER_TEMP/job-evidence.json"
+firmware-boundary-capture (1)	Record actual job execution	2026-11-25T17:24:17.7827328Z ^[[36;1mpython3 scripts/ci_runtime_evidence.py record --workflow .github/workflows/rtl-fast.yml --job firmware-boundary-capture --output "$RUNNER_TEMP/job-evidence.json"^[[0m
+firmware-boundary-capture (1)	Record actual job execution	2026-11-25T17:24:17.7854538Z shell: /usr/bin/bash -e {0}
+firmware-boundary-capture (1)	Record actual job execution	2026-11-25T17:24:17.7854757Z env:
+firmware-boundary-capture (1)	Record actual job execution	2026-11-25T17:24:17.7854928Z   VERILATOR_VERSION: v5.050
+firmware-boundary-capture (1)	Record actual job execution	2026-11-25T17:24:17.7855115Z   YOSYS_VERSION: v0.66
+firmware-boundary-capture (1)	Record actual job execution	2026-11-25T17:24:17.7855404Z   PIP_CONSTRAINT: <home-path>/work/milan-fpga/milan-fpga/ci/constraints-ci.txt
+firmware-boundary-capture (1)	Record actual job execution	2026-11-25T17:24:17.7855707Z   CI_BUILD_JOBS: 4
+firmware-boundary-capture (1)	Record actual job execution	2026-11-25T17:24:17.7855882Z   CI_TOOL_BUILD_JOBS: 4
+firmware-boundary-capture (1)	Record actual job execution	2026-11-25T17:24:17.7856058Z   CI_CAMPAIGN_JOBS: 4
+firmware-boundary-capture (1)	Record actual job execution	2026-11-25T17:24:17.7856234Z   VERILATOR_JOBS: 4
+firmware-boundary-capture (1)	Record actual job execution	2026-11-25T17:24:17.7856396Z   SIM_JOBS: 4
+firmware-boundary-capture (1)	Record actual job execution	2026-11-25T17:24:17.7856581Z   MAKEFLAGS: -j1 --no-print-directory
+firmware-boundary-capture (1)	Record actual job execution	2026-11-25T17:24:17.7859884Z   CI_STEP_RESULTS: {
+firmware-boundary-capture (1)	Record actual job execution	  "ci_step_0": {
+firmware-boundary-capture (1)	Record actual job execution	    "outputs": {
+firmware-boundary-capture (1)	Record actual job execution	      "commit": "649acf4c775dd7e9bfbdf81f5d7a3d91782cd327",
+firmware-boundary-capture (1)	Record actual job execution	      "ref": "refs/pull/987/merge"
+firmware-boundary-capture (1)	Record actual job execution	    },
+firmware-boundary-capture (1)	Record actual job execution	    "outcome": "success",
+firmware-boundary-capture (1)	Record actual job execution	    "conclusion": "success"
+firmware-boundary-capture (1)	Record actual job execution	  },
+firmware-boundary-capture (1)	Record actual job execution	  "ci_step_1": {
+firmware-boundary-capture (1)	Record actual job execution	    "outputs": {},
+firmware-boundary-capture (1)	Record actual job execution	    "outcome": "success",
+firmware-boundary-capture (1)	Record actual job execution	    "conclusion": "success"
+firmware-boundary-capture (1)	Record actual job execution	  },
+firmware-boundary-capture (1)	Record actual job execution	  "ci_step_2": {
+firmware-boundary-capture (1)	Record actual job execution	    "outputs": {
+firmware-boundary-capture (1)	Record actual job execution	      "cache-hit": "true"
+firmware-boundary-capture (1)	Record actual job execution	    },
+firmware-boundary-capture (1)	Record actual job execution	    "outcome": "success",
+firmware-boundary-capture (1)	Record actual job execution	    "conclusion": "success"
+firmware-boundary-capture (1)	Record actual job execution	  },
+firmware-boundary-capture (1)	Record actual job execution	  "ci_step_3": {
+firmware-boundary-capture (1)	Record actual job execution	    "outputs": {},
+firmware-boundary-capture (1)	Record actual job execution	    "outcome": "success",
+firmware-boundary-capture (1)	Record actual job execution	    "conclusion": "success"
+firmware-boundary-capture (1)	Record actual job execution	  },
+firmware-boundary-capture (1)	Record actual job execution	  "ci_packages_2": {
+firmware-boundary-capture (1)	Record actual job execution	    "outputs": {
+firmware-boundary-capture (1)	Record actual job execution	      "key": "apt-e8d0be9d206f07f2e3d715a6587a1b5b849ef62be8dd33f0f8248fc9f9707847-3ee1f05265afcfbfe33b91fec69fbef4d3bad5399e2cd968ea7869725622ea6a-0a7770834110cbf0bf2a242c3eefab212a9b9ff9f158f62eee30bd8188f9b335"
+firmware-boundary-capture (1)	Record actual job execution	    },
+firmware-boundary-capture (1)	Record actual job execution	    "outcome": "success",
+firmware-boundary-capture (1)	Record actual job execution	    "conclusion": "success"
+firmware-boundary-capture (1)	Record actual job execution	  },
+firmware-boundary-capture (1)	Record actual job execution	  "ci_step_5": {
+firmware-boundary-capture (1)	Record actual job execution	    "outputs": {},
+firmware-boundary-capture (1)	Record actual job execution	    "outcome": "success",
+firmware-boundary-capture (1)	Record actual job execution	    "conclusion": "success"
+firmware-boundary-capture (1)	Record actual job execution	  },
+firmware-boundary-capture (1)	Record actual job execution	  "ci_step_6": {
+firmware-boundary-capture (1)	Record actual job execution	    "outputs": {},
+firmware-boundary-capture (1)	Record actual job execution	    "outcome": "success",
+firmware-boundary-capture (1)	Record actual job execution	    "conclusion": "success"
+firmware-boundary-capture (1)	Record actual job execution	  },
+firmware-boundary-capture (1)	Record actual job execution	  "ci_step_7": {
+firmware-boundary-capture (1)	Record actual job execution	    "outputs": {
+firmware-boundary-capture (1)	Record actual job execution	      "cache-hit": "true"
+firmware-boundary-capture (1)	Record actual job execution	    },
+firmware-boundary-capture (1)	Record actual job execution	    "outcome": "success",
+firmware-boundary-capture (1)	Record actual job execution	    "conclusion": "success"
+firmware-boundary-capture (1)	Record actual job execution	  },
+firmware-boundary-capture (1)	Record actual job execution	  "ci_step_8": {
+firmware-boundary-capture (1)	Record actual job execution	    "outputs": {},
+firmware-boundary-capture (1)	Record actual job execution	    "outcome": "success",
+firmware-boundary-capture (1)	Record actual job execution	    "conclusion": "success"
+firmware-boundary-capture (1)	Record actual job execution	  },
+firmware-boundary-capture (1)	Record actual job execution	  "ci_step_9": {
+firmware-boundary-capture (1)	Record actual job execution	    "outputs": {},
+firmware-boundary-capture (1)	Record actual job execution	    "outcome": "success",
+firmware-boundary-capture (1)	Record actual job execution	    "conclusion": "success"
+firmware-boundary-capture (1)	Record actual job execution	  },
+firmware-boundary-capture (1)	Record actual job execution	  "ci_step_10": {
+firmware-boundary-capture (1)	Record actual job execution	    "outputs": {
+firmware-boundary-capture (1)	Record actual job execution	      "artifact-id": "15046402714",
+firmware-boundary-capture (1)	Record actual job execution	      "artifact-digest": "0c28d466b94d294565bf0aa6dcbd787e865770dda0da5f40821701095ebc72f4",
+firmware-boundary-capture (1)	Record actual job execution	      "artifact-url": "https://github.com/kebag-logic/milan-fpga/actions/runs/45657606423/artifacts/15046402714"
+firmware-boundary-capture (1)	Record actual job execution	    },
+firmware-boundary-capture (1)	Record actual job execution	    "outcome": "success",
+firmware-boundary-capture (1)	Record actual job execution	    "conclusion": "success"
+firmware-boundary-capture (1)	Record actual job execution	  }
+firmware-boundary-capture (1)	Record actual job execution	}
+firmware-boundary-capture (1)	Record actual job execution	2026-11-25T17:24:17.7863422Z   CI_JOB_RESULT: success
+firmware-boundary-capture (1)	Record actual job execution	2026-11-25T17:24:17.7863619Z   CI_MATRIX: {
+firmware-boundary-capture (1)	Record actual job execution	  "leg": 1
+firmware-boundary-capture (1)	Record actual job execution	}
+firmware-boundary-capture (1)	Record actual job execution	2026-11-25T17:24:17.7863806Z ##[endgroup]
+firmware-boundary-capture (1)	Upload actual job execution	﻿2026-11-25T17:24:27.4249985Z ##[group]Run actions/upload-artifact@v4
+firmware-boundary-capture (1)	Upload actual job execution	2026-11-25T17:24:27.4250376Z with:
+firmware-boundary-capture (1)	Upload actual job execution	2026-11-25T17:24:27.4251685Z   name: job-evidence-rtl-fast-firmware-boundary-capture-1-649acf4c775dd7e9bfbdf81f5d7a3d91782cd327
+firmware-boundary-capture (1)	Upload actual job execution	2026-11-25T17:24:27.4252388Z   path: <home-path>/work/_temp/job-evidence.json
+firmware-boundary-capture (1)	Upload actual job execution	2026-11-25T17:24:27.4252764Z   if-no-files-found: error
+firmware-boundary-capture (1)	Upload actual job execution	2026-11-25T17:24:27.4253027Z   retention-days: 3
+firmware-boundary-capture (1)	Upload actual job execution	2026-11-25T17:24:27.4253270Z   compression-level: 6
+firmware-boundary-capture (1)	Upload actual job execution	2026-11-25T17:24:27.4253521Z   overwrite: false
+firmware-boundary-capture (1)	Upload actual job execution	2026-11-25T17:24:27.4253769Z   include-hidden-files: false
+firmware-boundary-capture (1)	Upload actual job execution	2026-11-25T17:24:27.4254046Z env:
+firmware-boundary-capture (1)	Upload actual job execution	2026-11-25T17:24:27.4254261Z   VERILATOR_VERSION: v5.050
+firmware-boundary-capture (1)	Upload actual job execution	2026-11-25T17:24:27.4254543Z   YOSYS_VERSION: v0.66
+firmware-boundary-capture (1)	Upload actual job execution	2026-11-25T17:24:27.4254959Z   PIP_CONSTRAINT: <home-path>/work/milan-fpga/milan-fpga/ci/constraints-ci.txt
+firmware-boundary-capture (1)	Upload actual job execution	2026-11-25T17:24:27.4255427Z   CI_BUILD_JOBS: 4
+firmware-boundary-capture (1)	Upload actual job execution	2026-11-25T17:24:27.4255648Z   CI_TOOL_BUILD_JOBS: 4
+firmware-boundary-capture (1)	Upload actual job execution	2026-11-25T17:24:27.4255885Z   CI_CAMPAIGN_JOBS: 4
+firmware-boundary-capture (1)	Upload actual job execution	2026-11-25T17:24:27.4256118Z   VERILATOR_JOBS: 4
+firmware-boundary-capture (1)	Upload actual job execution	2026-11-25T17:24:27.4256391Z   SIM_JOBS: 4
+firmware-boundary-capture (1)	Upload actual job execution	2026-11-25T17:24:27.4256654Z   MAKEFLAGS: -j1 --no-print-directory
+firmware-boundary-capture (1)	Upload actual job execution	2026-11-25T17:24:27.4256952Z ##[endgroup]
+firmware-boundary-capture (1)	Upload actual job execution	2026-11-25T17:24:27.5536325Z (node:17211) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+firmware-boundary-capture (1)	Upload actual job execution	2026-11-25T17:24:27.5537661Z (Use `node --trace-deprecation ...` to show where the warning was created)
+firmware-boundary-capture (1)	Upload actual job execution	2026-11-25T17:24:27.5569969Z With the provided path, there will be 1 file uploaded
+firmware-boundary-capture (1)	Upload actual job execution	2026-11-25T17:24:27.5573702Z Artifact name is valid!
+firmware-boundary-capture (1)	Upload actual job execution	2026-11-25T17:24:27.5574216Z Root directory input is valid!
+firmware-boundary-capture (1)	Upload actual job execution	2026-11-25T17:24:27.9474445Z Beginning upload of artifact content to blob storage
+firmware-boundary-capture (1)	Upload actual job execution	2026-11-25T17:24:27.9604307Z (node:17211) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+firmware-boundary-capture (1)	Upload actual job execution	2026-11-25T17:24:28.2878396Z Uploaded bytes 991
+firmware-boundary-capture (1)	Upload actual job execution	2026-11-25T17:24:28.3763505Z Finished uploading artifact content to blob storage!
+firmware-boundary-capture (1)	Upload actual job execution	2026-11-25T17:24:28.3764187Z SHA256 digest of uploaded artifact zip is 0444561af369df2baa9631b1c5bd6dd1753208ec27096123f7514e2893f82b09
+firmware-boundary-capture (1)	Upload actual job execution	2026-11-25T17:24:28.3764718Z Finalizing artifact upload
+firmware-boundary-capture (1)	Upload actual job execution	2026-11-25T17:24:28.7729689Z Artifact job-evidence-rtl-fast-firmware-boundary-capture-1-649acf4c775dd7e9bfbdf81f5d7a3d91782cd327.zip successfully finalized. Artifact ID 15045953157
+firmware-boundary-capture (1)	Upload actual job execution	2026-11-25T17:24:28.7731327Z Artifact job-evidence-rtl-fast-firmware-boundary-capture-1-649acf4c775dd7e9bfbdf81f5d7a3d91782cd327 has been successfully uploaded! Final size is 991 bytes. Artifact ID is 15045953157
+firmware-boundary-capture (1)	Upload actual job execution	2026-11-25T17:24:28.7736157Z Artifact download URL: https://github.com/kebag-logic/milan-fpga/actions/runs/45657606423/artifacts/15045953157
+firmware-boundary-capture (1)	Post Cache the pinned RV32 SDK	﻿2026-11-25T17:24:28.8318878Z Post job cleanup.
+firmware-boundary-capture (1)	Post Cache the pinned RV32 SDK	2026-11-25T17:24:28.9149996Z (node:17236) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+firmware-boundary-capture (1)	Post Cache the pinned RV32 SDK	2026-11-25T17:24:28.9151350Z Cache hit occurred on the primary key rv32-sdk-v1-Linux-X64-d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f-a11c5b5421386f4d8a8b14cf2eff259251ae3ee42716b3b69c5a314f2f1790f9, not saving cache.
+firmware-boundary-capture (1)	Post Cache the pinned RV32 SDK	2026-11-25T17:24:28.9152318Z (Use `node --trace-deprecation ...` to show where the warning was created)
+firmware-boundary-capture (1)	Post Cache exact package downloads 2	﻿2026-11-25T17:24:28.9722645Z Post job cleanup.
+firmware-boundary-capture (1)	Post Cache exact package downloads 2	2026-11-25T17:24:29.0520722Z (node:17257) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+firmware-boundary-capture (1)	Post Cache exact package downloads 2	2026-11-25T17:24:29.0521594Z (Use `node --trace-deprecation ...` to show where the warning was created)
+firmware-boundary-capture (1)	Post Cache exact package downloads 2	2026-11-25T17:24:29.0646117Z [command]/usr/bin/tar --posix -cf cache.tzst --exclude cache.tzst -P -C <home-path>/work/milan-fpga/milan-fpga --files-from manifest.txt --use-compress-program zstdmt
+firmware-boundary-capture (1)	Post Cache exact package downloads 2	2026-11-25T17:24:29.0688907Z /usr/bin/tar: ../../_temp/ci_packages_2/partial: Cannot open: Permission denied
+firmware-boundary-capture (1)	Post Cache exact package downloads 2	2026-11-25T17:24:29.0689657Z /usr/bin/tar: ../../_temp/ci_packages_2/lock: Cannot open: Permission denied
+firmware-boundary-capture (1)	Post Cache exact package downloads 2	2026-11-25T17:24:29.0718074Z /usr/bin/tar: Exiting with failure status due to previous errors
+firmware-boundary-capture (1)	Post Cache exact package downloads 2	2026-11-25T17:24:29.0737753Z ##[warning]Failed to save: "/usr/bin/tar" failed with error: The process '/usr/bin/tar' failed with exit code 2
+firmware-boundary-capture (1)	Post Cache exact Python downloads	﻿2026-11-25T17:24:29.1771108Z Post job cleanup.
+firmware-boundary-capture (1)	Post Cache exact Python downloads	2026-11-25T17:24:29.2636880Z Cache hit occurred on the primary key python-cpython3.12.3-0f4dff939fe11c9e2b6ca53bfda0ab835c6b8262ea97e72481db61f20ea4b311-aa130cde3f89d5df9ea7f65b2511a7df2485907f5edf91bb356a311b83c0f291-Linux, not saving cache.
+firmware-boundary-capture (1)	Post Cache exact Python downloads	2026-11-25T17:24:29.2638006Z (node:17301) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+firmware-boundary-capture (1)	Post Cache exact Python downloads	2026-11-25T17:24:29.2638649Z (Use `node --trace-deprecation ...` to show where the warning was created)
+firmware-boundary-capture (1)	Post Run actions/checkout@v4	﻿2026-11-25T17:24:29.2730524Z Post job cleanup.
+firmware-boundary-capture (1)	Post Run actions/checkout@v4	2026-11-25T17:24:29.3374170Z [command]/usr/bin/git version
+firmware-boundary-capture (1)	Post Run actions/checkout@v4	2026-11-25T17:24:29.3436449Z git version 2.56.1
+firmware-boundary-capture (1)	Post Run actions/checkout@v4	2026-11-25T17:24:29.3461476Z Temporarily overriding HOME='<home-path>/work/_temp/2997e2b0-7073-42e9-a4a8-b80c4229de4e' before making global git config changes
+firmware-boundary-capture (1)	Post Run actions/checkout@v4	2026-11-25T17:24:29.3462455Z Adding repository directory to the temporary git global config as a safe directory
+firmware-boundary-capture (1)	Post Run actions/checkout@v4	2026-11-25T17:24:29.3465380Z [command]/usr/bin/git config --global --add safe.directory <home-path>/work/milan-fpga/milan-fpga
+firmware-boundary-capture (1)	Post Run actions/checkout@v4	2026-11-25T17:24:29.3496332Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+firmware-boundary-capture (1)	Post Run actions/checkout@v4	2026-11-25T17:24:29.3520563Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+firmware-boundary-capture (1)	Post Run actions/checkout@v4	2026-11-25T17:24:29.3672912Z Entering 'gptp-processor'
+firmware-boundary-capture (1)	Post Run actions/checkout@v4	2026-11-25T17:24:29.3718481Z Entering 'protocol-processor'
+firmware-boundary-capture (1)	Post Run actions/checkout@v4	2026-11-25T17:24:29.3753618Z Entering 'third_party/lwSRP'
+firmware-boundary-capture (1)	Post Run actions/checkout@v4	2026-11-25T17:24:29.3801436Z Entering 'third_party/tsn-c-stack'
+firmware-boundary-capture (1)	Post Run actions/checkout@v4	2026-11-25T17:24:29.3814099Z Entering 'third_party/verilog-axis'
+firmware-boundary-capture (1)	Post Run actions/checkout@v4	2026-11-25T17:24:29.3871302Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+firmware-boundary-capture (1)	Post Run actions/checkout@v4	2026-11-25T17:24:29.3881455Z http.https://github.com/.extraheader
+firmware-boundary-capture (1)	Post Run actions/checkout@v4	2026-11-25T17:24:29.3893076Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+firmware-boundary-capture (1)	Post Run actions/checkout@v4	2026-11-25T17:24:29.3920008Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+firmware-boundary-capture (1)	Post Run actions/checkout@v4	2026-11-25T17:24:29.4067150Z Entering 'gptp-processor'
+firmware-boundary-capture (1)	Post Run actions/checkout@v4	2026-11-25T17:24:29.4095282Z Entering 'protocol-processor'
+firmware-boundary-capture (1)	Post Run actions/checkout@v4	2026-11-25T17:24:29.4127809Z Entering 'third_party/lwSRP'
+firmware-boundary-capture (1)	Post Run actions/checkout@v4	2026-11-25T17:24:29.4154788Z Entering 'third_party/tsn-c-stack'
+firmware-boundary-capture (1)	Post Run actions/checkout@v4	2026-11-25T17:24:29.4184979Z Entering 'third_party/verilog-axis'
+firmware-boundary-capture (1)	Post Run actions/checkout@v4	2026-11-25T17:24:29.4225972Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+firmware-boundary-capture (1)	Post Run actions/checkout@v4	2026-11-25T17:24:29.4256366Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+firmware-boundary-capture (1)	Post Run actions/checkout@v4	2026-11-25T17:24:29.4400415Z Entering 'gptp-processor'
+firmware-boundary-capture (1)	Post Run actions/checkout@v4	2026-11-25T17:24:29.4419093Z file:<home-path>/work/milan-fpga/milan-fpga/.git/modules/gptp-processor/config	remote.origin.url
+firmware-boundary-capture (1)	Post Run actions/checkout@v4	2026-11-25T17:24:29.4429846Z Entering 'protocol-processor'
+firmware-boundary-capture (1)	Post Run actions/checkout@v4	2026-11-25T17:24:29.4444394Z file:<home-path>/work/milan-fpga/milan-fpga/.git/modules/protocol-processor/config	remote.origin.url
+firmware-boundary-capture (1)	Post Run actions/checkout@v4	2026-11-25T17:24:29.4455869Z Entering 'third_party/lwSRP'
+firmware-boundary-capture (1)	Post Run actions/checkout@v4	2026-11-25T17:24:29.4469739Z file:<home-path>/work/milan-fpga/milan-fpga/.git/modules/third_party/lwSRP/config	remote.origin.url
+firmware-boundary-capture (1)	Post Run actions/checkout@v4	2026-11-25T17:24:29.4481114Z Entering 'third_party/tsn-c-stack'
+firmware-boundary-capture (1)	Post Run actions/checkout@v4	2026-11-25T17:24:29.4495491Z file:<home-path>/work/milan-fpga/milan-fpga/.git/modules/third_party/tsn-c-stack/config	remote.origin.url
+firmware-boundary-capture (1)	Post Run actions/checkout@v4	2026-11-25T17:24:29.4507496Z Entering 'third_party/verilog-axis'
+firmware-boundary-capture (1)	Post Run actions/checkout@v4	2026-11-25T17:24:29.4521369Z file:<home-path>/work/milan-fpga/milan-fpga/.git/modules/third_party/verilog-axis/config	remote.origin.url
+firmware-boundary-capture (1)	Post Run actions/checkout@v4	2026-11-25T17:24:29.4544359Z [command]/usr/bin/git config --file <home-path>/work/milan-fpga/milan-fpga/.git/modules/gptp-processor/config --name-only --get-regexp ^includeIf\.gitdir:
+firmware-boundary-capture (1)	Post Run actions/checkout@v4	2026-11-25T17:24:29.4567901Z [command]/usr/bin/git config --file <home-path>/work/milan-fpga/milan-fpga/.git/modules/protocol-processor/config --name-only --get-regexp ^includeIf\.gitdir:
+firmware-boundary-capture (1)	Post Run actions/checkout@v4	2026-11-25T17:24:29.4590338Z [command]/usr/bin/git config --file <home-path>/work/milan-fpga/milan-fpga/.git/modules/third_party/lwSRP/config --name-only --get-regexp ^includeIf\.gitdir:
+firmware-boundary-capture (1)	Post Run actions/checkout@v4	2026-11-25T17:24:29.4612442Z [command]/usr/bin/git config --file <home-path>/work/milan-fpga/milan-fpga/.git/modules/third_party/tsn-c-stack/config --name-only --get-regexp ^includeIf\.gitdir:
+firmware-boundary-capture (1)	Post Run actions/checkout@v4	2026-11-25T17:24:29.4634933Z [command]/usr/bin/git config --file <home-path>/work/milan-fpga/milan-fpga/.git/modules/third_party/verilog-axis/config --name-only --get-regexp ^includeIf\.gitdir:
+firmware-boundary-capture (1)	Complete job	﻿2026-11-25T17:24:29.4777607Z Cleaning up orphan processes
+firmware-boundary-capture (1)	Complete job	2026-11-25T17:24:29.4998954Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/cache@v4, actions/checkout@v4, actions/upload-artifact@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

@@ -1,0 +1,437 @@
+1795677493.801 PASS: shard inventory rejects planted missing suite
+1795677494.149 PASS: shard inventory rejects planted duplicate suite
+1795677494.525 PASS: a newly discovered suite is assigned without an ownership list
+1795677494.525 PASS: 2005 live invocations in exactly one shard; shard sizes [98, 845, 399, 663]
+1795677494.530 PASS: nine invalid shard combinations refuse; failed normal suites still stop mutations
+1795677494.534 PASS: campaign legs reject a planted dropped leg
+1795677494.535 PASS: campaign legs reject a planted duplicated leg
+1795677494.538 PASS: 844 live defects of phase 1 in exactly one of 4 legs, leg sizes [211, 211, 211, 211]; six invalid campaign combinations refuse
+1795677494.627 toolchain: {'cc': 'gcc (GCC) 16.2.1 20260810', 'cxx': 'g++ (GCC) 16.2.1 20260810', 'gcov': 'gcov (GCC) 16.2.1 20260810', 'gtest': '1.18.0', 'gmock': '1.18.0'}
+1795677494.763 tsn-c-stack at 715589c1db7cf67e2f3259fd7083ebc7f0923376
+1795677521.624 [ok] mutant reentry-guard-removed (reentry_debug, reentry_debug, reentry_release, reentry_release): 2650 check(s) failed
+1795677521.624     first: [FAIL] AdpReentry.AdvertiseInlineExpiry: inline ADVERTISE expiry asserts
+1795677540.721 [ok] mutant departing-sends-zero (adp): 17 check(s) failed
+1795677540.721     first: [FAIL] AdpCore.A6toA8DeferredSends: A8 a link loss does not drop it; the next poll sends it with the index current at SHUTDOWN
+1795677545.003 [ok] mutant second-shutdown-overwrites-index (adp): 14 check(s) failed
+1795677545.003     first: [FAIL] AdpCore.A16SecondShutdownQueuesItsOwn: A16 a SHUTDOWN while one is owed queues its own ENTITY_DEPARTING and drops the owed AVAILABLE
+1795677549.187 [ok] mutant stray-expiry-drops-owed-available (adp): 2 check(s) failed
+1795677549.187     first: [FAIL] AdpCore.A19IgnoredInputsKeepTheOwedAvailable: A19 and a stray expiry, which is counted
+1795677553.298 [ok] mutant coalesce-drops-queued-departing (adp): 6 check(s) failed
+1795677553.298     first: [FAIL] AdpCore.A21DepartingCapacity: A21 the next SHUTDOWN is coalesced into the queued one and counted; its run's owed AVAILABLE is dropped
+1795677562.554 [ok] mutant link-down-departs (walk): 2 check(s) failed
+1795677562.554     first: [FAIL] Table551/AdpWalkCell.Graded/LINK_DOWN_x_WAITING: LINK_DOWN x WAITING: frames committed
+1795677565.360 [ok] mutant advertise-period-wrong (walk): 4 check(s) failed
+1795677565.360     first: [FAIL] AdpWalk.P1toP5FirstAdvertAndCadence: P3 TMR_ADVERTISE fires 5000 ms after the send
+1795677569.818 [ok] mutant latency-extra-read (adp): 4 check(s) failed
+1795677569.818     first: [FAIL] AdpLatency.C0toC6EveryResponsePath: C0 LINK_UP -> TMR_DELAY armed
+1795677590.701 [ok] mutant pool-free-leaks (port): 11 check(s) failed
+1795677590.701     first: [FAIL] Pool.P2ReleaseAndBadFrees: P2 a released block is the next one handed out
+1795677595.055 [ok] mutant tick-count-ignored (port): 7 check(s) failed
+1795677595.057     first: [FAIL] Loop.L4TickFanOut: L4 every centisecond reaches the first consumer
+1795677599.669 [ok] mutant rx-before-events (adp): 5 check(s) failed
+1795677599.670     first: [FAIL] AdpLatency.C0toC6EveryResponsePath: C2 RCV_ADP_DISCOVER -> TMR_DELAY armed
+1795677603.366 [ok] mutant filter-opened-before-eid (port): 2 check(s) failed
+1795677603.366     first: [FAIL] LoopBring.L1OpenOrder: L1 OWN_EID is written before any channel opens
+1795677636.385 [ok] mutant frame-sources-from-sinks (entity): 1 check(s) failed
+1795677636.386     first: [FAIL] Fabric/EntityField.MatchesTheFabric/talker_stream_sources: endstation_arty_current: talker_stream_sources is 0x2 in the firmware ADPDU, 0x1 in the fabric
+1795677649.057 [ok] mutant model-drop-instead-of-hold (model): 40 check(s) failed
+1795677649.057     first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/RateLimit: T0 only the frame behind the held one counts in RATE_DROP
+1795677653.141 [ok] mutant zero-byte-class-accepted (port): 1 check(s) failed
+1795677653.141     first: [FAIL] Pool.P5ClassTablesAndArenasRefused: P5 a class of zero-byte blocks is refused
+1795677657.928 [ok] mutant pool-follows-a-cut-free-list (port): 1 check(s) failed
+1795677657.928     first: [FAIL] Pool.P9AFreeListShorterThanItsCountIsExhausted: crashed on signal 11
+1795677662.270 [ok] mutant seed-left-at-zero (adp): 1 check(s) failed
+1795677662.270     first: [FAIL] AdpCore.A22GeneratorNeverStuckAtZero: A22 an entity id whose words cancel the seed constant starts the generator at 1
+1795677702.514 [ok] mutant app-starts-on-an-uncarved-pool (unit): 3 check(s) failed
+1795677702.514     first: [FAIL] AppComposition.U1AnUncarvablePoolStartsNothing:            Actual: called once - over-saturated and active
+1795677715.104 [ok] mutant maap-base-shifted (unit): 1 check(s) failed
+1795677715.104     first: [FAIL] DriverUnit.D6MaapRangeWritten: D6 MAAP_BASE_LO holds the base's low word
+1795677746.993 [ok] mutant whole-field-loses-its-top-bit (unit): 1 check(s) failed
+1795677746.993     first: [FAIL] DriverUnit.D10LanesAndFieldsAtTheirBounds: D10 and reads whole
+1795677756.965 [ok] mutant mmio-offset-as-index (unit): 24 check(s) failed
+1795677756.965     first: [FAIL] MmioPlatform.M1OneWordAtBasePlusOffset: M1 a write lands in the word at base + offset
+1795677789.928 [ok] mutant ring-load-word-lanes-rotated (unit): 88 check(s) failed
+1795677789.928     first: [FAIL] DriverUnit.D15PayloadWordsAtEveryLengthAlignmentAndAcrossTheRingEnd: D15 TX word 0 of a 14-byte frame at alignment 0
+1795677793.168 [ok] mutant pool-shift-one-off (port): 9 check(s) failed
+1795677793.169     first: [FAIL] Pool.P9BlockIndexByShiftAndByDivide: P9 every taken block's flag is set, stride 64
+1795677801.690 [ok] mutant mem-merge-lanes-swapped (unit): 3 check(s) failed
+1795677801.690     first: [FAIL] CtrlMem.W1MemcpyEveryAlignmentAndLength: W1 memcpy byte 16 dst+0 src+1 n 11
+1795677811.522 [ok] mutant mem-set-half-fill (unit): 1 check(s) failed
+1795677811.522     first: [FAIL] CtrlMem.W3MemsetEveryAlignmentLengthAndValue: W3 memset byte 18 dst+0 n 4 c 165
+1795677823.801 [ok] mutant mem-copy-returns-source (unit): 5312 check(s) failed
+1795677823.801     first: [FAIL] CtrlMem.W1MemcpyEveryAlignmentAndLength: W5 memcpy returns dst
+1795677838.156 [ok] mutant mem-set-bulk-drops-a-word (unit): 1 check(s) failed
+1795677838.156     first: [FAIL] CtrlMem.W3MemsetEveryAlignmentLengthAndValue: W3 memset byte 44 dst+0 n 32 c 0
+1795677840.387 [ok] mutant model-tpid-matches-a-tuple (model): 13 check(s) failed
+1795677840.387     first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/TupleRejections: Q1 tagged, it (adp): FILTER_MISMATCH does not count it
+1795677876.567 [ok] mutant model-own-any-unicast (model, acmp): 20 check(s) failed
+1795677876.567     first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/TupleRejections: Q2 to another destination MAC, it (acmp, multicast): no RX record, no delivery
+1795677883.223 [ok] mutant model-mismatch-never-counted (model, acmp): 48 check(s) failed
+1795677883.224     first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/TupleRejections: Q2 to another destination MAC, it (adp): FILTER_MISMATCH counts it once
+1795677887.095 [ok] mutant model-tuple-msg-type-ignored (model): 6 check(s) failed
+1795677887.095     first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/MaapDefendToOwnUnicast: Q11 a PROBE to this interface's own MAC: no RX record, no delivery
+1795677904.701 [ok] mutant own-mac-halves-swapped (unit, port): 19 check(s) failed
+1795677904.701     first: [FAIL] AppComposition.U4EveryInterfaceOwnsTheEntityMacBeforeAChannelOpens: U4 interface 0's OWN_MAC is the entity's MAC
+1795677908.968 [ok] mutant acmp-init-no-interface (acmp): 1 check(s) failed
+1795677908.968     first: [FAIL] AcmpCore.A0InitRefusesWhatTheStaticSizesCannotHold: A0 no interface is refused
+1795677913.711 [ok] mutant acmp-init-source-interface (acmp): 1 check(s) failed
+1795677913.711     first: [FAIL] AcmpCore.A0InitRefusesWhatTheStaticSizesCannotHold: A0 a source on an interface the entity lacks is refused
+1795677918.076 [ok] mutant acmp-header-no-tk-5s (acmp): 5 check(s) failed
+1795677918.076     first: [FAIL] AcmpCore.A8SuccessSettles: A8 TMR_NO_RESP stopped and TMR_NO_TK 10 s started
+1795677922.061 [ok] mutant acmp-header-cdl-84 (acmp): 1 check(s) failed
+1795677922.062     first: [FAIL] AcmpCore.A1BindFromUnboundRespondsThenProbes: A1 every frame goes to the ACMP multicast address from the interface's MAC, cdl 44 (8.2.1, 5.5.2.2)
+1795677931.913 [ok] mutant acmp-no-resp-2s (acmp, acmp): 90 check(s) failed
+1795677931.913     first: [FAIL] AcmpCore.A1BindFromUnboundRespondsThenProbes: A1 and TMR_NO_RESP armed 200 ms out on the interface's timer (Table 5.26)
+1795677956.579 [ok] mutant acmp-unbind-not-persisted (acmpnvm, acmpwalk): 8 check(s) failed
+1795677956.579     first: [FAIL] AcmpStore.N2AnUnbindIsSavedAsAnUnboundRecord: N2 the unbind marks the record (5.5.3.5.8 step 3)
+1795677965.435 [ok] mutant acmp-getrx-count-unbound (acmp, acmpwalk): 3 check(s) failed
+1795677965.435     first: [FAIL] AcmpCore.A2GetRxStateInEveryState: A2 GET_RX_STATE_RESPONSE is Table 5.34/5.37/5.38/5.39 in state 0
+1795677974.686 [ok] mutant acmp-unbind-echoes-the-talker (acmp, acmpwalk): 17 check(s) failed
+1795677974.686     first: [FAIL] AcmpCore.A3UnbindInEveryState: A3 UNBIND_RX_RESPONSE is Table 5.36: talker_entity_id and talker_unique_id 0, in state 0
+1795677979.500 [ok] mutant acmp-unbind-change-before-response (acmp): 7 check(s) failed
+1795677979.500     first: [FAIL] AcmpCore.A3UnbindInEveryState: A3 the change is reported after the response (#653), in state 1
+1795677984.098 [ok] mutant acmp-get-rx-state-locked (acmp): 1 check(s) failed
+1795677984.098     first: [FAIL] AcmpCore.A4TheLockingControllerPassesAndGetRxStateIsNotLocked: A4 GET_RX_STATE asks no lock (5.5.3.5.4)
+1795677989.276 [ok] mutant acmp-bind-same-talker-is-the-same-source (acmp): 1 check(s) failed
+1795677989.276     first: [FAIL] AcmpCore.A6TheSameTalkerAnotherSourceIsANewBinding: A6 the same talker with another talker_unique_id is a new source: a new probe
+1795677997.066 [ok] mutant acmp-guard-controller-dropped (acmp, acmpwalk): 13 check(s) failed
+1795677997.066     first: [FAIL] AcmpCore.A7EachGuardTermIsChecked: A7 a response with another controller, talker, talker_unique_id or sequence_id is ignored (5.5.3.5.18 step 1)
+1795678001.426 [ok] mutant acmp-guard-reads-the-binding (acmp): 2 check(s) failed
+1795678001.426     first: [FAIL] AcmpCore.A7TheGuardReadsTheSentProbeNotTheBinding: A7 the answer to the probe sent before a re-bind still matches the probe that was sent
+1795678008.914 [ok] mutant acmp-settle-starts-no-srp (acmp, acmpwalk): 3 check(s) failed
+1795678008.914     first: [FAIL] AcmpCore.A8SuccessSettles: A8 SRP is started
+1795678016.165 [ok] mutant acmp-duplicate-takes-a-new-sequence-id (acmp, acmpwalk): 26 check(s) failed
+1795678016.165     first: [FAIL] AcmpCore.A10NoResponseSendsTheDuplicateThenGivesUp: A10 an exact duplicate of the first probe, same sequence_id (5.5.3.5.16)
+1795678023.372 [ok] mutant acmp-retry-zeroes-the-status (acmp, acmpwalk): 3 check(s) failed
+1795678023.372     first: [FAIL] AcmpCore.A11RetryWaitsForTheTalkerOrDelays: A11 and the ACMP status stays: step 2 sets none
+1795678031.421 [ok] mutant acmp-registered-anywhere (acmp, acmpwalk): 30 check(s) failed
+1795678031.421     first: [FAIL] AcmpCore.A14RegisteredSettlesTheReservation: A14 EVT_TK_REGISTERED anywhere else is Table 5.30's x: counted, nothing changes, state 0
+1795678040.897 [ok] mutant acmp-kind-lost (acmp, acmpwalk): 7 check(s) failed
+1795678040.897     first: [FAIL] AcmpCore.KindChangesOnlyTheSettledView: kind updates the reported view
+1795678044.689 [ok] mutant acmp-timer-at-the-latest-deadline (acmp): 23 check(s) failed
+1795678044.689     first: [FAIL] AcmpCore.A17EachInterfaceTimerHoldsItsEarliestDeadline: A17 each interface's timer is armed at the earliest deadline of its own sinks
+1795678048.404 [ok] mutant acmp-expiry-not-consumed (acmp): 2 check(s) failed
+1795678048.404     first: [FAIL] AcmpCore.A17EachInterfaceTimerHoldsItsEarliestDeadline: A17 an expiry with nothing due changes nothing and re-arms the timer it consumed
+1795678052.600 [ok] mutant acmp-rng-left-at-0 (acmp): 1 check(s) failed
+1795678052.600     first: [FAIL] AcmpCore.A18TheSeedIsTakenAtTheFirstDraw: A18 a seed that cancels the state to 0 leaves it 1: xorshift never leaves 0
+1795678064.105 [ok] mutant acmp-probe-tx-no-destination-mac-check (acmp, acmpwalk): 2 check(s) failed
+1795678064.105     first: [FAIL] AcmpCore.A20ProbeTxIsAnsweredFromTheSource: A20 no destination MAC: TALKER_DEST_MAC_FAILED (Table 5.42)
+1795678073.422 [ok] mutant acmp-get-tx-state-registering-failed-0 (acmp, acmpwalk): 3 check(s) failed
+1795678073.422     first: [FAIL] AcmpCore.A20DisconnectGetTxStateAndGetTxConnection: A20 GET_TX_STATE: listener fields 0, cc 0, REGISTERING_FAILED live, the stream (Table 5.47)
+1795678078.380 [ok] mutant acmp-every-talker-is-this-one (acmp): 3 check(s) failed
+1795678078.380     first: [FAIL] AcmpCore.A21MessagesNotForThisEntityAreIgnored: A21 commands for another listener or talker, every response but PROBE_TX_RESPONSE and the reserved types are ignored (5.5.3.1, 8.2.1.9, 8.2.1.10)
+1795678089.733 [ok] mutant acmp-discovery-reads-no-domain (acmp, acmpwalk): 9 check(s) failed
+1795678089.733     first: [FAIL] AcmpCore.A22AvailableDiscoversWhenTheGrandmasterMatches: A22 and from another domain
+1795678098.806 [ok] mutant acmp-restart-raises-no-discovered (acmp, acmpwalk): 6 check(s) failed
+1795678098.809     first: [FAIL] AcmpCore.A22DiscoveredStateCells: A22 available_index 700 <= last: EVT_TK_DEPARTED then EVT_TK_DISCOVERED, the index noted (5.6.4.5.2 steps 2a, 2c, 3)
+1795678107.318 [ok] mutant acmp-departing-interface-unchecked (acmp, acmpwalk): 3 check(s) failed
+1795678107.318     first: [FAIL] AcmpCore.A22DepartingAndAging: A22 a DEPARTING with another interface_index is ignored (5.6.4.5.3 step 1)
+1795678111.405 [ok] mutant acmp-discovery-on-unbound-sinks (acmp): 1 check(s) failed
+1795678111.406     first: [FAIL] AcmpCore.A22OnlyBoundSinksOfThatTalkerOnThatInterface: A22 an unbound sink runs no discovery
+1795678116.059 [ok] mutant acmp-reentry-untrapped (acmp): 24 check(s) failed
+1795678116.059     first: [FAIL] AcmpCore.A23EveryEntryRefusesACallFromInsideAPort: A23 a call made from inside the send port is refused, counted and trapped, entry 0
+1795678121.143 [ok] mutant acmp-clock-port-unflagged (acmp): 1 check(s) failed
+1795678121.143     first: [FAIL] AcmpCore.A23EveryPortIsGuarded: A23 the port kind 3 is guarded
+1795678127.766 [ok] mutant acmp-srp-port-unflagged (acmp): 1 check(s) failed
+1795678127.766     first: [FAIL] AcmpCore.A23EveryPortIsGuarded: A23 the port kind 7 is guarded
+1795678137.478 [ok] mutant acmp-restore-starts-no-discovery (acmp, acmpnvm): 14 check(s) failed
+1795678137.478     first: [FAIL] AcmpCore.A22DiscoveredStartsTheProbeFromPrbWAvail: A22 EVT_TK_DISCOVERED in PRB_W_AVAIL: TMR_DELAY 0 to 1 s, PRB_W_DELAY, ACTIVE (5.5.3.5.9)
+1795678141.505 [ok] mutant acmp-restore-unique-id-little-endian (acmp): 5 check(s) failed
+1795678141.505     first: [FAIL] AcmpCore.A24ARestoredBindingFastConnects: A24 the record's flags and parameters, big-endian (the processor's BINDING payload)
+1795678149.904 [ok] mutant acmp-discovery-notifies (acmp, acmpwalk): 8 check(s) failed
+1795678149.904     first: [FAIL] AcmpCore.A25OnlyTable522ItemsAreReported: A25 discovery noted while settled moves no Table 5.22 item
+1795678156.188 [ok] mutant acmp-timer-on-the-next-slot (acmp): 24 check(s) failed
+1795678156.188     first: [FAIL] AcmpMailbox.B3TheTimersRunOnTheInterfaceSlot: B3 TMR_NO_RESP is armed on interface 0's ACMP slot at NOW_MS + 200 (Table 5.26)
+1795678163.484 [ok] mutant acmp-stop-keeps-the-arm (acmp): 2 check(s) failed
+1795678163.484     first: [FAIL] AcmpMailbox.B4AnExpiryThatRacedAStopOrAReArmIsDiscarded: B4 the expiry of a stopped arm is counted, never acted on, interface 0
+1795678168.458 [ok] mutant acmp-domain-not-sampled (acmp): 1 check(s) failed
+1795678168.458     first: [FAIL] AcmpMailbox.B6TheGrandmasterIsTheInterfaces: B6 one from interface 0's grandmaster and domain is taken
+1795678173.804 [ok] mutant acmp-slots-past-the-bank (acmp): 6 check(s) failed
+1795678173.804     first: [FAIL] AcmpAdapterUnit.B7RefusalsOfTheAdapter: B7 a first slot of 16 is refused: past the bank, wrapping the sum, or truncating to a slot
+1795678178.730 [ok] mutant acmp-probe-response-reads-the-clock-twice (acmp): 2 check(s) failed
+1795678178.730     first: [FAIL] AcmpCore.CommandPortBudgets: successful probe response starts one reservation timer
+1795678185.400 [ok] mutant acmp-available-reads-the-clock-twice (acmp): 2 check(s) failed
+1795678185.400     first: [FAIL] AcmpCore.DiscoveryPortBudgets: AVAILABLE starts one discovery deadline
+1795678208.297 [ok] mutant acmp-pass-bound-understated (acmp): 2 check(s) failed
+1795678208.297     first: [FAIL] AcmpMailbox.K1ACommandDeclinedAtTheOwedBoundIsKeptAndAnsweredInArrivalOrder: K1 the worst pass of the drain, a kept command offered again
+1795678213.475 [ok] mutant acmp-second-no-resp-samples-the-grandmaster (acmp): 2 check(s) failed
+1795678213.475     first: [FAIL] AcmpCore.TimerPortBudgets: timer expiry never samples the grandmaster in PRB_W_RESP2
+1795678241.431 [ok] mutant acmp-backlog-understated (acmp, acmp): 12 check(s) failed
+1795678241.431     first: [FAIL] AcmpMailbox.K7TheRedeliveryTakesAFullRingInThePassThatSends:     Which is: 9
+1795678245.995 [ok] mutant acmp-view-without-registering-failed (acmp): 6 check(s) failed
+1795678245.995     first: [FAIL] AcmpCore.A2GetRxStateReportsStreamingWaitAndRegisteringFailed: A2 and the view says so (5.3.8.8)
+1795678253.675 [ok] mutant acmp-adp-ethertype-unchecked (acmp): 1 check(s) failed
+1795678253.675     first: [FAIL] AcmpCore.A22OtherAdpFramesAreIgnored: A22 a short ADPDU, a DISCOVER, another subtype or EtherType, or an unknown interface is not discovery's
+1795678258.106 [ok] mutant app-acmp-before-adp (acmp): 37 check(s) failed
+1795678258.106     first: [FAIL] AcmpMailbox.B1TheChannelCarriesCommandsAndResponsesInOrder: B0 the app with ACMP starts on the model
+1795678265.390 [ok] mutant acmp-nvm-d3-roll-back-kept (acmpnvm): 5 check(s) failed
+1795678265.390     first: [FAIL] AcmpStore.N6TheRollBackAndEveryOtherGroup: N6 every other group, settle, the D3 roll-back and the release go to the other owners unchanged
+1795678269.991 [ok] mutant acmp-nvm-settle-dropped (acmpnvm): 3 check(s) failed
+1795678269.991     first: [FAIL] AcmpStore.N6TheRollBackAndEveryOtherGroup: N6 every other group, settle, the D3 roll-back and the release go to the other owners unchanged
+1795678282.950 [ok] mutant acmp-change-not-held-for-its-response (acmp, acmp): 14 check(s) failed
+1795678282.950     first: [FAIL] AcmpCore.A19AResponseWithoutRoomIsOwedAndItsChangeWaits: A19 but its change is not reported while its response waits (#653)
+1795678296.438 [ok] mutant acmp-poll-newest-first (acmp, acmp): 94 check(s) failed
+1795678296.438     first: [FAIL] AcmpCore.A19AResponseWithoutRoomIsOwedAndItsChangeWaits: A19 the oldest first: the response
+1795678302.507 [ok] mutant acmp-kept-passed (acmp): 9 check(s) failed
+1795678302.507     first: [FAIL] AcmpMailbox.K1ACommandDeclinedAtTheOwedBoundIsKeptAndAnsweredInArrivalOrder: K1 the first command behind the full owed set is declined once and kept, the second left in the ring
+1795678327.415 [ok] mutant acmp-kept-on-interface-zero (acmpif2, acmpif2): 6 check(s) failed
+1795678327.415     first: [FAIL] AcmpMailbox.K1ACommandDeclinedAtTheOwedBoundIsKeptAndAnsweredInArrivalOrder: K1 on the interface it arrived on
+1795678332.685 [ok] mutant acmp-redelivery-past-a-decline (acmp): 1 check(s) failed
+1795678332.685     first: [FAIL] AcmpMailbox.K8ACommandTheRedeliveryDeclinesKeepsItsPlaceAheadOfTheNext: K8 the owed frames, then each command answered once, in arrival order
+1795678337.236 [ok] mutant acmp-redelivery-short-of-a-full-ring (acmp): 1 check(s) failed
+1795678337.236     first: [FAIL] AcmpMailbox.K7TheRedeliveryTakesAFullRingInThePassThatSends: K7 the kept command and the full ring behind it are taken, and counted, in the pass that sends
+1795678343.889 [ok] mutant acmp-header-version-1 (acmp): 4 check(s) failed
+1795678343.889     first: [FAIL] AcmpCore.A1BindFromUnboundRespondsThenProbes: A1 BIND_RX sends two frames: the response and the probe
+1795678349.030 [ok] mutant acmp-owed-probe-sequence-unchecked (acmp): 2 check(s) failed
+1795678349.030     first: [FAIL] AcmpCore.A27AProbeOwedPastAnUnbindARebindOrASuccessStartsNothing: A27 the old probe leaving starts no timer for the new one
+1795678355.548 [ok] mutant acmp-taken-probe-timer-from-the-entry-clock (acmp): 6 check(s) failed
+1795678355.548     first: [FAIL] AcmpCore.A30ADuplicateTakenAtOnceRunsFromTheClockAfterItsSend: A30 the duplicate taken at once: TMR_NO_RESP 200 ms from the clock after its send, not the expiry's
+1795678363.058 [ok] mutant acmp-lost-probe-held (acmp): 2 check(s) failed
+1795678363.058     first: [FAIL] AcmpCore.A19AProbeWithoutRoomIsLostAndRecovered: A19 and it does
+1795678370.132 [ok] mutant acmp-slots-one-short (acmp): 2 check(s) failed
+1795678370.132     first: [FAIL] AcmpAdapterUnit.B7RefusalsOfTheAdapter: B7 the last slot range that fits is taken
+1795678376.088 [ok] mutant acmp-record-flag-defines-swapped (acmp): 6 check(s) failed
+1795678376.088     first: [FAIL] AcmpCore.A24TheRecordIsTheProcessorsPayloadOneFlagAtATime: A24 bound and started: flags 0x03, then the parameters, byte for byte
+1795678388.231 [ok] mutant acmp-due-unsigned (acmp, acmp): 18 check(s) failed
+1795678388.231     first: [FAIL] AcmpCore.A28EveryTimerExpiresAtItsDeadlineAcrossTheWrap: A28 TMR_NO_RESP: nothing at the wrap or 1 ms before its deadline
+1795678397.553 [ok] mutant acmp-retry-deadline-saturates (acmp): 2 check(s) failed
+1795678397.553     first: [FAIL] AcmpCore.A28EveryTimerExpiresAtItsDeadlineAcrossTheWrap: A28 TMR_RETRY armed 999 ms before the wrap ends 3 s after it
+1795678435.715 [ok] mutant acmp-admit-never-called (acmp, acmp, acmp): 60 check(s) failed
+1795678435.715     first: [FAIL] AcmpCore.A23EveryPortIsGuarded: A23 the port kind 10 is guarded
+1795678451.886 [ok] mutant acmp-admit-port-unflagged (acmp): 1 check(s) failed
+1795678451.886     first: [FAIL] AcmpCore.A23EveryPortIsGuarded: A23 the port kind 10 is guarded
+1795678478.985 [ok] mutant app-acmp-never-opened (acmp, acmp): 20 check(s) failed
+1795678478.985     first: [FAIL] AcmpMailbox.B5TheTapHandsAvailableToDiscoveryAndTheRestToAdp: B5 the open wrote the restored binding's talker into interface 0's bound-talker table
+1795678505.312 [ok] mutant mbx-bound-entry-unguarded (unit): 2 check(s) failed
+1795678505.312     first: [FAIL] DriverUnit.D13BoundTalkerEntries: D13 an entry past the table's is refused
+1795678551.356 [ok] mutant mbx-bound-entry-stride-ignored (unit, acmp): 6 check(s) failed
+1795678551.356     first: [FAIL] DriverUnit.D13BoundTalkerEntries: D13 BOUND_EN is cleared before the identity is written, and set after it
+1795678555.277 [ok] mutant model-bound-table-of-interface-0 (model): 1 check(s) failed
+1795678555.277     first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/AdpBoundTalkers: Q13 on another interface, or an index with no interface, it reaches no ring and counts nothing
+1795678568.523 [ok] mutant app-maap-slots-overlap-acmp (acmp): 3 check(s) failed
+1795678568.523     first: [FAIL] AcmpMailbox.U6AdpAcmpAndMaapShareTheLoopOnDisjointSlotsWithEveryChannelOpen: U6 every interface's ADP, ACMP and MAAP slots are distinct and inside the timer bank
+1795678576.412 [ok] mutant app-maap-started-in-compose (acmp): 4 check(s) failed
+1795678576.412     first: [FAIL] AcmpMailbox.F6WithMaapComposedEveryPassStaysWithinTheThreeWayBound: F6 events, acmp and maap records wait
+1795678588.468 [ok] mutant app-maap-last-range-refused (acmp): 1 check(s) failed
+1795678588.468     first: [FAIL] AcmpMailbox.U7TheThreeWayCompositionRefusesWithNothingOpened: U7 the pool's last range is not
+1795678653.445 [ok] mutant app-maap-entry-takes-no-port (acmp, maap): 3 check(s) failed
+1795678653.445     first: [FAIL] AcmpMailbox.U7TheThreeWayCompositionRefusesWithNothingOpened: U7 the explicit MAAP entry refuses a missing stream-address port
+1795678664.075 [ok] mutant app-own-mac-per-interface (acmpif2): 1 check(s) failed
+1795678664.075     first: [FAIL] AcmpMailbox.U6AdpAcmpAndMaapShareTheLoopOnDisjointSlotsWithEveryChannelOpen: U6 MAAP sends from its own unicast MAC, where a DEFEND is admitted, interface 1
+1795678671.752 [ok] mutant maap-initial-send-absent (maap): 20 check(s) failed
+1795678671.752     first: [FAIL] MaapCore.InitialAndThreeRetransmissions: initial PROBE is immediate
+1795678683.346 [ok] mutant maap-wire-length (maap): 17 check(s) failed
+1795678683.346     first: [FAIL] MaapCore.InitialAndThreeRetransmissions: B.2 complete PROBE bytes
+1795678710.383 [ok] mutant maap-constant-probe_variation (maap): 3 check(s) failed
+1795678710.383     first: [FAIL] MaapCore.ConstantsStrictTimersAndSeed: probe interval variation
+1795678721.577 [ok] mutant maap-zero-seed-sticks (maap): 1 check(s) failed
+1795678721.577     first: [FAIL] MaapCore.ConstantsStrictTimersAndSeed: zero sum cannot lock generator
+1795678727.845 [ok] mutant maap-defend-echo-own-range (maap): 4 check(s) failed
+1795678727.845     first: [FAIL] MaapCore.DefendEchoAndIntersection: echo request and exact intersection
+1795678740.569 [ok] mutant maap-defend-checks-request (maap): 1 check(s) failed
+1795678740.569     first: [FAIL] MaapCore.DisjointAdjacentZeroAndDefendRange: DEFEND tests conflict fields
+1795678746.211 [ok] mutant maap-malformed-reserved-zero (maap): 2 check(s) failed
+1795678746.211     first: [FAIL] MaapCore.MalformedAndVersionCompatibility: malformed input is rejected
+1795678753.841 [ok] mutant maap-malformed-cdl-current (maap): 2 check(s) failed
+1795678753.841     first: [FAIL] MaapCore.MalformedAndVersionCompatibility: malformed input is rejected
+1795678761.286 [ok] mutant maap-malformed-own-probe (maap): 2 check(s) failed
+1795678761.286     first: [FAIL] MaapCore.MalformedAndVersionCompatibility: malformed input is rejected
+1795678775.255 [ok] mutant maap-port-up-keeps-claim (maap): 9 check(s) failed
+1795678775.255     first: [FAIL] MaapCore.ReleaseLossAndRetry: loss of PortOperational invalidates the acquired address
+1795678786.567 [ok] mutant maap-probe-announce-reordered (maap): 2 check(s) failed
+1795678786.567     first: [FAIL] MaapCore.InitialAndThreeRetransmissions:     Which is: { '\x91' (145), '\xE0' (224), '\xF0' (240), '\0', '\xFF' (255), '\0', '\x2' (2), '\0', '\0', '\0', '\0', '\x80' (128), '"' (34, 0x22), '\xF0' (240), '\xFE' (254), '\x1' (1), '\b' (8), '\x10' (16), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\x91' (145), '\xE0' (224), '\xF0' (240), '\0', '\x1' (1), '\0', ... }
+1795678796.281 [ok] mutant maap-reentry-not-counted (maap): 1 check(s) failed
+1795678796.281     first: [FAIL] MaapCore.ReentrantPortsAreCountedAndIgnored: all input guards fire
+1795678814.313 [ok] mutant maap-fabric-owner-kept (maap): 1 check(s) failed
+1795678814.313     first: [FAIL] MaapCsr.EveryStreamAddressAndLossGate: fabric MAAP disabled without touching seed
+1795678829.120 [ok] mutant maap-timer-tag-ignored (maap): 2 check(s) failed
+1795678829.120     first: [FAIL] MaapHost.StaleTagsForeignInputsAndLinkEdges: old timer tag ignored
+1795678843.269 [ok] mutant maap-no-range-filter (maap): 11 check(s) failed
+1795678843.269     first: [FAIL] MaapHost.DaGateIsPublishedBeforeEachAllocationIsReported: Expected: true
+1795678853.842 [ok] mutant maap-app-channel-closed (maap): 12 check(s) failed
+1795678853.842     first: [FAIL] MaapHost.DaGateIsPublishedBeforeEachAllocationIsReported: Expected: true
+1795678863.504 [ok] mutant maap-table-b7-1 (maap): 3 check(s) failed
+1795678863.505     first: [FAIL] AllStates/MaapCell.TableB7/1: Table B.7 output count
+1795678884.234 [ok] mutant maap-table-b7-5 (maap): 3 check(s) failed
+1795678884.234     first: [FAIL] AllStates/MaapCell.TableB7/5: Table B.7 output count
+1795678896.493 [ok] mutant maap-table-b7-9 (maap): 2 check(s) failed
+1795678896.493     first: [FAIL] AllStates/MaapCell.TableB7/9: Table B.7 output count
+1795678909.117 [ok] mutant maap-table-b7-13 (maap): 14 check(s) failed
+1795678909.117     first: [FAIL] MaapCore.DisjointAdjacentZeroAndDefendRange: DEFEND conflict wins over echoed request
+1795678917.816 [ok] mutant maap-table-b7-17 (maap): 3 check(s) failed
+1795678917.816     first: [FAIL] AllStates/MaapCell.TableB7/17: Table B.7 output count
+1795678927.623 [ok] mutant maap-restart-reuses-range (maap): 4 check(s) failed
+1795678927.623     first: [FAIL] MaapCore.RestartDrawsNewRange: fixed seed Restart draws a new range
+1795678937.048 [ok] mutant maap-csr-enable-before-programming (maap): 23 check(s) failed
+1795678937.048     first: [FAIL] MaapCsr.AdmissionAfterEveryDestinationWrite: enables follow every destination word
+1795678952.682 [ok] mutant maap-generic-probe-defend-uses-priority (maap): 4 check(s) failed
+1795678952.682     first: [FAIL] AllStates/MaapCell.TableB7/10: Table B.7 conflict decision
+1795678969.985 [ok] mutant mover-receive-index-at-the-header (unit): 8 check(s) failed
+1795678969.985     first: [FAIL] MbxDma.R1ARecordsPayloadIsMovedAndReleased: R1 the move starts at the payload's first ring word, 60 bytes
+1795679035.837 [ok] mutant mover-lost-record-reported-as-bad (unit, unit): 6 check(s) failed
+1795679035.837     first: [FAIL] MbxDma.T2AMoveEndingInErrorIsNotCommitted: T2 a begin that finds the record before it ended in ERR reports it lost
+1795679065.581 [ok] mutant mover-fan-end-refuses-before-the-last-frame-is-committed (unit): 1 check(s) failed
+1795679065.581     first: [FAIL] MbxDma.T7AFullCompletionQueueRefusesOnlyOnceTheLastFrameIsCommitted: T7 the last frame is committed before REFUSED, and no completion is kept
+1795679088.189 [ok] mutant mover-ring-size-unshifted (unit): 16 check(s) failed
+1795679088.189     first: [FAIL] MbxDma.R1ARecordsPayloadIsMovedAndReleased: R1 CFG names the ring's base and size, 60 bytes
+1795679136.079 [ok] mutant plat-policy-word-wrong (plat): 1 check(s) failed
+1795679136.099     first: [FAIL] Plat.C2PolicyIsConfigureFabricsFifteenWritesInOrder: C2 configure_fabric's writes, in its order, from the policy
+1795679140.145 [ok] mutant plat-tod-no-snapshot (plat): 1 check(s) failed
+1795679140.145     first: [FAIL] Plat.C4TimeOfDayIsSnapshotThenAgreeingHighWords: C4 the snapshot strobe comes first
+1795679144.544 [ok] mutant plat-prefix-is-a-command (plat): 3 check(s) failed
+1795679144.544     first: [FAIL] Plat.K3LinesEndOnceAndOthersAreRefused: K3 a prefix is no command
+1795679153.758 [ok] mutant plat-hex-seven-digits (plat): 3 check(s) failed
+1795679153.758     first: [FAIL] Plat.K1MilanStatusAnswersTheGradersLines: K1 milan_status's lines, field for field
+1795679159.666 [ok] mutant plat-tx-into-full-fifo (plat): 2 check(s) failed
+1795679159.666     first: [FAIL] Plat.K4EachPassIsBounded: K4 never into a full FIFO
+1795679163.877 [ok] mutant plat-mmio-read-neighbour (plat): 1 check(s) failed
+1795679163.877     first: [FAIL] PlatMmio.I1ReadIsTheWordAtTheAddress: I1 a read returns the word at the address
+1795679269.166 [ok] mutant app-adp-hold-ignored (platboot1, platboot1): 4 check(s) failed
+1795679269.166     first: [FAIL] Boot.B1ReachesReadyInStepOrder: B1 ADP's first timer after the face commit
+1795679281.610 [ok] mutant plat-mailbox-unchecked (platboot1): 3 check(s) failed
+1795679281.610     first: [FAIL] Boot.B5OtherContractStopsAtMailbox: B5 another contract stops the boot
+1795679295.489 [ok] mutant plat-store-step-unbound (platboot1): 14 check(s) failed
+1795679295.490     first: [FAIL] Boot.B10ABindAfterReadyIsWrittenBackThroughTheLoop: B10 the bind is written back by the store's service on the loop's tick
+1795679296.338 wrote $VALIDATION_STORAGE/cicd4-a839/control-0/mutants/work/build/platboot-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679296.338 wrote $VALIDATION_STORAGE/cicd4-a839/control-0/mutants/work/build/platboot-if2/contract/KL_mbx.sv (2 interfaces)
+1795679296.338 wrote $VALIDATION_STORAGE/cicd4-a839/control-0/mutants/work/build/platboot-if2/contract/mbx_contract.h (2 interfaces)
+1795679339.389 [ok] mutant plat-window-interface-ignored (platboot2): 3 check(s) failed
+1795679339.389     first: [FAIL] Boot.B3RefusedImageStopsAtImage: B3 after the policy and the one MAAP owner
+1795679355.770 [ok] mutant plat-reboot-before-the-response (platboot1): 15 check(s) failed
+1795679355.770     first: [FAIL] Boot.B11ARebootIsAnsweredNotifiedDepartsAndThenResets: B11 every interface sends ENTITY_DEPARTING
+1795679368.085 [ok] mutant plat-reboot-before-departing-left (platboot1): 3 check(s) failed
+1795679368.085     first: [FAIL] Boot.B12TheResetWaitsForTheResponseToLeave: B12 no reset while the mailbox holds ENTITY_DEPARTING
+1795679381.473 [ok] mutant plat-reboot-hides-the-drain (platboot1): 1 check(s) failed
+1795679381.473     first: [FAIL] Boot.B16ARebootDuringTheJournalWriteKeepsTheChange: B16 the drain ends because the write completed, not at its deadline
+1795679419.631 [ok] mutant plat-reboot-departs-before-the-rings-drain (platboot1, platboot1, platboot1): 27 check(s) failed
+1795679419.631     first: [FAIL] Boot.B21TheDepartingWaitsForEveryOtherRing: B21 no ENTITY_DEPARTING while the ACMP ring holds a frame
+1795679446.175 [ok] mutant plat-reboot-takes-aecp-frames-after-the-success (platboot1, platboot1): 12 check(s) failed
+1795679446.175     first: [FAIL] Boot.B19NoFrameOfAnyChannelIsTakenFromTheSuccess: B19 no AECP frame is taken after the REBOOT's SUCCESS
+1795679458.703 [ok] mutant plat-reboot-departs-past-the-maap-ring (platboot1): 3 check(s) failed
+1795679458.703     first: [FAIL] Boot.B21TheDepartingWaitsForEveryOtherRing: B21 no ENTITY_DEPARTING while the MAAP ring holds a frame
+1795679483.445 [ok] mutant plat-phy-edge-not-counted (platboot1, platboot1): 52 check(s) failed
+1795679483.445     first: [FAIL] Phy.B12StepCarriesTheStoresSaveOrAPhyFrame: B12 the client owes a step while the PHY owes a frame
+1795679484.315 [ok] mutant plat-map-partial-accepted (platmap): 3 check(s) failed
+1795679484.315     first: [FAIL] PlatMap.M3SomeRowsAreRefused: M3 some but not all of the PHY's rows are refused, naming milan_mac_phy_mdio_w (exit 0)
+1795679499.554 [ok] mutant plat-phy-beside-a-save-step (platboot1): 2 check(s) failed
+1795679499.554     first: [FAIL] Phy.B12StepCarriesTheStoresSaveOrAPhyFrame: B12 a call whose store takes a step of its save carries no PHY frame
+1795679510.345 [ok] mutant plat-phy-frame-beside-the-extra-step (platboot1): 3 check(s) failed
+1795679510.345     first: [FAIL] Phy.B12StepCarriesTheStoresSaveOrAPhyFrame: B12 the yielding call leaves the store's step count unchanged
+1795679520.069 [ok] mutant plat-phy-late-sample (platboot1): 152 check(s) failed
+1795679520.069     first: [FAIL] Phy.B11ArmedPastTheIdentityCheck: B11 a stage refused past the identity check keeps publishing the link
+1795679531.789 [ok] mutant plat-phy-fault-ignored (platboot1): 1 check(s) failed
+1795679531.789     first: [FAIL] PlatPhy.P4ResolvedModesAreTheReleases: P4 a master-slave configuration fault is link down
+1795679540.864 [ok] mutant plat-phy-not-owed (platboot1): 208 check(s) failed
+1795679540.864     first: [FAIL] Phy.B12StepCarriesTheStoresSaveOrAPhyFrame: B12 the client owes a step while the PHY owes a frame
+1795679555.216 [ok] mutant plat-phy-100base-tx-advertised (platboot1): 49 check(s) failed
+1795679555.216     first: [FAIL] PlatPhy.P3LatchedLossPublishesBothEdges: P3 the latched BMSR, then the current one
+1795679567.636 [ok] mutant plat-phy-master-slave-dropped (platboot1): 2 check(s) failed
+1795679567.636     first: [FAIL] PlatPhy.P11TheBootAdvertisesGigabitOnly: P11 MASTER-SLAVE kept, first arm
+1795679590.303 [ok] mutant plat-phy-boot-restarts-whatever-held (platboot1, platboot1): 14 check(s) failed
+1795679590.303     first: [FAIL] PlatPhy.P11TheBootAdvertisesGigabitOnly: P11 a PHY that holds the advertisement at boot is not restarted
+1795679600.703 [ok] mutant plat-phy-10-100-written (platboot1): 13 check(s) failed
+1795679600.703     first: [FAIL] PlatPhy.P4ResolvedModesAreTheReleases: P4 an extended status without 1000BASE-T resolves from 4 and 5
+1795679611.549 [ok] mutant plat-phy-lost-local-not-restarted (platboot1): 11 check(s) failed
+1795679611.549     first: [FAIL] PlatPhy.P14AResetPhyIsAdvertisedAgain: P14 a PHY that lost the advertisement is written and restarted once, register 4 alone
+1795679622.073 [ok] mutant plat-phy-written-before-read (platboot1): 5 check(s) failed
+1795679622.073     first: [FAIL] PlatPhy.P16AnUnacknowledgedReadWritesNothing: P16 no write before its read: register 4 unacknowledged
+1795679633.711 [ok] mutant plat-phy-outcome-count-wraps (platboot1): 1 check(s) failed
+1795679633.711     first: [FAIL] PlatPhy.P18OneRestartAPollUntilOneTakes: P18 the count saturates at 0xffff
+1795679653.768 [ok] mutant plat-phy-held-ignores-bmcr (platboot1, platboot1): 28 check(s) failed
+1795679653.768     first: [FAIL] PlatPhy.P22TheBootRestartsAPhyNotNegotiating: P22 the boot's first poll restarts a forced PHY
+1795679663.932 [ok] mutant plat-phy-forced-on-unadvertised (platboot1): 3 check(s) failed
+1795679663.932     first: [FAIL] PlatPhy.P23AForcedModeIsNeverPublishedUp: P23 a PHY the advertisement is not for: the forced mode BMCR names, case 0
+1795679667.920 [ok] mutant step-before-the-polls (port): 2 check(s) failed
+1795679667.920     first: [FAIL] Loop.L11StepLastWithTheDeadlineReadAtTheStart: L11 after every poll
+1795679671.987 [ok] mutant step-owed-lets-it-sleep (port): 1 check(s) failed
+1795679671.987     first: [FAIL] Loop.L11StepLastWithTheDeadlineReadAtTheStart: L11 a step still owed asks for the next pass at once
+1795679676.235 [ok] mutant step-aged-pass-takes-input (port): 51 check(s) failed
+1795679676.235     first: [FAIL] Loop.L13AnAgedStepIsAPassOfItsOwn: L13 and takes nothing else: no event, no record, no poll
+1795679679.939 [ok] mutant step-age-kept-by-its-pass (port): 8 check(s) failed
+1795679679.939     first: [FAIL] Loop.L13AnAgedStepIsAPassOfItsOwn: L13 (a pass that takes nothing runs the step)
+1795679682.988 [ok] mutant retry-binds-twice (port): 2 check(s) failed
+1795679682.988     first: [FAIL] LoopBring.L15RetryBindingRefusals: L15 a second retry client is refused
+1795679685.866 [ok] mutant retry-beside-a-centisecond (port): 2 check(s) failed
+1795679685.866     first: [FAIL] Loop.L16TheRetryOnlyInAPassThatTakesNothing: L16 nor one that dispatches a centisecond, though it takes no input
+1795679688.690 [ok] mutant retry-owed-lets-it-sleep (port): 1 check(s) failed
+1795679688.690     first: [FAIL] Loop.L16TheRetryOnlyInAPassThatTakesNothing: L16 a retry still owed asks for the next pass at once
+1795679691.930 [ok] mutant retry-aged-pass-sleeps (port): 10 check(s) failed
+1795679691.930     first: [FAIL] Loop.L13AnAgedStepIsAPassOfItsOwn: L13 the step's pass asks for the next pass at once
+1795679695.853 [ok] mutant retry-told-past-the-margin (port): 5 check(s) failed
+1795679695.853     first: [FAIL] Loop.L17AnAgedRetryIsAPassOfItsOwn: L17 a round in a pass of its own has a whole slice under the margin, with no clock
+1795679699.223 [ok] mutant transmit-due-ignored (port): 11 check(s) failed
+1795679699.223     first: [FAIL] Loop.L20AnOwedBuildIsAPassOfItsOwn: L20 the build is read once as the pass starts, before it takes any input
+1795679702.695 [ok] mutant transmit-pass-without-the-retry (port): 1 check(s) failed
+1795679702.696     first: [FAIL] Loop.L20AnOwedBuildIsAPassOfItsOwn: L20 the next pass calls the transmit though input waits, then an aged round: its ordinary pass before it left tier 1 holding nothing, so one slice, then tier 1 (THE TIERS)
+1795679705.606 [ok] mutant tick-cap-in-every-pass (port): 32 check(s) failed
+1795679705.606     first: [FAIL] Loop.L2PerPassRxBound: L2 a pass takes at most CTRL_LOOP_RX_PER_PASS records of a channel
+1795679708.342 [ok] mutant whole-row-beside-a-backlog (port): 2 check(s) failed
+1795679708.342     first: [FAIL] Loop.L22PassesGivenWholeStandApartAsInputWaits: L22 and no second while records wait and the client yields
+1795679711.968 [ok] mutant backlog-never-cleared (port): 11 check(s) failed
+1795679711.968     first: [FAIL] Loop.L20AnOwedBuildIsAPassOfItsOwn: L20 which leaves tier 1 holding nothing
+1795679715.177 [ok] mutant spare-records-never-taken (port): 11 check(s) failed
+1795679715.177     first: [FAIL] Loop.L20AnOwedBuildIsAPassOfItsOwn: L20 a build owed comes before an aged step
+1795679718.627 [ok] mutant rx-start-stays (port): 2 check(s) failed
+1795679718.627     first: [FAIL] Loop.L25WhatAPassHasLeftGoesToTheRecordsStillWaiting: L25 each pass starts one channel on
+1795679721.521 [ok] mutant order-moved-past-events-left (port): 1 check(s) failed
+1795679721.521     first: [FAIL] Loop.L24ARecordFollowsOnlyTheEventsPostedBeforeIt: L24 a pass that leaves events keeps the order where it was
+1795679724.873 [ok] mutant tier1-held-by-a-module-not-ready (port): 1 check(s) failed
+1795679724.873     first: [FAIL] Loop.L26TierOnesFirstChannelGoesFirst: L26 a first channel whose module is not ready holds the others back no longer
+1795679728.150 [ok] mutant holds-a-module-not-ready (port): 4 check(s) failed
+1795679728.150     first: [FAIL] Loop.L22PassesGivenWholeStandApartAsInputWaits: L22 a tier-1 record whose module is not ready holds none back (THE TIERS)
+1795679731.239 [ok] mutant first-notice-not-tier1 (port): 3 check(s) failed
+1795679731.240     first: [FAIL] Loop.L22PassesGivenWholeStandApartAsInputWaits: L22 a queue's first notice after that pass, though a record waits
+1795679734.422 [ok] mutant slice-end-past-the-deadline (port): 1 check(s) failed
+1795679734.422     first: [FAIL] Loop.L27TierTwoRoundsComeAfterTheDrainInSlices: L27 a round in a pass that took nothing has a slice from its start, and never past the pass's deadline
+1795679738.140 [ok] mutant f3b-composition-owner (acmp): 5 check(s) failed
+1795679738.140     first: [FAIL] AcmpMailbox.F3bComposedGateExpiresAfterIdleTickWake: composed mailbox publishes the accepted probe demand
+1795679743.349 [ok] mutant f3b-listener-arm (maap): 17 check(s) failed
+1795679743.350     first: [FAIL] MaapHost.DaGateIsPublishedBeforeEachAllocationIsReported: DA gate opens the eight sources before the allocation is reported
+1795679748.467 [ok] mutant f3b-expiry-refresh (maap): 3 check(s) failed
+1795679748.467     first: [FAIL] MaapHost.DaGateListenerDeclaresWithoutProbe: last Listener withdrawal closes a gate without probe demand
+1795679753.186 [ok] mutant link-up-draws-half-a-second (adp): 5 check(s) failed
+1795679753.186     first: [FAIL] AdpCore.A9DrawKinds: A9 the two kinds are distinct: the 0..4 s draws pass 2 s
+1795679757.931 [ok] mutant link-loss-resets-the-index (adp): 1 check(s) failed
+1795679757.931     first: [FAIL] AdpFirstAvailable.G1G5WithinTheLinkUpDrawOfEveryLinkUp: G1 each ENTITY_AVAILABLE carries the next available_index, across every link-up (6.2.2.15)
+1795679790.760 [ok] mutant sink-change-before-commit (platsinks8, platsinks8): 18 check(s) failed
+1795679790.760     first: [FAIL] Sinks.S2SetStreamFormatMovesOnlyThatContextAndABoundInputRefuses: S2 written after the change's acknowledged commit
+1795679809.482 [ok] mutant sink-held-other-input (platsinks8): 14 check(s) failed
+1795679809.482     first: [FAIL] Sinks.S2SetStreamFormatMovesOnlyThatContextAndABoundInputRefuses: S2 SET_STREAM_FORMAT's new format reaches input 7's context
+1795679826.815 [ok] mutant sink-output-taken-for-its-input (platsinks8): 2 check(s) failed
+1795679826.815     first: [FAIL] Sinks.S11AChangeOfAnotherTypeOrKindAtAContextsIndexIsTakenAndWritesNoContext: S11 output 7's SET_STREAM_FORMAT is taken while input 7 is bound
+1795679836.036 [ok] mutant sink-other-kind-writes-every-context (platsinks8): 2 check(s) failed
+1795679836.036     first: [FAIL] Sinks.S5AChangeOfAnotherKindWritesNoContext: S5 SET_NAME writes no context
+1795679840.991 [ok] mutant sink-other-type-written (plat): 1 check(s) failed
+1795679840.991     first: [FAIL] Plat.C6SinkContextIsAnAafInputAboveZeroOnInterfaceZero: C6 not a STREAM_OUTPUT
+1795679858.420 [ok] mutant sink-format-halves-swapped (plat, platsinks8): 34 check(s) failed
+1795679858.420     first: [FAIL] Plat.C5SinkFormatSelectsTheInputWritesItsFormatAndRestores: C5 listener 5 selected, FMT_LO then FMT_HI, the selection written back
+1795679872.953 [ok] mutant set-format-bound-accepted (platsinks8): 4 check(s) failed
+1795679872.953     first: [FAIL] Sinks.S2SetStreamFormatMovesOnlyThatContextAndABoundInputRefuses: S2 a bound input refuses SET_STREAM_FORMAT
+1795679902.033 [ok] mutant again-of-stream-zero (platsinks1, platsinks1): 4 check(s) failed
+1795679902.033     first: [FAIL] Streams.S13AWaitingFormatChangeIsRefusedOntoAnInputWithNoContextBoundMeanwhile: S13 a waiting SET_STREAM_FORMAT of an input bound meanwhile is refused STREAM_IS_RUNNING once acknowledged: input 1
+1795679910.334 [ok] mutant asking-failed-of-output-zero (platsinks8): 32 check(s) failed
+1795679910.334     first: [FAIL] Streams.T1GetTxStateCarriesRegisteringFailedWhileAListenerAskingFailedIsRegistered: T1 no other output carries output 0's Listener: output 1, Asking Failed
+1795679913.920 [ok] mutant pin-adp-valid-discovery (adp): 2 check(s) failed
+1795679913.921     first: [FAIL] AdpAdapter.PinAcceptsCompleteDiscoveryThroughMailbox: complete discovery restarts advertising through the mailbox
+1795679923.697 [ok] mutant pub-licence-in-the-da-gate (unit): 2 check(s) failed
+1795679923.697     first: [FAIL] DriverUnit.D14PublicationBlock: D14 DA_GATE.OPEN holds the gate
+1795679936.517 [ok] mutant pub-sink-binding-drops-sid-valid (unit): 1 check(s) failed
+1795679936.518     first: [FAIL] DriverUnit.D14PublicationBlock: D14 a stop with the stream unchanged: BINDING alone, STARTED clear, SID_VALID kept, one write
+1795679938.435 [ok] mutant model-pub-started-not-stored (model): 5 check(s) failed
+1795679938.435     first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/Publication: P1 DA_GATE keeps OPEN, LICENCE ACTIVE, IDLE_SLOPE every bit, SR_DOMAIN VID, PRIORITY and ADOPTED, TALKER_DECL DECLARED, BINDING BOUND, SID_VALID and STARTED only, per interface and sink
+1795679940.280 [ok] mutant model-face-window-timeout-keeps-the-request (model): 8 check(s) failed
+1795679940.280     first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/Face: F4 CTR unanswered past its wait bound it closes with TIMEOUT, the last answer kept
+1795679942.343 [ok] mutant model-face-holdoff-never-rolls (model): 2 check(s) failed
+1795679942.343     first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/Face: F9 the next epoch posts the descriptor that changed meanwhile, once, its changes coalesced
+1795679954.262 [ok] mutant pub-acmp-skipped-at-the-end-of-an-entry (acmp, acmp, acmp): 48 check(s) failed
+1795679954.264     first: [FAIL] AcmpCore.A31TheBindingIsPublishedBeforeTheResponseThatPromisesIt: A31 a PROBE_TX_RESPONSE that settles publishes the stream
+1795679957.078 [ok] mutant pub-acmp-port-unguarded (acmp): 1 check(s) failed
+1795679957.078     first: [FAIL] AcmpCore.A31ACallBackFromThePublishPortIsRefused: A31 an UNBIND_RX and a poll from inside the publish port are counted and change nothing (#678)
+1795679960.347 [ok] mutant pub-acmp-started-after-the-report (acmp): 4 check(s) failed
+1795679960.347     first: [FAIL] AcmpCore.A31TheBindingIsPublishedBeforeTheResponseThatPromisesIt: A31 and before the notifier hears of the settled sink
+1795679963.640 [ok] mutant pub-acmp-adapter-drops-sid-valid (acmp): 4 check(s) failed
+1795679963.640     first: [FAIL] AcmpMailbox.B12TheStartedLevelIsOneBindingWriteThatKeepsTheStream: B12 that write is BINDING, with SID_VALID kept and STARTED moved, interface 0
+1795679967.696 [ok] mutant pub-maap-gate-one-source-short (maap): 16 check(s) failed
+1795679967.696     first: [FAIL] MaapHost.DaGateIsPublishedBeforeEachAllocationIsReported: DA gate opens the eight sources before the allocation is reported
+1795679967.832 mutants: 211 of 211 caught
+1795679967.832 test_ctrl_firmware: PASS

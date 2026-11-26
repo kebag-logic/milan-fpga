@@ -1,0 +1,788 @@
+publication-census	UNKNOWN STEP	﻿2026-11-26T04:45:25.9021608Z Current runner version: '2.338.2'
+publication-census	UNKNOWN STEP	2026-11-26T04:45:25.9059179Z ##[group]Runner Image Provisioner
+publication-census	UNKNOWN STEP	2026-11-26T04:45:25.9060572Z Hosted Compute Agent
+publication-census	UNKNOWN STEP	2026-11-26T04:45:25.9061812Z Version: 20261111.635
+publication-census	UNKNOWN STEP	2026-11-26T04:45:25.9063185Z Commit: b8a594ea514ff44cadb5342986c68b1eac6e22ed
+publication-census	UNKNOWN STEP	2026-11-26T04:45:25.9064712Z Build Date: 2026-11-11T01:49:01Z
+publication-census	UNKNOWN STEP	2026-11-26T04:45:25.9065997Z Worker ID: {16e39da3-8e91-4af6-9a6c-4871df011904}
+publication-census	UNKNOWN STEP	2026-11-26T04:45:25.9067265Z Region: centralus
+publication-census	UNKNOWN STEP	2026-11-26T04:45:25.9068700Z Cloud: Azure
+publication-census	UNKNOWN STEP	2026-11-26T04:45:25.9069731Z ##[endgroup]
+publication-census	UNKNOWN STEP	2026-11-26T04:45:25.9073365Z ##[group]Operating System
+publication-census	UNKNOWN STEP	2026-11-26T04:45:25.9074650Z Ubuntu
+publication-census	UNKNOWN STEP	2026-11-26T04:45:25.9075577Z 24.04.5
+publication-census	UNKNOWN STEP	2026-11-26T04:45:25.9076531Z LTS
+publication-census	UNKNOWN STEP	2026-11-26T04:45:25.9077554Z ##[endgroup]
+publication-census	UNKNOWN STEP	2026-11-26T04:45:25.9078989Z ##[group]Runner Image
+publication-census	UNKNOWN STEP	2026-11-26T04:45:25.9080227Z Image: ubuntu-24.04
+publication-census	UNKNOWN STEP	2026-11-26T04:45:25.9081239Z Version: 20261116.376.1
+publication-census	UNKNOWN STEP	2026-11-26T04:45:25.9083602Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20261116.376/images/ubuntu/Ubuntu2404-Readme.md
+publication-census	UNKNOWN STEP	2026-11-26T04:45:25.9086477Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20261116.376
+publication-census	UNKNOWN STEP	2026-11-26T04:45:25.9088697Z ##[endgroup]
+publication-census	UNKNOWN STEP	2026-11-26T04:45:25.9090913Z ##[group]GITHUB_TOKEN Permissions
+publication-census	UNKNOWN STEP	2026-11-26T04:45:25.9094031Z Contents: read
+publication-census	UNKNOWN STEP	2026-11-26T04:45:25.9095053Z Metadata: read
+publication-census	UNKNOWN STEP	2026-11-26T04:45:25.9095974Z Packages: read
+publication-census	UNKNOWN STEP	2026-11-26T04:45:25.9096591Z ##[endgroup]
+publication-census	UNKNOWN STEP	2026-11-26T04:45:25.9099693Z Secret source: Actions
+publication-census	UNKNOWN STEP	2026-11-26T04:45:25.9100858Z Cache mode: write
+publication-census	UNKNOWN STEP	2026-11-26T04:45:25.9101987Z Prepare workflow directory
+publication-census	UNKNOWN STEP	2026-11-26T04:45:25.9680725Z Prepare all required actions
+publication-census	UNKNOWN STEP	2026-11-26T04:45:25.9733712Z Getting action download info
+publication-census	UNKNOWN STEP	2026-11-26T04:45:26.2876008Z Download action repository 'actions/checkout@v4' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+publication-census	UNKNOWN STEP	2026-11-26T04:45:26.4553040Z Download action repository 'actions/cache@v4' (SHA:0057852bfaa89a56745cba8c7296529d2fc39830)
+publication-census	UNKNOWN STEP	2026-11-26T04:45:26.5505413Z Download action repository 'actions/upload-artifact@v4' (SHA:ea165f8d65b6e75b540449e92b4886f43607fa02)
+publication-census	UNKNOWN STEP	2026-11-26T04:45:26.7632779Z Complete job name: publication-census
+publication-census	UNKNOWN STEP	2026-11-26T04:45:26.8591882Z ##[group]Run actions/checkout@v4
+publication-census	UNKNOWN STEP	2026-11-26T04:45:26.8593438Z with:
+publication-census	UNKNOWN STEP	2026-11-26T04:45:26.8594259Z   repository: kebag-logic/milan-fpga
+publication-census	UNKNOWN STEP	2026-11-26T04:45:26.8602003Z   token: ***
+publication-census	UNKNOWN STEP	2026-11-26T04:45:26.8602832Z   ssh-strict: true
+publication-census	UNKNOWN STEP	2026-11-26T04:45:26.8603708Z   ssh-user: git
+publication-census	UNKNOWN STEP	2026-11-26T04:45:26.8604565Z   persist-credentials: true
+publication-census	UNKNOWN STEP	2026-11-26T04:45:26.8605364Z   clean: true
+publication-census	UNKNOWN STEP	2026-11-26T04:45:26.8606147Z   sparse-checkout-cone-mode: true
+publication-census	UNKNOWN STEP	2026-11-26T04:45:26.8607116Z   fetch-depth: 1
+publication-census	UNKNOWN STEP	2026-11-26T04:45:26.8607923Z   fetch-tags: false
+publication-census	UNKNOWN STEP	2026-11-26T04:45:26.8609027Z   show-progress: true
+publication-census	UNKNOWN STEP	2026-11-26T04:45:26.8609848Z   lfs: false
+publication-census	UNKNOWN STEP	2026-11-26T04:45:26.8610586Z   submodules: false
+publication-census	UNKNOWN STEP	2026-11-26T04:45:26.8611371Z   set-safe-directory: true
+publication-census	UNKNOWN STEP	2026-11-26T04:45:26.8612259Z   allow-unsafe-pr-checkout: false
+publication-census	UNKNOWN STEP	2026-11-26T04:45:26.8613689Z env:
+publication-census	UNKNOWN STEP	2026-11-26T04:45:26.8614424Z   VERILATOR_VERSION: v5.050
+publication-census	UNKNOWN STEP	2026-11-26T04:45:26.8615363Z   YOSYS_VERSION: v0.66
+publication-census	UNKNOWN STEP	2026-11-26T04:45:26.8616700Z   PIP_CONSTRAINT: <home-path>/work/milan-fpga/milan-fpga/ci/constraints-ci.txt
+publication-census	UNKNOWN STEP	2026-11-26T04:45:26.8618130Z ##[endgroup]
+publication-census	UNKNOWN STEP	2026-11-26T04:45:27.1939476Z Syncing repository: kebag-logic/milan-fpga
+publication-census	UNKNOWN STEP	2026-11-26T04:45:27.1942673Z ##[group]Getting Git version info
+publication-census	UNKNOWN STEP	2026-11-26T04:45:27.1943819Z Working directory is '<home-path>/work/milan-fpga/milan-fpga'
+publication-census	UNKNOWN STEP	2026-11-26T04:45:27.1945520Z [command]/usr/bin/git version
+publication-census	UNKNOWN STEP	2026-11-26T04:45:27.2056454Z git version 2.56.1
+publication-census	UNKNOWN STEP	2026-11-26T04:45:27.2090094Z ##[endgroup]
+publication-census	UNKNOWN STEP	2026-11-26T04:45:27.2108137Z Temporarily overriding HOME='<home-path>/work/_temp/969b3c84-416e-460d-88b6-1db3c79c08ee' before making global git config changes
+publication-census	UNKNOWN STEP	2026-11-26T04:45:27.2110906Z Adding repository directory to the temporary git global config as a safe directory
+publication-census	UNKNOWN STEP	2026-11-26T04:45:27.2114884Z [command]/usr/bin/git config --global --add safe.directory <home-path>/work/milan-fpga/milan-fpga
+publication-census	UNKNOWN STEP	2026-11-26T04:45:27.2189617Z Deleting the contents of '<home-path>/work/milan-fpga/milan-fpga'
+publication-census	UNKNOWN STEP	2026-11-26T04:45:27.2192070Z ##[group]Initializing the repository
+publication-census	UNKNOWN STEP	2026-11-26T04:45:27.2195741Z [command]/usr/bin/git init <home-path>/work/milan-fpga/milan-fpga
+publication-census	UNKNOWN STEP	2026-11-26T04:45:27.2338535Z hint: Using 'master' as the name for the initial branch. This default branch name
+publication-census	UNKNOWN STEP	2026-11-26T04:45:27.2340304Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+publication-census	UNKNOWN STEP	2026-11-26T04:45:27.2341872Z hint: to use in all of your new repositories, which will suppress this warning,
+publication-census	UNKNOWN STEP	2026-11-26T04:45:27.2343078Z hint: call:
+publication-census	UNKNOWN STEP	2026-11-26T04:45:27.2343694Z hint:
+publication-census	UNKNOWN STEP	2026-11-26T04:45:27.2344463Z hint: 	git config --global init.defaultBranch <name>
+publication-census	UNKNOWN STEP	2026-11-26T04:45:27.2345494Z hint:
+publication-census	UNKNOWN STEP	2026-11-26T04:45:27.2346457Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+publication-census	UNKNOWN STEP	2026-11-26T04:45:27.2347950Z hint: 'development'. The just-created branch can be renamed via this command:
+publication-census	UNKNOWN STEP	2026-11-26T04:45:27.2349429Z hint:
+publication-census	UNKNOWN STEP	2026-11-26T04:45:27.2350128Z hint: 	git branch -m <name>
+publication-census	UNKNOWN STEP	2026-11-26T04:45:27.2350950Z hint:
+publication-census	UNKNOWN STEP	2026-11-26T04:45:27.2351955Z hint: Disable this message with "git config set advice.defaultBranchName false"
+publication-census	UNKNOWN STEP	2026-11-26T04:45:27.2353647Z Initialized empty Git repository in <home-path>/work/milan-fpga/milan-fpga/.git/
+publication-census	UNKNOWN STEP	2026-11-26T04:45:27.2362114Z [command]/usr/bin/git remote add origin https://github.com/kebag-logic/milan-fpga
+publication-census	UNKNOWN STEP	2026-11-26T04:45:27.2430523Z ##[endgroup]
+publication-census	UNKNOWN STEP	2026-11-26T04:45:27.2432031Z ##[group]Disabling automatic garbage collection
+publication-census	UNKNOWN STEP	2026-11-26T04:45:27.2436130Z [command]/usr/bin/git config --local gc.auto 0
+publication-census	UNKNOWN STEP	2026-11-26T04:45:27.2475706Z ##[endgroup]
+publication-census	UNKNOWN STEP	2026-11-26T04:45:27.2477051Z ##[group]Setting up auth
+publication-census	UNKNOWN STEP	2026-11-26T04:45:27.2485140Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+publication-census	UNKNOWN STEP	2026-11-26T04:45:27.2530845Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+publication-census	UNKNOWN STEP	2026-11-26T04:45:27.3064327Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+publication-census	UNKNOWN STEP	2026-11-26T04:45:27.3108961Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+publication-census	UNKNOWN STEP	2026-11-26T04:45:27.3354304Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+publication-census	UNKNOWN STEP	2026-11-26T04:45:27.3400088Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+publication-census	UNKNOWN STEP	2026-11-26T04:45:27.3645030Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+publication-census	UNKNOWN STEP	2026-11-26T04:45:27.3700102Z ##[endgroup]
+publication-census	UNKNOWN STEP	2026-11-26T04:45:27.3701522Z ##[group]Fetching the repository
+publication-census	UNKNOWN STEP	2026-11-26T04:45:27.3713604Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +e24ec9c0f801ada4954796e5f1f04b3ae0e09a96:refs/remotes/pull/1016/merge
+publication-census	UNKNOWN STEP	2026-11-26T04:45:29.5905476Z From https://github.com/kebag-logic/milan-fpga
+publication-census	UNKNOWN STEP	2026-11-26T04:45:29.5906929Z  * [new ref]         e24ec9c0f801ada4954796e5f1f04b3ae0e09a96 -> pull/1016/merge
+publication-census	UNKNOWN STEP	2026-11-26T04:45:29.5910751Z ##[endgroup]
+publication-census	UNKNOWN STEP	2026-11-26T04:45:29.5911987Z ##[group]Determining the checkout info
+publication-census	UNKNOWN STEP	2026-11-26T04:45:29.5913326Z ##[endgroup]
+publication-census	UNKNOWN STEP	2026-11-26T04:45:29.5917449Z [command]/usr/bin/git sparse-checkout disable
+publication-census	UNKNOWN STEP	2026-11-26T04:45:29.5994188Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+publication-census	UNKNOWN STEP	2026-11-26T04:45:29.6034369Z ##[group]Checking out the ref
+publication-census	UNKNOWN STEP	2026-11-26T04:45:29.6036730Z [command]/usr/bin/git checkout --progress --force refs/remotes/pull/1016/merge
+publication-census	UNKNOWN STEP	2026-11-26T04:45:29.8787550Z Note: switching to 'refs/remotes/pull/1016/merge'.
+publication-census	UNKNOWN STEP	2026-11-26T04:45:29.8788193Z 
+publication-census	UNKNOWN STEP	2026-11-26T04:45:29.8789035Z You are in 'detached HEAD' state. You can look around, make experimental
+publication-census	UNKNOWN STEP	2026-11-26T04:45:29.8789932Z changes and commit them, and you can discard any commits you make in this
+publication-census	UNKNOWN STEP	2026-11-26T04:45:29.8791170Z state without impacting any branches by switching back to a branch.
+publication-census	UNKNOWN STEP	2026-11-26T04:45:29.8791673Z 
+publication-census	UNKNOWN STEP	2026-11-26T04:45:29.8792033Z If you want to create a new branch to retain commits you create, you may
+publication-census	UNKNOWN STEP	2026-11-26T04:45:29.8792792Z do so (now or later) by using -c with the switch command. Example:
+publication-census	UNKNOWN STEP	2026-11-26T04:45:29.8793213Z 
+publication-census	UNKNOWN STEP	2026-11-26T04:45:29.8793441Z   git switch -c <new-branch-name>
+publication-census	UNKNOWN STEP	2026-11-26T04:45:29.8793786Z 
+publication-census	UNKNOWN STEP	2026-11-26T04:45:29.8794058Z Or undo this operation with:
+publication-census	UNKNOWN STEP	2026-11-26T04:45:29.8794404Z 
+publication-census	UNKNOWN STEP	2026-11-26T04:45:29.8794580Z   git switch -
+publication-census	UNKNOWN STEP	2026-11-26T04:45:29.8794867Z 
+publication-census	UNKNOWN STEP	2026-11-26T04:45:29.8795616Z Turn off this advice by setting config variable advice.detachedHead to false
+publication-census	UNKNOWN STEP	2026-11-26T04:45:29.8796208Z 
+publication-census	UNKNOWN STEP	2026-11-26T04:45:29.8797423Z HEAD is now at e24ec9c Merge d3cb3cf180f846a969f5baacf8b2bec34e4acd50 into c34e7d8b06739a22cc79997a9a1f4cbcd9bd0350
+publication-census	UNKNOWN STEP	2026-11-26T04:45:29.8806326Z ##[endgroup]
+publication-census	UNKNOWN STEP	2026-11-26T04:45:29.8862994Z [command]/usr/bin/git log -1 --format=%H
+publication-census	UNKNOWN STEP	2026-11-26T04:45:29.8897546Z e24ec9c0f801ada4954796e5f1f04b3ae0e09a96
+publication-census	UNKNOWN STEP	2026-11-26T04:45:29.9208796Z ##[group]Run set -euo pipefail
+publication-census	UNKNOWN STEP	2026-11-26T04:45:29.9209453Z ^[[36;1mset -euo pipefail^[[0m
+publication-census	UNKNOWN STEP	2026-11-26T04:45:29.9209930Z ^[[36;1mcpus="$(nproc)"^[[0m
+publication-census	UNKNOWN STEP	2026-11-26T04:45:29.9210388Z ^[[36;1mtest "$cpus" -gt 0^[[0m
+publication-census	UNKNOWN STEP	2026-11-26T04:45:29.9210881Z ^[[36;1mcampaign=$(( cpus < 4 ? cpus : 4 ))^[[0m
+publication-census	UNKNOWN STEP	2026-11-26T04:45:29.9211436Z ^[[36;1msimulations=$(( cpus < 4 ? cpus : 4 ))^[[0m
+publication-census	UNKNOWN STEP	2026-11-26T04:45:29.9212003Z ^[[36;1mtool_build=$(( cpus < 8 ? cpus : 8 ))^[[0m
+publication-census	UNKNOWN STEP	2026-11-26T04:45:29.9212534Z ^[[36;1m{^[[0m
+publication-census	UNKNOWN STEP	2026-11-26T04:45:29.9212972Z ^[[36;1m  printf 'CI_BUILD_JOBS=%s\n' "$cpus"^[[0m
+publication-census	UNKNOWN STEP	2026-11-26T04:45:29.9213554Z ^[[36;1m  printf 'CI_TOOL_BUILD_JOBS=%s\n' "$tool_build"^[[0m
+publication-census	UNKNOWN STEP	2026-11-26T04:45:29.9214174Z ^[[36;1m  printf 'CI_CAMPAIGN_JOBS=%s\n' "$campaign"^[[0m
+publication-census	UNKNOWN STEP	2026-11-26T04:45:29.9214746Z ^[[36;1m  printf 'VERILATOR_JOBS=%s\n' "$cpus"^[[0m
+publication-census	UNKNOWN STEP	2026-11-26T04:45:29.9215298Z ^[[36;1m  printf 'SIM_JOBS=%s\n' "$simulations"^[[0m
+publication-census	UNKNOWN STEP	2026-11-26T04:45:29.9215885Z ^[[36;1m  printf 'MAKEFLAGS=-j1 --no-print-directory\n'^[[0m
+publication-census	UNKNOWN STEP	2026-11-26T04:45:29.9216495Z ^[[36;1m} >> "$GITHUB_ENV"^[[0m
+publication-census	UNKNOWN STEP	2026-11-26T04:45:29.9240235Z shell: /usr/bin/bash -e {0}
+publication-census	UNKNOWN STEP	2026-11-26T04:45:29.9240754Z env:
+publication-census	UNKNOWN STEP	2026-11-26T04:45:29.9241166Z   VERILATOR_VERSION: v5.050
+publication-census	UNKNOWN STEP	2026-11-26T04:45:29.9241632Z   YOSYS_VERSION: v0.66
+publication-census	UNKNOWN STEP	2026-11-26T04:45:29.9242247Z   PIP_CONSTRAINT: <home-path>/work/milan-fpga/milan-fpga/ci/constraints-ci.txt
+publication-census	UNKNOWN STEP	2026-11-26T04:45:29.9242905Z ##[endgroup]
+publication-census	UNKNOWN STEP	2026-11-26T04:45:29.9459465Z ##[group]Run set -euo pipefail
+publication-census	UNKNOWN STEP	2026-11-26T04:45:29.9460125Z ^[[36;1mset -euo pipefail^[[0m
+publication-census	UNKNOWN STEP	2026-11-26T04:45:29.9460567Z ^[[36;1mcpus="$(nproc)"^[[0m
+publication-census	UNKNOWN STEP	2026-11-26T04:45:29.9461129Z ^[[36;1mtest "$cpus" -gt 0 || { echo "no CPUs: nproc printed $cpus" >&2; exit 1; }^[[0m
+publication-census	UNKNOWN STEP	2026-11-26T04:45:29.9461841Z ^[[36;1mkib="$(awk '$1 == "MemTotal:" && $3 == "kB" { print $2 }' /proc/meminfo)"^[[0m
+publication-census	UNKNOWN STEP	2026-11-26T04:45:29.9462517Z ^[[36;1mtest "$kib" -gt 0 || { echo "no MemTotal in kB" >&2; exit 1; }^[[0m
+publication-census	UNKNOWN STEP	2026-11-26T04:45:29.9463098Z ^[[36;1mmemory=$(( kib * 1024 ))^[[0m
+publication-census	UNKNOWN STEP	2026-11-26T04:45:29.9463667Z ^[[36;1mcgroup="/sys/fs/cgroup$(sed -n 's/^0:://p' /proc/self/cgroup)"^[[0m
+publication-census	UNKNOWN STEP	2026-11-26T04:45:29.9464239Z ^[[36;1mcgroup="${cgroup%/}"^[[0m
+publication-census	UNKNOWN STEP	2026-11-26T04:45:29.9464655Z ^[[36;1mwhile :; do^[[0m
+publication-census	UNKNOWN STEP	2026-11-26T04:45:29.9465088Z ^[[36;1m  if [ -d "$cgroup" ] && [ ! -x "$cgroup" ]; then^[[0m
+publication-census	UNKNOWN STEP	2026-11-26T04:45:29.9465826Z ^[[36;1m    echo "unsearchable cgroup $cgroup: its memory limit cannot be proved absent" >&2; exit 1^[[0m
+publication-census	UNKNOWN STEP	2026-11-26T04:45:29.9466521Z ^[[36;1m  fi^[[0m
+publication-census	UNKNOWN STEP	2026-11-26T04:45:29.9466929Z ^[[36;1m  if [ -e "$cgroup/memory.max" ]; then^[[0m
+publication-census	UNKNOWN STEP	2026-11-26T04:45:29.9467461Z ^[[36;1m    if ! limit="$(cat "$cgroup/memory.max")"; then^[[0m
+publication-census	UNKNOWN STEP	2026-11-26T04:45:29.9468053Z ^[[36;1m      echo "unreadable memory limit in $cgroup" >&2; exit 1^[[0m
+publication-census	UNKNOWN STEP	2026-11-26T04:45:29.9468807Z ^[[36;1m    fi^[[0m
+publication-census	UNKNOWN STEP	2026-11-26T04:45:29.9469196Z ^[[36;1m    case "$limit" in^[[0m
+publication-census	UNKNOWN STEP	2026-11-26T04:45:29.9469610Z ^[[36;1m      max) ;;^[[0m
+publication-census	UNKNOWN STEP	2026-11-26T04:45:29.9470162Z ^[[36;1m      ''|*[!0-9]*) echo "non-numeric memory limit in $cgroup: $limit" >&2; exit 1 ;;^[[0m
+publication-census	UNKNOWN STEP	2026-11-26T04:45:29.9471099Z ^[[36;1m      *) if [ "$limit" -lt "$memory" ]; then memory="$limit"; fi ;;^[[0m
+publication-census	UNKNOWN STEP	2026-11-26T04:45:29.9471625Z ^[[36;1m    esac^[[0m
+publication-census	UNKNOWN STEP	2026-11-26T04:45:29.9471993Z ^[[36;1m  fi^[[0m
+publication-census	UNKNOWN STEP	2026-11-26T04:45:29.9472425Z ^[[36;1m  if [ "$cgroup" = /sys/fs/cgroup ]; then break; fi^[[0m
+publication-census	UNKNOWN STEP	2026-11-26T04:45:29.9472937Z ^[[36;1m  cgroup="${cgroup%/*}"^[[0m
+publication-census	UNKNOWN STEP	2026-11-26T04:45:29.9473353Z ^[[36;1mdone^[[0m
+publication-census	UNKNOWN STEP	2026-11-26T04:45:29.9473775Z ^[[36;1mcensus=$(( memory * 2 / (3 * 1242214400) ))^[[0m
+publication-census	UNKNOWN STEP	2026-11-26T04:45:29.9474291Z ^[[36;1mcensus=$(( census < cpus ? census : cpus ))^[[0m
+publication-census	UNKNOWN STEP	2026-11-26T04:45:29.9474814Z ^[[36;1mcensus=$(( census > 0 ? census : 1 ))^[[0m
+publication-census	UNKNOWN STEP	2026-11-26T04:45:29.9475438Z ^[[36;1mecho "census workers: $census of $cpus CPU(s) within $memory bytes of memory"^[[0m
+publication-census	UNKNOWN STEP	2026-11-26T04:45:29.9476141Z ^[[36;1mprintf 'CI_CENSUS_JOBS=%s\n' "$census" >> "$GITHUB_ENV"^[[0m
+publication-census	UNKNOWN STEP	2026-11-26T04:45:29.9495553Z shell: /usr/bin/bash -e {0}
+publication-census	UNKNOWN STEP	2026-11-26T04:45:29.9496000Z env:
+publication-census	UNKNOWN STEP	2026-11-26T04:45:29.9496371Z   VERILATOR_VERSION: v5.050
+publication-census	UNKNOWN STEP	2026-11-26T04:45:29.9496810Z   YOSYS_VERSION: v0.66
+publication-census	UNKNOWN STEP	2026-11-26T04:45:29.9497384Z   PIP_CONSTRAINT: <home-path>/work/milan-fpga/milan-fpga/ci/constraints-ci.txt
+publication-census	UNKNOWN STEP	2026-11-26T04:45:29.9498004Z   CI_BUILD_JOBS: 4
+publication-census	UNKNOWN STEP	2026-11-26T04:45:29.9498581Z   CI_TOOL_BUILD_JOBS: 4
+publication-census	UNKNOWN STEP	2026-11-26T04:45:29.9498983Z   CI_CAMPAIGN_JOBS: 4
+publication-census	UNKNOWN STEP	2026-11-26T04:45:29.9499383Z   VERILATOR_JOBS: 4
+publication-census	UNKNOWN STEP	2026-11-26T04:45:29.9499760Z   SIM_JOBS: 4
+publication-census	UNKNOWN STEP	2026-11-26T04:45:29.9500179Z   MAKEFLAGS: -j1 --no-print-directory
+publication-census	UNKNOWN STEP	2026-11-26T04:45:29.9500632Z ##[endgroup]
+publication-census	UNKNOWN STEP	2026-11-26T04:45:29.9618779Z census workers: 4 of 4 CPU(s) within 16760344576 bytes of memory
+publication-census	UNKNOWN STEP	2026-11-26T04:45:30.1130953Z ##[group]Run actions/cache@v4
+publication-census	UNKNOWN STEP	2026-11-26T04:45:30.1131493Z with:
+publication-census	UNKNOWN STEP	2026-11-26T04:45:30.1131889Z   path: ~/.cache/pip
+publication-census	UNKNOWN STEP	2026-11-26T04:45:30.1132893Z   key: python-cpython3.12.3-0f4dff939fe11c9e2b6ca53bfda0ab835c6b8262ea97e72481db61f20ea4b311-aa130cde3f89d5df9ea7f65b2511a7df2485907f5edf91bb356a311b83c0f291-Linux
+publication-census	UNKNOWN STEP	2026-11-26T04:45:30.1133961Z   enableCrossOsArchive: false
+publication-census	UNKNOWN STEP	2026-11-26T04:45:30.1134454Z   fail-on-cache-miss: false
+publication-census	UNKNOWN STEP	2026-11-26T04:45:30.1134891Z   lookup-only: false
+publication-census	UNKNOWN STEP	2026-11-26T04:45:30.1135303Z   save-always: false
+publication-census	UNKNOWN STEP	2026-11-26T04:45:30.1135695Z env:
+publication-census	UNKNOWN STEP	2026-11-26T04:45:30.1136083Z   VERILATOR_VERSION: v5.050
+publication-census	UNKNOWN STEP	2026-11-26T04:45:30.1136520Z   YOSYS_VERSION: v0.66
+publication-census	UNKNOWN STEP	2026-11-26T04:45:30.1137103Z   PIP_CONSTRAINT: <home-path>/work/milan-fpga/milan-fpga/ci/constraints-ci.txt
+publication-census	UNKNOWN STEP	2026-11-26T04:45:30.1137723Z   CI_BUILD_JOBS: 4
+publication-census	UNKNOWN STEP	2026-11-26T04:45:30.1138126Z   CI_TOOL_BUILD_JOBS: 4
+publication-census	UNKNOWN STEP	2026-11-26T04:45:30.1138893Z   CI_CAMPAIGN_JOBS: 4
+publication-census	UNKNOWN STEP	2026-11-26T04:45:30.1139319Z   VERILATOR_JOBS: 4
+publication-census	UNKNOWN STEP	2026-11-26T04:45:30.1139775Z   SIM_JOBS: 4
+publication-census	UNKNOWN STEP	2026-11-26T04:45:30.1140206Z   MAKEFLAGS: -j1 --no-print-directory
+publication-census	UNKNOWN STEP	2026-11-26T04:45:30.1140669Z   CI_CENSUS_JOBS: 4
+publication-census	UNKNOWN STEP	2026-11-26T04:45:30.1141061Z ##[endgroup]
+publication-census	UNKNOWN STEP	2026-11-26T04:45:30.2252199Z (node:2405) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+publication-census	UNKNOWN STEP	2026-11-26T04:45:30.2253398Z (Use `node --trace-deprecation ...` to show where the warning was created)
+publication-census	UNKNOWN STEP	2026-11-26T04:45:30.3628151Z Cache hit for: python-cpython3.12.3-0f4dff939fe11c9e2b6ca53bfda0ab835c6b8262ea97e72481db61f20ea4b311-aa130cde3f89d5df9ea7f65b2511a7df2485907f5edf91bb356a311b83c0f291-Linux
+publication-census	UNKNOWN STEP	2026-11-26T04:45:30.3732836Z (node:2405) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+publication-census	UNKNOWN STEP	2026-11-26T04:45:30.8172482Z Received 768877 of 768877 (100.0%), 2.6 MBs/sec
+publication-census	UNKNOWN STEP	2026-11-26T04:45:30.8173621Z Cache Size: ~1 MB (768877 B)
+publication-census	UNKNOWN STEP	2026-11-26T04:45:30.8204411Z [command]/usr/bin/tar -xf <home-path>/work/_temp/4e43fffd-7981-48d2-b1d5-8929150e45ef/cache.tzst -P -C <home-path>/work/milan-fpga/milan-fpga --use-compress-program unzstd
+publication-census	UNKNOWN STEP	2026-11-26T04:45:30.8281297Z Cache restored successfully
+publication-census	UNKNOWN STEP	2026-11-26T04:45:30.8484531Z Cache restored from key: python-cpython3.12.3-0f4dff939fe11c9e2b6ca53bfda0ab835c6b8262ea97e72481db61f20ea4b311-aa130cde3f89d5df9ea7f65b2511a7df2485907f5edf91bb356a311b83c0f291-Linux
+publication-census	UNKNOWN STEP	2026-11-26T04:45:30.8592122Z ##[group]Run git submodule update --init third_party/verilog-axis protocol-processor gptp-processor
+publication-census	UNKNOWN STEP	2026-11-26T04:45:30.8592897Z ^[[36;1mgit submodule update --init third_party/verilog-axis protocol-processor gptp-processor^[[0m
+publication-census	UNKNOWN STEP	2026-11-26T04:45:30.8638846Z shell: /usr/bin/bash -e {0}
+publication-census	UNKNOWN STEP	2026-11-26T04:45:30.8639137Z env:
+publication-census	UNKNOWN STEP	2026-11-26T04:45:30.8639341Z   VERILATOR_VERSION: v5.050
+publication-census	UNKNOWN STEP	2026-11-26T04:45:30.8639591Z   YOSYS_VERSION: v0.66
+publication-census	UNKNOWN STEP	2026-11-26T04:45:30.8639973Z   PIP_CONSTRAINT: <home-path>/work/milan-fpga/milan-fpga/ci/constraints-ci.txt
+publication-census	UNKNOWN STEP	2026-11-26T04:45:30.8640399Z   CI_BUILD_JOBS: 4
+publication-census	UNKNOWN STEP	2026-11-26T04:45:30.8640619Z   CI_TOOL_BUILD_JOBS: 4
+publication-census	UNKNOWN STEP	2026-11-26T04:45:30.8640836Z   CI_CAMPAIGN_JOBS: 4
+publication-census	UNKNOWN STEP	2026-11-26T04:45:30.8641054Z   VERILATOR_JOBS: 4
+publication-census	UNKNOWN STEP	2026-11-26T04:45:30.8641252Z   SIM_JOBS: 4
+publication-census	UNKNOWN STEP	2026-11-26T04:45:30.8641505Z   MAKEFLAGS: -j1 --no-print-directory
+publication-census	UNKNOWN STEP	2026-11-26T04:45:30.8641770Z   CI_CENSUS_JOBS: 4
+publication-census	UNKNOWN STEP	2026-11-26T04:45:30.8641980Z ##[endgroup]
+publication-census	UNKNOWN STEP	2026-11-26T04:45:30.8911014Z Submodule 'gptp-processor' (https://github.com/Mister-M-alt/FPGA-gPTP.git) registered for path 'gptp-processor'
+publication-census	UNKNOWN STEP	2026-11-26T04:45:30.8915940Z Submodule 'protocol-processor' (https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan.git) registered for path 'protocol-processor'
+publication-census	UNKNOWN STEP	2026-11-26T04:45:30.8921662Z Submodule 'third_party/verilog-axis' (https://github.com/alexforencich/verilog-axis) registered for path 'third_party/verilog-axis'
+publication-census	UNKNOWN STEP	2026-11-26T04:45:30.8948092Z Cloning into '<home-path>/work/milan-fpga/milan-fpga/gptp-processor'...
+publication-census	UNKNOWN STEP	2026-11-26T04:45:31.7506055Z Cloning into '<home-path>/work/milan-fpga/milan-fpga/protocol-processor'...
+publication-census	UNKNOWN STEP	2026-11-26T04:45:33.5003670Z Cloning into '<home-path>/work/milan-fpga/milan-fpga/third_party/verilog-axis'...
+publication-census	UNKNOWN STEP	2026-11-26T04:45:34.0165413Z Submodule path 'gptp-processor': checked out '3ce71b768a2f6f6a5274c127080146e755d02275'
+publication-census	UNKNOWN STEP	2026-11-26T04:45:34.1088567Z Submodule path 'protocol-processor': checked out '801ef2283ec793e35a2590fc6593c90313a64041'
+publication-census	UNKNOWN STEP	2026-11-26T04:45:34.1294532Z Submodule path 'third_party/verilog-axis': checked out '48ff7a7e2ef782cf778d47910cf85835c64b1bce'
+publication-census	UNKNOWN STEP	2026-11-26T04:45:34.2007068Z ##[group]Run actions/cache@v4
+publication-census	UNKNOWN STEP	2026-11-26T04:45:34.2007396Z with:
+publication-census	UNKNOWN STEP	2026-11-26T04:45:34.2007588Z   path: /opt/yosys
+publication-census	UNKNOWN STEP	2026-11-26T04:45:34.2008177Z   key: yosys-v0.66-86f2ddebce7e98ce7cacc27e8a5c14cb53b51b51-8e291403c12e9d0f8273be2a1de3d48a6398bda1a524b1301adcaed01c1efa7c-Linux
+publication-census	UNKNOWN STEP	2026-11-26T04:45:34.2009374Z   enableCrossOsArchive: false
+publication-census	UNKNOWN STEP	2026-11-26T04:45:34.2009634Z   fail-on-cache-miss: false
+publication-census	UNKNOWN STEP	2026-11-26T04:45:34.2009867Z   lookup-only: false
+publication-census	UNKNOWN STEP	2026-11-26T04:45:34.2010071Z   save-always: false
+publication-census	UNKNOWN STEP	2026-11-26T04:45:34.2010274Z env:
+publication-census	UNKNOWN STEP	2026-11-26T04:45:34.2010458Z   VERILATOR_VERSION: v5.050
+publication-census	UNKNOWN STEP	2026-11-26T04:45:34.2010685Z   YOSYS_VERSION: v0.66
+publication-census	UNKNOWN STEP	2026-11-26T04:45:34.2011036Z   PIP_CONSTRAINT: <home-path>/work/milan-fpga/milan-fpga/ci/constraints-ci.txt
+publication-census	UNKNOWN STEP	2026-11-26T04:45:34.2011438Z   CI_BUILD_JOBS: 4
+publication-census	UNKNOWN STEP	2026-11-26T04:45:34.2011641Z   CI_TOOL_BUILD_JOBS: 4
+publication-census	UNKNOWN STEP	2026-11-26T04:45:34.2011876Z   CI_CAMPAIGN_JOBS: 4
+publication-census	UNKNOWN STEP	2026-11-26T04:45:34.2012078Z   VERILATOR_JOBS: 4
+publication-census	UNKNOWN STEP	2026-11-26T04:45:34.2012274Z   SIM_JOBS: 4
+publication-census	UNKNOWN STEP	2026-11-26T04:45:34.2012524Z   MAKEFLAGS: -j1 --no-print-directory
+publication-census	UNKNOWN STEP	2026-11-26T04:45:34.2012781Z   CI_CENSUS_JOBS: 4
+publication-census	UNKNOWN STEP	2026-11-26T04:45:34.2012977Z ##[endgroup]
+publication-census	UNKNOWN STEP	2026-11-26T04:45:34.3089063Z (node:2503) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+publication-census	UNKNOWN STEP	2026-11-26T04:45:34.3090467Z (Use `node --trace-deprecation ...` to show where the warning was created)
+publication-census	UNKNOWN STEP	2026-11-26T04:45:34.4625725Z Cache hit for: yosys-v0.66-86f2ddebce7e98ce7cacc27e8a5c14cb53b51b51-8e291403c12e9d0f8273be2a1de3d48a6398bda1a524b1301adcaed01c1efa7c-Linux
+publication-census	UNKNOWN STEP	2026-11-26T04:45:34.4751126Z (node:2503) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+publication-census	UNKNOWN STEP	2026-11-26T04:45:35.1733468Z Received 19727517 of 19727517 (100.0%), 32.4 MBs/sec
+publication-census	UNKNOWN STEP	2026-11-26T04:45:35.1734543Z Cache Size: ~19 MB (19727517 B)
+publication-census	UNKNOWN STEP	2026-11-26T04:45:35.1763679Z [command]/usr/bin/tar -xf <home-path>/work/_temp/a75c4db6-b735-4868-899d-428fd7cc39ea/cache.tzst -P -C <home-path>/work/milan-fpga/milan-fpga --use-compress-program unzstd
+publication-census	UNKNOWN STEP	2026-11-26T04:45:35.2965603Z Cache restored successfully
+publication-census	UNKNOWN STEP	2026-11-26T04:45:35.3052124Z Cache restored from key: yosys-v0.66-86f2ddebce7e98ce7cacc27e8a5c14cb53b51b51-8e291403c12e9d0f8273be2a1de3d48a6398bda1a524b1301adcaed01c1efa7c-Linux
+publication-census	UNKNOWN STEP	2026-11-26T04:45:35.3234441Z ##[group]Run set -euo pipefail
+publication-census	UNKNOWN STEP	2026-11-26T04:45:35.3234792Z ^[[36;1mset -euo pipefail^[[0m
+publication-census	UNKNOWN STEP	2026-11-26T04:45:35.3235175Z ^[[36;1msudo ln -sf /opt/yosys/bin/yosys /opt/yosys/bin/yosys-abc /usr/local/bin/^[[0m
+publication-census	UNKNOWN STEP	2026-11-26T04:45:35.3235622Z ^[[36;1mtest -x /opt/yosys/bin/yosys-abc^[[0m
+publication-census	UNKNOWN STEP	2026-11-26T04:45:35.3235956Z ^[[36;1mecho "bundled ABC: $(cat /opt/yosys/ABC_REV)"^[[0m
+publication-census	UNKNOWN STEP	2026-11-26T04:45:35.3236259Z ^[[36;1myosys -V^[[0m
+publication-census	UNKNOWN STEP	2026-11-26T04:45:35.3236522Z ^[[36;1myosys -V | grep -F "Yosys ${YOSYS_VERSION#v}"^[[0m
+publication-census	UNKNOWN STEP	2026-11-26T04:45:35.3256357Z shell: /usr/bin/bash -e {0}
+publication-census	UNKNOWN STEP	2026-11-26T04:45:35.3256620Z env:
+publication-census	UNKNOWN STEP	2026-11-26T04:45:35.3256819Z   VERILATOR_VERSION: v5.050
+publication-census	UNKNOWN STEP	2026-11-26T04:45:35.3257055Z   YOSYS_VERSION: v0.66
+publication-census	UNKNOWN STEP	2026-11-26T04:45:35.3257426Z   PIP_CONSTRAINT: <home-path>/work/milan-fpga/milan-fpga/ci/constraints-ci.txt
+publication-census	UNKNOWN STEP	2026-11-26T04:45:35.3257825Z   CI_BUILD_JOBS: 4
+publication-census	UNKNOWN STEP	2026-11-26T04:45:35.3258036Z   CI_TOOL_BUILD_JOBS: 4
+publication-census	UNKNOWN STEP	2026-11-26T04:45:35.3258483Z   CI_CAMPAIGN_JOBS: 4
+publication-census	UNKNOWN STEP	2026-11-26T04:45:35.3258741Z   VERILATOR_JOBS: 4
+publication-census	UNKNOWN STEP	2026-11-26T04:45:35.3258939Z   SIM_JOBS: 4
+publication-census	UNKNOWN STEP	2026-11-26T04:45:35.3259152Z   MAKEFLAGS: -j1 --no-print-directory
+publication-census	UNKNOWN STEP	2026-11-26T04:45:35.3259418Z   CI_CENSUS_JOBS: 4
+publication-census	UNKNOWN STEP	2026-11-26T04:45:35.3259616Z ##[endgroup]
+publication-census	UNKNOWN STEP	2026-11-26T04:45:35.3394213Z bundled ABC: 5d51a5e420f5de493d07bf61109a977248c86ffb
+publication-census	UNKNOWN STEP	2026-11-26T04:45:35.3424158Z Yosys 0.66 (git sha1 86f2ddebc, g++ 13.3.0-6ubuntu2~24.04.1 -fPIC -O3)
+publication-census	UNKNOWN STEP	2026-11-26T04:45:35.3472309Z Yosys 0.66 (git sha1 86f2ddebc, g++ 13.3.0-6ubuntu2~24.04.1 -fPIC -O3)
+publication-census	UNKNOWN STEP	2026-11-26T04:45:35.4254493Z ##[group]Run actions/cache@v4
+publication-census	UNKNOWN STEP	2026-11-26T04:45:35.4254823Z with:
+publication-census	UNKNOWN STEP	2026-11-26T04:45:35.4255094Z   path: <home-path>/work/_temp/ci-sv2v-cache
+publication-census	UNKNOWN STEP	2026-11-26T04:45:35.4256035Z   key: sv2v-v0.0.12-ff8c9eea5bc029b372fb4953427625cddb7cf7e58c1240623ac9f260818d5a00-aa130cde3f89d5df9ea7f65b2511a7df2485907f5edf91bb356a311b83c0f291-Linux
+publication-census	UNKNOWN STEP	2026-11-26T04:45:35.4256975Z   enableCrossOsArchive: false
+publication-census	UNKNOWN STEP	2026-11-26T04:45:35.4257286Z   fail-on-cache-miss: false
+publication-census	UNKNOWN STEP	2026-11-26T04:45:35.4257577Z   lookup-only: false
+publication-census	UNKNOWN STEP	2026-11-26T04:45:35.4257839Z   save-always: false
+publication-census	UNKNOWN STEP	2026-11-26T04:45:35.4258082Z env:
+publication-census	UNKNOWN STEP	2026-11-26T04:45:35.4258607Z   VERILATOR_VERSION: v5.050
+publication-census	UNKNOWN STEP	2026-11-26T04:45:35.4258909Z   YOSYS_VERSION: v0.66
+publication-census	UNKNOWN STEP	2026-11-26T04:45:35.4259291Z   PIP_CONSTRAINT: <home-path>/work/milan-fpga/milan-fpga/ci/constraints-ci.txt
+publication-census	UNKNOWN STEP	2026-11-26T04:45:35.4259700Z   CI_BUILD_JOBS: 4
+publication-census	UNKNOWN STEP	2026-11-26T04:45:35.4259910Z   CI_TOOL_BUILD_JOBS: 4
+publication-census	UNKNOWN STEP	2026-11-26T04:45:35.4260130Z   CI_CAMPAIGN_JOBS: 4
+publication-census	UNKNOWN STEP	2026-11-26T04:45:35.4260333Z   VERILATOR_JOBS: 4
+publication-census	UNKNOWN STEP	2026-11-26T04:45:35.4260589Z   SIM_JOBS: 4
+publication-census	UNKNOWN STEP	2026-11-26T04:45:35.4260807Z   MAKEFLAGS: -j1 --no-print-directory
+publication-census	UNKNOWN STEP	2026-11-26T04:45:35.4261071Z   CI_CENSUS_JOBS: 4
+publication-census	UNKNOWN STEP	2026-11-26T04:45:35.4261266Z ##[endgroup]
+publication-census	UNKNOWN STEP	2026-11-26T04:45:35.5346138Z (node:2539) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+publication-census	UNKNOWN STEP	2026-11-26T04:45:35.5347082Z (Use `node --trace-deprecation ...` to show where the warning was created)
+publication-census	UNKNOWN STEP	2026-11-26T04:45:35.6902044Z Cache hit for: sv2v-v0.0.12-ff8c9eea5bc029b372fb4953427625cddb7cf7e58c1240623ac9f260818d5a00-aa130cde3f89d5df9ea7f65b2511a7df2485907f5edf91bb356a311b83c0f291-Linux
+publication-census	UNKNOWN STEP	2026-11-26T04:45:35.7031260Z (node:2539) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+publication-census	UNKNOWN STEP	2026-11-26T04:45:36.1619336Z Received 2157523 of 2157523 (100.0%), 6.3 MBs/sec
+publication-census	UNKNOWN STEP	2026-11-26T04:45:36.1620044Z Cache Size: ~2 MB (2157523 B)
+publication-census	UNKNOWN STEP	2026-11-26T04:45:36.1646197Z [command]/usr/bin/tar -xf <home-path>/work/_temp/1ff70b67-5288-45e9-9f2f-d8d6bfc4bb0d/cache.tzst -P -C <home-path>/work/milan-fpga/milan-fpga --use-compress-program unzstd
+publication-census	UNKNOWN STEP	2026-11-26T04:45:36.1747925Z Cache restored successfully
+publication-census	UNKNOWN STEP	2026-11-26T04:45:36.1826760Z Cache restored from key: sv2v-v0.0.12-ff8c9eea5bc029b372fb4953427625cddb7cf7e58c1240623ac9f260818d5a00-aa130cde3f89d5df9ea7f65b2511a7df2485907f5edf91bb356a311b83c0f291-Linux
+publication-census	UNKNOWN STEP	2026-11-26T04:45:36.1932971Z ##[group]Run set -euo pipefail
+publication-census	UNKNOWN STEP	2026-11-26T04:45:36.1933451Z ^[[36;1mset -euo pipefail^[[0m
+publication-census	UNKNOWN STEP	2026-11-26T04:45:36.1933894Z ^[[36;1mver=v0.0.12^[[0m
+publication-census	UNKNOWN STEP	2026-11-26T04:45:36.1934445Z ^[[36;1msha256=ff8c9eea5bc029b372fb4953427625cddb7cf7e58c1240623ac9f260818d5a00^[[0m
+publication-census	UNKNOWN STEP	2026-11-26T04:45:36.1935175Z ^[[36;1murl="https://github.com/zachjs/sv2v/releases/download/${ver}/sv2v-Linux.zip"^[[0m
+publication-census	UNKNOWN STEP	2026-11-26T04:45:36.1935795Z ^[[36;1mmkdir -p "$RUNNER_TEMP/ci-sv2v-cache"^[[0m
+publication-census	UNKNOWN STEP	2026-11-26T04:45:36.1936267Z ^[[36;1marchive="$RUNNER_TEMP/ci-sv2v-cache/sv2v.zip"^[[0m
+publication-census	UNKNOWN STEP	2026-11-26T04:45:36.1936848Z ^[[36;1mif [ ! -f "$archive" ]; then curl -fsSL "$url" -o "$archive"; fi^[[0m
+publication-census	UNKNOWN STEP	2026-11-26T04:45:36.1937468Z ^[[36;1mecho "${sha256}  $archive" | sha256sum -c -^[[0m
+publication-census	UNKNOWN STEP	2026-11-26T04:45:36.1937913Z ^[[36;1munzip -q -o "$archive" -d /tmp/sv2v^[[0m
+publication-census	UNKNOWN STEP	2026-11-26T04:45:36.1938810Z ^[[36;1msudo install -m755 "$(find /tmp/sv2v -name sv2v -type f | head -1)" \^[[0m
+publication-census	UNKNOWN STEP	2026-11-26T04:45:36.1996025Z ^[[36;1m  /usr/local/bin/sv2v^[[0m
+publication-census	UNKNOWN STEP	2026-11-26T04:45:36.1996498Z ^[[36;1msv2v --version^[[0m
+publication-census	UNKNOWN STEP	2026-11-26T04:45:36.2017573Z shell: /usr/bin/bash -e {0}
+publication-census	UNKNOWN STEP	2026-11-26T04:45:36.2017834Z env:
+publication-census	UNKNOWN STEP	2026-11-26T04:45:36.2018035Z   VERILATOR_VERSION: v5.050
+publication-census	UNKNOWN STEP	2026-11-26T04:45:36.2018539Z   YOSYS_VERSION: v0.66
+publication-census	UNKNOWN STEP	2026-11-26T04:45:36.2018917Z   PIP_CONSTRAINT: <home-path>/work/milan-fpga/milan-fpga/ci/constraints-ci.txt
+publication-census	UNKNOWN STEP	2026-11-26T04:45:36.2019337Z   CI_BUILD_JOBS: 4
+publication-census	UNKNOWN STEP	2026-11-26T04:45:36.2019541Z   CI_TOOL_BUILD_JOBS: 4
+publication-census	UNKNOWN STEP	2026-11-26T04:45:36.2019760Z   CI_CAMPAIGN_JOBS: 4
+publication-census	UNKNOWN STEP	2026-11-26T04:45:36.2019965Z   VERILATOR_JOBS: 4
+publication-census	UNKNOWN STEP	2026-11-26T04:45:36.2020177Z   SIM_JOBS: 4
+publication-census	UNKNOWN STEP	2026-11-26T04:45:36.2020392Z   MAKEFLAGS: -j1 --no-print-directory
+publication-census	UNKNOWN STEP	2026-11-26T04:45:36.2020668Z   CI_CENSUS_JOBS: 4
+publication-census	UNKNOWN STEP	2026-11-26T04:45:36.2020874Z ##[endgroup]
+publication-census	UNKNOWN STEP	2026-11-26T04:45:36.2113178Z <home-path>/work/_temp/ci-sv2v-cache/sv2v.zip: OK
+publication-census	UNKNOWN STEP	2026-11-26T04:45:36.2933017Z sv2v v0.0.12
+publication-census	UNKNOWN STEP	2026-11-26T04:45:36.3031639Z ##[group]Run set -euo pipefail
+publication-census	UNKNOWN STEP	2026-11-26T04:45:36.3031981Z ^[[36;1mset -euo pipefail^[[0m
+publication-census	UNKNOWN STEP	2026-11-26T04:45:36.3032287Z ^[[36;1mpython3 -m pip install --quiet pyyaml^[[0m
+publication-census	UNKNOWN STEP	2026-11-26T04:45:36.3032786Z ^[[36;1mpython3 sw/mailbox/publication_census.py --check --selftest --jobs "$CI_CENSUS_JOBS"^[[0m
+publication-census	UNKNOWN STEP	2026-11-26T04:45:36.3053674Z shell: /usr/bin/bash -e {0}
+publication-census	UNKNOWN STEP	2026-11-26T04:45:36.3053941Z env:
+publication-census	UNKNOWN STEP	2026-11-26T04:45:36.3054141Z   VERILATOR_VERSION: v5.050
+publication-census	UNKNOWN STEP	2026-11-26T04:45:36.3054396Z   YOSYS_VERSION: v0.66
+publication-census	UNKNOWN STEP	2026-11-26T04:45:36.3054786Z   PIP_CONSTRAINT: <home-path>/work/milan-fpga/milan-fpga/ci/constraints-ci.txt
+publication-census	UNKNOWN STEP	2026-11-26T04:45:36.3055211Z   CI_BUILD_JOBS: 4
+publication-census	UNKNOWN STEP	2026-11-26T04:45:36.3055440Z   CI_TOOL_BUILD_JOBS: 4
+publication-census	UNKNOWN STEP	2026-11-26T04:45:36.3055668Z   CI_CAMPAIGN_JOBS: 4
+publication-census	UNKNOWN STEP	2026-11-26T04:45:36.3055880Z   VERILATOR_JOBS: 4
+publication-census	UNKNOWN STEP	2026-11-26T04:45:36.3056089Z   SIM_JOBS: 4
+publication-census	UNKNOWN STEP	2026-11-26T04:45:36.3056308Z   MAKEFLAGS: -j1 --no-print-directory
+publication-census	UNKNOWN STEP	2026-11-26T04:45:36.3056585Z   CI_CENSUS_JOBS: 4
+publication-census	UNKNOWN STEP	2026-11-26T04:45:36.3056831Z ##[endgroup]
+publication-census	UNKNOWN STEP	2026-11-26T04:45:39.8945329Z publication census: elaborating hdl/milan/milan_datapath.sv with sv2v v0.0.12, Yosys 0.66
+publication-census	UNKNOWN STEP	2026-11-26T04:51:46.5041033Z shape recipe: 114680 cells, 1440 named nets; 41 read(s), 4 unread net(s); the module's defaults
+publication-census	UNKNOWN STEP	2026-11-26T04:51:46.5042409Z   ports of pp_shadow: 219: C 26, F 28, R 34, E 6, M 14, G 111; G cones end at csr 7, memory 20, shim 4, reboot 1, wire 0, stopped at 27 net(s) removed with the wrapper
+publication-census	UNKNOWN STEP	2026-11-26T04:51:46.5043755Z   split ctl ports: 80: C 12, F 16, R 34, E 6, M 12; 860 live bit(s) consumed, 4 port(s) read in neither placement
+publication-census	UNKNOWN STEP	2026-11-26T04:51:46.5046437Z shape endstation_arty_4x4: 269136 cells, 1471 named nets; 41 read(s), 4 unread net(s); AUDIO_IF_CLK_HZ_P=24576000 AUDIO_IF_I2S_PAIR_P=1 AUDIO_IF_MASTER_P=1 AUDIO_IF_SLOTS_P=8 GPTP_ETH_CYC_PER_OCTET_P=2 GPTP_ETH_TICK_NS_P=40 GPTP_PLANE_EN_P=1 MILAN_CLK_FREQ_HZ=50000000 N_STREAMS=4 PP_DESC_BASE_P=1336934400 PP_RESP_BASE_P=1337978880 REBOOT_MAC_MIN_MBPS_P=10 REBOOT_MAC_TX_OCTETS_P=11656 TALKER_WIRE_CHANS_P=4
+publication-census	UNKNOWN STEP	2026-11-26T04:51:46.5049054Z   ports of pp_shadow: 219: C 26, F 28, R 34, E 6, M 14, G 111; G cones end at csr 7, memory 20, shim 4, reboot 1, wire 0, stopped at 27 net(s) removed with the wrapper
+publication-census	UNKNOWN STEP	2026-11-26T04:51:46.5049928Z   split ctl ports: 80: C 12, F 16, R 34, E 6, M 12; 1916 live bit(s) consumed, 4 port(s) read in neither placement
+publication-census	UNKNOWN STEP	2026-11-26T04:51:46.5051753Z shape endstation_arty_8ch: 312832 cells, 1471 named nets; 41 read(s), 4 unread net(s); AUDIO_IF_CLK_HZ_P=24576000 AUDIO_IF_I2S_PAIR_P=1 AUDIO_IF_MASTER_P=1 AUDIO_IF_SLOTS_P=8 GPTP_ETH_CYC_PER_OCTET_P=2 GPTP_ETH_TICK_NS_P=40 GPTP_PLANE_EN_P=1 MILAN_CLK_FREQ_HZ=50000000 N_STREAMS=4 PP_DESC_BASE_P=1336934400 PP_RESP_BASE_P=1337978880 REBOOT_MAC_MIN_MBPS_P=10 REBOOT_MAC_TX_OCTETS_P=11656 TALKER_WIRE_CHANS_P=8
+publication-census	UNKNOWN STEP	2026-11-26T04:51:46.5053574Z   ports of pp_shadow: 219: C 26, F 28, R 34, E 6, M 14, G 111; G cones end at csr 7, memory 20, shim 4, reboot 1, wire 0, stopped at 27 net(s) removed with the wrapper
+publication-census	UNKNOWN STEP	2026-11-26T04:51:46.5054401Z   split ctl ports: 80: C 12, F 16, R 34, E 6, M 12; 1916 live bit(s) consumed, 4 port(s) read in neither placement
+publication-census	UNKNOWN STEP	2026-11-26T04:51:46.5055790Z shape endstation_arty_current: 114679 cells, 1440 named nets; 41 read(s), 4 unread net(s); AUDIO_IF_SLOTS_P=0 GPTP_ETH_CYC_PER_OCTET_P=2 GPTP_ETH_TICK_NS_P=40 GPTP_PLANE_EN_P=1 MILAN_CLK_FREQ_HZ=50000000 N_STREAMS=1 PP_DESC_BASE_P=1340080128 PP_RESP_BASE_P=1341124608 REBOOT_MAC_MIN_MBPS_P=10 REBOOT_MAC_TX_OCTETS_P=11656
+publication-census	UNKNOWN STEP	2026-11-26T04:51:46.5057316Z   ports of pp_shadow: 219: C 26, F 28, R 34, E 6, M 14, G 111; G cones end at csr 7, memory 20, shim 4, reboot 1, wire 0, stopped at 27 net(s) removed with the wrapper
+publication-census	UNKNOWN STEP	2026-11-26T04:51:46.5058077Z   split ctl ports: 80: C 12, F 16, R 34, E 6, M 12; 860 live bit(s) consumed, 4 port(s) read in neither placement
+publication-census	UNKNOWN STEP	2026-11-26T04:51:46.5060381Z shape endstation_ax7101_1x1_tdm8: 118872 cells, 1445 named nets; 41 read(s), 4 unread net(s); AUDIO_IF_CLK_HZ_P=24576000 AUDIO_IF_MASTER_P=1 AUDIO_IF_RENDER_SLOTS_P=8 AUDIO_IF_SLOTS_P=8 GPTP_EGRESS_LAT_NS_P=219 GPTP_INGRESS_LAT_NS_P=656 GPTP_PLANE_EN_P=1 I2SPB_P=0 LOOPBACK_P=1 LPF_P=0 MILAN_CLK_FREQ_HZ=50000000 N_STREAMS=1 PP_DESC_BASE_P=2138046464 PP_RESP_BASE_P=2139090944 REBOOT_MAC_MIN_MBPS_P=1000 REBOOT_MAC_TX_OCTETS_P=11656 TALKER_WIRE_CHANS_P=8
+publication-census	UNKNOWN STEP	2026-11-26T04:51:46.5062246Z   ports of pp_shadow: 219: C 26, F 28, R 34, E 6, M 14, G 111; G cones end at csr 7, memory 20, shim 4, reboot 1, wire 0, stopped at 27 net(s) removed with the wrapper
+publication-census	UNKNOWN STEP	2026-11-26T04:51:46.5063012Z   split ctl ports: 80: C 12, F 16, R 34, E 6, M 12; 1025 live bit(s) consumed, 4 port(s) read in neither placement
+publication-census	UNKNOWN STEP	2026-11-26T04:51:46.5064744Z shape endstation_ax7101_8x8: 558921 cells, 1495 named nets; 41 read(s), 4 unread net(s); AUDIO_IF_CLK_HZ_P=98304000 AUDIO_IF_MASTER_P=1 AUDIO_IF_RENDER_SLOTS_P=1 AUDIO_IF_SLOTS_P=32 DPROBES_P=0 GPTP_EGRESS_LAT_NS_P=219 GPTP_INGRESS_LAT_NS_P=656 GPTP_PLANE_EN_P=1 I2SPB_P=0 LPF_P=0 LTAP_P=0 MILAN_CLK_FREQ_HZ=50000000 N_STREAMS=8 PP_DESC_BASE_P=2138046464 PP_RESP_BASE_P=2139090944 REBOOT_MAC_MIN_MBPS_P=1000 REBOOT_MAC_TX_OCTETS_P=11656 TALKER_WIRE_CHANS_P=8
+publication-census	UNKNOWN STEP	2026-11-26T04:51:46.5066562Z   ports of pp_shadow: 219: C 26, F 28, R 34, E 6, M 14, G 111; G cones end at csr 7, memory 20, shim 4, reboot 1, wire 0, stopped at 27 net(s) removed with the wrapper
+publication-census	UNKNOWN STEP	2026-11-26T04:51:46.5067316Z   split ctl ports: 80: C 12, F 16, R 34, E 6, M 12; 3104 live bit(s) consumed, 4 port(s) read in neither placement
+publication-census	UNKNOWN STEP	2026-11-26T04:51:46.5067837Z == publication census: 6 shape(s), checks: 246   failures: 0 ==
+publication-census	UNKNOWN STEP	2026-11-26T04:51:46.5068684Z 26 class-D net(s) from the wrapper cell's ports, 4 unread; 41 read(s) of 22 class-D net(s) in each shape; RESULT: PASS
+publication-census	UNKNOWN STEP	2026-11-26T04:51:46.5069378Z publication census: 6 shape(s) elaborated and classified in 367 s at --jobs 4
+publication-census	UNKNOWN STEP	2026-11-26T04:53:48.9450379Z [ok] planted R583-5 S1: a read inside a generate branch only N_STREAMS > 1 builds: refused (unmapped read: pp_cd_srp_over_limit_w -> probe_w reaches the wire; name its block field or its ruled exclusion)
+publication-census	UNKNOWN STEP	2026-11-26T04:54:16.6510576Z [ok] planted R583-5 S2: a read inside a generate loop with no iteration at one stream: refused (unmapped read: pp_cd_srp_over_limit_w -> probe_v reaches the wire; name its block field or its ruled exclusion)
+publication-census	UNKNOWN STEP	2026-11-26T04:54:16.6519732Z [ok] planted R583-5 S3: a read inside a generate branch only LOOPBACK_P != 0 builds: refused (unmapped read: pp_cd_srp_over_limit_w -> probe_w reaches the wire; name its block field or its ruled exclusion)
+publication-census	UNKNOWN STEP	2026-11-26T04:54:16.6539531Z [ok] planted R582-5 arm B: a read inside if (N_STREAMS > 1) begin ... end: refused (unmapped read: pp_cd_srp_over_limit_w -> probe_w reaches the wire; name its block field or its ruled exclusion)
+publication-census	UNKNOWN STEP	2026-11-26T04:56:15.9926007Z [ok] planted R582-5 arm E: a status consumer added to the g_aaf_stream_en loop's gate: refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at aaf_packetizer.stream_en_i; chan_map_capture.map_wr_addr_i; chan_map_capture.map_wr_data_i; chan_map_capture.map_wr_en_i; chan_map_render.map_wr_addr_i; chan_map_render.map_wr_data_i; chan_map_render.map_wr_en_i; csr.i_pp_nvm_blank; csr.i_pp_restore_busy; csr.i_pp_restore_done; csr.i_pp_restore_fail; csr.i_tlk_gate_v; media_clock_restart.streaming_i; pp_shadow.amap_alarm_i; pp_shadow.amap_data_i; pp_shadow.amap_edit_data_i; pp_shadow.amap_edit_wait_i; pp_shadow.amap_live_wr_i; pp_shadow.amap_unflushed_i; pp_shadow.amap_wait_i; pp_shadow.enable_i; pp_shadow.mrec_abort_i; pp_shadow.mrec_len_i; pp_shadow.mrec_op_i; pp_shadow.mrec_region_i; pp_shadow.mrec_req_i; pp_shadow.mrec_rready_i; pp_shadow.mrec_wdata_i; pp_shadow.mrec_wvalid_i; talker_diag.streaming_i)
+publication-census	UNKNOWN STEP	2026-11-26T04:56:16.3831259Z [ok] planted a read inside a generate branch only a multi-stream shape's header builds: refused (unmapped read: pp_cd_srp_over_limit_w -> probe_w reaches the wire; name its block field or its ruled exclusion)
+publication-census	UNKNOWN STEP	2026-11-26T04:56:56.5540843Z [ok] planted a field read that reaches CSR read-back only in the multi-stream shapes: refused (the reads differ between the shapes: pp_aecp_strm_started_w -> acmpl_stopped_v_w reaching csr, wire only in endstation_arty_4x4)
+publication-census	UNKNOWN STEP	2026-11-26T04:56:56.5568832Z [ok] positive control, the tracked sources: 0 finding(s)
+publication-census	UNKNOWN STEP	2026-11-26T04:56:56.5599466Z [ok] planted port census: a port no class names: refused (unmapped port: aecp_identify_o (output) of pp_shadow is in no class; name its disposition)
+publication-census	UNKNOWN STEP	2026-11-26T04:56:56.5609559Z [ok] planted port census: a class C row the class-D census does not hold: refused (class C names aecp_identify_o, which is not the class-D census's population)
+publication-census	UNKNOWN STEP	2026-11-26T04:56:56.5639674Z [ok] planted port census: an F carrier narrower than its port: refused (F port aecp_cur_config_o is 16 bits in the shape recipe; its carrier F_ENTITY.IDENTIFY holds 8 for 1 value(s), of at most 1)
+publication-census	UNKNOWN STEP	2026-11-26T04:56:56.5641774Z [ok] planted port census: the exclusion naming a net no G cone reaches: refused (the exclusion names amr_probe_r, which no G cone of this shape reaches: drop it)
+publication-census	UNKNOWN STEP	2026-11-26T04:56:56.5643788Z [ok] planted port census: a CSR terminal's net also read past it: refused (G port host_rdata_o reaches the wire at u_probe_g.a_i: a value the split placement removes still has a consumer)
+publication-census	UNKNOWN STEP	2026-11-26T04:56:56.5645968Z [ok] planted port census: the REBOOT request read past its terminal: refused (G port reboot_req_o reaches the wire at u_probe_g.a_i: a value the split placement removes still has a consumer)
+publication-census	UNKNOWN STEP	2026-11-26T04:56:56.5648551Z [ok] planted port census: a G output on a datapath output outside the memory masters: refused (G port maap_state_o reaches the wire at the datapath output probe_o: a value the split placement removes still has a consumer)
+publication-census	UNKNOWN STEP	2026-11-26T04:59:41.7789614Z [ok] positive control, the tracked sources in both placements: 0 finding(s)
+publication-census	UNKNOWN STEP	2026-11-26T04:59:41.7819498Z [ok] planted split census: a ctl port two classes name: refused (split port o_ctl_gm_id is named in classes E and M: one port, one class)
+publication-census	UNKNOWN STEP	2026-11-26T04:59:41.7849763Z [ok] planted split census: a split row naming a port the datapath does not declare: refused (stale split row: class F names i_ctl_probe_gone, which the split datapath does not declare)
+publication-census	UNKNOWN STEP	2026-11-26T04:59:41.7879759Z [ok] planted split census: a split carrier the contract does not define: refused (split F port i_ctl_identify: its carrier F_ENTITY.IDENT is not a field of contract 2.3's face block)
+publication-census	UNKNOWN STEP	2026-11-26T04:59:41.7909708Z [ok] planted split census: a split carrier narrower than its port: refused (split F port i_ctl_cur_config is 16 bits; its carrier F_ENTITY.IDENTIFY holds 8)
+publication-census	UNKNOWN STEP	2026-11-26T04:59:41.7999972Z [ok] planted split census: a face event no row carries: refused (the face event AMAP_LIVE_WRITE is carried by no port of the split datapath)
+publication-census	UNKNOWN STEP	2026-11-26T04:59:41.8029957Z [ok] planted split census: a split row standing for another setting: refused (split port i_ctl_identify stands for aecp_cur_config_o, whose carrier F_ENTITY.CUR_CONFIG is not its own, F_ENTITY.IDENTIFY)
+publication-census	UNKNOWN STEP	2026-11-26T04:59:41.8059825Z [ok] planted a field the contract lacks: refused (pp_cd_srp_tk_decl_state_w -> crft_class_a_w: the census names TALKER_DECL.DECLARE, which the publication block does not define)
+publication-census	UNKNOWN STEP	2026-11-26T04:59:41.8061382Z [ok] planted port census: a port two classes name: refused (port gm_id_i is named in classes G and M: one port, one class)
+publication-census	UNKNOWN STEP	2026-11-26T04:59:41.8062806Z [ok] planted port census: an F carrier contract 2.3 does not define: refused (F port aecp_identify_o: its carrier F_ENTITY.IDENT is not defined by contract 2.3)
+publication-census	UNKNOWN STEP	2026-11-26T04:59:41.8064709Z [ok] planted port census: a per-sink carrier counted once: refused (F port aecp_fmt_in_o is 128 bits in the shape recipe; its carrier F_FMT_IN_LO.FMT + F_FMT_IN_HI.FMT holds 64 for 1 value(s), of at most 1)
+publication-census	UNKNOWN STEP	2026-11-26T04:59:41.8066743Z [ok] planted port census: the exclusion naming a net outside the map writer: refused (the exclusion names pp_amap_edit_req_w, which is not a net of the map writer and restore (amr_*))
+publication-census	UNKNOWN STEP	2026-11-26T04:59:41.8069448Z [ok] planted port census: a memory-master terminal's net also read past it: refused (G port desc_mem_req_valid_o reaches the wire at u_probe_g.a_i: a value the split placement removes still has a consumer)
+publication-census	UNKNOWN STEP	2026-11-26T04:59:41.8071537Z [ok] planted port census: a MAAP shim output read past pp_shadow: refused (G port maap_req_valid_o reaches the wire at pp_maap_shim.req_valid_i: a value the split placement removes still has a consumer)
+publication-census	UNKNOWN STEP	2026-11-26T04:59:41.8073201Z [ok] planted a stale row: refused (stale row: the datapath no longer reads pp_cd_srp_granted_slope_bps_w into lwsrp_idle_slope)
+publication-census	UNKNOWN STEP	2026-11-26T04:59:41.8074648Z [ok] planted port census: a row naming a port the wrapper does not declare: refused (stale port row: class G names probe_gone_o, which KL_pp_shadow does not declare)
+publication-census	UNKNOWN STEP	2026-11-26T04:59:41.8076138Z [ok] planted port census: an M carrier KL_mbx does not declare: refused (M port link_up_i: its carrier link_i is not a port of KL_mbx)
+publication-census	UNKNOWN STEP	2026-11-26T04:59:41.8077967Z [ok] planted port census: the exclusion emptied: the map writer's cones reach the wire: refused (G port mrec_gnt_o reaches the wire at chan_map_capture.map_wr_addr_i: a value the split placement removes still has a consumer)
+publication-census	UNKNOWN STEP	2026-11-26T04:59:41.8080345Z [ok] planted port census: a G output read by another module's input: refused (G port maap_state_o reaches the wire at u_probe_g.a_i: a value the split placement removes still has a consumer)
+publication-census	UNKNOWN STEP	2026-11-26T04:59:41.8082207Z [ok] planted port census: a map-record output read past the exclusion: refused (G port mrec_gnt_o reaches the wire at u_probe_g.a_i: a value the split placement removes still has a consumer)
+publication-census	UNKNOWN STEP	2026-11-26T04:59:41.8084182Z [ok] planted port census: a G output on a CSR input outside the processor-status face: refused (G port rx_frames_o reaches the wire at csr.i_probe_g: a value the split placement removes still has a consumer)
+publication-census	UNKNOWN STEP	2026-11-26T04:59:41.8085879Z [ok] negative control, a class-D wire named in a comment: 0 finding(s)
+publication-census	UNKNOWN STEP	2026-11-26T04:59:41.8087101Z [ok] planted an unmapped read on the wire: refused (unmapped read: pp_cd_srp_over_limit_w -> crft_class_a_w reaches the wire; name its block field or its ruled exclusion)
+publication-census	UNKNOWN STEP	2026-11-26T04:59:41.8120278Z [ok] planted an unmapped read in a declaration's initialiser: refused (unmapped read: pp_cd_srp_granted_slope_bps_w -> planted_w reaches the wire; name its block field or its ruled exclusion)
+publication-census	UNKNOWN STEP	2026-11-26T04:59:41.8122279Z [ok] planted an unmapped read in an always block's condition: refused (unmapped read: pp_cd_srp_lstn_decl_state_w -> crft_stat_c reaches csr; name its block field or its ruled exclusion)
+publication-census	UNKNOWN STEP	2026-11-26T04:59:41.8124125Z [ok] planted a status read on the wire: refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at crf_tx.vlan_en_i)
+publication-census	UNKNOWN STEP	2026-11-26T04:59:41.8125822Z [ok] planted a GET_STREAM_INFO read on the wire: refused (pp_cd_srp_tk_decl_state_w -> gsi_tkdcl_w: counted as processor, but it reaches the wire at crf_tx.vlan_en_i)
+publication-census	UNKNOWN STEP	2026-11-26T04:59:41.8127678Z [ok] planted the started level dropped from the accept: refused (unmapped read: pp_cd_acmp_bound_w -> acmpl_stopped_v_w reaches the wire; name its block field or its ruled exclusion)
+publication-census	UNKNOWN STEP	2026-11-26T04:59:41.8129992Z [ok] planted R582-2: a class-D output wired off the pp_cd_ prefix and read on the wire: refused (unmapped read: probe_dom_chg_w -> crft_class_a_w reaches the wire; name its block field or its ruled exclusion)
+publication-census	UNKNOWN STEP	2026-11-26T04:59:41.8131982Z [ok] planted R582-2: an alias wire read on the wire: refused (unmapped read: pp_cd_srp_over_limit_w -> probe_alias_w reaches the wire; name its block field or its ruled exclusion)
+publication-census	UNKNOWN STEP	2026-11-26T04:59:56.5808136Z [ok] planted R582-2: a case selector in an always block: refused (unmapped read: pp_cd_srp_over_limit_w -> crft_stat_c reaches csr; name its block field or its ruled exclusion)
+publication-census	UNKNOWN STEP	2026-11-26T05:00:03.8590247Z [ok] planted R582-2: a case item label in an always block: refused (unmapped read: pp_cd_srp_over_limit_w -> crft_stat_c reaches csr; name its block field or its ruled exclusion)
+publication-census	UNKNOWN STEP	2026-11-26T05:00:15.1731008Z [ok] planted R582-2: a function body called on the wire: refused (unmapped read: pp_cd_srp_over_limit_w -> crft_class_a_w reaches the wire; name its block field or its ruled exclusion)
+publication-census	UNKNOWN STEP	2026-11-26T05:00:22.9409040Z [ok] planted R583-2: a plain assign on the wire (its control): refused (unmapped read: pp_cd_srp_over_limit_w -> probe_w reaches the wire; name its block field or its ruled exclusion)
+publication-census	UNKNOWN STEP	2026-11-26T05:00:36.2575703Z [ok] planted R583-2: a case item label in an always_comb: refused (unmapped read: pp_cd_srp_over_limit_w -> probe_w reaches the wire; name its block field or its ruled exclusion)
+publication-census	UNKNOWN STEP	2026-11-26T05:00:45.7280208Z [ok] planted R583-2: a positional port connection: refused (unmapped read: pp_cd_srp_over_limit_w -> u_probe_pos.a reaches the wire; name its block field or its ruled exclusion)
+publication-census	UNKNOWN STEP	2026-11-26T05:00:56.7600472Z [ok] planted R583-2: an implicit .name port connection: refused (unmapped read: pp_cd_srp_over_limit_w -> u_probe_dot.pp_cd_srp_over_limit_w reaches the wire; name its block field or its ruled exclusion)
+publication-census	UNKNOWN STEP	2026-11-26T05:01:04.0490142Z [ok] planted R583-2: a function body's return: refused (unmapped read: pp_cd_srp_over_limit_w -> probe_w reaches the wire; name its block field or its ruled exclusion)
+publication-census	UNKNOWN STEP	2026-11-26T05:01:19.1760360Z [ok] planted R582-3: lwsrp_talker_declared routed to the wire by a plain assign (its control): refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at crf_tx.vlan_en_i)
+publication-census	UNKNOWN STEP	2026-11-26T05:01:28.2790203Z [ok] planted R582-3: lwsrp_talker_declared routed to the wire by a positional port: refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at u_probe_pos.a)
+publication-census	UNKNOWN STEP	2026-11-26T05:01:38.2690498Z [ok] planted R582-3: lwsrp_talker_declared routed to the wire by an implicit .name port: refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at u_probe_dot.lwsrp_talker_declared)
+publication-census	UNKNOWN STEP	2026-11-26T05:01:45.0914235Z [ok] planted R582-3: lwsrp_talker_declared routed to the wire by a case item label: refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at crf_tx.vlan_en_i)
+publication-census	UNKNOWN STEP	2026-11-26T05:02:02.3970503Z [ok] planted R582-3: lwsrp_talker_declared routed to the wire by a function body's return: refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at crf_tx.vlan_en_i)
+publication-census	UNKNOWN STEP	2026-11-26T05:02:10.6250245Z [ok] planted R583-3: lwsrp_talker_declared as a register's event control: refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at u_probe_sink.a_i)
+publication-census	UNKNOWN STEP	2026-11-26T05:02:20.7780332Z [ok] planted R583-3: lwsrp_talker_declared on an input port whose name ends in _o: refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at u_probe_sink.a_o)
+publication-census	UNKNOWN STEP	2026-11-26T05:02:26.3800138Z [ok] planted R582-3: gsi_tkdcl_w routed to the wire by a plain assign (its control): refused (pp_cd_srp_tk_decl_state_w -> gsi_tkdcl_w: counted as processor, but it reaches the wire at crf_tx.vlan_en_i)
+publication-census	UNKNOWN STEP	2026-11-26T05:02:44.6560428Z [ok] planted R582-3: gsi_tkdcl_w routed to the wire by a positional port: refused (pp_cd_srp_tk_decl_state_w -> gsi_tkdcl_w: counted as processor, but it reaches the wire at u_probe_pos.a)
+publication-census	UNKNOWN STEP	2026-11-26T05:02:53.1510200Z [ok] planted R582-3: gsi_tkdcl_w routed to the wire by an implicit .name port: refused (pp_cd_srp_tk_decl_state_w -> gsi_tkdcl_w: counted as processor, but it reaches the wire at u_probe_dot.gsi_tkdcl_w)
+publication-census	UNKNOWN STEP	2026-11-26T05:03:02.8360048Z [ok] planted R582-3: gsi_tkdcl_w routed to the wire by a case item label: refused (pp_cd_srp_tk_decl_state_w -> gsi_tkdcl_w: counted as processor, but it reaches the wire at crf_tx.vlan_en_i)
+publication-census	UNKNOWN STEP	2026-11-26T05:03:08.1210352Z [ok] planted R582-3: gsi_tkdcl_w routed to the wire by a function body's return: refused (pp_cd_srp_tk_decl_state_w -> gsi_tkdcl_w: counted as processor, but it reaches the wire at crf_tx.vlan_en_i)
+publication-census	UNKNOWN STEP	2026-11-26T05:03:27.8630720Z [ok] planted R583-3: gsi_tkdcl_w as a register's event control: refused (pp_cd_srp_tk_decl_state_w -> gsi_tkdcl_w: counted as processor, but it reaches the wire at u_probe_sink.a_i)
+publication-census	UNKNOWN STEP	2026-11-26T05:03:35.2490202Z [ok] planted R583-3: gsi_tkdcl_w on an input port whose name ends in _o: refused (pp_cd_srp_tk_decl_state_w -> gsi_tkdcl_w: counted as processor, but it reaches the wire at u_probe_sink.a_o)
+publication-census	UNKNOWN STEP	2026-11-26T05:03:44.6801188Z [ok] planted R582-3 part 2: a positional port naming a status consumer, its output unused: refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at u_probe_pos.a)
+publication-census	UNKNOWN STEP	2026-11-26T05:03:50.2817827Z [ok] planted R583-3: a plain assign from the status consumer (its control): refused (pp_cd_srp_active_w -> lwsrp_res_active: counted as status, but it reaches the wire at u_probe_sink.a_i)
+publication-census	UNKNOWN STEP	2026-11-26T05:04:10.5126337Z [ok] planted R583-3: a case item label naming the status consumer: refused (pp_cd_srp_active_w -> lwsrp_res_active: counted as status, but it reaches the wire at u_probe_sink.a_i)
+publication-census	UNKNOWN STEP	2026-11-26T05:04:17.5040330Z [ok] planted R583-3: a function body returning the status consumer: refused (pp_cd_srp_active_w -> lwsrp_res_active: counted as status, but it reaches the wire at u_probe_sink.a_i)
+publication-census	UNKNOWN STEP	2026-11-26T05:04:26.9650268Z [ok] planted R583-3: the status consumer as a register's event control: refused (pp_cd_srp_active_w -> lwsrp_res_active: counted as status, but it reaches the wire at u_probe_sink.a_i)
+publication-census	UNKNOWN STEP	2026-11-26T05:04:32.7691388Z [ok] planted R583-3: the status consumer on an input port whose name ends in _o: refused (pp_cd_srp_active_w -> lwsrp_res_active: counted as status, but it reaches the wire at u_probe_sink.a_o)
+publication-census	UNKNOWN STEP	2026-11-26T05:04:52.7344985Z [ok] planted a relational <= in a case item label: refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at crf_tx.vlan_en_i)
+publication-census	UNKNOWN STEP	2026-11-26T05:05:00.4390157Z [ok] planted a function's output argument: refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at crf_tx.vlan_en_i)
+publication-census	UNKNOWN STEP	2026-11-26T05:05:09.4302379Z [ok] planted a task's output argument: refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at crf_tx.vlan_en_i)
+publication-census	UNKNOWN STEP	2026-11-26T05:05:15.7562544Z [ok] planted a macro call's argument, the macro defined in an included file: refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at u_probe_sink.a_i)
+publication-census	UNKNOWN STEP	2026-11-26T05:05:35.7070028Z [ok] planted the second assignment of a continuous assign list: refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at crf_tx.vlan_en_i)
+publication-census	UNKNOWN STEP	2026-11-26T05:05:42.9210224Z [ok] planted a read carried to another target of its block: refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at crf_tx.vlan_en_i)
+publication-census	UNKNOWN STEP	2026-11-26T05:05:52.0090165Z [ok] planted a struct member carrying the status consumer: refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at crf_tx.vlan_en_i)
+publication-census	UNKNOWN STEP	2026-11-26T05:05:58.8441232Z [ok] planted a status consumer written into a memory and read out of it: refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at u_probe_sink.a_i)
+publication-census	UNKNOWN STEP	2026-11-26T05:06:18.3010058Z [ok] planted a status consumer printed: refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at $display$0x55b72a08aea0:4914$32243.ARGS ($print, which has no output))
+publication-census	UNKNOWN STEP	2026-11-26T05:06:24.9008926Z [ok] planted a CSR block input outside the read-back face: refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at csr.i_tlk_gate_v)
+publication-census	UNKNOWN STEP	2026-11-26T05:06:34.6630169Z [ok] planted a read-back port of another milan_csr cell: refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at u_probe_csr.i_lwsrp_status)
+publication-census	UNKNOWN STEP	2026-11-26T05:06:41.0241385Z [ok] planted a wrapper input outside its answer face: refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at pp_shadow.cfg_maap_internal_i)
+publication-census	UNKNOWN STEP	2026-11-26T05:07:00.7580256Z [ok] planted R582-4: lwsrp_talker_declared, always_ff begin, an if-begin block (its control): refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at u_probe_sink.a_i)
+publication-census	UNKNOWN STEP	2026-11-26T05:07:07.2910407Z [ok] planted R582-4 E1: lwsrp_talker_declared, always_ff with no begin after the event control: refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at u_probe_sink.a_i)
+publication-census	UNKNOWN STEP	2026-11-26T05:07:17.2370635Z [ok] planted R582-4 E2: lwsrp_talker_declared, always_ff with no begin, if/else: refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at u_probe_sink.a_i)
+publication-census	UNKNOWN STEP	2026-11-26T05:07:23.7745193Z [ok] planted R582-4 E3: lwsrp_talker_declared, always_comb with no begin, case: refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at u_probe_sink.a_i)
+publication-census	UNKNOWN STEP	2026-11-26T05:07:23.7770029Z [ok] planted R582-4 E4: lwsrp_talker_declared, an event control qualified by iff: refused (the census cannot read it: the front end (sv2v) refused the datapath: hdl/milan/milan_datapath.sv:7263:32: Parse error: unexpected token 'iff' (KW_iff))
+publication-census	UNKNOWN STEP	2026-11-26T05:07:46.8460431Z [ok] planted R582-4: lwsrp_talker_declared, a plain blocking assignment (its control): refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at u_probe_sink.a_i)
+publication-census	UNKNOWN STEP	2026-11-26T05:07:50.5695642Z [ok] planted R582-4 E5: lwsrp_talker_declared, a compound assignment |=: refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at u_probe_sink.a_i)
+publication-census	UNKNOWN STEP	2026-11-26T05:07:50.5733550Z [ok] planted R582-4: lwsrp_talker_declared, alias with the consumer on the right (its control): refused (the census cannot read it: the front end (sv2v) refused the datapath: hdl/milan/milan_datapath.sv:7263:3: Parse error: missing expected `endmodule`)
+publication-census	UNKNOWN STEP	2026-11-26T05:07:50.5746128Z [ok] planted R582-4 E6: lwsrp_talker_declared, alias with the consumer on the left: refused (the census cannot read it: the front end (sv2v) refused the datapath: hdl/milan/milan_datapath.sv:7263:3: Parse error: missing expected `endmodule`)
+publication-census	UNKNOWN STEP	2026-11-26T05:08:06.3300908Z [ok] planted R582-4: gsi_tkdcl_w, always_ff begin, an if-begin block (its control): refused (pp_cd_srp_tk_decl_state_w -> gsi_tkdcl_w: counted as processor, but it reaches the wire at u_probe_sink.a_i)
+publication-census	UNKNOWN STEP	2026-11-26T05:08:07.1160259Z [ok] planted R582-4 E1: gsi_tkdcl_w, always_ff with no begin after the event control: refused (pp_cd_srp_tk_decl_state_w -> gsi_tkdcl_w: counted as processor, but it reaches the wire at u_probe_sink.a_i)
+publication-census	UNKNOWN STEP	2026-11-26T05:08:29.6000027Z [ok] planted R582-4 E2: gsi_tkdcl_w, always_ff with no begin, if/else: refused (pp_cd_srp_tk_decl_state_w -> gsi_tkdcl_w: counted as processor, but it reaches the wire at u_probe_sink.a_i)
+publication-census	UNKNOWN STEP	2026-11-26T05:08:33.4850264Z [ok] planted R582-4 E3: gsi_tkdcl_w, always_comb with no begin, case: refused (pp_cd_srp_tk_decl_state_w -> gsi_tkdcl_w: counted as processor, but it reaches the wire at u_probe_sink.a_i)
+publication-census	UNKNOWN STEP	2026-11-26T05:08:33.4869920Z [ok] planted R582-4 E4: gsi_tkdcl_w, an event control qualified by iff: refused (the census cannot read it: the front end (sv2v) refused the datapath: hdl/milan/milan_datapath.sv:7263:32: Parse error: unexpected token 'iff' (KW_iff))
+publication-census	UNKNOWN STEP	2026-11-26T05:08:49.9318485Z [ok] planted R582-4: gsi_tkdcl_w, a plain blocking assignment (its control): refused (pp_cd_srp_tk_decl_state_w -> gsi_tkdcl_w: counted as processor, but it reaches the wire at u_probe_sink.a_i)
+publication-census	UNKNOWN STEP	2026-11-26T05:08:52.6250319Z [ok] planted R582-4 E5: gsi_tkdcl_w, a compound assignment |=: refused (pp_cd_srp_tk_decl_state_w -> gsi_tkdcl_w: counted as processor, but it reaches the wire at u_probe_sink.a_i)
+publication-census	UNKNOWN STEP	2026-11-26T05:08:52.6302903Z [ok] planted R582-4: gsi_tkdcl_w, alias with the consumer on the right (its control): refused (the census cannot read it: the front end (sv2v) refused the datapath: hdl/milan/milan_datapath.sv:7263:3: Parse error: missing expected `endmodule`)
+publication-census	UNKNOWN STEP	2026-11-26T05:08:52.6310169Z [ok] planted R582-4 E6: gsi_tkdcl_w, alias with the consumer on the left: refused (the census cannot read it: the front end (sv2v) refused the datapath: hdl/milan/milan_datapath.sv:7263:3: Parse error: missing expected `endmodule`)
+publication-census	UNKNOWN STEP	2026-11-26T05:09:16.4360307Z [ok] planted R583-4: lwsrp_talker_declared, begin-less always_ff, if/else: refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at u_probe_sink.a_i)
+publication-census	UNKNOWN STEP	2026-11-26T05:09:19.6028698Z [ok] planted R583-4: lwsrp_talker_declared, begin-less always_ff, if/else with begin/end branches: refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at u_probe_sink.a_i)
+publication-census	UNKNOWN STEP	2026-11-26T05:09:33.0750667Z [ok] planted R583-4: lwsrp_talker_declared, begin-less always_ff, a case's default item: refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at u_probe_sink.a_i)
+publication-census	UNKNOWN STEP	2026-11-26T05:09:35.1680887Z [ok] planted R583-4: lwsrp_talker_declared, an event control nesting parentheses: refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at u_probe_sink.a_i)
+publication-census	UNKNOWN STEP	2026-11-26T05:09:59.2590370Z [ok] planted R583-4: lwsrp_talker_declared, the same if/else inside begin/end (its control): refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at u_probe_sink.a_i)
+publication-census	UNKNOWN STEP	2026-11-26T05:10:01.9070277Z [ok] planted R583-4: gsi_tkdcl_w, begin-less always_ff, if/else: refused (pp_cd_srp_tk_decl_state_w -> gsi_tkdcl_w: counted as processor, but it reaches the wire at u_probe_sink.a_i)
+publication-census	UNKNOWN STEP	2026-11-26T05:10:15.8490395Z [ok] planted R583-4: gsi_tkdcl_w, begin-less always_ff, if/else with begin/end branches: refused (pp_cd_srp_tk_decl_state_w -> gsi_tkdcl_w: counted as processor, but it reaches the wire at u_probe_sink.a_i)
+publication-census	UNKNOWN STEP	2026-11-26T05:10:17.8850455Z [ok] planted R583-4: gsi_tkdcl_w, begin-less always_ff, a case's default item: refused (pp_cd_srp_tk_decl_state_w -> gsi_tkdcl_w: counted as processor, but it reaches the wire at u_probe_sink.a_i)
+publication-census	UNKNOWN STEP	2026-11-26T05:10:42.2330258Z [ok] planted R583-4: gsi_tkdcl_w, an event control nesting parentheses: refused (pp_cd_srp_tk_decl_state_w -> gsi_tkdcl_w: counted as processor, but it reaches the wire at u_probe_sink.a_i)
+publication-census	UNKNOWN STEP	2026-11-26T05:10:44.8430254Z [ok] planted R583-4: gsi_tkdcl_w, the same if/else inside begin/end (its control): refused (pp_cd_srp_tk_decl_state_w -> gsi_tkdcl_w: counted as processor, but it reaches the wire at u_probe_sink.a_i)
+publication-census	UNKNOWN STEP	2026-11-26T05:10:58.4740261Z [ok] planted R583-4: a token-paste macro defined in an included file: refused (unmapped read: pp_cd_srp_over_limit_w -> probe_w reaches the wire; name its block field or its ruled exclusion)
+publication-census	UNKNOWN STEP	2026-11-26T05:11:00.0679301Z [ok] planted R583-4: the token-paste macro defined in the datapath (its control): refused (unmapped read: pp_cd_srp_over_limit_w -> probe_w reaches the wire; name its block field or its ruled exclusion)
+publication-census	UNKNOWN STEP	2026-11-26T05:11:04.9110396Z [ok] planted R583-4: a macro in an included file holding a hierarchical reference into the wrapper: refused (the census cannot read it: the elaborator (Yosys) refused the datapath: ERROR: Identifier `\pp_shadow.srp_over_limit_o' is implicitly declared and `default_nettype is set to none.)
+publication-census	UNKNOWN STEP	2026-11-26T05:11:07.4793331Z [ok] planted R583-4: a hierarchical reference into the wrapper (its control): refused (the census cannot read it: the elaborator (Yosys) refused the datapath: ERROR: Identifier `\pp_shadow.srp_over_limit_o' is implicitly declared and `default_nettype is set to none.)
+publication-census	UNKNOWN STEP	2026-11-26T05:11:07.4840451Z [ok] planted R583-4: an escaped name holding // hides a read: refused (the census cannot read it: hdl/milan/milan_datapath.sv:7262: an escaped name holds a comment opener, `\probe//`; the front end (sv2v) reads the rest of its line as a comment, a read among it)
+publication-census	UNKNOWN STEP	2026-11-26T05:11:37.9501320Z [ok] planted an escaped name holding // drops a declaration's initialiser without an error: refused (the census cannot read it: hdl/milan/milan_datapath.sv:7262: an escaped name holds a comment opener, `\probe//`; the front end (sv2v) reads the rest of its line as a comment, a read among it)
+publication-census	UNKNOWN STEP	2026-11-26T05:11:37.9520078Z [ok] planted an escaped name holding /*: refused (the census cannot read it: hdl/milan/milan_datapath.sv:7262: an escaped name holds a comment opener, `\probe/*`; the front end (sv2v) reads the rest of its line as a comment, a read among it)
+publication-census	UNKNOWN STEP	2026-11-26T05:11:47.8423220Z [ok] planted R583-4: escaped names holding a double quote around a read: refused (unmapped read: pp_cd_srp_over_limit_w -> probe_w reaches the wire; name its block field or its ruled exclusion)
+publication-census	UNKNOWN STEP	2026-11-26T05:11:50.4224111Z [ok] planted R583-4: a second driver as the population net's declaration initialiser: refused (pp_cd_srp_over_limit_w is driven by an assignment of the constant 0 besides the wrapper's class-D port srp_over_limit_o: a second driver)
+publication-census	UNKNOWN STEP	2026-11-26T05:11:55.7411043Z [ok] planted R583-4: a second driver as a continuous assign (its control): refused (pp_cd_srp_over_limit_w is driven by an assignment of the constant 0 besides the wrapper's class-D port srp_over_limit_o: a second driver)
+publication-census	UNKNOWN STEP	2026-11-26T05:12:20.7529620Z [ok] planted a class-D port left unconnected: refused (class-D port srp_over_limit_o is not connected)
+publication-census	UNKNOWN STEP	2026-11-26T05:12:30.7829575Z [ok] planted a class-D port the instance omits: refused (class-D port srp_over_limit_o is not connected)
+publication-census	UNKNOWN STEP	2026-11-26T05:12:33.4430232Z [ok] planted a class-D port driving more than one net: refused (class-D port srp_class_a_prio_o drives pp_cd_srp_class_a_prio_w, probe_p_w, not one whole named net)
+publication-census	UNKNOWN STEP	2026-11-26T05:12:33.4440780Z [ok] planted a class-D port connected by an implicit .name, no net of its name: refused (the census cannot read it: the front end (sv2v) refused the datapath: sv2v: implicit declaration of "srp_over_limit_o" but default_nettype is none)
+publication-census	UNKNOWN STEP	2026-11-26T05:13:34.1660372Z [ok] planted a class-D output the census does not list: refused (the wrapper declares class-D output srp_probe_level_o, which CLASS_D_PORTS does not list: review it)
+publication-census	UNKNOWN STEP	2026-11-26T05:13:51.9667647Z [ok] planted a class-D output declared beside another, on one line: refused (the wrapper declares class-D output srp_probe_level_o, which CLASS_D_PORTS does not list: review it)
+publication-census	UNKNOWN STEP	2026-11-26T05:14:00.5420882Z [ok] planted a class-D output moved out of the face: refused (CLASS_D_PORTS lists acmp_bound_eid_o, which the wrapper's class-D face does not declare)
+publication-census	UNKNOWN STEP	2026-11-26T05:14:00.5449781Z [ok] planted a wildcard port connection: refused (unmapped read: pp_cd_srp_over_limit_w -> u_probe_all.pp_cd_srp_over_limit_w reaches the wire; name its block field or its ruled exclusion)
+publication-census	UNKNOWN STEP	2026-11-26T05:14:00.5469975Z [ok] planted a hierarchical reference into the CSR block: refused (the census cannot read it: the elaborator (Yosys) refused the datapath: ERROR: Identifier `\csr.i_lwsrp_status' is implicitly declared and `default_nettype is set to none.)
+publication-census	UNKNOWN STEP	2026-11-26T05:14:00.5500014Z [ok] planted a hierarchical reference through a generate scope: refused (the census cannot read it: the elaborator (Yosys) refused the datapath: ERROR: Identifier `\g_probe[0].csr.i_lwsrp_status' is implicitly declared and `default_nettype is set to none.)
+publication-census	UNKNOWN STEP	2026-11-26T05:14:20.1970412Z [ok] planted a read written in an included file: refused (unmapped read: pp_cd_srp_over_limit_w -> probe_inc_w reaches the wire; name its block field or its ruled exclusion)
+publication-census	UNKNOWN STEP	2026-11-26T05:14:20.1980337Z [ok] planted an include the front end cannot find: refused (the census cannot read it: the front end (sv2v) refused the datapath: hdl/milan/milan_datapath.sv:7262:71: Lexical error: Could not find file "probe_missing.svh", included from "hdl/milan/milan_datapath.sv")
+publication-census	UNKNOWN STEP	2026-11-26T05:14:37.9770793Z [ok] planted R583-5 R1: a status consumer driven to a new datapath output: refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at the datapath output probe_o)
+publication-census	UNKNOWN STEP	2026-11-26T05:14:38.7100289Z [ok] planted R583-5 R2: a status consumer ORed into the answer face's change strobe: refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the processor wrapper)
+publication-census	UNKNOWN STEP	2026-11-26T05:14:43.9090156Z [ok] planted a field read whose only wire is cut: refused (pp_cd_srp_tk_decl_state_w -> crft_class_a_w: mapped to TALKER_DECL.DECLARED as read on the wire, but it reaches no wire)
+publication-census	UNKNOWN STEP	2026-11-26T05:15:02.7700493Z [ok] planted a second driver of a net outside the population: refused (crft_class_a_w has two drivers, an assignment of an expression, an assignment of the constant 0: the census cannot tell which its readers see)
+publication-census	UNKNOWN STEP	2026-11-26T05:15:21.6298808Z [ok] planted two class-D ports driving one net: refused (class-D ports srp_domain_change_o and srp_over_limit_o drive one net, pp_cd_srp_over_limit_w)
+publication-census	UNKNOWN STEP	2026-11-26T05:15:21.6300543Z [ok] planted the wrapper's cell renamed: refused (the census cannot read it: the datapath holds KL_pp_shadow cell(s) ['probe_shadow']; the census reads one, pp_shadow)
+publication-census	UNKNOWN STEP	2026-11-26T05:15:23.1980496Z [ok] planted the CSR block's cell renamed: refused (the census cannot read it: the datapath holds no milan_csr cell named csr)
+publication-census	UNKNOWN STEP	2026-11-26T05:15:45.5480565Z [ok] planted a class-D output named again in a block comment of the port list: refused (the wrapper's port list declares output srp_active_o 2 times, or never: the census cannot tell its section)
+publication-census	UNKNOWN STEP	2026-11-26T05:16:45.5147299Z [ok] planted the started level's port renamed: refused (the wrapper declares no output aecp_strm_started_o)
+publication-census	UNKNOWN STEP	2026-11-26T05:16:45.5153852Z [ok] planted an sv2v other than the pinned release: refused (the census elaborates with the pinned sv2v v0.0.12 and Yosys v0.66 (.github/workflows/rtl-fast.yml), not `sv2v v0.0.13` and `Yosys 0.66`: set SV2V and YOSYS to the pinned tools)
+publication-census	UNKNOWN STEP	2026-11-26T05:16:45.5157279Z [ok] planted a Yosys other than the pinned version: refused (the census elaborates with the pinned sv2v v0.0.12 and Yosys v0.66 (.github/workflows/rtl-fast.yml), not `sv2v v0.0.12` and `Yosys 0.67`: set SV2V and YOSYS to the pinned tools)
+publication-census	UNKNOWN STEP	2026-11-26T05:16:45.5239957Z [ok] planted the processor left in the split: refused (the split datapath holds KL_pp_shadow cell pp_shadow: the split builds no KL_pp_shadow)
+publication-census	UNKNOWN STEP	2026-11-26T05:16:45.5269492Z [ok] planted the fabric MAAP engine left in the split: refused (the split datapath holds KL_maap cell g_maap.maap_engine: the split builds no KL_maap)
+publication-census	UNKNOWN STEP	2026-11-26T05:17:21.3832621Z [ok] planted the map writer left in the split: refused (the map writer's net amr_abort_r, which the all-fabric exclusion names, comes from axis_clk, axis_resetn, chan_map_capture.map_flat_o, csr.o_aaf_bypass, csr.o_aaf_enable, csr.o_chmap_wr_addr, csr.o_chmap_wr_data, csr.o_chmap_wr_en, csr.o_chmap_wr_side, csr.o_lwsrp_enable, csr.o_maap_enable, csr.o_pp_restore_go, i_ctl_edit_count, i_ctl_edit_index, i_ctl_edit_phase, i_ctl_edit_rec, i_ctl_edit_record, i_ctl_edit_remove, i_ctl_edit_req, i_ctl_edit_type, i_ctl_fmt_in, i_ctl_fmt_in_v, i_ctl_fmt_out, i_ctl_fmt_out_v, i_ctl_lock_held, i_ctl_pub_da_gate, i_ctl_pub_licence, i_ctl_restore, i_ctl_rs_cause in the split, not a constant: the split builds no map writer)
+publication-census	UNKNOWN STEP	2026-11-26T05:17:54.0461030Z [ok] planted a class-D consumer on a G tie-off: refused (pp_cd_acmp_declaring_w, the net of the wrapper's acmp_declaring_o, is driven by a constant in the split, not by i_ctl_pub_da_gate)
+publication-census	UNKNOWN STEP	2026-11-26T05:17:54.0469930Z [ok] planted a class-D consumer that reads the port around its net in the split: refused (the field read pp_cd_acmp_declaring_w -> acmp_talker_active_v does not hold in the split datapath)
+publication-census	UNKNOWN STEP	2026-11-26T05:18:01.0430432Z [ok] planted a stream_id taken without SID_VALID: refused (pp_cd_acmp_bound_sid_w, the net of the wrapper's acmp_bound_sid_o, is driven by i_ctl_pub_sid in the split, not by i_ctl_pub_sid, i_ctl_pub_sid_valid)
+publication-census	UNKNOWN STEP	2026-11-26T05:18:36.9070833Z [ok] planted a stream_id taken without SID_VALID, SID_VALID unread: refused (split port i_ctl_pub_sid_valid bit 0 reaches no cone end: the split datapath does not consume BINDING.SID_VALID)
+publication-census	UNKNOWN STEP	2026-11-26T05:19:10.3060196Z [ok] planted half a publication field dropped: refused (split port i_ctl_pub_dom_vid bit 8 reaches no cone end: the split datapath does not consume SR_DOMAIN.VID)
+publication-census	UNKNOWN STEP	2026-11-26T05:19:10.6840253Z [ok] planted a setting from another setting's port: refused (pp_aecp_clk_src_index_w, the net of the wrapper's aecp_clk_src_index_o, is driven by i_ctl_cur_config in the split, not by i_ctl_clk_src_index)
+publication-census	UNKNOWN STEP	2026-11-26T05:19:17.3776015Z [ok] planted two bits of a packed setting swapped: refused (pp_restore_busy_w[0], the net of the wrapper's restore_busy_o, is driven by i_ctl_restore[1], not i_ctl_restore[0])
+publication-census	UNKNOWN STEP	2026-11-26T05:19:52.6490167Z [ok] planted an answer from another window: refused (o_ctl_ctr_data is driven by pp_amap_data_w in the split, not by pp_ctr_data_w, which the wrapper's ctr_data_i read)
+publication-census	UNKNOWN STEP	2026-11-26T05:20:27.9580114Z [ok] planted a face notification never raised: refused (o_ctl_avb_chg_p is driven by a constant in the split, not by gsi_avb_chg_w, which the wrapper's gsi_avb_chg_i read)
+publication-census	UNKNOWN STEP	2026-11-26T05:20:27.9589823Z [ok] planted the REBOOT request from another port in the split: refused (pp_reboot_req_w, the net of the wrapper's G output reboot_req_o, is driven by i_ctl_lock_held in the split, not by i_reboot_req)
+publication-census	UNKNOWN STEP	2026-11-26T05:20:33.4010460Z [ok] planted the REBOOT request tied off in the split: refused (pp_reboot_req_w, the net of the wrapper's G output reboot_req_o, is driven by a constant in the split, not by i_reboot_req)
+publication-census	UNKNOWN STEP	2026-11-26T05:21:09.5110773Z [ok] planted a class-D value the block does not carry, driven in the split: refused (pp_cd_srp_over_limit_w, the net of the wrapper's class-D value the block does not carry srp_over_limit_o, is driven by i_ctl_dyn_dirty in the split, not a constant)
+publication-census	UNKNOWN STEP	2026-11-26T05:21:39.1228990Z [ok] planted the frame block on another net: refused (g_sp_ctrl.ctrl_split.rx_tlast_i carries rx_axis_fabric.tvalid, not rx_axis_fabric.tlast, which the wrapper's rx_tlast_i carried)
+publication-census	UNKNOWN STEP	2026-11-26T05:21:39.1230873Z [ok] planted an entry past the shape's own read: refused (split port i_ctl_pub_da_gate bit 1 is read, past the shape's 1 source(s))
+publication-census	UNKNOWN STEP	2026-11-26T05:21:41.3021011Z [ok] planted a ctl port no row names: refused (unmapped split port: i_ctl_probe (input) is in no class; name what it carries and stands for)
+publication-census	UNKNOWN STEP	2026-11-26T05:21:41.4607747Z selftest: 0 of 164 arm(s) failed; 164 arm(s) and their rules' removals in 1795 s at --jobs 4
+publication-census	UNKNOWN STEP	2026-11-26T05:21:41.4609323Z [ok] rule shapes: removed, it lets through every one of its 2 arm(s), e.g. R583-5 S1: a read inside a generate branch only N_STREAMS > 1 builds
+publication-census	UNKNOWN STEP	2026-11-26T05:21:41.4610958Z [ok] rule shape-params: removed, it lets through every one of its 3 arm(s), e.g. R583-5 S2: a read inside a generate loop with no iteration at one stream
+publication-census	UNKNOWN STEP	2026-11-26T05:21:41.4612651Z [ok] rule shape-header: removed, it lets through every one of its 1 arm(s), e.g. a read inside a generate branch only a multi-stream shape's header builds
+publication-census	UNKNOWN STEP	2026-11-26T05:21:41.4614601Z [ok] rule same-across-shapes: removed, it lets through every one of its 1 arm(s), e.g. a field read that reaches CSR read-back only in the multi-stream shapes
+publication-census	UNKNOWN STEP	2026-11-26T05:21:41.4616192Z [ok] rule pins: removed, it lets through every one of its 2 arm(s), e.g. an sv2v other than the pinned release
+publication-census	UNKNOWN STEP	2026-11-26T05:21:41.4617631Z [ok] rule opener-guard: removed, it lets through every one of its 3 arm(s), e.g. R583-4: an escaped name holding // hides a read
+publication-census	UNKNOWN STEP	2026-11-26T05:21:41.4619139Z [ok] rule keep-names: removed, it lets through every one of its 1 arm(s), e.g. positive control, the tracked sources
+publication-census	UNKNOWN STEP	2026-11-26T05:21:41.4620687Z [ok] rule one-wrapper: removed, it lets through every one of its 1 arm(s), e.g. the wrapper's cell renamed
+publication-census	UNKNOWN STEP	2026-11-26T05:21:41.4621838Z [ok] rule csr-cell: removed, it lets through every one of its 1 arm(s), e.g. the CSR block's cell renamed
+publication-census	UNKNOWN STEP	2026-11-26T05:21:41.4623154Z [ok] rule face-listed: removed, it lets through every one of its 2 arm(s), e.g. a class-D output the census does not list
+publication-census	UNKNOWN STEP	2026-11-26T05:21:41.4624956Z [ok] rule face-declared: removed, it lets through every one of its 1 arm(s), e.g. a class-D output moved out of the face
+publication-census	UNKNOWN STEP	2026-11-26T05:21:41.4626583Z [ok] rule face-placed: removed, it lets through every one of its 1 arm(s), e.g. a class-D output named again in a block comment of the port list
+publication-census	UNKNOWN STEP	2026-11-26T05:21:41.4627942Z [ok] rule started-port: removed, it lets through every one of its 1 arm(s), e.g. the started level's port renamed
+publication-census	UNKNOWN STEP	2026-11-26T05:21:41.4629580Z [ok] rule port-connected: removed, it lets through every one of its 2 arm(s), e.g. a class-D port left unconnected
+publication-census	UNKNOWN STEP	2026-11-26T05:21:41.4631012Z [ok] rule port-one-net: removed, it lets through every one of its 1 arm(s), e.g. a class-D port driving more than one net
+publication-census	UNKNOWN STEP	2026-11-26T05:21:41.4632556Z [ok] rule ports-distinct: removed, it lets through every one of its 1 arm(s), e.g. two class-D ports driving one net
+publication-census	UNKNOWN STEP	2026-11-26T05:21:41.4633995Z [ok] rule sole-driver: removed, it lets through every one of its 2 arm(s), e.g. R583-4: a second driver as the population net's declaration initialiser
+publication-census	UNKNOWN STEP	2026-11-26T05:21:41.4635577Z [ok] rule two-drivers: removed, it lets through every one of its 1 arm(s), e.g. a second driver of a net outside the population
+publication-census	UNKNOWN STEP	2026-11-26T05:21:41.4637051Z [ok] rule every-input: removed, it lets through every one of its 4 arm(s), e.g. an unmapped read in an always block's condition
+publication-census	UNKNOWN STEP	2026-11-26T05:21:41.4638621Z [ok] rule memory: removed, it lets through every one of its 1 arm(s), e.g. a status consumer written into a memory and read out of it
+publication-census	UNKNOWN STEP	2026-11-26T05:21:41.4640016Z [ok] rule output-is-wire: removed, it lets through every one of its 1 arm(s), e.g. R583-5 R1: a status consumer driven to a new datapath output
+publication-census	UNKNOWN STEP	2026-11-26T05:21:41.4641736Z [ok] rule no-output-end: removed, it lets through every one of its 1 arm(s), e.g. a status consumer printed
+publication-census	UNKNOWN STEP	2026-11-26T05:21:41.4642945Z [ok] rule terminal-cell: removed, it lets through every one of its 1 arm(s), e.g. a read-back port of another milan_csr cell
+publication-census	UNKNOWN STEP	2026-11-26T05:21:41.4644246Z [ok] rule csr-readback: removed, it lets through every one of its 1 arm(s), e.g. a CSR block input outside the read-back face
+publication-census	UNKNOWN STEP	2026-11-26T05:21:41.4645616Z [ok] rule processor-face: removed, it lets through every one of its 1 arm(s), e.g. a wrapper input outside its answer face
+publication-census	UNKNOWN STEP	2026-11-26T05:21:41.4646876Z [ok] rule unmapped: removed, it lets through every one of its 15 arm(s), e.g. an unmapped read on the wire
+publication-census	UNKNOWN STEP	2026-11-26T05:21:41.4648052Z [ok] rule unknown-field: removed, it lets through every one of its 1 arm(s), e.g. a field the contract lacks
+publication-census	UNKNOWN STEP	2026-11-26T05:21:41.4649622Z [ok] rule field-on-wire: removed, it lets through every one of its 1 arm(s), e.g. a field read whose only wire is cut
+publication-census	UNKNOWN STEP	2026-11-26T05:21:41.4650907Z [ok] rule off-wire: removed, it lets through every one of its 51 arm(s), e.g. a status read on the wire
+publication-census	UNKNOWN STEP	2026-11-26T05:21:41.4652312Z [ok] rule status-not-processor: removed, it lets through every one of its 1 arm(s), e.g. R583-5 R2: a status consumer ORed into the answer face's change strobe
+publication-census	UNKNOWN STEP	2026-11-26T05:21:41.4653779Z [ok] rule stale-row: removed, it lets through every one of its 1 arm(s), e.g. a stale row
+publication-census	UNKNOWN STEP	2026-11-26T05:21:41.4655014Z [ok] rule port-unmapped: removed, it lets through every one of its 1 arm(s), e.g. port census: a port no class names
+publication-census	UNKNOWN STEP	2026-11-26T05:21:41.4656341Z [ok] rule port-one-class: removed, it lets through every one of its 1 arm(s), e.g. port census: a port two classes name
+publication-census	UNKNOWN STEP	2026-11-26T05:21:41.4657844Z [ok] rule port-stale: removed, it lets through every one of its 1 arm(s), e.g. port census: a row naming a port the wrapper does not declare
+publication-census	UNKNOWN STEP	2026-11-26T05:21:41.4659646Z [ok] rule port-class-d: removed, it lets through every one of its 1 arm(s), e.g. port census: a class C row the class-D census does not hold
+publication-census	UNKNOWN STEP	2026-11-26T05:21:41.4661279Z [ok] rule port-contract: removed, it lets through every one of its 2 arm(s), e.g. port census: an F carrier contract 2.3 does not define
+publication-census	UNKNOWN STEP	2026-11-26T05:21:41.4662977Z [ok] rule port-width: removed, it lets through every one of its 2 arm(s), e.g. port census: an F carrier narrower than its port
+publication-census	UNKNOWN STEP	2026-11-26T05:21:41.4664362Z [ok] rule g-on-wire: removed, it lets through every one of its 6 arm(s), e.g. port census: a CSR terminal's net also read past it
+publication-census	UNKNOWN STEP	2026-11-26T05:21:41.4665979Z [ok] rule g-csr-terminal: removed, it lets through every one of its 1 arm(s), e.g. port census: a G output on a CSR input outside the processor-status face
+publication-census	UNKNOWN STEP	2026-11-26T05:21:41.4667562Z [ok] rule g-memory-terminal: removed, it lets through every one of its 1 arm(s), e.g. port census: a G output on a datapath output outside the memory masters
+publication-census	UNKNOWN STEP	2026-11-26T05:21:41.4669299Z [ok] rule g-shim-terminal: removed, it lets through every one of its 1 arm(s), e.g. port census: a MAAP shim output read past pp_shadow
+publication-census	UNKNOWN STEP	2026-11-26T05:21:41.4670775Z [ok] rule g-exclusion-stale: removed, it lets through every one of its 1 arm(s), e.g. port census: the exclusion naming a net no G cone reaches
+publication-census	UNKNOWN STEP	2026-11-26T05:21:41.4672241Z [ok] rule g-exclusion-amr: removed, it lets through every one of its 1 arm(s), e.g. port census: the exclusion naming a net outside the map writer
+publication-census	UNKNOWN STEP	2026-11-26T05:21:41.4673609Z [ok] rule split-placement: removed, it lets through every one of its 3 arm(s), e.g. the processor left in the split
+publication-census	UNKNOWN STEP	2026-11-26T05:21:41.4674806Z [ok] rule split-unmapped: removed, it lets through every one of its 1 arm(s), e.g. a ctl port no row names
+publication-census	UNKNOWN STEP	2026-11-26T05:21:41.4676026Z [ok] rule split-one-class: removed, it lets through every one of its 1 arm(s), e.g. split census: a ctl port two classes name
+publication-census	UNKNOWN STEP	2026-11-26T05:21:41.4677420Z [ok] rule split-stale: removed, it lets through every one of its 1 arm(s), e.g. split census: a split row naming a port the datapath does not declare
+publication-census	UNKNOWN STEP	2026-11-26T05:21:41.4679344Z [ok] rule split-contract: removed, it lets through every one of its 1 arm(s), e.g. split census: a split carrier the contract does not define
+publication-census	UNKNOWN STEP	2026-11-26T05:21:41.4680737Z [ok] rule split-width: removed, it lets through every one of its 1 arm(s), e.g. split census: a split carrier narrower than its port
+publication-census	UNKNOWN STEP	2026-11-26T05:21:41.4682076Z [ok] rule split-every-field: removed, it lets through every one of its 1 arm(s), e.g. split census: a face event no row carries
+publication-census	UNKNOWN STEP	2026-11-26T05:21:41.4683402Z [ok] rule split-face: removed, it lets through every one of its 1 arm(s), e.g. split census: a split row standing for another setting
+publication-census	UNKNOWN STEP	2026-11-26T05:21:41.4684684Z [ok] rule split-drives: removed, it lets through every one of its 6 arm(s), e.g. a class-D consumer on a G tie-off
+publication-census	UNKNOWN STEP	2026-11-26T05:21:41.4685883Z [ok] rule split-tied: removed, it lets through every one of its 3 arm(s), e.g. the REBOOT request from another port in the split
+publication-census	UNKNOWN STEP	2026-11-26T05:21:41.4687131Z [ok] rule split-frame-block: removed, it lets through every one of its 1 arm(s), e.g. the frame block on another net
+publication-census	UNKNOWN STEP	2026-11-26T05:21:41.4688669Z [ok] rule split-field-reads: removed, it lets through every one of its 1 arm(s), e.g. a class-D consumer that reads the port around its net in the split
+publication-census	UNKNOWN STEP	2026-11-26T05:21:41.4690052Z [ok] rule split-consumed: removed, it lets through every one of its 2 arm(s), e.g. a stream_id taken without SID_VALID, SID_VALID unread
+publication-census	UNKNOWN STEP	2026-11-26T05:21:41.4691237Z [ok] rule split-beyond: removed, it lets through every one of its 1 arm(s), e.g. an entry past the shape's own read
+publication-census	UNKNOWN STEP	2026-11-26T05:21:41.4692019Z mutations: 0 of 57 rule(s) no arm proves
+publication-census	UNKNOWN STEP	2026-11-26T05:21:41.4975244Z ##[group]Run python3 scripts/ci_runtime_evidence.py record --workflow .github/workflows/rtl-fast.yml --job publication-census --output "$RUNNER_TEMP/job-evidence.json"
+publication-census	UNKNOWN STEP	2026-11-26T05:21:41.4976486Z ^[[36;1mpython3 scripts/ci_runtime_evidence.py record --workflow .github/workflows/rtl-fast.yml --job publication-census --output "$RUNNER_TEMP/job-evidence.json"^[[0m
+publication-census	UNKNOWN STEP	2026-11-26T05:21:41.4996387Z shell: /usr/bin/bash -e {0}
+publication-census	UNKNOWN STEP	2026-11-26T05:21:41.4996646Z env:
+publication-census	UNKNOWN STEP	2026-11-26T05:21:41.4996847Z   VERILATOR_VERSION: v5.050
+publication-census	UNKNOWN STEP	2026-11-26T05:21:41.4997101Z   YOSYS_VERSION: v0.66
+publication-census	UNKNOWN STEP	2026-11-26T05:21:41.4997484Z   PIP_CONSTRAINT: <home-path>/work/milan-fpga/milan-fpga/ci/constraints-ci.txt
+publication-census	UNKNOWN STEP	2026-11-26T05:21:41.4997911Z   CI_BUILD_JOBS: 4
+publication-census	UNKNOWN STEP	2026-11-26T05:21:41.4998125Z   CI_TOOL_BUILD_JOBS: 4
+publication-census	UNKNOWN STEP	2026-11-26T05:21:41.4998644Z   CI_CAMPAIGN_JOBS: 4
+publication-census	UNKNOWN STEP	2026-11-26T05:21:41.4998880Z   VERILATOR_JOBS: 4
+publication-census	UNKNOWN STEP	2026-11-26T05:21:41.4999093Z   SIM_JOBS: 4
+publication-census	UNKNOWN STEP	2026-11-26T05:21:41.4999319Z   MAKEFLAGS: -j1 --no-print-directory
+publication-census	UNKNOWN STEP	2026-11-26T05:21:41.4999713Z   CI_CENSUS_JOBS: 4
+publication-census	UNKNOWN STEP	2026-11-26T05:21:41.5003353Z   CI_STEP_RESULTS: {
+publication-census	UNKNOWN STEP	  "ci_step_0": {
+publication-census	UNKNOWN STEP	    "outputs": {
+publication-census	UNKNOWN STEP	      "commit": "e24ec9c0f801ada4954796e5f1f04b3ae0e09a96",
+publication-census	UNKNOWN STEP	      "ref": "refs/pull/1016/merge"
+publication-census	UNKNOWN STEP	    },
+publication-census	UNKNOWN STEP	    "outcome": "success",
+publication-census	UNKNOWN STEP	    "conclusion": "success"
+publication-census	UNKNOWN STEP	  },
+publication-census	UNKNOWN STEP	  "ci_step_1": {
+publication-census	UNKNOWN STEP	    "outputs": {},
+publication-census	UNKNOWN STEP	    "outcome": "success",
+publication-census	UNKNOWN STEP	    "conclusion": "success"
+publication-census	UNKNOWN STEP	  },
+publication-census	UNKNOWN STEP	  "ci_step_2": {
+publication-census	UNKNOWN STEP	    "outputs": {},
+publication-census	UNKNOWN STEP	    "outcome": "success",
+publication-census	UNKNOWN STEP	    "conclusion": "success"
+publication-census	UNKNOWN STEP	  },
+publication-census	UNKNOWN STEP	  "ci_step_3": {
+publication-census	UNKNOWN STEP	    "outputs": {
+publication-census	UNKNOWN STEP	      "cache-hit": "true"
+publication-census	UNKNOWN STEP	    },
+publication-census	UNKNOWN STEP	    "outcome": "success",
+publication-census	UNKNOWN STEP	    "conclusion": "success"
+publication-census	UNKNOWN STEP	  },
+publication-census	UNKNOWN STEP	  "ci_step_4": {
+publication-census	UNKNOWN STEP	    "outputs": {},
+publication-census	UNKNOWN STEP	    "outcome": "success",
+publication-census	UNKNOWN STEP	    "conclusion": "success"
+publication-census	UNKNOWN STEP	  },
+publication-census	UNKNOWN STEP	  "cache-yosys": {
+publication-census	UNKNOWN STEP	    "outputs": {
+publication-census	UNKNOWN STEP	      "cache-hit": "true"
+publication-census	UNKNOWN STEP	    },
+publication-census	UNKNOWN STEP	    "outcome": "success",
+publication-census	UNKNOWN STEP	    "conclusion": "success"
+publication-census	UNKNOWN STEP	  },
+publication-census	UNKNOWN STEP	  "ci_packages_3": {
+publication-census	UNKNOWN STEP	    "outputs": {},
+publication-census	UNKNOWN STEP	    "outcome": "skipped",
+publication-census	UNKNOWN STEP	    "conclusion": "skipped"
+publication-census	UNKNOWN STEP	  },
+publication-census	UNKNOWN STEP	  "ci_step_7": {
+publication-census	UNKNOWN STEP	    "outputs": {},
+publication-census	UNKNOWN STEP	    "outcome": "skipped",
+publication-census	UNKNOWN STEP	    "conclusion": "skipped"
+publication-census	UNKNOWN STEP	  },
+publication-census	UNKNOWN STEP	  "ci_step_8": {
+publication-census	UNKNOWN STEP	    "outputs": {},
+publication-census	UNKNOWN STEP	    "outcome": "skipped",
+publication-census	UNKNOWN STEP	    "conclusion": "skipped"
+publication-census	UNKNOWN STEP	  },
+publication-census	UNKNOWN STEP	  "ci_step_9": {
+publication-census	UNKNOWN STEP	    "outputs": {},
+publication-census	UNKNOWN STEP	    "outcome": "success",
+publication-census	UNKNOWN STEP	    "conclusion": "success"
+publication-census	UNKNOWN STEP	  },
+publication-census	UNKNOWN STEP	  "ci_step_10": {
+publication-census	UNKNOWN STEP	    "outputs": {
+publication-census	UNKNOWN STEP	      "cache-hit": "true"
+publication-census	UNKNOWN STEP	    },
+publication-census	UNKNOWN STEP	    "outcome": "success",
+publication-census	UNKNOWN STEP	    "conclusion": "success"
+publication-census	UNKNOWN STEP	  },
+publication-census	UNKNOWN STEP	  "ci_step_11": {
+publication-census	UNKNOWN STEP	    "outputs": {},
+publication-census	UNKNOWN STEP	    "outcome": "success",
+publication-census	UNKNOWN STEP	    "conclusion": "success"
+publication-census	UNKNOWN STEP	  },
+publication-census	UNKNOWN STEP	  "ci_step_12": {
+publication-census	UNKNOWN STEP	    "outputs": {},
+publication-census	UNKNOWN STEP	    "outcome": "success",
+publication-census	UNKNOWN STEP	    "conclusion": "success"
+publication-census	UNKNOWN STEP	  }
+publication-census	UNKNOWN STEP	}
+publication-census	UNKNOWN STEP	2026-11-26T05:21:41.5007441Z   CI_JOB_RESULT: success
+publication-census	UNKNOWN STEP	2026-11-26T05:21:41.5007678Z   CI_MATRIX: null
+publication-census	UNKNOWN STEP	2026-11-26T05:21:41.5007890Z ##[endgroup]
+publication-census	UNKNOWN STEP	2026-11-26T05:21:41.9377465Z ##[group]Run actions/upload-artifact@v4
+publication-census	UNKNOWN STEP	2026-11-26T05:21:41.9377812Z with:
+publication-census	UNKNOWN STEP	2026-11-26T05:21:41.9378584Z   name: job-evidence-rtl-fast-publication-census-0-e24ec9c0f801ada4954796e5f1f04b3ae0e09a96
+publication-census	UNKNOWN STEP	2026-11-26T05:21:41.9379181Z   path: <home-path>/work/_temp/job-evidence.json
+publication-census	UNKNOWN STEP	2026-11-26T05:21:41.9379503Z   if-no-files-found: error
+publication-census	UNKNOWN STEP	2026-11-26T05:21:41.9379751Z   retention-days: 3
+publication-census	UNKNOWN STEP	2026-11-26T05:21:41.9379971Z   compression-level: 6
+publication-census	UNKNOWN STEP	2026-11-26T05:21:41.9380199Z   overwrite: false
+publication-census	UNKNOWN STEP	2026-11-26T05:21:41.9380417Z   include-hidden-files: false
+publication-census	UNKNOWN STEP	2026-11-26T05:21:41.9380662Z env:
+publication-census	UNKNOWN STEP	2026-11-26T05:21:41.9380855Z   VERILATOR_VERSION: v5.050
+publication-census	UNKNOWN STEP	2026-11-26T05:21:41.9381096Z   YOSYS_VERSION: v0.66
+publication-census	UNKNOWN STEP	2026-11-26T05:21:41.9381461Z   PIP_CONSTRAINT: <home-path>/work/milan-fpga/milan-fpga/ci/constraints-ci.txt
+publication-census	UNKNOWN STEP	2026-11-26T05:21:41.9381883Z   CI_BUILD_JOBS: 4
+publication-census	UNKNOWN STEP	2026-11-26T05:21:41.9382097Z   CI_TOOL_BUILD_JOBS: 4
+publication-census	UNKNOWN STEP	2026-11-26T05:21:41.9382316Z   CI_CAMPAIGN_JOBS: 4
+publication-census	UNKNOWN STEP	2026-11-26T05:21:41.9382532Z   VERILATOR_JOBS: 4
+publication-census	UNKNOWN STEP	2026-11-26T05:21:41.9382765Z   SIM_JOBS: 4
+publication-census	UNKNOWN STEP	2026-11-26T05:21:41.9382995Z   MAKEFLAGS: -j1 --no-print-directory
+publication-census	UNKNOWN STEP	2026-11-26T05:21:41.9383273Z   CI_CENSUS_JOBS: 4
+publication-census	UNKNOWN STEP	2026-11-26T05:21:41.9383476Z ##[endgroup]
+publication-census	UNKNOWN STEP	2026-11-26T05:21:42.1140711Z (node:5735) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+publication-census	UNKNOWN STEP	2026-11-26T05:21:42.1141985Z (Use `node --trace-deprecation ...` to show where the warning was created)
+publication-census	UNKNOWN STEP	2026-11-26T05:21:42.1171186Z With the provided path, there will be 1 file uploaded
+publication-census	UNKNOWN STEP	2026-11-26T05:21:42.1184534Z Artifact name is valid!
+publication-census	UNKNOWN STEP	2026-11-26T05:21:42.1185221Z Root directory input is valid!
+publication-census	UNKNOWN STEP	2026-11-26T05:21:42.4079219Z Beginning upload of artifact content to blob storage
+publication-census	UNKNOWN STEP	2026-11-26T05:21:42.4285188Z (node:5735) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+publication-census	UNKNOWN STEP	2026-11-26T05:21:42.5970670Z Uploaded bytes 849
+publication-census	UNKNOWN STEP	2026-11-26T05:21:42.6482152Z Finished uploading artifact content to blob storage!
+publication-census	UNKNOWN STEP	2026-11-26T05:21:42.6483313Z SHA256 digest of uploaded artifact zip is bc56a4917b23a9358076e43ad3051eab35bd6a64b6fe3ff921e60ac9098e50fb
+publication-census	UNKNOWN STEP	2026-11-26T05:21:42.6484816Z Finalizing artifact upload
+publication-census	UNKNOWN STEP	2026-11-26T05:21:43.0169564Z Artifact job-evidence-rtl-fast-publication-census-0-e24ec9c0f801ada4954796e5f1f04b3ae0e09a96.zip successfully finalized. Artifact ID 15089143319
+publication-census	UNKNOWN STEP	2026-11-26T05:21:43.0172511Z Artifact job-evidence-rtl-fast-publication-census-0-e24ec9c0f801ada4954796e5f1f04b3ae0e09a96 has been successfully uploaded! Final size is 849 bytes. Artifact ID is 15089143319
+publication-census	UNKNOWN STEP	2026-11-26T05:21:43.0177744Z Artifact download URL: https://github.com/kebag-logic/milan-fpga/actions/runs/45755846903/artifacts/15089143319
+publication-census	UNKNOWN STEP	2026-11-26T05:21:43.1101366Z Post job cleanup.
+publication-census	UNKNOWN STEP	2026-11-26T05:21:43.2307724Z Cache hit occurred on the primary key sv2v-v0.0.12-ff8c9eea5bc029b372fb4953427625cddb7cf7e58c1240623ac9f260818d5a00-aa130cde3f89d5df9ea7f65b2511a7df2485907f5edf91bb356a311b83c0f291-Linux, not saving cache.
+publication-census	UNKNOWN STEP	2026-11-26T05:21:43.2310260Z (node:5761) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+publication-census	UNKNOWN STEP	2026-11-26T05:21:43.2311513Z (Use `node --trace-deprecation ...` to show where the warning was created)
+publication-census	UNKNOWN STEP	2026-11-26T05:21:43.3032738Z Post job cleanup.
+publication-census	UNKNOWN STEP	2026-11-26T05:21:43.4268691Z Cache hit occurred on the primary key yosys-v0.66-86f2ddebce7e98ce7cacc27e8a5c14cb53b51b51-8e291403c12e9d0f8273be2a1de3d48a6398bda1a524b1301adcaed01c1efa7c-Linux, not saving cache.
+publication-census	UNKNOWN STEP	2026-11-26T05:21:43.4270870Z (node:5781) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+publication-census	UNKNOWN STEP	2026-11-26T05:21:43.4271840Z (Use `node --trace-deprecation ...` to show where the warning was created)
+publication-census	UNKNOWN STEP	2026-11-26T05:21:43.5830389Z Post job cleanup.
+publication-census	UNKNOWN STEP	2026-11-26T05:21:43.6969760Z Cache hit occurred on the primary key python-cpython3.12.3-0f4dff939fe11c9e2b6ca53bfda0ab835c6b8262ea97e72481db61f20ea4b311-aa130cde3f89d5df9ea7f65b2511a7df2485907f5edf91bb356a311b83c0f291-Linux, not saving cache.
+publication-census	UNKNOWN STEP	2026-11-26T05:21:43.6971681Z (node:5813) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+publication-census	UNKNOWN STEP	2026-11-26T05:21:43.6972882Z (Use `node --trace-deprecation ...` to show where the warning was created)
+publication-census	UNKNOWN STEP	2026-11-26T05:21:43.7117498Z Post job cleanup.
+publication-census	UNKNOWN STEP	2026-11-26T05:21:43.8039899Z [command]/usr/bin/git version
+publication-census	UNKNOWN STEP	2026-11-26T05:21:43.8085032Z git version 2.56.1
+publication-census	UNKNOWN STEP	2026-11-26T05:21:43.8157838Z Temporarily overriding HOME='<home-path>/work/_temp/6775be9a-1e1d-4060-b5b5-089fb35b6a0c' before making global git config changes
+publication-census	UNKNOWN STEP	2026-11-26T05:21:43.8159380Z Adding repository directory to the temporary git global config as a safe directory
+publication-census	UNKNOWN STEP	2026-11-26T05:21:43.8163393Z [command]/usr/bin/git config --global --add safe.directory <home-path>/work/milan-fpga/milan-fpga
+publication-census	UNKNOWN STEP	2026-11-26T05:21:43.8220198Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+publication-census	UNKNOWN STEP	2026-11-26T05:21:43.8257777Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+publication-census	UNKNOWN STEP	2026-11-26T05:21:43.8511440Z Entering 'gptp-processor'
+publication-census	UNKNOWN STEP	2026-11-26T05:21:43.8577944Z Entering 'protocol-processor'
+publication-census	UNKNOWN STEP	2026-11-26T05:21:43.8639271Z Entering 'third_party/verilog-axis'
+publication-census	UNKNOWN STEP	2026-11-26T05:21:43.8731000Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+publication-census	UNKNOWN STEP	2026-11-26T05:21:43.8776791Z http.https://github.com/.extraheader
+publication-census	UNKNOWN STEP	2026-11-26T05:21:43.8807512Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+publication-census	UNKNOWN STEP	2026-11-26T05:21:43.8855132Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+publication-census	UNKNOWN STEP	2026-11-26T05:21:43.9111489Z Entering 'gptp-processor'
+publication-census	UNKNOWN STEP	2026-11-26T05:21:43.9156447Z Entering 'protocol-processor'
+publication-census	UNKNOWN STEP	2026-11-26T05:21:43.9203405Z Entering 'third_party/verilog-axis'
+publication-census	UNKNOWN STEP	2026-11-26T05:21:43.9266608Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+publication-census	UNKNOWN STEP	2026-11-26T05:21:43.9312809Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+publication-census	UNKNOWN STEP	2026-11-26T05:21:43.9549057Z Entering 'gptp-processor'
+publication-census	UNKNOWN STEP	2026-11-26T05:21:43.9571540Z file:<home-path>/work/milan-fpga/milan-fpga/.git/modules/gptp-processor/config	remote.origin.url
+publication-census	UNKNOWN STEP	2026-11-26T05:21:43.9590462Z Entering 'protocol-processor'
+publication-census	UNKNOWN STEP	2026-11-26T05:21:43.9609575Z file:<home-path>/work/milan-fpga/milan-fpga/.git/modules/protocol-processor/config	remote.origin.url
+publication-census	UNKNOWN STEP	2026-11-26T05:21:43.9630884Z Entering 'third_party/verilog-axis'
+publication-census	UNKNOWN STEP	2026-11-26T05:21:43.9650532Z file:<home-path>/work/milan-fpga/milan-fpga/.git/modules/third_party/verilog-axis/config	remote.origin.url
+publication-census	UNKNOWN STEP	2026-11-26T05:21:43.9688045Z [command]/usr/bin/git config --file <home-path>/work/milan-fpga/milan-fpga/.git/modules/gptp-processor/config --name-only --get-regexp ^includeIf\.gitdir:
+publication-census	UNKNOWN STEP	2026-11-26T05:21:43.9733393Z [command]/usr/bin/git config --file <home-path>/work/milan-fpga/milan-fpga/.git/modules/protocol-processor/config --name-only --get-regexp ^includeIf\.gitdir:
+publication-census	UNKNOWN STEP	2026-11-26T05:21:43.9775037Z [command]/usr/bin/git config --file <home-path>/work/milan-fpga/milan-fpga/.git/modules/third_party/verilog-axis/config --name-only --get-regexp ^includeIf\.gitdir:
+publication-census	UNKNOWN STEP	2026-11-26T05:21:43.9957007Z Cleaning up orphan processes
+publication-census	UNKNOWN STEP	2026-11-26T05:21:44.0353142Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/cache@v4, actions/checkout@v4, actions/upload-artifact@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

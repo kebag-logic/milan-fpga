@@ -1,0 +1,161 @@
+elaborate-gates-1	1.9	3	Set up job
+elaborate-gates-1	26.8	37	Run actions/checkout@v4
+elaborate-gates-1	0.2	1	Set CPU-derived job budgets
+elaborate-gates-1	0.8	2	Cache exact Python downloads
+elaborate-gates-1	43.7	65	Decide whether this head needs an elaboration
+elaborate-gates-1	2.5	4	Fetch the source dependencies the elaboration reads
+elaborate-gates-1	0.8	2	Cache verified sv2v archive
+elaborate-gates-1	0.1	1	Install the pinned sv2v release
+elaborate-gates-1	0.2	1	Run actions/setup-python@v5
+elaborate-gates-1	4.0	6	Put a job-private Python environment on PATH
+elaborate-gates-1	0.7	3	Cache the pinned pip downloads
+elaborate-gates-1	24.2	28	Install LiteX at the pinned revisions
+elaborate-gates-1	0.8	3	Cache the Scala toolchain
+elaborate-gates-1	0.5	1	Cache the generated CPU metadata
+elaborate-gates-1	1.1	2	Install sbt
+elaborate-gates-1	6.0	8	Place the VexiiRiscv source at the revision LiteX pins
+elaborate-gates-1	0.3	1	Apply the toolchain patch series
+elaborate-gates-1	2.6	6	Cache the pinned RV32 SDK
+elaborate-gates-1	1.9	3	Install and verify the pinned RV32 SDK
+elaborate-gates-1	977.5	1300	Elaboration gates, leg 1 of 2
+elaborate-gates-1	0.0	0	Keep the generated CPU netlist arguments for the next run
+elaborate-gates-1	0.5	1	Record executed gate outcomes
+elaborate-gates-1	1.2	2	Upload executed gate outcomes
+elaborate-gates-1	3.5	9	Record actual job execution
+elaborate-gates-1	1.2	2	Upload actual job execution
+elaborate-gates-1	0.1	1	Post Cache the pinned RV32 SDK
+elaborate-gates-1	0.7	1	Post Cache the generated CPU metadata
+elaborate-gates-1	1.2	3	Post Cache the Scala toolchain
+elaborate-gates-1	0.6	1	Post Cache the pinned pip downloads
+elaborate-gates-1	0.1	1	Post Run actions/setup-python@v5
+elaborate-gates-1	0.3	1	Post Cache verified sv2v archive
+elaborate-gates-1	0.6	1	Post Cache exact Python downloads
+elaborate-gates-1	0.2	1	Post Run actions/checkout@v4
+elaborate-gates-1	0.1	1	Complete job
+elaborate-gates-2	2.1	4	Set up job
+elaborate-gates-2	28.2	32	Run actions/checkout@v4
+elaborate-gates-2	0.2	1	Set CPU-derived job budgets
+elaborate-gates-2	1.4	3	Cache exact Python downloads
+elaborate-gates-2	44.0	65	Decide whether this head needs an elaboration
+elaborate-gates-2	3.0	5	Fetch the source dependencies the elaboration reads
+elaborate-gates-2	0.5	1	Install the pinned sv2v release
+elaborate-gates-2	0.1	1	Run actions/setup-python@v5
+elaborate-gates-2	4.5	6	Put a job-private Python environment on PATH
+elaborate-gates-2	27.4	33	Install LiteX at the pinned revisions
+elaborate-gates-2	1.8	4	Install sbt
+elaborate-gates-2	7.2	9	Place the VexiiRiscv source at the revision LiteX pins
+elaborate-gates-2	0.4	1	Apply the toolchain patch series
+elaborate-gates-2	3.9	11	Cache the pinned RV32 SDK
+elaborate-gates-2	2.0	3	Install and verify the pinned RV32 SDK
+elaborate-gates-2	1.2	4	Cache the pinned Verilator build
+elaborate-gates-2	0.4	2	Put Verilator on PATH and prove the version
+elaborate-gates-2	339.9	470	Standalone LiteX simulation aggregate, leg 0 of 3
+elaborate-gates-2	0.2	1	Record executed gate outcomes
+elaborate-gates-2	1.2	3	Upload executed gate outcomes
+elaborate-gates-2	5.0	10	Record actual job execution
+elaborate-gates-2	1.4	2	Upload actual job execution
+elaborate-gates-2	0.7	4	Post Cache the pinned Verilator build
+elaborate-gates-2	0.1	1	Post Cache the pinned RV32 SDK
+elaborate-gates-2	0.1	1	Post Run actions/setup-python@v5
+elaborate-gates-2	0.3	1	Post Cache exact Python downloads
+elaborate-gates-2	0.1	1	Post Run actions/checkout@v4
+elaborate-gates-2	0.0	0	Complete job
+elaborate-gates-0	2.3	4	Set up job
+elaborate-gates-0	30.2	55	Run actions/checkout@v4
+elaborate-gates-0	0.2	1	Set CPU-derived job budgets
+elaborate-gates-0	1.1	2	Cache exact Python downloads
+elaborate-gates-0	43.4	65	Decide whether this head needs an elaboration
+elaborate-gates-0	3.0	4	Fetch the source dependencies the elaboration reads
+elaborate-gates-0	0.7	2	Cache verified sv2v archive
+elaborate-gates-0	0.3	1	Install the pinned sv2v release
+elaborate-gates-0	0.3	1	Run actions/setup-python@v5
+elaborate-gates-0	4.4	7	Put a job-private Python environment on PATH
+elaborate-gates-0	1.0	4	Cache the pinned pip downloads
+elaborate-gates-0	26.2	32	Install LiteX at the pinned revisions
+elaborate-gates-0	1.2	3	Cache the Scala toolchain
+elaborate-gates-0	1.4	2	Install sbt
+elaborate-gates-0	6.8	10	Place the VexiiRiscv source at the revision LiteX pins
+elaborate-gates-0	0.2	1	Apply the toolchain patch series
+elaborate-gates-0	3.4	5	Cache the pinned RV32 SDK
+elaborate-gates-0	1.9	2	Install and verify the pinned RV32 SDK
+elaborate-gates-0	852.1	1157	Elaboration gates, leg 0 of 2
+elaborate-gates-0	0.3	1	Record executed gate outcomes
+elaborate-gates-0	1.1	2	Upload executed gate outcomes
+elaborate-gates-0	4.1	9	Record actual job execution
+elaborate-gates-0	1.2	2	Upload actual job execution
+elaborate-gates-0	0.1	1	Post Cache the pinned RV32 SDK
+elaborate-gates-0	1.2	3	Post Cache the Scala toolchain
+elaborate-gates-0	0.6	2	Post Cache the pinned pip downloads
+elaborate-gates-0	0.2	1	Post Run actions/setup-python@v5
+elaborate-gates-0	0.2	1	Post Cache verified sv2v archive
+elaborate-gates-0	0.2	1	Post Cache exact Python downloads
+elaborate-gates-0	0.2	1	Post Run actions/checkout@v4
+elaborate-gates-0	0.1	1	Complete job
+elaborate-gates-3	2.1	4	Set up job
+elaborate-gates-3	30.0	42	Run actions/checkout@v4
+elaborate-gates-3	0.1	1	Set CPU-derived job budgets
+elaborate-gates-3	1.1	2	Cache exact Python downloads
+elaborate-gates-3	45.5	66	Decide whether this head needs an elaboration
+elaborate-gates-3	2.8	4	Fetch the source dependencies the elaboration reads
+elaborate-gates-3	0.3	1	Install the pinned sv2v release
+elaborate-gates-3	0.3	1	Run actions/setup-python@v5
+elaborate-gates-3	4.3	6	Put a job-private Python environment on PATH
+elaborate-gates-3	26.6	33	Install LiteX at the pinned revisions
+elaborate-gates-3	1.6	3	Install sbt
+elaborate-gates-3	6.6	10	Place the VexiiRiscv source at the revision LiteX pins
+elaborate-gates-3	0.3	1	Apply the toolchain patch series
+elaborate-gates-3	2.9	6	Cache the pinned RV32 SDK
+elaborate-gates-3	2.0	2	Install and verify the pinned RV32 SDK
+elaborate-gates-3	1.2	3	Cache the pinned Verilator build
+elaborate-gates-3	0.3	1	Put Verilator on PATH and prove the version
+elaborate-gates-3	329.2	459	Standalone LiteX simulation aggregate, leg 1 of 3
+elaborate-gates-3	0.1	1	Record executed gate outcomes
+elaborate-gates-3	1.1	2	Upload executed gate outcomes
+elaborate-gates-3	5.0	11	Record actual job execution
+elaborate-gates-3	1.1	2	Upload actual job execution
+elaborate-gates-3	1.1	4	Post Cache the pinned Verilator build
+elaborate-gates-3	0.1	1	Post Cache the pinned RV32 SDK
+elaborate-gates-3	0.0	0	Post Run actions/setup-python@v5
+elaborate-gates-3	0.1	1	Post Cache exact Python downloads
+elaborate-gates-3	0.4	1	Post Run actions/checkout@v4
+elaborate-gates-3	0.1	1	Complete job
+elaborate-gates-4	1.9	4	Set up job
+elaborate-gates-4	28.1	38	Run actions/checkout@v4
+elaborate-gates-4	0.1	1	Set CPU-derived job budgets
+elaborate-gates-4	1.2	2	Cache exact Python downloads
+elaborate-gates-4	44.4	66	Decide whether this head needs an elaboration
+elaborate-gates-4	3.1	4	Fetch the source dependencies the elaboration reads
+elaborate-gates-4	0.3	1	Install the pinned sv2v release
+elaborate-gates-4	0.3	1	Run actions/setup-python@v5
+elaborate-gates-4	3.9	6	Put a job-private Python environment on PATH
+elaborate-gates-4	27.5	34	Install LiteX at the pinned revisions
+elaborate-gates-4	1.9	5	Install sbt
+elaborate-gates-4	7.0	10	Place the VexiiRiscv source at the revision LiteX pins
+elaborate-gates-4	0.5	1	Apply the toolchain patch series
+elaborate-gates-4	3.6	6	Cache the pinned RV32 SDK
+elaborate-gates-4	1.8	3	Install and verify the pinned RV32 SDK
+elaborate-gates-4	1.4	5	Cache the pinned Verilator build
+elaborate-gates-4	0.4	1	Put Verilator on PATH and prove the version
+elaborate-gates-4	619.9	852	Standalone LiteX simulation aggregate, leg 2 of 3
+elaborate-gates-4	0.1	1	Record executed gate outcomes
+elaborate-gates-4	1.2	2	Upload executed gate outcomes
+elaborate-gates-4	3.5	10	Record actual job execution
+elaborate-gates-4	1.1	2	Upload actual job execution
+elaborate-gates-4	0.8	5	Post Cache the pinned Verilator build
+elaborate-gates-4	0.1	1	Post Cache the pinned RV32 SDK
+elaborate-gates-4	0.2	1	Post Run actions/setup-python@v5
+elaborate-gates-4	0.2	1	Post Cache exact Python downloads
+elaborate-gates-4	0.2	1	Post Run actions/checkout@v4
+elaborate-gates-4	0.1	1	Complete job
+elaborate-gates-3	20.8	112	Resolve exact package downloads 16
+elaborate-gates-3	0.4	1	Cache exact package downloads 16
+elaborate-gates-3	317.8	407	Build Verilator from source on cache miss
+elaborate-gates-3	0.0	0	Post Cache exact package downloads 16
+elaborate-gates-2	10.6	16	Resolve exact package downloads 16
+elaborate-gates-2	0.3	1	Cache exact package downloads 16
+elaborate-gates-2	326.7	413	Build Verilator from source on cache miss
+elaborate-gates-2	0.0	0	Post Cache exact package downloads 16
+elaborate-gates-4	14.0	45	Resolve exact package downloads 16
+elaborate-gates-4	0.4	1	Cache exact package downloads 16
+elaborate-gates-4	330.8	415	Build Verilator from source on cache miss
+elaborate-gates-4	0.2	1	Post Cache exact package downloads 16

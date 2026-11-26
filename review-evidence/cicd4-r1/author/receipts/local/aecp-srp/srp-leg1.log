@@ -1,0 +1,952 @@
+1795679227.465 PASS: shard inventory rejects planted missing suite
+1795679227.669 PASS: shard inventory rejects planted duplicate suite
+1795679227.870 PASS: a newly discovered suite is assigned without an ownership list
+1795679227.870 PASS: 2005 live invocations in exactly one shard; shard sizes [98, 845, 399, 663]
+1795679227.873 PASS: nine invalid shard combinations refuse; failed normal suites still stop mutations
+1795679227.875 PASS: campaign legs reject a planted dropped leg
+1795679227.876 PASS: campaign legs reject a planted duplicated leg
+1795679227.878 PASS: 662 live defects of phase 3 in exactly one of 2 legs, leg sizes [332, 330]; six invalid campaign combinations refuse
+1795679227.883 toolchain: {'cc': 'gcc (GCC) 16.2.1 20260810', 'cxx': 'g++ (GCC) 16.2.1 20260810', 'gcov': 'gcov (GCC) 16.2.1 20260810', 'gtest': '1.18.0', 'gmock': '1.18.0'}
+1795679227.924 tsn-c-stack at 715589c1db7cf67e2f3259fd7083ebc7f0923376
+1795679228.348 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679228.348 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679228.348 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679242.762 [ok] f3b-listener-wrong-interface [endstation_ax7101_1x1_tdm8, 2 interfaces]: AcmpMailbox.F3bListenerRegistrationControlsItsOwnGate / registered Listener controls only its source interface gate
+1795679243.109 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679243.109 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679243.109 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679245.065 [ok] four-way-f3b-withdrawal-stale [endstation_ax7101_1x1_tdm8, 2 interfaces]: AcmpMailbox.F3bListenerRegistrationControlsItsOwnGate / registered Listener controls only its source interface gate
+1795679245.399 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679245.399 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679245.399 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679259.963 [ok] short-leave [endstation_ax7101_1x1_tdm8, 2 interfaces]: LeaveAfterLeaveAllStopsAtOriginalFiveSecondDeadline / Unexpected mock function call
+1795679260.301 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679260.301 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679260.301 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679262.296 [ok] ignore-link [endstation_ax7101_1x1_tdm8, 2 interfaces]: InterfaceStateDoesNotCross / adapter.ifs[i].active[0]
+1795679262.611 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679262.611 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679262.612 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679264.452 [ok] ignore-peer-domain [endstation_ax7101_1x1_tdm8, 2 interfaces]: DomainUsesPeerPriorityAndVlan / domain.priority
+1795679264.784 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679264.784 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679264.784 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679266.642 [ok] rx-overtakes-expiry [endstation_ax7101_1x1_tdm8, 2 interfaces]: ExpiryBacklogPrecedesSamePassReceive / adapter.stops
+1795679266.987 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679266.987 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679266.987 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679268.852 [ok] invalid-vid [endstation_ax7101_1x1_tdm8, 2 interfaces]: InvalidBindingsAndDuplicateBindingsPreserveState / srp_mbx_bind
+1795679269.182 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679269.182 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679269.182 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679271.086 [ok] missing-port-accepted [endstation_ax7101_1x1_tdm8, 2 interfaces]: MissingBootDependenciesRefuseBeforeAttachment / srp_mbx_init
+1795679271.471 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679271.471 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679271.471 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679273.505 [ok] malformed-uncounted [endstation_ax7101_1x1_tdm8, 2 interfaces]: InvalidFramesHaveNoReservationSideEffects / adapter.malformed
+1795679273.843 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679273.843 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679273.843 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679275.954 [ok] readyfailed-ignored [endstation_ax7101_1x1_tdm8, 2 interfaces]: ReadyFailedAndUninterestingStreamsAreSeparated / Actual function call count
+1795679276.360 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679276.360 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679276.360 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679278.286 [ok] foreign-vlan-stored [endstation_ax7101_1x1_tdm8, 2 interfaces]: MvrpAcceptsOnlyCurrentDomainVid / ctrl_pool_in_use
+1795679278.772 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679278.772 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679278.772 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679280.743 [ok] admission-ceiling-ignored [endstation_ax7101_1x1_tdm8, 2 interfaces]: AdmissionUsesBandwidthAndEthernetMinimum / admitted[0]
+1795679281.067 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679281.068 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679281.068 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679283.113 [ok] listener-refusal-lost [endstation_ax7101_1x1_tdm8, 2 interfaces]: SinkDeclarationExhaustionRetriesWithoutLosingBinding / declared
+1795679283.454 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679283.454 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679283.454 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679285.380 [ok] duplicate-tick-owner [endstation_ax7101_1x1_tdm8, 2 interfaces]: OneLoopOwnsTheGlobalCentisecondDispatch / srp_mbx_attach
+1795679285.825 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679285.825 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+1795679285.825 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+1795679301.139 [ok] startup-8x8-failure-code-past-two [endstation_ax7101_8x8, 2 interfaces]: StartupDeclaresTalkersDomainAndVlan / source 2's failure code
+1795679301.551 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-debug-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679301.551 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-debug-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679301.551 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-debug-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679306.638 [ok] binding-debug-guard [endstation_ax7101_1x1_tdm8, 2 interfaces]: SynchronousBindingFromOutputAsserts / failed to die
+1795679306.959 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-debug-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679306.959 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-debug-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679306.959 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-debug-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679309.047 [ok] tick-debug-guard [endstation_ax7101_1x1_tdm8, 2 interfaces]: SynchronousTickFromOutputAsserts / failed to die
+1795679309.419 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679309.419 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679309.419 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679311.404 [ok] unbind-shared-listener [endstation_ax7101_1x1_tdm8, 2 interfaces]: SharedBindingsRetainTheListenerAndVlanUntilTheLastUnbind / d.event
+1795679311.894 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679311.895 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679311.895 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679313.823 [ok] withdraw-same-domain [endstation_ax7101_1x1_tdm8, 2 interfaces]: PriorityOnlyDomainChangeKeepsVlanMembership / d.event
+1795679314.167 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679314.167 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679314.167 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679316.307 [ok] ready-before-vlan [endstation_ax7101_1x1_tdm8, 2 interfaces]: SinkMembershipCommitsBeforeReadyAtStartup / joined
+1795679316.629 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_latency-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679316.629 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_latency-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679316.629 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_latency-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679322.030 [ok] latency-domain-unserviced [endstation_ax7101_1x1_tdm8, 2 interfaces]: SrpLatency.ReceiveStateMalformedDomainAndListenerPaths / domain.vid
+1795679322.458 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_latency-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679322.458 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_latency-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679322.458 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_latency-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679328.078 [ok] latency-relaxed-budget [endstation_ax7101_1x1_tdm8, 2 interfaces]: SrpLatency.FullRingRetainsOriginalOriginAndElevenMillisecondStallFails / service_limit
+1795679328.510 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_walk-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679328.510 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_walk-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679328.511 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_walk-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679334.191 [ok] walk-match-da-ignored [endstation_ax7101_1x1_tdm8, 2 interfaces]: SrpWalk.StreamMatcherNearMissSwapAndImmediateWithdrawal / declared
+1795679334.547 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_walk-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679334.548 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_walk-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679334.548 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_walk-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679336.626 [ok] walk-startup-is-join [endstation_ax7101_1x1_tdm8, 2 interfaces]: SrpWalk.ProcessorApplicantTransmitAndReceivedRowsAgreeOnTheWire / d.event
+1795679336.974 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_shape-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679336.974 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_shape-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679336.974 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_shape-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679342.241 [ok] shape-last-output-missing [endstation_ax7101_1x1_tdm8, 2 interfaces]: EveryGeneratedOutputIsDeclaredAndEverySinkFits / outputs
+1795679342.561 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679342.561 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679342.561 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679344.524 [ok] preamble-ifg-omitted [endstation_ax7101_1x1_tdm8, 2 interfaces]: AdmissionStraddlesTheExactEthernetCeiling / admitted[0]
+1795679345.011 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679345.011 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679345.011 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679347.018 [ok] readyfailed-callback-stop [endstation_ax7101_1x1_tdm8, 2 interfaces]: ReadyToReadyFailedNeverGlitchesAnActiveLicence / mock function call
+1795679347.329 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679347.329 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679347.330 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679349.550 [ok] old-prefix-accepted [endstation_ax7101_1x1_tdm8, 2 interfaces]: LinkEventsDiscardOnlyTheirPublishedReceivePrefix / mock function call
+1795679349.901 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679349.901 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679349.901 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679352.035 [ok] event-reentry-unguarded [endstation_ax7101_1x1_tdm8, 2 interfaces]: EventReentryAndSinkCapacityAreGuarded / adapter.reentries
+1795679352.463 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679352.463 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679352.464 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679354.413 [ok] link-level-loss-ignored [endstation_ax7101_1x1_tdm8, 2 interfaces]: LinkLevelLossAndFirstDownEventAreFailClosed / adapter.ifs[0].active[0]
+1795679354.850 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679354.850 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679354.851 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679356.923 [ok] downlink-receive-accepted [endstation_ax7101_1x1_tdm8, 2 interfaces]: OldReceiveBacklogCannotRegisterAcrossLinkRestart / adapter.ifs[i].registered[0]
+1795679357.291 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679357.291 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679357.291 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679359.471 [ok] delayed-in-talker [endstation_ax7101_1x1_tdm8, 2 interfaces]: InTalkerWithdrawalImmediatelyWithdrawsListener / declared
+1795679359.799 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679359.799 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679359.799 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679361.878 [ok] cancelled-link-never-recovers [endstation_ax7101_1x1_tdm8, 2 interfaces]: CancelledLinkRecordRecoversFromLevelAndFencesOldReceive / adapter.ifs[i].link
+1795679362.278 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679362.278 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679362.278 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679364.177 [ok] rebind-loses-shared-applicant [endstation_ax7101_1x1_tdm8, 2 interfaces]: SharedRebindKeepsOnlyTheRemainingEligibleRequest / left
+1795679364.550 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679364.551 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679364.551 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679366.603 [ok] joining-binding-loses-applicant [endstation_ax7101_1x1_tdm8, 2 interfaces]: JoiningIneligibleBindingWithdrawsReadyWhenOriginalLeaves / d.event
+1795679366.965 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679366.965 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679366.965 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679369.095 [ok] final-unbind-withdraws-domain-vid [endstation_ax7101_1x1_tdm8, 2 interfaces]: FinalDomainVidUnbindKeepsSrClassMembership / d.event
+1795679369.519 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679369.519 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679369.519 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679371.372 [ok] reset-keeps-owed-domain [endstation_ax7101_1x1_tdm8, 2 interfaces]: RefusedPeerDomainDoesNotSurviveLinkRestart / domain.vid
+1795679371.824 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679371.824 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679371.824 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679373.733 [ok] shared-ready-uses-first-vlan [endstation_ax7101_1x1_tdm8, 2 interfaces]: SharedReadyWaitsForTheMatchingBindingsOwnVlan / vlan
+1795679374.062 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679374.062 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679374.062 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679380.548 [ok] receive-retry-removed [endstation_ax7101_1x1_tdm8, 2 interfaces]: SrpRetry.RefusedMixedPayloadRetriesWithoutPeerRetransmission / adapter.received
+1795679380.940 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679380.940 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679380.941 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679382.974 [ok] receive-record-lost [endstation_ax7101_1x1_tdm8, 2 interfaces]: SrpRetry.RefusedMixedPayloadRetriesWithoutPeerRetransmission / adapter.pending_rx.len
+1795679383.307 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679383.308 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679383.308 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679385.229 [ok] receive-overtakes-retained [endstation_ax7101_1x1_tdm8, 2 interfaces]: SrpRetry.LaterRecordsCannotOvertakeRetainedInterface / loop.stats.rx_records
+1795679385.589 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679385.589 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679385.589 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679387.352 [ok] peer-reset-cancels-retained-receive [endstation_ax7101_1x1_tdm8, 2 interfaces]: SrpRetry.OtherInterfaceResetPreservesRetainedPayload / adapter.pending_rx.len
+1795679387.689 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679387.689 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679387.690 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679389.580 [ok] bind-overtakes-retained-receive [endstation_ax7101_1x1_tdm8, 2 interfaces]: SrpRetry.RefusedMixedPayloadRetriesWithoutPeerRetransmission / srp_mbx_bind
+1795679389.935 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679389.935 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679389.935 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679395.747 [ok] composition-srp-irq-omitted [endstation_ax7101_1x1_tdm8, 2 interfaces]: SrpApp.AllThreeProtocolsShareTheLoopAndWakeSources / model.irq_enable
+1795679396.068 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679396.069 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679396.069 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679398.166 [ok] recreated-receive-retry-removed [endstation_ax7101_1x1_tdm8, 2 interfaces]: SrpRetry.FailedParticipantRecreationRetainsFreshReceive / adapter.received
+1795679398.555 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679398.556 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679398.556 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679400.404 [ok] receive-retry-passes-owed [endstation_ax7101_1x1_tdm8, 2 interfaces]: SrpRetry.RetainedReceiveWaitsForOwedTransmit / adapter.pending_rx.len
+1795679400.808 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679400.808 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679400.808 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679402.827 [ok] future-receive-refused [endstation_ax7101_1x1_tdm8, 2 interfaces]: SrpRetry.WholeInvalidPduIsMalformedAndFutureUnknownMessageIsSkipped / adapter.ifs[0].active[0]
+1795679403.156 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679403.156 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679403.156 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679405.152 [ok] composition-refusal-ignored [endstation_ax7101_1x1_tdm8, 2 interfaces]: SrpApp.AttachRefusalPreservesExistingComposition / ctrl_app_attach_srp
+1795679405.486 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679405.487 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679405.487 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679407.311 [ok] receive-retention-unbounded [endstation_ax7101_1x1_tdm8, 2 interfaces]: SrpRetry.OversizedValidRecordExpiresOnceAndReleasesOtherInterfaceAndBinding / adapter.pending_rx.len
+1795679407.786 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679407.786 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679407.787 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679409.632 [ok] receive-retention-late [endstation_ax7101_1x1_tdm8, 2 interfaces]: SrpRetry.OversizedValidRecordExpiresOnceAndReleasesOtherInterfaceAndBinding / adapter.rx_discarded
+1795679409.942 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679409.942 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679409.943 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679411.912 [ok] receive-discard-malformed [endstation_ax7101_1x1_tdm8, 2 interfaces]: SrpRetry.OversizedValidRecordExpiresOnceAndReleasesOtherInterfaceAndBinding / adapter.malformed
+1795679412.253 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679412.254 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679412.254 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679414.203 [ok] receive-queue-renews-deadline [endstation_ax7101_1x1_tdm8, 2 interfaces]: SrpRetry.QueuedRefusalKeepsOriginalArrivalDeadlineAcrossClockWrap / adapter.rx_discarded
+1795679414.669 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679414.669 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679414.670 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679416.583 [ok] receive-expiry-precedes-recovery [endstation_ax7101_1x1_tdm8, 2 interfaces]: SrpRetry.RecoveryAtDeadlineStillAppliesTheCompleteRecord / adapter.received
+1795679416.934 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679416.934 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679416.934 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679418.925 [ok] receive-flood-unbounded [endstation_ax7101_1x1_tdm8, 2 interfaces]: SrpRetry.DomainFloodCannotDelayLaterRapidLeave / adapter.pending_rx.len
+1795679419.263 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679419.263 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679419.263 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679421.389 [ok] four-way-srp-irq-missing [endstation_ax7101_1x1_tdm8, 2 interfaces]: AcmpMailbox.U6AdpAcmpAndMaapShareTheLoopOnDisjointSlotsWithEveryChannelOpen / U6 exact four-channel receive and event interrupt mask
+1795679421.713 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679421.714 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679421.714 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679423.687 [ok] four-way-acmp-enable-lost [endstation_ax7101_1x1_tdm8, 2 interfaces]: AcmpMailbox.U6AdpAcmpAndMaapShareTheLoopOnDisjointSlotsWithEveryChannelOpen / U6 four receive channels and no others
+1795679424.144 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679424.144 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679424.145 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679437.095 [ok] four-way-bound-drops-srp [endstation_ax7101_1x1_tdm8, 2 interfaces]: AcmpMailbox.F6WithMaapComposedEveryPassStaysWithinTheThreeWayBound / F6 four modules count each shared event record once
+1795679437.424 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679437.424 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679437.424 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679439.413 [ok] binding-delivery-missing [endstation_ax7101_1x1_tdm8, 2 interfaces]: SrpBinding.BindIsDeferredAndKeepsEverySinkAndInterface / binding delivered
+1795679439.902 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679439.902 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679439.902 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679441.861 [ok] binding-poll-adds-access [endstation_ax7101_1x1_tdm8, 2 interfaces]: SrpBinding.BindIsDeferredAndKeepsEverySinkAndInterface / binding poll makes no mailbox access
+1795679442.188 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679442.188 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679442.188 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679444.243 [ok] binding-sink-lost [endstation_ax7101_1x1_tdm8, 2 interfaces]: SrpBinding.BindIsDeferredAndKeepsEverySinkAndInterface / binding delivered
+1795679444.597 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679444.597 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679444.597 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679446.690 [ok] binding-owed-retry-dropped [endstation_ax7101_1x1_tdm8, 2 interfaces]: SrpBinding.OwedTransmissionRetriesAfterCommit / binding delivered
+1795679447.008 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679447.008 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679447.008 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679448.906 [ok] binding-replacement-lost [endstation_ax7101_1x1_tdm8, 2 interfaces]: SrpBinding.ReplacementSupersedesPendingIdentity / stream identity delivered
+1795679449.228 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679449.228 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679449.228 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679451.280 [ok] binding-count-overflow [endstation_ax7101_1x1_tdm8, 2 interfaces]: SrpBinding.AttachmentRefusesMissingRoomAndShapeWithoutPartialBinding / ctrl_app_attach_srp
+1795679451.591 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679451.591 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679451.591 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679453.668 [ok] binding-reattach-recurses [endstation_ax7101_1x1_tdm8, 2 interfaces]: SrpBinding.AttachmentRefusesMissingRoomAndShapeWithoutPartialBinding / recompose before replacing the attached adapter
+1795679453.994 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679453.995 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679453.995 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679459.656 [ok] srp-bound-receive [endstation_ax7101_1x1_tdm8, 2 interfaces]: EventReceiveAndTransmitPollFitTheirMeasuredBounds / SRP refused receive bound
+1795679459.977 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679459.978 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679459.978 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679465.560 [ok] srp-bound-poll [endstation_ax7101_1x1_tdm8, 2 interfaces]: EventReceiveAndTransmitPollFitTheirMeasuredBounds / SRP retained receive poll bound
+1795679465.878 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679465.879 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679465.879 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679471.367 [ok] srp-bound-rx-record [endstation_ax7101_1x1_tdm8, 2 interfaces]: EventReceiveAndTransmitPollFitTheirMeasuredBounds / SRP maximum RX record bound
+1795679471.769 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679471.769 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679471.769 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679473.777 [ok] feedback-advertise-missing [endstation_ax7101_1x1_tdm8, 2 interfaces]: SrpBinding.AdvertiseFeedbackIsDeferredAndSurvivesNoTalkerDeadline / Advertise reaches ACMP
+1795679474.111 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679474.112 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679474.112 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679476.382 [ok] feedback-withdrawal-missing [endstation_ax7101_1x1_tdm8, 2 interfaces]: SrpBinding.FailedRegistrationReachesAcmpAndWithdrawalReprobes / withdrawal reaches ACMP
+1795679476.704 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679476.704 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679476.704 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679478.700 [ok] feedback-interface-suppressed [endstation_ax7101_1x1_tdm8, 2 interfaces]: SrpBinding.RegistrationKeepsSinkAndInterfaceIdentity / feedback uses configured interface
+1795679479.047 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679479.047 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679479.048 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679480.967 [ok] binding-park-keeps-old [endstation_ax7101_1x1_tdm8, 2 interfaces]: SrpBinding.ParkedReplacementRetiresThePreviouslyAcceptedBinding / parking retires the old accepted binding
+1795679481.327 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679481.327 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679481.327 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679483.379 [ok] binding-invalid-upper-bound [endstation_ax7101_1x1_tdm8, 2 interfaces]: SrpBinding.PermanentRefusalParksAndDoesNotBlockAnotherSink / permanent refusal is visible
+1795679483.744 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679483.745 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679483.745 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679489.511 [ok] srp-term-fixed [endstation_ax7101_1x1_tdm8, 2 interfaces]: Srp.PollTermsAreMeasuredSeparatelyThroughRealCallbacks / poll fixed term is funded independently
+1795679489.842 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679489.842 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679489.843 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679495.256 [ok] srp-term-interface-count [endstation_ax7101_1x1_tdm8, 2 interfaces]: Srp.PollTermsAreMeasuredSeparatelyThroughRealCallbacks / poll fixed term is funded independently
+1795679495.573 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679495.574 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679495.574 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679501.235 [ok] srp-term-send-cost [endstation_ax7101_1x1_tdm8, 2 interfaces]: Srp.PollTermsAreMeasuredSeparatelyThroughRealCallbacks / real send callback maximum
+1795679501.559 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679501.559 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679501.559 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679507.199 [ok] srp-term-rx-count [endstation_ax7101_1x1_tdm8, 2 interfaces]: Srp.PassFundsEveryEventRecordAndBothMaximumReceives / pass receive count is funded independently
+1795679507.516 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679507.516 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679507.517 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679509.396 [ok] srp-poll-extra-read [endstation_ax7101_1x1_tdm8, 2 interfaces]: Srp.PollTermsAreMeasuredSeparatelyThroughRealCallbacks / one link read per interface
+1795679509.802 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679509.802 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679509.803 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679511.903 [ok] feedback-kind-failed-lost [endstation_ax7101_1x1_tdm8, 2 interfaces]: SrpFeedback.AdvertiseToFailedUpdatesTheSettledWireView / current kind reaches ACMP
+1795679512.223 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679512.223 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679512.223 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679514.265 [ok] feedback-withdrawal-overwritten [endstation_ax7101_1x1_tdm8, 2 interfaces]: SrpFeedback.WithdrawalThenRegistrationRetainsTheFirstEvent / retained withdrawal reprobes
+1795679514.576 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679514.576 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679514.576 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679516.573 [ok] feedback-leave-clears-advertise-only [endstation_ax7101_1x1_tdm8, 2 interfaces]: SrpFeedback.FailedSinglePduWithdrawalThenRegistrationRetainsTheFirstEvent / retained withdrawal reprobes
+1795679516.917 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679516.918 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679516.918 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679518.856 [ok] feedback-change-clears-both-kinds [endstation_ax7101_1x1_tdm8, 2 interfaces]: SrpFeedback.BothKindsFailedLeaveInsideOnePduIsNotAWithdrawal / continuous Advertise is not withdrawn
+1795679519.223 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679519.223 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679519.223 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679521.240 [ok] feedback-first-registration-lost [endstation_ax7101_1x1_tdm8, 2 interfaces]: SrpFeedback.FirstRegistrationThenWithdrawalIsDeliveredInOrder / retained withdrawal reprobes
+1795679521.685 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679521.685 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679521.686 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679523.617 [ok] feedback-supersession-lost [endstation_ax7101_1x1_tdm8, 2 interfaces]: SrpFeedback.WithdrawalIsIsolatedAndSupersededEvenForAnIdenticalStream / kind preserves settled state
+1795679523.946 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679523.946 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679523.946 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679526.010 [ok] feedback-advertise-copy-lost [endstation_ax7101_1x1_tdm8, 2 interfaces]: SrpFeedback.SinglePduKindReplacementsRemainContinuous / kind preserves settled state
+1795679526.365 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679526.365 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679526.365 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679528.370 [ok] feedback-identity-copy-stale [endstation_ax7101_1x1_tdm8, 2 interfaces]: SrpFeedback.SinglePduIdentityMismatchThenRecoveryStillWithdraws / retained withdrawal reprobes
+1795679528.761 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679528.761 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679528.762 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679530.663 [ok] p11-reset-withdrawal-lost [endstation_ax7101_1x1_tdm8, 2 interfaces]: SrpFeedback.LinkResetWithdrawsTheSettledRegistration / link reset withdraws registration
+1795679531.015 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679531.016 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679531.016 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679533.019 [ok] r10-feedback-ignores-pending [endstation_ax7101_1x1_tdm8, 2 interfaces]: SrpFeedback.ReplacementAwaitingDeliveryGetsNoOldRegistration / old registration cannot settle replacement
+1795679533.348 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679533.348 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679533.348 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679546.116 [ok] r10-feedback-allowance-quarter [endstation_ax7101_1x1_tdm8, 2 interfaces]: SrpFeedback.DiscoveredWithdrawalMeasuresTheFundedPath / measured feedback per sink allowance
+1795679546.515 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679546.516 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679546.516 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679548.560 [ok] binding-change-not-copied [endstation_ax7101_1x1_tdm8, 2 interfaces]: HeldRegistrationsAreWhatAWalkCopiesAfterEveryStep / holds what a walk copies
+1795679548.889 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679548.889 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679548.890 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679550.703 [ok] unchanged-record-walks [endstation_ax7101_1x1_tdm8, 2 interfaces]: ARecordThatChangesNoRegistrationCostsNoWalk / a record that changes nothing walks no registrar
+1795679551.032 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679551.033 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679551.033 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679552.819 [ok] own-talker-declaration-not-copied [endstation_ax7101_1x1_tdm8, 2 interfaces]: OwnDeclarationsThatRewriteARegisteredValueAreCopied / the adopted Domain's Talker declaration rewrote the registered Talker
+1795679553.153 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679553.154 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679553.154 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679554.975 [ok] pub-licence-after-the-report [endstation_ax7101_1x1_tdm8, 2 interfaces]: PubLicenceIsSetAndClearedBeforeEachChangeIsReported / PUB LICENCE holds source 0's bit before the licence is reported
+1795679555.301 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679555.301 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679555.301 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679557.165 [ok] pub-licence-wrong-bit [endstation_ax7101_1x1_tdm8, 2 interfaces]: PubLicenceIsSetAndClearedBeforeEachChangeIsReported / PUB LICENCE holds source 0's bit before the licence is reported
+1795679557.500 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679557.501 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679557.501 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679559.397 [ok] pub-licence-kept-at-destroy [endstation_ax7101_1x1_tdm8, 2 interfaces]: PubLicenceIsSetAndClearedBeforeEachChangeIsReported / PUB destroy clears LICENCE before any revocation is reported
+1795679559.736 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679559.736 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679559.736 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679561.584 [ok] pub-domain-priority-for-vid [endstation_ax7101_1x1_tdm8, 2 interfaces]: PubDomainPrecedesEveryDeclarationThatCarriesIt / PUB an MRPDU carrying the adopted Domain or its VID left after SR_DOMAIN published it
+1795679561.909 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679561.909 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679561.909 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679563.752 [ok] pub-domain-default-marked-adopted [endstation_ax7101_1x1_tdm8, 2 interfaces]: PubDomainPrecedesEveryDeclarationThatCarriesIt / PUB the default Domain {priority 3, VID 2}, not adopted, from startup
+1795679564.073 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679564.074 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679564.074 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679565.918 [ok] pub-slope-halved [endstation_ax7101_1x1_tdm8, 2 interfaces]: PubIdleSlopeIsPublishedBeforeTheDeclarationsItAdmits / PUB IDLE_SLOPE is the admitted bandwidth from startup
+1795679567.065 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679567.066 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679567.066 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679568.893 [ok] pub-domain-default-after-the-declarations [endstation_ax7101_1x1_tdm8, 2 interfaces]: PubDomainPrecedesEveryDeclarationThatCarriesIt / PUB after a link restart, the default Domain is published before it is declared again
+1795679569.229 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679569.229 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679569.229 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679574.713 [ok] pub-term-poll-understated [endstation_ax7101_1x1_tdm8, 2 interfaces]: PollPublicationTermIsMeasuredThroughRealCallbacks / the poll's publication term funds a reset, an adoption and two changes per source
+1795679575.031 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679575.032 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679575.032 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679580.345 [ok] pub-term-reopen-understated [endstation_ax7101_1x1_tdm8, 2 interfaces]: PollPublicationTermIsMeasuredThroughRealCallbacks / the poll after it publishes SR_DOMAIN, IDLE_SLOPE and TALKER_DECL, once each
+1795679580.673 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679580.673 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679580.673 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679582.562 [ok] pub-declared-in-the-licence [endstation_ax7101_1x1_tdm8, 2 interfaces]: PubTalkerDeclPrecedesTheDeclarationsAndIsWithdrawnFirst / PUB TALKER_DECL holds every declared source from startup
+1795679582.882 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679582.882 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679582.882 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679584.687 [ok] pub-declared-after-the-declarations [endstation_ax7101_1x1_tdm8, 2 interfaces]: PubTalkerDeclPrecedesTheDeclarationsAndIsWithdrawnFirst / PUB every MRPDU carrying a Talker declaration left with TALKER_DECL published again
+1795679585.036 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679585.036 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679585.036 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679586.994 [ok] pub-declared-withdrawn-after-the-new-declarations [endstation_ax7101_1x1_tdm8, 2 interfaces]: PubTalkerDeclPrecedesTheDeclarationsAndIsWithdrawnFirst / PUB a link restart withdraws TALKER_DECL before the new participants declare
+1795679587.503 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679587.503 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679587.504 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679589.558 [ok] pub-declared-dropped-at-adoption [endstation_ax7101_1x1_tdm8, 2 interfaces]: PubTalkerDeclHoldsAcrossADomainAdoption / PUB every Talker MRPDU under the adopted VID left with TALKER_DECL published again
+1795679589.880 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679589.881 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679589.881 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679591.776 [ok] pub-declared-skipped-at-adoption [endstation_ax7101_1x1_tdm8, 2 interfaces]: PubTalkerDeclHoldsAcrossADomainAdoption / PUB every Talker MRPDU under the adopted VID left with TALKER_DECL published again
+1795679592.130 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679592.130 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679592.130 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679594.162 [ok] pub-declared-as-each-source-joins [endstation_ax7101_1x1_tdm8, 2 interfaces]: PubTalkerDeclIsNotPublishedByACreationThatFails / publishes no Talker declaration
+1795679594.496 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679594.496 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679594.496 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679596.431 [ok] reset-builds-a-pass-late [endstation_ax7101_1x1_tdm8, 2 interfaces]: LinkChangeBuildsTheNewParticipantsOnTheNextPass / the next pass's poll builds the new participants
+1795679596.775 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679596.775 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679596.775 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679598.731 [ok] reset-receive-waits-on [endstation_ax7101_1x1_tdm8, 2 interfaces]: LinkChangeBuildsTheNewParticipantsOnTheNextPass / the record that waited is taken on the pass after
+1795679599.053 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679599.053 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679599.053 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679600.946 [ok] joint-reset-builds-both [endstation_ax7101_1x1_tdm8, 2 interfaces]: JointLinkChangeBuildsOneInterfaceAPass / a pass builds one interface at most
+1795679601.275 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679601.275 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679601.275 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679603.139 [ok] build-turn-not-moved [endstation_ax7101_1x1_tdm8, 2 interfaces]: JointLinkChangeBuildsOneInterfaceAPass / the interface whose turn it is is built first
+1795679603.514 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679603.514 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679603.514 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679605.504 [ok] build-turn-read-after-its-visit [endstation_ax7101_1x1_tdm8, 2 interfaces]: JointLinkChangeBuildsInterfaceOneBesideAWithdrawal / interface 1, due beside interface 0 still withdrawing with the turn, is built at once
+1795679605.823 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679605.823 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679605.824 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679607.646 [ok] reset-each-edge-builds [endstation_ax7101_1x1_tdm8, 2 interfaces]: LinkEdgesOfOnePassBuildOnce / a pass of link edges builds once
+1795679608.020 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679608.020 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679608.020 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679609.853 [ok] build-whole-in-any-slice [endstation_ax7101_1x1_tdm8, 2 interfaces]: ABuildResumedAcrossSlicesSendsTheFramesOfTheBuildMadeWhole / a slice that holds one MRPDU makes one
+1795679610.284 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679610.284 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679610.284 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679612.197 [ok] licence-before-vlan-across-slices [endstation_ax7101_1x1_tdm8, 2 interfaces]: ASlicedAdoptionLicensesItsTalkerOnlyOnceItsVlanIsSent / no Talker is licensed there while its VLAN is unsent
+1795679612.527 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679612.527 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679612.527 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679614.392 [ok] build-resumed-drops-what-came-due [endstation_ax7101_1x1_tdm8, 2 interfaces]: ABuildPausedBetweenSlicesStaysOwedAndKeepsWhatCameDue / a due set between a build's slices is owed once the build ends
+1795679614.823 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679614.823 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679614.823 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679616.799 [ok] build-paused-not-aged [endstation_ax7101_1x1_tdm8, 2 interfaces]: ABuildPausedBetweenSlicesStaysOwedAndKeepsWhatCameDue / a build resuming in the next slice is THE TRANSMIT's due
+1795679617.180 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679617.181 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679617.181 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679619.108 [ok] build-refused-second-slice-not-due [endstation_ax7101_1x1_tdm8, 2 interfaces]: ABuildPausedBetweenSlicesStaysOwedAndKeepsWhatCameDue / a frame the ring refuses in a build's second slice leaves its interface due
+1795679619.467 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679619.467 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679619.467 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679621.537 [ok] rebuild-holds-for-good [endstation_ax7101_1x1_tdm8, 2 interfaces]: ALinkResetHoldsRecordsToTheirCapUntilItsInterfaceIsBuilt / and the rebuild ends the hold
+1795679621.887 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679621.887 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679621.887 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679623.798 [ok] transmit-due-unreported [endstation_ax7101_1x1_tdm8, 2 interfaces]: AnOwedMrpduTakesAPassOfItsOwn / an owed MRPDU is reported owed
+1795679624.150 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679624.150 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679624.151 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679626.030 [ok] transmit-leaveall-owes-nothing [endstation_ax7101_1x1_tdm8, 2 interfaces]: TheJoinCountFollowsWhatABuildSent / a LeaveAll timer's end owes its LeaveAll
+1795679626.370 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679626.371 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679626.371 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679628.330 [ok] transmit-unbinding-holds-nothing [endstation_ax7101_1x1_tdm8, 2 interfaces]: AnOwedMrpduTakesAPassOfItsOwn / an unbinding that withdraws a declaration owes the MRPDU that sends it
+1795679628.685 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679628.685 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679628.685 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679630.736 [ok] transmit-walk-holds-nothing [endstation_ax7101_1x1_tdm8, 2 interfaces]: AnOwedMrpduTakesAPassOfItsOwn / the walk that finds its declaration owes the MRPDU that declares it
+1795679631.104 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679631.105 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679631.105 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679633.008 [ok] transmit-reentry-unguarded [endstation_ax7101_1x1_tdm8, 2 interfaces]: ReentryFromOutputIsRefusedAndCounted / adapter.reentries
+1795679633.368 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679633.368 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679633.369 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679635.329 [ok] transmit-not-bound [endstation_ax7101_1x1_tdm8, 2 interfaces]: AnOwedMrpduTakesAPassOfItsOwn / the pass goes to the build
+1795679635.695 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679635.695 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679635.695 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679637.814 [ok] transmit-kept-by-destroy [endstation_ax7101_1x1_tdm8, 2 interfaces]: AttachmentFailureIsAtomicAndDetachesAfterLoopReset / destroy detaches THE TRANSMIT's client
+1795679638.134 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679638.134 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679638.135 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679640.114 [ok] transmit-count-from-any-build [endstation_ax7101_1x1_tdm8, 2 interfaces]: TheJoinCountFollowsWhatABuildSent / a build that sends nothing leaves the count
+1795679640.482 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679640.482 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679640.482 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679642.441 [ok] transmit-moved-by-either-timer [endstation_ax7101_1x1_tdm8, 2 interfaces]: AnApplicantMovedOwesAPassWithItsOwnJoinTimerIdle / not while its own runs, the other's idle or not
+1795679642.924 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679642.924 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679642.924 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679644.893 [ok] transmit-first-vlan-send-declares-nothing [endstation_ax7101_1x1_tdm8, 2 interfaces]: AFirstVlanSendDeclaresWhatItLicensesInItsPass / the pass that sent it declares what it licensed
+1795679645.215 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679645.215 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679645.215 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679647.251 [ok] transmit-aged-beside-an-owed-frame [endstation_ax7101_1x1_tdm8, 2 interfaces]: AnOwedFrameComesBeforeTheBuild / no pass goes to the build while a frame is owed
+1795679647.587 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679647.587 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679647.588 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679649.610 [ok] transmit-declares-beside-a-retained-receive [endstation_ax7101_1x1_tdm8, 2 interfaces]: SrpRetry.OversizedValidRecordExpiresOnceAndReleasesOtherInterfaceAndBinding / a refused adoption takes no room a retained receive waits for
+1795679649.988 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679649.988 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679649.989 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679651.883 [ok] retry-without-a-change [endstation_ax7101_1x1_tdm8, 2 interfaces]: SrpRetry.RefusedRecordIsRetriedOnlyAfterAChangeAndAtMostOnceACentisecond / a retry with neither the pool nor an attribute changed
+1795679652.214 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679652.214 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679652.214 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679654.301 [ok] retry-every-pass [endstation_ax7101_1x1_tdm8, 2 interfaces]: SrpRetry.RefusedRecordIsRetriedOnlyAfterAChangeAndAtMostOnceACentisecond / at most one retry a centisecond
+1795679654.625 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679654.625 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679654.625 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679656.483 [ok] pool-return-uncounted [endstation_ax7101_1x1_tdm8, 2 interfaces]: SrpRetry.RefusedRecordIsRetriedOnlyAfterAChangeAndAtMostOnceACentisecond / the retry a change allows
+1795679656.824 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679656.824 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679656.824 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679658.808 [ok] refusal-moves-unrecorded [endstation_ax7101_1x1_tdm8, 2 interfaces]: SrpRetry.RefusedRecordIsRetriedOnlyAfterAChangeAndAtMostOnceACentisecond / a retry with neither the pool nor an attribute changed
+1795679659.129 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679659.129 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679659.129 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679661.072 [ok] unchanged-deadline-unchecked [endstation_ax7101_1x1_tdm8, 2 interfaces]: SrpRetry.NothingChangedStillExpiresAtTheDeadline / the deadline holds with nothing changed
+1795679661.401 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679661.401 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679661.401 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679663.464 [ok] same-skips-the-first-byte [endstation_ax7101_1x1_tdm8, 2 interfaces]: Srp.AListenerIsASourcesOnlyForItsStreamIDByteForByte / differs from source 0's in byte 0 alone
+1795679663.785 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679663.785 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+1795679663.785 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+1795679672.600 [ok] talker-declared-while-not-valid [endstation_ax7101_8x8, 2 interfaces]: Talker.ValidSourceDeclaresAtOnceAndNothingBefore / a source whose SRP parameters are not valid declares nothing
+1795679673.029 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679673.029 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+1795679673.030 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+1795679686.655 [ok] talker-lapse-ignored-by-the-entry [endstation_ax7101_8x8, 2 interfaces]: SrpGate.F895AProbeDeclaresTheSourceAndItsExpiryWithdrawsIt / the probe's 15 s expiry withdraws the Talker
+1795679687.013 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679687.013 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+1795679687.013 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+1795679688.989 [ok] talker-change-while-valid-unmarked [endstation_ax7101_8x8, 2 interfaces]: Talker.DestinationChangeWhileValidWithdrawsTheOld / a changed destination withdraws the old destination's Advertise
+1795679689.391 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679689.392 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+1795679689.392 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+1795679691.421 [ok] talker-decl-kept-at-the-withdrawal [endstation_ax7101_8x8, 2 interfaces]: Talker.LapseWithdrawsTheAdvertiseAndDeclaresNothing / TALKER_DECL clears the withdrawn source before its Leave leaves
+1795679691.746 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679691.746 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+1795679691.747 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+1795679693.751 [ok] talker-unchanged-declared-again [endstation_ax7101_8x8, 2 interfaces]: Talker.ValidSourceDeclaresAtOnceAndNothingBefore / a Talker whose parameters did not change is not declared again
+1795679694.080 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679694.080 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+1795679694.081 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+1795679695.899 [ok] talker-swap-keeps-the-old-type [endstation_ax7101_8x8, 2 interfaces]: Talker.AdmissionChangeSwapsTheTypeInPlace / the Failed leaves as the Advertise joins
+1795679696.294 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679696.294 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+1795679696.294 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+1795679698.246 [ok] talker-withdrawal-leaves-an-advertise-only [endstation_ax7101_8x8, 2 interfaces]: Talker.AdmissionChangeSwapsTheTypeInPlace / a lapse withdraws a Talker Failed too
+1795679698.601 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679698.601 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+1795679698.601 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+1795679700.545 [ok] talker-allocated-unfit-declares-code-2 [endstation_ax7101_8x8, 2 interfaces]: Talker.AdmissionChangeSwapsTheTypeInPlace / an allocated source whose bandwidth does not fit declares Talker Failed, code 1
+1795679700.874 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679700.874 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+1795679700.874 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+1795679702.919 [ok] talker-refused-withdrawal-forgotten [endstation_ax7101_8x8, 2 interfaces]: Talker.RefusedWithdrawalIsWithdrawnOnceLwsrpTakesIt / a withdrawal lwSRP refused keeps the source declared
+1795679703.288 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679703.289 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+1795679703.289 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+1795679705.190 [ok] talker-transmit-publishes-past-its-terms [endstation_ax7101_8x8, 2 interfaces]: Talker.TransmitPublishesWithinItsTermsAfterARefusedJoin / THE TRANSMIT's call publishes TALKER_DECL at most once a declarations pass
+1795679705.690 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679705.690 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+1795679705.691 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+1795679707.739 [ok] talker-lapse-starts-no-hold-off [endstation_ax7101_8x8, 2 interfaces]: SrpGate.F895ARangeLostWithdrawsAndTheNewRangeWaitsTheHoldOff / a changed destination waits two of the longest LeaveAll periods less its terms after the Leave
+1795679708.177 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679708.177 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+1795679708.177 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+1795679710.149 [ok] talker-hold-off-two-leavealltime-periods [endstation_ax7101_8x8, 2 interfaces]: Talker.ChangedDestinationWaitsTwoLongestLeaveAllPeriods / no Talker of a changed destination is declared before the hold-off ends
+1795679710.535 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679710.535 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+1795679710.535 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+1795679712.488 [ok] talker-hold-off-adds-its-terms [endstation_ax7101_8x8, 2 interfaces]: Talker.ChangedDestinationWaitsTwoLongestLeaveAllPeriods / the changed destination reaches the wire no later than two of the longest LeaveAll periods after the withdrawal
+1795679712.825 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679712.825 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+1795679712.825 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+1795679714.902 [ok] talker-hold-off-adds-its-terms-after-a-conflict [endstation_ax7101_8x8, 2 interfaces]: SrpGate.F895ARangeLostWithdrawsAndTheNewRangeWaitsTheHoldOff / the new range's destination reaches the wire within two of the longest LeaveAll periods of the conflict
+1795679715.252 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679715.252 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+1795679715.252 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+1795679717.242 [ok] talker-hold-off-takes-its-terms-twice [endstation_ax7101_8x8, 2 interfaces]: Talker.ChangedDestinationWaitsTwoLongestLeaveAllPeriods / no Talker of a changed destination is declared before the hold-off ends
+1795679717.576 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679717.576 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+1795679717.576 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+1795679719.590 [ok] talker-hold-off-drops-the-join-and-transmit-terms [endstation_ax7101_8x8, 2 interfaces]: Talker.ChangedDestinationWaitsTwoLongestLeaveAllPeriods / a changed destination is declared two of the longest LeaveAll periods less a JoinTime and THE TRANSMIT's term after its Leave's request
+1795679719.958 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679719.958 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+1795679719.958 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+1795679721.965 [ok] talker-hold-off-never-ends [endstation_ax7101_8x8, 2 interfaces]: Talker.ChangedDestinationWaitsTwoLongestLeaveAllPeriods / a changed destination is declared once the hold-off ends
+1795679722.359 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679722.359 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+1795679722.359 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+1795679724.200 [ok] talker-resume-drops-what-came-due-at-a-phase [endstation_ax7101_8x8, 2 interfaces]: EveryPhase/TalkerPhase.ChangedDestinationReachesTheWireWithinTwoLongestLeaveAllPeriods/Held340 / the changed destination reaches the wire no later than two of the longest LeaveAll periods after the withdrawal, at the latest
+1795679724.622 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679724.622 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+1795679724.622 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+1795679726.630 [ok] talker-gate-reentered [endstation_ax7101_8x8, 2 interfaces]: Talker.GateEntryRecordsOnlyWhatChanged / reentry is refused
+1795679727.131 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679727.132 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+1795679727.132 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+1795679729.061 [ok] talker-gate-repeat-ignores-its-base [endstation_ax7101_8x8, 2 interfaces]: Talker.DestinationChangeWhileValidWithdrawsTheOld / a changed destination withdraws the old destination's Advertise
+1795679729.387 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679729.387 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+1795679729.387 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+1795679731.515 [ok] talker-gate-of-another-range [endstation_ax7101_8x8, 2 interfaces]: SrpGate.F895AProbeDeclaresTheSourceAndItsExpiryWithdrawsIt / with MAAP's base + n
+1795679732.348 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679732.349 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+1795679732.349 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+1795679734.309 [ok] talker-sid-unwritten-at-start [endstation_ax7101_8x8, 2 interfaces]: SrpGate.F905AEachSourceStreamIdIsWrittenBeforeItsGateOpens / SRC_SID holds the source's stream_id when its DA_GATE bit opens
+1795679734.643 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679734.643 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+1795679734.643 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+1795679736.637 [ok] talker-sid-never-held [endstation_ax7101_8x8, 2 interfaces]: SrpGate.F905AStreamIdChangedWhileClosedIsWrittenBeforeTheGateReopens / SRC_SID holds the source's stream_id when its DA_GATE bit opens
+1795679736.981 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679736.981 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+1795679736.982 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+1795679738.947 [ok] talker-sid-written-mark-kept [endstation_ax7101_8x8, 2 interfaces]: SrpGate.F905AGateReopensOnlyOnceItsStreamIdIsWrittenAgain / both SRC_SID words are written again between the bit's closing and its reopening
+1795679739.285 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679739.285 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+1795679739.285 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+1795679741.376 [ok] talker-notice-withdrawal-missed [endstation_ax7101_8x8, 2 interfaces]: Talker.DeclarationAndWithdrawalAreNoticed / a withdrawal is noticed
+1795679741.700 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679741.700 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+1795679741.701 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+1795679743.722 [ok] talker-notice-every-declared-source [endstation_ax7101_8x8, 2 interfaces]: Talker.TypeSwapIsNoticed / a Talker Failed withdrawn is noticed
+1795679744.094 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679744.094 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+1795679744.094 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+1795679745.939 [ok] talker-notice-refused-swap-noticed [endstation_ax7101_8x8, 2 interfaces]: Talker.TypeSwapIsNoticed / a swap lwSRP refuses is not noticed until it is made
+1795679746.285 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679746.285 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+1795679746.285 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+1795679748.187 [ok] talker-notice-vid-on-every-domain [endstation_ax7101_8x8, 2 interfaces]: Talker.AdoptedDomainVidIsNoticed / a Domain that keeps the VID notices nothing
+1795679748.523 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679748.523 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+1795679748.523 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+1795679750.556 [ok] talker-notice-not-taken [endstation_ax7101_8x8, 2 interfaces]: SrpGate.F936AProbeAndItsExpiryEachNoticeTheSource / a probe's declaration notices its source
+1795679750.895 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679750.895 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+1795679750.895 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+1795679753.770 [ok] talker-notice-record-kept [endstation_ax7101_8x8, 2 interfaces]: SrpGate.F936AProbeAndItsExpiryEachNoticeTheSource / the SRP delivery takes SRP's record
+1795679754.095 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679754.096 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+1795679754.096 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+1795679755.950 [ok] talker-registration-unrecorded [endstation_ax7101_8x8, 2 interfaces]: Talker.ListenerRegistrationChangeIsNoticed / a Listener Ready appearing is noticed
+1795679756.305 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679756.305 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+1795679756.305 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+1795679758.391 [ok] talker-registration-declaration-uncopied [endstation_ax7101_8x8, 2 interfaces]: Talker.ListenerRegistrationChangeIsNoticed / a Listener declared New again unchanged is not noticed
+1795679758.777 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679758.777 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+1795679758.778 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+1795679760.701 [ok] talker-registration-of-source-zero [endstation_ax7101_8x8, 2 interfaces]: Talker.ListenerRegistrationChangeIsNoticed / a Listener Ready appearing is noticed
+1795679761.043 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_listeners-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679761.043 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_listeners-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+1795679761.043 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_listeners-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+1795679766.799 [ok] listener-copy-talker-indication-unwalked [endstation_ax7101_8x8, 2 interfaces]: Listeners.RandomRecordsMatchTheReferenceWalk / the copied run makes the reference run's mailbox writes and licence calls, in order
+1795679767.430 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_listeners-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679767.430 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_listeners-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+1795679767.430 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_listeners-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+1795679769.666 [ok] listener-copy-presence-lost [endstation_ax7101_8x8, 2 interfaces]: Listeners.RandomRecordsMatchTheReferenceWalk / the copied run makes the reference run's mailbox writes and licence calls, in order
+1795679769.991 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_listeners-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679769.991 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_listeners-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+1795679769.991 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_listeners-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+1795679771.995 [ok] listener-copy-departure-dropped [endstation_ax7101_8x8, 2 interfaces]: Listeners.RandomRecordsMatchTheReferenceWalk / the copied run makes the reference run's mailbox writes and licence calls, in order
+1795679772.324 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679772.324 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679772.325 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679774.199 [ok] feedback-latest-walk-failed-first [endstation_ax7101_1x1_tdm8, 2 interfaces]: SrpTalkerKinds.AnAdvertiseNewReplacesARegisteredFailedWithinAJoinTime / an Advertise New replaces the registered Failed
+1795679774.527 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679774.527 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679774.527 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679776.562 [ok] feedback-latest-decides-unregistered [endstation_ax7101_1x1_tdm8, 2 interfaces]: SrpTalkerKinds.LeaveOfEitherKindLeavesTheOtherDeciding / the latest leaves: the other decides
+1795679776.888 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679776.888 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679776.888 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679778.825 [ok] feedback-latest-not-carried [endstation_ax7101_1x1_tdm8, 2 interfaces]: SrpTalkerKinds.ABindingMadeLaterTakesTheLatestFromAnyBindingOfTheStream / the shared declaration stays Ready, not ReadyFailed
+1795679779.223 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679779.223 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679779.223 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679781.180 [ok] feedback-latest-renew-not-recorded [endstation_ax7101_1x1_tdm8, 2 interfaces]: SrpTalkerKinds.EachNewInTurnDecidesWhileBothAreRegistered / a Failed New beside the Advertise decides again
+1795679781.512 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679781.512 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679781.512 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679783.553 [ok] feedback-latest-not-carried-in-place [endstation_ax7101_1x1_tdm8, 2 interfaces]: SrpTalkerKinds.ABindingMadeLaterTakesTheLatestFromAnyBindingOfTheStream / one in place too
+1795679783.878 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679783.878 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679783.878 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679786.085 [ok] feedback-latest-filter-holds-nothing-acmp [endstation_ax7101_1x1_tdm8, 2 interfaces]: SrpFeedback.AnAdvertiseNewBeforeAnUnchangedDomainUpdatesBothWireViews / Listener Ready on the wire within a JoinTime
+1795679786.422 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679786.422 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679786.422 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679788.286 [ok] feedback-latest-held-not-taken [endstation_ax7101_1x1_tdm8, 2 interfaces]: SrpTalkerKinds.AFinalUnbindingKeepsTheLatestWhileBothStayRegistered / a final unbinding keeps the latest registration
+1795679788.792 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679788.793 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679788.793 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679790.765 [ok] feedback-latest-held-with-one-kind [endstation_ax7101_1x1_tdm8, 2 interfaces]: SrpTalkerKinds.AHeldStreamEndsWithEitherRegistrationOrAReset / one kind registered holds nothing
+1795679791.107 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679791.107 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679791.107 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679793.209 [ok] feedback-latest-held-past-a-reset [endstation_ax7101_1x1_tdm8, 2 interfaces]: SrpTalkerKinds.AHeldStreamEndsWithEitherRegistrationOrAReset / a registration's end or a reset ends the hold
+1795679793.539 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679793.539 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679793.539 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679795.379 [ok] held-latest-reset-any-interface [endstation_ax7101_1x1_tdm8, 2 interfaces]: SrpTalkerKinds.AStreamIsHeldForItsOwnInterface / another interface's reset leaves it
+1795679795.764 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_listeners-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679795.764 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_listeners-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679795.764 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_listeners-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679801.297 [ok] feedback-latest-filter-failed-first [endstation_ax7101_1x1_tdm8, 2 interfaces]: Listeners.RandomRecordsMatchTheReferenceReclaim / the copied run makes the reference run's mailbox writes and licence calls, in order, and holds its state
+1795679801.648 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679801.649 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+1795679801.649 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+1795679803.768 [ok] srp-cut-same-id-last-byte-only [endstation_ax7101_8x8, 2 interfaces]: Srp.AListenerIsASourcesOnlyForItsStreamIDByteForByte / differs from source 0's in byte 0 alone
+1795679804.094 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679804.094 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+1795679804.094 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+1795679805.995 [ok] srp-cut-filter-pass-inverted [endstation_ax7101_8x8, 2 interfaces]: SrpFeedback.SinglePduWithdrawalThenRegistrationRetainsTheFirstEvent / retained withdrawal reprobes
+1795679806.389 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_listeners-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679806.389 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_listeners-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+1795679806.389 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_listeners-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+1795679808.398 [ok] srp-cut-reclaim-any-registrar [endstation_ax7101_8x8, 2 interfaces]: Listeners.SteadyListenerRecordsAndBuildsWalkNoAttributes / a registered Listener's JoinIn and THE TRANSMIT's builds walk no attributes
+1795679808.766 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_listeners-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679808.766 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_listeners-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+1795679808.766 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_listeners-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+1795679810.923 [ok] srp-cut-reclaim-every-change-fresh [endstation_ax7101_8x8, 2 interfaces]: Listeners.AListenerLeftAsCreatedBesideAnotherChangeIsReclaimed / an attribute a receive created and left as created beside another change is reclaimed
+1795679811.253 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_listeners-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679811.253 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_listeners-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+1795679811.253 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_listeners-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+1795679813.284 [ok] srp-cut-reclaim-every-receive [endstation_ax7101_8x8, 2 interfaces]: Listeners.SteadyListenerRecordsAndBuildsWalkNoAttributes / a registered Listener's JoinIn and THE TRANSMIT's builds walk no attributes
+1795679813.671 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679813.671 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679813.671 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679815.703 [ok] feedback-early-talker-ignored [endstation_ax7101_1x1_tdm8, 2 interfaces]: SrpEarlyTalker.ARegistrationMadeBeforeItsBindingIsDeclaredWithinOneTransmitOnEveryInput / an Advertise registered before its binding
+1795679816.159 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679816.159 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679816.159 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679818.479 [ok] feedback-early-bound-first-sink-only [endstation_ax7101_1x1_tdm8, 2 interfaces]: SrpEarlyTalker.ABindingMadeBeforeItsRegistrationIsDeclaredWithinAJoinTimeOnEveryInput / a binding made before its registration
+1795679818.802 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679818.802 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679818.802 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679820.744 [ok] feedback-early-any-kind-kept [endstation_ax7101_1x1_tdm8, 2 interfaces]: SrpEarlyTalker.RegistrationsKeptBeforeABindingAreBoundedByTheInputs / the other kind of a kept StreamID, past the bound
+1795679821.072 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679821.073 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679821.073 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679823.073 [ok] feedback-early-count-adds [endstation_ax7101_1x1_tdm8, 2 interfaces]: SrpEarlyTalker.AKeptRegistrationThatLeftHoldsItsPlaceUntilItsBlockIsFreed / once its block is freed, another is kept
+1795679823.427 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679823.427 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679823.427 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679825.426 [ok] feedback-early-freed-uncounted [endstation_ax7101_1x1_tdm8, 2 interfaces]: SrpEarlyTalker.AKeptRegistrationThatLeftHoldsItsPlaceUntilItsBlockIsFreed / once its block is freed, another is kept
+1795679825.748 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679825.748 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679825.748 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679827.735 [ok] feedback-early-reset-counted [endstation_ax7101_1x1_tdm8, 2 interfaces]: SrpEarlyTalker.AResetLeavesNoKeptRegistrationCounted / after a reset, one vector of every input is kept whole
+1795679828.053 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679828.053 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679828.053 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679830.038 [ok] feedback-early-unregistered-unowed [endstation_ax7101_1x1_tdm8, 2 interfaces]: SrpEarlyTalker.AKeptLeaveOfAStreamNeverRegisteredIsCountedNoMoreOnceFreed / a Leave kept for a StreamID never registered
+1795679830.372 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679830.373 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679830.373 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679832.329 [ok] feedback-early-refresh-counted-again [endstation_ax7101_1x1_tdm8, 2 interfaces]: SrpEarlyTalker.AKeptRegistrationRefreshedIsCountedOnce / a kept registration refreshed in one receive
+1795679832.654 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_link_pass-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679832.654 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_link_pass-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679832.654 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_link_pass-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679837.502 [ok] link-pass-poll-takes-the-register [endstation_ax7101_1x1_tdm8, 2 interfaces]: SrpLinkPass.AfterTheEventsBeforeSrpsPoll / a first UP resets nothing
+1795679837.817 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_link_pass-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679837.817 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_link_pass-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679837.817 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_link_pass-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679839.667 [ok] link-pass-carried-stays-up [endstation_ax7101_1x1_tdm8, 2 interfaces]: SrpLinkPass.AfterTheEventsBeforeSrpsPoll / a later UP resets the interface once
+1795679839.983 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_link_pass-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679839.983 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_link_pass-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679839.983 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_link_pass-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679841.911 [ok] link-pass-carried-never-recorded [endstation_ax7101_1x1_tdm8, 2 interfaces]: SrpLinkPass.BeforeAPass / a first UP resets nothing
+1795679842.232 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679842.233 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679842.233 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679844.161 [ok] link-pass-down-waits-for-its-record [endstation_ax7101_1x1_tdm8, 2 interfaces]: LinkLevelLossAndFirstDownEventAreFailClosed / adapter.ifs[0].active[0]
+1795679844.477 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_link_pass-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679844.477 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_link_pass-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679844.477 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_link_pass-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679846.422 [ok] link-pass-unowed-up-never-taken [endstation_ax7101_1x1_tdm8, 2 interfaces]: Srp.AReattachWhoseDownRecordIsElidedFollowsTheLinkThatIsUp / SRP does not follow a link that is up
+1795679846.906 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_link_pass-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679846.906 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_link_pass-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679846.906 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_link_pass-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679848.894 [ok] link-pass-unowed-up-ignores-the-take [endstation_ax7101_1x1_tdm8, 2 interfaces]: SrpLinkPass.ALinkUpHeldBehindAFullEventRingIsTheFirstUp / SRP took an UP from the register while its LINK waited behind the ring's records
+1795679849.285 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_link_pass-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+1795679849.285 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_link_pass-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+1795679849.285 wrote $VALIDATION_STORAGE/cicd4-a839/srp-1/srp-mutants/work/build/srp-srp_link_pass-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+1795679851.260 [ok] link-pass-mark-survives-a-down-later [endstation_ax7101_1x1_tdm8, 2 interfaces]: SrpLinkPassElided.AnElidedUpAuthorizesNoFreshLaterUp / a later UP resets the interface once
+1795679865.535 [ok] four-way-f3b-asking-failed-excluded [endstation_ax7101_1x1_tdm8, 1 interface]: AcmpMailbox.F3bListenerRegistrationControlsItsOwnGate / registered Listener controls only its source interface gate
+1795679870.886 [ok] binding-debug-guard [endstation_ax7101_1x1_tdm8, 1 interface]: SynchronousBindingFromOutputAsserts / failed to die
+1795679873.183 [ok] four-way-srp-wake-missing [endstation_ax7101_1x1_tdm8, 1 interface]: AcmpMailbox.U6AdpAcmpAndMaapShareTheLoopOnDisjointSlotsWithEveryChannelOpen / U6 idle loop wakes for SRP alone
+1795679875.427 [ok] four-way-unbound-irq-enabled [endstation_ax7101_1x1_tdm8, 1 interface]: AcmpMailbox.U6AdpAcmpAndMaapShareTheLoopOnDisjointSlotsWithEveryChannelOpen / U6 exact four-channel receive and event interrupt mask
+1795679888.574 [ok] four-way-bound-duplicates-events [endstation_ax7101_1x1_tdm8, 1 interface]: AcmpMailbox.F6WithMaapComposedEveryPassStaysWithinTheThreeWayBound / F6 four modules count each shared event record once
+1795679891.076 [ok] binding-synchronous [endstation_ax7101_1x1_tdm8, 1 interface]: SrpBinding.BindIsDeferredAndKeepsEverySinkAndInterface / callback only queues the binding
+1795679893.578 [ok] binding-interface-lost [endstation_ax7101_1x1_tdm8, 1 interface]: SrpBinding.BindIsDeferredAndKeepsEverySinkAndInterface / binding delivered
+1795679896.007 [ok] binding-refusal-dropped [endstation_ax7101_1x1_tdm8, 1 interface]: SrpBinding.RefusedReceiveRetriesAfterRecoveryOrExpiry / binding delivered
+1795679898.294 [ok] binding-unbind-lost [endstation_ax7101_1x1_tdm8, 1 interface]: SrpBinding.UnbindCancelsPendingAndWithdrawsAcceptedBinding / unbind supersedes pending bind
+1795679900.544 [ok] binding-pending-sleeps [endstation_ax7101_1x1_tdm8, 1 interface]: SrpBinding.RefusedReceiveRetriesAfterRecoveryOrExpiry / pending binding keeps service awake
+1795679902.841 [ok] binding-poll-overflow [endstation_ax7101_1x1_tdm8, 1 interface]: SrpBinding.AttachmentRefusesMissingRoomAndShapeWithoutPartialBinding / ctrl_app_attach_srp
+1795679909.220 [ok] srp-bound-event [endstation_ax7101_1x1_tdm8, 1 interface]: EventReceiveAndTransmitPollFitTheirMeasuredBounds / SRP event bound
+1795679915.119 [ok] srp-bound-poll-transmit [endstation_ax7101_1x1_tdm8, 1 interface]: PassFundsEveryEventRecordAndBothMaximumReceives / pass funds the independently measured poll envelope
+1795679920.856 [ok] srp-bound-tx-record [endstation_ax7101_1x1_tdm8, 1 interface]: EventReceiveAndTransmitPollFitTheirMeasuredBounds / SRP maximum TX record bound
+1795679926.827 [ok] srp-bound-pass [endstation_ax7101_1x1_tdm8, 1 interface]: EventReceiveAndTransmitPollFitTheirMeasuredBounds / SRP complete pass bound
+1795679929.060 [ok] feedback-failed-as-advertise [endstation_ax7101_1x1_tdm8, 1 interface]: SrpBinding.FailedRegistrationReachesAcmpAndWithdrawalReprobes / Failed flag reaches ACMP
+1795679931.250 [ok] feedback-sink-crossed [endstation_ax7101_1x1_tdm8, 1 interface]: SrpBinding.RegistrationKeepsSinkAndInterfaceIdentity / feedback keeps sink identity
+1795679933.522 [ok] feedback-repeated [endstation_ax7101_1x1_tdm8, 1 interface]: SrpBinding.AdvertiseFeedbackIsDeferredAndSurvivesNoTalkerDeadline / unchanged registration is delivered once
+1795679935.953 [ok] binding-invalid-retries [endstation_ax7101_1x1_tdm8, 1 interface]: SrpBinding.PermanentRefusalParksAndDoesNotBlockAnotherSink / permanent refusal allows sleep
+1795679938.139 [ok] binding-park-never-clears [endstation_ax7101_1x1_tdm8, 1 interface]: SrpBinding.PermanentRefusalParksAndDoesNotBlockAnotherSink / replacement clears parking
+1795679944.038 [ok] srp-term-transmit-count [endstation_ax7101_1x1_tdm8, 1 interface]: Srp.PollTermsAreMeasuredSeparatelyThroughRealCallbacks / both of an interface's MRPDUs a call
+1795679950.088 [ok] srp-term-poll-frames-uncapped [endstation_ax7101_1x1_tdm8, 1 interface]: Srp.PollTermsAreMeasuredSeparatelyThroughRealCallbacks / both of an interface's MRPDUs a call
+1795679956.260 [ok] srp-term-event-record [endstation_ax7101_1x1_tdm8, 1 interface]: Srp.PassFundsEveryEventRecordAndBothMaximumReceives / pass event records are funded independently
+1795679962.451 [ok] srp-term-pass-poll [endstation_ax7101_1x1_tdm8, 1 interface]: Srp.PassFundsEveryEventRecordAndBothMaximumReceives / pass funds the independently measured poll envelope
+1795679964.629 [ok] srp-send-extra-read [endstation_ax7101_1x1_tdm8, 1 interface]: Srp.PollTermsAreMeasuredSeparatelyThroughRealCallbacks / real send callback has only the TX record's accesses
+1795679967.040 [ok] feedback-kind-advertise-lost [endstation_ax7101_1x1_tdm8, 1 interface]: SrpFeedback.FailedToAdvertiseUpdatesTheSettledWireView / current kind reaches ACMP
+1795679969.389 [ok] feedback-intrapdu-lost [endstation_ax7101_1x1_tdm8, 1 interface]: SrpFeedback.SinglePduWithdrawalThenRegistrationRetainsTheFirstEvent / retained withdrawal reprobes
+1795679971.608 [ok] feedback-failed-indication-as-advertise [endstation_ax7101_1x1_tdm8, 1 interface]: SrpFeedback.FailedReplacementWithdrawnInsideOnePduStillReprobes / retained withdrawal reprobes
+1795679974.039 [ok] feedback-expiry-lost [endstation_ax7101_1x1_tdm8, 1 interface]: SrpFeedback.ExpiryThenRegistrationRetainsTheFirstEvent / expiry retained before receive
+1795679976.259 [ok] feedback-kind-order-lost [endstation_ax7101_1x1_tdm8, 1 interface]: SrpFeedback.KindThenWithdrawalIsDeliveredInOrder / kind precedes withdrawal
+1795679978.423 [ok] feedback-withdrawal-sink-crossed [endstation_ax7101_1x1_tdm8, 1 interface]: SrpFeedback.WithdrawalIsIsolatedAndSupersededEvenForAnIdenticalStream / retained withdrawal reprobes
+1795679980.823 [ok] feedback-failed-copy-lost [endstation_ax7101_1x1_tdm8, 1 interface]: SrpFeedback.SinglePduKindReplacementsRemainContinuous / kind preserves settled state
+1795679983.011 [ok] p11-supersession-kind-stale [endstation_ax7101_1x1_tdm8, 1 interface]: SrpFeedback.IdenticalRebindAfterUndeliveredWithdrawalSettlesNoRsv / retired kind cannot settle the new epoch
+1795679985.344 [ok] p11-postwithdrawal-kind-overwrite [endstation_ax7101_1x1_tdm8, 1 interface]: SrpFeedback.LaterKindAfterWithdrawalIsNotReported / retained pre-withdrawal kind
+1795679987.789 [ok] r10-transient-refusal-forgotten [endstation_ax7101_1x1_tdm8, 1 interface]: SrpFeedback.EarlierSinkTransientRefusalKeepsDeliveryAwake / earlier refusal keeps delivery awake
+1795680001.032 [ok] r10-feedback-allowance-eight [endstation_ax7101_1x1_tdm8, 1 interface]: SrpFeedback.DiscoveredWithdrawalMeasuresTheFundedPath / measured feedback per sink allowance
+1795680015.168 [ok] pub-declared-dropped-at-adoption [endstation_ax7101_1x1_tdm8, 1 interface]: PubTalkerDeclHoldsAcrossADomainAdoption / PUB every Talker MRPDU under the adopted VID left with TALKER_DECL published again
+1795680017.116 [ok] pub-declared-skipped-at-adoption [endstation_ax7101_1x1_tdm8, 1 interface]: PubTalkerDeclHoldsAcrossADomainAdoption / PUB every Talker MRPDU under the adopted VID left with TALKER_DECL published again
+1795680019.031 [ok] pub-declared-as-each-source-joins [endstation_ax7101_1x1_tdm8, 1 interface]: PubTalkerDeclIsNotPublishedByACreationThatFails / publishes no Talker declaration
+1795680026.802 [ok] talker-lapse-kept [endstation_ax7101_1x1_tdm8, 1 interface]: Talker.LapseWithdrawsTheAdvertiseAndDeclaresNothing / a source whose parameters lapse withdraws its Talker
+1795680028.763 [ok] talker-unchanged-held [endstation_ax7101_1x1_tdm8, 1 interface]: Talker.UnchangedDestinationIsDeclaredAgainAtOnce / an unchanged destination is declared again at once
+1795680030.768 [ok] talker-reset-forgets-the-move [endstation_ax7101_1x1_tdm8, 1 interface]: Talker.ResetKeepsAnUnchangedSourceAndHoldsAMovedOne / the new participants hold a source that moved before the reset
+1795680032.710 [ok] talker-licence-closed-after-the-withdrawal [endstation_ax7101_1x1_tdm8, 1 interface]: Talker.LapseWithdrawsTheAdvertiseAndDeclaresNothing / a lapse closes LICENCE before TALKER_DECL drops the source
+1795680034.634 [ok] talker-admission-change-held [endstation_ax7101_1x1_tdm8, 1 interface]: Talker.AdmissionChangeSwapsTheTypeInPlace / a swap whose join is refused keeps the declared type
+1795680036.557 [ok] talker-swap-leaves-a-failed-only [endstation_ax7101_1x1_tdm8, 1 interface]: Talker.AdmissionChangeSwapsTheTypeInPlace / an admission lost swaps the Advertise to Talker Failed in place
+1795680038.477 [ok] talker-refused-swap-takes-the-new-type [endstation_ax7101_1x1_tdm8, 1 interface]: Talker.AdmissionChangeSwapsTheTypeInPlace / an admission change swaps the type in place at once
+1795680040.421 [ok] talker-refused-declaration-forgotten [endstation_ax7101_1x1_tdm8, 1 interface]: Talker.RefusedDeclarationIsDeclaredAgain / a refused declaration is declared again
+1795680042.418 [ok] talker-refused-withdrawal-not-owed [endstation_ax7101_1x1_tdm8, 1 interface]: Talker.RefusedWithdrawalIsWithdrawnOnceLwsrpTakesIt / the refused withdrawal's Leave leaves once lwSRP takes it
+1795680044.419 [ok] talker-hold-off-skipped [endstation_ax7101_1x1_tdm8, 1 interface]: Talker.ChangedDestinationWaitsTwoLongestLeaveAllPeriods / no Talker of a changed destination is declared before the hold-off ends
+1795680046.341 [ok] talker-hold-off-one-leaveall [endstation_ax7101_1x1_tdm8, 1 interface]: Talker.ChangedDestinationWaitsTwoLongestLeaveAllPeriods / no Talker of a changed destination is declared before the hold-off ends
+1795680048.405 [ok] talker-hold-off-two-leavealltime-periods-after-a-conflict [endstation_ax7101_1x1_tdm8, 1 interface]: SrpGate.F895ARangeLostWithdrawsAndTheNewRangeWaitsTheHoldOff / a changed destination waits two of the longest LeaveAll periods less its terms after the Leave
+1795680050.355 [ok] talker-hold-off-adds-its-terms-at-the-latest [endstation_ax7101_1x1_tdm8, 1 interface]: Talker.ChangedDestinationReachesTheWireWithinTwoLongestLeaveAllPeriodsAtTheLatest / the changed destination reaches the wire no later than two of the longest LeaveAll periods after the withdrawal, at the latest
+1795680052.286 [ok] talker-hold-off-a-centisecond-short [endstation_ax7101_1x1_tdm8, 1 interface]: Talker.ChangedDestinationWaitsTwoLongestLeaveAllPeriods / TALKER_DECL holds a changed destination withdrawn while it waits
+1795680054.212 [ok] talker-hold-off-drops-the-transmit-term [endstation_ax7101_1x1_tdm8, 1 interface]: Talker.ChangedDestinationReachesTheWireWithinTwoLongestLeaveAllPeriodsAtTheLatest / the changed destination reaches the wire no later than two of the longest LeaveAll periods after the withdrawal, at the latest
+1795680056.141 [ok] talker-hold-off-rounds-the-transmit-term-down [endstation_ax7101_1x1_tdm8, 1 interface]: Talker.ChangedDestinationReachesTheWireWithinTwoLongestLeaveAllPeriodsAtTheLatest / the changed destination reaches the wire no later than two of the longest LeaveAll periods after the withdrawal, at the latest
+1795680058.018 [ok] talker-resume-drops-what-came-due [endstation_ax7101_1x1_tdm8, 1 interface]: Talker.ChangedDestinationReachesTheWireWithinTwoLongestLeaveAllPeriodsWithTheJoinTimerRunning / the changed destination reaches the wire no later than two of the longest LeaveAll periods after the withdrawal, at the latest
+1795680059.982 [ok] talker-gate-before-attach [endstation_ax7101_1x1_tdm8, 1 interface]: Talker.GateEntryRecordsOnlyWhatChanged / refused before attach
+1795680061.875 [ok] talker-gate-past-the-sources [endstation_ax7101_1x1_tdm8, 1 interface]: Talker.GateEntryRecordsOnlyWhatChanged / a mask bit past the sources is no source
+1795680063.821 [ok] talker-gate-not-fed [endstation_ax7101_1x1_tdm8, 1 interface]: SrpGate.F895AProbeDeclaresTheSourceAndItsExpiryWithdrawsIt / a probe declares the source's Talker on its own interface
+1795680065.760 [ok] talker-listener-demand-not-forwarded [endstation_ax7101_1x1_tdm8, 1 interface]: SrpGate.F895AListenerKeepsTheSourceDeclaredPastTheProbeWindow / a registered Listener keeps the Talker past the probe window
+1795680067.689 [ok] talker-sid-words-swapped [endstation_ax7101_1x1_tdm8, 1 interface]: SrpGate.F905AEachSourceStreamIdIsWrittenBeforeItsGateOpens / SRC_SID_LO holds the stream_id's low word and SRC_SID_HI its high word
+1795680069.738 [ok] talker-sid-opens-before-its-high-word [endstation_ax7101_1x1_tdm8, 1 interface]: SrpGate.F905AGateReopensOnlyOnceItsStreamIdIsWrittenAgain / SRC_SID is written only while the source's DA_GATE bit is clear
+1795680071.751 [ok] talker-notice-declaration-missed [endstation_ax7101_1x1_tdm8, 1 interface]: Talker.DeclarationAndWithdrawalAreNoticed / a declaration is noticed
+1795680073.683 [ok] talker-notice-record-dropped [endstation_ax7101_1x1_tdm8, 1 interface]: Talker.DeclarationAndWithdrawalAreNoticed / a declaration is noticed
+1795680075.577 [ok] talker-notice-swap-missed [endstation_ax7101_1x1_tdm8, 1 interface]: Talker.TypeSwapIsNoticed / a type swapped in place is noticed
+1795680077.448 [ok] talker-notice-vid-missed [endstation_ax7101_1x1_tdm8, 1 interface]: Talker.AdoptedDomainVidIsNoticed / a declared Talker carrying another VID is noticed
+1795680079.349 [ok] talker-notice-reset-forgets-what-was-shown [endstation_ax7101_1x1_tdm8, 1 interface]: Talker.ResetNoticesNothingUnchanged / a source a reset declares again unchanged is not noticed
+1795680081.358 [ok] talker-notice-kept-across-a-recomposition [endstation_ax7101_1x1_tdm8, 1 interface]: SrpGate.F936AProbeAndItsExpiryEachNoticeTheSource / an attached SRP instance starts with no record
+1795680083.486 [ok] talker-notice-owed-unreported [endstation_ax7101_1x1_tdm8, 1 interface]: SrpGate.F936BThePassThatTakesTheRecordOwesItsNotice / owes its notice
+1795680085.452 [ok] talker-registration-unchanged-recorded [endstation_ax7101_1x1_tdm8, 1 interface]: Talker.ListenerRegistrationChangeIsNoticed / a Listener declared New again unchanged is not noticed
+1795680087.317 [ok] talker-registration-ungated [endstation_ax7101_1x1_tdm8, 1 interface]: Talker.ListenerRegistrationChangeIsNoticed / a Listener of a source whose DA gate is closed is not noticed
+1795680089.211 [ok] talker-registration-kept-across-a-reset [endstation_ax7101_1x1_tdm8, 1 interface]: Talker.ListenerRegistrationAfterAResetIsNoticed / the first Listener registration after a reset is noticed, whatever the one before it declared
+1795680094.684 [ok] listener-copy-declaration-lost [endstation_ax7101_1x1_tdm8, 1 interface]: Listeners.RandomRecordsMatchTheReferenceWalk / the copied run makes the reference run's mailbox writes and licence calls, in order
+1795680096.665 [ok] listener-copy-leaving-counted-absent [endstation_ax7101_1x1_tdm8, 1 interface]: Listeners.RandomRecordsMatchTheReferenceWalk / the copied run makes the reference run's mailbox writes and licence calls, in order
+1795680098.645 [ok] feedback-latest-failed-first [endstation_ax7101_1x1_tdm8, 1 interface]: SrpTalkerKinds.AnAdvertiseNewReplacesARegisteredFailedWithinAJoinTime / an Advertise New replaces the registered Failed
+1795680100.657 [ok] feedback-latest-advertise-only [endstation_ax7101_1x1_tdm8, 1 interface]: SrpTalkerKinds.AFailedNewReplacesARegisteredAdvertiseWithinAJoinTime / a Failed New replaces the registered Advertise
+1795680102.638 [ok] feedback-latest-earliest-decides [endstation_ax7101_1x1_tdm8, 1 interface]: SrpTalkerKinds.CoincidentRegistrationsInOneMrpduFollowTheirOrder / Failed then Advertise in one MRPDU
+1795680104.583 [ok] feedback-latest-matching-only [endstation_ax7101_1x1_tdm8, 1 interface]: SrpTalkerKinds.ABindingMadeLaterTakesTheLatestFromAnyBindingOfTheStream / a later binding takes the latest registration
+1795680106.506 [ok] feedback-latest-unknown-withdraws [endstation_ax7101_1x1_tdm8, 1 interface]: SrpTalkerKinds.AFullHeldTableHoldsNothingMore / no latest known: Failed
+1795680108.401 [ok] feedback-latest-filter-holds-nothing [endstation_ax7101_1x1_tdm8, 1 interface]: SrpTalkerKinds.AReplacementBeforeAMessageThatChangesNothingIsDeclaredWithinAJoinTime / a New before a message that changes nothing
+1795680110.360 [ok] feedback-latest-not-held [endstation_ax7101_1x1_tdm8, 1 interface]: SrpTalkerKinds.AFinalUnbindingKeepsTheLatestWhileBothStayRegistered / a final unbinding keeps the latest registration
+1795680112.254 [ok] feedback-latest-held-for-another-stream [endstation_ax7101_1x1_tdm8, 1 interface]: SrpTalkerKinds.AFinalUnbindingKeepsTheLatestWhileBothStayRegistered / another StreamID takes none of it
+1795680114.192 [ok] feedback-latest-held-past-a-leave [endstation_ax7101_1x1_tdm8, 1 interface]: SrpTalkerKinds.AHeldStreamEndsWithEitherRegistrationOrAReset / a registration's end or a reset ends the hold
+1795680116.119 [ok] feedback-latest-stream-kinds-kept [endstation_ax7101_1x1_tdm8, 1 interface]: HeldRegistrationsAreWhatAWalkCopiesAfterEveryStep / holds what a walk copies
+1795680118.137 [ok] feedback-latest-acmp-failed-first [endstation_ax7101_1x1_tdm8, 1 interface]: SrpFeedback.AdvertiseNewOverARegisteredFailedUpdatesTheSettledWireView / current kind reaches ACMP
+1795680120.191 [ok] srp-cut-filter-pass-dropped [endstation_ax7101_1x1_tdm8, 1 interface]: SrpFeedback.SinglePduWithdrawalThenRegistrationRetainsTheFirstEvent / retained withdrawal reprobes
+1795680122.139 [ok] srp-cut-reclaim-every-change [endstation_ax7101_1x1_tdm8, 1 interface]: Listeners.SteadyListenerRecordsAndBuildsWalkNoAttributes / a registered Listener's JoinIn and THE TRANSMIT's builds walk no attributes
+1795680124.005 [ok] srp-cut-reclaim-very-anxious-kept [endstation_ax7101_1x1_tdm8, 1 interface]: Listeners.ALeavingListenerIsReclaimed / an attribute changed into a state mrp_reclaim frees is reclaimed
+1795680125.906 [ok] srp-cut-reclaim-creation-unowed [endstation_ax7101_1x1_tdm8, 1 interface]: Listeners.AListenerLeftAsCreatedIsReclaimed / an attribute a receive created and left as created is reclaimed
+1795680127.911 [ok] srp-cut-snapshot-copy-over-withdrawal [endstation_ax7101_1x1_tdm8, 1 interface]: SrpFeedback.LaterKindAfterWithdrawalIsNotReported / retained pre-withdrawal kind
+1795680129.815 [ok] feedback-early-rebind-ignored [endstation_ax7101_1x1_tdm8, 1 interface]: SrpEarlyTalker.ARebindWhileBoundToAStreamDeclaredAllAlongIsDeclaredWithinOneTransmit / a rebind to a stream declared all along
+1795680131.697 [ok] feedback-early-unbounded [endstation_ax7101_1x1_tdm8, 1 interface]: SrpEarlyTalker.RegistrationsKeptBeforeABindingAreBoundedByTheInputs / a registration past the bound takes no block
+1795680133.595 [ok] feedback-early-count-forgets [endstation_ax7101_1x1_tdm8, 1 interface]: SrpEarlyTalker.RegistrationsKeptBeforeABindingAreBoundedByTheInputs / counted again, they are still kept
+1795680135.523 [ok] feedback-early-left-uncounted [endstation_ax7101_1x1_tdm8, 1 interface]: SrpEarlyTalker.AKeptRegistrationThatLeftHoldsItsPlaceUntilItsBlockIsFreed / a kept registration that left is counted until its block is freed
+1795680137.437 [ok] feedback-early-unbinding-uncounted [endstation_ax7101_1x1_tdm8, 1 interface]: SrpEarlyTalker.AnUnboundRegistrationIsKeptAndCountedAgainstTheBound / an unbound registration is kept and counted
+1795680139.359 [ok] feedback-early-end-unowed [endstation_ax7101_1x1_tdm8, 1 interface]: SrpEarlyTalker.AKeptRegistrationWhoseBlockIsFreedIsCountedNoMore / a kept one freed below the bound: one vector of every input is kept
+1795680141.269 [ok] feedback-early-left-seen-unowed [endstation_ax7101_1x1_tdm8, 1 interface]: SrpEarlyTalker.AKeptRegistrationThatLeftHoldsItsPlaceUntilItsBlockIsFreed / once its block is freed, another is kept
+1795680143.141 [ok] feedback-early-latest-unheld [endstation_ax7101_1x1_tdm8, 1 interface]: SrpEarlyTalker.ABindingTakesTheLatestOfTwoKindsRegisteredBeforeIt / the latest of two kinds registered before the binding
+1795680147.614 [ok] link-pass-attach-carries-an-up [endstation_ax7101_1x1_tdm8, 1 interface]: SrpLinkPass.AfterTheEventsBeforeSrpsPoll / SRP's poll reset the interface on a level no LINK had carried
+1795680149.424 [ok] link-pass-first-up-resets [endstation_ax7101_1x1_tdm8, 1 interface]: SrpLinkPass.BeforeAPass / a first UP keeps the startup participants
+1795680151.351 [ok] link-pass-attach-carries-nothing [endstation_ax7101_1x1_tdm8, 1 interface]: ReattachLearnsAnAlreadyUpLinkWithoutAnotherRecord / adapter.ifs[i].active[0]
+1795680153.272 [ok] link-pass-poll-or-instead-of-and [endstation_ax7101_1x1_tdm8, 1 interface]: LinkLevelLossAndFirstDownEventAreFailClosed / adapter.ifs[0].active[0]
+1795680155.087 [ok] link-pass-unowed-up-taken-unmarked [endstation_ax7101_1x1_tdm8, 1 interface]: SrpLinkPass.AfterTheEventsBeforeSrpsPoll / SRP's poll reset the interface on a level no LINK had carried
+1795680156.915 [ok] link-pass-mark-survives-a-down [endstation_ax7101_1x1_tdm8, 1 interface]: SrpLinkPassElided.AnElidedUpAuthorizesNoFreshFirstUp / SRP's poll took a fresh UP on an elided UP's observation
+1795680158.741 [ok] link-pass-mark-masked-before-the-shift [endstation_ax7101_1x1_tdm8, 1 interface]: SrpLinkPassElided.AnElidedUpAuthorizesNoFreshFirstUp / SRP's poll took a fresh UP on an elided UP's observation
+1795680164.994 [ok] listener-copy-declaration-lost [endstation_ax7101_8x8, 1 interface]: Listeners.RandomRecordsMatchTheReferenceWalk / the copied run makes the reference run's mailbox writes and licence calls, in order
+1795680166.995 [ok] listener-copy-leaving-counted-absent [endstation_ax7101_8x8, 1 interface]: Listeners.RandomRecordsMatchTheReferenceWalk / the copied run makes the reference run's mailbox writes and licence calls, in order
+1795680180.353 [ok] srp-cut-same-id-last-byte-only [endstation_ax7101_8x8, 1 interface]: Srp.AListenerIsASourcesOnlyForItsStreamIDByteForByte / differs from source 0's in byte 0 alone
+1795680192.452 [ok] srp-cut-filter-pass-inverted [endstation_ax7101_8x8, 1 interface]: SrpFeedback.SinglePduWithdrawalThenRegistrationRetainsTheFirstEvent / retained withdrawal reprobes
+1795680194.334 [ok] srp-cut-reclaim-any-registrar [endstation_ax7101_8x8, 1 interface]: Listeners.SteadyListenerRecordsAndBuildsWalkNoAttributes / a registered Listener's JoinIn and THE TRANSMIT's builds walk no attributes
+1795680196.242 [ok] srp-cut-reclaim-every-change-fresh [endstation_ax7101_8x8, 1 interface]: Listeners.AListenerLeftAsCreatedBesideAnotherChangeIsReclaimed / an attribute a receive created and left as created beside another change is reclaimed
+1795680198.188 [ok] srp-cut-reclaim-every-receive [endstation_ax7101_8x8, 1 interface]: Listeners.SteadyListenerRecordsAndBuildsWalkNoAttributes / a registered Listener's JoinIn and THE TRANSMIT's builds walk no attributes
+1795680200.186 [ok] feedback-early-talker-ignored [endstation_ax7101_8x8, 1 interface]: SrpEarlyTalker.ARegistrationMadeBeforeItsBindingIsDeclaredWithinOneTransmitOnEveryInput / an Advertise registered before its binding
+1795680202.150 [ok] feedback-early-bound-first-sink-only [endstation_ax7101_8x8, 1 interface]: SrpEarlyTalker.ABindingMadeBeforeItsRegistrationIsDeclaredWithinAJoinTimeOnEveryInput / a binding made before its registration
+1795680204.087 [ok] feedback-early-any-kind-kept [endstation_ax7101_8x8, 1 interface]: SrpEarlyTalker.RegistrationsKeptBeforeABindingAreBoundedByTheInputs / the other kind of a kept StreamID, past the bound
+1795680206.016 [ok] feedback-early-count-adds [endstation_ax7101_8x8, 1 interface]: SrpEarlyTalker.AKeptRegistrationThatLeftHoldsItsPlaceUntilItsBlockIsFreed / once its block is freed, another is kept
+1795680207.981 [ok] feedback-early-freed-uncounted [endstation_ax7101_8x8, 1 interface]: SrpEarlyTalker.AKeptRegistrationThatLeftHoldsItsPlaceUntilItsBlockIsFreed / once its block is freed, another is kept
+1795680210.002 [ok] feedback-early-reset-counted [endstation_ax7101_8x8, 1 interface]: SrpEarlyTalker.AResetLeavesNoKeptRegistrationCounted / after a reset, one vector of every input is kept whole
+1795680211.993 [ok] feedback-early-unregistered-unowed [endstation_ax7101_8x8, 1 interface]: SrpEarlyTalker.AKeptLeaveOfAStreamNeverRegisteredIsCountedNoMoreOnceFreed / a Leave kept for a StreamID never registered
+1795680213.987 [ok] feedback-early-refresh-counted-again [endstation_ax7101_8x8, 1 interface]: SrpEarlyTalker.AKeptRegistrationRefreshedIsCountedOnce / a kept registration refreshed in one receive
+1795680218.660 [ok] link-pass-poll-takes-the-register [endstation_ax7101_8x8, 1 interface]: SrpLinkPass.AfterTheEventsBeforeSrpsPoll / a first UP resets nothing
+1795680220.568 [ok] link-pass-carried-stays-up [endstation_ax7101_8x8, 1 interface]: SrpLinkPass.AfterTheEventsBeforeSrpsPoll / a later UP resets the interface once
+1795680222.446 [ok] link-pass-carried-never-recorded [endstation_ax7101_8x8, 1 interface]: SrpLinkPass.BeforeAPass / a first UP resets nothing
+1795680224.458 [ok] link-pass-down-waits-for-its-record [endstation_ax7101_8x8, 1 interface]: LinkLevelLossAndFirstDownEventAreFailClosed / adapter.ifs[0].active[0]
+1795680226.328 [ok] link-pass-unowed-up-never-taken [endstation_ax7101_8x8, 1 interface]: Srp.AReattachWhoseDownRecordIsElidedFollowsTheLinkThatIsUp / SRP does not follow a link that is up
+1795680228.235 [ok] link-pass-unowed-up-ignores-the-take [endstation_ax7101_8x8, 1 interface]: SrpLinkPass.ALinkUpHeldBehindAFullEventRingIsTheFirstUp / SRP took an UP from the register while its LINK waited behind the ring's records
+1795680230.101 [ok] link-pass-mark-survives-a-down-later [endstation_ax7101_8x8, 1 interface]: SrpLinkPassElided.AnElidedUpAuthorizesNoFreshLaterUp / a later UP resets the interface once
+1795680230.136 [ok] lwSRP pin, a compiled source edited: lwSRP's src/ differs from the pinned d1bb4f4e: src/core/mrp_mad.c
+1795680230.144 [ok] lwSRP pin, another revision checked out: lwSRP at 97677fcb249bc69c7acec94690419480e839f5b4 is not the pinned d1bb4f4e5954af6dabe7f210a6bf7adbb76bdd6b (fetch https://github.com/kebag-logic/lwSRP and check the pin out)
+1795680230.147 test_ctrl_firmware: PASS

@@ -1,0 +1,41 @@
+PASS: shard inventory rejects planted missing suite
+PASS: shard inventory rejects planted duplicate suite
+PASS: a newly discovered suite is assigned without an ownership list
+PASS: 2005 live invocations in exactly one shard; shard sizes [98, 845, 399, 663]
+PASS: nine invalid shard combinations refuse; failed normal suites still stop mutations
+toolchain: {'cc': 'gcc (GCC) 16.2.1 20260810', 'cxx': 'g++ (GCC) 16.2.1 20260810', 'gcov': 'gcov (GCC) 16.2.1 20260810', 'gtest': '1.18.0', 'gmock': '1.18.0'}
+tsn-c-stack at 715589c1db7cf67e2f3259fd7083ebc7f0923376
+[ok] mutant reentry-not-ignored (reentry_release): 1083 check(s) failed
+    first: [FAIL] AdpReentry.AdvertiseInlineExpiry: callback leaves core state unchanged
+[ok] mutant available-passes-owed-departing (adp): 10 check(s) failed
+    first: [FAIL] AdpCore.A17RoomBackBeforeAPoll: A17 room back and TMR_DELAY expiring before a poll: the ENTITY_AVAILABLE does not pass the owed DEPARTING
+[ok] mutant gm-change-drops-owed-available (adp): 4 check(s) failed
+    first: [FAIL] AdpCore.A19IgnoredInputsKeepTheOwedAvailable: A19 a GM change in DELAY leaves the owed ENTITY_AVAILABLE owed, no timer started
+[ok] mutant departing-queue-unbounded (adp): 14 check(s) failed
+    first: [FAIL] AdpCore.A21DepartingCapacity: A21 the next SHUTDOWN is coalesced into the queued one and counted; its run's owed AVAILABLE is dropped
+[ok] mutant own-discover-discarded (walk): 4 check(s) failed
+    first: [FAIL] Table551/AdpWalkCell.Graded/RCV_ADP_DISCOVER_own_eid_x_WAITING: RCV_ADP_DISCOVER(own eid) x WAITING: advertise state after
+[ok] mutant shutdown-in-down-departs (walk): 2 check(s) failed
+    first: [FAIL] Table551/AdpWalkCell.Graded/SHUTDOWN_x_DOWN: SHUTDOWN x DOWN: no cancel where the slot is untouched
+[ok] mutant frame-misses-config-index (walk): 11 check(s) failed
+    first: [FAIL] AdpWalk.P1toP5FirstAdvertAndCadence: P2 the first ENTITY_AVAILABLE is the processor's model frame, index 0
+[ok] mutant portable-fallback-link-unwritten (portable): 1 check(s) failed
+    first: [FAIL] Pool.P10AFreedBlocksLinkIsWrittenOverItsClientsBytes: P10 then the one freed before it, through the link its free wrote
+[ok] mutant pool-double-free-accepted (port): 8 check(s) failed
+    first: [FAIL] Pool.P2ReleaseAndBadFrees: P2 a double free is refused and counted
+[ok] mutant poll-owes-nothing (adp): 4 check(s) failed
+    first: [FAIL] AdpOwed.E0toE3PendingWake: E1 the loop does not sleep while a frame is owed
+[ok] mutant tick-slice-unbounded (port): 3 check(s) failed
+    first: [FAIL] Loop.L7TickSlices: L7 at most CTRL_LOOP_TICKS_PER_PASS of them per pass
+[ok] mutant tx-overfills (port): 3 check(s) failed
+    first: [FAIL] Driver.D3HeldMergeFillsAndOrderAcrossChannels: D3 a held merge fills the ring to its last whole record
+[ok] mutant wire-put-be-shifts-64-bits (platrv32): 1 check(s) failed
+    first: [FAIL] the split platform calls __lshrdi3, the 64-bit shift helper (tsn-c-stack#27)
+[ok] mutant model-round-robin (model): 5 check(s) failed
+    first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/TxCommitOrder: X2 ACMP, ACMP, then AECP committed behind a stalled ACMP frame leave as 1, 1, 2
+[ok] mutant foreign-free-uncounted (port): 3 check(s) failed
+    first: [FAIL] Pool.P2ReleaseAndBadFrees: P2 a free of a pointer the pool never handed out is refused
+[ok] mutant encoding-failure-swallowed (port): 1 check(s) failed
+    first: [FAIL] DebugSink.S3UnencodablePrintDiscarded: S3 an encoding failure is returned as the formatter's negative value
+[ok] mutant other-subtype-accepted (adp): 2 check(s) failed
+    first: [FAIL] AdpCore.A24OtherEtherTypeOrSubtypeDiscarded: A24 a DISCOVER under another EtherType or subtype is discarded and counted

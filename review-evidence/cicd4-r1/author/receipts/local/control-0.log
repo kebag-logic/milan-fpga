@@ -1,0 +1,33 @@
+PASS: shard inventory rejects planted missing suite
+PASS: shard inventory rejects planted duplicate suite
+PASS: a newly discovered suite is assigned without an ownership list
+PASS: 2005 live invocations in exactly one shard; shard sizes [98, 845, 399, 663]
+PASS: nine invalid shard combinations refuse; failed normal suites still stop mutations
+toolchain: {'cc': 'gcc (GCC) 16.2.1 20260810', 'cxx': 'g++ (GCC) 16.2.1 20260810', 'gcov': 'gcov (GCC) 16.2.1 20260810', 'gtest': '1.18.0', 'gmock': '1.18.0'}
+tsn-c-stack at 715589c1db7cf67e2f3259fd7083ebc7f0923376
+[ok] mutant reentry-guard-removed (reentry_debug, reentry_debug, reentry_release, reentry_release): 2650 check(s) failed
+    first: [FAIL] AdpReentry.AdvertiseInlineExpiry: inline ADVERTISE expiry asserts
+[ok] mutant departing-sends-zero (adp): 17 check(s) failed
+    first: [FAIL] AdpCore.A6toA8DeferredSends: A8 a link loss does not drop it; the next poll sends it with the index current at SHUTDOWN
+[ok] mutant second-shutdown-overwrites-index (adp): 14 check(s) failed
+    first: [FAIL] AdpCore.A16SecondShutdownQueuesItsOwn: A16 a SHUTDOWN while one is owed queues its own ENTITY_DEPARTING and drops the owed AVAILABLE
+[ok] mutant stray-expiry-drops-owed-available (adp): 2 check(s) failed
+    first: [FAIL] AdpCore.A19IgnoredInputsKeepTheOwedAvailable: A19 and a stray expiry, which is counted
+[ok] mutant coalesce-drops-queued-departing (adp): 6 check(s) failed
+    first: [FAIL] AdpCore.A21DepartingCapacity: A21 the next SHUTDOWN is coalesced into the queued one and counted; its run's owed AVAILABLE is dropped
+[ok] mutant link-down-departs (walk): 2 check(s) failed
+    first: [FAIL] Table551/AdpWalkCell.Graded/LINK_DOWN_x_WAITING: LINK_DOWN x WAITING: frames committed
+[ok] mutant advertise-period-wrong (walk): 4 check(s) failed
+    first: [FAIL] AdpWalk.P1toP5FirstAdvertAndCadence: P3 TMR_ADVERTISE fires 5000 ms after the send
+[ok] mutant latency-extra-read (adp): 4 check(s) failed
+    first: [FAIL] AdpLatency.C0toC6EveryResponsePath: C0 LINK_UP -> TMR_DELAY armed
+[ok] mutant pool-free-leaks (port): 11 check(s) failed
+    first: [FAIL] Pool.P2ReleaseAndBadFrees: P2 a released block is the next one handed out
+[ok] mutant tick-count-ignored (port): 7 check(s) failed
+    first: [FAIL] Loop.L4TickFanOut: L4 every centisecond reaches the first consumer
+[ok] mutant rx-before-events (adp): 5 check(s) failed
+    first: [FAIL] AdpLatency.C0toC6EveryResponsePath: C2 RCV_ADP_DISCOVER -> TMR_DELAY armed
+[ok] mutant filter-opened-before-eid (port): 2 check(s) failed
+    first: [FAIL] LoopBring.L1OpenOrder: L1 OWN_EID is written before any channel opens
+[ok] mutant frame-sources-from-sinks (entity): 1 check(s) failed
+    first: [FAIL] Fabric/EntityField.MatchesTheFabric/talker_stream_sources: endstation_arty_current: talker_stream_sources is 0x2 in the firmware ADPDU, 0x1 in the fabric

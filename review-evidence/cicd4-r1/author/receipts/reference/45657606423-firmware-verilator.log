@@ -1,0 +1,1073 @@
+firmware-verilator	Set up job	﻿2026-11-25T17:25:54.0878658Z Current runner version: '2.338.2'
+firmware-verilator	Set up job	2026-11-25T17:25:54.0920149Z ##[group]Runner Image Provisioner
+firmware-verilator	Set up job	2026-11-25T17:25:54.0920790Z Hosted Compute Agent
+firmware-verilator	Set up job	2026-11-25T17:25:54.0921298Z Version: 20261111.635
+firmware-verilator	Set up job	2026-11-25T17:25:54.0921754Z Commit: b8a594ea514ff44cadb5342986c68b1eac6e22ed
+firmware-verilator	Set up job	2026-11-25T17:25:54.0922283Z Build Date: 2026-11-11T01:49:01Z
+firmware-verilator	Set up job	2026-11-25T17:25:54.0922775Z Worker ID: {86c1083e-7cf3-47c6-a247-c5b6d8e7f3e3}
+firmware-verilator	Set up job	2026-11-25T17:25:54.0923289Z Region: us-east-1
+firmware-verilator	Set up job	2026-11-25T17:25:54.0923713Z Cloud: AWS
+firmware-verilator	Set up job	2026-11-25T17:25:54.0924092Z ##[endgroup]
+firmware-verilator	Set up job	2026-11-25T17:25:54.0925341Z ##[group]Operating System
+firmware-verilator	Set up job	2026-11-25T17:25:54.0925901Z Ubuntu
+firmware-verilator	Set up job	2026-11-25T17:25:54.0926355Z 24.04.5
+firmware-verilator	Set up job	2026-11-25T17:25:54.0926803Z LTS
+firmware-verilator	Set up job	2026-11-25T17:25:54.0927169Z ##[endgroup]
+firmware-verilator	Set up job	2026-11-25T17:25:54.0927545Z ##[group]Runner Image
+firmware-verilator	Set up job	2026-11-25T17:25:54.0927989Z Image: ubuntu-24.04
+firmware-verilator	Set up job	2026-11-25T17:25:54.0928391Z Version: 20261122.23.1
+firmware-verilator	Set up job	2026-11-25T17:25:54.0929171Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20261122.23/images/ubuntu/Ubuntu2404-Readme.md
+firmware-verilator	Set up job	2026-11-25T17:25:54.0930431Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20261122.23
+firmware-verilator	Set up job	2026-11-25T17:25:54.0931126Z ##[endgroup]
+firmware-verilator	Set up job	2026-11-25T17:25:54.0931990Z ##[group]GITHUB_TOKEN Permissions
+firmware-verilator	Set up job	2026-11-25T17:25:54.0934141Z Contents: read
+firmware-verilator	Set up job	2026-11-25T17:25:54.0934561Z Metadata: read
+firmware-verilator	Set up job	2026-11-25T17:25:54.0935250Z Packages: read
+firmware-verilator	Set up job	2026-11-25T17:25:54.0935683Z ##[endgroup]
+firmware-verilator	Set up job	2026-11-25T17:25:54.0937499Z Secret source: Actions
+firmware-verilator	Set up job	2026-11-25T17:25:54.0938141Z Cache mode: write
+firmware-verilator	Set up job	2026-11-25T17:25:54.0938614Z Prepare workflow directory
+firmware-verilator	Set up job	2026-11-25T17:25:54.1303865Z Prepare all required actions
+firmware-verilator	Set up job	2026-11-25T17:25:54.1342482Z Getting action download info
+firmware-verilator	Set up job	2026-11-25T17:25:54.3587998Z Download action repository 'actions/checkout@v4' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+firmware-verilator	Set up job	2026-11-25T17:25:55.2247712Z Download action repository 'actions/cache@v4' (SHA:0057852bfaa89a56745cba8c7296529d2fc39830)
+firmware-verilator	Set up job	2026-11-25T17:25:55.4124433Z Download action repository 'actions/upload-artifact@v4' (SHA:ea165f8d65b6e75b540449e92b4886f43607fa02)
+firmware-verilator	Set up job	2026-11-25T17:25:55.7331267Z Complete job name: firmware-verilator
+firmware-verilator	Run actions/checkout@v4	﻿2026-11-25T17:25:55.8216027Z ##[group]Run actions/checkout@v4
+firmware-verilator	Run actions/checkout@v4	2026-11-25T17:25:55.8217190Z with:
+firmware-verilator	Run actions/checkout@v4	2026-11-25T17:25:55.8218060Z   repository: kebag-logic/milan-fpga
+firmware-verilator	Run actions/checkout@v4	2026-11-25T17:25:55.8224847Z   token: ***
+firmware-verilator	Run actions/checkout@v4	2026-11-25T17:25:55.8225766Z   ssh-strict: true
+firmware-verilator	Run actions/checkout@v4	2026-11-25T17:25:55.8226489Z   ssh-user: git
+firmware-verilator	Run actions/checkout@v4	2026-11-25T17:25:55.8227216Z   persist-credentials: true
+firmware-verilator	Run actions/checkout@v4	2026-11-25T17:25:55.8228028Z   clean: true
+firmware-verilator	Run actions/checkout@v4	2026-11-25T17:25:55.8228749Z   sparse-checkout-cone-mode: true
+firmware-verilator	Run actions/checkout@v4	2026-11-25T17:25:55.8229564Z   fetch-depth: 1
+firmware-verilator	Run actions/checkout@v4	2026-11-25T17:25:55.8230279Z   fetch-tags: false
+firmware-verilator	Run actions/checkout@v4	2026-11-25T17:25:55.8231039Z   show-progress: true
+firmware-verilator	Run actions/checkout@v4	2026-11-25T17:25:55.8231793Z   lfs: false
+firmware-verilator	Run actions/checkout@v4	2026-11-25T17:25:55.8232474Z   submodules: false
+firmware-verilator	Run actions/checkout@v4	2026-11-25T17:25:55.8233212Z   set-safe-directory: true
+firmware-verilator	Run actions/checkout@v4	2026-11-25T17:25:55.8234046Z   allow-unsafe-pr-checkout: false
+firmware-verilator	Run actions/checkout@v4	2026-11-25T17:25:55.8235185Z env:
+firmware-verilator	Run actions/checkout@v4	2026-11-25T17:25:55.8235904Z   VERILATOR_VERSION: v5.050
+firmware-verilator	Run actions/checkout@v4	2026-11-25T17:25:55.8236730Z   YOSYS_VERSION: v0.66
+firmware-verilator	Run actions/checkout@v4	2026-11-25T17:25:55.8237794Z   PIP_CONSTRAINT: <home-path>/work/milan-fpga/milan-fpga/ci/constraints-ci.txt
+firmware-verilator	Run actions/checkout@v4	2026-11-25T17:25:55.8239108Z ##[endgroup]
+firmware-verilator	Run actions/checkout@v4	2026-11-25T17:25:57.4448087Z Syncing repository: kebag-logic/milan-fpga
+firmware-verilator	Run actions/checkout@v4	2026-11-25T17:25:57.4449584Z ##[group]Getting Git version info
+firmware-verilator	Run actions/checkout@v4	2026-11-25T17:25:57.4449996Z Working directory is '<home-path>/work/milan-fpga/milan-fpga'
+firmware-verilator	Run actions/checkout@v4	2026-11-25T17:25:57.4450593Z [command]/usr/bin/git version
+firmware-verilator	Run actions/checkout@v4	2026-11-25T17:25:57.5503238Z git version 2.56.1
+firmware-verilator	Run actions/checkout@v4	2026-11-25T17:25:57.5518506Z ##[endgroup]
+firmware-verilator	Run actions/checkout@v4	2026-11-25T17:25:57.5531392Z Temporarily overriding HOME='<home-path>/work/_temp/29aa0da8-6bba-42d1-ab8e-3fb42d6030ae' before making global git config changes
+firmware-verilator	Run actions/checkout@v4	2026-11-25T17:25:57.5532588Z Adding repository directory to the temporary git global config as a safe directory
+firmware-verilator	Run actions/checkout@v4	2026-11-25T17:25:57.5536138Z [command]/usr/bin/git config --global --add safe.directory <home-path>/work/milan-fpga/milan-fpga
+firmware-verilator	Run actions/checkout@v4	2026-11-25T17:25:57.5920348Z Deleting the contents of '<home-path>/work/milan-fpga/milan-fpga'
+firmware-verilator	Run actions/checkout@v4	2026-11-25T17:25:57.5923619Z ##[group]Initializing the repository
+firmware-verilator	Run actions/checkout@v4	2026-11-25T17:25:57.5927624Z [command]/usr/bin/git init <home-path>/work/milan-fpga/milan-fpga
+firmware-verilator	Run actions/checkout@v4	2026-11-25T17:25:57.6012855Z hint: Using 'master' as the name for the initial branch. This default branch name
+firmware-verilator	Run actions/checkout@v4	2026-11-25T17:25:57.6013473Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+firmware-verilator	Run actions/checkout@v4	2026-11-25T17:25:57.6013983Z hint: to use in all of your new repositories, which will suppress this warning,
+firmware-verilator	Run actions/checkout@v4	2026-11-25T17:25:57.6014441Z hint: call:
+firmware-verilator	Run actions/checkout@v4	2026-11-25T17:25:57.6014688Z hint:
+firmware-verilator	Run actions/checkout@v4	2026-11-25T17:25:57.6015250Z hint: 	git config --global init.defaultBranch <name>
+firmware-verilator	Run actions/checkout@v4	2026-11-25T17:25:57.6015701Z hint:
+firmware-verilator	Run actions/checkout@v4	2026-11-25T17:25:57.6016112Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+firmware-verilator	Run actions/checkout@v4	2026-11-25T17:25:57.6016583Z hint: 'development'. The just-created branch can be renamed via this command:
+firmware-verilator	Run actions/checkout@v4	2026-11-25T17:25:57.6016946Z hint:
+firmware-verilator	Run actions/checkout@v4	2026-11-25T17:25:57.6017200Z hint: 	git branch -m <name>
+firmware-verilator	Run actions/checkout@v4	2026-11-25T17:25:57.6017544Z hint:
+firmware-verilator	Run actions/checkout@v4	2026-11-25T17:25:57.6018057Z hint: Disable this message with "git config set advice.defaultBranchName false"
+firmware-verilator	Run actions/checkout@v4	2026-11-25T17:25:57.6022930Z Initialized empty Git repository in <home-path>/work/milan-fpga/milan-fpga/.git/
+firmware-verilator	Run actions/checkout@v4	2026-11-25T17:25:57.6030547Z [command]/usr/bin/git remote add origin https://github.com/kebag-logic/milan-fpga
+firmware-verilator	Run actions/checkout@v4	2026-11-25T17:25:57.6065359Z ##[endgroup]
+firmware-verilator	Run actions/checkout@v4	2026-11-25T17:25:57.6065986Z ##[group]Disabling automatic garbage collection
+firmware-verilator	Run actions/checkout@v4	2026-11-25T17:25:57.6067982Z [command]/usr/bin/git config --local gc.auto 0
+firmware-verilator	Run actions/checkout@v4	2026-11-25T17:25:57.6091311Z ##[endgroup]
+firmware-verilator	Run actions/checkout@v4	2026-11-25T17:25:57.6091854Z ##[group]Setting up auth
+firmware-verilator	Run actions/checkout@v4	2026-11-25T17:25:57.6096602Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+firmware-verilator	Run actions/checkout@v4	2026-11-25T17:25:57.6123557Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+firmware-verilator	Run actions/checkout@v4	2026-11-25T17:25:57.7807225Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+firmware-verilator	Run actions/checkout@v4	2026-11-25T17:25:57.7837587Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+firmware-verilator	Run actions/checkout@v4	2026-11-25T17:25:57.7994380Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+firmware-verilator	Run actions/checkout@v4	2026-11-25T17:25:57.8020887Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+firmware-verilator	Run actions/checkout@v4	2026-11-25T17:25:57.8168463Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+firmware-verilator	Run actions/checkout@v4	2026-11-25T17:25:57.8196444Z ##[endgroup]
+firmware-verilator	Run actions/checkout@v4	2026-11-25T17:25:57.8197262Z ##[group]Fetching the repository
+firmware-verilator	Run actions/checkout@v4	2026-11-25T17:25:57.8206224Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +649acf4c775dd7e9bfbdf81f5d7a3d91782cd327:refs/remotes/pull/987/merge
+firmware-verilator	Run actions/checkout@v4	2026-11-25T17:26:00.0024274Z From https://github.com/kebag-logic/milan-fpga
+firmware-verilator	Run actions/checkout@v4	2026-11-25T17:26:00.0025346Z  * [new ref]         649acf4c775dd7e9bfbdf81f5d7a3d91782cd327 -> pull/987/merge
+firmware-verilator	Run actions/checkout@v4	2026-11-25T17:26:00.0029254Z ##[endgroup]
+firmware-verilator	Run actions/checkout@v4	2026-11-25T17:26:00.0030056Z ##[group]Determining the checkout info
+firmware-verilator	Run actions/checkout@v4	2026-11-25T17:26:00.0031599Z ##[endgroup]
+firmware-verilator	Run actions/checkout@v4	2026-11-25T17:26:00.0037965Z [command]/usr/bin/git sparse-checkout disable
+firmware-verilator	Run actions/checkout@v4	2026-11-25T17:26:00.0106338Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+firmware-verilator	Run actions/checkout@v4	2026-11-25T17:26:00.0116024Z ##[group]Checking out the ref
+firmware-verilator	Run actions/checkout@v4	2026-11-25T17:26:00.0119065Z [command]/usr/bin/git checkout --progress --force refs/remotes/pull/987/merge
+firmware-verilator	Run actions/checkout@v4	2026-11-25T17:26:00.2209846Z Note: switching to 'refs/remotes/pull/987/merge'.
+firmware-verilator	Run actions/checkout@v4	2026-11-25T17:26:00.2210248Z 
+firmware-verilator	Run actions/checkout@v4	2026-11-25T17:26:00.2210562Z You are in 'detached HEAD' state. You can look around, make experimental
+firmware-verilator	Run actions/checkout@v4	2026-11-25T17:26:00.2211020Z changes and commit them, and you can discard any commits you make in this
+firmware-verilator	Run actions/checkout@v4	2026-11-25T17:26:00.2211877Z state without impacting any branches by switching back to a branch.
+firmware-verilator	Run actions/checkout@v4	2026-11-25T17:26:00.2212161Z 
+firmware-verilator	Run actions/checkout@v4	2026-11-25T17:26:00.2212395Z If you want to create a new branch to retain commits you create, you may
+firmware-verilator	Run actions/checkout@v4	2026-11-25T17:26:00.2212776Z do so (now or later) by using -c with the switch command. Example:
+firmware-verilator	Run actions/checkout@v4	2026-11-25T17:26:00.2213056Z 
+firmware-verilator	Run actions/checkout@v4	2026-11-25T17:26:00.2213170Z   git switch -c <new-branch-name>
+firmware-verilator	Run actions/checkout@v4	2026-11-25T17:26:00.2213342Z 
+firmware-verilator	Run actions/checkout@v4	2026-11-25T17:26:00.2213444Z Or undo this operation with:
+firmware-verilator	Run actions/checkout@v4	2026-11-25T17:26:00.2213660Z 
+firmware-verilator	Run actions/checkout@v4	2026-11-25T17:26:00.2213824Z   git switch -
+firmware-verilator	Run actions/checkout@v4	2026-11-25T17:26:00.2213952Z 
+firmware-verilator	Run actions/checkout@v4	2026-11-25T17:26:00.2214156Z Turn off this advice by setting config variable advice.detachedHead to false
+firmware-verilator	Run actions/checkout@v4	2026-11-25T17:26:00.2214404Z 
+firmware-verilator	Run actions/checkout@v4	2026-11-25T17:26:00.2214695Z HEAD is now at 649acf4 Merge 09201d35d7ea720b3ba205da185ba35c159ec24a into 5de21ff3661436ea5598718aca36934361e35340
+firmware-verilator	Run actions/checkout@v4	2026-11-25T17:26:00.2224042Z ##[endgroup]
+firmware-verilator	Run actions/checkout@v4	2026-11-25T17:26:00.2267209Z [command]/usr/bin/git log -1 --format=%H
+firmware-verilator	Run actions/checkout@v4	2026-11-25T17:26:00.2287362Z 649acf4c775dd7e9bfbdf81f5d7a3d91782cd327
+firmware-verilator	Set CPU-derived job budgets	﻿2026-11-25T17:26:00.2471114Z ##[group]Run set -euo pipefail
+firmware-verilator	Set CPU-derived job budgets	2026-11-25T17:26:00.2471511Z ^[[36;1mset -euo pipefail^[[0m
+firmware-verilator	Set CPU-derived job budgets	2026-11-25T17:26:00.2472105Z ^[[36;1mcpus="$(nproc)"^[[0m
+firmware-verilator	Set CPU-derived job budgets	2026-11-25T17:26:00.2472346Z ^[[36;1mtest "$cpus" -gt 0^[[0m
+firmware-verilator	Set CPU-derived job budgets	2026-11-25T17:26:00.2472620Z ^[[36;1mcampaign=$(( cpus < 4 ? cpus : 4 ))^[[0m
+firmware-verilator	Set CPU-derived job budgets	2026-11-25T17:26:00.2472931Z ^[[36;1msimulations=$(( cpus < 4 ? cpus : 4 ))^[[0m
+firmware-verilator	Set CPU-derived job budgets	2026-11-25T17:26:00.2473219Z ^[[36;1mtool_build=$(( cpus < 8 ? cpus : 8 ))^[[0m
+firmware-verilator	Set CPU-derived job budgets	2026-11-25T17:26:00.2473508Z ^[[36;1m{^[[0m
+firmware-verilator	Set CPU-derived job budgets	2026-11-25T17:26:00.2473738Z ^[[36;1m  printf 'CI_BUILD_JOBS=%s\n' "$cpus"^[[0m
+firmware-verilator	Set CPU-derived job budgets	2026-11-25T17:26:00.2474048Z ^[[36;1m  printf 'CI_TOOL_BUILD_JOBS=%s\n' "$tool_build"^[[0m
+firmware-verilator	Set CPU-derived job budgets	2026-11-25T17:26:00.2474394Z ^[[36;1m  printf 'CI_CAMPAIGN_JOBS=%s\n' "$campaign"^[[0m
+firmware-verilator	Set CPU-derived job budgets	2026-11-25T17:26:00.2474721Z ^[[36;1m  printf 'VERILATOR_JOBS=%s\n' "$cpus"^[[0m
+firmware-verilator	Set CPU-derived job budgets	2026-11-25T17:26:00.2475454Z ^[[36;1m  printf 'SIM_JOBS=%s\n' "$simulations"^[[0m
+firmware-verilator	Set CPU-derived job budgets	2026-11-25T17:26:00.2475782Z ^[[36;1m  printf 'MAKEFLAGS=-j1 --no-print-directory\n'^[[0m
+firmware-verilator	Set CPU-derived job budgets	2026-11-25T17:26:00.2476091Z ^[[36;1m} >> "$GITHUB_ENV"^[[0m
+firmware-verilator	Set CPU-derived job budgets	2026-11-25T17:26:00.4856779Z shell: /usr/bin/bash -e {0}
+firmware-verilator	Set CPU-derived job budgets	2026-11-25T17:26:00.4857549Z env:
+firmware-verilator	Set CPU-derived job budgets	2026-11-25T17:26:00.4857812Z   VERILATOR_VERSION: v5.050
+firmware-verilator	Set CPU-derived job budgets	2026-11-25T17:26:00.4858111Z   YOSYS_VERSION: v0.66
+firmware-verilator	Set CPU-derived job budgets	2026-11-25T17:26:00.4858474Z   PIP_CONSTRAINT: <home-path>/work/milan-fpga/milan-fpga/ci/constraints-ci.txt
+firmware-verilator	Set CPU-derived job budgets	2026-11-25T17:26:00.4858853Z ##[endgroup]
+firmware-verilator	Cache exact Python downloads	﻿2026-11-25T17:26:00.6004761Z ##[group]Run actions/cache@v4
+firmware-verilator	Cache exact Python downloads	2026-11-25T17:26:00.6005314Z with:
+firmware-verilator	Cache exact Python downloads	2026-11-25T17:26:00.6005571Z   path: ~/.cache/pip
+firmware-verilator	Cache exact Python downloads	2026-11-25T17:26:00.6006158Z   key: python-cpython3.12.3-0f4dff939fe11c9e2b6ca53bfda0ab835c6b8262ea97e72481db61f20ea4b311-aa130cde3f89d5df9ea7f65b2511a7df2485907f5edf91bb356a311b83c0f291-Linux
+firmware-verilator	Cache exact Python downloads	2026-11-25T17:26:00.6006787Z   enableCrossOsArchive: false
+firmware-verilator	Cache exact Python downloads	2026-11-25T17:26:00.6007120Z   fail-on-cache-miss: false
+firmware-verilator	Cache exact Python downloads	2026-11-25T17:26:00.6007362Z   lookup-only: false
+firmware-verilator	Cache exact Python downloads	2026-11-25T17:26:00.6007609Z   save-always: false
+firmware-verilator	Cache exact Python downloads	2026-11-25T17:26:00.6007848Z env:
+firmware-verilator	Cache exact Python downloads	2026-11-25T17:26:00.6008071Z   VERILATOR_VERSION: v5.050
+firmware-verilator	Cache exact Python downloads	2026-11-25T17:26:00.6008307Z   YOSYS_VERSION: v0.66
+firmware-verilator	Cache exact Python downloads	2026-11-25T17:26:00.6008617Z   PIP_CONSTRAINT: <home-path>/work/milan-fpga/milan-fpga/ci/constraints-ci.txt
+firmware-verilator	Cache exact Python downloads	2026-11-25T17:26:00.6009001Z   CI_BUILD_JOBS: 4
+firmware-verilator	Cache exact Python downloads	2026-11-25T17:26:00.6009219Z   CI_TOOL_BUILD_JOBS: 4
+firmware-verilator	Cache exact Python downloads	2026-11-25T17:26:00.6009487Z   CI_CAMPAIGN_JOBS: 4
+firmware-verilator	Cache exact Python downloads	2026-11-25T17:26:00.6009705Z   VERILATOR_JOBS: 4
+firmware-verilator	Cache exact Python downloads	2026-11-25T17:26:00.6009904Z   SIM_JOBS: 4
+firmware-verilator	Cache exact Python downloads	2026-11-25T17:26:00.6010316Z   MAKEFLAGS: -j1 --no-print-directory
+firmware-verilator	Cache exact Python downloads	2026-11-25T17:26:00.6010577Z ##[endgroup]
+firmware-verilator	Cache exact Python downloads	2026-11-25T17:26:00.6784264Z (node:2173) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+firmware-verilator	Cache exact Python downloads	2026-11-25T17:26:00.6785082Z (Use `node --trace-deprecation ...` to show where the warning was created)
+firmware-verilator	Cache exact Python downloads	2026-11-25T17:26:00.8236123Z Cache hit for: python-cpython3.12.3-0f4dff939fe11c9e2b6ca53bfda0ab835c6b8262ea97e72481db61f20ea4b311-aa130cde3f89d5df9ea7f65b2511a7df2485907f5edf91bb356a311b83c0f291-Linux
+firmware-verilator	Cache exact Python downloads	2026-11-25T17:26:00.8349083Z (node:2173) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+firmware-verilator	Cache exact Python downloads	2026-11-25T17:26:00.9626060Z Received 768944 of 768944 (100.0%), 8.7 MBs/sec
+firmware-verilator	Cache exact Python downloads	2026-11-25T17:26:00.9627276Z Cache Size: ~1 MB (768944 B)
+firmware-verilator	Cache exact Python downloads	2026-11-25T17:26:00.9642857Z [command]/usr/bin/tar -xf <home-path>/work/_temp/bf2f110a-d510-4e12-bde4-abd92c9c374a/cache.tzst -P -C <home-path>/work/milan-fpga/milan-fpga --use-compress-program unzstd
+firmware-verilator	Cache exact Python downloads	2026-11-25T17:26:00.9691238Z Cache restored successfully
+firmware-verilator	Cache exact Python downloads	2026-11-25T17:26:01.1921964Z Cache restored from key: python-cpython3.12.3-0f4dff939fe11c9e2b6ca53bfda0ab835c6b8262ea97e72481db61f20ea4b311-aa130cde3f89d5df9ea7f65b2511a7df2485907f5edf91bb356a311b83c0f291-Linux
+firmware-verilator	Fetch RTL dependencies	﻿2026-11-25T17:26:01.1992353Z ##[group]Run git submodule update --init third_party/verilog-axis protocol-processor gptp-processor third_party/lwSRP third_party/tsn-c-stack
+firmware-verilator	Fetch RTL dependencies	2026-11-25T17:26:01.1993253Z ^[[36;1mgit submodule update --init third_party/verilog-axis protocol-processor gptp-processor third_party/lwSRP third_party/tsn-c-stack^[[0m
+firmware-verilator	Fetch RTL dependencies	2026-11-25T17:26:01.2018715Z shell: /usr/bin/bash -e {0}
+firmware-verilator	Fetch RTL dependencies	2026-11-25T17:26:01.2019026Z env:
+firmware-verilator	Fetch RTL dependencies	2026-11-25T17:26:01.2019281Z   VERILATOR_VERSION: v5.050
+firmware-verilator	Fetch RTL dependencies	2026-11-25T17:26:01.2019598Z   YOSYS_VERSION: v0.66
+firmware-verilator	Fetch RTL dependencies	2026-11-25T17:26:01.2019942Z   PIP_CONSTRAINT: <home-path>/work/milan-fpga/milan-fpga/ci/constraints-ci.txt
+firmware-verilator	Fetch RTL dependencies	2026-11-25T17:26:01.2020333Z   CI_BUILD_JOBS: 4
+firmware-verilator	Fetch RTL dependencies	2026-11-25T17:26:01.2020577Z   CI_TOOL_BUILD_JOBS: 4
+firmware-verilator	Fetch RTL dependencies	2026-11-25T17:26:01.2020844Z   CI_CAMPAIGN_JOBS: 4
+firmware-verilator	Fetch RTL dependencies	2026-11-25T17:26:01.2021092Z   VERILATOR_JOBS: 4
+firmware-verilator	Fetch RTL dependencies	2026-11-25T17:26:01.2021299Z   SIM_JOBS: 4
+firmware-verilator	Fetch RTL dependencies	2026-11-25T17:26:01.2021553Z   MAKEFLAGS: -j1 --no-print-directory
+firmware-verilator	Fetch RTL dependencies	2026-11-25T17:26:01.2021843Z ##[endgroup]
+firmware-verilator	Fetch RTL dependencies	2026-11-25T17:26:01.2216303Z Submodule 'gptp-processor' (https://github.com/Mister-M-alt/FPGA-gPTP.git) registered for path 'gptp-processor'
+firmware-verilator	Fetch RTL dependencies	2026-11-25T17:26:01.2218619Z Submodule 'protocol-processor' (https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan.git) registered for path 'protocol-processor'
+firmware-verilator	Fetch RTL dependencies	2026-11-25T17:26:01.2220878Z Submodule 'third_party/lwSRP' (https://github.com/kebag-logic/lwSRP.git) registered for path 'third_party/lwSRP'
+firmware-verilator	Fetch RTL dependencies	2026-11-25T17:26:01.2223248Z Submodule 'third_party/tsn-c-stack' (https://github.com/kebag-logic/tsn-c-stack.git) registered for path 'third_party/tsn-c-stack'
+firmware-verilator	Fetch RTL dependencies	2026-11-25T17:26:01.2225831Z Submodule 'third_party/verilog-axis' (https://github.com/alexforencich/verilog-axis) registered for path 'third_party/verilog-axis'
+firmware-verilator	Fetch RTL dependencies	2026-11-25T17:26:01.2245400Z Cloning into '<home-path>/work/milan-fpga/milan-fpga/gptp-processor'...
+firmware-verilator	Fetch RTL dependencies	2026-11-25T17:26:01.6673766Z Cloning into '<home-path>/work/milan-fpga/milan-fpga/protocol-processor'...
+firmware-verilator	Fetch RTL dependencies	2026-11-25T17:26:02.9031734Z Cloning into '<home-path>/work/milan-fpga/milan-fpga/third_party/lwSRP'...
+firmware-verilator	Fetch RTL dependencies	2026-11-25T17:26:03.2576317Z Cloning into '<home-path>/work/milan-fpga/milan-fpga/third_party/tsn-c-stack'...
+firmware-verilator	Fetch RTL dependencies	2026-11-25T17:26:03.6216516Z Cloning into '<home-path>/work/milan-fpga/milan-fpga/third_party/verilog-axis'...
+firmware-verilator	Fetch RTL dependencies	2026-11-25T17:26:03.8637654Z Submodule path 'gptp-processor': checked out '1213ac5b9e09b8759ba76cc70c53652b5e108996'
+firmware-verilator	Fetch RTL dependencies	2026-11-25T17:26:03.9277255Z Submodule path 'protocol-processor': checked out '801ef2283ec793e35a2590fc6593c90313a64041'
+firmware-verilator	Fetch RTL dependencies	2026-11-25T17:26:03.9367438Z Submodule path 'third_party/lwSRP': checked out 'd1bb4f4e5954af6dabe7f210a6bf7adbb76bdd6b'
+firmware-verilator	Fetch RTL dependencies	2026-11-25T17:26:03.9536501Z Submodule path 'third_party/tsn-c-stack': checked out '715589c1db7cf67e2f3259fd7083ebc7f0923376'
+firmware-verilator	Fetch RTL dependencies	2026-11-25T17:26:03.9670798Z Submodule path 'third_party/verilog-axis': checked out '48ff7a7e2ef782cf778d47910cf85835c64b1bce'
+firmware-verilator	Resolve exact package downloads 2	﻿2026-11-25T17:26:03.9712615Z ##[group]Run python3 scripts/ci_install_cache.py --packages libgmock-dev libgtest-dev --recipe 1bc2189d362b534d00cedebf8457eb163856c1fc534096947dea3b3c4472f6c9 --directory "$RUNNER_TEMP/ci_packages_2" --output "$GITHUB_OUTPUT"
+firmware-verilator	Resolve exact package downloads 2	2026-11-25T17:26:03.9713923Z ^[[36;1mpython3 scripts/ci_install_cache.py --packages libgmock-dev libgtest-dev --recipe 1bc2189d362b534d00cedebf8457eb163856c1fc534096947dea3b3c4472f6c9 --directory "$RUNNER_TEMP/ci_packages_2" --output "$GITHUB_OUTPUT"^[[0m
+firmware-verilator	Resolve exact package downloads 2	2026-11-25T17:26:03.9737170Z shell: /usr/bin/bash -e {0}
+firmware-verilator	Resolve exact package downloads 2	2026-11-25T17:26:03.9737518Z env:
+firmware-verilator	Resolve exact package downloads 2	2026-11-25T17:26:03.9737784Z   VERILATOR_VERSION: v5.050
+firmware-verilator	Resolve exact package downloads 2	2026-11-25T17:26:03.9738073Z   YOSYS_VERSION: v0.66
+firmware-verilator	Resolve exact package downloads 2	2026-11-25T17:26:03.9738416Z   PIP_CONSTRAINT: <home-path>/work/milan-fpga/milan-fpga/ci/constraints-ci.txt
+firmware-verilator	Resolve exact package downloads 2	2026-11-25T17:26:03.9738768Z   CI_BUILD_JOBS: 4
+firmware-verilator	Resolve exact package downloads 2	2026-11-25T17:26:03.9739050Z   CI_TOOL_BUILD_JOBS: 4
+firmware-verilator	Resolve exact package downloads 2	2026-11-25T17:26:03.9739287Z   CI_CAMPAIGN_JOBS: 4
+firmware-verilator	Resolve exact package downloads 2	2026-11-25T17:26:03.9739559Z   VERILATOR_JOBS: 4
+firmware-verilator	Resolve exact package downloads 2	2026-11-25T17:26:03.9739778Z   SIM_JOBS: 4
+firmware-verilator	Resolve exact package downloads 2	2026-11-25T17:26:03.9740112Z   MAKEFLAGS: -j1 --no-print-directory
+firmware-verilator	Resolve exact package downloads 2	2026-11-25T17:26:03.9740406Z ##[endgroup]
+firmware-verilator	Resolve exact package downloads 2	2026-11-25T17:26:14.2562959Z {"archives": [{"bytes": 520880, "filename": "googletest_1.14.0-1_all.deb", "sha256": "196b763a2539c117ee2bbd5878ffa33b00ce8017ca6b63b89245b74c8889f1d1", "url": "mirror+file:/etc/apt/apt-mirrors.txt/pool/universe/g/googletest/googletest_1.14.0-1_all.deb"}, {"bytes": 268320, "filename": "libgtest-dev_1.14.0-1_amd64.deb", "sha256": "c7dd1ecf6b816bf13ab6e1d8813d1ff0ae7a4fa09326a0cd467c3943d952117f", "url": "mirror+file:/etc/apt/apt-mirrors.txt/pool/universe/g/googletest/libgtest-dev_1.14.0-1_amd64.deb"}, {"bytes": 134570, "filename": "libgmock-dev_1.14.0-1_amd64.deb", "sha256": "9e299726c3015d03324a81074224a43efbd444d83103357d83f1b99aed3fa9f6", "url": "mirror+file:/etc/apt/apt-mirrors.txt/pool/universe/g/googletest/libgmock-dev_1.14.0-1_amd64.deb"}], "key": "apt-e8d0be9d206f07f2e3d715a6587a1b5b849ef62be8dd33f0f8248fc9f9707847-3ee1f05265afcfbfe33b91fec69fbef4d3bad5399e2cd968ea7869725622ea6a-1bc2189d362b534d00cedebf8457eb163856c1fc534096947dea3b3c4472f6c9", "packages": ["libgmock-dev", "libgtest-dev"], "versions": "libgmock-dev:\n  Installed: (none)\n  Candidate: 1.14.0-1\n  Version table:\n     1.14.0-1 500\n        500 mirror+file:/etc/apt/apt-mirrors.txt noble/universe amd64 Packages\nlibgtest-dev:\n  Installed: (none)\n  Candidate: 1.14.0-1\n  Version table:\n     1.14.0-1 500\n        500 mirror+file:/etc/apt/apt-mirrors.txt noble/universe amd64 Packages\n"}
+firmware-verilator	Cache exact package downloads 2	﻿2026-11-25T17:26:14.3215302Z ##[group]Run actions/cache@v4
+firmware-verilator	Cache exact package downloads 2	2026-11-25T17:26:14.3215604Z with:
+firmware-verilator	Cache exact package downloads 2	2026-11-25T17:26:14.3215883Z   path: <home-path>/work/_temp/ci_packages_2
+firmware-verilator	Cache exact package downloads 2	2026-11-25T17:26:14.3216923Z   key: Linux-apt-e8d0be9d206f07f2e3d715a6587a1b5b849ef62be8dd33f0f8248fc9f9707847-3ee1f05265afcfbfe33b91fec69fbef4d3bad5399e2cd968ea7869725622ea6a-1bc2189d362b534d00cedebf8457eb163856c1fc534096947dea3b3c4472f6c9-aa130cde3f89d5df9ea7f65b2511a7df2485907f5edf91bb356a311b83c0f291
+firmware-verilator	Cache exact package downloads 2	2026-11-25T17:26:14.3217928Z   enableCrossOsArchive: false
+firmware-verilator	Cache exact package downloads 2	2026-11-25T17:26:14.3218193Z   fail-on-cache-miss: false
+firmware-verilator	Cache exact package downloads 2	2026-11-25T17:26:14.3218500Z   lookup-only: false
+firmware-verilator	Cache exact package downloads 2	2026-11-25T17:26:14.3218767Z   save-always: false
+firmware-verilator	Cache exact package downloads 2	2026-11-25T17:26:14.3218988Z env:
+firmware-verilator	Cache exact package downloads 2	2026-11-25T17:26:14.3219197Z   VERILATOR_VERSION: v5.050
+firmware-verilator	Cache exact package downloads 2	2026-11-25T17:26:14.3219498Z   YOSYS_VERSION: v0.66
+firmware-verilator	Cache exact package downloads 2	2026-11-25T17:26:14.3219923Z   PIP_CONSTRAINT: <home-path>/work/milan-fpga/milan-fpga/ci/constraints-ci.txt
+firmware-verilator	Cache exact package downloads 2	2026-11-25T17:26:14.3220348Z   CI_BUILD_JOBS: 4
+firmware-verilator	Cache exact package downloads 2	2026-11-25T17:26:14.3220579Z   CI_TOOL_BUILD_JOBS: 4
+firmware-verilator	Cache exact package downloads 2	2026-11-25T17:26:14.3220902Z   CI_CAMPAIGN_JOBS: 4
+firmware-verilator	Cache exact package downloads 2	2026-11-25T17:26:14.3221164Z   VERILATOR_JOBS: 4
+firmware-verilator	Cache exact package downloads 2	2026-11-25T17:26:14.3221416Z   SIM_JOBS: 4
+firmware-verilator	Cache exact package downloads 2	2026-11-25T17:26:14.3221658Z   MAKEFLAGS: -j1 --no-print-directory
+firmware-verilator	Cache exact package downloads 2	2026-11-25T17:26:14.3221918Z ##[endgroup]
+firmware-verilator	Cache exact package downloads 2	2026-11-25T17:26:14.3998928Z (node:2652) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+firmware-verilator	Cache exact package downloads 2	2026-11-25T17:26:14.3999769Z (Use `node --trace-deprecation ...` to show where the warning was created)
+firmware-verilator	Cache exact package downloads 2	2026-11-25T17:26:14.4528979Z Cache not found for input keys: Linux-apt-e8d0be9d206f07f2e3d715a6587a1b5b849ef62be8dd33f0f8248fc9f9707847-3ee1f05265afcfbfe33b91fec69fbef4d3bad5399e2cd968ea7869725622ea6a-1bc2189d362b534d00cedebf8457eb163856c1fc534096947dea3b3c4472f6c9-aa130cde3f89d5df9ea7f65b2511a7df2485907f5edf91bb356a311b83c0f291
+firmware-verilator	Install GoogleTest and GoogleMock and print the versions	﻿2026-11-25T17:26:14.4596680Z ##[group]Run set -euo pipefail
+firmware-verilator	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:26:14.4597007Z ^[[36;1mset -euo pipefail^[[0m
+firmware-verilator	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:26:14.4597322Z ^[[36;1m: # package index prepared above^[[0m
+firmware-verilator	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:26:14.4597781Z ^[[36;1msudo apt-get -o Dir::Cache::archives="$RUNNER_TEMP/ci_packages_2" install -y --no-install-recommends libgtest-dev libgmock-dev^[[0m
+firmware-verilator	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:26:14.4598626Z ^[[36;1mpython3 -m pip install --quiet pyyaml^[[0m
+firmware-verilator	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:26:14.4598964Z ^[[36;1mdpkg-query -W libgtest-dev libgmock-dev^[[0m
+firmware-verilator	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:26:14.4599270Z ^[[36;1mg++ --version | head -n 1^[[0m
+firmware-verilator	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:26:14.4623194Z shell: /usr/bin/bash -e {0}
+firmware-verilator	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:26:14.4623499Z env:
+firmware-verilator	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:26:14.4623746Z   VERILATOR_VERSION: v5.050
+firmware-verilator	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:26:14.4624072Z   YOSYS_VERSION: v0.66
+firmware-verilator	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:26:14.4624425Z   PIP_CONSTRAINT: <home-path>/work/milan-fpga/milan-fpga/ci/constraints-ci.txt
+firmware-verilator	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:26:14.4624787Z   CI_BUILD_JOBS: 4
+firmware-verilator	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:26:14.4625231Z   CI_TOOL_BUILD_JOBS: 4
+firmware-verilator	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:26:14.4625464Z   CI_CAMPAIGN_JOBS: 4
+firmware-verilator	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:26:14.4625873Z   VERILATOR_JOBS: 4
+firmware-verilator	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:26:14.4626093Z   SIM_JOBS: 4
+firmware-verilator	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:26:14.4626364Z   MAKEFLAGS: -j1 --no-print-directory
+firmware-verilator	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:26:14.4626633Z ##[endgroup]
+firmware-verilator	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:26:14.4825771Z Reading package lists...
+firmware-verilator	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:26:14.7229585Z Building dependency tree...
+firmware-verilator	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:26:14.7233763Z Reading state information...
+firmware-verilator	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:26:14.8704712Z The following additional packages will be installed:
+firmware-verilator	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:26:14.8713520Z   googletest
+firmware-verilator	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:26:14.8844847Z The following NEW packages will be installed:
+firmware-verilator	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:26:14.8851038Z   googletest libgmock-dev libgtest-dev
+firmware-verilator	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:26:14.9007630Z 0 upgraded, 3 newly installed, 0 to remove and 15 not upgraded.
+firmware-verilator	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:26:14.9008098Z Need to get 924 kB of archives.
+firmware-verilator	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:26:14.9008616Z After this operation, 5933 kB of additional disk space will be used.
+firmware-verilator	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:26:14.9009167Z Get:1 file:/etc/apt/apt-mirrors.txt Mirrorlist [152 B]
+firmware-verilator	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:26:14.9294719Z Get:2 http://us-east-1.ec2.archive.ubuntu.com/ubuntu noble/universe amd64 googletest all 1.14.0-1 [521 kB]
+firmware-verilator	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:26:14.9661585Z Get:3 http://us-east-1.ec2.archive.ubuntu.com/ubuntu noble/universe amd64 libgtest-dev amd64 1.14.0-1 [268 kB]
+firmware-verilator	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:26:14.9876917Z Get:4 http://us-east-1.ec2.archive.ubuntu.com/ubuntu noble/universe amd64 libgmock-dev amd64 1.14.0-1 [135 kB]
+firmware-verilator	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:26:15.7756234Z Fetched 924 kB in 0s (9465 kB/s)
+firmware-verilator	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:26:15.8223913Z Selecting previously unselected package googletest.
+firmware-verilator	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:26:16.0083716Z (Reading database ... 
+firmware-verilator	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:26:16.0084263Z (Reading database ... 5%
+firmware-verilator	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:26:16.0085073Z (Reading database ... 10%
+firmware-verilator	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:26:16.0085509Z (Reading database ... 15%
+firmware-verilator	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:26:16.0085907Z (Reading database ... 20%
+firmware-verilator	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:26:16.0086227Z (Reading database ... 25%
+firmware-verilator	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:26:16.0086533Z (Reading database ... 30%
+firmware-verilator	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:26:16.0086874Z (Reading database ... 35%
+firmware-verilator	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:26:16.0087302Z (Reading database ... 40%
+firmware-verilator	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:26:16.0087638Z (Reading database ... 45%
+firmware-verilator	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:26:16.0087962Z (Reading database ... 50%
+firmware-verilator	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:26:16.0391339Z (Reading database ... 55%
+firmware-verilator	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:26:16.4070031Z (Reading database ... 60%
+firmware-verilator	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:26:16.4316158Z (Reading database ... 65%
+firmware-verilator	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:26:16.4997675Z (Reading database ... 70%
+firmware-verilator	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:26:16.5512724Z (Reading database ... 75%
+firmware-verilator	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:26:16.9286996Z (Reading database ... 80%
+firmware-verilator	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:26:17.5908349Z (Reading database ... 85%
+firmware-verilator	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:26:18.2986288Z (Reading database ... 90%
+firmware-verilator	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:26:19.5526940Z (Reading database ... 95%
+firmware-verilator	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:26:19.5527806Z (Reading database ... 100%
+firmware-verilator	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:26:19.5528166Z (Reading database ... 216824 files and directories currently installed.)
+firmware-verilator	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:26:19.5573643Z Preparing to unpack .../googletest_1.14.0-1_all.deb ...
+firmware-verilator	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:26:19.5594670Z Unpacking googletest (1.14.0-1) ...
+firmware-verilator	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:26:19.5940783Z Selecting previously unselected package libgtest-dev:amd64.
+firmware-verilator	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:26:19.6045989Z Preparing to unpack .../libgtest-dev_1.14.0-1_amd64.deb ...
+firmware-verilator	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:26:19.6049340Z Unpacking libgtest-dev:amd64 (1.14.0-1) ...
+firmware-verilator	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:26:19.6873300Z Selecting previously unselected package libgmock-dev:amd64.
+firmware-verilator	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:26:19.6977011Z Preparing to unpack .../libgmock-dev_1.14.0-1_amd64.deb ...
+firmware-verilator	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:26:19.6981398Z Unpacking libgmock-dev:amd64 (1.14.0-1) ...
+firmware-verilator	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:26:19.7267920Z Setting up googletest (1.14.0-1) ...
+firmware-verilator	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:26:19.7277823Z Setting up libgtest-dev:amd64 (1.14.0-1) ...
+firmware-verilator	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:26:19.7288143Z Setting up libgmock-dev:amd64 (1.14.0-1) ...
+firmware-verilator	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:26:20.4505692Z 
+firmware-verilator	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:26:20.4506845Z Running kernel seems to be up-to-date.
+firmware-verilator	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:26:20.4507143Z 
+firmware-verilator	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:26:20.4507290Z No services need to be restarted.
+firmware-verilator	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:26:20.4507476Z 
+firmware-verilator	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:26:20.4507783Z No containers need to be restarted.
+firmware-verilator	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:26:20.4507974Z 
+firmware-verilator	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:26:20.4508173Z No user sessions are running outdated binaries.
+firmware-verilator	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:26:20.4508353Z 
+firmware-verilator	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:26:20.4508561Z No VM guests are running outdated hypervisor (qemu) binaries on this host.
+firmware-verilator	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:26:21.3848846Z W: Download is performed unsandboxed as root as file '<home-path>/work/_temp/ci_packages_2/partial/googletest_1.14.0-1_all.deb' couldn't be accessed by user '_apt'. - pkgAcquire::Run (13: Permission denied)
+firmware-verilator	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:26:23.6630299Z libgmock-dev:amd64	1.14.0-1
+firmware-verilator	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:26:23.6630917Z libgtest-dev:amd64	1.14.0-1
+firmware-verilator	Install GoogleTest and GoogleMock and print the versions	2026-11-25T17:26:23.7376405Z g++ (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0
+firmware-verilator	Cache the pinned Verilator build	﻿2026-11-25T17:26:23.7898993Z ##[group]Run actions/cache@v4
+firmware-verilator	Cache the pinned Verilator build	2026-11-25T17:26:23.7899285Z with:
+firmware-verilator	Cache the pinned Verilator build	2026-11-25T17:26:23.7899514Z   path: /opt/verilator
+firmware-verilator	Cache the pinned Verilator build	2026-11-25T17:26:23.7900148Z   key: verilator-v5.050-848d926ebd4addacacd294dc84e35d9d4ae8078c-8e291403c12e9d0f8273be2a1de3d48a6398bda1a524b1301adcaed01c1efa7c-Linux
+firmware-verilator	Cache the pinned Verilator build	2026-11-25T17:26:23.7900736Z   enableCrossOsArchive: false
+firmware-verilator	Cache the pinned Verilator build	2026-11-25T17:26:23.7901025Z   fail-on-cache-miss: false
+firmware-verilator	Cache the pinned Verilator build	2026-11-25T17:26:23.7901298Z   lookup-only: false
+firmware-verilator	Cache the pinned Verilator build	2026-11-25T17:26:23.7901568Z   save-always: false
+firmware-verilator	Cache the pinned Verilator build	2026-11-25T17:26:23.7901949Z env:
+firmware-verilator	Cache the pinned Verilator build	2026-11-25T17:26:23.7902167Z   VERILATOR_VERSION: v5.050
+firmware-verilator	Cache the pinned Verilator build	2026-11-25T17:26:23.7902432Z   YOSYS_VERSION: v0.66
+firmware-verilator	Cache the pinned Verilator build	2026-11-25T17:26:23.7902767Z   PIP_CONSTRAINT: <home-path>/work/milan-fpga/milan-fpga/ci/constraints-ci.txt
+firmware-verilator	Cache the pinned Verilator build	2026-11-25T17:26:23.7903154Z   CI_BUILD_JOBS: 4
+firmware-verilator	Cache the pinned Verilator build	2026-11-25T17:26:23.7903379Z   CI_TOOL_BUILD_JOBS: 4
+firmware-verilator	Cache the pinned Verilator build	2026-11-25T17:26:23.7903614Z   CI_CAMPAIGN_JOBS: 4
+firmware-verilator	Cache the pinned Verilator build	2026-11-25T17:26:23.7903897Z   VERILATOR_JOBS: 4
+firmware-verilator	Cache the pinned Verilator build	2026-11-25T17:26:23.7904106Z   SIM_JOBS: 4
+firmware-verilator	Cache the pinned Verilator build	2026-11-25T17:26:23.7904361Z   MAKEFLAGS: -j1 --no-print-directory
+firmware-verilator	Cache the pinned Verilator build	2026-11-25T17:26:23.7904690Z ##[endgroup]
+firmware-verilator	Cache the pinned Verilator build	2026-11-25T17:26:23.8675699Z (node:2813) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+firmware-verilator	Cache the pinned Verilator build	2026-11-25T17:26:23.8676339Z (Use `node --trace-deprecation ...` to show where the warning was created)
+firmware-verilator	Cache the pinned Verilator build	2026-11-25T17:26:23.9240119Z Cache hit for: verilator-v5.050-848d926ebd4addacacd294dc84e35d9d4ae8078c-8e291403c12e9d0f8273be2a1de3d48a6398bda1a524b1301adcaed01c1efa7c-Linux
+firmware-verilator	Cache the pinned Verilator build	2026-11-25T17:26:23.9313008Z (node:2813) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+firmware-verilator	Cache the pinned Verilator build	2026-11-25T17:26:24.3799643Z Received 92158616 of 92158616 (100.0%), 208.8 MBs/sec
+firmware-verilator	Cache the pinned Verilator build	2026-11-25T17:26:24.3800192Z Cache Size: ~88 MB (92158616 B)
+firmware-verilator	Cache the pinned Verilator build	2026-11-25T17:26:24.3823188Z [command]/usr/bin/tar -xf <home-path>/work/_temp/bbf437cc-73b4-4765-bb5b-e63efb76bb52/cache.tzst -P -C <home-path>/work/milan-fpga/milan-fpga --use-compress-program unzstd
+firmware-verilator	Cache the pinned Verilator build	2026-11-25T17:26:24.4799090Z Cache restored successfully
+firmware-verilator	Cache the pinned Verilator build	2026-11-25T17:26:24.4888251Z Cache restored from key: verilator-v5.050-848d926ebd4addacacd294dc84e35d9d4ae8078c-8e291403c12e9d0f8273be2a1de3d48a6398bda1a524b1301adcaed01c1efa7c-Linux
+firmware-verilator	Put Verilator on PATH and prove the version	﻿2026-11-25T17:26:24.5055634Z ##[group]Run set -euo pipefail
+firmware-verilator	Put Verilator on PATH and prove the version	2026-11-25T17:26:24.5056092Z ^[[36;1mset -euo pipefail^[[0m
+firmware-verilator	Put Verilator on PATH and prove the version	2026-11-25T17:26:24.5056399Z ^[[36;1mecho "/opt/verilator/bin" >> "$GITHUB_PATH"^[[0m
+firmware-verilator	Put Verilator on PATH and prove the version	2026-11-25T17:26:24.5056718Z ^[[36;1m/opt/verilator/bin/verilator --version^[[0m
+firmware-verilator	Put Verilator on PATH and prove the version	2026-11-25T17:26:24.5057088Z ^[[36;1m/opt/verilator/bin/verilator --version | grep -F "${VERILATOR_VERSION#v}"^[[0m
+firmware-verilator	Put Verilator on PATH and prove the version	2026-11-25T17:26:24.5080962Z shell: /usr/bin/bash -e {0}
+firmware-verilator	Put Verilator on PATH and prove the version	2026-11-25T17:26:24.5081285Z env:
+firmware-verilator	Put Verilator on PATH and prove the version	2026-11-25T17:26:24.5081528Z   VERILATOR_VERSION: v5.050
+firmware-verilator	Put Verilator on PATH and prove the version	2026-11-25T17:26:24.5081773Z   YOSYS_VERSION: v0.66
+firmware-verilator	Put Verilator on PATH and prove the version	2026-11-25T17:26:24.5082134Z   PIP_CONSTRAINT: <home-path>/work/milan-fpga/milan-fpga/ci/constraints-ci.txt
+firmware-verilator	Put Verilator on PATH and prove the version	2026-11-25T17:26:24.5082503Z   CI_BUILD_JOBS: 4
+firmware-verilator	Put Verilator on PATH and prove the version	2026-11-25T17:26:24.5082747Z   CI_TOOL_BUILD_JOBS: 4
+firmware-verilator	Put Verilator on PATH and prove the version	2026-11-25T17:26:24.5083004Z   CI_CAMPAIGN_JOBS: 4
+firmware-verilator	Put Verilator on PATH and prove the version	2026-11-25T17:26:24.5083261Z   VERILATOR_JOBS: 4
+firmware-verilator	Put Verilator on PATH and prove the version	2026-11-25T17:26:24.5083473Z   SIM_JOBS: 4
+firmware-verilator	Put Verilator on PATH and prove the version	2026-11-25T17:26:24.5083732Z   MAKEFLAGS: -j1 --no-print-directory
+firmware-verilator	Put Verilator on PATH and prove the version	2026-11-25T17:26:24.5083994Z ##[endgroup]
+firmware-verilator	Put Verilator on PATH and prove the version	2026-11-25T17:26:24.6847593Z Verilator 5.050 2026-07-01 rev v5.050
+firmware-verilator	Put Verilator on PATH and prove the version	2026-11-25T17:26:24.7309134Z Verilator 5.050 2026-07-01 rev v5.050
+firmware-verilator	Cache the pinned RV32 SDK	﻿2026-11-25T17:26:24.7778651Z ##[group]Run actions/cache@v4
+firmware-verilator	Cache the pinned RV32 SDK	2026-11-25T17:26:24.7778941Z with:
+firmware-verilator	Cache the pinned RV32 SDK	2026-11-25T17:26:24.7779182Z   path: ~/br-milan-rv32/host
+firmware-verilator	Cache the pinned RV32 SDK	2026-11-25T17:26:24.7779913Z   key: rv32-sdk-v1-Linux-X64-d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f-a11c5b5421386f4d8a8b14cf2eff259251ae3ee42716b3b69c5a314f2f1790f9
+firmware-verilator	Cache the pinned RV32 SDK	2026-11-25T17:26:24.7780538Z   enableCrossOsArchive: false
+firmware-verilator	Cache the pinned RV32 SDK	2026-11-25T17:26:24.7780843Z   fail-on-cache-miss: false
+firmware-verilator	Cache the pinned RV32 SDK	2026-11-25T17:26:24.7781087Z   lookup-only: false
+firmware-verilator	Cache the pinned RV32 SDK	2026-11-25T17:26:24.7781347Z   save-always: false
+firmware-verilator	Cache the pinned RV32 SDK	2026-11-25T17:26:24.7781618Z env:
+firmware-verilator	Cache the pinned RV32 SDK	2026-11-25T17:26:24.7781854Z   VERILATOR_VERSION: v5.050
+firmware-verilator	Cache the pinned RV32 SDK	2026-11-25T17:26:24.7782130Z   YOSYS_VERSION: v0.66
+firmware-verilator	Cache the pinned RV32 SDK	2026-11-25T17:26:24.7782472Z   PIP_CONSTRAINT: <home-path>/work/milan-fpga/milan-fpga/ci/constraints-ci.txt
+firmware-verilator	Cache the pinned RV32 SDK	2026-11-25T17:26:24.7782842Z   CI_BUILD_JOBS: 4
+firmware-verilator	Cache the pinned RV32 SDK	2026-11-25T17:26:24.7783119Z   CI_TOOL_BUILD_JOBS: 4
+firmware-verilator	Cache the pinned RV32 SDK	2026-11-25T17:26:24.7783405Z   CI_CAMPAIGN_JOBS: 4
+firmware-verilator	Cache the pinned RV32 SDK	2026-11-25T17:26:24.7783658Z   VERILATOR_JOBS: 4
+firmware-verilator	Cache the pinned RV32 SDK	2026-11-25T17:26:24.7783895Z   SIM_JOBS: 4
+firmware-verilator	Cache the pinned RV32 SDK	2026-11-25T17:26:24.7784245Z   MAKEFLAGS: -j1 --no-print-directory
+firmware-verilator	Cache the pinned RV32 SDK	2026-11-25T17:26:24.7784522Z ##[endgroup]
+firmware-verilator	Cache the pinned RV32 SDK	2026-11-25T17:26:24.8570650Z (node:2852) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+firmware-verilator	Cache the pinned RV32 SDK	2026-11-25T17:26:24.8571349Z (Use `node --trace-deprecation ...` to show where the warning was created)
+firmware-verilator	Cache the pinned RV32 SDK	2026-11-25T17:26:24.9149141Z Cache hit for: rv32-sdk-v1-Linux-X64-d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f-a11c5b5421386f4d8a8b14cf2eff259251ae3ee42716b3b69c5a314f2f1790f9
+firmware-verilator	Cache the pinned RV32 SDK	2026-11-25T17:26:24.9266782Z (node:2852) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+firmware-verilator	Cache the pinned RV32 SDK	2026-11-25T17:26:25.4969633Z Received 153250353 of 153250353 (100.0%), 269.7 MBs/sec
+firmware-verilator	Cache the pinned RV32 SDK	2026-11-25T17:26:25.4975189Z Cache Size: ~146 MB (153250353 B)
+firmware-verilator	Cache the pinned RV32 SDK	2026-11-25T17:26:25.5032357Z [command]/usr/bin/tar -xf <home-path>/work/_temp/bc5bf402-7c43-41ba-94e8-0b173fba6cbf/cache.tzst -P -C <home-path>/work/milan-fpga/milan-fpga --use-compress-program unzstd
+firmware-verilator	Cache the pinned RV32 SDK	2026-11-25T17:26:26.1082765Z Cache restored successfully
+firmware-verilator	Cache the pinned RV32 SDK	2026-11-25T17:26:26.1196127Z Cache restored from key: rv32-sdk-v1-Linux-X64-d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f-a11c5b5421386f4d8a8b14cf2eff259251ae3ee42716b3b69c5a314f2f1790f9
+firmware-verilator	Install and verify the pinned RV32 SDK	﻿2026-11-25T17:26:26.1314450Z ##[group]Run set -euo pipefail
+firmware-verilator	Install and verify the pinned RV32 SDK	2026-11-25T17:26:26.1315230Z ^[[36;1mset -euo pipefail^[[0m
+firmware-verilator	Install and verify the pinned RV32 SDK	2026-11-25T17:26:26.1315714Z ^[[36;1mpython3 scripts/ci_rv32_sdk_selftest.py^[[0m
+firmware-verilator	Install and verify the pinned RV32 SDK	2026-11-25T17:26:26.1316214Z ^[[36;1mpython3 scripts/ci_rv32_sdk.py --destination "$HOME/br-milan-rv32/host"^[[0m
+firmware-verilator	Install and verify the pinned RV32 SDK	2026-11-25T17:26:26.1343091Z shell: /usr/bin/bash -e {0}
+firmware-verilator	Install and verify the pinned RV32 SDK	2026-11-25T17:26:26.1343516Z env:
+firmware-verilator	Install and verify the pinned RV32 SDK	2026-11-25T17:26:26.1343759Z   VERILATOR_VERSION: v5.050
+firmware-verilator	Install and verify the pinned RV32 SDK	2026-11-25T17:26:26.1344190Z   YOSYS_VERSION: v0.66
+firmware-verilator	Install and verify the pinned RV32 SDK	2026-11-25T17:26:26.1344574Z   PIP_CONSTRAINT: <home-path>/work/milan-fpga/milan-fpga/ci/constraints-ci.txt
+firmware-verilator	Install and verify the pinned RV32 SDK	2026-11-25T17:26:26.1345115Z   CI_BUILD_JOBS: 4
+firmware-verilator	Install and verify the pinned RV32 SDK	2026-11-25T17:26:26.1345391Z   CI_TOOL_BUILD_JOBS: 4
+firmware-verilator	Install and verify the pinned RV32 SDK	2026-11-25T17:26:26.1345660Z   CI_CAMPAIGN_JOBS: 4
+firmware-verilator	Install and verify the pinned RV32 SDK	2026-11-25T17:26:26.1345934Z   VERILATOR_JOBS: 4
+firmware-verilator	Install and verify the pinned RV32 SDK	2026-11-25T17:26:26.1346178Z   SIM_JOBS: 4
+firmware-verilator	Install and verify the pinned RV32 SDK	2026-11-25T17:26:26.1346452Z   MAKEFLAGS: -j1 --no-print-directory
+firmware-verilator	Install and verify the pinned RV32 SDK	2026-11-25T17:26:26.1346720Z ##[endgroup]
+firmware-verilator	Install and verify the pinned RV32 SDK	2026-11-25T17:26:26.2437760Z test_archive_root (__main__.InstallerTests.test_archive_root)
+firmware-verilator	Install and verify the pinned RV32 SDK	2026-11-25T17:26:26.2611727Z SDK archive verified: /tmp/rv32-installer-test-xjece79r/wrong-root.tar.xz sha256=f48f2b3094592951aac678a5badc14665820547631fd251fcde3dc6f49f87d70
+firmware-verilator	Install and verify the pinned RV32 SDK	2026-11-25T17:26:26.2616662Z An authenticated archive with another root is still not extracted. ... ok
+firmware-verilator	Install and verify the pinned RV32 SDK	2026-11-25T17:26:26.2617504Z test_bad_archive (__main__.InstallerTests.test_bad_archive)
+firmware-verilator	Install and verify the pinned RV32 SDK	2026-11-25T17:26:26.2661220Z A wrong offline --archive never reaches tar or creates an installation. ... ok
+firmware-verilator	Install and verify the pinned RV32 SDK	2026-11-25T17:26:26.2662234Z test_bad_archive_with_cache (__main__.InstallerTests.test_bad_archive_with_cache)
+firmware-verilator	Install and verify the pinned RV32 SDK	2026-11-25T17:26:26.3092588Z Explicit offline inputs are checked even beside a valid cache. ... ok
+firmware-verilator	Install and verify the pinned RV32 SDK	2026-11-25T17:26:26.3093524Z test_changed_installer (__main__.InstallerTests.test_changed_installer)
+firmware-verilator	Install and verify the pinned RV32 SDK	2026-11-25T17:26:26.3291559Z A cache made by other installer bytes is refused before its tools run. ... ok
+firmware-verilator	Install and verify the pinned RV32 SDK	2026-11-25T17:26:26.3292340Z test_download_path (__main__.InstallerTests.test_download_path)
+firmware-verilator	Install and verify the pinned RV32 SDK	2026-11-25T17:26:26.3489060Z The hosted path, with no --archive, installs what the pin names. ... ok
+firmware-verilator	Install and verify the pinned RV32 SDK	2026-11-25T17:26:26.3489949Z test_download_path_refuses_unpinned_bytes (__main__.InstallerTests.test_download_path_refuses_unpinned_bytes)
+firmware-verilator	Install and verify the pinned RV32 SDK	2026-11-25T17:26:26.3596682Z A wrong download is refused before tar reads it or anything runs. ... ok
+firmware-verilator	Install and verify the pinned RV32 SDK	2026-11-25T17:26:26.3597520Z test_escaping_compiler (__main__.InstallerTests.test_escaping_compiler)
+firmware-verilator	Install and verify the pinned RV32 SDK	2026-11-25T17:26:26.3792376Z A compiler whose realpath leaves the prefix is never executed. ... ok
+firmware-verilator	Install and verify the pinned RV32 SDK	2026-11-25T17:26:26.3793372Z test_extra_receipt_section (__main__.InstallerTests.test_extra_receipt_section)
+firmware-verilator	Install and verify the pinned RV32 SDK	2026-11-25T17:26:26.3985477Z A receipt carrying an unexpected section is malformed. ... ok
+firmware-verilator	Install and verify the pinned RV32 SDK	2026-11-25T17:26:26.3986425Z test_failed_relocation (__main__.InstallerTests.test_failed_relocation)
+firmware-verilator	Install and verify the pinned RV32 SDK	2026-11-25T17:26:26.4054587Z A failed relocation leaves no success receipt and cannot become a hit. ... ok
+firmware-verilator	Install and verify the pinned RV32 SDK	2026-11-25T17:26:26.4055775Z test_fresh_and_cache_hit (__main__.InstallerTests.test_fresh_and_cache_hit)
+firmware-verilator	Install and verify the pinned RV32 SDK	2026-11-25T17:26:26.4308075Z Extraction relocates; a valid hit neither downloads nor extracts. ... ok
+firmware-verilator	Install and verify the pinned RV32 SDK	2026-11-25T17:26:26.4308648Z test_incomplete_and_corrupt_tree (__main__.InstallerTests.test_incomplete_and_corrupt_tree)
+firmware-verilator	Install and verify the pinned RV32 SDK	2026-11-25T17:26:26.4540256Z Deletion, replacement, mode change and extra files all refuse. ... ok
+firmware-verilator	Install and verify the pinned RV32 SDK	2026-11-25T17:26:26.4541018Z test_malformed_receipt (__main__.InstallerTests.test_malformed_receipt)
+firmware-verilator	Install and verify the pinned RV32 SDK	2026-11-25T17:26:26.4734065Z JSON of the wrong type cannot pass as provenance. ... ok
+firmware-verilator	Install and verify the pinned RV32 SDK	2026-11-25T17:26:26.4735151Z test_missing_receipt (__main__.InstallerTests.test_missing_receipt)
+firmware-verilator	Install and verify the pinned RV32 SDK	2026-11-25T17:26:26.4776010Z An existing directory is not an installed SDK. ... ok
+firmware-verilator	Install and verify the pinned RV32 SDK	2026-11-25T17:26:26.4777078Z test_moved_cache (__main__.InstallerTests.test_moved_cache)
+firmware-verilator	Install and verify the pinned RV32 SDK	2026-11-25T17:26:26.4971546Z A relocated tree is bound to the prefix where it was measured. ... ok
+firmware-verilator	Install and verify the pinned RV32 SDK	2026-11-25T17:26:26.4972255Z test_provenance_values (__main__.InstallerTests.test_provenance_values)
+firmware-verilator	Install and verify the pinned RV32 SDK	2026-11-25T17:26:26.5161886Z The installer digest and host are the ones measured here, independently. ... ok
+firmware-verilator	Install and verify the pinned RV32 SDK	2026-11-25T17:26:26.5162827Z test_retargeted_symlink (__main__.InstallerTests.test_retargeted_symlink)
+firmware-verilator	Install and verify the pinned RV32 SDK	2026-11-25T17:26:26.5363353Z Pointing the selector at another installed tool is cache drift. ... ok
+firmware-verilator	Install and verify the pinned RV32 SDK	2026-11-25T17:26:26.5363939Z test_special_file (__main__.InstallerTests.test_special_file)
+firmware-verilator	Install and verify the pinned RV32 SDK	2026-11-25T17:26:26.5565829Z A FIFO planted in the cache is refused before any tool runs. ... ok
+firmware-verilator	Install and verify the pinned RV32 SDK	2026-11-25T17:26:26.5567045Z test_symlink_destination (__main__.InstallerTests.test_symlink_destination)
+firmware-verilator	Install and verify the pinned RV32 SDK	2026-11-25T17:26:26.5610772Z Do not overwrite or adopt a tree reached through a selector symlink. ... ok
+firmware-verilator	Install and verify the pinned RV32 SDK	2026-11-25T17:26:26.5611676Z test_symlink_receipt (__main__.InstallerTests.test_symlink_receipt)
+firmware-verilator	Install and verify the pinned RV32 SDK	2026-11-25T17:26:26.5810399Z Provenance must be stored in the installation, not another tree. ... ok
+firmware-verilator	Install and verify the pinned RV32 SDK	2026-11-25T17:26:26.5811356Z test_truncated_receipt (__main__.InstallerTests.test_truncated_receipt)
+firmware-verilator	Install and verify the pinned RV32 SDK	2026-11-25T17:26:26.6002097Z An interrupted receipt write never becomes a usable cache. ... ok
+firmware-verilator	Install and verify the pinned RV32 SDK	2026-11-25T17:26:26.6002924Z test_unrelocated_sdk (__main__.InstallerTests.test_unrelocated_sdk)
+firmware-verilator	Install and verify the pinned RV32 SDK	2026-11-25T17:26:26.6188988Z SDK argv: ["/tmp/rv32-installer-test-pkhfvnvm/installed/bin/riscv32-linux-gcc", "--version"]
+firmware-verilator	Install and verify the pinned RV32 SDK	2026-11-25T17:26:26.6202722Z SDK argv: ["/tmp/rv32-installer-test-pkhfvnvm/installed/bin/riscv32-linux-gcc", "-dumpfullversion"]
+firmware-verilator	Install and verify the pinned RV32 SDK	2026-11-25T17:26:26.6215730Z SDK argv: ["/tmp/rv32-installer-test-pkhfvnvm/installed/bin/riscv32-linux-gcc", "-dumpmachine"]
+firmware-verilator	Install and verify the pinned RV32 SDK	2026-11-25T17:26:26.6231843Z SDK argv: ["/tmp/rv32-installer-test-pkhfvnvm/installed/bin/riscv32-linux-gcc", "-print-sysroot"]
+firmware-verilator	Install and verify the pinned RV32 SDK	2026-11-25T17:26:26.6251297Z Even a successful process must prove its relocation result. ... ok
+firmware-verilator	Install and verify the pinned RV32 SDK	2026-11-25T17:26:26.6252069Z test_unsupported_host (__main__.InstallerTests.test_unsupported_host)
+firmware-verilator	Install and verify the pinned RV32 SDK	2026-11-25T17:26:26.6295322Z The fixed x86-64 archive cannot silently adopt another host. ... ok
+firmware-verilator	Install and verify the pinned RV32 SDK	2026-11-25T17:26:26.6296168Z test_wrong_provenance (__main__.InstallerTests.test_wrong_provenance)
+firmware-verilator	Install and verify the pinned RV32 SDK	2026-11-25T17:26:26.6512450Z Every cache input is bound, including the whole digest and prefix. ... ok
+firmware-verilator	Install and verify the pinned RV32 SDK	2026-11-25T17:26:26.6513293Z test_wrong_tool (__main__.InstallerTests.test_wrong_tool)
+firmware-verilator	Install and verify the pinned RV32 SDK	2026-11-25T17:26:26.6703706Z SDK argv: ["/tmp/rv32-installer-test-4e7201mw/installed/bin/riscv32-linux-gcc", "--version"]
+firmware-verilator	Install and verify the pinned RV32 SDK	2026-11-25T17:26:26.6718080Z SDK argv: ["/tmp/rv32-installer-test-4e7201mw/installed/bin/riscv32-linux-gcc", "-dumpfullversion"]
+firmware-verilator	Install and verify the pinned RV32 SDK	2026-11-25T17:26:26.6732302Z SDK argv: ["/tmp/rv32-installer-test-4e7201mw/installed/bin/riscv32-linux-gcc", "-dumpmachine"]
+firmware-verilator	Install and verify the pinned RV32 SDK	2026-11-25T17:26:26.6747057Z SDK argv: ["/tmp/rv32-installer-test-4e7201mw/installed/bin/riscv32-linux-gcc", "-print-sysroot"]
+firmware-verilator	Install and verify the pinned RV32 SDK	2026-11-25T17:26:26.6764354Z SDK argv: ["/tmp/rv32-installer-test-4e7201mw/installed/bin/riscv32-linux-gcc", "--version"]
+firmware-verilator	Install and verify the pinned RV32 SDK	2026-11-25T17:26:26.6779017Z SDK argv: ["/tmp/rv32-installer-test-4e7201mw/installed/bin/riscv32-linux-gcc", "-dumpfullversion"]
+firmware-verilator	Install and verify the pinned RV32 SDK	2026-11-25T17:26:26.6793224Z SDK argv: ["/tmp/rv32-installer-test-4e7201mw/installed/bin/riscv32-linux-gcc", "-dumpmachine"]
+firmware-verilator	Install and verify the pinned RV32 SDK	2026-11-25T17:26:26.6807922Z SDK argv: ["/tmp/rv32-installer-test-4e7201mw/installed/bin/riscv32-linux-gcc", "-print-sysroot"]
+firmware-verilator	Install and verify the pinned RV32 SDK	2026-11-25T17:26:26.6825267Z SDK argv: ["/tmp/rv32-installer-test-4e7201mw/installed/bin/riscv32-linux-gcc", "--version"]
+firmware-verilator	Install and verify the pinned RV32 SDK	2026-11-25T17:26:26.6840544Z SDK argv: ["/tmp/rv32-installer-test-4e7201mw/installed/bin/riscv32-linux-gcc", "-dumpfullversion"]
+firmware-verilator	Install and verify the pinned RV32 SDK	2026-11-25T17:26:26.6854832Z SDK argv: ["/tmp/rv32-installer-test-4e7201mw/installed/bin/riscv32-linux-gcc", "-dumpmachine"]
+firmware-verilator	Install and verify the pinned RV32 SDK	2026-11-25T17:26:26.6869807Z SDK argv: ["/tmp/rv32-installer-test-4e7201mw/installed/bin/riscv32-linux-gcc", "-print-sysroot"]
+firmware-verilator	Install and verify the pinned RV32 SDK	2026-11-25T17:26:26.6888139Z A compiler with the wrong version or target cannot create a receipt. ... ok
+firmware-verilator	Install and verify the pinned RV32 SDK	2026-11-25T17:26:26.6888738Z test_wrong_tool_receipt (__main__.InstallerTests.test_wrong_tool_receipt)
+firmware-verilator	Install and verify the pinned RV32 SDK	2026-11-25T17:26:26.7086809Z SDK argv: ["/tmp/rv32-installer-test-mn2y29ia/installed/bin/riscv32-linux-gcc", "--version"]
+firmware-verilator	Install and verify the pinned RV32 SDK	2026-11-25T17:26:26.7101032Z SDK argv: ["/tmp/rv32-installer-test-mn2y29ia/installed/bin/riscv32-linux-gcc", "-dumpfullversion"]
+firmware-verilator	Install and verify the pinned RV32 SDK	2026-11-25T17:26:26.7114795Z SDK argv: ["/tmp/rv32-installer-test-mn2y29ia/installed/bin/riscv32-linux-gcc", "-dumpmachine"]
+firmware-verilator	Install and verify the pinned RV32 SDK	2026-11-25T17:26:26.7129877Z SDK argv: ["/tmp/rv32-installer-test-mn2y29ia/installed/bin/riscv32-linux-gcc", "-print-sysroot"]
+firmware-verilator	Install and verify the pinned RV32 SDK	2026-11-25T17:26:26.7148801Z Cached identification must agree with the program actually invoked. ... ok
+firmware-verilator	Install and verify the pinned RV32 SDK	2026-11-25T17:26:26.7149366Z 
+firmware-verilator	Install and verify the pinned RV32 SDK	2026-11-25T17:26:26.7149540Z ----------------------------------------------------------------------
+firmware-verilator	Install and verify the pinned RV32 SDK	2026-11-25T17:26:26.7149852Z Ran 25 tests in 0.471s
+firmware-verilator	Install and verify the pinned RV32 SDK	2026-11-25T17:26:26.7149997Z 
+firmware-verilator	Install and verify the pinned RV32 SDK	2026-11-25T17:26:26.7150158Z OK
+firmware-verilator	Install and verify the pinned RV32 SDK	2026-11-25T17:26:27.4262980Z SDK argv: ["<home-path>/br-milan-rv32/host/bin/riscv32-linux-gcc", "--version"]
+firmware-verilator	Install and verify the pinned RV32 SDK	2026-11-25T17:26:27.4279375Z SDK argv: ["<home-path>/br-milan-rv32/host/bin/riscv32-linux-gcc", "-dumpfullversion"]
+firmware-verilator	Install and verify the pinned RV32 SDK	2026-11-25T17:26:27.4290777Z SDK argv: ["<home-path>/br-milan-rv32/host/bin/riscv32-linux-gcc", "-dumpmachine"]
+firmware-verilator	Install and verify the pinned RV32 SDK	2026-11-25T17:26:27.4298866Z SDK argv: ["<home-path>/br-milan-rv32/host/bin/riscv32-linux-gcc", "-print-sysroot"]
+firmware-verilator	Install and verify the pinned RV32 SDK	2026-11-25T17:26:27.4320569Z SDK verified: {"archive_sha256": "d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f", "archive_url": "https://toolchains.bootlin.com/downloads/releases/toolchains/riscv32-ilp32d/tarballs/riscv32-ilp32d--glibc--stable-2025.08-1.tar.xz", "destination": "<home-path>/br-milan-rv32/host", "host": {"architecture": "x86_64", "os": "Linux"}, "installer_revision": 1, "installer_sha256": "ffcc5433d97209b00cac5155c61bc464a43a60fec49bce0330d81279e1df7cb4", "release": "riscv32-ilp32d--glibc--stable-2025.08-1"}
+firmware-verilator	Install and verify the pinned RV32 SDK	2026-11-25T17:26:27.4323261Z SDK tools: {"compiler": "<home-path>/br-milan-rv32/host/bin/riscv32-linux-gcc", "gcc_version": "14.3.0", "realpath": "<home-path>/br-milan-rv32/host/bin/toolchain-wrapper", "sysroot": "<home-path>/br-milan-rv32/host/riscv32-buildroot-linux-gnu/sysroot", "target": "riscv32-buildroot-linux-gnu", "version": "riscv32-linux-gcc.br_real (Buildroot 2021.11-18033-g83947c7bb6) 14.3.0\nCopyright (C) 2024 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE."}
+firmware-verilator	Install and verify the pinned RV32 SDK	2026-11-25T17:26:27.4324707Z SDK cache hit: verified
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	﻿2026-11-25T17:26:27.4434530Z ##[group]Run python3 sw/firmware/ctrl/test/ctrl_boundary.py --require-rv32 --selftest --only verilator
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:26:27.4435462Z ^[[36;1mpython3 sw/firmware/ctrl/test/ctrl_boundary.py --require-rv32 --selftest --only verilator^[[0m
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:26:27.4459245Z shell: /usr/bin/bash -e {0}
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:26:27.4459546Z env:
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:26:27.4459959Z   VERILATOR_VERSION: v5.050
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:26:27.4460242Z   YOSYS_VERSION: v0.66
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:26:27.4460636Z   PIP_CONSTRAINT: <home-path>/work/milan-fpga/milan-fpga/ci/constraints-ci.txt
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:26:27.4461070Z   CI_BUILD_JOBS: 4
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:26:27.4461321Z   CI_TOOL_BUILD_JOBS: 4
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:26:27.4461590Z   CI_CAMPAIGN_JOBS: 4
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:26:27.4461830Z   VERILATOR_JOBS: 4
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:26:27.4462102Z   SIM_JOBS: 4
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:26:27.4462332Z   MAKEFLAGS: -j1 --no-print-directory
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:26:27.4462649Z ##[endgroup]
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:26:27.6507275Z tsn-c-stack at 715589c1db7cf67e2f3259fd7083ebc7f0923376
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:26:27.6508761Z no capture given: running every known builder the run judges under one
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:30:12.2073217Z     make -C tb/verilator/mbx: exit 0 (225 s)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:32:38.3443848Z     sw/firmware/ctrl/test/maap_differential.py --self-test: exit 0 (146 s)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:36:11.6786371Z     sw/firmware/ctrl/test/aecp_wire.py --every: exit 0 (213 s)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:36:27.5120223Z     tb/verilator/input_loopback_dp/run.py --shape: exit 0 (16 s)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:36:45.9601129Z     tb/verilator/input_loopback_dp/run.py --shape: exit 0 (18 s)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:37:33.9858636Z capture: 1438 compiler invocations from 24 builder runs; every known builder held: third_party/tsn-c-stack/scripts/check_boundary.py, sw/firmware/ctrl/test/ctrl_image.py, sw/firmware/ctrl/test/ctrl_srp_image.py, sw/firmware/ctrl/test/ctrl_plat_image.py, sw/firmware/ctrl/test/ctrl_image_selftest.py, tb/verilator/mbx/Makefile, sw/firmware/ctrl/test/maap_differential.py, sw/firmware/ctrl/test/aecp_wire.py, tb/verilator/input_loopback_dp/run.py
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:37:33.9860899Z   LEFT OUT: sw/firmware/gtest/fw_rv32_selftest.py, which the run that holds the firmware builders judges (--only verilator)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:37:33.9862245Z   LEFT OUT: sw/firmware/ctrl/test/test_ctrl_firmware.py, which the run that holds the firmware builders judges (--only verilator)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:37:33.9862868Z   LEFT OUT: sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py, which the run that holds the firmware builders judges (--only verilator)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:37:33.9863400Z   LEFT OUT: sw/firmware/gtest/fw_coverage.py, which the run that holds the firmware builders judges (--only verilator)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:37:33.9863897Z   LEFT OUT: sw/litex/test_ctrl_memory.py, which the run that holds the firmware builders judges (--only verilator)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:37:33.9864418Z   LEFT OUT: tb/verilator/milan_dp/stream_counter_f5.py, which the run that holds the firmware builders judges (--only verilator)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:37:33.9864890Z   the builders found by text are cross-checked by the run that holds the firmware builders
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:37:33.9865604Z     ctrl_image.py, endstation_ax7101_1x1_tdm8 and endstation_ax7101_8x8: exit 0 (6 s)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:37:33.9865919Z     ctrl_image_selftest.py: exit 0 (16 s)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:37:33.9866310Z     ctrl_srp_image.py endstation_ax7101_1x1_tdm8, 1 interface(s) --without-srp: exit 2, stopped at its link (2 s)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:37:33.9866798Z     ctrl_srp_image.py endstation_ax7101_1x1_tdm8, 1 interface(s) --with-srp: exit 2, stopped at its link (3 s)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:37:33.9867277Z     ctrl_srp_image.py endstation_ax7101_1x1_tdm8, 1 interface(s) --with-aecp: exit 2, stopped at its link (6 s)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:37:33.9867758Z     ctrl_srp_image.py endstation_ax7101_1x1_tdm8, 2 interface(s) --without-srp: exit 2, stopped at its link (2 s)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:37:33.9868230Z     ctrl_srp_image.py endstation_ax7101_1x1_tdm8, 2 interface(s) --with-srp: exit 2, stopped at its link (4 s)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:37:33.9868707Z     ctrl_srp_image.py endstation_ax7101_1x1_tdm8, 2 interface(s) --with-aecp: exit 2, stopped at its link (6 s)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:37:33.9870669Z     ctrl_plat_image.py endstation_ax7101_1x1_tdm8, 1 interface(s): exit 2, stopped at its link (7 s)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:37:33.9871192Z     ctrl_plat_image.py endstation_ax7101_1x1_tdm8, 2 interface(s): exit 2, stopped at its link (7 s)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:37:33.9871720Z     ctrl_srp_image.py endstation_ax7101_8x8, 1 interface(s) --without-srp: exit 2, stopped at its link (2 s)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:37:33.9872293Z     ctrl_srp_image.py endstation_ax7101_8x8, 1 interface(s) --with-srp: exit 2, stopped at its link (3 s)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:37:33.9872857Z     ctrl_srp_image.py endstation_ax7101_8x8, 1 interface(s) --with-aecp: exit 2, stopped at its link (6 s)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:37:33.9873388Z     ctrl_srp_image.py endstation_ax7101_8x8, 2 interface(s) --without-srp: exit 2, stopped at its link (2 s)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:37:33.9873926Z     ctrl_srp_image.py endstation_ax7101_8x8, 2 interface(s) --with-srp: exit 2, stopped at its link (4 s)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:37:33.9874374Z     ctrl_srp_image.py endstation_ax7101_8x8, 2 interface(s) --with-aecp: exit 2, stopped at its link (6 s)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:37:33.9874826Z     ctrl_plat_image.py endstation_ax7101_8x8, 1 interface(s): exit 2, stopped at its link (6 s)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:37:33.9875455Z     ctrl_plat_image.py endstation_ax7101_8x8, 2 interface(s): exit 2, stopped at its link (6 s)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:37:33.9875977Z   LEFT OUT: boundary control the F5 builder removed from the registry, judged where its builders' capture is (needs the firmware builders)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:37:33.9876573Z   LEFT OUT: boundary control the F5 builder's own capture is missing, judged where its builders' capture is (needs the firmware builders)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:37:33.9877151Z   LEFT OUT: boundary control an unclassified copy of test_ctrl_memory.py, judged where its builders' capture is (needs the firmware builders)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:37:33.9877753Z   LEFT OUT: boundary control an unclassified copy of ctrl_memory.py, judged where its builders' capture is (needs the firmware builders)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:37:33.9878328Z   LEFT OUT: boundary control an unclassified copy of milan_soc.py, judged where its builders' capture is (needs the firmware builders)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:37:33.9879235Z   LEFT OUT: boundary control the reset-entry builder's own capture is missing, judged where its builders' capture is (needs the firmware builders)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:37:33.9879928Z   LEFT OUT: boundary control the reset entry includes a private stack header in the fifth capture, judged where its builders' capture is (needs the firmware builders)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:37:33.9880576Z   LEFT OUT: boundary control stack source includes the mailbox HAL, judged where its builders' capture is (needs the firmware builders)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:37:33.9881194Z   LEFT OUT: boundary control stack source includes the register-map contract, judged where its builders' capture is (needs the firmware builders)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:37:33.9881810Z   LEFT OUT: boundary control stack source includes the composition, judged where its builders' capture is (needs the firmware builders)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:37:33.9882402Z   LEFT OUT: boundary control stack source includes the store's port, judged where its builders' capture is (needs the firmware builders)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:37:33.9883013Z   LEFT OUT: boundary control stack source includes the loop through a macro, judged where its builders' capture is (needs the firmware builders)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:37:33.9883648Z   LEFT OUT: boundary control stack public header includes the platform's header, judged where its builders' capture is (needs the firmware builders)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:37:33.9884333Z   LEFT OUT: boundary control Q7: a store header shadows the C library's for the stack in the image build, judged where its builders' capture is (needs the firmware builders)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:37:33.9885205Z   LEFT OUT: boundary control a firmware directory shadows a header the C library's own headers include, for the stack, judged where its builders' capture is (needs the firmware builders)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:37:33.9885973Z   LEFT OUT: boundary control stack source includes the mailbox HAL under the re-entry assertion, judged where its builders' capture is (needs the firmware builders)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:37:33.9886863Z   LEFT OUT: boundary control stack source includes the platform's header in a debug build, judged where its builders' capture is (needs the firmware builders)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:37:33.9887592Z   LEFT OUT: boundary control stack source includes the contract in a debug build with the re-entry assertion, judged where its builders' capture is (needs the firmware builders)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:37:33.9888298Z   LEFT OUT: boundary control stack source includes the AECP core's header, judged where its builders' capture is (needs the firmware builders)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:37:33.9888915Z   LEFT OUT: boundary control a mode a builder compiles the stack with, judged where its builders' capture is (needs the firmware builders)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:37:33.9889570Z   LEFT OUT: boundary control a mode a builder writes as two arguments, judged where its builders' capture is (needs the firmware builders)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:37:33.9890175Z   LEFT OUT: boundary control a mode a new Makefile writes as two words, judged where its builders' capture is (needs the firmware builders)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:37:33.9890756Z   LEFT OUT: boundary control a stack test includes the mailbox HAL, judged where its builders' capture is (needs the firmware builders)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:37:33.9891366Z   LEFT OUT: boundary control a stack test includes the firmware's harness, judged where its builders' capture is (needs the firmware builders)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:37:33.9892019Z   LEFT OUT: boundary control a stack test includes the platform's pool in its release build, judged where its builders' capture is (needs the firmware builders)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:37:33.9892705Z   LEFT OUT: boundary control a stack public header includes the mailbox HAL for C++ only, judged where its builders' capture is (needs the firmware builders)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:37:33.9893330Z   LEFT OUT: boundary control a stack test includes the AECP adapter, judged where its builders' capture is (needs the firmware builders)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:37:33.9893990Z   LEFT OUT: boundary control N1: a store source reaches a stack example, as the image builder compiles it, judged where its builders' capture is (needs the firmware builders)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:37:33.9894781Z   LEFT OUT: boundary control a store source reaches a stack file outside its public headers in the image build, judged where its builders' capture is (needs the firmware builders)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:37:33.9895564Z   LEFT OUT: boundary control firmware reaches a stack example's header, judged where its builders' capture is (needs the firmware builders)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:37:33.9896193Z   LEFT OUT: boundary control firmware header reaches a stack source by a relative path, judged where its builders' capture is (needs the firmware builders)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:37:33.9896853Z   LEFT OUT: boundary control image source reaches a stack file outside its public headers, judged where its builders' capture is (needs the firmware builders)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:37:33.9897553Z   LEFT OUT: boundary control a firmware adapter reaches a stack source under the re-entry assertion, judged where its builders' capture is (needs the firmware builders)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:37:33.9898207Z   LEFT OUT: boundary control firmware tests a mode by its value, judged where its builders' capture is (needs the firmware builders)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:37:33.9898857Z   LEFT OUT: boundary control an adapter reaches a stack source where a build leaves lwSRP's profile undefined, judged where its builders' capture is (needs the firmware builders)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:37:33.9899535Z   LEFT OUT: boundary control the AECP core reaches a stack source, judged where its builders' capture is (needs the firmware builders)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:37:33.9900331Z   LEFT OUT: boundary control the AECP core reaches a stack source at a value only its arms compile with, judged where its builders' capture is (needs the firmware builders)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:37:33.9901051Z   LEFT OUT: boundary control the AECP application bridge reaches a stack example's header, judged where its builders' capture is (needs the firmware builders)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:37:33.9901806Z   LEFT OUT: boundary control the image reaches a stack file under a shape's stream count, judged where its builders' capture is (needs the firmware builders)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:37:33.9902653Z   LEFT OUT: boundary control the SRP image's composition reaches a stack source, as the SRP image builder compiles it, judged where its builders' capture is (needs the firmware builders)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:37:33.9903501Z   LEFT OUT: boundary control the AECP image's SRP composition reaches a stack source, as the SRP image builder compiles it, judged where its builders' capture is (needs the firmware builders)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:37:33.9904295Z   LEFT OUT: boundary control the AECP image reaches a stack source at a shape its generated header gives many maps, judged where its builders' capture is (needs the firmware builders)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:37:33.9905175Z   LEFT OUT: boundary control an adapter reaches a stack source where the SRP shape header is force-included, judged where its builders' capture is (needs the firmware builders)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:37:33.9905986Z   LEFT OUT: boundary control an adapter reaches a stack source on the two-interface contract, as the SRP image builder compiles it, judged where its builders' capture is (needs the firmware builders)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:37:33.9906743Z   LEFT OUT: boundary control a firmware header reaches a stack test's fake in C++ only, judged where its builders' capture is (needs the firmware builders)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:37:33.9907437Z   LEFT OUT: boundary control a firmware header reaches a stack file through a computed include in C++ only, judged where its builders' capture is (needs the firmware builders)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:37:33.9908123Z   LEFT OUT: boundary control a copy of the stack's wire.h in the firmware, judged where its builders' capture is (needs the firmware builders)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:37:33.9908733Z   LEFT OUT: boundary control a copy of the stack's adp.c in the firmware, judged where its builders' capture is (needs the firmware builders)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:37:33.9909342Z   LEFT OUT: boundary control a copy of the stack's acmp.h in the AECP directory, judged where its builders' capture is (needs the firmware builders)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:37:33.9909991Z   LEFT OUT: boundary control a Makefile's patsubst writes a mode, judged where its builders' capture is (needs the firmware builders)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:37:33.9910599Z   LEFT OUT: boundary control a Makefile's foreach writes a mode, judged where its builders' capture is (needs the firmware builders)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:37:33.9911173Z   LEFT OUT: boundary control a Makefile appends a mode with no space, judged where its builders' capture is (needs the firmware builders)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:37:33.9911783Z   LEFT OUT: boundary control a Makefile writes a mode's name after a bare -D, judged where its builders' capture is (needs the firmware builders)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:37:33.9912359Z   LEFT OUT: boundary control a Makefile computes a mode's name, judged where its builders' capture is (needs the firmware builders)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:37:33.9912946Z   LEFT OUT: boundary control a Makefile computes a mode's value, judged where its builders' capture is (needs the firmware builders)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:37:33.9913524Z   LEFT OUT: boundary control a Makefile prefixes -D to the modes it lists, judged where its builders' capture is (needs the firmware builders)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:37:33.9914125Z   LEFT OUT: boundary control an f-string writes a mode after other text, judged where its builders' capture is (needs the firmware builders)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:37:33.9914710Z   LEFT OUT: boundary control a multi-word literal holds a mode, judged where its builders' capture is (needs the firmware builders)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:37:33.9915422Z   LEFT OUT: boundary control a shell command's literal holds a mode, judged where its builders' capture is (needs the firmware builders)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:37:33.9915999Z   LEFT OUT: boundary control shlex splits a mode out of a literal, judged where its builders' capture is (needs the firmware builders)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:37:33.9916584Z   LEFT OUT: boundary control a bare -D takes a mode a conditional chooses, judged where its builders' capture is (needs the firmware builders)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:37:33.9917223Z   LEFT OUT: boundary control str.format writes a mode, judged where its builders' capture is (needs the firmware builders)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:37:33.9917789Z   LEFT OUT: boundary control a builder joins -D to a mode it computes, judged where its builders' capture is (needs the firmware builders)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:37:33.9918371Z   LEFT OUT: boundary control a builder formats a mode with %, judged where its builders' capture is (needs the firmware builders)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:37:33.9918931Z   LEFT OUT: boundary control a builder joins a value to a mode, judged where its builders' capture is (needs the firmware builders)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:37:33.9919487Z   LEFT OUT: boundary control an f-string computes a mode's name, judged where its builders' capture is (needs the firmware builders)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:37:33.9920062Z   LEFT OUT: boundary control a bare -D takes the modes a list holds, judged where its builders' capture is (needs the firmware builders)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:37:33.9920647Z   LEFT OUT: boundary control -Wp, passes a mode to the preprocessor, judged where its builders' capture is (needs the firmware builders)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:37:33.9921289Z   LEFT OUT: boundary control -Xpreprocessor passes a mode, judged where its builders' capture is (needs the firmware builders)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:37:33.9921887Z   LEFT OUT: boundary control --define-macro= defines a mode, judged where its builders' capture is (needs the firmware builders)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:37:33.9922491Z   LEFT OUT: boundary control --define-macro and a separate name define a mode, judged where its builders' capture is (needs the firmware builders)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:37:33.9923103Z   LEFT OUT: boundary control a response file holds a mode, judged where its builders' capture is (needs the firmware builders)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:37:33.9923741Z   LEFT OUT: boundary control -imacros of a header the builder writes defines a mode, judged where its builders' capture is (needs the firmware builders)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:37:33.9924435Z   LEFT OUT: boundary control a precompiled header the builder makes defines a mode, judged where its builders' capture is (needs the firmware builders)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:37:33.9925264Z   LEFT OUT: boundary control -include of a header the builder writes defines a mode, judged where its builders' capture is (needs the firmware builders)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:37:33.9925907Z   LEFT OUT: boundary control a Makefile's wildcard names the C++ source, judged where its builders' capture is (needs the firmware builders)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:37:33.9926520Z   LEFT OUT: boundary control a builder joins a C++ source's name, judged where its builders' capture is (needs the firmware builders)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:37:33.9927081Z   LEFT OUT: boundary control a glob names the C++ source, judged where its builders' capture is (needs the firmware builders)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:37:33.9927642Z   LEFT OUT: boundary control an iterdir names the C++ source, judged where its builders' capture is (needs the firmware builders)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:37:33.9928246Z   LEFT OUT: boundary control a builder writes the C++ source from a literal, judged where its builders' capture is (needs the firmware builders)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:37:33.9928895Z   LEFT OUT: boundary control a builder writes the C++ source's include from an f-string, judged where its builders' capture is (needs the firmware builders)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:37:33.9929579Z   LEFT OUT: boundary control a builder writes the C++ source from a template it formats, judged where its builders' capture is (needs the firmware builders)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:37:33.9930235Z   LEFT OUT: boundary control a builder copies the C++ source from a template file, judged where its builders' capture is (needs the firmware builders)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:37:33.9930947Z   LEFT OUT: boundary control a written C++ source reaches the header through a header it writes beside it, judged where its builders' capture is (needs the firmware builders)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:37:33.9931713Z   LEFT OUT: boundary control --include-directory names where the C++ source's header is, judged where its builders' capture is (needs the firmware builders)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:37:33.9932478Z   LEFT OUT: boundary control a builder copies a C++ source out of its own directories and compiles it from elsewhere, judged where its builders' capture is (needs the firmware builders)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:37:33.9933179Z   LEFT OUT: boundary control a builder compiles C++ from its standard input, judged where its builders' capture is (needs the firmware builders)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:37:33.9933831Z   LEFT OUT: boundary control a builder passes a dependency option the pass cannot override, judged where its builders' capture is (needs the firmware builders)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:37:33.9934429Z   LEFT OUT: boundary control the capture is missing, judged where its builders' capture is (needs the firmware builders)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:37:33.9935049Z   LEFT OUT: boundary control the capture is empty, judged where its builders' capture is (needs the firmware builders)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:37:33.9935622Z   LEFT OUT: boundary control the capture holds nothing of a known builder, judged where its builders' capture is (needs the firmware builders)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:37:33.9936307Z   LEFT OUT: boundary control a known builder whose own run compiles nothing, which another builder still runs, judged where its builders' capture is (needs the firmware builders)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:37:33.9937064Z   LEFT OUT: boundary control a builder dropped from the known set, which another builder still runs, judged where its builders' capture is (needs the firmware builders)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:37:33.9937711Z   LEFT OUT: boundary control a builder runs a compiler by its own path, judged where its builders' capture is (needs the firmware builders)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:37:33.9938325Z   LEFT OUT: boundary control a Makefile runs a compiler by its own path, judged where its builders' capture is (needs the firmware builders)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:37:33.9938924Z   LEFT OUT: boundary control a builder runs a compiler on a PATH of its own, judged where its builders' capture is (needs the firmware builders)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:37:33.9939547Z   LEFT OUT: boundary control a builder of the firmware that no capture holds, judged where its builders' capture is (needs the firmware builders)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:37:33.9940370Z   LEFT OUT: boundary control a builder compiles with a flag the compiler cannot expand (a macro with no name), judged where its builders' capture is (needs the firmware builders)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:37:33.9941034Z   LEFT OUT: boundary control a response file names the source, judged where its builders' capture is (needs the firmware builders)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:37:33.9941664Z   LEFT OUT: boundary control a response file names the output, judged where its builders' capture is (needs the firmware builders)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:37:33.9942364Z   LEFT OUT: boundary control a builder reads first a precompiled header whose making the recorder cannot see, judged where its builders' capture is (needs the firmware builders)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:37:33.9943093Z   LEFT OUT: boundary control a builder reads first a stack source, judged where its builders' capture is (needs the firmware builders)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:37:33.9943780Z   LEFT OUT: boundary control a builder reads a firmware header first into a compile of a stack source, judged where its builders' capture is (needs the firmware builders)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:37:33.9944462Z   LEFT OUT: boundary control pass: the firmware includes a public header, judged where its builders' capture is (needs the firmware builders)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:37:33.9945260Z   LEFT OUT: boundary control pass: the stack includes only its own header and the C library, judged where its builders' capture is (needs the firmware builders)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:37:33.9945920Z   LEFT OUT: boundary control pass: a stack test reaches the stack's example, judged where its builders' capture is (needs the firmware builders)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:37:33.9946664Z   LEFT OUT: boundary control pass: a stack source includes a header nobody supplies: the compile fails, and compiled nothing, judged where its builders' capture is (needs the firmware builders)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:37:33.9947582Z   LEFT OUT: boundary control pass: a builder compiles a C++ source that is no file: the compile fails, and compiled nothing, judged where its builders' capture is (needs the firmware builders)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:37:33.9948365Z   LEFT OUT: boundary control pass: a stack source includes an OS header of the host's C implementation, judged where its builders' capture is (needs the firmware builders)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:04.1522415Z   LEFT OUT: boundary control pass: a builder compiles the firmware with a mode no file tests, judged where its builders' capture is (needs the firmware builders)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:04.1523704Z   LEFT OUT: boundary control pass: a builder's own C++ source whose include a macro computes reads a firmware header, judged where its builders' capture is (needs the firmware builders)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:04.1524662Z [ok] boundary control pass: the copies as they are, the base the controls share: passes
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:04.1525929Z [ok] boundary control V1 a mode only the AECP wire comparison gives: firmware: sw/firmware/ctrl/aecp/aecp_image.h includes tsn-c-stack/examples/rv32/include/string.h, not one of the stack's public headers [a builder]
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:04.1527585Z [ok] boundary control V2 a mode only its two-interface reference gives: firmware: sw/firmware/ctrl/aecp/aecp_image.h includes tsn-c-stack/examples/rv32/include/string.h, not one of the stack's public headers [a builder]
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:04.1529105Z [ok] boundary control V3 a value only its two-interface reference gives: firmware: sw/firmware/ctrl/aecp/aecp_image.h includes tsn-c-stack/examples/rv32/include/string.h, not one of the stack's public headers [a builder]
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:19.5891877Z [ok] boundary control a header only the MAAP differential's C++ source reaches includes a stack file in C++ only: firmware: sw/firmware/ctrl/maap/maap_r584.h includes tsn-c-stack/examples/rv32/include/string.h, not one of the stack's public headers [a builder]
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:19.5893593Z [ok] boundary control the capture holds nothing of the AECP wire comparison: REFUSED: the capture holds no invocation of sw/firmware/ctrl/test/aecp_wire.py from a run of its own, a builder of the firmware that compiles (its compiles under another builder's run are that one's)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:37.3368690Z [ok] tsn-c-stack pin control, the pinned clone, unmodified: accepted 715589c1db7cf67e2f3259fd7083ebc7f0923376
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:37.3869242Z [ok] tsn-c-stack pin control, a core source edited: tsn-c-stack differs from the pinned 715589c1: src/adp.c
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:37.4371260Z [ok] tsn-c-stack pin control, a core test edited: tsn-c-stack differs from the pinned 715589c1: tests/test_adp.cpp
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:37.4871493Z [ok] tsn-c-stack pin control, a stack script edited: tsn-c-stack differs from the pinned 715589c1: scripts/check_boundary.py
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:37.5369447Z [ok] tsn-c-stack pin control, a CMake file edited: tsn-c-stack differs from the pinned 715589c1: CMakeLists.txt
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:37.5864772Z [ok] tsn-c-stack pin control, a file no gate builds edited: tsn-c-stack differs from the pinned 715589c1: LICENSE
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:37.6408858Z [ok] tsn-c-stack pin control, an edit the index hides (assume-unchanged): tsn-c-stack differs from the pinned 715589c1: src/adp.c
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:37.6918491Z [ok] tsn-c-stack pin control, a header the pinned tree does not hold: tsn-c-stack differs from the pinned 715589c1: include/stdint.h
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:37.7428098Z [ok] tsn-c-stack pin control, a symbolic link standing in for a source, to its own bytes: tsn-c-stack differs from the pinned 715589c1: src/adp.c
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:37.7930954Z [ok] tsn-c-stack pin control, a script made executable (a mode change): tsn-c-stack differs from the pinned 715589c1: scripts/check_boundary.py
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:37.8333461Z [ok] tsn-c-stack pin control, another revision checked out: tsn-c-stack at 9deb0ddb299013fcf2d9df7ad3d31961a33013cd is not the pinned 715589c1db7cf67e2f3259fd7083ebc7f0923376
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:37.8890859Z [ok] tsn-c-stack pin control, a source edited, the pinned src/ tree replaced by one holding the edit: tsn-c-stack differs from the pinned 715589c1: src/adp.c
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:37.9481845Z [ok] tsn-c-stack pin control, a source edited, the pinned commit replaced by one holding the edit: tsn-c-stack differs from the pinned 715589c1: src/adp.c
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:37.9983740Z [ok] tsn-c-stack pin control, a source edited beside a graft file: tsn-c-stack differs from the pinned 715589c1: src/adp.c
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:38.0293811Z [ok] tsn-c-stack pin control, a source edited, a clean filter given through attributes turning it back into the pinned blob: tsn-c-stack's repository holds configuration outside the pin proof's allowlist: filter.pin-control.clean (local)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:38.1708394Z [ok] tsn-c-stack pin control, the pin proof as the checkout holds it, under its audit hook: the pin check's verdict, no refusal
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:38.2884836Z [ok] tsn-c-stack pin control, the audit hook, a Git command run by the harness's runner (ctrl_build.run): sw/firmware/ctrl/test/ctrl_build.py:600 starts git (subprocess.Popen) while the pin proof runs, not by the helper
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:38.4062572Z [ok] tsn-c-stack pin control, the audit hook, a program named by a computed name (git.__name__): sw/firmware/ctrl/test/ctrl_build.py:606 starts git (subprocess.Popen) while the pin proof runs, not by the helper
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:38.5238143Z [ok] tsn-c-stack pin control, the audit hook, a dashed program (git-ls-tree): sw/firmware/ctrl/test/ctrl_build.py:606 starts git-ls-tree (subprocess.Popen) while the pin proof runs, not by the helper
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:38.6408468Z [ok] tsn-c-stack pin control, the audit hook, the Git program by its path, with the helper's environment, by the harness's runner: sw/firmware/ctrl/test/ctrl_build.py:606 starts /usr/bin/git (subprocess.Popen) while the pin proof runs, not by the helper
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:38.7832950Z [ok] tsn-c-stack pin control, the audit hook, a refusal caught and ignored: sw/firmware/ctrl/test/ctrl_build.py:607 starts git (subprocess.Popen) while the pin proof runs, not by the helper
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:38.9043378Z [ok] tsn-c-stack pin control, the audit hook, an aliased import (from subprocess import run as r): sw/firmware/ctrl/test/ctrl_build.py:607 starts git (subprocess.Popen) while the pin proof runs, not by the helper
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:39.1366101Z [ok] tsn-c-stack pin control, the audit hook, os.system, in a line added to ctrl_pin.py: sw/firmware/ctrl/test/ctrl_pin.py:980 starts git ls-files (os.system) while the pin proof runs, not by the helper
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:39.2508134Z [ok] tsn-c-stack pin control, the audit hook, exec of a string: sw/firmware/ctrl/test/ctrl_build.py:441 asks for compile in the pin proof: dynamic code, or a reach into the audit hook's own state
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:39.3655852Z [ok] tsn-c-stack pin control, the audit hook, the helper's name rebound by attribute assignment in ctrl_build.py: sw/firmware/ctrl/test/ctrl_build.py:440 starts git (subprocess.Popen) while the pin proof runs, not by the helper
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:39.4823912Z [ok] tsn-c-stack pin control, the audit hook, the helper's name rebound by attribute assignment in ctrl_pin.py: sw/firmware/ctrl/test/ctrl_pin.py:985 starts git (subprocess.Popen) while the pin proof runs, not by the helper
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:39.6190444Z [ok] tsn-c-stack pin control, the audit hook, os.walk, a name of the proof's vocabulary, rebound to start Git: sw/firmware/ctrl/test/ctrl_build.py:440 starts git (subprocess.Popen) while the pin proof runs, not by the helper
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:39.7637435Z [ok] tsn-c-stack pin control, the audit hook, inspect.builtins.exec, in lines added to ctrl_pin.py: sw/firmware/ctrl/test/ctrl_pin.py:981 asks for compile in the pin proof: dynamic code, or a reach into the audit hook's own state
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:39.8809018Z [ok] tsn-c-stack pin control, the audit hook, inspect.builtins.eval: sw/firmware/ctrl/test/ctrl_build.py:442 asks for compile in the pin proof: dynamic code, or a reach into the audit hook's own state
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:40.0008076Z [ok] tsn-c-stack pin control, the audit hook, inspect.builtins.compile: sw/firmware/ctrl/test/ctrl_build.py:607 asks for compile in the pin proof: dynamic code, or a reach into the audit hook's own state
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:40.1140327Z [ok] tsn-c-stack pin control, the audit hook, dynamic code a library runs where the pin is decided (collections.namedtuple): sw/firmware/ctrl/test/ctrl_build.py:442 asks for compile in the pin proof: dynamic code, or a reach into the audit hook's own state
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:40.2600566Z [ok] tsn-c-stack pin control, the audit hook, ctrl_pin.py's code filed under another name (code.replace), then exec of a string: <elsewhere>:982 asks for compile in the pin proof: dynamic code, or a reach into the audit hook's own state
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:40.4080817Z [ok] tsn-c-stack pin control, the audit hook, an import of importlib.metadata, in a line added to ctrl_pin.py: sw/firmware/ctrl/test/ctrl_pin.py:980 asks for an import of importlib.metadata in the pin proof: dynamic code, or a reach into the audit hook's own state
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:40.5281213Z [ok] tsn-c-stack pin control, the audit hook, pkgutil.importlib.import_module: sw/firmware/ctrl/test/ctrl_build.py:607 starts git (subprocess.Popen) while the pin proof runs, not by the helper
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:40.6431347Z [ok] tsn-c-stack pin control, the audit hook, exec of a string inside the helper: sw/firmware/ctrl/test/ctrl_build.py:426 asks for compile in the pin proof: dynamic code, or a reach into the audit hook's own state
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:40.7558550Z [ok] tsn-c-stack pin control, the audit hook, eval inside the helper: sw/firmware/ctrl/test/ctrl_build.py:426 asks for compile in the pin proof: dynamic code, or a reach into the audit hook's own state
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:40.8709109Z [ok] tsn-c-stack pin control, the audit hook, compile inside the helper: sw/firmware/ctrl/test/ctrl_build.py:426 asks for compile in the pin proof: dynamic code, or a reach into the audit hook's own state
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:41.0152297Z [ok] tsn-c-stack pin control, the audit hook, ctrl_pin.py's code not put under the hook (sys.audit rebound first), then exec of a string: sw/firmware/ctrl/test/ctrl_pin.py:175 asks for compile in the pin proof: dynamic code, or a reach into the audit hook's own state
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:41.1630657Z [ok] tsn-c-stack pin control, the audit hook, a thread started, in lines added to ctrl_pin.py: sw/firmware/ctrl/test/ctrl_pin.py:981 starts <bound method Thread._bootstrap of <Thread(Thread-1 (print), initial)>> (_thread.start_new_thread) while the pin proof runs, not by the helper
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:41.3101289Z [ok] tsn-c-stack pin control, the audit hook, the decision's code replaced (stack_pin.__code__), in a line added to ctrl_pin.py: sw/firmware/ctrl/test/ctrl_pin.py:980 replaces __code__ of stack_pin, a function of the pin proof
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:41.4563490Z [ok] tsn-c-stack pin control, the audit hook, the collector's list of objects, in lines added to ctrl_pin.py: sw/firmware/ctrl/test/ctrl_pin.py:981 asks for gc.get_objects in the pin proof: dynamic code, or a reach into the audit hook's own state
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:41.6016946Z [ok] tsn-c-stack pin control, the audit hook, a trace function, in a line added to ctrl_pin.py: sw/firmware/ctrl/test/ctrl_pin.py:980 asks for sys.settrace in the pin proof: dynamic code, or a reach into the audit hook's own state
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:41.7152356Z [ok] tsn-c-stack pin control, the audit hook, the Git program rebound by attribute assignment in ctrl_pin.py: sw/firmware/ctrl/test/ctrl_build.py:428 has the helper start /usr/bin/true (subprocess.Popen), not the Git program PATH names, /usr/bin/git
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:41.8302911Z [ok] tsn-c-stack pin control, the audit hook, the helper's environment without GIT_NO_REPLACE_OBJECTS: sw/firmware/ctrl/test/ctrl_build.py:428 has the helper start Git (subprocess.Popen) without GIT_NO_REPLACE_OBJECTS=1, so Git would read a replacement object
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:41.9459891Z [ok] tsn-c-stack pin control, the audit hook, the helper's environment without GIT_GRAFT_FILE: sw/firmware/ctrl/test/ctrl_build.py:428 has the helper start Git (subprocess.Popen) with GIT_GRAFT_FILE None, a path that can exist, so Git would read a graft file
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:42.0619036Z [ok] tsn-c-stack pin control, the audit hook, the helper's environment, and the builtins a hook could look up, rebound in ctrl_pin.py: sw/firmware/ctrl/test/ctrl_build.py:428 has the helper start Git (subprocess.Popen) without GIT_NO_REPLACE_OBJECTS=1, so Git would read a replacement object
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:42.1763747Z [ok] tsn-c-stack pin control, the audit hook, the caller's environment passed to Git again, git_env rebound in ctrl_pin.py: sw/firmware/ctrl/test/ctrl_build.py:428 has the helper start Git (subprocess.Popen) with SHELL in its environment, which the pin proof's own does not set
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:42.2901424Z [ok] tsn-c-stack pin control, the audit hook, a variable added to the proof's own environment (GIT_DIR) in ctrl_pin.py: sw/firmware/ctrl/test/ctrl_build.py:428 has the helper start Git (subprocess.Popen) with GIT_DIR in its environment, which the pin proof's own does not set
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:42.4058996Z [ok] tsn-c-stack pin control, the audit hook, a key of the helper's environment that is another's to the hook (a str subclass): sw/firmware/ctrl/test/ctrl_build.py:428 has the helper start Git (subprocess.Popen) with an environment whose keys and values are not all plain str, so what Git is given is not what was judged
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:42.5212018Z [ok] tsn-c-stack pin control, the audit hook, a value of the helper's environment that Git is given as another (a str subclass): sw/firmware/ctrl/test/ctrl_build.py:428 has the helper start Git (subprocess.Popen) with an environment whose keys and values are not all plain str, so what Git is given is not what was judged
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:42.6262302Z [ok] tsn-c-stack pin control, the MAAP differential, a core source edited: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: src/maap.c
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:42.7279082Z [ok] tsn-c-stack pin control, the MAAP differential's self-test, a core source edited: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: src/maap.c
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:42.8317839Z [ok] tsn-c-stack pin control, the AECP arms, a core source edited: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: src/acmp.c
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:42.9433303Z [ok] tsn-c-stack pin control, the AECP campaign, a core source edited: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: src/acmp.c
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:43.0563793Z [ok] tsn-c-stack pin control, the AECP wire comparison, the stack's wire layer edited: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:43.2319006Z [ok] tsn-c-stack pin control, the inherited environment, GIT_DIR, a repository whose HEAD and gitlink are a commit holding the clone's edit: tsn-c-stack differs from the pinned 715589c1: src/adp.c
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:43.3697175Z [ok] tsn-c-stack pin control, the inherited environment, GIT_INDEX_FILE, an index whose gitlink is the revision the clone is checked out at: tsn-c-stack at 9deb0ddb299013fcf2d9df7ad3d31961a33013cd is not the pinned 715589c1db7cf67e2f3259fd7083ebc7f0923376
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:43.5132466Z [ok] tsn-c-stack pin control, the inherited environment, GIT_WORK_TREE, another directory: tsn-c-stack differs from the pinned 715589c1: src/adp.c
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:43.6614648Z [ok] tsn-c-stack pin control, the inherited environment, GIT_COMMON_DIR, an empty repository's: tsn-c-stack differs from the pinned 715589c1: src/adp.c
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:43.8101079Z [ok] tsn-c-stack pin control, the inherited environment, GIT_OBJECT_DIRECTORY, an empty store: tsn-c-stack differs from the pinned 715589c1: src/adp.c
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:43.9360867Z [ok] tsn-c-stack pin control, the inherited environment, GIT_ALTERNATE_OBJECT_DIRECTORIES, the clone's objects, which its own store no longer holds: cannot read the pinned tree of /tmp/ctrl-boundary-8bdd9xk3/pins/pin-clone: the pinned commit (commit 715589c1): fatal: git cat-file 715589c1db7cf67e2f3259fd7083ebc7f0923376: bad file
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:44.0840715Z [ok] tsn-c-stack pin control, the inherited environment, GIT_REPLACE_REF_BASE, a base under which the pinned src/ tree is replaced by one holding the edit: tsn-c-stack differs from the pinned 715589c1: src/adp.c
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:44.2270622Z [ok] tsn-c-stack pin control, the inherited environment, GIT_CONFIG_COUNT, its key and value, core.fsmonitor naming a program: tsn-c-stack differs from the pinned 715589c1: src/adp.c
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:44.3699556Z [ok] tsn-c-stack pin control, the inherited environment, GIT_CONFIG_PARAMETERS, core.fsmonitor naming a program: tsn-c-stack differs from the pinned 715589c1: src/adp.c
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:44.5105587Z [ok] tsn-c-stack pin control, the inherited environment, GIT_CONFIG_GLOBAL, a file whose core.fsmonitor names a program: tsn-c-stack differs from the pinned 715589c1: src/adp.c
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:44.6550453Z [ok] tsn-c-stack pin control, the inherited environment, GIT_CONFIG_SYSTEM, a file whose core.fsmonitor names a program: tsn-c-stack differs from the pinned 715589c1: src/adp.c
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:44.7965786Z [ok] tsn-c-stack pin control, the inherited environment, HOME, a directory whose .gitconfig names a program: tsn-c-stack differs from the pinned 715589c1: src/adp.c
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:44.9388615Z [ok] tsn-c-stack pin control, the inherited environment, XDG_CONFIG_HOME, a directory whose git/config names a program: tsn-c-stack differs from the pinned 715589c1: src/adp.c
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:45.0886443Z [ok] tsn-c-stack pin control, the inherited environment, GIT_CONFIG_COUNT, its key and value, a clean filter turning the edit back into the pinned blob: tsn-c-stack differs from the pinned 715589c1: src/adp.c
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:45.2397824Z [ok] tsn-c-stack pin control, the inherited environment, GIT_ATTR_SOURCE, a tree giving the edited source a clean filter that turns it back into the pinned blob: tsn-c-stack differs from the pinned 715589c1: src/adp.c
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:45.4466803Z [ok] tsn-c-stack pin control, the inherited environment, every variable above at once, the pinned clone: tsn-c-stack at 715589c1db7cf67e2f3259fd7083ebc7f0923376
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:45.4736933Z [ok] tsn-c-stack pin control, the audit hook's environment judge, fork_exec's entries with GIT_NO_REPLACE_OBJECTS twice: has the helper start Git (_posixsubprocess.fork_exec) with an environment whose entries are not each a key given once, so what Git is given is not what was judged
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:45.8094056Z [ok] tsn-c-stack pin control, the object store, a source edited, the pinned src/ tree's object overwritten by a tree holding the edit: tsn-c-stack's object store holds a forged or corrupt object: the pinned src/ tree (tree 0badba87) hashes to e5d44b0c, not to its id, so nothing under it can be compared
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:46.1560720Z [ok] tsn-c-stack pin control, the object store, a source edited, the pinned commit's object overwritten by a commit whose tree holds the edit: tsn-c-stack's object store holds a forged or corrupt object: the pinned commit (commit 715589c1) hashes to ed1cde92, not to its id, so nothing under it can be compared
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:46.5174567Z [ok] tsn-c-stack pin control, the object store, a source edited, its pinned blob's object overwritten by the edit's: tsn-c-stack differs from the pinned 715589c1: src/adp.c
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:46.5786367Z [ok] tsn-c-stack pin control, the stack's attributes, a source's line endings changed, a conversion they give turning it back into the pinned blob: tsn-c-stack differs from the pinned 715589c1: src/adp.c
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:46.6103657Z [ok] tsn-c-stack pin control, the superproject's own configuration, a program named as core.fsmonitor, its gitlink read: the superproject's repository holds configuration that has Git start a program or fetch while the gitlink is read: core.fsmonitor (local)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:46.6642462Z [ok] tsn-c-stack pin control, the superproject's own configuration, a sparse index whose sparse directory holding the gitlink lacks its tree, a partial clone whose promisor remote's upload-pack is a program that serves it, its gitlink read: the superproject's repository holds configuration that has Git start a program or fetch while the gitlink is read: extensions.partialclone (local), remote.origin.partialclonefilter (local), remote.origin.promisor (local), remote.origin.uploadpack (local)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:46.7179347Z [ok] tsn-c-stack pin control, the superproject's own configuration, a sparse index whose sparse directory holding the gitlink lacks its tree, a partial clone whose promisor remote is reached over ssh by a program (core.sshCommand), its gitlink read: the superproject's repository holds configuration that has Git start a program or fetch while the gitlink is read: core.sshcommand (local), extensions.partialclone (local), remote.probe.promisor (local)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:46.7691545Z [ok] tsn-c-stack pin control, the superproject's own configuration, a sparse index whose sparse directory holding the gitlink lacks its tree, a promisor remote declared by remote.promisor, no subsection, reached through a program by an ext:: URL rewrite, its gitlink read: the superproject's repository holds configuration that has Git start a program or fetch while the gitlink is read: remote.promisor (local)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:46.8200983Z [ok] tsn-c-stack pin control, the superproject's own configuration, a sparse index whose sparse directory holding the gitlink lacks its tree, a promisor remote declared by remote.partialCloneFilter, no subsection, reached through a program by an ext:: URL rewrite, its gitlink read: the superproject's repository holds configuration that has Git start a program or fetch while the gitlink is read: remote.partialclonefilter (local)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:46.8707201Z [ok] tsn-c-stack pin control, the superproject's own configuration, a sparse index whose sparse directory holding the gitlink lacks its tree, a promisor remote declared by remote "".promisor, an empty subsection, reached through a program by an ext:: URL rewrite, its gitlink read: the superproject's repository holds configuration that has Git start a program or fetch while the gitlink is read: remote..promisor (local)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:46.9039997Z [ok] tsn-c-stack pin control, the superproject's own configuration, an included file (include.path) and its work tree's own configuration each naming a program as core.fsmonitor, its gitlink read: the superproject's repository holds configuration that has Git start a program or fetch while the gitlink is read: core.fsmonitor (local), core.fsmonitor (worktree)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:46.9397876Z [ok] tsn-c-stack pin control, the superproject's own configuration as actions/checkout and git submodule update --init write it, its gitlink read: accepted 715589c1db7cf67e2f3259fd7083ebc7f0923376
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:46.9675329Z [ok] tsn-c-stack pin control, the stack's own configuration, a program named as core.fsmonitor, a source edited: tsn-c-stack's repository holds configuration outside the pin proof's allowlist: core.fsmonitor (local)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:47.0242324Z [ok] tsn-c-stack pin control, the stack's own configuration, a key of each family of its allowlist, the pinned clone: accepted 715589c1db7cf67e2f3259fd7083ebc7f0923376
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:47.0513375Z [ok] tsn-c-stack pin control, the stack's own configuration, a key of an allowlisted family's section and variable with an empty subsection (submodule "".active), the pinned clone: tsn-c-stack's repository holds configuration outside the pin proof's allowlist: submodule..active (local)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:47.3810613Z [ok] tsn-c-stack pin control, the stack's own configuration, a partial clone whose promisor remote's upload-pack is a program, the pinned src/ tree's object missing: tsn-c-stack's repository holds configuration outside the pin proof's allowlist: extensions.partialclone (local), remote.origin.promisor (local), remote.origin.uploadpack (local)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:47.7205369Z [ok] tsn-c-stack pin control, the stack's own configuration, a partial clone whose promisor remote is reached over ssh by a program (core.sshCommand), the pinned src/ tree's object missing: tsn-c-stack's repository holds configuration outside the pin proof's allowlist: core.sshcommand (local), extensions.partialclone (local), remote.probe.promisor (local)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:48.0569928Z [ok] tsn-c-stack pin control, the stack's own configuration, extensions.partialClone alone, the pinned src/ tree's object missing: tsn-c-stack's repository holds configuration outside the pin proof's allowlist: extensions.partialclone (local)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:48.3957109Z [ok] tsn-c-stack pin control, the stack's own configuration, remote.<name>.promisor alone, the pinned src/ tree's object missing: tsn-c-stack's repository holds configuration outside the pin proof's allowlist: remote.origin.promisor (local)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:48.4333237Z [ok] tsn-c-stack pin control, the stack's own configuration, a program named as remote.<name>.uploadpack: tsn-c-stack's repository holds configuration outside the pin proof's allowlist: remote.origin.uploadpack (local)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:48.4616436Z [ok] tsn-c-stack pin control, the stack's own configuration, a program named as core.sshCommand: tsn-c-stack's repository holds configuration outside the pin proof's allowlist: core.sshcommand (local)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:48.4901639Z [ok] tsn-c-stack pin control, the stack's own configuration, a directory of programs named as core.hooksPath: tsn-c-stack's repository holds configuration outside the pin proof's allowlist: core.hookspath (local)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:48.5180774Z [ok] tsn-c-stack pin control, the stack's own configuration, a program named as credential.helper: tsn-c-stack's repository holds configuration outside the pin proof's allowlist: credential.helper (local)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:48.5510019Z [ok] tsn-c-stack pin control, the stack's own configuration, a program named by each other key Git starts one for: tsn-c-stack's repository holds configuration outside the pin proof's allowlist: core.alternaterefscommand (local), core.askpass (local), core.editor (local), core.pager (local), diff.pin-control.textconv (local), gpg.program (local), uploadpack.packobjectshook (local)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:48.5784748Z [ok] tsn-c-stack pin control, the stack's own configuration, an included file (include.path) naming a program as core.fsmonitor: tsn-c-stack's repository holds configuration outside the pin proof's allowlist: core.fsmonitor (local), include.path (local)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:48.6066922Z [ok] tsn-c-stack pin control, the stack's work tree's own configuration (extensions.worktreeConfig), a program named as core.fsmonitor: tsn-c-stack's repository holds configuration outside the pin proof's allowlist: core.fsmonitor (worktree), extensions.worktreeconfig (local)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:48.6339409Z [ok] tsn-c-stack pin control, the stack's own configuration, a key no Git defines, as a later Git might add, naming a program: tsn-c-stack's repository holds configuration outside the pin proof's allowlist: pin-control.program (local)
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:48.7375918Z [ok] tsn-c-stack pin control, the F5 gap check shape 1 (), the stack's wire layer edited: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:48.8429968Z [ok] tsn-c-stack pin control, the F5 gap check shape 8 (), the stack's wire layer edited: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:48.9479646Z [ok] tsn-c-stack pin control, the F5 gap check shape 1 ('--build-only',), the stack's wire layer edited: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:49.0441406Z [ok] tsn-c-stack pin control, the F5 gap check, another revision checked out: exit 2: REFUSED: tsn-c-stack at 9deb0ddb299013fcf2d9df7ad3d31961a33013cd is not the pinned 715589c1db7cf67e2f3259fd7083ebc7f0923376
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:49.1548610Z [ok] tsn-c-stack pin control, tb/verilator/mbx/Makefile make stack-pin, the pinned clone: exit 0: tsn-c-stack at 715589c1db7cf67e2f3259fd7083ebc7f0923376
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:49.2677518Z [ok] tsn-c-stack pin control, tb/verilator/mbx/Makefile make run-cosim, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:49.3798126Z [ok] tsn-c-stack pin control, tb/verilator/mbx/Makefile make obj_fw/libctrlfw.a, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:49.4918241Z [ok] tsn-c-stack pin control, tb/verilator/mbx/Makefile make stack-pin, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:49.6449391Z [ok] tsn-c-stack pin control, tb/verilator/mbx/Makefile make all, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:49.9118499Z [ok] tsn-c-stack pin control, tb/verilator/mbx/Makefile make run-if2, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:50.0937108Z [ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make stack-pin, the pinned clone: exit 0: tsn-c-stack at 715589c1db7cf67e2f3259fd7083ebc7f0923376
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:50.2756386Z [ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make build-nxn8, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:50.4538357Z [ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make run-split, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:50.6335211Z [ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make run-nxn, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:50.8154641Z [ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make ci-prepare, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:51.0885777Z [ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make fan-stop-plant-shared, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:51.2711739Z [ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make split, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:51.4529556Z [ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make twin-plants, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:51.6334376Z [ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make build-twin, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:51.8232684Z [ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make build-sidmove8, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:52.0046653Z [ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make run-sidmove8, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:52.1880734Z [ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make run-nxndv, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:52.3696788Z [ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make twin-fw, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:52.5531324Z [ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make run-counters-8-frames, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:52.7353948Z [ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make run-counters-8, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:52.9183479Z [ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make run-nxn8, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:53.0989056Z [ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make build-render-mutants, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:53.2830663Z [ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make build-counters-8, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:53.4686413Z [ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make build-tspec8, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:53.6523270Z [ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make twin-fanout-plants, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:53.9278645Z [ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make fan-stop-plants, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:54.1077548Z [ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make build-dynmap, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:54.2888941Z [ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make build-twin8-sp, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:54.4719987Z [ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make counters-mutants, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:54.6548781Z [ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make build-base, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:54.8369410Z [ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make build-maprec8, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:55.0191740Z [ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make build-counters-1, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:55.2019436Z [ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make run-sidmove, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:55.3848451Z [ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make srptx-plants, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:55.5678025Z [ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make run-render-mutants, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:55.7512986Z [ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make build-notify, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:55.9345608Z [ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make counters, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:56.1189769Z [ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make twin, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:56.3019411Z [ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make build-maprec4, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:56.4863686Z [ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make stack-pin, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:56.6711957Z [ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make run-tspec8, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:56.8549906Z [ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make build-nxndv, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:57.0416458Z [ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make build-nolpf, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:57.2269656Z [ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make all, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:57.4130306Z [ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make run, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:57.5969082Z [ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make build-nxn4c, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:57.7778831Z [ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make twin8-fw, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:57.9586092Z [ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make build-counters-8-frames, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:58.1384266Z [ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make run-base, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:58.3197353Z [ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make run-aclk, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:58.5028523Z [ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make build-crflic, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:58.6833741Z [ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make build-twin-af, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:58.8656355Z [ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make run-dynmap, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:59.1356282Z [ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make fan-stop-plant-one-index, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:59.3176499Z [ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make build-nxn, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:59.5003557Z [ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make run-nxn4c, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:59.6839920Z [ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make build-sidmove, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:38:59.8656052Z [ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make twin-maps, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:39:00.0501310Z [ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make run-counters-1, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:39:00.2313558Z [ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make srptx, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:39:00.4175952Z [ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make counters-f5, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:39:00.6034175Z [ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make build-twin-sp, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:39:00.7868712Z [ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make run-crflic, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:39:00.9748722Z [ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make twin-fanout, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:39:01.1608340Z [ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make build-split, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:39:01.3461413Z [ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make run-maprec4, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:39:01.5324141Z [ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make run-counters-1-frames, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:39:01.7182235Z [ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make run-maprec8, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:39:01.9033311Z [ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make run-ax1x1, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:39:02.0876513Z [ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make build-ax1x1, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:39:02.2718632Z [ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make split-mutants, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:39:02.4528303Z [ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make run-nolpf, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:39:02.6465856Z [ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make twin-maps-plants, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:39:02.8317969Z [ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make run-notify, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:39:03.0172565Z [ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make build-counters-1-frames, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:39:03.2028581Z [ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make run-prune, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:39:03.3885642Z [ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make build-prune, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:39:03.5727751Z [ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make build-aclk, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:39:03.6314444Z [ok] tsn-c-stack pin control, tb/verilator/mbx/Makefile planted with run-if2 unpinned: Makefile: run-if2 builds against tsn-c-stack without the pin check (stack-pin) as a prerequisite
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:39:21.5314599Z [ok] tsn-c-stack pin control, milan_dp planted with counters unpinned: counters lacks its required stack-pin prerequisite
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:39:39.5877698Z [ok] tsn-c-stack pin control, milan_dp planted with counters-f5 unpinned: Makefile: counters-f5 builds against tsn-c-stack without the pin check (stack-pin) as a prerequisite
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:39:57.9693408Z [ok] tsn-c-stack pin control, milan_dp planted with counters-mutants unpinned: Makefile: counters-mutants builds against tsn-c-stack without the pin check (stack-pin) as a prerequisite
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:39:58.0269519Z [ok] scratch lifecycle, clone, init and secondary clone disable maintenance: True
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:39:58.0595877Z [ok] scratch lifecycle, every Git call overrides enabled local maintenance: True
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:39:58.4532870Z [ok] scratch lifecycle, loose fetch then fresh clone: True
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:39:58.5338033Z [ok] scratch lifecycle, file vanishing after enumeration: True
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:39:58.5623861Z [ok] scratch lifecycle, permission error is propagated: True
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:39:58.5895615Z [ok] scratch lifecycle, I/O error is propagated: True
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:39:58.5979168Z [ok] figure control, the page's defects in the firmware builders' run one more: sw/firmware/ctrl/README.md gives the defects in the firmware builders' run as 104, where the self-test has 103
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:39:58.5989708Z [ok] figure control, the page's passing controls in the firmware builders' run one more: sw/firmware/ctrl/README.md gives the passing controls in the firmware builders' run as 9, where the self-test has 8
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:39:58.6002883Z [ok] figure control, the page's defects in the Verilator builders' run one more: sw/firmware/ctrl/README.md gives the defects in the Verilator builders' run as 6, where the self-test has 5
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:39:58.6016211Z [ok] figure control, the page's pin controls one more: sw/firmware/ctrl/README.md gives the pin controls as 193, where the self-test has 192
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:40:17.1569100Z     boundary control owned-and-standard: compiles; passes
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:40:17.1569783Z     boundary control standard-digraph: compiles; passes
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:40:17.1570550Z     boundary control outside-hash: compiles; refused
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:40:17.1570980Z     boundary control outside-digraph: compiles; refused
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:40:17.1571343Z     boundary control outside-trigraph: compiles; refused
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:40:17.1571692Z     boundary control outside-relative: compiles; refused
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:40:17.1572014Z     boundary control outside-spliced: compiles; refused
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:40:17.1572340Z     boundary control outside-macro: compiles; refused
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:40:17.1572684Z     boundary control heap-direct: compiles; refused
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:40:17.1573029Z     boundary control heap-macro: compiles; refused
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:40:17.1573412Z     boundary control heap-pointer: compiles; refused
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:40:17.1573732Z     boundary control os-symbol: compiles; refused
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:40:17.1574043Z     boundary: compiler dependencies and object symbols pass
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:40:17.3507423Z ctrl_boundary: 1296 compiled sources of 1438 recorded invocations (566 the firmware's, 106 the stack's, 624 test equipment's and builders' own), each judged by what its dependency output lists, host and RV32, every Makefile builder's pin prerequisites and the pin proof's census; 0 finding(s), 6 boundary, 192 pin and 4 figure controls, 0 misbehaved
+firmware-verilator	Hold the TSN stack boundary over the Verilator builders' compiles	2026-11-25T17:40:17.3509840Z ctrl_boundary: PASS
+firmware-verilator	Record actual job execution	﻿2026-11-25T17:40:17.4451218Z ##[group]Run python3 scripts/ci_runtime_evidence.py record --workflow .github/workflows/rtl-fast.yml --job firmware-verilator --output "$RUNNER_TEMP/job-evidence.json"
+firmware-verilator	Record actual job execution	2026-11-25T17:40:17.4452068Z ^[[36;1mpython3 scripts/ci_runtime_evidence.py record --workflow .github/workflows/rtl-fast.yml --job firmware-verilator --output "$RUNNER_TEMP/job-evidence.json"^[[0m
+firmware-verilator	Record actual job execution	2026-11-25T17:40:17.4476327Z shell: /usr/bin/bash -e {0}
+firmware-verilator	Record actual job execution	2026-11-25T17:40:17.4476577Z env:
+firmware-verilator	Record actual job execution	2026-11-25T17:40:17.4476753Z   VERILATOR_VERSION: v5.050
+firmware-verilator	Record actual job execution	2026-11-25T17:40:17.4476956Z   YOSYS_VERSION: v0.66
+firmware-verilator	Record actual job execution	2026-11-25T17:40:17.4477255Z   PIP_CONSTRAINT: <home-path>/work/milan-fpga/milan-fpga/ci/constraints-ci.txt
+firmware-verilator	Record actual job execution	2026-11-25T17:40:17.4477561Z   CI_BUILD_JOBS: 4
+firmware-verilator	Record actual job execution	2026-11-25T17:40:17.4477740Z   CI_TOOL_BUILD_JOBS: 4
+firmware-verilator	Record actual job execution	2026-11-25T17:40:17.4477921Z   CI_CAMPAIGN_JOBS: 4
+firmware-verilator	Record actual job execution	2026-11-25T17:40:17.4478100Z   VERILATOR_JOBS: 4
+firmware-verilator	Record actual job execution	2026-11-25T17:40:17.4478267Z   SIM_JOBS: 4
+firmware-verilator	Record actual job execution	2026-11-25T17:40:17.4478453Z   MAKEFLAGS: -j1 --no-print-directory
+firmware-verilator	Record actual job execution	2026-11-25T17:40:17.4481794Z   CI_STEP_RESULTS: {
+firmware-verilator	Record actual job execution	  "ci_step_0": {
+firmware-verilator	Record actual job execution	    "outputs": {
+firmware-verilator	Record actual job execution	      "commit": "649acf4c775dd7e9bfbdf81f5d7a3d91782cd327",
+firmware-verilator	Record actual job execution	      "ref": "refs/pull/987/merge"
+firmware-verilator	Record actual job execution	    },
+firmware-verilator	Record actual job execution	    "outcome": "success",
+firmware-verilator	Record actual job execution	    "conclusion": "success"
+firmware-verilator	Record actual job execution	  },
+firmware-verilator	Record actual job execution	  "ci_step_1": {
+firmware-verilator	Record actual job execution	    "outputs": {},
+firmware-verilator	Record actual job execution	    "outcome": "success",
+firmware-verilator	Record actual job execution	    "conclusion": "success"
+firmware-verilator	Record actual job execution	  },
+firmware-verilator	Record actual job execution	  "ci_step_2": {
+firmware-verilator	Record actual job execution	    "outputs": {
+firmware-verilator	Record actual job execution	      "cache-hit": "true"
+firmware-verilator	Record actual job execution	    },
+firmware-verilator	Record actual job execution	    "outcome": "success",
+firmware-verilator	Record actual job execution	    "conclusion": "success"
+firmware-verilator	Record actual job execution	  },
+firmware-verilator	Record actual job execution	  "ci_step_3": {
+firmware-verilator	Record actual job execution	    "outputs": {},
+firmware-verilator	Record actual job execution	    "outcome": "success",
+firmware-verilator	Record actual job execution	    "conclusion": "success"
+firmware-verilator	Record actual job execution	  },
+firmware-verilator	Record actual job execution	  "ci_packages_2": {
+firmware-verilator	Record actual job execution	    "outputs": {
+firmware-verilator	Record actual job execution	      "key": "apt-e8d0be9d206f07f2e3d715a6587a1b5b849ef62be8dd33f0f8248fc9f9707847-3ee1f05265afcfbfe33b91fec69fbef4d3bad5399e2cd968ea7869725622ea6a-1bc2189d362b534d00cedebf8457eb163856c1fc534096947dea3b3c4472f6c9"
+firmware-verilator	Record actual job execution	    },
+firmware-verilator	Record actual job execution	    "outcome": "success",
+firmware-verilator	Record actual job execution	    "conclusion": "success"
+firmware-verilator	Record actual job execution	  },
+firmware-verilator	Record actual job execution	  "ci_step_5": {
+firmware-verilator	Record actual job execution	    "outputs": {},
+firmware-verilator	Record actual job execution	    "outcome": "success",
+firmware-verilator	Record actual job execution	    "conclusion": "success"
+firmware-verilator	Record actual job execution	  },
+firmware-verilator	Record actual job execution	  "ci_step_6": {
+firmware-verilator	Record actual job execution	    "outputs": {},
+firmware-verilator	Record actual job execution	    "outcome": "success",
+firmware-verilator	Record actual job execution	    "conclusion": "success"
+firmware-verilator	Record actual job execution	  },
+firmware-verilator	Record actual job execution	  "cache-verilator": {
+firmware-verilator	Record actual job execution	    "outputs": {
+firmware-verilator	Record actual job execution	      "cache-hit": "true"
+firmware-verilator	Record actual job execution	    },
+firmware-verilator	Record actual job execution	    "outcome": "success",
+firmware-verilator	Record actual job execution	    "conclusion": "success"
+firmware-verilator	Record actual job execution	  },
+firmware-verilator	Record actual job execution	  "ci_packages_4": {
+firmware-verilator	Record actual job execution	    "outputs": {},
+firmware-verilator	Record actual job execution	    "outcome": "skipped",
+firmware-verilator	Record actual job execution	    "conclusion": "skipped"
+firmware-verilator	Record actual job execution	  },
+firmware-verilator	Record actual job execution	  "ci_step_9": {
+firmware-verilator	Record actual job execution	    "outputs": {},
+firmware-verilator	Record actual job execution	    "outcome": "skipped",
+firmware-verilator	Record actual job execution	    "conclusion": "skipped"
+firmware-verilator	Record actual job execution	  },
+firmware-verilator	Record actual job execution	  "ci_step_10": {
+firmware-verilator	Record actual job execution	    "outputs": {},
+firmware-verilator	Record actual job execution	    "outcome": "skipped",
+firmware-verilator	Record actual job execution	    "conclusion": "skipped"
+firmware-verilator	Record actual job execution	  },
+firmware-verilator	Record actual job execution	  "ci_step_11": {
+firmware-verilator	Record actual job execution	    "outputs": {},
+firmware-verilator	Record actual job execution	    "outcome": "success",
+firmware-verilator	Record actual job execution	    "conclusion": "success"
+firmware-verilator	Record actual job execution	  },
+firmware-verilator	Record actual job execution	  "ci_step_12": {
+firmware-verilator	Record actual job execution	    "outputs": {
+firmware-verilator	Record actual job execution	      "cache-hit": "true"
+firmware-verilator	Record actual job execution	    },
+firmware-verilator	Record actual job execution	    "outcome": "success",
+firmware-verilator	Record actual job execution	    "conclusion": "success"
+firmware-verilator	Record actual job execution	  },
+firmware-verilator	Record actual job execution	  "ci_step_13": {
+firmware-verilator	Record actual job execution	    "outputs": {},
+firmware-verilator	Record actual job execution	    "outcome": "success",
+firmware-verilator	Record actual job execution	    "conclusion": "success"
+firmware-verilator	Record actual job execution	  },
+firmware-verilator	Record actual job execution	  "ci_step_14": {
+firmware-verilator	Record actual job execution	    "outputs": {},
+firmware-verilator	Record actual job execution	    "outcome": "success",
+firmware-verilator	Record actual job execution	    "conclusion": "success"
+firmware-verilator	Record actual job execution	  }
+firmware-verilator	Record actual job execution	}
+firmware-verilator	Record actual job execution	2026-11-25T17:40:17.4485718Z   CI_JOB_RESULT: success
+firmware-verilator	Record actual job execution	2026-11-25T17:40:17.4485935Z   CI_MATRIX: null
+firmware-verilator	Record actual job execution	2026-11-25T17:40:17.4486129Z ##[endgroup]
+firmware-verilator	Upload actual job execution	﻿2026-11-25T17:40:25.3849508Z ##[group]Run actions/upload-artifact@v4
+firmware-verilator	Upload actual job execution	2026-11-25T17:40:25.3849776Z with:
+firmware-verilator	Upload actual job execution	2026-11-25T17:40:25.3850159Z   name: job-evidence-rtl-fast-firmware-verilator-0-649acf4c775dd7e9bfbdf81f5d7a3d91782cd327
+firmware-verilator	Upload actual job execution	2026-11-25T17:40:25.3850569Z   path: <home-path>/work/_temp/job-evidence.json
+firmware-verilator	Upload actual job execution	2026-11-25T17:40:25.3850829Z   if-no-files-found: error
+firmware-verilator	Upload actual job execution	2026-11-25T17:40:25.3851030Z   retention-days: 3
+firmware-verilator	Upload actual job execution	2026-11-25T17:40:25.3851206Z   compression-level: 6
+firmware-verilator	Upload actual job execution	2026-11-25T17:40:25.3851392Z   overwrite: false
+firmware-verilator	Upload actual job execution	2026-11-25T17:40:25.3851576Z   include-hidden-files: false
+firmware-verilator	Upload actual job execution	2026-11-25T17:40:25.3851772Z env:
+firmware-verilator	Upload actual job execution	2026-11-25T17:40:25.3851939Z   VERILATOR_VERSION: v5.050
+firmware-verilator	Upload actual job execution	2026-11-25T17:40:25.3852133Z   YOSYS_VERSION: v0.66
+firmware-verilator	Upload actual job execution	2026-11-25T17:40:25.3852417Z   PIP_CONSTRAINT: <home-path>/work/milan-fpga/milan-fpga/ci/constraints-ci.txt
+firmware-verilator	Upload actual job execution	2026-11-25T17:40:25.3852719Z   CI_BUILD_JOBS: 4
+firmware-verilator	Upload actual job execution	2026-11-25T17:40:25.3852894Z   CI_TOOL_BUILD_JOBS: 4
+firmware-verilator	Upload actual job execution	2026-11-25T17:40:25.3853073Z   CI_CAMPAIGN_JOBS: 4
+firmware-verilator	Upload actual job execution	2026-11-25T17:40:25.3853251Z   VERILATOR_JOBS: 4
+firmware-verilator	Upload actual job execution	2026-11-25T17:40:25.3853417Z   SIM_JOBS: 4
+firmware-verilator	Upload actual job execution	2026-11-25T17:40:25.3853632Z   MAKEFLAGS: -j1 --no-print-directory
+firmware-verilator	Upload actual job execution	2026-11-25T17:40:25.3853849Z ##[endgroup]
+firmware-verilator	Upload actual job execution	2026-11-25T17:40:25.5182869Z (node:31425) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+firmware-verilator	Upload actual job execution	2026-11-25T17:40:25.5183783Z (Use `node --trace-deprecation ...` to show where the warning was created)
+firmware-verilator	Upload actual job execution	2026-11-25T17:40:25.5216129Z With the provided path, there will be 1 file uploaded
+firmware-verilator	Upload actual job execution	2026-11-25T17:40:25.5227437Z Artifact name is valid!
+firmware-verilator	Upload actual job execution	2026-11-25T17:40:25.5236889Z Root directory input is valid!
+firmware-verilator	Upload actual job execution	2026-11-25T17:40:25.7644857Z Beginning upload of artifact content to blob storage
+firmware-verilator	Upload actual job execution	2026-11-25T17:40:25.7771954Z (node:31425) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+firmware-verilator	Upload actual job execution	2026-11-25T17:40:25.8394734Z Uploaded bytes 966
+firmware-verilator	Upload actual job execution	2026-11-25T17:40:25.8577975Z Finished uploading artifact content to blob storage!
+firmware-verilator	Upload actual job execution	2026-11-25T17:40:25.8578655Z SHA256 digest of uploaded artifact zip is e0a38813f3584c19ddfeb1090c2413038dc780b3f3bcb47d5d5e3609c649d8fa
+firmware-verilator	Upload actual job execution	2026-11-25T17:40:25.8579178Z Finalizing artifact upload
+firmware-verilator	Upload actual job execution	2026-11-25T17:40:26.1817288Z Artifact job-evidence-rtl-fast-firmware-verilator-0-649acf4c775dd7e9bfbdf81f5d7a3d91782cd327.zip successfully finalized. Artifact ID 15046674317
+firmware-verilator	Upload actual job execution	2026-11-25T17:40:26.1818598Z Artifact job-evidence-rtl-fast-firmware-verilator-0-649acf4c775dd7e9bfbdf81f5d7a3d91782cd327 has been successfully uploaded! Final size is 966 bytes. Artifact ID is 15046674317
+firmware-verilator	Upload actual job execution	2026-11-25T17:40:26.1825976Z Artifact download URL: https://github.com/kebag-logic/milan-fpga/actions/runs/45657606423/artifacts/15046674317
+firmware-verilator	Post Cache the pinned RV32 SDK	﻿2026-11-25T17:40:26.2423366Z Post job cleanup.
+firmware-verilator	Post Cache the pinned RV32 SDK	2026-11-25T17:40:26.3274548Z Cache hit occurred on the primary key rv32-sdk-v1-Linux-X64-d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f-a11c5b5421386f4d8a8b14cf2eff259251ae3ee42716b3b69c5a314f2f1790f9, not saving cache.
+firmware-verilator	Post Cache the pinned RV32 SDK	2026-11-25T17:40:26.3275709Z (node:31450) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+firmware-verilator	Post Cache the pinned RV32 SDK	2026-11-25T17:40:26.3276231Z (Use `node --trace-deprecation ...` to show where the warning was created)
+firmware-verilator	Post Cache the pinned Verilator build	﻿2026-11-25T17:40:26.3820517Z Post job cleanup.
+firmware-verilator	Post Cache the pinned Verilator build	2026-11-25T17:40:26.4675204Z (node:31471) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+firmware-verilator	Post Cache the pinned Verilator build	2026-11-25T17:40:26.4676315Z Cache hit occurred on the primary key verilator-v5.050-848d926ebd4addacacd294dc84e35d9d4ae8078c-8e291403c12e9d0f8273be2a1de3d48a6398bda1a524b1301adcaed01c1efa7c-Linux, not saving cache.
+firmware-verilator	Post Cache the pinned Verilator build	2026-11-25T17:40:26.4677272Z (Use `node --trace-deprecation ...` to show where the warning was created)
+firmware-verilator	Post Cache exact package downloads 2	﻿2026-11-25T17:40:26.5269643Z Post job cleanup.
+firmware-verilator	Post Cache exact package downloads 2	2026-11-25T17:40:26.6048187Z (node:31491) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+firmware-verilator	Post Cache exact package downloads 2	2026-11-25T17:40:26.6048757Z (Use `node --trace-deprecation ...` to show where the warning was created)
+firmware-verilator	Post Cache exact package downloads 2	2026-11-25T17:40:26.6207643Z [command]/usr/bin/tar --posix -cf cache.tzst --exclude cache.tzst -P -C <home-path>/work/milan-fpga/milan-fpga --files-from manifest.txt --use-compress-program zstdmt
+firmware-verilator	Post Cache exact package downloads 2	2026-11-25T17:40:26.6232303Z /usr/bin/tar: ../../_temp/ci_packages_2/lock: Cannot open: Permission denied
+firmware-verilator	Post Cache exact package downloads 2	2026-11-25T17:40:26.6252119Z /usr/bin/tar: ../../_temp/ci_packages_2/partial: Cannot open: Permission denied
+firmware-verilator	Post Cache exact package downloads 2	2026-11-25T17:40:26.6286045Z /usr/bin/tar: Exiting with failure status due to previous errors
+firmware-verilator	Post Cache exact package downloads 2	2026-11-25T17:40:26.6306707Z ##[warning]Failed to save: "/usr/bin/tar" failed with error: The process '/usr/bin/tar' failed with exit code 2
+firmware-verilator	Post Cache exact Python downloads	﻿2026-11-25T17:40:26.7444572Z Post job cleanup.
+firmware-verilator	Post Cache exact Python downloads	2026-11-25T17:40:26.8328634Z (node:31535) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+firmware-verilator	Post Cache exact Python downloads	2026-11-25T17:40:26.8329290Z (Use `node --trace-deprecation ...` to show where the warning was created)
+firmware-verilator	Post Cache exact Python downloads	2026-11-25T17:40:26.8330319Z Cache hit occurred on the primary key python-cpython3.12.3-0f4dff939fe11c9e2b6ca53bfda0ab835c6b8262ea97e72481db61f20ea4b311-aa130cde3f89d5df9ea7f65b2511a7df2485907f5edf91bb356a311b83c0f291-Linux, not saving cache.
+firmware-verilator	Post Run actions/checkout@v4	﻿2026-11-25T17:40:26.8427733Z Post job cleanup.
+firmware-verilator	Post Run actions/checkout@v4	2026-11-25T17:40:26.9079366Z [command]/usr/bin/git version
+firmware-verilator	Post Run actions/checkout@v4	2026-11-25T17:40:26.9111064Z git version 2.56.1
+firmware-verilator	Post Run actions/checkout@v4	2026-11-25T17:40:26.9136126Z Temporarily overriding HOME='<home-path>/work/_temp/90dfc4e4-c7f0-48b4-8ced-a78db3ba5ea6' before making global git config changes
+firmware-verilator	Post Run actions/checkout@v4	2026-11-25T17:40:26.9137075Z Adding repository directory to the temporary git global config as a safe directory
+firmware-verilator	Post Run actions/checkout@v4	2026-11-25T17:40:26.9140380Z [command]/usr/bin/git config --global --add safe.directory <home-path>/work/milan-fpga/milan-fpga
+firmware-verilator	Post Run actions/checkout@v4	2026-11-25T17:40:26.9171404Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+firmware-verilator	Post Run actions/checkout@v4	2026-11-25T17:40:26.9196663Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+firmware-verilator	Post Run actions/checkout@v4	2026-11-25T17:40:26.9386626Z Entering 'gptp-processor'
+firmware-verilator	Post Run actions/checkout@v4	2026-11-25T17:40:26.9435628Z Entering 'protocol-processor'
+firmware-verilator	Post Run actions/checkout@v4	2026-11-25T17:40:26.9483552Z Entering 'third_party/lwSRP'
+firmware-verilator	Post Run actions/checkout@v4	2026-11-25T17:40:26.9532020Z Entering 'third_party/tsn-c-stack'
+firmware-verilator	Post Run actions/checkout@v4	2026-11-25T17:40:26.9572690Z Entering 'third_party/verilog-axis'
+firmware-verilator	Post Run actions/checkout@v4	2026-11-25T17:40:26.9623840Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+firmware-verilator	Post Run actions/checkout@v4	2026-11-25T17:40:26.9643423Z http.https://github.com/.extraheader
+firmware-verilator	Post Run actions/checkout@v4	2026-11-25T17:40:26.9650808Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+firmware-verilator	Post Run actions/checkout@v4	2026-11-25T17:40:26.9679385Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+firmware-verilator	Post Run actions/checkout@v4	2026-11-25T17:40:26.9851494Z Entering 'gptp-processor'
+firmware-verilator	Post Run actions/checkout@v4	2026-11-25T17:40:26.9890929Z Entering 'protocol-processor'
+firmware-verilator	Post Run actions/checkout@v4	2026-11-25T17:40:26.9920579Z Entering 'third_party/lwSRP'
+firmware-verilator	Post Run actions/checkout@v4	2026-11-25T17:40:26.9948186Z Entering 'third_party/tsn-c-stack'
+firmware-verilator	Post Run actions/checkout@v4	2026-11-25T17:40:26.9977025Z Entering 'third_party/verilog-axis'
+firmware-verilator	Post Run actions/checkout@v4	2026-11-25T17:40:27.0021247Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+firmware-verilator	Post Run actions/checkout@v4	2026-11-25T17:40:27.0049271Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+firmware-verilator	Post Run actions/checkout@v4	2026-11-25T17:40:27.0198672Z Entering 'gptp-processor'
+firmware-verilator	Post Run actions/checkout@v4	2026-11-25T17:40:27.0214495Z file:<home-path>/work/milan-fpga/milan-fpga/.git/modules/gptp-processor/config	remote.origin.url
+firmware-verilator	Post Run actions/checkout@v4	2026-11-25T17:40:27.0227313Z Entering 'protocol-processor'
+firmware-verilator	Post Run actions/checkout@v4	2026-11-25T17:40:27.0241838Z file:<home-path>/work/milan-fpga/milan-fpga/.git/modules/protocol-processor/config	remote.origin.url
+firmware-verilator	Post Run actions/checkout@v4	2026-11-25T17:40:27.0253883Z Entering 'third_party/lwSRP'
+firmware-verilator	Post Run actions/checkout@v4	2026-11-25T17:40:27.0268102Z file:<home-path>/work/milan-fpga/milan-fpga/.git/modules/third_party/lwSRP/config	remote.origin.url
+firmware-verilator	Post Run actions/checkout@v4	2026-11-25T17:40:27.0280759Z Entering 'third_party/tsn-c-stack'
+firmware-verilator	Post Run actions/checkout@v4	2026-11-25T17:40:27.0293790Z file:<home-path>/work/milan-fpga/milan-fpga/.git/modules/third_party/tsn-c-stack/config	remote.origin.url
+firmware-verilator	Post Run actions/checkout@v4	2026-11-25T17:40:27.0306671Z Entering 'third_party/verilog-axis'
+firmware-verilator	Post Run actions/checkout@v4	2026-11-25T17:40:27.0320049Z file:<home-path>/work/milan-fpga/milan-fpga/.git/modules/third_party/verilog-axis/config	remote.origin.url
+firmware-verilator	Post Run actions/checkout@v4	2026-11-25T17:40:27.0344376Z [command]/usr/bin/git config --file <home-path>/work/milan-fpga/milan-fpga/.git/modules/gptp-processor/config --name-only --get-regexp ^includeIf\.gitdir:
+firmware-verilator	Post Run actions/checkout@v4	2026-11-25T17:40:27.0371746Z [command]/usr/bin/git config --file <home-path>/work/milan-fpga/milan-fpga/.git/modules/protocol-processor/config --name-only --get-regexp ^includeIf\.gitdir:
+firmware-verilator	Post Run actions/checkout@v4	2026-11-25T17:40:27.0395315Z [command]/usr/bin/git config --file <home-path>/work/milan-fpga/milan-fpga/.git/modules/third_party/lwSRP/config --name-only --get-regexp ^includeIf\.gitdir:
+firmware-verilator	Post Run actions/checkout@v4	2026-11-25T17:40:27.0419093Z [command]/usr/bin/git config --file <home-path>/work/milan-fpga/milan-fpga/.git/modules/third_party/tsn-c-stack/config --name-only --get-regexp ^includeIf\.gitdir:
+firmware-verilator	Post Run actions/checkout@v4	2026-11-25T17:40:27.0442469Z [command]/usr/bin/git config --file <home-path>/work/milan-fpga/milan-fpga/.git/modules/third_party/verilog-axis/config --name-only --get-regexp ^includeIf\.gitdir:
+firmware-verilator	Complete job	﻿2026-11-25T17:40:27.0592359Z Cleaning up orphan processes
+firmware-verilator	Complete job	2026-11-25T17:40:27.0846122Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/cache@v4, actions/checkout@v4, actions/upload-artifact@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

@@ -1,0 +1,58 @@
+refused docs: missing inventory preparation in docs-gates-0
+refused docs: if preparation in docs-gates-0
+refused docs: continue-on-error preparation in docs-gates-0
+refused docs: missing inventory preparation in ci-manifest
+refused docs: if preparation in ci-manifest
+refused docs: continue-on-error preparation in ci-manifest
+refused elaborate: missing inventory preparation in ci-manifest
+refused elaborate: if preparation in ci-manifest
+refused elaborate: continue-on-error preparation in ci-manifest
+refused rtl: missing inventory preparation in verilator-shards
+refused rtl: if preparation in verilator-shards
+refused rtl: continue-on-error preparation in verilator-shards
+refused rtl: missing inventory preparation in verilator-suites
+refused rtl: if preparation in verilator-suites
+refused rtl: continue-on-error preparation in verilator-suites
+refused rtl: missing inventory preparation in union-milan_dp
+refused rtl: if preparation in union-milan_dp
+refused rtl: continue-on-error preparation in union-milan_dp
+refused rtl: missing inventory preparation in union-milan_dp_mclk
+refused rtl: if preparation in union-milan_dp_mclk
+refused rtl: continue-on-error preparation in union-milan_dp_mclk
+refused rtl: missing inventory preparation in union-capture_coherence
+refused rtl: if preparation in union-capture_coherence
+refused rtl: continue-on-error preparation in union-capture_coherence
+refused rtl: missing inventory preparation in union-maap
+refused rtl: if preparation in union-maap
+refused rtl: continue-on-error preparation in union-maap
+refused rtl: missing inventory preparation in union-milan_dp_render
+refused rtl: if preparation in union-milan_dp_render
+refused rtl: continue-on-error preparation in union-milan_dp_render
+refused rtl: missing inventory preparation in union-pp_shadow
+refused rtl: if preparation in union-pp_shadow
+refused rtl: continue-on-error preparation in union-pp_shadow
+refused rtl: missing inventory preparation in union-follow_ring
+refused rtl: if preparation in union-follow_ring
+refused rtl: continue-on-error preparation in union-follow_ring
+refused rtl: missing inventory preparation in union-media_phase
+refused rtl: if preparation in union-media_phase
+refused rtl: continue-on-error preparation in union-media_phase
+refused rtl: missing inventory preparation in ci-manifest
+refused rtl: if preparation in ci-manifest
+refused rtl: continue-on-error preparation in ci-manifest
+refused rtl-fast: missing inventory preparation in ci-manifest
+refused rtl-fast: if preparation in ci-manifest
+refused rtl-fast: continue-on-error preparation in ci-manifest
+Scheduling: docs builder legs beside the contract worker; dependency-bound Yosys build PASS
+Fast Yosys tool: yosys-elaboration keeps every other template step in order, the tool job runs the checkout and the two moved steps, and the emitted workflow changes only their two keys
+Traceback (most recent call last):
+  File "$LANES/cicd-1008/scripts/ci_gate_workflows_selftest.py", line 649, in <module>
+    raise SystemExit(main())
+                     ~~~~^^
+  File "$LANES/cicd-1008/scripts/ci_gate_workflows_selftest.py", line 554, in main
+    fast_tool_controls()
+    ~~~~~~~~~~~~~~~~~~^^
+  File "$LANES/cicd-1008/scripts/ci_fast_tool_selftest.py", line 597, in fast_tool_controls
+    assert list(derived) == [*order[:at], FAST_TOOL_JOB, *order[at:]], "tool job not just before its consumer"
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: tool job not just before its consumer

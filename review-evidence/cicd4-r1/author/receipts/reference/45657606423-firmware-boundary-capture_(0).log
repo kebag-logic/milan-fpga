@@ -1,0 +1,689 @@
+firmware-boundary-capture (0)	UNKNOWN STEP	﻿2026-11-25T16:58:58.9710187Z Current runner version: '2.338.2'
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:58:58.9776518Z ##[group]Runner Image Provisioner
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:58:58.9777624Z Hosted Compute Agent
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:58:58.9778263Z Version: 20261111.635
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:58:58.9778896Z Commit: b8a594ea514ff44cadb5342986c68b1eac6e22ed
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:58:58.9779746Z Build Date: 2026-11-11T01:49:01Z
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:58:58.9780447Z Worker ID: {589df95f-9f79-4440-a5ed-61335bcd2036}
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:58:58.9781100Z Region: westus3
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:58:58.9781876Z Cloud: Azure
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:58:58.9782479Z ##[endgroup]
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:58:58.9783859Z ##[group]Operating System
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:58:58.9784620Z Ubuntu
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:58:58.9785156Z 24.04.5
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:58:58.9785630Z LTS
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:58:58.9787405Z ##[endgroup]
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:58:58.9787923Z ##[group]Runner Image
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:58:58.9789598Z Image: ubuntu-24.04
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:58:58.9790119Z Version: 20261116.376.1
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:58:58.9792126Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20261116.376/images/ubuntu/Ubuntu2404-Readme.md
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:58:58.9794288Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20261116.376
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:58:58.9795517Z ##[endgroup]
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:58:58.9798279Z ##[group]GITHUB_TOKEN Permissions
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:58:58.9801295Z Contents: read
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:58:58.9802148Z Metadata: read
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:58:58.9802652Z Packages: read
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:58:58.9803400Z ##[endgroup]
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:58:58.9807302Z Secret source: Actions
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:58:58.9808183Z Cache mode: write
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:58:58.9810074Z Prepare workflow directory
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:58:59.0302083Z Prepare all required actions
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:58:59.0342336Z Getting action download info
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:58:59.3532833Z Download action repository 'actions/checkout@v4' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:58:59.6946388Z Download action repository 'actions/cache@v4' (SHA:0057852bfaa89a56745cba8c7296529d2fc39830)
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:58:59.9194173Z Download action repository 'actions/upload-artifact@v4' (SHA:ea165f8d65b6e75b540449e92b4886f43607fa02)
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:00.2491092Z Complete job name: firmware-boundary-capture (0)
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:00.3215270Z ##[group]Run actions/checkout@v4
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:00.3216107Z with:
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:00.3216468Z   repository: kebag-logic/milan-fpga
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:00.3219842Z   token: ***
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:00.3220191Z   ssh-strict: true
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:00.3220547Z   ssh-user: git
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:00.3220905Z   persist-credentials: true
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:00.3221297Z   clean: true
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:00.3221653Z   sparse-checkout-cone-mode: true
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:00.3222059Z   fetch-depth: 1
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:00.3222394Z   fetch-tags: false
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:00.3222762Z   show-progress: true
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:00.3223116Z   lfs: false
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:00.3223450Z   submodules: false
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:00.3223811Z   set-safe-directory: true
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:00.3224205Z   allow-unsafe-pr-checkout: false
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:00.3224802Z env:
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:00.3225126Z   VERILATOR_VERSION: v5.050
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:00.3225530Z   YOSYS_VERSION: v0.66
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:00.3226223Z   PIP_CONSTRAINT: <home-path>/work/milan-fpga/milan-fpga/ci/constraints-ci.txt
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:00.3226817Z ##[endgroup]
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:00.6021212Z Syncing repository: kebag-logic/milan-fpga
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:00.6022625Z ##[group]Getting Git version info
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:00.6023197Z Working directory is '<home-path>/work/milan-fpga/milan-fpga'
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:00.6276145Z [command]/usr/bin/git version
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:00.6392580Z git version 2.56.1
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:00.6408527Z ##[endgroup]
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:00.6422061Z Temporarily overriding HOME='<home-path>/work/_temp/3c0f628e-17f7-436c-a5b1-43195017dd2b' before making global git config changes
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:00.6423801Z Adding repository directory to the temporary git global config as a safe directory
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:00.6427047Z [command]/usr/bin/git config --global --add safe.directory <home-path>/work/milan-fpga/milan-fpga
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:00.6478472Z Deleting the contents of '<home-path>/work/milan-fpga/milan-fpga'
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:00.6481560Z ##[group]Initializing the repository
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:00.6485590Z [command]/usr/bin/git init <home-path>/work/milan-fpga/milan-fpga
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:00.6594327Z hint: Using 'master' as the name for the initial branch. This default branch name
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:00.6595637Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:00.6596587Z hint: to use in all of your new repositories, which will suppress this warning,
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:00.6597178Z hint: call:
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:00.6597498Z hint:
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:00.6597928Z hint: 	git config --global init.defaultBranch <name>
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:00.6598421Z hint:
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:00.6598872Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:00.6599574Z hint: 'development'. The just-created branch can be renamed via this command:
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:00.6600143Z hint:
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:00.6600475Z hint: 	git branch -m <name>
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:00.6600902Z hint:
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:00.6601403Z hint: Disable this message with "git config set advice.defaultBranchName false"
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:00.6608501Z Initialized empty Git repository in <home-path>/work/milan-fpga/milan-fpga/.git/
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:00.6619200Z [command]/usr/bin/git remote add origin https://github.com/kebag-logic/milan-fpga
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:00.6674874Z ##[endgroup]
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:00.6675817Z ##[group]Disabling automatic garbage collection
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:00.6676831Z [command]/usr/bin/git config --local gc.auto 0
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:00.6706965Z ##[endgroup]
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:00.6708055Z ##[group]Setting up auth
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:00.6713004Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:00.6750687Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:00.7157159Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:00.7194686Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:00.7404192Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:00.7443977Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:00.7658056Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:00.7702448Z ##[endgroup]
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:00.7703196Z ##[group]Fetching the repository
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:00.7712710Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +649acf4c775dd7e9bfbdf81f5d7a3d91782cd327:refs/remotes/pull/987/merge
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:03.3323031Z From https://github.com/kebag-logic/milan-fpga
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:03.3324786Z  * [new ref]         649acf4c775dd7e9bfbdf81f5d7a3d91782cd327 -> pull/987/merge
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:03.3327552Z ##[endgroup]
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:03.3328310Z ##[group]Determining the checkout info
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:03.3329254Z ##[endgroup]
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:03.3335331Z [command]/usr/bin/git sparse-checkout disable
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:03.3396536Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:03.3436000Z ##[group]Checking out the ref
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:03.3439803Z [command]/usr/bin/git checkout --progress --force refs/remotes/pull/987/merge
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:03.5660177Z Note: switching to 'refs/remotes/pull/987/merge'.
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:03.5660665Z 
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:03.5660894Z You are in 'detached HEAD' state. You can look around, make experimental
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:03.5661382Z changes and commit them, and you can discard any commits you make in this
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:03.5662291Z state without impacting any branches by switching back to a branch.
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:03.5662605Z 
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:03.5662895Z If you want to create a new branch to retain commits you create, you may
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:03.5663331Z do so (now or later) by using -c with the switch command. Example:
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:03.5663569Z 
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:03.5663722Z   git switch -c <new-branch-name>
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:03.5663966Z 
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:03.5664155Z Or undo this operation with:
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:03.5664388Z 
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:03.5664547Z   git switch -
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:03.5664780Z 
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:03.5665063Z Turn off this advice by setting config variable advice.detachedHead to false
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:03.5665438Z 
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:03.5665812Z HEAD is now at 649acf4 Merge 09201d35d7ea720b3ba205da185ba35c159ec24a into 5de21ff3661436ea5598718aca36934361e35340
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:03.5673124Z ##[endgroup]
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:03.5721039Z [command]/usr/bin/git log -1 --format=%H
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:03.5750544Z 649acf4c775dd7e9bfbdf81f5d7a3d91782cd327
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:03.5973148Z ##[group]Run set -euo pipefail
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:03.5973607Z ^[[36;1mset -euo pipefail^[[0m
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:03.5973967Z ^[[36;1mcpus="$(nproc)"^[[0m
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:03.5974305Z ^[[36;1mtest "$cpus" -gt 0^[[0m
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:03.5974665Z ^[[36;1mcampaign=$(( cpus < 4 ? cpus : 4 ))^[[0m
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:03.5975078Z ^[[36;1msimulations=$(( cpus < 4 ? cpus : 4 ))^[[0m
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:03.5975478Z ^[[36;1mtool_build=$(( cpus < 8 ? cpus : 8 ))^[[0m
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:03.5976155Z ^[[36;1m{^[[0m
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:03.5976492Z ^[[36;1m  printf 'CI_BUILD_JOBS=%s\n' "$cpus"^[[0m
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:03.5976924Z ^[[36;1m  printf 'CI_TOOL_BUILD_JOBS=%s\n' "$tool_build"^[[0m
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:03.5977342Z ^[[36;1m  printf 'CI_CAMPAIGN_JOBS=%s\n' "$campaign"^[[0m
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:03.5977744Z ^[[36;1m  printf 'VERILATOR_JOBS=%s\n' "$cpus"^[[0m
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:03.5978126Z ^[[36;1m  printf 'SIM_JOBS=%s\n' "$simulations"^[[0m
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:03.5978541Z ^[[36;1m  printf 'MAKEFLAGS=-j1 --no-print-directory\n'^[[0m
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:03.5978997Z ^[[36;1m} >> "$GITHUB_ENV"^[[0m
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:03.6000609Z shell: /usr/bin/bash -e {0}
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:03.6000967Z env:
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:03.6001269Z   VERILATOR_VERSION: v5.050
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:03.6001594Z   YOSYS_VERSION: v0.66
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:03.6002016Z   PIP_CONSTRAINT: <home-path>/work/milan-fpga/milan-fpga/ci/constraints-ci.txt
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:03.6002462Z ##[endgroup]
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:03.7290619Z ##[group]Run actions/cache@v4
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:03.7290996Z with:
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:03.7291281Z   path: ~/.cache/pip
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:03.7292015Z   key: python-cpython3.12.3-0f4dff939fe11c9e2b6ca53bfda0ab835c6b8262ea97e72481db61f20ea4b311-aa130cde3f89d5df9ea7f65b2511a7df2485907f5edf91bb356a311b83c0f291-Linux
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:03.7292812Z   enableCrossOsArchive: false
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:03.7293145Z   fail-on-cache-miss: false
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:03.7293457Z   lookup-only: false
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:03.7293745Z   save-always: false
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:03.7294037Z env:
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:03.7294306Z   VERILATOR_VERSION: v5.050
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:03.7294611Z   YOSYS_VERSION: v0.66
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:03.7295016Z   PIP_CONSTRAINT: <home-path>/work/milan-fpga/milan-fpga/ci/constraints-ci.txt
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:03.7295451Z   CI_BUILD_JOBS: 4
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:03.7295735Z   CI_TOOL_BUILD_JOBS: 4
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:03.7296550Z   CI_CAMPAIGN_JOBS: 4
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:03.7296838Z   VERILATOR_JOBS: 4
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:03.7297150Z   SIM_JOBS: 4
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:03.7297482Z   MAKEFLAGS: -j1 --no-print-directory
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:03.7297816Z ##[endgroup]
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:03.8167464Z (node:2152) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:03.8168242Z (Use `node --trace-deprecation ...` to show where the warning was created)
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:04.0522594Z Cache hit for: python-cpython3.12.3-0f4dff939fe11c9e2b6ca53bfda0ab835c6b8262ea97e72481db61f20ea4b311-aa130cde3f89d5df9ea7f65b2511a7df2485907f5edf91bb356a311b83c0f291-Linux
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:04.0624990Z (node:2152) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:04.7282745Z Received 768944 of 768944 (100.0%), 1.7 MBs/sec
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:04.7283210Z Cache Size: ~1 MB (768944 B)
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:04.7303275Z [command]/usr/bin/tar -xf <home-path>/work/_temp/9f223168-55ac-4fed-b079-7935eb8777cb/cache.tzst -P -C <home-path>/work/milan-fpga/milan-fpga --use-compress-program unzstd
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:04.7362709Z Cache restored successfully
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:04.7522077Z Cache restored from key: python-cpython3.12.3-0f4dff939fe11c9e2b6ca53bfda0ab835c6b8262ea97e72481db61f20ea4b311-aa130cde3f89d5df9ea7f65b2511a7df2485907f5edf91bb356a311b83c0f291-Linux
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:04.7617108Z ##[group]Run git submodule update --init third_party/verilog-axis protocol-processor gptp-processor third_party/lwSRP third_party/tsn-c-stack
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:04.7618094Z ^[[36;1mgit submodule update --init third_party/verilog-axis protocol-processor gptp-processor third_party/lwSRP third_party/tsn-c-stack^[[0m
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:04.7636063Z shell: /usr/bin/bash -e {0}
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:04.7636274Z env:
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:04.7636467Z   VERILATOR_VERSION: v5.050
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:04.7636666Z   YOSYS_VERSION: v0.66
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:04.7636960Z   PIP_CONSTRAINT: <home-path>/work/milan-fpga/milan-fpga/ci/constraints-ci.txt
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:04.7637282Z   CI_BUILD_JOBS: 4
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:04.7637456Z   CI_TOOL_BUILD_JOBS: 4
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:04.7637639Z   CI_CAMPAIGN_JOBS: 4
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:04.7637815Z   VERILATOR_JOBS: 4
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:04.7637987Z   SIM_JOBS: 4
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:04.7638172Z   MAKEFLAGS: -j1 --no-print-directory
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:04.7638390Z ##[endgroup]
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:04.7868578Z Submodule 'gptp-processor' (https://github.com/Mister-M-alt/FPGA-gPTP.git) registered for path 'gptp-processor'
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:04.7873234Z Submodule 'protocol-processor' (https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan.git) registered for path 'protocol-processor'
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:04.7878903Z Submodule 'third_party/lwSRP' (https://github.com/kebag-logic/lwSRP.git) registered for path 'third_party/lwSRP'
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:04.7884520Z Submodule 'third_party/tsn-c-stack' (https://github.com/kebag-logic/tsn-c-stack.git) registered for path 'third_party/tsn-c-stack'
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:04.7890431Z Submodule 'third_party/verilog-axis' (https://github.com/alexforencich/verilog-axis) registered for path 'third_party/verilog-axis'
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:04.7913897Z Cloning into '<home-path>/work/milan-fpga/milan-fpga/gptp-processor'...
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:06.0584681Z Cloning into '<home-path>/work/milan-fpga/milan-fpga/protocol-processor'...
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:08.2584454Z Cloning into '<home-path>/work/milan-fpga/milan-fpga/third_party/lwSRP'...
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:09.2728934Z Cloning into '<home-path>/work/milan-fpga/milan-fpga/third_party/tsn-c-stack'...
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:10.4722794Z Cloning into '<home-path>/work/milan-fpga/milan-fpga/third_party/verilog-axis'...
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:11.3334039Z Submodule path 'gptp-processor': checked out '1213ac5b9e09b8759ba76cc70c53652b5e108996'
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:11.4102997Z Submodule path 'protocol-processor': checked out '801ef2283ec793e35a2590fc6593c90313a64041'
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:11.4216703Z Submodule path 'third_party/lwSRP': checked out 'd1bb4f4e5954af6dabe7f210a6bf7adbb76bdd6b'
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:11.4437278Z Submodule path 'third_party/tsn-c-stack': checked out '715589c1db7cf67e2f3259fd7083ebc7f0923376'
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:11.4603783Z Submodule path 'third_party/verilog-axis': checked out '48ff7a7e2ef782cf778d47910cf85835c64b1bce'
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:11.4646887Z ##[group]Run python3 scripts/ci_install_cache.py --packages libgmock-dev libgtest-dev --recipe 0a7770834110cbf0bf2a242c3eefab212a9b9ff9f158f62eee30bd8188f9b335 --directory "$RUNNER_TEMP/ci_packages_2" --output "$GITHUB_OUTPUT"
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:11.4648281Z ^[[36;1mpython3 scripts/ci_install_cache.py --packages libgmock-dev libgtest-dev --recipe 0a7770834110cbf0bf2a242c3eefab212a9b9ff9f158f62eee30bd8188f9b335 --directory "$RUNNER_TEMP/ci_packages_2" --output "$GITHUB_OUTPUT"^[[0m
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:11.4665572Z shell: /usr/bin/bash -e {0}
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:11.4665777Z env:
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:11.4666040Z   VERILATOR_VERSION: v5.050
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:11.4666243Z   YOSYS_VERSION: v0.66
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:11.4666535Z   PIP_CONSTRAINT: <home-path>/work/milan-fpga/milan-fpga/ci/constraints-ci.txt
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:11.4666857Z   CI_BUILD_JOBS: 4
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:11.4667031Z   CI_TOOL_BUILD_JOBS: 4
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:11.4667213Z   CI_CAMPAIGN_JOBS: 4
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:11.4667393Z   VERILATOR_JOBS: 4
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:11.4667588Z   SIM_JOBS: 4
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:11.4667773Z   MAKEFLAGS: -j1 --no-print-directory
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:11.4667988Z ##[endgroup]
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:20.1959191Z {"archives": [{"bytes": 520880, "filename": "googletest_1.14.0-1_all.deb", "sha256": "196b763a2539c117ee2bbd5878ffa33b00ce8017ca6b63b89245b74c8889f1d1", "url": "mirror+file:/etc/apt/apt-mirrors.txt/pool/universe/g/googletest/googletest_1.14.0-1_all.deb"}, {"bytes": 268320, "filename": "libgtest-dev_1.14.0-1_amd64.deb", "sha256": "c7dd1ecf6b816bf13ab6e1d8813d1ff0ae7a4fa09326a0cd467c3943d952117f", "url": "mirror+file:/etc/apt/apt-mirrors.txt/pool/universe/g/googletest/libgtest-dev_1.14.0-1_amd64.deb"}, {"bytes": 134570, "filename": "libgmock-dev_1.14.0-1_amd64.deb", "sha256": "9e299726c3015d03324a81074224a43efbd444d83103357d83f1b99aed3fa9f6", "url": "mirror+file:/etc/apt/apt-mirrors.txt/pool/universe/g/googletest/libgmock-dev_1.14.0-1_amd64.deb"}], "key": "apt-e8d0be9d206f07f2e3d715a6587a1b5b849ef62be8dd33f0f8248fc9f9707847-3ee1f05265afcfbfe33b91fec69fbef4d3bad5399e2cd968ea7869725622ea6a-0a7770834110cbf0bf2a242c3eefab212a9b9ff9f158f62eee30bd8188f9b335", "packages": ["libgmock-dev", "libgtest-dev"], "versions": "libgmock-dev:\n  Installed: (none)\n  Candidate: 1.14.0-1\n  Version table:\n     1.14.0-1 500\n        500 mirror+file:/etc/apt/apt-mirrors.txt noble/universe amd64 Packages\nlibgtest-dev:\n  Installed: (none)\n  Candidate: 1.14.0-1\n  Version table:\n     1.14.0-1 500\n        500 mirror+file:/etc/apt/apt-mirrors.txt noble/universe amd64 Packages\n"}
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:20.2708032Z ##[group]Run actions/cache@v4
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:20.2708258Z with:
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:20.2708450Z   path: <home-path>/work/_temp/ci_packages_2
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:20.2709551Z   key: Linux-apt-e8d0be9d206f07f2e3d715a6587a1b5b849ef62be8dd33f0f8248fc9f9707847-3ee1f05265afcfbfe33b91fec69fbef4d3bad5399e2cd968ea7869725622ea6a-0a7770834110cbf0bf2a242c3eefab212a9b9ff9f158f62eee30bd8188f9b335-aa130cde3f89d5df9ea7f65b2511a7df2485907f5edf91bb356a311b83c0f291
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:20.2710641Z   enableCrossOsArchive: false
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:20.2710849Z   fail-on-cache-miss: false
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:20.2711042Z   lookup-only: false
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:20.2711220Z   save-always: false
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:20.2711382Z env:
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:20.2711539Z   VERILATOR_VERSION: v5.050
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:20.2711750Z   YOSYS_VERSION: v0.66
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:20.2712033Z   PIP_CONSTRAINT: <home-path>/work/milan-fpga/milan-fpga/ci/constraints-ci.txt
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:20.2712345Z   CI_BUILD_JOBS: 4
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:20.2712555Z   CI_TOOL_BUILD_JOBS: 4
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:20.2712729Z   CI_CAMPAIGN_JOBS: 4
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:20.2712897Z   VERILATOR_JOBS: 4
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:20.2713059Z   SIM_JOBS: 4
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:20.2713267Z   MAKEFLAGS: -j1 --no-print-directory
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:20.2713475Z ##[endgroup]
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:20.3621559Z (node:2638) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:20.3623039Z (Use `node --trace-deprecation ...` to show where the warning was created)
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:20.5906661Z Cache not found for input keys: Linux-apt-e8d0be9d206f07f2e3d715a6587a1b5b849ef62be8dd33f0f8248fc9f9707847-3ee1f05265afcfbfe33b91fec69fbef4d3bad5399e2cd968ea7869725622ea6a-0a7770834110cbf0bf2a242c3eefab212a9b9ff9f158f62eee30bd8188f9b335-aa130cde3f89d5df9ea7f65b2511a7df2485907f5edf91bb356a311b83c0f291
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:20.5999513Z ##[group]Run set -euo pipefail
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:20.5999863Z ^[[36;1mset -euo pipefail^[[0m
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:20.6000075Z ^[[36;1m: # package index prepared above^[[0m
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:20.6000621Z ^[[36;1msudo apt-get -o Dir::Cache::archives="$RUNNER_TEMP/ci_packages_2" install -y --no-install-recommends libgtest-dev libgmock-dev^[[0m
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:20.6001149Z ^[[36;1mpython3 -m pip install --quiet pyyaml -r sw/litex/litex_pins.txt^[[0m
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:20.6001573Z ^[[36;1mdpkg-query -W libgtest-dev libgmock-dev^[[0m
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:20.6001821Z ^[[36;1mg++ --version | head -n 1^[[0m
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:20.6020210Z shell: /usr/bin/bash -e {0}
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:20.6020422Z env:
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:20.6020592Z   VERILATOR_VERSION: v5.050
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:20.6020803Z   YOSYS_VERSION: v0.66
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:20.6021100Z   PIP_CONSTRAINT: <home-path>/work/milan-fpga/milan-fpga/ci/constraints-ci.txt
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:20.6021430Z   CI_BUILD_JOBS: 4
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:20.6021602Z   CI_TOOL_BUILD_JOBS: 4
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:20.6021821Z   CI_CAMPAIGN_JOBS: 4
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:20.6022003Z   VERILATOR_JOBS: 4
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:20.6022166Z   SIM_JOBS: 4
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:20.6022341Z   MAKEFLAGS: -j1 --no-print-directory
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:20.6022556Z ##[endgroup]
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:20.6233059Z Reading package lists...
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:20.9252778Z Building dependency tree...
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:20.9259474Z Reading state information...
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:21.1193229Z The following additional packages will be installed:
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:21.1202331Z   googletest
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:21.1406930Z The following NEW packages will be installed:
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:21.1417629Z   googletest libgmock-dev libgtest-dev
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:21.1605992Z 0 upgraded, 3 newly installed, 0 to remove and 78 not upgraded.
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:21.1606399Z Need to get 924 kB of archives.
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:21.1606694Z After this operation, 5933 kB of additional disk space will be used.
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:21.1607070Z Get:1 file:/etc/apt/apt-mirrors.txt Mirrorlist [144 B]
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:21.1931834Z Get:2 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 googletest all 1.14.0-1 [521 kB]
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:21.1992925Z Get:3 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 libgtest-dev amd64 1.14.0-1 [268 kB]
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:21.2016995Z Get:4 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 libgmock-dev amd64 1.14.0-1 [135 kB]
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:21.4690489Z Fetched 924 kB in 0s (17.4 MB/s)
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:21.4918517Z Selecting previously unselected package googletest.
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:21.5153924Z (Reading database ... 
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:21.5154260Z (Reading database ... 5%
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:21.5154550Z (Reading database ... 10%
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:21.5154830Z (Reading database ... 15%
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:21.5155080Z (Reading database ... 20%
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:21.5155331Z (Reading database ... 25%
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:21.5155594Z (Reading database ... 30%
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:21.5158371Z (Reading database ... 35%
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:21.5158677Z (Reading database ... 40%
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:21.5159014Z (Reading database ... 45%
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:21.5159307Z (Reading database ... 50%
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:21.5195984Z (Reading database ... 55%
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:21.6595321Z (Reading database ... 60%
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:21.8451393Z (Reading database ... 65%
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:21.9988813Z (Reading database ... 70%
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:22.3747047Z (Reading database ... 75%
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:22.4945460Z (Reading database ... 80%
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:23.0210481Z (Reading database ... 85%
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:23.3045741Z (Reading database ... 90%
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:23.4556787Z (Reading database ... 95%
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:23.4557189Z (Reading database ... 100%
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:23.4557605Z (Reading database ... 217092 files and directories currently installed.)
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:23.4597673Z Preparing to unpack .../googletest_1.14.0-1_all.deb ...
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:23.6131309Z Unpacking googletest (1.14.0-1) ...
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:23.7271666Z Selecting previously unselected package libgtest-dev:amd64.
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:23.7397506Z Preparing to unpack .../libgtest-dev_1.14.0-1_amd64.deb ...
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:23.7403915Z Unpacking libgtest-dev:amd64 (1.14.0-1) ...
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:23.7855099Z Selecting previously unselected package libgmock-dev:amd64.
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:23.7982284Z Preparing to unpack .../libgmock-dev_1.14.0-1_amd64.deb ...
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:23.7989742Z Unpacking libgmock-dev:amd64 (1.14.0-1) ...
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:23.8586272Z Setting up googletest (1.14.0-1) ...
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:23.8711346Z Setting up libgtest-dev:amd64 (1.14.0-1) ...
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:23.8729283Z Setting up libgmock-dev:amd64 (1.14.0-1) ...
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:24.5255343Z 
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:24.5256030Z Running kernel seems to be up-to-date.
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:24.5256350Z 
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:24.5256470Z No services need to be restarted.
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:24.5256701Z 
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:24.5276724Z No containers need to be restarted.
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:24.5276969Z 
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:24.5277172Z No user sessions are running outdated binaries.
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:24.5277443Z 
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:24.5277650Z No VM guests are running outdated hypervisor (qemu) binaries on this host.
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T16:59:25.6609392Z W: Download is performed unsandboxed as root as file '<home-path>/work/_temp/ci_packages_2/partial/googletest_1.14.0-1_all.deb' couldn't be accessed by user '_apt'. - pkgAcquire::Run (13: Permission denied)
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:01.8864991Z libgmock-dev:amd64	1.14.0-1
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:01.8865395Z libgtest-dev:amd64	1.14.0-1
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:01.9423676Z g++ (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:01.9952079Z ##[group]Run actions/cache@v4
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:01.9952304Z with:
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:01.9952473Z   path: ~/br-milan-rv32/host
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:01.9953055Z   key: rv32-sdk-v1-Linux-X64-d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f-a11c5b5421386f4d8a8b14cf2eff259251ae3ee42716b3b69c5a314f2f1790f9
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:01.9953661Z   enableCrossOsArchive: false
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:01.9953889Z   fail-on-cache-miss: false
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:01.9954094Z   lookup-only: false
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:01.9954262Z   save-always: false
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:01.9954421Z env:
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:01.9954577Z   VERILATOR_VERSION: v5.050
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:01.9954758Z   YOSYS_VERSION: v0.66
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:01.9955054Z   PIP_CONSTRAINT: <home-path>/work/milan-fpga/milan-fpga/ci/constraints-ci.txt
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:01.9955366Z   CI_BUILD_JOBS: 4
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:01.9955531Z   CI_TOOL_BUILD_JOBS: 4
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:01.9955724Z   CI_CAMPAIGN_JOBS: 4
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:01.9956177Z   VERILATOR_JOBS: 4
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:01.9956387Z   SIM_JOBS: 4
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:01.9956568Z   MAKEFLAGS: -j1 --no-print-directory
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:01.9956780Z ##[endgroup]
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:02.0817241Z (node:3320) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:02.0817966Z (Use `node --trace-deprecation ...` to show where the warning was created)
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:02.3059554Z Cache hit for: rv32-sdk-v1-Linux-X64-d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f-a11c5b5421386f4d8a8b14cf2eff259251ae3ee42716b3b69c5a314f2f1790f9
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:02.3174381Z (node:3320) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:03.5618960Z Received 37748736 of 153250353 (24.6%), 36.0 MBs/sec
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:04.4018584Z Received 153250353 of 153250353 (100.0%), 79.4 MBs/sec
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:04.4020596Z Cache Size: ~146 MB (153250353 B)
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:04.4114959Z [command]/usr/bin/tar -xf <home-path>/work/_temp/ceb50532-e2ef-4d9c-aa6f-fb71511564e3/cache.tzst -P -C <home-path>/work/milan-fpga/milan-fpga --use-compress-program unzstd
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:05.2013806Z Cache restored successfully
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:05.2143908Z Cache restored from key: rv32-sdk-v1-Linux-X64-d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f-a11c5b5421386f4d8a8b14cf2eff259251ae3ee42716b3b69c5a314f2f1790f9
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:05.2284794Z ##[group]Run set -euo pipefail
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:05.2285063Z ^[[36;1mset -euo pipefail^[[0m
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:05.2285295Z ^[[36;1mpython3 scripts/ci_rv32_sdk_selftest.py^[[0m
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:05.2285653Z ^[[36;1mpython3 scripts/ci_rv32_sdk.py --destination "$HOME/br-milan-rv32/host"^[[0m
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:05.2304000Z shell: /usr/bin/bash -e {0}
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:05.2304217Z env:
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:05.2304405Z   VERILATOR_VERSION: v5.050
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:05.2304613Z   YOSYS_VERSION: v0.66
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:05.2304926Z   PIP_CONSTRAINT: <home-path>/work/milan-fpga/milan-fpga/ci/constraints-ci.txt
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:05.2305255Z   CI_BUILD_JOBS: 4
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:05.2305429Z   CI_TOOL_BUILD_JOBS: 4
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:05.2305613Z   CI_CAMPAIGN_JOBS: 4
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:05.2305791Z   VERILATOR_JOBS: 4
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:05.2306159Z   SIM_JOBS: 4
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:05.2306356Z   MAKEFLAGS: -j1 --no-print-directory
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:05.2306590Z ##[endgroup]
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:05.3266297Z test_archive_root (__main__.InstallerTests.test_archive_root)
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:05.3487125Z SDK archive verified: /tmp/rv32-installer-test-odp6dvhg/wrong-root.tar.xz sha256=96796a14e46096e32a727dc01a4e61ef558da4623888e4d7dfe4ba45e6c8b781
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:05.3494858Z An authenticated archive with another root is still not extracted. ... ok
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:05.3495332Z test_bad_archive (__main__.InstallerTests.test_bad_archive)
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:05.3538100Z A wrong offline --archive never reaches tar or creates an installation. ... ok
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:05.3538829Z test_bad_archive_with_cache (__main__.InstallerTests.test_bad_archive_with_cache)
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:05.3865381Z Explicit offline inputs are checked even beside a valid cache. ... ok
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:05.3866265Z test_changed_installer (__main__.InstallerTests.test_changed_installer)
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:05.4104692Z A cache made by other installer bytes is refused before its tools run. ... ok
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:05.4105453Z test_download_path (__main__.InstallerTests.test_download_path)
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:05.4348320Z The hosted path, with no --archive, installs what the pin names. ... ok
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:05.4349347Z test_download_path_refuses_unpinned_bytes (__main__.InstallerTests.test_download_path_refuses_unpinned_bytes)
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:05.4456845Z A wrong download is refused before tar reads it or anything runs. ... ok
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:05.4457568Z test_escaping_compiler (__main__.InstallerTests.test_escaping_compiler)
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:05.4702522Z A compiler whose realpath leaves the prefix is never executed. ... ok
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:05.4703266Z test_extra_receipt_section (__main__.InstallerTests.test_extra_receipt_section)
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:05.4943383Z A receipt carrying an unexpected section is malformed. ... ok
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:05.4943850Z test_failed_relocation (__main__.InstallerTests.test_failed_relocation)
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:05.5026457Z A failed relocation leaves no success receipt and cannot become a hit. ... ok
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:05.5027243Z test_fresh_and_cache_hit (__main__.InstallerTests.test_fresh_and_cache_hit)
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:05.5349658Z Extraction relocates; a valid hit neither downloads nor extracts. ... ok
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:05.5350188Z test_incomplete_and_corrupt_tree (__main__.InstallerTests.test_incomplete_and_corrupt_tree)
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:05.5642481Z Deletion, replacement, mode change and extra files all refuse. ... ok
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:05.5643241Z test_malformed_receipt (__main__.InstallerTests.test_malformed_receipt)
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:05.5893647Z JSON of the wrong type cannot pass as provenance. ... ok
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:05.5894077Z test_missing_receipt (__main__.InstallerTests.test_missing_receipt)
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:05.5934849Z An existing directory is not an installed SDK. ... ok
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:05.5935290Z test_moved_cache (__main__.InstallerTests.test_moved_cache)
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:05.6186240Z A relocated tree is bound to the prefix where it was measured. ... ok
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:05.6187012Z test_provenance_values (__main__.InstallerTests.test_provenance_values)
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:05.6432464Z The installer digest and host are the ones measured here, independently. ... ok
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:05.6432947Z test_retargeted_symlink (__main__.InstallerTests.test_retargeted_symlink)
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:05.6679749Z Pointing the selector at another installed tool is cache drift. ... ok
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:05.6680331Z test_special_file (__main__.InstallerTests.test_special_file)
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:05.6930165Z A FIFO planted in the cache is refused before any tool runs. ... ok
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:05.6930768Z test_symlink_destination (__main__.InstallerTests.test_symlink_destination)
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:05.6970922Z Do not overwrite or adopt a tree reached through a selector symlink. ... ok
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:05.6971538Z test_symlink_receipt (__main__.InstallerTests.test_symlink_receipt)
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:05.7217020Z Provenance must be stored in the installation, not another tree. ... ok
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:05.7217708Z test_truncated_receipt (__main__.InstallerTests.test_truncated_receipt)
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:05.7453130Z An interrupted receipt write never becomes a usable cache. ... ok
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:05.7453556Z test_unrelocated_sdk (__main__.InstallerTests.test_unrelocated_sdk)
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:05.7682894Z SDK argv: ["/tmp/rv32-installer-test-on3f79ss/installed/bin/riscv32-linux-gcc", "--version"]
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:05.7700044Z SDK argv: ["/tmp/rv32-installer-test-on3f79ss/installed/bin/riscv32-linux-gcc", "-dumpfullversion"]
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:05.7717889Z SDK argv: ["/tmp/rv32-installer-test-on3f79ss/installed/bin/riscv32-linux-gcc", "-dumpmachine"]
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:05.7735320Z SDK argv: ["/tmp/rv32-installer-test-on3f79ss/installed/bin/riscv32-linux-gcc", "-print-sysroot"]
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:05.7761508Z Even a successful process must prove its relocation result. ... ok
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:05.7761985Z test_unsupported_host (__main__.InstallerTests.test_unsupported_host)
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:05.7802875Z The fixed x86-64 archive cannot silently adopt another host. ... ok
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:05.7803573Z test_wrong_provenance (__main__.InstallerTests.test_wrong_provenance)
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:05.8074934Z Every cache input is bound, including the whole digest and prefix. ... ok
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:05.8075371Z test_wrong_tool (__main__.InstallerTests.test_wrong_tool)
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:05.8303509Z SDK argv: ["/tmp/rv32-installer-test-quojtwib/installed/bin/riscv32-linux-gcc", "--version"]
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:05.8320651Z SDK argv: ["/tmp/rv32-installer-test-quojtwib/installed/bin/riscv32-linux-gcc", "-dumpfullversion"]
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:05.8337624Z SDK argv: ["/tmp/rv32-installer-test-quojtwib/installed/bin/riscv32-linux-gcc", "-dumpmachine"]
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:05.8354645Z SDK argv: ["/tmp/rv32-installer-test-quojtwib/installed/bin/riscv32-linux-gcc", "-print-sysroot"]
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:05.8375441Z SDK argv: ["/tmp/rv32-installer-test-quojtwib/installed/bin/riscv32-linux-gcc", "--version"]
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:05.8392556Z SDK argv: ["/tmp/rv32-installer-test-quojtwib/installed/bin/riscv32-linux-gcc", "-dumpfullversion"]
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:05.8409405Z SDK argv: ["/tmp/rv32-installer-test-quojtwib/installed/bin/riscv32-linux-gcc", "-dumpmachine"]
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:05.8426503Z SDK argv: ["/tmp/rv32-installer-test-quojtwib/installed/bin/riscv32-linux-gcc", "-print-sysroot"]
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:05.8447962Z SDK argv: ["/tmp/rv32-installer-test-quojtwib/installed/bin/riscv32-linux-gcc", "--version"]
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:05.8465607Z SDK argv: ["/tmp/rv32-installer-test-quojtwib/installed/bin/riscv32-linux-gcc", "-dumpfullversion"]
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:05.8483095Z SDK argv: ["/tmp/rv32-installer-test-quojtwib/installed/bin/riscv32-linux-gcc", "-dumpmachine"]
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:05.8500564Z SDK argv: ["/tmp/rv32-installer-test-quojtwib/installed/bin/riscv32-linux-gcc", "-print-sysroot"]
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:05.8528065Z A compiler with the wrong version or target cannot create a receipt. ... ok
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:05.8528737Z test_wrong_tool_receipt (__main__.InstallerTests.test_wrong_tool_receipt)
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:05.8764238Z SDK argv: ["/tmp/rv32-installer-test-xy3mk7u8/installed/bin/riscv32-linux-gcc", "--version"]
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:05.8781545Z SDK argv: ["/tmp/rv32-installer-test-xy3mk7u8/installed/bin/riscv32-linux-gcc", "-dumpfullversion"]
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:05.8799242Z SDK argv: ["/tmp/rv32-installer-test-xy3mk7u8/installed/bin/riscv32-linux-gcc", "-dumpmachine"]
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:05.8816943Z SDK argv: ["/tmp/rv32-installer-test-xy3mk7u8/installed/bin/riscv32-linux-gcc", "-print-sysroot"]
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:05.8844829Z Cached identification must agree with the program actually invoked. ... ok
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:05.8845231Z 
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:05.8845368Z ----------------------------------------------------------------------
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:05.8845665Z Ran 25 tests in 0.558s
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:05.8845787Z 
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:05.8866535Z OK
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:06.6507504Z SDK argv: ["<home-path>/br-milan-rv32/host/bin/riscv32-linux-gcc", "--version"]
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:06.6526651Z SDK argv: ["<home-path>/br-milan-rv32/host/bin/riscv32-linux-gcc", "-dumpfullversion"]
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:06.6540224Z SDK argv: ["<home-path>/br-milan-rv32/host/bin/riscv32-linux-gcc", "-dumpmachine"]
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:06.6552873Z SDK argv: ["<home-path>/br-milan-rv32/host/bin/riscv32-linux-gcc", "-print-sysroot"]
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:06.6577327Z SDK verified: {"archive_sha256": "d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f", "archive_url": "https://toolchains.bootlin.com/downloads/releases/toolchains/riscv32-ilp32d/tarballs/riscv32-ilp32d--glibc--stable-2025.08-1.tar.xz", "destination": "<home-path>/br-milan-rv32/host", "host": {"architecture": "x86_64", "os": "Linux"}, "installer_revision": 1, "installer_sha256": "ffcc5433d97209b00cac5155c61bc464a43a60fec49bce0330d81279e1df7cb4", "release": "riscv32-ilp32d--glibc--stable-2025.08-1"}
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:06.6581899Z SDK tools: {"compiler": "<home-path>/br-milan-rv32/host/bin/riscv32-linux-gcc", "gcc_version": "14.3.0", "realpath": "<home-path>/br-milan-rv32/host/bin/toolchain-wrapper", "sysroot": "<home-path>/br-milan-rv32/host/riscv32-buildroot-linux-gnu/sysroot", "target": "riscv32-buildroot-linux-gnu", "version": "riscv32-linux-gcc.br_real (Buildroot 2021.11-18033-g83947c7bb6) 14.3.0\nCopyright (C) 2024 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE."}
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:06.6584257Z SDK cache hit: verified
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:06.6693678Z ##[group]Run python3 sw/firmware/ctrl/test/ctrl_boundary.py --require-rv32 --without verilator --leg "0/2" --capture-out "$RUNNER_TEMP/firmware-boundary-capture-0"
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:06.6694835Z ^[[36;1mpython3 sw/firmware/ctrl/test/ctrl_boundary.py --require-rv32 --without verilator --leg "0/2" --capture-out "$RUNNER_TEMP/firmware-boundary-capture-0"^[[0m
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:06.6712892Z shell: /usr/bin/bash -e {0}
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:06.6713208Z env:
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:06.6713561Z   VERILATOR_VERSION: v5.050
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:06.6713875Z   YOSYS_VERSION: v0.66
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:06.6714373Z   PIP_CONSTRAINT: <home-path>/work/milan-fpga/milan-fpga/ci/constraints-ci.txt
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:06.6714824Z   CI_BUILD_JOBS: 4
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:06.6715108Z   CI_TOOL_BUILD_JOBS: 4
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:06.6715504Z   CI_CAMPAIGN_JOBS: 4
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:06.6715815Z   VERILATOR_JOBS: 4
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:06.6716353Z   SIM_JOBS: 4
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:06.6716643Z   MAKEFLAGS: -j1 --no-print-directory
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:06.6717104Z ##[endgroup]
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:06.9002383Z tsn-c-stack at 715589c1db7cf67e2f3259fd7083ebc7f0923376
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:00:06.9003564Z leg 0/2: running sw/firmware/ctrl/test/test_ctrl_firmware.py under a capture at <home-path>/work/_temp/firmware-boundary-capture-0
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:10.2390628Z     sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32: exit 0 (843 s)
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:11.2606538Z ctrl_boundary: leg 0/2: 1888 compiler invocations from 1 builder runs, judged where every leg's capture is given (--capture)
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:11.3019416Z ##[group]Run actions/upload-artifact@v4
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:11.3019665Z with:
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:11.3019959Z   name: firmware-boundary-capture-0-649acf4c775dd7e9bfbdf81f5d7a3d91782cd327
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:11.3020374Z   path: <home-path>/work/_temp/firmware-boundary-capture-0
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:11.3020659Z   if-no-files-found: error
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:11.3020853Z   retention-days: 3
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:11.3021040Z   compression-level: 6
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:11.3021229Z   overwrite: false
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:11.3021413Z   include-hidden-files: false
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:11.3021619Z env:
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:11.3021779Z   VERILATOR_VERSION: v5.050
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:11.3021980Z   YOSYS_VERSION: v0.66
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:11.3022267Z   PIP_CONSTRAINT: <home-path>/work/milan-fpga/milan-fpga/ci/constraints-ci.txt
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:11.3022576Z   CI_BUILD_JOBS: 4
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:11.3022760Z   CI_TOOL_BUILD_JOBS: 4
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:11.3022946Z   CI_CAMPAIGN_JOBS: 4
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:11.3023122Z   VERILATOR_JOBS: 4
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:11.3023340Z   SIM_JOBS: 4
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:11.3023531Z   MAKEFLAGS: -j1 --no-print-directory
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:11.3023748Z ##[endgroup]
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:11.4426152Z (node:18360) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:11.4426752Z (Use `node --trace-deprecation ...` to show where the warning was created)
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:11.6541041Z With the provided path, there will be 2188 files uploaded
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:11.6545570Z Artifact name is valid!
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:11.6546110Z Root directory input is valid!
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:12.0078542Z Beginning upload of artifact content to blob storage
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:12.6311616Z (node:18360) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:13.4370525Z Uploaded bytes 8388608
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:14.0880033Z Uploaded bytes 16777216
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:14.1439691Z Uploaded bytes 25165824
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:14.8283829Z Uploaded bytes 33554432
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:15.5736694Z Uploaded bytes 41943040
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:16.5677574Z Uploaded bytes 46524357
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:16.6346566Z Finished uploading artifact content to blob storage!
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:16.6349655Z SHA256 digest of uploaded artifact zip is 3910ec9d8e076728fba6b2e5d332791133d26ec88ec41305fff9a8d917833215
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:16.6351368Z Finalizing artifact upload
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:17.0340735Z Artifact firmware-boundary-capture-0-649acf4c775dd7e9bfbdf81f5d7a3d91782cd327.zip successfully finalized. Artifact ID 15046136277
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:17.0344920Z Artifact firmware-boundary-capture-0-649acf4c775dd7e9bfbdf81f5d7a3d91782cd327 has been successfully uploaded! Final size is 46524357 bytes. Artifact ID is 15046136277
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:17.0348741Z Artifact download URL: https://github.com/kebag-logic/milan-fpga/actions/runs/45657606423/artifacts/15046136277
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:17.0711017Z ##[group]Run python3 scripts/ci_runtime_evidence.py record --workflow .github/workflows/rtl-fast.yml --job firmware-boundary-capture --output "$RUNNER_TEMP/job-evidence.json"
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:17.0712005Z ^[[36;1mpython3 scripts/ci_runtime_evidence.py record --workflow .github/workflows/rtl-fast.yml --job firmware-boundary-capture --output "$RUNNER_TEMP/job-evidence.json"^[[0m
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:17.0729885Z shell: /usr/bin/bash -e {0}
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:17.0730111Z env:
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:17.0730285Z   VERILATOR_VERSION: v5.050
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:17.0730499Z   YOSYS_VERSION: v0.66
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:17.0730814Z   PIP_CONSTRAINT: <home-path>/work/milan-fpga/milan-fpga/ci/constraints-ci.txt
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:17.0731167Z   CI_BUILD_JOBS: 4
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:17.0731362Z   CI_TOOL_BUILD_JOBS: 4
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:17.0731558Z   CI_CAMPAIGN_JOBS: 4
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:17.0731752Z   VERILATOR_JOBS: 4
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:17.0731931Z   SIM_JOBS: 4
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:17.0732165Z   MAKEFLAGS: -j1 --no-print-directory
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:17.0736114Z   CI_STEP_RESULTS: {
+firmware-boundary-capture (0)	UNKNOWN STEP	  "ci_step_0": {
+firmware-boundary-capture (0)	UNKNOWN STEP	    "outputs": {
+firmware-boundary-capture (0)	UNKNOWN STEP	      "commit": "649acf4c775dd7e9bfbdf81f5d7a3d91782cd327",
+firmware-boundary-capture (0)	UNKNOWN STEP	      "ref": "refs/pull/987/merge"
+firmware-boundary-capture (0)	UNKNOWN STEP	    },
+firmware-boundary-capture (0)	UNKNOWN STEP	    "outcome": "success",
+firmware-boundary-capture (0)	UNKNOWN STEP	    "conclusion": "success"
+firmware-boundary-capture (0)	UNKNOWN STEP	  },
+firmware-boundary-capture (0)	UNKNOWN STEP	  "ci_step_1": {
+firmware-boundary-capture (0)	UNKNOWN STEP	    "outputs": {},
+firmware-boundary-capture (0)	UNKNOWN STEP	    "outcome": "success",
+firmware-boundary-capture (0)	UNKNOWN STEP	    "conclusion": "success"
+firmware-boundary-capture (0)	UNKNOWN STEP	  },
+firmware-boundary-capture (0)	UNKNOWN STEP	  "ci_step_2": {
+firmware-boundary-capture (0)	UNKNOWN STEP	    "outputs": {
+firmware-boundary-capture (0)	UNKNOWN STEP	      "cache-hit": "true"
+firmware-boundary-capture (0)	UNKNOWN STEP	    },
+firmware-boundary-capture (0)	UNKNOWN STEP	    "outcome": "success",
+firmware-boundary-capture (0)	UNKNOWN STEP	    "conclusion": "success"
+firmware-boundary-capture (0)	UNKNOWN STEP	  },
+firmware-boundary-capture (0)	UNKNOWN STEP	  "ci_step_3": {
+firmware-boundary-capture (0)	UNKNOWN STEP	    "outputs": {},
+firmware-boundary-capture (0)	UNKNOWN STEP	    "outcome": "success",
+firmware-boundary-capture (0)	UNKNOWN STEP	    "conclusion": "success"
+firmware-boundary-capture (0)	UNKNOWN STEP	  },
+firmware-boundary-capture (0)	UNKNOWN STEP	  "ci_packages_2": {
+firmware-boundary-capture (0)	UNKNOWN STEP	    "outputs": {
+firmware-boundary-capture (0)	UNKNOWN STEP	      "key": "apt-e8d0be9d206f07f2e3d715a6587a1b5b849ef62be8dd33f0f8248fc9f9707847-3ee1f05265afcfbfe33b91fec69fbef4d3bad5399e2cd968ea7869725622ea6a-0a7770834110cbf0bf2a242c3eefab212a9b9ff9f158f62eee30bd8188f9b335"
+firmware-boundary-capture (0)	UNKNOWN STEP	    },
+firmware-boundary-capture (0)	UNKNOWN STEP	    "outcome": "success",
+firmware-boundary-capture (0)	UNKNOWN STEP	    "conclusion": "success"
+firmware-boundary-capture (0)	UNKNOWN STEP	  },
+firmware-boundary-capture (0)	UNKNOWN STEP	  "ci_step_5": {
+firmware-boundary-capture (0)	UNKNOWN STEP	    "outputs": {},
+firmware-boundary-capture (0)	UNKNOWN STEP	    "outcome": "success",
+firmware-boundary-capture (0)	UNKNOWN STEP	    "conclusion": "success"
+firmware-boundary-capture (0)	UNKNOWN STEP	  },
+firmware-boundary-capture (0)	UNKNOWN STEP	  "ci_step_6": {
+firmware-boundary-capture (0)	UNKNOWN STEP	    "outputs": {},
+firmware-boundary-capture (0)	UNKNOWN STEP	    "outcome": "success",
+firmware-boundary-capture (0)	UNKNOWN STEP	    "conclusion": "success"
+firmware-boundary-capture (0)	UNKNOWN STEP	  },
+firmware-boundary-capture (0)	UNKNOWN STEP	  "ci_step_7": {
+firmware-boundary-capture (0)	UNKNOWN STEP	    "outputs": {
+firmware-boundary-capture (0)	UNKNOWN STEP	      "cache-hit": "true"
+firmware-boundary-capture (0)	UNKNOWN STEP	    },
+firmware-boundary-capture (0)	UNKNOWN STEP	    "outcome": "success",
+firmware-boundary-capture (0)	UNKNOWN STEP	    "conclusion": "success"
+firmware-boundary-capture (0)	UNKNOWN STEP	  },
+firmware-boundary-capture (0)	UNKNOWN STEP	  "ci_step_8": {
+firmware-boundary-capture (0)	UNKNOWN STEP	    "outputs": {},
+firmware-boundary-capture (0)	UNKNOWN STEP	    "outcome": "success",
+firmware-boundary-capture (0)	UNKNOWN STEP	    "conclusion": "success"
+firmware-boundary-capture (0)	UNKNOWN STEP	  },
+firmware-boundary-capture (0)	UNKNOWN STEP	  "ci_step_9": {
+firmware-boundary-capture (0)	UNKNOWN STEP	    "outputs": {},
+firmware-boundary-capture (0)	UNKNOWN STEP	    "outcome": "success",
+firmware-boundary-capture (0)	UNKNOWN STEP	    "conclusion": "success"
+firmware-boundary-capture (0)	UNKNOWN STEP	  },
+firmware-boundary-capture (0)	UNKNOWN STEP	  "ci_step_10": {
+firmware-boundary-capture (0)	UNKNOWN STEP	    "outputs": {
+firmware-boundary-capture (0)	UNKNOWN STEP	      "artifact-id": "15046136277",
+firmware-boundary-capture (0)	UNKNOWN STEP	      "artifact-digest": "3910ec9d8e076728fba6b2e5d332791133d26ec88ec41305fff9a8d917833215",
+firmware-boundary-capture (0)	UNKNOWN STEP	      "artifact-url": "https://github.com/kebag-logic/milan-fpga/actions/runs/45657606423/artifacts/15046136277"
+firmware-boundary-capture (0)	UNKNOWN STEP	    },
+firmware-boundary-capture (0)	UNKNOWN STEP	    "outcome": "success",
+firmware-boundary-capture (0)	UNKNOWN STEP	    "conclusion": "success"
+firmware-boundary-capture (0)	UNKNOWN STEP	  }
+firmware-boundary-capture (0)	UNKNOWN STEP	}
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:17.0740271Z   CI_JOB_RESULT: success
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:17.0740488Z   CI_MATRIX: {
+firmware-boundary-capture (0)	UNKNOWN STEP	  "leg": 0
+firmware-boundary-capture (0)	UNKNOWN STEP	}
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:17.0740694Z ##[endgroup]
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:18.3303077Z ##[group]Run actions/upload-artifact@v4
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:18.3303329Z with:
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:18.3303712Z   name: job-evidence-rtl-fast-firmware-boundary-capture-0-649acf4c775dd7e9bfbdf81f5d7a3d91782cd327
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:18.3304194Z   path: <home-path>/work/_temp/job-evidence.json
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:18.3304443Z   if-no-files-found: error
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:18.3304647Z   retention-days: 3
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:18.3304833Z   compression-level: 6
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:18.3305026Z   overwrite: false
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:18.3305211Z   include-hidden-files: false
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:18.3305432Z env:
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:18.3305596Z   VERILATOR_VERSION: v5.050
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:18.3305810Z   YOSYS_VERSION: v0.66
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:18.3306357Z   PIP_CONSTRAINT: <home-path>/work/milan-fpga/milan-fpga/ci/constraints-ci.txt
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:18.3306686Z   CI_BUILD_JOBS: 4
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:18.3306866Z   CI_TOOL_BUILD_JOBS: 4
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:18.3307066Z   CI_CAMPAIGN_JOBS: 4
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:18.3307279Z   VERILATOR_JOBS: 4
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:18.3307456Z   SIM_JOBS: 4
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:18.3307659Z   MAKEFLAGS: -j1 --no-print-directory
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:18.3307893Z ##[endgroup]
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:18.4675288Z (node:18383) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:18.4676122Z (Use `node --trace-deprecation ...` to show where the warning was created)
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:18.4714308Z With the provided path, there will be 1 file uploaded
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:18.4719100Z Artifact name is valid!
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:18.4719488Z Root directory input is valid!
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:18.8012978Z Beginning upload of artifact content to blob storage
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:18.8157536Z (node:18383) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:19.1038312Z Uploaded bytes 992
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:19.1969553Z Finished uploading artifact content to blob storage!
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:19.1970372Z SHA256 digest of uploaded artifact zip is 777cb7f8b6fb3f2b9fcb13ab825e39016989dc9e06b4e667a3a57ff4be2706a2
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:19.1971518Z Finalizing artifact upload
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:19.5964278Z Artifact job-evidence-rtl-fast-firmware-boundary-capture-0-649acf4c775dd7e9bfbdf81f5d7a3d91782cd327.zip successfully finalized. Artifact ID 15045547221
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:19.5966322Z Artifact job-evidence-rtl-fast-firmware-boundary-capture-0-649acf4c775dd7e9bfbdf81f5d7a3d91782cd327 has been successfully uploaded! Final size is 992 bytes. Artifact ID is 15045547221
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:19.5970764Z Artifact download URL: https://github.com/kebag-logic/milan-fpga/actions/runs/45657606423/artifacts/15045547221
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:19.6624481Z Post job cleanup.
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:19.7560597Z Cache hit occurred on the primary key rv32-sdk-v1-Linux-X64-d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f-a11c5b5421386f4d8a8b14cf2eff259251ae3ee42716b3b69c5a314f2f1790f9, not saving cache.
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:19.7562036Z (node:18407) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:19.7562997Z (Use `node --trace-deprecation ...` to show where the warning was created)
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:19.8276510Z Post job cleanup.
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:19.9164873Z (node:18427) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:19.9166103Z (Use `node --trace-deprecation ...` to show where the warning was created)
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:19.9306020Z [command]/usr/bin/tar --posix -cf cache.tzst --exclude cache.tzst -P -C <home-path>/work/milan-fpga/milan-fpga --files-from manifest.txt --use-compress-program zstdmt
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:19.9333973Z /usr/bin/tar: ../../_temp/ci_packages_2/partial: Cannot open: Permission denied
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:19.9352886Z /usr/bin/tar: ../../_temp/ci_packages_2/lock: Cannot open: Permission denied
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:19.9383495Z /usr/bin/tar: Exiting with failure status due to previous errors
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:19.9405480Z ##[warning]Failed to save: "/usr/bin/tar" failed with error: The process '/usr/bin/tar' failed with exit code 2
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:20.0591574Z Post job cleanup.
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:20.1513553Z Cache hit occurred on the primary key python-cpython3.12.3-0f4dff939fe11c9e2b6ca53bfda0ab835c6b8262ea97e72481db61f20ea4b311-aa130cde3f89d5df9ea7f65b2511a7df2485907f5edf91bb356a311b83c0f291-Linux, not saving cache.
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:20.1515269Z (node:18471) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:20.1516148Z (Use `node --trace-deprecation ...` to show where the warning was created)
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:20.1639287Z Post job cleanup.
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:20.2361763Z [command]/usr/bin/git version
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:20.2431060Z git version 2.56.1
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:20.2474858Z Temporarily overriding HOME='<home-path>/work/_temp/b7646baf-5db6-41df-928d-18a17a999da5' before making global git config changes
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:20.2476267Z Adding repository directory to the temporary git global config as a safe directory
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:20.2479764Z [command]/usr/bin/git config --global --add safe.directory <home-path>/work/milan-fpga/milan-fpga
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:20.2534332Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:20.2588269Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:20.2893202Z Entering 'gptp-processor'
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:20.3336180Z Entering 'protocol-processor'
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:20.3376316Z Entering 'third_party/lwSRP'
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:20.3414825Z Entering 'third_party/tsn-c-stack'
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:20.3453602Z Entering 'third_party/verilog-axis'
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:20.3509119Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:20.3540500Z http.https://github.com/.extraheader
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:20.3549542Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:20.3588889Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:20.3788941Z Entering 'gptp-processor'
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:20.3826229Z Entering 'protocol-processor'
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:20.3864642Z Entering 'third_party/lwSRP'
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:20.3902863Z Entering 'third_party/tsn-c-stack'
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:20.3940854Z Entering 'third_party/verilog-axis'
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:20.3994524Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:20.4033381Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:20.4236346Z Entering 'gptp-processor'
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:20.4253863Z file:<home-path>/work/milan-fpga/milan-fpga/.git/modules/gptp-processor/config	remote.origin.url
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:20.4270874Z Entering 'protocol-processor'
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:20.4288325Z file:<home-path>/work/milan-fpga/milan-fpga/.git/modules/protocol-processor/config	remote.origin.url
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:20.4305153Z Entering 'third_party/lwSRP'
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:20.4322610Z file:<home-path>/work/milan-fpga/milan-fpga/.git/modules/third_party/lwSRP/config	remote.origin.url
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:20.4338784Z Entering 'third_party/tsn-c-stack'
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:20.4355719Z file:<home-path>/work/milan-fpga/milan-fpga/.git/modules/third_party/tsn-c-stack/config	remote.origin.url
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:20.4372345Z Entering 'third_party/verilog-axis'
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:20.4389064Z file:<home-path>/work/milan-fpga/milan-fpga/.git/modules/third_party/verilog-axis/config	remote.origin.url
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:20.4421108Z [command]/usr/bin/git config --file <home-path>/work/milan-fpga/milan-fpga/.git/modules/gptp-processor/config --name-only --get-regexp ^includeIf\.gitdir:
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:20.4458645Z [command]/usr/bin/git config --file <home-path>/work/milan-fpga/milan-fpga/.git/modules/protocol-processor/config --name-only --get-regexp ^includeIf\.gitdir:
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:20.4492416Z [command]/usr/bin/git config --file <home-path>/work/milan-fpga/milan-fpga/.git/modules/third_party/lwSRP/config --name-only --get-regexp ^includeIf\.gitdir:
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:20.4526723Z [command]/usr/bin/git config --file <home-path>/work/milan-fpga/milan-fpga/.git/modules/third_party/tsn-c-stack/config --name-only --get-regexp ^includeIf\.gitdir:
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:20.4560647Z [command]/usr/bin/git config --file <home-path>/work/milan-fpga/milan-fpga/.git/modules/third_party/verilog-axis/config --name-only --get-regexp ^includeIf\.gitdir:
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:20.4739943Z Cleaning up orphan processes
+firmware-boundary-capture (0)	UNKNOWN STEP	2026-11-25T17:14:20.5046940Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/cache@v4, actions/checkout@v4, actions/upload-artifact@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
