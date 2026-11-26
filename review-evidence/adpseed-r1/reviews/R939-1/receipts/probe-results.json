@@ -1,0 +1,298 @@
+{
+  "baseline": {
+    "build": "ok",
+    "failures": {}
+  },
+  "probe-discover-draw-sampled": {
+    "build": "ok",
+    "failures": {}
+  },
+  "probe-gm-change-draw-sampled": {
+    "build": "ok",
+    "failures": {
+      "adp_tests": {
+        "rc": 1,
+        "failed": [
+          "AdpCore.A28EachLeaveOfDownTakesAFreshSample",
+          "AdpCore.A29SequenceIsOfMaximumLength"
+        ],
+        "messages": [
+          "A28 a draw outside DOWN takes no sample",
+          "A28 the next LINK_UP takes a fresh sample",
+          "A29 one draw is one linear step",
+          "A29 the sequence returns after 2^32 - 1 draws"
+        ]
+      }
+    }
+  },
+  "probe-advertise-draw-sampled": {
+    "build": "ok",
+    "failures": {
+      "adp_tests": {
+        "rc": 1,
+        "failed": [
+          "AdpCore.A28EachLeaveOfDownTakesAFreshSample"
+        ],
+        "messages": [
+          "A28 a draw outside DOWN takes no sample",
+          "A28 the next LINK_UP takes a fresh sample"
+        ]
+      }
+    }
+  },
+  "probe-other-interface-rise-unsampled": {
+    "build": "ok",
+    "failures": {
+      "adp_tests": {
+        "rc": 1,
+        "failed": [
+          "AdpCore.A30EachQualifiedRiseTakesOneSample"
+        ],
+        "messages": [
+          "A30 a LINK_UP while disabled takes no sample",
+          "A30 the other interface's LINK_UP takes its own sample",
+          "A30 the startup draw takes one sample"
+        ]
+      }
+    }
+  },
+  "probe-enable-link-down-sampled": {
+    "build": "ok",
+    "failures": {
+      "adp_tests": {
+        "rc": 1,
+        "failed": [
+          "AdpCore.A28EachLeaveOfDownTakesAFreshSample",
+          "AdpCore.A30EachQualifiedRiseTakesOneSample"
+        ],
+        "messages": [
+          "A28 a draw outside DOWN takes no sample",
+          "A28 one sample is taken at LINK_UP and none with the link down",
+          "A28 the next LINK_UP takes a fresh sample",
+          "A30 a LINK_UP while disabled takes no sample",
+          "A30 a duplicate LINK_UP takes no sample",
+          "A30 an enable with the link down takes no sample",
+          "A30 each qualified LINK_UP takes one sample",
+          "A30 the other interface's LINK_UP takes its own sample",
+          "A30 the startup draw takes one sample"
+        ]
+      }
+    }
+  },
+  "probe-disable-sampled": {
+    "build": "ok",
+    "failures": {
+      "adp_tests": {
+        "rc": 1,
+        "failed": [
+          "AdpCore.A30EachQualifiedRiseTakesOneSample"
+        ],
+        "messages": [
+          "A30 a LINK_UP while disabled takes no sample",
+          "A30 the startup draw takes one sample"
+        ]
+      }
+    }
+  },
+  "probe-interface-low-bit-only": {
+    "build": "ok",
+    "failures": {}
+  },
+  "probe-startup-sample-ignored": {
+    "build": "ok",
+    "failures": {
+      "adp_debug": {
+        "rc": 1,
+        "failed": [
+          "AdpReentry.AdvertiseInlineExpiry"
+        ],
+        "messages": []
+      },
+      "adp_release": {
+        "rc": 1,
+        "failed": [
+          "AdpReentry.AdvertiseInlineExpiry"
+        ],
+        "messages": []
+      },
+      "adp_tests": {
+        "rc": 1,
+        "failed": [
+          "AdpCore.A22GeneratorNeverStuckAtZero",
+          "AdpCore.A25FirstDrawsAreUniformOverSamples",
+          "AdpCore.A27EverySeedTermIsMixedIn"
+        ],
+        "messages": [
+          "A22 a seed that mixes to zero starts the generator at 1",
+          "A25 one host's first draws over neighbouring samples are uniform (6.2.4.2.2)",
+          "A27 the seed is the sum of MAC address and clock (6.2.4.2.2)",
+          "A27 the sum carries end around (6.2.4.2.2)"
+        ]
+      }
+    }
+  },
+  "probe-draw-before-seed": {
+    "build": "ok",
+    "failures": {
+      "adp_tests": {
+        "rc": 1,
+        "failed": [
+          "AdpCore.A22GeneratorNeverStuckAtZero",
+          "AdpCore.A25FirstDrawsAreUniformOverSamples",
+          "AdpCore.A26NeighbouringHostsDrawUniformly",
+          "AdpCore.A31TheLinkUpsSampleSetsItsDraw"
+        ],
+        "messages": [
+          "A22 a seed that mixes to zero starts the generator at 1",
+          "A25 one host's first draws over neighbouring samples are uniform (6.2.4.2.2)",
+          "A26 neighbouring hosts started together draw uniformly (6.2.4.2.2)",
+          "A31 and draw uniformly from the sample taken at that LINK_UP",
+          "A31 boots that differ only in the sample at a LINK_UP draw apart"
+        ]
+      }
+    }
+  },
+  "probe-sample-low-half-only": {
+    "build": "ok",
+    "failures": {
+      "adp_debug": {
+        "rc": 1,
+        "failed": [
+          "AdpReentry.AdvertiseInlineExpiry"
+        ],
+        "messages": []
+      },
+      "adp_release": {
+        "rc": 1,
+        "failed": [
+          "AdpReentry.AdvertiseInlineExpiry"
+        ],
+        "messages": []
+      },
+      "adp_tests": {
+        "rc": 1,
+        "failed": [
+          "AdpCore.A22GeneratorNeverStuckAtZero"
+        ],
+        "messages": [
+          "A22 a seed that mixes to zero starts the generator at 1"
+        ]
+      }
+    }
+  },
+  "probe-plain-modular-sum": {
+    "build": "ok",
+    "failures": {
+      "adp_tests": {
+        "rc": 1,
+        "failed": [
+          "AdpCore.A22GeneratorNeverStuckAtZero",
+          "AdpCore.A27EverySeedTermIsMixedIn"
+        ],
+        "messages": [
+          "A22 a seed that mixes to zero starts the generator at 1",
+          "A27 the sum carries end around (6.2.4.2.2)"
+        ]
+      }
+    }
+  },
+  "probe-first-rise-sample-quantized": {
+    "build": "ok",
+    "failures": {
+      "adp_debug": {
+        "rc": 1,
+        "failed": [
+          "AdpReentry.AdvertiseInlineExpiry"
+        ],
+        "messages": []
+      },
+      "adp_release": {
+        "rc": 1,
+        "failed": [
+          "AdpReentry.AdvertiseInlineExpiry"
+        ],
+        "messages": []
+      },
+      "adp_tests": {
+        "rc": 1,
+        "failed": [
+          "AdpCore.A22GeneratorNeverStuckAtZero",
+          "AdpCore.A25FirstDrawsAreUniformOverSamples",
+          "AdpCore.A27EverySeedTermIsMixedIn"
+        ],
+        "messages": [
+          "A22 a seed that mixes to zero starts the generator at 1",
+          "A25 one host's first draws over neighbouring samples are uniform (6.2.4.2.2)",
+          "A27 the seed is the sum of MAC address and clock (6.2.4.2.2)",
+          "A27 the sum carries end around (6.2.4.2.2)"
+        ]
+      }
+    }
+  },
+  "probe-later-rise-sample-quantized": {
+    "build": "ok",
+    "failures": {
+      "adp_tests": {
+        "rc": 1,
+        "failed": [
+          "AdpCore.A28EachLeaveOfDownTakesAFreshSample",
+          "AdpCore.A31TheLinkUpsSampleSetsItsDraw"
+        ],
+        "messages": [
+          "A28 the next LINK_UP mixes its sample in",
+          "A31 and draw uniformly from the sample taken at that LINK_UP",
+          "A31 boots that differ only in the sample at a LINK_UP draw apart"
+        ]
+      }
+    }
+  },
+  "probe-base-core-under-head-tests": {
+    "build": "ok",
+    "failures": {
+      "adp_debug": {
+        "rc": 1,
+        "failed": [
+          "AdpReentry.AdvertiseInlineExpiry"
+        ],
+        "messages": []
+      },
+      "adp_release": {
+        "rc": 1,
+        "failed": [
+          "AdpReentry.AdvertiseInlineExpiry"
+        ],
+        "messages": []
+      },
+      "adp_tests": {
+        "rc": 1,
+        "failed": [
+          "AdpCore.A22GeneratorNeverStuckAtZero",
+          "AdpCore.A25FirstDrawsAreUniformOverSamples",
+          "AdpCore.A26NeighbouringHostsDrawUniformly",
+          "AdpCore.A27EverySeedTermIsMixedIn",
+          "AdpCore.A28EachLeaveOfDownTakesAFreshSample",
+          "AdpCore.A30EachQualifiedRiseTakesOneSample",
+          "AdpCore.A31TheLinkUpsSampleSetsItsDraw",
+          "AdpCore.MockedPortOrder"
+        ],
+        "messages": [
+          "A22 a seed that mixes to zero starts the generator at 1",
+          "A25 one host's first draws over neighbouring samples are uniform (6.2.4.2.2)",
+          "A26 neighbouring hosts started together draw uniformly (6.2.4.2.2)",
+          "A27 the MAC address is in the seed",
+          "A27 the seed is the sum of MAC address and clock (6.2.4.2.2)",
+          "A27 two interfaces sampled together draw apart",
+          "A28 the next LINK_UP mixes its sample in",
+          "A28 the next LINK_UP takes a fresh sample",
+          "A30 a LINK_UP while disabled takes no sample",
+          "A30 a duplicate LINK_UP takes no sample",
+          "A30 an enable with the link down takes no sample",
+          "A30 each qualified LINK_UP takes one sample"
+        ]
+      }
+    }
+  },
+  "restored_sha256": {
+    "src/adp.c": "8ca5bfa085dd3db8925700a1d728ce8f02b3645e811557aaf910ece3a594b2af"
+  }
+}

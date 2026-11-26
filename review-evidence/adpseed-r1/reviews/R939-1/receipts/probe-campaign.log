@@ -1,0 +1,16 @@
+probe-discover-draw-sampled ESCAPED (no test fails)
+probe-gm-change-draw-sampled CAUGHT by AdpCore.A28EachLeaveOfDownTakesAFreshSample, AdpCore.A29SequenceIsOfMaximumLength
+probe-advertise-draw-sampled CAUGHT by AdpCore.A28EachLeaveOfDownTakesAFreshSample
+probe-other-interface-rise-unsampled CAUGHT by AdpCore.A30EachQualifiedRiseTakesOneSample
+probe-enable-link-down-sampled CAUGHT by AdpCore.A28EachLeaveOfDownTakesAFreshSample, AdpCore.A30EachQualifiedRiseTakesOneSample
+probe-disable-sampled CAUGHT by AdpCore.A30EachQualifiedRiseTakesOneSample
+probe-interface-low-bit-only ESCAPED (no test fails)
+probe-startup-sample-ignored CAUGHT by AdpCore.A22GeneratorNeverStuckAtZero, AdpCore.A25FirstDrawsAreUniformOverSamples, AdpCore.A27EverySeedTermIsMixedIn, AdpReentry.AdvertiseInlineExpiry, AdpReentry.AdvertiseInlineExpiry
+probe-draw-before-seed CAUGHT by AdpCore.A22GeneratorNeverStuckAtZero, AdpCore.A25FirstDrawsAreUniformOverSamples, AdpCore.A26NeighbouringHostsDrawUniformly, AdpCore.A31TheLinkUpsSampleSetsItsDraw
+probe-sample-low-half-only CAUGHT by AdpCore.A22GeneratorNeverStuckAtZero, AdpReentry.AdvertiseInlineExpiry, AdpReentry.AdvertiseInlineExpiry
+probe-plain-modular-sum CAUGHT by AdpCore.A22GeneratorNeverStuckAtZero, AdpCore.A27EverySeedTermIsMixedIn
+probe-first-rise-sample-quantized CAUGHT by AdpCore.A22GeneratorNeverStuckAtZero, AdpCore.A25FirstDrawsAreUniformOverSamples, AdpCore.A27EverySeedTermIsMixedIn, AdpReentry.AdvertiseInlineExpiry, AdpReentry.AdvertiseInlineExpiry
+probe-later-rise-sample-quantized CAUGHT by AdpCore.A28EachLeaveOfDownTakesAFreshSample, AdpCore.A31TheLinkUpsSampleSetsItsDraw
+probe-base-core-under-head-tests CAUGHT by AdpCore.A22GeneratorNeverStuckAtZero, AdpCore.A25FirstDrawsAreUniformOverSamples, AdpCore.A26NeighbouringHostsDrawUniformly, AdpCore.A27EverySeedTermIsMixedIn, AdpCore.A28EachLeaveOfDownTakesAFreshSample, AdpCore.A30EachQualifiedRiseTakesOneSample, AdpCore.A31TheLinkUpsSampleSetsItsDraw, AdpCore.MockedPortOrder, AdpReentry.AdvertiseInlineExpiry, AdpReentry.AdvertiseInlineExpiry
+baseline clean
+rc 0
