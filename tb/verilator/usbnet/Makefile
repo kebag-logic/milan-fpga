@@ -11,7 +11,7 @@
 #   make clean
 #
 # The tap runs at a 1 MHz system clock so a millisecond is 1000 clocks:
-# 800 kb/s rate limit, 3200-octet burst, 3 ms host-record timeout.
+# 800 kb/s rate limit, 3200-octet burst, station-record heartbeat timeout.
 
 VERILATOR ?= verilator
 RTL       ?= ../../../hdl/usbnet
@@ -23,7 +23,7 @@ VFLAGS = --cc --exe --build -j 0 -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDS
 
 TAP_SRCS = $(RTL)/KL_usbnet_pkg.sv $(RTL)/KL_usbnet_rx_copy.sv $(RTL)/KL_usbnet_tx_inject.sv \
            $(RTL)/KL_usbnet_tx_arb.sv $(RTL)/KL_usbnet_tap.sv
-TAP_G    = -GCLK_HZ_P=1000000 -GRATE_BPS_P=800000 -GBURST_OCTETS_P=3200 -GHOST_TIMEOUT_MS_P=3
+TAP_G    = -GCLK_HZ_P=1000000 -GRATE_BPS_P=800000 -GBURST_OCTETS_P=3200
 
 .PHONY: all run tap leds mutants clean
 all: run

@@ -46,9 +46,8 @@ package KL_usbnet_pkg;
   localparam int unsigned HDR_OCTETS_C = 19;
 
   //! the record types of the bus-side length header (docs/design/USB_NET_PATH.md)
-  localparam logic [3:0] REC_FRAME_C  = 4'h0;  //! an Ethernet frame, either way
-  localparam logic [3:0] REC_HOST_C   = 4'h1;  //! the computer's address and USB state
-  localparam logic [3:0] REC_DETACH_C = 4'h2;  //! the computer left
+  localparam logic [15:0] REC_FRAME_C   = 16'h4E01;  //! an Ethernet frame, either way
+  localparam logic [15:0] REC_STATION_C = 16'h4E02;  //! FX3 station record, including detach
 
   //! receive-copy verdicts, one per frame the device received
   typedef enum logic [2:0] {

@@ -105,25 +105,50 @@ CONTROLS = [
      "    if (is_unreadable_tag(h))                       return TXV_SHAPE;\n", "",
      "double tag: verdict 0"),
     ("tx_too_long_passes", "tap", TXI,
-     "if (rlen_w < 12'd14 || rlen_w > 12'(MAX_LEN_P)) begin", "if (rlen_w < 12'd14) begin",
+     "if (len_r < 16'd14 || len_r > 16'(MAX_LEN_P)) begin", "if (len_r < 16'd14) begin",
      "too long: verdict"),
     ("tx_unknown_record_not_skipped", "tap", TXI,
-     "              pst_r <= (rlen_w == 12'd0) ? P_HDR : P_SKIP;\n            end\n          endcase",
+     "              pst_r <= (len_r == 16'd0) ? P_HDR : P_SKIP;\n            end\n          endcase",
      "              pst_r <= P_HDR;\n            end\n          endcase",
      "one verdict per frame record"),
     ("host_universal_accepted", "tap", PKG,
      "return !a[40] && a[41];", "return !a[40];",
      "a universally administered address is refused"),
     ("host_timeout_ignored", "tap", TXI,
-     "assign host_fresh_o = host_ok_o && (ms_r < 16'(HOST_TIMEOUT_MS_P));",
-     "assign host_fresh_o = host_ok_o;",
-     "a stale host record drops LD1"),
+     "if (ms_r >= timeout_ms_r) begin",
+     "if (1'b0) begin",
+     "a stale station record clears LD1 and the address"),
     ("usb_ok_ignores_superspeed", "tap", TAP,
-     "&& host_fresh_w && host_state_o[0];", "&& host_fresh_w;",
+     "&& host_state_o[2];", ";",
      "LD1 input needs SuperSpeed"),
     ("usb_ok_ignores_bus", "tap", TAP,
      "assign usb_ok_o = bus_alive_i && host_ok_o", "assign usb_ok_o = host_ok_o",
      "LD1 input needs the bus clock"),
+    ("station_mac_valid_ignored", "tap", TXI,
+     "if (flags_r[0] && host_mac_ok(mac_r)", "if (host_mac_ok(mac_r)",
+     "detach clears the computer"),
+    ("station_configured_ignored", "tap", TAP,
+     " && host_state_o[1]", "",
+     "LD1 input needs CONFIGURED"),
+    ("station_zero_heartbeat", "tap", TXI,
+     " && heartbeat_ms_r != 16'd0", "",
+     "zero heartbeat is refused"),
+    ("station_sequence_ignored", "tap", TXI,
+     "if (new_station_w) begin", "if (1'b1) begin",
+     "duplicate station does not renew freshness"),
+    ("station_mac_byte_order", "tap", TXI,
+     "3'd0: mac_r[47:32] <= {s_data_i[7:0], s_data_i[15:8]};",
+     "3'd0: mac_r[47:32] <= s_data_i;",
+     "station record sets the address"),
+    ("rx_kind_missing", "tap", RXC,
+     "O_HDR: if (take_w) ost_r <= O_KIND;", "O_HDR: if (take_w) ost_r <= O_DATA;",
+     "records toward the computer are well formed"),
+    ("local_tx_copy_missing", "tap", TAP,
+     ".s_valid_i (hi_valid_i && hi_ready_o)", ".s_valid_i (1'b0)",
+     "local TX copy follows receive rule and FX3 framing"),
+    ("local_tx_copy_wrong_last_keep", "tap", TAP,
+     "hi_last_i ? 8'(({1'b0, hi_be_i} << 1) - 9'd1) : 8'hFF", "8'hFF",
+     "local TX copy follows receive rule and FX3 framing"),
     # ---- the rate limit -------------------------------------------------------------------
     ("rate_four_times", "tap", TXI,
      "tok_r + TOK_W_C'(INC_C)", "tok_r + TOK_W_C'(4 * INC_C)",
@@ -186,7 +211,7 @@ def run(control: tuple[str, str, str, str, str, str], scratch: Path) -> str | No
     name, harness, fname, old, new, want = control
     work = scratch / name
     rtl = work / "rtl"
-    shutil.rmtree(work, ignore_errors=True)
+    work.mkdir(parents=True)  # Refuse reused evidence; every plant gets fresh scratch.
     shutil.copytree(RTL, rtl)
     src = (rtl / fname).read_text()
     n = src.count(old)
@@ -197,6 +222,7 @@ def run(control: tuple[str, str, str, str, str, str], scratch: Path) -> str | No
     p = subprocess.run(["make", "-C", str(HERE), harness, f"RTL={rtl}", f"OBJ={work / 'obj'}"],
                        capture_output=True, text=True)
     out = p.stdout + p.stderr
+    (work / "run.log").write_text(out)
     fails = [l for l in out.splitlines() if l.startswith("FAIL ") and ".cpp:" in l]
     if p.returncode == 0:
         return "NOT CAUGHT (the harness passed)"

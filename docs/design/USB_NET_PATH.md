@@ -21,6 +21,8 @@ No other board's build carries a line of it.
                               ▼
                         KL_usbnet_rx_copy ──► up: records toward the computer
  datapath ─► tx_sf (store-and-forward) ─► KL_usbnet_tx_arb ─► MAC core TX ─► PHY
+                    │ accepted device TX beats
+                    └────► second KL_usbnet_rx_copy ──► up record arbiter
                                               ▲   (strict priority to tx_sf)
                         KL_usbnet_tx_inject ──┘◄── dn: records from the computer
 ```
@@ -33,8 +35,10 @@ are taken and discarded, and the bus reads as down (LD1 off).
 
 ## 2. Receive copy (frames toward the computer)
 
-The copy reads the frames the device itself takes, after its MAC core and
-before its datapath, and never pushes back. The device's own reception is
+Two independent copies read the frames the device takes from the MAC and
+the device's own accepted transmit frames. Both apply the same rule and
+never push back. A record arbiter alternates complete records when both
+wait; their length, kind and payload never interleave. The device's own reception is
 unchanged, and unicast frames addressed to the device stay with it. Rules, in
 order (`KL_usbnet_pkg::rx_rule`):
 
@@ -61,7 +65,7 @@ order (`KL_usbnet_pkg::rx_rule`):
   #1011 and usb-audio#5 also name MVRP among the excluded protocols. MVRP and
   MMRP use 01-80-C2-00-00-21 and -20 (Table 10-1), so the MRP application
   block -20 to -2F is excluded too.
-- **Room.** The copy holds 4 KiB of frames (one RAMB36) and 16 frame lengths. A
+- **Room.** Each copy holds 4 KiB of frames (one RAMB36) and 16 frame lengths. A
   frame that would be copied but finds no room is dropped whole and counted.
 
 ## 3. Transmit injection (frames from the computer)
@@ -72,7 +76,7 @@ check for the length):
 
 | Refused | Why |
 |---|---|
-| a length below 14 octets (19 with a tag, 15 for AVTP) or above 1518 | not a frame the path carries |
+| a length below 14 octets (19 with a tag, 15 for AVTP) or above 1515 | not a frame the path carries |
 | a source that is not the computer's address | #1011: the computer sends only as itself |
 | a destination in 01-80-C2-00-00-0x or -2x | no gPTP, SRP, MVRP or LLDP from the computer |
 | two IEEE 802.1Q tags | the rules cannot read the subtype |
@@ -92,7 +96,7 @@ every SR class frame and every frame of the device's own control plane.
 - **What a datapath frame can wait for.** At most the one injected frame
   already granted. That is the lower-priority interference IEEE 802.1Q-2018
   Annex L and IEEE 802.1BA-2011 6.5 already budget. On the Arty's 100 Mb/s link,
-  the longest injected frame is 1542 octets on the wire, 123.4 us.
+  the longest injected frame is 1539 octets on the wire, 123.2 us.
 - **No second injected frame ahead.** None can be queued in front of a datapath
   frame, because the next grant again needs the MAC empty of datapath frames.
 - **No added latency otherwise.** With no injection, the datapath passes
@@ -123,52 +127,60 @@ the observer's frame ordinal is unchanged.
 
 ## 4. The bus records
 
-Both streams carry records of 16-bit words. The record's octets go two per
-word, the first octet in bits 7:0, and an odd length is padded with a zero
-octet. Each record starts with one header word:
+The byte contract is [usb-audio PR #7, docs/NETWORK.md](https://github.com/kebag-logic/usb-audio/blob/ca34e0d2272eb14e126f8f6d67a98ee596057ff6/docs/NETWORK.md),
+adopted by the [interface amendment](https://github.com/kebag-logic/milan-fpga/issues/1011#issuecomment-7186353239).
+Both streams carry 16-bit words, low octet first. An odd payload ends with
+one zero pad octet. Each record starts with two words:
 
-| Bits | Field |
+| Word | Field |
 |---|---|
-| 15:12 | type |
-| 11:0 | length in octets, the header excluded |
+| 0 | payload length in octets, header and padding excluded |
+| 1 | kind: 0x4E01 Ethernet frame, 0x4E02 station |
 
-| Type | Direction | Length | Payload |
-|---|---|---|---|
-| 0 FRAME | both | 14 to 1518 | an Ethernet frame without its FCS |
-| 1 HOST | to the FPGA | 8 | the computer's address (6 octets, first octet first), then the USB state word (2 octets, low octet first) |
-| 2 DETACH | to the FPGA | 0 | the computer left: the address is cleared |
+A frame toward the computer has 14 to 1514 octets without FCS; a frame from
+it has 14 to 1515 octets, including the possible USB short-transfer pad.
+Each record toward the computer ends with `last` on its final word, for the
+slave-FIFO master's PKTEND#. There is no incoming boundary signal.
+Unknown kinds and wrong lengths are consumed by the full 16-bit length and
+counted. A checked frame waits for whole-frame buffer room.
 
-- **The USB state word.** Bit 0: configured at SuperSpeed. Bit 1: the network
-  function is active. Other bits are reserved and sent as 0.
-- **When the USB device sends HOST.** At every connection, with the newly
-  generated address, then at least once a second while connected. A HOST whose
-  address is a group address, or is not locally administered, is refused,
-  counted and treated as DETACH.
-- **Unknown records.** Any other type, or a HOST or DETACH of another length,
-  is skipped by its length and counted. The parser stays in step, because the
-  length is the only framing the bus has.
-- **Toward the computer.** Each record ends with `last` on its final word, so a
-  slave-FIFO master can commit the USB transfer there (PKTEND#).
-- **Backpressure.** From the computer, a frame whose header has arrived waits,
-  backpressured, until the buffer holds the whole frame (4 KiB, one RAMB36), so
-  a frame is never cut.
+The station record has exactly 16 payload octets:
+
+| Offset | Size | Field |
+|---|---|---|
+| 0 | 6 | computer MAC, first octet first |
+| 6 | 2 | flags: bit 0 MAC_VALID, bit 1 CONFIGURED, bit 2 SUPERSPEED, bit 3 DATA_ACTIVE |
+| 8 | 2 | CDC packet filter |
+| 10 | 2 | sequence, incremented for each record |
+| 12 | 2 | heartbeat period in milliseconds |
+| 14 | 2 | low 16 bits of the configuration digest |
+
+MAC_VALID clear detaches the station and clears its address. An invalid
+address or zero heartbeat also clears it. A valid address is individual and
+locally administered. The packet filter and digest words are consumed; the
+FX3 owns the host's filter, and this thread-agnostic FPGA attachment does not
+compare configuration digests. It sends no separate detach record.
+
+The sequence comparison accepts a forward delta of 1 through 32767,
+including wrap. A duplicate or older record is counted and cannot renew
+freshness or replace the current station. Reset or expiry permits the next
+sequence to start afresh. Queued records do not establish their wall-clock
+creation time; the freshness interval starts when a new record is received.
 
 ## 5. The signals for LD1 (the USB device firmware's side)
 
-LD1 "the USB 3.0 path works" needs no wire beyond the slave-FIFO bus. It is on
-while all of these hold:
+LD1 requires all of the following:
 
-1. **bus alive.** The slave-FIFO master reports its bus clock running
-   (`usbnet_bus.alive`, a level from the master, with PCLK out of reset and its
-   clock locked).
-2. **address held.** A HOST record arrived and was not followed by a DETACH.
-3. **fresh.** The last HOST record is at most 3 s old.
-4. **SuperSpeed.** Bit 0 of the last HOST record's state word is set.
+1. The slave-FIFO master reports PCLK running (`usbnet_bus.alive`).
+2. A valid station address is held.
+3. The last new station record arrived less than three of its heartbeat
+   periods ago.
+4. MAC_VALID, CONFIGURED and SUPERSPEED are all set.
 
-So the USB device firmware owes: a HOST record at every connection and at
-least once a second, its state word kept current, and a DETACH on a
-disconnection it can still report. A firmware that stops sending HOST records
-turns LD1 off within 3 s.
+DATA_ACTIVE is not an LD1 condition. At expiry both the address and LD1
+clear. The FX3 sends a station record at every state change and each
+heartbeat (100 ms in its example), including after disconnection with
+MAC_VALID clear. No separate register-write control path is required.
 
 ## 6. Status LEDs (#1018)
 
@@ -222,7 +234,7 @@ image without them moves.
 ## 8. Verification
 
 - `tb/verilator/usbnet` (`make`, `make mutants`):
-  - **tap harness.** Every receive class, the transmit drops, the host record
+  - **tap harness.** Every receive class, the transmit drops, the station record
     and LD1's inputs, a full buffer, and the rate limit. The best-effort-only
     injection is checked against a class A-like datapath stream with the
     computer's side saturating its rate limit, with and without a stalling MAC:
@@ -231,6 +243,10 @@ image without them moves.
     - a datapath frame waits at most one injected frame;
     - the datapath frames leave intact and in order;
     - the frame-end toggle counts the datapath frames only.
+  - **Device transmit copy.** Unicast to the computer, broadcast and
+    multicast pass; other unicast, stream subtypes, reserved destinations
+    and oversized records do not. With USB draining or stalled, the device
+    has identical transmit departure cycles and frame-end accounting.
   - **LED harness.** Each LED through each state, the blink and its hold, and
     the duty.
   - **planted defects.** One per rule, each required to fail its named check
