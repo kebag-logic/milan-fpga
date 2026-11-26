@@ -8466,10 +8466,10 @@ def _m_fast_verdict_drops(jid: str) -> Mutator:
     """The fast verdict with `jid`'s result pair removed from its loop."""
     def f(w: World) -> None:
         """Apply the arm's edit to `w` in place."""
-        step = jobs(w[RTL_FAST])[FAST_AGGREGATE_JOB]["steps"][0]
-        pair = f'"{jid}:${fast_result_env_name(jid)}" \\\n'
-        lines = [line for line in step["run"].split("\n") if line.strip() != pair.strip()]
-        step["run"] = "\n".join(lines)
+        step = next(step for step in jobs(w[RTL_FAST])[FAST_AGGREGATE_JOB]["steps"]
+                    if step.get("name") == "Require every applicable fast gate to pass")
+        pair = f'"{jid}:${fast_result_env_name(jid)}" \\'
+        step["run"] = "\n".join(line for line in step["run"].split("\n") if line.strip() != pair)
     return f
 
 
@@ -8549,7 +8549,7 @@ def _mutations(pristine: World) -> list[Arm]:
             + _rv32_sdk_arms()
             + _tool_cache_arms(pristine)
             + _install_cache_arms(pristine)
-            + _firmware_layout_arms() + _boundary_leg_arms() + _fast_leg_arms()
+            + _firmware_layout_arms() + _boundary_leg_arms()
             + _docs_carrier_arms()
             + _elaborate_arms()
             + _decoy_name_arms()
@@ -9114,6 +9114,23 @@ def _selftest_generated_gates(pristine: World) -> tuple[list[str], int]:
     return problems, arms
 
 
+def _selftest_fast_legs(pristine: World) -> tuple[list[str], int]:
+    """#1008: each fast-leg arm, applied to the actual generated graph, is refused by check() with its own words.
+    These legs exist in the generated rtl-fast.yml only, so they are not among the template arms."""
+    problems, arms = [], 0
+    for name, mutate, want in _fast_leg_arms():
+        world = copy.deepcopy(pristine)
+        mutate(world)
+        arms += 1
+        findings = check(world).findings
+        if any(want in finding for finding in findings):
+            print(f"  ok   caught: {name}")
+        else:
+            problems.append(f"mutation not caught: [{name}] expected a finding naming {want!r}, got "
+                            f"{findings or 'no findings'}")
+    return problems, arms
+
+
 def selftest(root: pathlib.Path) -> int:
     """`--selftest`: the gate's own proof, stage by stage in the order it
     prints. Returns the exit code: 0 when every arm bit, 1 when any did not,
@@ -9141,6 +9158,7 @@ def selftest(root: pathlib.Path) -> int:
     # stay in the order the arms were written.
     checked_arms = 0
     for found, arms in (_selftest_generated_gates(generated_pristine),
+                        _selftest_fast_legs(generated_pristine),
                         _selftest_arms(pristine),
                         _selftest_cannot_run(root),
                         _selftest_on_disk(root),
