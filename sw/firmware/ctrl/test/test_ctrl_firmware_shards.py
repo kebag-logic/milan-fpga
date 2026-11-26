@@ -28,7 +28,7 @@ def argument(value: object) -> object:
 
 
 def inventory(module: ModuleType, shard: tuple[int, int] | None = None,
-              extra_suite: bool = False) -> list[str]:
+              extra_suite: bool = False, mutation_shard: tuple[int, int] | None = None) -> list[str]:
     """Discover dispatch through the real driver, intercepting expensive entry points.
 
     Composite arm builders still enumerate their live shapes and suites.
@@ -37,7 +37,7 @@ def inventory(module: ModuleType, shard: tuple[int, int] | None = None,
     """
     calls = []
     args = SimpleNamespace(shard=shard, self_test=True, jobs=4, slice=(1, 1),
-                           mutation_shard=None, require_rv32=True,
+                           mutation_shard=mutation_shard, require_rv32=True,
                            lwsrp=module.CTRL.parents[2] / "third_party/lwSRP")
     tree = Tree(module.CTRL, Path("dispatch-build"), Path("dispatch-reuse"),
                 module.fw_gtest.Build(jobs=4))
@@ -158,6 +158,48 @@ def run_cases(module: ModuleType = driver) -> list[list[str]]:
           f"shard sizes {[len(shard) for shard in shards]}")
     refusal_cases(module)
     return shards
+
+
+#: The campaign controls every leg of a phase runs before its own defects (#1008).
+CAMPAIGN_CONTROLS = frozenset({"control:unnamed-tests", "aecp:controls"})
+
+
+def campaign_cases(module: ModuleType, shard: tuple[int, int], count: int) -> list[list[str]]:
+    """Prove the legs of one campaign phase plant each of its live defects exactly once (#1008).
+
+    Each leg is discovered through the real driver, as inventory() discovers a shard; every leg runs
+    the phase's controls, and the union of the legs' defects is the phase's, with none twice.
+    """
+    expected = inventory(module, shard)
+    legs = [inventory(module, shard, mutation_shard=(index, count)) for index in range(count)]
+    controls = [call for call in expected if call in CAMPAIGN_CONTROLS]
+    defects = [call for call in expected if call not in CAMPAIGN_CONTROLS]
+    assert controls and defects, f"phase {shard[0]} has no campaign to divide"
+    assert all([call for call in leg if call in CAMPAIGN_CONTROLS] == controls for leg in legs), \
+        "a campaign leg lost or repeated its phase's controls"
+    planted = [[call for call in leg if call not in CAMPAIGN_CONTROLS] for leg in legs]
+    assert all(planted), "a campaign leg plants nothing"
+    assert not any(differences(defects, planted).values()), differences(defects, planted)
+    for label, bad in (("dropped leg", planted[:-1]), ("duplicated leg", planted + planted[:1])):
+        assert any(differences(defects, bad).values()), f"escaped planted {label}"
+        print(f"PASS: campaign legs reject a planted {label}")
+    for argv in (["--shard", "0/4", "--self-test", "--campaign-shard", "0", "2"],
+                 ["--shard", "3/4", "--self-test", "--campaign-shard", "0", "2"],
+                 ["--shard", f"{shard[0]}/4", "--campaign-shard", "0", "2"],
+                 ["--self-test", "--campaign-shard", "0", "2"],
+                 ["--shard", f"{shard[0]}/4", "--self-test", "--campaign-shard", "2", "2"],
+                 ["--shard", f"{shard[0]}/4", "--self-test", "--campaign-shard", "0", "2",
+                  "--mutation-shard", "0", "2"]):
+        with redirect_stderr(StringIO()):
+            try:
+                module.main(argv)
+            except SystemExit as exc:
+                assert exc.code == 2, (argv, exc.code)
+            else:
+                raise AssertionError(f"accepted invalid campaign arguments: {argv}")
+    print(f"PASS: {len(defects)} live defects of phase {shard[0]} in exactly one of {count} legs, "
+          f"leg sizes {[len(leg) for leg in planted]}; six invalid campaign combinations refuse")
+    return planted
 
 
 def main() -> int:

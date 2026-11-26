@@ -132,6 +132,9 @@ coverage builds) and runs none; it plants nothing and ends BUILT, never PASS.
 The TSN stack boundary gate's builds are such runs (ctrl_configs.BUILDERS):
 the boundary needs the compiles, not the tests (#697).
 
+--campaign-shard INDEX COUNT further divides a mutation phase of --shard.
+The complete live table is dealt in order, with each defect in exactly one leg.
+
 --shard INDEX/4 schedules the complete gate across four jobs: normal suites,
 control mutants, AECP mutants, and SRP mutants with the pin controls.
 It requires --self-test and cannot narrow coverage or another partition.
@@ -328,6 +331,8 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--self-test", action="store_true", help="also plant every defect and require it caught")
     ap.add_argument("--shard", type=shard_part, metavar="INDEX/4",
                     help="with --self-test: one of four exhaustive, disjoint phase partitions")
+    ap.add_argument("--campaign-shard", nargs=2, type=int, metavar=("INDEX", "COUNT"),
+                    help="divide the control or AECP phase of --shard into exhaustive mutation legs")
     ap.add_argument("--mutation-shard", nargs=2, type=int, metavar=("INDEX", "COUNT"),
                     help="with --self-test: run zero-based INDEX of COUNT mutation partitions")
     ap.add_argument("--build-dir", type=Path, help="keep builds here (default: a temporary directory)")
@@ -344,6 +349,15 @@ def main(argv: list[str] | None = None) -> int:
     if args.shard is not None and (not args.self_test or args.coverage is not None
                                   or args.mutation_shard is not None or args.slice != (1, 1)):
         ap.error("--shard requires --self-test and excludes --coverage, --mutation-shard and --slice")
+    if args.campaign_shard is not None:
+        index, count = args.campaign_shard
+        if (args.shard is None or args.shard[0] not in (1, 2) or not args.self_test
+                or args.mutation_shard is not None or args.slice != (1, 1)
+                or args.coverage is not None or args.build_only):
+            ap.error("--campaign-shard requires control or AECP --shard and --self-test alone")
+        size = len(ctrl_mutants.MUTANTS if args.shard[0] == 1 else aecp_mutants.DEFECTS)
+        if not 0 <= index < count <= size:
+            ap.error("campaign shard requires 0 <= INDEX < COUNT <= campaign size")
     fw_gtest.EXECUTION.run = not args.build_only
     if args.mutation_shard is not None:
         index, count = args.mutation_shard
@@ -354,8 +368,12 @@ def main(argv: list[str] | None = None) -> int:
     if args.coverage is not None:
         return coverage(args.coverage.resolve(), args.lwsrp, args.jobs)
     if args.shard is not None:
-        from test_ctrl_firmware_shards import run_cases
+        from test_ctrl_firmware_shards import campaign_cases, run_cases
         run_cases(sys.modules[__name__])
+        if args.campaign_shard is not None:
+            campaign_cases(sys.modules[__name__], args.shard, args.campaign_shard[1])
+    if args.campaign_shard is not None:
+        args.mutation_shard = args.campaign_shard
     print(f"toolchain: {fw_gtest.toolchain()}")
     with tempfile.TemporaryDirectory(prefix="ctrl-fw-") as tmp:
         out = args.build_dir.resolve() if args.build_dir else Path(tmp)
