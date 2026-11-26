@@ -163,7 +163,8 @@ PLANTS = (('reference_magic',
   'packet',
   (("{frames_r, 4'b0}-1'b1", "{frames_r, 4'b0}-2'd2"),),
   'PACKET_WHOLE_FRAME'),
- ('gpif_address', 'gpif', 'gpif', (('address_o <= 3;', 'address_o <= 2;'),), 'GPIF_AUDIO_ADDRESSES'),
+ ('gpif_address', 'gpif', 'gpif',
+  (('address_o <= next_address_w;', 'address_o <= 2;'),), 'GPIF_AUDIO_ADDRESSES'),
  ('gpif_blocked_status',
   'gpif',
   'gpif',
@@ -214,7 +215,7 @@ def main() -> int:
             content = original
             if filename == f"KL_usbaudio_{leaf}.sv":
                 for old, new in edits:
-                    required = 2 if name == "gpif_address" else 1
+                    required = 1
                     if content.count(old) != required:
                         raise RuntimeError(f"{name}: expected {required} plant locations")
                     content = content.replace(old, new)

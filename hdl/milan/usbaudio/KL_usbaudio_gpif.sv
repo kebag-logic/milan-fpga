@@ -38,6 +38,7 @@ module KL_usbaudio_gpif #(
   state_t state_r, next_w;
   logic [3:0] delay_r;
   logic read_turn_r, status_turn_r;
+  (* dont_touch = "TRUE" *) logic [1:0] selected_socket_r;
   logic [15:0] rx_r;
   logic [31:0] status_age_r;
   (* IOB = "TRUE" *) logic [15:0] captured_r;
@@ -45,8 +46,13 @@ module KL_usbaudio_gpif #(
   wire rst_n_w, cap_rst_n_w;
   KL_usbaudio_reset capture_reset (.clk_i(capture_clk_i), .reset_i(reset_i), .rst_n(cap_rst_n_w));
   KL_usbaudio_reset release_reset (.clk_i(clk_i), .reset_i(reset_i), .rst_n(rst_n_w));
-  wire selected_status_w = address_o == 1;
-  wire selected_read_w = address_o == 3;
+  // Keep scheduler loads off the address pad registers so both pack in OLOGIC.
+  wire selected_status_w = selected_socket_r == 1;
+  wire selected_read_w = selected_socket_r == 3;
+  wire [1:0] next_address_w =
+    status_valid_i && status_age_r >= BUS_HZ_P/2000 && status_turn_r ? 2'd1 :
+    read_turn_r ? 2'd3 : capture_valid_i ? 2'd0 :
+    status_valid_i && status_turn_r ? 2'd1 : 2'd3;
   wire tx_valid_w = selected_status_w ? status_valid_i : capture_valid_i && !capture_abort_i;
   wire take_read_w = selected_read_w && flag_sync_r && rx_ready_i;
   wire take_write_w = !selected_read_w && flag_sync_r && tx_valid_w;
@@ -94,6 +100,7 @@ module KL_usbaudio_gpif #(
       dq_o <= 0;
       dq_t_o <= '1;
       address_o <= 0;
+      selected_socket_r <= 0;
       slwr_n_o <= 1;
       slrd_n_o <= 1;
       sloe_n_o <= 1;
@@ -112,11 +119,8 @@ module KL_usbaudio_gpif #(
         SELECT_S: begin
           // A due status gets a turn between audio opportunities. Even an
           // unready status socket cannot suppress state or PCM service.
-          if (status_valid_i && status_age_r >= BUS_HZ_P/2000 && status_turn_r) address_o <= 1;
-          else if (read_turn_r) address_o <= 3;
-          else if (capture_valid_i) address_o <= 0;
-          else if (status_valid_i && status_turn_r) address_o <= 1;
-          else address_o <= 3;
+          address_o <= next_address_w;
+          selected_socket_r <= next_address_w;
           delay_r <= 6;
         end
         CHECK_S: begin
