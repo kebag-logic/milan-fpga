@@ -1,0 +1,17 @@
+  probe rx len=1514: copied=1 record length field=1514 verdict=1
+PASS rx_len_1514
+  probe rx len=1518: copied=1 record length field=1518 verdict=1
+PASS rx_len_1518
+  probe rx len=1519: copied=1 record length field=1519 verdict=1
+FAIL $PACKET/scratch/probe_rxlen/sim_probe.cpp:628: a FRAME record toward the computer is 14 to 1518 octets (USB_NET_PATH.md section 4): 1519
+FAIL rx_len_1519
+  probe rx len=1600: copied=1 record length field=1600 verdict=1
+FAIL $PACKET/scratch/probe_rxlen/sim_probe.cpp:628: a FRAME record toward the computer is 14 to 1518 octets (USB_NET_PATH.md section 4): 1600
+FAIL rx_len_1600
+  probe rx len=2000: copied=1 record length field=2000 verdict=1
+FAIL $PACKET/scratch/probe_rxlen/sim_probe.cpp:628: a FRAME record toward the computer is 14 to 1518 octets (USB_NET_PATH.md section 4): 2000
+FAIL rx_len_2000
+  probe rx len=2001: copied=0 record length field=-1 verdict=5
+PASS rx_len_2001
+FAIL: 3 failure(s)
+probe rc=1

@@ -1,0 +1,10 @@
+  probe also_eth=1 n_inject=1: datapath frames out 4, datapath ends counted 4 of 4, injected after the reset 3 of 3, passed=3 injected_ctr=3
+PASS both_sides_reset_after_1
+  probe also_eth=0 n_inject=2: datapath frames out 4, datapath ends counted 4 of 4, injected after the reset 3 of 3, passed=3 injected_ctr=3
+PASS sys_side_reset_after_2
+  probe also_eth=0 n_inject=1: datapath frames out 4, datapath ends counted 3 of 4, injected after the reset 0 of 3, passed=3 injected_ctr=0
+FAIL $PACKET/scratch/probe_reset/sim_probe.cpp:644: after the reset the computer's frames are injected again (0 of 3)
+FAIL $PACKET/scratch/probe_reset/sim_probe.cpp:645: after the reset every datapath frame end counts (3 of 4)
+FAIL sys_side_reset_after_1
+FAIL: 2 failure(s)
+probe rc=1

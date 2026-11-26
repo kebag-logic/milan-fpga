@@ -1,0 +1,28 @@
+== scripts/lint_rtl.py --check
+  hdl/milan/KL_pp_shadow.sv:259:24: SYNCASYNCNET  Signal flopped as both synchronous and async: 'rst_n'
+  hdl/milan/milan_datapath.sv:509:15: SYNCASYNCNET  Signal flopped as both synchronous and async: 'axis_resetn'
+LINT GATE: PASS (89 violation(s) <= ratchet 89; 20 waived, 0 justified lint_off)
+rc=0
+== scripts/check_em_dash.py --base c34e7d8b06739a22cc79997a9a1f4cbcd9bd0350
+check_em_dash: cannot judge: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r tools/markdown/requirements.txt
+rc=2
+== scripts/docs_check.py
+docs_check: 0 finding(s) across 227 md files + 1973 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+rc=0
+== scripts/check_sv_idiom.py
+SystemVerilog idiom gate: OK (151 first-party HDL file(s) across the superproject and both processor submodules, every one .sv/.svh; 0 generic `always`; 0 reg <= 0; 0 untyped parameter <= 0; 0 untyped localparam <= 0)
+rc=0
+== scripts/check_port_contracts.py
+port contract gate: OK (4633 first-party port(s): hdl 2716, gptp-processor 127, protocol-processor 1790; 347 undocumented: hdl 217 <= 217, gptp-processor 19 <= 19, protocol-processor 111 <= 111; 0 wildcard, 0 positional, 0 hierarchical binding)
+  review inventory: 94 open and 50 literal-bound named connection(s), 58 without a local rationale (all recorded; none may be added); 477 test-only hierarchical observation(s)
+rc=0
+== scripts/check_py_idiom.py
+  too many parameters: 7 <= 7
+  global statement: 0 <= 0
+  over-long line: 0 <= 0
+rc=0
+== scripts/check_cpp_idiom.py
+  multi-declarator declaration: 0 <= 0
+  long function: 0 <= 0
+  build without warnings: 0 <= 0
+rc=0
