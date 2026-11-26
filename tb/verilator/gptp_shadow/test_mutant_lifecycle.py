@@ -162,9 +162,9 @@ def normal(parent: Path, mode: str, repeat: bool = False) -> None:
         if mode == "detect":
             for name, _path, _old, _new, expect in MUTATIONS:
                 assert f'{name}: caught by "{expect}"' in output, output
-            assert "controls: 13   failures: 0\nRESULT: PASS" in output, output
+            assert "controls: 16   failures: 0\nRESULT: PASS" in output, output
         else:
-            assert "RESULT: PASS" not in output and "controls: 13   failures: 13" in output, output
+            assert "RESULT: PASS" not in output and "controls: 16   failures: 16" in output, output
             assert ("no completed suite tally" if mode == "build" else "stayed green") in output, output
         probe.save(dict(exit=status, iteration=iteration, mutations=seen,
                         source_unchanged=True, scratch_removed=True))
@@ -192,10 +192,10 @@ def accepted(parent: Path, kind: str) -> None:
     before = snapshot(root)
     probe.start([sys.executable, str(root / DRIVER)])
     status, output = probe.finish()
-    assert status == 0 and "controls: 13   failures: 0\nRESULT: PASS" in output, output
+    assert status == 0 and "controls: 16   failures: 0\nRESULT: PASS" in output, output
     assert snapshot(root) == before, "caller inputs changed"
     assert not Path((probe.control / "workspace").read_text()).exists(), "scratch survived"
-    probe.save(dict(exit=status, accepted=kind, controls=13, source_unchanged=True))
+    probe.save(dict(exit=status, accepted=kind, controls=16, source_unchanged=True))
 
 
 def interrupted(parent: Path, signum: int, unsafe: bool = False) -> None:
@@ -438,7 +438,7 @@ def main() -> int:
                 interrupted(parent, signal.SIGKILL, unsafe=True)
             for signum in (signal.SIGINT, signal.SIGTERM):
                 outer_cancellation(parent, signum)
-    print("mutant lifecycle: PASS (normal/repeat, thirteen named defects, survivor, build, unread-file and "
+    print("mutant lifecycle: PASS (normal/repeat, sixteen named defects, survivor, build, unread-file and "
           "Git-setting acceptance, input/Git-redirect/record/facility refusals, INT/TERM/KILL, "
           "unsafe negative controls)")
     return 0
