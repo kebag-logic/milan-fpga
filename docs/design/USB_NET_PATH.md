@@ -297,6 +297,12 @@ Boot and configuration changes initialize the complete observation.
 Unchanged indications cause no register write.
 No idle callback scans the production adapter context.
 Counter observations follow the existing counter-event delivery cadence.
+Failed observations remain pending in their original change handler.
+Its continuation retries one failed descriptor per 250 ms.
+Round-robin selection prevents a stuck descriptor starving another.
+Successful observations leave that retry queue.
+Ticks perform no retry reads; healthy idle service reads nothing.
+Thus recovery requires no further clock or listener edge.
 
 The firmware compiles this code
 only where the SoC has the register: `ctrl_plat_gen.py` emits `CTRL_PLAT_LEDS`

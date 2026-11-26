@@ -6159,6 +6159,51 @@ TEST_F(LedEvents, TicksAndIdlePollsNeverObserveLeds)
     EXPECT_EQ(led_writes.size(),writes)<<"ticks and idle polls never write the LED register";
 }
 
+TEST_F(LedEvents, FailedDomainObservationRetriesWithoutAnotherLockEdge)
+{
+    unsigned input=0;for(auto &d:descriptors)if(d.type==10&&get(d.value+72,2)==2){input=get(d.value+84,2);break;}
+    binding(input,true);lock(5,input,true);clock(2,input);
+    far.silent_counter=0u;lock(36,0,true);EXPECT_EQ(word(),1u)<<"failed acquisition stays dark";
+    far.silent_counter=33u;mbx_model_advance_ms(&fabric,250);service();
+    EXPECT_EQ(word(),3u)<<"failed domain read recovers without another domain edge";
+    EXPECT_FALSE(bridge.led_retry_pending)<<"successful retry retires the failed observation";
+}
+
+TEST_F(LedEvents, FailedInactiveOutputRetriesWithoutTrafficOrListenerChange)
+{
+    far.silent_gsi=0u;reservation.ifs[0].listener_present[0]=true;
+    reservation.ifs[0].registered[0]=false;application.srp_noticed=1u;service();
+    EXPECT_EQ(word()&1u,0u)<<"failed output observation stays dark";
+    far.silent_gsi=16u;mbx_model_advance_ms(&fabric,250);service();
+    EXPECT_EQ(word()&1u,1u)<<"inactive listener recovers without traffic or another listener change";
+    EXPECT_FALSE(bridge.led_retry_pending)<<"successful output retry retires the failed observation";
+}
+
+TEST_F(LedEvents, FailedObservationsAreBoundedFairAndNeverReadInTicks)
+{
+    far.silent_counter=0u;lock(36,0,true);
+    far.silent_gsi=0u;reservation.ifs[0].listener_present[0]=true;application.srp_noticed=1u;service();
+    auto reads=far.requests[MBX_WIN_CTR];auto outputs=far.requests[MBX_WIN_GSI];
+    for(unsigned n=0;n<30;++n)for(unsigned i=0;i<application.loop.n_ticks;++i)application.loop.ticks[i]();
+    EXPECT_EQ(far.requests[MBX_WIN_CTR],reads)<<"failed observations do not read counters from ticks";
+    EXPECT_EQ(far.requests[MBX_WIN_GSI],outputs)<<"failed observations do not read outputs from ticks";
+    service(200);EXPECT_EQ(far.requests[MBX_WIN_GSI],outputs)<<"failed output waits for its retry interval";
+    far.silent_gsi=16u;
+    for(unsigned n=0;n<4;++n){mbx_model_advance_ms(&fabric,250);service();}
+    EXPECT_EQ(word()&1u,1u)<<"a stuck domain never starves output recovery";
+}
+
+TEST_F(LedEvents, NewFailuresNeverPostponeAnOlderRetry)
+{
+    far.silent_gsi=0u;reservation.ifs[0].listener_present[0]=true;application.srp_noticed=1u;service();
+    ASSERT_TRUE(bridge.led_retry_pending);far.silent_gsi=16u;far.silent_counter=0u;
+    for(unsigned n=0;n<12;++n){
+        mbx_model_advance_ms(&fabric,100);service();
+        lock(5,0,true);lock(36,0,true);
+    }
+    EXPECT_EQ(word()&1u,1u)<<"new failures never postpone recovery of an older readable output";
+}
+
 TEST_F(LedEvents, WaitingClockChangesKeepTheSourceInForce)
 {
     clock(0);unsigned input=0;for(auto &d:descriptors)if(d.type==10&&get(d.value+72,2)==2){input=get(d.value+84,2);break;}

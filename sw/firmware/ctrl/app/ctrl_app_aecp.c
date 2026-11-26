@@ -238,6 +238,7 @@ static bool deliver(void *ctx)
 	struct ctrl_app_aecp *c = ctx;
 	struct acmp *a = &c->app->acmp.acmp;
 #ifdef CTRL_PLAT_LEDS
+	leds_retry(c);
 	if (c->led_settings) {
 		c->led_settings = false;
 		if (c->led_configuration) {

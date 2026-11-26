@@ -88,16 +88,24 @@ static inline bool ctrl_plat_leds_counter_pair(void *ctx, unsigned interface, ui
 }
 
 // The lock state two counters give, quadlets 0 (LOCKED or MEDIA_LOCKED) and 1.
-static inline bool ctrl_plat_leds_locked(struct aecp *a, ctrl_plat_leds_counters_fn counters,
-				       uint16_t type, uint16_t index)
+static inline bool ctrl_plat_leds_lock_state(struct aecp *a, ctrl_plat_leds_counters_fn counters,
+					   uint16_t type, uint16_t index, bool *answered)
 {
 	struct aecp_counters c;
 	// Only these output fields are consumed; unanswered observations stay dark.
 	c.valid = 0u;
 	c.value[0] = 0u;
 	c.value[1] = 0u;
-	if (!counters(a->ports->ctx, 0u, type, index, &c) || (c.valid & 3u) != 3u) return false;
+	*answered = counters(a->ports->ctx, 0u, type, index, &c);
+	if (!*answered || (c.valid & 3u) != 3u) return false;
 	return ((c.value[0] - c.value[1]) & 1u) != 0u;
+}
+
+static inline bool ctrl_plat_leds_locked(struct aecp *a, ctrl_plat_leds_counters_fn counters,
+				       uint16_t type, uint16_t index)
+{
+	bool answered = false;
+	return ctrl_plat_leds_lock_state(a, counters, type, index, &answered);
 }
 
 static inline bool ctrl_plat_leds_receiving(struct aecp *a, ctrl_plat_leds_counters_fn counters,

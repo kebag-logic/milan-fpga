@@ -169,3 +169,21 @@ ROWS += (
     ("led-event-idle-scan", APP, "if (c->led_settings) {", "leds_refresh(c); if (c->led_settings) {",
      ("LedEvents.TicksAndIdlePollsNeverObserveLeds", "ticks and idle polls read no LED counters")),
 )
+
+ROWS += (
+    ("led-event-retry-lost", APP, "leds_retry(c);", "(void)c;",
+     ("LedEvents.FailedDomainObservationRetriesWithoutAnotherLockEdge",
+      "failed domain read recovers without another domain edge"),
+     ("LedEvents.FailedInactiveOutputRetriesWithoutTrafficOrListenerChange",
+      "inactive listener recovers without traffic or another listener change")),
+    ("led-event-retry-unpaced", EVENTS,
+     " || (int32_t)(c->aecp->core.now - c->led_retry_at) < 0", "",
+     ("LedEvents.FailedObservationsAreBoundedFairAndNeverReadInTicks",
+      "failed output waits for its retry interval")),
+)
+
+ROWS += (
+    ("led-event-retry-postponed", EVENTS, "if (failed && !pending)", "if (failed || pending)",
+     ("LedEvents.NewFailuresNeverPostponeAnOlderRetry",
+      "new failures never postpone recovery of an older readable output")),
+)
