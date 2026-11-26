@@ -24,7 +24,7 @@ Dirty submodules invalidate local evidence.
 | `gptp-processor` | `3ce71b768a2f6f6a5274c127080146e755d02275` | Fabric gPTP engine | `KL_gptp_shadow.sv` |
 | `protocol-processor` | `801ef2283ec793e35a2590fc6593c90313a64041` | ADP, ACMP, AECP, and SRP | `KL_pp_shadow.sv` |
 | `third_party/lwSRP` | `d1bb4f4e5954af6dabe7f210a6bf7adbb76bdd6b` | Bare-metal MRP, MSRP and MVRP | `sw/firmware/ctrl/srp/srp_mbx.c` |
-| `third_party/tsn-c-stack` | `9590206015ead2cfd2ef955c2f4ef8d8c4e4762c` | Portable ADP, ACMP and MAAP cores | `sw/firmware/ctrl` mailbox adapters |
+| `third_party/tsn-c-stack` | `c3bff8f3dea03870ea7ae62965db360b509ee3b3` | Portable ADP, ACMP and MAAP cores | `sw/firmware/ctrl` mailbox adapters |
 | `third_party/verilog-axis` | `48ff7a7e2ef782cf778d47910cf85835c64b1bce` | AXI-Stream primitives | Multiple RTL consumers |
 <!-- submodule-pins:end -->
 
@@ -1198,11 +1198,11 @@ The `adp` channel keeps frames of at most 128 octets.
 
 Parent tests accept 57 to 2047.
 
-Issue #970 adopts stack pin `95902060`, two commits on `a795471c`.
+Issue #970 adopts stack pin `c3bff8f3`, the merge of PR #40.
 
-| Stack change | Parent-visible result |
+| Stack PR | Parent-visible result |
 |---|---|
-| `95902060` (milan-fpga #970) | ADP takes one fresh clock sample at each transition out of DOWN: the startup draw and each qualified LINK_UP (Milan v1.2 5.6.3.5.2, 5.6.3.5.3), none at a duplicate or disabled LINK_UP. The seed sums the MAC address and the sample (IEEE 1722.1-2021 6.2.4.2.2) and mixes in the entity ID, the interface and the earlier state. The parent's seed port returns the platform's microsecond clock. |
+| [40](https://github.com/kebag-logic/tsn-c-stack/pull/40) (issue 39) | ADP takes one fresh clock sample at each transition out of DOWN: the startup draw and each qualified LINK_UP (Milan v1.2 5.6.3.5.2, 5.6.3.5.3), none at a duplicate or disabled LINK_UP. The seed sums the MAC address and the sample (IEEE 1722.1-2021 6.2.4.2.2) and mixes in the entity ID, the interface and the earlier state. The parent's seed port returns the platform's microsecond clock. |
 
 They refuse 0 and 55.
 
@@ -1248,7 +1248,7 @@ It holds the ADP, ACMP and MAAP cores.
 
 The [control firmware](../../sw/firmware/ctrl/README.md) uses its public headers.
 
-tsn-c-stack is licensed under [MIT](https://github.com/kebag-logic/tsn-c-stack/blob/9590206015ead2cfd2ef955c2f4ef8d8c4e4762c/LICENSE).
+tsn-c-stack is licensed under [MIT](https://github.com/kebag-logic/tsn-c-stack/blob/c3bff8f3dea03870ea7ae62965db360b509ee3b3/LICENSE).
 
 The unused external import uses SSH.
 
@@ -1293,7 +1293,7 @@ The cleanliness command must print nothing.
 | `gptp-processor` | `make -C gptp-processor` | `make -C tb/verilator/gptp_shadow` |
 | `third_party/verilog-axis` | Upstream evidence | `make -C tb/verilator/queues` |
 | `third_party/lwSRP` | cgreen and behave | `python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4` |
-| `third_party/tsn-c-stack` | [Quality workflow](https://github.com/kebag-logic/tsn-c-stack/blob/9590206015ead2cfd2ef955c2f4ef8d8c4e4762c/.github/workflows/quality.yml) | `python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4` |
+| `third_party/tsn-c-stack` | [Quality workflow](https://github.com/kebag-logic/tsn-c-stack/blob/c3bff8f3dea03870ea7ae62965db360b509ee3b3/.github/workflows/quality.yml) | `python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4` |
 | `external` | Upstream evidence | Not applicable; no active product consumer |
 
 ## Known documentation conflicts
