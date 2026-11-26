@@ -118,7 +118,7 @@ MUTANTS: tuple[Mutant, ...] = (
     Mutant("later-link-up-not-reseeded", ADP_C, "\t\t\tleave_down(a, ADP_DRAW_DELAY);  ",
            "\t\t\t(a->draws == 0u ? leave_down : enter_delay)(a, ADP_DRAW_DELAY);  ", "adp", H8,
            "H8 a LINK_UP after a link loss draws from a fresh sample"),
-    # #970, the reviews of PR #1015: each qualified rise samples, through the adapter and the platform
+    # #970: each qualified rise samples through the adapter and platform (IEEE 1722.1-2021 6.2.4.2.2).
     Mutant("link-up-not-sampled", ADP_C, RISE, "\t\t\tenter_delay(a, ADP_DRAW_DELAY);  ", "adp", H9,
            "H9 each qualified LINK_UP reads the clock once through the adapter",
            also=(("platboot1", B27, "B27 boots apart only in the clock at the LINK_UP draw apart"),)),

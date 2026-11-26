@@ -263,7 +263,7 @@ def advertised(g: Group, p: Point) -> None:
     """Links up, then each interface's first ENTITY_AVAILABLE within 4.2 s (LINK_UP's TMR_DELAY, 0 to 4 s)."""
     adp = CH['adp']
     ifs = range(p.interfaces)
-    g.together([(Probe(f'adp.link_up.if{i}', 'LINK_UP', 'adp', f'pad:LINK:{i}', [f'arm:{i}'], accesses=11),
+    g.together([(Probe(f'adp.link_up.if{i}', 'LINK_UP', 'adp', f'pad:LINK:{i}', [f'arm:{i}'], accesses=12),
                  [f'link {i} 1']) for i in ifs], [f'tmr {i} 1 within {300 * MS}' for i in ifs], settle='')
     g.together([(Probe(f'adp.tmr_delay.if{i}', 'TMR_DELAY expiry', 'adp', f'deadline:{i}',
                        [f'tx:{adp}', f'arm:{i}'], accesses=39, expect=f'adp_available:{i}'), []) for i in ifs],
@@ -941,7 +941,7 @@ def fixture_groups(p: Point) -> list[Group]:
     acmp, adp, aecp, srp = CH['acmp'], CH['adp'], CH['aecp'], CH['srp']
     g = Group('fixture', sim_ms=2500)
     ready(g, p, link=False)
-    g.probe(Probe('fixture.link_up.if0', 'LINK_UP', 'adp', 'pad:LINK:0', ['arm:0'], accesses=11,
+    g.probe(Probe('fixture.link_up.if0', 'LINK_UP', 'adp', 'pad:LINK:0', ['arm:0'], accesses=12,
                   path='adp.link_up'),
             'link 0 1', wait=f'tmr 0 1 within {300 * MS}')
     g.add(f'wait cycles {100 * MS}', 'wait quiet 3 within 2000000')

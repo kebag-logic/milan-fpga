@@ -1198,15 +1198,15 @@ The `adp` channel keeps frames of at most 128 octets.
 
 Parent tests accept 57 to 2047.
 
+They refuse 0 and 55.
+
+Parent adapter tests exercise every ADP refusal and valid discovery.
+
 Issue #970 adopts stack pin `c3bff8f3`, the merge of PR #40.
 
 | Stack PR | Parent-visible result |
 |---|---|
 | [40](https://github.com/kebag-logic/tsn-c-stack/pull/40) (issue 39) | ADP takes one fresh clock sample at each transition out of DOWN: the startup draw and each qualified LINK_UP (Milan v1.2 5.6.3.5.2, 5.6.3.5.3), none at a duplicate or disabled LINK_UP. The seed sums the MAC address and the sample (IEEE 1722.1-2021 6.2.4.2.2) and mixes in the entity ID, the interface and the earlier state. The parent's seed port returns the platform's microsecond clock. |
-
-They refuse 0 and 55.
-
-Parent adapter tests exercise every ADP refusal and valid discovery.
 
 The mailbox publishes the stack declaration predicate as `DA_GATE`.
 
