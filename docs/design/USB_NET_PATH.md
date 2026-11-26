@@ -58,6 +58,9 @@ The mailbox applies its normal protocol filters to both sources.
 Network control bytes win arbitration at each frame boundary.
 A granted frame retains ownership through backpressure and its end.
 A full local buffer drops whole copies and counts them.
+If transmit-domain recovery cancels an injection before its last beat,
+the local copy rolls back only that uncommitted frame.
+Completed copies and a stalled receiver output retain their state.
 
 The network MAC, timestamping and media receiver wiring stays unchanged.
 Local copies cannot backpressure any of those paths.

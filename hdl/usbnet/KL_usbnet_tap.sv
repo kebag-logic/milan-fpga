@@ -136,6 +136,8 @@ module KL_usbnet_tap
 
   KL_usbnet_rx_copy u_own_tx_copy (
     .clk_i, .rst_ni,
+    //! The device's store-and-forward source supplies the complete frame.
+    .discard_i (1'b0),
     .s_valid_i (hi_valid_i && hi_ready_o), .s_data_i (hi_data_i),
     .s_keep_i (hi_keep_w), .s_last_i (hi_last_i),
     .host_mac_i (host_mac_o), .host_ok_i (host_ok_o),
@@ -150,6 +152,8 @@ module KL_usbnet_tap
 
   KL_usbnet_rx_copy u_rx (
     .clk_i, .rst_ni,
+    //! Network reception ends at last; its reset is the wrapper reset above.
+    .discard_i (1'b0),
     .s_valid_i (rx_valid_i), .s_data_i (rx_data_i), .s_keep_i (rx_keep_i),
     .s_last_i  (rx_last_i),
     .host_mac_i (host_mac_o), .host_ok_i (host_ok_o),

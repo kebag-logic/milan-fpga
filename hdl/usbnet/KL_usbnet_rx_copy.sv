@@ -46,6 +46,7 @@ module KL_usbnet_rx_copy
 )(
   input  wire              clk_i,   //! the system clock, the MAC wrapper's
   input  wire              rst_ni,   //! synchronous reset, active low
+  input  wire              discard_i, //! cancel the uncommitted frame; retain completed records
   //! the device's receive stream, one accepted beat per valid
   input  wire              s_valid_i,
   input  wire [63:0]       s_data_i,
@@ -72,7 +73,7 @@ module KL_usbnet_rx_copy
   logic [63:0] s_data_q;
   logic [7:0]  s_keep_q;
   always_ff @(posedge clk_i) begin : in_reg
-    if (!rst_ni) s_valid_q <= 1'b0;
+    if (!rst_ni || discard_i) s_valid_q <= 1'b0;
     else         s_valid_q <= s_valid_i;
     s_data_q <= s_data_i;
     s_keep_q <= s_keep_i;
@@ -138,14 +139,14 @@ module KL_usbnet_rx_copy
   wire         copy_w  = (rule_w == RXV_HOST) || (rule_w == RXV_GROUP);
   wire         fits_w  = !spoil_w && !desc_full_w;
   wire         too_long_w = (in_frame_r && long_r) || long_w;
-  wire         commit_w = s_valid_q && s_last_q && copy_w && fits_w;
+  wire         commit_w = s_valid_q && s_last_q && copy_w && fits_w && !discard_i;
 
   always_ff @(posedge clk_i) begin : wr_desc
     if (commit_w) desc_r[dwr_r[DW_C-1:0]] <= len_w[11:0];
   end : wr_desc
 
   always_ff @(posedge clk_i) begin : wr_ram
-    if (s_valid_q && !spoil_w) ram_r[start_w[AW_C-1:0]] <= s_data_q;
+    if (s_valid_q && !spoil_w && !discard_i) ram_r[start_w[AW_C-1:0]] <= s_data_q;
   end : wr_ram
 
   always_ff @(posedge clk_i) begin : wr_side
@@ -167,7 +168,19 @@ module KL_usbnet_rx_copy
       dropped_full_o  <= '0;
     end else begin
       verdict_valid_o <= 1'b0;
-      if (s_valid_q) begin
+      if (discard_i) begin
+        //! Only speculative storage is rolled back. The descriptor pointers,
+        //! read side and every previously committed frame retain their state.
+        wr_cur_r   <= wr_ptr_r;
+        in_frame_r <= 1'b0;
+        spoil_r    <= 1'b0;
+        long_r     <= 1'b0;
+        len_r      <= '0;
+        beat_r     <= '0;
+        b0_r       <= '0;
+        b1_r       <= '0;
+        b2_r       <= '0;
+      end else if (s_valid_q) begin
         b0_r <= b0_w;
         b1_r <= b1_w;
         b2_r <= b2_w;
