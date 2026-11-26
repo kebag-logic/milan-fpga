@@ -16,5 +16,5 @@ set_false_path -to [get_pins -of_objects $usb_running -filter {REF_PIN_NAME == D
 # Assertion is asynchronous; local two-edge release remains timed.
 set usb_reset_cells [get_cells -hier -filter {ORIG_REF_NAME == KL_usbaudio_reset || REF_NAME == KL_usbaudio_reset}]
 foreach inst $usb_reset_cells {
-    set_false_path -to [get_pins -hier -regexp [format {%s/release_r_reg\[[01]\]/CLR} $inst]]
+    set_false_path -to [get_pins -hier -regexp [format {%s/release_(meta|sync)_r_reg/CLR} $inst]]
 }

@@ -46,7 +46,7 @@ module KL_usbaudio_media #(
   logic primed_r;
   logic [255:0] playback_r, render_r;
   logic [2:0] emit_r, render_pair_r;
-  logic render_complete_r;
+  logic render_complete_r, render_discard_r, render_fenced_r;
   logic [6:0] minimum_r, maximum_r;
   wire state_take_w = state_valid_i && state_ready_o;
   wire playback_changed_w = state_valid_i && state_i[34:3] != playback_epoch_r;
@@ -63,7 +63,7 @@ module KL_usbaudio_media #(
       (!epoch_matches_w || !playback_on_w || pop_w);
   assign capture_o = {capture_epoch_r, render_r};
   assign capture_valid_o = render_tick_i && render_complete_r
-      && flags_r[2] && flags_r[1] && !capture_changed_w;
+      && flags_r[2] && flags_r[1] && !capture_changed_w && !render_fenced_r;
   function automatic logic [31:0] from_wire(input logic [31:0] value);
     return {value[7:0], value[15:8], value[23:16], value[31:24]};
   endfunction
@@ -78,6 +78,8 @@ module KL_usbaudio_media #(
       emit_r <= 0;
       render_pair_r <= 0;
       render_complete_r <= 0;
+      render_discard_r <= 0;
+      render_fenced_r <= 0;
       pair_valid_o <= 0;
       pair_slot_o <= 0;
       pair_l_o <= 0;
@@ -123,19 +125,28 @@ module KL_usbaudio_media #(
         end
       end
       if (render_valid_i && render_stream_i == 0) begin
-        if (render_pair_r < 4)
-          render_r[8'(render_pair_r)*64 +: 64] <=
-              {from_wire(render_data_i[63:32]), from_wire(render_data_i[31:0])};
-        render_pair_r <= render_pair_r+1'b1;
-        if (render_last_i) begin
-          render_complete_r <= render_pair_r == 3;
-          render_pair_r <= 0;
-          if (render_pair_r != 3) error_o <= 1;
+        if (render_discard_r) begin
+          if (render_last_i) begin
+            render_discard_r <= 0;
+            render_pair_r <= 0;
+          end
+        end else begin
+          if (render_pair_r < 4)
+            render_r[8'(render_pair_r)*64 +: 64] <=
+                {from_wire(render_data_i[63:32]), from_wire(render_data_i[31:0])};
+          render_pair_r <= render_pair_r+1'b1;
+          if (render_last_i) begin
+            render_complete_r <= render_pair_r == 3;
+            render_pair_r <= 0;
+            if (render_pair_r != 3 && !capture_changed_w) error_o <= 1;
+          end
         end
       end
       if (render_tick_i) begin
         render_complete_r <= 0;
-        if (flags_r[2] && flags_r[1] && (!render_complete_r || !capture_ready_i)) begin
+        render_fenced_r <= 0;
+        if (flags_r[2] && flags_r[1] && !render_fenced_r && !capture_changed_w
+            && (!render_complete_r || !capture_ready_i)) begin
           error_o <= 1;
           if (drops_o != 32'hffffffff) drops_o <= drops_o+1'b1;
         end
@@ -154,6 +165,13 @@ module KL_usbaudio_media #(
           capture_epoch_r <= state_i[66:35];
           render_complete_r <= 0;
           render_pair_r <= 0;
+          // Drain the remainder of a frame already begun under the old
+          // epoch. Its normal last/tick edges are an intentional fence,
+          // not an incomplete new frame or an active transport failure.
+          render_discard_r <= !render_tick_i && !render_last_i
+              && (render_pair_r != 0 || render_valid_i);
+          render_fenced_r <= !render_tick_i
+              && (render_pair_r != 0 || render_valid_i || render_complete_r);
         end
       end
     end

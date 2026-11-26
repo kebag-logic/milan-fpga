@@ -85,7 +85,7 @@
   localparam logic [6:0] ADP_DMAP_IN_PNMAPS_C [0:0] = '{7'd1};
   localparam logic [6:0] ADP_DMAP_IN_RPHYS_C [0:7] = '{7'h42, 7'h43, 7'h44, 7'h45, 7'h46, 7'h47, 7'h48, 7'h49};
   localparam logic  ADP_DMAP_IN_SAAF_C [0:1] = '{1'b1, 1'b0};
-  localparam logic [9:0] ADP_DMAP_IN_SCH_C [0:1] = '{10'd2, 10'd0};
+  localparam logic [9:0] ADP_DMAP_IN_SCH_C [0:1] = '{10'd8, 10'd0};
   //! Dynamic output geometry and capture-source words are copied
   //! from the AEM generator's ODMAP table. CSRC uses the fabric word
   //! {valid, half, src[2:0], idxh[3:0], idx[3:0]}.
@@ -113,14 +113,14 @@
   //! SET_STREAM_FORMATs the stream, and the base whose 48 kHz family
   //! the format verdict admits. Was the AEM ROM's AEM_STRIN_FMT_C[0];
   //! the ROM is gone and this is the same number from the same config.
-  localparam logic [63:0] ADP_STRIN0_FMT_C = 64'h0205022000806000;
+  localparam logic [63:0] ADP_STRIN0_FMT_C = 64'h0205022002006000;
   //! per-row DECLARED first formats, both directions: row k's format
   //! verdict base, and the current format its GET serves until a
   //! controller sets one. Input row 0 restates ADP_STRIN0_FMT_C; the
   //! scalar stays for its acceptance-filter consumer.
   localparam int ADP_STRIN_NFMT_C  = 1;
   localparam int ADP_STROUT_NFMT_C = 1;
-  localparam logic [63:0] ADP_STRIN_FMT_C [0:0] = '{64'h0205022000806000};
+  localparam logic [63:0] ADP_STRIN_FMT_C [0:0] = '{64'h0205022002006000};
   localparam logic [63:0] ADP_STROUT_FMT_C [0:0] = '{64'h0205022002006000};
   //! the CRF Media Clock stream formats the entity advertises, per
   //! direction: the ONE format SET_STREAM_FORMAT may name for each

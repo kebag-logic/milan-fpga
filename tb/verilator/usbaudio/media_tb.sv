@@ -89,14 +89,36 @@ module media_tb;
     apply(2,2);playback(99,1,12);check(play_ready,"MEDIA_STALE_EPOCH_DRAIN");grid(-1);
     playback(2,2,11);grid(-1);playback(2,2,12);grid(2);
     render(0);capture_check(0,2);
+    // Change capture epoch at every boundary, including on every pair
+    // edge and on completion. Old trailing beats must not become errors.
+    for(int cut=0;cut<6;cut++) begin
+      for(int p=0;p<4;p++) begin
+        render_valid=1;render_last=p==3;
+        render_data={swap(value(10+cut,p*2+1)),swap(value(10+cut,p*2))};
+        if(p==cut) begin state_data={32'(3+cut),32'd2,3'd7};state_valid=1;end
+        step();state_valid=0;render_valid=0;render_last=0;step();
+      end
+      if(cut>=4) begin
+        state_data={32'(3+cut),32'd2,3'd7};state_valid=1;
+        if(cut==5) begin step();state_valid=0;step();end
+      end
+      render_tick=1;#1;check(!capture_valid,"MEDIA_EPOCH_PARTIAL_HIDDEN");
+      step();render_tick=0;state_valid=0;step();
+      check(!error_value && drops==0,"MEDIA_EPOCH_TRAILING_BEATS_CLEAN");
+      render(20+cut);capture_check(20+cut,3+cut);
+    end
     render(1,2);render_tick=1;#1;check(!capture_valid,"MEDIA_PARTIAL_HIDDEN");
-    step();render_tick=0;apply(2,3);
-    render(2);capture_check(2,3);
-    render(3);capture_ready=0;capture_check(3,3);capture_ready=1;
-    check(drops==2 && error_value,"MEDIA_OVERFLOW_FRAME_COUNT");
-    render(4);capture_check(4,3);
+    step();render_tick=0;step();
+    // A malformed frame requires a session boundary; verify the error count
+    // before resetting, then exercise a clean full-frame overflow separately.
+    check(drops==1 && error_value,"MEDIA_INCOMPLETE_COUNT");
+    rst_n=0;step(2);rst_n=1;step(2);apply(2,7);pair_count=0;tick_count=0;
+    playback(3,2,12);grid(3);
+    render(3);capture_ready=0;capture_check(3,7);capture_ready=1;
+    check(drops==1 && error_value,"MEDIA_OVERFLOW_FRAME_COUNT");
+    render(4);capture_check(4,7);
     grid(-1);check(gaps==1,"MEDIA_UNDERFLOW_FRAME_COUNT");
-    check(extremes[13:7]>=12 && extremes[6:0]<=1 && frames==7,"MEDIA_DIAGNOSTICS");
+    check(extremes[13:7]>=12 && frames==2,"MEDIA_DIAGNOSTICS");
     rst_n=0;step();check(!capture_valid && gaps==0 && drops==0 && !error_value,"MEDIA_RESET");
     $display("PASS media endpoint: prefill, atomic frames, independent epochs, acknowledgement, all bits and loss counts");
     $finish;

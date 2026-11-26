@@ -37,7 +37,7 @@ module KL_usbaudio_gpif #(
   } state_t;
   state_t state_r, next_w;
   logic [3:0] delay_r;
-  logic read_turn_r;
+  logic read_turn_r, status_turn_r;
   logic [15:0] rx_r;
   logic [31:0] status_age_r;
   (* IOB = "TRUE" *) logic [15:0] captured_r;
@@ -88,6 +88,7 @@ module KL_usbaudio_gpif #(
       state_r <= TURN_S;
       delay_r <= 2;
       read_turn_r <= 1;
+      status_turn_r <= 0;
       rx_r <= 0;
       status_age_r <= 0;
       dq_o <= 0;
@@ -109,12 +110,12 @@ module KL_usbaudio_gpif #(
         TURN_S, SETTLE_S, QUIET_S, READ_WAIT_S:
           if (delay_r != 0) delay_r <= delay_r-1'b1;
         SELECT_S: begin
-          // Audio owns ordinary arbitration. A due status gets a bounded
-          // ten-word turn; this avoids starvation under saturated PCM.
-          if (status_valid_i && status_age_r >= BUS_HZ_P/2000) address_o <= 1;
+          // A due status gets a turn between audio opportunities. Even an
+          // unready status socket cannot suppress state or PCM service.
+          if (status_valid_i && status_age_r >= BUS_HZ_P/2000 && status_turn_r) address_o <= 1;
           else if (read_turn_r) address_o <= 3;
           else if (capture_valid_i) address_o <= 0;
-          else if (status_valid_i) address_o <= 1;
+          else if (status_valid_i && status_turn_r) address_o <= 1;
           else address_o <= 3;
           delay_r <= 6;
         end
@@ -123,13 +124,21 @@ module KL_usbaudio_gpif #(
             dq_o <= selected_status_w ? status_data_i : capture_data_i;
             pktend_n_o <= !(selected_status_w ? status_last_i : capture_last_i);
           end else if (!take_read_w) begin
-            read_turn_r <= !read_turn_r;
+            if (selected_status_w) status_turn_r <= 0;
+            else begin
+              read_turn_r <= !selected_read_w;
+              status_turn_r <= 1;
+            end
             delay_r <= 2;
           end
         end
         WRITE_S: begin
           delay_r <= 5;
-          read_turn_r <= 1;
+          if (selected_status_w) status_turn_r <= 0;
+          else begin
+            read_turn_r <= 1;
+            status_turn_r <= 1;
+          end
           if (selected_status_w && status_last_i) status_age_r <= 0;
         end
         READ_S: delay_r <= 1;
@@ -137,6 +146,7 @@ module KL_usbaudio_gpif #(
         PUSH_S: if (rx_ready_i) begin
           delay_r <= 2;
           read_turn_r <= 0;
+          status_turn_r <= 1;
         end
         default: ;
       endcase

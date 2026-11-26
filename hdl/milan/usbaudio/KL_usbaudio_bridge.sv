@@ -111,6 +111,7 @@ module KL_usbaudio_bridge #(
   logic [31:0] bus_capture_epoch_r, bus_playback_epoch_r;
   logic [2:0] bus_flags_r;
   wire state_ready_w;
+  wire [31:0] packet_gaps_w, abandoned_w;
   wire changed_w = capture_epoch_w != bus_capture_epoch_r
       || playback_epoch_w != bus_playback_epoch_r || flags_w != bus_flags_r;
   wire state_valid_w = record_valid_w && !applying_r && changed_w;
@@ -238,7 +239,6 @@ module KL_usbaudio_bridge #(
     .capture_epoch_i(applied_epoch_r), .valid_o(status_valid_o), .ready_i(status_ready_i),
     .data_o(status_data_o), .last_o(status_last_o)
   );
-  wire [31:0] packet_gaps_w, abandoned_w;
   KL_usbaudio_packet #(.BUS_HZ_P(BUS_HZ_P)) capture_packet (
     .clk_i(bus_clk_i), .rst_n(bus_rst_n_w),
     .reference_i(accepted_reference_w),

@@ -63,8 +63,10 @@ capture epoch does not flush or reprime playback.
 The media domain acknowledges the capture epoch after applying it. The bus
 domain publishes that acknowledgement in a complete status record before
 allowing a new capture packet. Status is scheduled every half millisecond,
-including while both audio alternates are inactive. A bounded priority turn
-prevents continuous audio traffic from starving its ten words. Each status
+including while both audio alternates are inactive. Priority turns between
+audio opportunities prevent continuous traffic from starving its ten words.
+An unready status socket does not prevent playback/state reads or capture
+writes. The service deadline assumes the destination socket is ready. Each status
 record and capture interval asserts packet end with its final bus word.
 
 ## Clock qualification and diagnostics
@@ -106,6 +108,10 @@ Separate tests exercise reference rejection, raw timestamp correction,
 independent epochs, packet fences, phased bus sampling, and the shared AAF
 storage paths at both widths. Planted defects must trigger their named runtime
 checks; build errors do not count as detections.
+The default audio regression runs those bounded tests, both storage widths,
+a shortened-window duplex check, and representative reference, epoch, packet
+and arbitration defects. The separate `duplex` target retains the full
+2^13-microframe qualification window and a 100,000-frame run.
 
 Route closure at both speed models, complete-image comparisons, and exact
 resource differences require their own recorded results. A successful simulation

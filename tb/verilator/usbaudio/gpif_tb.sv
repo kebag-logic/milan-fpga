@@ -17,6 +17,8 @@ module gpif_tb;
   wire cap_last=cap_sent%96==95, status_last=status_sent%10==9;
   int rx_sent=0,rx_seen=0,cap_sent=0,cap_seen=0,status_sent=0,status_seen=0;
   int cycles=0,address_age=0,last_status=0,status_records=0;
+  int blocked_rx=0,blocked_capture=0;
+  logic block_status=0;
   logic [1:0] previous_address=0;
   KL_usbaudio_gpif dut (
     .clk_i(clk),.capture_clk_i(capture_clk),.reset_i(reset),
@@ -31,13 +33,18 @@ module gpif_tb;
   always @(negedge clk) begin
     if(!reset) begin
       cycles=cycles+1;
-      flag=1;
+      block_status=cycles>=60000 && cycles<120000;
+      flag=address!=1 || !block_status;
+      if(cycles==60000) begin blocked_rx=rx_seen;blocked_capture=cap_seen;end
+      if(cycles==120000 && (rx_seen-blocked_rx<500 || cap_seen-blocked_capture<500))
+        $fatal(1,"CHECK GPIF_BLOCKED_STATUS_FAIRNESS");
       rx_ready=cycles%23<18;
       if(cycles%25000==1) status_valid=1;
       if(address!=previous_address) address_age=0;
       else address_age=address_age+1;
       previous_address=address;
-      if(cycles>51000 && cycles-last_status>50000) $fatal(1,"CHECK STATUS_SERVICE_DEADLINE");
+      if(cycles>51000 && (cycles<60000 || cycles>170000) && cycles-last_status>50000)
+        $fatal(1,"CHECK STATUS_SERVICE_DEADLINE");
     end
   end
   always @(posedge clk) if(!reset) begin
@@ -77,7 +84,7 @@ module gpif_tb;
   initial begin
     #100;reset=0;
     repeat(500000) @(negedge clk);
-    if(rx_seen<10000 || cap_seen<10000 || status_records<18)
+    if(rx_seen<10000 || cap_seen<10000 || status_records<16)
       $fatal(1,"CHECK GPIF_DUPLEX_SERVICE_COUNTS");
     if(rx_sent-rx_seen>1 || cap_seen-cap_sent>1 || status_seen-status_sent>1)
       $fatal(1,"CHECK GPIF_SINGLE_OUTSTANDING");
