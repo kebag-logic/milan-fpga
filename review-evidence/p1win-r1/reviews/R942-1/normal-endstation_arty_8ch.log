@@ -1,0 +1,281 @@
+BINARY endstation_arty_8ch/suite sha256 984ad492c71f30caa6f539965fd0bff7d514a323d55b4774164e378d5eff4c84
+[==========] Running 128 tests from 5 test suites.
+[----------] Global test environment set-up.
+[----------] 12 tests from NvmModel
+[ RUN      ] NvmModel.klj2_journal_unreadable
+[       OK ] NvmModel.klj2_journal_unreadable (25 ms)
+[ RUN      ] NvmModel.read_flip_at_stage
+[       OK ] NvmModel.read_flip_at_stage (35 ms)
+[ RUN      ] NvmModel.read_flip_boot
+[       OK ] NvmModel.read_flip_boot (215 ms)
+[ RUN      ] NvmModel.read_alias_at_stage
+[       OK ] NvmModel.read_alias_at_stage (19 ms)
+[ RUN      ] NvmModel.read_fail_boot
+[       OK ] NvmModel.read_fail_boot (37 ms)
+[ RUN      ] NvmModel.fallback_restage
+[       OK ] NvmModel.fallback_restage (10 ms)
+[ RUN      ] NvmModel.long_container_reads
+[       OK ] NvmModel.long_container_reads (42 ms)
+[ RUN      ] NvmModel.change_unknown_record
+[       OK ] NvmModel.change_unknown_record (9 ms)
+[ RUN      ] NvmModel.change_by_record_id
+[       OK ] NvmModel.change_by_record_id (17 ms)
+[ RUN      ] NvmModel.media_verdicts
+[       OK ] NvmModel.media_verdicts (96 ms)
+[ RUN      ] NvmModel.authority_unknown
+[       OK ] NvmModel.authority_unknown (1308 ms)
+[ RUN      ] NvmModel.read_disagreement
+[       OK ] NvmModel.read_disagreement (1056 ms)
+[----------] 12 tests from NvmModel (2876 ms total)
+
+[----------] 5 tests from NvmLitespi
+[ RUN      ] NvmLitespi.time_base
+[       OK ] NvmLitespi.time_base (132 ms)
+[ RUN      ] NvmLitespi.port_clock
+[       OK ] NvmLitespi.port_clock (66 ms)
+[ RUN      ] NvmLitespi.port_stall
+[       OK ] NvmLitespi.port_stall (172 ms)
+[ RUN      ] NvmLitespi.port_deadline
+[       OK ] NvmLitespi.port_deadline (64 ms)
+[ RUN      ] NvmLitespi.port_guard
+[       OK ] NvmLitespi.port_guard (4 ms)
+[----------] 5 tests from NvmLitespi (440 ms total)
+
+[----------] 5 tests from NvmCodec
+[ RUN      ] NvmCodec.codec_parity
+[       OK ] NvmCodec.codec_parity (3 ms)
+[ RUN      ] NvmCodec.codec_room
+[       OK ] NvmCodec.codec_room (0 ms)
+[ RUN      ] NvmCodec.codec_loaded_prefix
+[       OK ] NvmCodec.codec_loaded_prefix (42 ms)
+[ RUN      ] NvmCodec.codec_lookups
+[       OK ] NvmCodec.codec_lookups (0 ms)
+[ RUN      ] NvmCodec.codec_ids_without_the_walk
+[       OK ] NvmCodec.codec_ids_without_the_walk (2 ms)
+[----------] 5 tests from NvmCodec (48 ms total)
+
+[----------] 2 tests from NvmFlashMock
+[ RUN      ] NvmFlashMock.reads_differ_in_verdict
+[       OK ] NvmFlashMock.reads_differ_in_verdict (4 ms)
+[ RUN      ] NvmFlashMock.reads_agree_in_digest_not_length
+[       OK ] NvmFlashMock.reads_agree_in_digest_not_length (4 ms)
+[----------] 2 tests from NvmFlashMock (8 ms total)
+
+[----------] 104 tests from Ports/NvmBoth
+[ RUN      ] Ports/NvmBoth.blank_boot/model
+[       OK ] Ports/NvmBoth.blank_boot/model (9 ms)
+[ RUN      ] Ports/NvmBoth.blank_boot/litespi
+[       OK ] Ports/NvmBoth.blank_boot/litespi (8 ms)
+[ RUN      ] Ports/NvmBoth.golden_restore/model
+[       OK ] Ports/NvmBoth.golden_restore/model (8 ms)
+[ RUN      ] Ports/NvmBoth.golden_restore/litespi
+[       OK ] Ports/NvmBoth.golden_restore/litespi (8 ms)
+[ RUN      ] Ports/NvmBoth.erased_records/model
+[       OK ] Ports/NvmBoth.erased_records/model (9 ms)
+[ RUN      ] Ports/NvmBoth.erased_records/litespi
+[       OK ] Ports/NvmBoth.erased_records/litespi (9 ms)
+[ RUN      ] Ports/NvmBoth.newer_wins/model
+[       OK ] Ports/NvmBoth.newer_wins/model (84 ms)
+[ RUN      ] Ports/NvmBoth.newer_wins/litespi
+[       OK ] Ports/NvmBoth.newer_wins/litespi (69 ms)
+[ RUN      ] Ports/NvmBoth.torn_falls_back/model
+[       OK ] Ports/NvmBoth.torn_falls_back/model (8 ms)
+[ RUN      ] Ports/NvmBoth.torn_falls_back/litespi
+[       OK ] Ports/NvmBoth.torn_falls_back/litespi (9 ms)
+[ RUN      ] Ports/NvmBoth.both_torn_blank/model
+[       OK ] Ports/NvmBoth.both_torn_blank/model (9 ms)
+[ RUN      ] Ports/NvmBoth.both_torn_blank/litespi
+[       OK ] Ports/NvmBoth.both_torn_blank/litespi (9 ms)
+[ RUN      ] Ports/NvmBoth.verdict_parity/model
+[       OK ] Ports/NvmBoth.verdict_parity/model (245 ms)
+[ RUN      ] Ports/NvmBoth.verdict_parity/litespi
+[       OK ] Ports/NvmBoth.verdict_parity/litespi (233 ms)
+[ RUN      ] Ports/NvmBoth.wrong_version_falls_back/model
+[       OK ] Ports/NvmBoth.wrong_version_falls_back/model (16 ms)
+[ RUN      ] Ports/NvmBoth.wrong_version_falls_back/litespi
+[       OK ] Ports/NvmBoth.wrong_version_falls_back/litespi (17 ms)
+[ RUN      ] Ports/NvmBoth.klj2_journal_refused/model
+[       OK ] Ports/NvmBoth.klj2_journal_refused/model (29 ms)
+[ RUN      ] Ports/NvmBoth.klj2_journal_refused/litespi
+[       OK ] Ports/NvmBoth.klj2_journal_refused/litespi (43 ms)
+[ RUN      ] Ports/NvmBoth.legacy_other_format_not_recorded/model
+[       OK ] Ports/NvmBoth.legacy_other_format_not_recorded/model (34 ms)
+[ RUN      ] Ports/NvmBoth.legacy_other_format_not_recorded/litespi
+[       OK ] Ports/NvmBoth.legacy_other_format_not_recorded/litespi (34 ms)
+[ RUN      ] Ports/NvmBoth.own_refusal_kept_over_legacy/model
+[       OK ] Ports/NvmBoth.own_refusal_kept_over_legacy/model (26 ms)
+[ RUN      ] Ports/NvmBoth.own_refusal_kept_over_legacy/litespi
+[       OK ] Ports/NvmBoth.own_refusal_kept_over_legacy/litespi (17 ms)
+[ RUN      ] Ports/NvmBoth.klj2_journal_at_its_flash_map_address/model
+[       OK ] Ports/NvmBoth.klj2_journal_at_its_flash_map_address/model (17 ms)
+[ RUN      ] Ports/NvmBoth.klj2_journal_at_its_flash_map_address/litespi
+[       OK ] Ports/NvmBoth.klj2_journal_at_its_flash_map_address/litespi (17 ms)
+[ RUN      ] Ports/NvmBoth.klj2_in_slot_refused/model
+[       OK ] Ports/NvmBoth.klj2_in_slot_refused/model (9 ms)
+[ RUN      ] Ports/NvmBoth.klj2_in_slot_refused/litespi
+[       OK ] Ports/NvmBoth.klj2_in_slot_refused/litespi (9 ms)
+[ RUN      ] Ports/NvmBoth.apply_fault_rolls_back/model
+[       OK ] Ports/NvmBoth.apply_fault_rolls_back/model (11 ms)
+[ RUN      ] Ports/NvmBoth.apply_fault_rolls_back/litespi
+[       OK ] Ports/NvmBoth.apply_fault_rolls_back/litespi (11 ms)
+[ RUN      ] Ports/NvmBoth.settle_fault_rolls_back/model
+[       OK ] Ports/NvmBoth.settle_fault_rolls_back/model (11 ms)
+[ RUN      ] Ports/NvmBoth.settle_fault_rolls_back/litespi
+[       OK ] Ports/NvmBoth.settle_fault_rolls_back/litespi (11 ms)
+[ RUN      ] Ports/NvmBoth.binding_walk/model
+[       OK ] Ports/NvmBoth.binding_walk/model (26 ms)
+[ RUN      ] Ports/NvmBoth.binding_walk/litespi
+[       OK ] Ports/NvmBoth.binding_walk/litespi (36 ms)
+[ RUN      ] Ports/NvmBoth.rollback_fault_closes/model
+[       OK ] Ports/NvmBoth.rollback_fault_closes/model (17 ms)
+[ RUN      ] Ports/NvmBoth.rollback_fault_closes/litespi
+[       OK ] Ports/NvmBoth.rollback_fault_closes/litespi (17 ms)
+[ RUN      ] Ports/NvmBoth.model_unproven_closes/model
+[       OK ] Ports/NvmBoth.model_unproven_closes/model (36 ms)
+[ RUN      ] Ports/NvmBoth.model_unproven_closes/litespi
+[       OK ] Ports/NvmBoth.model_unproven_closes/litespi (34 ms)
+[ RUN      ] Ports/NvmBoth.refused_keeps_default/model
+[       OK ] Ports/NvmBoth.refused_keeps_default/model (17 ms)
+[ RUN      ] Ports/NvmBoth.refused_keeps_default/litespi
+[       OK ] Ports/NvmBoth.refused_keeps_default/litespi (18 ms)
+[ RUN      ] Ports/NvmBoth.console_commit_unchanged/model
+[       OK ] Ports/NvmBoth.console_commit_unchanged/model (20 ms)
+[ RUN      ] Ports/NvmBoth.console_commit_unchanged/litespi
+[       OK ] Ports/NvmBoth.console_commit_unchanged/litespi (17 ms)
+[ RUN      ] Ports/NvmBoth.first_commit_no_blank_slot/model
+[       OK ] Ports/NvmBoth.first_commit_no_blank_slot/model (17 ms)
+[ RUN      ] Ports/NvmBoth.first_commit_no_blank_slot/litespi
+[       OK ] Ports/NvmBoth.first_commit_no_blank_slot/litespi (9 ms)
+[ RUN      ] Ports/NvmBoth.nothing_to_save/model
+[       OK ] Ports/NvmBoth.nothing_to_save/model (9 ms)
+[ RUN      ] Ports/NvmBoth.nothing_to_save/litespi
+[       OK ] Ports/NvmBoth.nothing_to_save/litespi (9 ms)
+[ RUN      ] Ports/NvmBoth.capture_window_edges/model
+[       OK ] Ports/NvmBoth.capture_window_edges/model (27 ms)
+[ RUN      ] Ports/NvmBoth.capture_window_edges/litespi
+[       OK ] Ports/NvmBoth.capture_window_edges/litespi (28 ms)
+[ RUN      ] Ports/NvmBoth.binding_window/model
+[       OK ] Ports/NvmBoth.binding_window/model (139 ms)
+[ RUN      ] Ports/NvmBoth.binding_window/litespi
+[       OK ] Ports/NvmBoth.binding_window/litespi (166 ms)
+[ RUN      ] Ports/NvmBoth.binding_window_not_restarted/model
+[       OK ] Ports/NvmBoth.binding_window_not_restarted/model (34 ms)
+[ RUN      ] Ports/NvmBoth.binding_window_not_restarted/litespi
+[       OK ] Ports/NvmBoth.binding_window_not_restarted/litespi (35 ms)
+[ RUN      ] Ports/NvmBoth.earliest_window_takes_everything/model
+[       OK ] Ports/NvmBoth.earliest_window_takes_everything/model (121 ms)
+[ RUN      ] Ports/NvmBoth.earliest_window_takes_everything/litespi
+[       OK ] Ports/NvmBoth.earliest_window_takes_everything/litespi (105 ms)
+[ RUN      ] Ports/NvmBoth.next_binding_window/model
+[       OK ] Ports/NvmBoth.next_binding_window/model (9 ms)
+[ RUN      ] Ports/NvmBoth.next_binding_window/litespi
+[       OK ] Ports/NvmBoth.next_binding_window/litespi (9 ms)
+[ RUN      ] Ports/NvmBoth.binding_change_in_flight_opens_window/model
+[       OK ] Ports/NvmBoth.binding_change_in_flight_opens_window/model (71 ms)
+[ RUN      ] Ports/NvmBoth.binding_change_in_flight_opens_window/litespi
+[       OK ] Ports/NvmBoth.binding_change_in_flight_opens_window/litespi (146 ms)
+[ RUN      ] Ports/NvmBoth.binding_change_in_backoff/model
+[       OK ] Ports/NvmBoth.binding_change_in_backoff/model (35 ms)
+[ RUN      ] Ports/NvmBoth.binding_change_in_backoff/litespi
+[       OK ] Ports/NvmBoth.binding_change_in_backoff/litespi (38 ms)
+[ RUN      ] Ports/NvmBoth.burst_of_64_bindings/model
+[       OK ] Ports/NvmBoth.burst_of_64_bindings/model (39 ms)
+[ RUN      ] Ports/NvmBoth.burst_of_64_bindings/litespi
+[       OK ] Ports/NvmBoth.burst_of_64_bindings/litespi (42 ms)
+[ RUN      ] Ports/NvmBoth.swept_cut/model
+[       OK ] Ports/NvmBoth.swept_cut/model (6396 ms)
+[ RUN      ] Ports/NvmBoth.swept_cut/litespi
+[       OK ] Ports/NvmBoth.swept_cut/litespi (6772 ms)
+[ RUN      ] Ports/NvmBoth.swept_cut_in_flight/model
+[       OK ] Ports/NvmBoth.swept_cut_in_flight/model (37598 ms)
+[ RUN      ] Ports/NvmBoth.swept_cut_in_flight/litespi
+[       OK ] Ports/NvmBoth.swept_cut_in_flight/litespi (39458 ms)
+[ RUN      ] Ports/NvmBoth.first_commit_bytes/model
+[       OK ] Ports/NvmBoth.first_commit_bytes/model (20 ms)
+[ RUN      ] Ports/NvmBoth.first_commit_bytes/litespi
+[       OK ] Ports/NvmBoth.first_commit_bytes/litespi (17 ms)
+[ RUN      ] Ports/NvmBoth.change_commit_bytes/model
+[       OK ] Ports/NvmBoth.change_commit_bytes/model (37 ms)
+[ RUN      ] Ports/NvmBoth.change_commit_bytes/litespi
+[       OK ] Ports/NvmBoth.change_commit_bytes/litespi (35 ms)
+[ RUN      ] Ports/NvmBoth.debounce/model
+[       OK ] Ports/NvmBoth.debounce/model (68 ms)
+[ RUN      ] Ports/NvmBoth.debounce/litespi
+[       OK ] Ports/NvmBoth.debounce/litespi (61 ms)
+[ RUN      ] Ports/NvmBoth.capture_joins/model
+[       OK ] Ports/NvmBoth.capture_joins/model (93 ms)
+[ RUN      ] Ports/NvmBoth.capture_joins/litespi
+[       OK ] Ports/NvmBoth.capture_joins/litespi (97 ms)
+[ RUN      ] Ports/NvmBoth.first_change_after_flight/model
+[       OK ] Ports/NvmBoth.first_change_after_flight/model (11 ms)
+[ RUN      ] Ports/NvmBoth.first_change_after_flight/litespi
+[       OK ] Ports/NvmBoth.first_change_after_flight/litespi (12 ms)
+[ RUN      ] Ports/NvmBoth.retry_after_rewind/model
+[       OK ] Ports/NvmBoth.retry_after_rewind/model (22 ms)
+[ RUN      ] Ports/NvmBoth.retry_after_rewind/litespi
+[       OK ] Ports/NvmBoth.retry_after_rewind/litespi (24 ms)
+[ RUN      ] Ports/NvmBoth.busy_steps/model
+[       OK ] Ports/NvmBoth.busy_steps/model (87 ms)
+[ RUN      ] Ports/NvmBoth.busy_steps/litespi
+[       OK ] Ports/NvmBoth.busy_steps/litespi (105 ms)
+[ RUN      ] Ports/NvmBoth.open_count/model
+[       OK ] Ports/NvmBoth.open_count/model (26 ms)
+[ RUN      ] Ports/NvmBoth.open_count/litespi
+[       OK ] Ports/NvmBoth.open_count/litespi (27 ms)
+[ RUN      ] Ports/NvmBoth.unchanged_no_erase/model
+[       OK ] Ports/NvmBoth.unchanged_no_erase/model (9 ms)
+[ RUN      ] Ports/NvmBoth.unchanged_no_erase/litespi
+[       OK ] Ports/NvmBoth.unchanged_no_erase/litespi (9 ms)
+[ RUN      ] Ports/NvmBoth.failed_commit_not_skipped/model
+[       OK ] Ports/NvmBoth.failed_commit_not_skipped/model (9 ms)
+[ RUN      ] Ports/NvmBoth.failed_commit_not_skipped/litespi
+[       OK ] Ports/NvmBoth.failed_commit_not_skipped/litespi (10 ms)
+[ RUN      ] Ports/NvmBoth.media_failures/model
+[       OK ] Ports/NvmBoth.media_failures/model (76 ms)
+[ RUN      ] Ports/NvmBoth.media_failures/litespi
+[       OK ] Ports/NvmBoth.media_failures/litespi (111 ms)
+[ RUN      ] Ports/NvmBoth.recovers_after_failure/model
+[       OK ] Ports/NvmBoth.recovers_after_failure/model (33 ms)
+[ RUN      ] Ports/NvmBoth.recovers_after_failure/litespi
+[       OK ] Ports/NvmBoth.recovers_after_failure/litespi (37 ms)
+[ RUN      ] Ports/NvmBoth.dr2c_unchanged_set/model
+[       OK ] Ports/NvmBoth.dr2c_unchanged_set/model (41 ms)
+[ RUN      ] Ports/NvmBoth.dr2c_unchanged_set/litespi
+[       OK ] Ports/NvmBoth.dr2c_unchanged_set/litespi (51 ms)
+[ RUN      ] Ports/NvmBoth.dr2c_console/model
+[       OK ] Ports/NvmBoth.dr2c_console/model (22 ms)
+[ RUN      ] Ports/NvmBoth.dr2c_console/litespi
+[       OK ] Ports/NvmBoth.dr2c_console/litespi (25 ms)
+[ RUN      ] Ports/NvmBoth.verify_tail/model
+[       OK ] Ports/NvmBoth.verify_tail/model (18 ms)
+[ RUN      ] Ports/NvmBoth.verify_tail/litespi
+[       OK ] Ports/NvmBoth.verify_tail/litespi (19 ms)
+[ RUN      ] Ports/NvmBoth.blankcheck_tail/model
+[       OK ] Ports/NvmBoth.blankcheck_tail/model (18 ms)
+[ RUN      ] Ports/NvmBoth.blankcheck_tail/litespi
+[       OK ] Ports/NvmBoth.blankcheck_tail/litespi (38 ms)
+[ RUN      ] Ports/NvmBoth.refused_slot_kept/model
+[       OK ] Ports/NvmBoth.refused_slot_kept/model (17 ms)
+[ RUN      ] Ports/NvmBoth.refused_slot_kept/litespi
+[       OK ] Ports/NvmBoth.refused_slot_kept/litespi (14 ms)
+[ RUN      ] Ports/NvmBoth.service_bound/model
+[       OK ] Ports/NvmBoth.service_bound/model (18 ms)
+[ RUN      ] Ports/NvmBoth.service_bound/litespi
+[       OK ] Ports/NvmBoth.service_bound/litespi (25 ms)
+[ RUN      ] Ports/NvmBoth.step_room/model
+[       OK ] Ports/NvmBoth.step_room/model (77 ms)
+[ RUN      ] Ports/NvmBoth.step_room/litespi
+[       OK ] Ports/NvmBoth.step_room/litespi (50 ms)
+[ RUN      ] Ports/NvmBoth.powercut/model
+[       OK ] Ports/NvmBoth.powercut/model (5905 ms)
+[ RUN      ] Ports/NvmBoth.powercut/litespi
+[       OK ] Ports/NvmBoth.powercut/litespi (6383 ms)
+[----------] 104 tests from Ports/NvmBoth (106425 ms total)
+
+[----------] Global test environment tear-down
+  longest service call, model time: 210 us with no stall armed, 2189 us with a command-master stall
+[==========] 128 tests from 5 test suites ran. (109803 ms total)
+[  PASSED  ] 128 tests.
+== ctrl_nvm saved-state store, boot and write paths (endstation_arty_8ch): checks: 128   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (128 tests, 0 failures, exit 0)

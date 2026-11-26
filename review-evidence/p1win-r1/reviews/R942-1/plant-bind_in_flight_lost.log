@@ -1,0 +1,510 @@
+Expected failing checks: ('binding_change_in_flight_opens_window', 'swept_cut_in_flight')
+Note: Google Test filter = *.binding_change_in_flight_opens_window:*.binding_change_in_flight_opens_window/*:*.swept_cut_in_flight:*.swept_cut_in_flight/*
+[==========] Running 4 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 4 tests from Ports/NvmBoth
+[ RUN      ] Ports/NvmBoth.binding_change_in_flight_opens_window/model
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:165: Failure
+Value of: r.at("ok") == 2 && in(after_mark(r, 1), kBind, kBind + kAfter) && static_cast<long long>(r.erases[1] - r.ok_at[0]) > kAfter
+  Actual: false
+Expected: true
+a short save in flight: erased -1 us after the change: {'abandoned': 0, 'abandoned_vd': 0, 'applied': 54, 'attempts': 0, 'auth': 0, 'bad': 0, 'bind_cause': 0, 'bind_terminal': 1, 'blank': 0, 'calls': 1110, 'cause': 0, 'clock_hz': 100000000, 'commit_refused': 0, 'commit_tries': 0, 'deferred': 0, 'descending': 0, 'dirty': 0, 'effects': 15, 'erases': 1, 'exhausted': 0, 'failed': 0, 'first': 0, 'img_len': 3444, 'last': 0, 'legacy': 0, 'ls_call_ticks': 200000, 'ls_hung': 0, 'ls_max_withheld': 0, 'ls_no_wel': 0, 'ls_pp': 0, 'ls_refused': 0, 'ls_se': 0, 'ls_short': 0, 'ls_stalled': 0, 'ls_unknown': 0, 'ls_wren': 0, 'max_call_us': 167, 'max_polls_call': 1, 'max_read': 128, 'n_dirty': 0, 'n_inflight': 0, 'n_rec': 54, 'now_ms': 124, 'ok': 1, 'outside': 0, 'pagewrap': 0, 'pending': 0, 'phase': 1, 'programs': 14, 'protected': 0, 'read_faults': 0, 'refused': 0, 'releases': 1, 'seq': 7, 'seq_a': 5, 'seq_b': 6, 'skipped': 0, 'sm_applied': 54, 'sm_applies': 54, 'sm_order': 0, 'sm_refused': 0, 'sm_releases': 1, 'sm_rollbacks': 0, 'sm_settles': 1, 'sm_unbinds': 0, 'stale': 0, 'step_bound': 280, 'step_max': 256, 'step_owing': 0, 'steps': 1110, 'terminal': 1, 'unread': 0, 'vd_a': 0, 'vd_b': 0, 'while_busy': 0, 'withheld': 0}
+
+  [FAIL] Ports/NvmBoth.binding_change_in_flight_opens_window/model: a short save in flight: erased -1 us after the change: {'abandoned': 0, 'abandoned_vd': 0, 'applied': 54, 'attempts': 0, 'auth': 0, 'bad': 0, 'bind_cause': 0, 'bind_terminal': 1, 'blank': 0, 'calls': 1110, 'cause': 0, 'clock_hz': 100000000, 'commit_refused': 0, 'commit_tries': 0, 'deferred': 0, 'descending': 0, 'dirty': 0, 'effects': 15, 'erases': 1, 'exhausted': 0, 'failed': 0, 'first': 0, 'img_len': 3444, 'last': 0, 'legacy': 0, 'ls_call_ticks': 200000, 'ls_hung': 0, 'ls_max_withheld': 0, 'ls_no_wel': 0, 'ls_pp': 0, 'ls_refused': 0, 'ls_se': 0, 'ls_short': 0, 'ls_stalled': 0, 'ls_unknown': 0, 'ls_wren': 0, 'max_call_us': 167, 'max_polls_call': 1, 'max_read': 128, 'n_dirty': 0, 'n_inflight': 0, 'n_rec': 54, 'now_ms': 124, 'ok': 1, 'outside': 0, 'pagewrap': 0, 'pending': 0, 'phase': 1, 'programs': 14, 'protected': 0, 'read_faults': 0, 'refused': 0, 'releases': 1, 'seq': 7, 'seq_a': 5, 'seq_b': 6, 'skipped': 0, 'sm_applied': 54, 'sm_applies': 54, 'sm_order': 0, 'sm_refused': 0, 'sm_releases': 1, 'sm_rollbacks': 0, 'sm_settles': 1, 'sm_unbinds': 0, 'stale': 0, 'step_bound': 280, 'step_max': 256, 'step_owing': 0, 'steps': 1110, 'terminal': 1, 'unread': 0, 'vd_a': 0, 'vd_b': 0, 'while_busy': 0, 'withheld': 0}
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:264: Failure
+Value of: bad.empty()
+  Actual: false
+Expected: true
+both savesstate of records [0x1b] (1 in all) differs from the slot
+
+  [FAIL] Ports/NvmBoth.binding_change_in_flight_opens_window/model: both savesstate of records [0x1b] (1 in all) differs from the slot
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:172: Failure
+Value of: r.at("ok") == 2 && after_mark(r, 1) > 400 * kMs && in(static_cast<long long>(r.erases[1] - r.ok_at[0]), 0, kAfter)
+  Actual: false
+Expected: true
+a long save in flight: erased -1 us after the change: {'abandoned': 0, 'abandoned_vd': 0, 'applied': 54, 'attempts': 0, 'auth': 0, 'bad': 0, 'bind_cause': 0, 'bind_terminal': 1, 'blank': 0, 'calls': 5057, 'cause': 0, 'clock_hz': 100000000, 'commit_refused': 0, 'commit_tries': 0, 'deferred': 0, 'descending': 0, 'dirty': 0, 'effects': 15, 'erases': 1, 'exhausted': 0, 'failed': 0, 'first': 0, 'img_len': 3444, 'last': 0, 'legacy': 0, 'ls_call_ticks': 200000, 'ls_hung': 0, 'ls_max_withheld': 0, 'ls_no_wel': 0, 'ls_pp': 0, 'ls_refused': 0, 'ls_se': 0, 'ls_short': 0, 'ls_stalled': 0, 'ls_unknown': 0, 'ls_wren': 0, 'max_call_us': 167, 'max_polls_call': 1, 'max_read': 128, 'n_dirty': 0, 'n_inflight': 0, 'n_rec': 54, 'now_ms': 529, 'ok': 1, 'outside': 0, 'pagewrap': 0, 'pending': 0, 'phase': 1, 'programs': 14, 'protected': 0, 'read_faults': 0, 'refused': 0, 'releases': 1, 'seq': 7, 'seq_a': 5, 'seq_b': 6, 'skipped': 0, 'sm_applied': 54, 'sm_applies': 54, 'sm_order': 0, 'sm_refused': 0, 'sm_releases': 1, 'sm_rollbacks': 0, 'sm_settles': 1, 'sm_unbinds': 0, 'stale': 0, 'step_bound': 280, 'step_max': 256, 'step_owing': 0, 'steps': 5057, 'terminal': 1, 'unread': 0, 'vd_a': 0, 'vd_b': 0, 'while_busy': 0, 'withheld': 0}
+
+  [FAIL] Ports/NvmBoth.binding_change_in_flight_opens_window/model: a long save in flight: erased -1 us after the change: {'abandoned': 0, 'abandoned_vd': 0, 'applied': 54, 'attempts': 0, 'auth': 0, 'bad': 0, 'bind_cause': 0, 'bind_terminal': 1, 'blank': 0, 'calls': 5057, 'cause': 0, 'clock_hz': 100000000, 'commit_refused': 0, 'commit_tries': 0, 'deferred': 0, 'descending': 0, 'dirty': 0, 'effects': 15, 'erases': 1, 'exhausted': 0, 'failed': 0, 'first': 0, 'img_len': 3444, 'last': 0, 'legacy': 0, 'ls_call_ticks': 200000, 'ls_hung': 0, 'ls_max_withheld': 0, 'ls_no_wel': 0, 'ls_pp': 0, 'ls_refused': 0, 'ls_se': 0, 'ls_short': 0, 'ls_stalled': 0, 'ls_unknown': 0, 'ls_wren': 0, 'max_call_us': 167, 'max_polls_call': 1, 'max_read': 128, 'n_dirty': 0, 'n_inflight': 0, 'n_rec': 54, 'now_ms': 529, 'ok': 1, 'outside': 0, 'pagewrap': 0, 'pending': 0, 'phase': 1, 'programs': 14, 'protected': 0, 'read_faults': 0, 'refused': 0, 'releases': 1, 'seq': 7, 'seq_a': 5, 'seq_b': 6, 'skipped': 0, 'sm_applied': 54, 'sm_applies': 54, 'sm_order': 0, 'sm_refused': 0, 'sm_releases': 1, 'sm_rollbacks': 0, 'sm_settles': 1, 'sm_unbinds': 0, 'stale': 0, 'step_bound': 280, 'step_max': 256, 'step_owing': 0, 'steps': 5057, 'terminal': 1, 'unread': 0, 'vd_a': 0, 'vd_b': 0, 'while_busy': 0, 'withheld': 0}
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:264: Failure
+Value of: bad.empty()
+  Actual: false
+Expected: true
+both long savesstate of records [0x1b] (1 in all) differs from the slot
+
+  [FAIL] Ports/NvmBoth.binding_change_in_flight_opens_window/model: both long savesstate of records [0x1b] (1 in all) differs from the slot
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:264: Failure
+Value of: bad.empty()
+  Actual: false
+Expected: true
+the second save takes bothstate of records [0x1b] (1 in all) differs from the slot
+
+  [FAIL] Ports/NvmBoth.binding_change_in_flight_opens_window/model: the second save takes bothstate of records [0x1b] (1 in all) differs from the slot
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:264: Failure
+Value of: bad.empty()
+  Actual: false
+Expected: true
+the second save takes bothstate of records [0x1b] (1 in all) differs from the slot
+
+  [FAIL] Ports/NvmBoth.binding_change_in_flight_opens_window/model: the second save takes bothstate of records [0x1b] (1 in all) differs from the slot
+[  FAILED  ] Ports/NvmBoth.binding_change_in_flight_opens_window/model, where GetParam() = 4-byte object <00-00 00-00> (91 ms)
+[ RUN      ] Ports/NvmBoth.binding_change_in_flight_opens_window/litespi
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:165: Failure
+Value of: r.at("ok") == 2 && in(after_mark(r, 1), kBind, kBind + kAfter) && static_cast<long long>(r.erases[1] - r.ok_at[0]) > kAfter
+  Actual: false
+Expected: true
+a short save in flight: erased -1 us after the change: {'abandoned': 0, 'abandoned_vd': 0, 'applied': 54, 'attempts': 0, 'auth': 0, 'bad': 0, 'bind_cause': 0, 'bind_terminal': 1, 'blank': 0, 'calls': 1110, 'cause': 0, 'clock_hz': 100000000, 'commit_refused': 0, 'commit_tries': 0, 'deferred': 0, 'descending': 0, 'dirty': 0, 'effects': 15, 'erases': 1, 'exhausted': 0, 'failed': 0, 'first': 0, 'img_len': 3444, 'last': 0, 'legacy': 0, 'ls_call_ticks': 200000, 'ls_hung': 0, 'ls_max_withheld': 0, 'ls_no_wel': 0, 'ls_pp': 14, 'ls_refused': 0, 'ls_se': 1, 'ls_short': 0, 'ls_stalled': 0, 'ls_unknown': 0, 'ls_wren': 15, 'max_call_us': 210, 'max_polls_call': 3, 'max_read': 0, 'n_dirty': 0, 'n_inflight': 0, 'n_rec': 54, 'now_ms': 114, 'ok': 1, 'outside': 0, 'pagewrap': 0, 'pending': 0, 'phase': 1, 'programs': 14, 'protected': 0, 'read_faults': 0, 'refused': 0, 'releases': 1, 'seq': 7, 'seq_a': 5, 'seq_b': 6, 'skipped': 0, 'sm_applied': 54, 'sm_applies': 54, 'sm_order': 0, 'sm_refused': 0, 'sm_releases': 1, 'sm_rollbacks': 0, 'sm_settles': 1, 'sm_unbinds': 0, 'stale': 0, 'step_bound': 280, 'step_max': 256, 'step_owing': 0, 'steps': 1110, 'terminal': 1, 'unread': 0, 'vd_a': 0, 'vd_b': 0, 'while_busy': 0, 'withheld': 0}
+
+  [FAIL] Ports/NvmBoth.binding_change_in_flight_opens_window/litespi: a short save in flight: erased -1 us after the change: {'abandoned': 0, 'abandoned_vd': 0, 'applied': 54, 'attempts': 0, 'auth': 0, 'bad': 0, 'bind_cause': 0, 'bind_terminal': 1, 'blank': 0, 'calls': 1110, 'cause': 0, 'clock_hz': 100000000, 'commit_refused': 0, 'commit_tries': 0, 'deferred': 0, 'descending': 0, 'dirty': 0, 'effects': 15, 'erases': 1, 'exhausted': 0, 'failed': 0, 'first': 0, 'img_len': 3444, 'last': 0, 'legacy': 0, 'ls_call_ticks': 200000, 'ls_hung': 0, 'ls_max_withheld': 0, 'ls_no_wel': 0, 'ls_pp': 14, 'ls_refused': 0, 'ls_se': 1, 'ls_short': 0, 'ls_stalled': 0, 'ls_unknown': 0, 'ls_wren': 15, 'max_call_us': 210, 'max_polls_call': 3, 'max_read': 0, 'n_dirty': 0, 'n_inflight': 0, 'n_rec': 54, 'now_ms': 114, 'ok': 1, 'outside': 0, 'pagewrap': 0, 'pending': 0, 'phase': 1, 'programs': 14, 'protected': 0, 'read_faults': 0, 'refused': 0, 'releases': 1, 'seq': 7, 'seq_a': 5, 'seq_b': 6, 'skipped': 0, 'sm_applied': 54, 'sm_applies': 54, 'sm_order': 0, 'sm_refused': 0, 'sm_releases': 1, 'sm_rollbacks': 0, 'sm_settles': 1, 'sm_unbinds': 0, 'stale': 0, 'step_bound': 280, 'step_max': 256, 'step_owing': 0, 'steps': 1110, 'terminal': 1, 'unread': 0, 'vd_a': 0, 'vd_b': 0, 'while_busy': 0, 'withheld': 0}
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:264: Failure
+Value of: bad.empty()
+  Actual: false
+Expected: true
+both savesstate of records [0x1b] (1 in all) differs from the slot
+
+  [FAIL] Ports/NvmBoth.binding_change_in_flight_opens_window/litespi: both savesstate of records [0x1b] (1 in all) differs from the slot
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:172: Failure
+Value of: r.at("ok") == 2 && after_mark(r, 1) > 400 * kMs && in(static_cast<long long>(r.erases[1] - r.ok_at[0]), 0, kAfter)
+  Actual: false
+Expected: true
+a long save in flight: erased -1 us after the change: {'abandoned': 0, 'abandoned_vd': 0, 'applied': 54, 'attempts': 0, 'auth': 0, 'bad': 0, 'bind_cause': 0, 'bind_terminal': 1, 'blank': 0, 'calls': 4838, 'cause': 0, 'clock_hz': 100000000, 'commit_refused': 0, 'commit_tries': 0, 'deferred': 0, 'descending': 0, 'dirty': 0, 'effects': 15, 'erases': 1, 'exhausted': 0, 'failed': 0, 'first': 0, 'img_len': 3444, 'last': 0, 'legacy': 0, 'ls_call_ticks': 200000, 'ls_hung': 0, 'ls_max_withheld': 0, 'ls_no_wel': 0, 'ls_pp': 14, 'ls_refused': 0, 'ls_se': 1, 'ls_short': 0, 'ls_stalled': 0, 'ls_unknown': 0, 'ls_wren': 15, 'max_call_us': 210, 'max_polls_call': 3, 'max_read': 0, 'n_dirty': 0, 'n_inflight': 0, 'n_rec': 54, 'now_ms': 519, 'ok': 1, 'outside': 0, 'pagewrap': 0, 'pending': 0, 'phase': 1, 'programs': 14, 'protected': 0, 'read_faults': 0, 'refused': 0, 'releases': 1, 'seq': 7, 'seq_a': 5, 'seq_b': 6, 'skipped': 0, 'sm_applied': 54, 'sm_applies': 54, 'sm_order': 0, 'sm_refused': 0, 'sm_releases': 1, 'sm_rollbacks': 0, 'sm_settles': 1, 'sm_unbinds': 0, 'stale': 0, 'step_bound': 280, 'step_max': 256, 'step_owing': 0, 'steps': 4838, 'terminal': 1, 'unread': 0, 'vd_a': 0, 'vd_b': 0, 'while_busy': 0, 'withheld': 0}
+
+  [FAIL] Ports/NvmBoth.binding_change_in_flight_opens_window/litespi: a long save in flight: erased -1 us after the change: {'abandoned': 0, 'abandoned_vd': 0, 'applied': 54, 'attempts': 0, 'auth': 0, 'bad': 0, 'bind_cause': 0, 'bind_terminal': 1, 'blank': 0, 'calls': 4838, 'cause': 0, 'clock_hz': 100000000, 'commit_refused': 0, 'commit_tries': 0, 'deferred': 0, 'descending': 0, 'dirty': 0, 'effects': 15, 'erases': 1, 'exhausted': 0, 'failed': 0, 'first': 0, 'img_len': 3444, 'last': 0, 'legacy': 0, 'ls_call_ticks': 200000, 'ls_hung': 0, 'ls_max_withheld': 0, 'ls_no_wel': 0, 'ls_pp': 14, 'ls_refused': 0, 'ls_se': 1, 'ls_short': 0, 'ls_stalled': 0, 'ls_unknown': 0, 'ls_wren': 15, 'max_call_us': 210, 'max_polls_call': 3, 'max_read': 0, 'n_dirty': 0, 'n_inflight': 0, 'n_rec': 54, 'now_ms': 519, 'ok': 1, 'outside': 0, 'pagewrap': 0, 'pending': 0, 'phase': 1, 'programs': 14, 'protected': 0, 'read_faults': 0, 'refused': 0, 'releases': 1, 'seq': 7, 'seq_a': 5, 'seq_b': 6, 'skipped': 0, 'sm_applied': 54, 'sm_applies': 54, 'sm_order': 0, 'sm_refused': 0, 'sm_releases': 1, 'sm_rollbacks': 0, 'sm_settles': 1, 'sm_unbinds': 0, 'stale': 0, 'step_bound': 280, 'step_max': 256, 'step_owing': 0, 'steps': 4838, 'terminal': 1, 'unread': 0, 'vd_a': 0, 'vd_b': 0, 'while_busy': 0, 'withheld': 0}
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:264: Failure
+Value of: bad.empty()
+  Actual: false
+Expected: true
+both long savesstate of records [0x1b] (1 in all) differs from the slot
+
+  [FAIL] Ports/NvmBoth.binding_change_in_flight_opens_window/litespi: both long savesstate of records [0x1b] (1 in all) differs from the slot
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:264: Failure
+Value of: bad.empty()
+  Actual: false
+Expected: true
+the second save takes bothstate of records [0x1b] (1 in all) differs from the slot
+
+  [FAIL] Ports/NvmBoth.binding_change_in_flight_opens_window/litespi: the second save takes bothstate of records [0x1b] (1 in all) differs from the slot
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:264: Failure
+Value of: bad.empty()
+  Actual: false
+Expected: true
+the second save takes bothstate of records [0x1b] (1 in all) differs from the slot
+
+  [FAIL] Ports/NvmBoth.binding_change_in_flight_opens_window/litespi: the second save takes bothstate of records [0x1b] (1 in all) differs from the slot
+[  FAILED  ] Ports/NvmBoth.binding_change_in_flight_opens_window/litespi, where GetParam() = 4-byte object <01-00 00-00> (38 ms)
+[ RUN      ] Ports/NvmBoth.swept_cut_in_flight/model
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+model: invariant bad=1
+
+  [FAIL] Ports/NvmBoth.swept_cut_in_flight/model: model: invariant bad=1
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+model: runner FAIL sweep_reference 1 1
+
+  [FAIL] Ports/NvmBoth.swept_cut_in_flight/model: model: runner FAIL sweep_reference 1 1
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:262: Failure
+Value of: at("bad") == 0 && at("cases") >= 121 && at("old") > 0 && at("new") > 0 && at("saves") == 2 && at("effects") == 2 * (1 + pages())
+  Actual: false
+Expected: true
+phase 3 + 0 ms: cases 151 old 37 new 114 bad 0 effects 15 saves 1 durable 172324 us; {'abandoned': 0, 'abandoned_vd': 0, 'applied': 54, 'attempts': 0, 'auth': 0, 'bad': 1, 'bind_cause': 0, 'bind_terminal': 1, 'blank': 0, 'calls': 3771753, 'cause': 0, 'clock_hz': 100000000, 'commit_refused': 0, 'commit_tries': 0, 'deferred': 0, 'descending': 0, 'dirty': 0, 'effects': 0, 'erases': 0, 'exhausted': 0, 'failed': 0, 'first': 0, 'img_len': 3444, 'last': 0, 'legacy': 0, 'ls_call_ticks': 200000, 'ls_hung': 0, 'ls_max_withheld': 0, 'ls_no_wel': 0, 'ls_pp': 0, 'ls_refused': 0, 'ls_se': 0, 'ls_short': 0, 'ls_stalled': 0, 'ls_unknown': 0, 'ls_wren': 0, 'max_call_us': 168, 'max_polls_call': 1, 'max_read': 128, 'n_dirty': 0, 'n_inflight': 0, 'n_rec': 54, 'now_ms': 6, 'ok': 0, 'outside': 0, 'pagewrap': 0, 'pending': 0, 'phase': 1, 'programs': 0, 'protected': 0, 'read_faults': 0, 'refused': 0, 'releases': 1, 'seq': 7, 'seq_a': 7, 'seq_b': 6, 'skipped': 0, 'sm_applied': 54, 'sm_applies': 54, 'sm_order': 0, 'sm_refused': 0, 'sm_releases': 1, 'sm_rollbacks': 0, 'sm_settles': 1, 'sm_unbinds': 0, 'stale': 0, 'step_bound': 280, 'step_max': 0, 'step_owing': 0, 'steps': 0, 'terminal': 1, 'unread': 0, 'vd_a': 0, 'vd_b': 0, 'while_busy': 0, 'withheld': 0}
+
+  [FAIL] Ports/NvmBoth.swept_cut_in_flight/model: phase 3 + 0 ms: cases 151 old 37 new 114 bad 0 effects 15 saves 1 durable 172324 us; {'abandoned': 0, 'abandoned_vd': 0, 'applied': 54, 'attempts': 0, 'auth': 0, 'bad': 1, 'bind_cause': 0, 'bind_terminal': 1, 'blank': 0, 'calls': 3771753, 'cause': 0, 'clock_hz': 100000000, 'commit_refused': 0, 'commit_tries': 0, 'deferred': 0, 'descending': 0, 'dirty': 0, 'effects': 0, 'erases': 0, 'exhausted': 0, 'failed': 0, 'first': 0, 'img_len': 3444, 'last': 0, 'legacy': 0, 'ls_call_ticks': 200000, 'ls_hung': 0, 'ls_max_withheld': 0, 'ls_no_wel': 0, 'ls_pp': 0, 'ls_refused': 0, 'ls_se': 0, 'ls_short': 0, 'ls_stalled': 0, 'ls_unknown': 0, 'ls_wren': 0, 'max_call_us': 168, 'max_polls_call': 1, 'max_read': 128, 'n_dirty': 0, 'n_inflight': 0, 'n_rec': 54, 'now_ms': 6, 'ok': 0, 'outside': 0, 'pagewrap': 0, 'pending': 0, 'phase': 1, 'programs': 0, 'protected': 0, 'read_faults': 0, 'refused': 0, 'releases': 1, 'seq': 7, 'seq_a': 7, 'seq_b': 6, 'skipped': 0, 'sm_applied': 54, 'sm_applies': 54, 'sm_order': 0, 'sm_refused': 0, 'sm_releases': 1, 'sm_rollbacks': 0, 'sm_settles': 1, 'sm_unbinds': 0, 'stale': 0, 'step_bound': 280, 'step_max': 0, 'step_owing': 0, 'steps': 0, 'terminal': 1, 'unread': 0, 'vd_a': 0, 'vd_b': 0, 'while_busy': 0, 'withheld': 0}
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:268: Failure
+Failed
+phase 3 + 0 ms: FAIL sweep_reference 1 1
+
+  [FAIL] Ports/NvmBoth.swept_cut_in_flight/model: phase 3 + 0 ms: FAIL sweep_reference 1 1
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+model: invariant bad=1
+
+  [FAIL] Ports/NvmBoth.swept_cut_in_flight/model: model: invariant bad=1
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+model: runner FAIL sweep_reference 1 1
+
+  [FAIL] Ports/NvmBoth.swept_cut_in_flight/model: model: runner FAIL sweep_reference 1 1
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:262: Failure
+Value of: at("bad") == 0 && at("cases") >= 121 && at("old") > 0 && at("new") > 0 && at("saves") == 2 && at("effects") == 2 * (1 + pages())
+  Actual: false
+Expected: true
+phase 4 + 0 ms: cases 151 old 37 new 114 bad 0 effects 15 saves 1 durable 170924 us; {'abandoned': 0, 'abandoned_vd': 0, 'applied': 54, 'attempts': 0, 'auth': 0, 'bad': 1, 'bind_cause': 0, 'bind_terminal': 1, 'blank': 0, 'calls': 3773363, 'cause': 0, 'clock_hz': 100000000, 'commit_refused': 0, 'commit_tries': 0, 'deferred': 0, 'descending': 0, 'dirty': 0, 'effects': 0, 'erases': 0, 'exhausted': 0, 'failed': 0, 'first': 0, 'img_len': 3444, 'last': 0, 'legacy': 0, 'ls_call_ticks': 200000, 'ls_hung': 0, 'ls_max_withheld': 0, 'ls_no_wel': 0, 'ls_pp': 0, 'ls_refused': 0, 'ls_se': 0, 'ls_short': 0, 'ls_stalled': 0, 'ls_unknown': 0, 'ls_wren': 0, 'max_call_us': 168, 'max_polls_call': 1, 'max_read': 128, 'n_dirty': 0, 'n_inflight': 0, 'n_rec': 54, 'now_ms': 6, 'ok': 0, 'outside': 0, 'pagewrap': 0, 'pending': 0, 'phase': 1, 'programs': 0, 'protected': 0, 'read_faults': 0, 'refused': 0, 'releases': 1, 'seq': 7, 'seq_a': 7, 'seq_b': 6, 'skipped': 0, 'sm_applied': 54, 'sm_applies': 54, 'sm_order': 0, 'sm_refused': 0, 'sm_releases': 1, 'sm_rollbacks': 0, 'sm_settles': 1, 'sm_unbinds': 0, 'stale': 0, 'step_bound': 280, 'step_max': 0, 'step_owing': 0, 'steps': 0, 'terminal': 1, 'unread': 0, 'vd_a': 0, 'vd_b': 0, 'while_busy': 0, 'withheld': 0}
+
+  [FAIL] Ports/NvmBoth.swept_cut_in_flight/model: phase 4 + 0 ms: cases 151 old 37 new 114 bad 0 effects 15 saves 1 durable 170924 us; {'abandoned': 0, 'abandoned_vd': 0, 'applied': 54, 'attempts': 0, 'auth': 0, 'bad': 1, 'bind_cause': 0, 'bind_terminal': 1, 'blank': 0, 'calls': 3773363, 'cause': 0, 'clock_hz': 100000000, 'commit_refused': 0, 'commit_tries': 0, 'deferred': 0, 'descending': 0, 'dirty': 0, 'effects': 0, 'erases': 0, 'exhausted': 0, 'failed': 0, 'first': 0, 'img_len': 3444, 'last': 0, 'legacy': 0, 'ls_call_ticks': 200000, 'ls_hung': 0, 'ls_max_withheld': 0, 'ls_no_wel': 0, 'ls_pp': 0, 'ls_refused': 0, 'ls_se': 0, 'ls_short': 0, 'ls_stalled': 0, 'ls_unknown': 0, 'ls_wren': 0, 'max_call_us': 168, 'max_polls_call': 1, 'max_read': 128, 'n_dirty': 0, 'n_inflight': 0, 'n_rec': 54, 'now_ms': 6, 'ok': 0, 'outside': 0, 'pagewrap': 0, 'pending': 0, 'phase': 1, 'programs': 0, 'protected': 0, 'read_faults': 0, 'refused': 0, 'releases': 1, 'seq': 7, 'seq_a': 7, 'seq_b': 6, 'skipped': 0, 'sm_applied': 54, 'sm_applies': 54, 'sm_order': 0, 'sm_refused': 0, 'sm_releases': 1, 'sm_rollbacks': 0, 'sm_settles': 1, 'sm_unbinds': 0, 'stale': 0, 'step_bound': 280, 'step_max': 0, 'step_owing': 0, 'steps': 0, 'terminal': 1, 'unread': 0, 'vd_a': 0, 'vd_b': 0, 'while_busy': 0, 'withheld': 0}
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:268: Failure
+Failed
+phase 4 + 0 ms: FAIL sweep_reference 1 1
+
+  [FAIL] Ports/NvmBoth.swept_cut_in_flight/model: phase 4 + 0 ms: FAIL sweep_reference 1 1
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+model: invariant bad=1
+
+  [FAIL] Ports/NvmBoth.swept_cut_in_flight/model: model: invariant bad=1
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+model: runner FAIL sweep_reference 1 1
+
+  [FAIL] Ports/NvmBoth.swept_cut_in_flight/model: model: runner FAIL sweep_reference 1 1
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:262: Failure
+Value of: at("bad") == 0 && at("cases") >= 121 && at("old") > 0 && at("new") > 0 && at("saves") == 2 && at("effects") == 2 * (1 + pages())
+  Actual: false
+Expected: true
+phase 5 + 0 ms: cases 149 old 35 new 114 bad 0 effects 15 saves 1 durable 170820 us; {'abandoned': 0, 'abandoned_vd': 0, 'applied': 54, 'attempts': 0, 'auth': 0, 'bad': 1, 'bind_cause': 0, 'bind_terminal': 1, 'blank': 0, 'calls': 3749645, 'cause': 0, 'clock_hz': 100000000, 'commit_refused': 0, 'commit_tries': 0, 'deferred': 0, 'descending': 0, 'dirty': 0, 'effects': 0, 'erases': 0, 'exhausted': 0, 'failed': 0, 'first': 0, 'img_len': 3444, 'last': 0, 'legacy': 0, 'ls_call_ticks': 200000, 'ls_hung': 0, 'ls_max_withheld': 0, 'ls_no_wel': 0, 'ls_pp': 0, 'ls_refused': 0, 'ls_se': 0, 'ls_short': 0, 'ls_stalled': 0, 'ls_unknown': 0, 'ls_wren': 0, 'max_call_us': 168, 'max_polls_call': 1, 'max_read': 128, 'n_dirty': 0, 'n_inflight': 0, 'n_rec': 54, 'now_ms': 6, 'ok': 0, 'outside': 0, 'pagewrap': 0, 'pending': 0, 'phase': 1, 'programs': 0, 'protected': 0, 'read_faults': 0, 'refused': 0, 'releases': 1, 'seq': 7, 'seq_a': 7, 'seq_b': 6, 'skipped': 0, 'sm_applied': 54, 'sm_applies': 54, 'sm_order': 0, 'sm_refused': 0, 'sm_releases': 1, 'sm_rollbacks': 0, 'sm_settles': 1, 'sm_unbinds': 0, 'stale': 0, 'step_bound': 280, 'step_max': 0, 'step_owing': 0, 'steps': 0, 'terminal': 1, 'unread': 0, 'vd_a': 0, 'vd_b': 0, 'while_busy': 0, 'withheld': 0}
+
+  [FAIL] Ports/NvmBoth.swept_cut_in_flight/model: phase 5 + 0 ms: cases 149 old 35 new 114 bad 0 effects 15 saves 1 durable 170820 us; {'abandoned': 0, 'abandoned_vd': 0, 'applied': 54, 'attempts': 0, 'auth': 0, 'bad': 1, 'bind_cause': 0, 'bind_terminal': 1, 'blank': 0, 'calls': 3749645, 'cause': 0, 'clock_hz': 100000000, 'commit_refused': 0, 'commit_tries': 0, 'deferred': 0, 'descending': 0, 'dirty': 0, 'effects': 0, 'erases': 0, 'exhausted': 0, 'failed': 0, 'first': 0, 'img_len': 3444, 'last': 0, 'legacy': 0, 'ls_call_ticks': 200000, 'ls_hung': 0, 'ls_max_withheld': 0, 'ls_no_wel': 0, 'ls_pp': 0, 'ls_refused': 0, 'ls_se': 0, 'ls_short': 0, 'ls_stalled': 0, 'ls_unknown': 0, 'ls_wren': 0, 'max_call_us': 168, 'max_polls_call': 1, 'max_read': 128, 'n_dirty': 0, 'n_inflight': 0, 'n_rec': 54, 'now_ms': 6, 'ok': 0, 'outside': 0, 'pagewrap': 0, 'pending': 0, 'phase': 1, 'programs': 0, 'protected': 0, 'read_faults': 0, 'refused': 0, 'releases': 1, 'seq': 7, 'seq_a': 7, 'seq_b': 6, 'skipped': 0, 'sm_applied': 54, 'sm_applies': 54, 'sm_order': 0, 'sm_refused': 0, 'sm_releases': 1, 'sm_rollbacks': 0, 'sm_settles': 1, 'sm_unbinds': 0, 'stale': 0, 'step_bound': 280, 'step_max': 0, 'step_owing': 0, 'steps': 0, 'terminal': 1, 'unread': 0, 'vd_a': 0, 'vd_b': 0, 'while_busy': 0, 'withheld': 0}
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:268: Failure
+Failed
+phase 5 + 0 ms: FAIL sweep_reference 1 1
+
+  [FAIL] Ports/NvmBoth.swept_cut_in_flight/model: phase 5 + 0 ms: FAIL sweep_reference 1 1
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+model: invariant bad=1
+
+  [FAIL] Ports/NvmBoth.swept_cut_in_flight/model: model: invariant bad=1
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+model: runner FAIL sweep_reference 1 1
+
+  [FAIL] Ports/NvmBoth.swept_cut_in_flight/model: model: runner FAIL sweep_reference 1 1
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:262: Failure
+Value of: at("bad") == 0 && at("cases") >= 121 && at("old") > 0 && at("new") > 0 && at("saves") == 2 && at("effects") == 2 * (1 + pages())
+  Actual: false
+Expected: true
+phase 5 + 60 ms: cases 149 old 33 new 116 bad 0 effects 15 saves 1 durable 110720 us; {'abandoned': 0, 'abandoned_vd': 0, 'applied': 54, 'attempts': 0, 'auth': 0, 'bad': 1, 'bind_cause': 0, 'bind_terminal': 1, 'blank': 0, 'calls': 3821961, 'cause': 0, 'clock_hz': 100000000, 'commit_refused': 0, 'commit_tries': 0, 'deferred': 0, 'descending': 0, 'dirty': 0, 'effects': 0, 'erases': 0, 'exhausted': 0, 'failed': 0, 'first': 0, 'img_len': 3444, 'last': 0, 'legacy': 0, 'ls_call_ticks': 200000, 'ls_hung': 0, 'ls_max_withheld': 0, 'ls_no_wel': 0, 'ls_pp': 0, 'ls_refused': 0, 'ls_se': 0, 'ls_short': 0, 'ls_stalled': 0, 'ls_unknown': 0, 'ls_wren': 0, 'max_call_us': 168, 'max_polls_call': 1, 'max_read': 128, 'n_dirty': 0, 'n_inflight': 0, 'n_rec': 54, 'now_ms': 6, 'ok': 0, 'outside': 0, 'pagewrap': 0, 'pending': 0, 'phase': 1, 'programs': 0, 'protected': 0, 'read_faults': 0, 'refused': 0, 'releases': 1, 'seq': 7, 'seq_a': 7, 'seq_b': 6, 'skipped': 0, 'sm_applied': 54, 'sm_applies': 54, 'sm_order': 0, 'sm_refused': 0, 'sm_releases': 1, 'sm_rollbacks': 0, 'sm_settles': 1, 'sm_unbinds': 0, 'stale': 0, 'step_bound': 280, 'step_max': 0, 'step_owing': 0, 'steps': 0, 'terminal': 1, 'unread': 0, 'vd_a': 0, 'vd_b': 0, 'while_busy': 0, 'withheld': 0}
+
+  [FAIL] Ports/NvmBoth.swept_cut_in_flight/model: phase 5 + 60 ms: cases 149 old 33 new 116 bad 0 effects 15 saves 1 durable 110720 us; {'abandoned': 0, 'abandoned_vd': 0, 'applied': 54, 'attempts': 0, 'auth': 0, 'bad': 1, 'bind_cause': 0, 'bind_terminal': 1, 'blank': 0, 'calls': 3821961, 'cause': 0, 'clock_hz': 100000000, 'commit_refused': 0, 'commit_tries': 0, 'deferred': 0, 'descending': 0, 'dirty': 0, 'effects': 0, 'erases': 0, 'exhausted': 0, 'failed': 0, 'first': 0, 'img_len': 3444, 'last': 0, 'legacy': 0, 'ls_call_ticks': 200000, 'ls_hung': 0, 'ls_max_withheld': 0, 'ls_no_wel': 0, 'ls_pp': 0, 'ls_refused': 0, 'ls_se': 0, 'ls_short': 0, 'ls_stalled': 0, 'ls_unknown': 0, 'ls_wren': 0, 'max_call_us': 168, 'max_polls_call': 1, 'max_read': 128, 'n_dirty': 0, 'n_inflight': 0, 'n_rec': 54, 'now_ms': 6, 'ok': 0, 'outside': 0, 'pagewrap': 0, 'pending': 0, 'phase': 1, 'programs': 0, 'protected': 0, 'read_faults': 0, 'refused': 0, 'releases': 1, 'seq': 7, 'seq_a': 7, 'seq_b': 6, 'skipped': 0, 'sm_applied': 54, 'sm_applies': 54, 'sm_order': 0, 'sm_refused': 0, 'sm_releases': 1, 'sm_rollbacks': 0, 'sm_settles': 1, 'sm_unbinds': 0, 'stale': 0, 'step_bound': 280, 'step_max': 0, 'step_owing': 0, 'steps': 0, 'terminal': 1, 'unread': 0, 'vd_a': 0, 'vd_b': 0, 'while_busy': 0, 'withheld': 0}
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:268: Failure
+Failed
+phase 5 + 60 ms: FAIL sweep_reference 1 1
+
+  [FAIL] Ports/NvmBoth.swept_cut_in_flight/model: phase 5 + 60 ms: FAIL sweep_reference 1 1
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+model: invariant bad=1
+
+  [FAIL] Ports/NvmBoth.swept_cut_in_flight/model: model: invariant bad=1
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+model: runner FAIL sweep_reference 1 1
+
+  [FAIL] Ports/NvmBoth.swept_cut_in_flight/model: model: runner FAIL sweep_reference 1 1
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:262: Failure
+Value of: at("bad") == 0 && at("cases") >= 121 && at("old") > 0 && at("new") > 0 && at("saves") == 2 && at("effects") == 2 * (1 + pages())
+  Actual: false
+Expected: true
+phase 5 + 140 ms: cases 149 old 30 new 119 bad 0 effects 15 saves 1 durable 30723 us; {'abandoned': 0, 'abandoned_vd': 0, 'applied': 54, 'attempts': 0, 'auth': 0, 'bad': 1, 'bind_cause': 0, 'bind_terminal': 1, 'blank': 0, 'calls': 3920934, 'cause': 0, 'clock_hz': 100000000, 'commit_refused': 0, 'commit_tries': 0, 'deferred': 0, 'descending': 0, 'dirty': 0, 'effects': 0, 'erases': 0, 'exhausted': 0, 'failed': 0, 'first': 0, 'img_len': 3444, 'last': 0, 'legacy': 0, 'ls_call_ticks': 200000, 'ls_hung': 0, 'ls_max_withheld': 0, 'ls_no_wel': 0, 'ls_pp': 0, 'ls_refused': 0, 'ls_se': 0, 'ls_short': 0, 'ls_stalled': 0, 'ls_unknown': 0, 'ls_wren': 0, 'max_call_us': 168, 'max_polls_call': 1, 'max_read': 128, 'n_dirty': 0, 'n_inflight': 0, 'n_rec': 54, 'now_ms': 6, 'ok': 0, 'outside': 0, 'pagewrap': 0, 'pending': 0, 'phase': 1, 'programs': 0, 'protected': 0, 'read_faults': 0, 'refused': 0, 'releases': 1, 'seq': 7, 'seq_a': 7, 'seq_b': 6, 'skipped': 0, 'sm_applied': 54, 'sm_applies': 54, 'sm_order': 0, 'sm_refused': 0, 'sm_releases': 1, 'sm_rollbacks': 0, 'sm_settles': 1, 'sm_unbinds': 0, 'stale': 0, 'step_bound': 280, 'step_max': 0, 'step_owing': 0, 'steps': 0, 'terminal': 1, 'unread': 0, 'vd_a': 0, 'vd_b': 0, 'while_busy': 0, 'withheld': 0}
+
+  [FAIL] Ports/NvmBoth.swept_cut_in_flight/model: phase 5 + 140 ms: cases 149 old 30 new 119 bad 0 effects 15 saves 1 durable 30723 us; {'abandoned': 0, 'abandoned_vd': 0, 'applied': 54, 'attempts': 0, 'auth': 0, 'bad': 1, 'bind_cause': 0, 'bind_terminal': 1, 'blank': 0, 'calls': 3920934, 'cause': 0, 'clock_hz': 100000000, 'commit_refused': 0, 'commit_tries': 0, 'deferred': 0, 'descending': 0, 'dirty': 0, 'effects': 0, 'erases': 0, 'exhausted': 0, 'failed': 0, 'first': 0, 'img_len': 3444, 'last': 0, 'legacy': 0, 'ls_call_ticks': 200000, 'ls_hung': 0, 'ls_max_withheld': 0, 'ls_no_wel': 0, 'ls_pp': 0, 'ls_refused': 0, 'ls_se': 0, 'ls_short': 0, 'ls_stalled': 0, 'ls_unknown': 0, 'ls_wren': 0, 'max_call_us': 168, 'max_polls_call': 1, 'max_read': 128, 'n_dirty': 0, 'n_inflight': 0, 'n_rec': 54, 'now_ms': 6, 'ok': 0, 'outside': 0, 'pagewrap': 0, 'pending': 0, 'phase': 1, 'programs': 0, 'protected': 0, 'read_faults': 0, 'refused': 0, 'releases': 1, 'seq': 7, 'seq_a': 7, 'seq_b': 6, 'skipped': 0, 'sm_applied': 54, 'sm_applies': 54, 'sm_order': 0, 'sm_refused': 0, 'sm_releases': 1, 'sm_rollbacks': 0, 'sm_settles': 1, 'sm_unbinds': 0, 'stale': 0, 'step_bound': 280, 'step_max': 0, 'step_owing': 0, 'steps': 0, 'terminal': 1, 'unread': 0, 'vd_a': 0, 'vd_b': 0, 'while_busy': 0, 'withheld': 0}
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:268: Failure
+Failed
+phase 5 + 140 ms: FAIL sweep_reference 1 1
+
+  [FAIL] Ports/NvmBoth.swept_cut_in_flight/model: phase 5 + 140 ms: FAIL sweep_reference 1 1
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+model: invariant bad=1
+
+  [FAIL] Ports/NvmBoth.swept_cut_in_flight/model: model: invariant bad=1
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+model: runner FAIL sweep_reference 1 1
+
+  [FAIL] Ports/NvmBoth.swept_cut_in_flight/model: model: runner FAIL sweep_reference 1 1
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:262: Failure
+Value of: at("bad") == 0 && at("cases") >= 121 && at("old") > 0 && at("new") > 0 && at("saves") == 2 && at("effects") == 2 * (1 + pages())
+  Actual: false
+Expected: true
+phase 6 + 0 ms: cases 149 old 29 new 120 bad 0 effects 15 saves 1 durable 20775 us; {'abandoned': 0, 'abandoned_vd': 0, 'applied': 54, 'attempts': 0, 'auth': 0, 'bad': 1, 'bind_cause': 0, 'bind_terminal': 1, 'blank': 0, 'calls': 3934373, 'cause': 0, 'clock_hz': 100000000, 'commit_refused': 0, 'commit_tries': 0, 'deferred': 0, 'descending': 0, 'dirty': 0, 'effects': 0, 'erases': 0, 'exhausted': 0, 'failed': 0, 'first': 0, 'img_len': 3444, 'last': 0, 'legacy': 0, 'ls_call_ticks': 200000, 'ls_hung': 0, 'ls_max_withheld': 0, 'ls_no_wel': 0, 'ls_pp': 0, 'ls_refused': 0, 'ls_se': 0, 'ls_short': 0, 'ls_stalled': 0, 'ls_unknown': 0, 'ls_wren': 0, 'max_call_us': 168, 'max_polls_call': 1, 'max_read': 128, 'n_dirty': 0, 'n_inflight': 0, 'n_rec': 54, 'now_ms': 6, 'ok': 0, 'outside': 0, 'pagewrap': 0, 'pending': 0, 'phase': 1, 'programs': 0, 'protected': 0, 'read_faults': 0, 'refused': 0, 'releases': 1, 'seq': 7, 'seq_a': 7, 'seq_b': 6, 'skipped': 0, 'sm_applied': 54, 'sm_applies': 54, 'sm_order': 0, 'sm_refused': 0, 'sm_releases': 1, 'sm_rollbacks': 0, 'sm_settles': 1, 'sm_unbinds': 0, 'stale': 0, 'step_bound': 280, 'step_max': 0, 'step_owing': 0, 'steps': 0, 'terminal': 1, 'unread': 0, 'vd_a': 0, 'vd_b': 0, 'while_busy': 0, 'withheld': 0}
+
+  [FAIL] Ports/NvmBoth.swept_cut_in_flight/model: phase 6 + 0 ms: cases 149 old 29 new 120 bad 0 effects 15 saves 1 durable 20775 us; {'abandoned': 0, 'abandoned_vd': 0, 'applied': 54, 'attempts': 0, 'auth': 0, 'bad': 1, 'bind_cause': 0, 'bind_terminal': 1, 'blank': 0, 'calls': 3934373, 'cause': 0, 'clock_hz': 100000000, 'commit_refused': 0, 'commit_tries': 0, 'deferred': 0, 'descending': 0, 'dirty': 0, 'effects': 0, 'erases': 0, 'exhausted': 0, 'failed': 0, 'first': 0, 'img_len': 3444, 'last': 0, 'legacy': 0, 'ls_call_ticks': 200000, 'ls_hung': 0, 'ls_max_withheld': 0, 'ls_no_wel': 0, 'ls_pp': 0, 'ls_refused': 0, 'ls_se': 0, 'ls_short': 0, 'ls_stalled': 0, 'ls_unknown': 0, 'ls_wren': 0, 'max_call_us': 168, 'max_polls_call': 1, 'max_read': 128, 'n_dirty': 0, 'n_inflight': 0, 'n_rec': 54, 'now_ms': 6, 'ok': 0, 'outside': 0, 'pagewrap': 0, 'pending': 0, 'phase': 1, 'programs': 0, 'protected': 0, 'read_faults': 0, 'refused': 0, 'releases': 1, 'seq': 7, 'seq_a': 7, 'seq_b': 6, 'skipped': 0, 'sm_applied': 54, 'sm_applies': 54, 'sm_order': 0, 'sm_refused': 0, 'sm_releases': 1, 'sm_rollbacks': 0, 'sm_settles': 1, 'sm_unbinds': 0, 'stale': 0, 'step_bound': 280, 'step_max': 0, 'step_owing': 0, 'steps': 0, 'terminal': 1, 'unread': 0, 'vd_a': 0, 'vd_b': 0, 'while_busy': 0, 'withheld': 0}
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:268: Failure
+Failed
+phase 6 + 0 ms: FAIL sweep_reference 1 1
+
+  [FAIL] Ports/NvmBoth.swept_cut_in_flight/model: phase 6 + 0 ms: FAIL sweep_reference 1 1
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+model: invariant bad=1
+
+  [FAIL] Ports/NvmBoth.swept_cut_in_flight/model: model: invariant bad=1
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+model: runner FAIL sweep_reference 1 1
+
+  [FAIL] Ports/NvmBoth.swept_cut_in_flight/model: model: runner FAIL sweep_reference 1 1
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:262: Failure
+Value of: at("bad") == 0 && at("cases") >= 121 && at("old") > 0 && at("new") > 0 && at("saves") == 2 && at("effects") == 2 * (1 + pages())
+  Actual: false
+Expected: true
+phase 7 + 0 ms: cases 149 old 29 new 120 bad 0 effects 15 saves 1 durable 15802 us; {'abandoned': 0, 'abandoned_vd': 0, 'applied': 54, 'attempts': 0, 'auth': 0, 'bad': 1, 'bind_cause': 0, 'bind_terminal': 1, 'blank': 0, 'calls': 3940280, 'cause': 0, 'clock_hz': 100000000, 'commit_refused': 0, 'commit_tries': 0, 'deferred': 0, 'descending': 0, 'dirty': 0, 'effects': 0, 'erases': 0, 'exhausted': 0, 'failed': 0, 'first': 0, 'img_len': 3444, 'last': 0, 'legacy': 0, 'ls_call_ticks': 200000, 'ls_hung': 0, 'ls_max_withheld': 0, 'ls_no_wel': 0, 'ls_pp': 0, 'ls_refused': 0, 'ls_se': 0, 'ls_short': 0, 'ls_stalled': 0, 'ls_unknown': 0, 'ls_wren': 0, 'max_call_us': 168, 'max_polls_call': 1, 'max_read': 128, 'n_dirty': 0, 'n_inflight': 0, 'n_rec': 54, 'now_ms': 6, 'ok': 0, 'outside': 0, 'pagewrap': 0, 'pending': 0, 'phase': 1, 'programs': 0, 'protected': 0, 'read_faults': 0, 'refused': 0, 'releases': 1, 'seq': 7, 'seq_a': 7, 'seq_b': 6, 'skipped': 0, 'sm_applied': 54, 'sm_applies': 54, 'sm_order': 0, 'sm_refused': 0, 'sm_releases': 1, 'sm_rollbacks': 0, 'sm_settles': 1, 'sm_unbinds': 0, 'stale': 0, 'step_bound': 280, 'step_max': 0, 'step_owing': 0, 'steps': 0, 'terminal': 1, 'unread': 0, 'vd_a': 0, 'vd_b': 0, 'while_busy': 0, 'withheld': 0}
+
+  [FAIL] Ports/NvmBoth.swept_cut_in_flight/model: phase 7 + 0 ms: cases 149 old 29 new 120 bad 0 effects 15 saves 1 durable 15802 us; {'abandoned': 0, 'abandoned_vd': 0, 'applied': 54, 'attempts': 0, 'auth': 0, 'bad': 1, 'bind_cause': 0, 'bind_terminal': 1, 'blank': 0, 'calls': 3940280, 'cause': 0, 'clock_hz': 100000000, 'commit_refused': 0, 'commit_tries': 0, 'deferred': 0, 'descending': 0, 'dirty': 0, 'effects': 0, 'erases': 0, 'exhausted': 0, 'failed': 0, 'first': 0, 'img_len': 3444, 'last': 0, 'legacy': 0, 'ls_call_ticks': 200000, 'ls_hung': 0, 'ls_max_withheld': 0, 'ls_no_wel': 0, 'ls_pp': 0, 'ls_refused': 0, 'ls_se': 0, 'ls_short': 0, 'ls_stalled': 0, 'ls_unknown': 0, 'ls_wren': 0, 'max_call_us': 168, 'max_polls_call': 1, 'max_read': 128, 'n_dirty': 0, 'n_inflight': 0, 'n_rec': 54, 'now_ms': 6, 'ok': 0, 'outside': 0, 'pagewrap': 0, 'pending': 0, 'phase': 1, 'programs': 0, 'protected': 0, 'read_faults': 0, 'refused': 0, 'releases': 1, 'seq': 7, 'seq_a': 7, 'seq_b': 6, 'skipped': 0, 'sm_applied': 54, 'sm_applies': 54, 'sm_order': 0, 'sm_refused': 0, 'sm_releases': 1, 'sm_rollbacks': 0, 'sm_settles': 1, 'sm_unbinds': 0, 'stale': 0, 'step_bound': 280, 'step_max': 0, 'step_owing': 0, 'steps': 0, 'terminal': 1, 'unread': 0, 'vd_a': 0, 'vd_b': 0, 'while_busy': 0, 'withheld': 0}
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:268: Failure
+Failed
+phase 7 + 0 ms: FAIL sweep_reference 1 1
+
+  [FAIL] Ports/NvmBoth.swept_cut_in_flight/model: phase 7 + 0 ms: FAIL sweep_reference 1 1
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+model: invariant bad=1
+
+  [FAIL] Ports/NvmBoth.swept_cut_in_flight/model: model: invariant bad=1
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+model: runner FAIL sweep_reference 1 1
+
+  [FAIL] Ports/NvmBoth.swept_cut_in_flight/model: model: runner FAIL sweep_reference 1 1
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:262: Failure
+Value of: at("bad") == 0 && at("cases") >= 121 && at("old") > 0 && at("new") > 0 && at("saves") == 2 && at("effects") == 2 * (1 + pages())
+  Actual: false
+Expected: true
+phase 8 + 2 ms: cases 143 old 23 new 120 bad 0 effects 15 saves 1 durable 13462 us; {'abandoned': 0, 'abandoned_vd': 0, 'applied': 54, 'attempts': 0, 'auth': 0, 'bad': 1, 'bind_cause': 0, 'bind_terminal': 1, 'blank': 0, 'calls': 3858308, 'cause': 0, 'clock_hz': 100000000, 'commit_refused': 0, 'commit_tries': 0, 'deferred': 0, 'descending': 0, 'dirty': 0, 'effects': 0, 'erases': 0, 'exhausted': 0, 'failed': 0, 'first': 0, 'img_len': 3444, 'last': 0, 'legacy': 0, 'ls_call_ticks': 200000, 'ls_hung': 0, 'ls_max_withheld': 0, 'ls_no_wel': 0, 'ls_pp': 0, 'ls_refused': 0, 'ls_se': 0, 'ls_short': 0, 'ls_stalled': 0, 'ls_unknown': 0, 'ls_wren': 0, 'max_call_us': 168, 'max_polls_call': 1, 'max_read': 128, 'n_dirty': 0, 'n_inflight': 0, 'n_rec': 54, 'now_ms': 6, 'ok': 0, 'outside': 0, 'pagewrap': 0, 'pending': 0, 'phase': 1, 'programs': 0, 'protected': 0, 'read_faults': 0, 'refused': 0, 'releases': 1, 'seq': 7, 'seq_a': 7, 'seq_b': 6, 'skipped': 0, 'sm_applied': 54, 'sm_applies': 54, 'sm_order': 0, 'sm_refused': 0, 'sm_releases': 1, 'sm_rollbacks': 0, 'sm_settles': 1, 'sm_unbinds': 0, 'stale': 0, 'step_bound': 280, 'step_max': 0, 'step_owing': 0, 'steps': 0, 'terminal': 1, 'unread': 0, 'vd_a': 0, 'vd_b': 0, 'while_busy': 0, 'withheld': 0}
+
+  [FAIL] Ports/NvmBoth.swept_cut_in_flight/model: phase 8 + 2 ms: cases 143 old 23 new 120 bad 0 effects 15 saves 1 durable 13462 us; {'abandoned': 0, 'abandoned_vd': 0, 'applied': 54, 'attempts': 0, 'auth': 0, 'bad': 1, 'bind_cause': 0, 'bind_terminal': 1, 'blank': 0, 'calls': 3858308, 'cause': 0, 'clock_hz': 100000000, 'commit_refused': 0, 'commit_tries': 0, 'deferred': 0, 'descending': 0, 'dirty': 0, 'effects': 0, 'erases': 0, 'exhausted': 0, 'failed': 0, 'first': 0, 'img_len': 3444, 'last': 0, 'legacy': 0, 'ls_call_ticks': 200000, 'ls_hung': 0, 'ls_max_withheld': 0, 'ls_no_wel': 0, 'ls_pp': 0, 'ls_refused': 0, 'ls_se': 0, 'ls_short': 0, 'ls_stalled': 0, 'ls_unknown': 0, 'ls_wren': 0, 'max_call_us': 168, 'max_polls_call': 1, 'max_read': 128, 'n_dirty': 0, 'n_inflight': 0, 'n_rec': 54, 'now_ms': 6, 'ok': 0, 'outside': 0, 'pagewrap': 0, 'pending': 0, 'phase': 1, 'programs': 0, 'protected': 0, 'read_faults': 0, 'refused': 0, 'releases': 1, 'seq': 7, 'seq_a': 7, 'seq_b': 6, 'skipped': 0, 'sm_applied': 54, 'sm_applies': 54, 'sm_order': 0, 'sm_refused': 0, 'sm_releases': 1, 'sm_rollbacks': 0, 'sm_settles': 1, 'sm_unbinds': 0, 'stale': 0, 'step_bound': 280, 'step_max': 0, 'step_owing': 0, 'steps': 0, 'terminal': 1, 'unread': 0, 'vd_a': 0, 'vd_b': 0, 'while_busy': 0, 'withheld': 0}
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:268: Failure
+Failed
+phase 8 + 2 ms: FAIL sweep_reference 1 1
+
+  [FAIL] Ports/NvmBoth.swept_cut_in_flight/model: phase 8 + 2 ms: FAIL sweep_reference 1 1
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+model: invariant bad=1
+
+  [FAIL] Ports/NvmBoth.swept_cut_in_flight/model: model: invariant bad=1
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+model: runner FAIL sweep_reference 1 1
+
+  [FAIL] Ports/NvmBoth.swept_cut_in_flight/model: model: runner FAIL sweep_reference 1 1
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:262: Failure
+Value of: at("bad") == 0 && at("cases") >= 121 && at("old") > 0 && at("new") > 0 && at("saves") == 2 && at("effects") == 2 * (1 + pages())
+  Actual: false
+Expected: true
+phase 9 + 0 ms: cases 121 old 0 new 121 bad 0 effects 15 saves 1 durable 4974 us; {'abandoned': 0, 'abandoned_vd': 0, 'applied': 54, 'attempts': 0, 'auth': 1, 'bad': 1, 'bind_cause': 0, 'bind_terminal': 1, 'blank': 0, 'calls': 3556460, 'cause': 0, 'clock_hz': 100000000, 'commit_refused': 0, 'commit_tries': 0, 'deferred': 0, 'descending': 0, 'dirty': 0, 'effects': 0, 'erases': 0, 'exhausted': 0, 'failed': 0, 'first': 0, 'img_len': 3444, 'last': 0, 'legacy': 0, 'ls_call_ticks': 200000, 'ls_hung': 0, 'ls_max_withheld': 0, 'ls_no_wel': 0, 'ls_pp': 0, 'ls_refused': 0, 'ls_se': 0, 'ls_short': 0, 'ls_stalled': 0, 'ls_unknown': 0, 'ls_wren': 0, 'max_call_us': 168, 'max_polls_call': 1, 'max_read': 128, 'n_dirty': 0, 'n_inflight': 0, 'n_rec': 54, 'now_ms': 6, 'ok': 0, 'outside': 0, 'pagewrap': 0, 'pending': 0, 'phase': 1, 'programs': 0, 'protected': 0, 'read_faults': 0, 'refused': 0, 'releases': 1, 'seq': 8, 'seq_a': 7, 'seq_b': 8, 'skipped': 0, 'sm_applied': 54, 'sm_applies': 54, 'sm_order': 0, 'sm_refused': 0, 'sm_releases': 1, 'sm_rollbacks': 0, 'sm_settles': 1, 'sm_unbinds': 0, 'stale': 0, 'step_bound': 280, 'step_max': 0, 'step_owing': 0, 'steps': 0, 'terminal': 1, 'unread': 0, 'vd_a': 0, 'vd_b': 0, 'while_busy': 0, 'withheld': 0}
+
+  [FAIL] Ports/NvmBoth.swept_cut_in_flight/model: phase 9 + 0 ms: cases 121 old 0 new 121 bad 0 effects 15 saves 1 durable 4974 us; {'abandoned': 0, 'abandoned_vd': 0, 'applied': 54, 'attempts': 0, 'auth': 1, 'bad': 1, 'bind_cause': 0, 'bind_terminal': 1, 'blank': 0, 'calls': 3556460, 'cause': 0, 'clock_hz': 100000000, 'commit_refused': 0, 'commit_tries': 0, 'deferred': 0, 'descending': 0, 'dirty': 0, 'effects': 0, 'erases': 0, 'exhausted': 0, 'failed': 0, 'first': 0, 'img_len': 3444, 'last': 0, 'legacy': 0, 'ls_call_ticks': 200000, 'ls_hung': 0, 'ls_max_withheld': 0, 'ls_no_wel': 0, 'ls_pp': 0, 'ls_refused': 0, 'ls_se': 0, 'ls_short': 0, 'ls_stalled': 0, 'ls_unknown': 0, 'ls_wren': 0, 'max_call_us': 168, 'max_polls_call': 1, 'max_read': 128, 'n_dirty': 0, 'n_inflight': 0, 'n_rec': 54, 'now_ms': 6, 'ok': 0, 'outside': 0, 'pagewrap': 0, 'pending': 0, 'phase': 1, 'programs': 0, 'protected': 0, 'read_faults': 0, 'refused': 0, 'releases': 1, 'seq': 8, 'seq_a': 7, 'seq_b': 8, 'skipped': 0, 'sm_applied': 54, 'sm_applies': 54, 'sm_order': 0, 'sm_refused': 0, 'sm_releases': 1, 'sm_rollbacks': 0, 'sm_settles': 1, 'sm_unbinds': 0, 'stale': 0, 'step_bound': 280, 'step_max': 0, 'step_owing': 0, 'steps': 0, 'terminal': 1, 'unread': 0, 'vd_a': 0, 'vd_b': 0, 'while_busy': 0, 'withheld': 0}
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:268: Failure
+Failed
+phase 9 + 0 ms: FAIL sweep_reference 1 1
+
+  [FAIL] Ports/NvmBoth.swept_cut_in_flight/model: phase 9 + 0 ms: FAIL sweep_reference 1 1
+[  FAILED  ] Ports/NvmBoth.swept_cut_in_flight/model, where GetParam() = 4-byte object <00-00 00-00> (10084 ms)
+[ RUN      ] Ports/NvmBoth.swept_cut_in_flight/litespi
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+--litespi: invariant bad=1
+
+  [FAIL] Ports/NvmBoth.swept_cut_in_flight/litespi: --litespi: invariant bad=1
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+--litespi: runner FAIL sweep_reference 1 1
+
+  [FAIL] Ports/NvmBoth.swept_cut_in_flight/litespi: --litespi: runner FAIL sweep_reference 1 1
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:262: Failure
+Value of: at("bad") == 0 && at("cases") >= 121 && at("old") > 0 && at("new") > 0 && at("saves") == 2 && at("effects") == 2 * (1 + pages())
+  Actual: false
+Expected: true
+phase 3 + 0 ms: cases 151 old 37 new 114 bad 0 effects 15 saves 1 durable 168765 us; {'abandoned': 0, 'abandoned_vd': 0, 'applied': 54, 'attempts': 0, 'auth': 0, 'bad': 1, 'bind_cause': 0, 'bind_terminal': 1, 'blank': 0, 'calls': 3749285, 'cause': 0, 'clock_hz': 100000000, 'commit_refused': 0, 'commit_tries': 0, 'deferred': 0, 'descending': 0, 'dirty': 0, 'effects': 0, 'erases': 0, 'exhausted': 0, 'failed': 0, 'first': 0, 'img_len': 3444, 'last': 0, 'legacy': 0, 'ls_call_ticks': 200000, 'ls_hung': 0, 'ls_max_withheld': 0, 'ls_no_wel': 0, 'ls_pp': 0, 'ls_refused': 0, 'ls_se': 0, 'ls_short': 0, 'ls_stalled': 0, 'ls_unknown': 0, 'ls_wren': 0, 'max_call_us': 210, 'max_polls_call': 3, 'max_read': 0, 'n_dirty': 0, 'n_inflight': 0, 'n_rec': 54, 'now_ms': 0, 'ok': 0, 'outside': 0, 'pagewrap': 0, 'pending': 0, 'phase': 1, 'programs': 0, 'protected': 0, 'read_faults': 0, 'refused': 0, 'releases': 1, 'seq': 7, 'seq_a': 7, 'seq_b': 6, 'skipped': 0, 'sm_applied': 54, 'sm_applies': 54, 'sm_order': 0, 'sm_refused': 0, 'sm_releases': 1, 'sm_rollbacks': 0, 'sm_settles': 1, 'sm_unbinds': 0, 'stale': 0, 'step_bound': 280, 'step_max': 0, 'step_owing': 0, 'steps': 0, 'terminal': 1, 'unread': 0, 'vd_a': 0, 'vd_b': 0, 'while_busy': 0, 'withheld': 0}
+
+  [FAIL] Ports/NvmBoth.swept_cut_in_flight/litespi: phase 3 + 0 ms: cases 151 old 37 new 114 bad 0 effects 15 saves 1 durable 168765 us; {'abandoned': 0, 'abandoned_vd': 0, 'applied': 54, 'attempts': 0, 'auth': 0, 'bad': 1, 'bind_cause': 0, 'bind_terminal': 1, 'blank': 0, 'calls': 3749285, 'cause': 0, 'clock_hz': 100000000, 'commit_refused': 0, 'commit_tries': 0, 'deferred': 0, 'descending': 0, 'dirty': 0, 'effects': 0, 'erases': 0, 'exhausted': 0, 'failed': 0, 'first': 0, 'img_len': 3444, 'last': 0, 'legacy': 0, 'ls_call_ticks': 200000, 'ls_hung': 0, 'ls_max_withheld': 0, 'ls_no_wel': 0, 'ls_pp': 0, 'ls_refused': 0, 'ls_se': 0, 'ls_short': 0, 'ls_stalled': 0, 'ls_unknown': 0, 'ls_wren': 0, 'max_call_us': 210, 'max_polls_call': 3, 'max_read': 0, 'n_dirty': 0, 'n_inflight': 0, 'n_rec': 54, 'now_ms': 0, 'ok': 0, 'outside': 0, 'pagewrap': 0, 'pending': 0, 'phase': 1, 'programs': 0, 'protected': 0, 'read_faults': 0, 'refused': 0, 'releases': 1, 'seq': 7, 'seq_a': 7, 'seq_b': 6, 'skipped': 0, 'sm_applied': 54, 'sm_applies': 54, 'sm_order': 0, 'sm_refused': 0, 'sm_releases': 1, 'sm_rollbacks': 0, 'sm_settles': 1, 'sm_unbinds': 0, 'stale': 0, 'step_bound': 280, 'step_max': 0, 'step_owing': 0, 'steps': 0, 'terminal': 1, 'unread': 0, 'vd_a': 0, 'vd_b': 0, 'while_busy': 0, 'withheld': 0}
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:268: Failure
+Failed
+phase 3 + 0 ms: FAIL sweep_reference 1 1
+
+  [FAIL] Ports/NvmBoth.swept_cut_in_flight/litespi: phase 3 + 0 ms: FAIL sweep_reference 1 1
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+--litespi: invariant bad=1
+
+  [FAIL] Ports/NvmBoth.swept_cut_in_flight/litespi: --litespi: invariant bad=1
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+--litespi: runner FAIL sweep_reference 1 1
+
+  [FAIL] Ports/NvmBoth.swept_cut_in_flight/litespi: --litespi: runner FAIL sweep_reference 1 1
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:262: Failure
+Value of: at("bad") == 0 && at("cases") >= 121 && at("old") > 0 && at("new") > 0 && at("saves") == 2 && at("effects") == 2 * (1 + pages())
+  Actual: false
+Expected: true
+phase 4 + 0 ms: cases 151 old 37 new 114 bad 0 effects 15 saves 1 durable 167363 us; {'abandoned': 0, 'abandoned_vd': 0, 'applied': 54, 'attempts': 0, 'auth': 0, 'bad': 1, 'bind_cause': 0, 'bind_terminal': 1, 'blank': 0, 'calls': 3750895, 'cause': 0, 'clock_hz': 100000000, 'commit_refused': 0, 'commit_tries': 0, 'deferred': 0, 'descending': 0, 'dirty': 0, 'effects': 0, 'erases': 0, 'exhausted': 0, 'failed': 0, 'first': 0, 'img_len': 3444, 'last': 0, 'legacy': 0, 'ls_call_ticks': 200000, 'ls_hung': 0, 'ls_max_withheld': 0, 'ls_no_wel': 0, 'ls_pp': 0, 'ls_refused': 0, 'ls_se': 0, 'ls_short': 0, 'ls_stalled': 0, 'ls_unknown': 0, 'ls_wren': 0, 'max_call_us': 210, 'max_polls_call': 3, 'max_read': 0, 'n_dirty': 0, 'n_inflight': 0, 'n_rec': 54, 'now_ms': 0, 'ok': 0, 'outside': 0, 'pagewrap': 0, 'pending': 0, 'phase': 1, 'programs': 0, 'protected': 0, 'read_faults': 0, 'refused': 0, 'releases': 1, 'seq': 7, 'seq_a': 7, 'seq_b': 6, 'skipped': 0, 'sm_applied': 54, 'sm_applies': 54, 'sm_order': 0, 'sm_refused': 0, 'sm_releases': 1, 'sm_rollbacks': 0, 'sm_settles': 1, 'sm_unbinds': 0, 'stale': 0, 'step_bound': 280, 'step_max': 0, 'step_owing': 0, 'steps': 0, 'terminal': 1, 'unread': 0, 'vd_a': 0, 'vd_b': 0, 'while_busy': 0, 'withheld': 0}
+
+  [FAIL] Ports/NvmBoth.swept_cut_in_flight/litespi: phase 4 + 0 ms: cases 151 old 37 new 114 bad 0 effects 15 saves 1 durable 167363 us; {'abandoned': 0, 'abandoned_vd': 0, 'applied': 54, 'attempts': 0, 'auth': 0, 'bad': 1, 'bind_cause': 0, 'bind_terminal': 1, 'blank': 0, 'calls': 3750895, 'cause': 0, 'clock_hz': 100000000, 'commit_refused': 0, 'commit_tries': 0, 'deferred': 0, 'descending': 0, 'dirty': 0, 'effects': 0, 'erases': 0, 'exhausted': 0, 'failed': 0, 'first': 0, 'img_len': 3444, 'last': 0, 'legacy': 0, 'ls_call_ticks': 200000, 'ls_hung': 0, 'ls_max_withheld': 0, 'ls_no_wel': 0, 'ls_pp': 0, 'ls_refused': 0, 'ls_se': 0, 'ls_short': 0, 'ls_stalled': 0, 'ls_unknown': 0, 'ls_wren': 0, 'max_call_us': 210, 'max_polls_call': 3, 'max_read': 0, 'n_dirty': 0, 'n_inflight': 0, 'n_rec': 54, 'now_ms': 0, 'ok': 0, 'outside': 0, 'pagewrap': 0, 'pending': 0, 'phase': 1, 'programs': 0, 'protected': 0, 'read_faults': 0, 'refused': 0, 'releases': 1, 'seq': 7, 'seq_a': 7, 'seq_b': 6, 'skipped': 0, 'sm_applied': 54, 'sm_applies': 54, 'sm_order': 0, 'sm_refused': 0, 'sm_releases': 1, 'sm_rollbacks': 0, 'sm_settles': 1, 'sm_unbinds': 0, 'stale': 0, 'step_bound': 280, 'step_max': 0, 'step_owing': 0, 'steps': 0, 'terminal': 1, 'unread': 0, 'vd_a': 0, 'vd_b': 0, 'while_busy': 0, 'withheld': 0}
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:268: Failure
+Failed
+phase 4 + 0 ms: FAIL sweep_reference 1 1
+
+  [FAIL] Ports/NvmBoth.swept_cut_in_flight/litespi: phase 4 + 0 ms: FAIL sweep_reference 1 1
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+--litespi: invariant bad=1
+
+  [FAIL] Ports/NvmBoth.swept_cut_in_flight/litespi: --litespi: invariant bad=1
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+--litespi: runner FAIL sweep_reference 1 1
+
+  [FAIL] Ports/NvmBoth.swept_cut_in_flight/litespi: --litespi: runner FAIL sweep_reference 1 1
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:262: Failure
+Value of: at("bad") == 0 && at("cases") >= 121 && at("old") > 0 && at("new") > 0 && at("saves") == 2 && at("effects") == 2 * (1 + pages())
+  Actual: false
+Expected: true
+phase 5 + 0 ms: cases 149 old 35 new 114 bad 0 effects 15 saves 1 durable 167259 us; {'abandoned': 0, 'abandoned_vd': 0, 'applied': 54, 'attempts': 0, 'auth': 0, 'bad': 1, 'bind_cause': 0, 'bind_terminal': 1, 'blank': 0, 'calls': 3727273, 'cause': 0, 'clock_hz': 100000000, 'commit_refused': 0, 'commit_tries': 0, 'deferred': 0, 'descending': 0, 'dirty': 0, 'effects': 0, 'erases': 0, 'exhausted': 0, 'failed': 0, 'first': 0, 'img_len': 3444, 'last': 0, 'legacy': 0, 'ls_call_ticks': 200000, 'ls_hung': 0, 'ls_max_withheld': 0, 'ls_no_wel': 0, 'ls_pp': 0, 'ls_refused': 0, 'ls_se': 0, 'ls_short': 0, 'ls_stalled': 0, 'ls_unknown': 0, 'ls_wren': 0, 'max_call_us': 210, 'max_polls_call': 3, 'max_read': 0, 'n_dirty': 0, 'n_inflight': 0, 'n_rec': 54, 'now_ms': 0, 'ok': 0, 'outside': 0, 'pagewrap': 0, 'pending': 0, 'phase': 1, 'programs': 0, 'protected': 0, 'read_faults': 0, 'refused': 0, 'releases': 1, 'seq': 7, 'seq_a': 7, 'seq_b': 6, 'skipped': 0, 'sm_applied': 54, 'sm_applies': 54, 'sm_order': 0, 'sm_refused': 0, 'sm_releases': 1, 'sm_rollbacks': 0, 'sm_settles': 1, 'sm_unbinds': 0, 'stale': 0, 'step_bound': 280, 'step_max': 0, 'step_owing': 0, 'steps': 0, 'terminal': 1, 'unread': 0, 'vd_a': 0, 'vd_b': 0, 'while_busy': 0, 'withheld': 0}
+
+  [FAIL] Ports/NvmBoth.swept_cut_in_flight/litespi: phase 5 + 0 ms: cases 149 old 35 new 114 bad 0 effects 15 saves 1 durable 167259 us; {'abandoned': 0, 'abandoned_vd': 0, 'applied': 54, 'attempts': 0, 'auth': 0, 'bad': 1, 'bind_cause': 0, 'bind_terminal': 1, 'blank': 0, 'calls': 3727273, 'cause': 0, 'clock_hz': 100000000, 'commit_refused': 0, 'commit_tries': 0, 'deferred': 0, 'descending': 0, 'dirty': 0, 'effects': 0, 'erases': 0, 'exhausted': 0, 'failed': 0, 'first': 0, 'img_len': 3444, 'last': 0, 'legacy': 0, 'ls_call_ticks': 200000, 'ls_hung': 0, 'ls_max_withheld': 0, 'ls_no_wel': 0, 'ls_pp': 0, 'ls_refused': 0, 'ls_se': 0, 'ls_short': 0, 'ls_stalled': 0, 'ls_unknown': 0, 'ls_wren': 0, 'max_call_us': 210, 'max_polls_call': 3, 'max_read': 0, 'n_dirty': 0, 'n_inflight': 0, 'n_rec': 54, 'now_ms': 0, 'ok': 0, 'outside': 0, 'pagewrap': 0, 'pending': 0, 'phase': 1, 'programs': 0, 'protected': 0, 'read_faults': 0, 'refused': 0, 'releases': 1, 'seq': 7, 'seq_a': 7, 'seq_b': 6, 'skipped': 0, 'sm_applied': 54, 'sm_applies': 54, 'sm_order': 0, 'sm_refused': 0, 'sm_releases': 1, 'sm_rollbacks': 0, 'sm_settles': 1, 'sm_unbinds': 0, 'stale': 0, 'step_bound': 280, 'step_max': 0, 'step_owing': 0, 'steps': 0, 'terminal': 1, 'unread': 0, 'vd_a': 0, 'vd_b': 0, 'while_busy': 0, 'withheld': 0}
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:268: Failure
+Failed
+phase 5 + 0 ms: FAIL sweep_reference 1 1
+
+  [FAIL] Ports/NvmBoth.swept_cut_in_flight/litespi: phase 5 + 0 ms: FAIL sweep_reference 1 1
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+--litespi: invariant bad=1
+
+  [FAIL] Ports/NvmBoth.swept_cut_in_flight/litespi: --litespi: invariant bad=1
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+--litespi: runner FAIL sweep_reference 1 1
+
+  [FAIL] Ports/NvmBoth.swept_cut_in_flight/litespi: --litespi: runner FAIL sweep_reference 1 1
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:262: Failure
+Value of: at("bad") == 0 && at("cases") >= 121 && at("old") > 0 && at("new") > 0 && at("saves") == 2 && at("effects") == 2 * (1 + pages())
+  Actual: false
+Expected: true
+phase 5 + 60 ms: cases 149 old 33 new 116 bad 0 effects 15 saves 1 durable 107181 us; {'abandoned': 0, 'abandoned_vd': 0, 'applied': 54, 'attempts': 0, 'auth': 0, 'bad': 1, 'bind_cause': 0, 'bind_terminal': 1, 'blank': 0, 'calls': 3799440, 'cause': 0, 'clock_hz': 100000000, 'commit_refused': 0, 'commit_tries': 0, 'deferred': 0, 'descending': 0, 'dirty': 0, 'effects': 0, 'erases': 0, 'exhausted': 0, 'failed': 0, 'first': 0, 'img_len': 3444, 'last': 0, 'legacy': 0, 'ls_call_ticks': 200000, 'ls_hung': 0, 'ls_max_withheld': 0, 'ls_no_wel': 0, 'ls_pp': 0, 'ls_refused': 0, 'ls_se': 0, 'ls_short': 0, 'ls_stalled': 0, 'ls_unknown': 0, 'ls_wren': 0, 'max_call_us': 210, 'max_polls_call': 3, 'max_read': 0, 'n_dirty': 0, 'n_inflight': 0, 'n_rec': 54, 'now_ms': 0, 'ok': 0, 'outside': 0, 'pagewrap': 0, 'pending': 0, 'phase': 1, 'programs': 0, 'protected': 0, 'read_faults': 0, 'refused': 0, 'releases': 1, 'seq': 7, 'seq_a': 7, 'seq_b': 6, 'skipped': 0, 'sm_applied': 54, 'sm_applies': 54, 'sm_order': 0, 'sm_refused': 0, 'sm_releases': 1, 'sm_rollbacks': 0, 'sm_settles': 1, 'sm_unbinds': 0, 'stale': 0, 'step_bound': 280, 'step_max': 0, 'step_owing': 0, 'steps': 0, 'terminal': 1, 'unread': 0, 'vd_a': 0, 'vd_b': 0, 'while_busy': 0, 'withheld': 0}
+
+  [FAIL] Ports/NvmBoth.swept_cut_in_flight/litespi: phase 5 + 60 ms: cases 149 old 33 new 116 bad 0 effects 15 saves 1 durable 107181 us; {'abandoned': 0, 'abandoned_vd': 0, 'applied': 54, 'attempts': 0, 'auth': 0, 'bad': 1, 'bind_cause': 0, 'bind_terminal': 1, 'blank': 0, 'calls': 3799440, 'cause': 0, 'clock_hz': 100000000, 'commit_refused': 0, 'commit_tries': 0, 'deferred': 0, 'descending': 0, 'dirty': 0, 'effects': 0, 'erases': 0, 'exhausted': 0, 'failed': 0, 'first': 0, 'img_len': 3444, 'last': 0, 'legacy': 0, 'ls_call_ticks': 200000, 'ls_hung': 0, 'ls_max_withheld': 0, 'ls_no_wel': 0, 'ls_pp': 0, 'ls_refused': 0, 'ls_se': 0, 'ls_short': 0, 'ls_stalled': 0, 'ls_unknown': 0, 'ls_wren': 0, 'max_call_us': 210, 'max_polls_call': 3, 'max_read': 0, 'n_dirty': 0, 'n_inflight': 0, 'n_rec': 54, 'now_ms': 0, 'ok': 0, 'outside': 0, 'pagewrap': 0, 'pending': 0, 'phase': 1, 'programs': 0, 'protected': 0, 'read_faults': 0, 'refused': 0, 'releases': 1, 'seq': 7, 'seq_a': 7, 'seq_b': 6, 'skipped': 0, 'sm_applied': 54, 'sm_applies': 54, 'sm_order': 0, 'sm_refused': 0, 'sm_releases': 1, 'sm_rollbacks': 0, 'sm_settles': 1, 'sm_unbinds': 0, 'stale': 0, 'step_bound': 280, 'step_max': 0, 'step_owing': 0, 'steps': 0, 'terminal': 1, 'unread': 0, 'vd_a': 0, 'vd_b': 0, 'while_busy': 0, 'withheld': 0}
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:268: Failure
+Failed
+phase 5 + 60 ms: FAIL sweep_reference 1 1
+
+  [FAIL] Ports/NvmBoth.swept_cut_in_flight/litespi: phase 5 + 60 ms: FAIL sweep_reference 1 1
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+--litespi: invariant bad=1
+
+  [FAIL] Ports/NvmBoth.swept_cut_in_flight/litespi: --litespi: invariant bad=1
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+--litespi: runner FAIL sweep_reference 1 1
+
+  [FAIL] Ports/NvmBoth.swept_cut_in_flight/litespi: --litespi: runner FAIL sweep_reference 1 1
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:262: Failure
+Value of: at("bad") == 0 && at("cases") >= 121 && at("old") > 0 && at("new") > 0 && at("saves") == 2 && at("effects") == 2 * (1 + pages())
+  Actual: false
+Expected: true
+phase 5 + 140 ms: cases 149 old 29 new 120 bad 0 effects 15 saves 1 durable 27222 us; {'abandoned': 0, 'abandoned_vd': 0, 'applied': 54, 'attempts': 0, 'auth': 0, 'bad': 1, 'bind_cause': 0, 'bind_terminal': 1, 'blank': 0, 'calls': 3898146, 'cause': 0, 'clock_hz': 100000000, 'commit_refused': 0, 'commit_tries': 0, 'deferred': 0, 'descending': 0, 'dirty': 0, 'effects': 0, 'erases': 0, 'exhausted': 0, 'failed': 0, 'first': 0, 'img_len': 3444, 'last': 0, 'legacy': 0, 'ls_call_ticks': 200000, 'ls_hung': 0, 'ls_max_withheld': 0, 'ls_no_wel': 0, 'ls_pp': 0, 'ls_refused': 0, 'ls_se': 0, 'ls_short': 0, 'ls_stalled': 0, 'ls_unknown': 0, 'ls_wren': 0, 'max_call_us': 210, 'max_polls_call': 3, 'max_read': 0, 'n_dirty': 0, 'n_inflight': 0, 'n_rec': 54, 'now_ms': 0, 'ok': 0, 'outside': 0, 'pagewrap': 0, 'pending': 0, 'phase': 1, 'programs': 0, 'protected': 0, 'read_faults': 0, 'refused': 0, 'releases': 1, 'seq': 7, 'seq_a': 7, 'seq_b': 6, 'skipped': 0, 'sm_applied': 54, 'sm_applies': 54, 'sm_order': 0, 'sm_refused': 0, 'sm_releases': 1, 'sm_rollbacks': 0, 'sm_settles': 1, 'sm_unbinds': 0, 'stale': 0, 'step_bound': 280, 'step_max': 0, 'step_owing': 0, 'steps': 0, 'terminal': 1, 'unread': 0, 'vd_a': 0, 'vd_b': 0, 'while_busy': 0, 'withheld': 0}
+
+  [FAIL] Ports/NvmBoth.swept_cut_in_flight/litespi: phase 5 + 140 ms: cases 149 old 29 new 120 bad 0 effects 15 saves 1 durable 27222 us; {'abandoned': 0, 'abandoned_vd': 0, 'applied': 54, 'attempts': 0, 'auth': 0, 'bad': 1, 'bind_cause': 0, 'bind_terminal': 1, 'blank': 0, 'calls': 3898146, 'cause': 0, 'clock_hz': 100000000, 'commit_refused': 0, 'commit_tries': 0, 'deferred': 0, 'descending': 0, 'dirty': 0, 'effects': 0, 'erases': 0, 'exhausted': 0, 'failed': 0, 'first': 0, 'img_len': 3444, 'last': 0, 'legacy': 0, 'ls_call_ticks': 200000, 'ls_hung': 0, 'ls_max_withheld': 0, 'ls_no_wel': 0, 'ls_pp': 0, 'ls_refused': 0, 'ls_se': 0, 'ls_short': 0, 'ls_stalled': 0, 'ls_unknown': 0, 'ls_wren': 0, 'max_call_us': 210, 'max_polls_call': 3, 'max_read': 0, 'n_dirty': 0, 'n_inflight': 0, 'n_rec': 54, 'now_ms': 0, 'ok': 0, 'outside': 0, 'pagewrap': 0, 'pending': 0, 'phase': 1, 'programs': 0, 'protected': 0, 'read_faults': 0, 'refused': 0, 'releases': 1, 'seq': 7, 'seq_a': 7, 'seq_b': 6, 'skipped': 0, 'sm_applied': 54, 'sm_applies': 54, 'sm_order': 0, 'sm_refused': 0, 'sm_releases': 1, 'sm_rollbacks': 0, 'sm_settles': 1, 'sm_unbinds': 0, 'stale': 0, 'step_bound': 280, 'step_max': 0, 'step_owing': 0, 'steps': 0, 'terminal': 1, 'unread': 0, 'vd_a': 0, 'vd_b': 0, 'while_busy': 0, 'withheld': 0}
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:268: Failure
+Failed
+phase 5 + 140 ms: FAIL sweep_reference 1 1
+
+  [FAIL] Ports/NvmBoth.swept_cut_in_flight/litespi: phase 5 + 140 ms: FAIL sweep_reference 1 1
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+--litespi: invariant bad=1
+
+  [FAIL] Ports/NvmBoth.swept_cut_in_flight/litespi: --litespi: invariant bad=1
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+--litespi: runner FAIL sweep_reference 1 1
+
+  [FAIL] Ports/NvmBoth.swept_cut_in_flight/litespi: --litespi: runner FAIL sweep_reference 1 1
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:262: Failure
+Value of: at("bad") == 0 && at("cases") >= 121 && at("old") > 0 && at("new") > 0 && at("saves") == 2 && at("effects") == 2 * (1 + pages())
+  Actual: false
+Expected: true
+phase 6 + 0 ms: cases 149 old 29 new 120 bad 0 effects 15 saves 1 durable 17227 us; {'abandoned': 0, 'abandoned_vd': 0, 'applied': 54, 'attempts': 0, 'auth': 0, 'bad': 1, 'bind_cause': 0, 'bind_terminal': 1, 'blank': 0, 'calls': 3911512, 'cause': 0, 'clock_hz': 100000000, 'commit_refused': 0, 'commit_tries': 0, 'deferred': 0, 'descending': 0, 'dirty': 0, 'effects': 0, 'erases': 0, 'exhausted': 0, 'failed': 0, 'first': 0, 'img_len': 3444, 'last': 0, 'legacy': 0, 'ls_call_ticks': 200000, 'ls_hung': 0, 'ls_max_withheld': 0, 'ls_no_wel': 0, 'ls_pp': 0, 'ls_refused': 0, 'ls_se': 0, 'ls_short': 0, 'ls_stalled': 0, 'ls_unknown': 0, 'ls_wren': 0, 'max_call_us': 210, 'max_polls_call': 3, 'max_read': 0, 'n_dirty': 0, 'n_inflight': 0, 'n_rec': 54, 'now_ms': 0, 'ok': 0, 'outside': 0, 'pagewrap': 0, 'pending': 0, 'phase': 1, 'programs': 0, 'protected': 0, 'read_faults': 0, 'refused': 0, 'releases': 1, 'seq': 7, 'seq_a': 7, 'seq_b': 6, 'skipped': 0, 'sm_applied': 54, 'sm_applies': 54, 'sm_order': 0, 'sm_refused': 0, 'sm_releases': 1, 'sm_rollbacks': 0, 'sm_settles': 1, 'sm_unbinds': 0, 'stale': 0, 'step_bound': 280, 'step_max': 0, 'step_owing': 0, 'steps': 0, 'terminal': 1, 'unread': 0, 'vd_a': 0, 'vd_b': 0, 'while_busy': 0, 'withheld': 0}
+
+  [FAIL] Ports/NvmBoth.swept_cut_in_flight/litespi: phase 6 + 0 ms: cases 149 old 29 new 120 bad 0 effects 15 saves 1 durable 17227 us; {'abandoned': 0, 'abandoned_vd': 0, 'applied': 54, 'attempts': 0, 'auth': 0, 'bad': 1, 'bind_cause': 0, 'bind_terminal': 1, 'blank': 0, 'calls': 3911512, 'cause': 0, 'clock_hz': 100000000, 'commit_refused': 0, 'commit_tries': 0, 'deferred': 0, 'descending': 0, 'dirty': 0, 'effects': 0, 'erases': 0, 'exhausted': 0, 'failed': 0, 'first': 0, 'img_len': 3444, 'last': 0, 'legacy': 0, 'ls_call_ticks': 200000, 'ls_hung': 0, 'ls_max_withheld': 0, 'ls_no_wel': 0, 'ls_pp': 0, 'ls_refused': 0, 'ls_se': 0, 'ls_short': 0, 'ls_stalled': 0, 'ls_unknown': 0, 'ls_wren': 0, 'max_call_us': 210, 'max_polls_call': 3, 'max_read': 0, 'n_dirty': 0, 'n_inflight': 0, 'n_rec': 54, 'now_ms': 0, 'ok': 0, 'outside': 0, 'pagewrap': 0, 'pending': 0, 'phase': 1, 'programs': 0, 'protected': 0, 'read_faults': 0, 'refused': 0, 'releases': 1, 'seq': 7, 'seq_a': 7, 'seq_b': 6, 'skipped': 0, 'sm_applied': 54, 'sm_applies': 54, 'sm_order': 0, 'sm_refused': 0, 'sm_releases': 1, 'sm_rollbacks': 0, 'sm_settles': 1, 'sm_unbinds': 0, 'stale': 0, 'step_bound': 280, 'step_max': 0, 'step_owing': 0, 'steps': 0, 'terminal': 1, 'unread': 0, 'vd_a': 0, 'vd_b': 0, 'while_busy': 0, 'withheld': 0}
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:268: Failure
+Failed
+phase 6 + 0 ms: FAIL sweep_reference 1 1
+
+  [FAIL] Ports/NvmBoth.swept_cut_in_flight/litespi: phase 6 + 0 ms: FAIL sweep_reference 1 1
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+--litespi: invariant bad=1
+
+  [FAIL] Ports/NvmBoth.swept_cut_in_flight/litespi: --litespi: invariant bad=1
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+--litespi: runner FAIL sweep_reference 1 1
+
+  [FAIL] Ports/NvmBoth.swept_cut_in_flight/litespi: --litespi: runner FAIL sweep_reference 1 1
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:262: Failure
+Value of: at("bad") == 0 && at("cases") >= 121 && at("old") > 0 && at("new") > 0 && at("saves") == 2 && at("effects") == 2 * (1 + pages())
+  Actual: false
+Expected: true
+phase 7 + 0 ms: cases 149 old 29 new 120 bad 0 effects 15 saves 1 durable 14525 us; {'abandoned': 0, 'abandoned_vd': 0, 'applied': 54, 'attempts': 0, 'auth': 0, 'bad': 1, 'bind_cause': 0, 'bind_terminal': 1, 'blank': 0, 'calls': 3914779, 'cause': 0, 'clock_hz': 100000000, 'commit_refused': 0, 'commit_tries': 0, 'deferred': 0, 'descending': 0, 'dirty': 0, 'effects': 0, 'erases': 0, 'exhausted': 0, 'failed': 0, 'first': 0, 'img_len': 3444, 'last': 0, 'legacy': 0, 'ls_call_ticks': 200000, 'ls_hung': 0, 'ls_max_withheld': 0, 'ls_no_wel': 0, 'ls_pp': 0, 'ls_refused': 0, 'ls_se': 0, 'ls_short': 0, 'ls_stalled': 0, 'ls_unknown': 0, 'ls_wren': 0, 'max_call_us': 210, 'max_polls_call': 3, 'max_read': 0, 'n_dirty': 0, 'n_inflight': 0, 'n_rec': 54, 'now_ms': 0, 'ok': 0, 'outside': 0, 'pagewrap': 0, 'pending': 0, 'phase': 1, 'programs': 0, 'protected': 0, 'read_faults': 0, 'refused': 0, 'releases': 1, 'seq': 7, 'seq_a': 7, 'seq_b': 6, 'skipped': 0, 'sm_applied': 54, 'sm_applies': 54, 'sm_order': 0, 'sm_refused': 0, 'sm_releases': 1, 'sm_rollbacks': 0, 'sm_settles': 1, 'sm_unbinds': 0, 'stale': 0, 'step_bound': 280, 'step_max': 0, 'step_owing': 0, 'steps': 0, 'terminal': 1, 'unread': 0, 'vd_a': 0, 'vd_b': 0, 'while_busy': 0, 'withheld': 0}
+
+  [FAIL] Ports/NvmBoth.swept_cut_in_flight/litespi: phase 7 + 0 ms: cases 149 old 29 new 120 bad 0 effects 15 saves 1 durable 14525 us; {'abandoned': 0, 'abandoned_vd': 0, 'applied': 54, 'attempts': 0, 'auth': 0, 'bad': 1, 'bind_cause': 0, 'bind_terminal': 1, 'blank': 0, 'calls': 3914779, 'cause': 0, 'clock_hz': 100000000, 'commit_refused': 0, 'commit_tries': 0, 'deferred': 0, 'descending': 0, 'dirty': 0, 'effects': 0, 'erases': 0, 'exhausted': 0, 'failed': 0, 'first': 0, 'img_len': 3444, 'last': 0, 'legacy': 0, 'ls_call_ticks': 200000, 'ls_hung': 0, 'ls_max_withheld': 0, 'ls_no_wel': 0, 'ls_pp': 0, 'ls_refused': 0, 'ls_se': 0, 'ls_short': 0, 'ls_stalled': 0, 'ls_unknown': 0, 'ls_wren': 0, 'max_call_us': 210, 'max_polls_call': 3, 'max_read': 0, 'n_dirty': 0, 'n_inflight': 0, 'n_rec': 54, 'now_ms': 0, 'ok': 0, 'outside': 0, 'pagewrap': 0, 'pending': 0, 'phase': 1, 'programs': 0, 'protected': 0, 'read_faults': 0, 'refused': 0, 'releases': 1, 'seq': 7, 'seq_a': 7, 'seq_b': 6, 'skipped': 0, 'sm_applied': 54, 'sm_applies': 54, 'sm_order': 0, 'sm_refused': 0, 'sm_releases': 1, 'sm_rollbacks': 0, 'sm_settles': 1, 'sm_unbinds': 0, 'stale': 0, 'step_bound': 280, 'step_max': 0, 'step_owing': 0, 'steps': 0, 'terminal': 1, 'unread': 0, 'vd_a': 0, 'vd_b': 0, 'while_busy': 0, 'withheld': 0}
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:268: Failure
+Failed
+phase 7 + 0 ms: FAIL sweep_reference 1 1
+
+  [FAIL] Ports/NvmBoth.swept_cut_in_flight/litespi: phase 7 + 0 ms: FAIL sweep_reference 1 1
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+--litespi: invariant bad=1
+
+  [FAIL] Ports/NvmBoth.swept_cut_in_flight/litespi: --litespi: invariant bad=1
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+--litespi: runner FAIL sweep_reference 1 1
+
+  [FAIL] Ports/NvmBoth.swept_cut_in_flight/litespi: --litespi: runner FAIL sweep_reference 1 1
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:262: Failure
+Value of: at("bad") == 0 && at("cases") >= 121 && at("old") > 0 && at("new") > 0 && at("saves") == 2 && at("effects") == 2 * (1 + pages())
+  Actual: false
+Expected: true
+phase 8 + 2 ms: cases 143 old 23 new 120 bad 0 effects 15 saves 1 durable 12185 us; {'abandoned': 0, 'abandoned_vd': 0, 'applied': 54, 'attempts': 0, 'auth': 0, 'bad': 1, 'bind_cause': 0, 'bind_terminal': 1, 'blank': 0, 'calls': 3833756, 'cause': 0, 'clock_hz': 100000000, 'commit_refused': 0, 'commit_tries': 0, 'deferred': 0, 'descending': 0, 'dirty': 0, 'effects': 0, 'erases': 0, 'exhausted': 0, 'failed': 0, 'first': 0, 'img_len': 3444, 'last': 0, 'legacy': 0, 'ls_call_ticks': 200000, 'ls_hung': 0, 'ls_max_withheld': 0, 'ls_no_wel': 0, 'ls_pp': 0, 'ls_refused': 0, 'ls_se': 0, 'ls_short': 0, 'ls_stalled': 0, 'ls_unknown': 0, 'ls_wren': 0, 'max_call_us': 210, 'max_polls_call': 3, 'max_read': 0, 'n_dirty': 0, 'n_inflight': 0, 'n_rec': 54, 'now_ms': 0, 'ok': 0, 'outside': 0, 'pagewrap': 0, 'pending': 0, 'phase': 1, 'programs': 0, 'protected': 0, 'read_faults': 0, 'refused': 0, 'releases': 1, 'seq': 7, 'seq_a': 7, 'seq_b': 6, 'skipped': 0, 'sm_applied': 54, 'sm_applies': 54, 'sm_order': 0, 'sm_refused': 0, 'sm_releases': 1, 'sm_rollbacks': 0, 'sm_settles': 1, 'sm_unbinds': 0, 'stale': 0, 'step_bound': 280, 'step_max': 0, 'step_owing': 0, 'steps': 0, 'terminal': 1, 'unread': 0, 'vd_a': 0, 'vd_b': 0, 'while_busy': 0, 'withheld': 0}
+
+  [FAIL] Ports/NvmBoth.swept_cut_in_flight/litespi: phase 8 + 2 ms: cases 143 old 23 new 120 bad 0 effects 15 saves 1 durable 12185 us; {'abandoned': 0, 'abandoned_vd': 0, 'applied': 54, 'attempts': 0, 'auth': 0, 'bad': 1, 'bind_cause': 0, 'bind_terminal': 1, 'blank': 0, 'calls': 3833756, 'cause': 0, 'clock_hz': 100000000, 'commit_refused': 0, 'commit_tries': 0, 'deferred': 0, 'descending': 0, 'dirty': 0, 'effects': 0, 'erases': 0, 'exhausted': 0, 'failed': 0, 'first': 0, 'img_len': 3444, 'last': 0, 'legacy': 0, 'ls_call_ticks': 200000, 'ls_hung': 0, 'ls_max_withheld': 0, 'ls_no_wel': 0, 'ls_pp': 0, 'ls_refused': 0, 'ls_se': 0, 'ls_short': 0, 'ls_stalled': 0, 'ls_unknown': 0, 'ls_wren': 0, 'max_call_us': 210, 'max_polls_call': 3, 'max_read': 0, 'n_dirty': 0, 'n_inflight': 0, 'n_rec': 54, 'now_ms': 0, 'ok': 0, 'outside': 0, 'pagewrap': 0, 'pending': 0, 'phase': 1, 'programs': 0, 'protected': 0, 'read_faults': 0, 'refused': 0, 'releases': 1, 'seq': 7, 'seq_a': 7, 'seq_b': 6, 'skipped': 0, 'sm_applied': 54, 'sm_applies': 54, 'sm_order': 0, 'sm_refused': 0, 'sm_releases': 1, 'sm_rollbacks': 0, 'sm_settles': 1, 'sm_unbinds': 0, 'stale': 0, 'step_bound': 280, 'step_max': 0, 'step_owing': 0, 'steps': 0, 'terminal': 1, 'unread': 0, 'vd_a': 0, 'vd_b': 0, 'while_busy': 0, 'withheld': 0}
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:268: Failure
+Failed
+phase 8 + 2 ms: FAIL sweep_reference 1 1
+
+  [FAIL] Ports/NvmBoth.swept_cut_in_flight/litespi: phase 8 + 2 ms: FAIL sweep_reference 1 1
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+--litespi: invariant bad=1
+
+  [FAIL] Ports/NvmBoth.swept_cut_in_flight/litespi: --litespi: invariant bad=1
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+--litespi: runner FAIL sweep_reference 1 1
+
+  [FAIL] Ports/NvmBoth.swept_cut_in_flight/litespi: --litespi: runner FAIL sweep_reference 1 1
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:262: Failure
+Value of: at("bad") == 0 && at("cases") >= 121 && at("old") > 0 && at("new") > 0 && at("saves") == 2 && at("effects") == 2 * (1 + pages())
+  Actual: false
+Expected: true
+phase 9 + 0 ms: cases 121 old 0 new 121 bad 0 effects 15 saves 1 durable 2702 us; {'abandoned': 0, 'abandoned_vd': 0, 'applied': 54, 'attempts': 0, 'auth': 1, 'bad': 1, 'bind_cause': 0, 'bind_terminal': 1, 'blank': 0, 'calls': 3536847, 'cause': 0, 'clock_hz': 100000000, 'commit_refused': 0, 'commit_tries': 0, 'deferred': 0, 'descending': 0, 'dirty': 0, 'effects': 0, 'erases': 0, 'exhausted': 0, 'failed': 0, 'first': 0, 'img_len': 3444, 'last': 0, 'legacy': 0, 'ls_call_ticks': 200000, 'ls_hung': 0, 'ls_max_withheld': 0, 'ls_no_wel': 0, 'ls_pp': 0, 'ls_refused': 0, 'ls_se': 0, 'ls_short': 0, 'ls_stalled': 0, 'ls_unknown': 0, 'ls_wren': 0, 'max_call_us': 210, 'max_polls_call': 3, 'max_read': 0, 'n_dirty': 0, 'n_inflight': 0, 'n_rec': 54, 'now_ms': 0, 'ok': 0, 'outside': 0, 'pagewrap': 0, 'pending': 0, 'phase': 1, 'programs': 0, 'protected': 0, 'read_faults': 0, 'refused': 0, 'releases': 1, 'seq': 8, 'seq_a': 7, 'seq_b': 8, 'skipped': 0, 'sm_applied': 54, 'sm_applies': 54, 'sm_order': 0, 'sm_refused': 0, 'sm_releases': 1, 'sm_rollbacks': 0, 'sm_settles': 1, 'sm_unbinds': 0, 'stale': 0, 'step_bound': 280, 'step_max': 0, 'step_owing': 0, 'steps': 0, 'terminal': 1, 'unread': 0, 'vd_a': 0, 'vd_b': 0, 'while_busy': 0, 'withheld': 0}
+
+  [FAIL] Ports/NvmBoth.swept_cut_in_flight/litespi: phase 9 + 0 ms: cases 121 old 0 new 121 bad 0 effects 15 saves 1 durable 2702 us; {'abandoned': 0, 'abandoned_vd': 0, 'applied': 54, 'attempts': 0, 'auth': 1, 'bad': 1, 'bind_cause': 0, 'bind_terminal': 1, 'blank': 0, 'calls': 3536847, 'cause': 0, 'clock_hz': 100000000, 'commit_refused': 0, 'commit_tries': 0, 'deferred': 0, 'descending': 0, 'dirty': 0, 'effects': 0, 'erases': 0, 'exhausted': 0, 'failed': 0, 'first': 0, 'img_len': 3444, 'last': 0, 'legacy': 0, 'ls_call_ticks': 200000, 'ls_hung': 0, 'ls_max_withheld': 0, 'ls_no_wel': 0, 'ls_pp': 0, 'ls_refused': 0, 'ls_se': 0, 'ls_short': 0, 'ls_stalled': 0, 'ls_unknown': 0, 'ls_wren': 0, 'max_call_us': 210, 'max_polls_call': 3, 'max_read': 0, 'n_dirty': 0, 'n_inflight': 0, 'n_rec': 54, 'now_ms': 0, 'ok': 0, 'outside': 0, 'pagewrap': 0, 'pending': 0, 'phase': 1, 'programs': 0, 'protected': 0, 'read_faults': 0, 'refused': 0, 'releases': 1, 'seq': 8, 'seq_a': 7, 'seq_b': 8, 'skipped': 0, 'sm_applied': 54, 'sm_applies': 54, 'sm_order': 0, 'sm_refused': 0, 'sm_releases': 1, 'sm_rollbacks': 0, 'sm_settles': 1, 'sm_unbinds': 0, 'stale': 0, 'step_bound': 280, 'step_max': 0, 'step_owing': 0, 'steps': 0, 'terminal': 1, 'unread': 0, 'vd_a': 0, 'vd_b': 0, 'while_busy': 0, 'withheld': 0}
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:268: Failure
+Failed
+phase 9 + 0 ms: FAIL sweep_reference 1 1
+
+  [FAIL] Ports/NvmBoth.swept_cut_in_flight/litespi: phase 9 + 0 ms: FAIL sweep_reference 1 1
+[  FAILED  ] Ports/NvmBoth.swept_cut_in_flight/litespi, where GetParam() = 4-byte object <01-00 00-00> (11050 ms)
+[----------] 4 tests from Ports/NvmBoth (21265 ms total)
+
+[----------] Global test environment tear-down
+  longest service call, model time: 210 us with no stall armed, 0 us with a command-master stall
+[==========] 4 tests from 1 test suite ran. (21265 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 4 tests, listed below:
+[  FAILED  ] Ports/NvmBoth.binding_change_in_flight_opens_window/model, where GetParam() = 4-byte object <00-00 00-00>
+[  FAILED  ] Ports/NvmBoth.binding_change_in_flight_opens_window/litespi, where GetParam() = 4-byte object <01-00 00-00>
+[  FAILED  ] Ports/NvmBoth.swept_cut_in_flight/model, where GetParam() = 4-byte object <00-00 00-00>
+[  FAILED  ] Ports/NvmBoth.swept_cut_in_flight/litespi, where GetParam() = 4-byte object <01-00 00-00>
+
+ 4 FAILED TESTS
+== ctrl_nvm saved-state store, boot and write paths (endstation_ax7101_1x1_tdm8): checks: 4   failures: 4 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 4 failure(s) across 4 checks, exit 1)
+Survivors: []

@@ -1,0 +1,46 @@
+R942-1 receipt guide
+
+The reviewed repository is detached at 85569e241625d8e4176aae7d77c524783dff30cd.
+Run scripts with Python 3 from a checkout of that head with its required submodules.
+All script arguments named REPO mean its absolute path. Publishable files are
+listed in MANIFEST.sha256; scratch/ is excluded.
+
+Completed focused checks:
+  python3 -B check_binding_grade.py REPO
+  python3 -B focused_store.py REPO
+  python3 -B audit_source.py REPO
+  python3 -B check_integrity.py REPO
+
+focused_store.py builds the ordinary store binaries and 16 planted copies by
+default. This review used its --reuse-shapes option with binaries built earlier
+in the same session from the unchanged head. Each normal log records binary
+hashes. Fixtures were regenerated. Every plant was freshly built from a private
+copy of the exact source. The script allows five normal jobs plus eight plant
+jobs, each compiler driver using one job. Logs named plant-* contain EXPECTED
+failing tests: focused_store.rc determines whether all required failures occurred.
+The complete broad store mutation campaign was stopped (-15); its partial log
+is store.log. store_full_limit.txt records the limit. No full 170-control pass
+is credited independently.
+
+run_checks.py records the initial concurrent runs. restore_selftest.log/.rc
+is the completed 79-check restore-grader run. budget_selftest.log/.rc is the
+complete 1,048-check baseline followed by an INTERRUPTED broad mutation pass
+(-15), not a 321-mutant pass. budget_full_limit.txt records that limit.
+binding_grade.log/.rc independently completes all 26 binding/verify mutants
+and seven additional valid-checksum readback-coverage probes.
+
+load.log/.rc records the repository load_grade.py --check result.
+source_audit.log/.rc verifies the public evidence hashes and source relationships.
+integrity_initial and integrity_final cover raw blobs, modes, index and pins.
+hosted_status.json contains only a point-in-time read-only metadata observation;
+it does not establish checkout identity or accept a hosted gate.
+
+The public evidence commit needed by audit_source.py is
+ a7eb193aa6d85f970500c8ca64ea45189a8ba7a3
+It and both compared source ancestors must exist in the checkout's object database.
+No receipt represents a manager source bank, a current-dev candidate build,
+a new board run, or physical calibration.
+
+Packaging note: focused_store.py gained an idempotent scratch-directory creation
+line after execution so it also works from a freshly unpacked packet. Test and
+mutation logic is unchanged.

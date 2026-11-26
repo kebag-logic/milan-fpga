@@ -1,0 +1,69 @@
+PASS bind: an idle store's commands, each durable by a whole save of its own within the gate, pass 
+PASS bind: a command durable past the gate fails by its name 
+PASS bind: a command no save holds fails by its name 
+PASS bind: a command that came with a save in flight is not an idle store's 
+PASS bind: a command that took two saves fails 
+PASS bind: a save that erased its slot before the command's window is another change's 
+PASS bind: a sink whose last value the cut lacks fails 
+PASS bind: a run that left no journal fails 
+PASS bind: a run under other flash times than the group's is refused 
+PASS bind: an unanswered command is refused 
+PASS bind: a command answered with an error status is refused 
+PASS bind: the cut reads the newer accepted slot, slot B here 
+PASS bind: a save erased before the response is not its command's, though it holds the value 
+PASS flight: a bind in the save in flight's erase, durable by the next save within the bound, passes 
+PASS flight: a bind whose response came in another phase than its arrival's fails 
+PASS flight: a bind just after the capture is in the seal's first part 
+PASS flight: a bind late in the verify is graded there 
+PASS flight: a save in flight that holds the bind took it in its capture, and fails 
+PASS flight: a run of three saves is not the one in flight and the bind's own 
+PASS burst: the last command durable within the bound by the second save passes 
+PASS burst: more erases than the burst may take fail 
+PASS burst: a burst of one save had no command during another save, and fails 
+PASS verify: a verify that reads back every byte, in two runs, makes the save durable at the second 
+PASS verify: a save with no read-back after its last page is not durable 
+PASS verify: a read-back of part of the container is not durable 
+PASS verify: the same half read back twice is not the whole container 
+PASS verify: the blank check's reads before the pages do not count, so a partial verify stays not durable 
+PASS verify: a run of reads across a page program is refused, so its bytes never count as read back 
+PASS verify: two runs of reads with a write between them are not merged into one read-back 
+PASS verify: the burst grade times a name only to a save read back whole 
+PASS arrivals: at least eight, the first just after the capture, every phase of a save 
+PASS environment: a group that models the part has its times, and no other group has any 
+PASS bind: the targets are the scope ruling's (#1009, items 3 and 4) 
+BASELINE 33 checks 0 failures
+CAUGHT bind: a command's status is not read ['bind: a command answered with an error status is refused']
+CAUGHT bind: an unanswered command is not refused ['bind: an unanswered command is refused']
+CAUGHT bind: the target is not held ['bind: a command durable past the gate fails by its name']
+CAUGHT bind: a save erased before the response counts ["bind: a save erased before the response is not its command's, though it holds the value"]
+CAUGHT bind: a save's contents are not read ["bind: an idle store's commands, each durable by a whole save of its own within the gate, pass"]
+CAUGHT bind: the cut's container is not read ["bind: an idle store's commands, each durable by a whole save of its own within the gate, pass"]
+CAUGHT bind: the cut reads slot A whatever the sequences ['bind: the cut reads the newer accepted slot, slot B here']
+CAUGHT bind: a missing journal passes ['bind: a run that left no journal fails']
+CAUGHT bind: the part's times the run modelled are not checked ["bind: a run under other flash times than the group's is refused"]
+CAUGHT bind: a group's run does not model the part ['environment: a group that models the part has its times, and no other group has any']
+CAUGHT bind: a group's run keeps the part's times the harness was started with ['environment: a group that models the part has its times, and no other group has any']
+CAUGHT bind: a save that is not a whole container read back passes ['verify: a read-back of part of the container is not durable']
+CAUGHT idle: a command with a save in flight is graded as one to an idle store ["bind: a command that came with a save in flight is not an idle store's"]
+CAUGHT idle: a command that took two saves is graded ['bind: a command that took two saves fails']
+CAUGHT idle: a save erased before the command's window is graded as its own ["bind: a save that erased its slot before the command's window is another change's"]
+CAUGHT flight: a bind the save in flight took in its capture is graded ['flight: a save in flight that holds the bind took it in its capture, and fails']
+CAUGHT flight: a bind whose response came outside its arrival's phase is graded ["flight: a bind whose response came in another phase than its arrival's fails"]
+CAUGHT flight: a run of other saves than the two is graded ["flight: a run of three saves is not the one in flight and the bind's own"]
+CAUGHT flight: the seal measured from the first CRC call in the log ["flight: a bind just after the capture is in the seal's first part"]
+CAUGHT burst: more erases than the cap are graded ['burst: more erases than the burst may take fail']
+CAUGHT burst: a burst of one save is graded ['burst: a burst of one save had no command during another save, and fails']
+CAUGHT arrivals: none just after the capture ['arrivals: at least eight, the first just after the capture, every phase of a save']
+CAUGHT verify: a byte read twice counts twice ['verify: the same half read back twice is not the whole container']
+CAUGHT verify: a read before the last page was programmed counts ["bind: an idle store's commands, each durable by a whole save of its own within the gate, pass"]
+CAUGHT verify: a run of reads across a write is graded ['verify: a run of reads across a page program is refused, so its bytes never count as read back']
+CAUGHT verify: runs of reads merged across a write ['verify: two runs of reads with a write between them are not merged into one read-back']
+MUTATIONS 26
+PASS no post-program reads expected None observed None
+PASS only first four bytes after program expected None observed None
+PASS same half twice expected None observed None
+PASS overlap leaves final byte missing expected None observed None
+PASS two halves complete expected 70 observed 70
+PASS complete in reverse address order expected 70 observed 70
+PASS reads straddle programming expected REFUSED observed REFUSED
+RESULT PASS failures 0

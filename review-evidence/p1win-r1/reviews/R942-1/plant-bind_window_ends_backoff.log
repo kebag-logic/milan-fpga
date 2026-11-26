@@ -1,0 +1,38 @@
+Expected failing checks: ('binding_change_in_backoff',)
+Note: Google Test filter = *.binding_change_in_backoff:*.binding_change_in_backoff/*
+[==========] Running 2 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 2 tests from Ports/NvmBoth
+[ RUN      ] Ports/NvmBoth.binding_change_in_backoff/model
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:201: Failure
+Value of: r.at("ok") == 1 && r.at("failed") == 1 && r.fail_at.size() == 1u && r.ok_at.size() == 1u && r.ok_at[0] - r.fail_at[0] >= static_cast<std::uint64_t>(1000 * kMs)
+  Actual: false
+Expected: true
+a binding change 200 ms into a backoff: {'abandoned': 0, 'abandoned_vd': 0, 'applied': 54, 'attempts': 0, 'auth': 0, 'bad': 0, 'bind_cause': 0, 'bind_terminal': 1, 'blank': 0, 'calls': 13439, 'cause': 0, 'clock_hz': 100000000, 'commit_refused': 0, 'commit_tries': 0, 'deferred': 0, 'descending': 0, 'dirty': 0, 'effects': 15, 'erases': 1, 'exhausted': 0, 'failed': 1, 'first': 0, 'img_len': 3444, 'last': 0, 'legacy': 0, 'ls_call_ticks': 200000, 'ls_hung': 0, 'ls_max_withheld': 0, 'ls_no_wel': 0, 'ls_pp': 0, 'ls_refused': 0, 'ls_se': 0, 'ls_short': 0, 'ls_stalled': 0, 'ls_unknown': 0, 'ls_wren': 0, 'max_call_us': 168, 'max_polls_call': 1, 'max_read': 128, 'n_dirty': 0, 'n_inflight': 0, 'n_rec': 54, 'now_ms': 1358, 'ok': 1, 'outside': 0, 'pagewrap': 0, 'pending': 0, 'phase': 1, 'programs': 14, 'protected': 0, 'read_faults': 0, 'refused': 0, 'releases': 1, 'seq': 7, 'seq_a': 5, 'seq_b': 6, 'skipped': 0, 'sm_applied': 54, 'sm_applies': 54, 'sm_order': 0, 'sm_refused': 0, 'sm_releases': 1, 'sm_rollbacks': 0, 'sm_settles': 1, 'sm_unbinds': 0, 'stale': 0, 'step_bound': 280, 'step_max': 256, 'step_owing': 0, 'steps': 13439, 'terminal': 1, 'unread': 0, 'vd_a': 0, 'vd_b': 0, 'while_busy': 0, 'withheld': 0}
+
+  [FAIL] Ports/NvmBoth.binding_change_in_backoff/model: a binding change 200 ms into a backoff: {'abandoned': 0, 'abandoned_vd': 0, 'applied': 54, 'attempts': 0, 'auth': 0, 'bad': 0, 'bind_cause': 0, 'bind_terminal': 1, 'blank': 0, 'calls': 13439, 'cause': 0, 'clock_hz': 100000000, 'commit_refused': 0, 'commit_tries': 0, 'deferred': 0, 'descending': 0, 'dirty': 0, 'effects': 15, 'erases': 1, 'exhausted': 0, 'failed': 1, 'first': 0, 'img_len': 3444, 'last': 0, 'legacy': 0, 'ls_call_ticks': 200000, 'ls_hung': 0, 'ls_max_withheld': 0, 'ls_no_wel': 0, 'ls_pp': 0, 'ls_refused': 0, 'ls_se': 0, 'ls_short': 0, 'ls_stalled': 0, 'ls_unknown': 0, 'ls_wren': 0, 'max_call_us': 168, 'max_polls_call': 1, 'max_read': 128, 'n_dirty': 0, 'n_inflight': 0, 'n_rec': 54, 'now_ms': 1358, 'ok': 1, 'outside': 0, 'pagewrap': 0, 'pending': 0, 'phase': 1, 'programs': 14, 'protected': 0, 'read_faults': 0, 'refused': 0, 'releases': 1, 'seq': 7, 'seq_a': 5, 'seq_b': 6, 'skipped': 0, 'sm_applied': 54, 'sm_applies': 54, 'sm_order': 0, 'sm_refused': 0, 'sm_releases': 1, 'sm_rollbacks': 0, 'sm_settles': 1, 'sm_unbinds': 0, 'stale': 0, 'step_bound': 280, 'step_max': 256, 'step_owing': 0, 'steps': 13439, 'terminal': 1, 'unread': 0, 'vd_a': 0, 'vd_b': 0, 'while_busy': 0, 'withheld': 0}
+[  FAILED  ] Ports/NvmBoth.binding_change_in_backoff/model, where GetParam() = 4-byte object <00-00 00-00> (27 ms)
+[ RUN      ] Ports/NvmBoth.binding_change_in_backoff/litespi
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:201: Failure
+Value of: r.at("ok") == 1 && r.at("failed") == 1 && r.fail_at.size() == 1u && r.ok_at.size() == 1u && r.ok_at[0] - r.fail_at[0] >= static_cast<std::uint64_t>(1000 * kMs)
+  Actual: false
+Expected: true
+a binding change 200 ms into a backoff: {'abandoned': 0, 'abandoned_vd': 0, 'applied': 54, 'attempts': 0, 'auth': 0, 'bad': 0, 'bind_cause': 0, 'bind_terminal': 1, 'blank': 0, 'calls': 13420, 'cause': 0, 'clock_hz': 100000000, 'commit_refused': 0, 'commit_tries': 0, 'deferred': 0, 'descending': 0, 'dirty': 0, 'effects': 15, 'erases': 1, 'exhausted': 0, 'failed': 1, 'first': 0, 'img_len': 3444, 'last': 0, 'legacy': 0, 'ls_call_ticks': 200000, 'ls_hung': 0, 'ls_max_withheld': 0, 'ls_no_wel': 0, 'ls_pp': 14, 'ls_refused': 1, 'ls_se': 2, 'ls_short': 0, 'ls_stalled': 0, 'ls_unknown': 0, 'ls_wren': 16, 'max_call_us': 210, 'max_polls_call': 3, 'max_read': 0, 'n_dirty': 0, 'n_inflight': 0, 'n_rec': 54, 'now_ms': 1348, 'ok': 1, 'outside': 0, 'pagewrap': 0, 'pending': 0, 'phase': 1, 'programs': 14, 'protected': 0, 'read_faults': 0, 'refused': 0, 'releases': 1, 'seq': 7, 'seq_a': 5, 'seq_b': 6, 'skipped': 0, 'sm_applied': 54, 'sm_applies': 54, 'sm_order': 0, 'sm_refused': 0, 'sm_releases': 1, 'sm_rollbacks': 0, 'sm_settles': 1, 'sm_unbinds': 0, 'stale': 0, 'step_bound': 280, 'step_max': 256, 'step_owing': 0, 'steps': 13420, 'terminal': 1, 'unread': 0, 'vd_a': 0, 'vd_b': 0, 'while_busy': 0, 'withheld': 0}
+
+  [FAIL] Ports/NvmBoth.binding_change_in_backoff/litespi: a binding change 200 ms into a backoff: {'abandoned': 0, 'abandoned_vd': 0, 'applied': 54, 'attempts': 0, 'auth': 0, 'bad': 0, 'bind_cause': 0, 'bind_terminal': 1, 'blank': 0, 'calls': 13420, 'cause': 0, 'clock_hz': 100000000, 'commit_refused': 0, 'commit_tries': 0, 'deferred': 0, 'descending': 0, 'dirty': 0, 'effects': 15, 'erases': 1, 'exhausted': 0, 'failed': 1, 'first': 0, 'img_len': 3444, 'last': 0, 'legacy': 0, 'ls_call_ticks': 200000, 'ls_hung': 0, 'ls_max_withheld': 0, 'ls_no_wel': 0, 'ls_pp': 14, 'ls_refused': 1, 'ls_se': 2, 'ls_short': 0, 'ls_stalled': 0, 'ls_unknown': 0, 'ls_wren': 16, 'max_call_us': 210, 'max_polls_call': 3, 'max_read': 0, 'n_dirty': 0, 'n_inflight': 0, 'n_rec': 54, 'now_ms': 1348, 'ok': 1, 'outside': 0, 'pagewrap': 0, 'pending': 0, 'phase': 1, 'programs': 14, 'protected': 0, 'read_faults': 0, 'refused': 0, 'releases': 1, 'seq': 7, 'seq_a': 5, 'seq_b': 6, 'skipped': 0, 'sm_applied': 54, 'sm_applies': 54, 'sm_order': 0, 'sm_refused': 0, 'sm_releases': 1, 'sm_rollbacks': 0, 'sm_settles': 1, 'sm_unbinds': 0, 'stale': 0, 'step_bound': 280, 'step_max': 256, 'step_owing': 0, 'steps': 13420, 'terminal': 1, 'unread': 0, 'vd_a': 0, 'vd_b': 0, 'while_busy': 0, 'withheld': 0}
+[  FAILED  ] Ports/NvmBoth.binding_change_in_backoff/litespi, where GetParam() = 4-byte object <01-00 00-00> (14 ms)
+[----------] 2 tests from Ports/NvmBoth (42 ms total)
+
+[----------] Global test environment tear-down
+  longest service call, model time: 210 us with no stall armed, 0 us with a command-master stall
+[==========] 2 tests from 1 test suite ran. (42 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 2 tests, listed below:
+[  FAILED  ] Ports/NvmBoth.binding_change_in_backoff/model, where GetParam() = 4-byte object <00-00 00-00>
+[  FAILED  ] Ports/NvmBoth.binding_change_in_backoff/litespi, where GetParam() = 4-byte object <01-00 00-00>
+
+ 2 FAILED TESTS
+== ctrl_nvm saved-state store, boot and write paths (endstation_ax7101_1x1_tdm8): checks: 2   failures: 2 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 2 failure(s) across 2 checks, exit 1)
+Survivors: []

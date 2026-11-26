@@ -1,0 +1,4377 @@
+{
+  "head_query": "85569e241625d8e4176aae7d77c524783dff30cd",
+  "observed_utc": "2026-11-26 04:02:12 UTC",
+  "note": "Read-only workflow/job metadata associated with this PR head. No checkout-tree identity or gate artifact was downloaded. Successful steps, skipped steps, pending jobs and aggregate outcomes are distinct. The manager owns acceptance.",
+  "runs": [
+    {
+      "run": {
+        "id": 45751067571,
+        "name": "docs",
+        "status": "in_progress",
+        "conclusion": null,
+        "run_number": 2160,
+        "jobs_url": "https://api.github.com/repos/kebag-logic/milan-fpga/actions/runs/45751067571/jobs",
+        "logs_url": "https://api.github.com/repos/kebag-logic/milan-fpga/actions/runs/45751067571/logs",
+        "workflow_id": 320168027
+      },
+      "jobs": [
+        {
+          "id": 139678697160,
+          "name": "docs-check-no-git",
+          "status": "completed",
+          "conclusion": "success",
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Retain checkout identity before removing metadata",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Set CPU-derived job budgets",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Strip git metadata, then run the docs gate",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Record actual job execution",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Upload actual job execution",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 14
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 15
+            }
+          ]
+        },
+        {
+          "id": 139678697391,
+          "name": "docs-gates-2",
+          "status": "in_progress",
+          "conclusion": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Set CPU-derived job budgets",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Cache exact Python downloads",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Install the python gate dependencies",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Cache the pinned Markdown renderer downloads",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Install the pinned Markdown renderer",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "Resolve exact package downloads 4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 8
+            },
+            {
+              "name": "Cache exact package downloads 4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 9
+            },
+            {
+              "name": "Install diagram gate dependencies",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 10
+            },
+            {
+              "name": "Fetch the builder source dependencies",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 11
+            },
+            {
+              "name": "Cache verified sv2v archive",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 12
+            },
+            {
+              "name": "Install the pinned sv2v release",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 13
+            },
+            {
+              "name": "Cache the pinned RV32 SDK",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 14
+            },
+            {
+              "name": "Install and verify the pinned RV32 SDK",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 15
+            },
+            {
+              "name": "End-station builder gates, leg 1 of 2",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 16
+            },
+            {
+              "name": "CI event and SHA contract gate",
+              "status": "in_progress",
+              "conclusion": null,
+              "number": 17
+            },
+            {
+              "name": "Local act runner contract gate",
+              "status": "pending",
+              "conclusion": null,
+              "number": 18
+            },
+            {
+              "name": "Record executed gate outcomes",
+              "status": "pending",
+              "conclusion": null,
+              "number": 19
+            },
+            {
+              "name": "Upload executed gate outcomes",
+              "status": "pending",
+              "conclusion": null,
+              "number": 20
+            },
+            {
+              "name": "Record actual job execution",
+              "status": "pending",
+              "conclusion": null,
+              "number": 21
+            },
+            {
+              "name": "Upload actual job execution",
+              "status": "pending",
+              "conclusion": null,
+              "number": 22
+            },
+            {
+              "name": "Post Cache the pinned RV32 SDK",
+              "status": "pending",
+              "conclusion": null,
+              "number": 39
+            },
+            {
+              "name": "Post Cache verified sv2v archive",
+              "status": "pending",
+              "conclusion": null,
+              "number": 40
+            },
+            {
+              "name": "Post Cache exact package downloads 4",
+              "status": "pending",
+              "conclusion": null,
+              "number": 41
+            },
+            {
+              "name": "Post Cache the pinned Markdown renderer downloads",
+              "status": "pending",
+              "conclusion": null,
+              "number": 42
+            },
+            {
+              "name": "Post Cache exact Python downloads",
+              "status": "pending",
+              "conclusion": null,
+              "number": 43
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "pending",
+              "conclusion": null,
+              "number": 44
+            }
+          ]
+        },
+        {
+          "id": 139678697396,
+          "name": "Fail fast across this head",
+          "status": "in_progress",
+          "conclusion": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Set CPU-derived job budgets",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Observe the first failed job",
+              "status": "in_progress",
+              "conclusion": null,
+              "number": 4
+            },
+            {
+              "name": "Cancel this run and sibling workflows",
+              "status": "pending",
+              "conclusion": null,
+              "number": 5
+            },
+            {
+              "name": "Record actual job execution",
+              "status": "pending",
+              "conclusion": null,
+              "number": 6
+            },
+            {
+              "name": "Upload actual job execution",
+              "status": "pending",
+              "conclusion": null,
+              "number": 7
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "pending",
+              "conclusion": null,
+              "number": 14
+            }
+          ]
+        },
+        {
+          "id": 139678697440,
+          "name": "wire-accountability",
+          "status": "completed",
+          "conclusion": "success",
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Set CPU-derived job budgets",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Cache exact Python downloads",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Fetch the engine authority the builder derives from",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Advertised-vs-emitted gate (green since 2026-07-28, item 00)",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Record actual job execution",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "Upload actual job execution",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 8
+            },
+            {
+              "name": "Post Cache exact Python downloads",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 15
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 16
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 17
+            }
+          ]
+        },
+        {
+          "id": 139678697454,
+          "name": "docs-gates-1",
+          "status": "completed",
+          "conclusion": "success",
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Set CPU-derived job budgets",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Cache exact Python downloads",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Install the python gate dependencies",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Cache the pinned Markdown renderer downloads",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Install the pinned Markdown renderer",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "Resolve exact package downloads 4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 8
+            },
+            {
+              "name": "Cache exact package downloads 4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 9
+            },
+            {
+              "name": "Install diagram gate dependencies",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 10
+            },
+            {
+              "name": "Fetch the builder source dependencies",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 11
+            },
+            {
+              "name": "Cache verified sv2v archive",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 12
+            },
+            {
+              "name": "Install the pinned sv2v release",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 13
+            },
+            {
+              "name": "Cache the pinned RV32 SDK",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 14
+            },
+            {
+              "name": "Install and verify the pinned RV32 SDK",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 15
+            },
+            {
+              "name": "End-station builder gates, leg 0 of 2",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 16
+            },
+            {
+              "name": "Record executed gate outcomes",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 17
+            },
+            {
+              "name": "Upload executed gate outcomes",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 18
+            },
+            {
+              "name": "Record actual job execution",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 19
+            },
+            {
+              "name": "Upload actual job execution",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 20
+            },
+            {
+              "name": "Post Cache the pinned RV32 SDK",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 35
+            },
+            {
+              "name": "Post Cache verified sv2v archive",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 36
+            },
+            {
+              "name": "Post Cache exact package downloads 4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 37
+            },
+            {
+              "name": "Post Cache the pinned Markdown renderer downloads",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 38
+            },
+            {
+              "name": "Post Cache exact Python downloads",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 39
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 40
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 41
+            }
+          ]
+        },
+        {
+          "id": 139678697552,
+          "name": "docs-gates-0",
+          "status": "in_progress",
+          "conclusion": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Set CPU-derived job budgets",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Cache exact Python downloads",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Build the validated HDL reference",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Upload the HDL reference HTML",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Install the python gate dependencies",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "Cache the pinned Markdown renderer downloads",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 8
+            },
+            {
+              "name": "Install the pinned Markdown renderer",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 9
+            },
+            {
+              "name": "Resolve exact package downloads 6",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 10
+            },
+            {
+              "name": "Cache exact package downloads 6",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 11
+            },
+            {
+              "name": "Install diagram gate dependencies",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 12
+            },
+            {
+              "name": "Link health, wording, dead-reference and local-info gate",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 13
+            },
+            {
+              "name": "Added-line em-dash gate",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 14
+            },
+            {
+              "name": "Concise audience documentation gate",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 15
+            },
+            {
+              "name": "Audience diagram no-drift gate",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 16
+            },
+            {
+              "name": "Product solution source-fact gate",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 17
+            },
+            {
+              "name": "Verified submodule documentation gate",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 18
+            },
+            {
+              "name": "HDL timing diagram no-drift gate",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 19
+            },
+            {
+              "name": "Published diagram PNG gate",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 20
+            },
+            {
+              "name": "Milan feature-status consistency gate",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 21
+            },
+            {
+              "name": "Traceability matrix no-drift gate",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 22
+            },
+            {
+              "name": "Fetch the builder source dependencies",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 23
+            },
+            {
+              "name": "Imported gPTP documentation gate",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 24
+            },
+            {
+              "name": "Code-quality measurement self-tests",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 25
+            },
+            {
+              "name": "Cache verified sv2v archive",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 26
+            },
+            {
+              "name": "Install the pinned sv2v release",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 27
+            },
+            {
+              "name": "Bare-metal scope gate",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 28
+            },
+            {
+              "name": "Cache the pinned RV32 SDK",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 29
+            },
+            {
+              "name": "Install and verify the pinned RV32 SDK",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 30
+            },
+            {
+              "name": "Compiler-absent firmware controls",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 31
+            },
+            {
+              "name": "NVM record-space gate",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 32
+            },
+            {
+              "name": "Capture measurement census and clock gate",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 33
+            },
+            {
+              "name": "Saved-state writer gate",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 34
+            },
+            {
+              "name": "SoC source-list gate (Vivado would fail 40 min in without this)",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 35
+            },
+            {
+              "name": "RTL source-list drift gate",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 36
+            },
+            {
+              "name": "Boundary-unit naming ratchet",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 37
+            },
+            {
+              "name": "Port contract gate",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 38
+            },
+            {
+              "name": "Fail-fast ratchet",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 39
+            },
+            {
+              "name": "TODO ownership gate",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 40
+            },
+            {
+              "name": "Test-evidence ratchet",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 41
+            },
+            {
+              "name": "Mechanical hygiene ratchet",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 42
+            },
+            {
+              "name": "SystemVerilog idiom gate",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 43
+            },
+            {
+              "name": "C and C++ idiom gate",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 44
+            },
+            {
+              "name": "Python idiom gate",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 45
+            },
+            {
+              "name": "Shell idiom gate",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 46
+            },
+            {
+              "name": "Doc cited-path gate",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 47
+            },
+            {
+              "name": "Archive integrity gate",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 48
+            },
+            {
+              "name": "Per-page contents gate",
+              "status": "in_progress",
+              "conclusion": null,
+              "number": 49
+            },
+            {
+              "name": "Documentation inventory freshness gate",
+              "status": "pending",
+              "conclusion": null,
+              "number": 50
+            },
+            {
+              "name": "AEM store generator self-test",
+              "status": "pending",
+              "conclusion": null,
+              "number": 51
+            },
+            {
+              "name": "Sweep/build shape gate",
+              "status": "pending",
+              "conclusion": null,
+              "number": 52
+            },
+            {
+              "name": "Deploy shape gate",
+              "status": "pending",
+              "conclusion": null,
+              "number": 53
+            },
+            {
+              "name": "Entity shape gate",
+              "status": "pending",
+              "conclusion": null,
+              "number": 54
+            },
+            {
+              "name": "Register reference freshness gate",
+              "status": "pending",
+              "conclusion": null,
+              "number": 55
+            },
+            {
+              "name": "Fetch inventory dependencies",
+              "status": "pending",
+              "conclusion": null,
+              "number": 56
+            },
+            {
+              "name": "CI scheduling and evidence controls",
+              "status": "pending",
+              "conclusion": null,
+              "number": 57
+            },
+            {
+              "name": "Record executed gate outcomes",
+              "status": "pending",
+              "conclusion": null,
+              "number": 58
+            },
+            {
+              "name": "Upload executed gate outcomes",
+              "status": "pending",
+              "conclusion": null,
+              "number": 59
+            },
+            {
+              "name": "Record actual job execution",
+              "status": "pending",
+              "conclusion": null,
+              "number": 60
+            },
+            {
+              "name": "Upload actual job execution",
+              "status": "pending",
+              "conclusion": null,
+              "number": 61
+            },
+            {
+              "name": "Post Cache the pinned RV32 SDK",
+              "status": "pending",
+              "conclusion": null,
+              "number": 117
+            },
+            {
+              "name": "Post Cache verified sv2v archive",
+              "status": "pending",
+              "conclusion": null,
+              "number": 118
+            },
+            {
+              "name": "Post Cache exact package downloads 6",
+              "status": "pending",
+              "conclusion": null,
+              "number": 119
+            },
+            {
+              "name": "Post Cache the pinned Markdown renderer downloads",
+              "status": "pending",
+              "conclusion": null,
+              "number": 120
+            },
+            {
+              "name": "Post Cache exact Python downloads",
+              "status": "pending",
+              "conclusion": null,
+              "number": 121
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "pending",
+              "conclusion": null,
+              "number": 122
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "run": {
+        "id": 45751066719,
+        "name": "elaborate",
+        "status": "in_progress",
+        "conclusion": null,
+        "run_number": 1785,
+        "jobs_url": "https://api.github.com/repos/kebag-logic/milan-fpga/actions/runs/45751066719/jobs",
+        "logs_url": "https://api.github.com/repos/kebag-logic/milan-fpga/actions/runs/45751066719/logs",
+        "workflow_id": 339283801
+      },
+      "jobs": [
+        {
+          "id": 139678694418,
+          "name": "elaborate-gates-3",
+          "status": "in_progress",
+          "conclusion": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Set CPU-derived job budgets",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Cache exact Python downloads",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Decide whether this head needs an elaboration",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Fetch the source dependencies the elaboration reads",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Install the pinned sv2v release",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "Run actions/setup-python@v5",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 8
+            },
+            {
+              "name": "Put a job-private Python environment on PATH",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 9
+            },
+            {
+              "name": "Install LiteX at the pinned revisions",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 10
+            },
+            {
+              "name": "Install sbt",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 11
+            },
+            {
+              "name": "Place the VexiiRiscv source at the revision LiteX pins",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 12
+            },
+            {
+              "name": "Apply the toolchain patch series",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 13
+            },
+            {
+              "name": "Cache the pinned RV32 SDK",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 14
+            },
+            {
+              "name": "Install and verify the pinned RV32 SDK",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 15
+            },
+            {
+              "name": "Cache the pinned Verilator build",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 16
+            },
+            {
+              "name": "Resolve exact package downloads 16",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 17
+            },
+            {
+              "name": "Cache exact package downloads 16",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 18
+            },
+            {
+              "name": "Build Verilator from source on cache miss",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 19
+            },
+            {
+              "name": "Put Verilator on PATH and prove the version",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 20
+            },
+            {
+              "name": "Standalone LiteX simulation aggregate, leg 1 of 3",
+              "status": "in_progress",
+              "conclusion": null,
+              "number": 21
+            },
+            {
+              "name": "Record executed gate outcomes",
+              "status": "pending",
+              "conclusion": null,
+              "number": 22
+            },
+            {
+              "name": "Upload executed gate outcomes",
+              "status": "pending",
+              "conclusion": null,
+              "number": 23
+            },
+            {
+              "name": "Record actual job execution",
+              "status": "pending",
+              "conclusion": null,
+              "number": 24
+            },
+            {
+              "name": "Upload actual job execution",
+              "status": "pending",
+              "conclusion": null,
+              "number": 25
+            },
+            {
+              "name": "Post Cache exact package downloads 16",
+              "status": "pending",
+              "conclusion": null,
+              "number": 45
+            },
+            {
+              "name": "Post Cache the pinned Verilator build",
+              "status": "pending",
+              "conclusion": null,
+              "number": 46
+            },
+            {
+              "name": "Post Cache the pinned RV32 SDK",
+              "status": "pending",
+              "conclusion": null,
+              "number": 47
+            },
+            {
+              "name": "Post Run actions/setup-python@v5",
+              "status": "pending",
+              "conclusion": null,
+              "number": 48
+            },
+            {
+              "name": "Post Cache exact Python downloads",
+              "status": "pending",
+              "conclusion": null,
+              "number": 49
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "pending",
+              "conclusion": null,
+              "number": 50
+            }
+          ]
+        },
+        {
+          "id": 139678694709,
+          "name": "elaborate-gates-2",
+          "status": "completed",
+          "conclusion": "success",
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Set CPU-derived job budgets",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Cache exact Python downloads",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Decide whether this head needs an elaboration",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Fetch the source dependencies the elaboration reads",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Install the pinned sv2v release",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "Run actions/setup-python@v5",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 8
+            },
+            {
+              "name": "Put a job-private Python environment on PATH",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 9
+            },
+            {
+              "name": "Install LiteX at the pinned revisions",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 10
+            },
+            {
+              "name": "Install sbt",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 11
+            },
+            {
+              "name": "Place the VexiiRiscv source at the revision LiteX pins",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 12
+            },
+            {
+              "name": "Apply the toolchain patch series",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 13
+            },
+            {
+              "name": "Cache the pinned RV32 SDK",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 14
+            },
+            {
+              "name": "Install and verify the pinned RV32 SDK",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 15
+            },
+            {
+              "name": "Cache the pinned Verilator build",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 16
+            },
+            {
+              "name": "Resolve exact package downloads 16",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 17
+            },
+            {
+              "name": "Cache exact package downloads 16",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 18
+            },
+            {
+              "name": "Build Verilator from source on cache miss",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 19
+            },
+            {
+              "name": "Put Verilator on PATH and prove the version",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 20
+            },
+            {
+              "name": "Standalone LiteX simulation aggregate, leg 0 of 3",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 21
+            },
+            {
+              "name": "Record executed gate outcomes",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 22
+            },
+            {
+              "name": "Upload executed gate outcomes",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 23
+            },
+            {
+              "name": "Record actual job execution",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 24
+            },
+            {
+              "name": "Upload actual job execution",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 25
+            },
+            {
+              "name": "Post Cache exact package downloads 16",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 45
+            },
+            {
+              "name": "Post Cache the pinned Verilator build",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 46
+            },
+            {
+              "name": "Post Cache the pinned RV32 SDK",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 47
+            },
+            {
+              "name": "Post Run actions/setup-python@v5",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 48
+            },
+            {
+              "name": "Post Cache exact Python downloads",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 49
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 50
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 51
+            }
+          ]
+        },
+        {
+          "id": 139678694761,
+          "name": "Fail fast across this head",
+          "status": "in_progress",
+          "conclusion": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Set CPU-derived job budgets",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Observe the first failed job",
+              "status": "in_progress",
+              "conclusion": null,
+              "number": 4
+            },
+            {
+              "name": "Cancel this run and sibling workflows",
+              "status": "pending",
+              "conclusion": null,
+              "number": 5
+            },
+            {
+              "name": "Record actual job execution",
+              "status": "pending",
+              "conclusion": null,
+              "number": 6
+            },
+            {
+              "name": "Upload actual job execution",
+              "status": "pending",
+              "conclusion": null,
+              "number": 7
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "pending",
+              "conclusion": null,
+              "number": 14
+            }
+          ]
+        },
+        {
+          "id": 139678694814,
+          "name": "elaborate-gates-0",
+          "status": "in_progress",
+          "conclusion": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Set CPU-derived job budgets",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Cache exact Python downloads",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Decide whether this head needs an elaboration",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Fetch the source dependencies the elaboration reads",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Cache verified sv2v archive",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "Install the pinned sv2v release",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 8
+            },
+            {
+              "name": "Run actions/setup-python@v5",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 9
+            },
+            {
+              "name": "Put a job-private Python environment on PATH",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 10
+            },
+            {
+              "name": "Cache the pinned pip downloads",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 11
+            },
+            {
+              "name": "Install LiteX at the pinned revisions",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 12
+            },
+            {
+              "name": "Cache the Scala toolchain",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 13
+            },
+            {
+              "name": "Install sbt",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 14
+            },
+            {
+              "name": "Place the VexiiRiscv source at the revision LiteX pins",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 15
+            },
+            {
+              "name": "Apply the toolchain patch series",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 16
+            },
+            {
+              "name": "Cache the pinned RV32 SDK",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 17
+            },
+            {
+              "name": "Install and verify the pinned RV32 SDK",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 18
+            },
+            {
+              "name": "Elaboration gates, leg 0 of 2",
+              "status": "in_progress",
+              "conclusion": null,
+              "number": 19
+            },
+            {
+              "name": "Record executed gate outcomes",
+              "status": "pending",
+              "conclusion": null,
+              "number": 20
+            },
+            {
+              "name": "Upload executed gate outcomes",
+              "status": "pending",
+              "conclusion": null,
+              "number": 21
+            },
+            {
+              "name": "Record actual job execution",
+              "status": "pending",
+              "conclusion": null,
+              "number": 22
+            },
+            {
+              "name": "Upload actual job execution",
+              "status": "pending",
+              "conclusion": null,
+              "number": 23
+            },
+            {
+              "name": "Post Cache the pinned RV32 SDK",
+              "status": "pending",
+              "conclusion": null,
+              "number": 40
+            },
+            {
+              "name": "Post Cache the Scala toolchain",
+              "status": "pending",
+              "conclusion": null,
+              "number": 41
+            },
+            {
+              "name": "Post Cache the pinned pip downloads",
+              "status": "pending",
+              "conclusion": null,
+              "number": 42
+            },
+            {
+              "name": "Post Run actions/setup-python@v5",
+              "status": "pending",
+              "conclusion": null,
+              "number": 43
+            },
+            {
+              "name": "Post Cache verified sv2v archive",
+              "status": "pending",
+              "conclusion": null,
+              "number": 44
+            },
+            {
+              "name": "Post Cache exact Python downloads",
+              "status": "pending",
+              "conclusion": null,
+              "number": 45
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "pending",
+              "conclusion": null,
+              "number": 46
+            }
+          ]
+        },
+        {
+          "id": 139678694817,
+          "name": "elaborate-gates-1",
+          "status": "in_progress",
+          "conclusion": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Set CPU-derived job budgets",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Cache exact Python downloads",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Decide whether this head needs an elaboration",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Fetch the source dependencies the elaboration reads",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Cache verified sv2v archive",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "Install the pinned sv2v release",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 8
+            },
+            {
+              "name": "Run actions/setup-python@v5",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 9
+            },
+            {
+              "name": "Put a job-private Python environment on PATH",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 10
+            },
+            {
+              "name": "Cache the pinned pip downloads",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 11
+            },
+            {
+              "name": "Install LiteX at the pinned revisions",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 12
+            },
+            {
+              "name": "Cache the Scala toolchain",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 13
+            },
+            {
+              "name": "Cache the generated CPU metadata",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 14
+            },
+            {
+              "name": "Install sbt",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 15
+            },
+            {
+              "name": "Place the VexiiRiscv source at the revision LiteX pins",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 16
+            },
+            {
+              "name": "Apply the toolchain patch series",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 17
+            },
+            {
+              "name": "Cache the pinned RV32 SDK",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 18
+            },
+            {
+              "name": "Install and verify the pinned RV32 SDK",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 19
+            },
+            {
+              "name": "Elaboration gates, leg 1 of 2",
+              "status": "in_progress",
+              "conclusion": null,
+              "number": 20
+            },
+            {
+              "name": "Keep the generated CPU netlist arguments for the next run",
+              "status": "pending",
+              "conclusion": null,
+              "number": 21
+            },
+            {
+              "name": "Record executed gate outcomes",
+              "status": "pending",
+              "conclusion": null,
+              "number": 22
+            },
+            {
+              "name": "Upload executed gate outcomes",
+              "status": "pending",
+              "conclusion": null,
+              "number": 23
+            },
+            {
+              "name": "Record actual job execution",
+              "status": "pending",
+              "conclusion": null,
+              "number": 24
+            },
+            {
+              "name": "Upload actual job execution",
+              "status": "pending",
+              "conclusion": null,
+              "number": 25
+            },
+            {
+              "name": "Post Cache the pinned RV32 SDK",
+              "status": "pending",
+              "conclusion": null,
+              "number": 43
+            },
+            {
+              "name": "Post Cache the generated CPU metadata",
+              "status": "pending",
+              "conclusion": null,
+              "number": 44
+            },
+            {
+              "name": "Post Cache the Scala toolchain",
+              "status": "pending",
+              "conclusion": null,
+              "number": 45
+            },
+            {
+              "name": "Post Cache the pinned pip downloads",
+              "status": "pending",
+              "conclusion": null,
+              "number": 46
+            },
+            {
+              "name": "Post Run actions/setup-python@v5",
+              "status": "pending",
+              "conclusion": null,
+              "number": 47
+            },
+            {
+              "name": "Post Cache verified sv2v archive",
+              "status": "pending",
+              "conclusion": null,
+              "number": 48
+            },
+            {
+              "name": "Post Cache exact Python downloads",
+              "status": "pending",
+              "conclusion": null,
+              "number": 49
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "pending",
+              "conclusion": null,
+              "number": 50
+            }
+          ]
+        },
+        {
+          "id": 139678694863,
+          "name": "elaborate-gates-4",
+          "status": "in_progress",
+          "conclusion": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Set CPU-derived job budgets",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Cache exact Python downloads",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Decide whether this head needs an elaboration",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Fetch the source dependencies the elaboration reads",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Install the pinned sv2v release",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "Run actions/setup-python@v5",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 8
+            },
+            {
+              "name": "Put a job-private Python environment on PATH",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 9
+            },
+            {
+              "name": "Install LiteX at the pinned revisions",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 10
+            },
+            {
+              "name": "Install sbt",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 11
+            },
+            {
+              "name": "Place the VexiiRiscv source at the revision LiteX pins",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 12
+            },
+            {
+              "name": "Apply the toolchain patch series",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 13
+            },
+            {
+              "name": "Cache the pinned RV32 SDK",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 14
+            },
+            {
+              "name": "Install and verify the pinned RV32 SDK",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 15
+            },
+            {
+              "name": "Cache the pinned Verilator build",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 16
+            },
+            {
+              "name": "Resolve exact package downloads 16",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 17
+            },
+            {
+              "name": "Cache exact package downloads 16",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 18
+            },
+            {
+              "name": "Build Verilator from source on cache miss",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 19
+            },
+            {
+              "name": "Put Verilator on PATH and prove the version",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 20
+            },
+            {
+              "name": "Standalone LiteX simulation aggregate, leg 2 of 3",
+              "status": "in_progress",
+              "conclusion": null,
+              "number": 21
+            },
+            {
+              "name": "Record executed gate outcomes",
+              "status": "pending",
+              "conclusion": null,
+              "number": 22
+            },
+            {
+              "name": "Upload executed gate outcomes",
+              "status": "pending",
+              "conclusion": null,
+              "number": 23
+            },
+            {
+              "name": "Record actual job execution",
+              "status": "pending",
+              "conclusion": null,
+              "number": 24
+            },
+            {
+              "name": "Upload actual job execution",
+              "status": "pending",
+              "conclusion": null,
+              "number": 25
+            },
+            {
+              "name": "Post Cache exact package downloads 16",
+              "status": "pending",
+              "conclusion": null,
+              "number": 45
+            },
+            {
+              "name": "Post Cache the pinned Verilator build",
+              "status": "pending",
+              "conclusion": null,
+              "number": 46
+            },
+            {
+              "name": "Post Cache the pinned RV32 SDK",
+              "status": "pending",
+              "conclusion": null,
+              "number": 47
+            },
+            {
+              "name": "Post Run actions/setup-python@v5",
+              "status": "pending",
+              "conclusion": null,
+              "number": 48
+            },
+            {
+              "name": "Post Cache exact Python downloads",
+              "status": "pending",
+              "conclusion": null,
+              "number": 49
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "pending",
+              "conclusion": null,
+              "number": 50
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "run": {
+        "id": 45751066707,
+        "name": "rtl-fast",
+        "status": "queued",
+        "conclusion": null,
+        "run_number": 1909,
+        "jobs_url": "https://api.github.com/repos/kebag-logic/milan-fpga/actions/runs/45751066707/jobs",
+        "logs_url": "https://api.github.com/repos/kebag-logic/milan-fpga/actions/runs/45751066707/logs",
+        "workflow_id": 339150340
+      },
+      "jobs": [
+        {
+          "id": 139678695048,
+          "name": "changes",
+          "status": "completed",
+          "conclusion": "success",
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Set CPU-derived job budgets",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Classify the change conservatively",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Record actual job execution",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Upload actual job execution",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 12
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 13
+            }
+          ]
+        },
+        {
+          "id": 139678695286,
+          "name": "Fail fast across this head",
+          "status": "in_progress",
+          "conclusion": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Set CPU-derived job budgets",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Observe the first failed job",
+              "status": "in_progress",
+              "conclusion": null,
+              "number": 4
+            },
+            {
+              "name": "Cancel this run and sibling workflows",
+              "status": "pending",
+              "conclusion": null,
+              "number": 5
+            },
+            {
+              "name": "Record actual job execution",
+              "status": "pending",
+              "conclusion": null,
+              "number": 6
+            },
+            {
+              "name": "Upload actual job execution",
+              "status": "pending",
+              "conclusion": null,
+              "number": 7
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "pending",
+              "conclusion": null,
+              "number": 14
+            }
+          ]
+        },
+        {
+          "id": 139678695502,
+          "name": "bdd-conformance",
+          "status": "completed",
+          "conclusion": "success",
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Set CPU-derived job budgets",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Cache exact Python downloads",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Fetch the processor model inputs",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Install behave",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Run the specification-facing suite",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "Record actual job execution",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 8
+            },
+            {
+              "name": "Upload actual job execution",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 9
+            },
+            {
+              "name": "Post Cache exact Python downloads",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 17
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 18
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 19
+            }
+          ]
+        },
+        {
+          "id": 139679170828,
+          "name": "firmware-aecp-mutants",
+          "status": "queued",
+          "conclusion": null,
+          "steps": null
+        },
+        {
+          "id": 139679170847,
+          "name": "firmware-unit",
+          "status": "queued",
+          "conclusion": null,
+          "steps": null
+        },
+        {
+          "id": 139679170884,
+          "name": "split-cdc",
+          "status": "queued",
+          "conclusion": null,
+          "steps": null
+        },
+        {
+          "id": 139679170896,
+          "name": "firmware-verilator",
+          "status": "queued",
+          "conclusion": null,
+          "steps": null
+        },
+        {
+          "id": 139679170914,
+          "name": "publication-census",
+          "status": "queued",
+          "conclusion": null,
+          "steps": null
+        },
+        {
+          "id": 139679170915,
+          "name": "firmware-control-mutants",
+          "status": "queued",
+          "conclusion": null,
+          "steps": null
+        },
+        {
+          "id": 139679170936,
+          "name": "verilator-lint",
+          "status": "queued",
+          "conclusion": null,
+          "steps": null
+        },
+        {
+          "id": 139679170939,
+          "name": "firmware-srp-mutants",
+          "status": "queued",
+          "conclusion": null,
+          "steps": null
+        },
+        {
+          "id": 139679170944,
+          "name": "firmware-boundary-capture (1)",
+          "status": "queued",
+          "conclusion": null,
+          "steps": null
+        },
+        {
+          "id": 139679170966,
+          "name": "Prepare pinned Yosys",
+          "status": "queued",
+          "conclusion": null,
+          "steps": null
+        },
+        {
+          "id": 139679171409,
+          "name": "firmware-boundary-capture (0)",
+          "status": "queued",
+          "conclusion": null,
+          "steps": null
+        }
+      ]
+    },
+    {
+      "run": {
+        "id": 45751066654,
+        "name": "rtl-full",
+        "status": "queued",
+        "conclusion": null,
+        "run_number": 2368,
+        "jobs_url": "https://api.github.com/repos/kebag-logic/milan-fpga/actions/runs/45751066654/jobs",
+        "logs_url": "https://api.github.com/repos/kebag-logic/milan-fpga/actions/runs/45751066654/logs",
+        "workflow_id": 320750503
+      },
+      "jobs": [
+        {
+          "id": 139678694301,
+          "name": "full-ci-gate",
+          "status": "completed",
+          "conclusion": "success",
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Set CPU-derived job budgets",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Cache exact Python downloads",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Print the event and pin the one SHA this run validates",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Assert the repository default branch is dev",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Hold every workflow file to its contract",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "Decide whether this exact head needs the exhaustive gates",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 8
+            },
+            {
+              "name": "Record actual job execution",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 9
+            },
+            {
+              "name": "Upload actual job execution",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 10
+            },
+            {
+              "name": "Post Cache exact Python downloads",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 19
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 20
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 21
+            }
+          ]
+        },
+        {
+          "id": 139678694678,
+          "name": "Fail fast across this head",
+          "status": "in_progress",
+          "conclusion": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Set CPU-derived job budgets",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Observe the first failed job",
+              "status": "in_progress",
+              "conclusion": null,
+              "number": 4
+            },
+            {
+              "name": "Cancel this run and sibling workflows",
+              "status": "pending",
+              "conclusion": null,
+              "number": 5
+            },
+            {
+              "name": "Record actual job execution",
+              "status": "pending",
+              "conclusion": null,
+              "number": 6
+            },
+            {
+              "name": "Upload actual job execution",
+              "status": "pending",
+              "conclusion": null,
+              "number": 7
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "pending",
+              "conclusion": null,
+              "number": 14
+            }
+          ]
+        },
+        {
+          "id": 139679119610,
+          "name": "Prepare pinned Yosys",
+          "status": "in_progress",
+          "conclusion": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Set CPU-derived job budgets",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Cache the pinned Yosys build",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Resolve exact package downloads 2",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Cache exact package downloads 2",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Build Yosys from source on cache miss",
+              "status": "in_progress",
+              "conclusion": null,
+              "number": 7
+            },
+            {
+              "name": "Package the pinned Yosys build",
+              "status": "pending",
+              "conclusion": null,
+              "number": 8
+            },
+            {
+              "name": "Upload the pinned Yosys build",
+              "status": "pending",
+              "conclusion": null,
+              "number": 9
+            },
+            {
+              "name": "Record actual job execution",
+              "status": "pending",
+              "conclusion": null,
+              "number": 10
+            },
+            {
+              "name": "Upload actual job execution",
+              "status": "pending",
+              "conclusion": null,
+              "number": 11
+            },
+            {
+              "name": "Post Cache exact package downloads 2",
+              "status": "pending",
+              "conclusion": null,
+              "number": 20
+            },
+            {
+              "name": "Post Cache the pinned Yosys build",
+              "status": "pending",
+              "conclusion": null,
+              "number": 21
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "pending",
+              "conclusion": null,
+              "number": 22
+            }
+          ]
+        },
+        {
+          "id": 139679119675,
+          "name": "Verilator preflight",
+          "status": "completed",
+          "conclusion": "success",
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Set CPU-derived job budgets",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Record the tree this worker validates",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Run the sweep's preflight self-tests once for this head",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Upload this head's preflight logs",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Record actual job execution",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "Upload actual job execution",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 8
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 16
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 17
+            }
+          ]
+        },
+        {
+          "id": 139679119913,
+          "name": "Verilator shard 1/27",
+          "status": "in_progress",
+          "conclusion": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Set CPU-derived job budgets",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Fetch RTL dependencies",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Record the tree this worker validates",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Cache the pinned Verilator build",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Resolve exact package downloads 4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "Cache exact package downloads 4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 8
+            },
+            {
+              "name": "Build Verilator from source on cache miss",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 9
+            },
+            {
+              "name": "Put Verilator on PATH and prove the version",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 10
+            },
+            {
+              "name": "Prove specialized suite ownership",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 11
+            },
+            {
+              "name": "Cache the pinned Yosys build for the netlist-level suite owner",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 12
+            },
+            {
+              "name": "Resolve exact package downloads 8",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 13
+            },
+            {
+              "name": "Cache exact package downloads 8",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 14
+            },
+            {
+              "name": "Build Yosys from source on cache miss",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 15
+            },
+            {
+              "name": "Resolve exact package downloads 9",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 16
+            },
+            {
+              "name": "Cache exact package downloads 9",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 17
+            },
+            {
+              "name": "Install the pinned Yosys and prove the version",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 18
+            },
+            {
+              "name": "Cache verified sv2v archive",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 19
+            },
+            {
+              "name": "Install sv2v for the netlist-level suite owner",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 20
+            },
+            {
+              "name": "Cache pinned field oracle build",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 21
+            },
+            {
+              "name": "Build the pinned tsn-gen field oracle on its suite owner",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 22
+            },
+            {
+              "name": "Run this exhaustive suite shard",
+              "status": "in_progress",
+              "conclusion": null,
+              "number": 23
+            },
+            {
+              "name": "Upload this shard's suite logs",
+              "status": "pending",
+              "conclusion": null,
+              "number": 24
+            },
+            {
+              "name": "Record actual job execution",
+              "status": "pending",
+              "conclusion": null,
+              "number": 25
+            },
+            {
+              "name": "Upload actual job execution",
+              "status": "pending",
+              "conclusion": null,
+              "number": 26
+            },
+            {
+              "name": "Post Cache pinned field oracle build",
+              "status": "pending",
+              "conclusion": null,
+              "number": 49
+            },
+            {
+              "name": "Post Cache exact package downloads 4",
+              "status": "pending",
+              "conclusion": null,
+              "number": 50
+            },
+            {
+              "name": "Post Cache the pinned Verilator build",
+              "status": "pending",
+              "conclusion": null,
+              "number": 51
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "pending",
+              "conclusion": null,
+              "number": 52
+            }
+          ]
+        },
+        {
+          "id": 139679119925,
+          "name": "Verilator shard 9/27",
+          "status": "in_progress",
+          "conclusion": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Set CPU-derived job budgets",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Fetch RTL dependencies",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Record the tree this worker validates",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Cache the pinned Verilator build",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Resolve exact package downloads 4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "Cache exact package downloads 4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 8
+            },
+            {
+              "name": "Build Verilator from source on cache miss",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 9
+            },
+            {
+              "name": "Put Verilator on PATH and prove the version",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 10
+            },
+            {
+              "name": "Prove specialized suite ownership",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 11
+            },
+            {
+              "name": "Cache the pinned Yosys build for the netlist-level suite owner",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 12
+            },
+            {
+              "name": "Resolve exact package downloads 8",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 13
+            },
+            {
+              "name": "Cache exact package downloads 8",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 14
+            },
+            {
+              "name": "Build Yosys from source on cache miss",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 15
+            },
+            {
+              "name": "Resolve exact package downloads 9",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 16
+            },
+            {
+              "name": "Cache exact package downloads 9",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 17
+            },
+            {
+              "name": "Install the pinned Yosys and prove the version",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 18
+            },
+            {
+              "name": "Cache verified sv2v archive",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 19
+            },
+            {
+              "name": "Install sv2v for the netlist-level suite owner",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 20
+            },
+            {
+              "name": "Cache pinned field oracle build",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 21
+            },
+            {
+              "name": "Build the pinned tsn-gen field oracle on its suite owner",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 22
+            },
+            {
+              "name": "Run this exhaustive suite shard",
+              "status": "in_progress",
+              "conclusion": null,
+              "number": 23
+            },
+            {
+              "name": "Upload this shard's suite logs",
+              "status": "pending",
+              "conclusion": null,
+              "number": 24
+            },
+            {
+              "name": "Record actual job execution",
+              "status": "pending",
+              "conclusion": null,
+              "number": 25
+            },
+            {
+              "name": "Upload actual job execution",
+              "status": "pending",
+              "conclusion": null,
+              "number": 26
+            },
+            {
+              "name": "Post Cache exact package downloads 4",
+              "status": "pending",
+              "conclusion": null,
+              "number": 50
+            },
+            {
+              "name": "Post Cache the pinned Verilator build",
+              "status": "pending",
+              "conclusion": null,
+              "number": 51
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "pending",
+              "conclusion": null,
+              "number": 52
+            }
+          ]
+        },
+        {
+          "id": 139679119926,
+          "name": "Verilator shard 3/27",
+          "status": "in_progress",
+          "conclusion": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Set CPU-derived job budgets",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Fetch RTL dependencies",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Record the tree this worker validates",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Cache the pinned Verilator build",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Resolve exact package downloads 4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "Cache exact package downloads 4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 8
+            },
+            {
+              "name": "Build Verilator from source on cache miss",
+              "status": "in_progress",
+              "conclusion": null,
+              "number": 9
+            },
+            {
+              "name": "Put Verilator on PATH and prove the version",
+              "status": "pending",
+              "conclusion": null,
+              "number": 10
+            },
+            {
+              "name": "Prove specialized suite ownership",
+              "status": "pending",
+              "conclusion": null,
+              "number": 11
+            },
+            {
+              "name": "Cache the pinned Yosys build for the netlist-level suite owner",
+              "status": "pending",
+              "conclusion": null,
+              "number": 12
+            },
+            {
+              "name": "Resolve exact package downloads 8",
+              "status": "pending",
+              "conclusion": null,
+              "number": 13
+            },
+            {
+              "name": "Cache exact package downloads 8",
+              "status": "pending",
+              "conclusion": null,
+              "number": 14
+            },
+            {
+              "name": "Build Yosys from source on cache miss",
+              "status": "pending",
+              "conclusion": null,
+              "number": 15
+            },
+            {
+              "name": "Resolve exact package downloads 9",
+              "status": "pending",
+              "conclusion": null,
+              "number": 16
+            },
+            {
+              "name": "Cache exact package downloads 9",
+              "status": "pending",
+              "conclusion": null,
+              "number": 17
+            },
+            {
+              "name": "Install the pinned Yosys and prove the version",
+              "status": "pending",
+              "conclusion": null,
+              "number": 18
+            },
+            {
+              "name": "Cache verified sv2v archive",
+              "status": "pending",
+              "conclusion": null,
+              "number": 19
+            },
+            {
+              "name": "Install sv2v for the netlist-level suite owner",
+              "status": "pending",
+              "conclusion": null,
+              "number": 20
+            },
+            {
+              "name": "Cache pinned field oracle build",
+              "status": "pending",
+              "conclusion": null,
+              "number": 21
+            },
+            {
+              "name": "Build the pinned tsn-gen field oracle on its suite owner",
+              "status": "pending",
+              "conclusion": null,
+              "number": 22
+            },
+            {
+              "name": "Run this exhaustive suite shard",
+              "status": "pending",
+              "conclusion": null,
+              "number": 23
+            },
+            {
+              "name": "Upload this shard's suite logs",
+              "status": "pending",
+              "conclusion": null,
+              "number": 24
+            },
+            {
+              "name": "Record actual job execution",
+              "status": "pending",
+              "conclusion": null,
+              "number": 25
+            },
+            {
+              "name": "Upload actual job execution",
+              "status": "pending",
+              "conclusion": null,
+              "number": 26
+            },
+            {
+              "name": "Post Cache exact package downloads 4",
+              "status": "pending",
+              "conclusion": null,
+              "number": 50
+            },
+            {
+              "name": "Post Cache the pinned Verilator build",
+              "status": "pending",
+              "conclusion": null,
+              "number": 51
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "pending",
+              "conclusion": null,
+              "number": 52
+            }
+          ]
+        },
+        {
+          "id": 139679119933,
+          "name": "Verilator shard 6/27",
+          "status": "queued",
+          "conclusion": null,
+          "steps": null
+        },
+        {
+          "id": 139679119934,
+          "name": "Verilator shard 4/27",
+          "status": "in_progress",
+          "conclusion": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Set CPU-derived job budgets",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Fetch RTL dependencies",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Record the tree this worker validates",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Cache the pinned Verilator build",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Resolve exact package downloads 4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "Cache exact package downloads 4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 8
+            },
+            {
+              "name": "Build Verilator from source on cache miss",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 9
+            },
+            {
+              "name": "Put Verilator on PATH and prove the version",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 10
+            },
+            {
+              "name": "Prove specialized suite ownership",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 11
+            },
+            {
+              "name": "Cache the pinned Yosys build for the netlist-level suite owner",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 12
+            },
+            {
+              "name": "Resolve exact package downloads 8",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 13
+            },
+            {
+              "name": "Cache exact package downloads 8",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 14
+            },
+            {
+              "name": "Build Yosys from source on cache miss",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 15
+            },
+            {
+              "name": "Resolve exact package downloads 9",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 16
+            },
+            {
+              "name": "Cache exact package downloads 9",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 17
+            },
+            {
+              "name": "Install the pinned Yosys and prove the version",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 18
+            },
+            {
+              "name": "Cache verified sv2v archive",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 19
+            },
+            {
+              "name": "Install sv2v for the netlist-level suite owner",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 20
+            },
+            {
+              "name": "Cache pinned field oracle build",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 21
+            },
+            {
+              "name": "Build the pinned tsn-gen field oracle on its suite owner",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 22
+            },
+            {
+              "name": "Run this exhaustive suite shard",
+              "status": "in_progress",
+              "conclusion": null,
+              "number": 23
+            },
+            {
+              "name": "Upload this shard's suite logs",
+              "status": "pending",
+              "conclusion": null,
+              "number": 24
+            },
+            {
+              "name": "Record actual job execution",
+              "status": "pending",
+              "conclusion": null,
+              "number": 25
+            },
+            {
+              "name": "Upload actual job execution",
+              "status": "pending",
+              "conclusion": null,
+              "number": 26
+            },
+            {
+              "name": "Post Cache exact package downloads 4",
+              "status": "pending",
+              "conclusion": null,
+              "number": 50
+            },
+            {
+              "name": "Post Cache the pinned Verilator build",
+              "status": "pending",
+              "conclusion": null,
+              "number": 51
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "pending",
+              "conclusion": null,
+              "number": 52
+            }
+          ]
+        },
+        {
+          "id": 139679119940,
+          "name": "Verilator shard 5/27",
+          "status": "queued",
+          "conclusion": null,
+          "steps": null
+        },
+        {
+          "id": 139679119951,
+          "name": "Verilator shard 11/27",
+          "status": "in_progress",
+          "conclusion": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Set CPU-derived job budgets",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Fetch RTL dependencies",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Record the tree this worker validates",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Cache the pinned Verilator build",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Resolve exact package downloads 4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "Cache exact package downloads 4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 8
+            },
+            {
+              "name": "Build Verilator from source on cache miss",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 9
+            },
+            {
+              "name": "Put Verilator on PATH and prove the version",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 10
+            },
+            {
+              "name": "Prove specialized suite ownership",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 11
+            },
+            {
+              "name": "Cache the pinned Yosys build for the netlist-level suite owner",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 12
+            },
+            {
+              "name": "Resolve exact package downloads 8",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 13
+            },
+            {
+              "name": "Cache exact package downloads 8",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 14
+            },
+            {
+              "name": "Build Yosys from source on cache miss",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 15
+            },
+            {
+              "name": "Resolve exact package downloads 9",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 16
+            },
+            {
+              "name": "Cache exact package downloads 9",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 17
+            },
+            {
+              "name": "Install the pinned Yosys and prove the version",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 18
+            },
+            {
+              "name": "Cache verified sv2v archive",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 19
+            },
+            {
+              "name": "Install sv2v for the netlist-level suite owner",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 20
+            },
+            {
+              "name": "Cache pinned field oracle build",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 21
+            },
+            {
+              "name": "Build the pinned tsn-gen field oracle on its suite owner",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 22
+            },
+            {
+              "name": "Run this exhaustive suite shard",
+              "status": "in_progress",
+              "conclusion": null,
+              "number": 23
+            },
+            {
+              "name": "Upload this shard's suite logs",
+              "status": "pending",
+              "conclusion": null,
+              "number": 24
+            },
+            {
+              "name": "Record actual job execution",
+              "status": "pending",
+              "conclusion": null,
+              "number": 25
+            },
+            {
+              "name": "Upload actual job execution",
+              "status": "pending",
+              "conclusion": null,
+              "number": 26
+            },
+            {
+              "name": "Post Cache exact package downloads 4",
+              "status": "pending",
+              "conclusion": null,
+              "number": 50
+            },
+            {
+              "name": "Post Cache the pinned Verilator build",
+              "status": "pending",
+              "conclusion": null,
+              "number": 51
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "pending",
+              "conclusion": null,
+              "number": 52
+            }
+          ]
+        },
+        {
+          "id": 139679119953,
+          "name": "Verilator shard 14/27",
+          "status": "in_progress",
+          "conclusion": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Set CPU-derived job budgets",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Fetch RTL dependencies",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Record the tree this worker validates",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Cache the pinned Verilator build",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Resolve exact package downloads 4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "Cache exact package downloads 4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 8
+            },
+            {
+              "name": "Build Verilator from source on cache miss",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 9
+            },
+            {
+              "name": "Put Verilator on PATH and prove the version",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 10
+            },
+            {
+              "name": "Prove specialized suite ownership",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 11
+            },
+            {
+              "name": "Cache the pinned Yosys build for the netlist-level suite owner",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 12
+            },
+            {
+              "name": "Resolve exact package downloads 8",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 13
+            },
+            {
+              "name": "Cache exact package downloads 8",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 14
+            },
+            {
+              "name": "Build Yosys from source on cache miss",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 15
+            },
+            {
+              "name": "Resolve exact package downloads 9",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 16
+            },
+            {
+              "name": "Cache exact package downloads 9",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 17
+            },
+            {
+              "name": "Install the pinned Yosys and prove the version",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 18
+            },
+            {
+              "name": "Cache verified sv2v archive",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 19
+            },
+            {
+              "name": "Install sv2v for the netlist-level suite owner",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 20
+            },
+            {
+              "name": "Cache pinned field oracle build",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 21
+            },
+            {
+              "name": "Build the pinned tsn-gen field oracle on its suite owner",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 22
+            },
+            {
+              "name": "Run this exhaustive suite shard",
+              "status": "in_progress",
+              "conclusion": null,
+              "number": 23
+            },
+            {
+              "name": "Upload this shard's suite logs",
+              "status": "pending",
+              "conclusion": null,
+              "number": 24
+            },
+            {
+              "name": "Record actual job execution",
+              "status": "pending",
+              "conclusion": null,
+              "number": 25
+            },
+            {
+              "name": "Upload actual job execution",
+              "status": "pending",
+              "conclusion": null,
+              "number": 26
+            },
+            {
+              "name": "Post Cache exact package downloads 4",
+              "status": "pending",
+              "conclusion": null,
+              "number": 50
+            },
+            {
+              "name": "Post Cache the pinned Verilator build",
+              "status": "pending",
+              "conclusion": null,
+              "number": 51
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "pending",
+              "conclusion": null,
+              "number": 52
+            }
+          ]
+        },
+        {
+          "id": 139679119964,
+          "name": "Verilator shard 21/27",
+          "status": "in_progress",
+          "conclusion": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Set CPU-derived job budgets",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Fetch RTL dependencies",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Record the tree this worker validates",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Cache the pinned Verilator build",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Resolve exact package downloads 4",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 7
+            },
+            {
+              "name": "Cache exact package downloads 4",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 8
+            },
+            {
+              "name": "Build Verilator from source on cache miss",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 9
+            },
+            {
+              "name": "Put Verilator on PATH and prove the version",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 10
+            },
+            {
+              "name": "Prove specialized suite ownership",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 11
+            },
+            {
+              "name": "Cache the pinned Yosys build for the netlist-level suite owner",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 12
+            },
+            {
+              "name": "Resolve exact package downloads 8",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 13
+            },
+            {
+              "name": "Cache exact package downloads 8",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 14
+            },
+            {
+              "name": "Build Yosys from source on cache miss",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 15
+            },
+            {
+              "name": "Resolve exact package downloads 9",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 16
+            },
+            {
+              "name": "Cache exact package downloads 9",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 17
+            },
+            {
+              "name": "Install the pinned Yosys and prove the version",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 18
+            },
+            {
+              "name": "Cache verified sv2v archive",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 19
+            },
+            {
+              "name": "Install sv2v for the netlist-level suite owner",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 20
+            },
+            {
+              "name": "Cache pinned field oracle build",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 21
+            },
+            {
+              "name": "Build the pinned tsn-gen field oracle on its suite owner",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 22
+            },
+            {
+              "name": "Run this exhaustive suite shard",
+              "status": "in_progress",
+              "conclusion": null,
+              "number": 23
+            },
+            {
+              "name": "Upload this shard's suite logs",
+              "status": "pending",
+              "conclusion": null,
+              "number": 24
+            },
+            {
+              "name": "Record actual job execution",
+              "status": "pending",
+              "conclusion": null,
+              "number": 25
+            },
+            {
+              "name": "Upload actual job execution",
+              "status": "pending",
+              "conclusion": null,
+              "number": 26
+            },
+            {
+              "name": "Post Cache the pinned Verilator build",
+              "status": "pending",
+              "conclusion": null,
+              "number": 51
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "pending",
+              "conclusion": null,
+              "number": 52
+            }
+          ]
+        },
+        {
+          "id": 139679119968,
+          "name": "Verilator shard 7/27",
+          "status": "queued",
+          "conclusion": null,
+          "steps": null
+        },
+        {
+          "id": 139679119973,
+          "name": "Verilator shard 23/27",
+          "status": "queued",
+          "conclusion": null,
+          "steps": null
+        },
+        {
+          "id": 139679119977,
+          "name": "Verilator shard 13/27",
+          "status": "queued",
+          "conclusion": null,
+          "steps": null
+        },
+        {
+          "id": 139679119979,
+          "name": "Verilator shard 15/27",
+          "status": "in_progress",
+          "conclusion": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Set CPU-derived job budgets",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Fetch RTL dependencies",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Record the tree this worker validates",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Cache the pinned Verilator build",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Resolve exact package downloads 4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "Cache exact package downloads 4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 8
+            },
+            {
+              "name": "Build Verilator from source on cache miss",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 9
+            },
+            {
+              "name": "Put Verilator on PATH and prove the version",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 10
+            },
+            {
+              "name": "Prove specialized suite ownership",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 11
+            },
+            {
+              "name": "Cache the pinned Yosys build for the netlist-level suite owner",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 12
+            },
+            {
+              "name": "Resolve exact package downloads 8",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 13
+            },
+            {
+              "name": "Cache exact package downloads 8",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 14
+            },
+            {
+              "name": "Build Yosys from source on cache miss",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 15
+            },
+            {
+              "name": "Resolve exact package downloads 9",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 16
+            },
+            {
+              "name": "Cache exact package downloads 9",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 17
+            },
+            {
+              "name": "Install the pinned Yosys and prove the version",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 18
+            },
+            {
+              "name": "Cache verified sv2v archive",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 19
+            },
+            {
+              "name": "Install sv2v for the netlist-level suite owner",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 20
+            },
+            {
+              "name": "Cache pinned field oracle build",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 21
+            },
+            {
+              "name": "Build the pinned tsn-gen field oracle on its suite owner",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 22
+            },
+            {
+              "name": "Run this exhaustive suite shard",
+              "status": "in_progress",
+              "conclusion": null,
+              "number": 23
+            },
+            {
+              "name": "Upload this shard's suite logs",
+              "status": "pending",
+              "conclusion": null,
+              "number": 24
+            },
+            {
+              "name": "Record actual job execution",
+              "status": "pending",
+              "conclusion": null,
+              "number": 25
+            },
+            {
+              "name": "Upload actual job execution",
+              "status": "pending",
+              "conclusion": null,
+              "number": 26
+            },
+            {
+              "name": "Post Cache exact package downloads 4",
+              "status": "pending",
+              "conclusion": null,
+              "number": 50
+            },
+            {
+              "name": "Post Cache the pinned Verilator build",
+              "status": "pending",
+              "conclusion": null,
+              "number": 51
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "pending",
+              "conclusion": null,
+              "number": 52
+            }
+          ]
+        },
+        {
+          "id": 139679119986,
+          "name": "Verilator shard 19/27",
+          "status": "queued",
+          "conclusion": null,
+          "steps": null
+        },
+        {
+          "id": 139679119997,
+          "name": "Verilator shard 0/27",
+          "status": "queued",
+          "conclusion": null,
+          "steps": null
+        },
+        {
+          "id": 139679120004,
+          "name": "Verilator shard 16/27",
+          "status": "in_progress",
+          "conclusion": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Set CPU-derived job budgets",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Fetch RTL dependencies",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Record the tree this worker validates",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Cache the pinned Verilator build",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Resolve exact package downloads 4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "Cache exact package downloads 4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 8
+            },
+            {
+              "name": "Build Verilator from source on cache miss",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 9
+            },
+            {
+              "name": "Put Verilator on PATH and prove the version",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 10
+            },
+            {
+              "name": "Prove specialized suite ownership",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 11
+            },
+            {
+              "name": "Cache the pinned Yosys build for the netlist-level suite owner",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 12
+            },
+            {
+              "name": "Resolve exact package downloads 8",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 13
+            },
+            {
+              "name": "Cache exact package downloads 8",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 14
+            },
+            {
+              "name": "Build Yosys from source on cache miss",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 15
+            },
+            {
+              "name": "Resolve exact package downloads 9",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 16
+            },
+            {
+              "name": "Cache exact package downloads 9",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 17
+            },
+            {
+              "name": "Install the pinned Yosys and prove the version",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 18
+            },
+            {
+              "name": "Cache verified sv2v archive",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 19
+            },
+            {
+              "name": "Install sv2v for the netlist-level suite owner",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 20
+            },
+            {
+              "name": "Cache pinned field oracle build",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 21
+            },
+            {
+              "name": "Build the pinned tsn-gen field oracle on its suite owner",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 22
+            },
+            {
+              "name": "Run this exhaustive suite shard",
+              "status": "in_progress",
+              "conclusion": null,
+              "number": 23
+            },
+            {
+              "name": "Upload this shard's suite logs",
+              "status": "pending",
+              "conclusion": null,
+              "number": 24
+            },
+            {
+              "name": "Record actual job execution",
+              "status": "pending",
+              "conclusion": null,
+              "number": 25
+            },
+            {
+              "name": "Upload actual job execution",
+              "status": "pending",
+              "conclusion": null,
+              "number": 26
+            },
+            {
+              "name": "Post Cache exact package downloads 4",
+              "status": "pending",
+              "conclusion": null,
+              "number": 50
+            },
+            {
+              "name": "Post Cache the pinned Verilator build",
+              "status": "pending",
+              "conclusion": null,
+              "number": 51
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "pending",
+              "conclusion": null,
+              "number": 52
+            }
+          ]
+        },
+        {
+          "id": 139679120016,
+          "name": "Verilator shard 17/27",
+          "status": "queued",
+          "conclusion": null,
+          "steps": null
+        },
+        {
+          "id": 139679120031,
+          "name": "Verilator shard 24/27",
+          "status": "queued",
+          "conclusion": null,
+          "steps": null
+        },
+        {
+          "id": 139679120032,
+          "name": "Verilator shard 10/27",
+          "status": "queued",
+          "conclusion": null,
+          "steps": null
+        },
+        {
+          "id": 139679120037,
+          "name": "Verilator shard 8/27",
+          "status": "queued",
+          "conclusion": null,
+          "steps": null
+        },
+        {
+          "id": 139679120038,
+          "name": "Verilator shard 22/27",
+          "status": "queued",
+          "conclusion": null,
+          "steps": null
+        },
+        {
+          "id": 139679120044,
+          "name": "Verilator shard 26/27",
+          "status": "queued",
+          "conclusion": null,
+          "steps": null
+        },
+        {
+          "id": 139679120063,
+          "name": "Verilator shard 20/27",
+          "status": "queued",
+          "conclusion": null,
+          "steps": null
+        },
+        {
+          "id": 139679120078,
+          "name": "Verilator shard 18/27",
+          "status": "queued",
+          "conclusion": null,
+          "steps": null
+        },
+        {
+          "id": 139679120082,
+          "name": "Verilator shard 25/27",
+          "status": "queued",
+          "conclusion": null,
+          "steps": null
+        },
+        {
+          "id": 139679120107,
+          "name": "Verilator shard 12/27",
+          "status": "queued",
+          "conclusion": null,
+          "steps": null
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,1432 @@
+Expected failing checks: ('binding_window', 'swept_cut', 'burst_of_64_bindings')
+Note: Google Test filter = *.binding_window:*.binding_window/*:*.swept_cut:*.swept_cut/*:*.burst_of_64_bindings:*.burst_of_64_bindings/*
+[==========] Running 6 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 6 tests from Ports/NvmBoth
+[ RUN      ] Ports/NvmBoth.binding_window/model
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:82: Failure
+Value of: r.at("ok") == 1 && in(after_mark(r, 0), window, window + kAfter)
+  Actual: false
+Expected: true
+record 26: erased 1001704 us after it, want 100000 to 120000: {'abandoned': 0, 'abandoned_vd': 0, 'applied': 54, 'attempts': 0, 'auth': 0, 'bad': 0, 'bind_cause': 0, 'bind_terminal': 1, 'blank': 0, 'calls': 10422, 'cause': 0, 'clock_hz': 100000000, 'commit_refused': 0, 'commit_tries': 0, 'deferred': 0, 'descending': 0, 'dirty': 0, 'effects': 15, 'erases': 1, 'exhausted': 0, 'failed': 0, 'first': 0, 'img_len': 3444, 'last': 0, 'legacy': 0, 'ls_call_ticks': 200000, 'ls_hung': 0, 'ls_max_withheld': 0, 'ls_no_wel': 0, 'ls_pp': 0, 'ls_refused': 0, 'ls_se': 0, 'ls_short': 0, 'ls_stalled': 0, 'ls_unknown': 0, 'ls_wren': 0, 'max_call_us': 168, 'max_polls_call': 1, 'max_read': 128, 'n_dirty': 0, 'n_inflight': 0, 'n_rec': 54, 'now_ms': 1056, 'ok': 1, 'outside': 0, 'pagewrap': 0, 'pending': 0, 'phase': 1, 'programs': 14, 'protected': 0, 'read_faults': 0, 'refused': 0, 'releases': 1, 'seq': 7, 'seq_a': 5, 'seq_b': 6, 'skipped': 0, 'sm_applied': 54, 'sm_applies': 54, 'sm_order': 0, 'sm_refused': 0, 'sm_releases': 1, 'sm_rollbacks': 0, 'sm_settles': 1, 'sm_unbinds': 0, 'stale': 0, 'step_bound': 280, 'step_max': 256, 'step_owing': 0, 'steps': 10422, 'terminal': 1, 'unread': 0, 'vd_a': 0, 'vd_b': 0, 'while_busy': 0, 'withheld': 0}
+
+  [FAIL] Ports/NvmBoth.binding_window/model: record 26: erased 1001704 us after it, want 100000 to 120000: {'abandoned': 0, 'abandoned_vd': 0, 'applied': 54, 'attempts': 0, 'auth': 0, 'bad': 0, 'bind_cause': 0, 'bind_terminal': 1, 'blank': 0, 'calls': 10422, 'cause': 0, 'clock_hz': 100000000, 'commit_refused': 0, 'commit_tries': 0, 'deferred': 0, 'descending': 0, 'dirty': 0, 'effects': 15, 'erases': 1, 'exhausted': 0, 'failed': 0, 'first': 0, 'img_len': 3444, 'last': 0, 'legacy': 0, 'ls_call_ticks': 200000, 'ls_hung': 0, 'ls_max_withheld': 0, 'ls_no_wel': 0, 'ls_pp': 0, 'ls_refused': 0, 'ls_se': 0, 'ls_short': 0, 'ls_stalled': 0, 'ls_unknown': 0, 'ls_wren': 0, 'max_call_us': 168, 'max_polls_call': 1, 'max_read': 128, 'n_dirty': 0, 'n_inflight': 0, 'n_rec': 54, 'now_ms': 1056, 'ok': 1, 'outside': 0, 'pagewrap': 0, 'pending': 0, 'phase': 1, 'programs': 14, 'protected': 0, 'read_faults': 0, 'refused': 0, 'releases': 1, 'seq': 7, 'seq_a': 5, 'seq_b': 6, 'skipped': 0, 'sm_applied': 54, 'sm_applies': 54, 'sm_order': 0, 'sm_refused': 0, 'sm_releases': 1, 'sm_rollbacks': 0, 'sm_settles': 1, 'sm_unbinds': 0, 'stale': 0, 'step_bound': 280, 'step_max': 256, 'step_owing': 0, 'steps': 10422, 'terminal': 1, 'unread': 0, 'vd_a': 0, 'vd_b': 0, 'while_busy': 0, 'withheld': 0}
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:82: Failure
+Value of: r.at("ok") == 1 && in(after_mark(r, 0), window, window + kAfter)
+  Actual: false
+Expected: true
+record 27: erased 1001704 us after it, want 100000 to 120000: {'abandoned': 0, 'abandoned_vd': 0, 'applied': 54, 'attempts': 0, 'auth': 0, 'bad': 0, 'bind_cause': 0, 'bind_terminal': 1, 'blank': 0, 'calls': 10422, 'cause': 0, 'clock_hz': 100000000, 'commit_refused': 0, 'commit_tries': 0, 'deferred': 0, 'descending': 0, 'dirty': 0, 'effects': 15, 'erases': 1, 'exhausted': 0, 'failed': 0, 'first': 0, 'img_len': 3444, 'last': 0, 'legacy': 0, 'ls_call_ticks': 200000, 'ls_hung': 0, 'ls_max_withheld': 0, 'ls_no_wel': 0, 'ls_pp': 0, 'ls_refused': 0, 'ls_se': 0, 'ls_short': 0, 'ls_stalled': 0, 'ls_unknown': 0, 'ls_wren': 0, 'max_call_us': 168, 'max_polls_call': 1, 'max_read': 128, 'n_dirty': 0, 'n_inflight': 0, 'n_rec': 54, 'now_ms': 1056, 'ok': 1, 'outside': 0, 'pagewrap': 0, 'pending': 0, 'phase': 1, 'programs': 14, 'protected': 0, 'read_faults': 0, 'refused': 0, 'releases': 1, 'seq': 7, 'seq_a': 5, 'seq_b': 6, 'skipped': 0, 'sm_applied': 54, 'sm_applies': 54, 'sm_order': 0, 'sm_refused': 0, 'sm_releases': 1, 'sm_rollbacks': 0, 'sm_settles': 1, 'sm_unbinds': 0, 'stale': 0, 'step_bound': 280, 'step_max': 256, 'step_owing': 0, 'steps': 10422, 'terminal': 1, 'unread': 0, 'vd_a': 0, 'vd_b': 0, 'while_busy': 0, 'withheld': 0}
+
+  [FAIL] Ports/NvmBoth.binding_window/model: record 27: erased 1001704 us after it, want 100000 to 120000: {'abandoned': 0, 'abandoned_vd': 0, 'applied': 54, 'attempts': 0, 'auth': 0, 'bad': 0, 'bind_cause': 0, 'bind_terminal': 1, 'blank': 0, 'calls': 10422, 'cause': 0, 'clock_hz': 100000000, 'commit_refused': 0, 'commit_tries': 0, 'deferred': 0, 'descending': 0, 'dirty': 0, 'effects': 15, 'erases': 1, 'exhausted': 0, 'failed': 0, 'first': 0, 'img_len': 3444, 'last': 0, 'legacy': 0, 'ls_call_ticks': 200000, 'ls_hung': 0, 'ls_max_withheld': 0, 'ls_no_wel': 0, 'ls_pp': 0, 'ls_refused': 0, 'ls_se': 0, 'ls_short': 0, 'ls_stalled': 0, 'ls_unknown': 0, 'ls_wren': 0, 'max_call_us': 168, 'max_polls_call': 1, 'max_read': 128, 'n_dirty': 0, 'n_inflight': 0, 'n_rec': 54, 'now_ms': 1056, 'ok': 1, 'outside': 0, 'pagewrap': 0, 'pending': 0, 'phase': 1, 'programs': 14, 'protected': 0, 'read_faults': 0, 'refused': 0, 'releases': 1, 'seq': 7, 'seq_a': 5, 'seq_b': 6, 'skipped': 0, 'sm_applied': 54, 'sm_applies': 54, 'sm_order': 0, 'sm_refused': 0, 'sm_releases': 1, 'sm_rollbacks': 0, 'sm_settles': 1, 'sm_unbinds': 0, 'stale': 0, 'step_bound': 280, 'step_max': 256, 'step_owing': 0, 'steps': 10422, 'terminal': 1, 'unread': 0, 'vd_a': 0, 'vd_b': 0, 'while_busy': 0, 'withheld': 0}
+[  FAILED  ] Ports/NvmBoth.binding_window/model, where GetParam() = 4-byte object <00-00 00-00> (68 ms)
+[ RUN      ] Ports/NvmBoth.binding_window/litespi
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:82: Failure
+Value of: r.at("ok") == 1 && in(after_mark(r, 0), window, window + kAfter)
+  Actual: false
+Expected: true
+record 26: erased 1001805 us after it, want 100000 to 120000: {'abandoned': 0, 'abandoned_vd': 0, 'applied': 54, 'attempts': 0, 'auth': 0, 'bad': 0, 'bind_cause': 0, 'bind_terminal': 1, 'blank': 0, 'calls': 10404, 'cause': 0, 'clock_hz': 100000000, 'commit_refused': 0, 'commit_tries': 0, 'deferred': 0, 'descending': 0, 'dirty': 0, 'effects': 15, 'erases': 1, 'exhausted': 0, 'failed': 0, 'first': 0, 'img_len': 3444, 'last': 0, 'legacy': 0, 'ls_call_ticks': 200000, 'ls_hung': 0, 'ls_max_withheld': 0, 'ls_no_wel': 0, 'ls_pp': 14, 'ls_refused': 0, 'ls_se': 1, 'ls_short': 0, 'ls_stalled': 0, 'ls_unknown': 0, 'ls_wren': 15, 'max_call_us': 210, 'max_polls_call': 3, 'max_read': 0, 'n_dirty': 0, 'n_inflight': 0, 'n_rec': 54, 'now_ms': 1046, 'ok': 1, 'outside': 0, 'pagewrap': 0, 'pending': 0, 'phase': 1, 'programs': 14, 'protected': 0, 'read_faults': 0, 'refused': 0, 'releases': 1, 'seq': 7, 'seq_a': 5, 'seq_b': 6, 'skipped': 0, 'sm_applied': 54, 'sm_applies': 54, 'sm_order': 0, 'sm_refused': 0, 'sm_releases': 1, 'sm_rollbacks': 0, 'sm_settles': 1, 'sm_unbinds': 0, 'stale': 0, 'step_bound': 280, 'step_max': 256, 'step_owing': 0, 'steps': 10404, 'terminal': 1, 'unread': 0, 'vd_a': 0, 'vd_b': 0, 'while_busy': 0, 'withheld': 0}
+
+  [FAIL] Ports/NvmBoth.binding_window/litespi: record 26: erased 1001805 us after it, want 100000 to 120000: {'abandoned': 0, 'abandoned_vd': 0, 'applied': 54, 'attempts': 0, 'auth': 0, 'bad': 0, 'bind_cause': 0, 'bind_terminal': 1, 'blank': 0, 'calls': 10404, 'cause': 0, 'clock_hz': 100000000, 'commit_refused': 0, 'commit_tries': 0, 'deferred': 0, 'descending': 0, 'dirty': 0, 'effects': 15, 'erases': 1, 'exhausted': 0, 'failed': 0, 'first': 0, 'img_len': 3444, 'last': 0, 'legacy': 0, 'ls_call_ticks': 200000, 'ls_hung': 0, 'ls_max_withheld': 0, 'ls_no_wel': 0, 'ls_pp': 14, 'ls_refused': 0, 'ls_se': 1, 'ls_short': 0, 'ls_stalled': 0, 'ls_unknown': 0, 'ls_wren': 15, 'max_call_us': 210, 'max_polls_call': 3, 'max_read': 0, 'n_dirty': 0, 'n_inflight': 0, 'n_rec': 54, 'now_ms': 1046, 'ok': 1, 'outside': 0, 'pagewrap': 0, 'pending': 0, 'phase': 1, 'programs': 14, 'protected': 0, 'read_faults': 0, 'refused': 0, 'releases': 1, 'seq': 7, 'seq_a': 5, 'seq_b': 6, 'skipped': 0, 'sm_applied': 54, 'sm_applies': 54, 'sm_order': 0, 'sm_refused': 0, 'sm_releases': 1, 'sm_rollbacks': 0, 'sm_settles': 1, 'sm_unbinds': 0, 'stale': 0, 'step_bound': 280, 'step_max': 256, 'step_owing': 0, 'steps': 10404, 'terminal': 1, 'unread': 0, 'vd_a': 0, 'vd_b': 0, 'while_busy': 0, 'withheld': 0}
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:82: Failure
+Value of: r.at("ok") == 1 && in(after_mark(r, 0), window, window + kAfter)
+  Actual: false
+Expected: true
+record 27: erased 1001805 us after it, want 100000 to 120000: {'abandoned': 0, 'abandoned_vd': 0, 'applied': 54, 'attempts': 0, 'auth': 0, 'bad': 0, 'bind_cause': 0, 'bind_terminal': 1, 'blank': 0, 'calls': 10404, 'cause': 0, 'clock_hz': 100000000, 'commit_refused': 0, 'commit_tries': 0, 'deferred': 0, 'descending': 0, 'dirty': 0, 'effects': 15, 'erases': 1, 'exhausted': 0, 'failed': 0, 'first': 0, 'img_len': 3444, 'last': 0, 'legacy': 0, 'ls_call_ticks': 200000, 'ls_hung': 0, 'ls_max_withheld': 0, 'ls_no_wel': 0, 'ls_pp': 14, 'ls_refused': 0, 'ls_se': 1, 'ls_short': 0, 'ls_stalled': 0, 'ls_unknown': 0, 'ls_wren': 15, 'max_call_us': 210, 'max_polls_call': 3, 'max_read': 0, 'n_dirty': 0, 'n_inflight': 0, 'n_rec': 54, 'now_ms': 1046, 'ok': 1, 'outside': 0, 'pagewrap': 0, 'pending': 0, 'phase': 1, 'programs': 14, 'protected': 0, 'read_faults': 0, 'refused': 0, 'releases': 1, 'seq': 7, 'seq_a': 5, 'seq_b': 6, 'skipped': 0, 'sm_applied': 54, 'sm_applies': 54, 'sm_order': 0, 'sm_refused': 0, 'sm_releases': 1, 'sm_rollbacks': 0, 'sm_settles': 1, 'sm_unbinds': 0, 'stale': 0, 'step_bound': 280, 'step_max': 256, 'step_owing': 0, 'steps': 10404, 'terminal': 1, 'unread': 0, 'vd_a': 0, 'vd_b': 0, 'while_busy': 0, 'withheld': 0}
+
+  [FAIL] Ports/NvmBoth.binding_window/litespi: record 27: erased 1001805 us after it, want 100000 to 120000: {'abandoned': 0, 'abandoned_vd': 0, 'applied': 54, 'attempts': 0, 'auth': 0, 'bad': 0, 'bind_cause': 0, 'bind_terminal': 1, 'blank': 0, 'calls': 10404, 'cause': 0, 'clock_hz': 100000000, 'commit_refused': 0, 'commit_tries': 0, 'deferred': 0, 'descending': 0, 'dirty': 0, 'effects': 15, 'erases': 1, 'exhausted': 0, 'failed': 0, 'first': 0, 'img_len': 3444, 'last': 0, 'legacy': 0, 'ls_call_ticks': 200000, 'ls_hung': 0, 'ls_max_withheld': 0, 'ls_no_wel': 0, 'ls_pp': 14, 'ls_refused': 0, 'ls_se': 1, 'ls_short': 0, 'ls_stalled': 0, 'ls_unknown': 0, 'ls_wren': 15, 'max_call_us': 210, 'max_polls_call': 3, 'max_read': 0, 'n_dirty': 0, 'n_inflight': 0, 'n_rec': 54, 'now_ms': 1046, 'ok': 1, 'outside': 0, 'pagewrap': 0, 'pending': 0, 'phase': 1, 'programs': 14, 'protected': 0, 'read_faults': 0, 'refused': 0, 'releases': 1, 'seq': 7, 'seq_a': 5, 'seq_b': 6, 'skipped': 0, 'sm_applied': 54, 'sm_applies': 54, 'sm_order': 0, 'sm_refused': 0, 'sm_releases': 1, 'sm_rollbacks': 0, 'sm_settles': 1, 'sm_unbinds': 0, 'stale': 0, 'step_bound': 280, 'step_max': 256, 'step_owing': 0, 'steps': 10404, 'terminal': 1, 'unread': 0, 'vd_a': 0, 'vd_b': 0, 'while_busy': 0, 'withheld': 0}
+[  FAILED  ] Ports/NvmBoth.binding_window/litespi, where GetParam() = 4-byte object <01-00 00-00> (52 ms)
+[ RUN      ] Ports/NvmBoth.burst_of_64_bindings/model
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:224: Failure
+Value of: in(r.at("ok"), 2, 6) && r.at("erases") == r.at("ok") && r.at("programs") == r.at("ok") * pages() && in(after_mark(r, 0), kBind, kBind + kAfter)
+  Actual: false
+Expected: true
+saves of the burst: 1, {'abandoned': 0, 'abandoned_vd': 0, 'applied': 54, 'attempts': 0, 'auth': 0, 'bad': 0, 'bind_cause': 0, 'bind_terminal': 1, 'blank': 0, 'calls': 41328, 'cause': 0, 'clock_hz': 100000000, 'commit_refused': 0, 'commit_tries': 0, 'deferred': 0, 'descending': 0, 'dirty': 0, 'effects': 15, 'erases': 1, 'exhausted': 0, 'failed': 0, 'first': 0, 'img_len': 3444, 'last': 0, 'legacy': 0, 'ls_call_ticks': 200000, 'ls_hung': 0, 'ls_max_withheld': 0, 'ls_no_wel': 0, 'ls_pp': 0, 'ls_refused': 0, 'ls_se': 0, 'ls_short': 0, 'ls_stalled': 0, 'ls_unknown': 0, 'ls_wren': 0, 'max_call_us': 167, 'max_polls_call': 1, 'max_read': 128, 'n_dirty': 0, 'n_inflight': 0, 'n_rec': 54, 'now_ms': 4149, 'ok': 1, 'outside': 0, 'pagewrap': 0, 'pending': 0, 'phase': 1, 'programs': 14, 'protected': 0, 'read_faults': 0, 'refused': 0, 'releases': 1, 'seq': 7, 'seq_a': 5, 'seq_b': 6, 'skipped': 0, 'sm_applied': 54, 'sm_applies': 54, 'sm_order': 0, 'sm_refused': 0, 'sm_releases': 1, 'sm_rollbacks': 0, 'sm_settles': 1, 'sm_unbinds': 0, 'stale': 0, 'step_bound': 280, 'step_max': 256, 'step_owing': 0, 'steps': 41328, 'terminal': 1, 'unread': 0, 'vd_a': 0, 'vd_b': 0, 'while_busy': 0, 'withheld': 0}
+
+  [FAIL] Ports/NvmBoth.burst_of_64_bindings/model: saves of the burst: 1, {'abandoned': 0, 'abandoned_vd': 0, 'applied': 54, 'attempts': 0, 'auth': 0, 'bad': 0, 'bind_cause': 0, 'bind_terminal': 1, 'blank': 0, 'calls': 41328, 'cause': 0, 'clock_hz': 100000000, 'commit_refused': 0, 'commit_tries': 0, 'deferred': 0, 'descending': 0, 'dirty': 0, 'effects': 15, 'erases': 1, 'exhausted': 0, 'failed': 0, 'first': 0, 'img_len': 3444, 'last': 0, 'legacy': 0, 'ls_call_ticks': 200000, 'ls_hung': 0, 'ls_max_withheld': 0, 'ls_no_wel': 0, 'ls_pp': 0, 'ls_refused': 0, 'ls_se': 0, 'ls_short': 0, 'ls_stalled': 0, 'ls_unknown': 0, 'ls_wren': 0, 'max_call_us': 167, 'max_polls_call': 1, 'max_read': 128, 'n_dirty': 0, 'n_inflight': 0, 'n_rec': 54, 'now_ms': 4149, 'ok': 1, 'outside': 0, 'pagewrap': 0, 'pending': 0, 'phase': 1, 'programs': 14, 'protected': 0, 'read_faults': 0, 'refused': 0, 'releases': 1, 'seq': 7, 'seq_a': 5, 'seq_b': 6, 'skipped': 0, 'sm_applied': 54, 'sm_applies': 54, 'sm_order': 0, 'sm_refused': 0, 'sm_releases': 1, 'sm_rollbacks': 0, 'sm_settles': 1, 'sm_unbinds': 0, 'stale': 0, 'step_bound': 280, 'step_max': 256, 'step_owing': 0, 'steps': 41328, 'terminal': 1, 'unread': 0, 'vd_a': 0, 'vd_b': 0, 'while_busy': 0, 'withheld': 0}
+[  FAILED  ] Ports/NvmBoth.burst_of_64_bindings/model, where GetParam() = 4-byte object <00-00 00-00> (12 ms)
+[ RUN      ] Ports/NvmBoth.burst_of_64_bindings/litespi
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:224: Failure
+Value of: in(r.at("ok"), 2, 6) && r.at("erases") == r.at("ok") && r.at("programs") == r.at("ok") * pages() && in(after_mark(r, 0), kBind, kBind + kAfter)
+  Actual: false
+Expected: true
+saves of the burst: 1, {'abandoned': 0, 'abandoned_vd': 0, 'applied': 54, 'attempts': 0, 'auth': 0, 'bad': 0, 'bind_cause': 0, 'bind_terminal': 1, 'blank': 0, 'calls': 41231, 'cause': 0, 'clock_hz': 100000000, 'commit_refused': 0, 'commit_tries': 0, 'deferred': 0, 'descending': 0, 'dirty': 0, 'effects': 15, 'erases': 1, 'exhausted': 0, 'failed': 0, 'first': 0, 'img_len': 3444, 'last': 0, 'legacy': 0, 'ls_call_ticks': 200000, 'ls_hung': 0, 'ls_max_withheld': 0, 'ls_no_wel': 0, 'ls_pp': 14, 'ls_refused': 0, 'ls_se': 1, 'ls_short': 0, 'ls_stalled': 0, 'ls_unknown': 0, 'ls_wren': 15, 'max_call_us': 210, 'max_polls_call': 3, 'max_read': 0, 'n_dirty': 0, 'n_inflight': 0, 'n_rec': 54, 'now_ms': 4139, 'ok': 1, 'outside': 0, 'pagewrap': 0, 'pending': 0, 'phase': 1, 'programs': 14, 'protected': 0, 'read_faults': 0, 'refused': 0, 'releases': 1, 'seq': 7, 'seq_a': 5, 'seq_b': 6, 'skipped': 0, 'sm_applied': 54, 'sm_applies': 54, 'sm_order': 0, 'sm_refused': 0, 'sm_releases': 1, 'sm_rollbacks': 0, 'sm_settles': 1, 'sm_unbinds': 0, 'stale': 0, 'step_bound': 280, 'step_max': 256, 'step_owing': 0, 'steps': 41231, 'terminal': 1, 'unread': 0, 'vd_a': 0, 'vd_b': 0, 'while_busy': 0, 'withheld': 0}
+
+  [FAIL] Ports/NvmBoth.burst_of_64_bindings/litespi: saves of the burst: 1, {'abandoned': 0, 'abandoned_vd': 0, 'applied': 54, 'attempts': 0, 'auth': 0, 'bad': 0, 'bind_cause': 0, 'bind_terminal': 1, 'blank': 0, 'calls': 41231, 'cause': 0, 'clock_hz': 100000000, 'commit_refused': 0, 'commit_tries': 0, 'deferred': 0, 'descending': 0, 'dirty': 0, 'effects': 15, 'erases': 1, 'exhausted': 0, 'failed': 0, 'first': 0, 'img_len': 3444, 'last': 0, 'legacy': 0, 'ls_call_ticks': 200000, 'ls_hung': 0, 'ls_max_withheld': 0, 'ls_no_wel': 0, 'ls_pp': 14, 'ls_refused': 0, 'ls_se': 1, 'ls_short': 0, 'ls_stalled': 0, 'ls_unknown': 0, 'ls_wren': 15, 'max_call_us': 210, 'max_polls_call': 3, 'max_read': 0, 'n_dirty': 0, 'n_inflight': 0, 'n_rec': 54, 'now_ms': 4139, 'ok': 1, 'outside': 0, 'pagewrap': 0, 'pending': 0, 'phase': 1, 'programs': 14, 'protected': 0, 'read_faults': 0, 'refused': 0, 'releases': 1, 'seq': 7, 'seq_a': 5, 'seq_b': 6, 'skipped': 0, 'sm_applied': 54, 'sm_applies': 54, 'sm_order': 0, 'sm_refused': 0, 'sm_releases': 1, 'sm_rollbacks': 0, 'sm_settles': 1, 'sm_unbinds': 0, 'stale': 0, 'step_bound': 280, 'step_max': 256, 'step_owing': 0, 'steps': 41231, 'terminal': 1, 'unread': 0, 'vd_a': 0, 'vd_b': 0, 'while_busy': 0, 'withheld': 0}
+[  FAILED  ] Ports/NvmBoth.burst_of_64_bindings/litespi, where GetParam() = 4-byte object <01-00 00-00> (12 ms)
+[ RUN      ] Ports/NvmBoth.swept_cut/model
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+model: runner SWEEP-BAD t_us=800000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/model: model: runner SWEEP-BAD t_us=800000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+model: runner SWEEP-BAD t_us=810000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/model: model: runner SWEEP-BAD t_us=810000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+model: runner SWEEP-BAD t_us=820000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/model: model: runner SWEEP-BAD t_us=820000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+model: runner SWEEP-BAD t_us=830000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/model: model: runner SWEEP-BAD t_us=830000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+model: runner SWEEP-BAD t_us=840000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/model: model: runner SWEEP-BAD t_us=840000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+model: runner SWEEP-BAD t_us=850000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/model: model: runner SWEEP-BAD t_us=850000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+model: runner SWEEP-BAD t_us=860000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/model: model: runner SWEEP-BAD t_us=860000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+model: runner SWEEP-BAD t_us=870000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/model: model: runner SWEEP-BAD t_us=870000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+model: runner SWEEP-BAD t_us=880000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/model: model: runner SWEEP-BAD t_us=880000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+model: runner SWEEP-BAD t_us=890000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/model: model: runner SWEEP-BAD t_us=890000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+model: runner SWEEP-BAD t_us=900000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/model: model: runner SWEEP-BAD t_us=900000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+model: runner SWEEP-BAD t_us=910000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/model: model: runner SWEEP-BAD t_us=910000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+model: runner SWEEP-BAD t_us=920000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/model: model: runner SWEEP-BAD t_us=920000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+model: runner SWEEP-BAD t_us=930000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/model: model: runner SWEEP-BAD t_us=930000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+model: runner SWEEP-BAD t_us=940000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/model: model: runner SWEEP-BAD t_us=940000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+model: runner SWEEP-BAD t_us=950000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/model: model: runner SWEEP-BAD t_us=950000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+model: runner SWEEP-BAD t_us=960000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/model: model: runner SWEEP-BAD t_us=960000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+model: runner SWEEP-BAD t_us=970000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/model: model: runner SWEEP-BAD t_us=970000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+model: runner SWEEP-BAD t_us=980000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/model: model: runner SWEEP-BAD t_us=980000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+model: runner SWEEP-BAD t_us=990000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/model: model: runner SWEEP-BAD t_us=990000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+model: runner SWEEP-BAD t_us=1000000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/model: model: runner SWEEP-BAD t_us=1000000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+model: runner SWEEP-BAD t_us=1010000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/model: model: runner SWEEP-BAD t_us=1010000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+model: runner SWEEP-BAD t_us=1020000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/model: model: runner SWEEP-BAD t_us=1020000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+model: runner SWEEP-BAD t_us=1030000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/model: model: runner SWEEP-BAD t_us=1030000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+model: runner SWEEP-BAD t_us=1040000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/model: model: runner SWEEP-BAD t_us=1040000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+model: runner SWEEP-BAD t_us=1050000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/model: model: runner SWEEP-BAD t_us=1050000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+model: runner SWEEP-BAD t_us=1060000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/model: model: runner SWEEP-BAD t_us=1060000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+model: runner SWEEP-BAD t_us=1070000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/model: model: runner SWEEP-BAD t_us=1070000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+model: runner SWEEP-BAD t_us=1080000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/model: model: runner SWEEP-BAD t_us=1080000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+model: runner SWEEP-BAD t_us=1090000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/model: model: runner SWEEP-BAD t_us=1090000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+model: runner SWEEP-BAD t_us=1100000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/model: model: runner SWEEP-BAD t_us=1100000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+model: runner SWEEP-BAD t_us=1110000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/model: model: runner SWEEP-BAD t_us=1110000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+model: runner SWEEP-BAD t_us=1120000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/model: model: runner SWEEP-BAD t_us=1120000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+model: runner SWEEP-BAD t_us=1130000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/model: model: runner SWEEP-BAD t_us=1130000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+model: runner SWEEP-BAD t_us=1140000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/model: model: runner SWEEP-BAD t_us=1140000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+model: runner SWEEP-BAD t_us=1150000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/model: model: runner SWEEP-BAD t_us=1150000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+model: runner SWEEP-BAD t_us=1160000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/model: model: runner SWEEP-BAD t_us=1160000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+model: runner SWEEP-BAD t_us=1001704 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/model: model: runner SWEEP-BAD t_us=1001704 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+model: runner SWEEP-BAD t_us=1076704 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/model: model: runner SWEEP-BAD t_us=1076704 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+model: runner SWEEP-BAD t_us=1156989 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/model: model: runner SWEEP-BAD t_us=1156989 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+model: runner SWEEP-BAD t_us=1157239 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/model: model: runner SWEEP-BAD t_us=1157239 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+model: runner SWEEP-BAD t_us=1157769 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/model: model: runner SWEEP-BAD t_us=1157769 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+model: runner SWEEP-BAD t_us=1158019 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/model: model: runner SWEEP-BAD t_us=1158019 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+model: runner SWEEP-BAD t_us=1158549 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/model: model: runner SWEEP-BAD t_us=1158549 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+model: runner SWEEP-BAD t_us=1158799 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/model: model: runner SWEEP-BAD t_us=1158799 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+model: runner SWEEP-BAD t_us=1159329 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/model: model: runner SWEEP-BAD t_us=1159329 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+model: runner SWEEP-BAD t_us=1159579 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/model: model: runner SWEEP-BAD t_us=1159579 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+model: runner SWEEP-BAD t_us=1160109 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/model: model: runner SWEEP-BAD t_us=1160109 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+model: runner SWEEP-BAD t_us=1160359 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/model: model: runner SWEEP-BAD t_us=1160359 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+model: runner SWEEP-BAD t_us=1160888 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/model: model: runner SWEEP-BAD t_us=1160888 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+model: runner SWEEP-BAD t_us=1161138 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/model: model: runner SWEEP-BAD t_us=1161138 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+model: runner SWEEP-BAD t_us=1161668 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/model: model: runner SWEEP-BAD t_us=1161668 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+model: runner SWEEP-BAD t_us=1161918 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/model: model: runner SWEEP-BAD t_us=1161918 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+model: runner SWEEP-BAD t_us=1162448 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/model: model: runner SWEEP-BAD t_us=1162448 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+model: runner SWEEP-BAD t_us=1162698 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/model: model: runner SWEEP-BAD t_us=1162698 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+model: runner SWEEP-BAD t_us=1163228 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/model: model: runner SWEEP-BAD t_us=1163228 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+model: runner SWEEP-BAD t_us=1163478 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/model: model: runner SWEEP-BAD t_us=1163478 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+model: runner SWEEP-BAD t_us=1164008 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/model: model: runner SWEEP-BAD t_us=1164008 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+model: runner SWEEP-BAD t_us=1164258 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/model: model: runner SWEEP-BAD t_us=1164258 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+model: runner SWEEP-BAD t_us=1164788 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/model: model: runner SWEEP-BAD t_us=1164788 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+model: runner SWEEP-BAD t_us=1165038 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/model: model: runner SWEEP-BAD t_us=1165038 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+model: runner SWEEP-BAD t_us=1165568 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/model: model: runner SWEEP-BAD t_us=1165568 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+model: runner SWEEP-BAD t_us=1165818 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/model: model: runner SWEEP-BAD t_us=1165818 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+model: runner SWEEP-BAD t_us=1166347 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/model: model: runner SWEEP-BAD t_us=1166347 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+model: runner SWEEP-BAD t_us=1166597 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/model: model: runner SWEEP-BAD t_us=1166597 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+model: runner SWEEP-BAD t_us=1167038 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/model: model: runner SWEEP-BAD t_us=1167038 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+model: runner SWEEP-BAD t_us=1167288 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/model: model: runner SWEEP-BAD t_us=1167288 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:237: Failure
+Value of: at("bad") == 0 && at("cases") >= 301 && at("old") > 0 && at("new") > 0 && at("saves") == 1 && at("effects") == 1 + pages() && in(at("durable_us"), kBind, 800 * kMs)
+  Actual: false
+Expected: true
+cases 331 old 80 new 184 bad 67 effects 15 durable 1172624 us; {'abandoned': 0, 'abandoned_vd': 0, 'applied': 54, 'attempts': 0, 'auth': 1, 'bad': 0, 'bind_cause': 0, 'bind_terminal': 1, 'blank': 0, 'calls': 7908846, 'cause': 0, 'clock_hz': 100000000, 'commit_refused': 0, 'commit_tries': 0, 'deferred': 0, 'descending': 0, 'dirty': 0, 'effects': 0, 'erases': 0, 'exhausted': 0, 'failed': 0, 'first': 0, 'img_len': 3444, 'last': 0, 'legacy': 0, 'ls_call_ticks': 200000, 'ls_hung': 0, 'ls_max_withheld': 0, 'ls_no_wel': 0, 'ls_pp': 0, 'ls_refused': 0, 'ls_se': 0, 'ls_short': 0, 'ls_stalled': 0, 'ls_unknown': 0, 'ls_wren': 0, 'max_call_us': 168, 'max_polls_call': 1, 'max_read': 128, 'n_dirty': 0, 'n_inflight': 0, 'n_rec': 54, 'now_ms': 8, 'ok': 0, 'outside': 0, 'pagewrap': 0, 'pending': 0, 'phase': 1, 'programs': 0, 'protected': 0, 'read_faults': 0, 'refused': 0, 'releases': 1, 'seq': 6, 'seq_a': 0, 'seq_b': 6, 'skipped': 0, 'sm_applied': 54, 'sm_applies': 54, 'sm_order': 0, 'sm_refused': 0, 'sm_releases': 1, 'sm_rollbacks': 0, 'sm_settles': 1, 'sm_unbinds': 0, 'stale': 0, 'step_bound': 280, 'step_max': 0, 'step_owing': 0, 'steps': 0, 'terminal': 1, 'unread': 0, 'vd_a': 4, 'vd_b': 0, 'while_busy': 0, 'withheld': 0}
+
+  [FAIL] Ports/NvmBoth.swept_cut/model: cases 331 old 80 new 184 bad 67 effects 15 durable 1172624 us; {'abandoned': 0, 'abandoned_vd': 0, 'applied': 54, 'attempts': 0, 'auth': 1, 'bad': 0, 'bind_cause': 0, 'bind_terminal': 1, 'blank': 0, 'calls': 7908846, 'cause': 0, 'clock_hz': 100000000, 'commit_refused': 0, 'commit_tries': 0, 'deferred': 0, 'descending': 0, 'dirty': 0, 'effects': 0, 'erases': 0, 'exhausted': 0, 'failed': 0, 'first': 0, 'img_len': 3444, 'last': 0, 'legacy': 0, 'ls_call_ticks': 200000, 'ls_hung': 0, 'ls_max_withheld': 0, 'ls_no_wel': 0, 'ls_pp': 0, 'ls_refused': 0, 'ls_se': 0, 'ls_short': 0, 'ls_stalled': 0, 'ls_unknown': 0, 'ls_wren': 0, 'max_call_us': 168, 'max_polls_call': 1, 'max_read': 128, 'n_dirty': 0, 'n_inflight': 0, 'n_rec': 54, 'now_ms': 8, 'ok': 0, 'outside': 0, 'pagewrap': 0, 'pending': 0, 'phase': 1, 'programs': 0, 'protected': 0, 'read_faults': 0, 'refused': 0, 'releases': 1, 'seq': 6, 'seq_a': 0, 'seq_b': 6, 'skipped': 0, 'sm_applied': 54, 'sm_applies': 54, 'sm_order': 0, 'sm_refused': 0, 'sm_releases': 1, 'sm_rollbacks': 0, 'sm_settles': 1, 'sm_unbinds': 0, 'stale': 0, 'step_bound': 280, 'step_max': 0, 'step_owing': 0, 'steps': 0, 'terminal': 1, 'unread': 0, 'vd_a': 4, 'vd_b': 0, 'while_busy': 0, 'withheld': 0}
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:242: Failure
+Failed
+SWEEP-BAD t_us=800000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/model: SWEEP-BAD t_us=800000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:242: Failure
+Failed
+SWEEP-BAD t_us=810000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/model: SWEEP-BAD t_us=810000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:242: Failure
+Failed
+SWEEP-BAD t_us=820000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/model: SWEEP-BAD t_us=820000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:242: Failure
+Failed
+SWEEP-BAD t_us=830000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/model: SWEEP-BAD t_us=830000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:242: Failure
+Failed
+SWEEP-BAD t_us=840000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/model: SWEEP-BAD t_us=840000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:242: Failure
+Failed
+SWEEP-BAD t_us=850000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/model: SWEEP-BAD t_us=850000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:242: Failure
+Failed
+SWEEP-BAD t_us=860000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/model: SWEEP-BAD t_us=860000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:242: Failure
+Failed
+SWEEP-BAD t_us=870000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/model: SWEEP-BAD t_us=870000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:242: Failure
+Failed
+SWEEP-BAD t_us=880000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/model: SWEEP-BAD t_us=880000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:242: Failure
+Failed
+SWEEP-BAD t_us=890000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/model: SWEEP-BAD t_us=890000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:242: Failure
+Failed
+SWEEP-BAD t_us=900000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/model: SWEEP-BAD t_us=900000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:242: Failure
+Failed
+SWEEP-BAD t_us=910000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/model: SWEEP-BAD t_us=910000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:242: Failure
+Failed
+SWEEP-BAD t_us=920000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/model: SWEEP-BAD t_us=920000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:242: Failure
+Failed
+SWEEP-BAD t_us=930000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/model: SWEEP-BAD t_us=930000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:242: Failure
+Failed
+SWEEP-BAD t_us=940000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/model: SWEEP-BAD t_us=940000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:242: Failure
+Failed
+SWEEP-BAD t_us=950000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/model: SWEEP-BAD t_us=950000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:242: Failure
+Failed
+SWEEP-BAD t_us=960000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/model: SWEEP-BAD t_us=960000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:242: Failure
+Failed
+SWEEP-BAD t_us=970000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/model: SWEEP-BAD t_us=970000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:242: Failure
+Failed
+SWEEP-BAD t_us=980000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/model: SWEEP-BAD t_us=980000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:242: Failure
+Failed
+SWEEP-BAD t_us=990000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/model: SWEEP-BAD t_us=990000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:242: Failure
+Failed
+SWEEP-BAD t_us=1000000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/model: SWEEP-BAD t_us=1000000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:242: Failure
+Failed
+SWEEP-BAD t_us=1010000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/model: SWEEP-BAD t_us=1010000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:242: Failure
+Failed
+SWEEP-BAD t_us=1020000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/model: SWEEP-BAD t_us=1020000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:242: Failure
+Failed
+SWEEP-BAD t_us=1030000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/model: SWEEP-BAD t_us=1030000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:242: Failure
+Failed
+SWEEP-BAD t_us=1040000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/model: SWEEP-BAD t_us=1040000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:242: Failure
+Failed
+SWEEP-BAD t_us=1050000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/model: SWEEP-BAD t_us=1050000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:242: Failure
+Failed
+SWEEP-BAD t_us=1060000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/model: SWEEP-BAD t_us=1060000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:242: Failure
+Failed
+SWEEP-BAD t_us=1070000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/model: SWEEP-BAD t_us=1070000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:242: Failure
+Failed
+SWEEP-BAD t_us=1080000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/model: SWEEP-BAD t_us=1080000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:242: Failure
+Failed
+SWEEP-BAD t_us=1090000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/model: SWEEP-BAD t_us=1090000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:242: Failure
+Failed
+SWEEP-BAD t_us=1100000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/model: SWEEP-BAD t_us=1100000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:242: Failure
+Failed
+SWEEP-BAD t_us=1110000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/model: SWEEP-BAD t_us=1110000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:242: Failure
+Failed
+SWEEP-BAD t_us=1120000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/model: SWEEP-BAD t_us=1120000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:242: Failure
+Failed
+SWEEP-BAD t_us=1130000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/model: SWEEP-BAD t_us=1130000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:242: Failure
+Failed
+SWEEP-BAD t_us=1140000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/model: SWEEP-BAD t_us=1140000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:242: Failure
+Failed
+SWEEP-BAD t_us=1150000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/model: SWEEP-BAD t_us=1150000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:242: Failure
+Failed
+SWEEP-BAD t_us=1160000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/model: SWEEP-BAD t_us=1160000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:242: Failure
+Failed
+SWEEP-BAD t_us=1001704 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/model: SWEEP-BAD t_us=1001704 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:242: Failure
+Failed
+SWEEP-BAD t_us=1076704 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/model: SWEEP-BAD t_us=1076704 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:242: Failure
+Failed
+SWEEP-BAD t_us=1156989 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/model: SWEEP-BAD t_us=1156989 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:242: Failure
+Failed
+SWEEP-BAD t_us=1157239 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/model: SWEEP-BAD t_us=1157239 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:242: Failure
+Failed
+SWEEP-BAD t_us=1157769 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/model: SWEEP-BAD t_us=1157769 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:242: Failure
+Failed
+SWEEP-BAD t_us=1158019 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/model: SWEEP-BAD t_us=1158019 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:242: Failure
+Failed
+SWEEP-BAD t_us=1158549 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/model: SWEEP-BAD t_us=1158549 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:242: Failure
+Failed
+SWEEP-BAD t_us=1158799 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/model: SWEEP-BAD t_us=1158799 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:242: Failure
+Failed
+SWEEP-BAD t_us=1159329 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/model: SWEEP-BAD t_us=1159329 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:242: Failure
+Failed
+SWEEP-BAD t_us=1159579 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/model: SWEEP-BAD t_us=1159579 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:242: Failure
+Failed
+SWEEP-BAD t_us=1160109 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/model: SWEEP-BAD t_us=1160109 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:242: Failure
+Failed
+SWEEP-BAD t_us=1160359 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/model: SWEEP-BAD t_us=1160359 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:242: Failure
+Failed
+SWEEP-BAD t_us=1160888 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/model: SWEEP-BAD t_us=1160888 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:242: Failure
+Failed
+SWEEP-BAD t_us=1161138 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/model: SWEEP-BAD t_us=1161138 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:242: Failure
+Failed
+SWEEP-BAD t_us=1161668 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/model: SWEEP-BAD t_us=1161668 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:242: Failure
+Failed
+SWEEP-BAD t_us=1161918 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/model: SWEEP-BAD t_us=1161918 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:242: Failure
+Failed
+SWEEP-BAD t_us=1162448 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/model: SWEEP-BAD t_us=1162448 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:242: Failure
+Failed
+SWEEP-BAD t_us=1162698 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/model: SWEEP-BAD t_us=1162698 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:242: Failure
+Failed
+SWEEP-BAD t_us=1163228 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/model: SWEEP-BAD t_us=1163228 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:242: Failure
+Failed
+SWEEP-BAD t_us=1163478 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/model: SWEEP-BAD t_us=1163478 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:242: Failure
+Failed
+SWEEP-BAD t_us=1164008 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/model: SWEEP-BAD t_us=1164008 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:242: Failure
+Failed
+SWEEP-BAD t_us=1164258 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/model: SWEEP-BAD t_us=1164258 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:242: Failure
+Failed
+SWEEP-BAD t_us=1164788 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/model: SWEEP-BAD t_us=1164788 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:242: Failure
+Failed
+SWEEP-BAD t_us=1165038 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/model: SWEEP-BAD t_us=1165038 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:242: Failure
+Failed
+SWEEP-BAD t_us=1165568 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/model: SWEEP-BAD t_us=1165568 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:242: Failure
+Failed
+SWEEP-BAD t_us=1165818 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/model: SWEEP-BAD t_us=1165818 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:242: Failure
+Failed
+SWEEP-BAD t_us=1166347 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/model: SWEEP-BAD t_us=1166347 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:242: Failure
+Failed
+SWEEP-BAD t_us=1166597 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/model: SWEEP-BAD t_us=1166597 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:242: Failure
+Failed
+SWEEP-BAD t_us=1167038 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/model: SWEEP-BAD t_us=1167038 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:242: Failure
+Failed
+SWEEP-BAD t_us=1167288 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/model: SWEEP-BAD t_us=1167288 check=6
+[  FAILED  ] Ports/NvmBoth.swept_cut/model, where GetParam() = 4-byte object <00-00 00-00> (2458 ms)
+[ RUN      ] Ports/NvmBoth.swept_cut/litespi
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+--litespi: runner SWEEP-BAD t_us=800000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/litespi: --litespi: runner SWEEP-BAD t_us=800000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+--litespi: runner SWEEP-BAD t_us=810000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/litespi: --litespi: runner SWEEP-BAD t_us=810000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+--litespi: runner SWEEP-BAD t_us=820000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/litespi: --litespi: runner SWEEP-BAD t_us=820000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+--litespi: runner SWEEP-BAD t_us=830000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/litespi: --litespi: runner SWEEP-BAD t_us=830000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+--litespi: runner SWEEP-BAD t_us=840000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/litespi: --litespi: runner SWEEP-BAD t_us=840000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+--litespi: runner SWEEP-BAD t_us=850000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/litespi: --litespi: runner SWEEP-BAD t_us=850000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+--litespi: runner SWEEP-BAD t_us=860000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/litespi: --litespi: runner SWEEP-BAD t_us=860000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+--litespi: runner SWEEP-BAD t_us=870000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/litespi: --litespi: runner SWEEP-BAD t_us=870000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+--litespi: runner SWEEP-BAD t_us=880000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/litespi: --litespi: runner SWEEP-BAD t_us=880000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+--litespi: runner SWEEP-BAD t_us=890000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/litespi: --litespi: runner SWEEP-BAD t_us=890000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+--litespi: runner SWEEP-BAD t_us=900000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/litespi: --litespi: runner SWEEP-BAD t_us=900000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+--litespi: runner SWEEP-BAD t_us=910000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/litespi: --litespi: runner SWEEP-BAD t_us=910000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+--litespi: runner SWEEP-BAD t_us=920000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/litespi: --litespi: runner SWEEP-BAD t_us=920000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+--litespi: runner SWEEP-BAD t_us=930000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/litespi: --litespi: runner SWEEP-BAD t_us=930000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+--litespi: runner SWEEP-BAD t_us=940000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/litespi: --litespi: runner SWEEP-BAD t_us=940000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+--litespi: runner SWEEP-BAD t_us=950000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/litespi: --litespi: runner SWEEP-BAD t_us=950000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+--litespi: runner SWEEP-BAD t_us=960000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/litespi: --litespi: runner SWEEP-BAD t_us=960000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+--litespi: runner SWEEP-BAD t_us=970000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/litespi: --litespi: runner SWEEP-BAD t_us=970000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+--litespi: runner SWEEP-BAD t_us=980000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/litespi: --litespi: runner SWEEP-BAD t_us=980000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+--litespi: runner SWEEP-BAD t_us=990000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/litespi: --litespi: runner SWEEP-BAD t_us=990000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+--litespi: runner SWEEP-BAD t_us=1000000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/litespi: --litespi: runner SWEEP-BAD t_us=1000000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+--litespi: runner SWEEP-BAD t_us=1010000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/litespi: --litespi: runner SWEEP-BAD t_us=1010000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+--litespi: runner SWEEP-BAD t_us=1020000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/litespi: --litespi: runner SWEEP-BAD t_us=1020000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+--litespi: runner SWEEP-BAD t_us=1030000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/litespi: --litespi: runner SWEEP-BAD t_us=1030000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+--litespi: runner SWEEP-BAD t_us=1040000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/litespi: --litespi: runner SWEEP-BAD t_us=1040000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+--litespi: runner SWEEP-BAD t_us=1050000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/litespi: --litespi: runner SWEEP-BAD t_us=1050000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+--litespi: runner SWEEP-BAD t_us=1060000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/litespi: --litespi: runner SWEEP-BAD t_us=1060000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+--litespi: runner SWEEP-BAD t_us=1070000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/litespi: --litespi: runner SWEEP-BAD t_us=1070000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+--litespi: runner SWEEP-BAD t_us=1080000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/litespi: --litespi: runner SWEEP-BAD t_us=1080000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+--litespi: runner SWEEP-BAD t_us=1090000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/litespi: --litespi: runner SWEEP-BAD t_us=1090000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+--litespi: runner SWEEP-BAD t_us=1100000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/litespi: --litespi: runner SWEEP-BAD t_us=1100000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+--litespi: runner SWEEP-BAD t_us=1110000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/litespi: --litespi: runner SWEEP-BAD t_us=1110000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+--litespi: runner SWEEP-BAD t_us=1120000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/litespi: --litespi: runner SWEEP-BAD t_us=1120000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+--litespi: runner SWEEP-BAD t_us=1130000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/litespi: --litespi: runner SWEEP-BAD t_us=1130000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+--litespi: runner SWEEP-BAD t_us=1140000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/litespi: --litespi: runner SWEEP-BAD t_us=1140000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+--litespi: runner SWEEP-BAD t_us=1150000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/litespi: --litespi: runner SWEEP-BAD t_us=1150000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+--litespi: runner SWEEP-BAD t_us=1160000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/litespi: --litespi: runner SWEEP-BAD t_us=1160000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+--litespi: runner SWEEP-BAD t_us=1001805 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/litespi: --litespi: runner SWEEP-BAD t_us=1001805 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+--litespi: runner SWEEP-BAD t_us=1076805 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/litespi: --litespi: runner SWEEP-BAD t_us=1076805 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+--litespi: runner SWEEP-BAD t_us=1154848 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/litespi: --litespi: runner SWEEP-BAD t_us=1154848 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+--litespi: runner SWEEP-BAD t_us=1155098 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/litespi: --litespi: runner SWEEP-BAD t_us=1155098 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+--litespi: runner SWEEP-BAD t_us=1155701 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/litespi: --litespi: runner SWEEP-BAD t_us=1155701 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+--litespi: runner SWEEP-BAD t_us=1155951 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/litespi: --litespi: runner SWEEP-BAD t_us=1155951 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+--litespi: runner SWEEP-BAD t_us=1156553 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/litespi: --litespi: runner SWEEP-BAD t_us=1156553 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+--litespi: runner SWEEP-BAD t_us=1156803 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/litespi: --litespi: runner SWEEP-BAD t_us=1156803 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+--litespi: runner SWEEP-BAD t_us=1157406 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/litespi: --litespi: runner SWEEP-BAD t_us=1157406 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+--litespi: runner SWEEP-BAD t_us=1157656 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/litespi: --litespi: runner SWEEP-BAD t_us=1157656 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+--litespi: runner SWEEP-BAD t_us=1158258 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/litespi: --litespi: runner SWEEP-BAD t_us=1158258 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+--litespi: runner SWEEP-BAD t_us=1158508 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/litespi: --litespi: runner SWEEP-BAD t_us=1158508 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+--litespi: runner SWEEP-BAD t_us=1159111 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/litespi: --litespi: runner SWEEP-BAD t_us=1159111 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+--litespi: runner SWEEP-BAD t_us=1159361 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/litespi: --litespi: runner SWEEP-BAD t_us=1159361 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+--litespi: runner SWEEP-BAD t_us=1159963 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/litespi: --litespi: runner SWEEP-BAD t_us=1159963 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+--litespi: runner SWEEP-BAD t_us=1160213 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/litespi: --litespi: runner SWEEP-BAD t_us=1160213 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+--litespi: runner SWEEP-BAD t_us=1160816 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/litespi: --litespi: runner SWEEP-BAD t_us=1160816 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+--litespi: runner SWEEP-BAD t_us=1161066 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/litespi: --litespi: runner SWEEP-BAD t_us=1161066 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+--litespi: runner SWEEP-BAD t_us=1161668 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/litespi: --litespi: runner SWEEP-BAD t_us=1161668 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+--litespi: runner SWEEP-BAD t_us=1161918 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/litespi: --litespi: runner SWEEP-BAD t_us=1161918 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+--litespi: runner SWEEP-BAD t_us=1162521 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/litespi: --litespi: runner SWEEP-BAD t_us=1162521 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+--litespi: runner SWEEP-BAD t_us=1162771 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/litespi: --litespi: runner SWEEP-BAD t_us=1162771 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+--litespi: runner SWEEP-BAD t_us=1163373 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/litespi: --litespi: runner SWEEP-BAD t_us=1163373 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+--litespi: runner SWEEP-BAD t_us=1163623 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/litespi: --litespi: runner SWEEP-BAD t_us=1163623 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+--litespi: runner SWEEP-BAD t_us=1164226 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/litespi: --litespi: runner SWEEP-BAD t_us=1164226 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+--litespi: runner SWEEP-BAD t_us=1164476 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/litespi: --litespi: runner SWEEP-BAD t_us=1164476 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+--litespi: runner SWEEP-BAD t_us=1165078 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/litespi: --litespi: runner SWEEP-BAD t_us=1165078 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+--litespi: runner SWEEP-BAD t_us=1165328 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/litespi: --litespi: runner SWEEP-BAD t_us=1165328 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+--litespi: runner SWEEP-BAD t_us=1165819 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/litespi: --litespi: runner SWEEP-BAD t_us=1165819 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:233: Failure
+Failed
+--litespi: runner SWEEP-BAD t_us=1166069 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/litespi: --litespi: runner SWEEP-BAD t_us=1166069 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:237: Failure
+Value of: at("bad") == 0 && at("cases") >= 301 && at("old") > 0 && at("new") > 0 && at("saves") == 1 && at("effects") == 1 + pages() && in(at("durable_us"), kBind, 800 * kMs)
+  Actual: false
+Expected: true
+cases 331 old 80 new 184 bad 67 effects 15 durable 1169164 us; {'abandoned': 0, 'abandoned_vd': 0, 'applied': 54, 'attempts': 0, 'auth': 1, 'bad': 0, 'bind_cause': 0, 'bind_terminal': 1, 'blank': 0, 'calls': 7870632, 'cause': 0, 'clock_hz': 100000000, 'commit_refused': 0, 'commit_tries': 0, 'deferred': 0, 'descending': 0, 'dirty': 0, 'effects': 0, 'erases': 0, 'exhausted': 0, 'failed': 0, 'first': 0, 'img_len': 3444, 'last': 0, 'legacy': 0, 'ls_call_ticks': 200000, 'ls_hung': 0, 'ls_max_withheld': 0, 'ls_no_wel': 0, 'ls_pp': 0, 'ls_refused': 0, 'ls_se': 0, 'ls_short': 0, 'ls_stalled': 0, 'ls_unknown': 0, 'ls_wren': 0, 'max_call_us': 210, 'max_polls_call': 3, 'max_read': 0, 'n_dirty': 0, 'n_inflight': 0, 'n_rec': 54, 'now_ms': 0, 'ok': 0, 'outside': 0, 'pagewrap': 0, 'pending': 0, 'phase': 1, 'programs': 0, 'protected': 0, 'read_faults': 0, 'refused': 0, 'releases': 1, 'seq': 6, 'seq_a': 0, 'seq_b': 6, 'skipped': 0, 'sm_applied': 54, 'sm_applies': 54, 'sm_order': 0, 'sm_refused': 0, 'sm_releases': 1, 'sm_rollbacks': 0, 'sm_settles': 1, 'sm_unbinds': 0, 'stale': 0, 'step_bound': 280, 'step_max': 0, 'step_owing': 0, 'steps': 0, 'terminal': 1, 'unread': 0, 'vd_a': 4, 'vd_b': 0, 'while_busy': 0, 'withheld': 0}
+
+  [FAIL] Ports/NvmBoth.swept_cut/litespi: cases 331 old 80 new 184 bad 67 effects 15 durable 1169164 us; {'abandoned': 0, 'abandoned_vd': 0, 'applied': 54, 'attempts': 0, 'auth': 1, 'bad': 0, 'bind_cause': 0, 'bind_terminal': 1, 'blank': 0, 'calls': 7870632, 'cause': 0, 'clock_hz': 100000000, 'commit_refused': 0, 'commit_tries': 0, 'deferred': 0, 'descending': 0, 'dirty': 0, 'effects': 0, 'erases': 0, 'exhausted': 0, 'failed': 0, 'first': 0, 'img_len': 3444, 'last': 0, 'legacy': 0, 'ls_call_ticks': 200000, 'ls_hung': 0, 'ls_max_withheld': 0, 'ls_no_wel': 0, 'ls_pp': 0, 'ls_refused': 0, 'ls_se': 0, 'ls_short': 0, 'ls_stalled': 0, 'ls_unknown': 0, 'ls_wren': 0, 'max_call_us': 210, 'max_polls_call': 3, 'max_read': 0, 'n_dirty': 0, 'n_inflight': 0, 'n_rec': 54, 'now_ms': 0, 'ok': 0, 'outside': 0, 'pagewrap': 0, 'pending': 0, 'phase': 1, 'programs': 0, 'protected': 0, 'read_faults': 0, 'refused': 0, 'releases': 1, 'seq': 6, 'seq_a': 0, 'seq_b': 6, 'skipped': 0, 'sm_applied': 54, 'sm_applies': 54, 'sm_order': 0, 'sm_refused': 0, 'sm_releases': 1, 'sm_rollbacks': 0, 'sm_settles': 1, 'sm_unbinds': 0, 'stale': 0, 'step_bound': 280, 'step_max': 0, 'step_owing': 0, 'steps': 0, 'terminal': 1, 'unread': 0, 'vd_a': 4, 'vd_b': 0, 'while_busy': 0, 'withheld': 0}
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:242: Failure
+Failed
+SWEEP-BAD t_us=800000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/litespi: SWEEP-BAD t_us=800000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:242: Failure
+Failed
+SWEEP-BAD t_us=810000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/litespi: SWEEP-BAD t_us=810000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:242: Failure
+Failed
+SWEEP-BAD t_us=820000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/litespi: SWEEP-BAD t_us=820000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:242: Failure
+Failed
+SWEEP-BAD t_us=830000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/litespi: SWEEP-BAD t_us=830000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:242: Failure
+Failed
+SWEEP-BAD t_us=840000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/litespi: SWEEP-BAD t_us=840000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:242: Failure
+Failed
+SWEEP-BAD t_us=850000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/litespi: SWEEP-BAD t_us=850000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:242: Failure
+Failed
+SWEEP-BAD t_us=860000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/litespi: SWEEP-BAD t_us=860000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:242: Failure
+Failed
+SWEEP-BAD t_us=870000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/litespi: SWEEP-BAD t_us=870000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:242: Failure
+Failed
+SWEEP-BAD t_us=880000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/litespi: SWEEP-BAD t_us=880000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:242: Failure
+Failed
+SWEEP-BAD t_us=890000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/litespi: SWEEP-BAD t_us=890000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:242: Failure
+Failed
+SWEEP-BAD t_us=900000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/litespi: SWEEP-BAD t_us=900000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:242: Failure
+Failed
+SWEEP-BAD t_us=910000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/litespi: SWEEP-BAD t_us=910000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:242: Failure
+Failed
+SWEEP-BAD t_us=920000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/litespi: SWEEP-BAD t_us=920000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:242: Failure
+Failed
+SWEEP-BAD t_us=930000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/litespi: SWEEP-BAD t_us=930000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:242: Failure
+Failed
+SWEEP-BAD t_us=940000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/litespi: SWEEP-BAD t_us=940000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:242: Failure
+Failed
+SWEEP-BAD t_us=950000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/litespi: SWEEP-BAD t_us=950000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:242: Failure
+Failed
+SWEEP-BAD t_us=960000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/litespi: SWEEP-BAD t_us=960000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:242: Failure
+Failed
+SWEEP-BAD t_us=970000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/litespi: SWEEP-BAD t_us=970000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:242: Failure
+Failed
+SWEEP-BAD t_us=980000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/litespi: SWEEP-BAD t_us=980000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:242: Failure
+Failed
+SWEEP-BAD t_us=990000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/litespi: SWEEP-BAD t_us=990000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:242: Failure
+Failed
+SWEEP-BAD t_us=1000000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/litespi: SWEEP-BAD t_us=1000000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:242: Failure
+Failed
+SWEEP-BAD t_us=1010000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/litespi: SWEEP-BAD t_us=1010000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:242: Failure
+Failed
+SWEEP-BAD t_us=1020000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/litespi: SWEEP-BAD t_us=1020000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:242: Failure
+Failed
+SWEEP-BAD t_us=1030000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/litespi: SWEEP-BAD t_us=1030000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:242: Failure
+Failed
+SWEEP-BAD t_us=1040000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/litespi: SWEEP-BAD t_us=1040000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:242: Failure
+Failed
+SWEEP-BAD t_us=1050000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/litespi: SWEEP-BAD t_us=1050000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:242: Failure
+Failed
+SWEEP-BAD t_us=1060000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/litespi: SWEEP-BAD t_us=1060000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:242: Failure
+Failed
+SWEEP-BAD t_us=1070000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/litespi: SWEEP-BAD t_us=1070000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:242: Failure
+Failed
+SWEEP-BAD t_us=1080000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/litespi: SWEEP-BAD t_us=1080000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:242: Failure
+Failed
+SWEEP-BAD t_us=1090000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/litespi: SWEEP-BAD t_us=1090000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:242: Failure
+Failed
+SWEEP-BAD t_us=1100000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/litespi: SWEEP-BAD t_us=1100000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:242: Failure
+Failed
+SWEEP-BAD t_us=1110000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/litespi: SWEEP-BAD t_us=1110000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:242: Failure
+Failed
+SWEEP-BAD t_us=1120000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/litespi: SWEEP-BAD t_us=1120000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:242: Failure
+Failed
+SWEEP-BAD t_us=1130000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/litespi: SWEEP-BAD t_us=1130000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:242: Failure
+Failed
+SWEEP-BAD t_us=1140000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/litespi: SWEEP-BAD t_us=1140000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:242: Failure
+Failed
+SWEEP-BAD t_us=1150000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/litespi: SWEEP-BAD t_us=1150000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:242: Failure
+Failed
+SWEEP-BAD t_us=1160000 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/litespi: SWEEP-BAD t_us=1160000 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:242: Failure
+Failed
+SWEEP-BAD t_us=1001805 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/litespi: SWEEP-BAD t_us=1001805 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:242: Failure
+Failed
+SWEEP-BAD t_us=1076805 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/litespi: SWEEP-BAD t_us=1076805 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:242: Failure
+Failed
+SWEEP-BAD t_us=1154848 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/litespi: SWEEP-BAD t_us=1154848 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:242: Failure
+Failed
+SWEEP-BAD t_us=1155098 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/litespi: SWEEP-BAD t_us=1155098 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:242: Failure
+Failed
+SWEEP-BAD t_us=1155701 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/litespi: SWEEP-BAD t_us=1155701 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:242: Failure
+Failed
+SWEEP-BAD t_us=1155951 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/litespi: SWEEP-BAD t_us=1155951 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:242: Failure
+Failed
+SWEEP-BAD t_us=1156553 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/litespi: SWEEP-BAD t_us=1156553 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:242: Failure
+Failed
+SWEEP-BAD t_us=1156803 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/litespi: SWEEP-BAD t_us=1156803 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:242: Failure
+Failed
+SWEEP-BAD t_us=1157406 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/litespi: SWEEP-BAD t_us=1157406 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:242: Failure
+Failed
+SWEEP-BAD t_us=1157656 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/litespi: SWEEP-BAD t_us=1157656 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:242: Failure
+Failed
+SWEEP-BAD t_us=1158258 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/litespi: SWEEP-BAD t_us=1158258 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:242: Failure
+Failed
+SWEEP-BAD t_us=1158508 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/litespi: SWEEP-BAD t_us=1158508 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:242: Failure
+Failed
+SWEEP-BAD t_us=1159111 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/litespi: SWEEP-BAD t_us=1159111 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:242: Failure
+Failed
+SWEEP-BAD t_us=1159361 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/litespi: SWEEP-BAD t_us=1159361 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:242: Failure
+Failed
+SWEEP-BAD t_us=1159963 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/litespi: SWEEP-BAD t_us=1159963 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:242: Failure
+Failed
+SWEEP-BAD t_us=1160213 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/litespi: SWEEP-BAD t_us=1160213 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:242: Failure
+Failed
+SWEEP-BAD t_us=1160816 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/litespi: SWEEP-BAD t_us=1160816 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:242: Failure
+Failed
+SWEEP-BAD t_us=1161066 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/litespi: SWEEP-BAD t_us=1161066 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:242: Failure
+Failed
+SWEEP-BAD t_us=1161668 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/litespi: SWEEP-BAD t_us=1161668 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:242: Failure
+Failed
+SWEEP-BAD t_us=1161918 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/litespi: SWEEP-BAD t_us=1161918 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:242: Failure
+Failed
+SWEEP-BAD t_us=1162521 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/litespi: SWEEP-BAD t_us=1162521 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:242: Failure
+Failed
+SWEEP-BAD t_us=1162771 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/litespi: SWEEP-BAD t_us=1162771 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:242: Failure
+Failed
+SWEEP-BAD t_us=1163373 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/litespi: SWEEP-BAD t_us=1163373 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:242: Failure
+Failed
+SWEEP-BAD t_us=1163623 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/litespi: SWEEP-BAD t_us=1163623 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:242: Failure
+Failed
+SWEEP-BAD t_us=1164226 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/litespi: SWEEP-BAD t_us=1164226 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:242: Failure
+Failed
+SWEEP-BAD t_us=1164476 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/litespi: SWEEP-BAD t_us=1164476 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:242: Failure
+Failed
+SWEEP-BAD t_us=1165078 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/litespi: SWEEP-BAD t_us=1165078 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:242: Failure
+Failed
+SWEEP-BAD t_us=1165328 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/litespi: SWEEP-BAD t_us=1165328 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:242: Failure
+Failed
+SWEEP-BAD t_us=1165819 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/litespi: SWEEP-BAD t_us=1165819 check=6
+$REVIEWS/r942-1-p1win/sw/firmware/ctrl_nvm/test/test_nvm_window.cpp:242: Failure
+Failed
+SWEEP-BAD t_us=1166069 check=6
+
+  [FAIL] Ports/NvmBoth.swept_cut/litespi: SWEEP-BAD t_us=1166069 check=6
+[  FAILED  ] Ports/NvmBoth.swept_cut/litespi, where GetParam() = 4-byte object <01-00 00-00> (2844 ms)
+[----------] 6 tests from Ports/NvmBoth (5449 ms total)
+
+[----------] Global test environment tear-down
+  longest service call, model time: 210 us with no stall armed, 0 us with a command-master stall
+[==========] 6 tests from 1 test suite ran. (5450 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 6 tests, listed below:
+[  FAILED  ] Ports/NvmBoth.binding_window/model, where GetParam() = 4-byte object <00-00 00-00>
+[  FAILED  ] Ports/NvmBoth.binding_window/litespi, where GetParam() = 4-byte object <01-00 00-00>
+[  FAILED  ] Ports/NvmBoth.burst_of_64_bindings/model, where GetParam() = 4-byte object <00-00 00-00>
+[  FAILED  ] Ports/NvmBoth.burst_of_64_bindings/litespi, where GetParam() = 4-byte object <01-00 00-00>
+[  FAILED  ] Ports/NvmBoth.swept_cut/model, where GetParam() = 4-byte object <00-00 00-00>
+[  FAILED  ] Ports/NvmBoth.swept_cut/litespi, where GetParam() = 4-byte object <01-00 00-00>
+
+ 6 FAILED TESTS
+== ctrl_nvm saved-state store, boot and write paths (endstation_ax7101_1x1_tdm8): checks: 6   failures: 6 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 6 failure(s) across 6 checks, exit 1)
+Survivors: []
