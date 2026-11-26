@@ -77,7 +77,7 @@ ROWS = (
      ('App.LedsReadTheAcmpBindingWithoutTheStreamWindow', "LED bound bit is the ACMP owner's state")),
 
     ('leds-internal-reads-unused-lock', LEDS,
-     'needs_lock && ctrl_plat_leds_locked', 'true && ctrl_plat_leds_locked',
+     'needs_lock && ctrl_plat_leds_locked', '(needs_lock || true) && ctrl_plat_leds_locked',
      (INTERNAL, 'called more times than expected')),
     ('leds-counter-pair-omits-validity', LEDS,
      'const uint32_t words[] = {0u, 1u, 32u};',
@@ -146,7 +146,7 @@ APP = "app/ctrl_app_aecp.c"
 ROWS += (
     ("led-event-media-ignored", EVENTS, "c->led_media & c->led_enabled", "c->led_enabled",
      ("LedEvents.InternalFlowingAndStoppedSourcesUseAecp", "media loss darkens both LEDs")),
-    ("led-event-bound-ignored", EVENTS, "s->bound && s->started", "true",
+    ("led-event-bound-ignored", EVENTS, "s->bound && s->started", "s->bound || s->started || true",
      ("LedEvents.BindUnbindAndStartStopChangeOnlyOneRegister", "unbind darkens LD2")),
     ("led-event-start-ignored", EVENTS, "s->bound && s->started", "s->bound",
      ("LedEvents.BindUnbindAndStartStopChangeOnlyOneRegister", "STOP_STREAMING darkens LD2")),
@@ -171,7 +171,7 @@ ROWS += (
 )
 
 ROWS += (
-    ("led-event-retry-lost", APP, "leds_retry(c);", "(void)c;",
+    ("led-event-retry-lost", APP, "leds_retry(c);", "if (false) leds_retry(c);",
      ("LedEvents.FailedDomainObservationRetriesWithoutAnotherLockEdge",
       "failed domain read recovers without another domain edge"),
      ("LedEvents.FailedInactiveOutputRetriesWithoutTrafficOrListenerChange",
