@@ -23,6 +23,8 @@ def main() -> None:
     args.out.mkdir(parents=True, exist_ok=True)
     ledger = args.cleanup_ledger or args.out/"cleanup.log"
     subprocess.run([sys.executable, "-B", str(here/"selection_test.py")], check=True)
+    subprocess.run([sys.executable, "-B", str(here/"packing_test.py"),
+                    "--out", str(args.out/"packing")], check=True)
     cases = [(name, name, []) for name in ("protocol", "reference", "media", "packet", "gpif")]
     cases += [("storage24", "storage", ["STORAGE_BITS=24"]),
               ("storage32", "storage", ["STORAGE_BITS=32"]),

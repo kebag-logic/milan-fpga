@@ -166,5 +166,9 @@ class UsbAudio(LiteXModule):
             "source {{%s}}" % (repo / "sw/litex/timing_grade.tcl"))
         platform.toolchain.pre_optimize_commands.append(
             "kl_timing_grade_configure xc7a100tcsg324-1 commercial 0 85 {{Slow Fast}}")
+        platform.toolchain.pre_routing_commands.append(
+            "source {{%s}}" % (repo / "sw/litex/usbaudio_pack.tcl"))
+        platform.toolchain.pre_routing_commands.append(
+            "kl_audio_pack_check {build_name}_audio_packing.rpt")
         platform.toolchain.additional_commands.append(
             "kl_timing_grade_reports {build_name}_audio")
