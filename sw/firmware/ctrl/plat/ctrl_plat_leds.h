@@ -94,7 +94,10 @@ static inline bool ctrl_plat_leds_locked(struct aecp *a, ctrl_plat_leds_counters
 				       uint16_t type, uint16_t index)
 {
 	struct aecp_counters c;
-	memset(&c, 0, sizeof c);
+	// Only these output fields are consumed; unanswered observations stay dark.
+	c.valid = 0u;
+	c.value[0] = 0u;
+	c.value[1] = 0u;
 	if (!counters(a->ports->ctx, 0u, type, index, &c) || (c.valid & 3u) != 3u) return false;
 	return ((c.value[0] - c.value[1]) & 1u) != 0u;
 }
@@ -103,7 +106,7 @@ static inline bool ctrl_plat_leds_receiving(struct aecp *a, ctrl_plat_leds_count
 					  ctrl_plat_leds_stream_fn stream, uint16_t index)
 {
 	struct aecp_stream_info s;
-	memset(&s, 0, sizeof s);
+	s.bound = false;
 	s.brief = true;   // bound is all this reads
 	if (!stream(a->ports->ctx, 0u, CTRL_PLAT_LEDS_STREAM_INPUT, index, &s) || !s.bound) return false;
 	return ctrl_plat_leds_locked(a, counters, CTRL_PLAT_LEDS_STREAM_INPUT, index);
@@ -112,7 +115,8 @@ static inline bool ctrl_plat_leds_receiving(struct aecp *a, ctrl_plat_leds_count
 static inline bool ctrl_plat_leds_listened(struct aecp *a, ctrl_plat_leds_stream_fn stream, uint16_t index)
 {
 	struct aecp_stream_info s;
-	memset(&s, 0, sizeof s);   // observed whole: flags_ex is not a brief observation's
+	s.flags_ex = 0u;
+	s.brief = false;   // observed whole: flags_ex is not a brief observation's
 	return stream(a->ports->ctx, 0u, CTRL_PLAT_LEDS_STREAM_OUTPUT, index, &s) && (s.flags_ex & 1u) != 0u;
 }
 
