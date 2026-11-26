@@ -127,7 +127,7 @@ Before routing, the audio placement check requires all 55 pad registers:
 sixteen inputs, sixteen outputs, sixteen tristates, six controls and the
 forwarded clock. Each register must occupy the input or output logic site
 of its own pad. Missing, disconnected, unregistered or misplaced endpoints
-stop the build. The default regression includes eight negative controls of
+stop the build. The default regression includes twelve negative controls of
 this check; those controls do not replace the actual placement receipt.
 
 Route closure at both speed models, complete-image comparisons, and exact

@@ -29,17 +29,30 @@ proc kl_audio_register {cells buffer role report} {
     return $cell
 }
 
-proc kl_audio_buffer {port_name bidirectional} {
+proc kl_audio_buffers {port_name bidirectional} {
     set port [kl_audio_one [get_ports $port_name] "port $port_name"]
     set net [kl_audio_one [get_nets -of_objects $port] "pad net $port_name"]
-    set pin_name [expr {$bidirectional ? "IO" : "O"}]
-    set pins [get_pins -leaf -of_objects $net -filter "REF_PIN_NAME == $pin_name"]
-    set buffer [kl_audio_one [get_cells -of_objects $pins] "pad buffer $port_name"]
-    set expected [expr {$bidirectional ? "IOBUF" : "OBUF"}]
-    if {[get_property REF_NAME $buffer] ne $expected} {
-        error "Audio packing: $port_name does not use $expected"
+    set pins [get_pins -leaf -of_objects $net]
+    if {[llength $pins] == 0} { error "Audio packing: $port_name has no pad pins" }
+    set buffers [get_cells -of_objects $pins]
+    if {$bidirectional} {
+        # A placed bidirectional pad has two leaf buffers at the same site.
+        # Follow both; the parent primitive's IO pin is not a leaf pin.
+        if {[llength $buffers] != 2} {
+            error "Audio packing: $port_name needs both input and tristate buffers"
+        }
+        set input [kl_audio_one [filter $buffers {REF_NAME == IBUF}] "input buffer $port_name"]
+        set output [kl_audio_one [filter $buffers {REF_NAME == OBUFT}] "tristate buffer $port_name"]
+        if {[get_property LOC $input] ne [get_property LOC $output]} {
+            error "Audio packing: $port_name buffers occupy different pad sites"
+        }
+        return [list $input $output]
     }
-    return $buffer
+    set buffer [kl_audio_one $buffers "pad buffer $port_name"]
+    if {[get_property REF_NAME $buffer] ne "OBUF"} {
+        error "Audio packing: $port_name does not use OBUF"
+    }
+    return [list $buffer]
 }
 
 proc kl_audio_output {buffer pin_name role report} {
@@ -54,21 +67,21 @@ proc kl_audio_pack_check {report_path} {
     set registers {}
     try {
         for {set bit 0} {$bit < 16} {incr bit} {
-            set buffer [kl_audio_buffer [format {usbaudio_dq[%d]} $bit] 1]
-            lassign [kl_iob_far_groups $buffer IN] reached groups
+            lassign [kl_audio_buffers [format {usbaudio_dq[%d]} $bit] 1] input output
+            lassign [kl_iob_far_groups $input IN] reached groups
             if {!$reached} { error "Audio packing: input $bit has an incomplete pad path" }
             set inputs {}
             foreach group $groups {
                 foreach cell $group { lappend inputs $cell }
             }
-            lappend registers [kl_audio_register $inputs $buffer input $report]
-            lappend registers [kl_audio_output $buffer I output $report]
-            lappend registers [kl_audio_output $buffer T tristate $report]
+            lappend registers [kl_audio_register $inputs $input input $report]
+            lappend registers [kl_audio_output $output I output $report]
+            lappend registers [kl_audio_output $output T tristate $report]
         }
         foreach name {usbaudio_addr[0] usbaudio_addr[1] usbaudio_slwr_n usbaudio_slrd_n usbaudio_sloe_n usbaudio_pktend_n} {
-            lappend registers [kl_audio_output [kl_audio_buffer $name 0] I control $report]
+            lappend registers [kl_audio_output [lindex [kl_audio_buffers $name 0] 0] I control $report]
         }
-        lappend registers [kl_audio_output [kl_audio_buffer usbaudio_pclk 0] I clock $report]
+        lappend registers [kl_audio_output [lindex [kl_audio_buffers usbaudio_pclk 0] 0] I clock $report]
         if {[llength $registers] != 55 || [llength [lsort -unique $registers]] != 55} {
             error "Audio packing: expected 55 distinct pad registers"
         }

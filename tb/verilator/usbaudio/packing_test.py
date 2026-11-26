@@ -21,7 +21,7 @@ proc pad {name bidir role} {
     dict set nets p$index n$index
     dict set netpins n$index bp$index
     dict set pincells bp$index $b
-    dict set attrs $b REF_NAME [expr {$bidir ? "IOBUF" : "OBUF"}]
+    dict set attrs $b REF_NAME [expr {$bidir ? "OBUFT" : "OBUF"}]
     dict set attrs $b LOC IOB_X0Y$index
     dict set bufferpins $b I ip$index
     dict set drivers ip$index out$index
@@ -29,7 +29,11 @@ proc pad {name bidir role} {
     dict set attrs out$index LOC OLOGIC_X0Y$index
     dict set attrs out$index REF_NAME [expr {$role eq "clock" ? "ODDR" : "FDRE"}]
     if {$bidir} {
-        dict set inputs $b [list [list in$index]]
+        dict set netpins n$index [list bp$index ibp$index]
+        dict set pincells ibp$index ib$index
+        dict set attrs ib$index REF_NAME IBUF
+        dict set attrs ib$index LOC IOB_X0Y$index
+        dict set inputs ib$index [list [list in$index]]
         dict set attrs in$index IS_SEQUENTIAL 1
         dict set attrs in$index LOC ILOGIC_X0Y$index
         dict set attrs in$index REF_NAME FDRE
@@ -52,7 +56,24 @@ proc lookup {table args} {
 }
 proc get_ports {name} { global ports; return [lookup $ports $name] }
 proc get_nets {args} { global nets; return [lookup $nets [lindex $args end]] }
-proc get_cells {args} { global pincells; return [lookup $pincells [lindex $args end]] }
+proc get_cells {args} {
+    global pincells
+    set cells {}
+    foreach pin [lindex $args end] {
+        set cell [lookup $pincells $pin]
+        if {$cell ne {}} { lappend cells $cell }
+    }
+    return $cells
+}
+proc filter {cells expression} {
+    set selected {}
+    foreach cell $cells {
+        if {[get_property [lindex $expression 0] $cell] eq [lindex $expression 2]} {
+            lappend selected $cell
+        }
+    }
+    return $selected
+}
 proc get_pins {args} {
     global netpins bufferpins
     set object [lindex $args [expr {[lsearch -exact $args -of_objects]+1}]]
@@ -73,7 +94,7 @@ proc kl_iob_far_groups {buffer dir} {
 }
 switch -- $defect {
     good {}
-    missing_input { dict set inputs b0 {} }
+    missing_input { dict set inputs ib0 {} }
     unplaced_input { dict set attrs in0 LOC {} }
     wrong_output_pad { dict set attrs out0 LOC OLOGIC_X0Y1 }
     unregistered_tristate { dict set attrs tri0 IS_SEQUENTIAL 0 }
@@ -81,6 +102,10 @@ switch -- $defect {
     wrong_forwarder { dict set attrs out22 REF_NAME FDRE }
     missing_buffer { dict unset pincells bp22 }
     disconnected_output { dict unset drivers ip0 }
+    missing_input_buffer { dict unset pincells ibp0 }
+    missing_output_buffer { dict unset pincells bp0 }
+    wrong_buffer_pair { dict set attrs ib0 REF_NAME OBUFT }
+    split_pad_sites { dict set attrs ib0 LOC IOB_X0Y1 }
     default { error "unknown fixture" }
 }
 kl_audio_pack_check $report
@@ -102,7 +127,8 @@ def main() -> None:
     source = Path(__file__).resolve().parents[3] / "sw/litex/usbaudio_pack.tcl"
     cases = ("good", "missing_input", "unplaced_input", "wrong_output_pad",
              "unregistered_tristate", "missing_control", "wrong_forwarder",
-             "missing_buffer", "disconnected_output")
+             "missing_buffer", "disconnected_output", "missing_input_buffer",
+             "missing_output_buffer", "wrong_buffer_pair", "split_pad_sites")
     for case in cases:
         result = subprocess.run([engine, str(fixture), str(source),
                                  str(args.out / (case+".rpt")), case],
@@ -115,7 +141,7 @@ def main() -> None:
             passed = result.returncode != 0 and "Audio packing:" in output
         if not passed:
             raise RuntimeError("packing control failed: "+case+"\n"+output)
-    print("PASS audio packing grader: 55 endpoints and eight negative controls")
+    print("PASS audio packing grader: 55 endpoints and twelve negative controls")
 
 
 if __name__ == "__main__":
