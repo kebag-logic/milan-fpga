@@ -423,6 +423,7 @@ static void rx_full()
     int n = 12;
     for (int i = 0; i < n; ++i) b->rx_q.push_back(frame(BCAST, PEER, 0x0800, 1000, -1, {}, uint8_t(i + 1)));
     for (int i = 0; i < 200000 && !b->rx_q.empty(); ++i) b->cycles(1);
+    b->cycles(10);   // the last frame's verdict, past the copy's input register
     unsigned full = b->d->rx_full_o;
     CHECK(full > 0 && full < unsigned(n), "a full buffer drops whole frames (%u of %d)", full, n);
     b->up_ready = true;

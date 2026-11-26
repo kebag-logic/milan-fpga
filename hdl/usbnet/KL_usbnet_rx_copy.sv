@@ -16,7 +16,7 @@
                 receives exactly what it received before, and a frame the
                 computer cannot take is dropped here and counted, never
                 pushed back.
-                ONE PASS. Each beat is written as it arrives into a block-RAM
+                ONE PASS. Each beat, registered once on arrival, is written into a block-RAM
                 frame buffer at a speculative pointer. On the frame's last
                 beat the rule decides: a copied frame commits (its length
                 enters the descriptor FIFO and the pointer advances), any
@@ -65,6 +65,20 @@ module KL_usbnet_rx_copy
   output logic [15:0]      copied_o,        //! saturating
   output logic [15:0]      dropped_full_o   //! saturating
 );
+  //! TIMING: the observed beat is registered once before the rules read it, so
+  //! the classification starts from a flop rather than from the MAC's FIFO
+  //! memory. A copy has no latency to keep; one clock is free.
+  logic        s_valid_q, s_last_q;
+  logic [63:0] s_data_q;
+  logic [7:0]  s_keep_q;
+  always_ff @(posedge clk_i) begin : in_reg
+    if (!rst_ni) s_valid_q <= 1'b0;
+    else         s_valid_q <= s_valid_i;
+    s_data_q <= s_data_i;
+    s_keep_q <= s_keep_i;
+    s_last_q <= s_last_i;
+  end : in_reg
+
   localparam int unsigned AW_C = $clog2(DEPTH_P);
   localparam int unsigned DW_C = $clog2(DESC_P);
 
@@ -92,9 +106,9 @@ module KL_usbnet_rx_copy
   endfunction
 
   //! the header beats as they stand after this beat
-  wire [63:0] b0_w = (s_valid_i && !in_frame_r)               ? s_data_i : b0_r;
-  wire [63:0] b1_w = (s_valid_i && in_frame_r && beat_r == 1) ? s_data_i : b1_r;
-  wire [63:0] b2_w = (s_valid_i && in_frame_r && beat_r == 2) ? s_data_i : b2_r;
+  wire [63:0] b0_w = (s_valid_q && !in_frame_r)               ? s_data_q : b0_r;
+  wire [63:0] b1_w = (s_valid_q && in_frame_r && beat_r == 1) ? s_data_q : b1_r;
+  wire [63:0] b2_w = (s_valid_q && in_frame_r && beat_r == 2) ? s_data_q : b2_r;
   wire [191:0] hb_w = {b2_w, b1_w, b0_w};   //! octet n at bits 8n+7:8n
 
   function automatic hdr_t parse(input logic [191:0] o);
@@ -112,7 +126,7 @@ module KL_usbnet_rx_copy
   endfunction
 
   wire [11:0]  base_w  = in_frame_r ? len_r : 12'd0;
-  wire [12:0]  len_w   = {1'b0, base_w} + 13'(keep_octets(s_last_i ? s_keep_i : 8'hFF));
+  wire [12:0]  len_w   = {1'b0, base_w} + 13'(keep_octets(s_last_q ? s_keep_q : 8'hFF));
   wire         long_w  = len_w > 13'(MAX_LEN_P);
   //! ROLLBACK: a frame always starts at the committed pointer, so a frame
   //! that is not copied leaves nothing behind
@@ -124,14 +138,14 @@ module KL_usbnet_rx_copy
   wire         copy_w  = (rule_w == RXV_HOST) || (rule_w == RXV_GROUP);
   wire         fits_w  = !spoil_w && !desc_full_w;
   wire         too_long_w = (in_frame_r && long_r) || long_w;
-  wire         commit_w = s_valid_i && s_last_i && copy_w && fits_w;
+  wire         commit_w = s_valid_q && s_last_q && copy_w && fits_w;
 
   always_ff @(posedge clk_i) begin : wr_desc
     if (commit_w) desc_r[dwr_r[DW_C-1:0]] <= len_w[11:0];
   end : wr_desc
 
   always_ff @(posedge clk_i) begin : wr_ram
-    if (s_valid_i && !spoil_w) ram_r[start_w[AW_C-1:0]] <= s_data_i;
+    if (s_valid_q && !spoil_w) ram_r[start_w[AW_C-1:0]] <= s_data_q;
   end : wr_ram
 
   always_ff @(posedge clk_i) begin : wr_side
@@ -153,11 +167,11 @@ module KL_usbnet_rx_copy
       dropped_full_o  <= '0;
     end else begin
       verdict_valid_o <= 1'b0;
-      if (s_valid_i) begin
+      if (s_valid_q) begin
         b0_r <= b0_w;
         b1_r <= b1_w;
         b2_r <= b2_w;
-        if (s_last_i) begin
+        if (s_last_q) begin
           in_frame_r      <= 1'b0;
           spoil_r         <= 1'b0;
           long_r          <= 1'b0;
