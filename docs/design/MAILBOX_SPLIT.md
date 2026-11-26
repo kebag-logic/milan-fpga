@@ -690,7 +690,7 @@ nothing else pending:
 | TMR_DELAY expiry | 39 | ENTITY_AVAILABLE committed, TMR_ADVERTISE armed |
 | TMR_ADVERTISE expiry | 11 | TMR_DELAY armed |
 | GM_CHANGE | 11 | TMR_DELAY armed |
-| LINK_UP / LINK_DOWN | 11 / 9 | TMR_DELAY armed / timer stopped |
+| LINK_UP / LINK_DOWN | 12 / 9 | TMR_DELAY armed / timer stopped |
 | SHUTDOWN | 29 | ENTITY_DEPARTING committed |
 
 The figures are `ADP_MBX_LAT_*`, `ADP_MBX_PASS_MAX`, `ADP_MBX_EVT_ACCESSES`

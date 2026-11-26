@@ -111,7 +111,7 @@ extern "C" {
 #define ADP_MBX_LAT_DELAY 39u           // TIMER -> ENTITY_AVAILABLE and TMR_ADVERTISE: 6 + 3 + 25 + 3 + 2
 #define ADP_MBX_LAT_ADVERTISE 11u       // TIMER -> TMR_DELAY armed: 6 + 3 + 2
 #define ADP_MBX_LAT_GM 11u              // GM event -> TMR_DELAY armed: 6 + 3 + 2
-#define ADP_MBX_LAT_LINK 11u            // LINK up -> TMR_DELAY armed: 6 + 3 + 2 (down, a stop: 9)
+#define ADP_MBX_LAT_LINK 12u            // LINK up -> TMR_DELAY armed: 6 + the seed's NOW_MS 1 + 3 + 2 (down, a stop: 9)
 #define ADP_MBX_LAT_SHUTDOWN 29u        // disable -> ENTITY_DEPARTING committed: 1 + 3 + 25 (no pass)
 
 // The costliest action per input, and the pass and path bounds they compose.
