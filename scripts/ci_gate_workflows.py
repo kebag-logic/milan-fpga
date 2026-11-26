@@ -26,8 +26,10 @@ TEMPLATES = {name: ".github/ci-templates/" + name + ".yml"
              for name in (*CARRIERS, "rtl", "rtl-fast")}
 #: The docs steps that run on a worker of their own (#1008), each whole, with its command and receipt unchanged.
 #: Over the 20 measured runs docs-gates-0 reached 1717 s and docs-gates-2 1389 s. The firmware controls (at most
-#: 479 s) and the two contract gates (373 s and 109 s) take worker 3, the saved-state writer (603 s) worker 4,
-#: and every docs worker then sums to at most 1046 s of its steps' largest windows and its setup.
+#: 479 s) and the two contract gates (373 s and 109 s) take worker 3, the saved-state writer (603 s) worker 4.
+#: By the policy table's component-maxima rule (docs/testing/CI_WORKFLOWS.md: each step's largest window, setup
+#: included), worker 3 projects at 1237 s, 961 s of those steps and 276 s of setup, and docs-gates-1, which no
+#: move here touches, stays at 1302 s.
 DOCS_WORKERS = {"Compiler-absent firmware controls": 3, "Saved-state writer gate": 4,
                 "CI event and SHA contract gate": 3, "Local act runner contract gate": 3}
 #: The one template step per workflow whose driver command is divided by its

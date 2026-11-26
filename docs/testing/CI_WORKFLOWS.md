@@ -3503,10 +3503,12 @@ The twenty-seventh worker is #979's: its two new suites carry provisional
 300-second figures, and at twenty-six workers they leave four regular workers
 over the budget, up to 1306 seconds. They run on workers 14 and 15
 ([provenance](TESTING.md)).
-Docs now projects at 1395 seconds for its slowest worker, `docs-gates-0`.
-Allowing 60 seconds each for aggregate and collector, one 120-second
-watcher interval and 30 seconds for the tail gives 1665 seconds,
-about 27.8 minutes: 135 seconds inside thirty minutes. With its builder
+With #1008's five docs workers, docs projects at 1302 seconds for its slowest worker, `docs-gates-1`, the
+builder's leg 0, which #1008 does not move. That is 26 seconds over #998's 1276-second per-job budget, and it
+stays open on #1008; the figures below do not meet it. Allowing 60 seconds each for aggregate and collector,
+one 120-second watcher interval and 30 seconds for the tail gives 1572 seconds for the workflow, about 26.2
+minutes: 228 seconds inside thirty minutes. (Before #1008, `docs-gates-0` at 1395 seconds gave 1665 seconds,
+about 27.8 minutes.) With its builder
 undivided, the merged workload put the builder worker at 1602 seconds and
 the workflow at 1872, about 31.2 minutes.
 Elaboration's workflow figure is a measurement against #737 acceptance 1, not a
