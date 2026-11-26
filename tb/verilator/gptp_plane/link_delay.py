@@ -29,7 +29,7 @@ VERDICT = ('    p.emit("ALU", rd=RT, ra=RD_, rb=0, cnd=ALU_SUB, imm=NPD_HI_C + 1
            '    p.emit("ALU", rd=RT, ra=RT, rb=0, cnd=ALU_SHR, imm=63)\n'
            '    p.emit("CMP", ra=RT, rb=0, fmt=FMT_D, imm=0)\n'
            '    p.emit("BRS", cnd=BRS_Z, label="bad")            # D - 801 >= 0\n')
-#: what the pins before 3009f9a2 judged: good iff -80 <= D <= 800
+#: what the pins before 3ce71b76 judged: good iff -80 <= D <= 800
 OLD_WINDOW = ('    p.emit("ALU", rd=RT, ra=RD_, rb=0, cnd=ALU_ADD, imm=80)\n'
               '    p.emit("CMP", ra=RT, rb=0, fmt=FMT_D, imm=NPD_HI_C + 80 + 1)\n'
               '    p.emit("BRS", cnd=BRS_LT, label="good")\n'

@@ -21,7 +21,7 @@ Dirty submodules invalidate local evidence.
 | Path | Pin | Purpose | Root integration |
 |---|---|---|---|
 | `external` | `efeb541ae5fe1e078332d8462dca2fc2d9cb8db5` | Historical Ethernet MAC RTL | No active product consumer |
-| `gptp-processor` | `3009f9a2a2d69375211d8355490675879033d940` | Fabric gPTP engine | `KL_gptp_shadow.sv` |
+| `gptp-processor` | `3ce71b768a2f6f6a5274c127080146e755d02275` | Fabric gPTP engine | `KL_gptp_shadow.sv` |
 | `protocol-processor` | `801ef2283ec793e35a2590fc6593c90313a64041` | ADP, ACMP, AECP, and SRP | `KL_pp_shadow.sv` |
 | `third_party/lwSRP` | `d1bb4f4e5954af6dabe7f210a6bf7adbb76bdd6b` | Bare-metal MRP, MSRP and MVRP | `sw/firmware/ctrl/srp/srp_mbx.c` |
 | `third_party/tsn-c-stack` | `a795471c0abc4e38f7e5146b4e539dd607b6f501` | Portable ADP, ACMP and MAAP cores | `sw/firmware/ctrl` mailbox adapters |
@@ -1068,7 +1068,7 @@ It reproduces at both pins.
 
 This adoption did not cause it.
 
-Issue #1013 moves the gPTP gitlink to `3009f9a2`.
+Issue #1013 moves the gPTP gitlink to `3ce71b76`.
 
 It fast-forwards `1213ac5b` on the donor's `main`.
 
@@ -1077,7 +1077,6 @@ The processor stays at `801ef228`.
 | gPTP issue | Merged PR | Parent-visible result |
 |---|---|---|
 | #109, a negative link delay is a good exchange | [110](https://github.com/Mister-M-alt/FPGA-gPTP/pull/110) | A negative computed link delay of any magnitude keeps asCapable (802.1AS-2011 11.2.2 b) and Figure 11-8 clear it only above 800 ns; Milan v1.2 4.2.6.2.7 sets a minimum tolerance). Before, a delay below -80 ns lost it. The Sync path uses the delay signed (802.1AS-2011 11.2.13.2.1 f)), floored at -800 ns, and publishes that value. 801 ns still clears asCapable. The ROM is word-neutral, 1,013 of 1,024. `NPD_LO_C` is retired |
-| #111, the engine suite's passes at once | [112](https://github.com/Mister-M-alt/FPGA-gPTP/pull/112) | Test infrastructure only: each of the four engine passes is its own make job, within the caller's job budget. No `hdl/` or `syn/` change |
 
 No engine port or parameter changes.
 
@@ -1086,6 +1085,14 @@ No top-level port, parameter or register changes.
 The generator's options are unchanged, so the builder is too.
 
 `gptp_ucode.hex` changes; its new ledger row matches the donor's image.
+
+The donor's next merge, PR 112, is not adopted.
+
+It changes only the engine's test runner.
+
+Its two Python files exceed two of this tree's ratchets.
+
+A later pin adopts it, once they fit.
 
 The public bank's clamp to 0 is unchanged.
 
@@ -1102,6 +1109,12 @@ Its campaign plants the clamp's removal, which fails by name.
 The `milan_dp` gPTP legs grade the CSR and GET_AVB_INFO.
 
 The release images were routed at the merge `d0483d08`.
+
+Its gPTP gitlink was `3009f9a2`, PR 112's merge.
+
+Its `hdl/` and `syn/` trees equal `3ce71b76`'s.
+
+So the routes stand for this pin.
 
 Its base is `dev-soft-core` at `c34e7d8b`, routed alike.
 
@@ -1283,10 +1296,10 @@ The parent carries it to the CRF servo (#545).
 
 Window overlap preserves lock until measured correction completes.
 
-- [Manager guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/3009f9a2a2d69375211d8355490675879033d940/docs/MANAGER.md)
-- [Integration guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/3009f9a2a2d69375211d8355490675879033d940/docs/INTEGRATION.md)
-- [HDL guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/3009f9a2a2d69375211d8355490675879033d940/docs/HDL_DEVELOPER.md)
-- [Test guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/3009f9a2a2d69375211d8355490675879033d940/docs/TEST_DEVELOPER.md)
+- [Manager guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/3ce71b768a2f6f6a5274c127080146e755d02275/docs/MANAGER.md)
+- [Integration guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/3ce71b768a2f6f6a5274c127080146e755d02275/docs/INTEGRATION.md)
+- [HDL guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/3ce71b768a2f6f6a5274c127080146e755d02275/docs/HDL_DEVELOPER.md)
+- [Test guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/3ce71b768a2f6f6a5274c127080146e755d02275/docs/TEST_DEVELOPER.md)
 
 Processor PR 156 resolves both former RX-interface contradictions.
 

@@ -8,7 +8,7 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 
 ## Contents
 
-- **[Unreleased - pins 3009f9a2 and a795471c](#unreleased---pins-3009f9a2-and-a795471c)** -- Negative link delay; long ENTITY_DISCOVER.
+- **[Unreleased - pins 3ce71b76 and a795471c](#unreleased---pins-3ce71b76-and-a795471c)** -- Negative link delay; long ENTITY_DISCOVER.
 - **[Unreleased - gPTP pin 1213ac5b](#unreleased---gptp-pin-1213ac5b)** -- A new master announces at once.
 - **[Unreleased - the boot forms its link once](#unreleased---the-boot-forms-its-link-once)** -- No boot restart.
 - **[Unreleased - a link-up inside a loop pass](#unreleased---a-link-up-inside-a-loop-pass)** -- SRP resets once.
@@ -63,9 +63,9 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - **[Release 0x0002_0054 — generated names](#release-0x0002_0054--generated-names)** -- Serves generated names and writable overlays.
 - **[Release 0x0002_0053 — stream setters](#release-0x0002_0053--stream-setters)** -- Adds supported stream setters.
 
-## Unreleased - pins 3009f9a2 and a795471c
+## Unreleased - pins 3ce71b76 and a795471c
 
-- Issue #1013 adopts gPTP `3009f9a2` and stack `a795471c`.
+- Issue #1013 adopts gPTP `3ce71b76` and stack `a795471c`.
 - gPTP #109: a negative link delay is a good exchange.
 - Before, a delay below -80 ns lost asCapable.
 - The Sync path uses it signed, floored at -800 ns.
@@ -73,7 +73,6 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - The CSR and GET_AVB_INFO still read 0.
 - `gptp_plane`, `gptp_shadow` and the `milan_dp` legs grade it.
 - Nine planted defects each fail a named check.
-- gPTP #111 runs the engine suite's passes at once.
 - tsn-c-stack #37: a longer ENTITY_DISCOVER is accepted.
 - Its first 56 octets after entity_id decide.
 - Below 56 it is refused and counted, as before.
