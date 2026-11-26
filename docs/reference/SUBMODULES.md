@@ -1108,7 +1108,19 @@ Issue #665 adopts stack pin `715589c1`.
 | [36](https://github.com/kebag-logic/tsn-c-stack/pull/36) | ADP's grandmaster-change tests prove a fresh draw in WAITING; tests and documents only, no source change |
 | branch `977-settle` (#977) | An entry's completion walks only its marked sinks, loading each mark word once, and builds the saved binding record and the reported view only where a sink's own fields changed; the calls, their order and their arguments are unchanged (ACMP-13) |
 
-Issue #977 moves the pin to `f71c8870`, the head of tsn-c-stack branch `977-settle`: two commits on `main` `69bac7c`, the merge of PR 36. The cut takes THE SETTLE, ACMP's completion of each sink after a Talker registration, from 5,444 to 4,764 CPU cycles a sink at 8x8/1if, for margin under that point's load ceiling ([the owner's decision of 2026-11-25](https://github.com/kebag-logic/milan-fpga/issues/977#issuecomment-7160202807)). It reaches `main` through tsn-c-stack's own review, and the pin moves to that merge.
+Issue #977 moves the pin to `f71c8870`.
+
+That commit heads tsn-c-stack branch `977-settle`.
+
+The branch adds two commits on `main` `69bac7c`.
+
+Its cut shortens ACMP's completion of each sink.
+
+It adds margin under the [8x8/1if load ceiling](https://github.com/kebag-logic/milan-fpga/issues/977#issuecomment-7160202807).
+
+The cut reaches `main` through tsn-c-stack's own review.
+
+The pin then moves to that merge.
 
 Parent adapter tests exercise every ADP refusal and valid discovery.
 
@@ -1140,7 +1152,9 @@ Its pinned `LICENSE` and `NOTICE` retain dependency terms.
 
 tsn-c-stack uses HTTPS and needs no credentials.
 
-The pin is the head of tsn-c-stack branch `977-settle`, two commits on the merge of PR 36 on `main`.
+The pin heads tsn-c-stack branch `977-settle`.
+
+That branch builds on PR 36's merge on `main`.
 
 The previous pin, `715589c1`, is its ancestor on `main`.
 
