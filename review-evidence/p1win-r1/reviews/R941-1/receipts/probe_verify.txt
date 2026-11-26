@@ -1,0 +1,9 @@
+PASS: whole container in one run after the last page: durable=True want=True ms=230.5 faults=0
+PASS: halves in reverse order: durable=True want=True ms=231.5 faults=0
+PASS: all but the last 4 bytes (a missing verify tail): durable=False want=False ms=None faults=1
+PASS: overlapping runs whose byte sum exceeds the image but leave a gap: durable=False want=False ms=None faults=1
+PASS: only 4 bytes after the pages, the blank check read the whole slot before them (R932-1 F2 shape): durable=False want=False ms=None faults=1
+PASS: the last page only, read three times: durable=False want=False ms=None faults=1
+PASS: a whole-slot run from the blank check to after the pages is refused: a run of 512 bytes read from e40000 in [23200000, 24050000] spans a write of the device, s
+probe_verify: 7 cases, 0 disagreement(s)
+rc=0
