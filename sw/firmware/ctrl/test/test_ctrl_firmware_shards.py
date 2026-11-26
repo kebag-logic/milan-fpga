@@ -28,7 +28,7 @@ def argument(value: object) -> object:
 
 
 def inventory(module: ModuleType, shard: tuple[int, int] | None = None,
-              extra_suite: bool = False, mutation_shard: tuple[int, int] | None = None) -> list[str]:
+              extra_suite: bool = False, campaign_shard: tuple[int, int] | None = None) -> list[str]:
     """Discover dispatch through the real driver, intercepting expensive entry points.
 
     Composite arm builders still enumerate their live shapes and suites.
@@ -37,8 +37,9 @@ def inventory(module: ModuleType, shard: tuple[int, int] | None = None,
     """
     calls = []
     args = SimpleNamespace(shard=shard, self_test=True, jobs=4, slice=(1, 1),
-                           mutation_shard=mutation_shard, campaign_shard=mutation_shard, require_rv32=True,
+                           mutation_shard=None, campaign_shard=campaign_shard, require_rv32=True,
                            lwsrp=module.CTRL.parents[2] / "third_party/lwSRP")
+    module.campaign_leg(args)      # the driver's own mapping of a campaign leg onto its phase's partition
     tree = Tree(module.CTRL, Path("dispatch-build"), Path("dispatch-reuse"),
                 module.fw_gtest.Build(jobs=4))
 
@@ -171,7 +172,7 @@ def campaign_cases(module: ModuleType, shard: tuple[int, int], count: int) -> li
     the phase's controls, and the union of the legs' defects is the phase's, with none twice.
     """
     expected = inventory(module, shard)
-    legs = [inventory(module, shard, mutation_shard=(index, count)) for index in range(count)]
+    legs = [inventory(module, shard, campaign_shard=(index, count)) for index in range(count)]
     controls = [call for call in expected if call in CAMPAIGN_CONTROLS]
     defects = [call for call in expected if call not in CAMPAIGN_CONTROLS]
     assert controls and defects, f"phase {shard[0]} has no campaign to divide"

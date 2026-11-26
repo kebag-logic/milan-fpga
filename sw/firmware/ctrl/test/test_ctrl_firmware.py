@@ -263,6 +263,14 @@ def run_srp_mutants(args: argparse.Namespace, out: Path) -> bool:
     return ctrl_mutants.lwsrp_pin_arms(out / "mutants", lwsrp) != 0 or failed
 
 
+def campaign_leg(args: argparse.Namespace) -> argparse.Namespace:
+    """A campaign leg's share (#1008): the control and AECP phases plant it as their interleaved mutation partition,
+    and the SRP phase reads `campaign_shard` itself. The dispatch proof derives each leg through this too."""
+    if args.campaign_shard is not None:
+        args.mutation_shard = args.campaign_shard
+    return args
+
+
 def srp_8x8_table() -> tuple:
     """The smallest of the SRP phase's three tables, the 8x8 one-interface campaign's, which bounds its legs."""
     return tuple(d for d in srp_mutants.DEFECTS
@@ -385,8 +393,7 @@ def main(argv: list[str] | None = None) -> int:
         run_cases(sys.modules[__name__])
         if args.campaign_shard is not None:
             campaign_cases(sys.modules[__name__], args.shard, args.campaign_shard[1])
-    if args.campaign_shard is not None:
-        args.mutation_shard = args.campaign_shard
+    campaign_leg(args)
     print(f"toolchain: {fw_gtest.toolchain()}")
     with tempfile.TemporaryDirectory(prefix="ctrl-fw-") as tmp:
         out = args.build_dir.resolve() if args.build_dir else Path(tmp)
