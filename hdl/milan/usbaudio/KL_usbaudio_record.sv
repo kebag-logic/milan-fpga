@@ -40,6 +40,18 @@ module KL_usbaudio_record #(
   assign ready_o = state_r != COMPLETE_S;
   assign record_valid_o = state_r == COMPLETE_S;
   assign done_o = finish_w;
+  wire clear_pcm_w = !rst_n || (state_r == COMPLETE_S && record_ready_i)
+      || (finish_w && !finish_good_w);
+
+  // Separate fixed-word banks expose a shared synchronous clear and one
+  // write enable per word. No full-record variable write mask is needed.
+  for (genvar word_index = 0; word_index < 112; word_index++) begin : g_pcm_word
+    always_ff @(posedge clk_i) begin : word_storage
+      if (clear_pcm_w) pcm_o[word_index*16 +: 16] <= 0;
+      else if (accept_w && state_r == PAYLOAD_S && payload_word_r == 16'(word_index))
+        pcm_o[word_index*16 +: 16] <= data_i;
+    end : word_storage
+  end
 
   always_ff @(posedge clk_i) begin : record_engine
     if (!rst_n) begin
@@ -54,7 +66,6 @@ module KL_usbaudio_record #(
       capture_epoch_o <= 0;
       flags_o <= 0;
       frames_o <= 0;
-      pcm_o <= 0;
       rejected_o <= 0;
       digest_errors_o <= 0;
     end else begin
@@ -63,7 +74,6 @@ module KL_usbaudio_record #(
         header_word_r <= 0;
         good_r <= 1;
         digest_bad_r <= 0;
-        pcm_o <= 0;
       end
       if (accept_w && state_r == HEADER_S) begin
         header_word_r <= header_word_r + 1'b1;
@@ -94,11 +104,6 @@ module KL_usbaudio_record #(
       if (accept_w && state_r == PAYLOAD_S) begin
         // Drain the declared length even when refused. Odd invalid lengths
         // occupy a final bus word. Only a session reset restarts lost framing.
-        // Decode each fixed word enable instead of constructing a wide
-        // variable write mask and data shifter for the complete record.
-        for (int unsigned word_index = 0; word_index < 112; word_index++)
-          if (payload_word_r == 16'(word_index))
-            pcm_o[word_index*16 +: 16] <= data_i;
         payload_word_r <= payload_word_r + 1'b1;
       end
       if (finish_w) begin
@@ -108,7 +113,6 @@ module KL_usbaudio_record #(
           header_word_r <= 0;
           good_r <= 1;
           digest_bad_r <= 0;
-          pcm_o <= 0;
           if (rejected_o != 32'hffffffff) rejected_o <= rejected_o + 1'b1;
           if (finish_digest_bad_w && digest_errors_o != 32'hffffffff)
             digest_errors_o <= digest_errors_o + 1'b1;
