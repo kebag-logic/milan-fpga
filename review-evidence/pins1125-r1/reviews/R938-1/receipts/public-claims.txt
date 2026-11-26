@@ -1,0 +1,12 @@
+Public PR #1016 body observed during independent review at head a6864a49293ba3d0df37029abfa581468ef78dce
+URL https://github.com/kebag-logic/milan-fpga/pull/1016
+
+- **Routes**: both release images equal the base's figure for figure at every directive routed, and meet the #818 floor at every corner. 8x8/1if ships on ExtraTimingOpt, as the base would: the first directive misses there too.
+Three suites grade #109 where the product sees it: through the parent's transport and the real PHC. Each is red against the 1213ac5b generator and green at this head.
+| `tb/verilator/milan_dp` `gptp` and `gptp-lat` | -3, -80, -81, -263, -5,000,000 ns | The product datapath: the CSR `0x6E4` reads 0, asCapable holds, and GET_AVB_INFO's propagation delay reads 0, each trial | Not run there; the clamp's control is `gptp_shadow`'s |
+The release recipe (the split image, one interface) at 1x1/1if and 8x8/1if, at most two routes at once, directives in the recipe's order. The head is the merge `d0483d08`, and the base is `dev-soft-core` at `c34e7d8b`, routed alike. The head's gPTP gitlink was `3009f9a2`, whose `hdl/` and `syn/` trees equal `3ce71b76`'s, so these images are this pin's. They differ only in ROM contents: the gPTP image and the control firmware.
+- The bitstreams, ROM images and firmware ELFs of head and base differ, as they must. The netlists and placements do not.
+python3 scripts/measure_test_evidence.py
+
+PR discussion snapshot: two review-start comments; no prior published review findings or review submissions returned. Concurrent reviewer reports were not consulted.
+

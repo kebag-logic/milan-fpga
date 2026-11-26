@@ -1,0 +1,45 @@
+PUBLIC PACKET 86ac1ed8f385db77988c43e20318aff9c7a1a667 81 published hashes verified
+UNCHANGED BUDGET py_idiom.budget d4268e92ca9ed205dbf22323e1666738c38d5952b8fcd354c4b6cf0be65ea846
+UNCHANGED BUDGET test_evidence.budget 3c3db721128bfd5f4db9b6eb32b875598ec4e6f08c4d82fd915077d5635a9e87
+IDENTICAL IMAGE INPUT hdl 48cb05252bc4cb23dd269cea3272fd70e815d37d
+IDENTICAL IMAGE INPUT hdl/ucode 1d1680d0f28882c9e3109edae3b22e837290e4f9
+IDENTICAL IMAGE INPUT hdl/ucode/gen_gptp_ucode.py 917335f072d10a392d9c89a5926eab6368fa7b19
+IDENTICAL IMAGE INPUT syn ae1d026c3f0474e5cc82d604b4b87880ded15ab7
+CARRIED FORWARD hdl 244c59e030d9078054fc88744f22e4e3e7d59246
+CARRIED FORWARD sw 23f6ea594ca39c1b3d65bebedd256b7e9347d016
+CARRIED FORWARD configs 645784f4fa209c130642a2955bae930b97b82957
+CARRIED FORWARD third_party/tsn-c-stack a795471c0abc4e38f7e5146b4e539dd607b6f501
+IDENTICAL LEDGER egress-ledger 7 rows
+| `backlog.owed.if0` | 64.09994 | 64.31 | -0.21006 | yes |
+| `backlog.owed_behind0.if0` | 64.29245 | 64.51 | -0.21755 | yes |
+| `backlog.owed_behind1.if0` | 64.48319 | 64.71 | -0.22681 | yes |
+| `backlog.owed_behind2.if0` | 64.67393 | 64.91 | -0.23607 | yes |
+| `backlog.owed_behind3.if0` | 64.86397 | 65.11 | -0.24603 | yes |
+| `backlog-owed.service.acmp.last.if0` | 63.12992 | 63.29 | -0.16008 | yes |
+| `backlog-owed.service.aecp.last.if0` | 62.84763 | 63.23 | -0.38237 | yes |
+IDENTICAL LEDGER plat-ledger 4 rows
+POINT 1x1-if1: rom 127,568 B, sram 56,736 B, 45.5 RAMB36 (the 56-RAMB36 budget), ctrl_plat 18048 B: PASS
+POINT 1x1-if2: rom 129,352 B, sram 59,168 B, 46.5 RAMB36 (the 56-RAMB36 budget), ctrl_plat 19840 B: PASS
+POINT 8x8-if1: rom 141,680 B, sram 100,096 B, 59.5 RAMB36 (platform-8x8-one-interface), ctrl_plat 19136 B: PASS
+POINT 8x8-if2: rom 143,432 B, sram 117,632 B, 64.5 RAMB36 (platform-8x8-two-interfaces), ctrl_plat 21888 B: PASS
+IDENTICAL ROUTE CORNERS 1x1-ExtraPostPlacementOpt
+Slow_85C: WNS +0.178 ns (0 failing), WHS +0.102 ns (0 failing)
+Slow_0C: WNS +0.178 ns (0 failing), WHS +0.102 ns (0 failing)
+Fast_85C: WNS +1.660 ns (0 failing), WHS +0.021 ns (0 failing)
+Fast_0C: WNS +1.660 ns (0 failing), WHS +0.021 ns (0 failing)
+IDENTICAL UTILIZATION Slice LUTs=32582 LUT as Logic=31285 LUT as Memory=1297 Slice Registers=42803 Slice=13590 Block RAM Tile=80.5 RAMB36/FIFO=? RAMB18=35 DSPs=13
+IDENTICAL ROUTE CORNERS 8x8-ExtraPostPlacementOpt
+Slow_85C: WNS +0.008 ns (0 failing), WHS +0.102 ns (0 failing)
+Slow_0C: WNS +0.008 ns (0 failing), WHS +0.102 ns (0 failing)
+Fast_85C: WNS +1.584 ns (0 failing), WHS +0.036 ns (0 failing)
+Fast_0C: WNS +1.584 ns (0 failing), WHS +0.036 ns (0 failing)
+IDENTICAL UTILIZATION Slice LUTs=45920 LUT as Logic=44702 LUT as Memory=1218 Slice Registers=53383 Slice=15603 Block RAM Tile=98.5 RAMB36/FIFO=? RAMB18=33 DSPs=13
+IDENTICAL ROUTE CORNERS 8x8-ExtraTimingOpt
+Slow_85C: WNS +0.283 ns (0 failing), WHS +0.102 ns (0 failing)
+Slow_0C: WNS +0.283 ns (0 failing), WHS +0.102 ns (0 failing)
+Fast_85C: WNS +1.636 ns (0 failing), WHS +0.036 ns (0 failing)
+Fast_0C: WNS +1.636 ns (0 failing), WHS +0.036 ns (0 failing)
+IDENTICAL UTILIZATION Slice LUTs=45810 LUT as Logic=44591 LUT as Memory=1219 Slice Registers=53378 Slice=15600 Block RAM Tile=98.5 RAMB36/FIFO=? RAMB18=33 DSPs=13
+LIMIT: head 8x8 AltSpreadLogic_high exists, but no paired base receipt is published
+LIMIT: source receipts are author runs; this packet contains no manager source bank
+PASS: published hashes, input carry-forward, unchanged budgets and paired ledger/route checks
