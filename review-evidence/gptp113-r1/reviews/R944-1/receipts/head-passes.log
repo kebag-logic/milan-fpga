@@ -1,0 +1,77 @@
+COMMAND make -j16 --no-print-directory -C tb/verilator/engine passes-test
+python3 ../../engine_passes_test.py
+[PASS] clean, make -j4: the serial transcript and status (rc 0)
+[PASS] the clean -j4 passes finished out of order: ['pass0', 'pass3', 'pass2', 'pass1']
+[PASS] clean, make -j1: the serial transcript and status (rc 0)
+[PASS] clean, make -j4 -s: the serial transcript and status (rc 0)
+[PASS] clean, make -j4 -i: the serial transcript and status (rc 0)
+[PASS] clean, make -j4 -k: the serial transcript and status (rc 0)
+[PASS] pass 0 fails, make -j4: the serial transcript and status (rc 2)
+[PASS] pass 0 fails, make -j1: the serial transcript and status (rc 2)
+[PASS] pass 0 fails, make -j4 -s: the serial transcript and status (rc 2)
+[PASS] pass 0 fails, make -j4 -i: the serial transcript and status (rc 0)
+[PASS] pass 0 fails, make -j4 -k: the serial transcript and status (rc 2)
+[PASS] pass 1 fails, make -j4: the serial transcript and status (rc 2)
+[PASS] pass 1 fails, make -j1: the serial transcript and status (rc 2)
+[PASS] pass 1 fails, make -j4 -s: the serial transcript and status (rc 2)
+[PASS] pass 1 fails, make -j4 -i: the serial transcript and status (rc 0)
+[PASS] pass 1 fails, make -j4 -k: the serial transcript and status (rc 2)
+[PASS] pass 3 fails, make -j4: the serial transcript and status (rc 2)
+[PASS] pass 3 fails, make -j1: the serial transcript and status (rc 2)
+[PASS] pass 3 fails, make -j4 -s: the serial transcript and status (rc 2)
+[PASS] pass 3 fails, make -j4 -i: the serial transcript and status (rc 0)
+[PASS] pass 3 fails, make -j4 -k: the serial transcript and status (rc 2)
+[PASS] passes 1 and 2 fail, make -j4: the serial transcript and status (rc 2)
+[PASS] passes 1 and 2 fail, make -j1: the serial transcript and status (rc 2)
+[PASS] passes 1 and 2 fail, make -j4 -s: the serial transcript and status (rc 2)
+[PASS] passes 1 and 2 fail, make -j4 -i: the serial transcript and status (rc 0)
+[PASS] passes 1 and 2 fail, make -j4 -k: the serial transcript and status (rc 2)
+[PASS] pass 2 SIGSEGV, make -j4: the serial transcript and status (rc 2)
+[PASS] pass 2 SIGSEGV, make -j1: the serial transcript and status (rc 2)
+[PASS] pass 2 SIGSEGV, make -j4 -s: the serial transcript and status (rc 2)
+[PASS] pass 2 SIGSEGV, make -j4 -i: the serial transcript and status (rc 0)
+[PASS] pass 2 SIGSEGV, make -j4 -k: the serial transcript and status (rc 2)
+[PASS] pass 1 SIGABRT, make -j4: the serial transcript and status (rc 2)
+[PASS] pass 1 SIGABRT, make -j1: the serial transcript and status (rc 2)
+[PASS] pass 1 SIGABRT, make -j4 -s: the serial transcript and status (rc 2)
+[PASS] pass 1 SIGABRT, make -j4 -i: the serial transcript and status (rc 0)
+[PASS] pass 1 SIGABRT, make -j4 -k: the serial transcript and status (rc 2)
+[PASS] pass 3 SIGKILL, make -j4: the serial transcript and status (rc 2)
+[PASS] pass 3 SIGKILL, make -j1: the serial transcript and status (rc 2)
+[PASS] pass 3 SIGKILL, make -j4 -s: the serial transcript and status (rc 2)
+[PASS] pass 3 SIGKILL, make -j4 -i: the serial transcript and status (rc 0)
+[PASS] pass 3 SIGKILL, make -j4 -k: the serial transcript and status (rc 2)
+[PASS] pass 2 image refused, make -j4: the serial transcript and status (rc 2)
+[PASS] pass 2 image refused, make -j1: the serial transcript and status (rc 2)
+[PASS] pass 2 image refused, make -j4 -s: the serial transcript and status (rc 2)
+[PASS] pass 2 image refused, make -j4 -i: the serial transcript and status (rc 0)
+[PASS] pass 2 image refused, make -j4 -k: the serial transcript and status (rc 2)
+[PASS] pass 1 image generator SIGSEGV, make -j4: the serial transcript and status (rc 2)
+[PASS] pass 1 image generator SIGSEGV, make -j1: the serial transcript and status (rc 2)
+[PASS] pass 1 image generator SIGSEGV, make -j4 -s: the serial transcript and status (rc 2)
+[PASS] pass 1 image generator SIGSEGV, make -j4 -i: the serial transcript and status (rc 0)
+[PASS] pass 1 image generator SIGSEGV, make -j4 -k: the serial transcript and status (rc 2)
+[PASS] build fails, make -j4: the serial transcript and status (rc 2)
+[PASS] build fails, make -j1: the serial transcript and status (rc 2)
+[PASS] build fails, make -j4 -s: the serial transcript and status (rc 2)
+[PASS] build fails, make -j4 -i: the serial transcript and status (rc 0)
+[PASS] build fails, make -j4 -k: the serial transcript and status (rc 2)
+[PASS] make -j1 run: at most 1 passes at once (budget 1)
+[PASS] make -j2 run: at most 2 passes at once (budget 2)
+[FAIL] make -j4 run: at most 2 passes at once (budget 4)
+[PASS] a parent make -j3 with two other jobs: 4 passes ran, at most 3 jobs at once in all (budget 3, reached)
+[FAIL] make -j4: pass 1 fails and the run ends in 2.8 s; passes started ['pass0', 'pass1', 'pass3'], all ended
+[PASS] make -j1: pass 1 fails and the run ends in 4.2 s; passes started ['pass0', 'pass1'], all ended
+[PASS] SIGINT to make's process group: make ended (-2), 0 simulators left
+[PASS] SIGTERM to make's process group: make ended (-15), 0 simulators left
+[PASS] SIGQUIT to make's process group: make ended (1), 0 simulators left
+[PASS] SIGHUP to make's process group: make ended (-1), 0 simulators left
+[PASS] SIGTERM to make's own process: make ended (-15), 0 simulators left
+[PASS] pass 1's kept transcript made unreadable: rc 2, pass 0 printed, the diagnostic printed, nothing after it
+[PASS] a replayed signal death is re-raised from $REVIEWS/gptp113-r944-1-packet/scratch/tmp/engine-passes-test-sj43akpg/cwd/obj_dir/engine-passes
+[PASS] an image generator killed by SIGSEGV replays as the serial line ended: 'make[1]: *** [Makefile:2: all] Segmentation fault' vs 'make[1]: *** [Makefile:2: all] Segmentation fault'
+[PASS] an image generator killed by SIGKILL replays as the serial line ended: 'make[1]: *** [Makefile:2: all] Killed' vs 'make[1]: *** [Makefile:2: all] Killed'
+[PASS] a no-core signal death replays as a non-dumpable one at core limit 0: 'make[1]: *** [Makefile:2: all] Segmentation fault' vs 'make[1]: *** [Makefile:2: all] Segmentation fault'
+[PASS] a no-core signal death replays as a non-dumpable one at core limit 0 (clamped to the hard limit): 'make[1]: *** [Makefile:2: all] Segmentation fault' vs 'make[1]: *** [Makefile:2: all] Segmentation fault'
+engine passes test: 2 FAIL
+make: *** [Makefile:100: passes-test] Error 1

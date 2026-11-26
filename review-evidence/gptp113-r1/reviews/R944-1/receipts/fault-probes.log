@@ -1,0 +1,15 @@
+stop records: [{"exit": 0}, {"exit": 7, "gen": 0}, {"core": false, "gen": 0, "signal": 15, "stopped": true}, {"core": false, "gen": 0, "signal": 15, "stopped": true}] make status: 2
+PASS stop control accepted
+stop records: [{"exit": 0}, {"exit": 7, "gen": 0}, {"exit": 0, "gen": 0}, {"exit": 0, "gen": 0}] make status: 2
+PASS stop mutation rejected
+[PASS] an image generator killed by SIGSEGV replays as the serial line ended: 'make: *** [Makefile:2: all] Segmentation fault' vs 'make: *** [Makefile:2: all] Segmentation fault'
+[PASS] an image generator killed by SIGKILL replays as the serial line ended: 'make: *** [Makefile:2: all] Killed' vs 'make: *** [Makefile:2: all] Killed'
+PASS generator control accepted
+[FAIL] an image generator killed by SIGSEGV replays as the serial line ended: '' vs 'make: *** [Makefile:2: all] Segmentation fault'
+[FAIL] an image generator killed by SIGKILL replays as the serial line ended: '' vs 'make: *** [Makefile:2: all] Killed'
+PASS generator mutation rejected
+[PASS] pass 1's kept transcript made unreadable: rc 2, pass 0 printed, the diagnostic printed, nothing after it
+PASS print control accepted
+[FAIL] pass 1's kept transcript made unreadable: rc 0, pass 0 printed, the diagnostic missing, nothing after it
+PASS print mutation rejected
+PASS 3 controls and 3 targeted mutations

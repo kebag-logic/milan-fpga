@@ -1,0 +1,186 @@
+diff --git a/docs/TEST_DEVELOPER.md b/docs/TEST_DEVELOPER.md
+index ae23dad..3c0d686 100644
+--- a/docs/TEST_DEVELOPER.md
++++ b/docs/TEST_DEVELOPER.md
+@@ -22,6 +22,7 @@ Terms are defined in the [glossary](GLOSSARY.md).
+ | Python | `tb/mutation_verdict.py` | Reads each mutant's verdict from suite output |
+ | Python | `tb/mutation_jobs_test.py` | Compares engine mutation output across jobs and caches |
+ | Python | `tb/mutation_order_test.py` | Checks engine verdict order with stubbed mutants |
++| Python | `tb/engine_passes_test.py` | Checks engine pass order, budget and signals with stub tools |
+ | Python | `tb/tsngen/run_tsngen.py` | Cross-checks frames against independent protocol decoders |
+ | Python | `scripts/check_docs.py` | Checks documentation rules and generated values |
+ | Python | `scripts/check_docs_selftest.py` | Plants documentation defects the docs gate must catch |
+diff --git a/tb/verilator/engine/passes_test.py b/tb/engine_passes_test.py
+similarity index 93%
+rename from tb/verilator/engine/passes_test.py
+rename to tb/engine_passes_test.py
+index 772de32..c7d721a 100644
+--- a/tb/verilator/engine/passes_test.py
++++ b/tb/engine_passes_test.py
+@@ -1,14 +1,20 @@
+ #!/usr/bin/env python3
+ # SPDX-FileCopyrightText: 2026 Kebag Logic
+ # SPDX-License-Identifier: CERN-OHL-W-2.0
+-"""#111: `make run`'s scheduled passes against the serial recipe, with stub tools.
++"""#111: the engine suite's scheduled passes against the serial recipe, with stub tools.
+ 
+-usage: passes_test.py
++usage: engine_passes_test.py
+ 
+-Copies this Makefile and pass_run.py into a scratch tree, beside a reference
+-Makefile whose `run` is the serial recipe the passes replaced, and runs both
+-with a stub Verilator, a stub image generator and a stub simulator. Each stub
+-pass prints to standard output and standard error and ends as a plan says.
++`make -C tb/verilator/engine passes-test` runs it. Like
++`mutation_order_test.py` and `mutation_jobs_test.py`, it tests how the
++suite's runner schedules real processes, not the RTL, so it sits beside them
++and outside the suite directories (#113).
++
++Copies the engine's Makefile and pass_run.py into a scratch tree, beside a
++reference Makefile whose `run` is the serial recipe the passes replaced, and
++runs both with a stub Verilator, a stub image generator and a stub
++simulator. Each stub pass prints to standard output and standard error and
++ends as a plan says.
+ The checks:
+ 
+ 1. The transcript and the exit status equal the serial recipe's, byte for
+@@ -56,7 +62,8 @@ import tempfile
+ import time
+ from pathlib import Path
+ 
+-HERE = Path(__file__).resolve().parent
++#: The engine suite, whose Makefile and pass_run.py are under test.
++ENGINE = Path(__file__).resolve().parent / "verilator" / "engine"
+ START = "# #111: the four passes are independent"
+ END = "# #111: the serial order, the budget"
+ SERIAL = """run: gptp_ucode.hex
+@@ -167,7 +174,7 @@ def tree(scratch: Path) -> dict[str, Path]:
+     for name, text in (("sim.py", SIM), ("verilator.py", VERILATOR), ("gen.py", GEN), ("hog.py", HOG)):
+         (stub / name).write_text(text)
+     (stub / "verilator.py").chmod(0o755)
+-    real = (HERE / "Makefile").read_text()
++    real = (ENGINE / "Makefile").read_text()
+     assert real.count(START) == 1 and real.count(END) == 1, "the Makefile's #111 anchors moved"
+     serial = real[:real.index(START)] + SERIAL + real[real.index(END):]
+     trees = {}
+@@ -175,13 +182,13 @@ def tree(scratch: Path) -> dict[str, Path]:
+         engine = scratch / name / "engine"
+         engine.mkdir(parents=True)
+         (engine / "Makefile").write_text(text)
+-        shutil.copy(HERE / "pass_run.py", engine)
++        shutil.copy(ENGINE / "pass_run.py", engine)
+         trees[name] = engine
+     (scratch / "parallel" / "Makefile").write_text(TOP)
+     return trees
+ 
+ 
+-def make(engine: Path, flags: list[str], plan: dict, events: Path, stdout: int | None = None,
++def make(engine: Path, flags: list[str], plan: dict, events: Path,
+          directory: Path | None = None, target: str = "run") -> subprocess.CompletedProcess:
+     """One make run with the stubs; its captured streams and status."""
+     stub = engine.parents[1] / "stub"
+@@ -191,7 +198,7 @@ def make(engine: Path, flags: list[str], plan: dict, events: Path, stdout: int |
+     args = ["make", *flags, target, "VERILATOR=../../stub/verilator.py", "GEN=../../stub/gen.py"]
+     subprocess.run(["make", "-s", "clean"], cwd=engine, check=True, env=env)
+     return subprocess.run(args, cwd=directory or engine, env=env, text=True, preexec_fn=no_cores, timeout=120,
+-                          stdout=subprocess.PIPE if stdout is None else stdout, stderr=subprocess.PIPE)
++                          stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+ 
+ 
+ def no_cores() -> None:
+@@ -202,6 +209,7 @@ def no_cores() -> None:
+ 
+ 
+ def read(events: Path) -> list[dict]:
++    """The stub jobs' recorded events, none before the first."""
+     return [json.loads(line) for line in events.read_text().splitlines()] if events.exists() else []
+ 
+ 
+@@ -346,7 +354,7 @@ def replay_cwd(trees: dict[str, Path], scratch: Path) -> int:
+              "    os._exit(0)\n"
+              "os.kill = kill\n"
+              "sys.argv = ['pass_run.py', 'replay', '0']\n"
+-             f"runpy.run_path({str(Path(__file__).resolve().parent / 'pass_run.py')!r}, run_name='__main__')\n")
++             f"runpy.run_path({str(ENGINE / 'pass_run.py')!r}, run_name='__main__')\n")
+     subprocess.run([sys.executable, "-c", probe], cwd=state.parent.parent,
+                    stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=60)
+     where = seen.read_text() if seen.exists() else None
+@@ -359,7 +367,7 @@ def gen_signal(trees: dict[str, Path], scratch: Path) -> int:
+     """Check 7: an image generator whose shell died of a signal (a shell that execs, as dash does) ends as the serial
+     line did: make reports the signal, not 128+n. A crafted record stands in for the run on any host's shell."""
+     bad = 0
+-    tool = Path(__file__).resolve().parent / "pass_run.py"
++    tool = ENGINE / "pass_run.py"
+     for signum in (signal.SIGSEGV, signal.SIGKILL):
+         runs = {}
+         for form in ("replay", "serial"):
+@@ -387,11 +395,13 @@ def no_core_replay(trees: dict[str, Path], scratch: Path) -> int:
+     """Check 8: a replayed signal death recorded without a core ends as a non-dumpable serial death does, under a
+     caller core limit of (0, 0) and of (1, unlimited hard), whatever the host's core_pattern."""
+     bad = 0
+-    tool = Path(__file__).resolve().parent / "pass_run.py"
++    tool = ENGINE / "pass_run.py"
+     die = (f"exec python3 -c 'import ctypes, os; ctypes.CDLL(None).prctl(4, 0, 0, 0, 0); "
+            f"os.kill(os.getpid(), {int(signal.SIGSEGV)})'")
+     for limit in ((0, 0), (1, resource.RLIM_INFINITY)):
+-        def caller(limit=limit) -> None:
++        def caller(limit: tuple[int, int] = limit) -> None:
++            """In the make child: the core limit `limit`, held within the hard limit, and INT and QUIT at their
++            defaults."""
+             hard = resource.getrlimit(resource.RLIMIT_CORE)[1]
+             unlimited = limit[1] == resource.RLIM_INFINITY
+             want = (min(1, hard), hard) if unlimited and hard != resource.RLIM_INFINITY else limit
+@@ -421,6 +431,7 @@ def no_core_replay(trees: dict[str, Path], scratch: Path) -> int:
+ 
+ 
+ def main() -> int:
++    """Every check against a scratch tree of stubs; 1 when any failed."""
+     with tempfile.TemporaryDirectory(prefix="engine-passes-test-") as name:
+         scratch = Path(name)
+         trees = tree(scratch)
+diff --git a/tb/verilator/engine/Makefile b/tb/verilator/engine/Makefile
+index a15a4bb..31024eb 100644
+--- a/tb/verilator/engine/Makefile
++++ b/tb/verilator/engine/Makefile
+@@ -94,8 +94,10 @@ engine-pass3:
+ 
+ # #111: the serial order, the budget, the fail-fast stop and the signals, all
+ # against the serial recipe, with stub tools in a scratch copy; about 90 s.
++# #113: the test watches real processes on the host's clock, so, like the
++# mutation arm's order and jobs tests, it sits in tb/, outside the suite.
+ passes-test:
+-	python3 passes_test.py
++	python3 ../../engine_passes_test.py
+ 
+ # Rule 8: prove the checks above are load-bearing. Defects are injected into
+ # the real engine RTL and the real micro-code generator, one per mutant, and
+diff --git a/tb/verilator/engine/pass_run.py b/tb/verilator/engine/pass_run.py
+index cbf387b..e4c53f1 100644
+--- a/tb/verilator/engine/pass_run.py
++++ b/tb/verilator/engine/pass_run.py
+@@ -102,14 +102,17 @@ def run(n: int, directory: str | None, generate: str | None, argv: list[str], ig
+     child: list[subprocess.Popen] = []
+ 
+     def chunk(stream: int, data: bytes) -> None:
++        """Keep `data` as one record of the transcript: the stream (1 or 2), its length, then the bytes."""
+         log.write(bytes([stream]) + len(data).to_bytes(4, "big") + data)
+ 
+     def forward(signum: int, _frame: object) -> None:
++        """Pass an INT, TERM, QUIT or HUP on to the simulator and all below it, and remember it for the end."""
+         received.append(signum)
+         if child and child[0].returncode is None:
+             signal_all(child[0].pid, signum)
+ 
+     def stop(_signum: int, _frame: object) -> None:
++        """An earlier pass's SIGUSR1: if that pass failed, mark this one stopped and end its simulator."""
+         if failed_before(n):
+             record["stopped"] = True
+             if child and child[0].returncode is None:
+@@ -262,6 +265,7 @@ def reraise(signum: int, core: bool) -> None:
+ 
+ 
+ def main() -> int:
++    """Run or replay one pass, as the command line names it."""
+     parser = argparse.ArgumentParser(description=__doc__.split("\n", 1)[0])
+     parser.add_argument("--ignore-errors", action="store_true", help="make runs with -i")
+     sub = parser.add_subparsers(dest="what", required=True)

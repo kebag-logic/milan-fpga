@@ -1,0 +1,22 @@
+[PASS] make -j1 run: at most 1 passes at once (budget 1)
+[FAIL] make -j2 run: at most 1 passes at once (budget 2)
+[PASS] make -j4 run: at most 4 passes at once (budget 4)
+[PASS] a parent make -j3 with two other jobs: 4 passes ran, at most 3 jobs at once in all (budget 3, reached)
+[PASS] make -j4: pass 1 fails and the run ends in 4.6 s; passes started ['pass0', 'pass1', 'pass2', 'pass3'], all ended
+[PASS] make -j1: pass 1 fails and the run ends in 5.8 s; passes started ['pass0', 'pass1'], all ended
+repeat 0 failures 1
+[PASS] make -j1 run: at most 1 passes at once (budget 1)
+[PASS] make -j2 run: at most 2 passes at once (budget 2)
+[FAIL] make -j4 run: at most 3 passes at once (budget 4)
+[PASS] a parent make -j3 with two other jobs: 4 passes ran, at most 3 jobs at once in all (budget 3, reached)
+[PASS] make -j4: pass 1 fails and the run ends in 4.2 s; passes started ['pass0', 'pass1', 'pass2', 'pass3'], all ended
+[PASS] make -j1: pass 1 fails and the run ends in 8.6 s; passes started ['pass0', 'pass1'], all ended
+repeat 1 failures 1
+[PASS] make -j1 run: at most 1 passes at once (budget 1)
+[PASS] make -j2 run: at most 2 passes at once (budget 2)
+[PASS] make -j4 run: at most 4 passes at once (budget 4)
+[PASS] a parent make -j3 with two other jobs: 4 passes ran, at most 3 jobs at once in all (budget 3, reached)
+[PASS] make -j4: pass 1 fails and the run ends in 2.3 s; passes started ['pass0', 'pass1', 'pass2', 'pass3'], all ended
+[PASS] make -j1: pass 1 fails and the run ends in 3.6 s; passes started ['pass0', 'pass1'], all ended
+repeat 2 failures 0
+observed timing failures 2
