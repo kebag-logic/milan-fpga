@@ -82,6 +82,7 @@ Publish conflicts before continuing.
 | Review the split placement's firmware memory | [Split control memory, M8a-1](design/SPLIT_CONTROL_MEMORY.md) |
 | Review the Mark II 32x32 datapath | [Mark II stream engines, proposed](design/MARK_II_STREAM_ENGINES.md) |
 | Review input-mapped loopback design | [Loopback topology approved](design/INPUT_MAPPED_LOOPBACK.md) |
+| Review the optional USB audio transport | [USB audio path and qualification](design/USB_AUDIO_PATH.md) |
 
 ## Verification
 

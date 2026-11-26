@@ -172,6 +172,7 @@
 `default_nettype none
 
 module KL_render_queue #(
+  parameter int unsigned SAMPLE_BITS_P = 24, //! 24 default, 32 preserves USB subslots
   parameter int unsigned N_STREAMS_P   = 8,   //! listener streams (<= 8, the
                                               //! crossbar's map field)
   parameter int unsigned N_CH_P        = 8,   //! wire channels kept per
@@ -262,6 +263,11 @@ module KL_render_queue #(
   output logic [15:0]              untimed_o,    //! PDUs without a frame
   output logic [15:0]              slips_o       //! gaps and overlaps
 );
+
+  initial begin : sample_width_guard
+    if (SAMPLE_BITS_P != 24 && SAMPLE_BITS_P != 32)
+      $error("render sample width must be 24 or 32");
+  end : sample_width_guard
 
   // ------------------------------------------------------------------ //
   // Derived shape                                                       //
@@ -390,13 +396,13 @@ module KL_render_queue #(
   // ------------------------------------------------------------------ //
   // Storage: two banks, a 24-bit sample and its valid bit per word       //
   // ------------------------------------------------------------------ //
-  (* ram_style = "block" *) logic [24:0] bank0_r [DEPTH_C];
-  (* ram_style = "block" *) logic [24:0] bank1_r [DEPTH_C];
+  (* ram_style = "block" *) logic [SAMPLE_BITS_P:0] bank0_r [DEPTH_C];
+  (* ram_style = "block" *) logic [SAMPLE_BITS_P:0] bank1_r [DEPTH_C];
 
   logic              we0_w, we1_w;
   logic [AW_C-1:0]   wa0_w, wa1_w, ra_w;
-  logic [24:0]       wd0_w, wd1_w;
-  logic [24:0]       rd0_r, rd1_r;
+  logic [SAMPLE_BITS_P:0]       wd0_w, wd1_w;
+  logic [SAMPLE_BITS_P:0]       rd0_r, rd1_r;
   logic              fl_rd_w;      //! the stream read is flushing
 
   always_ff @(posedge clk_i) begin : bank0_write
@@ -483,8 +489,12 @@ module KL_render_queue #(
 
   //! the two samples of the beat (the crossbar's decode: wire byte first =
   //! MSB, the pad byte dropped)
-  wire [23:0] smp0_w = {s_tdata_i[7:0],   s_tdata_i[15:8],  s_tdata_i[23:16]};
-  wire [23:0] smp1_w = {s_tdata_i[39:32], s_tdata_i[47:40], s_tdata_i[55:48]};
+  wire [SAMPLE_BITS_P-1:0] smp0_w = SAMPLE_BITS_P'(
+      {s_tdata_i[7:0], s_tdata_i[15:8], s_tdata_i[23:16], s_tdata_i[31:24]}
+      >> (32-SAMPLE_BITS_P));
+  wire [SAMPLE_BITS_P-1:0] smp1_w = SAMPLE_BITS_P'(
+      {s_tdata_i[39:32], s_tdata_i[47:40], s_tdata_i[55:48], s_tdata_i[63:56]}
+      >> (32-SAMPLE_BITS_P));
   wire [3:0]  ch0_w  = sof_r ? 4'd0 : chpos_r;
   wire [3:0]  ch1_w  = chwrap(ch0_w, c_in_w);
   wire        cmpl0_w = (ch0_w == 4'(c_in_w - 4'd1));
@@ -671,13 +681,18 @@ module KL_render_queue #(
   logic       rany_r;          //! a sample on an earlier beat of this event
 
   //! an empty, invalidated or flushing lane reads all zero (the banks)
-  wire  [24:0] even_w = rodd_r ? rd1_r : rd0_r;
-  wire  [24:0] odd_w  = rodd_r ? rd0_r : rd1_r;
+  wire  [SAMPLE_BITS_P:0] even_w = rodd_r ? rd1_r : rd0_r;
+  wire  [SAMPLE_BITS_P:0] odd_w  = rodd_r ? rd0_r : rd1_r;
   //! this event had a sample on some beat
-  wire         any_w  = rany_r || rd0_r[24] || rd1_r[24];
+  wire         any_w  = rany_r || rd0_r[SAMPLE_BITS_P] || rd1_r[SAMPLE_BITS_P];
 
-  assign m_tdata_o[63:0] = {8'h00, odd_w[7:0],  odd_w[15:8],  odd_w[23:16],
-                      8'h00, even_w[7:0], even_w[15:8], even_w[23:16]};
+  if (SAMPLE_BITS_P == 24) begin : g_pcm24
+    assign m_tdata_o[63:0] = {8'h00, odd_w[7:0], odd_w[15:8], odd_w[23:16],
+                            8'h00, even_w[7:0], even_w[15:8], even_w[23:16]};
+  end else begin : g_pcm32
+    assign m_tdata_o[63:0] = {odd_w[7:0], odd_w[15:8], odd_w[23:16], odd_w[31:24],
+                            even_w[7:0], even_w[15:8], even_w[23:16], even_w[31:24]};
+  end
   assign m_tlast_o = rlast_r;
   assign m_tuser_o = rs_r;
   always_comb begin : tvalid_fan
@@ -828,7 +843,7 @@ module KL_render_queue #(
                          || (32'(idle_cyc_r) == IDLE_CYC_C);
     wire [FW_C-1:0] age_w = n_now_w - cons_w;
     wire [31:0] target_ns_w = ev_ns_i + 32'((64'(KMIN_C + 1) * PS3_L) / 3);
-    wire [24:0] returned_w = return_bank_r ? rd1_r : rd0_r;
+    wire [SAMPLE_BITS_P:0] returned_w = return_bank_r ? rd1_r : rd0_r;
     assign input_clock_flush_w = (32'(idle_cyc_r) == IDLE_CYC_C);
     assign copy_stream_w = {1'b0, entry_w[5:3]};
     assign copy_channel_w = entry_w[2:0];
@@ -862,7 +877,7 @@ module KL_render_queue #(
     always_ff @(posedge clk_i) begin : input_ram_write
       if (return_r)
         samples_r[{cons_w[2:0], return_addr_r}] <=
-            (return_valid_r && returned_w[24]) ? returned_w[23:0] : 24'd0;
+            (return_valid_r && returned_w[SAMPLE_BITS_P]) ? returned_w[SAMPLE_BITS_P-1 -: 24] : 24'd0;
     end : input_ram_write
     always_ff @(posedge clk_i) begin : input_ram_read
       if (input_read_i) read_data_r <= samples_r[{active_page_r, input_addr_i}];
@@ -1121,7 +1136,7 @@ module KL_render_queue #(
   //! frame's bits above the row index name its lap, which the row's
   //! invalidation already settles
   wire _unused_ok = &{1'b0, s_tdata_i[63:56], s_tdata_i[31:24], rd_fr_w[FW_C-1:RW_C],
-                      even_w[24], odd_w[24], 1'b0};
+                      even_w[SAMPLE_BITS_P], odd_w[SAMPLE_BITS_P], 1'b0};
 
   always_comb begin : taps
     for (int unsigned s = 0; s < N_STREAMS_P; s++) begin

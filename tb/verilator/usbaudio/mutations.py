@@ -3,14 +3,15 @@
 # SPDX-License-Identifier: CERN-OHL-W-2.0
 """Plant one protocol-leaf defect at a time; require its named runtime check.
 
-The output directory must be new. No cleanup is performed. Optional temporary
-filenames are recorded in the supplied ledger before the build starts.
+The output directory must be new. Optional temporary filenames are recorded
+before builds. Completed builds may be removed after logging their paths.
 Compilation failures and unrelated runtime failures never count as detections.
 """
 from __future__ import annotations
 
 import argparse
 import json
+import os
 from pathlib import Path
 import resource
 import shutil
@@ -48,8 +49,8 @@ PLANTS = (
     ("feedback_scale", "feedback", "16 - WINDOW_LOG2_P", "15 - WINDOW_LOG2_P", "FEEDBACK_VALUE"),
     ("feedback_window", "feedback", "if (&intervals_r)", "if (intervals_r == 8190)", "FEEDBACK_WINDOW_LENGTH"),
     ("feedback_reference", "feedback", "else if (interval_i)", "else if (locked_i)", "FEEDBACK_WINDOW_LENGTH"),
-    ("feedback_unlock", "feedback", "locked_i ? feedback_r : 32'd0",
-     "locked_i ? feedback_r : 32'h00060000", "FEEDBACK_UNLOCKED"),
+    ("feedback_unlock", "feedback", "locked_i && measured_o ? feedback_r : 32'd0",
+     "locked_i && measured_o ? feedback_r : 32'h00060000", "FEEDBACK_UNLOCKED"),
 )
 
 
@@ -62,10 +63,11 @@ def main() -> int:
     parser.add_argument("--cleanup-ledger", type=Path)
     parser.add_argument("--temporary-file", action="append", default=[])
     parser.add_argument("--only", action="append", default=[])
+    parser.add_argument("--discard-builds", action="store_true")
     args = parser.parse_args()
     if args.jobs < 1:
         parser.error("jobs must be positive")
-    if args.temporary_file and not args.cleanup_ledger:
+    if (args.temporary_file or args.discard_builds) and not args.cleanup_ledger:
         parser.error("temporary filenames require a cleanup ledger")
     args.out.mkdir(parents=True, exist_ok=False)
     resource.setrlimit(resource.RLIMIT_CORE, (0, 0))
@@ -116,6 +118,12 @@ def main() -> int:
                             "result": "CAUGHT" if caught else "NOT_CAUGHT"})
         (args.out / "results.json").write_text(json.dumps(results, indent=2) + "\n")
         print(json.dumps(results[-1]), flush=True)
+        if args.discard_builds and obj.is_dir():
+            with args.cleanup_ledger.open("a") as ledger:
+                ledger.write(f"Planned completed build removal: {obj.resolve()}\n")
+                ledger.flush()
+                os.fsync(ledger.fileno())
+            shutil.rmtree(obj)
     return 0 if all(row["result"] == "CAUGHT" for row in results) else 1
 
 

@@ -377,6 +377,7 @@
 `default_nettype none
 
 module KL_chan_map_capture #(
+  parameter int unsigned SAMPLE_BITS_P = 24, //! optional full-subslot TDM storage
   parameter int INPUT_LOOPBACK_P = 0, //! synchronous input-buffer source
   parameter int unsigned N_SLOTS_P = 32,   //! TX pair slots (prefix-sum space)
   parameter int unsigned N_TDM_P   = 8,    //! TDM slots (pairs = N_TDM_P/2)
@@ -453,8 +454,8 @@ module KL_chan_map_capture #(
   //! (TDM FRAME HANDOFF).
   input  wire         tdm_pair_valid_i /* verilator public_flat_rd */,  //! latch pulse
   input  wire [3:0]   tdm_pair_slot_i,   //! TDM pair index (0..N_TDM_P/2-1)
-  input  wire [23:0]  tdm_l_i,
-  input  wire [23:0]  tdm_r_i,
+  input  wire [SAMPLE_BITS_P-1:0]  tdm_l_i,
+  input  wire [SAMPLE_BITS_P-1:0]  tdm_r_i,
   //! #632: the instant the frame closed by THIS strobe started at the media
   //! interface (KL_media_domain_event mark_ns_o), low 32 bits, which are all
   //! an avtp_timestamp carries. It is banked with the frame and loaded into
@@ -497,8 +498,8 @@ module KL_chan_map_capture #(
   //! --- pair injection to the shared packetizer (its capture contract) ----
   output logic        pair_valid_o,      //! one-cycle pulse per L/R pair
   output logic [4:0]  pair_slot_o,       //! pair slot 0..31 (widened space)
-  output logic [23:0] pair_l_o,
-  output logic [23:0] pair_r_o,
+  output logic [SAMPLE_BITS_P-1:0] pair_l_o,
+  output logic [SAMPLE_BITS_P-1:0] pair_r_o,
 
   //! --- LOOP queue slip evidence (saturating; ZERO with locked clocks) ----
   output logic [15:0] lb_dup_cnt_o,      //! empty-at-tick repeats (fed pairs)
@@ -522,6 +523,10 @@ module KL_chan_map_capture #(
   // ---------------------------------------------------------------------- //
   // Derived sizing                                                          //
   // ---------------------------------------------------------------------- //
+  initial begin : sample_width_guard
+    if (SAMPLE_BITS_P != 24 && SAMPLE_BITS_P != 32)
+      $error("capture sample width must be 24 or 32");
+  end : sample_width_guard
   localparam int unsigned SLOTW_C      = $clog2(N_SLOTS_P);
   localparam int unsigned N_TDM_PAIRS_C = (N_TDM_P < 2) ? 1 : N_TDM_P / 2;
   localparam int unsigned TDMPW_C      = (N_TDM_PAIRS_C <= 1) ? 1
@@ -630,17 +635,17 @@ module KL_chan_map_capture #(
   // ---------------------------------------------------------------------- //
   logic [47:0] i2s_hold_r;               //! the single stereo I2S pair
   //! STAGE: each TDM pair strobe writes its own pair (the pre-#617 hold)
-  logic [47:0] tdm_stage_r [N_TDM_PAIRS_C];
+  logic [2*SAMPLE_BITS_P-1:0] tdm_stage_r [N_TDM_PAIRS_C];
   //! FRAME: the newest complete TDM frame, published in one edge by the
   //! strobe of the frame's last pair. public_flat_rd: the slot-indexed
   //! physical bucket was tied off in milan_datapath until 0x0042, so "was it
   //! ever written" is the check that a physical cluster beyond channels 0..1
   //! can be backed at all - and it is the one a tie-off regression would trip.
-  logic [47:0] tdm_frame_r [N_TDM_PAIRS_C] /* verilator public_flat_rd */;
+  logic [2*SAMPLE_BITS_P-1:0] tdm_frame_r [N_TDM_PAIRS_C] /* verilator public_flat_rd */;
   //! ...and the instant that frame started at the media interface (#632)
   logic [31:0] tdm_frame_ns_r;
 
-  wire [47:0] tdm_pair_w  = {tdm_l_i, tdm_r_i};
+  wire [2*SAMPLE_BITS_P-1:0] tdm_pair_w  = {tdm_l_i, tdm_r_i};
   wire        tdm_stage_w = tdm_pair_valid_i &&
                             (32'(tdm_pair_slot_i) < N_TDM_PAIRS_C);
   //! the frame's closing pair: its strobe closes and publishes the frame
@@ -1279,7 +1284,7 @@ module KL_chan_map_capture #(
   //! the snapshot cycle and the next, and the counters count exactly the
   //! walk's repeats and skips. milan_datapath keys the grid aligner's lock
   //! target on that same crossing.
-  logic [47:0] tdm_walk_r [N_TDM_PAIRS_C];
+  logic [2*SAMPLE_BITS_P-1:0] tdm_walk_r [N_TDM_PAIRS_C];
   logic        tdm_snap_late_r;          //! load the frame that closed on the snapshot
   wire         tdm_snap_take_w = tdm_snap_w && tdm_close_w && !tdm_frame_pend_r;
 
@@ -1316,15 +1321,18 @@ module KL_chan_map_capture #(
   localparam int unsigned CAND_LOOP_C = CAND_TDM_C + 2 * N_TDM_PAIRS_C;
   localparam int unsigned N_CAND_C    = CAND_LOOP_C + 2 * LB_PAIRS_C;
   localparam int unsigned CANDW_C     = $clog2(N_CAND_C);
-  logic [23:0] cand_w [N_CAND_C];
+  logic [SAMPLE_BITS_P-1:0] cand_w [N_CAND_C];
   always_comb begin : source_table
     cand_w[0] = 24'd0;
-    {cand_w[1], cand_w[2]} = i2s_hold_r;
-    cand_w[3] = tone_smp_i;
+    cand_w[1] = {i2s_hold_r[47:24], {(SAMPLE_BITS_P-24){1'b0}}};
+    cand_w[2] = {i2s_hold_r[23:0], {(SAMPLE_BITS_P-24){1'b0}}};
+    cand_w[3] = {tone_smp_i, {(SAMPLE_BITS_P-24){1'b0}}};
     for (int p = 0; p < int'(N_TDM_PAIRS_C); p++)
       {cand_w[CAND_TDM_C + 2*p], cand_w[CAND_TDM_C + 2*p + 1]} = tdm_walk_r[p];
-    for (int q = 0; q < int'(LB_PAIRS_C); q++)
-      {cand_w[CAND_LOOP_C + 2*q], cand_w[CAND_LOOP_C + 2*q + 1]} = lb_hold_r[q];
+    for (int q = 0; q < int'(LB_PAIRS_C); q++) begin
+      cand_w[CAND_LOOP_C + 2*q] = {lb_hold_r[q][47:24], {(SAMPLE_BITS_P-24){1'b0}}};
+      cand_w[CAND_LOOP_C + 2*q+1] = {lb_hold_r[q][23:0], {(SAMPLE_BITS_P-24){1'b0}}};
+    end
   end : source_table
 
   //! per-channel decode: entry {en, half, src, idxh, idx} -> the row of
@@ -1364,8 +1372,8 @@ module KL_chan_map_capture #(
   //! entry's own enable, so the FSM below stays branch-free.
   wire [CANDW_C-1:0] row_l_w = source_row(ent_l_w);
   wire [CANDW_C-1:0] row_r_w = source_row(ent_r_w);
-  wire [23:0] out_l_w = (32'(row_l_w) < N_CAND_C) ? cand_w[row_l_w] : 24'd0;
-  wire [23:0] out_r_w = (32'(row_r_w) < N_CAND_C) ? cand_w[row_r_w] : 24'd0;
+  wire [SAMPLE_BITS_P-1:0] out_l_w = (32'(row_l_w) < N_CAND_C) ? cand_w[row_l_w] : '0;
+  wire [SAMPLE_BITS_P-1:0] out_r_w = (32'(row_r_w) < N_CAND_C) ? cand_w[row_r_w] : 24'd0;
 
   wire input_step_done_w;
   wire [23:0] input_pair_l_w, input_pair_r_w;
@@ -1483,8 +1491,8 @@ module KL_chan_map_capture #(
           st_r         <= CM_GAP_S;
           if (INPUT_LOOPBACK_P != 0) begin
             if (input_step_done_w) begin
-              pair_l_o <= input_pair_l_w;
-              pair_r_o <= input_pair_r_w;
+              pair_l_o <= {input_pair_l_w, {(SAMPLE_BITS_P-24){1'b0}}};
+              pair_r_o <= {input_pair_r_w, {(SAMPLE_BITS_P-24){1'b0}}};
             end else begin
               pair_valid_o <= 1'b0;
               pair_slot_o <= pair_slot_o;

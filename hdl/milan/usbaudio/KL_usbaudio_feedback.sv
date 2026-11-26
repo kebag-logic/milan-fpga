@@ -5,7 +5,8 @@
 // A PCLK divider cannot provide interval_i. Integration must prove its source.
 `default_nettype none
 module KL_usbaudio_feedback #(
-  parameter int unsigned WINDOW_LOG2_P = 13 //! window of USB microframes
+  parameter int unsigned WINDOW_LOG2_P = 13, //! window of USB microframes
+  parameter int unsigned INTERVAL_LOG2_P = 0 //! selected reference stride
 )(
   input wire clk_i, //! measurement domain clock
   input wire rst_n, //! synchronous session reset, active low
@@ -16,12 +17,12 @@ module KL_usbaudio_feedback #(
   output logic measured_o //! one full measurement window completed
 );
   logic started_r;
-  logic [WINDOW_LOG2_P-1:0] intervals_r;
+  logic [WINDOW_LOG2_P-INTERVAL_LOG2_P-1:0] intervals_r;
   logic [31:0] baseline_r, feedback_r;
   wire [31:0] events_w = media_events_i - baseline_r;
-  assign feedback_q16_o = locked_i ? feedback_r : 32'd0;
+  assign feedback_q16_o = locked_i && measured_o ? feedback_r : 32'd0;
   initial begin : parameter_guard
-    if (WINDOW_LOG2_P < 3 || WINDOW_LOG2_P > 16)
+    if (WINDOW_LOG2_P < 3 || WINDOW_LOG2_P > 16 || INTERVAL_LOG2_P >= WINDOW_LOG2_P)
       $error("feedback window must fit Q16.16 event scaling");
   end : parameter_guard
   always_ff @(posedge clk_i) begin : feedback_engine
@@ -29,7 +30,7 @@ module KL_usbaudio_feedback #(
       started_r <= 0;
       intervals_r <= 0;
       baseline_r <= 0;
-      feedback_r <= 32'h00060000;
+      feedback_r <= 0;
       measured_o <= 0;
     end else if (interval_i) begin
       if (!started_r) begin

@@ -63,6 +63,7 @@
 
 module milan_datapath import ethernet_packet_pkg::*; #(
   parameter int TDATA_WIDTH = 64,
+  parameter bit USBAUDIO_P = 1'b0, //! optional eight-channel USB queue boundary
   //! axis_clk frequency (AX7101 100 MHz, Arty 50 MHz) — AECP lock-timer divider.
   parameter int MILAN_CLK_FREQ_HZ = 100_000_000,
   //! the fabric gPTP plane (issue #110/#114): elaboration-time option.
@@ -396,6 +397,20 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! milan_soc.py refuses a contract with another count.
   parameter int CTRL_ENTRIES_P = 16
 )(
+  input wire usb_pair_valid_i, //! USB frame pair in the datapath domain
+  input wire [3:0] usb_pair_slot_i, //! channels 0..7 as pairs 0..3
+  input wire [31:0] usb_pair_l_i, //! complete left subslot
+  input wire [31:0] usb_pair_r_i, //! complete right subslot
+  input wire [31:0] usb_frame_ns_i, //! assigned media grid instant
+  input wire usb_capture_tick_i, //! complete USB frame ready for mapper snapshot
+  output wire usb_media_tick_o, //! authoritative media grid
+  output wire [31:0] usb_media_ns_o, //! that grid instant
+  output wire usb_media_locked_o, //! gPTP/media health
+  output wire [63:0] usb_render_data_o, //! render queue pair before 24-bit interfaces
+  output wire usb_render_valid_o, //! per-stream frame pair
+  output wire usb_render_last_o, //! end of frame for this stream
+  output wire [3:0] usb_render_stream_o, //! stream identity for explicit channel mapping
+  output wire usb_render_tick_o, //! complete render grid
   //! ---- AECP descriptor-image READ master (to the SoC's main memory) -----
   //! The protocol processor's entity model lives in DDR3. This is its fetch
   //! path, surfaced at the wrapper boundary rather than tied off inside it:
@@ -1339,7 +1354,8 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   // ==========================================================================
   wire        cmap_pv_w;
   wire [4:0]  cmap_slot_w;
-  wire [23:0] cmap_l_w, cmap_r_w;
+  localparam int USB_SAMPLE_BITS_C = USBAUDIO_P ? 32 : 24;
+  wire [USB_SAMPLE_BITS_C-1:0] cmap_l_w, cmap_r_w;
 
   //! Capture-side AECP map-write leg. The processor's atomic
   //! ADD/REMOVE_AUDIO_MAPPINGS transaction server drives it after every row
@@ -1486,6 +1502,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
 
 
   KL_chan_map_capture #(
+    .SAMPLE_BITS_P (USB_SAMPLE_BITS_C),
     .INPUT_LOOPBACK_P (INPUT_LOOPBACK_P),
     .N_SLOTS_P (N_STREAMS*4),
     .N_TDM_P   (CMAP_TDM_SLOTS_C),
@@ -1543,9 +1560,11 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     //! slave, TDM master, blend - emits the same {pair_valid, pair_slot, L, R}
     //! contract, so one wiring serves all of them; an I2S-only front end just
     //! parks at slot 0.
-    .tdm_pair_valid_i (aafcap_pv_w), .tdm_pair_slot_i (aafcap_slot_w),
-    .tdm_l_i (aafcap_l_w), .tdm_r_i (aafcap_r_w),
-    .tdm_close_ns_i (dom_mark_ns_w[31:0]),
+    .tdm_pair_valid_i (USBAUDIO_P ? usb_pair_valid_i : aafcap_pv_w),
+    .tdm_pair_slot_i (USBAUDIO_P ? usb_pair_slot_i : aafcap_slot_w),
+    .tdm_l_i (USBAUDIO_P ? USB_SAMPLE_BITS_C'(usb_pair_l_i) : USB_SAMPLE_BITS_C'(aafcap_l_w)),
+    .tdm_r_i (USBAUDIO_P ? USB_SAMPLE_BITS_C'(usb_pair_r_i) : USB_SAMPLE_BITS_C'(aafcap_r_w)),
+    .tdm_close_ns_i (USBAUDIO_P ? usb_frame_ns_i : dom_mark_ns_w[31:0]),
     //! the media-grid pilot (task #59): stepped by the same media_tick_p as
     //! the walk below, never the clk_audio-grid tone_smp
     .tone_smp_i (tone_smp_media),
@@ -1563,7 +1582,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     //! #645: every stream's queues take the settle recentre the render
     //! stage takes, at the same PDU end
     .lb_recentre_i ({LB_STREAMS_C{settle_recentre_p_r}}),
-    .tick_i (media_tick_p),
+    .tick_i (USBAUDIO_P ? usb_capture_tick_i : media_tick_p),
     .pair_valid_o (cmap_pv_w), .pair_slot_o (cmap_slot_w),
     .pair_l_o (cmap_l_w), .pair_r_o (cmap_r_w),
     //! honest-slip evidence (dup-on-empty / drop-oldest, ZERO at lock)
@@ -1634,11 +1653,11 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! cfg_chmap_enable (CHMAP_CTRL[0], documented with the chmap 0x900 fabric
   //! below) is declared here ahead of its first reader (#193).
   wire        cfg_chmap_enable;
-  wire        cap_xbar_live_w = aecp_odmap_dyn_w | cfg_chmap_enable;
+  wire        cap_xbar_live_w = USBAUDIO_P | aecp_odmap_dyn_w | cfg_chmap_enable;
   wire        pkt_pv_w   = cap_xbar_live_w ? cmap_pv_w   : zf_pv_w;
   wire [4:0]  pkt_slot_w = cap_xbar_live_w ? cmap_slot_w : zf_slot_w;
-  wire [23:0] pkt_l_w    = cap_xbar_live_w ? cmap_l_w    : zf_l_w;
-  wire [23:0] pkt_r_w    = cap_xbar_live_w ? cmap_r_w    : zf_r_w;
+  wire [USB_SAMPLE_BITS_C-1:0] pkt_l_w = cap_xbar_live_w ? cmap_l_w : USB_SAMPLE_BITS_C'(zf_l_w);
+  wire [USB_SAMPLE_BITS_C-1:0] pkt_r_w = cap_xbar_live_w ? cmap_r_w : USB_SAMPLE_BITS_C'(zf_r_w);
 
   //! lwsrp_adopt_valid/lwsrp_op_prio/lwsrp_op_vid: the Domain adoption
   //! pair the AAF C-TAG muxes read, declared ahead of aaf_packetizer,
@@ -1710,6 +1729,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! only (the avtp_timestamp); the high half is the live PHC's.
   wire [63:0] aaf_tbase_w;
   KL_aaf_packetizer #(.N_TALKERS_P(N_STREAMS),
+                      .SAMPLE_BITS_P (USB_SAMPLE_BITS_C),
                       .WIRE_CHANS_P(TALKER_WIRE_CHANS_P),
                       //! #773: the crossing estimate and the fixed delay
                       .LEAD_P        (1'b1),
@@ -8495,6 +8515,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     $error("input loopback requires its generated 16-key or 64-key topology");
   end
   KL_render_queue #(
+    .SAMPLE_BITS_P (USB_SAMPLE_BITS_C),
     .INPUT_LOOPBACK_P (INPUT_LOOPBACK_P),
     .INPUT_KEYS_P (AMAP_IN_KEYS_C),
     .INPUT_FIRST_P (INPUT_LOOP_FIRST_C),
@@ -8545,6 +8566,19 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .untimed_o    (rq_untimed_w),
     .slips_o      (rq_slips_w)
   );
+  assign usb_media_tick_o = USBAUDIO_P ? media_tick_p : 1'b0;
+  assign usb_media_ns_o = USBAUDIO_P ? dom_ns_w[31:0] : 32'd0;
+  assign usb_media_locked_o = USBAUDIO_P && ctr_mclk_lock_w && dom_live_w;
+  assign usb_render_data_o = USBAUDIO_P ? rq_tdata_w[63:0] : 64'd0;
+  assign usb_render_valid_o = USBAUDIO_P && rq_tvalid_w;
+  assign usb_render_last_o = USBAUDIO_P && rq_tlast_w;
+  assign usb_render_stream_o = USBAUDIO_P ? rq_tuser_w : 4'd0;
+  assign usb_render_tick_o = USBAUDIO_P && rq_render_tick_p_w;
+  if (USBAUDIO_P && (N_STREAMS != 1 || TALKER_WIRE_CHANS_P != 8 ||
+      AUDIO_IF_FS_HZ_P != 48000 || AUDIO_IF_SLOTS_P != 8 ||
+      AUDIO_IF_I2S_PAIR_P != 0 || INPUT_LOOPBACK_P != 0)) begin : g_usb_shape
+    $error("USB audio requires one eight-channel stream and its unblended 48 kHz grid");
+  end
   //! the whole render map, exported for the GET_AUDIO_MAP page walk (the
   //! single map_rd_* readback port stays the CSR CHMAP_SNAP path's - two
   //! independent readers of the same flops, by construction)

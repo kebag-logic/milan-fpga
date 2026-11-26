@@ -20,7 +20,8 @@ module KL_usbaudio_record #(
   output logic [2:0] frames_o, //! whole eight-channel frames, zero for state
   output logic [1791:0] pcm_o, //! seven frames maximum; channel zero in low bits
   output logic [31:0] rejected_o, //! rejected complete records, saturating
-  output logic [31:0] digest_errors_o //! rejected digests, saturating
+  output logic [31:0] digest_errors_o, //! rejected digests, saturating
+  output wire done_o //! last word consumed, including refused records
 );
   typedef enum logic [1:0] { HEADER_S, PAYLOAD_S, COMPLETE_S } state_t;
   state_t state_r;
@@ -38,6 +39,7 @@ module KL_usbaudio_record #(
   wire finish_digest_bad_w = state_r == HEADER_S ? data_i != DIGEST_P : digest_bad_r;
   assign ready_o = state_r != COMPLETE_S;
   assign record_valid_o = state_r == COMPLETE_S;
+  assign done_o = finish_w;
 
   always_ff @(posedge clk_i) begin : record_engine
     if (!rst_n) begin

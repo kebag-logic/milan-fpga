@@ -11,7 +11,7 @@ module protocol_tb;
   logic rst_n = 0;
   logic in_valid = 0, record_ready = 0;
   logic [15:0] in_data = 0;
-  wire in_ready, record_valid;
+  wire in_ready, record_valid, record_done;
   wire [31:0] playback_epoch, capture_epoch, rejected, digest_errors;
   wire [2:0] flags, frames;
   wire [1791:0] pcm;
@@ -20,7 +20,9 @@ module protocol_tb;
     .data_i(in_data), .record_valid_o(record_valid), .record_ready_i(record_ready),
     .playback_epoch_o(playback_epoch), .capture_epoch_o(capture_epoch),
     .flags_o(flags), .frames_o(frames), .pcm_o(pcm),
-    .rejected_o(rejected), .digest_errors_o(digest_errors));
+    .rejected_o(rejected), .digest_errors_o(digest_errors), .done_o(record_done));
+  always @(posedge clk) if (rst_n && record_done && !(in_valid && in_ready))
+    $fatal(1, "CHECK RECORD_DONE_TRANSFER");
   logic snapshot_valid = 0, status_ready = 0;
   logic [31:0] status_feedback = 0, status_rate = 0, status_epoch = 0;
   logic [3:0] status_flags = 0;
@@ -198,7 +200,7 @@ module protocol_tb;
     reset_all();
     check(feedback == 0, "FEEDBACK_UNLOCKED");
     locked = 1; step();
-    check(feedback == 'h60000 && !measured, "FEEDBACK_STARTUP");
+    check(feedback == 0 && !measured, "FEEDBACK_STARTUP");
     cumulative = 32'hffff8000;
     tick_interval(cumulative);
     for (int unsigned window = 0; window < 3; window++) begin
@@ -215,7 +217,7 @@ module protocol_tb;
     locked = 0; step();
     check(!measured && feedback == 0, "FEEDBACK_LOCK_LOSS");
     locked = 1; step();
-    check(!measured && feedback == 'h60000, "FEEDBACK_RELOCK");
+    check(!measured && feedback == 0, "FEEDBACK_RELOCK");
     $display("PASS feedback: 49152 and 49153 events, counter wrap, lock and reference gating");
   endtask
   initial begin

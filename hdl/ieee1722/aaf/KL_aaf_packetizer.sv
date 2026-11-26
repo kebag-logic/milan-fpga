@@ -91,6 +91,7 @@
 `default_nettype none
 
 module KL_aaf_packetizer #(
+  parameter int unsigned SAMPLE_BITS_P = 24, //! 32 preserves every subslot bit
   parameter int unsigned N_TALKERS_P = 1,  //! talker stream contexts
   //! THE WIRE CHANNEL CONSTANT (roadmap item 00). channels_per_frame this
   //! framer puts in every talker's AAF PDU out of reset - the 7.3.3 field
@@ -142,8 +143,8 @@ module KL_aaf_packetizer #(
                                          //! see header. Physical capture drives
                                          //! only 0..15; the chan-map mux uses
                                          //! the full width)
-  input  wire [23:0]  pair_l_i,
-  input  wire [23:0]  pair_r_i,
+  input  wire [SAMPLE_BITS_P-1:0]  pair_l_i,
+  input  wire [SAMPLE_BITS_P-1:0]  pair_r_i,
 
   //! --- per-talker admission gates (t0 = legacy aaf_gate) ----------------
   input  wire [N_TALKERS_P-1:0] stream_en_i,
@@ -243,6 +244,8 @@ module KL_aaf_packetizer #(
     $error("KL_aaf_packetizer: WIRE_CHANS_P=%0d is not an even 2..%0d. This is the channels_per_frame the framer emits (IEEE 1722-2016 7.3.3); the pair stream is 2-channel-granular so odd widths cannot be produced.",
            WIRE_CHANS_P, MAX_CHANS_C);
   localparam logic [3:0] WIRE_CHANS_C = 4'(WIRE_CHANS_P);
+  if (SAMPLE_BITS_P != 24 && SAMPLE_BITS_P != 32)
+    $error("AAF sample storage width must be 24 or 32");
   //! frame sizing at the C = MAX ceiling (fb/beat mux); the live frame ends
   //! at ebeats_w = np_w + 6 beats (42 + 8*np bytes, np = 3*C pairs)
   localparam int unsigned FRAME_BYTES_C = 14 + 4 + 24 + 24*MAX_CHANS_C; //! 234
@@ -313,11 +316,11 @@ module KL_aaf_packetizer #(
   // ======================================================================
   //  Sample staging RAM (double-banked, 6 pairs used of 8 per bank)
   // ======================================================================
-  logic [47:0]      stg_r [(1 << SAW_C)];
+  logic [2*SAMPLE_BITS_P-1:0]      stg_r [(1 << SAW_C)];
   logic             stg_we_w;
   logic [SAW_C-1:0] stg_waddr_w, stg_raddr_w;
-  logic [47:0]      stg_wdata_w;
-  logic [47:0]      stg_q_r;
+  logic [2*SAMPLE_BITS_P-1:0]      stg_wdata_w;
+  logic [2*SAMPLE_BITS_P-1:0]      stg_q_r;
 
   always_ff @(posedge clk_i) begin : stg_write_port
     if (stg_we_w) stg_r[stg_waddr_w] <= stg_wdata_w;
@@ -438,8 +441,8 @@ module KL_aaf_packetizer #(
   logic [47:0] edmac_r;
   logic [15:0] euid_r;
   logic [11:0] evid_r;
-  logic [23:0] buf_l_r [SAMPLES_PER_FRAME_C*MAX_PAIRS_C];
-  logic [23:0] buf_r_r [SAMPLES_PER_FRAME_C*MAX_PAIRS_C];
+  logic [SAMPLE_BITS_P-1:0] buf_l_r [SAMPLES_PER_FRAME_C*MAX_PAIRS_C];
+  logic [SAMPLE_BITS_P-1:0] buf_r_r [SAMPLES_PER_FRAME_C*MAX_PAIRS_C];
 
   //! per-frame shape from the chans mirror (clamped even 2..8)
   wire [3:0] echn_w   = chans_r[et_r];
@@ -537,10 +540,10 @@ module KL_aaf_packetizer #(
     // np pairs in payload order, so pair j always sits at bytes 42 + 8j.
     for (int j = 0; j < int'(SAMPLES_PER_FRAME_C*MAX_PAIRS_C); j++)
       if (32'(j) < 32'(np_w)) begin
-        fb[42+j*8+0]=buf_l_r[j][23:16]; fb[42+j*8+1]=buf_l_r[j][15:8];
-        fb[42+j*8+2]=buf_l_r[j][7:0];   fb[42+j*8+3]=8'h00;
-        fb[42+j*8+4]=buf_r_r[j][23:16]; fb[42+j*8+5]=buf_r_r[j][15:8];
-        fb[42+j*8+6]=buf_r_r[j][7:0];   fb[42+j*8+7]=8'h00;
+        fb[42+j*8+0]=buf_l_r[j][SAMPLE_BITS_P-1 -: 8]; fb[42+j*8+1]=buf_l_r[j][SAMPLE_BITS_P-9 -: 8];
+        fb[42+j*8+2]=buf_l_r[j][SAMPLE_BITS_P-17 -: 8];   fb[42+j*8+3]=(SAMPLE_BITS_P == 32) ? buf_l_r[j][7:0] : 8'h00;
+        fb[42+j*8+4]=buf_r_r[j][SAMPLE_BITS_P-1 -: 8]; fb[42+j*8+5]=buf_r_r[j][SAMPLE_BITS_P-9 -: 8];
+        fb[42+j*8+6]=buf_r_r[j][SAMPLE_BITS_P-17 -: 8];   fb[42+j*8+7]=(SAMPLE_BITS_P == 32) ? buf_r_r[j][7:0] : 8'h00;
       end
   end : frame_bytes
 
@@ -733,8 +736,8 @@ module KL_aaf_packetizer #(
               else eo_r <= eo_r + 2'd1;
             end
             if (ecap_r != eiss_r) begin
-              buf_l_r[ecap_r] <= stg_q_r[47:24];
-              buf_r_r[ecap_r] <= stg_q_r[23:0];
+              buf_l_r[ecap_r] <= stg_q_r[2*SAMPLE_BITS_P-1:SAMPLE_BITS_P];
+              buf_r_r[ecap_r] <= stg_q_r[SAMPLE_BITS_P-1:0];
               ecap_r <= ecap_r + 5'd1;
               if (ecap_r == np_w - 5'd1) begin
                 beat_r <= '0;

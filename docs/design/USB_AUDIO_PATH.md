@@ -1,0 +1,116 @@
+# Optional USB audio path
+
+This is the desk implementation for [#1021](https://github.com/kebag-logic/milan-fpga/issues/1021).
+Its wire contract is [USB audio #9, revision ae4b11bd](https://github.com/kebag-logic/usb-audio/blob/ae4b11bdaf3e84faa46a9ce32b641f65716b0ed2/docs/AUDIO-FPGA.md).
+The [socket allocation](https://github.com/kebag-logic/usb-audio/blob/ae4b11bdaf3e84faa46a9ce32b641f65716b0ed2/docs/NETWORK.md)
+is shared with [the network attachment, #1020](https://github.com/kebag-logic/milan-fpga/pull/1020).
+Physical qualification remains a bench prerequisite.
+
+## Build ownership
+
+The optional audio entry point accepts `--usb-audio` only on Arty, with one
+eight-channel stream in each direction, a 48 kHz media grid, and the TDM8
+master clock configuration. The audio profile is
+`configs/endstation_arty_usbaudio.yaml`; it pins the 8x8 profile digest and
+the feedback window to the firmware contract. The board's internal media
+oscillator and frame grid remain authoritative. The audio harness owns the
+external bus pins instead of the physical audio headers.
+
+`--usb-audio` and `--usb-net` are rejected together before board construction.
+Each remains independently selectable. Audio addresses sockets 0, 1 and 3
+on A1:A0. The network sockets 5 and 6 need A2 before the attachments can
+coexist physically. The network attachment and its build entry point are
+unchanged by the audio implementation.
+
+Without `--usb-audio`, the entry point delegates to the existing board build.
+The three shared audio blocks default to 24-bit storage. Only the audio
+profile selects 32-bit storage, retaining the low subslot byte through the
+render queue, capture mapper and AAF serializer. This parameter contract
+does not by itself prove identity of complete board images; image comparison
+is a separate acceptance item.
+
+## Frame transport
+
+Socket 3 carries complete playback/state records and interval-reference
+records. Length and the record discriminator determine boundaries; socket
+ready transitions do not. A complete state snapshot crosses to the media
+domain atomically. Each PCM FIFO beat contains one complete eight-channel
+frame and its epoch. The independent clocks use asynchronous frame FIFOs
+and locally synchronized reset release.
+
+USB playback feeds the capture mapper as four ordered 32-bit pairs, followed
+by its frame-snapshot strobe. Twelve complete frames prime playback. Before
+priming or while inactive, the mapper receives whole silent frames on the
+media grid. After priming, an empty grid event inserts one whole silent frame,
+increments the gap counter, and sets sticky error. A full playback FIFO
+rejects and counts a whole frame while continuing to drain state and reference
+traffic. No rate conversion or fractional-sample interpolation is present.
+
+USB capture reads stream zero, logical channels 0 through 7, from the actual
+render queue. Four ordered S32BE pairs become one FIFO frame with all subslot
+bits retained. A partial render frame is never published. FIFO overflow and
+incomplete active render frames count as whole-frame drops and set sticky error.
+
+The packetizer waits for twelve complete frames, then sends nonempty intervals
+of at most seven frames, low byte first. Available source-clock frames determine
+packet size. Validated 1 kHz observations pace eight service slots; the local
+bus clock interpolates scheduling only. It is not the feedback reference.
+Ordinary backpressure retains the packet and word index. A missed service
+slot is counted. A changed capture epoch abandons the partial packet, discards
+old-epoch FIFO frames, and primes anew at channel zero. Changing only the
+capture epoch does not flush or reprime playback.
+
+The media domain acknowledges the capture epoch after applying it. The bus
+domain publishes that acknowledgement in a complete status record before
+allowing a new capture packet. Status is scheduled every half millisecond,
+including while both audio alternates are inactive. A bounded priority turn
+prevents continuous audio traffic from starving its ten words. Each status
+record and capture interval asserts packet end with its final bus word.
+
+## Clock qualification and diagnostics
+
+A Gray counter timestamps the first interval-record word against the actual
+24.576 MHz disciplined media oscillator. Only a completely parsed and validated
+record reaches the estimator. The ITP delta conversion is 256/625 oscillator
+ticks per timestamp unit. With a 2^13-microframe window, the event difference
+is shifted by three into Q16.16 samples per microframe. The reference stride
+is eight microframes; sequence and count wrap are explicit modulo arithmetic.
+
+Bad structure, reserved bits, inconsistent raw count, discontinuity, duplicate
+or missing sequence, a count step other than eight, a two-millisecond timeout,
+or media-clock loss discards the estimator window. Deliveries outside
+0.75 to 1.25 milliseconds in source-clock ticks are rejected. A discarded
+observation cannot also seed the replacement window. Unqualified feedback
+is zero; nominal feedback is never substituted.
+
+Two controls default to zero. `armed` releases the coordinated session reset
+after the receiver has reset its parsers and queues. `qualified` permits the
+lock indication only after physical interval-delivery variation has been
+measured and accepted. It does not bypass sequence validation or the complete
+measurement window. The desk simulation cannot establish that physical bound.
+
+Diagnostics expose playback drops and gaps, capture drops, reference losses,
+rejected playback/state records, digest errors, observed media frames, and
+minimum/maximum complete-frame FIFO levels. Minima initialize to 127 until
+observed; the low seven bits hold the minimum and the next seven the maximum.
+Playback levels are observed on active, primed grid events; capture levels
+are observed when a valid frame is available during qualified capture.
+Counters saturate. Each diagnostic group crosses to control software as an
+atomic snapshot, not independent synchronized bits.
+
+## Desk evidence and remaining bench work
+
+The transport harness uses independent bus, media and oscillator clocks,
+full-width channel-distinct samples, stalls, and strict ordering scores.
+Separate tests exercise reference rejection, raw timestamp correction,
+independent epochs, packet fences, phased bus sampling, and the shared AAF
+storage paths at both widths. Planted defects must trigger their named runtime
+checks; build errors do not count as detections.
+
+Route closure at both speed models, complete-image comparisons, and exact
+resource differences require their own recorded results. A successful simulation
+does not imply those results. The bench must measure interval latency under load,
+coordinate arm/disarm, verify the physical bus timing and capture DMA fence,
+and establish bidirectional audio integrity with the real receiver. The extra
+address line is an additional prerequisite for concurrent network traffic.
+Until that work is accepted, the change relates to #1021 and does not close it.
