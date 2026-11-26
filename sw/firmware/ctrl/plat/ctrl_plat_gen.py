@@ -18,7 +18,9 @@ policy CONFIG -o ctrl_plat_policy_gen.h
 map CSR_CSV -o ctrl_plat_map_gen.h
     The bus addresses the image reaches, from the SoC's own csr.csv: the
     milan_csr and ctrl_mbx regions, the UART's four registers and the AECP
-    REBOOT's reset port (ctrl_reboot_req, milan_soc.CtrlReboot; #871); the PHY's
+    REBOOT's reset port (ctrl_reboot_req, milan_soc.CtrlReboot; #871); the status
+    LEDs' register (status_leds_ctrl; #1018) where the SoC has one, and no line
+    where it has none; the PHY's
     MDIO pair and link-status word (milan_mac_phy_mdio_w and _r,
     milan_mac_link_status; #919), all three or none, none written as 0, a SoC
     with no MDIO, whose image polls no PHY (ctrl_plat_phy.h). The address map is
@@ -59,6 +61,9 @@ MAP_ROWS = (("CTRL_PLAT_CSR_BASE", "memory_region", "milan_csr"),
 #: The PHY's rows (#919): macro -> csr.csv register, all three or none (ctrl_plat_phy.h).
 PHY_ROWS = (("CTRL_PLAT_PHY_MDIO_W", "milan_mac_phy_mdio_w"), ("CTRL_PLAT_PHY_MDIO_R", "milan_mac_phy_mdio_r"),
             ("CTRL_PLAT_LINK_STATUS", "milan_mac_link_status"))
+#: The status LEDs' register (#1018, sw/litex/usbnet_soc.py): the macro is written only where the SoC has it, so an
+#: image for a SoC without it compiles no LED code (plat/ctrl_plat_leds.h) and its header is as before.
+LEDS_ROW = ("CTRL_PLAT_LEDS", "status_leds_ctrl")
 #: LiteX's constant when the UART pops on the RXTX read (soc.py add_uart).
 RX_WE = "config_uart_rx_fifo_rx_we"
 
@@ -154,6 +159,8 @@ def map_header(csr_csv: Path) -> str:
         raise Refusal(f"{csr_csv.name} holds some of the PHY's registers but not {missing}")
     for macro, name in PHY_ROWS:
         lines.append(f"#define {macro} 0x{int(rows[('csr_register', name)], 16) if all(phy) else 0:08X}u")
+    if ("csr_register", LEDS_ROW[1]) in rows:
+        lines.append(f"#define {LEDS_ROW[0]} 0x{int(rows[('csr_register', LEDS_ROW[1])], 16):08X}u")
 
     return "\n".join([
         "// SPDX-FileCopyrightText: 2026 Kebag Logic",
