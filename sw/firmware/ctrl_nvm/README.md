@@ -300,8 +300,8 @@ both arms, with and without the drafts, the longest step is 96,579 cycles,
 #920's step a pass it is 78,825 cycles at 1x1/1if and 78,737 at 8x8/1if, over
 every group at each.
 
-A SET_NAME's save at 1x1/1if takes 1,081.8 ms from the change to durable on a
-flash with no busy time, 1,308.8 ms at 8x8/1if: the 1,000 ms first-dirty window,
+A SET_NAME's save at 1x1/1if takes 1,075.9 ms from the change to durable on a
+flash with no busy time, 1,298.8 ms at 8x8/1if: the 1,000 ms first-dirty window,
 then its steps a pass each (2,018 ms at 1x1 and 4,697 ms at 8x8/2if when it
 took a step a tick, before #920). A real part's erase and program waits add to
 it. No deadline of this store is that figure: the owner's 0.5 s (#823) belongs
