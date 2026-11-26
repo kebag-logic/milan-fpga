@@ -147,7 +147,9 @@ See 802.1AS-2011 11.2.2 b) and Figure 11-8.
 
 Milan `4.2.6.2.7` only sets a minimum tolerance.
 
-Two over-stated latency constants then cancel in the offset.
+The Sync path uses the delay signed.
+
+So two over-stated latency constants cancel in the offset.
 
 The floor bounds what a faulty peer can inject.
 
@@ -155,7 +157,11 @@ The floor bounds what a faulty peer can inject.
 
 So the published and used delays differ by design.
 
-`gptp_plane`'s phase 6 grades every row to the nanosecond.
+`gptp_plane`'s phase 6 grades asCapable and the used delay.
+
+It reads the engine's signed word, to the nanosecond.
+
+`gptp_shadow` phase 22 and the `milan_dp` legs grade the public word.
 
 ### Peer delay during PHC steps
 

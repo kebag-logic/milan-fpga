@@ -73,14 +73,14 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - 800 ns is good; 801 ns still clears asCapable.
 - The CSR and GET_AVB_INFO still read 0.
 - `gptp_plane`, `gptp_shadow` and the `milan_dp` legs grade it.
-- Nine planted defects each fail a named check.
+- Eleven planted defects each fail a named check.
 - tsn-c-stack #37: a longer ENTITY_DISCOVER is accepted.
 - Its first 56 octets after entity_id decide.
 - Below 56 it is refused and counted, as before.
 - The mailbox's `adp` frame limit stays 128 octets.
 - No top-level port, parameter or register changes.
 - The ROM ledger adds the row; `gptp_ucode.hex` changes.
-- Both release images route as the base's, figure for figure.
+- Each selected image routes as the base's, figure for figure.
 - 8x8/1if: 45,810 LUTs, on ExtraTimingOpt.
 - 1x1/1if: 32,582 LUTs.
 - Both meet the build floor at every corner.

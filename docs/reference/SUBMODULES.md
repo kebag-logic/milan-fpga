@@ -1130,9 +1130,13 @@ The head and base differ only in ROM contents.
 | 8x8/1if base, ExtraTimingOpt | +0.283 / +0.036 ns | 45,810 | 53,378 | 15,600 | 82 / 98.5 | 13 |
 | 8x8/1if, ExtraPostPlacementOpt, misses the floor | +0.008 / +0.036 ns | 45,920 | 53,383 | 15,603 | 82 / 98.5 | 13 |
 | 8x8/1if, ExtraTimingOpt, selected | +0.283 / +0.036 ns | 45,810 | 53,378 | 15,600 | 82 / 98.5 | 13 |
-| 8x8/1if, AltSpreadLogic_high | +0.146 / +0.036 ns | 45,814 | 53,381 | 15,594 | 82 / 98.5 | 13 |
+| 8x8/1if, AltSpreadLogic_high, no base pair | +0.146 / +0.036 ns | 45,814 | 53,381 | 15,594 | 82 / 98.5 | 13 |
 
-Every figure equals the base's at the same directive.
+Three routes have a base pair at the same directive.
+
+Each equals its pair in every figure.
+
+The head's AltSpreadLogic_high route has no base pair.
 
 At 8x8 the first directive misses, as on the base.
 

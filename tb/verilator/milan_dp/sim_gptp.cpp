@@ -1702,7 +1702,8 @@ class GptpPlaneHarness {
       run(dut, 10000);
       printf("[#109] %lld ns: the plane's delay is predicted at %lld ns\n",
              static_cast<long long>(d), static_cast<long long>(pd_expect + pd_bias));
-      check("the peer's exchange is negative", pd_expect + pd_bias < 0, 1);
+      check("harness precondition: the peer presents a negative delay",
+            pd_expect + pd_bias < 0, 1);
       check("the public CSR reads 0", axi_read(dut, 0x6E4), 0);
       check("asCapable kept", (axi_read(dut, 0x77C) >> 16) & 1, 1);
       aecp_scan = tx_frames.size();

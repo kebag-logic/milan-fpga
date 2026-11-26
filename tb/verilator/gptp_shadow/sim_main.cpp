@@ -2982,10 +2982,14 @@ class GptpShadowHarness {
 
   static constexpr int64_t kDelayThreshNs = 800;
   static constexpr int64_t kFarNegativeNs = -5000000;
-  //! How near the offset of a graded pair must be to its expected 0: the
-  //! stamps quantise to the 8 ns tick, and the nearest wrong link value
-  //! (-263 ns used as 0) is 263 ns away.
+  //! How near the offset after a graded pair must be to its expected value,
+  //! the offset before it less kGradedOffsetNs: the stamps quantise to the
+  //! 8 ns tick. Used delays less than this far apart are not told apart here;
+  //! gptp_plane's phase 6 grades the used delay to the nanosecond.
   static constexpr int64_t kOffsetNearNs = 64;
+  //! The offset each graded pair is built for, against the background pairs'
+  //! 0: far outside kOffsetNearNs, and inside the servo's slew band.
+  static constexpr int64_t kGradedOffsetNs = 400;
 
   //! The delay the Sync path uses for a computed delay `d`.
   static int64_t used_delay(int64_t d) {
@@ -3036,10 +3040,17 @@ class GptpShadowHarness {
     else
       check("the public bank reads 0", dut->pub_pdelay_ns_o, 0);
     if (!kept) return;
+    //! the graded pair carries its own offset, so the value it leaves in the
+    //! public bank is attributable to it: a pair the plane does not use, or a
+    //! bank that keeps a stale offset, reads the previous pair's instead
     const uint64_t steps0 = phc_steps;
-    gm_pair_on_link(m, used_delay(d));
-    check("the next Follow_Up is used with the delay floored at -800 ns",
-          near(static_cast<int32_t>(dut->pub_offset_o), 0, kOffsetNearNs), 1);
+    const int32_t before = static_cast<int32_t>(dut->pub_offset_o);
+    gm_pair(m, D_NOM - used_delay(d) + kGradedOffsetNs);
+    const int32_t after = static_cast<int32_t>(dut->pub_offset_o);
+    check("the graded Follow_Up is used: its offset is fresh",
+          near(after, before, kGradedOffsetNs / 2) ? 0 : 1, 1);
+    check("its offset uses the delay floored at -800 ns",
+          near(after, before - kGradedOffsetNs, kOffsetNearNs), 1);
     check("no PHC step", phc_steps - steps0, 0);
     check("the grandmaster stays elected", slave_of_gmid() ? 1 : 0, 1);
   }

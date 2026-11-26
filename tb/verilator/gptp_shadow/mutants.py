@@ -23,9 +23,10 @@ adopted a repair for: the first master Announce waiting for a beat
 A third drops the Announce leg's transmit-credit gate. One more is planted
 in this suite's own harness: its lane, held across the race, delivers the
 master Announce only after the re-election. It shows the race check grades
-that order, not only that the Announce exists. The last drops the public
-bank's clamp of a negative link delay, which the engine keeps signed
-(FPGA-gPTP #109); the engine's own #109 defects are planted by
+that order, not only that the Announce exists. Three more grade phase 22 (FPGA-gPTP #109): the
+public bank's clamp of a negative link delay removed, the public bank
+keeping a stale offset, and the harness not sending the graded
+Follow_Up. The engine's own #109 defects are planted by
 `tb/verilator/gptp_plane/link_delay.py`, to the nanosecond.
 
 Each control names the check it must break, and the run prints whether that
@@ -219,6 +220,24 @@ MUTATIONS = [
         "                                                : pub_pdelay_raw_w;\n",
         "        pub_pdelay_ns_o <= pub_pdelay_raw_w;\n",
         "#109 -263 ns: the public bank reads 0",
+    ),
+    (
+        #: the public bank keeps a stale offset: every later Sync/Follow_Up
+        #: pair, the graded ones included, leaves the published offset as it was
+        "public_bank_keeps_a_stale_offset",
+        BANK,
+        "        pub_offset_o    <= pub_offset_raw_w;\n",
+        "        pub_offset_o    <= pub_offset_o;\n",
+        "#109 -263 ns: the graded Follow_Up is used: its offset is fresh",
+    ),
+    (
+        #: this suite's own harness never sends the graded pair after a
+        #: negative-delay exchange, so no Follow_Up is there to be used
+        "graded_follow_up_not_sent",
+        HARNESS,
+        "    gm_pair(m, D_NOM - used_delay(d) + kGradedOffsetNs);\n",
+        "",
+        "#109 -263 ns: the graded Follow_Up is used: its offset is fresh",
     ),
 ]
 
