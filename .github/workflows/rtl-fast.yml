@@ -1107,8 +1107,8 @@ jobs:
           python3 scripts/ci_rv32_sdk.py --destination "$HOME/br-milan-rv32/host"
         id: ci_step_8
       - name: Run the AECP mutation campaign
-        run: python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs "$CI_CAMPAIGN_JOBS"
-          --shard 2/4
+        run: |
+          python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs "$CI_CAMPAIGN_JOBS" --shard 2/4 --campaign-shard "${{ matrix.leg }}" 2
         id: ci_step_9
       - name: Record actual job execution
         id: ci_record
@@ -1128,6 +1128,12 @@ jobs:
           path: ${{ runner.temp }}/job-evidence.json
           if-no-files-found: error
           retention-days: 3
+    strategy:
+      fail-fast: true
+      matrix:
+        leg:
+          - 0
+          - 1
     env:
       PIP_CONSTRAINT: ${{ github.workspace }}/ci/constraints-ci.txt
   firmware-srp-mutants:
@@ -1203,8 +1209,8 @@ jobs:
           python3 scripts/ci_rv32_sdk.py --destination "$HOME/br-milan-rv32/host"
         id: ci_step_8
       - name: Run both SRP mutation campaigns and pin controls
-        run: python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs "$CI_CAMPAIGN_JOBS"
-          --shard 3/4
+        run: |
+          python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs "$CI_CAMPAIGN_JOBS" --shard 3/4 --campaign-shard "${{ matrix.leg }}" 2
         id: ci_step_9
       - name: Record actual job execution
         id: ci_record
@@ -1224,6 +1230,12 @@ jobs:
           path: ${{ runner.temp }}/job-evidence.json
           if-no-files-found: error
           retention-days: 3
+    strategy:
+      fail-fast: true
+      matrix:
+        leg:
+          - 0
+          - 1
     env:
       PIP_CONSTRAINT: ${{ github.workspace }}/ci/constraints-ci.txt
   firmware-boundary-capture:
@@ -1806,10 +1818,11 @@ jobs:
         id: ci_observe
         env:
           GH_TOKEN: ${{ github.token }}
-          EXPECTED_JOBS: '["bdd-conformance","changes","Collect CI manifest","firmware-aecp-mutants","firmware-boundary","firmware-boundary-capture
-            (0)","firmware-boundary-capture (1)","firmware-control-mutants (0)","firmware-control-mutants
-            (1)","firmware-control-mutants (2)","firmware-control-mutants (3)","firmware-srp-mutants","firmware-unit
-            (0)","firmware-unit (1)","firmware-unit (2)","firmware-verilator","publication-census","publication-census-legs
+          EXPECTED_JOBS: '["bdd-conformance","changes","Collect CI manifest","firmware-aecp-mutants (0)","firmware-aecp-mutants
+            (1)","firmware-boundary","firmware-boundary-capture (0)","firmware-boundary-capture (1)","firmware-control-mutants
+            (0)","firmware-control-mutants (1)","firmware-control-mutants (2)","firmware-control-mutants
+            (3)","firmware-srp-mutants (0)","firmware-srp-mutants (1)","firmware-unit (0)","firmware-unit
+            (1)","firmware-unit (2)","firmware-verilator","publication-census","publication-census-legs
             (0)","publication-census-legs (1)","publication-census-legs (2)","publication-census-legs
             (3)","publication-census-legs (4)","rtl-fast","split-cdc","verilator-lint","yosys-elaboration","Prepare
             pinned Yosys"]'
@@ -1817,7 +1830,8 @@ jobs:
             (1)","publication-census-legs (2)","publication-census-legs (3)","publication-census-legs
             (4)"],"firmware-unit":["firmware-unit (0)","firmware-unit (1)","firmware-unit (2)"],"firmware-control-mutants":["firmware-control-mutants
             (0)","firmware-control-mutants (1)","firmware-control-mutants (2)","firmware-control-mutants
-            (3)"],"firmware-boundary-capture":["firmware-boundary-capture (0)","firmware-boundary-capture
+            (3)"],"firmware-aecp-mutants":["firmware-aecp-mutants (0)","firmware-aecp-mutants (1)"],"firmware-srp-mutants":["firmware-srp-mutants
+            (0)","firmware-srp-mutants (1)"],"firmware-boundary-capture":["firmware-boundary-capture (0)","firmware-boundary-capture
             (1)"]}'
         run: |
           python3 scripts/ci_fail_fast.py watch

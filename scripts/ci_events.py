@@ -1367,7 +1367,8 @@ FIRMWARE_BOUNDARY_STRATEGY = {"fail-fast": True, "matrix": {"leg": list(FIRMWARE
 #: #1008: the fast jobs the generator (scripts/ci_fast_legs.py) runs as matrix legs, each with its leg count. Each
 #: leg runs on a runner of its own under GitHub's own fail-fast; the census legs' judge needs them, and the verdict
 #: reads the legs' result itself, since a failed leg skips the judge. Issue #1008; REQ-VER-01 and REQ-VER-04.
-FAST_LEG_JOBS = {"firmware-unit": 3, "firmware-control-mutants": 4, "publication-census-legs": 5}
+FAST_LEG_JOBS = {"firmware-unit": 3, "firmware-control-mutants": 4, "firmware-aecp-mutants": 2,
+                 "firmware-srp-mutants": 2, "publication-census-legs": 5}
 FAST_LEG_JUDGE = {"publication-census-legs": "publication-census"}
 #: #697: the fast job that judges the TSN stack boundary over the compiles of the builders that need Verilator.
 FIRMWARE_VERILATOR_JOB = "firmware-verilator"

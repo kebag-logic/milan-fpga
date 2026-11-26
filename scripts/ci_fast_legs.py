@@ -12,7 +12,9 @@ from __future__ import annotations
 import copy
 
 
-CAMPAIGNS = {"firmware-control-mutants": 4}
+#: Each mutation job's legs, from its campaign step's largest hosted window over the 20 measured runs, under
+#: 1276 s a leg with its setup: control 2402 s, AECP 1554 s, SRP 1789 s (docs/testing/CI_WORKFLOWS.md).
+CAMPAIGNS = {"firmware-control-mutants": 4, "firmware-aecp-mutants": 2, "firmware-srp-mutants": 2}
 
 
 def generate(workflow: dict) -> dict:

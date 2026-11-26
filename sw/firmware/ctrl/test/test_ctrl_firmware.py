@@ -132,8 +132,9 @@ coverage builds) and runs none; it plants nothing and ends BUILT, never PASS.
 The TSN stack boundary gate's builds are such runs (ctrl_configs.BUILDERS):
 the boundary needs the compiles, not the tests (#697).
 
---campaign-shard INDEX COUNT further divides a mutation phase of --shard.
-The complete live table is dealt in order, with each defect in exactly one leg.
+--campaign-shard INDEX COUNT further divides the control, AECP or SRP phase of --shard.
+Each live table is dealt in order, with each defect in exactly one leg; every
+leg runs its phase's controls (#1008).
 
 --shard INDEX/4 schedules the complete gate across four jobs: normal suites,
 control mutants, AECP mutants, and SRP mutants with the pin controls.
@@ -235,26 +236,38 @@ def run_srp_mutants(args: argparse.Namespace, out: Path) -> bool:
     if args.lwsrp is None:
         return False
     lwsrp = args.lwsrp.resolve()
-    failed = srp_mutants.campaign(out / "srp-mutants", lwsrp, args.jobs)
     complete_srp_table = srp_mutants.DEFECTS
+    # A campaign leg (#1008) plants its interleaved share of each of the three tables; every leg runs the pin
+    # controls.
+    leg = getattr(args, "campaign_shard", None)
+    share = slice(None) if leg is None else slice(leg[0], None, leg[1])
     try:
+        srp_mutants.DEFECTS = complete_srp_table[share]
+        failed = srp_mutants.campaign(out / "srp-mutants", lwsrp, args.jobs)
         srp_mutants.DEFECTS = tuple(d for d in complete_srp_table
                                   if d.name.startswith(("four-way-", "binding-", "feedback-", "r10-",
                                                         "p11-", "srp-bound-", "srp-term-",
                                                         "srp-poll-extra", "srp-send-extra", "talker-",
                                                         srp_listener_mutants.PREFIX, srp_reclaim_mutants.PREFIX,
-                                                        srp_link_mutants.PREFIX, *srp_pub_mutants.ROUND5)))
+                                                        srp_link_mutants.PREFIX, *srp_pub_mutants.ROUND5)))[share]
         failed = srp_mutants.campaign(out / "srp-if1-mutants", lwsrp, args.jobs, 1) or failed
         # the Listener copies at 8x8/1if too (#930), the SRP cut (#665's ruling of 2026-11-20, item 3), the
         # Talkers kept for StreamIDs no binding holds (#969) and the link level in a loop pass (#973)
         srp_mutants.DEFECTS = tuple(d for d in complete_srp_table
                                     if d.name.startswith((srp_listener_mutants.PREFIX, srp_reclaim_mutants.PREFIX,
-                                                          srp_early_mutants.PREFIX, srp_link_mutants.PREFIX)))
+                                                          srp_early_mutants.PREFIX, srp_link_mutants.PREFIX)))[share]
         failed = srp_mutants.campaign(out / "srp-8x8-if1-mutants", lwsrp, args.jobs, 1,
                                       srp_listener_mutants.ENTITY) or failed
     finally:
         srp_mutants.DEFECTS = complete_srp_table
     return ctrl_mutants.lwsrp_pin_arms(out / "mutants", lwsrp) != 0 or failed
+
+
+def srp_8x8_table() -> tuple:
+    """The smallest of the SRP phase's three tables, the 8x8 one-interface campaign's, which bounds its legs."""
+    return tuple(d for d in srp_mutants.DEFECTS
+                 if d.name.startswith((srp_listener_mutants.PREFIX, srp_reclaim_mutants.PREFIX,
+                                       srp_early_mutants.PREFIX, srp_link_mutants.PREFIX)))
 
 
 def run_selected(args: argparse.Namespace, tree: Tree, out: Path) -> bool:
@@ -332,7 +345,7 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--shard", type=shard_part, metavar="INDEX/4",
                     help="with --self-test: one of four exhaustive, disjoint phase partitions")
     ap.add_argument("--campaign-shard", nargs=2, type=int, metavar=("INDEX", "COUNT"),
-                    help="divide the control or AECP phase of --shard into exhaustive mutation legs")
+                    help="divide the control, AECP or SRP phase of --shard into exhaustive mutation legs")
     ap.add_argument("--mutation-shard", nargs=2, type=int, metavar=("INDEX", "COUNT"),
                     help="with --self-test: run zero-based INDEX of COUNT mutation partitions")
     ap.add_argument("--build-dir", type=Path, help="keep builds here (default: a temporary directory)")
@@ -351,11 +364,11 @@ def main(argv: list[str] | None = None) -> int:
         ap.error("--shard requires --self-test and excludes --coverage, --mutation-shard and --slice")
     if args.campaign_shard is not None:
         index, count = args.campaign_shard
-        if (args.shard is None or args.shard[0] not in (1, 2) or not args.self_test
+        if (args.shard is None or args.shard[0] not in (1, 2, 3) or not args.self_test
                 or args.mutation_shard is not None or args.slice != (1, 1)
                 or args.coverage is not None or args.build_only):
-            ap.error("--campaign-shard requires control or AECP --shard and --self-test alone")
-        size = len(ctrl_mutants.MUTANTS if args.shard[0] == 1 else aecp_mutants.DEFECTS)
+            ap.error("--campaign-shard requires a control, AECP or SRP --shard and --self-test alone")
+        size = len({1: ctrl_mutants.MUTANTS, 2: aecp_mutants.DEFECTS, 3: srp_8x8_table()}[args.shard[0]])
         if not 0 <= index < count <= size:
             ap.error("campaign shard requires 0 <= INDEX < COUNT <= campaign size")
     fw_gtest.EXECUTION.run = not args.build_only

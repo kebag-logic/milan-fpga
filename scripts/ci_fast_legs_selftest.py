@@ -27,17 +27,23 @@ import census_legs  # noqa: E402
 
 def campaign_controls() -> None:
     """Use real dispatch and live tables, with a failed campaign injected into each leg."""
-    for phase, table, module, count in ((1, firmware.ctrl_mutants.MUTANTS, firmware.ctrl_mutants, 4),):
-        expected = Counter(item.name for item in table)
-        actual = Counter(item.name for leg in range(count) for item in table[leg::count])
-        assert actual == expected
+    from ci_fast_legs import CAMPAIGNS
+    phases = {"firmware-control-mutants": 1, "firmware-aecp-mutants": 2, "firmware-srp-mutants": 3}
+    assert set(CAMPAIGNS) == set(phases)
+    for job, count in CAMPAIGNS.items():
+        dispatch.campaign_cases(firmware, (phases[job], 4), count)
+    for phase, module, count in ((1, firmware.ctrl_mutants, CAMPAIGNS["firmware-control-mutants"]),
+                                 (2, firmware.aecp_mutants, CAMPAIGNS["firmware-aecp-mutants"]),
+                                 (3, firmware.srp_mutants, CAMPAIGNS["firmware-srp-mutants"])):
         for leg in range(count):
             args = SimpleNamespace(shard=(phase, 4), self_test=True, jobs=4, slice=(1, 1),
-                                   mutation_shard=(leg, count))
-            with patch.object(module, "campaign", return_value=True) as campaign:
+                                   mutation_shard=(leg, count), campaign_shard=(leg, count),
+                                   lwsrp=firmware.CTRL.parents[2] / "third_party/lwSRP")
+            with patch.object(module, "campaign", return_value=True) as campaign, \
+                    patch.object(firmware.ctrl_mutants, "lwsrp_pin_arms", return_value=0):
                 assert firmware.run_selected(args, SimpleNamespace(reuse=Path("reuse")), Path("build"))
-                assert campaign.call_args.args[-1] == (leg, count)
-        print(f"PASS: phase {phase}, {len(table)} defects exactly once; every failed leg propagates")
+                assert campaign.called
+        print(f"PASS: phase {phase}, a failed campaign in each of its {count} legs fails that leg")
     for argv in (["--campaign-shard", "0", "4"],
                  ["--shard", "0/4", "--self-test", "--campaign-shard", "0", "4"],
                  ["--shard", "1/4", "--self-test", "--campaign-shard", "4", "4"],
@@ -98,8 +104,8 @@ def workflow_controls() -> None:
     original = load_template(ROOT, "rtl-fast")
     workflow = generate("rtl-fast", original)
     jobs = workflow["jobs"]
-    for name, count in (("firmware-control-mutants", 4), ("firmware-unit", 3),
-                        ("publication-census-legs", census_legs.LEGS)):
+    from ci_fast_legs import CAMPAIGNS
+    for name, count in (*CAMPAIGNS.items(), ("firmware-unit", 3), ("publication-census-legs", census_legs.LEGS)):
         assert jobs[name]["strategy"] == {"fail-fast": True, "matrix": {"leg": list(range(count))}}
         assert "permissions" not in jobs[name]
     assert jobs["ci-fail-fast"]["if"] == SAME_REPOSITORY
@@ -107,7 +113,7 @@ def workflow_controls() -> None:
                 if step["name"] == "Require every applicable fast gate to pass")
     env = {**os.environ, **{key: "success" for key in step["env"]}}
     assert subprocess.run(["bash", "-c", step["run"]], env=env, capture_output=True).returncode == 0
-    for name in ("firmware-control-mutants", "firmware-unit", "publication-census-legs"):
+    for name in (*CAMPAIGNS, "firmware-unit", "publication-census-legs"):
         for result in ("failure", "cancelled"):
             changed = {**env, name.upper().replace("-", "_") + "_RESULT": result}
             if name == "publication-census-legs":

@@ -37,7 +37,7 @@ def inventory(module: ModuleType, shard: tuple[int, int] | None = None,
     """
     calls = []
     args = SimpleNamespace(shard=shard, self_test=True, jobs=4, slice=(1, 1),
-                           mutation_shard=mutation_shard, require_rv32=True,
+                           mutation_shard=mutation_shard, campaign_shard=mutation_shard, require_rv32=True,
                            lwsrp=module.CTRL.parents[2] / "third_party/lwSRP")
     tree = Tree(module.CTRL, Path("dispatch-build"), Path("dispatch-reuse"),
                 module.fw_gtest.Build(jobs=4))
@@ -161,7 +161,7 @@ def run_cases(module: ModuleType = driver) -> list[list[str]]:
 
 
 #: The campaign controls every leg of a phase runs before its own defects (#1008).
-CAMPAIGN_CONTROLS = frozenset({"control:unnamed-tests", "aecp:controls"})
+CAMPAIGN_CONTROLS = frozenset({"control:unnamed-tests", "aecp:controls", "lwsrp:pin-controls"})
 
 
 def campaign_cases(module: ModuleType, shard: tuple[int, int], count: int) -> list[list[str]]:
@@ -184,7 +184,7 @@ def campaign_cases(module: ModuleType, shard: tuple[int, int], count: int) -> li
         assert any(differences(defects, bad).values()), f"escaped planted {label}"
         print(f"PASS: campaign legs reject a planted {label}")
     for argv in (["--shard", "0/4", "--self-test", "--campaign-shard", "0", "2"],
-                 ["--shard", "3/4", "--self-test", "--campaign-shard", "0", "2"],
+                 ["--shard", "1/4", "--self-test", "--campaign-shard", "0", "2", "--slice", "1/2"],
                  ["--shard", f"{shard[0]}/4", "--campaign-shard", "0", "2"],
                  ["--self-test", "--campaign-shard", "0", "2"],
                  ["--shard", f"{shard[0]}/4", "--self-test", "--campaign-shard", "2", "2"],
