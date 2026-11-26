@@ -28,7 +28,13 @@ struct ctrl_app_aecp {
 	uint32_t led_enabled;
 	uint32_t led_outputs;
 	uint32_t led_word;
+	uint32_t led_retry_inputs;
+	uint32_t led_retry_outputs;
+	uint32_t led_retry_at;
+	unsigned led_retry_cursor;
 	bool led_domain_locked;
+	bool led_retry_domain;
+	bool led_retry_pending;
 	bool led_ready;
 	bool led_settings;
 	bool led_configuration;

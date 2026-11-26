@@ -160,11 +160,30 @@ ROWS += (
      ("LedEvents.SelectedInputAndLastListenerOwnTheirLights", "output listeners light LD2")),
     ("led-event-counter-hook-lost", APP,
      "if (c->led_ready && (events & 8u) != 0u) leds_counters(c, type, index);", "(void)events;",
-     ("LedEvents.InternalFlowingAndStoppedSourcesUseAecp", "media loss darkens both LEDs")),
+     ("LedEvents.InternalFlowingAndStoppedSourcesUseAecp", "media loss darkens both LEDs"),
+     ("LedEvents.AllCounterEventsRebuildOnlyTheServedState", "ALL event includes input lock loss")),
     ("led-event-clock-hook-lost", APP, "c->led_settings = true;", "c->led_settings = false;",
      ("LedEvents.InternalFlowingAndStoppedSourcesUseAecp", "stopped stream LD3 off")),
     ("led-event-clock-proposal-shown", APP, "c->led_settings = true;", "c->led_settings = false; leds_publish(c);",
      ("LedEvents.WaitingClockChangesKeepTheSourceInForce", "waiting clock change leaves internal source lit")),
     ("led-event-idle-scan", APP, "if (c->led_settings) {", "leds_refresh(c); if (c->led_settings) {",
      ("LedEvents.TicksAndIdlePollsNeverObserveLeds", "ticks and idle polls read no LED counters")),
+)
+
+ROWS += (
+    ("led-event-retry-lost", APP, "leds_retry(c);", "(void)c;",
+     ("LedEvents.FailedDomainObservationRetriesWithoutAnotherLockEdge",
+      "failed domain read recovers without another domain edge"),
+     ("LedEvents.FailedInactiveOutputRetriesWithoutTrafficOrListenerChange",
+      "inactive listener recovers without traffic or another listener change")),
+    ("led-event-retry-unpaced", EVENTS,
+     " || (int32_t)(c->aecp->core.now - c->led_retry_at) < 0", "",
+     ("LedEvents.FailedObservationsAreBoundedFairAndNeverReadInTicks",
+      "failed output waits for its retry interval")),
+)
+
+ROWS += (
+    ("led-event-retry-postponed", EVENTS, "if (failed && !pending)", "if (failed || pending)",
+     ("LedEvents.NewFailuresNeverPostponeAnOlderRetry",
+      "new failures never postpone recovery of an older readable output")),
 )

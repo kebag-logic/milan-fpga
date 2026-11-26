@@ -961,12 +961,11 @@ def campaign(root: Path, jobs: int = 4, shard: tuple[int, int] = (0, 1), stack: 
             if d.checks[0][0].startswith("Image."):
                 result = aecp_arms.image_arm(tree, config)
             else:
-                debug = d.checks[0][0].startswith("AecpDebug.")
-                leds = d.checks[0][0].startswith("LedEvents.")
+                mode = ("debug" if d.checks[0][0].startswith("AecpDebug.") else
+                        "leds" if d.checks[0][0].startswith("LedEvents.") else "app")
                 work = d.checks[0][0].startswith(aecp_arms.WORK.rstrip("*"))
                 result = (aecp_arms.core_arm(tree, config, 1, "work", selected) if work else
-                          aecp_arms.core_arm(tree, config, 2,
-                                             "debug" if debug else "leds" if leds else "app", selected))
+                          aecp_arms.core_arm(tree, config, 2, mode, selected))
             ok = all(caught(test, words, result) for test, words in d.checks)
             (root / (d.name + ".log")).write_text(result.log)
         except Refusal as error:
