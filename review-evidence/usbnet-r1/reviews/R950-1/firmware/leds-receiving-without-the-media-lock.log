@@ -1,0 +1,52 @@
+Note: Google Test filter = Leds.*
+[==========] Running 4 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 4 tests from Leds
+[ RUN      ] Leds.ClockSourceInternalLightsLd3
+[       OK ] Leds.ClockSourceInternalLightsLd3 (0 ms)
+[ RUN      ] Leds.FollowingAFlowingStreamLightsLd3
+[       OK ] Leds.FollowingAFlowingStreamLightsLd3 (0 ms)
+[ RUN      ] Leds.FollowingAStoppedStreamDarkensLd3
+$REPO/sw/firmware/ctrl/test/test_aecp.cpp:352: Failure
+Expected equality of these values:
+  word()&0x2u
+    Which is: 2
+  0u
+    Which is: 0
+following a stream that stopped: LD3 off
+
+  [FAIL] Leds.FollowingAStoppedStreamDarkensLd3: following a stream that stopped: LD3 off
+[  FAILED  ] Leds.FollowingAStoppedStreamDarkensLd3 (0 ms)
+[ RUN      ] Leds.Ld2IsABoundReceivingInputOrAListenedOutput
+$REPO/sw/firmware/ctrl/test/test_aecp.cpp:371: Failure
+Expected equality of these values:
+  word()&0x1u
+    Which is: 1
+  0u
+    Which is: 0
+input 0 bound, not receiving: LD2 off
+
+  [FAIL] Leds.Ld2IsABoundReceivingInputOrAListenedOutput: input 0 bound, not receiving: LD2 off
+$REPO/sw/firmware/ctrl/test/test_aecp.cpp:371: Failure
+Expected equality of these values:
+  word()&0x1u
+    Which is: 1
+  0u
+    Which is: 0
+input 1 bound, not receiving: LD2 off
+
+  [FAIL] Leds.Ld2IsABoundReceivingInputOrAListenedOutput: input 1 bound, not receiving: LD2 off
+[  FAILED  ] Leds.Ld2IsABoundReceivingInputOrAListenedOutput (0 ms)
+[----------] 4 tests from Leds (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 4 tests from 1 test suite ran. (0 ms total)
+[  PASSED  ] 2 tests.
+[  FAILED  ] 2 tests, listed below:
+[  FAILED  ] Leds.FollowingAStoppedStreamDarkensLd3
+[  FAILED  ] Leds.Ld2IsABoundReceivingInputOrAListenedOutput
+
+ 2 FAILED TESTS
+== AECP core: checks: 4   failures: 2 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 2 failure(s) across 4 checks, exit 1)

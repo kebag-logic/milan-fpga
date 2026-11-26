@@ -1,0 +1,51 @@
+%Warning-WIDTHEXPAND: $REPO/hdl/usbnet/KL_usbnet_tap.sv:42:30: Operator VAR 'RATE_BPS_P' expects 64 bits on the Initial value, but Initial value's CONST '32'hc3500' generates 32 bits.
+                                                                                                    : ... note: In instance 'KL_usbnet_tap'
+   42 |   parameter longint unsigned RATE_BPS_P        = 64'd10_000_000,
+      |                              ^~~~~~~~~~
+                      ... For warning description see https://verilator.org/warn/WIDTHEXPAND?v=5.050
+                      ... Use "/* verilator lint_off WIDTHEXPAND */" and lint_on around source to disable this message.
+%Warning-PROCASSINIT: $REPO/hdl/usbnet/KL_usbnet_tx_arb.sv:90:31: Procedural assignment to declaration with initial value: 'tgl_r'
+                                                                                                       : ... note: In instance 'KL_usbnet_tap.u_arb'
+                                                                                                       : ... Location of variable initialization
+   90 |   logic               tgl_r = 1'b0;    
+      |                               ^~~~
+                      $REPO/hdl/usbnet/KL_usbnet_tx_arb.sv:171:35: ... Location of variable process write
+                                                                                                        : ... Perhaps should initialize instead using a reset in this process
+  171 |       else                        tgl_r <= ~tgl_r;
+      |                                   ^~~~~
+                      ... For warning description see https://verilator.org/warn/PROCASSINIT?v=5.050
+                      ... Use "/* verilator lint_off PROCASSINIT */" and lint_on around source to disable this message.
+%Warning-UNUSEDSIGNAL: $REPO/hdl/usbnet/KL_usbnet_tx_inject.sv:320:23: Bits of signal are not used: 'rd_next_w'[9]
+                                                                                                            : ... note: In instance 'KL_usbnet_tap.u_tx'
+  320 |   wire [AW_C:0]       rd_next_w = beat_w ? rd_ptr_r + 1'b1 : rd_ptr_r;
+      |                       ^~~~~~~~~
+                       ... For warning description see https://verilator.org/warn/UNUSEDSIGNAL?v=5.050
+                       ... Use "/* verilator lint_off UNUSEDSIGNAL */" and lint_on around source to disable this message.
+%Warning-UNUSEDSIGNAL: $REPO/hdl/usbnet/KL_usbnet_pkg.sv:87:56: Bits of function variable are not used: 'a'[47:41,39:0]
+                                                                                                     : ... note: In instance 'KL_usbnet_tap.u_tx'
+   87 |   function automatic logic is_group(input logic [47:0] a);
+      |                                                        ^
+%Warning-UNUSEDSIGNAL: $REPO/hdl/usbnet/KL_usbnet_pkg.sv:92:61: Bits of function variable are not used: 'a'[3:0]
+                                                                                                     : ... note: In instance 'KL_usbnet_tap.u_tx'
+   92 |   function automatic logic is_link_local(input logic [47:0] a);
+      |                                                             ^
+%Warning-UNUSEDSIGNAL: $REPO/hdl/usbnet/KL_usbnet_pkg.sv:96:50: Bits of function variable are not used: 'h'[151:56,39:0]
+                                                                                                     : ... note: In instance 'KL_usbnet_tap.u_tx'
+   96 |   function automatic logic is_tagged(input hdr_t h);
+      |                                                  ^
+%Warning-UNUSEDSIGNAL: $REPO/hdl/usbnet/KL_usbnet_pkg.sv:148:59: Bits of function variable are not used: 'a'[47:42,39:0]
+                                                                                                      : ... note: In instance 'KL_usbnet_tap.u_tx'
+  148 |   function automatic logic host_mac_ok(input logic [47:0] a);
+      |                                                           ^
+make: Entering directory '$PACKET/scratch/rx-length'
+g++  -I.  -MMD -I$SIMULATOR_SHARE/include -I$SIMULATOR_SHARE/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I$REPO/tb/verilator/usbnet   -Os  -c -o rx_length_probe.o $PACKET/rx_length_probe.cpp
+g++ -Os  -I.  -MMD -I$SIMULATOR_SHARE/include -I$SIMULATOR_SHARE/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I$REPO/tb/verilator/usbnet   -c -o verilated.o $SIMULATOR_SHARE/include/verilated.cpp
+g++ -Os  -I.  -MMD -I$SIMULATOR_SHARE/include -I$SIMULATOR_SHARE/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I$REPO/tb/verilator/usbnet   -c -o verilated_threads.o $SIMULATOR_SHARE/include/verilated_threads.cpp
+python3 $SIMULATOR_SHARE/bin/verilator_includer -DVL_INCLUDE_OPT=include VKL_usbnet_tap.cpp VKL_usbnet_tap___024root__0.cpp VKL_usbnet_tap__ConstPool__0__Slow.cpp VKL_usbnet_tap___024root__Slow.cpp VKL_usbnet_tap___024root__0__Slow.cpp VKL_usbnet_tap__Syms__Slow.cpp > VKL_usbnet_tap__ALL.cpp
+g++ -Os  -I.  -MMD -I$SIMULATOR_SHARE/include -I$SIMULATOR_SHARE/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I$REPO/tb/verilator/usbnet   -c -o VKL_usbnet_tap__ALL.o VKL_usbnet_tap__ALL.cpp
+g++    rx_length_probe.o verilated.o verilated_threads.o VKL_usbnet_tap__ALL.a    -pthread -lpthread -latomic   -o probe
+rm VKL_usbnet_tap__ALL.verilator_deplist.tmp
+make: Leaving directory '$PACKET/scratch/rx-length'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.277 MB sources in 6 modules, into 0.199 MB in 6 C++ files needing 0.001 MB
+- Verilator: Walltime 4.824 s (elab=0.004, cvt=0.023, bld=4.786); cpu 0.041 s on 2 threads; allocated 216.855 MB

@@ -1,0 +1,272 @@
+[
+  {
+    "name": "baseline-tap",
+    "rc": 0,
+    "expected_check": null,
+    "pass": true
+  },
+  {
+    "name": "baseline-leds",
+    "rc": 0,
+    "expected_check": null,
+    "pass": true
+  },
+  {
+    "name": "rx_host_unicast_kept",
+    "rc": 2,
+    "expected_check": "unicast to the computer: copied=0",
+    "pass": true
+  },
+  {
+    "name": "rx_other_unicast_copied",
+    "rc": 2,
+    "expected_check": "unicast to the device: copied=1",
+    "pass": true
+  },
+  {
+    "name": "rx_group_not_copied",
+    "rc": 2,
+    "expected_check": "broadcast ARP: copied=0",
+    "pass": true
+  },
+  {
+    "name": "rx_link_local_copied",
+    "rc": 2,
+    "expected_check": "gPTP link-local: copied=1",
+    "pass": true
+  },
+  {
+    "name": "mrp_block_not_reserved",
+    "rc": 2,
+    "expected_check": "MVRP: copied=1",
+    "pass": true
+  },
+  {
+    "name": "link_local_block_too_wide",
+    "rc": 2,
+    "expected_check": "01-80-C2-00-00-10 is not link-local: copied=0",
+    "pass": true
+  },
+  {
+    "name": "rx_tagged_stream_copied",
+    "rc": 2,
+    "expected_check": "tagged AAF stream: copied=1",
+    "pass": true
+  },
+  {
+    "name": "stream_is_only_aaf",
+    "rc": 2,
+    "expected_check": "experimental stream 0x7F: copied=1",
+    "pass": true
+  },
+  {
+    "name": "stream_includes_control",
+    "rc": 2,
+    "expected_check": "ADP multicast: copied=0",
+    "pass": true
+  },
+  {
+    "name": "rx_stream_before_host_order",
+    "rc": 2,
+    "expected_check": "CVF stream unicast to the computer: copied=1",
+    "pass": true
+  },
+  {
+    "name": "rx_no_host_still_copies",
+    "rc": 2,
+    "expected_check": "attached=0: broadcast ARP: copied=1",
+    "pass": true
+  },
+  {
+    "name": "rx_double_tag_read",
+    "rc": 2,
+    "expected_check": "attached=1: double tag: copied=1",
+    "pass": true
+  },
+  {
+    "name": "rx_full_overwrites",
+    "rc": 2,
+    "expected_check": "a full buffer drops whole frames",
+    "pass": true
+  },
+  {
+    "name": "rx_odd_pad_stale",
+    "rc": 2,
+    "expected_check": "records toward the computer are well formed",
+    "pass": true
+  },
+  {
+    "name": "rx_rollback_missing",
+    "rc": 2,
+    "expected_check": "is octet-exact",
+    "pass": true
+  },
+  {
+    "name": "tx_source_unchecked",
+    "rc": 2,
+    "expected_check": "foreign source: verdict 0",
+    "pass": true
+  },
+  {
+    "name": "tx_link_local_passes",
+    "rc": 2,
+    "expected_check": "gPTP: verdict",
+    "pass": true
+  },
+  {
+    "name": "tx_stream_passes",
+    "rc": 2,
+    "expected_check": "untagged AAF: verdict 0",
+    "pass": true
+  },
+  {
+    "name": "tx_priority_unchecked",
+    "rc": 2,
+    "expected_check": "tagged priority 3: verdict 0",
+    "pass": true
+  },
+  {
+    "name": "tx_background_refused",
+    "rc": 2,
+    "expected_check": "tagged background: verdict 4",
+    "pass": true
+  },
+  {
+    "name": "tx_double_tag_passes",
+    "rc": 2,
+    "expected_check": "double tag: verdict 0",
+    "pass": true
+  },
+  {
+    "name": "tx_too_long_passes",
+    "rc": 2,
+    "expected_check": "too long: verdict",
+    "pass": true
+  },
+  {
+    "name": "tx_unknown_record_not_skipped",
+    "rc": 2,
+    "expected_check": "one verdict per frame record",
+    "pass": true
+  },
+  {
+    "name": "host_universal_accepted",
+    "rc": 2,
+    "expected_check": "a universally administered address is refused",
+    "pass": true
+  },
+  {
+    "name": "host_timeout_ignored",
+    "rc": 2,
+    "expected_check": "a stale host record drops LD1",
+    "pass": true
+  },
+  {
+    "name": "usb_ok_ignores_superspeed",
+    "rc": 2,
+    "expected_check": "LD1 input needs SuperSpeed",
+    "pass": true
+  },
+  {
+    "name": "usb_ok_ignores_bus",
+    "rc": 2,
+    "expected_check": "LD1 input needs the bus clock",
+    "pass": true
+  },
+  {
+    "name": "rate_four_times",
+    "rc": 2,
+    "expected_check": "the steady rate stays at the limit",
+    "pass": true
+  },
+  {
+    "name": "rate_cost_without_overhead",
+    "rc": 2,
+    "expected_check": "the steady rate stays at the limit",
+    "pass": true
+  },
+  {
+    "name": "rate_too_slow",
+    "rc": 2,
+    "expected_check": "the limiter does not throttle below it",
+    "pass": true
+  },
+  {
+    "name": "arb_injection_outranks",
+    "rc": 2,
+    "expected_check": "the datapath wins every arbitration",
+    "pass": true
+  },
+  {
+    "name": "arb_mac_not_empty",
+    "rc": 2,
+    "expected_check": "no injected frame shared the MAC with a datapath frame",
+    "pass": true
+  },
+  {
+    "name": "arb_no_wait_for_end",
+    "rc": 2,
+    "expected_check": "no injected frame shared the MAC with a datapath frame",
+    "pass": true
+  },
+  {
+    "name": "arb_end_not_masked",
+    "rc": 2,
+    "expected_check": "the frame-end toggle counts the datapath frames only",
+    "pass": true
+  },
+  {
+    "name": "arb_inject_enable_ignored",
+    "rc": 2,
+    "expected_check": "inject_en_i low holds the computer's frames",
+    "pass": true
+  },
+  {
+    "name": "inject_gap_in_frame",
+    "rc": 2,
+    "expected_check": "no gap inside a frame",
+    "pass": true
+  },
+  {
+    "name": "ld0_ignores_link",
+    "rc": 2,
+    "expected_check": "all off: LD0",
+    "pass": true
+  },
+  {
+    "name": "ld0_no_blink",
+    "rc": 2,
+    "expected_check": "one frame: LD0 off for",
+    "pass": true
+  },
+  {
+    "name": "ld0_no_hold",
+    "rc": 2,
+    "expected_check": "a frame inside the 60 ms hold does not blink",
+    "pass": true
+  },
+  {
+    "name": "ld0_blinks_link_down",
+    "rc": 2,
+    "expected_check": "link back: LD0 on at once",
+    "pass": true
+  },
+  {
+    "name": "ld1_from_wrong_input",
+    "rc": 2,
+    "expected_check": "LD1 alone",
+    "pass": true
+  },
+  {
+    "name": "ld2_ld3_swapped",
+    "rc": 2,
+    "expected_check": "LD2 alone",
+    "pass": true
+  },
+  {
+    "name": "led_full_duty",
+    "rc": 2,
+    "expected_check": "link: LD0 lit",
+    "pass": true
+  }
+]

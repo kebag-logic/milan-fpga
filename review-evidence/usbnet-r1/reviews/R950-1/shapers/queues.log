@@ -1,0 +1,17 @@
+make: Entering directory '$PACKET/scratch/shapers/queues'
+$VALIDATION_TOOLS/pinned-verilator-5.050/verilator --cc --exe --build -j 2 --top-module queues_wrap +incdir+$REPO/hdl/common +incdir+$REPO/hdl/ieee8021q/ts -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-PINCONNECTEMPTY -Wno-IMPORTSTAR -Wno-CASEINCOMPLETE -Wno-EOFNEWLINE -CFLAGS "-std=c++17 -O2 -Wall -Wextra" $REPO/hdl/common/axi_stream_if.sv $REPO/third_party/verilog-axis/rtl/axis_fifo.v $REPO/third_party/verilog-axis/rtl/axis_demux.v $REPO/third_party/verilog-axis/rtl/axis_arb_mux.v $REPO/third_party/verilog-axis/rtl/arbiter.v $REPO/third_party/verilog-axis/rtl/priority_encoder.v $REPO/hdl/ieee8021q/ts/traffic_queues.sv queues_wrap.sv sim_main.cpp -o Vqueues_sim
+make[1]: Entering directory '$PACKET/scratch/shapers/queues/obj_dir'
+g++  -I.  -MMD -I$SIMULATOR_SHARE/include -I$SIMULATOR_SHARE/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -Os  -c -o sim_main.o ../sim_main.cpp
+g++    sim_main.o verilated.o verilated_threads.o Vqueues_wrap__ALL.a    -pthread -lpthread -latomic   -o Vqueues_sim
+rm Vqueues_wrap__ALL.verilator_deplist.tmp
+make[1]: Leaving directory '$PACKET/scratch/shapers/queues/obj_dir'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.000 MB sources in 0 modules, into 0.000 MB in 0 C++ files needing 0.000 MB
+- Verilator: Walltime 0.821 s (elab=0.000, cvt=0.000, bld=0.820); cpu 0.001 s on 2 threads; allocated 16.496 MB
+======================================================================
+./obj_dir/Vqueues_sim
+== traffic_queues harness (axis_demux/axis_fifo/axis_arb_mux) ==
+--------------------------------------------------------------
+checks: 13   failures: 0
+RESULT: PASS
+make: Leaving directory '$PACKET/scratch/shapers/queues'

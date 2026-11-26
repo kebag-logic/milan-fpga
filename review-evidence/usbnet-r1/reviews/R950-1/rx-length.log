@@ -1,0 +1,7 @@
+rx_length=1518 emitted_records=1 header_length=1518
+rx_length=1519 emitted_records=1 header_length=1519
+FAIL $PACKET/rx_length_probe.cpp:13: documented maximum 1518: emitted input length 1519
+rx_length=2000 emitted_records=1 header_length=2000
+FAIL $PACKET/rx_length_probe.cpp:13: documented maximum 1518: emitted input length 2000
+rx_length=2001 emitted_records=0
+probe failures=2

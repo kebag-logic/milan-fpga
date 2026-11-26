@@ -1,0 +1,34 @@
+Source HEAD cc49123d2db1e01e80859efa10f8da43a01344ef
+Simulator identity before execution: Verilator 5.050 2026-07-01 rev v5.050
+Scoped launcher SHA-256 905795b99e0a8803383b198b118bafcbd87d20b877e3f09c39c31ea81979e92f
+Set REPO to the isolated checkout, PACKET to this directory, and SIMULATOR to the scoped 5.050 executable.
+Commands are foreground Python supervisors; independent workers finish before return. No detached shell jobs.
+
+python3 "$PACKET/run_rtl.py" "$REPO" --jobs 8 --simulator "$SIMULATOR"
+rc 0; 2 baseline harnesses pass, all 43 plants detected by named checks.
+Each build invokes make -j16 with one compiler worker per plant.
+
+python3 "$PACKET/run_firmware.py" "$REPO" --jobs 2
+rc 0; shipping LED cases and all 8 LED plants pass their expected outcome.
+The initial invocation selected shipping plus the 8 plants; the final portable script also includes every checked-in Arty model.
+python3 "$PACKET/run_firmware.py" "$REPO" --jobs 2 --only-arty
+rc 0; all four LED cases pass on each of the 3 checked-in Arty models.
+Each firmware worker has a two-job compile limit.
+
+python3 "$PACKET/run_shapers.py" "$REPO" --jobs 3 --simulator "$SIMULATOR"
+rc 0; cbs, shaper_core, queues.
+Initial disposable scaffold omitted tb/common and all three builds refused before testing. Added the unchanged shared harness to the disposable scaffold and reran successfully. No source or test logic changed.
+Each build invokes make -j16 with two compiler workers.
+
+python3 "$PACKET/run_probe.py" "$REPO" --simulator "$SIMULATOR"
+rc 1; rate-hold counterexample, expected negative result on this head.
+python3 "$PACKET/run_last_probe.py" "$REPO" --simulator "$SIMULATOR"
+rc 0; every original tap test PASSES with the deliberately broken terminator. This is an escaped plant, not approval.
+python3 "$PACKET/run_probe.py" "$REPO" --simulator "$SIMULATOR" --case rx-length
+rc 1; current documented receive-size contract violated at 1519 and 2000 bytes.
+
+python3 "$PACKET/verify_tree.py" "$REPO"
+rc 0; raw blob, mode, index and populated gitlink verification, replacement objects disabled.
+
+Receipts retain emitted diagnostics and numeric results, replacing only private absolute installation paths with $SIMULATOR_SHARE/$SIMULATOR_BINARY and workspace roots with $REPO/$PACKET.
+The large author builds were inspected from public pinned receipts, not rerun here. No manager source bank is asserted.

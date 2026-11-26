@@ -1,0 +1,54 @@
+make: Entering directory '$REPO/tb/verilator/usbnet'
+mkdir -p $PACKET/scratch/rx_other_unicast_copied/obj/tap
+$VALIDATION_TOOLS/pinned-verilator-5.050/verilator --cc --exe --build -j 1 -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-PROCASSINIT -Werror-UNDRIVEN -Werror-MULTIDRIVEN -CFLAGS "-std=c++17 -O2 -Wall -Wextra" --top-module KL_usbnet_tap -GCLK_HZ_P=1000000 -GRATE_BPS_P=800000 -GBURST_OCTETS_P=3200 -GHOST_TIMEOUT_MS_P=3 --Mdir $PACKET/scratch/rx_other_unicast_copied/obj/tap \
+  $PACKET/scratch/rx_other_unicast_copied/rtl/KL_usbnet_pkg.sv $PACKET/scratch/rx_other_unicast_copied/rtl/KL_usbnet_rx_copy.sv $PACKET/scratch/rx_other_unicast_copied/rtl/KL_usbnet_tx_inject.sv $PACKET/scratch/rx_other_unicast_copied/rtl/KL_usbnet_tx_arb.sv $PACKET/scratch/rx_other_unicast_copied/rtl/KL_usbnet_tap.sv sim_main.cpp -o Vtap
+%Warning-WIDTHEXPAND: $PACKET/scratch/rx_other_unicast_copied/rtl/KL_usbnet_tap.sv:42:30: Operator VAR 'RATE_BPS_P' expects 64 bits on the Initial value, but Initial value's CONST '32'hc3500' generates 32 bits.
+                                                                                                                                    : ... note: In instance 'KL_usbnet_tap'
+   42 |   parameter longint unsigned RATE_BPS_P        = 64'd10_000_000,
+      |                              ^~~~~~~~~~
+                      ... For warning description see https://verilator.org/warn/WIDTHEXPAND?v=5.050
+                      ... Use "/* verilator lint_off WIDTHEXPAND */" and lint_on around source to disable this message.
+make[1]: Entering directory '$PACKET/scratch/rx_other_unicast_copied/obj/tap'
+g++  -I.  -MMD -I$SIMULATOR_SHARE/include -I$SIMULATOR_SHARE/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -Os  -c -o sim_main.o ../../../../../r950-1-usbnet/tb/verilator/usbnet/sim_main.cpp
+g++ -Os  -I.  -MMD -I$SIMULATOR_SHARE/include -I$SIMULATOR_SHARE/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -c -o verilated.o $SIMULATOR_SHARE/include/verilated.cpp
+g++ -Os  -I.  -MMD -I$SIMULATOR_SHARE/include -I$SIMULATOR_SHARE/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -c -o verilated_threads.o $SIMULATOR_SHARE/include/verilated_threads.cpp
+python3 $SIMULATOR_SHARE/bin/verilator_includer -DVL_INCLUDE_OPT=include VKL_usbnet_tap.cpp VKL_usbnet_tap___024root__0.cpp VKL_usbnet_tap__ConstPool__0__Slow.cpp VKL_usbnet_tap___024root__Slow.cpp VKL_usbnet_tap___024root__0__Slow.cpp VKL_usbnet_tap__Syms__Slow.cpp > VKL_usbnet_tap__ALL.cpp
+g++ -Os  -I.  -MMD -I$SIMULATOR_SHARE/include -I$SIMULATOR_SHARE/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -c -o VKL_usbnet_tap__ALL.o VKL_usbnet_tap__ALL.cpp
+g++    sim_main.o verilated.o verilated_threads.o VKL_usbnet_tap__ALL.a    -pthread -lpthread -latomic   -o Vtap
+rm VKL_usbnet_tap__ALL.verilator_deplist.tmp
+make[1]: Leaving directory '$PACKET/scratch/rx_other_unicast_copied/obj/tap'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.302 MB sources in 6 modules, into 0.198 MB in 6 C++ files needing 0.001 MB
+- Verilator: Walltime 8.004 s (elab=0.007, cvt=0.033, bld=7.950); cpu 0.053 s on 1 threads; allocated 20.871 MB
+$PACKET/scratch/rx_other_unicast_copied/obj/tap/Vtap
+PASS host_record
+FAIL ../../../../../r950-1-usbnet/tb/verilator/usbnet/sim_main.cpp:404: attached=1: 15 copied, 13 expected
+FAIL ../../../../../r950-1-usbnet/tb/verilator/usbnet/sim_main.cpp:406: attached=1: copy 1 is octet-exact
+FAIL ../../../../../r950-1-usbnet/tb/verilator/usbnet/sim_main.cpp:406: attached=1: copy 2 is octet-exact
+FAIL ../../../../../r950-1-usbnet/tb/verilator/usbnet/sim_main.cpp:406: attached=1: copy 3 is octet-exact
+FAIL ../../../../../r950-1-usbnet/tb/verilator/usbnet/sim_main.cpp:406: attached=1: copy 4 is octet-exact
+FAIL ../../../../../r950-1-usbnet/tb/verilator/usbnet/sim_main.cpp:406: attached=1: copy 5 is octet-exact
+FAIL ../../../../../r950-1-usbnet/tb/verilator/usbnet/sim_main.cpp:406: attached=1: copy 6 is octet-exact
+FAIL ../../../../../r950-1-usbnet/tb/verilator/usbnet/sim_main.cpp:406: attached=1: copy 7 is octet-exact
+FAIL ../../../../../r950-1-usbnet/tb/verilator/usbnet/sim_main.cpp:406: attached=1: copy 8 is octet-exact
+FAIL ../../../../../r950-1-usbnet/tb/verilator/usbnet/sim_main.cpp:406: attached=1: copy 9 is octet-exact
+FAIL ../../../../../r950-1-usbnet/tb/verilator/usbnet/sim_main.cpp:406: attached=1: copy 10 is octet-exact
+FAIL ../../../../../r950-1-usbnet/tb/verilator/usbnet/sim_main.cpp:406: attached=1: copy 11 is octet-exact
+FAIL ../../../../../r950-1-usbnet/tb/verilator/usbnet/sim_main.cpp:406: attached=1: copy 12 is octet-exact
+FAIL ../../../../../r950-1-usbnet/tb/verilator/usbnet/sim_main.cpp:411: attached=1: unicast to the device: copied=1
+FAIL ../../../../../r950-1-usbnet/tb/verilator/usbnet/sim_main.cpp:411: attached=1: unicast to another station: copied=1
+FAIL ../../../../../r950-1-usbnet/tb/verilator/usbnet/sim_main.cpp:413: copied counter
+FAIL rx_classes
+PASS rx_full
+PASS tx_drops
+  rate: 24 frames, steady 799973 b/s over 204807 clocks (limit 800000)
+PASS tx_rate
+  priority (stall=0): 120 datapath, 29 injected, worst datapath wait 2314 clocks
+PASS tx_priority
+  priority (stall=1): 120 datapath, 29 injected, worst datapath wait 2337 clocks
+PASS tx_priority_stall
+PASS tx_contention
+PASS tx_transparent
+FAIL: 16 failure(s)
+make: *** [Makefile:35: tap] Error 1
+make: Leaving directory '$REPO/tb/verilator/usbnet'

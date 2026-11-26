@@ -1,0 +1,11 @@
+wire_complete=1 elapsed=1601 wire_octets=1024 envelope=3360.1
+wire_complete=2 elapsed=3206 wire_octets=2048 envelope=3520.6
+wire_complete=3 elapsed=4810 wire_octets=3072 envelope=3681.0
+wire_complete=4 elapsed=6415 wire_octets=4096 envelope=3841.5
+FAIL $PACKET/rate_hold_probe.cpp:20: completed wire envelope: 4096 > 3841.5
+frame=1 elapsed=1 charged_octets=1024 envelope=3200.1
+frame=2 elapsed=1605 charged_octets=2048 envelope=3360.5
+frame=3 elapsed=3210 charged_octets=3072 envelope=3521.0
+frame=4 elapsed=4814 charged_octets=4096 envelope=3681.4
+FAIL $PACKET/rate_hold_probe.cpp:30: token envelope after held grant: 4096 > 3681.4
+probe failures=2
