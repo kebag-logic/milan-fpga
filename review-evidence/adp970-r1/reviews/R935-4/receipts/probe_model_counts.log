@@ -1,0 +1,73 @@
+MODEL COUNTS 1 interface(s): 2 stale count(s) in the scenario; each path planted one short, found/instances: link_up 11 8/6, link_down 8 4/2, gm_change 10 3/1, discover 30 4/2, tmr_delay 38 7/5, tmr_advertise 10 3/1: FAIL
+  adp-shutdown: adp.shutdown.if0 publishes 29 model accesses on a path not held here
+  control-shutdown: control.shutdown.if0 publishes 29 model accesses on a path not held here
+MODEL COUNTS 2 interface(s): 3 stale count(s) in the scenario; each path planted one short, found/instances: link_up 11 14/11, link_down 8 6/3, gm_change 10 5/2, discover 30 6/3, tmr_delay 38 13/10, tmr_advertise 10 5/2: FAIL
+  adp-shutdown: adp.shutdown.if0 publishes 29 model accesses on a path not held here
+  adp-shutdown: adp.shutdown.if1 publishes 29 model accesses on a path not held here
+  control-shutdown: control.shutdown.if0 publishes 29 model accesses on a path not held here
+MODEL COUNTS 1 interface(s): 2 stale count(s) in the scenario; each path planted one short, found/instances: link_up 11 8/6, gm_change 10 3/1, discover 30 4/2, tmr_delay 38 7/5, tmr_advertise 10 3/1, shutdown 28 4/2: FAIL
+  adp-link: adp.link_down.if0 publishes 9 model accesses on a path not held here
+  fixture: fixture.link_down.if0 publishes 9 model accesses on a path not held here
+MODEL COUNTS 2 interface(s): 3 stale count(s) in the scenario; each path planted one short, found/instances: link_up 11 14/11, gm_change 10 5/2, discover 30 6/3, tmr_delay 38 13/10, tmr_advertise 10 5/2, shutdown 28 6/3: FAIL
+  adp-link: adp.link_down.if0 publishes 9 model accesses on a path not held here
+  adp-link: adp.link_down.if1 publishes 9 model accesses on a path not held here
+  fixture: fixture.link_down.if0 publishes 9 model accesses on a path not held here
+MODEL COUNTS 1 interface(s): 0 stale count(s) in the scenario; each path planted one short, found/instances: link_up 11 6/6, link_down 8 2/2, gm_change 10 1/1, discover 30 2/2, tmr_delay 38 5/5, tmr_advertise 10 1/1, shutdown 28 0/0: FAIL
+MODEL COUNTS 2 interface(s): 0 stale count(s) in the scenario; each path planted one short, found/instances: link_up 11 11/11, link_down 8 3/3, gm_change 10 2/2, discover 30 3/3, tmr_delay 38 10/10, tmr_advertise 10 2/2, shutdown 28 0/0: FAIL
+MODEL COUNTS 1 interface(s): 0 stale count(s) in the scenario; each path planted one short, found/instances: link_up 11 2/2, link_down 8 1/1, gm_change 10 0/0, discover 30 1/1, tmr_delay 38 1/1, tmr_advertise 10 0/0, shutdown 28 2/2: FAIL
+MODEL COUNTS 2 interface(s): 0 stale count(s) in the scenario; each path planted one short, found/instances: link_up 11 3/3, link_down 8 1/1, gm_change 10 0/0, discover 30 1/1, tmr_delay 38 2/2, tmr_advertise 10 0/0, shutdown 28 3/3: FAIL
+ok   [1 if] real header, real scenario: MISSED (expected MISSED)
+ok   [1 if] header LINK 13: DETECTED (expected DETECTED)
+ok   [1 if] header GM 12: DETECTED (expected DETECTED)
+ok   [1 if] header DISCOVER 32: DETECTED (expected DETECTED)
+ok   [1 if] header DELAY 40: DETECTED (expected DETECTED)
+ok   [1 if] header ADVERTISE 12: DETECTED (expected DETECTED)
+ok   [1 if] header SHUTDOWN 30: DETECTED (expected DETECTED)
+ok   [1 if] header LINK_DOWN comment 10: DETECTED (expected DETECTED)
+ok   [1 if] header LINK_DOWN comment unreadable: RAISES (KeyError) (expected RAISES (KeyError))
+ok   [1 if] header SHUTDOWN macro removed: RAISES (KeyError) (expected RAISES (KeyError))
+ok   [1 if] scenario adp.link_up 13 (one over): DETECTED (expected DETECTED)
+ok   [1 if] scenario adp.link_down 10 (one over): DETECTED (expected DETECTED)
+ok   [1 if] scenario adp.gm_change 12 (one over): DETECTED (expected DETECTED)
+ok   [1 if] scenario adp.discover 32 (one over): DETECTED (expected DETECTED)
+ok   [1 if] scenario adp.tmr_delay 40 (one over): DETECTED (expected DETECTED)
+ok   [1 if] scenario adp.tmr_advertise 12 (one over): DETECTED (expected DETECTED)
+ok   [1 if] scenario adp.shutdown 30 (one over): DETECTED (expected DETECTED)
+ok   [1 if] an ADP count on an unheld path: DETECTED (expected DETECTED)
+ok   [1 if] one instance of adp.link_up stale: DETECTED (expected DETECTED)
+ok   [1 if] one instance of adp.link_down stale: DETECTED (expected DETECTED)
+ok   [1 if] one instance of adp.gm_change stale: DETECTED (expected DETECTED)
+ok   [1 if] one instance of adp.discover stale: DETECTED (expected DETECTED)
+ok   [1 if] one instance of adp.tmr_delay stale: DETECTED (expected DETECTED)
+ok   [1 if] one instance of adp.tmr_advertise stale: DETECTED (expected DETECTED)
+ok   [1 if] one instance of adp.shutdown stale: DETECTED (expected DETECTED)
+ok   [2 if] real header, real scenario: MISSED (expected MISSED)
+ok   [2 if] header LINK 13: DETECTED (expected DETECTED)
+ok   [2 if] header GM 12: DETECTED (expected DETECTED)
+ok   [2 if] header DISCOVER 32: DETECTED (expected DETECTED)
+ok   [2 if] header DELAY 40: DETECTED (expected DETECTED)
+ok   [2 if] header ADVERTISE 12: DETECTED (expected DETECTED)
+ok   [2 if] header SHUTDOWN 30: DETECTED (expected DETECTED)
+ok   [2 if] header LINK_DOWN comment 10: DETECTED (expected DETECTED)
+ok   [2 if] header LINK_DOWN comment unreadable: RAISES (KeyError) (expected RAISES (KeyError))
+ok   [2 if] header SHUTDOWN macro removed: RAISES (KeyError) (expected RAISES (KeyError))
+ok   [2 if] scenario adp.link_up 13 (one over): DETECTED (expected DETECTED)
+ok   [2 if] scenario adp.link_down 10 (one over): DETECTED (expected DETECTED)
+ok   [2 if] scenario adp.gm_change 12 (one over): DETECTED (expected DETECTED)
+ok   [2 if] scenario adp.discover 32 (one over): DETECTED (expected DETECTED)
+ok   [2 if] scenario adp.tmr_delay 40 (one over): DETECTED (expected DETECTED)
+ok   [2 if] scenario adp.tmr_advertise 12 (one over): DETECTED (expected DETECTED)
+ok   [2 if] scenario adp.shutdown 30 (one over): DETECTED (expected DETECTED)
+ok   [2 if] an ADP count on an unheld path: DETECTED (expected DETECTED)
+ok   [2 if] one instance of adp.link_up stale: DETECTED (expected DETECTED)
+ok   [2 if] one instance of adp.link_down stale: DETECTED (expected DETECTED)
+ok   [2 if] one instance of adp.gm_change stale: DETECTED (expected DETECTED)
+ok   [2 if] one instance of adp.discover stale: DETECTED (expected DETECTED)
+ok   [2 if] one instance of adp.tmr_delay stale: DETECTED (expected DETECTED)
+ok   [2 if] one instance of adp.tmr_advertise stale: DETECTED (expected DETECTED)
+ok   [2 if] one instance of adp.shutdown stale: DETECTED (expected DETECTED)
+ok   [- if] weakened check: PATHS without adp.shutdown: main FAILS (expected main FAILS)
+ok   [- if] weakened check: PATHS without adp.link_down: main FAILS (expected main FAILS)
+ok   [- if] weakened check: SETS without shutdown_groups: main FAILS (expected main FAILS)
+ok   [- if] weakened check: SETS without adp_groups: main FAILS (expected main FAILS)
+PROBES: 54 of 54 as expected
