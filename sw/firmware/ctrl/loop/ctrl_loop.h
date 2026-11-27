@@ -344,9 +344,10 @@ extern "C" {
 // CTRL_LOOP_SRP_REG_US, a Talker registration's stated cost, for each Talker value the record can
 // register, a bound read from the record in the ring before lwSRP parses it and never under that
 // count (srp_mbx.c, rx_charge): an MSRP record's Talker Messages' vectors, each at most V values
-// (srp_mbx.h SRP_RECORD_VALUES, 4 at 1x1/1if and 9 at 8x8/1if; #977, its ruling of 2026-11-27, item
-// 2), as lwSRP's receive filter takes a Talker value only for a bound sink's StreamID or a kept one,
-// at most V of them, and a vector's values are distinct StreamIDs (IEEE 802.1Q-2018 35.2.2.8.4;
+// (srp_mbx.h SRP_RECORD_VALUES, 4 at 1x1/1if and 9 at 8x8/1if; #977, its ruling of 2026-11-27 on
+// the population bound, item 2), as lwSRP's receive filter takes a Talker value only for a bound
+// sink's StreamID or a kept one, at most V of them, and a vector's values are distinct StreamIDs
+// (IEEE 802.1Q-2018 35.2.2.8.4;
 // lwSRP refuses an increment that overflows); a vector of no values, a LeaveAll's, skipped by its
 // FirstValue and only a VectorHeader of 0 ending the Message's vectors (10.8.1.2, 10.8.2.8); every
 // other Message skipped by its length, and past eight Messages the rest at V a 28 octets, the least
@@ -391,9 +392,10 @@ extern "C" {
 // #897's (its tx row's 34.20 with GET_AS_PATH's read composed on them; 33.44
 // at that head, the figure not lowered),
 // 8x8/1if's its own, 130 ms, as #894 states it there, and its tx row rounded
-// up, at the cap: 80 ms for the 79.48 ms of its row opened on a record's pass
-// alone with its SETTLE and its polls' base and walk restated (#977's ruling of
-// 2026-11-27 on the alone records, item 5, as the owner agreed; the hold-off
+// up, at the cap: 80 ms for the 79.49 ms of its row opened on a record's pass
+// alone with its SETTLE and its polls' base and walk restated (79.48 at the
+// ruling's 415 us SETTLE; #977's ruling of 2026-11-27 on the alone records,
+// item 5, approved by the owner's decision of 2026-11-27; the hold-off
 // stays 8 cs), 77 ms for the 76.86 ms with #977's walk at its 120 us again (78 for the
 // 77.37 ms of its 190 us walk, 77 for the 76.81 ms of #665's final head,
 // #665's ruling of 2026-11-18, item 2a; 75 for #894's 74.26), at most 80 so the

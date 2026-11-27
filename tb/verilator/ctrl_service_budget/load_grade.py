@@ -10,7 +10,7 @@ each source's arrival rate, from a contract rate (sw/mailbox/mailbox.yaml, read 
 one exception is the work a registering record defers into the polls' base of the passes after it, its binding changes
 and loss completions, which the delivery bound makes one a delivery (#977, ctrl_app_srp.c deliver): a source, the
 record, at the registration rate, so a term of its own (deliveries), stated against the median ordinary pass's base
-(#977's review R957-2, finding 1, option (a), as the manager decided on 2026-11-27).
+(#977, as the manager decided on 2026-11-27 on the deferred deliveries).
 At or above 1.0 no ordering of the work bounds a row; CEILING leaves room for the rows: 0.70 (#665, option D) at
 1x1/1if, which this gate holds for merge, at the pin and with tsn-c-stack#32 (COLUMNS), each named in what it finds.
 8x8/2if is held to the same 0.70 by the flip check, flip_grade.py, read at the pin, a check apart from the merge gates
@@ -80,10 +80,10 @@ The terms (per millisecond):
   registrations  a peer's Talker registrations at the MRP state machines' rate (#977, its ruling of 2026-11-23,
                  option (a)): a participant transmits at most three MRPDUs in any 1.5 x JoinTime (IEEE 802.1Q-2018
                  10.7.11), JoinTime at least JOIN_MIN_MS (Milan v1.2 Table 4.3), and each may declare V Talkers, the
-                 bound and the kept a record may register (SRP_RECORD_VALUES; the ruling of 2026-11-27, item 2), in the
-                 kind that replaces the one registered (35.2.6; Milan v1.2 4.2.7.2.2), so every one registers anew;
-                 each at REGISTRATION_US, a Talker's share of its record's apply past the unit and of ACMP's completion
-                 of it (THE SETTLE), where the point measures it.
+                 bound and the kept a record may register (SRP_RECORD_VALUES; the ruling of 2026-11-27 on the
+                 population bound, item 2), in the kind that replaces the one registered (35.2.6; Milan v1.2
+                 4.2.7.2.2), so every one registers anew; each at REGISTRATION_US, a Talker's share of its record's
+                 apply past the unit and of ACMP's completion of it (THE SETTLE), where the point measures it.
   deliveries     the binding changes and loss completions a registering record defers, one a delivery, into the polls'
                  base of the passes after it (ctrl_app_srp.c deliver): V a record at the registrations' rate, each at
                  DELIVERY_US, a sink's share of a record's delivering passes' base over the median ordinary pass's,
@@ -368,9 +368,10 @@ TX_PER_JOIN = 3
 #: making no binding change (e59cf6ea's images, the hot list relearned on them): at 8x8/1if the none arm's JoinIn of
 #: both kinds in one MRPDU, 161,132 cycles, 123,632 past the unit, and its settle, 37,658, over nine values, 17,921
 #: cycles, 190 us by the rule; at 1x1/1if the none arm's, 56,210 cycles, 27,710 past the unit, and its settle, 7,446,
-#: over two values, 17,578 cycles, 185 us (#977's ruling on round 9's STOP, item 4: the cost restated by the rule).
+#: over two values, 17,578 cycles, 185 us (#977's ruling of 2026-11-27 on the delivery bound, item 4: the cost
+#: restated by the rule).
 REGISTRATION_US = {'1x1/1if': 185, '8x8/1if': 190}
-#: The deliveries term (#977's review R957-2, finding 1, option (a), the manager's decision of 2026-11-27): the work a
+#: The deliveries term (#977, the manager's decision of 2026-11-27 on the deferred deliveries): the work a
 #: registering record defers into the polls' base of the passes after it, its binding changes and loss completions, one
 #: a delivery under the delivery bound, at a sink's share of it. Measured over every registering group of both arms on
 #: e59cf6ea's images (the head's byte-identical), each record's window the delivery bound's own, its pass and the 2 x
@@ -382,7 +383,8 @@ REGISTRATION_US = {'1x1/1if': 185, '8x8/1if': 190}
 DELIVERY_US = {'1x1/1if': 190, '8x8/1if': 125}
 DELIVERY_US_DEAREST = {'1x1/1if': 130, '8x8/1if': 80}
 #: V, the Talker values one SRP record may register, as srp_mbx.h states it at each point's shape (SRP_RECORD_VALUES;
-#: #977, its ruling of 2026-11-27, item 2): the registrations term counts V a record, the bound and the kept together.
+#: #977, its ruling of 2026-11-27 on the population bound, item 2): the registrations term counts V a record, the
+#: bound and the kept together.
 RECORD_SHAPES = {'1x1/1if': '1u, 2u, 2u', '8x8/1if': '1u, 9u, 9u'}
 
 

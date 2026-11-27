@@ -244,7 +244,8 @@ def population_groups(p: scenario.Point) -> list[scenario.Group]:
     one change and leaves the other owed (#977's ruling of 2026-11-27 on the alone records, item 4: the record's pass
     makes none); and srp-register-messages, every input bound, then one MRPDU
     of eight Listener Messages before one Talker Advertise Message for each input, past the eight Messages the drain
-    reads one by one (#977's ruling of 2026-11-27, item 5, and its ruling on round 9's STOP, item 4)."""
+    reads one by one (#977's ruling of 2026-11-27 on the population bound, item 5, and its ruling of the same day on
+    the delivery bound, item 4)."""
     srp, ms, n = scenario.CH['srp'], scenario.MS, p.sinks
     v = record_values(p)
     out = []
@@ -284,7 +285,8 @@ def population_groups(p: scenario.Point) -> list[scenario.Group]:
         out.append(g)
     # every input's Lv of the registered kind alone (Table 10-4: IN to LV), and the same left to its leave timers,
     # which the one record starts together, so they run out in one centisecond (10.7.11); then every input's JoinIn of
-    # both kinds in one MRPDU, the second replacing the first (35.2.6) (#977's ruling on round 9's STOP, item 4)
+    # both kinds in one MRPDU, the second replacing the first (35.2.6) (#977's ruling of 2026-11-27 on the delivery
+    # bound, item 4)
     for name, extra in (('lv', 0), ('leavetime', LEAVE_MS)):
         g = group(name, n, extra)
         probe(g, f'register_{name}_advertise', "every input's Talker Advertise, bound, before the record measured",

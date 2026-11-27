@@ -232,8 +232,8 @@ TEST_F(SrpBinding, ParkedReplacementRetiresThePreviouslyAcceptedBinding) {
             }
         });
         for (unsigned k=0;k<2u;++k) ASSERT_TRUE(sink(k).bound);
-        // one binding change a delivery (#977's ruling on round 9's STOP, item 2): the first retires one, the
-        // other is owed
+        // one binding change a delivery (#977's ruling of 2026-11-27 on the delivery bound, item 2): the
+        // first retires one, the other is owed
         EXPECT_TRUE(app.loop.polls[4].fn(app.loop.polls[4].ctx))
             << "the second parked binding's retirement is owed";
         EXPECT_EQ(app.loop.polls[4].fn(app.loop.polls[4].ctx),transient);
@@ -373,11 +373,11 @@ TEST_F(SrpBinding, AttachmentRefusesMissingRoomAndShapeWithoutPartialBinding) {
     EXPECT_EQ(app.loop.rx[MBX_CH_SRP].fn,nullptr);
 }
 
-// The delivery's bound (#977, its ruling on round 9's STOP, item 2): a delivery makes at most one binding change and,
-// outside THE SETTLE, at most one loss completion, each the first owed from its turn; the rest stay pending, are
-// delivered in turn and keep the loop awake, so each waits at most n_sinks deliveries of passes that took no SRP
-// record: a pass that carries a record alone makes no binding change (its ruling of 2026-11-27 on the alone records,
-// item 4).
+// The delivery's bound (#977, its ruling of 2026-11-27 on the delivery bound, item 2): a delivery makes at most one
+// binding change and, outside THE SETTLE, at most one loss completion, each the first owed from its turn; the rest
+// stay pending, are delivered in turn and keep the loop awake, so each waits at most n_sinks deliveries of passes
+// that took no SRP record: a pass that carries a record alone makes no binding change (its ruling of 2026-11-27 on
+// the alone records, item 4).
 TEST_F(SrpBinding, D1ADeliveryMakesOneBindingChangeTheRestInTurn) {
     const unsigned n=acfg.n_sinks;
     for (unsigned k=0;k<n;++k) bind(k);

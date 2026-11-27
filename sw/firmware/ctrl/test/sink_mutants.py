@@ -74,7 +74,8 @@ POWER_ON = ("S13 a Talker Advertise registered before the restored binding settl
             "TRANSMIT's next MRPDU, input 0")
 REBOUND = ("S14 a BIND_RX while bound to a stream declared all along: the Listener is declared in THE TRANSMIT's next "
            "MRPDU, input 0")
-#: S14 past the keep (#977's ruling of 2026-11-27, item 3; #1023) and S14b, one input unbound, the keep's room for one.
+#: S14 past the keep (#977's ruling of 2026-11-27 on the population bound, item 3; #1023) and S14b, one input unbound,
+#: the keep's room for one.
 PAST = "S14 past the keep: nothing is declared before the Talker's next declaration, input 0"
 REBOUND_B = ("S14b one input unbound: a BIND_RX while bound to a stream declared all along: an MRPDU follows the "
              "probe's answer, input 0")

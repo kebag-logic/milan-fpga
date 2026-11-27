@@ -1,8 +1,9 @@
 # SPDX-FileCopyrightText: 2026 Kebag Logic
 # SPDX-License-Identifier: CERN-OHL-W-2.0
-"""The load gate's planted controls of the deliveries term (load_grade.py's term list; #977's review R957-2, finding 1,
-option (a)): the binding changes and loss completions a registering record defers, one a delivery, into the polls' base
-of the passes after it. Each control is refused by load_grade.py --check itself (delivery_findings), the head's by none.
+"""The load gate's planted controls of the deliveries term (load_grade.py's term list; #977, the manager's decision of
+2026-11-27 on the deferred deliveries): the binding changes and loss completions a registering record defers, one a
+delivery, into the polls' base of the passes after it. Each control is refused by load_grade.py --check itself
+(delivery_findings), the head's by none.
 """
 from __future__ import annotations
 

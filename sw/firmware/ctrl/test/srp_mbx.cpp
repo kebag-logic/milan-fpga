@@ -468,10 +468,10 @@ TEST_F(Srp, DomainUsesPeerPriorityAndVlan) {
 }
 // THE DRAIN's charge of the record at the head of SRP's ring (#977, its ruling of 2026-11-23, item 4): the unit, and a
 // registration's stated cost for each Talker value its Talker Messages' vectors carry, at most V a vector
-// (SRP_RECORD_VALUES; #977, its ruling of 2026-11-27, items 2 and 4), read with the record left in the ring: nothing for
-// an MVRP record, a Listener's or one past the PDU's EndMark, a Message's AttributeListLength bounding it, a vector of
-// no values (a LeaveAll's) skipped by its FirstValue with the walk going on (IEEE 802.1Q-2018 10.8.1.2, 10.8.2.8), and
-// past eight Messages the rest by its length, V for each 28 octets.
+// (SRP_RECORD_VALUES; #977, its ruling of 2026-11-27 on the population bound, items 2 and 4), read with the record left
+// in the ring: nothing for an MVRP record, a Listener's or one past the PDU's EndMark, a Message's AttributeListLength
+// bounding it, a vector of no values (a LeaveAll's) skipped by its FirstValue with the walk going on (IEEE 802.1Q-2018
+// 10.8.1.2, 10.8.2.8), and past eight Messages the rest by its length, V for each 28 octets.
 TEST_F(Srp, TheDrainChargesARecordTheTalkersItsVectorsCanRegister) {
     settle();
     ASSERT_TRUE(loop.drain_charge != nullptr);
@@ -2594,10 +2594,10 @@ protected:
     }
 };
 
-// The population a record registers (#977, its ruling of 2026-11-27, item 2): with enough sinks bound that the bound
-// and the kept fill V, one vector of V + 3 Talkers from the bound ones' registers V, the bound and the kept, and THE
-// DRAIN charges at least the unit and the cost of each, as read from the record before lwSRP parses it; and so after
-// eight Listener Messages, past which the rest of the record is charged by its length.
+// The population a record registers (#977, its ruling of 2026-11-27 on the population bound, item 2): with enough
+// sinks bound that the bound and the kept fill V, one vector of V + 3 Talkers from the bound ones' registers V, the
+// bound and the kept, and THE DRAIN charges at least the unit and the cost of each, as read from the record before
+// lwSRP parses it; and so after eight Listener Messages, past which the rest of the record is charged by its length.
 TEST_F(SrpEarlyTalker, AVectorOfBoundAndKeptTalkersRegistersVAndIsChargedForEach) {
     const unsigned bound=CTRL_SRP_SINKS<SRP_RECORD_VALUES ? CTRL_SRP_SINKS : CTRL_SRP_SINKS/3u;
     std::vector<uint8_t> listeners;

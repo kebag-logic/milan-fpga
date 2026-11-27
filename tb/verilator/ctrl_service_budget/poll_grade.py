@@ -347,8 +347,8 @@ def talker_values(frame: bytes, most: int) -> int:
 
 
 def record_values(shape: shape_costs.Shape) -> int:
-    """SRP_RECORD_VALUES at a shape (srp_mbx.h, V; #977, its ruling of 2026-11-27, item 2), the bound and the kept
-    together where its chain's #else states it."""
+    """SRP_RECORD_VALUES at a shape (srp_mbx.h, V; #977, its ruling of 2026-11-27 on the population bound, item 2),
+    the bound and the kept together where its chain's #else states it."""
     text = (scenario.ROOT / 'sw/firmware/ctrl/srp/srp_mbx.h').read_text()
     chain = r'#(?:el)?if CTRL_LOOP_SHAPE\((\d+)u, (\d+)u, (\d+)u\)\n#define SRP_RECORD_VALUES (\d+)u'
     for *head, v in re.findall(chain, text):

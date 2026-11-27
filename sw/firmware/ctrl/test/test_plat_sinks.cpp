@@ -1554,11 +1554,11 @@ TEST_F(Early, S13ASavedBindingRestoredAtPowerOnDeclaresATalkerRegisteredBeforeIt
     }
 }
 
-// #969 under #977's population bound (its ruling of 2026-11-27, item 3; #1023): a bind while bound to a stream declared
-// all along is declared within one THE TRANSMIT where its Talker was kept, the first min(SRP_KEPT_TALKERS, V less the
-// bound sinks) declared. Past that keep, as at 8x8/1if with every input bound, nothing is declared before the Talker's
-// next declaration, and then it is declared in THE TRANSMIT's next MRPDU (IEEE 802.1Q-2018 Table 10-3, 10.7.8 NOTE;
-// Milan v1.2 5.5.3.5.18 step 4).
+// #969 under #977's population bound (its ruling of 2026-11-27 on that bound, item 3; #1023): a bind while
+// bound to a stream declared all along is declared within one THE TRANSMIT where its Talker was kept, the first
+// min(SRP_KEPT_TALKERS, V less the bound sinks) declared. Past that keep, as at 8x8/1if with every input bound, nothing
+// is declared before the Talker's next declaration, and then it is declared in THE TRANSMIT's next MRPDU (IEEE
+// 802.1Q-2018 Table 10-3, 10.7.8 NOTE; Milan v1.2 5.5.3.5.18 step 4).
 TEST_F(Early, S14ABindWhileBoundToAStreamDeclaredAllAlongIsDeclaredWithinOneTransmit) {
     ASSERT_TRUE(ready());
     const auto all = every_input();
@@ -1623,8 +1623,9 @@ TEST_F(Early, S14ABindWhileBoundToAStreamDeclaredAllAlongIsDeclaredWithinOneTran
     }
 }
 
-// The same with one input left unbound (#977's ruling on round 9's STOP, item 6): the bound sinks leave the keep room
-// for the one Talker declared, so the rebind of input 0 to it is declared within one THE TRANSMIT at every shape.
+// The same with one input left unbound (#977's ruling of 2026-11-27 on the delivery bound, item 6): the bound sinks
+// leave the keep room for the one Talker declared, so the rebind of input 0 to it is declared within one THE TRANSMIT
+// at every shape.
 TEST_F(Early, S14bWithOneInputUnboundARebindToTheOneTalkerDeclaredIsDeclaredWithinOneTransmit) {
     ASSERT_TRUE(ready());
     auto all = every_input();

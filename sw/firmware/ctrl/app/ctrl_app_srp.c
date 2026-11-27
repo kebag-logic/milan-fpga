@@ -140,9 +140,10 @@ static bool deliver(void *ctx)
     // One delivery makes at most one binding change and, outside THE SETTLE, at most one loss completion, each the
     // first owed from its turn, the sink after the last it made, and the rest stay pending, delivered in turn. THE
     // TRANSMIT waits on none of them, and a withdrawal a later delivery makes rides the next MRPDU (#977, its ruling
-    // on round 9's STOP, item 2; IEEE 802.1Q-2018 10.7.4.1). A pass that carries a record alone (settles) makes no
-    // binding change either: the record's pass is the record's, and the change stays pending, owed to the next
-    // delivery of a pass that took no SRP record (#977, its ruling of 2026-11-27 on the alone records, item 4)
+    // of 2026-11-27 on the delivery bound, item 2; IEEE 802.1Q-2018 10.7.4.1). A pass that carries a record alone
+    // (settles) makes no binding change either: the record's pass is the record's, and the change stays pending, owed
+    // to the next delivery of a pass that took no SRP record (#977, its ruling of 2026-11-27 on the alone records,
+    // item 4)
     const unsigned n = app->acmp.acmp.cfg.n_sinks;
     unsigned bind = n;
     unsigned lose = n;

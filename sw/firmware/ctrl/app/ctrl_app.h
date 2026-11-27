@@ -104,7 +104,7 @@ struct ctrl_app {
 	// the next ordinary pass's THE SETTLE (ctrl_loop.h; CTRL_LOOP_SETTLE_ALONE, ctrl_app_srp.c, #977).
 	bool srp_settle_owed;
 	// The sinks a delivery takes its one binding change and its one loss completion from, each the sink after the last
-	// it took (ctrl_app_srp.c, deliver; #977's ruling on round 9's STOP, item 2).
+	// it took (ctrl_app_srp.c, deliver; #977's ruling of 2026-11-27 on the delivery bound, item 2).
 	uint8_t srp_bind_turn;
 	uint8_t srp_loss_turn;
 	bool srp_lost_last;                     // the last delivery's SRP work was a loss completion

@@ -1350,7 +1350,7 @@ struct Phy : Boot {
     }
 };
 
-// B25 the platform seeds ADP's draw from its microsecond clock, wired before ADP starts (adp_mbx.h, THE DRAW;
+// The platform seeds ADP's draw from its microsecond clock, wired before ADP starts (adp_mbx.h, THE DRAW;
 // #970): three boots alike but for a clock origin one microsecond apart leave three generator states. A clock read in
 // milliseconds or in coarser granules, or wired after ADP's startup draw (NOW_MS), leaves two alike at least.
 TEST_F(Boot, B25TheAdpDrawIsSeededFromThePlatformsClock) {
@@ -1369,7 +1369,7 @@ TEST_F(Boot, B25TheAdpDrawIsSeededFromThePlatformsClock) {
         << "B25 boots one microsecond apart in the clock's origin seed ADP's draw differently (#970)";
 }
 
-// B27 a LINK_UP after ready takes the platform clock's reading at that LINK_UP: boots alike up to it, the clock one
+// A LINK_UP after ready takes the platform clock's reading at that LINK_UP: boots alike up to it, the clock one
 // microsecond apart only from the link's loss on, draw apart on the interface that rose, and leave every other
 // interface's generator as it was (IEEE 1722.1-2021 6.2.4.2.2; Milan v1.2 5.6.3.5.3).
 TEST_F(Boot, B27ALinkUpReadsThePlatformsClockAtTheLinkUp) {
@@ -1407,7 +1407,7 @@ TEST_F(Boot, B27ALinkUpReadsThePlatformsClockAtTheLinkUp) {
 }
 
 #if MBX_N_IF > 1
-// B26 the interface is in the seed: two interfaces enabled at one clock reading are seeded apart (#970).
+// The interface is in the seed: two interfaces enabled at one clock reading are seeded apart (#970).
 std::uint64_t stopped_now_us(void*) {
     return 0;
 }

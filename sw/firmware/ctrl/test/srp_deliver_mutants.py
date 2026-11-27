@@ -1,6 +1,6 @@
 # SPDX-FileCopyrightText: 2026 Kebag Logic
 # SPDX-License-Identifier: CERN-OHL-W-2.0
-"""Planted defects of the SRP delivery's bound (#977, its ruling on round 9's STOP, item 2).
+"""Planted defects of the SRP delivery's bound (#977, its ruling of 2026-11-27 on the delivery bound, item 2).
 
 A delivery (ctrl_app_srp.c deliver) makes at most one binding change and, outside THE SETTLE, at most one loss
 completion, each the first owed from its turn, the sink after the last it made, and where both are owed only the kind

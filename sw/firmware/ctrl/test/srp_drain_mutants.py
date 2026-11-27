@@ -5,7 +5,8 @@ of 2026-11-23, items 3 and 4): each defect and the test whose words must fail on
 shapes, where the registration cost and THE SETTLE are set (ctrl_loop.h, CTRL_LOOP_SRP_REG_US, CTRL_LOOP_SETTLE_ALONE),
 so test_ctrl_firmware.py plants them in the one-interface campaigns alone; those named with PREFIX_8X8 only at 8x8/1if,
 where CTRL_LOOP_DECLARE_ALONE is set and the kept are bounded below the sinks (V less the bound, SRP_RECORD_VALUES), and
-those named with PREFIX_1X1 only at 1x1/1if, where V is past the sinks (#977, its ruling of 2026-11-27, item 2)."""
+those named with PREFIX_1X1 only at 1x1/1if, where V is past the sinks (#977, its ruling of 2026-11-27 on the
+population bound, item 2)."""
 from __future__ import annotations
 
 from collections.abc import Callable

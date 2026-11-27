@@ -554,8 +554,9 @@ static uint8_t talker_kind(uint8_t type)
 // ignores it, as for every StreamID before #969. The filter reads no walk's result, so the walk's schedule moves no
 // answer of it (#930). The list is scanned only where a StreamID it lists ends in the same octet, and same is entered
 // only where the last bytes agree, as in sources_of (#977). The kept a record can register are at most V less the
-// bound sinks (SRP_RECORD_VALUES; #977, its ruling of 2026-11-27, item 2): the filter takes only the first that many
-// listed, and keeps a new one only below it, so the bound and the kept a record registers are never more than V.
+// bound sinks (SRP_RECORD_VALUES; #977, its ruling of 2026-11-27 on the population bound, item 2): the filter takes
+// only the first that many listed, and keeps a new one only below it, so the bound and the kept a record registers
+// are never more than V.
 static bool keep_talker(struct srp_interface *i, uint8_t type, const uint8_t *stream_id)
 {
     struct srp_mbx *m = i->owner;
@@ -1014,8 +1015,8 @@ static bool rx_order_ready(struct srp_mbx *m)
 // distinct StreamIDs (35.2.2.8.4, an overflowing increment refused), so a vector registers at most V. A PDU lwSRP
 // refuses registers none. Past SRP_CHARGE_MESSAGES Messages the rest of the record is charged by its length, V for
 // each SRP_TALKER_VECTOR_MIN octets, the least a vector that holds a Talker value takes, so the read is bounded and
-// the count is never under (#977, its ruling of 2026-11-27, items 2 and 4). A shape whose registration cost is 0
-// charges the unit.
+// the count is never under (#977, its ruling of 2026-11-27 on the population bound, items 2 and 4). A shape whose
+// registration cost is 0 charges the unit.
 #define SRP_RECORD_HEAD (14u + 1u) // the Ethernet header and the ProtocolVersion: the first Message's offset
 #define SRP_TALKER_VECTOR_MIN (2u + 25u + 1u) // a VectorHeader, a Talker Advertise's FirstValue, one ThreeEvents
 #define SRP_CHARGE_MESSAGES 8u // a Message a type and some repeated before the rest is charged by its length
