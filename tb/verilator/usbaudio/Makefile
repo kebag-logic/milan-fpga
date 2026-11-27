@@ -6,6 +6,8 @@ MDIR ?= obj_dir
 RTL ?= ../../../hdl/milan/usbaudio
 SOURCES = $(RTL)/KL_usbaudio_record.sv $(RTL)/KL_usbaudio_status.sv \
           $(RTL)/KL_usbaudio_feedback.sv protocol_tb.sv
+BRIDGE_SOURCES = $(RTL)/KL_usbaudio_bridge.sv \
+                 $(filter-out $(RTL)/KL_usbaudio_bridge.sv,$(wildcard $(RTL)/*.sv))
 .PHONY: all build run duplex-build duplex
 all: check
 check:
@@ -23,7 +25,7 @@ duplex-build:
 	  -Wall -Wno-fatal -Wno-TIMESCALEMOD --build-jobs $(JOBS) \
 	  -GWINDOW_LOG2_P=$(WINDOW_LOG2) -CFLAGS "-O3 -std=c++17 -Wall -Wextra -DWINDOW_LOG2_TB=$(WINDOW_LOG2)" \
 	  --Mdir $(abspath $(MDIR)) \
-	  $(wildcard $(RTL)/*.sv) ../../../third_party/verilog-axis/rtl/axis_async_fifo.v \
+	  $(BRIDGE_SOURCES) ../../../third_party/verilog-axis/rtl/axis_async_fifo.v \
 	  $(abspath duplex.cpp)
 duplex: duplex-build
 	$(abspath $(MDIR))/VKL_usbaudio_bridge
@@ -69,13 +71,13 @@ media: media-build
 levels-build:
 	$(RTL_SIMULATOR) --binary --timing --top-module levels_tb -Wall \
 	  -Wno-fatal -Wno-TIMESCALEMOD --build-jobs $(JOBS) --Mdir $(abspath $(MDIR)) \
-	  $(wildcard $(RTL)/*.sv) ../../../third_party/verilog-axis/rtl/axis_async_fifo.v levels_tb.sv
+	  $(BRIDGE_SOURCES) ../../../third_party/verilog-axis/rtl/axis_async_fifo.v levels_tb.sv
 levels: levels-build
 	$(abspath $(MDIR))/Vlevels_tb
 
 epochs-build:
 	$(RTL_SIMULATOR) --binary --timing --top-module epochs_tb -Wall \
 	  -Wno-fatal -Wno-TIMESCALEMOD --build-jobs $(JOBS) --Mdir $(abspath $(MDIR)) \
-	  $(wildcard $(RTL)/*.sv) ../../../third_party/verilog-axis/rtl/axis_async_fifo.v epochs_tb.sv
+	  $(BRIDGE_SOURCES) ../../../third_party/verilog-axis/rtl/axis_async_fifo.v epochs_tb.sv
 epochs: epochs-build
 	$(abspath $(MDIR))/Vepochs_tb

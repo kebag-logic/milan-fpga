@@ -21,7 +21,7 @@ test is possible and is reproduced verbatim below.
 
 Legend: ✅ dedicated Verilator TB · ➰ exercised transitively in a broader TB's design · 🔬 in the tsn_fuzz field campaign · 📦 package · 🗄️ archived by a stated decision · ⚪ not compiled by any TB.
 
-**Totals:** 84 modules · 83 with a dedicated TB · 0 exercised-only · 32 field-fuzzed · 0 archived · **0 not in any TB**
+**Totals:** 101 modules · 98 with a dedicated TB · 2 exercised-only · 32 field-fuzzed · 0 archived · **0 not in any TB**
 
 ## Coverage by spec family
 
@@ -30,22 +30,22 @@ Legend: ✅ dedicated Verilator TB · ➰ exercised transitively in a broader TB
 ```mermaid
 xychart-beta
     title "Modules per spec family: dedicated testbenches vs total"
-    x-axis ["ieee1722", "ieee17221", "ieee8021q", "ieee8021as", "common", "milan"]
+    x-axis ["milan", "ieee1722", "ieee17221", "ieee8021q", "ieee8021as", "common"]
     y-axis "modules" 0 --> 41
-    bar [40, 1, 8, 9, 10, 16]
-    bar [39, 1, 8, 9, 10, 16]
+    bar [28, 40, 1, 8, 9, 10]
+    bar [26, 39, 1, 8, 9, 10]
 ```
 
 The solid bar is the modules carrying a dedicated Verilator testbench; the pale sliver above it is the shortfall against the family total. Exact numbers, including the archived and fuzzed columns the chart cannot show:
 
 | family | modules | ✅ dedicated TB | ➰ exercised only | 🔬 field-fuzzed | 🗄️ archived | ⚪ untested |
 |---|---|---|---|---|---|---|
+| Milan integration | 28 | 26 | 2 | 0 | 0 | 0 |
 | IEEE 1722 (AVTP) | 40 | 39 | 0 | 31 | 0 | 0 |
 | IEEE 1722.1 (ATDECC) | 1 | 1 | 0 | 0 | 0 | 0 |
 | IEEE 802.1Q | 8 | 8 | 0 | 0 | 0 | 0 |
 | IEEE 802.1AS | 9 | 9 | 0 | 0 | 0 | 0 |
 | Common / integration | 10 | 10 | 0 | 0 | 0 | 0 |
-| Milan integration | 16 | 16 | 0 | 0 | 0 | 0 |
 
 ## IEEE 1722.1 (ATDECC)
 
@@ -64,11 +64,11 @@ _AAF / CRF / MAAP / AVTP common_
 | ✅ `KL_aaf_capture_i2s` | `ieee1722/aaf/KL_aaf_capture_i2s.sv` | `aaf` · `media_phase` · `milan_dp` · ➰capture_coherence,milan_dp_mclk,milan_dp_render · 🔬`make aaf` | -- |
 | ✅ `KL_aaf_latency_tap_bank` | `ieee1722/aaf/KL_aaf_latency_tap_bank.sv` | `aaf_latency_tap_bank` · `milan_dp` · ➰capture_coherence,milan_dp_mclk,milan_dp_render · 🔬`make aaf` | -- |
 | ✅ `KL_aaf_latency_chain` | `ieee1722/aaf/KL_aaf_latency_taps.sv` | `aaf_latency_tap_bank` · `aaf_latency_taps` · `milan_dp` · 🔬`make aaf` | -- |
-| ✅ `KL_aaf_packetizer` | `ieee1722/aaf/KL_aaf_packetizer.sv` | `aaf` · `aaf_audio_loop` · `capture_coherence` · `chmap_capture` · `input_loopback` · `media_phase` · `milan_dp` · `tdm` · ➰milan_dp_mclk,milan_dp_render · 🔬`make aaf` | 35.2.2.8.4, 4.3.3.2, 802.3 |
+| ✅ `KL_aaf_packetizer` | `ieee1722/aaf/KL_aaf_packetizer.sv` | `aaf` · `aaf_audio_loop` · `capture_coherence` · `chmap_capture` · `input_loopback` · `media_phase` · `milan_dp` · `tdm` · `usbaudio` · ➰milan_dp_mclk,milan_dp_render · 🔬`make aaf` | 35.2.2.8.4, 4.3.3.2, 802.3 |
 | ✅ `KL_aaf_rx_depacketizer` | `ieee1722/aaf/KL_aaf_rx_depacketizer.sv` | `aaf_audio_loop` · `avtp_rxmon` · `input_loopback` · `milan_dp` · `tsn_fuzz` · ➰capture_coherence,milan_dp_mclk,milan_dp_render · 🔬`make aaf` | -- |
 | ✅ `KL_aes3_rx` | `ieee1722/aaf/KL_aes3_rx.sv` | `aes3` · 🔬`make aaf` | -- |
 | ✅ `KL_aes3_tx` | `ieee1722/aaf/KL_aes3_tx.sv` | `aes3` · 🔬`make aaf` | -- |
-| ✅ `KL_chan_map_capture` | `ieee1722/aaf/KL_chan_map_capture.sv` | `capture_coherence` · `chmap_capture` · `follow_ring` · `input_loopback` · `media_grid_align` · `media_phase` · `milan_dp` · ➰milan_dp_mclk,milan_dp_render · 🔬`make aaf` | -- |
+| ✅ `KL_chan_map_capture` | `ieee1722/aaf/KL_chan_map_capture.sv` | `capture_coherence` · `chmap_capture` · `follow_ring` · `input_loopback` · `media_grid_align` · `media_phase` · `milan_dp` · `usbaudio` · ➰milan_dp_mclk,milan_dp_render · 🔬`make aaf` | -- |
 | ✅ `KL_chan_map_render` | `ieee1722/aaf/KL_chan_map_render.sv` | `chmap_render` · `media_phase` · `milan_dp` · ➰capture_coherence,milan_dp_mclk,milan_dp_render · 🔬`make aaf` | -- |
 | ✅ `KL_i2s_feed_mux` | `ieee1722/aaf/KL_i2s_feed_mux.sv` | `milan_dp` · ➰capture_coherence,milan_dp_mclk,milan_dp_render · 🔬`make aaf` | -- |
 | ✅ `KL_i2s_playback` | `ieee1722/aaf/KL_i2s_playback.sv` | `i2spb` · `milan_dp` · `mmcm_servo` · ➰capture_coherence,milan_dp_mclk,milan_dp_render · 🔬`make aaf` | -- |
@@ -176,4 +176,16 @@ _datapath + top wrappers_
 | ✅ `KL_pp_shadow` | `milan/KL_pp_shadow.sv` | `milan_dp` · ➰capture_coherence,milan_dp_mclk,milan_dp_render | 34.3, 34.4 |
 | ✅ `KL_reboot_ctrl` | `milan/KL_reboot_ctrl.sv` | `milan_dp` · `reboot_ctrl` · ➰capture_coherence,milan_dp_mclk,milan_dp_render | -- |
 | ✅ `milan_datapath` | `milan/milan_datapath.sv` | `capture_coherence` · `milan_dp` · `milan_dp_mclk` · `milan_dp_render` | 34.4, 35.2.2.8.4, 35.2.7, 4.3.3.2 |
+| ✅ `KL_usbaudio_bridge` | `milan/usbaudio/KL_usbaudio_bridge.sv` | `usbaudio` | -- |
+| ➰ `KL_usbaudio_clock` | `milan/usbaudio/KL_usbaudio_clock.sv` | ➰usbaudio | -- |
+| ➰ `KL_usbaudio_crossing` | `milan/usbaudio/KL_usbaudio_crossing.sv` | ➰usbaudio | -- |
+| ✅ `KL_usbaudio_feedback` | `milan/usbaudio/KL_usbaudio_feedback.sv` | `usbaudio` | -- |
+| ✅ `KL_usbaudio_gpif` | `milan/usbaudio/KL_usbaudio_gpif.sv` | `usbaudio` | -- |
+| ✅ `KL_usbaudio_ingress` | `milan/usbaudio/KL_usbaudio_ingress.sv` | `usbaudio` | -- |
+| ✅ `KL_usbaudio_media` | `milan/usbaudio/KL_usbaudio_media.sv` | `usbaudio` | -- |
+| ✅ `KL_usbaudio_packet` | `milan/usbaudio/KL_usbaudio_packet.sv` | `usbaudio` | -- |
+| ✅ `KL_usbaudio_record` | `milan/usbaudio/KL_usbaudio_record.sv` | `usbaudio` | -- |
+| ✅ `KL_usbaudio_reference` | `milan/usbaudio/KL_usbaudio_reference.sv` | `usbaudio` | -- |
+| ✅ `KL_usbaudio_reset` | `milan/usbaudio/KL_usbaudio_reset.sv` | `usbaudio` | -- |
+| ✅ `KL_usbaudio_status` | `milan/usbaudio/KL_usbaudio_status.sv` | `usbaudio` | -- |
 
