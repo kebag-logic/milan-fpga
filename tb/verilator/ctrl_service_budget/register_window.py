@@ -45,6 +45,9 @@ SETTLE_MS = 200
 BIND_MS = 100
 #: The settle after the probes: the passes after the records and the declarations they owe.
 AFTER_MS = 300
+#: The wait past a Leave for its Registrars' leave timers to run out: lwSRP's LeaveTime, 60 centiseconds
+#: (MRP_LEAVE_TIME_CS; IEEE 802.1Q-2018 10.7.11), with the passes after it.
+LEAVE_MS = 900
 #: The burst: a peer's three MRPDUs in any 1.5 x JoinTime (IEEE 802.1Q-2018 10.7.11) at Milan's shortest JoinTime,
 #: 180 ms (Milan v1.2 Table 4.3): a triple at most every WINDOW_MS. TRIPLES triples, the last opening with a LeaveAll.
 JOIN_MIN_MS = 180
@@ -233,16 +236,20 @@ def population_groups(p: scenario.Point) -> list[scenario.Group]:
     Talkers from the bound streams, with enough sinks bound that the bound and the kept fill V); srp-register-leaveall,
     with every input bound and its Talker Advertise registered, a LeaveAll MRPDU in lwSRP's own shape declaring every
     input's Talker Failed, each replacing the kind registered (35.2.6); srp-register-swap, the same, then one MRPDU of
-    each input's Lv of the registered kind with New of the other; and srp-register-messages, every input bound, then
-    one MRPDU of eight Listener Messages before one Talker Advertise Message for each input, past the eight Messages
-    the drain reads one by one."""
+    each input's Lv of the registered kind with New of the other; srp-register-lv, the same registered, then one MRPDU
+    of each input's Lv alone; srp-register-leavetime, the same left until the leave timers the one record started run
+    out, in one centisecond (10.7.11); srp-register-both, every input's JoinIn of both kinds in one MRPDU, the Failed
+    replacing the Advertise (35.2.6), at twice V's charge; and srp-register-messages, every input bound, then one MRPDU
+    of eight Listener Messages before one Talker Advertise Message for each input, past the eight Messages the drain
+    reads one by one (#977's ruling of 2026-11-27, item 5, and its ruling on round 9's STOP, item 4)."""
     srp, ms, n = scenario.CH['srp'], scenario.MS, p.sinks
     v = record_values(p)
     out = []
 
-    def group(name: str, bound: int) -> scenario.Group:
+    def group(name: str, bound: int, extra_ms: int = 0) -> scenario.Group:
         """The group on interface 0 after the link settles, its first `bound` inputs bound."""
-        g = scenario.Group(f'{NAME}-{name}', sim_ms=650 + SETTLE_MS + (BIND_MS + 100) * bound + 400 + AFTER_MS + 500)
+        g = scenario.Group(f'{NAME}-{name}',
+                           sim_ms=650 + SETTLE_MS + (BIND_MS + 100) * bound + 400 + AFTER_MS + extra_ms + 500)
         scenario.ready(g, p)
         g.add(f'wait cycles {SETTLE_MS * ms}', 'wait quiet 3 within 2000000')
         bind_first(g, p, bound)
@@ -272,6 +279,24 @@ def population_groups(p: scenario.Point) -> list[scenario.Group]:
             probe(g, 'register_swap', "every input's Lv of the registered kind with New of the other", swap)
         g.add(f'wait cycles {AFTER_MS * ms}', 'wait quiet 3 within 2000000')
         out.append(g)
+    # every input's Lv of the registered kind alone (Table 10-4: IN to LV), and the same left to its leave timers,
+    # which the one record starts together, so they run out in one centisecond (10.7.11); then every input's JoinIn of
+    # both kinds in one MRPDU, the second replacing the first (35.2.6) (#977's ruling on round 9's STOP, item 4)
+    for name, extra in (('lv', 0), ('leavetime', LEAVE_MS)):
+        g = group(name, n, extra)
+        probe(g, f'register_{name}_advertise', "every input's Talker Advertise, bound, before the record measured",
+              declared(0, n))
+        g.add('wait quiet 3 within 2000000')
+        probe(g, f'register_{name}', "every input's Lv of the registered kind alone",
+              f.msrp(scenario.TALKER_A_MAC, [f.mrp_message(1, talker(0), [5] * n)]))
+        g.add(f'wait cycles {(AFTER_MS + extra) * ms}', 'wait quiet 3 within 2000000')
+        out.append(g)
+    g = group('both', n)
+    probe(g, 'register_both', "every input's JoinIn of both kinds in one MRPDU",
+          f.msrp(scenario.TALKER_A_MAC, [f.mrp_message(1, talker(0), [1] * n),
+                                         f.mrp_message(2, talker_failed(0), [1] * n)]))
+    g.add(f'wait cycles {AFTER_MS * ms}', 'wait quiet 3 within 2000000')
+    out.append(g)
     g = group('messages', n)
     listeners = [f.mrp_message(3, f.be(STREAM + 0x100 + k, 8), [1], four_packed=[2]) for k in range(8)]
     talkers = [f.mrp_message(1, talker(k), [1]) for k in range(n)]
