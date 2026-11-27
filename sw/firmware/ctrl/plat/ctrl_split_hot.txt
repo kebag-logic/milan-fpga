@@ -32,10 +32,10 @@
 # Dropped: aecp owe; the size fixture's 8x8/2if images lack it, in every arm.
 # Dropped: aecp owed_drain; the size fixture's 8x8/2if images lack it, in every arm.
 # The traces' sha256 (each window's PC lines, as the harness printed them):
-#   backlog              69c5bcfc4de9020625c853b34b566ee5af328f3bd682691d0701db3495d6e473
-#   backlog-adp          9737979a7edc3fb06ef2b168eeaa80b636f2a31fabc60ab4ffe079aae54eb834
-#   aecp-largest-notice  759c767e90df48eb5100bf20122b21269210588986ae9968035f327a46f8cc10
-# The backlog windows' traces end with their groups, at 205,700 and 273,797 PCs; the third's at 900,000.
+#   backlog              a2fdc4575584f686a4930fe168660e92eca84a5ebc4482e66309ed5adb97b769
+#   backlog-adp          cd5f971161526cb9042c38bfc20467411d0bbe2d112495f0291181b9b139cfc0
+#   aecp-largest-notice  51e001d1f3d18ae7708dc1edd93008ab648812eaa4bbbd55fa8638228414da95
+# The backlog windows' traces end with their groups, at 205,603 and 273,120 PCs; the third's at 900,000.
 #
 # sw/firmware/ctrl/test/ctrl_hot.py requires the script's list to be this one,
 # entry for entry, and every entry to name a section of the linked image.
@@ -121,9 +121,6 @@ srp_mbx on_event
 nvm_store nvm_store_service
 nvm_store nvm_publish
 adp adp_gm_change
-adp enter_delay
-adp_mbx port_timer_start
-mbx mbx_timer_arm
 mbx rx_word
 aecp_mbx frame
 aecp aecp_rx
@@ -210,6 +207,12 @@ srp_mbx hold
 mrp_mad mrp_attr_visit
 srp_mbx registrations
 mrp_mad mrp_reclaim
+maap_mbx receive
+maap maap_rx
+maap mac_at
+acmp_mbx on_adp_frame
+adp_mbx on_frame
+adp adp_rx
 acmp_mbx on_frame
 acmp acmp_rx
 acmp wire_be64
@@ -223,12 +226,6 @@ acmp publish
 acmp p_send
 acmp_mbx port_send
 acmp finish
-maap_mbx receive
-maap maap_rx
-maap mac_at
-acmp_mbx on_adp_frame
-adp_mbx on_frame
-adp adp_rx
 mbx mbx_tick_pending
 srp_mbx transmit
 srp_mbx rx_charge
@@ -247,6 +244,7 @@ acmp_mbx port_now
 acmp delay
 acmp_mbx port_seed
 acmp_mbx port_timer
+mbx mbx_timer_arm
 acmp view_of
 ctrl_app_srp changed
 ctrl_app_aecp acmp_changed
@@ -313,10 +311,3 @@ nvm_store nvm_store_changed_id
 nvm_klj2 nvm_rec_id_known
 nvm_store nvm_mark
 nvm_store nvm_open_set
-adp adp_timer_expired
-adp advertise
-adp send
-adp adp_build
-adp_mbx port_gptp
-adp wire_put_be
-adp_mbx port_send
