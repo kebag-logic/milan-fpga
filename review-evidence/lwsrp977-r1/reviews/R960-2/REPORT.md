@@ -1,0 +1,143 @@
+[R960] POSITIVE - exact head 50a2106483141fcd7d1b20654bcf0803e7c3020a
+
+Independent external review of [lwSRP PR #22](https://github.com/kebag-logic/lwSRP/pull/22), for [milan-fpga issue #977](https://github.com/kebag-logic/milan-fpga/issues/977), round R960-2.
+
+Head tree: 74f0d3e54480d8c841c66d0958a2b3a9fe20d789.
+Source base: d1bb4f4e5954af6dabe7f210a6bf7adbb76bdd6b.
+Previously reviewed head: 73007b4807977517045e8aa485c61ebb8f5ee843.
+[Public review start](https://github.com/kebag-logic/lwSRP/pull/22#issuecomment-7211442737).
+
+The round-2 source fixes close the named prior findings. No open BLOCKER, MAJOR or MINOR remains at this source head. One wording residue and nonblocking suggestions appear below. This verdict does not accept the final parent merge candidate or physical hardware.
+
+## Scope and authority
+
+I reconstructed CONTRIBUTING.md, README.md and the five guides, then the public issue acceptance and decisions, interface contracts, diff/history, and executable evidence. There is no repository AGENTS.md. The supplied external command instruction was followed.
+
+The whole source-base diff contains 24 files. The focused round-2 delta contains ten commits and 21 changed paths. Unchanged optimization code retains the prior review's applicable verdict; I examined its dependencies where the delta could affect them.
+
+The authority chain includes:
+
+- Issue #977's frozen acceptance: profile registration, make count × registration cost explicit, retain the SRP unit, fit the registering record, and preserve owner bounds.
+- The [share addendum](https://github.com/kebag-logic/milan-fpga/issues/977#issuecomment-7086032855) and [November 23 ruling](https://github.com/kebag-logic/milan-fpga/issues/977#issuecomment-7091882145): legal replacement rate, THE SHARE, separate library change, and the documented one-port allocation difference.
+- The [November 25 decision](https://github.com/kebag-logic/milan-fpga/issues/977#issuecomment-7160202807), [subsequent timing ruling](https://github.com/kebag-logic/milan-fpga/issues/977#issuecomment-7180135694), and [bounded-population ruling](https://github.com/kebag-logic/milan-fpga/issues/977#issuecomment-7210763364). These govern parent integration; this library review neither changes their bounds nor certifies their measurements.
+- [Issue #665](https://github.com/kebag-logic/milan-fpga/issues/665), [issue #872](https://github.com/kebag-logic/milan-fpga/issues/872), the published memory-design context, src/include/shish_lan/mrp.h, src/ports/timer.h, and doc/integrator.md.
+- Cited protocol authorities: IEEE 802.1Q-2018 clause 10.3, Tables 10-3/10-4, timer requirements, 10.8 encoding/validation and 35.2.6; Milan v1.2 4.2.7.2.2.
+
+The prior report texts were consulted after the independent source pass and provisional verdict/ledger were written. No other reviewer's current-round report or private author material was consulted. No management directory was accessed.
+
+## Prior findings resolved at their causes
+
+The two prior reports are [internal round 1](https://github.com/kebag-logic/lwSRP/pull/22#issuecomment-7210816023) and [external round 1](https://github.com/kebag-logic/lwSRP/pull/22#issuecomment-7210817308).
+
+| Prior finding | Disposition at this head | Cause and verification |
+| --- | --- | --- |
+| Internal F1; external F5: tracked bytecode | CLOSED in the source tree; merge-history duty retained | .gitignore:1 excludes caches and *.pyc. The tracked cache is deleted. All 74 tracked blobs and modes match HEAD; tracked *.pyc inventory is empty. The historical blob must still be excluded from main's reachable history at merge. |
+| Internal F2: one-port differences untested | CLOSED | tests/unit/end_station_test.c:104 directly checks refused reservation, result, allocation failure, indication, Registrar state and policy count. The next two tests cover policy suppression and unchanged two-port refusal/retry/Leave behavior. tests/unit/review_test.c:292 covers recovery at one and two ports with option-aware counts. Every build registers the suite. Published 18-build results and named reversal failures support both profiles. |
+| Internal F3; external F2: reversal accounting | CLOSED | tests/check_reversals.py:382 selects cases explicitly; :501 checks every selected case has a result. Eight published summaries reconcile with the current source selection and every KILLED/SKIP line. The deliberate silent-skip receipt exits 1 and identifies the unreported case. |
+| Internal F4; external F2: differential count | CLOSED | doc/tester.md:222 now states 38: ten timer, five bucket, eleven ordering and twelve end-station defects. The current inventory has 38 entries. Both result files contain those 38 plus the separately identified sanitizer control, with zero problems. |
+| External F1: sparse-word trace gap | CLOSED | tests/differential/mad_trace.c:184 spreads types across words, including 31/32 and 255. tests/check_differential.py:201 adds the scan-ending fault alone and combined. The unit suite covers five sparse combinations. Independently, seed 3 gives equal base/head traces and a differing compiled mutant in both profiles and both option sets. No compared seed is excused. |
+| Internal F5: application callback contracts | CLOSED | src/include/shish_lan/mrp.h:199 and :210 state repeated encoding and output-buffer independence. doc/integrator.md:134 states these conditions and disallows dependence on side effects/call counts. The output-preservation claim now names indications, observations and receive-filter calls. See optional clarification S1 below. |
+| Internal F6; external F3: default-object claim | CLOSED | src/core/mrp_mad.c:1220 uses RX_KEPT, expanding to sizeof(previous_value) in the default arm, without a local. All three snapshot/restore copies use it. Independent comparison: 64/64 non-debug object pairs identical; 24/24 debug pairs identical after stripping debug sections. |
+| External F4: CHANGELOG | CLOSED | CHANGELOG.md:8 inventories all nine switches, default zero values, consistent compilation, SCALE selection, direct end-station definitions, one-port exception and callback contracts. It links the PR and governing issues. |
+| Internal R1; external F6: option-comment issue IDs | CLOSED | The option blocks now identify #977/#665, and #872 for the original lookup/wheel/merge work, alongside requirement clauses and reasons. Added production-source lines contain no prohibited review/lane labels or private path markers. R1 below concerns separate explanatory wording. |
+
+The removed bytecode's content was not reopened. Source-tree closure does not erase its presence in branch history. The manager must use an appropriate squash or reconstructed merge and verify main does not acquire that blob.
+
+## Executable evidence and integrity
+
+The frozen [author-r2 packet](https://github.com/kebag-logic/milan-fpga/tree/16162ec2b6c26d1d2ba3e3f0e2d4568a4d462694/review-evidence/lwsrp977-r1/author-r2) is the source-head gate evidence. I verified all 67 inspected, non-superseded round-2 files against the outer manifest's published_sha256 fields. Redacted files were compared with published hashes, not their original private-file hashes.
+
+**Signature limitation:** the publication commit's verification response is verified=false, reason=unsigned. No detached signature is listed in the inspected packet inventory. Content hashes and the frozen publication were verified; a cryptographic publisher signature was not. receipts/packet-signature.json records the response. No signed-packet claim is made.
+
+| Evidence | Result and interpretation | Reviewer receipt |
+| --- | --- | --- |
+| Independent object comparison | Eight library sources × eight flag sets: -O0/-O2/-Os, each also with Milan, plus -O0/-O2 -fPIC. 64/64 identical to the source base. Another 24/24 identical after debug stripping. Same relative source paths and host target used. | receipts/objects.json, objects.log, objects.rc |
+| Independent sparse fault | Twelve builds: base, exact head and mutated head for each of two profiles × two option sets. Each run: seed 3, 3,000 steps, rc 0. Head equals base; each mutant differs. Full raw traces retained. | receipts/sparse.json, sparse.log, sparse.rc, sparse-*.trace |
+| Independent documentation checks | Sentence check passes; reference check passes; 79 reference self-tests pass. | receipts/docs*.log, docs.rc |
+| Published differential, both profiles | Two drivers, 22 configurations, 200 seeds; timers 20,000 steps and MAD 3,000 steps per seed. 38 ordinary plants plus one sanitizer plant detected. End-station sanitizer runs clean. Zero problems. | receipts/evidence-audit.json |
+| One-port differential exclusions | Each affected MAD configuration compares 177 normalized traces and excludes 23 allocation-refusal seeds. The new directed unit tests cover the documented difference; excluded traces are not counted as equivalence proof. | receipts/evidence-audit.json |
+| Published unit/configuration gates | All 18 configurations pass. Default and individual options: 112 tests, 27,348/27,336 assertions. Scale-enabled configurations: 114 tests, 27,376/27,364 assertions. | receipts/evidence-audit.json |
+| Published reversal gates | Per profile: default 110 selected/killed, 8 skipped; key 4/4, 114 skipped; combined key/end-station 8/8, 110 skipped; end-station without scale 4/4, 114 skipped. Every run lists 118. | receipts/evidence-audit.json |
+| Published focused failures | The three one-port reversals fail their named refusal/policy/recovery assertions. The sparse reversal fails its named Message-order test. A selected-but-silently-skipped case fails accounting. | receipts/evidence-audit.json |
+| Published other gates | Scenarios: three/ten steps in both profiles. Isolated codec: 1,690 assertions. Equivalence: 22 scenarios, 148 opportunities, 138 PDUs, 125 byte-identical and 13 layout-only, zero different; five controls pass per profile. Embedded/freestanding checks pass on a host compiler. | Frozen packet gates/ logs, verified by receipts/public-hashes.json |
+| Published documentation gates | Sentence/reference/link/render checks pass, including 438 local links, 26 external URLs and 29 graphs. Independently, all 45 moved source anchors retain exactly their previous target text. | receipts/anchors.json; frozen packet gates/docs-r2.log |
+| Final checkout integrity | All 74 tracked blob bytes/modes match HEAD; index and worktree clean; no tracked bytecode; no submodule gitlinks. | receipts/integrity.json |
+
+Only the independent executions listed above were rerun. Published full unit, reversal, differential, sanitizer, equivalence and rendering campaigns were inspected and reconciled, not repeated.
+
+The default-arm edit preserves main's options-off behavior: it restores the original length expression, and independent object identity agrees with the published default trace equivalence. This is a claim under the recorded compiler/flags, not universal binary identity across compilers, targets or arbitrary debug/path flags.
+
+## Findings and suggestions
+
+### R960-2-R1 — RESIDUE — Docs
+
+**Artifacts:** src/core/mrp_mad.c:27 and :112; src/ports/timer.h:35.
+
+The new reason sentences describe lookup, send and tick work as not growing with population. Their surrounding implementation descriptions are more precise. A bucket may contain collisions, the current wheel slot may contain many timers, and the transmit loop still visits attributes.
+
+**Authority/evidence:** the owner requires source comments to describe behavior and reason; see bucket_of/find_attr, shlan_timer_tick and mrp_transmit. This concerns explanatory prose only. No measured cost, figure, executable artifact, protocol requirement or conformance claim changes.
+
+**Impact:** readers may mistake avoided work for a constant-work guarantee.
+
+**Exact fix:**
+
+- Line 27: “Reason: a lookup visits its key bucket instead of the participant's whole list.”
+- timer.h line 35: “Reason: a tick visits its wheel slot instead of every registered timer.”
+- mrp_mad.c line 112: “Reason: a send skips event delivery for Applicants whose tx! row changes nothing.”
+
+**Required outcome/verification:** apply those wording replacements, retain the existing issue/requirement references, and inspect them against the loops. This leaves all lenses clean; the manager may carry it on the residue checklist.
+
+### R960-2-S1 — SUGGESTION — Docs, Robustness
+
+**Artifacts:** src/include/shish_lan/mrp.h:199, :210; doc/integrator.md:134; CHANGELOG.md:35.
+
+The requested determinism contracts are now stated. An additional qualification would make clear that ordinary buffer-length checks remain required. In-tree encoders can return a short-buffer error, and decoders validate buf_len.
+
+**Authority/evidence:** the callback signatures and existing application implementations; repeated encoding uses a fixed valid attribute length.
+
+**Impact:** clearer guidance for custom application authors; no observed behavioral defect or unclosed prior finding.
+
+**Suggested outcome:** say that, after validating lengths, successful output is deterministic for the same type/value; decoding must depend only on explicit inputs, never prior output-buffer contents. Avoid implying that callbacks should ignore buf_len.
+
+**Verification:** compare the revised wording with existing short-buffer/error paths. No source behavior change is requested.
+
+### Retained nonblocking suggestions from the internal prior report
+
+These remain outside the touched implementation paths and do not become new blockers.
+
+| ID | Severity / lenses | Artifact, evidence and impact | Suggested outcome and verification |
+| --- | --- | --- | --- |
+| Prior S1 | SUGGESTION / Robustness, Docs | src/ports/timer.c and timer callback lifetime contract. Removing a timer during its callback remains an uncovered lifecycle edge inherited from the base. | State supported callback-time removal/reclamation behavior, or add a directed lifecycle check. Verify against both timer implementations. |
+| Prior S2 | SUGGESTION / Tests | src/core/mrp_mad.c tx_reverse fallback for vectors longer than its temporary buffer; in-tree applications do not reach it. | If generic long-vector support matters, add a custom-application test that reaches the fallback and preserves ordering. |
+| Prior S3 | SUGGESTION / Tests, Docs | The delivering pass's zeroing has prior sanitizer-probe evidence but no separately named persistent plant for that removal. | Consider retaining that control explicitly, with its expected diagnostic. Verify it detects the planted read rather than merely a nonzero exit. |
+| Prior S4 | SUGGESTION / Tests | No hosted workflow definition in this tree; local published receipts remain the execution evidence. | Keep execution provenance explicit. No hosted result is required or inferred by this source verdict. |
+
+## Reviewer-owned ledger
+
+| Lens | CLEAN/UNCLEAN | Examined artifacts | Covering round | Exact head |
+| --- | --- | --- | --- | --- |
+| Conformance | CLEAN | Public acceptance/rulings; mrp.h contracts; MAP suppression and authorized refusal difference; rx_on_attr snapshot/restore; inherited state-table, encoding, replacement and timing analysis; published differential and independent sparse traces | R960-2 delta and closure; R960-1 unchanged paths retained | 50a2106483141fcd7d1b20654bcf0803e7c3020a |
+| RTL | CLEAN | Full changed-path inventory: no RTL/constraints/gitlinks. CMake registration and compile-definition consistency; source defaults; 64 object comparisons and 24 stripped-debug comparisons. No parent implementation claim | R960-2; unchanged integration-boundary analysis retained from R960-1 | 50a2106483141fcd7d1b20654bcf0803e7c3020a |
+| Robustness | CLEAN | Callback initialization/determinism; allocation failure and state rollback; two-port boundary; sparse words/255; published sanitizer and directed failures; removal of tracked generated artifact | R960-2 closure; unchanged timer/bucket/sort analysis retained from R960-1 | 50a2106483141fcd7d1b20654bcf0803e7c3020a |
+| Tests | CLEAN | New end-station suite; option-aware recovery; trace driver; two sparse plants; reversal selection/result accounting; 67-file evidence audit; independent seed-3 falsification and object checks | R960-2, closing prior test findings | 50a2106483141fcd7d1b20654bcf0803e7c3020a |
+| Docs | CLEAN | CONTRIBUTING, README, guides, CHANGELOG, PR claims, option comments, callback contracts, corrected counts and 45 relocated anchors; R1 is wording residue only | R960-2, closing prior documentation findings | 50a2106483141fcd7d1b20654bcf0803e7c3020a |
+
+## Limits and pending manager duties
+
+The full normative IEEE and Milan publications were not independently retrieved in this round. This is a delta review against the cited authorities, public decisions, baseline and interface contracts, carrying forward unchanged prior conformance analysis. Finite traces and mutation tests are not exhaustive protocol proof.
+
+RV32 target build/link was NOT RUN; the author reports no target C library on that host. Host freestanding checks and host-object identity do not substitute for target acceptance. No independent cycle, memory-fit, route, field interoperability or hardware result is claimed.
+
+The exact-head workflow-run and combined-status endpoints returned empty lists. Empty responses are neither executed jobs nor skipped-job receipts, and do not prove absence of every possible context. See receipts/hosted.json.
+
+No manager source bank exists at this exact head, and none is claimed or inferred. The manager owns hosted/act acceptance and the final current-dev merge candidate, including builder/native banks and publication of linked receipts. Source validation against d1bb4f4e5954af6dabe7f210a6bf7adbb76bdd6b is distinct from that candidate; supplied live dev is e275d7950ef3385753e6a15d2e191ba855b171ed.
+
+The manager also retains the bytecode-history exclusion and R1 residue. If publisher-signature assurance is required, it remains unverified and requires a signed attestation; the present packet supports hash verification only.
+
+Physical calibration is NOT RUN. Field skips and historical integration or route summaries are not hardware proof.
+
+No source fixes, commits, pushes, GitHub writes, parent banks, synthesis, hardware access, shared installs or delegation were performed. Independent checks ran concurrently under foreground commands that joined their children. At most twelve compiler children ran simultaneously. All disposable trees stayed inside this packet's scratch/ directory. The checkout required no restoration.
+
+Portable scripts and raw reviewer receipts are listed in MANIFEST.sha256. Only those files and REPORT.md are publication inputs; scratch/ is excluded. scripts/download_public.py retrieves the public author evidence for scripts/audit.py. scripts/probe.py reproduces the independent object, sparse and documentation checks in a fresh packet scratch area.
+
+R960-2 FINISHED

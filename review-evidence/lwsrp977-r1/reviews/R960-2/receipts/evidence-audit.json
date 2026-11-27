@@ -1,0 +1,581 @@
+{
+  "public_files_verified": 67,
+  "reversals": [
+    {
+      "file": "rev-OFF-r2.summary.json",
+      "milan": "OFF",
+      "scale": "OFF",
+      "end_station": "OFF",
+      "listed": 118,
+      "selected": 110,
+      "killed": 110,
+      "skipped": 8,
+      "reconciled": true
+    },
+    {
+      "file": "rev-ON-r2.summary.json",
+      "milan": "ON",
+      "scale": "OFF",
+      "end_station": "OFF",
+      "listed": 118,
+      "selected": 110,
+      "killed": 110,
+      "skipped": 8,
+      "reconciled": true
+    },
+    {
+      "file": "rev-es-OFF.summary.json",
+      "milan": "OFF",
+      "scale": "ON",
+      "end_station": "ON",
+      "listed": 118,
+      "selected": 8,
+      "killed": 8,
+      "skipped": 110,
+      "reconciled": true
+    },
+    {
+      "file": "rev-es-ON.summary.json",
+      "milan": "ON",
+      "scale": "ON",
+      "end_station": "ON",
+      "listed": 118,
+      "selected": 8,
+      "killed": 8,
+      "skipped": 110,
+      "reconciled": true
+    },
+    {
+      "file": "rev-es-noscale-OFF.summary.json",
+      "milan": "OFF",
+      "scale": "OFF",
+      "end_station": "ON",
+      "listed": 118,
+      "selected": 4,
+      "killed": 4,
+      "skipped": 114,
+      "reconciled": true
+    },
+    {
+      "file": "rev-es-noscale-ON.summary.json",
+      "milan": "ON",
+      "scale": "OFF",
+      "end_station": "ON",
+      "listed": 118,
+      "selected": 4,
+      "killed": 4,
+      "skipped": 114,
+      "reconciled": true
+    },
+    {
+      "file": "rev-key-OFF.summary.json",
+      "milan": "OFF",
+      "scale": "ON",
+      "end_station": "OFF",
+      "listed": 118,
+      "selected": 4,
+      "killed": 4,
+      "skipped": 114,
+      "reconciled": true
+    },
+    {
+      "file": "rev-key-ON.summary.json",
+      "milan": "ON",
+      "scale": "ON",
+      "end_station": "OFF",
+      "listed": 118,
+      "selected": 4,
+      "killed": 4,
+      "skipped": 114,
+      "reconciled": true
+    }
+  ],
+  "differential": [
+    {
+      "file": "diff-OFF-r2.differential.json",
+      "base": "d1bb4f4e5954af6dabe7f210a6bf7adbb76bdd6b",
+      "milan": "OFF",
+      "killed": 39,
+      "mutation_inventory": 38,
+      "problems": [],
+      "rows": [
+        {
+          "program": "timer",
+          "config": "default",
+          "seeds": 200,
+          "steps": 20000,
+          "identical": 200,
+          "excused": 0,
+          "trace_lines": 7821600,
+          "sha256": "b5b59e88a4141d8b3d01459c33cf6575b00749780350c6f7ce2a0c43d43f5f6a"
+        },
+        {
+          "program": "timer",
+          "config": "scale",
+          "seeds": 200,
+          "steps": 20000,
+          "identical": 200,
+          "excused": 0,
+          "trace_lines": 7821600,
+          "sha256": "b5b59e88a4141d8b3d01459c33cf6575b00749780350c6f7ce2a0c43d43f5f6a"
+        },
+        {
+          "program": "timer",
+          "config": "scale-slots4-wrap",
+          "seeds": 200,
+          "steps": 20000,
+          "identical": 200,
+          "excused": 0,
+          "trace_lines": 7821600,
+          "sha256": "b5b59e88a4141d8b3d01459c33cf6575b00749780350c6f7ce2a0c43d43f5f6a"
+        },
+        {
+          "program": "timer",
+          "config": "scale-buckets1",
+          "seeds": 200,
+          "steps": 20000,
+          "identical": 200,
+          "excused": 0,
+          "trace_lines": 7821600,
+          "sha256": "b5b59e88a4141d8b3d01459c33cf6575b00749780350c6f7ce2a0c43d43f5f6a"
+        },
+        {
+          "program": "timer",
+          "config": "scale-buckets256",
+          "seeds": 200,
+          "steps": 20000,
+          "identical": 200,
+          "excused": 0,
+          "trace_lines": 7821600,
+          "sha256": "b5b59e88a4141d8b3d01459c33cf6575b00749780350c6f7ce2a0c43d43f5f6a"
+        },
+        {
+          "program": "timer",
+          "config": "lean",
+          "seeds": 200,
+          "steps": 20000,
+          "identical": 200,
+          "excused": 0,
+          "trace_lines": 7821600,
+          "sha256": "b5b59e88a4141d8b3d01459c33cf6575b00749780350c6f7ce2a0c43d43f5f6a"
+        },
+        {
+          "program": "timer",
+          "config": "one-port",
+          "seeds": 200,
+          "steps": 20000,
+          "identical": 200,
+          "excused": 0,
+          "trace_lines": 7821600,
+          "sha256": "b5b59e88a4141d8b3d01459c33cf6575b00749780350c6f7ce2a0c43d43f5f6a"
+        },
+        {
+          "program": "timer",
+          "config": "rapid",
+          "seeds": 200,
+          "steps": 20000,
+          "identical": 200,
+          "excused": 0,
+          "trace_lines": 7821600,
+          "sha256": "b5b59e88a4141d8b3d01459c33cf6575b00749780350c6f7ce2a0c43d43f5f6a"
+        },
+        {
+          "program": "timer",
+          "config": "lean-copy",
+          "seeds": 200,
+          "steps": 20000,
+          "identical": 200,
+          "excused": 0,
+          "trace_lines": 7821600,
+          "sha256": "b5b59e88a4141d8b3d01459c33cf6575b00749780350c6f7ce2a0c43d43f5f6a"
+        },
+        {
+          "program": "timer",
+          "config": "lean-tx",
+          "seeds": 200,
+          "steps": 20000,
+          "identical": 200,
+          "excused": 0,
+          "trace_lines": 7821600,
+          "sha256": "b5b59e88a4141d8b3d01459c33cf6575b00749780350c6f7ce2a0c43d43f5f6a"
+        },
+        {
+          "program": "timer",
+          "config": "end-station",
+          "seeds": 200,
+          "steps": 20000,
+          "identical": 200,
+          "excused": 0,
+          "trace_lines": 7821600,
+          "sha256": "b5b59e88a4141d8b3d01459c33cf6575b00749780350c6f7ce2a0c43d43f5f6a"
+        },
+        {
+          "program": "mad",
+          "config": "default",
+          "seeds": 200,
+          "steps": 3000,
+          "identical": 200,
+          "excused": 0,
+          "trace_lines": 5768140,
+          "sha256": "4356b787a89c2b182e988d85216be5a138335d5b607608b712c6cd18fd51f342"
+        },
+        {
+          "program": "mad",
+          "config": "scale",
+          "seeds": 200,
+          "steps": 3000,
+          "identical": 200,
+          "excused": 0,
+          "trace_lines": 5768140,
+          "sha256": "4356b787a89c2b182e988d85216be5a138335d5b607608b712c6cd18fd51f342"
+        },
+        {
+          "program": "mad",
+          "config": "scale-slots4-wrap",
+          "seeds": 200,
+          "steps": 3000,
+          "identical": 200,
+          "excused": 0,
+          "trace_lines": 5768140,
+          "sha256": "4356b787a89c2b182e988d85216be5a138335d5b607608b712c6cd18fd51f342"
+        },
+        {
+          "program": "mad",
+          "config": "scale-buckets1",
+          "seeds": 200,
+          "steps": 3000,
+          "identical": 200,
+          "excused": 0,
+          "trace_lines": 5768140,
+          "sha256": "4356b787a89c2b182e988d85216be5a138335d5b607608b712c6cd18fd51f342"
+        },
+        {
+          "program": "mad",
+          "config": "scale-buckets256",
+          "seeds": 200,
+          "steps": 3000,
+          "identical": 200,
+          "excused": 0,
+          "trace_lines": 5768140,
+          "sha256": "4356b787a89c2b182e988d85216be5a138335d5b607608b712c6cd18fd51f342"
+        },
+        {
+          "program": "mad",
+          "config": "lean",
+          "seeds": 200,
+          "steps": 3000,
+          "identical": 200,
+          "excused": 0,
+          "trace_lines": 5768140,
+          "sha256": "4356b787a89c2b182e988d85216be5a138335d5b607608b712c6cd18fd51f342"
+        },
+        {
+          "program": "mad",
+          "config": "one-port",
+          "seeds": 200,
+          "steps": 3000,
+          "identical": 177,
+          "excused": 23,
+          "trace_lines": 5768140,
+          "sha256": "0a1148fbf5d61aac15a1385d2efe7c2828df344b99b1252e6087d26c176923b5"
+        },
+        {
+          "program": "mad",
+          "config": "rapid",
+          "seeds": 200,
+          "steps": 3000,
+          "identical": 200,
+          "excused": 0,
+          "trace_lines": 5768140,
+          "sha256": "4356b787a89c2b182e988d85216be5a138335d5b607608b712c6cd18fd51f342"
+        },
+        {
+          "program": "mad",
+          "config": "lean-copy",
+          "seeds": 200,
+          "steps": 3000,
+          "identical": 200,
+          "excused": 0,
+          "trace_lines": 5768140,
+          "sha256": "4356b787a89c2b182e988d85216be5a138335d5b607608b712c6cd18fd51f342"
+        },
+        {
+          "program": "mad",
+          "config": "lean-tx",
+          "seeds": 200,
+          "steps": 3000,
+          "identical": 200,
+          "excused": 0,
+          "trace_lines": 5768140,
+          "sha256": "4356b787a89c2b182e988d85216be5a138335d5b607608b712c6cd18fd51f342"
+        },
+        {
+          "program": "mad",
+          "config": "end-station",
+          "seeds": 200,
+          "steps": 3000,
+          "identical": 177,
+          "excused": 23,
+          "trace_lines": 5768140,
+          "sha256": "0a1148fbf5d61aac15a1385d2efe7c2828df344b99b1252e6087d26c176923b5"
+        }
+      ]
+    },
+    {
+      "file": "diff-ON-r2.differential.json",
+      "base": "d1bb4f4e5954af6dabe7f210a6bf7adbb76bdd6b",
+      "milan": "ON",
+      "killed": 39,
+      "mutation_inventory": 38,
+      "problems": [],
+      "rows": [
+        {
+          "program": "timer",
+          "config": "default",
+          "seeds": 200,
+          "steps": 20000,
+          "identical": 200,
+          "excused": 0,
+          "trace_lines": 7821600,
+          "sha256": "b5b59e88a4141d8b3d01459c33cf6575b00749780350c6f7ce2a0c43d43f5f6a"
+        },
+        {
+          "program": "timer",
+          "config": "scale",
+          "seeds": 200,
+          "steps": 20000,
+          "identical": 200,
+          "excused": 0,
+          "trace_lines": 7821600,
+          "sha256": "b5b59e88a4141d8b3d01459c33cf6575b00749780350c6f7ce2a0c43d43f5f6a"
+        },
+        {
+          "program": "timer",
+          "config": "scale-slots4-wrap",
+          "seeds": 200,
+          "steps": 20000,
+          "identical": 200,
+          "excused": 0,
+          "trace_lines": 7821600,
+          "sha256": "b5b59e88a4141d8b3d01459c33cf6575b00749780350c6f7ce2a0c43d43f5f6a"
+        },
+        {
+          "program": "timer",
+          "config": "scale-buckets1",
+          "seeds": 200,
+          "steps": 20000,
+          "identical": 200,
+          "excused": 0,
+          "trace_lines": 7821600,
+          "sha256": "b5b59e88a4141d8b3d01459c33cf6575b00749780350c6f7ce2a0c43d43f5f6a"
+        },
+        {
+          "program": "timer",
+          "config": "scale-buckets256",
+          "seeds": 200,
+          "steps": 20000,
+          "identical": 200,
+          "excused": 0,
+          "trace_lines": 7821600,
+          "sha256": "b5b59e88a4141d8b3d01459c33cf6575b00749780350c6f7ce2a0c43d43f5f6a"
+        },
+        {
+          "program": "timer",
+          "config": "lean",
+          "seeds": 200,
+          "steps": 20000,
+          "identical": 200,
+          "excused": 0,
+          "trace_lines": 7821600,
+          "sha256": "b5b59e88a4141d8b3d01459c33cf6575b00749780350c6f7ce2a0c43d43f5f6a"
+        },
+        {
+          "program": "timer",
+          "config": "one-port",
+          "seeds": 200,
+          "steps": 20000,
+          "identical": 200,
+          "excused": 0,
+          "trace_lines": 7821600,
+          "sha256": "b5b59e88a4141d8b3d01459c33cf6575b00749780350c6f7ce2a0c43d43f5f6a"
+        },
+        {
+          "program": "timer",
+          "config": "rapid",
+          "seeds": 200,
+          "steps": 20000,
+          "identical": 200,
+          "excused": 0,
+          "trace_lines": 7821600,
+          "sha256": "b5b59e88a4141d8b3d01459c33cf6575b00749780350c6f7ce2a0c43d43f5f6a"
+        },
+        {
+          "program": "timer",
+          "config": "lean-copy",
+          "seeds": 200,
+          "steps": 20000,
+          "identical": 200,
+          "excused": 0,
+          "trace_lines": 7821600,
+          "sha256": "b5b59e88a4141d8b3d01459c33cf6575b00749780350c6f7ce2a0c43d43f5f6a"
+        },
+        {
+          "program": "timer",
+          "config": "lean-tx",
+          "seeds": 200,
+          "steps": 20000,
+          "identical": 200,
+          "excused": 0,
+          "trace_lines": 7821600,
+          "sha256": "b5b59e88a4141d8b3d01459c33cf6575b00749780350c6f7ce2a0c43d43f5f6a"
+        },
+        {
+          "program": "timer",
+          "config": "end-station",
+          "seeds": 200,
+          "steps": 20000,
+          "identical": 200,
+          "excused": 0,
+          "trace_lines": 7821600,
+          "sha256": "b5b59e88a4141d8b3d01459c33cf6575b00749780350c6f7ce2a0c43d43f5f6a"
+        },
+        {
+          "program": "mad",
+          "config": "default",
+          "seeds": 200,
+          "steps": 3000,
+          "identical": 200,
+          "excused": 0,
+          "trace_lines": 5760024,
+          "sha256": "ac5935bd5bf2000d478083010421010e22d69b5dcdda6410d8818d3928897bfd"
+        },
+        {
+          "program": "mad",
+          "config": "scale",
+          "seeds": 200,
+          "steps": 3000,
+          "identical": 200,
+          "excused": 0,
+          "trace_lines": 5760024,
+          "sha256": "ac5935bd5bf2000d478083010421010e22d69b5dcdda6410d8818d3928897bfd"
+        },
+        {
+          "program": "mad",
+          "config": "scale-slots4-wrap",
+          "seeds": 200,
+          "steps": 3000,
+          "identical": 200,
+          "excused": 0,
+          "trace_lines": 5760024,
+          "sha256": "ac5935bd5bf2000d478083010421010e22d69b5dcdda6410d8818d3928897bfd"
+        },
+        {
+          "program": "mad",
+          "config": "scale-buckets1",
+          "seeds": 200,
+          "steps": 3000,
+          "identical": 200,
+          "excused": 0,
+          "trace_lines": 5760024,
+          "sha256": "ac5935bd5bf2000d478083010421010e22d69b5dcdda6410d8818d3928897bfd"
+        },
+        {
+          "program": "mad",
+          "config": "scale-buckets256",
+          "seeds": 200,
+          "steps": 3000,
+          "identical": 200,
+          "excused": 0,
+          "trace_lines": 5760024,
+          "sha256": "ac5935bd5bf2000d478083010421010e22d69b5dcdda6410d8818d3928897bfd"
+        },
+        {
+          "program": "mad",
+          "config": "lean",
+          "seeds": 200,
+          "steps": 3000,
+          "identical": 200,
+          "excused": 0,
+          "trace_lines": 5760024,
+          "sha256": "ac5935bd5bf2000d478083010421010e22d69b5dcdda6410d8818d3928897bfd"
+        },
+        {
+          "program": "mad",
+          "config": "one-port",
+          "seeds": 200,
+          "steps": 3000,
+          "identical": 177,
+          "excused": 23,
+          "trace_lines": 5760024,
+          "sha256": "c9ede57052d007b92d4437e8df73d9127cdf5d643560cbc9558d3040670bdfef"
+        },
+        {
+          "program": "mad",
+          "config": "rapid",
+          "seeds": 200,
+          "steps": 3000,
+          "identical": 200,
+          "excused": 0,
+          "trace_lines": 5760024,
+          "sha256": "ac5935bd5bf2000d478083010421010e22d69b5dcdda6410d8818d3928897bfd"
+        },
+        {
+          "program": "mad",
+          "config": "lean-copy",
+          "seeds": 200,
+          "steps": 3000,
+          "identical": 200,
+          "excused": 0,
+          "trace_lines": 5760024,
+          "sha256": "ac5935bd5bf2000d478083010421010e22d69b5dcdda6410d8818d3928897bfd"
+        },
+        {
+          "program": "mad",
+          "config": "lean-tx",
+          "seeds": 200,
+          "steps": 3000,
+          "identical": 200,
+          "excused": 0,
+          "trace_lines": 5760024,
+          "sha256": "ac5935bd5bf2000d478083010421010e22d69b5dcdda6410d8818d3928897bfd"
+        },
+        {
+          "program": "mad",
+          "config": "end-station",
+          "seeds": 200,
+          "steps": 3000,
+          "identical": 177,
+          "excused": 23,
+          "trace_lines": 5760024,
+          "sha256": "c9ede57052d007b92d4437e8df73d9127cdf5d643560cbc9558d3040670bdfef"
+        }
+      ]
+    }
+  ],
+  "unit_runs": [
+    "default milan OFF (scale OFF; flags ''): unit rc=0 ctest rc=0; Completed \"main\": 27348 passes in 2779ms.",
+    "default milan ON (scale OFF; flags ''): unit rc=0 ctest rc=0; Completed \"main\": 27336 passes in 618ms.",
+    "scale milan OFF (scale ON; flags ''): unit rc=0 ctest rc=0; Completed \"main\": 27376 passes in 1538ms.",
+    "scale milan ON (scale ON; flags ''): unit rc=0 ctest rc=0; Completed \"main\": 27364 passes in 359ms.",
+    "end-station milan OFF (scale ON; flags '-DLWSRP_ONE_PORT_MAP=1 -DLWSRP_LEAN_VALIDATE=1 -DLWSRP_RAPID_REPLACE=1 -DLWSRP_LEAN_COPY=1 -DLWSRP_LEAN_TX=1'): unit rc=0 ctest rc=0; Completed \"main\": 27376 passes in 362ms.",
+    "end-station milan ON (scale ON; flags '-DLWSRP_ONE_PORT_MAP=1 -DLWSRP_LEAN_VALIDATE=1 -DLWSRP_RAPID_REPLACE=1 -DLWSRP_LEAN_COPY=1 -DLWSRP_LEAN_TX=1'): unit rc=0 ctest rc=0; Completed \"main\": 27364 passes in 686ms.",
+    "end-station-no-scale milan OFF (scale OFF; flags '-DLWSRP_ONE_PORT_MAP=1 -DLWSRP_LEAN_VALIDATE=1 -DLWSRP_RAPID_REPLACE=1 -DLWSRP_LEAN_COPY=1 -DLWSRP_LEAN_TX=1'): unit rc=0 ctest rc=0; Completed \"main\": 27348 passes in 272ms.",
+    "end-station-no-scale milan ON (scale OFF; flags '-DLWSRP_ONE_PORT_MAP=1 -DLWSRP_LEAN_VALIDATE=1 -DLWSRP_RAPID_REPLACE=1 -DLWSRP_LEAN_COPY=1 -DLWSRP_LEAN_TX=1'): unit rc=0 ctest rc=0; Completed \"main\": 27336 passes in 631ms.",
+    "one-port milan OFF (scale OFF; flags '-DLWSRP_ONE_PORT_MAP=1'): unit rc=0 ctest rc=0; Completed \"main\": 27348 passes in 341ms.",
+    "one-port milan ON (scale OFF; flags '-DLWSRP_ONE_PORT_MAP=1'): unit rc=0 ctest rc=0; Completed \"main\": 27336 passes in 276ms.",
+    "lean-validate milan OFF (scale OFF; flags '-DLWSRP_LEAN_VALIDATE=1'): unit rc=0 ctest rc=0; Completed \"main\": 27348 passes in 261ms.",
+    "lean-validate milan ON (scale OFF; flags '-DLWSRP_LEAN_VALIDATE=1'): unit rc=0 ctest rc=0; Completed \"main\": 27336 passes in 676ms.",
+    "rapid-replace milan OFF (scale OFF; flags '-DLWSRP_RAPID_REPLACE=1'): unit rc=0 ctest rc=0; Completed \"main\": 27348 passes in 936ms.",
+    "rapid-replace milan ON (scale OFF; flags '-DLWSRP_RAPID_REPLACE=1'): unit rc=0 ctest rc=0; Completed \"main\": 27336 passes in 2257ms.",
+    "lean-copy milan OFF (scale OFF; flags '-DLWSRP_LEAN_COPY=1'): unit rc=0 ctest rc=0; Completed \"main\": 27348 passes in 341ms.",
+    "lean-copy milan ON (scale OFF; flags '-DLWSRP_LEAN_COPY=1'): unit rc=0 ctest rc=0; Completed \"main\": 27336 passes in 525ms.",
+    "lean-tx milan OFF (scale OFF; flags '-DLWSRP_LEAN_TX=1'): unit rc=0 ctest rc=0; Completed \"main\": 27348 passes in 271ms.",
+    "lean-tx milan ON (scale OFF; flags '-DLWSRP_LEAN_TX=1'): unit rc=0 ctest rc=0; Completed \"main\": 27336 passes in 244ms."
+  ],
+  "count_control_tail": [
+    "FAIL one-port-inert: selected but reported no result",
+    "Reversals listed: 118; selected: 4; run: 3; killed: 3; survived: 0; build failures: 0; targets missing: 0; skipped: 114; failures: 1",
+    "rc=1"
+  ],
+  "named_failures": "# Named failures of the end-station reversals (gate rev-es-OFF / rev-es-ON, clean clone of 50a2106)\n== milan OFF one-port-refusal-kept\n      4 Failure: end_station_suite -> one_port_refused_reservation_refuses_the_receive_only_in_the_default_build\n== milan OFF one-port-inert\n      2 Failure: boundaries_suite -> registrar_recovery_stops_aging_without_duplicate_join_or_map\n      2 Failure: end_station_suite -> one_port_calls_the_policy_only_in_the_default_build\n      4 Failure: end_station_suite -> one_port_refused_reservation_refuses_the_receive_only_in_the_default_build\n== milan OFF one-port-policy-called\n      2 Failure: boundaries_suite -> registrar_recovery_stops_aging_without_duplicate_join_or_map\n      2 Failure: end_station_suite -> one_port_calls_the_policy_only_in_the_default_build\n      1 Failure: end_station_suite -> one_port_refused_reservation_refuses_the_receive_only_in_the_default_build\n== milan OFF lean-tx-word-ends-scan\n      8 Failure: end_station_suite -> sparse_attribute_types_each_send_one_message_in_type_order\n== milan ON one-port-refusal-kept\n      4 Failure: end_station_suite -> one_port_refused_reservation_refuses_the_receive_only_in_the_default_build\n== milan ON one-port-inert\n      2 Failure: boundaries_suite -> registrar_recovery_stops_aging_without_duplicate_join_or_map\n      2 Failure: end_station_suite -> one_port_calls_the_policy_only_in_the_default_build\n      4 Failure: end_station_suite -> one_port_refused_reservation_refuses_the_receive_only_in_the_default_build\n== milan ON one-port-policy-called\n      2 Failure: boundaries_suite -> registrar_recovery_stops_aging_without_duplicate_join_or_map\n      2 Failure: end_station_suite -> one_port_calls_the_policy_only_in_the_default_build\n      1 Failure: end_station_suite -> one_port_refused_reservation_refuses_the_receive_only_in_the_default_build\n== milan ON lean-tx-word-ends-scan\n      8 Failure: end_station_suite -> sparse_attribute_types_each_send_one_message_in_type_order\n"
+}

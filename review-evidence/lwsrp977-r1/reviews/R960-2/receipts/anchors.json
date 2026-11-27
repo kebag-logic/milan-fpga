@@ -1,0 +1,407 @@
+[
+  {
+    "doc": "doc/architecture.md",
+    "label": "transmit operation",
+    "target": "src/core/mrp_mad.c",
+    "old": 1797,
+    "new": 1819,
+    "same_target_text": true,
+    "target_text": "int mrp_transmit(struct mrp_app *app, uint8_t port_id,"
+  },
+  {
+    "doc": "doc/architecture.md",
+    "label": "mrp_transmit",
+    "target": "src/core/mrp_mad.c",
+    "old": 1797,
+    "new": 1819,
+    "same_target_text": true,
+    "target_text": "int mrp_transmit(struct mrp_app *app, uint8_t port_id,"
+  },
+  {
+    "doc": "doc/architecture.md",
+    "label": "bounded assembler",
+    "target": "src/core/mrp_mad.c",
+    "old": 1797,
+    "new": 1819,
+    "same_target_text": true,
+    "target_text": "int mrp_transmit(struct mrp_app *app, uint8_t port_id,"
+  },
+  {
+    "doc": "doc/developer.md",
+    "label": "mrp_reclaim",
+    "target": "src/core/mrp_mad.c",
+    "old": 1308,
+    "new": 1330,
+    "same_target_text": true,
+    "target_text": "unsigned mrp_reclaim(struct mrp_app *app, uint8_t port_id)"
+  },
+  {
+    "doc": "doc/developer.md",
+    "label": "declaration rows",
+    "target": "src/core/mrp_mad.c",
+    "old": 254,
+    "new": 273,
+    "same_target_text": true,
+    "target_text": "    [MRP_EVENT_NEW] = {"
+  },
+  {
+    "doc": "doc/developer.md",
+    "label": "Applicant handler",
+    "target": "src/core/mrp_mad.c",
+    "old": 673,
+    "new": 692,
+    "same_target_text": true,
+    "target_text": "static void appl_event(struct mrp_attr_inst *ai, enum mrp_event ev, bool p2p)"
+  },
+  {
+    "doc": "doc/developer.md",
+    "label": "transmit operation",
+    "target": "src/core/mrp_mad.c",
+    "old": 1797,
+    "new": 1819,
+    "same_target_text": true,
+    "target_text": "int mrp_transmit(struct mrp_app *app, uint8_t port_id,"
+  },
+  {
+    "doc": "doc/developer.md",
+    "label": "Applicant handler",
+    "target": "src/core/mrp_mad.c",
+    "old": 673,
+    "new": 692,
+    "same_target_text": true,
+    "target_text": "static void appl_event(struct mrp_attr_inst *ai, enum mrp_event ev, bool p2p)"
+  },
+  {
+    "doc": "doc/developer.md",
+    "label": "event dispatcher",
+    "target": "src/core/mrp_mad.c",
+    "old": 937,
+    "new": 956,
+    "same_target_text": true,
+    "target_text": "static void deliver_event(struct mrp_app *app, struct mrp_port_state *ps,"
+  },
+  {
+    "doc": "doc/developer.md",
+    "label": "transactional assembler",
+    "target": "src/core/mrp_mad.c",
+    "old": 1797,
+    "new": 1819,
+    "same_target_text": true,
+    "target_text": "int mrp_transmit(struct mrp_app *app, uint8_t port_id,"
+  },
+  {
+    "doc": "doc/developer.md",
+    "label": "Message writer",
+    "target": "src/core/mrp_mad.c",
+    "old": 1564,
+    "new": 1586,
+    "same_target_text": true,
+    "target_text": "static uint8_t *tx_message(const struct mrp_app_ops *ops, struct mrp_port_state *ps,"
+  },
+  {
+    "doc": "doc/developer.md",
+    "label": "PDU writer",
+    "target": "src/core/mrp_mad.c",
+    "old": 1768,
+    "new": 1790,
+    "same_target_text": true,
+    "target_text": "static int tx_assemble(const struct mrp_app_ops *ops, struct mrp_port_state *ps,"
+  },
+  {
+    "doc": "doc/developer.md",
+    "label": "receive-event rows",
+    "target": "src/core/mrp_mad.c",
+    "old": 303,
+    "new": 322,
+    "same_target_text": true,
+    "target_text": "    [MRP_EVENT_RJOININ] = {"
+  },
+  {
+    "doc": "doc/developer.md",
+    "label": "Applicant table",
+    "target": "src/core/mrp_mad.c",
+    "old": 245,
+    "new": 264,
+    "same_target_text": true,
+    "target_text": "static const struct appl_entry appl_table[MRP_EVENT_COUNT][MRP_APPL_STATE_COUNT] = {"
+  },
+  {
+    "doc": "doc/developer.md",
+    "label": "Applicant handler",
+    "target": "src/core/mrp_mad.c",
+    "old": 673,
+    "new": 692,
+    "same_target_text": true,
+    "target_text": "static void appl_event(struct mrp_attr_inst *ai, enum mrp_event ev, bool p2p)"
+  },
+  {
+    "doc": "doc/developer.md",
+    "label": "withdrawal row",
+    "target": "src/core/mrp_mad.c",
+    "old": 268,
+    "new": 287,
+    "same_target_text": true,
+    "target_text": "    [MRP_EVENT_LV] = {"
+  },
+  {
+    "doc": "doc/developer.md",
+    "label": "transmit rows",
+    "target": "src/core/mrp_mad.c",
+    "old": 275,
+    "new": 294,
+    "same_target_text": true,
+    "target_text": "    [MRP_EVENT_TX] = {"
+  },
+  {
+    "doc": "doc/developer.md",
+    "label": "transmit rows",
+    "target": "src/core/mrp_mad.c",
+    "old": 275,
+    "new": 294,
+    "same_target_text": true,
+    "target_text": "    [MRP_EVENT_TX] = {"
+  },
+  {
+    "doc": "doc/developer.md",
+    "label": "Registrar table",
+    "target": "src/core/mrp_mad.c",
+    "old": 421,
+    "new": 440,
+    "same_target_text": true,
+    "target_text": "static const struct reg_entry reg_table[MRP_EVENT_COUNT][MRP_REG_STATE_COUNT] = {"
+  },
+  {
+    "doc": "doc/developer.md",
+    "label": "indication handler",
+    "target": "src/core/mrp_mad.c",
+    "old": 790,
+    "new": 809,
+    "same_target_text": true,
+    "target_text": "static int reg_event(struct mrp_app *app, struct mrp_attr_inst *ai,"
+  },
+  {
+    "doc": "doc/developer.md",
+    "label": "Registrar table",
+    "target": "src/core/mrp_mad.c",
+    "old": 421,
+    "new": 440,
+    "same_target_text": true,
+    "target_text": "static const struct reg_entry reg_table[MRP_EVENT_COUNT][MRP_REG_STATE_COUNT] = {"
+  },
+  {
+    "doc": "doc/developer.md",
+    "label": "sla_registrars",
+    "target": "src/core/mrp_mad.c",
+    "old": 956,
+    "new": 975,
+    "same_target_text": true,
+    "target_text": "static void sla_registrars(struct mrp_app *app, struct mrp_port_state *ps, uint8_t port_id)"
+  },
+  {
+    "doc": "doc/developer.md",
+    "label": "re-declaration row",
+    "target": "src/core/mrp_mad.c",
+    "old": 483,
+    "new": 502,
+    "same_target_text": true,
+    "target_text": "    /* MRP_EVENT_REDECLARE \u2014 same as RLV for Registrar */"
+  },
+  {
+    "doc": "doc/developer.md",
+    "label": "Registrar Join rows",
+    "target": "src/core/mrp_mad.c",
+    "old": 449,
+    "new": 468,
+    "same_target_text": true,
+    "target_text": "    /* MRP_EVENT_RJOININ || MRP_EVENT_RJOINMT \u2014 Table 10-4 rJoinIn!||rJoinMt! row */"
+  },
+  {
+    "doc": "doc/developer.md",
+    "label": "Registrar handler",
+    "target": "src/core/mrp_mad.c",
+    "old": 790,
+    "new": 809,
+    "same_target_text": true,
+    "target_text": "static int reg_event(struct mrp_app *app, struct mrp_attr_inst *ai,"
+  },
+  {
+    "doc": "doc/developer.md",
+    "label": "receive handler",
+    "target": "src/core/mrp_mad.c",
+    "old": 1274,
+    "new": 1296,
+    "same_target_text": true,
+    "target_text": "static void rx_on_leaveall(void *raw_ctx, uint8_t attr_type)"
+  },
+  {
+    "doc": "doc/developer.md",
+    "label": "la_event",
+    "target": "src/core/mrp_mad.c",
+    "old": 977,
+    "new": 996,
+    "same_target_text": true,
+    "target_text": "static void la_event(struct mrp_port_state *ps, enum mrp_event ev)"
+  },
+  {
+    "doc": "doc/developer.md",
+    "label": "transmit operation",
+    "target": "src/core/mrp_mad.c",
+    "old": 1797,
+    "new": 1819,
+    "same_target_text": true,
+    "target_text": "int mrp_transmit(struct mrp_app *app, uint8_t port_id,"
+  },
+  {
+    "doc": "doc/developer.md",
+    "label": "sla_registrars",
+    "target": "src/core/mrp_mad.c",
+    "old": 956,
+    "new": 975,
+    "same_target_text": true,
+    "target_text": "static void sla_registrars(struct mrp_app *app, struct mrp_port_state *ps, uint8_t port_id)"
+  },
+  {
+    "doc": "doc/developer.md",
+    "label": "timer draw",
+    "target": "src/core/mrp_mad.c",
+    "old": 970,
+    "new": 989,
+    "same_target_text": true,
+    "target_text": "static uint32_t leaveall_draw(struct mrp_port_state *ps)"
+  },
+  {
+    "doc": "doc/developer.md",
+    "label": "pt_event",
+    "target": "src/core/mrp_mad.c",
+    "old": 1006,
+    "new": 1025,
+    "same_target_text": true,
+    "target_text": "static void pt_event(struct mrp_app *app, struct mrp_port_state *ps,"
+  },
+  {
+    "doc": "doc/developer.md",
+    "label": "mrp_set_periodic",
+    "target": "src/core/mrp_mad.c",
+    "old": 1355,
+    "new": 1377,
+    "same_target_text": true,
+    "target_text": "void mrp_set_periodic(struct mrp_app *app, uint8_t port_id, bool enable)"
+  },
+  {
+    "doc": "doc/developer.md",
+    "label": "periodic handler",
+    "target": "src/core/mrp_mad.c",
+    "old": 1006,
+    "new": 1025,
+    "same_target_text": true,
+    "target_text": "static void pt_event(struct mrp_app *app, struct mrp_port_state *ps,"
+  },
+  {
+    "doc": "doc/integrator.md",
+    "label": "assembler",
+    "target": "src/core/mrp_mad.c",
+    "old": 1797,
+    "new": 1819,
+    "same_target_text": true,
+    "target_text": "int mrp_transmit(struct mrp_app *app, uint8_t port_id,"
+  },
+  {
+    "doc": "doc/integrator.md",
+    "label": "stream destination",
+    "target": "src/modules/msrp.c",
+    "old": 456,
+    "new": 458,
+    "same_target_text": true,
+    "target_text": "    .group_addr       = { 0x01u, 0x80u, 0xC2u, 0x00u, 0x00u, 0x0Eu },"
+  },
+  {
+    "doc": "doc/integrator.md",
+    "label": "periodic handler",
+    "target": "src/core/mrp_mad.c",
+    "old": 1006,
+    "new": 1025,
+    "same_target_text": true,
+    "target_text": "static void pt_event(struct mrp_app *app, struct mrp_port_state *ps,"
+  },
+  {
+    "doc": "doc/integrator.md",
+    "label": "destructor",
+    "target": "src/core/mrp_mad.c",
+    "old": 1106,
+    "new": 1125,
+    "same_target_text": true,
+    "target_text": "void mrp_app_destroy(struct mrp_app *app)"
+  },
+  {
+    "doc": "doc/manager.md",
+    "label": "Receive handler",
+    "target": "src/core/mrp_mad.c",
+    "old": 1274,
+    "new": 1296,
+    "same_target_text": true,
+    "target_text": "static void rx_on_leaveall(void *raw_ctx, uint8_t attr_type)"
+  },
+  {
+    "doc": "doc/manager.md",
+    "label": "Applicant handler",
+    "target": "src/core/mrp_mad.c",
+    "old": 673,
+    "new": 692,
+    "same_target_text": true,
+    "target_text": "static void appl_event(struct mrp_attr_inst *ai, enum mrp_event ev, bool p2p)"
+  },
+  {
+    "doc": "doc/manager.md",
+    "label": "Registrar table",
+    "target": "src/core/mrp_mad.c",
+    "old": 421,
+    "new": 440,
+    "same_target_text": true,
+    "target_text": "static const struct reg_entry reg_table[MRP_EVENT_COUNT][MRP_REG_STATE_COUNT] = {"
+  },
+  {
+    "doc": "doc/manager.md",
+    "label": "transmit operation",
+    "target": "src/core/mrp_mad.c",
+    "old": 1797,
+    "new": 1819,
+    "same_target_text": true,
+    "target_text": "int mrp_transmit(struct mrp_app *app, uint8_t port_id,"
+  },
+  {
+    "doc": "doc/manager.md",
+    "label": "Assembler",
+    "target": "src/core/mrp_mad.c",
+    "old": 1797,
+    "new": 1819,
+    "same_target_text": true,
+    "target_text": "int mrp_transmit(struct mrp_app *app, uint8_t port_id,"
+  },
+  {
+    "doc": "doc/manager.md",
+    "label": "Destination constant",
+    "target": "src/modules/msrp.c",
+    "old": 456,
+    "new": 458,
+    "same_target_text": true,
+    "target_text": "    .group_addr       = { 0x01u, 0x80u, 0xC2u, 0x00u, 0x00u, 0x0Eu },"
+  },
+  {
+    "doc": "doc/manager.md",
+    "label": "assembler",
+    "target": "src/core/mrp_mad.c",
+    "old": 1797,
+    "new": 1819,
+    "same_target_text": true,
+    "target_text": "int mrp_transmit(struct mrp_app *app, uint8_t port_id,"
+  },
+  {
+    "doc": "doc/manager.md",
+    "label": "Stream policy",
+    "target": "src/modules/msrp.c",
+    "old": 161,
+    "new": 163,
+    "same_target_text": true,
+    "target_text": "static uint32_t msrp_map_join(const struct mrp_app *app, uint8_t src_port,"
+  }
+]
