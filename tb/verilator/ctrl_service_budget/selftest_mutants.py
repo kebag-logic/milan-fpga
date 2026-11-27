@@ -870,6 +870,10 @@ MUTANTS: dict[str, Patches] = {
     "slice: one point's length at both": lambda: [patch.object(
         slice_grade, 'stated_us', lambda interfaces, f=slice_grade.stated_us: f(2))],
     "slice: SRP's records are not a slice": lambda: [patch.object(slice_grade, 'RECORD', 'srp_mbx:none')],
+    'slice: a pass of one record held to its pass alone doubled': lambda: [patch.object(
+        slice_grade, 'alone_us', lambda interfaces, f=slice_grade.alone_us: 2 * f(interfaces))],
+    'slice: a pass of one record held to the slice': lambda: [patch.object(
+        slice_grade, 'alone_us', slice_grade.stated_us)],
     "slice: SRP's slice from its first record": lambda: [patch.object(
         slice_grade, 'origin', lambda p, records: min(cpu for cpu, _ in records))],
     'slice: a build pass is not a slice': lambda: [patch.object(slice_grade, 'BUILD', 'build_none')],

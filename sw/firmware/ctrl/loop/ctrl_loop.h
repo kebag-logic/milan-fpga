@@ -370,6 +370,14 @@ extern "C" {
 // and 2,009 a refused attempt, through the dearest rounds of two and of four
 // refused attempts, 19,326 and 23,343 cycles; plus 5 %, rounded up to 5 us,
 // 165 and 25 us.
+// And one pass that carries a record THE DRAIN takes alone, CTRL_LOOP_ALONE_US, from the
+// pass's start to the record's end, which the slice does not hold (#977, its ruling of
+// 2026-11-27 on the alone records, item 1; the slice stays as stated): the longest such pass
+// over the CPU budget harness's registering groups, plus 5 %, rounded up to 5 us, at most
+// 1,935 us: 730 us at 1x1/1if (69,384 cycles, srp-register-burst) and 1,840 us at 8x8/1if
+// (174,819 cycles, srp-register-both); at the two-interface shapes, whose registering records
+// #977 does not measure, the slice. The rows' opening tier-2 term is the larger of the two
+// (rows_tiers.py), and the slice grader holds such a pass to it (slice_grade.py).
 // And two bounds in milliseconds that differ by shape, so that one shape's figure
 // is never another's: the last queued notice's, CTRL_LOOP_QUEUED_MS (aecp_mbx.h,
 // AECP_QUEUED_MS, its comment says how each is set), and THE TRANSMIT's MRPDU by
@@ -403,6 +411,7 @@ extern "C" {
 #define CTRL_LOOP_SRP_UNIT_US 285u
 #define CTRL_LOOP_RETRY_COLD_US 85u
 #define CTRL_LOOP_RETRY_ATTEMPT_US 34u
+#define CTRL_LOOP_ALONE_US 730u
 #define CTRL_LOOP_QUEUED_MS 135u
 #define CTRL_LOOP_TX_MS 35u
 #elif CTRL_LOOP_SHAPE(1u, 9u, 9u)      // one interface, the 8x8's streams
@@ -412,6 +421,7 @@ extern "C" {
 #define CTRL_LOOP_SRP_UNIT_US 375u
 #define CTRL_LOOP_RETRY_COLD_US 165u
 #define CTRL_LOOP_RETRY_ATTEMPT_US 25u
+#define CTRL_LOOP_ALONE_US 1840u
 #define CTRL_LOOP_QUEUED_MS 130u
 #define CTRL_LOOP_TX_MS 77u
 #elif CTRL_LOOP_SHAPE(2u, 2u, 2u)      // two interfaces, the 1x1's streams
@@ -421,6 +431,7 @@ extern "C" {
 #define CTRL_LOOP_SRP_UNIT_US 365u
 #define CTRL_LOOP_RETRY_COLD_US 185u
 #define CTRL_LOOP_RETRY_ATTEMPT_US 34u
+#define CTRL_LOOP_ALONE_US 1300u
 #define CTRL_LOOP_QUEUED_MS 62u
 #define CTRL_LOOP_TX_MS 105u
 #elif CTRL_LOOP_SHAPE(2u, 9u, 9u)      // two interfaces, the 8x8's streams
@@ -430,6 +441,7 @@ extern "C" {
 #define CTRL_LOOP_SRP_UNIT_US 365u
 #define CTRL_LOOP_RETRY_COLD_US 185u
 #define CTRL_LOOP_RETRY_ATTEMPT_US 34u
+#define CTRL_LOOP_ALONE_US 1300u
 #define CTRL_LOOP_QUEUED_MS 62u
 #define CTRL_LOOP_TX_MS 105u
 #else

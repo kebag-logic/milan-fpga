@@ -188,3 +188,11 @@ def count_controls(i: Inputs) -> list[str]:
     if not named or not any(e < g for e, g in zip(earlier, gate)) or any(e > g for e, g in zip(earlier, gate)):
         escaped.append(CONTROLS[4])
     return escaped
+
+
+def long_counted(i: Inputs, w: float, terms: dict[str, float]) -> bool:
+    """Whether a LONG_ROWS row's terms charge each of AECP's owed frames the largest legal notice
+    (rows_tiers.LONG_NOTICE_US)."""
+    passes = round(terms['passes'] * 1000 / (i.c['events_none'] + i.c['base']))
+    sent = min(passes, i.rate['aecp'][0] + math.floor(w / i.rate['aecp'][1]) + i.s['n_if'] * i.s['registrations'])
+    return abs(terms.get('item.aecp', 0.0) * 1000 - sent * max(i.c['item.aecp'], i.c['item.aecp.long'])) < 1e-6

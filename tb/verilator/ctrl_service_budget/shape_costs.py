@@ -9,7 +9,9 @@ A shape is (interfaces, talker sources, listener sinks): MBX_N_IF, from the mail
 image against, and CTRL_SRP_SOURCES and CTRL_SRP_SINKS, which srp_entity.py writes from the configuration into the shape
 header the builder force-includes into every unit an image compiles (srp_arms.prepared). ctrl_loop.h lists each shape
 with its CTRL_LOOP_SLICE_US, CTRL_LOOP_BUILD_PASS_US, CTRL_LOOP_BUILD_ONE_PASS_US, CTRL_LOOP_SRP_UNIT_US,
-CTRL_LOOP_RETRY_COLD_US and CTRL_LOOP_RETRY_ATTEMPT_US, and a shape not listed fails the build there (its #error).
+CTRL_LOOP_RETRY_COLD_US, CTRL_LOOP_RETRY_ATTEMPT_US and CTRL_LOOP_ALONE_US, the pass of a record THE DRAIN takes alone
+(#977's ruling of 2026-11-27 on the alone records, item 1; at most ALONE_MOST_US), and a shape not listed fails the
+build there (its #error).
 AECP_ROUND_COLD_US (aecp_mbx.h) and AECP_ATTEMPT_US (aecp.h) are the last two by name, so every point reads its own
 shape's, never the interface count's (retry_findings). A compile given no shape header is at the shipping shape's
 streams, the ones ctrl_loop.h states as CTRL_LOOP_SOURCES and CTRL_LOOP_SINKS without one (default), which must be what
@@ -47,8 +49,8 @@ ROOT = HERE.parents[2]
 #: Where the table is, and the constants each listed shape states, in its order.
 HEADER = 'sw/firmware/ctrl/loop/ctrl_loop.h'
 NAMES = ('CTRL_LOOP_SLICE_US', 'CTRL_LOOP_BUILD_PASS_US', 'CTRL_LOOP_BUILD_ONE_PASS_US', 'CTRL_LOOP_SRP_UNIT_US',
-         'CTRL_LOOP_RETRY_COLD_US', 'CTRL_LOOP_RETRY_ATTEMPT_US')
-SLICE, BUILD, BUILD_ONE, SRP_UNIT, RETRY_COLD, RETRY_ATTEMPT = NAMES
+         'CTRL_LOOP_RETRY_COLD_US', 'CTRL_LOOP_RETRY_ATTEMPT_US', 'CTRL_LOOP_ALONE_US')
+SLICE, BUILD, BUILD_ONE, SRP_UNIT, RETRY_COLD, RETRY_ATTEMPT, ALONE = NAMES
 #: The bounds in milliseconds each listed shape states after NAMES, so that one shape's figure is never another's: the
 #: last queued notice's, which aecp_mbx.h's AECP_QUEUED_MS is, and THE TRANSMIT's MRPDU by every source at the built
 #: design, which rows_tiers.py holds and a withdrawn Talker's hold-off counts (srp_mbx.c, SRP_REDECLARE_CS).
@@ -64,6 +66,9 @@ SHAPED = {**RETRY, 'AECP_QUEUED_MS': ('sw/firmware/ctrl/aecp/aecp_mbx.h', QUEUED
 #: The most a slice may be, in microseconds: #894's shape ruling, item (b), which re-rules the cap from
 #: 1,300 us; a design parameter, the rows and the load the owner's gate.
 SLICE_MOST_US = 1600
+#: The most a pass of a record THE DRAIN takes alone may be stated at, in microseconds (#977's ruling of 2026-11-27 on
+#: the alone records, item 1).
+ALONE_MOST_US = 1935
 #: The shipping configuration, a compile's shape without a shape header (srp_arms.DEFAULT_ENTITY).
 DEFAULT_CONFIG = 'configs/endstation_ax7101_1x1_tdm8.yaml'
 #: Each point the model and the flip check name, as the image builder builds it: its configuration and interfaces, the
@@ -302,6 +307,8 @@ def findings(root: Path = ROOT, texts: dict[str, str] | None = None) -> list[str
         name = f'the shape {tuple(s)}'
         if c[SLICE] > SLICE_MOST_US:
             out.append(f'{name}: a slice of {c[SLICE]} us, over the ruling\'s {SLICE_MOST_US} us')
+        if c[ALONE] > ALONE_MOST_US:
+            out.append(f'{name}: a record\'s pass alone of {c[ALONE]} us, over the ruling\'s {ALONE_MOST_US} us')
         if c[BUILD_ONE] > c[SLICE]:
             out.append(f'{name}: a build of one of {c[BUILD_ONE]} us, over its slice of {c[SLICE]} us')
         if c[SRP_UNIT] > c[SLICE]:
@@ -421,13 +428,13 @@ def report(root: Path = ROOT) -> list[str]:
     """Every listed shape's costs, and each point's shape."""
     table = listed(text_of(root))
     lines = ['| Shape (interfaces, sources, sinks) | Slice, us | Build of both, us | Build of one, us | SRP record, us '
-             '| THE RETRY: cold start, us | refused attempt, us | Last queued notice, ms | THE TRANSMIT\'s MRPDU, ms '
-             '| Points |', '|---|---:|---:|---:|---:|---:|---:|---:|---:|---|']
+             '| THE RETRY: cold start, us | refused attempt, us | A record\'s pass alone, us | Last queued notice, ms '
+             '| THE TRANSMIT\'s MRPDU, ms | Points |', '|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|']
     points = {p: of_point(p, root) for p in BUILT}
     for s, c in table.items():
         named = ', '.join(p for p, at_ in points.items() if at_ == s) or 'none the model names'
         lines.append(f'| {tuple(s)} | {c[SLICE]} | {c[BUILD]} | {c[BUILD_ONE]} | {c[SRP_UNIT]} | {c[RETRY_COLD]} '
-                     f'| {c[RETRY_ATTEMPT]} | {c[QUEUED]} | {c[TX]} | {named} |')
+                     f'| {c[RETRY_ATTEMPT]} | {c[ALONE]} | {c[QUEUED]} | {c[TX]} | {named} |')
     lines.append(f'with no shape header: {default_streams(text_of(root))} streams')
     return lines
 
@@ -463,6 +470,8 @@ def controls(root: Path = ROOT) -> list[str]:
             escaped.append('a shape the table does not list')
     plants = {
         'a slice over the cap': planted(f'#define {SLICE} {one[SLICE]}u\n', f'#define {SLICE} {SLICE_MOST_US + 5}u\n'),
+        'a record\'s pass alone over the cap': planted(block, block.replace(f'{ALONE} {one[ALONE]}u',
+                                                                         f'{ALONE} {ALONE_MOST_US + 5}u')),
         'a build of one over its slice': planted(block, block.replace(f'{BUILD_ONE} {one[BUILD_ONE]}u',
                                                                       f'{BUILD_ONE} {one[SLICE] + 5}u')),
         'an SRP record over its slice': planted(block, block.replace(f'{SRP_UNIT} {one[SRP_UNIT]}u',

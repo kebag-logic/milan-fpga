@@ -215,7 +215,7 @@ def stated_misses(results: list[dict]) -> list[str]:
                f"({o['sends']} sent)" for g in results for o in g['passes'].get('polls', {}).get('over', [])
                if o['kind'] == poll_grade.DECLINES] +
             [f"{g['group']}: a tier-2 slice of {SLICE_KINDS[o['kind']]} of {o['cycles']:,} CPU cycles, over the "
-             f"stated slice {g['passes']['slices']['limit']:,}"
+             f"stated {o.get('held_as', 'slice')} {o.get('held', g['passes']['slices']['limit']):,}"
              for g in results for o in g['passes'].get('slices', {}).get('over', [])] +
             [f"{g['group']}: a join interval of {o['ms']:.3f} ms ({o['who']}), outside {join_grade.LEAST_MS} to "
              f"{join_grade.MOST_MS} ms" for g in results for o in g['passes'].get('joins', {}).get('over', [])] +
@@ -271,13 +271,13 @@ SLICE_KINDS = {'srp': "SRP's records", 'build': "THE TRANSMIT's build", 'round':
 
 
 def print_slices(results: list[dict]) -> None:
-    """The SLICES line: how many tier-2 slices the groups hold and each kind's longest, against the stated slice."""
+    """The SLICES line: the groups' tier-2 slices and each kind's longest, against the stated slice and pass alone."""
     sliced = [g['passes']['slices'] for g in results if g['passes'].get('slices', {}).get('slices')]
     if sliced:
         longest = {kind: max(s['longest'][kind] for s in sliced) for kind in SLICE_KINDS}
         print(f"SLICES {sum(s['slices'] for s in sliced)} tier-2 slices; the longest "
               + ', '.join(f"{SLICE_KINDS[kind]} {cycles:,}" for kind, cycles in longest.items())
-              + f" CPU cycles, against the stated slice {sliced[0]['limit']:,} (THE TIERS)")
+              + f" CPU cycles, against the stated slice {sliced[0]['limit']:,}, alone {sliced[0]['alone']:,}")
 
 
 def print_joins(results: list[dict]) -> None:
