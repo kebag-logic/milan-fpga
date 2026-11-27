@@ -467,9 +467,11 @@ TEST_F(Srp, DomainUsesPeerPriorityAndVlan) {
     EXPECT_TRUE(domain); EXPECT_TRUE(talker); EXPECT_TRUE(vlan);
 }
 // THE DRAIN's charge of the record at the head of SRP's ring (#977, its ruling of 2026-11-23, item 4): the unit, and a
-// registration's stated cost for each Talker value its Talker Messages' vectors carry, at most CTRL_SRP_SINKS a vector,
-// read with the record left in the ring: nothing for an MVRP record, a Listener's or one past the PDU's EndMark, a
-// Message's AttributeListLength bounding it, and past eight Messages the rest by its length.
+// registration's stated cost for each Talker value its Talker Messages' vectors carry, at most V a vector
+// (SRP_RECORD_VALUES; #977, its ruling of 2026-11-27, items 2 and 4), read with the record left in the ring: nothing for
+// an MVRP record, a Listener's or one past the PDU's EndMark, a Message's AttributeListLength bounding it, a vector of
+// no values (a LeaveAll's) skipped by its FirstValue with the walk going on (IEEE 802.1Q-2018 10.8.1.2, 10.8.2.8), and
+// past eight Messages the rest by its length, V for each 28 octets.
 TEST_F(Srp, TheDrainChargesARecordTheTalkersItsVectorsCanRegister) {
     settle();
     ASSERT_TRUE(loop.drain_charge != nullptr);
@@ -480,13 +482,13 @@ TEST_F(Srp, TheDrainChargesARecordTheTalkersItsVectorsCanRegister) {
         if (f.size()<60u) f.resize(60u);
         return f;
     };
-    // a Message of `type` with one vector a count, each value its FirstValue of `alen` octets, the Message's EndMark in
-    // its AttributeListLength unless `list` states another
+    // a Message of `type` with one vector a VectorHeader, its LeaveAll bits above its NumberOfValues, each its FirstValue
+    // of `alen` octets, the Message's EndMark in its AttributeListLength unless `list` states another
     const auto message=[](uint8_t type,uint8_t alen,const std::vector<unsigned> &counts,int list=-1) {
         std::vector<uint8_t> v;
         for (unsigned n:counts) {
             v.push_back(uint8_t(n>>8)); v.push_back(uint8_t(n)); v.insert(v.end(),alen,0x11);
-            v.insert(v.end(),(n+2u)/3u,0);
+            v.insert(v.end(),((n&0x1fffu)+2u)/3u,0);
         }
         v.push_back(0); v.push_back(0);
         const unsigned length=list<0 ? unsigned(v.size()) : unsigned(list);
@@ -501,7 +503,8 @@ TEST_F(Srp, TheDrainChargesARecordTheTalkersItsVectorsCanRegister) {
     };
     const unsigned u=CTRL_LOOP_SRP_UNIT_US;
     const unsigned r=CTRL_LOOP_SRP_REG_US;
-    const unsigned s=CTRL_SRP_SINKS;
+    const unsigned s=SRP_RECORD_VALUES;
+    const unsigned leave_all=0x2000u;
     const std::vector<uint8_t> end={0,0};
     std::vector<uint8_t> listeners;
     for (unsigned k=0;k<9u;++k) {
@@ -515,7 +518,11 @@ TEST_F(Srp, TheDrainChargesARecordTheTalkersItsVectorsCanRegister) {
         {"an MVRP record",record(0x88f5,message(1,2,{1})),u},
         {"a Listener's",record(0x22ea,cat({message(3,8,{1}),end})),u},
         {"a Talker Advertise's two values",record(0x22ea,cat({message(1,25,{2}),end})),u+r*(2u<s?2u:s)},
-        {"a Talker Failed's values past the sinks",record(0x22ea,cat({message(2,34,{s+3u}),end})),u+r*s},
+        {"a Talker Failed's values past V",record(0x22ea,cat({message(2,34,{s+3u}),end})),u+r*s},
+        {"a Talker Advertise's V values",record(0x22ea,cat({message(1,25,{s}),end})),u+r*s},
+        {"a LeaveAll of no values ahead of two Talker values",
+         record(0x22ea,cat({message(1,25,{leave_all,1u,1u}),end})),u+2u*r},
+        {"a LeaveAll vector with its values",record(0x22ea,cat({message(1,25,{leave_all|2u}),end})),u+r*(2u<s?2u:s)},
         {"both kinds' one each",record(0x22ea,cat({message(1,25,{1}),message(2,34,{1}),end})),u+2u*r},
         {"a Talker past the EndMark",record(0x22ea,cat({end,end,message(1,25,{1})})),u},
         {"a Message whose length passes the record",record(0x22ea,message(1,25,{1},2000)),u+r},
@@ -2563,7 +2570,59 @@ protected:
     void expect_every_input_declares(const std::string &words) {
         for (unsigned k=0;k<CTRL_SRP_SINKS;++k) expect_bound_declares(k,k,kAdvertise,words);
     }
+    // One Talker Advertise Message (JoinIn) of one vector of n values from stream 0, each value its predecessor's plus
+    // one (IEEE 802.1Q-2018 35.2.2.8.4), its list's EndMark and the MRPDU's, after `before`'s Messages.
+    std::vector<uint8_t> vector_of(unsigned n, const std::vector<uint8_t> &before = {}) {
+        auto f=talker(0,kAdvertise,kJoinIn);
+        f.resize(46u);
+        wire_put_be(f.data()+19,n,2);
+        wire_put_be(f.data()+17,29u+(n+2u)/3u,2);
+        for (unsigned k=0;k<n;k+=3u) {
+            f.push_back(static_cast<uint8_t>(kJoinIn*36u+(k+1u<n ? kJoinIn*6u : 0u)+(k+2u<n ? kJoinIn : 0u)));
+        }
+        f.insert(f.end(),{0,0,0,0});
+        f.insert(f.begin()+15,before.begin(),before.end());
+        return f;
+    }
+    // The Talker Advertise attributes interface 0's participant registers (Registrar IN).
+    unsigned registered_talkers() {
+        unsigned n=0;
+        mrp_attr_visit(adapter.ifs[0].msrp,0,[](void *p,const mrp_attr_status *s) {
+            if (s->attr_type==MSRP_ATTR_TYPE_TALKER_ADV && s->reg==MRP_REG_STATE_IN) ++*static_cast<unsigned *>(p);
+        },&n);
+        return n;
+    }
 };
+
+// The population a record registers (#977, its ruling of 2026-11-27, item 2): with enough sinks bound that the bound
+// and the kept fill V, one vector of V + 3 Talkers from the bound ones' registers V, the bound and the kept, and THE
+// DRAIN charges at least the unit and the cost of each, as read from the record before lwSRP parses it; and so after
+// eight Listener Messages, past which the rest of the record is charged by its length.
+TEST_F(SrpEarlyTalker, AVectorOfBoundAndKeptTalkersRegistersVAndIsChargedForEach) {
+    const unsigned bound=CTRL_SRP_SINKS<SRP_RECORD_VALUES ? CTRL_SRP_SINKS : CTRL_SRP_SINKS/3u;
+    std::vector<uint8_t> listeners;
+    for (unsigned k=0;k<8u;++k) {
+        const std::vector<uint8_t> m={3,8,0,14,0x00,0x01,1,2,3,4,5,6,7,8,kJoinIn*36u,0x40,0,0};
+        listeners.insert(listeners.end(),m.begin(),m.end());
+    }
+    for (bool after_eight : {false,true}) {
+        settle(); advance(400);
+        for (unsigned k=0;k<bound;++k) { bind_stream(k,k); settle(); }
+        const auto f=vector_of(SRP_RECORD_VALUES+3u,after_eight ? listeners : std::vector<uint8_t>{});
+        mbx_model_advance_ms(&model,100); settle();
+        ASSERT_TRUE(mbx_model_rx(&model,f.data(),f.size(),0));
+        const unsigned charge=loop.drain_charge(&adapter);
+        settle();
+        const unsigned n=registered_talkers();
+        EXPECT_EQ(n,SRP_RECORD_VALUES)
+            << (after_eight ? "R2 after eight Messages the bound and the kept a vector registers fill V"
+                            : "R1 the bound and the kept a vector registers fill V");
+        EXPECT_GE(charge,CTRL_LOOP_SRP_UNIT_US+CTRL_LOOP_SRP_REG_US*n)
+            << (after_eight ? "R2 after eight Messages THE DRAIN charges every Talker the record registers"
+                            : "R1 THE DRAIN charges every Talker the record registers");
+        TearDown(); SetUp();
+    }
+}
 
 // Registration, then binding: every STREAM_INPUT's Talker is declared shortly after power-on, the talker is then
 // quiet, and each input's binding lands some seconds later (the probe's answer), within the DUT's first LeaveAll

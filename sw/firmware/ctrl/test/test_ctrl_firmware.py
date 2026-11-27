@@ -263,7 +263,8 @@ def run_srp_mutants(args: argparse.Namespace, out: Path) -> bool:
         srp_mutants.DEFECTS = tuple(d for d in complete_srp_table
                                     if d.name.startswith((srp_listener_mutants.PREFIX, srp_reclaim_mutants.PREFIX,
                                                           srp_drain_mutants.PREFIX, srp_early_mutants.PREFIX,
-                                                          srp_link_mutants.PREFIX, srp_lane_mutants.PREFIX)))[share]
+                                                          srp_link_mutants.PREFIX, srp_lane_mutants.PREFIX))
+                                    and not d.name.startswith(srp_drain_mutants.PREFIX_1X1))[share]
         failed = srp_mutants.campaign(out / "srp-8x8-if1-mutants", lwsrp, args.jobs, 1,
                                       srp_listener_mutants.ENTITY) or failed
     finally:

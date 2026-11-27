@@ -332,8 +332,9 @@ class Synthetic:
         self.slice = slice_grade.held(grade.parse('', self.hz, self.hz), self.shape)['limit']
         self.limits = limits
         #: the drain's charge of srp.bound_advertise's record (and srp.kept_advertise's), its tagged frame's Talker
-        #: values, one a sink, each CTRL_LOOP_SRP_REG_US past the unit
-        self.values = poll_grade.talker_values(kept_window.declared(0, self.shape.sinks), self.shape.sinks)
+        #: values, one a sink, at most V a vector (poll_grade.record_values), each CTRL_LOOP_SRP_REG_US past the unit
+        self.values = poll_grade.talker_values(kept_window.declared(0, self.shape.sinks),
+                                               poll_grade.record_values(self.shape))
         self.charge = (self.unit + self.values * poll_grade.registration_us(self.shape)) * self.hz // 1_000_000
         #: a build of one MRPDU one cycle over the slice (and so over its stated cost, below the slice), and a pass
         #: given whole to THE TRANSMIT's build over the slice and within CTRL_LOOP_BUILD_PASS_US (above the slice)

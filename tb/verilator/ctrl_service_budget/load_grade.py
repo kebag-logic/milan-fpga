@@ -75,10 +75,11 @@ The terms (per millisecond):
                  announceReceiptTimeout 3 intervals).
   registrations  a peer's Talker registrations at the MRP state machines' rate (#977, its ruling of 2026-11-23,
                  option (a)): a participant transmits at most three MRPDUs in any 1.5 x JoinTime (IEEE 802.1Q-2018
-                 10.7.11), JoinTime at least JOIN_MIN_MS (Milan v1.2 Table 4.3), and each may declare every input's
-                 Talker in the kind that replaces the one registered (35.2.6; Milan v1.2 4.2.7.2.2), so every one
-                 registers anew; each at REGISTRATION_US, a Talker's share of its record's apply past the unit and of
-                 ACMP's completion of it (THE SETTLE), where the point measures it.
+                 10.7.11), JoinTime at least JOIN_MIN_MS (Milan v1.2 Table 4.3), and each may declare V Talkers, the
+                 bound and the kept a record may register (SRP_RECORD_VALUES; the ruling of 2026-11-27, item 2), in the
+                 kind that replaces the one registered (35.2.6; Milan v1.2 4.2.7.2.2), so every one registers anew;
+                 each at REGISTRATION_US, a Talker's share of its record's apply past the unit and of ACMP's completion
+                 of it (THE SETTLE), where the point measures it.
 
 Not terms, each with its reason: a LINK change has no arrival rate (a row's definition, R5, counts one an interface);
 THE RETRY's rounds otherwise drain a queue a datapath reset leaves, at most AECP_NOTICES_MOST, a burst and not a rate,
@@ -355,6 +356,20 @@ TX_PER_JOIN = 3
 #: rule (the none arm's 12,468); at 1x1/1if the answering-ports arm's, 43,725 cycles, 15,225 past the unit, and its
 #: settle, 7,076, over two values, 11,150 cycles, 120 us by the rule (the none arm's 10,193).
 REGISTRATION_US = {'1x1/1if': 120, '8x8/1if': 135}
+#: V, the Talker values one SRP record may register, as srp_mbx.h states it at each point's shape (SRP_RECORD_VALUES;
+#: #977, its ruling of 2026-11-27, item 2): the registrations term counts V a record, the bound and the kept together.
+RECORD_SHAPES = {'1x1/1if': '1u, 2u, 2u', '8x8/1if': '1u, 9u, 9u'}
+
+
+def record_values(point: str, root: Path) -> int:
+    """SRP_RECORD_VALUES at the point's shape, read from srp_mbx.h."""
+    text = (root / 'sw/firmware/ctrl/srp/srp_mbx.h').read_text()
+    m = re.search(rf'CTRL_LOOP_SHAPE\({re.escape(RECORD_SHAPES[point])}\)\n#define SRP_RECORD_VALUES (\d+)u', text)
+    if m is None:
+        raise ValueError(f'srp_mbx.h states no SRP_RECORD_VALUES at {point}')
+    return int(m[1])
+
+
 #: The poll items the load counts (poll_grade.py's names); AECP's owed frame is the table's, by what each source sends.
 ITEMS = ('base', 'reclaim', 'retained', 'mrpdu', 'acmp', 'walk', 'acmp_declined')
 #: THE TRANSMIT's and THE STEP's stated costs (ctrl_loop.h), at a point the headers state them for.
@@ -563,8 +578,8 @@ def load(root: Path, point: str, table: dict | None = None) -> dict[str, float]:
     out['timers'] = n_if * (adp + acmp + c['event.MAAP'] / maap_ms) + aecp
     out['gm'] = n_if * c['event.GM'] * sum(1 / ms for ms in GM_INTERVALS_MS)
     if point in REGISTRATION_US:
-        # every input's Talker in each of TX_PER_JOIN MRPDUs a 1.5 x JoinTime, at the shape's sinks
-        out['registrations'] = REGISTRATION_US[point] * TX_PER_JOIN * shape(point, root).sinks / (1.5 * JOIN_MIN_MS)
+        # V Talkers a record, bound and kept, in each of TX_PER_JOIN MRPDUs a 1.5 x JoinTime
+        out['registrations'] = REGISTRATION_US[point] * TX_PER_JOIN * record_values(point, root) / (1.5 * JOIN_MIN_MS)
     return {term: us / 1000 for term, us in out.items()}
 
 

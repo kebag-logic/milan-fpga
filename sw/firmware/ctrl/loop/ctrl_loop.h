@@ -343,11 +343,14 @@ extern "C" {
 // THE DRAIN's charge of a record (#977, its ruling of 2026-11-23, item 4): the unit, plus
 // CTRL_LOOP_SRP_REG_US, a Talker registration's stated cost, for each Talker value the record can
 // register, a bound read from the record in the ring before lwSRP parses it and never under that
-// count (srp_mbx.c, rx_charge): an MSRP record's Talker Messages' vectors, each at most
-// CTRL_SRP_SINKS values, as lwSRP's receive filter takes a Talker value only for a bound sink's
-// StreamID and a vector's values are distinct StreamIDs (IEEE 802.1Q-2018 35.2.2.8.4; lwSRP refuses
-// an increment that overflows); every other Message skipped by its length, and past eight Messages
-// the rest at CTRL_SRP_SINKS a 28 octets, the least a Talker vector takes. At 1x1/1if and 8x8/1if
+// count (srp_mbx.c, rx_charge): an MSRP record's Talker Messages' vectors, each at most V values
+// (srp_mbx.h SRP_RECORD_VALUES, 4 at 1x1/1if and 9 at 8x8/1if; #977, its ruling of 2026-11-27, item
+// 2), as lwSRP's receive filter takes a Talker value only for a bound sink's StreamID or a kept one,
+// at most V of them, and a vector's values are distinct StreamIDs (IEEE 802.1Q-2018 35.2.2.8.4;
+// lwSRP refuses an increment that overflows); a vector of no values, a LeaveAll's, skipped by its
+// FirstValue and only a VectorHeader of 0 ending the Message's vectors (10.8.1.2, 10.8.2.8); every
+// other Message skipped by its length, and past eight Messages the rest at V a 28 octets, the least
+// a Talker vector takes. At 1x1/1if and 8x8/1if
 // the registration cost is a Talker value's share of its record's apply past the unit, the dearest
 // over the CPU budget harness's registering groups (srp-register, srp-register-burst), plus 5 %,
 // rounded up to 5 us; at the two-interface shapes, whose registering records #977 does not

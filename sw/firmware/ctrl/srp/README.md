@@ -38,7 +38,8 @@ and fund up to 12 Talkers kept for StreamIDs no binding holds, one for each sink
 The arena includes conservative allocator overhead for each block.
 Receive-interest filters retain every valid Class A Domain value, output Listener
 IDs, bound input Talker IDs and required VLANs, and up to `SRP_KEPT_TALKERS` Talker
-attributes of StreamIDs no binding holds (#969, below).
+attributes of StreamIDs no binding holds (#969, below), at most V less the
+interface's bound sinks (`SRP_RECORD_VALUES`, below).
 Quiescent, undeclared MT attributes are reclaimed under Table 10-3 note 11.
 `refused` counts unsuccessful attempts, including retries, rather than records.
 Exhaustion is counted and refused; it cannot overwrite another reservation.
@@ -419,7 +420,17 @@ keeps a Talker attribute of a StreamID none of the interface's bindings holds,
 one already kept or while the interface keeps fewer than `SRP_KEPT_TALKERS`, one
 for each STREAM_INPUT of the shape, each a pool block of the fixed 16; the
 release processor's listener keeps the same count of port registrars
-(`KL_srp_listener_fsm.sv`, protocol-processor #212). Its registration is then
+(`KL_srp_listener_fsm.sv`, protocol-processor #212).
+The Talkers one record can register are bounded at V, `SRP_RECORD_VALUES`:
+4 at 1x1/1if and 9 at 8x8/1if ([#977's ruling of
+2026-11-27](https://github.com/kebag-logic/milan-fpga/issues/977#issuecomment-7210763364),
+item 2). The filter keeps at most min(`SRP_KEPT_TALKERS`, V - bound sinks),
+so a record registers at most V, and THE DRAIN charges each Talker vector
+at most V. At 1x1/1if this keeps a Talker for every input, as before. At
+8x8/1if it is one kept Talker for each unbound STREAM_INPUT (#1023). With
+every input bound nothing is kept, and a rebind to a Talker not registered
+completes at that Talker's next declaration, at the latest after a LeaveAll
+(IEEE 802.1Q-2018 Table 10-3 and 10.7.8's NOTE; Milan v1.2 5.5.3.5.18 step 4). Its registration is then
 the registrar's, and the walk a binding made later owes takes it as one made
 after the binding is taken; the binding declares in THE TRANSMIT's next MRPDU.
 A receive starts from exactly the attributes kept: before it, outside lwSRP's

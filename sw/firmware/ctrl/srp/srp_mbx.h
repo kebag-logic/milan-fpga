@@ -91,6 +91,9 @@ struct srp_interface {
     // lane, where each visited every sink (#977, its ruling of 2026-11-23, item 5).
     uint8_t lane_first[SRP_SINK_LANES];
     uint8_t lane_next[CTRL_SRP_SINKS];
+    // The interface's bound sinks, counted where index_sinks rebuilds the index: the Talker values a record can register
+    // for its bindings, beside the kept ones (keep_talker, SRP_RECORD_VALUES; #977).
+    uint8_t bound_sinks;
     // A participant may hold an attribute mrp_reclaim frees: poll reclaims
     // only then (#665). It is set where one may arise: an attribute's change
     // into a state mrp_reclaim frees, or one a receive created and left in the
@@ -155,6 +158,17 @@ struct srp_mbx_config {
 // default VID's, at most four while a Domain is adopted (srp_mbx.c change_domain: the old and the new of each), so
 // up to 12 kept leave the rest the pool held before.
 #define SRP_KEPT_TALKERS CTRL_SRP_SINKS
+// V, the Talker values one SRP record may register on an interface (#977, its ruling of 2026-11-27, item 2): 4 at
+// 1x1/1if and 9 at 8x8/1if. The receive filter keeps at most min(SRP_KEPT_TALKERS, V - bound sinks) Talkers beside the
+// bound ones (keep_talker), so a record registers at most V, and THE DRAIN charges each Talker vector at most V
+// (rx_charge). At the shapes whose registration THE DRAIN does not charge, V is the whole population and bounds none.
+#if CTRL_LOOP_SHAPE(1u, 2u, 2u)
+#define SRP_RECORD_VALUES 4u
+#elif CTRL_LOOP_SHAPE(1u, 9u, 9u)
+#define SRP_RECORD_VALUES 9u
+#else
+#define SRP_RECORD_VALUES (CTRL_SRP_SINKS + SRP_KEPT_TALKERS)
+#endif
 #define SRP_POOL_FIXED_BLOCKS 16u
 #define SRP_POOL_DOMAIN_BLOCKS 4u
 struct srp_kept {

@@ -27,6 +27,8 @@ _Static_assert(CTRL_SRP_SOURCES <= MBX_N_PUB_SOURCES, "every source needs a LICE
 _Static_assert(SRP_HELD_STREAMS <= 255u, "held_count counts every StreamID held");
 // The pool's fixed blocks fund the kept Talkers beside the Domain's and the default VID's (#969, srp_mbx.h).
 _Static_assert(SRP_KEPT_TALKERS + SRP_POOL_DOMAIN_BLOCKS <= SRP_POOL_FIXED_BLOCKS, "the fixed blocks fund the kept");
+_Static_assert(SRP_RECORD_VALUES >= CTRL_SRP_SINKS && SRP_RECORD_VALUES <= CTRL_SRP_SINKS + SRP_KEPT_TALKERS,
+               "V holds every bound sink and no more than the bound and the kept (#977)");
 // kept_count counts an interface's kept Talker attributes, each a block of the pool (#969, srp_mbx.h).
 _Static_assert(SRP_POOL_MEDIUM_BLOCKS + SRP_POOL_LARGE_BLOCKS <= 255u, "kept_count counts every kept attribute");
 // What owes an interface's next receive a count of its kept Talkers (#969, srp_mbx.h kept_due; count_kept): a binding
@@ -322,9 +324,11 @@ _Static_assert(CTRL_SRP_SINKS < 255u, "a sink index holds each sink plus one in 
 static void index_sinks(struct srp_interface *i)
 {
     memset(i->lane_first,0,sizeof(i->lane_first));
+    i->bound_sinks = 0u;
     for (unsigned k = CTRL_SRP_SINKS; k-- != 0u;) {
         i->lane_next[k] = 0u;
         if (i->sinks[k].bound) {
+            ++i->bound_sinks;
             uint8_t *first = &i->lane_first[i->sinks[k].stream_id.bytes[7] % SRP_SINK_LANES];
             i->lane_next[k] = *first;
             *first = (uint8_t)(k + 1u);
@@ -549,21 +553,25 @@ static uint8_t talker_kind(uint8_t type)
 // it for, or an allocation refused), so the count is pending until a count sees it. Past the bound the receive
 // ignores it, as for every StreamID before #969. The filter reads no walk's result, so the walk's schedule moves no
 // answer of it (#930). The list is scanned only where a StreamID it lists ends in the same octet, and same is entered
-// only where the last bytes agree, as in sources_of (#977).
+// only where the last bytes agree, as in sources_of (#977). The kept a record can register are at most V less the
+// bound sinks (SRP_RECORD_VALUES; #977, its ruling of 2026-11-27, item 2): the filter takes only the first that many
+// listed, and keeps a new one only below it, so the bound and the kept a record registers are never more than V.
 static bool keep_talker(struct srp_interface *i, uint8_t type, const uint8_t *stream_id)
 {
     struct srp_mbx *m = i->owner;
     struct srp_kept *kept = m->kept[i->index];
     const uint8_t kind = talker_kind(type);
     uint8_t *count = &m->kept_count[i->index];
-    const unsigned listed = *count < SRP_KEPT_TALKERS ? *count : SRP_KEPT_TALKERS;
+    const unsigned room = SRP_RECORD_VALUES - i->bound_sinks;
+    const unsigned bound = room < SRP_KEPT_TALKERS ? room : SRP_KEPT_TALKERS;
+    const unsigned listed = *count < bound ? *count : bound;
     for (unsigned n = octet_in(m->kept_octets[i->index],stream_id[7]) ? 0u : listed; n < listed; ++n) {
         if (kept[n].kind == kind && kept[n].stream_id.bytes[7] == stream_id[7] &&
             same(kept[n].stream_id.bytes,stream_id,8)) {
             return true;
         }
     }
-    if (*count >= SRP_KEPT_TALKERS) {
+    if (*count >= bound) {
         return false;
     }
     copy_id(kept[*count].stream_id.bytes,stream_id);
@@ -999,12 +1007,15 @@ static bool rx_order_ready(struct srp_mbx *m)
 // bound read from the record before lwSRP parses it and never under that count. Only an MSRP record carries a Talker.
 // Its Messages are read by their headers (IEEE 802.1Q-2018 10.8.1.2, 35.2.2.4: AttributeType, AttributeLength and
 // AttributeListLength, which bounds each, as lwSRP's parser takes it), each Talker Message's vectors by their
-// VectorHeader's NumberOfValues, and every other Message is skipped by its length. The receive filter takes a Talker
-// value only for a bound sink's StreamID (interested_msrp) and a vector's values are distinct StreamIDs (35.2.2.8.4, an
-// overflowing increment refused), so a vector registers at most CTRL_SRP_SINKS of them. A PDU lwSRP refuses registers
-// none. Past SRP_CHARGE_MESSAGES Messages the rest of the record is charged by its length: a vector that holds a
-// Talker value takes SRP_TALKER_VECTOR_MIN octets at least, so the read is bounded and the count is never under. A shape
-// whose registration cost is 0 charges the unit.
+// VectorHeader's NumberOfValues, and every other Message is skipped by its length. Only a VectorHeader of 0 ends a
+// Message's vectors (10.8.1.2): a vector of no values, a LeaveAll's, skips its header and its FirstValue and the walk
+// goes on (10.8.2.8), as lwSRP's parser does. The receive filter takes a Talker value only for a bound sink's StreamID
+// or a kept one, at most V of them (interested_msrp, keep_talker, SRP_RECORD_VALUES), and a vector's values are
+// distinct StreamIDs (35.2.2.8.4, an overflowing increment refused), so a vector registers at most V. A PDU lwSRP
+// refuses registers none. Past SRP_CHARGE_MESSAGES Messages the rest of the record is charged by its length, V for
+// each SRP_TALKER_VECTOR_MIN octets, the least a vector that holds a Talker value takes, so the read is bounded and
+// the count is never under (#977, its ruling of 2026-11-27, items 2 and 4). A shape whose registration cost is 0
+// charges the unit.
 #define SRP_RECORD_HEAD (14u + 1u) // the Ethernet header and the ProtocolVersion: the first Message's offset
 #define SRP_TALKER_VECTOR_MIN (2u + 25u + 1u) // a VectorHeader, a Talker Advertise's FirstValue, one ThreeEvents
 #define SRP_CHARGE_MESSAGES 8u // a Message a type and some repeated before the rest is charged by its length
@@ -1022,7 +1033,7 @@ static unsigned rx_charge(void *ctx)
         unsigned at = SRP_RECORD_HEAD;
         for (unsigned messages = 0u; at + 4u <= len; ++messages) {
             if (messages == SRP_CHARGE_MESSAGES) {
-                values += CTRL_SRP_SINKS * ((len - at) / SRP_TALKER_VECTOR_MIN);
+                values += SRP_RECORD_VALUES * ((len - at) / SRP_TALKER_VECTOR_MIN);
                 break;
             }
             const unsigned type = mbx_rx_next_byte(MBX_CH_SRP,at);
@@ -1034,11 +1045,12 @@ static unsigned rx_charge(void *ctx)
             at += 4u;
             const unsigned end = list > len - at ? len : at + list;
             while ((type == MSRP_ATTR_TYPE_TALKER_ADV || type == MSRP_ATTR_TYPE_TALKER_FAILED) && at + 2u <= end) {
-                const unsigned count = mrp_vh_nv((uint16_t)peek16(at));
-                if (count == 0u) {
-                    break;
+                const unsigned header = peek16(at);
+                if (header == 0u) {
+                    break; // the Message's EndMark
                 }
-                values += count < CTRL_SRP_SINKS ? count : CTRL_SRP_SINKS;
+                const unsigned count = mrp_vh_nv((uint16_t)header);
+                values += count < SRP_RECORD_VALUES ? count : SRP_RECORD_VALUES;
                 at += 2u + alen + (count + 2u) / 3u;
             }
             at = end;

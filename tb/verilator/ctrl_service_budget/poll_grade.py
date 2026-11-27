@@ -312,10 +312,12 @@ def offered(traced: dict, sends: int, limits: dict) -> tuple[dict, list[dict]]:
     return heaviest, over
 
 
-def talker_values(frame: bytes, sinks: int) -> int:
+def talker_values(frame: bytes, most: int) -> int:
     """The Talker values an SRP record can register, as srp_mbx.c's rx_charge bounds them (#977): an MSRP record's
-    Talker Messages' vectors, at most `sinks` a vector, every other Message skipped by its AttributeListLength, none
-    past the PDU's EndMark, and past eight Messages the rest at `sinks` for each 28 octets."""
+    Talker Messages' vectors, at most `most` (V, record_values) a vector, a vector of no values (a LeaveAll's) skipped
+    by its FirstValue with the walk going on, only a VectorHeader of 0 ending a Message's vectors (IEEE 802.1Q-2018
+    10.8.1.2, 10.8.2.8), every other Message skipped by its AttributeListLength, none past the PDU's EndMark, and past
+    eight Messages the rest at `most` for each 28 octets."""
     if len(frame) <= 15 or frame[12:14] != b'\x22\xea':
         return 0
     at, values = 15, 0
@@ -323,20 +325,31 @@ def talker_values(frame: bytes, sinks: int) -> int:
         if at + 4 > len(frame):
             break
         if messages == 8:
-            return values + sinks * ((len(frame) - at) // 28)
+            return values + most * ((len(frame) - at) // 28)
         kind, alen, length = frame[at], frame[at + 1], int.from_bytes(frame[at + 2:at + 4], 'big')
         if kind == 0 and alen == 0:
             break
         at += 4
         end = len(frame) if length > len(frame) - at else at + length
         while kind in (1, 2) and at + 2 <= end:
-            count = int.from_bytes(frame[at:at + 2], 'big') & 0x1FFF
-            if count == 0:
+            header = int.from_bytes(frame[at:at + 2], 'big')
+            if header == 0:
                 break
-            values += min(count, sinks)
+            count = header & 0x1FFF
+            values += min(count, most)
             at += 2 + alen + (count + 2) // 3
         at = end
     return values
+
+
+def record_values(shape: shape_costs.Shape) -> int:
+    """SRP_RECORD_VALUES at a shape (srp_mbx.h, V; #977, its ruling of 2026-11-27, item 2), the bound and the kept
+    together where its chain's #else states it."""
+    text = (scenario.ROOT / 'sw/firmware/ctrl/srp/srp_mbx.h').read_text()
+    for *head, v in re.findall(r'#(?:el)?if CTRL_LOOP_SHAPE\((\d+)u, (\d+)u, (\d+)u\)\n#define SRP_RECORD_VALUES (\d+)u', text):
+        if shape_costs.Shape(*map(int, head)) == shape:
+            return int(v)
+    return 2 * shape.sinks
 
 
 def registration_us(shape: shape_costs.Shape) -> int:
@@ -366,7 +379,8 @@ def record_limits(log: grade.Log, traced: dict, interfaces: int | shape_costs.Sh
     reg = registration_us(shape) * log.cpu_hz // 1_000_000
     frames = own_frames(steps)
     tags = [tag for _, ch, _, tag, _ in log.rxc if ch == scenario.CH['srp']]
-    return [(start, unit + reg * talker_values(frames.get(tags[k], b''), shape.sinks) if k < len(tags) else unit)
+    most = record_values(shape)
+    return [(start, unit + reg * talker_values(frames.get(tags[k], b''), most) if k < len(tags) else unit)
             for k, (start, _, _) in enumerate(traced.get(poll_items.RECEIVE, []))]
 
 
