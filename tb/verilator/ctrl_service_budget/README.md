@@ -212,6 +212,11 @@ The earlier report's `f6f1d2f535a8de0ec2348dbb0998a152103f3583e9bf4cc72b0115552e
 That local hash does not identify the published file.
 
 Text receipt packets can be checked with `receipt_regrade.py PACKET`.
+[`census_extract.py`](census_extract.py) `PACKET OUT` writes a compact census extract from a packet with its full
+observation extracts: every case manifest, and of each extract only the lines a grader reads (`READ_LABELS`).
+It drops only the SPAN and CALL lines of traced functions no grader reads, keeps every other line unchanged,
+and regrades each case as it writes it. `FILES.json` maps every file it writes to the packet files it comes from.
+`receipt_regrade.py OUT` then checks the extract as it checks a packet, with the part limit its `census.json` states.
 `census.json` maps every case to its manifest and hash.
 Each manifest binds original-log size/hash, extracted observations, and original grades.
 It also includes the scenario, stimulus, and any journal bytes.
