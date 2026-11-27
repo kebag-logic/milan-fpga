@@ -1,0 +1,3266 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 1f0349e..ea0f6e2 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -1,5 +1,8 @@
+ # SPDX-License-Identifier: Apache-2.0
+ option(LWSRP_MILAN "Use Milan rapid MSRP withdrawal" OFF)
++# The timer wheel, the lookup buckets and the merged Message build, for many attributes (doc/integrator.md).
++option(LWSRP_SCALE "Use the timer wheel, lookup buckets and merged build" OFF)
++set(LWSRP_SCALE_DEFINITIONS LWSRP_TIMER_SLOTS=64u LWSRP_ATTR_BUCKETS=16u LWSRP_TX_MERGE=1)
+ if(DEFINED ZEPHYR_BASE)
+   if(CONFIG_LWSRP)
+     zephyr_library_named(lwsrp)
+@@ -16,6 +19,9 @@ if(DEFINED ZEPHYR_BASE)
+     zephyr_include_directories(src/include)
+     zephyr_library_include_directories(src)
+     zephyr_library_compile_definitions(LWSRP_MILAN=$<BOOL:${LWSRP_MILAN}>)
++    if(LWSRP_SCALE)
++      zephyr_compile_definitions(${LWSRP_SCALE_DEFINITIONS})
++    endif()
+   endif()
+   return()
+ endif()
+@@ -45,6 +51,9 @@ add_library(shlan SHARED
+ )
+ target_include_directories(shlan PUBLIC src/include src/modules src)
+ target_compile_definitions(shlan PUBLIC LWSRP_MILAN=$<BOOL:${LWSRP_MILAN}>)
++if(LWSRP_SCALE)
++  target_compile_definitions(shlan PUBLIC ${LWSRP_SCALE_DEFINITIONS})
++endif()
+ 
+ # ---------- unit tests (cgreen, C-only, for core/ internals) ----------
+ enable_testing()
+@@ -64,6 +73,7 @@ add_executable(unit_tests
+     tests/unit/review_test.c
+     tests/unit/grouping_test.c
+     tests/unit/own_leaveall_test.c
++    tests/unit/key_test.c
+     tests/unit/mrpdu_decoder.c
+ )
+ target_include_directories(unit_tests PRIVATE ${CGREEN_INCLUDE} src/include src)
+diff --git a/doc/architecture.md b/doc/architecture.md
+index 4e96b75..ec8fb5c 100644
+--- a/doc/architecture.md
++++ b/doc/architecture.md
+@@ -22,7 +22,7 @@ flowchart TD
+ 
+ The [application callbacks](../src/include/shish_lan/mrp.h) connect applications to the [declaration state](../src/core/mrp_mad.c).
+ The [codec](../src/core/mrp_pdu.c) validates complete payloads before delivering events.
+-The [transmit operation](../src/core/mrp_mad.c#L1415) assembles PDUs and commits state after acceptance.
++The [transmit operation](../src/core/mrp_mad.c#L1797) assembles PDUs and commits state after acceptance.
+ The [timer port](../src/ports/timer.h) and [allocation port](../src/ports/alloc.h) isolate platform services.
+ 
+ The [switch operations](../src/include/shish_lan/switch.h) control ports independently of MRP.
+@@ -80,12 +80,12 @@ flowchart TD
+     Retry --> Send
+ ~~~
+ 
+-The host calls [mrp_transmit](../src/core/mrp_mad.c#L1415) on each event-loop pass.
++The host calls [mrp_transmit](../src/core/mrp_mad.c#L1797) on each event-loop pass.
+ The callback accepts the complete payload or refuses it.
+ Refused payloads remain in caller-owned storage until acceptance.
+ The [integration contract](integrator.md#transmit-and-retry) defines buffer ownership and deferred input.
+ The host adds Ethernet framing and chooses the interface.
+-The [bounded assembler](../src/core/mrp_mad.c#L1415) serves omitted attributes before repeating earlier ones.
++The [bounded assembler](../src/core/mrp_mad.c#L1797) serves omitted attributes before repeating earlier ones.
+ See the [scope matrix](manager.md#implementation-status) before making interoperability claims.
+ 
+ ## Test layout
+diff --git a/doc/developer.md b/doc/developer.md
+index 66e465d..c445aa7 100644
+--- a/doc/developer.md
++++ b/doc/developer.md
+@@ -51,12 +51,22 @@ The [attr_len](../src/include/shish_lan/mrp.h) callback gives the wire length.
+ The optional [attr_mem_len](../src/include/shish_lan/mrp.h) callback gives the stored length.
+ The [stream adapter](../src/modules/msrp.c) uses host-endian Talker structures and nine stored bytes for Listeners.
+ The [attr_cmp](../src/include/shish_lan/mrp.h) callback defines identity.
++The optional [attr_key](../src/include/shish_lan/mrp.h) callback returns one octet of the octets attr_cmp compares.
++It exists only in a build with [LWSRP_ATTR_KEY](../src/include/shish_lan/mrp.h) set, which the lookup buckets need and set.
++Equal identities and replacement pairs must share that octet.
++The [MAD](../src/core/mrp_mad.c) stores it at creation and compares it before calling attr_cmp or attr_replaces.
++With [LWSRP_ATTR_BUCKETS](../src/core/mrp_mad.c) set, each participant also keeps its attributes in lookup buckets by that octet.
++A bucket holds its attributes in the list's order, so a lookup visits only one bucket and still finds the list's first match.
++The same holds for the replacement loop and for [mrp_attr_registered_ports](../src/include/shish_lan/mrp.h).
++Without attr_key, every attribute shares one bucket, which is the list itself.
++The default, zero, scans the list.
++The [stream](../src/modules/msrp.c) and [VLAN](../src/modules/mvrp.c) adapters key on the StreamID's last octet, a Domain VID octet, and a VID octet.
+ Received declarations refresh matching identities.
+ Withdrawal and aging retain the last registered value.
+ 
+ The [host context](../src/include/shish_lan/mrp.h) remains caller-owned.
+ Keep it valid for the application lifetime.
+-Use [mrp_reclaim](../src/core/mrp_mad.c#L1108) to release undeclared, unregistered, quiescent attributes.
++Use [mrp_reclaim](../src/core/mrp_mad.c#L1308) to release undeclared, unregistered, quiescent attributes.
+ It unlinks their timers and refuses reclamation during a prepared transmission.
+ Read the [lifetime contract](integrator.md#lifetime-and-concurrency) before destroying an application.
+ 
+@@ -76,7 +86,7 @@ They are not a complete conformance model or evidence of tested behavior.
+ ### Applicant declarations
+ 
+ Reference: [IEEE 802.1Q-2018, clause 10.7.7, Table 10-3](https://standards.ieee.org/ieee/802.1Q/6844/).
+-Evidence: [declaration rows](../src/core/mrp_mad.c#L158) and [Applicant handler](../src/core/mrp_mad.c#L506).
++Evidence: [declaration rows](../src/core/mrp_mad.c#L254) and [Applicant handler](../src/core/mrp_mad.c#L673).
+ 
+ ~~~mermaid
+ stateDiagram-v2
+@@ -96,20 +106,20 @@ VO means Very anxious Observer; VP means Very anxious Passive.
+ VN means Very anxious New; AN means Anxious New.
+ AA means Anxious Active; QA means Quiet Active.
+ Transmit labels describe required protocol actions.
+-The [transmit operation](../src/core/mrp_mad.c#L1415) applies these transitions after the host accepts the payload.
++The [transmit operation](../src/core/mrp_mad.c#L1797) applies these transitions after the host accepts the payload.
+ 
+ Comparison: matches the table for the displayed transitions, including the Registrar condition.
+ Transmission assumes sufficient frame space, as required by [IEEE 802.1Q-2018, clause 10.7.7, Table 10-3, note 7](https://standards.ieee.org/ieee/802.1Q/6844/).
+ 
+-The [Applicant handler](../src/core/mrp_mad.c#L506) implements the Registrar condition and corrected declaration transitions.
+-The [event dispatcher](../src/core/mrp_mad.c#L755) requests transmission for anxious and leaving states.
+-The [transactional assembler](../src/core/mrp_mad.c#L1415) preserves state when a required value cannot fit.
++The [Applicant handler](../src/core/mrp_mad.c#L673) implements the Registrar condition and corrected declaration transitions.
++The [event dispatcher](../src/core/mrp_mad.c#L937) requests transmission for anxious and leaving states.
++The [transactional assembler](../src/core/mrp_mad.c#L1797) preserves state when a required value cannot fit.
+ Optional packing actions are omitted; each encoded vector carries one value.
+ 
+ ### MRPDU layout
+ 
+ Reference: [IEEE 802.1Q-2018, clauses 10.8.1.2 and 10.8.2](https://standards.ieee.org/ieee/802.1Q/6844/).
+-Evidence: [Message writer](../src/core/mrp_mad.c#L1356) and [PDU writer](../src/core/mrp_mad.c#L1393).
++Evidence: [Message writer](../src/core/mrp_mad.c#L1564) and [PDU writer](../src/core/mrp_mad.c#L1768).
+ 
+ ~~~mermaid
+ flowchart LR
+@@ -122,6 +132,11 @@ flowchart LR
+ Each PDU carries one Message per attribute type, in ascending type order.
+ A due LeaveAll comes first in its type's Message, with no values.
+ Each declaration follows as a single-value vector, in ascending FirstValue order.
++Equal FirstValues keep the attribute list's order.
++By default the encoder swaps each new vector backwards past every greater one.
++With [LWSRP_TX_MERGE](../src/core/mrp_mad.c) set, it writes each vector once, in the list's order, then merges runs of the list by FirstValue.
++Vectors already written in ascending order are left in place, with no merge.
++Only vectors whose place changed are then encoded again in their new place.
+ One EndMark closes each Message, and one more closes the PDU.
+ Selection keeps the earlier order: omitted values first, then repeats.
+ The first vector of a type also pays for its Message header and EndMark.
+@@ -132,7 +147,7 @@ The [grouping tests](../tests/unit/grouping_test.c) pin the bytes with an [indep
+ ### Applicant observation
+ 
+ Reference: [IEEE 802.1Q-2018, clause 10.7.7, Table 10-3](https://standards.ieee.org/ieee/802.1Q/6844/).
+-Evidence: [receive-event rows](../src/core/mrp_mad.c#L207).
++Evidence: [receive-event rows](../src/core/mrp_mad.c#L303).
+ 
+ ~~~mermaid
+ stateDiagram-v2
+@@ -151,9 +166,9 @@ These names come from the [state enum](../src/include/shish_lan/mrp.h).
+ The prefix r marks a received event.
+ Shared means the point-to-point subset is disabled and the operational MAC is not point-to-point.
+ Comparison: matches the table for the displayed transitions with that condition.
+-Local Join moves AO to AP and QO to QP in the [Applicant table](../src/core/mrp_mad.c#L149).
++Local Join moves AO to AP and QO to QP in the [Applicant table](../src/core/mrp_mad.c#L245).
+ 
+-The [Applicant handler](../src/core/mrp_mad.c#L506) checks the configured point-to-point condition.
++The [Applicant handler](../src/core/mrp_mad.c#L673) checks the configured point-to-point condition.
+ Received JoinIn leaves LA unchanged.
+ Received In quiets AA only on point-to-point links.
+ The conditions follow [IEEE 802.1Q-2018, clause 10.7.7, Table 10-3, notes 3–5](https://standards.ieee.org/ieee/802.1Q/6844/).
+@@ -161,7 +176,7 @@ The conditions follow [IEEE 802.1Q-2018, clause 10.7.7, Table 10-3, notes 3–5]
+ ### Applicant withdrawal
+ 
+ Reference: [IEEE 802.1Q-2018, clause 10.7.7, Table 10-3](https://standards.ieee.org/ieee/802.1Q/6844/).
+-Evidence: [withdrawal row](../src/core/mrp_mad.c#L172) and [transmit rows](../src/core/mrp_mad.c#L179).
++Evidence: [withdrawal row](../src/core/mrp_mad.c#L268) and [transmit rows](../src/core/mrp_mad.c#L275).
+ 
+ ~~~mermaid
+ stateDiagram-v2
+@@ -176,7 +191,7 @@ stateDiagram-v2
+ LA means Leaving Active; LO means Leaving Observer.
+ See the [state enum](../src/include/shish_lan/mrp.h) for all twelve states.
+ Comparison: matches the table for the displayed transitions when the frame has space.
+-The [transmit rows](../src/core/mrp_mad.c#L179) now match those displayed transitions.
++The [transmit rows](../src/core/mrp_mad.c#L275) now match those displayed transitions.
+ Full payloads defer omitted values and request another Join-spaced opportunity.
+ A LeaveAll transmission uses the separate full-payload event for omitted values.
+ The [transmit tests](../tests/unit/transmit_test.c) check fairness across a split population.
+@@ -188,7 +203,7 @@ Reference: [IEEE 802.1Q-2018, clause 10.7.7, Table 10-3, notes 1–4 and 12](htt
+ ### Registrar
+ 
+ Reference: [IEEE 802.1Q-2018, clause 10.7.8, Table 10-4](https://standards.ieee.org/ieee/802.1Q/6844/).
+-Evidence: [Registrar table](../src/core/mrp_mad.c#L325) and [indication handler](../src/core/mrp_mad.c#L618).
++Evidence: [Registrar table](../src/core/mrp_mad.c#L421) and [indication handler](../src/core/mrp_mad.c#L790).
+ 
+ ~~~mermaid
+ stateDiagram-v2
+@@ -206,9 +221,9 @@ IN means registered; LV means leaving; MT means empty.
+ The prefix r marks reception; Join includes JoinIn and JoinMt.
+ With allocation available, this matches the default table for the displayed state transitions.
+ The graph omits indication and timer actions.
+-The [Registrar table](../src/core/mrp_mad.c#L325) also enters LV on transmit-with-LeaveAll.
+-A value omitted from that PDU enters LV through the local rLA! of [sla_registrars](../src/core/mrp_mad.c#L774).
+-Its [re-declaration row](../src/core/mrp_mad.c#L387) does the same.
++The [Registrar table](../src/core/mrp_mad.c#L421) also enters LV on transmit-with-LeaveAll.
++A value omitted from that PDU enters LV through the local rLA! of [sla_registrars](../src/core/mrp_mad.c#L956).
++Its [re-declaration row](../src/core/mrp_mad.c#L483) does the same.
+ Local Join and Leave events do not change Registrar state.
+ 
+ Local New, Join, and Leave do not register a peer.
+@@ -217,10 +232,10 @@ Unchanged values issue no additional Join indication or propagation callback, ma
+ Changed Listener or Talker values in IN or LV indicate and propagate the update.
+ This also applies after received or transmitted LeaveAll.
+ The [recovery regression](../tests/unit/review_test.c) checks both events and cancellation beyond the original deadline.
+-Evidence: [Registrar Join rows](../src/core/mrp_mad.c#L353).
++Evidence: [Registrar Join rows](../src/core/mrp_mad.c#L449).
+ 
+ The optional [milan_rapid_leave](../src/include/shish_lan/mrp.h) changes only received Leave in IN.
+-The [Registrar handler](../src/core/mrp_mad.c#L618) selects this transition before applying the normal indication and propagation actions.
++The [Registrar handler](../src/core/mrp_mad.c#L790) selects this transition before applying the normal indication and propagation actions.
+ The option is copied at application creation; its default is false.
+ The [MSRP build setting](integrator.md#milan-received-leave) enables it for stream applications.
+ VLAN and MAC applications retain the default table.
+@@ -245,13 +260,13 @@ The [profile tests](../tests/unit/milan_test.c) check Talker Advertise, Talker F
+ 
+ Received LeaveAll affects only the message's type on its ingress port.
+ This matches [IEEE 802.1Q-2018, clause 10.7.5.20](https://standards.ieee.org/ieee/802.1Q/6844/).
+-The [receive handler](../src/core/mrp_mad.c#L1074) also restarts the shared participant LeaveAll timer.
++The [receive handler](../src/core/mrp_mad.c#L1274) also restarts the shared participant LeaveAll timer.
+ The [integration tests](../tests/unit/integration_test.c) check both state machines across every supported multi-type application.
+ 
+ ### LeaveAll
+ 
+ Reference: [IEEE 802.1Q-2018, clause 10.7.9, Table 10-5](https://standards.ieee.org/ieee/802.1Q/6844/).
+-Evidence: [la_event](../src/core/mrp_mad.c#L795).
++Evidence: [la_event](../src/core/mrp_mad.c#L977).
+ 
+ ~~~mermaid
+ stateDiagram-v2
+@@ -268,11 +283,11 @@ Begin resets either state to Passive.
+ Begin, reception, and expiry restart the timer; expiry requests transmission.
+ Active transmission requires a LeaveAll message and local LeaveAll processing.
+ 
+-The [transmit operation](../src/core/mrp_mad.c#L1415) emits one LeaveAll vector for each supported attribute type.
++The [transmit operation](../src/core/mrp_mad.c#L1797) emits one LeaveAll vector for each supported attribute type.
+ Acceptance makes the participant Passive.
+ The leavealltimer keeps the draw it started at expiry.
+ Each Applicant takes exactly one LeaveAll event: txLA! when its message fits, and txLAF! when it is omitted.
+-The local rLA! then reaches every Registrar and no Applicant, through [sla_registrars](../src/core/mrp_mad.c#L774).
++The local rLA! then reaches every Registrar and no Applicant, through [sla_registrars](../src/core/mrp_mad.c#L956).
+ This follows [IEEE 802.1Q-2018, clause 10.7.6.6 and Tables 10-3 and 10-4](https://standards.ieee.org/ieee/802.1Q/6844/), as ruled in [issue #20](https://github.com/kebag-logic/lwSRP/issues/20).
+ A second Applicant event would take QA to VP, and a later Leave would then go unsent.
+ 
+@@ -290,14 +305,14 @@ Each row starts at the participant's own LeaveAll opportunity.
+ A value left out sent no Join after the LeaveAll, so the peer's Leave timer runs and no Lv is needed.
+ The [LeaveAll tests](../tests/unit/own_leaveall_test.c) check each transition and every state's txLA! and txLAF! cells.
+ Refusal preserves the pending payload and does not age registrations through an unsent LeaveAll.
+-The [timer draw](../src/core/mrp_mad.c#L788) lies strictly between the configured interval and 1.5 times that interval.
++The [timer draw](../src/core/mrp_mad.c#L970) lies strictly between the configured interval and 1.5 times that interval.
+ The interval rule is in [IEEE 802.1Q-2018, clause 10.7.4.3](https://standards.ieee.org/ieee/802.1Q/6844/).
+ An active state alone does not prove that a frame was sent.
+ 
+ ### PeriodicTransmission
+ 
+ Reference: [IEEE 802.1Q-2018, clause 10.7.10, Table 10-6](https://standards.ieee.org/ieee/802.1Q/6844/).
+-Evidence: [pt_event](../src/core/mrp_mad.c#L824) and [mrp_set_periodic](../src/core/mrp_mad.c#L1148).
++Evidence: [pt_event](../src/core/mrp_mad.c#L1006) and [mrp_set_periodic](../src/core/mrp_mad.c#L1355).
+ 
+ ~~~mermaid
+ stateDiagram-v2
+@@ -312,7 +327,7 @@ Comparison: matches the table for the displayed state transitions.
+ Begin activates either state and arms the timer.
+ Enable arms the timer when Passive; Active expiry rearms it and generates a periodic event.
+ 
+-The [periodic handler](../src/core/mrp_mad.c#L824) uses 100 centiseconds, independently of Join spacing.
++The [periodic handler](../src/core/mrp_mad.c#L1006) uses 100 centiseconds, independently of Join spacing.
+ This matches [IEEE 802.1Q-2018, clause 10.7.4.4](https://standards.ieee.org/ieee/802.1Q/6844/).
+ Disable additionally disarms the timer; the table only changes state.
+ During a refused transmission, periodic work is deferred until acceptance.
+@@ -404,6 +419,7 @@ flowchart TD
+ 1. Define attribute types, wire lengths, and in-memory layouts beside a [public application interface](../src/include/shish_lan/mvrp.h).
+ 2. Implement [encode_attr, decode_attr, attr_len, and attr_cmp](../src/include/shish_lan/mrp.h).
+ 3. Provide [attr_mem_len](../src/include/shish_lan/mrp.h) when wire and stored sizes differ.
++   Provide [attr_key](../src/include/shish_lan/mrp.h) to pass other values without an attr_cmp call.
+ 4. Provide [attr_has_subtype](../src/include/shish_lan/mrp.h) when reception includes a subtype vector.
+ 5. Implement [join_ind and leave_ind](../src/include/shish_lan/mrp.h) with a valid host context.
+ 6. Set optional [map_join and map_leave](../src/include/shish_lan/mrp.h) callbacks only when propagation is required.
+diff --git a/doc/integrator.md b/doc/integrator.md
+index 9465607..34e52d9 100644
+--- a/doc/integrator.md
++++ b/doc/integrator.md
+@@ -21,6 +21,7 @@ The [root build definition](../CMakeLists.txt) selects between host and embedded
+ | [ZEPHYR_BASE](../CMakeLists.txt) defined | Selects the module branch and returns before host configuration. |
+ | [CONFIG_LWSRP](../Kconfig.zephyr) enabled | Builds protocol sources and default allocation and timer ports. |
+ | [LWSRP_MILAN](../CMakeLists.txt) enabled | Selects immediate MSRP withdrawal on received Leave in IN. Defaults to OFF. |
++| [LWSRP_SCALE](../CMakeLists.txt) enabled | Selects the timer wheel, the lookup buckets and the merged Message build, with identical behavior; see [port services](#port-platform-services). Defaults to OFF. |
+ 
+ There are no project options for hardware selection or coverage.
+ The [register queue](../src/core/switch_ctrl.c) is absent from both source lists.
+@@ -72,6 +73,42 @@ Do not link duplicate definitions.
+ The [allocation interface](../src/ports/alloc.h) declares [shlan_malloc, shlan_calloc, and shlan_free](../src/ports/alloc.h).
+ The default implementation uses the C library.
+ The [timer interface](../src/ports/timer.h) defines initialization, one-shot arming, cancellation, removal, and ticking.
++Timers that expire in one tick fire latest registration first.
++By default each tick walks every registered timer.
++Four build options trade code and memory for work that does not grow with the attribute count.
++Set them with the LWSRP_SCALE option of the [build definition](../CMakeLists.txt), and build every source with the same values.
++The lookup buckets set the attribute key.
++
++| Option | Default | Set | Cost when set |
++| --- | --- | --- | --- |
++| [LWSRP_TIMER_SLOTS](../src/ports/timer.h) | 0: each tick walks every timer | A tick visits only its wheel slot's timers. | One pointer a slot; each timer four more words. |
++| [LWSRP_ATTR_KEY](../src/include/shish_lan/mrp.h) | 0: no attr_key callback; each lookup compares every attribute | Each attribute keeps attr_key's octet, compared before attr_cmp and attr_replaces. | One octet an attribute; the callback a type. |
++| [LWSRP_ATTR_BUCKETS](../src/core/mrp_mad.c) | 0: each lookup scans the participant | A lookup scans one bucket by attr_key. | One pointer a bucket a participant; one more an attribute. |
++| [LWSRP_TX_MERGE](../src/core/mrp_mad.c) | 0: each vector is swapped into place | Runs of encoded vectors are merged; vectors encoded in strictly descending order are reversed in place. | Two more pointers an attribute. |
++
++Each option changes no output, callback, or callback order.
++
++Five more options suit an end station, whose participants each have one port.
++Define them directly for every source; LWSRP_SCALE does not select them.
++
++| Option | Default | Set | Difference when set |
++| --- | --- | --- | --- |
++| [LWSRP_ONE_PORT_MAP](../src/core/mrp_mad.c) | 0: every indication reserves a propagation target a port and calls the policy | A one-port participant reserves none and calls no map_join or map_leave. | See [one-port propagation](#one-port-propagation). |
++| [LWSRP_LEAN_VALIDATE](../src/core/mrp_pdu.c) | 0: both parser passes zero each decoded value | Only the delivering pass zeroes it. | None: the validation pass reads only the decoder's result. |
++| [LWSRP_RAPID_REPLACE](../src/core/mrp_mad.c) | 0: a replaced registration takes rLv! and then the leave timer's event | One that rLv! left MT, as the Milan rapid leave does, takes no leave timer event. | None: in MT that event changes neither state machine and indicates nothing. |
++| [LWSRP_LEAN_COPY](../src/core/mrp_mad.c) | 0: each delivery copies its Registrar row, a receive keeps a whole value for its restore, and MSRP's fixed-size fields are copied by memcpy | A row is copied only where its indication is rewritten; a restore keeps the stored length; a field is stored an octet at a time. | None: the same states, values and octets. |
++| [LWSRP_LEAN_TX](../src/core/mrp_mad.c) | 0: after a send every selected attribute takes tx!, and the assembler tests each AttributeType | An Applicant that tx! leaves as it is, with nothing to send, takes none; a type word with no open type left is passed over. | None: the Registrar ignores tx!, such an Applicant's row changes nothing, and the Messages keep their order. |
++
++### One-port propagation
++
++Propagation goes only to the other ports of the MAP context ([IEEE 802.1Q-2018, clause 10.3](https://standards.ieee.org/ieee/802.1Q/6844/)).
++A participant of one port has no other, so its policy can name no port and its reservation is always freed unused.
++With [LWSRP_ONE_PORT_MAP](../src/core/mrp_mad.c) set, such a participant skips both.
++Its outputs, indications, observations and their order are unchanged.
++Two things differ.
++The policy callback is not called at one port, so a policy must not depend on being called.
++A reservation's allocation can no longer be refused: where the default build refuses the receive with a negative result, this build applies the event.
++A participant of two or more ports behaves as in the default build.
+ A fixed pool can replace the default heap.
+ Allocation failure returns a negative result.
+ Earlier received attributes may remain applied when a later allocation fails.
+@@ -130,9 +167,9 @@ sequenceDiagram
+     Codec->>Core: Decoded events
+     Core->>Policy: Check interest
+     Core->>Core: Find or allocate
+-    Core->>Core: Reserve possible targets
++    Core->>Core: Reserve possible targets, past one port
+     Core->>Policy: Indicate registration
+-    Core->>Policy: Select propagation ports
++    Core->>Policy: Select propagation ports, past one port
+     Core->>Core: Queue and replay targets
+     Core->>Host: Observe transition
+     Core-->>Host: Parse result
+@@ -251,7 +288,7 @@ sequenceDiagram
+     Target->>Target: Schedule next output
+ ~~~
+ 
+-The [assembler](../src/core/mrp_mad.c#L1415) splits populations across Join-spaced opportunities.
++The [assembler](../src/core/mrp_mad.c#L1797) splits populations across Join-spaced opportunities.
+ Previously omitted attributes precede repeated declarations.
+ Each PDU holds one Message per attribute type, with values in ascending FirstValue order.
+ Size the buffer for the largest single-value Message and the application's LeaveAll preamble.
+@@ -262,7 +299,7 @@ Do not treat successful local declaration as proof of network transmission.
+ 
+ The host adds Ethernet headers and selects the physical interface.
+ Use the application's [group address and EtherType](../src/include/shish_lan/mrp.h).
+-The [stream destination](../src/modules/msrp.c#L415) is 01-80-C2-00-00-0E.
++The [stream destination](../src/modules/msrp.c#L456) is 01-80-C2-00-00-0E.
+ It matches [IEEE 802.1Q-2018, clause 35.2.2.1 and Table 8-1](https://standards.ieee.org/ieee/802.1Q/6844/).
+ The [address regression](../tests/unit/integration_test.c) also pins the MAC and VLAN destinations.
+ 
+@@ -290,7 +327,7 @@ Deliver every elapsed centisecond, including ticks coalesced by the platform.
+ The [timer defaults](../src/include/shish_lan/mrp.h) are Join 20, Leave 60, and LeaveAll 1000 centiseconds.
+ The Mark II profile uses Leave 500 centiseconds through [mrp_port_configure](../src/include/shish_lan/mrp.h).
+ Combine this interval with the [Milan received-Leave option](#milan-received-leave) for immediate explicit withdrawals.
+-The [periodic handler](../src/core/mrp_mad.c#L824) uses 100 centiseconds independently of Join spacing.
++The [periodic handler](../src/core/mrp_mad.c#L1006) uses 100 centiseconds independently of Join spacing.
+ LeaveAll draws lie strictly between its configured interval and 1.5 times that interval.
+ The rules are in [IEEE 802.1Q-2018, clauses 10.7.4.3 and 10.7.4.4](https://standards.ieee.org/ieee/802.1Q/6844/).
+ Supply different seeds where independent participants need different timing.
+@@ -316,7 +353,7 @@ sequenceDiagram
+ ~~~
+ 
+ Call the matching [application destroy operation](../src/include/shish_lan/mrp.h) only after all callbacks and accesses have stopped.
+-The [destructor](../src/core/mrp_mad.c#L924) unlinks all owned timers before releasing storage.
++The [destructor](../src/core/mrp_mad.c#L1106) unlinks all owned timers before releasing storage.
+ Other applications may continue ticking afterward.
+ Destruction itself does not transmit withdrawals.
+ Complete any required network withdrawal before teardown.
+diff --git a/doc/manager.md b/doc/manager.md
+index 23dfd41..2c637c4 100644
+--- a/doc/manager.md
++++ b/doc/manager.md
+@@ -18,22 +18,22 @@ Their default transitions match the tables; the optional profile change and impl
+ | [IEEE 802.1Q-2018, clause 10.2](https://standards.ieee.org/ieee/802.1Q/6844/) | Declarations, registration indications, and transactional output. | The host supplies frame transport. | [State engine](../src/core/mrp_mad.c). |
+ | [IEEE 802.1Q-2018, clause 10.3](https://standards.ieee.org/ieee/802.1Q/6844/) | Optional propagation callbacks and 32-bit port masks. | No topology gating; VLAN and MAC callbacks are unset. | [Core](../src/core/mrp_mad.c), [VLAN](../src/modules/mvrp.c), [MAC](../src/modules/mmrp.c). |
+ | [IEEE 802.1Q-2018, clause 10.5](https://standards.ieee.org/ieee/802.1Q/6844/) | Application identifiers and destination addresses. | The host selects the interface and adds Ethernet framing. | [Application interface](../src/include/shish_lan/mrp.h), [address tests](../tests/unit/integration_test.c). |
+-| [IEEE 802.1Q-2018, clause 10.7.5.20](https://standards.ieee.org/ieee/802.1Q/6844/) | Received LeaveAll reaches only its message type on the ingress port. | The participant LeaveAll timer is shared across types, as specified. | [Receive handler](../src/core/mrp_mad.c#L1074), [isolation tests](../tests/unit/integration_test.c). |
+-| [IEEE 802.1Q-2018, clause 10.7.7, Table 10-3](https://standards.ieee.org/ieee/802.1Q/6844/) | Graphs and implemented declaration paths match the selected table transitions. | Optional vector packing is omitted. Additional participant modes are not selectable. | [Comparison](developer.md#applicant-declarations), [Applicant handler](../src/core/mrp_mad.c#L506). |
+-| [IEEE 802.1Q-2018, clause 10.7.8, Table 10-4](https://standards.ieee.org/ieee/802.1Q/6844/) | Graph matches the displayed transitions; local New does not register peers. Ordinary unchanged LV Join recovery stops aging without duplicate indications. Failed Flush reservations retain a value snapshot across ticks, incoming registrations, local declarations, and cross-port propagation. | Exhaustive state-path testing remains incomplete. | [Comparison](developer.md#registrar), [Registrar table](../src/core/mrp_mad.c#L325), [retry contract](integrator.md#transmit-and-retry). |
++| [IEEE 802.1Q-2018, clause 10.7.5.20](https://standards.ieee.org/ieee/802.1Q/6844/) | Received LeaveAll reaches only its message type on the ingress port. | The participant LeaveAll timer is shared across types, as specified. | [Receive handler](../src/core/mrp_mad.c#L1274), [isolation tests](../tests/unit/integration_test.c). |
++| [IEEE 802.1Q-2018, clause 10.7.7, Table 10-3](https://standards.ieee.org/ieee/802.1Q/6844/) | Graphs and implemented declaration paths match the selected table transitions. | Optional vector packing is omitted. Additional participant modes are not selectable. | [Comparison](developer.md#applicant-declarations), [Applicant handler](../src/core/mrp_mad.c#L673). |
++| [IEEE 802.1Q-2018, clause 10.7.8, Table 10-4](https://standards.ieee.org/ieee/802.1Q/6844/) | Graph matches the displayed transitions; local New does not register peers. Ordinary unchanged LV Join recovery stops aging without duplicate indications. Failed Flush reservations retain a value snapshot across ticks, incoming registrations, local declarations, and cross-port propagation. | Exhaustive state-path testing remains incomplete. | [Comparison](developer.md#registrar), [Registrar table](../src/core/mrp_mad.c#L421), [retry contract](integrator.md#transmit-and-retry). |
+ | [Milan v1.2, clause 4.2.7.2.2](https://milanav.com/milan-faqs/) | Opt-in MSRP received Leave in IN enters MT and indicates withdrawal immediately. LV retains its deadline. | Default builds retain the generic table. This option does not imply complete profile conformance. | [Build setting](integrator.md#milan-received-leave), [profile tests](../tests/unit/milan_test.c). |
+-| [IEEE 802.1Q-2018, clause 10.7.9, Table 10-5](https://standards.ieee.org/ieee/802.1Q/6844/) | Graph matches the displayed transitions; accepted output sends LeaveAll for every supported type. Each Applicant takes one LeaveAll event; its local rLA! reaches Registrars only, per [issue #20](https://github.com/kebag-logic/lwSRP/issues/20). | Output depends on host polling and transport acceptance. The LeaveAll timer restarts at expiry, not at the sent LeaveAll. | [Comparison](developer.md#leaveall), [transmit operation](../src/core/mrp_mad.c#L1415). |
++| [IEEE 802.1Q-2018, clause 10.7.9, Table 10-5](https://standards.ieee.org/ieee/802.1Q/6844/) | Graph matches the displayed transitions; accepted output sends LeaveAll for every supported type. Each Applicant takes one LeaveAll event; its local rLA! reaches Registrars only, per [issue #20](https://github.com/kebag-logic/lwSRP/issues/20). | Output depends on host polling and transport acceptance. The LeaveAll timer restarts at expiry, not at the sent LeaveAll. | [Comparison](developer.md#leaveall), [transmit operation](../src/core/mrp_mad.c#L1797). |
+ | [IEEE 802.1Q-2018, clause 10.7.10, Table 10-6](https://standards.ieee.org/ieee/802.1Q/6844/) | Graph matches the displayed transitions; periodic work uses one second. | Disable additionally disarms the timer. Refused output defers periodic Applicant work. | [Comparison](developer.md#periodictransmission), [handler](../src/core/mrp_mad.c). |
+ | [IEEE 802.1Q-2018, clauses 10.7.4.3, 10.7.4.4, and 10.7.11](https://standards.ieee.org/ieee/802.1Q/6844/) | Configurable timers, randomized LeaveAll, independent periodic timing, and timer unlinking. | Global serialized ticking and suitable seeds remain host responsibilities. | [Timer port](../src/ports/timer.c), [timing tests](../tests/unit/integration_test.c). |
+-| [IEEE 802.1Q-2018, clause 10.8.2](https://standards.ieee.org/ieee/802.1Q/6844/) | Complete PDU assembly with one Message per attribute type, ascending values, Listener subtype encoding, and fair splitting across bounded payloads. | Each transmitted vector carries one value; packing optimization is absent. | [Assembler](../src/core/mrp_mad.c#L1415), [transmit tests](../tests/unit/transmit_test.c), [grouping tests](../tests/unit/grouping_test.c). |
++| [IEEE 802.1Q-2018, clause 10.8.2](https://standards.ieee.org/ieee/802.1Q/6844/) | Complete PDU assembly with one Message per attribute type, ascending values, Listener subtype encoding, and fair splitting across bounded payloads. | Each transmitted vector carries one value; packing optimization is absent. | [Assembler](../src/core/mrp_mad.c#L1797), [transmit tests](../tests/unit/transmit_test.c), [grouping tests](../tests/unit/grouping_test.c). |
+ | [IEEE 802.1Q-2018, clause 10.8.3](https://standards.ieee.org/ieee/802.1Q/6844/) | Structural and decoded-range validation precede indications. Higher versions skip unknown stream messages by list length, VLAN/MAC messages by vector boundaries, and unknown event vectors. | Allocation failure can leave earlier valid values applied. | [Parser](../src/core/mrp_pdu.c), [receive tests](../tests/unit/receive_test.c). |
+ | [IEEE 802.1Q-2018, clauses 10.9–10.12](https://standards.ieee.org/ieee/802.1Q/6844/) | MAC and service codecs with host callbacks. | No filtering database, mode enforcement, or propagation policy. | [MAC adapter](../src/modules/mmrp.c). |
+ | [IEEE 802.1Q-2018, clause 11.2](https://standards.ieee.org/ieee/802.1Q/6844/) | VLAN codec and registration callbacks. | No VLAN table, database flush, or propagation policy. | [VLAN adapter](../src/modules/mvrp.c). |
+ | [IEEE 802.1Q-2018, clauses 35.2.1.3, 35.2.2.4, 35.2.2.8, and 35.2.2.9](https://standards.ieee.org/ieee/802.1Q/6844/) | Domain, Talker Advertise, Talker Failed, and Listener values with vector offsets. | No resource admission or hardware reservation. | [Stream adapter](../src/modules/msrp.c), [value tests](../tests/unit/msrp_values_test.c). |
+-| [IEEE 802.1Q-2018, clause 35.2.2.1 and Table 8-1](https://standards.ieee.org/ieee/802.1Q/6844/) | Stream destination is 01-80-C2-00-00-0E. | Ethernet framing remains in the host adapter. | [Destination constant](../src/modules/msrp.c#L415), [address tests](../tests/unit/integration_test.c). |
+-| [IEEE 802.1Q-2018, clause 35.2.2.7.2](https://standards.ieee.org/ieee/802.1Q/6844/) | Listener subtype vectors are encoded and decoded; Ignore creates no registration. | Network interoperability remains unverified. | [Codec](../src/core/mrp_pdu.c), [assembler](../src/core/mrp_mad.c#L1415). |
++| [IEEE 802.1Q-2018, clause 35.2.2.1 and Table 8-1](https://standards.ieee.org/ieee/802.1Q/6844/) | Stream destination is 01-80-C2-00-00-0E. | Ethernet framing remains in the host adapter. | [Destination constant](../src/modules/msrp.c#L456), [address tests](../tests/unit/integration_test.c). |
++| [IEEE 802.1Q-2018, clause 35.2.2.7.2](https://standards.ieee.org/ieee/802.1Q/6844/) | Listener subtype vectors are encoded and decoded; Ignore creates no registration. | Network interoperability remains unverified. | [Codec](../src/core/mrp_pdu.c), [assembler](../src/core/mrp_mad.c#L1797). |
+ | [IEEE 802.1Q-2018, clause 35.2.3](https://standards.ieee.org/ieee/802.1Q/6844/) | Local declaration wrappers. | Full stream registration and attachment service primitives are absent. | [Stream interface](../src/include/shish_lan/msrp.h). |
+-| [IEEE 802.1Q-2018, clause 35.2.4](https://standards.ieee.org/ieee/802.1Q/6844/) | Talker flooding and Listener propagation toward registered Talkers. Retained ports replay queued propagation in order. | No topology gating, bandwidth checks, or hardware reservation. | [Stream policy](../src/modules/msrp.c#L138). |
++| [IEEE 802.1Q-2018, clause 35.2.4](https://standards.ieee.org/ieee/802.1Q/6844/) | Talker flooding and Listener propagation toward registered Talkers. Retained ports replay queued propagation in order. | No topology gating, bandwidth checks, or hardware reservation. | [Stream policy](../src/modules/msrp.c#L161). |
+ | [IEEE 802.1Q-2018, clause 35.2.6](https://standards.ieee.org/ieee/802.1Q/6844/) | Received Join replaces opposite Talker registrations in IN or LV, with Leave before Join. Changed Listener and Talker values indicate and propagate in IN and LV. | Changed Listeners notify without separate Leave indications. Conflicting New registrations require host precedence policy. | [Value behavior](developer.md#stream-values-and-bounded-interests), [receive tests](../tests/unit/receive_test.c). |
+ 
+ No broader conformance claim follows from these rows.
+diff --git a/doc/tester.md b/doc/tester.md
+index 77ee414..4287baa 100644
+--- a/doc/tester.md
++++ b/doc/tester.md
+@@ -46,6 +46,11 @@ Observer tests require continuous transitions through the failed Flush and its t
+ Replacement tests start in IN and received-LeaveAll LV, sweep every allocation in both directions, and require Leave before Join.
+ Additional tests pin receive stopping at source and reservation allocations, policy masks, and allocation-free registration without propagation policy.
+ Named reversals must fail these regressions after compiling successfully.
++The [key suite](../tests/unit/key_test.c) pairs applications that differ only in [attr_key](../src/include/shish_lan/mrp.h).
++It runs in a build with LWSRP_ATTR_KEY, such as LWSRP_SCALE's, and is not registered without it.
++Both take 4000 random steps of reception, declarations, withdrawals, ticks, and transmissions.
++Their indications, attribute states, and transmitted PDUs must match after every step.
++Its values often share a key octet across different identities.
+ 
+ The [build definition](../CMakeLists.txt) requires the unit framework's headers and library for host configuration.
+ It rejects an empty suite through an output-based failure rule.
+@@ -150,6 +155,64 @@ python3 tests/check_equivalence_controls.py --work-dir "$MILAN_CONTROLS_SCRATCH"
+ The time-limit control lets each suite run for 480 seconds; set `--timeout` above one normal suite run.
+ Both profiles pass all five controls.
+ 
++## Differential traces
++
++The [differential check](../tests/check_differential.py) proves that a change keeps a base revision's behaviour exactly.
++Each trace driver prints one random life of a module.
++The trace holds every call, its result, every callback with its arguments, and every transmitted octet.
++The check builds each driver against the base revision's sources and against this checkout's.
++Both run the same seeds, and every pair of traces must be byte-identical.
++The checkout is built with its defaults, and with the three scale options of the [integrator guide](integrator.md#port-platform-services).
++With those options it is also built with a four-slot timer wheel started just short of the tick counter's wrap.
++It is built with one lookup bucket, as the plain list was, and with 256 buckets.
++It is built with each end-station switch alone: lean validation, one-port MAP work, rapid replacement, lean copies and lean tx!.
++It is also built with all five on the scale options.
++A one-port build's trace at one port is compared without its policy calls that name no port and without its allocation counts.
++Its seeds that refuse allocations at one port are counted and not compared: there the base refuses receives that build applies, the [one-port difference](integrator.md#one-port-propagation).
++Then each planted defect in the check's list is applied to a copy of the sources, built with the scale options or its own.
++Some seed's trace must then differ from the base's, or the defect counts as surviving.
++A run that does not end counts as differing.
++A defect that only breaks compilation does not count as detected.
++Set DIFFERENTIAL_SCRATCH to a new directory outside the checkout.
++
++~~~sh
++python3 tests/check_differential.py --work-dir "$DIFFERENTIAL_SCRATCH"
++python3 tests/check_differential.py --work-dir "$MILAN_DIFFERENTIAL_SCRATCH" --milan ON
++~~~
++
++With --sanitize-memory and a clang, the check also runs the MRP driver's end-station build under MemorySanitizer.
++No seed may report a read of an unwritten octet, which the lean validation pass would expose.
++A planted Talker decoder that reads a field before writing it must be reported.
++
++~~~sh
++python3 tests/check_differential.py --work-dir "$DIFFERENTIAL_SCRATCH" --sanitize-memory clang
++~~~
++
++The unit suite also runs with the scale options.
++Set SCALE_BUILD to a new directory outside the checkout.
++
++~~~sh
++cmake -S . -B "$SCALE_BUILD" -DCMAKE_BUILD_TYPE=Debug -DLWSRP_SCALE=ON
++cmake --build "$SCALE_BUILD" --parallel 2
++ctest --test-dir "$SCALE_BUILD" --output-on-failure
++~~~
++
++That build also registers the key suite: 110 tests with 27227 assertions, and 27215 with the Milan setting.
++
++The [timer driver](../tests/differential/timer_trace.c) registers, arms, disarms, removes, and ticks 48 timers at random.
++Its callbacks arm, disarm, and register other timers and themselves, as the MRP callbacks do.
++The [MRP driver](../tests/differential/mad_trace.c) runs the stream, VLAN, or MAC application, or a test application, on one to three ports.
++It receives random PDUs, declares and withdraws, transmits at seven capacities, ticks, reclaims, and changes roles.
++Its seeds refuse some allocations and sends, and its test application refuses to encode one value.
++The test application encodes one octet of a two-octet value, so equal FirstValues share a Message.
++Its key collides across values, and each received value can replace up to three registrations.
++After each step the trace records a digest of every attribute's states and value, and of the transmit buffer.
++Each driver runs 200 seeds, 20000 steps each for timers and 3000 for MRP.
++Every build gives identical traces in both profiles, the one-port builds as compared above: 177 of 200 seeds identical and 23 refusal seeds counted.
++All 36 planted defects are detected: ten in the timers, five in the buckets, eleven in the vector order, and twelve in the end-station switches.
++The end-station ones are two in the one-port switch, one in the rapid replacement, four in the lean copies and three in the lean tx!.
++The sanitized run reports no seed, and its planted decoder is reported.
++
+ ## Run the existing codec tests
+ 
+ The [codec test source](../tests/unit/mrp_pdu_test.c) contains nine tests.
+@@ -229,7 +292,7 @@ flowchart LR
+ | Deferred propagation | [Multiport tests](../tests/unit/review_test.c) cover refused targets, copied values, source reclamation, allocation rollback, ordered replacement, Flush snapshots, timer completion, receive interleaving, observer continuity, and teardown. | Exhaustion under prolonged refusal. |
+ | Propagation policy | [Boundary tests](../tests/unit/review_test.c) pin selected destinations, excluded source ports, Listener routing, receive stopping, and allocation-free operation without policy. | Future spanning-tree role filtering. |
+ | MRP state | [Transmit tests](../tests/unit/transmit_test.c) cover declaration ladders, refusal, retry, segmentation, withdrawal, and redeclaration. | Exhaustive table paths. |
+-| Timers | [Lifecycle tests](../tests/unit/timer_test.c) and [integration tests](../tests/unit/integration_test.c) cover removal, recreation, aging, periodic timing, and LeaveAll draws. | Target scheduling and long-duration drift. |
++| Timers | [Lifecycle tests](../tests/unit/timer_test.c) and [integration tests](../tests/unit/integration_test.c) cover removal, recreation, aging, periodic timing, and LeaveAll draws. The [differential check](../tests/check_differential.py) holds the optional wheel to the list walk. | Target scheduling and long-duration drift. |
+ | Profile withdrawal | [Profile tests](../tests/unit/milan_test.c) cover immediate stream withdrawal, unchanged VLAN/MAC timing, and preserved LV deadlines. | Target callback timing and network interoperability. |
+ | Hardware and network | No adapter or interoperability suite. | Target timing, frame ownership, and packet captures. |
+ 
+@@ -248,7 +311,8 @@ It changes one behavior at a time, builds, and requires the corresponding check
+ It restores each source before continuing and finishes with a passing build and test run.
+ A behavioral mutation that only breaks compilation does not count as detected.
+ Every command's return code and output are saved in scratch.
+-Set REVERSAL_SCRATCH, MILAN_REVERSAL_SCRATCH, and EMBEDDED_SCRATCH to separate new directories outside the checkout.
++Set REVERSAL_SCRATCH, MILAN_REVERSAL_SCRATCH, KEY_REVERSAL_SCRATCH, MILAN_KEY_REVERSAL_SCRATCH, and EMBEDDED_SCRATCH to separate new directories outside the checkout.
++The attribute key's reversals run only with --scale ON, which builds LWSRP_SCALE; that run holds no other case.
+ 
+ ~~~sh
+ python3 tests/check_embedded.py --work-dir "$EMBEDDED_SCRATCH"
+@@ -256,10 +320,12 @@ python3 tests/check_freestanding.py
+ CC="cc -DLWSRP_MILAN=1" python3 tests/check_freestanding.py
+ python3 tests/check_reversals.py --work-dir "$REVERSAL_SCRATCH" --prefix "$CGREEN_PREFIX"
+ python3 tests/check_reversals.py --work-dir "$MILAN_REVERSAL_SCRATCH" --prefix "$CGREEN_PREFIX" --milan ON
++python3 tests/check_reversals.py --work-dir "$KEY_REVERSAL_SCRATCH" --prefix "$CGREEN_PREFIX" --scale ON
++python3 tests/check_reversals.py --work-dir "$MILAN_KEY_REVERSAL_SCRATCH" --prefix "$CGREEN_PREFIX" --milan ON --scale ON
+ ~~~
+ 
+ The [freestanding check](../tests/check_freestanding.py) uses the configured C compiler and rejects hosted allocation, error, and print headers.
+-The [reversal cases](../tests/check_reversals.py) cover destination addresses, LeaveAll isolation, validation, offsets, retry, timing, storage, and registration changes.
++The [reversal cases](../tests/check_reversals.py) cover destination addresses, LeaveAll isolation, validation, offsets, retry, timing, storage, registration changes, and the attribute key.
+ They also check callback member order and strict bounded-header initialization.
+ Two independent profile reversals delay withdrawal from IN and restart the LV deadline.
+ The first must fail both immediate-indication tests while the deadline test still passes.
+@@ -274,7 +340,7 @@ Seven scenario reversals miswire the [test bindings](../tests/features/switch_bi
+ They swap enable and disable, disable the next port, skip connection, and swap connection with disconnection.
+ Each must fail exactly its named [scenarios](../tests/features/switch.feature) with the expected assertion words.
+ The runner's interpreter must import [behave](https://behave.readthedocs.io/en/stable/), because it also runs the scenarios before and after the plants.
+-Both profiles run all 110 reversals.
++Both profiles run all 110 reversals, and with --scale ON the attribute key's four.
+ They also pin propagation order, recovery indications, extension handling, range errors, and all reported LeaveAll boundaries.
+ Each added behavioral reversal must fail its named regression after successful compilation.
+ The [embedded check](../tests/check_embedded.py) exercises the actual module source list with a host compiler in both profiles.
+diff --git a/src/core/mrp_mad.c b/src/core/mrp_mad.c
+index 684e996..252ba8f 100644
+--- a/src/core/mrp_mad.c
++++ b/src/core/mrp_mad.c
+@@ -19,6 +19,85 @@
+ #include "ports/alloc.h"
+ #include "ports/timer.h"
+ 
++/*
++ * Lookup buckets a participant keeps by attr_key, a power of two of at most
++ * 256, or 0 for a scan of the participant's list. A bucket holds its
++ * instances in the list's order, so every lookup finds the list's first
++ * match either way. Build every translation unit with the same value.
++ */
++#ifndef LWSRP_ATTR_BUCKETS
++#define LWSRP_ATTR_BUCKETS 0u
++#endif
++#if LWSRP_ATTR_BUCKETS && !LWSRP_ATTR_KEY
++#error "LWSRP_ATTR_BUCKETS hashes attr_key: it needs LWSRP_ATTR_KEY"
++#endif
++#if LWSRP_ATTR_BUCKETS
++_Static_assert((LWSRP_ATTR_BUCKETS & (LWSRP_ATTR_BUCKETS - 1u)) == 0u && LWSRP_ATTR_BUCKETS != 0u &&
++               LWSRP_ATTR_BUCKETS <= 256u, "LWSRP_ATTR_BUCKETS must be a power of two of at most 256");
++#endif
++/*
++ * 1 builds each Message by merging runs of its encoded vectors in FirstValue
++ * order, 0 by swapping each vector backwards past every greater one. Both
++ * place equal FirstValues in the list's order.
++ */
++#ifndef LWSRP_TX_MERGE
++#define LWSRP_TX_MERGE 0
++#endif
++/*
++ * 1 skips the MAP work of a participant created with one port: an
++ * indication reserves no propagation target and calls no map_join or
++ * map_leave. Propagation goes to the other ports of the MAP context, never to
++ * the port the registration came from (IEEE 802.1Q-2018, clause 10.3), and a
++ * participant of one port has no other: its policy can name no port, and
++ * the reservation is always freed unused. Every output, indication,
++ * observation and their order are the same; the policy is not called, and
++ * where the reservation's allocation would have been refused the event is
++ * applied instead of refusing the receive (doc/integrator.md). 0 reserves and
++ * calls the policy at every port count.
++ */
++#ifndef LWSRP_ONE_PORT_MAP
++#define LWSRP_ONE_PORT_MAP 0
++#endif
++
++/*
++ * A replaced registration (35.2.6, attr_replaces) takes rLv! and then the
++ * leave timer's event. Where rLv! left its Registrar MT, as the Milan rapid
++ * leave does from IN (milan_rapid_leave), the leave timer's row leaves MT
++ * and both machines unchanged and indicates nothing (Tables 10-3 and 10-4),
++ * so 1 delivers it only where rLv! left the Registrar elsewhere: every
++ * output, indication, observation and their order are the same. 0 delivers
++ * it always.
++ */
++#ifndef LWSRP_RAPID_REPLACE
++#define LWSRP_RAPID_REPLACE 0
++#endif
++
++/*
++ * 1 copies no more than it uses: a Registrar row is copied only where a
++ * changed value's rJoinIn! or rJoinMt! rewrites its indication, and a
++ * receive keeps for its restore only the stored length of the value it may
++ * rewrite, the only octets a refresh writes (get_or_create_attr); with
++ * msrp.c's fixed-size fields copied with no call of memcpy. The same
++ * states, values and outputs; 0 copies the row and the whole value always.
++ */
++#ifndef LWSRP_LEAN_COPY
++#define LWSRP_LEAN_COPY 0
++#endif
++
++/*
++ * After a send, every selected attribute takes tx!. The Registrar ignores
++ * tx! (Table 10-4) and the Applicant's row leaves VO, QA, AO, QO and QP as
++ * they are with nothing to send (Table 10-3), so 1 delivers it only to an
++ * Applicant the row moves: the same states, outputs and observations, an
++ * observer seeing no change in either case. And the assembler passes over
++ * the AttributeTypes of an open set's word that holds none from there on,
++ * where 0 tests each of the 256: the same Messages in the same order. 0
++ * delivers tx! to every one.
++ */
++#ifndef LWSRP_LEAN_TX
++#define LWSRP_LEAN_TX 0
++#endif
++
+ /* ------------------------------------------------------------------ */
+ /* Internal types                                                       */
+ /* ------------------------------------------------------------------ */
+@@ -61,6 +140,9 @@ static void on_join_timer(void *arg);
+ /* Per-attribute instance: one Applicant SM + one Registrar SM */
+ struct mrp_attr_inst {
+     uint8_t              attr_type;
++#if LWSRP_ATTR_KEY
++    uint8_t              key;          /* attr_key of attr_val, fixed at creation */
++#endif
+     /* Largest in-memory value (struct msrp_talker_failed) with margin;
+      * see attr_store_len(). */
+     _Alignas(max_align_t) uint8_t attr_val[48];
+@@ -73,6 +155,16 @@ struct mrp_attr_inst {
+     bool                 tx_deferred;
+     enum tx_msg          pending_tx;   /* message scheduled for next tx */
+     struct mrp_attr_inst *next;
++#if LWSRP_ATTR_BUCKETS
++    /* The next instance of its lookup bucket, in the list's order. */
++    struct mrp_attr_inst *key_next;
++#endif
++#if LWSRP_TX_MERGE
++    /* While one Message is built: the next vector chosen, and the
++     * FirstValue this instance's vector encoded. */
++    struct mrp_attr_inst *tx_next;
++    const uint8_t        *tx_key;
++#endif
+     /* Leave timer: fires MRP_EVENT_LEAVETIMER into the Registrar SM on expiry */
+     struct shlan_timer          leave_timer;
+     struct mrp_attr_timer_arg   leave_timer_arg;
+@@ -106,6 +198,10 @@ struct mrp_port_state {
+     struct mrp_map_work *map_head;
+     struct mrp_map_work *map_tail;
+     struct mrp_attr_inst *attrs;      /* linked list of attribute instances */
++#if LWSRP_ATTR_BUCKETS
++    /* The same instances by attr_key, each bucket in the list's order. */
++    struct mrp_attr_inst *by_key[LWSRP_ATTR_BUCKETS];
++#endif
+     /* LeaveAll timer: fires MRP_EVENT_LEAVEALLTIMER on expiry */
+     struct shlan_timer          la_timer;
+     /* PeriodicTransmission timer: fires MRP_EVENT_PERIODICTIMER on expiry */
+@@ -420,6 +516,7 @@ uint8_t mrp_app_n_ports(const struct mrp_app *app)
+     return priv_of((struct mrp_app *)app)->n_ports;
+ }
+ 
++#if !LWSRP_ATTR_BUCKETS
+ uint32_t mrp_attr_registered_ports(const struct mrp_app *app,
+                                    uint8_t attr_type, const void *attr_val)
+ {
+@@ -439,12 +536,75 @@ uint32_t mrp_attr_registered_ports(const struct mrp_app *app,
+     return mask;
+ }
+ 
++#if LWSRP_ATTR_KEY
++/* The value's key (attr_key), or 0 for an application without one. */
++static uint8_t key_of(const struct mrp_app_ops *ops, uint8_t type, const void *val)
++{
++    return ops->attr_key ? ops->attr_key(type, val) : 0u;
++}
++#endif
++
+ static struct mrp_attr_inst *find_attr(struct mrp_port_state *ps, const struct mrp_app_ops *ops,
+                                    uint8_t type, const void *val)
+ {
+-    for (struct mrp_attr_inst *a = ps->attrs; a; a = a->next)
+-        if (a->attr_type == type && ops->attr_cmp(type, a->attr_val, val) == 0)
++#if LWSRP_ATTR_KEY
++    const uint8_t key = key_of(ops, type, val);
++    for (struct mrp_attr_inst *a = ps->attrs; a; a = a->next) {
++        if (a->key == key && a->attr_type == type && ops->attr_cmp(type, a->attr_val, val) == 0) {
++#else
++    for (struct mrp_attr_inst *a = ps->attrs; a; a = a->next) {
++        if (a->attr_type == type && ops->attr_cmp(type, a->attr_val, val) == 0) {
++#endif
++#else
++/* The value's key (attr_key), or 0 for an application without one. */
++static uint8_t key_of(const struct mrp_app_ops *ops, uint8_t type, const void *val)
++{
++    return ops->attr_key ? ops->attr_key(type, val) : 0u;
++}
++
++/*
++ * The lookup bucket of a key. Values attr_cmp holds equal, and pairs
++ * attr_replaces accepts, share a key (mrp.h attr_key), so every instance a
++ * lookup can match is in its value's bucket. Instances enter a bucket at
++ * its head as they enter the list, and leave both together, so a bucket
++ * holds its instances in the list's order and its first match is the
++ * list's first match.
++ */
++static struct mrp_attr_inst *const *bucket_of(const struct mrp_port_state *ps, uint8_t key)
++{
++    return &ps->by_key[key % LWSRP_ATTR_BUCKETS];
++}
++
++uint32_t mrp_attr_registered_ports(const struct mrp_app *app,
++                                   uint8_t attr_type, const void *attr_val)
++{
++    const struct mrp_priv *priv = priv_of((struct mrp_app *)app);
++    const uint8_t key = key_of(app->ops, attr_type, attr_val);
++    uint32_t mask = 0;
++    for (uint8_t p = 0; p < priv->n_ports && p < 32u; p++) {
++        const struct mrp_port_state *ps = &priv->ports[p];
++        for (const struct mrp_attr_inst *a = *bucket_of(ps, key); a; a = a->key_next) {
++            if (a->key == key && a->attr_type == attr_type &&
++                app->ops->attr_cmp(attr_type, a->attr_val, attr_val) == 0 &&
++                a->reg == MRP_REG_STATE_IN) {
++                mask |= (1u << p);
++                break;
++            }
++        }
++    }
++    return mask;
++}
++
++static struct mrp_attr_inst *find_attr(struct mrp_port_state *ps, const struct mrp_app_ops *ops,
++                                   uint8_t type, const void *val)
++{
++    const uint8_t key = key_of(ops, type, val);
++    for (struct mrp_attr_inst *a = *bucket_of(ps, key); a; a = a->key_next) {
++        if (a->key == key && a->attr_type == type && ops->attr_cmp(type, a->attr_val, val) == 0) {
++#endif
+             return a;
++        }
++    }
+     return NULL;
+ }
+ 
+@@ -487,12 +647,19 @@ static struct mrp_attr_inst *get_or_create_attr(struct mrp_app *app,
+     }
+ 
+     a->attr_type = type;
++#if LWSRP_ATTR_KEY
++    a->key       = key_of(ops, type, val);
++#endif
+     memcpy(a->attr_val, val, attr_store_len(ops, type));
+     a->appl       = MRP_APPL_STATE_VO;
+     a->reg        = MRP_REG_STATE_MT;
+     a->pending_tx = TX_MSG_NONE;
+     a->next       = ps->attrs;
+     ps->attrs     = a;
++#if LWSRP_ATTR_BUCKETS
++    a->key_next   = *bucket_of(ps, a->key);
++    ps->by_key[a->key % LWSRP_ATTR_BUCKETS] = a;
++#endif
+ 
+     a->leave_timer_arg.app     = app;
+     a->leave_timer_arg.ai      = a;
+@@ -539,6 +706,11 @@ static int map_reserve(struct mrp_app *app, uint8_t type, const void *value,
+     if (join ? !app->ops->map_join : !app->ops->map_leave) {
+         return 0;
+     }
++#if LWSRP_ONE_PORT_MAP
++    if (priv_of(app)->n_ports <= 1u) {
++        return 0; /* No other port to propagate to (LWSRP_ONE_PORT_MAP). */
++    }
++#endif
+     for (uint8_t p = 0; p < priv_of(app)->n_ports && p < 32u; ++p) {
+         struct mrp_map_work *work = shlan_calloc(1, sizeof(*work));
+         if (!work) {
+@@ -628,8 +800,14 @@ static int reg_event(struct mrp_app *app, struct mrp_attr_inst *ai,
+         e = &milan_leave;
+     }
+ 
++#if LWSRP_LEAN_COPY
++    struct reg_entry update;
++    if (changed && (ev == MRP_EVENT_RJOININ || ev == MRP_EVENT_RJOINMT)) {
++        update = *e;
++#else
+     struct reg_entry update = *e;
+     if (changed && (ev == MRP_EVENT_RJOININ || ev == MRP_EVENT_RJOINMT)) {
++#endif
+         update.ind = REG_IND_JOIN;
+         e = &update;
+     }
+@@ -683,6 +861,10 @@ static int reg_event(struct mrp_app *app, struct mrp_attr_inst *ai,
+     default:
+         break;
+     }
++#if LWSRP_ONE_PORT_MAP
++    /* One port: nothing was reserved, nothing is queued, the policy names no port. */
++    indicated = indicated && priv_of(app)->n_ports > 1u;
++#endif
+     if (indicated) {
+         map_publish(app, port_id, ai->attr_type, ind_value, join, reserved);
+         map_replay_all(app);
+@@ -1016,8 +1198,14 @@ static void rx_on_attr(void *raw_ctx, uint8_t attr_type,
+     bool changed_in = previous && previous->reg != MRP_REG_STATE_MT &&
+         memcmp(previous->attr_val, attr_val, attr_store_len(rc->app->ops, attr_type)) != 0;
+     uint8_t previous_value[sizeof(((struct mrp_attr_inst *)0)->attr_val)];
++#if LWSRP_LEAN_COPY
++    /* A restore rewrites only what the refresh may have written: the value's stored length. */
++    const size_t kept = previous ? attr_store_len(rc->app->ops, attr_type) : 0u;
++#else
++    const size_t kept = sizeof(previous_value);
++#endif
+     if (previous) {
+-        memcpy(previous_value, previous->attr_val, sizeof(previous_value));
++        memcpy(previous_value, previous->attr_val, kept);
+     }
+     bool declares = attr_event == MRP_ATTR_EVENT_NEW || attr_event == MRP_ATTR_EVENT_JOININ ||
+                     attr_event == MRP_ATTR_EVENT_JOINMT;
+@@ -1034,18 +1222,30 @@ static void rx_on_attr(void *raw_ctx, uint8_t attr_type,
+      */
+     if ((attr_event == MRP_ATTR_EVENT_JOININ || attr_event == MRP_ATTR_EVENT_JOINMT) &&
+         rc->app->ops->attr_replaces) {
++#if !LWSRP_ATTR_BUCKETS
+         for (struct mrp_attr_inst *old = rc->ps->attrs; old; old = old->next) {
++#else
++        for (struct mrp_attr_inst *old = *bucket_of(rc->ps, ai->key); old; old = old->key_next) {
++#endif
++#if LWSRP_ATTR_KEY
++            if (old != ai && old->reg != MRP_REG_STATE_MT && old->key == ai->key &&
++#else
+             if (old != ai && old->reg != MRP_REG_STATE_MT &&
++#endif
+                 rc->app->ops->attr_replaces(old->attr_type,old->attr_val,attr_type,attr_val)) {
+                 int r = deliver_event_changed(rc->app, rc->ps, old,
+                                                MRP_EVENT_RLV, rc->port_id, false);
++#if LWSRP_RAPID_REPLACE
++                if (r >= 0 && old->reg != MRP_REG_STATE_MT) {
++#else
+                 if (r >= 0) {
++#endif
+                     r = deliver_event_changed(rc->app, rc->ps, old,
+                                               MRP_EVENT_LEAVETIMER, rc->port_id, false);
+                 }
+                 if (r < 0) {
+                     if (previous) {
+-                        memcpy(ai->attr_val, previous_value, sizeof(previous_value));
++                        memcpy(ai->attr_val, previous_value, kept);
+                     }
+                     rc->error = r;
+                     return;
+@@ -1067,7 +1267,7 @@ static void rx_on_attr(void *raw_ctx, uint8_t attr_type,
+     }
+     int r = deliver_event_changed(rc->app, rc->ps, ai, ev, rc->port_id, changed_in);
+     if (r < 0 && previous) {
+-        memcpy(ai->attr_val, previous_value, sizeof(previous_value));
++        memcpy(ai->attr_val, previous_value, kept);
+     }
+ }
+ 
+@@ -1118,6 +1318,13 @@ unsigned mrp_reclaim(struct mrp_app *app, uint8_t port_id)
+         if (a->reg == MRP_REG_STATE_MT &&
+             (a->appl == MRP_APPL_STATE_VO || a->appl == MRP_APPL_STATE_AO || a->appl == MRP_APPL_STATE_QO)) {
+             *link = a->next;
++#if LWSRP_ATTR_BUCKETS
++            struct mrp_attr_inst **in = &ps->by_key[a->key % LWSRP_ATTR_BUCKETS];
++            while (*in != a) {
++                in = &(*in)->key_next;
++            }
++            *in = a->key_next;
++#endif
+             shlan_timer_remove(&a->leave_timer);
+             shlan_free(a);
+             ++count;
+@@ -1339,6 +1546,7 @@ static uint8_t *tx_close(const struct mrp_app_ops *ops, uint8_t *message, uint8_
+     return end;
+ }
+ 
++#if !LWSRP_TX_MERGE
+ static void tx_swap(uint8_t *a, uint8_t *b, size_t n)
+ {
+     while (n--) {
+@@ -1387,6 +1595,173 @@ static uint8_t *tx_message(const struct mrp_app_ops *ops, struct mrp_port_state
+         v += size;
+     }
+     return tx_close(ops, buf, v);
++#else
++/* One single-value VectorAttribute (10.8.2.8) for a at v: its FirstValue,
++ * its ThreePackedEvent and, for a subtype, its FourPackedEvent. */
++static bool tx_vector(const struct mrp_app_ops *ops, const struct mrp_attr_inst *a, enum tx_msg tx,
++                      uint8_t type, uint8_t len, bool subtype, uint8_t *v)
++{
++    v[0] = 0; v[1] = 1;
++    int r = ops->encode_attr(type, a->attr_val, v + 2, len);
++    if (r != len) {
++        return false;
++    }
++    v[2u + len] = mrp_three_pack((uint8_t)wire_event(tx, a->reg), 0, 0);
++    if (subtype) {
++        const uint8_t *bytes = a->attr_val;
++        v[3u + len] = mrp_four_pack(bytes[len], 0, 0, 0);
++    }
++    return true;
++}
++
++/* Whether a's encoded FirstValue orders after b's (10.8.2.7). */
++static bool tx_after(const struct mrp_attr_inst *a, const struct mrp_attr_inst *b, uint8_t len)
++{
++    return memcmp(a->tx_key, b->tx_key, len) > 0;
++}
++
++/* Two chosen lists, each in FirstValue order, as one; a ties ahead of b. */
++static struct mrp_attr_inst *tx_merge(struct mrp_attr_inst *a, struct mrp_attr_inst *b, uint8_t len)
++{
++    struct mrp_attr_inst *head = NULL, **tail = &head;
++    while (a && b) {
++        struct mrp_attr_inst **from = tx_after(a, b, len) ? &b : &a;
++        *tail = *from;
++        tail = &(*from)->tx_next;
++        *from = (*from)->tx_next;
++    }
++    *tail = a ? a : b;
++    return head;
++}
++
++/*
++ * The chosen vectors, encoded at first in the list's order, placed in
++ * ascending FirstValue order, equal values in the list's order: the order
++ * the encoder once reached by swapping each vector backwards past every
++ * greater one. The list is cut into runs, each non-descending or strictly
++ * descending and then reversed, and the runs are merged pairwise, earlier
++ * runs ahead on ties. Each vector whose place changed is encoded again
++ * there; the sort needs no FirstValue once it is done.
++ */
++static void tx_order(const struct mrp_app_ops *ops, enum mrp_event event, uint8_t type,
++                     struct mrp_attr_inst *list, uint8_t *first, size_t size)
++{
++    uint8_t len = ops->attr_len(type);
++    bool subtype = ops->attr_has_subtype && ops->attr_has_subtype(type);
++    struct mrp_attr_inst *pending[8] = {NULL};
++    while (list) {
++        struct mrp_attr_inst *run = list;
++        list = list->tx_next;
++        run->tx_next = NULL;
++        if (list && tx_after(run, list, len)) {
++            while (list && tx_after(run, list, len)) {
++                struct mrp_attr_inst *next = list->tx_next;
++                list->tx_next = run;
++                run = list;
++                list = next;
++            }
++        } else {
++            struct mrp_attr_inst *last = run;
++            while (list && !tx_after(last, list, len)) {
++                last->tx_next = list;
++                last = list;
++                list = list->tx_next;
++                last->tx_next = NULL;
++            }
++        }
++        unsigned k = 0;
++        while (k + 1u < sizeof(pending) / sizeof(pending[0]) && pending[k]) {
++            run = tx_merge(pending[k], run, len);
++            pending[k++] = NULL;
++        }
++        pending[k] = pending[k] ? tx_merge(pending[k], run, len) : run;
++    }
++    struct mrp_attr_inst *sorted = NULL;
++    for (unsigned k = 0; k < sizeof(pending) / sizeof(pending[0]); ++k) {
++        if (pending[k]) {
++            sorted = sorted ? tx_merge(pending[k], sorted, len) : pending[k];
++        }
++    }
++    uint8_t *v = first;
++    for (const struct mrp_attr_inst *a = sorted; a; a = a->tx_next, v += size) {
++        if (a->tx_key != v + 2) {
++            (void)tx_vector(ops, a, appl_table[event][a->appl].tx, type, len, subtype, v);
++        }
++    }
++}
++
++/*
++ * The vectors of size octets in [first, end), encoded in strictly descending
++ * FirstValue order, placed in ascending order by swapping them end for end:
++ * the order tx_order gives such a list, one descending run reversed, each
++ * vector's octets as its encoding there, which depends only on its attribute
++ * and its event. False, with nothing moved, where a vector is longer than the
++ * swap's buffer, which holds the longest one a stored value encodes.
++ */
++static bool tx_reverse(uint8_t *first, uint8_t *end, size_t size)
++{
++    uint8_t held[4u + sizeof(((struct mrp_attr_inst *)0)->attr_val)];
++    if (size > sizeof(held)) {
++        return false;
++    }
++    for (uint8_t *lo = first, *hi = end - size; lo < hi; lo += size, hi -= size) {
++        memcpy(held, lo, size);
++        memcpy(lo, hi, size);
++        memcpy(hi, held, size);
++    }
++    return true;
++}
++
++/*
++ * One Message for every selected value of a type: an optional LeaveAll vector
++ * first, then one single-value vector per value in ascending FirstValue order
++ * (10.8.2.7). Returns the end of the Message, or NULL if encoding fails; the
++ * vectors encoded before the failure are left in order.
++ */
++static uint8_t *tx_message(const struct mrp_app_ops *ops, struct mrp_port_state *ps,
++                           enum mrp_event event, uint8_t type, bool la, uint8_t *buf)
++{
++    uint8_t len = ops->attr_len(type);
++    bool subtype = ops->attr_has_subtype && ops->attr_has_subtype(type);
++    size_t size = tx_vector_len(ops, type, false);
++    uint8_t *v = tx_open(ops, type, buf);
++    if (la) {
++        v[0] = 0x20; v[1] = 0;
++        memset(v + 2, 0, len);
++        v += 2u + len;
++    }
++    uint8_t *first = v;
++    struct mrp_attr_inst *chosen = NULL, **tail = &chosen;
++    /* Vectors encoded in ascending order already stand where the sort would put them; ones encoded in strictly
++     * descending order, as the list holds the values one vector declared, stand there reversed, no two equal. */
++    bool ordered = true, descending = true;
++    for (struct mrp_attr_inst *a = ps->attrs; a; a = a->next) {
++        const struct appl_entry *e = &appl_table[event][a->appl];
++        if (!a->tx_selected || a->attr_type != type || e->tx == TX_MSG_NONE) {
++            continue;
++        }
++        if (!tx_vector(ops, a, e->tx, type, len, subtype, v)) {
++            if (!ordered) {
++                tx_order(ops, event, type, chosen, first, size);
++            }
++            return NULL;
++        }
++        if ((ordered || descending) && v != first) {
++            int c = memcmp(v - size + 2, v + 2, len);
++            ordered = ordered && c <= 0;
++            descending = descending && c > 0;
++        }
++        a->tx_key = v + 2;
++        a->tx_next = NULL;
++        *tail = a;
++        tail = &a->tx_next;
++        v += size;
++    }
++    if (!ordered && !(descending && tx_reverse(first, v, size))) {
++        tx_order(ops, event, type, chosen, first, size);
++    }
++    return tx_close(ops, buf, v);
++#endif
+ }
+ 
+ /* Messages follow in AttributeType order, then the MRPDU EndMark (10.8.1.2). */
+@@ -1397,6 +1772,13 @@ static int tx_assemble(const struct mrp_app_ops *ops, struct mrp_port_state *ps,
+     size_t off = 1;
+     pdu[0] = ops->proto_version;
+     for (unsigned type = 0; type < 256u; ++type) {
++#if LWSRP_LEAN_TX
++        /* A word of the open set with no type left from this one on holds no Message: on to the next word. */
++        if ((types->open[type / 32u] >> (type % 32u)) == 0u) {
++            type |= 31u;
++            continue;
++        }
++#endif
+         if (!tx_type_in(types->open, type)) {
+             continue;
+         }
+@@ -1509,7 +1891,14 @@ int mrp_transmit(struct mrp_app *app, uint8_t port_id,
+     for (struct mrp_attr_inst *a = ps->attrs; a; a = a->next) {
+         if (a->tx_selected) {
+             a->tx_deferred = false;
++#if LWSRP_LEAN_TX
++            const struct appl_entry *row = &appl_table[event][a->appl];
++            if (event != MRP_EVENT_TX || row->ns != MRP_APPL_STATE_COUNT || row->tx != TX_MSG_NONE) {
++                deliver_event(app, ps, a, event, port_id);
++            }
++#else
+             deliver_event(app, ps, a, event, port_id);
++#endif
+         } else if (la) {
+             deliver_event(app, ps, a, MRP_EVENT_TXLAF, port_id);
+         }
+diff --git a/src/core/mrp_pdu.c b/src/core/mrp_pdu.c
+index c321c9b..78eb57f 100644
+--- a/src/core/mrp_pdu.c
++++ b/src/core/mrp_pdu.c
+@@ -18,6 +18,17 @@
+ #include "shish_lan/mrp.h"
+ #include "shish_lan/mrp_pdu.h"
+ 
++/*
++ * 1 leaves the decoded value unzeroed in the validation pass, which passes no
++ * on_attr and so delivers no value: decode_attr's result, the only thing
++ * that pass reads, depends on the wire octets alone. The delivering pass
++ * still zeroes it, as a value's padding reaches attr_cmp. Every output,
++ * callback and callback order is the same. 0 zeroes it in both passes.
++ */
++#ifndef LWSRP_LEAN_VALIDATE
++#define LWSRP_LEAN_VALIDATE 0
++#endif
++
+ /* ------------------------------------------------------------------ */
+ /* Helpers                                                              */
+ /* ------------------------------------------------------------------ */
+@@ -190,7 +201,15 @@ static int parse_pass(const uint8_t *pdu, size_t len,
+             }
+             for (unsigned k = 0; k < count; ++k) {
+                 uint8_t e[3];
++#if LWSRP_LEAN_VALIDATE
++                /* The validation pass reads nothing decode_attr writes but its result. */
++                _Alignas(max_align_t) uint8_t value[64];
++                if (on_attr) {
++                    memset(value, 0, sizeof(value));
++                }
++#else
+                 _Alignas(max_align_t) uint8_t value[64] = {0};
++#endif
+                 mrp_three_unpack(ev[k / 3u], &e[0], &e[1], &e[2]);
+                 int r = ops->decode_attr(type, k, fv, alen, value);
+                 if (r < 0) {
+diff --git a/src/include/shish_lan/mrp.h b/src/include/shish_lan/mrp.h
+index 9cdfaec..b88114a 100644
+--- a/src/include/shish_lan/mrp.h
++++ b/src/include/shish_lan/mrp.h
+@@ -24,6 +24,20 @@
+ #include <stddef.h>
+ #include <stdint.h>
+ 
++/*
++ * 1 gives struct mrp_app_ops its attr_key and the MAD each instance's key,
++ * tested before attr_cmp and attr_replaces; 0 compares every instance. The
++ * lookup buckets (LWSRP_ATTR_BUCKETS) hash the key, so they set it, and so
++ * does LWSRP_SCALE. Build every translation unit with the same value.
++ */
++#ifndef LWSRP_ATTR_KEY
++#if defined(LWSRP_ATTR_BUCKETS) && (LWSRP_ATTR_BUCKETS + 0)
++#define LWSRP_ATTR_KEY 1
++#else
++#define LWSRP_ATTR_KEY 0
++#endif
++#endif
++
+ /* ------------------------------------------------------------------ */
+ /* §10.7.7 Applicant state machine states — Table 10-3                 */
+ /* ------------------------------------------------------------------ */
+@@ -239,6 +253,15 @@ struct mrp_app_ops {
+      * Other events and the existing LV deadline are unchanged.
+      */
+     bool milan_rapid_leave;
++#if LWSRP_ATTR_KEY
++    /* Optional (may be NULL): one octet of the value octets attr_cmp
++     * compares. Values attr_cmp holds equal, and pairs attr_replaces
++     * accepts, must share it. The MAD compares it before calling attr_cmp
++     * or attr_replaces, so a lookup passes other values without a call.
++     * NULL gives every value the same key.
++     */
++    uint8_t (*attr_key)(uint8_t attr_type, const void *value);
++#endif
+ };
+ 
+ /* Opaque MRP application handle */
+diff --git a/src/modules/msrp.c b/src/modules/msrp.c
+index 6aa0edd..234ee71 100644
+--- a/src/modules/msrp.c
++++ b/src/modules/msrp.c
+@@ -20,6 +20,7 @@
+  */
+ 
+ #include "shish_lan/error.h"
++#include <stddef.h>
+ #include <stdint.h>
+ #include <string.h>
+ 
+@@ -36,6 +37,28 @@
+ #define MSRP_ATTR_LEN_DOMAIN         4u
+ #define MSRP_ATTR_LEN_LISTENER       8u  /* stream ID only; decl in FourPacked */
+ 
++/*
++ * LWSRP_LEAN_COPY 1 copies a value's fixed-size fields, a StreamID, a MAC
++ * address and a FailureInformation, with one store an octet where 0 calls
++ * memcpy: the same octets, with no call, which on a fetch-bound core costs
++ * more than the copy (mrp_mad.c copies no more than it uses under it too).
++ */
++#ifndef LWSRP_LEAN_COPY
++#define LWSRP_LEAN_COPY 0
++#endif
++#if LWSRP_LEAN_COPY
++#define COPY6(d, s) do { uint8_t *d_ = (uint8_t *)(d); const uint8_t *s_ = (const uint8_t *)(s); \
++    d_[0] = s_[0]; d_[1] = s_[1]; d_[2] = s_[2]; d_[3] = s_[3]; d_[4] = s_[4]; d_[5] = s_[5]; } while (0)
++#define COPY8(d, s) do { uint8_t *e_ = (uint8_t *)(d); const uint8_t *t_ = (const uint8_t *)(s); \
++    COPY6(e_, t_); e_[6] = t_[6]; e_[7] = t_[7]; } while (0)
++#define COPY9(d, s) do { uint8_t *f_ = (uint8_t *)(d); const uint8_t *u_ = (const uint8_t *)(s); \
++    COPY8(f_, u_); f_[8] = u_[8]; } while (0)
++#else
++#define COPY6(d, s) memcpy((d), (s), 6)
++#define COPY8(d, s) memcpy((d), (s), 8)
++#define COPY9(d, s) memcpy((d), (s), 9)
++#endif
++
+ /* ------------------------------------------------------------------ */
+ /* struct mrp_app_ops callbacks                                             */
+ /* ------------------------------------------------------------------ */
+@@ -224,8 +247,8 @@ static uint32_t be32_get(const uint8_t *b)
+  */
+ static void talker_to_wire(const struct msrp_talker_adv *t, uint8_t *b)
+ {
+-    memcpy(&b[0], t->stream_id.bytes, 8);
+-    memcpy(&b[8], t->dest_mac, 6);
++    COPY8(&b[0], t->stream_id.bytes);
++    COPY6(&b[8], t->dest_mac);
+     be16_put(&b[14], t->vlan_id);
+     be16_put(&b[16], t->max_frame_size);
+     be16_put(&b[18], t->max_interval_frames);
+@@ -235,8 +258,8 @@ static void talker_to_wire(const struct msrp_talker_adv *t, uint8_t *b)
+ 
+ static void talker_from_wire(const uint8_t *b, struct msrp_talker_adv *t)
+ {
+-    memcpy(t->stream_id.bytes, &b[0], 8);
+-    memcpy(t->dest_mac, &b[8], 6);
++    COPY8(t->stream_id.bytes, &b[0]);
++    COPY6(t->dest_mac, &b[8]);
+     t->vlan_id             = be16_get(&b[14]);
+     t->max_frame_size      = be16_get(&b[16]);
+     t->max_interval_frames = be16_get(&b[18]);
+@@ -271,7 +294,7 @@ static int msrp_encode_attr(uint8_t attr_type, const void *attr_val,
+             return -SHLAN_ERROR_NO_BUFFER;
+         }
+         talker_to_wire(&tf->talker, buf);
+-        memcpy(buf + MSRP_ATTR_LEN_TALKER_ADV, tf->failure_info, 9);
++        COPY9(buf + MSRP_ATTR_LEN_TALKER_ADV, tf->failure_info);
+         return MSRP_ATTR_LEN_TALKER_FAILED;
+     }
+ 
+@@ -279,7 +302,7 @@ static int msrp_encode_attr(uint8_t attr_type, const void *attr_val,
+         if (buf_len < MSRP_ATTR_LEN_LISTENER) {
+             return -SHLAN_ERROR_NO_BUFFER;
+         }
+-        memcpy(buf, attr_val, MSRP_ATTR_LEN_LISTENER);
++        COPY8(buf, attr_val);
+         return MSRP_ATTR_LEN_LISTENER;
+ 
+     default:
+@@ -329,7 +352,7 @@ static int msrp_decode_attr(uint8_t attr_type, uint32_t offset,
+         }
+         if (attr_type == MSRP_ATTR_TYPE_TALKER_FAILED) {
+             struct msrp_talker_failed *tf = attr_val_out;
+-            memcpy(tf->failure_info, buf + MSRP_ATTR_LEN_TALKER_ADV, 9);
++            COPY9(tf->failure_info, buf + MSRP_ATTR_LEN_TALKER_ADV);
+         }
+         return (int)len;
+     }
+@@ -337,7 +360,7 @@ static int msrp_decode_attr(uint8_t attr_type, uint32_t offset,
+         if (buf_len != MSRP_ATTR_LEN_LISTENER) {
+             return -SHLAN_ERROR_INVALID;
+         }
+-        memcpy(attr_val_out, buf, MSRP_ATTR_LEN_LISTENER);
++        COPY8(attr_val_out, buf);
+         if (increment_stream((uint8_t *)attr_val_out + 6, 2, offset) < 0) {
+             return -SHLAN_ERROR_RANGE;
+         }
+@@ -388,6 +411,21 @@ static int msrp_attr_cmp(uint8_t attr_type, const void *a, const void *b)
+     return memcmp(a, b, sizeof(struct msrp_stream_id));
+ }
+ 
++#if LWSRP_ATTR_KEY
++/* An octet msrp_attr_cmp compares: a Domain's VID's first, or the
++ * StreamID's last, where one talker's streams differ (IEEE 802.1Q-2018
++ * 35.2.2.8.2: its UniqueID).
++ */
++static uint8_t msrp_attr_key(uint8_t attr_type, const void *value)
++{
++    const uint8_t *v = value;
++    if (attr_type == MSRP_ATTR_TYPE_DOMAIN) {
++        return v[offsetof(struct msrp_domain, vid)];
++    }
++    return v[sizeof(struct msrp_stream_id) - 1u];
++}
++#endif
++
+ static bool msrp_attr_replaces(uint8_t old_type, const void *old_value,
+                                uint8_t new_type, const void *new_value)
+ {
+@@ -408,6 +446,9 @@ static const struct mrp_app_ops msrp_ops_tmpl = {
+     .attr_has_subtype = msrp_attr_has_subtype,
+     .attr_mem_len     = msrp_attr_mem_len,
+     .attr_replaces    = msrp_attr_replaces,
++#if LWSRP_ATTR_KEY
++    .attr_key         = msrp_attr_key,
++#endif
+     .milan_rapid_leave = LWSRP_MILAN != 0,
+     .ethertype        = MRP_ETHERTYPE_MSRP,
+     .proto_version    = MRP_PROTOCOL_VERSION,
+diff --git a/src/modules/mvrp.c b/src/modules/mvrp.c
+index f16a9d4..fb629ea 100644
+--- a/src/modules/mvrp.c
++++ b/src/modules/mvrp.c
+@@ -90,6 +90,15 @@ static int mvrp_attr_cmp(uint8_t attr_type, const void *a, const void *b)
+     return memcmp(a, b, MVRP_ATTR_LEN_VID);
+ }
+ 
++#if LWSRP_ATTR_KEY
++/* An octet mvrp_attr_cmp compares: the VID's second. */
++static uint8_t mvrp_attr_key(uint8_t attr_type, const void *value)
++{
++    (void)attr_type;
++    return ((const uint8_t *)value)[MVRP_ATTR_LEN_VID - 1u];
++}
++#endif
++
+ static const uint8_t mvrp_group_addr[6] = MRP_ADDR_MVRP;
+ 
+ static const struct mrp_app_ops mvrp_ops_tmpl = {
+@@ -99,6 +108,9 @@ static const struct mrp_app_ops mvrp_ops_tmpl = {
+     .decode_attr   = mvrp_decode_attr,
+     .attr_len      = mvrp_attr_len,
+     .attr_cmp      = mvrp_attr_cmp,
++#if LWSRP_ATTR_KEY
++    .attr_key      = mvrp_attr_key,
++#endif
+     .ethertype     = MRP_ETHERTYPE_MVRP,
+     .proto_version = MRP_PROTOCOL_VERSION,
+     /* group_addr and ctx filled at create time */
+diff --git a/src/ports/timer.c b/src/ports/timer.c
+index 0c0f3d4..92f355e 100644
+--- a/src/ports/timer.c
++++ b/src/ports/timer.c
+@@ -1,6 +1,8 @@
+ /* SPDX-License-Identifier: Apache-2.0 */
+ #include "timer.h"
+ 
++#if LWSRP_TIMER_SLOTS == 0
++
+ static struct shlan_timer *g_head;
+ 
+ void shlan_timer_init(struct shlan_timer *t, void (*cb)(void *arg), void *arg)
+@@ -47,3 +49,201 @@ void shlan_timer_remove(struct shlan_timer *t)
+         at = &(*at)->link;
+     }
+ }
++
++#else
++
++#include <stdbool.h>
++#include <stddef.h>
++
++_Static_assert((LWSRP_TIMER_SLOTS & (LWSRP_TIMER_SLOTS - 1u)) == 0u && LWSRP_TIMER_SLOTS != 0u,
++               "LWSRP_TIMER_SLOTS must be a power of two");
++
++/* The tick count the module starts at. Its arithmetic is modulo 2^32, so
++ * a check may start it just short of the wrap; behaviour does not depend
++ * on it. */
++#ifndef LWSRP_TIMER_EPOCH
++#define LWSRP_TIMER_EPOCH 0u
++#endif
++
++/*
++ * The timers once lived in one list, latest registration first, and each
++ * tick walked all of it, counting every armed timer down and firing each
++ * that reached zero. This module keeps that walk's behaviour without the
++ * walk. A timer armed for n centiseconds outside a tick expires in the
++ * n-th tick from now; the timers of one tick fire latest registration
++ * first; and a timer armed by a callback during a tick counts that tick
++ * too when the walk had not reached it yet, that is, when it registered
++ * before the timer whose callback runs.
++ */
++static struct shlan_timer *g_slot[LWSRP_TIMER_SLOTS];
++static struct shlan_timer *g_due;      /* this tick's timers yet to fire, latest registration first */
++static uint32_t            g_now = LWSRP_TIMER_EPOCH; /* the ticks begun */
++static uint64_t            g_order;    /* the registrations made */
++static uint64_t            g_cursor;   /* the registration whose callback runs; 0 outside a tick */
++
++static void link_at(struct shlan_timer **at, struct shlan_timer *t)
++{
++    t->link = *at;
++    if (t->link) {
++        t->link->at = &t->link;
++    }
++    *at = t;
++    t->at = at;
++}
++
++static void unlink_timer(struct shlan_timer *t)
++{
++    *t->at = t->link;
++    if (t->link) {
++        t->link->at = t->at;
++    }
++    t->at = NULL;
++}
++
++/* Place t among this tick's timers yet to fire, by its registration. */
++static void link_due(struct shlan_timer *t)
++{
++    struct shlan_timer **at = &g_due;
++    while (*at && (*at)->order > t->order) {
++        at = &(*at)->link;
++    }
++    link_at(at, t);
++}
++
++/* Two lists, each latest registration first, as one; only links are kept. */
++static struct shlan_timer *merge(struct shlan_timer *a, struct shlan_timer *b)
++{
++    struct shlan_timer *head = NULL, **tail = &head;
++    while (a && b) {
++        struct shlan_timer **from = a->order > b->order ? &a : &b;
++        *tail = *from;
++        tail = &(*from)->link;
++        *from = (*from)->link;
++    }
++    *tail = a ? a : b;
++    return head;
++}
++
++/*
++ * A list, latest registration first, by its runs merged pairwise; a slot
++ * holds its timers in arming order, newest first, so the timers of one
++ * burst of arms form one run. Only links are kept.
++ */
++static struct shlan_timer *sort_due(struct shlan_timer *list)
++{
++    struct shlan_timer *pending[8] = {NULL};
++    while (list) {
++        struct shlan_timer *run = list;
++        list = list->link;
++        run->link = NULL;
++        if (list && list->order > run->order) {
++            /* Rising registrations: reverse them as they come. */
++            while (list && list->order > run->order) {
++                struct shlan_timer *next = list->link;
++                list->link = run;
++                run = list;
++                list = next;
++            }
++        } else {
++            struct shlan_timer *last = run;
++            while (list && list->order < last->order) {
++                last->link = list;
++                last = list;
++                list = list->link;
++                last->link = NULL;
++            }
++        }
++        unsigned k = 0;
++        while (k + 1u < sizeof(pending) / sizeof(pending[0]) && pending[k]) {
++            run = merge(pending[k], run);
++            pending[k++] = NULL;
++        }
++        pending[k] = pending[k] ? merge(pending[k], run) : run;
++    }
++    struct shlan_timer *out = NULL;
++    for (unsigned k = 0; k < sizeof(pending) / sizeof(pending[0]); ++k) {
++        if (pending[k]) {
++            out = out ? merge(pending[k], out) : pending[k];
++        }
++    }
++    return out;
++}
++
++void shlan_timer_init(struct shlan_timer *t, void (*cb)(void *arg), void *arg)
++{
++    t->cb    = cb;
++    t->arg   = arg;
++    t->cs    = 0;
++    t->link  = NULL;
++    t->at    = NULL;
++    t->order = ++g_order;
++}
++
++void shlan_timer_arm(struct shlan_timer *t, uint32_t centiseconds)
++{
++    if (t->at) {
++        unlink_timer(t);
++    }
++    if (centiseconds == 0u || t->order == 0u) {
++        return;
++    }
++    /* The walk in progress had yet to reach a timer registered before the
++     * one whose callback runs: it counts this tick too. */
++    const bool ahead = t->order < g_cursor;
++    t->cs = g_now + centiseconds - (ahead ? 1u : 0u);
++    if (ahead && t->cs == g_now) {
++        link_due(t);
++    } else {
++        link_at(&g_slot[t->cs % LWSRP_TIMER_SLOTS], t);
++    }
++}
++
++void shlan_timer_disarm(struct shlan_timer *t)
++{
++    if (t->at) {
++        unlink_timer(t);
++    }
++}
++
++void shlan_timer_tick(void)
++{
++    ++g_now;
++    struct shlan_timer **at = &g_slot[g_now % LWSRP_TIMER_SLOTS];
++    struct shlan_timer *taken = NULL;
++    while (*at) {
++        struct shlan_timer *t = *at;
++        if (t->cs != g_now) {
++            at = &t->link;
++            continue;
++        }
++        unlink_timer(t);
++        t->link = taken;
++        taken = t;
++    }
++    g_due = sort_due(taken);
++    for (struct shlan_timer **due = &g_due; *due; due = &(*due)->link) {
++        (*due)->at = due;
++    }
++    while (g_due) {
++        struct shlan_timer *t = g_due;
++        unlink_timer(t);
++        g_cursor = t->order;
++        t->cb(t->arg);
++    }
++    g_cursor = 0;
++}
++
++void shlan_timer_remove(struct shlan_timer *t)
++{
++    if (t->order == 0u) {
++        return;
++    }
++    if (t->at) {
++        unlink_timer(t);
++    }
++    t->cs = 0;
++    t->link = NULL;
++    t->order = 0;
++}
++
++#endif /* LWSRP_TIMER_SLOTS */
+diff --git a/src/ports/timer.h b/src/ports/timer.h
+index be6c573..f29a404 100644
+--- a/src/ports/timer.h
++++ b/src/ports/timer.h
+@@ -10,6 +10,13 @@
+  * after that, the platform drives them by calling shlan_timer_tick() once
+  * per centisecond.
+  *
++ * Timers that expire in the same tick fire latest registration first. A
++ * timer armed by a callback during a tick counts that tick too when it
++ * registered before the timer whose callback runs, so a one-centisecond arm
++ * of such a timer fires in the same tick. With LWSRP_TIMER_SLOTS a tick
++ * visits only the timers that expire in it: each armed timer waits in the
++ * wheel slot of the tick it expires in.
++ *
+  * To port to an OS timer service: replace timer.c with an implementation
+  * that maps shlan_timer_arm/disarm to OS one-shot timers.
+  * shlan_timer_tick() becomes a no-op in that case because callbacks are
+@@ -18,13 +25,32 @@
+ 
+ #include <stdint.h>
+ 
++/*
++ * Wheel slots, a power of two, or 0 for the list walk. With 0 every tick
++ * walks every registered timer, counting each armed one down, in four words
++ * a timer; with slots a tick visits only its own slot's timers, in eight.
++ * A timer due further ahead waits whole turns of the wheel in its slot; the
++ * tick that reaches the slot skips it. Both fire the same callbacks in the
++ * same ticks and order. Build every translation unit with the same value.
++ */
++#ifndef LWSRP_TIMER_SLOTS
++#define LWSRP_TIMER_SLOTS 0u
++#endif
++
+ struct shlan_timer {
+     void (*cb)(void *arg); /* callback invoked on expiry          */
+     void  *arg;             /* opaque argument passed back to cb  */
+ 
+     /* Module-internal fields — do not access outside timer.c */
++#if LWSRP_TIMER_SLOTS == 0
+     uint32_t            cs;
+     struct shlan_timer *link;
++#else
++    uint32_t             cs;    /* the tick it expires in, while armed  */
++    struct shlan_timer  *link;  /* next timer in its slot, while armed  */
++    struct shlan_timer **at;    /* the link that holds it; NULL: idle   */
++    uint64_t             order; /* registration number; 0: unregistered */
++#endif
+ };
+ 
+ /*
+@@ -36,6 +62,7 @@ void shlan_timer_init(struct shlan_timer *t, void (*cb)(void *arg), void *arg);
+ /*
+  * shlan_timer_arm — start or restart the timer.
+  * The callback fires after centiseconds centiseconds.
++ * Zero disarms it. A timer that is not registered never fires.
+  */
+ void shlan_timer_arm(struct shlan_timer *t, uint32_t centiseconds);
+ 
+diff --git a/tests/__pycache__/check_reversals.cpython-314.pyc b/tests/__pycache__/check_reversals.cpython-314.pyc
+new file mode 100644
+index 0000000..f431fd2
+Binary files /dev/null and b/tests/__pycache__/check_reversals.cpython-314.pyc differ
+diff --git a/tests/check_differential.py b/tests/check_differential.py
+new file mode 100644
+index 0000000..118b8cc
+--- /dev/null
++++ b/tests/check_differential.py
+@@ -0,0 +1,384 @@
++# SPDX-License-Identifier: Apache-2.0
++"""Show that the checkout behaves exactly as a base revision, trace for trace.
++
++Each driver under tests/differential/ prints one random life of a module as
++a trace: every call, its result, every callback with its arguments and every
++transmitted byte. Each is built twice in a new scratch directory, against the
++base revision's sources and against the checkout's, and run on the same seeds.
++The two traces must be byte-identical for every seed, in every configuration
++the checkout is built in, but one: a build without the MAP work of a one-port
++participant allocates fewer blocks, so at one port its trace is compared
++without its policy calls that name no port and its allocation counts, and a
++seed that refuses allocations there is
++not compared, as the base refuses receives that build applies
++(doc/integrator.md). Then each planted defect of MUTANTS is applied to a copy
++of the checkout's sources, built with the scale switches or its own, and some
++seed's trace must differ from the base's: a defect no trace can see would make
++the comparison an empty proof.
++"""
++
++import argparse
++import hashlib
++import json
++from pathlib import Path
++import shutil
++import subprocess
++import sys
++
++ROOT = Path(__file__).resolve().parents[1]
++#: The revision whose behaviour the lookup, sort, timer and end-station changes keep: main with the own LeaveAll (#20).
++BASE = "d1bb4f4e5954af6dabe7f210a6bf7adbb76bdd6b"
++FLAGS = ["-O2", "-std=c11", "-Wall", "-Wextra", "-Werror"]
++
++#: Each driver, the library sources it links under src/, and its steps a seed.
++PROGRAMS = {
++    "timer": ("tests/differential/timer_trace.c", ["ports/timer.c"], 20000),
++    "mad": ("tests/differential/mad_trace.c", ["core/mrp_mad.c", "core/mrp_pdu.c", "ports/timer.c",
++                                               "modules/msrp.c", "modules/mvrp.c", "modules/mmrp.c"], 3000),
++}
++
++#: The timer wheel, the lookup buckets and the merged build, as CMake's LWSRP_SCALE selects them.
++SCALE = ["-DLWSRP_TIMER_SLOTS=64u", "-DLWSRP_ATTR_BUCKETS=16u", "-DLWSRP_TX_MERGE=1"]
++#: The checkout's builds: the defaults (the list walk, the scans and the swapping build); the scale switches;
++#: with them a four-slot wheel started just short of the tick counter's wrap, so whole turns and the wrap both
++#: show; and one lookup bucket (every instance in one, as the list was) and 256.
++def scale(*overrides):
++    """SCALE with each override replacing the definition of its macro."""
++    names = {o.split("=")[0] for o in overrides}
++    return [d for d in SCALE if d.split("=")[0] not in names] + list(overrides)
++
++
++#: The end-station switches: no MAP work at one port, no zeroing in the parser's validation pass, no leave timer event
++#: for a replaced registration the rapid leave took to MT, no copy past what is used, and no tx! an Applicant keeps.
++ONE_PORT = ["-DLWSRP_ONE_PORT_MAP=1"]
++LEAN = ["-DLWSRP_LEAN_VALIDATE=1"]
++RAPID = ["-DLWSRP_RAPID_REPLACE=1"]
++COPY = ["-DLWSRP_LEAN_COPY=1"]
++LEAN_TX = ["-DLWSRP_LEAN_TX=1"]
++END_STATION = SCALE + ONE_PORT + LEAN + RAPID + COPY + LEAN_TX
++
++
++CONFIGS = {
++    "default": [],
++    "scale": SCALE,
++    "scale-slots4-wrap": scale("-DLWSRP_TIMER_SLOTS=4u", "-DLWSRP_TIMER_EPOCH=0xFFFFFF00u"),
++    "scale-buckets1": scale("-DLWSRP_ATTR_BUCKETS=1u"),
++    "scale-buckets256": scale("-DLWSRP_ATTR_BUCKETS=256u"),
++    "lean": LEAN,
++    "one-port": ONE_PORT,
++    "rapid": RAPID,
++    "lean-copy": COPY,
++    "lean-tx": LEAN_TX,
++    "end-station": END_STATION,
++}
++
++
++def one_port_build(extra):
++    """Whether a build skips the MAP work of a one-port participant (LWSRP_ONE_PORT_MAP)."""
++    return "-DLWSRP_ONE_PORT_MAP=1" in extra
++
++
++def header(out):
++    """A MAD trace's first line, its seed's configuration: (ports, allocation refusals every n, 0 never)."""
++    words = out.split(b"\n", 1)[0].split()
++    return (int(words[words.index(b"ports") + 1]), int(words[words.index(b"fail") + 1])) if b"ports" in words else (0, 0)
++
++
++#: The test application's policy call at one port, which names no port: a build without one-port MAP work makes none.
++UNNAMED = b"  map from 0: 0"
++
++
++def normalized(out):
++    """A one-port trace without what a build without one-port MAP work does not do: its policy calls that name no
++    port, and its allocation counts, as it allocates fewer blocks and frees as many fewer, so only the blocks still
++    live are compared."""
++    lines = [line for line in out.split(b"\n") if line != UNNAMED]
++    return b"\n".join(b" ".join(w for k, w in enumerate(line.split()) if k not in (1, 2, 3, 4))
++                      if line.startswith(b"END allocations") else line for line in lines)
++
++
++def compared(program, extra, out):
++    """What a build's trace is held to for its seed: the trace itself, or, at one port in a build without MAP work,
++    the trace without its unnamed policy calls and allocation counts, and nothing where allocations are refused
++    there: a refused
++    reservation refuses the receive in the base and does not exist in that build (doc/integrator.md, the one-port
++    switch). None marks such an excused seed."""
++    if program != "mad" or not one_port_build(extra):
++        return hashlib.sha256(out).digest()
++    ports, fail = header(out)
++    if ports != 1:
++        return hashlib.sha256(out).digest()
++    return None if fail else hashlib.sha256(normalized(out)).digest()
++
++TIMER = "ports/timer.c"
++MAD = "core/mrp_mad.c"
++PDU = "core/mrp_pdu.c"
++MSRP = "modules/msrp.c"
++
++#: Each defect reverses one rule the traces must keep: (name, program, file
++#: under src/, original text, planted text).
++MUTANTS = [
++    ("timer-ahead-tick", "timer", TIMER, "const bool ahead = t->order < g_cursor;",
++     "const bool ahead = false;"),
++    ("timer-self-ahead", "timer", TIMER, "const bool ahead = t->order < g_cursor;",
++     "const bool ahead = t->order <= g_cursor;"),
++    ("timer-due-order", "timer", TIMER, "a->order > b->order ? &a : &b", "a->order < b->order ? &a : &b"),
++    ("timer-due-insert", "timer", TIMER, "while (*at && (*at)->order > t->order) {",
++     "while (*at && (*at)->order < t->order) {"),
++    ("timer-rising-run", "timer", TIMER, "list->link = run;\n                run = list;",
++     "list->link = run->link;\n                run->link = list;"),
++    ("timer-slot-turn", "timer", TIMER, "if (t->cs != g_now) {", "if (false) {"),
++    ("timer-zero-arm", "timer", TIMER,
++     "    if (t->at) {\n        unlink_timer(t);\n    }\n    if (centiseconds == 0u || t->order == 0u) {\n        return;\n    }",
++     "    if (centiseconds == 0u || t->order == 0u) {\n        return;\n    }\n    if (t->at) {\n        unlink_timer(t);\n    }"),
++    ("timer-unregistered-arm", "timer", TIMER, "if (centiseconds == 0u || t->order == 0u) {",
++     "if (centiseconds == 0u) {"),
++    ("timer-removed-armed", "timer", TIMER, "    if (t->at) {\n        unlink_timer(t);\n    }\n    t->cs = 0;",
++     "    t->cs = 0;"),
++    ("timer-removed-registered", "timer", TIMER, "    t->link = NULL;\n    t->order = 0;\n}", "    t->link = NULL;\n}"),
++    # The lookup index: each bucket in the list's order, every instance in its key's bucket.
++    ("index-bucket-tail", "mad", MAD,
++     "    a->key_next   = *bucket_of(ps, a->key);\n    ps->by_key[a->key % LWSRP_ATTR_BUCKETS] = a;",
++     "    struct mrp_attr_inst **end = &ps->by_key[a->key % LWSRP_ATTR_BUCKETS];\n"
++     "    while (*end) { end = &(*end)->key_next; }\n    a->key_next = NULL;\n    *end = a;"),
++    ("index-reclaim-head", "mad", MAD, "            while (*in != a) {", "            while (false) {"),
++    ("index-replacement-bucket", "mad", MAD,
++     "for (struct mrp_attr_inst *old = *bucket_of(rc->ps, ai->key); old; old = old->key_next) {",
++     "for (struct mrp_attr_inst *old = *bucket_of(rc->ps, (uint8_t)(ai->key + 1u)); old; old = old->key_next) {"),
++    ("index-registered-bucket", "mad", MAD,
++     "for (const struct mrp_attr_inst *a = *bucket_of(ps, key); a; a = a->key_next) {",
++     "for (const struct mrp_attr_inst *a = *bucket_of(ps, (uint8_t)(key + 1u)); a; a = a->key_next) {"),
++    ("index-lookup-bucket", "mad", MAD,
++     "    for (struct mrp_attr_inst *a = *bucket_of(ps, key); a; a = a->key_next) {\n        if (a->key == key && a->attr_type == type",
++     "    for (struct mrp_attr_inst *a = *bucket_of(ps, (uint8_t)(key ^ 1u)); a; a = a->key_next) {\n        if (a->key == key && a->attr_type == type"),
++    # The build's order: ascending FirstValue, equal values in the list's order.
++    ("sort-merge-ties", "mad", MAD, "struct mrp_attr_inst **from = tx_after(a, b, len) ? &b : &a;",
++     "struct mrp_attr_inst **from = tx_after(b, a, len) ? &a : &b;"),
++    ("sort-run-reversal", "mad", MAD, "        if (list && tx_after(run, list, len)) {\n            while (list && tx_after(run, list, len)) {",
++     "        if (list && !tx_after(list, run, len)) {\n            while (list && !tx_after(list, run, len)) {"),
++    ("sort-final-merge", "mad", MAD, "sorted = sorted ? tx_merge(pending[k], sorted, len) : pending[k];",
++     "sorted = sorted ? tx_merge(sorted, pending[k], len) : pending[k];"),
++    ("sort-reencode", "mad", MAD, "        if (a->tx_key != v + 2) {", "        if (false) {"),
++    ("sort-failed-prefix", "mad", MAD,
++     "        if (!tx_vector(ops, a, e->tx, type, len, subtype, v)) {\n            if (!ordered) {\n"
++     "                tx_order(ops, event, type, chosen, first, size);\n            }",
++     "        if (!tx_vector(ops, a, e->tx, type, len, subtype, v)) {"),
++    ("sort-ordered-check", "mad", MAD, "int c = memcmp(v - size + 2, v + 2, len);",
++     "int c = memcmp(first + 2, v + 2, len);"),
++    # A Message encoded strictly descending is reversed in place: only such a one, and every pair of it.
++    ("reverse-any-order", "mad", MAD, "if (!ordered && !(descending && tx_reverse(first, v, size))) {",
++     "if (!ordered && !tx_reverse(first, v, size)) {"),
++    ("reverse-ties", "mad", MAD, "descending = descending && c > 0;", "descending = descending && c >= 0;"),
++    ("reverse-innermost-pair", "mad", MAD, "lo < hi; lo += size, hi -= size) {",
++     "lo + size < hi; lo += size, hi -= size) {"),
++    ("reverse-half-swap", "mad", MAD, "        memcpy(lo, hi, size);\n        memcpy(hi, held, size);",
++     "        memcpy(lo, hi, size);"),
++    ("sort-direction", "mad", MAD, "return memcmp(a->tx_key, b->tx_key, len) > 0;", "return memcmp(a->tx_key, b->tx_key, len) < 0;"),
++    # The end-station switches, each built with them: MAP work skipped only at one port, and the value zeroed
++    # where the parser delivers it.
++    ("one-port-reserve", "mad", MAD, "    if (priv_of(app)->n_ports <= 1u) {\n        return 0; /* No other port",
++     "    if (priv_of(app)->n_ports <= 2u) {\n        return 0; /* No other port", END_STATION),
++    ("one-port-publish", "mad", MAD, "indicated = indicated && priv_of(app)->n_ports > 1u;",
++     "indicated = indicated && priv_of(app)->n_ports > 2u;", END_STATION),
++    ("rapid-replace-lv", "mad", MAD, "if (r >= 0 && old->reg != MRP_REG_STATE_MT) {",
++     "if (r >= 0 && old->reg != MRP_REG_STATE_MT && old->reg != MRP_REG_STATE_LV) {", END_STATION),
++    ("lean-copy-row", "mad", MAD, "        update = *e;\n#else",
++     "        update = *e;\n        update.ns = MRP_REG_STATE_LV;\n#else", END_STATION),
++    ("lean-copy-restore", "mad", MAD, "const size_t kept = previous ? attr_store_len(rc->app->ops, attr_type) : 0u;",
++     "const size_t kept = previous ? attr_store_len(rc->app->ops, attr_type) / 2u : 0u;", END_STATION),
++    ("lean-copy-mac", "mad", MSRP, "d_[4] = s_[4]; d_[5] = s_[5]; } while (0)", "d_[4] = s_[4]; } while (0)",
++     END_STATION),
++    ("lean-copy-failure", "mad", MSRP, "COPY8(f_, u_); f_[8] = u_[8]; } while (0)", "COPY8(f_, u_); } while (0)",
++     END_STATION),
++    ("lean-tx-moved-skipped", "mad", MAD,
++     "if (event != MRP_EVENT_TX || row->ns != MRP_APPL_STATE_COUNT || row->tx != TX_MSG_NONE) {",
++     "if (event != MRP_EVENT_TX || (row->ns != MRP_APPL_STATE_COUNT && false)) {", END_STATION),
++    ("lean-tx-la-skipped", "mad", MAD, "if (event != MRP_EVENT_TX || row->ns != MRP_APPL_STATE_COUNT || row->tx",
++     "if (row->ns != MRP_APPL_STATE_COUNT || row->tx", END_STATION),
++    ("lean-tx-word-skipped", "mad", MAD, ">> (type % 32u)) == 0u) {\n            type |= 31u;",
++     ">> (type % 32u)) != 0u) {\n            type |= 31u;", END_STATION),
++]
++
++#: The lean validation pass under MemorySanitizer (--sanitize-memory): no decoder may read the value it fills, and
++#: this planted defect, a Talker decoder reading a field before it writes it, must be reported.
++LEAN_READ = ("lean-reads-value", "modules/msrp.c", "        talker_from_wire(buf, t);\n",
++             "        if (t->accumulated_latency == 0xffffffffu) {\n            return -SHLAN_ERROR_INVALID;\n        }\n"
++             "        talker_from_wire(buf, t);\n")
++MSAN = ["-O1", "-g", "-std=c11", "-fsanitize=memory", "-DTRACE_ATTR_KEY"]
++
++
++def sanitized(work, src, cc, milan, seeds, steps, label):
++    """The MAD driver of the end-station build under MemorySanitizer: the first seed it reports, or None."""
++    driver, sources, _ = PROGRAMS["mad"]
++    exe = work / f"mad-msan-{label}"
++    if run([cc, *MSAN, *END_STATION, f"-DLWSRP_MILAN={int(milan == 'ON')}", f"-I{src}", f"-I{src / 'include'}",
++            "-o", str(exe), str(ROOT / driver), *[str(src / s) for s in sources]], work / f"build-msan-{label}.log"):
++        return "build"
++    for seed in range(1, seeds + 1):
++        result = subprocess.run([str(exe), str(seed), str(steps)], capture_output=True, timeout=120,
++                                env={"MSAN_OPTIONS": "exitcode=86"})
++        if result.returncode:
++            return seed
++    return None
++
++
++def run(command, log, cwd=None, timeout=600):
++    result = subprocess.run(command, cwd=cwd, capture_output=True, text=True, timeout=timeout)
++    log.write_text(" ".join(map(str, command)) + "\n" + result.stdout + result.stderr)
++    return result.returncode
++
++
++def build(work, label, src, program, extra, milan):
++    driver, sources, _ = PROGRAMS[program]
++    exe = work / f"{program}-{label}"
++    # A base revision before the attribute key builds the driver without it.
++    keyed = "attr_key" in (src / "include/shish_lan/mrp.h").read_text()
++    extra = [*extra, *(["-DTRACE_ATTR_KEY"] if keyed else []), f"-DLWSRP_MILAN={int(milan == 'ON')}"]
++    rc = run(["cc", *FLAGS, *extra, f"-I{src}", f"-I{src / 'include'}", "-o", str(exe), str(ROOT / driver),
++              *[str(src / s) for s in sources]], work / f"build-{program}-{label}.log")
++    return exe if rc == 0 else None
++
++
++def trace(exe, seed, steps):
++    """A run's status and trace; a run that does not end is a failed run (a corrupted list can loop)."""
++    try:
++        result = subprocess.run([str(exe), str(seed), str(steps)], capture_output=True, timeout=60)
++    except subprocess.TimeoutExpired as late:
++        return -9, late.stdout or b""
++    return result.returncode, result.stdout
++
++
++def first_difference(a, b):
++    for n, (x, y) in enumerate(zip(a.splitlines(), b.splitlines()), 1):
++        if x != y:
++            return f"line {n}: {x.decode(errors='replace')!r} / {y.decode(errors='replace')!r}"
++    return f"lengths {len(a)} / {len(b)}"
++
++
++def main():
++    parser = argparse.ArgumentParser(description=__doc__)
++    parser.add_argument("--work-dir", type=Path, required=True)
++    parser.add_argument("--base", default=BASE, help="the revision whose behaviour is the reference")
++    parser.add_argument("--seeds", type=int, default=200)
++    parser.add_argument("--steps", type=int, help="steps a seed for every driver (default: each driver's own)")
++    parser.add_argument("--milan", choices=["OFF", "ON"], default="OFF")
++    parser.add_argument("--no-mutants", action="store_true", help="compare only; plant nothing")
++    parser.add_argument("--sanitize-memory", metavar="CLANG",
++                        help="also run the end-station MAD driver under MemorySanitizer, built by this clang")
++    args = parser.parse_args()
++    work = args.work_dir.resolve()
++    if work.is_relative_to(ROOT) or work.exists():
++        parser.error("Use a new scratch directory outside the checkout")
++    work.mkdir(parents=True)
++    base = work / "base"
++    base.mkdir()
++    archive = work / "base.tar"
++    if run(["git", "-C", str(ROOT), "archive", "-o", str(archive), args.base, "src"], work / "archive.log") or \
++       run(["tar", "-xf", str(archive), "-C", str(base)], work / "extract.log"):
++        print(f"FAIL the base revision {args.base} cannot be read")
++        return 1
++    problems, rows, expected_of, references = [], [], {}, {}
++    for program, (_, _, default_steps) in PROGRAMS.items():
++        steps = args.steps or default_steps
++        reference = build(work, "base", base / "src", program, [], args.milan)
++        if not reference:
++            problems.append(f"{program}: the base build fails")
++            continue
++        references[program] = reference
++        expected, lines = {}, 0
++        for seed in range(1, args.seeds + 1):
++            rc, out = trace(reference, seed, steps)
++            if rc:
++                problems.append(f"{program} base seed {seed}: rc={rc}")
++            expected[seed] = (compared(program, [], out), compared(program, ONE_PORT, out))
++            lines += out.count(b"\n")
++        expected_of[program] = expected
++        for config, extra in CONFIGS.items():
++            candidate = build(work, config, ROOT / "src", program, extra, args.milan)
++            if not candidate:
++                problems.append(f"{program} {config}: the checkout's build fails")
++                continue
++            same = excused = 0
++            digest = hashlib.sha256()
++            for seed in range(1, args.seeds + 1):
++                rc, out = trace(candidate, seed, steps)
++                digest.update(hashlib.sha256(out).digest())
++                mine, reference_of = compared(program, extra, out), expected[seed][one_port_build(extra)]
++                if rc == 0 and mine is None and reference_of is None:
++                    excused += 1
++                elif rc == 0 and mine == reference_of:
++                    same += 1
++                else:
++                    problems.append(f"{program} {config} seed {seed}: rc={rc}, "
++                                    f"{first_difference(trace(reference, seed, steps)[1], out)}")
++            rows.append({"program": program, "config": config, "seeds": args.seeds, "steps": steps,
++                         "identical": same, "excused": excused, "trace_lines": lines, "sha256": digest.hexdigest()})
++    print("| Driver | Build | Seeds | Steps a seed | Trace lines | Identical | Refusal seeds at one port | "
++          "Traces' sha256 |")
++    print("| --- | --- | --- | --- | --- | --- | --- | --- |")
++    for row in rows:
++        print(f"| {row['program']} | {row['config']} | {row['seeds']} | {row['steps']} | {row['trace_lines']} | "
++              f"{row['identical']} | {row['excused']} | {row['sha256'][:16]} |")
++    killed = []
++    if not args.no_mutants:
++        for name, program, path, old, new, *switches in MUTANTS:
++            extra = switches[0] if switches else SCALE
++            tree = work / f"mutant-{name}"
++            shutil.copytree(ROOT / "src", tree / "src")
++            target = tree / "src" / path
++            text = target.read_text()
++            if old not in text:
++                problems.append(f"mutant {name}: its target is missing")
++                continue
++            target.write_text(text.replace(old, new, 1))
++            exe = build(work, f"mutant-{name}", tree / "src", program, extra, args.milan)
++            if not exe:
++                problems.append(f"mutant {name}: the build fails, which is no behavioural kill")
++                continue
++            seen = None
++            for seed in range(1, args.seeds + 1):
++                rc, out = trace(exe, seed, args.steps or PROGRAMS[program][2])
++                reference_of = expected_of.get(program, {}).get(seed, (None, None))[one_port_build(extra)]
++                if rc != 0 or compared(program, extra, out) != reference_of:
++                    seen = seed
++                    break
++            print(f"{'KILLED' if seen else 'SURVIVED'} {name}" + (f" at seed {seen}" if seen else ""), flush=True)
++            if seen:
++                killed.append(name)
++            else:
++                problems.append(f"mutant {name} survived {args.seeds} seeds")
++            shutil.rmtree(tree)
++    if args.sanitize_memory:
++        steps = args.steps or PROGRAMS["mad"][2]
++        found = sanitized(work, ROOT / "src", args.sanitize_memory, args.milan, args.seeds, steps, "checkout")
++        print(f"MSAN end-station: {'clean' if found is None else f'reported at seed {found}'} over {args.seeds} seeds")
++        if found is not None:
++            problems.append(f"MemorySanitizer: the end-station build is reported ({found})")
++        name, path, old, new = LEAN_READ
++        tree = work / f"mutant-{name}"
++        shutil.copytree(ROOT / "src", tree / "src")
++        target = tree / "src" / path
++        text = target.read_text()
++        if old not in text:
++            problems.append(f"mutant {name}: its target is missing")
++        else:
++            target.write_text(text.replace(old, new, 1))
++            seen = sanitized(work, tree / "src", args.sanitize_memory, args.milan, args.seeds, steps, name)
++            print(f"{'KILLED' if isinstance(seen, int) else 'SURVIVED'} {name}" +
++                  (f" at seed {seen}" if isinstance(seen, int) else ""), flush=True)
++            if isinstance(seen, int):
++                killed.append(name)
++            else:
++                problems.append(f"mutant {name}: {'the build fails' if seen else 'not reported'}")
++        shutil.rmtree(tree)
++    (work / "differential.json").write_text(json.dumps({"base": args.base, "milan": args.milan, "rows": rows, "killed": killed,
++                                                        "problems": problems}, indent=2) + "\n")
++    print(f"Drivers: {len(PROGRAMS)}; builds: {len(rows)}; mutants killed: {len(killed)} of "
++          f"{(0 if args.no_mutants else len(MUTANTS)) + bool(args.sanitize_memory)}; problems: {len(problems)}")
++    for problem in problems:
++        print(f"FAIL {problem}")
++    return int(bool(problems) or not rows)
++
++
++if __name__ == "__main__":
++    sys.exit(main())
+diff --git a/tests/check_reversals.py b/tests/check_reversals.py
+index 3b4f518..2f68118 100644
+--- a/tests/check_reversals.py
++++ b/tests/check_reversals.py
+@@ -64,6 +64,14 @@ CASES = [
+      "*ai   = get_or_create_attr(app, ps, port_id, attr_type, attr_val);", "unit"),
+     ("talker-replacement", MAD, "rc->app->ops->attr_replaces) {",
+      "rc->app->ops->attr_replaces && false) {", "unit"),
++    ("attr-key-unset", MAD, "    a->key       = key_of(ops, type, val);\n",
++     "    a->key       = 0u;\n", "unit"),
++    ("attr-key-lookup-inverted", MAD, "if (a->key == key && a->attr_type == type",
++     "if (a->key != key && a->attr_type == type", "unit"),
++    ("attr-key-replacement-inverted", MAD, "old->key == ai->key &&",
++     "old->key != ai->key &&", "unit"),
++    ("msrp-key-outside-compare", MSRP, "return v[sizeof(struct msrp_stream_id) - 1u];",
++     "return v[sizeof(struct msrp_stream_id)];", "unit"),
+     ("listener-redeclaration", MSRP, "MSRP_ATTR_TYPE_LISTENER, val, true);",
+      "MSRP_ATTR_TYPE_LISTENER, val, false);", "unit"),
+     ("domain-member-order", "src/include/shish_lan/msrp.h", "struct msrp_ctx {",
+@@ -161,7 +169,7 @@ CASES = [
+     ("embedded-switch-source", "CMakeLists.txt", "      src/core/switch.c\n", "", "embedded"),
+     ('changed-in-only', 'src/core/mrp_mad.c', 'previous->reg != MRP_REG_STATE_MT &&', 'previous->reg == MRP_REG_STATE_IN &&', 'unit'),
+     ('stream-list-boundary', 'src/core/mrp_pdu.c', 'if (unknown && msrp) {', 'if (false && unknown && msrp) {', 'unit'),
+-    ('changed-value-rollback', 'src/core/mrp_mad.c', 'memcpy(ai->attr_val, previous_value, sizeof(previous_value));', '/* Plant: retain changed source value after failed reservation. */', 'unit'),
++    ('changed-value-rollback', 'src/core/mrp_mad.c', 'memcpy(ai->attr_val, previous_value, kept);', '/* Plant: retain changed source value after failed reservation. */', 'unit'),
+     ('registrar-rollback', 'src/core/mrp_mad.c', '        ai->reg = previous;', '        (void)previous;', 'unit'),
+     ('applicant-rollback', 'src/core/mrp_mad.c', '        ai->appl = appl_from;', '        (void)appl_from;', 'unit'),
+     ('leave-timer-retry', 'src/core/mrp_mad.c', '            shlan_timer_arm(&ai->leave_timer, 1u);', '            /* Plant: no timer retry. */', 'unit'),
+@@ -173,7 +181,7 @@ CASES = [
+     ('zero-attribute-length', 'src/core/mrp_pdu.c', '|| !alen ||', '||', 'unit'),
+     ('changed-value-propagation', 'src/core/mrp_mad.c', '    if (indicated) {\n        map_publish', '    if (indicated && !changed) {\n        map_publish', 'unit'),
+     ('replay-error-retention', 'src/core/mrp_mad.c', 'return; /* Retain work if destination allocation is exhausted. */', '/* Plant: discard failed destination work. */', 'unit'),
+-    ('callback-order', 'src/core/mrp_mad.c', '    switch (e->ind) {\n    case REG_IND_NEW:\n        app->ops->join_ind(app, port_id, ai->attr_type, ai->attr_val, true);\n        break;\n    case REG_IND_JOIN:\n        app->ops->join_ind(app, port_id, ai->attr_type, ai->attr_val, false);\n        break;\n    case REG_IND_LV:\n        app->ops->leave_ind(app, port_id, ai->attr_type, ind_value);\n        break;\n    default:\n        break;\n    }\n    if (indicated) {\n        map_publish(app, port_id, ai->attr_type, ind_value, join, reserved);\n        map_replay_all(app);\n    }\n', '    if (indicated) {\n        map_publish(app, port_id, ai->attr_type, ind_value, join, reserved);\n    }\n    switch (e->ind) {\n    case REG_IND_NEW:\n        app->ops->join_ind(app, port_id, ai->attr_type, ai->attr_val, true);\n        break;\n    case REG_IND_JOIN:\n        app->ops->join_ind(app, port_id, ai->attr_type, ai->attr_val, false);\n        break;\n    case REG_IND_LV:\n        app->ops->leave_ind(app, port_id, ai->attr_type, ind_value);\n        break;\n    default:\n        break;\n    }\n    if (indicated) {\n        map_replay_all(app);\n    }\n', 'unit'),
++    ('callback-order', 'src/core/mrp_mad.c', '    switch (e->ind) {\n    case REG_IND_NEW:\n        app->ops->join_ind(app, port_id, ai->attr_type, ai->attr_val, true);\n        break;\n    case REG_IND_JOIN:\n        app->ops->join_ind(app, port_id, ai->attr_type, ai->attr_val, false);\n        break;\n    case REG_IND_LV:\n        app->ops->leave_ind(app, port_id, ai->attr_type, ind_value);\n        break;\n    default:\n        break;\n    }\n#if LWSRP_ONE_PORT_MAP\n    /* One port: nothing was reserved, nothing is queued, the policy names no port. */\n    indicated = indicated && priv_of(app)->n_ports > 1u;\n#endif\n    if (indicated) {\n        map_publish(app, port_id, ai->attr_type, ind_value, join, reserved);\n        map_replay_all(app);\n    }\n', '#if LWSRP_ONE_PORT_MAP\n    /* One port: nothing was reserved, nothing is queued, the policy names no port. */\n    indicated = indicated && priv_of(app)->n_ports > 1u;\n#endif\n    if (indicated) {\n        map_publish(app, port_id, ai->attr_type, ind_value, join, reserved);\n    }\n    switch (e->ind) {\n    case REG_IND_NEW:\n        app->ops->join_ind(app, port_id, ai->attr_type, ai->attr_val, true);\n        break;\n    case REG_IND_JOIN:\n        app->ops->join_ind(app, port_id, ai->attr_type, ai->attr_val, false);\n        break;\n    case REG_IND_LV:\n        app->ops->leave_ind(app, port_id, ai->attr_type, ind_value);\n        break;\n    default:\n        break;\n    }\n    if (indicated) {\n        map_replay_all(app);\n    }\n', 'unit'),
+     ('flush-retry', 'src/core/mrp_mad.c', '        if (ev == MRP_EVENT_FLUSH) {\n            /* The topology API cannot report refusal. Retain its withdrawal. */\n            if (!ai->flush_pending) {\n                memcpy(ai->flush_value, ai->attr_val, attr_store_len(app->ops, ai->attr_type));\n            }\n            ai->flush_pending = true;\n            ai->reg = MRP_REG_STATE_LV;\n            shlan_timer_arm(&ai->leave_timer, 1u);\n        }\n', '', 'unit'),
+     ('replacement-order', 'src/core/mrp_mad.c', '                if (r < 0) {\n                    if (previous) {', '                if (false && r < 0) {\n                    if (previous) {', 'unit'),
+     ('receive-stop', 'src/core/mrp_mad.c', 'if (rc->error || priv->map_error) {', 'if (rc->error) {', 'unit'),
+@@ -184,7 +192,7 @@ CASES = [
+     ('flush-deadline', 'src/core/mrp_mad.c', 'ai->reg = MRP_REG_STATE_LV;\n            shlan_timer_arm(&ai->leave_timer, 1u);', 'ai->reg = MRP_REG_STATE_LV;\n            shlan_timer_arm(&ai->leave_timer, 2u);', 'unit'),
+     ('flush-observer', 'src/core/mrp_mad.c', '        observe(app, ai, ev, port_id, appl_from, reg_from);\n        return r;', '        return r;', 'unit'),
+     ('replacement-lv', 'src/core/mrp_mad.c', 'if (old != ai && old->reg != MRP_REG_STATE_MT &&', 'if (old != ai && old->reg == MRP_REG_STATE_IN &&', 'unit'),
+-    ('replacement-leave-timer', 'src/core/mrp_mad.c', '                if (r >= 0) {\n                    r = deliver_event_changed(rc->app, rc->ps, old,\n                                              MRP_EVENT_LEAVETIMER, rc->port_id, false);\n                }\n', '', 'unit'),
++    ('replacement-leave-timer', 'src/core/mrp_mad.c', '#if LWSRP_RAPID_REPLACE\n                if (r >= 0 && old->reg != MRP_REG_STATE_MT) {\n#else\n                if (r >= 0) {\n#endif\n                    r = deliver_event_changed(rc->app, rc->ps, old,\n                                              MRP_EVENT_LEAVETIMER, rc->port_id, false);\n                }\n', '', 'unit'),
+     ('receive-instance-stop', 'src/core/mrp_mad.c', 'if (rc->error || priv->map_error) {', 'if (priv->map_error) {', 'unit'),
+     ('flush-completion', MAD, '        ai->flush_pending = false;', '        /* Plant: retain completed withdrawal. */', 'unit'),
+     ('flush-snapshot-bypass', 'src/core/mrp_mad.c', 'ai->flush_value : ai->attr_val;', 'ai->attr_val : ai->attr_val;', 'unit'),
+@@ -343,11 +351,17 @@ def failed_scenarios(output):
+     return names
+ 
+ 
++#: The reversals of the attribute key, which only a build with LWSRP_ATTR_KEY (LWSRP_SCALE) compiles.
++NEEDS_KEY = {"attr-key-unset", "attr-key-lookup-inverted", "attr-key-replacement-inverted",
++             "msrp-key-outside-compare"}
++
++
+ def main():
+     parser = argparse.ArgumentParser(description=__doc__)
+     parser.add_argument("--work-dir", type=Path, required=True)
+     parser.add_argument("--prefix", type=Path, required=True)
+     parser.add_argument("--milan", choices=["OFF", "ON"], default="OFF")
++    parser.add_argument("--scale", choices=["OFF", "ON"], default="OFF")
+     args = parser.parse_args()
+     work = args.work_dir.resolve()
+     if work.is_relative_to(ROOT) or work.exists():
+@@ -378,7 +392,7 @@ def main():
+ 
+     rc, _ = run("configure", ["cmake", "-S", str(source), "-B", str(build),
+                               "-DCMAKE_BUILD_TYPE=Release", f"-DCMAKE_PREFIX_PATH={args.prefix.resolve()}",
+-                              f"-DLWSRP_MILAN={args.milan}"])
++                              f"-DLWSRP_MILAN={args.milan}", f"-DLWSRP_SCALE={args.scale}"])
+     if rc:
+         return 1
+     build_command = ["cmake", "--build", str(build), "--parallel", "2"]
+@@ -389,6 +403,11 @@ def main():
+         return 1
+     failures = 0
+     for label, name, old, new, check in CASES:
++        if label in NEEDS_KEY and args.scale == "OFF":
++            print(f"SKIP {label}: the attribute key is built only with LWSRP_ATTR_KEY (run with --scale ON)")
++            continue
++        if label not in NEEDS_KEY and args.scale == "ON":
++            continue  # the default build's run holds every other reversal; some target code the scale build replaces
+         path = source / name
+         original = path.read_text()
+         if old not in original:
+diff --git a/tests/differential/mad_trace.c b/tests/differential/mad_trace.c
+new file mode 100644
+index 0000000..fbae4ec
+--- /dev/null
++++ b/tests/differential/mad_trace.c
+@@ -0,0 +1,676 @@
++/* SPDX-License-Identifier: Apache-2.0 */
++/*
++ * One random life of an MRP application, printed as a trace: every received
++ * PDU and its result, every local declaration and withdrawal, every
++ * transmit opportunity with each offered PDU's octets and the send result,
++ * ticks, reclamation, role changes, periodic switching, every indication,
++ * propagation decision, receive-filter call and observed transition, and
++ * after each step a digest of every attribute instance's state and value.
++ * tests/check_differential.py builds it against a base revision's sources
++ * and against the checkout's; both traces must be byte-identical.
++ *
++ * The application is chosen by the seed: MSRP, MVRP or MMRP through their
++ * modules, on one to three ports, or a test application whose FirstValue
++ * is one octet of a two-octet value, so different instances encode the same
++ * FirstValue and a Message's order of equal values shows, whose key
++ * collides across values, and whose encoder refuses one value, so a build
++ * fails partway; the transmit buffer's digest follows every opportunity. Values come from small sets, so lookups,
++ * replacements and keys meet often. Allocation and send refusals are
++ * planted by the seed.
++ *
++ * usage: mad_trace <seed> <steps>
++ * Build with -DTRACE_ATTR_KEY when mrp.h has attr_key; it is used where LWSRP_ATTR_KEY builds it.
++ */
++#include <stdarg.h>
++#include <stdbool.h>
++#include <stdint.h>
++#include <stdio.h>
++#include <stdlib.h>
++#include <string.h>
++
++#include "ports/alloc.h"
++#include "ports/timer.h"
++#include "shish_lan/mmrp.h"
++#include "shish_lan/mrp.h"
++#include "shish_lan/mrp_pdu.h"
++#include "shish_lan/msrp.h"
++#include "shish_lan/mvrp.h"
++
++enum kind { KIND_MSRP, KIND_MVRP, KIND_MMRP, KIND_TIE, KINDS };
++static const char *const kind_names[KINDS] = {"msrp", "mvrp", "mmrp", "tie"};
++
++static uint32_t rng;
++static enum kind kind;
++static struct mrp_app *app;
++static uint8_t n_ports;
++static uint64_t digest;
++static unsigned long allocations, releases, live;
++static uint32_t fail_every;   /* refuse every fail_every-th allocation; 0 never */
++static uint32_t refuse_every; /* refuse every refuse_every-th send; 0 never */
++static unsigned long sends;
++
++static uint32_t draw(uint32_t n)
++{
++    rng ^= rng << 13;
++    rng ^= rng >> 17;
++    rng ^= rng << 5;
++    return rng % n;
++}
++
++static void hex(const char *tag, const void *bytes, size_t n)
++{
++    const uint8_t *b = bytes;
++    printf("%s", tag);
++    for (size_t k = 0; k < n; ++k) {
++        printf("%02x", b[k]);
++    }
++}
++
++static void mix(const void *bytes, size_t n)
++{
++    const uint8_t *b = bytes;
++    for (size_t k = 0; k < n; ++k) {
++        digest = (digest ^ b[k]) * UINT64_C(0x100000001b3);
++    }
++}
++
++/* ---- the allocation port, with planted refusals -------------------- */
++
++void *shlan_malloc(size_t size)
++{
++    return shlan_calloc(1, size);
++}
++
++void *shlan_calloc(size_t nmemb, size_t size)
++{
++    ++allocations;
++    if (fail_every && allocations % fail_every == 0u) {
++        printf("  alloc refused\n");
++        return NULL;
++    }
++    void *p = calloc(nmemb, size);
++    if (p) {
++        ++live;
++    }
++    return p;
++}
++
++void shlan_free(void *ptr)
++{
++    if (ptr) {
++        ++releases;
++        --live;
++    }
++    free(ptr);
++}
++
++int shlan_printf(const char *fmt, ...)
++{
++    va_list ap;
++    va_start(ap, fmt);
++    printf("  print ");
++    int r = vprintf(fmt, ap);
++    va_end(ap);
++    return r;
++}
++
++/* ---- values ---------------------------------------------------------- */
++
++static size_t value_len(uint8_t type)
++{
++    return app->ops->attr_mem_len ? app->ops->attr_mem_len(type) : app->ops->attr_len(type);
++}
++
++/* A StreamID of one talker: few UniqueIDs, whose low octet repeats. */
++static void stream_id(uint8_t *id)
++{
++    static const uint8_t mac[6] = {0x02u, 0x00u, 0x00u, 0x00u, 0x00u, 0x10u};
++    memcpy(id, mac, sizeof(mac));
++    id[6] = (uint8_t)draw(3);
++    id[7] = (uint8_t)draw(12);
++}
++
++/* ---- the test application ------------------------------------------ */
++
++static void tie_join(struct mrp_app *a, uint8_t port, uint8_t type, const void *value, bool is_new)
++{
++    (void)a;
++    hex("  join ", value, 2);
++    printf(" type %u port %u new %u\n", type, port, is_new);
++}
++
++static void tie_leave(struct mrp_app *a, uint8_t port, uint8_t type, const void *value)
++{
++    (void)a;
++    hex("  leave ", value, 2);
++    printf(" type %u port %u\n", type, port);
++}
++
++static uint32_t tie_map(const struct mrp_app *a, uint8_t port, uint8_t type, const void *value)
++{
++    (void)type; (void)value;
++    uint32_t all = (1u << mrp_app_n_ports(a)) - 1u;
++    uint32_t mask = all & ~(1u << port);
++    printf("  map from %u: %x\n", port, mask);
++    return mask;
++}
++
++static int tie_encode(uint8_t type, const void *value, uint8_t *buf, size_t len)
++{
++    (void)type;
++    /* One value cannot be encoded, so a Message's build fails partway. */
++    if (len < 1u || ((const uint8_t *)value)[0] == 23u) {
++        return -1;
++    }
++    buf[0] = ((const uint8_t *)value)[0];
++    return 1;
++}
++
++static int tie_decode(uint8_t type, uint32_t offset, const uint8_t *buf, size_t len, void *out)
++{
++    (void)type;
++    if (len < 1u || buf[0] + offset > 255u) {
++        return -1;
++    }
++    uint8_t *v = out;
++    v[0] = (uint8_t)(buf[0] + offset);
++    v[1] = 0u;
++    return 1;
++}
++
++static uint8_t tie_len(uint8_t type)
++{
++    return type == 1u || type == 2u ? 1u : 0u;
++}
++
++static uint8_t tie_mem_len(uint8_t type)
++{
++    return type == 1u || type == 2u ? 2u : 0u;
++}
++
++static int tie_cmp(uint8_t type, const void *a, const void *b)
++{
++    (void)type;
++    return memcmp(a, b, 2);
++}
++
++static bool tie_subtype(uint8_t type)
++{
++    return type == 2u;
++}
++
++static bool tie_replaces(uint8_t old_type, const void *old_value, uint8_t new_type, const void *new_value)
++{
++    return old_type != new_type && ((const uint8_t *)old_value)[0] == ((const uint8_t *)new_value)[0];
++}
++
++#if defined(TRACE_ATTR_KEY) && defined(LWSRP_ATTR_KEY) && LWSRP_ATTR_KEY
++static uint8_t tie_key(uint8_t type, const void *value)
++{
++    (void)type;
++    return ((const uint8_t *)value)[0] & 0x13u;
++}
++#endif
++
++static struct mrp_app *tie_create(uint8_t ports)
++{
++    struct mrp_app_ops ops = {0};
++    ops.join_ind = tie_join;
++    ops.leave_ind = tie_leave;
++    ops.map_join = tie_map;
++    ops.map_leave = tie_map;
++    ops.encode_attr = tie_encode;
++    ops.decode_attr = tie_decode;
++    ops.attr_len = tie_len;
++    ops.attr_cmp = tie_cmp;
++    ops.attr_has_subtype = tie_subtype;
++    ops.attr_mem_len = tie_mem_len;
++    ops.attr_replaces = tie_replaces;
++#if defined(TRACE_ATTR_KEY) && defined(LWSRP_ATTR_KEY) && LWSRP_ATTR_KEY
++    ops.attr_key = tie_key;
++#endif
++    ops.milan_rapid_leave = draw(2) != 0u;
++    ops.ethertype = MRP_ETHERTYPE_MMRP;
++    ops.proto_version = 0u;
++    return mrp_app_create(&ops, ports);
++}
++
++/* ---- module contexts -------------------------------------------------- */
++
++static void on_talker_advertise(struct msrp_ctx *c, uint8_t port, const struct msrp_talker_adv *t, bool is_new)
++{
++    (void)c;
++    hex("  talker ", t->stream_id.bytes, 8);
++    hex(" da ", t->dest_mac, 6);
++    printf(" vid %u size %u frames %u pr %u lat %u port %u new %u\n", t->vlan_id, t->max_frame_size,
++           t->max_interval_frames, t->priority_and_rank, (unsigned)t->accumulated_latency, port, is_new);
++}
++
++static void on_talker_failed(struct msrp_ctx *c, uint8_t port, const struct msrp_talker_failed *t, bool is_new)
++{
++    (void)c;
++    hex("  failed ", t->talker.stream_id.bytes, 8);
++    hex(" info ", t->failure_info, 9);
++    printf(" port %u new %u\n", port, is_new);
++}
++
++static void on_listener(struct msrp_ctx *c, uint8_t port, const struct msrp_stream_id *id,
++                        enum msrp_listener_decl decl, bool is_new)
++{
++    (void)c;
++    hex("  listener ", id->bytes, 8);
++    printf(" decl %u port %u new %u\n", decl, port, is_new);
++}
++
++static void on_leave(struct msrp_ctx *c, uint8_t port, uint8_t type, const void *value)
++{
++    (void)c;
++    printf("  leave type %u port %u", type, port);
++    hex(" ", value, value_len(type));
++    printf("\n");
++}
++
++static void on_domain(struct msrp_ctx *c, uint8_t port, const struct msrp_domain *d, bool is_new)
++{
++    (void)c;
++    printf("  domain %u %u %u port %u new %u\n", d->class_id, d->priority, d->vid, port, is_new);
++}
++
++static struct msrp_ctx msrp_context = {on_talker_advertise, on_talker_failed, on_listener, on_leave, on_domain};
++
++static void on_vlan_registered(struct mvrp_ctx *c, uint8_t port, uint16_t vid, bool is_new)
++{
++    (void)c;
++    printf("  vlan %u port %u new %u\n", vid, port, is_new);
++}
++
++static void on_vlan_deregistered(struct mvrp_ctx *c, uint8_t port, uint16_t vid)
++{
++    (void)c;
++    printf("  vlan gone %u port %u\n", vid, port);
++}
++
++static struct mvrp_ctx mvrp_context;
++
++static void on_mac(struct mmrp_ctx *c, uint8_t port, const struct mmrp_mac *mac)
++{
++    (void)c;
++    hex("  mac ", mac->addr, 6);
++    printf(" port %u\n", port);
++}
++
++static void on_mac_gone(struct mmrp_ctx *c, uint8_t port, const struct mmrp_mac *mac)
++{
++    (void)c;
++    hex("  mac gone ", mac->addr, 6);
++    printf(" port %u\n", port);
++}
++
++static void on_svc(struct mmrp_ctx *c, uint8_t port, uint8_t svc)
++{
++    (void)c;
++    printf("  svc %u port %u\n", svc, port);
++}
++
++static void on_svc_gone(struct mmrp_ctx *c, uint8_t port, uint8_t svc)
++{
++    (void)c;
++    printf("  svc gone %u port %u\n", svc, port);
++}
++
++static struct mmrp_ctx mmrp_context = {on_mac, on_mac_gone, on_svc, on_svc_gone};
++
++/* ---- observation ------------------------------------------------------ */
++
++static void observed(void *ctx, const struct mrp_transition *t)
++{
++    (void)ctx;
++    printf("  T port %u type %u ev %s %s>%s %s>%s", t->port_id, t->attr_type, mrp_event_name(t->event),
++           mrp_appl_state_name(t->appl_from), mrp_appl_state_name(t->appl_to),
++           mrp_reg_state_name(t->reg_from), mrp_reg_state_name(t->reg_to));
++    hex(" ", t->attr_val, app->ops->attr_len(t->attr_type));
++    printf("\n");
++}
++
++static bool filtered(void *ctx, uint8_t port, uint8_t type, const void *value)
++{
++    (void)ctx;
++    const uint8_t *v = value;
++    bool take = ((v[0] + v[app->ops->attr_len(type) - 1u] + type + port) % 7u) != 0u;
++    printf("  filter port %u type %u %u\n", port, type, take);
++    return take;
++}
++
++static void visited(void *ctx, const struct mrp_attr_status *st)
++{
++    (void)ctx;
++    const uint8_t head[4] = {st->port_id, st->attr_type, (uint8_t)st->appl, (uint8_t)st->reg};
++    mix(head, sizeof(head));
++    mix(st->attr_val, value_len(st->attr_type));
++}
++
++static int sent(void *ctx, uint8_t port, const uint8_t *pdu, size_t len)
++{
++    (void)ctx;
++    ++sends;
++    const bool refuse = refuse_every && sends % refuse_every == 0u;
++    printf("  send port %u len %zu%s", port, len, refuse ? " refused" : "");
++    hex(" ", pdu, len);
++    printf("\n");
++    return refuse ? -1 : 0;
++}
++
++/* ---- received PDUs ---------------------------------------------------- */
++
++static size_t events(uint8_t *out, unsigned n, bool subtype)
++{
++    size_t at = 0;
++    for (unsigned k = 0; k < n; k += 3u) {
++        out[at++] = (uint8_t)(draw(6) * 36u + (k + 1u < n ? draw(6) * 6u : 0u) + (k + 2u < n ? draw(6) : 0u));
++    }
++    if (subtype) {
++        for (unsigned k = 0; k < n; k += 4u) {
++            out[at++] = (uint8_t)draw(256);
++        }
++    }
++    return at;
++}
++
++/* One MSRP Message of one vector (IEEE 802.1Q-2018 35.2.2). */
++static size_t msrp_message(uint8_t *out)
++{
++    static const uint8_t types[] = {MSRP_ATTR_TYPE_TALKER_ADV, MSRP_ATTR_TYPE_TALKER_FAILED,
++                                    MSRP_ATTR_TYPE_LISTENER, MSRP_ATTR_TYPE_DOMAIN};
++    const uint8_t type = types[draw(4)];
++    const uint8_t alen = app->ops->attr_len(type);
++    const unsigned n = type == MSRP_ATTR_TYPE_DOMAIN ? 1u : 1u + draw(5);
++    uint8_t *v = out + 6;
++    memset(v, 0, alen);
++    if (type == MSRP_ATTR_TYPE_DOMAIN) {
++        v[0] = 6u; v[1] = 3u; v[2] = (uint8_t)draw(2); v[3] = (uint8_t)(2u + draw(2));
++    } else {
++        stream_id(v);
++    }
++    if (type == MSRP_ATTR_TYPE_TALKER_ADV || type == MSRP_ATTR_TYPE_TALKER_FAILED) {
++        v[8] = 0x91u; v[9] = 0xe0u; v[10] = 0xf0u; v[13] = (uint8_t)draw(2);
++        v[15] = 2u; v[16] = 0u; v[17] = 64u; v[19] = 1u; v[20] = 0x70u;
++        v[24] = (uint8_t)(1u + draw(2));
++        if (type == MSRP_ATTR_TYPE_TALKER_FAILED) {
++            v[32] = (uint8_t)draw(2); v[33] = (uint8_t)(1u + draw(2));
++        }
++    }
++    size_t at = 6u + alen;
++    at += events(out + at, n, type == MSRP_ATTR_TYPE_LISTENER);
++    out[at++] = 0u; out[at++] = 0u;
++    const bool leaveall = draw(12) == 0u;
++    out[0] = type; out[1] = alen;
++    out[2] = (uint8_t)((at - 4u) >> 8); out[3] = (uint8_t)(at - 4u);
++    out[4] = (uint8_t)(((leaveall ? 0x2000u : 0u) | n) >> 8); out[5] = (uint8_t)n;
++    return at;
++}
++
++/* One Message of one vector for an application without AttributeListLength. */
++static size_t plain_message(uint8_t *out)
++{
++    uint8_t type, value[6] = {0};
++    unsigned n = 1u + draw(5);
++    if (kind == KIND_MVRP) {
++        type = MVRP_ATTR_TYPE_VID;
++        const unsigned vid = draw(3) * 256u + 1u + draw(10);
++        value[0] = (uint8_t)(vid >> 8); value[1] = (uint8_t)vid;
++    } else if (kind == KIND_MMRP) {
++        type = draw(3) == 0u ? MMRP_ATTR_TYPE_SVC : MMRP_ATTR_TYPE_MAC;
++        if (type == MMRP_ATTR_TYPE_SVC) {
++            value[0] = (uint8_t)draw(2);
++            n = 1u + draw(2);
++        } else {
++            value[0] = 0x01u; value[1] = 0x00u; value[2] = 0x5eu; value[5] = (uint8_t)draw(12);
++        }
++    } else {
++        type = (uint8_t)(1u + draw(2));
++        value[0] = (uint8_t)draw(24);
++    }
++    const uint8_t alen = app->ops->attr_len(type);
++    size_t at = 0;
++    out[at++] = type; out[at++] = alen;
++    const bool leaveall = draw(12) == 0u;
++    out[at++] = (uint8_t)(((leaveall ? 0x2000u : 0u) | n) >> 8); out[at++] = (uint8_t)n;
++    memcpy(out + at, value, alen);
++    at += alen;
++    at += events(out + at, n, app->ops->attr_has_subtype && app->ops->attr_has_subtype(type));
++    out[at++] = 0u; out[at++] = 0u;
++    return at;
++}
++
++static size_t random_pdu(uint8_t *pdu)
++{
++    size_t len = 1u;
++    pdu[0] = draw(20) == 0u ? 1u : 0u;
++    for (unsigned m = 1u + draw(3); m != 0u; --m) {
++        len += kind == KIND_MSRP ? msrp_message(pdu + len) : plain_message(pdu + len);
++    }
++    pdu[len++] = 0u; pdu[len++] = 0u;
++    if (draw(40) == 0u) {
++        len -= 1u + draw((unsigned)len - 3u); /* truncated */
++    }
++    return len;
++}
++
++/* ---- local declarations ---------------------------------------------- */
++
++static void local_value(uint8_t *type, uint8_t *value)
++{
++    memset(value, 0, 48);
++    switch (kind) {
++    case KIND_MSRP: {
++        const uint32_t which = draw(5);
++        if (which < 2u) {
++            struct msrp_talker_adv t = {0};
++            stream_id(t.stream_id.bytes);
++            t.dest_mac[0] = 0x91u; t.dest_mac[5] = (uint8_t)draw(3);
++            t.vlan_id = 2u; t.max_frame_size = (uint16_t)(64u + 8u * draw(3)); t.max_interval_frames = 1u;
++            t.priority_and_rank = 0x70u;
++            if (which == 0u) {
++                *type = MSRP_ATTR_TYPE_TALKER_ADV;
++                memcpy(value, &t, sizeof(t));
++            } else {
++                struct msrp_talker_failed f = {0};
++                f.talker = t;
++                f.failure_info[8] = (uint8_t)(1u + draw(3));
++                *type = MSRP_ATTR_TYPE_TALKER_FAILED;
++                memcpy(value, &f, sizeof(f));
++            }
++        } else if (which < 4u) {
++            *type = MSRP_ATTR_TYPE_LISTENER;
++            stream_id(value);
++            value[8] = (uint8_t)(1u + draw(3));
++        } else {
++            struct msrp_domain d = {(uint8_t)(6u + draw(2)), 3u, (uint16_t)(2u + draw(2))};
++            *type = MSRP_ATTR_TYPE_DOMAIN;
++            memcpy(value, &d, sizeof(d));
++        }
++        break;
++    }
++    case KIND_MVRP: {
++        const unsigned vid = draw(3) * 256u + 1u + draw(10);
++        *type = MVRP_ATTR_TYPE_VID;
++        value[0] = (uint8_t)(vid >> 8); value[1] = (uint8_t)vid;
++        break;
++    }
++    case KIND_MMRP:
++        if (draw(3) == 0u) {
++            *type = MMRP_ATTR_TYPE_SVC;
++            value[0] = (uint8_t)draw(2);
++        } else {
++            *type = MMRP_ATTR_TYPE_MAC;
++            value[0] = 0x01u; value[1] = 0x00u; value[2] = 0x5eu; value[5] = (uint8_t)draw(12);
++        }
++        break;
++    default:
++        *type = (uint8_t)(1u + draw(2));
++        value[0] = (uint8_t)draw(24);
++        value[1] = (uint8_t)draw(3);
++        break;
++    }
++}
++
++static int declare(uint8_t port, bool join)
++{
++    uint8_t type, value[48];
++    local_value(&type, value);
++    printf("%s port %u type %u", join ? "join" : "leave", port, type);
++    hex(" ", value, value_len(type));
++    printf("\n");
++    if (kind == KIND_MSRP && draw(2)) {
++        if (type == MSRP_ATTR_TYPE_TALKER_ADV) {
++            struct msrp_talker_adv t;
++            memcpy(&t, value, sizeof(t));
++            return join ? msrp_declare_talker(app, port, &t, draw(2) != 0u) :
++                          msrp_withdraw_talker(app, port, &t.stream_id);
++        }
++        if (type == MSRP_ATTR_TYPE_LISTENER) {
++            struct msrp_stream_id id;
++            memcpy(id.bytes, value, 8);
++            return join ? msrp_declare_listener(app, port, &id, (enum msrp_listener_decl)value[8]) :
++                          msrp_withdraw_listener(app, port, &id);
++        }
++    }
++    if (kind == KIND_MVRP && draw(2)) {
++        const uint16_t vid = (uint16_t)(value[0] << 8 | value[1]);
++        return join ? mvrp_declare(app, port, vid) : mvrp_withdraw(app, port, vid);
++    }
++    if (kind == KIND_MMRP && draw(2)) {
++        if (type == MMRP_ATTR_TYPE_SVC) {
++            return join ? mmrp_declare_svc(app, port, value[0]) : mmrp_withdraw_svc(app, port, value[0]);
++        }
++        struct mmrp_mac mac;
++        memcpy(mac.addr, value, 6);
++        return join ? mmrp_declare_mac(app, port, &mac) : mmrp_withdraw_mac(app, port, &mac);
++    }
++    return join ? mrp_mad_join(app, port, type, value, draw(2) != 0u) : mrp_mad_leave(app, port, type, value);
++}
++
++/* ---- the run ---------------------------------------------------------- */
++
++static void state_digest(unsigned long step)
++{
++    digest = UINT64_C(0xcbf29ce484222325);
++    for (uint8_t p = 0; p < n_ports; ++p) {
++        int count = mrp_attr_visit(app, p, visited, NULL);
++        enum mrp_la_state la;
++        enum mrp_pt_state pt;
++        (void)mrp_port_status(app, p, &la, &pt);
++        const int head[3] = {count, (int)la, (int)pt};
++        mix(head, sizeof(head));
++    }
++    printf("S %lu %016llx live %lu\n", step, (unsigned long long)digest, live);
++}
++
++int main(int argc, char **argv)
++{
++    if (argc != 3) {
++        fprintf(stderr, "usage: mad_trace <seed> <steps>\n");
++        return 2;
++    }
++    const unsigned long seed = strtoul(argv[1], NULL, 0);
++    rng = (uint32_t)seed * 2654435761u + 7u;
++    const unsigned long steps = strtoul(argv[2], NULL, 0);
++    kind = (enum kind)(seed % KINDS);
++    n_ports = (uint8_t)(1u + draw(kind == KIND_MSRP || kind == KIND_TIE ? 3u : 2u));
++    fail_every = draw(3) == 0u ? 40u + draw(200) : 0u;
++    refuse_every = draw(2) == 0u ? 2u + draw(6) : 0u;
++    const bool filter = draw(2) != 0u;
++    printf("seed %lu %s ports %u fail %u refuse %u filter %u\n", seed, kind_names[kind], n_ports, fail_every,
++           refuse_every, filter);
++    const uint32_t saved_fail = fail_every;
++    fail_every = 0u;
++    switch (kind) {
++    case KIND_MSRP: app = msrp_app_create(n_ports, &msrp_context); break;
++    case KIND_MVRP: mvrp_context.on_vlan_registered = on_vlan_registered;
++                    mvrp_context.on_vlan_deregistered = on_vlan_deregistered;
++                    app = mvrp_app_create(n_ports, &mvrp_context); break;
++    case KIND_MMRP: app = mmrp_app_create(n_ports, &mmrp_context); break;
++    default:        app = tie_create(n_ports); break;
++    }
++    if (!app) {
++        printf("create failed\n");
++        return 1;
++    }
++    for (uint8_t p = 0; p < n_ports; ++p) {
++        const uint32_t join = 2u + draw(20);
++        const int r = mrp_port_configure(app, p, join, join * 2u + 6u + draw(80), 40u + draw(1200), draw(1000),
++                                         draw(2) != 0u);
++        printf("configure %u rc %d\n", p, r);
++    }
++    mrp_set_observer(app, observed, NULL);
++    if (filter) {
++        mrp_set_rx_filter(app, filtered, NULL);
++    }
++    fail_every = saved_fail;
++    uint8_t pdu[1600], buffer[2048];
++    memset(buffer, 0xa5, sizeof(buffer));
++    for (unsigned long step = 0; step < steps; ++step) {
++        const uint32_t what = draw(64);
++        const uint8_t port = (uint8_t)draw(n_ports);
++        int r = 0;
++        if (what < 22u) {
++            const size_t len = random_pdu(pdu);
++            printf("rx port %u", port);
++            hex(" ", pdu, len);
++            printf("\n");
++            r = mrp_rx(app, port, pdu, len);
++        } else if (what < 32u) {
++            r = declare(port, true);
++        } else if (what < 37u) {
++            r = declare(port, false);
++        } else if (what < 49u) {
++            static const size_t capacities[] = {3u, 24u, 60u, 120u, 300u, 1500u, 2048u};
++            const size_t capacity = capacities[draw(7)];
++            printf("transmit port %u capacity %zu\n", port, capacity);
++            r = mrp_transmit(app, port, buffer, capacity, sent, NULL);
++            /* The whole buffer, as a failed build leaves it too. */
++            digest = UINT64_C(0xcbf29ce484222325);
++            mix(buffer, sizeof(buffer));
++            printf("buffer %016llx\n", (unsigned long long)digest);
++        } else if (what < 58u) {
++            const uint32_t n = what < 56u ? 1u + draw(30) : 50u + draw(300);
++            printf("tick %u\n", n);
++            for (uint32_t k = 0; k < n; ++k) {
++                shlan_timer_tick();
++            }
++        } else if (what < 61u) {
++            printf("reclaim port %u\n", port);
++            r = (int)mrp_reclaim(app, port);
++        } else if (what < 62u) {
++            const bool flush = draw(2) != 0u;
++            printf("role port %u flush %u\n", port, flush);
++            mrp_port_role_change(app, port, flush);
++        } else if (what < 63u) {
++            const bool enable = draw(2) != 0u;
++            printf("periodic port %u %u\n", port, enable);
++            mrp_set_periodic(app, port, enable);
++        } else {
++            uint8_t type, value[48];
++            local_value(&type, value);
++            printf("registered type %u", type);
++            hex(" ", value, value_len(type));
++            r = (int)mrp_attr_registered_ports(app, type, value);
++            printf("\n");
++        }
++        printf("rc %d\n", r);
++        state_digest(step);
++    }
++    fail_every = 0u;
++    printf("destroy\n");
++    switch (kind) {
++    case KIND_MSRP: msrp_app_destroy(app); break;
++    case KIND_MVRP: mvrp_app_destroy(app); break;
++    case KIND_MMRP: mmrp_app_destroy(app); break;
++    default:        mrp_app_destroy(app); break;
++    }
++    for (unsigned k = 0; k < 2000u; ++k) {
++        shlan_timer_tick();
++    }
++    printf("END allocations %lu releases %lu live %lu sends %lu\n", allocations, releases, live, sends);
++    return 0;
++}
+diff --git a/tests/differential/timer_trace.c b/tests/differential/timer_trace.c
+new file mode 100644
+index 0000000..6aa6aaf
+--- /dev/null
++++ b/tests/differential/timer_trace.c
+@@ -0,0 +1,146 @@
++/* SPDX-License-Identifier: Apache-2.0 */
++/*
++ * One random life of the timer module, printed as a trace: registrations,
++ * arms, disarms, removals and ticks, and every expiry with the tick it fired
++ * in. Callbacks arm, disarm and register other timers, and themselves, as
++ * lwSRP's own callbacks do, so a tick's order and its arm-during-tick rule
++ * show in the trace. tests/check_differential.py builds this file against a
++ * base revision's src/ports/timer.c and against the checkout's, and requires
++ * the two traces to be byte-identical for every seed.
++ *
++ * usage: timer_trace <seed> <steps>
++ */
++#include <stdbool.h>
++#include <stdint.h>
++#include <stdio.h>
++#include <stdlib.h>
++
++#include "ports/timer.h"
++
++#define TIMERS 48u
++
++static struct shlan_timer timers[TIMERS];
++static bool registered[TIMERS];
++static uint32_t rng;
++static uint32_t now;
++static unsigned long fired;
++static bool in_tick;
++
++static uint32_t draw(uint32_t n)
++{
++    rng ^= rng << 13;
++    rng ^= rng >> 17;
++    rng ^= rng << 5;
++    return rng % n;
++}
++
++/* Arm lengths: often one or a few centiseconds, some near the wheel's
++ * turns, some far. */
++static uint32_t length(void)
++{
++    const uint32_t kind = draw(20);
++    if (kind == 0u) {
++        return 0u;
++    }
++    if (kind < 5u) {
++        return 1u;
++    }
++    if (kind < 10u) {
++        return 2u + draw(4);
++    }
++    if (kind < 14u) {
++        return 6u + draw(66);
++    }
++    if (kind < 16u) {
++        return 60u + draw(12);
++    }
++    if (kind < 18u) {
++        return 120u + draw(16);
++    }
++    if (kind < 19u) {
++        return 250u + draw(20);
++    }
++    return 1000u + draw(4000);
++}
++
++static void expired(void *arg);
++
++static void register_timer(unsigned n)
++{
++    shlan_timer_init(&timers[n], expired, &timers[n]);
++    registered[n] = true;
++}
++
++/* One action on another timer, or on t itself, as a callback takes it. */
++static void act(unsigned self)
++{
++    const unsigned n = draw(4) == 0u ? self : draw(TIMERS);
++    const uint32_t what = draw(10);
++    if (what < 6u) {
++        const uint32_t cs = length();
++        printf("  arm %u %u\n", n, cs);
++        shlan_timer_arm(&timers[n], cs);
++    } else if (what < 8u) {
++        printf("  disarm %u\n", n);
++        shlan_timer_disarm(&timers[n]);
++    } else if (!registered[n]) {
++        printf("  init %u\n", n);
++        register_timer(n);
++    }
++}
++
++static void expired(void *arg)
++{
++    const unsigned n = (unsigned)((struct shlan_timer *)arg - timers);
++    ++fired;
++    printf("F %u %u%s\n", now, n, in_tick ? "" : " outside a tick");
++    for (uint32_t k = draw(4); k != 0u; --k) {
++        act(n);
++    }
++}
++
++int main(int argc, char **argv)
++{
++    if (argc != 3) {
++        fprintf(stderr, "usage: timer_trace <seed> <steps>\n");
++        return 2;
++    }
++    rng = (uint32_t)strtoul(argv[1], NULL, 0) * 2654435761u + 1u;
++    const unsigned long steps = strtoul(argv[2], NULL, 0);
++    for (unsigned n = 0; n < TIMERS; ++n) {
++        if (draw(2)) {
++            register_timer(n);
++        }
++    }
++    for (unsigned long step = 0; step < steps; ++step) {
++        const uint32_t what = draw(32);
++        const unsigned n = draw(TIMERS);
++        if (what < 12u) {
++            const uint32_t cs = length();
++            printf("arm %u %u\n", n, cs);
++            shlan_timer_arm(&timers[n], cs);
++        } else if (what < 15u) {
++            printf("disarm %u\n", n);
++            shlan_timer_disarm(&timers[n]);
++        } else if (what < 17u) {
++            printf("remove %u\n", n);
++            shlan_timer_remove(&timers[n]);
++            registered[n] = false;
++        } else if (what < 19u) {
++            if (!registered[n]) {
++                printf("init %u\n", n);
++                register_timer(n);
++            }
++        } else {
++            for (uint32_t k = what < 30u ? 1u : 1u + draw(300); k != 0u; --k) {
++                ++now;
++                in_tick = true;
++                shlan_timer_tick();
++                in_tick = false;
++            }
++            printf("ticked to %u\n", now);
++        }
++    }
++    printf("END fired %lu at %u\n", fired, now);
++    return 0;
++}
+diff --git a/tests/unit/key_test.c b/tests/unit/key_test.c
+new file mode 100644
+index 0000000..76c4253
+--- /dev/null
++++ b/tests/unit/key_test.c
+@@ -0,0 +1,304 @@
++/* SPDX-License-Identifier: Apache-2.0 */
++/*
++ * The attribute key (mrp.h attr_key) is a lookup prefilter only. Each pair of
++ * applications here differs in attr_key alone: one keyed as created, one with
++ * NULL. Both take the same random sequence of received PDUs, local
++ * declarations, withdrawals, timer ticks and transmissions. Their indications,
++ * attribute states and transmitted PDUs must match after every step.
++ * StreamIDs and VIDs are drawn so different values often share a key octet.
++ */
++#include <cgreen/cgreen.h>
++#include <stdbool.h>
++#include <stdint.h>
++#include <string.h>
++#include "shish_lan/msrp.h"
++#include "shish_lan/mvrp.h"
++#include "shish_lan/mrp_pdu.h"
++#include "ports/timer.h"
++#if LWSRP_ATTR_KEY
++
++Describe(Key);
++BeforeEach(Key) {}
++AfterEach(Key) {}
++
++struct key_run {
++    struct mrp_app *app;
++    uint64_t hash;
++    unsigned joins;
++    unsigned leaves;
++    unsigned sent;
++};
++
++static struct key_run runs[2];
++static uint32_t seed;
++
++static uint32_t draw(uint32_t n)
++{
++    seed = seed * 1664525u + 1013904223u;
++    return (seed >> 8) % n;
++}
++
++static void mix(struct key_run *r, const void *bytes, size_t len)
++{
++    const uint8_t *b = bytes;
++    for (size_t k = 0; k < len; ++k) {
++        r->hash = (r->hash ^ b[k]) * UINT64_C(0x100000001b3);
++    }
++}
++
++static struct key_run *run_of(const struct mrp_app *app)
++{
++    return app == runs[0].app ? &runs[0] : &runs[1];
++}
++
++static size_t value_len(const struct mrp_app *app, uint8_t type)
++{
++    return app->ops->attr_mem_len ? app->ops->attr_mem_len(type) : app->ops->attr_len(type);
++}
++
++static void joined(struct mrp_app *app, uint8_t port, uint8_t type, const void *value, bool is_new)
++{
++    struct key_run *r = run_of(app);
++    const uint8_t head[3] = {1u, type, (uint8_t)(port + (is_new ? 2u : 0u))};
++    mix(r, head, sizeof(head));
++    mix(r, value, value_len(app, type));
++    ++r->joins;
++}
++
++static void left(struct mrp_app *app, uint8_t port, uint8_t type, const void *value)
++{
++    struct key_run *r = run_of(app);
++    const uint8_t head[3] = {2u, type, port};
++    mix(r, head, sizeof(head));
++    mix(r, value, value_len(app, type));
++    ++r->leaves;
++}
++
++static int sent(void *ctx, uint8_t port, const uint8_t *pdu, size_t len)
++{
++    struct key_run *r = ctx;
++    const uint8_t head[2] = {3u, port};
++    mix(r, head, sizeof(head));
++    mix(r, pdu, len);
++    ++r->sent;
++    return 0;
++}
++
++static void visited(void *ctx, const struct mrp_attr_status *st)
++{
++    struct key_run *r = ctx;
++    const uint8_t head[4] = {4u, st->attr_type, (uint8_t)st->appl, (uint8_t)st->reg};
++    mix(r, head, sizeof(head));
++    mix(r, st->attr_val, r->app->ops->attr_len(st->attr_type));
++}
++
++/* A StreamID from one talker: UniqueIDs whose last octet repeats across
++ * three high octets, so keys collide between different streams. */
++static void stream_id(uint8_t *id)
++{
++    const uint8_t mac[6] = {0x02u, 0x00u, 0x00u, 0x00u, 0x00u, 0x10u};
++    memcpy(id, mac, sizeof(mac));
++    id[6] = (uint8_t)draw(3);
++    id[7] = (uint8_t)draw(12);
++}
++
++/* One MSRP message with one vector of up to five values (IEEE 802.1Q-2018
++ * 35.2.2), its FirstValue drawn from a small set of each field. */
++static size_t msrp_message(uint8_t *out)
++{
++    static const uint8_t types[] = {MSRP_ATTR_TYPE_TALKER_ADV, MSRP_ATTR_TYPE_TALKER_FAILED,
++                                    MSRP_ATTR_TYPE_LISTENER, MSRP_ATTR_TYPE_DOMAIN};
++    const uint8_t type = types[draw(4)];
++    const uint8_t alen = runs[0].app->ops->attr_len(type);
++    const unsigned n = type == MSRP_ATTR_TYPE_DOMAIN ? 1u : 1u + draw(5);
++    uint8_t *v = out + 6;
++    memset(v, 0, alen);
++    if (type == MSRP_ATTR_TYPE_DOMAIN) {
++        v[0] = 6u; v[1] = 3u; v[2] = (uint8_t)draw(2); v[3] = (uint8_t)(2u + draw(2));
++    } else {
++        stream_id(v);
++    }
++    if (type == MSRP_ATTR_TYPE_TALKER_ADV || type == MSRP_ATTR_TYPE_TALKER_FAILED) {
++        v[8] = 0x91u; v[9] = 0xe0u; v[10] = 0xf0u; v[13] = (uint8_t)draw(2);
++        v[15] = 2u; v[16] = 0u; v[17] = 64u; v[19] = 1u; v[20] = 0x70u;
++        v[24] = (uint8_t)(1u + draw(2));
++        if (type == MSRP_ATTR_TYPE_TALKER_FAILED) {
++            v[32] = (uint8_t)draw(2); v[33] = (uint8_t)(1u + draw(2));
++        }
++    }
++    size_t at = 6u + alen;
++    for (unsigned k = 0; k < n; k += 3u) {
++        out[at++] = (uint8_t)(draw(6) * 36u + (k + 1u < n ? draw(6) * 6u : 0u) + (k + 2u < n ? draw(6) : 0u));
++    }
++    if (type == MSRP_ATTR_TYPE_LISTENER) {
++        for (unsigned k = 0; k < n; k += 4u) {
++            out[at++] = (uint8_t)draw(256);
++        }
++    }
++    out[at++] = 0u; out[at++] = 0u;
++    const bool leaveall = draw(16) == 0u;
++    out[0] = type; out[1] = alen;
++    out[2] = (uint8_t)((at - 4u) >> 8); out[3] = (uint8_t)(at - 4u);
++    out[4] = (uint8_t)(((leaveall ? 0x2000u : 0u) | n) >> 8); out[5] = (uint8_t)n;
++    return at;
++}
++
++static size_t msrp_pdu(uint8_t *pdu)
++{
++    size_t len = 1u;
++    pdu[0] = 0u;
++    for (unsigned m = 1u + draw(3); m != 0u; --m) {
++        len += msrp_message(pdu + len);
++    }
++    pdu[len++] = 0u; pdu[len++] = 0u;
++    return len;
++}
++
++/* One MVRP message (IEEE 802.1Q-2018 11.2.3.1): VIDs whose low octet repeats. */
++static size_t mvrp_pdu(uint8_t *pdu)
++{
++    const unsigned n = 1u + draw(5);
++    const unsigned vid = draw(3) * 256u + 1u + draw(10);
++    size_t at = 0u;
++    pdu[at++] = 0u; pdu[at++] = MVRP_ATTR_TYPE_VID; pdu[at++] = MVRP_ATTR_LEN_VID;
++    pdu[at++] = (uint8_t)(((draw(16) == 0u ? 0x2000u : 0u) | n) >> 8); pdu[at++] = (uint8_t)n;
++    pdu[at++] = (uint8_t)(vid >> 8); pdu[at++] = (uint8_t)vid;
++    for (unsigned k = 0; k < n; k += 3u) {
++        pdu[at++] = (uint8_t)(draw(6) * 36u + (k + 1u < n ? draw(6) * 6u : 0u) + (k + 2u < n ? draw(6) : 0u));
++    }
++    pdu[at++] = 0u; pdu[at++] = 0u; pdu[at++] = 0u; pdu[at++] = 0u;
++    return at;
++}
++
++/* A local declaration's in-memory value, from the same small sets. */
++static uint8_t local_value(bool msrp, uint8_t *type, uint8_t *value)
++{
++    memset(value, 0, 48);
++    if (!msrp) {
++        *type = MVRP_ATTR_TYPE_VID;
++        const unsigned vid = draw(3) * 256u + 1u + draw(10);
++        value[0] = (uint8_t)(vid >> 8); value[1] = (uint8_t)vid;
++        return 1u;
++    }
++    *type = draw(2) == 0u ? MSRP_ATTR_TYPE_TALKER_ADV : MSRP_ATTR_TYPE_LISTENER;
++    if (*type == MSRP_ATTR_TYPE_TALKER_ADV) {
++        struct msrp_talker_adv t = {0};
++        stream_id(t.stream_id.bytes);
++        t.vlan_id = 2u; t.max_frame_size = 64u; t.max_interval_frames = 1u;
++        t.priority_and_rank = 0x70u;
++        memcpy(value, &t, sizeof(t));
++    } else {
++        stream_id(value);
++        value[8] = (uint8_t)(1u + draw(3));
++    }
++    return 1u;
++}
++
++/* The two runs, step by step; each step's effects on both must hash alike. */
++static void differential(struct mrp_app *(*create)(void), bool msrp, unsigned steps)
++{
++    for (unsigned k = 0; k < 2u; ++k) {
++        struct mrp_app *prototype = create();
++        assert_that(prototype, is_non_null);
++        struct mrp_app_ops ops = *prototype->ops;
++        ops.join_ind = joined; ops.leave_ind = left; ops.ctx = NULL;
++        ops.map_join = NULL; ops.map_leave = NULL;
++        if (k == 1u) {
++            assert_that(ops.attr_key, is_non_null);
++            ops.attr_key = NULL;
++        }
++        mrp_app_destroy(prototype);
++        runs[k] = (struct key_run){mrp_app_create(&ops, 1), UINT64_C(0xcbf29ce484222325), 0, 0, 0};
++        assert_that(runs[k].app, is_non_null);
++        assert_that(mrp_port_configure(runs[k].app, 0, 20, 60, 1000, 0x872u, true), is_equal_to(0));
++    }
++    uint8_t pdu[512], buffer[1500], type, value[48];
++    for (unsigned step = 0; step < steps; ++step) {
++        const uint32_t what = draw(16);
++        const uint32_t ticks = what >= 13u ? 1u + draw(40) : 0u;
++        size_t len = what < 8u ? (msrp ? msrp_pdu(pdu) : mvrp_pdu(pdu)) : 0u;
++        if (what >= 8u && what < 12u) {
++            (void)local_value(msrp, &type, value);
++        }
++        int result[2] = {0, 0};
++        for (unsigned k = 0; k < 2u; ++k) {
++            struct key_run *r = &runs[k];
++            if (what < 8u) {
++                result[k] = mrp_rx(r->app, 0, pdu, len);
++            } else if (what < 10u) {
++                result[k] = mrp_mad_join(r->app, 0, type, value, true);
++            } else if (what < 12u) {
++                result[k] = mrp_mad_leave(r->app, 0, type, value);
++            } else if (what == 12u) {
++                result[k] = mrp_transmit(r->app, 0, buffer, sizeof(buffer), sent, r);
++            }
++            mix(r, &result[k], sizeof(result[k]));
++        }
++        for (uint32_t t = 0; t < ticks; ++t) {
++            shlan_timer_tick();
++        }
++        if (what >= 13u) {
++            for (unsigned k = 0; k < 2u; ++k) {
++                result[k] = mrp_transmit(runs[k].app, 0, buffer, sizeof(buffer), sent, &runs[k]);
++                mix(&runs[k], &result[k], sizeof(result[k]));
++            }
++        }
++        for (unsigned k = 0; k < 2u; ++k) {
++            mix(&runs[k], &step, sizeof(step));
++            (void)mrp_attr_visit(runs[k].app, 0, visited, &runs[k]);
++        }
++        if (runs[0].hash != runs[1].hash) {
++            /* The first step whose effects differ, as the failure's actual value. */
++            assert_that(step, is_equal_to(steps));
++            break;
++        }
++    }
++    assert_that(runs[0].hash == runs[1].hash, is_true);
++    assert_that(runs[0].joins, is_equal_to(runs[1].joins));
++    assert_that(runs[0].leaves, is_equal_to(runs[1].leaves));
++    assert_that(runs[0].sent, is_equal_to(runs[1].sent));
++    assert_that(runs[0].joins, is_greater_than(steps / 20u));
++    assert_that(runs[0].leaves, is_greater_than(steps / 40u));
++    assert_that(runs[0].sent, is_greater_than(steps / 40u));
++    for (unsigned k = 0; k < 2u; ++k) {
++        mrp_app_destroy(runs[k].app);
++        runs[k].app = NULL;
++    }
++}
++
++static struct msrp_ctx msrp_context;
++static struct mvrp_ctx mvrp_context;
++
++static struct mrp_app *msrp_prototype(void)
++{
++    return msrp_app_create(1, &msrp_context);
++}
++
++static struct mrp_app *mvrp_prototype(void)
++{
++    return mvrp_app_create(1, &mvrp_context);
++}
++
++Ensure(Key, msrp_keyed_lookups_match_unkeyed_lookups)
++{
++    seed = 0x872u;
++    differential(msrp_prototype, true, 4000u);
++}
++
++Ensure(Key, mvrp_keyed_lookups_match_unkeyed_lookups)
++{
++    seed = 0x873u;
++    differential(mvrp_prototype, false, 4000u);
++}
++
++TestSuite *key_suite(void)
++{
++    TestSuite *suite = create_test_suite();
++    add_test_with_context(suite, Key, msrp_keyed_lookups_match_unkeyed_lookups);
++    add_test_with_context(suite, Key, mvrp_keyed_lookups_match_unkeyed_lookups);
++    return suite;
++}
++#else
++/* Built without LWSRP_ATTR_KEY the MAD keeps no key, so there is nothing to compare (tests/unit/main.c). */
++typedef int key_test_unbuilt;
++#endif
+diff --git a/tests/unit/main.c b/tests/unit/main.c
+index cfb4544..a62dd74 100644
+--- a/tests/unit/main.c
++++ b/tests/unit/main.c
+@@ -1,6 +1,7 @@
+ /* SPDX-License-Identifier: Apache-2.0 */
+ 
+ #include <cgreen/cgreen.h>
++#include "shish_lan/mrp.h"
+ 
+ TestSuite *mrp_pdu_suite(void);
+ TestSuite *timer_suite(void);
+@@ -12,6 +13,9 @@ TestSuite *milan_suite(void);
+ TestSuite *boundaries_suite(void);
+ TestSuite *grouping_suite(void);
+ TestSuite *own_leaveall_suite(void);
++#if LWSRP_ATTR_KEY
++TestSuite *key_suite(void);
++#endif
+ 
+ int main(void)
+ {
+@@ -26,6 +30,9 @@ int main(void)
+     add_suite(suite, boundaries_suite());
+     add_suite(suite, grouping_suite());
+     add_suite(suite, own_leaveall_suite());
++#if LWSRP_ATTR_KEY
++    add_suite(suite, key_suite());
++#endif
+     TestReporter *reporter = create_text_reporter();
+     int result = run_test_suite(suite, reporter);
+     destroy_test_suite(suite);

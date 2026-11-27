@@ -1,0 +1,15 @@
+$ clang -O1 -g -std=c11 -fsanitize=memory -DTRACE_ATTR_KEY -DLWSRP_TIMER_SLOTS=64u -DLWSRP_ATTR_BUCKETS=16u -DLWSRP_TX_MERGE=1 -DLWSRP_ONE_PORT_MAP=1 -DLWSRP_LEAN_VALIDATE=1 -DLWSRP_RAPID_REPLACE=1 -DLWSRP_LEAN_COPY=1 -DLWSRP_LEAN_TX=1 -DLWSRP_MILAN=1 -I$REVIEWS/lwsrp977-r960-1-packet/scratch/memory/mutant/src -I$REVIEWS/lwsrp977-r960-1-packet/scratch/memory/mutant/src/include -o $REVIEWS/lwsrp977-r960-1-packet/scratch/memory/control-ON $REVIEWS/r960-1-lwsrp977/tests/differential/mad_trace.c $REVIEWS/lwsrp977-r960-1-packet/scratch/memory/mutant/src/core/mrp_mad.c $REVIEWS/lwsrp977-r960-1-packet/scratch/memory/mutant/src/core/mrp_pdu.c $REVIEWS/lwsrp977-r960-1-packet/scratch/memory/mutant/src/ports/timer.c $REVIEWS/lwsrp977-r960-1-packet/scratch/memory/mutant/src/modules/msrp.c $REVIEWS/lwsrp977-r960-1-packet/scratch/memory/mutant/src/modules/mvrp.c $REVIEWS/lwsrp977-r960-1-packet/scratch/memory/mutant/src/modules/mmrp.c
+seed=4 rc=86
+==3466713==WARNING: MemorySanitizer: use-of-uninitialized-value
+    #0 0x5593aa3d9633 in msrp_decode_attr $REVIEWS/lwsrp977-r960-1-packet/scratch/memory/mutant/src/modules/msrp.c:348:36
+    #1 0x5593aa3d6c51 in parse_pass $REVIEWS/lwsrp977-r960-1-packet/scratch/memory/mutant/src/core/mrp_pdu.c:214:25
+    #2 0x5593aa3d6039 in mrpdu_parse $REVIEWS/lwsrp977-r960-1-packet/scratch/memory/mutant/src/core/mrp_pdu.c:247:13
+    #3 0x5593aa3d01e1 in mrp_rx $REVIEWS/lwsrp977-r960-1-packet/scratch/memory/mutant/src/core/mrp_mad.c:1297:13
+    #4 0x5593aa3cb99f in main $REVIEWS/r960-1-lwsrp977/tests/differential/mad_trace.c:621:17
+    #5 0x7f7774c27780 in __libc_start_call_main /usr/src/debug/glibc/glibc/csu/../sysdeps/nptl/libc_start_call_main.h:59:16
+    #6 0x7f7774c278b8 in __libc_start_main /usr/src/debug/glibc/glibc/csu/../csu/libc-start.c:372:3
+    #7 0x5593aa32a114 in _start ($REVIEWS/lwsrp977-r960-1-packet/scratch/memory/control-ON+0x33114) (BuildId: 850eb81286202b720554a811c07bf2048b7b82d3)
+
+SUMMARY: MemorySanitizer: use-of-uninitialized-value $REVIEWS/lwsrp977-r960-1-packet/scratch/memory/mutant/src/modules/msrp.c:348:36 in msrp_decode_attr
+Exiting
+{"build_rc": 0, "passed": 3, "first_failure": {"seed": 4, "rc": 86, "uninitialized_report": true}}

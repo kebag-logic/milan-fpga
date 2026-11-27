@@ -1,0 +1,11 @@
+Mutation: type |= 31u -> type = 255u
+Published stimulus: seeds 1..200, 3000 steps, end-station switches
+Identical full traces: 200; first difference: None
+checked: all four empty MSRP LeaveAll vectors; ignored FirstValue; required FirstValue length
+FAIL line 87: saved[at]==types[i] && saved[at+1]==1
+FAIL line 87: saved[at]==types[i] && saved[at+1]==1
+FAIL line 87: saved[at]==types[i] && saved[at+1]==1
+FAIL line 87: saved[at]==types[i] && saved[at+1]==1
+FAIL line 92: at+2==saved_len
+checked: eight type-word boundaries and empty words followed by occupied words
+failures=5 frames=3

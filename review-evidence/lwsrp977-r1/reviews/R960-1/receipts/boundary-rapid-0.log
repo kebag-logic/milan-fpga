@@ -1,0 +1,4 @@
+$ cc -O2 -std=c11 -Wall -Wextra -Werror -DLWSRP_MILAN=0 -DLWSRP_RAPID_REPLACE=1 -I$REVIEWS/r960-1-lwsrp977/src -I$REVIEWS/r960-1-lwsrp977/src/include $REVIEWS/lwsrp977-r960-1-packet/boundary_probe.c $REVIEWS/r960-1-lwsrp977/src/core/mrp_mad.c $REVIEWS/r960-1-lwsrp977/src/core/mrp_pdu.c $REVIEWS/r960-1-lwsrp977/src/ports/timer.c $REVIEWS/r960-1-lwsrp977/src/ports/alloc.c $REVIEWS/r960-1-lwsrp977/src/modules/msrp.c $REVIEWS/r960-1-lwsrp977/src/modules/mvrp.c $REVIEWS/r960-1-lwsrp977/src/modules/mmrp.c -o $REVIEWS/lwsrp977-r960-1-packet/scratch/probes/rapid-0
+checked: all four empty MSRP LeaveAll vectors; ignored FirstValue; required FirstValue length
+checked: eight type-word boundaries and empty words followed by occupied words
+failures=0 frames=3
