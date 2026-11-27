@@ -146,6 +146,11 @@ It also changes capture state during a partial render frame.
 Checks cover abandonment, channel-zero restart, and both acknowledgement gates.
 Planted bridge defects must fail their named runtime checks.
 Grid tests move playback state through all eight walk offsets.
+Deferred transitions hold the next epoch's already-queued first frame.
+Checks require application before acknowledgement, then prefill and exact playback.
+Another test stalls an old status across capture-state application.
+Capture stays closed until a matching status record completes.
+Three separate defects remove those ordering guards.
 Separate tests exercise reference rejection, raw timestamp correction,
 independent epochs, packet fences, phased bus sampling, and the shared AAF
 storage paths at both widths. Source-level tests inject decode hazards between

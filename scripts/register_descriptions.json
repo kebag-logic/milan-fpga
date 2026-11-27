@@ -1607,21 +1607,31 @@
     },
     "PTP_ILAT": {
       "acronym": "PTP_INGRESS_LAT",
-      "name": "Ingress latency (scratch)",
-      "purpose": "Readable inert scratch; corrections are published at GPTP_LAT.",
+      "name": "Ingress latency correction or scratch",
+      "purpose": "Scratch unless `gptp.latency_writable` enables runtime timestamp correction.",
       "fields": {
-        "PTP_ILAT": "🟡 **Readable, inert scratch since `0x0056`.** A read returns the last written value; no timestamp-correction consumer reads the word at this VERSION. The live owner since `0x005E` is the fabric gPTP plane, which applies its board's correction as an elaboration constant and publishes the applied pair at `GPTP_LAT` (`0x7F0`); this word stays scratch so the same correction cannot be applied by two owners (#358). Ingress latency correction, ns, that the `ptp_ts_core` RX tap **SUBTRACTED** from its captures; that tap is no longer instantiated"
+        "PTP_ILAT": "Reads the full last-written word. With `gptp.latency_writable`, bits [15:0] apply nanoseconds, subtracted from arrival timestamps. Bits [31:16] remain readable but do not affect correction. Without that option, all bits remain inert scratch (#358, #829)."
       },
-      "notes": []
+      "notes": [
+        "The displayed zero reset applies with `gptp.latency_writable` disabled.",
+        "When enabled, this word resets to its configured correction.",
+        "The Arty split reset is 1409 ns (#829).",
+        "`GPTP_LAT` (`0x7F0`) publishes the applied pair."
+      ]
     },
     "PTP_ELAT": {
       "acronym": "PTP_EGRESS_LAT",
-      "name": "Egress latency (scratch)",
-      "purpose": "Readable inert scratch; corrections are published at GPTP_LAT.",
+      "name": "Egress latency correction or scratch",
+      "purpose": "Scratch unless `gptp.latency_writable` enables runtime timestamp correction.",
       "fields": {
-        "PTP_ELAT": "🟡 **Readable, inert scratch since `0x0056`.** A read returns the last written value; no timestamp-correction consumer reads the word at this VERSION. The live owner since `0x005E` is the fabric gPTP plane, which applies its board's correction as an elaboration constant and publishes the applied pair at `GPTP_LAT` (`0x7F0`); this word stays scratch so the same correction cannot be applied by two owners (#358). Egress latency correction, ns, that the TX tap **ADDED**; that tap is no longer instantiated"
+        "PTP_ELAT": "Reads the full last-written word. With `gptp.latency_writable`, bits [15:0] apply nanoseconds, added to reconstructed launch timestamps. Bits [31:16] remain readable but do not affect correction. Without that option, all bits remain inert scratch (#358, #829)."
       },
-      "notes": []
+      "notes": [
+        "The displayed zero reset applies with `gptp.latency_writable` disabled.",
+        "When enabled, this word resets to its configured correction.",
+        "The Arty split reset is 100 ns (#829).",
+        "`GPTP_LAT` (`0x7F0`) publishes the applied pair."
+      ]
     },
     "PPS_CTRL": {
       "acronym": "PTP_PPS_CTRL",
@@ -3272,7 +3282,13 @@
       "purpose": "Ingress and egress timestamp corrections the plane applies.",
       "fields": {},
       "notes": [
-        "Elaboration constants: a write changes nothing. Option OFF reads 0."
+        "Read-only applied corrections; writing this word changes nothing.",
+        "With `gptp.latency_writable`, writes to `0x540` and `0x544` change them.",
+        "Only each written word's bits [15:0] affect correction.",
+        "Without that option, the applied pair remains elaboration constants.",
+        "Reset restores the configured ingress and egress corrections.",
+        "The Arty split resets to 1409/100 ns (#829).",
+        "Disabling the fabric gPTP plane makes this word read zero."
       ],
       "record": "gptp_lat-offset-0x7f0",
       "split": {

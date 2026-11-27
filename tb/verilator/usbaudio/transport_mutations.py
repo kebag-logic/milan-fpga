@@ -20,6 +20,15 @@ import subprocess
 
 # name, test, source leaf, edits, named detection
 PLANTS = (
+ ('bridge_snapshot_epoch', 'epochs', 'bridge',
+  (('published_epoch_r <= status_epoch_r;', 'published_epoch_r <= applied_epoch_r;'),),
+  'BRIDGE_SNAPSHOT_ACK_BEFORE_CAPTURE'),
+ ('media_deferred_frame', 'media', 'media',
+  (('assign playback_ready_o = !playback_changed_w &&', 'assign playback_ready_o ='),),
+  'MEDIA_DEFERRED_FRAME_RETAINED'),
+ ('media_deferred_ack', 'media', 'media',
+  (('assign ack_valid_o = state_valid_i && state_boundary_w;',
+    'assign ack_valid_o = state_valid_i;'),), 'MEDIA_DEFERRED_ACK_AFTER_APPLY'),
  ('bridge_applied_epoch', 'epochs', 'bridge',
   (('&& applied_epoch_r == bus_capture_epoch_r && published_epoch_r == bus_capture_epoch_r',
     '&& published_epoch_r == bus_capture_epoch_r'),), 'BRIDGE_MEDIA_APPLIED_GATE'),

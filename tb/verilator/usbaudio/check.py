@@ -52,7 +52,8 @@ def main() -> None:
                     "--only", "gpif_blocked_status", "--only", "packet_fence",
                     "--only", "bridge_applied_epoch", "--only", "bridge_capture_abort",
                     "--only", "bridge_status_epoch", "--only", "bridge_published_epoch",
-                    "--only", "bridge_packet_fence",
+                    "--only", "bridge_packet_fence", "--only", "bridge_snapshot_epoch",
+                    "--only", "media_deferred_frame", "--only", "media_deferred_ack",
                     "--only", "levels_clock_launch", "--only", "levels_playback_launch",
                     "--only", "levels_capture_launch"], check=True)
     print("PASS default audio regression: selection, protocol, references, media, packets, bus, "

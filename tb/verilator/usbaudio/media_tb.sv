@@ -77,6 +77,52 @@ module media_tb;
     for(int ch=0;ch<8;ch++) check(capture_data[ch*32+:32]==value(id,ch),"MEDIA_CAPTURE_BITS");
     step();render_tick=0;step();
   endtask
+  // Model the next epoch's FIFO head throughout a deferred transition.
+  // Handshakes, exact samples and frame counts independently prove retention.
+  task automatic deferred_playback(input int offset);
+    int deferred_cycles=0,acknowledgements=0;
+    bit applied;
+    rst_n=0;step(3);rst_n=1;step(3);
+    pair_count=0;tick_count=0;apply(1,1);playback(200+offset,1,12);
+    score_frame=offset==0 ? -1 : 200+offset;
+    for(int cycle=0;cycle<12;cycle++) begin
+      tick=cycle==0;
+      if(cycle==offset) begin
+        state_data={32'd2,32'd2,3'd7};state_valid=1;
+        play_data[287:256]=2;
+        for(int ch=0;ch<8;ch++) play_data[ch*32+:32]=value(300+offset,ch);
+        play_valid=1;level=11;
+      end
+      #1;
+      applied=state_valid && state_ready;
+      if(state_valid && !state_ready) begin
+        deferred_cycles++;
+        check(!ack_valid,"MEDIA_DEFERRED_ACK_AFTER_APPLY");
+      end
+      if(cycle>=offset)
+        check(play_valid && !play_ready,"MEDIA_DEFERRED_FRAME_RETAINED");
+      if(ack_valid && ack_ready) begin
+        check(applied && ack_epoch==2,"MEDIA_DEFERRED_ACK_AFTER_APPLY");
+        acknowledgements++;
+      end
+      step();
+      if(applied) state_valid=0;
+      if(cycle==0 && offset!=0) play_valid=0;
+    end
+    tick=0;
+    check(deferred_cycles>0 && acknowledgements==1,"MEDIA_DEFERRED_WINDOW_EXERCISED");
+    check(pair_count==4 && tick_count==1 && frames==1,"MEDIA_DEFERRED_OLD_FRAME_COMPLETE");
+    // Eleven frames cannot prime the new epoch or consume its first frame.
+    score_frame=-1;tick=1;#1;
+    check(!play_ready,"MEDIA_DEFERRED_FRAME_RETAINED");
+    step();tick=0;step(10);
+    check(play_valid && !play_ready && !running[1],"MEDIA_DEFERRED_REPREFILL");
+    level=12;step(3);score_frame=300+offset;tick=1;#1;
+    check(play_ready,"MEDIA_DEFERRED_FRAME_RELEASED");
+    step();tick=0;play_valid=0;step(10);
+    check(pair_count==12 && tick_count==3 && frames==3,"MEDIA_DEFERRED_FRAME_PLAYED_ONCE");
+    check(gaps==0 && !error_value,"MEDIA_DEFERRED_NO_GAP");
+  endtask
   initial begin
     step(4);rst_n=1;step(4);
     ack_ready=0;state_data={32'd1,32'd1,3'd7};state_valid=1;step(4);
@@ -141,6 +187,7 @@ module media_tb;
       playback(70+offset,2,11);grid(-1);
       playback(70+offset,2,12);grid(70+offset);
     end
+    for(int offset=0;offset<7;offset++) deferred_playback(offset);
     $display("PASS media endpoint: prefill, atomic frames, independent epochs, acknowledgement, all bits and loss counts");
     $finish;
   end

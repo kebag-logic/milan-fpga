@@ -22,7 +22,7 @@ module epochs_tb;
   logic [31:0] latest_status=0,applied_epoch=0,published_epoch=32'hffffffff;
   int capture_words=0,packets=0,expected_capture=100,packet_words=0;
   int playback_pairs=0,playback_snapshots=0,expected_playback=-1;
-  bit score_capture=0,score_playback=0;
+  bit score_capture=0,score_playback=0,snapshot_fence=0;
   KL_usbaudio_bridge #(.WINDOW_LOG2_P(4)) dut (
     .bus_clk_i(bus_clk),.media_clk_i(media_clk),.oscillator_clk_i(oscillator_clk),
     .reset_i(reset),.media_locked_i(1'b1),.latency_qualified_i(1'b1),
@@ -71,6 +71,8 @@ module epochs_tb;
   always @(posedge bus_clk) if(!reset) begin
     rx_accepted=rx_valid && rx_ready;
     if(capture_abort) begin aborts++;capture_words=0;packet_words=0;end
+    if(snapshot_fence && published_epoch!=0)
+      check(!dut.capture_packet.enabled_i && !capture_valid,"BRIDGE_SNAPSHOT_ACK_BEFORE_CAPTURE");
     check(!dut.capture_packet.enabled_i || applied_epoch==dut.bus_capture_epoch_r,
           "BRIDGE_MEDIA_APPLIED_GATE");
     check(!dut.capture_packet.enabled_i || published_epoch==dut.bus_capture_epoch_r,
@@ -155,8 +157,8 @@ module epochs_tb;
     check(0,"BRIDGE_STATUS_TIMEOUT");
   endtask
   initial begin : campaign
-    int before_abort,before_packets;
-    logic [15:0] held_word;
+    int before_abort,before_packets,before_status;
+    logic [15:0] held_word,held_status;
     bus_wait(10);reset=0;
     // Keep the initial status uncommitted, so its sentinel matches the
     // first selected capture epoch. The applied gate must work independently.
@@ -175,15 +177,27 @@ module epochs_tb;
     bus_wait(8);check(capture_data==held_word,"BRIDGE_ORDINARY_STALL_RETAINS_WORD");
     // Change capture only while both a bus interval and a render frame
     // are partial. The old render tail must be drained, never republished.
-    render_pairs(200,0,2);before_abort=aborts;status_ready=0;
+    // Hold an already-started old-epoch status, not an idle serializer.
+    wait(status_word==3);@(negedge bus_clk);#2;status_ready=0;
+    before_status=status_count;held_status=status_data;
+    check(status_valid && latest_status==32'hffffffff,"BRIDGE_OLD_SNAPSHOT_IN_FLIGHT");
+    render_pairs(200,0,2);before_abort=aborts;
     state_record(1,0);bus_wait(100);
     check(aborts==before_abort+1 && capture_words==0,"BRIDGE_CAPTURE_ABORT");
-    check(applied_epoch==0,"BRIDGE_CAPTURE_STATE_APPLIED");
+    check(applied_epoch==0,"BRIDGE_CAPTURE_STATE_APPLIED");snapshot_fence=1;
     render_pairs(200,2,4);close_render();
     grid(1);check(play_gaps==0 && cap_drops==0,"BRIDGE_CAPTURE_ONLY_PRESERVES_PLAYBACK");
     render_frames(250,16);bus_wait(10000);
     check(!capture_valid,"BRIDGE_DATA_WAITS_FOR_STATUS");
-    status_ready=1;await_status(0);bus_wait(50);
+    check(status_valid && status_word==3 && status_data==held_status &&
+          status_count==before_status,"BRIDGE_OLD_SNAPSHOT_STALL_RETAINED");
+    status_ready=1;wait(status_count==before_status+1);
+    @(negedge bus_clk);#2;status_ready=0;
+    check(latest_status==32'hffffffff,"BRIDGE_OLD_SNAPSHOT_IMMUTABLE");
+    // Completing that old snapshot cannot publish the newly applied epoch.
+    bus_wait(100);
+    check(!capture_valid && published_epoch==32'hffffffff,"BRIDGE_SNAPSHOT_ACK_BEFORE_CAPTURE");
+    status_ready=1;await_status(0);snapshot_fence=0;bus_wait(50);
     expected_capture=300;render_frames(300);capture_ready=1;
     wait(capture_words==3);@(negedge bus_clk);#2;capture_ready=0;held_word=capture_data;
     // A playback-only transition must preserve this exact partial capture
