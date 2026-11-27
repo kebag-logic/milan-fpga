@@ -3,7 +3,8 @@
 `timescale 1ns/1ps
 module reference_tb;
   logic clk = 0;
-  always #5 clk = !clk;
+  // Match the watchdog's independent 100 kHz time base exactly.
+  always #5000 clk = !clk;
   logic rst_n = 0, valid = 0;
   logic [15:0] data = 0;
   logic [47:0] media_ticks = 0;
@@ -12,7 +13,9 @@ module reference_tb;
   wire [31:0] sequence_value, feedback, losses;
   wire [12:0] delta;
   wire [47:0] stamp;
-  wire locked;
+  wire locked, accepted;
+  time last_reference_time;
+  bit last_reference_accepted;
   logic media_locked = 1, physical = 1;
   int unsigned sequence_sent;
   int unsigned count_sent;
@@ -31,8 +34,15 @@ module reference_tb;
     .clk_i(clk), .rst_n(rst_n), .media_locked_i(media_locked), .latency_qualified_i(physical),
     .reference_i(reference_p), .malformed_i(loss_p), .count_i(count),
     .sequence_i(sequence_value), .delta_i(delta), .discontinuity_i(discontinuity),
-    .stamp_ticks_i(stamp), .locked_o(locked), .feedback_q16_o(feedback), .losses_o(losses)
+    .stamp_ticks_i(stamp), .locked_o(locked), .feedback_q16_o(feedback), .losses_o(losses),
+    .accepted_o(accepted)
   );
+  always @(posedge clk) begin
+    if (rst_n && reference_p) begin
+      last_reference_time = $time;
+      last_reference_accepted = accepted;
+    end
+  end
   always @(negedge clk) begin
     if (reference_p) references_seen++;
     if (loss_p) malformed_seen++;
@@ -55,7 +65,8 @@ module reference_tb;
     check(ready, "REFERENCE_DRAIN"); step(); valid = 0; step();
   endtask
   task automatic send_reference(input int field = -1, input int bit_index = 0,
-                                input int raw_delta = 0, input int tick_extra = 0);
+                                input int raw_delta = 0, input int tick_extra = 0,
+                                input int trailing_cycles = 78);
     int before_count;
     logic [47:0] first_stamp;
     sequence_sent++;
@@ -78,7 +89,42 @@ module reference_tb;
       check(stamp == first_stamp, "REFERENCE_FIRST_WORD_TIMESTAMP");
       check(!record_valid, "REFERENCE_NOT_PCM");
     end
-    repeat (78) step();
+    repeat (trailing_cycles) step();
+  endtask
+  task automatic wait_reference_age(input int cycles);
+    while (($time-last_reference_time)/10000 < 64'(cycles)) step();
+    check(($time-last_reference_time)/10000 == 64'(cycles), "REFERENCE_WATCHDOG_TEST_AGE");
+  endtask
+  task automatic watchdog_bounds;
+    time previous_time;
+    logic [31:0] previous_losses;
+    reset_all(); qualify();
+    previous_time = last_reference_time;
+    previous_losses = losses;
+    // The ten-word parser needs twenty edges through reference consumption.
+    // Keep the source-clock timestamps continuous to isolate the own-clock
+    // watchdog from the independent late/bunched-delivery checks.
+    wait_reference_age(270);
+    send_reference(-1, 0, 0, 0, 0);
+    check(last_reference_time-previous_time == 2900000, "REFERENCE_WATCHDOG_2P9MS_AGE");
+    check(last_reference_accepted && locked && feedback == 32'h60000
+          && losses == previous_losses, "REFERENCE_WATCHDOG_2P9MS_ACCEPTED");
+    previous_time = last_reference_time;
+    wait_reference_age(280);
+    send_reference(-1, 0, 0, 0, 0);
+    check(last_reference_time-previous_time == 3000000, "REFERENCE_WATCHDOG_3MS_AGE");
+    check(!last_reference_accepted && !locked && feedback == 0
+          && losses == previous_losses+1, "REFERENCE_WATCHDOG_3MS_REFUSED");
+    // The refused record cannot seed the replacement measurement window.
+    qualify();
+    previous_losses = losses;
+    // No new record, and no advancing media timestamp: our clock must expire.
+    wait_reference_age(299);
+    check(locked && feedback == 32'h60000, "REFERENCE_WATCHDOG_BEFORE_3MS");
+    step();
+    check(!locked && feedback == 0 && losses == previous_losses+1,
+          "REFERENCE_WATCHDOG_3MS_NO_REFERENCE");
+    $display("PASS reference watchdog: 2.9 ms accepted; 3 ms replacement refused; own-clock expiry without references");
   endtask
   task automatic qualify;
     for (int n = 0; n < 1025; n++) begin
@@ -122,9 +168,7 @@ module reference_tb;
       check(!locked, "REFERENCE_DISCONTINUITY");
       reset_all(); qualify(); send_reference(-1, 0, 7500);
       check(!locked, "REFERENCE_DELTA_RANGE");
-      reset_all(); qualify(); repeat (119) step();
-      check(locked, "REFERENCE_WATCHDOG_NOT_EARLY"); repeat (3) step();
-      check(!locked && feedback == 0, "REFERENCE_WATCHDOG");
+      watchdog_bounds();
       reset_all(); qualify(); send_reference(-1, 0, 0, -20000);
       check(!locked, "REFERENCE_BUNCHED");
       reset_all(); qualify(); send_reference(-1, 0, 0, 20000);

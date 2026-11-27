@@ -24,7 +24,8 @@ module KL_usbaudio_reference #(
   output logic [31:0] losses_o, //! reference losses, saturating
   output wire accepted_o //! continuity-qualified scheduling observation
 );
-  localparam int unsigned WATCHDOG_C = BUS_HZ_P/500;
+  // Three milliseconds on our own clock, including delivery margin.
+  localparam int unsigned WATCHDOG_C = (BUS_HZ_P/1000)*3;
   localparam int unsigned AGE_BITS_C = $clog2(WATCHDOG_C+1);
   logic [AGE_BITS_C-1:0] age_r;
   logic baseline_r, healthy_r;
@@ -50,8 +51,10 @@ module KL_usbaudio_reference #(
   assign locked_o = healthy_r && measured_w && media_locked_i && latency_qualified_i;
   assign accepted_o = reference_i && !bad_w;
   assign feedback_q16_o = locked_o ? feedback_w : 32'd0;
+  // bad_w qualifies the next edge; healthy_r changes on that edge.
+  // Keep the published measurement valid until expiry, not one cycle early.
   KL_usbaudio_feedback #(.WINDOW_LOG2_P(WINDOW_LOG2_P), .INTERVAL_LOG2_P(3)) estimator (
-    .clk_i(clk_i), .rst_n(rst_n), .locked_i(healthy_r && !bad_w),
+    .clk_i(clk_i), .rst_n(rst_n), .locked_i(healthy_r),
     .interval_i(qualified_p_r && !bad_w), .media_events_i(events_r),
     .feedback_q16_o(feedback_w), .measured_o(measured_w)
   );

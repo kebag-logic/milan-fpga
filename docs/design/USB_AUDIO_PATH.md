@@ -1,7 +1,7 @@
 # Optional USB audio path
 
 This is the desk implementation for [#1021](https://github.com/kebag-logic/milan-fpga/issues/1021).
-Its wire contract is [USB audio #9, revision ae4b11bd](https://github.com/kebag-logic/usb-audio/blob/ae4b11bdaf3e84faa46a9ce32b641f65716b0ed2/docs/AUDIO-FPGA.md).
+Its wire contract is [USB audio #9, revision 47e6bbc9](https://github.com/kebag-logic/usb-audio/blob/47e6bbc93093c325b00a9263fdb9ceb20869ef46/docs/AUDIO-FPGA.md).
 The [socket allocation](https://github.com/kebag-logic/usb-audio/blob/ae4b11bdaf3e84faa46a9ce32b641f65716b0ed2/docs/NETWORK.md)
 is shared with [the network attachment, #1020](https://github.com/kebag-logic/milan-fpga/pull/1020).
 Physical qualification remains a bench prerequisite.
@@ -92,11 +92,18 @@ is shifted by three into Q16.16 samples per microframe. The reference stride
 is eight microframes; sequence and count wrap are explicit modulo arithmetic.
 
 Bad structure, reserved bits, inconsistent raw count, discontinuity, duplicate
-or missing sequence, a count step other than eight, a two-millisecond timeout,
+or missing sequence, a count step other than eight, a three-millisecond timeout,
 or media-clock loss discards the estimator window. Deliveries outside
 0.75 to 1.25 milliseconds in source-clock ticks are rejected. A discarded
 observation cannot also seed the replacement window. Unqualified feedback
 is zero; nominal feedback is never substituted.
+
+The reference watchdog uses the FPGA's own bus clock.
+Its three milliseconds include the submission spacing plus margin.
+USB interval counts determine reference continuity, including modulo wrap.
+Firmware's application timer never supplies reference time.
+Boundary tests accept 2.9 ms and refuse 3 ms.
+Separate planted defects exercise both sides of that bound.
 
 Two controls default to zero. `armed` releases the coordinated session reset
 after the receiver has reset its parsers and queues. `qualified` permits the
