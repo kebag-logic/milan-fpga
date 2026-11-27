@@ -22,7 +22,7 @@
 #
 # Generate this shape through the split recipe:
 #   BUILD_CFG=configs/endstation_arty_split_4x4.yaml sw/litex/build.sh arty
-# The CPU and sys share 80 MHz; the datapath runs at 50 MHz.
+# The CPU and sys share 100 MHz (the 800 MHz VCO / 8); the datapath runs at 50 MHz.
 # The runtime latency pair resets to the measured 1409/100 ns (#829).
 # No tap compensation is included in this configuration.
 
@@ -59,7 +59,7 @@ board:
   features:
     fabric_gptp: true               # the one product owner (#259)
   constraints:                       # physical facts -> milan_soc.py argv
-    sys_clk_hz: 80000000             # cfg_arty: board PLL's 800 MHz VCO / 10
+    sys_clk_hz: 100000000            # the board PLL's 800 MHz VCO / 8
     milan_clk_hz: 50000000           # dense datapath in its own 50 MHz domain
     l2_bytes: 0                      # #259 bare-metal cacheless product
     phy: mii-100                     # DP83848 MII (arty) | gmii-1g (ax7101)

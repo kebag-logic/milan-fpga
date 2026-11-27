@@ -137,7 +137,7 @@ LONG_NOTICE_US = {p: poll_grade.stated_us(shape_costs.of_point(p))[poll_grade.LO
 #: before), and at 8x8/1if (THE SHAPES) 162,969 on the image that merges dev-soft-core 70f4056f (#901; 143,648 before,
 #: 1,510 us), 1,715 us (#904: one decode, one pass), 1,720 (#943: 163,520). record.aecp is shorter ones'.
 LONG_RECORD_US = {
-    'arty-1x1': 1105, 'arty-4x4': 1105, '1x1/1if': 975, '8x8/2if': 1650, '8x8/1if': 1720}
+    'arty-1x1': 1105, 'arty-4x4': 915, '1x1/1if': 975, '8x8/2if': 1650, '8x8/1if': 1720}
 #: The terms a tier-1 row may not carry: tier 2's work, for which only the one slice its window opens on stands.
 TIER2_TERMS = ('srp', 'item.retained', 'item.mrpdu', 'builds', 'rounds', 'item.withdraw', 'item.rebuild')
 #: Each term these models count and its source: rows_grade's list, the three datapath events, and the tier model's.

@@ -1,6 +1,6 @@
 # SPDX-FileCopyrightText: 2026 Kebag Logic
 # SPDX-License-Identifier: CERN-OHL-W-2.0
-"""#878's Arty model gate: the (1,1,2) and (1,5,5) FPGA points at exactly 80 MHz.
+"""#878's Arty model gate: the (1,1,2) FPGA point at exactly 80 MHz and the (1,5,5) point at exactly 100 MHz.
 
 This checks the stated costs and the rows derived from them. Measurement
 completeness and the measured 2 ms share remain the service harness's gates;
@@ -32,6 +32,8 @@ SHAPE = shape_costs.Shape(1, 1, 2)
 POINTS = {POINT: (SHAPE, ('endstation_arty_current', 'endstation_arty_split')),
           'arty-4x4': (shape_costs.Shape(1, 5, 5), ('endstation_arty_split_4x4',))}
 CLOCK_HZ = 80_000_000
+#: Each point's exact CPU and bus clock: the 1x1's 80 MHz ruling, and 100 MHz for the 4x4 (the 800 MHz VCO / 8).
+CLOCKS = {POINT: CLOCK_HZ, 'arty-4x4': 100_000_000}
 LOAD_CEILING = 0.70
 OWNER_MS = {'txL': 49, 'last': 140, 'ACMP': 30}
 
@@ -54,8 +56,8 @@ def inspect(root: Path = ROOT, point: str = POINT) -> tuple[dict, list[str]]:
     out = []
     for config in configs:
         cfg = eb.load_config(root / 'configs' / f'{config}.yaml')
-        if cfg['constraints']['sys_clk_hz'] != CLOCK_HZ:
-            out.append(f'{config}: CPU/sys clock is not exactly {CLOCK_HZ} Hz')
+        if cfg['constraints']['sys_clk_hz'] != CLOCKS[point]:
+            out.append(f'{config}: CPU/sys clock is not exactly {CLOCKS[point]} Hz')
         if cfg['constraints']['milan_clk_hz'] != 50_000_000:
             out.append(f'{config}: datapath clock is not 50000000 Hz')
         if shape_costs.of_config(root / 'configs' / f'{config}.yaml', 1, root) != shape:
@@ -75,7 +77,7 @@ def inspect(root: Path = ROOT, point: str = POINT) -> tuple[dict, list[str]]:
             ('CTRL_LOOP_STEP_PASS_US', 'CTRL_LOOP_TICK_US', 'AECP_NOTICE_US', 'AECP_PACE_MS')
             if name not in listed]
     if out:
-        return {'status': 'UNQUALIFIED', 'point': point, 'cpu_hz': CLOCK_HZ, 'shape': list(shape)}, out
+        return {'status': 'UNQUALIFIED', 'point': point, 'cpu_hz': CLOCKS[point], 'shape': list(shape)}, out
     inputs = rows_tiers.point_inputs(root, point)
     terms = load_grade.load(root, point, load_grade.STATED_US)
     load = sum(terms.values())
@@ -93,8 +95,8 @@ def inspect(root: Path = ROOT, point: str = POINT) -> tuple[dict, list[str]]:
         out.append(f'Arty slice {inputs.slice_us} us is not the rule\'s {chosen} us')
     if inputs.h['CTRL_LOOP_SHARE_US'] != 2000:
         out.append('Arty THE SHARE is not 2000 us')
-    record = dict(status='FAIL' if out else 'PASS', evidence='stated-cost model only', point=point, cpu_hz=CLOCK_HZ,
-                  shape=list(shape), load=load, load_terms=terms, rows_ms=rows,
+    record = dict(status='FAIL' if out else 'PASS', evidence='stated-cost model only', point=point,
+                  cpu_hz=CLOCKS[point], shape=list(shape), load=load, load_terms=terms, rows_ms=rows,
                   slice_us=inputs.slice_us, slice_margin=margin, pace_ms=inputs.pace_ms)
     return record, out
 

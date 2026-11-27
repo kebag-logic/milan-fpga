@@ -103,8 +103,10 @@ COMPLETE = ('1x1/1if', '8x8/1if', 'arty-1x1', 'arty-4x4')
 LABELS = {'1x1/1if': '1x1', '8x8/1if': '8x8-1if', 'arty-1x1': 'arty-1x1', 'arty-4x4': 'arty-4x4'}
 #: The points whose answering-ports leg must also run aecp-reboot's REBOOTs and the answered GET_AS_PATH (#871, #897).
 REBOOT_PATH_POINTS = ('1x1/1if', 'arty-1x1', 'arty-4x4')
-#: #878's Arty points, each measured at exactly 80 MHz for its CPU and bus.
-ARTY_POINTS = ('arty-1x1', 'arty-4x4')
+#: #878's Arty points and the exact clock each is measured at for its CPU and bus: the 1x1 at 80 MHz, the 4x4 at
+#: 100 MHz (the same 800 MHz VCO divided by 8).
+ARTY_CLOCKS = {'arty-1x1': 80_000_000, 'arty-4x4': 100_000_000}
+ARTY_POINTS = tuple(ARTY_CLOCKS)
 #: The declaring-outputs arm's records a pass must run at each point it is held complete at, each with the completion.
 DECLARED = {'answered GET_STREAM_INFO': lambda r: r.command == GET_STREAM_INFO and r.status == 0,
             'accepted SET_STREAM_INFO': lambda r: r.command == SET_STREAM_INFO and r.status == 0,
@@ -248,9 +250,9 @@ def findings(legs: list[Leg], groups_of_arm: list[str] | dict[str, list[str]] | 
     at every point it names and at every point of COMPLETE the pass runs any leg at, so a point with legs and no arm A
     leg is refused by name, whatever groups_of_arm holds."""
     out, reported = [], []
-    out += [f'{leg.point} {leg.variant}: its CPU and bus must both be exactly 80000000 Hz, '
+    out += [f'{leg.point} {leg.variant}: its CPU and bus must both be exactly {ARTY_CLOCKS[leg.point]} Hz, '
             f'not {leg.cpu_hz} and {leg.sys_hz}' for leg in legs
-            if leg.point in ARTY_POINTS and (leg.cpu_hz, leg.sys_hz) != (80_000_000, 80_000_000)]
+            if leg.point in ARTY_POINTS and (leg.cpu_hz, leg.sys_hz) != (ARTY_CLOCKS[leg.point],) * 2]
     if groups_of_arm is not None:
         wanted = groups_of_arm if isinstance(groups_of_arm, dict) else {'1x1/1if': groups_of_arm}
         points = sorted({leg.point for leg in legs if leg.point in COMPLETE} | set(wanted))

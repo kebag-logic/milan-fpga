@@ -51,7 +51,7 @@ if TYPE_CHECKING:
 #: cycles there, 315 us, raised as the owner decided on 2026-11-20 (#665, ruling item 4).
 PACED = {
     'arty-1x1': {'a one-row edit': 335, 'an accepted SET_CONFIGURATION': 325},
-    'arty-4x4': {'a one-row edit': 335, 'an accepted SET_CONFIGURATION': 325},
+    'arty-4x4': {'a one-row edit': 280, 'an accepted SET_CONFIGURATION': 415},
     '1x1/1if': {'a one-row edit': 315, 'an accepted SET_CONFIGURATION': 305},
          '8x8/2if': {'a one-row edit': 355, 'an accepted SET_CONFIGURATION': 595},
          '8x8/1if': {'a one-row edit': 335, 'an accepted SET_CONFIGURATION': 685}}
