@@ -516,5 +516,65 @@ TEST_F(SrpBinding, D7WithBothOwedAfterABindingChangeADeliveryCompletesTheLoss) {
     (void)app.loop.polls[4].fn(app.loop.polls[4].ctx);
     EXPECT_FALSE(app.srp_requests[0].pending) << "D7 the next delivery makes the change";
 }
+TEST_F(SrpBinding, D8ASinksLossIsCompletedWithinItsTurnWhateverAnotherLosesAgain) {
+    const unsigned n=acfg.n_sinks;
+    ASSERT_GE(n,2u);
+    for (unsigned k=0;k<n;++k) { bind(k); response(k,k); }
+    for (unsigned k=0;k<n;++k) ASSERT_EQ(core()->sinks[k].state,ACMP_SETTLED_NO_RSV);
+    // a loss at a binding ACMP holds with no reservation asks no change of SRP, so only losses are owed (D5)
+    sink(n-1u).withdrawn=true;
+    app.loop.drain_taken=0u;
+    bool completed=false;
+    for (unsigned d=0;d<n && !completed;++d) {
+        sink(0).withdrawn=true;   // the first sink's loss latched again before each delivery
+        (void)app.loop.polls[4].fn(app.loop.polls[4].ctx);
+        completed=!sink(n-1u).withdrawn;
+    }
+    EXPECT_TRUE(completed) << "D8 a sink's loss waits at most n_sinks deliveries";
+}
+TEST_F(SrpBinding, D9WithBothOwedAfterALossADeliveryMakesTheBindingChange) {
+    const unsigned n=acfg.n_sinks;
+    ASSERT_GE(n,2u);
+    for (unsigned k=0;k<n;++k) { bind(k); response(k,k); registration(k,false,0,k); }
+    without_delivery([&] {   // the first sink rebinds to another talker, its change owed
+        auto p=command(spec::MSG_BIND_RX_COMMAND,0u); p.talker=kTkB;
+        ASSERT_TRUE(offer(p,spec::MULTICAST_MAC,acfg.sink_interface[0])); settle();
+        response(0u,n+1u);
+    });
+    ASSERT_TRUE(app.srp_requests[0].pending);
+    // the second sink's registration lost as the change waits, the last delivery's a loss completion
+    sink(1u).withdrawn=true;
+    app.srp_lost_last=true;
+    app.loop.drain_taken=0u;
+    (void)app.loop.polls[4].fn(app.loop.polls[4].ctx);
+    EXPECT_FALSE(app.srp_requests[0].pending)
+        << "D9 with both owed after a loss completion, the delivery makes the binding change";
+    EXPECT_EQ(core()->sinks[1].state,ACMP_SETTLED_RSV_OK) << "D9 and leaves the loss owed";
+    EXPECT_TRUE(sink(1u).withdrawn) << "D9 and leaves the loss owed";
+}
+TEST_F(SrpBinding, D10ARecordsPassTakesNoTurn) {
+    const unsigned n=acfg.n_sinks;
+    ASSERT_GE(n,2u);
+    for (unsigned k=0;k<n;++k) { bind(k); response(k,k); registration(k,false,0,k); }
+    without_delivery([&] {   // the first sink rebinds to another talker, its change owed
+        auto p=command(spec::MSG_BIND_RX_COMMAND,0u); p.talker=kTkB;
+        ASSERT_TRUE(offer(p,spec::MULTICAST_MAC,acfg.sink_interface[0])); settle();
+        response(0u,n+1u);
+    });
+    sink(1u).withdrawn=true;
+    app.srp_lost_last=false;
+    app.loop.drain_taken=1u;   // the pass took an SRP record
+    (void)app.loop.polls[4].fn(app.loop.polls[4].ctx);
+    if (CTRL_LOOP_SETTLE_ALONE) {
+        // carried alone: its delivery owes THE SETTLE and makes neither kind, nor takes either kind's turn
+        EXPECT_TRUE(app.srp_requests[0].pending) << "D10 a record's pass makes no binding change";
+        EXPECT_FALSE(app.srp_lost_last) << "D10 a record's pass takes no turn";
+        app.loop.drain_taken=0u;
+        (void)app.loop.polls[4].fn(app.loop.polls[4].ctx);
+    }
+    // the delivery after a binding change completes the loss first, the change left owed
+    EXPECT_NE(core()->sinks[1].state,ACMP_SETTLED_RSV_OK) << "D10 the next delivery completes the loss first";
+    EXPECT_TRUE(app.srp_requests[0].pending) << "D10 and leaves the binding change owed";
+}
 } // namespace
 

@@ -8,11 +8,12 @@ the last delivery did not make; the rest stay pending, keep the loop awake and a
 most 2 x n_sinks deliveries of passes that took no SRP record: a pass that carries a record alone makes no binding
 change (its ruling of 2026-11-27 on the alone records, item 4). THE SETTLE still completes every loss it owes. One
 defect a rule: every owed change made at once, the turn taken from the first sink, every loss completed at once, a
-binding change made beside a loss, a binding change made again where both are owed after one, an owed loss or an owed
-change leaving the loop asleep, THE SETTLE completing none, and a record's pass making a binding change. srp_mutants.py
-plants each with the rest of its table; each named test (srp_binding.hpp, D1 to D7) must fail on its own words. The
-last bites only where THE SETTLE carries a record alone, the one-interface shapes, so its name takes
-srp_drain_mutants.PREFIX and test_ctrl_firmware.py plants it there.
+binding change made beside a loss, a binding change made again where both are owed after one, the loss turn taken from
+the first sink or never advanced, a loss completed again where both are owed after one, an owed loss or an owed change
+leaving the loop asleep, THE SETTLE completing none, and a record's pass taking a loss's turn or making a binding
+change. srp_mutants.py plants each with the rest of its table; each named test (srp_binding.hpp, D1 to D10) must fail
+on its own words. The two of a record's pass bite only where THE SETTLE carries a record alone, the one-interface
+shapes, so their names take srp_drain_mutants.PREFIX and test_ctrl_firmware.py plants them there.
 """
 from __future__ import annotations
 
@@ -57,6 +58,22 @@ def defects(kind: Callable[..., T]) -> tuple[T, ...]:
              '        if (app->srp_lost_last) {\n', '        if (true) {\n',
              'D7 with both owed after a binding change, the delivery completes the loss', path='app/ctrl_app_srp.c',
              suite='test_acmp_mbx.cpp'),
+        kind('deliver-loss-turn-from-the-first',
+             'SrpBinding.D8ASinksLossIsCompletedWithinItsTurnWhateverAnotherLosesAgain',
+             'const unsigned k = (app->srp_loss_turn + step) % n;', 'const unsigned k = step % n;',
+             "D8 a sink's loss waits at most n_sinks deliveries", path='app/ctrl_app_srp.c', suite='test_acmp_mbx.cpp'),
+        kind('deliver-loss-turn-never-advanced',
+             'SrpBinding.D8ASinksLossIsCompletedWithinItsTurnWhateverAnotherLosesAgain',
+             'app->srp_loss_turn = (uint8_t)((lose + 1u) % n);', 'app->srp_loss_turn = app->srp_loss_turn;',
+             "D8 a sink's loss waits at most n_sinks deliveries", path='app/ctrl_app_srp.c', suite='test_acmp_mbx.cpp'),
+        kind('deliver-loss-always-first', 'SrpBinding.D9WithBothOwedAfterALossADeliveryMakesTheBindingChange',
+             '        if (app->srp_lost_last) {\n', '        if (false) {\n',
+             'D9 with both owed after a loss completion, the delivery makes the binding change',
+             path='app/ctrl_app_srp.c', suite='test_acmp_mbx.cpp'),
+        kind('srp-977-deliver-loss-in-a-records-pass', 'SrpBinding.D10ARecordsPassTakesNoTurn',
+             'for (unsigned step = 0; step < n && lose == n && !settles; ++step) {',
+             'for (unsigned step = 0; step < n && lose == n; ++step) {',
+             "D10 a record's pass takes no turn", path='app/ctrl_app_srp.c', suite='test_acmp_mbx.cpp'),
         kind('srp-977-deliver-binds-in-a-records-pass',
              'SrpBinding.D6ARecordsPassMakesNoBindingChangeTheNextDeliveryMakesIt',
              'for (unsigned step = 0; step < n && bind == n && !settles; ++step) {',
