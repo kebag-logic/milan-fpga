@@ -3521,17 +3521,19 @@ bound and a 35 ms ordinary transmit bound.
 The merge of dev-soft-core `c34e7d8b` raised the measured AECP, ACMP and MAAP costs at this point.
 By the same rules, the first row (950 us, 9 ms, 30 ms) became this one.
 A complete campaign at it then raised the poll base, centisecond, LINK, MAAP and withdrawal statements, again by the rule.
+The merge of dev-soft-core `0b594023` (#1015's ADP link-up draw, #1017's binding save window) raised the ADP record, the
+ACMP event and timer, LINK and the AECP response statements, by the same rule; the slice, pace and bounds held.
 Its costs are the larger of each measurement on the merged firmware and the one before it.
 The `srp-kept` and `srp-bound` registrations over their statements are owed to #977 under #969's disposition,
 as at the other points (`kept_grade.py`), and do not restate the row; their other measurements do.
 [#1022](https://github.com/kebag-logic/milan-fpga/issues/1022), blocked by #977, carries that owed cost at this point:
 the measurement of the Arty's registrations and the row derived with them counted.
-Counted now, they leave no qualifying row: over the same 147 cases no candidate meets every owner bound, and the
-least last queued notice is 225.54 ms, against its 140 ms bound.
+Counted, they leave no qualifying row: over the 147 cases before that merge no candidate meets every owner bound, and
+the least last queued notice is 225.54 ms, against its 140 ms bound.
 Two rows meet every rule and bound at the installed statements: this one and 950 us at a 130 ms queued bound.
 The derivation takes the first by pace, then queued bound, then slice, which is this one.
-The complete 80 MHz campaign qualifies the row over 147 native cases across eight image variants.
-The second step changed no firmware byte, so its census regrades the first step's traces against these statements.
+The complete 80 MHz campaign on that merge measures the row over 159 native cases across eight image variants.
+Raising statements changes no firmware byte, so the census at the raised row regrades the same traces against them.
 The seven held-egress misses remain recorded under their ledger; every other service row meets its bound.
 The slice holds the measured build of both MRPDUs, so `CTRL_LOOP_BUILD_MOST`
 builds both in one pass at this point.
@@ -3545,7 +3547,7 @@ builds both in one pass at this point.
 | Centisecond work | 160 |
 | SRP record | 300 |
 | ACMP record | 245 |
-| ADP record | 120 |
+| ADP record | 125 |
 | MAAP record | 125 |
 | Ordinary AECP record | 290 |
 | Long AECP record | 1105 |
@@ -3553,17 +3555,17 @@ builds both in one pass at this point.
 | Retry refused attempt | 30 |
 | Retry notice | 230 |
 | Transmit notice | 205 |
-| Transmit response | 45 |
+| Transmit response | 50 |
 | Transmit long response | 385 |
 
 The retry fit measures 9767 cycles cold, 1929 cycles per refused attempt and
 17193 cycles per notice before applying the cost rule.
 These are measurements of the complete retry rounds, distinct from the
 transmit-only spans.
-The slice and pace rules give load 0.5004771140, txL 48.82 ms, last notice
-117.47 ms and ACMP 29.77 ms.
-The observed maximum whole pass in that qualification is 142775 cycles,
-or 1.7846875 ms at 80 MHz.
+The slice and pace rules give load 0.5013971140, txL 48.90 ms, last notice
+117.58 ms and ACMP 29.84 ms.
+The observed maximum whole pass in that campaign is 143165 cycles,
+or 1.7895625 ms at 80 MHz.
 The MII PHY frame statement is 195 us from 14487 cycles, or 181.0875 us,
 with the same 5 percent and 5 us rounding rule.
 
@@ -3575,7 +3577,7 @@ Each ledger figure is the 60 ms hold plus measured service, with 5 percent on se
 The result is rounded up to 0.01 ms.
 These remain misses against the 20 ms budget.
 A new or larger miss fails.
-The campaign at the row above measured each row below its figure, 61.79729 to 63.29190 ms, and the ledger keeps the larger first measurements.
+The campaign at the row above measured each row below its figure, 61.80119 to 63.30645 ms, and the ledger keeps the larger first measurements.
 
 | Arty held-egress row | Measured at 80 MHz, ms | Ledger, ms |
 |---|---:|---:|
@@ -3596,13 +3598,13 @@ Memory fit does not waive the service-budget or routed timing checks.
 
 | Item | Bytes or RAMB36 equivalent |
 |---|---:|
-| Linked ELF file | 159620 bytes |
-| `.text` | 113908 bytes |
+| Linked ELF file | 159844 bytes |
+| `.text` | 114240 bytes |
 | `.rodata` | 11558 bytes |
 | `.data` | 100 bytes |
 | `.bss` | 45136 bytes |
 | `.stack` | 8192 bytes |
-| ROM live extent, including initial data | 125572 bytes |
+| ROM live extent, including initial data | 125900 bytes |
 | SRAM live extent, including stack | 53456 bytes |
 | ROM allocation | 31 RAMB36 |
 | SRAM allocation | 13.5 RAMB36 |
@@ -3610,5 +3612,5 @@ Memory fit does not waive the service-budget or routed timing checks.
 | Budget | 56 RAMB36 |
 
 The linked image's `size.json` records the sections and bank decomposition.
-The ROM banks (64, 32, 16, 8 and 4 KiB) hold 126976 bytes, so 1404 bytes remain before another bank.
+The ROM banks (64, 32, 16, 8 and 4 KiB) hold 126976 bytes, so 1076 bytes remain before another bank.
 The routed image binds that firmware through `image_manifest.json`.

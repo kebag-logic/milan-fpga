@@ -230,10 +230,10 @@ OWN_MEASURED = {'8x8/1if': {'record.adp': (12_779, 'arm A, backlog-adp-refill, u
 #: (23,858 CPU cycles, the same SET_STREAM_INFO).
 STATED_US = {
     'arty-1x1': {
-        'record.srp': 300, 'record.aecp': 290, 'record.acmp': 245, 'record.adp': 120, 'record.maap': 125,
-        'event.ADP': 95, 'event.ACMP': 165, 'event.MAAP': 165, 'event.AECP': 85, 'event.TICK': 50, 'event.GM': 40,
+        'record.srp': 300, 'record.aecp': 290, 'record.acmp': 245, 'record.adp': 125, 'record.maap': 125,
+        'event.ADP': 95, 'event.ACMP': 175, 'event.MAAP': 165, 'event.AECP': 85, 'event.TICK': 50, 'event.GM': 40,
         'centisecond': 160, 'events_none': 40, 'item.retained': 300, 'item.aecp.notice': 205,
-        'item.aecp.response': 45, 'item.aecp.probe': 45},
+        'item.aecp.response': 50, 'item.aecp.probe': 50},
     '1x1/1if': {'record.srp': 285, 'record.aecp': 255, 'record.acmp': 280, 'record.adp': 105, 'record.maap': 115,
                 'event.ADP': 115, 'event.ACMP': 185, 'event.MAAP': 165, 'event.AECP': 75, 'event.TICK': 55,
                 'event.GM': 40, 'centisecond': 170, 'events_none': 40, 'item.retained': 285, 'item.aecp.notice': 150,
@@ -288,10 +288,10 @@ STATED_US = {
 #: SET_STREAM_FORMAT's running check made again (#950), the AECP record as STATED_US states it, 255 us.
 STATED_US_DONOR = {
     'arty-1x1': {
-        'record.srp': 300, 'record.aecp': 290, 'record.acmp': 245, 'record.adp': 120, 'record.maap': 125,
-        'event.ADP': 95, 'event.ACMP': 165, 'event.MAAP': 165, 'event.AECP': 85, 'event.TICK': 50, 'event.GM': 40,
+        'record.srp': 300, 'record.aecp': 290, 'record.acmp': 245, 'record.adp': 125, 'record.maap': 125,
+        'event.ADP': 95, 'event.ACMP': 175, 'event.MAAP': 165, 'event.AECP': 85, 'event.TICK': 50, 'event.GM': 40,
         'centisecond': 160, 'events_none': 40, 'item.retained': 300, 'item.aecp.notice': 205,
-        'item.aecp.response': 45, 'item.aecp.probe': 45},
+        'item.aecp.response': 50, 'item.aecp.probe': 50},
     '1x1/1if': {'record.srp': 285, 'record.aecp': 255, 'record.acmp': 265, 'record.adp': 105, 'record.maap': 115,
                 'event.ADP': 115, 'event.ACMP': 170, 'event.MAAP': 170, 'event.AECP': 75, 'event.TICK': 55,
                 'event.GM': 40, 'centisecond': 170, 'events_none': 40, 'item.aecp.notice': 150,
