@@ -35,6 +35,7 @@ import mrpdu_grade
 import poll_grade
 import round_grade
 import slice_grade
+import bind_save
 import save_burst
 import save_grade
 import save_window
@@ -996,4 +997,5 @@ def grade(text: str, group: scenario.Group, sys_hz: int, cpu_hz: int,
                             slices=slice_grade.held(log, stated_at),
                             joins=join_grade.held(log)),
                 save=save_grade.save_time(log, group), burst=save_burst.grade(log, group, journal),
+                bind=bind_save.grade(log, group, journal),
                 summary=log.summary, modules=log.modules, code=log.code)

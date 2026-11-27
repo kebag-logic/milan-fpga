@@ -53,6 +53,7 @@ struct Files {
 struct Result {
     std::map<std::string, long long> s;          //!< the summary, under the runner's names
     std::map<std::string, long long> powercut;   //!< effects, cases, old, new, bad
+    std::map<std::string, long long> sweep;      //!< the swept cut (#1009): cases, old, new, bad, effects, saves, times
     long long guard = -1;                        //!< writes outside the journal the port took
     std::vector<std::uint64_t> erases;           //!< model time of the first sixteen erases
     std::vector<std::uint32_t> erase_at;         //!< the block each of them erased

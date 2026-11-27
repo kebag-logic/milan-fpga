@@ -2,8 +2,9 @@
 # SPDX-License-Identifier: CERN-OHL-W-2.0
 """A save in a composed window (#665): the heaviest window staged during each flash phase of a save.
 
-A persisted change starts a save of the saved-state store (sw/firmware/ctrl_nvm/nvm_store.c): after the
-1,000 ms first-dirty window it captures and seals, erases the slot that is not authoritative, checks it
+A persisted change starts a save of the saved-state store (sw/firmware/ctrl_nvm/nvm_store.c): after its
+first-dirty window (1,000 ms; 100 ms for a binding record, #1009) it captures and seals, erases the slot that
+is not authoritative, checks it
 blank, programs it a page at a time and reads it back. A save in flight takes a step in every pass that
 took no input and has room (#920; THE STEP, ctrl_loop.h), so its flash phases put a heavy step in every
 such pass: a 128-byte read-back in each of the blank check and of the verify, and a page program's issue
@@ -14,7 +15,8 @@ period, so some pass of the window meets the step if any can: eight phases 0.125
 across the program phase's 2 ms of an issue and its wait. A phase starts at a flash event of the save
 itself, which sim_main.cpp's `wait flash` observes: the erase, the first page program, and the first
 IDLE_MS with no program after the last one. The SET_NAME that starts the save comes SET_MS into the 2 s
-the window waits for MAAP (scenario.announced), so the save's first-dirty window runs beside it and its
+the window waits for MAAP (scenario.announced), and the set-up's bind after that wait joins it: its binding
+record's BIND_DIRTY_MS window (#1009) ends the save's first-dirty window that long after the bind, so its
 capture, seal and erase follow the window's set-up at both points; grade.save_phase refuses a window
 that did not open inside its phase.
 
@@ -75,8 +77,10 @@ PLANTS = {
 }
 #: The tick phases staged in each flash phase.
 TICK_PHASES = 8
-#: The store's first-dirty window (DR2a, MILAN_NVM_DEBOUNCE_MS) and its tick, in ms (nvm_store.c).
-DIRTY_MS, TICK_MS = 1000, 10
+#: The store's first-dirty windows (DR2a: MILAN_NVM_DEBOUNCE_MS, and NVM_BIND_DEBOUNCE_MS for a binding record, #1009)
+#: and its tick, in ms (nvm_store.c, nvm_shape.h). A SET_NAME's save waits the first; bind_save's groups time the
+#: second.
+DIRTY_MS, BIND_DIRTY_MS, TICK_MS = 1000, 100, 10
 #: A seal step's and a page program's stretch, a read-back's, and the container's trailer, in bytes (nvm_store.c,
 #: NVM_STEP_BYTES and NVM_READ_BYTES; nvm_klj2.h).
 PAGE, READ, TRAILER = 256, 128, 4
@@ -340,12 +344,14 @@ def groups(p: scenario.Point, build: dict) -> list[scenario.Group]:
     """The windows, opened from idle and aged, the save alone, a save under every channel at its refill rate,
     without and with no pass that takes nothing, and a change while a save is in flight, each of the build's
     image's container; at one interface, a burst of names and a change in flight, each timed from its response
-    (save_burst.py, #920)."""
-    import save_burst  # it reads this module's
+    (save_burst.py, #920), and binding changes, on an idle store, in a burst and in another save (bind_save.py,
+    #1009)."""
+    import bind_save  # they read this module's
+    import save_burst
     image = container(build)
     return [*windows(p), *aged_windows(p), alone(p, image), loaded(p, 'save-held', False, image),
             loaded(p, 'save-starved', True, image), second(p, image),
-            *(save_burst.groups(p, build) if p.interfaces == 1 else [])]
+            *([*save_burst.groups(p, build), *bind_save.groups(p, build)] if p.interfaces == 1 else [])]
 
 
 def row_names() -> list[str]:
