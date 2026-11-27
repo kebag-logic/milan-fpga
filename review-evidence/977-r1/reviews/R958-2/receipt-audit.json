@@ -1,0 +1,366 @@
+{
+  "pins/elf-identity.txt": {
+    "sections": [
+      "HEAD 2d57e46e lwSRP 73007b48 tsn 0f72ca69 start 09:37:51",
+      "HEAD cdb35fc7 lwSRP e27b34c9 tsn 0f72ca69 start 09:37:51",
+      "HEAD 9380ff82 lwSRP e27b34c9 tsn 5a07d9b7 start 09:37:52"
+    ],
+    "elf_paths_each": 80,
+    "all_hash_maps_identical": true
+  },
+  "r10d/elf-identity-final.txt": {
+    "sections": [
+      "25ff0632",
+      "e59cf6ea"
+    ],
+    "elf_paths_each": 80,
+    "all_hash_maps_identical": true
+  },
+  "final_platform_elf_sha256": {
+    "./ledger/1x1-if1/ctrl_app.elf": "2e3b1fe82760ac396a897684e56fc74cd4aa599f250fe008afd5f7b335ee9e60",
+    "./ledger/1x1-if2/ctrl_app.elf": "2b05d6849f66b30ceec74c7334bb2772ea5fbce1c14b9ffe1eb53d68af82e9b1",
+    "./ledger/8x8-if1/ctrl_app.elf": "f36a050ad88e6c662f86b4152caeff63c449b4ade6fb360f0a38a5951bdbf636",
+    "./ledger/8x8-if2/ctrl_app.elf": "ba5c29bf8d68d9871ac5bc42ed1296efa1caabe4d3ce02b48fcd60398a4401c4",
+    "./ledger/endstation_ax7101_1x1_tdm8/split-soc/mapped/image/ctrl_app.elf": "892461f350bad95ccc0bab70ce2d747d69e634d89a908b5f9294b99da220ee2c",
+    "./ledger/endstation_ax7101_1x1_tdm8/split-soc/stand-ins/image/ctrl_app.elf": "6b6e345dcf7ac98969b9830a1242d8afdd07f1b0ae51935ab3c881b3063e5ada",
+    "./ledger/endstation_ax7101_8x8/split-soc/mapped/image/ctrl_app.elf": "ad905f9346480a24d468b13eafbca19156183df4bf2a338d6ee40b2b541c478f",
+    "./ledger/endstation_ax7101_8x8/split-soc/stand-ins/image/ctrl_app.elf": "d5f8ececb4494b95800fd2b0b95d7fca5db730ab6fad170d7a760b597206ef16"
+  },
+  "r10d/tx80-elf-identity-e59cf6ea.txt": {
+    "sections": [
+      "80",
+      "77"
+    ],
+    "elf_paths_each": 80,
+    "all_hash_maps_identical": true
+  },
+  "campaign": {
+    "single_runs": 578,
+    "paired_runs": 4,
+    "paired_group_rows": 8,
+    "points": {
+      "1x1": {
+        "single_runs": 289,
+        "pair_required_nonzero": [
+          "answering-ports/srp-bound",
+          "answering-ports/srp-kept",
+          "none/srp-bound",
+          "none/srp-kept"
+        ],
+        "maxima_cycles": {
+          "longest_pass_cycles": 155676,
+          "polls_base": 19847,
+          "polls_walk": 3260,
+          "srp_slice": 87826,
+          "build_slice": 42306,
+          "round_slice": 58566
+        },
+        "over_statements": 0
+      },
+      "8x8-1if": {
+        "single_runs": 289,
+        "pair_required_nonzero": [
+          "answering-ports/srp-bound",
+          "answering-ports/srp-kept",
+          "none/srp-bound",
+          "none/srp-kept"
+        ],
+        "maxima_cycles": {
+          "longest_pass_cycles": 193036,
+          "polls_base": 33565,
+          "polls_walk": 14108,
+          "srp_slice": 171622,
+          "build_slice": 129741,
+          "round_slice": 86114
+        },
+        "over_statements": 0
+      }
+    }
+  },
+  "final_gate_receipts": {
+    "coverage-25ff0632.txt": {
+      "first_line": "# gates10.sh step coverage on a clean clone at 25ff0632",
+      "last_lines": [
+        "third_party/tsn-c-stack/src/adp.c                216/218      97/104     lines 100.00 %  branches 100.00 %",
+        "third_party/tsn-c-stack/src/maap.c               209/209     140/140     lines 100.00 %  branches 100.00 %",
+        "firmware coverage: PASS (40 files)"
+      ]
+    },
+    "cpp_idiom-25ff0632.txt": {
+      "first_line": "# gates10.sh step cpp_idiom on a clean clone at 25ff0632",
+      "last_lines": [
+        "  multi-declarator declaration: 0 <= 0",
+        "  long function: 0 <= 0",
+        "  build without warnings: 0 <= 0"
+      ]
+    },
+    "ctrl_hot_check-25ff0632.txt": {
+      "first_line": "# gates10.sh step ctrl_hot_check on a clean clone at 25ff0632",
+      "last_lines": [
+        "# gates10.sh step ctrl_hot_check on a clean clone at 25ff0632",
+        "hot list: 290 entries, in the recorded order"
+      ]
+    },
+    "ctrl_hot_selftest-25ff0632.txt": {
+      "first_line": "# gates10.sh step ctrl_hot_selftest on a clean clone at 25ff0632",
+      "last_lines": [
+        "[caught] recorded-elsewhere: ORDER: the hot list is not the order ctrl_split_hot.txt records: entry 2 is *-aecp_mbx.o(.text.retry_aged), recorded *-aecp.o(.text.aecp_retry_aged)",
+        "[caught] no-end-marker: ORDER: ctrl_split.ld holds no hot list of entries alone between _ctrl_hot_start = .; and _ctrl_hot_end = .;",
+        "self-test: 0 failure(s)"
+      ]
+    },
+    "fwgate-shard0-25ff0632.txt": {
+      "first_line": "# sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4 --shard 0/4 on a clean clone at 25ff0632",
+      "last_lines": [
+        "    verdict: PASS (18 tests, 0 failures, exit 0)",
+        "test_ctrl_firmware: PASS",
+        "[unit end 19:00:58 rc 0]"
+      ]
+    },
+    "fwgate-shard1-25ff0632.txt": {
+      "first_line": "# sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4 --shard 1/4 on a clean clone at 25ff0632",
+      "last_lines": [
+        "mutants: 873 of 873 caught",
+        "test_ctrl_firmware: PASS",
+        "[unit end 19:23:52 rc 0]"
+      ]
+    },
+    "fwgate-shard2-25ff0632.txt": {
+      "first_line": "# sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4 --shard 2/4 on a clean clone at 25ff0632",
+      "last_lines": [
+        "[ok] remove-keeps-its-rows: Inputs.EveryStreamPortInputRemovesANonEmptyList",
+        "test_ctrl_firmware: PASS",
+        "[unit end 19:09:05 rc 0]"
+      ]
+    },
+    "fwgate-shard3-25ff0632.txt": {
+      "first_line": "# sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4 --shard 3/4 on a clean clone at 25ff0632",
+      "last_lines": [
+        "[ok] lwSRP pin, another revision checked out: lwSRP at d1bb4f4e5954af6dabe7f210a6bf7adbb76bdd6b is not the pinned e27b34c9231abaa862bdb73f807238b330aa4c51 (fetch https://github.com/kebag-logic/lwSRP and check the pin out)",
+        "test_ctrl_firmware: PASS",
+        "[unit end 19:17:19 rc 0]"
+      ]
+    },
+    "harness-25ff0632.txt": {
+      "first_line": "# gates10.sh step harness on a clean clone at 25ff0632",
+      "last_lines": [
+        "flip_grade.py --check --point 8x8/1if rc=0 RESULT: PASS",
+        "shape_costs.py --selftest rc=0 the table of shapes: 25 of 25 planted controls refused",
+        "shape_costs.py --check rc=0 RESULT: PASS"
+      ]
+    },
+    "harness-flip_grade.py_--check_--point_1x1_1if-25ff0632.txt": {
+      "first_line": "Model: under the tiers (slice CTRL_LOOP_SLICE_US, tier 1 aecp-first, tier 2 srp-first, AECP queue)",
+      "last_lines": [
+        "| (2, 9, 9) | 1300 | 1995 | 1215 | 365 | 185 | 34 | 1300 | 62 | 105 | 8x8/2if |",
+        "with no shape header: (2, 2) streams",
+        "RESULT: PASS"
+      ]
+    },
+    "harness-flip_grade.py_--check_--point_8x8_1if-25ff0632.txt": {
+      "first_line": "| Point | Load at the pin | Flip ceiling | Compute for the ceiling | Terms by share (at the pin) |",
+      "last_lines": [
+        "REPORTED 8x8/1if: its rows by every source are reported, not held, owed to #872; its measured rows are the CPU budget harness's on its built image (run.py --point 8x8-1if)",
+        "HELD 8x8/1if: THE TRANSMIT's figure CTRL_LOOP_TX_MS 80 ms against its tx row by every source 79.49 ms (tx_held; the hold-off counts the figure)",
+        "RESULT: PASS"
+      ]
+    },
+    "harness-flip_grade.py_--selftest-25ff0632.txt": {
+      "first_line": "flip check: 628 of 628 planted controls refused",
+      "last_lines": [
+        "flip check: 628 of 628 planted controls refused"
+      ]
+    },
+    "harness-kept_grade.py_--selftest-25ff0632.txt": {
+      "first_line": "[ok] records at the unit by the rule (27,142 cycles, 285 us), kept <= bound: nothing owed or found",
+      "last_lines": [
+        "[ok] standalone: an unfinished log fails by name beside a within-share result file",
+        "[ok] standalone: a log that does not parse fails by name",
+        "kept_grade selftest: PASS (33 checks)"
+      ]
+    },
+    "harness-load_grade.py_--check-25ff0632.txt": {
+      "first_line": "| Point | Load at the pin | Load at the donor's measured costs (the pin carries tsn-c-stack#32) | Ceiling | Compute for 0.70 (with tsn-c-stack#32) | A pass's own cost, us | Terms by share (with tsn-c-stack#32) |",
+      "last_lines": [
+        "HELD 1x1/1if at the pin: the load 0.524, its ceiling 0.70",
+        "HELD 1x1/1if with tsn-c-stack#32: the load 0.521, its ceiling 0.70",
+        "RESULT: PASS"
+      ]
+    },
+    "harness-load_grade.py_--selftest-25ff0632.txt": {
+      "first_line": "load gate: 28 of 28 planted controls refused",
+      "last_lines": [
+        "load gate: 28 of 28 planted controls refused"
+      ]
+    },
+    "harness-run.py_--self-test-25ff0632.txt": {
+      "first_line": "MODEL COUNTS 1 interface(s): 0 stale count(s) in the scenario; each path planted one short, found/instances: link_up 11 6/6, link_down 8 2/2, gm_change 10 1/1, discover 30 2/2, tmr_delay 38 5/5, tmr_advertise 10 1/1, shutdown 28 2/2: ok",
+      "last_lines": [
+        "CONTROL store-step-aged-heavier ESCAPED: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 1 with a pass over the share, 0 refusal(s)",
+        "MUTANT caught: clock: a reused build is not checked: the run reuses a build on sys and refuses one recorded on the Milan clock, off the bus clock or with no CPU domain (on the Milan clock: reached; on sys at half the bus clock: reached; with no domain recorded: reached)",
+        "self-test: 0 failures"
+      ]
+    },
+    "harness-shape_costs.py_--check-25ff0632.txt": {
+      "first_line": "| Shape (interfaces, sources, sinks) | Slice, us | Build of both, us | Build of one, us | SRP record, us | THE RETRY: cold start, us | refused attempt, us | A record's pass alone, us | Last queued notice, ms | THE TRANSMIT's MRPDU, ms | Points |",
+      "last_lines": [
+        "| (2, 9, 9) | 1300 | 1995 | 1215 | 365 | 185 | 34 | 1300 | 62 | 105 | 8x8/2if |",
+        "with no shape header: (2, 2) streams",
+        "RESULT: PASS"
+      ]
+    },
+    "harness-shape_costs.py_--selftest-25ff0632.txt": {
+      "first_line": "the table of shapes: 25 of 25 planted controls refused",
+      "last_lines": [
+        "the table of shapes: 25 of 25 planted controls refused"
+      ]
+    },
+    "plat_ledger_selftest-25ff0632.txt": {
+      "first_line": "# gates10.sh step plat_ledger_selftest on a clean clone at 25ff0632",
+      "last_lines": [
+        "POINT 8x8-if1: rom 147,712 B, sram 100,224 B, 61 RAMB36 (platform-8x8-one-interface), ctrl_plat 19264 B: PASS",
+        "POINT 8x8-if2: rom 147,312 B, sram 117,760 B, 65 RAMB36 (platform-8x8-two-interfaces), ctrl_plat 22016 B: PASS",
+        "plat_ledger: PASS (0 finding(s))"
+      ]
+    },
+    "py_idiom-25ff0632.txt": {
+      "first_line": "# gates10.sh step py_idiom on a clean clone at 25ff0632",
+      "last_lines": [
+        "  too many parameters: 7 <= 7",
+        "  global statement: 0 <= 0",
+        "  over-long line: 0 <= 0"
+      ]
+    },
+    "test_ctrl_memory-25ff0632.txt": {
+      "first_line": "# gates10.sh step test_ctrl_memory on a clean clone at 25ff0632",
+      "last_lines": [
+        "  [ok  ] MUTANT 'the mapper's stray override accepted' (ooc override) is caught by the mapper's facts: the mapper refuses the platform-8x8-two-interfaces override whose tag names no image (exit 0)",
+        "test_ctrl_memory: 0 failure(s)",
+        "RESULT: PASS"
+      ]
+    },
+    "twin-25ff0632.txt": {
+      "first_line": "# gates10.sh step twin on a clean clone at 25ff0632",
+      "last_lines": [
+        "TARGET twin-maps rc=0 19:14:12 maps: 0 failed, 0 host timeouts, 1152 ms, 0 EDIT and GSI beats with no answer since the boot make: Leaving directory 'cZ/tb/verilator/milan_dp' ",
+        "TARGET twin-maps-plants rc=0 19:14:17 caught: FAIL [MAPS-EDIT] an edited map reached the render store make: Leaving directory 'cZ/tb/verilator/milan_dp' ",
+        "END rc=0 19:14:17"
+      ]
+    }
+  },
+  "focused_published_mutant_lines": [
+    {
+      "file": "fwgate-shard1-25ff0632.txt",
+      "line": 70,
+      "text": "[ok] mutant portable-fallback-link-unwritten (portable): 1 check(s) failed"
+    },
+    {
+      "file": "fwgate-shard1-25ff0632.txt",
+      "line": 1645,
+      "text": "[ok] mutant drain-alone-never (port): 5 check(s) failed"
+    },
+    {
+      "file": "fwgate-shard1-25ff0632.txt",
+      "line": 1647,
+      "text": "[ok] mutant drain-alone-past-a-settle (port): 3 check(s) failed"
+    },
+    {
+      "file": "fwgate-shard1-25ff0632.txt",
+      "line": 1649,
+      "text": "[ok] mutant drain-alone-past-a-tier-1-record (port): 1 check(s) failed"
+    },
+    {
+      "file": "fwgate-shard1-25ff0632.txt",
+      "line": 1651,
+      "text": "[ok] mutant drain-alone-past-a-centisecond (port): 1 check(s) failed"
+    },
+    {
+      "file": "fwgate-shard1-25ff0632.txt",
+      "line": 1693,
+      "text": "[ok] mutant seed-fallback-constant (adp): 3 check(s) failed"
+    },
+    {
+      "file": "fwgate-shard3-25ff0632.txt",
+      "line": 1677,
+      "text": "[ok] deliver-both-owed-binds-after-a-change [endstation_ax7101_1x1_tdm8, 2 interfaces]: SrpBinding.D7WithBothOwedAfterABindingChangeADeliveryCompletesTheLoss / D7 with both owed after a binding change, the delivery completes the loss"
+    },
+    {
+      "file": "fwgate-shard3-25ff0632.txt",
+      "line": 1917,
+      "text": "[ok] srp-977-1x1-charge-fallback-at-the-sinks [endstation_ax7101_1x1_tdm8, 1 interface]: Srp.TheDrainChargesARecordTheTalkersItsVectorsCanRegister / past eight Messages, by its length"
+    },
+    {
+      "file": "fwgate-shard3-25ff0632.txt",
+      "line": 1953,
+      "text": "[ok] srp-977-deliver-binds-in-a-records-pass [endstation_ax7101_1x1_tdm8, 1 interface]: SrpBinding.D6ARecordsPassMakesNoBindingChangeTheNextDeliveryMakesIt / D6 a record's pass makes no binding change"
+    },
+    {
+      "file": "fwgate-shard3-25ff0632.txt",
+      "line": 1985,
+      "text": "[ok] srp-977-8x8-keep-past-v [endstation_ax7101_8x8, 1 interface]: SrpEarlyTalker.AVectorOfBoundAndKeptTalkersRegistersVAndIsChargedForEach / R1 the bound and the kept a vector registers fill V"
+    },
+    {
+      "file": "fwgate-shard3-25ff0632.txt",
+      "line": 1986,
+      "text": "[ok] srp-977-8x8-keep-bound-sinks-uncounted [endstation_ax7101_8x8, 1 interface]: SrpEarlyTalker.AVectorOfBoundAndKeptTalkersRegistersVAndIsChargedForEach / R1 the bound and the kept a vector registers fill V"
+    },
+    {
+      "file": "fwgate-shard3-25ff0632.txt",
+      "line": 2024,
+      "text": "[ok] srp-977-deliver-binds-in-a-records-pass [endstation_ax7101_8x8, 1 interface]: SrpBinding.D6ARecordsPassMakesNoBindingChangeTheNextDeliveryMakesIt / D6 a record's pass makes no binding change"
+    }
+  ],
+  "routes": {
+    "route-1x1-1if-c63e9d58.txt": {
+      "corners": [
+        [
+          "Slow_85C",
+          "+0.159",
+          "+0.102"
+        ],
+        [
+          "Slow_0C",
+          "+0.159",
+          "+0.102"
+        ],
+        [
+          "Fast_85C",
+          "+1.636",
+          "+0.036"
+        ],
+        [
+          "Fast_0C",
+          "+1.636",
+          "+0.036"
+        ]
+      ],
+      "reported_routing_errors": 0
+    },
+    "route-8x8-1if-e59cf6ea.txt": {
+      "corners": [
+        [
+          "Slow_85C",
+          "+0.092",
+          "+0.086"
+        ],
+        [
+          "Slow_0C",
+          "+0.092",
+          "+0.086"
+        ],
+        [
+          "Fast_85C",
+          "+1.636",
+          "+0.036"
+        ],
+        [
+          "Fast_0C",
+          "+1.636",
+          "+0.036"
+        ]
+      ],
+      "reported_routing_errors": 0
+    }
+  },
+  "packet_integrity_files": 216
+}

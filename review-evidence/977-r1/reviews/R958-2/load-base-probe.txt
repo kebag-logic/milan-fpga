@@ -1,0 +1,92 @@
+[
+  {
+    "base_us": 300,
+    "resolved_base_us": 300,
+    "load": 0.7661365,
+    "terms": {
+      "rec.aecp": 0.053,
+      "rec.acmp": 0.088,
+      "rec.adp": 0.024,
+      "rec.maap": 0.00925,
+      "srp": 0.225,
+      "item.reclaim": 0.040842105263157895,
+      "item.aecp": 0.05916,
+      "notices": 0.008400000000000001,
+      "item.acmp": 0.027200000000000002,
+      "item.acmp_declined": 0.0204,
+      "ticks": 0.0565,
+      "item.walk": 0.016578947368421054,
+      "builds": 0.015526315789473685,
+      "item.mrpdu": 0.03105263157894737,
+      "steps": 0.034333333333333334,
+      "timers": 0.037146500000000006,
+      "gm": 0.0007466666666666667,
+      "registrations": 0.019
+    },
+    "tx_ms": 77.89,
+    "row_base_us": 300,
+    "row_passes": 32.0,
+    "row_pass_charge_us": 11040
+  },
+  {
+    "base_us": 350,
+    "resolved_base_us": 350,
+    "load": 0.7661365,
+    "terms": {
+      "rec.aecp": 0.053,
+      "rec.acmp": 0.088,
+      "rec.adp": 0.024,
+      "rec.maap": 0.00925,
+      "srp": 0.225,
+      "item.reclaim": 0.040842105263157895,
+      "item.aecp": 0.05916,
+      "notices": 0.008400000000000001,
+      "item.acmp": 0.027200000000000002,
+      "item.acmp_declined": 0.0204,
+      "ticks": 0.0565,
+      "item.walk": 0.016578947368421054,
+      "builds": 0.015526315789473685,
+      "item.mrpdu": 0.03105263157894737,
+      "steps": 0.034333333333333334,
+      "timers": 0.037146500000000006,
+      "gm": 0.0007466666666666667,
+      "registrations": 0.019
+    },
+    "tx_ms": 79.49,
+    "row_base_us": 350,
+    "row_passes": 32.0,
+    "row_pass_charge_us": 12640
+  },
+  {
+    "base_us": 10000,
+    "resolved_base_us": 10000,
+    "load": 0.7661365,
+    "terms": {
+      "rec.aecp": 0.053,
+      "rec.acmp": 0.088,
+      "rec.adp": 0.024,
+      "rec.maap": 0.00925,
+      "srp": 0.225,
+      "item.reclaim": 0.040842105263157895,
+      "item.aecp": 0.05916,
+      "notices": 0.008400000000000001,
+      "item.acmp": 0.027200000000000002,
+      "item.acmp_declined": 0.0204,
+      "ticks": 0.0565,
+      "item.walk": 0.016578947368421054,
+      "builds": 0.015526315789473685,
+      "item.mrpdu": 0.03105263157894737,
+      "steps": 0.034333333333333334,
+      "timers": 0.037146500000000006,
+      "gm": 0.0007466666666666667,
+      "registrations": 0.019
+    },
+    "tx_ms": null,
+    "row_base_us": 10000,
+    "row_passes": 483.0,
+    "row_pass_charge_us": 4851735
+  }
+]
+PASS: the base is read into stated costs but contributes zero to load().
+PASS: response rows charge the declared base on every counted ordinary pass; increasing it raises the row.
+Under the approved base partition, neither observed-baseline subtraction is an additional load term.

@@ -1,0 +1,52 @@
+Note: Google Test filter = SrpBinding.*
+[==========] Running 20 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 20 tests from SrpBinding
+[ RUN      ] SrpBinding.BindIsDeferredAndKeepsEverySinkAndInterface
+[       OK ] SrpBinding.BindIsDeferredAndKeepsEverySinkAndInterface (0 ms)
+[ RUN      ] SrpBinding.RefusedReceiveRetriesAfterRecoveryOrExpiry
+[       OK ] SrpBinding.RefusedReceiveRetriesAfterRecoveryOrExpiry (0 ms)
+[ RUN      ] SrpBinding.OwedTransmissionRetriesAfterCommit
+[       OK ] SrpBinding.OwedTransmissionRetriesAfterCommit (0 ms)
+[ RUN      ] SrpBinding.UnbindCancelsPendingAndWithdrawsAcceptedBinding
+[       OK ] SrpBinding.UnbindCancelsPendingAndWithdrawsAcceptedBinding (0 ms)
+[ RUN      ] SrpBinding.ReplacementSupersedesPendingIdentity
+[       OK ] SrpBinding.ReplacementSupersedesPendingIdentity (0 ms)
+[ RUN      ] SrpBinding.PermanentRefusalParksAndDoesNotBlockAnotherSink
+[       OK ] SrpBinding.PermanentRefusalParksAndDoesNotBlockAnotherSink (0 ms)
+[ RUN      ] SrpBinding.ParkedReplacementRetiresThePreviouslyAcceptedBinding
+[       OK ] SrpBinding.ParkedReplacementRetiresThePreviouslyAcceptedBinding (0 ms)
+[ RUN      ] SrpBinding.ARegistrationIsCompletedAsTheNextOrdinaryPassStarts
+[       OK ] SrpBinding.ARegistrationIsCompletedAsTheNextOrdinaryPassStarts (0 ms)
+[ RUN      ] SrpBinding.TheSettleSkipsAParkedRequest
+[       OK ] SrpBinding.TheSettleSkipsAParkedRequest (0 ms)
+[ RUN      ] SrpBinding.AdvertiseFeedbackIsDeferredAndSurvivesNoTalkerDeadline
+[       OK ] SrpBinding.AdvertiseFeedbackIsDeferredAndSurvivesNoTalkerDeadline (1 ms)
+[ RUN      ] SrpBinding.FailedRegistrationReachesAcmpAndWithdrawalReprobes
+[       OK ] SrpBinding.FailedRegistrationReachesAcmpAndWithdrawalReprobes (0 ms)
+[ RUN      ] SrpBinding.RegistrationKeepsSinkAndInterfaceIdentity
+[       OK ] SrpBinding.RegistrationKeepsSinkAndInterfaceIdentity (0 ms)
+[ RUN      ] SrpBinding.AttachmentRefusesMissingRoomAndShapeWithoutPartialBinding
+[       OK ] SrpBinding.AttachmentRefusesMissingRoomAndShapeWithoutPartialBinding (0 ms)
+[ RUN      ] SrpBinding.D1ADeliveryMakesOneBindingChangeTheRestInTurn
+[       OK ] SrpBinding.D1ADeliveryMakesOneBindingChangeTheRestInTurn (0 ms)
+[ RUN      ] SrpBinding.D2ASinkOwedIsDeliveredWithinItsTurnWhateverAnotherOwesAgain
+[       OK ] SrpBinding.D2ASinkOwedIsDeliveredWithinItsTurnWhateverAnotherOwesAgain (0 ms)
+[ RUN      ] SrpBinding.D3ADeliveryCompletesOneLossOutsideTheSettle
+[       OK ] SrpBinding.D3ADeliveryCompletesOneLossOutsideTheSettle (0 ms)
+[ RUN      ] SrpBinding.D4TheSettleCompletesEveryLoss
+[       OK ] SrpBinding.D4TheSettleCompletesEveryLoss (0 ms)
+[ RUN      ] SrpBinding.D5ALossLeftOwedKeepsTheLoopAwakeWithNoChangeOwed
+[       OK ] SrpBinding.D5ALossLeftOwedKeepsTheLoopAwakeWithNoChangeOwed (0 ms)
+[ RUN      ] SrpBinding.D6ARecordsPassMakesNoBindingChangeTheNextDeliveryMakesIt
+[       OK ] SrpBinding.D6ARecordsPassMakesNoBindingChangeTheNextDeliveryMakesIt (0 ms)
+[ RUN      ] SrpBinding.D7WithBothOwedAfterABindingChangeADeliveryCompletesTheLoss
+[       OK ] SrpBinding.D7WithBothOwedAfterABindingChangeADeliveryCompletesTheLoss (0 ms)
+[----------] 20 tests from SrpBinding (3 ms total)
+
+[----------] Global test environment tear-down
+[==========] 20 tests from 1 test suite ran. (3 ms total)
+[  PASSED  ] 20 tests.
+== ctrl ADP ACMP MAAP SRP composition: checks: 20   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (20 tests, 0 failures, exit 0)

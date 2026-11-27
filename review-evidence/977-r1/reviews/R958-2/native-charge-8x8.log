@@ -1,0 +1,63 @@
+Note: Google Test filter = Srp.TheDrainChargesARecordTheTalkersItsVectorsCanRegister:SrpEarlyTalker.*
+[==========] Running 24 tests from 2 test suites.
+[----------] Global test environment set-up.
+[----------] 1 test from Srp
+[ RUN      ] Srp.TheDrainChargesARecordTheTalkersItsVectorsCanRegister
+[       OK ] Srp.TheDrainChargesARecordTheTalkersItsVectorsCanRegister (0 ms)
+[----------] 1 test from Srp (0 ms total)
+
+[----------] 23 tests from SrpEarlyTalker
+[ RUN      ] SrpEarlyTalker.AVectorOfBoundAndKeptTalkersRegistersVAndIsChargedForEach
+[       OK ] SrpEarlyTalker.AVectorOfBoundAndKeptTalkersRegistersVAndIsChargedForEach (0 ms)
+[ RUN      ] SrpEarlyTalker.ARegistrationMadeBeforeItsBindingIsDeclaredWithinOneTransmitOnEveryInput
+[       OK ] SrpEarlyTalker.ARegistrationMadeBeforeItsBindingIsDeclaredWithinOneTransmitOnEveryInput (2 ms)
+[ RUN      ] SrpEarlyTalker.ABindingMadeBeforeItsRegistrationIsDeclaredWithinAJoinTimeOnEveryInput
+[       OK ] SrpEarlyTalker.ABindingMadeBeforeItsRegistrationIsDeclaredWithinAJoinTimeOnEveryInput (0 ms)
+[ RUN      ] SrpEarlyTalker.ARebindWhileBoundToAStreamDeclaredAllAlongIsDeclaredWithinOneTransmit
+[       OK ] SrpEarlyTalker.ARebindWhileBoundToAStreamDeclaredAllAlongIsDeclaredWithinOneTransmit (1 ms)
+[ RUN      ] SrpEarlyTalker.ABindingTakesTheLatestOfTwoKindsRegisteredBeforeIt
+[       OK ] SrpEarlyTalker.ABindingTakesTheLatestOfTwoKindsRegisteredBeforeIt (0 ms)
+[ RUN      ] SrpEarlyTalker.AJoinInOfTheOtherKindReplacesARegistrationKeptBeforeTheBinding
+[       OK ] SrpEarlyTalker.AJoinInOfTheOtherKindReplacesARegistrationKeptBeforeTheBinding (0 ms)
+[ RUN      ] SrpEarlyTalker.AKeptRegistrationThatLeftHoldsItsPlaceUntilItsBlockIsFreed
+[       OK ] SrpEarlyTalker.AKeptRegistrationThatLeftHoldsItsPlaceUntilItsBlockIsFreed (0 ms)
+[ RUN      ] SrpEarlyTalker.AnUnboundRegistrationIsKeptAndCountedAgainstTheBound
+[       OK ] SrpEarlyTalker.AnUnboundRegistrationIsKeptAndCountedAgainstTheBound (0 ms)
+[ RUN      ] SrpEarlyTalker.AnUnbindingAtTheBoundIsCountedPastIt
+[       OK ] SrpEarlyTalker.AnUnbindingAtTheBoundIsCountedPastIt (0 ms)
+[ RUN      ] SrpEarlyTalker.AStreamIDOfAKeptOnesLastOctetIsKeptAsItsOwnAgainstTheBound
+[       OK ] SrpEarlyTalker.AStreamIDOfAKeptOnesLastOctetIsKeptAsItsOwnAgainstTheBound (0 ms)
+[ RUN      ] SrpEarlyTalker.ABindingOfAStreamIDOfAHeldOnesLastOctetTakesNoneOfIt
+[       OK ] SrpEarlyTalker.ABindingOfAStreamIDOfAHeldOnesLastOctetTakesNoneOfIt (0 ms)
+[ RUN      ] SrpEarlyTalker.AKeptRegistrationRefreshedAfterACountIsCountedOnce
+[       OK ] SrpEarlyTalker.AKeptRegistrationRefreshedAfterACountIsCountedOnce (0 ms)
+[ RUN      ] SrpEarlyTalker.ABindingThatTakesOneHeldStreamLeavesAnotherHeld
+[       OK ] SrpEarlyTalker.ABindingThatTakesOneHeldStreamLeavesAnotherHeld (0 ms)
+[ RUN      ] SrpEarlyTalker.AFullHeldTableHoldsNoKeptRegistration
+[       OK ] SrpEarlyTalker.AFullHeldTableHoldsNoKeptRegistration (0 ms)
+[ RUN      ] SrpEarlyTalker.ARegistrationThatEndedBeforeTheBindingDeclaresNothing
+[       OK ] SrpEarlyTalker.ARegistrationThatEndedBeforeTheBindingDeclaresNothing (2 ms)
+[ RUN      ] SrpEarlyTalker.RegistrationsKeptBeforeABindingAreBoundedByTheInputs
+[       OK ] SrpEarlyTalker.RegistrationsKeptBeforeABindingAreBoundedByTheInputs (0 ms)
+[ RUN      ] SrpEarlyTalker.OneReceiveOfEveryInputIsKeptWholeIntoAFreshRegistrar
+[       OK ] SrpEarlyTalker.OneReceiveOfEveryInputIsKeptWholeIntoAFreshRegistrar (0 ms)
+[ RUN      ] SrpEarlyTalker.AResetLeavesNoKeptRegistrationCounted
+[       OK ] SrpEarlyTalker.AResetLeavesNoKeptRegistrationCounted (1 ms)
+[ RUN      ] SrpEarlyTalker.AKeptRegistrationWhoseBlockIsFreedIsCountedNoMore
+[       OK ] SrpEarlyTalker.AKeptRegistrationWhoseBlockIsFreedIsCountedNoMore (3 ms)
+[ RUN      ] SrpEarlyTalker.AKeptLeaveOfAStreamNeverRegisteredIsCountedNoMoreOnceFreed
+[       OK ] SrpEarlyTalker.AKeptLeaveOfAStreamNeverRegisteredIsCountedNoMoreOnceFreed (0 ms)
+[ RUN      ] SrpEarlyTalker.AKeptRegistrationRefreshedIsCountedOnce
+[       OK ] SrpEarlyTalker.AKeptRegistrationRefreshedIsCountedOnce (0 ms)
+[ RUN      ] SrpEarlyTalker.AFloodOfUnboundTalkersStarvesNoBoundInput
+[       OK ] SrpEarlyTalker.AFloodOfUnboundTalkersStarvesNoBoundInput (1 ms)
+[ RUN      ] SrpEarlyTalker.AnUnbindingThenABindingDeclaresAtOnceOnEveryInput
+[       OK ] SrpEarlyTalker.AnUnbindingThenABindingDeclaresAtOnceOnEveryInput (0 ms)
+[----------] 23 tests from SrpEarlyTalker (18 ms total)
+
+[----------] Global test environment tear-down
+[==========] 24 tests from 2 test suites ran. (18 ms total)
+[  PASSED  ] 24 tests.
+== ctrl SRP mailbox: checks: 24   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (24 tests, 0 failures, exit 0)
