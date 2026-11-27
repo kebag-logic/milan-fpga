@@ -1,0 +1,20 @@
+== rv32i -Os -DNDEBUG
+   text	   data	    bss	    dec	    hex	filename
+   3524	      0	      8	   3532	    dcc	715589c1db7cf67e2f3259fd7083ebc7f0923376/adp_rv32i.o
+   3524	      0	      8	   3532	    dcc	a795471c0abc4e38f7e5146b4e539dd607b6f501/adp_rv32i.o
+694,695c694,695
+<  988:	li	a4,56
+<  98c:	bne	a5,a4,99c <.L91>
+---
+>  988:	li	a4,55
+>  98c:	bge	a4,a5,99c <.L91>
+== rv32im -Os -DNDEBUG
+   text	   data	    bss	    dec	    hex	filename
+   3504	      0	      8	   3512	    db8	715589c1db7cf67e2f3259fd7083ebc7f0923376/adp_rv32im.o
+   3504	      0	      8	   3512	    db8	a795471c0abc4e38f7e5146b4e539dd607b6f501/adp_rv32im.o
+690,691c690,691
+<  978:	li	a4,56
+<  97c:	bne	a5,a4,98c <.L91>
+---
+>  978:	li	a4,55
+>  97c:	bge	a4,a5,98c <.L91>

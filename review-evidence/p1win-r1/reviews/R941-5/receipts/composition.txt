@@ -1,0 +1,108 @@
+candidate 04a20c74d986e6d939d517a469bcbbdf37a8377d tree f3839b37d8256e5530b16dfb3a579bfc0c7e5ddd
+parents   8156dc7aeb2cae7f86843ba9946acae99ff885f4 079c4fa1514be460949ddc28ae3277ea1873cb48
+merge-base(first-parent, pr-head) c34e7d8b06739a22cc79997a9a1f4cbcd9bd0350
+merge-tree(first-parent, pr-head) f3839b37d8256e5530b16dfb3a579bfc0c7e5ddd
+live base ba13338b805e4cc820a2dd50210ae9868ed030ed tree dbdf163a5c411ec9cb657608a0cb7535170d6261 first-parent tree dbdf163a5c411ec9cb657608a0cb7535170d6261
+merge-tree(live base, pr-head) f3839b37d8256e5530b16dfb3a579bfc0c7e5ddd
+--- PR commits (c34e7d8b06739a22cc79997a9a1f4cbcd9bd0350..079c4fa1514be460949ddc28ae3277ea1873cb48)
+079c4fa15 Name the step pace in the store header's worst case where the windows' sentence took its antecedent (#1009)
+85569e241 Restate the SET_NAME save's measured time at this head in the store README (#1009)
+cd9ea485c State the binding window's measured times, its memory and the store's coverage and planted-defect counts (#1009)
+8a4ad2c4a Amend DR2a for the split store's binding class: its 100 ms window, the idle store's 800 ms gate and the bound on a bind during another save (#1009)
+bc3723b25 Hold the split-target commit to its binding records' window, grade and self-test it, and match each call to its steps in one sweep (#1009)
+a8331f245 Time binding changes from their response to durable in the CPU budget harness with the part's busy times, on an idle store, in a burst and at ten arrivals in another save, and make a save durable only when every programmed byte is read back after its last page (#1009)
+f7127bfb4 Give the saved-state store's binding records a 100 ms first-dirty window on the whole-commit save, every other record keeping 1,000 ms (#1009)
+--- PR files
+docs/DOCUMENTATION_AUDIT.md
+docs/design/SAVED_STATE_MATERIALIZATION.md
+docs/design/SPLIT_CONTROL_MEMORY.md
+sw/firmware/ctrl_nvm/README.md
+sw/firmware/ctrl_nvm/nvm_shape.h
+sw/firmware/ctrl_nvm/nvm_store.c
+sw/firmware/ctrl_nvm/nvm_store.h
+sw/firmware/ctrl_nvm/test/nvm_bench.py
+sw/firmware/ctrl_nvm/test/nvm_mutants.py
+sw/firmware/ctrl_nvm/test/nvm_rig.cpp
+sw/firmware/ctrl_nvm/test/nvm_rig.hpp
+sw/firmware/ctrl_nvm/test/test_nvm_window.cpp
+sw/firmware/ctrl_nvm/test/test_nvm_write.cpp
+sw/firmware/gtest/README.md
+sw/firmware/gtest/coverage.ratchet
+tb/verilator/ctrl_service_budget/README.md
+tb/verilator/ctrl_service_budget/bind_save.py
+tb/verilator/ctrl_service_budget/grade.py
+tb/verilator/ctrl_service_budget/run.py
+tb/verilator/ctrl_service_budget/save_burst.py
+tb/verilator/ctrl_service_budget/save_grade.py
+tb/verilator/ctrl_service_budget/save_window.py
+tb/verilator/ctrl_service_budget/selftest_bind.py
+tb/verilator/ctrl_service_budget/selftest_burst.py
+tb/verilator/ctrl_service_budget/selftest_mutants.py
+tb/verilator/ctrl_service_budget/selftest_mutants_bind.py
+tb/verilator/ctrl_service_budget/sim_main.cpp
+tb/verilator/nvm_split_target/README.md
+tb/verilator/nvm_split_target/target_cases.py
+tb/verilator/nvm_split_target/target_grade.py
+tb/verilator/nvm_split_target/target_selftest.py
+--- predecessor files (c34e7d8b06739a22cc79997a9a1f4cbcd9bd0350..8156dc7aeb2cae7f86843ba9946acae99ff885f4)
+.github/workflows/docs.yml
+.github/workflows/rtl-fast.yml
+CHANGELOG.md
+docs/design/GPTP_PLANE.md
+docs/design/MAILBOX_SPLIT.md
+docs/design/TIME_SYNC.md
+docs/diagrams/PNG_MANIFEST.json
+docs/diagrams/submodule_boundaries.drawio
+docs/diagrams/submodule_boundaries.png
+docs/diagrams/submodule_boundaries.svg
+docs/diagrams/timesync_chain.drawio
+docs/diagrams/timesync_chain.png
+docs/diagrams/timesync_chain.svg
+docs/guides/gptp/HDL_DEVELOPER.md
+docs/guides/gptp/MANAGER.md
+docs/guides/gptp/SYSTEM_INTEGRATOR.md
+docs/guides/gptp/TEST_DEVELOPER.md
+docs/reference/SUBMODULES.md
+docs/testing/CI_WORKFLOWS.md
+docs/traceability/ieee8021as.md
+gptp-processor
+scripts/ci_events.py
+scripts/ci_fast_legs.py
+scripts/ci_fast_legs_selftest.py
+scripts/ci_fast_tool_selftest.py
+scripts/ci_gate_workflows.py
+scripts/ci_gate_workflows_selftest.py
+scripts/suite_shards.py
+sw/firmware/ctrl/README.md
+sw/firmware/ctrl/maap/README.md
+sw/firmware/ctrl/test/ctrl_configs.py
+sw/firmware/ctrl/test/ctrl_mutants.py
+sw/firmware/ctrl/test/test_adp.cpp
+sw/firmware/ctrl/test/test_ctrl_firmware.py
+sw/firmware/ctrl/test/test_ctrl_firmware_shards.py
+sw/firmware/gtest/README.md
+sw/mailbox/census_legs.py
+sw/mailbox/census_selftest.py
+syn/yosys/rom_digests.tsv
+tb/verilator/gptp_plane/Makefile
+tb/verilator/gptp_plane/README.md
+tb/verilator/gptp_plane/link_delay.py
+tb/verilator/gptp_plane/sim_main.cpp
+tb/verilator/gptp_shadow/README.md
+tb/verilator/gptp_shadow/mutants.py
+tb/verilator/gptp_shadow/sim_main.cpp
+tb/verilator/gptp_shadow/test_mutant_lifecycle.py
+tb/verilator/milan_dp/sim_gptp.cpp
+third_party/tsn-c-stack
+--- files changed by both
+sw/firmware/gtest/README.md
+--- per-path byte check (candidate blob == the changing side's blob; both-sided paths listed)
+PR path not PR bytes: sw/firmware/gtest/README.md
+predecessor path not predecessor bytes: sw/firmware/gtest/README.md
+--- both-sided paths: candidate vs each side
+## sw/firmware/gtest/README.md: candidate vs first parent
+@@ -330 +330 @@ The adapter still delivers inputs only from the event loop.
+## sw/firmware/gtest/README.md: candidate vs pr-head
+@@ -246,2 +246,2 @@ The five `adp.c` rows cite the no-callback rule of the stack's
+@@ -291 +291 @@ them differently would fail the gate, not pass it. `fw_coverage.py
+@@ -299 +299 @@ F2 to F5 inherit it for their protocol ports.
