@@ -1,0 +1,10 @@
+# the harness's ADP LINK_UP window (ea52ec11): the same image (163e467f / ea52ec11, byte-identical), 1x1 adp-advertise
+## 1x1 none, the old window (2,200 ms, 163e467f's scenario): run.py's summary
+REFUSED adp.tmr_delay.if0: no start: no deadline:0 after the mark
+1 groups graded, 1 refusals, 0 budget misses (0 of 2 probe instances, 0 of 2 paths), 0 of 731 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+## 1x1 answering-ports, the old window (2,200 ms, 163e467f's scenario): run.py's summary
+REFUSED adp.tmr_delay.if0: no start: no deadline:0 after the mark
+1 groups graded, 1 refusals, 0 budget misses (0 of 2 probe instances, 0 of 2 paths), 0 of 731 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+## the TMR_DELAY expiry (TIMER event record) after LINK_UP at 75.11 ms (1x1 none, old window run): cycle, word 0
+355700083 01650001
+## LINK_UP draw range: tsn-c-stack include/adp.h ADP_DELAY_MAX_MS 4000u (Milan v1.2 Table 5.50), ADP_DELAY_STARTUP_MAX_MS 2000u (5.6.3.5.2)

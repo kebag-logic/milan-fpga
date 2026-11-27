@@ -1,0 +1,41 @@
+BOUND-ONLY POSITIVE CONTROL
+Note: Google Test filter = Srp.ReviewMixedBoundAndKeptVector
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from Srp
+[ RUN      ] Srp.ReviewMixedBoundAndKeptVector
+REVIEW sinks=2 vector_values=2 registered=2 charge_us=505 required_count_charge_us=505
+[       OK ] Srp.ReviewMixedBoundAndKeptVector (0 ms)
+[----------] 1 test from Srp (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+== ctrl SRP mailbox: checks: 1   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (1 tests, 0 failures, exit 0)
+MIXED BOUND/KEPT PROBE
+Note: Google Test filter = Srp.ReviewMixedBoundAndKeptVector
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from Srp
+[ RUN      ] Srp.ReviewMixedBoundAndKeptVector
+REVIEW sinks=2 vector_values=4 registered=4 charge_us=505 required_count_charge_us=725
+$REVIEWS/977-r958-1-packet/scratch/charge-1x1/probe_charge.cpp:45: Failure
+Expected: (charge) >= (285u+registered*110u), actual: 505 vs 725
+the pre-parse registration count must not undercount accepted values
+
+  [FAIL] Srp.ReviewMixedBoundAndKeptVector: the pre-parse registration count must not undercount accepted values
+[  FAILED  ] Srp.ReviewMixedBoundAndKeptVector (0 ms)
+[----------] 1 test from Srp (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] Srp.ReviewMixedBoundAndKeptVector
+
+ 1 FAILED TEST
+== ctrl SRP mailbox: checks: 1   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 1 checks, exit 1)
