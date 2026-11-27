@@ -1,0 +1,73 @@
+[
+  {
+    "name": "load-check",
+    "command": [
+      "/usr/bin/python3",
+      "tb/verilator/ctrl_service_budget/load_grade.py",
+      "--check",
+      "--selftest"
+    ],
+    "returncode": 0,
+    "expected": 0
+  },
+  {
+    "name": "flip-1if-check",
+    "command": [
+      "/usr/bin/python3",
+      "tb/verilator/ctrl_service_budget/flip_grade.py",
+      "--check",
+      "--point",
+      "8x8/1if",
+      "--selftest"
+    ],
+    "returncode": 0,
+    "expected": 0
+  },
+  {
+    "name": "flip-small-check",
+    "command": [
+      "/usr/bin/python3",
+      "tb/verilator/ctrl_service_budget/flip_grade.py",
+      "--check",
+      "--point",
+      "1x1/1if"
+    ],
+    "returncode": 0,
+    "expected": 0
+  },
+  {
+    "name": "shape-check",
+    "command": [
+      "/usr/bin/python3",
+      "tb/verilator/ctrl_service_budget/shape_costs.py",
+      "--check",
+      "--selftest"
+    ],
+    "returncode": 0,
+    "expected": 0
+  },
+  {
+    "name": "whitespace-current",
+    "command": [
+      "git",
+      "diff",
+      "--check",
+      "origin/dev-soft-core",
+      "HEAD"
+    ],
+    "returncode": 0,
+    "expected": 0
+  },
+  {
+    "name": "whitespace-before",
+    "command": [
+      "git",
+      "diff",
+      "--check",
+      "71bad8c0",
+      "9976b94f"
+    ],
+    "returncode": 2,
+    "expected": 2
+  }
+]

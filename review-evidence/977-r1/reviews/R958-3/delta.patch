@@ -1,0 +1,766 @@
+diff --git a/docs/design/SPLIT_CONTROL_MEMORY.md b/docs/design/SPLIT_CONTROL_MEMORY.md
+index de2edba70e..bcb89552d0 100644
+--- a/docs/design/SPLIT_CONTROL_MEMORY.md
++++ b/docs/design/SPLIT_CONTROL_MEMORY.md
+@@ -169,7 +169,7 @@ With #977's pin of tsn-c-stack `f71c8870` (its ACMP completion cut, 512 B of `ro
+ With #977's delivery bound (one binding change or loss completion a delivery, none in a pass that carries an SRP record alone; [its ruling of 2026-11-27 on the alone records](https://github.com/kebag-logic/milan-fpga/issues/977#issuecomment-7216582862), item 4) and the hot list relearned on it, the platform's one-interface image is 61.0: its `rom` 147,712 B, 256 B past the 147,456 B that 60.5 holds, 100,224 B of `sram`, `ctrl_plat` unchanged at 19,264 B, by the same rule: ROM debt of 5.0 RAMB36 owed to the hybrid XIP lane's issue. The platform's two-interface image stays 65.0 (147,312 B of `rom`), and the 1x1 images 46.5 and 47.5 (132,576 and 133,248 B; `plat_ledger.py` at `c63e9d58`).
+ The saved-state store's 100 ms window for its binding records (#1009) adds 72 B of `rom` at the platform's 1x1 points and 64 B at its 8x8 points, and no `sram` and no tile at any (`plat_ledger.py`: 127,640 and 129,424 B at 1x1, 141,744 and 143,496 B at 8x8, against `dev-soft-core` `c34e7d8b`'s 127,568, 129,352, 141,680 and 143,432 B); the size fixture's arms 64 to 72 B and no tile, each from its own plan: with one interface 132,472 B (no variant), 133,256 B (`declaring-outputs`) and 132,976 B (`answering-ports`), 57.0, 57.5 and 57.0 RAMB36 as at the base (132,408, 133,192 and 132,904 B), and with two 134,160, 134,976 and 134,656 B, 61.5 each as at the base (134,088, 134,912 and 134,592 B). No entry moves.
+ With #1009's window composed on #977's images (`dev-soft-core` `71bad8c0` merged), #977's population bound (40 B of `rom` at each platform 8x8 point: `plat_ledger.py` reads 147,136 and 146,744 B at `aad9a682`, the merge without it) and the hot list relearned on them, every image stays within its entry. The platform's 8x8 images are 60.5 and 65.0 (147,176 and 146,784 B of `rom`, one and two interfaces), its 1x1 images 132,032 and 132,720 B within the 56-RAMB36 budget (`plat_ledger.py` at `07c4575e`). The size fixture's one-interface image is 58.5 (137,816 to 138,600 B of `rom` over the arms, 98,944 to 99,008 B of `sram`), its two-interface image 62.5 (137,360 to 138,184 B, 116,544 to 116,608 B of `sram`). The relearn moves no byte of `rom`: the one-interface arms plan the same bytes at `7ae3ac2d` and `07c4575e`, and the two-interface figures are `7ae3ac2d`'s.
+-Each image is refused half a tile past its entry, at 63.0 and 59.0 (the size fixture's), 65.5 and 61.0 (the platform's).
++Each image is refused half a tile past its entry, at 63.0 and 59.0 (the size fixture's), 65.5 and 61.5 (the platform's), as `ctrl_memory_ledger.py`'s boundary cases hold them (61.0 while the one-interface entry was 60.5).
+ 
+ Each override recognises its image by the image's own symbols.
+ `nvm_stage` is the 8x8 shape's staging buffer.
+@@ -2545,7 +2545,7 @@ By the response-time method, with the base and each item at its stated cost and
+ ### The long-window load
+ 
+ Since #977 ([its ruling of 2026-11-23](https://github.com/kebag-logic/milan-fpga/issues/977#issuecomment-7091882145), item 1, option (a)) a peer's Talker registrations are a term of their own at the points that measure them, 1x1/1if and 8x8/1if (`load_grade.REGISTRATION_US`): every input's Talker in each of three MRPDUs a 1.5 x JoinTime (IEEE 802.1Q-2018 10.7.11; Milan v1.2 Table 4.3's least JoinTime, 180 ms), each a kind replacement (35.2.6) that registers anew, at a Talker's share of its record's apply past the unit and of THE SETTLE after it, 135 us at 8x8/1if and 120 at 1x1/1if. They are measured over the CPU budget harness's registering groups, in both arms that run them, on round 6's image. That image has tsn-c-stack `175cf9e0` (THE SETTLE's cut, from `f71c8870`: an ACMP entry's completion walks only its marked sinks and builds the saved record and the reported view only where they changed), the join timer's fix, and the hot list relearned on it (the registrar walk at 120 and 35 us, `poll_grade.py`, since no registering record walks its sinks). At 8x8/1if THE SETTLE is at most 4,111 cycles a sink, and a Talker all in at most 12,712 (5,444 and 13,877 on round 3's image, 150 us). At 1x1/1if a Talker is at most 11,150 cycles, the answering-ports arm's (115 us on round 5's image, 10,826). 8x8/1if's load is then 0.757 against its 0.76 ([the owner's decision of 2026-11-25](https://github.com/kebag-logic/milan-fpga/issues/977#issuecomment-7160202807), raised from 0.75, and 0.77 since [its decision of 2026-11-27](https://github.com/kebag-logic/milan-fpga/issues/977#issuecomment-7213594113): the record's own share past the unit, 90 to 95 us a Talker, holds the load at 0.753 whatever THE SETTLE costs; 0.744 without the term); 1x1/1if's load is 0.518 at the pin (0.515 at the donor's costs) against its 0.70.
+-**The alone records** ([#977's ruling of 2026-11-27 on the alone records](https://github.com/kebag-logic/milan-fpga/issues/977#issuecomment-7216582862)). A record THE DRAIN takes alone, its charge past the slice (at 8x8/1if the swap's and the JoinIn of both kinds, 18 values, 2,625 us), is held by neither its charge nor the slice, and the slice statement stays. Each shape states that pass instead, from the pass's start to the record's end, by the rule over every group of every arm and at most 1,935 us (`CTRL_LOOP_ALONE_US`; item 1): 1,840 us at 8x8/1if (174,819 cycles on `e62e1936`'s images, 171,622 since), and 925 us at 1x1/1if (87,826 cycles, backlog-adp's aged window), under its 950 us slice. `slice_grade.py` holds a pass of one SRP record to the larger of the two and a pass of more to the slice. The rows by every source open on the larger, with THE SETTLE of that record a term beside it (`rows_grade.ROW_COSTS`; item 3): 105 us at 1x1/1if, and 425 us at 8x8/1if, the ruling's 415 restated by the rule for the 40,049 cycles measured in the swap. At 8x8/1if the polls' base is 350 us and the walk 150 us (33,137 and 14,270 cycles in the swap on `e62e1936`'s images; item 2). A finer split of the delivery was not taken, since one binding change or one loss completion alone already exceeds 300 us. A pass that carries a record alone makes no binding change, and the next delivery of a pass that took no SRP record owes it (item 4; `ctrl_app_srp.c`, `deliver`; test D6, its plant, and the `srp-register-both-owed` group). The rows are then 79.49 ms for THE TRANSMIT at 8x8/1if (79.48 at the ruling's 415 us SETTLE), within the 80 ms cap its figure `CTRL_LOOP_TX_MS` may take (item 5, the owner's question; every product image is byte-identical whether the figure is 77 or 80 ms, and the hold-off stays 8 cs). At 1x1/1if they are 29.51 ms for ACMP (30), 48.08 for txL (49) and 133.91 for the last queued notice (135). The registration cost restated by the rule over every registering group on the relearned images is 190 us at 8x8/1if (17,921 cycles a Talker, the JoinIn of both kinds) and 185 at 1x1/1if (17,578). With it the loads are 0.766 at 8x8/1if, against the owner's 0.77, and 0.524 at 1x1/1if, against 0.70. The JoinIn of both kinds takes the longest pass at 8x8/1if, 193,036 cycles, 3.5 % under THE SHARE's 200,000. Counted at the registration rate, three records a 1.5 x JoinTime, the swap's delivering passes add 0.0019 over the dearest base before the record and 0.0136 over the median one (eleven passes of about 10,000 cycles, one binding change each). The load term counts neither.
++**The alone records** ([#977's ruling of 2026-11-27 on the alone records](https://github.com/kebag-logic/milan-fpga/issues/977#issuecomment-7216582862)). A record THE DRAIN takes alone, its charge past the slice (at 8x8/1if the swap's and the JoinIn of both kinds, 18 values, 2,625 us), is held by neither its charge nor the slice, and the slice statement stays. Each shape states that pass instead, from the pass's start to the record's end, by the rule over every group of every arm and at most 1,935 us (`CTRL_LOOP_ALONE_US`; item 1): 1,840 us at 8x8/1if (174,819 cycles on `e62e1936`'s images, 171,622 since), and 925 us at 1x1/1if (87,826 cycles, backlog-adp's aged window), under its 950 us slice. `slice_grade.py` holds a pass of one SRP record to the larger of the two and a pass of more to the slice. The rows by every source open on the larger, with THE SETTLE of that record a term beside it (`rows_grade.ROW_COSTS`; item 3): 105 us at 1x1/1if, and 425 us at 8x8/1if, the ruling's 415 restated by the rule for the 40,049 cycles measured in the swap. At 8x8/1if the polls' base is 350 us and the walk 150 us (33,137 and 14,270 cycles in the swap on `e62e1936`'s images; item 2). A finer split of the delivery was not taken, since one binding change or one loss completion alone already exceeds 300 us. A pass that carries a record alone makes no binding change, and the next delivery of a pass that took no SRP record owes it (item 4; `ctrl_app_srp.c`, `deliver`; test D6, its plant, and the `srp-register-both-owed` group). The rows are then 79.49 ms for THE TRANSMIT at 8x8/1if (79.48 at the ruling's 415 us SETTLE), against its figure `CTRL_LOOP_TX_MS`, 80 ms, the cap, approved by [the owner's decision of 2026-11-27](https://github.com/kebag-logic/milan-fpga/issues/977#issuecomment-7217388999) (item 5; every product image is byte-identical whether the figure is 77 or 80 ms, and the hold-off stays 8 cs). At 1x1/1if they are 29.51 ms for ACMP (30), 48.08 for txL (49) and 133.91 for the last queued notice (135). The registration cost restated by the rule over every registering group on the relearned images is 190 us at 8x8/1if (17,921 cycles a Talker, the JoinIn of both kinds) and 185 at 1x1/1if (17,578). The deliveries each registering record defers are a term of their own (above): over the median ordinary pass's base, a sink's share of a record's delivering passes is at most 11,573 cycles at 8x8/1if (the swap), 125 us by the rule, and 18,076 at 1x1/1if, 190 us. Over the dearest base before the record instead it would be 7,236 and 11,930 cycles, 80 and 130 us (`DELIVERY_US_DEAREST`, reported). The window is the delivery bound's own: the record's pass and the 2 x n_sinks deliveries after it. With both terms the loads are 0.779 at 8x8/1if (0.766 without the deliveries, 0.774 at the dearest-before cost), against its ceiling of 0.78 (owner decision pending; 0.77 before the deliveries term), and 0.532 at 1x1/1if, against 0.70. The JoinIn of both kinds takes the longest pass at 8x8/1if, 193,036 cycles, 3.5 % under THE SHARE's 200,000. The 8x8/1if load is held by the flip check against its ceiling (`flip_grade.FLIP`), and `load_grade.py` refuses the load without the deliveries term, at half its rate, at no cost, or under the dearest-before figure (`load_deliveries.py`). The load is not a schedulability verdict and counts no pass's base. The rows by every source charge every counted pass its stated base, and that is where a base's growth shows: the 8x8/1if base at 300 instead of 350 us leaves the load as it is, and the tx row at 77.89 instead of 79.49 ms.
+ A row's bound counts every source's arrivals in its window. At or above a load of 1.0, the work the sources bring in a long window is more than the CPU does in it, so no order of the work and no window length bounds a row. [`load_grade.py`](../../tb/verilator/ctrl_service_budget/load_grade.py) computes that load at 1x1/1if, 8x8/2if and 32x32/2if and holds it to 0.70 (#665, the [round 25 ruling](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6751196896), item 4), which leaves room for the rows: at 1x1/1if for merge, at this tree's TSN stack pin and with tsn-c-stack #32, each column held and named in what the gate finds (#665, the round 28 ruling, item 1). 8x8/2if is held to the same 0.70 by the flip check, [`flip_grade.py`](../../tb/verilator/ctrl_service_budget/flip_grade.py), read at this tree's TSN stack pin and apart from the merge gates (the [round 27 ruling](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6788828284), items 4 and 6): the split placement's flip at 8x8/2if must pass it, and at this head it fails (below). 32x32/2if is reported, not held: the more-compute image, #872 (decision D, [issuecomment-6759183115](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6759183115); the [round 26 ruling](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6779973927), item 6), with the compute its load with tsn-c-stack #32 would need for 0.70: every stated cost is CPU time at the split CPU's clock, so that is its load over 0.70. The round 24 ruling held 8x8/2if and 32x32/2if (item 2).
+ 
+ ```sh
+@@ -2558,7 +2558,7 @@ Decision D's tier bounds bind each point's flip, not this merge (the round 28 ru
+ 
+ **The rules the rows hold** (#665: two findings on round 28's head, which charged SRP's retained retry once a pass and counted SRP's records ahead of R4's over W less AECP's whole burst, so its 1x1/1if R4 was 73.02 ms). SRP's retained retry is at most one a centisecond (`srp_mbx.c`: the poll spends `retry_spent`, the centisecond's consumer gives it back), so a window of W ms holds one before its first centisecond and one after each of the floor(W / 10) + 1 it holds, and no more than its passes (`rows_grade.retained_retries`). SRP's records are THE DRAIN's first, so every one that arrives before R4's record is taken precedes it: they are counted over W less that record's own work alone (`srp_window`). A record lwSRP's pool refuses for storage is retained, and while it waits no other SRP record is taken, each such record up to `SRP_RX_RETRY_MS` (1,000 ms): SRP's storage rule, not the CPU's service. So SRP's own rows, R5 and R6, are solved with no record of theirs refused for storage, and count neither that hold nor the retry; R4's record is AECP's, which no SRP record holds, and a refusal of SRP's costs it the retries, which it counts (`RETAINED_ROWS`). With the hold counted, each of the 31 SRP records ahead of R5's or R6's, refused in turn, would hold it 1,000 ms, no W under 2,000 ms. The fabric's datapath change records, COUNTERS_CHANGED, AVB_INFO_CHANGED, AS_PATH_CHANGED and AMAP_LIVE_WRITE, are not counted (`EXCLUDED`, held against the contract's event types): no group stages them, so no cost of theirs is stated, and the method charges stated costs alone; the notices they mark are counted, in THE RETRY's rounds and the counters' holdoff among the timers, and their own dispatch is #894's to stage. `rows_grade.rule_findings` holds each rule against the tree at each point's windows (`rule_windows`): six under, at and over the rows' bounds, each on SRP's 2 ms refill grid; each solved row's W at the point, off it; and a microsecond either side of R4's 20 ms bound plus R4's own record, the window at which the refill at 20 ms is the first R4's record no longer precedes. The flip self-test plants the earlier rules, each refused by name and each moving R4 the way it would, and SRP's arrivals counted over W less two records of AECP (#665: a finding on round 29's head, which no window on the grid saw): an error of one record, which moved no row at #810's head `084cf7a8` (1x1/1if's R4 stayed 74.83 ms) and which a rule finding refuses: on round 29's costs at the window a microsecond past 20 ms plus R4's record, 41 SRP records ahead there against the rule's 42, and on #810's head's at R5's own W at 1x1/1if, 38.25 ms, 50 SRP records ahead against the rule's 51. At #810's head's 1x1/1if R4, 74.83 ms, W less one record and W less two both held 37 refills of SRP's (74.625 and 74.42 ms over 2 ms). An independent re-derivation, every count written apart from `rows_grade.py` and the headers' constants read from a compiled probe of them, gives the same W at both points to the hundredth. On round 28's costs the corrected rules give 1x1/1if's R4 59.19 ms; counted with one retry fewer, none before the window's first centisecond, it is 58.18 ms with SRP's arrivals over W less R4's record and 58.94 ms with them over the whole W. On round 29's costs it was 66.12 ms, and 65.86 ms with one retry fewer, either window; on #810's head's it was 74.83 ms, and 74.55 ms with one retry fewer, either window.
+ 
+-Each term is a source's arrival rate, a contract rate (`sw/mailbox/mailbox.yaml`) or a protocol timer, times its stated cost. The gate reads each timer from the tree, so a changed constant changes the load, and it fails a term with no source in its term list. A pass's own cost, its events' fixed part and its polls' base, is no source; the gate reports it beside the load.
++Each term is a source's arrival rate, a contract rate (`sw/mailbox/mailbox.yaml`) or a protocol timer, times its stated cost. The gate reads each timer from the tree, so a changed constant changes the load, and it fails a term with no source in its term list. A pass's own cost, its events' fixed part and its polls' base, is no source; the gate reports it beside the load. The one exception, since the manager's decision of 2026-11-27 on #977's [deferred deliveries](https://github.com/kebag-logic/milan-fpga/pull/993#issuecomment-7226275798), is the work a registering record defers into the polls' base of the passes after it: its binding changes and loss completions, one a delivery under the delivery bound. That work has a source, the record, at the registration rate, so it is a term of its own, `deliveries`, stated against the median ordinary pass's base.
+ 
+ | Term | Source and its rate | Clause |
+ |---|---|---|
+@@ -2574,6 +2574,8 @@ Each term is a source's arrival rate, a contract rate (`sw/mailbox/mailbox.yaml`
+ | `steps` | one aged step each `CTRL_LOOP_STEP_AGE` + 1 centiseconds | THE STEP (`ctrl_loop.h`) |
+ | `timers` | each slot at its own expiry rate: ADP's advertise timer, its delay re-armed by an ADP record and each bound sink's discovery aging; each sink's TMR_NO_RESP; MAAP's probe; each registration's probe retry and each descriptor's COUNTERS_CHANGED | Milan v1.2 5.6.3.5.9, Table 5.50 (`ADP_ADVERTISE_MS`), 5.6.3.5.3, IEEE 1722.1-2021 6.2.2.5 (2 s); Milan v1.2 5.5.2.3, Table 5.26; IEEE 1722-2016 B.3.4.2, Table B.8 (`MAAP_PROBE_BASE_MS` less `MAAP_PROBE_VARIATION_MS`); Milan v1.2 5.4.5.3, 5.4.5.2, Table 5.22 (`holdoff_ms`) |
+ | `gm` | the grandmaster event, coalesced: at most one an interface an Announce, a peer delay exchange and an announce receipt timeout | IEEE 802.1AS-2011 10.7.2.2 (1 s), 11.5.2.2 (1 s), 10.7.3.2 (3 intervals) |
++| `registrations` | a peer's Talker registrations, V a record, three records a 1.5 x JoinTime, each at `REGISTRATION_US` (1x1/1if and 8x8/1if) | IEEE 802.1Q-2018 10.7.11; Milan v1.2 Table 4.3 |
++| `deliveries` | the binding changes and loss completions each such record defers, V a record at the same rate, each at `DELIVERY_US`: a sink's share of a record's delivering passes' base over the median ordinary pass's (1x1/1if and 8x8/1if) | IEEE 802.1Q-2018 10.7.11; `ctrl_app_srp.c` `deliver` |
+ 
+ Not terms: a LINK change has no arrival rate (R5's definition counts one an interface); THE RETRY's rounds otherwise drain a queue a datapath reset leaves, at most `AECP_NOTICES_MOST`, a burst and not a rate; AVB_INFO_CHANGED, AS_PATH_CHANGED and AMAP_LIVE_WRITE are coalesced events with no contract rate (`mailbox.yaml`).
+ 
+@@ -3090,7 +3092,7 @@ The source comments name these three by their subject, with the item they rest o
+ 
+ **The composition with #895's Talker declarations at 8x8/1if** (#901, merged into dev-soft-core as `70f4056f`). 1x1/1if takes #901's figures: its slice 900 us, `AECP_QUEUED_MS` 140 ms, its polls' base 225 us and its records' and events' restatements. 8x8/1if keeps its own, each stated for its shape (the table above), never one shape's figure applied to the other:
+ - **The last queued notice's bound** at 8x8/1if is its own 130 ms (`CTRL_LOOP_QUEUED_MS`, which `AECP_QUEUED_MS` is), which the CPU budget harness holds its measured queues to; keyed on the interface count it would have taken 1x1/1if's 140.
+-- **THE TRANSMIT's figure** there, `CTRL_LOOP_TX_MS`, is its own tx row by every source rounded up: 80 ms, the cap, for the 79.48 ms of its row opened on a record's pass alone with its SETTLE and its polls' base and walk restated ([#977's ruling of 2026-11-27 on the alone records](https://github.com/kebag-logic/milan-fpga/issues/977#issuecomment-7216582862), item 5, as the owner agreed; the hold-off stays 8 cs), 77 ms for the 76.86 ms with #977's walk at 120 us again (78 ms for the 77.37 ms of its round 2's 190 us walk, `poll_grade.py`), 77 ms for the 76.81 ms of #665's final head with its cuts ([#665's ruling of 2026-11-18, re-ruled](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6972255348), item 2a; at most 80 ms, so a withdrawn Talker's hold-off stays 8 cs past its JoinTime), and before them 75 ms for 74.26 at the head's costs, its polls as restated with `srp-talker-held` (the Listener copies, below). It was 70 ms for 69.84 at the costs restated on the composed image (68 ms for 67.84 at the merge's statements, the same hold-off), where the interface count gave it 1x1/1if's 34.
++- **THE TRANSMIT's figure** there, `CTRL_LOOP_TX_MS`, is its own tx row by every source rounded up: 80 ms, the cap, for the 79.49 ms of its row opened on a record's pass alone with its SETTLE and its polls' base and walk restated (79.48 at the ruling's 415 us SETTLE; [#977's ruling of 2026-11-27 on the alone records](https://github.com/kebag-logic/milan-fpga/issues/977#issuecomment-7216582862), item 5, approved by [the owner's decision of 2026-11-27](https://github.com/kebag-logic/milan-fpga/issues/977#issuecomment-7217388999); the hold-off stays 8 cs), 77 ms for the 76.86 ms with #977's walk at 120 us again (78 ms for the 77.37 ms of its round 2's 190 us walk, `poll_grade.py`), 77 ms for the 76.81 ms of #665's final head with its cuts ([#665's ruling of 2026-11-18, re-ruled](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6972255348), item 2a; at most 80 ms, so a withdrawn Talker's hold-off stays 8 cs past its JoinTime), and before them 75 ms for 74.26 at the head's costs, its polls as restated with `srp-talker-held` (the Listener copies, below). It was 70 ms for 69.84 at the costs restated on the composed image (68 ms for 67.84 at the merge's statements, the same hold-off), where the interface count gave it 1x1/1if's 34.
+   - #901 makes it a term of a withdrawn Talker's hold-off (`SRP_REDECLARE_CS`, the latest the Leave departs after its request), so the hold-off follows 8x8/1if's own row: 2,027 cs there (2,026 at 70 ms), 2,023 at 1x1/1if and 2,030 at two interfaces. Each keeps 802.1Q-2018 35.2.2.8's two LeaveAllTime periods, 2,000 cs, after the Leave's latest departure: at 8x8/1if 20,005.74 ms remain after a JoinTime and 74.26 ms. Since #951 they are two nominal longest LeaveAll periods, 3,000 cs, so 3,027 cs there, 3,023 at 1x1/1if and 3,030 at two interfaces ([below](#the-re-declare-hold-off-over-two-nominal-longest-leaveall-periods-951)).
+   - `flip_grade.py --check` holds the figure at 8x8/1if to that row (`tx_held`, `rows_tiers.tx_statements` at 8x8/1if's own polls, notices and builds), apart from that point's reported rows, and its self-test refuses the figure planted at 60, 69 and 76 ms by name. A 70 ms figure is refused against the head's tx row, 76.86 ms.
+   - `ctrl_loop.c` holds 1x1/1if alone to THE TRANSMIT's bound, keyed on its shape: 8x8/1if's rows by every source are reported, as 8x8/2if's are.
+diff --git a/docs/reference/FR_NFR.md b/docs/reference/FR_NFR.md
+index f5e5924db2..22129c8a10 100644
+--- a/docs/reference/FR_NFR.md
++++ b/docs/reference/FR_NFR.md
+@@ -424,7 +424,7 @@ One exception, by the [maintainer-delegated decision of 2026-11-13](https://gith
+ Its reason was the loop search's, before THE TIERS retired it: 185 us was the most THE RETRY's search held the first notice of a queue to 22 ms at, and 186 us failed it then. Under THE TIERS the 8x8/2if first queued notice is a tier row, 21.11 ms by every source at this head (20.93 at #894's), stated 22 ms and reported (#890); the decision and its 185 us stand.
+ The exception expires at the 8x8/2if flip: [#890](https://github.com/kebag-logic/milan-fpga/issues/890) closes only with a measured cold start of at most 176.1 us, or on a new owner decision.
+ At 8x8/2if the stated bounds stand, 22 ms for the first and 62 ms for every other within a ceiling of 70 ms, [amended on 2026-11-07](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6707464945): its rows by every source do not fit under the tiers, and are reported, not held, by the [owner's decision of 2026-11-12](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6814835849), owed to #872; the flip there holds the long-window load at 0.75 (#890) and a fresh measurement in which every row fits its bound.
+-At 8x8/1if, one AVB Interface with the 8x8 streams, the flip holds the contract-rate run on the built image, its largest-notice, `srp` and queued-notice groups included, by [#894's ruling on its round 7](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6867393730), item (b), and [its round 2 ruling](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6871343905): no budget miss beyond the rows the egress decides, every join interval within the harness's commit-side gate, 181.0 to 239.0 ms, every measured row within its bound (20, 30, 90 ms, the first queued notice's 20 and the last's 130 ms, the MRPDU's 49 ms and the paced R4L's 238 ms, [#894's egress ruling](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6867990126), item 1), the long-window load at most 0.77 ([#977's owner decision of 2026-11-27](https://github.com/kebag-logic/milan-fpga/issues/977#issuecomment-7213594113), for the registration cost its swap record states by the rule; 0.76 from [its decision of 2026-11-25](https://github.com/kebag-logic/milan-fpga/issues/977#issuecomment-7160202807), which raised it from 0.75; `flip_grade.FLIP`) and the platform image at most 56.0 RAMB36. Measured on the image whose SRP adapter copies a Listener's change where lwSRP reports it ([#930](https://github.com/kebag-logic/milan-fpga/issues/930)), which the head carries (at 8x8/1if with the hold-off's one immediate restated to 2,027 cs for THE TRANSMIT's 75 ms, the legs it reaches measured again, [SPLIT_CONTROL_MEMORY.md section 13](../design/SPLIT_CONTROL_MEMORY.md#the-shapes-and-8x81if)), holds, as the image that merges dev-soft-core `70f4056f` (#901's Talker declarations) and round 3's image (whose THE RETRY's round costs are its shape's, [#894's round 3 ruling](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6878014227)) each did at their own figures: every row the CPU decides within its bound, every join interval within the gate, every round of THE RETRY within its statement, and the load 0.735 at the pin (0.718 on the image that merges `70f4056f`); on that image six of the seven rows the egress decides grew past their ledger figures, by 0.190 to 0.273 ms, and [#894's ruling of 2026-11-16](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6914952893), item 1, moves the six to the rule's figures at that measurement, and with #930's copies `service.aecp.last` grew by phase past its figure, by 0.109 ms, which [#894's ruling of 2026-11-17](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6934688411) moves to the rule's ([SPLIT_CONTROL_MEMORY.md section 13](../design/SPLIT_CONTROL_MEMORY.md#the-shapes-and-8x81if)).
++At 8x8/1if, one AVB Interface with the 8x8 streams, the flip holds the contract-rate run on the built image, its largest-notice, `srp` and queued-notice groups included, by [#894's ruling on its round 7](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6867393730), item (b), and [its round 2 ruling](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6871343905): no budget miss beyond the rows the egress decides, every join interval within the harness's commit-side gate, 181.0 to 239.0 ms, every measured row within its bound (20, 30, 90 ms, the first queued notice's 20 and the last's 130 ms, the MRPDU's 49 ms and the paced R4L's 238 ms, [#894's egress ruling](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6867990126), item 1), the long-window load at most 0.78 (owner decision pending, for the deliveries a registering record defers, a load term since the manager's decision of 2026-11-27 on them; 0.77 by [#977's owner decision of 2026-11-27](https://github.com/kebag-logic/milan-fpga/issues/977#issuecomment-7213594113), for the registration cost its swap record states by the rule; 0.76 from [its decision of 2026-11-25](https://github.com/kebag-logic/milan-fpga/issues/977#issuecomment-7160202807), which raised it from 0.75; `flip_grade.FLIP`) and the platform image at most 56.0 RAMB36. Measured on the image whose SRP adapter copies a Listener's change where lwSRP reports it ([#930](https://github.com/kebag-logic/milan-fpga/issues/930)), which the head carries (at 8x8/1if with the hold-off's one immediate restated to 2,027 cs for THE TRANSMIT's 75 ms, the legs it reaches measured again, [SPLIT_CONTROL_MEMORY.md section 13](../design/SPLIT_CONTROL_MEMORY.md#the-shapes-and-8x81if)), holds, as the image that merges dev-soft-core `70f4056f` (#901's Talker declarations) and round 3's image (whose THE RETRY's round costs are its shape's, [#894's round 3 ruling](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6878014227)) each did at their own figures: every row the CPU decides within its bound, every join interval within the gate, every round of THE RETRY within its statement, and the load 0.735 at the pin (0.718 on the image that merges `70f4056f`); on that image six of the seven rows the egress decides grew past their ledger figures, by 0.190 to 0.273 ms, and [#894's ruling of 2026-11-16](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6914952893), item 1, moves the six to the rule's figures at that measurement, and with #930's copies `service.aecp.last` grew by phase past its figure, by 0.109 ms, which [#894's ruling of 2026-11-17](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6934688411) moves to the rule's ([SPLIT_CONTROL_MEMORY.md section 13](../design/SPLIT_CONTROL_MEMORY.md#the-shapes-and-8x81if)).
+ The rows the egress decides are `backlog-owed`'s seven, set by the scenario's 60 ms egress hold: they miss in the same form at 1x1/1if and at 8x8/2if and stay recorded misses in the ledger by their row names ([SPLIT_CONTROL_MEMORY.md section 13](../design/SPLIT_CONTROL_MEMORY.md#the-shapes-and-8x81if)), each figure the scenario's 60 ms hold plus the service behind it at the largest of its stated measurements plus 5 %, rounded up to 0.01 ms ([#894's ledger ruling](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6892938049), item 2), not passing, since this clause charges TX backpressure to the service budget; a new or larger miss fails the leg (the round 2 ruling, item (a)), which `tb/verilator/ctrl_service_budget/egress_ledger.py` holds: a row over its ledger figure, whatever its name, or any other miss, fails.
+ Its rows by every source are reported, not held, owed to #872; a measured row the CPU decides over its bound, or the load over 0.75, starts #872's second-hart study ([the trigger](https://github.com/kebag-logic/milan-fpga/issues/872#issuecomment-6862464924), as the round 2 ruling restates it). The load trigger was met at 0.757 on 2026-11-25: the study runs, and the owner ruled no second hart for this image ([#977's ruling of 2026-11-26](https://github.com/kebag-logic/milan-fpga/issues/977#issuecomment-7180135694), item 3).
+ Tier 2's slice, THE TRANSMIT's builds, an SRP record's stated cost, which the slice starts a record only within, and THE RETRY's round costs, a round's cold start and a refused attempt's (`AECP_ROUND_COLD_US`, `AECP_ATTEMPT_US`), with the last queued notice's bound (`AECP_QUEUED_MS`) and THE TRANSMIT's figure (`CTRL_LOOP_TX_MS`), are stated for each static shape the builder states, its interfaces and its streams, never by the interface count alone, and a shape not listed fails the build (THE SHAPES, `sw/firmware/ctrl/loop/ctrl_loop.h`; `tb/verilator/ctrl_service_budget/shape_costs.py`, which names a point whose round costs fall back to the interface count's; [#894's round 3 ruling](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6878014227), item 1): at 8x8/1if the slice is one MRPDU's build measured there plus 5 %, 1,475 us, within the ruling's 1,600 us, an SRP record 365 us, the load gate's record.srp there, its measured record 350 us (32,936 CPU cycles with #930's Listener copies), and THE RETRY's round 165 us once and 25 us a refused attempt. The harness holds a pass's polls at each shape's own stated costs (`poll_grade.py`). At 8x8/1if the record and the polls are its measurement on the tree that merges #902 plus 5 % (the round 2 ruling, items (b)(ii) and (b)(iii)). Each shape also states the pass of a record THE DRAIN takes alone, from the pass's start to the record's end (`CTRL_LOOP_ALONE_US`; [#977's ruling of 2026-11-27 on the alone records](https://github.com/kebag-logic/milan-fpga/issues/977#issuecomment-7216582862), item 1): the longest pass of one SRP record measured over every group of every arm plus 5 %, at most 1,935 us, 925 us at 1x1/1if, under its slice, and 1,840 us at 8x8/1if. The harness holds a pass of one SRP record to the larger of it and the slice, the slice statement staying as it is; the rows by every source open on that larger figure with THE SETTLE of the record a term beside it (105 us at 1x1/1if; 425 us at 8x8/1if, the ruling's 415 restated by the rule over the registering groups; item 3); at 8x8/1if the polls' base is 350 us and the walk 150 us (item 2); and a pass that carries a record alone makes no binding change, the next delivery owing it (item 4).
+@@ -451,7 +451,7 @@ Their transition service has the same project bound.
+ | AECP liveness, unlock and optional identification | Milan v1.2 5.4.5.3: 30 to 60 s monitor then CONTROLLER_AVAILABLE; 5.4.2.2: 60 s unlock. IEEE 1722.1-2021 7.5.1/7.5.1.2.1: three Identify notifications, spaced 150 ms when enabled | 150 ms x 10% = 15 ms is the tightest enabled notification interval, and the bound, below T_svc, while identification is enabled; service <= 20 ms otherwise. Probe responses still obey 9.3.2.6 | Preserve registration, retry, removal and identification ordering; the optional feature is not enabled by this requirement |
+ | MAAP PROBE and conflict DEFEND | IEEE 1722-2016 B.3.4.2 with constants B.3.3/Table B.8: strictly 500 ms < probe interval < 600 ms; `MAAP_PROBE_RETRANSMITS=3`. B.3.2/Table B.7 defines conflict handling; B.3.5.5 defines the conflicting-PROBE event and B.3.6.6 the DEFEND action | 500 ms x 10% = 50 ms; service <= T_svc = 20 ms. Three retransmissions do not multiply the per-action budget | DEFEND on the applicable conflicting PROBE transition. The probe interval is not a normative received-PROBE response timeout |
+ | MAAP ANNOUNCE and reallocation | IEEE 1722-2016 B.3.4.1 with constants B.3.3/Table B.8: strictly 30 s < announcement interval < 32 s; B.3.2/Table B.7 governs loss and retry | Announcement gives 3 s; the shared 500 ms probe interval tightens this to 50 ms | Preserve randomization, strict bounds and address-loss handling; service time cannot push a timer beyond its upper bound |
+-| SRP/MRP MSRP and MVRP join, leave, periodic and LeaveAll | IEEE 802.1Q-2018 10.7.4/10.7.11, Table 10-7; Milan v1.2 4.2.7.1.1, Table 4.3 overrides: JoinTime 200 ms (180 to 240), LeaveTime 5000 ms (4500 to 7500), periodic 1000 ms (900 to 1500), LeaveAll 10 to 15 s (+/-0.5 s) | Conservative shortest allowed interval: 180 ms x 10% = 18 ms, relaxed to T_svc = 20 ms by the [owner's ruling of 2026-11-06](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6681686082). LeaveTime gives 450 ms; periodic 90 ms; LeaveAll 950 ms. The bound is T_svc; it fits each. Under the control loop's priority tiers (option B, [#665](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6732443213)) SRP's records take decision D's 90 ms, and an MRPDU a timer owes 49 ms at the split, the most lateness the MRP timer budget holds ([#894's ruling of 2026-11-13](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6840564634), item 1; 40 ms at the 200 ms default): the armed JoinTime, 190 ms (above), plus it and the 1 ms `T_egress` within Table 4.3's 240 ms ([#894's contingent ruling](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6858269025), item 3, and its [egress ruling](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6867990126), item 1), where 90 ms would give 281 ms | Under the control loop's priority tiers ([#894](https://github.com/kebag-logic/milan-fpga/issues/894)) SRP's records are tier 2: the composed burst's last SRP record and SRP's last record beside a link change are held by every source to decision D's 90 ms, half of MRP's JoinTime as the firmware applies it (R5 and R6, `tb/verilator/ctrl_service_budget/rows_tiers.py`). Every MRPDU a join, periodic or LeaveAll timer makes owed is THE TRANSMIT's tier-2 build. By every source it waits for tier 1's records, and at 1x1/1if it is committed within 49 ms of the centisecond that owes it ([#894's ruling of 2026-11-13](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6840564634), item 1): `CTRL_LOOP_TX_BOUND_MS`, the tx row of `rows_tiers.py` held by `flip_grade.py` (34.00 ms with SRP's Talker declarations composed with #894's SET_CONFIGURATION cut and measured again, at the slice rule's 900 us, [#895](https://github.com/kebag-logic/milan-fpga/issues/895#issuecomment-6876349305)), and `CTRL_LOOP_TX_MS`, that row rounded up, held to it at compile time in `ctrl_loop.c`: 35 ms since GET_AS_PATH's read composed with them puts the row at 34.20 (#897; 34 before). At 8x8/2if, whose rows are reported, `CTRL_LOOP_TX_MS` is 105 ms, its tx row's 104.25 with SRP's Talker declarations' costs restated there rounded up, and a withdrawn Talker's hold-off, `SRP_REDECLARE_CS`, which counts it and a JoinTime inside two nominal longest LeaveAll periods (#951, #956), follows it: 2,970 cs at two interfaces (2,971 at 99 ms), 2,977 at 1x1/1if, and 2,973 at 8x8/1if, whose `CTRL_LOOP_TX_MS` is its own tx row rounded up, 80 ms for the 79.48 ms of its row opened on a record's pass alone with its SETTLE ([#977's ruling of 2026-11-27 on the alone records](https://github.com/kebag-logic/milan-fpga/issues/977#issuecomment-7216582862), item 5, as the owner agreed), 77 ms for the 76.81 ms of #665's final head with its cuts ([#665's ruling of 2026-11-18, re-ruled](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6972255348), item 2a; 75 ms for 74.26 before them), held to that row by `flip_grade.py --check` (`tx_held`) and at most 80 ms, so the hold-off stays 2,973 there, each figure stated for its shape (THE SHAPES), never by the interface count, so a withdrawn Talker's hold-off follows its own shape's row. The earlier figures are history: #951 added both terms past the two periods (3,027 cs at 8x8/1if), and before it the hold-off was two LeaveAllTime periods with the terms above them, 2,026 cs at 70 ms and 2,027 at 75 to 80 ms ([#895's ruling of 2026-11-15 on that figure](https://github.com/kebag-logic/milan-fpga/issues/895#issuecomment-6895331865), items 1 to 3; #894's head keeps 99). Counted inside the two periods, the terms cover the declaration's latest departure, so a longer row declares a changed destination sooner, 10 ms sooner at two interfaces than at 99 ms, and it reaches the wire no later than the two periods, 30.0 s, after the Leave's request, at every withdrawal phase and join timer state (the owner's decision of 2026-11-21 on #956; IEEE 802.1Q-2018 35.2.2.8, 10.7.4.3). The CPU budget harness measures it in every group against that bound, `CTRL_LOOP_TX_BOUND_MS` as `ctrl_loop.h` derives it (`mrpdu_grade.py`; [#894's round 2 ruling for 8x8/1if](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6871343905), item (b)(i)), where it held it to T_svc's 20 ms before. lwSRP arms a participant's join timer as an MRPDU is committed, so its next transmit opportunity comes within JoinTime plus that lateness, and its frame within `T_egress` more, inside Table 4.3's 240 ms. Its periodic and LeaveAll timers restart at their expiry (IEEE 802.1Q-2018 Tables 10-6 and 10-5), so each of their MRPDUs is on the wire late by at most that and `T_egress` against a fixed schedule: 950 to 1050 ms, and 9.96 to 15.04 s. 10.7.11 a) holds: 2 x 240 + 6 x 10 = 540 ms, under LeaveTime's least. At 8x8/2if the rows by every source are reported, not held (the [owner's decision of 2026-11-12](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6814835849), owed to #872). The loop before the tiers held both by construction. A point-to-point requested transmit opportunity occurs within JoinTime, at most three per 1.5 x JoinTime. Timer resolution stays <= 1 centisecond; delayed service must not lose ticks |
++| SRP/MRP MSRP and MVRP join, leave, periodic and LeaveAll | IEEE 802.1Q-2018 10.7.4/10.7.11, Table 10-7; Milan v1.2 4.2.7.1.1, Table 4.3 overrides: JoinTime 200 ms (180 to 240), LeaveTime 5000 ms (4500 to 7500), periodic 1000 ms (900 to 1500), LeaveAll 10 to 15 s (+/-0.5 s) | Conservative shortest allowed interval: 180 ms x 10% = 18 ms, relaxed to T_svc = 20 ms by the [owner's ruling of 2026-11-06](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6681686082). LeaveTime gives 450 ms; periodic 90 ms; LeaveAll 950 ms. The bound is T_svc; it fits each. Under the control loop's priority tiers (option B, [#665](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6732443213)) SRP's records take decision D's 90 ms, and an MRPDU a timer owes 49 ms at the split, the most lateness the MRP timer budget holds ([#894's ruling of 2026-11-13](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6840564634), item 1; 40 ms at the 200 ms default): the armed JoinTime, 190 ms (above), plus it and the 1 ms `T_egress` within Table 4.3's 240 ms ([#894's contingent ruling](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6858269025), item 3, and its [egress ruling](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6867990126), item 1), where 90 ms would give 281 ms | Under the control loop's priority tiers ([#894](https://github.com/kebag-logic/milan-fpga/issues/894)) SRP's records are tier 2: the composed burst's last SRP record and SRP's last record beside a link change are held by every source to decision D's 90 ms, half of MRP's JoinTime as the firmware applies it (R5 and R6, `tb/verilator/ctrl_service_budget/rows_tiers.py`). Every MRPDU a join, periodic or LeaveAll timer makes owed is THE TRANSMIT's tier-2 build. By every source it waits for tier 1's records, and at 1x1/1if it is committed within 49 ms of the centisecond that owes it ([#894's ruling of 2026-11-13](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6840564634), item 1): `CTRL_LOOP_TX_BOUND_MS`, the tx row of `rows_tiers.py` held by `flip_grade.py` (34.00 ms with SRP's Talker declarations composed with #894's SET_CONFIGURATION cut and measured again, at the slice rule's 900 us, [#895](https://github.com/kebag-logic/milan-fpga/issues/895#issuecomment-6876349305)), and `CTRL_LOOP_TX_MS`, that row rounded up, held to it at compile time in `ctrl_loop.c`: 35 ms since GET_AS_PATH's read composed with them puts the row at 34.20 (#897; 34 before). At 8x8/2if, whose rows are reported, `CTRL_LOOP_TX_MS` is 105 ms, its tx row's 104.25 with SRP's Talker declarations' costs restated there rounded up, and a withdrawn Talker's hold-off, `SRP_REDECLARE_CS`, which counts it and a JoinTime inside two nominal longest LeaveAll periods (#951, #956), follows it: 2,970 cs at two interfaces (2,971 at 99 ms), 2,977 at 1x1/1if, and 2,973 at 8x8/1if, whose `CTRL_LOOP_TX_MS` is its own tx row rounded up, 80 ms for the 79.49 ms of its row opened on a record's pass alone with its SETTLE (79.48 at the ruling's 415 us SETTLE; [#977's ruling of 2026-11-27 on the alone records](https://github.com/kebag-logic/milan-fpga/issues/977#issuecomment-7216582862), item 5, approved by [the owner's decision of 2026-11-27](https://github.com/kebag-logic/milan-fpga/issues/977#issuecomment-7217388999)), 77 ms for the 76.81 ms of #665's final head with its cuts ([#665's ruling of 2026-11-18, re-ruled](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6972255348), item 2a; 75 ms for 74.26 before them), held to that row by `flip_grade.py --check` (`tx_held`) and at most 80 ms, so the hold-off stays 2,973 there, each figure stated for its shape (THE SHAPES), never by the interface count, so a withdrawn Talker's hold-off follows its own shape's row. The earlier figures are history: #951 added both terms past the two periods (3,027 cs at 8x8/1if), and before it the hold-off was two LeaveAllTime periods with the terms above them, 2,026 cs at 70 ms and 2,027 at 75 to 80 ms ([#895's ruling of 2026-11-15 on that figure](https://github.com/kebag-logic/milan-fpga/issues/895#issuecomment-6895331865), items 1 to 3; #894's head keeps 99). Counted inside the two periods, the terms cover the declaration's latest departure, so a longer row declares a changed destination sooner, 10 ms sooner at two interfaces than at 99 ms, and it reaches the wire no later than the two periods, 30.0 s, after the Leave's request, at every withdrawal phase and join timer state (the owner's decision of 2026-11-21 on #956; IEEE 802.1Q-2018 35.2.2.8, 10.7.4.3). The CPU budget harness measures it in every group against that bound, `CTRL_LOOP_TX_BOUND_MS` as `ctrl_loop.h` derives it (`mrpdu_grade.py`; [#894's round 2 ruling for 8x8/1if](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6871343905), item (b)(i)), where it held it to T_svc's 20 ms before. lwSRP arms a participant's join timer as an MRPDU is committed, so its next transmit opportunity comes within JoinTime plus that lateness, and its frame within `T_egress` more, inside Table 4.3's 240 ms. Its periodic and LeaveAll timers restart at their expiry (IEEE 802.1Q-2018 Tables 10-6 and 10-5), so each of their MRPDUs is on the wire late by at most that and `T_egress` against a fixed schedule: 950 to 1050 ms, and 9.96 to 15.04 s. 10.7.11 a) holds: 2 x 240 + 6 x 10 = 540 ms, under LeaveTime's least. At 8x8/2if the rows by every source are reported, not held (the [owner's decision of 2026-11-12](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6814835849), owed to #872). The loop before the tiers held both by construction. A point-to-point requested transmit opportunity occurs within JoinTime, at most three per 1.5 x JoinTime. Timer resolution stays <= 1 centisecond; delayed service must not lose ticks |
+ 
+ MRP's 10 % ceiling of 18 ms is relaxed to T_svc by the owner's ruling of 2026-11-06, so MRP's paths are graded against 20 ms.
+ ACMP's ceiling, which also bounds a discovery input's resulting ACMP action, equals T_svc at 20 ms.
+diff --git a/sw/firmware/ctrl/app/ctrl_app.h b/sw/firmware/ctrl/app/ctrl_app.h
+index 5d672fadee..5258a210c5 100644
+--- a/sw/firmware/ctrl/app/ctrl_app.h
++++ b/sw/firmware/ctrl/app/ctrl_app.h
+@@ -104,7 +104,7 @@ struct ctrl_app {
+ 	// the next ordinary pass's THE SETTLE (ctrl_loop.h; CTRL_LOOP_SETTLE_ALONE, ctrl_app_srp.c, #977).
+ 	bool srp_settle_owed;
+ 	// The sinks a delivery takes its one binding change and its one loss completion from, each the sink after the last
+-	// it took (ctrl_app_srp.c, deliver; #977's ruling on round 9's STOP, item 2).
++	// it took (ctrl_app_srp.c, deliver; #977's ruling of 2026-11-27 on the delivery bound, item 2).
+ 	uint8_t srp_bind_turn;
+ 	uint8_t srp_loss_turn;
+ 	bool srp_lost_last;                     // the last delivery's SRP work was a loss completion
+diff --git a/sw/firmware/ctrl/app/ctrl_app_srp.c b/sw/firmware/ctrl/app/ctrl_app_srp.c
+index 86259b4187..bf01e59d92 100644
+--- a/sw/firmware/ctrl/app/ctrl_app_srp.c
++++ b/sw/firmware/ctrl/app/ctrl_app_srp.c
+@@ -140,9 +140,10 @@ static bool deliver(void *ctx)
+     // One delivery makes at most one binding change and, outside THE SETTLE, at most one loss completion, each the
+     // first owed from its turn, the sink after the last it made, and the rest stay pending, delivered in turn. THE
+     // TRANSMIT waits on none of them, and a withdrawal a later delivery makes rides the next MRPDU (#977, its ruling
+-    // on round 9's STOP, item 2; IEEE 802.1Q-2018 10.7.4.1). A pass that carries a record alone (settles) makes no
+-    // binding change either: the record's pass is the record's, and the change stays pending, owed to the next
+-    // delivery of a pass that took no SRP record (#977, its ruling of 2026-11-27 on the alone records, item 4)
++    // of 2026-11-27 on the delivery bound, item 2; IEEE 802.1Q-2018 10.7.4.1). A pass that carries a record alone
++    // (settles) makes no binding change either: the record's pass is the record's, and the change stays pending, owed
++    // to the next delivery of a pass that took no SRP record (#977, its ruling of 2026-11-27 on the alone records,
++    // item 4)
+     const unsigned n = app->acmp.acmp.cfg.n_sinks;
+     unsigned bind = n;
+     unsigned lose = n;
+diff --git a/sw/firmware/ctrl/loop/ctrl_loop.h b/sw/firmware/ctrl/loop/ctrl_loop.h
+index 6c4c717992..9d9c138a79 100644
+--- a/sw/firmware/ctrl/loop/ctrl_loop.h
++++ b/sw/firmware/ctrl/loop/ctrl_loop.h
+@@ -344,9 +344,10 @@ extern "C" {
+ // CTRL_LOOP_SRP_REG_US, a Talker registration's stated cost, for each Talker value the record can
+ // register, a bound read from the record in the ring before lwSRP parses it and never under that
+ // count (srp_mbx.c, rx_charge): an MSRP record's Talker Messages' vectors, each at most V values
+-// (srp_mbx.h SRP_RECORD_VALUES, 4 at 1x1/1if and 9 at 8x8/1if; #977, its ruling of 2026-11-27, item
+-// 2), as lwSRP's receive filter takes a Talker value only for a bound sink's StreamID or a kept one,
+-// at most V of them, and a vector's values are distinct StreamIDs (IEEE 802.1Q-2018 35.2.2.8.4;
++// (srp_mbx.h SRP_RECORD_VALUES, 4 at 1x1/1if and 9 at 8x8/1if; #977, its ruling of 2026-11-27 on
++// the population bound, item 2), as lwSRP's receive filter takes a Talker value only for a bound
++// sink's StreamID or a kept one, at most V of them, and a vector's values are distinct StreamIDs
++// (IEEE 802.1Q-2018 35.2.2.8.4;
+ // lwSRP refuses an increment that overflows); a vector of no values, a LeaveAll's, skipped by its
+ // FirstValue and only a VectorHeader of 0 ending the Message's vectors (10.8.1.2, 10.8.2.8); every
+ // other Message skipped by its length, and past eight Messages the rest at V a 28 octets, the least
+@@ -391,9 +392,10 @@ extern "C" {
+ // #897's (its tx row's 34.20 with GET_AS_PATH's read composed on them; 33.44
+ // at that head, the figure not lowered),
+ // 8x8/1if's its own, 130 ms, as #894 states it there, and its tx row rounded
+-// up, at the cap: 80 ms for the 79.48 ms of its row opened on a record's pass
+-// alone with its SETTLE and its polls' base and walk restated (#977's ruling of
+-// 2026-11-27 on the alone records, item 5, as the owner agreed; the hold-off
++// up, at the cap: 80 ms for the 79.49 ms of its row opened on a record's pass
++// alone with its SETTLE and its polls' base and walk restated (79.48 at the
++// ruling's 415 us SETTLE; #977's ruling of 2026-11-27 on the alone records,
++// item 5, approved by the owner's decision of 2026-11-27; the hold-off
+ // stays 8 cs), 77 ms for the 76.86 ms with #977's walk at its 120 us again (78 for the
+ // 77.37 ms of its 190 us walk, 77 for the 76.81 ms of #665's final head,
+ // #665's ruling of 2026-11-18, item 2a; 75 for #894's 74.26), at most 80 so the
+diff --git a/sw/firmware/ctrl/plat/ctrl_split_hot.txt b/sw/firmware/ctrl/plat/ctrl_split_hot.txt
+index e540a6d44a..a1edf5eb06 100644
+--- a/sw/firmware/ctrl/plat/ctrl_split_hot.txt
++++ b/sw/firmware/ctrl/plat/ctrl_split_hot.txt
+@@ -14,7 +14,7 @@
+ # as amended, item 1); then a fourth, srp-register-swap, from its swap record's
+ # commit (the first after its srp.register_swap mark), its functions appended
+ # after the other three windows' in the order it first ran them (#977's ruling
+-# of 2026-11-27 on round 9's STOP, item 3). Every function the windows ran stands
++# of 2026-11-27 on the delivery bound, item 3). Every function the windows ran stands
+ # where they first ran it, and none is placed by hand. Each list is learned so at
+ # the head it ships with; a fifth window, or a window chosen for one head, needs a
+ # ruling of its own.
+diff --git a/sw/firmware/ctrl/srp/README.md b/sw/firmware/ctrl/srp/README.md
+index 55d220d910..0c1870962a 100644
+--- a/sw/firmware/ctrl/srp/README.md
++++ b/sw/firmware/ctrl/srp/README.md
+@@ -149,7 +149,8 @@ After SRP's poll returns, a composition poll calls
+ The sink index and its configured interface are preserved independently.
+ An accepted request retires; transient refusal stays pending and keeps the loop awake.
+ One delivery makes at most one binding change, and outside THE SETTLE at most one loss completion (#977, [its
+-ruling on round 9's STOP](https://github.com/kebag-logic/milan-fpga/issues/977#issuecomment-7212897415), item 2).
++ruling of 2026-11-27 on the delivery bound](https://github.com/kebag-logic/milan-fpga/issues/977#issuecomment-7212897415),
++item 2).
+ Each is the first owed from its turn, the sink after the last it made; where both are owed, a delivery makes only
+ the kind the last one did not, so an owed one waits at most 2 x `n_sinks` deliveries of passes that took no SRP record.
+ A pass that carries an SRP record alone makes no binding change: the change stays pending, owed to the next delivery
+diff --git a/sw/firmware/ctrl/srp/srp_mbx.c b/sw/firmware/ctrl/srp/srp_mbx.c
+index 11de1f3385..15d8941ec6 100644
+--- a/sw/firmware/ctrl/srp/srp_mbx.c
++++ b/sw/firmware/ctrl/srp/srp_mbx.c
+@@ -554,8 +554,9 @@ static uint8_t talker_kind(uint8_t type)
+ // ignores it, as for every StreamID before #969. The filter reads no walk's result, so the walk's schedule moves no
+ // answer of it (#930). The list is scanned only where a StreamID it lists ends in the same octet, and same is entered
+ // only where the last bytes agree, as in sources_of (#977). The kept a record can register are at most V less the
+-// bound sinks (SRP_RECORD_VALUES; #977, its ruling of 2026-11-27, item 2): the filter takes only the first that many
+-// listed, and keeps a new one only below it, so the bound and the kept a record registers are never more than V.
++// bound sinks (SRP_RECORD_VALUES; #977, its ruling of 2026-11-27 on the population bound, item 2): the filter takes
++// only the first that many listed, and keeps a new one only below it, so the bound and the kept a record registers
++// are never more than V.
+ static bool keep_talker(struct srp_interface *i, uint8_t type, const uint8_t *stream_id)
+ {
+     struct srp_mbx *m = i->owner;
+@@ -1014,8 +1015,8 @@ static bool rx_order_ready(struct srp_mbx *m)
+ // distinct StreamIDs (35.2.2.8.4, an overflowing increment refused), so a vector registers at most V. A PDU lwSRP
+ // refuses registers none. Past SRP_CHARGE_MESSAGES Messages the rest of the record is charged by its length, V for
+ // each SRP_TALKER_VECTOR_MIN octets, the least a vector that holds a Talker value takes, so the read is bounded and
+-// the count is never under (#977, its ruling of 2026-11-27, items 2 and 4). A shape whose registration cost is 0
+-// charges the unit.
++// the count is never under (#977, its ruling of 2026-11-27 on the population bound, items 2 and 4). A shape whose
++// registration cost is 0 charges the unit.
+ #define SRP_RECORD_HEAD (14u + 1u) // the Ethernet header and the ProtocolVersion: the first Message's offset
+ #define SRP_TALKER_VECTOR_MIN (2u + 25u + 1u) // a VectorHeader, a Talker Advertise's FirstValue, one ThreeEvents
+ #define SRP_CHARGE_MESSAGES 8u // a Message a type and some repeated before the rest is charged by its length
+diff --git a/sw/firmware/ctrl/srp/srp_mbx.h b/sw/firmware/ctrl/srp/srp_mbx.h
+index be167ca166..e8130472df 100644
+--- a/sw/firmware/ctrl/srp/srp_mbx.h
++++ b/sw/firmware/ctrl/srp/srp_mbx.h
+@@ -158,10 +158,11 @@ struct srp_mbx_config {
+ // default VID's, at most four while a Domain is adopted (srp_mbx.c change_domain: the old and the new of each), so
+ // up to 12 kept leave the rest the pool held before.
+ #define SRP_KEPT_TALKERS CTRL_SRP_SINKS
+-// V, the Talker values one SRP record may register on an interface (#977, its ruling of 2026-11-27, item 2): 4 at
+-// 1x1/1if and 9 at 8x8/1if. The receive filter keeps at most min(SRP_KEPT_TALKERS, V - bound sinks) Talkers beside the
+-// bound ones (keep_talker), so a record registers at most V, and THE DRAIN charges each Talker vector at most V
+-// (rx_charge). At the shapes whose registration THE DRAIN does not charge, V is the whole population and bounds none.
++// V, the Talker values one SRP record may register on an interface (#977, its ruling of 2026-11-27 on the population
++// bound, item 2): 4 at 1x1/1if and 9 at 8x8/1if. The receive filter keeps at most min(SRP_KEPT_TALKERS, V - bound
++// sinks) Talkers beside the bound ones (keep_talker), so a record registers at most V, and THE DRAIN charges each
++// Talker vector at most V (rx_charge). At the shapes whose registration THE DRAIN does not charge, V is the whole
++// population and bounds none.
+ #if CTRL_LOOP_SHAPE(1u, 2u, 2u)
+ #define SRP_RECORD_VALUES 4u
+ #elif CTRL_LOOP_SHAPE(1u, 9u, 9u)
+diff --git a/sw/firmware/ctrl/test/sink_mutants.py b/sw/firmware/ctrl/test/sink_mutants.py
+index 1d82b0a550..51b4abee93 100644
+--- a/sw/firmware/ctrl/test/sink_mutants.py
++++ b/sw/firmware/ctrl/test/sink_mutants.py
+@@ -74,7 +74,8 @@ POWER_ON = ("S13 a Talker Advertise registered before the restored binding settl
+             "TRANSMIT's next MRPDU, input 0")
+ REBOUND = ("S14 a BIND_RX while bound to a stream declared all along: the Listener is declared in THE TRANSMIT's next "
+            "MRPDU, input 0")
+-#: S14 past the keep (#977's ruling of 2026-11-27, item 3; #1023) and S14b, one input unbound, the keep's room for one.
++#: S14 past the keep (#977's ruling of 2026-11-27 on the population bound, item 3; #1023) and S14b, one input unbound,
++#: the keep's room for one.
+ PAST = "S14 past the keep: nothing is declared before the Talker's next declaration, input 0"
+ REBOUND_B = ("S14b one input unbound: a BIND_RX while bound to a stream declared all along: an MRPDU follows the "
+              "probe's answer, input 0")
+diff --git a/sw/firmware/ctrl/test/srp_binding.hpp b/sw/firmware/ctrl/test/srp_binding.hpp
+index 90b4fd76fa..2990f0b052 100644
+--- a/sw/firmware/ctrl/test/srp_binding.hpp
++++ b/sw/firmware/ctrl/test/srp_binding.hpp
+@@ -232,8 +232,8 @@ TEST_F(SrpBinding, ParkedReplacementRetiresThePreviouslyAcceptedBinding) {
+             }
+         });
+         for (unsigned k=0;k<2u;++k) ASSERT_TRUE(sink(k).bound);
+-        // one binding change a delivery (#977's ruling on round 9's STOP, item 2): the first retires one, the
+-        // other is owed
++        // one binding change a delivery (#977's ruling of 2026-11-27 on the delivery bound, item 2): the
++        // first retires one, the other is owed
+         EXPECT_TRUE(app.loop.polls[4].fn(app.loop.polls[4].ctx))
+             << "the second parked binding's retirement is owed";
+         EXPECT_EQ(app.loop.polls[4].fn(app.loop.polls[4].ctx),transient);
+@@ -373,11 +373,11 @@ TEST_F(SrpBinding, AttachmentRefusesMissingRoomAndShapeWithoutPartialBinding) {
+     EXPECT_EQ(app.loop.rx[MBX_CH_SRP].fn,nullptr);
+ }
+ 
+-// The delivery's bound (#977, its ruling on round 9's STOP, item 2): a delivery makes at most one binding change and,
+-// outside THE SETTLE, at most one loss completion, each the first owed from its turn; the rest stay pending, are
+-// delivered in turn and keep the loop awake, so each waits at most n_sinks deliveries of passes that took no SRP
+-// record: a pass that carries a record alone makes no binding change (its ruling of 2026-11-27 on the alone records,
+-// item 4).
++// The delivery's bound (#977, its ruling of 2026-11-27 on the delivery bound, item 2): a delivery makes at most one
++// binding change and, outside THE SETTLE, at most one loss completion, each the first owed from its turn; the rest
++// stay pending, are delivered in turn and keep the loop awake, so each waits at most n_sinks deliveries of passes
++// that took no SRP record: a pass that carries a record alone makes no binding change (its ruling of 2026-11-27 on
++// the alone records, item 4).
+ TEST_F(SrpBinding, D1ADeliveryMakesOneBindingChangeTheRestInTurn) {
+     const unsigned n=acfg.n_sinks;
+     for (unsigned k=0;k<n;++k) bind(k);
+@@ -516,5 +516,64 @@ TEST_F(SrpBinding, D7WithBothOwedAfterABindingChangeADeliveryCompletesTheLoss) {
+     (void)app.loop.polls[4].fn(app.loop.polls[4].ctx);
+     EXPECT_FALSE(app.srp_requests[0].pending) << "D7 the next delivery makes the change";
+ }
++TEST_F(SrpBinding, D8ASinksLossIsCompletedWithinItsTurnWhateverAnotherLosesAgain) {
++    const unsigned n=acfg.n_sinks;
++    ASSERT_GE(n,2u);
++    for (unsigned k=0;k<n;++k) { bind(k); response(k,k); }
++    for (unsigned k=0;k<n;++k) ASSERT_EQ(core()->sinks[k].state,ACMP_SETTLED_NO_RSV);
++    // a loss at a binding ACMP holds with no reservation asks no change of SRP, so only losses are owed (D5)
++    sink(n-1u).withdrawn=true;
++    app.loop.drain_taken=0u;
++    bool completed=false;
++    for (unsigned d=0;d<n && !completed;++d) {
++        sink(0).withdrawn=true;   // the first sink's loss latched again before each delivery
++        (void)app.loop.polls[4].fn(app.loop.polls[4].ctx);
++        completed=!sink(n-1u).withdrawn;
++    }
++    EXPECT_TRUE(completed) << "D8 a sink's loss waits at most n_sinks deliveries";
++}
++TEST_F(SrpBinding, D9WithBothOwedAfterALossADeliveryMakesTheBindingChange) {
++    const unsigned n=acfg.n_sinks;
++    ASSERT_GE(n,2u);
++    for (unsigned k=0;k<n;++k) { bind(k); response(k,k); registration(k,false,0,k); }
++    without_delivery([&] {   // the first sink rebinds to another talker, its change owed
++        auto p=command(spec::MSG_BIND_RX_COMMAND,0u); p.talker=kTkB;
++        ASSERT_TRUE(offer(p,spec::MULTICAST_MAC,acfg.sink_interface[0])); settle();
++        response(0u,n+1u);
++    });
++    ASSERT_TRUE(app.srp_requests[0].pending);
++    // the second sink's registration lost as the change waits, the last delivery's a loss completion
++    sink(1u).withdrawn=true;
++    app.srp_lost_last=true;
++    app.loop.drain_taken=0u;
++    (void)app.loop.polls[4].fn(app.loop.polls[4].ctx);
++    EXPECT_FALSE(app.srp_requests[0].pending)
++        << "D9 with both owed after a loss completion, the delivery makes the binding change";
++    EXPECT_EQ(core()->sinks[1].state,ACMP_SETTLED_RSV_OK) << "D9 and leaves the loss owed";
++    EXPECT_TRUE(sink(1u).withdrawn) << "D9 and leaves the loss owed";
++}
++TEST_F(SrpBinding, D10ARecordsPassTakesNoTurn) {
++    const unsigned n=acfg.n_sinks;
++    ASSERT_GE(n,2u);
++    for (unsigned k=0;k<n;++k) { bind(k); response(k,k); registration(k,false,0,k); }
++    without_delivery([&] {   // the first sink rebinds to another talker, its change owed
++        auto p=command(spec::MSG_BIND_RX_COMMAND,0u); p.talker=kTkB;
++        ASSERT_TRUE(offer(p,spec::MULTICAST_MAC,acfg.sink_interface[0])); settle();
++        response(0u,n+1u);
++    });
++    sink(1u).withdrawn=true;
++    app.srp_lost_last=false;
++    app.loop.drain_taken=1u;   // the pass took an SRP record
++    (void)app.loop.polls[4].fn(app.loop.polls[4].ctx);
++    if (CTRL_LOOP_SETTLE_ALONE) {
++        // carried alone: its delivery owes THE SETTLE and makes neither kind, nor takes either kind's turn
++        EXPECT_TRUE(app.srp_requests[0].pending) << "D10 a record's pass makes no binding change";
++        EXPECT_FALSE(app.srp_lost_last) << "D10 a record's pass takes no turn";
++        app.loop.drain_taken=0u;
++        (void)app.loop.polls[4].fn(app.loop.polls[4].ctx);
++    }
++    // the delivery after a binding change completes the loss first, the change left owed
++    EXPECT_NE(core()->sinks[1].state,ACMP_SETTLED_RSV_OK) << "D10 the next delivery completes the loss first";
++    EXPECT_TRUE(app.srp_requests[0].pending) << "D10 and leaves the binding change owed";
++}
+ } // namespace
+-
+diff --git a/sw/firmware/ctrl/test/srp_deliver_mutants.py b/sw/firmware/ctrl/test/srp_deliver_mutants.py
+index cf4970c0cb..01261ab0d1 100644
+--- a/sw/firmware/ctrl/test/srp_deliver_mutants.py
++++ b/sw/firmware/ctrl/test/srp_deliver_mutants.py
+@@ -1,6 +1,6 @@
+ # SPDX-FileCopyrightText: 2026 Kebag Logic
+ # SPDX-License-Identifier: CERN-OHL-W-2.0
+-"""Planted defects of the SRP delivery's bound (#977, its ruling on round 9's STOP, item 2).
++"""Planted defects of the SRP delivery's bound (#977, its ruling of 2026-11-27 on the delivery bound, item 2).
+ 
+ A delivery (ctrl_app_srp.c deliver) makes at most one binding change and, outside THE SETTLE, at most one loss
+ completion, each the first owed from its turn, the sink after the last it made, and where both are owed only the kind
+@@ -8,11 +8,12 @@ the last delivery did not make; the rest stay pending, keep the loop awake and a
+ most 2 x n_sinks deliveries of passes that took no SRP record: a pass that carries a record alone makes no binding
+ change (its ruling of 2026-11-27 on the alone records, item 4). THE SETTLE still completes every loss it owes. One
+ defect a rule: every owed change made at once, the turn taken from the first sink, every loss completed at once, a
+-binding change made beside a loss, a binding change made again where both are owed after one, an owed loss or an owed
+-change leaving the loop asleep, THE SETTLE completing none, and a record's pass making a binding change. srp_mutants.py
+-plants each with the rest of its table; each named test (srp_binding.hpp, D1 to D7) must fail on its own words. The
+-last bites only where THE SETTLE carries a record alone, the one-interface shapes, so its name takes
+-srp_drain_mutants.PREFIX and test_ctrl_firmware.py plants it there.
++binding change made beside a loss, a binding change made again where both are owed after one, the loss turn taken from
++the first sink or never advanced, a loss completed again where both are owed after one, an owed loss or an owed change
++leaving the loop asleep, THE SETTLE completing none, and a record's pass taking a loss's turn or making a binding
++change. srp_mutants.py plants each with the rest of its table; each named test (srp_binding.hpp, D1 to D10) must fail
++on its own words. The two of a record's pass bite only where THE SETTLE carries a record alone, the one-interface
++shapes, so their names take srp_drain_mutants.PREFIX and test_ctrl_firmware.py plants them there.
+ """
+ from __future__ import annotations
+ 
+@@ -57,6 +58,22 @@ def defects(kind: Callable[..., T]) -> tuple[T, ...]:
+              '        if (app->srp_lost_last) {\n', '        if (true) {\n',
+              'D7 with both owed after a binding change, the delivery completes the loss', path='app/ctrl_app_srp.c',
+              suite='test_acmp_mbx.cpp'),
++        kind('deliver-loss-turn-from-the-first',
++             'SrpBinding.D8ASinksLossIsCompletedWithinItsTurnWhateverAnotherLosesAgain',
++             'const unsigned k = (app->srp_loss_turn + step) % n;', 'const unsigned k = step % n;',
++             "D8 a sink's loss waits at most n_sinks deliveries", path='app/ctrl_app_srp.c', suite='test_acmp_mbx.cpp'),
++        kind('deliver-loss-turn-never-advanced',
++             'SrpBinding.D8ASinksLossIsCompletedWithinItsTurnWhateverAnotherLosesAgain',
++             'app->srp_loss_turn = (uint8_t)((lose + 1u) % n);', 'app->srp_loss_turn = app->srp_loss_turn;',
++             "D8 a sink's loss waits at most n_sinks deliveries", path='app/ctrl_app_srp.c', suite='test_acmp_mbx.cpp'),
++        kind('deliver-loss-always-first', 'SrpBinding.D9WithBothOwedAfterALossADeliveryMakesTheBindingChange',
++             '        if (app->srp_lost_last) {\n', '        if (false) {\n',
++             'D9 with both owed after a loss completion, the delivery makes the binding change',
++             path='app/ctrl_app_srp.c', suite='test_acmp_mbx.cpp'),
++        kind('srp-977-deliver-loss-in-a-records-pass', 'SrpBinding.D10ARecordsPassTakesNoTurn',
++             'for (unsigned step = 0; step < n && lose == n && !settles; ++step) {',
++             'for (unsigned step = 0; step < n && lose == n; ++step) {',
++             "D10 a record's pass takes no turn", path='app/ctrl_app_srp.c', suite='test_acmp_mbx.cpp'),
+         kind('srp-977-deliver-binds-in-a-records-pass',
+              'SrpBinding.D6ARecordsPassMakesNoBindingChangeTheNextDeliveryMakesIt',
+              'for (unsigned step = 0; step < n && bind == n && !settles; ++step) {',
+diff --git a/sw/firmware/ctrl/test/srp_drain_mutants.py b/sw/firmware/ctrl/test/srp_drain_mutants.py
+index fb4fef2e5c..ba5ae9d704 100644
+--- a/sw/firmware/ctrl/test/srp_drain_mutants.py
++++ b/sw/firmware/ctrl/test/srp_drain_mutants.py
+@@ -5,7 +5,8 @@ of 2026-11-23, items 3 and 4): each defect and the test whose words must fail on
+ shapes, where the registration cost and THE SETTLE are set (ctrl_loop.h, CTRL_LOOP_SRP_REG_US, CTRL_LOOP_SETTLE_ALONE),
+ so test_ctrl_firmware.py plants them in the one-interface campaigns alone; those named with PREFIX_8X8 only at 8x8/1if,
+ where CTRL_LOOP_DECLARE_ALONE is set and the kept are bounded below the sinks (V less the bound, SRP_RECORD_VALUES), and
+-those named with PREFIX_1X1 only at 1x1/1if, where V is past the sinks (#977, its ruling of 2026-11-27, item 2)."""
++those named with PREFIX_1X1 only at 1x1/1if, where V is past the sinks (#977, its ruling of 2026-11-27 on the
++population bound, item 2)."""
+ from __future__ import annotations
+ 
+ from collections.abc import Callable
+diff --git a/sw/firmware/ctrl/test/srp_mbx.cpp b/sw/firmware/ctrl/test/srp_mbx.cpp
+index 979d97f040..20a93635fb 100644
+--- a/sw/firmware/ctrl/test/srp_mbx.cpp
++++ b/sw/firmware/ctrl/test/srp_mbx.cpp
+@@ -468,10 +468,10 @@ TEST_F(Srp, DomainUsesPeerPriorityAndVlan) {
+ }
+ // THE DRAIN's charge of the record at the head of SRP's ring (#977, its ruling of 2026-11-23, item 4): the unit, and a
+ // registration's stated cost for each Talker value its Talker Messages' vectors carry, at most V a vector
+-// (SRP_RECORD_VALUES; #977, its ruling of 2026-11-27, items 2 and 4), read with the record left in the ring: nothing for
+-// an MVRP record, a Listener's or one past the PDU's EndMark, a Message's AttributeListLength bounding it, a vector of
+-// no values (a LeaveAll's) skipped by its FirstValue with the walk going on (IEEE 802.1Q-2018 10.8.1.2, 10.8.2.8), and
+-// past eight Messages the rest by its length, V for each 28 octets.
++// (SRP_RECORD_VALUES; #977, its ruling of 2026-11-27 on the population bound, items 2 and 4), read with the record left
++// in the ring: nothing for an MVRP record, a Listener's or one past the PDU's EndMark, a Message's AttributeListLength
++// bounding it, a vector of no values (a LeaveAll's) skipped by its FirstValue with the walk going on (IEEE 802.1Q-2018
++// 10.8.1.2, 10.8.2.8), and past eight Messages the rest by its length, V for each 28 octets.
+ TEST_F(Srp, TheDrainChargesARecordTheTalkersItsVectorsCanRegister) {
+     settle();
+     ASSERT_TRUE(loop.drain_charge != nullptr);
+@@ -2594,10 +2594,10 @@ protected:
+     }
+ };
+ 
+-// The population a record registers (#977, its ruling of 2026-11-27, item 2): with enough sinks bound that the bound
+-// and the kept fill V, one vector of V + 3 Talkers from the bound ones' registers V, the bound and the kept, and THE
+-// DRAIN charges at least the unit and the cost of each, as read from the record before lwSRP parses it; and so after
+-// eight Listener Messages, past which the rest of the record is charged by its length.
++// The population a record registers (#977, its ruling of 2026-11-27 on the population bound, item 2): with enough
++// sinks bound that the bound and the kept fill V, one vector of V + 3 Talkers from the bound ones' registers V, the
++// bound and the kept, and THE DRAIN charges at least the unit and the cost of each, as read from the record before
++// lwSRP parses it; and so after eight Listener Messages, past which the rest of the record is charged by its length.
+ TEST_F(SrpEarlyTalker, AVectorOfBoundAndKeptTalkersRegistersVAndIsChargedForEach) {
+     const unsigned bound=CTRL_SRP_SINKS<SRP_RECORD_VALUES ? CTRL_SRP_SINKS : CTRL_SRP_SINKS/3u;
+     std::vector<uint8_t> listeners;
+diff --git a/sw/firmware/ctrl/test/test_plat_boot.cpp b/sw/firmware/ctrl/test/test_plat_boot.cpp
+index 7f77f12043..fdcdc2ce71 100644
+--- a/sw/firmware/ctrl/test/test_plat_boot.cpp
++++ b/sw/firmware/ctrl/test/test_plat_boot.cpp
+@@ -1350,7 +1350,7 @@ struct Phy : Boot {
+     }
+ };
+ 
+-// B25 the platform seeds ADP's draw from its microsecond clock, wired before ADP starts (adp_mbx.h, THE DRAW;
++// The platform seeds ADP's draw from its microsecond clock, wired before ADP starts (adp_mbx.h, THE DRAW;
+ // #970): three boots alike but for a clock origin one microsecond apart leave three generator states. A clock read in
+ // milliseconds or in coarser granules, or wired after ADP's startup draw (NOW_MS), leaves two alike at least.
+ TEST_F(Boot, B25TheAdpDrawIsSeededFromThePlatformsClock) {
+@@ -1369,7 +1369,7 @@ TEST_F(Boot, B25TheAdpDrawIsSeededFromThePlatformsClock) {
+         << "B25 boots one microsecond apart in the clock's origin seed ADP's draw differently (#970)";
+ }
+ 
+-// B27 a LINK_UP after ready takes the platform clock's reading at that LINK_UP: boots alike up to it, the clock one
++// A LINK_UP after ready takes the platform clock's reading at that LINK_UP: boots alike up to it, the clock one
+ // microsecond apart only from the link's loss on, draw apart on the interface that rose, and leave every other
+ // interface's generator as it was (IEEE 1722.1-2021 6.2.4.2.2; Milan v1.2 5.6.3.5.3).
+ TEST_F(Boot, B27ALinkUpReadsThePlatformsClockAtTheLinkUp) {
+@@ -1407,7 +1407,7 @@ TEST_F(Boot, B27ALinkUpReadsThePlatformsClockAtTheLinkUp) {
+ }
+ 
+ #if MBX_N_IF > 1
+-// B26 the interface is in the seed: two interfaces enabled at one clock reading are seeded apart (#970).
++// The interface is in the seed: two interfaces enabled at one clock reading are seeded apart (#970).
+ std::uint64_t stopped_now_us(void*) {
+     return 0;
+ }
+diff --git a/sw/firmware/ctrl/test/test_plat_sinks.cpp b/sw/firmware/ctrl/test/test_plat_sinks.cpp
+index 3f797495ee..53453d2fad 100644
+--- a/sw/firmware/ctrl/test/test_plat_sinks.cpp
++++ b/sw/firmware/ctrl/test/test_plat_sinks.cpp
+@@ -1554,11 +1554,11 @@ TEST_F(Early, S13ASavedBindingRestoredAtPowerOnDeclaresATalkerRegisteredBeforeIt
+     }
+ }
+ 
+-// #969 under #977's population bound (its ruling of 2026-11-27, item 3; #1023): a bind while bound to a stream declared
+-// all along is declared within one THE TRANSMIT where its Talker was kept, the first min(SRP_KEPT_TALKERS, V less the
+-// bound sinks) declared. Past that keep, as at 8x8/1if with every input bound, nothing is declared before the Talker's
+-// next declaration, and then it is declared in THE TRANSMIT's next MRPDU (IEEE 802.1Q-2018 Table 10-3, 10.7.8 NOTE;
+-// Milan v1.2 5.5.3.5.18 step 4).
++// #969 under #977's population bound (its ruling of 2026-11-27 on that bound, item 3; #1023): a bind while
++// bound to a stream declared all along is declared within one THE TRANSMIT where its Talker was kept, the first
++// min(SRP_KEPT_TALKERS, V less the bound sinks) declared. Past that keep, as at 8x8/1if with every input bound, nothing
++// is declared before the Talker's next declaration, and then it is declared in THE TRANSMIT's next MRPDU (IEEE
++// 802.1Q-2018 Table 10-3, 10.7.8 NOTE; Milan v1.2 5.5.3.5.18 step 4).
+ TEST_F(Early, S14ABindWhileBoundToAStreamDeclaredAllAlongIsDeclaredWithinOneTransmit) {
+     ASSERT_TRUE(ready());
+     const auto all = every_input();
+@@ -1623,8 +1623,9 @@ TEST_F(Early, S14ABindWhileBoundToAStreamDeclaredAllAlongIsDeclaredWithinOneTran
+     }
+ }
+ 
+-// The same with one input left unbound (#977's ruling on round 9's STOP, item 6): the bound sinks leave the keep room
+-// for the one Talker declared, so the rebind of input 0 to it is declared within one THE TRANSMIT at every shape.
++// The same with one input left unbound (#977's ruling of 2026-11-27 on the delivery bound, item 6): the bound sinks
++// leave the keep room for the one Talker declared, so the rebind of input 0 to it is declared within one THE TRANSMIT
++// at every shape.
+ TEST_F(Early, S14bWithOneInputUnboundARebindToTheOneTalkerDeclaredIsDeclaredWithinOneTransmit) {
+     ASSERT_TRUE(ready());
+     auto all = every_input();
+diff --git a/tb/verilator/ctrl_service_budget/flip_grade.py b/tb/verilator/ctrl_service_budget/flip_grade.py
+index d38909cfa8..d945fa6b08 100644
+--- a/tb/verilator/ctrl_service_budget/flip_grade.py
++++ b/tb/verilator/ctrl_service_budget/flip_grade.py
+@@ -23,8 +23,8 @@ when ctrl_loop.h states THE TRANSMIT's figure under its row. The flip at 1x1/1if
+ 8x8/2if's rows by every source are reported, not held (#894, the owner's decision of 2026-11-12, owed to #872).
+ 
+ 8x8/1if is the flip's other point (#894's shape ruling, items (a) and (b)), held by --check --point
+-8x8/1if to its load, at most 0.77 (#977's owner decision of 2026-11-27; 0.76 by its decision of 2026-11-25, 0.75
+-before), the 8x8 shape's stated costs
++8x8/1if to its load, at most 0.78 (owner decision pending, for #977's deliveries term; 0.77 by its owner decision
++of 2026-11-27, 0.76 by its decision of 2026-11-25, 0.75 before), the 8x8 shape's stated costs
+ with THE TRANSMIT's builds at its own shape (load_grade.NEAREST), and to ctrl_loop.h's table of shapes
+ (shape_costs.findings: its slice at most 1,600 us). Its measured rows are the CPU budget harness's on its built
+ image (run.py --point 8x8-1if: 0 budget misses, every row within its bound and its join intervals in range); its
+@@ -62,8 +62,10 @@ import shape_costs  # noqa: E402
+ ROOT = load_grade.ROOT
+ #: The points whose load the flip check holds, and each one's ceiling: 8x8/2if's 0.70 (#665, option D) and 8x8/1if's
+ #: 0.77 (#894's shape ruling, item (b), at 0.75; raised to 0.76 by #977's owner decision of 2026-11-25, and to
+-#: 0.77 by its owner decision of 2026-11-27, for the registration cost its swap record states by the rule).
+-FLIP = {'8x8/2if': 0.70, '8x8/1if': 0.77}
++#: 0.77 by its owner decision of 2026-11-27, for the registration cost its swap record states by the rule; 0.78 for
++#: the deliveries a registering record defers, a load term since the manager's decision of 2026-11-27 on them, owner
++#: decision pending).
++FLIP = {'8x8/2if': 0.70, '8x8/1if': 0.78}
+ #: The points the flip check names: the rows' (rows_grade.POINTS) and 8x8/1if, whose rows by every source are reported
+ #: apart, owed to #872 (REPORTED), and whose measured rows the CPU budget harness holds.
+ POINTS = (*rows_grade.POINTS, '8x8/1if')
+@@ -191,12 +193,12 @@ def controls(root: Path) -> list[str]:
+         escaped.append('a stated cost missing')
+     # the held point and its ceiling (#665: the 0.70 long-window ceiling, option D), read at the pin (#665, #890:
+     # item 6), never on the graded column
+-    if FLIP != {'8x8/2if': 0.70, '8x8/1if': 0.77}:
+-        escaped.append('the flip ceilings not 0.70 at 8x8/2if and 0.77 at 8x8/1if')
+-    # 8x8/1if's ceiling at #977's owner decision of 2026-11-27: a load of 0.761, over the 0.76 before it, passes,
+-    # and one of 0.771 fails
+-    if over(0.761, FLIP['8x8/1if']) or not over(0.771, FLIP['8x8/1if']):
+-        escaped.append('8x8/1if: 0.761 refused or 0.771 passed')
++    if FLIP != {'8x8/2if': 0.70, '8x8/1if': 0.78}:
++        escaped.append('the flip ceilings not 0.70 at 8x8/2if and 0.78 at 8x8/1if')
++    # 8x8/1if's ceiling with the deliveries term (owner decision pending): a load of 0.780 passes, and one of 0.781
++    # fails
++    if over(0.780, FLIP['8x8/1if']) or not over(0.781, FLIP['8x8/1if']):
++        escaped.append('8x8/1if: 0.780 refused or 0.781 passed')
+     if COLUMN is not load_grade.STATED_US:
+         escaped.append('the graded column read, not the pin')
+     # ctrl_loop.h's table of shapes, which the flip check holds at every point (#894's shape ruling,
+@@ -417,7 +419,7 @@ def rule_controls(root: Path) -> list[str]:
+ #: The planted defects controls() plants, in its order: the load's, then the rows'.
+ CONTROLS = ('an over-ceiling row', 'a row within its ceiling', 'a cost raised over the ceiling',
+             'a stated cost missing', 'the flip ceilings not 0.70 at 8x8/2if and 0.77 at 8x8/1if',
+-            '8x8/1if: 0.761 refused or 0.771 passed',
++            '8x8/1if: 0.780 refused or 0.781 passed',
+             'the graded column read, not the pin', 'an over-ceiling row at 8x8/1if',
+             'a row within its ceiling at 8x8/1if', *(f'the table of shapes: {name}' for name in shape_costs.CONTROLS),
+             *TX_HELD_CONTROLS, CHECK_HELD_CONTROL)
+diff --git a/tb/verilator/ctrl_service_budget/load_deliveries.py b/tb/verilator/ctrl_service_budget/load_deliveries.py
+new file mode 100644
+index 0000000000..9169632d7c
+--- /dev/null
++++ b/tb/verilator/ctrl_service_budget/load_deliveries.py
+@@ -0,0 +1,47 @@
++# SPDX-FileCopyrightText: 2026 Kebag Logic
++# SPDX-License-Identifier: CERN-OHL-W-2.0
++"""The load gate's planted controls of the deliveries term (load_grade.py's term list; #977, the manager's decision of
++2026-11-27 on the deferred deliveries): the binding changes and loss completions a registering record defers, one a
++delivery, into the polls' base of the passes after it. Each control is refused by load_grade.py --check itself
++(delivery_findings), the head's by none.
++"""
++from __future__ import annotations
++
++import sys
++from pathlib import Path
++from unittest import mock
++
++
++def controls(root: Path) -> list[str]:
++    """The deliveries term left out, counted at half its rate, or stated at none or under its dearest-before figure:
++    the planted names that escaped."""
++    import load_grade
++    escaped = ['the head refused'] if load_grade.delivery_findings(root) else []
++    real = load_grade.load
++
++    def without(root_: Path, point: str, table: dict | None = None) -> dict[str, float]:
++        """The load with no deliveries term."""
++        return {k: v for k, v in real(root_, point, table).items() if k != 'deliveries'}
++
++    def halved(root_: Path, point: str, table: dict | None = None) -> dict[str, float]:
++        """The load with the deliveries term at half its rate."""
++        return {k: v / 2 if k == 'deliveries' else v for k, v in real(root_, point, table).items()}
++    for name, patch in (('the deliveries term left out', mock.patch.object(load_grade, 'load', without)),
++                        ('the deliveries term counted at half its rate', mock.patch.object(load_grade, 'load', halved)),
++                        ('the deliveries cost stated at none', mock.patch.dict(load_grade.DELIVERY_US, clear=True))):
++        with patch:
++            if not any('but not the deliveries' in f for f in load_grade.findings(root)):
++                escaped.append(name)
++    low = load_grade.DELIVERY_US_DEAREST['8x8/1if'] - 5
++    with mock.patch.dict(load_grade.DELIVERY_US, {'8x8/1if': low}):
++        if not any('under its dearest-before figure' in f for f in load_grade.findings(root)):
++            escaped.append('the deliveries cost stated under its dearest-before figure')
++    return escaped
++
++
++if __name__ == '__main__':
++    sys.path.insert(0, str(Path(__file__).resolve().parent))
++    import load_grade as _lg
++    missed = controls(_lg.ROOT)
++    print('\n'.join(f'ESCAPED {n}' for n in missed) or 'every deliveries control refused')
++    sys.exit(1 if missed else 0)
+diff --git a/tb/verilator/ctrl_service_budget/load_grade.py b/tb/verilator/ctrl_service_budget/load_grade.py
+index 0f481a6ced..65ad00c2b8 100644
+--- a/tb/verilator/ctrl_service_budget/load_grade.py
++++ b/tb/verilator/ctrl_service_budget/load_grade.py
+@@ -6,7 +6,11 @@
+ The load is the work the sources bring per millisecond of a window long enough that their bursts no longer count:
+ each source's arrival rate, from a contract rate (sw/mailbox/mailbox.yaml, read from the tree) or a protocol timer
+ (each clause below, its value read from the tree where the tree states it), times its stated cost. A pass's own cost
+-(its events' fixed part and its polls' base) is not a source, so it is not a term: it is reported beside the load.
++(its events' fixed part and its polls' base) is not a source, so it is not a term: it is reported beside the load. The
++one exception is the work a registering record defers into the polls' base of the passes after it, its binding changes
++and loss completions, which the delivery bound makes one a delivery (#977, ctrl_app_srp.c deliver): a source, the
++record, at the registration rate, so a term of its own (deliveries), stated against the median ordinary pass's base
++(#977, as the manager decided on 2026-11-27 on the deferred deliveries).
+ At or above 1.0 no ordering of the work bounds a row; CEILING leaves room for the rows: 0.70 (#665, option D) at
+ 1x1/1if, which this gate holds for merge, at the pin and with tsn-c-stack#32 (COLUMNS), each named in what it finds.
+ 8x8/2if is held to the same 0.70 by the flip check, flip_grade.py, read at the pin, a check apart from the merge gates
+@@ -76,15 +80,19 @@ The terms (per millisecond):
+   registrations  a peer's Talker registrations at the MRP state machines' rate (#977, its ruling of 2026-11-23,
+                  option (a)): a participant transmits at most three MRPDUs in any 1.5 x JoinTime (IEEE 802.1Q-2018
+                  10.7.11), JoinTime at least JOIN_MIN_MS (Milan v1.2 Table 4.3), and each may declare V Talkers, the
+-                 bound and the kept a record may register (SRP_RECORD_VALUES; the ruling of 2026-11-27, item 2), in the
+-                 kind that replaces the one registered (35.2.6; Milan v1.2 4.2.7.2.2), so every one registers anew;
+-                 each at REGISTRATION_US, a Talker's share of its record's apply past the unit and of ACMP's completion
+-                 of it (THE SETTLE), where the point measures it.
++                 bound and the kept a record may register (SRP_RECORD_VALUES; the ruling of 2026-11-27 on the
++                 population bound, item 2), in the kind that replaces the one registered (35.2.6; Milan v1.2
++                 4.2.7.2.2), so every one registers anew; each at REGISTRATION_US, a Talker's share of its record's
++                 apply past the unit and of ACMP's completion of it (THE SETTLE), where the point measures it.
++  deliveries     the binding changes and loss completions a registering record defers, one a delivery, into the polls'
++                 base of the passes after it (ctrl_app_srp.c deliver): V a record at the registrations' rate, each at
++                 DELIVERY_US, a sink's share of a record's delivering passes' base over the median ordinary pass's,
++                 where the point measures it.
+ 
+ Not terms, each with its reason: a LINK change has no arrival rate (a row's definition, R5, counts one an interface);
+ THE RETRY's rounds otherwise drain a queue a datapath reset leaves, at most AECP_NOTICES_MOST, a burst and not a rate,
+ and AVB_INFO_CHANGED, AS_PATH_CHANGED and AMAP_LIVE_WRITE are coalesced events with no contract rate (mailbox.yaml);
+-a pass's own cost is no source.
++a pass's own cost is no source, but for the deliveries a registering record defers into it.
+ 
+ usage: python3 -I load_grade.py [--check] [--selftest]
+   --check      print the load table and exit 1 if any point is over its ceiling
+@@ -360,10 +368,23 @@ TX_PER_JOIN = 3
+ #: making no binding change (e59cf6ea's images, the hot list relearned on them): at 8x8/1if the none arm's JoinIn of
+ #: both kinds in one MRPDU, 161,132 cycles, 123,632 past the unit, and its settle, 37,658, over nine values, 17,921
+ #: cycles, 190 us by the rule; at 1x1/1if the none arm's, 56,210 cycles, 27,710 past the unit, and its settle, 7,446,
+-#: over two values, 17,578 cycles, 185 us (#977's ruling on round 9's STOP, item 4: the cost restated by the rule).
++#: over two values, 17,578 cycles, 185 us (#977's ruling of 2026-11-27 on the delivery bound, item 4: the cost
++#: restated by the rule).
+ REGISTRATION_US = {'1x1/1if': 185, '8x8/1if': 190}
++#: The deliveries term (#977, the manager's decision of 2026-11-27 on the deferred deliveries): the work a
++#: registering record defers into the polls' base of the passes after it, its binding changes and loss completions, one
++#: a delivery under the delivery bound, at a sink's share of it. Measured over every registering group of both arms on
++#: e59cf6ea's images (the head's byte-identical), each record's window the delivery bound's own, its pass and the 2 x
++#: n_sinks deliveries after it (tools' deliv11.py): the window's polls base over the stated baseline, the median base of
++#: the ordinary passes in the 50 ms before the record, summed and divided by the sinks, the dearest record by the rule.
++#: At 8x8/1if the answering-ports arm's swap, 104,157 cycles over its median 14,942, 11,573 a sink, 125 us; at 1x1/1if
++#: the answering-ports arm's JoinIn of both kinds with a change owed, 18,076 a sink, 190 us. Beside it, over the dearest
++#: base before the record instead (DELIVERY_US_DEAREST, reported, not graded): 7,236 and 11,930 cycles, 80 and 130 us.
++DELIVERY_US = {'1x1/1if': 190, '8x8/1if': 125}
++DELIVERY_US_DEAREST = {'1x1/1if': 130, '8x8/1if': 80}
+ #: V, the Talker values one SRP record may register, as srp_mbx.h states it at each point's shape (SRP_RECORD_VALUES;
+-#: #977, its ruling of 2026-11-27, item 2): the registrations term counts V a record, the bound and the kept together.
++#: #977, its ruling of 2026-11-27 on the population bound, item 2): the registrations term counts V a record, the
++#: bound and the kept together.
+ RECORD_SHAPES = {'1x1/1if': '1u, 2u, 2u', '8x8/1if': '1u, 9u, 9u'}
+ 
+ 
+@@ -586,6 +607,9 @@ def load(root: Path, point: str, table: dict | None = None) -> dict[str, float]:
+     if point in REGISTRATION_US:
+         # V Talkers a record, bound and kept, in each of TX_PER_JOIN MRPDUs a 1.5 x JoinTime
+         out['registrations'] = REGISTRATION_US[point] * TX_PER_JOIN * record_values(point, root) / (1.5 * JOIN_MIN_MS)
++    if point in DELIVERY_US:
++        # the V binding changes and loss completions each such record defers, one a delivery, at the same rate
++        out['deliveries'] = DELIVERY_US[point] * TX_PER_JOIN * record_values(point, root) / (1.5 * JOIN_MIN_MS)
+     return {term: us / 1000 for term, us in out.items()}
+ 
+ 
+@@ -639,7 +663,7 @@ def findings(root: Path, table: dict | None = None, ceiling: dict | None = None,
+     needs, a term without its source (one the term list does not name, or SRP's retries where the tree states no rule
+     that bounds them), a graded cost below the pin's that tsn-c-stack#32 does not move, and a column bound to another
+     table than its name's (unbound)."""
+-    out = unbound() + srp_unit(root, texts) + own_findings(root)
++    out = unbound() + srp_unit(root, texts) + own_findings(root) + delivery_findings(root)
+     out += [f'the term srp has no source: srp_mbx.c states no {part}' for part in retry_unbounded(root, texts)]
+     out += below_pin(root, table, pin)
+     planted = {'at the pin': pin, 'with tsn-c-stack#32': table}
+@@ -658,6 +682,22 @@ def findings(root: Path, table: dict | None = None, ceiling: dict | None = None,
+     return out
+ 
+ 
++def delivery_findings(root: Path) -> list[str]:
++    """Each point whose registrations the load counts but not the deliveries each registering record defers (the
++    deliveries term at DELIVERY_US, V a record at the registrations' rate), each named; and a deliveries cost stated
++    under its dearest-before figure, the lower bound beside it."""
++    out = []
++    for point in REGISTRATION_US:
++        want = DELIVERY_US.get(point, 0) * TX_PER_JOIN * record_values(point, root) / (1.5 * JOIN_MIN_MS) / 1000
++        got = load(root, point).get('deliveries', 0.0)
++        if point not in DELIVERY_US or abs(got - want) > 1e-12:
++            out.append(f'{point}: the load counts its registrations but not the deliveries each registering record '
++                       f'defers ({got:.4f} of the CPU, not V a record at DELIVERY_US)')
++        elif DELIVERY_US[point] < DELIVERY_US_DEAREST.get(point, 0):
++            out.append(f'{point}: DELIVERY_US {DELIVERY_US[point]} us under its dearest-before figure')
++    return out
++
++
+ def ceiling(point: str) -> str:
+     """A point's ceiling as the table prints it: the merge gate's, the flip check's (FLIPPED), or PENDING."""
+     import flip_grade
+@@ -784,7 +824,10 @@ def controls(root: Path) -> list[str]:
+     if not any('8x8/2if: the graded column states record.srp' in f for f in findings(root, lowered, fit)) or \
+             below_pin(root, walked) or GRADED is not STATED_US_DONOR:
+         escaped.append('the graded column below the pin where tsn-c-stack#32 moves nothing')
+-    return escaped + srp_unit_controls(root, base, fit) + own_controls(root, base, fit) + binding_controls(root)
++    import load_deliveries
++    return escaped + srp_unit_controls(root, base, fit) + own_controls(root, base, fit) + binding_controls(root) + \
++        load_deliveries.controls(root)
++
+ 
+ 
+ def own_controls(root: Path, base: dict, fit: dict) -> list[str]:
+@@ -898,7 +941,9 @@ CONTROLS = ('a cost over the ceiling', 'a held point not held', 'a rise at the p
+             'a timer slot counted per pass', 'a term without a source',
+             'the graded column below the pin where tsn-c-stack#32 moves nothing',
+             "the SRP drain's record cost not the load gate's", "8x8/1if's own ADP record not stated",
+-            "8x8/1if's own ADP record not its measurement's by the rule", "a column's name bound to the other's table")
++            "8x8/1if's own ADP record not its measurement's by the rule", "a column's name bound to the other's table",
++            'the deliveries term left out', 'the deliveries term counted at half its rate',
++            'the deliveries cost stated at none', 'the deliveries cost stated under its dearest-before figure')
+ 
+ 
+ def ceiling_checks() -> list[tuple[str, bool, str]]:
+diff --git a/tb/verilator/ctrl_service_budget/poll_grade.py b/tb/verilator/ctrl_service_budget/poll_grade.py
+index 38dbc16101..4d3d944d69 100644
+--- a/tb/verilator/ctrl_service_budget/poll_grade.py
++++ b/tb/verilator/ctrl_service_budget/poll_grade.py
+@@ -347,8 +347,8 @@ def talker_values(frame: bytes, most: int) -> int:
+ 
+ 
+ def record_values(shape: shape_costs.Shape) -> int:
+-    """SRP_RECORD_VALUES at a shape (srp_mbx.h, V; #977, its ruling of 2026-11-27, item 2), the bound and the kept
+-    together where its chain's #else states it."""
++    """SRP_RECORD_VALUES at a shape (srp_mbx.h, V; #977, its ruling of 2026-11-27 on the population bound, item 2),
++    the bound and the kept together where its chain's #else states it."""
+     text = (scenario.ROOT / 'sw/firmware/ctrl/srp/srp_mbx.h').read_text()
+     chain = r'#(?:el)?if CTRL_LOOP_SHAPE\((\d+)u, (\d+)u, (\d+)u\)\n#define SRP_RECORD_VALUES (\d+)u'
+     for *head, v in re.findall(chain, text):
+diff --git a/tb/verilator/ctrl_service_budget/register_window.py b/tb/verilator/ctrl_service_budget/register_window.py
+index 0d5543bb88..08f40020e4 100644
+--- a/tb/verilator/ctrl_service_budget/register_window.py
++++ b/tb/verilator/ctrl_service_budget/register_window.py
+@@ -244,7 +244,8 @@ def population_groups(p: scenario.Point) -> list[scenario.Group]:
+     one change and leaves the other owed (#977's ruling of 2026-11-27 on the alone records, item 4: the record's pass
+     makes none); and srp-register-messages, every input bound, then one MRPDU
+     of eight Listener Messages before one Talker Advertise Message for each input, past the eight Messages the drain
+-    reads one by one (#977's ruling of 2026-11-27, item 5, and its ruling on round 9's STOP, item 4)."""
++    reads one by one (#977's ruling of 2026-11-27 on the population bound, item 5, and its ruling of the same day on
++    the delivery bound, item 4)."""
+     srp, ms, n = scenario.CH['srp'], scenario.MS, p.sinks
+     v = record_values(p)
+     out = []
+@@ -284,7 +285,8 @@ def population_groups(p: scenario.Point) -> list[scenario.Group]:
+         out.append(g)
+     # every input's Lv of the registered kind alone (Table 10-4: IN to LV), and the same left to its leave timers,
+     # which the one record starts together, so they run out in one centisecond (10.7.11); then every input's JoinIn of
+-    # both kinds in one MRPDU, the second replacing the first (35.2.6) (#977's ruling on round 9's STOP, item 4)
++    # both kinds in one MRPDU, the second replacing the first (35.2.6) (#977's ruling of 2026-11-27 on the delivery
++    # bound, item 4)
+     for name, extra in (('lv', 0), ('leavetime', LEAVE_MS)):
+         g = group(name, n, extra)
+         probe(g, f'register_{name}_advertise', "every input's Talker Advertise, bound, before the record measured",

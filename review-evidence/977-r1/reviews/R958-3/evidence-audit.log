@@ -1,0 +1,51 @@
+{
+  "evidence_commit": "be39b0e1bf12fe4f1b93cf092bccc94e4264cd06",
+  "verified_count": 263,
+  "elf_identity": {
+    "author-r10/receipts/r10d/elf-identity-final.txt": {
+      "maps": 2,
+      "identical_paths": 80
+    },
+    "author-r11/receipts/elf-identity-9976b94f.txt": {
+      "maps": 2,
+      "identical_paths": 80
+    },
+    "author-r11/receipts/r11b/elf-identity-3181a3ec.txt": {
+      "maps": 2,
+      "identical_paths": 80
+    }
+  },
+  "delivery_arithmetic": {
+    "1x1": {
+      "rows": 80,
+      "maxima": {
+        "median": {
+          "cycles_per_sink": 18076.5,
+          "stated_us": 190,
+          "row": "answering-ports/s-srp-register-both-owed srp.register_both_owed.if0 record at bus 107821454: median base before 6,343 (240 passes); window 5 passes, excess 36,153 cycles, 18,076 a sink"
+        },
+        "dearest": {
+          "cycles_per_sink": 11930.5,
+          "stated_us": 130,
+          "row": "answering-ports/s-srp-register-both-owed srp.register_both_owed.if0 record at bus 107821454: dearest base before 9,416 (240 passes); window 5 passes, excess 23,861 cycles, 11,930 a sink"
+        }
+      }
+    },
+    "8x8-1if": {
+      "rows": 80,
+      "maxima": {
+        "median": {
+          "cycles_per_sink": 11573.0,
+          "stated_us": 125,
+          "row": "answering-ports/s-srp-register-swap srp.register_swap.if0 record at bus 190237205: median base before 14,942 (64 passes); window 19 passes, excess 104,157 cycles, 11,573 a sink"
+        },
+        "dearest": {
+          "cycles_per_sink": 7236.111111111111,
+          "stated_us": 80,
+          "row": "none/s-srp-register-swap srp.register_swap.if0 record at bus 213757531: dearest base before 19,393 (81 passes); window 19 passes, excess 65,125 cycles, 7,236 a sink"
+        }
+      }
+    }
+  },
+  "limits": "Published hashes and summarized measurements independently checked; raw ELF binaries and full CPU traces are not in this packet."
+}
