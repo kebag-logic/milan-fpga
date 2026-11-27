@@ -157,7 +157,7 @@ stage below the SR classes (IEEE 802.1Q-2018 8.6.8).
 1 ms for egress: `49 = 240 - 190 - T_egress`, as `rows_tiers.py` derives it.
 The injected frame's 123.2 us must fit inside that allowance together with
 the existing egress path. It cannot simply be added outside the 49 ms bound.
-The capacity proof in [FR_NFR 3.4.1](../reference/FR_NFR.md#341-control-service-budget)
+The capacity proof in [FR_NFR 3.4.1](../reference/FR_NFR.md#341-control-service-budget-and-normative-timing)
 uses 250 Mb/s of a gigabit link. That premise does not hold for this board.
 The current five rings can hold 254 minimum records accepted by `KL_mbx_tx`.
 Their predecessors alone occupy 1700.16 us at 100 Mb/s, before injection,
