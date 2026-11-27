@@ -1,0 +1,6 @@
+loss-turn-from-first	const unsigned k = (app->srp_loss_turn + step) % n;	const unsigned k = step % n;
+loss-turn-kept	app->srp_loss_turn = (uint8_t)((lose + 1u) % n);	app->srp_loss_turn = app->srp_loss_turn;
+bind-turn-kept	app->srp_bind_turn = (uint8_t)((bind + 1u) % n);	app->srp_bind_turn = app->srp_bind_turn;
+loss-chosen-in-records-pass	step < n && lose == n && !settles	step < n && lose == n
+loss-always-preferred	app->srp_lost_last = true;	app->srp_lost_last = false;
+parked-unbinds-every-owed	r->pending = s->bound && (sink != bind || !srp_mbx_bind(	r->pending = s->bound && (!srp_mbx_bind(

@@ -1,0 +1,34 @@
+probe=loss-turn-from-first-1x1 shape=1x1 rc=0 passed=[  PASSED  ] 20 tests.
+probe=loss-chosen-in-records-pass-1x1 shape=1x1 rc=0 passed=[  PASSED  ] 20 tests.
+probe=bind-turn-kept-1x1 shape=1x1 rc=1 passed=[  PASSED  ] 19 tests.
+   <clone>/sw/firmware/ctrl/test/srp_binding.hpp:414: Failure
+   <clone>/sw/firmware/ctrl/test/srp_binding.hpp:41: Failure
+   <clone>/sw/firmware/ctrl/test/srp_binding.hpp:42: Failure
+   <clone>/sw/firmware/ctrl/test/srp_binding.hpp:44: Failure
+   [  FAILED  ] SrpBinding.D2ASinkOwedIsDeliveredWithinItsTurnWhateverAnotherOwesAgain (0 ms)
+   [  FAILED  ] 1 test, listed below:
+   [  FAILED  ] SrpBinding.D2ASinkOwedIsDeliveredWithinItsTurnWhateverAnotherOwesAgain
+probe=loss-turn-kept-1x1 shape=1x1 rc=0 passed=[  PASSED  ] 20 tests.
+probe=loss-chosen-in-records-pass-8x8 shape=8x8 rc=0 passed=[  PASSED  ] 20 tests.
+probe=loss-turn-from-first-8x8 shape=8x8 rc=0 passed=[  PASSED  ] 20 tests.
+probe=loss-turn-kept-8x8 shape=8x8 rc=0 passed=[  PASSED  ] 20 tests.
+probe=bind-turn-kept-8x8 shape=8x8 rc=1 passed=[  PASSED  ] 19 tests.
+   <clone>/sw/firmware/ctrl/test/srp_binding.hpp:414: Failure
+   <clone>/sw/firmware/ctrl/test/srp_binding.hpp:41: Failure
+   <clone>/sw/firmware/ctrl/test/srp_binding.hpp:42: Failure
+   <clone>/sw/firmware/ctrl/test/srp_binding.hpp:44: Failure
+   [  FAILED  ] SrpBinding.D2ASinkOwedIsDeliveredWithinItsTurnWhateverAnotherOwesAgain (0 ms)
+   [  FAILED  ] 1 test, listed below:
+   [  FAILED  ] SrpBinding.D2ASinkOwedIsDeliveredWithinItsTurnWhateverAnotherOwesAgain
+probe=loss-always-preferred-1x1 shape=1x1 rc=0 passed=[  PASSED  ] 20 tests.
+probe=parked-unbinds-every-owed-1x1 shape=1x1 rc=1 passed=[  PASSED  ] 19 tests.
+   <clone>/sw/firmware/ctrl/test/srp_binding.hpp:237: Failure
+   [  FAILED  ] SrpBinding.ParkedReplacementRetiresThePreviouslyAcceptedBinding (0 ms)
+   [  FAILED  ] 1 test, listed below:
+   [  FAILED  ] SrpBinding.ParkedReplacementRetiresThePreviouslyAcceptedBinding
+probe=loss-always-preferred-8x8 shape=8x8 rc=0 passed=[  PASSED  ] 20 tests.
+probe=parked-unbinds-every-owed-8x8 shape=8x8 rc=1 passed=[  PASSED  ] 19 tests.
+   <clone>/sw/firmware/ctrl/test/srp_binding.hpp:237: Failure
+   [  FAILED  ] SrpBinding.ParkedReplacementRetiresThePreviouslyAcceptedBinding (0 ms)
+   [  FAILED  ] 1 test, listed below:
+   [  FAILED  ] SrpBinding.ParkedReplacementRetiresThePreviouslyAcceptedBinding

@@ -1,0 +1,38 @@
+# head 25ff0632c4ed312d57cad78783474308c92dd21f: source lines (c,h,cpp,hpp,py,ld) carrying a review-round or lane label, and whether the line is new in 09599524..HEAD
+NEW sw/firmware/ctrl/app/ctrl_app.h:107: 	// it took (ctrl_app_srp.c, deliver; #977's ruling on round 9's STOP, item 2).
+NEW sw/firmware/ctrl/app/ctrl_app_srp.c:143:     // on round 9's STOP, item 2; IEEE 802.1Q-2018 10.7.4.1). A pass that carries a record alone (settles) makes no
+NEW sw/firmware/ctrl/test/sink_mutants.py:77: #: S14 past the keep (#977's ruling of 2026-11-27, item 3; #1023) and S14b, one input unbound, the keep's room for one.
+NEW sw/firmware/ctrl/test/sink_mutants.py:78: PAST = "S14 past the keep: nothing is declared before the Talker's next declaration, input 0"
+NEW sw/firmware/ctrl/test/sink_mutants.py:238:     """The rows of #969's early Talkers under #977's population bound, the Early fixture's S13, S14 and S14b."""
+NEW sw/firmware/ctrl/test/srp_binding.hpp:235:         // one binding change a delivery (#977's ruling on round 9's STOP, item 2): the first retires one, the
+NEW sw/firmware/ctrl/test/srp_binding.hpp:376: // The delivery's bound (#977, its ruling on round 9's STOP, item 2): a delivery makes at most one binding change and,
+NEW sw/firmware/ctrl/test/srp_deliver_mutants.py:3: """Planted defects of the SRP delivery's bound (#977, its ruling on round 9's STOP, item 2).
+NEW sw/firmware/ctrl/test/test_plat_sinks.cpp:1593:         answer_every_probe(kept, other, false, "S14 a BIND_RX while bound to a stream declared all along", 0x0e00u);
+NEW sw/firmware/ctrl/test/test_plat_sinks.cpp:1602:                     << "S14 past the keep: input " << n << "'s probe is answered and its binding reaches SRP";
+NEW sw/firmware/ctrl/test/test_plat_sinks.cpp:1609:     ASSERT_EQ(taken.size(), past.size()) << "S14 past the keep: every input probes";
+NEW sw/firmware/ctrl/test/test_plat_sinks.cpp:1613:             << "S14 past the keep: nothing is declared before the Talker's next declaration, input " << n;
+NEW sw/firmware/ctrl/test/test_plat_sinks.cpp:1619:         ASSERT_NE(next, nullptr) << "S14 past the keep: an MRPDU follows the Talker's next declaration, input " << n;
+NEW sw/firmware/ctrl/test/test_plat_sinks.cpp:1621:             << "S14 past the keep: the Talker's next declaration is answered in THE TRANSMIT's next MRPDU, input "
+NEW sw/firmware/ctrl/test/test_plat_sinks.cpp:1626: // The same with one input left unbound (#977's ruling on round 9's STOP, item 6): the bound sinks leave the keep room
+NEW sw/litex/ctrl_memory.py:275:                                         "RAMB36 owed to the hybrid XIP lane's issue; 57.5 on the post-flip composition "
+NEW sw/litex/ctrl_memory.py:284:                                         "rule: ROM debt of 2.0 RAMB36 owed to the hybrid XIP lane's issue; 58.5 with "
+NEW sw/litex/ctrl_memory.py:290:                                         "debt of 2.5 RAMB36 owed to the hybrid XIP lane's issue"),
+NEW sw/litex/ctrl_memory.py:300:                                          "cap raised to 59.0 as debt owed to the hybrid XIP lane's issue, no hold; "
+NEW sw/litex/ctrl_memory.py:306:                                          "as named debt owed to the hybrid XIP lane's issue by the owner's decision of "
+NEW sw/litex/ctrl_memory.py:312:                                          "#665's of 2026-11-17): ROM debt of 4.0 RAMB36 owed to the hybrid XIP lane's "
+NEW sw/litex/ctrl_memory.py:317:                                          "ROM debt of 4.5 RAMB36 owed to the hybrid XIP lane's issue; 61.5 with each "
+NEW sw/litex/ctrl_memory.py:322:                                          "5.5 RAMB36 owed to the hybrid XIP lane's issue; 62.0 with #977's drain "
+NEW sw/litex/ctrl_memory.py:327:                                          "the same rule: ROM debt of 6.0 RAMB36 owed to the hybrid XIP lane's issue; "
+NEW sw/litex/ctrl_memory.py:353:                                             "of 5.0 RAMB36 owed to the hybrid XIP lane's issue; the "
+NEW sw/litex/ctrl_memory.py:367:                                             "rule: debt of 6.5 RAMB36 owed to the hybrid XIP lane's issue; ctrl_plat "
+NEW sw/litex/ctrl_memory.py:379:                                             "8.0 RAMB36 owed to the hybrid XIP lane's issue; and 63.5 with the Talkers "
+NEW sw/litex/ctrl_memory.py:388:                                             "of 8.5 RAMB36 owed to the hybrid XIP lane's issue; still 64.5 with #977's "
+NEW sw/litex/ctrl_memory.py:395:                                             "RAMB36 owed to the hybrid XIP lane's issue"),
+NEW sw/litex/ctrl_memory.py:414:                                            "by the same rule: ROM debt of 2.0 RAMB36 owed to the hybrid XIP lane's "
+NEW sw/litex/ctrl_memory.py:421:                                            "ROM debt of 2.5 RAMB36 owed to the hybrid XIP lane's issue; 59.0 with each "
+NEW sw/litex/ctrl_memory.py:432:                                            "debt of 3.5 RAMB36 owed to the hybrid XIP lane's issue; and 60.5 with "
+NEW sw/litex/ctrl_memory.py:437:                                            "debt of 4.5 RAMB36 owed to the hybrid XIP lane's issue; still 60.5 with "
+NEW sw/litex/ctrl_memory.py:445:                                            "the same rule: ROM debt of 5.0 RAMB36 owed to the hybrid XIP lane's "
+NEW tb/verilator/ctrl_service_budget/load_grade.py:363: #: over two values, 17,578 cycles, 185 us (#977's ruling on round 9's STOP, item 4: the cost restated by the rule).
+NEW tb/verilator/ctrl_service_budget/register_window.py:247:     reads one by one (#977's ruling of 2026-11-27, item 5, and its ruling on round 9's STOP, item 4)."""
+NEW tb/verilator/ctrl_service_budget/register_window.py:287:     # both kinds in one MRPDU, the second replacing the first (35.2.6) (#977's ruling on round 9's STOP, item 4)
