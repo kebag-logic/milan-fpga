@@ -3538,6 +3538,15 @@ The seven held-egress misses remain recorded under their ledger; every other ser
 The slice holds the measured build of both MRPDUs, so `CTRL_LOOP_BUILD_MOST`
 builds both in one pass at this point.
 
+A binding change that arrives during another save is held to the rest of that save plus one save (#1009's ruling 3,
+item 4), at this point by [PR #1004's ruling](https://github.com/kebag-logic/milan-fpga/pull/1004#issuecomment-7221391389).
+The census models the Arty's whole save, from its window to durable, at 188.8 ms (the idle bind's 288.8 ms less its
+100 ms window), so the rule gives 377.6 ms, stated as 400 ms rounded up to 50 ms like 1x1/1if's 450 and 8x8/1if's
+950; the burst's saves by the same rule are 4. The bench's SET_NAME was durable 1.146 to 1.245 s after its command,
+a save of at most 245 ms after the name's 1,000 ms window, which would give 490 ms (500 stated) and 4 saves; the rule
+uses the census model's figure. The worst of the ten in-flight arrivals is 369.2 ms, and the 64-bind burst converges in
+239.6 ms and 4 saves, within both.
+
 | Work | Statement, us |
 |---|---:|
 | Poll base | 235 |
