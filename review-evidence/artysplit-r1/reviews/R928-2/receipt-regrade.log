@@ -1,0 +1,27 @@
+timing-r7 digilent_arty_signoff_Slow_0C_timing.rpt.manifest.json: {"failing_endpoints": 0, "failing_hold_endpoints": 0, "met": true, "pass": true, "ths": 0.0, "tns": 0.0, "total_endpoints": 120594, "whs": 0.138, "wns": 0.433}
+timing-r7 digilent_arty_signoff_Slow_85C_timing.rpt.manifest.json: {"failing_endpoints": 0, "failing_hold_endpoints": 0, "met": true, "pass": true, "ths": 0.0, "tns": 0.0, "total_endpoints": 120594, "whs": 0.138, "wns": 0.433}
+timing-r7 digilent_arty_signoff_Fast_0C_timing.rpt.manifest.json: {"failing_endpoints": 0, "failing_hold_endpoints": 0, "met": true, "pass": true, "ths": 0.0, "tns": 0.0, "total_endpoints": 120594, "whs": 0.05, "wns": 1.606}
+timing-r7 digilent_arty_signoff_Fast_85C_timing.rpt.manifest.json: {"failing_endpoints": 0, "failing_hold_endpoints": 0, "met": true, "pass": true, "ths": 0.0, "tns": 0.0, "total_endpoints": 120594, "whs": 0.05, "wns": 1.606}
+timing-r7 digilent_arty_signoff_Slow_0C_timing.rpt.manifest.json: {"failing_endpoints": 0, "failing_hold_endpoints": 0, "met": true, "pass": true, "ths": 0.0, "tns": 0.0, "total_endpoints": 120594, "whs": 0.138, "wns": 0.433}
+timing-r7 digilent_arty_signoff_Slow_85C_timing.rpt.manifest.json: {"failing_endpoints": 0, "failing_hold_endpoints": 0, "met": true, "pass": true, "ths": 0.0, "tns": 0.0, "total_endpoints": 120594, "whs": 0.138, "wns": 0.433}
+timing-r7 digilent_arty_signoff_Fast_0C_timing.rpt.manifest.json: {"failing_endpoints": 0, "failing_hold_endpoints": 0, "met": true, "pass": true, "ths": 0.0, "tns": 0.0, "total_endpoints": 120594, "whs": 0.05, "wns": 1.606}
+timing-r7 digilent_arty_signoff_Fast_85C_timing.rpt.manifest.json: {"failing_endpoints": 0, "failing_hold_endpoints": 0, "met": true, "pass": true, "ths": 0.0, "tns": 0.0, "total_endpoints": 120594, "whs": 0.05, "wns": 1.606}
+timing-r7 digilent_arty_signoff_Slow_0C_timing.rpt.manifest.json: {"failing_endpoints": 0, "failing_hold_endpoints": 0, "met": true, "pass": true, "ths": 0.0, "tns": 0.0, "total_endpoints": 120594, "whs": 0.126, "wns": 0.064}
+timing-r7 digilent_arty_signoff_Slow_85C_timing.rpt.manifest.json: {"failing_endpoints": 0, "failing_hold_endpoints": 0, "met": true, "pass": true, "ths": 0.0, "tns": 0.0, "total_endpoints": 120594, "whs": 0.126, "wns": 0.064}
+timing-r7 digilent_arty_signoff_Fast_0C_timing.rpt.manifest.json: {"failing_endpoints": 0, "failing_hold_endpoints": 0, "met": true, "pass": true, "ths": 0.0, "tns": 0.0, "total_endpoints": 120594, "whs": 0.05, "wns": 1.606}
+timing-r7 digilent_arty_signoff_Fast_85C_timing.rpt.manifest.json: {"failing_endpoints": 0, "failing_hold_endpoints": 0, "met": true, "pass": true, "ths": 0.0, "tns": 0.0, "total_endpoints": 120594, "whs": 0.05, "wns": 1.606}
+timing-r7 selected: ExtraTimingOpt
+Traceback (most recent call last):
+  File "$SOURCE/tb/verilator/ctrl_service_budget/receipt_regrade.py", line 205, in <module>
+    raise SystemExit(main())
+                     ~~~~^^
+  File "$SOURCE/tb/verilator/ctrl_service_budget/receipt_regrade.py", line 192, in main
+    if sha(path.read_bytes()) != row['sha256']:
+           ~~~~~~~~~~~~~~~^^
+  File "/usr/lib/python3.14/pathlib/__init__.py", line 777, in read_bytes
+    with self.open(mode='rb', buffering=0) as f:
+         ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/pathlib/__init__.py", line 771, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '$PACKET/scratch/public/review-evidence/artysplit-r1/author-r7/receipts/census/answering-every-port/notice-burst-0/manifest.json'

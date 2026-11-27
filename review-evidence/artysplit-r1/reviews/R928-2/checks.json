@@ -1,0 +1,81 @@
+[
+  {
+    "name": "receipt-regrade",
+    "command": [
+      "python3",
+      "tb/verilator/ctrl_service_budget/receipt_regrade.py",
+      "$PACKET/scratch/public/review-evidence/artysplit-r1/author-r7/receipts"
+    ],
+    "rc": 1
+  },
+  {
+    "name": "rows-controls",
+    "command": [
+      "python3",
+      "tb/verilator/ctrl_service_budget/rows_tiers.py",
+      "--selftest"
+    ],
+    "rc": 0
+  },
+  {
+    "name": "kept-controls",
+    "command": [
+      "python3",
+      "tb/verilator/ctrl_service_budget/kept_grade.py",
+      "--selftest"
+    ],
+    "rc": 0
+  },
+  {
+    "name": "owner-model",
+    "command": [
+      "python3",
+      "tb/verilator/ctrl_service_budget/arty_grade.py"
+    ],
+    "rc": 0
+  },
+  {
+    "name": "owner-controls",
+    "command": [
+      "python3",
+      "tb/verilator/ctrl_service_budget/arty_grade.py",
+      "--selftest"
+    ],
+    "rc": 0
+  },
+  {
+    "name": "docs-inventory",
+    "command": [
+      "python3",
+      "scripts/docs_inventory.py",
+      "--check"
+    ],
+    "rc": 0
+  },
+  {
+    "name": "python-idiom",
+    "command": [
+      "python3",
+      "scripts/check_py_idiom.py"
+    ],
+    "rc": 0
+  },
+  {
+    "name": "ledger-controls",
+    "command": [
+      "python3",
+      "tb/verilator/ctrl_service_budget/egress_ledger.py",
+      "--selftest"
+    ],
+    "rc": 0
+  },
+  {
+    "name": "record-controls",
+    "command": [
+      "python3",
+      "tb/verilator/ctrl_service_budget/record_classes.py",
+      "--selftest"
+    ],
+    "rc": 0
+  }
+]

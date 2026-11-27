@@ -1,0 +1,31 @@
+[==========] Running 10 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 10 tests from ArtyPhy
+[ RUN      ] ArtyPhy.BootAdvertisesOnly100FullWithoutGigabitRegisters
+[       OK ] ArtyPhy.BootAdvertisesOnly100FullWithoutGigabitRegisters (0 ms)
+[ RUN      ] ArtyPhy.TenOnlyPartnerNeverPublishesUp
+[       OK ] ArtyPhy.TenOnlyPartnerNeverPublishesUp (0 ms)
+[ RUN      ] ArtyPhy.HalfDuplexPartnerNeverPublishesUp
+[       OK ] ArtyPhy.HalfDuplexPartnerNeverPublishesUp (0 ms)
+[ RUN      ] ArtyPhy.ForcedTenWithDroppedRestartNeverPublishesUp
+[       OK ] ArtyPhy.ForcedTenWithDroppedRestartNeverPublishesUp (0 ms)
+[ RUN      ] ArtyPhy.AdvertisementDriftNeverPublishesUnsupportedMode
+[       OK ] ArtyPhy.AdvertisementDriftNeverPublishesUnsupportedMode (0 ms)
+[ RUN      ] ArtyPhy.LatchedLossRechecksWithoutAnotherRestart
+[       OK ] ArtyPhy.LatchedLossRechecksWithoutAnotherRestart (0 ms)
+[ RUN      ] ArtyPhy.ResetAdvertisementIsRepairedAndRenegotiated
+[       OK ] ArtyPhy.ResetAdvertisementIsRepairedAndRenegotiated (0 ms)
+[ RUN      ] ArtyPhy.DroppedAdvertisementStaysOwedUntilReadback
+[       OK ] ArtyPhy.DroppedAdvertisementStaysOwedUntilReadback (0 ms)
+[ RUN      ] ArtyPhy.UnacknowledgedAdvertisementWritesNothing
+[       OK ] ArtyPhy.UnacknowledgedAdvertisementWritesNothing (0 ms)
+[ RUN      ] ArtyPhy.NoFrameWithoutStepBudget
+[       OK ] ArtyPhy.NoFrameWithoutStepBudget (0 ms)
+[----------] 10 tests from ArtyPhy (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 10 tests from 1 test suite ran. (0 ms total)
+[  PASSED  ] 10 tests.
+== platboot-mii: checks: 10   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (10 tests, 0 failures, exit 0)

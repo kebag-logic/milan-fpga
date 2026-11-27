@@ -1,0 +1,22 @@
+PUBLIC MANIFEST 2141 missing 0 hash mismatch 0
+FILES.tsv 22866 available 266 absent 22600 mismatches 0
+FILES mismatches []
+PART MANIFEST qualification/manifest.json 17 verified
+PART MANIFEST validation/manifest.json 78 verified
+PART MANIFEST derivation/manifest.json 8 verified
+AUTHOR regrade log matches all 147 indexed cases; full local reproduction unavailable without census files
+AUTHOR missing-bound control refuses the disposition and cross-case grade
+INSTALLED model equals published qualification {"cpu_hz": 80000000, "evidence": "stated-cost model only", "load": 0.5004771140350878, "load_terms": {"builds": 0.006947368421052632, "gm": 9.333333333333334e-05, "item.acmp": 0.018600000000000002, "item.acmp_declined": 0.012400000000000001, "item.aecp": 0.04388, "item.mrpdu": 0.013894736842105264, "item.reclaim": 0.020421052631578947, "item.walk": 0.0033157894736842108, "notices": 0.0018, "rec.acmp": 0.049, "rec.adp": 0.012, "rec.aecp": 0.058, "rec.maap": 0.00625, "srp": 0.18, "steps": 0.035333333333333335, "ticks": 0.021, "timers": 0.017541499999999998}, "pace_ms": 10, "rows_ms": {"ACMP": 29.77, "ADP": 27.77, "MAAP": 27.88, "R4": 14.54, "R4L": 218.8, "R5": 68.92, "R6": 67.0, "first": 14.85, "last": 117.47, "tx": 34.81, "txL": 48.82}, "shape": [1, 1, 2], "slice_margin": 0.003673469387755096, "slice_us": 1250, "status": "PASS"}
+CENSUS cost rounding: all 42 costs correct; group set identical
+DERIVATION reproduced; fixed point identical to installed step-2 model
+CONTROL all owed costs restored: NO QUALIFIED MODEL zero qualified rows
+IDENTITY author receipt: 8 executable/ELF pairs; 147 stimuli; flash=None in all eight (non-XIP builds)
+No independent byte comparison possible from one-sided identity summary alone
+RESOURCE | Design State : Physopt postPlace
+RESOURCE | Slice LUTs                 | 33015 |     0 |          0 |     63400 | 52.07 |
+RESOURCE | Slice Registers            | 40369 |     0 |          0 |    126800 | 31.84 |
+RESOURCE | Slice Registers                            | 40369 |     0 |          0 |    126800 | 31.84 |
+RESOURCE | Block RAM Tile    |   78 |     0 |          0 |       135 | 57.78 |
+RESOURCE indexed utilization reports: ['timing-r7/AltSpreadLogic_high/digilent_arty_utilization_place.rpt', 'timing-r7/AltSpreadLogic_high/digilent_arty_utilization_place.rpt.manifest.json', 'timing-r7/ExtraPostPlacementOpt/digilent_arty_utilization_place.rpt', 'timing-r7/ExtraPostPlacementOpt/digilent_arty_utilization_place.rpt.manifest.json', 'timing-r7/ExtraTimingOpt/digilent_arty_utilization_place.rpt', 'timing-r7/ExtraTimingOpt/digilent_arty_utilization_place.rpt.manifest.json']
+Evidence commit has embedded signature: False
+PASS available-packet audit; unavailable measurements are explicitly not reproduced
