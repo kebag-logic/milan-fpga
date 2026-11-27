@@ -1,0 +1,30 @@
+# lwSRP gate diff-msan-on (bin/lwsrp_gates.sh) on a clean clone of opt-exec-3 at its head 73007b48 (the pin)
+[unit milan-977-a825-lw-diff-msan-on cpus 64-95 start 08:50:15]
+| Driver | Build | Seeds | Steps a seed | Trace lines | Identical | Refusal seeds at one port | Traces' sha256 |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| timer | default | 200 | 20000 | 7821600 | 200 | 0 | b5b59e88a4141d8b |
+| timer | scale | 200 | 20000 | 7821600 | 200 | 0 | b5b59e88a4141d8b |
+| timer | scale-slots4-wrap | 200 | 20000 | 7821600 | 200 | 0 | b5b59e88a4141d8b |
+| timer | scale-buckets1 | 200 | 20000 | 7821600 | 200 | 0 | b5b59e88a4141d8b |
+| timer | scale-buckets256 | 200 | 20000 | 7821600 | 200 | 0 | b5b59e88a4141d8b |
+| timer | lean | 200 | 20000 | 7821600 | 200 | 0 | b5b59e88a4141d8b |
+| timer | one-port | 200 | 20000 | 7821600 | 200 | 0 | b5b59e88a4141d8b |
+| timer | rapid | 200 | 20000 | 7821600 | 200 | 0 | b5b59e88a4141d8b |
+| timer | lean-copy | 200 | 20000 | 7821600 | 200 | 0 | b5b59e88a4141d8b |
+| timer | lean-tx | 200 | 20000 | 7821600 | 200 | 0 | b5b59e88a4141d8b |
+| timer | end-station | 200 | 20000 | 7821600 | 200 | 0 | b5b59e88a4141d8b |
+| mad | default | 200 | 3000 | 5623855 | 200 | 0 | 46130e47f0e8806e |
+| mad | scale | 200 | 3000 | 5623855 | 200 | 0 | 46130e47f0e8806e |
+| mad | scale-slots4-wrap | 200 | 3000 | 5623855 | 200 | 0 | 46130e47f0e8806e |
+| mad | scale-buckets1 | 200 | 3000 | 5623855 | 200 | 0 | 46130e47f0e8806e |
+| mad | scale-buckets256 | 200 | 3000 | 5623855 | 200 | 0 | 46130e47f0e8806e |
+| mad | lean | 200 | 3000 | 5623855 | 200 | 0 | 46130e47f0e8806e |
+| mad | one-port | 200 | 3000 | 5623855 | 177 | 23 | 83e3d5191d94eaec |
+| mad | rapid | 200 | 3000 | 5623855 | 200 | 0 | 46130e47f0e8806e |
+| mad | lean-copy | 200 | 3000 | 5623855 | 200 | 0 | 46130e47f0e8806e |
+| mad | lean-tx | 200 | 3000 | 5623855 | 200 | 0 | 46130e47f0e8806e |
+| mad | end-station | 200 | 3000 | 5623855 | 177 | 23 | 83e3d5191d94eaec |
+MSAN end-station: clean over 200 seeds
+KILLED lean-reads-value at seed 4
+Drivers: 2; builds: 22; mutants killed: 1 of 1; problems: 0
+[unit end 08:54:26 rc 0]
