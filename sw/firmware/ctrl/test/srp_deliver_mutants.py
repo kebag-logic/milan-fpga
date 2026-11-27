@@ -10,7 +10,8 @@ change (its ruling of 2026-11-27 on the alone records, item 4). THE SETTLE still
 defect a rule: every owed change made at once, the turn taken from the first sink, every loss completed at once, a
 binding change made beside a loss, an owed loss or an owed change leaving the loop asleep, THE SETTLE completing none,
 and a record's pass making a binding change. srp_mutants.py plants each with the rest of its table; each named test
-(srp_binding.hpp, D1 to D6) must fail on its own words.
+(srp_binding.hpp, D1 to D6) must fail on its own words. The last bites only where THE SETTLE carries a record alone,
+the one-interface shapes, so its name takes srp_drain_mutants.PREFIX and test_ctrl_firmware.py plants it there.
 """
 from __future__ import annotations
 
@@ -50,7 +51,8 @@ def defects(kind: Callable[..., T]) -> tuple[T, ...]:
              'complete(app,sink,app->acmp.acmp.cfg.sink_interface[sink],true);',
              'complete(app,sink,app->acmp.acmp.cfg.sink_interface[sink],false);',
              'D4 THE SETTLE completes every loss it owes', path='app/ctrl_app_srp.c', suite='test_acmp_mbx.cpp'),
-        kind('deliver-binds-in-a-records-pass', 'SrpBinding.D6ARecordsPassMakesNoBindingChangeTheNextDeliveryMakesIt',
+        kind('srp-977-deliver-binds-in-a-records-pass',
+             'SrpBinding.D6ARecordsPassMakesNoBindingChangeTheNextDeliveryMakesIt',
              'for (unsigned step = 0; step < n && bind == n && !settles; ++step) {',
              'for (unsigned step = 0; step < n && bind == n; ++step) {',
              "D6 a record's pass makes no binding change", path='app/ctrl_app_srp.c', suite='test_acmp_mbx.cpp'),

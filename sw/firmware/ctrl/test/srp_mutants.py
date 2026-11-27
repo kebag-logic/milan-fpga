@@ -777,7 +777,7 @@ DEFECTS = (
            'Failed flag reaches ACMP', path='app/ctrl_app_srp.c', suite='test_acmp_mbx.cpp'),
     Defect('feedback-withdrawal-missing','SrpBinding.FailedRegistrationReachesAcmpAndWithdrawalReprobes',
            'if (s->withdrawn && lose)',
-           'if (false)',
+           'if (false && lose)',
            'withdrawal reaches ACMP', path='app/ctrl_app_srp.c', suite='test_acmp_mbx.cpp'),
     Defect('feedback-sink-crossed','SrpBinding.RegistrationKeepsSinkAndInterfaceIdentity',
            'uint8_t registered = s->feedback_kind;',
