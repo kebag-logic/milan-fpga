@@ -55,17 +55,17 @@ int main(int argc, char **argv)
     auto clear = [&] { bench.clear(); };
     auto st = [&](int k) { return bench.st(k); };
     auto duty = [&](const char *what, unsigned mask) { bench.duty(what, mask); };
-    d->rst_ni = 0; d->link_up_i = 0; d->act_i = 0; d->usb_ok_i = 0; d->stat_i = 0;
+    d->rst_ni = 0; d->link_up_i = 0; d->act_i = 0; d->usb_ok_i = 0; d->stream_i = 0; d->clock_i = 0;
     cyc(4); d->rst_ni = 1; cyc(4);
 
     // each input through each state, alone
     duty("all off", 0x0);
     d->link_up_i = 1; cyc(2); CHECK(d->state_o == 0x1, "LD0 alone on link (%x)", d->state_o); duty("link", 0x1);
     d->link_up_i = 0; d->usb_ok_i = 1; cyc(2); CHECK(d->state_o == 0x2, "LD1 alone (%x)", d->state_o); duty("usb", 0x2);
-    d->usb_ok_i = 0; d->stat_i = 1; cyc(2); CHECK(d->state_o == 0x4, "LD2 alone (%x)", d->state_o); duty("stream", 0x4);
-    d->stat_i = 2; cyc(2); CHECK(d->state_o == 0x8, "LD3 alone (%x)", d->state_o); duty("clock", 0x8);
-    d->stat_i = 3; d->usb_ok_i = 1; d->link_up_i = 1; cyc(2); CHECK(d->state_o == 0xF, "all on"); duty("all on", 0xF);
-    d->stat_i = 0; d->usb_ok_i = 0;
+    d->usb_ok_i = 0; d->stream_i = 1; d->clock_i = 0; cyc(2); CHECK(d->state_o == 0x4, "LD2 alone (%x)", d->state_o); duty("stream", 0x4);
+    d->stream_i = 0; d->clock_i = 1; cyc(2); CHECK(d->state_o == 0x8, "LD3 alone (%x)", d->state_o); duty("clock", 0x8);
+    d->stream_i = 1; d->clock_i = 1; d->usb_ok_i = 1; d->link_up_i = 1; cyc(2); CHECK(d->state_o == 0xF, "all on"); duty("all on", 0xF);
+    d->stream_i = 0; d->clock_i = 0; d->usb_ok_i = 0;
 
     // LD0: one frame blinks it off, for 40 ms (4000 clocks, +-1 ms of tick phase)
     cyc(1000);

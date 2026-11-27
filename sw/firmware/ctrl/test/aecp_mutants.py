@@ -16,7 +16,6 @@ import aecp_input_mutants
 import aecp_index_mutants
 import aecp_map_mutants
 import aecp_face_mutants
-import aecp_leds_mutants
 import aecp_notice_mutants
 import aecp_output_mutants
 import aecp_registration_mutants
@@ -892,8 +891,7 @@ DEFECTS = (
     + tuple(defect(*row) for row in aecp_registration_mutants.ROWS) \
     + tuple(defect(*row) for row in aecp_again_mutants.ROWS) \
     + tuple(defect(*row) for row in aecp_configuration_mutants.ROWS) \
-    + tuple(defect(*row) for row in aecp_input_mutants.ROWS) \
-    + tuple(defect(*row) for row in aecp_leds_mutants.ROWS)
+    + tuple(defect(*row) for row in aecp_input_mutants.ROWS)
 
 
 def caught(test: str, words: str, result: Outcome) -> bool:
@@ -961,11 +959,10 @@ def campaign(root: Path, jobs: int = 4, shard: tuple[int, int] = (0, 1), stack: 
             if d.checks[0][0].startswith("Image."):
                 result = aecp_arms.image_arm(tree, config)
             else:
-                mode = ("debug" if d.checks[0][0].startswith("AecpDebug.") else
-                        "leds" if d.checks[0][0].startswith("LedEvents.") else "app")
+                debug = d.checks[0][0].startswith("AecpDebug.")
                 work = d.checks[0][0].startswith(aecp_arms.WORK.rstrip("*"))
                 result = (aecp_arms.core_arm(tree, config, 1, "work", selected) if work else
-                          aecp_arms.core_arm(tree, config, 2, mode, selected))
+                          aecp_arms.core_arm(tree, config, 2, "debug" if debug else "app", selected))
             ok = all(caught(test, words, result) for test, words in d.checks)
             (root / (d.name + ".log")).write_text(result.log)
         except Refusal as error:

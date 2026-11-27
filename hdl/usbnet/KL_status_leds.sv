@@ -15,14 +15,11 @@
                        traffic flickers rather than going dark.
                   LD1  the USB 3.0 path works (usb_ok_i, from the USB network
                        path: docs/design/USB_NET_PATH.md).
-                  LD2  a stream is connected (stat_i[0], written by the
-                       control firmware).
-                  LD3  the clock source is satisfied (stat_i[1], written by
-                       the control firmware).
+                  LD2  any input media-locked or output transmit gate open.
+                  LD3  internal clock, or the selected source locked.
                 state_o is each LED's state before the PWM, for the status
-                register's read-back and for the tests.
-  Spec refs   : #1018; IEEE 1722.1-2021 7.4.42 (connection_count) and
-                7.4.23 (SET_CLOCK_SOURCE), through the firmware's bits
+                read-back and for the tests.
+  Spec refs   : #1018; #1020 ruling; IEEE 1722.1-2021 7.4.23
   Company     : Kebag Logic
   Project     : Milan AVB endstation
 ------------------------------------------------------------------------------
@@ -42,7 +39,8 @@ module KL_status_leds #(
   input  wire        link_up_i,   //! the Ethernet link is up (LD0)
   input  wire        act_i,        //! one pulse per frame, either direction
   input  wire        usb_ok_i,   //! the USB 3.0 path works (LD1)
-  input  wire [1:0]  stat_i,   //! the firmware's register: [0] LD2, [1] LD3
+  input  wire        stream_i, //! fabric LD2 predicate, synchronized to clk_i
+  input  wire        clock_i,  //! fabric LD3 predicate, synchronized to clk_i
   output logic [3:0] state_o,   //! LD0 to LD3 as shown, before the PWM
   output logic [3:0] led_o   //! LD0 to LD3 at the PWM duty, to the green pads
 );
@@ -82,7 +80,7 @@ module KL_status_leds #(
 
   wire off_w = blink_r > MS_W_C'(BLINK_ON_MS_P);
 
-  assign state_o = {stat_i[1], stat_i[0], usb_ok_i, link_up_i && !off_w};
+  assign state_o = {clock_i, stream_i, usb_ok_i, link_up_i && !off_w};
   assign led_o   = state_o & {4{pwm_r < PWM_BITS_P'(DUTY_P)}};
 
 endmodule

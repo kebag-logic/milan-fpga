@@ -245,6 +245,7 @@ Conditional paths exist only when their features are elaborated.
 | MAC event pulses | `macsys` → Milan | `KL_mac_rmon_events`, using `cdc_pulse` |
 | Ethernet liveness/activity toggles | `eth_rx`/`eth_tx` → Milan | Reset-less source toggles; synchronization inside `KL_link_guard` |
 | Frame-end toggle for an AECP REBOOT | `eth_tx` → Milan | `ethtxend_tgl`, reset-less, flips on each frame's last octet at `phy.sink`; three-flop synchronization and edge detect inside `KL_reboot_ctrl` (#787) |
+| Arty LD2/LD3 predicates | Milan → `sys` | `KL_status_led_truth` registers complete predicates; `StatusLeds` uses two-stage `MultiReg` crossings into `led_stream_sys` and `led_clock_sys`; display-only, no feedback |
 | PHY hold on an AECP REBOOT | Milan → `sys` | Migen `MultiReg` from `o_reboot_phy_hold`, a level that only rises (#787) |
 | The split's AECP REBOOT request (`--ctrl-mailbox` only) | `sys` → Milan | Migen `MultiReg` from the `ctrl_reboot_req` CSR's storage onto `i_reboot_req`, a level the firmware only sets (#871) |
 | ICAPE2 configuration port | none | `KL_reboot_ctrl` drives it in `axis_clk`; `ICAPE2` takes the same clock |

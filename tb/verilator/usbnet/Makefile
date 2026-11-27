@@ -17,7 +17,8 @@ VERILATOR ?= verilator
 RTL       ?= ../../../hdl/usbnet
 OBJ       ?= obj_dir
 
-VFLAGS = --cc --exe --build -j 0 -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL \
+JOBS ?= 4
+VFLAGS = --cc --exe --build -j $(JOBS) -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL \
          -Wno-PROCASSINIT -Werror-UNDRIVEN -Werror-MULTIDRIVEN \
          -CFLAGS "-std=c++17 -O2 -Wall -Wextra"
 
@@ -25,9 +26,9 @@ TAP_SRCS = $(RTL)/KL_usbnet_pkg.sv $(RTL)/KL_usbnet_rx_copy.sv $(RTL)/KL_usbnet_
            $(RTL)/KL_usbnet_tx_arb.sv $(RTL)/KL_usbnet_tap.sv
 TAP_G    = -GCLK_HZ_P=1000000 -GRATE_BPS_P=800000 -GBURST_OCTETS_P=3200
 
-.PHONY: all run tap leds local mutants clean
+.PHONY: all run tap leds truth local mutants clean
 all: run
-run: tap leds local
+run: tap leds truth local
 
 tap:
 	mkdir -p $(OBJ)/tap
@@ -40,6 +41,12 @@ leds:
 	$(VERILATOR) $(VFLAGS) --top-module KL_status_leds -GCLK_HZ_P=100000 --Mdir $(OBJ)/leds \
 	  $(RTL)/KL_status_leds.sv sim_leds.cpp -o Vleds
 	$(abspath $(OBJ))/leds/Vleds
+
+truth:
+	mkdir -p $(OBJ)/truth
+	$(VERILATOR) $(VFLAGS) --top-module KL_status_led_truth --Mdir $(OBJ)/truth \
+	  $(RTL)/KL_status_led_truth.sv sim_truth.cpp -o Vtruth
+	$(abspath $(OBJ))/truth/Vtruth
 
 local:
 	mkdir -p $(OBJ)/local

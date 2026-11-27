@@ -20,9 +20,8 @@ only, so no other board's build sees a line of this module:
 
   add_status_leds(soc, platform, sys_clk_freq, mac)
       KL_status_leds on the RGB LEDs LD0 to LD3, green only, and the status
-      register the control firmware writes for LD2 and LD3
-      (`status_leds_ctrl`, read back with the LED states in
-      `status_leds_state`), on a pinned CSR page so no other bank moves.
+      fabric predicates for LD2 and LD3, synchronized from the datapath.
+      Its read-only status occupies a pinned page; firmware has no LED port.
 """
 from __future__ import annotations
 
@@ -30,9 +29,10 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from migen import Cat, ClockSignal, Instance, ResetSignal, Signal
+from migen.genlib.cdc import MultiReg
 from litex.gen import LiteXModule
 from litex.soc.interconnect import stream
-from litex.soc.interconnect.csr import CSRField, CSRStatus, CSRStorage
+from litex.soc.interconnect.csr import CSRField, CSRStatus
 
 #: The RTL, in dependency order (the package first).
 USBNET_SOURCES = (
@@ -43,7 +43,14 @@ USBNET_SOURCES = (
     "hdl/usbnet/KL_usbnet_tap.sv",
     "hdl/usbnet/KL_usbnet_local_rx.sv",
 )
-LED_SOURCES = ("hdl/usbnet/KL_status_leds.sv",)
+LED_SOURCES = ("hdl/usbnet/KL_status_leds.sv", "hdl/usbnet/KL_status_led_truth.sv")
+LED_LEVELS = ("input_locked", "output_open", "clock_internal", "clock_stream", "source_locked", "clock_locked")
+
+
+def fabric_ports(soc: object) -> dict:
+    """Expose existing datapath levels only for the board that consumes them."""
+    soc.led_levels = {name: Signal(name="led_" + name) for name in LED_LEVELS}
+    return {"o_o_led_" + name: signal for name, signal in soc.led_levels.items()}
 
 #: The injection rate limit and burst (#1011): 10 Mb/s on the wire, a tenth of
 #: the Arty's 100 Mb/s link, and two longest frames of burst.
@@ -155,16 +162,20 @@ class LedInputs:
 
 
 class StatusLeds(LiteXModule):
-    """LD0 to LD3 (#1018): the RTL block, its two registers and the green pads."""
+    """Fabric-owned LD0 to LD3, a read-only status and the green pads."""
 
-    def __init__(self, platform: object, sys_clk_freq: float, repo_root: Path, inputs: LedInputs) -> None:
+    def __init__(self, platform: object, sys_clk_freq: float, repo_root: Path, inputs: LedInputs,
+                 levels: dict, milan_cd: str) -> None:
         add_sources(platform, repo_root, LED_SOURCES)
-        self.ctrl = CSRStorage(fields=[
-            CSRField("stream", size=1, offset=0, description="LD2: a stream is connected (IEEE 1722.1-2021 "
-                     "7.4.42 connection_count, or a STREAM_INPUT bound and receiving). Written by the firmware."),
-            CSRField("clock", size=1, offset=1, description="LD3: the clock source is internal, or the stream it "
-                     "follows flows with the media clock recovered. Written by the firmware.")],
-            description="Status LEDs LD2 and LD3 (#1018), written by the control firmware.")
+        stream_dp, clock_dp = Signal(name="led_stream_dp"), Signal(name="led_clock_dp")
+        stream_sys, clock_sys = Signal(name="led_stream_sys"), Signal(name="led_clock_sys")
+        self.specials += Instance("KL_status_led_truth", name="status_led_truth",
+            i_clk_i=ClockSignal(milan_cd), i_rst_ni=~ResetSignal(milan_cd),
+            **{"i_" + name + "_i": levels[name] for name in LED_LEVELS},
+            o_stream_o=stream_dp, o_clock_o=clock_dp)
+        # Each complete predicate is registered before its two-stage crossing.
+        # These independent display levels never control a datapath or mailbox.
+        self.specials += [MultiReg(stream_dp, stream_sys, "sys"), MultiReg(clock_dp, clock_sys, "sys")]
         self.state = CSRStatus(fields=[
             CSRField("leds", size=4, offset=0, description="LD0 to LD3 as shown, before the PWM.")],
             description="Status LEDs LD0 to LD3 as shown (#1018).")
@@ -174,7 +185,7 @@ class StatusLeds(LiteXModule):
             p_BLINK_OFF_MS_P=LED_BLINK_OFF_MS, p_BLINK_ON_MS_P=LED_BLINK_ON_MS,
             i_clk_i=ClockSignal("sys"), i_rst_ni=~ResetSignal("sys"),
             i_link_up_i=inputs.link_up, i_act_i=inputs.activity, i_usb_ok_i=inputs.usb_ok,
-            i_stat_i=self.ctrl.storage, o_state_o=self.state.fields.leds, o_led_o=leds)
+            i_stream_i=stream_sys, i_clock_i=clock_sys, o_state_o=self.state.fields.leds, o_led_o=leds)
         # one colour channel: green; red and blue held dark
         for i in range(4):
             pads = platform.request("rgb_led", i)
@@ -194,4 +205,5 @@ def add_status_leds(soc: object, platform: object, sys_clk_freq: float, repo_roo
     # image linked against the map without the LEDs keeps every address.
     soc.csr.add("status_leds", n=soc.csr.n_locs - 5)
     soc.status_leds = StatusLeds(platform, sys_clk_freq, repo_root,
-                                 LedInputs(mac.link_status.fields.link_up, activity, usb_ok))
+                                 LedInputs(mac.link_status.fields.link_up, activity, usb_ok),
+                                 soc.led_levels, soc.milan.milan_cd)

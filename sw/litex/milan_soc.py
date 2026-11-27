@@ -4148,6 +4148,9 @@ class MilanSoC(SoCCore):
                                 "nvm_base": _nvm_base,
                                 "nvm_stage_base": _nvm_stage_base,
                                 "window_bytes": _PP_WINDOW}
+            if board == "arty" and with_mac:
+                import usbnet_soc
+                dp_ports.update(usbnet_soc.fabric_ports(self))
             self.milan = MilanNIC(platform, axil, board_ports=dp_ports or None,
                                   desc_base=_desc_base, resp_base=_resp_base,
                                   milan_cd=milan_cd,

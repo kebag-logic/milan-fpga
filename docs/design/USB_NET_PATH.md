@@ -247,72 +247,48 @@ LD0 to LD3 are the Arty's RGB LEDs, on the green channel only, at a PWM duty of
 |---|---|---|
 | LD0 | Ethernet link up; on a frame in either direction it goes off for 40 ms, then stays on for at least 60 ms | the MAC's link state (`milan_mac_link_status`) and its frame ends |
 | LD1 | the USB 3.0 path works (section 5) | the tap |
-| LD2 | a stream is connected | `status_leds_ctrl` bit 0, written by the control firmware |
-| LD3 | the clock source is satisfied | `status_leds_ctrl` bit 1, written by the control firmware |
+| LD2 | any stream input media-locked, or any stream output transmit gate open | fabric levels |
+| LD3 | internal clock, or the selected source locked | fabric levels |
 
-State-change handlers write LD2 and LD3 together.
-They use one two-bit register (`status_leds_ctrl`).
-The tick performs no LED observation or write.
-LD0 and LD1 stay entirely in fabric.
+The [ruling](https://github.com/kebag-logic/milan-fpga/pull/1020#issuecomment-7213370880)
+replaces the firmware observer.
+No firmware-written LED register remains.
+No LED code enters the control image.
+LD2 does not report a listener connection count.
+It reports input media lock or output transmission permission.
 
-The firmware follows the AECP core's own state:
+LD3 ignores lock when the selected source is internal.
+A stream source requires its own input media lock.
+It also requires the existing media clock-domain lock.
+An external source requires only that clock-domain lock.
+Other inputs cannot satisfy a selected stream's requirement.
 
-- **LD2:**
-  - some STREAM_INPUT is bound and started with its media locked (IEEE 1722.1-2021 7.4.42,
-    STREAM_INPUT counters MEDIA_LOCKED and MEDIA_UNLOCKED); or
-  - some STREAM_OUTPUT has a connected Listener. A Milan Talker keeps no ACMP
-    connection_count, so the Listener's SRP registration for the stream
-    (Milan v1.2 5.4.2.10.2) stands for a connection_count above zero.
-- **LD3:** CLOCK_DOMAIN 0's clock source, as SET_CLOCK_SOURCE set it
-  (IEEE 1722.1-2021 7.4.23), is:
-  - INTERNAL; or
-  - INPUT_STREAM (CRF or AAF), with its STREAM_INPUT bound and started, the input's media
-    locked and the clock domain locked (CLOCK_DOMAIN counters LOCKED and
-    UNLOCKED); or
-  - EXTERNAL, with the clock domain locked.
+The datapath exports six existing levels on `axis_clk`.
+`KL_status_led_truth` registers the two complete LED predicates there.
+Each predicate crosses through two synchronizer stages into `sys`.
+The independent display bits have no joint atomicity requirement.
+Neither bit controls traffic or mailbox service.
+Datapath reset clears both predicates before their crossings settle.
+LD0 and LD1 already use the system clock.
 
-A lock state is read from its two counters. Each counts edges into its state
-from an unlocked reset, so the state is locked when LOCKED − UNLOCKED is odd;
-the parity survives a wrap of either counter. The LED observation reads only
-quadlets 0, 1 and 32 (the two values and their validity) through the bounded
-counter window. Either missing validity bit or any failed read leaves the
-lock indication off. INTERNAL ignores the cached clock-domain lock. The full
-GET_COUNTERS and GET_STREAM_INFO responses are unchanged. The LED output
-observation reads GSI status word 0. A declaring output takes its extended
-Listener flag from the SRP owner, as GET_STREAM_INFO does; otherwise word 6
-supplies the fabric's extended flags. Every required read retains the bounded
-window transaction and a failed read leaves the indication off. The observer
-initializes every field it consumes to zero, without clearing unused fields.
-Input binding is read directly from the ACMP owner's bound state, the same
-state `acmp_view` reports; no stream-window transaction is needed for that
-software-owned bit. Media reception still requires the valid lock counters.
-`ctrl_plat_leds_events.h` keeps per-input and per-output bits.
-ACMP bind, unbind, start and stop update input eligibility.
-Counter-event handlers refresh only their descriptor's lock pair.
-An ALL event refreshes every served descriptor's observation.
-SRP listener and declaration handlers update their output alone.
-Clock-source handlers publish the descriptor currently in force.
-A waiting or failed change keeps its previous source.
-Boot and configuration changes initialize the complete observation.
-Unchanged indications cause no register write.
-No idle callback scans the production adapter context.
-Counter observations follow the existing counter-event delivery cadence.
-Failed observations remain pending in their original change handler.
-Its continuation retries one failed descriptor per 250 ms.
-Round-robin selection prevents a stuck descriptor starving another.
-Successful observations leave that retry queue.
-Ticks perform no retry reads; healthy idle service reads nothing.
-Thus recovery requires no further clock or listener edge.
+| Level | Existing source | Clock |
+|---|---|---|
+| any input media lock | `avtp_rx_monitor.locked_sh_r`, reduced with `crf_locked_w` | datapath |
+| any output transmit gate | `tkd_streaming_w`, including CRF where present | datapath |
+| internal selection | `int_clk_selected_r` from the generated source table | datapath |
+| stream selection | `follow_sel_r` | datapath |
+| selected input media lock | indexed AAF lock, or `crf_locked_w` | datapath |
+| media clock-domain lock | `ctr_mclk_lock_w` | datapath |
 
-The firmware compiles this code
-only where the SoC has the register: `ctrl_plat_gen.py` emits `CTRL_PLAT_LEDS`
-from the SoC's `csr.csv`.
+`usbnet_soc.fabric_ports` carries these into the Arty top.
+`StatusLeds` connects them to `KL_status_led_truth`.
+`led_stream_dp` and `led_clock_dp` cross to their `_sys` signals.
+`KL_status_leds` drives the green channels from those synchronized levels.
 
 ## 7. Registers
 
 | Register | Access | Content |
 |---|---|---|
-| `status_leds_ctrl` | RW | bit 0 LD2, bit 1 LD3; written by the firmware |
 | `status_leds_state` | RO | bits 3:0 LD0 to LD3 as shown, before the PWM |
 | `milan_mac_usbnet_host` | RO | the computer's address, octets 2 to 5 |
 | `milan_mac_usbnet_host_hi` | RO | bits 15:0 octets 0 and 1; bit 16 an address is held; bit 17 LD1 |
@@ -348,11 +324,9 @@ image without them moves.
     the duty.
   - **planted defects.** One per rule, each required to fail its named check
     (`mutants.py`).
-- **Firmware.** The AECP arm's `Leds.*` tests set the clock source over AECP
-  (SET_CLOCK_SOURCE) in the three cases: internal, following a flowing stream,
-  and following a stopped stream. They also check LD2's rules. The tests run on
-  the shipping model and on each Arty model. The campaign plants one defect per
-  rule (`aecp_leds_mutants.py`).
+- **Fabric predicates.** The truth-table harness exhausts all six inputs.
+  It checks reset and source-clock registration too.
+  Each predicate rule has a named planted defect.
 - **The stand-alone shaper suites** (`tb/verilator/cbs`, `shaper_core`,
   `queues`) are unchanged by this path and pass.
 
@@ -363,15 +337,10 @@ Record tests grade every accepted terminator, including stalled final words.
 Held-injection tests independently sum wire octets over every departure interval.
 They cover short and maximum frames, arbitration waits and MAC backpressure.
 Reset tests cover each domain alone, both request parities and activity.
-The firmware fixture also exercises the EXTERNAL source's lock requirement.
-
-The Arty service-cost census includes the actual LED observer. Its complete
-147-group run at 80 MHz measures a heaviest centisecond tick of 16,104 CPU
-cycles (201.3 us, or 215 us under the measurement rule), above the 150 us
-allowance in the #1004 integration. Behavioral regrading and every existing
-egress-ledger bound pass, but the installed service model is not qualified.
-Its 9 ms pacing, 950 us slice and 125 ms queued bound remain unchanged;
-service-cost reconciliation is still required before readiness.
+The control image must match its baseline at identical pins.
+Both ELF and map-header bytes participate in that proof.
+Scheduling qualification must name the pins it measured.
+The local receive and transmit waits need separate fabric bounds.
 
 Station records share the incoming queue with frame records.
 A frame waiting for space can delay a later station update.

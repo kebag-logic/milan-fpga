@@ -5,9 +5,6 @@
 #include "nvm_store.h"
 #include "srp_mbx.h"
 #include <string.h>
-#ifdef CTRL_PLAT_LEDS
-#include "../plat/ctrl_plat_leds_events.h"
-#endif
 
 _Static_assert(CTRL_APP_AECP_SLOT < MBX_N_TIMERS, "AECP needs its own timer slot");
 
@@ -41,12 +38,6 @@ static void acmp_changed(void *ctx, unsigned index)
 	struct ctrl_app_aecp *c = ctx;
 	c->input_events[index] |= 1u;
 	c->acmp_owner->changed(c->acmp_owner->ctx, index);
-#ifdef CTRL_PLAT_LEDS
-	if (c->led_ready) {
-		leds_input(c, index);
-		leds_publish(c);
-	}
-#endif
 }
 
 static uint32_t random_value(void *ctx)
@@ -123,14 +114,6 @@ static void changed(void *ctx, enum aecp_change kind, uint16_t type, uint16_t in
 	struct ctrl_app_aecp *c = ctx;
 	aecp_nvm_changed(c->state, kind, type, index);
 	c->environment->changed(c->environment->ctx, kind, type, index);
-#ifdef CTRL_PLAT_LEDS
-	if (c->led_ready && (kind == AECP_CHANGE_CONFIGURATION || kind == AECP_CHANGE_CLOCK)) {
-		// The core can undo this proposal before its handler returns. Deliver
-		// the change after that return, and again on its eventual resolution.
-		c->led_settings = true;
-		c->led_configuration |= kind == AECP_CHANGE_CONFIGURATION;
-	}
-#endif
 }
 
 static void start(void *ctx, uint16_t index, bool value)
@@ -228,18 +211,12 @@ static void face_event(void *ctx, const struct mbx_event *e)
 	} else if (e->type == MBX_EV_TYPE_AMAP_LIVE_WRITE) {
 		c->live_map_writes += e->count;
 	}
-#ifdef CTRL_PLAT_LEDS
-	if (c->led_ready && e->type == MBX_EV_TYPE_COUNTERS_CHANGED) leds_publish(c);
-#endif
 }
 
 static bool deliver(void *ctx)
 {
 	struct ctrl_app_aecp *c = ctx;
 	struct acmp *a = &c->app->acmp.acmp;
-#ifdef CTRL_PLAT_LEDS
-	if (c->led_retry_pending || c->led_settings) leds_service(c);
-#endif
 	if (c->start_pending) {
 		c->start_pending = false;
 		// The AECP poll precedes this poll: an expired request cannot apply late.
@@ -266,14 +243,8 @@ static bool deliver(void *ctx)
 		for (uint16_t n = 0; noticed != 0u; ++n, noticed >>= 1) {
 			if ((noticed & 1u) != 0u) {
 				aecp_changed(&c->aecp->core, 6, n, 1u);
-#ifdef CTRL_PLAT_LEDS
-				if (c->led_ready) leds_output(c, n);
-#endif
 			}
 		}
-#ifdef CTRL_PLAT_LEDS
-		if (c->led_ready) leds_publish(c);
-#endif
 	}
 	for (unsigned n = 0; n < a->cfg.n_sinks; ++n) {
 		if ((c->bindings & (1u << n)) != 0u) {
@@ -336,18 +307,11 @@ bool ctrl_app_open_aecp(struct ctrl_app_aecp *c)
 		       mbx_place(1u, MBX_IRQ_ENABLE_EVT_LSB, MBX_IRQ_ENABLE_EVT_WIDTH));
 	mbx_filter_open(channels);
 	aecp_mbx_open(c->aecp);
-#ifdef CTRL_PLAT_LEDS
-	c->led_ready = true;
-	leds_refresh(c);
-#endif
 	return true;
 }
 
 void ctrl_app_aecp_changed(struct ctrl_app_aecp *c, uint16_t type, uint16_t index, unsigned events)
 {
-#ifdef CTRL_PLAT_LEDS
-	if (c->led_ready && (events & 8u) != 0u) leds_counters(c, type, index);
-#endif
 	if (type == 5u && index < c->app->acmp.acmp.cfg.n_sinks) c->input_events[index] |= (uint8_t)events;
 	else aecp_changed(&c->aecp->core, type, index, events);
 }
