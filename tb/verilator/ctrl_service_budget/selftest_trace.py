@@ -52,4 +52,3 @@ def aem_response(controller: int, sequence: int, command: int = 0x0010, unsolici
 def received(ch: int, tag: str, at: int = 1100) -> list[str]:
     """A 70-byte frame tagged tag whose receive commit lands 4 cycles after its last byte."""
     return [f'RXS {at} 0 70 {tag}', f'RXE {at + 69}', f'RXC {at + 73} {ch}']
-
