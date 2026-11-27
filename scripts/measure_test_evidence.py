@@ -677,3 +677,201 @@ def runner_contract(text: str) -> list[str]:
     media_phase)       printf '%s\\n' "${SUITE_TIMEOUT:-1400}" ;;
     reboot_ctrl)       printf '%s\\n' "${SUITE_TIMEOUT:-300}" ;;
     usbaudio)          printf '%s\\n' "${SUITE_TIMEOUT:-900}" ;;
+    usbnet)            printf '%s\\n' "${SUITE_TIMEOUT:-300}" ;;
+    *)                 printf '%s\\n' "${SUITE_TIMEOUT:-1800}" ;;
+  esac
+}'''
+    if budget not in text or 'TMO=$(suite_timeout "$suite")' not in text:
+        problems.append("the declared 300/1400/1800/2400/3600/4800/6900-second suite budgets changed")
+    selection = ('selector=(python3 "$ROOT/scripts/suite_shards.py"',
+                 '--suite-root "$ROOT/tb/verilator" --shard "$SHARD")',
+                 '[ "$PHYSICAL_GPTP" = 1 ] && selector+=(--physical-gptp)',
+                 'exec "${selector[@]}"',
+                 'if ! selected_out=$("${selector[@]}" 2>&1); then')
+    if any(line not in text for line in selection) or "PHYSICAL_GPTP=0" not in text:
+        problems.append("the explicit physical/default inventory selection changed")
+    if tally_selftest < 0 or (launch >= 0 and tally_selftest > launch):
+        problems.append("the tally self-test does not run before the first suite")
+    if tally_run < 0 or (launch >= 0 and tally_run < launch):
+        problems.append("the final log tally does not run after the suites")
+    if "124|137)" not in text or "tmo=$((tmo + 1))" not in text:
+        problems.append("timeout/OOM exits are not classified separately")
+    if '[ "$tmo"  -gt 0 ] && exit 92' not in text:
+        problems.append("an unknown timeout result does not return exit 92")
+    if '[ "$tally_rc" -ne 0 ] && exit 90' not in text:
+        problems.append("a malformed or missing tally does not return exit 90")
+    return problems
+
+
+# --- the audit ---------------------------------------------------------------
+
+def test_sources() -> list[str]:
+    """Every executable file under a tb/ tree, whether or not a suite owns it -
+    the population the DUT-source-oracle inventory is drawn from."""
+    suffixes = {".py", ".cpp", ".cc", ".c", ".h", ".sv", ".svh", ".v", ".sh"}
+    return sorted(rel for rel in tracked("tb/*")
+                  if Path(rel).suffix in suffixes or Path(rel).name == "Makefile")
+
+
+def suite_sources(by_suite: dict[str, list[str]]) -> list[str]:
+    """Executable files owned by a directory that the suite inventory names."""
+    suffixes = {".py", ".cpp", ".cc", ".c", ".h", ".sv", ".svh", ".v", ".sh"}
+    paths = {rel for files in by_suite.values() for rel in files}
+    return sorted(rel for rel in paths
+                  if Path(rel).suffix in suffixes or Path(rel).name == "Makefile")
+
+
+def file_suffix(rel: str) -> str:
+    """Which language's idioms to read this file with; "" selects the Makefile
+    reader, so an extension-less recipe is not read as a shell script."""
+    return "" if Path(rel).name == "Makefile" else Path(rel).suffix
+
+
+def audit() -> tuple[dict[str, list[Arm]], list[str], dict[str, list[str]],
+                     list[str], list[str], list[str], list[str]]:
+    """All four inventories in one pass over the trees:
+    (armed, unarmed, unseeded, readers, unexplained, stale, wallclock).
+    `stale` names a recorded disposition whose reader has gone, which is how a
+    classification stops standing for a file nobody reads any more."""
+    table = entry_targets()
+    by_suite = suite_files()
+    armed, unarmed = {}, []
+    for name, files in by_suite.items():
+        found = suite_arms(name, files, table)
+        if found:
+            armed[name] = found
+        else:
+            unarmed.append(name)
+
+    unseeded = {}
+    for rel in seed_population():
+        shapes = unseeded_draws((REPO / rel).read_text(errors="replace"), file_suffix(rel))
+        if shapes:
+            unseeded[rel] = shapes
+
+    readers = [rel for rel in test_sources()
+               if reads_dut_source((REPO / rel).read_text(errors="replace"), file_suffix(rel))]
+    wallclock = [rel for rel in suite_sources(by_suite)
+                 if uses_wall_clock((REPO / rel).read_text(errors="replace"), file_suffix(rel))]
+    unexplained = sorted(set(readers) - set(DUT_READER_DISPOSITIONS))
+    stale = sorted(set(DUT_READER_DISPOSITIONS) - set(readers))
+    return armed, unarmed, unseeded, readers, unexplained, stale, wallclock
+
+
+def read_budget() -> Sequence[int | None]:
+    """The four ratchets, in the order the budget file writes them. A missing
+    file, or a file short of four numbers, yields None in those places, and
+    main() refuses to grade rather than treating an absence as a zero."""
+    if not BUDGET.is_file():
+        return None, None, None, None
+    vals = [int(x) for x in re.findall(r"^\s*(\d+)\s*$", BUDGET.read_text(), re.M)]
+    return (vals + [None, None, None, None])[:4]
+
+
+# --- self-test ---------------------------------------------------------------
+
+def selftest() -> int:
+    """Run the fixture arms and return their exit code."""
+    # The arms live in ``measure_test_evidence_selftest``: one long list of
+    # independent fixtures with no reader in common with the rules above, and
+    # importing them only when --selftest is asked for keeps this module's own
+    # import free of them.
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    from measure_test_evidence_selftest import run_arms
+    return run_arms()
+
+
+def main() -> int:
+    """Print the four inventories, grade them against the budget under
+    --check, and return the process exit code. An empty suite population is
+    exit 2, never a pass: zero suites without an arm is not the same claim."""
+    ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    ap.add_argument("--check", action="store_true", help="ratchet the four counts")
+    ap.add_argument("--selftest", action="store_true", help="run the fixture arms")
+    args = ap.parse_args()
+
+    if args.selftest:
+        return selftest()
+
+    armed, unarmed, unseeded, readers, unexplained, stale, wallclock = audit()
+    population = len(armed) + len(unarmed)
+    if population == 0:
+        print("REFUSED: no RTL suite found under the suite trees; an empty population "
+              "is not a pass", file=sys.stderr)
+        return 2
+    print(f"RTL suites with an executable mutation or negative arm: {len(armed)} of {population}")
+    for tree, _root, entries in SUITE_TREES:
+        n = sum(1 for s in list(armed) + unarmed if s.startswith(tree + "/"))
+        print(f"   {n:3d} under {tree}  (entry: {', '.join(entries)})")
+    print(f"\narmed suites, and the executed target that arms them ({len(armed)}):")
+    for name, found in sorted(armed.items()):
+        target, kind, detail = found[0]
+        print(f"   {name}: `{target}` {kind} {detail}")
+    print(f"\nsuites with none ({len(unarmed)}):")
+    for name in unarmed:
+        print(f"   {name}")
+    print(f"\nfiles that draw random values without recording a seed ({len(unseeded)}):")
+    for rel, shapes in sorted(unseeded.items()):
+        print(f"   {rel}: {shapes[0]}")
+    print(f"\ntest programs that read production HDL ({len(readers)}):")
+    for rel in readers:
+        print(f"   {rel}: {DUT_READER_DISPOSITIONS.get(rel, 'UNEXPLAINED')}")
+    print(f"\nsuite files using host wall-clock/process deadlines ({len(wallclock)}):")
+    for rel in wallclock:
+        print(f"   {rel}")
+
+    from suite_shards import sweep_suites
+    default_suites = sweep_suites(REPO / "tb/verilator")
+    physical_suites = sweep_suites(REPO / "tb/verilator", physical=True)
+    print(f"\nVerilator scheduling: {len(default_suites)} default suites; "
+          f"physical selection: {', '.join(physical_suites)}")
+
+    runner_problems = runner_contract((REPO / "scripts/run_all_suites.sh").read_text())
+    print("\nrunner evidence contract: " + ("OK" if not runner_problems else "FAIL"))
+    for problem in runner_problems:
+        print(f"   {problem}")
+
+    if not args.check:
+        return 0
+
+    b_unarmed, b_unseeded, b_unexplained, b_wallclock = read_budget()
+    if any(value is None for value in
+           (b_unarmed, b_unseeded, b_unexplained, b_wallclock)):
+        print(f"\nNO RATCHET: {BUDGET.relative_to(REPO)} must hold four counts")
+        return 1
+    bad = False
+    if len(unarmed) > b_unarmed:
+        print(f"\nFAIL: {len(unarmed)} suite(s) with no mutation arm > ratchet "
+              f"{b_unarmed}. A new suite proves its own assertions can fail.")
+        bad = True
+    if len(unseeded) > b_unseeded:
+        print(f"\nFAIL: {len(unseeded)} unseeded random draw site(s) > ratchet "
+              f"{b_unseeded}. A random test records the seed it can be replayed from.")
+        bad = True
+    if len(unexplained) > b_unexplained or stale:
+        print(f"\nFAIL: {len(unexplained)} unexplained DUT-source reader(s) > "
+              f"ratchet {b_unexplained}; stale dispositions: {stale}")
+        bad = True
+    if len(wallclock) > b_wallclock:
+        print(f"\nFAIL: {len(wallclock)} wall-clock-dependent suite file(s) > "
+              f"ratchet {b_wallclock}. New behavioral tests use DUT cycles, not host time.")
+        bad = True
+    if runner_problems:
+        bad = True
+    if bad:
+        return 1
+    print(f"\nTEST-EVIDENCE RATCHET: PASS ({len(unarmed)} <= {b_unarmed} suite(s) "
+          f"without a mutation arm, {len(unseeded)} <= {b_unseeded} unseeded "
+          f"draw site(s), {len(unexplained)} <= {b_unexplained} unexplained "
+          f"DUT-source reader(s), {len(wallclock)} <= {b_wallclock} "
+          "wall-clock-dependent suite file(s))")
+    for label, have, budget in (("mutation", len(unarmed), b_unarmed),
+                                ("unseeded-draw", len(unseeded), b_unseeded),
+                                ("wall-clock", len(wallclock), b_wallclock)):
+        if have < budget:
+            print(f"  the {label} ratchet can be lowered to {have}")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
