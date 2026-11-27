@@ -3517,6 +3517,12 @@ A complete campaign at it then raised the poll base, centisecond, LINK, MAAP and
 Its costs are the larger of each measurement on the merged firmware and the one before it.
 The `srp-kept` and `srp-bound` registrations over their statements are owed to #977 under #969's disposition,
 as at the other points (`kept_grade.py`), and do not restate the row; their other measurements do.
+[#1022](https://github.com/kebag-logic/milan-fpga/issues/1022), blocked by #977, carries that owed cost at this point:
+the measurement of the Arty's registrations and the row derived with them counted.
+Counted now, they leave no qualifying row: over the same 147 cases no candidate meets every owner bound, and the
+least last queued notice is 225.54 ms, against its 140 ms bound.
+Two rows meet every rule and bound at the installed statements: this one and 950 us at a 130 ms queued bound.
+The derivation takes the first by pace, then queued bound, then slice, which is this one.
 The complete 80 MHz campaign qualifies the row over 147 native cases across eight image variants.
 The second step changed no firmware byte, so its census regrades the first step's traces against these statements.
 The seven held-egress misses remain recorded under their ledger; every other service row meets its bound.
@@ -3597,4 +3603,5 @@ Memory fit does not waive the service-budget or routed timing checks.
 | Budget | 56 RAMB36 |
 
 The linked image's `size.json` records the sections and bank decomposition.
+The ROM banks (64, 32, 16, 8 and 4 KiB) hold 126976 bytes, so 1404 bytes remain before another bank.
 The routed image binds that firmware through `image_manifest.json`.
