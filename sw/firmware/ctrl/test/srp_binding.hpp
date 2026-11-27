@@ -474,12 +474,17 @@ TEST_F(SrpBinding, D6ARecordsPassMakesNoBindingChangeTheNextDeliveryMakesIt) {
     for (unsigned k=0;k<n;++k) bind(k);
     without_delivery([&]{ for (unsigned k=0;k<n;++k) response(k,k); });
     for (unsigned k=0;k<n;++k) ASSERT_TRUE(app.srp_requests[k].pending);
-    // the pass took an SRP record, which it carries alone: its delivery owes THE SETTLE and makes no change
+    // the pass took an SRP record: where THE SETTLE carries it alone (CTRL_LOOP_SETTLE_ALONE, the one-interface
+    // shapes) its delivery owes THE SETTLE and makes no change; elsewhere it makes the first owed, as any delivery
     app.loop.drain_taken=1u;
     EXPECT_TRUE(app.loop.polls[4].fn(app.loop.polls[4].ctx)) << "D6 a record's pass keeps the loop awake";
-    for (unsigned k=0;k<n;++k) {
-        EXPECT_FALSE(sink(k).bound) << "D6 a record's pass makes no binding change";
-        EXPECT_TRUE(app.srp_requests[k].pending) << "D6 the change a record's pass leaves stays owed";
+    if (CTRL_LOOP_SETTLE_ALONE) {
+        for (unsigned k=0;k<n;++k) {
+            EXPECT_FALSE(sink(k).bound) << "D6 a record's pass makes no binding change";
+            EXPECT_TRUE(app.srp_requests[k].pending) << "D6 the change a record's pass leaves stays owed";
+        }
+    } else {
+        EXPECT_TRUE(sink(0).bound) << "D6 with no record carried alone, a record's pass makes the first owed";
     }
     // the next delivery, of a pass that took no SRP record, makes the first owed in turn
     app.loop.drain_taken=0u;
