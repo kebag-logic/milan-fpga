@@ -577,4 +577,3 @@ TEST_F(SrpBinding, D10ARecordsPassTakesNoTurn) {
     EXPECT_TRUE(app.srp_requests[0].pending) << "D10 and leaves the binding change owed";
 }
 } // namespace
-
