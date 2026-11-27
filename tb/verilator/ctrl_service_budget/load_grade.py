@@ -356,8 +356,12 @@ TX_PER_JOIN = 3
 #: the answering-ports arm's record of the burst, 116,302 cycles, 78,802 past the unit, and its settle, 35,604, over
 #: nine values, 12,712 cycles, 135 us by the rule (the none arm's 12,468); at 1x1/1if the answering-ports arm's, 43,725
 #: cycles, 15,225 past the unit, and its settle, 7,076, over two values, 11,150 cycles, 120 us by the rule (the none
-#: arm's 10,193).
-REGISTRATION_US = {'1x1/1if': 120, '8x8/1if': 135}
+#: arm's 10,193). Measured over every registering group of both arms with #977's delivery bound and its record's pass
+#: making no binding change (e59cf6ea's images, the hot list relearned on them): at 8x8/1if the none arm's JoinIn of
+#: both kinds in one MRPDU, 161,132 cycles, 123,632 past the unit, and its settle, 37,658, over nine values, 17,921
+#: cycles, 190 us by the rule; at 1x1/1if the none arm's, 56,210 cycles, 27,710 past the unit, and its settle, 7,446,
+#: over two values, 17,578 cycles, 185 us (#977's ruling on round 9's STOP, item 4: the cost restated by the rule).
+REGISTRATION_US = {'1x1/1if': 185, '8x8/1if': 190}
 #: V, the Talker values one SRP record may register, as srp_mbx.h states it at each point's shape (SRP_RECORD_VALUES;
 #: #977, its ruling of 2026-11-27, item 2): the registrations term counts V a record, the bound and the kept together.
 RECORD_SHAPES = {'1x1/1if': '1u, 2u, 2u', '8x8/1if': '1u, 9u, 9u'}

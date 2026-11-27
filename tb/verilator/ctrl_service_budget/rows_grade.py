@@ -95,10 +95,12 @@ POINTS = ('1x1/1if', '8x8/2if')
 #: (rows_tiers.DATAPATH_US, 3,103, 2,864 and 1,851 cycles there). Its rows are reported (flip_grade.py, REPORTED), and
 #: THE TRANSMIT's figure there is held to its tx row (rows_tiers.tx_statements, flip_grade.tx_held). And at both
 #: one-interface points THE SETTLE of the record a tiered row's window opens on, a term of every such row (#977's ruling
-#: of 2026-11-27 on the alone records, item 3): 105 us at 1x1/1if and 415 at 8x8/1if, the latter the most measured over
-#: the registering groups at e62e1936 (39,468 CPU cycles, srp-register-swap) plus 5 %, rounded up to 5 us.
+#: of 2026-11-27 on the alone records, item 3): 105 us at 1x1/1if, the ruling's (the most measured there 8,663 CPU
+#: cycles, 95 us by the rule), and 425 at 8x8/1if, the most measured over the registering groups on e59cf6ea's images
+#: (40,049 cycles, the none arm's srp-register-swap) plus 5 %, rounded up to 5 us (the ruling's 415 for e62e1936's
+#: 39,468).
 ROW_COSTS = {'1x1/1if': {'event.LINK': 155, 'settle': 105}, '8x8/2if': {'event.LINK': 300},
-             '8x8/1if': {'event.LINK': 300, 'settle': 415}}
+             '8x8/1if': {'event.LINK': 300, 'settle': 425}}
 #: The sources the docstring names, each a part of every solved row's window (links R5's alone), and the terms of
 #: demand() that make each up.
 SOURCES = {'records': ('aecp', 'srp', 'others'), 'ticks': ('ticks',), 'timers': ('timers',), 'gm': ('gm',),
