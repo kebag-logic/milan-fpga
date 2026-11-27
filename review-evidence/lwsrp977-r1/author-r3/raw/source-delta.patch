@@ -1,0 +1,86 @@
+diff --git a/doc/integrator.md b/doc/integrator.md
+index b485b9d..224ff6b 100644
+--- a/doc/integrator.md
++++ b/doc/integrator.md
+@@ -118,11 +118,11 @@ Earlier received attributes may remain applied when a later allocation fails.
+ 
+ Three options narrow what the MAD may assume of an application's [operations](../src/include/shish_lan/mrp.h).
+ In-tree applications already meet each rule.
+-Under [LWSRP_LEAN_VALIDATE](../src/core/mrp_pdu.c), decode_attr's result must depend on the wire octets, offset and type alone.
++Under [LWSRP_LEAN_VALIDATE](../src/core/mrp_pdu.c), decode_attr's result must depend on the wire octets, their length, offset and type alone.
+ It must never depend on what its output buffer held before the call.
+ The validation pass passes an unzeroed buffer; the delivering pass still zeroes it.
+ Under [LWSRP_TX_MERGE](../src/core/mrp_mad.c), encode_attr may be called again for each vector the sort moves.
+-Its output must depend on the type and value alone.
++Its output must depend on the type, value and buffer length alone.
+ Under [LWSRP_ATTR_KEY](../src/include/shish_lan/mrp.h), attr_cmp and attr_replaces are called only for values sharing a key.
+ With these options set, the host must not rely on a side effect of those callbacks or on their call counts.
+ 
+diff --git a/src/core/mrp_mad.c b/src/core/mrp_mad.c
+index 2955c0c..37b8bf5 100644
+--- a/src/core/mrp_mad.c
++++ b/src/core/mrp_mad.c
+@@ -24,7 +24,7 @@
+  * 256, or 0 for a scan of the participant's list. A bucket holds its
+  * instances in the list's order, so every lookup finds the list's first
+  * match either way. Build every translation unit with the same value.
+- * Reason: a lookup's work does not grow with the participant's attributes.
++ * Reason: a lookup visits its key bucket instead of the participant's whole list.
+  * Requirement: one state machine pair per attribute value (IEEE 802.1Q-2018,
+  * clause 10.7). Issues: kebag-logic/milan-fpga#872 and #977, part of #665.
+  */
+@@ -109,7 +109,7 @@ _Static_assert((LWSRP_ATTR_BUCKETS & (LWSRP_ATTR_BUCKETS - 1u)) == 0u && LWSRP_A
+  * the AttributeTypes of an open set's word that holds none from there on,
+  * where 0 tests each of the 256: the same Messages in the same order. 0
+  * delivers tx! to every one.
+- * Reason: a send's work does not grow with the attributes it leaves as they are.
++ * Reason: a send skips event delivery for Applicants whose tx! row changes nothing.
+  * Requirements: IEEE 802.1Q-2018, Tables 10-3 and 10-4 and clause 10.8.2.
+  * Issue: kebag-logic/milan-fpga#977, part of #665.
+  */
+@@ -1222,7 +1222,7 @@ static void rx_on_attr(void *raw_ctx, uint8_t attr_type,
+     const size_t kept = previous ? attr_store_len(rc->app->ops, attr_type) : 0u;
+ #define RX_KEPT kept
+ #else
+-    /* The whole value, with no local, so the default object is main's at every optimisation level. */
++    /* The whole value, with no local: with LWSRP_LEAN_COPY at 0 the restore compiles as it did before the option (kebag-logic/milan-fpga#977). */
+ #define RX_KEPT sizeof(previous_value)
+ #endif
+     if (previous) {
+diff --git a/src/include/shish_lan/mrp.h b/src/include/shish_lan/mrp.h
+index 4aba0ff..2ea5da8 100644
+--- a/src/include/shish_lan/mrp.h
++++ b/src/include/shish_lan/mrp.h
+@@ -199,8 +199,8 @@ struct mrp_app_ops {
+     /*
+      * Encode FirstValue into buf — §10.8.2.7.
+      * Returns bytes written, or negative errno.
+-     * The result and the octets written must depend on attr_type and
+-     * attr_val alone: under LWSRP_TX_MERGE the MAD encodes a vector again
++     * The result and the octets written must depend on attr_type,
++     * attr_val and buf_len alone: under LWSRP_TX_MERGE the MAD encodes a vector again
+      * at each place its sort moves it to, so one value may be encoded more
+      * than once for a PDU (doc/integrator.md, application callback contract).
+      */
+@@ -210,7 +210,7 @@ struct mrp_app_ops {
+     /*
+      * Decode attribute value from buf given FirstValue + vector offset — §10.8.2.7.
+      * Returns bytes consumed, or negative errno.
+-     * The result must depend on attr_type, offset and the buf octets alone,
++     * The result must depend on attr_type, offset, buf_len and the buf octets alone,
+      * never on attr_val_out's prior content: under LWSRP_LEAN_VALIDATE the
+      * parser's validation pass passes an unzeroed attr_val_out and reads only
+      * the result; the delivering pass zeroes it first in every build
+diff --git a/src/ports/timer.h b/src/ports/timer.h
+index 0b15596..212212c 100644
+--- a/src/ports/timer.h
++++ b/src/ports/timer.h
+@@ -32,7 +32,7 @@
+  * A timer due further ahead waits whole turns of the wheel in its slot; the
+  * tick that reaches the slot skips it. Both fire the same callbacks in the
+  * same ticks and order. Build every translation unit with the same value.
+- * Reason: a tick's work does not grow with the registered timers.
++ * Reason: a tick visits its wheel slot instead of every registered timer.
+  * Requirements: the MRP timers and their values (IEEE 802.1Q-2018, clauses
+  * 10.7.4 and 10.7.11). Issues: kebag-logic/milan-fpga#872 and #977, part of
+  * #665.

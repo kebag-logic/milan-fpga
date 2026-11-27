@@ -1,0 +1,3068 @@
+{
+  "head": "16b6c950ca320d29876d84c33460c2652650f16d",
+  "base": "d1bb4f4e5954af6dabe7f210a6bf7adbb76bdd6b",
+  "recorded_utc": "2026-11-27T06:51:48.825282+00:00",
+  "compilers": [
+    {
+      "label": "compiler-A",
+      "executable_sha256": "8aac907d6fbf40394b424b5fa4a2ad1aa291dac7d3a0315c5b415c1f5ace1287",
+      "version_output_sha256": "bdf8abcd8e56cec825a021925617afad1e7e258c738cc61d6325c7250da733cd"
+    },
+    {
+      "label": "compiler-B",
+      "executable_sha256": "ff89ab5fa1c49c203cd4eb4fd61acab7672fd34cd8d33762542c1e1218b4f298",
+      "version_output_sha256": "443315ff8f756f0e82092cde683b296d9c3270decb7cdc477a5fcc1cc1a5e770"
+    }
+  ],
+  "definitions": [
+    "-DLWSRP_ATTR_KEY=0",
+    "-DLWSRP_ATTR_BUCKETS=0",
+    "-DLWSRP_TIMER_SLOTS=0",
+    "-DLWSRP_TX_MERGE=0",
+    "-DLWSRP_ONE_PORT_MAP=0",
+    "-DLWSRP_LEAN_VALIDATE=0",
+    "-DLWSRP_RAPID_REPLACE=0",
+    "-DLWSRP_LEAN_COPY=0",
+    "-DLWSRP_LEAN_TX=0"
+  ],
+  "sources": [
+    "src/core/mrp_mad.c",
+    "src/core/mrp_pdu.c",
+    "src/core/switch.c",
+    "src/core/switch_ctrl.c",
+    "src/modules/mmrp.c",
+    "src/modules/msrp.c",
+    "src/modules/mvrp.c",
+    "src/modules/sim_adapter.c",
+    "src/ports/alloc.c",
+    "src/ports/timer.c"
+  ],
+  "flag_sets": 13,
+  "comparisons": 260,
+  "identical": 260,
+  "failures": 0,
+  "non_debug_pairs": 200,
+  "stripped_debug_pairs": 60,
+  "results": [
+    {
+      "compiler": "compiler-A",
+      "flags": [
+        "-O0"
+      ],
+      "source": "src/core/mrp_mad.c",
+      "debug_sections_removed": false,
+      "base_sha256": "96fd7b0e98a0bf2618f441c6765e9b9e9a987b28f7df0ba5ec737be87c328ad2",
+      "head_sha256": "96fd7b0e98a0bf2618f441c6765e9b9e9a987b28f7df0ba5ec737be87c328ad2",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-A",
+      "flags": [
+        "-O0"
+      ],
+      "source": "src/core/mrp_pdu.c",
+      "debug_sections_removed": false,
+      "base_sha256": "b442cf9091cd6f7bfb6039b8644427c42c6773d7b77b60e655a14569ef9d5098",
+      "head_sha256": "b442cf9091cd6f7bfb6039b8644427c42c6773d7b77b60e655a14569ef9d5098",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-A",
+      "flags": [
+        "-O0"
+      ],
+      "source": "src/core/switch.c",
+      "debug_sections_removed": false,
+      "base_sha256": "de39edb8821cde51278d1944990641ab35b9523a1e164440e8b8d9d8e20de1a2",
+      "head_sha256": "de39edb8821cde51278d1944990641ab35b9523a1e164440e8b8d9d8e20de1a2",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-A",
+      "flags": [
+        "-O0"
+      ],
+      "source": "src/core/switch_ctrl.c",
+      "debug_sections_removed": false,
+      "base_sha256": "a9733e6a8b8d2758963ba475977cf60472c547ec1c97a13a7287d730a5654a3e",
+      "head_sha256": "a9733e6a8b8d2758963ba475977cf60472c547ec1c97a13a7287d730a5654a3e",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-A",
+      "flags": [
+        "-O0"
+      ],
+      "source": "src/modules/mmrp.c",
+      "debug_sections_removed": false,
+      "base_sha256": "d8bb3a94f01c449b4a3ac29b352331d0e59245093f93392090a4e59473d7dc11",
+      "head_sha256": "d8bb3a94f01c449b4a3ac29b352331d0e59245093f93392090a4e59473d7dc11",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-A",
+      "flags": [
+        "-O0"
+      ],
+      "source": "src/modules/msrp.c",
+      "debug_sections_removed": false,
+      "base_sha256": "85dc026c74c3d337d84d268e4b4cdd602b563c8a830c6da26306b58f924e0518",
+      "head_sha256": "85dc026c74c3d337d84d268e4b4cdd602b563c8a830c6da26306b58f924e0518",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-A",
+      "flags": [
+        "-O0"
+      ],
+      "source": "src/modules/mvrp.c",
+      "debug_sections_removed": false,
+      "base_sha256": "593b54c51e63eb68ef76eef0d2f2a2c023960f10a7e5b8aebcffe7e8a741dda7",
+      "head_sha256": "593b54c51e63eb68ef76eef0d2f2a2c023960f10a7e5b8aebcffe7e8a741dda7",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-A",
+      "flags": [
+        "-O0"
+      ],
+      "source": "src/modules/sim_adapter.c",
+      "debug_sections_removed": false,
+      "base_sha256": "c5561b24f4e9d782204b3509bcfcfc36d13057fdd28d3e6142d970e2fcb7444d",
+      "head_sha256": "c5561b24f4e9d782204b3509bcfcfc36d13057fdd28d3e6142d970e2fcb7444d",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-A",
+      "flags": [
+        "-O0"
+      ],
+      "source": "src/ports/alloc.c",
+      "debug_sections_removed": false,
+      "base_sha256": "fc9d197cefb6211b0547d88460fe65e7daf13f61c097371bba36eb2725e3b0b1",
+      "head_sha256": "fc9d197cefb6211b0547d88460fe65e7daf13f61c097371bba36eb2725e3b0b1",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-A",
+      "flags": [
+        "-O0"
+      ],
+      "source": "src/ports/timer.c",
+      "debug_sections_removed": false,
+      "base_sha256": "7329133d68ffbe87812d362df1815cef42dfca2ee928bede7a7df02b5dbefc17",
+      "head_sha256": "7329133d68ffbe87812d362df1815cef42dfca2ee928bede7a7df02b5dbefc17",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-A",
+      "flags": [
+        "-O1"
+      ],
+      "source": "src/core/mrp_mad.c",
+      "debug_sections_removed": false,
+      "base_sha256": "913fd8c8d727a846b71c2e27da7bb7202119418381068a2007dd411e3229ba4a",
+      "head_sha256": "913fd8c8d727a846b71c2e27da7bb7202119418381068a2007dd411e3229ba4a",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-A",
+      "flags": [
+        "-O1"
+      ],
+      "source": "src/core/mrp_pdu.c",
+      "debug_sections_removed": false,
+      "base_sha256": "89998274d5ded20d04889294453c9bd5b63e4f34fdd55f179d24615a67abf73c",
+      "head_sha256": "89998274d5ded20d04889294453c9bd5b63e4f34fdd55f179d24615a67abf73c",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-A",
+      "flags": [
+        "-O1"
+      ],
+      "source": "src/core/switch.c",
+      "debug_sections_removed": false,
+      "base_sha256": "88f14b2bf3f613c6f3311bf6146dd5bfdd88a99f8acad41a7bbcfe2761bd53ee",
+      "head_sha256": "88f14b2bf3f613c6f3311bf6146dd5bfdd88a99f8acad41a7bbcfe2761bd53ee",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-A",
+      "flags": [
+        "-O1"
+      ],
+      "source": "src/core/switch_ctrl.c",
+      "debug_sections_removed": false,
+      "base_sha256": "a9b2433109980ebcac9a9e5014d715b81c433c8cb72b74acfcf1e9c7aba0972a",
+      "head_sha256": "a9b2433109980ebcac9a9e5014d715b81c433c8cb72b74acfcf1e9c7aba0972a",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-A",
+      "flags": [
+        "-O1"
+      ],
+      "source": "src/modules/mmrp.c",
+      "debug_sections_removed": false,
+      "base_sha256": "cafedb9e9ce7635b6b9a5ebfa25b35a3c6c6bf02061c4377a59ae125148c24bf",
+      "head_sha256": "cafedb9e9ce7635b6b9a5ebfa25b35a3c6c6bf02061c4377a59ae125148c24bf",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-A",
+      "flags": [
+        "-O1"
+      ],
+      "source": "src/modules/msrp.c",
+      "debug_sections_removed": false,
+      "base_sha256": "058e32ffd6a34b8117e2bde02098527b05725f43ce1e01c2e944ed2acf82233d",
+      "head_sha256": "058e32ffd6a34b8117e2bde02098527b05725f43ce1e01c2e944ed2acf82233d",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-A",
+      "flags": [
+        "-O1"
+      ],
+      "source": "src/modules/mvrp.c",
+      "debug_sections_removed": false,
+      "base_sha256": "44285375f8df567770be5fbead695670059dbeeb70dd62cb967eb7ed1b1ceb54",
+      "head_sha256": "44285375f8df567770be5fbead695670059dbeeb70dd62cb967eb7ed1b1ceb54",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-A",
+      "flags": [
+        "-O1"
+      ],
+      "source": "src/modules/sim_adapter.c",
+      "debug_sections_removed": false,
+      "base_sha256": "8810ef862b9792aece881ad84fb9b054b0d0a428839296e2a91825949059d9ab",
+      "head_sha256": "8810ef862b9792aece881ad84fb9b054b0d0a428839296e2a91825949059d9ab",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-A",
+      "flags": [
+        "-O1"
+      ],
+      "source": "src/ports/alloc.c",
+      "debug_sections_removed": false,
+      "base_sha256": "b00af5146c9fd9816e5f1789c6ebf43444c9bc16b0aad26f86a675cbf1ae202d",
+      "head_sha256": "b00af5146c9fd9816e5f1789c6ebf43444c9bc16b0aad26f86a675cbf1ae202d",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-A",
+      "flags": [
+        "-O1"
+      ],
+      "source": "src/ports/timer.c",
+      "debug_sections_removed": false,
+      "base_sha256": "14a1d0cd500ce7bd39a72b9579667772f1b7bc1ae0cc9de73cba988c76f2615f",
+      "head_sha256": "14a1d0cd500ce7bd39a72b9579667772f1b7bc1ae0cc9de73cba988c76f2615f",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-A",
+      "flags": [
+        "-O2"
+      ],
+      "source": "src/core/mrp_mad.c",
+      "debug_sections_removed": false,
+      "base_sha256": "b11e52af1629d0d14a02f0a342343d367cf5b0a0ad683ad84b1eaf1f81bcd6e6",
+      "head_sha256": "b11e52af1629d0d14a02f0a342343d367cf5b0a0ad683ad84b1eaf1f81bcd6e6",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-A",
+      "flags": [
+        "-O2"
+      ],
+      "source": "src/core/mrp_pdu.c",
+      "debug_sections_removed": false,
+      "base_sha256": "bf01c68de00a84d7b0996a71031b7c7e0d5fa310ac95b17a0bfdab95238a908c",
+      "head_sha256": "bf01c68de00a84d7b0996a71031b7c7e0d5fa310ac95b17a0bfdab95238a908c",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-A",
+      "flags": [
+        "-O2"
+      ],
+      "source": "src/core/switch.c",
+      "debug_sections_removed": false,
+      "base_sha256": "a3fc110acff4c7bf45343c382e614aae9780bd79f7b3b9aed25dda0c12ed04f0",
+      "head_sha256": "a3fc110acff4c7bf45343c382e614aae9780bd79f7b3b9aed25dda0c12ed04f0",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-A",
+      "flags": [
+        "-O2"
+      ],
+      "source": "src/core/switch_ctrl.c",
+      "debug_sections_removed": false,
+      "base_sha256": "dc7392237ec990c423b29876cf83b806bfbc3e46a166e0794d6b24db69581c81",
+      "head_sha256": "dc7392237ec990c423b29876cf83b806bfbc3e46a166e0794d6b24db69581c81",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-A",
+      "flags": [
+        "-O2"
+      ],
+      "source": "src/modules/mmrp.c",
+      "debug_sections_removed": false,
+      "base_sha256": "dff2c4dd7c533dd93712c8f444714f8803e5e46c7a5552a55bfefbc3a54c5acf",
+      "head_sha256": "dff2c4dd7c533dd93712c8f444714f8803e5e46c7a5552a55bfefbc3a54c5acf",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-A",
+      "flags": [
+        "-O2"
+      ],
+      "source": "src/modules/msrp.c",
+      "debug_sections_removed": false,
+      "base_sha256": "8611b4936ff4f354a70ca5ec24a6cae5e97561b6219c4ff0f10be78d77ac9f9b",
+      "head_sha256": "8611b4936ff4f354a70ca5ec24a6cae5e97561b6219c4ff0f10be78d77ac9f9b",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-A",
+      "flags": [
+        "-O2"
+      ],
+      "source": "src/modules/mvrp.c",
+      "debug_sections_removed": false,
+      "base_sha256": "0f279ccdd79d98a4f15c039fd2d82457519b93c701b7943cf6c659c0d229e8b9",
+      "head_sha256": "0f279ccdd79d98a4f15c039fd2d82457519b93c701b7943cf6c659c0d229e8b9",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-A",
+      "flags": [
+        "-O2"
+      ],
+      "source": "src/modules/sim_adapter.c",
+      "debug_sections_removed": false,
+      "base_sha256": "5398aca7a8f79fbdf110deb2780a1aadf79b5e34cdd4f9280a11a8a0085ac09d",
+      "head_sha256": "5398aca7a8f79fbdf110deb2780a1aadf79b5e34cdd4f9280a11a8a0085ac09d",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-A",
+      "flags": [
+        "-O2"
+      ],
+      "source": "src/ports/alloc.c",
+      "debug_sections_removed": false,
+      "base_sha256": "41eba771f99043caf8ab07bc4e4d4d0ec300069865ef23d1f2e36399ceecbcce",
+      "head_sha256": "41eba771f99043caf8ab07bc4e4d4d0ec300069865ef23d1f2e36399ceecbcce",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-A",
+      "flags": [
+        "-O2"
+      ],
+      "source": "src/ports/timer.c",
+      "debug_sections_removed": false,
+      "base_sha256": "b3d1b85ac12d6a70e5040041eb5082e664e78b92fc1bfb446e111f272a187877",
+      "head_sha256": "b3d1b85ac12d6a70e5040041eb5082e664e78b92fc1bfb446e111f272a187877",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-A",
+      "flags": [
+        "-O3"
+      ],
+      "source": "src/core/mrp_mad.c",
+      "debug_sections_removed": false,
+      "base_sha256": "4d2994a51ab634a386e782db289b9a13c287e5de3a8d47577dca5a20b3da3c08",
+      "head_sha256": "4d2994a51ab634a386e782db289b9a13c287e5de3a8d47577dca5a20b3da3c08",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-A",
+      "flags": [
+        "-O3"
+      ],
+      "source": "src/core/mrp_pdu.c",
+      "debug_sections_removed": false,
+      "base_sha256": "908ab067de9817e12052bfa0e25da62fbfa54ff2ef52f0b6c8bb5a632a31c796",
+      "head_sha256": "908ab067de9817e12052bfa0e25da62fbfa54ff2ef52f0b6c8bb5a632a31c796",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-A",
+      "flags": [
+        "-O3"
+      ],
+      "source": "src/core/switch.c",
+      "debug_sections_removed": false,
+      "base_sha256": "a3fc110acff4c7bf45343c382e614aae9780bd79f7b3b9aed25dda0c12ed04f0",
+      "head_sha256": "a3fc110acff4c7bf45343c382e614aae9780bd79f7b3b9aed25dda0c12ed04f0",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-A",
+      "flags": [
+        "-O3"
+      ],
+      "source": "src/core/switch_ctrl.c",
+      "debug_sections_removed": false,
+      "base_sha256": "3ce5ee5139a97d17b95c9d2f4856875e4b0215912e548da6918c37f9c1009386",
+      "head_sha256": "3ce5ee5139a97d17b95c9d2f4856875e4b0215912e548da6918c37f9c1009386",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-A",
+      "flags": [
+        "-O3"
+      ],
+      "source": "src/modules/mmrp.c",
+      "debug_sections_removed": false,
+      "base_sha256": "bd1130a0554da34d8224e7212917c02cd3aaa40d7848096198142c6ec15b182d",
+      "head_sha256": "bd1130a0554da34d8224e7212917c02cd3aaa40d7848096198142c6ec15b182d",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-A",
+      "flags": [
+        "-O3"
+      ],
+      "source": "src/modules/msrp.c",
+      "debug_sections_removed": false,
+      "base_sha256": "68ea89c00fa63ebb3b06d89e4b33b1e6061ec1d515b31e7ba8fd1f2f2096712a",
+      "head_sha256": "68ea89c00fa63ebb3b06d89e4b33b1e6061ec1d515b31e7ba8fd1f2f2096712a",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-A",
+      "flags": [
+        "-O3"
+      ],
+      "source": "src/modules/mvrp.c",
+      "debug_sections_removed": false,
+      "base_sha256": "0f279ccdd79d98a4f15c039fd2d82457519b93c701b7943cf6c659c0d229e8b9",
+      "head_sha256": "0f279ccdd79d98a4f15c039fd2d82457519b93c701b7943cf6c659c0d229e8b9",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-A",
+      "flags": [
+        "-O3"
+      ],
+      "source": "src/modules/sim_adapter.c",
+      "debug_sections_removed": false,
+      "base_sha256": "5398aca7a8f79fbdf110deb2780a1aadf79b5e34cdd4f9280a11a8a0085ac09d",
+      "head_sha256": "5398aca7a8f79fbdf110deb2780a1aadf79b5e34cdd4f9280a11a8a0085ac09d",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-A",
+      "flags": [
+        "-O3"
+      ],
+      "source": "src/ports/alloc.c",
+      "debug_sections_removed": false,
+      "base_sha256": "41eba771f99043caf8ab07bc4e4d4d0ec300069865ef23d1f2e36399ceecbcce",
+      "head_sha256": "41eba771f99043caf8ab07bc4e4d4d0ec300069865ef23d1f2e36399ceecbcce",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-A",
+      "flags": [
+        "-O3"
+      ],
+      "source": "src/ports/timer.c",
+      "debug_sections_removed": false,
+      "base_sha256": "b3d1b85ac12d6a70e5040041eb5082e664e78b92fc1bfb446e111f272a187877",
+      "head_sha256": "b3d1b85ac12d6a70e5040041eb5082e664e78b92fc1bfb446e111f272a187877",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-A",
+      "flags": [
+        "-Os"
+      ],
+      "source": "src/core/mrp_mad.c",
+      "debug_sections_removed": false,
+      "base_sha256": "d31e5f8d3e25a256503da91c24b8abd20f1c1659d3ccc17e9788b164a3d51d0f",
+      "head_sha256": "d31e5f8d3e25a256503da91c24b8abd20f1c1659d3ccc17e9788b164a3d51d0f",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-A",
+      "flags": [
+        "-Os"
+      ],
+      "source": "src/core/mrp_pdu.c",
+      "debug_sections_removed": false,
+      "base_sha256": "b943dfecde6d34f141857fd11b28d22da027b395c093d473c3315bc6a8960780",
+      "head_sha256": "b943dfecde6d34f141857fd11b28d22da027b395c093d473c3315bc6a8960780",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-A",
+      "flags": [
+        "-Os"
+      ],
+      "source": "src/core/switch.c",
+      "debug_sections_removed": false,
+      "base_sha256": "f6d44d618d08faf5befa0e43cf7979bddbd837b1e2d1c011c172a88a4546ca19",
+      "head_sha256": "f6d44d618d08faf5befa0e43cf7979bddbd837b1e2d1c011c172a88a4546ca19",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-A",
+      "flags": [
+        "-Os"
+      ],
+      "source": "src/core/switch_ctrl.c",
+      "debug_sections_removed": false,
+      "base_sha256": "d696329d5bcf4cf3f436e5d5e9b812cd1619cccdc39f367eb229d8ba62d328b7",
+      "head_sha256": "d696329d5bcf4cf3f436e5d5e9b812cd1619cccdc39f367eb229d8ba62d328b7",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-A",
+      "flags": [
+        "-Os"
+      ],
+      "source": "src/modules/mmrp.c",
+      "debug_sections_removed": false,
+      "base_sha256": "e33dd1b679530475597557ae316cc500cac4ba6bfb6db1e9e5a741bf3a08b4e0",
+      "head_sha256": "e33dd1b679530475597557ae316cc500cac4ba6bfb6db1e9e5a741bf3a08b4e0",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-A",
+      "flags": [
+        "-Os"
+      ],
+      "source": "src/modules/msrp.c",
+      "debug_sections_removed": false,
+      "base_sha256": "2cc41ee7d7d8a2d0347039a100985aa95cf0597214456a0fdc7104123c2058b4",
+      "head_sha256": "2cc41ee7d7d8a2d0347039a100985aa95cf0597214456a0fdc7104123c2058b4",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-A",
+      "flags": [
+        "-Os"
+      ],
+      "source": "src/modules/mvrp.c",
+      "debug_sections_removed": false,
+      "base_sha256": "35ca2e782c061dab2b6da31bef889e95649864ea08e8bd0a08bd5595958224e4",
+      "head_sha256": "35ca2e782c061dab2b6da31bef889e95649864ea08e8bd0a08bd5595958224e4",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-A",
+      "flags": [
+        "-Os"
+      ],
+      "source": "src/modules/sim_adapter.c",
+      "debug_sections_removed": false,
+      "base_sha256": "48249668042c5cd9382864fda3403a13f45f882b4be83248613d985331c6af0c",
+      "head_sha256": "48249668042c5cd9382864fda3403a13f45f882b4be83248613d985331c6af0c",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-A",
+      "flags": [
+        "-Os"
+      ],
+      "source": "src/ports/alloc.c",
+      "debug_sections_removed": false,
+      "base_sha256": "2108c5e098af76c9c9580986855a405bd9dfa945b13ed4dcfc1ccbbde76561c6",
+      "head_sha256": "2108c5e098af76c9c9580986855a405bd9dfa945b13ed4dcfc1ccbbde76561c6",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-A",
+      "flags": [
+        "-Os"
+      ],
+      "source": "src/ports/timer.c",
+      "debug_sections_removed": false,
+      "base_sha256": "fd287ccc7ac2d68a61f021438b0308d82169c28d85699a83a4bf7100347b7331",
+      "head_sha256": "fd287ccc7ac2d68a61f021438b0308d82169c28d85699a83a4bf7100347b7331",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-A",
+      "flags": [
+        "-O0",
+        "-DLWSRP_MILAN=1"
+      ],
+      "source": "src/core/mrp_mad.c",
+      "debug_sections_removed": false,
+      "base_sha256": "96fd7b0e98a0bf2618f441c6765e9b9e9a987b28f7df0ba5ec737be87c328ad2",
+      "head_sha256": "96fd7b0e98a0bf2618f441c6765e9b9e9a987b28f7df0ba5ec737be87c328ad2",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-A",
+      "flags": [
+        "-O0",
+        "-DLWSRP_MILAN=1"
+      ],
+      "source": "src/core/mrp_pdu.c",
+      "debug_sections_removed": false,
+      "base_sha256": "b442cf9091cd6f7bfb6039b8644427c42c6773d7b77b60e655a14569ef9d5098",
+      "head_sha256": "b442cf9091cd6f7bfb6039b8644427c42c6773d7b77b60e655a14569ef9d5098",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-A",
+      "flags": [
+        "-O0",
+        "-DLWSRP_MILAN=1"
+      ],
+      "source": "src/core/switch.c",
+      "debug_sections_removed": false,
+      "base_sha256": "de39edb8821cde51278d1944990641ab35b9523a1e164440e8b8d9d8e20de1a2",
+      "head_sha256": "de39edb8821cde51278d1944990641ab35b9523a1e164440e8b8d9d8e20de1a2",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-A",
+      "flags": [
+        "-O0",
+        "-DLWSRP_MILAN=1"
+      ],
+      "source": "src/core/switch_ctrl.c",
+      "debug_sections_removed": false,
+      "base_sha256": "a9733e6a8b8d2758963ba475977cf60472c547ec1c97a13a7287d730a5654a3e",
+      "head_sha256": "a9733e6a8b8d2758963ba475977cf60472c547ec1c97a13a7287d730a5654a3e",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-A",
+      "flags": [
+        "-O0",
+        "-DLWSRP_MILAN=1"
+      ],
+      "source": "src/modules/mmrp.c",
+      "debug_sections_removed": false,
+      "base_sha256": "d8bb3a94f01c449b4a3ac29b352331d0e59245093f93392090a4e59473d7dc11",
+      "head_sha256": "d8bb3a94f01c449b4a3ac29b352331d0e59245093f93392090a4e59473d7dc11",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-A",
+      "flags": [
+        "-O0",
+        "-DLWSRP_MILAN=1"
+      ],
+      "source": "src/modules/msrp.c",
+      "debug_sections_removed": false,
+      "base_sha256": "984f418a2ca104840b161d5050b5d230079aa33ead748c907b592afc771ecdd4",
+      "head_sha256": "984f418a2ca104840b161d5050b5d230079aa33ead748c907b592afc771ecdd4",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-A",
+      "flags": [
+        "-O0",
+        "-DLWSRP_MILAN=1"
+      ],
+      "source": "src/modules/mvrp.c",
+      "debug_sections_removed": false,
+      "base_sha256": "593b54c51e63eb68ef76eef0d2f2a2c023960f10a7e5b8aebcffe7e8a741dda7",
+      "head_sha256": "593b54c51e63eb68ef76eef0d2f2a2c023960f10a7e5b8aebcffe7e8a741dda7",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-A",
+      "flags": [
+        "-O0",
+        "-DLWSRP_MILAN=1"
+      ],
+      "source": "src/modules/sim_adapter.c",
+      "debug_sections_removed": false,
+      "base_sha256": "c5561b24f4e9d782204b3509bcfcfc36d13057fdd28d3e6142d970e2fcb7444d",
+      "head_sha256": "c5561b24f4e9d782204b3509bcfcfc36d13057fdd28d3e6142d970e2fcb7444d",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-A",
+      "flags": [
+        "-O0",
+        "-DLWSRP_MILAN=1"
+      ],
+      "source": "src/ports/alloc.c",
+      "debug_sections_removed": false,
+      "base_sha256": "fc9d197cefb6211b0547d88460fe65e7daf13f61c097371bba36eb2725e3b0b1",
+      "head_sha256": "fc9d197cefb6211b0547d88460fe65e7daf13f61c097371bba36eb2725e3b0b1",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-A",
+      "flags": [
+        "-O0",
+        "-DLWSRP_MILAN=1"
+      ],
+      "source": "src/ports/timer.c",
+      "debug_sections_removed": false,
+      "base_sha256": "7329133d68ffbe87812d362df1815cef42dfca2ee928bede7a7df02b5dbefc17",
+      "head_sha256": "7329133d68ffbe87812d362df1815cef42dfca2ee928bede7a7df02b5dbefc17",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-A",
+      "flags": [
+        "-O2",
+        "-DLWSRP_MILAN=1"
+      ],
+      "source": "src/core/mrp_mad.c",
+      "debug_sections_removed": false,
+      "base_sha256": "b11e52af1629d0d14a02f0a342343d367cf5b0a0ad683ad84b1eaf1f81bcd6e6",
+      "head_sha256": "b11e52af1629d0d14a02f0a342343d367cf5b0a0ad683ad84b1eaf1f81bcd6e6",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-A",
+      "flags": [
+        "-O2",
+        "-DLWSRP_MILAN=1"
+      ],
+      "source": "src/core/mrp_pdu.c",
+      "debug_sections_removed": false,
+      "base_sha256": "bf01c68de00a84d7b0996a71031b7c7e0d5fa310ac95b17a0bfdab95238a908c",
+      "head_sha256": "bf01c68de00a84d7b0996a71031b7c7e0d5fa310ac95b17a0bfdab95238a908c",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-A",
+      "flags": [
+        "-O2",
+        "-DLWSRP_MILAN=1"
+      ],
+      "source": "src/core/switch.c",
+      "debug_sections_removed": false,
+      "base_sha256": "a3fc110acff4c7bf45343c382e614aae9780bd79f7b3b9aed25dda0c12ed04f0",
+      "head_sha256": "a3fc110acff4c7bf45343c382e614aae9780bd79f7b3b9aed25dda0c12ed04f0",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-A",
+      "flags": [
+        "-O2",
+        "-DLWSRP_MILAN=1"
+      ],
+      "source": "src/core/switch_ctrl.c",
+      "debug_sections_removed": false,
+      "base_sha256": "dc7392237ec990c423b29876cf83b806bfbc3e46a166e0794d6b24db69581c81",
+      "head_sha256": "dc7392237ec990c423b29876cf83b806bfbc3e46a166e0794d6b24db69581c81",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-A",
+      "flags": [
+        "-O2",
+        "-DLWSRP_MILAN=1"
+      ],
+      "source": "src/modules/mmrp.c",
+      "debug_sections_removed": false,
+      "base_sha256": "dff2c4dd7c533dd93712c8f444714f8803e5e46c7a5552a55bfefbc3a54c5acf",
+      "head_sha256": "dff2c4dd7c533dd93712c8f444714f8803e5e46c7a5552a55bfefbc3a54c5acf",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-A",
+      "flags": [
+        "-O2",
+        "-DLWSRP_MILAN=1"
+      ],
+      "source": "src/modules/msrp.c",
+      "debug_sections_removed": false,
+      "base_sha256": "45ce4076d92db1c2d96a24465776406f198e100e63349e81d9cd6de074a6e04f",
+      "head_sha256": "45ce4076d92db1c2d96a24465776406f198e100e63349e81d9cd6de074a6e04f",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-A",
+      "flags": [
+        "-O2",
+        "-DLWSRP_MILAN=1"
+      ],
+      "source": "src/modules/mvrp.c",
+      "debug_sections_removed": false,
+      "base_sha256": "0f279ccdd79d98a4f15c039fd2d82457519b93c701b7943cf6c659c0d229e8b9",
+      "head_sha256": "0f279ccdd79d98a4f15c039fd2d82457519b93c701b7943cf6c659c0d229e8b9",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-A",
+      "flags": [
+        "-O2",
+        "-DLWSRP_MILAN=1"
+      ],
+      "source": "src/modules/sim_adapter.c",
+      "debug_sections_removed": false,
+      "base_sha256": "5398aca7a8f79fbdf110deb2780a1aadf79b5e34cdd4f9280a11a8a0085ac09d",
+      "head_sha256": "5398aca7a8f79fbdf110deb2780a1aadf79b5e34cdd4f9280a11a8a0085ac09d",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-A",
+      "flags": [
+        "-O2",
+        "-DLWSRP_MILAN=1"
+      ],
+      "source": "src/ports/alloc.c",
+      "debug_sections_removed": false,
+      "base_sha256": "41eba771f99043caf8ab07bc4e4d4d0ec300069865ef23d1f2e36399ceecbcce",
+      "head_sha256": "41eba771f99043caf8ab07bc4e4d4d0ec300069865ef23d1f2e36399ceecbcce",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-A",
+      "flags": [
+        "-O2",
+        "-DLWSRP_MILAN=1"
+      ],
+      "source": "src/ports/timer.c",
+      "debug_sections_removed": false,
+      "base_sha256": "b3d1b85ac12d6a70e5040041eb5082e664e78b92fc1bfb446e111f272a187877",
+      "head_sha256": "b3d1b85ac12d6a70e5040041eb5082e664e78b92fc1bfb446e111f272a187877",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-A",
+      "flags": [
+        "-Os",
+        "-DLWSRP_MILAN=1"
+      ],
+      "source": "src/core/mrp_mad.c",
+      "debug_sections_removed": false,
+      "base_sha256": "d31e5f8d3e25a256503da91c24b8abd20f1c1659d3ccc17e9788b164a3d51d0f",
+      "head_sha256": "d31e5f8d3e25a256503da91c24b8abd20f1c1659d3ccc17e9788b164a3d51d0f",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-A",
+      "flags": [
+        "-Os",
+        "-DLWSRP_MILAN=1"
+      ],
+      "source": "src/core/mrp_pdu.c",
+      "debug_sections_removed": false,
+      "base_sha256": "b943dfecde6d34f141857fd11b28d22da027b395c093d473c3315bc6a8960780",
+      "head_sha256": "b943dfecde6d34f141857fd11b28d22da027b395c093d473c3315bc6a8960780",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-A",
+      "flags": [
+        "-Os",
+        "-DLWSRP_MILAN=1"
+      ],
+      "source": "src/core/switch.c",
+      "debug_sections_removed": false,
+      "base_sha256": "f6d44d618d08faf5befa0e43cf7979bddbd837b1e2d1c011c172a88a4546ca19",
+      "head_sha256": "f6d44d618d08faf5befa0e43cf7979bddbd837b1e2d1c011c172a88a4546ca19",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-A",
+      "flags": [
+        "-Os",
+        "-DLWSRP_MILAN=1"
+      ],
+      "source": "src/core/switch_ctrl.c",
+      "debug_sections_removed": false,
+      "base_sha256": "d696329d5bcf4cf3f436e5d5e9b812cd1619cccdc39f367eb229d8ba62d328b7",
+      "head_sha256": "d696329d5bcf4cf3f436e5d5e9b812cd1619cccdc39f367eb229d8ba62d328b7",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-A",
+      "flags": [
+        "-Os",
+        "-DLWSRP_MILAN=1"
+      ],
+      "source": "src/modules/mmrp.c",
+      "debug_sections_removed": false,
+      "base_sha256": "e33dd1b679530475597557ae316cc500cac4ba6bfb6db1e9e5a741bf3a08b4e0",
+      "head_sha256": "e33dd1b679530475597557ae316cc500cac4ba6bfb6db1e9e5a741bf3a08b4e0",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-A",
+      "flags": [
+        "-Os",
+        "-DLWSRP_MILAN=1"
+      ],
+      "source": "src/modules/msrp.c",
+      "debug_sections_removed": false,
+      "base_sha256": "6faf29a8278b7f1c2527ac091c605a86d808c29e3a9d8aab2bf93a2f317ddc6a",
+      "head_sha256": "6faf29a8278b7f1c2527ac091c605a86d808c29e3a9d8aab2bf93a2f317ddc6a",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-A",
+      "flags": [
+        "-Os",
+        "-DLWSRP_MILAN=1"
+      ],
+      "source": "src/modules/mvrp.c",
+      "debug_sections_removed": false,
+      "base_sha256": "35ca2e782c061dab2b6da31bef889e95649864ea08e8bd0a08bd5595958224e4",
+      "head_sha256": "35ca2e782c061dab2b6da31bef889e95649864ea08e8bd0a08bd5595958224e4",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-A",
+      "flags": [
+        "-Os",
+        "-DLWSRP_MILAN=1"
+      ],
+      "source": "src/modules/sim_adapter.c",
+      "debug_sections_removed": false,
+      "base_sha256": "48249668042c5cd9382864fda3403a13f45f882b4be83248613d985331c6af0c",
+      "head_sha256": "48249668042c5cd9382864fda3403a13f45f882b4be83248613d985331c6af0c",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-A",
+      "flags": [
+        "-Os",
+        "-DLWSRP_MILAN=1"
+      ],
+      "source": "src/ports/alloc.c",
+      "debug_sections_removed": false,
+      "base_sha256": "2108c5e098af76c9c9580986855a405bd9dfa945b13ed4dcfc1ccbbde76561c6",
+      "head_sha256": "2108c5e098af76c9c9580986855a405bd9dfa945b13ed4dcfc1ccbbde76561c6",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-A",
+      "flags": [
+        "-Os",
+        "-DLWSRP_MILAN=1"
+      ],
+      "source": "src/ports/timer.c",
+      "debug_sections_removed": false,
+      "base_sha256": "fd287ccc7ac2d68a61f021438b0308d82169c28d85699a83a4bf7100347b7331",
+      "head_sha256": "fd287ccc7ac2d68a61f021438b0308d82169c28d85699a83a4bf7100347b7331",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-A",
+      "flags": [
+        "-O0",
+        "-fPIC"
+      ],
+      "source": "src/core/mrp_mad.c",
+      "debug_sections_removed": false,
+      "base_sha256": "96fd7b0e98a0bf2618f441c6765e9b9e9a987b28f7df0ba5ec737be87c328ad2",
+      "head_sha256": "96fd7b0e98a0bf2618f441c6765e9b9e9a987b28f7df0ba5ec737be87c328ad2",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-A",
+      "flags": [
+        "-O0",
+        "-fPIC"
+      ],
+      "source": "src/core/mrp_pdu.c",
+      "debug_sections_removed": false,
+      "base_sha256": "b442cf9091cd6f7bfb6039b8644427c42c6773d7b77b60e655a14569ef9d5098",
+      "head_sha256": "b442cf9091cd6f7bfb6039b8644427c42c6773d7b77b60e655a14569ef9d5098",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-A",
+      "flags": [
+        "-O0",
+        "-fPIC"
+      ],
+      "source": "src/core/switch.c",
+      "debug_sections_removed": false,
+      "base_sha256": "de39edb8821cde51278d1944990641ab35b9523a1e164440e8b8d9d8e20de1a2",
+      "head_sha256": "de39edb8821cde51278d1944990641ab35b9523a1e164440e8b8d9d8e20de1a2",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-A",
+      "flags": [
+        "-O0",
+        "-fPIC"
+      ],
+      "source": "src/core/switch_ctrl.c",
+      "debug_sections_removed": false,
+      "base_sha256": "a9733e6a8b8d2758963ba475977cf60472c547ec1c97a13a7287d730a5654a3e",
+      "head_sha256": "a9733e6a8b8d2758963ba475977cf60472c547ec1c97a13a7287d730a5654a3e",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-A",
+      "flags": [
+        "-O0",
+        "-fPIC"
+      ],
+      "source": "src/modules/mmrp.c",
+      "debug_sections_removed": false,
+      "base_sha256": "d8bb3a94f01c449b4a3ac29b352331d0e59245093f93392090a4e59473d7dc11",
+      "head_sha256": "d8bb3a94f01c449b4a3ac29b352331d0e59245093f93392090a4e59473d7dc11",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-A",
+      "flags": [
+        "-O0",
+        "-fPIC"
+      ],
+      "source": "src/modules/msrp.c",
+      "debug_sections_removed": false,
+      "base_sha256": "85dc026c74c3d337d84d268e4b4cdd602b563c8a830c6da26306b58f924e0518",
+      "head_sha256": "85dc026c74c3d337d84d268e4b4cdd602b563c8a830c6da26306b58f924e0518",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-A",
+      "flags": [
+        "-O0",
+        "-fPIC"
+      ],
+      "source": "src/modules/mvrp.c",
+      "debug_sections_removed": false,
+      "base_sha256": "593b54c51e63eb68ef76eef0d2f2a2c023960f10a7e5b8aebcffe7e8a741dda7",
+      "head_sha256": "593b54c51e63eb68ef76eef0d2f2a2c023960f10a7e5b8aebcffe7e8a741dda7",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-A",
+      "flags": [
+        "-O0",
+        "-fPIC"
+      ],
+      "source": "src/modules/sim_adapter.c",
+      "debug_sections_removed": false,
+      "base_sha256": "c5561b24f4e9d782204b3509bcfcfc36d13057fdd28d3e6142d970e2fcb7444d",
+      "head_sha256": "c5561b24f4e9d782204b3509bcfcfc36d13057fdd28d3e6142d970e2fcb7444d",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-A",
+      "flags": [
+        "-O0",
+        "-fPIC"
+      ],
+      "source": "src/ports/alloc.c",
+      "debug_sections_removed": false,
+      "base_sha256": "fc9d197cefb6211b0547d88460fe65e7daf13f61c097371bba36eb2725e3b0b1",
+      "head_sha256": "fc9d197cefb6211b0547d88460fe65e7daf13f61c097371bba36eb2725e3b0b1",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-A",
+      "flags": [
+        "-O0",
+        "-fPIC"
+      ],
+      "source": "src/ports/timer.c",
+      "debug_sections_removed": false,
+      "base_sha256": "7329133d68ffbe87812d362df1815cef42dfca2ee928bede7a7df02b5dbefc17",
+      "head_sha256": "7329133d68ffbe87812d362df1815cef42dfca2ee928bede7a7df02b5dbefc17",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-A",
+      "flags": [
+        "-O2",
+        "-fPIC"
+      ],
+      "source": "src/core/mrp_mad.c",
+      "debug_sections_removed": false,
+      "base_sha256": "8e305ba82bee8c54dd8b5c427f4a2e14ce2b3ef3298c54594ba56b2d2dd3ecf2",
+      "head_sha256": "8e305ba82bee8c54dd8b5c427f4a2e14ce2b3ef3298c54594ba56b2d2dd3ecf2",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-A",
+      "flags": [
+        "-O2",
+        "-fPIC"
+      ],
+      "source": "src/core/mrp_pdu.c",
+      "debug_sections_removed": false,
+      "base_sha256": "bf01c68de00a84d7b0996a71031b7c7e0d5fa310ac95b17a0bfdab95238a908c",
+      "head_sha256": "bf01c68de00a84d7b0996a71031b7c7e0d5fa310ac95b17a0bfdab95238a908c",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-A",
+      "flags": [
+        "-O2",
+        "-fPIC"
+      ],
+      "source": "src/core/switch.c",
+      "debug_sections_removed": false,
+      "base_sha256": "a3fc110acff4c7bf45343c382e614aae9780bd79f7b3b9aed25dda0c12ed04f0",
+      "head_sha256": "a3fc110acff4c7bf45343c382e614aae9780bd79f7b3b9aed25dda0c12ed04f0",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-A",
+      "flags": [
+        "-O2",
+        "-fPIC"
+      ],
+      "source": "src/core/switch_ctrl.c",
+      "debug_sections_removed": false,
+      "base_sha256": "826df10ca1b87c4b2bb8cb55202413d0aa75d93a54e584243d68a30100a4efa5",
+      "head_sha256": "826df10ca1b87c4b2bb8cb55202413d0aa75d93a54e584243d68a30100a4efa5",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-A",
+      "flags": [
+        "-O2",
+        "-fPIC"
+      ],
+      "source": "src/modules/mmrp.c",
+      "debug_sections_removed": false,
+      "base_sha256": "dff2c4dd7c533dd93712c8f444714f8803e5e46c7a5552a55bfefbc3a54c5acf",
+      "head_sha256": "dff2c4dd7c533dd93712c8f444714f8803e5e46c7a5552a55bfefbc3a54c5acf",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-A",
+      "flags": [
+        "-O2",
+        "-fPIC"
+      ],
+      "source": "src/modules/msrp.c",
+      "debug_sections_removed": false,
+      "base_sha256": "8611b4936ff4f354a70ca5ec24a6cae5e97561b6219c4ff0f10be78d77ac9f9b",
+      "head_sha256": "8611b4936ff4f354a70ca5ec24a6cae5e97561b6219c4ff0f10be78d77ac9f9b",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-A",
+      "flags": [
+        "-O2",
+        "-fPIC"
+      ],
+      "source": "src/modules/mvrp.c",
+      "debug_sections_removed": false,
+      "base_sha256": "0f279ccdd79d98a4f15c039fd2d82457519b93c701b7943cf6c659c0d229e8b9",
+      "head_sha256": "0f279ccdd79d98a4f15c039fd2d82457519b93c701b7943cf6c659c0d229e8b9",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-A",
+      "flags": [
+        "-O2",
+        "-fPIC"
+      ],
+      "source": "src/modules/sim_adapter.c",
+      "debug_sections_removed": false,
+      "base_sha256": "5398aca7a8f79fbdf110deb2780a1aadf79b5e34cdd4f9280a11a8a0085ac09d",
+      "head_sha256": "5398aca7a8f79fbdf110deb2780a1aadf79b5e34cdd4f9280a11a8a0085ac09d",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-A",
+      "flags": [
+        "-O2",
+        "-fPIC"
+      ],
+      "source": "src/ports/alloc.c",
+      "debug_sections_removed": false,
+      "base_sha256": "fcb8a796b1cd6d4fde2105294f26675a76aa37ff22c2dfba47710a68af09c6ca",
+      "head_sha256": "fcb8a796b1cd6d4fde2105294f26675a76aa37ff22c2dfba47710a68af09c6ca",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-A",
+      "flags": [
+        "-O2",
+        "-fPIC"
+      ],
+      "source": "src/ports/timer.c",
+      "debug_sections_removed": false,
+      "base_sha256": "b3d1b85ac12d6a70e5040041eb5082e664e78b92fc1bfb446e111f272a187877",
+      "head_sha256": "b3d1b85ac12d6a70e5040041eb5082e664e78b92fc1bfb446e111f272a187877",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-A",
+      "flags": [
+        "-O0",
+        "-g"
+      ],
+      "source": "src/core/mrp_mad.c",
+      "debug_sections_removed": true,
+      "base_sha256": "698c68acfe84512f87f92a3d4cdaefe647dd1154e6b2d9acfc52b2ac3c709ce9",
+      "head_sha256": "698c68acfe84512f87f92a3d4cdaefe647dd1154e6b2d9acfc52b2ac3c709ce9",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-A",
+      "flags": [
+        "-O0",
+        "-g"
+      ],
+      "source": "src/core/mrp_pdu.c",
+      "debug_sections_removed": true,
+      "base_sha256": "22d8433d36d18cd5910a40e3ef4e7e0d3099fb494704dc461d83155817f51b55",
+      "head_sha256": "22d8433d36d18cd5910a40e3ef4e7e0d3099fb494704dc461d83155817f51b55",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-A",
+      "flags": [
+        "-O0",
+        "-g"
+      ],
+      "source": "src/core/switch.c",
+      "debug_sections_removed": true,
+      "base_sha256": "ffe35cfe75a44d05b7630423d59e8b7294e90fb4b6617505f0cd1b91eb3aff25",
+      "head_sha256": "ffe35cfe75a44d05b7630423d59e8b7294e90fb4b6617505f0cd1b91eb3aff25",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-A",
+      "flags": [
+        "-O0",
+        "-g"
+      ],
+      "source": "src/core/switch_ctrl.c",
+      "debug_sections_removed": true,
+      "base_sha256": "4878e7eaa38511a26232811963885a30fba79db6f79b769147572fd8dc96381c",
+      "head_sha256": "4878e7eaa38511a26232811963885a30fba79db6f79b769147572fd8dc96381c",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-A",
+      "flags": [
+        "-O0",
+        "-g"
+      ],
+      "source": "src/modules/mmrp.c",
+      "debug_sections_removed": true,
+      "base_sha256": "3e37b79b1b2403d3140ae4640520db5e5a645ad61336cc4a31df891249c227e2",
+      "head_sha256": "3e37b79b1b2403d3140ae4640520db5e5a645ad61336cc4a31df891249c227e2",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-A",
+      "flags": [
+        "-O0",
+        "-g"
+      ],
+      "source": "src/modules/msrp.c",
+      "debug_sections_removed": true,
+      "base_sha256": "6da2eb70a65c105dcba34ea79273fd5e0d4ba32e5c374202dc3cbb2e7c3dcb7b",
+      "head_sha256": "6da2eb70a65c105dcba34ea79273fd5e0d4ba32e5c374202dc3cbb2e7c3dcb7b",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-A",
+      "flags": [
+        "-O0",
+        "-g"
+      ],
+      "source": "src/modules/mvrp.c",
+      "debug_sections_removed": true,
+      "base_sha256": "a6096f862fdc7fd8137665cd3f11687d34781ef5f4f15bc0be31f2f47fd0cff2",
+      "head_sha256": "a6096f862fdc7fd8137665cd3f11687d34781ef5f4f15bc0be31f2f47fd0cff2",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-A",
+      "flags": [
+        "-O0",
+        "-g"
+      ],
+      "source": "src/modules/sim_adapter.c",
+      "debug_sections_removed": true,
+      "base_sha256": "3694d558d9b99c283bd8a7cde9fc0fc8ce61ef3b0131fb14d80ac0091ca33c10",
+      "head_sha256": "3694d558d9b99c283bd8a7cde9fc0fc8ce61ef3b0131fb14d80ac0091ca33c10",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-A",
+      "flags": [
+        "-O0",
+        "-g"
+      ],
+      "source": "src/ports/alloc.c",
+      "debug_sections_removed": true,
+      "base_sha256": "f04ca457157727c72a8185da9b06a20a180f75256a30391c90fcc5d676c5d9b7",
+      "head_sha256": "f04ca457157727c72a8185da9b06a20a180f75256a30391c90fcc5d676c5d9b7",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-A",
+      "flags": [
+        "-O0",
+        "-g"
+      ],
+      "source": "src/ports/timer.c",
+      "debug_sections_removed": true,
+      "base_sha256": "22b4869783824e4a8d20297752266187b1c22c9819d8ea1926bcfbeadfc31e47",
+      "head_sha256": "22b4869783824e4a8d20297752266187b1c22c9819d8ea1926bcfbeadfc31e47",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-A",
+      "flags": [
+        "-O2",
+        "-g"
+      ],
+      "source": "src/core/mrp_mad.c",
+      "debug_sections_removed": true,
+      "base_sha256": "795be44bec1ad396969f663d61d6e79c57d309cbac070511ca4254830aae4331",
+      "head_sha256": "795be44bec1ad396969f663d61d6e79c57d309cbac070511ca4254830aae4331",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-A",
+      "flags": [
+        "-O2",
+        "-g"
+      ],
+      "source": "src/core/mrp_pdu.c",
+      "debug_sections_removed": true,
+      "base_sha256": "96a3dd82f5bc5153f3c8d2623266536971196ba2aa4da368ffa1688122d75e9c",
+      "head_sha256": "96a3dd82f5bc5153f3c8d2623266536971196ba2aa4da368ffa1688122d75e9c",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-A",
+      "flags": [
+        "-O2",
+        "-g"
+      ],
+      "source": "src/core/switch.c",
+      "debug_sections_removed": true,
+      "base_sha256": "1d4fcd3d571608afb6ef906232cd9257904f361da0d1049955db75713a390c95",
+      "head_sha256": "1d4fcd3d571608afb6ef906232cd9257904f361da0d1049955db75713a390c95",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-A",
+      "flags": [
+        "-O2",
+        "-g"
+      ],
+      "source": "src/core/switch_ctrl.c",
+      "debug_sections_removed": true,
+      "base_sha256": "6ad9d09134ae0b98559960eae19de754ded8be0e385c17aef75414441a0ae5fe",
+      "head_sha256": "6ad9d09134ae0b98559960eae19de754ded8be0e385c17aef75414441a0ae5fe",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-A",
+      "flags": [
+        "-O2",
+        "-g"
+      ],
+      "source": "src/modules/mmrp.c",
+      "debug_sections_removed": true,
+      "base_sha256": "a62f8f6d03a5fd173919d8f8bb1b589cd89a0edb07a86c5904c0beb1501ccf8a",
+      "head_sha256": "a62f8f6d03a5fd173919d8f8bb1b589cd89a0edb07a86c5904c0beb1501ccf8a",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-A",
+      "flags": [
+        "-O2",
+        "-g"
+      ],
+      "source": "src/modules/msrp.c",
+      "debug_sections_removed": true,
+      "base_sha256": "2c65f02ee7bf00d9f2be0865cb2b58988a406f8c80fd196190051ba0a3ad2bf2",
+      "head_sha256": "2c65f02ee7bf00d9f2be0865cb2b58988a406f8c80fd196190051ba0a3ad2bf2",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-A",
+      "flags": [
+        "-O2",
+        "-g"
+      ],
+      "source": "src/modules/mvrp.c",
+      "debug_sections_removed": true,
+      "base_sha256": "1a6e4eb10b0420a35da45ee3cd4ef4af4878da6c1fd4ba0abf3ca95c6ef5699b",
+      "head_sha256": "1a6e4eb10b0420a35da45ee3cd4ef4af4878da6c1fd4ba0abf3ca95c6ef5699b",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-A",
+      "flags": [
+        "-O2",
+        "-g"
+      ],
+      "source": "src/modules/sim_adapter.c",
+      "debug_sections_removed": true,
+      "base_sha256": "62099c8282714aa007088458d5c3631e1983f9c68329ea23d70d4666980c702d",
+      "head_sha256": "62099c8282714aa007088458d5c3631e1983f9c68329ea23d70d4666980c702d",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-A",
+      "flags": [
+        "-O2",
+        "-g"
+      ],
+      "source": "src/ports/alloc.c",
+      "debug_sections_removed": true,
+      "base_sha256": "4e808a4769297a172c3e4bacc746a3b727f8c9b78524505ecbdd4e747b76482e",
+      "head_sha256": "4e808a4769297a172c3e4bacc746a3b727f8c9b78524505ecbdd4e747b76482e",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-A",
+      "flags": [
+        "-O2",
+        "-g"
+      ],
+      "source": "src/ports/timer.c",
+      "debug_sections_removed": true,
+      "base_sha256": "148d438a8b20156c8920ac3b5c78083a8de511e3269e0e31f1d3053afc693ac1",
+      "head_sha256": "148d438a8b20156c8920ac3b5c78083a8de511e3269e0e31f1d3053afc693ac1",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-A",
+      "flags": [
+        "-Os",
+        "-g"
+      ],
+      "source": "src/core/mrp_mad.c",
+      "debug_sections_removed": true,
+      "base_sha256": "12273fce183e4752828be2a5256d5ee3b03ba9176f85d3efc4de60188b0df8e5",
+      "head_sha256": "12273fce183e4752828be2a5256d5ee3b03ba9176f85d3efc4de60188b0df8e5",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-A",
+      "flags": [
+        "-Os",
+        "-g"
+      ],
+      "source": "src/core/mrp_pdu.c",
+      "debug_sections_removed": true,
+      "base_sha256": "2041ee5cb34d18e1a90a151b21d6c0723d6a52395d0a824ac821539294046449",
+      "head_sha256": "2041ee5cb34d18e1a90a151b21d6c0723d6a52395d0a824ac821539294046449",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-A",
+      "flags": [
+        "-Os",
+        "-g"
+      ],
+      "source": "src/core/switch.c",
+      "debug_sections_removed": true,
+      "base_sha256": "ce76df4ddfc7b68b8b81469a60be8235c780e4c01736565bb07b2c71ccd04dd3",
+      "head_sha256": "ce76df4ddfc7b68b8b81469a60be8235c780e4c01736565bb07b2c71ccd04dd3",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-A",
+      "flags": [
+        "-Os",
+        "-g"
+      ],
+      "source": "src/core/switch_ctrl.c",
+      "debug_sections_removed": true,
+      "base_sha256": "d4a51cb833388679b8ea3d86194c1f3b89e72d2aeb2411e5dbb87cfc83bf64c3",
+      "head_sha256": "d4a51cb833388679b8ea3d86194c1f3b89e72d2aeb2411e5dbb87cfc83bf64c3",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-A",
+      "flags": [
+        "-Os",
+        "-g"
+      ],
+      "source": "src/modules/mmrp.c",
+      "debug_sections_removed": true,
+      "base_sha256": "8ba26553d3a6ae37147788c3b36b04847cbb3ed539f4b0296008410ace0e0ee7",
+      "head_sha256": "8ba26553d3a6ae37147788c3b36b04847cbb3ed539f4b0296008410ace0e0ee7",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-A",
+      "flags": [
+        "-Os",
+        "-g"
+      ],
+      "source": "src/modules/msrp.c",
+      "debug_sections_removed": true,
+      "base_sha256": "833dcb34dae124427f9c5fefad4776ded3ddbb9b9749b5b1e95529b3b3161b0e",
+      "head_sha256": "833dcb34dae124427f9c5fefad4776ded3ddbb9b9749b5b1e95529b3b3161b0e",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-A",
+      "flags": [
+        "-Os",
+        "-g"
+      ],
+      "source": "src/modules/mvrp.c",
+      "debug_sections_removed": true,
+      "base_sha256": "0b2075aab7fc4a4bdabb173bc93da586d21cc762ad6af4a3171c7f7f5342a41b",
+      "head_sha256": "0b2075aab7fc4a4bdabb173bc93da586d21cc762ad6af4a3171c7f7f5342a41b",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-A",
+      "flags": [
+        "-Os",
+        "-g"
+      ],
+      "source": "src/modules/sim_adapter.c",
+      "debug_sections_removed": true,
+      "base_sha256": "75c72378ef7f744de1ecadd2585e6e1cd0f51c84a760bb3607d2089faa692b9e",
+      "head_sha256": "75c72378ef7f744de1ecadd2585e6e1cd0f51c84a760bb3607d2089faa692b9e",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-A",
+      "flags": [
+        "-Os",
+        "-g"
+      ],
+      "source": "src/ports/alloc.c",
+      "debug_sections_removed": true,
+      "base_sha256": "35d3cb9241d66d65da1b8eba03bdf0966550dbce3a7fe2699058e6c655a976ed",
+      "head_sha256": "35d3cb9241d66d65da1b8eba03bdf0966550dbce3a7fe2699058e6c655a976ed",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-A",
+      "flags": [
+        "-Os",
+        "-g"
+      ],
+      "source": "src/ports/timer.c",
+      "debug_sections_removed": true,
+      "base_sha256": "534ccc678c0998635a56b25859e22ade0cba44902c997037044e42085c8b3c6f",
+      "head_sha256": "534ccc678c0998635a56b25859e22ade0cba44902c997037044e42085c8b3c6f",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-B",
+      "flags": [
+        "-O0"
+      ],
+      "source": "src/core/mrp_mad.c",
+      "debug_sections_removed": false,
+      "base_sha256": "597035d0f079c74f9acf52cd786c810bde983696cb88d008eda8f48d313ceb02",
+      "head_sha256": "597035d0f079c74f9acf52cd786c810bde983696cb88d008eda8f48d313ceb02",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-B",
+      "flags": [
+        "-O0"
+      ],
+      "source": "src/core/mrp_pdu.c",
+      "debug_sections_removed": false,
+      "base_sha256": "d8ba2aded6175b8b6efb83792a7c325075dd23edff4af93dc30ad4b6da932898",
+      "head_sha256": "d8ba2aded6175b8b6efb83792a7c325075dd23edff4af93dc30ad4b6da932898",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-B",
+      "flags": [
+        "-O0"
+      ],
+      "source": "src/core/switch.c",
+      "debug_sections_removed": false,
+      "base_sha256": "41deedbf80355d5f7a47bab45d4fc6db755aaa5e0344abaf50567be667e73ca9",
+      "head_sha256": "41deedbf80355d5f7a47bab45d4fc6db755aaa5e0344abaf50567be667e73ca9",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-B",
+      "flags": [
+        "-O0"
+      ],
+      "source": "src/core/switch_ctrl.c",
+      "debug_sections_removed": false,
+      "base_sha256": "8e9e4c88a16b014bb1da50e313c8f0c56e8c78a9440f4f126c32a48519e1e4b4",
+      "head_sha256": "8e9e4c88a16b014bb1da50e313c8f0c56e8c78a9440f4f126c32a48519e1e4b4",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-B",
+      "flags": [
+        "-O0"
+      ],
+      "source": "src/modules/mmrp.c",
+      "debug_sections_removed": false,
+      "base_sha256": "a59edfc434ae9cb08f1b440acd5678a94d8e71e2f8b5b991eabf20c78c9580b5",
+      "head_sha256": "a59edfc434ae9cb08f1b440acd5678a94d8e71e2f8b5b991eabf20c78c9580b5",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-B",
+      "flags": [
+        "-O0"
+      ],
+      "source": "src/modules/msrp.c",
+      "debug_sections_removed": false,
+      "base_sha256": "a1b9ee490f7657a264021cbe1f926dea750a15d9a7018b45116b13c47698b980",
+      "head_sha256": "a1b9ee490f7657a264021cbe1f926dea750a15d9a7018b45116b13c47698b980",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-B",
+      "flags": [
+        "-O0"
+      ],
+      "source": "src/modules/mvrp.c",
+      "debug_sections_removed": false,
+      "base_sha256": "327025410c52776e7f6374635dd95e3d8d02f0d6d2ba3eba1c2a341887960123",
+      "head_sha256": "327025410c52776e7f6374635dd95e3d8d02f0d6d2ba3eba1c2a341887960123",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-B",
+      "flags": [
+        "-O0"
+      ],
+      "source": "src/modules/sim_adapter.c",
+      "debug_sections_removed": false,
+      "base_sha256": "121b3a9302d5b58d3e12cb5c6b87ca0efb21fa7ee062319d888415ebd8f4d9f1",
+      "head_sha256": "121b3a9302d5b58d3e12cb5c6b87ca0efb21fa7ee062319d888415ebd8f4d9f1",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-B",
+      "flags": [
+        "-O0"
+      ],
+      "source": "src/ports/alloc.c",
+      "debug_sections_removed": false,
+      "base_sha256": "a794506bf11509fa8a2fcaf8fe12632d6583b7ef46e58d46f5449e5dbc43e2c2",
+      "head_sha256": "a794506bf11509fa8a2fcaf8fe12632d6583b7ef46e58d46f5449e5dbc43e2c2",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-B",
+      "flags": [
+        "-O0"
+      ],
+      "source": "src/ports/timer.c",
+      "debug_sections_removed": false,
+      "base_sha256": "26eeb8cc73311786a4fb2dcc76eb2b672b08678963ddd74c4ac84000a1e69e40",
+      "head_sha256": "26eeb8cc73311786a4fb2dcc76eb2b672b08678963ddd74c4ac84000a1e69e40",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-B",
+      "flags": [
+        "-O1"
+      ],
+      "source": "src/core/mrp_mad.c",
+      "debug_sections_removed": false,
+      "base_sha256": "18d213fe125934597f1fb40c8ec527651518efda2af9f14795f8bbfcf0197092",
+      "head_sha256": "18d213fe125934597f1fb40c8ec527651518efda2af9f14795f8bbfcf0197092",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-B",
+      "flags": [
+        "-O1"
+      ],
+      "source": "src/core/mrp_pdu.c",
+      "debug_sections_removed": false,
+      "base_sha256": "14bf53246efaa038481b6fcf5ca314aa034a9519ad4730ae24f9286ae98596f8",
+      "head_sha256": "14bf53246efaa038481b6fcf5ca314aa034a9519ad4730ae24f9286ae98596f8",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-B",
+      "flags": [
+        "-O1"
+      ],
+      "source": "src/core/switch.c",
+      "debug_sections_removed": false,
+      "base_sha256": "bc1ed20492772dce1e771c3667aa7cae67f508cca82ab2ed1c7938115ad9ce3d",
+      "head_sha256": "bc1ed20492772dce1e771c3667aa7cae67f508cca82ab2ed1c7938115ad9ce3d",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-B",
+      "flags": [
+        "-O1"
+      ],
+      "source": "src/core/switch_ctrl.c",
+      "debug_sections_removed": false,
+      "base_sha256": "aa3d2e0a2f4794d7f62d56a89c6f016428b056204f601a41e09519995f9ccbf0",
+      "head_sha256": "aa3d2e0a2f4794d7f62d56a89c6f016428b056204f601a41e09519995f9ccbf0",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-B",
+      "flags": [
+        "-O1"
+      ],
+      "source": "src/modules/mmrp.c",
+      "debug_sections_removed": false,
+      "base_sha256": "9b4725db583f45044f51a8d8d04c036dddaad1c4704d370c0c0fd1319ee7fe2b",
+      "head_sha256": "9b4725db583f45044f51a8d8d04c036dddaad1c4704d370c0c0fd1319ee7fe2b",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-B",
+      "flags": [
+        "-O1"
+      ],
+      "source": "src/modules/msrp.c",
+      "debug_sections_removed": false,
+      "base_sha256": "a1228f7c2ae4cdbcc06d99583a92c5d2d94fa2c60a833651216805c7fce291d1",
+      "head_sha256": "a1228f7c2ae4cdbcc06d99583a92c5d2d94fa2c60a833651216805c7fce291d1",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-B",
+      "flags": [
+        "-O1"
+      ],
+      "source": "src/modules/mvrp.c",
+      "debug_sections_removed": false,
+      "base_sha256": "a9bda1e8685064845c40f7d306bd871e2af9d43a30882a7341330f88cc2611a8",
+      "head_sha256": "a9bda1e8685064845c40f7d306bd871e2af9d43a30882a7341330f88cc2611a8",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-B",
+      "flags": [
+        "-O1"
+      ],
+      "source": "src/modules/sim_adapter.c",
+      "debug_sections_removed": false,
+      "base_sha256": "54338ff9c7e869648ee4b6efb435d53c8dd00e0c3b3dc68e4efd2ef096466632",
+      "head_sha256": "54338ff9c7e869648ee4b6efb435d53c8dd00e0c3b3dc68e4efd2ef096466632",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-B",
+      "flags": [
+        "-O1"
+      ],
+      "source": "src/ports/alloc.c",
+      "debug_sections_removed": false,
+      "base_sha256": "bacf5f5defa693beef1a1e03f6922e86339afa20d4c6f75cffda6c1c6a9217f7",
+      "head_sha256": "bacf5f5defa693beef1a1e03f6922e86339afa20d4c6f75cffda6c1c6a9217f7",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-B",
+      "flags": [
+        "-O1"
+      ],
+      "source": "src/ports/timer.c",
+      "debug_sections_removed": false,
+      "base_sha256": "0faab841403b16900e1dec08a105abee379d3e9f9085c9896e88f7d56fa3e77b",
+      "head_sha256": "0faab841403b16900e1dec08a105abee379d3e9f9085c9896e88f7d56fa3e77b",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-B",
+      "flags": [
+        "-O2"
+      ],
+      "source": "src/core/mrp_mad.c",
+      "debug_sections_removed": false,
+      "base_sha256": "a647d52a8ff274dda02113058c3332ac126d53f9797b24a2b099395d9f60fa39",
+      "head_sha256": "a647d52a8ff274dda02113058c3332ac126d53f9797b24a2b099395d9f60fa39",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-B",
+      "flags": [
+        "-O2"
+      ],
+      "source": "src/core/mrp_pdu.c",
+      "debug_sections_removed": false,
+      "base_sha256": "048904bbf73ee3aae1eb086abe7813a5a9d6d1f5b44686854099c23011794a5d",
+      "head_sha256": "048904bbf73ee3aae1eb086abe7813a5a9d6d1f5b44686854099c23011794a5d",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-B",
+      "flags": [
+        "-O2"
+      ],
+      "source": "src/core/switch.c",
+      "debug_sections_removed": false,
+      "base_sha256": "bc1ed20492772dce1e771c3667aa7cae67f508cca82ab2ed1c7938115ad9ce3d",
+      "head_sha256": "bc1ed20492772dce1e771c3667aa7cae67f508cca82ab2ed1c7938115ad9ce3d",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-B",
+      "flags": [
+        "-O2"
+      ],
+      "source": "src/core/switch_ctrl.c",
+      "debug_sections_removed": false,
+      "base_sha256": "74445e3b9e918f4450bdf59189465aef52cdd6a9e6ba58cd234f0fce3475fc17",
+      "head_sha256": "74445e3b9e918f4450bdf59189465aef52cdd6a9e6ba58cd234f0fce3475fc17",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-B",
+      "flags": [
+        "-O2"
+      ],
+      "source": "src/modules/mmrp.c",
+      "debug_sections_removed": false,
+      "base_sha256": "e3bbbbc66e20b2f72f862fd3ee9753f99d731b94d9b991b57c297746feeb1565",
+      "head_sha256": "e3bbbbc66e20b2f72f862fd3ee9753f99d731b94d9b991b57c297746feeb1565",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-B",
+      "flags": [
+        "-O2"
+      ],
+      "source": "src/modules/msrp.c",
+      "debug_sections_removed": false,
+      "base_sha256": "c8e1b2c83c1ab99a2e501c7b672ac851a13e6c79a77a0d28df6f304abe27ba2c",
+      "head_sha256": "c8e1b2c83c1ab99a2e501c7b672ac851a13e6c79a77a0d28df6f304abe27ba2c",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-B",
+      "flags": [
+        "-O2"
+      ],
+      "source": "src/modules/mvrp.c",
+      "debug_sections_removed": false,
+      "base_sha256": "a9bda1e8685064845c40f7d306bd871e2af9d43a30882a7341330f88cc2611a8",
+      "head_sha256": "a9bda1e8685064845c40f7d306bd871e2af9d43a30882a7341330f88cc2611a8",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-B",
+      "flags": [
+        "-O2"
+      ],
+      "source": "src/modules/sim_adapter.c",
+      "debug_sections_removed": false,
+      "base_sha256": "54338ff9c7e869648ee4b6efb435d53c8dd00e0c3b3dc68e4efd2ef096466632",
+      "head_sha256": "54338ff9c7e869648ee4b6efb435d53c8dd00e0c3b3dc68e4efd2ef096466632",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-B",
+      "flags": [
+        "-O2"
+      ],
+      "source": "src/ports/alloc.c",
+      "debug_sections_removed": false,
+      "base_sha256": "bacf5f5defa693beef1a1e03f6922e86339afa20d4c6f75cffda6c1c6a9217f7",
+      "head_sha256": "bacf5f5defa693beef1a1e03f6922e86339afa20d4c6f75cffda6c1c6a9217f7",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-B",
+      "flags": [
+        "-O2"
+      ],
+      "source": "src/ports/timer.c",
+      "debug_sections_removed": false,
+      "base_sha256": "0faab841403b16900e1dec08a105abee379d3e9f9085c9896e88f7d56fa3e77b",
+      "head_sha256": "0faab841403b16900e1dec08a105abee379d3e9f9085c9896e88f7d56fa3e77b",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-B",
+      "flags": [
+        "-O3"
+      ],
+      "source": "src/core/mrp_mad.c",
+      "debug_sections_removed": false,
+      "base_sha256": "bee9166bdf8f79715d80ee7982d9134bb419f6b8f76c243a74f308d89d52db2d",
+      "head_sha256": "bee9166bdf8f79715d80ee7982d9134bb419f6b8f76c243a74f308d89d52db2d",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-B",
+      "flags": [
+        "-O3"
+      ],
+      "source": "src/core/mrp_pdu.c",
+      "debug_sections_removed": false,
+      "base_sha256": "b613be87650b6a7f6d3cf0f22a6201485acde25087f102a329ce1eb27bcbcfe9",
+      "head_sha256": "b613be87650b6a7f6d3cf0f22a6201485acde25087f102a329ce1eb27bcbcfe9",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-B",
+      "flags": [
+        "-O3"
+      ],
+      "source": "src/core/switch.c",
+      "debug_sections_removed": false,
+      "base_sha256": "bc1ed20492772dce1e771c3667aa7cae67f508cca82ab2ed1c7938115ad9ce3d",
+      "head_sha256": "bc1ed20492772dce1e771c3667aa7cae67f508cca82ab2ed1c7938115ad9ce3d",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-B",
+      "flags": [
+        "-O3"
+      ],
+      "source": "src/core/switch_ctrl.c",
+      "debug_sections_removed": false,
+      "base_sha256": "c9950b7c6229401e73dad3851f23c6b9f1f26edaea1d011a3f06f8bd6d45349e",
+      "head_sha256": "c9950b7c6229401e73dad3851f23c6b9f1f26edaea1d011a3f06f8bd6d45349e",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-B",
+      "flags": [
+        "-O3"
+      ],
+      "source": "src/modules/mmrp.c",
+      "debug_sections_removed": false,
+      "base_sha256": "e3bbbbc66e20b2f72f862fd3ee9753f99d731b94d9b991b57c297746feeb1565",
+      "head_sha256": "e3bbbbc66e20b2f72f862fd3ee9753f99d731b94d9b991b57c297746feeb1565",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-B",
+      "flags": [
+        "-O3"
+      ],
+      "source": "src/modules/msrp.c",
+      "debug_sections_removed": false,
+      "base_sha256": "c8e1b2c83c1ab99a2e501c7b672ac851a13e6c79a77a0d28df6f304abe27ba2c",
+      "head_sha256": "c8e1b2c83c1ab99a2e501c7b672ac851a13e6c79a77a0d28df6f304abe27ba2c",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-B",
+      "flags": [
+        "-O3"
+      ],
+      "source": "src/modules/mvrp.c",
+      "debug_sections_removed": false,
+      "base_sha256": "a9bda1e8685064845c40f7d306bd871e2af9d43a30882a7341330f88cc2611a8",
+      "head_sha256": "a9bda1e8685064845c40f7d306bd871e2af9d43a30882a7341330f88cc2611a8",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-B",
+      "flags": [
+        "-O3"
+      ],
+      "source": "src/modules/sim_adapter.c",
+      "debug_sections_removed": false,
+      "base_sha256": "54338ff9c7e869648ee4b6efb435d53c8dd00e0c3b3dc68e4efd2ef096466632",
+      "head_sha256": "54338ff9c7e869648ee4b6efb435d53c8dd00e0c3b3dc68e4efd2ef096466632",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-B",
+      "flags": [
+        "-O3"
+      ],
+      "source": "src/ports/alloc.c",
+      "debug_sections_removed": false,
+      "base_sha256": "bacf5f5defa693beef1a1e03f6922e86339afa20d4c6f75cffda6c1c6a9217f7",
+      "head_sha256": "bacf5f5defa693beef1a1e03f6922e86339afa20d4c6f75cffda6c1c6a9217f7",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-B",
+      "flags": [
+        "-O3"
+      ],
+      "source": "src/ports/timer.c",
+      "debug_sections_removed": false,
+      "base_sha256": "0faab841403b16900e1dec08a105abee379d3e9f9085c9896e88f7d56fa3e77b",
+      "head_sha256": "0faab841403b16900e1dec08a105abee379d3e9f9085c9896e88f7d56fa3e77b",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-B",
+      "flags": [
+        "-Os"
+      ],
+      "source": "src/core/mrp_mad.c",
+      "debug_sections_removed": false,
+      "base_sha256": "0961c939adbd08cffd19e1501ff26b1101ba0ea4c1fe8c52147a8f7710e5cd83",
+      "head_sha256": "0961c939adbd08cffd19e1501ff26b1101ba0ea4c1fe8c52147a8f7710e5cd83",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-B",
+      "flags": [
+        "-Os"
+      ],
+      "source": "src/core/mrp_pdu.c",
+      "debug_sections_removed": false,
+      "base_sha256": "ce49f215bba44ad498163c550815b7f1a8fa808fdf6b180e2b615486bb275005",
+      "head_sha256": "ce49f215bba44ad498163c550815b7f1a8fa808fdf6b180e2b615486bb275005",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-B",
+      "flags": [
+        "-Os"
+      ],
+      "source": "src/core/switch.c",
+      "debug_sections_removed": false,
+      "base_sha256": "baa57100134e16a559cd3413346b77f308b534fa03c7c9c4e3a5f85efdf37a63",
+      "head_sha256": "baa57100134e16a559cd3413346b77f308b534fa03c7c9c4e3a5f85efdf37a63",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-B",
+      "flags": [
+        "-Os"
+      ],
+      "source": "src/core/switch_ctrl.c",
+      "debug_sections_removed": false,
+      "base_sha256": "ff5d12926285a56bddbbf8e9ab0f4534101c988c55da4b8154ceb308b3952d33",
+      "head_sha256": "ff5d12926285a56bddbbf8e9ab0f4534101c988c55da4b8154ceb308b3952d33",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-B",
+      "flags": [
+        "-Os"
+      ],
+      "source": "src/modules/mmrp.c",
+      "debug_sections_removed": false,
+      "base_sha256": "969f64e600b3dd0de8ef0b2c76e56ebe7aeb766d084e49107d207f60cdf7ae0a",
+      "head_sha256": "969f64e600b3dd0de8ef0b2c76e56ebe7aeb766d084e49107d207f60cdf7ae0a",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-B",
+      "flags": [
+        "-Os"
+      ],
+      "source": "src/modules/msrp.c",
+      "debug_sections_removed": false,
+      "base_sha256": "65ff3bde1bfb33614ca62b777b6961aa407f009f6d7fbcfc83db99783aadf697",
+      "head_sha256": "65ff3bde1bfb33614ca62b777b6961aa407f009f6d7fbcfc83db99783aadf697",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-B",
+      "flags": [
+        "-Os"
+      ],
+      "source": "src/modules/mvrp.c",
+      "debug_sections_removed": false,
+      "base_sha256": "6e60f0574d2ac22147d08c3dcd8667a8db65520a089e133f528e9cec4e6e1c70",
+      "head_sha256": "6e60f0574d2ac22147d08c3dcd8667a8db65520a089e133f528e9cec4e6e1c70",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-B",
+      "flags": [
+        "-Os"
+      ],
+      "source": "src/modules/sim_adapter.c",
+      "debug_sections_removed": false,
+      "base_sha256": "048f9bc76e864eadae79e39b5a53fdfbd9e61961e8f1d924bb1a0a151e9cea9c",
+      "head_sha256": "048f9bc76e864eadae79e39b5a53fdfbd9e61961e8f1d924bb1a0a151e9cea9c",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-B",
+      "flags": [
+        "-Os"
+      ],
+      "source": "src/ports/alloc.c",
+      "debug_sections_removed": false,
+      "base_sha256": "750a832b83749819fe09ad68647f540f0517b4229bd633f77375b78ab10cab48",
+      "head_sha256": "750a832b83749819fe09ad68647f540f0517b4229bd633f77375b78ab10cab48",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-B",
+      "flags": [
+        "-Os"
+      ],
+      "source": "src/ports/timer.c",
+      "debug_sections_removed": false,
+      "base_sha256": "07736c528aa1096e3a7c10dd8238cb53043b8962562b3bee067a07a1f35f4021",
+      "head_sha256": "07736c528aa1096e3a7c10dd8238cb53043b8962562b3bee067a07a1f35f4021",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-B",
+      "flags": [
+        "-O0",
+        "-DLWSRP_MILAN=1"
+      ],
+      "source": "src/core/mrp_mad.c",
+      "debug_sections_removed": false,
+      "base_sha256": "597035d0f079c74f9acf52cd786c810bde983696cb88d008eda8f48d313ceb02",
+      "head_sha256": "597035d0f079c74f9acf52cd786c810bde983696cb88d008eda8f48d313ceb02",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-B",
+      "flags": [
+        "-O0",
+        "-DLWSRP_MILAN=1"
+      ],
+      "source": "src/core/mrp_pdu.c",
+      "debug_sections_removed": false,
+      "base_sha256": "d8ba2aded6175b8b6efb83792a7c325075dd23edff4af93dc30ad4b6da932898",
+      "head_sha256": "d8ba2aded6175b8b6efb83792a7c325075dd23edff4af93dc30ad4b6da932898",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-B",
+      "flags": [
+        "-O0",
+        "-DLWSRP_MILAN=1"
+      ],
+      "source": "src/core/switch.c",
+      "debug_sections_removed": false,
+      "base_sha256": "41deedbf80355d5f7a47bab45d4fc6db755aaa5e0344abaf50567be667e73ca9",
+      "head_sha256": "41deedbf80355d5f7a47bab45d4fc6db755aaa5e0344abaf50567be667e73ca9",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-B",
+      "flags": [
+        "-O0",
+        "-DLWSRP_MILAN=1"
+      ],
+      "source": "src/core/switch_ctrl.c",
+      "debug_sections_removed": false,
+      "base_sha256": "8e9e4c88a16b014bb1da50e313c8f0c56e8c78a9440f4f126c32a48519e1e4b4",
+      "head_sha256": "8e9e4c88a16b014bb1da50e313c8f0c56e8c78a9440f4f126c32a48519e1e4b4",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-B",
+      "flags": [
+        "-O0",
+        "-DLWSRP_MILAN=1"
+      ],
+      "source": "src/modules/mmrp.c",
+      "debug_sections_removed": false,
+      "base_sha256": "a59edfc434ae9cb08f1b440acd5678a94d8e71e2f8b5b991eabf20c78c9580b5",
+      "head_sha256": "a59edfc434ae9cb08f1b440acd5678a94d8e71e2f8b5b991eabf20c78c9580b5",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-B",
+      "flags": [
+        "-O0",
+        "-DLWSRP_MILAN=1"
+      ],
+      "source": "src/modules/msrp.c",
+      "debug_sections_removed": false,
+      "base_sha256": "69566c12276b5b0f0170bfff26b4c219af35cfd58f30b208ad964c2c4cc923da",
+      "head_sha256": "69566c12276b5b0f0170bfff26b4c219af35cfd58f30b208ad964c2c4cc923da",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-B",
+      "flags": [
+        "-O0",
+        "-DLWSRP_MILAN=1"
+      ],
+      "source": "src/modules/mvrp.c",
+      "debug_sections_removed": false,
+      "base_sha256": "327025410c52776e7f6374635dd95e3d8d02f0d6d2ba3eba1c2a341887960123",
+      "head_sha256": "327025410c52776e7f6374635dd95e3d8d02f0d6d2ba3eba1c2a341887960123",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-B",
+      "flags": [
+        "-O0",
+        "-DLWSRP_MILAN=1"
+      ],
+      "source": "src/modules/sim_adapter.c",
+      "debug_sections_removed": false,
+      "base_sha256": "121b3a9302d5b58d3e12cb5c6b87ca0efb21fa7ee062319d888415ebd8f4d9f1",
+      "head_sha256": "121b3a9302d5b58d3e12cb5c6b87ca0efb21fa7ee062319d888415ebd8f4d9f1",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-B",
+      "flags": [
+        "-O0",
+        "-DLWSRP_MILAN=1"
+      ],
+      "source": "src/ports/alloc.c",
+      "debug_sections_removed": false,
+      "base_sha256": "a794506bf11509fa8a2fcaf8fe12632d6583b7ef46e58d46f5449e5dbc43e2c2",
+      "head_sha256": "a794506bf11509fa8a2fcaf8fe12632d6583b7ef46e58d46f5449e5dbc43e2c2",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-B",
+      "flags": [
+        "-O0",
+        "-DLWSRP_MILAN=1"
+      ],
+      "source": "src/ports/timer.c",
+      "debug_sections_removed": false,
+      "base_sha256": "26eeb8cc73311786a4fb2dcc76eb2b672b08678963ddd74c4ac84000a1e69e40",
+      "head_sha256": "26eeb8cc73311786a4fb2dcc76eb2b672b08678963ddd74c4ac84000a1e69e40",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-B",
+      "flags": [
+        "-O2",
+        "-DLWSRP_MILAN=1"
+      ],
+      "source": "src/core/mrp_mad.c",
+      "debug_sections_removed": false,
+      "base_sha256": "a647d52a8ff274dda02113058c3332ac126d53f9797b24a2b099395d9f60fa39",
+      "head_sha256": "a647d52a8ff274dda02113058c3332ac126d53f9797b24a2b099395d9f60fa39",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-B",
+      "flags": [
+        "-O2",
+        "-DLWSRP_MILAN=1"
+      ],
+      "source": "src/core/mrp_pdu.c",
+      "debug_sections_removed": false,
+      "base_sha256": "048904bbf73ee3aae1eb086abe7813a5a9d6d1f5b44686854099c23011794a5d",
+      "head_sha256": "048904bbf73ee3aae1eb086abe7813a5a9d6d1f5b44686854099c23011794a5d",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-B",
+      "flags": [
+        "-O2",
+        "-DLWSRP_MILAN=1"
+      ],
+      "source": "src/core/switch.c",
+      "debug_sections_removed": false,
+      "base_sha256": "bc1ed20492772dce1e771c3667aa7cae67f508cca82ab2ed1c7938115ad9ce3d",
+      "head_sha256": "bc1ed20492772dce1e771c3667aa7cae67f508cca82ab2ed1c7938115ad9ce3d",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-B",
+      "flags": [
+        "-O2",
+        "-DLWSRP_MILAN=1"
+      ],
+      "source": "src/core/switch_ctrl.c",
+      "debug_sections_removed": false,
+      "base_sha256": "74445e3b9e918f4450bdf59189465aef52cdd6a9e6ba58cd234f0fce3475fc17",
+      "head_sha256": "74445e3b9e918f4450bdf59189465aef52cdd6a9e6ba58cd234f0fce3475fc17",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-B",
+      "flags": [
+        "-O2",
+        "-DLWSRP_MILAN=1"
+      ],
+      "source": "src/modules/mmrp.c",
+      "debug_sections_removed": false,
+      "base_sha256": "e3bbbbc66e20b2f72f862fd3ee9753f99d731b94d9b991b57c297746feeb1565",
+      "head_sha256": "e3bbbbc66e20b2f72f862fd3ee9753f99d731b94d9b991b57c297746feeb1565",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-B",
+      "flags": [
+        "-O2",
+        "-DLWSRP_MILAN=1"
+      ],
+      "source": "src/modules/msrp.c",
+      "debug_sections_removed": false,
+      "base_sha256": "a97a10dd3bc8a6f2b0d14d0db0a771377a0a101d47189c529c16d2934392151f",
+      "head_sha256": "a97a10dd3bc8a6f2b0d14d0db0a771377a0a101d47189c529c16d2934392151f",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-B",
+      "flags": [
+        "-O2",
+        "-DLWSRP_MILAN=1"
+      ],
+      "source": "src/modules/mvrp.c",
+      "debug_sections_removed": false,
+      "base_sha256": "a9bda1e8685064845c40f7d306bd871e2af9d43a30882a7341330f88cc2611a8",
+      "head_sha256": "a9bda1e8685064845c40f7d306bd871e2af9d43a30882a7341330f88cc2611a8",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-B",
+      "flags": [
+        "-O2",
+        "-DLWSRP_MILAN=1"
+      ],
+      "source": "src/modules/sim_adapter.c",
+      "debug_sections_removed": false,
+      "base_sha256": "54338ff9c7e869648ee4b6efb435d53c8dd00e0c3b3dc68e4efd2ef096466632",
+      "head_sha256": "54338ff9c7e869648ee4b6efb435d53c8dd00e0c3b3dc68e4efd2ef096466632",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-B",
+      "flags": [
+        "-O2",
+        "-DLWSRP_MILAN=1"
+      ],
+      "source": "src/ports/alloc.c",
+      "debug_sections_removed": false,
+      "base_sha256": "bacf5f5defa693beef1a1e03f6922e86339afa20d4c6f75cffda6c1c6a9217f7",
+      "head_sha256": "bacf5f5defa693beef1a1e03f6922e86339afa20d4c6f75cffda6c1c6a9217f7",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-B",
+      "flags": [
+        "-O2",
+        "-DLWSRP_MILAN=1"
+      ],
+      "source": "src/ports/timer.c",
+      "debug_sections_removed": false,
+      "base_sha256": "0faab841403b16900e1dec08a105abee379d3e9f9085c9896e88f7d56fa3e77b",
+      "head_sha256": "0faab841403b16900e1dec08a105abee379d3e9f9085c9896e88f7d56fa3e77b",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-B",
+      "flags": [
+        "-Os",
+        "-DLWSRP_MILAN=1"
+      ],
+      "source": "src/core/mrp_mad.c",
+      "debug_sections_removed": false,
+      "base_sha256": "0961c939adbd08cffd19e1501ff26b1101ba0ea4c1fe8c52147a8f7710e5cd83",
+      "head_sha256": "0961c939adbd08cffd19e1501ff26b1101ba0ea4c1fe8c52147a8f7710e5cd83",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-B",
+      "flags": [
+        "-Os",
+        "-DLWSRP_MILAN=1"
+      ],
+      "source": "src/core/mrp_pdu.c",
+      "debug_sections_removed": false,
+      "base_sha256": "ce49f215bba44ad498163c550815b7f1a8fa808fdf6b180e2b615486bb275005",
+      "head_sha256": "ce49f215bba44ad498163c550815b7f1a8fa808fdf6b180e2b615486bb275005",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-B",
+      "flags": [
+        "-Os",
+        "-DLWSRP_MILAN=1"
+      ],
+      "source": "src/core/switch.c",
+      "debug_sections_removed": false,
+      "base_sha256": "baa57100134e16a559cd3413346b77f308b534fa03c7c9c4e3a5f85efdf37a63",
+      "head_sha256": "baa57100134e16a559cd3413346b77f308b534fa03c7c9c4e3a5f85efdf37a63",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-B",
+      "flags": [
+        "-Os",
+        "-DLWSRP_MILAN=1"
+      ],
+      "source": "src/core/switch_ctrl.c",
+      "debug_sections_removed": false,
+      "base_sha256": "ff5d12926285a56bddbbf8e9ab0f4534101c988c55da4b8154ceb308b3952d33",
+      "head_sha256": "ff5d12926285a56bddbbf8e9ab0f4534101c988c55da4b8154ceb308b3952d33",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-B",
+      "flags": [
+        "-Os",
+        "-DLWSRP_MILAN=1"
+      ],
+      "source": "src/modules/mmrp.c",
+      "debug_sections_removed": false,
+      "base_sha256": "969f64e600b3dd0de8ef0b2c76e56ebe7aeb766d084e49107d207f60cdf7ae0a",
+      "head_sha256": "969f64e600b3dd0de8ef0b2c76e56ebe7aeb766d084e49107d207f60cdf7ae0a",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-B",
+      "flags": [
+        "-Os",
+        "-DLWSRP_MILAN=1"
+      ],
+      "source": "src/modules/msrp.c",
+      "debug_sections_removed": false,
+      "base_sha256": "4b6fe614614b88f341efa98865f9f67a1b6814900e97b55d535af83238f23707",
+      "head_sha256": "4b6fe614614b88f341efa98865f9f67a1b6814900e97b55d535af83238f23707",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-B",
+      "flags": [
+        "-Os",
+        "-DLWSRP_MILAN=1"
+      ],
+      "source": "src/modules/mvrp.c",
+      "debug_sections_removed": false,
+      "base_sha256": "6e60f0574d2ac22147d08c3dcd8667a8db65520a089e133f528e9cec4e6e1c70",
+      "head_sha256": "6e60f0574d2ac22147d08c3dcd8667a8db65520a089e133f528e9cec4e6e1c70",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-B",
+      "flags": [
+        "-Os",
+        "-DLWSRP_MILAN=1"
+      ],
+      "source": "src/modules/sim_adapter.c",
+      "debug_sections_removed": false,
+      "base_sha256": "048f9bc76e864eadae79e39b5a53fdfbd9e61961e8f1d924bb1a0a151e9cea9c",
+      "head_sha256": "048f9bc76e864eadae79e39b5a53fdfbd9e61961e8f1d924bb1a0a151e9cea9c",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-B",
+      "flags": [
+        "-Os",
+        "-DLWSRP_MILAN=1"
+      ],
+      "source": "src/ports/alloc.c",
+      "debug_sections_removed": false,
+      "base_sha256": "750a832b83749819fe09ad68647f540f0517b4229bd633f77375b78ab10cab48",
+      "head_sha256": "750a832b83749819fe09ad68647f540f0517b4229bd633f77375b78ab10cab48",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-B",
+      "flags": [
+        "-Os",
+        "-DLWSRP_MILAN=1"
+      ],
+      "source": "src/ports/timer.c",
+      "debug_sections_removed": false,
+      "base_sha256": "07736c528aa1096e3a7c10dd8238cb53043b8962562b3bee067a07a1f35f4021",
+      "head_sha256": "07736c528aa1096e3a7c10dd8238cb53043b8962562b3bee067a07a1f35f4021",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-B",
+      "flags": [
+        "-O0",
+        "-fPIC"
+      ],
+      "source": "src/core/mrp_mad.c",
+      "debug_sections_removed": false,
+      "base_sha256": "597035d0f079c74f9acf52cd786c810bde983696cb88d008eda8f48d313ceb02",
+      "head_sha256": "597035d0f079c74f9acf52cd786c810bde983696cb88d008eda8f48d313ceb02",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-B",
+      "flags": [
+        "-O0",
+        "-fPIC"
+      ],
+      "source": "src/core/mrp_pdu.c",
+      "debug_sections_removed": false,
+      "base_sha256": "d8ba2aded6175b8b6efb83792a7c325075dd23edff4af93dc30ad4b6da932898",
+      "head_sha256": "d8ba2aded6175b8b6efb83792a7c325075dd23edff4af93dc30ad4b6da932898",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-B",
+      "flags": [
+        "-O0",
+        "-fPIC"
+      ],
+      "source": "src/core/switch.c",
+      "debug_sections_removed": false,
+      "base_sha256": "41deedbf80355d5f7a47bab45d4fc6db755aaa5e0344abaf50567be667e73ca9",
+      "head_sha256": "41deedbf80355d5f7a47bab45d4fc6db755aaa5e0344abaf50567be667e73ca9",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-B",
+      "flags": [
+        "-O0",
+        "-fPIC"
+      ],
+      "source": "src/core/switch_ctrl.c",
+      "debug_sections_removed": false,
+      "base_sha256": "8e9e4c88a16b014bb1da50e313c8f0c56e8c78a9440f4f126c32a48519e1e4b4",
+      "head_sha256": "8e9e4c88a16b014bb1da50e313c8f0c56e8c78a9440f4f126c32a48519e1e4b4",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-B",
+      "flags": [
+        "-O0",
+        "-fPIC"
+      ],
+      "source": "src/modules/mmrp.c",
+      "debug_sections_removed": false,
+      "base_sha256": "a59edfc434ae9cb08f1b440acd5678a94d8e71e2f8b5b991eabf20c78c9580b5",
+      "head_sha256": "a59edfc434ae9cb08f1b440acd5678a94d8e71e2f8b5b991eabf20c78c9580b5",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-B",
+      "flags": [
+        "-O0",
+        "-fPIC"
+      ],
+      "source": "src/modules/msrp.c",
+      "debug_sections_removed": false,
+      "base_sha256": "a1b9ee490f7657a264021cbe1f926dea750a15d9a7018b45116b13c47698b980",
+      "head_sha256": "a1b9ee490f7657a264021cbe1f926dea750a15d9a7018b45116b13c47698b980",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-B",
+      "flags": [
+        "-O0",
+        "-fPIC"
+      ],
+      "source": "src/modules/mvrp.c",
+      "debug_sections_removed": false,
+      "base_sha256": "327025410c52776e7f6374635dd95e3d8d02f0d6d2ba3eba1c2a341887960123",
+      "head_sha256": "327025410c52776e7f6374635dd95e3d8d02f0d6d2ba3eba1c2a341887960123",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-B",
+      "flags": [
+        "-O0",
+        "-fPIC"
+      ],
+      "source": "src/modules/sim_adapter.c",
+      "debug_sections_removed": false,
+      "base_sha256": "121b3a9302d5b58d3e12cb5c6b87ca0efb21fa7ee062319d888415ebd8f4d9f1",
+      "head_sha256": "121b3a9302d5b58d3e12cb5c6b87ca0efb21fa7ee062319d888415ebd8f4d9f1",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-B",
+      "flags": [
+        "-O0",
+        "-fPIC"
+      ],
+      "source": "src/ports/alloc.c",
+      "debug_sections_removed": false,
+      "base_sha256": "a794506bf11509fa8a2fcaf8fe12632d6583b7ef46e58d46f5449e5dbc43e2c2",
+      "head_sha256": "a794506bf11509fa8a2fcaf8fe12632d6583b7ef46e58d46f5449e5dbc43e2c2",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-B",
+      "flags": [
+        "-O0",
+        "-fPIC"
+      ],
+      "source": "src/ports/timer.c",
+      "debug_sections_removed": false,
+      "base_sha256": "26eeb8cc73311786a4fb2dcc76eb2b672b08678963ddd74c4ac84000a1e69e40",
+      "head_sha256": "26eeb8cc73311786a4fb2dcc76eb2b672b08678963ddd74c4ac84000a1e69e40",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-B",
+      "flags": [
+        "-O2",
+        "-fPIC"
+      ],
+      "source": "src/core/mrp_mad.c",
+      "debug_sections_removed": false,
+      "base_sha256": "a647d52a8ff274dda02113058c3332ac126d53f9797b24a2b099395d9f60fa39",
+      "head_sha256": "a647d52a8ff274dda02113058c3332ac126d53f9797b24a2b099395d9f60fa39",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-B",
+      "flags": [
+        "-O2",
+        "-fPIC"
+      ],
+      "source": "src/core/mrp_pdu.c",
+      "debug_sections_removed": false,
+      "base_sha256": "048904bbf73ee3aae1eb086abe7813a5a9d6d1f5b44686854099c23011794a5d",
+      "head_sha256": "048904bbf73ee3aae1eb086abe7813a5a9d6d1f5b44686854099c23011794a5d",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-B",
+      "flags": [
+        "-O2",
+        "-fPIC"
+      ],
+      "source": "src/core/switch.c",
+      "debug_sections_removed": false,
+      "base_sha256": "bc1ed20492772dce1e771c3667aa7cae67f508cca82ab2ed1c7938115ad9ce3d",
+      "head_sha256": "bc1ed20492772dce1e771c3667aa7cae67f508cca82ab2ed1c7938115ad9ce3d",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-B",
+      "flags": [
+        "-O2",
+        "-fPIC"
+      ],
+      "source": "src/core/switch_ctrl.c",
+      "debug_sections_removed": false,
+      "base_sha256": "74445e3b9e918f4450bdf59189465aef52cdd6a9e6ba58cd234f0fce3475fc17",
+      "head_sha256": "74445e3b9e918f4450bdf59189465aef52cdd6a9e6ba58cd234f0fce3475fc17",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-B",
+      "flags": [
+        "-O2",
+        "-fPIC"
+      ],
+      "source": "src/modules/mmrp.c",
+      "debug_sections_removed": false,
+      "base_sha256": "e3bbbbc66e20b2f72f862fd3ee9753f99d731b94d9b991b57c297746feeb1565",
+      "head_sha256": "e3bbbbc66e20b2f72f862fd3ee9753f99d731b94d9b991b57c297746feeb1565",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-B",
+      "flags": [
+        "-O2",
+        "-fPIC"
+      ],
+      "source": "src/modules/msrp.c",
+      "debug_sections_removed": false,
+      "base_sha256": "c8e1b2c83c1ab99a2e501c7b672ac851a13e6c79a77a0d28df6f304abe27ba2c",
+      "head_sha256": "c8e1b2c83c1ab99a2e501c7b672ac851a13e6c79a77a0d28df6f304abe27ba2c",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-B",
+      "flags": [
+        "-O2",
+        "-fPIC"
+      ],
+      "source": "src/modules/mvrp.c",
+      "debug_sections_removed": false,
+      "base_sha256": "a9bda1e8685064845c40f7d306bd871e2af9d43a30882a7341330f88cc2611a8",
+      "head_sha256": "a9bda1e8685064845c40f7d306bd871e2af9d43a30882a7341330f88cc2611a8",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-B",
+      "flags": [
+        "-O2",
+        "-fPIC"
+      ],
+      "source": "src/modules/sim_adapter.c",
+      "debug_sections_removed": false,
+      "base_sha256": "54338ff9c7e869648ee4b6efb435d53c8dd00e0c3b3dc68e4efd2ef096466632",
+      "head_sha256": "54338ff9c7e869648ee4b6efb435d53c8dd00e0c3b3dc68e4efd2ef096466632",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-B",
+      "flags": [
+        "-O2",
+        "-fPIC"
+      ],
+      "source": "src/ports/alloc.c",
+      "debug_sections_removed": false,
+      "base_sha256": "bacf5f5defa693beef1a1e03f6922e86339afa20d4c6f75cffda6c1c6a9217f7",
+      "head_sha256": "bacf5f5defa693beef1a1e03f6922e86339afa20d4c6f75cffda6c1c6a9217f7",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-B",
+      "flags": [
+        "-O2",
+        "-fPIC"
+      ],
+      "source": "src/ports/timer.c",
+      "debug_sections_removed": false,
+      "base_sha256": "0faab841403b16900e1dec08a105abee379d3e9f9085c9896e88f7d56fa3e77b",
+      "head_sha256": "0faab841403b16900e1dec08a105abee379d3e9f9085c9896e88f7d56fa3e77b",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-B",
+      "flags": [
+        "-O0",
+        "-g"
+      ],
+      "source": "src/core/mrp_mad.c",
+      "debug_sections_removed": true,
+      "base_sha256": "0217dc643447ae53aa60f4d856623336268bb329a732a3a45db25a9adde246f8",
+      "head_sha256": "0217dc643447ae53aa60f4d856623336268bb329a732a3a45db25a9adde246f8",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-B",
+      "flags": [
+        "-O0",
+        "-g"
+      ],
+      "source": "src/core/mrp_pdu.c",
+      "debug_sections_removed": true,
+      "base_sha256": "3d9d3dafed371d0fe1ac0d2780db2d62b2ee479846226fe20856aac55f12b57c",
+      "head_sha256": "3d9d3dafed371d0fe1ac0d2780db2d62b2ee479846226fe20856aac55f12b57c",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-B",
+      "flags": [
+        "-O0",
+        "-g"
+      ],
+      "source": "src/core/switch.c",
+      "debug_sections_removed": true,
+      "base_sha256": "54e3e4d39158f7ee48eebc9c586044c78de4cca708649560fbeb522fea5c0b5c",
+      "head_sha256": "54e3e4d39158f7ee48eebc9c586044c78de4cca708649560fbeb522fea5c0b5c",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-B",
+      "flags": [
+        "-O0",
+        "-g"
+      ],
+      "source": "src/core/switch_ctrl.c",
+      "debug_sections_removed": true,
+      "base_sha256": "e11631767b9bdcd8ba761bbd254726fb5e419cc6c6e0662408e9c1191c6d1b13",
+      "head_sha256": "e11631767b9bdcd8ba761bbd254726fb5e419cc6c6e0662408e9c1191c6d1b13",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-B",
+      "flags": [
+        "-O0",
+        "-g"
+      ],
+      "source": "src/modules/mmrp.c",
+      "debug_sections_removed": true,
+      "base_sha256": "16b780ceaa2eab5a10dd37d41e7e3603ca2b7d3d3c7a0f55fbeaee60ff48bf5b",
+      "head_sha256": "16b780ceaa2eab5a10dd37d41e7e3603ca2b7d3d3c7a0f55fbeaee60ff48bf5b",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-B",
+      "flags": [
+        "-O0",
+        "-g"
+      ],
+      "source": "src/modules/msrp.c",
+      "debug_sections_removed": true,
+      "base_sha256": "25807fd62c93666761c0cf67f350627ee202b460428e2a0b845acff26897b9aa",
+      "head_sha256": "25807fd62c93666761c0cf67f350627ee202b460428e2a0b845acff26897b9aa",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-B",
+      "flags": [
+        "-O0",
+        "-g"
+      ],
+      "source": "src/modules/mvrp.c",
+      "debug_sections_removed": true,
+      "base_sha256": "e1c296e878481faed89e419df7580cb1fd210b78c9c0411059d78a09f71893a0",
+      "head_sha256": "e1c296e878481faed89e419df7580cb1fd210b78c9c0411059d78a09f71893a0",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-B",
+      "flags": [
+        "-O0",
+        "-g"
+      ],
+      "source": "src/modules/sim_adapter.c",
+      "debug_sections_removed": true,
+      "base_sha256": "68e880286dcb5cc7f53bcef7c836e9dbde1e83da02e5c557c1c2065398b304bc",
+      "head_sha256": "68e880286dcb5cc7f53bcef7c836e9dbde1e83da02e5c557c1c2065398b304bc",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-B",
+      "flags": [
+        "-O0",
+        "-g"
+      ],
+      "source": "src/ports/alloc.c",
+      "debug_sections_removed": true,
+      "base_sha256": "d24eb8d859359feb9abb46fb4bf6abc21261dcda8ef0a5a98774dc3d14581fb4",
+      "head_sha256": "d24eb8d859359feb9abb46fb4bf6abc21261dcda8ef0a5a98774dc3d14581fb4",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-B",
+      "flags": [
+        "-O0",
+        "-g"
+      ],
+      "source": "src/ports/timer.c",
+      "debug_sections_removed": true,
+      "base_sha256": "dfde95bb1203e3a7ea375e4f647d10a7c2859989772ece3fcb6c097ac8a3a356",
+      "head_sha256": "dfde95bb1203e3a7ea375e4f647d10a7c2859989772ece3fcb6c097ac8a3a356",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-B",
+      "flags": [
+        "-O2",
+        "-g"
+      ],
+      "source": "src/core/mrp_mad.c",
+      "debug_sections_removed": true,
+      "base_sha256": "f9ae1f6f12f803a0cd570e22b29a860dfb5a19f242067a4bb4ed0c063cde43ba",
+      "head_sha256": "f9ae1f6f12f803a0cd570e22b29a860dfb5a19f242067a4bb4ed0c063cde43ba",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-B",
+      "flags": [
+        "-O2",
+        "-g"
+      ],
+      "source": "src/core/mrp_pdu.c",
+      "debug_sections_removed": true,
+      "base_sha256": "8d9be76bfb0746f9e19301f4e23e6b9abf97f47793d7f26a98cd68128e0c0d09",
+      "head_sha256": "8d9be76bfb0746f9e19301f4e23e6b9abf97f47793d7f26a98cd68128e0c0d09",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-B",
+      "flags": [
+        "-O2",
+        "-g"
+      ],
+      "source": "src/core/switch.c",
+      "debug_sections_removed": true,
+      "base_sha256": "606c24380ee3353cb4cac0702d99716c615dacbff7e569c0a52a19c4729ec6ea",
+      "head_sha256": "606c24380ee3353cb4cac0702d99716c615dacbff7e569c0a52a19c4729ec6ea",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-B",
+      "flags": [
+        "-O2",
+        "-g"
+      ],
+      "source": "src/core/switch_ctrl.c",
+      "debug_sections_removed": true,
+      "base_sha256": "c09ad627e68062c887bf80f9d7b1ec9df3a584da7f6732d3a5e0166f8d07f70e",
+      "head_sha256": "c09ad627e68062c887bf80f9d7b1ec9df3a584da7f6732d3a5e0166f8d07f70e",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-B",
+      "flags": [
+        "-O2",
+        "-g"
+      ],
+      "source": "src/modules/mmrp.c",
+      "debug_sections_removed": true,
+      "base_sha256": "e42a3f5e3bd10ee8d7bc6b922cdf7298d906d6fa6d736505052532f9dd2f9a5e",
+      "head_sha256": "e42a3f5e3bd10ee8d7bc6b922cdf7298d906d6fa6d736505052532f9dd2f9a5e",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-B",
+      "flags": [
+        "-O2",
+        "-g"
+      ],
+      "source": "src/modules/msrp.c",
+      "debug_sections_removed": true,
+      "base_sha256": "19312c961c60236cc35bcba947fe5eece478981af41a83e7b6adcbe3238adea5",
+      "head_sha256": "19312c961c60236cc35bcba947fe5eece478981af41a83e7b6adcbe3238adea5",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-B",
+      "flags": [
+        "-O2",
+        "-g"
+      ],
+      "source": "src/modules/mvrp.c",
+      "debug_sections_removed": true,
+      "base_sha256": "4571b2221917bf38b2e5368ff8f95ea9891306d53ab99e0d1c34f73bd734fa94",
+      "head_sha256": "4571b2221917bf38b2e5368ff8f95ea9891306d53ab99e0d1c34f73bd734fa94",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-B",
+      "flags": [
+        "-O2",
+        "-g"
+      ],
+      "source": "src/modules/sim_adapter.c",
+      "debug_sections_removed": true,
+      "base_sha256": "362cc1b27b6f73e4ac8b6db8f4c92c075bd3279386ca93e537bfaec6e7810289",
+      "head_sha256": "362cc1b27b6f73e4ac8b6db8f4c92c075bd3279386ca93e537bfaec6e7810289",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-B",
+      "flags": [
+        "-O2",
+        "-g"
+      ],
+      "source": "src/ports/alloc.c",
+      "debug_sections_removed": true,
+      "base_sha256": "17736241de2cb9923c0f32ccfe789399acd6589368b97160e84b6dfebdbc751c",
+      "head_sha256": "17736241de2cb9923c0f32ccfe789399acd6589368b97160e84b6dfebdbc751c",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-B",
+      "flags": [
+        "-O2",
+        "-g"
+      ],
+      "source": "src/ports/timer.c",
+      "debug_sections_removed": true,
+      "base_sha256": "56683219c723657710f4b4f605283bfd535bddab9c1e4393172beb189a3a12bb",
+      "head_sha256": "56683219c723657710f4b4f605283bfd535bddab9c1e4393172beb189a3a12bb",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-B",
+      "flags": [
+        "-Os",
+        "-g"
+      ],
+      "source": "src/core/mrp_mad.c",
+      "debug_sections_removed": true,
+      "base_sha256": "ce864a04b4f8c3456ee223ee7f96a3178c64c98df83f46a4fc28402879aa7317",
+      "head_sha256": "ce864a04b4f8c3456ee223ee7f96a3178c64c98df83f46a4fc28402879aa7317",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-B",
+      "flags": [
+        "-Os",
+        "-g"
+      ],
+      "source": "src/core/mrp_pdu.c",
+      "debug_sections_removed": true,
+      "base_sha256": "3d31a20b1623379bb15596dd7f609179ebd1771806255ee3c236b39ca56e5945",
+      "head_sha256": "3d31a20b1623379bb15596dd7f609179ebd1771806255ee3c236b39ca56e5945",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-B",
+      "flags": [
+        "-Os",
+        "-g"
+      ],
+      "source": "src/core/switch.c",
+      "debug_sections_removed": true,
+      "base_sha256": "b032f256ca3a70a9d386a32148a6f9cc90fbbe3d38ea908993360508964e09ab",
+      "head_sha256": "b032f256ca3a70a9d386a32148a6f9cc90fbbe3d38ea908993360508964e09ab",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-B",
+      "flags": [
+        "-Os",
+        "-g"
+      ],
+      "source": "src/core/switch_ctrl.c",
+      "debug_sections_removed": true,
+      "base_sha256": "e0e4a149e505007063740ef89b7abe8ca0f0fece35a6b22f5c9d34f5ab847563",
+      "head_sha256": "e0e4a149e505007063740ef89b7abe8ca0f0fece35a6b22f5c9d34f5ab847563",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-B",
+      "flags": [
+        "-Os",
+        "-g"
+      ],
+      "source": "src/modules/mmrp.c",
+      "debug_sections_removed": true,
+      "base_sha256": "5106d3156b2642c26762c4179e0835ec839b30737b972f1ed3e67e323daff338",
+      "head_sha256": "5106d3156b2642c26762c4179e0835ec839b30737b972f1ed3e67e323daff338",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-B",
+      "flags": [
+        "-Os",
+        "-g"
+      ],
+      "source": "src/modules/msrp.c",
+      "debug_sections_removed": true,
+      "base_sha256": "63b8c177d50056d9725954f05cc0dcac2874df4017311791dbc304d79a6402e9",
+      "head_sha256": "63b8c177d50056d9725954f05cc0dcac2874df4017311791dbc304d79a6402e9",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-B",
+      "flags": [
+        "-Os",
+        "-g"
+      ],
+      "source": "src/modules/mvrp.c",
+      "debug_sections_removed": true,
+      "base_sha256": "5e05f76c3f52ace7869259832e9d0514edfdd4055307106317b61af325c0b74e",
+      "head_sha256": "5e05f76c3f52ace7869259832e9d0514edfdd4055307106317b61af325c0b74e",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-B",
+      "flags": [
+        "-Os",
+        "-g"
+      ],
+      "source": "src/modules/sim_adapter.c",
+      "debug_sections_removed": true,
+      "base_sha256": "1016c162fd19b2fbb0164cc3ed304c19f07729ac1ff78614cd81c8ae56c37cc9",
+      "head_sha256": "1016c162fd19b2fbb0164cc3ed304c19f07729ac1ff78614cd81c8ae56c37cc9",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-B",
+      "flags": [
+        "-Os",
+        "-g"
+      ],
+      "source": "src/ports/alloc.c",
+      "debug_sections_removed": true,
+      "base_sha256": "214d375c41227326d8dadcd05536b012c40773fb6702d574de42987584524313",
+      "head_sha256": "214d375c41227326d8dadcd05536b012c40773fb6702d574de42987584524313",
+      "identical": true
+    },
+    {
+      "compiler": "compiler-B",
+      "flags": [
+        "-Os",
+        "-g"
+      ],
+      "source": "src/ports/timer.c",
+      "debug_sections_removed": true,
+      "base_sha256": "621959bed3299be8dc3018d3b9afb86bd8ea159acfe082e71d5d017e2bf71308",
+      "head_sha256": "621959bed3299be8dc3018d3b9afb86bd8ea159acfe082e71d5d017e2bf71308",
+      "identical": true
+    }
+  ]
+}

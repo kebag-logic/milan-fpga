@@ -1,0 +1,138 @@
+{
+  "head": "16b6c950ca320d29876d84c33460c2652650f16d",
+  "base": "d1bb4f4e5954af6dabe7f210a6bf7adbb76bdd6b",
+  "recorded_utc": "2026-11-27T06:51:43.598849+00:00",
+  "builds": [
+    {
+      "configuration": "default",
+      "milan": "OFF",
+      "scale": "OFF",
+      "definitions": [
+        "-DLWSRP_ATTR_KEY=0",
+        "-DLWSRP_ATTR_BUCKETS=0",
+        "-DLWSRP_TIMER_SLOTS=0",
+        "-DLWSRP_TX_MERGE=0",
+        "-DLWSRP_ONE_PORT_MAP=0",
+        "-DLWSRP_LEAN_VALIDATE=0",
+        "-DLWSRP_RAPID_REPLACE=0",
+        "-DLWSRP_LEAN_COPY=0",
+        "-DLWSRP_LEAN_TX=0"
+      ],
+      "configure_exit": 0,
+      "build_exit": 0,
+      "unit_exit": 0,
+      "runner_exit": 0,
+      "summary": "Completed \"main\": 27348 passes in 241ms.",
+      "unit_raw_sha256": "e8834ef87d1c955ffc202ab31c8a438bea433e129c5f32ee97064cb28a096b7d",
+      "runner_raw_sha256": "2c3f7945c9cb078e2f8c23734dfa2fd7c98d1ec72ea69935d59f86625fff20c8"
+    },
+    {
+      "configuration": "default",
+      "milan": "ON",
+      "scale": "OFF",
+      "definitions": [
+        "-DLWSRP_ATTR_KEY=0",
+        "-DLWSRP_ATTR_BUCKETS=0",
+        "-DLWSRP_TIMER_SLOTS=0",
+        "-DLWSRP_TX_MERGE=0",
+        "-DLWSRP_ONE_PORT_MAP=0",
+        "-DLWSRP_LEAN_VALIDATE=0",
+        "-DLWSRP_RAPID_REPLACE=0",
+        "-DLWSRP_LEAN_COPY=0",
+        "-DLWSRP_LEAN_TX=0"
+      ],
+      "configure_exit": 0,
+      "build_exit": 0,
+      "unit_exit": 0,
+      "runner_exit": 0,
+      "summary": "Completed \"main\": 27336 passes in 247ms.",
+      "unit_raw_sha256": "f6ff0de9c2886f9ef84be3497c42e1f81f0454ff0c37de2db12b806cf6dcbb0e",
+      "runner_raw_sha256": "b8353c70e382d55a621d8d2b7f64237361a602b39a5b5d4e9cbc3a71f740cdb6"
+    },
+    {
+      "configuration": "end-station",
+      "milan": "OFF",
+      "scale": "ON",
+      "definitions": [
+        "-DLWSRP_ONE_PORT_MAP=1",
+        "-DLWSRP_LEAN_VALIDATE=1",
+        "-DLWSRP_RAPID_REPLACE=1",
+        "-DLWSRP_LEAN_COPY=1",
+        "-DLWSRP_LEAN_TX=1"
+      ],
+      "configure_exit": 0,
+      "build_exit": 0,
+      "unit_exit": 0,
+      "runner_exit": 0,
+      "summary": "Completed \"main\": 27376 passes in 355ms.",
+      "unit_raw_sha256": "b5f38b04b97419ad810353f3aa01c415bf8c86064fe250f78f4436b8cbbdca0f",
+      "runner_raw_sha256": "b1dda9796d69b89a0fb2899fe5db77eec18a2d5f671a2ac03730fcca2d211add"
+    },
+    {
+      "configuration": "end-station",
+      "milan": "ON",
+      "scale": "ON",
+      "definitions": [
+        "-DLWSRP_ONE_PORT_MAP=1",
+        "-DLWSRP_LEAN_VALIDATE=1",
+        "-DLWSRP_RAPID_REPLACE=1",
+        "-DLWSRP_LEAN_COPY=1",
+        "-DLWSRP_LEAN_TX=1"
+      ],
+      "configure_exit": 0,
+      "build_exit": 0,
+      "unit_exit": 0,
+      "runner_exit": 0,
+      "summary": "Completed \"main\": 27364 passes in 327ms.",
+      "unit_raw_sha256": "e16d6258f091dee22af36906dc5b3e304fc91aa63279c4699484206f9119ba6f",
+      "runner_raw_sha256": "ef683664428e448fc625d6c80c557a9edb46e6d7c9325ed110fc4a468d7bb485"
+    },
+    {
+      "configuration": "end-station-no-scale",
+      "milan": "OFF",
+      "scale": "OFF",
+      "definitions": [
+        "-DLWSRP_ATTR_KEY=0",
+        "-DLWSRP_ATTR_BUCKETS=0",
+        "-DLWSRP_TIMER_SLOTS=0",
+        "-DLWSRP_TX_MERGE=0",
+        "-DLWSRP_ONE_PORT_MAP=1",
+        "-DLWSRP_LEAN_VALIDATE=1",
+        "-DLWSRP_RAPID_REPLACE=1",
+        "-DLWSRP_LEAN_COPY=1",
+        "-DLWSRP_LEAN_TX=1"
+      ],
+      "configure_exit": 0,
+      "build_exit": 0,
+      "unit_exit": 0,
+      "runner_exit": 0,
+      "summary": "Completed \"main\": 27348 passes in 244ms.",
+      "unit_raw_sha256": "4b8b2f5d752cfdc6efa2856a4d425a51978b78825b73f3bddf71f0cbd1e4d009",
+      "runner_raw_sha256": "b71e3da3d5dca9cbe43dc28932b27baa0b035adedec45fa6c6bd6d64bca247f8"
+    },
+    {
+      "configuration": "end-station-no-scale",
+      "milan": "ON",
+      "scale": "OFF",
+      "definitions": [
+        "-DLWSRP_ATTR_KEY=0",
+        "-DLWSRP_ATTR_BUCKETS=0",
+        "-DLWSRP_TIMER_SLOTS=0",
+        "-DLWSRP_TX_MERGE=0",
+        "-DLWSRP_ONE_PORT_MAP=1",
+        "-DLWSRP_LEAN_VALIDATE=1",
+        "-DLWSRP_RAPID_REPLACE=1",
+        "-DLWSRP_LEAN_COPY=1",
+        "-DLWSRP_LEAN_TX=1"
+      ],
+      "configure_exit": 0,
+      "build_exit": 0,
+      "unit_exit": 0,
+      "runner_exit": 0,
+      "summary": "Completed \"main\": 27336 passes in 241ms.",
+      "unit_raw_sha256": "64dc82ef2f9296a4e2b65bf6d705f9e343c42af3685e3532a1f1aad776f031ac",
+      "runner_raw_sha256": "6623198e9efdcff5e9186ec2614882433910f024bc9fb8df9bd8fdd3c3bbff52"
+    }
+  ],
+  "failures": 0
+}
