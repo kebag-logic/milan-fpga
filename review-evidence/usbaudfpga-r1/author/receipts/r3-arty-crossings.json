@@ -1,0 +1,160 @@
+{
+  "head": "75db86a926a9f4d2f7734246eac06a8f58c57bac",
+  "result": "PASS",
+  "pad_endpoints": 55,
+  "registered_source_levels": 3,
+  "flag_pair_hold_ns": 0.16,
+  "flag_pair_setup_ns": 1.184,
+  "skew_groups": [
+    {
+      "id": 1,
+      "process": "Slow",
+      "requirement_ns": 20.0,
+      "actual_ns": 0.739,
+      "slack_ns": 19.261
+    },
+    {
+      "id": 2,
+      "process": "Slow",
+      "requirement_ns": 20.0,
+      "actual_ns": 0.674,
+      "slack_ns": 19.326
+    },
+    {
+      "id": 3,
+      "process": "Slow",
+      "requirement_ns": 20.0,
+      "actual_ns": 1.256,
+      "slack_ns": 18.744
+    },
+    {
+      "id": 4,
+      "process": "Slow",
+      "requirement_ns": 20.0,
+      "actual_ns": 0.851,
+      "slack_ns": 19.149
+    },
+    {
+      "id": 5,
+      "process": "Slow",
+      "requirement_ns": 20.0,
+      "actual_ns": 0.822,
+      "slack_ns": 19.178
+    },
+    {
+      "id": 6,
+      "process": "Slow",
+      "requirement_ns": 20.0,
+      "actual_ns": 0.731,
+      "slack_ns": 19.269
+    },
+    {
+      "id": 7,
+      "process": "Slow",
+      "requirement_ns": 20.0,
+      "actual_ns": 0.636,
+      "slack_ns": 19.364
+    },
+    {
+      "id": 8,
+      "process": "Slow",
+      "requirement_ns": 20.0,
+      "actual_ns": 0.602,
+      "slack_ns": 19.398
+    },
+    {
+      "id": 9,
+      "process": "Slow",
+      "requirement_ns": 20.0,
+      "actual_ns": 0.582,
+      "slack_ns": 19.418
+    },
+    {
+      "id": 10,
+      "process": "Slow",
+      "requirement_ns": 10.0,
+      "actual_ns": 0.881,
+      "slack_ns": 9.119
+    },
+    {
+      "id": 11,
+      "process": "Slow",
+      "requirement_ns": 20.0,
+      "actual_ns": 0.608,
+      "slack_ns": 19.392
+    },
+    {
+      "id": 12,
+      "process": "Slow",
+      "requirement_ns": 10.0,
+      "actual_ns": 0.761,
+      "slack_ns": 9.239
+    },
+    {
+      "id": 13,
+      "process": "Slow",
+      "requirement_ns": 20.0,
+      "actual_ns": 1.217,
+      "slack_ns": 18.783
+    }
+  ],
+  "fully_routed_nets": 83063,
+  "routing_errors": 0,
+  "reported_drc_table_matches_baseline": true,
+  "reported_drc_warnings": [
+    {
+      "rule": "CFGBVS-1",
+      "severity": "Warning",
+      "checks": 1
+    },
+    {
+      "rule": "CHECK-3",
+      "severity": "Warning",
+      "checks": 2
+    },
+    {
+      "rule": "DPIP-1",
+      "severity": "Warning",
+      "checks": 6
+    },
+    {
+      "rule": "DPOP-1",
+      "severity": "Warning",
+      "checks": 6
+    },
+    {
+      "rule": "DPOP-2",
+      "severity": "Warning",
+      "checks": 13
+    },
+    {
+      "rule": "PDRC-153",
+      "severity": "Warning",
+      "checks": 1
+    },
+    {
+      "rule": "PLHOLDVIO-2",
+      "severity": "Warning",
+      "checks": 1
+    },
+    {
+      "rule": "REQP-1839",
+      "severity": "Warning",
+      "checks": 20
+    },
+    {
+      "rule": "REQP-1840",
+      "severity": "Warning",
+      "checks": 20
+    },
+    {
+      "rule": "RTSTAT-10",
+      "severity": "Warning",
+      "checks": 1
+    }
+  ],
+  "baseline_drc_sha256": "c7d74f5560eb00a72d81e90060ec21036181f3c1f9966e1326723014414759da",
+  "pad_report_sha256": "8708cd2dfd0139f58e0694ce2d7a0684a6517d36a89a54a250abbed702d0c5ef",
+  "bus_skew_report_sha256": "5241878da12ae9895121e67f7c314371778519c51834fb264c9a0b66bd505d0b",
+  "flag_pair_report_sha256": "41eef496bff076fbd072ad5649d810940918f87255319a55964806f630eb9d08"
+}

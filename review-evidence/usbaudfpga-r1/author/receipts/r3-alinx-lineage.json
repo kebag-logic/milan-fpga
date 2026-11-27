@@ -1,0 +1,48 @@
+{
+  "head": "75db86a926a9f4d2f7734246eac06a8f58c57bac",
+  "prior_evidence_head": "ba2a66f72db495bd7c48700d46688de08a6c2c61",
+  "changes": [
+    "USB_AUDIO_PATH.md",
+    "KL_usbaudio_reference.sv",
+    "reference_tb.sv",
+    "transport_mutations.py"
+  ],
+  "profiles": [
+    {
+      "profile": "endstation_ax7101_1x1_tdm8",
+      "source_list_sha256": "15ed10a9d8994311e613db8e32996bb63e0d88c0dfa2aec6c4baa8454ebadb5f",
+      "changed_files_in_source_list": [],
+      "audio_sources_present": false
+    },
+    {
+      "profile": "endstation_ax7101_8x8",
+      "source_list_sha256": "4d36da7ca2c51ed2212c5ffc426551aa0c955b163c309de6d316d469e57ecb81",
+      "changed_files_in_source_list": [],
+      "audio_sources_present": false
+    }
+  ],
+  "shared_inputs": [
+    {
+      "artifact": "KL_aaf_packetizer.sv",
+      "sha256": "e1c1efe68c0eb02e0a55c4872511e4f472ff05e42f76890a92765b5007992a96",
+      "unchanged": true
+    },
+    {
+      "artifact": "KL_chan_map_capture.sv",
+      "sha256": "139df726798e8c1bb6a42be4dc44745093d2af09ab71bd2a4c5e63ce95575094",
+      "unchanged": true
+    },
+    {
+      "artifact": "KL_render_queue.sv",
+      "sha256": "13a7067548c5b081fc64cd5f07e1d9752d08045fa1ebed8d58532eecf784d66d",
+      "unchanged": true
+    },
+    {
+      "artifact": "milan_datapath.sv",
+      "sha256": "cb4b5c8f979d20f224564405c146a0f9515b83ba93c67e43cec4a7b0877fbf45",
+      "unchanged": true
+    }
+  ],
+  "selector_unchanged": true,
+  "conclusion": "No change to either retained programming payload input closure. Retained full payloads independently re-read and compared in r3-alinx-payloads.json. No new ALINX physical run claimed."
+}

@@ -1,0 +1,135 @@
+{
+  "head": "ba2a66f72db495bd7c48700d46688de08a6c2c61",
+  "variant": "logic",
+  "result": "PASS; independently reviewed",
+  "registered_source_levels": 3,
+  "flag_pair_hold_ns": 0.122,
+  "flag_pair_setup_ns": 1.215,
+  "external_output_setup_ns": 1.358,
+  "external_output_hold_ns": 1.534,
+  "external_input_setup_ns": 2.291,
+  "external_input_hold_ns": 2.192,
+  "skew_groups": [
+    {
+      "id": 1,
+      "constraint": "set_bus_skew -from [get_cells {{usb_audio_bridge/acknowledgement/frames/rd_ptr_reg_reg[*]} {usb_audio_bridge/acknowledgement/frames/rd_ptr_gray_reg_reg[*]}}] -to [get_cells {usb_audio_bridge/acknowledgement/frames/rd_ptr_gray_sync1_reg_reg[*]}] 20.000",
+      "endpoints": 3,
+      "requirement_ns": 20.0,
+      "actual_skew_ns": 0.692,
+      "slack_ns": 19.308
+    },
+    {
+      "id": 2,
+      "constraint": "set_bus_skew -from [get_cells -quiet {{usb_audio_bridge/acknowledgement/frames/wr_ptr_reg_reg[*]} {usb_audio_bridge/acknowledgement/frames/wr_ptr_gray_reg_reg[*]}}] -to [get_cells {usb_audio_bridge/acknowledgement/frames/wr_ptr_gray_sync1_reg_reg[*]}] 20.000",
+      "endpoints": 3,
+      "requirement_ns": 20.0,
+      "actual_skew_ns": 0.611,
+      "slack_ns": 19.389
+    },
+    {
+      "id": 3,
+      "constraint": "set_bus_skew -from [get_cells {{usb_audio_bridge/capture_crossing/frames/rd_ptr_reg_reg[*]} {usb_audio_bridge/capture_crossing/frames/rd_ptr_gray_reg_reg[*]}}] -to [get_cells {usb_audio_bridge/capture_crossing/frames/rd_ptr_gray_sync1_reg_reg[*]}] 20.000",
+      "endpoints": 7,
+      "requirement_ns": 20.0,
+      "actual_skew_ns": 0.843,
+      "slack_ns": 19.157
+    },
+    {
+      "id": 4,
+      "constraint": "set_bus_skew -from [get_cells -quiet {{usb_audio_bridge/capture_crossing/frames/wr_ptr_reg_reg[*]} {usb_audio_bridge/capture_crossing/frames/wr_ptr_gray_reg_reg[*]}}] -to [get_cells {usb_audio_bridge/capture_crossing/frames/wr_ptr_gray_sync1_reg_reg[*]}] 20.000",
+      "endpoints": 7,
+      "requirement_ns": 20.0,
+      "actual_skew_ns": 0.701,
+      "slack_ns": 19.299
+    },
+    {
+      "id": 5,
+      "constraint": "set_bus_skew -from [get_cells {{usb_audio_bridge/playback_crossing/frames/rd_ptr_reg_reg[*]} {usb_audio_bridge/playback_crossing/frames/rd_ptr_gray_reg_reg[*]}}] -to [get_cells {usb_audio_bridge/playback_crossing/frames/rd_ptr_gray_sync1_reg_reg[*]}] 20.000",
+      "endpoints": 7,
+      "requirement_ns": 20.0,
+      "actual_skew_ns": 0.735,
+      "slack_ns": 19.265
+    },
+    {
+      "id": 6,
+      "constraint": "set_bus_skew -from [get_cells -quiet {{usb_audio_bridge/playback_crossing/frames/wr_ptr_reg_reg[*]} {usb_audio_bridge/playback_crossing/frames/wr_ptr_gray_reg_reg[*]}}] -to [get_cells {usb_audio_bridge/playback_crossing/frames/wr_ptr_gray_sync1_reg_reg[*]}] 20.000",
+      "endpoints": 7,
+      "requirement_ns": 20.0,
+      "actual_skew_ns": 0.802,
+      "slack_ns": 19.198
+    },
+    {
+      "id": 7,
+      "constraint": "set_bus_skew -from [get_cells {{usb_audio_bridge/state_crossing/frames/rd_ptr_reg_reg[*]} {usb_audio_bridge/state_crossing/frames/rd_ptr_gray_reg_reg[*]}}] -to [get_cells {usb_audio_bridge/state_crossing/frames/rd_ptr_gray_sync1_reg_reg[*]}] 20.000",
+      "endpoints": 3,
+      "requirement_ns": 20.0,
+      "actual_skew_ns": 0.878,
+      "slack_ns": 19.122
+    },
+    {
+      "id": 8,
+      "constraint": "set_bus_skew -from [get_cells -quiet {{usb_audio_bridge/state_crossing/frames/wr_ptr_reg_reg[*]} {usb_audio_bridge/state_crossing/frames/wr_ptr_gray_reg_reg[*]}}] -to [get_cells {usb_audio_bridge/state_crossing/frames/wr_ptr_gray_sync1_reg_reg[*]}] 20.000",
+      "endpoints": 3,
+      "requirement_ns": 20.0,
+      "actual_skew_ns": 1.05,
+      "slack_ns": 18.95
+    },
+    {
+      "id": 9,
+      "constraint": "set_bus_skew -from [get_cells {{usb_diagnostics/frames/rd_ptr_reg_reg[*]} {usb_diagnostics/frames/rd_ptr_gray_reg_reg[*]}}] -to [get_cells {usb_diagnostics/frames/rd_ptr_gray_sync1_reg_reg[*]}] 20.000",
+      "endpoints": 3,
+      "requirement_ns": 20.0,
+      "actual_skew_ns": 0.776,
+      "slack_ns": 19.224
+    },
+    {
+      "id": 10,
+      "constraint": "set_bus_skew -from [get_cells -quiet {{usb_diagnostics/frames/wr_ptr_reg_reg[*]} {usb_diagnostics/frames/wr_ptr_gray_reg_reg[*]}}] -to [get_cells {usb_diagnostics/frames/wr_ptr_gray_sync1_reg_reg[*]}] 10.000",
+      "endpoints": 3,
+      "requirement_ns": 10.0,
+      "actual_skew_ns": 0.606,
+      "slack_ns": 9.394
+    },
+    {
+      "id": 11,
+      "constraint": "set_bus_skew -from [get_cells {{usb_media_diagnostics/frames/rd_ptr_reg_reg[*]} {usb_media_diagnostics/frames/rd_ptr_gray_reg_reg[*]}}] -to [get_cells {usb_media_diagnostics/frames/rd_ptr_gray_sync1_reg_reg[*]}] 20.000",
+      "endpoints": 3,
+      "requirement_ns": 20.0,
+      "actual_skew_ns": 1.013,
+      "slack_ns": 18.987
+    },
+    {
+      "id": 12,
+      "constraint": "set_bus_skew -from [get_cells -quiet {{usb_media_diagnostics/frames/wr_ptr_reg_reg[*]} {usb_media_diagnostics/frames/wr_ptr_gray_reg_reg[*]}}] -to [get_cells {usb_media_diagnostics/frames/wr_ptr_gray_sync1_reg_reg[*]}] 10.000",
+      "endpoints": 3,
+      "requirement_ns": 10.0,
+      "actual_skew_ns": 0.664,
+      "slack_ns": 9.336
+    },
+    {
+      "id": 13,
+      "constraint": "set_bus_skew -from [get_cells -hier -regexp {usb_audio_bridge/clock_stamp/gray_r_reg\\[[0-9]+\\]}] -to [get_cells -hier -regexp {usb_audio_bridge/clock_stamp/meta_r_reg\\[[0-9]+\\]}] 20.000",
+      "endpoints": 48,
+      "requirement_ns": 20.0,
+      "actual_skew_ns": 1.196,
+      "slack_ns": 18.804
+    }
+  ],
+  "routable_nets": 83196,
+  "routed_nets": 83196,
+  "routing_errors": 0,
+  "design_rule_categories_and_counts_equal_baseline": true,
+  "design_rule_summary": [
+    "| CFGBVS-1 | Warning | Missing CFGBVS and CONFIG_VOLTAGE Design Properties | 1 |",
+    "| CHECK-3 | Warning | Report rule limit reached | 2 |",
+    "| DPIP-1 | Warning | Input pipelining | 6 |",
+    "| DPOP-1 | Warning | PREG Output pipelining | 6 |",
+    "| DPOP-2 | Warning | MREG Output pipelining | 13 |",
+    "| PDRC-153 | Warning | Gated clock check | 1 |",
+    "| PLHOLDVIO-2 | Warning | Non-Optimal connections which could lead to hold violations | 1 |",
+    "| REQP-1839 | Warning | RAMB36 async control check | 20 |",
+    "| REQP-1840 | Warning | RAMB18 async control check | 20 |",
+    "| RTSTAT-10 | Warning | No routable loads | 1 |"
+  ],
+  "baseline_design_rule_report_sha256": "c7d74f5560eb00a72d81e90060ec21036181f3c1f9966e1326723014414759da"
+}

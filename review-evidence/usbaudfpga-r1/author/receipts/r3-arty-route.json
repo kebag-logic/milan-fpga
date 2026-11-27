@@ -1,0 +1,282 @@
+{
+  "head": "75db86a926a9f4d2f7734246eac06a8f58c57bac",
+  "result": "PASS",
+  "device": "xc7a100tcsg324-1",
+  "operating_grade": "commercial",
+  "cpu_clock_MHz": 100,
+  "media_clock_MHz": 50,
+  "bus_clock_MHz": 50,
+  "recipe": {
+    "synthesis": "default",
+    "optimization": "Explore",
+    "placement": "ExtraTimingOpt",
+    "post_placement": "AggressiveExplore",
+    "routing": "AggressiveExplore",
+    "post_route": "AggressiveExplore",
+    "incremental_reference": false,
+    "threads": 2,
+    "generation_hash_seed": 0,
+    "explicit_seed": "none; default deterministic behavior",
+    "clock_or_exception_relaxation": false
+  },
+  "physical_attempts_completed": 1,
+  "corners": [
+    {
+      "setup_ns": 0.002,
+      "total_negative_setup_ns": 0.0,
+      "setup_failing_endpoints": 0,
+      "setup_endpoints": 145959,
+      "hold_ns": 0.093,
+      "total_negative_hold_ns": 0.0,
+      "hold_failing_endpoints": 0,
+      "hold_endpoints": 145857,
+      "pulse_width_ns": 1.389,
+      "total_negative_pulse_ns": 0.0,
+      "pulse_failing_endpoints": 0,
+      "pulse_endpoints": 51423,
+      "process": "Slow",
+      "junction_setting_C": 0,
+      "report_sha256": "6d9d11117d9933ef407328f38663bd159bab85a39c83c3b81c5663ad72456b4a"
+    },
+    {
+      "setup_ns": 0.002,
+      "total_negative_setup_ns": 0.0,
+      "setup_failing_endpoints": 0,
+      "setup_endpoints": 145959,
+      "hold_ns": 0.093,
+      "total_negative_hold_ns": 0.0,
+      "hold_failing_endpoints": 0,
+      "hold_endpoints": 145857,
+      "pulse_width_ns": 1.389,
+      "total_negative_pulse_ns": 0.0,
+      "pulse_failing_endpoints": 0,
+      "pulse_endpoints": 51423,
+      "process": "Slow",
+      "junction_setting_C": 85,
+      "report_sha256": "7efacf478c77367f53dcf473b17e46454083b85e66cdb2aa55793cfdc71de0c7"
+    },
+    {
+      "setup_ns": 1.162,
+      "total_negative_setup_ns": 0.0,
+      "setup_failing_endpoints": 0,
+      "setup_endpoints": 145959,
+      "hold_ns": 0.018,
+      "total_negative_hold_ns": 0.0,
+      "hold_failing_endpoints": 0,
+      "hold_endpoints": 145857,
+      "pulse_width_ns": 1.591,
+      "total_negative_pulse_ns": 0.0,
+      "pulse_failing_endpoints": 0,
+      "pulse_endpoints": 51423,
+      "process": "Fast",
+      "junction_setting_C": 0,
+      "report_sha256": "67b3bf9f54aa23801924aa95040cef422ad60361a4b625f2238ee069167e5829"
+    },
+    {
+      "setup_ns": 1.162,
+      "total_negative_setup_ns": 0.0,
+      "setup_failing_endpoints": 0,
+      "setup_endpoints": 145959,
+      "hold_ns": 0.018,
+      "total_negative_hold_ns": 0.0,
+      "hold_failing_endpoints": 0,
+      "hold_endpoints": 145857,
+      "pulse_width_ns": 1.591,
+      "total_negative_pulse_ns": 0.0,
+      "pulse_failing_endpoints": 0,
+      "pulse_endpoints": 51423,
+      "process": "Fast",
+      "junction_setting_C": 85,
+      "report_sha256": "89259fab8a2e838c7aeb6da82f230e14e92c5fb5df72545c7a0aae7a8d7c8e9d"
+    }
+  ],
+  "minimum_slack": {
+    "setup_ns": 0.002,
+    "hold_ns": 0.018,
+    "pulse_width_ns": 1.389
+  },
+  "prior_setup_ns": 0.005,
+  "setup_change_ns": -0.003,
+  "corner_scope": "Slow and Fast delay models, each reported with junction settings 0 C and 85 C. These settings do not create four independent characterization libraries.",
+  "images": {
+    "container_sha256": "261deaf49fd18123216ee8bfa3bcd5eba5ce4cd2100e829c4fd115877b653eae",
+    "programming_sha256": "a484bf78e5532d1964702ba4563ed7508e9c953e0a9f8869647968fda2c71cac",
+    "programming_bytes": 3363100,
+    "flash_output_equals_complete_programming_data": true,
+    "synthesis_checkpoint_sha256": "10256fad972be18baebf290e8aa65b56b1f95f04ce061ed5c6d34a9c0a8473c9",
+    "route_checkpoint_sha256": "20418183984a8f3400c40575197db189254727be6796166ccd85acdb7e7da95b"
+  },
+  "reports": [
+    {
+      "artifact": "digilent_arty_audio_Fast_0C_negative.rpt",
+      "sha256": "1677f3d2aac05a3f41e2f548a9cbc92e5b13d5aada74d2d4083d9c6bccd3c60a",
+      "bytes": 904
+    },
+    {
+      "artifact": "digilent_arty_audio_Fast_0C_operating.rpt",
+      "sha256": "56a6ac77d7e098c9da835ff9fc347ad026d6e83425ef4681707d2533d33b1f61",
+      "bytes": 1567
+    },
+    {
+      "artifact": "digilent_arty_audio_Fast_0C_timing.rpt",
+      "sha256": "67b3bf9f54aa23801924aa95040cef422ad60361a4b625f2238ee069167e5829",
+      "bytes": 2155065
+    },
+    {
+      "artifact": "digilent_arty_audio_Fast_85C_negative.rpt",
+      "sha256": "bdf8a998df43ceb64b0b6d7388bf0f6a686574d41d3209bdb7f5286fc4de7f9c",
+      "bytes": 905
+    },
+    {
+      "artifact": "digilent_arty_audio_Fast_85C_operating.rpt",
+      "sha256": "570efcbc92ae5cc2c7c7d5626a0efc56608db77d192db3108d38e24c6f030422",
+      "bytes": 1568
+    },
+    {
+      "artifact": "digilent_arty_audio_Fast_85C_timing.rpt",
+      "sha256": "89259fab8a2e838c7aeb6da82f230e14e92c5fb5df72545c7a0aae7a8d7c8e9d",
+      "bytes": 2155066
+    },
+    {
+      "artifact": "digilent_arty_audio_Slow_0C_negative.rpt",
+      "sha256": "dd25ecae7031fb21f7645d108fb1c5c7238c6eefd4e5eac70b9015b56ec14110",
+      "bytes": 904
+    },
+    {
+      "artifact": "digilent_arty_audio_Slow_0C_operating.rpt",
+      "sha256": "56a6ac77d7e098c9da835ff9fc347ad026d6e83425ef4681707d2533d33b1f61",
+      "bytes": 1567
+    },
+    {
+      "artifact": "digilent_arty_audio_Slow_0C_timing.rpt",
+      "sha256": "6d9d11117d9933ef407328f38663bd159bab85a39c83c3b81c5663ad72456b4a",
+      "bytes": 2206726
+    },
+    {
+      "artifact": "digilent_arty_audio_Slow_85C_negative.rpt",
+      "sha256": "d3f43db322ce9422ff66b385348bb3c2c75c5f0d844ea22a2e8a36d0ceed7668",
+      "bytes": 905
+    },
+    {
+      "artifact": "digilent_arty_audio_Slow_85C_operating.rpt",
+      "sha256": "570efcbc92ae5cc2c7c7d5626a0efc56608db77d192db3108d38e24c6f030422",
+      "bytes": 1568
+    },
+    {
+      "artifact": "digilent_arty_audio_Slow_85C_timing.rpt",
+      "sha256": "7efacf478c77367f53dcf473b17e46454083b85e66cdb2aa55793cfdc71de0c7",
+      "bytes": 2206727
+    },
+    {
+      "artifact": "digilent_arty_audio_all_timing.rpt",
+      "sha256": "cc63642d41edb402abf196f10805b43eb527659f4e3eaa382457c809f879df4b",
+      "bytes": 2207595
+    },
+    {
+      "artifact": "digilent_arty_audio_bus_skew.rpt",
+      "sha256": "5241878da12ae9895121e67f7c314371778519c51834fb264c9a0b66bd505d0b",
+      "bytes": 142531
+    },
+    {
+      "artifact": "digilent_arty_audio_cdc.rpt",
+      "sha256": "67ce2d12220cff689a1a554883f610830396b03effb0e648cfba32e50d345392",
+      "bytes": 419087
+    },
+    {
+      "artifact": "digilent_arty_audio_check_timing.rpt",
+      "sha256": "ebdd18cecdbced8c5a488f6ef582a523af1c36b87f4360a8d67e3b3ac00f3c28",
+      "bytes": 3491
+    },
+    {
+      "artifact": "digilent_arty_audio_clock_interaction.rpt",
+      "sha256": "30582d670a46634e83b10e46cab8eab5b0dbebbe16485195a2a6e61e0c1dae30",
+      "bytes": 12717
+    },
+    {
+      "artifact": "digilent_arty_audio_flag_sync.rpt",
+      "sha256": "41eef496bff076fbd072ad5649d810940918f87255319a55964806f630eb9d08",
+      "bytes": 10702
+    },
+    {
+      "artifact": "digilent_arty_audio_packing.rpt",
+      "sha256": "8708cd2dfd0139f58e0694ce2d7a0684a6517d36a89a54a250abbed702d0c5ef",
+      "bytes": 3573
+    },
+    {
+      "artifact": "digilent_arty_audio_utilization_route.rpt",
+      "sha256": "b3a5ac63be74103c8ee3bd7fb1b8db90502d8816a2ae5decd93b8acd97e53a2c",
+      "bytes": 12476
+    },
+    {
+      "artifact": "digilent_arty_clock_utilization.rpt",
+      "sha256": "6f8be8d76fe1f28af57320aaea23b630e0c80d9b7eaaaf6c1e72763dee4a336d",
+      "bytes": 60411
+    },
+    {
+      "artifact": "digilent_arty_control_sets.rpt",
+      "sha256": "a513dd7aeea292fe30b0eb925a3f05e4239838697f2d13e16f2af96cbac38c2f",
+      "bytes": 633564
+    },
+    {
+      "artifact": "digilent_arty_drc.rpt",
+      "sha256": "50c944b1de20735f800c4d6324e3a946837b68d6721637a9fbe4f98cac8053e5",
+      "bytes": 50526
+    },
+    {
+      "artifact": "digilent_arty_io.rpt",
+      "sha256": "b7cf2ce20516a4e64068bcc3ea48e82a292387e94138f08fcc05f24eec10c5c5",
+      "bytes": 101105
+    },
+    {
+      "artifact": "digilent_arty_iob_pack.rpt",
+      "sha256": "5cbacfca03b9ee6ce7799dcefc7f858270e9611bcac51966430647002d6d09b0",
+      "bytes": 408
+    },
+    {
+      "artifact": "digilent_arty_power.rpt",
+      "sha256": "20bfa391aca1ae0dfd5c126d13566b4b52990bbc308f363149be7b7d226eea8a",
+      "bytes": 15492
+    },
+    {
+      "artifact": "digilent_arty_route_status.rpt",
+      "sha256": "0c7f4208ad1b1a9f0b2a9b2d4a90163208120aca9f1f82048fe39fbdb1443be8",
+      "bytes": 651
+    },
+    {
+      "artifact": "digilent_arty_timing.rpt",
+      "sha256": "74e46a646d5d68edc15a52c764204c531ee42c54e5d2ef43db709b45beb6371a",
+      "bytes": 2034804
+    },
+    {
+      "artifact": "digilent_arty_timing_synth.rpt",
+      "sha256": "c93ba848a8f2d7602775be413c1fa05317cb39e02072255bcbd60ff91ef94b0a",
+      "bytes": 365724
+    },
+    {
+      "artifact": "digilent_arty_utilization_hierarchical_place.rpt",
+      "sha256": "1d5966f1d896cf9eaff6e21a812a1a85f682b75428ad4f2f4c9fdcc42cfdf753",
+      "bytes": 30044
+    },
+    {
+      "artifact": "digilent_arty_utilization_hierarchical_synth.rpt",
+      "sha256": "8329c90e45eaee37bce04be9be38735395ffc732e5163454bf8669319db90603",
+      "bytes": 29919
+    },
+    {
+      "artifact": "digilent_arty_utilization_place.rpt",
+      "sha256": "6788f94e0dfaf15f3f16f4dd637fe23e174bd64ffc199696a61f364abbd41004",
+      "bytes": 12470
+    },
+    {
+      "artifact": "digilent_arty_utilization_synth.rpt",
+      "sha256": "553b0b45942a8537d06c65f2381c31318a9d35d1d33521f616b975a21e8a1335",
+      "bytes": 9975
+    }
+  ],
+  "run_log_sha256": "4aedcdaa80df606d21e1fcd5716661ef730314b391119466df4999984519f2a7",
+  "helper_sha256": {
+    "rebuild_audio.tcl": "dde5d6fe6e2293a50df3f0fc6677a2c37bc09e1cb9c12b60ac328676995ade99",
+    "implement_audio.tcl": "d2c80ae93010e8fed7cca7256983416934f0881f00877a81ee16a0947e639736"
+  },
+  "unused_preparation": "A placement-reuse recipe was prepared but never executed and removed after logging. No incremental reference used."
+}

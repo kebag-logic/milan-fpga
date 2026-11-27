@@ -1,0 +1,24 @@
+{
+  "head": "75db86a926a9f4d2f7734246eac06a8f58c57bac",
+  "attempts": [
+    {
+      "artifact": "reference-r3.log",
+      "reason": "Setup failed because the new output parent did not yet exist.",
+      "sha256": "04be1b5c0ddf9af25c67d8c5e45f194201da5eeb35cfd238892e5bb713b5ff9b",
+      "counted_as_pass": false
+    },
+    {
+      "artifact": "reference-r3-retry.log",
+      "reason": "Boundary assertion exposed feedback disappearing one bus cycle before expiry; fixed and replanted.",
+      "sha256": "1daba2bd77db72fb7aaab2fb74b47d2ddfc7a392b981ac8e0250e936a3919d15",
+      "counted_as_pass": false
+    },
+    {
+      "artifact": "punctuation.log",
+      "reason": "Pinned rendering dependency was absent from the initial environment; rerun passed with the retained dependencies.",
+      "sha256": "9c8350e7680b2e9640aac81ade508932c01f825753bd869d34a7bf9408210ddc",
+      "counted_as_pass": false
+    }
+  ],
+  "physical_attempts": "Recorded separately in the route receipt."
+}

@@ -1,0 +1,22 @@
+PASS build selection: audio/network exclusive, Arty-only, disabled delegation and 8x8 descriptor geometry
+PASS audio packing grader: 55 endpoints and twelve negative controls
+PASS record stream: 120000 records, 3839976 samples, all bits and order
+PASS status: 65539 exact 20-byte records, sequence wrap, stalls and reset
+PASS feedback: 49152 and 49153 events, counter wrap, lock and reference gating
+PASS protocol leaves; integrated transport not exercised
+PASS reference structure: magic, length, version, period, count, raw, flags and digest
+PASS reference watchdog: 2.9 ms accepted; 3 ms replacement refused; own-clock expiry without references
+PASS reference continuity: wraps, gaps, duplicates, loss, watchdog, delivery bounds and clock loss
+PASS ITP delta: 1/60 MHz units and extra media event
+PASS media endpoint: prefill, atomic frames, independent epochs, acknowledgement, all bits and loss counts
+PASS capture packets: prefill, all bits, stalls, commit, service loss, epoch fence and reset
+PASS GPIF: 13697 playback words, 13891 capture words, 17 status records, phased sampling and reset
+PASS source levels: 50 hazards, stable transitions and reset on actual bridge crossings
+PASS capture storage 24: 6000 frames, 1000 AAF packets, every channel and subslot bit
+PASS capture storage 32: 6000 frames, 1000 AAF packets, every channel and subslot bit
+PASS duplex: 1000 playback frames, 971 capture frames, all eight channels and all 32 bits
+PASS qualified feedback: 00060000, reference losses 1
+PASS clock loss clears feedback
+== usbaudio_duplex: checks: 48192   failures: 0 ==
+RESULT: PASS
+PASS default audio regression: selection, protocol, references, media, packets, bus, both widths, duplex and defect controls

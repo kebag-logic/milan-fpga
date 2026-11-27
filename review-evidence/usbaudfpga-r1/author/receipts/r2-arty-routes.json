@@ -1,0 +1,732 @@
+{
+  "head": "ba2a66f72db495bd7c48700d46688de08a6c2c61",
+  "status": "PASS; independently reviewed",
+  "selected_variant": "logic",
+  "device": "xc7a100tcsg324-1",
+  "operating_grade": "commercial",
+  "cpu_clock_MHz": 100,
+  "media_clock_MHz": 50,
+  "bus_clock_MHz": 50,
+  "recipe": {
+    "synthesis": "default",
+    "optimization": "Explore",
+    "placement": "ExtraTimingOpt",
+    "post_placement": "AggressiveExplore",
+    "routing": "AggressiveExplore",
+    "post_route": "AggressiveExplore",
+    "incremental_reference": false,
+    "threads": 2,
+    "generation_hash_seed": 0,
+    "explicit_seed": "none; default deterministic behavior",
+    "clock_or_exception_relaxation": false
+  },
+  "variants": [
+    {
+      "variant": "ExtraTimingOpt",
+      "head": "ba2a66f72db495bd7c48700d46688de08a6c2c61",
+      "result": "FAIL",
+      "corners": [
+        {
+          "setup_ns": -0.166,
+          "total_negative_setup_ns": -2.238,
+          "setup_failing_endpoints": 49,
+          "setup_endpoints": 145927,
+          "hold_ns": 0.156,
+          "total_negative_hold_ns": 0.0,
+          "hold_failing_endpoints": 0,
+          "hold_endpoints": 145825,
+          "pulse_width_ns": 1.389,
+          "total_negative_pulse_ns": 0.0,
+          "pulse_failing_endpoints": 0,
+          "pulse_endpoints": 51411,
+          "process": "Slow",
+          "junction_setting_C": 0,
+          "report_sha256": "bf11ef03027722643de82e0a11f63aaad58045da82a3ab5660cfa0817142de5c"
+        },
+        {
+          "setup_ns": -0.166,
+          "total_negative_setup_ns": -2.238,
+          "setup_failing_endpoints": 49,
+          "setup_endpoints": 145927,
+          "hold_ns": 0.156,
+          "total_negative_hold_ns": 0.0,
+          "hold_failing_endpoints": 0,
+          "hold_endpoints": 145825,
+          "pulse_width_ns": 1.389,
+          "total_negative_pulse_ns": 0.0,
+          "pulse_failing_endpoints": 0,
+          "pulse_endpoints": 51411,
+          "process": "Slow",
+          "junction_setting_C": 85,
+          "report_sha256": "31761190dc02a76531e9878a60f7647c680fdd70d9becdacd7e7a923a6c4595e"
+        },
+        {
+          "setup_ns": 1.358,
+          "total_negative_setup_ns": 0.0,
+          "setup_failing_endpoints": 0,
+          "setup_endpoints": 145927,
+          "hold_ns": 0.013,
+          "total_negative_hold_ns": 0.0,
+          "hold_failing_endpoints": 0,
+          "hold_endpoints": 145825,
+          "pulse_width_ns": 1.591,
+          "total_negative_pulse_ns": 0.0,
+          "pulse_failing_endpoints": 0,
+          "pulse_endpoints": 51411,
+          "process": "Fast",
+          "junction_setting_C": 0,
+          "report_sha256": "f5c4d523312adc2476ac9605691be13fc9e55591f1862d7a201145206b619c15"
+        },
+        {
+          "setup_ns": 1.358,
+          "total_negative_setup_ns": 0.0,
+          "setup_failing_endpoints": 0,
+          "setup_endpoints": 145927,
+          "hold_ns": 0.013,
+          "total_negative_hold_ns": 0.0,
+          "hold_failing_endpoints": 0,
+          "hold_endpoints": 145825,
+          "pulse_width_ns": 1.591,
+          "total_negative_pulse_ns": 0.0,
+          "pulse_failing_endpoints": 0,
+          "pulse_endpoints": 51411,
+          "process": "Fast",
+          "junction_setting_C": 85,
+          "report_sha256": "5906fb2eae2a327cfec7114e99efdc08b5d0a5872b855a4c7e3f61da2be4a3a6"
+        }
+      ]
+    },
+    {
+      "variant": "Explore",
+      "head": "ba2a66f72db495bd7c48700d46688de08a6c2c61",
+      "result": "FAIL",
+      "corners": [
+        {
+          "setup_ns": -0.455,
+          "total_negative_setup_ns": -186.085,
+          "setup_failing_endpoints": 1268,
+          "setup_endpoints": 145926,
+          "hold_ns": 0.128,
+          "total_negative_hold_ns": 0.0,
+          "hold_failing_endpoints": 0,
+          "hold_endpoints": 145824,
+          "pulse_width_ns": 1.389,
+          "total_negative_pulse_ns": 0.0,
+          "pulse_failing_endpoints": 0,
+          "pulse_endpoints": 51411,
+          "process": "Slow",
+          "junction_setting_C": 0,
+          "report_sha256": "f62e4a84e8902708060d949b646f2ad1e528efd44b9e6336a900318a41a26e5d"
+        },
+        {
+          "setup_ns": -0.455,
+          "total_negative_setup_ns": -186.085,
+          "setup_failing_endpoints": 1268,
+          "setup_endpoints": 145926,
+          "hold_ns": 0.128,
+          "total_negative_hold_ns": 0.0,
+          "hold_failing_endpoints": 0,
+          "hold_endpoints": 145824,
+          "pulse_width_ns": 1.389,
+          "total_negative_pulse_ns": 0.0,
+          "pulse_failing_endpoints": 0,
+          "pulse_endpoints": 51411,
+          "process": "Slow",
+          "junction_setting_C": 85,
+          "report_sha256": "cbfa49dcda2e3f109e8150b3e98e4369b6e71b59bad071e1f9aa1b8ce7f969f6"
+        },
+        {
+          "setup_ns": 1.358,
+          "total_negative_setup_ns": 0.0,
+          "setup_failing_endpoints": 0,
+          "setup_endpoints": 145926,
+          "hold_ns": 0.05,
+          "total_negative_hold_ns": 0.0,
+          "hold_failing_endpoints": 0,
+          "hold_endpoints": 145824,
+          "pulse_width_ns": 1.591,
+          "total_negative_pulse_ns": 0.0,
+          "pulse_failing_endpoints": 0,
+          "pulse_endpoints": 51411,
+          "process": "Fast",
+          "junction_setting_C": 0,
+          "report_sha256": "2485d846440d6b9e99b39b15d95f5e0c14eedfa690ab4885c1cea18457237177"
+        },
+        {
+          "setup_ns": 1.358,
+          "total_negative_setup_ns": 0.0,
+          "setup_failing_endpoints": 0,
+          "setup_endpoints": 145926,
+          "hold_ns": 0.05,
+          "total_negative_hold_ns": 0.0,
+          "hold_failing_endpoints": 0,
+          "hold_endpoints": 145824,
+          "pulse_width_ns": 1.591,
+          "total_negative_pulse_ns": 0.0,
+          "pulse_failing_endpoints": 0,
+          "pulse_endpoints": 51411,
+          "process": "Fast",
+          "junction_setting_C": 85,
+          "report_sha256": "d7b79bc81054634a2e4d35bd0f4ee78c2dfe9140534e77512be4a12c84478901"
+        }
+      ]
+    },
+    {
+      "variant": "ExtraPostPlacementOpt",
+      "head": "ba2a66f72db495bd7c48700d46688de08a6c2c61",
+      "result": "FAIL",
+      "corners": [
+        {
+          "setup_ns": -0.262,
+          "total_negative_setup_ns": -45.231,
+          "setup_failing_endpoints": 576,
+          "setup_endpoints": 145921,
+          "hold_ns": 0.104,
+          "total_negative_hold_ns": 0.0,
+          "hold_failing_endpoints": 0,
+          "hold_endpoints": 145819,
+          "pulse_width_ns": 1.389,
+          "total_negative_pulse_ns": 0.0,
+          "pulse_failing_endpoints": 0,
+          "pulse_endpoints": 51409,
+          "process": "Slow",
+          "junction_setting_C": 0,
+          "report_sha256": "feb1c5106d14b5f613d7012fce38d9a98aa235b75ee8663022eb5fcbd5bcc9e3"
+        },
+        {
+          "setup_ns": -0.262,
+          "total_negative_setup_ns": -45.231,
+          "setup_failing_endpoints": 576,
+          "setup_endpoints": 145921,
+          "hold_ns": 0.104,
+          "total_negative_hold_ns": 0.0,
+          "hold_failing_endpoints": 0,
+          "hold_endpoints": 145819,
+          "pulse_width_ns": 1.389,
+          "total_negative_pulse_ns": 0.0,
+          "pulse_failing_endpoints": 0,
+          "pulse_endpoints": 51409,
+          "process": "Slow",
+          "junction_setting_C": 85,
+          "report_sha256": "594becdac24a06ab7996553ea1afc9313dba2b89bf38b9dd8ef12bc8b07ae69c"
+        },
+        {
+          "setup_ns": 1.358,
+          "total_negative_setup_ns": 0.0,
+          "setup_failing_endpoints": 0,
+          "setup_endpoints": 145921,
+          "hold_ns": 0.011,
+          "total_negative_hold_ns": 0.0,
+          "hold_failing_endpoints": 0,
+          "hold_endpoints": 145819,
+          "pulse_width_ns": 1.591,
+          "total_negative_pulse_ns": 0.0,
+          "pulse_failing_endpoints": 0,
+          "pulse_endpoints": 51409,
+          "process": "Fast",
+          "junction_setting_C": 0,
+          "report_sha256": "24cf38cf9cb53c772234714dd8492474ed877da9dcdba7b90c9c7689a234ef11"
+        },
+        {
+          "setup_ns": 1.358,
+          "total_negative_setup_ns": 0.0,
+          "setup_failing_endpoints": 0,
+          "setup_endpoints": 145921,
+          "hold_ns": 0.011,
+          "total_negative_hold_ns": 0.0,
+          "hold_failing_endpoints": 0,
+          "hold_endpoints": 145819,
+          "pulse_width_ns": 1.591,
+          "total_negative_pulse_ns": 0.0,
+          "pulse_failing_endpoints": 0,
+          "pulse_endpoints": 51409,
+          "process": "Fast",
+          "junction_setting_C": 85,
+          "report_sha256": "3f9711eaaad4eaa514e24527818084fa8fb8c08363a85e493e87d731b5a44eed"
+        }
+      ]
+    },
+    {
+      "variant": "refined",
+      "head": "ba2a66f72db495bd7c48700d46688de08a6c2c61",
+      "result": "FAIL",
+      "corners": [
+        {
+          "setup_ns": -0.166,
+          "total_negative_setup_ns": -2.238,
+          "setup_failing_endpoints": 49,
+          "setup_endpoints": 145927,
+          "hold_ns": 0.156,
+          "total_negative_hold_ns": 0.0,
+          "hold_failing_endpoints": 0,
+          "hold_endpoints": 145825,
+          "pulse_width_ns": 1.389,
+          "total_negative_pulse_ns": 0.0,
+          "pulse_failing_endpoints": 0,
+          "pulse_endpoints": 51411,
+          "process": "Slow",
+          "junction_setting_C": 0,
+          "report_sha256": "7c8458332da3a68eba6d5518d3c16aa791e154181a432c2504b4bfa8ce1c05d4"
+        },
+        {
+          "setup_ns": -0.166,
+          "total_negative_setup_ns": -2.238,
+          "setup_failing_endpoints": 49,
+          "setup_endpoints": 145927,
+          "hold_ns": 0.156,
+          "total_negative_hold_ns": 0.0,
+          "hold_failing_endpoints": 0,
+          "hold_endpoints": 145825,
+          "pulse_width_ns": 1.389,
+          "total_negative_pulse_ns": 0.0,
+          "pulse_failing_endpoints": 0,
+          "pulse_endpoints": 51411,
+          "process": "Slow",
+          "junction_setting_C": 85,
+          "report_sha256": "17887dd5b99eada2f4f7b1774d7dd6a211a743c056fa56d95cc7d5eef8660ef0"
+        },
+        {
+          "setup_ns": 1.358,
+          "total_negative_setup_ns": 0.0,
+          "setup_failing_endpoints": 0,
+          "setup_endpoints": 145927,
+          "hold_ns": 0.013,
+          "total_negative_hold_ns": 0.0,
+          "hold_failing_endpoints": 0,
+          "hold_endpoints": 145825,
+          "pulse_width_ns": 1.591,
+          "total_negative_pulse_ns": 0.0,
+          "pulse_failing_endpoints": 0,
+          "pulse_endpoints": 51411,
+          "process": "Fast",
+          "junction_setting_C": 0,
+          "report_sha256": "d8ee39206678d2991f792f258e8da82fa90aae20dc1ff5ce03c2530dc92368e7"
+        },
+        {
+          "setup_ns": 1.358,
+          "total_negative_setup_ns": 0.0,
+          "setup_failing_endpoints": 0,
+          "setup_endpoints": 145927,
+          "hold_ns": 0.013,
+          "total_negative_hold_ns": 0.0,
+          "hold_failing_endpoints": 0,
+          "hold_endpoints": 145825,
+          "pulse_width_ns": 1.591,
+          "total_negative_pulse_ns": 0.0,
+          "pulse_failing_endpoints": 0,
+          "pulse_endpoints": 51411,
+          "process": "Fast",
+          "junction_setting_C": 85,
+          "report_sha256": "ff07f47eb529351ae301d6a218606ab684e1a07cc95e643403619c0ab7272ccf"
+        }
+      ]
+    },
+    {
+      "variant": "netdelay",
+      "head": "ba2a66f72db495bd7c48700d46688de08a6c2c61",
+      "result": "FAIL",
+      "corners": [
+        {
+          "setup_ns": -0.098,
+          "total_negative_setup_ns": -3.118,
+          "setup_failing_endpoints": 94,
+          "setup_endpoints": 145917,
+          "hold_ns": 0.126,
+          "total_negative_hold_ns": 0.0,
+          "hold_failing_endpoints": 0,
+          "hold_endpoints": 145815,
+          "pulse_width_ns": 1.389,
+          "total_negative_pulse_ns": 0.0,
+          "pulse_failing_endpoints": 0,
+          "pulse_endpoints": 51410,
+          "process": "Slow",
+          "junction_setting_C": 0,
+          "report_sha256": "b6313ca1cd64f8b389a5dcde122974d6597082f2b0a2c7507f27ffe97bc07340"
+        },
+        {
+          "setup_ns": -0.098,
+          "total_negative_setup_ns": -3.118,
+          "setup_failing_endpoints": 94,
+          "setup_endpoints": 145917,
+          "hold_ns": 0.126,
+          "total_negative_hold_ns": 0.0,
+          "hold_failing_endpoints": 0,
+          "hold_endpoints": 145815,
+          "pulse_width_ns": 1.389,
+          "total_negative_pulse_ns": 0.0,
+          "pulse_failing_endpoints": 0,
+          "pulse_endpoints": 51410,
+          "process": "Slow",
+          "junction_setting_C": 85,
+          "report_sha256": "2f4ce1db64fac4f74a319b825f4ddeb8625880a33a8b4c67d99fda1c750714ea"
+        },
+        {
+          "setup_ns": 1.358,
+          "total_negative_setup_ns": 0.0,
+          "setup_failing_endpoints": 0,
+          "setup_endpoints": 145917,
+          "hold_ns": 0.015,
+          "total_negative_hold_ns": 0.0,
+          "hold_failing_endpoints": 0,
+          "hold_endpoints": 145815,
+          "pulse_width_ns": 1.591,
+          "total_negative_pulse_ns": 0.0,
+          "pulse_failing_endpoints": 0,
+          "pulse_endpoints": 51410,
+          "process": "Fast",
+          "junction_setting_C": 0,
+          "report_sha256": "cc331416106370cd7d50032527f808dfcb4394623f3a21137433ffe12908ff2b"
+        },
+        {
+          "setup_ns": 1.358,
+          "total_negative_setup_ns": 0.0,
+          "setup_failing_endpoints": 0,
+          "setup_endpoints": 145917,
+          "hold_ns": 0.015,
+          "total_negative_hold_ns": 0.0,
+          "hold_failing_endpoints": 0,
+          "hold_endpoints": 145815,
+          "pulse_width_ns": 1.591,
+          "total_negative_pulse_ns": 0.0,
+          "pulse_failing_endpoints": 0,
+          "pulse_endpoints": 51410,
+          "process": "Fast",
+          "junction_setting_C": 85,
+          "report_sha256": "389d41602fc1b3742fd682c5a6f44b5210f9ecd1012c949df96f0c06d3fdcfc8"
+        }
+      ]
+    },
+    {
+      "variant": "spread",
+      "head": "ba2a66f72db495bd7c48700d46688de08a6c2c61",
+      "result": "FAIL",
+      "corners": [
+        {
+          "setup_ns": -0.378,
+          "total_negative_setup_ns": -15.276,
+          "setup_failing_endpoints": 119,
+          "setup_endpoints": 145931,
+          "hold_ns": 0.156,
+          "total_negative_hold_ns": 0.0,
+          "hold_failing_endpoints": 0,
+          "hold_endpoints": 145829,
+          "pulse_width_ns": 1.389,
+          "total_negative_pulse_ns": 0.0,
+          "pulse_failing_endpoints": 0,
+          "pulse_endpoints": 51414,
+          "process": "Slow",
+          "junction_setting_C": 0,
+          "report_sha256": "6ad389ae93e74d5e7dec45976f27984a975900853e54c9f5de608fda2c766437"
+        },
+        {
+          "setup_ns": -0.378,
+          "total_negative_setup_ns": -15.276,
+          "setup_failing_endpoints": 119,
+          "setup_endpoints": 145931,
+          "hold_ns": 0.156,
+          "total_negative_hold_ns": 0.0,
+          "hold_failing_endpoints": 0,
+          "hold_endpoints": 145829,
+          "pulse_width_ns": 1.389,
+          "total_negative_pulse_ns": 0.0,
+          "pulse_failing_endpoints": 0,
+          "pulse_endpoints": 51414,
+          "process": "Slow",
+          "junction_setting_C": 85,
+          "report_sha256": "a758b0c695647dab0c00d465fb203cca7348ac66b9a064e7a98608344983095f"
+        },
+        {
+          "setup_ns": 1.358,
+          "total_negative_setup_ns": 0.0,
+          "setup_failing_endpoints": 0,
+          "setup_endpoints": 145931,
+          "hold_ns": 0.009,
+          "total_negative_hold_ns": 0.0,
+          "hold_failing_endpoints": 0,
+          "hold_endpoints": 145829,
+          "pulse_width_ns": 1.591,
+          "total_negative_pulse_ns": 0.0,
+          "pulse_failing_endpoints": 0,
+          "pulse_endpoints": 51414,
+          "process": "Fast",
+          "junction_setting_C": 0,
+          "report_sha256": "81cddc278e1b5d7ad7f1221876eb02a17811f5968213c1fc68b2e37946fd849d"
+        },
+        {
+          "setup_ns": 1.358,
+          "total_negative_setup_ns": 0.0,
+          "setup_failing_endpoints": 0,
+          "setup_endpoints": 145931,
+          "hold_ns": 0.009,
+          "total_negative_hold_ns": 0.0,
+          "hold_failing_endpoints": 0,
+          "hold_endpoints": 145829,
+          "pulse_width_ns": 1.591,
+          "total_negative_pulse_ns": 0.0,
+          "pulse_failing_endpoints": 0,
+          "pulse_endpoints": 51414,
+          "process": "Fast",
+          "junction_setting_C": 85,
+          "report_sha256": "599db35f597a478d3ed054148094093a276c02363094fdb0d73b526165d80e90"
+        }
+      ]
+    },
+    {
+      "variant": "logic",
+      "head": "ba2a66f72db495bd7c48700d46688de08a6c2c61",
+      "result": "PASS",
+      "corners": [
+        {
+          "setup_ns": 0.005,
+          "total_negative_setup_ns": 0.0,
+          "setup_failing_endpoints": 0,
+          "setup_endpoints": 145919,
+          "hold_ns": 0.18,
+          "total_negative_hold_ns": 0.0,
+          "hold_failing_endpoints": 0,
+          "hold_endpoints": 145817,
+          "pulse_width_ns": 1.389,
+          "total_negative_pulse_ns": 0.0,
+          "pulse_failing_endpoints": 0,
+          "pulse_endpoints": 51411,
+          "process": "Slow",
+          "junction_setting_C": 0,
+          "report_sha256": "4b04af8c1d6e15b8c48e97ac5b245f8536bed6bc2c0d3ab1ff014a01325b6894"
+        },
+        {
+          "setup_ns": 0.005,
+          "total_negative_setup_ns": 0.0,
+          "setup_failing_endpoints": 0,
+          "setup_endpoints": 145919,
+          "hold_ns": 0.18,
+          "total_negative_hold_ns": 0.0,
+          "hold_failing_endpoints": 0,
+          "hold_endpoints": 145817,
+          "pulse_width_ns": 1.389,
+          "total_negative_pulse_ns": 0.0,
+          "pulse_failing_endpoints": 0,
+          "pulse_endpoints": 51411,
+          "process": "Slow",
+          "junction_setting_C": 85,
+          "report_sha256": "834669ea41b9f1f8268988de84ef4f89698cfdc09d57efd26e4b28bcf6cdd8a1"
+        },
+        {
+          "setup_ns": 1.358,
+          "total_negative_setup_ns": 0.0,
+          "setup_failing_endpoints": 0,
+          "setup_endpoints": 145919,
+          "hold_ns": 0.04,
+          "total_negative_hold_ns": 0.0,
+          "hold_failing_endpoints": 0,
+          "hold_endpoints": 145817,
+          "pulse_width_ns": 1.591,
+          "total_negative_pulse_ns": 0.0,
+          "pulse_failing_endpoints": 0,
+          "pulse_endpoints": 51411,
+          "process": "Fast",
+          "junction_setting_C": 0,
+          "report_sha256": "6ea42bc65d2aec19ca8af137a6e2c2cbd302ee0714297fee4d4011e3c9ea332a"
+        },
+        {
+          "setup_ns": 1.358,
+          "total_negative_setup_ns": 0.0,
+          "setup_failing_endpoints": 0,
+          "setup_endpoints": 145919,
+          "hold_ns": 0.04,
+          "total_negative_hold_ns": 0.0,
+          "hold_failing_endpoints": 0,
+          "hold_endpoints": 145817,
+          "pulse_width_ns": 1.591,
+          "total_negative_pulse_ns": 0.0,
+          "pulse_failing_endpoints": 0,
+          "pulse_endpoints": 51411,
+          "process": "Fast",
+          "junction_setting_C": 85,
+          "report_sha256": "a1570b5581aa496ec965164f16a47aca3b31fdce1ba2ff0afdeed64a3e5c76a9"
+        }
+      ]
+    }
+  ],
+  "cancelled_before_execution": [
+    "replicated",
+    "incremental"
+  ],
+  "corner_scope": "Slow and Fast delay models, each reported with junction settings 0 C and 85 C. These settings do not create four independent characterization libraries.",
+  "images": {
+    "container_sha256": "4ffcf2cdb9b65d65ed3cdb1f244be74dc657e147ec6895b967f94c31869a5cf1",
+    "programming_sha256": "81e86ad9d94be07b9b3f7c8cbcbecbbc13c4348304508772660137b1eeac1a55",
+    "programming_bytes": 3326900,
+    "flash_output_equals_complete_programming_data": true,
+    "route_checkpoint_sha256": "21448104eebd1e28e7a6847fa59f2a29435246c9156530ec510625dfee7ed8c5",
+    "synthesis_checkpoint_sha256": "090f712b838a09b33e71eba45699a7d54620beedfda1a55592af7d0bf8f88e18"
+  },
+  "reports": [
+    {
+      "artifact": "digilent_arty_audio_Fast_0C_negative.rpt",
+      "sha256": "41c4654d532547a53f1e39f09b381f1e2dc5c8a2aa931c68221a97759a4cea30",
+      "bytes": 904
+    },
+    {
+      "artifact": "digilent_arty_audio_Fast_0C_operating.rpt",
+      "sha256": "44a446294e2f679912a525e0a0d03c5326d495c6916383b2c4baa207500d4060",
+      "bytes": 1567
+    },
+    {
+      "artifact": "digilent_arty_audio_Fast_0C_timing.rpt",
+      "sha256": "6ea42bc65d2aec19ca8af137a6e2c2cbd302ee0714297fee4d4011e3c9ea332a",
+      "bytes": 2084869
+    },
+    {
+      "artifact": "digilent_arty_audio_Fast_85C_negative.rpt",
+      "sha256": "d1383daf9c5260df59c6345958d64c4b3fc479d89c7e3de9e896e099f301cb1f",
+      "bytes": 905
+    },
+    {
+      "artifact": "digilent_arty_audio_Fast_85C_operating.rpt",
+      "sha256": "2e4be8caf50f4539de0048a48f06f10c81f9e4db195b66f95e3d4ff01db4123f",
+      "bytes": 1568
+    },
+    {
+      "artifact": "digilent_arty_audio_Fast_85C_timing.rpt",
+      "sha256": "a1570b5581aa496ec965164f16a47aca3b31fdce1ba2ff0afdeed64a3e5c76a9",
+      "bytes": 2084870
+    },
+    {
+      "artifact": "digilent_arty_audio_Slow_0C_negative.rpt",
+      "sha256": "54f3a5c7ae45e9f11acb843be4d54282ffa0f966dfa236c6a02bc1266d7cb496",
+      "bytes": 904
+    },
+    {
+      "artifact": "digilent_arty_audio_Slow_0C_operating.rpt",
+      "sha256": "44a446294e2f679912a525e0a0d03c5326d495c6916383b2c4baa207500d4060",
+      "bytes": 1567
+    },
+    {
+      "artifact": "digilent_arty_audio_Slow_0C_timing.rpt",
+      "sha256": "4b04af8c1d6e15b8c48e97ac5b245f8536bed6bc2c0d3ab1ff014a01325b6894",
+      "bytes": 2136717
+    },
+    {
+      "artifact": "digilent_arty_audio_Slow_85C_negative.rpt",
+      "sha256": "06212cb01fe2a5e01c9da3fff253f5b42f7d841881550cbd636dbef68c287f56",
+      "bytes": 905
+    },
+    {
+      "artifact": "digilent_arty_audio_Slow_85C_operating.rpt",
+      "sha256": "2e4be8caf50f4539de0048a48f06f10c81f9e4db195b66f95e3d4ff01db4123f",
+      "bytes": 1568
+    },
+    {
+      "artifact": "digilent_arty_audio_Slow_85C_timing.rpt",
+      "sha256": "834669ea41b9f1f8268988de84ef4f89698cfdc09d57efd26e4b28bcf6cdd8a1",
+      "bytes": 2136718
+    },
+    {
+      "artifact": "digilent_arty_audio_all_timing.rpt",
+      "sha256": "bf4d4eb9bfcbf4fdf9ce950b8c8b9c0d7c53ff8ca3205d0f2ca1278d1936cab3",
+      "bytes": 2140548
+    },
+    {
+      "artifact": "digilent_arty_audio_bus_skew.rpt",
+      "sha256": "77309715a351ade8df5ffd0f83762369fa90ed22554ce7d0fe73efc55439f128",
+      "bytes": 136814
+    },
+    {
+      "artifact": "digilent_arty_audio_cdc.rpt",
+      "sha256": "e0c7e274062edc353fc4a94706f7c7517339c6b5b91687bd9e9bce7e230dc239",
+      "bytes": 420025
+    },
+    {
+      "artifact": "digilent_arty_audio_check_timing.rpt",
+      "sha256": "b5ae5c5bb078017a8b5cd1499111667dd5e5d807ff2ae2677cd2a38d40baa9db",
+      "bytes": 3491
+    },
+    {
+      "artifact": "digilent_arty_audio_clock_interaction.rpt",
+      "sha256": "ca8d8323fce7e7c44da6ef5afc22306ebfd6eb0d0abaf253bfd5610649e602e5",
+      "bytes": 12717
+    },
+    {
+      "artifact": "digilent_arty_audio_flag_sync.rpt",
+      "sha256": "cc72ec008e8e49fc33edcf37a8451166392f3aac67f9bd0f19b167751edf04aa",
+      "bytes": 10682
+    },
+    {
+      "artifact": "digilent_arty_audio_packing.rpt",
+      "sha256": "8708cd2dfd0139f58e0694ce2d7a0684a6517d36a89a54a250abbed702d0c5ef",
+      "bytes": 3573
+    },
+    {
+      "artifact": "digilent_arty_audio_utilization_route.rpt",
+      "sha256": "370aea07844e8a9e85bb59d23c4f7a7d72d32ff83b013ab9d31d0e7d8985e04e",
+      "bytes": 12476
+    },
+    {
+      "artifact": "digilent_arty_clock_utilization.rpt",
+      "sha256": "24c5de417448910f4561313cf52a5e99cd8934f532ce2d34dadb95cc6de1b4fd",
+      "bytes": 59201
+    },
+    {
+      "artifact": "digilent_arty_control_sets.rpt",
+      "sha256": "a918ec4965f03fc77516e6a107193cf0d978120a66c7b8a20cd32dc3943ddf14",
+      "bytes": 597852
+    },
+    {
+      "artifact": "digilent_arty_drc.rpt",
+      "sha256": "ec33ff5e07ae0c60c7d683b6edf4abfbcf5a8691afc9a2d856fb16f9ec606e2c",
+      "bytes": 53453
+    },
+    {
+      "artifact": "digilent_arty_io.rpt",
+      "sha256": "c917a71d01aa4fc5f83abd418010ee1cb234874f894d04feff1bd489be136c29",
+      "bytes": 101105
+    },
+    {
+      "artifact": "digilent_arty_iob_pack.rpt",
+      "sha256": "5cbacfca03b9ee6ce7799dcefc7f858270e9611bcac51966430647002d6d09b0",
+      "bytes": 408
+    },
+    {
+      "artifact": "digilent_arty_power.rpt",
+      "sha256": "9643a1f8c5fb5f859889a1eb1e2e0403caa2b0062b24ded9285879d593399e4d",
+      "bytes": 15425
+    },
+    {
+      "artifact": "digilent_arty_route_status.rpt",
+      "sha256": "a0dcb0fc536ed9376586d0a55da76e918e1ee5084cf1244d42bcd128dbfe17d4",
+      "bytes": 651
+    },
+    {
+      "artifact": "digilent_arty_timing.rpt",
+      "sha256": "d6598624a29849e9c8c8fe7a7fcfe57bef04e3b7f7380569cd096410afa0f2a1",
+      "bytes": 1983036
+    },
+    {
+      "artifact": "digilent_arty_utilization_hierarchical_place.rpt",
+      "sha256": "a9404b3f28a0171d28b12afcd0bb88db818927663cf8b0100b3be19d7d1b63c8",
+      "bytes": 30044
+    },
+    {
+      "artifact": "digilent_arty_utilization_place.rpt",
+      "sha256": "8a5d537bf7aa0fe80520f3d09917d55e2ee5b4981a1d2065f8f787331edd1be6",
+      "bytes": 12470
+    }
+  ],
+  "portable_recipe_helper": {
+    "artifact": "helpers/implement_audio.tcl",
+    "sha256": "d2c80ae93010e8fed7cca7256983416934f0881f00877a81ee16a0947e639736",
+    "argument_order": [
+      "checkpoint",
+      "optimization",
+      "placement",
+      "clock_rules",
+      "boundary_timing",
+      "fifo_rules",
+      "bridge_crossings",
+      "corner_rules",
+      "audio_pad_rules",
+      "board_pad_rules"
+    ],
+    "equivalence": "After omitting the helper's two leading explanatory comment lines, replacing its path arguments with the executed source paths produces exactly the executed physical script."
+  }
+}

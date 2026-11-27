@@ -1,0 +1,71 @@
+{
+  "baseline_head": "2d4c593075791f4a4beec37bf47f596231875810",
+  "candidate_head": "ba2a66f72db495bd7c48700d46688de08a6c2c61",
+  "shared_sources": [
+    {
+      "artifact": "KL_aaf_packetizer.sv",
+      "baseline_blob": "b1d18f4b166618a321b741c24b5ff72322d4acf0",
+      "candidate_blob": "fb3217a2b18962248eaa8af1531f88f9ae09c79a",
+      "last_changed_commit": "cb139f14d75bde55efec8bcea5d15bce66325e78"
+    },
+    {
+      "artifact": "KL_chan_map_capture.sv",
+      "baseline_blob": "6e0a5bf096d74fdd9634c58143a7d65e7320ce2c",
+      "candidate_blob": "0f96ac3306c04bc510273dc4665104d04ac01cfa",
+      "last_changed_commit": "cb139f14d75bde55efec8bcea5d15bce66325e78"
+    },
+    {
+      "artifact": "KL_render_queue.sv",
+      "baseline_blob": "131788d6fe0042750a50668123355a9d8a40a99d",
+      "candidate_blob": "9cb60708b12b30f34d09148e837b4ef13b1326e4",
+      "last_changed_commit": "cb139f14d75bde55efec8bcea5d15bce66325e78"
+    },
+    {
+      "artifact": "milan_datapath.sv",
+      "baseline_blob": "1e9ca34eb7c6b0391b5f742b2e83f98c85f08d5f",
+      "candidate_blob": "f8e633fa36297178a1dd21c2cb40c2e9fae78442",
+      "last_changed_commit": "cb139f14d75bde55efec8bcea5d15bce66325e78"
+    }
+  ],
+  "later_changes": "optional Arty profile/construction, tests and documentation only",
+  "accepted_at_head": "e5e2a91f5bff4f5e5093f71f95924ebd762f8e5f",
+  "subsequent_change": "optional Arty source-level and pad corrections, constraints/reporting, tests and documentation; no ALINX build source changes",
+  "later_artifacts": [
+    "USB_AUDIO_PATH.md",
+    "KL_usbaudio_bridge.sv",
+    "KL_usbaudio_gpif.sv",
+    "usbaudio_pack.tcl",
+    "usbaudio_soc.py",
+    "usbaudio_timing.xdc",
+    "Makefile",
+    "check.py",
+    "duplex.cpp",
+    "levels_tb.sv",
+    "packing_test.py",
+    "transport_mutations.py"
+  ],
+  "source_list_exclusion": [
+    {
+      "profile": "endstation_ax7101_1x1_tdm8",
+      "later_changed_files_present_in_build_source_lists": 0,
+      "script_hashes": [
+        {
+          "artifact": "alinx_ax7101.tcl",
+          "sha256": "15ed10a9d8994311e613db8e32996bb63e0d88c0dfa2aec6c4baa8454ebadb5f"
+        }
+      ]
+    },
+    {
+      "profile": "endstation_ax7101_8x8",
+      "later_changed_files_present_in_build_source_lists": 0,
+      "script_hashes": [
+        {
+          "artifact": "alinx_ax7101.tcl",
+          "sha256": "4d36da7ca2c51ed2212c5ffc426551aa0c955b163c309de6d316d469e57ecb81"
+        }
+      ]
+    }
+  ],
+  "unchanged_selector_blob": "11c27be298fff385959ffb16ad1591304b170dbe",
+  "selector_behavior": "audio absent delegates before importing the optional attachment"
+}

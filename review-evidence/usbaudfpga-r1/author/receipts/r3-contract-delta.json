@@ -1,0 +1,36 @@
+{
+  "head": "75db86a926a9f4d2f7734246eac06a8f58c57bac",
+  "before": "ae4b11bdaf3e84faa46a9ce32b641f65716b0ed2",
+  "after": "47e6bbc93093c325b00a9263fdb9ceb20869ef46",
+  "authority": "https://github.com/kebag-logic/usb-audio/blob/47e6bbc93093c325b00a9263fdb9ceb20869ef46/docs/AUDIO-FPGA.md",
+  "changed_sections": [
+    {
+      "section": "Interval reference, callback and pending snapshot lifetime",
+      "owner": "firmware",
+      "disposition": "No FPGA record layout change. Existing modulo-16384 count steps, sequence, loss flag, first-word timestamp and delta correction retained."
+    },
+    {
+      "section": "Delivery bound and watchdog",
+      "owner": "FPGA and firmware",
+      "disposition": "Reference watchdog changed to 3 ms on the independent bus clock. Feedback remains published until the expiry edge. A coincident reference is refused and cannot seed the replacement window."
+    },
+    {
+      "section": "Network endpoint NAK lifetime",
+      "owner": "firmware",
+      "disposition": "No changed FPGA duty; all 22 network-attachment files remain unchanged."
+    },
+    {
+      "section": "Validation narrative",
+      "owner": "firmware",
+      "disposition": "Firmware tests added; FPGA tests independently cover the new watchdog bounds."
+    }
+  ],
+  "unchanged_socket_contract": true,
+  "watchdog_bounds": {
+    "acceptance": "REFERENCE_WATCHDOG_2P9MS_ACCEPTED",
+    "expiry_replacement": "REFERENCE_WATCHDOG_3MS_REFUSED",
+    "before_expiry": "REFERENCE_WATCHDOG_BEFORE_3MS",
+    "expiry_no_reference": "REFERENCE_WATCHDOG_3MS_NO_REFERENCE"
+  },
+  "boundary_scope": "Own-clock watchdog tested independently of the unchanged source-clock delivery bounds; media timestamps remain continuous for replacement tests and stop advancing for no-reference expiry."
+}

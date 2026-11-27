@@ -1,0 +1,48 @@
+{
+  "head": "96e0c5687a9f97058f11eb56cd972ffbf158320b",
+  "profile_sha256": "debc8c22e885b56b0f4dbadf91b4bdb0ed2b9e57f8521b0db0f5eaca4f2e6ad1",
+  "placement": "split",
+  "system_clock_hz": 100000000,
+  "media_clock_hz": 50000000,
+  "audio_channels_each_way": 8,
+  "aaf_streams_each_way": 1,
+  "crf_streams_each_way": 1,
+  "images": [
+    {
+      "variant": "audio",
+      "firmware_sha256": "925c8d909312d6918438530890a5c50d867072b5e9b8aea95a25ef85ef26606a",
+      "firmware_bytes": 159772,
+      "register_map_sha256": "48c4c63fb066a6d81d308c2c007db9d57b1744941e6b9f462e37495a2fbc8713",
+      "flash_map_sha256": "a3662dd3c711d76aec662f3043c7b37ba0f73e9349f4b5b0d5e7e27bde2e529e",
+      "map_stable_after_link": true,
+      "independently_reviewed": true,
+      "raw_map_hash_scope": "Existing register_map_sha256 and flash_map_sha256 identify the final raw files.",
+      "seed_register_map_sha256": "0e7ca194d4b858028751f8cc6b28cc004679c2aa910b9344c4d8d4422161d2d1",
+      "seed_flash_map_sha256": "13ab5c03d08d96e5a63e7aafd572753739ef689994d0d5c064969856e88d06d9",
+      "raw_maps_byte_identical_after_link": false,
+      "map_stability_definition": "CSR non-comment records equal byte for byte; flash-map JSON objects equal after excluding only source metadata. Raw files differ and their hashes are preserved.",
+      "csr_noncomment_sha256": "fca625698c88be5f44e7122c35dad2df802e636b373a91ea29ec201343b16790",
+      "flash_map_content_sha256": "a7ee8cfa9d340dd41e24480d8746c51adcf5e82ed0a0868a07a62cc2540a32ab",
+      "normalized_hash_encoding": "CSR: retain non-comment split lines, join with LF and one final LF. Flash map: sorted-key compact JSON, UTF-8, no final LF."
+    },
+    {
+      "variant": "baseline",
+      "firmware_sha256": "ceabf195604d13701488ef60c522d9f88baee322402076c34af47783b4cec0b4",
+      "firmware_bytes": 159772,
+      "register_map_sha256": "47f6ffe30a35d2d9ab8a0821aa8f2e6da5f6de5ad3d30b5e37ea980b933f48c9",
+      "flash_map_sha256": "7682a36216ea5e53354362acb14ca8c757a4c612c59848255e1126dd90ab83aa",
+      "map_stable_after_link": true,
+      "independently_reviewed": true,
+      "raw_map_hash_scope": "Existing register_map_sha256 and flash_map_sha256 identify the final raw files.",
+      "seed_register_map_sha256": "386576d18f374b566583a3c4a5ed3fcc27c965960961d507abc9d63bc91cdb88",
+      "seed_flash_map_sha256": "79423d004ff4057a57edd2abb0487d7887266828cbacc5cc9659fde9e8a24ba6",
+      "raw_maps_byte_identical_after_link": false,
+      "map_stability_definition": "CSR non-comment records equal byte for byte; flash-map JSON objects equal after excluding only source metadata. Raw files differ and their hashes are preserved.",
+      "csr_noncomment_sha256": "9ed15722b14a8f3d30d8186725adb9fde4bf79ba38cfe6ddd881c4a727f0bd95",
+      "flash_map_content_sha256": "d4e9f8d68a30fa2bbf57aee23409c5f40b231820cf2f20e2f3dc759a2167bafd",
+      "normalized_hash_encoding": "CSR: retain non-comment split lines, join with LF and one final LF. Flash map: sorted-key compact JSON, UTF-8, no final LF."
+    }
+  ],
+  "accepted_through_head": "ba2a66f72db495bd7c48700d46688de08a6c2c61",
+  "lineage": "Later corrections change only the optional transport, physical constraints/reporting, tests and prose. The accepted firmware and register/flash-map pairings remain unchanged."
+}

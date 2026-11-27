@@ -1,0 +1,9 @@
+PASS CAPTURE_ONLY_NO_INTERVAL_RECORD: 8192 service intervals, no socket 3 record
+
+Scope: production firmware at the pinned revision, existing deterministic peripheral stand-ins.
+Capture is active, playback inactive, and valid status is refreshed each turn.
+After the capture epoch fence, 8192 application turns advance time by 125 us each.
+No further playback/state record is submitted on socket 3.
+This disproves a periodic state-record reference in this configuration.
+It does not disprove every possible qualification of queue service.
+It does not establish physical USB interval timing or a usable readiness-edge rule.
