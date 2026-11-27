@@ -1,0 +1,6 @@
+1x1/1if: load 0.53210; without deliveries 0.52365; deliveries 0.00844 (registrations 0.00822); at dearest-before cost 0.52943; V 4; JOIN_MIN_MS 180
+8x8/1if: load 0.77864; without deliveries 0.76614; deliveries 0.01250 (registrations 0.01900); at dearest-before cost 0.77414; V 9; JOIN_MIN_MS 180
+FLIP {'8x8/2if': 0.7, '8x8/1if': 0.78}
+ceiling 0.77: flip findings at 8x8/1if: 1
+  8x8/1if: the load 0.779 at the pin is over the flip ceiling 0.77
+ceiling 0.78: flip findings at 8x8/1if: 0

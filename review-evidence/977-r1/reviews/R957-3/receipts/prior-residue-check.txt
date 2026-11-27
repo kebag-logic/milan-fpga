@@ -1,0 +1,23 @@
+# 'round 9's STOP' anywhere in sw/ tb/ docs/
+rc=0
+# undated-subject '2026-11-27, item' citations (ambiguous form)
+rc=0
+# B25/B26/B27 comment prefixes
+rc=1
+# 79.48 citations
+docs/design/SPLIT_CONTROL_MEMORY.md:2548:**The alone records** ([#977's ruling of 2026-11-27 on the alone records](https://github.com/kebag-logic/milan-fpga/issues/977#issuecomment-7216582862)). A rec
+docs/design/SPLIT_CONTROL_MEMORY.md:3095:- **THE TRANSMIT's figure** there, `CTRL_LOOP_TX_MS`, is its own tx row by every source rounded up: 80 ms, the cap, for the 79.49 ms of its row opened on a rec
+docs/diagrams/ts_wrap_walk.svg:38:<polyline points="777.58,391.98 778.05,391.87 778.52,391.76 779.00,391.65 779.47,391.54 779.95,391.43 780.42,391.32 780.89,391.21 781.37,391.10 781.84,390.99 782.31,3
+docs/reference/FR_NFR.md:454:| SRP/MRP MSRP and MVRP join, leave, periodic and LeaveAll | IEEE 802.1Q-2018 10.7.4/10.7.11, Table 10-7; Milan v1.2 4.2.7.1.1, Table 4.3 overrides: JoinTime 200 ms (180 t
+sw/firmware/ctrl/loop/ctrl_loop.h:396:// alone with its SETTLE and its polls' base and walk restated (79.48 at the
+# 61.0 / 61.5 platform thresholds
+140:| `platform-8x8-one-interface` | the target platform's, one interface | `nvm_stage` of 14,250 B, `ctrl_plat` of 19,264 B | 61.0 |
+149:The size fixture's entry is 59.5 since GET_AS_PATH's read composed with SRP's Talker declarations (#897), 59.0 before it: the CPU budget harness's 8x8/2if arms, the size fixture with their test po
+150:The platform's entry is 61.0 since the split's PHY poll and its 1000BASE-T-only advertisement (#919, #840) merged with SRP's Talker declarations (dev-soft-core `70f4056f`). The composed image plan
+155:At #923's head the size fixture's was 59.5, the platform's two-interface image's 61.0 with `ctrl_plat` at 20,416 B, and the platform's one-interface image, which was 56.0 with 888 B of `rom` spare
+157:The StreamIDs held with their latest Talker kind (#925, `srp_mbx.h`'s `srp_held`: half the SRP pool's medium and large blocks, 16, 32, 40 and 81 entries of 10 B) add 192, 320, 384 and 832 B: 17,72
+161:It is 62.5 before #946, with `ctrl_plat` at 21,568 B since #936 (21,504 B before it): its `sram` is 115,440 B, 752 B past 56 granules, and its `rom` 138,560 B (62.0 with the commit before #925's c
+165:On the post-flip composition train (#956, #957, #950, #954, #948, #584, #969, #973, #972) ([section 5](#5-fit)) each entry is its composed image's measured tiles by the same rule: the platform's t
+169:With #977's delivery bound (one binding change or loss completion a delivery, none in a pass that carries an SRP record alone; [its ruling of 2026-11-27 on the alone records](https://github.com/ke
+170:The saved-state store's 100 ms window for its binding records (#1009) adds 72 B of `rom` at the platform's 1x1 points and 64 B at its 8x8 points, and no `sram` and no tile at any (`plat_ledger.py`
+172:Each image is refused half a tile past its entry, at 63.0 and 59.0 (the size fixture's), 65.5 and 61.5 (the platform's), as `ctrl_memory_ledger.py`'s boundary cases hold them (61.0 while the one-i

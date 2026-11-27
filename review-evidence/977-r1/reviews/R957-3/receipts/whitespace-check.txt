@@ -1,0 +1,13 @@
+# git diff --check 71bad8c0 3181a3ec (submodules excluded)
+rc=0
+# git diff --check 0b594023 3181a3ec (submodules excluded)
+rc=0
+# git diff --check 71bad8c0 9976b94f (before the fix)
+sw/firmware/ctrl/test/srp_binding.hpp:580: new blank line at EOF.
+rc=2
+# 9976b94f..3181a3ec is one blank line removed at EOF
+ sw/firmware/ctrl/test/srp_binding.hpp | 1 -
+ 1 file changed, 1 deletion(-)
+0000000   "   ;  \n   }  \n   }       /   /       n   a   m   e   s   p
+0000020   a   c   e  \n
+0000024
