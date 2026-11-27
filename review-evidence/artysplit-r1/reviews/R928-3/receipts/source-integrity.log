@@ -1,0 +1,30 @@
+HEAD 011aaa6f080321e0a89f915720ebb3ee14807a16
+TREE 5b11a07de8c4f69999277424aa8d9b704c297a96
+PASS parent tracked blobs/modes/index 1995
+PASS external gitlink in index/tree efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 (checkout not initialized; not required)
+PASS required submodule gptp-processor 1213ac5b9e09b8759ba76cc70c53652b5e108996 blobs 120
+PASS required submodule protocol-processor 801ef2283ec793e35a2590fc6593c90313a64041 blobs 868
+PASS required submodule third_party/lwSRP d1bb4f4e5954af6dabe7f210a6bf7adbb76bdd6b blobs 67
+PASS required submodule third_party/tsn-c-stack 715589c1db7cf67e2f3259fd7083ebc7f0923376 blobs 100
+PASS required submodule third_party/verilog-axis 48ff7a7e2ef782cf778d47910cf85835c64b1bce blobs 214
+Delta files 13
+DELTA CHANGELOG.md
+DELTA configs/endstation_arty_split.yaml
+DELTA docs/ENDSTATION_BUILDER.md
+DELTA docs/design/SPLIT_CONTROL_MEMORY.md
+DELTA docs/integration/BUILDING.md
+DELTA docs/litex/CLOCK_DOMAINS.md
+DELTA sw/firmware/ctrl/test/ctrl_mutant_fixtures.py
+PASS Python AST unchanged sw/firmware/ctrl/test/ctrl_mutant_fixtures.py
+DELTA tb/verilator/ctrl_service_budget/README.md
+DELTA tb/verilator/ctrl_service_budget/census_extract.py
+DELTA tb/verilator/ctrl_service_budget/receipt_regrade.py
+DELTA tb/verilator/ctrl_service_budget/scenario_types.py
+PASS Python AST unchanged tb/verilator/ctrl_service_budget/scenario_types.py
+DELTA tb/verilator/ctrl_service_budget/selftest_trace.py
+PASS Python AST unchanged tb/verilator/ctrl_service_budget/selftest_trace.py
+DELTA tb/verilator/ctrl_service_budget/tier_design.py
+PASS Python AST unchanged tb/verilator/ctrl_service_budget/tier_design.py
+PASS configuration values unchanged
+PASS no RTL, compiled firmware, row, image or gitlink delta
+PASS original-base diff whitespace check

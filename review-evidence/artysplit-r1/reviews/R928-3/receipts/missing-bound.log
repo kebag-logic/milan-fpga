@@ -1,0 +1,28 @@
+PASS answering-every-port/notice-burst-0: complete grade reproduced
+PASS answering-every-port/notice-burst-1: complete grade reproduced
+PASS answering-every-port/notice-burst-2: complete grade reproduced
+PASS answering-every-port/notice-burst-3: complete grade reproduced
+PASS answering-every-port/notice-burst-4: complete grade reproduced
+PASS answering-every-port/notice-burst-5: complete grade reproduced
+PASS answering-every-port/notice-burst-6: complete grade reproduced
+PASS answering-every-port/notice-burst-7: complete grade reproduced
+PASS answering-every-port/notice-every-0: complete grade reproduced
+PASS answering-every-port/notice-every-1: complete grade reproduced
+PASS answering-every-port/notice-every-2: complete grade reproduced
+PASS answering-every-port/notice-every-3: complete grade reproduced
+PASS answering-every-port/notice-every-4: complete grade reproduced
+PASS answering-every-port/notice-every-5: complete grade reproduced
+PASS answering-every-port/notice-every-6: complete grade reproduced
+PASS answering-every-port/notice-every-7: complete grade reproduced
+Traceback (most recent call last):
+  File "$SOURCE/tb/verilator/ctrl_service_budget/receipt_regrade.py", line 214, in <module>
+    raise SystemExit(main())
+                     ~~~~^^
+  File "$SOURCE/tb/verilator/ctrl_service_budget/receipt_regrade.py", line 203, in main
+    got = regrade(path, staged / row['case'].split('/')[0] if args.case is None else None, limit)
+  File "$SOURCE/tb/verilator/ctrl_service_budget/receipt_regrade.py", line 76, in regrade
+    text = read_parts(directory, manifest['extract'], limit).decode()
+           ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$SOURCE/tb/verilator/ctrl_service_budget/receipt_regrade.py", line 47, in read_parts
+    raise ValueError(f'part integrity failure: {part["file"]}')
+ValueError: part integrity failure: observations.log
