@@ -493,5 +493,28 @@ TEST_F(SrpBinding, D6ARecordsPassMakesNoBindingChangeTheNextDeliveryMakesIt) {
     settle();
     for (unsigned k=0;k<n;++k) expect_stream(k,k);
 }
+TEST_F(SrpBinding, D7WithBothOwedAfterABindingChangeADeliveryCompletesTheLoss) {
+    const unsigned n=acfg.n_sinks;
+    ASSERT_GE(n,2u);
+    for (unsigned k=0;k<n;++k) { bind(k); response(k,k); registration(k,false,0,k); }
+    ASSERT_EQ(core()->sinks[1].state,ACMP_SETTLED_RSV_OK);
+    without_delivery([&] {   // the first sink rebinds to another talker, its change owed
+        auto p=command(spec::MSG_BIND_RX_COMMAND,0u); p.talker=kTkB;
+        ASSERT_TRUE(offer(p,spec::MULTICAST_MAC,acfg.sink_interface[0])); settle();
+        response(0u,n+1u);
+    });
+    ASSERT_TRUE(app.srp_requests[0].pending);
+    // the second sink's registration lost as the change waits, the last delivery's a binding change
+    sink(1u).withdrawn=true;
+    app.srp_lost_last=false;
+    app.loop.drain_taken=0u;
+    EXPECT_TRUE(app.loop.polls[4].fn(app.loop.polls[4].ctx))
+        << "D7 a delivery that leaves a change owed keeps the loop awake";
+    EXPECT_NE(core()->sinks[1].state,ACMP_SETTLED_RSV_OK)
+        << "D7 with both owed after a binding change, the delivery completes the loss";
+    EXPECT_TRUE(app.srp_requests[0].pending) << "D7 and leaves the binding change owed";
+    (void)app.loop.polls[4].fn(app.loop.polls[4].ctx);
+    EXPECT_FALSE(app.srp_requests[0].pending) << "D7 the next delivery makes the change";
+}
 } // namespace
 
