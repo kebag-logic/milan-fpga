@@ -7,17 +7,19 @@
 
 #include "VKL_status_leds.h"
 #include "verilated.h"
+#include "../../common/verilator_harness.hpp"
 
 #include <array>
 #include <cstdio>
 #include <memory>
 
+static int &checks() { static int n = 0; return n; }
 static int &fails() { static int n = 0; return n; }
-#define CHECK(c, ...) do { if (!(c)) { std::printf("FAIL %s:%d: ", __FILE__, __LINE__); \
+#define CHECK(c, ...) do { ++checks(); if (!(c)) { std::printf("FAIL %s:%d: ", __FILE__, __LINE__); \
     std::printf(__VA_ARGS__); std::printf("\n"); ++fails(); } } while (0)
 
 struct Leds {
-    std::unique_ptr<VKL_status_leds> model = std::make_unique<VKL_status_leds>();
+    milan::tb::Model<VKL_status_leds> model;
     VKL_status_leds *d = model.get();
     std::array<unsigned, 4> on_cnt{};
     unsigned tot = 0;
@@ -42,7 +44,6 @@ struct Leds {
             CHECK(on_cnt[k] == want, "%s: LD%d lit %u of %u clocks, expected %u", what, k, on_cnt[k], tot, want);
         }
     }
-    ~Leds() { d->final(); }
 };
 
 int main(int argc, char **argv)
@@ -54,17 +55,17 @@ int main(int argc, char **argv)
     auto clear = [&] { bench.clear(); };
     auto st = [&](int k) { return bench.st(k); };
     auto duty = [&](const char *what, unsigned mask) { bench.duty(what, mask); };
-    d->rst_ni = 0; d->link_up_i = 0; d->act_i = 0; d->usb_ok_i = 0; d->stat_i = 0;
+    d->rst_ni = 0; d->link_up_i = 0; d->act_i = 0; d->usb_ok_i = 0; d->stream_i = 0; d->clock_i = 0;
     cyc(4); d->rst_ni = 1; cyc(4);
 
     // each input through each state, alone
     duty("all off", 0x0);
     d->link_up_i = 1; cyc(2); CHECK(d->state_o == 0x1, "LD0 alone on link (%x)", d->state_o); duty("link", 0x1);
     d->link_up_i = 0; d->usb_ok_i = 1; cyc(2); CHECK(d->state_o == 0x2, "LD1 alone (%x)", d->state_o); duty("usb", 0x2);
-    d->usb_ok_i = 0; d->stat_i = 1; cyc(2); CHECK(d->state_o == 0x4, "LD2 alone (%x)", d->state_o); duty("stream", 0x4);
-    d->stat_i = 2; cyc(2); CHECK(d->state_o == 0x8, "LD3 alone (%x)", d->state_o); duty("clock", 0x8);
-    d->stat_i = 3; d->usb_ok_i = 1; d->link_up_i = 1; cyc(2); CHECK(d->state_o == 0xF, "all on"); duty("all on", 0xF);
-    d->stat_i = 0; d->usb_ok_i = 0;
+    d->usb_ok_i = 0; d->stream_i = 1; d->clock_i = 0; cyc(2); CHECK(d->state_o == 0x4, "LD2 alone (%x)", d->state_o); duty("stream", 0x4);
+    d->stream_i = 0; d->clock_i = 1; cyc(2); CHECK(d->state_o == 0x8, "LD3 alone (%x)", d->state_o); duty("clock", 0x8);
+    d->stream_i = 1; d->clock_i = 1; d->usb_ok_i = 1; d->link_up_i = 1; cyc(2); CHECK(d->state_o == 0xF, "all on"); duty("all on", 0xF);
+    d->stream_i = 0; d->clock_i = 0; d->usb_ok_i = 0;
 
     // LD0: one frame blinks it off, for 40 ms (4000 clocks, +-1 ms of tick phase)
     cyc(1000);
@@ -93,6 +94,6 @@ int main(int argc, char **argv)
     d->link_up_i = 1; cyc(2);
     CHECK(st(0), "link back: LD0 on at once, no stale blink");
 
-    std::printf("%s leds: %d failure(s)\n", fails() ? "FAIL" : "PASS", fails());
+    std::printf("%d checks: %d PASS, %d FAIL\n", checks(), checks() - fails(), fails());
     return fails() ? 1 : 0;
 }

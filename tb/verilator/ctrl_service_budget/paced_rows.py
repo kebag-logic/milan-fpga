@@ -119,11 +119,11 @@ def r4l(i: Inputs, solve: Callable, dropped: str | None = None) -> tuple[float |
     return (None if w is None else round(w + pace, 2)), {**terms, **({'pace': pace * 1000} if pace else {})}
 
 
-def choice(root: Path) -> int | None:
+def choice(root: Path, point: str = '1x1/1if') -> int | None:
     """The pace the model takes: the smallest whole ms, from 1 to PACE_MOST_MS, at which txL holds its bound and R4L
-    its paced bound (PACED_BOUNDS) at 1x1/1if under the built design; None where none does."""
+    its paced bound (PACED_BOUNDS) at the named point under the built design; None where none does."""
     import rows_tiers as rt
-    i = rt.point_inputs(root, '1x1/1if')
+    i = rt.point_inputs(root, point)
     for pace in range(1, PACE_MOST_MS + 1):
         at = i._replace(pace_ms=pace)
         tx, r4 = rt.solve('txL', at, rt.BUILT)[0], rt.solve('R4L', at, rt.BUILT)[0]
@@ -132,10 +132,10 @@ def choice(root: Path) -> int | None:
     return None
 
 
-def statements(root: Path, texts: dict[str, str] | None = None) -> list[str]:
+def statements(root: Path, texts: dict[str, str] | None = None, point: str = '1x1/1if') -> list[str]:
     """Each way the tree's pace is not the model's: AECP_PACE_MS not choice's, or over PACE_MOST_MS."""
     import rows_tiers as rt
-    stated, taken = rt.point_inputs(root, '1x1/1if', texts).pace_ms, choice(root)
+    stated, taken = rt.point_inputs(root, point, texts).pace_ms, choice(root, point)
     if taken is None:
         return [f"no pace up to {PACE_MOST_MS} ms holds txL within its bound and R4L within {PACED_BOUNDS['R4L']} ms"]
     return [] if stated == taken else [f'aecp_mbx.h states AECP_PACE_MS {stated} ms, not the model\'s {taken} ms']

@@ -23,7 +23,7 @@
                 other frame rolls back. A frame that meets a full buffer or a
                 full descriptor FIFO is dropped whole (verdict RXV_FULL).
                 THE BUS SIDE: a 16-bit stream, one record per frame: a header
-                word {REC_FRAME_C, length in octets}, then the frame's octets
+                length word, then REC_FRAME_C, then the frame's octets
                 two per word, the first octet in bits 7:0, the last word
                 padded with zero when the length is odd. last is set on the
                 record's final word, so a slave-FIFO master can end the USB
@@ -42,16 +42,17 @@ module KL_usbnet_rx_copy
 #(
   parameter int unsigned DEPTH_P   = 512,   //! 64-bit words of frame buffer
   parameter int unsigned DESC_P    = 16,    //! frames the buffer can hold
-  parameter int unsigned MAX_LEN_P = 2000   //! longest frame copied, octets
+  parameter int unsigned MAX_LEN_OCTETS_P = 1514   //! FX3 to_host record limit, octets
 )(
   input  wire              clk_i,   //! the system clock, the MAC wrapper's
   input  wire              rst_ni,   //! synchronous reset, active low
+  input  wire              discard_i, //! cancel the uncommitted frame; retain completed records
   //! the device's receive stream, one accepted beat per valid
   input  wire              s_valid_i,
   input  wire [63:0]       s_data_i,
   input  wire [7:0]        s_keep_i,
   input  wire              s_last_i,
-  //! the computer's address (KL_usbnet_tx_inject's host record)
+  //! the computer's address (KL_usbnet_tx_inject's station record)
   input  wire [47:0]       host_mac_i,
   input  wire              host_ok_i,
   //! toward the computer
@@ -72,7 +73,7 @@ module KL_usbnet_rx_copy
   logic [63:0] s_data_q;
   logic [7:0]  s_keep_q;
   always_ff @(posedge clk_i) begin : in_reg
-    if (!rst_ni) s_valid_q <= 1'b0;
+    if (!rst_ni || discard_i) s_valid_q <= 1'b0;
     else         s_valid_q <= s_valid_i;
     s_data_q <= s_data_i;
     s_keep_q <= s_keep_i;
@@ -82,8 +83,8 @@ module KL_usbnet_rx_copy
   localparam int unsigned AW_C = $clog2(DEPTH_P);
   localparam int unsigned DW_C = $clog2(DESC_P);
 
-  if (MAX_LEN_P > 4095 || (MAX_LEN_P + 7) / 8 > DEPTH_P) begin : g_refuse
-    $error("KL_usbnet_rx_copy: MAX_LEN_P=%0d must fit 12 bits and the buffer", MAX_LEN_P);
+  if (MAX_LEN_OCTETS_P > 4095 || (MAX_LEN_OCTETS_P + 7) / 8 > DEPTH_P) begin : g_refuse
+    $error("KL_usbnet_rx_copy: MAX_LEN_OCTETS_P=%0d must fit 12 bits and the buffer", MAX_LEN_OCTETS_P);
   end
 
   (* ram_style = "block" *) logic [63:0] ram_r [DEPTH_P];
@@ -127,7 +128,7 @@ module KL_usbnet_rx_copy
 
   wire [11:0]  base_w  = in_frame_r ? len_r : 12'd0;
   wire [12:0]  len_w   = {1'b0, base_w} + 13'(keep_octets(s_last_q ? s_keep_q : 8'hFF));
-  wire         long_w  = len_w > 13'(MAX_LEN_P);
+  wire         long_w  = len_w > 13'(MAX_LEN_OCTETS_P);
   //! ROLLBACK: a frame always starts at the committed pointer, so a frame
   //! that is not copied leaves nothing behind
   wire [AW_C:0] start_w = in_frame_r ? wr_cur_r : wr_ptr_r;
@@ -138,14 +139,14 @@ module KL_usbnet_rx_copy
   wire         copy_w  = (rule_w == RXV_HOST) || (rule_w == RXV_GROUP);
   wire         fits_w  = !spoil_w && !desc_full_w;
   wire         too_long_w = (in_frame_r && long_r) || long_w;
-  wire         commit_w = s_valid_q && s_last_q && copy_w && fits_w;
+  wire         commit_w = s_valid_q && s_last_q && copy_w && fits_w && !discard_i;
 
   always_ff @(posedge clk_i) begin : wr_desc
     if (commit_w) desc_r[dwr_r[DW_C-1:0]] <= len_w[11:0];
   end : wr_desc
 
   always_ff @(posedge clk_i) begin : wr_ram
-    if (s_valid_q && !spoil_w) ram_r[start_w[AW_C-1:0]] <= s_data_q;
+    if (s_valid_q && !spoil_w && !discard_i) ram_r[start_w[AW_C-1:0]] <= s_data_q;
   end : wr_ram
 
   always_ff @(posedge clk_i) begin : wr_side
@@ -167,7 +168,19 @@ module KL_usbnet_rx_copy
       dropped_full_o  <= '0;
     end else begin
       verdict_valid_o <= 1'b0;
-      if (s_valid_q) begin
+      if (discard_i) begin
+        //! Only speculative storage is rolled back. The descriptor pointers,
+        //! read side and every previously committed frame retain their state.
+        wr_cur_r   <= wr_ptr_r;
+        in_frame_r <= 1'b0;
+        spoil_r    <= 1'b0;
+        long_r     <= 1'b0;
+        len_r      <= '0;
+        beat_r     <= '0;
+        b0_r       <= '0;
+        b1_r       <= '0;
+        b2_r       <= '0;
+      end else if (s_valid_q) begin
         b0_r <= b0_w;
         b1_r <= b1_w;
         b2_r <= b2_w;
@@ -194,7 +207,7 @@ module KL_usbnet_rx_copy
           in_frame_r <= 1'b1;
           spoil_r    <= spoil_w;
           long_r     <= too_long_w;
-          len_r      <= long_w ? 12'(MAX_LEN_P + 1) : len_w[11:0];
+          len_r      <= long_w ? 12'(MAX_LEN_OCTETS_P + 1) : len_w[11:0];
           if (beat_r != 2'd3) beat_r <= beat_r + 1'b1;
           if (!spoil_w) wr_cur_r <= start_w + 1'b1;
         end
@@ -205,7 +218,7 @@ module KL_usbnet_rx_copy
   // --------------------------------------------------------------------------
   //  The bus side
   // --------------------------------------------------------------------------
-  typedef enum logic [1:0] {O_IDLE, O_HDR, O_DATA} ostate_e;
+  typedef enum logic [1:0] {O_IDLE, O_HDR, O_KIND, O_DATA} ostate_e;
   ostate_e     ost_r;
   logic [10:0] words_r;          //! 16-bit words of the record still to send
   logic [1:0]  lane_r;
@@ -226,7 +239,11 @@ module KL_usbnet_rx_copy
     case (ost_r)
       O_HDR: begin
         m_valid_o = 1'b1;
-        m_data_o  = {REC_FRAME_C, olen_r};
+        m_data_o  = {4'b0, olen_r};
+      end
+      O_KIND: begin
+        m_valid_o = 1'b1;
+        m_data_o  = REC_FRAME_C;
       end
       O_DATA: begin
         m_valid_o = q_ok_r;
@@ -258,7 +275,8 @@ module KL_usbnet_rx_copy
           lane_r  <= '0;
           ost_r   <= O_HDR;
         end
-        O_HDR: if (take_w) ost_r <= O_DATA;
+        O_HDR: if (take_w) ost_r <= O_KIND;
+        O_KIND: if (take_w) ost_r <= O_DATA;
         O_DATA: if (take_w) begin
           lane_r  <= lane_r + 1'b1;
           words_r <= words_r - 1'b1;

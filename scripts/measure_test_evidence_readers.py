@@ -18,6 +18,10 @@ A new reader is debt until review classifies it here.
 """
 
 DUT_READER_DISPOSITIONS = {
+    "tb/verilator/usbnet/mutants.py":
+        "mutation campaign; plants one named filter, record, reset, rate, local-delivery or LED "
+        "defect in an isolated RTL copy and requires its independently specified assertion to fail "
+        "in a completed run; expected frame bytes and timing envelopes are not read from RTL",
     "protocol-processor/tb/name_state/mutants.py":
         "mutation campaign; plants name capture, replay and pending defects in isolated copies "
         "and requires named value assertions to fail in completed runs; name values and record "

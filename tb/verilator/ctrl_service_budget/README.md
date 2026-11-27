@@ -5,7 +5,7 @@ That is the shipping VexiiRiscv with the split CPU's instruction cache ([#665 S2
 Its contract is the [S2 assignment](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6409745905) on #665, which re-opens [#397](https://github.com/kebag-logic/milan-fpga/issues/397).
 The image is `ctrl_srp_image.py --with-aecp --layout split`, linked unmodified.
 Every figure is a measured clock count, never an estimate, at the CPU clock its table names.
-That is the product's split CPU clock: the CPU runs on the bus clock, `sys`, 100 MHz, since the owner's decision of 2026-10-30 ([decision](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6514866239)), and a CPU anywhere else, the Milan clock among them, is refused ([Run and reproduce](#run-and-reproduce)).
+That is the product's split CPU clock: the CPU runs on the bus clock, `sys`, 100 MHz at the AX7101 points and exactly 80 MHz at `arty-1x1` (#878), since the owner's decision of 2026-10-30 ([decision](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6514866239)), and a CPU anywhere else, the Milan clock among them, is refused ([Run and reproduce](#run-and-reproduce)).
 The figures in [Results](#results) and [The instruction cache](#the-instruction-cache) were measured before it, with the CPU on the Milan clock at 50 MHz and the bus at 100 MHz; they are history.
 Each is graded against its budget and its ceiling in [FR_NFR.md 3.4.1](../../../docs/reference/FR_NFR.md#341-control-service-budget-and-normative-timing).
 A path's budget is min(T_svc, its family's ceiling), with T_svc = 20 ms, which the owner approved on 2026-10-29 ([decision](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6495692075)).
@@ -46,6 +46,7 @@ python3 -B tb/verilator/ctrl_service_budget/run.py --point 8x8 \
 
 `1x1` is `endstation_ax7101_1x1_tdm8` with one AVB interface.
 `8x8` is `endstation_ax7101_8x8` with two.
+`arty-1x1` is `endstation_arty_current` with one interface, one AAF source and two sinks (AAF and CRF), at exactly 80,000,000 Hz. Its costs are measured at that clock; it takes no AX7101 cost row. The product uses `endstation_arty_split` with the same entity shape and clock. This FPGA point is separate from #983's Linux host point.
 `8x8-1if` is the 8x8 shape at one interface (#894), the image the 8x8 owner's decision gates; it states one interface's costs, 1x1/1if's, so a run there reports each cost the shape takes past them. `8x8` is the size fixture's ledgered point in the planner, `8x8-two-interfaces`, which may plan 60.5 RAMB36 (`ctrl_memory.LEDGERED`, its measured tiles since the map edits' commit, by [#923's ruling of 2026-11-16](https://github.com/kebag-logic/milan-fpga/issues/923#issuecomment-6906679024): 60.0 on the composed flip train, 60.5 with the largest legal record's cut; 59.0, its cap, since the tiers' composed image by the fallback of #894's [ruling of 2026-11-13](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6844175391), item 2) against the 56-RAMB36 budget ([split control memory](../../../docs/design/SPLIT_CONTROL_MEMORY.md#5-fit), section 5).
 So at `8x8`, and only there, `build.py` names that point for the image (`ctrl_srp_image.py --ledgered-point`) and for the SoC's firmware memory plan (`LEDGERED_POINTS`, `split_soc.ledgered_plan`), in place of the entry the product build names by the image's symbols (`ctrl_memory.own_point`, #923).
 The planner refuses the override on any other image, and the product SoC build names none.
@@ -67,20 +68,21 @@ Without `--record-budget-findings` a path over its budget fails the run.
 With it, the misses are recorded and the run still fails on any probe that was not measured.
 
 **The CPU clock.**
-The CPU runs in the split placement's clock domain, `sys`, the bus clock: the point's `sys_clk_hz`, 100 MHz (`milan_soc.CTRL_CPU_CD`; #665, owner decision 2026-10-30).
+The CPU runs in the split placement's clock domain, `sys`, the bus clock: the point's `sys_clk_hz`, 100 MHz at the AX7101 points and 80 MHz at `arty-1x1` (`milan_soc.CTRL_CPU_CD`; #665, owner decision 2026-10-30).
 `split_soc.build` names that domain to `MilanSoC` as `ctrl_cpu_cd`, so the CPU is built with no clock of its own and no crossing, and its clock is `MilanSoC.cpu_clk_freq`, never the point's `milan_clk_hz`.
 That is the Milan datapath clock, which stays the bare-metal build contract's 50 MHz and clocks nothing in the test SoC.
 `build.json` records `cpu_cd`, `cpu_hz` and `sys_hz`, and `milan_hz` beside them.
 A build or a reused build whose CPU runs in another domain, the Milan clock among them, or off the bus clock, or which records no domain (a build made before the CPU moved), is refused: `REFUSED the split CPU is not on the bus clock: ...`.
 Each `table.md` opens with the clock, `results.json` carries it, and the run prints it first and last: `CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz`.
-Every millisecond is CPU time at that clock.
+The Arty line instead reads `CLOCK CPU 80 MHz on sys, the product's split CPU clock, bus 80 MHz`.
+Every millisecond is CPU time at that clock. `stimulus_clock.py` scales temporal cycle waits with upward rounding from the original 100 MHz scripts. Counts, packet bytes, millisecond waits and single-cycle strobes keep their meaning; every AX7101 script stays byte-identical.
 The earlier `--cpu-hz` option, which ran the CPU on its own clock at a labelled frequency, is retired: on the bus clock, another CPU clock would move the bus with it.
 
 **The per-pass share.**
 Apart from the rows, every work pass of every group is held to the per-pass share ([`share.py`](share.py), `grade.pass_share`).
 An input waits for the pass running when it arrives and is answered in a later pass.
 The deepest wait the loop admits is nine passes, THE DRAIN's and THE TRANSMIT's at two interfaces and seven owed frames answered in pass 8 after the room returns, and the share is the smallest bound every input shares over ten, a pass to spare (`ctrl_loop.h`, THE SHARE).
-That bound is T_svc, SRP's own since the owner's ruling of 2026-11-06, so the share is 20 / 10 = 2.0 ms: 200,000 CPU cycles at the product's 100 MHz.
+That bound is T_svc, SRP's own since the owner's ruling of 2026-11-06, so the share is 20 / 10 = 2.0 ms: 200,000 CPU cycles at 100 MHz and 160,000 at the Arty's 80 MHz.
 A pass that writes nothing to the mailbox is not printed, only the longest of each run of them (`sim_main.cpp`'s `IDLE` line), and the saved-state store's step can be all such a pass does (`ctrl_loop.h`, THE STEP): a run whose longest is over the share is one pass over it, and the `SHARE` line names it.
 Without `--record-share-findings` a pass over the share fails the run even when every row fits; `--record-budget-findings` records the rows only.
 The table's per-pass share section gives each group's work passes, those over the share and the longest, and the run prints a `SHARE` line for each group with a pass over it.
@@ -221,10 +223,31 @@ The testbench traces a pass's first and last firmware poll and every item ([`pol
 [`egress_ledger.py`](egress_ledger.py) holds the rows the egress decides to their ledger ([#894's held-egress ruling](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6871343905), item (a)).
 `backlog-owed`'s seven rows are set by the scenario's 60 ms egress hold, which no CPU lever moves: they miss their budget at every point, and a run with `--record-budget-findings` records every miss and fails none.
 [FR_NFR.md 3.4.1](../../../docs/reference/FR_NFR.md#341-control-service-budget-and-normative-timing) charges TX backpressure to the service budget, so they stay recorded misses, not passes, and a new or larger miss fails the leg.
-- **The ledger** (`LEDGER`) is derived at 8x8/1if, the one point that has one, by #894's round-6 ruling: each figure is the scenario's egress hold (`HOLD_MS`, read from `scenario.py`'s `backlog-owed` group) plus the service behind it at its measurement (`MEASURED`, the largest of five images' measurements: the merged image's and the composed image's, `MERGED` and `COMPOSED`, by [#894's ruling of 2026-11-16](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6914952893) on the composition with #901, item 1; the Listener copies' image's, `LISTENED`, by [its ruling of 2026-11-17](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6934688411); and the flip train's and the lwSRP pin merge's, `TRAIN` and `PINNED`, by [#992's ruling of 2026-11-24](https://github.com/kebag-logic/milan-fpga/pull/992#issuecomment-7146658362), item 1) plus 5 %, rounded up to 0.01 ms (`figure`). [Section 13](../../../docs/design/SPLIT_CONTROL_MEMORY.md#the-shapes-and-8x81if)'s table states the five measurements and the figures; the self-test holds the table to the tool, row for row and figure for figure, and the derivation to the rule, computed apart.
+- **The ledger** (`LEDGER`) has separate entries for 8x8/1if and Arty. The 8x8/1if entries are derived by #894's round-6 ruling: each figure is the scenario's egress hold (`HOLD_MS`, read from `scenario.py`'s `backlog-owed` group) plus the service behind it at its measurement (`MEASURED`, the largest of five images' measurements: the merged image's and the composed image's, `MERGED` and `COMPOSED`, by [#894's ruling of 2026-11-16](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6914952893) on the composition with #901, item 1; the Listener copies' image's, `LISTENED`, by [its ruling of 2026-11-17](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6934688411); and the flip train's and the lwSRP pin merge's, `TRAIN` and `PINNED`, by [#992's ruling of 2026-11-24](https://github.com/kebag-logic/milan-fpga/pull/992#issuecomment-7146658362), item 1) plus 5 %, rounded up to 0.01 ms (`figure`). [Section 13](../../../docs/design/SPLIT_CONTROL_MEMORY.md#the-shapes-and-8x81if)'s table states the five measurements and the figures; the self-test holds the table to the tool, row for row and figure for figure, and the derivation to the rule, computed apart.
+The Arty entries use only the seven measurements of `backlog-owed` on its own 80 MHz image (#878, round-4 held-egress ruling). `ARTY` supplies the measurements; each figure is `HOLD_MS + 1.05 * (measurement - HOLD_MS)`, rounded upward to 0.01 ms. They do not reuse the AX7101 ledger or change its rows. The self-test includes all seven Arty entries and a one-cycle overrun at 80 MHz (12.5 ns).
+
+The [published Arty qualification receipt](https://github.com/kebag-logic/milan-fpga/blob/0723eba4bd2175f36b26fa69e1b0b898740853af/review-evidence/artysplit-r1/author/receipts/build-corrected-final-census-qualification.json) records 145 measured cases.
+Its published SHA256 is `78be299b828c5c5199197fcabc091b01d3114d6e536c4973e672956666544109`.
+This identifies the published JSON bytes, after path redaction.
+The earlier report's `f6f1d2f535a8de0ec2348dbb0998a152103f3583e9bf4cc72b0115552ef1886c` identifies a local receipt.
+That local hash does not identify the published file.
+
+Text receipt packets can be checked with `receipt_regrade.py PACKET`.
+`census.json` maps every case to its manifest and hash.
+Each manifest binds original-log size/hash, extracted observations, and original grades.
+It also includes the scenario, stimulus, and any journal bytes.
+Numbered text parts stay below 190 KB, with whole-file hashes.
+The script reconstructs every grade using the normal native graders.
+Every resulting field must equal its original recorded value.
+Its cross-case step applies `run.py`'s disposition of `srp-kept` and `srp-bound` (`kept_grade.Disposition`),
+so a line #977 owes is printed OWED while every condition holds, and each breach is a finding.
+Timing manifests likewise preserve complete reports as numbered text parts.
+Their checks include setup/hold floors and failing endpoint counts.
+Full-log hashes identify local originals; extracts cannot authenticate omitted bytes.
+
 - **A larger miss.** A measured instance of a ledger row over its figure fails, by as little as one cycle of the bus, whatever its name; so does one never released or answered, whose time is a lower bound.
 - **A new miss.** A budget miss of any other row fails, and so do a ledger row with no measured instance and any instance not measured.
-- **Its inputs** are the harness's own: a results directory's group grades, whose figures are exact to 10 ns, beside its run's `results.json`, whose refusals fail (a group the harness refused has no grade of its own), or a run's log, whose `BUDGET` lines name every instance over its budget to 1 us. A row read from a log is held at the most its printed figure can be, so one printed at its ledger figure fails, and a log must end in its run's summary, with no refusal and one `BUDGET` line a budget miss.
+- **Its inputs** are the harness's own: a results directory's group grades, whose figures retain each point's clock resolution, beside its run's `results.json`, whose refusals fail (a group the harness refused has no grade of its own), or a run's log, whose `BUDGET` lines name every instance over its budget to 1 us. A row read from a log is held at the most its printed figure can be, so one printed at its ledger figure fails, and a log must end in its run's summary, with no refusal and one `BUDGET` line a budget miss.
 - `egress_ledger.py --selftest` runs its controls in its own process and as a process of their own, whose exit status is the verdict. The unchanged ledger passes, and each row one cycle over its figure, and 36.76 ms over, exits 1 naming it. It refuses eighteen mutants, among them one that waives a ledger row by its name whatever its size, one that reads no run's refusals, a figure with no 5 % on its service, the 5 % taken on the hold too, a hold not the scenario's, a figure at the merged image's measurement where the composed one is larger, and a figure at an earlier image's measurement where the train's or the pin merge's is larger.
 
 [`load_grade.py`](load_grade.py) is the long-window load of every source at its stated arrival bound (#665, the round 24 ruling, item 2): each source's rate, a contract rate or a protocol timer, its clause in the module's term list and its value read from the tree, times its stated cost, at 1x1/1if, 8x8/2if and 32x32/2if.
@@ -404,7 +427,7 @@ That is a CI change, outside this lane.
 
 [`split_soc.py`](split_soc.py) builds it; [`build.py`](build.py) links the image and compiles the model.
 
-- **The CPU** is MilanSoC's own VexiiRiscv path: RV32IM, one hart, on the bus clock, `sys`, 100 MHz, the split placement's clock domain (`ctrl_cpu_cd`), with no clock of its own and no crossing ("The CPU clock", above).
+- **The CPU** is MilanSoC's own VexiiRiscv path: RV32IM, one hart, on the bus clock, `sys`, 100 MHz at AX7101 and exactly 80 MHz at Arty, the split placement's clock domain (`ctrl_cpu_cd`), with no clock of its own and no crossing ("The CPU clock", above).
   It has the split placement's caches (`milan_soc.ctrl_cpu_args`: the 16 KiB two-way fetch L1 and the coherent 8 KiB data cache), or the `--fetch-l1` selection, where `none` is the CPU cacheless on both sides.
   The DMA port the shipping image has is kept; the split placement's record mover is its only master.
 - **The firmware memory** is `milan_soc.add_ctrl_memory`, the split placement's, built from the linked image.
@@ -1374,7 +1397,7 @@ Its checks:
 - `run.main` refuses a reused build of another fetch L1 or arm, reuses the selected one, and takes a build that records no fetch L1 as the cacheless one;
 - the XIP arm's link script keeps the reset entry and the flash driver in `rom` and puts every other function in the flash window;
 - the per-pass share is T_svc's 20 ms over ten passes, 2.0 ms, restated; a pass at it fits and one a cycle over it does not; at twice the CPU clock it is twice the cycles; a pass over it fails a run whose rows all fit, unless `--record-share-findings` records it, and `--record-budget-findings` does not; the table names the clock and each group against the share, and `results.json` keeps the passes over it;
-- each point's split CPU clock is its bus clock, `sys_clk_hz`, 100 MHz, and its Milan datapath clock stays the bare-metal build contract's 50 MHz; `run.main` builds the CPU on `sys` at the bus clock and records it so, names it on its clock line, refuses a build whose SoC puts the CPU on the Milan clock, and reuses a build on `sys` but refuses one recorded on the Milan clock, off the bus clock or with no CPU domain;
+- each point's split CPU clock is its bus clock, `sys_clk_hz`, 100 MHz at AX7101 and exactly 80 MHz at Arty, and its Milan datapath clock stays the bare-metal build contract's 50 MHz; `run.main` builds the CPU on `sys` at the bus clock and records it so, names it on its clock line, refuses a build whose SoC puts the CPU on the Milan clock, and reuses a build on `sys` but refuses one recorded on the Milan clock, off the bus clock or with no CPU domain;
 - a save's stated worst case, restated, at both points; a save is timed from its change to the read-back that completes its verify, within it, over it, or never in the run, and one not within it fails the run whatever the options record; the age limit's plant is caught by `save-starved`'s save not durable within it, and escapes with every save within it, only `save-held`'s late, or a refusal; every receive channel of the held groups is at its contract refill rate with its bursts through the worst case, AECP's from one refill period after the change, and `save-starved` alone has the grandmaster flood; a held group that commits fewer records than its load offered is refused; every pass that carries the store's step is counted, idle or work, with the longest and the longest step;
 - a save's window is refused outside its flash phase, the verify's ending when its read-backs have read back every programmed byte;
 - each flash phase's aged windows open after the save's own flash event, under the grandmaster flood, two steps and the age's centiseconds later, at the age limit and one short of it, at eight delays across the whole tick; an aged window is graded only at the age its name declares, counted in the TICK records' centiseconds since its last step with every pass between them a work pass, and at the limit, once a centisecond came in it, only with a step taking its phase's heavy step in it, aged or run by a pass that took nothing, its pass a work pass or not;

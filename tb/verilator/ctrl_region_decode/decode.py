@@ -4,11 +4,12 @@
 """The split CPU's generated region decode, read off its netlist and compared with the SoC's regions (#791).
 
 A VexiiRiscv netlist decides whether a fetch or a load may reach the bus in
-one combinational fault term per port, its PMA:
+combinational fault terms for its physical memory attributes (PMA):
 
   - fetch: FetchL1Plugin_logic_ctrl_pmaPort_rsp_fault, of the fetch address;
-  - load: LsuCachelessPlugin_logic_onPma_port_rsp_fault, of the data address
-    and the access ({size, store}: a word load is 3'b100).
+  - load: the cached and I/O LsuPlugin PMA terms, admitting a word load
+    when either admits it; the legacy LsuCachelessPlugin term is supported
+    for older netlists as well.
 
 Stores are not graded: at the pinned generator the data port's term admits a
 store wherever it admits a load, whatever the region's mode, so it decides
@@ -288,15 +289,25 @@ def check(netlist: Path, regions: list) -> list[tuple[str, bool, str]]:
     text = netlist.read_text()
     results = []
     for port, (signal, address, argument, mode) in PORTS.items():
-        term = Term(text, signal, address, argument[0] if argument else None)
+        terms = [(signal, address, argument)]
+        if port == 'load' and 'LsuPlugin_logic_onPma_cached_rsp_fault' in text:
+            # A cached CPU faults only if BOTH PMAs refuse the word load.
+            terms = [('LsuPlugin_logic_onPma_cached_rsp_fault', 'LsuPlugin_pmaBuilder_l1_addressBits',
+                      ('LsuPlugin_pmaBuilder_l1_argsBits', 0)),
+                     ('LsuPlugin_logic_onPma_io_rsp_fault', 'LsuPlugin_pmaBuilder_io_addressBits',
+                      ('LsuPlugin_pmaBuilder_io_argsBits', 0b100))]
+        parsed = [(Term(text, sig, addr, arg[0] if arg else None), addr, arg) for sig, addr, arg in terms]
         want_regions = [r for r in regions if mode in r[2]]
         bits = region_bits(regions)
-        for mask in term.masks:
-            bits |= mask
+        for term, _, _ in parsed:
+            for mask in term.masks:
+                bits |= mask
         addrs = representatives(bits)
-        env = {address: addrs, **({argument[0]: argument[1]} if argument else {})}
-        fault, _ = term.evaluate(term.tree, env)
-        admitted = np.asarray(fault) == 0
+        admitted = np.zeros(addrs.shape, dtype=bool)
+        for term, addr, arg in parsed:
+            env = {addr: addrs, **({arg[0]: arg[1]} if arg else {})}
+            fault, _ = term.evaluate(term.tree, env)
+            admitted |= np.asarray(fault) == 0
         want = np.zeros(addrs.shape, dtype=bool)
         for origin, size, *_ in want_regions:
             want |= (addrs >= np.uint64(origin)) & (addrs < np.uint64(origin + size))

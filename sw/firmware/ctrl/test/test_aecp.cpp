@@ -5,7 +5,6 @@
 #include <array>
 #include <functional>
 #include <map>
-#include <set>
 #include <tuple>
 #include <vector>
 #include <algorithm>
@@ -38,7 +37,6 @@ extern "C" {
 #include "srp_mbx.h"
 #endif
 #include "mbx_contract.h"
-#include "plat/ctrl_plat_leds.h"
 }
 // The core under test is given AECP_TEST_INTERFACES interfaces, so it is compiled at that many: its contract's, and
 // so the shape whose costs it charges (THE SHAPES, ctrl_loop.h; aecp.h, AECP_ATTEMPT_US; #894's retry-cost ruling,
@@ -288,101 +286,6 @@ struct Core : testing::Test {
 namespace {
 //! #584: the core with every dynamic map pool the image's shape generates, so each STREAM_PORT_INPUT can be
 //! enumerated and edited as a controller sees it (the platform composes the same pools, plat/ctrl_plat.c).
-// #1018: LD2 and LD3 as the control firmware computes them (plat/ctrl_plat_leds.h), from the core's own state and
-// ports. LD3 is set over AECP in each of its three cases: the clock source internal, following a stream that flows
-// with the media clock recovered, and following a stopped stream.
-struct Leds : Core {
-    std::map<std::pair<unsigned,unsigned>,std::pair<uint32_t,uint32_t>> counts; // (type, index) -> (LOCKED, UNLOCKED)
-    std::set<unsigned> bound_inputs, listened_outputs;
-    void SetUp() override {
-        Core::SetUp();
-        ON_CALL(mock,Stream).WillByDefault([this](unsigned,uint16_t t,uint16_t i,aecp_stream_info*v){
-            bool brief=v->brief;*v={};v->brief=brief;
-            v->bound=t==5&&bound_inputs.count(i);v->flags_ex=t==6&&listened_outputs.count(i)?1u:0u;return true;});
-        ON_CALL(mock,Counters).WillByDefault([this](unsigned,uint16_t t,uint16_t i,aecp_counters*v){
-            *v={};v->valid=0xf3f;auto c=counts.find({t,i});
-            if(c!=counts.end()){v->value[0]=c->second.first;v->value[1]=c->second.second;}return true;});
-    }
-    // the first CLOCK_SOURCE of the configuration in force of this kind, and its STREAM_INPUT
-    bool source(unsigned kind,unsigned *index,unsigned *input=nullptr) {
-        for(auto &d:descriptors) if(d.type==10&&d.configuration==a.configuration&&get(d.value+72,2)==kind) {
-            *index=d.index;if(input)*input=(unsigned)get(d.value+84,2);
-            return kind!=2||get(d.value+82,2)==5;
-        }
-        return false;
-    }
-    void set_clock(unsigned index) {
-        Bytes b=target(36,0,8);put(b,4,index,2);ask(22,b);
-        EXPECT_EQ(get(desc(36).value+70,2),index)<<"SET_CLOCK_SOURCE took";
-    }
-    void lock(unsigned type,unsigned index,bool locked) { counts[{type,index}]={locked?5u:4u,4u}; }
-    uint32_t word() { return ctrl_plat_leds_word(&a); }
-};
-
-TEST_F(Leds, ClockSourceInternalLightsLd3)
-{
-    unsigned internal;ASSERT_TRUE(source(0,&internal))<<"the model has an INTERNAL clock source";
-    set_clock(internal);
-    lock(36,0,false);
-    EXPECT_EQ(word()&CTRL_PLAT_LEDS_CLOCK,CTRL_PLAT_LEDS_CLOCK)<<"internal: LD3 on, the domain unlocked or not";
-    lock(36,0,true);
-    EXPECT_EQ(word()&CTRL_PLAT_LEDS_CLOCK,CTRL_PLAT_LEDS_CLOCK)<<"internal: LD3 on";
-}
-
-TEST_F(Leds, FollowingAFlowingStreamLightsLd3)
-{
-    unsigned follow,input;ASSERT_TRUE(source(2,&follow,&input))<<"the model has an INPUT_STREAM clock source";
-    set_clock(follow);
-    bound_inputs={input};lock(5,input,true);lock(36,0,true);
-    EXPECT_EQ(word()&CTRL_PLAT_LEDS_CLOCK,CTRL_PLAT_LEDS_CLOCK)<<"following a flowing stream, recovered: LD3 on";
-    lock(36,0,false);
-    EXPECT_EQ(word()&CTRL_PLAT_LEDS_CLOCK,0u)<<"the media clock not recovered: LD3 off";
-    // the lock state is the counters' parity, past a wrap of either
-    counts[{36,0}]={1u,0xFFFFFFFFu};counts[{5,input}]={7u,6u};
-    EXPECT_EQ(word()&CTRL_PLAT_LEDS_CLOCK,0u)<<"LOCKED - UNLOCKED even across the wrap: unlocked";
-    counts[{36,0}]={0u,0xFFFFFFFFu};
-    EXPECT_EQ(word()&CTRL_PLAT_LEDS_CLOCK,CTRL_PLAT_LEDS_CLOCK)<<"LOCKED - UNLOCKED odd across the wrap: locked";
-}
-
-TEST_F(Leds, FollowingAStoppedStreamDarkensLd3)
-{
-    unsigned follow,input,internal;ASSERT_TRUE(source(2,&follow,&input));ASSERT_TRUE(source(0,&internal));
-    set_clock(follow);
-    bound_inputs={input};lock(5,input,false);lock(36,0,true);
-    EXPECT_EQ(word()&CTRL_PLAT_LEDS_CLOCK,0u)<<"following a stream that stopped: LD3 off";
-    bound_inputs.clear();lock(5,input,true);
-    EXPECT_EQ(word()&CTRL_PLAT_LEDS_CLOCK,0u)<<"following an unbound stream: LD3 off";
-    for(auto &d:descriptors) if(d.type==5&&d.configuration==a.configuration&&d.index!=input) {
-        bound_inputs={d.index};lock(5,d.index,true);
-        EXPECT_EQ(word()&CTRL_PLAT_LEDS_CLOCK,0u)<<"another input flowing does not satisfy the source";
-    }
-    set_clock(internal);
-    EXPECT_EQ(word()&CTRL_PLAT_LEDS_CLOCK,CTRL_PLAT_LEDS_CLOCK)<<"back to internal: LD3 on";
-}
-
-TEST_F(Leds, Ld2IsABoundReceivingInputOrAListenedOutput)
-{
-    EXPECT_EQ(word()&CTRL_PLAT_LEDS_STREAM,0u)<<"nothing connected: LD2 off";
-    unsigned inputs=0,outputs=0;
-    for(auto &d:descriptors) if(d.configuration==a.configuration) { inputs+=d.type==5;outputs+=d.type==6; }
-    ASSERT_GT(inputs,0u);ASSERT_GT(outputs,0u);
-    for(unsigned i=0;i<inputs;++i) {
-        bound_inputs={i};counts.clear();
-        EXPECT_EQ(word()&CTRL_PLAT_LEDS_STREAM,0u)<<"input "<<i<<" bound, not receiving: LD2 off";
-        lock(5,i,true);
-        EXPECT_EQ(word()&CTRL_PLAT_LEDS_STREAM,CTRL_PLAT_LEDS_STREAM)<<"input "<<i<<" bound and receiving: LD2 on";
-        bound_inputs.clear();
-        EXPECT_EQ(word()&CTRL_PLAT_LEDS_STREAM,0u)<<"input "<<i<<" receiving, unbound: LD2 off";
-    }
-    counts.clear();
-    for(unsigned o=0;o<outputs;++o) {
-        listened_outputs={o};
-        EXPECT_EQ(word()&CTRL_PLAT_LEDS_STREAM,CTRL_PLAT_LEDS_STREAM)<<"output "<<o<<" with a Listener: LD2 on";
-    }
-    listened_outputs.clear();
-    EXPECT_EQ(word()&CTRL_PLAT_LEDS_STREAM,0u)<<"no Listener left: LD2 off";
-}
-
 struct Inputs : Core {
     aecp_mapping rows[AECP_ENTITY_MAP_ROWS]{};
     aecp_map pools[AECP_ENTITY_MAPS]=AECP_ENTITY_MAPS_INIT(rows);

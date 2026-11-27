@@ -31,13 +31,13 @@
                 frame in the MAC since the grant - and is not counted. Every
                 other frame end flips txend_tgl_o. The same toggle, crossed
                 back, counts the datapath frames out of the MAC.
-                RESETS. txend_tgl_o is reset-less, as the toggle it replaces
-                (a reset that flipped it would count a frame that never
-                left). While the transmit side is in reset its frames are
-                gone, so an outstanding request is answered there. A reset of
-                this clock's side alone leaves at most one request
-                outstanding; its answer then masks one datapath frame end,
-                which only lengthens the reboot wait to its bound.
+                RESETS. Either domain requests a four-phase flush handshake.
+                Both sides stop classifying frame ends until the request,
+                acknowledgement and release have crossed. No request parity
+                survives that flush. The local outstanding count is cleared;
+                frames interrupted by reset are discarded by the MAC reset
+                contract. txend_tgl_o remains reset-less, so recovery never
+                invents an egress event. Both clocks must run for recovery.
   Spec refs   : #1011; IEEE 802.1Q-2018 8.6.8 (strict priority), Annex L;
                 IEEE 802.1BA-2011 6.5; IEEE 1722.1-2021 7.4.43;
                 docs/design/USB_NET_PATH.md, docs/design/REBOOT_RESET.md
@@ -76,6 +76,8 @@ module KL_usbnet_tx_arb #(
   input  wire              eth_end_i,
   output logic             txend_tgl_o,     //! datapath frames only
   //! observation
+  output wire              lo_abort_o,      //! discard injection during domain recovery
+  output wire              lo_done_o,       //! injected frame retired at the PHY
   output logic             lo_active_o,     //! an injected frame owns the MAC
   output logic [15:0]      injected_o   //! frames injected, saturating
 );
@@ -88,6 +90,35 @@ module KL_usbnet_tx_arb #(
   logic               ack_r;          //! eth domain
   (* ASYNC_REG = "TRUE" *) logic [1:0] req_sync_r;  //! eth domain
   logic               tgl_r = 1'b0;   //! eth domain, reset-less
+
+  typedef enum logic [1:0] {R_ASSERT, R_RELEASE, R_RUN} reset_state_e;
+  reset_state_e reset_r;
+  wire flush_w = reset_r == R_ASSERT;
+  wire running_w = reset_r == R_RUN;
+  (* ASYNC_REG = "TRUE" *) logic [1:0] flush_sync_r;
+  (* ASYNC_REG = "TRUE" *) logic [1:0] flush_ack_sync_r;
+  (* ASYNC_REG = "TRUE" *) logic [1:0] eth_reset_sync_r;
+  logic eth_reset_r = 1'b1;
+
+  //! A transmit-side reset is held until the system has seen and flushed it,
+  //! even when that reset lasts less than a system clock. The handshake
+  //! synchronizers themselves keep running through their local resets.
+  always_ff @(posedge eth_clk_i) begin : flush_crossing
+    flush_sync_r <= {flush_sync_r[0], flush_w};
+    if (!eth_rst_ni) eth_reset_r <= 1'b1;
+    else if (flush_sync_r[1]) eth_reset_r <= 1'b0;
+  end : flush_crossing
+
+  always_ff @(posedge clk_i) begin : recovery
+    flush_ack_sync_r <= {flush_ack_sync_r[0], flush_sync_r[1]};
+    eth_reset_sync_r <= {eth_reset_sync_r[0], eth_reset_r};
+    if (!rst_ni) reset_r <= R_ASSERT;
+    else case (reset_r)
+      R_ASSERT: if (flush_ack_sync_r[1] && !eth_reset_sync_r[1]) reset_r <= R_RELEASE;
+      R_RELEASE: if (!flush_ack_sync_r[1]) reset_r <= R_RUN;
+      default: if (eth_reset_sync_r[1]) reset_r <= R_ASSERT;
+    endcase
+  end : recovery
 
   wire hi_beat_w  = hi_valid_i && hi_ready_o;
   wire lo_beat_w  = lo_valid_i && lo_ready_o;
@@ -117,19 +148,22 @@ module KL_usbnet_tx_arb #(
       end
       default: ;   //! A_WAIT: the injected frame is in the MAC; hold
     endcase
+    if (!running_w) begin
+      hi_ready_o = 1'b0;
+      lo_ready_o = 1'b0;
+      m_valid_o = 1'b0;
+    end
   end : route
 
   always_ff @(posedge clk_i) begin : arb
-    if (!rst_ni) begin
+    end_sync_r <= {end_sync_r[1:0], tgl_r};
+    ack_sync_r <= {ack_sync_r[0], ack_r};
+    if (!rst_ni || !running_w) begin
       ast_r       <= A_IDLE;
       req_r       <= 1'b0;
       out_r       <= '0;
-      end_sync_r  <= '0;
-      ack_sync_r  <= '0;
       injected_o  <= '0;
     end else begin
-      end_sync_r <= {end_sync_r[1:0], tgl_r};
-      ack_sync_r <= {ack_sync_r[0], ack_r};
       //! the count of datapath frames in the MAC, saturating both ways
       if (hi_beat_w && hi_last_i && !dp_out_w) begin
         if (out_r != '1) out_r <= out_r + 1'b1;
@@ -156,6 +190,8 @@ module KL_usbnet_tx_arb #(
     end
   end : arb
 
+  assign lo_abort_o = !running_w;
+  assign lo_done_o = (ast_r == A_WAIT) && answered_w;
   assign lo_active_o = (ast_r == A_LO) || (ast_r == A_WAIT);
 
   //! the transmit clock's side
@@ -164,8 +200,8 @@ module KL_usbnet_tx_arb #(
   end : eth_req
 
   always_ff @(posedge eth_clk_i) begin : eth_side
-    if (!eth_rst_ni) begin
-      ack_r <= req_sync_r[1];
+    if (!eth_rst_ni || eth_reset_r || flush_sync_r[1]) begin
+      ack_r <= 1'b0;
     end else if (eth_end_i) begin
       if (ack_r != req_sync_r[1]) ack_r <= req_sync_r[1];
       else                        tgl_r <= ~tgl_r;

@@ -105,6 +105,10 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! The defaults are zero, which is the uncorrected build.
   parameter int unsigned GPTP_INGRESS_LAT_NS_P = 0,
   parameter int unsigned GPTP_EGRESS_LAT_NS_P  = 0,
+  //! Build key gptp.latency_writable (issue #829): those two words move the
+  //! applied corrections at runtime and the pair above is their reset value.
+  //! The plane stays the only consumer, so nothing applies a correction twice.
+  parameter bit GPTP_LAT_WRITABLE_P = 1'b0,
   //! NxN dataplane width (docs/fpga/FPGA_DESIGN.md section 2): AAF stream contexts
   //! per shared engine (listener sinks = talker sources = N_STREAMS). The
   //! N = 1 default is today's shape, bit-compatible (no-regression axiom).
@@ -822,7 +826,13 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   output wire [15:0] o_ctl_ctr_chg_index,
   output wire        o_ctl_avb_chg_p,
   output wire        o_ctl_asp_chg_p,
-  output wire        o_ctl_amap_wr_p
+  output wire        o_ctl_amap_wr_p,
+  output wire        o_led_input_locked,    //! any AAF or CRF input media-locked, axis_clk
+  output wire        o_led_output_open,     //! any AAF or CRF output transmit gate open, axis_clk
+  output wire        o_led_clock_internal,  //! selected source is INTERNAL, axis_clk
+  output wire        o_led_clock_stream,    //! selected source is an AAF or CRF input, axis_clk
+  output wire        o_led_source_locked,   //! selected input media-locked, axis_clk
+  output wire        o_led_clock_locked     //! existing clock-domain lock level, axis_clk
 );
   // P12 (docs/fpga/FPGA_DESIGN.md section 2): the 0x800 window's LCTX/TCTX port-B
   // read/snap/write bundles and the ACMP context-table port are wired to
@@ -852,7 +862,8 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! for the fabric's own streams, which is a separate lane. The CSR words
   //! that configured the chain (0x300 CLS_*, 0x400 CBS_*) are WRITE-ONLY
   //! SCRATCH. PTP_*_LAT (0x540/0x544) are readable, inert scratch: plain RW
-  //! with no timestamp-correction consumer at VERSION 0x0002_0057.
+  //! with no timestamp-correction consumer at VERSION 0x0002_0057, unless
+  //! the build sets GPTP_LAT_WRITABLE_P (issue #829).
   //! CAP.CBS / IRQ_STATUS[0] are
   //! structural zero - docs/reference/REGISTER_MAP.md records each.
 
@@ -1874,10 +1885,35 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! consumer of the values themselves; this is a mirror of the same
   //! parameters, taken from the parameters and not from the plane, because
   //! there is nothing inside the plane to read them back from and a
-  //! readback port would be a second copy of a constant.
+  //! readback port would be a second copy of a constant. Under
+  //! GPTP_LAT_WRITABLE_P (issue #829) the source is one flop per direction: the
+  //! CSR block's shadow RAM has no consumer port, so these take the same write,
+  //! on its AWREADY, which that block raises for exactly the cycle it fires.
+  //! One write changes one direction on one edge and a stamp reads a whole
+  //! value. Both sides are axis_clk, so no crossing lies between them, and this
+  //! word reads what is applied after every write.
+  wire [15:0] gptp_lat_ing_w, gptp_lat_egr_w;
+  generate if (GPTP_LAT_WRITABLE_P) begin : g_gptp_lat_writable
+    localparam logic [15:0] A_PTP_ILAT_C = 16'h0540;
+    localparam logic [15:0] A_PTP_ELAT_C = 16'h0544;
+    logic [15:0] lat_ing_r, lat_egr_r;
+    always_ff @(posedge axis_clk) begin
+      if (!axis_resetn) begin
+        lat_ing_r <= 16'(GPTP_INGRESS_LAT_NS_P);
+        lat_egr_r <= 16'(GPTP_EGRESS_LAT_NS_P);
+      end else if (s_axi_awready) begin
+        if (s_axi_awaddr == A_PTP_ILAT_C) lat_ing_r <= s_axi_wdata[15:0];
+        if (s_axi_awaddr == A_PTP_ELAT_C) lat_egr_r <= s_axi_wdata[15:0];
+      end
+    end
+    assign gptp_lat_ing_w = lat_ing_r;
+    assign gptp_lat_egr_w = lat_egr_r;
+  end else begin : g_gptp_lat_constant
+    assign gptp_lat_ing_w = 16'(GPTP_INGRESS_LAT_NS_P);
+    assign gptp_lat_egr_w = 16'(GPTP_EGRESS_LAT_NS_P);
+  end endgenerate
   wire [31:0] gptp_lat_ns_pub_w = (GPTP_PLANE_EN_P != 1'b0)
-                             ? {16'(GPTP_INGRESS_LAT_NS_P),
-                                16'(GPTP_EGRESS_LAT_NS_P)} : 32'd0;
+                             ? {gptp_lat_ing_w, gptp_lat_egr_w} : 32'd0;
   //! Keep the notification and gather faces on the exact selected-owner
   //! value. This alias retains the post-#227 name used by both consumers.
   wire [31:0] eff_gptp_pdelay_w = cfg_gptp_pdelay;
@@ -2281,6 +2317,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   wire [31:0] avtprx_locked_c, avtprx_unlocked_c, avtprx_intr_c;
   wire [31:0] avtprx_seqmm_c, avtprx_tu_c, avtprx_unsupp_c, avtprx_frx_c;
   wire        avtprx_locked;
+  wire [N_STREAMS-1:0] avtprx_locked_all_w;
   //! per-context Table 5.22 counter-change pulses (gh #60 F2), the
   //! STREAM_INPUT source of the descriptor arbiter feeding the processor
   wire [N_STREAMS-1:0] avtprx_dirty_p_w;
@@ -2861,6 +2898,9 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     //! derived from THIS clock declaration, so a free-run PHC ticks true ns
     //! on every shape without waiting for software
     .MILAN_CLK_FREQ_HZ_P(MILAN_CLK_FREQ_HZ),
+    .GPTP_LAT_WRITABLE_P(GPTP_LAT_WRITABLE_P),
+    .GPTP_INGRESS_LAT_NS_P(GPTP_INGRESS_LAT_NS_P),
+    .GPTP_EGRESS_LAT_NS_P(GPTP_EGRESS_LAT_NS_P),
     //! both chmap map-RAM read ports are wired below, and the CAPTURE side
     //! carries the {loop_fed, loop_mapped} mask. Published at CHMAP_SNAP[9:8]
     //! so software reads UNSUPPORTED rather than a structural zero on a build
@@ -4115,6 +4155,13 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! moves GPTP_GM_CHANGED in the same always_ff.
   wire ctr_avb_link_edge_w = eff_link_w != ctr_link_q_r;
   wire ctr_mclk_lock_w = ~clkv_tu_w & (~follow_sel_r | mcsrv_locked_w);
+  assign o_led_input_locked = (|avtprx_locked_all_w) | crf_locked_w;
+  assign o_led_output_open = |tkd_streaming_w;
+  assign o_led_clock_internal = int_clk_selected_r;
+  assign o_led_clock_stream = follow_sel_r;
+  assign o_led_source_locked = aaf_clk_selected_r
+                            ? avtprx_locked_all_w[aaf_follow_idx_r] : crf_locked_w;
+  assign o_led_clock_locked = ctr_mclk_lock_w;
   wire ctr_ckd_lock_edge_w = ctr_mclk_lock_w != ctr_mclk_q_r;
   wire ctr_avb_dirty_w = ctr_avb_link_edge_w || pp_gm_id_change_p_w;
   wire ctr_ckd_dirty_w = ctr_ckd_lock_edge_w;
@@ -8033,6 +8080,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .cnt_ts_valid_o     (avtprx_tv_c),
     .cnt_ts_not_valid_o (avtprx_tnv_c),
     .media_locked_o (avtprx_locked),
+    .media_locked_all_o (avtprx_locked_all_w),
     //! per-sink Table 5.22 counter-change pulses, one STREAM_INPUT source
     //! of the pp_ctr_event arbiter below (the processor's GET_COUNTERS push)
     .dirty_p_o      (avtprx_dirty_p_w),
@@ -9321,10 +9369,13 @@ module milan_datapath import ethernet_packet_pkg::*; #(
         .ETH_TICK_NS_P (GPTP_ETH_TICK_NS_P),
         .ETH_CYC_PER_OCTET_P(GPTP_ETH_CYC_PER_OCTET_P),
         .INGRESS_LAT_NS_P(GPTP_INGRESS_LAT_NS_P),
-        .EGRESS_LAT_NS_P (GPTP_EGRESS_LAT_NS_P)
+        .EGRESS_LAT_NS_P (GPTP_EGRESS_LAT_NS_P),
+        .LAT_WRITABLE_P  (GPTP_LAT_WRITABLE_P)
     ) u_gptp_shadow (
         .clk_i           (axis_clk),
         .rst_n           (axis_resetn),
+        .lat_ingress_ns_i(gptp_lat_ing_w),
+        .lat_egress_ns_i (gptp_lat_egr_w),
         .rx_tdata_i      (rx_axis_fabric.tdata),
         .rx_tkeep_i      (rx_axis_fabric.tkeep),
         .rx_tvalid_i     (rx_axis_fabric.tvalid),

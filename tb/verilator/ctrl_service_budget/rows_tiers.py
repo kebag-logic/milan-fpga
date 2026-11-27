@@ -46,6 +46,7 @@ from typing import Callable, NamedTuple
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import load_grade  # noqa: E402
+from tier_design import Design, Fix, LONG_RULES
 import rows_grade  # noqa: E402
 import paced_rows  # noqa: E402
 import edit_rows  # noqa: E402
@@ -98,7 +99,9 @@ DATAPATH = {'AVB_INFO_CHANGED': 'interface', 'AS_PATH_CHANGED': 'interface', 'AM
 #: over its datapath-events group at the point (the testbench's datapath change pads, split_soc.DATAPATH_PADS), plus
 #: 5 %, rounded up to 5 us, the larger of each image's measurement and the one before it (#894: at #810's merge 31.96,
 #: 29.06, 23.33 us at 1x1/1if, 36.57, 34.43, 23.02 at 8x8; direct index 30.55, 31.57, 25.51; #895 AMAP 8x8 24.65).
-DATAPATH_US = {'1x1/1if': {'AVB_INFO_CHANGED': 35, 'AS_PATH_CHANGED': 35, 'AMAP_LIVE_WRITE': 30},
+DATAPATH_US = {
+    'arty-1x1': {'AVB_INFO_CHANGED': 30, 'AS_PATH_CHANGED': 30, 'AMAP_LIVE_WRITE': 15},
+    '1x1/1if': {'AVB_INFO_CHANGED': 35, 'AS_PATH_CHANGED': 35, 'AMAP_LIVE_WRITE': 30},
                '8x8/2if': {'AVB_INFO_CHANGED': 40, 'AS_PATH_CHANGED': 40, 'AMAP_LIVE_WRITE': 30}}
 #: The five rows decision D bounds, the slice rule's (slice_choice).
 TIER_ROWS = ('R4', 'R5', 'R6', 'first', 'last')
@@ -118,13 +121,13 @@ TIER1_ROWS = ('R4', 'R4L', 'ACMP', 'ADP', 'MAAP', 'first')
 TIER1_ORDERS = ('turn', 'aecp-first', 'aecp-quota', 'wrr', 'others-first')
 TIER2_ORDERS = ('srp-first', 'turn')
 AECP_RULES = ('notify', 'cap', 'queue')
-LONG_RULES = ('buffer', 'slot-552')
 #: An AECP poll's owed frames in us where every notice is the largest legal one: the CPU budget harness's stated cost
 #: of an AECP poll item that commits a notice longer than AECP_FAN_BYTES (poll_grade.STATED_US, aecp_long), the most
 #: measured over the aecp-largest-notice group, a 550 B notice to every registration but the requester's (15 and 31;
 #: long_notice.py), plus 5 %, rounded up to 5 us (#894's slice ruling of 2026-11-13: the measured cost replaces the
 #: stated 665 us). Each point's at its shape (THE SHAPES), 8x8/1if's its own.
-LONG_NOTICE_US = {p: poll_grade.stated_us(shape_costs.of_point(p))[poll_grade.LONG] for p in (*POINTS, '8x8/1if')}
+LONG_NOTICE_US = {p: poll_grade.stated_us(shape_costs.of_point(p))[poll_grade.LONG]
+                  for p in (*POINTS, '8x8/1if', 'arty-1x1')}
 #: The largest legal command's record in us, each of AECP's records in a LONG_ROWS row (every command one that the
 #: largest legal notice answers): the most measured AECP record handler (aecp_mbx.c, frame) over the aecp-largest-notice
 #: group, its refused collision and conflict edits too, plus 5 %, rounded up to 5 us, the larger kept: 92,766 CPU cycles
@@ -132,7 +135,8 @@ LONG_NOTICE_US = {p: poll_grade.stated_us(shape_costs.of_point(p))[poll_grade.LO
 #: (965 us; refused 23,883 to 75,892), 156,716 at 8x8/2if in the answering-ports arm, whose output map it edits (147,843
 #: before), and at 8x8/1if (THE SHAPES) 162,969 on the image that merges dev-soft-core 70f4056f (#901; 143,648 before,
 #: 1,510 us), 1,715 us (#904: one decode, one pass), 1,720 (#943: 163,520). record.aecp is shorter ones'.
-LONG_RECORD_US = {'1x1/1if': 975, '8x8/2if': 1650, '8x8/1if': 1720}
+LONG_RECORD_US = {
+    'arty-1x1': 1105,'1x1/1if': 975, '8x8/2if': 1650, '8x8/1if': 1720}
 #: The terms a tier-1 row may not carry: tier 2's work, for which only the one slice its window opens on stands.
 TIER2_TERMS = ('srp', 'item.retained', 'item.mrpdu', 'builds', 'rounds', 'item.withdraw', 'item.rebuild')
 #: Each term these models count and its source: rows_grade's list, the three datapath events, and the tier model's.
@@ -192,7 +196,8 @@ def point_inputs(root: Path, point: str, texts: dict[str, str] | None = None) ->
 def as_tiers(base: rows_grade.Inputs) -> Inputs:
     """rows_grade's inputs as these models read them: the datapath events' stated costs at the point of their
     interfaces, the retry spacing of aecp.h's AECP_RETRY_MAX_MS (8 ms) and no built constants."""
-    point = next(p for p in POINTS if load_grade.POINTS[p]['n_if'] == base.s['n_if'])
+    point = next(p for p in POINTS if load_grade.POINTS[p]['n_if'] == base.s['n_if']
+                 and load_grade.POINTS[p].get('sources') == base.s.get('sources'))
     costs = {**base.c, **{f'event.{kind}': us for kind, us in DATAPATH_US[point].items()},
              'item.aecp.long': LONG_NOTICE_US[point], 'record.aecp.long': LONG_RECORD_US[point]}
     return Inputs(base.h, costs, *base[2:], 8)
@@ -239,15 +244,6 @@ def datapath_sources(s: dict) -> int:
 def datapath_pass_us(c: dict, s: dict) -> float:
     """What the datapath events cost an ordinary pass at most: each source once, at its event's stated cost."""
     return sum((s['n_if'] if where == 'interface' else 1) * c[f'event.{kind}'] for kind, where in DATAPATH.items())
-
-
-class Fix(NamedTuple):
-    """The corrected model's corrections, each a count at its source's own rule; AS_BUILT is rows_grade.demand."""
-
-    retained: bool = True
-    window: bool = True
-    datapath: bool = True
-    notify: bool = False
 
 
 CORRECTED = Fix()
@@ -317,32 +313,6 @@ def built(row: str, i: Inputs, w_ms: float, fix: Fix) -> dict[str, float]:
     if fix.datapath:
         out['datapath'] = passes * datapath_pass_us(c, s)
     return out
-
-
-class Design(NamedTuple):
-    """A tier design (TIERS): tier 2's slice in microseconds (0: the tree's at each point, CTRL_LOOP_SLICE_US, resolved
-    by at_point), tier 1's and tier 2's order, AECP's rule, and whether the datapath events are counted (a report's
-    choice, to show what they add; every bound counts them); the others' cap a pass (0: CTRL_LOOP_RX_PER_PASS), each
-    tier-1 channel's quota a pass in TIER1's order under QUOTA_ORDERS (aecp-quota's AECP 0: the time the others' leave),
-    and the rule for a notice longer than a slot (LONG_RULES)."""
-
-    slice_us: int
-    tier1: str = 'turn'
-    tier2: str = 'srp-first'
-    aecp: str = 'notify'
-    datapath: bool = True
-    cap: int = 0
-    quota: tuple[int, ...] = ()
-    long: str = 'buffer'
-
-    def label(self) -> str:
-        """The design as the tables name it."""
-        shown = f'{self.slice_us} us' if self.slice_us else 'CTRL_LOOP_SLICE_US'
-        return (f'slice {shown}, tier 1 {self.tier1}, tier 2 {self.tier2}, AECP {self.aecp}' +
-                (f', cap {self.cap}' if self.cap else '') +
-                (f', quotas {"/".join(map(str, self.quota))}' if self.quota else '') +
-                ('' if self.long == LONG_RULES[0] else f', long notices {self.long}') +
-                ('' if self.datapath else ', datapath events left out'))
 
 
 def at_point(model: Fix | Design, i: Inputs) -> Fix | Design:
@@ -879,9 +849,12 @@ def tree_controls(root: Path) -> list[str]:
     # header whose slice is another is refused
     loop = 'sw/firmware/ctrl/loop/ctrl_loop.h'
     tree, text = built_constants(root, '1x1/1if')[0], (root / loop).read_text()
-    stated = f'#define CTRL_LOOP_SLICE_US {tree}u\n'
-    other = text.replace(stated, '#define CTRL_LOOP_SLICE_US 600u\n')
-    if ruled(root) != tree or built_constants(root, '1x1/1if', {loop: other})[0] == tree or text.count(stated) != 1:
+    shape = shape_costs.of_point('1x1/1if', root)
+    other = shape_costs.planted_at(text, shape, shape_costs.SLICE, 600)
+    before, after = shape_costs.listed(text), shape_costs.listed(other)
+    expected = {s: dict(costs, **{shape_costs.SLICE: 600}) if s == shape else costs
+                for s, costs in before.items()}
+    if ruled(root) != tree or built_constants(root, '1x1/1if', {loop: other})[0] != 600 or after != expected:
         escaped.append("the built design's slice not the rule's")
     escaped += long_rows.controls(root) + paced_rows.controls(root) + edit_rows.controls(root)
     # condition (c): the model counts the owed-notice queue's depth, read from aecp_mbx.h: a shallower queue lengthens

@@ -92,6 +92,25 @@ run-mii: gptp_ucode.hex model
 	./obj_mii/Vgptp_txts_sim 25
 	./obj_mii/Vgptp_txts_sim 20
 
+#: The writable corrections (issue #829): the plane elaborated with the
+#: corrections on its ports, in both shapes, each in its own object directory.
+#: The default elaboration above stays the one every other proof grades.
+.PHONY: run-latw
+run-latw: run-latw-gmii run-latw-mii
+.PHONY: run-latw-gmii
+run-latw-gmii: gptp_ucode.hex model
+	$(VERILATOR) $(VFLAGS) --Mdir obj_latw -DGPTP_TXTS_LATW -GLAT_WRITABLE_P=1 \
+	  -CFLAGS "-DGPTP_TXTS_LATW -Wall -Wextra" \
+	  $(SRCS) $(CPP) -o Vgptp_txts_sim
+	./obj_latw/Vgptp_txts_sim
+.PHONY: run-latw-mii
+run-latw-mii: gptp_ucode.hex model
+	$(VERILATOR) $(VFLAGS) --Mdir obj_latw_mii -DGPTP_TXTS_MII -DGPTP_TXTS_LATW \
+	  -GLAT_WRITABLE_P=1 -GETH_TICK_NS_P=$(MII_ETH_TICK_NS) -GETH_CYC_PER_OCTET_P=2 \
+	  -CFLAGS "-DGPTP_TXTS_MII -DGPTP_TXTS_LATW -Wall -Wextra" \
+	  $(SRCS_MII) $(CPP) -o Vgptp_txts_sim
+	./obj_latw_mii/Vgptp_txts_sim 25
+
 #: A green suite and a suite that cannot go red look the same from outside.
 #: `mutants.py` plants one defect at a time - the observation point, each
 #: register-stage term of the correction, the measured cycle distance - and
@@ -99,7 +118,7 @@ run-mii: gptp_ucode.hex model
 #: It is part of the default target, so the evidence is produced by the
 #: same command the sweep runs.
 .PHONY: mutants
-mutants: run run-mii
+mutants: run run-mii run-latw
 	python3 mutants.py
 
 #: A STALE CONVERTED CHAIN IS A RED. The loop is only causal while this

@@ -58,6 +58,8 @@ module gptp_txts_wrap #(
     parameter int unsigned ETH_TICK_NS_P = 8,
     //! transmit clocks one octet holds at the observer's seam
     parameter int unsigned ETH_CYC_PER_OCTET_P = 1,
+    //! issue #829: the corrections below reach the plane's stamps at runtime
+    parameter bit          LAT_WRITABLE_P = 1'b0,
     //! the guard's settle, scaled so a bench can afford a whole episode.
     //! Everything else about the guard is the product's.
     parameter int unsigned SETTLE_CYC_C = 1024
@@ -68,6 +70,10 @@ module gptp_txts_wrap #(
     input  wire sys_rst_n,
     input  wire eth_clk_i,      //! the MAC transmit side and the observer
     input  wire eth_rst_n,
+
+    //! the runtime corrections, nanoseconds, driven as the CSR block's flops do
+    input  wire [15:0] lat_ingress_ns_i,
+    input  wire [15:0] lat_egress_ns_i,
 
     //! the plane's RX tap: peer frames enter here, through the real
     //! classifier, the real frame FIFO and the real serializer
@@ -220,8 +226,11 @@ module gptp_txts_wrap #(
       .UCODE_HEX_P   (UCODE_HEX_P),
       .PHC_TICK_NS_P (PHC_TICK_NS_P),
       .ETH_TICK_NS_P (ETH_TICK_NS_P),
-      .ETH_CYC_PER_OCTET_P (ETH_CYC_PER_OCTET_P)
+      .ETH_CYC_PER_OCTET_P (ETH_CYC_PER_OCTET_P),
+      .LAT_WRITABLE_P   (LAT_WRITABLE_P)
   ) u_shadow (
+      .lat_ingress_ns_i (lat_ingress_ns_i),
+      .lat_egress_ns_i  (lat_egress_ns_i),
       .clk_i            (dp_clk_i),
       .rst_n            (dp_rst_n),
       .rx_tdata_i       (rx_tdata_i),

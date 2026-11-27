@@ -18,6 +18,6 @@ hand-edit. Part of the Milan integration family; rolled up in
 | ✅ `KL_mbx_evt` | `KL_mbx_evt.sv` | `mbx` · `milan_dp` | -- |
 | 📦 `KL_mbx_pkg` | `KL_mbx_pkg.sv` | -- | -- |
 | ✅ `KL_mbx_ring` | `KL_mbx_ring.sv` | `mbx` · `milan_dp` | -- |
-| ✅ `KL_mbx_rx` | `KL_mbx_rx.sv` | `mbx` · `milan_dp` | -- |
+| ✅ `KL_mbx_rx` | `KL_mbx_rx.sv` | `mbx` · `milan_dp` · `usbnet` | -- |
 | ✅ `KL_mbx_tx` | `KL_mbx_tx.sv` | `mbx` · `milan_dp` | -- |
 | ✅ `KL_mbx_wb` | `KL_mbx_wb.sv` | `mbx` | -- |

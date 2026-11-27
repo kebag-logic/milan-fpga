@@ -198,7 +198,8 @@ and are not product claims: `IRQ_STATUS[0]` is a structural zero. REQ-PTP-06
 IS a product claim again at this VERSION, but its owner is the fabric plane
 and not those cores, so `PTP_INGRESS_LAT`/`PTP_EGRESS_LAT` remain readable,
 inert scratch (plain RW, the last written value returned, no
-timestamp-correction consumer; the live publication is `GPTP_LAT` at `0x7F0`,
+timestamp-correction consumer unless a build sets `gptp.latency_writable`,
+#829; the live publication is `GPTP_LAT` at `0x7F0`,
 [REGISTER_MAP.md](docs/reference/REGISTER_MAP.md)). Per-frame pairing and the
 latency reference plane of the shipped gPTP path are the fabric engine's
 (REQ-PTP-05) and #117's to measure.

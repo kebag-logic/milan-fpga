@@ -151,6 +151,7 @@ def build(build_dir: Path, shape: str, elf: Path, n_if: int, flash_map: Path) ->
         'sources': [str(Path(s[0]).resolve()) for s in soc.platform.sources],
         'includes': soc.platform.verilog_include_paths,
         'sys_hz': sys_hz, 'cpu_hz': cpu_hz, 'shape': shape, 'interfaces': n_if,
+        'mii_100_only': clocks['phy'] == 'mii-100',
         'addresses': addresses, 'csr_base': milan_soc.MILAN_CSR_BASE, 'csr_size': milan_soc.MILAN_CSR_SIZE,
         'netlist': VexiiRiscv.netlist_name, 'memory_regions': cpu.soc_regions,
         'cpu_memory_regions': [list(r) for r in VexiiRiscv.memory_regions],

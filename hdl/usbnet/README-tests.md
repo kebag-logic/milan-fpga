@@ -10,7 +10,9 @@ hand-edit. Part of the usbnet family; rolled up in
 
 | module | file | test | clauses |
 |---|---|---|---|
+| ✅ `KL_status_led_truth` | `KL_status_led_truth.sv` | `usbnet` | -- |
 | ✅ `KL_status_leds` | `KL_status_leds.sv` | `usbnet` | -- |
+| ✅ `KL_usbnet_local_rx` | `KL_usbnet_local_rx.sv` | `usbnet` | -- |
 | 📦 `KL_usbnet_pkg` | `KL_usbnet_pkg.sv` | -- | -- |
 | ✅ `KL_usbnet_rx_copy` | `KL_usbnet_rx_copy.sv` | `usbnet` | -- |
 | ✅ `KL_usbnet_tap` | `KL_usbnet_tap.sv` | `usbnet` | -- |

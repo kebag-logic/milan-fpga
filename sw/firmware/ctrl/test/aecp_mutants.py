@@ -16,7 +16,6 @@ import aecp_input_mutants
 import aecp_index_mutants
 import aecp_map_mutants
 import aecp_face_mutants
-import aecp_leds_mutants
 import aecp_notice_mutants
 import aecp_output_mutants
 import aecp_registration_mutants
@@ -892,8 +891,7 @@ DEFECTS = (
     + tuple(defect(*row) for row in aecp_registration_mutants.ROWS) \
     + tuple(defect(*row) for row in aecp_again_mutants.ROWS) \
     + tuple(defect(*row) for row in aecp_configuration_mutants.ROWS) \
-    + tuple(defect(*row) for row in aecp_input_mutants.ROWS) \
-    + tuple(defect(*row) for row in aecp_leds_mutants.ROWS)
+    + tuple(defect(*row) for row in aecp_input_mutants.ROWS)
 
 
 def caught(test: str, words: str, result: Outcome) -> bool:

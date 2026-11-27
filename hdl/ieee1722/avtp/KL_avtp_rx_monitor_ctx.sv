@@ -214,6 +214,7 @@ module KL_avtp_rx_monitor_ctx #(
   output wire [31:0] cnt_ts_valid_o,
   output wire [31:0] cnt_ts_not_valid_o,
   output logic        media_locked_o,    //! stream-0 lock state (level)
+  output wire [N_LISTENERS_P-1:0] media_locked_all_o, //! each input's existing media-lock level
   //! Per-context counter-change pulses, one clk_i cycle per update
   //! (Milan 5.4.5.2 Table 5.22).
   //! Every changed counter, including healthy TV/TNV and FRAMES_RX,
@@ -382,6 +383,7 @@ module KL_avtp_rx_monitor_ctx #(
   logic [31:0] frx_add_r;
 
   logic [N_LISTENERS_P-1:0] locked_sh_r;     //! media_locked mirror (w8[12])
+  assign media_locked_all_o = locked_sh_r;
   logic [7:0] chans_sh_r [N_LISTENERS_P];    //! wire_chans mirror (w8[21:14])
   always_comb begin : chans_fanout
     for (int c = 0; c < N_LISTENERS_P; c++)

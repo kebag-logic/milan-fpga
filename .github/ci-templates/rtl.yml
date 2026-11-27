@@ -228,6 +228,16 @@ jobs:
             5) test "$(cat "$RUNNER_TEMP/owned-suites")" = milan_dp ;;
           esac
 
+      # The USB network suite exercises the production LED attachment and
+      # SET_CLOCK_SOURCE through the unchanged command fixture. These need
+      # the pinned Python HDL packages and the same test libraries as firmware-unit.
+      - name: Install the USB network integration test dependencies
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends libgtest-dev libgmock-dev
+          python3 -m pip install --quiet pyyaml -r sw/litex/litex_pins.txt
+
       - name: Cache the pinned Yosys build for the netlist-level suite owner
         if: ${{ matrix.shard == 3 }}
         id: cache-yosys

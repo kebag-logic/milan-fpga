@@ -112,8 +112,13 @@ static const uint8_t regs[] = {0u, CTRL_PLAT_PHY_PHYID1, CTRL_PLAT_PHY_BMSR, CTR
 // THE ADVERTISEMENT held by registers 4 and 9 as read: no 10/100 mode, 1000BASE-T full duplex and not half.
 static bool gigabit_only(uint32_t anar, uint32_t gctrl)
 {
+#ifdef CTRL_PLAT_PHY_100_ONLY
+	(void)gctrl;
+	return (anar & CTRL_PLAT_PHY_ANAR_BELOW_GIGABIT) == CTRL_PLAT_PHY_AN_100_FULL;
+#else
 	return (anar & CTRL_PLAT_PHY_ANAR_BELOW_GIGABIT) == 0u &&
 	       (gctrl & (CTRL_PLAT_PHY_GCTRL_1000_FULL | CTRL_PLAT_PHY_GCTRL_1000_HALF)) == CTRL_PLAT_PHY_GCTRL_1000_FULL;
+#endif
 }
 
 // BMCR (22.2.4.1) as THE ADVERTISEMENT's restart leaves it: autonegotiation enabled (0.12), not in reset (0.15), not
@@ -152,6 +157,12 @@ static void take(struct ctrl_plat_phy *phy)
 {
 	const uint32_t stage = phy->stage;
 	const uint32_t reg = regs[stage];
+#ifdef CTRL_PLAT_PHY_100_ONLY
+	// IEEE 802.1BA-2011 Table 6-1 excludes 10 Mb/s and half duplex from AVB.
+	const uint32_t advertised = CTRL_PLAT_PHY_AN_100_FULL;
+#else
+	const uint32_t advertised = 0u;
+#endif
 	// PHYAD and REGAD where the frame's command puts them (22.2.4.5), shared by a read and a write
 	const uint32_t at = ((uint32_t)phy->address << 5 | reg) << (32u - CTRL_PLAT_PHY_COMMAND_BITS);
 	uint32_t lo = CTRL_PLAT_PHY_READ_OP << 28 | at;
@@ -161,7 +172,7 @@ static void take(struct ctrl_plat_phy *phy)
 			stage == CTRL_PLAT_PHY_ADV_SET_GIG ?
 				((uint32_t)phy->gig & CTRL_PLAT_PHY_GCTRL_MASTER_SLAVE) | CTRL_PLAT_PHY_GCTRL_1000_FULL :
 			stage == CTRL_PLAT_PHY_ADV_SET_LOCAL ?
-				(uint32_t)phy->local & ~(CTRL_PLAT_PHY_ANAR_BELOW_GIGABIT | CTRL_PLAT_PHY_ANAR_RESERVED) :
+				((uint32_t)phy->local & ~(CTRL_PLAT_PHY_ANAR_BELOW_GIGABIT | CTRL_PLAT_PHY_ANAR_RESERVED)) | advertised :
 				((uint32_t)phy->control | CTRL_PLAT_PHY_BMCR_AN_ENABLE | CTRL_PLAT_PHY_BMCR_AN_RESTART) &
 					~(CTRL_PLAT_PHY_BMCR_RESET | CTRL_PLAT_PHY_BMCR_ISOLATE);
 		lo = CTRL_PLAT_PHY_WRITE_OP << 28 | at | CTRL_PLAT_PHY_WRITE_TA << 16 | data;
@@ -226,6 +237,17 @@ static void take(struct ctrl_plat_phy *phy)
 	case CTRL_PLAT_PHY_ADV_LOCAL:
 	case CTRL_PLAT_PHY_ADV_CHECK_LOCAL:
 		phy->local = v;
+#ifdef CTRL_PLAT_PHY_100_ONLY
+		// The MII PHY has no 1000BASE-T registers: neither read nor write them.
+		if (stage == CTRL_PLAT_PHY_ADV_LOCAL) {
+			next = CTRL_PLAT_PHY_ADV_CONTROL;
+		} else if (stage == CTRL_PLAT_PHY_ADV_CHECK_LOCAL) {
+			if (v >= 0 && gigabit_only(u, 0u)) {
+				phy->adv = 0u;
+			}
+			next = phy->resume;
+		}
+#endif
 		break;
 	case CTRL_PLAT_PHY_ADV_ABILITY:
 		// no 1000BASE-T full duplex ability: a 10/100 PHY, never written; unacknowledged: the next poll retries
@@ -242,9 +264,13 @@ static void take(struct ctrl_plat_phy *phy)
 	case CTRL_PLAT_PHY_ADV_CONTROL:
 		// a register unacknowledged writes nothing: the next poll retries
 		phy->control = v;
+#ifdef CTRL_PLAT_PHY_100_ONLY
+		next = phy->local < 0 || v < 0 ? phy->resume : CTRL_PLAT_PHY_ADV_SET_LOCAL;
+#else
 		if (phy->local < 0 || phy->gig < 0 || v < 0) {
 			next = phy->resume;
 		}
+#endif
 		break;
 	case CTRL_PLAT_PHY_ADV_SET_GIG:
 		break;
@@ -297,13 +323,26 @@ static void take(struct ctrl_plat_phy *phy)
 	// THE ADVERTISEMENT where it is owed, after the poll's first BMSR read (a PHY without BMSR's extended capability
 	// is a 10/100 PHY, never written), then the stage that read chose
 	if (stage == CTRL_PLAT_PHY_STATUS && v >= 0 && (phy->adv & CTRL_PLAT_PHY_ADV_OWED) != 0u) {
+#ifdef CTRL_PLAT_PHY_100_ONLY
+		phy->resume = (uint8_t)next;
+		next = CTRL_PLAT_PHY_ADV_LOCAL;
+#else
 		if ((u & CTRL_PLAT_PHY_BMSR_EXTENDED) == 0u) {
 			phy->adv = CTRL_PLAT_PHY_ADV_NONE;
 		} else {
 			phy->resume = (uint8_t)next;
 			next = CTRL_PLAT_PHY_ADV_ABILITY;
 		}
+#endif
 	}
+#ifdef CTRL_PLAT_PHY_100_ONLY
+	// Never publish a lower-speed or half-duplex port as AVB-capable. If a
+	// completed negotiation still resolves another mode, retry a lost restart.
+	if (status != 0u && status != up(CTRL_PLAT_PHY_SPEED_100, 1u)) {
+		status = 0u;
+		owed = true;
+	}
+#endif
 	if (owed) {
 		renegotiate(phy);
 	}

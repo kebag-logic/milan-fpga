@@ -104,10 +104,8 @@ def core_arm(tree: Tree, config: Path, interfaces: int = 1, mode: str = "core",
                   str(config), "-o", str(out / "aecp_entity_gen.h")])
     if result.returncode:
         raise Refusal(result.stderr)
-    # the tree's root too, for plat/ctrl_plat_leds.h (#1018), the platform header the Leds tests read from the tree
-    # under test, a campaign's planted copy included
     inc = [f"-I{tree.src / 'aecp'}", f"-I{tree.stack / STACK_INCLUDE}", f"-I{HARNESS}",
-           f"-I{out}", f"-I{tree.src / 'test'}", f"-I{tree.src}", f"-DAECP_TEST_INTERFACES={interfaces}"]
+           f"-I{out}", f"-I{tree.src / 'test'}", f"-DAECP_TEST_INTERFACES={interfaces}"]
     sources = [tree.src / "aecp" / n for n in AECP_SOURCES]
     host_sources = []
     groups = []
@@ -180,14 +178,12 @@ EIGHT_ONE = ("Mailbox.EveryNotice*:Mailbox.ARefusedAttemptIsChargedToItsRound:"
 #: The application test of every STREAM_OUTPUT's GET_STREAM_INFO, its Talker's address and its Listener's
 #: registration, run at the 8x8 shape at one interface too, beside the shipping shape's full application (#943).
 OUTPUTS = "AppOutputs.*"
-#: The status LEDs' tests (#1018, plat/ctrl_plat_leds.h), run at each Arty model too.
-LEDS = "Leds.*"
 
 
 def all_arms(tree: Tree) -> list[Outcome]:
     """Full application on both contracts, plus every builder image and the debug guard; and at the 8x8 shape at one
     interface, the mailbox tests that read its own costs and counts (EIGHT_ONE) and the application's STREAM_OUTPUT
-    test (OUTPUTS); and the status LEDs' tests at each Arty model (LEDS)."""
+    test (OUTPUTS)."""
     shipping = ROOT / "configs/endstation_ax7101_1x1_tdm8.yaml"
     eight = ROOT / "configs/endstation_ax7101_8x8.yaml"
     results = [core_arm(tree, shipping, i, mode="app") for i in (1, 2)]
@@ -196,9 +192,6 @@ def all_arms(tree: Tree) -> list[Outcome]:
                             mode="app", selected=OUTPUTS))
     results += [image_arm(tree, p) for p in sorted((ROOT / "configs").glob("endstation_*.yaml"))]
     results += input_arms(tree)
-    # #1018: the status LEDs' LD2 and LD3 on each Arty model, the boards that have them
-    results += [core_arm(Tree(tree.src, tree.out / "leds", tree.reuse, tree.build, tree.stack), p, 1,
-                         selected=LEDS) for p in sorted((ROOT / "configs").glob("endstation_arty_*.yaml"))]
     if not tree.build.coverage:
         results.append(core_arm(Tree(tree.src, tree.out / "debug", tree.reuse, tree.build, tree.stack), shipping,
                                 mode="debug"))

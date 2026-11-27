@@ -2099,6 +2099,86 @@ class GptpPlaneHarness {
              | static_cast<uint32_t>(kLatEgrNs));
   }
 
+#ifdef GPTP_LAT_WRITABLE_TB
+  //! One responder exchange under the corrections then in force, as the T-LAT
+  //! leg grades it: t2 against the boundary, t3 against the observed launch.
+  bool responder_gaps(Vmilan_datapath *dut, uint16_t seq, int64_t *ing,
+                      int64_t *egr) {
+    Frame request = ptp(0x2, seq, 0, 0x0000, 20);
+    request.ts(0);
+    request.u64(0); request.u16(0);
+    send_wide(dut, request.b);
+    const uint64_t req_arrival = rx_sof_phc;
+    std::vector<uint8_t> resp;
+    std::vector<uint8_t> fup;
+    uint64_t resp_launch = 0;
+    for (int n = 0; n < 400; n++) {
+      run_peer(dut, 2000);
+      if (tx_of(0x3, seq, &resp) && tx_of(0xA, seq, &fup)
+          && observer.t1_of(0x3, seq, &resp_launch))
+        break;
+    }
+    if (resp.size() < 58 || fup.size() < 58 || resp_launch == 0) return false;
+    *ing = static_cast<int64_t>(req_arrival)
+         - static_cast<int64_t>(wire_ts_ns(resp, 48));
+    *egr = static_cast<int64_t>(wire_ts_ns(fup, 48))
+         - static_cast<int64_t>(resp_launch);
+    return true;
+  }
+
+  //! [T-LATW] THE WRITABLE CORRECTIONS THROUGH THE REAL CSR BLOCK (issue #829).
+  //! Under the build key the elaborated pair is only the reset value of 0x540
+  //! and 0x544; a bus write moves each stamp by its own value, GPTP_LAT reads
+  //! back what is applied, and the plane is still the only consumer.
+  void prove_the_written_pair_reaches_both_stamps(Vmilan_datapath *dut) {
+    const uint32_t reset_pair = (static_cast<uint32_t>(kLatIngNs) << 16)
+                              | static_cast<uint32_t>(kLatEgrNs);
+    expect("[T-LATW] 0x540 resets to the build's ingress value",
+           axi_read(dut, 0x540), kLatIngNs);
+    expect("[T-LATW] 0x544 resets to the build's egress value",
+           axi_read(dut, 0x544), kLatEgrNs);
+    expect("[T-LATW] GPTP_LAT resets to the build's pair",
+           axi_read(dut, 0x7F0), reset_pair);
+    int64_t ing0 = 0;
+    int64_t egr0 = 0;
+    uint16_t seq = 0x5900;
+    expect("[T-LATW] an exchange at the reset pair completes",
+           responder_gaps(dut, seq++, &ing0, &egr0) ? 1 : 0, 1);
+    expect("[T-LATW] the reset pair is what the ingress stamp carries",
+           static_cast<uint64_t>(ing0), static_cast<uint64_t>(kRxStampLagNs + kLatIngNs));
+    expect("[T-LATW] the reset pair is what the egress stamp carries",
+           static_cast<uint64_t>(egr0), static_cast<uint64_t>(kLatEgrNs));
+
+    static constexpr uint32_t kPairs[][2] = {
+        {777, 333}, {1409, 100}, {0, 0}, {65535, 1}};
+    for (const auto &pair : kPairs) {
+      axi_write(dut, 0x540, pair[0]);
+      axi_write(dut, 0x544, pair[1]);
+      expect("[T-LATW] GPTP_LAT reads the written pair back",
+             axi_read(dut, 0x7F0), (pair[0] << 16) | pair[1]);
+      int64_t ing = 0;
+      int64_t egr = 0;
+      expect("[T-LATW] an exchange under a written pair completes",
+             responder_gaps(dut, seq++, &ing, &egr) ? 1 : 0, 1);
+      expect("[T-LATW] the written ingress moves t2 by exactly it",
+             static_cast<uint64_t>(ing - ing0 + kLatIngNs), pair[0]);
+      expect("[T-LATW] the written egress moves t3 by exactly it",
+             static_cast<uint64_t>(egr - egr0 + kLatEgrNs), pair[1]);
+    }
+    //! One direction's write leaves the other's correction where it was, and
+    //! the high half of a word stays readable and is not applied.
+    axi_write(dut, 0x540, 0xA5A50000u | 123u);
+    expect("[T-LATW] 0x540 returns the whole word written",
+           axi_read(dut, 0x540), 0xA5A50000u | 123u);
+    expect("[T-LATW] an ingress write moves GPTP_LAT's ingress half alone",
+           axi_read(dut, 0x7F0), (123u << 16) | 1u);
+    axi_write(dut, 0x540, static_cast<uint32_t>(kLatIngNs));
+    axi_write(dut, 0x544, static_cast<uint32_t>(kLatEgrNs));
+    expect("[T-LATW] the reset pair written back is applied",
+           axi_read(dut, 0x7F0), reset_pair);
+  }
+#endif
+
   // Keep answering Pdelay while the selected peer's Announce expires.
   // The resulting GM Sync/Follow_Up and one peer request exercise all five
   // Ethernet TX types at the MAC boundary (11.4.2.3/Table 11-4).
@@ -2175,6 +2255,9 @@ int GptpPlaneHarness::run() {
   prove_the_maximum_bounded_path_trace(dut, asp_withdrawn);
   prove_the_three_drop_counters_through_the_csr(dut);
   prove_the_board_latency_corrections_reach_both_stamps(dut);
+#ifdef GPTP_LAT_WRITABLE_TB
+  prove_the_written_pair_reaches_both_stamps(dut);
+#endif
   emit_every_gptp_tx_flag_type(dut);
   prove_the_announce_carries_the_config_clock_accuracy();
   prove_the_served_head_is_the_received_head(dut);
