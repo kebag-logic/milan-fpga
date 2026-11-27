@@ -3528,8 +3528,8 @@ The `srp-kept` and `srp-bound` registrations over their statements are owed to #
 as at the other points (`kept_grade.py`), and do not restate the row; their other measurements do.
 [#1022](https://github.com/kebag-logic/milan-fpga/issues/1022), blocked by #977, carries that owed cost at this point:
 the measurement of the Arty's registrations and the row derived with them counted.
-Counted, they leave no qualifying row: over the 147 cases before that merge no candidate meets every owner bound, and
-the least last queued notice is 225.54 ms, against its 140 ms bound.
+Counted, they leave no qualifying row: over the 159 cases on that merge no candidate meets every owner bound, and the
+least last queued notice is 237.0 ms (225.54 ms before it), against its 140 ms bound.
 Two rows meet every rule and bound at the installed statements: this one and 950 us at a 130 ms queued bound.
 The derivation takes the first by pace, then queued bound, then slice, which is this one.
 The complete 80 MHz campaign on that merge measures the row over 159 native cases across eight image variants.
