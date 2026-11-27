@@ -1,0 +1,64 @@
+{
+  "head": "00979246dc22698c0f3a1e4a9796c1a2bcdd03c7",
+  "validated_head": "0f7402ee97d347352b8c3d613033c440ee55986a",
+  "result": "PASS",
+  "changed_entries": [
+    {
+      "artifact": "USB_AUDIO_PATH.md",
+      "scope": "Documentation",
+      "before_sha256": "ad1c9884397d5c8a0fbbe4f799d10d0ad37551d0851ce4506546cd24d64bac76",
+      "after_sha256": "ce22cfd22709e048af01f8186453b5611d918c7fd6b6b353a009adca8d468384"
+    },
+    {
+      "artifact": "REGISTER_MAP.md",
+      "scope": "Documentation",
+      "before_sha256": "aba1a8b98da32629c7fb6282151eba3cc60523c5ede70493d48de4a3a064e48f",
+      "after_sha256": "79ab6e0eb3780d6e8e08ddb61886c1a1619f1ed8697397494f9851391bb90b83"
+    },
+    {
+      "artifact": "register_descriptions.json",
+      "scope": "Documentation",
+      "before_sha256": "2c48f00413fa688a93bcf2923f08027e98491f1a17766f980fc4206c0ff26ae3",
+      "after_sha256": "eeeee406f2daf55778bdd5dcf6dd9b9bfe5e6ddbdb596e0c420e191382f606b7"
+    },
+    {
+      "artifact": "check.py",
+      "scope": "Simulation only",
+      "before_sha256": "51cf5257b8065ab3280b55620a199782c9c9de1e484c765f1c7fac91308d9a15",
+      "after_sha256": "ac13ead3dde18a96a2dfcc39bb76c50b4605292204c6fb7861cd26eb159b7f08"
+    },
+    {
+      "artifact": "epochs_tb.sv",
+      "scope": "Simulation only",
+      "before_sha256": "48a2b75b1385155f52c840787ae4149c3e5110c1b6dad154680eefa33a4e9f62",
+      "after_sha256": "106c9b7cb4b8842a466cbf787aaeaca0292227e9bacd01ffd1628873ae6fa976"
+    },
+    {
+      "artifact": "media_tb.sv",
+      "scope": "Simulation only",
+      "before_sha256": "3a4006b51c60408ec6ecc23a2e27258d7db3db947cf025e47154a53a79c39995",
+      "after_sha256": "fb624be36218125add2d2150916a821bc17a453c66eadd8fcc38307c7ee21dd1"
+    },
+    {
+      "artifact": "transport_mutations.py",
+      "scope": "Simulation only",
+      "before_sha256": "3f71c2ebc7d364e776d6797bf7aeba52d67375780484eb3a5f054333666e967c",
+      "after_sha256": "bb57ab9d90c62f4e7a4eb2e77a798d326c0c98a72d41f30efa81f7ce36b033d3"
+    }
+  ],
+  "unchanged_entries": 2067,
+  "method": "Compare every recursive tree entry, including object identity and mode. The seven differing entries are documentation or simulation only. No production source, build recipe, constraints, initialized memory source or submodule pin differs.",
+  "gateware_changed": false,
+  "physical_build_repeated": false,
+  "million_frame_run_repeated": false,
+  "carried_evidence": [
+    "../r5/arty-route.json",
+    "../r5/arty-cost.json",
+    "../r5/alinx-payloads.json",
+    "../r5/regression.json"
+  ],
+  "setup_margin_ns": 0.006,
+  "hold_margin_ns": 0.052,
+  "pulse_margin_ns": 1.389,
+  "limits": "Two delay models at two temperature settings; retained reports are prior executions, not new physical builds. Fixed comparison memories do not establish newly linked production-software identity or bench acceptance."
+}

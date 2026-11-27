@@ -1,0 +1,25 @@
+{
+  "head": "00979246dc22698c0f3a1e4a9796c1a2bcdd03c7",
+  "result": "PASS",
+  "generated": true,
+  "hand_edited_tables": false,
+  "source": "register_descriptions.json",
+  "reference": "REGISTER_MAP.md",
+  "output_status": "register reference: fresh (203 registers, 34 modules, 240 files)",
+  "check_log_sha256": "81b9bbcdfd5f75a96404f3b0e8f9597cfb69b829624795030ad343327ffb197d",
+  "rtl_authority": [
+    "milan_csr.sv:122",
+    "milan_csr.sv:1594",
+    "milan_datapath.sv:1895"
+  ],
+  "configuration": "endstation_arty_split.yaml:228",
+  "behavior": {
+    "disabled": "Read/write scratch; reset zero.",
+    "enabled": "Writes apply bits [15:0]; upper bits remain readable scratch. Reset restores the configured correction.",
+    "publication": "GPTP_LAT reads the applied ingress/egress pair; writes to that publication are ignored.",
+    "arty_split_reset_ns": [
+      1409,
+      100
+    ]
+  }
+}

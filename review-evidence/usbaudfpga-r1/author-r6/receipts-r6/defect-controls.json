@@ -1,0 +1,614 @@
+{
+  "head": "00979246dc22698c0f3a1e4a9796c1a2bcdd03c7",
+  "result": "PASS",
+  "required_defects": 80,
+  "caught": 80,
+  "protocol": 24,
+  "transport": 56,
+  "clean_transport_baselines": 6,
+  "no_build_failure_counted": true,
+  "results": [
+    {
+      "plant": "magic",
+      "check": "BAD_RECORD_DRAIN",
+      "result": "CAUGHT",
+      "group": "protocol",
+      "runtime_log": "runtime/magic.txt"
+    },
+    {
+      "plant": "digest",
+      "check": "BAD_RECORD_DRAIN",
+      "result": "CAUGHT",
+      "group": "protocol",
+      "runtime_log": "runtime/digest.txt"
+    },
+    {
+      "plant": "length_limit",
+      "check": "BAD_RECORD_DRAIN",
+      "result": "CAUGHT",
+      "group": "protocol",
+      "runtime_log": "runtime/length_limit.txt"
+    },
+    {
+      "plant": "whole_frames",
+      "check": "BAD_RECORD_DRAIN",
+      "result": "CAUGHT",
+      "group": "protocol",
+      "runtime_log": "runtime/whole_frames.txt"
+    },
+    {
+      "plant": "reserved_flags",
+      "check": "BAD_RECORD_DRAIN",
+      "result": "CAUGHT",
+      "group": "protocol",
+      "runtime_log": "runtime/reserved_flags.txt"
+    },
+    {
+      "plant": "payload_active",
+      "check": "BAD_RECORD_DRAIN",
+      "result": "CAUGHT",
+      "group": "protocol",
+      "runtime_log": "runtime/payload_active.txt"
+    },
+    {
+      "plant": "inactive_state",
+      "check": "COMPLETE_RECORD",
+      "result": "CAUGHT",
+      "group": "protocol",
+      "runtime_log": "runtime/inactive_state.txt"
+    },
+    {
+      "plant": "channel_bits",
+      "check": "PCM_ALL_BITS_ORDER",
+      "result": "CAUGHT",
+      "group": "protocol",
+      "runtime_log": "runtime/channel_bits.txt"
+    },
+    {
+      "plant": "capture_epoch",
+      "check": "INDEPENDENT_EPOCHS",
+      "result": "CAUGHT",
+      "group": "protocol",
+      "runtime_log": "runtime/capture_epoch.txt"
+    },
+    {
+      "plant": "playback_epoch",
+      "check": "INDEPENDENT_EPOCHS",
+      "result": "CAUGHT",
+      "group": "protocol",
+      "runtime_log": "runtime/playback_epoch.txt"
+    },
+    {
+      "plant": "frame_count",
+      "check": "FRAME_COUNT",
+      "result": "CAUGHT",
+      "group": "protocol",
+      "runtime_log": "runtime/frame_count.txt"
+    },
+    {
+      "plant": "early_record",
+      "check": "PARTIAL_NOT_VISIBLE",
+      "result": "CAUGHT",
+      "group": "protocol",
+      "runtime_log": "runtime/early_record.txt"
+    },
+    {
+      "plant": "record_stall",
+      "check": "RECORD_BACKPRESSURE",
+      "result": "CAUGHT",
+      "group": "protocol",
+      "runtime_log": "runtime/record_stall.txt"
+    },
+    {
+      "plant": "status_magic",
+      "check": "STATUS_BYTES",
+      "result": "CAUGHT",
+      "group": "protocol",
+      "runtime_log": "runtime/status_magic.txt"
+    },
+    {
+      "plant": "status_digest",
+      "check": "STATUS_BYTES",
+      "result": "CAUGHT",
+      "group": "protocol",
+      "runtime_log": "runtime/status_digest.txt"
+    },
+    {
+      "plant": "status_epoch",
+      "check": "STATUS_BYTES",
+      "result": "CAUGHT",
+      "group": "protocol",
+      "runtime_log": "runtime/status_epoch.txt"
+    },
+    {
+      "plant": "status_sequence",
+      "check": "STATUS_BYTES",
+      "result": "CAUGHT",
+      "group": "protocol",
+      "runtime_log": "runtime/status_sequence.txt"
+    },
+    {
+      "plant": "status_end",
+      "check": "STATUS_LENGTH",
+      "result": "CAUGHT",
+      "group": "protocol",
+      "runtime_log": "runtime/status_end.txt"
+    },
+    {
+      "plant": "status_stall",
+      "check": "STATUS_BYTES",
+      "result": "CAUGHT",
+      "group": "protocol",
+      "runtime_log": "runtime/status_stall.txt"
+    },
+    {
+      "plant": "status_snapshot",
+      "check": "STATUS_BYTES",
+      "result": "CAUGHT",
+      "group": "protocol",
+      "runtime_log": "runtime/status_snapshot.txt"
+    },
+    {
+      "plant": "feedback_scale",
+      "check": "FEEDBACK_VALUE",
+      "result": "CAUGHT",
+      "group": "protocol",
+      "runtime_log": "runtime/feedback_scale.txt"
+    },
+    {
+      "plant": "feedback_window",
+      "check": "FEEDBACK_WINDOW_LENGTH",
+      "result": "CAUGHT",
+      "group": "protocol",
+      "runtime_log": "runtime/feedback_window.txt"
+    },
+    {
+      "plant": "feedback_reference",
+      "check": "FEEDBACK_WINDOW_LENGTH",
+      "result": "CAUGHT",
+      "group": "protocol",
+      "runtime_log": "runtime/feedback_reference.txt"
+    },
+    {
+      "plant": "feedback_unlock",
+      "check": "FEEDBACK_UNLOCKED",
+      "result": "CAUGHT",
+      "group": "protocol",
+      "runtime_log": "runtime/feedback_unlock.txt"
+    },
+    {
+      "plant": "baseline_epochs",
+      "check": "",
+      "result": "PASS",
+      "group": "transport",
+      "runtime_log": "runtime/baseline_epochs.txt"
+    },
+    {
+      "plant": "baseline_gpif",
+      "check": "",
+      "result": "PASS",
+      "group": "transport",
+      "runtime_log": "runtime/baseline_gpif.txt"
+    },
+    {
+      "plant": "baseline_levels",
+      "check": "",
+      "result": "PASS",
+      "group": "transport",
+      "runtime_log": "runtime/baseline_levels.txt"
+    },
+    {
+      "plant": "baseline_media",
+      "check": "",
+      "result": "PASS",
+      "group": "transport",
+      "runtime_log": "runtime/baseline_media.txt"
+    },
+    {
+      "plant": "baseline_packet",
+      "check": "",
+      "result": "PASS",
+      "group": "transport",
+      "runtime_log": "runtime/baseline_packet.txt"
+    },
+    {
+      "plant": "baseline_reference",
+      "check": "",
+      "result": "PASS",
+      "group": "transport",
+      "runtime_log": "runtime/baseline_reference.txt"
+    },
+    {
+      "plant": "bridge_snapshot_epoch",
+      "check": "BRIDGE_SNAPSHOT_ACK_BEFORE_CAPTURE",
+      "result": "CAUGHT",
+      "group": "transport",
+      "runtime_log": "runtime/bridge_snapshot_epoch.txt"
+    },
+    {
+      "plant": "media_deferred_frame",
+      "check": "MEDIA_DEFERRED_FRAME_RETAINED",
+      "result": "CAUGHT",
+      "group": "transport",
+      "runtime_log": "runtime/media_deferred_frame.txt"
+    },
+    {
+      "plant": "media_deferred_ack",
+      "check": "MEDIA_DEFERRED_ACK_AFTER_APPLY",
+      "result": "CAUGHT",
+      "group": "transport",
+      "runtime_log": "runtime/media_deferred_ack.txt"
+    },
+    {
+      "plant": "bridge_applied_epoch",
+      "check": "BRIDGE_MEDIA_APPLIED_GATE",
+      "result": "CAUGHT",
+      "group": "transport",
+      "runtime_log": "runtime/bridge_applied_epoch.txt"
+    },
+    {
+      "plant": "bridge_capture_abort",
+      "check": "BRIDGE_CAPTURE_ABORT",
+      "result": "CAUGHT",
+      "group": "transport",
+      "runtime_log": "runtime/bridge_capture_abort.txt"
+    },
+    {
+      "plant": "bridge_packet_fence",
+      "check": "BRIDGE_CAPTURE_CHANNEL_ZERO_RESTART",
+      "result": "CAUGHT",
+      "group": "transport",
+      "runtime_log": "runtime/bridge_packet_fence.txt"
+    },
+    {
+      "plant": "bridge_status_epoch",
+      "check": "BRIDGE_ACK_AFTER_MEDIA_APPLY",
+      "result": "CAUGHT",
+      "group": "transport",
+      "runtime_log": "runtime/bridge_status_epoch.txt"
+    },
+    {
+      "plant": "bridge_published_epoch",
+      "check": "BRIDGE_PUBLISHED_ACK_GATE",
+      "result": "CAUGHT",
+      "group": "transport",
+      "runtime_log": "runtime/bridge_published_epoch.txt"
+    },
+    {
+      "plant": "media_grid_transition",
+      "check": "MEDIA_EVERY_GRID_SNAPSHOT",
+      "result": "CAUGHT",
+      "group": "transport",
+      "runtime_log": "runtime/media_grid_transition.txt"
+    },
+    {
+      "plant": "media_walk_transition",
+      "check": "MEDIA_EVERY_GRID_SNAPSHOT",
+      "result": "CAUGHT",
+      "group": "transport",
+      "runtime_log": "runtime/media_walk_transition.txt"
+    },
+    {
+      "plant": "levels_clock_launch",
+      "check": "LEVEL_CLOCK_GLITCH",
+      "result": "CAUGHT",
+      "group": "transport",
+      "runtime_log": "runtime/levels_clock_launch.txt"
+    },
+    {
+      "plant": "levels_playback_launch",
+      "check": "LEVEL_PLAYBACK_GLITCH",
+      "result": "CAUGHT",
+      "group": "transport",
+      "runtime_log": "runtime/levels_playback_launch.txt"
+    },
+    {
+      "plant": "levels_capture_launch",
+      "check": "LEVEL_CAPTURE_GLITCH",
+      "result": "CAUGHT",
+      "group": "transport",
+      "runtime_log": "runtime/levels_capture_launch.txt"
+    },
+    {
+      "plant": "reference_magic",
+      "check": "REFERENCE_FIELDS_REJECTED",
+      "result": "CAUGHT",
+      "group": "transport",
+      "runtime_log": "runtime/reference_magic.txt"
+    },
+    {
+      "plant": "reference_length",
+      "check": "REFERENCE_FIELDS_REJECTED",
+      "result": "CAUGHT",
+      "group": "transport",
+      "runtime_log": "runtime/reference_length.txt"
+    },
+    {
+      "plant": "reference_version",
+      "check": "REFERENCE_FIELDS_REJECTED",
+      "result": "CAUGHT",
+      "group": "transport",
+      "runtime_log": "runtime/reference_version.txt"
+    },
+    {
+      "plant": "reference_period",
+      "check": "REFERENCE_FIELDS_REJECTED",
+      "result": "CAUGHT",
+      "group": "transport",
+      "runtime_log": "runtime/reference_period.txt"
+    },
+    {
+      "plant": "reference_count_reserved",
+      "check": "REFERENCE_FIELDS_REJECTED",
+      "result": "CAUGHT",
+      "group": "transport",
+      "runtime_log": "runtime/reference_count_reserved.txt"
+    },
+    {
+      "plant": "reference_count_alignment",
+      "check": "REFERENCE_FIELDS_REJECTED",
+      "result": "CAUGHT",
+      "group": "transport",
+      "runtime_log": "runtime/reference_count_alignment.txt"
+    },
+    {
+      "plant": "reference_raw_count",
+      "check": "REFERENCE_FIELDS_REJECTED",
+      "result": "CAUGHT",
+      "group": "transport",
+      "runtime_log": "runtime/reference_raw_count.txt"
+    },
+    {
+      "plant": "reference_raw_reserved",
+      "check": "REFERENCE_FIELDS_REJECTED",
+      "result": "CAUGHT",
+      "group": "transport",
+      "runtime_log": "runtime/reference_raw_reserved.txt"
+    },
+    {
+      "plant": "reference_flags",
+      "check": "REFERENCE_FIELDS_REJECTED",
+      "result": "CAUGHT",
+      "group": "transport",
+      "runtime_log": "runtime/reference_flags.txt"
+    },
+    {
+      "plant": "reference_digest",
+      "check": "REFERENCE_FIELDS_REJECTED",
+      "result": "CAUGHT",
+      "group": "transport",
+      "runtime_log": "runtime/reference_digest.txt"
+    },
+    {
+      "plant": "reference_first_word",
+      "check": "REFERENCE_FIRST_WORD_TIMESTAMP",
+      "result": "CAUGHT",
+      "group": "transport",
+      "runtime_log": "runtime/reference_first_word.txt"
+    },
+    {
+      "plant": "reference_sequence_gap",
+      "check": "REFERENCE_SEQUENCE_GAP",
+      "result": "CAUGHT",
+      "group": "transport",
+      "runtime_log": "runtime/reference_sequence_gap.txt"
+    },
+    {
+      "plant": "reference_duplicate",
+      "check": "REFERENCE_SEQUENCE_DUPLICATE",
+      "result": "CAUGHT",
+      "group": "transport",
+      "runtime_log": "runtime/reference_duplicate.txt"
+    },
+    {
+      "plant": "reference_count_step",
+      "check": "REFERENCE_COUNT_GAP",
+      "result": "CAUGHT",
+      "group": "transport",
+      "runtime_log": "runtime/reference_count_step.txt"
+    },
+    {
+      "plant": "reference_loss_flag",
+      "check": "REFERENCE_DISCONTINUITY",
+      "result": "CAUGHT",
+      "group": "transport",
+      "runtime_log": "runtime/reference_loss_flag.txt"
+    },
+    {
+      "plant": "reference_watchdog_early",
+      "check": "REFERENCE_WATCHDOG_2P9MS_ACCEPTED",
+      "result": "CAUGHT",
+      "group": "transport",
+      "runtime_log": "runtime/reference_watchdog_early.txt"
+    },
+    {
+      "plant": "reference_watchdog_late",
+      "check": "REFERENCE_WATCHDOG_3MS_REFUSED",
+      "result": "CAUGHT",
+      "group": "transport",
+      "runtime_log": "runtime/reference_watchdog_late.txt"
+    },
+    {
+      "plant": "reference_watchdog",
+      "check": "REFERENCE_WATCHDOG_3MS_REFUSED",
+      "result": "CAUGHT",
+      "group": "transport",
+      "runtime_log": "runtime/reference_watchdog.txt"
+    },
+    {
+      "plant": "reference_watchdog_early_output",
+      "check": "REFERENCE_WATCHDOG_BEFORE_3MS",
+      "result": "CAUGHT",
+      "group": "transport",
+      "runtime_log": "runtime/reference_watchdog_early_output.txt"
+    },
+    {
+      "plant": "reference_watchdog_requires_record",
+      "check": "REFERENCE_WATCHDOG_3MS_NO_REFERENCE",
+      "result": "CAUGHT",
+      "group": "transport",
+      "runtime_log": "runtime/reference_watchdog_requires_record.txt"
+    },
+    {
+      "plant": "reference_early",
+      "check": "REFERENCE_BUNCHED",
+      "result": "CAUGHT",
+      "group": "transport",
+      "runtime_log": "runtime/reference_early.txt"
+    },
+    {
+      "plant": "reference_late",
+      "check": "REFERENCE_LATE",
+      "result": "CAUGHT",
+      "group": "transport",
+      "runtime_log": "runtime/reference_late.txt"
+    },
+    {
+      "plant": "reference_delta_range",
+      "check": "REFERENCE_DELTA_RANGE",
+      "result": "CAUGHT",
+      "group": "transport",
+      "runtime_log": "runtime/reference_delta_range.txt"
+    },
+    {
+      "plant": "reference_delta_units",
+      "check": "REFERENCE_DELTA_UNITS",
+      "result": "CAUGHT",
+      "group": "transport",
+      "runtime_log": "runtime/reference_delta_units.txt"
+    },
+    {
+      "plant": "reference_physical_bound",
+      "check": "REFERENCE_PHYSICAL_BOUND",
+      "result": "CAUGHT",
+      "group": "transport",
+      "runtime_log": "runtime/reference_physical_bound.txt"
+    },
+    {
+      "plant": "reference_window_stride",
+      "check": "SELECTED_REFERENCE_RATE",
+      "result": "CAUGHT",
+      "group": "transport",
+      "runtime_log": "runtime/reference_window_stride.txt"
+    },
+    {
+      "plant": "media_capture_only_epoch",
+      "check": "MEDIA_PLAYBACK_BITS",
+      "result": "CAUGHT",
+      "group": "transport",
+      "runtime_log": "runtime/media_capture_only_epoch.txt"
+    },
+    {
+      "plant": "media_partial_frame",
+      "check": "MEDIA_PARTIAL_HIDDEN",
+      "result": "CAUGHT",
+      "group": "transport",
+      "runtime_log": "runtime/media_partial_frame.txt"
+    },
+    {
+      "plant": "media_epoch_trailing",
+      "check": "MEDIA_EPOCH_TRAILING_BEATS_CLEAN",
+      "result": "CAUGHT",
+      "group": "transport",
+      "runtime_log": "runtime/media_epoch_trailing.txt"
+    },
+    {
+      "plant": "media_capture_low_bits",
+      "check": "MEDIA_CAPTURE_BITS",
+      "result": "CAUGHT",
+      "group": "transport",
+      "runtime_log": "runtime/media_capture_low_bits.txt"
+    },
+    {
+      "plant": "media_underflow_count",
+      "check": "MEDIA_UNDERFLOW_FRAME_COUNT",
+      "result": "CAUGHT",
+      "group": "transport",
+      "runtime_log": "runtime/media_underflow_count.txt"
+    },
+    {
+      "plant": "media_overflow_count",
+      "check": "MEDIA_OVERFLOW_FRAME_COUNT",
+      "result": "CAUGHT",
+      "group": "transport",
+      "runtime_log": "runtime/media_overflow_count.txt"
+    },
+    {
+      "plant": "media_prefill",
+      "check": "MEDIA_PLAYBACK_BITS",
+      "result": "CAUGHT",
+      "group": "transport",
+      "runtime_log": "runtime/media_prefill.txt"
+    },
+    {
+      "plant": "packet_stall",
+      "check": "PACKET_STALL_POSITION",
+      "result": "CAUGHT",
+      "group": "transport",
+      "runtime_log": "runtime/packet_stall.txt"
+    },
+    {
+      "plant": "packet_fence",
+      "check": "PACKET_EPOCH_ABANDON",
+      "result": "CAUGHT",
+      "group": "transport",
+      "runtime_log": "runtime/packet_fence.txt"
+    },
+    {
+      "plant": "packet_prefill",
+      "check": "PACKET_PREFILL",
+      "result": "CAUGHT",
+      "group": "transport",
+      "runtime_log": "runtime/packet_prefill.txt"
+    },
+    {
+      "plant": "packet_maximum",
+      "check": "PACKET_LAST_BOUNDARY",
+      "result": "CAUGHT",
+      "group": "transport",
+      "runtime_log": "runtime/packet_maximum.txt"
+    },
+    {
+      "plant": "packet_final_word",
+      "check": "PACKET_WHOLE_FRAME",
+      "result": "CAUGHT",
+      "group": "transport",
+      "runtime_log": "runtime/packet_final_word.txt"
+    },
+    {
+      "plant": "gpif_address",
+      "check": "GPIF_AUDIO_ADDRESSES",
+      "result": "CAUGHT",
+      "group": "transport",
+      "runtime_log": "runtime/gpif_address.txt"
+    },
+    {
+      "plant": "gpif_blocked_status",
+      "check": "GPIF_BLOCKED_STATUS_FAIRNESS",
+      "result": "CAUGHT",
+      "group": "transport",
+      "runtime_log": "runtime/gpif_blocked_status.txt"
+    },
+    {
+      "plant": "gpif_settle",
+      "check": "GPIF_READ_OWNERSHIP",
+      "result": "CAUGHT",
+      "group": "transport",
+      "runtime_log": "runtime/gpif_settle.txt"
+    },
+    {
+      "plant": "gpif_commit",
+      "check": "GPIF_CAPTURE_COMMIT",
+      "result": "CAUGHT",
+      "group": "transport",
+      "runtime_log": "runtime/gpif_commit.txt"
+    },
+    {
+      "plant": "gpif_reset",
+      "check": "GPIF_ASYNC_PAD_RESET",
+      "result": "CAUGHT",
+      "group": "transport",
+      "runtime_log": "runtime/gpif_reset.txt"
+    }
+  ]
+}

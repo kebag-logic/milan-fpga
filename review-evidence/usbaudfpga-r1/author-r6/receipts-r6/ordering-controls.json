@@ -1,0 +1,42 @@
+{
+  "head": "00979246dc22698c0f3a1e4a9796c1a2bcdd03c7",
+  "result": "PASS",
+  "baselines": 2,
+  "caught": 3,
+  "cases": [
+    {
+      "plant": "baseline_epochs",
+      "check": "",
+      "result": "PASS",
+      "run_sha256": "dcc7670c81a88d2fc85327b36c4d87e78540bcec6aff8a441904870b5e5c48d3"
+    },
+    {
+      "plant": "baseline_media",
+      "check": "",
+      "result": "PASS",
+      "run_sha256": "50e065fa2a2774c34ed275d1f65a165d177a9c73969195870c8d71aee80ceea5"
+    },
+    {
+      "plant": "bridge_snapshot_epoch",
+      "check": "BRIDGE_SNAPSHOT_ACK_BEFORE_CAPTURE",
+      "result": "CAUGHT",
+      "run_sha256": "0f2accece7903398b90072190b7ac1d2f792ad666ea21f935a355b1ff06cb61c",
+      "reviewer_probe": "p7"
+    },
+    {
+      "plant": "media_deferred_frame",
+      "check": "MEDIA_DEFERRED_FRAME_RETAINED",
+      "result": "CAUGHT",
+      "run_sha256": "04db9a7ae903d8acd0773b54c15d4ef64454d51ceb8651a7ad679767d7783ae6",
+      "reviewer_probe": "p8"
+    },
+    {
+      "plant": "media_deferred_ack",
+      "check": "MEDIA_DEFERRED_ACK_AFTER_APPLY",
+      "result": "CAUGHT",
+      "run_sha256": "ef51845ace9ccd209484f9d12254e51db525185da7afcd6f95eee4912292acc1",
+      "reviewer_probe": "p9"
+    }
+  ],
+  "build_failure_counts_as_detection": false
+}

@@ -1,0 +1,18 @@
+--- a/review-evidence/usbaudfpga-r1/author-r5/HANDOFF-r5.md
++++ b/review-evidence/usbaudfpga-r1/author-r5/HANDOFF-r5.md
+@@ -15,6 +15,6 @@
+ 
+ The five extracted reporting functions have identical function bodies, and their 1,071 baseline assertions pass. A supplemental 323-mutant campaign was stopped after 84 caught controls and is recorded as partial; it is separate from the completed 77 audio controls and 44 workflow steps.
+ 
+-The [review response](receipts/r5/review-response.md) records F1–F5 and the [receipt index](receipts/INDEX.md) binds the evidence. The earlier cleanup exception remains disposed by the manager. Current temporary files use the lane scratch, removals were logged before execution, physical jobs used the required admission wrapper at lowest priority, and the compilation cache was shared.
++The [review response](https://github.com/kebag-logic/milan-fpga/blob/d96d07a8bfe91d12391acf37e888b4f47e527fbd/review-evidence/usbaudfpga-r1/author-r5/receipts-r5/review-response.md) records F1–F5 and the [evidence manifest](https://github.com/kebag-logic/milan-fpga/blob/d96d07a8bfe91d12391acf37e888b4f47e527fbd/review-evidence/usbaudfpga-r1/MANIFEST.json) binds the evidence. The earlier cleanup exception remains disposed by the manager. Current temporary files use the lane scratch, removals were logged before execution, physical jobs used the required admission wrapper at lowest priority, and the compilation cache was shared.
+ 
+ Independent re-review, protected checks, merge validation and bench acceptance remain outstanding. Relates to #1021 until the bench.
+--- a/review-evidence/usbaudfpga-r1/author-r5/REVIEW-READY.md
++++ b/review-evidence/usbaudfpga-r1/author-r5/REVIEW-READY.md
+@@ -7,4 +7,4 @@
+ - Both fresh ALINX programming-payload pairs are byte-identical, using fixed initialized memories. All 33 protected network entries match the requested network head.
+ - The reviewed epoch, frame-preservation, clock-description and merged-contract corrections are retained; the complete workflow is green without an ownership exception or weakened gate.
+ 
+-See [HANDOFF-r5.md](HANDOFF-r5.md), [review response](receipts/r5/review-response.md) and [receipts](receipts/INDEX.md). This is executor evidence, with no independent approval or clean-lens ledger claimed. Nothing was pushed or posted; no hardware action was performed. Bench acceptance remains outstanding.
++See [HANDOFF-r5.md](HANDOFF-r5.md), [review response](https://github.com/kebag-logic/milan-fpga/blob/d96d07a8bfe91d12391acf37e888b4f47e527fbd/review-evidence/usbaudfpga-r1/author-r5/receipts-r5/review-response.md) and [evidence manifest](https://github.com/kebag-logic/milan-fpga/blob/d96d07a8bfe91d12391acf37e888b4f47e527fbd/review-evidence/usbaudfpga-r1/MANIFEST.json). This is executor evidence, with no independent approval or clean-lens ledger claimed. Nothing was pushed or posted; no hardware action was performed. Bench acceptance remains outstanding.
