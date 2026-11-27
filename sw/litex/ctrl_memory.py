@@ -394,7 +394,7 @@ LEDGERED: dict[str, Ledgered] = {
                                             "ctrl_plat at its measured 22,016 B, by the same rule: debt of 9.0 "
                                             "RAMB36 owed to the hybrid XIP lane's issue"),
     "platform-8x8-one-interface": Ledgered("target platform's 8x8, one interface",
-                                           ((STAGE_SYMBOL, 14_250), ("ctrl_plat", 19_264)), 60.5,
+                                           ((STAGE_SYMBOL, 14_250), ("ctrl_plat", 19_264)), 61.0,
                                            "lane S14, the hybrid XIP (#665 decision D3: cold code to flash); 56.5, "
                                            "a product image, with SRP's Talker declarations (#895) and the PHY "
                                            "poll and its 1000BASE-T-only advertisement (#919, #840), 1,132 B of "
@@ -437,7 +437,13 @@ LEDGERED: dict[str, Ledgered] = {
                                            "debt of 4.5 RAMB36 owed to the hybrid XIP lane's issue; still 60.5 with "
                                            "the kept list's and "
                                            "held table's last-octet sets (#977), 146,128 B of rom and 100,224 B "
-                                           "of sram, ctrl_plat at its measured 19,264 B"),
+                                           "of sram, ctrl_plat at its measured 19,264 B; and 61.0 with #977's "
+                                           "delivery bound (one binding change or loss completion a delivery, "
+                                           "none in a pass that carries a record alone) and the hot list "
+                                           "relearned on it, 147,712 B of rom, 256 B past the 147,456 B 60.5 "
+                                           "holds, and 100,224 B of sram, ctrl_plat at its measured 19,264 B, by "
+                                           "the same rule: ROM debt of 5.0 RAMB36 owed to the hybrid XIP lane's "
+                                           "issue"),
 }
 
 
