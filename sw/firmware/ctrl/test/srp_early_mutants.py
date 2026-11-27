@@ -46,7 +46,7 @@ SEARCH = ("        for (unsigned n = i->lane_first[id[7] % SRP_SINK_LANES]; n !=
           "            if (i->sinks[n - 1u].stream_id.bytes[7] == id[7] && "
           "same(i->sinks[n - 1u].stream_id.bytes,id,8)) {\n")
 #: keep_talker's bound, its search of the kept list, its listing of one kept now and the count it leaves pending.
-FULL = "    if (*count >= SRP_KEPT_TALKERS) {\n        return false;\n    }\n"
+FULL = "    if (*count >= bound) {\n        return false;\n    }\n"
 KIND = ("        if (kept[n].kind == kind && kept[n].stream_id.bytes[7] == stream_id[7] &&\n"
         "            same(kept[n].stream_id.bytes,stream_id,8)) {\n")
 LISTS = ("    copy_id(kept[*count].stream_id.bytes,stream_id);\n    octet_add(m->kept_octets[i->index],stream_id[7]);\n"
