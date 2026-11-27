@@ -1,0 +1,107 @@
+# SPDX-FileCopyrightText: 2026 Kebag Logic
+# SPDX-License-Identifier: CERN-OHL-W-2.0
+# Optional desk profile for #1021. The USB attachment owns the eight media channels.
+schema: kebag-logic/milan-endstation-config
+schema_version: 1.2.0
+# Interface profile from usb-audio #9 at 9e5ef16cfbbcc26722bfef56081b992a5e8fc89f.
+# Consumed by the optional audio attachment, independently of entity descriptors.
+usb_audio:
+  feedback_window_log2: 13
+  digest: 0x84ff
+entity:
+  name: USB Audio 8x8
+  entity_model_id: hash-derived
+  entity_id: mac-derived
+  vendor_name: Kebag Logic
+  serial_number: ''
+  group_name: ''
+board:
+  target: arty
+  features:
+    fabric_gptp: true
+    i2s_playback: false
+    render_lpf: false
+  constraints:
+    sys_clk_hz: 100000000
+    milan_clk_hz: 50000000
+    l2_bytes: 0
+    phy: mii-100
+    gtx_tx_invert: false
+    floorplan: false
+    flashboot: baremetal
+    uart_baudrate: 115200
+    num_queues: 5
+srp:
+  sr_class: A
+  vid: 2
+  stream_dmac_base: '0x91E0F000FE01'
+  accumulated_latency_ns: 0
+  class_queue: 4
+  enable_at_reset: false
+  talker_declare_at_reset: false
+  bandwidth_limit_pct: 75
+  timers_ms:
+    join: 200
+    leave: 5000
+    leaveall: 10000
+  tspec:
+    policy: derived
+    max_frame_bytes: 224
+    interval_frames: 1
+  rtl_table: false
+platform:
+  mac_address: 02:4b:4c:4b:4c:02
+  pp_mem_phys: 1340080128
+clocking:
+  sampling_rate_hz: 48000
+  audio_unit_rates_hz:
+  - 48000
+  media_clock_sources:
+  - internal
+  - crf
+  - input_stream
+  default_source: internal
+  crf_sink: true
+  crf_output:
+    enabled: true
+    format: '0x041060010000BB80'
+  audio_pll_hz: 24576000
+audio_interface:
+  kind: tdm8
+  word_length_bits: 24
+  physical_channels:
+    capture: 8
+    render: 8
+  cluster_mapping:
+    policy: cluster-per-stream-channel
+streams:
+  listeners:
+  - name: Stream 1
+    channels: 8
+    map_mode: dynamic
+    formats:
+    - '0x0205022002006000'
+    buffer_length_ns: 2126000
+    clusters: 8
+  talkers:
+  - name: Stream Output 0
+    channels: 8
+    clusters: 8
+    map_mode: dynamic
+gptp:
+  priority1: 248
+  priority2: 248
+  clock_class: 248
+  clock_accuracy: 254
+  offset_scaled_log_variance: 17258
+  domain: 0
+  log_announce_interval: 0
+  log_pdelay_interval: 0
+  ingress_latency_ns: 1409
+  egress_latency_ns: 100
+control:
+  placement: split
+soc:
+  software_profile: baremetal
+  xlen: 32
+  scala_args: []

@@ -38,6 +38,8 @@ The paths, their clauses and ceilings come from FR_NFR.md 3.4.1 and MAILBOX_SPLI
 """
 from __future__ import annotations
 
+from scenario_types import Point, Probe
+
 import sys
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -48,6 +50,7 @@ import frames as f
 import long_notice
 import reboot_group
 import save_window
+from stimulus_clock import clocked_step
 
 ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(ROOT / 'sw/mailbox'))
@@ -100,36 +103,6 @@ CEILING_MS = {
 
 
 @dataclass
-class Probe:
-    """One measured path instance."""
-    name: str            # e.g. adp.discover.if0
-    row: str             # the table row it measures
-    family: str          # key of CEILING_MS
-    start: str
-    ends: list[str]      # every listed end must occur; the path ends at the last of them
-    wait_ms: float = 0.0  # a normative wait W the path may include (3.4.1: elapsed <= W + its budget)
-    expect: str = ''     # an expected response check, see grade.py
-    accesses: int | None = None  # the host model's measured or bound accesses in the pass, for comparison
-    until: str = ''      # a later mark bounding the search; '' is the next mark
-    also_from: str = ''  # a mark the interval is also reported from (the row's own origin)
-    #: A notification's required recipients: (controller entity_id, interface), each
-    #: registered for unsolicited notifications on that interface (IEEE 1722.1-2021 7.5.2).
-    recipients: tuple[tuple[int, int], ...] = ()
-    path: str = ''       # the path it is an instance of; '' is the name without .if<n>
-    #: The sequence_ids of the responses owed ahead of the probe's: exactly these, in this
-    #: order, must be committed on its channel between its input and its response.
-    owed: tuple[int, ...] = ()
-    #: An admitted command the firmware may take and never answer under the load: a missing
-    #: response is then a measured finding, never answered (unbounded), not a refusal.
-    may_drop: bool = False
-
-    def path_key(self) -> tuple[str, int]:
-        """The path and interface this probe measures; the tables report each one's worst instance."""
-        base, _, suffix = self.name.rpartition('.if')
-        return (self.path or base, int(suffix) if suffix.isdigit() else 0)
-
-
-@dataclass
 class Group:
     name: str
     steps: list[str] = field(default_factory=list)
@@ -140,6 +113,7 @@ class Group:
     load: dict[str, int] = field(default_factory=dict)
     admission: dict[str, dict] = field(default_factory=dict)  # each loaded channel's admission (admission())
     save: dict = field(default_factory=dict)  # a save it times (save_window.loaded): image, records, loaded
+    sys_hz: int = 100_000_000  # bus clock for the script's temporal cycle counts
 
     def offer(self, channel: str, step: str, frame: bytes) -> None:
         """One record of the composed load: a frame (or a reply) step the channel must commit."""
@@ -177,7 +151,7 @@ class Group:
 
     def script(self) -> str:
         """The stimulus script sim_main.cpp runs."""
-        return '\n'.join([*self.steps, 'end']) + '\n'
+        return '\n'.join([*(clocked_step(step, self.sys_hz) for step in self.steps), 'end']) + '\n'
 
 
 def tagged(step: str, tag: str) -> str:
@@ -187,18 +161,6 @@ def tagged(step: str, tag: str) -> str:
     if step.startswith('reply '):
         return f'{step} tag={tag}'
     return step
-
-
-@dataclass(frozen=True)
-class Point:
-    """A measured shape: its config, AVB interface count and identity."""
-    label: str
-    shape: str
-    interfaces: int
-    entity_id: int
-    mac: int
-    sources: int
-    sinks: int
 
 
 def point(label: str, build: dict) -> Point:
@@ -517,7 +479,10 @@ def map_edit(build: dict, port_type: int, copies: int = 1) -> bytes | None:
     import re
     header = Path(build['elf']).with_name('aecp_entity_gen.h').read_text()
     maps = re.findall(r'\{(\d+),(\d+),(\d+),\d+,\(rows\)\+\d+,\d+,(\d+),aecp_map_defaults\+(\d+),(\d+)\}', header)
-    _, _, _, capacity, first, number = next(m for m in maps if m[:3] == (str(port_type), '0', '0'))
+    entry = next((m for m in maps if m[:3] == (str(port_type), '0', '0')), None)
+    if entry is None:  # The Arty's fixed talker has no dynamic output map.
+        return None
+    _, _, _, capacity, first, number = entry
     if not int(capacity) or not int(number):
         return None
     defaults = header[header.index('aecp_map_defaults[] = {'):]

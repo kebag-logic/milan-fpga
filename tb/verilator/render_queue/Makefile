@@ -28,6 +28,7 @@ TOP        = KL_render_queue
 N_STREAMS = 2
 N_CH      = 8
 N_IF      = 2
+SAMPLE_BITS ?= 24
 LEAD0     = 2
 LEAD1     = 3
 EV_LAT    = 20964
@@ -43,10 +44,10 @@ CLK_HZ    = 1000000
 GFLAGS = -GN_STREAMS_P=$(N_STREAMS) -GN_CH_P=$(N_CH) -GN_IF_P=$(N_IF) \
          -GIF_LEAD_P=$$(( $(LEAD0) + 256 * $(LEAD1) )) -GEV_LAT_NS_P=$(EV_LAT) \
          -GMAX_HOLD_NS_P=$(MAX_HOLD) -GPAY_LEAD_CYC_P=$(PAY_LEAD) -GMAX_EV_P=$(MAX_EV) \
-         -GCLK_FREQ_HZ_P=$(CLK_HZ)
+         -GCLK_FREQ_HZ_P=$(CLK_HZ) -GSAMPLE_BITS_P=$(SAMPLE_BITS)
 DFLAGS = -DN_STREAMS_TB=$(N_STREAMS) -DN_CH_TB=$(N_CH) -DN_IF_TB=$(N_IF) \
          -DLEAD0_TB=$(LEAD0) -DLEAD1_TB=$(LEAD1) -DEV_LAT_TB=$(EV_LAT) \
-         -DMAX_HOLD_TB=$(MAX_HOLD) -DPAY_LEAD_TB=$(PAY_LEAD) -DMAX_EV_TB=$(MAX_EV) -DCLK_HZ_TB=$(CLK_HZ)
+         -DMAX_HOLD_TB=$(MAX_HOLD) -DPAY_LEAD_TB=$(PAY_LEAD) -DMAX_EV_TB=$(MAX_EV) -DCLK_HZ_TB=$(CLK_HZ) -DSAMPLE_BITS_TB=$(SAMPLE_BITS)
 
 VFLAGS = --cc --exe --build -j $(VERILATOR_JOBS) --top-module $(TOP) $(GFLAGS) \
          -Wall -Wno-fatal -Werror-UNDRIVEN -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL \

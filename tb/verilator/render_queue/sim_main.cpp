@@ -89,12 +89,20 @@ static_assert(kMaxEv == 504 && kLate == 504, "the [behind] phase places PDUs aga
 
 //! one sample: stream, PDU, event and wire channel, never zero
 uint32_t sample_of(int s, int pdu, int k, int ch) {
-    return (static_cast<uint32_t>(s & 1) << 23) | (static_cast<uint32_t>(pdu & 0x3F) << 17) |
+    uint32_t value = (static_cast<uint32_t>(s & 1) << 23) | (static_cast<uint32_t>(pdu & 0x3F) << 17) |
            (static_cast<uint32_t>(k & 0x1FF) << 8) | (static_cast<uint32_t>(ch & 0xF) << 4) | 0x8u;
+#if SAMPLE_BITS_TB == 32
+    value = (value << 8) | static_cast<uint32_t>((k*37 + ch*19 + pdu*11 + 1) & 0xff);
+#endif
+    return value;
 }
 
 //! a wire-order S32BE beat, pad bytes as given
 uint64_t beat_of(uint32_t s0, uint32_t s1, uint8_t pad) {
+#if SAMPLE_BITS_TB == 32
+    (void)pad;
+    return uint64_t(__builtin_bswap32(s0)) | (uint64_t(__builtin_bswap32(s1)) << 32);
+#else
     uint64_t b = 0;
     b |= static_cast<uint64_t>((s0 >> 16) & 0xFF) << 0;
     b |= static_cast<uint64_t>((s0 >> 8) & 0xFF) << 8;
@@ -105,6 +113,7 @@ uint64_t beat_of(uint32_t s0, uint32_t s1, uint8_t pad) {
     b |= static_cast<uint64_t>(s1 & 0xFF) << 48;
     b |= static_cast<uint64_t>(pad) << 56;
     return b;
+#endif
 }
 
 //! one PDU the harness sends

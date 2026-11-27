@@ -244,7 +244,13 @@ struct ctrl_plat_phy_bus {
 // frame is taken only while this much of the pass's share is left. It is under a fifth of a store's
 // read-back step (0.77 ms, nvm_store.h), so a step call that carries a frame and an idle store step is lighter than
 // one that carries a save's flash step, which the CPU budget harness measures in every pass class THE STEP enters.
+// Arty MII at 80 MHz: 14,487 cycles, 181.0875 us; plus 5 %, rounded up to 5 us.
+#define CTRL_PLAT_PHY_MII_STEP_US 195u
+#ifdef CTRL_PLAT_PHY_100_ONLY
+#define CTRL_PLAT_PHY_STEP_US CTRL_PLAT_PHY_MII_STEP_US
+#else
 #define CTRL_PLAT_PHY_STEP_US 155u
+#endif
 
 // Where a poll is: idle, or the frame it takes next.
 enum ctrl_plat_phy_stage {

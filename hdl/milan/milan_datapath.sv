@@ -63,6 +63,7 @@
 
 module milan_datapath import ethernet_packet_pkg::*; #(
   parameter int TDATA_WIDTH = 64,
+  parameter bit USBAUDIO_P = 1'b0, //! optional eight-channel USB queue boundary
   //! axis_clk frequency (AX7101 100 MHz, Arty 50 MHz) — AECP lock-timer divider.
   parameter int MILAN_CLK_FREQ_HZ = 100_000_000,
   //! the fabric gPTP plane (issue #110/#114): elaboration-time option.
@@ -104,6 +105,10 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! The defaults are zero, which is the uncorrected build.
   parameter int unsigned GPTP_INGRESS_LAT_NS_P = 0,
   parameter int unsigned GPTP_EGRESS_LAT_NS_P  = 0,
+  //! Build key gptp.latency_writable (issue #829): those two words move the
+  //! applied corrections at runtime and the pair above is their reset value.
+  //! The plane stays the only consumer, so nothing applies a correction twice.
+  parameter bit GPTP_LAT_WRITABLE_P = 1'b0,
   //! NxN dataplane width (docs/fpga/FPGA_DESIGN.md section 2): AAF stream contexts
   //! per shared engine (listener sinks = talker sources = N_STREAMS). The
   //! N = 1 default is today's shape, bit-compatible (no-regression axiom).
@@ -396,6 +401,20 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! milan_soc.py refuses a contract with another count.
   parameter int CTRL_ENTRIES_P = 16
 )(
+  input wire usb_pair_valid_i, //! USB frame pair in the datapath domain
+  input wire [3:0] usb_pair_slot_i, //! channels 0..7 as pairs 0..3
+  input wire [31:0] usb_pair_l_i, //! complete left subslot
+  input wire [31:0] usb_pair_r_i, //! complete right subslot
+  input wire [31:0] usb_frame_ns_i, //! assigned media grid instant
+  input wire usb_capture_tick_i, //! complete USB frame ready for mapper snapshot
+  output wire usb_media_tick_o, //! authoritative media grid
+  output wire [31:0] usb_media_ns_o, //! that grid instant
+  output wire usb_media_locked_o, //! gPTP/media health
+  output wire [63:0] usb_render_data_o, //! render queue pair before 24-bit interfaces
+  output wire usb_render_valid_o, //! per-stream frame pair
+  output wire usb_render_last_o, //! end of frame for this stream
+  output wire [3:0] usb_render_stream_o, //! stream identity for explicit channel mapping
+  output wire usb_render_tick_o, //! complete render grid
   //! ---- AECP descriptor-image READ master (to the SoC's main memory) -----
   //! The protocol processor's entity model lives in DDR3. This is its fetch
   //! path, surfaced at the wrapper boundary rather than tied off inside it:
@@ -807,7 +826,13 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   output wire [15:0] o_ctl_ctr_chg_index,
   output wire        o_ctl_avb_chg_p,
   output wire        o_ctl_asp_chg_p,
-  output wire        o_ctl_amap_wr_p
+  output wire        o_ctl_amap_wr_p,
+  output wire        o_led_input_locked,    //! any AAF or CRF input media-locked, axis_clk
+  output wire        o_led_output_open,     //! any AAF or CRF output transmit gate open, axis_clk
+  output wire        o_led_clock_internal,  //! selected source is INTERNAL, axis_clk
+  output wire        o_led_clock_stream,    //! selected source is an AAF or CRF input, axis_clk
+  output wire        o_led_source_locked,   //! selected input media-locked, axis_clk
+  output wire        o_led_clock_locked     //! existing clock-domain lock level, axis_clk
 );
   // P12 (docs/fpga/FPGA_DESIGN.md section 2): the 0x800 window's LCTX/TCTX port-B
   // read/snap/write bundles and the ACMP context-table port are wired to
@@ -837,7 +862,8 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! for the fabric's own streams, which is a separate lane. The CSR words
   //! that configured the chain (0x300 CLS_*, 0x400 CBS_*) are WRITE-ONLY
   //! SCRATCH. PTP_*_LAT (0x540/0x544) are readable, inert scratch: plain RW
-  //! with no timestamp-correction consumer at VERSION 0x0002_0057.
+  //! with no timestamp-correction consumer at VERSION 0x0002_0057, unless
+  //! the build sets GPTP_LAT_WRITABLE_P (issue #829).
   //! CAP.CBS / IRQ_STATUS[0] are
   //! structural zero - docs/reference/REGISTER_MAP.md records each.
 
@@ -1339,7 +1365,8 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   // ==========================================================================
   wire        cmap_pv_w;
   wire [4:0]  cmap_slot_w;
-  wire [23:0] cmap_l_w, cmap_r_w;
+  localparam int USB_SAMPLE_BITS_C = USBAUDIO_P ? 32 : 24;
+  wire [USB_SAMPLE_BITS_C-1:0] cmap_l_w, cmap_r_w;
 
   //! Capture-side AECP map-write leg. The processor's atomic
   //! ADD/REMOVE_AUDIO_MAPPINGS transaction server drives it after every row
@@ -1486,6 +1513,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
 
 
   KL_chan_map_capture #(
+    .SAMPLE_BITS_P (USB_SAMPLE_BITS_C),
     .INPUT_LOOPBACK_P (INPUT_LOOPBACK_P),
     .N_SLOTS_P (N_STREAMS*4),
     .N_TDM_P   (CMAP_TDM_SLOTS_C),
@@ -1543,9 +1571,11 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     //! slave, TDM master, blend - emits the same {pair_valid, pair_slot, L, R}
     //! contract, so one wiring serves all of them; an I2S-only front end just
     //! parks at slot 0.
-    .tdm_pair_valid_i (aafcap_pv_w), .tdm_pair_slot_i (aafcap_slot_w),
-    .tdm_l_i (aafcap_l_w), .tdm_r_i (aafcap_r_w),
-    .tdm_close_ns_i (dom_mark_ns_w[31:0]),
+    .tdm_pair_valid_i (USBAUDIO_P ? usb_pair_valid_i : aafcap_pv_w),
+    .tdm_pair_slot_i (USBAUDIO_P ? usb_pair_slot_i : aafcap_slot_w),
+    .tdm_l_i (USBAUDIO_P ? USB_SAMPLE_BITS_C'(usb_pair_l_i) : USB_SAMPLE_BITS_C'(aafcap_l_w)),
+    .tdm_r_i (USBAUDIO_P ? USB_SAMPLE_BITS_C'(usb_pair_r_i) : USB_SAMPLE_BITS_C'(aafcap_r_w)),
+    .tdm_close_ns_i (USBAUDIO_P ? usb_frame_ns_i : dom_mark_ns_w[31:0]),
     //! the media-grid pilot (task #59): stepped by the same media_tick_p as
     //! the walk below, never the clk_audio-grid tone_smp
     .tone_smp_i (tone_smp_media),
@@ -1563,7 +1593,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     //! #645: every stream's queues take the settle recentre the render
     //! stage takes, at the same PDU end
     .lb_recentre_i ({LB_STREAMS_C{settle_recentre_p_r}}),
-    .tick_i (media_tick_p),
+    .tick_i (USBAUDIO_P ? usb_capture_tick_i : media_tick_p),
     .pair_valid_o (cmap_pv_w), .pair_slot_o (cmap_slot_w),
     .pair_l_o (cmap_l_w), .pair_r_o (cmap_r_w),
     //! honest-slip evidence (dup-on-empty / drop-oldest, ZERO at lock)
@@ -1634,11 +1664,11 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! cfg_chmap_enable (CHMAP_CTRL[0], documented with the chmap 0x900 fabric
   //! below) is declared here ahead of its first reader (#193).
   wire        cfg_chmap_enable;
-  wire        cap_xbar_live_w = aecp_odmap_dyn_w | cfg_chmap_enable;
+  wire        cap_xbar_live_w = USBAUDIO_P | aecp_odmap_dyn_w | cfg_chmap_enable;
   wire        pkt_pv_w   = cap_xbar_live_w ? cmap_pv_w   : zf_pv_w;
   wire [4:0]  pkt_slot_w = cap_xbar_live_w ? cmap_slot_w : zf_slot_w;
-  wire [23:0] pkt_l_w    = cap_xbar_live_w ? cmap_l_w    : zf_l_w;
-  wire [23:0] pkt_r_w    = cap_xbar_live_w ? cmap_r_w    : zf_r_w;
+  wire [USB_SAMPLE_BITS_C-1:0] pkt_l_w = cap_xbar_live_w ? cmap_l_w : USB_SAMPLE_BITS_C'(zf_l_w);
+  wire [USB_SAMPLE_BITS_C-1:0] pkt_r_w = cap_xbar_live_w ? cmap_r_w : USB_SAMPLE_BITS_C'(zf_r_w);
 
   //! lwsrp_adopt_valid/lwsrp_op_prio/lwsrp_op_vid: the Domain adoption
   //! pair the AAF C-TAG muxes read, declared ahead of aaf_packetizer,
@@ -1710,6 +1740,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! only (the avtp_timestamp); the high half is the live PHC's.
   wire [63:0] aaf_tbase_w;
   KL_aaf_packetizer #(.N_TALKERS_P(N_STREAMS),
+                      .SAMPLE_BITS_P (USB_SAMPLE_BITS_C),
                       .WIRE_CHANS_P(TALKER_WIRE_CHANS_P),
                       //! #773: the crossing estimate and the fixed delay
                       .LEAD_P        (1'b1),
@@ -1854,10 +1885,35 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! consumer of the values themselves; this is a mirror of the same
   //! parameters, taken from the parameters and not from the plane, because
   //! there is nothing inside the plane to read them back from and a
-  //! readback port would be a second copy of a constant.
+  //! readback port would be a second copy of a constant. Under
+  //! GPTP_LAT_WRITABLE_P (issue #829) the source is one flop per direction: the
+  //! CSR block's shadow RAM has no consumer port, so these take the same write,
+  //! on its AWREADY, which that block raises for exactly the cycle it fires.
+  //! One write changes one direction on one edge and a stamp reads a whole
+  //! value. Both sides are axis_clk, so no crossing lies between them, and this
+  //! word reads what is applied after every write.
+  wire [15:0] gptp_lat_ing_w, gptp_lat_egr_w;
+  generate if (GPTP_LAT_WRITABLE_P) begin : g_gptp_lat_writable
+    localparam logic [15:0] A_PTP_ILAT_C = 16'h0540;
+    localparam logic [15:0] A_PTP_ELAT_C = 16'h0544;
+    logic [15:0] lat_ing_r, lat_egr_r;
+    always_ff @(posedge axis_clk) begin
+      if (!axis_resetn) begin
+        lat_ing_r <= 16'(GPTP_INGRESS_LAT_NS_P);
+        lat_egr_r <= 16'(GPTP_EGRESS_LAT_NS_P);
+      end else if (s_axi_awready) begin
+        if (s_axi_awaddr == A_PTP_ILAT_C) lat_ing_r <= s_axi_wdata[15:0];
+        if (s_axi_awaddr == A_PTP_ELAT_C) lat_egr_r <= s_axi_wdata[15:0];
+      end
+    end
+    assign gptp_lat_ing_w = lat_ing_r;
+    assign gptp_lat_egr_w = lat_egr_r;
+  end else begin : g_gptp_lat_constant
+    assign gptp_lat_ing_w = 16'(GPTP_INGRESS_LAT_NS_P);
+    assign gptp_lat_egr_w = 16'(GPTP_EGRESS_LAT_NS_P);
+  end endgenerate
   wire [31:0] gptp_lat_ns_pub_w = (GPTP_PLANE_EN_P != 1'b0)
-                             ? {16'(GPTP_INGRESS_LAT_NS_P),
-                                16'(GPTP_EGRESS_LAT_NS_P)} : 32'd0;
+                             ? {gptp_lat_ing_w, gptp_lat_egr_w} : 32'd0;
   //! Keep the notification and gather faces on the exact selected-owner
   //! value. This alias retains the post-#227 name used by both consumers.
   wire [31:0] eff_gptp_pdelay_w = cfg_gptp_pdelay;
@@ -2261,6 +2317,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   wire [31:0] avtprx_locked_c, avtprx_unlocked_c, avtprx_intr_c;
   wire [31:0] avtprx_seqmm_c, avtprx_tu_c, avtprx_unsupp_c, avtprx_frx_c;
   wire        avtprx_locked;
+  wire [N_STREAMS-1:0] avtprx_locked_all_w;
   //! per-context Table 5.22 counter-change pulses (gh #60 F2), the
   //! STREAM_INPUT source of the descriptor arbiter feeding the processor
   wire [N_STREAMS-1:0] avtprx_dirty_p_w;
@@ -2841,6 +2898,9 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     //! derived from THIS clock declaration, so a free-run PHC ticks true ns
     //! on every shape without waiting for software
     .MILAN_CLK_FREQ_HZ_P(MILAN_CLK_FREQ_HZ),
+    .GPTP_LAT_WRITABLE_P(GPTP_LAT_WRITABLE_P),
+    .GPTP_INGRESS_LAT_NS_P(GPTP_INGRESS_LAT_NS_P),
+    .GPTP_EGRESS_LAT_NS_P(GPTP_EGRESS_LAT_NS_P),
     //! both chmap map-RAM read ports are wired below, and the CAPTURE side
     //! carries the {loop_fed, loop_mapped} mask. Published at CHMAP_SNAP[9:8]
     //! so software reads UNSUPPORTED rather than a structural zero on a build
@@ -4095,6 +4155,13 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! moves GPTP_GM_CHANGED in the same always_ff.
   wire ctr_avb_link_edge_w = eff_link_w != ctr_link_q_r;
   wire ctr_mclk_lock_w = ~clkv_tu_w & (~follow_sel_r | mcsrv_locked_w);
+  assign o_led_input_locked = (|avtprx_locked_all_w) | crf_locked_w;
+  assign o_led_output_open = |tkd_streaming_w;
+  assign o_led_clock_internal = int_clk_selected_r;
+  assign o_led_clock_stream = follow_sel_r;
+  assign o_led_source_locked = aaf_clk_selected_r
+                            ? avtprx_locked_all_w[aaf_follow_idx_r] : crf_locked_w;
+  assign o_led_clock_locked = ctr_mclk_lock_w;
   wire ctr_ckd_lock_edge_w = ctr_mclk_lock_w != ctr_mclk_q_r;
   wire ctr_avb_dirty_w = ctr_avb_link_edge_w || pp_gm_id_change_p_w;
   wire ctr_ckd_dirty_w = ctr_ckd_lock_edge_w;
@@ -8013,6 +8080,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .cnt_ts_valid_o     (avtprx_tv_c),
     .cnt_ts_not_valid_o (avtprx_tnv_c),
     .media_locked_o (avtprx_locked),
+    .media_locked_all_o (avtprx_locked_all_w),
     //! per-sink Table 5.22 counter-change pulses, one STREAM_INPUT source
     //! of the pp_ctr_event arbiter below (the processor's GET_COUNTERS push)
     .dirty_p_o      (avtprx_dirty_p_w),
@@ -8495,6 +8563,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     $error("input loopback requires its generated 16-key or 64-key topology");
   end
   KL_render_queue #(
+    .SAMPLE_BITS_P (USB_SAMPLE_BITS_C),
     .INPUT_LOOPBACK_P (INPUT_LOOPBACK_P),
     .INPUT_KEYS_P (AMAP_IN_KEYS_C),
     .INPUT_FIRST_P (INPUT_LOOP_FIRST_C),
@@ -8545,6 +8614,19 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .untimed_o    (rq_untimed_w),
     .slips_o      (rq_slips_w)
   );
+  assign usb_media_tick_o = USBAUDIO_P ? media_tick_p : 1'b0;
+  assign usb_media_ns_o = USBAUDIO_P ? dom_ns_w[31:0] : 32'd0;
+  assign usb_media_locked_o = USBAUDIO_P && ctr_mclk_lock_w && dom_live_w;
+  assign usb_render_data_o = USBAUDIO_P ? rq_tdata_w[63:0] : 64'd0;
+  assign usb_render_valid_o = USBAUDIO_P && rq_tvalid_w;
+  assign usb_render_last_o = USBAUDIO_P && rq_tlast_w;
+  assign usb_render_stream_o = USBAUDIO_P ? rq_tuser_w : 4'd0;
+  assign usb_render_tick_o = USBAUDIO_P && rq_render_tick_p_w;
+  if (USBAUDIO_P && (N_STREAMS != 1 || TALKER_WIRE_CHANS_P != 8 ||
+      AUDIO_IF_FS_HZ_P != 48000 || AUDIO_IF_SLOTS_P != 8 ||
+      AUDIO_IF_I2S_PAIR_P != 0 || INPUT_LOOPBACK_P != 0)) begin : g_usb_shape
+    $error("USB audio requires one eight-channel stream and its unblended 48 kHz grid");
+  end
   //! the whole render map, exported for the GET_AUDIO_MAP page walk (the
   //! single map_rd_* readback port stays the CSR CHMAP_SNAP path's - two
   //! independent readers of the same flops, by construction)
@@ -9287,10 +9369,13 @@ module milan_datapath import ethernet_packet_pkg::*; #(
         .ETH_TICK_NS_P (GPTP_ETH_TICK_NS_P),
         .ETH_CYC_PER_OCTET_P(GPTP_ETH_CYC_PER_OCTET_P),
         .INGRESS_LAT_NS_P(GPTP_INGRESS_LAT_NS_P),
-        .EGRESS_LAT_NS_P (GPTP_EGRESS_LAT_NS_P)
+        .EGRESS_LAT_NS_P (GPTP_EGRESS_LAT_NS_P),
+        .LAT_WRITABLE_P  (GPTP_LAT_WRITABLE_P)
     ) u_gptp_shadow (
         .clk_i           (axis_clk),
         .rst_n           (axis_resetn),
+        .lat_ingress_ns_i(gptp_lat_ing_w),
+        .lat_egress_ns_i (gptp_lat_egr_w),
         .rx_tdata_i      (rx_axis_fabric.tdata),
         .rx_tkeep_i      (rx_axis_fabric.tkeep),
         .rx_tvalid_i     (rx_axis_fabric.tvalid),

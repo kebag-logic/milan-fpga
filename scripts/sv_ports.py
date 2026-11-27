@@ -40,7 +40,13 @@ boundaries and are never returned.
 """
 
 import re
+from collections.abc import Callable
 
+# Attributes decorate a declaration; their keys are not ports or parameters.
+# Quoted attribute values may themselves contain commas, keywords or `*)`.
+_ATTRIBUTE = re.compile(
+    r'//[^\n]*|/\*.*?\*/|"(?:\\.|[^"\\])*"|'
+    r'(?P<attribute>\(\*(?!\s*\))(?:[^*"]|"(?:\\.|[^"\\])*"|\*(?!\)))*\*\))', re.S)
 _BLOCK_COMMENT = re.compile(r"/\*.*?\*/", re.S)
 _LINE_COMMENT = re.compile(r"//(?!!)[^\n]*")      # ordinary comments; `//!` kept
 _MODULE = re.compile(r"^\s*module\s+([A-Za-z_]\w*)", re.M)
@@ -63,7 +69,8 @@ def module_headers(text: str) -> list[tuple[str, str, int]]:
 
     The header runs from `module` to the `;` that ends the port list, with
     block and ordinary line comments blanked and `//!` comments kept."""
-    code = _BLOCK_COMMENT.sub(_blank_keep_newlines, text)
+    code = _ATTRIBUTE.sub(lambda m: _blank_keep_newlines(m) if m.group("attribute") else m.group(0), text)
+    code = _BLOCK_COMMENT.sub(_blank_keep_newlines, code)
     code = _LINE_COMMENT.sub(_blank_keep_newlines, code)
     out = []
     for m in _MODULE.finditer(code):
@@ -277,3 +284,28 @@ def declarations(text: str) -> list[tuple[str, str, str, bool, str]]:
     return out
 
 
+
+
+def attribute_selftest(check: Callable[[str, bool, str], None]) -> None:
+    """Attributes retain real boundaries; comments, strings and event wildcards cannot hide them."""
+    text = ('module m #( (* keep = "yes" *) parameter int N = 8 //! depth\n'
+            ') ( (* IOB = "TRUE", note = "output, parameter; *)" *) '
+            'output logic [N-1:0] q_o, //! data\n'
+            '(* IOB = "TRUE" *) (* dont_touch = "yes" *) output logic oe_o, //! enable\n'
+            '(* keep = "yes" *) input wire missing_i); endmodule')
+    rows = declarations(text)
+    expected = [("N", "depth", True, "param"), ("q_o", "data", True, "port"),
+                ("oe_o", "enable", False, "port"), ("missing_i", "", False, "port")]
+    check("attributes neither invent ports nor hide an undocumented neighbour",
+          [(r[1], r[2], r[3], r[4]) for r in rows] == expected, str(rows))
+    first = 'module first(input wire a_i); always @(*) begin end endmodule\n'
+    second = 'module second((* IOB = "TRUE" *) output logic q_o); endmodule'
+    for event in ("@(*)", "@(* )"):
+        rows = declarations(first.replace("@(*)", event)+second)
+        check("event wildcard "+event+" cannot swallow the following module",
+              [(r[0], r[1]) for r in rows] == [("first", "a_i"), ("second", "q_o")], str(rows))
+    for noise in ('// (* unfinished attribute example\n', '/* (* unfinished attribute example */\n',
+                  'module noise(); initial $display("(* unfinished attribute example"); endmodule\n'):
+        rows = declarations(noise+second)
+        check("attribute-like prose or strings cannot swallow a module",
+              [(r[0], r[1]) for r in rows] == [("second", "q_o")], str(rows))

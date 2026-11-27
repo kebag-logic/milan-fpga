@@ -3503,6 +3503,16 @@ The twenty-seventh worker is #979's: its two new suites carry provisional
 300-second figures, and at twenty-six workers they leave four regular workers
 over the budget, up to 1306 seconds. They run on workers 14 and 15
 ([provenance](TESTING.md)).
+The #1021 integration adds both USB suites to the discovered duration table.
+Their provisional deadlines are 900 seconds for audio and 300 for networking.
+The audio default completed locally in about five minutes before this revision;
+its hosted duration remains to be measured. These deadlines shorten the previous
+1800-second fallback. No existing suite loses a case or gains time.
+Twenty-seven workers would project 1328 seconds, and twenty-eight project 1299.
+Twenty-nine keep the regular maximum at 1275 seconds, including 122 seconds of
+setup per worker. The 1276-second bound and the continuous-history exception
+remain unchanged. The preceding 27-worker table records the earlier workload.
+
 With #1008's five docs workers, docs projects at 1302 seconds for its slowest worker, `docs-gates-1`, the
 builder's leg 0, which #1008 does not move. That is 26 seconds over #998's 1276-second per-job budget, and it
 stays open on #1008; the figures below do not meet it. Allowing 60 seconds each for aggregate and collector,

@@ -41,7 +41,8 @@ WRAP = HERE / "gptp_txts_wrap.sv"
 #: restored. Removing them makes the next `make` rebuild rather than a direct
 #: run of a stale binary report false failures.
 CONTROL_BINARIES = (HERE / "obj_dir" / "Vgptp_txts_sim",
-                    HERE / "obj_mii" / "Vgptp_txts_sim")
+                    HERE / "obj_mii" / "Vgptp_txts_sim",
+                    HERE / "obj_latw_mii" / "Vgptp_txts_sim")
 
 #: The record carries the EXPECTED distance instead of the one the observer
 #: measured, which is how a fragmented frame earns a plausible timestamp instead
@@ -113,6 +114,39 @@ MII_MUTATIONS = [
         DELTA_FORCED_OLD,
         DELTA_FORCED_NEW,
         "fragment: the observer refused it, by measurement",
+    ),
+]
+
+#: The writable corrections' controls (issue #829), each on the writable build:
+#: the wiring cut in each direction, and a sign reversed.
+LATW_MUTATIONS = [
+    (
+        "latw_ingress_port_not_read",
+        PLANE / "KL_gptp_shadow.sv",
+        "wire  [15:0] ingress_lat_w = LAT_WRITABLE_P ? lat_ingress_ns_i\n",
+        "wire  [15:0] ingress_lat_w = 1'b0 ? lat_ingress_ns_i  // MUTATION\n",
+        "runtime: a written ingress moves t2 by exactly it",
+    ),
+    (
+        "latw_egress_port_not_read",
+        PLANE / "KL_gptp_txret.sv",
+        "longint'(lat_egress_ns_i));\n",
+        "longint'(EGRESS_LAT_NS_P));  // MUTATION\n",
+        "runtime: a written egress moves t3 by exactly it",
+    ),
+    (
+        "latw_egress_sign_reversed",
+        PLANE / "KL_gptp_txret.sv",
+        "else        net_r <= 18'(longint'(TXTS_CORR_NS_P) -\n",
+        "else        net_r <= 18'(longint'(TXTS_CORR_NS_P) +  // MUTATION\n",
+        "runtime: a written egress moves t3 by exactly it",
+    ),
+    (
+        "latw_ingress_read_at_the_frame_end",
+        PLANE / "KL_gptp_shadow.sv",
+        "          ts_arr_r <= ts_arr_corr_w;\n",
+        "          ts_arr_r <= ts_arr_corr_w + 64'(ingress_lat_w) - 64'(16'd777);  // MUTATION\n",
+        "runtime: a written ingress moves t2 by exactly it",
     ),
 ]
 
@@ -216,7 +250,8 @@ def main() -> int:
     args = parser.parse_args()
 
     controls = ([("run", *control) for control in MUTATIONS] +
-                [("run-mii", *control) for control in MII_MUTATIONS])
+                [("run-mii", *control) for control in MII_MUTATIONS] +
+                [("run-latw-mii", *control) for control in LATW_MUTATIONS])
     if args.list:
         for _target, name, path, _old, _new, expect in controls:
             print(f"{name:40s} {path.relative_to(REPO)}  -> {expect}")

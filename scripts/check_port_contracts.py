@@ -117,7 +117,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from lint_rtl import LINT_EXCLUDE
 from code_quality_scope import tracked
 #: the ONE header parser: what ports a module declares, and which are documented
-from sv_ports import declarations, module_headers
+from sv_ports import attribute_selftest, declarations, module_headers
 
 TREES = ("hdl", "gptp-processor", "protocol-processor")
 
@@ -876,7 +876,7 @@ def selftest() -> int:
             print(f"[FAIL] {name}{': ' + detail if detail else ''}")
 
     for arm in (_arm_binding_forms, _arm_multi_instance, _arm_foreign_and_noise,
-                _arm_hierarchical_reads, _arm_port_documentation,
+                _arm_hierarchical_reads, _arm_port_documentation, attribute_selftest,
                 _arm_dispositions, _arm_ratchets, _arm_population,
                 _arm_live_scan):
         arm(ck)

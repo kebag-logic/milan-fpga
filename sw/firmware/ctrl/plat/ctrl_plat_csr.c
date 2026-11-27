@@ -118,3 +118,12 @@ bool ctrl_plat_csr_tod(uintptr_t csr, uint64_t *ns)
 	}
 	return false;
 }
+
+#ifdef CTRL_PLAT_LAT_WRITABLE
+uint32_t ctrl_plat_csr_set_lat(uintptr_t csr, uint16_t ingress_ns, uint16_t egress_ns)
+{
+	wr(csr, CTRL_PLAT_CSR_PTP_ILAT, ingress_ns);
+	wr(csr, CTRL_PLAT_CSR_PTP_ELAT, egress_ns);
+	return rd(csr, CTRL_PLAT_CSR_GPTP_LAT);
+}
+#endif
