@@ -260,14 +260,14 @@ def probe_answer(interface: int, status: int = 0) -> str:
 
 
 def advertised(g: Group, p: Point) -> None:
-    """Links up, then each interface's startup ENTITY_AVAILABLE (TMR_DELAY 0 to 2 s, 5.6.3.5.2)."""
+    """Links up, then each interface's first ENTITY_AVAILABLE within 4.2 s (LINK_UP's TMR_DELAY, 0 to 4 s)."""
     adp = CH['adp']
     ifs = range(p.interfaces)
-    g.together([(Probe(f'adp.link_up.if{i}', 'LINK_UP', 'adp', f'pad:LINK:{i}', [f'arm:{i}'], accesses=11),
+    g.together([(Probe(f'adp.link_up.if{i}', 'LINK_UP', 'adp', f'pad:LINK:{i}', [f'arm:{i}'], accesses=12),
                  [f'link {i} 1']) for i in ifs], [f'tmr {i} 1 within {300 * MS}' for i in ifs], settle='')
     g.together([(Probe(f'adp.tmr_delay.if{i}', 'TMR_DELAY expiry', 'adp', f'deadline:{i}',
                        [f'tx:{adp}', f'arm:{i}'], accesses=39, expect=f'adp_available:{i}'), []) for i in ifs],
-               [f'tx {adp} {p.interfaces} within {2200 * MS}', f'cycles {20 * MS}'])
+               [f'tx {adp} {p.interfaces} within {4200 * MS}', f'cycles {20 * MS}'])
 
 
 def adp_groups(p: Point) -> list[Group]:
@@ -277,26 +277,26 @@ def adp_groups(p: Point) -> list[Group]:
     every = lambda what: [what.format(i=i) for i in ifs]
 
     out = []
-    g = Group('adp-link', sim_ms=2800)
+    g = Group('adp-link', sim_ms=4800)
     ready(g, p, link=False)
     advertised(g, p)
     g.together([(Probe(f'adp.link_down.if{i}', 'LINK_DOWN', 'adp', f'pad:LINK:{i}', [f'cancel:{i}'], accesses=9),
                  [f'link {i} 0']) for i in ifs], [f'tmr {i} 2 within {300 * MS}' for i in ifs])
     out.append(g)
-    g = Group('adp-gm', sim_ms=2800)
+    g = Group('adp-gm', sim_ms=4800)
     ready(g, p, link=False)
     advertised(g, p)
     g.together([(Probe(f'adp.gm_change.if{i}', 'GM_CHANGE', 'adp', f'pad:GM:{i}', [f'arm:{i}'], accesses=11),
                  [f'gm {i} 0a0b0c0dfffe0e{i:02x} 0']) for i in ifs], [f'tmr {i} 1 within {300 * MS}' for i in ifs])
     out.append(g)
-    g = Group('adp-discover', sim_ms=2800)
+    g = Group('adp-discover', sim_ms=4800)
     ready(g, p, link=False)
     advertised(g, p)
     disc = f.adp(f.ADP_DISCOVER, 0, CTL_MAC, f.Adp(valid_time=0))
     g.together([(Probe(f'adp.discover.if{i}', 'RCV_ADP_DISCOVER', 'adp', f'rxc:{adp}', [f'arm:{i}'], accesses=31),
                  [f'frame {i} {disc.hex()}']) for i in ifs], [f'tmr {i} 1 within {300 * MS}' for i in ifs])
     out.append(g)
-    g = Group('adp-advertise', sim_ms=7800)
+    g = Group('adp-advertise', sim_ms=9800)
     ready(g, p, link=False)
     advertised(g, p)
     g.together([(Probe(f'adp.tmr_advertise.if{i}', 'TMR_ADVERTISE expiry', 'adp', f'deadline:{i}', [f'arm:{i}'],
@@ -890,7 +890,7 @@ def control_groups(p: Point) -> list[Group]:
     """The planted over-budget control's path: RCV_ADP_DISCOVER in WAITING to its TMR_DELAY arm, made by ADP's receive
     handler after its work. The ordinary image fits T_svc; build.py's slow-adp-rx must miss it, by name."""
     adp = CH['adp']
-    g = Group('control', sim_ms=2800)
+    g = Group('control', sim_ms=4800)
     ready(g, p, link=False)
     advertised(g, p)
     disc = f.adp(f.ADP_DISCOVER, 0, CTL_MAC, f.Adp(valid_time=0))
@@ -941,7 +941,7 @@ def fixture_groups(p: Point) -> list[Group]:
     acmp, adp, aecp, srp = CH['acmp'], CH['adp'], CH['aecp'], CH['srp']
     g = Group('fixture', sim_ms=2500)
     ready(g, p, link=False)
-    g.probe(Probe('fixture.link_up.if0', 'LINK_UP', 'adp', 'pad:LINK:0', ['arm:0'], accesses=11,
+    g.probe(Probe('fixture.link_up.if0', 'LINK_UP', 'adp', 'pad:LINK:0', ['arm:0'], accesses=12,
                   path='adp.link_up'),
             'link 0 1', wait=f'tmr 0 1 within {300 * MS}')
     g.add(f'wait cycles {100 * MS}', 'wait quiet 3 within 2000000')

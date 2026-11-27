@@ -898,8 +898,8 @@ def main() -> int:
     """Build or reuse a point, run its groups, grade them and write the tables."""
     parser, args = arguments()
     if args.self_test:
-        import selftest
-        return selftest.main([])
+        import model_counts, selftest   # the published ADP counts against the adapter's (model_counts.py)
+        return model_counts.main() or selftest.main([])
     if not args.point or not args.build_dir:
         parser.error('--point and --build-dir are required unless --self-test')
     build_dir = args.build_dir.resolve()
