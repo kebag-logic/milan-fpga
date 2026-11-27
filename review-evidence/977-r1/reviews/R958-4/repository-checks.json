@@ -1,0 +1,30 @@
+[
+  {
+    "check": "source-base-whitespace",
+    "command": [
+      "git",
+      "diff",
+      "--check",
+      "origin/dev-soft-core..HEAD"
+    ],
+    "rc": 0,
+    "output": ""
+  },
+  {
+    "check": "head",
+    "command": [
+      "git",
+      "rev-parse",
+      "HEAD",
+      "HEAD^{tree}"
+    ],
+    "rc": 0,
+    "output": "3256d1d21e525e564eb92d1cf721750ddf44fde2\n6810c12ebf0f060a9557e3fbe356a99cffef8c2a\n"
+  },
+  {
+    "check": "last-ceiling-commit-reverses-cleanly",
+    "command": "git diff HEAD^ HEAD | git apply --reverse --check",
+    "rc": 0,
+    "output": ""
+  }
+]

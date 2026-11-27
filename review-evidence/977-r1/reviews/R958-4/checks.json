@@ -1,0 +1,56 @@
+[
+  {
+    "name": "load-check",
+    "command": [
+      "python3",
+      "-B",
+      "tb/verilator/ctrl_service_budget/load_grade.py",
+      "--check"
+    ],
+    "rc": 0
+  },
+  {
+    "name": "load-selftest",
+    "command": [
+      "python3",
+      "-B",
+      "tb/verilator/ctrl_service_budget/load_grade.py",
+      "--selftest"
+    ],
+    "rc": 0
+  },
+  {
+    "name": "flip-1x1",
+    "command": [
+      "python3",
+      "-B",
+      "tb/verilator/ctrl_service_budget/flip_grade.py",
+      "--check",
+      "--point",
+      "1x1/1if"
+    ],
+    "rc": 0
+  },
+  {
+    "name": "flip-8x8",
+    "command": [
+      "python3",
+      "-B",
+      "tb/verilator/ctrl_service_budget/flip_grade.py",
+      "--check",
+      "--point",
+      "8x8/1if"
+    ],
+    "rc": 0
+  },
+  {
+    "name": "flip-selftest",
+    "command": [
+      "python3",
+      "-B",
+      "tb/verilator/ctrl_service_budget/flip_grade.py",
+      "--selftest"
+    ],
+    "rc": 0
+  }
+]
