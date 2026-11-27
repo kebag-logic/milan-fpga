@@ -1,0 +1,140 @@
+Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2026 Advanced Micro Devices, Inc. All Rights Reserved.
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+| Tool Version : Vivado v.2026.1 (lin64) Build 6511674 Tue Jun 16 11:01:26 MDT 2026
+| Date         : Fri Nov 27 06:40:02 2026
+| Host         : <bench-host> running 64-bit unknown
+| Command      : report_timing -from [get_cells usb_gpif/flag_meta_r_reg] -to [get_cells usb_gpif/flag_sync_r_reg] -delay_type min_max -max_paths 2 -file digilent_arty_audio_flag_sync.rpt
+| Design       : digilent_arty
+| Device       : 7a100t-csg324
+| Speed File   : -1  PRODUCTION 1.23 2018-06-13
+| Design State : Physopt postRoute
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Timing Report
+
+Slack (MET) :             0.160ns  (arrival time - required time)
+  Source:                 usb_gpif/flag_meta_r_reg/C
+                            (rising edge-triggered cell FDCE clocked by milansoc_milannic_usbaudio_usbaudio0  {rise@0.000ns fall@10.000ns period=20.000ns})
+  Destination:            usb_gpif/flag_sync_r_reg/D
+                            (rising edge-triggered cell FDCE clocked by milansoc_milannic_usbaudio_usbaudio0  {rise@0.000ns fall@10.000ns period=20.000ns})
+  Path Group:             milansoc_milannic_usbaudio_usbaudio0
+  Path Type:              Hold (Min at Fast Process Corner)
+  Requirement:            0.000ns  (milansoc_milannic_usbaudio_usbaudio0 rise@0.000ns - milansoc_milannic_usbaudio_usbaudio0 rise@0.000ns)
+  Data Path Delay:        0.220ns  (logic 0.164ns (74.580%)  route 0.056ns (25.420%))
+  Logic Levels:           0  
+  Clock Path Skew:        0.000ns (DCD - SCD - CPR)
+    Destination Clock Delay (DCD):    2.041ns
+    Source Clock Delay      (SCD):    1.523ns
+    Clock Pessimism Removal (CPR):    0.517ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock milansoc_milannic_usbaudio_usbaudio0 rise edge)
+                                                      0.000     0.000 r  <hidden>
+    E3                                                0.000     0.000 r  clk100
+                         net (fo=0)                   0.000     0.000    clk100
+    E3                   IBUF (Prop_ibuf_I_O)         0.250     0.250 r  clk100_IBUF_inst/O
+                         net (fo=1, routed)           0.644     0.894    clk100_IBUF
+    BUFGCTRL_X0Y17       BUFG (Prop_bufg_I_O)         0.026     0.920 r  clk100_IBUF_BUFG_inst/O
+                         net (fo=3, routed)           0.624     1.544    clk100_IBUF_BUFG
+    MMCME2_ADV_X0Y0      MMCME2_ADV (Prop_mmcme2_adv_CLKIN1_CLKOUT0)
+                                                     -1.296     0.248 r  usb_mmcm/CLKOUT0
+                         net (fo=1, routed)           0.648     0.896    milansoc_milannic_usbaudio_usbaudio0
+    BUFGCTRL_X0Y1        BUFG (Prop_bufg_I_O)         0.026     0.922 r  BUFG_7/O
+                         net (fo=5519, routed)        0.602     1.523    usb_gpif/usb_bus_clk
+    SLICE_X88Y107        FDCE                                         r  usb_gpif/flag_meta_r_reg/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X88Y107        FDCE (Prop_fdce_C_Q)         0.164     1.687 r  usb_gpif/flag_meta_r_reg/Q
+                         net (fo=1, routed)           0.056     1.743    usb_gpif/flag_meta_r
+    SLICE_X88Y107        FDCE                                         r  usb_gpif/flag_sync_r_reg/D
+  -------------------------------------------------------------------    -------------------
+
+                         (clock milansoc_milannic_usbaudio_usbaudio0 rise edge)
+                                                      0.000     0.000 r  <hidden>
+    E3                                                0.000     0.000 r  clk100
+                         net (fo=0)                   0.000     0.000    clk100
+    E3                   IBUF (Prop_ibuf_I_O)         0.438     0.438 r  clk100_IBUF_inst/O
+                         net (fo=1, routed)           0.699     1.136    clk100_IBUF
+    BUFGCTRL_X0Y17       BUFG (Prop_bufg_I_O)         0.029     1.165 r  clk100_IBUF_BUFG_inst/O
+                         net (fo=3, routed)           0.898     2.063    clk100_IBUF_BUFG
+    MMCME2_ADV_X0Y0      MMCME2_ADV (Prop_mmcme2_adv_CLKIN1_CLKOUT0)
+                                                     -1.625     0.438 r  usb_mmcm/CLKOUT0
+                         net (fo=1, routed)           0.700     1.138    milansoc_milannic_usbaudio_usbaudio0
+    BUFGCTRL_X0Y1        BUFG (Prop_bufg_I_O)         0.029     1.167 r  BUFG_7/O
+                         net (fo=5519, routed)        0.873     2.041    usb_gpif/usb_bus_clk
+    SLICE_X88Y107        FDCE                                         r  usb_gpif/flag_sync_r_reg/C
+                         clock pessimism             -0.517     1.523    <hidden>
+    SLICE_X88Y107        FDCE (Hold_fdce_C_D)         0.060     1.583    usb_gpif/flag_sync_r_reg
+  -------------------------------------------------------------------
+                         required time                         -1.583    <hidden>
+                         arrival time                           1.743    <hidden>
+  -------------------------------------------------------------------
+                         slack                                  0.160    <hidden>
+
+Slack (MET) :             1.184ns  (required time - arrival time)
+  Source:                 usb_gpif/flag_meta_r_reg/C
+                            (rising edge-triggered cell FDCE clocked by milansoc_milannic_usbaudio_usbaudio0  {rise@0.000ns fall@10.000ns period=20.000ns})
+  Destination:            usb_gpif/flag_sync_r_reg/D
+                            (rising edge-triggered cell FDCE clocked by milansoc_milannic_usbaudio_usbaudio0  {rise@0.000ns fall@10.000ns period=20.000ns})
+  Path Group:             milansoc_milannic_usbaudio_usbaudio0
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            2.000ns  (MaxDelay Path 2.000ns)
+  Data Path Delay:        0.708ns  (logic 0.518ns (73.174%)  route 0.190ns (26.826%))
+  Logic Levels:           0  
+  Clock Path Skew:        0.000ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    5.023ns
+    Source Clock Delay      (SCD):    5.321ns
+    Clock Pessimism Removal (CPR):    0.298ns
+  Clock Uncertainty:      0.092ns  ((TSJ^2 + DJ^2)^1/2) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Discrete Jitter          (DJ):    0.170ns
+    Phase Error              (PE):    0.000ns
+  Timing Exception:       MaxDelay Path 2.000ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock milansoc_milannic_usbaudio_usbaudio0 rise edge)
+                                                      0.000     0.000 r  <hidden>
+    E3                                                0.000     0.000 r  clk100
+                         net (fo=0)                   0.000     0.000    clk100
+    E3                   IBUF (Prop_ibuf_I_O)         1.482     1.482 r  clk100_IBUF_inst/O
+                         net (fo=1, routed)           2.025     3.506    clk100_IBUF
+    BUFGCTRL_X0Y17       BUFG (Prop_bufg_I_O)         0.096     3.602 r  clk100_IBUF_BUFG_inst/O
+                         net (fo=3, routed)           1.809     5.412    clk100_IBUF_BUFG
+    MMCME2_ADV_X0Y0      MMCME2_ADV (Prop_mmcme2_adv_CLKIN1_CLKOUT0)
+                                                     -3.922     1.490 r  usb_mmcm/CLKOUT0
+                         net (fo=1, routed)           2.018     3.508    milansoc_milannic_usbaudio_usbaudio0
+    BUFGCTRL_X0Y1        BUFG (Prop_bufg_I_O)         0.096     3.604 r  BUFG_7/O
+                         net (fo=5519, routed)        1.717     5.321    usb_gpif/usb_bus_clk
+    SLICE_X88Y107        FDCE                                         r  usb_gpif/flag_meta_r_reg/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X88Y107        FDCE (Prop_fdce_C_Q)         0.518     5.839 r  usb_gpif/flag_meta_r_reg/Q
+                         net (fo=1, routed)           0.190     6.029    usb_gpif/flag_meta_r
+    SLICE_X88Y107        FDCE                                         r  usb_gpif/flag_sync_r_reg/D
+  -------------------------------------------------------------------    -------------------
+
+                         max delay                    2.000     2.000    <hidden>
+    E3                                                0.000     2.000 r  clk100
+                         net (fo=0)                   0.000     2.000    clk100
+    E3                   IBUF (Prop_ibuf_I_O)         1.411     3.411 r  clk100_IBUF_inst/O
+                         net (fo=1, routed)           1.920     5.331    clk100_IBUF
+    BUFGCTRL_X0Y17       BUFG (Prop_bufg_I_O)         0.091     5.422 r  clk100_IBUF_BUFG_inst/O
+                         net (fo=3, routed)           1.683     7.105    clk100_IBUF_BUFG
+    MMCME2_ADV_X0Y0      MMCME2_ADV (Prop_mmcme2_adv_CLKIN1_CLKOUT0)
+                                                     -3.694     3.411 r  usb_mmcm/CLKOUT0
+                         net (fo=1, routed)           1.923     5.334    milansoc_milannic_usbaudio_usbaudio0
+    BUFGCTRL_X0Y1        BUFG (Prop_bufg_I_O)         0.091     5.425 r  BUFG_7/O
+                         net (fo=5519, routed)        1.598     7.023    usb_gpif/usb_bus_clk
+    SLICE_X88Y107        FDCE                                         r  usb_gpif/flag_sync_r_reg/C
+                         clock pessimism              0.298     7.321    <hidden>
+                         clock uncertainty           -0.092     7.229    <hidden>
+    SLICE_X88Y107        FDCE (Setup_fdce_C_D)       -0.016     7.213    usb_gpif/flag_sync_r_reg
+  -------------------------------------------------------------------
+                         required time                          7.213    <hidden>
+                         arrival time                          -6.029    <hidden>
+  -------------------------------------------------------------------
+                         slack                                  1.184    <hidden>
+
+
+
+
