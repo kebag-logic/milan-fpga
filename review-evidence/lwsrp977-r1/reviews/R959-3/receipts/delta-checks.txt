@@ -1,0 +1,24 @@
+# comment-stripped equality, 50a2106 against 16b6c95 (raw git show; gcc -fpreprocessed -dD -E -P)
+SAME src/core/mrp_mad.c lines 1958 -> 1958; stripped bytes 53549; raw-show equals worktree: yes
+SAME src/include/shish_lan/mrp.h lines 470 -> 470; stripped bytes 6027; raw-show equals worktree: yes
+SAME src/ports/timer.h lines 89 -> 89; stripped bytes 668; raw-show equals worktree: yes
+doc/integrator.md lines 457 -> 457
+# changed lines (raw diff) and their lengths
+127: -Under [LWSRP_LEAN_VALIDATE](../src/core/mrp_pdu.c), decode_attr's result must depend on the wire octets, offset and type alone.
+141: +Under [LWSRP_LEAN_VALIDATE](../src/core/mrp_pdu.c), decode_attr's result must depend on the wire octets, their length, offset and type alone.
+51: -Its output must depend on the type and value alone.
+66: +Its output must depend on the type, value and buffer length alone.
+75: - * Reason: a lookup's work does not grow with the participant's attributes.
+82: + * Reason: a lookup visits its key bucket instead of the participant's whole list.
+81: - * Reason: a send's work does not grow with the attributes it leaves as they are.
+84: + * Reason: a send skips event delivery for Applicants whose tx! row changes nothing.
+102: -    /* The whole value, with no local, so the default object is main's at every optimisation level. */
+146: +    /* The whole value, with no local: with LWSRP_LEAN_COPY at 0 the restore compiles as it did before the option (kebag-logic/milan-fpga#977). */
+69: -     * The result and the octets written must depend on attr_type and
+74: -     * attr_val alone: under LWSRP_TX_MERGE the MAD encodes a vector again
+66: +     * The result and the octets written must depend on attr_type,
+86: +     * attr_val and buf_len alone: under LWSRP_TX_MERGE the MAD encodes a vector again
+76: -     * The result must depend on attr_type, offset and the buf octets alone,
+85: +     * The result must depend on attr_type, offset, buf_len and the buf octets alone,
+66: - * Reason: a tick's work does not grow with the registered timers.
+74: + * Reason: a tick visits its wheel slot instead of every registered timer.

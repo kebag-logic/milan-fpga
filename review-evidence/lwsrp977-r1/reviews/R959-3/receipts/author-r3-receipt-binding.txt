@@ -1,0 +1,29 @@
+# author-r3 primary receipts: every *_sha256 value against the delivered raw/ files (556 raw files)
+cleanup.json: hash fields 0; bound to a raw file 0; unbound 0 []
+differential.json: hash fields 4; bound to a raw file 0; unbound 4 [('sha256', 'b5b59e88a4141d8b'), ('sha256', '4356b787a89c2b18'), ('sha256', 'b5b59e88a4141d8b'), ('sha256', 'ac5935bd5bf2000d')]
+docs.json: hash fields 5; bound to a raw file 4; unbound 1 [('raw_sha256', '9124468c90dc9804')]
+integrity.json: hash fields 0; bound to a raw file 0; unbound 0 []
+objects.json: hash fields 524; bound to a raw file 2; unbound 522 [('executable_sha256', '8aac907d6fbf4039'), ('executable_sha256', 'ff89ab5fa1c49c20'), ('base_sha256', '96fd7b0e98a0bf26'), ('head_sha256', '96fd7b0e98a0bf26'), ('base_sha256', 'b442cf9091cd6f7b'), ('head_sha256', 'b442cf9091cd6f7b')]
+units.json: hash fields 12; bound to a raw file 6; unbound 6 [('runner_raw_sha256', '2c3f7945c9cb078e'), ('runner_raw_sha256', 'b8353c70e382d55a'), ('runner_raw_sha256', 'b1dda9796d69b89a'), ('runner_raw_sha256', 'ef683664428e448f'), ('runner_raw_sha256', 'b71e3da3d5dca9cb'), ('runner_raw_sha256', '6623198e9efdcff5')]
+wording.json: hash fields 0; bound to a raw file 0; unbound 0 []
+total hash fields 545; bound 12
+differential definitions: ['-DLWSRP_ATTR_KEY=0', '-DLWSRP_ATTR_BUCKETS=0', '-DLWSRP_TIMER_SLOTS=0', '-DLWSRP_TX_MERGE=0', '-DLWSRP_ONE_PORT_MAP=0', '-DLWSRP_LEAN_VALIDATE=0', '-DLWSRP_RAPID_REPLACE=0', '-DLWSRP_LEAN_COPY=0', '-DLWSRP_LEAN_TX=0']
+differential profiles: [('OFF', 0, [(None, 200, 200), (None, 200, 200)]), ('ON', 0, [(None, 200, 200), (None, 200, 200)])]
+objects keys: ['head', 'base', 'recorded_utc', 'flag_sets', 'comparisons', 'identical', 'failures', 'non_debug_pairs', 'stripped_debug_pairs'] {'recorded_utc': '2026-11-27T06:51:48.825282+00:00', 'flag_sets': 13, 'comparisons': 260, 'identical': 260, 'failures': 0, 'non_debug_pairs': 200, 'stripped_debug_pairs': 60}
+# unbound raw-log hash fields checked against the manifest's original_sha256 (path-redacted files)
+differential.json sha256 b5b59e88a4141d8b -> no manifest file
+differential.json sha256 4356b787a89c2b18 -> no manifest file
+differential.json sha256 b5b59e88a4141d8b -> no manifest file
+differential.json sha256 ac5935bd5bf2000d -> no manifest file
+docs.json raw_sha256 9124468c90dc9804 -> author-r3/raw/docs-graphs.log (path-redacted True)
+units.json runner_raw_sha256 2c3f7945c9cb078e -> author-r3/raw/default-OFF-runner.log (path-redacted True)
+units.json runner_raw_sha256 b8353c70e382d55a -> author-r3/raw/default-ON-runner.log (path-redacted True)
+units.json runner_raw_sha256 b1dda9796d69b89a -> author-r3/raw/end-station-OFF-runner.log (path-redacted True)
+units.json runner_raw_sha256 ef683664428e448f -> author-r3/raw/end-station-ON-runner.log (path-redacted True)
+units.json runner_raw_sha256 b71e3da3d5dca9cb -> author-r3/raw/end-station-no-scale-OFF-runner.log (path-redacted True)
+units.json runner_raw_sha256 6623198e9efdcff5 -> author-r3/raw/end-station-no-scale-ON-runner.log (path-redacted True)
+diff row OFF {'program': 'timer', 'config': 'default', 'seeds': 200, 'steps': 20000, 'identical': 200, 'excused': 0, 'trace_lines': 7821600, 'sha256': 'b5b59e88a4141d8b3d01459c33cf6575b00749780350c6f7ce2a0c43d43f5f6a'}
+diff row OFF {'program': 'mad', 'config': 'default', 'seeds': 200, 'steps': 3000, 'identical': 200, 'excused': 0, 'trace_lines': 5768140, 'sha256': '4356b787a89c2b182e988d85216be5a138335d5b607608b712c6cd18fd51f342'}
+diff row ON {'program': 'timer', 'config': 'default', 'seeds': 200, 'steps': 20000, 'identical': 200, 'excused': 0, 'trace_lines': 7821600, 'sha256': 'b5b59e88a4141d8b3d01459c33cf6575b00749780350c6f7ce2a0c43d43f5f6a'}
+diff row ON {'program': 'mad', 'config': 'default', 'seeds': 200, 'steps': 3000, 'identical': 200, 'excused': 0, 'trace_lines': 5760024, 'sha256': 'ac5935bd5bf2000d478083010421010e22d69b5dcdda6410d8818d3928897bfd'}
+# default-configuration differential digests: author-r3 (16b6c95) equal author-r2 gates (50a2106) for timer/mad x OFF/ON: b5b59e88 b5b59e88 4356b787 ac5935bd (see lines above)
