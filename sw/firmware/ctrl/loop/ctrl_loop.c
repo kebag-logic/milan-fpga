@@ -200,7 +200,7 @@ _Static_assert(CTRL_LOOP_SHARE_US == 2000u, "THE SHARE is not amended");
 _Static_assert(CTRL_LOOP_SLICE_US <= CTRL_LOOP_SHARE_US - CTRL_LOOP_SHARE_MARGIN_US, "a slice must fit THE SHARE");
 _Static_assert(CTRL_LOOP_BUILD_ONE_PASS_US <= CTRL_LOOP_SLICE_US && CTRL_LOOP_SRP_UNIT_US <= CTRL_LOOP_SLICE_US,
 	       "a slice must hold one of each tier-2 unit, or it never starts one");
-_Static_assert(!(CTRL_LOOP_SHAPE(1u, 2u, 2u) || CTRL_LOOP_SHAPE(1u, 1u, 2u)) ||
+_Static_assert(!(CTRL_LOOP_SHAPE(1u, 2u, 2u) || CTRL_LOOP_SHAPE(1u, 1u, 2u) || CTRL_LOOP_SHAPE(1u, 5u, 5u)) ||
 	       CTRL_LOOP_TX_MS <= CTRL_LOOP_TX_BOUND_MS,
 	       "an MRPDU a timer owes must keep the MRP timer budget");
 

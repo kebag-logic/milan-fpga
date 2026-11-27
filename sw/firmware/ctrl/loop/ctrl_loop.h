@@ -412,6 +412,19 @@ extern "C" {
 #define CTRL_LOOP_TICK_US 160u
 #define AECP_NOTICE_US 230u
 #define AECP_PACE_MS 10u
+#elif CTRL_LOOP_SHAPE(1u, 5u, 5u)      // Arty FPGA 4x4: one interface, four AAF and the CRF each way, 80 MHz
+#define CTRL_LOOP_SLICE_US 1250u
+#define CTRL_LOOP_BUILD_PASS_US 1035u
+#define CTRL_LOOP_BUILD_ONE_PASS_US 660u
+#define CTRL_LOOP_SRP_UNIT_US 300u
+#define CTRL_LOOP_RETRY_COLD_US 130u
+#define CTRL_LOOP_RETRY_ATTEMPT_US 30u
+#define CTRL_LOOP_QUEUED_MS 125u
+#define CTRL_LOOP_TX_MS 35u
+#define CTRL_LOOP_STEP_PASS_US 1060u
+#define CTRL_LOOP_TICK_US 160u
+#define AECP_NOTICE_US 230u
+#define AECP_PACE_MS 10u
 #else
 #error "THE SHAPES: the shape (MBX_N_IF, CTRL_SRP_SOURCES, CTRL_SRP_SINKS) is not one ctrl_loop.h lists"
 #endif
