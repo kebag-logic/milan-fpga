@@ -1,0 +1,35 @@
+SAME rv32i [-O0] src/core/mrp_mad.c
+SAME rv32i [-O0] src/core/mrp_pdu.c
+SAME rv32i [-O0] src/core/switch.c
+SAME rv32i [-O0] src/ports/timer.c
+SAME rv32i [-O0] src/modules/mmrp.c
+SAME rv32i [-O0] src/modules/mvrp.c
+SAME rv32i [-O0] src/modules/msrp.c
+SAME rv32i [-O2] src/core/mrp_mad.c
+SAME rv32i [-O2] src/core/mrp_pdu.c
+SAME rv32i [-O2] src/core/switch.c
+SAME rv32i [-O2] src/ports/timer.c
+SAME rv32i [-O2] src/modules/mmrp.c
+SAME rv32i [-O2] src/modules/mvrp.c
+SAME rv32i [-O2] src/modules/msrp.c
+SAME rv32i [-Os] src/core/mrp_mad.c
+SAME rv32i [-Os] src/core/mrp_pdu.c
+SAME rv32i [-Os] src/core/switch.c
+SAME rv32i [-Os] src/ports/timer.c
+SAME rv32i [-Os] src/modules/mmrp.c
+SAME rv32i [-Os] src/modules/mvrp.c
+SAME rv32i [-Os] src/modules/msrp.c
+SAME rv32i [-Os -DLWSRP_MILAN=1] src/core/mrp_mad.c
+SAME rv32i [-Os -DLWSRP_MILAN=1] src/core/mrp_pdu.c
+SAME rv32i [-Os -DLWSRP_MILAN=1] src/core/switch.c
+SAME rv32i [-Os -DLWSRP_MILAN=1] src/ports/timer.c
+SAME rv32i [-Os -DLWSRP_MILAN=1] src/modules/mmrp.c
+SAME rv32i [-Os -DLWSRP_MILAN=1] src/modules/mvrp.c
+SAME rv32i [-Os -DLWSRP_MILAN=1] src/modules/msrp.c
+rv32i default objects byte-identical: 28 of 28
+rv32i head scale: 7 of 7 sources compiled, -Werror
+rv32i head end-station: 7 of 7 sources compiled, -Werror
+rv32i head scale+end-station: 7 of 7 sources compiled, -Werror
+rv32i head scale+end-station+milan: 7 of 7 sources compiled, -Werror
+build failures: 0
+rc=0

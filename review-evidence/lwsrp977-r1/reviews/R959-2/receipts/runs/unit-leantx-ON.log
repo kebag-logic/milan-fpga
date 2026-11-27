@@ -1,0 +1,59 @@
+-- The C compiler identification is GNU 16.2.1
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /usr/bin/cc - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Configuring done (0.3s)
+-- Generating done (0.0s)
+-- Build files have been written to: $PACKET/scratch/runs/unit-leantx-ON
+[  7%] Building C object CMakeFiles/shlan.dir/src/ports/timer.c.o
+[  3%] Building C object CMakeFiles/shlan.dir/src/ports/alloc.c.o
+[ 14%] Building C object CMakeFiles/shlan.dir/src/core/mrp_pdu.c.o
+[ 11%] Building C object CMakeFiles/shlan.dir/src/core/mrp_mad.c.o
+[ 18%] Building C object CMakeFiles/shlan.dir/src/core/switch.c.o
+[ 25%] Building C object CMakeFiles/shlan.dir/src/modules/sim_adapter.c.o
+[ 22%] Building C object CMakeFiles/shlan.dir/src/modules/mvrp.c.o
+[ 29%] Building C object CMakeFiles/shlan.dir/src/modules/mmrp.c.o
+[ 33%] Building C object CMakeFiles/shlan.dir/src/modules/msrp.c.o
+[ 37%] Building C object CMakeFiles/shlan.dir/tests/features/switch_bindings.c.o
+[ 40%] Linking C shared library libshlan.so
+[ 40%] Built target shlan
+[ 44%] Building C object CMakeFiles/unit_tests.dir/tests/unit/main.c.o
+[ 48%] Building C object CMakeFiles/unit_tests.dir/tests/unit/fault_alloc.c.o
+[ 51%] Building C object CMakeFiles/unit_tests.dir/tests/unit/mrp_pdu_test.c.o
+[ 55%] Building C object CMakeFiles/unit_tests.dir/tests/unit/timer_test.c.o
+[ 59%] Building C object CMakeFiles/unit_tests.dir/tests/unit/msrp_values_test.c.o
+[ 62%] Building C object CMakeFiles/unit_tests.dir/tests/unit/receive_test.c.o
+[ 66%] Building C object CMakeFiles/unit_tests.dir/tests/unit/transmit_test.c.o
+[ 70%] Building C object CMakeFiles/unit_tests.dir/tests/unit/integration_test.c.o
+[ 74%] Building C object CMakeFiles/unit_tests.dir/tests/unit/milan_test.c.o
+[ 81%] Building C object CMakeFiles/unit_tests.dir/tests/unit/grouping_test.c.o
+[ 77%] Building C object CMakeFiles/unit_tests.dir/tests/unit/review_test.c.o
+[ 88%] Building C object CMakeFiles/unit_tests.dir/tests/unit/key_test.c.o
+[ 85%] Building C object CMakeFiles/unit_tests.dir/tests/unit/own_leaveall_test.c.o
+[ 96%] Building C object CMakeFiles/unit_tests.dir/tests/unit/mrpdu_decoder.c.o
+[ 92%] Building C object CMakeFiles/unit_tests.dir/tests/unit/end_station_test.c.o
+[100%] Linking C executable unit_tests
+[100%] Built target unit_tests
+Test project $PACKET/scratch/runs/unit-leantx-ON
+    Start 1: unit
+1/1 Test #1: unit .............................   Passed    0.24 sec
+
+100% tests passed out of 1
+
+Total Test time (real) =   0.25 sec
+Running "main" (112 tests)...
+  "mrp_pdu_suite": 1690 passes in 14ms.
+  "timer_suite": 14 passes in 1ms.
+  "msrp_values_suite": 23 passes in 2ms.
+  "receive_suite": 83 passes in 4ms.
+  "transmit_suite": 106 passes in 5ms.
+  "integration_suite": 387 passes in 12ms.
+  "milan_suite": 430 passes in 9ms.
+  "boundaries_suite": 17182 passes in 115ms.
+  "grouping_suite": 6575 passes in 58ms.
+  "own_leaveall_suite": 715 passes in 9ms.
+  "end_station_suite": 131 passes in 3ms.
+Completed "main": 27336 passes in 232ms.
+rc=0

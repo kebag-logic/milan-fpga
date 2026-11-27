@@ -1,0 +1,27 @@
+$ python3 doc/tools/check_sentences.py
+SYNTAX doc/tester.md:303: mermaid fence: literal machine syntax; nearby reference links require review
+SYNTAX doc/tester.md:348: sh fence: literal machine syntax; nearby reference links require review
+SYNTAX doc/tools/README.md:13: sh fence: literal machine syntax; nearby reference links require review
+Sentences/fragments: 1289; over limit: 0; prose exceptions: 0
+rc=0
+$ python3 doc/tools/check_references.py
+SYNTAX doc/tester.md:303: mermaid fence: literal machine syntax; nearby reference links require review
+SYNTAX doc/tester.md:348: sh fence: literal machine syntax; nearby reference links require review
+SYNTAX doc/tools/README.md:13: sh fence: literal machine syntax; nearby reference links require review
+Unlinked references: 0; prose exceptions: 0
+rc=0
+$ python3 doc/tools/check_references.py --self-test
+Reference self-test: 79 cases; failures: 0
+rc=0
+usage: check_links.py [-h] [--local-only] [--github-auth]
+
+Check local paths, local heading fragments, and unique external URLs.
+
+options:
+  -h, --help     show this help message and exit
+  --local-only   Skip external requests explicitly
+  --github-auth  Authenticate origin repository links with the GitHub CLI
+$ python3 doc/tools/check_links.py --local-only
+SKIP external URLs: 26; requested local-only check
+Local links: 438; external URLs: 26; failures: 0
+rc=0

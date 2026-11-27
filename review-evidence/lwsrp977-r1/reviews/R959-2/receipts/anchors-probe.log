@@ -1,0 +1,46 @@
+SAME doc/architecture.md ../src/core/mrp_mad.c#L1819: int mrp_transmit(struct mrp_app *app, uint8_t port_id,
+SAME doc/architecture.md ../src/core/mrp_mad.c#L1819: int mrp_transmit(struct mrp_app *app, uint8_t port_id,
+SAME doc/architecture.md ../src/core/mrp_mad.c#L1819: int mrp_transmit(struct mrp_app *app, uint8_t port_id,
+SAME doc/developer.md ../src/core/mrp_mad.c#L1330: unsigned mrp_reclaim(struct mrp_app *app, uint8_t port_id)
+SAME doc/developer.md ../src/core/mrp_mad.c#L273: [MRP_EVENT_NEW] = {
+SAME doc/developer.md ../src/core/mrp_mad.c#L692: static void appl_event(struct mrp_attr_inst *ai, enum mrp_event ev, bool p2p)
+SAME doc/developer.md ../src/core/mrp_mad.c#L1819: int mrp_transmit(struct mrp_app *app, uint8_t port_id,
+SAME doc/developer.md ../src/core/mrp_mad.c#L692: static void appl_event(struct mrp_attr_inst *ai, enum mrp_event ev, bool p2p)
+SAME doc/developer.md ../src/core/mrp_mad.c#L956: static void deliver_event(struct mrp_app *app, struct mrp_port_state *ps,
+SAME doc/developer.md ../src/core/mrp_mad.c#L1819: int mrp_transmit(struct mrp_app *app, uint8_t port_id,
+SAME doc/developer.md ../src/core/mrp_mad.c#L1586: static uint8_t *tx_message(const struct mrp_app_ops *ops, struct mrp_port_state *ps,
+SAME doc/developer.md ../src/core/mrp_mad.c#L1790: static int tx_assemble(const struct mrp_app_ops *ops, struct mrp_port_state *ps,
+SAME doc/developer.md ../src/core/mrp_mad.c#L322: [MRP_EVENT_RJOININ] = {
+SAME doc/developer.md ../src/core/mrp_mad.c#L264: static const struct appl_entry appl_table[MRP_EVENT_COUNT][MRP_APPL_STATE_COUNT] = {
+SAME doc/developer.md ../src/core/mrp_mad.c#L692: static void appl_event(struct mrp_attr_inst *ai, enum mrp_event ev, bool p2p)
+SAME doc/developer.md ../src/core/mrp_mad.c#L287: [MRP_EVENT_LV] = {
+SAME doc/developer.md ../src/core/mrp_mad.c#L294: [MRP_EVENT_TX] = {
+SAME doc/developer.md ../src/core/mrp_mad.c#L294: [MRP_EVENT_TX] = {
+SAME doc/developer.md ../src/core/mrp_mad.c#L440: static const struct reg_entry reg_table[MRP_EVENT_COUNT][MRP_REG_STATE_COUNT] = {
+SAME doc/developer.md ../src/core/mrp_mad.c#L809: static int reg_event(struct mrp_app *app, struct mrp_attr_inst *ai,
+SAME doc/developer.md ../src/core/mrp_mad.c#L440: static const struct reg_entry reg_table[MRP_EVENT_COUNT][MRP_REG_STATE_COUNT] = {
+SAME doc/developer.md ../src/core/mrp_mad.c#L975: static void sla_registrars(struct mrp_app *app, struct mrp_port_state *ps, uint8_t port_id
+SAME doc/developer.md ../src/core/mrp_mad.c#L502: /* MRP_EVENT_REDECLARE — same as RLV for Registrar */
+SAME doc/developer.md ../src/core/mrp_mad.c#L468: /* MRP_EVENT_RJOININ || MRP_EVENT_RJOINMT — Table 10-4 rJoinIn!||rJoinMt! row */
+SAME doc/developer.md ../src/core/mrp_mad.c#L809: static int reg_event(struct mrp_app *app, struct mrp_attr_inst *ai,
+SAME doc/developer.md ../src/core/mrp_mad.c#L1296: static void rx_on_leaveall(void *raw_ctx, uint8_t attr_type)
+SAME doc/developer.md ../src/core/mrp_mad.c#L996: static void la_event(struct mrp_port_state *ps, enum mrp_event ev)
+SAME doc/developer.md ../src/core/mrp_mad.c#L1819: int mrp_transmit(struct mrp_app *app, uint8_t port_id,
+SAME doc/developer.md ../src/core/mrp_mad.c#L975: static void sla_registrars(struct mrp_app *app, struct mrp_port_state *ps, uint8_t port_id
+SAME doc/developer.md ../src/core/mrp_mad.c#L989: static uint32_t leaveall_draw(struct mrp_port_state *ps)
+SAME doc/developer.md ../src/core/mrp_mad.c#L1025: static void pt_event(struct mrp_app *app, struct mrp_port_state *ps,
+SAME doc/developer.md ../src/core/mrp_mad.c#L1377: void mrp_set_periodic(struct mrp_app *app, uint8_t port_id, bool enable)
+SAME doc/developer.md ../src/core/mrp_mad.c#L1025: static void pt_event(struct mrp_app *app, struct mrp_port_state *ps,
+SAME doc/integrator.md ../src/core/mrp_mad.c#L1819: int mrp_transmit(struct mrp_app *app, uint8_t port_id,
+SAME doc/integrator.md ../src/modules/msrp.c#L458: .group_addr       = { 0x01u, 0x80u, 0xC2u, 0x00u, 0x00u, 0x0Eu },
+SAME doc/integrator.md ../src/core/mrp_mad.c#L1025: static void pt_event(struct mrp_app *app, struct mrp_port_state *ps,
+SAME doc/integrator.md ../src/core/mrp_mad.c#L1125: void mrp_app_destroy(struct mrp_app *app)
+SAME doc/manager.md ../src/core/mrp_mad.c#L1296: static void rx_on_leaveall(void *raw_ctx, uint8_t attr_type)
+SAME doc/manager.md ../src/core/mrp_mad.c#L692: static void appl_event(struct mrp_attr_inst *ai, enum mrp_event ev, bool p2p)
+SAME doc/manager.md ../src/core/mrp_mad.c#L440: static const struct reg_entry reg_table[MRP_EVENT_COUNT][MRP_REG_STATE_COUNT] = {
+SAME doc/manager.md ../src/core/mrp_mad.c#L1819: int mrp_transmit(struct mrp_app *app, uint8_t port_id,
+SAME doc/manager.md ../src/core/mrp_mad.c#L1819: int mrp_transmit(struct mrp_app *app, uint8_t port_id,
+SAME doc/manager.md ../src/modules/msrp.c#L458: .group_addr       = { 0x01u, 0x80u, 0xC2u, 0x00u, 0x00u, 0x0Eu },
+SAME doc/manager.md ../src/core/mrp_mad.c#L1819: int mrp_transmit(struct mrp_app *app, uint8_t port_id,
+SAME doc/manager.md ../src/modules/msrp.c#L163: static uint32_t msrp_map_join(const struct mrp_app *app, uint8_t src_port,
+anchors 45; moved 0
