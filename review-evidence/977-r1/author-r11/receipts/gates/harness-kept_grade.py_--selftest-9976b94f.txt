@@ -1,0 +1,34 @@
+[ok] records at the unit by the rule (27,142 cycles, 285 us), kept <= bound: nothing owed or found
+[ok] records whose tagged frames carry Talker values are charged them: at the unit and CTRL_LOOP_SRP_REG_US for each of 2 (50,500 cycles, past the unit) they hold, one cycle more is its own probe's finding
+[ok] records past their charge with kept <= bound are findings, each its own probe's, and nothing is owed
+[ok] a kept record 4 % dearer than the bound one holds kept <= bound within the rule's 5 %: no finding
+[ok] a kept record 6 % dearer than the bound one breaks kept <= bound, its own probe's, never owed
+[ok] a kept record at bound + 5 % (85,497 against 81,426) holds, one cycle more breaks
+[ok] kept exactly bound + 5 % (105,000 against 100,000) holds, 105,001 breaks: the rule is inclusive
+[ok] a probe with no record is a finding, the next probe's record not taken for it
+[ok] a work pass of either group over THE SHARE is a finding of its own, nothing owed
+[ok] a work pass of srp-bound alone over THE SHARE is a finding, nothing owed
+[ok] an idle run over THE SHARE in either group is a finding, never owed, read without a work pass's start
+[ok] a build of one MRPDU one cycle over its stated cost is a finding in srp-kept, never owed
+[ok] srp-bound's build of one MRPDU one cycle over its stated cost is a finding, nothing owed
+[ok] a pass given whole to THE TRANSMIT's build one cycle over its stated cost is a finding in either group
+[ok] an unfinished srp-kept log measures nothing: a finding
+[ok] a probe the point makes that is never marked is a finding
+[ok] a kept probe with no bound record of its own interface is a finding, never a skipped comparison
+[ok] both groups graded together: nothing is owed, each line of either group stays a failure, and srp-bound's build of one over its stated cost is a finding of its own
+[ok] srp-bound's build of one over the slice (95,001 against 95,000): run.py's build-one and THE TRANSMIT slice lines both fail, and it is a finding, nothing owed
+[ok] a srp-bound pass given whole to THE TRANSMIT's build, over the slice and within CTRL_LOOP_BUILD_PASS_US (98,000 against 95,000 and 101,000): its slice line FAILS, never owed
+[ok] srp-bound's build of one and its pass given whole, in one log: both fail, nothing owed
+[ok] srp-kept's pass given whole to THE TRANSMIT's build over the slice fails, never owed
+[ok] srp-bound's build of one over the slice whose AECP round did work (1,001 cycles, past whole_grade.ROUND_IDLE_CYCLES): no build-one pass, its slice line FAILS, never owed
+[ok] srp-bound's build of one over the slice that is an aged step's: no build-one pass, its slice line FAILS, never owed
+[ok] srp-bound's build of one and its pass given whole, of equal length (98,000): the build-one pass is a finding, both slice lines FAIL, nothing owed
+[ok] one group graded alone is a finding: nothing is owed and every line stays a failure
+[ok] both groups graded together with a condition broken in a log: the finding stays, nothing is owed
+[ok] standalone: both logs complete and within: PASS
+[ok] standalone: THE SHARE is read from the log, so a kept work pass over it fails beside a stale or empty result file
+[ok] standalone: an idle run over THE SHARE fails by name, never a crash
+[ok] standalone: a group with no log fails by name
+[ok] standalone: an unfinished log fails by name beside a within-share result file
+[ok] standalone: a log that does not parse fails by name
+kept_grade selftest: PASS (33 checks)

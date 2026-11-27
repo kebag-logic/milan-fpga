@@ -1,0 +1,59 @@
+# every step of the manager's builder (manager-builder.json, 49 steps) in a clean clone at 3181a3ec, in a unit with a scratch HOME; step 43 at this head; then steps 32 and 47 again with the real HOME (xvlog through vivado-slot.sh), below
+00 rc=0 0s python3 avdecc/gen_aem_store.py --self-test | gen_aem_store self-test: PASS
+01 rc=0 0s python3 scripts/pp_srcs.py --check --selftest |   prose    tests/steps/aecp_engine_steps.py: BDD steps citing the RTL they mirror
+02 rc=0 10s python3 scripts/lint_rtl.py --check --self-test | LINT GATE: PASS (89 violation(s) <= ratchet 89; 19 waived, 0 justified lint_off)
+03 rc=0 3s python3 scripts/suite_shards.py --selftest | selftest: PASS
+04 rc=0 1s python3 scripts/ci_events.py --check | ci_events: OK (2409 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)
+05 rc=0 40s python3 scripts/ci_scope.py --selftest | selftest: PASS
+06 rc=0 296s python3 scripts/ci_events.py --selftest | selftest: PASS (2409 contract items, 6174 arms)
+07 rc=0 2s python3 docs/traceability/gen_module_matrix.py --check | traceability matrix up to date (84 modules, 0 untested <= ratchet 0, 0 archived)
+08 rc=0 1s python3 scripts/check_feature_status.py | feature_status: 0 finding(s)
+09 rc=0 0s python3 scripts/check_submodule_docs.py | submodule documentation: OK (6 exact gitlinks)
+10 rc=0 2s python3 scripts/check_cpp_idiom.py |   build without warnings: 0 <= 0
+11 rc=0 7s python3 scripts/check_py_idiom.py |   over-long line: 0 <= 0
+12 rc=0 9s python3 scripts/docs_check.py | docs_check: 0 finding(s) across 226 md files + 1972 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls
+13 rc=0 0s python3 scripts/check_doc_style.py | documentation style: OK (25 current documents)
+14 rc=0 0s python3 scripts/check_doc_style.py --selftest | documentation style selftest: OK
+15 rc=0 0s python3 scripts/check_solution_docs.py | solution documentation: OK (product recipe, 3 memory faces, 15 exhaustive port groups)
+16 rc=0 0s python3 scripts/check_doc_paths.py | doc path gate: OK (1781 cited paths all resolve, 1 allowlisted; 10 line anchor(s) within their file)
+17 rc=0 1s python3 scripts/check_archive.py | archive gate: OK (21 historical page(s), each indexed with metadata and a current successor)
+18 rc=0 5s python3 scripts/gen_toc.py --verify-anchors | anchor check: 759 existing cross-page fragment links reproduced
+19 rc=0 7s python3 scripts/gen_toc.py --check | TOC gate: OK (161 page(s) carry an annotated contents list, 20 below the 3-section threshold)
+20 rc=0 0s python3 scripts/check_hygiene.py --check | HYGIENE RATCHET: PASS (3 population(s), 1573 file(s))
+21 rc=0 2s python3 scripts/check_todo_ownership.py | TODO ownership gate: OK (0 owned marker(s), 0 unowned; 80 near-miss occurrence(s) on 73 line(s) correctly not treated as
+22 rc=0 0s python3 scripts/check_sv_idiom.py | SystemVerilog idiom gate: OK (145 first-party HDL file(s) across the superproject and both processor submodules, every o
+23 rc=0 0s python3 scripts/check_sh_idiom.py |   top-heavy long script: 0 <= 0
+24 rc=0 2s python3 scripts/check_rtl_source_lists.py | RTL source-list gate: OK (113 files in the milan_datapath closure, 4 of 4 consumer list(s) carry all of them; protocol-p
+25 rc=0 0s python3 scripts/check_soc_sources.py | SoC source gate: OK (47 instantiated modules all registered, 85 sources all present)
+26 rc=0 3s python3 scripts/check_port_contracts.py |   review inventory: 94 open and 50 literal-bound named connection(s), 58 without a local rationale (all recorded; none m
+27 rc=0 2s python3 scripts/check_nvm_record_space.py | 0 finding(s) across 5 config(s): the inventory's (group, index) key set is exactly the set the shape requires with no ke
+28 rc=0 31s python3 scripts/check_baremetal_only.py --check | baremetal-only: OK (0 findings across 1970 tracked first-party file(s))
+29 rc=0 6s python3 scripts/check_baremetal_only.py --selftest | baremetal-only selftest: PASS (867 arm(s))
+30 rc=0 199s python3 sw/firmware/nvm_hosttest/test_nvm_firmware.py --self-test | saved-state writer gate: OK across 5 shape(s), and every planted defect reddened
+31 rc=0 21s python3 scripts/check_sweep_shape.py --self-test |   [self-test] OK: 1 drift(s) reported
+32 rc=0 0s python3 scripts/xvlog_gate.py --check | xvlog gate: SKIPPED (no Vivado xvlog found; set $XVLOG or install to ~/Xilinx/2026.1). A skip is not a pass.
+33 rc=0 0s python3 scripts/measure_control_flow.py --selftest | 45 checks: 45 PASS, 0 FAIL
+34 rc=0 0s python3 scripts/measure_cohesion.py --selftest | 18 checks: 18 PASS, 0 FAIL
+35 rc=0 2s python3 scripts/check_em_dash.py --base 0b5940237e8de8bd5912db87e5e036a78f59b5a6 | check_em_dash: 0 finding(s) over 171 added line(s) in 9 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/3
+36 rc=0 2s python3 scripts/measure_fail_fast.py --check |   the ratchets can be lowered to 80, 3 and 0
+37 rc=0 10s python3 scripts/measure_test_evidence.py --check |   the mutation ratchet can be lowered to 69
+38 rc=0 1s python3 scripts/measure_naming.py --check | NAMING RATCHET: PASS (95 candidate(s), all recorded by identity; 95 recorded)
+39 rc=0 10s python3 scripts/measure_test_evidence.py --selftest | 105 checks: 105 PASS, 0 FAIL
+40 rc=0 1s python3 scripts/gen_toc.py --selftest | TOC selftest: PASS (1501/1501 arm(s))
+41 rc=0 2s python3 scripts/check_em_dash.py --selftest | check_em_dash selftest: PASS (339 arm(s))
+42 rc=0 0s python3 scripts/docs_check.py --selftest | docs_check selftest: PASS (23 scrub + 4 routing arm(s))
+43 rc=0 0s git diff --check 0b5940237e8de8bd5912db87e5e036a78f59b5a6 3181a3ec372b6473175cc1c842ada8133a96b127 | 
+44 rc=0 0s python3 scripts/check_wire_accountability.py --self-test | RESULT: PASS
+45 rc=0 79s python3 scripts/check_entity_shape.py --self-test | RESULT: PASS
+46 rc=0 0s python3 scripts/check_deploy_shape.py --self-test |   [selftest] OK: 1 drift(s) reported
+47 rc=0 1403s python3 -u full-builder-sdk.py | ALL GATES PASS EXCEPT 17 NOT RUN
+48 rc=0 2s python3 scripts/docs_inventory.py --check | documentation inventory: OK (541 lines, docs/DOCUMENTATION_AUDIT.md is fresh)
+## step 32 again, real HOME, through vivado-slot.sh
+  hdl/: 0 finding(s)
+  pinned processors: 0 finding(s)
+xvlog gate: PASS (0 finding(s) == ratchet; 0 hdl/, 0 pinned processors)
+## step 47 again, real HOME
+
+1 GATE ARM(S) DID NOT RUN - this verdict does not cover them:
+  - [gate 11] real report not on disk (digilent_arty_utilization_place.rpt) - the calibration gate needs the mf48 build tree
+ALL GATES PASS EXCEPT 1 NOT RUN

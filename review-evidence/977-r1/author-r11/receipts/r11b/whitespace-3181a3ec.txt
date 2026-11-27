@@ -1,0 +1,8 @@
+# git diff --check over the PR delta at 3181a3ec, submodules excluded: against the merge base with dev-soft-core (71bad8c0) and against the dev-soft-core tip the builder uses (0b594023, its step 43); and the same against the merge base at 9976b94f, before the fix
+## git diff --check 71bad8c0..3181a3ec
+rc=0
+## git diff --check 0b594023 3181a3ec
+rc=0
+## git diff --check 71bad8c0..9976b94f (before)
+sw/firmware/ctrl/test/srp_binding.hpp:580: new blank line at EOF.
+rc=2

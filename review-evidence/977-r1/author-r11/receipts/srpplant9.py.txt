@@ -1,0 +1,21 @@
+#!/usr/bin/env python3
+"""srpplant9.py ROOT OUT POINT NAME...: plant each named SRP defect of ROOT's tree alone, at 1x1/1if (POINT 1x1) or
+8x8/1if (POINT 8x8), through srp_mutants.campaign, and print its verdict (the campaign's own output)."""
+import sys
+from pathlib import Path
+
+root, out, point, names = Path(sys.argv[1]).resolve(), Path(sys.argv[2]).resolve(), sys.argv[3], sys.argv[4:]
+sys.path.insert(0, str(root / 'sw/firmware/ctrl/test'))
+sys.path.insert(0, str(root / 'sw/firmware/gtest'))
+import srp_listener_mutants  # noqa: E402
+import srp_mutants  # noqa: E402
+
+table = {d.name: d for d in srp_mutants.DEFECTS}
+missing = [n for n in names if n not in table]
+if missing:
+    sys.exit(f'no such defect: {missing}')
+srp_mutants.DEFECTS = tuple(table[n] for n in names)
+entity = srp_listener_mutants.ENTITY if point == '8x8' else ''
+failed = srp_mutants.campaign(out, root / 'third_party/lwSRP', 4, 1, entity)
+print('CAMPAIGN', point, 'FAILED' if failed else 'every defect caught')
+sys.exit(1 if failed else 0)

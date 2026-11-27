@@ -1,0 +1,71 @@
+#!/usr/bin/env python3
+"""cite11.py FILE...: name the ruling each #977 citation of 2026-11-27 means (R957-2-R1, R958-2-R1): "ruling on round
+9's STOP" -> "ruling of 2026-11-27 on the delivery bound"; an unqualified "ruling of 2026-11-27, item" -> "ruling of
+2026-11-27 on the population bound, item". Each changed line's comment block (the lines sharing its comment prefix, or
+its docstring paragraph) is reflowed from that line to the block's end, at the block's own widest line (at most 120)."""
+import re
+import sys
+import textwrap
+from pathlib import Path
+
+REPS = (("ruling on round 9's STOP", 'ruling of 2026-11-27 on the delivery bound'),
+        ("of 2026-11-27 on round 9's STOP", 'of 2026-11-27 on the delivery bound'),
+        ('ruling of 2026-11-27, item', 'ruling of 2026-11-27 on the population bound, item'))
+PREFIX = re.compile(r'^(\s*(?:#:|#|//|\*)?\s?)')
+
+
+def fix(line: str) -> str:
+    for a, b in REPS:
+        line = line.replace(a, b)
+    return line
+
+
+for name in sys.argv[1:]:
+    p = Path(name)
+    lines = p.read_text().split('\n')
+    i = 0
+    while i < len(lines):
+        new = fix(lines[i])
+        if new == lines[i]:
+            i += 1
+            continue
+        pre = PREFIX.match(lines[i])[1]
+        if p.suffix == '.md':
+            pre = ''
+        j = i + 1
+        def same(k):
+            s = lines[k]
+            if not s.strip() or s.strip() in ('"""', "'''"):
+                return False
+            if p.suffix == '.md':
+                return not s.startswith(('#', '|', '-', '*', '```'))
+            m = PREFIX.match(s)[1]
+            return m == pre and not s[len(pre):].startswith((' ', '-', '*')) and '"""' not in s[len(pre):]
+        while j < len(lines) and same(j):
+            j += 1
+        block = [new] + [fix(x) for x in lines[i + 1:j]]
+        width = min(120, max(len(x) for x in lines[max(0, i - 3):j]))
+        width = max(width, 100)
+        if max(len(x) for x in block) <= width:
+            lines[i:j] = block
+            i = j
+            continue
+        tail = ''
+        last = block[-1]
+        m = re.search(r'("""|\'\'\')\s*$', last)
+        if m and not p.suffix == '.md':
+            tail = m[1]; block[-1] = last[:m.start()].rstrip()
+        first_pre = PREFIX.match(block[0])[1] if p.suffix != '.md' else ''
+        text = ' '.join([block[0][len(first_pre):].strip()] + [b[len(pre):].strip() for b in block[1:]])
+        wrapped = textwrap.wrap(text, width - len(pre), break_long_words=False, break_on_hyphens=False,
+                                initial_indent='', subsequent_indent='')
+        out = [first_pre + wrapped[0]] + [pre + w for w in wrapped[1:]]
+        if tail:
+            if len(out[-1]) + len(tail) <= width:
+                out[-1] += tail
+            else:
+                out.append(pre + tail)
+        lines[i:j] = out
+        i += len(out)
+    p.write_text('\n'.join(lines))
+    print('fixed', name)

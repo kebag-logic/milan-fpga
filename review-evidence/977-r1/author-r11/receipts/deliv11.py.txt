@@ -1,0 +1,50 @@
+#!/usr/bin/env python3
+"""deliv11.py POINT SINKS LOG...: the deferred deliveries a registering record leaves (#977, R957-2-F1 option (a)): for
+each registering record (the first RXC after a srp.register_*.if0 probe mark that is not an _advertise probe), the polls
+base of each of the 2 x SINKS + 1 poll sections from the record's on (the delivery bound's window: each owed change waits
+at most 2 x n_sinks deliveries, plus the record's own pass), over a baseline: the median, and beside it the dearest, polls
+base of the sections in the 50 ms of bus time before the record. A record's deferred work is the sum of the window's
+excess over the baseline; its share per sink is that over SINKS. Prints each record and the dearest share by the rule."""
+import math
+import sys
+from pathlib import Path
+sys.path.insert(0, 'tb/verilator/ctrl_service_budget')
+import grade
+import poll_grade
+
+point, sinks, logs = sys.argv[1], int(sys.argv[2]), sys.argv[3:]
+rule = lambda c: 5 * math.ceil(c / 100 * 1.05 / 5)
+best = {'median': (0.0, ''), 'dearest': (0.0, '')}
+for path in logs:
+    log = grade.parse(open(path, errors='replace').read(), 100_000_000, 100_000_000)
+    marks, rxc = [], []
+    for line in open(path, errors='replace'):
+        if line.startswith('MARK ') and ' srp.register' in line:
+            p = line.split(); marks.append((int(p[1]), p[2]))
+        elif line.startswith('RXC '):
+            rxc.append(int(line.split()[1]))
+    traced, commits, longs = poll_grade.spans(log), poll_grade.committed(log), poll_grade.long_notices(log)
+    bases = []
+    for start, end, start_sys in poll_grade.sections(traced):
+        items = poll_grade.instances(log, traced, commits, start, end, longs)
+        bases.append((start_sys, end - start - sum(c for _, c in items)))
+    where = '/'.join(Path(path).parts[-3:-1])
+    for mark, name in marks:
+        if name.endswith('_advertise.if0'):
+            continue
+        record = next((s for s in rxc if s >= mark), None)
+        if record is None:
+            continue
+        prior = sorted(b for s, b in bases if record - 5_000_000 < s < record)
+        if not prior:
+            continue
+        window = [b for s, b in bases if s >= record][:2 * sinks + 1]
+        for label, base in (('median', prior[len(prior) // 2]), ('dearest', prior[-1])):
+            excess = sum(max(0, b - base) for b in window)
+            share = excess / sinks
+            print(f'{where} {name} record at bus {record}: {label} base before {base:,} ({len(prior)} passes); window '
+                  f'{len(window)} passes, excess {excess:,} cycles, {share:,.0f} a sink')
+            if share > best[label][0]:
+                best[label] = (share, f'{where} {name}')
+for label, (share, where) in best.items():
+    print(f'DEAREST {point} over the {label} base: {share:,.0f} cycles a sink, {rule(share)} us by the rule; {where}')

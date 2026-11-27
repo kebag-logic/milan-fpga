@@ -1,0 +1,25 @@
+#!/usr/bin/env python3
+"""builder11.py CLONE HEAD SDKPY OUT: every step of the manager's builder (manager-builder.json), in its own environment,
+in CLONE, each output in OUT/NN.txt and its rc in OUT/steps.txt; step 43 (git diff --check) at HEAD instead of the
+candidate's head, and step 47 (the builder's RV32 SDK run) through SDKPY, whose argv record is kept in scratch."""
+import json
+import subprocess
+import sys
+import time
+from pathlib import Path
+
+clone, head, sdk, out = sys.argv[1], sys.argv[2], sys.argv[3], Path(sys.argv[4])
+spec = json.loads(Path('<scratch>/manager-builder.json').read_text())
+out.mkdir(parents=True, exist_ok=True)
+lines = []
+for i, cmd in enumerate(spec['commands']):
+    cmd = [head if x == spec['head'] else x for x in cmd]
+    cmd = [sdk if x.endswith('full-builder-sdk.py') else x for x in cmd]
+    t0 = time.time()
+    with open(out / f'{i:02d}.txt', 'w') as fh:
+        rc = subprocess.run(cmd, cwd=clone, stdout=fh, stderr=subprocess.STDOUT).returncode
+    tail = (out / f'{i:02d}.txt').read_text(errors='replace').strip().splitlines()[-1:] or ['']
+    shown = ' '.join(c for c in cmd if not c.startswith(('PATH=', 'VERILATOR_ROOT=')) and c != 'env')
+    lines.append(f'{i:02d} rc={rc} {time.time() - t0:.0f}s {shown[:110]} | {tail[0][:120]}')
+    (out / 'steps.txt').write_text('\n'.join(lines) + '\n')
+    print(lines[-1], flush=True)

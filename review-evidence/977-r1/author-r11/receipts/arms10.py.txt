@@ -1,0 +1,40 @@
+#!/usr/bin/env python3
+"""arms10.py ROOT OUT NAME...: arms9.py with the composition suite (mbx1, mbx2: test_acmp_mbx.cpp at one and two
+interfaces) and the 8x8/1if one (mbx8). arms9.py ROOT OUT NAME...: run the named firmware arms of ROOT's tree (no plants) into OUT, each verdict and its
+first failing lines. Names: srp1 srp8 (srp_mbx.cpp at 1x1/1if and 8x8/1if), talker (srp_talker.cpp arms), early1
+early8 (SrpEarlyTalker at each), platsinks (both shapes), port (the loop suite), srp2 (srp_mbx.cpp at 1x1/2if)."""
+import sys
+from pathlib import Path
+
+root, out, names = Path(sys.argv[1]).resolve(), Path(sys.argv[2]).resolve(), sys.argv[3:]
+sys.path.insert(0, str(root / 'sw/firmware/ctrl/test'))
+sys.path.insert(0, str(root / 'sw/firmware/gtest'))
+import ctrl_arms  # noqa: E402
+import fw_gtest  # noqa: E402
+import plat_arms  # noqa: E402
+import srp_arms  # noqa: E402
+from ctrl_build import CTRL, Tree  # noqa: E402
+
+lw = root / 'third_party/lwSRP'
+tree = Tree(CTRL, out / 'checkout', out / 'reuse', fw_gtest.Build(jobs=4))
+ARMS = {
+    'srp1': lambda: [srp_arms.arm_srp(tree, lw, 1)],
+    'srp8': lambda: [srp_arms.arm_srp(tree, lw, 1, config=srp_arms.ENTITY_8X8)],
+    'srp2': lambda: [srp_arms.arm_srp(tree, lw, 2)],
+    'early1': lambda: [srp_arms.arm_srp(tree, lw, 1, test=('srp_mbx.cpp', 'SrpEarlyTalker.*'))],
+    'early8': lambda: [srp_arms.arm_srp(tree, lw, 1, test=('srp_mbx.cpp', 'SrpEarlyTalker.*'), config=srp_arms.ENTITY_8X8)],
+    'talker': lambda: srp_arms.talker_arms(tree, lw),
+    'platsinks': lambda: plat_arms.platsinks_arms(tree) if hasattr(plat_arms, 'platsinks_arms') else
+    [plat_arms.arm_platsinks(tree, c, n) for c, n in plat_arms.SINK_SHAPES],
+    'port': lambda: [ctrl_arms.arm_port(tree)],
+    'mbx1': lambda: [srp_arms.arm_srp(tree, lw, 1, test='test_acmp_mbx.cpp')],
+    'mbx2': lambda: [srp_arms.arm_srp(tree, lw, 2, test='test_acmp_mbx.cpp')],
+    'mbx8': lambda: [srp_arms.arm_srp(tree, lw, 1, test='test_acmp_mbx.cpp', config=srp_arms.ENTITY_8X8)],
+}
+bad = 0
+for n in names:
+    for o in ARMS[n]():
+        fails = [l for l in o.log.splitlines() if '[  FAILED  ]' in l or 'Failure' in l or 'FAIL' in l][:8]
+        print(f'ARM {n} {o.arm} rc={o.rc}' + ''.join(f'\n    {l[:220]}' for l in fails), flush=True)
+        bad |= o.rc != 0
+sys.exit(1 if bad else 0)
