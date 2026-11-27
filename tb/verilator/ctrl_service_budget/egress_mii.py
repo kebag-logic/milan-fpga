@@ -25,7 +25,9 @@ carries its items 2(a) and 2(b) as a merge gate (comment 7216972073):
 Every queue parameter is read from its source (`params`). `--selftest` plants each defect the grade must catch.
 `--structural` prints the AECP admission burst's figures: a notice's 16 registrations at the largest frame.
 
-usage: python3 -I egress_mii.py RESULTS... | --selftest | --structural
+`--packet DIR` grades a census packet or compact extract (receipt_regrade.py's): every case's observations as published.
+
+usage: python3 -I egress_mii.py BUILD... | --packet DIR | --selftest | --structural
 """
 
 from __future__ import annotations
@@ -566,7 +568,8 @@ def run_controls(p: Params, m: Params, defect: dict) -> list[tuple[str, bool]]:
     sr_end = at + p.wire_ps(p.sr_bytes[0]) + p.gap_octets * p.octet_ps
     out.append(('the SR stream is in the queue', late[0][1] - p.wire_ps(64) >= sr_end))
     hold = testbench_log(m, [(1000, 1, 64), (2000, 1, 64)], holds=((900, 0), (900 + 60 * 10**9 // m.sys_ps, 1)))
-    out.append(('a held egress is the ledger\'s, not the row\'s', grade_case(hold, graded).get('wait_ps', 1 << 62) == 0))
+    held = grade_case(hold, graded).get('wait_ps', 1 << 62)
+    out.append(('a held egress is the ledger\'s, not the row\'s', held == 0))
     gptp = gptp_wire_ps(p)
     edge = int((BOUND_US * 1000 - MII_FIXED_NS) * 1000 / MARGIN) - gptp + 1000
     rows = {'edge': dict(records=1, held=0, agree_ps=0, wait_ps=edge, phase=0, at=None)}
@@ -597,8 +600,33 @@ def arty_spec() -> dict:
     return dict(shape='endstation_arty_current', sys_hz=cfg['sys_clk_hz'], milan_hz=cfg['milan_clk_hz'])
 
 
+def packet_rows(packet: Path, p: Params) -> dict:
+    """Every case of a packet or compact extract, from the observations each manifest binds."""
+    import hashlib
+    import receipt_regrade
+    census = json.loads((packet / 'census.json').read_text())
+    limit = (min(census['part_limit'] + 1, receipt_regrade.EXTRACT_PART_LIMIT) if 'part_limit' in census
+             else receipt_regrade.PART_LIMIT)
+    rows = {}
+    for row in census['cases']:
+        path = packet / row['manifest']
+        if hashlib.sha256(path.read_bytes()).hexdigest() != row['sha256']:
+            raise ValueError(f'{row["case"]}: its manifest is not the one census.json binds')
+        manifest = json.loads(path.read_text())
+        text = receipt_regrade.read_parts(path.parent, manifest['extract'], limit).decode(errors='replace')
+        rows[row['case']] = grade_case(text, p)
+        print(f'GRADED {row["case"]}: {json.dumps(rows[row["case"]])}', flush=True)
+    return rows
+
+
 def main(argv: list[str]) -> int:
-    """Grade every case of each build directory given (its build.json and results/*.log)."""
+    """Grade every case of each build directory given (its build.json and results/*.log), or of a packet."""
+    if len(argv) == 2 and argv[0] == '--packet':
+        p = params(arty_spec())
+        ok, lines = verdict(packet_rows(Path(argv[1]), p), p)
+        print('\n'.join(lines))
+        print(f'RESULT: {"PASS" if ok else "FAIL"}')
+        return int(not ok)
     if argv in (['--selftest'], ['--structural']):
         p = params(arty_spec())
         if argv == ['--selftest']:
