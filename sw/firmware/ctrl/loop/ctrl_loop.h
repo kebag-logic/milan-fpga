@@ -390,7 +390,10 @@ extern "C" {
 // #897's (its tx row's 34.20 with GET_AS_PATH's read composed on them; 33.44
 // at that head, the figure not lowered),
 // 8x8/1if's its own, 130 ms, as #894 states it there, and its tx row rounded
-// up, 77 ms for the 76.86 ms with #977's walk at its 120 us again (78 for the
+// up, at the cap: 80 ms for the 79.48 ms of its row opened on a record's pass
+// alone with its SETTLE and its polls' base and walk restated (#977's ruling of
+// 2026-11-27 on the alone records, item 5, as the owner agreed; the hold-off
+// stays 8 cs), 77 ms for the 76.86 ms with #977's walk at its 120 us again (78 for the
 // 77.37 ms of its 190 us walk, 77 for the 76.81 ms of #665's final head,
 // #665's ruling of 2026-11-18, item 2a; 75 for #894's 74.26), at most 80 so the
 // transmit term a withdrawn Talker's hold-off counts stays 8 cs (srp_mbx.c), and
@@ -423,7 +426,7 @@ extern "C" {
 #define CTRL_LOOP_RETRY_ATTEMPT_US 25u
 #define CTRL_LOOP_ALONE_US 1840u
 #define CTRL_LOOP_QUEUED_MS 130u
-#define CTRL_LOOP_TX_MS 77u
+#define CTRL_LOOP_TX_MS 80u
 #elif CTRL_LOOP_SHAPE(2u, 2u, 2u)      // two interfaces, the 1x1's streams
 #define CTRL_LOOP_SLICE_US 1300u
 #define CTRL_LOOP_BUILD_PASS_US 1995u
