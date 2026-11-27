@@ -25,6 +25,7 @@ No BIOS ROM or BIOS SRAM is built there.
 - **[12. The remaining firmware levers at the present clock](#12-the-remaining-firmware-levers-at-the-present-clock)** -- The indexed descriptor lookup, the hot list's gate, ACMP's wire packing as a TSN stack change, the record copies and lwSRP's receive checked, the composed rows after them at a 100 MHz test clock, what a larger fetch L1 would save by the model, and, with the CPU on `sys` at 100 MHz, a save in a composed window, its worst case, aged windows, THE RETRY, and THE TRANSMIT with every pass class.
 - **[13. The larger fetch L1 and the record mover](#13-the-larger-fetch-l1-and-the-record-mover)** -- The 16 KiB two-way fetch L1 and its area and timing out of context, the bulk copies and fills, the mailbox's record mover, lwSRP's receive path as a change to lwSRP, the composed rows after them at a 100 MHz test clock, the rows again at the approved T_svc = 20 ms and with contract 2.3's face writer, the refills per window, what holds the 8x8 rows, every row and pass at the Milan clock of 2026-10-29, every row and pass with the CPU on `sys` at 100 MHz, a save in each flash phase and both links at once, with the store's step held to the pass's share, a save's worst case under any input, with one build a pass either way, the queued notices at stated costs, the polls by source: a base every pass is charged and the heavy items, each at its stated cost, and the long-window load of every source at its arrival bound, graded with tsn-c-stack #32 and held to 0.70 at 1x1/1if and 8x8/2if, and a burst of names and a change in flight under the held load, every acknowledged change durable within 5 s of its response at 1x1/1if and 8x8/1if (#920).
 - **[14. The 32x32 estimate](#14-the-32x32-estimate)** -- The service load per row at four times the 8x8 streams, an estimate against T_svc; each per-item cost measured on the 32x32/2if simulation shape, with the line's error against it; one CPU, measured on the cacheless core at 100 MHz; gPTP's share, a labelled assumption; and what it leaves to the owner.
+- **[15. Arty split at 80 MHz](#15-arty-split-at-80-mhz)** -- The Arty point, its own held-egress measurements and firmware memory ledger.
 
 ## 1. Memory map
 
@@ -3481,3 +3482,119 @@ These are not decided here.
 - **The last AECP and SRP records and the per-pass share at 32x32.** The levers are the rings and buckets the contract admits, the two records a pass of the owner's D4(b), the 2.0 ms share itself, and the firmware's per-stream polls; which of them is the owner's.
 - **Which CPU lever 4 means.** The split placement already has one hart. The cacheless core would save about 300 LUTs and 5 tiles, and does not fit 8x8.
 - **The CPU clock past 100 MHz, or a second hart,** if the firmware's levers do not close 32x32. Each runs against the area target.
+
+## 15. Arty split at 80 MHz
+
+The Arty FPGA point is `arty-1x1`: one interface, one AAF source and two sinks,
+the AAF listener and the CRF input.
+The [entity-shape ruling](https://github.com/kebag-logic/milan-fpga/issues/878#issuecomment-7096503672)
+keeps that shape under Milan v1.2 7.2.2 and 7.2.3.
+It has its own row in `ctrl_loop.h`'s THE SHAPES contract and its own measured
+costs in the service-budget harness.
+The Linux host's scheduling profile is outside this FPGA point.
+
+The [clock ruling](https://github.com/kebag-logic/milan-fpga/issues/878#issuecomment-7097204685)
+sets the system bus and split CPU to exactly 80,000,000 Hz.
+The 800 MHz VCO divides by 10, 32, 16 and 4 for 80, 25, 50 and 200 MHz;
+the datapath stays at 50 MHz and the exact-divider contract keeps `margin=0`.
+The harness uses the build's 80 MHz CPU and bus clocks for every measurement
+and scales cycle-based stimulus to preserve its elapsed time.
+No AX7101 cost or 100 MHz conversion supplies an Arty cost.
+
+Costs use the existing measurement rule: measured CPU time plus 5 percent,
+rounded up to 5 us.
+The retry's cold, refused-attempt and notice costs bound its measured rounds;
+the existing slice, pace and queued-notice rules determine the scheduler row.
+The owner bounds are load 0.70, txL 49 ms, THE SHARE 2 ms, last notice 140 ms
+and ACMP 30 ms.
+The service harness still holds each other row to its own budget.
+
+The Arty row states a 1250 us slice, a 10 ms AECP pace, a 125 ms queued-notice
+bound and a 35 ms ordinary transmit bound.
+The merge of dev-soft-core `c34e7d8b` raised the measured AECP, ACMP and MAAP costs at this point.
+By the same rules, the first row (950 us, 9 ms, 30 ms) became this one.
+A complete campaign at it then raised the poll base, centisecond, LINK, MAAP and withdrawal statements, again by the rule.
+Its costs are the larger of each measurement on the merged firmware and the one before it.
+The `srp-kept` and `srp-bound` registrations over their statements are owed to #977 under #969's disposition,
+as at the other points (`kept_grade.py`), and do not restate the row; their other measurements do.
+The complete 80 MHz campaign qualifies the row over 147 native cases across eight image variants.
+The second step changed no firmware byte, so its census regrades the first step's traces against these statements.
+The seven held-egress misses remain recorded under their ledger; every other service row meets its bound.
+The slice holds the measured build of both MRPDUs, so `CTRL_LOOP_BUILD_MOST`
+builds both in one pass at this point.
+
+| Work | Statement, us |
+|---|---:|
+| Poll base | 235 |
+| Both MRPDU builds | 1035 |
+| One MRPDU build | 660 |
+| Aged SRP step | 1060 |
+| Centisecond work | 160 |
+| SRP record | 300 |
+| ACMP record | 245 |
+| ADP record | 120 |
+| MAAP record | 125 |
+| Ordinary AECP record | 290 |
+| Long AECP record | 1105 |
+| Retry cold start | 130 |
+| Retry refused attempt | 30 |
+| Retry notice | 230 |
+| Transmit notice | 205 |
+| Transmit response | 45 |
+| Transmit long response | 385 |
+
+The retry fit measures 9767 cycles cold, 1929 cycles per refused attempt and
+17193 cycles per notice before applying the cost rule.
+These are measurements of the complete retry rounds, distinct from the
+transmit-only spans.
+The slice and pace rules give load 0.5004771140, txL 48.82 ms, last notice
+117.47 ms and ACMP 29.77 ms.
+The observed maximum whole pass in that qualification is 142775 cycles,
+or 1.7846875 ms at 80 MHz.
+The MII PHY frame statement is 195 us from 14487 cycles, or 181.0875 us,
+with the same 5 percent and 5 us rounding rule.
+
+### Arty held-egress ledger
+
+The #878 held-egress ruling applies the same recorded-miss rule at `(1,1,2)`.
+These measurements use exactly 80 MHz for the CPU and bus.
+Each ledger figure is the 60 ms hold plus measured service, with 5 percent on service only.
+The result is rounded up to 0.01 ms.
+These remain misses against the 20 ms budget.
+A new or larger miss fails.
+The campaign at the row above measured each row below its figure, 61.79729 to 63.29190 ms, and the ledger keeps the larger first measurements.
+
+| Arty held-egress row | Measured at 80 MHz, ms | Ledger, ms |
+|---|---:|---:|
+| `backlog.owed.if0` | 62.79239 | 62.94 |
+| `backlog.owed_behind0.if0` | 62.92862 | 63.08 |
+| `backlog.owed_behind1.if0` | 63.06490 | 63.22 |
+| `backlog.owed_behind2.if0` | 63.19966 | 63.36 |
+| `backlog.owed_behind3.if0` | 63.33355 | 63.51 |
+| `backlog-owed.service.acmp.last.if0` | 62.10374 | 62.21 |
+| `backlog-owed.service.aecp.last.if0` | 61.88720 | 61.99 |
+
+### Arty firmware memory ledger
+
+This is a new Arty ledger (#878).
+It records the product firmware linked with the measured 80 MHz scheduler row.
+The existing 56 RAMB36 limit applies.
+Memory fit does not waive the service-budget or routed timing checks.
+
+| Item | Bytes or RAMB36 equivalent |
+|---|---:|
+| Linked ELF file | 159620 bytes |
+| `.text` | 113908 bytes |
+| `.rodata` | 11558 bytes |
+| `.data` | 100 bytes |
+| `.bss` | 45136 bytes |
+| `.stack` | 8192 bytes |
+| ROM live extent, including initial data | 125572 bytes |
+| SRAM live extent, including stack | 53456 bytes |
+| ROM allocation | 31 RAMB36 |
+| SRAM allocation | 13.5 RAMB36 |
+| Total allocation | 44.5 RAMB36 |
+| Budget | 56 RAMB36 |
+
+The linked image's `size.json` records the sections and bank decomposition.
+The routed image binds that firmware through `image_manifest.json`.

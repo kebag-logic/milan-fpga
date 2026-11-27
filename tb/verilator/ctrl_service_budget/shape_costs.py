@@ -54,6 +54,8 @@ SLICE, BUILD, BUILD_ONE, SRP_UNIT, RETRY_COLD, RETRY_ATTEMPT = NAMES
 #: design, which rows_tiers.py holds and a withdrawn Talker's hold-off counts (srp_mbx.c, SRP_REDECLARE_CS).
 BOUNDS = ('CTRL_LOOP_QUEUED_MS', 'CTRL_LOOP_TX_MS')
 QUEUED, TX = BOUNDS
+#: Arty's 80 MHz FPGA point states these additional measured costs and its own pace.
+ARTY_NAMES = ('CTRL_LOOP_STEP_PASS_US', 'CTRL_LOOP_TICK_US', 'AECP_NOTICE_US', 'AECP_PACE_MS')
 #: THE RETRY's round costs AECP reads, each where it is defined and the name of the table's it must be: a round's cold
 #: start, which the adapter admits a round at, and a refused attempt's, which the core charges (#894's retry-cost
 #: ruling, item 1).
@@ -69,7 +71,8 @@ DEFAULT_CONFIG = 'configs/endstation_ax7101_1x1_tdm8.yaml'
 #: Each point the model and the flip check name, as the image builder builds it: its configuration and interfaces, the
 #: same pairs as the harness's points (run.py, POINTS); its shape is what the builder writes for them (of_point).
 BUILT = {'1x1/1if': ('endstation_ax7101_1x1_tdm8', 1), '8x8/1if': ('endstation_ax7101_8x8', 1),
-         '8x8/2if': ('endstation_ax7101_8x8', 2)}
+         '8x8/2if': ('endstation_ax7101_8x8', 2),
+         'arty-1x1': ('endstation_arty_current', 1)}
 #: Where AECP_NOTICES_MOST is derived, and the notice-bearing descriptors the shape header states, by descriptor_type
 #: (IEEE 1722.1-2021 Table 7-1: STREAM_INPUT, STREAM_OUTPUT, AVB_INTERFACE, CLOCK_DOMAIN;
 #: srp_entity.NOTICE_DESCRIPTORS).
@@ -115,17 +118,18 @@ def listed(text: str) -> dict[Shape, dict[str, int]]:
         shape = Shape(*map(int, head.groups()))
         if shape in out:
             raise ValueError(f'ctrl_loop.h lists the shape {tuple(shape)} twice')
+        names = NAMES + BOUNDS + (ARTY_NAMES if shape == Shape(1, 1, 2) else ())
         costs: dict[str, int] = {}
         k += 1
         while not re.match(r'#(?:elif|else|endif)\b', lines[k]):
             define = re.fullmatch(r'#define (\w+) (\d+)u', lines[k].split('//')[0].strip())
-            if define is None or define[1] not in NAMES + BOUNDS or define[1] in costs:
+            if define is None or define[1] not in names or define[1] in costs:
                 raise ValueError(f'ctrl_loop.h states {lines[k]!r} for the shape {tuple(shape)}')
             costs[define[1]] = int(define[2])
             k += 1
-        if tuple(costs) != NAMES + BOUNDS:
+        if tuple(costs) != names:
             raise ValueError(f'ctrl_loop.h states {", ".join(costs) or "nothing"} for the shape {tuple(shape)}, '
-                             f'not {", ".join(NAMES + BOUNDS)}')
+                             f'not {", ".join(names)}')
         out[shape] = costs
         if lines[k].startswith('#else'):
             break
@@ -454,7 +458,7 @@ def controls(root: Path = ROOT) -> list[str]:
         if UNLISTED not in str(refused):
             escaped.append('a shape the table does not list')
     plants = {
-        'a slice over the cap': planted(f'#define {SLICE} {one[SLICE]}u\n', f'#define {SLICE} {SLICE_MOST_US + 5}u\n'),
+        'a slice over the cap': {HEADER: planted_at(text, first, SLICE, SLICE_MOST_US + 5)},
         'a build of one over its slice': planted(block, block.replace(f'{BUILD_ONE} {one[BUILD_ONE]}u',
                                                                       f'{BUILD_ONE} {one[SLICE] + 5}u')),
         'an SRP record over its slice': planted(block, block.replace(f'{SRP_UNIT} {one[SRP_UNIT]}u',

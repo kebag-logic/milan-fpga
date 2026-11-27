@@ -39,13 +39,12 @@ The directory has no Makefile, for the CPU budget harness's reason: the serial s
 ## The SoC and the probe
 
 [`region_soc.py`](region_soc.py) builds its SoC from the [CPU budget harness's](../ctrl_service_budget/split_soc.py) parts, imported read only.
-It uses MilanSoC's own VexiiRiscv path with the DMA port and the split placement's instruction cache, the CPU at the Milan clock and the bus at the system clock.
+It uses MilanSoC's own VexiiRiscv path with the DMA port and the split placement's instruction and data caches, with CPU and bus on the system clock (80 MHz for Arty); the Milan datapath clock remains 50 MHz.
 Its firmware memory is `milan_soc.add_ctrl_memory`, which hands the generator the split regions as their pieces.
 The split SoC's other CPU-visible regions are slaves that answer `err`.
 They sit at the shipping split SoC's places, in its order: the flash window where LiteX's allocator puts it, the Milan CSR window, then the mailbox.
 So the generator is handed the region list of a split SoC without DDR3, as the Arty's split image is built.
-Its single-mask netlist matches, line for line apart from its name, the CPU netlist of the split image that would not boot on the Arty ([#878](https://github.com/kebag-logic/milan-fpga/issues/878)).
-Its cover netlist is that bring-up's booting diagnostic's own.
+The single-mask and cover arms apply the original bring-up decode defects to this current CPU recipe; they do not reuse a historical CPU netlist.
 The AX7101 split export also builds DDR3, so its CPU also has `main_ram` on its memory bus; `decode.py` reads that netlist on its own.
 
 Two things differ from the shipping SoC, so the test reads the CPU's decode and nothing else:
@@ -56,11 +55,13 @@ Two things differ from the shipping SoC, so the test reads the CPU's decode and 
 [`probe.S`](probe.S) runs the table `run.py` writes (`probe_data.S`), one probe at a time, in machine mode.
 Every word probed inside a region is `ret`: `rom`'s are in the image, and the probe stores `sram`'s first.
 A fetch calls its address; a load reads it.
+The probe executes `fence.i` after writing each instruction word so the shipping data cache makes it instruction-visible.
 Before each probe the program stores the probe's table address to `sram`'s first word, which divides the log into one segment per probe.
 A trap of any cause stores `mcause`, `mtval` and `mepc`, then resumes after the probe, so every probe runs.
 
 [`sim_main.cpp`](sim_main.cpp) drives only the clocks, the reset and the idle UART.
-At each rising edge of the CPU's clock it prints the committed PC, each trap and its cause, each fetch command on the CPU's bus (an instruction-cache refill), and each data command and response.
+At each rising edge of the CPU's clock it prints the committed PC, each trap and its cause, each fetch command on the CPU's bus (an instruction-cache refill), completed cached loads with their actual returned data, committed stores, and data-cache refill and I/O bus commands.
+The passive Whiteboxer load/store observations include cache hits; external bus observations independently check that forbidden accesses never leave the CPU.
 
 ## What is graded
 
@@ -68,7 +69,7 @@ At each rising edge of the CPU's clock it prints the committed PC, each trap and
 
 | Check | Requires |
 |---|---|
-| a load at its last word reads its word from memory | the load reaches the bus, answers without `err`, reads `ret`, and no trap |
+| a load at its last word reads its word from memory | the completed load returns `ret`, the probe reports that word, no refill error, and no trap |
 | a fetch at its last word executes it | the word commits, and no trap |
 | a load at each seam of its decode pieces | the same, at 0x1_fffc, 0x2_0000, 0x2_fffc and 0x3_0000 from the origin |
 | a fetch at each seam of its decode pieces | the same, at those four words |
@@ -77,7 +78,8 @@ At each rising edge of the CPU's clock it prints the committed PC, each trap and
 
 It also requires the probe to run every probe and store its end word, with the model's exit status 0.
 
-**DECODE.** [`decode.py`](decode.py) reads the netlist's two fault terms: `FetchL1Plugin_logic_ctrl_pmaPort_rsp_fault` for a fetch, and `LsuCachelessPlugin_logic_onPma_port_rsp_fault` for a word load.
+**DECODE.** [`decode.py`](decode.py) reads the netlist's two fault terms: `FetchL1Plugin_logic_ctrl_pmaPort_rsp_fault` for a fetch, and the cached and I/O PMA fault terms for a word load (`LsuPlugin_logic_onPma_cached_rsp_fault` and `LsuPlugin_logic_onPma_io_rsp_fault`).
+A word load is admitted when either data PMA admits it, matching the CPU's fault rule; the legacy cacheless term remains supported when checking an older netlist.
 It reads every assign they use, inlined.
 The address appears only masked by constants, so each term reads only those mask bits; a region's membership reads only the bits from the lowest set bit of `origin | size` up.
 Evaluating every combination of the union of those bits decides each term at all 2^32 addresses.

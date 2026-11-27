@@ -109,7 +109,8 @@ module KL_gptp_shadow #(
     //! layer carries zero: `PTP_INGRESS_LAT`/`PTP_EGRESS_LAT` (0x540/0x544)
     //! remain inert scratch with no timestamp consumer, so a correction
     //! cannot be applied twice by two owners who each think they are the
-    //! only one.
+    //! only one. LAT_WRITABLE_P below moves the source of the values and not
+    //! their owner.
     //!
     //! INGRESS is SUBTRACTED from the arrival stamp: the tap sees the frame
     //! AFTER the physical and MAC receive path, so the raw stamp is LATE by
@@ -118,10 +119,19 @@ module KL_gptp_shadow #(
     //! reconstruction is EARLY by this much. The two defaults are zero,
     //! which reproduces the uncorrected stamps bit for bit.
     parameter int unsigned INGRESS_LAT_NS_P = 0,
-    parameter int unsigned EGRESS_LAT_NS_P  = 0
+    parameter int unsigned EGRESS_LAT_NS_P  = 0,
+    //! Issue #829: take the two corrections from the ports below at runtime,
+    //! with the pair above as their reset value, rather than from the
+    //! parameters. The same arithmetic at the same point, and the same sign.
+    parameter bit LAT_WRITABLE_P = 1'b0
 ) (
     input  wire clk_i,                    //! axis_clk
     input  wire rst_n,                    //! active-low reset
+
+    //! the runtime corrections, nanoseconds, in this clock's domain; unread
+    //! unless LAT_WRITABLE_P
+    input  wire [15:0] lat_ingress_ns_i,
+    input  wire [15:0] lat_egress_ns_i,
 
     //! MAC RX tap: INPUT ONLY, a beat is real when tvalid && tready
     //! (the gh #65 hazard: a stalled downstream path parks tvalid-held data)
@@ -384,9 +394,13 @@ module KL_gptp_shadow #(
   //! a constant, folded into the existing capture: the tap stamps LATE by
   //! the receive path ahead of it, so the corrected arrival is the raw PHC
   //! value minus that path. At the default zero this is the raw value.
+  //! A write under LAT_WRITABLE_P reaches this subtractor on its own edge, so
+  //! a frame's arrival stamp carries one whole value (issue #829).
   logic [63:0] ts_arr_r;
   logic [63:0] ts_arr_corr_w;
-  assign ts_arr_corr_w = phc_ns_i - 64'(INGRESS_LAT_NS_P);
+  wire  [15:0] ingress_lat_w = LAT_WRITABLE_P ? lat_ingress_ns_i
+                                              : 16'(INGRESS_LAT_NS_P);
+  assign ts_arr_corr_w = phc_ns_i - 64'(ingress_lat_w);
 
   always_ff @(posedge clk_i) begin
     if (!rst_n) begin
@@ -1036,8 +1050,10 @@ module KL_gptp_shadow #(
       .TXTS_DELTA_EXP_P(45 * ETH_CYC_PER_OCTET_P),
       .DP_TICK_NS_P   (DP_TICK_NS_C),
       .PHC_CLK_HZ_P   (CLK_HZ_P),
-      .EGRESS_LAT_NS_P(EGRESS_LAT_NS_P)
+      .EGRESS_LAT_NS_P(EGRESS_LAT_NS_P),
+      .LAT_WRITABLE_P (LAT_WRITABLE_P)
   ) u_txret (
+      .lat_egress_ns_i (lat_egress_ns_i),
       .clk_i            (clk_i),
       .rst_n            (rst_n),
       .phc_ns_i         (phc_ns_i),

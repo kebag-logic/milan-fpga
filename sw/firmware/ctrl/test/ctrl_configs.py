@@ -261,6 +261,10 @@ OUTSIDE = {
     "tb/verilator/ctrl_service_budget/talker_notice.py": "writes the talker-notice groups' stimulus (#936), grades "
                                                          "their notices and names the planted defects build.py "
                                                          "builds for its arm; it compiles nothing",
+    "tb/verilator/ctrl_service_budget/arty_grade.py": "checks the Arty FPGA point's own 80 MHz costs and owner "
+                                                    "bounds; it reads firmware constants and compiles nothing",
+    "tb/verilator/ctrl_service_budget/stimulus_clock.py": "scales temporal stimulus waits to the point's own "
+                                                        "clock; it compiles nothing",
     "tb/verilator/ctrl_service_budget/whole_grade.py": "grades a run's log and reads a pass given whole's stated "
                                                        "costs from ctrl_loop.h; it compiles nothing",
     "tb/verilator/ctrl_service_budget/round_grade.py": "grades a run's log and reads a round's stated costs from "

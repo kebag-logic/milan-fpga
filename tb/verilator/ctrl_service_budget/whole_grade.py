@@ -35,7 +35,7 @@ def stated_us(interfaces: int | shape_costs.Shape) -> dict[str, int]:
     pattern = r'#define {} \(MBX_N_IF == 1u \? (\d+)u : (\d+)u\)'
     listed = shape_costs.at(interfaces, scenario.ROOT)
     one = shape_costs.interfaces(interfaces) == 1
-    return {kind: listed[name] if name in shape_costs.NAMES else
+    return {kind: listed[name] if name in listed else
             int(re.search(pattern.format(name), text).group(1 if one else 2)) for kind, name in COSTS.items()}
 
 

@@ -52,6 +52,7 @@ fetch:
 	j	step
 store:
 	sw	a1, 0(a0)
+	fence.i			/* stores become instruction-visible with the shipping data cache */
 step:
 	addi	s1, s1, 12
 	j	next

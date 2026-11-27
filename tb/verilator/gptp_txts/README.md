@@ -69,6 +69,11 @@ fault's report left the system clock's part open. The correction it grades is
 3770 ns, derived in
 [GPTP_PLANE.md](../../../docs/design/GPTP_PLANE.md#the-100-mbs-mii-shape).
 
+`make run-latw` elaborates the plane with the writable corrections (#829), on
+both shapes, and grades what the wire carries: a written pair moves t2 and t3 by
+exactly that pair, and a write swept through an exchange leaves each stamp one
+whole value and the next exchange the new pair.
+
 ## What it proves, and what it does not
 
 It proves the reconstruction is the launch: every frame inside the published
@@ -91,9 +96,10 @@ The default target runs the suite on both shapes and then `mutants.py`, which
 plants one defect at a time - the observation point, each register-stage term
 of the correction, the measured cycle distance, and on the MII shape the
 one-octet-per-clock reading of #829, the first-symbol term, the transmit tick,
-the measured cycle distance again and the history guard at three values - and
-requires the suite to notice, restoring the exact source afterwards. It then
-removes the two binaries, because each holds its shape's last defect.
+the measured cycle distance again and the history guard at three values, and
+on the writable build the wiring cut in each direction and a reversed sign -
+and requires the suite to notice, restoring the exact source afterwards. It
+then removes the three binaries, because each holds its shape's last defect.
 
     MILAN_LITEX_PYTHON=/path/to/litex/python make -C tb/verilator/gptp_txts
 

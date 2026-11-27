@@ -30,21 +30,21 @@ def ruled(w: float | None) -> int | None:
     return least if w <= least else STEP_MS * math.ceil(w / STEP_MS - 1e-9)
 
 
-def stated(root: Path, texts: dict[str, str] | None = None) -> int:
+def stated(root: Path, texts: dict[str, str] | None = None, point: str = POINT) -> int:
     """AECP_QUEUED_MS at the point's shape, as ctrl_loop.h's table (or its text in texts) states it."""
-    return shape_costs.at(shape_costs.of_point(POINT, root), root, texts)[shape_costs.QUEUED]
+    return shape_costs.at(shape_costs.of_point(point, root), root, texts)[shape_costs.QUEUED]
 
 
-def statements(root: Path, texts: dict[str, str] | None = None) -> list[str]:
+def statements(root: Path, texts: dict[str, str] | None = None, point: str = POINT) -> list[str]:
     """Each way the table's AECP_QUEUED_MS at the point is not the bound the built design's last row rules."""
     import rows_tiers as rt
-    w = rt.solve('last', rt.point_inputs(root, POINT, texts), rt.BUILT)[0]
-    bound, said = ruled(w), stated(root, texts)
+    w = rt.solve('last', rt.point_inputs(root, point, texts), rt.BUILT)[0]
+    bound, said = ruled(w), stated(root, texts, point)
     shown = 'none' if w is None else f'{w:.2f}'
     if bound is None:
-        return [f'{POINT}: the last queued notice {shown} ms, past the amendment\'s {MOST_MS} ms: the owner\'s']
+        return [f'{point}: the last queued notice {shown} ms, past the amendment\'s {MOST_MS} ms: the owner\'s']
     if said != bound:
-        return [f'{POINT}: ctrl_loop.h states AECP_QUEUED_MS {said} ms, not the {bound} ms its row {shown} ms rules']
+        return [f'{point}: ctrl_loop.h states AECP_QUEUED_MS {said} ms, not the {bound} ms its row {shown} ms rules']
     return []
 
 

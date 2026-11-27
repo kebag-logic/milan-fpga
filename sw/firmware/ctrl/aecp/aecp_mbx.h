@@ -29,7 +29,9 @@ extern "C" {
 // CTRL_LOOP_RETRY_COLD_US and CTRL_LOOP_RETRY_ATTEMPT_US), never by the interface count (#894's retry-cost ruling,
 // item 1): 85 us at 1x1/1if, 165 us at 8x8/1if, the line over its rounds measured, and 185 us at both two-interface
 // shapes.
+#ifndef AECP_NOTICE_US
 #define AECP_NOTICE_US (MBX_N_IF == 1u ? 255u : 365u)
+#endif
 #define AECP_ROUND_COLD_US CTRL_LOOP_RETRY_COLD_US
 // A round sets the next one's earliest start. Two milliseconds, a pass, lets a row of passes given whole carry a queue.
 // While records wait and the client yields it is two passes, and a round takes AECP_ROUND_YIELD_NOTICES: the rows a
@@ -58,7 +60,9 @@ extern "C" {
 // core's clock, which each pass's poll moves on, so a held record is taken at most two passes late, and a burst of
 // AECP_REGISTRATIONS edits answers its last within 15 paces, their passes and its own row: within 238 ms at its
 // commit, IEEE 1722.1-2021 9.3.2.6's 240 ms less T_ingress and T_egress (ctrl_loop.h).
+#ifndef AECP_PACE_MS
 #define AECP_PACE_MS 9u
+#endif
 #define AECP_ROUND_YIELD_PACE_MS 4u
 #define AECP_ROUND_YIELD_NOTICES 1u
 #define AECP_ROUND_FIRM_NOTICES (MBX_N_IF == 1u ? AECP_NOTICES_MOST : 4u)

@@ -285,7 +285,7 @@ def test_board_variant_docs() -> None:
 
 
 def test_pll_grade(python: str) -> None:
-    """Changing the declared part must reach the real AX7101 PLL constructor."""
+    """Part speed reaches the AX7101 PLL; Arty keeps #878's exact 800 MHz VCO."""
     probe = r'''
 from unittest.mock import patch
 import milan_soc
@@ -297,6 +297,24 @@ for part, expected in (("xc7a100t-fgg484-2", -2), ("xc7a100t-fgg484-1", -1)):
             milan_soc._CRG(platform, 100e6)
         assert pll.call_args.kwargs["speedgrade"] == expected, pll.call_args
 print("declared part reaches the AX7101 PLL speed grade, including a changed-part control")
+from litex_boards.platforms import digilent_arty
+platform = digilent_arty.Platform(variant="a7-100", toolchain="vivado")
+crg = milan_soc._CRG(platform, 80_000_000, with_eth=True, milan_clk_freq=50_000_000, board="arty")
+config = crg.pll.compute_config()
+assert config["vco"] == 800_000_000, config
+assert [config[f"clkout{k}_divide"] for k in range(4)] == [10, 32, 16, 4], config
+assert [config[f"clkout{k}_freq"] for k in range(4)] == [80_000_000, 25_000_000, 50_000_000, 200_000_000], config
+assert all(output.margin == 0 for output in crg.pll.clkouts.values()), crg.pll.clkouts
+for requested in (83_333_000, 80_000_001):
+    platform = digilent_arty.Platform(variant="a7-100", toolchain="vivado")
+    crg = milan_soc._CRG(platform, requested, with_eth=True, milan_clk_freq=50_000_000, board="arty")
+    try:
+        crg.pll.compute_config()
+    except ValueError:
+        pass
+    else:
+        raise AssertionError(f"Arty silently accepted the non-exact request {requested}")
+print("Arty 800 MHz VCO: exact 80/25/50/200 MHz, divisors 10/32/16/4; two non-exact requests refused")
 '''
     result = subprocess.run([python, "-B", "-c", probe], cwd=ROOT / "sw/litex",
                             text=True, capture_output=True, check=False, timeout=60)
