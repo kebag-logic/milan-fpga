@@ -751,9 +751,9 @@ source MAAP has allocated, no split source holds a licence. Each source's
 [maap README](../maap/README.md)), and that check's `[SID]` holds a split
 talker's stream frames to the stream_id its Talker Advertise declares.
 
-The lwSRP pin is its branch `opt-exec-3` at `73007b48`: public `main` at `d1bb4f4e`, which merges PR #21 (an Applicant
+The lwSRP pin is its `main` at `e27b34c9`, the squash merge of PR #22 on `d1bb4f4e`, which merges PR #21 (an Applicant
 takes one event at its own LeaveAll, lwSRP #20), with the optimisation line's build options, every one off by default.
-The branch is [lwSRP PR #22](https://github.com/kebag-logic/lwSRP/pull/22); the pin moves to its merge commit once it lands.
+[lwSRP PR #22](https://github.com/kebag-logic/lwSRP/pull/22) merged as `e27b34c9`, with the compiled sources of its branch `opt-exec-3` (`73007b48`).
 Its PR #18 sends one Message per AttributeType in each MRPDU (IEEE 802.1Q-2018 10.8.1.2).
 Decoded events are unchanged; the H-SRP LeaveAll walk reads every vector to each EndMark.
 Round 6 adapts to its recoverable receive-allocation contract.

@@ -646,12 +646,12 @@ The CI firmware step also requires the control mutation campaign.
 
 Initialize `third_party/lwSRP` and `third_party/tsn-c-stack` at their recorded gitlinks before running the gate.
 An alternate `--lwsrp` checkout must match `ctrl_arms.LWSRP_REV`, currently
-`73007b4807977517045e8aa485c61ebb8f5ee843`, with every compiled source unchanged.
+`e27b34c9231abaa862bdb73f807238b330aa4c51`, with every compiled source unchanged.
 Moving either pin requires a reviewed change.
-The pin is lwSRP's branch `opt-exec-3`: public `main` with PR #12, PR #15, PR #18 and PR #21, the optimisation line's
+The pin is lwSRP `main` at `e27b34c9`, the squash merge of PR #22: PR #12, PR #15, PR #18 and PR #21, the optimisation line's
 `opt-exec-1` (its build options, the attribute key and buckets, the timer wheel and the merged Message build), and the
 end-station options a one-interface shape sets (#977; [the SRP adapter](srp/README.md)).
-The branch is [lwSRP PR #22](https://github.com/kebag-logic/lwSRP/pull/22); the pin moves to its merge commit once it lands.
+[lwSRP PR #22](https://github.com/kebag-logic/lwSRP/pull/22) merged as `e27b34c9`; its compiled sources are the branch's.
 Anonymous HTTPS checkout needs no repository credentials.
 
 ## Linked size

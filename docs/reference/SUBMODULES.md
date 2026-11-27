@@ -23,7 +23,7 @@ Dirty submodules invalidate local evidence.
 | `external` | `efeb541ae5fe1e078332d8462dca2fc2d9cb8db5` | Historical Ethernet MAC RTL | No active product consumer |
 | `gptp-processor` | `3ce71b768a2f6f6a5274c127080146e755d02275` | Fabric gPTP engine | `KL_gptp_shadow.sv` |
 | `protocol-processor` | `801ef2283ec793e35a2590fc6593c90313a64041` | ADP, ACMP, AECP, and SRP | `KL_pp_shadow.sv` |
-| `third_party/lwSRP` | `73007b4807977517045e8aa485c61ebb8f5ee843` | Bare-metal MRP, MSRP and MVRP | `sw/firmware/ctrl/srp/srp_mbx.c` |
+| `third_party/lwSRP` | `e27b34c9231abaa862bdb73f807238b330aa4c51` | Bare-metal MRP, MSRP and MVRP | `sw/firmware/ctrl/srp/srp_mbx.c` |
 | `third_party/tsn-c-stack` | `0f72ca69a0cd85ade9a3f1c42a325b23704cf625` | Portable ADP, ACMP and MAAP cores | `sw/firmware/ctrl` mailbox adapters |
 | `third_party/verilog-axis` | `48ff7a7e2ef782cf778d47910cf85835c64b1bce` | AXI-Stream primitives | Multiple RTL consumers |
 <!-- submodule-pins:end -->
@@ -1251,11 +1251,11 @@ git submodule update --init \
 lwSRP uses the HTTPS URL recorded in `.gitmodules`.
 The repository is public; anonymous HTTPS fetch needs no credentials.
 
-The pin heads lwSRP branch `opt-exec-3`, lwSRP PR #22.
+The pin is lwSRP `main` `e27b34c9`, the squash merge of lwSRP PR #22.
 
 It holds PR #12, #15, #18 and #21.
 
-The pin moves to PR #22's merge commit.
+Its compiled sources are those of the earlier pin, `opt-exec-3` `73007b48`; the merge adds comments and the restore arm of `LWSRP_LEAN_COPY` at 0, which no image builds.
 
 The [SRP adapter](../../sw/firmware/ctrl/srp/README.md) documents compilation and ownership.
 
