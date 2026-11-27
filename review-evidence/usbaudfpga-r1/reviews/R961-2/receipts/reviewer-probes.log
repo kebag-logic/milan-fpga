@@ -1,0 +1,12 @@
+{"probe": "control_media", "test": "media", "rc": 0, "result": "PASS", "checks": []}
+{"probe": "control_epochs", "test": "epochs", "rc": 0, "result": "PASS", "checks": []}
+{"probe": "p1_boundary_ignores_tick", "test": "media", "rc": 1, "result": "FAILED", "checks": ["MEDIA_EVERY_GRID_SNAPSHOT"]}
+{"probe": "p1b_boundary_ignores_tick_bridge", "test": "epochs", "rc": 0, "result": "PASS", "checks": []}
+{"probe": "p2_no_trailing_discard", "test": "epochs", "rc": 0, "result": "PASS", "checks": []}
+{"probe": "p3_capture_valid_ignores_change", "test": "epochs", "rc": 0, "result": "PASS", "checks": []}
+{"probe": "p4_no_render_fence", "test": "epochs", "rc": 1, "result": "FAILED", "checks": ["BRIDGE_CAPTURE_ONLY_PRESERVES_PLAYBACK"]}
+{"probe": "p5_no_reprime_on_playback_epoch", "test": "media", "rc": 1, "result": "FAILED", "checks": ["MEDIA_PLAYBACK_BITS"]}
+{"probe": "p6_abort_on_any_change", "test": "epochs", "rc": 1, "result": "FAILED", "checks": ["BRIDGE_PLAYBACK_ONLY_PRESERVES_CAPTURE"]}
+{"probe": "p7_publish_applied_not_recorded", "test": "epochs", "rc": 0, "result": "PASS", "checks": []}
+{"probe": "p8_playback_consumed_during_pending_change", "test": "media", "rc": 0, "result": "PASS", "checks": []}
+{"probe": "p9_ack_before_boundary", "test": "media", "rc": 0, "result": "PASS", "checks": []}

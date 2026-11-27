@@ -1,0 +1,53 @@
+CLEAN=HEAD		.github/workflows/rtl.yml
+CLEAN=HEAD		CHANGELOG.md
+CONFLICT(1)		docs/AAF_LATENCY_TAPS.md
+CONFLICT(7)		docs/DOCUMENTATION_AUDIT.md
+CLEAN=HEAD		docs/design/GPTP_PLANE.md
+SAME-BOTH-SIDES	=HEAD	docs/design/MAILBOX_SPLIT.md
+CLEAN!=HEAD		docs/design/SPLIT_CONTROL_MEMORY.md
+CLEAN=HEAD		docs/design/TIME_SYNC.md
+SAME-BOTH-SIDES	=HEAD	docs/diagrams/PNG_MANIFEST.json
+SAME-BOTH-SIDES	=HEAD	docs/diagrams/submodule_boundaries.drawio
+SAME-BOTH-SIDES	=HEAD	docs/diagrams/submodule_boundaries.png
+SAME-BOTH-SIDES	=HEAD	docs/diagrams/submodule_boundaries.svg
+SAME-BOTH-SIDES	=HEAD	docs/diagrams/timesync_chain.drawio
+SAME-BOTH-SIDES	=HEAD	docs/diagrams/timesync_chain.png
+SAME-BOTH-SIDES	=HEAD	docs/diagrams/timesync_chain.svg
+CLEAN=HEAD		docs/guides/SYSTEM_INTEGRATOR.md
+SAME-BOTH-SIDES	=HEAD	docs/guides/gptp/HDL_DEVELOPER.md
+SAME-BOTH-SIDES	=HEAD	docs/guides/gptp/MANAGER.md
+SAME-BOTH-SIDES	=HEAD	docs/guides/gptp/SYSTEM_INTEGRATOR.md
+SAME-BOTH-SIDES	=HEAD	docs/guides/gptp/TEST_DEVELOPER.md
+CLEAN=HEAD		docs/integration/INTEGRATION_GUIDE.md
+SAME-BOTH-SIDES	=HEAD	docs/reference/SUBMODULES.md
+CONFLICT(1)		docs/traceability/MODULE_MATRIX.md
+SAME-BOTH-SIDES	=HEAD	docs/traceability/ieee8021as.md
+SAME-BOTH-SIDES	=HEAD	gptp-processor
+CLEAN=HEAD		hdl/milan/milan_datapath.sv
+CONFLICT(1)		hdl/usbnet/README-tests.md
+CONFLICT(1)		scripts/check_solution_docs.py
+CLEAN=HEAD		scripts/ci_events.py
+CONFLICT(1)		scripts/measure_test_evidence.py
+CLEAN=HEAD		scripts/measure_test_evidence_readers.py
+CONFLICT(1)		scripts/run_all_suites.sh
+CONFLICT(2)		scripts/suite_shards.py
+SAME-BOTH-SIDES	=HEAD	sw/firmware/ctrl/README.md
+SAME-BOTH-SIDES	=HEAD	sw/firmware/ctrl/maap/README.md
+CLEAN=HEAD		sw/firmware/ctrl/test/ctrl_configs.py
+CONFLICT(2)		sw/firmware/ctrl/test/ctrl_mutants.py
+SAME-BOTH-SIDES	=HEAD	sw/firmware/ctrl/test/test_adp.cpp
+CLEAN=HEAD		sw/firmware/gtest/README.md
+SAME-BOTH-SIDES	=HEAD	syn/yosys/rom_digests.tsv
+CLEAN!=HEAD		tb/verilator/ctrl_service_budget/README.md
+CLEAN!=HEAD		tb/verilator/ctrl_service_budget/run.py
+CLEAN=HEAD		tb/verilator/ctrl_service_budget/selftest_mutants.py
+SAME-BOTH-SIDES	=HEAD	tb/verilator/gptp_plane/Makefile
+SAME-BOTH-SIDES	=HEAD	tb/verilator/gptp_plane/README.md
+SAME-BOTH-SIDES	=HEAD	tb/verilator/gptp_plane/link_delay.py
+SAME-BOTH-SIDES	=HEAD	tb/verilator/gptp_plane/sim_main.cpp
+SAME-BOTH-SIDES	=HEAD	tb/verilator/gptp_shadow/README.md
+SAME-BOTH-SIDES	=HEAD	tb/verilator/gptp_shadow/mutants.py
+SAME-BOTH-SIDES	=HEAD	tb/verilator/gptp_shadow/sim_main.cpp
+SAME-BOTH-SIDES	=HEAD	tb/verilator/gptp_shadow/test_mutant_lifecycle.py
+CLEAN=HEAD		tb/verilator/milan_dp/sim_gptp.cpp
+SAME-BOTH-SIDES	=HEAD	third_party/tsn-c-stack

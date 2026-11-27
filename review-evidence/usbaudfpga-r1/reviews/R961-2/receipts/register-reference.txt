@@ -1,0 +1,36 @@
+# register reference check (pinned wavedrom venv), exported trees
+## reviewed head 0f7402ee97
+register reference: fresh (203 registers, 34 modules, 240 files)
+rc=0
+## network head b4a1df4a09
+STALE docs/diagrams/regmap/rtl_fingerprint.txt
+STALE docs/reference/REGISTER_MAP.md
+register reference: STALE (2 files); run python3 scripts/gen_register_reference.py --write
+rc=1
+
+## RTL at reviewed head: hdl/common/csr/milan_csr.sv
+122:  //! THE WRITABLE LATENCY CORRECTIONS (issue #829, build key
+123:  //! gptp.latency_writable). Off, 0x540 and 0x544 stay inert scratch that
+127:  parameter bit          GPTP_LAT_WRITABLE_P   = 1'b0,
+1594:      GPTP_LAT_WRITABLE_P ? 32'(GPTP_INGRESS_LAT_NS_P) : 32'd0;
+1596:      GPTP_LAT_WRITABLE_P ? 32'(GPTP_EGRESS_LAT_NS_P) : 32'd0;
+## config enabling it at reviewed head
+228:  latency_writable: true
+## builder parameter emission
+5369:        out["GPTP_LAT_WRITABLE_P"] = 1
+## REGISTER_MAP.md at reviewed head
+1046:### PTP_INGRESS_LAT register (offset 0x540) [reset = 0x00000000]
+1048:Readable inert scratch; corrections are published at GPTP_LAT.
+1056:| 31:0 | `PTP_ILAT` | R/W | 0 | 🟡 **Readable, inert scratch since `0x0056`.** A read returns the last written value; no timestamp-correction consumer reads the word at this VERSION. The live owne
+1060:Readable inert scratch; corrections are published at GPTP_LAT.
+1068:| 31:0 | `PTP_ELAT` | R/W | 0 | 🟡 **Readable, inert scratch since `0x0056`.** A read returns the last written value; no timestamp-correction consumer reads the word at this VERSION. The live owne
+0
+## REGISTER_MAP.md at network head
+1045:Scratch unless `gptp.latency_writable` enables the plane's runtime correction.
+1067:Scratch unless `gptp.latency_writable` enables the plane's runtime correction.
+3360:With `gptp.latency_writable`, `0x540` and `0x544` change the applied pair.
+3363:The Arty split resets to 1409/100 ns (#829).
+## prose source at reviewed head (scripts/register_descriptions.json)
+0
+## commit that replaced the prose
+0f7402ee97 Refresh the register reference after the shared datapath merge

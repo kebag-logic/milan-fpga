@@ -1,0 +1,35 @@
+MATCH USB_NET_PATH.md docs/design/USB_NET_PATH.md
+MATCH KL_status_led_truth.sv hdl/usbnet/KL_status_led_truth.sv
+MATCH KL_status_leds.sv hdl/usbnet/KL_status_leds.sv
+MATCH KL_usbnet_local_rx.sv hdl/usbnet/KL_usbnet_local_rx.sv
+MATCH KL_usbnet_pkg.sv hdl/usbnet/KL_usbnet_pkg.sv
+MATCH KL_usbnet_rx_copy.sv hdl/usbnet/KL_usbnet_rx_copy.sv
+MATCH KL_usbnet_tap.sv hdl/usbnet/KL_usbnet_tap.sv
+MATCH KL_usbnet_tx_arb.sv hdl/usbnet/KL_usbnet_tx_arb.sv
+MATCH KL_usbnet_tx_inject.sv hdl/usbnet/KL_usbnet_tx_inject.sv
+MATCH README-tests.md hdl/usbnet/README-tests.md
+MATCH ctrl_plat_gen.py sw/firmware/ctrl/plat/ctrl_plat_gen.py
+DELETED ctrl_plat_leds.h net: [] head: []
+MATCH ctrl_plat_main.c sw/firmware/ctrl/plat/ctrl_plat_main.c
+MATCH aecp_arms.py sw/firmware/ctrl/test/aecp_arms.py
+DELETED aecp_leds_mutants.py net: [] head: []
+MATCH aecp_mutants.py sw/firmware/ctrl/test/aecp_mutants.py
+MATCH test_aecp.cpp sw/firmware/ctrl/test/test_aecp.cpp
+MATCH milan_soc.py sw/litex/milan_soc.py
+MATCH usbnet_local_soc.py sw/litex/usbnet_local_soc.py
+MATCH usbnet_soc.py sw/litex/usbnet_soc.py
+NETDIFF .gitignore tb/verilator/usbaudio/.gitignore
+MATCH .gitignore tb/verilator/usbnet/.gitignore
+MATCH Makefile tb/verilator/usbnet/Makefile
+MATCH clock_commands.py tb/verilator/usbnet/clock_commands.py
+MATCH led_attachment.py tb/verilator/usbnet/led_attachment.py
+MATCH mutants.py tb/verilator/usbnet/mutants.py
+MATCH sim_attachment.cpp tb/verilator/usbnet/sim_attachment.cpp
+MATCH sim_leds.cpp tb/verilator/usbnet/sim_leds.cpp
+MATCH sim_local.cpp tb/verilator/usbnet/sim_local.cpp
+MATCH sim_main.cpp tb/verilator/usbnet/sim_main.cpp
+MATCH sim_truth.cpp tb/verilator/usbnet/sim_truth.cpp
+MATCH sim_wait.cpp tb/verilator/usbnet/sim_wait.cpp
+MATCH test_clock.cpp tb/verilator/usbnet/test_clock.cpp
+MATCH usbnet_mailbox_wrap.sv tb/verilator/usbnet/usbnet_mailbox_wrap.sv
+entries matched at head: 31
