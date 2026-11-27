@@ -256,6 +256,9 @@ The shipping split build sets `CTRL_SPLIT_P` to 1 (#665).
 | `SRP_LSN0_ROW_P` | `SRP_LSN0_ROW_C` | 2 |
 | `GPTP_PLANE_EN_P` | `GPTP_PLANE_EN_P` | 1 |
 | `MILAN_CLK_FREQ_HZ_P` | `MILAN_CLK_FREQ_HZ` | 50,000,000 |
+| `GPTP_LAT_WRITABLE_P` | `GPTP_LAT_WRITABLE_P` | 0 |
+| `GPTP_INGRESS_LAT_NS_P` | `GPTP_INGRESS_LAT_NS_P` | 656 |
+| `GPTP_EGRESS_LAT_NS_P` | `GPTP_EGRESS_LAT_NS_P` | 219 |
 | `CHMAP_RDBK_P` | `3` | 3 |
 | `PPS_P` | `PPS_P` | 0 |
 | `PPS_WIDTH_CYC_P` | `PPS_WIDTH_CYC_P` | 50,000 |
@@ -1042,17 +1045,7 @@ Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#ptp_tod_rd
 
 ### PTP_INGRESS_LAT register (offset 0x540) [reset = 0x00000000]
 
-Scratch unless `gptp.latency_writable` enables the plane's runtime correction.
-
-Bits 15:0 apply.
-Bits 31:16 remain readable scratch.
-
-The applied correction resets to the configured value.
-Writable builds reset readback to the configured correction.
-
-The reset annotations describe the default disabled build.
-
-`GPTP_LAT` reads the applied pair.
+Readable inert scratch; corrections are published at GPTP_LAT.
 
 RTL name: `A_PTP_ILAT`.
 
@@ -1060,21 +1053,11 @@ RTL name: `A_PTP_ILAT`.
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
-| 31:0 | `PTP_ILAT` | R/W | 0 | Low half: runtime correction when enabled; otherwise inert scratch. |
+| 31:0 | `PTP_ILAT` | R/W | 0 | 🟡 **Readable, inert scratch since `0x0056`.** A read returns the last written value; no timestamp-correction consumer reads the word at this VERSION. The live owner since `0x005E` is the fabric gPTP plane, which applies its board's correction as an elaboration constant and publishes the applied pair at `GPTP_LAT` (`0x7F0`); this word stays scratch so the same correction cannot be applied by two owners (#358). Ingress latency correction, ns, that the `ptp_ts_core` RX tap **SUBTRACTED** from its captures; that tap is no longer instantiated. |
 
 ### PTP_EGRESS_LAT register (offset 0x544) [reset = 0x00000000]
 
-Scratch unless `gptp.latency_writable` enables the plane's runtime correction.
-
-Bits 15:0 apply.
-Bits 31:16 remain readable scratch.
-
-The applied correction resets to the configured value.
-Writable builds reset readback to the configured correction.
-
-The reset annotations describe the default disabled build.
-
-`GPTP_LAT` reads the applied pair.
+Readable inert scratch; corrections are published at GPTP_LAT.
 
 RTL name: `A_PTP_ELAT`.
 
@@ -1082,7 +1065,7 @@ RTL name: `A_PTP_ELAT`.
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
-| 31:0 | `PTP_ELAT` | R/W | 0 | Low half: runtime correction when enabled; otherwise inert scratch. |
+| 31:0 | `PTP_ELAT` | R/W | 0 | 🟡 **Readable, inert scratch since `0x0056`.** A read returns the last written value; no timestamp-correction consumer reads the word at this VERSION. The live owner since `0x005E` is the fabric gPTP plane, which applies its board's correction as an elaboration constant and publishes the applied pair at `GPTP_LAT` (`0x7F0`); this word stays scratch so the same correction cannot be applied by two owners (#358). Egress latency correction, ns, that the TX tap **ADDED**; that tap is no longer instantiated. |
 
 ### PTP_PPS_CTRL register (offset 0x548) [reset = 0x00000000]
 
@@ -3354,13 +3337,7 @@ RTL name: `A_GPTP_LAT`.
 | 31:16 | `INGRESS` | R | X | Ingress correction in ns, subtracted from every arrival timestamp. |
 | 15:0 | `EGRESS` | R | X | Egress correction in ns, added to every reconstructed launch timestamp. |
 
-A write here changes nothing.
-Option OFF reads 0.
-
-With `gptp.latency_writable`, `0x540` and `0x544` change the applied pair.
-Otherwise the pair stays constant for the bitstream.
-
-The Arty split resets to 1409/100 ns (#829).
+Elaboration constants: a write changes nothing. Option OFF reads 0.
 
 Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#gptp_lat-offset-0x7f0).
 

@@ -77,4 +77,3 @@ SUITE_SECONDS = {
 #: until the change's own hosted run measures it (step 3 of the module docstring's new-suite steps).
 PROVISIONAL_SUITES: frozenset[str] = frozenset(
     {"input_loopback", "input_loopback_dp", "reboot_ctrl", "usbaudio", "usbnet"})
-

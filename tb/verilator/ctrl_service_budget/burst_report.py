@@ -59,5 +59,3 @@ def burst_table(results: list[dict]) -> list[str]:
                      f"{', '.join(map(str, b['never'])) or '-'} | {', '.join(map(str, b['over'])) or '-'} | {end} | "
                      f"{'OVER' if save_misses_of(b, group) else 'within'} |")
     return lines
-
-
