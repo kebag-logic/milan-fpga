@@ -31,7 +31,8 @@ def defects(kind: Callable[..., T]) -> tuple[T, ...]:
              "values += count < SRP_RECORD_VALUES ? count : SRP_RECORD_VALUES;", "values += count;",
              "a Talker Failed's values past V"),
         kind(PREFIX + "charge-leaveall-ends-the-message", CHARGE,
-             "                if (header == 0u) {\n                    break; // the Message's EndMark\n                }\n"
+             "                if (header == 0u) {\n"
+             "                    break; // the Message's EndMark\n                }\n"
              "                const unsigned count = mrp_vh_nv((uint16_t)header);\n",
              "                const unsigned count = mrp_vh_nv((uint16_t)header);\n"
              "                if (count == 0u) {\n                    break;\n                }\n",

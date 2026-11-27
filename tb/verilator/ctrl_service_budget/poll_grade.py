@@ -111,12 +111,13 @@ FIRST, LAST, ITEMS = poll_items.FIRST, poll_items.LAST, poll_items.ITEMS
 #: the base, dd163e41); every other item's measurement is within this table's, the AECP notice item's 14,370 cycles
 #: in the answering-every-port arm's notice-every-0 (14,084 at the base) within its 150 us, not restated: with the
 #: rule's 5 % it would state 155, which moves the last queued notice's row past AECP_QUEUED_MS, the stated 130 ms
-#: (the queued rule's figure; the owner's bound is 140 ms). With #977's sink index change the walk after a registering record is
-#: gone (the sink index, a declaration's walk owed only for a source's StreamID): its heaviest in that group 343
-#: cycles, so the walk is stated 35 us again, as before the drain and settlement change, within it every arm's. With #977's completion cut (the
-#: tsn-c-stack completion cut and the hot list relearned on it) the AECP notice item is 15,464 CPU cycles in the
-#: answering-ports arm, the most over every arm and group, 165 us by the rule, restated by the ruling of 2026-11-26
-#: on #977 (item 1), so the last queued notice's bound is 135 ms (queued_bound.py; the owner's stays 140).
+#: (the queued rule's figure; the owner's bound is 140 ms). With #977's sink index change the walk after a registering
+#: record is gone (the sink index, a declaration's walk owed only for a source's StreamID): its heaviest in that group
+#: 343 cycles, so the walk is stated 35 us again, as before the drain and settlement change, within it every arm's.
+#: With #977's completion cut (the tsn-c-stack completion cut and the hot list relearned on it) the AECP notice item is
+#: 15,464 CPU cycles in the answering-ports arm, the most over every arm and group, 165 us by the rule, restated by the
+#: ruling of 2026-11-26 on #977 (item 1), so the last queued notice's bound is 135 ms (queued_bound.py; the owner's
+#: stays 140).
 ONE = dict(base=225, withdraw=90, rebuild=290, walk=35, reclaim=25, retained=285, mrpdu=0, acmp=55, aecp=165,
            aecp_long=315, acmp_declined=20)
 TWO = dict(base=345, withdraw=245, rebuild=690, walk=60, reclaim=35, retained=365, mrpdu=0, acmp=70, aecp=275,
@@ -147,10 +148,10 @@ TWO = dict(base=345, withdraw=245, rebuild=690, walk=60, reclaim=35, retained=36
 #: still held (#665's ruling of 2026-11-23 on the #958 sync's STOP: a further statement over is raised by the same
 #: rule while every owner bound holds). With #977's change (the drain's charge, THE SETTLE, lwSRP's one-interface
 #: options), measured over every group of every arm on its image (f7d07720, the image 3de17804 links unchanged
-#: there), the walk is 18,004 cycles in the default (none) arm's srp-register-burst, a registrar walk after a record that replaced
-#: every input's Talker, 190 us by the rule (18,694 at the base, dd163e41); every other item is within this table's.
-#: With #977's sink index change that walk is gone (its heaviest in the burst 637 cycles), so it is stated 120 us again, as
-#: before the drain and settlement change, within it every arm's.
+#: there), the walk is 18,004 cycles in the default (none) arm's srp-register-burst, a registrar walk after a record
+#: that replaced every input's Talker, 190 us by the rule (18,694 at the base, dd163e41); every other item is within
+#: this table's. With #977's sink index change that walk is gone (its heaviest in the burst 637 cycles), so it is
+#: stated 120 us again, as before the drain and settlement change, within it every arm's.
 EIGHT_ONE = dict(base=300, withdraw=110, rebuild=590, walk=120, reclaim=40, retained=375, mrpdu=0, acmp=80, aecp=145,
                  aecp_long=325, acmp_declined=30)
 STATED_US = {shape_costs.Shape(1, 2, 2): ONE, shape_costs.Shape(1, 9, 9): EIGHT_ONE, shape_costs.Shape(2, 2, 2): TWO,
@@ -346,7 +347,8 @@ def record_values(shape: shape_costs.Shape) -> int:
     """SRP_RECORD_VALUES at a shape (srp_mbx.h, V; #977, its ruling of 2026-11-27, item 2), the bound and the kept
     together where its chain's #else states it."""
     text = (scenario.ROOT / 'sw/firmware/ctrl/srp/srp_mbx.h').read_text()
-    for *head, v in re.findall(r'#(?:el)?if CTRL_LOOP_SHAPE\((\d+)u, (\d+)u, (\d+)u\)\n#define SRP_RECORD_VALUES (\d+)u', text):
+    chain = r'#(?:el)?if CTRL_LOOP_SHAPE\((\d+)u, (\d+)u, (\d+)u\)\n#define SRP_RECORD_VALUES (\d+)u'
+    for *head, v in re.findall(chain, text):
         if shape_costs.Shape(*map(int, head)) == shape:
             return int(v)
     return 2 * shape.sinks

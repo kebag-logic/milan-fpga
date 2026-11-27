@@ -215,9 +215,9 @@ def record_values(p: scenario.Point) -> int:
 
 
 def leave_all_shape(n: int, failed: bool) -> bytes:
-    """One MRPDU in the shape lwSRP sends at a LeaveAll (mrp_mad.c): its Talker Message opens with a vector of no values,
-    LeaveAll set and its FirstValue zero (IEEE 802.1Q-2018 10.8.2.8), then one single-value vector for each of streams
-    0 .. n - 1, each JoinIn, then the Message's EndMark."""
+    """One MRPDU in the shape lwSRP sends at a LeaveAll (mrp_mad.c): its Talker Message opens with a vector of no
+    values, LeaveAll set and its FirstValue zero (IEEE 802.1Q-2018 10.8.2.8), then one single-value vector for each of
+    streams 0 .. n - 1, each JoinIn, then the Message's EndMark."""
     value = talker_failed if failed else talker
     vectors = f.be(0x2000, 2) + bytes(len(value(0)))
     for k in range(n):
@@ -241,6 +241,7 @@ def population_groups(p: scenario.Point) -> list[scenario.Group]:
     out = []
 
     def group(name: str, bound: int) -> scenario.Group:
+        """The group on interface 0 after the link settles, its first `bound` inputs bound."""
         g = scenario.Group(f'{NAME}-{name}', sim_ms=650 + SETTLE_MS + (BIND_MS + 100) * bound + 400 + AFTER_MS + 500)
         scenario.ready(g, p)
         g.add(f'wait cycles {SETTLE_MS * ms}', 'wait quiet 3 within 2000000')
@@ -248,6 +249,7 @@ def population_groups(p: scenario.Point) -> list[scenario.Group]:
         return g
 
     def probe(g: scenario.Group, name: str, what: str, frame: bytes) -> None:
+        """FRAME on interface 0 as the group's probe NAME, its record held to its own charge."""
         g.probe(scenario.Probe(f'srp.{name}.if0', what, 'srp', f'rxc:{srp}', [f'pass_end:{srp}']),
                 f'frame 0 {frame.hex()}', wait=f'cycles {30 * ms}')
 

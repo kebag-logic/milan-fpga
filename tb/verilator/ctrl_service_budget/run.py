@@ -193,16 +193,13 @@ def stated_misses(results: list[dict]) -> list[str]:
     tier-2 slice longer than CTRL_LOOP_SLICE_US (slice_grade.held, THE TIERS); each join interval outside 181.0 to
     239.0 ms, Table 4.3's JoinTime less T_egress at each end; each MRP timer's run-out whose build is late past its
     participant's transmit opportunity, or absent, or whose owner the testbench did not record at the expiry
-    (join_grade.held, mrpdu_grade.resolve); and each LeaveAll timer's
-    run-out whose LeaveAll went past its first transmit opportunity, late after it, or not at all
-    (mrpdu_grade.leave_alls)."""
+    (join_grade.held, mrpdu_grade.resolve); and each LeaveAll timer's run-out whose LeaveAll went past its first
+    transmit opportunity, late after it, or not at all (mrpdu_grade.leave_alls)."""
     import join_grade
     import poll_grade
     return ([f"{g['group']}: a {o['kind']} pass of {o['cycles']:,} CPU cycles, over its stated "
-             f"{g['passes']['stated']['limits'][o['kind']]:,}"
-             for g in results for o in g['passes'].get('stated', {}).get('over', [])] +
-            [f"{g['group']}: a {o['kind']} pass of {o['cycles']:,} CPU cycles, over its stated {o['limit']:,}"
-             for g in results for o in g['passes'].get('redeclared', {}).get('over', [])] +
+             f"{o['limit'] if key == 'redeclared' else g['passes'][key]['limits'][o['kind']]:,}"
+             for key in ('stated', 'redeclared') for g in results for o in g['passes'].get(key, {}).get('over', [])] +
             [f"{g['group']}: a round of {o['notices']} notice(s) and {o['refused']} refused attempt(s), "
              f"{o['cycles']:,} CPU cycles, over its stated {o['limit']:,}"
              for g in results for o in g['passes'].get('rounds', {}).get('over', [])] +
