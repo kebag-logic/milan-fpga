@@ -1,0 +1,21 @@
+{
+ "regrade": {
+  "full_lines": 183,
+  "timing_lines_set_aside": 13,
+  "extract_lines": 170,
+  "identical": true
+ },
+ "control": {
+  "full_lines": 185,
+  "extract_lines": 172,
+  "identical_apart_from_traceback_frames": true,
+  "differing_lines": [
+   "  File \"$SOURCE/tb/verilator/ctrl_service_budget/receipt_regrade.py\", line 214, in <module>",
+   "  File \"$SOURCE/tb/verilator/ctrl_service_budget/receipt_regrade.py\", line 208, in main",
+   "    qualify(args.packet, staged, results, limit)",
+   "    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
+   "  File \"$SOURCE/tb/verilator/ctrl_service_budget/receipt_regrade.py\", line 141, in qualify"
+  ]
+ },
+ "note": "The extract carries no timing reports, so the full run's 13 timing lines are set aside. The control logs differ only in the regrader's own traceback frame lines, whose line numbers moved with its part-limit change."
+}

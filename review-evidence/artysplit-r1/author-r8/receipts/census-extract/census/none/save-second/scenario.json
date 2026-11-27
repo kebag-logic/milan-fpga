@@ -1,0 +1,36 @@
+{
+ "name": "save-second",
+ "steps": [
+  "wait ready",
+  "mark booted",
+  "wait cycles 5000000",
+  "wait quiet 3 within 2000000",
+  "link 0 1",
+  "wait cycles 60000000",
+  "wait quiet 3 within 2000000",
+  "mark settled",
+  "wait cycles 200000000",
+  "wait quiet 3 within 2000000",
+  "flood gm 1",
+  "wait steps 1 within 10000000",
+  "mark save.change",
+  "frame 0 024b4c4b4c020a0b0c0d0e0122f0fb000054024b4cfffe4b4c020a0b0c0d0e0f00026f000010000000000000000073617665000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+  "wait cycles 103500000",
+  "wait steps 1 within 10000000",
+  "mark save.second",
+  "frame 0 024b4c4b4c020a0b0c0d0e0122f0fb000054024b4cfffe4b4c020a0b0c0d0e0f00026f0000100000000000000000616761696e0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+  "wait cycles 531000000",
+  "flood gm 0",
+  "wait quiet 3 within 2000000"
+ ],
+ "probes": [],
+ "sim_ms": 9145,
+ "load": {},
+ "admission": {},
+ "save": {
+  "image": 2600,
+  "records": 2,
+  "flight": 2
+ },
+ "sys_hz": 80000000
+}

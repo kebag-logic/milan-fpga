@@ -1,0 +1,273 @@
+{
+ "name": "aecp-reboot",
+ "steps": [
+  "wait ready",
+  "mark booted",
+  "wait cycles 5000000",
+  "wait quiet 3 within 2000000",
+  "link 0 1",
+  "wait cycles 60000000",
+  "wait quiet 3 within 2000000",
+  "mark settled",
+  "wait cycles 500000",
+  "frame 0 024b4c4b4c020a0b0c0d0e0122f0fb000010024b4cfffe4b4c020a0b0c0d0e0f10007100002400000000000000000000000000000000000000000000",
+  "wait tx 2 1 within 5000000",
+  "wait quiet 3 within 2000000",
+  "wait cycles 500000",
+  "frame 0 024b4c4b4c020a0b0c0d0e0122f0fb000010024b4cfffe4b4c020a0b0c0d0e0f10017101002400000000000000000000000000000000000000000000",
+  "wait tx 2 1 within 5000000",
+  "wait quiet 3 within 2000000",
+  "wait cycles 500000",
+  "frame 0 024b4c4b4c020a0b0c0d0e0122f0fb000010024b4cfffe4b4c020a0b0c0d0e0f10027102002400000000000000000000000000000000000000000000",
+  "wait tx 2 1 within 5000000",
+  "wait quiet 3 within 2000000",
+  "wait cycles 500000",
+  "frame 0 024b4c4b4c020a0b0c0d0e0122f0fb000010024b4cfffe4b4c020a0b0c0d0e0f10037103002400000000000000000000000000000000000000000000",
+  "wait tx 2 1 within 5000000",
+  "wait quiet 3 within 2000000",
+  "wait cycles 500000",
+  "frame 0 024b4c4b4c020a0b0c0d0e0122f0fb000010024b4cfffe4b4c020a0b0c0d0e0f10047104002400000000000000000000000000000000000000000000",
+  "wait tx 2 1 within 5000000",
+  "wait quiet 3 within 2000000",
+  "wait cycles 500000",
+  "frame 0 024b4c4b4c020a0b0c0d0e0122f0fb000010024b4cfffe4b4c020a0b0c0d0e0f10057105002400000000000000000000000000000000000000000000",
+  "wait tx 2 1 within 5000000",
+  "wait quiet 3 within 2000000",
+  "wait cycles 500000",
+  "frame 0 024b4c4b4c020a0b0c0d0e0122f0fb000010024b4cfffe4b4c020a0b0c0d0e0f10067106002400000000000000000000000000000000000000000000",
+  "wait tx 2 1 within 5000000",
+  "wait quiet 3 within 2000000",
+  "wait cycles 500000",
+  "frame 0 024b4c4b4c020a0b0c0d0e0122f0fb000010024b4cfffe4b4c020a0b0c0d0e0f10077107002400000000000000000000000000000000000000000000",
+  "wait tx 2 1 within 5000000",
+  "wait quiet 3 within 2000000",
+  "wait cycles 500000",
+  "frame 0 024b4c4b4c020a0b0c0d0e0122f0fb000010024b4cfffe4b4c020a0b0c0d0e0f10087108002400000000000000000000000000000000000000000000",
+  "wait tx 2 1 within 5000000",
+  "wait quiet 3 within 2000000",
+  "wait cycles 500000",
+  "frame 0 024b4c4b4c020a0b0c0d0e0122f0fb000010024b4cfffe4b4c020a0b0c0d0e0f10097109002400000000000000000000000000000000000000000000",
+  "wait tx 2 1 within 5000000",
+  "wait quiet 3 within 2000000",
+  "wait cycles 500000",
+  "frame 0 024b4c4b4c020a0b0c0d0e0122f0fb000010024b4cfffe4b4c020a0b0c0d0e0f100a710a002400000000000000000000000000000000000000000000",
+  "wait tx 2 1 within 5000000",
+  "wait quiet 3 within 2000000",
+  "wait cycles 500000",
+  "frame 0 024b4c4b4c020a0b0c0d0e0122f0fb000010024b4cfffe4b4c020a0b0c0d0e0f100b710b002400000000000000000000000000000000000000000000",
+  "wait tx 2 1 within 5000000",
+  "wait quiet 3 within 2000000",
+  "wait cycles 500000",
+  "frame 0 024b4c4b4c020a0b0c0d0e0122f0fb000010024b4cfffe4b4c020a0b0c0d0e0f100c710c002400000000000000000000000000000000000000000000",
+  "wait tx 2 1 within 5000000",
+  "wait quiet 3 within 2000000",
+  "wait cycles 500000",
+  "frame 0 024b4c4b4c020a0b0c0d0e0122f0fb000010024b4cfffe4b4c020a0b0c0d0e0f100d710d002400000000000000000000000000000000000000000000",
+  "wait tx 2 1 within 5000000",
+  "wait quiet 3 within 2000000",
+  "wait cycles 500000",
+  "frame 0 024b4c4b4c020a0b0c0d0e0122f0fb000010024b4cfffe4b4c020a0b0c0d0e0f100e710e002400000000000000000000000000000000000000000000",
+  "wait tx 2 1 within 5000000",
+  "wait quiet 3 within 2000000",
+  "wait cycles 500000",
+  "frame 0 024b4c4b4c020a0b0c0d0e0122f0fb000010024b4cfffe4b4c020a0b0c0d0e0f100f710f002400000000000000000000000000000000000000000000",
+  "wait tx 2 1 within 5000000",
+  "wait quiet 3 within 2000000",
+  "mark aecp_reboot.short.if0",
+  "wait cycles 500000",
+  "frame 0 024b4c4b4c020a0b0c0d0e0122f0fb00000e024b4cfffe4b4c020a0b0c0d0e0f00027110002a00000000000000000000000000000000000000000000 aecp_reboot.short.if0",
+  "wait tx 2 1 within 5000000",
+  "wait quiet 3 within 2000000",
+  "mark aecp_reboot.stream_input.if0",
+  "wait cycles 500000",
+  "frame 0 024b4c4b4c020a0b0c0d0e0122f0fb000010024b4cfffe4b4c020a0b0c0d0e0f00027111002a00050000000000000000000000000000000000000000 aecp_reboot.stream_input.if0",
+  "wait tx 2 1 within 5000000",
+  "wait quiet 3 within 2000000",
+  "mark aecp_reboot.entity_1.if0",
+  "wait cycles 500000",
+  "frame 0 024b4c4b4c020a0b0c0d0e0122f0fb000010024b4cfffe4b4c020a0b0c0d0e0f00027112002a00000001000000000000000000000000000000000000 aecp_reboot.entity_1.if0",
+  "wait tx 2 1 within 5000000",
+  "wait quiet 3 within 2000000",
+  "wait cycles 500000",
+  "frame 0 024b4c4b4c020a0b0c0d0e0122f0fb00001c024b4cfffe4b4c020a0b0c0d0e0f00017113000100000000000000000000000000000000000000000000",
+  "wait tx 2 17 within 20000000",
+  "wait quiet 3 within 2000000",
+  "mark aecp_reboot.locked.if0",
+  "wait cycles 500000",
+  "frame 0 024b4c4b4c020a0b0c0d0e0122f0fb000010024b4cfffe4b4c020a0b0c0d0e0f00027114002a00000000000000000000000000000000000000000000 aecp_reboot.locked.if0",
+  "wait tx 2 1 within 5000000",
+  "wait quiet 3 within 2000000",
+  "wait cycles 500000",
+  "frame 0 024b4c4b4c020a0b0c0d0e0122f0fb00001c024b4cfffe4b4c020a0b0c0d0e0f00017115000100000001000000000000000000000000000000000000",
+  "wait tx 2 17 within 20000000",
+  "wait quiet 3 within 2000000",
+  "mark aecp_reboot.accepted.if0",
+  "wait cycles 500000",
+  "frame 0 024b4c4b4c020a0b0c0d0e0122f0fb000010024b4cfffe4b4c020a0b0c0d0e0f00027116002a00000000000000000000000000000000000000000000 aecp_reboot.accepted.if0",
+  "wait tx 2 17 within 20000000",
+  "wait quiet 3 within 2000000"
+ ],
+ "probes": [
+  {
+   "name": "aecp_reboot.short.if0",
+   "row": "REBOOT, refused BAD_ARGUMENTS",
+   "family": "aecp",
+   "start": "rxc:2",
+   "ends": [
+    "resp:2:7110"
+   ],
+   "wait_ms": 0.0,
+   "expect": "aem:002a:BAD_ARGUMENTS",
+   "accesses": null,
+   "until": "",
+   "also_from": "",
+   "recipients": [],
+   "path": "",
+   "owed": [],
+   "may_drop": false
+  },
+  {
+   "name": "aecp_reboot.stream_input.if0",
+   "row": "REBOOT, refused NOT_SUPPORTED",
+   "family": "aecp",
+   "start": "rxc:2",
+   "ends": [
+    "resp:2:7111"
+   ],
+   "wait_ms": 0.0,
+   "expect": "aem:002a:NOT_SUPPORTED",
+   "accesses": null,
+   "until": "",
+   "also_from": "",
+   "recipients": [],
+   "path": "",
+   "owed": [],
+   "may_drop": false
+  },
+  {
+   "name": "aecp_reboot.entity_1.if0",
+   "row": "REBOOT, refused NO_SUCH_DESCRIPTOR",
+   "family": "aecp",
+   "start": "rxc:2",
+   "ends": [
+    "resp:2:7112"
+   ],
+   "wait_ms": 0.0,
+   "expect": "aem:002a:NO_SUCH_DESCRIPTOR",
+   "accesses": null,
+   "until": "",
+   "also_from": "",
+   "recipients": [],
+   "path": "",
+   "owed": [],
+   "may_drop": false
+  },
+  {
+   "name": "aecp_reboot.locked.if0",
+   "row": "REBOOT, refused ENTITY_LOCKED",
+   "family": "aecp",
+   "start": "rxc:2",
+   "ends": [
+    "resp:2:7114"
+   ],
+   "wait_ms": 0.0,
+   "expect": "aem:002a:ENTITY_LOCKED",
+   "accesses": null,
+   "until": "",
+   "also_from": "",
+   "recipients": [],
+   "path": "",
+   "owed": [],
+   "may_drop": false
+  },
+  {
+   "name": "aecp_reboot.accepted.if0",
+   "row": "REBOOT",
+   "family": "notify",
+   "start": "rxc:2",
+   "ends": [
+    "resp:2:7116",
+    "notify:2:002a:0:0"
+   ],
+   "wait_ms": 0.0,
+   "expect": "aem:002a:SUCCESS",
+   "accesses": null,
+   "until": "",
+   "also_from": "",
+   "recipients": [
+    [
+     723685415333072896,
+     0
+    ],
+    [
+     723685415333072897,
+     0
+    ],
+    [
+     723685415333072898,
+     0
+    ],
+    [
+     723685415333072899,
+     0
+    ],
+    [
+     723685415333072900,
+     0
+    ],
+    [
+     723685415333072901,
+     0
+    ],
+    [
+     723685415333072902,
+     0
+    ],
+    [
+     723685415333072903,
+     0
+    ],
+    [
+     723685415333072904,
+     0
+    ],
+    [
+     723685415333072905,
+     0
+    ],
+    [
+     723685415333072906,
+     0
+    ],
+    [
+     723685415333072907,
+     0
+    ],
+    [
+     723685415333072908,
+     0
+    ],
+    [
+     723685415333072909,
+     0
+    ],
+    [
+     723685415333072910,
+     0
+    ],
+    [
+     723685415333072911,
+     0
+    ]
+   ],
+   "path": "",
+   "owed": [],
+   "may_drop": false
+  }
+ ],
+ "sim_ms": 1500,
+ "load": {},
+ "admission": {},
+ "save": {},
+ "sys_hz": 80000000
+}

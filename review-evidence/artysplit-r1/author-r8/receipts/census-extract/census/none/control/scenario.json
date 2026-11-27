@@ -1,0 +1,84 @@
+{
+ "name": "control",
+ "steps": [
+  "wait ready",
+  "mark booted",
+  "wait cycles 5000000",
+  "wait quiet 3 within 2000000",
+  "mark adp.link_up.if0",
+  "link 0 1",
+  "wait tmr 0 1 within 30000000",
+  "mark control.barrier0",
+  "mark adp.tmr_delay.if0",
+  "wait tx 0 1 within 220000000",
+  "wait cycles 2000000",
+  "wait quiet 3 within 2000000",
+  "mark control.barrier1",
+  "mark control.discover.if0",
+  "frame 0 91e0f00100000a0b0c0d0e0122f0fa02003800000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000 control.discover.if0",
+  "wait tmr 0 1 within 30000000",
+  "wait quiet 3 within 2000000"
+ ],
+ "probes": [
+  {
+   "name": "adp.link_up.if0",
+   "row": "LINK_UP",
+   "family": "adp",
+   "start": "pad:LINK:0",
+   "ends": [
+    "arm:0"
+   ],
+   "wait_ms": 0.0,
+   "expect": "",
+   "accesses": 11,
+   "until": "control.barrier0",
+   "also_from": "",
+   "recipients": [],
+   "path": "",
+   "owed": [],
+   "may_drop": false
+  },
+  {
+   "name": "adp.tmr_delay.if0",
+   "row": "TMR_DELAY expiry",
+   "family": "adp",
+   "start": "deadline:0",
+   "ends": [
+    "tx:0",
+    "arm:0"
+   ],
+   "wait_ms": 0.0,
+   "expect": "adp_available:0",
+   "accesses": 39,
+   "until": "control.barrier1",
+   "also_from": "",
+   "recipients": [],
+   "path": "",
+   "owed": [],
+   "may_drop": false
+  },
+  {
+   "name": "control.discover.if0",
+   "row": "RCV_ADP_DISCOVER (control)",
+   "family": "adp",
+   "start": "rxc:0",
+   "ends": [
+    "arm:0"
+   ],
+   "wait_ms": 0.0,
+   "expect": "",
+   "accesses": 31,
+   "until": "",
+   "also_from": "",
+   "recipients": [],
+   "path": "adp.discover",
+   "owed": [],
+   "may_drop": false
+  }
+ ],
+ "sim_ms": 2800,
+ "load": {},
+ "admission": {},
+ "save": {},
+ "sys_hz": 80000000
+}

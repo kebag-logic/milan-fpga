@@ -1,0 +1,26 @@
+{
+ "name": "save",
+ "steps": [
+  "wait ready",
+  "mark booted",
+  "wait cycles 5000000",
+  "wait quiet 3 within 2000000",
+  "link 0 1",
+  "wait cycles 60000000",
+  "wait quiet 3 within 2000000",
+  "mark settled",
+  "mark save.change",
+  "frame 0 024b4c4b4c020a0b0c0d0e0122f0fb000054024b4cfffe4b4c020a0b0c0d0e0f00026f000010000000000000000073617665000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+  "wait tx 2 1 within 5000000",
+  "wait cycles 520000000"
+ ],
+ "probes": [],
+ "sim_ms": 6000,
+ "load": {},
+ "admission": {},
+ "save": {
+  "image": 2600,
+  "records": 2
+ },
+ "sys_hz": 80000000
+}

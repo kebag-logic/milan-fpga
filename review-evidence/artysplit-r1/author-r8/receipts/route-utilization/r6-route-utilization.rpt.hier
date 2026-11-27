@@ -1,0 +1,37 @@
+Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2026 Advanced Micro Devices, Inc. All Rights Reserved.
+---------------------------------------------------------------------------------------------------------------------------------------------------------
+| Tool Version : Vivado v.2026.1 (lin64) Build 6511674 Tue Jun 16 11:01:26 MDT 2026
+| Date         : Fri Nov 27 06:32:07 2026
+| Host         : <build-host>
+| Command      : report_utilization -hierarchical -hierarchical_depth 1 -file $VALIDATION_STORAGE/r8/route-util/r6-route-utilization.rpt.hier
+| Design       : digilent_arty
+| Device       : xc7a100tcsg324-1
+| Speed File   : -1
+| Design State : Physopt postRoute
+---------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Utilization Design Information
+
+Table of Contents
+-----------------
+1. Utilization by Hierarchy
+
+1. Utilization by Hierarchy
+---------------------------
+
++----------------------------------------------------+--------------------------------------------------+------------+------------+---------+------+-------+--------+--------+------------+
+|                      Instance                      |                      Module                      | Total LUTs | Logic LUTs | LUTRAMs | SRLs |  FFs  | RAMB36 | RAMB18 | DSP Blocks |
++----------------------------------------------------+--------------------------------------------------+------------+------------+---------+------+-------+--------+--------+------------+
+| digilent_arty                                      |                                            (top) |      33015 |      31841 |    1070 |  104 | 40369 |     61 |     34 |         13 |
+|   (digilent_arty)                                  |                                            (top) |       1041 |        979 |      62 |    0 |  2443 |     47 |      7 |          0 |
+|   KL_gptp_gmii_launch                              |                              KL_gptp_gmii_launch |        192 |        192 |       0 |    0 |   317 |      0 |      0 |          0 |
+|   KL_mac_rmon_events                               |                               KL_mac_rmon_events |         48 |         48 |       0 |    0 |    78 |      0 |      0 |          0 |
+|   KL_mbx                                           |                                           KL_mbx |       5481 |       5393 |      24 |   64 |  8811 |      1 |     10 |          0 |
+|   KL_mbx_cdc                                       |                                       KL_mbx_cdc |       1032 |       1032 |       0 |    0 |  2843 |      0 |      0 |          0 |
+|   KL_mbx_dma                                       |                                       KL_mbx_dma |        935 |        935 |       0 |    0 |   713 |      0 |      0 |          0 |
+|   VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51 | VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51 |       4409 |       4250 |     156 |    3 |  4406 |      6 |      8 |          4 |
+|   milan_datapath                                   |                                   milan_datapath |      19889 |      19024 |     828 |   37 | 20757 |      7 |      9 |          9 |
++----------------------------------------------------+--------------------------------------------------+------------+------------+---------+------+-------+--------+--------+------------+
+* Note: The sum of lower-level cells may be larger than their parent cells total, due to cross-hierarchy LUT combining
+
+
