@@ -1,0 +1,96 @@
+[
+  {
+    "name": "epoch-controls",
+    "command": [
+      "/usr/bin/python3",
+      "-B",
+      "tb/verilator/usbaudio/transport_mutations.py",
+      "--engine",
+      "$VALIDATION_TOOLS/pinned-verilator-5.050/verilator",
+      "--out",
+      "<review-packet>/scratch/probes/epoch-controls",
+      "--jobs",
+      "8",
+      "--cleanup-ledger",
+      "<review-packet>/scratch/probes/cleanup.txt",
+      "--temporary-suffix",
+      ".tmp",
+      "--only",
+      "bridge_applied_epoch",
+      "--only",
+      "bridge_capture_abort",
+      "--only",
+      "bridge_packet_fence",
+      "--only",
+      "bridge_status_epoch",
+      "--only",
+      "bridge_published_epoch"
+    ],
+    "exit": 0
+  },
+  {
+    "name": "grid-controls",
+    "command": [
+      "/usr/bin/python3",
+      "-B",
+      "tb/verilator/usbaudio/transport_mutations.py",
+      "--engine",
+      "$VALIDATION_TOOLS/pinned-verilator-5.050/verilator",
+      "--out",
+      "<review-packet>/scratch/probes/grid-controls",
+      "--jobs",
+      "8",
+      "--cleanup-ledger",
+      "<review-packet>/scratch/probes/cleanup.txt",
+      "--temporary-suffix",
+      ".tmp",
+      "--only",
+      "media_grid_transition",
+      "--only",
+      "media_walk_transition"
+    ],
+    "exit": 0
+  },
+  {
+    "name": "gate_11",
+    "command": [
+      "bash",
+      "--noprofile",
+      "--norc",
+      "-e",
+      "-o",
+      "pipefail",
+      "-c",
+      "python3 scripts/check_solution_docs.py\npython3 scripts/check_solution_docs.py --selftest\n"
+    ],
+    "exit": 0
+  },
+  {
+    "name": "gate_32",
+    "command": [
+      "bash",
+      "--noprofile",
+      "--norc",
+      "-e",
+      "-o",
+      "pipefail",
+      "-c",
+      "python3 scripts/check_port_contracts.py\npython3 scripts/check_port_contracts.py --selftest\n"
+    ],
+    "exit": 0
+  },
+  {
+    "name": "gate_35",
+    "command": [
+      "bash",
+      "--noprofile",
+      "--norc",
+      "-e",
+      "-o",
+      "pipefail",
+      "-c",
+      "python3 scripts/measure_test_evidence.py --check\npython3 scripts/measure_test_evidence.py --selftest\n"
+    ],
+    "exit": 0
+  }
+]

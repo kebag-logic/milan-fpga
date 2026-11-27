@@ -1,0 +1,36 @@
+[
+  {
+    "name": "docs-inventory-workflow",
+    "command": [
+      "bash",
+      "--noprofile",
+      "--norc",
+      "-e",
+      "-o",
+      "pipefail",
+      "-c",
+      "python3 scripts/docs_inventory.py --check\npython3 scripts/docs_inventory.py --selftest\n"
+    ],
+    "exit": 0
+  },
+  {
+    "name": "tap-clock-docs",
+    "command": [
+      "python3",
+      "-B",
+      "-c",
+      "import sys; sys.path.insert(0,\"sw/builder\"); import test_clock_contract as t; t.test_tap_clock_docs(); print(\"PASS configured tap clock table\")"
+    ],
+    "exit": 0
+  },
+  {
+    "name": "scheduling-controls",
+    "command": [
+      "python3",
+      "-B",
+      "scripts/suite_shards.py",
+      "--selftest"
+    ],
+    "exit": 0
+  }
+]
