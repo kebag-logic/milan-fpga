@@ -1251,11 +1251,15 @@ git submodule update --init \
 lwSRP uses the HTTPS URL recorded in `.gitmodules`.
 The repository is public; anonymous HTTPS fetch needs no credentials.
 
-The pin is lwSRP `main` `e27b34c9`, the squash merge of lwSRP PR #22.
+The pin is lwSRP `main` `e27b34c9`.
+
+It is the squash merge of lwSRP PR #22.
 
 It holds PR #12, #15, #18 and #21.
 
-Its compiled sources are those of the earlier pin, `opt-exec-3` `73007b48`; the merge adds comments and the restore arm of `LWSRP_LEAN_COPY` at 0, which no image builds.
+Its compiled sources match the earlier pin `73007b48`.
+
+The merge adds comments and an unbuilt restore arm.
 
 The [SRP adapter](../../sw/firmware/ctrl/srp/README.md) documents compilation and ownership.
 
