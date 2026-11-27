@@ -1,8 +1,8 @@
 # SPDX-FileCopyrightText: 2026 Kebag Logic
 # SPDX-License-Identifier: CERN-OHL-W-2.0
-"""The load gate's planted controls of the deliveries term (load_grade.py's term list; #977, the manager's decision of
-2026-11-27 on the deferred deliveries): the binding changes and loss completions a registering record defers, one a
-delivery, into the polls' base of the passes after it. Each control is refused by load_grade.py --check itself
+"""The load gate's planted controls of the deliveries term (load_grade.py's term list; #977, comment 7229657853, the
+manager's decision): the binding changes and loss completions a registering record defers, one a delivery, into the
+polls' base of the passes after it. Each control is refused by load_grade.py --check itself
 (delivery_findings), the head's by none.
 """
 from __future__ import annotations
@@ -13,8 +13,8 @@ from unittest import mock
 
 
 def controls(root: Path) -> list[str]:
-    """The deliveries term left out, counted at half its rate, or stated at none or under its dearest-before figure:
-    the planted names that escaped."""
+    """The deliveries term left out, counted at half its rate, or stated at none or under its measurement by the rule
+    (the gate's floor): the planted names that escaped."""
     import load_grade
     escaped = ['the head refused'] if load_grade.delivery_findings(root) else []
     real = load_grade.load
@@ -32,10 +32,10 @@ def controls(root: Path) -> list[str]:
         with patch:
             if not any('but not the deliveries' in f for f in load_grade.findings(root)):
                 escaped.append(name)
-    low = load_grade.DELIVERY_US_DEAREST['8x8/1if'] - 5
+    low = load_grade.rule_us(load_grade.DELIVERY_MEASURED['8x8/1if']) - 5
     with mock.patch.dict(load_grade.DELIVERY_US, {'8x8/1if': low}):
-        if not any('under its dearest-before figure' in f for f in load_grade.findings(root)):
-            escaped.append('the deliveries cost stated under its dearest-before figure')
+        if not any('under its measurement' in f for f in load_grade.findings(root)):
+            escaped.append('the deliveries cost stated under its measurement by the rule')
     return escaped
 
 

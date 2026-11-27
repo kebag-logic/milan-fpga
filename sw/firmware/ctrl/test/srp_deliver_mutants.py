@@ -13,7 +13,8 @@ the first sink or never advanced, a loss completed again where both are owed aft
 leaving the loop asleep, THE SETTLE completing none, and a record's pass taking a loss's turn or making a binding
 change. srp_mutants.py plants each with the rest of its table; each named test (srp_binding.hpp, D1 to D10) must fail
 on its own words. The two of a record's pass bite only where THE SETTLE carries a record alone, the one-interface
-shapes, so their names take srp_drain_mutants.PREFIX and test_ctrl_firmware.py plants them there.
+shapes, so their names take srp_drain_mutants.PREFIX and test_ctrl_firmware.py plants them there; the rest are
+unprefixed, so its two-interface campaign (srp-mutants) plants them.
 """
 from __future__ import annotations
 

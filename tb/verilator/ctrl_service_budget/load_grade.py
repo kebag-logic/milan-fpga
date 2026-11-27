@@ -9,8 +9,8 @@ each source's arrival rate, from a contract rate (sw/mailbox/mailbox.yaml, read 
 (its events' fixed part and its polls' base) is not a source, so it is not a term: it is reported beside the load. The
 one exception is the work a registering record defers into the polls' base of the passes after it, its binding changes
 and loss completions, which the delivery bound makes one a delivery (#977, ctrl_app_srp.c deliver): a source, the
-record, at the registration rate, so a term of its own (deliveries), stated against the median ordinary pass's base
-(#977, as the manager decided on 2026-11-27 on the deferred deliveries).
+record, at the registration rate, so a term of its own (deliveries), stated against the ordinary passes after the
+delivery window, which carry none of that work (#977, comment 7229657853, the manager's decision).
 At or above 1.0 no ordering of the work bounds a row; CEILING leaves room for the rows: 0.70 (#665, option D) at
 1x1/1if, which this gate holds for merge, at the pin and with tsn-c-stack#32 (COLUMNS), each named in what it finds.
 8x8/2if is held to the same 0.70 by the flip check, flip_grade.py, read at the pin, a check apart from the merge gates
@@ -86,8 +86,8 @@ The terms (per millisecond):
                  apply past the unit and of ACMP's completion of it (THE SETTLE), where the point measures it.
   deliveries     the binding changes and loss completions a registering record defers, one a delivery, into the polls'
                  base of the passes after it (ctrl_app_srp.c deliver): V a record at the registrations' rate, each at
-                 DELIVERY_US, a sink's share of a record's delivering passes' base over the median ordinary pass's,
-                 where the point measures it.
+                 DELIVERY_US, a sink's share of a record's delivering passes' base over the median of the ordinary
+                 passes after them, where the point measures it.
 
 Not terms, each with its reason: a LINK change has no arrival rate (a row's definition, R5, counts one an interface);
 THE RETRY's rounds otherwise drain a queue a datapath reset leaves, at most AECP_NOTICES_MOST, a burst and not a rate,
@@ -371,17 +371,22 @@ TX_PER_JOIN = 3
 #: over two values, 17,578 cycles, 185 us (#977's ruling of 2026-11-27 on the delivery bound, item 4: the cost
 #: restated by the rule).
 REGISTRATION_US = {'1x1/1if': 185, '8x8/1if': 190}
-#: The deliveries term (#977, the manager's decision of 2026-11-27 on the deferred deliveries): the work a
-#: registering record defers into the polls' base of the passes after it, its binding changes and loss completions, one
-#: a delivery under the delivery bound, at a sink's share of it. Measured over every registering group of both arms on
-#: e59cf6ea's images (the head's byte-identical), each record's window the delivery bound's own, its pass and the 2 x
-#: n_sinks deliveries after it (tools' deliv11.py): the window's polls base over the stated baseline, the median base of
-#: the ordinary passes in the 50 ms before the record, summed and divided by the sinks, the dearest record by the rule.
-#: At 8x8/1if the answering-ports arm's swap, 104,157 cycles over its median 14,942, 11,573 a sink, 125 us; at 1x1/1if
-#: the answering-ports arm's JoinIn of both kinds with a change owed, 18,076 a sink, 190 us. Beside it, over the dearest
-#: base before the record instead (DELIVERY_US_DEAREST, reported, not graded): 7,236 and 11,930 cycles, 80 and 130 us.
-DELIVERY_US = {'1x1/1if': 190, '8x8/1if': 125}
-DELIVERY_US_DEAREST = {'1x1/1if': 130, '8x8/1if': 80}
+#: The deliveries term (#977, comment 7229657853, the manager's decision): the work a registering record defers into
+#: the polls' base of the passes after it, its binding changes and loss completions, one a delivery under the delivery
+#: bound, at a sink's share of it. Its window is the delivery bound's own, the record's pass and the 2 x n_sinks
+#: deliveries after it; its baseline is the median polls base of the ordinary passes in the 50 ms after the window,
+#: which carry none of the deferred work (a pre-record median also counts the base work of what came before the
+#: record). The window's base over that baseline, summed and divided by the sinks, the dearest record over every
+#: registering group of both arms (e59cf6ea's images; the head's byte-identical), plus 5 %, rounded up to 5 us
+#: (DELIVERY_MEASURED, the gate's floor: a cost stated under it is refused). At 8x8/1if the answering-ports arm's swap,
+#: 135,935 cycles over its after-median 12,089, 15,104 a sink, 160 us; at 1x1/1if the answering-ports arm's JoinIn of
+#: both kinds with a change owed, 18,778 a sink, 200 us. Beside it, reported and not graded, the same over the median
+#: of the 50 ms and of the 500 ms before the record (DELIVERY_BESIDE): 11,573 and 13,642 cycles at 8x8/1if, 125 and
+#: 145 us; 18,076 and 18,765 at 1x1/1if, 190 and 200 us.
+DELIVERY_US = {'1x1/1if': 200, '8x8/1if': 160}
+DELIVERY_MEASURED = {'1x1/1if': 18_778, '8x8/1if': 15_104}
+DELIVERY_BESIDE = {'1x1/1if': {'before 50 ms': 18_076, 'before 500 ms': 18_765},
+                   '8x8/1if': {'before 50 ms': 11_573, 'before 500 ms': 13_642}}
 #: V, the Talker values one SRP record may register, as srp_mbx.h states it at each point's shape (SRP_RECORD_VALUES;
 #: #977, its ruling of 2026-11-27 on the population bound, item 2): the registrations term counts V a record, the
 #: bound and the kept together.
@@ -685,7 +690,7 @@ def findings(root: Path, table: dict | None = None, ceiling: dict | None = None,
 def delivery_findings(root: Path) -> list[str]:
     """Each point whose registrations the load counts but not the deliveries each registering record defers (the
     deliveries term at DELIVERY_US, V a record at the registrations' rate), each named; and a deliveries cost stated
-    under its dearest-before figure, the lower bound beside it."""
+    under its measurement's by the rule (DELIVERY_MEASURED), the gate's floor."""
     out = []
     for point in REGISTRATION_US:
         want = DELIVERY_US.get(point, 0) * TX_PER_JOIN * record_values(point, root) / (1.5 * JOIN_MIN_MS) / 1000
@@ -693,8 +698,9 @@ def delivery_findings(root: Path) -> list[str]:
         if point not in DELIVERY_US or abs(got - want) > 1e-12:
             out.append(f'{point}: the load counts its registrations but not the deliveries each registering record '
                        f'defers ({got:.4f} of the CPU, not V a record at DELIVERY_US)')
-        elif DELIVERY_US[point] < DELIVERY_US_DEAREST.get(point, 0):
-            out.append(f'{point}: DELIVERY_US {DELIVERY_US[point]} us under its dearest-before figure')
+        elif DELIVERY_US[point] < rule_us(DELIVERY_MEASURED.get(point, 0)):
+            out.append(f'{point}: DELIVERY_US {DELIVERY_US[point]} us under its measurement\'s '
+                       f'{rule_us(DELIVERY_MEASURED.get(point, 0))} us by the rule')
     return out
 
 
@@ -943,7 +949,7 @@ CONTROLS = ('a cost over the ceiling', 'a held point not held', 'a rise at the p
             "the SRP drain's record cost not the load gate's", "8x8/1if's own ADP record not stated",
             "8x8/1if's own ADP record not its measurement's by the rule", "a column's name bound to the other's table",
             'the deliveries term left out', 'the deliveries term counted at half its rate',
-            'the deliveries cost stated at none', 'the deliveries cost stated under its dearest-before figure')
+            'the deliveries cost stated at none', 'the deliveries cost stated under its measurement by the rule')
 
 
 def ceiling_checks() -> list[tuple[str, bool, str]]:
