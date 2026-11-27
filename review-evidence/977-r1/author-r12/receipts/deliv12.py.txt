@@ -1,0 +1,65 @@
+#!/usr/bin/env python3
+"""deliv12.py POINT SINKS LOG...: the deferred deliveries a registering record leaves (#977, the manager's decision
+7229657853): for each registering record (the first RXC after a srp.register_*.if0 probe mark that is not an
+_advertise probe), its window, the record's pass and the 2 x SINKS deliveries after it (the delivery bound's own), and
+the window's polls base over the baseline the decision accepts: the median polls base of the ordinary passes in the
+50 ms after the window, which carry no deferred work. Beside it, the medians of the 50 ms and of the 500 ms before the
+record. A record's deferred work is the window's excess over a baseline, summed; its share a sink that over SINKS.
+Prints each record and the dearest share by the rule (5 x ceil(c / 100 x 1.05 / 5) us) at each baseline."""
+import math
+import sys
+from pathlib import Path
+sys.path.insert(0, 'tb/verilator/ctrl_service_budget')
+import grade
+import poll_grade
+
+point, sinks, logs = sys.argv[1], int(sys.argv[2]), sys.argv[3:]
+rule = lambda c: 5 * math.ceil(c / 100 * 1.05 / 5)
+MS = 100_000   # bus cycles a millisecond
+LABELS = ('after', 'before 50 ms', 'before 500 ms')
+best = {k: (0.0, '') for k in LABELS}
+median = lambda v: sorted(v)[len(v) // 2] if v else None
+for path in logs:
+    log = grade.parse(open(path, errors='replace').read(), 100_000_000, 100_000_000)
+    marks, rxc = [], []
+    for line in open(path, errors='replace'):
+        if line.startswith('MARK ') and ' srp.register' in line:
+            p = line.split(); marks.append((int(p[1]), p[2]))
+        elif line.startswith('RXC '):
+            rxc.append(int(line.split()[1]))
+    traced, commits, longs = poll_grade.spans(log), poll_grade.committed(log), poll_grade.long_notices(log)
+    bases = []
+    for start, end, start_sys in poll_grade.sections(traced):
+        items = poll_grade.instances(log, traced, commits, start, end, longs)
+        bases.append((start_sys, end - start - sum(c for _, c in items)))
+    where = '/'.join(Path(path).parts[-3:-1])
+    for mark, name in marks:
+        if name.endswith('_advertise.if0'):
+            continue
+        record = next((s for s in rxc if s >= mark), None)
+        if record is None:
+            continue
+        after_record = [(s, b) for s, b in bases if s >= record]
+        window = after_record[:2 * sinks + 1]
+        if len(window) < 2 * sinks + 1:
+            continue
+        w_end = after_record[2 * sinks + 1][0] if len(after_record) > 2 * sinks + 1 else None
+        if w_end is None:
+            continue
+        base = {'after': median([b for s, b in after_record[2 * sinks + 1:] if s < w_end + 50 * MS]),
+                'before 50 ms': median([b for s, b in bases if record - 50 * MS < s < record]),
+                'before 500 ms': median([b for s, b in bases if record - 500 * MS < s < record])}
+        parts = []
+        for label in LABELS:
+            if base[label] is None:
+                continue
+            excess = sum(max(0, b - base[label]) for _, b in window)
+            share = excess / sinks
+            parts.append(f'{label} {base[label]:,}: excess {excess:,}, {share:,.0f} a sink')
+            if share > best[label][0]:
+                best[label] = (share, f'{where} {name}')
+        n_after = len([1 for s, _ in after_record[2 * sinks + 1:] if s < w_end + 50 * MS])
+        print(f'{where} {name} record at bus {record}: window {len(window)} passes, {n_after} ordinary passes in the '
+              f'50 ms after it; ' + '; '.join(parts))
+for label, (share, where) in best.items():
+    print(f'DEAREST {point} over the {label} base: {share:,.0f} cycles a sink, {rule(share)} us by the rule; {where}')
