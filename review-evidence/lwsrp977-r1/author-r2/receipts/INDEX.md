@@ -29,7 +29,7 @@ logs are this host's scratch paths; they are local receipts, not for publication
 ## sha256
 
 ~~~
-f152030f313134a22871be707affa711c79c7221ff50859a2c5020be452c3839  ./added-lines-scan.txt
+f3a07ca02371cbacd7bd513bd1dfb6fb77caff3347207f193613b109f7ad7897  ./added-lines-scan.txt
 e42d21e3b10708c292ea78dc869e98ea88bfc8cd4784a0bc1d82202a9a4b3dee  ./gates/baremetal.log
 dd43d7a8541639b48c7dd837c2eaa00b62c99935d395d482a53a51e73335a69e  ./gates/codec.log
 74d0a3c7082bcb8f8f55208d14d4720cfd2ed42c5e4cb66635cf16a39c71d63a  ./gates/diff-OFF-r2.differential.json
@@ -104,3 +104,5 @@ b05dac9a1ec3f4dd34f482ca1506f54261a53cd926a8c8b83fe05960b0411092  ./superseded/g
 9d1505d70ed821b883ef0150588d9c9080bb2dc68b8c753b5b82f9e08e5e447d  ./superseded/objects-identical-at-73007b48.txt
 6a26dff05edc2a658307efb7d24ec8ac0af0588954a847d591cbd63c03e5bd8c  ./superseded/objects-identical-at-7ca4a6f.txt
 ~~~
+
+Manager note (publication): line 4 of `added-lines-scan.txt`, the scanner's literal pattern list, was replaced before publication because it named tool tokens the public evidence rule refuses. The text now reads "pattern: review and lane labels, comment IDs, host paths and tool names (case-insensitive); the literal list is kept privately". The gate's results in the rest of the file are unchanged. The author's original hash was `f152030f313134a22871be707affa711c79c7221ff50859a2c5020be452c3839`; the line above gives the published file's hash.
