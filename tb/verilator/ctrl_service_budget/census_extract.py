@@ -22,6 +22,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
+import bind_save  # noqa: E402
 import kept_grade  # noqa: E402
 import poll_items  # noqa: E402
 import receipt_regrade  # noqa: E402
@@ -30,11 +31,13 @@ import slice_grade  # noqa: E402
 
 #: The traced functions a grader reads: poll_grade's first and last polls, items, offers and their handler
 #: (poll_items), THE RETRY's rounds, attempts and builds (round_grade), SRP's records (kept_grade, slice_grade) and
-#: AECP's frames (declaring_outputs, record_classes). The others (a pass's parts, poll_items.PART_SPANS and PART_CALLS,
-#: and the saved-state store's calls) serve the cost measurement, which no grader repeats.
+#: AECP's frames (declaring_outputs, record_classes), and the saved-state store's seal and read-back calls that place a
+#: bind within a save's phases (bind_save). The others (a pass's parts, poll_items.PART_SPANS and PART_CALLS, and the
+#: store's other calls) serve the cost measurement, which no grader repeats.
 READ_LABELS = frozenset({poll_items.FIRST, poll_items.LAST, poll_items.OFFER, poll_items.HANDLER,
                          *(label for label, _ in poll_items.ITEMS.values()), round_grade.ROUND, round_grade.ATTEMPT,
-                         round_grade.BUILT, kept_grade.RECORD, slice_grade.RECORD, 'aecp_mbx:frame'})
+                         round_grade.BUILT, kept_grade.RECORD, slice_grade.RECORD, 'aecp_mbx:frame',
+                         bind_save.SEAL_CALL, bind_save.READ_CALL})
 #: The largest part a compact extract writes (its census.json states it; receipt_regrade.py caps it at 15 MB).
 PART_LIMIT = 14_000_000
 
@@ -117,7 +120,7 @@ def case(packet: Path, row: dict, out: Path, listed: dict[str, str]) -> tuple[di
     files.append(dict(record=dict(parts=[dict(file='manifest.json')]), relation='the packet manifest, its extract '
                       'record replaced and the full extract named', sources=[dict(path=row['manifest'],
                                                                                    sha256=row['sha256'])]))
-    receipt_regrade.regrade(target / 'manifest.json', limit=PART_LIMIT)
+    receipt_regrade.regrade(target / 'manifest.json', limit=PART_LIMIT + 1)  # a part may be PART_LIMIT bytes exactly
     entries = [dict(path=str((target / p['file']).relative_to(out)), sha256=sha((target / p['file']).read_bytes()),
                     relation=f['relation'], sources=f['sources']) for f in files for p in f['record']['parts']]
     return dict(case=row['case'], manifest=str((target / 'manifest.json').relative_to(out)),
