@@ -92,7 +92,7 @@ PINNED = {'backlog.owed.if0': 64.09994, 'backlog.owed_behind0.if0': 64.29245, 'b
 #: train's.
 MEASURED = {'8x8-1if': {row: max(MERGED[row], COMPOSED[row], LISTENED[row], TRAIN[row], PINNED[row])
                         for row in MERGED}}
-#: #878's Arty (1,1,2) point, CPU/sys exactly 80 MHz: its own backlog-owed measurements.
+#: #878's Arty (1,1,2) point, CPU and system exactly 80 MHz: its own backlog-owed measurements.
 ARTY = {'backlog.owed.if0': 62.79239, 'backlog.owed_behind0.if0': 62.92862,
         'backlog.owed_behind1.if0': 63.06490, 'backlog.owed_behind2.if0': 63.19966,
         'backlog.owed_behind3.if0': 63.33355, 'backlog-owed.service.acmp.last.if0': 62.10374,

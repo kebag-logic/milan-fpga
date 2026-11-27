@@ -352,7 +352,7 @@ extern "C" {
 // Arty FPGA (1,1,2), #878: every cost is measured at 80 MHz. The row also
 // states its own aged step, centisecond work, notice cost and AECP pace;
 // the defaults below remain the existing AX7101 statements. This is not
-// a Linux-host scheduling profile. Section 15 of SPLIT_CONTROL_MEMORY.md
+// a host scheduling profile. Section 15 of SPLIT_CONTROL_MEMORY.md
 // records the cost basis, rules, owner bounds and held-egress ledger.
 #ifdef CTRL_SRP_SOURCES
 #define CTRL_LOOP_SOURCES CTRL_SRP_SOURCES

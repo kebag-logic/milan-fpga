@@ -682,7 +682,7 @@ def runner_contract(text: str) -> list[str]:
   esac
 }'''
     if budget not in text or 'TMO=$(suite_timeout "$suite")' not in text:
-        problems.append("the declared 300/1400/1800/2400/3600/4800/6900-second suite budgets changed")
+        problems.append("the declared 300/900/1400/1800/2400/3600/4800/6900-second suite budgets changed")
     selection = ('selector=(python3 "$ROOT/scripts/suite_shards.py"',
                  '--suite-root "$ROOT/tb/verilator" --shard "$SHARD")',
                  '[ "$PHYSICAL_GPTP" = 1 ] && selector+=(--physical-gptp)',

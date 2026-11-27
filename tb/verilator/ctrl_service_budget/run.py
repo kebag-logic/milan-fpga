@@ -38,8 +38,9 @@ HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[2]
 sys.path.insert(0, str(HERE))
 from stimulus_clock import at_clock  # noqa: E402
+from burst_report import burst_misses, burst_lines, print_bursts, save_misses_of, burst_table  # noqa: E402
 #: 8x8-1if is the flip's 8x8 measurement point (#665 ruling item 1), one interface of the 8x8 shape.
-#: arty-1x1 is #878's FPGA point: one AAF source, AAF/CRF sinks, CPU/sys exactly 80 MHz.
+#: arty-1x1 is #878's FPGA point: one AAF source, AAF/CRF sinks, CPU and system exactly 80 MHz.
 POINTS = {'1x1': ('endstation_ax7101_1x1_tdm8', 1), '8x8': ('endstation_ax7101_8x8', 2),
           '8x8-1if': ('endstation_ax7101_8x8', 1), 'arty-1x1': ('endstation_arty_current', 1)}
 
@@ -61,44 +62,6 @@ def run_group(build_dir: Path, out: Path, group: object, flash: str) -> Path:
 def journal_of(out: Path, group: object) -> Path:
     """The journal a group's run leaves, when its save asks for it (save_burst.py)."""
     return out / f'{group.name}.journal'
-
-
-def burst_misses(results: list[dict]) -> list[str]:
-    """Each name of a burst or a change in flight not durable within its target, or missing at the cut, a next save
-    that waited past the first idle step (save_burst.misses), and a bind group's (bind_save.late), each by its group."""
-    import bind_save
-    import save_burst
-    return save_burst.late(results) + bind_save.late(results)
-
-
-def burst_lines(results: list[dict]) -> list[str]:
-    """One BURST line for each graded burst or change in flight: its names' worst time to durable, its target."""
-    out = []
-    for g in results:
-        b = g.get('burst')
-        if not b:
-            continue
-        worst = f"{b['worst_ms']:.3f} ms" if b['worst_ms'] is not None else 'never'
-        tail = (f", the cut's container sequence {b['cut_seq']}, {len(b['cut_missing'])} name(s) missing" if
-                b['kind'] == 'burst' else f", {b['next_steps']['steps']} steps to the next save's erase "
-                f"(want {b['next_steps']['want']})")
-        verdict = 'OVER' if save_misses_of(b, g['group']) else 'within'
-        out.append(f"BURST {g['group']}: {b['names']} name(s), the latest durable {worst} after its response (name "
-                   f"{b['worst_ordinal']}; target {b['target_ms']:,} ms), {len(b['saves'])} save(s){tail} {verdict}")
-    return out
-
-
-def print_bursts(results: list[dict]) -> None:
-    """Each burst's and change in flight's BURST line (burst_lines) and bind group's BIND line, as the run prints it."""
-    import bind_save
-    for line in burst_lines(results) + bind_save.lines(results):
-        print(line)
-
-
-def save_misses_of(burst: dict, group: str) -> list[str]:
-    """save_burst.misses of one group's burst."""
-    import save_burst
-    return save_burst.misses(burst, group)
 
 
 def verdict_word(r: dict) -> str:
@@ -454,27 +417,6 @@ def save_table(results: list[dict]) -> list[str]:
         gap = f"{s['longest_gap_ms']:.3f}" if s['longest_gap_ms'] is not None else '-'
         lines.append(f"| {s['group']} | {durable} | {s['bound_ms']:,} | {s['steps']} | {s.get('flight') or '-'} | "
                      f"{gap} | {'yes' if s['flooded'] else 'no'} | {'within' if s['within'] else 'OVER'} |")
-    return lines
-
-
-def burst_table(results: list[dict]) -> list[str]:
-    """The bursts' and the changes in flight's section of the table (save_burst.py): each name's latest time from its
-    response to durable against the target, the saves, and the cut's container or the next save's start."""
-    rows = [(g['group'], g['burst']) for g in results if g.get('burst')]
-    if not rows:
-        return []
-    lines = ['', "Names from their response to durable (save_burst.py; #920, #665's ruling of "
-             '2026-11-15, item 1):', '',
-             '| Group | Names | Latest, ms (name) | Target ms | Saves | Not durable | Over | At the cut, '
-             'or the next save | Verdict |', '|---|---:|---:|---:|---:|---|---|---|---|']
-    for group, b in rows:
-        worst = (f"{b['worst_ms']:.3f} ({b['worst_ordinal']})" if b['worst_ms'] is not None else
-                 f"never ({b['worst_ordinal']})")
-        end = (f"sequence {b['cut_seq']}, {len(b['cut_missing'])} missing" if b['kind'] == 'burst' else
-               f"{b['next_steps']['steps']} steps (want {b['next_steps']['want']}), {b['next_steps']['gap_ms']} ms")
-        lines.append(f"| {group} | {b['names']} | {worst} | {b['target_ms']:,} | {len(b['saves'])} | "
-                     f"{', '.join(map(str, b['never'])) or '-'} | {', '.join(map(str, b['over'])) or '-'} | {end} | "
-                     f"{'OVER' if save_misses_of(b, group) else 'within'} |")
     return lines
 
 
