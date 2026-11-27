@@ -122,8 +122,9 @@ platform:                            # identity + processor-memory placement
 
 clocking:
   sampling_rate_hz: 48000            # current media clock (AAF base rate)
-  audio_unit_rates_hz: [48000, 96000, 192000]  # AUDIO_UNIT advertisement
-                                     # (today's ROM: RATES 48/96/192)
+  audio_unit_rates_hz: [48000]       # 48 kHz only: the render path runs no other
+                                     # rate, and the envelope offers no 96 or
+                                     # 192 kHz Stream Input format (header)
   media_clock_sources: [internal, crf, input_stream] # INTERNAL 0, CRF 1, AAF listener k at 2 + k (#629)
   default_source: internal           # CLOCK_DOMAIN reset source
   crf_sink: true                     # CRF STREAM_INPUT media-clock sink

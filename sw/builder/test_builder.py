@@ -27584,6 +27584,7 @@ def test_station_mac_ul_bit_warns() -> None:
                "ax7101_1x1_tdm8": ("02:4b:4c:4b:4c:01", 0x024B4CFFFE4B4C01),
                "arty_current": ("02:4b:4c:4b:4c:02", 0x024B4CFFFE4B4C02),
                "arty_split": ("02:4b:4c:4b:4c:02", 0x024B4CFFFE4B4C02),
+               "arty_split_4x4": ("02:4b:4c:4b:4c:02", 0x024B4CFFFE4B4C02),
                "arty_4x4": ("02:4b:4c:4b:4c:02", 0x024B4CFFFE4B4C02),
                "arty_8ch": ("02:4b:4c:4b:4c:02", 0x024B4CFFFE4B4C02)}
     assert set(decided) == set(CONFIGS), \
@@ -29401,9 +29402,11 @@ GPTP_LAT_MEASURED_SUM_NS = 875
 GPTP_LAT_SUM_TOL_NS = 10
 #: Which tracked configs carry a measured sum, and which declare zero
 #: because no one has measured them on this plane.
-GPTP_LAT_MEASURED = ("ax7101_8x8", "ax7101_1x1_tdm8", "arty_split")
-#: Board-specific measured sums; the AX7101 default remains 875 ns.
-GPTP_LAT_MEASURED_SUM_OF = {"arty_split": 1509}
+GPTP_LAT_MEASURED = ("ax7101_8x8", "ax7101_1x1_tdm8", "arty_split", "arty_split_4x4")
+#: Board-specific measured sums; the AX7101 default remains 875 ns. The Arty's
+#: is its board's (#829: the same PHY, MII path and 80 MHz clock at either
+#: split shape), measured on the 1x1 image.
+GPTP_LAT_MEASURED_SUM_OF = {"arty_split": 1509, "arty_split_4x4": 1509}
 
 
 def test_gptp_latency_writable_key() -> None:
