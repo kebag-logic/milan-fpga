@@ -197,8 +197,90 @@ def burst_group(p: scenario.Point) -> scenario.Group:
     return g
 
 
+def bind_first(g: scenario.Group, p: scenario.Point, count: int) -> None:
+    """The first `count` STREAM_INPUTs bound to their own streams, as bind_every binds them all."""
+    acmp, ms = scenario.CH['acmp'], scenario.MS
+    for k in range(count):
+        i = k % p.interfaces
+        g.add(f'frame {i} {scenario.acmp_cmd(p, "BIND_RX", k, 0x6000 + k).hex()}',
+              f'wait tx {acmp} 2 within {40 * ms}', 'wait quiet 3 within 2000000', answer(i, k),
+              f'wait cycles {BIND_MS * ms}', 'wait quiet 3 within 2000000')
+
+
+def record_values(p: scenario.Point) -> int:
+    """V at the point's shape (srp_mbx.h SRP_RECORD_VALUES, poll_grade.record_values)."""
+    import poll_grade
+    import shape_costs
+    return poll_grade.record_values(shape_costs.Shape(p.interfaces, p.sources, p.sinks))
+
+
+def leave_all_shape(n: int, failed: bool) -> bytes:
+    """One MRPDU in the shape lwSRP sends at a LeaveAll (mrp_mad.c): its Talker Message opens with a vector of no values,
+    LeaveAll set and its FirstValue zero (IEEE 802.1Q-2018 10.8.2.8), then one single-value vector for each of streams
+    0 .. n - 1, each JoinIn, then the Message's EndMark."""
+    value = talker_failed if failed else talker
+    vectors = f.be(0x2000, 2) + bytes(len(value(0)))
+    for k in range(n):
+        vectors += f.be(1, 2) + value(k) + bytes((1 * 36,))
+    vectors += b'\0\0'
+    message = bytes((2 if failed else 1, len(value(0)))) + f.be(len(vectors), 2) + vectors
+    return f.msrp(scenario.TALKER_A_MAC, [message])
+
+
+def population_groups(p: scenario.Point) -> list[scenario.Group]:
+    """The registering records #977's ruling of 2026-11-27 (item 5) measures, each on interface 0 after the link
+    settles: srp-register-population, the bound and the kept a record registers together at V (a vector of V + 3
+    Talkers from the bound streams, with enough sinks bound that the bound and the kept fill V); srp-register-leaveall,
+    with every input bound and its Talker Advertise registered, a LeaveAll MRPDU in lwSRP's own shape declaring every
+    input's Talker Failed, each replacing the kind registered (35.2.6); srp-register-swap, the same, then one MRPDU of
+    each input's Lv of the registered kind with New of the other; and srp-register-messages, every input bound, then
+    one MRPDU of eight Listener Messages before one Talker Advertise Message for each input, past the eight Messages
+    the drain reads one by one."""
+    srp, ms, n = scenario.CH['srp'], scenario.MS, p.sinks
+    v = record_values(p)
+    out = []
+
+    def group(name: str, bound: int) -> scenario.Group:
+        g = scenario.Group(f'{NAME}-{name}', sim_ms=650 + SETTLE_MS + (BIND_MS + 100) * bound + 400 + AFTER_MS + 500)
+        scenario.ready(g, p)
+        g.add(f'wait cycles {SETTLE_MS * ms}', 'wait quiet 3 within 2000000')
+        bind_first(g, p, bound)
+        return g
+
+    def probe(g: scenario.Group, name: str, what: str, frame: bytes) -> None:
+        g.probe(scenario.Probe(f'srp.{name}.if0', what, 'srp', f'rxc:{srp}', [f'pass_end:{srp}']),
+                f'frame 0 {frame.hex()}', wait=f'cycles {30 * ms}')
+
+    bound = n if n < v else n // 3
+    g = group('population', bound)
+    probe(g, 'register_population', 'the bound and the kept together at V', declared(0, v + 3))
+    g.add(f'wait cycles {AFTER_MS * ms}', 'wait quiet 3 within 2000000')
+    out.append(g)
+    for name in ('leaveall', 'swap'):
+        g = group(name, n)
+        g.add(f'frame 0 {declared(0, n).hex()}', f'wait cycles {30 * ms}', 'wait quiet 3 within 2000000')
+        if name == 'leaveall':
+            probe(g, 'register_leaveall', "a LeaveAll MRPDU in lwSRP's shape, every input replaced",
+                  leave_all_shape(n, True))
+        else:
+            swap = f.msrp(scenario.TALKER_A_MAC, [f.mrp_message(1, talker(0), [5] * n),
+                                                   f.mrp_message(2, talker_failed(0), [0] * n)])
+            probe(g, 'register_swap', "every input's Lv of the registered kind with New of the other", swap)
+        g.add(f'wait cycles {AFTER_MS * ms}', 'wait quiet 3 within 2000000')
+        out.append(g)
+    g = group('messages', n)
+    listeners = [f.mrp_message(3, f.be(STREAM + 0x100 + k, 8), [1], four_packed=[2]) for k in range(8)]
+    talkers = [f.mrp_message(1, talker(k), [1]) for k in range(n)]
+    probe(g, 'register_messages', 'eight Listener Messages before a Talker Message for each input',
+          f.msrp(scenario.TALKER_A_MAC, listeners + talkers))
+    g.add(f'wait cycles {AFTER_MS * ms}', 'wait quiet 3 within 2000000')
+    out.append(g)
+    return out
+
+
 def groups(p: scenario.Point) -> list[scenario.Group]:
-    """The groups: srp-register, every probe on every interface, and srp-register-burst on interface 0."""
+    """The groups: srp-register, every probe on every interface, srp-register-burst on interface 0, and the population
+    groups (population_groups)."""
     srp, ms, n = scenario.CH['srp'], scenario.MS, p.sinks
     g = scenario.Group(NAME, sim_ms=650 + SETTLE_MS + (BIND_MS + 100) * n + 100 * p.interfaces + AFTER_MS + 500)
     scenario.ready(g, p)
@@ -209,4 +291,4 @@ def groups(p: scenario.Point) -> list[scenario.Group]:
                                'srp', f'rxc:{srp}', [f'pass_end:{srp}']),
                 f'frame {i} {declared(0, n).hex()}', wait=f'cycles {30 * ms}')
     g.add(f'wait cycles {AFTER_MS * ms}', 'wait quiet 3 within 2000000')
-    return [g, burst_group(p)]
+    return [g, burst_group(p), *population_groups(p)]
