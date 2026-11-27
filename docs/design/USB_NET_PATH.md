@@ -15,14 +15,14 @@ No other board's build carries a line of it.
 
 ## Contents
 
-- **[1. Where it sits](#1-where-it-sits)** -- The MAC attachment and local control receiver, including their buffering and clock boundaries.
-- **[2. Receive copy (frames toward the computer)](#2-receive-copy-frames-toward-the-computer)** -- Which network and device transmissions are copied, and how full buffers drop frames.
-- **[3. Transmit injection (frames from the computer)](#3-transmit-injection-frames-from-the-computer)** -- Frame validation, best-effort arbitration, rate accounting and reset recovery.
-- **[4. The bus records](#4-the-bus-records)** -- The shared frame and station formats, address lifetime and detach handling.
-- **[5. The signals for LD1 (the USB device firmware's side)](#5-the-signals-for-ld1-the-usb-device-firmwares-side)** -- The bus and station conditions that indicate a live USB 3.0 path.
-- **[6. Status LEDs (#1018)](#6-status-leds-1018)** -- Link activity, stream connection and clock-source state, with blink and PWM behavior.
-- **[7. Registers](#7-registers)** -- The status, address and counter fields visible to control firmware.
-- **[8. Verification](#8-verification)** -- Runnable benches, planted defects, shaper regressions and the remaining physical checks.
+- **[1. Where it sits](#1-where-it-sits)** -- Locate the copy and injection paths at the MAC boundary.
+- **[2. Receive copy (frames toward the computer)](#2-receive-copy-frames-toward-the-computer)** -- Apply destination, protocol, and capacity rules before copying.
+- **[3. Transmit injection (frames from the computer)](#3-transmit-injection-frames-from-the-computer)** -- Validate host frames and preserve priority for endpoint traffic.
+- **[4. The bus records](#4-the-bus-records)** -- Decode socket assignments, framing, and station records.
+- **[5. The signals for LD1 (the USB device firmware's side)](#5-the-signals-for-ld1-the-usb-device-firmwares-side)** -- Publish host link and address state through the bus interface.
+- **[6. Status LEDs (#1018)](#6-status-leds-1018)** -- Interpret the four board status indicators.
+- **[7. Registers](#7-registers)** -- Read attachment control and diagnostic registers.
+- **[8. Verification](#8-verification)** -- Reproduce the protocol, arbitration, and build checks.
 
 ## 1. Where it sits
 
