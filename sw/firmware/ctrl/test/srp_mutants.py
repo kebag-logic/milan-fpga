@@ -6,6 +6,7 @@ import shutil
 from ctrl_build import CTRL, ROOT, Tree, Refusal, Outcome
 import fw_gtest
 from srp_arms import DEFAULT_ENTITY, arm_srp
+import srp_deliver_mutants
 import srp_pub_mutants
 import srp_reopen_mutants
 import srp_compare_mutants
@@ -959,6 +960,7 @@ DEFECTS += srp_reclaim_mutants.defects(Defect)
 DEFECTS += srp_drain_mutants.defects(Defect)
 DEFECTS += srp_lane_mutants.defects(Defect)
 DEFECTS += srp_early_mutants.defects(Defect)
+DEFECTS += srp_deliver_mutants.defects(Defect)
 DEFECTS += srp_link_mutants.defects(Defect)
 
 def campaign(root: Path, lwsrp: Path, jobs: int = 4, interfaces: int = 2, entity: str = "") -> bool:

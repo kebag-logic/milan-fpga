@@ -232,6 +232,10 @@ TEST_F(SrpBinding, ParkedReplacementRetiresThePreviouslyAcceptedBinding) {
             }
         });
         for (unsigned k=0;k<2u;++k) ASSERT_TRUE(sink(k).bound);
+        // one binding change a delivery (#977's ruling on round 9's STOP, item 2): the first retires one, the
+        // other is owed
+        EXPECT_TRUE(app.loop.polls[4].fn(app.loop.polls[4].ctx))
+            << "the second parked binding's retirement is owed";
         EXPECT_EQ(app.loop.polls[4].fn(app.loop.polls[4].ctx),transient);
         calloc_before_failure=-1; settle();
         for (unsigned k=0;k<2u;++k) {
@@ -368,4 +372,90 @@ TEST_F(SrpBinding, AttachmentRefusesMissingRoomAndShapeWithoutPartialBinding) {
     EXPECT_FALSE(ctrl_app_attach_srp(&app,&srp_adapter));
     EXPECT_EQ(app.loop.rx[MBX_CH_SRP].fn,nullptr);
 }
+
+// The delivery's bound (#977, its ruling on round 9's STOP, item 2): a delivery makes at most one binding change and,
+// outside THE SETTLE, at most one loss completion, each the first owed from its turn; the rest stay pending, are
+// delivered in turn and keep the loop awake, so each waits at most n_sinks deliveries.
+TEST_F(SrpBinding, D1ADeliveryMakesOneBindingChangeTheRestInTurn) {
+    const unsigned n=acfg.n_sinks;
+    for (unsigned k=0;k<n;++k) bind(k);
+    without_delivery([&]{ for (unsigned k=0;k<n;++k) response(k,k); });
+    for (unsigned d=1;d<=n;++d) {
+        const bool more=app.loop.polls[4].fn(app.loop.polls[4].ctx);
+        unsigned bound=0;
+        for (unsigned k=0;k<n;++k) bound+=sink(k).bound ? 1u : 0u;
+        EXPECT_EQ(bound,d) << "D1 one binding change a delivery";
+        EXPECT_TRUE(sink(d-1u).bound) << "D1 the rest are delivered in turn";
+        if (d<n) {
+            EXPECT_TRUE(more) << "D1 a delivery that leaves a change owed keeps the loop awake";
+        }
+    }
+    for (unsigned k=0;k<n;++k) expect_stream(k,k);
+}
+
+TEST_F(SrpBinding, D2ASinkOwedIsDeliveredWithinItsTurnWhateverAnotherOwesAgain) {
+    const unsigned n=acfg.n_sinks;
+    ASSERT_GE(n,2u);
+    for (unsigned k=0;k<n;++k) { bind(k); response(k,k); }
+    without_delivery([&] {   // the last sink rebinds to another talker, its change owed
+        auto p=command(spec::MSG_BIND_RX_COMMAND,n-1u); p.talker=kTkB;
+        ASSERT_TRUE(offer(p,spec::MULTICAST_MAC,acfg.sink_interface[n-1u])); settle();
+        response(n-1u,n+1u);
+    });
+    ASSERT_TRUE(app.srp_requests[n-1u].pending);
+    bool delivered=false;
+    for (unsigned d=0;d<n && !delivered;++d) {
+        app.srp_requests[0].pending=true;   // the first sink owes a change again before each pass's delivery
+        pass();
+        delivered=!app.srp_requests[n-1u].pending;
+    }
+    EXPECT_TRUE(delivered) << "D2 a sink owed waits at most n_sinks deliveries";
+    expect_stream(n-1u,n+1u);
+}
+
+TEST_F(SrpBinding, D3ADeliveryCompletesOneLossOutsideTheSettle) {
+    const unsigned n=acfg.n_sinks;
+    for (unsigned k=0;k<n;++k) { bind(k); response(k,k); registration(k,false,0,k); }
+    for (unsigned k=0;k<n;++k) ASSERT_EQ(core()->sinks[k].state,ACMP_SETTLED_RSV_OK);
+    // every input's registration lost in one ordinary pass, as its leave timers run out in one centisecond
+    for (unsigned k=0;k<n;++k) sink(k).withdrawn=true;
+    app.loop.drain_taken=0u;
+    for (unsigned d=1;d<=n;++d) {
+        const bool more=app.loop.polls[4].fn(app.loop.polls[4].ctx);
+        unsigned lost=0;
+        for (unsigned k=0;k<n;++k) lost+=core()->sinks[k].state!=ACMP_SETTLED_RSV_OK ? 1u : 0u;
+        EXPECT_EQ(lost,d) << "D3 one loss completion a delivery outside THE SETTLE";
+        if (d<n) {
+            EXPECT_TRUE(more) << "D3 a delivery that leaves a loss owed keeps the loop awake";
+        }
+    }
+    settle();
+    for (unsigned k=0;k<n;++k) EXPECT_FALSE(sink(k).bound) << "D3 every loss delivers its unbind in turn";
+}
+
+TEST_F(SrpBinding, D4TheSettleCompletesEveryLoss) {
+    const unsigned n=acfg.n_sinks;
+    for (unsigned k=0;k<n;++k) { bind(k); response(k,k); registration(k,false,0,k); }
+    for (unsigned k=0;k<n;++k) sink(k).withdrawn=true;
+    app.srp_settle_owed=true;
+    ASSERT_NE(app.loop.settle,nullptr);
+    EXPECT_TRUE(app.loop.settle(app.loop.settle_ctx));
+    for (unsigned k=0;k<n;++k) {
+        EXPECT_NE(core()->sinks[k].state,ACMP_SETTLED_RSV_OK) << "D4 THE SETTLE completes every loss it owes";
+    }
+}
+TEST_F(SrpBinding, D5ALossLeftOwedKeepsTheLoopAwakeWithNoChangeOwed) {
+    const unsigned n=acfg.n_sinks;
+    ASSERT_GE(n,2u);
+    for (unsigned k=0;k<n;++k) { bind(k); response(k,k); }
+    for (unsigned k=0;k<n;++k) ASSERT_EQ(core()->sinks[k].state,ACMP_SETTLED_NO_RSV);
+    // a loss latched at a binding ACMP holds with no reservation asks no change of SRP (Milan v1.2 Table 5.30)
+    for (unsigned k=0;k<n;++k) sink(k).withdrawn=true;
+    app.loop.drain_taken=0u;
+    EXPECT_TRUE(app.loop.polls[4].fn(app.loop.polls[4].ctx)) << "D5 a loss left owed keeps the loop awake";
+    for (unsigned k=0;k<n;++k) EXPECT_FALSE(app.srp_requests[k].pending);
+    settle();
+    for (unsigned k=0;k<n;++k) EXPECT_FALSE(sink(k).withdrawn) << "D5 every loss is completed in turn";
+}
 } // namespace
+
