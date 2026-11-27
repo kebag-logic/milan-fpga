@@ -12,7 +12,8 @@ carries its items 2(a) and 2(b) as a merge gate (comment 7216972073):
     changes the free-space outcome in 11 of its 159 cases, so by the ruling's item 3 the census runs with egress
     drained at link rate through the queue (egress_queue.hpp decides the mailbox's ready), and every one of the three
     reads is the firmware's own against the link-rate tail. The grade checks the testbench's queue against this one:
-    the replay of each case's commits reproduces every departure the testbench printed (EGRESS) within AGREE_PS.
+    the replay of each case's commits, each record anchored to its last mailbox byte (WIRE), reproduces every
+    departure the testbench printed (EGRESS) exactly.
 (b) the largest commit-to-last-octet wait plus 5 %, plus the fixed path measured on the shipping chain at the MII rate,
     is at most BOUND_US. The wait is each record's own, from its TX_HEAD commit (TXC) to its last octet; a record
     whose wait meets a held egress (a `txready 0` window, the held-egress rows' ledger, egress_ledger.py) and every
@@ -32,6 +33,7 @@ usage: python3 -I egress_mii.py BUILD... | --packet DIR | --selftest | --structu
 
 from __future__ import annotations
 
+import copy
 import dataclasses
 import json
 import re
@@ -51,9 +53,8 @@ CONFIGS = ROOT / 'configs'
 BOUND_US, MARGIN = 1000, 1.05
 #: The replay's SR phases, each 1/PHASES of the period apart; the testbench runs phase 0.
 PHASES = 8
-#: How far the replay's departures may sit from the testbench's, ps: the two models agree to the datapath cycle, and
-#: the mailbox's head is visible to its merge one cycle after the commit the testbench prints.
-AGREE_PS = 200_000
+#: How far the replay's departures may sit from the testbench's, ps: anchored (replay), the two queues agree exactly.
+AGREE_PS = 0
 #: KL_mbx_tx (hdl/milan/mailbox/KL_mbx_tx.sv): a record committed at cycle c is pending at c + 1; from IDLE its first
 #: byte is offered after IDLE, the scan's N_CH + 1 steps, PICK, W0, W1 and LOAD; a LOAD follows every fourth byte; DONE
 #: and IDLE follow the last.
@@ -183,6 +184,12 @@ class Queue:
         self.frame: tuple = (0, 0, 0)
         self.lock = self.last = None
         self.departed: list = []
+
+    def clone(self) -> Queue:
+        """A copy to try a record on, sharing nothing it changes; its departures are its own."""
+        twin = copy.copy(self)
+        twin.lane, twin.others, twin.fifo, twin.departed = list(self.lane), list(self.others), list(self.fifo), []
+        return twin
 
     def ready(self) -> bool:
         """Whether the crossing takes a mailbox byte at the next edge."""
@@ -346,31 +353,49 @@ def hold_windows(holds: list) -> list[tuple]:
     return out + ([(start, 1 << 62)] if start is not None else [])
 
 
-def replay(recs: list[Record], holds: list, p: Params, phase_ps: int) -> list[tuple]:
+def stream(q: Queue, r: Record, e: int, windows: list) -> int:
+    """KL_mbx_tx sending r from edge e, each byte offered until the crossing takes it as the testbench's edge order has
+    it (ready from the edge before); its last byte's edge."""
+    sp, sent = q.p.sys_ps, 0
+    while sent < r.length:
+        held = next((end for first, end in windows if first <= e < end), None)
+        if held is not None:
+            e = held
+            continue
+        q.advance((e - 1) * sp)
+        ok = q.ready()
+        q.advance(e * sp)
+        if ok:
+            sent += 1
+            q.take(e, sent == r.length, r.ch)
+            e += 2 if sent % 4 == 0 and sent < r.length else 1
+        else:
+            e += 1
+    return e - 1
+
+
+#: How far an anchored record's first offer may sit from the commit's: the testbench prints a commit at its host
+#: acknowledgement, which the mailbox's head can precede by a cycle or two.
+ANCHOR = (0, -1, -2, 1, -3, 2, 3)
+
+
+def replay(recs: list[Record], holds: list, p: Params, phase_ps: int, anchored: bool = False) -> list[tuple]:
     """Each record through KL_mbx_tx and the queue, as (its last byte's edge, its last beat in, its last octet), in
-    recs' order: the mailbox serves them in the census's order, each once committed and the one before it sent, and
-    offers each byte until the crossing takes it, as the testbench's edge order has it (ready from the edge before)."""
+    recs' order: the mailbox serves them in the census's order, each once committed and the one before it sent.
+    Anchored, each record's first offer is the one within ANCHOR of the commit's that sends its last byte at the edge
+    the testbench printed (WIRE), so only the queue is left to agree."""
     q, windows, free_at, tails = Queue(p, phase_ps), hold_windows(holds), 0, []
-    sp = p.sys_ps
     for r in recs:
-        e, sent = max(r.commit + MBX_VISIBLE, free_at) + MBX_LEAD, 0
-        while sent < r.length:
-            held = next((end for first, end in windows if first <= e < end), None)
-            if held is not None:
-                e = held
-                continue
-            q.advance((e - 1) * sp)
-            ok = q.ready()
-            q.advance(e * sp)
-            if ok:
-                sent += 1
-                q.take(e, sent == r.length, r.ch)
-                e += 2 if sent % 4 == 0 and sent < r.length else 1
-            else:
-                e += 1
-        tails.append(e - 1)
-        free_at = e - 1 + MBX_AFTER
-    q.advance((free_at + 1) * sp + 64 * p.wire_ps(1514) + 2 * p.gptp_period_ps // 10**3)
+        e0 = max(r.commit + MBX_VISIBLE, free_at) + MBX_LEAD
+        if anchored:
+            for delta in ANCHOR:
+                trial = q.clone()
+                if stream(trial, r, e0 + delta, windows) == r.wire:
+                    e0 += delta
+                    break
+        tails.append(stream(q, r, e0, windows))
+        free_at = tails[-1] + MBX_AFTER
+    q.advance((free_at + 1) * p.sys_ps + 64 * p.wire_ps(1514) + 2 * p.gptp_period_ps // 10**3)
     per_ch: dict = {}
     for d in q.departed:
         per_ch.setdefault(d[1], []).append(d)
@@ -410,7 +435,7 @@ def grade_case(text: str, p: Params) -> dict:
     sp, windows = p.sys_ps, hold_windows(log['holds'])
     ends = [r.egress[4] // sp + 1 for r in recs]
     mark_held(recs, windows, ends)
-    first = replay(recs, log['holds'], p, 0)
+    first = replay(recs, log['holds'], p, 0, anchored=True)
     agree = max((max(abs(t - r.wire) * sp, abs(end - r.egress[4])) for (t, _, end), r in zip(first, recs)), default=0)
     worst = (0, 0, None)
     for phase in range(PHASES):
