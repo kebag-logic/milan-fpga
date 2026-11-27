@@ -1,0 +1,7 @@
+PASS a part of exactly the limit is one part and reads back
+PASS the reader refuses that part at a limit of its size
+PASS a first part of exactly the limit, then another, read back whole
+PASS overlong-first: a line longer than a part is refused, after at most one part
+PASS overlong-later: a line longer than a part is refused, after at most one part
+PASS no-newline: a line longer than a part is refused, after at most one part
+census_extract selftest: 6 of 6 passed

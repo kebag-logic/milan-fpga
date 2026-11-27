@@ -1,0 +1,15 @@
+results: arty-1x1 none, 113 groups, 5263 AECP records
+results: arty-1x1 answering-ports, 4 groups, 98 AECP records
+results: arty-1x1 answering-every-port, 16 groups, 1040 AECP records
+results: arty-1x1 valid-destinations, 3 groups, 801 AECP records
+results: arty-1x1 declaring-outputs, 5 groups, 121 AECP records
+results: arty-1x1 answering-later, 8 groups, 648 AECP records
+results: arty-1x1 talker-notices, 8 groups, 648 AECP records
+results: arty-1x1 shutdown-entry, 2 groups, 0 AECP records
+arty-1x1 reported long: the dearest 82,844 CPU cycles, 1090 us by the rule, stated 1105 us (declaring-outputs aecp-largest-notice: the largest legal command's)
+arty-1x1 held long: the dearest 83,754 CPU cycles, 1100 us by the rule, stated 1105 us (none aecp-largest-notice: the largest legal command's)
+arty-1x1 reported other: the dearest 19,148 CPU cycles, 255 us by the rule, stated 290 us (talker-notices talker-notice-0: command 0x0010)
+arty-1x1 held other: the dearest 21,517 CPU cycles, 285 us by the rule, stated 290 us (declaring-outputs aecp-outputs: command 0x000e)
+arty-1x1 reported paced: the dearest 24,714 CPU cycles, 325 us by the rule, stated 335 us (declaring-outputs aecp-fanout: SET_CONFIGURATION, paced)
+arty-1x1 held paced: the dearest 25,090 CPU cycles, 330 us by the rule, stated 335 us (none aecp-fanout: REMOVE_AUDIO_MAPPINGS, paced)
+RESULT: PASS

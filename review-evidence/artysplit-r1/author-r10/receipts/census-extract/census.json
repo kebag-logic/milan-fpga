@@ -1,0 +1,822 @@
+{
+ "source_head": "7bc47c0ee82878790da1a4c8765ed21b8b006021",
+ "part_limit": 14000000,
+ "read_labels": [
+  "acmp_mbx:on_frame",
+  "acmp_mbx:on_poll",
+  "acmp_rx",
+  "adp_mbx:on_poll",
+  "aecp:finish",
+  "aecp:transmit",
+  "aecp_command",
+  "aecp_mbx:frame",
+  "ctrl_app_srp:deliver",
+  "ctrl_loop:round_of",
+  "mrp_attr_visit",
+  "mrp_reclaim",
+  "nvm_crc32_update",
+  "nvm_flash_litespi:ls_read",
+  "srp_mbx:apply_receive",
+  "srp_mbx:build_mrpdu",
+  "srp_mbx:open_interface",
+  "srp_mbx:receive",
+  "srp_mbx:reset_interface"
+ ],
+ "cases": [
+  {
+   "case": "answering-every-port/notice-burst-0",
+   "manifest": "census/answering-every-port/notice-burst-0/manifest.json",
+   "sha256": "0fba333a06873e547f7fbd219cba25a5232f9b23f20aedba1412cdf5194ff51b"
+  },
+  {
+   "case": "answering-every-port/notice-burst-1",
+   "manifest": "census/answering-every-port/notice-burst-1/manifest.json",
+   "sha256": "b4ec52b727df7d89b109969eb1a3c44f8d5ae42c360f487ed5cb44a12d235ed5"
+  },
+  {
+   "case": "answering-every-port/notice-burst-2",
+   "manifest": "census/answering-every-port/notice-burst-2/manifest.json",
+   "sha256": "c27a3176bbb63f27939b333fdd2512cc1678b39540574c584e73826b7aa54f4b"
+  },
+  {
+   "case": "answering-every-port/notice-burst-3",
+   "manifest": "census/answering-every-port/notice-burst-3/manifest.json",
+   "sha256": "b9ed7b7e4235c3f8964fddd62764396acc4a040bd631a75a066a731443aad67e"
+  },
+  {
+   "case": "answering-every-port/notice-burst-4",
+   "manifest": "census/answering-every-port/notice-burst-4/manifest.json",
+   "sha256": "edbdb5c61652a6a6545f803a6c7e8a37e474f44f455ebbe09c3534862dce7eeb"
+  },
+  {
+   "case": "answering-every-port/notice-burst-5",
+   "manifest": "census/answering-every-port/notice-burst-5/manifest.json",
+   "sha256": "f76a4294004e475cfc9e4066d690376fce96ab277bc698931c998e4c86281a21"
+  },
+  {
+   "case": "answering-every-port/notice-burst-6",
+   "manifest": "census/answering-every-port/notice-burst-6/manifest.json",
+   "sha256": "4806610f2bb4b792d849f293f84bb2c80ff9e06d93d741dc849d71beb4d6651d"
+  },
+  {
+   "case": "answering-every-port/notice-burst-7",
+   "manifest": "census/answering-every-port/notice-burst-7/manifest.json",
+   "sha256": "2bf495d2c63e978a2d1bb4d4e89430c535d1c3149e7a325900acf994eaaecb22"
+  },
+  {
+   "case": "answering-every-port/notice-every-0",
+   "manifest": "census/answering-every-port/notice-every-0/manifest.json",
+   "sha256": "86a7b327da70333d156ab4d97be6456104ce68b0911e6aa0a3081e288c74ca0b"
+  },
+  {
+   "case": "answering-every-port/notice-every-1",
+   "manifest": "census/answering-every-port/notice-every-1/manifest.json",
+   "sha256": "0e78b45cec261bd8a3505746cf8cf0f8eda66ff2a868e9604b1cf4d26d4b1afc"
+  },
+  {
+   "case": "answering-every-port/notice-every-2",
+   "manifest": "census/answering-every-port/notice-every-2/manifest.json",
+   "sha256": "bc9a6bbf51f6de5be3d6173ac50dddb5873d406eb0b275100287c6da2a4705ec"
+  },
+  {
+   "case": "answering-every-port/notice-every-3",
+   "manifest": "census/answering-every-port/notice-every-3/manifest.json",
+   "sha256": "26c77dd68cea68a27fbdc839cdba6f8d2d82035a166ddb8385756af5be23fef8"
+  },
+  {
+   "case": "answering-every-port/notice-every-4",
+   "manifest": "census/answering-every-port/notice-every-4/manifest.json",
+   "sha256": "ad724c72fefd9c1c0bb4bddd27dfb905401dca30612a075d84ecabf8b417a428"
+  },
+  {
+   "case": "answering-every-port/notice-every-5",
+   "manifest": "census/answering-every-port/notice-every-5/manifest.json",
+   "sha256": "3fedd63816c8b0dba7fd09d78ee4fa9b09310a097a46ba6ea260f20062c54716"
+  },
+  {
+   "case": "answering-every-port/notice-every-6",
+   "manifest": "census/answering-every-port/notice-every-6/manifest.json",
+   "sha256": "25b0074a547d5c415ecac3ce75afbbf122668c8bfc312a6db57a7c99b42d6785"
+  },
+  {
+   "case": "answering-every-port/notice-every-7",
+   "manifest": "census/answering-every-port/notice-every-7/manifest.json",
+   "sha256": "bbaf7b9f7c7d42ac1841c44dd931fa4c8dbf98c909cc633173b04b9bc62dc013"
+  },
+  {
+   "case": "answering-later/notice-retried-0",
+   "manifest": "census/answering-later/notice-retried-0/manifest.json",
+   "sha256": "cafe06fb33a978eb22f9c990416e97633e9e05a9f77a722519641a47c360c838"
+  },
+  {
+   "case": "answering-later/notice-retried-1",
+   "manifest": "census/answering-later/notice-retried-1/manifest.json",
+   "sha256": "f60fc93e3e855f36083aa11165654e91f9828a67b52f6b834737e9b208af9cbc"
+  },
+  {
+   "case": "answering-later/notice-retried-2",
+   "manifest": "census/answering-later/notice-retried-2/manifest.json",
+   "sha256": "c9f43190875b204962d91ca818345007e23a02d606d12df1216e1c327f83ad20"
+  },
+  {
+   "case": "answering-later/notice-retried-3",
+   "manifest": "census/answering-later/notice-retried-3/manifest.json",
+   "sha256": "79507616f704688807355d9c4c8baa0497f329f1632485a320a021908fc9bdaa"
+  },
+  {
+   "case": "answering-later/notice-retried-4",
+   "manifest": "census/answering-later/notice-retried-4/manifest.json",
+   "sha256": "9530d1978262f43b736cab468efbe2dfda2881a569f480d66be8d446f75faea4"
+  },
+  {
+   "case": "answering-later/notice-retried-5",
+   "manifest": "census/answering-later/notice-retried-5/manifest.json",
+   "sha256": "d5781b3ad378d96b1d79c01af49ff341d9bfe09aac29a52c730d47be969af66d"
+  },
+  {
+   "case": "answering-later/notice-retried-6",
+   "manifest": "census/answering-later/notice-retried-6/manifest.json",
+   "sha256": "9f6aecd0a958fc3ea710c4d5404f7e9af4997831d810b2f35ca1e76965b54b10"
+  },
+  {
+   "case": "answering-later/notice-retried-7",
+   "manifest": "census/answering-later/notice-retried-7/manifest.json",
+   "sha256": "f716f66855a9de3bb78b21dec490b5aacd2b9c3a1d97d5e1c3637d99575bbc74"
+  },
+  {
+   "case": "answering-ports/aecp-fanout",
+   "manifest": "census/answering-ports/aecp-fanout/manifest.json",
+   "sha256": "07b8bc478fa14e17b45223d503dfa8c376285c96723c49b2b06b583e19d5ffa5"
+  },
+  {
+   "case": "answering-ports/aecp-largest-notice",
+   "manifest": "census/answering-ports/aecp-largest-notice/manifest.json",
+   "sha256": "9c94d80a1e178de9e014901e5227af77ef7908f078b950fc85841eca8fc738df"
+  },
+  {
+   "case": "answering-ports/aecp-reboot",
+   "manifest": "census/answering-ports/aecp-reboot/manifest.json",
+   "sha256": "061b10e21e10545e5334505c25fcd0ae3ba7ed5e155fc5287b75b8bc6b290229"
+  },
+  {
+   "case": "answering-ports/aecp",
+   "manifest": "census/answering-ports/aecp/manifest.json",
+   "sha256": "ca7fe858496147379a41de30f548702da6b74f8b3f52820bdf7ffe18b402c365"
+  },
+  {
+   "case": "declaring-outputs/aecp-fanout",
+   "manifest": "census/declaring-outputs/aecp-fanout/manifest.json",
+   "sha256": "4d85c334d878f10a6266f31d7a3d797827aa93571e5eae0eac3e955c9162f610"
+  },
+  {
+   "case": "declaring-outputs/aecp-largest-notice",
+   "manifest": "census/declaring-outputs/aecp-largest-notice/manifest.json",
+   "sha256": "4fda9b0069a4e09bb639082070ce90f0e640214b85a18750e71a6c24440f395d"
+  },
+  {
+   "case": "declaring-outputs/aecp-outputs",
+   "manifest": "census/declaring-outputs/aecp-outputs/manifest.json",
+   "sha256": "c005ad32b433971c00551649400cea3a42d29498ccda6689c00415c86c120187"
+  },
+  {
+   "case": "declaring-outputs/aecp-reboot",
+   "manifest": "census/declaring-outputs/aecp-reboot/manifest.json",
+   "sha256": "31ff1e1fbbf86a62bf5eee0275d4deff988e68caeb9e42e1dfe76c0d803053a3"
+  },
+  {
+   "case": "declaring-outputs/aecp",
+   "manifest": "census/declaring-outputs/aecp/manifest.json",
+   "sha256": "a631a9c84872d035e8d580e4d8ba2952b41ba4793acbc1f78545cd020971bc20"
+  },
+  {
+   "case": "none/acmp-cmd",
+   "manifest": "census/none/acmp-cmd/manifest.json",
+   "sha256": "22dbb65c6f402bad404aab0c43ce9c38354b125436b549ac32ff02b619f75406"
+  },
+  {
+   "case": "none/acmp-disc",
+   "manifest": "census/none/acmp-disc/manifest.json",
+   "sha256": "30e29d5aa8b0ed0b805229feb0b69616c56efb5bf3d6d2744434d5eae63e5aba"
+  },
+  {
+   "case": "none/acmp-noresp",
+   "manifest": "census/none/acmp-noresp/manifest.json",
+   "sha256": "d949b6cf3c6bd24ca8313f132c56ca558fb7df029e9b9cfad9f1c0dba3c6f4c8"
+  },
+  {
+   "case": "none/acmp-notk",
+   "manifest": "census/none/acmp-notk/manifest.json",
+   "sha256": "f8e410fc8ecf8d9985aee90938b166319e9c32ce149c44772bf387f3d23af843"
+  },
+  {
+   "case": "none/adp-advertise",
+   "manifest": "census/none/adp-advertise/manifest.json",
+   "sha256": "00c107fc4b12cb20d35ad5c7629c08bc22e30843a49d69df83b9729c2a1e76f2"
+  },
+  {
+   "case": "none/adp-discover",
+   "manifest": "census/none/adp-discover/manifest.json",
+   "sha256": "a66dcf6679d105ca57aa9265d344ed2021faafaa36c25d32d64841a0d68615c7"
+  },
+  {
+   "case": "none/adp-gm",
+   "manifest": "census/none/adp-gm/manifest.json",
+   "sha256": "6159074fa723b2adb15860a4cc6b1596c178271209452610c760cf2b926b1fd7"
+  },
+  {
+   "case": "none/adp-link",
+   "manifest": "census/none/adp-link/manifest.json",
+   "sha256": "872185e0ff6b1658d9ae67f2355e811038578fca45f2379bb2a407a298389515"
+  },
+  {
+   "case": "none/aecp-fanout",
+   "manifest": "census/none/aecp-fanout/manifest.json",
+   "sha256": "8afb05717ac7aa512ea8c8799deecf121aa6cd19ed41d5417bcbc666fe87147d"
+  },
+  {
+   "case": "none/aecp-held",
+   "manifest": "census/none/aecp-held/manifest.json",
+   "sha256": "9f145a4ceae72e1b7d57e11332fedc58f529885242a238d7a6329ec8c3ce46fb"
+  },
+  {
+   "case": "none/aecp-largest-notice",
+   "manifest": "census/none/aecp-largest-notice/manifest.json",
+   "sha256": "ed23b87af79fbcd00b1339f004ddc418f329b6c8d1d68579373a87e48ab161fb"
+  },
+  {
+   "case": "none/aecp",
+   "manifest": "census/none/aecp/manifest.json",
+   "sha256": "88f98d474a1ebb9721f3db74ea6995676fa11f70e214a4b54cf9a6f8d6e28332"
+  },
+  {
+   "case": "none/backlog-adp-refill",
+   "manifest": "census/none/backlog-adp-refill/manifest.json",
+   "sha256": "262b18e6d06c1b364a2d6407ceb288cb2c2551cef9abe48a62d1d94d2e3d2bdd"
+  },
+  {
+   "case": "none/backlog-adp",
+   "manifest": "census/none/backlog-adp/manifest.json",
+   "sha256": "9b6c923d0521fa20a06dcbf6d459ce6b8439ec6b03730b008b0370f54782990b"
+  },
+  {
+   "case": "none/backlog-adp@blank-0",
+   "manifest": "census/none/backlog-adp@blank-0/manifest.json",
+   "sha256": "1e02fb6fd31ab1270798abffed094b64118846c3955bd9fc705651cfe88cccea"
+  },
+  {
+   "case": "none/backlog-adp@blank-1",
+   "manifest": "census/none/backlog-adp@blank-1/manifest.json",
+   "sha256": "657d2cf1a3f87c6bea1050f89453f9a9222e2e76648243211e894416a3f70de7"
+  },
+  {
+   "case": "none/backlog-adp@blank-2",
+   "manifest": "census/none/backlog-adp@blank-2/manifest.json",
+   "sha256": "f603912ba7eeaa98011dd507d9ca1fbad95b25a1972ce54a83c3fca2478ef13b"
+  },
+  {
+   "case": "none/backlog-adp@blank-3",
+   "manifest": "census/none/backlog-adp@blank-3/manifest.json",
+   "sha256": "cfd8d16ad1afd92ccaffe40742cbe555b80529c55e33ae64f405d6e1e58a4b2d"
+  },
+  {
+   "case": "none/backlog-adp@blank-4",
+   "manifest": "census/none/backlog-adp@blank-4/manifest.json",
+   "sha256": "093d21082f4d109727ec4e6c26e641e7a5202be6d6ffd417f78c3af0484c776d"
+  },
+  {
+   "case": "none/backlog-adp@blank-5",
+   "manifest": "census/none/backlog-adp@blank-5/manifest.json",
+   "sha256": "8bfcaed0c06389380846bd60878801fe208058a81b3718b34c884a18088d681c"
+  },
+  {
+   "case": "none/backlog-adp@blank-6",
+   "manifest": "census/none/backlog-adp@blank-6/manifest.json",
+   "sha256": "1ebb7499cb409a979ec1684ebd7c47e6daecf406b08a55dd1293eafdf05f82ce"
+  },
+  {
+   "case": "none/backlog-adp@blank-7",
+   "manifest": "census/none/backlog-adp@blank-7/manifest.json",
+   "sha256": "f0017e2093b9d7f33de16011107206bbce2ff7249c27ed2ee78e6ab0baeee483"
+  },
+  {
+   "case": "none/backlog-adp@blank-aged1-0",
+   "manifest": "census/none/backlog-adp@blank-aged1-0/manifest.json",
+   "sha256": "ec6b363448f5764dd2f2a00f999e6b95e50b8e663468a1df8c3aca174b3e19a3"
+  },
+  {
+   "case": "none/backlog-adp@blank-aged1-1",
+   "manifest": "census/none/backlog-adp@blank-aged1-1/manifest.json",
+   "sha256": "7e3fd40a0ea364cc98abaeb7a54af03d3c68fbf3c50ae1d0d0677ce9894c23f6"
+  },
+  {
+   "case": "none/backlog-adp@blank-aged1-2",
+   "manifest": "census/none/backlog-adp@blank-aged1-2/manifest.json",
+   "sha256": "5b406821fefb8c666231cc79eaabfaf4beb104a2790e5f2edc6c02b99fb89254"
+  },
+  {
+   "case": "none/backlog-adp@blank-aged1-3",
+   "manifest": "census/none/backlog-adp@blank-aged1-3/manifest.json",
+   "sha256": "fde6a09db700fa9a6867f71cd61bda264661fe02d7200a39534e95f2be03e97c"
+  },
+  {
+   "case": "none/backlog-adp@blank-aged1-4",
+   "manifest": "census/none/backlog-adp@blank-aged1-4/manifest.json",
+   "sha256": "d4161019d154e67b23d6bd1b1a6efd9a591ee99208fffad1e888412ba4d94e04"
+  },
+  {
+   "case": "none/backlog-adp@blank-aged1-5",
+   "manifest": "census/none/backlog-adp@blank-aged1-5/manifest.json",
+   "sha256": "b788fc109dc48c125dc266f51aab35ce33928d9362a1ce5f7032bb494860ec7d"
+  },
+  {
+   "case": "none/backlog-adp@blank-aged1-6",
+   "manifest": "census/none/backlog-adp@blank-aged1-6/manifest.json",
+   "sha256": "420bb29c66f22175e226f1ee013d2b71fc964afe17aba4fbaf6b81c4910a625b"
+  },
+  {
+   "case": "none/backlog-adp@blank-aged1-7",
+   "manifest": "census/none/backlog-adp@blank-aged1-7/manifest.json",
+   "sha256": "fd8a7966429a689d93cd09414638270ba24974a8f0f0225d55bfc9c6e8682fa3"
+  },
+  {
+   "case": "none/backlog-adp@blank-aged2-0",
+   "manifest": "census/none/backlog-adp@blank-aged2-0/manifest.json",
+   "sha256": "1aca66d9a75c864fa7de952a4a33c815b2c72773f1a4390f8dc08c9e1d9735e0"
+  },
+  {
+   "case": "none/backlog-adp@blank-aged2-1",
+   "manifest": "census/none/backlog-adp@blank-aged2-1/manifest.json",
+   "sha256": "932df9b53a3c6d8bca7f0969e197bfccbb7711ce6a5da21752e814078dec1e71"
+  },
+  {
+   "case": "none/backlog-adp@blank-aged2-2",
+   "manifest": "census/none/backlog-adp@blank-aged2-2/manifest.json",
+   "sha256": "dfb5b4a43d240f3982300d0270afb891906c8361315a7fe866b1d76289da2bd8"
+  },
+  {
+   "case": "none/backlog-adp@blank-aged2-3",
+   "manifest": "census/none/backlog-adp@blank-aged2-3/manifest.json",
+   "sha256": "3304ade6efeb66a5f149b895f845b39ba90ecf8612e9cdd475efcfd0acc8f0e1"
+  },
+  {
+   "case": "none/backlog-adp@blank-aged2-4",
+   "manifest": "census/none/backlog-adp@blank-aged2-4/manifest.json",
+   "sha256": "391df38b4961705dad1db5eee5b040f1f3d87a0231f61d545f65cbc943b6e8e6"
+  },
+  {
+   "case": "none/backlog-adp@blank-aged2-5",
+   "manifest": "census/none/backlog-adp@blank-aged2-5/manifest.json",
+   "sha256": "aad06e642758e3b691367b098965a11d096166e609cf19199ede8d7f868f8d4d"
+  },
+  {
+   "case": "none/backlog-adp@blank-aged2-6",
+   "manifest": "census/none/backlog-adp@blank-aged2-6/manifest.json",
+   "sha256": "00368a48b6dffb68dd13ead92287609759b31038e970259758c35c5450e5bae6"
+  },
+  {
+   "case": "none/backlog-adp@blank-aged2-7",
+   "manifest": "census/none/backlog-adp@blank-aged2-7/manifest.json",
+   "sha256": "2b99d849643651d4f69be32704d0bfe88e8541e5fd0002b310bfcc380b2c4494"
+  },
+  {
+   "case": "none/backlog-adp@program-0",
+   "manifest": "census/none/backlog-adp@program-0/manifest.json",
+   "sha256": "2ce5ecdd02cb5cd339a5a132208f8ce8dd8b8f7ba564e97e9664ffed5edef97f"
+  },
+  {
+   "case": "none/backlog-adp@program-1",
+   "manifest": "census/none/backlog-adp@program-1/manifest.json",
+   "sha256": "3687d62bc83f04730d23264855aa8937a108d188f5e7421d2ff4329808cef087"
+  },
+  {
+   "case": "none/backlog-adp@program-2",
+   "manifest": "census/none/backlog-adp@program-2/manifest.json",
+   "sha256": "9fde28560f083ebd89a054b6ca7099b9bed58920cd68d7b4a3d4075318c33819"
+  },
+  {
+   "case": "none/backlog-adp@program-3",
+   "manifest": "census/none/backlog-adp@program-3/manifest.json",
+   "sha256": "d7f27be4946517cdf5b601f888cb41dae808d01e09e3c564f9d29b821b5b75b6"
+  },
+  {
+   "case": "none/backlog-adp@program-4",
+   "manifest": "census/none/backlog-adp@program-4/manifest.json",
+   "sha256": "a4968a4473c313f562f74dc4a10fac91c761b94239906c5226455b379171fc5d"
+  },
+  {
+   "case": "none/backlog-adp@program-5",
+   "manifest": "census/none/backlog-adp@program-5/manifest.json",
+   "sha256": "3395acfffc05cab27504b95f6454e91373020a88a47c068e24f1be3458eacb1b"
+  },
+  {
+   "case": "none/backlog-adp@program-6",
+   "manifest": "census/none/backlog-adp@program-6/manifest.json",
+   "sha256": "dfdff682f03e868886f6f52af6f3d7e7e55ff870bc354bb51be15988fb1c960f"
+  },
+  {
+   "case": "none/backlog-adp@program-7",
+   "manifest": "census/none/backlog-adp@program-7/manifest.json",
+   "sha256": "753ceaa2205e870fa5a2656179b9d64e6733e9c7b0b871087fe4fa8754e18e51"
+  },
+  {
+   "case": "none/backlog-adp@program-aged1-0",
+   "manifest": "census/none/backlog-adp@program-aged1-0/manifest.json",
+   "sha256": "7f976ef4026674baeb6ef8d159533f6259819bfb5ddd577e1f35564eadd0a9c9"
+  },
+  {
+   "case": "none/backlog-adp@program-aged1-1",
+   "manifest": "census/none/backlog-adp@program-aged1-1/manifest.json",
+   "sha256": "bdb64655c9228b7e71d55bda884fa80b1860daf188a2458ab279f64dd5a23b30"
+  },
+  {
+   "case": "none/backlog-adp@program-aged1-2",
+   "manifest": "census/none/backlog-adp@program-aged1-2/manifest.json",
+   "sha256": "cee3c630341eeb30a5bc8bbe7843b1f45d088cb5addb59558dce1bc298250fbd"
+  },
+  {
+   "case": "none/backlog-adp@program-aged1-3",
+   "manifest": "census/none/backlog-adp@program-aged1-3/manifest.json",
+   "sha256": "77e93fcbe22e8c3805f17b8307d0fce3e24572e4fdd4456197df7c568d069b26"
+  },
+  {
+   "case": "none/backlog-adp@program-aged1-4",
+   "manifest": "census/none/backlog-adp@program-aged1-4/manifest.json",
+   "sha256": "c6bd4616b6118fea4f06fb654e59bb5deef05746754b8e2520b9d58bde33bea0"
+  },
+  {
+   "case": "none/backlog-adp@program-aged1-5",
+   "manifest": "census/none/backlog-adp@program-aged1-5/manifest.json",
+   "sha256": "1ab5687af36c9d8515ba1a3dbfe756c4551d6afa26e4ff5f5b043c58a8aec674"
+  },
+  {
+   "case": "none/backlog-adp@program-aged1-6",
+   "manifest": "census/none/backlog-adp@program-aged1-6/manifest.json",
+   "sha256": "d5a53ba57c63a696bc016f75fad517e8e288a0114e920d77502b1f24b1d9151b"
+  },
+  {
+   "case": "none/backlog-adp@program-aged1-7",
+   "manifest": "census/none/backlog-adp@program-aged1-7/manifest.json",
+   "sha256": "803345a121e536442d2cc3909b9c1eb9c10f394deb81d9cbd7c1f78e10dd2e50"
+  },
+  {
+   "case": "none/backlog-adp@program-aged2-0",
+   "manifest": "census/none/backlog-adp@program-aged2-0/manifest.json",
+   "sha256": "d613c15670b1cfcdc9aa08e7daeaf97ab50ca144fdcffe5373e6b92e7228ab74"
+  },
+  {
+   "case": "none/backlog-adp@program-aged2-1",
+   "manifest": "census/none/backlog-adp@program-aged2-1/manifest.json",
+   "sha256": "9b6b060c56ac53eebac77cf77758a026a6a3552340472e95bcf3f1aa3ca1ac71"
+  },
+  {
+   "case": "none/backlog-adp@program-aged2-2",
+   "manifest": "census/none/backlog-adp@program-aged2-2/manifest.json",
+   "sha256": "c98df4a4dad441dbad488a26fb217cdc8ddc9d5d8821ecaa163994e2ef5d9ad7"
+  },
+  {
+   "case": "none/backlog-adp@program-aged2-3",
+   "manifest": "census/none/backlog-adp@program-aged2-3/manifest.json",
+   "sha256": "332b17942b2c88052bf9939835f8592c0d5115e6ce9a60189ce827560135292a"
+  },
+  {
+   "case": "none/backlog-adp@program-aged2-4",
+   "manifest": "census/none/backlog-adp@program-aged2-4/manifest.json",
+   "sha256": "c44a65831f1c5ccf0696dc9f5a3495d2df6e62e9b9a4eebc5623c16b7af13632"
+  },
+  {
+   "case": "none/backlog-adp@program-aged2-5",
+   "manifest": "census/none/backlog-adp@program-aged2-5/manifest.json",
+   "sha256": "1fd1cca3cbe94a4e883c55f02faeaa53977ad62ad9eae1c00aa164a1eb035556"
+  },
+  {
+   "case": "none/backlog-adp@program-aged2-6",
+   "manifest": "census/none/backlog-adp@program-aged2-6/manifest.json",
+   "sha256": "21990b65186a6612802c7ed3b0dfb0d2988c5628bf466fcb07e66281a256331b"
+  },
+  {
+   "case": "none/backlog-adp@program-aged2-7",
+   "manifest": "census/none/backlog-adp@program-aged2-7/manifest.json",
+   "sha256": "3ab07e5b643eb25ca0fe6368cc2d29f24a75d6fe5b0277b8958e509266e88a8e"
+  },
+  {
+   "case": "none/backlog-adp@verify-0",
+   "manifest": "census/none/backlog-adp@verify-0/manifest.json",
+   "sha256": "4e1c6169dca734567bdc2e109035b1ac560ce2d2b3466e883b6ac7f8a3a421de"
+  },
+  {
+   "case": "none/backlog-adp@verify-1",
+   "manifest": "census/none/backlog-adp@verify-1/manifest.json",
+   "sha256": "e7c8164533d5bf830e0248b0134c1decb3df52f405b29074e25a01a6dfa84099"
+  },
+  {
+   "case": "none/backlog-adp@verify-2",
+   "manifest": "census/none/backlog-adp@verify-2/manifest.json",
+   "sha256": "60903c294998c16175ec523da1947e08c8b6962ac733467004ba30ac664ab8cd"
+  },
+  {
+   "case": "none/backlog-adp@verify-3",
+   "manifest": "census/none/backlog-adp@verify-3/manifest.json",
+   "sha256": "c21a9532b5037f4e70f0fa0c92bda79cc34ab55af9c20fbf884d8066e73fa1d6"
+  },
+  {
+   "case": "none/backlog-adp@verify-4",
+   "manifest": "census/none/backlog-adp@verify-4/manifest.json",
+   "sha256": "9cec04e4c24e5e60d0b27ac489cf7df431cbc8ed0cd3a61295c078d1c42c3ce8"
+  },
+  {
+   "case": "none/backlog-adp@verify-5",
+   "manifest": "census/none/backlog-adp@verify-5/manifest.json",
+   "sha256": "7abd2c55819ae077682cbce2405b219921299ac93eb4d9ffb11ea9665c7cea60"
+  },
+  {
+   "case": "none/backlog-adp@verify-6",
+   "manifest": "census/none/backlog-adp@verify-6/manifest.json",
+   "sha256": "e9bafd2ccedb84d788a285b5645d3adbba8218adf18a42c7775803a2aacfd261"
+  },
+  {
+   "case": "none/backlog-adp@verify-7",
+   "manifest": "census/none/backlog-adp@verify-7/manifest.json",
+   "sha256": "c68a37761c3cd2143a735dab5481a92674350a68dc77b610e9188d70949ae643"
+  },
+  {
+   "case": "none/backlog-adp@verify-aged1-0",
+   "manifest": "census/none/backlog-adp@verify-aged1-0/manifest.json",
+   "sha256": "a2e05f8bc64debd78d96c942a6fd2db8b0de43ae98e839f70a936659e73ef9ae"
+  },
+  {
+   "case": "none/backlog-adp@verify-aged1-1",
+   "manifest": "census/none/backlog-adp@verify-aged1-1/manifest.json",
+   "sha256": "5c7d9286972a63cea752733182a8af7e2fc588ffdeed0c1c2990c6d5f12de8cc"
+  },
+  {
+   "case": "none/backlog-adp@verify-aged1-2",
+   "manifest": "census/none/backlog-adp@verify-aged1-2/manifest.json",
+   "sha256": "34e7c3463f379bf385deaec70a7f3637fbd282e4bdc8eb37662b0bee77427c59"
+  },
+  {
+   "case": "none/backlog-adp@verify-aged1-3",
+   "manifest": "census/none/backlog-adp@verify-aged1-3/manifest.json",
+   "sha256": "229f326b72ea692ce56abe9bff4a9f7a35a2a2919f3f95e73d5250806fc2e9a3"
+  },
+  {
+   "case": "none/backlog-adp@verify-aged1-4",
+   "manifest": "census/none/backlog-adp@verify-aged1-4/manifest.json",
+   "sha256": "573c3b401f449a5a854afe39088036fc09d1abe123b5127fedc1bee8be64ecb4"
+  },
+  {
+   "case": "none/backlog-adp@verify-aged1-5",
+   "manifest": "census/none/backlog-adp@verify-aged1-5/manifest.json",
+   "sha256": "473bc4d847e73f35317ceb235bcfd8db8b3d16cdab300debc8c40d454c8a4c19"
+  },
+  {
+   "case": "none/backlog-adp@verify-aged1-6",
+   "manifest": "census/none/backlog-adp@verify-aged1-6/manifest.json",
+   "sha256": "e7c63c98a3267c5972220667bbee5004039d756e6ca626e0b50dbdc15a053ca4"
+  },
+  {
+   "case": "none/backlog-adp@verify-aged1-7",
+   "manifest": "census/none/backlog-adp@verify-aged1-7/manifest.json",
+   "sha256": "1723306aa6f6ed20202692633a3aba46794763094952306c16ca7b82c34b4661"
+  },
+  {
+   "case": "none/backlog-adp@verify-aged2-0",
+   "manifest": "census/none/backlog-adp@verify-aged2-0/manifest.json",
+   "sha256": "ea0a9813d219ff72e1c3e23db8697fad45dd2d3c8f4c29c8d4a5bcfd5e1699a2"
+  },
+  {
+   "case": "none/backlog-adp@verify-aged2-1",
+   "manifest": "census/none/backlog-adp@verify-aged2-1/manifest.json",
+   "sha256": "02a5f28bdc0dd19b629a018211fb28b69456a11ac1b646cfd9b622885ef3711c"
+  },
+  {
+   "case": "none/backlog-adp@verify-aged2-2",
+   "manifest": "census/none/backlog-adp@verify-aged2-2/manifest.json",
+   "sha256": "18d9e2de63116ae2041670d5b7439e8cb8402dee80891fd8de512c924e382002"
+  },
+  {
+   "case": "none/backlog-adp@verify-aged2-3",
+   "manifest": "census/none/backlog-adp@verify-aged2-3/manifest.json",
+   "sha256": "2d385512f532be82d8410db75eb978b275c71241d466c5b9b94b62de7ceee9ea"
+  },
+  {
+   "case": "none/backlog-adp@verify-aged2-4",
+   "manifest": "census/none/backlog-adp@verify-aged2-4/manifest.json",
+   "sha256": "5595dacfce03480bd8fb1c00afe4481fd059ef058e05ca33fabd9d59daecb160"
+  },
+  {
+   "case": "none/backlog-adp@verify-aged2-5",
+   "manifest": "census/none/backlog-adp@verify-aged2-5/manifest.json",
+   "sha256": "4d877d135416ca523c20241da6af025852b30ad1b5e99308a020519a2984d9c8"
+  },
+  {
+   "case": "none/backlog-adp@verify-aged2-6",
+   "manifest": "census/none/backlog-adp@verify-aged2-6/manifest.json",
+   "sha256": "7a424affedda1b91a92ea90777f091a5d118e3f1f6d2f0c753f10bc7111cc204"
+  },
+  {
+   "case": "none/backlog-adp@verify-aged2-7",
+   "manifest": "census/none/backlog-adp@verify-aged2-7/manifest.json",
+   "sha256": "b0a3f38a05c487d1daa7cf779760c36f2e27adeaaddc6840574b808d9bc52bdf"
+  },
+  {
+   "case": "none/backlog-owed",
+   "manifest": "census/none/backlog-owed/manifest.json",
+   "sha256": "5945695026d6e4d9aff28826e787369ae0345ec7b235dc8d1fd71872fbc1a306"
+  },
+  {
+   "case": "none/backlog",
+   "manifest": "census/none/backlog/manifest.json",
+   "sha256": "b165d88f45e2e43d59e47abb9880276dfb0d980707b2a680f5e3a515fd31c674"
+  },
+  {
+   "case": "none/control",
+   "manifest": "census/none/control/manifest.json",
+   "sha256": "f757c28cf2c377fdb6876a6ef030f7654981f23f053957b114c870ff6b0a39bf"
+  },
+  {
+   "case": "none/datapath-events",
+   "manifest": "census/none/datapath-events/manifest.json",
+   "sha256": "9e3988f262e6cbd4e143e90ed1699e0b74efdfde9dd1ceab046736a39f5d6efc"
+  },
+  {
+   "case": "none/fixture",
+   "manifest": "census/none/fixture/manifest.json",
+   "sha256": "4361fa4e108a41b1d857ab84fe3df5c38df6e7492119fb9922e7a2e88a0abbb6"
+  },
+  {
+   "case": "none/maap",
+   "manifest": "census/none/maap/manifest.json",
+   "sha256": "f6e33354ee73f563d3048cec1662f7829e0d6d858d960736f600269bc8ee762f"
+  },
+  {
+   "case": "none/save-bind-burst",
+   "manifest": "census/none/save-bind-burst/manifest.json",
+   "sha256": "a98114d3dc6548893cd09d638d539f7dafa7b2a91e1b6c67c125eacd1130bb91"
+  },
+  {
+   "case": "none/save-bind-in-blank-late",
+   "manifest": "census/none/save-bind-in-blank-late/manifest.json",
+   "sha256": "e59a5e9ceef9228124e8970c1d77a29cb4ddd9836f3880498fe9da134a6a7e46"
+  },
+  {
+   "case": "none/save-bind-in-blank",
+   "manifest": "census/none/save-bind-in-blank/manifest.json",
+   "sha256": "11df2ad4cc62ef47fc2a08bef49caa3844c0275f0fe2892b9281afb89fe25758"
+  },
+  {
+   "case": "none/save-bind-in-capture",
+   "manifest": "census/none/save-bind-in-capture/manifest.json",
+   "sha256": "879d4c0bacf9abe09ab699dd14731f2b12c1406551e7c2809310b349ef88a3bb"
+  },
+  {
+   "case": "none/save-bind-in-erase-late",
+   "manifest": "census/none/save-bind-in-erase-late/manifest.json",
+   "sha256": "702a0c395bc1b190ce8a8464c8de769fa0341ad2e84e696f19c9e12971d0ba25"
+  },
+  {
+   "case": "none/save-bind-in-erase",
+   "manifest": "census/none/save-bind-in-erase/manifest.json",
+   "sha256": "350b403d0bbf0205f460d195faf2ba05566a66dbd244177117846b82870bdebc"
+  },
+  {
+   "case": "none/save-bind-in-program-late",
+   "manifest": "census/none/save-bind-in-program-late/manifest.json",
+   "sha256": "23faafeb2be3f9260668fe8a56817b22fc8802f46dd86e205b3c1825a08c466a"
+  },
+  {
+   "case": "none/save-bind-in-program",
+   "manifest": "census/none/save-bind-in-program/manifest.json",
+   "sha256": "5af7b0e206bc052b15b91860da8eeb49e7759d6744d422b76e95400fb8b8f65c"
+  },
+  {
+   "case": "none/save-bind-in-seal",
+   "manifest": "census/none/save-bind-in-seal/manifest.json",
+   "sha256": "0358f414ff3c94e6c88059807878808a3c7b29717b1cbe5702bdd3a5348c905d"
+  },
+  {
+   "case": "none/save-bind-in-verify-late",
+   "manifest": "census/none/save-bind-in-verify-late/manifest.json",
+   "sha256": "d39e3189c08e30a4cb32d6003065fa0e73bd86de417b61c715bc0914847a860d"
+  },
+  {
+   "case": "none/save-bind-in-verify",
+   "manifest": "census/none/save-bind-in-verify/manifest.json",
+   "sha256": "46ed0e95c9b6f1fdeb3e71b7e48192fe66fc84117f655a7a3d2790395f084020"
+  },
+  {
+   "case": "none/save-bind",
+   "manifest": "census/none/save-bind/manifest.json",
+   "sha256": "6c3a69d3bd4caf1652ac72448a64aaef50e5e5dcc6b4357e049f0640593f6f2a"
+  },
+  {
+   "case": "none/save-burst",
+   "manifest": "census/none/save-burst/manifest.json",
+   "sha256": "1b13c69100c968bb031c0520989cbf4aae19077392546f2237f802aa5eb43bdb"
+  },
+  {
+   "case": "none/save-flight",
+   "manifest": "census/none/save-flight/manifest.json",
+   "sha256": "70c494ab9b1d5aeff6788d6c1b7028d58711de6409811d21f4659b7a49c96040"
+  },
+  {
+   "case": "none/save-held",
+   "manifest": "census/none/save-held/manifest.json",
+   "sha256": "75f1f20232ad56e2da52429d8b07b88d5641eda447fcbe11a8306e60bc296538"
+  },
+  {
+   "case": "none/save-second",
+   "manifest": "census/none/save-second/manifest.json",
+   "sha256": "e1dcad34b614c4aff86e7120fc209dc4a3e2219a3efdccad37afed554278fc1a"
+  },
+  {
+   "case": "none/save-starved",
+   "manifest": "census/none/save-starved/manifest.json",
+   "sha256": "179361a774c6af88a7a6b02a81a99e5f7cda6b0726f6a9e2f65e4280b2f8c7bd"
+  },
+  {
+   "case": "none/save",
+   "manifest": "census/none/save/manifest.json",
+   "sha256": "a0a94259b9687b973cfb3774c48b1f72a5d4277a6eca957bd1f7287e6ee4103b"
+  },
+  {
+   "case": "none/srp-bound",
+   "manifest": "census/none/srp-bound/manifest.json",
+   "sha256": "11c9b4da09a509931c06925c788cbc305c705fc4fdd4cfcfdf74729cdcb91d80"
+  },
+  {
+   "case": "none/srp-kept",
+   "manifest": "census/none/srp-kept/manifest.json",
+   "sha256": "b5db2dd639ff80710a3799481dece8665cc44e40075afb2599efa7b34bde0f29"
+  },
+  {
+   "case": "none/srp",
+   "manifest": "census/none/srp/manifest.json",
+   "sha256": "63115a9b8c8233468f4e54487a1e46548994e71bf20fdaba1bbd5d6432e9d9b8"
+  },
+  {
+   "case": "shutdown-entry/adp-shutdown",
+   "manifest": "census/shutdown-entry/adp-shutdown/manifest.json",
+   "sha256": "0d8a9e65af107c94503214f858fb91628f33035edbb1d053106efd1f320bc9b1"
+  },
+  {
+   "case": "shutdown-entry/control-shutdown",
+   "manifest": "census/shutdown-entry/control-shutdown/manifest.json",
+   "sha256": "ddd9c992d7a002284d8adebe5a0acaa4c5a11613b7affd6baced74699afb31d1"
+  },
+  {
+   "case": "talker-notices/talker-notice-0",
+   "manifest": "census/talker-notices/talker-notice-0/manifest.json",
+   "sha256": "d33c2d83eb173e1e9f293b31825fb1d42a28276726497af13e045191c6f4e4e7"
+  },
+  {
+   "case": "talker-notices/talker-notice-1",
+   "manifest": "census/talker-notices/talker-notice-1/manifest.json",
+   "sha256": "060ef3575b6d6fa6d6170e12efc9a596da134632f6ef6c76804a2ed27157262e"
+  },
+  {
+   "case": "talker-notices/talker-notice-2",
+   "manifest": "census/talker-notices/talker-notice-2/manifest.json",
+   "sha256": "3216a89bcdcb9c4add1367354c26beec26e8c868865fe8205e26db2b9b04262a"
+  },
+  {
+   "case": "talker-notices/talker-notice-3",
+   "manifest": "census/talker-notices/talker-notice-3/manifest.json",
+   "sha256": "176e8d66e4933c02a797d2672c7367f0f75a92d5aa3448e09f422ba64d03a0b8"
+  },
+  {
+   "case": "talker-notices/talker-notice-4",
+   "manifest": "census/talker-notices/talker-notice-4/manifest.json",
+   "sha256": "7fc35e1100ec58fad5ed3b830a0b4ce9c71e72d66b93e37399fdfc9232308857"
+  },
+  {
+   "case": "talker-notices/talker-notice-5",
+   "manifest": "census/talker-notices/talker-notice-5/manifest.json",
+   "sha256": "6c663cd0b276b827c7147f03b93d43d5a8613b83dd3054dcdb0c870543b23100"
+  },
+  {
+   "case": "talker-notices/talker-notice-6",
+   "manifest": "census/talker-notices/talker-notice-6/manifest.json",
+   "sha256": "81045eafed9fb272cb09020425d40bfff98c944a200fa2c762fa92af4a28155f"
+  },
+  {
+   "case": "talker-notices/talker-notice-7",
+   "manifest": "census/talker-notices/talker-notice-7/manifest.json",
+   "sha256": "e55ab2377ff5ef8caca6a4e0ca45a271d133f9831481138bad51f822d6f3724d"
+  },
+  {
+   "case": "valid-destinations/srp-talker-held",
+   "manifest": "census/valid-destinations/srp-talker-held/manifest.json",
+   "sha256": "6f325caba7653454dcfbf9c513166827ae39e875536ef66dc21873d69db97a06"
+  },
+  {
+   "case": "valid-destinations/srp-talker-loss",
+   "manifest": "census/valid-destinations/srp-talker-loss/manifest.json",
+   "sha256": "b43d62f4cab406add406d15fa116400b3896651c0007b9a256671030fe61adfc"
+  },
+  {
+   "case": "valid-destinations/srp-talker",
+   "manifest": "census/valid-destinations/srp-talker/manifest.json",
+   "sha256": "cd79e4b7cdf1c7a84b91e493c116c081984f96d9f6429b24fb7e6a1f50077a5b"
+  }
+ ]
+}

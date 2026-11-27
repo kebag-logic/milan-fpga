@@ -1,0 +1,264 @@
+[
+  {
+    "name": "regrade-answering-ports",
+    "command": [
+      "$TOOLCHAIN/venv/bin/python3",
+      "-B",
+      "tb/verilator/ctrl_service_budget/run.py",
+      "--point",
+      "arty-1x1",
+      "--build-dir",
+      "$VALIDATION_STORAGE/r10/final-census/answering-ports",
+      "--variant",
+      "answering-ports",
+      "--regrade",
+      "--record-budget-findings",
+      "--groups",
+      "aecp-fanout,aecp,aecp-reboot,aecp-largest-notice"
+    ],
+    "returncode": 0,
+    "log": "$VALIDATION_STORAGE/r10/final-census/regrade-answering-ports.log",
+    "sha256": "ad8b169b6b30288be3299c7c2622ecdadda1fb5054777ff1811b943ef88233be"
+  },
+  {
+    "name": "regrade-answering-every-port",
+    "command": [
+      "$TOOLCHAIN/venv/bin/python3",
+      "-B",
+      "tb/verilator/ctrl_service_budget/run.py",
+      "--point",
+      "arty-1x1",
+      "--build-dir",
+      "$VALIDATION_STORAGE/r10/final-census/answering-every-port",
+      "--variant",
+      "answering-every-port",
+      "--regrade",
+      "--record-budget-findings"
+    ],
+    "returncode": 0,
+    "log": "$VALIDATION_STORAGE/r10/final-census/regrade-answering-every-port.log",
+    "sha256": "bc9440e247dbeeda44ba58a7de1b05d956ec2b36bf35e48377ed5bf50c4d0247"
+  },
+  {
+    "name": "regrade-answering-later",
+    "command": [
+      "$TOOLCHAIN/venv/bin/python3",
+      "-B",
+      "tb/verilator/ctrl_service_budget/run.py",
+      "--point",
+      "arty-1x1",
+      "--build-dir",
+      "$VALIDATION_STORAGE/r10/final-census/answering-later",
+      "--variant",
+      "answering-later",
+      "--regrade",
+      "--record-budget-findings"
+    ],
+    "returncode": 0,
+    "log": "$VALIDATION_STORAGE/r10/final-census/regrade-answering-later.log",
+    "sha256": "9d3cbe724e9b45269073fc3e20e688375c3432af33f45433f86872787ddb1290"
+  },
+  {
+    "name": "regrade-talker-notices",
+    "command": [
+      "$TOOLCHAIN/venv/bin/python3",
+      "-B",
+      "tb/verilator/ctrl_service_budget/run.py",
+      "--point",
+      "arty-1x1",
+      "--build-dir",
+      "$VALIDATION_STORAGE/r10/final-census/talker-notices",
+      "--variant",
+      "talker-notices",
+      "--regrade",
+      "--record-budget-findings"
+    ],
+    "returncode": 0,
+    "log": "$VALIDATION_STORAGE/r10/final-census/regrade-talker-notices.log",
+    "sha256": "f77b28d3cd5e5b0ab281cd757d4cecdfe1eb15951f1895758999407cd0ab4345"
+  },
+  {
+    "name": "regrade-shutdown-entry",
+    "command": [
+      "$TOOLCHAIN/venv/bin/python3",
+      "-B",
+      "tb/verilator/ctrl_service_budget/run.py",
+      "--point",
+      "arty-1x1",
+      "--build-dir",
+      "$VALIDATION_STORAGE/r10/final-census/shutdown-entry",
+      "--variant",
+      "shutdown-entry",
+      "--regrade",
+      "--record-budget-findings"
+    ],
+    "returncode": 0,
+    "log": "$VALIDATION_STORAGE/r10/final-census/regrade-shutdown-entry.log",
+    "sha256": "a6c92736ecb8f1b52f81cd2b253fbe243cf49d85767a15dbbddc3e8d5974ea8c"
+  },
+  {
+    "name": "regrade-declaring-outputs",
+    "command": [
+      "$TOOLCHAIN/venv/bin/python3",
+      "-B",
+      "tb/verilator/ctrl_service_budget/run.py",
+      "--point",
+      "arty-1x1",
+      "--build-dir",
+      "$VALIDATION_STORAGE/r10/final-census/declaring-outputs",
+      "--variant",
+      "declaring-outputs",
+      "--regrade",
+      "--record-budget-findings"
+    ],
+    "returncode": 0,
+    "log": "$VALIDATION_STORAGE/r10/final-census/regrade-declaring-outputs.log",
+    "sha256": "8d689b0f8c733104b70cc5e3d1d9f13ef6b0cdac0091c5d8dc575153cb9895fd"
+  },
+  {
+    "name": "regrade-valid-destinations",
+    "command": [
+      "$TOOLCHAIN/venv/bin/python3",
+      "-B",
+      "tb/verilator/ctrl_service_budget/run.py",
+      "--point",
+      "arty-1x1",
+      "--build-dir",
+      "$VALIDATION_STORAGE/r10/final-census/valid-destinations",
+      "--variant",
+      "valid-destinations",
+      "--regrade",
+      "--record-budget-findings"
+    ],
+    "returncode": 0,
+    "log": "$VALIDATION_STORAGE/r10/final-census/regrade-valid-destinations.log",
+    "sha256": "0653a2ece1dba8fba31d107a4edecde26f974e0efb148f8cb7b0b9cecf4787fa"
+  },
+  {
+    "name": "regrade-none",
+    "command": [
+      "$TOOLCHAIN/venv/bin/python3",
+      "-B",
+      "tb/verilator/ctrl_service_budget/run.py",
+      "--point",
+      "arty-1x1",
+      "--build-dir",
+      "$VALIDATION_STORAGE/r10/final-census/none",
+      "--variant",
+      "none",
+      "--regrade",
+      "--record-budget-findings"
+    ],
+    "returncode": 0,
+    "log": "$VALIDATION_STORAGE/r10/final-census/regrade-none.log",
+    "sha256": "0bea7bea219dc63601bcb335dc878e61a64c5a233ece89a24aca0915c03ba682"
+  },
+  {
+    "name": "egress-ledger",
+    "command": [
+      "$TOOLCHAIN/venv/bin/python3",
+      "-I",
+      "-B",
+      "tb/verilator/ctrl_service_budget/egress_ledger.py",
+      "--point",
+      "arty-1x1",
+      "$VALIDATION_STORAGE/r10/final-census/none/results",
+      "$VALIDATION_STORAGE/r10/final-census/answering-ports/results",
+      "$VALIDATION_STORAGE/r10/final-census/answering-every-port/results",
+      "$VALIDATION_STORAGE/r10/final-census/valid-destinations/results",
+      "$VALIDATION_STORAGE/r10/final-census/declaring-outputs/results",
+      "$VALIDATION_STORAGE/r10/final-census/answering-later/results",
+      "$VALIDATION_STORAGE/r10/final-census/talker-notices/results",
+      "$VALIDATION_STORAGE/r10/final-census/shutdown-entry/results"
+    ],
+    "returncode": 0,
+    "log": "$VALIDATION_STORAGE/r10/final-census/egress-ledger.log",
+    "sha256": "3590f197a1facd2a3341e18754cf17d960b308a871a964b20e7de6e3d7073f1f"
+  },
+  {
+    "name": "record-classes",
+    "command": [
+      "$TOOLCHAIN/venv/bin/python3",
+      "-I",
+      "-B",
+      "tb/verilator/ctrl_service_budget/record_classes.py",
+      "$VALIDATION_STORAGE/r10/final-census/none/results",
+      "$VALIDATION_STORAGE/r10/final-census/answering-ports/results",
+      "$VALIDATION_STORAGE/r10/final-census/answering-every-port/results",
+      "$VALIDATION_STORAGE/r10/final-census/valid-destinations/results",
+      "$VALIDATION_STORAGE/r10/final-census/declaring-outputs/results",
+      "$VALIDATION_STORAGE/r10/final-census/answering-later/results",
+      "$VALIDATION_STORAGE/r10/final-census/talker-notices/results",
+      "$VALIDATION_STORAGE/r10/final-census/shutdown-entry/results"
+    ],
+    "returncode": 0,
+    "log": "$VALIDATION_STORAGE/r10/final-census/record-classes.log",
+    "sha256": "81a77519132eb1edbc9030ab119f936937da3494f45aedc3c06dab28abcfc290"
+  },
+  {
+    "name": "egress-100",
+    "command": [
+      "$TOOLCHAIN/venv/bin/python3",
+      "-I",
+      "-B",
+      "tb/verilator/ctrl_service_budget/egress_mii.py",
+      "$VALIDATION_STORAGE/r10/final-census/none",
+      "$VALIDATION_STORAGE/r10/final-census/answering-ports",
+      "$VALIDATION_STORAGE/r10/final-census/answering-every-port",
+      "$VALIDATION_STORAGE/r10/final-census/valid-destinations",
+      "$VALIDATION_STORAGE/r10/final-census/declaring-outputs",
+      "$VALIDATION_STORAGE/r10/final-census/answering-later",
+      "$VALIDATION_STORAGE/r10/final-census/talker-notices",
+      "$VALIDATION_STORAGE/r10/final-census/shutdown-entry"
+    ],
+    "returncode": 0,
+    "log": "$VALIDATION_STORAGE/r10/final-census/egress-100.log",
+    "sha256": "296de5d0186fc35a2a3b1573c9e7a81c1042a347753b798b70c8b47848bab084"
+  },
+  {
+    "name": "census",
+    "command": [
+      "$TOOLCHAIN/venv/bin/python3",
+      "-B",
+      "$VALIDATION_STORAGE/r10/tools/census7.py",
+      "$VALIDATION_STORAGE/r10/final-census/census.json",
+      "$VALIDATION_STORAGE/r10/final-census/none/results",
+      "$VALIDATION_STORAGE/r10/final-census/answering-ports/results",
+      "$VALIDATION_STORAGE/r10/final-census/answering-every-port/results",
+      "$VALIDATION_STORAGE/r10/final-census/valid-destinations/results",
+      "$VALIDATION_STORAGE/r10/final-census/declaring-outputs/results",
+      "$VALIDATION_STORAGE/r10/final-census/answering-later/results",
+      "$VALIDATION_STORAGE/r10/final-census/talker-notices/results",
+      "$VALIDATION_STORAGE/r10/final-census/shutdown-entry/results"
+    ],
+    "returncode": 0,
+    "log": "$VALIDATION_STORAGE/r10/final-census/census.log",
+    "sha256": "877da40b6fbc4e66fad606cc7376d35fbcd4cba299f9afbfea9fa3665c08aa13"
+  },
+  {
+    "name": "merge-census",
+    "command": [
+      "$TOOLCHAIN/venv/bin/python3",
+      "-B",
+      "$VALIDATION_STORAGE/r10/tools/merge-census.py",
+      "$VALIDATION_STORAGE/r10/final-census/merged-census.json",
+      "$VALIDATION_STORAGE/r9/derive/merged-census.json",
+      "$VALIDATION_STORAGE/r10/final-census/census.json"
+    ],
+    "returncode": 0,
+    "log": "$VALIDATION_STORAGE/r10/final-census/merge-census.log",
+    "sha256": "0e1e67eef9b69e5d8502772a28ad71b5cf2f1cf469c74d52074386869ea09faa"
+  },
+  {
+    "name": "derive-model",
+    "command": [
+      "$TOOLCHAIN/venv/bin/python3",
+      "-B",
+      "$VALIDATION_STORAGE/r10/tools/derive-own.py",
+      "$VALIDATION_STORAGE/r10/final-census/merged-census.json"
+    ],
+    "returncode": 0,
+    "log": "$VALIDATION_STORAGE/r10/final-census/derive-model.log",
+    "sha256": "32813a87f702261dc91b6a7cdca24354ef6ca84e4a948b57646ba06a31c4f5af"
+  }
+]

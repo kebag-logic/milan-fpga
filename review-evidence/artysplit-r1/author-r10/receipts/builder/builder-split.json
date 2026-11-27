@@ -1,0 +1,169 @@
+{
+ "command": "python3 -I -B sw/builder/endstation_builder.py configs/endstation_arty_split.yaml --placement PLACEMENT -o OUT, from a clean export of each head with its pinned submodules",
+ "heads": {
+  "4adfa9dc84f5": "4adfa9dc84f58c1c7ad23d6a64fa019985fe62a1",
+  "011aaa6f0803": "011aaa6f080321e0a89f915720ebb3ee14807a16",
+  "aa53840d9128": "aa53840d91286281e77f158d28dcbccdf51b56c0",
+  "fb4b456a4758": "fb4b456a4758ca7cdeb55403d63713e34ebe8b37"
+ },
+ "placements": {
+  "split": {
+   "outputs": {
+    "4adfa9dc84f5": {
+     "endstation_arty_split/adp_shape_defaults.svh": "6f513bc63b8375e2ed0e8d48ec5c8b95afad6e1ccdd5f46e54670a55112fdf5f",
+     "endstation_arty_split/aecp_aem_rom.svh": "3a5b1c8df3aa262a59b11617e15ea3e04fa7585d2e05b064882a447bd0b4bd26",
+     "endstation_arty_split/aem_overlay.json": "342ac77d3a776389abf2a0e8f440f27b60cd14dfa487ea22d1028a03fd322350",
+     "endstation_arty_split/build_plan.md": "5c9478ea1d9e3873bc9100fcfd8f02270415177880802e7ec36eacb3dba0d146",
+     "endstation_arty_split/gptp_ucode.hex": "aa14afc126babbf4b7f28fc9daa124faaa18840e7bb47365863525fe86f6bb70",
+     "endstation_arty_split/lwsrp_csr_defaults.svh": "ccc02170cee04139bf33cbf2966c516a4901d25388f2f3cf458f0d67fe52038c",
+     "endstation_arty_split/lwsrp_table.json": "d8190970b9951312f5bf7b33e643cb3e03647108f8632dae35f0d3fc2994392d",
+     "endstation_arty_split/lwsrp_table.svh": "b15b66128516a36edcc7bc4de0e5810f21bcb19511d3b8bcb8eede801d0518e2",
+     "endstation_arty_split/nvm_split.json": "1f79befa89d29bae4e5fc617e655c191276ce96311b90757fb99d5a7442b5a51",
+     "endstation_arty_split/platform_shape.json": "71a8e4f268cc7f8b3adf7fdc15a9958a777df10ac101936a8e7c8c75d7a184d0",
+     "endstation_arty_split/soc_params.json": "f7721ac47d9d6083ed97f6282250d7799bda37137e833f030e6d6b29d1bca3d2"
+    },
+    "011aaa6f0803": {
+     "endstation_arty_split/adp_shape_defaults.svh": "6f513bc63b8375e2ed0e8d48ec5c8b95afad6e1ccdd5f46e54670a55112fdf5f",
+     "endstation_arty_split/aecp_aem_rom.svh": "3a5b1c8df3aa262a59b11617e15ea3e04fa7585d2e05b064882a447bd0b4bd26",
+     "endstation_arty_split/aem_overlay.json": "342ac77d3a776389abf2a0e8f440f27b60cd14dfa487ea22d1028a03fd322350",
+     "endstation_arty_split/build_plan.md": "5c9478ea1d9e3873bc9100fcfd8f02270415177880802e7ec36eacb3dba0d146",
+     "endstation_arty_split/gptp_ucode.hex": "aa14afc126babbf4b7f28fc9daa124faaa18840e7bb47365863525fe86f6bb70",
+     "endstation_arty_split/lwsrp_csr_defaults.svh": "ccc02170cee04139bf33cbf2966c516a4901d25388f2f3cf458f0d67fe52038c",
+     "endstation_arty_split/lwsrp_table.json": "d8190970b9951312f5bf7b33e643cb3e03647108f8632dae35f0d3fc2994392d",
+     "endstation_arty_split/lwsrp_table.svh": "b15b66128516a36edcc7bc4de0e5810f21bcb19511d3b8bcb8eede801d0518e2",
+     "endstation_arty_split/nvm_split.json": "1f79befa89d29bae4e5fc617e655c191276ce96311b90757fb99d5a7442b5a51",
+     "endstation_arty_split/platform_shape.json": "71a8e4f268cc7f8b3adf7fdc15a9958a777df10ac101936a8e7c8c75d7a184d0",
+     "endstation_arty_split/soc_params.json": "f7721ac47d9d6083ed97f6282250d7799bda37137e833f030e6d6b29d1bca3d2"
+    },
+    "aa53840d9128": {
+     "endstation_arty_split/adp_shape_defaults.svh": "6f513bc63b8375e2ed0e8d48ec5c8b95afad6e1ccdd5f46e54670a55112fdf5f",
+     "endstation_arty_split/aecp_aem_rom.svh": "3a5b1c8df3aa262a59b11617e15ea3e04fa7585d2e05b064882a447bd0b4bd26",
+     "endstation_arty_split/aem_overlay.json": "342ac77d3a776389abf2a0e8f440f27b60cd14dfa487ea22d1028a03fd322350",
+     "endstation_arty_split/build_plan.md": "5c9478ea1d9e3873bc9100fcfd8f02270415177880802e7ec36eacb3dba0d146",
+     "endstation_arty_split/gptp_ucode.hex": "15ea8edd029ccd590fb92fc9bf7a3b98bd4df8cfc968f30a2ab5be78136ff406",
+     "endstation_arty_split/lwsrp_csr_defaults.svh": "ccc02170cee04139bf33cbf2966c516a4901d25388f2f3cf458f0d67fe52038c",
+     "endstation_arty_split/lwsrp_table.json": "d8190970b9951312f5bf7b33e643cb3e03647108f8632dae35f0d3fc2994392d",
+     "endstation_arty_split/lwsrp_table.svh": "b15b66128516a36edcc7bc4de0e5810f21bcb19511d3b8bcb8eede801d0518e2",
+     "endstation_arty_split/nvm_split.json": "1f79befa89d29bae4e5fc617e655c191276ce96311b90757fb99d5a7442b5a51",
+     "endstation_arty_split/platform_shape.json": "71a8e4f268cc7f8b3adf7fdc15a9958a777df10ac101936a8e7c8c75d7a184d0",
+     "endstation_arty_split/soc_params.json": "f7721ac47d9d6083ed97f6282250d7799bda37137e833f030e6d6b29d1bca3d2"
+    },
+    "fb4b456a4758": {
+     "endstation_arty_split/adp_shape_defaults.svh": "6f513bc63b8375e2ed0e8d48ec5c8b95afad6e1ccdd5f46e54670a55112fdf5f",
+     "endstation_arty_split/aecp_aem_rom.svh": "3a5b1c8df3aa262a59b11617e15ea3e04fa7585d2e05b064882a447bd0b4bd26",
+     "endstation_arty_split/aem_overlay.json": "342ac77d3a776389abf2a0e8f440f27b60cd14dfa487ea22d1028a03fd322350",
+     "endstation_arty_split/build_plan.md": "5c9478ea1d9e3873bc9100fcfd8f02270415177880802e7ec36eacb3dba0d146",
+     "endstation_arty_split/gptp_ucode.hex": "15ea8edd029ccd590fb92fc9bf7a3b98bd4df8cfc968f30a2ab5be78136ff406",
+     "endstation_arty_split/lwsrp_csr_defaults.svh": "ccc02170cee04139bf33cbf2966c516a4901d25388f2f3cf458f0d67fe52038c",
+     "endstation_arty_split/lwsrp_table.json": "d8190970b9951312f5bf7b33e643cb3e03647108f8632dae35f0d3fc2994392d",
+     "endstation_arty_split/lwsrp_table.svh": "b15b66128516a36edcc7bc4de0e5810f21bcb19511d3b8bcb8eede801d0518e2",
+     "endstation_arty_split/nvm_split.json": "1f79befa89d29bae4e5fc617e655c191276ce96311b90757fb99d5a7442b5a51",
+     "endstation_arty_split/platform_shape.json": "71a8e4f268cc7f8b3adf7fdc15a9958a777df10ac101936a8e7c8c75d7a184d0",
+     "endstation_arty_split/soc_params.json": "f7721ac47d9d6083ed97f6282250d7799bda37137e833f030e6d6b29d1bca3d2"
+    }
+   },
+   "pairs": [
+    {
+     "heads": [
+      "4adfa9dc84f58c1c7ad23d6a64fa019985fe62a1",
+      "011aaa6f080321e0a89f915720ebb3ee14807a16"
+     ],
+     "files": 11,
+     "identical": true,
+     "differing": []
+    },
+    {
+     "heads": [
+      "aa53840d91286281e77f158d28dcbccdf51b56c0",
+      "fb4b456a4758ca7cdeb55403d63713e34ebe8b37"
+     ],
+     "files": 11,
+     "identical": true,
+     "differing": []
+    }
+   ],
+   "merge_differs": [
+    "endstation_arty_split/gptp_ucode.hex"
+   ]
+  },
+  "all-fabric": {
+   "outputs": {
+    "4adfa9dc84f5": {
+     "endstation_arty_split/adp_shape_defaults.svh": "6f513bc63b8375e2ed0e8d48ec5c8b95afad6e1ccdd5f46e54670a55112fdf5f",
+     "endstation_arty_split/aecp_aem_rom.svh": "72e8a3aa56f75e9c890e229043402ef6d05545712b70e629c30cfe7601ce999e",
+     "endstation_arty_split/aem_overlay.json": "6d597fd098c1d50662b390ad1838aa0185ac29cd215ab0f02d65d6069cc2ac86",
+     "endstation_arty_split/build_plan.md": "de218bb6a06e495c5b395d6ff6ec1ee39056eb999127e0cde92de7b55d0a7aff",
+     "endstation_arty_split/gptp_ucode.hex": "aa14afc126babbf4b7f28fc9daa124faaa18840e7bb47365863525fe86f6bb70",
+     "endstation_arty_split/lwsrp_csr_defaults.svh": "ccc02170cee04139bf33cbf2966c516a4901d25388f2f3cf458f0d67fe52038c",
+     "endstation_arty_split/lwsrp_table.json": "d8190970b9951312f5bf7b33e643cb3e03647108f8632dae35f0d3fc2994392d",
+     "endstation_arty_split/lwsrp_table.svh": "b15b66128516a36edcc7bc4de0e5810f21bcb19511d3b8bcb8eede801d0518e2",
+     "endstation_arty_split/nvm_split.json": "1f79befa89d29bae4e5fc617e655c191276ce96311b90757fb99d5a7442b5a51",
+     "endstation_arty_split/platform_shape.json": "71a8e4f268cc7f8b3adf7fdc15a9958a777df10ac101936a8e7c8c75d7a184d0",
+     "endstation_arty_split/soc_params.json": "1334ef1e7bd23ef1da4c08bd388fd88d01719fc82ada92b4c67c48c7c85e078e"
+    },
+    "011aaa6f0803": {
+     "endstation_arty_split/adp_shape_defaults.svh": "6f513bc63b8375e2ed0e8d48ec5c8b95afad6e1ccdd5f46e54670a55112fdf5f",
+     "endstation_arty_split/aecp_aem_rom.svh": "72e8a3aa56f75e9c890e229043402ef6d05545712b70e629c30cfe7601ce999e",
+     "endstation_arty_split/aem_overlay.json": "6d597fd098c1d50662b390ad1838aa0185ac29cd215ab0f02d65d6069cc2ac86",
+     "endstation_arty_split/build_plan.md": "de218bb6a06e495c5b395d6ff6ec1ee39056eb999127e0cde92de7b55d0a7aff",
+     "endstation_arty_split/gptp_ucode.hex": "aa14afc126babbf4b7f28fc9daa124faaa18840e7bb47365863525fe86f6bb70",
+     "endstation_arty_split/lwsrp_csr_defaults.svh": "ccc02170cee04139bf33cbf2966c516a4901d25388f2f3cf458f0d67fe52038c",
+     "endstation_arty_split/lwsrp_table.json": "d8190970b9951312f5bf7b33e643cb3e03647108f8632dae35f0d3fc2994392d",
+     "endstation_arty_split/lwsrp_table.svh": "b15b66128516a36edcc7bc4de0e5810f21bcb19511d3b8bcb8eede801d0518e2",
+     "endstation_arty_split/nvm_split.json": "1f79befa89d29bae4e5fc617e655c191276ce96311b90757fb99d5a7442b5a51",
+     "endstation_arty_split/platform_shape.json": "71a8e4f268cc7f8b3adf7fdc15a9958a777df10ac101936a8e7c8c75d7a184d0",
+     "endstation_arty_split/soc_params.json": "1334ef1e7bd23ef1da4c08bd388fd88d01719fc82ada92b4c67c48c7c85e078e"
+    },
+    "aa53840d9128": {
+     "endstation_arty_split/adp_shape_defaults.svh": "6f513bc63b8375e2ed0e8d48ec5c8b95afad6e1ccdd5f46e54670a55112fdf5f",
+     "endstation_arty_split/aecp_aem_rom.svh": "72e8a3aa56f75e9c890e229043402ef6d05545712b70e629c30cfe7601ce999e",
+     "endstation_arty_split/aem_overlay.json": "6d597fd098c1d50662b390ad1838aa0185ac29cd215ab0f02d65d6069cc2ac86",
+     "endstation_arty_split/build_plan.md": "de218bb6a06e495c5b395d6ff6ec1ee39056eb999127e0cde92de7b55d0a7aff",
+     "endstation_arty_split/gptp_ucode.hex": "15ea8edd029ccd590fb92fc9bf7a3b98bd4df8cfc968f30a2ab5be78136ff406",
+     "endstation_arty_split/lwsrp_csr_defaults.svh": "ccc02170cee04139bf33cbf2966c516a4901d25388f2f3cf458f0d67fe52038c",
+     "endstation_arty_split/lwsrp_table.json": "d8190970b9951312f5bf7b33e643cb3e03647108f8632dae35f0d3fc2994392d",
+     "endstation_arty_split/lwsrp_table.svh": "b15b66128516a36edcc7bc4de0e5810f21bcb19511d3b8bcb8eede801d0518e2",
+     "endstation_arty_split/nvm_split.json": "1f79befa89d29bae4e5fc617e655c191276ce96311b90757fb99d5a7442b5a51",
+     "endstation_arty_split/platform_shape.json": "71a8e4f268cc7f8b3adf7fdc15a9958a777df10ac101936a8e7c8c75d7a184d0",
+     "endstation_arty_split/soc_params.json": "1334ef1e7bd23ef1da4c08bd388fd88d01719fc82ada92b4c67c48c7c85e078e"
+    },
+    "fb4b456a4758": {
+     "endstation_arty_split/adp_shape_defaults.svh": "6f513bc63b8375e2ed0e8d48ec5c8b95afad6e1ccdd5f46e54670a55112fdf5f",
+     "endstation_arty_split/aecp_aem_rom.svh": "72e8a3aa56f75e9c890e229043402ef6d05545712b70e629c30cfe7601ce999e",
+     "endstation_arty_split/aem_overlay.json": "6d597fd098c1d50662b390ad1838aa0185ac29cd215ab0f02d65d6069cc2ac86",
+     "endstation_arty_split/build_plan.md": "de218bb6a06e495c5b395d6ff6ec1ee39056eb999127e0cde92de7b55d0a7aff",
+     "endstation_arty_split/gptp_ucode.hex": "15ea8edd029ccd590fb92fc9bf7a3b98bd4df8cfc968f30a2ab5be78136ff406",
+     "endstation_arty_split/lwsrp_csr_defaults.svh": "ccc02170cee04139bf33cbf2966c516a4901d25388f2f3cf458f0d67fe52038c",
+     "endstation_arty_split/lwsrp_table.json": "d8190970b9951312f5bf7b33e643cb3e03647108f8632dae35f0d3fc2994392d",
+     "endstation_arty_split/lwsrp_table.svh": "b15b66128516a36edcc7bc4de0e5810f21bcb19511d3b8bcb8eede801d0518e2",
+     "endstation_arty_split/nvm_split.json": "1f79befa89d29bae4e5fc617e655c191276ce96311b90757fb99d5a7442b5a51",
+     "endstation_arty_split/platform_shape.json": "71a8e4f268cc7f8b3adf7fdc15a9958a777df10ac101936a8e7c8c75d7a184d0",
+     "endstation_arty_split/soc_params.json": "1334ef1e7bd23ef1da4c08bd388fd88d01719fc82ada92b4c67c48c7c85e078e"
+    }
+   },
+   "pairs": [
+    {
+     "heads": [
+      "4adfa9dc84f58c1c7ad23d6a64fa019985fe62a1",
+      "011aaa6f080321e0a89f915720ebb3ee14807a16"
+     ],
+     "files": 11,
+     "identical": true,
+     "differing": []
+    },
+    {
+     "heads": [
+      "aa53840d91286281e77f158d28dcbccdf51b56c0",
+      "fb4b456a4758ca7cdeb55403d63713e34ebe8b37"
+     ],
+     "files": 11,
+     "identical": true,
+     "differing": []
+    }
+   ],
+   "merge_differs": [
+    "endstation_arty_split/gptp_ucode.hex"
+   ]
+  }
+ }
+}

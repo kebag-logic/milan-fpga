@@ -1,0 +1,17 @@
+COMMAND $VALIDATION_STORAGE/r10/builder/final.sh (each head exported with its pinned submodules; python3 -I -B sw/builder/endstation_builder.py configs/endstation_arty_split.yaml --placement {split,all-fabric} -o OUT)
+src-4adfa9dc84f5 split rc=0
+src-4adfa9dc84f5 all-fabric rc=0
+src-011aaa6f0803 split rc=0
+src-011aaa6f0803 all-fabric rc=0
+src-aa53840d9128 split rc=0
+src-aa53840d9128 all-fabric rc=0
+src-fb4b456a4758 split rc=0
+src-fb4b456a4758 all-fabric rc=0
+split: 4adfa9dc8 vs 011aaa6f0: 11 vs 11 outputs, IDENTICAL
+split: aa53840d9 vs fb4b456a4: 11 vs 11 outputs, IDENTICAL
+split: (merge, informative) 011aaa6f0 vs aa53840d9 differ in 1: endstation_arty_split/gptp_ucode.hex
+all-fabric: 4adfa9dc8 vs 011aaa6f0: 11 vs 11 outputs, IDENTICAL
+all-fabric: aa53840d9 vs fb4b456a4: 11 vs 11 outputs, IDENTICAL
+all-fabric: (merge, informative) 011aaa6f0 vs aa53840d9 differ in 1: endstation_arty_split/gptp_ucode.hex
+RESULT: PASS exit=0
+exit=0

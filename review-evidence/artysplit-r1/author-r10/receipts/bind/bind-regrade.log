@@ -1,0 +1,42 @@
+CLOCK CPU 80 MHz on sys, the product's split CPU clock, bus 80 MHz
+BIND save-bind: 4 command(s), the latest durable 288.781 ms after its response (BIND_RX of sink 0; target 800 ms), 4 whole save(s), 4 erase(s), erase 120 ms and page 0.5 ms modelled, 0 sink(s) not as last commanded at the cut within
+BIND save-bind-in-capture: 1 command(s), the latest durable 369.158 ms after its response (BIND_RX of sink 0; target 400 ms), 2 whole save(s), 2 erase(s), erase 120 ms and page 0.5 ms modelled, 0 sink(s) not as last commanded at the cut within
+BIND save-bind-in-seal: 1 command(s), the latest durable 367.559 ms after its response (BIND_RX of sink 0; target 400 ms), 2 whole save(s), 2 erase(s), erase 120 ms and page 0.5 ms modelled, 0 sink(s) not as last commanded at the cut within
+BIND save-bind-in-erase: 1 command(s), the latest durable 355.523 ms after its response (BIND_RX of sink 0; target 400 ms), 2 whole save(s), 2 erase(s), erase 120 ms and page 0.5 ms modelled, 0 sink(s) not as last commanded at the cut within
+BIND save-bind-in-erase-late: 1 command(s), the latest durable 305.755 ms after its response (BIND_RX of sink 0; target 400 ms), 2 whole save(s), 2 erase(s), erase 120 ms and page 0.5 ms modelled, 0 sink(s) not as last commanded at the cut within
+BIND save-bind-in-blank: 1 command(s), the latest durable 283.599 ms after its response (BIND_RX of sink 0; target 400 ms), 2 whole save(s), 2 erase(s), erase 120 ms and page 0.5 ms modelled, 0 sink(s) not as last commanded at the cut within
+BIND save-bind-in-blank-late: 1 command(s), the latest durable 288.275 ms after its response (BIND_RX of sink 0; target 400 ms), 2 whole save(s), 2 erase(s), erase 120 ms and page 0.5 ms modelled, 0 sink(s) not as last commanded at the cut within
+BIND save-bind-in-program: 1 command(s), the latest durable 286.176 ms after its response (BIND_RX of sink 0; target 400 ms), 2 whole save(s), 2 erase(s), erase 120 ms and page 0.5 ms modelled, 0 sink(s) not as last commanded at the cut within
+BIND save-bind-in-program-late: 1 command(s), the latest durable 282.694 ms after its response (BIND_RX of sink 0; target 400 ms), 2 whole save(s), 2 erase(s), erase 120 ms and page 0.5 ms modelled, 0 sink(s) not as last commanded at the cut within
+BIND save-bind-in-verify: 1 command(s), the latest durable 288.761 ms after its response (BIND_RX of sink 0; target 400 ms), 2 whole save(s), 2 erase(s), erase 120 ms and page 0.5 ms modelled, 0 sink(s) not as last commanded at the cut within
+BIND save-bind-in-verify-late: 1 command(s), the latest durable 283.385 ms after its response (BIND_RX of sink 0; target 400 ms), 2 whole save(s), 2 erase(s), erase 120 ms and page 0.5 ms modelled, 0 sink(s) not as last commanded at the cut within
+BIND save-bind-burst: 64 command(s), the latest durable 239.557 ms after its response (UNBIND_RX of sink 0; target 400 ms), 4 whole save(s), 4 erase(s), erase 120 ms and page 0.5 ms modelled, 0 sink(s) not as last commanded at the cut within
+STEPS 29832 passes carry the store's step; the longest 95,387 CPU cycles (1.192 ms), save-bind-in-program-late; the longest step 78,161 (0.977 ms), save-bind-burst
+SLICES 595706 tier-2 slices; the longest SRP's records 42,176, THE TRANSMIT's build 63,477, THE RETRY's round 9,858 CPU cycles, against the stated slice 100,000 (THE TIERS)
+JOINS srp-kept: 7 join interval(s), the shortest 186.733 ms and the longest 190.011 ms, against 181.0 to 239.0; MRP timers' run-outs: 44 released, 40 empty; LeaveAll timers' run-outs by their LeaveAll: 2 sent
+JOINS srp-bound: 4 join interval(s), the shortest 188.801 ms and the longest 190.011 ms, against 181.0 to 239.0; MRP timers' run-outs: 13 released, 10 empty
+JOINS save-bind: 3 join interval(s), the shortest 188.801 ms and the longest 190.011 ms, against 181.0 to 239.0; MRP timers' run-outs: 13 released, 12 empty
+JOINS save-bind-in-capture: 3 join interval(s), the shortest 188.801 ms and the longest 190.011 ms, against 181.0 to 239.0; MRP timers' run-outs: 9 released, 8 empty
+JOINS save-bind-in-seal: 3 join interval(s), the shortest 188.801 ms and the longest 190.011 ms, against 181.0 to 239.0; MRP timers' run-outs: 9 released, 8 empty
+JOINS save-bind-in-erase: 3 join interval(s), the shortest 188.801 ms and the longest 190.011 ms, against 181.0 to 239.0; MRP timers' run-outs: 9 released, 8 empty
+JOINS save-bind-in-erase-late: 3 join interval(s), the shortest 188.801 ms and the longest 190.011 ms, against 181.0 to 239.0; MRP timers' run-outs: 9 released, 8 empty
+JOINS save-bind-in-blank: 3 join interval(s), the shortest 188.801 ms and the longest 190.011 ms, against 181.0 to 239.0; MRP timers' run-outs: 9 released, 8 empty
+JOINS save-bind-in-blank-late: 3 join interval(s), the shortest 188.801 ms and the longest 190.011 ms, against 181.0 to 239.0; MRP timers' run-outs: 9 released, 8 empty
+JOINS save-bind-in-program: 3 join interval(s), the shortest 188.801 ms and the longest 190.011 ms, against 181.0 to 239.0; MRP timers' run-outs: 9 released, 8 empty
+JOINS save-bind-in-program-late: 3 join interval(s), the shortest 188.801 ms and the longest 190.011 ms, against 181.0 to 239.0; MRP timers' run-outs: 9 released, 8 empty
+JOINS save-bind-in-verify: 3 join interval(s), the shortest 188.801 ms and the longest 190.011 ms, against 181.0 to 239.0; MRP timers' run-outs: 9 released, 8 empty
+JOINS save-bind-in-verify-late: 3 join interval(s), the shortest 188.801 ms and the longest 190.011 ms, against 181.0 to 239.0; MRP timers' run-outs: 9 released, 8 empty
+JOINS save-bind-burst: 3 join interval(s), the shortest 188.801 ms and the longest 190.011 ms, against 181.0 to 239.0; MRP timers' run-outs: 9 released, 8 empty
+14 groups graded, 0 refusals, 0 budget misses (0 of 4 probe instances, 0 of 4 paths), 0 of 14965 work passes over the per-pass share 2.000 ms (160,000 CPU cycles)
+CLOCK CPU 80 MHz on sys, the product's split CPU clock, bus 80 MHz
+OWED srp.kept_advertise.if0: a record of 33,872 CPU cycles, 445 us by the rule, over CTRL_LOOP_SRP_UNIT_US 300 us, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)
+OWED srp.kept_recount.if0: a record of 30,562 CPU cycles, 405 us by the rule, over CTRL_LOOP_SRP_UNIT_US 300 us, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)
+OWED srp.kept_failed.if0: a record of 32,935 CPU cycles, 435 us by the rule, over CTRL_LOOP_SRP_UNIT_US 300 us, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)
+OWED srp.bound_advertise.if0: a record of 38,620 CPU cycles, 510 us by the rule, over CTRL_LOOP_SRP_UNIT_US 300 us, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)
+OWED srp-bound: a build-one pass at bus cycle 310324108: 56,239 CPU cycles over its stated 52,800 (CTRL_LOOP_BUILD_ONE_PASS_US, not restated), the bound path's registrations, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)
+OWED srp-bound: a build-one pass of 56,239 CPU cycles, over its stated 52,800, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)
+OWED srp-kept: an SRP record's apply of 33,543 CPU cycles, over its stated 24,000, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)
+OWED srp-kept: an SRP record's apply of 30,292 CPU cycles, over its stated 24,000, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)
+OWED srp-kept: an SRP record's apply of 32,523 CPU cycles, over its stated 24,000, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)
+OWED srp-bound: a walk item of 2,654 CPU cycles, over its stated 2,400, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)
+OWED srp-bound: an SRP record's apply of 38,227 CPU cycles, over its stated 24,000, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)
