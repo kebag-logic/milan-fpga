@@ -1,0 +1,42 @@
+# hosted job 140338094584 (docs-gates-0) excerpt
+##[group]Run python3 scripts/check_solution_docs.py
+python3 scripts/check_solution_docs.py
+python3 scripts/check_solution_docs.py --selftest
+shell: /usr/bin/bash -e {0}
+env:
+  PIP_CONSTRAINT: <home-path>/work/milan-fpga/milan-fpga/ci/constraints-ci.txt
+  CI_BUILD_JOBS: 4
+  CI_TOOL_BUILD_JOBS: 4
+  CI_CAMPAIGN_JOBS: 4
+  VERILATOR_JOBS: 4
+  SIM_JOBS: 4
+  MAKEFLAGS: -j1 --no-print-directory
+##[endgroup]
+hdl/milan/milan_datapath.sv: unclassified RTL port usb_capture_tick_i
+hdl/milan/milan_datapath.sv: unclassified RTL port usb_frame_ns_i
+hdl/milan/milan_datapath.sv: unclassified RTL port usb_media_locked_o
+hdl/milan/milan_datapath.sv: unclassified RTL port usb_media_ns_o
+hdl/milan/milan_datapath.sv: unclassified RTL port usb_media_tick_o
+hdl/milan/milan_datapath.sv: unclassified RTL port usb_pair_l_i
+hdl/milan/milan_datapath.sv: unclassified RTL port usb_pair_r_i
+hdl/milan/milan_datapath.sv: unclassified RTL port usb_pair_slot_i
+hdl/milan/milan_datapath.sv: unclassified RTL port usb_pair_valid_i
+hdl/milan/milan_datapath.sv: unclassified RTL port usb_render_data_o
+hdl/milan/milan_datapath.sv: unclassified RTL port usb_render_last_o
+hdl/milan/milan_datapath.sv: unclassified RTL port usb_render_stream_o
+hdl/milan/milan_datapath.sv: unclassified RTL port usb_render_tick_o
+hdl/milan/milan_datapath.sv: unclassified RTL port usb_render_valid_o
+solution documentation: FAIL (14 findings)
+##[error]Process completed with exit code 1.
+# hosted job 140338094721 (docs-gates-2) excerpt
+test_extra_sweep_clocks:
+[clock contract] extra sweep: defaults, all configurations, changed system clock, omitted system clock, board mismatch, invalid clock and missing configuration pass
+test_tap_clock_docs:
+Traceback (most recent call last):
+  File "<home-path>/work/milan-fpga/milan-fpga/sw/builder/test_builder.py", line 30726, in <module>
+    fn()
+  File "<home-path>/work/milan-fpga/milan-fpga/sw/builder/test_clock_contract.py", line 333, in test_tap_clock_docs
+    assert actual == "\n".join(table), "tap clock table differs from the configurations"
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: tap clock table differs from the configurations
+##[error]Process completed with exit code 1.

@@ -1,0 +1,20 @@
+baseline duplex_rc=0 levels_rc=0 duplex_check= levels_check=
+no_applied_gate duplex_rc=0 levels_rc=0 duplex_check= levels_check=
+no_capture_abort duplex_rc=0 levels_rc=0 duplex_check= levels_check=
+no_published_gate duplex_rc=1 levels_rc=0 duplex_check=CHECK CAPTURE_ACK_BEFORE_DATA levels_check=
+status_unapplied_epoch duplex_rc=0 levels_rc=0 duplex_check= levels_check=
+no_applied_gate duplex: PASS clock loss clears feedback
+no_applied_gate duplex: == usbaudio_duplex: checks: 48192   failures: 0 ==
+no_applied_gate duplex: RESULT: PASS
+no_capture_abort duplex: PASS clock loss clears feedback
+no_capture_abort duplex: == usbaudio_duplex: checks: 48192   failures: 0 ==
+no_capture_abort duplex: RESULT: PASS
+status_unapplied_epoch duplex: PASS clock loss clears feedback
+status_unapplied_epoch duplex: == usbaudio_duplex: checks: 48192   failures: 0 ==
+status_unapplied_epoch duplex: RESULT: PASS
+no_published_gate duplex:   [FAIL] CAPTURE_ACK_BEFORE_DATA
+no_published_gate duplex: == usbaudio_duplex: checks: 12266   failures: 1 ==
+no_published_gate duplex: RESULT: FAIL
+baseline duplex: PASS clock loss clears feedback
+baseline duplex: == usbaudio_duplex: checks: 48192   failures: 0 ==
+baseline duplex: RESULT: PASS

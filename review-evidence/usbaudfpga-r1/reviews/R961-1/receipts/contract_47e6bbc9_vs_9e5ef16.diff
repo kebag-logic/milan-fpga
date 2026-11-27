@@ -1,0 +1,18 @@
+246,249c246,257
+<   2.048 s. ITPs stop only when the link leaves U0, as U1/U2 are refused:
+<   suspend, SuperSpeed link failure and compliance entry drop any pending
+<   snapshot and restart from a new baseline (bit 0 on the next reference, the
+<   sequence continuing). Reset, disconnect and configuration changes disarm.
+---
+>   2.048 s. U1/U2 are refused; suspend drops any pending snapshot and restarts
+>   from a new baseline (bit 0 on the next reference, the sequence continuing).
+>   With FX3 USB 2.0 fallback enabled, the pinned SDK does not raise
+>   `USB3_LNKFAIL`: a SuperSpeed link failure arrives as fallback, reset or
+>   disconnect, which disarm; the `USB3_LNKFAIL` and compliance-entry branches
+>   are defensive (SDK 1.3.5 `fw_lib/1_3_5/inc/cyu3usb.h`, lines 146–155 and
+>   1871–1892). Link Recovery leaves U0 without restarting the baseline; any
+>   selected ITP it costs is caught by the count step (bit 0 on the next
+>   reference), because Recovery is bounded far below 2.048 s
+>   ([USB 3.2 §7.5](https://www.usb.org/document-library/usb-32-revision-11-june-2022),
+>   including §7.5.10 Recovery; compliance entry is from Polling, §7.5.5).
+>   Reset, disconnect and configuration changes disarm.

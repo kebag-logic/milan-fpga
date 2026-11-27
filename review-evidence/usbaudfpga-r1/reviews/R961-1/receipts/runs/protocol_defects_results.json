@@ -1,0 +1,122 @@
+[
+  {
+    "plant": "magic",
+    "check": "BAD_RECORD_DRAIN",
+    "result": "CAUGHT"
+  },
+  {
+    "plant": "digest",
+    "check": "BAD_RECORD_DRAIN",
+    "result": "CAUGHT"
+  },
+  {
+    "plant": "length_limit",
+    "check": "BAD_RECORD_DRAIN",
+    "result": "CAUGHT"
+  },
+  {
+    "plant": "whole_frames",
+    "check": "BAD_RECORD_DRAIN",
+    "result": "CAUGHT"
+  },
+  {
+    "plant": "reserved_flags",
+    "check": "BAD_RECORD_DRAIN",
+    "result": "CAUGHT"
+  },
+  {
+    "plant": "payload_active",
+    "check": "BAD_RECORD_DRAIN",
+    "result": "CAUGHT"
+  },
+  {
+    "plant": "inactive_state",
+    "check": "COMPLETE_RECORD",
+    "result": "CAUGHT"
+  },
+  {
+    "plant": "channel_bits",
+    "check": "PCM_ALL_BITS_ORDER",
+    "result": "CAUGHT"
+  },
+  {
+    "plant": "capture_epoch",
+    "check": "INDEPENDENT_EPOCHS",
+    "result": "CAUGHT"
+  },
+  {
+    "plant": "playback_epoch",
+    "check": "INDEPENDENT_EPOCHS",
+    "result": "CAUGHT"
+  },
+  {
+    "plant": "frame_count",
+    "check": "FRAME_COUNT",
+    "result": "CAUGHT"
+  },
+  {
+    "plant": "early_record",
+    "check": "PARTIAL_NOT_VISIBLE",
+    "result": "CAUGHT"
+  },
+  {
+    "plant": "record_stall",
+    "check": "RECORD_BACKPRESSURE",
+    "result": "CAUGHT"
+  },
+  {
+    "plant": "status_magic",
+    "check": "STATUS_BYTES",
+    "result": "CAUGHT"
+  },
+  {
+    "plant": "status_digest",
+    "check": "STATUS_BYTES",
+    "result": "CAUGHT"
+  },
+  {
+    "plant": "status_epoch",
+    "check": "STATUS_BYTES",
+    "result": "CAUGHT"
+  },
+  {
+    "plant": "status_sequence",
+    "check": "STATUS_BYTES",
+    "result": "CAUGHT"
+  },
+  {
+    "plant": "status_end",
+    "check": "STATUS_LENGTH",
+    "result": "CAUGHT"
+  },
+  {
+    "plant": "status_stall",
+    "check": "STATUS_BYTES",
+    "result": "CAUGHT"
+  },
+  {
+    "plant": "status_snapshot",
+    "check": "STATUS_BYTES",
+    "result": "CAUGHT"
+  },
+  {
+    "plant": "feedback_scale",
+    "check": "FEEDBACK_VALUE",
+    "result": "CAUGHT"
+  },
+  {
+    "plant": "feedback_window",
+    "check": "FEEDBACK_WINDOW_LENGTH",
+    "result": "CAUGHT"
+  },
+  {
+    "plant": "feedback_reference",
+    "check": "FEEDBACK_WINDOW_LENGTH",
+    "result": "CAUGHT"
+  },
+  {
+    "plant": "feedback_unlock",
+    "check": "FEEDBACK_UNLOCKED",
+    "result": "CAUGHT"
+  }
+]

@@ -1,0 +1,15 @@
+PROBE baseline: ticks=4 snapshots=4 pairs=16
+PROBE playback epoch change 0 cycles after the grid cycle: grid events=2 snapshots=1
+PROBE playback epoch change 1 cycles after the grid cycle: grid events=2 snapshots=1
+PROBE playback epoch change 2 cycles after the grid cycle: grid events=2 snapshots=1
+PROBE playback epoch change 3 cycles after the grid cycle: grid events=2 snapshots=1
+PROBE playback epoch change 4 cycles after the grid cycle: grid events=2 snapshots=1
+PROBE playback epoch change 5 cycles after the grid cycle: grid events=2 snapshots=1
+PROBE playback epoch change 6 cycles after the grid cycle: grid events=2 snapshots=1
+PROBE playback epoch change 7 cycles after the grid cycle: grid events=2 snapshots=2
+PROBE total: ticks=20 snapshots=13 pairs=66 gaps=0 error=0
+PROBE RESULT: MISSING_GRID_SNAPSHOT 7
+- scripts/probe_media_grid_tb.sv:67: Verilog $finish
+- S i m u l a t i o n   R e p o r t: Verilator 5.050 2026-07-01
+- Verilator: $finish at 8us; walltime 0.001 s; speed 14.787 ms/s
+- Verilator: cpu 0.001 s on 1 threads; allocated 7 MB
