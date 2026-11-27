@@ -372,11 +372,11 @@ extern "C" {
 // 165 and 25 us.
 // And one pass that carries a record THE DRAIN takes alone, CTRL_LOOP_ALONE_US, from the
 // pass's start to the record's end, which the slice does not hold (#977, its ruling of
-// 2026-11-27 on the alone records, item 1; the slice stays as stated): the longest such pass
-// over the CPU budget harness's registering groups, plus 5 %, rounded up to 5 us, at most
-// 1,935 us: 870 us at 1x1/1if (82,462 cycles, srp-register-burst, with the record's pass
-// making no binding change; 730 us for 69,384 before it) and 1,840 us at 8x8/1if (174,819
-// cycles, srp-register-both; 171,622 since); at the two-interface shapes, whose registering records
+// 2026-11-27 on the alone records, item 1; the slice stays as stated): the longest pass of one
+// SRP record over every group of every arm of the CPU budget harness, plus 5 %, rounded up to
+// 5 us, at most 1,935 us: 925 us at 1x1/1if (87,826 cycles, backlog-adp's aged window, with
+// the record's pass making no binding change) and 1,840 us at 8x8/1if (174,819 cycles,
+// srp-register-both; 171,622 since); at the two-interface shapes, whose registering records
 // #977 does not measure, the slice. The rows' opening tier-2 term is the larger of the two
 // (rows_tiers.py), and the slice grader holds such a pass to it (slice_grade.py).
 // And two bounds in milliseconds that differ by shape, so that one shape's figure
@@ -415,7 +415,7 @@ extern "C" {
 #define CTRL_LOOP_SRP_UNIT_US 285u
 #define CTRL_LOOP_RETRY_COLD_US 85u
 #define CTRL_LOOP_RETRY_ATTEMPT_US 34u
-#define CTRL_LOOP_ALONE_US 870u
+#define CTRL_LOOP_ALONE_US 925u
 #define CTRL_LOOP_QUEUED_MS 135u
 #define CTRL_LOOP_TX_MS 35u
 #elif CTRL_LOOP_SHAPE(1u, 9u, 9u)      // one interface, the 8x8's streams
