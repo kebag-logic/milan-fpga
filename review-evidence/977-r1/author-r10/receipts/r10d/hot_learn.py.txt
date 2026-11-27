@@ -1,0 +1,100 @@
+#!/usr/bin/env python3
+"""hot_learn.py MAP WINDOW... [--old ORDER]: the split image's hot list by the procedure plat/ctrl_split_hot.txt
+records, from committed-PC traces (sim_main.cpp's `PC <cpu> <pc>` lines) of its windows, in their order.
+
+Each WINDOW is NAME=LOG: the PC lines of LOG are its trace. Every PC is charged to the input text section of the
+image's link map (MAP, the image's ctrl_app.map) that holds it, named as the list names it: `<stem> <section>` for a
+firmware object `NN-<stem>.o`, `<archive>:<member> <section>` for a runtime archive's member. Within a window the
+sections stand in the order the trace first ran them; each later window's sections not already listed are appended
+in the order it first ran them. Prints the list (one entry a line), then a report on stderr: each window's PCs,
+sections and new sections, PCs in no named text section, and with --old the entries gained and lost against ORDER
+(a ctrl_split_hot.txt) and the longest common subsequence of the two orders."""
+import argparse
+import bisect
+import hashlib
+import re
+import sys
+
+SECTION = re.compile(r"^ \.text\.(\S+)\s+0x([0-9a-f]+)\s+0x([0-9a-f]+)\s+\S*/"
+                     r"(?:\d+-([A-Za-z0-9_]+)\.o|([A-Za-z0-9_.]+\.a)\(([A-Za-z0-9_]+)\.o\))$", re.M)
+
+ap = argparse.ArgumentParser()
+ap.add_argument('map')
+ap.add_argument('windows', nargs='+')
+ap.add_argument('--old')
+ap.add_argument('--hashes', help='write each window trace\'s PC lines\' sha256 here')
+a = ap.parse_args()
+
+text = open(a.map, errors='replace').read()
+marker = 'Linker script and memory map'
+body = text[text.index(marker):]
+secs = []
+for name, addr, size, stem, archive, member in SECTION.findall(body):
+    addr, size = int(addr, 16), int(size, 16)
+    if size:
+        secs.append((addr, size, stem or f'{archive}:{member}', name))
+secs.sort()
+starts = [s[0] for s in secs]
+
+
+def entry(pc):
+    k = bisect.bisect_right(starts, pc) - 1
+    if k >= 0 and pc < secs[k][0] + secs[k][1]:
+        return secs[k][2], secs[k][3]
+    return None
+
+
+order, seen, hashes = [], set(), []
+for w in a.windows:
+    name, log = w.split('=', 1)
+    h = hashlib.sha256()
+    n = unmapped = 0
+    first = []
+    wseen = set()
+    with open(log, errors='replace') as fh:
+        for line in fh:
+            if not line.startswith('PC '):
+                continue
+            q = line.split()
+            if len(q) != 3 or len(q[2]) != 8:
+                continue
+            h.update(line.encode())
+            n += 1
+            e = entry(int(q[2], 16))
+            if e is None:
+                unmapped += 1
+                continue
+            if e not in wseen:
+                wseen.add(e)
+                first.append(e)
+    new = [e for e in first if e not in seen]
+    order += new
+    seen |= set(new)
+    hashes.append((name, h.hexdigest(), n))
+    print(f'WINDOW {name}: {n} PCs, {len(first)} sections, {len(new)} new, {unmapped} PCs in no named text section',
+          file=sys.stderr)
+for e in order:
+    print(f'{e[0]} {e[1]}')
+print(f'LIST {len(order)} entries', file=sys.stderr)
+if a.hashes:
+    with open(a.hashes, 'w') as fh:
+        for name, d, n in hashes:
+            fh.write(f'{name} {d} {n}\n')
+if a.old:
+    old = [tuple(r.split()) for r in open(a.old).read().splitlines() if r.strip() and not r.lstrip().startswith('#')]
+    gained = [e for e in order if e not in set(old)]
+    lost = [e for e in old if e not in seen]
+    # longest common subsequence of the two orders over their shared entries
+    sh = set(old) & seen
+    x = [e for e in old if e in sh]
+    pos = {e: i for i, e in enumerate(e for e in order if e in sh)}
+    seq = [pos[e] for e in x]
+    tails = []
+    for v in seq:
+        k = bisect.bisect_left(tails, v)
+        tails[k:k + 1] = [v]
+    print(f'OLD {len(old)} entries; shared {len(sh)}; in order {len(tails)} of {len(sh)}', file=sys.stderr)
+    for e in gained:
+        print(f'GAINED {e[0]} {e[1]}', file=sys.stderr)
+    for e in lost:
+        print(f'LOST {e[0]} {e[1]}', file=sys.stderr)

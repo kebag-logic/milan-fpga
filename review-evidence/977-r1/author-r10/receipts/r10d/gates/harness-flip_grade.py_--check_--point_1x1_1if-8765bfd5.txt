@@ -1,0 +1,24 @@
+Model: under the tiers (slice CTRL_LOOP_SLICE_US, tier 1 aecp-first, tier 2 srp-first, AECP queue)
+
+| Point | Row | W, ms | Bound, ms | Residual, ms | Passes | Largest terms, ms |
+|---|---|---:|---:|---:|---:|---|
+| 1x1/1if | R4 | 13.51 | 20 | -6.49 | 5 | aecp 4.080, timers 1.485, passes 1.325 |
+| 1x1/1if | R5 | 74.68 | 90 | -15.32 | 39 | others 11.240, passes 10.335, srp 9.120 |
+| 1x1/1if | R6 | 72.80 | 90 | -17.20 | 37 | others 11.240, passes 9.805, srp 9.120 |
+| 1x1/1if | first | 14.83 | 20 | -5.17 | 2 | spacing 8.000, others 1.000, steps 0.975 |
+| 1x1/1if | last | 133.91 | 135 | -1.09 | 68 | srp 26.790, passes 18.020, others 15.190 |
+| 1x1/1if | R4L | 203.59 | 238 | -34.41 | 3 | pace 195.000, timers 1.105, others 1.000 |
+| 1x1/1if | ACMP | 29.51 | 30 | -0.49 | 17 | aecp 5.355, passes 4.505, own 4.480 |
+| 1x1/1if | ADP | 27.90 | 30 | -2.10 | 13 | others 6.915, aecp 5.355, passes 3.445 |
+| 1x1/1if | MAAP | 27.99 | 30 | -2.01 | 13 | others 6.930, aecp 5.355, passes 3.445 |
+| 1x1/1if | tx | 33.89 | 49 | -15.11 | 17 | others 8.350, aecp 5.610, passes 4.505 |
+| 1x1/1if | txL | 48.08 | 49 | -0.92 | 23 | aecp 10.695, others 9.410, item.aecp 7.245 |
+
+| Shape (interfaces, sources, sinks) | Slice, us | Build of both, us | Build of one, us | SRP record, us | THE RETRY: cold start, us | refused attempt, us | A record's pass alone, us | Last queued notice, ms | THE TRANSMIT's MRPDU, ms | Points |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|
+| (1, 2, 2) | 950 | 1010 | 735 | 285 | 85 | 34 | 870 | 135 | 35 | 1x1/1if |
+| (1, 9, 9) | 1475 | 1795 | 1475 | 375 | 165 | 25 | 1840 | 130 | 80 | 8x8/1if |
+| (2, 2, 2) | 1300 | 1995 | 1215 | 365 | 185 | 34 | 1300 | 62 | 105 | none the model names |
+| (2, 9, 9) | 1300 | 1995 | 1215 | 365 | 185 | 34 | 1300 | 62 | 105 | 8x8/2if |
+with no shape header: (2, 2) streams
+RESULT: PASS

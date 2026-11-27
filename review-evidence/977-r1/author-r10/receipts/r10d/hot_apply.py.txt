@@ -1,0 +1,70 @@
+#!/usr/bin/env python3
+"""hot_apply.py ROOT LIST HASHES MAPDIR...: apply a learned hot list (hot_learn.py's output) to the tree at ROOT by
+the ruled filter (#665's ruling of 2026-11-18, item 1): an entry stays only if its section links in every split image
+the list serves, read from each image's link map under each MAPDIR (every ctrl_app.map below it: the image itself and
+the SoC plan's stand-in and mapped images). Prints each dropped entry with the images that lack it; with --write,
+rewrites plat/ctrl_split_hot.txt (its entries, its Dropped lines from DROPPED_WHY and its traces' sha256 from HASHES;
+the procedure's header kept) and plat/ctrl_split.ld's block between _ctrl_hot_start and _ctrl_hot_end, then runs
+ctrl_hot.py's ORDER and LINKED rules against every map."""
+import argparse
+import sys
+from pathlib import Path
+
+ap = argparse.ArgumentParser()
+ap.add_argument('root', type=Path)
+ap.add_argument('list', type=Path)
+ap.add_argument('hashes', type=Path)
+ap.add_argument('mapdirs', nargs='+', type=Path)
+ap.add_argument('--write', action='store_true')
+ap.add_argument('--why', action='append', default=[], help='"<stem> <section>=<reason>" for a Dropped line')
+a = ap.parse_args()
+
+sys.path.insert(0, str(a.root / 'sw/firmware/ctrl/test'))
+import ctrl_hot  # noqa: E402
+
+maps = sorted(m for d in a.mapdirs for m in d.rglob('ctrl_app.map'))
+linked = {m: ctrl_hot.linked(m.read_text(errors='replace')) for m in maps}
+learned = [tuple(r.split()) for r in a.list.read_text().splitlines() if r.strip()]
+keep, dropped = [], []
+for e in learned:
+    lacking = [m for m in maps if e not in linked[m]]
+    (dropped if lacking else keep).append((e, lacking))
+print(f'MAPS {len(maps)}; LEARNED {len(learned)}; KEPT {len(keep)}; DROPPED {len(dropped)}')
+for e, lacking in dropped:
+    kinds = sorted({str(m.relative_to(d)).split('/')[0] + '/' + m.parent.parent.name
+                    for m in lacking for d in a.mapdirs if d in m.parents})
+    print(f'DROP {e[0]} {e[1]}: lacking in {len(lacking)} of {len(maps)}: {", ".join(kinds[:12])}')
+if not a.write:
+    sys.exit(0)
+why = dict(w.split('=', 1) for w in a.why)
+order_path = a.root / 'sw/firmware/ctrl/plat/ctrl_split_hot.txt'
+ld_path = a.root / 'sw/firmware/ctrl/plat/ctrl_split.ld'
+old = order_path.read_text().splitlines()
+i_drop = next(i for i, r in enumerate(old) if r.startswith('# Dropped:'))
+i_sha = next(i for i, r in enumerate(old) if r.startswith("# The traces' sha256"))
+i_tail = next(i for i, r in enumerate(old) if i > i_sha and r == '#')
+head, tail = old[:i_drop], old[i_tail:]
+tail_hdr = [r for r in tail if r.startswith('#')]
+dl = []
+for e, _ in dropped:
+    k = f'{e[0]} {e[1]}'
+    if k not in why:
+        sys.exit(f'no reason given for {k}')
+    dl += [f'# Dropped: {k}; {why[k]}']
+hashes = [r.split() for r in a.hashes.read_text().splitlines() if r.strip()]
+sl = ["# The traces' sha256 (each window's PC lines, as the harness printed them):"]
+sl += [f'#   {n:<20} {d}' for n, d, _ in hashes]
+body = [f'{e[0]} {e[1]}' for e, _ in keep]
+order_path.write_text('\n'.join(head + dl + sl + tail_hdr + body) + '\n')
+ld = ld_path.read_text()
+s, t = ld.index(ctrl_hot.START) + len(ctrl_hot.START), ld.index(ctrl_hot.END)
+indent = ld[ld.rindex('\n', 0, t) + 1:t]
+block = '\n' + ''.join(f'{indent}{ctrl_hot.entry(e)}\n' for e, _ in keep) + indent
+ld_path.write_text(ld[:s] + block + ld[t:])
+bad = 0
+for m in maps:
+    f = ctrl_hot.findings(ld_path.read_text(), order_path.read_text(), m.read_text(errors='replace'))
+    if f:
+        bad += 1
+        print(f'FINDINGS {m}: {f[:3]}')
+print(f'WROTE {len(keep)} entries; ORDER and LINKED: {len(maps) - bad} of {len(maps)} maps clean')

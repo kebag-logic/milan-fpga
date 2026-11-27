@@ -1,0 +1,35 @@
+# tools/agg10d.py over every group run of the pools (tools/poolx.py, one group a run) on e59cf6ea's images (oH; the final head's images byte-identical, ../elf-identity-final.txt), 1x1 and 8x8-1if, every arm
+== 1x1: 289 group runs, 4 non-zero: answering-ports/srp-bound rc=1, answering-ports/srp-kept rc=1, none/srp-bound rc=1, none/srp-kept rc=1
+   longest pass 155,676 cycles (1.557 ms), answering-every-port/notice-burst-5; THE SHARE 200,000, margin 22.2 %
+   heaviest polls base 19,847 against 22,500 (answering-ports/srp-register-both-owed)
+   heaviest polls walk 3,260 against 3,500 (answering-ports/srp-register-swap)
+   longest srp slice 87,826 (none/backlog-adp@verify-aged1-0); slice 95,000, alone 95,000
+   longest build slice 42,306 (answering-ports/srp-register-burst); slice 95,000, alone 95,000
+   longest round slice 58,566 (answering-every-port/notice-burst-6); slice 95,000, alone 95,000
+   over-statements: 0
+== 8x8-1if: 289 group runs, 4 non-zero: answering-ports/srp-bound rc=1, answering-ports/srp-kept rc=1, none/srp-bound rc=1, none/srp-kept rc=1
+   longest pass 193,036 cycles (1.930 ms), none/srp-register-both; THE SHARE 200,000, margin 3.5 %
+   heaviest polls base 33,565 against 35,000 (answering-ports/srp-register-swap)
+   heaviest polls walk 14,108 against 15,000 (none/srp-register-swap)
+   longest srp slice 171,622 (answering-ports/srp-register-both); slice 147,500, alone 184,000
+   longest build slice 129,741 (answering-ports/srp-register-burst); slice 147,500, alone 184,000
+   longest round slice 86,114 (answering-every-port/notice-burst-0); slice 147,500, alone 184,000
+   over-statements: 0
+
+# the same over the four pair runs (srp-kept with srp-bound in one run, kept_grade's pairing)
+== 1x1: 2 group runs, 0 non-zero: none
+   longest pass 95,690 cycles (0.957 ms), none/pair; THE SHARE 200,000, margin 52.2 %
+   heaviest polls base 13,895 against 22,500 (answering-ports/pair)
+   heaviest polls walk 671 against 3,500 (answering-ports/pair)
+   longest srp slice 37,790 (none/pair); slice 95,000, alone 95,000
+   longest build slice 37,975 (none/pair); slice 95,000, alone 95,000
+   longest round slice 17,073 (answering-ports/pair); slice 95,000, alone 95,000
+   over-statements: 0
+== 8x8-1if: 2 group runs, 0 non-zero: none
+   longest pass 126,485 cycles (1.265 ms), none/pair; THE SHARE 200,000, margin 36.8 %
+   heaviest polls base 27,182 against 35,000 (answering-ports/pair)
+   heaviest polls walk 920 against 15,000 (answering-ports/pair)
+   longest srp slice 84,702 (answering-ports/pair); slice 147,500, alone 184,000
+   longest build slice 54,116 (answering-ports/pair); slice 147,500, alone 184,000
+   longest round slice 31,091 (answering-ports/pair); slice 147,500, alone 184,000
+   over-statements: 0

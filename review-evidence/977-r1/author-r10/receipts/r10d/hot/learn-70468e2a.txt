@@ -1,0 +1,16 @@
+# tools/hot_learn.py on the 1x1/1if split image, the default (none) arm, at 70468e2a (items 1-5 in, the hot list before the relearn): four windows, each from 300,000 bus cycles before the image's own first record commit, 900,000 PCs at most, traced from earlier and cut by tools/hot_cut4.py
+backlog: mark 267563449, first record commit (RXC) 267563658, window from bus 267263658, 206393 PCs of 275114 traced
+backlog-adp: mark 272796463, first record commit (RXC) 272796649, window from bus 272496649, 274149 PCs of 299287 traced
+aecp-largest-notice: mark 76613981, first record commit (RXC) 77114537, window from bus 76814537, 900000 PCs of 1094829 traced
+srp-register-swap: mark 110899168, first record commit (RXC) 110899268, window from bus 110599268, 900000 PCs of 2000000 traced
+WINDOW backlog: 206393 PCs, 195 sections, 195 new, 0 PCs in no named text section
+WINDOW backlog-adp: 274149 PCs, 193 sections, 45 new, 0 PCs in no named text section
+WINDOW aecp-largest-notice: 900000 PCs, 144 sections, 36 new, 0 PCs in no named text section
+WINDOW srp-register-swap: 900000 PCs, 170 sections, 19 new, 0 PCs in no named text section
+LIST 295 entries
+OLD 290 entries; shared 290; in order 267 of 290
+GAINED mrp_mad find_attr
+GAINED msrp msrp_attr_key
+GAINED mvrp mvrp_attr_key
+GAINED aecp owe
+GAINED aecp owed_drain

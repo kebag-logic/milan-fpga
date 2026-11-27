@@ -1,0 +1,38 @@
+#!/usr/bin/env python3
+"""hot_cut4.py: hot_cut.py with the fourth window (#977, its ruling on round 9's STOP, item 3): srp-register-swap, anchored at its swap record (the first RXC after its srp.register_swap.if0 mark).
+hot_cut.py LOG GROUP OUT: the hot list's window of GROUP's traced log (sim_main.cpp's PC lines, the trace started
+early): the committed PCs from 300,000 bus cycles before the group's first record commit (the first RXC after the
+'composed' mark, or for aecp-largest-notice after its first aecp_long mark), at most 900,000, as BUDGET_TRACE_AFTER and
+BUDGET_TRACE_PCS take them; a PC line's CPU cycle is the bus cycle less the log's fixed SPAN offset. Writes the window's
+PC lines to OUT and prints the anchor, the offset and the count; refuses a trace that starts after the window or
+ends before its 900,000th PC."""
+import sys
+log, group, out = sys.argv[1:]
+marks, rxc, pcs, offset = [], [], [], None
+with open(log, errors='replace') as fh:
+    for line in fh:
+        if line.startswith('PC '):
+            q = line.split()
+            if len(q) == 3 and len(q[2]) == 8:
+                pcs.append((int(q[1]), line))
+        elif line.startswith('MARK '):
+            p = line.split(); marks.append((int(p[1]), p[2]))
+        elif line.startswith('RXC '):
+            rxc.append(int(line.split()[1]))
+        elif line.startswith('SPAN ') and offset is None:
+            p = line.split()
+            if len(p) == 6:
+                offset = int(p[1]) - int(p[2])
+want = ((lambda n: n.startswith('aecp_long.')) if group == 'aecp-largest-notice' else
+        (lambda n: n == 'srp.register_swap.if0') if group == 'srp-register-swap' else (lambda n: n == 'composed'))
+mark = next(s for s, n in marks if want(n))
+anchor = next(s for s in rxc if s >= mark)
+start = anchor - 300_000
+window = [l for c, l in pcs if c + offset >= start][:900_000]
+if not pcs or pcs[0][0] + offset > start:
+    sys.exit(f'{group}: the trace starts at bus {pcs[0][0] + offset if pcs else None}, after the window at {start}')
+if len(window) < 900_000 and group != 'backlog' and group != 'backlog-adp':
+    sys.exit(f'{group}: only {len(window)} PCs after the window start')
+open(out, 'w').writelines(window)
+print(f'{group}: mark {mark}, first record commit (RXC) {anchor}, window from bus {start} (CPU {start - offset}, '
+      f'offset {offset}), {len(window)} PCs of {len(pcs)} traced')

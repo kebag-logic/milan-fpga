@@ -1,0 +1,70 @@
+#!/usr/bin/env python3
+"""poolx.py CLONE BUILDS OUT WORKERS [GROUP...]: pool9.py's run, parameterised: every group of every arm built under
+BUILDS/<point>/<variant> (each its groups.json), or only the named GROUPs, at CLONE's head, from one shared queue
+longest first by round 7's cost (r7/cost.json; a group without one counts as its sim_ms), the registering groups
+first. Each of WORKERS threads claims the next unclaimed group (an atomic mkdir of OUT/claims/<point>__<variant>__<group>)
+and runs run.py on that variant's build for that one group, with one job, into OUT/arms/<point>/<variant>/s-<group>,
+recording budget and share findings as the formal measurement does; the group's DONE holds run.py's exit status.
+Several pools (units on different CPU ranges) may share OUT. POOL_POINTS (comma-separated) restricts the points."""
+import json
+import subprocess
+import sys
+import threading
+import time
+from pathlib import Path
+
+R = Path('<scratch>')
+C, B, O, n, only = Path(sys.argv[1]), Path(sys.argv[2]), Path(sys.argv[3]), int(sys.argv[4]), set(sys.argv[5:])
+cost = json.loads((R / 'r7' / 'cost.json').read_text())
+queue = []
+import os
+POINTS = set(filter(None, os.environ.get('POOL_POINTS', '').split(',')))
+for pdir in sorted(B.iterdir()):
+    if POINTS and pdir.name not in POINTS:
+        continue
+    for b in sorted(pdir.iterdir()):
+        if not (b / 'groups.json').exists():
+            continue
+        for g in json.loads((b / 'groups.json').read_text()):
+            if not only or g['name'] in only:
+                queue.append((cost.get(f'{pdir.name}/{b.name}', {}).get(g['name'], g['sim_ms']), pdir.name, b.name,
+                              g['name']))
+queue.sort(key=lambda q: (not q[3].startswith('srp-register'), -q[0]))
+(O / 'claims').mkdir(parents=True, exist_ok=True)
+lock = threading.Lock()
+
+
+def claim():
+    with lock:
+        for _, p, v, g in queue:
+            try:
+                (O / 'claims' / f'{p}__{v}__{g}').mkdir()
+            except FileExistsError:
+                continue
+            return p, v, g
+    return None
+
+
+def worker(k):
+    while (job := claim()) is not None:
+        p, v, g = job
+        out = O / 'arms' / p / v / f's-{g}'
+        out.mkdir(parents=True, exist_ok=True)
+        t0 = time.time()
+        with open(f'{out}.out', 'w') as fh:
+            rc = subprocess.run(['python3', '-B', 'tb/verilator/ctrl_service_budget/run.py', '--point', p,
+                                 '--build-dir', str(B / p / v), '--reuse-build', '--variant', v, '--groups', g,
+                                 '--out', str(out), '--jobs', '1', '--record-budget-findings',
+                                 '--record-share-findings'], cwd=C, stdout=fh, stderr=subprocess.STDOUT).returncode
+        (out / 'DONE').write_text(f'{rc}\n')
+        print(f'{time.strftime("%T")} w{k} {p} {v} {g} rc={rc} {time.time() - t0:.0f} s', flush=True)
+
+
+head = subprocess.run(['git', '-C', str(C), 'rev-parse', '--short=8', 'HEAD'], capture_output=True, text=True).stdout
+print(f'{time.strftime("%T")} pool of {n} at {head.strip()}, {len(queue)} groups queued', flush=True)
+threads = [threading.Thread(target=worker, args=(k,)) for k in range(n)]
+for t in threads:
+    t.start()
+for t in threads:
+    t.join()
+print(f'{time.strftime("%T")} pool done', flush=True)

@@ -1,0 +1,42 @@
+#!/usr/bin/env python3
+"""regcost3.py POINT LOG...: regcost2.py's restatement over every registering group (#977's ruling of 2026-11-27, item
+5; its ruling on round 9's STOP, item 4): from each CPU budget harness log, each SRP record's apply
+(srp_mbx:apply_receive) past the unit, plus THE SETTLE's run after it (the first ctrl_app_srp:settle span after the apply
+that did work), divided by the Talkers the group's record registers: the sinks, or V for srp-register-population (the
+bound and the kept together). Each log's group is its file stem. Prints every record over the unit, then the dearest
+per value of the record alone and of the record with its settle, each by the rule (plus 5 %, rounded up to 5 us at
+100 cycles a microsecond)."""
+import math
+import sys
+from bisect import bisect_right
+from pathlib import Path
+
+POINTS = {'1x1': (28_500, 2, 4), '8x8-1if': (37_500, 9, 9)}   # the unit (CPU cycles), the sinks, V
+point, logs = sys.argv[1], sys.argv[2:]
+unit, sinks, v = POINTS[point]
+rule = lambda c: 5 * math.ceil(c / 100 * 1.05 / 5)
+best = dict(record=(0, None), all=(0, None))
+for log in logs:
+    group, arm = Path(log).stem, Path(log).parts[-3]
+    values = v if group == 'srp-register-population' else sinks
+    spans = {}
+    for line in open(log, errors='replace'):
+        if line.startswith('SPAN '):
+            p = line.split()
+            if len(p) == 6:
+                spans.setdefault(p[5], []).append((int(p[2]), int(p[3]), int(p[4], 16)))
+    settles = sorted(s for s in spans.get('ctrl_app_srp:settle', []) if s[2] != 0)
+    starts = [s[0] for s in settles]
+    for s, c, _ in sorted(spans.get('srp_mbx:apply_receive', [])):
+        if c <= unit:
+            continue
+        j = bisect_right(starts, s)
+        settle = settles[j][1] if j < len(settles) else 0
+        rec, full = (c - unit) / values, (c - unit + settle) / values
+        print(f'{arm} {group} at cpu {s}: apply {c:,}, {c - unit:,} past the unit, settle {settle:,}, '
+              f'{values} values: {rec:,.0f} / {full:,.0f} cycles a Talker')
+        for key, x in (('record', rec), ('all', full)):
+            if x > best[key][0]:
+                best[key] = (x, f'{arm} {group} cpu {s} apply {c:,} settle {settle:,} over {values}')
+for key, (x, where) in best.items():
+    print(f'DEAREST {key}: {x:,.0f} cycles a Talker, {rule(x)} us by the rule; {where}')

@@ -1,0 +1,15 @@
+# tb/verilator/ctrl_split_boot/plat_ledger.py in the route clone at e59cf6ea (the 8x8/1if route's images)
+POINT 1x1-if1: rom 132,576 B, sram 56,928 B, 46.5 RAMB36 (the 56-RAMB36 budget), ctrl_plat 18240 B: PASS
+POINT 1x1-if2: rom 133,248 B, sram 59,296 B, 47.5 RAMB36 (the 56-RAMB36 budget), ctrl_plat 19968 B: PASS
+POINT 8x8-if1: rom 147,712 B, sram 100,224 B, 61 RAMB36 (platform-8x8-one-interface), ctrl_plat 19264 B: PASS
+POINT 8x8-if2: rom 147,312 B, sram 117,760 B, 65 RAMB36 (platform-8x8-two-interfaces), ctrl_plat 22016 B: PASS
+plat_ledger: PASS (0 finding(s))
+# and at c63e9d58 (the 1x1/1if route's clone, before the 8x8/1if entry's 61.0; its 1x1 images are the same bytes)
+POINT 1x1-if1: rom 132,576 B, sram 56,928 B, 46.5 RAMB36 (the 56-RAMB36 budget), ctrl_plat 18240 B: PASS
+POINT 1x1-if2: rom 133,248 B, sram 59,296 B, 47.5 RAMB36 (the 56-RAMB36 budget), ctrl_plat 19968 B: PASS
+POINT 8x8-if1: rom 147,712 B, sram 100,224 B, 61 RAMB36 (platform-8x8-one-interface), ctrl_plat 19264 B: FAIL
+POINT 8x8-if2: rom 147,312 B, sram 117,760 B, 65 RAMB36 (platform-8x8-two-interfaces), ctrl_plat 22016 B: PASS
+FINDING: LINK 8x8-if1: ctrl_plat_image.py exited 2: REFUSED: allocation over budget: 61 RAMB36 (rom 147712 bytes in 149504, sram 100224 bytes in 100352) exceeds the 60.5-RAMB36 budget ledgered for target platform's 8x8, one interface
+FINDING: LINK 8x8-if1: its plan is refused (allocation over budget: 61 RAMB36 (rom 147712 bytes in 149504, sram 100224 bytes in 100352) exceeds the 60.5-RAMB36 budget ledgered for target platform's 8x8, one interface)
+FINDING: TILES 8x8-if1: 61 RAMB36 past the 60.5 its override ledgers
+plat_ledger: FAIL (3 finding(s))

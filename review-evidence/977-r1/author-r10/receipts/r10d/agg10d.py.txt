@@ -1,0 +1,51 @@
+#!/usr/bin/env python3
+"""agg10d.py ARMS: every group's results.json under ARMS/<point>/<variant>/s-<group>, by point: the groups run, each
+non-zero DONE, the longest pass (THE SHARE's 200,000 cycles and the ruling's 2 ms), the heaviest polls base and walk
+against their stated limits, the longest SRP slice of one record and of more against the slice and the pass alone, and
+every over-statement the graders hold (polls, slices, rounds, stated passes) with its group."""
+import json
+import sys
+from pathlib import Path
+
+arms = Path(sys.argv[1])
+for point in sorted(p.name for p in arms.iterdir()):
+    runs, bad, worst, over = 0, [], (0, ''), []
+    heavy = {}
+    longest = {}
+    lim = {}
+    for res in sorted(arms.glob(f'{point}/*/s-*/results.json')):
+        variant, group = res.parts[-3], res.parent.name[2:]
+        done = (res.parent / 'DONE').read_text().strip() if (res.parent / 'DONE').exists() else '?'
+        runs += 1
+        if done != '0':
+            bad.append(f'{variant}/{group} rc={done}')
+        for r in json.loads(res.read_text())['results']:
+            ps = r['passes']
+            w = ps.get('worst') or {}
+            if w.get('cycles', 0) > worst[0]:
+                worst = (w['cycles'], f'{variant}/{group}')
+            pol = ps.get('polls') or {}
+            for k in ('base', 'walk'):
+                c = (pol.get('heaviest') or {}).get(k, 0)
+                if c > heavy.get(k, (0, ''))[0]:
+                    heavy[k] = (c, f'{variant}/{group}')
+                lim[k] = (pol.get('limits') or {}).get(k, lim.get(k))
+            sl = ps.get('slices') or {}
+            for k in ('srp', 'build', 'round'):
+                c = (sl.get('longest') or {}).get(k, 0)
+                if c > longest.get(k, (0, ''))[0]:
+                    longest[k] = (c, f'{variant}/{group}')
+            lim['slice'], lim['alone'] = sl.get('limit', lim.get('slice')), sl.get('alone', lim.get('alone'))
+            for key in ('polls', 'slices', 'rounds', 'stated'):
+                for o in (ps.get(key) or {}).get('over', []) or []:
+                    over.append(f'{variant}/{group} {key} {o.get("kind")} {o.get("cycles")}')
+    print(f'== {point}: {runs} group runs, {len(bad)} non-zero: {", ".join(bad) or "none"}')
+    print(f'   longest pass {worst[0]:,} cycles ({worst[0] / 1e5:.3f} ms), {worst[1]}; THE SHARE 200,000, '
+          f'margin {(200_000 - worst[0]) / 2000:.1f} %')
+    for k, (c, where) in heavy.items():
+        print(f'   heaviest polls {k} {c:,} against {lim.get(k):,} ({where})')
+    for k, (c, where) in longest.items():
+        print(f'   longest {k} slice {c:,} ({where}); slice {lim.get("slice"):,}, alone {lim.get("alone"):,}')
+    print(f'   over-statements: {len(over)}')
+    for o in over[:40]:
+        print(f'     {o}')

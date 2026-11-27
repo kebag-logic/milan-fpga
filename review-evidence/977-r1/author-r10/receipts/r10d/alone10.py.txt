@@ -1,0 +1,27 @@
+#!/usr/bin/env python3
+"""alone10.py LOG...: each SRP slice (slice_grade.slices' kind 'srp') by its record count: the longest slice of one
+record and of more, per log, and overall, with the one-record slice by the rule (plus 5 %, up to 5 us)."""
+import math
+import sys
+from bisect import bisect_left
+sys.path.insert(0, 'tb/verilator/ctrl_service_budget')
+import grade
+import slice_grade
+rule = lambda c: 5 * math.ceil(c / 100 * 1.05 / 5)
+best = {1: (0, ''), 2: (0, '')}
+for path in sys.argv[1:]:
+    log = grade.parse(open(path, errors='replace').read(), 100_000_000, 100_000_000)
+    spans = sorted((int(r[1]), int(r[2])) for k, *r in log.traced if k == 'SPAN' and r[4] == slice_grade.RECORD)
+    starts = [s[0] for s in spans]
+    mine = {1: 0, 2: 0}
+    for p in log.passes:
+        inside = spans[bisect_left(starts, p.start_cpu):bisect_left(starts, p.start_cpu + p.cycles)]
+        if inside:
+            n = 1 if len(inside) == 1 else 2
+            c = max(s + c for s, c in inside) - p.start_cpu
+            mine[n] = max(mine[n], c)
+            if c > best[n][0]:
+                best[n] = (c, f'{path} pass at sys {p.start_sys}')
+    print(f'{path}: one record {mine[1]:,}, more {mine[2]:,}')
+for n, (c, where) in best.items():
+    print(f'LONGEST {"one record" if n == 1 else "more records"}: {c:,} cycles, {rule(c)} us by the rule; {where}')

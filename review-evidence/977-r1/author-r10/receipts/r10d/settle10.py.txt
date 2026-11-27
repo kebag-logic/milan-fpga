@@ -1,0 +1,11 @@
+#!/usr/bin/env python3
+"""settle10.py LOG: the longest THE SETTLE run that did work (a ctrl_app_srp:settle SPAN whose return is non-zero) in
+the log, in CPU cycles, printed with the log's path."""
+import sys
+best = 0
+for line in open(sys.argv[1], errors='replace'):
+    if line.startswith('SPAN ') and line.rstrip().endswith('ctrl_app_srp:settle'):
+        p = line.split()
+        if len(p) == 6 and int(p[4], 16) != 0:
+            best = max(best, int(p[3]))
+print(f'{sys.argv[1]}: settle {best}')

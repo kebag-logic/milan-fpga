@@ -1,0 +1,37 @@
+# the fourth hot-list window (#977, its ruling on round 9's STOP, item 3): srp-register-swap on the 1x1/1if split image, the default arm, at 7ae3ac2d (the image the other three windows were traced on), from 300,000 bus cycles before its swap record's commit, 900,000 PCs, appended (tools/hot_cut4.py, hot_learn.py), then the ruled filter over the 72 link maps (hot_apply.py) into a scratch clone at a35b092f
+srp-register-swap: mark 110923664, first record commit (RXC) 110923764, window from bus 110623764 (CPU 110623700, offset 64), 900000 PCs of 3000000 traced
+WINDOW backlog: 205603 PCs, 194 sections, 194 new, 0 PCs in no named text section
+WINDOW backlog-adp: 273120 PCs, 192 sections, 45 new, 0 PCs in no named text section
+WINDOW aecp-largest-notice: 900000 PCs, 143 sections, 36 new, 0 PCs in no named text section
+WINDOW srp-register-swap: 900000 PCs, 169 sections, 19 new, 0 PCs in no named text section
+LIST 294 entries
+OLD 270 entries; shared 270; in order 270 of 270
+GAINED mrp_mad find_attr
+GAINED msrp msrp_attr_key
+GAINED mvrp mvrp_attr_key
+GAINED aecp owe
+GAINED aecp owed_drain
+GAINED ctrl_app_srp complete
+GAINED msrp msrp_leave_ind
+GAINED srp_mbx left
+GAINED srp_mbx talker_changed
+GAINED srp_mbx failed
+GAINED msrp msrp_declare_listener
+GAINED srp_mbx build_mrpdu
+GAINED mrp_mad mrp_transmit
+GAINED mrp_mad map_replay
+GAINED acmp acmp_tk_unregistered
+GAINED acmp srp_stop
+GAINED ctrl_app_srp request
+GAINED ctrl_app_aecp srp
+GAINED ctrl_aecp_image stream
+GAINED acmp_mbx port_publish
+GAINED mbx mbx_pub_sink
+GAINED srp_mbx srp_mbx_bind
+GAINED msrp msrp_withdraw_listener
+GAINED mrp_mad mrp_mad_leave
+MAPS 72; LEARNED 294; KEPT 289; DROPPED 5 (the same five); ORDER and LINKED: 72 of 72 maps clean
+backlog a2fdc4575584f686a4930fe168660e92eca84a5ebc4482e66309ed5adb97b769 205603
+backlog-adp cd5f971161526cb9042c38bfc20467411d0bbe2d112495f0291181b9b139cfc0 273120
+aecp-largest-notice 51e001d1f3d18ae7708dc1edd93008ab648812eaa4bbbd55fa8638228414da95 900000
+srp-register-swap 919c17beab924a5baa296faa89a78182636711566084c8952133c224d6f3693c 900000

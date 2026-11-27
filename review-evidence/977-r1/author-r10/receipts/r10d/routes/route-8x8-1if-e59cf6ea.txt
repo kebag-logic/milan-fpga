@@ -1,0 +1,22 @@
+# route of the split image at 8x8/1if, clean clone at e59cf6ea, the platform image plat_ledger.py linked there
+## signoff (#818 floor: WNS >= +0.030 ns, WHS >= 0 ns at every signoff corner)
+Slow_85C: WNS +0.092 ns (0 failing), WHS +0.086 ns (0 failing)
+Slow_0C: WNS +0.092 ns (0 failing), WHS +0.086 ns (0 failing)
+Fast_85C: WNS +1.636 ns (0 failing), WHS +0.036 ns (0 failing)
+Fast_0C: WNS +1.636 ns (0 failing), WHS +0.036 ns (0 failing)
+#818 floor (WNS >= +0.030, WHS >= 0) met at every corner; worst corner WNS +0.092 ns, WHS +0.036 ns
+## route status
+           # of fully routed nets............. :       93537 :
+       # of nets with routing errors.......... :           0 :
+## utilization (place)
+| Slice LUTs                 | 45672 |     0 |          0 |     63400 | 72.04 |
+| Slice Registers            | 53374 |     0 |          0 |    126800 | 42.09 |
+| Slice Registers                            | 53374 |     0 |          0 |    126800 | 42.09 |
+| Block RAM Tile    | 100.5 |     0 |          0 |       135 | 74.44 |
+## image identity and rom banks
+## artifacts sha256
+a6c9d99a2b4975858fa8227f63909c776806d8b919af4eaa2d6fe338f0344e47  gateware/alinx_ax7101.bit
+a34ea856596ff765fd1f34ab3ae85a1cfba564442cf5e0c582a144b3a4f45b5c  aem_desc.bin
+96dc686b31ad5cd001fd551c2fa04a8e87a6cb5d5d6a1da0d9fa2482dac83f3f  csr.csv
+222ce1cc41030b918b7ba4c0b826b9b3f423fb12f18186cf60d84a92b9b9a2cd  flashboot_layout.json
+0a0692fd41d7ecfd6dcedf39dd914d6055e6cdcd8e8c15fedb1ad44bbdf60fb5  image_manifest.json

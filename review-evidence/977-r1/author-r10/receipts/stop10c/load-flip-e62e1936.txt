@@ -1,0 +1,22 @@
+# load_grade.py --check and flip_grade.py --check at e62e1936 (ceiling 0.77 at 8x8/1if) with load_grade.REGISTRATION_US restated, nothing else changed
+
+## REGISTRATION_US 1x1/1if 120 us, 8x8/1if 135 us
+| 1x1/1if | 0.521 | 0.518 | 0.70, both columns | 1.00x | 265
+| 8x8/1if | 0.757 | 0.717 | the flip check, 0.77 at the pin 
+RESULT: PASS
+flip_grade 1x1/1if: RESULT: PASS 
+flip_grade 8x8/1if: RESULT: PASS 
+
+## REGISTRATION_US 1x1/1if 180 us, 8x8/1if 170 us
+| 1x1/1if | 0.523 | 0.520 | 0.70, both columns | 1.00x | 265
+| 8x8/1if | 0.761 | 0.721 | the flip check, 0.77 at the pin 
+RESULT: PASS
+flip_grade 1x1/1if: RESULT: PASS 
+flip_grade 8x8/1if: RESULT: PASS 
+
+## REGISTRATION_US 1x1/1if 180 us, 8x8/1if 195 us
+| 1x1/1if | 0.523 | 0.520 | 0.70, both columns | 1.00x | 265
+| 8x8/1if | 0.763 | 0.723 | the flip check, 0.77 at the pin 
+RESULT: PASS
+flip_grade 1x1/1if: RESULT: PASS 
+flip_grade 8x8/1if: RESULT: PASS 

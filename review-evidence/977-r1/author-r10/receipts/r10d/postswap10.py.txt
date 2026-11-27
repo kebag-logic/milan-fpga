@@ -1,0 +1,47 @@
+#!/usr/bin/env python3
+"""postswap10.py POINT LOG...: the delivering passes after each group's registering record (the first RXC after its
+probe's mark, srp.register_*.if0), counted as the ruling's caution asks: each pass's polls base (poll_grade's sections)
+over the dearest base before the record, summed for the record, and that sum counted at the registration rate, three
+records a 1.5 x JoinTime (load_grade.TX_PER_JOIN over 1.5 x JOIN_MIN_MS), as a share of the CPU. Prints each group's
+passes and the dearest added share."""
+import sys
+from pathlib import Path
+sys.path.insert(0, 'tb/verilator/ctrl_service_budget')
+import grade
+import load_grade
+import poll_grade
+
+point, logs = sys.argv[1], sys.argv[2:]
+best = (0.0, '')
+for path in logs:
+    group = Path(path).stem
+    log = grade.parse(open(path, errors='replace').read(), 100_000_000, 100_000_000)
+    marks = [int(r[0]) for k, *r in log.traced if k == 'MARK' and r[1].startswith('srp.register_')] if False else []
+    text_marks, rxc = [], []
+    for line in open(path, errors='replace'):
+        if line.startswith('MARK ') and ' srp.register_' in line:
+            p = line.split(); text_marks.append((int(p[1]), p[2]))
+        elif line.startswith('RXC '):
+            rxc.append(int(line.split()[1]))
+    probes = [(s, n) for s, n in text_marks if not n.endswith('_advertise.if0')]
+    if not probes:
+        continue
+    mark, name = probes[-1]
+    record = next(s for s in rxc if s >= mark)
+    traced, commits, longs = poll_grade.spans(log), poll_grade.committed(log), poll_grade.long_notices(log)
+    bases = []
+    for start, end, start_sys in poll_grade.sections(traced):
+        items = poll_grade.instances(log, traced, commits, start, end, longs)
+        bases.append((start_sys, end - start - sum(c for _, c in items)))
+    prior = sorted(b for s, b in bases if record - 50_000_000 < s < record)
+    after = [(s, b) for s, b in bases if s >= record][:40]
+    for label, before in (('the dearest', prior[-1] if prior else 0), ('the median', prior[len(prior) // 2] if prior else 0)):
+        over = [(s, b - before) for s, b in after if b > before]
+        added_us = sum(x for _, x in over) / 100
+        share = added_us * load_grade.TX_PER_JOIN / (1.5 * load_grade.JOIN_MIN_MS) / 1000
+        print(f'{Path(path).parts[-3]} {group}: record at bus {record}, over {label} base before it ({before:,}): '
+              f'{len(over)} passes, {", ".join(f"{x:,}" for _, x in over)} cycles, {added_us:,.1f} us, at the '
+              f'registration rate {share:.4f} of the CPU')
+    if share > best[0]:
+        best = (share, f'{Path(path).parts[-3]} {group}')
+print(f'DEAREST {point}: {best[0]:.4f} of the CPU added, {best[1]}')

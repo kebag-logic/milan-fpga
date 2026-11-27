@@ -1,0 +1,10 @@
+# gates10.sh step harness on a clean clone at 25ff0632
+run.py --self-test rc=0 self-test: 0 failures
+kept_grade.py --selftest rc=0 kept_grade selftest: PASS (33 checks)
+load_grade.py --selftest rc=0 load gate: 28 of 28 planted controls refused
+load_grade.py --check rc=0 RESULT: PASS
+flip_grade.py --selftest rc=0 flip check: 628 of 628 planted controls refused
+flip_grade.py --check --point 1x1/1if rc=0 RESULT: PASS
+flip_grade.py --check --point 8x8/1if rc=0 RESULT: PASS
+shape_costs.py --selftest rc=0 the table of shapes: 25 of 25 planted controls refused
+shape_costs.py --check rc=0 RESULT: PASS
