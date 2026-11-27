@@ -10,7 +10,7 @@ module KL_usbaudio_status #(
   input wire rst_n, //! synchronous session reset, active low
   input wire snapshot_valid_i, //! coherent status available
   output wire snapshot_ready_o, //! accepts one snapshot, never overwrites it
-  input wire [31:0] feedback_q16_i, //! measured samples per USB microframe
+  input wire [31:0] feedback_samples_q16_i, //! measured samples per USB microframe
   input wire [31:0] rate_hz_i, //! actual media rate, including unsupported values
   input wire [3:0] flags_i, //! locked, capture running, playback running, error
   input wire [31:0] capture_epoch_i, //! last applied capture epoch
@@ -19,6 +19,9 @@ module KL_usbaudio_status #(
   output wire [15:0] data_o, //! exact little-endian status word
   output wire last_o //! commit with packet end on this tenth word
 );
+  if (DIGEST_P != 16'h84ff) begin : parameter_guard
+    $error("AUDIO_PARAMETER_STATUS: only the fixed eight-channel profile is supported");
+  end : parameter_guard
   logic busy_r;
   logic [3:0] word_r;
   logic [15:0] sequence_r;
@@ -36,7 +39,7 @@ module KL_usbaudio_status #(
     end else begin
       if (snapshot_valid_i && snapshot_ready_o) begin
         record_r <= {capture_epoch_i, DIGEST_P, 12'b0, flags_i,
-                     rate_hz_i, feedback_q16_i, sequence_r, 16'h5541};
+                     rate_hz_i, feedback_samples_q16_i, sequence_r, 16'h5541};
         busy_r <= 1;
         word_r <= 0;
       end

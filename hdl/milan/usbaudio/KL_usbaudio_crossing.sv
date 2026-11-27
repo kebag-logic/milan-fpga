@@ -19,6 +19,9 @@ module KL_usbaudio_crossing #(
   input wire ready_i, //! payload accepted at the consumer edge
   output wire [$clog2(DEPTH_P):0] level_o //! conservative consumer frame count
 );
+  if (WIDTH_P == 0 || DEPTH_P < 4 || (DEPTH_P & (DEPTH_P-1)) != 0) begin : parameter_guard
+    $error("AUDIO_PARAMETER_CROSSING: width must be positive and depth a power of two of at least four");
+  end : parameter_guard
   axis_async_fifo #(
     .DEPTH(DEPTH_P), .DATA_WIDTH(WIDTH_P), .KEEP_ENABLE(0), .KEEP_WIDTH(1),
     .LAST_ENABLE(0), .ID_ENABLE(0), .DEST_ENABLE(0), .USER_ENABLE(0)

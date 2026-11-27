@@ -41,6 +41,9 @@ module KL_usbaudio_media #(
   output wire [13:0] playback_extremes_o, //! maximum then minimum complete frames
   output logic error_o //! sticky whole-frame transport error
 );
+  if (PREFILL_FRAMES_P < 1 || PREFILL_FRAMES_P > 64) begin : parameter_guard
+    $error("AUDIO_PARAMETER_MEDIA: prefill must fit the 64-frame playback queue");
+  end : parameter_guard
   logic [31:0] playback_epoch_r, capture_epoch_r;
   logic [2:0] flags_r;
   logic primed_r;

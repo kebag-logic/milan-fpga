@@ -30,7 +30,7 @@ module protocol_tb;
   wire [15:0] status_data;
   KL_usbaudio_status status_dut (
     .clk_i(clk), .rst_n(rst_n), .snapshot_valid_i(snapshot_valid),
-    .snapshot_ready_o(snapshot_ready), .feedback_q16_i(status_feedback),
+    .snapshot_ready_o(snapshot_ready), .feedback_samples_q16_i(status_feedback),
     .rate_hz_i(status_rate), .flags_i(status_flags), .capture_epoch_i(status_epoch),
     .valid_o(status_valid), .ready_i(status_ready), .data_o(status_data),
     .last_o(status_last));
@@ -40,7 +40,7 @@ module protocol_tb;
   wire measured;
   KL_usbaudio_feedback feedback_dut (
     .clk_i(clk), .rst_n(rst_n), .locked_i(locked), .interval_i(interval),
-    .media_events_i(events), .feedback_q16_o(feedback), .measured_o(measured));
+    .media_events_i(events), .feedback_samples_q16_o(feedback), .measured_o(measured));
 
   task automatic step;
     @(posedge clk); #1;

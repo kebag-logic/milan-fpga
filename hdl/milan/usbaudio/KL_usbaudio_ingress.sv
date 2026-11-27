@@ -23,12 +23,15 @@ module KL_usbaudio_ingress #(
   output logic loss_p_o, //! malformed interval or unrecognized magic
   output logic [13:0] count_o, //! host microframe number
   output logic [31:0] sequence_o, //! selected ITP sequence
-  output logic [12:0] delta_o, //! USB units of 1/60 MHz
+  output logic [12:0] delta_usb_cycles_o, //! ITP delta in 60 MHz cycles (16 2/3 ns each)
   output logic discontinuity_o, //! reference-loss flag
   output logic [47:0] stamp_ticks_o, //! timestamp of the record's first word
   output wire [31:0] rejected_o, //! refused playback/state records
   output wire [31:0] digest_errors_o //! refused playback/state digests
 );
+  if (DIGEST_P != 16'h84ff) begin : parameter_guard
+    $error("AUDIO_PARAMETER_INGRESS: only the fixed eight-channel profile is supported");
+  end : parameter_guard
   typedef enum logic [1:0] { FIRST_S, PCM_S, REFERENCE_S } state_t;
   state_t state_r;
   logic [3:0] word_r;
@@ -62,7 +65,7 @@ module KL_usbaudio_ingress #(
       loss_p_o <= 0;
       count_o <= 0;
       sequence_o <= 0;
-      delta_o <= 0;
+      delta_usb_cycles_o <= 0;
       discontinuity_o <= 0;
       stamp_ticks_o <= 0;
     end else begin
@@ -91,7 +94,7 @@ module KL_usbaudio_ingress #(
               if (structure_good_w && reference_r[15:0] == 16'h5549) begin
                 count_o <= reference_r[61:48];
                 sequence_o <= reference_r[95:64];
-                delta_o <= reference_r[122:110];
+                delta_usb_cycles_o <= reference_r[122:110];
                 discontinuity_o <= reference_r[128];
                 stamp_ticks_o <= stamp_r;
                 reference_p_o <= 1;

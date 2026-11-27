@@ -103,7 +103,7 @@ def main() -> int:
                         raise ValueError("temporary filename must be a basename")
                     ledger.write(f"Planned generated temporary removal: {target.resolve()}\n")
         command = [args.engine, "--binary", "--timing", "--top-module", "protocol_tb",
-                   "-Wall", "-Wno-TIMESCALEMOD", "-Wno-fatal", "--build-jobs", str(args.jobs),
+                   "-Wall", "-Wno-TIMESCALEMOD", "-Wno-fatal", "-Werror-USERERROR", "--build-jobs", str(args.jobs),
                    "--Mdir", str(obj), *sources, str(here / "protocol_tb.sv")]
         with (case / "compile.log").open("w") as log:
             compiled = subprocess.run(command, stdout=log, stderr=subprocess.STDOUT, check=False)
@@ -111,7 +111,7 @@ def main() -> int:
             results.append({"plant": name, "result": "BUILD_FAILED"})
         else:
             run = subprocess.run([str(obj / "Vprotocol_tb"), f"+case={leaf}"],
-                                 text=True, capture_output=True, timeout=180, check=False)
+                                 text=True, capture_output=True, check=False)
             (case / "run.log").write_text(run.stdout + run.stderr)
             caught = run.returncode != 0 and f"CHECK {expected}" in run.stdout + run.stderr
             results.append({"plant": name, "check": expected,

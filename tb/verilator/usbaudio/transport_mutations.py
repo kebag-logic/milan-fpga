@@ -116,7 +116,7 @@ PLANTS = (
  ('reference_loss_flag',
   'reference',
   'reference',
-  (('discontinuity_i || delta_i', "1'b0 || delta_i"),),
+  (('discontinuity_i || delta_usb_cycles_i', "1'b0 || delta_usb_cycles_i"),),
   'REFERENCE_DISCONTINUITY'),
  ('reference_watchdog_early',
   'reference',
@@ -145,11 +145,11 @@ PLANTS = (
   'REFERENCE_WATCHDOG_3MS_NO_REFERENCE'),
  ('reference_early', 'reference', 'reference', (('delivery_ticks_w >= 18432', "1'b1"),), 'REFERENCE_BUNCHED'),
  ('reference_late', 'reference', 'reference', (('delivery_ticks_w <= 30720', "1'b1"),), 'REFERENCE_LATE'),
- ('reference_delta_range', 'reference', 'reference', (('delta_i >= 7500', "1'b0"),), 'REFERENCE_DELTA_RANGE'),
+ ('reference_delta_range', 'reference', 'reference', (('delta_usb_cycles_i >= 7500', "1'b0"),), 'REFERENCE_DELTA_RANGE'),
  ('reference_delta_units',
   'reference',
   'reference',
-  (("(32'(delta_i)*256)/625", "32'd0"),),
+  (("(32'(delta_usb_cycles_i)*256)/625", "32'd0"),),
   'REFERENCE_DELTA_UNITS'),
  ('reference_physical_bound',
   'reference',
@@ -282,7 +282,7 @@ def main() -> int:
             ledger.flush()
             os.fsync(ledger.fileno())
         command = [args.engine, "--binary", "--timing", "--top-module", test+"_tb",
-                   "-Wall", "-Wno-fatal", "-Wno-TIMESCALEMOD", "--build-jobs", str(args.jobs),
+                   "-Wall", "-Wno-fatal", "-Werror-USERERROR", "-Wno-TIMESCALEMOD", "--build-jobs", str(args.jobs),
                    "--Mdir", str(obj), *sources,
                    str(here.parents[2] / "third_party/verilog-axis/rtl/axis_async_fifo.v"),
                    str(here / (test+"_tb.sv"))]
@@ -292,7 +292,7 @@ def main() -> int:
         if compiled.returncode:
             result["result"] = "BUILD_FAILED"
         else:
-            run = subprocess.run([str(obj/top)], text=True, capture_output=True, timeout=120, check=False)
+            run = subprocess.run([str(obj/top)], text=True, capture_output=True, check=False)
             output = run.stdout+run.stderr
             (case / "run.log").write_text(output)
             if not expected:

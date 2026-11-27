@@ -41,6 +41,9 @@ boundaries and are never returned.
 
 import re
 
+# Attributes decorate a declaration; their keys are not ports or parameters.
+# Quoted attribute values may themselves contain commas, keywords or `*)`.
+_ATTRIBUTE = re.compile(r'\(\*(?:[^*"]|"(?:\\.|[^"\\])*"|\*(?!\)))*\*\)', re.S)
 _BLOCK_COMMENT = re.compile(r"/\*.*?\*/", re.S)
 _LINE_COMMENT = re.compile(r"//(?!!)[^\n]*")      # ordinary comments; `//!` kept
 _MODULE = re.compile(r"^\s*module\s+([A-Za-z_]\w*)", re.M)
@@ -63,7 +66,8 @@ def module_headers(text: str) -> list[tuple[str, str, int]]:
 
     The header runs from `module` to the `;` that ends the port list, with
     block and ordinary line comments blanked and `//!` comments kept."""
-    code = _BLOCK_COMMENT.sub(_blank_keep_newlines, text)
+    code = _ATTRIBUTE.sub(_blank_keep_newlines, text)
+    code = _BLOCK_COMMENT.sub(_blank_keep_newlines, code)
     code = _LINE_COMMENT.sub(_blank_keep_newlines, code)
     out = []
     for m in _MODULE.finditer(code):

@@ -152,6 +152,10 @@ storage paths at both widths. Source-level tests inject decode hazards between
 source clock edges across a receiving edge, and check stable changes and reset.
 Planted defects must trigger their named runtime
 checks; build errors do not count as detections.
+Elaboration rejects an invalid fixed-profile digest, queue shape, prefill,
+measurement window, or scheduling clock. Boundary controls require 21 valid
+configurations to elaborate and 22 invalid configurations to refuse.
+
 The default audio regression runs those bounded tests, both storage widths,
 a shortened-window duplex check, and representative reference, epoch, packet
 and arbitration defects. The separate `duplex` target retains the full

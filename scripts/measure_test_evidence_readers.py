@@ -315,4 +315,12 @@ DUT_READER_DISPOSITIONS = {
         "own table into an isolated copy of lwSRP, the SRP adapter or the datapath, and requires "
         "srptx_grade.py to report the arm's words in a completed run after a clean control; no "
         "expected value is read from the text",
+    "tb/verilator/usbaudio/transport_mutations.py":
+        "mutation campaign (#1021); isolated source copies receive one named transport, clock or "
+        "epoch fault, and an unchanged test must fail its named runtime check after a clean control; "
+        "the source text supplies no expected samples, epochs or deadlines",
+    "tb/verilator/usbnet/mutants.py":
+        "mutation campaign (#1011); isolated source copies receive one named receive, transmit or "
+        "bus fault, and the same test must fail its named assertion after a clean control; source "
+        "text supplies no expected packet bytes or protocol decisions",
 }

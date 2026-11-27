@@ -23,6 +23,9 @@ module KL_usbaudio_packet #(
   output logic [31:0] gaps_o, //! empty or missed scheduled intervals
   output logic [31:0] abandoned_o //! whole frames discarded by epoch fencing
 );
+  if (BUS_HZ_P < 8000) begin : parameter_guard
+    $error("AUDIO_PARAMETER_PACKET: clock must provide at least one cycle per USB microframe");
+  end : parameter_guard
   typedef enum logic [1:0] { WAIT_S, FILL_S, SEND_S } state_t;
   state_t state_r;
   logic [1791:0] packet_r;

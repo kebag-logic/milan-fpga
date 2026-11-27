@@ -31,6 +31,9 @@ module KL_usbaudio_gpif #(
   input wire [15:0] status_data_i, //! status word
   input wire status_last_i //! tenth status word
 );
+  if (BUS_HZ_P < 2000) begin : parameter_guard
+    $error("AUDIO_PARAMETER_GPIF: clock must provide at least one cycle per status service deadline");
+  end : parameter_guard
   typedef enum logic [3:0] {
     TURN_S, SELECT_S, SETTLE_S, CHECK_S, WRITE_S, QUIET_S,
     READ_S, READ_WAIT_S, CAPTURE_S, PUSH_S

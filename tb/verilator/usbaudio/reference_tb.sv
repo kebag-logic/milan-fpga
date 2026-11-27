@@ -27,14 +27,14 @@ module reference_tb;
     .media_ticks_i(media_ticks), .record_valid_o(record_valid), .record_ready_i(1'b1),
     .playback_epoch_o(), .capture_epoch_o(), .flags_o(), .frames_o(), .pcm_o(),
     .reference_p_o(reference_p), .loss_p_o(loss_p), .count_o(count),
-    .sequence_o(sequence_value), .delta_o(delta), .discontinuity_o(discontinuity),
+    .sequence_o(sequence_value), .delta_usb_cycles_o(delta), .discontinuity_o(discontinuity),
     .stamp_ticks_o(stamp), .rejected_o(), .digest_errors_o()
   );
   KL_usbaudio_reference #(.BUS_HZ_P(100000)) estimator (
     .clk_i(clk), .rst_n(rst_n), .media_locked_i(media_locked), .latency_qualified_i(physical),
     .reference_i(reference_p), .malformed_i(loss_p), .count_i(count),
-    .sequence_i(sequence_value), .delta_i(delta), .discontinuity_i(discontinuity),
-    .stamp_ticks_i(stamp), .locked_o(locked), .feedback_q16_o(feedback), .losses_o(losses),
+    .sequence_i(sequence_value), .delta_usb_cycles_i(delta), .discontinuity_i(discontinuity),
+    .stamp_ticks_i(stamp), .locked_o(locked), .feedback_samples_q16_o(feedback), .losses_o(losses),
     .accepted_o(accepted)
   );
   always @(posedge clk) begin

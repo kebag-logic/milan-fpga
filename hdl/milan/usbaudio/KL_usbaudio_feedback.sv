@@ -13,18 +13,17 @@ module KL_usbaudio_feedback #(
   input wire locked_i, //! master media clock locked
   input wire interval_i, //! independently qualified USB microframe boundary
   input wire [31:0] media_events_i, //! atomic cumulative count at this boundary
-  output wire [31:0] feedback_q16_o, //! samples per 125 us; zero while unlocked
+  output wire [31:0] feedback_samples_q16_o, //! samples per 125 us; zero while unlocked
   output logic measured_o //! one full measurement window completed
 );
+  if (WINDOW_LOG2_P < 3 || WINDOW_LOG2_P > 16 || INTERVAL_LOG2_P >= WINDOW_LOG2_P) begin : parameter_guard
+    $error("AUDIO_PARAMETER_FEEDBACK: window must fit Q16.16 event scaling and exceed the reference stride");
+  end : parameter_guard
   logic started_r;
   logic [WINDOW_LOG2_P-INTERVAL_LOG2_P-1:0] intervals_r;
   logic [31:0] baseline_r, feedback_r;
   wire [31:0] events_w = media_events_i - baseline_r;
-  assign feedback_q16_o = locked_i && measured_o ? feedback_r : 32'd0;
-  initial begin : parameter_guard
-    if (WINDOW_LOG2_P < 3 || WINDOW_LOG2_P > 16 || INTERVAL_LOG2_P >= WINDOW_LOG2_P)
-      $error("feedback window must fit Q16.16 event scaling");
-  end : parameter_guard
+  assign feedback_samples_q16_o = locked_i && measured_o ? feedback_r : 32'd0;
   always_ff @(posedge clk_i) begin : feedback_engine
     if (!rst_n || !locked_i) begin
       started_r <= 0;

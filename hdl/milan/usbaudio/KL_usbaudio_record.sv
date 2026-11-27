@@ -23,6 +23,9 @@ module KL_usbaudio_record #(
   output logic [31:0] digest_errors_o, //! rejected digests, saturating
   output wire done_o //! last word consumed, including refused records
 );
+  if (DIGEST_P != 16'h84ff) begin : parameter_guard
+    $error("AUDIO_PARAMETER_RECORD: only the fixed eight-channel profile is supported");
+  end : parameter_guard
   typedef enum logic [1:0] { HEADER_S, PAYLOAD_S, COMPLETE_S } state_t;
   state_t state_r;
   logic [2:0] header_word_r;

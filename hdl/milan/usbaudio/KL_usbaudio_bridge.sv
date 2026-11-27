@@ -52,6 +52,10 @@ module KL_usbaudio_bridge #(
   output wire [13:0] playback_extremes_o, //! media-domain maximum/minimum FIFO level
   output wire [13:0] capture_extremes_o //! bus-domain maximum/minimum FIFO level
 );
+  if (BUS_HZ_P < 8000 || BUS_HZ_P % 1000 != 0 || WINDOW_LOG2_P < 4
+      || WINDOW_LOG2_P > 16 || DIGEST_P != 16'h84ff) begin : parameter_guard
+    $error("AUDIO_PARAMETER_BRIDGE: clock must be whole kHz, window 4..16, and profile 84ff");
+  end : parameter_guard
   wire bus_rst_n_w, media_rst_n_w, oscillator_rst_n_w;
   KL_usbaudio_reset bus_reset (.clk_i(bus_clk_i), .reset_i(reset_i), .rst_n(bus_rst_n_w));
   KL_usbaudio_reset media_reset (.clk_i(media_clk_i), .reset_i(reset_i), .rst_n(media_rst_n_w));
@@ -101,7 +105,7 @@ module KL_usbaudio_bridge #(
     .record_ready_i(record_ready_w), .playback_epoch_o(playback_epoch_w),
     .capture_epoch_o(capture_epoch_w), .flags_o(flags_w), .frames_o(frames_w),
     .pcm_o(pcm_w), .reference_p_o(reference_w), .loss_p_o(malformed_w),
-    .count_o(count_w), .sequence_o(sequence_w), .delta_o(delta_w),
+    .count_o(count_w), .sequence_o(sequence_w), .delta_usb_cycles_o(delta_w),
     .discontinuity_o(discontinuity_w), .stamp_ticks_o(stamp_w),
     .rejected_o(rejected_w), .digest_errors_o(digest_errors_w)
   );
@@ -109,8 +113,8 @@ module KL_usbaudio_bridge #(
     .clk_i(bus_clk_i), .rst_n(bus_rst_n_w), .media_locked_i(lock_r[1]),
     .latency_qualified_i(latency_qualified_i), .reference_i(reference_w),
     .malformed_i(malformed_w), .count_i(count_w), .sequence_i(sequence_w),
-    .delta_i(delta_w), .discontinuity_i(discontinuity_w), .stamp_ticks_i(stamp_w),
-    .locked_o(locked_o), .feedback_q16_o(feedback_q16_o), .losses_o(reference_losses_o),
+    .delta_usb_cycles_i(delta_w), .discontinuity_i(discontinuity_w), .stamp_ticks_i(stamp_w),
+    .locked_o(locked_o), .feedback_samples_q16_o(feedback_q16_o), .losses_o(reference_losses_o),
     .accepted_o(accepted_reference_w)
   );
   logic applying_r;
@@ -165,7 +169,7 @@ module KL_usbaudio_bridge #(
     .data_i({capture_epoch_w, playback_epoch_w, flags_w}),
     .valid_i(state_valid_w), .ready_o(state_ready_w), .m_clk_i(media_clk_i),
     .m_rst_n(media_rst_n_w), .data_o(media_state_w), .valid_o(media_state_valid_w),
-    .ready_i(media_state_ready_w), .level_o()
+    .ready_i(media_state_ready_w), .level_o() // handshake alone controls state flow
   );
   wire [287:0] playback_w, capture_w, bus_capture_w;
   wire playback_valid_w, playback_ready_w, capture_valid_w, capture_ready_w;
@@ -217,7 +221,7 @@ module KL_usbaudio_bridge #(
     .s_clk_i(media_clk_i), .s_rst_n(media_rst_n_w), .data_i(ack_epoch_w),
     .valid_i(ack_valid_w), .ready_o(ack_ready_w), .m_clk_i(bus_clk_i),
     .m_rst_n(bus_rst_n_w), .data_o(bus_ack_epoch_w), .valid_o(bus_ack_valid_w),
-    .ready_i(1'b1), .level_o()
+    .ready_i(1'b1), .level_o() // every returned acknowledgement is consumed immediately
   );
   logic [31:0] applied_epoch_r, published_epoch_r, status_epoch_r;
   logic [31:0] status_age_r;
@@ -241,8 +245,9 @@ module KL_usbaudio_bridge #(
   end : status_schedule
   KL_usbaudio_status #(.DIGEST_P(DIGEST_P)) status_record (
     .clk_i(bus_clk_i), .rst_n(bus_rst_n_w), .snapshot_valid_i(snapshot_w),
-    .snapshot_ready_o(snapshot_ready_w), .feedback_q16_i(feedback_q16_o),
-    .rate_hz_i(32'd48000), .flags_i({error_o, running_sync_r, locked_o}),
+    .snapshot_ready_o(snapshot_ready_w), .feedback_samples_q16_i(feedback_q16_o),
+    .rate_hz_i(32'd48000), // the fixed profile runs at 48000 Hz
+    .flags_i({error_o, running_sync_r, locked_o}),
     .capture_epoch_i(applied_epoch_r), .valid_o(status_valid_o), .ready_i(status_ready_i),
     .data_o(status_data_o), .last_o(status_last_o)
   );

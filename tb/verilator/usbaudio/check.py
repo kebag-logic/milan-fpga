@@ -9,7 +9,7 @@ import os
 from pathlib import Path
 import subprocess
 import sys
-import time
+import uuid
 
 
 def main() -> None:
@@ -26,6 +26,8 @@ def main() -> None:
     subprocess.run([sys.executable, "-B", str(here/"selection_test.py")], check=True)
     subprocess.run([sys.executable, "-B", str(here/"packing_test.py"),
                     "--out", str(args.out/"packing")], check=True)
+    subprocess.run([sys.executable, "-B", str(here/"parameters_test.py"),
+                    "--engine", args.engine, "--out", str(args.out/"parameters")], check=True)
     cases = [(name, name, []) for name in ("protocol", "reference", "media", "packet", "gpif", "levels", "epochs")]
     cases += [("storage24", "storage", ["STORAGE_BITS=24"]),
               ("storage32", "storage", ["STORAGE_BITS=32"]),
@@ -43,7 +45,7 @@ def main() -> None:
                         "RTL_SIMULATOR="+args.engine, "JOBS="+str(args.jobs), *options], check=True)
         subprocess.run([str(build/top), *(["1000"] if test == "duplex" else [])], check=True)
     subprocess.run([sys.executable, "-B", str(here/"transport_mutations.py"),
-                    "--engine", args.engine, "--out", str(args.out/("defects-"+str(time.time_ns()))),
+                    "--engine", args.engine, "--out", str(args.out/("defects-"+uuid.uuid4().hex)),
                     "--jobs", str(args.jobs), "--cleanup-ledger", str(ledger),
                     "--temporary-suffix", suffix, "--discard-builds",
                     "--only", "reference_count_alignment", "--only", "media_epoch_trailing",

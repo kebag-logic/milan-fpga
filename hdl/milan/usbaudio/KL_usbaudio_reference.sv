@@ -16,14 +16,18 @@ module KL_usbaudio_reference #(
   input wire malformed_i, //! rejected reference resets qualification
   input wire [13:0] count_i, //! USB microframe count, modulo 16384
   input wire [31:0] sequence_i, //! observation sequence, modulo 2^32
-  input wire [12:0] delta_i, //! ITP delta, units of 16 2/3 ns
+  input wire [12:0] delta_usb_cycles_i, //! ITP delta in 60 MHz cycles (16 2/3 ns each)
   input wire discontinuity_i, //! sticky loss carried by firmware
   input wire [47:0] stamp_ticks_i, //! first word's cumulative media ticks
   output wire locked_o, //! full estimator window and physical qualification
-  output wire [31:0] feedback_q16_o, //! measured samples per microframe
+  output wire [31:0] feedback_samples_q16_o, //! measured samples per microframe
   output logic [31:0] losses_o, //! reference losses, saturating
   output wire accepted_o //! continuity-qualified scheduling observation
 );
+  if (BUS_HZ_P < 1000 || BUS_HZ_P % 1000 != 0
+      || WINDOW_LOG2_P < 4 || WINDOW_LOG2_P > 16) begin : parameter_guard
+    $error("AUDIO_PARAMETER_REFERENCE: clock must be whole kHz and window 4..16");
+  end : parameter_guard
   // Three milliseconds on our own clock, including delivery margin.
   localparam int unsigned WATCHDOG_C = (BUS_HZ_P/1000)*3;
   localparam int unsigned AGE_BITS_C = $clog2(WATCHDOG_C+1);
@@ -44,19 +48,19 @@ module KL_usbaudio_reference #(
       && delivery_ticks_w >= 18432 && delivery_ticks_w <= 30720;
   wire expired_w = age_r == AGE_BITS_C'(WATCHDOG_C-1);
   wire bad_w = malformed_i || expired_w || !media_locked_i
-      || (reference_i && (discontinuity_i || delta_i >= 7500
+      || (reference_i && (discontinuity_i || delta_usb_cycles_i >= 7500
                          || (baseline_r && !continuity_w)));
-  wire [31:0] delta_ticks_w = (32'(delta_i)*256)/625;
+  wire [31:0] delta_ticks_w = (32'(delta_usb_cycles_i)*256)/625;
   wire [47:0] corrected_ticks_w = stamp_ticks_i-48'(delta_ticks_w);
   assign locked_o = healthy_r && measured_w && media_locked_i && latency_qualified_i;
   assign accepted_o = reference_i && !bad_w;
-  assign feedback_q16_o = locked_o ? feedback_w : 32'd0;
+  assign feedback_samples_q16_o = locked_o ? feedback_w : 32'd0;
   // bad_w qualifies the next edge; healthy_r changes on that edge.
   // Keep the published measurement valid until expiry, not one cycle early.
   KL_usbaudio_feedback #(.WINDOW_LOG2_P(WINDOW_LOG2_P), .INTERVAL_LOG2_P(3)) estimator (
     .clk_i(clk_i), .rst_n(rst_n), .locked_i(healthy_r),
     .interval_i(qualified_p_r && !bad_w), .media_events_i(events_r),
-    .feedback_q16_o(feedback_w), .measured_o(measured_w)
+    .feedback_samples_q16_o(feedback_w), .measured_o(measured_w)
   );
   always_ff @(posedge clk_i) begin : reference_qualification
     if (!rst_n) begin
