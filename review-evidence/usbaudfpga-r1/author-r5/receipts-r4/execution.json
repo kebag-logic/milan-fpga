@@ -1,0 +1,69 @@
+{
+  "head": "573fe2bf1c7463f3320682e6ceffa692c56f2ee1",
+  "scope": "Desk only; no hardware, remote publication or merge action.",
+  "inherited_cpu_weight": 200,
+  "physical_job_niceness": 19,
+  "physical_job_threads": 2,
+  "physical_admission": "Required shared admission wrapper; no direct bypass.",
+  "cache": "Shared compilation cache only; no private cache.",
+  "temporary_directory": "Lane scratch exported for all validation commands.",
+  "scratch_limit_bytes": 26843545600,
+  "required_free_bytes": 19327352832,
+  "observed_free_bytes": 44601565184,
+  "cleanup": "Removals recorded as literal absolute paths in the required private ledger before execution. Interposed removal calls serialize and flush their entries before the underlying operation. Explicit intermediate-file retirement lists were also flushed first.",
+  "preserved": "Accepted programming payloads, current and accepted historical physical checkpoints, reports, logs, and defect evidence.",
+  "retired": "Completed compilation intermediates, completed diagnostic scratch directories, superseded exploratory physical checkpoints with retained hashes.",
+  "retirement_manifests": [
+    {
+      "artifact": "retired-trial-checkpoints.json",
+      "sha256": "0e73c0cacb2f79d928e7abea352a877477b9c71f948af51aabde4e7016abd147"
+    },
+    {
+      "artifact": "retired-historical-checkpoints.json",
+      "sha256": "24b7c18a491cf1132d8454fe8db05dc329ffcb0c622179ccfe53188f1f33b31f"
+    }
+  ],
+  "preliminary_attempts": [
+    {
+      "attempt": "first fresh route",
+      "result": "FAIL",
+      "minimum_setup_ns": -0.071
+    },
+    {
+      "attempt": "fresh route with timing placement",
+      "result": "FAIL",
+      "minimum_setup_ns": -0.071
+    },
+    {
+      "attempt": "fresh route with additional placement optimization",
+      "result": "FAIL before final physical cleanup",
+      "minimum_setup_ns": -0.072
+    },
+    {
+      "attempt": "reference-checkpoint reuse",
+      "result": "REFUSED by available license; no workaround or result claimed"
+    },
+    {
+      "attempt": "alternative spread placement",
+      "result": "STOPPED after accepted route passed; no result claimed"
+    },
+    {
+      "attempt": "default and protocol campaigns during scratch pressure",
+      "result": "preflight refusals; complete reruns replace partial evidence"
+    },
+    {
+      "attempt": "first full builder leg",
+      "result": "functional tests passed but identity check refused because a source correction was committed during the leg; clean-head rerun and union passed"
+    },
+    {
+      "attempt": "offline boundary, first two starts",
+      "result": "required command discovery failed; final isolated boundary completed both self-tests with exit zero"
+    }
+  ],
+  "accepted_physical_artifact": "arty-route.json",
+  "historical_cleanup_exception": "Disposed by manager comment 7211331886; not reclassified or hidden.",
+  "unresolved": "Two protected network-file gate failures; the prepared exception patch is unapplied.",
+  "observed_scratch_bytes": 2245618069,
+  "final_worktree": "Clean",
+  "all_validation_processes": "Completed; no physical job remains in flight."
+}

@@ -1,0 +1,128 @@
+{
+  "head": "0f7402ee97d347352b8c3d613033c440ee55986a",
+  "scope": "Complete fresh routed audio image minus the matched disabled image, using fixed initialized memories. The disabled image received a final physical cleanup with unchanged timing constraints.",
+  "baseline": {
+    "LUTs": 35372,
+    "registers": 42795,
+    "slices": 14109,
+    "block_RAM_tiles": 77,
+    "DSPs": 13,
+    "bonded_IOBs": 50,
+    "global_clock_buffers": 9,
+    "clock_managers": 1,
+    "PLLs": 2
+  },
+  "audio": {
+    "LUTs": 37569,
+    "registers": 48706,
+    "slices": 14864,
+    "block_RAM_tiles": 85,
+    "DSPs": 13,
+    "bonded_IOBs": 61,
+    "global_clock_buffers": 12,
+    "clock_managers": 2,
+    "PLLs": 2
+  },
+  "difference": {
+    "LUTs": 2197,
+    "registers": 5911,
+    "slices": 755,
+    "block_RAM_tiles": 8,
+    "DSPs": 0,
+    "bonded_IOBs": 11,
+    "global_clock_buffers": 3,
+    "clock_managers": 1,
+    "PLLs": 0
+  },
+  "minimum_slack": {
+    "setup_ns": 0.006,
+    "hold_ns": 0.052,
+    "pulse_width_ns": 1.389
+  },
+  "baseline_minimum_slack": {
+    "setup_ns": 0.002,
+    "hold_ns": 0.051,
+    "pulse_width_ns": 1.389
+  },
+  "baseline_timing_result": "PASS",
+  "baseline_corners": [
+    {
+      "setup_ns": 1.616,
+      "total_negative_setup_ns": 0.0,
+      "setup_failing_endpoints": 0.0,
+      "setup_endpoints": 128899.0,
+      "hold_ns": 0.051,
+      "total_negative_hold_ns": 0.0,
+      "hold_failing_endpoints": 0.0,
+      "hold_endpoints": 128899.0,
+      "pulse_width_ns": 1.591,
+      "total_negative_pulse_ns": 0.0,
+      "pulse_failing_endpoints": 0.0,
+      "pulse_endpoints": 45332.0,
+      "corner": "Fast_0C",
+      "raw_report_sha256": "e185ebeab26bdb9188dc015fda7d3e9db5c14d5d0d27109bfcfa6900186bb90c"
+    },
+    {
+      "setup_ns": 1.616,
+      "total_negative_setup_ns": 0.0,
+      "setup_failing_endpoints": 0.0,
+      "setup_endpoints": 128899.0,
+      "hold_ns": 0.051,
+      "total_negative_hold_ns": 0.0,
+      "hold_failing_endpoints": 0.0,
+      "hold_endpoints": 128899.0,
+      "pulse_width_ns": 1.591,
+      "total_negative_pulse_ns": 0.0,
+      "pulse_failing_endpoints": 0.0,
+      "pulse_endpoints": 45332.0,
+      "corner": "Fast_85C",
+      "raw_report_sha256": "2095413d3c3f2af1b1852197e6274251205b69e3426ee3a6cd9378013ebbf04a"
+    },
+    {
+      "setup_ns": 0.002,
+      "total_negative_setup_ns": 0.0,
+      "setup_failing_endpoints": 0.0,
+      "setup_endpoints": 128899.0,
+      "hold_ns": 0.179,
+      "total_negative_hold_ns": 0.0,
+      "hold_failing_endpoints": 0.0,
+      "hold_endpoints": 128899.0,
+      "pulse_width_ns": 1.389,
+      "total_negative_pulse_ns": 0.0,
+      "pulse_failing_endpoints": 0.0,
+      "pulse_endpoints": 45332.0,
+      "corner": "Slow_0C",
+      "raw_report_sha256": "c75e6b6256b1e000b9d39542f51669c86705b1959a3b717d75c1e639534955dc"
+    },
+    {
+      "setup_ns": 0.002,
+      "total_negative_setup_ns": 0.0,
+      "setup_failing_endpoints": 0.0,
+      "setup_endpoints": 128899.0,
+      "hold_ns": 0.179,
+      "total_negative_hold_ns": 0.0,
+      "hold_failing_endpoints": 0.0,
+      "hold_endpoints": 128899.0,
+      "pulse_width_ns": 1.389,
+      "total_negative_pulse_ns": 0.0,
+      "pulse_failing_endpoints": 0.0,
+      "pulse_endpoints": 45332.0,
+      "corner": "Slow_85C",
+      "raw_report_sha256": "dad621a43ba0fd66d60310f4871d3c77fe2995100001fcc6767cc3d364882aa4"
+    }
+  ],
+  "baseline_initial_setup_ns": -0.008,
+  "baseline_retained_directory": "r5/arty-baseline-polished",
+  "baseline_checkpoint_sha256": "2303e14630927a4e37a68482606e7a814e2986fb3591a1d80901f314e49e0595",
+  "baseline_container_sha256": "7a3910c4c330b20a158ba2dbf8b7244c04313c6ca212bc3180059584888e1c38",
+  "baseline_additional_passes": [
+    "route cleanup",
+    "Explore",
+    "AggressiveExplore"
+  ],
+  "baseline_constraints_changed": false,
+  "slices_available": 15850,
+  "slice_occupancy_percent": 93.78,
+  "baseline_report_sha256": "7caac3c4aaa63d98546e9b098029dbb195d96bce0ce12d926d6392e3cb5bc03f",
+  "audio_report_sha256": "220093f5d6405650cb9acf19c156bed512d896638c17fa7ac7ef51c2598b1244"
+}

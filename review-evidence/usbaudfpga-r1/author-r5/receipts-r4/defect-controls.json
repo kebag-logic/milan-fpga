@@ -1,0 +1,700 @@
+{
+  "head": "573fe2bf1c7463f3320682e6ceffa692c56f2ee1",
+  "protocol_caught": 24,
+  "transport_caught": 53,
+  "controls": [
+    {
+      "plant": "magic",
+      "check": "BAD_RECORD_DRAIN",
+      "result": "CAUGHT",
+      "group": "protocol",
+      "runtime_failure": "[99429581000] %Fatal: protocol_tb.sv:50: Assertion failed in protocol_tb.check: CHECK BAD_RECORD_DRAIN",
+      "runtime_log_sha256": "c4d8f862745a8edb0c0a345072a0e310aea71887602a473470cef6147ab39750",
+      "build_log_sha256": "52751f85d909f8a0421c9082f1134ab80f8d2540d840a61e7a1554ce6e956f25"
+    },
+    {
+      "plant": "digest",
+      "check": "BAD_RECORD_DRAIN",
+      "result": "CAUGHT",
+      "group": "protocol",
+      "runtime_failure": "[99430181000] %Fatal: protocol_tb.sv:50: Assertion failed in protocol_tb.check: CHECK BAD_RECORD_DRAIN",
+      "runtime_log_sha256": "26542131348595b942cb24a38dd4d1331b0628d229b8ae485cd915fccf177914",
+      "build_log_sha256": "94594b40ef6cc21879d223bedf7d008521dcdc1ce8c8f720f41a35a5c48770e9"
+    },
+    {
+      "plant": "length_limit",
+      "check": "BAD_RECORD_DRAIN",
+      "result": "CAUGHT",
+      "group": "protocol",
+      "runtime_failure": "[99432561000] %Fatal: protocol_tb.sv:50: Assertion failed in protocol_tb.check: CHECK BAD_RECORD_DRAIN",
+      "runtime_log_sha256": "41d306739e81e042812f8197db2aaa3cb5776d3af130b01d33ef3d9736d932db",
+      "build_log_sha256": "87ac2193b0dde77fea7768b38a896f09b3c30030d27ade50bf230f11a1f4f854"
+    },
+    {
+      "plant": "whole_frames",
+      "check": "BAD_RECORD_DRAIN",
+      "result": "CAUGHT",
+      "group": "protocol",
+      "runtime_failure": "[99780741000] %Fatal: protocol_tb.sv:50: Assertion failed in protocol_tb.check: CHECK BAD_RECORD_DRAIN",
+      "runtime_log_sha256": "f41714ec3e27e30db949a969eef3e47cdb9888f7ceef95c844967332808f3d6d",
+      "build_log_sha256": "64c6e15aa0763dd894d2864b60f46a8c5f677781a9635d11f52c097c170a1f04"
+    },
+    {
+      "plant": "reserved_flags",
+      "check": "BAD_RECORD_DRAIN",
+      "result": "CAUGHT",
+      "group": "protocol",
+      "runtime_failure": "[99433161000] %Fatal: protocol_tb.sv:50: Assertion failed in protocol_tb.check: CHECK BAD_RECORD_DRAIN",
+      "runtime_log_sha256": "3d354fb290a6a5c8ce09aa3f59ce9b103e907d6591f517c3a16e9d20f7da4f40",
+      "build_log_sha256": "3b42079411e4aa68033de27acfe61143acc241906720bf492ce45cd68f40d425"
+    },
+    {
+      "plant": "payload_active",
+      "check": "BAD_RECORD_DRAIN",
+      "result": "CAUGHT",
+      "group": "protocol",
+      "runtime_failure": "[99433761000] %Fatal: protocol_tb.sv:50: Assertion failed in protocol_tb.check: CHECK BAD_RECORD_DRAIN",
+      "runtime_log_sha256": "a8af5f3acf2e658836d403c666bc8653b39e9187a445b3b11636e1feeaa6cef5",
+      "build_log_sha256": "d2dfa44cfff4a682ecd2ea15d479fb7e8b52dc95564b05131f99cff2b76219aa"
+    },
+    {
+      "plant": "inactive_state",
+      "check": "COMPLETE_RECORD",
+      "result": "CAUGHT",
+      "group": "protocol",
+      "runtime_failure": "[99428211000] %Fatal: protocol_tb.sv:50: Assertion failed in protocol_tb.check: CHECK COMPLETE_RECORD",
+      "runtime_log_sha256": "8007d14ca44d1600b9f0271c4c8217b2040effa631a064d8465bc8d8d85f585a",
+      "build_log_sha256": "d5fc4edd8f81b3be08ef3cc07b80d7d03f9fbf18a9504ead9e977c8f8a791e11"
+    },
+    {
+      "plant": "channel_bits",
+      "check": "PCM_ALL_BITS_ORDER",
+      "result": "CAUGHT",
+      "group": "protocol",
+      "runtime_failure": "[311000] %Fatal: protocol_tb.sv:50: Assertion failed in protocol_tb.check: CHECK PCM_ALL_BITS_ORDER",
+      "runtime_log_sha256": "8fdce5cbc67cbdc56c291fc5cb0822937304303b4d68c194a80d4c61f173a8d8",
+      "build_log_sha256": "80865305a075b520cb6a9de629ab22ecb7304621317b634f043829f5784cb4f5"
+    },
+    {
+      "plant": "capture_epoch",
+      "check": "INDEPENDENT_EPOCHS",
+      "result": "CAUGHT",
+      "group": "protocol",
+      "runtime_failure": "[311000] %Fatal: protocol_tb.sv:50: Assertion failed in protocol_tb.check: CHECK INDEPENDENT_EPOCHS",
+      "runtime_log_sha256": "bb3bbd482554b1d63950fa194e12f54f21f371940eeede0ae7e4885312d1de0d",
+      "build_log_sha256": "e747b3fb08b88381b3d725353dbbef161d04edf1650af7bbe8d31a7614bdb428"
+    },
+    {
+      "plant": "playback_epoch",
+      "check": "INDEPENDENT_EPOCHS",
+      "result": "CAUGHT",
+      "group": "protocol",
+      "runtime_failure": "[311000] %Fatal: protocol_tb.sv:50: Assertion failed in protocol_tb.check: CHECK INDEPENDENT_EPOCHS",
+      "runtime_log_sha256": "bb3bbd482554b1d63950fa194e12f54f21f371940eeede0ae7e4885312d1de0d",
+      "build_log_sha256": "3cf281caf8b79bdd95851993f31a74ef38a13638fb4f1414f908e6eb214458e5"
+    },
+    {
+      "plant": "frame_count",
+      "check": "FRAME_COUNT",
+      "result": "CAUGHT",
+      "group": "protocol",
+      "runtime_failure": "[311000] %Fatal: protocol_tb.sv:50: Assertion failed in protocol_tb.check: CHECK FRAME_COUNT",
+      "runtime_log_sha256": "c2e4763696edf5d976be62ce5d361ecd42cfef0358e839e710c62f82ab8beecd",
+      "build_log_sha256": "31233dce76ef23f17957ba6ea1779802b241f1450afaacfc8cf3c27b0e97ef8b"
+    },
+    {
+      "plant": "early_record",
+      "check": "PARTIAL_NOT_VISIBLE",
+      "result": "CAUGHT",
+      "group": "protocol",
+      "runtime_failure": "[151000] %Fatal: protocol_tb.sv:50: Assertion failed in protocol_tb.check: CHECK PARTIAL_NOT_VISIBLE",
+      "runtime_log_sha256": "1f8504fc379da3ac494e46e9cb4021a1f3254edf88d487b9214269cbc37a76af",
+      "build_log_sha256": "fbacba6f0d940c14d7431254124bd03b45ef1da508eec48b11b600908ca1c50a"
+    },
+    {
+      "plant": "record_stall",
+      "check": "RECORD_BACKPRESSURE",
+      "result": "CAUGHT",
+      "group": "protocol",
+      "runtime_failure": "[321000] %Fatal: protocol_tb.sv:50: Assertion failed in protocol_tb.check: CHECK RECORD_BACKPRESSURE",
+      "runtime_log_sha256": "aa07b0f0b628d20e71721885b5ae09bcbf497492066f9913b00c01fa79d242e6",
+      "build_log_sha256": "2254a9f426ead3bd4b1e95e2cf0540420ce7b08792e26c65907405d9e879aacc"
+    },
+    {
+      "plant": "status_magic",
+      "check": "STATUS_BYTES",
+      "result": "CAUGHT",
+      "group": "protocol",
+      "runtime_failure": "[51000] %Fatal: protocol_tb.sv:50: Assertion failed in protocol_tb.check: CHECK STATUS_BYTES",
+      "runtime_log_sha256": "2647d4e8d478d3edfe895093a87c14a4bd87fee6574026bac036b8e2a0d1ca01",
+      "build_log_sha256": "43c5ce2b39a93c615590b5b8723e004753c6054d4221d5502fcbf2f3a70cce76"
+    },
+    {
+      "plant": "status_digest",
+      "check": "STATUS_BYTES",
+      "result": "CAUGHT",
+      "group": "protocol",
+      "runtime_failure": "[191000] %Fatal: protocol_tb.sv:50: Assertion failed in protocol_tb.check: CHECK STATUS_BYTES",
+      "runtime_log_sha256": "581b0949140afbecf487010ca0dda7b4fbbf236b5ccaa3d2fa13dbdfa2eebfb1",
+      "build_log_sha256": "9240435b9b5eebc1b46b60cfe275db97d04b595d4ef2e4a2cb2670d33384c58c"
+    },
+    {
+      "plant": "status_epoch",
+      "check": "STATUS_BYTES",
+      "result": "CAUGHT",
+      "group": "protocol",
+      "runtime_failure": "[231000] %Fatal: protocol_tb.sv:50: Assertion failed in protocol_tb.check: CHECK STATUS_BYTES",
+      "runtime_log_sha256": "736abd973afa550453d86f35e7dd9f169c7bda86480b2500ade0d4e57d9ac170",
+      "build_log_sha256": "5a2e4bf7434967bb67076f05f8d82bd2a38f27c7b386ccd653c35c03393799fe"
+    },
+    {
+      "plant": "status_sequence",
+      "check": "STATUS_BYTES",
+      "result": "CAUGHT",
+      "group": "protocol",
+      "runtime_failure": "[281000] %Fatal: protocol_tb.sv:50: Assertion failed in protocol_tb.check: CHECK STATUS_BYTES",
+      "runtime_log_sha256": "5c07e0875a25cc3d8cce32a4585f3b1c7173c4d9c881edf6b7408c6974e7bfda",
+      "build_log_sha256": "b6d84fe4c3667c33a778433438a5fbea259c1d0df9d36bccdc16f21f17e3cc09"
+    },
+    {
+      "plant": "status_end",
+      "check": "STATUS_LENGTH",
+      "result": "CAUGHT",
+      "group": "protocol",
+      "runtime_failure": "[211000] %Fatal: protocol_tb.sv:50: Assertion failed in protocol_tb.check: CHECK STATUS_LENGTH",
+      "runtime_log_sha256": "78ab4f287de6b11f35bb1895b9f715f772b87faf0aed5c4aceaa3f96ac5a3f8c",
+      "build_log_sha256": "5db9e801f3b32f117253411d59e435d94994e6919e66c553879d8877f1a7a2e0"
+    },
+    {
+      "plant": "status_stall",
+      "check": "STATUS_BYTES",
+      "result": "CAUGHT",
+      "group": "protocol",
+      "runtime_failure": "[51000] %Fatal: protocol_tb.sv:50: Assertion failed in protocol_tb.check: CHECK STATUS_BYTES",
+      "runtime_log_sha256": "2647d4e8d478d3edfe895093a87c14a4bd87fee6574026bac036b8e2a0d1ca01",
+      "build_log_sha256": "4e3ea147fd5863558c9785c520ed4f1cddd433e2907678e14fea70e24ce0824f"
+    },
+    {
+      "plant": "status_snapshot",
+      "check": "STATUS_BYTES",
+      "result": "CAUGHT",
+      "group": "protocol",
+      "runtime_failure": "[71000] %Fatal: protocol_tb.sv:50: Assertion failed in protocol_tb.check: CHECK STATUS_BYTES",
+      "runtime_log_sha256": "d924b4668270ccebf34df576286e9b855ffe248764261ed7e6e0b86561e9e31d",
+      "build_log_sha256": "3a2ce9de30fc0257190ca051df100f0bee68bfa6e6c27f6a2acc040ce036eeaa"
+    },
+    {
+      "plant": "feedback_scale",
+      "check": "FEEDBACK_VALUE",
+      "result": "CAUGHT",
+      "group": "protocol",
+      "runtime_failure": "[382381000] %Fatal: protocol_tb.sv:50: Assertion failed in protocol_tb.check: CHECK FEEDBACK_VALUE",
+      "runtime_log_sha256": "3604656ab1d263a5083627831b97ffaf505eae53d81b773304f9b283727497a1",
+      "build_log_sha256": "5a1ea15ed764e3836ad3c1fdfa1ebd6956285858dc985d8057607244e215c660"
+    },
+    {
+      "plant": "feedback_window",
+      "check": "FEEDBACK_WINDOW_LENGTH",
+      "result": "CAUGHT",
+      "group": "protocol",
+      "runtime_failure": "[382341000] %Fatal: protocol_tb.sv:50: Assertion failed in protocol_tb.check: CHECK FEEDBACK_WINDOW_LENGTH",
+      "runtime_log_sha256": "af01734c87376390d962a9197585fa37c9063abe454888ab7ab72e2058176ea0",
+      "build_log_sha256": "277e28778e9d1a490413d3d8fae6ccd05de37f60039d11ff69f8245f95ed1188"
+    },
+    {
+      "plant": "feedback_reference",
+      "check": "FEEDBACK_WINDOW_LENGTH",
+      "result": "CAUGHT",
+      "group": "protocol",
+      "runtime_failure": "[81991000] %Fatal: protocol_tb.sv:50: Assertion failed in protocol_tb.check: CHECK FEEDBACK_WINDOW_LENGTH",
+      "runtime_log_sha256": "aeee19bf3514fee88efe3d2615dfaae5a05efa7446e7f5d2c7cdb90a0a52bb22",
+      "build_log_sha256": "cc00d23c1d51adbf49a1fc14329cb25048ad12a778a48da0ceeeaeac69e6c95b"
+    },
+    {
+      "plant": "feedback_unlock",
+      "check": "FEEDBACK_UNLOCKED",
+      "result": "CAUGHT",
+      "group": "protocol",
+      "runtime_failure": "[31000] %Fatal: protocol_tb.sv:50: Assertion failed in protocol_tb.check: CHECK FEEDBACK_UNLOCKED",
+      "runtime_log_sha256": "e2eeed68a5c667bdd08db351b92d59afb0facd24732448ab40ed7f724830dce9",
+      "build_log_sha256": "3bb31c68412233a7058928fae4eb20d34bbc8aa7d92a3e52b5fa18ee182eeeab"
+    },
+    {
+      "plant": "bridge_applied_epoch",
+      "check": "BRIDGE_MEDIA_APPLIED_GATE",
+      "result": "CAUGHT",
+      "group": "transport",
+      "runtime_failure": "[5200430000] %Fatal: epochs_tb.sv:43: Assertion failed in epochs_tb.check: CHECK BRIDGE_MEDIA_APPLIED_GATE",
+      "runtime_log_sha256": "c93826015c3d64bf9f857726bac80a0c4f981d46b64b62f4793ec0f95ae9b325",
+      "build_log_sha256": "8a75a02b88b03d7c82f04dae9453fc2ff4b5bf6741620aa9fb7c07c43e41cbb1"
+    },
+    {
+      "plant": "bridge_capture_abort",
+      "check": "BRIDGE_CAPTURE_ABORT",
+      "result": "CAUGHT",
+      "group": "transport",
+      "runtime_failure": "[5202222000] %Fatal: epochs_tb.sv:43: Assertion failed in epochs_tb.check: CHECK BRIDGE_CAPTURE_ABORT",
+      "runtime_log_sha256": "641383bd5b5c432fb834e503ea6cbc2e3bbefb6044aed0b7de85af573d5d5c8d",
+      "build_log_sha256": "03052655025d9b4c6ce58e1e737bfe4c9456259084317d6302844296511e11f3"
+    },
+    {
+      "plant": "bridge_packet_fence",
+      "check": "BRIDGE_CAPTURE_CHANNEL_ZERO_RESTART",
+      "result": "CAUGHT",
+      "group": "transport",
+      "runtime_failure": "[6709930000] %Fatal: epochs_tb.sv:43: Assertion failed in epochs_tb.check: CHECK BRIDGE_CAPTURE_CHANNEL_ZERO_RESTART",
+      "runtime_log_sha256": "1c5f972f026044b65a64f4434cdaec8b029fa6c75b74a65147419effab671a60",
+      "build_log_sha256": "f10f4bcb005c0b55bf001abf56aa9f745358235ae7a4a2d56731c063c999fcf2"
+    },
+    {
+      "plant": "bridge_status_epoch",
+      "check": "BRIDGE_ACK_AFTER_MEDIA_APPLY",
+      "result": "CAUGHT",
+      "group": "transport",
+      "runtime_failure": "[5202630000] %Fatal: epochs_tb.sv:43: Assertion failed in epochs_tb.check: CHECK BRIDGE_ACK_AFTER_MEDIA_APPLY",
+      "runtime_log_sha256": "9b30fed0357773d673c437f219019ef2ca7e1b0487d1baf0790441eaa3840ece",
+      "build_log_sha256": "49542560b5a9d21777ab7e9a2f80b26055c8ba8bc26832dd33d79d7ba1b719a6"
+    },
+    {
+      "plant": "bridge_published_epoch",
+      "check": "BRIDGE_PUBLISHED_ACK_GATE",
+      "result": "CAUGHT",
+      "group": "transport",
+      "runtime_failure": "[5802430000] %Fatal: epochs_tb.sv:43: Assertion failed in epochs_tb.check: CHECK BRIDGE_PUBLISHED_ACK_GATE",
+      "runtime_log_sha256": "ad9dcf4791a4a3accc3199d76ee4738444b0b18444f9a47200671d92fdbe141d",
+      "build_log_sha256": "57065efb778ad332b3be3e27cdd608ba6e5c08b054f2a15d4780eb2538826383"
+    },
+    {
+      "plant": "media_grid_transition",
+      "check": "MEDIA_EVERY_GRID_SNAPSHOT",
+      "result": "CAUGHT",
+      "group": "transport",
+      "runtime_failure": "[3261000] %Fatal: media_tb.sv:39: Assertion failed in media_tb.check: CHECK MEDIA_EVERY_GRID_SNAPSHOT",
+      "runtime_log_sha256": "cd97c70fcb7f06385597a6c761f7ef0f72368d61b61fd540799dadb2c9016ec2",
+      "build_log_sha256": "e33be7b1ba818a493a462d844ca2f6f95ca50c94504a6af7ab521bea1eddad16"
+    },
+    {
+      "plant": "media_walk_transition",
+      "check": "MEDIA_EVERY_GRID_SNAPSHOT",
+      "result": "CAUGHT",
+      "group": "transport",
+      "runtime_failure": "[3261000] %Fatal: media_tb.sv:39: Assertion failed in media_tb.check: CHECK MEDIA_EVERY_GRID_SNAPSHOT",
+      "runtime_log_sha256": "cd97c70fcb7f06385597a6c761f7ef0f72368d61b61fd540799dadb2c9016ec2",
+      "build_log_sha256": "b8aae6578e5a3b20b85b5d227c26d8f80ddb574a7dbf3a97525b169b5753cc19"
+    },
+    {
+      "plant": "levels_clock_launch",
+      "check": "LEVEL_CLOCK_GLITCH",
+      "result": "CAUGHT",
+      "group": "transport",
+      "runtime_failure": "[340000] %Fatal: levels_tb.sv:26: Assertion failed in levels_tb: CHECK LEVEL_CLOCK_GLITCH",
+      "runtime_log_sha256": "3b33f2b3fa7cc174e8e88f4880b9eb0a8f616a3439be3d0682093a4ae3139afa",
+      "build_log_sha256": "4b0b42dff2bab83da7a909ae9892863a5404e1ba4074718971e0786c97255781"
+    },
+    {
+      "plant": "levels_playback_launch",
+      "check": "LEVEL_PLAYBACK_GLITCH",
+      "result": "CAUGHT",
+      "group": "transport",
+      "runtime_failure": "[340000] %Fatal: levels_tb.sv:27: Assertion failed in levels_tb: CHECK LEVEL_PLAYBACK_GLITCH",
+      "runtime_log_sha256": "35181a2471d5b359664179d7513da35ee1c31b05b1ac0d9eaa354158d7ab84b8",
+      "build_log_sha256": "1fa3aa864553e93de54c642b6e1e220ccee2bcee31f7653fa4d1cf3b79dabfdf"
+    },
+    {
+      "plant": "levels_capture_launch",
+      "check": "LEVEL_CAPTURE_GLITCH",
+      "result": "CAUGHT",
+      "group": "transport",
+      "runtime_failure": "[340000] %Fatal: levels_tb.sv:28: Assertion failed in levels_tb: CHECK LEVEL_CAPTURE_GLITCH",
+      "runtime_log_sha256": "937091cc4eb9c1756e07b0c7f167ca29cf9893a2da0cc46f982db5fdefbb9e8f",
+      "build_log_sha256": "14e09b0d82fcc4772d65682d8c6203dc88b72f62245359478e0e97850c1a5344"
+    },
+    {
+      "plant": "reference_magic",
+      "check": "REFERENCE_FIELDS_REJECTED",
+      "result": "CAUGHT",
+      "group": "transport",
+      "runtime_failure": "[1015785001000] %Fatal: reference_tb.sv:51: Assertion failed in reference_tb.check: CHECK REFERENCE_FIELDS_REJECTED",
+      "runtime_log_sha256": "450508924f36450f347b5018fcc80c6290e465d76f5e0d6c3917dbaebd1951ad",
+      "build_log_sha256": "97aefa1e92490187ca96fa1860a205c4208014b85072c2993b0c7cb43a5c3f3e"
+    },
+    {
+      "plant": "reference_length",
+      "check": "REFERENCE_FIELDS_REJECTED",
+      "result": "CAUGHT",
+      "group": "transport",
+      "runtime_failure": "[2031575001000] %Fatal: reference_tb.sv:51: Assertion failed in reference_tb.check: CHECK REFERENCE_FIELDS_REJECTED",
+      "runtime_log_sha256": "11f3a3e7a724a6c02e3dc85de9fb9ca05c7bd38f99a1754906a7ae9b7b61665b",
+      "build_log_sha256": "1de3e9cc97ac603b3f5bba03d3806b5f3aaa3269e6d4b894aeb6653661bc233e"
+    },
+    {
+      "plant": "reference_version",
+      "check": "REFERENCE_FIELDS_REJECTED",
+      "result": "CAUGHT",
+      "group": "transport",
+      "runtime_failure": "[3047365001000] %Fatal: reference_tb.sv:51: Assertion failed in reference_tb.check: CHECK REFERENCE_FIELDS_REJECTED",
+      "runtime_log_sha256": "27ad48996f2030068e8d531289fa6758f95831b76df35321e2a133b7fee0d5e3",
+      "build_log_sha256": "619e818915611cac8a2e5aa37d640a21a9372018b54cc9a41958921c287e5790"
+    },
+    {
+      "plant": "reference_period",
+      "check": "REFERENCE_FIELDS_REJECTED",
+      "result": "CAUGHT",
+      "group": "transport",
+      "runtime_failure": "[4063155001000] %Fatal: reference_tb.sv:51: Assertion failed in reference_tb.check: CHECK REFERENCE_FIELDS_REJECTED",
+      "runtime_log_sha256": "ed5de89fc664c02633dc8e2ac5faba2cd112d69ad2803b411d2af0aaf925d986",
+      "build_log_sha256": "fef3f4a3ae9fc53f2be28f16e081cfe56a8fd2bc3b61a629e8ffdd7f35c0b000"
+    },
+    {
+      "plant": "reference_count_reserved",
+      "check": "REFERENCE_FIELDS_REJECTED",
+      "result": "CAUGHT",
+      "group": "transport",
+      "runtime_failure": "[5078945001000] %Fatal: reference_tb.sv:51: Assertion failed in reference_tb.check: CHECK REFERENCE_FIELDS_REJECTED",
+      "runtime_log_sha256": "01a6db6291875cf84d42b2fb3aa3b4dda2f3ce27e55af0bf465e281c70f79aec",
+      "build_log_sha256": "01523a3df85a6eb72dc53221fbf5743f938be14df11f511b1f60c62f9dda5f4f"
+    },
+    {
+      "plant": "reference_count_alignment",
+      "check": "REFERENCE_FIELDS_REJECTED",
+      "result": "CAUGHT",
+      "group": "transport",
+      "runtime_failure": "[6094735001000] %Fatal: reference_tb.sv:51: Assertion failed in reference_tb.check: CHECK REFERENCE_FIELDS_REJECTED",
+      "runtime_log_sha256": "7ac6123d8a26114cc2ae63ef41ca76ef7190d309a496073cef69a393d799208b",
+      "build_log_sha256": "5f6f80daaf00c110c0bc4083b1ac846532e9b73b54b065d971919bb32c49321c"
+    },
+    {
+      "plant": "reference_raw_count",
+      "check": "REFERENCE_FIELDS_REJECTED",
+      "result": "CAUGHT",
+      "group": "transport",
+      "runtime_failure": "[7110525001000] %Fatal: reference_tb.sv:51: Assertion failed in reference_tb.check: CHECK REFERENCE_FIELDS_REJECTED",
+      "runtime_log_sha256": "400bf2128bdc686df01c662cbfa7f4242ff534b0cf196385cae89b301c6a8883",
+      "build_log_sha256": "7c8137e87e776787d44643e9b9cee7f0f9198d1ba437f83674345e057d269b49"
+    },
+    {
+      "plant": "reference_raw_reserved",
+      "check": "REFERENCE_FIELDS_REJECTED",
+      "result": "CAUGHT",
+      "group": "transport",
+      "runtime_failure": "[8126315001000] %Fatal: reference_tb.sv:51: Assertion failed in reference_tb.check: CHECK REFERENCE_FIELDS_REJECTED",
+      "runtime_log_sha256": "617573acf7c7f34d7a454b8085495416179df3fa2ac698867bec8a8bba1bf0bc",
+      "build_log_sha256": "d37bd0291337f5097681f6e856a84a20c36098cb7f58175815934c5bf1ef09a0"
+    },
+    {
+      "plant": "reference_flags",
+      "check": "REFERENCE_FIELDS_REJECTED",
+      "result": "CAUGHT",
+      "group": "transport",
+      "runtime_failure": "[9142105001000] %Fatal: reference_tb.sv:51: Assertion failed in reference_tb.check: CHECK REFERENCE_FIELDS_REJECTED",
+      "runtime_log_sha256": "f89aea73ec96d832df109649e7d259c82975ca1af3d29fa3963a0a7dc40f27e4",
+      "build_log_sha256": "3d4f45409b959e56badf6c083dcb452b946e8ef0a8d1dc51fceb11e044080359"
+    },
+    {
+      "plant": "reference_digest",
+      "check": "REFERENCE_FIELDS_REJECTED",
+      "result": "CAUGHT",
+      "group": "transport",
+      "runtime_failure": "[10157895001000] %Fatal: reference_tb.sv:51: Assertion failed in reference_tb.check: CHECK REFERENCE_FIELDS_REJECTED",
+      "runtime_log_sha256": "bc0d978a3df5ee50c449c59bba1897dd67e837572c8b675d1bab82ae07e7b331",
+      "build_log_sha256": "26c185fe3ce631b42c536366e6b5eced5bb744d5111d51b2c0d276b979b6dac1"
+    },
+    {
+      "plant": "reference_first_word",
+      "check": "REFERENCE_FIRST_WORD_TIMESTAMP",
+      "result": "CAUGHT",
+      "group": "transport",
+      "runtime_failure": "[255001000] %Fatal: reference_tb.sv:51: Assertion failed in reference_tb.check: CHECK REFERENCE_FIRST_WORD_TIMESTAMP",
+      "runtime_log_sha256": "ebeb246ce1928495d7b23f421e6794cdba9700780bff13414e98364f608f1078",
+      "build_log_sha256": "62a60f6d8ac3068226ae71fe57f852feb52dbe21ee38172574320b9083b68baf"
+    },
+    {
+      "plant": "reference_sequence_gap",
+      "check": "REFERENCE_SEQUENCE_GAP",
+      "result": "CAUGHT",
+      "group": "transport",
+      "runtime_failure": "[11173685001000] %Fatal: reference_tb.sv:51: Assertion failed in reference_tb.check: CHECK REFERENCE_SEQUENCE_GAP",
+      "runtime_log_sha256": "4cb1a06bee780727a0bc7017c5925f52c6ec12eb6414b9918a87bb162c48fc32",
+      "build_log_sha256": "0e66f78edfc5931bf309bc27ed6460866af91fda08fdf96a4f551d4f377fd54d"
+    },
+    {
+      "plant": "reference_duplicate",
+      "check": "REFERENCE_SEQUENCE_DUPLICATE",
+      "result": "CAUGHT",
+      "group": "transport",
+      "runtime_failure": "[12189475001000] %Fatal: reference_tb.sv:51: Assertion failed in reference_tb.check: CHECK REFERENCE_SEQUENCE_DUPLICATE",
+      "runtime_log_sha256": "a25b2d150efd14c4e419d7a4d6c20c0a47c5c2422f1f561f42ceb3025f28692e",
+      "build_log_sha256": "1d01cbe69912806706cd49d133525941cb7f9e43b78bb9871948b65fda3aa013"
+    },
+    {
+      "plant": "reference_count_step",
+      "check": "REFERENCE_COUNT_GAP",
+      "result": "CAUGHT",
+      "group": "transport",
+      "runtime_failure": "[13205265001000] %Fatal: reference_tb.sv:51: Assertion failed in reference_tb.check: CHECK REFERENCE_COUNT_GAP",
+      "runtime_log_sha256": "d7ded52a487d53468f774e4a8439d269d94eb14d91dba956955902b545c73109",
+      "build_log_sha256": "dff6f2b86a94da9899c81f1b2b39c3cfc4f1f6030b14998d8dbee8c1e6a89478"
+    },
+    {
+      "plant": "reference_loss_flag",
+      "check": "REFERENCE_DISCONTINUITY",
+      "result": "CAUGHT",
+      "group": "transport",
+      "runtime_failure": "[14221055001000] %Fatal: reference_tb.sv:51: Assertion failed in reference_tb.check: CHECK REFERENCE_DISCONTINUITY",
+      "runtime_log_sha256": "010dfc7f261554d5a708b00e8fd6af19d28cc2370d560d1304c6b77053d5bec8",
+      "build_log_sha256": "981a838c72d9d7b1b999028e012a94ac1d07f858495d95dd37f5fe6a8388380c"
+    },
+    {
+      "plant": "reference_watchdog_early",
+      "check": "REFERENCE_WATCHDOG_2P9MS_ACCEPTED",
+      "result": "CAUGHT",
+      "group": "transport",
+      "runtime_failure": "[16253765001000] %Fatal: reference_tb.sv:51: Assertion failed in reference_tb.check: CHECK REFERENCE_WATCHDOG_2P9MS_ACCEPTED",
+      "runtime_log_sha256": "e29a6885cdda144e799b758e7470e817f6f618e2971e0abe094d4602c49d6903",
+      "build_log_sha256": "c61096fa8ff02584eda121c8729a28a974afa7388ee5377c7f98efd16f90cb1d"
+    },
+    {
+      "plant": "reference_watchdog_late",
+      "check": "REFERENCE_WATCHDOG_3MS_REFUSED",
+      "result": "CAUGHT",
+      "group": "transport",
+      "runtime_failure": "[16256765001000] %Fatal: reference_tb.sv:51: Assertion failed in reference_tb.check: CHECK REFERENCE_WATCHDOG_3MS_REFUSED",
+      "runtime_log_sha256": "133e46f9603b10256dd9b430c34369a87650ce8fb495a1fe600436996175a69d",
+      "build_log_sha256": "2bf955dfd17514f9a7e2f687d2a50a7f4833aa21bbd0af02bcea4888be9c8b32"
+    },
+    {
+      "plant": "reference_watchdog",
+      "check": "REFERENCE_WATCHDOG_3MS_REFUSED",
+      "result": "CAUGHT",
+      "group": "transport",
+      "runtime_failure": "[16256765001000] %Fatal: reference_tb.sv:51: Assertion failed in reference_tb.check: CHECK REFERENCE_WATCHDOG_3MS_REFUSED",
+      "runtime_log_sha256": "133e46f9603b10256dd9b430c34369a87650ce8fb495a1fe600436996175a69d",
+      "build_log_sha256": "aa5c48c6ac62788f262e559dbe9e705f23ee2abaf6f79bc0a94542338f71c9aa"
+    },
+    {
+      "plant": "reference_watchdog_early_output",
+      "check": "REFERENCE_WATCHDOG_BEFORE_3MS",
+      "result": "CAUGHT",
+      "group": "transport",
+      "runtime_failure": "[17273715001000] %Fatal: reference_tb.sv:51: Assertion failed in reference_tb.check: CHECK REFERENCE_WATCHDOG_BEFORE_3MS",
+      "runtime_log_sha256": "4e8ff3dbb982d7f9757db2d8b6faede8390a5901d3e77f3b0d3d6b83e240c3a4",
+      "build_log_sha256": "6dc1e67b6ec262aba881f616c8dee4e6e0060bc99328bfa8b4c912bd6f635eba"
+    },
+    {
+      "plant": "reference_watchdog_requires_record",
+      "check": "REFERENCE_WATCHDOG_3MS_NO_REFERENCE",
+      "result": "CAUGHT",
+      "group": "transport",
+      "runtime_failure": "[17273725001000] %Fatal: reference_tb.sv:51: Assertion failed in reference_tb.check: CHECK REFERENCE_WATCHDOG_3MS_NO_REFERENCE",
+      "runtime_log_sha256": "89eb1a4b3d90defe74621b586bc3552ee526764213a4935e18bd71205d52e170",
+      "build_log_sha256": "f59a3d188c6e9412c9187c531983c3792cd3ba2bbe01de7bcf4a7b5bcb25096e"
+    },
+    {
+      "plant": "reference_early",
+      "check": "REFERENCE_BUNCHED",
+      "result": "CAUGHT",
+      "group": "transport",
+      "runtime_failure": "[18289515001000] %Fatal: reference_tb.sv:51: Assertion failed in reference_tb.check: CHECK REFERENCE_BUNCHED",
+      "runtime_log_sha256": "b4437af52e65906879e77bea21c7f8f09c568213a07df2c325fac497f60c7d57",
+      "build_log_sha256": "6eb8cca036ce4fe94f8c8a359a0ae2d7a0f7ea30c4235961c558bafc8c20a645"
+    },
+    {
+      "plant": "reference_late",
+      "check": "REFERENCE_LATE",
+      "result": "CAUGHT",
+      "group": "transport",
+      "runtime_failure": "[19305305001000] %Fatal: reference_tb.sv:51: Assertion failed in reference_tb.check: CHECK REFERENCE_LATE",
+      "runtime_log_sha256": "5098fa576c6e6087af515ff2a073c535c1b1fe26fab85536578e20caab94eada",
+      "build_log_sha256": "747cd45f04989d3127518aeacd5870c7da599da80cb723afea7f84ade8b9ede7"
+    },
+    {
+      "plant": "reference_delta_range",
+      "check": "REFERENCE_DELTA_RANGE",
+      "result": "CAUGHT",
+      "group": "transport",
+      "runtime_failure": "[15236845001000] %Fatal: reference_tb.sv:51: Assertion failed in reference_tb.check: CHECK REFERENCE_DELTA_RANGE",
+      "runtime_log_sha256": "7cd21cd3578faba69608696fa11a4f849400fa487bcb9a8ca21369d7f462906f",
+      "build_log_sha256": "18fe76c5febb92b3cbca75aa1948359308dbb634227da310f7da7335b088fc87"
+    },
+    {
+      "plant": "reference_delta_units",
+      "check": "REFERENCE_DELTA_UNITS",
+      "result": "CAUGHT",
+      "group": "transport",
+      "runtime_failure": "[21334925001000] %Fatal: reference_tb.sv:51: Assertion failed in reference_tb.check: CHECK REFERENCE_DELTA_UNITS",
+      "runtime_log_sha256": "1533b1b6430cdb40ca126f02d82675b8a104a84ae05e482044ce3414b87af8b5",
+      "build_log_sha256": "0a21dcbba53fa3418372426203810d7cfffea95da81b40a69ccd27fe05c6f1ac"
+    },
+    {
+      "plant": "reference_physical_bound",
+      "check": "REFERENCE_PHYSICAL_BOUND",
+      "result": "CAUGHT",
+      "group": "transport",
+      "runtime_failure": "[20320115001000] %Fatal: reference_tb.sv:51: Assertion failed in reference_tb.check: CHECK REFERENCE_PHYSICAL_BOUND",
+      "runtime_log_sha256": "6b9080c26153a7b3eeb3413c4db92e46878b02025e6997e6abecf3eabe50e983",
+      "build_log_sha256": "16ffc840bea70128bb41ef3dae41744896382d54b3d58ce681002a19077a6a77"
+    },
+    {
+      "plant": "reference_window_stride",
+      "check": "SELECTED_REFERENCE_RATE",
+      "result": "CAUGHT",
+      "group": "transport",
+      "runtime_failure": "[1014795001000] %Fatal: reference_tb.sv:51: Assertion failed in reference_tb.check: CHECK SELECTED_REFERENCE_RATE",
+      "runtime_log_sha256": "47911e66747a65006649103eb067d0aadcc6e343f598124e128c16befda43bcb",
+      "build_log_sha256": "9a336bb73d1bc5b29bef43667156a70c0870387f5c5de0524ae695a8fa053883"
+    },
+    {
+      "plant": "media_capture_only_epoch",
+      "check": "MEDIA_PLAYBACK_BITS",
+      "result": "CAUGHT",
+      "group": "transport",
+      "runtime_failure": "[545000] %Fatal: media_tb.sv:39: Assertion failed in media_tb.check: CHECK MEDIA_PLAYBACK_BITS",
+      "runtime_log_sha256": "4a05cafbb9d8f076c99029673924844305b3b74f4407c273f81a21568a5bd98f",
+      "build_log_sha256": "1d53c20913cfc393ea914ccdd35e52d9df5f0e0c6329dfb8bb5a9cd9984621f3"
+    },
+    {
+      "plant": "media_partial_frame",
+      "check": "MEDIA_PARTIAL_HIDDEN",
+      "result": "CAUGHT",
+      "group": "transport",
+      "runtime_failure": "[2452000] %Fatal: media_tb.sv:39: Assertion failed in media_tb.check: CHECK MEDIA_PARTIAL_HIDDEN",
+      "runtime_log_sha256": "44314cf4ce93b89060288fa1a23a251cd9163b1823e22ba67310939e980ac08d",
+      "build_log_sha256": "dea8fe64bab8a56ba2dc4f91a197f7aa4a011ad89e064b2ff025759c11528d76"
+    },
+    {
+      "plant": "media_epoch_trailing",
+      "check": "MEDIA_EPOCH_TRAILING_BEATS_CLEAN",
+      "result": "CAUGHT",
+      "group": "transport",
+      "runtime_failure": "[1291000] %Fatal: media_tb.sv:39: Assertion failed in media_tb.check: CHECK MEDIA_EPOCH_TRAILING_BEATS_CLEAN",
+      "runtime_log_sha256": "6dd3af5d5d90fb51b3d57f320b73e1063fc7d7b2d5587c627424e3c02eec0a86",
+      "build_log_sha256": "b2bdfe72e0e0c4d11a237275c2343fb297f7b0137ba05895c6cb6944d06dc926"
+    },
+    {
+      "plant": "media_capture_low_bits",
+      "check": "MEDIA_CAPTURE_BITS",
+      "result": "CAUGHT",
+      "group": "transport",
+      "runtime_failure": "[1172000] %Fatal: media_tb.sv:39: Assertion failed in media_tb.check: CHECK MEDIA_CAPTURE_BITS",
+      "runtime_log_sha256": "242bed558a8f2248ef5d336c3d95a95627ec9fdc4b84f31a6169c2eea93dfc89",
+      "build_log_sha256": "941edc7fc454f5c931f212076e847effd4c0e31ddf41828a100eb790339a3c25"
+    },
+    {
+      "plant": "media_underflow_count",
+      "check": "MEDIA_UNDERFLOW_FRAME_COUNT",
+      "result": "CAUGHT",
+      "group": "transport",
+      "runtime_failure": "[3001000] %Fatal: media_tb.sv:39: Assertion failed in media_tb.check: CHECK MEDIA_UNDERFLOW_FRAME_COUNT",
+      "runtime_log_sha256": "b1540c721addff8dcb64116a29b7a56f52bccb3a81ec3ffa0619a172f3fa1286",
+      "build_log_sha256": "4eac443653ceefcfb9b05bb4827704cd6a1ab6ad38f391fba9fddad3194740d1"
+    },
+    {
+      "plant": "media_overflow_count",
+      "check": "MEDIA_OVERFLOW_FRAME_COUNT",
+      "result": "CAUGHT",
+      "group": "transport",
+      "runtime_failure": "[2791000] %Fatal: media_tb.sv:39: Assertion failed in media_tb.check: CHECK MEDIA_OVERFLOW_FRAME_COUNT",
+      "runtime_log_sha256": "6085ba48c4f5fae1ac92c21f61e8ab8ff3b99fee18ee13bf3247f627198145c7",
+      "build_log_sha256": "5ae0cb8da3f685c767cdfdc5aa6159accb850a0481c942f5738c57e8eb6487de"
+    },
+    {
+      "plant": "media_prefill",
+      "check": "MEDIA_PLAYBACK_BITS",
+      "result": "CAUGHT",
+      "group": "transport",
+      "runtime_failure": "[225000] %Fatal: media_tb.sv:39: Assertion failed in media_tb.check: CHECK MEDIA_PLAYBACK_BITS",
+      "runtime_log_sha256": "921fd833c4a79af37c691b4fabf0c71e77a9b2f8b3dfed9721115056176d6348",
+      "build_log_sha256": "83bc755a766d940e5c662fc401762fa4ad5310fe75e6687fa90a9e6b49b14e1a"
+    },
+    {
+      "plant": "packet_stall",
+      "check": "PACKET_STALL_POSITION",
+      "result": "CAUGHT",
+      "group": "transport",
+      "runtime_failure": "[12791000] %Fatal: packet_tb.sv:46: Assertion failed in packet_tb.check: CHECK PACKET_STALL_POSITION",
+      "runtime_log_sha256": "ee0c03f4d8a56834ff0e864b9d1675832adb7424df0928d7779307baf64a765d",
+      "build_log_sha256": "981d769755c7d16f32926f49bee7823d7da84e9e0643b90aafc7c722f1b7ba3e"
+    },
+    {
+      "plant": "packet_fence",
+      "check": "PACKET_EPOCH_ABANDON",
+      "result": "CAUGHT",
+      "group": "transport",
+      "runtime_failure": "[14231000] %Fatal: packet_tb.sv:46: Assertion failed in packet_tb.check: CHECK PACKET_EPOCH_ABANDON",
+      "runtime_log_sha256": "f71048cd5d3b84e19cdd5cadf239a9a7df75ceb578c4b51cfe5859df67cea96a",
+      "build_log_sha256": "2a7771a29acfc8b5ded1cad345b20ff4528f4169bdcac46ac138de18c6a08011"
+    },
+    {
+      "plant": "packet_prefill",
+      "check": "PACKET_PREFILL",
+      "result": "CAUGHT",
+      "group": "transport",
+      "runtime_failure": "[9191000] %Fatal: packet_tb.sv:46: Assertion failed in packet_tb.check: CHECK PACKET_PREFILL",
+      "runtime_log_sha256": "7a04b244d7ae8d931335439a98be2886ff3620e55b1d5a800ebd12b38d848976",
+      "build_log_sha256": "c87173a485257115671a25c18b3e3cf50628d5bc23e601c2876fef08717ceb9c"
+    },
+    {
+      "plant": "packet_maximum",
+      "check": "PACKET_LAST_BOUNDARY",
+      "result": "CAUGHT",
+      "group": "transport",
+      "runtime_failure": "[13761000] %Fatal: packet_tb.sv:46: Assertion failed in packet_tb.check: CHECK PACKET_LAST_BOUNDARY",
+      "runtime_log_sha256": "c2be680c0caa5a9ea106d1e8b09419186033b71021b42f0a24a20eb43898d370",
+      "build_log_sha256": "41fad1de4e7e9796e27173bcf5c5f28c80684a0733c22075d12d28b0c8cbb5ed"
+    },
+    {
+      "plant": "packet_final_word",
+      "check": "PACKET_WHOLE_FRAME",
+      "result": "CAUGHT",
+      "group": "transport",
+      "runtime_failure": "[13765000] %Fatal: packet_tb.sv:37: Assertion failed in packet_tb: CHECK PACKET_WHOLE_FRAME",
+      "runtime_log_sha256": "b16e1dfcaf8bf5fd20e8a46aef65e9aaf69d8304ead2283d8fa5d456b3f60e27",
+      "build_log_sha256": "5b7acbaf3f83624bd8d7ebbbf0ce8d51593d2cf992d39bd440e81952c2b6b2e2"
+    },
+    {
+      "plant": "gpif_address",
+      "check": "GPIF_AUDIO_ADDRESSES",
+      "result": "CAUGHT",
+      "group": "transport",
+      "runtime_failure": "[801000] %Fatal: gpif_tb.sv:74: Assertion failed in gpif_tb: CHECK GPIF_AUDIO_ADDRESSES",
+      "runtime_log_sha256": "8526e57d3302e1bb376e368584fc6885e084e5246bbb558e3dffadd7fb2dc4cc",
+      "build_log_sha256": "915624db557aa74c7eb2686352c6cc86c46732308f795685b17e26984b01144f"
+    },
+    {
+      "plant": "gpif_blocked_status",
+      "check": "GPIF_BLOCKED_STATUS_FAIRNESS",
+      "result": "CAUGHT",
+      "group": "transport",
+      "runtime_failure": "[2400080000] %Fatal: gpif_tb.sv:40: Assertion failed in gpif_tb: CHECK GPIF_BLOCKED_STATUS_FAIRNESS",
+      "runtime_log_sha256": "b49dd022c757b5329455eb6c4b73d88602661653749488e99389a4120669e36b",
+      "build_log_sha256": "a3ec552d07970230b39370faf41e444bf1873bf4e424ada196bb5661a2bfb7b4"
+    },
+    {
+      "plant": "gpif_settle",
+      "check": "GPIF_READ_OWNERSHIP",
+      "result": "CAUGHT",
+      "group": "transport",
+      "runtime_failure": "[261000] %Fatal: gpif_tb.sv:78: Assertion failed in gpif_tb: CHECK GPIF_READ_OWNERSHIP",
+      "runtime_log_sha256": "45c33fa6b8e9af05b6984c85e1c4abf940f2d0a041b4d8f6c1fcdae43dcb090a",
+      "build_log_sha256": "c23da621ae51b38a3762424663385646607d8775692293b65fb7a58bd70b8f6b"
+    },
+    {
+      "plant": "gpif_commit",
+      "check": "GPIF_CAPTURE_COMMIT",
+      "result": "CAUGHT",
+      "group": "transport",
+      "runtime_failure": "[66341000] %Fatal: gpif_tb.sv:67: Assertion failed in gpif_tb: CHECK GPIF_CAPTURE_COMMIT",
+      "runtime_log_sha256": "7cb439eac1a6b5985dd3ec60d8f72a358c31e279ce476271a6fed373bfac38d6",
+      "build_log_sha256": "c510536c26fd8077446661a4ae4aa9e9d75afd891f79bbb56f7be7b332299702"
+    },
+    {
+      "plant": "gpif_reset",
+      "check": "GPIF_ASYNC_PAD_RESET",
+      "result": "CAUGHT",
+      "group": "transport",
+      "runtime_failure": "[10000284000] %Fatal: gpif_tb.sv:96: Assertion failed in gpif_tb: CHECK GPIF_ASYNC_PAD_RESET",
+      "runtime_log_sha256": "ab243e6d454383c007c92c0c8db0e0112a33157eafa3476c593a93030426683b",
+      "build_log_sha256": "f8aa328e44c08fc7ec5d2ddd5adbf1f2554ce0ebb36b6866eeb60d01fb958ad1"
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "prior_interface_head": "47e6bbc93093c325b00a9263fdb9ceb20869ef46",
+  "merged_interface_head": "9e5ef16cfbbcc26722bfef56081b992a5e8fc89f",
+  "prior_document_sha256": "e350e701cbf87a0d9595971f5058ec1d7c54d65847a138b0328b6e0e4e41ae36",
+  "merged_document_sha256": "0fa301bbe94f370c4a02c4c0fe7d75a88bfd4ceafc7ff26f0be2f756541a7cd8",
+  "comparison": "Only the device-side link-recovery description changed. The merged interface explains fallback, reset and disconnect disarming, and count-step detection of a missed selected interval during bounded recovery.",
+  "fpga_duty_change": false,
+  "fpga_duties_retained": [
+    "Three-millisecond watchdog measured by the FPGA clock.",
+    "Judge reference continuity in USB bus intervals.",
+    "Refuse the expiry edge and restart qualification.",
+    "Publish applied capture-epoch acknowledgement before new-epoch capture packets."
+  ],
+  "source": "https://github.com/kebag-logic/usb-audio/blob/9e5ef16cfbbcc26722bfef56081b992a5e8fc89f/docs/AUDIO-FPGA.md"
+}

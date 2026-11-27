@@ -1,0 +1,130 @@
+---------------------------------------------------------------------------------------------------------------------------------------------
+| Date         : Fri Nov 27 13:22:31 2026
+| Command      : check_timing -verbose -file digilent_arty_baseline_check_timing.rpt
+| Design       : digilent_arty
+| Device       : 7a100t-csg324
+| Speed File   : -1  PRODUCTION 1.23 2018-06-13
+| Design State : Physopt postRoute
+---------------------------------------------------------------------------------------------------------------------------------------------
+
+
+check_timing report
+
+Table of Contents
+-----------------
+1. checking no_clock (0)
+2. checking constant_clock (0)
+3. checking pulse_width_clock (0)
+4. checking unconstrained_internal_endpoints (0)
+5. checking no_input_delay (11)
+6. checking no_output_delay (22)
+7. checking multiple_clock (0)
+8. checking generated_clocks (0)
+9. checking loops (0)
+10. checking partial_input_delay (0)
+11. checking partial_output_delay (0)
+12. checking latch_loops (0)
+
+1. checking no_clock (0)
+------------------------
+ There are 0 register/latch pins with no clock.
+
+
+2. checking constant_clock (0)
+------------------------------
+ There are 0 register/latch pins with constant_clock.
+
+
+3. checking pulse_width_clock (0)
+---------------------------------
+ There are 0 register/latch pins which need pulse_width check
+
+
+4. checking unconstrained_internal_endpoints (0)
+------------------------------------------------
+ There are 0 pins that are not constrained for maximum delay.
+
+ There are 0 pins that are not constrained for maximum delay due to constant clock.
+
+
+5. checking no_input_delay (11)
+-------------------------------
+ There are 11 input ports with no input delay specified. (HIGH)
+
+cpu_reset_n
+eth0_mdio
+eth0_rx_data[0]
+eth0_rx_data[1]
+eth0_rx_data[2]
+eth0_rx_data[3]
+eth0_rx_dv
+i2s_rx_rx
+serial_rx
+spiflash_miso
+tdm_din
+
+ There are 0 input ports with no input delay but user has a false path constraint.
+
+
+6. checking no_output_delay (22)
+--------------------------------
+ There are 22 ports with no output delay specified. (HIGH)
+
+eth0_mdc
+eth0_mdio
+eth0_rst_n
+eth0_tx_data[0]
+eth0_tx_data[1]
+eth0_tx_data[2]
+eth0_tx_data[3]
+eth0_tx_en
+i2s_rx_clk
+i2s_rx_mclk
+i2s_rx_sync
+rgb_led0_g
+rgb_led2_g
+rgb_led3_g
+serial_tx
+spiflash_clk
+spiflash_cs_n
+spiflash_mosi
+tdm_bclk
+tdm_dout
+tdm_fsync
+tdm_mclk
+
+ There are 0 ports with no output delay but user has a false path constraint
+
+ There are 0 ports with no output delay but with a timing clock defined on it or propagating through it
+
+
+7. checking multiple_clock (0)
+------------------------------
+ There are 0 register/latch pins with multiple clocks.
+
+
+8. checking generated_clocks (0)
+--------------------------------
+ There are 0 generated clocks that are not connected to a clock source.
+
+
+9. checking loops (0)
+---------------------
+ There are 0 combinational loops in the design.
+
+
+10. checking partial_input_delay (0)
+------------------------------------
+ There are 0 input ports with partial input delay specified.
+
+
+11. checking partial_output_delay (0)
+-------------------------------------
+ There are 0 ports with partial output delay specified.
+
+
+12. checking latch_loops (0)
+----------------------------
+ There are 0 combinational latch loops in the design through latch input
+
+

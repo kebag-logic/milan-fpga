@@ -1,0 +1,60 @@
+--- a/docs/design/USB_NET_PATH.md
++++ b/docs/design/USB_NET_PATH.md
+@@ -12,6 +12,17 @@
+ 
+ It is built for the Arty only (`milan_soc.py --usb-net`, `sw/litex/usbnet_soc.py`).
+ No other board's build carries a line of it.
++
++## Contents
++
++- **[1. Where it sits](#1-where-it-sits)** -- Locate the copy and injection paths at the MAC boundary.
++- **[2. Receive copy (frames toward the computer)](#2-receive-copy-frames-toward-the-computer)** -- Apply destination, protocol, and capacity rules before copying.
++- **[3. Transmit injection (frames from the computer)](#3-transmit-injection-frames-from-the-computer)** -- Validate host frames and preserve priority for endpoint traffic.
++- **[4. The bus records](#4-the-bus-records)** -- Decode socket assignments, framing, and station records.
++- **[5. The signals for LD1 (the USB device firmware's side)](#5-the-signals-for-ld1-the-usb-device-firmwares-side)** -- Publish host link and address state through the bus interface.
++- **[6. Status LEDs (#1018)](#6-status-leds-1018)** -- Interpret the four board status indicators.
++- **[7. Registers](#7-registers)** -- Read attachment control and diagnostic registers.
++- **[8. Verification](#8-verification)** -- Reproduce the protocol, arbitration, and build checks.
+ 
+ ## 1. Where it sits
+ 
+--- a/hdl/usbnet/KL_usbnet_rx_copy.sv
++++ b/hdl/usbnet/KL_usbnet_rx_copy.sv
+@@ -42,7 +42,7 @@
+ #(
+   parameter int unsigned DEPTH_P   = 512,   //! 64-bit words of frame buffer
+   parameter int unsigned DESC_P    = 16,    //! frames the buffer can hold
+-  parameter int unsigned MAX_LEN_P = 2000   //! longest frame copied, octets
++  parameter int unsigned MAX_LEN_OCTETS_P = 2000   //! longest frame copied, octets
+ )(
+   input  wire              clk_i,   //! the system clock, the MAC wrapper's
+   input  wire              rst_ni,   //! synchronous reset, active low
+@@ -82,8 +82,8 @@
+   localparam int unsigned AW_C = $clog2(DEPTH_P);
+   localparam int unsigned DW_C = $clog2(DESC_P);
+ 
+-  if (MAX_LEN_P > 4095 || (MAX_LEN_P + 7) / 8 > DEPTH_P) begin : g_refuse
+-    $error("KL_usbnet_rx_copy: MAX_LEN_P=%0d must fit 12 bits and the buffer", MAX_LEN_P);
++  if (MAX_LEN_OCTETS_P > 4095 || (MAX_LEN_OCTETS_P + 7) / 8 > DEPTH_P) begin : g_refuse
++    $error("KL_usbnet_rx_copy: MAX_LEN_OCTETS_P=%0d must fit 12 bits and the buffer", MAX_LEN_OCTETS_P);
+   end
+ 
+   (* ram_style = "block" *) logic [63:0] ram_r [DEPTH_P];
+@@ -127,7 +127,7 @@
+ 
+   wire [11:0]  base_w  = in_frame_r ? len_r : 12'd0;
+   wire [12:0]  len_w   = {1'b0, base_w} + 13'(keep_octets(s_last_q ? s_keep_q : 8'hFF));
+-  wire         long_w  = len_w > 13'(MAX_LEN_P);
++  wire         long_w  = len_w > 13'(MAX_LEN_OCTETS_P);
+   //! ROLLBACK: a frame always starts at the committed pointer, so a frame
+   //! that is not copied leaves nothing behind
+   wire [AW_C:0] start_w = in_frame_r ? wr_cur_r : wr_ptr_r;
+@@ -194,7 +194,7 @@
+           in_frame_r <= 1'b1;
+           spoil_r    <= spoil_w;
+           long_r     <= too_long_w;
+-          len_r      <= long_w ? 12'(MAX_LEN_P + 1) : len_w[11:0];
++          len_r      <= long_w ? 12'(MAX_LEN_OCTETS_P + 1) : len_w[11:0];
+           if (beat_r != 2'd3) beat_r <= beat_r + 1'b1;
+           if (!spoil_w) wr_cur_r <= start_w + 1'b1;
+         end

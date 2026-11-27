@@ -1,0 +1,39 @@
+{
+  "head": "0f7402ee97d347352b8c3d613033c440ee55986a",
+  "baseline_head": "b4a1df4a0913d7a9b03c8ed0678a035ba2eda5d6",
+  "result": "PASS",
+  "fresh_physical_builds": 4,
+  "profiles": [
+    {
+      "container_bytes_identical": false,
+      "programming_data_identical": true,
+      "before_container_sha256": "a057d4787f03524de1c9075d7fcff59795d6c5bc1fece5ce79b1222de92e70da",
+      "after_container_sha256": "536153bc6356bd7d0ae3af843223f3b858032e180950588d8a150d582324d6f1",
+      "before_programming_sha256": "cb68aafe538751d1b2f233e672b772b1b2ab766542bde72492128284c0fc7ec4",
+      "after_programming_sha256": "cb68aafe538751d1b2f233e672b772b1b2ab766542bde72492128284c0fc7ec4",
+      "before_programming_bytes": 3825788,
+      "after_programming_bytes": 3825788,
+      "profile": "1x1_tdm8",
+      "result": "PASS",
+      "retained_directory": "r5/single-identity",
+      "comparison_sha256": "d5b60d0331e328b8f3418ad1101cc48711fcc2d957b33cbefc3a12a863cfba6e"
+    },
+    {
+      "container_bytes_identical": false,
+      "programming_data_identical": true,
+      "before_container_sha256": "473f6be83e0fa71913cd792d33f90360f6ae89bc611929eb0329133f09fd0c24",
+      "after_container_sha256": "1d811ada20f2ceded6a00ff69d10d69c49e876a50e84cd431f9dcf14861e07f2",
+      "before_programming_sha256": "46ddf70298affe60ed3f13ab465dee9fc3911129691610d1337d8b130ba67592",
+      "after_programming_sha256": "46ddf70298affe60ed3f13ab465dee9fc3911129691610d1337d8b130ba67592",
+      "before_programming_bytes": 3825788,
+      "after_programming_bytes": 3825788,
+      "profile": "8x8_tdm8",
+      "result": "PASS",
+      "retained_directory": "r5/eight-identity",
+      "comparison_sha256": "ee6ceb6d3e1d3ad2451f9d777b8735f7d5b6e3c1439feaa129f20fa0c970efe3"
+    }
+  ],
+  "method": "Compare every byte of the complete programming-data field. Only the container metadata is excluded. No configuration word, CRC or payload byte is masked or normalized.",
+  "construction_evidence": "alinx-construction.json",
+  "scope": "Fresh paired current gateware builds from the requested network baseline and merged audio-disabled candidate, using identical fixed initialized memories. No newly linked production-software identity or bench qualification is claimed."
+}

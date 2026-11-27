@@ -1,0 +1,25 @@
+[
+  {
+    "plant": "attribute_decoration_as_ports",
+    "result": "CAUGHT",
+    "checks": [
+      "attributes neither invent ports nor hide an undocumented neighbour"
+    ]
+  },
+  {
+    "plant": "event_wildcard_as_attribute",
+    "result": "CAUGHT",
+    "checks": [
+      "event wildcard @(*) cannot swallow the following module",
+      "event wildcard @(* ) cannot swallow the following module"
+    ]
+  },
+  {
+    "plant": "prose_as_attribute",
+    "result": "CAUGHT",
+    "checks": [
+      "attribute-like prose or strings cannot swallow a module",
+      "attribute-like prose or strings cannot swallow a module"
+    ]
+  }
+]

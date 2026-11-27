@@ -1,0 +1,1647 @@
+---------------------------------------------------------------------------------------------------------------------------------------------
+| Date         : Fri Nov 27 13:15:13 2026
+| Command      : report_bus_skew -file digilent_arty_audio_bus_skew.rpt
+| Design       : digilent_arty
+| Device       : 7a100t-csg324
+| Speed File   : -1  PRODUCTION 1.23 2018-06-13
+| Design State : Physopt postRoute
+---------------------------------------------------------------------------------------------------------------------------------------------
+
+Bus Skew Report
+
+Table of Contents
+-----------------
+1. Bus Skew Report Summary
+2. Bus Skew Report Per Constraint
+
+1. Bus Skew Report Summary
+--------------------------
+
+Id  Position  From                            To                              Corner  Requirement(ns)  Actual(ns)  Slack(ns)
+--  --------  ------------------------------  ------------------------------  ------  ---------------  ----------  ---------
+1   32        [get_cells {{usb_audio_bridge/acknowledgement/frames/rd_ptr_reg_reg[*]} {usb_audio_bridge/acknowledgement/frames/rd_ptr_gray_reg_reg[*]}}]
+                                              [get_cells {usb_audio_bridge/acknowledgement/frames/rd_ptr_gray_sync1_reg_reg[*]}]
+                                                                              Slow             20.000       0.605     19.395
+2   34        [get_cells -quiet {{usb_audio_bridge/acknowledgement/frames/wr_ptr_reg_reg[*]} {usb_audio_bridge/acknowledgement/frames/wr_ptr_gray_reg_reg[*]}}]
+                                              [get_cells {usb_audio_bridge/acknowledgement/frames/wr_ptr_gray_sync1_reg_reg[*]}]
+                                                                              Slow             20.000       0.778     19.222
+3   38        [get_cells {{usb_audio_bridge/capture_crossing/frames/rd_ptr_reg_reg[*]} {usb_audio_bridge/capture_crossing/frames/rd_ptr_gray_reg_reg[*]}}]
+                                              [get_cells {usb_audio_bridge/capture_crossing/frames/rd_ptr_gray_sync1_reg_reg[*]}]
+                                                                              Slow             20.000       1.589     18.411
+4   40        [get_cells -quiet {{usb_audio_bridge/capture_crossing/frames/wr_ptr_reg_reg[*]} {usb_audio_bridge/capture_crossing/frames/wr_ptr_gray_reg_reg[*]}}]
+                                              [get_cells {usb_audio_bridge/capture_crossing/frames/wr_ptr_gray_sync1_reg_reg[*]}]
+                                                                              Slow             20.000       0.613     19.387
+5   43        [get_cells {{usb_audio_bridge/playback_crossing/frames/rd_ptr_reg_reg[*]} {usb_audio_bridge/playback_crossing/frames/rd_ptr_gray_reg_reg[*]}}]
+                                              [get_cells {usb_audio_bridge/playback_crossing/frames/rd_ptr_gray_sync1_reg_reg[*]}]
+                                                                              Slow             20.000       0.966     19.034
+6   45        [get_cells -quiet {{usb_audio_bridge/playback_crossing/frames/wr_ptr_reg_reg[*]} {usb_audio_bridge/playback_crossing/frames/wr_ptr_gray_reg_reg[*]}}]
+                                              [get_cells {usb_audio_bridge/playback_crossing/frames/wr_ptr_gray_sync1_reg_reg[*]}]
+                                                                              Slow             20.000       0.693     19.307
+7   49        [get_cells {{usb_audio_bridge/state_crossing/frames/rd_ptr_reg_reg[*]} {usb_audio_bridge/state_crossing/frames/rd_ptr_gray_reg_reg[*]}}]
+                                              [get_cells {usb_audio_bridge/state_crossing/frames/rd_ptr_gray_sync1_reg_reg[*]}]
+                                                                              Slow             20.000       0.509     19.491
+8   51        [get_cells -quiet {{usb_audio_bridge/state_crossing/frames/wr_ptr_reg_reg[*]} {usb_audio_bridge/state_crossing/frames/wr_ptr_gray_reg_reg[*]}}]
+                                              [get_cells {usb_audio_bridge/state_crossing/frames/wr_ptr_gray_sync1_reg_reg[*]}]
+                                                                              Slow             20.000       0.715     19.285
+9   56        [get_cells {{usb_diagnostics/frames/rd_ptr_reg_reg[*]} {usb_diagnostics/frames/rd_ptr_gray_reg_reg[*]}}]
+                                              [get_cells {usb_diagnostics/frames/rd_ptr_gray_sync1_reg_reg[*]}]
+                                                                              Slow             20.000       0.619     19.381
+10  58        [get_cells -quiet {{usb_diagnostics/frames/wr_ptr_reg_reg[*]} {usb_diagnostics/frames/wr_ptr_gray_reg_reg[*]}}]
+                                              [get_cells {usb_diagnostics/frames/wr_ptr_gray_sync1_reg_reg[*]}]
+                                                                              Slow             10.000       0.841      9.159
+11  63        [get_cells {{usb_media_diagnostics/frames/rd_ptr_reg_reg[*]} {usb_media_diagnostics/frames/rd_ptr_gray_reg_reg[*]}}]
+                                              [get_cells {usb_media_diagnostics/frames/rd_ptr_gray_sync1_reg_reg[*]}]
+                                                                              Slow             20.000       0.739     19.261
+12  65        [get_cells -quiet {{usb_media_diagnostics/frames/wr_ptr_reg_reg[*]} {usb_media_diagnostics/frames/wr_ptr_gray_reg_reg[*]}}]
+                                              [get_cells {usb_media_diagnostics/frames/wr_ptr_gray_sync1_reg_reg[*]}]
+                                                                              Slow             10.000       1.211      8.789
+13  68        [get_cells -hier -regexp {usb_audio_bridge/clock_stamp/gray_r_reg\[[0-9]+\]}]
+                                              [get_cells -hier -regexp {usb_audio_bridge/clock_stamp/meta_r_reg\[[0-9]+\]}]
+                                                                              Slow             20.000       1.003     18.997
+
+
+2. Bus Skew Report Per Constraint
+---------------------------------
+
+Id: 1
+set_bus_skew -from [get_cells {{usb_audio_bridge/acknowledgement/frames/rd_ptr_reg_reg[*]} {usb_audio_bridge/acknowledgement/frames/rd_ptr_gray_reg_reg[*]}}] -to [get_cells {usb_audio_bridge/acknowledgement/frames/rd_ptr_gray_sync1_reg_reg[*]}] 20.000
+Requirement: 20.000ns
+Endpoints: 3
+
+From Clock            To Clock              Endpoint Pin                    Reference Pin                   Corner  Actual(ns)  Slack(ns)
+--------------------  --------------------  ------------------------------  ------------------------------  ------  ----------  ---------
+milansoc_milannic_usbaudio_usbaudio0
+                      milansoc_clkout2      usb_audio_bridge/acknowledgement/frames/rd_ptr_gray_sync1_reg_reg[1]/D
+                                                                            usb_audio_bridge/acknowledgement/frames/rd_ptr_gray_sync1_reg_reg[0]/D
+                                                                                                            Slow         0.605     19.395
+
+
+Slack (MET) :             19.395ns  (requirement - actual skew)
+  Endpoint Source:        usb_audio_bridge/acknowledgement/frames/rd_ptr_gray_reg_reg[1]/C
+                            (rising edge-triggered cell FDRE clocked by milansoc_milannic_usbaudio_usbaudio0)
+  Endpoint Destination:   usb_audio_bridge/acknowledgement/frames/rd_ptr_gray_sync1_reg_reg[1]/D
+                            (rising edge-triggered cell FDRE clocked by milansoc_clkout2)
+  Reference Source:       usb_audio_bridge/acknowledgement/frames/rd_ptr_gray_reg_reg[0]/C
+                            (rising edge-triggered cell FDRE clocked by milansoc_milannic_usbaudio_usbaudio0)
+  Reference Destination:  usb_audio_bridge/acknowledgement/frames/rd_ptr_gray_sync1_reg_reg[0]/D
+                            (rising edge-triggered cell FDRE clocked by milansoc_clkout2)
+  Path Type:              Bus Skew (Max at Slow Process Corner)
+  Requirement:            20.000ns
+  Endpoint Relative Delay:   -0.476ns
+  Reference Relative Delay:  -2.004ns
+  Relative CRPR:              0.923ns
+  Actual Bus Skew:            0.605ns  (Endpoint Relative Delay - Reference Relative Delay - Relative CRPR)
+
+Endpoint path:
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock milansoc_milannic_usbaudio_usbaudio0 rise edge)
+                                                      0.000     0.000 r  <hidden>
+    E3                                                0.000     0.000 r  clk100
+                         net (fo=0)                   0.000     0.000    clk100
+    E3                   IBUF (Prop_ibuf_I_O)         1.482     1.482 r  clk100_IBUF_inst/O
+                         net (fo=1, routed)           2.739     4.221    clk100_IBUF
+    SLICE_X0Y126         LUT1 (Prop_lut1_I0_O)        0.124     4.345 r  clk100_inst/O
+                         net (fo=11, routed)          2.956     7.301    milansoc_clkin_signal
+    MMCME2_ADV_X0Y0      MMCME2_ADV (Prop_mmcme2_adv_CLKIN1_CLKOUT0)
+                                                     -3.922     3.379 r  usb_mmcm/CLKOUT0
+                         net (fo=1, routed)           2.018     5.397    milansoc_milannic_usbaudio_usbaudio0
+    BUFGCTRL_X0Y1        BUFG (Prop_bufg_I_O)         0.096     5.493 r  BUFG_7/O
+                         net (fo=5520, routed)        1.796     7.290    usb_audio_bridge/acknowledgement/frames/usb_bus_clk
+    SLICE_X27Y24         FDRE                                         r  usb_audio_bridge/acknowledgement/frames/rd_ptr_gray_reg_reg[1]/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X27Y24         FDRE (Prop_fdre_C_Q)         0.456     7.746 r  usb_audio_bridge/acknowledgement/frames/rd_ptr_gray_reg_reg[1]/Q
+                         net (fo=2, routed)           0.776     8.522    usb_audio_bridge/acknowledgement/frames/rd_ptr_gray_reg[1]
+    SLICE_X26Y24         FDRE                                         r  usb_audio_bridge/acknowledgement/frames/rd_ptr_gray_sync1_reg_reg[1]/D
+  -------------------------------------------------------------------    -------------------
+
+                         (clock milansoc_clkout2 rise edge)
+                                                      0.000     0.000 r  <hidden>
+    E3                                                0.000     0.000 r  clk100
+                         net (fo=0)                   0.000     0.000    clk100
+    E3                   IBUF (Prop_ibuf_I_O)         1.411     1.411 r  clk100_IBUF_inst/O
+                         net (fo=1, routed)           2.342     3.754    clk100_IBUF
+    SLICE_X0Y126         LUT1 (Prop_lut1_I0_O)        0.100     3.854 r  clk100_inst/O
+                         net (fo=11, routed)          1.279     5.132    milansoc_clkin_signal
+    PLLE2_ADV_X0Y1       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT2)
+                                                      0.083     5.215 r  PLLE2_ADV/CLKOUT2
+                         net (fo=1, routed)           1.625     6.840    milansoc_clkout2
+    BUFGCTRL_X0Y5        BUFG (Prop_bufg_I_O)         0.091     6.931 r  BUFG_2/O
+                         net (fo=26569, routed)       1.668     8.599    usb_audio_bridge/acknowledgement/frames/out
+    SLICE_X26Y24         FDRE                                         r  usb_audio_bridge/acknowledgement/frames/rd_ptr_gray_sync1_reg_reg[1]/C
+                         clock pessimism              0.492     9.091    <hidden>
+    SLICE_X26Y24         FDRE (Setup_fdre_C_D)       -0.093     8.998    usb_audio_bridge/acknowledgement/frames/rd_ptr_gray_sync1_reg_reg[1]
+  -------------------------------------------------------------------
+                         data arrival                           8.522    <hidden>
+                         clock arrival                          8.998    <hidden>
+  -------------------------------------------------------------------
+                         relative delay                        -0.476    <hidden>
+
+Reference path:
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock milansoc_milannic_usbaudio_usbaudio0 rise edge)
+                                                      0.000     0.000 r  <hidden>
+    E3                                                0.000     0.000 r  clk100
+                         net (fo=0)                   0.000     0.000    clk100
+    E3                   IBUF (Prop_ibuf_I_O)         1.411     1.411 r  clk100_IBUF_inst/O
+                         net (fo=1, routed)           2.342     3.754    clk100_IBUF
+    SLICE_X0Y126         LUT1 (Prop_lut1_I0_O)        0.100     3.854 r  clk100_inst/O
+                         net (fo=11, routed)          2.478     6.331    milansoc_clkin_signal
+    MMCME2_ADV_X0Y0      MMCME2_ADV (Prop_mmcme2_adv_CLKIN1_CLKOUT0)
+                                                     -3.694     2.637 r  usb_mmcm/CLKOUT0
+                         net (fo=1, routed)           1.923     4.560    milansoc_milannic_usbaudio_usbaudio0
+    BUFGCTRL_X0Y1        BUFG (Prop_bufg_I_O)         0.091     4.651 r  BUFG_7/O
+                         net (fo=5520, routed)        1.668     6.319    usb_audio_bridge/acknowledgement/frames/usb_bus_clk
+    SLICE_X27Y24         FDRE                                         r  usb_audio_bridge/acknowledgement/frames/rd_ptr_gray_reg_reg[0]/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X27Y24         FDRE (Prop_fdre_C_Q)         0.367     6.686 r  usb_audio_bridge/acknowledgement/frames/rd_ptr_gray_reg_reg[0]/Q
+                         net (fo=2, routed)           0.522     7.208    usb_audio_bridge/acknowledgement/frames/rd_ptr_gray_reg[0]
+    SLICE_X26Y24         FDRE                                         r  usb_audio_bridge/acknowledgement/frames/rd_ptr_gray_sync1_reg_reg[0]/D
+  -------------------------------------------------------------------    -------------------
+
+                         (clock milansoc_clkout2 rise edge)
+                                                      0.000     0.000 r  <hidden>
+    E3                                                0.000     0.000 r  clk100
+                         net (fo=0)                   0.000     0.000    clk100
+    E3                   IBUF (Prop_ibuf_I_O)         1.482     1.482 r  clk100_IBUF_inst/O
+                         net (fo=1, routed)           2.739     4.221    clk100_IBUF
+    SLICE_X0Y126         LUT1 (Prop_lut1_I0_O)        0.124     4.345 r  clk100_inst/O
+                         net (fo=11, routed)          1.505     5.850    milansoc_clkin_signal
+    PLLE2_ADV_X0Y1       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT2)
+                                                      0.088     5.938 r  PLLE2_ADV/CLKOUT2
+                         net (fo=1, routed)           1.704     7.642    milansoc_clkout2
+    BUFGCTRL_X0Y5        BUFG (Prop_bufg_I_O)         0.096     7.738 r  BUFG_2/O
+                         net (fo=26569, routed)       1.796     9.535    usb_audio_bridge/acknowledgement/frames/out
+    SLICE_X26Y24         FDRE                                         r  usb_audio_bridge/acknowledgement/frames/rd_ptr_gray_sync1_reg_reg[0]/C
+                         clock pessimism             -0.492     9.043    <hidden>
+    SLICE_X26Y24         FDRE (Hold_fdre_C_D)         0.169     9.212    usb_audio_bridge/acknowledgement/frames/rd_ptr_gray_sync1_reg_reg[0]
+  -------------------------------------------------------------------
+                         data arrival                           7.208    <hidden>
+                         clock arrival                          9.212    <hidden>
+  -------------------------------------------------------------------
+                         relative delay                        -2.004    <hidden>
+
+
+
+Id: 2
+set_bus_skew -from [get_cells -quiet {{usb_audio_bridge/acknowledgement/frames/wr_ptr_reg_reg[*]} {usb_audio_bridge/acknowledgement/frames/wr_ptr_gray_reg_reg[*]}}] -to [get_cells {usb_audio_bridge/acknowledgement/frames/wr_ptr_gray_sync1_reg_reg[*]}] 20.000
+Requirement: 20.000ns
+Endpoints: 3
+
+From Clock            To Clock              Endpoint Pin                    Reference Pin                   Corner  Actual(ns)  Slack(ns)
+--------------------  --------------------  ------------------------------  ------------------------------  ------  ----------  ---------
+milansoc_clkout2      milansoc_milannic_usbaudio_usbaudio0
+                                            usb_audio_bridge/acknowledgement/frames/wr_ptr_gray_sync1_reg_reg[2]/D
+                                                                            usb_audio_bridge/acknowledgement/frames/wr_ptr_gray_sync1_reg_reg[0]/D
+                                                                                                            Slow         0.778     19.222
+
+
+Slack (MET) :             19.222ns  (requirement - actual skew)
+  Endpoint Source:        usb_audio_bridge/acknowledgement/frames/wr_ptr_gray_reg_reg[2]/C
+                            (rising edge-triggered cell FDRE clocked by milansoc_clkout2)
+  Endpoint Destination:   usb_audio_bridge/acknowledgement/frames/wr_ptr_gray_sync1_reg_reg[2]/D
+                            (rising edge-triggered cell FDRE clocked by milansoc_milannic_usbaudio_usbaudio0)
+  Reference Source:       usb_audio_bridge/acknowledgement/frames/wr_ptr_gray_reg_reg[0]/C
+                            (rising edge-triggered cell FDRE clocked by milansoc_clkout2)
+  Reference Destination:  usb_audio_bridge/acknowledgement/frames/wr_ptr_gray_sync1_reg_reg[0]/D
+                            (rising edge-triggered cell FDRE clocked by milansoc_milannic_usbaudio_usbaudio0)
+  Path Type:              Bus Skew (Max at Slow Process Corner)
+  Requirement:            20.000ns
+  Endpoint Relative Delay:    4.075ns
+  Reference Relative Delay:   2.398ns
+  Relative CRPR:              0.899ns
+  Actual Bus Skew:            0.778ns  (Endpoint Relative Delay - Reference Relative Delay - Relative CRPR)
+
+Endpoint path:
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock milansoc_clkout2 rise edge)
+                                                      0.000     0.000 r  <hidden>
+    E3                                                0.000     0.000 r  clk100
+                         net (fo=0)                   0.000     0.000    clk100
+    E3                   IBUF (Prop_ibuf_I_O)         1.482     1.482 r  clk100_IBUF_inst/O
+                         net (fo=1, routed)           2.739     4.221    clk100_IBUF
+    SLICE_X0Y126         LUT1 (Prop_lut1_I0_O)        0.124     4.345 r  clk100_inst/O
+                         net (fo=11, routed)          1.505     5.850    milansoc_clkin_signal
+    PLLE2_ADV_X0Y1       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT2)
+                                                      0.088     5.938 r  PLLE2_ADV/CLKOUT2
+                         net (fo=1, routed)           1.704     7.642    milansoc_clkout2
+    BUFGCTRL_X0Y5        BUFG (Prop_bufg_I_O)         0.096     7.738 r  BUFG_2/O
+                         net (fo=26569, routed)       1.793     9.532    usb_audio_bridge/acknowledgement/frames/out
+    SLICE_X28Y24         FDRE                                         r  usb_audio_bridge/acknowledgement/frames/wr_ptr_gray_reg_reg[2]/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X28Y24         FDRE (Prop_fdre_C_Q)         0.419     9.951 r  usb_audio_bridge/acknowledgement/frames/wr_ptr_gray_reg_reg[2]/Q
+                         net (fo=4, routed)           0.665    10.615    usb_audio_bridge/acknowledgement/frames/wr_ptr_gray_reg[2]
+    SLICE_X25Y24         FDRE                                         r  usb_audio_bridge/acknowledgement/frames/wr_ptr_gray_sync1_reg_reg[2]/D
+  -------------------------------------------------------------------    -------------------
+
+                         (clock milansoc_milannic_usbaudio_usbaudio0 rise edge)
+                                                      0.000     0.000 r  <hidden>
+    E3                                                0.000     0.000 r  clk100
+                         net (fo=0)                   0.000     0.000    clk100
+    E3                   IBUF (Prop_ibuf_I_O)         1.411     1.411 r  clk100_IBUF_inst/O
+                         net (fo=1, routed)           2.342     3.754    clk100_IBUF
+    SLICE_X0Y126         LUT1 (Prop_lut1_I0_O)        0.100     3.854 r  clk100_inst/O
+                         net (fo=11, routed)          2.478     6.331    milansoc_clkin_signal
+    MMCME2_ADV_X0Y0      MMCME2_ADV (Prop_mmcme2_adv_CLKIN1_CLKOUT0)
+                                                     -3.694     2.637 r  usb_mmcm/CLKOUT0
+                         net (fo=1, routed)           1.923     4.560    milansoc_milannic_usbaudio_usbaudio0
+    BUFGCTRL_X0Y1        BUFG (Prop_bufg_I_O)         0.091     4.651 r  BUFG_7/O
+                         net (fo=5520, routed)        1.668     6.319    usb_audio_bridge/acknowledgement/frames/usb_bus_clk
+    SLICE_X25Y24         FDRE                                         r  usb_audio_bridge/acknowledgement/frames/wr_ptr_gray_sync1_reg_reg[2]/C
+                         clock pessimism              0.492     6.811    <hidden>
+    SLICE_X25Y24         FDRE (Setup_fdre_C_D)       -0.270     6.541    usb_audio_bridge/acknowledgement/frames/wr_ptr_gray_sync1_reg_reg[2]
+  -------------------------------------------------------------------
+                         data arrival                          10.615    <hidden>
+                         clock arrival                          6.541    <hidden>
+  -------------------------------------------------------------------
+                         relative delay                         4.075    <hidden>
+
+Reference path:
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock milansoc_clkout2 rise edge)
+                                                      0.000     0.000 r  <hidden>
+    E3                                                0.000     0.000 r  clk100
+                         net (fo=0)                   0.000     0.000    clk100
+    E3                   IBUF (Prop_ibuf_I_O)         1.411     1.411 r  clk100_IBUF_inst/O
+                         net (fo=1, routed)           2.342     3.754    clk100_IBUF
+    SLICE_X0Y126         LUT1 (Prop_lut1_I0_O)        0.100     3.854 r  clk100_inst/O
+                         net (fo=11, routed)          1.279     5.132    milansoc_clkin_signal
+    PLLE2_ADV_X0Y1       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT2)
+                                                      0.083     5.215 r  PLLE2_ADV/CLKOUT2
+                         net (fo=1, routed)           1.625     6.840    milansoc_clkout2
+    BUFGCTRL_X0Y5        BUFG (Prop_bufg_I_O)         0.091     6.931 r  BUFG_2/O
+                         net (fo=26569, routed)       1.667     8.598    usb_audio_bridge/acknowledgement/frames/out
+    SLICE_X28Y24         FDRE                                         r  usb_audio_bridge/acknowledgement/frames/wr_ptr_gray_reg_reg[0]/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X28Y24         FDRE (Prop_fdre_C_Q)         0.367     8.965 r  usb_audio_bridge/acknowledgement/frames/wr_ptr_gray_reg_reg[0]/Q
+                         net (fo=2, routed)           0.402     9.367    usb_audio_bridge/acknowledgement/frames/wr_ptr_gray_reg[0]
+    SLICE_X27Y23         FDRE                                         r  usb_audio_bridge/acknowledgement/frames/wr_ptr_gray_sync1_reg_reg[0]/D
+  -------------------------------------------------------------------    -------------------
+
+                         (clock milansoc_milannic_usbaudio_usbaudio0 rise edge)
+                                                      0.000     0.000 r  <hidden>
+    E3                                                0.000     0.000 r  clk100
+                         net (fo=0)                   0.000     0.000    clk100
+    E3                   IBUF (Prop_ibuf_I_O)         1.482     1.482 r  clk100_IBUF_inst/O
+                         net (fo=1, routed)           2.739     4.221    clk100_IBUF
+    SLICE_X0Y126         LUT1 (Prop_lut1_I0_O)        0.124     4.345 r  clk100_inst/O
+                         net (fo=11, routed)          2.956     7.301    milansoc_clkin_signal
+    MMCME2_ADV_X0Y0      MMCME2_ADV (Prop_mmcme2_adv_CLKIN1_CLKOUT0)
+                                                     -3.922     3.379 r  usb_mmcm/CLKOUT0
+                         net (fo=1, routed)           2.018     5.397    milansoc_milannic_usbaudio_usbaudio0
+    BUFGCTRL_X0Y1        BUFG (Prop_bufg_I_O)         0.096     5.493 r  BUFG_7/O
+                         net (fo=5520, routed)        1.798     7.292    usb_audio_bridge/acknowledgement/frames/usb_bus_clk
+    SLICE_X27Y23         FDRE                                         r  usb_audio_bridge/acknowledgement/frames/wr_ptr_gray_sync1_reg_reg[0]/C
+                         clock pessimism             -0.492     6.800    <hidden>
+    SLICE_X27Y23         FDRE (Hold_fdre_C_D)         0.169     6.969    usb_audio_bridge/acknowledgement/frames/wr_ptr_gray_sync1_reg_reg[0]
+  -------------------------------------------------------------------
+                         data arrival                           9.367    <hidden>
+                         clock arrival                          6.969    <hidden>
+  -------------------------------------------------------------------
+                         relative delay                         2.398    <hidden>
+
+
+
+Id: 3
+set_bus_skew -from [get_cells {{usb_audio_bridge/capture_crossing/frames/rd_ptr_reg_reg[*]} {usb_audio_bridge/capture_crossing/frames/rd_ptr_gray_reg_reg[*]}}] -to [get_cells {usb_audio_bridge/capture_crossing/frames/rd_ptr_gray_sync1_reg_reg[*]}] 20.000
+Requirement: 20.000ns
+Endpoints: 7
+
+From Clock            To Clock              Endpoint Pin                    Reference Pin                   Corner  Actual(ns)  Slack(ns)
+--------------------  --------------------  ------------------------------  ------------------------------  ------  ----------  ---------
+milansoc_milannic_usbaudio_usbaudio0
+                      milansoc_clkout2      usb_audio_bridge/capture_crossing/frames/rd_ptr_gray_sync1_reg_reg[6]/D
+                                                                            usb_audio_bridge/capture_crossing/frames/rd_ptr_gray_sync1_reg_reg[0]/D
+                                                                                                            Slow         1.589     18.411
+
+
+Slack (MET) :             18.411ns  (requirement - actual skew)
+  Endpoint Source:        usb_audio_bridge/capture_crossing/frames/rd_ptr_gray_reg_reg[6]/C
+                            (rising edge-triggered cell FDRE clocked by milansoc_milannic_usbaudio_usbaudio0)
+  Endpoint Destination:   usb_audio_bridge/capture_crossing/frames/rd_ptr_gray_sync1_reg_reg[6]/D
+                            (rising edge-triggered cell FDRE clocked by milansoc_clkout2)
+  Reference Source:       usb_audio_bridge/capture_crossing/frames/rd_ptr_gray_reg_reg[0]/C
+                            (rising edge-triggered cell FDRE clocked by milansoc_milannic_usbaudio_usbaudio0)
+  Reference Destination:  usb_audio_bridge/capture_crossing/frames/rd_ptr_gray_sync1_reg_reg[0]/D
+                            (rising edge-triggered cell FDRE clocked by milansoc_clkout2)
+  Path Type:              Bus Skew (Max at Slow Process Corner)
+  Requirement:            20.000ns
+  Endpoint Relative Delay:    0.484ns
+  Reference Relative Delay:  -1.964ns
+  Relative CRPR:              0.859ns
+  Actual Bus Skew:            1.589ns  (Endpoint Relative Delay - Reference Relative Delay - Relative CRPR)
+
+Endpoint path:
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock milansoc_milannic_usbaudio_usbaudio0 rise edge)
+                                                      0.000     0.000 r  <hidden>
+    E3                                                0.000     0.000 r  clk100
+                         net (fo=0)                   0.000     0.000    clk100
+    E3                   IBUF (Prop_ibuf_I_O)         1.482     1.482 r  clk100_IBUF_inst/O
+                         net (fo=1, routed)           2.739     4.221    clk100_IBUF
+    SLICE_X0Y126         LUT1 (Prop_lut1_I0_O)        0.124     4.345 r  clk100_inst/O
+                         net (fo=11, routed)          2.956     7.301    milansoc_clkin_signal
+    MMCME2_ADV_X0Y0      MMCME2_ADV (Prop_mmcme2_adv_CLKIN1_CLKOUT0)
+                                                     -3.922     3.379 r  usb_mmcm/CLKOUT0
+                         net (fo=1, routed)           2.018     5.397    milansoc_milannic_usbaudio_usbaudio0
+    BUFGCTRL_X0Y1        BUFG (Prop_bufg_I_O)         0.096     5.493 r  BUFG_7/O
+                         net (fo=5520, routed)        1.797     7.291    usb_audio_bridge/capture_crossing/frames/usb_bus_clk
+    SLICE_X36Y21         FDRE                                         r  usb_audio_bridge/capture_crossing/frames/rd_ptr_gray_reg_reg[6]/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X36Y21         FDRE (Prop_fdre_C_Q)         0.419     7.710 r  usb_audio_bridge/capture_crossing/frames/rd_ptr_gray_reg_reg[6]/Q
+                         net (fo=5, routed)           1.589     9.298    usb_audio_bridge/capture_crossing/frames/rd_ptr_gray_reg[6]
+    SLICE_X36Y22         FDRE                                         r  usb_audio_bridge/capture_crossing/frames/rd_ptr_gray_sync1_reg_reg[6]/D
+  -------------------------------------------------------------------    -------------------
+
+                         (clock milansoc_clkout2 rise edge)
+                                                      0.000     0.000 r  <hidden>
+    E3                                                0.000     0.000 r  clk100
+                         net (fo=0)                   0.000     0.000    clk100
+    E3                   IBUF (Prop_ibuf_I_O)         1.411     1.411 r  clk100_IBUF_inst/O
+                         net (fo=1, routed)           2.342     3.754    clk100_IBUF
+    SLICE_X0Y126         LUT1 (Prop_lut1_I0_O)        0.100     3.854 r  clk100_inst/O
+                         net (fo=11, routed)          1.279     5.132    milansoc_clkin_signal
+    PLLE2_ADV_X0Y1       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT2)
+                                                      0.083     5.215 r  PLLE2_ADV/CLKOUT2
+                         net (fo=1, routed)           1.625     6.840    milansoc_clkout2
+    BUFGCTRL_X0Y5        BUFG (Prop_bufg_I_O)         0.091     6.931 r  BUFG_2/O
+                         net (fo=26569, routed)       1.668     8.599    usb_audio_bridge/capture_crossing/frames/wr_ptr_reg_reg[5]_0
+    SLICE_X36Y22         FDRE                                         r  usb_audio_bridge/capture_crossing/frames/rd_ptr_gray_sync1_reg_reg[6]/C
+                         clock pessimism              0.492     9.091    <hidden>
+    SLICE_X36Y22         FDRE (Setup_fdre_C_D)       -0.277     8.814    usb_audio_bridge/capture_crossing/frames/rd_ptr_gray_sync1_reg_reg[6]
+  -------------------------------------------------------------------
+                         data arrival                           9.298    <hidden>
+                         clock arrival                          8.814    <hidden>
+  -------------------------------------------------------------------
+                         relative delay                         0.484    <hidden>
+
+Reference path:
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock milansoc_milannic_usbaudio_usbaudio0 rise edge)
+                                                      0.000     0.000 r  <hidden>
+    E3                                                0.000     0.000 r  clk100
+                         net (fo=0)                   0.000     0.000    clk100
+    E3                   IBUF (Prop_ibuf_I_O)         1.411     1.411 r  clk100_IBUF_inst/O
+                         net (fo=1, routed)           2.342     3.754    clk100_IBUF
+    SLICE_X0Y126         LUT1 (Prop_lut1_I0_O)        0.100     3.854 r  clk100_inst/O
+                         net (fo=11, routed)          2.478     6.331    milansoc_clkin_signal
+    MMCME2_ADV_X0Y0      MMCME2_ADV (Prop_mmcme2_adv_CLKIN1_CLKOUT0)
+                                                     -3.694     2.637 r  usb_mmcm/CLKOUT0
+                         net (fo=1, routed)           1.923     4.560    milansoc_milannic_usbaudio_usbaudio0
+    BUFGCTRL_X0Y1        BUFG (Prop_bufg_I_O)         0.091     4.651 r  BUFG_7/O
+                         net (fo=5520, routed)        1.668     6.319    usb_audio_bridge/capture_crossing/frames/usb_bus_clk
+    SLICE_X34Y22         FDRE                                         r  usb_audio_bridge/capture_crossing/frames/rd_ptr_gray_reg_reg[0]/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X34Y22         FDRE (Prop_fdre_C_Q)         0.418     6.737 r  usb_audio_bridge/capture_crossing/frames/rd_ptr_gray_reg_reg[0]/Q
+                         net (fo=2, routed)           0.511     7.248    usb_audio_bridge/capture_crossing/frames/rd_ptr_gray_reg[0]
+    SLICE_X33Y22         FDRE                                         r  usb_audio_bridge/capture_crossing/frames/rd_ptr_gray_sync1_reg_reg[0]/D
+  -------------------------------------------------------------------    -------------------
+
+                         (clock milansoc_clkout2 rise edge)
+                                                      0.000     0.000 r  <hidden>
+    E3                                                0.000     0.000 r  clk100
+                         net (fo=0)                   0.000     0.000    clk100
+    E3                   IBUF (Prop_ibuf_I_O)         1.482     1.482 r  clk100_IBUF_inst/O
+                         net (fo=1, routed)           2.739     4.221    clk100_IBUF
+    SLICE_X0Y126         LUT1 (Prop_lut1_I0_O)        0.124     4.345 r  clk100_inst/O
+                         net (fo=11, routed)          1.505     5.850    milansoc_clkin_signal
+    PLLE2_ADV_X0Y1       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT2)
+                                                      0.088     5.938 r  PLLE2_ADV/CLKOUT2
+                         net (fo=1, routed)           1.704     7.642    milansoc_clkout2
+    BUFGCTRL_X0Y5        BUFG (Prop_bufg_I_O)         0.096     7.738 r  BUFG_2/O
+                         net (fo=26569, routed)       1.796     9.535    usb_audio_bridge/capture_crossing/frames/wr_ptr_reg_reg[5]_0
+    SLICE_X33Y22         FDRE                                         r  usb_audio_bridge/capture_crossing/frames/rd_ptr_gray_sync1_reg_reg[0]/C
+                         clock pessimism             -0.492     9.043    <hidden>
+    SLICE_X33Y22         FDRE (Hold_fdre_C_D)         0.169     9.212    usb_audio_bridge/capture_crossing/frames/rd_ptr_gray_sync1_reg_reg[0]
+  -------------------------------------------------------------------
+                         data arrival                           7.248    <hidden>
+                         clock arrival                          9.212    <hidden>
+  -------------------------------------------------------------------
+                         relative delay                        -1.964    <hidden>
+
+
+
+Id: 4
+set_bus_skew -from [get_cells -quiet {{usb_audio_bridge/capture_crossing/frames/wr_ptr_reg_reg[*]} {usb_audio_bridge/capture_crossing/frames/wr_ptr_gray_reg_reg[*]}}] -to [get_cells {usb_audio_bridge/capture_crossing/frames/wr_ptr_gray_sync1_reg_reg[*]}] 20.000
+Requirement: 20.000ns
+Endpoints: 7
+
+From Clock            To Clock              Endpoint Pin                    Reference Pin                   Corner  Actual(ns)  Slack(ns)
+--------------------  --------------------  ------------------------------  ------------------------------  ------  ----------  ---------
+milansoc_clkout2      milansoc_milannic_usbaudio_usbaudio0
+                                            usb_audio_bridge/capture_crossing/frames/wr_ptr_gray_sync1_reg_reg[2]/D
+                                                                            usb_audio_bridge/capture_crossing/frames/wr_ptr_gray_sync1_reg_reg[3]/D
+                                                                                                            Slow         0.613     19.387
+
+
+Slack (MET) :             19.387ns  (requirement - actual skew)
+  Endpoint Source:        usb_audio_bridge/capture_crossing/frames/wr_ptr_gray_reg_reg[2]/C
+                            (rising edge-triggered cell FDRE clocked by milansoc_clkout2)
+  Endpoint Destination:   usb_audio_bridge/capture_crossing/frames/wr_ptr_gray_sync1_reg_reg[2]/D
+                            (rising edge-triggered cell FDRE clocked by milansoc_milannic_usbaudio_usbaudio0)
+  Reference Source:       usb_audio_bridge/capture_crossing/frames/wr_ptr_gray_reg_reg[3]/C
+                            (rising edge-triggered cell FDRE clocked by milansoc_clkout2)
+  Reference Destination:  usb_audio_bridge/capture_crossing/frames/wr_ptr_gray_sync1_reg_reg[3]/D
+                            (rising edge-triggered cell FDRE clocked by milansoc_milannic_usbaudio_usbaudio0)
+  Path Type:              Bus Skew (Max at Slow Process Corner)
+  Requirement:            20.000ns
+  Endpoint Relative Delay:    3.974ns
+  Reference Relative Delay:   2.487ns
+  Relative CRPR:              0.875ns
+  Actual Bus Skew:            0.613ns  (Endpoint Relative Delay - Reference Relative Delay - Relative CRPR)
+
+Endpoint path:
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock milansoc_clkout2 rise edge)
+                                                      0.000     0.000 r  <hidden>
+    E3                                                0.000     0.000 r  clk100
+                         net (fo=0)                   0.000     0.000    clk100
+    E3                   IBUF (Prop_ibuf_I_O)         1.482     1.482 r  clk100_IBUF_inst/O
+                         net (fo=1, routed)           2.739     4.221    clk100_IBUF
+    SLICE_X0Y126         LUT1 (Prop_lut1_I0_O)        0.124     4.345 r  clk100_inst/O
+                         net (fo=11, routed)          1.505     5.850    milansoc_clkin_signal
+    PLLE2_ADV_X0Y1       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT2)
+                                                      0.088     5.938 r  PLLE2_ADV/CLKOUT2
+                         net (fo=1, routed)           1.704     7.642    milansoc_clkout2
+    BUFGCTRL_X0Y5        BUFG (Prop_bufg_I_O)         0.096     7.738 r  BUFG_2/O
+                         net (fo=26569, routed)       1.797     9.536    usb_audio_bridge/capture_crossing/frames/wr_ptr_reg_reg[5]_0
+    SLICE_X34Y21         FDRE                                         r  usb_audio_bridge/capture_crossing/frames/wr_ptr_gray_reg_reg[2]/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X34Y21         FDRE (Prop_fdre_C_Q)         0.518    10.054 r  usb_audio_bridge/capture_crossing/frames/wr_ptr_gray_reg_reg[2]/Q
+                         net (fo=2, routed)           0.637    10.690    usb_audio_bridge/capture_crossing/frames/wr_ptr_gray_reg[2]
+    SLICE_X35Y22         FDRE                                         r  usb_audio_bridge/capture_crossing/frames/wr_ptr_gray_sync1_reg_reg[2]/D
+  -------------------------------------------------------------------    -------------------
+
+                         (clock milansoc_milannic_usbaudio_usbaudio0 rise edge)
+                                                      0.000     0.000 r  <hidden>
+    E3                                                0.000     0.000 r  clk100
+                         net (fo=0)                   0.000     0.000    clk100
+    E3                   IBUF (Prop_ibuf_I_O)         1.411     1.411 r  clk100_IBUF_inst/O
+                         net (fo=1, routed)           2.342     3.754    clk100_IBUF
+    SLICE_X0Y126         LUT1 (Prop_lut1_I0_O)        0.100     3.854 r  clk100_inst/O
+                         net (fo=11, routed)          2.478     6.331    milansoc_clkin_signal
+    MMCME2_ADV_X0Y0      MMCME2_ADV (Prop_mmcme2_adv_CLKIN1_CLKOUT0)
+                                                     -3.694     2.637 r  usb_mmcm/CLKOUT0
+                         net (fo=1, routed)           1.923     4.560    milansoc_milannic_usbaudio_usbaudio0
+    BUFGCTRL_X0Y1        BUFG (Prop_bufg_I_O)         0.091     4.651 r  BUFG_7/O
+                         net (fo=5520, routed)        1.668     6.319    usb_audio_bridge/capture_crossing/frames/usb_bus_clk
+    SLICE_X35Y22         FDRE                                         r  usb_audio_bridge/capture_crossing/frames/wr_ptr_gray_sync1_reg_reg[2]/C
+                         clock pessimism              0.492     6.811    <hidden>
+    SLICE_X35Y22         FDRE (Setup_fdre_C_D)       -0.095     6.716    usb_audio_bridge/capture_crossing/frames/wr_ptr_gray_sync1_reg_reg[2]
+  -------------------------------------------------------------------
+                         data arrival                          10.690    <hidden>
+                         clock arrival                          6.716    <hidden>
+  -------------------------------------------------------------------
+                         relative delay                         3.974    <hidden>
+
+Reference path:
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock milansoc_clkout2 rise edge)
+                                                      0.000     0.000 r  <hidden>
+    E3                                                0.000     0.000 r  clk100
+                         net (fo=0)                   0.000     0.000    clk100
+    E3                   IBUF (Prop_ibuf_I_O)         1.411     1.411 r  clk100_IBUF_inst/O
+                         net (fo=1, routed)           2.342     3.754    clk100_IBUF
+    SLICE_X0Y126         LUT1 (Prop_lut1_I0_O)        0.100     3.854 r  clk100_inst/O
+                         net (fo=11, routed)          1.279     5.132    milansoc_clkin_signal
+    PLLE2_ADV_X0Y1       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT2)
+                                                      0.083     5.215 r  PLLE2_ADV/CLKOUT2
+                         net (fo=1, routed)           1.625     6.840    milansoc_clkout2
+    BUFGCTRL_X0Y5        BUFG (Prop_bufg_I_O)         0.091     6.931 r  BUFG_2/O
+                         net (fo=26569, routed)       1.671     8.602    usb_audio_bridge/capture_crossing/frames/wr_ptr_reg_reg[5]_0
+    SLICE_X35Y20         FDRE                                         r  usb_audio_bridge/capture_crossing/frames/wr_ptr_gray_reg_reg[3]/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X35Y20         FDRE (Prop_fdre_C_Q)         0.367     8.969 r  usb_audio_bridge/capture_crossing/frames/wr_ptr_gray_reg_reg[3]/Q
+                         net (fo=2, routed)           0.486     9.455    usb_audio_bridge/capture_crossing/frames/wr_ptr_gray_reg[3]
+    SLICE_X37Y21         FDRE                                         r  usb_audio_bridge/capture_crossing/frames/wr_ptr_gray_sync1_reg_reg[3]/D
+  -------------------------------------------------------------------    -------------------
+
+                         (clock milansoc_milannic_usbaudio_usbaudio0 rise edge)
+                                                      0.000     0.000 r  <hidden>
+    E3                                                0.000     0.000 r  clk100
+                         net (fo=0)                   0.000     0.000    clk100
+    E3                   IBUF (Prop_ibuf_I_O)         1.482     1.482 r  clk100_IBUF_inst/O
+                         net (fo=1, routed)           2.739     4.221    clk100_IBUF
+    SLICE_X0Y126         LUT1 (Prop_lut1_I0_O)        0.124     4.345 r  clk100_inst/O
+                         net (fo=11, routed)          2.956     7.301    milansoc_clkin_signal
+    MMCME2_ADV_X0Y0      MMCME2_ADV (Prop_mmcme2_adv_CLKIN1_CLKOUT0)
+                                                     -3.922     3.379 r  usb_mmcm/CLKOUT0
+                         net (fo=1, routed)           2.018     5.397    milansoc_milannic_usbaudio_usbaudio0
+    BUFGCTRL_X0Y1        BUFG (Prop_bufg_I_O)         0.096     5.493 r  BUFG_7/O
+                         net (fo=5520, routed)        1.797     7.291    usb_audio_bridge/capture_crossing/frames/usb_bus_clk
+    SLICE_X37Y21         FDRE                                         r  usb_audio_bridge/capture_crossing/frames/wr_ptr_gray_sync1_reg_reg[3]/C
+                         clock pessimism             -0.492     6.799    <hidden>
+    SLICE_X37Y21         FDRE (Hold_fdre_C_D)         0.169     6.968    usb_audio_bridge/capture_crossing/frames/wr_ptr_gray_sync1_reg_reg[3]
+  -------------------------------------------------------------------
+                         data arrival                           9.455    <hidden>
+                         clock arrival                          6.968    <hidden>
+  -------------------------------------------------------------------
+                         relative delay                         2.487    <hidden>
+
+
+
+Id: 5
+set_bus_skew -from [get_cells {{usb_audio_bridge/playback_crossing/frames/rd_ptr_reg_reg[*]} {usb_audio_bridge/playback_crossing/frames/rd_ptr_gray_reg_reg[*]}}] -to [get_cells {usb_audio_bridge/playback_crossing/frames/rd_ptr_gray_sync1_reg_reg[*]}] 20.000
+Requirement: 20.000ns
+Endpoints: 7
+
+From Clock            To Clock              Endpoint Pin                    Reference Pin                   Corner  Actual(ns)  Slack(ns)
+--------------------  --------------------  ------------------------------  ------------------------------  ------  ----------  ---------
+milansoc_clkout2      milansoc_milannic_usbaudio_usbaudio0
+                                            usb_audio_bridge/playback_crossing/frames/rd_ptr_gray_sync1_reg_reg[3]/D
+                                                                            usb_audio_bridge/playback_crossing/frames/rd_ptr_gray_sync1_reg_reg[2]/D
+                                                                                                            Slow         0.966     19.034
+
+
+Slack (MET) :             19.034ns  (requirement - actual skew)
+  Endpoint Source:        usb_audio_bridge/playback_crossing/frames/rd_ptr_gray_reg_reg[3]/C
+                            (rising edge-triggered cell FDRE clocked by milansoc_clkout2)
+  Endpoint Destination:   usb_audio_bridge/playback_crossing/frames/rd_ptr_gray_sync1_reg_reg[3]/D
+                            (rising edge-triggered cell FDRE clocked by milansoc_milannic_usbaudio_usbaudio0)
+  Reference Source:       usb_audio_bridge/playback_crossing/frames/rd_ptr_gray_reg_reg[2]/C
+                            (rising edge-triggered cell FDRE clocked by milansoc_clkout2)
+  Reference Destination:  usb_audio_bridge/playback_crossing/frames/rd_ptr_gray_sync1_reg_reg[2]/D
+                            (rising edge-triggered cell FDRE clocked by milansoc_milannic_usbaudio_usbaudio0)
+  Path Type:              Bus Skew (Max at Slow Process Corner)
+  Requirement:            20.000ns
+  Endpoint Relative Delay:    4.193ns
+  Reference Relative Delay:   2.384ns
+  Relative CRPR:              0.843ns
+  Actual Bus Skew:            0.966ns  (Endpoint Relative Delay - Reference Relative Delay - Relative CRPR)
+
+Endpoint path:
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock milansoc_clkout2 rise edge)
+                                                      0.000     0.000 r  <hidden>
+    E3                                                0.000     0.000 r  clk100
+                         net (fo=0)                   0.000     0.000    clk100
+    E3                   IBUF (Prop_ibuf_I_O)         1.482     1.482 r  clk100_IBUF_inst/O
+                         net (fo=1, routed)           2.739     4.221    clk100_IBUF
+    SLICE_X0Y126         LUT1 (Prop_lut1_I0_O)        0.124     4.345 r  clk100_inst/O
+                         net (fo=11, routed)          1.505     5.850    milansoc_clkin_signal
+    PLLE2_ADV_X0Y1       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT2)
+                                                      0.088     5.938 r  PLLE2_ADV/CLKOUT2
+                         net (fo=1, routed)           1.704     7.642    milansoc_clkout2
+    BUFGCTRL_X0Y5        BUFG (Prop_bufg_I_O)         0.096     7.738 r  BUFG_2/O
+                         net (fo=26569, routed)       1.802     9.541    usb_audio_bridge/playback_crossing/frames/m_depth_reg_reg[6]_1
+    SLICE_X20Y21         FDRE                                         r  usb_audio_bridge/playback_crossing/frames/rd_ptr_gray_reg_reg[3]/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X20Y21         FDRE (Prop_fdre_C_Q)         0.419     9.960 r  usb_audio_bridge/playback_crossing/frames/rd_ptr_gray_reg_reg[3]/Q
+                         net (fo=2, routed)           0.779    10.738    usb_audio_bridge/playback_crossing/frames/rd_ptr_gray_reg[3]
+    SLICE_X20Y22         FDRE                                         r  usb_audio_bridge/playback_crossing/frames/rd_ptr_gray_sync1_reg_reg[3]/D
+  -------------------------------------------------------------------    -------------------
+
+                         (clock milansoc_milannic_usbaudio_usbaudio0 rise edge)
+                                                      0.000     0.000 r  <hidden>
+    E3                                                0.000     0.000 r  clk100
+                         net (fo=0)                   0.000     0.000    clk100
+    E3                   IBUF (Prop_ibuf_I_O)         1.411     1.411 r  clk100_IBUF_inst/O
+                         net (fo=1, routed)           2.342     3.754    clk100_IBUF
+    SLICE_X0Y126         LUT1 (Prop_lut1_I0_O)        0.100     3.854 r  clk100_inst/O
+                         net (fo=11, routed)          2.478     6.331    milansoc_clkin_signal
+    MMCME2_ADV_X0Y0      MMCME2_ADV (Prop_mmcme2_adv_CLKIN1_CLKOUT0)
+                                                     -3.694     2.637 r  usb_mmcm/CLKOUT0
+                         net (fo=1, routed)           1.923     4.560    milansoc_milannic_usbaudio_usbaudio0
+    BUFGCTRL_X0Y1        BUFG (Prop_bufg_I_O)         0.091     4.651 r  BUFG_7/O
+                         net (fo=5520, routed)        1.672     6.323    usb_audio_bridge/playback_crossing/frames/usb_bus_clk
+    SLICE_X20Y22         FDRE                                         r  usb_audio_bridge/playback_crossing/frames/rd_ptr_gray_sync1_reg_reg[3]/C
+                         clock pessimism              0.492     6.815    <hidden>
+    SLICE_X20Y22         FDRE (Setup_fdre_C_D)       -0.270     6.545    usb_audio_bridge/playback_crossing/frames/rd_ptr_gray_sync1_reg_reg[3]
+  -------------------------------------------------------------------
+                         data arrival                          10.738    <hidden>
+                         clock arrival                          6.545    <hidden>
+  -------------------------------------------------------------------
+                         relative delay                         4.193    <hidden>
+
+Reference path:
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock milansoc_clkout2 rise edge)
+                                                      0.000     0.000 r  <hidden>
+    E3                                                0.000     0.000 r  clk100
+                         net (fo=0)                   0.000     0.000    clk100
+    E3                   IBUF (Prop_ibuf_I_O)         1.411     1.411 r  clk100_IBUF_inst/O
+                         net (fo=1, routed)           2.342     3.754    clk100_IBUF
+    SLICE_X0Y126         LUT1 (Prop_lut1_I0_O)        0.100     3.854 r  clk100_inst/O
+                         net (fo=11, routed)          1.279     5.132    milansoc_clkin_signal
+    PLLE2_ADV_X0Y1       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT2)
+                                                      0.083     5.215 r  PLLE2_ADV/CLKOUT2
+                         net (fo=1, routed)           1.625     6.840    milansoc_clkout2
+    BUFGCTRL_X0Y5        BUFG (Prop_bufg_I_O)         0.091     6.931 r  BUFG_2/O
+                         net (fo=26569, routed)       1.674     8.605    usb_audio_bridge/playback_crossing/frames/m_depth_reg_reg[6]_1
+    SLICE_X18Y21         FDRE                                         r  usb_audio_bridge/playback_crossing/frames/rd_ptr_gray_reg_reg[2]/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X18Y21         FDRE (Prop_fdre_C_Q)         0.367     8.972 r  usb_audio_bridge/playback_crossing/frames/rd_ptr_gray_reg_reg[2]/Q
+                         net (fo=2, routed)           0.387     9.360    usb_audio_bridge/playback_crossing/frames/rd_ptr_gray_reg[2]
+    SLICE_X16Y21         FDRE                                         r  usb_audio_bridge/playback_crossing/frames/rd_ptr_gray_sync1_reg_reg[2]/D
+  -------------------------------------------------------------------    -------------------
+
+                         (clock milansoc_milannic_usbaudio_usbaudio0 rise edge)
+                                                      0.000     0.000 r  <hidden>
+    E3                                                0.000     0.000 r  clk100
+                         net (fo=0)                   0.000     0.000    clk100
+    E3                   IBUF (Prop_ibuf_I_O)         1.482     1.482 r  clk100_IBUF_inst/O
+                         net (fo=1, routed)           2.739     4.221    clk100_IBUF
+    SLICE_X0Y126         LUT1 (Prop_lut1_I0_O)        0.124     4.345 r  clk100_inst/O
+                         net (fo=11, routed)          2.956     7.301    milansoc_clkin_signal
+    MMCME2_ADV_X0Y0      MMCME2_ADV (Prop_mmcme2_adv_CLKIN1_CLKOUT0)
+                                                     -3.922     3.379 r  usb_mmcm/CLKOUT0
+                         net (fo=1, routed)           2.018     5.397    milansoc_milannic_usbaudio_usbaudio0
+    BUFGCTRL_X0Y1        BUFG (Prop_bufg_I_O)         0.096     5.493 r  BUFG_7/O
+                         net (fo=5520, routed)        1.803     7.297    usb_audio_bridge/playback_crossing/frames/usb_bus_clk
+    SLICE_X16Y21         FDRE                                         r  usb_audio_bridge/playback_crossing/frames/rd_ptr_gray_sync1_reg_reg[2]/C
+                         clock pessimism             -0.492     6.805    <hidden>
+    SLICE_X16Y21         FDRE (Hold_fdre_C_D)         0.170     6.975    usb_audio_bridge/playback_crossing/frames/rd_ptr_gray_sync1_reg_reg[2]
+  -------------------------------------------------------------------
+                         data arrival                           9.360    <hidden>
+                         clock arrival                          6.975    <hidden>
+  -------------------------------------------------------------------
+                         relative delay                         2.384    <hidden>
+
+
+
+Id: 6
+set_bus_skew -from [get_cells -quiet {{usb_audio_bridge/playback_crossing/frames/wr_ptr_reg_reg[*]} {usb_audio_bridge/playback_crossing/frames/wr_ptr_gray_reg_reg[*]}}] -to [get_cells {usb_audio_bridge/playback_crossing/frames/wr_ptr_gray_sync1_reg_reg[*]}] 20.000
+Requirement: 20.000ns
+Endpoints: 7
+
+From Clock            To Clock              Endpoint Pin                    Reference Pin                   Corner  Actual(ns)  Slack(ns)
+--------------------  --------------------  ------------------------------  ------------------------------  ------  ----------  ---------
+milansoc_milannic_usbaudio_usbaudio0
+                      milansoc_clkout2      usb_audio_bridge/playback_crossing/frames/wr_ptr_gray_sync1_reg_reg[6]/D
+                                                                            usb_audio_bridge/playback_crossing/frames/wr_ptr_gray_sync1_reg_reg[3]/D
+                                                                                                            Slow         0.693     19.307
+
+
+Slack (MET) :             19.307ns  (requirement - actual skew)
+  Endpoint Source:        usb_audio_bridge/playback_crossing/frames/wr_ptr_gray_reg_reg[6]/C
+                            (rising edge-triggered cell FDRE clocked by milansoc_milannic_usbaudio_usbaudio0)
+  Endpoint Destination:   usb_audio_bridge/playback_crossing/frames/wr_ptr_gray_sync1_reg_reg[6]/D
+                            (rising edge-triggered cell FDRE clocked by milansoc_clkout2)
+  Reference Source:       usb_audio_bridge/playback_crossing/frames/wr_ptr_gray_reg_reg[3]/C
+                            (rising edge-triggered cell FDRE clocked by milansoc_milannic_usbaudio_usbaudio0)
+  Reference Destination:  usb_audio_bridge/playback_crossing/frames/wr_ptr_gray_sync1_reg_reg[3]/D
+                            (rising edge-triggered cell FDRE clocked by milansoc_clkout2)
+  Path Type:              Bus Skew (Max at Slow Process Corner)
+  Requirement:            20.000ns
+  Endpoint Relative Delay:   -0.448ns
+  Reference Relative Delay:  -2.042ns
+  Relative CRPR:              0.901ns
+  Actual Bus Skew:            0.693ns  (Endpoint Relative Delay - Reference Relative Delay - Relative CRPR)
+
+Endpoint path:
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock milansoc_milannic_usbaudio_usbaudio0 rise edge)
+                                                      0.000     0.000 r  <hidden>
+    E3                                                0.000     0.000 r  clk100
+                         net (fo=0)                   0.000     0.000    clk100
+    E3                   IBUF (Prop_ibuf_I_O)         1.482     1.482 r  clk100_IBUF_inst/O
+                         net (fo=1, routed)           2.739     4.221    clk100_IBUF
+    SLICE_X0Y126         LUT1 (Prop_lut1_I0_O)        0.124     4.345 r  clk100_inst/O
+                         net (fo=11, routed)          2.956     7.301    milansoc_clkin_signal
+    MMCME2_ADV_X0Y0      MMCME2_ADV (Prop_mmcme2_adv_CLKIN1_CLKOUT0)
+                                                     -3.922     3.379 r  usb_mmcm/CLKOUT0
+                         net (fo=1, routed)           2.018     5.397    milansoc_milannic_usbaudio_usbaudio0
+    BUFGCTRL_X0Y1        BUFG (Prop_bufg_I_O)         0.096     5.493 r  BUFG_7/O
+                         net (fo=5520, routed)        1.800     7.294    usb_audio_bridge/playback_crossing/frames/usb_bus_clk
+    SLICE_X16Y22         FDRE                                         r  usb_audio_bridge/playback_crossing/frames/wr_ptr_gray_reg_reg[6]/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X16Y22         FDRE (Prop_fdre_C_Q)         0.419     7.713 r  usb_audio_bridge/playback_crossing/frames/wr_ptr_gray_reg_reg[6]/Q
+                         net (fo=4, routed)           0.669     8.382    usb_audio_bridge/playback_crossing/frames/wr_ptr_gray_reg[6]
+    SLICE_X18Y22         FDRE                                         r  usb_audio_bridge/playback_crossing/frames/wr_ptr_gray_sync1_reg_reg[6]/D
+  -------------------------------------------------------------------    -------------------
+
+                         (clock milansoc_clkout2 rise edge)
+                                                      0.000     0.000 r  <hidden>
+    E3                                                0.000     0.000 r  clk100
+                         net (fo=0)                   0.000     0.000    clk100
+    E3                   IBUF (Prop_ibuf_I_O)         1.411     1.411 r  clk100_IBUF_inst/O
+                         net (fo=1, routed)           2.342     3.754    clk100_IBUF
+    SLICE_X0Y126         LUT1 (Prop_lut1_I0_O)        0.100     3.854 r  clk100_inst/O
+                         net (fo=11, routed)          1.279     5.132    milansoc_clkin_signal
+    PLLE2_ADV_X0Y1       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT2)
+                                                      0.083     5.215 r  PLLE2_ADV/CLKOUT2
+                         net (fo=1, routed)           1.625     6.840    milansoc_clkout2
+    BUFGCTRL_X0Y5        BUFG (Prop_bufg_I_O)         0.091     6.931 r  BUFG_2/O
+                         net (fo=26569, routed)       1.672     8.603    usb_audio_bridge/playback_crossing/frames/m_depth_reg_reg[6]_1
+    SLICE_X18Y22         FDRE                                         r  usb_audio_bridge/playback_crossing/frames/wr_ptr_gray_sync1_reg_reg[6]/C
+                         clock pessimism              0.492     9.095    <hidden>
+    SLICE_X18Y22         FDRE (Setup_fdre_C_D)       -0.265     8.830    usb_audio_bridge/playback_crossing/frames/wr_ptr_gray_sync1_reg_reg[6]
+  -------------------------------------------------------------------
+                         data arrival                           8.382    <hidden>
+                         clock arrival                          8.830    <hidden>
+  -------------------------------------------------------------------
+                         relative delay                        -0.448    <hidden>
+
+Reference path:
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock milansoc_milannic_usbaudio_usbaudio0 rise edge)
+                                                      0.000     0.000 r  <hidden>
+    E3                                                0.000     0.000 r  clk100
+                         net (fo=0)                   0.000     0.000    clk100
+    E3                   IBUF (Prop_ibuf_I_O)         1.411     1.411 r  clk100_IBUF_inst/O
+                         net (fo=1, routed)           2.342     3.754    clk100_IBUF
+    SLICE_X0Y126         LUT1 (Prop_lut1_I0_O)        0.100     3.854 r  clk100_inst/O
+                         net (fo=11, routed)          2.478     6.331    milansoc_clkin_signal
+    MMCME2_ADV_X0Y0      MMCME2_ADV (Prop_mmcme2_adv_CLKIN1_CLKOUT0)
+                                                     -3.694     2.637 r  usb_mmcm/CLKOUT0
+                         net (fo=1, routed)           1.923     4.560    milansoc_milannic_usbaudio_usbaudio0
+    BUFGCTRL_X0Y1        BUFG (Prop_bufg_I_O)         0.091     4.651 r  BUFG_7/O
+                         net (fo=5520, routed)        1.672     6.323    usb_audio_bridge/playback_crossing/frames/usb_bus_clk
+    SLICE_X16Y22         FDRE                                         r  usb_audio_bridge/playback_crossing/frames/wr_ptr_gray_reg_reg[3]/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X16Y22         FDRE (Prop_fdre_C_Q)         0.367     6.690 r  usb_audio_bridge/playback_crossing/frames/wr_ptr_gray_reg_reg[3]/Q
+                         net (fo=2, routed)           0.488     7.178    usb_audio_bridge/playback_crossing/frames/wr_ptr_gray_reg[3]
+    SLICE_X19Y21         FDRE                                         r  usb_audio_bridge/playback_crossing/frames/wr_ptr_gray_sync1_reg_reg[3]/D
+  -------------------------------------------------------------------    -------------------
+
+                         (clock milansoc_clkout2 rise edge)
+                                                      0.000     0.000 r  <hidden>
+    E3                                                0.000     0.000 r  clk100
+                         net (fo=0)                   0.000     0.000    clk100
+    E3                   IBUF (Prop_ibuf_I_O)         1.482     1.482 r  clk100_IBUF_inst/O
+                         net (fo=1, routed)           2.739     4.221    clk100_IBUF
+    SLICE_X0Y126         LUT1 (Prop_lut1_I0_O)        0.124     4.345 r  clk100_inst/O
+                         net (fo=11, routed)          1.505     5.850    milansoc_clkin_signal
+    PLLE2_ADV_X0Y1       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT2)
+                                                      0.088     5.938 r  PLLE2_ADV/CLKOUT2
+                         net (fo=1, routed)           1.704     7.642    milansoc_clkout2
+    BUFGCTRL_X0Y5        BUFG (Prop_bufg_I_O)         0.096     7.738 r  BUFG_2/O
+                         net (fo=26569, routed)       1.803     9.542    usb_audio_bridge/playback_crossing/frames/m_depth_reg_reg[6]_1
+    SLICE_X19Y21         FDRE                                         r  usb_audio_bridge/playback_crossing/frames/wr_ptr_gray_sync1_reg_reg[3]/C
+                         clock pessimism             -0.492     9.050    <hidden>
+    SLICE_X19Y21         FDRE (Hold_fdre_C_D)         0.170     9.220    usb_audio_bridge/playback_crossing/frames/wr_ptr_gray_sync1_reg_reg[3]
+  -------------------------------------------------------------------
+                         data arrival                           7.178    <hidden>
+                         clock arrival                          9.220    <hidden>
+  -------------------------------------------------------------------
+                         relative delay                        -2.042    <hidden>
+
+
+
+Id: 7
+set_bus_skew -from [get_cells {{usb_audio_bridge/state_crossing/frames/rd_ptr_reg_reg[*]} {usb_audio_bridge/state_crossing/frames/rd_ptr_gray_reg_reg[*]}}] -to [get_cells {usb_audio_bridge/state_crossing/frames/rd_ptr_gray_sync1_reg_reg[*]}] 20.000
+Requirement: 20.000ns
+Endpoints: 3
+
+From Clock            To Clock              Endpoint Pin                    Reference Pin                   Corner  Actual(ns)  Slack(ns)
+--------------------  --------------------  ------------------------------  ------------------------------  ------  ----------  ---------
+milansoc_clkout2      milansoc_milannic_usbaudio_usbaudio0
+                                            usb_audio_bridge/state_crossing/frames/rd_ptr_gray_sync1_reg_reg[1]/D
+                                                                            usb_audio_bridge/state_crossing/frames/rd_ptr_gray_sync1_reg_reg[0]/D
+                                                                                                            Slow         0.509     19.491
+
+
+Slack (MET) :             19.491ns  (requirement - actual skew)
+  Endpoint Source:        usb_audio_bridge/state_crossing/frames/rd_ptr_gray_reg_reg[1]/C
+                            (rising edge-triggered cell FDRE clocked by milansoc_clkout2)
+  Endpoint Destination:   usb_audio_bridge/state_crossing/frames/rd_ptr_gray_sync1_reg_reg[1]/D
+                            (rising edge-triggered cell FDRE clocked by milansoc_milannic_usbaudio_usbaudio0)
+  Reference Source:       usb_audio_bridge/state_crossing/frames/rd_ptr_gray_reg_reg[0]/C
+                            (rising edge-triggered cell FDRE clocked by milansoc_clkout2)
+  Reference Destination:  usb_audio_bridge/state_crossing/frames/rd_ptr_gray_sync1_reg_reg[0]/D
+                            (rising edge-triggered cell FDRE clocked by milansoc_milannic_usbaudio_usbaudio0)
+  Path Type:              Bus Skew (Max at Slow Process Corner)
+  Requirement:            20.000ns
+  Endpoint Relative Delay:    4.013ns
+  Reference Relative Delay:   2.582ns
+  Relative CRPR:              0.923ns
+  Actual Bus Skew:            0.509ns  (Endpoint Relative Delay - Reference Relative Delay - Relative CRPR)
+
+Endpoint path:
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock milansoc_clkout2 rise edge)
+                                                      0.000     0.000 r  <hidden>
+    E3                                                0.000     0.000 r  clk100
+                         net (fo=0)                   0.000     0.000    clk100
+    E3                   IBUF (Prop_ibuf_I_O)         1.482     1.482 r  clk100_IBUF_inst/O
+                         net (fo=1, routed)           2.739     4.221    clk100_IBUF
+    SLICE_X0Y126         LUT1 (Prop_lut1_I0_O)        0.124     4.345 r  clk100_inst/O
+                         net (fo=11, routed)          1.505     5.850    milansoc_clkin_signal
+    PLLE2_ADV_X0Y1       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT2)
+                                                      0.088     5.938 r  PLLE2_ADV/CLKOUT2
+                         net (fo=1, routed)           1.704     7.642    milansoc_clkout2
+    BUFGCTRL_X0Y5        BUFG (Prop_bufg_I_O)         0.096     7.738 r  BUFG_2/O
+                         net (fo=26569, routed)       1.798     9.537    usb_audio_bridge/state_crossing/frames/out
+    SLICE_X24Y26         FDRE                                         r  usb_audio_bridge/state_crossing/frames/rd_ptr_gray_reg_reg[1]/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X24Y26         FDRE (Prop_fdre_C_Q)         0.456     9.993 r  usb_audio_bridge/state_crossing/frames/rd_ptr_gray_reg_reg[1]/Q
+                         net (fo=2, routed)           0.741    10.733    usb_audio_bridge/state_crossing/frames/rd_ptr_gray_reg[1]
+    SLICE_X25Y26         FDRE                                         r  usb_audio_bridge/state_crossing/frames/rd_ptr_gray_sync1_reg_reg[1]/D
+  -------------------------------------------------------------------    -------------------
+
+                         (clock milansoc_milannic_usbaudio_usbaudio0 rise edge)
+                                                      0.000     0.000 r  <hidden>
+    E3                                                0.000     0.000 r  clk100
+                         net (fo=0)                   0.000     0.000    clk100
+    E3                   IBUF (Prop_ibuf_I_O)         1.411     1.411 r  clk100_IBUF_inst/O
+                         net (fo=1, routed)           2.342     3.754    clk100_IBUF
+    SLICE_X0Y126         LUT1 (Prop_lut1_I0_O)        0.100     3.854 r  clk100_inst/O
+                         net (fo=11, routed)          2.478     6.331    milansoc_clkin_signal
+    MMCME2_ADV_X0Y0      MMCME2_ADV (Prop_mmcme2_adv_CLKIN1_CLKOUT0)
+                                                     -3.694     2.637 r  usb_mmcm/CLKOUT0
+                         net (fo=1, routed)           1.923     4.560    milansoc_milannic_usbaudio_usbaudio0
+    BUFGCTRL_X0Y1        BUFG (Prop_bufg_I_O)         0.091     4.651 r  BUFG_7/O
+                         net (fo=5520, routed)        1.670     6.321    usb_audio_bridge/state_crossing/frames/usb_bus_clk
+    SLICE_X25Y26         FDRE                                         r  usb_audio_bridge/state_crossing/frames/rd_ptr_gray_sync1_reg_reg[1]/C
+                         clock pessimism              0.492     6.813    <hidden>
+    SLICE_X25Y26         FDRE (Setup_fdre_C_D)       -0.093     6.720    usb_audio_bridge/state_crossing/frames/rd_ptr_gray_sync1_reg_reg[1]
+  -------------------------------------------------------------------
+                         data arrival                          10.733    <hidden>
+                         clock arrival                          6.720    <hidden>
+  -------------------------------------------------------------------
+                         relative delay                         4.013    <hidden>
+
+Reference path:
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock milansoc_clkout2 rise edge)
+                                                      0.000     0.000 r  <hidden>
+    E3                                                0.000     0.000 r  clk100
+                         net (fo=0)                   0.000     0.000    clk100
+    E3                   IBUF (Prop_ibuf_I_O)         1.411     1.411 r  clk100_IBUF_inst/O
+                         net (fo=1, routed)           2.342     3.754    clk100_IBUF
+    SLICE_X0Y126         LUT1 (Prop_lut1_I0_O)        0.100     3.854 r  clk100_inst/O
+                         net (fo=11, routed)          1.279     5.132    milansoc_clkin_signal
+    PLLE2_ADV_X0Y1       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT2)
+                                                      0.083     5.215 r  PLLE2_ADV/CLKOUT2
+                         net (fo=1, routed)           1.625     6.840    milansoc_clkout2
+    BUFGCTRL_X0Y5        BUFG (Prop_bufg_I_O)         0.091     6.931 r  BUFG_2/O
+                         net (fo=26569, routed)       1.670     8.601    usb_audio_bridge/state_crossing/frames/out
+    SLICE_X24Y26         FDRE                                         r  usb_audio_bridge/state_crossing/frames/rd_ptr_gray_reg_reg[0]/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X24Y26         FDRE (Prop_fdre_C_Q)         0.367     8.968 r  usb_audio_bridge/state_crossing/frames/rd_ptr_gray_reg_reg[0]/Q
+                         net (fo=2, routed)           0.583     9.551    usb_audio_bridge/state_crossing/frames/rd_ptr_gray_reg[0]
+    SLICE_X25Y26         FDRE                                         r  usb_audio_bridge/state_crossing/frames/rd_ptr_gray_sync1_reg_reg[0]/D
+  -------------------------------------------------------------------    -------------------
+
+                         (clock milansoc_milannic_usbaudio_usbaudio0 rise edge)
+                                                      0.000     0.000 r  <hidden>
+    E3                                                0.000     0.000 r  clk100
+                         net (fo=0)                   0.000     0.000    clk100
+    E3                   IBUF (Prop_ibuf_I_O)         1.482     1.482 r  clk100_IBUF_inst/O
+                         net (fo=1, routed)           2.739     4.221    clk100_IBUF
+    SLICE_X0Y126         LUT1 (Prop_lut1_I0_O)        0.124     4.345 r  clk100_inst/O
+                         net (fo=11, routed)          2.956     7.301    milansoc_clkin_signal
+    MMCME2_ADV_X0Y0      MMCME2_ADV (Prop_mmcme2_adv_CLKIN1_CLKOUT0)
+                                                     -3.922     3.379 r  usb_mmcm/CLKOUT0
+                         net (fo=1, routed)           2.018     5.397    milansoc_milannic_usbaudio_usbaudio0
+    BUFGCTRL_X0Y1        BUFG (Prop_bufg_I_O)         0.096     5.493 r  BUFG_7/O
+                         net (fo=5520, routed)        1.798     7.292    usb_audio_bridge/state_crossing/frames/usb_bus_clk
+    SLICE_X25Y26         FDRE                                         r  usb_audio_bridge/state_crossing/frames/rd_ptr_gray_sync1_reg_reg[0]/C
+                         clock pessimism             -0.492     6.800    <hidden>
+    SLICE_X25Y26         FDRE (Hold_fdre_C_D)         0.169     6.969    usb_audio_bridge/state_crossing/frames/rd_ptr_gray_sync1_reg_reg[0]
+  -------------------------------------------------------------------
+                         data arrival                           9.551    <hidden>
+                         clock arrival                          6.969    <hidden>
+  -------------------------------------------------------------------
+                         relative delay                         2.582    <hidden>
+
+
+
+Id: 8
+set_bus_skew -from [get_cells -quiet {{usb_audio_bridge/state_crossing/frames/wr_ptr_reg_reg[*]} {usb_audio_bridge/state_crossing/frames/wr_ptr_gray_reg_reg[*]}}] -to [get_cells {usb_audio_bridge/state_crossing/frames/wr_ptr_gray_sync1_reg_reg[*]}] 20.000
+Requirement: 20.000ns
+Endpoints: 3
+
+From Clock            To Clock              Endpoint Pin                    Reference Pin                   Corner  Actual(ns)  Slack(ns)
+--------------------  --------------------  ------------------------------  ------------------------------  ------  ----------  ---------
+milansoc_milannic_usbaudio_usbaudio0
+                      milansoc_clkout2      usb_audio_bridge/state_crossing/frames/wr_ptr_gray_sync1_reg_reg[1]/D
+                                                                            usb_audio_bridge/state_crossing/frames/wr_ptr_gray_sync1_reg_reg[0]/D
+                                                                                                            Slow         0.715     19.285
+
+
+Slack (MET) :             19.285ns  (requirement - actual skew)
+  Endpoint Source:        usb_audio_bridge/state_crossing/frames/wr_ptr_gray_reg_reg[1]/C
+                            (rising edge-triggered cell FDRE clocked by milansoc_milannic_usbaudio_usbaudio0)
+  Endpoint Destination:   usb_audio_bridge/state_crossing/frames/wr_ptr_gray_sync1_reg_reg[1]/D
+                            (rising edge-triggered cell FDRE clocked by milansoc_clkout2)
+  Reference Source:       usb_audio_bridge/state_crossing/frames/wr_ptr_gray_reg_reg[0]/C
+                            (rising edge-triggered cell FDRE clocked by milansoc_milannic_usbaudio_usbaudio0)
+  Reference Destination:  usb_audio_bridge/state_crossing/frames/wr_ptr_gray_sync1_reg_reg[0]/D
+                            (rising edge-triggered cell FDRE clocked by milansoc_clkout2)
+  Path Type:              Bus Skew (Max at Slow Process Corner)
+  Requirement:            20.000ns
+  Endpoint Relative Delay:   -0.348ns
+  Reference Relative Delay:  -1.945ns
+  Relative CRPR:              0.883ns
+  Actual Bus Skew:            0.715ns  (Endpoint Relative Delay - Reference Relative Delay - Relative CRPR)
+
+Endpoint path:
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock milansoc_milannic_usbaudio_usbaudio0 rise edge)
+                                                      0.000     0.000 r  <hidden>
+    E3                                                0.000     0.000 r  clk100
+                         net (fo=0)                   0.000     0.000    clk100
+    E3                   IBUF (Prop_ibuf_I_O)         1.482     1.482 r  clk100_IBUF_inst/O
+                         net (fo=1, routed)           2.739     4.221    clk100_IBUF
+    SLICE_X0Y126         LUT1 (Prop_lut1_I0_O)        0.124     4.345 r  clk100_inst/O
+                         net (fo=11, routed)          2.956     7.301    milansoc_clkin_signal
+    MMCME2_ADV_X0Y0      MMCME2_ADV (Prop_mmcme2_adv_CLKIN1_CLKOUT0)
+                                                     -3.922     3.379 r  usb_mmcm/CLKOUT0
+                         net (fo=1, routed)           2.018     5.397    milansoc_milannic_usbaudio_usbaudio0
+    BUFGCTRL_X0Y1        BUFG (Prop_bufg_I_O)         0.096     5.493 r  BUFG_7/O
+                         net (fo=5520, routed)        1.796     7.290    usb_audio_bridge/state_crossing/frames/usb_bus_clk
+    SLICE_X25Y25         FDRE                                         r  usb_audio_bridge/state_crossing/frames/wr_ptr_gray_reg_reg[1]/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X25Y25         FDRE (Prop_fdre_C_Q)         0.456     7.746 r  usb_audio_bridge/state_crossing/frames/wr_ptr_gray_reg_reg[1]/Q
+                         net (fo=2, routed)           0.904     8.649    usb_audio_bridge/state_crossing/frames/wr_ptr_gray_reg[1]
+    SLICE_X23Y25         FDRE                                         r  usb_audio_bridge/state_crossing/frames/wr_ptr_gray_sync1_reg_reg[1]/D
+  -------------------------------------------------------------------    -------------------
+
+                         (clock milansoc_clkout2 rise edge)
+                                                      0.000     0.000 r  <hidden>
+    E3                                                0.000     0.000 r  clk100
+                         net (fo=0)                   0.000     0.000    clk100
+    E3                   IBUF (Prop_ibuf_I_O)         1.411     1.411 r  clk100_IBUF_inst/O
+                         net (fo=1, routed)           2.342     3.754    clk100_IBUF
+    SLICE_X0Y126         LUT1 (Prop_lut1_I0_O)        0.100     3.854 r  clk100_inst/O
+                         net (fo=11, routed)          1.279     5.132    milansoc_clkin_signal
+    PLLE2_ADV_X0Y1       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT2)
+                                                      0.083     5.215 r  PLLE2_ADV/CLKOUT2
+                         net (fo=1, routed)           1.625     6.840    milansoc_clkout2
+    BUFGCTRL_X0Y5        BUFG (Prop_bufg_I_O)         0.091     6.931 r  BUFG_2/O
+                         net (fo=26569, routed)       1.669     8.600    usb_audio_bridge/state_crossing/frames/out
+    SLICE_X23Y25         FDRE                                         r  usb_audio_bridge/state_crossing/frames/wr_ptr_gray_sync1_reg_reg[1]/C
+                         clock pessimism              0.492     9.092    <hidden>
+    SLICE_X23Y25         FDRE (Setup_fdre_C_D)       -0.095     8.997    usb_audio_bridge/state_crossing/frames/wr_ptr_gray_sync1_reg_reg[1]
+  -------------------------------------------------------------------
+                         data arrival                           8.649    <hidden>
+                         clock arrival                          8.997    <hidden>
+  -------------------------------------------------------------------
+                         relative delay                        -0.348    <hidden>
+
+Reference path:
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock milansoc_milannic_usbaudio_usbaudio0 rise edge)
+                                                      0.000     0.000 r  <hidden>
+    E3                                                0.000     0.000 r  clk100
+                         net (fo=0)                   0.000     0.000    clk100
+    E3                   IBUF (Prop_ibuf_I_O)         1.411     1.411 r  clk100_IBUF_inst/O
+                         net (fo=1, routed)           2.342     3.754    clk100_IBUF
+    SLICE_X0Y126         LUT1 (Prop_lut1_I0_O)        0.100     3.854 r  clk100_inst/O
+                         net (fo=11, routed)          2.478     6.331    milansoc_clkin_signal
+    MMCME2_ADV_X0Y0      MMCME2_ADV (Prop_mmcme2_adv_CLKIN1_CLKOUT0)
+                                                     -3.694     2.637 r  usb_mmcm/CLKOUT0
+                         net (fo=1, routed)           1.923     4.560    milansoc_milannic_usbaudio_usbaudio0
+    BUFGCTRL_X0Y1        BUFG (Prop_bufg_I_O)         0.091     4.651 r  BUFG_7/O
+                         net (fo=5520, routed)        1.668     6.319    usb_audio_bridge/state_crossing/frames/usb_bus_clk
+    SLICE_X25Y25         FDRE                                         r  usb_audio_bridge/state_crossing/frames/wr_ptr_gray_reg_reg[0]/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X25Y25         FDRE (Prop_fdre_C_Q)         0.367     6.686 r  usb_audio_bridge/state_crossing/frames/wr_ptr_gray_reg_reg[0]/Q
+                         net (fo=2, routed)           0.582     7.268    usb_audio_bridge/state_crossing/frames/wr_ptr_gray_reg[0]
+    SLICE_X24Y25         FDRE                                         r  usb_audio_bridge/state_crossing/frames/wr_ptr_gray_sync1_reg_reg[0]/D
+  -------------------------------------------------------------------    -------------------
+
+                         (clock milansoc_clkout2 rise edge)
+                                                      0.000     0.000 r  <hidden>
+    E3                                                0.000     0.000 r  clk100
+                         net (fo=0)                   0.000     0.000    clk100
+    E3                   IBUF (Prop_ibuf_I_O)         1.482     1.482 r  clk100_IBUF_inst/O
+                         net (fo=1, routed)           2.739     4.221    clk100_IBUF
+    SLICE_X0Y126         LUT1 (Prop_lut1_I0_O)        0.124     4.345 r  clk100_inst/O
+                         net (fo=11, routed)          1.505     5.850    milansoc_clkin_signal
+    PLLE2_ADV_X0Y1       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT2)
+                                                      0.088     5.938 r  PLLE2_ADV/CLKOUT2
+                         net (fo=1, routed)           1.704     7.642    milansoc_clkout2
+    BUFGCTRL_X0Y5        BUFG (Prop_bufg_I_O)         0.096     7.738 r  BUFG_2/O
+                         net (fo=26569, routed)       1.796     9.535    usb_audio_bridge/state_crossing/frames/out
+    SLICE_X24Y25         FDRE                                         r  usb_audio_bridge/state_crossing/frames/wr_ptr_gray_sync1_reg_reg[0]/C
+                         clock pessimism             -0.492     9.043    <hidden>
+    SLICE_X24Y25         FDRE (Hold_fdre_C_D)         0.170     9.213    usb_audio_bridge/state_crossing/frames/wr_ptr_gray_sync1_reg_reg[0]
+  -------------------------------------------------------------------
+                         data arrival                           7.268    <hidden>
+                         clock arrival                          9.213    <hidden>
+  -------------------------------------------------------------------
+                         relative delay                        -1.945    <hidden>
+
+
+
+Id: 9
+set_bus_skew -from [get_cells {{usb_diagnostics/frames/rd_ptr_reg_reg[*]} {usb_diagnostics/frames/rd_ptr_gray_reg_reg[*]}}] -to [get_cells {usb_diagnostics/frames/rd_ptr_gray_sync1_reg_reg[*]}] 20.000
+Requirement: 20.000ns
+Endpoints: 3
+
+From Clock            To Clock              Endpoint Pin                    Reference Pin                   Corner  Actual(ns)  Slack(ns)
+--------------------  --------------------  ------------------------------  ------------------------------  ------  ----------  ---------
+milansoc_clkout0      milansoc_milannic_usbaudio_usbaudio0
+                                            usb_diagnostics/frames/rd_ptr_gray_sync1_reg_reg[1]/D
+                                                                            usb_diagnostics/frames/rd_ptr_gray_sync1_reg_reg[2]/D
+                                                                                                            Slow         0.619     19.381
+
+
+Slack (MET) :             19.381ns  (requirement - actual skew)
+  Endpoint Source:        usb_diagnostics/frames/rd_ptr_gray_reg_reg[1]/C
+                            (rising edge-triggered cell FDRE clocked by milansoc_clkout0)
+  Endpoint Destination:   usb_diagnostics/frames/rd_ptr_gray_sync1_reg_reg[1]/D
+                            (rising edge-triggered cell FDRE clocked by milansoc_milannic_usbaudio_usbaudio0)
+  Reference Source:       usb_diagnostics/frames/rd_ptr_gray_reg_reg[2]/C
+                            (rising edge-triggered cell FDRE clocked by milansoc_clkout0)
+  Reference Destination:  usb_diagnostics/frames/rd_ptr_gray_sync1_reg_reg[2]/D
+                            (rising edge-triggered cell FDRE clocked by milansoc_milannic_usbaudio_usbaudio0)
+  Path Type:              Bus Skew (Max at Slow Process Corner)
+  Requirement:            20.000ns
+  Endpoint Relative Delay:    3.867ns
+  Reference Relative Delay:   2.322ns
+  Relative CRPR:              0.927ns
+  Actual Bus Skew:            0.619ns  (Endpoint Relative Delay - Reference Relative Delay - Relative CRPR)
+
+Endpoint path:
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock milansoc_clkout0 rise edge)
+                                                      0.000     0.000 r  <hidden>
+    E3                                                0.000     0.000 r  clk100
+                         net (fo=0)                   0.000     0.000    clk100
+    E3                   IBUF (Prop_ibuf_I_O)         1.482     1.482 r  clk100_IBUF_inst/O
+                         net (fo=1, routed)           2.739     4.221    clk100_IBUF
+    SLICE_X0Y126         LUT1 (Prop_lut1_I0_O)        0.124     4.345 r  clk100_inst/O
+                         net (fo=11, routed)          1.505     5.850    milansoc_clkin_signal
+    PLLE2_ADV_X0Y1       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT0)
+                                                      0.088     5.938 r  PLLE2_ADV/CLKOUT0
+                         net (fo=1, routed)           1.704     7.642    milansoc_clkout0
+    BUFGCTRL_X0Y0        BUFG (Prop_bufg_I_O)         0.096     7.738 r  BUFG/O
+                         net (fo=18491, routed)       1.812     9.551    usb_diagnostics/frames/out
+    SLICE_X32Y41         FDRE                                         r  usb_diagnostics/frames/rd_ptr_gray_reg_reg[1]/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X32Y41         FDRE (Prop_fdre_C_Q)         0.456    10.007 r  usb_diagnostics/frames/rd_ptr_gray_reg_reg[1]/Q
+                         net (fo=2, routed)           0.642    10.649    usb_diagnostics/frames/rd_ptr_gray_reg[1]
+    SLICE_X30Y41         FDRE                                         r  usb_diagnostics/frames/rd_ptr_gray_sync1_reg_reg[1]/D
+  -------------------------------------------------------------------    -------------------
+
+                         (clock milansoc_milannic_usbaudio_usbaudio0 rise edge)
+                                                      0.000     0.000 r  <hidden>
+    E3                                                0.000     0.000 r  clk100
+                         net (fo=0)                   0.000     0.000    clk100
+    E3                   IBUF (Prop_ibuf_I_O)         1.411     1.411 r  clk100_IBUF_inst/O
+                         net (fo=1, routed)           2.342     3.754    clk100_IBUF
+    SLICE_X0Y126         LUT1 (Prop_lut1_I0_O)        0.100     3.854 r  clk100_inst/O
+                         net (fo=11, routed)          2.478     6.331    milansoc_clkin_signal
+    MMCME2_ADV_X0Y0      MMCME2_ADV (Prop_mmcme2_adv_CLKIN1_CLKOUT0)
+                                                     -3.694     2.637 r  usb_mmcm/CLKOUT0
+                         net (fo=1, routed)           1.923     4.560    milansoc_milannic_usbaudio_usbaudio0
+    BUFGCTRL_X0Y1        BUFG (Prop_bufg_I_O)         0.091     4.651 r  BUFG_7/O
+                         net (fo=5520, routed)        1.682     6.333    usb_diagnostics/frames/usb_bus_clk
+    SLICE_X30Y41         FDRE                                         r  usb_diagnostics/frames/rd_ptr_gray_sync1_reg_reg[1]/C
+                         clock pessimism              0.492     6.825    <hidden>
+    SLICE_X30Y41         FDRE (Setup_fdre_C_D)       -0.043     6.782    usb_diagnostics/frames/rd_ptr_gray_sync1_reg_reg[1]
+  -------------------------------------------------------------------
+                         data arrival                          10.649    <hidden>
+                         clock arrival                          6.782    <hidden>
+  -------------------------------------------------------------------
+                         relative delay                         3.867    <hidden>
+
+Reference path:
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock milansoc_clkout0 rise edge)
+                                                      0.000     0.000 r  <hidden>
+    E3                                                0.000     0.000 r  clk100
+                         net (fo=0)                   0.000     0.000    clk100
+    E3                   IBUF (Prop_ibuf_I_O)         1.411     1.411 r  clk100_IBUF_inst/O
+                         net (fo=1, routed)           2.342     3.754    clk100_IBUF
+    SLICE_X0Y126         LUT1 (Prop_lut1_I0_O)        0.100     3.854 r  clk100_inst/O
+                         net (fo=11, routed)          1.279     5.132    milansoc_clkin_signal
+    PLLE2_ADV_X0Y1       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT0)
+                                                      0.083     5.215 r  PLLE2_ADV/CLKOUT0
+                         net (fo=1, routed)           1.625     6.840    milansoc_clkout0
+    BUFGCTRL_X0Y0        BUFG (Prop_bufg_I_O)         0.091     6.931 r  BUFG/O
+                         net (fo=18491, routed)       1.682     8.613    usb_diagnostics/frames/out
+    SLICE_X32Y41         FDRE                                         r  usb_diagnostics/frames/rd_ptr_gray_reg_reg[2]/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X32Y41         FDRE (Prop_fdre_C_Q)         0.337     8.950 r  usb_diagnostics/frames/rd_ptr_gray_reg_reg[2]/Q
+                         net (fo=4, routed)           0.276     9.226    usb_diagnostics/frames/rd_ptr_gray_reg[2]
+    SLICE_X30Y41         FDRE                                         r  usb_diagnostics/frames/rd_ptr_gray_sync1_reg_reg[2]/D
+  -------------------------------------------------------------------    -------------------
+
+                         (clock milansoc_milannic_usbaudio_usbaudio0 rise edge)
+                                                      0.000     0.000 r  <hidden>
+    E3                                                0.000     0.000 r  clk100
+                         net (fo=0)                   0.000     0.000    clk100
+    E3                   IBUF (Prop_ibuf_I_O)         1.482     1.482 r  clk100_IBUF_inst/O
+                         net (fo=1, routed)           2.739     4.221    clk100_IBUF
+    SLICE_X0Y126         LUT1 (Prop_lut1_I0_O)        0.124     4.345 r  clk100_inst/O
+                         net (fo=11, routed)          2.956     7.301    milansoc_clkin_signal
+    MMCME2_ADV_X0Y0      MMCME2_ADV (Prop_mmcme2_adv_CLKIN1_CLKOUT0)
+                                                     -3.922     3.379 r  usb_mmcm/CLKOUT0
+                         net (fo=1, routed)           2.018     5.397    milansoc_milannic_usbaudio_usbaudio0
+    BUFGCTRL_X0Y1        BUFG (Prop_bufg_I_O)         0.096     5.493 r  BUFG_7/O
+                         net (fo=5520, routed)        1.812     7.306    usb_diagnostics/frames/usb_bus_clk
+    SLICE_X30Y41         FDRE                                         r  usb_diagnostics/frames/rd_ptr_gray_sync1_reg_reg[2]/C
+                         clock pessimism             -0.492     6.814    <hidden>
+    SLICE_X30Y41         FDRE (Hold_fdre_C_D)         0.090     6.904    usb_diagnostics/frames/rd_ptr_gray_sync1_reg_reg[2]
+  -------------------------------------------------------------------
+                         data arrival                           9.226    <hidden>
+                         clock arrival                          6.904    <hidden>
+  -------------------------------------------------------------------
+                         relative delay                         2.322    <hidden>
+
+
+
+Id: 10
+set_bus_skew -from [get_cells -quiet {{usb_diagnostics/frames/wr_ptr_reg_reg[*]} {usb_diagnostics/frames/wr_ptr_gray_reg_reg[*]}}] -to [get_cells {usb_diagnostics/frames/wr_ptr_gray_sync1_reg_reg[*]}] 10.000
+Requirement: 10.000ns
+Endpoints: 3
+
+From Clock            To Clock              Endpoint Pin                    Reference Pin                   Corner  Actual(ns)  Slack(ns)
+--------------------  --------------------  ------------------------------  ------------------------------  ------  ----------  ---------
+milansoc_milannic_usbaudio_usbaudio0
+                      milansoc_clkout0      usb_diagnostics/frames/wr_ptr_gray_sync1_reg_reg[0]/D
+                                                                            usb_diagnostics/frames/wr_ptr_gray_sync1_reg_reg[2]/D
+                                                                                                            Slow         0.841      9.159
+
+
+Slack (MET) :             9.159ns  (requirement - actual skew)
+  Endpoint Source:        usb_diagnostics/frames/wr_ptr_gray_reg_reg[0]/C
+                            (rising edge-triggered cell FDRE clocked by milansoc_milannic_usbaudio_usbaudio0)
+  Endpoint Destination:   usb_diagnostics/frames/wr_ptr_gray_sync1_reg_reg[0]/D
+                            (rising edge-triggered cell FDRE clocked by milansoc_clkout0)
+  Reference Source:       usb_diagnostics/frames/wr_ptr_gray_reg_reg[2]/C
+                            (rising edge-triggered cell FDRE clocked by milansoc_milannic_usbaudio_usbaudio0)
+  Reference Destination:  usb_diagnostics/frames/wr_ptr_gray_sync1_reg_reg[2]/D
+                            (rising edge-triggered cell FDRE clocked by milansoc_clkout0)
+  Path Type:              Bus Skew (Max at Slow Process Corner)
+  Requirement:            10.000ns
+  Endpoint Relative Delay:   -0.375ns
+  Reference Relative Delay:  -2.143ns
+  Relative CRPR:              0.927ns
+  Actual Bus Skew:            0.841ns  (Endpoint Relative Delay - Reference Relative Delay - Relative CRPR)
+
+Endpoint path:
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock milansoc_milannic_usbaudio_usbaudio0 rise edge)
+                                                      0.000     0.000 r  <hidden>
+    E3                                                0.000     0.000 r  clk100
+                         net (fo=0)                   0.000     0.000    clk100
+    E3                   IBUF (Prop_ibuf_I_O)         1.482     1.482 r  clk100_IBUF_inst/O
+                         net (fo=1, routed)           2.739     4.221    clk100_IBUF
+    SLICE_X0Y126         LUT1 (Prop_lut1_I0_O)        0.124     4.345 r  clk100_inst/O
+                         net (fo=11, routed)          2.956     7.301    milansoc_clkin_signal
+    MMCME2_ADV_X0Y0      MMCME2_ADV (Prop_mmcme2_adv_CLKIN1_CLKOUT0)
+                                                     -3.922     3.379 r  usb_mmcm/CLKOUT0
+                         net (fo=1, routed)           2.018     5.397    milansoc_milannic_usbaudio_usbaudio0
+    BUFGCTRL_X0Y1        BUFG (Prop_bufg_I_O)         0.096     5.493 r  BUFG_7/O
+                         net (fo=5520, routed)        1.811     7.305    usb_diagnostics/frames/usb_bus_clk
+    SLICE_X31Y40         FDRE                                         r  usb_diagnostics/frames/wr_ptr_gray_reg_reg[0]/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X31Y40         FDRE (Prop_fdre_C_Q)         0.456     7.761 r  usb_diagnostics/frames/wr_ptr_gray_reg_reg[0]/Q
+                         net (fo=2, routed)           0.874     8.635    usb_diagnostics/frames/wr_ptr_gray_reg[0]
+    SLICE_X31Y41         FDRE                                         r  usb_diagnostics/frames/wr_ptr_gray_sync1_reg_reg[0]/D
+  -------------------------------------------------------------------    -------------------
+
+                         (clock milansoc_clkout0 rise edge)
+                                                      0.000     0.000 r  <hidden>
+    E3                                                0.000     0.000 r  clk100
+                         net (fo=0)                   0.000     0.000    clk100
+    E3                   IBUF (Prop_ibuf_I_O)         1.411     1.411 r  clk100_IBUF_inst/O
+                         net (fo=1, routed)           2.342     3.754    clk100_IBUF
+    SLICE_X0Y126         LUT1 (Prop_lut1_I0_O)        0.100     3.854 r  clk100_inst/O
+                         net (fo=11, routed)          1.279     5.132    milansoc_clkin_signal
+    PLLE2_ADV_X0Y1       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT0)
+                                                      0.083     5.215 r  PLLE2_ADV/CLKOUT0
+                         net (fo=1, routed)           1.625     6.840    milansoc_clkout0
+    BUFGCTRL_X0Y0        BUFG (Prop_bufg_I_O)         0.091     6.931 r  BUFG/O
+                         net (fo=18491, routed)       1.682     8.613    usb_diagnostics/frames/out
+    SLICE_X31Y41         FDRE                                         r  usb_diagnostics/frames/wr_ptr_gray_sync1_reg_reg[0]/C
+                         clock pessimism              0.492     9.105    <hidden>
+    SLICE_X31Y41         FDRE (Setup_fdre_C_D)       -0.095     9.010    usb_diagnostics/frames/wr_ptr_gray_sync1_reg_reg[0]
+  -------------------------------------------------------------------
+                         data arrival                           8.635    <hidden>
+                         clock arrival                          9.010    <hidden>
+  -------------------------------------------------------------------
+                         relative delay                        -0.375    <hidden>
+
+Reference path:
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock milansoc_milannic_usbaudio_usbaudio0 rise edge)
+                                                      0.000     0.000 r  <hidden>
+    E3                                                0.000     0.000 r  clk100
+                         net (fo=0)                   0.000     0.000    clk100
+    E3                   IBUF (Prop_ibuf_I_O)         1.411     1.411 r  clk100_IBUF_inst/O
+                         net (fo=1, routed)           2.342     3.754    clk100_IBUF
+    SLICE_X0Y126         LUT1 (Prop_lut1_I0_O)        0.100     3.854 r  clk100_inst/O
+                         net (fo=11, routed)          2.478     6.331    milansoc_clkin_signal
+    MMCME2_ADV_X0Y0      MMCME2_ADV (Prop_mmcme2_adv_CLKIN1_CLKOUT0)
+                                                     -3.694     2.637 r  usb_mmcm/CLKOUT0
+                         net (fo=1, routed)           1.923     4.560    milansoc_milannic_usbaudio_usbaudio0
+    BUFGCTRL_X0Y1        BUFG (Prop_bufg_I_O)         0.091     4.651 r  BUFG_7/O
+                         net (fo=5520, routed)        1.681     6.332    usb_diagnostics/frames/usb_bus_clk
+    SLICE_X31Y40         FDRE                                         r  usb_diagnostics/frames/wr_ptr_gray_reg_reg[2]/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X31Y40         FDRE (Prop_fdre_C_Q)         0.337     6.669 r  usb_diagnostics/frames/wr_ptr_gray_reg_reg[2]/Q
+                         net (fo=4, routed)           0.276     6.945    usb_diagnostics/frames/wr_ptr_gray_reg[2]
+    SLICE_X31Y41         FDRE                                         r  usb_diagnostics/frames/wr_ptr_gray_sync1_reg_reg[2]/D
+  -------------------------------------------------------------------    -------------------
+
+                         (clock milansoc_clkout0 rise edge)
+                                                      0.000     0.000 r  <hidden>
+    E3                                                0.000     0.000 r  clk100
+                         net (fo=0)                   0.000     0.000    clk100
+    E3                   IBUF (Prop_ibuf_I_O)         1.482     1.482 r  clk100_IBUF_inst/O
+                         net (fo=1, routed)           2.739     4.221    clk100_IBUF
+    SLICE_X0Y126         LUT1 (Prop_lut1_I0_O)        0.124     4.345 r  clk100_inst/O
+                         net (fo=11, routed)          1.505     5.850    milansoc_clkin_signal
+    PLLE2_ADV_X0Y1       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT0)
+                                                      0.088     5.938 r  PLLE2_ADV/CLKOUT0
+                         net (fo=1, routed)           1.704     7.642    milansoc_clkout0
+    BUFGCTRL_X0Y0        BUFG (Prop_bufg_I_O)         0.096     7.738 r  BUFG/O
+                         net (fo=18491, routed)       1.812     9.551    usb_diagnostics/frames/out
+    SLICE_X31Y41         FDRE                                         r  usb_diagnostics/frames/wr_ptr_gray_sync1_reg_reg[2]/C
+                         clock pessimism             -0.492     9.059    <hidden>
+    SLICE_X31Y41         FDRE (Hold_fdre_C_D)         0.029     9.088    usb_diagnostics/frames/wr_ptr_gray_sync1_reg_reg[2]
+  -------------------------------------------------------------------
+                         data arrival                           6.945    <hidden>
+                         clock arrival                          9.088    <hidden>
+  -------------------------------------------------------------------
+                         relative delay                        -2.143    <hidden>
+
+
+
+Id: 11
+set_bus_skew -from [get_cells {{usb_media_diagnostics/frames/rd_ptr_reg_reg[*]} {usb_media_diagnostics/frames/rd_ptr_gray_reg_reg[*]}}] -to [get_cells {usb_media_diagnostics/frames/rd_ptr_gray_sync1_reg_reg[*]}] 20.000
+Requirement: 20.000ns
+Endpoints: 3
+
+From Clock            To Clock              Endpoint Pin                    Reference Pin                   Corner  Actual(ns)  Slack(ns)
+--------------------  --------------------  ------------------------------  ------------------------------  ------  ----------  ---------
+milansoc_clkout0      milansoc_clkout2      usb_media_diagnostics/frames/rd_ptr_gray_sync1_reg_reg[0]/D
+                                                                            usb_media_diagnostics/frames/rd_ptr_gray_sync1_reg_reg[2]/D
+                                                                                                            Slow         0.739     19.261
+
+
+Slack (MET) :             19.261ns  (requirement - actual skew)
+  Endpoint Source:        usb_media_diagnostics/frames/rd_ptr_gray_reg_reg[0]/C
+                            (rising edge-triggered cell FDRE clocked by milansoc_clkout0)
+  Endpoint Destination:   usb_media_diagnostics/frames/rd_ptr_gray_sync1_reg_reg[0]/D
+                            (rising edge-triggered cell FDRE clocked by milansoc_clkout2)
+  Reference Source:       usb_media_diagnostics/frames/rd_ptr_gray_reg_reg[2]/C
+                            (rising edge-triggered cell FDRE clocked by milansoc_clkout0)
+  Reference Destination:  usb_media_diagnostics/frames/rd_ptr_gray_sync1_reg_reg[2]/D
+                            (rising edge-triggered cell FDRE clocked by milansoc_clkout2)
+  Path Type:              Bus Skew (Max at Slow Process Corner)
+  Requirement:            20.000ns
+  Endpoint Relative Delay:    1.896ns
+  Reference Relative Delay:   0.727ns
+  Relative CRPR:              0.429ns
+  Actual Bus Skew:            0.739ns  (Endpoint Relative Delay - Reference Relative Delay - Relative CRPR)
+
+Endpoint path:
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock milansoc_clkout0 rise edge)
+                                                      0.000     0.000 r  <hidden>
+    E3                                                0.000     0.000 r  clk100
+                         net (fo=0)                   0.000     0.000    clk100
+    E3                   IBUF (Prop_ibuf_I_O)         1.482     1.482 r  clk100_IBUF_inst/O
+                         net (fo=1, routed)           2.739     4.221    clk100_IBUF
+    SLICE_X0Y126         LUT1 (Prop_lut1_I0_O)        0.124     4.345 r  clk100_inst/O
+                         net (fo=11, routed)          1.505     5.850    milansoc_clkin_signal
+    PLLE2_ADV_X0Y1       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT0)
+                                                      0.088     5.938 r  PLLE2_ADV/CLKOUT0
+                         net (fo=1, routed)           1.704     7.642    milansoc_clkout0
+    BUFGCTRL_X0Y0        BUFG (Prop_bufg_I_O)         0.096     7.738 r  BUFG/O
+                         net (fo=18491, routed)       1.813     9.552    usb_media_diagnostics/frames/m_axis_pipe_reg_reg[1][109]_0
+    SLICE_X32Y43         FDRE                                         r  usb_media_diagnostics/frames/rd_ptr_gray_reg_reg[0]/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X32Y43         FDRE (Prop_fdre_C_Q)         0.456    10.008 r  usb_media_diagnostics/frames/rd_ptr_gray_reg_reg[0]/Q
+                         net (fo=2, routed)           1.129    11.137    usb_media_diagnostics/frames/rd_ptr_gray_reg[0]
+    SLICE_X32Y42         FDRE                                         r  usb_media_diagnostics/frames/rd_ptr_gray_sync1_reg_reg[0]/D
+  -------------------------------------------------------------------    -------------------
+
+                         (clock milansoc_clkout2 rise edge)
+                                                      0.000     0.000 r  <hidden>
+    E3                                                0.000     0.000 r  clk100
+                         net (fo=0)                   0.000     0.000    clk100
+    E3                   IBUF (Prop_ibuf_I_O)         1.411     1.411 r  clk100_IBUF_inst/O
+                         net (fo=1, routed)           2.342     3.754    clk100_IBUF
+    SLICE_X0Y126         LUT1 (Prop_lut1_I0_O)        0.100     3.854 r  clk100_inst/O
+                         net (fo=11, routed)          1.279     5.132    milansoc_clkin_signal
+    PLLE2_ADV_X0Y1       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT2)
+                                                      0.083     5.215 r  PLLE2_ADV/CLKOUT2
+                         net (fo=1, routed)           1.625     6.840    milansoc_clkout2
+    BUFGCTRL_X0Y5        BUFG (Prop_bufg_I_O)         0.091     6.931 r  BUFG_2/O
+                         net (fo=26569, routed)       1.682     8.613    usb_media_diagnostics/frames/out
+    SLICE_X32Y42         FDRE                                         r  usb_media_diagnostics/frames/rd_ptr_gray_sync1_reg_reg[0]/C
+                         clock pessimism              0.723     9.336    <hidden>
+    SLICE_X32Y42         FDRE (Setup_fdre_C_D)       -0.095     9.241    usb_media_diagnostics/frames/rd_ptr_gray_sync1_reg_reg[0]
+  -------------------------------------------------------------------
+                         data arrival                          11.137    <hidden>
+                         clock arrival                          9.241    <hidden>
+  -------------------------------------------------------------------
+                         relative delay                         1.896    <hidden>
+
+Reference path:
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock milansoc_clkout0 rise edge)
+                                                      0.000     0.000 r  <hidden>
+    E3                                                0.000     0.000 r  clk100
+                         net (fo=0)                   0.000     0.000    clk100
+    E3                   IBUF (Prop_ibuf_I_O)         1.411     1.411 r  clk100_IBUF_inst/O
+                         net (fo=1, routed)           2.342     3.754    clk100_IBUF
+    SLICE_X0Y126         LUT1 (Prop_lut1_I0_O)        0.100     3.854 r  clk100_inst/O
+                         net (fo=11, routed)          1.279     5.132    milansoc_clkin_signal
+    PLLE2_ADV_X0Y1       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT0)
+                                                      0.083     5.215 r  PLLE2_ADV/CLKOUT0
+                         net (fo=1, routed)           1.625     6.840    milansoc_clkout0
+    BUFGCTRL_X0Y0        BUFG (Prop_bufg_I_O)         0.091     6.931 r  BUFG/O
+                         net (fo=18491, routed)       1.683     8.614    usb_media_diagnostics/frames/m_axis_pipe_reg_reg[1][109]_0
+    SLICE_X32Y43         FDRE                                         r  usb_media_diagnostics/frames/rd_ptr_gray_reg_reg[2]/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X32Y43         FDRE (Prop_fdre_C_Q)         0.337     8.951 r  usb_media_diagnostics/frames/rd_ptr_gray_reg_reg[2]/Q
+                         net (fo=4, routed)           0.633     9.584    usb_media_diagnostics/frames/rd_ptr_gray_reg[2]
+    SLICE_X32Y42         FDRE                                         r  usb_media_diagnostics/frames/rd_ptr_gray_sync1_reg_reg[2]/D
+  -------------------------------------------------------------------    -------------------
+
+                         (clock milansoc_clkout2 rise edge)
+                                                      0.000     0.000 r  <hidden>
+    E3                                                0.000     0.000 r  clk100
+                         net (fo=0)                   0.000     0.000    clk100
+    E3                   IBUF (Prop_ibuf_I_O)         1.482     1.482 r  clk100_IBUF_inst/O
+                         net (fo=1, routed)           2.739     4.221    clk100_IBUF
+    SLICE_X0Y126         LUT1 (Prop_lut1_I0_O)        0.124     4.345 r  clk100_inst/O
+                         net (fo=11, routed)          1.505     5.850    milansoc_clkin_signal
+    PLLE2_ADV_X0Y1       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT2)
+                                                      0.088     5.938 r  PLLE2_ADV/CLKOUT2
+                         net (fo=1, routed)           1.704     7.642    milansoc_clkout2
+    BUFGCTRL_X0Y5        BUFG (Prop_bufg_I_O)         0.096     7.738 r  BUFG_2/O
+                         net (fo=26569, routed)       1.812     9.551    usb_media_diagnostics/frames/out
+    SLICE_X32Y42         FDRE                                         r  usb_media_diagnostics/frames/rd_ptr_gray_sync1_reg_reg[2]/C
+                         clock pessimism             -0.723     8.828    <hidden>
+    SLICE_X32Y42         FDRE (Hold_fdre_C_D)         0.029     8.857    usb_media_diagnostics/frames/rd_ptr_gray_sync1_reg_reg[2]
+  -------------------------------------------------------------------
+                         data arrival                           9.584    <hidden>
+                         clock arrival                          8.857    <hidden>
+  -------------------------------------------------------------------
+                         relative delay                         0.727    <hidden>
+
+
+
+Id: 12
+set_bus_skew -from [get_cells -quiet {{usb_media_diagnostics/frames/wr_ptr_reg_reg[*]} {usb_media_diagnostics/frames/wr_ptr_gray_reg_reg[*]}}] -to [get_cells {usb_media_diagnostics/frames/wr_ptr_gray_sync1_reg_reg[*]}] 10.000
+Requirement: 10.000ns
+Endpoints: 3
+
+From Clock            To Clock              Endpoint Pin                    Reference Pin                   Corner  Actual(ns)  Slack(ns)
+--------------------  --------------------  ------------------------------  ------------------------------  ------  ----------  ---------
+milansoc_clkout2      milansoc_clkout0      usb_media_diagnostics/frames/wr_ptr_gray_sync1_reg_reg[2]/D
+                                                                            usb_media_diagnostics/frames/wr_ptr_gray_sync1_reg_reg[0]/D
+                                                                                                            Slow         1.211      8.789
+
+
+Slack (MET) :             8.789ns  (requirement - actual skew)
+  Endpoint Source:        usb_media_diagnostics/frames/wr_ptr_gray_reg_reg[2]/C
+                            (rising edge-triggered cell FDRE clocked by milansoc_clkout2)
+  Endpoint Destination:   usb_media_diagnostics/frames/wr_ptr_gray_sync1_reg_reg[2]/D
+                            (rising edge-triggered cell FDRE clocked by milansoc_clkout0)
+  Reference Source:       usb_media_diagnostics/frames/wr_ptr_gray_reg_reg[0]/C
+                            (rising edge-triggered cell FDRE clocked by milansoc_clkout2)
+  Reference Destination:  usb_media_diagnostics/frames/wr_ptr_gray_sync1_reg_reg[0]/D
+                            (rising edge-triggered cell FDRE clocked by milansoc_clkout0)
+  Path Type:              Bus Skew (Max at Slow Process Corner)
+  Requirement:            10.000ns
+  Endpoint Relative Delay:    2.404ns
+  Reference Relative Delay:   0.764ns
+  Relative CRPR:              0.429ns
+  Actual Bus Skew:            1.211ns  (Endpoint Relative Delay - Reference Relative Delay - Relative CRPR)
+
+Endpoint path:
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock milansoc_clkout2 rise edge)
+                                                      0.000     0.000 r  <hidden>
+    E3                                                0.000     0.000 r  clk100
+                         net (fo=0)                   0.000     0.000    clk100
+    E3                   IBUF (Prop_ibuf_I_O)         1.482     1.482 r  clk100_IBUF_inst/O
+                         net (fo=1, routed)           2.739     4.221    clk100_IBUF
+    SLICE_X0Y126         LUT1 (Prop_lut1_I0_O)        0.124     4.345 r  clk100_inst/O
+                         net (fo=11, routed)          1.505     5.850    milansoc_clkin_signal
+    PLLE2_ADV_X0Y1       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT2)
+                                                      0.088     5.938 r  PLLE2_ADV/CLKOUT2
+                         net (fo=1, routed)           1.704     7.642    milansoc_clkout2
+    BUFGCTRL_X0Y5        BUFG (Prop_bufg_I_O)         0.096     7.738 r  BUFG_2/O
+                         net (fo=26569, routed)       1.812     9.551    usb_media_diagnostics/frames/out
+    SLICE_X31Y42         FDRE                                         r  usb_media_diagnostics/frames/wr_ptr_gray_reg_reg[2]/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X31Y42         FDRE (Prop_fdre_C_Q)         0.419     9.970 r  usb_media_diagnostics/frames/wr_ptr_gray_reg_reg[2]/Q
+                         net (fo=4, routed)           1.504    11.473    usb_media_diagnostics/frames/wr_ptr_gray_reg[2]
+    SLICE_X33Y42         FDRE                                         r  usb_media_diagnostics/frames/wr_ptr_gray_sync1_reg_reg[2]/D
+  -------------------------------------------------------------------    -------------------
+
+                         (clock milansoc_clkout0 rise edge)
+                                                      0.000     0.000 r  <hidden>
+    E3                                                0.000     0.000 r  clk100
+                         net (fo=0)                   0.000     0.000    clk100
+    E3                   IBUF (Prop_ibuf_I_O)         1.411     1.411 r  clk100_IBUF_inst/O
+                         net (fo=1, routed)           2.342     3.754    clk100_IBUF
+    SLICE_X0Y126         LUT1 (Prop_lut1_I0_O)        0.100     3.854 r  clk100_inst/O
+                         net (fo=11, routed)          1.279     5.132    milansoc_clkin_signal
+    PLLE2_ADV_X0Y1       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT0)
+                                                      0.083     5.215 r  PLLE2_ADV/CLKOUT0
+                         net (fo=1, routed)           1.625     6.840    milansoc_clkout0
+    BUFGCTRL_X0Y0        BUFG (Prop_bufg_I_O)         0.091     6.931 r  BUFG/O
+                         net (fo=18491, routed)       1.682     8.613    usb_media_diagnostics/frames/m_axis_pipe_reg_reg[1][109]_0
+    SLICE_X33Y42         FDRE                                         r  usb_media_diagnostics/frames/wr_ptr_gray_sync1_reg_reg[2]/C
+                         clock pessimism              0.723     9.336    <hidden>
+    SLICE_X33Y42         FDRE (Setup_fdre_C_D)       -0.267     9.069    usb_media_diagnostics/frames/wr_ptr_gray_sync1_reg_reg[2]
+  -------------------------------------------------------------------
+                         data arrival                          11.473    <hidden>
+                         clock arrival                          9.069    <hidden>
+  -------------------------------------------------------------------
+                         relative delay                         2.404    <hidden>
+
+Reference path:
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock milansoc_clkout2 rise edge)
+                                                      0.000     0.000 r  <hidden>
+    E3                                                0.000     0.000 r  clk100
+                         net (fo=0)                   0.000     0.000    clk100
+    E3                   IBUF (Prop_ibuf_I_O)         1.411     1.411 r  clk100_IBUF_inst/O
+                         net (fo=1, routed)           2.342     3.754    clk100_IBUF
+    SLICE_X0Y126         LUT1 (Prop_lut1_I0_O)        0.100     3.854 r  clk100_inst/O
+                         net (fo=11, routed)          1.279     5.132    milansoc_clkin_signal
+    PLLE2_ADV_X0Y1       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT2)
+                                                      0.083     5.215 r  PLLE2_ADV/CLKOUT2
+                         net (fo=1, routed)           1.625     6.840    milansoc_clkout2
+    BUFGCTRL_X0Y5        BUFG (Prop_bufg_I_O)         0.091     6.931 r  BUFG_2/O
+                         net (fo=26569, routed)       1.682     8.613    usb_media_diagnostics/frames/out
+    SLICE_X31Y42         FDRE                                         r  usb_media_diagnostics/frames/wr_ptr_gray_reg_reg[0]/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X31Y42         FDRE (Prop_fdre_C_Q)         0.367     8.980 r  usb_media_diagnostics/frames/wr_ptr_gray_reg_reg[0]/Q
+                         net (fo=2, routed)           0.782     9.762    usb_media_diagnostics/frames/wr_ptr_gray_reg[0]
+    SLICE_X33Y42         FDRE                                         r  usb_media_diagnostics/frames/wr_ptr_gray_sync1_reg_reg[0]/D
+  -------------------------------------------------------------------    -------------------
+
+                         (clock milansoc_clkout0 rise edge)
+                                                      0.000     0.000 r  <hidden>
+    E3                                                0.000     0.000 r  clk100
+                         net (fo=0)                   0.000     0.000    clk100
+    E3                   IBUF (Prop_ibuf_I_O)         1.482     1.482 r  clk100_IBUF_inst/O
+                         net (fo=1, routed)           2.739     4.221    clk100_IBUF
+    SLICE_X0Y126         LUT1 (Prop_lut1_I0_O)        0.124     4.345 r  clk100_inst/O
+                         net (fo=11, routed)          1.505     5.850    milansoc_clkin_signal
+    PLLE2_ADV_X0Y1       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT0)
+                                                      0.088     5.938 r  PLLE2_ADV/CLKOUT0
+                         net (fo=1, routed)           1.704     7.642    milansoc_clkout0
+    BUFGCTRL_X0Y0        BUFG (Prop_bufg_I_O)         0.096     7.738 r  BUFG/O
+                         net (fo=18491, routed)       1.812     9.551    usb_media_diagnostics/frames/m_axis_pipe_reg_reg[1][109]_0
+    SLICE_X33Y42         FDRE                                         r  usb_media_diagnostics/frames/wr_ptr_gray_sync1_reg_reg[0]/C
+                         clock pessimism             -0.723     8.828    <hidden>
+    SLICE_X33Y42         FDRE (Hold_fdre_C_D)         0.170     8.998    usb_media_diagnostics/frames/wr_ptr_gray_sync1_reg_reg[0]
+  -------------------------------------------------------------------
+                         data arrival                           9.762    <hidden>
+                         clock arrival                          8.998    <hidden>
+  -------------------------------------------------------------------
+                         relative delay                         0.764    <hidden>
+
+
+
+Id: 13
+set_bus_skew -from [get_cells -hier -regexp {usb_audio_bridge/clock_stamp/gray_r_reg\[[0-9]+\]}] -to [get_cells -hier -regexp {usb_audio_bridge/clock_stamp/meta_r_reg\[[0-9]+\]}] 20.000
+Requirement: 20.000ns
+Endpoints: 48
+
+From Clock            To Clock              Endpoint Pin                    Reference Pin                   Corner  Actual(ns)  Slack(ns)
+--------------------  --------------------  ------------------------------  ------------------------------  ------  ----------  ---------
+milansoc_audio_mclk_raw
+                      milansoc_milannic_usbaudio_usbaudio0
+                                            usb_audio_bridge/clock_stamp/meta_r_reg[15]/D
+                                                                            usb_audio_bridge/clock_stamp/meta_r_reg[0]/D
+                                                                                                            Slow         1.003     18.997
+
+
+Slack (MET) :             18.997ns  (requirement - actual skew)
+  Endpoint Source:        usb_audio_bridge/clock_stamp/gray_r_reg[15]/C
+                            (rising edge-triggered cell FDRE clocked by milansoc_audio_mclk_raw)
+  Endpoint Destination:   usb_audio_bridge/clock_stamp/meta_r_reg[15]/D
+                            (rising edge-triggered cell FDRE clocked by milansoc_milannic_usbaudio_usbaudio0)
+  Reference Source:       usb_audio_bridge/clock_stamp/gray_r_reg[0]/C
+                            (rising edge-triggered cell FDRE clocked by milansoc_audio_mclk_raw)
+  Reference Destination:  usb_audio_bridge/clock_stamp/meta_r_reg[0]/D
+                            (rising edge-triggered cell FDRE clocked by milansoc_milannic_usbaudio_usbaudio0)
+  Path Type:              Bus Skew (Max at Slow Process Corner)
+  Requirement:            20.000ns
+  Endpoint Relative Delay:    9.365ns
+  Reference Relative Delay:   7.080ns
+  Relative CRPR:              1.282ns
+  Actual Bus Skew:            1.003ns  (Endpoint Relative Delay - Reference Relative Delay - Relative CRPR)
+
+Endpoint path:
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock milansoc_audio_mclk_raw rise edge)
+                                                      0.000     0.000 r  <hidden>
+    E3                                                0.000     0.000 r  clk100
+                         net (fo=0)                   0.000     0.000    clk100
+    E3                   IBUF (Prop_ibuf_I_O)         1.482     1.482 r  clk100_IBUF_inst/O
+                         net (fo=1, routed)           2.739     4.221    clk100_IBUF
+    SLICE_X0Y126         LUT1 (Prop_lut1_I0_O)        0.124     4.345 r  clk100_inst/O
+                         net (fo=11, routed)          2.777     7.122    milansoc_clkin_signal
+    PLLE2_ADV_X0Y0       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT0)
+                                                      0.088     7.210 r  pll_audio_pre/CLKOUT0
+                         net (fo=1, routed)           2.012     9.222    milansoc_audio_ref_raw
+    BUFGCTRL_X0Y8        BUFG (Prop_bufg_I_O)         0.096     9.318 r  BUFG_3/O
+                         net (fo=1, routed)           1.634    10.953    milansoc_audio_ref
+    MMCME2_ADV_X0Y1      MMCME2_ADV (Prop_mmcme2_adv_CLKIN1_CLKOUT0)
+                                                      0.088    11.041 r  mmcm_audio/CLKOUT0
+                         net (fo=1, routed)           1.710    12.751    milansoc_audio_mclk_raw
+    BUFGCTRL_X0Y6        BUFG (Prop_bufg_I_O)         0.096    12.847 r  BUFG_4/O
+                         net (fo=160, routed)         1.816    14.663    usb_audio_bridge/clock_stamp/gray_r_reg[47]_0
+    SLICE_X10Y40         FDRE                                         r  usb_audio_bridge/clock_stamp/gray_r_reg[15]/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X10Y40         FDRE (Prop_fdre_C_Q)         0.518    15.181 r  usb_audio_bridge/clock_stamp/gray_r_reg[15]/Q
+                         net (fo=1, routed)           0.920    16.101    usb_audio_bridge/clock_stamp/gray_r[15]
+    SLICE_X11Y40         FDRE                                         r  usb_audio_bridge/clock_stamp/meta_r_reg[15]/D
+  -------------------------------------------------------------------    -------------------
+
+                         (clock milansoc_milannic_usbaudio_usbaudio0 rise edge)
+                                                      0.000     0.000 r  <hidden>
+    E3                                                0.000     0.000 r  clk100
+                         net (fo=0)                   0.000     0.000    clk100
+    E3                   IBUF (Prop_ibuf_I_O)         1.411     1.411 r  clk100_IBUF_inst/O
+                         net (fo=1, routed)           2.342     3.754    clk100_IBUF
+    SLICE_X0Y126         LUT1 (Prop_lut1_I0_O)        0.100     3.854 r  clk100_inst/O
+                         net (fo=11, routed)          2.478     6.331    milansoc_clkin_signal
+    MMCME2_ADV_X0Y0      MMCME2_ADV (Prop_mmcme2_adv_CLKIN1_CLKOUT0)
+                                                     -3.694     2.637 r  usb_mmcm/CLKOUT0
+                         net (fo=1, routed)           1.923     4.560    milansoc_milannic_usbaudio_usbaudio0
+    BUFGCTRL_X0Y1        BUFG (Prop_bufg_I_O)         0.091     4.651 r  BUFG_7/O
+                         net (fo=5520, routed)        1.688     6.339    usb_audio_bridge/clock_stamp/usb_bus_clk
+    SLICE_X11Y40         FDRE                                         r  usb_audio_bridge/clock_stamp/meta_r_reg[15]/C
+                         clock pessimism              0.492     6.831    <hidden>
+    SLICE_X11Y40         FDRE (Setup_fdre_C_D)       -0.095     6.736    usb_audio_bridge/clock_stamp/meta_r_reg[15]
+  -------------------------------------------------------------------
+                         data arrival                          16.101    <hidden>
+                         clock arrival                          6.736    <hidden>
+  -------------------------------------------------------------------
+                         relative delay                         9.365    <hidden>
+
+Reference path:
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock milansoc_audio_mclk_raw rise edge)
+                                                      0.000     0.000 r  <hidden>
+    E3                                                0.000     0.000 r  clk100
+                         net (fo=0)                   0.000     0.000    clk100
+    E3                   IBUF (Prop_ibuf_I_O)         1.411     1.411 r  clk100_IBUF_inst/O
+                         net (fo=1, routed)           2.342     3.754    clk100_IBUF
+    SLICE_X0Y126         LUT1 (Prop_lut1_I0_O)        0.100     3.854 r  clk100_inst/O
+                         net (fo=11, routed)          2.338     6.191    milansoc_clkin_signal
+    PLLE2_ADV_X0Y0       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT0)
+                                                      0.083     6.274 r  pll_audio_pre/CLKOUT0
+                         net (fo=1, routed)           1.918     8.192    milansoc_audio_ref_raw
+    BUFGCTRL_X0Y8        BUFG (Prop_bufg_I_O)         0.091     8.283 r  BUFG_3/O
+                         net (fo=1, routed)           1.513     9.797    milansoc_audio_ref
+    MMCME2_ADV_X0Y1      MMCME2_ADV (Prop_mmcme2_adv_CLKIN1_CLKOUT0)
+                                                      0.083     9.880 r  mmcm_audio/CLKOUT0
+                         net (fo=1, routed)           1.630    11.510    milansoc_audio_mclk_raw
+    BUFGCTRL_X0Y6        BUFG (Prop_bufg_I_O)         0.091    11.601 r  BUFG_4/O
+                         net (fo=160, routed)         1.685    13.286    usb_audio_bridge/clock_stamp/gray_r_reg[47]_0
+    SLICE_X12Y37         FDRE                                         r  usb_audio_bridge/clock_stamp/gray_r_reg[0]/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X12Y37         FDRE (Prop_fdre_C_Q)         0.418    13.704 r  usb_audio_bridge/clock_stamp/gray_r_reg[0]/Q
+                         net (fo=1, routed)           0.423    14.127    usb_audio_bridge/clock_stamp/gray_r[0]
+    SLICE_X12Y38         FDRE                                         r  usb_audio_bridge/clock_stamp/meta_r_reg[0]/D
+  -------------------------------------------------------------------    -------------------
+
+                         (clock milansoc_milannic_usbaudio_usbaudio0 rise edge)
+                                                      0.000     0.000 r  <hidden>
+    E3                                                0.000     0.000 r  clk100
+                         net (fo=0)                   0.000     0.000    clk100
+    E3                   IBUF (Prop_ibuf_I_O)         1.482     1.482 r  clk100_IBUF_inst/O
+                         net (fo=1, routed)           2.739     4.221    clk100_IBUF
+    SLICE_X0Y126         LUT1 (Prop_lut1_I0_O)        0.124     4.345 r  clk100_inst/O
+                         net (fo=11, routed)          2.956     7.301    milansoc_clkin_signal
+    MMCME2_ADV_X0Y0      MMCME2_ADV (Prop_mmcme2_adv_CLKIN1_CLKOUT0)
+                                                     -3.922     3.379 r  usb_mmcm/CLKOUT0
+                         net (fo=1, routed)           2.018     5.397    milansoc_milannic_usbaudio_usbaudio0
+    BUFGCTRL_X0Y1        BUFG (Prop_bufg_I_O)         0.096     5.493 r  BUFG_7/O
+                         net (fo=5520, routed)        1.815     7.309    usb_audio_bridge/clock_stamp/usb_bus_clk
+    SLICE_X12Y38         FDRE                                         r  usb_audio_bridge/clock_stamp/meta_r_reg[0]/C
+                         clock pessimism             -0.492     6.817    <hidden>
+    SLICE_X12Y38         FDRE (Hold_fdre_C_D)         0.230     7.047    usb_audio_bridge/clock_stamp/meta_r_reg[0]
+  -------------------------------------------------------------------
+                         data arrival                          14.127    <hidden>
+                         clock arrival                          7.047    <hidden>
+  -------------------------------------------------------------------
+                         relative delay                         7.080    <hidden>
+
+
+

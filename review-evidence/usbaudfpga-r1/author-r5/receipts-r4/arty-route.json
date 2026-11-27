@@ -1,0 +1,118 @@
+{
+  "head": "573fe2bf1c7463f3320682e6ceffa692c56f2ee1",
+  "result": "PASS",
+  "device": "xc7a100tcsg324-1",
+  "operating_grade": "commercial",
+  "temperature_range_c": [
+    0,
+    85
+  ],
+  "cpu_clock_mhz": 100,
+  "media_clock_mhz": 50,
+  "bus_clock_mhz": 50,
+  "minimum_slack": {
+    "setup_ns": 0.006,
+    "hold_ns": 0.016,
+    "pulse_width_ns": 1.389
+  },
+  "corners": [
+    {
+      "setup_ns": 1.346,
+      "total_negative_setup_ns": 0.0,
+      "setup_failing_endpoints": 0.0,
+      "setup_endpoints": 145904.0,
+      "hold_ns": 0.016,
+      "total_negative_hold_ns": 0.0,
+      "hold_failing_endpoints": 0.0,
+      "hold_endpoints": 145802.0,
+      "pulse_width_ns": 1.591,
+      "total_negative_pulse_ns": 0.0,
+      "pulse_failing_endpoints": 0.0,
+      "pulse_endpoints": 51408.0,
+      "corner": "Fast_0C",
+      "raw_report_sha256": "4e3044f645e2f6609131ad7c743b282ad66c7f7aa9c79ff858586b784c584c60"
+    },
+    {
+      "setup_ns": 1.346,
+      "total_negative_setup_ns": 0.0,
+      "setup_failing_endpoints": 0.0,
+      "setup_endpoints": 145904.0,
+      "hold_ns": 0.016,
+      "total_negative_hold_ns": 0.0,
+      "hold_failing_endpoints": 0.0,
+      "hold_endpoints": 145802.0,
+      "pulse_width_ns": 1.591,
+      "total_negative_pulse_ns": 0.0,
+      "pulse_failing_endpoints": 0.0,
+      "pulse_endpoints": 51408.0,
+      "corner": "Fast_85C",
+      "raw_report_sha256": "08970ec51d00840de10e93124a7c1a60f46e60d5e652c65b852239d1ea12b82f"
+    },
+    {
+      "setup_ns": 0.006,
+      "total_negative_setup_ns": 0.0,
+      "setup_failing_endpoints": 0.0,
+      "setup_endpoints": 145904.0,
+      "hold_ns": 0.156,
+      "total_negative_hold_ns": 0.0,
+      "hold_failing_endpoints": 0.0,
+      "hold_endpoints": 145802.0,
+      "pulse_width_ns": 1.389,
+      "total_negative_pulse_ns": 0.0,
+      "pulse_failing_endpoints": 0.0,
+      "pulse_endpoints": 51408.0,
+      "corner": "Slow_0C",
+      "raw_report_sha256": "911d0c372857448d9f5f32677ecfae4d9c731568a366598892b506b495aa9ca4"
+    },
+    {
+      "setup_ns": 0.006,
+      "total_negative_setup_ns": 0.0,
+      "setup_failing_endpoints": 0.0,
+      "setup_endpoints": 145904.0,
+      "hold_ns": 0.156,
+      "total_negative_hold_ns": 0.0,
+      "hold_failing_endpoints": 0.0,
+      "hold_endpoints": 145802.0,
+      "pulse_width_ns": 1.389,
+      "total_negative_pulse_ns": 0.0,
+      "pulse_failing_endpoints": 0.0,
+      "pulse_endpoints": 51408.0,
+      "corner": "Slow_85C",
+      "raw_report_sha256": "1e484f5a238eda682100fbaf57cc71520f5954038425dff044249c1f2a48793a"
+    }
+  ],
+  "prior_setup_ns": 0.002,
+  "recipe": {
+    "optimization": "Explore",
+    "placement": "ExtraPostPlacementOpt",
+    "post_placement": "AggressiveExplore",
+    "routing": "AggressiveExplore",
+    "post_route": "AggressiveExplore",
+    "additional_route_cleanup": true,
+    "additional_physical_passes": [
+      "Explore",
+      "AggressiveExplore"
+    ],
+    "incremental_reference": false,
+    "threads": 2,
+    "generation_hash_seed": 0,
+    "clock_or_exception_relaxation": false
+  },
+  "audio_pad_registers_passed": 55,
+  "routing_errors": 0,
+  "unconstrained_internal_endpoints": 0,
+  "inherited_board_ports": {
+    "inputs_without_delay": 9,
+    "outputs_without_delay": 15,
+    "forwarded_clock_without_data_delay": 1,
+    "asynchronous_flag_with_only_maximum_input_delay": 1
+  },
+  "retained_directory": "r4/arty-polished",
+  "checkpoint_sha256": "cbb795004cdc1b10fffbd7db19c3fbc69eb64ae6b0f8c90da3a647322fa1a25a",
+  "container_sha256": "888f0e7b7805385ff29f37957678148c9501188f21aa3f42a466c3dec619740c",
+  "programming_sha256": "5e79d9bda9f6bab9eca1d8363a9b27bffae49cfba0c053ea887a83e8228ddc79",
+  "programming_bytes": 3272712,
+  "flash_image_sha256": "5e79d9bda9f6bab9eca1d8363a9b27bffae49cfba0c053ea887a83e8228ddc79",
+  "reports": "route-report-manifest.json",
+  "scope": "Current audio RTL with retained generated wrapper and fixed comparison memory initializers; no newly linked production firmware or bench qualification is claimed. Slow/Fast are the two fixed timing models; endpoint temperature settings are report metadata."
+}

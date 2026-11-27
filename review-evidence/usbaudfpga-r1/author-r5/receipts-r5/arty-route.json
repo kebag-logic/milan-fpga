@@ -1,0 +1,121 @@
+{
+  "head": "0f7402ee97d347352b8c3d613033c440ee55986a",
+  "result": "PASS",
+  "device": "xc7a100tcsg324-1",
+  "operating_grade": "commercial",
+  "temperature_range_c": [
+    0,
+    85
+  ],
+  "cpu_clock_mhz": 100,
+  "media_clock_mhz": 50,
+  "bus_clock_mhz": 50,
+  "minimum_slack": {
+    "setup_ns": 0.006,
+    "hold_ns": 0.052,
+    "pulse_width_ns": 1.389
+  },
+  "corners": [
+    {
+      "setup_ns": 1.358,
+      "total_negative_setup_ns": 0.0,
+      "setup_failing_endpoints": 0.0,
+      "setup_endpoints": 146038.0,
+      "hold_ns": 0.052,
+      "total_negative_hold_ns": 0.0,
+      "hold_failing_endpoints": 0.0,
+      "hold_endpoints": 145936.0,
+      "pulse_width_ns": 1.591,
+      "total_negative_pulse_ns": 0.0,
+      "pulse_failing_endpoints": 0.0,
+      "pulse_endpoints": 51453.0,
+      "corner": "Fast_0C",
+      "raw_report_sha256": "8aaddf78cb0c53f4c8f9c90fd1ea938f8e9d908b0c6ee8dce1cd9eb5a44b8eb3"
+    },
+    {
+      "setup_ns": 1.358,
+      "total_negative_setup_ns": 0.0,
+      "setup_failing_endpoints": 0.0,
+      "setup_endpoints": 146038.0,
+      "hold_ns": 0.052,
+      "total_negative_hold_ns": 0.0,
+      "hold_failing_endpoints": 0.0,
+      "hold_endpoints": 145936.0,
+      "pulse_width_ns": 1.591,
+      "total_negative_pulse_ns": 0.0,
+      "pulse_failing_endpoints": 0.0,
+      "pulse_endpoints": 51453.0,
+      "corner": "Fast_85C",
+      "raw_report_sha256": "2364b5f5feac1fe67c9f7ac9c0019773a1230259ab941b81cfb589ee54452ae9"
+    },
+    {
+      "setup_ns": 0.006,
+      "total_negative_setup_ns": 0.0,
+      "setup_failing_endpoints": 0.0,
+      "setup_endpoints": 146038.0,
+      "hold_ns": 0.128,
+      "total_negative_hold_ns": 0.0,
+      "hold_failing_endpoints": 0.0,
+      "hold_endpoints": 145936.0,
+      "pulse_width_ns": 1.389,
+      "total_negative_pulse_ns": 0.0,
+      "pulse_failing_endpoints": 0.0,
+      "pulse_endpoints": 51453.0,
+      "corner": "Slow_0C",
+      "raw_report_sha256": "792de7961728bdca64d537067db48ca40247f9b00aecec4e3ec51622c5e4ef6a"
+    },
+    {
+      "setup_ns": 0.006,
+      "total_negative_setup_ns": 0.0,
+      "setup_failing_endpoints": 0.0,
+      "setup_endpoints": 146038.0,
+      "hold_ns": 0.128,
+      "total_negative_hold_ns": 0.0,
+      "hold_failing_endpoints": 0.0,
+      "hold_endpoints": 145936.0,
+      "pulse_width_ns": 1.389,
+      "total_negative_pulse_ns": 0.0,
+      "pulse_failing_endpoints": 0.0,
+      "pulse_endpoints": 51453.0,
+      "corner": "Slow_85C",
+      "raw_report_sha256": "7bd43119cc64dc63efeac8f4fb3a989b4eeca45f3129e7166b94dd0b1dec9f59"
+    }
+  ],
+  "previous_round_setup_ns": 0.006,
+  "reviewed_prior_setup_ns": 0.002,
+  "recipe": {
+    "optimization": "Explore",
+    "placement": "ExtraPostPlacementOpt",
+    "post_placement": "AggressiveExplore",
+    "routing": "AggressiveExplore",
+    "post_route": "AggressiveExplore",
+    "additional_route_cleanup": false,
+    "incremental_reference": false,
+    "threads": 2,
+    "generation_hash_seed": 0,
+    "clock_or_exception_relaxation": false
+  },
+  "audio_pad_registers_passed": 55,
+  "routing_errors": 0,
+  "unconstrained_internal_endpoints": 0,
+  "bus_skew_constraints_passed": 13,
+  "minimum_bus_skew_slack_ns": 8.789,
+  "structural_diagnostics": {
+    "critical_reset_rows": 23,
+    "observation": "All 23 critical combinational-synchronizer rows terminate at asynchronous PRE or CLR reset pins. Full crossing and design-rule diagnostics are retained; numerical timing acceptance is not a claim of zero structural warnings."
+  },
+  "inherited_board_ports": {
+    "inputs_without_delay": 9,
+    "outputs_without_delay": 15,
+    "forwarded_clock_without_data_delay": 1,
+    "asynchronous_flag_with_only_maximum_input_delay": 1
+  },
+  "retained_directory": "r5/arty-audio/gateware",
+  "checkpoint_sha256": "4f3b02248942d97e4351e56eb16d27756b795e78f54d90e1b0688372b226333d",
+  "container_sha256": "7543ee325bd4c5199237010b18189cc785bc9aa133f816e3d97d47d783d8b3ff",
+  "programming_sha256": "d192dbf5f85b45cbcc208cf7d2a3c35a4bc8766a295493947b927a61157d4c05",
+  "programming_bytes": 3274024,
+  "flash_image_sha256": "d192dbf5f85b45cbcc208cf7d2a3c35a4bc8766a295493947b927a61157d4c05",
+  "reports": "route-report-manifest.json",
+  "scope": "Fresh current wrapper, current shared gateware and current audio RTL, with fixed comparison memory initializers. No newly linked production firmware or bench qualification is claimed. Slow/Fast are fixed timing models; endpoint temperature settings are report metadata."
+}

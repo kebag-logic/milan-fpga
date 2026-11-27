@@ -1,0 +1,36 @@
+{
+  "head": "573fe2bf1c7463f3320682e6ceffa692c56f2ee1",
+  "tree": "965902bf6a012d89ad71bb0aa43cd1d7b0bfd999",
+  "result": "PASS",
+  "inventory_size": 114,
+  "legs": 2,
+  "coverage": "All 114 gate names occur exactly once across the two checked legs.",
+  "requirement": "Required 32-bit target compilation is judged on the union and passed.",
+  "optional_not_run": [
+    {
+      "gate": "gate 11",
+      "scope": "Historical physical resource calibration",
+      "reason": "The historical placement report is unavailable; the workflow does not require this optional arm."
+    }
+  ],
+  "tap_clock_documentation": "Six conversions and presence declarations match configurations, including the audio option.",
+  "raw_union_sha256": "370044019dc90bd5c04efa7bc3e14366c3a5c3dd7fee97ceae7eb98f34417ad9",
+  "log_sha256": "c91c11a204a0b65bc98cc61ab09d78c280ecf17d3307001b498ef8f608d9901f",
+  "verdicts_sha256": "6a9c6e84999bd5339a18b0e7b924ca4b18c20817464243939bd9e0c29e99d3b0",
+  "legs_evidence": [
+    {
+      "leg": 0,
+      "gate": "gate_25_0",
+      "command_source": ".github/workflows/docs.yml",
+      "raw_receipt_sha256": "57d4f899e6c583eff892a874136418f1f20854aac37e89f6212b6624c183d509",
+      "log_sha256": "8a12b0590c0df9b556b0975b3c7a82511451f8b44e45bed8889a4938d35a43dc"
+    },
+    {
+      "leg": 1,
+      "gate": "gate_25_1",
+      "command_source": ".github/workflows/docs.yml",
+      "raw_receipt_sha256": "c75c80eb0d5addfa5d8ddf71d259821e749a1347a2c79fd39aa446ae75d40fbb",
+      "log_sha256": "e639dc22f37fa557a62b5df54df7f3f2cb7fc1879145845ee97f0d8a60b8cfbf"
+    }
+  ]
+}
