@@ -380,7 +380,7 @@ extern "C" {
 // at that head, the figure not lowered),
 // 8x8/1if's its own, 130 ms, as #894 states it there, and its tx row rounded
 // up, 77 ms for the 76.86 ms with #977's walk at its 120 us again (78 for the
-// 77.37 ms of its round 2's walk, 77 for the 76.81 ms of #665's final head,
+// 77.37 ms of its 190 us walk, 77 for the 76.81 ms of #665's final head,
 // #665's ruling of 2026-11-18, item 2a; 75 for #894's 74.26), at most 80 so the
 // transmit term a withdrawn Talker's hold-off counts stays 8 cs (srp_mbx.c), and
 // both two-interface shapes 8x8/2if's, 62 and 105 ms.

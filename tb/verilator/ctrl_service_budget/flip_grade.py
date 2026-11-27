@@ -61,7 +61,7 @@ import shape_costs  # noqa: E402
 ROOT = load_grade.ROOT
 #: The points whose load the flip check holds, and each one's ceiling: 8x8/2if's 0.70 (#665, option D) and 8x8/1if's
 #: 0.76 (#894's shape ruling, item (b), at 0.75; raised to 0.76 by #977's owner decision of 2026-11-25,
-#: issuecomment-7160202807).
+#: #977).
 FLIP = {'8x8/2if': 0.70, '8x8/1if': 0.76}
 #: The points the flip check names: the rows' (rows_grade.POINTS) and 8x8/1if, whose rows by every source are reported
 #: apart, owed to #872 (REPORTED), and whose measured rows the CPU budget harness holds.

@@ -8,7 +8,7 @@ found nothing to do is its work alone, and each is held to its stated cost here.
 
 Where a registration's re-declarations stay in the build's own slice (redeclared), each such pass of a registering
 group that commits a Listener Message is held to its stated cost by name, and a registering group with none is
-refused, so the hold is never vacuous (#977; the manager's answer to its round 2's first question).
+refused, so the hold is never vacuous (#977's requirement to measure re-declaring build passes).
 """
 from __future__ import annotations
 

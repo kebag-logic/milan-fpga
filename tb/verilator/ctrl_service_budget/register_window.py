@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: 2026 Kebag Logic
 # SPDX-License-Identifier: CERN-OHL-W-2.0
 """The records that register a peer's Talkers (#977): every STREAM_INPUT bound, then its Talker registered, at every
-point, in arm A.
+point, in the default (none) arm.
 
 ACMP binds a STREAM_INPUT once its talker answers the probe (Milan v1.2 5.5.3.5.18 step 4); the binding's receive
 filter then takes that StreamID's Talker declarations (srp_mbx.c interested_msrp), each an lwSRP attribute, a Registrar

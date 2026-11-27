@@ -105,15 +105,15 @@ FIRST, LAST, ITEMS = poll_items.FIRST, poll_items.LAST, poll_items.ITEMS
 #: At 1x1/1if on the SRP cut's head, measured over every arm and group, the AECP notice item 150 us (14,084 CPU cycles
 #: in the declaring-outputs arm's aecp-fanout; 210 before) and a notice longer than AECP_FAN_BYTES 315 (29,652 in arm
 #: A's aecp-largest-notice; 365 before), each restated from its measurement by the rule by ruling item 4 of 2026-11-20,
-#: as the owner decided (#665). With #977's round 2 (the drain's charge, THE SETTLE, lwSRP's one-interface options),
-#: measured over every group of every arm on its image (3de17804), the walk is 7,289 cycles in arm A's
+#: as the owner decided (#665). With #977's change (the drain's charge, THE SETTLE, lwSRP's one-interface options),
+#: measured over every group of every arm on its image (3de17804), the walk is 7,289 cycles in the default (none) arm's
 #: srp-register-burst, a registrar walk after a record that replaced both inputs' Talkers, 80 us by the rule (7,025 at
 #: the base, dd163e41); every other item's measurement is within this table's, the AECP notice item's 14,370 cycles
 #: in the answering-every-port arm's notice-every-0 (14,084 at the base) within its 150 us, not restated: with the
 #: rule's 5 % it would state 155, which moves the last queued notice's row past AECP_QUEUED_MS, the stated 130 ms
-#: (the queued rule's figure; the owner's bound is 140 ms). With #977's round 3 the walk after a registering record is
+#: (the queued rule's figure; the owner's bound is 140 ms). With #977's sink index change the walk after a registering record is
 #: gone (the sink index, a declaration's walk owed only for a source's StreamID): its heaviest in that group 343
-#: cycles, so the walk is stated 35 us again, as before round 2, within it every arm's. With #977's round 5 (the
+#: cycles, so the walk is stated 35 us again, as before the drain and settlement change, within it every arm's. With #977's completion cut (the
 #: tsn-c-stack completion cut and the hot list relearned on it) the AECP notice item is 15,464 CPU cycles in the
 #: answering-ports arm, the most over every arm and group, 165 us by the rule, restated by the ruling of 2026-11-26
 #: on #977 (item 1), so the last queued notice's bound is 135 ms (queued_bound.py; the owner's stays 140).
@@ -145,12 +145,12 @@ TWO = dict(base=345, withdraw=245, rebuild=690, walk=60, reclaim=35, retained=36
 #: arm and group: 8x8/1if a notice longer than AECP_FAN_BYTES 30,948 CPU cycles (the declaring-outputs arm's
 #: aecp-largest-notice; arm A's 30,912), 325 us by the rule (record_classes.rule), raised with every owner bound
 #: still held (#665's ruling of 2026-11-23 on the #958 sync's STOP: a further statement over is raised by the same
-#: rule while every owner bound holds). With #977's round 2 (the drain's charge, THE SETTLE, lwSRP's one-interface
+#: rule while every owner bound holds). With #977's change (the drain's charge, THE SETTLE, lwSRP's one-interface
 #: options), measured over every group of every arm on its image (f7d07720, the image 3de17804 links unchanged
-#: there), the walk is 18,004 cycles in arm A's srp-register-burst, a registrar walk after a record that replaced
+#: there), the walk is 18,004 cycles in the default (none) arm's srp-register-burst, a registrar walk after a record that replaced
 #: every input's Talker, 190 us by the rule (18,694 at the base, dd163e41); every other item is within this table's.
-#: With #977's round 3 that walk is gone (its heaviest in the burst 637 cycles), so it is stated 120 us again, as
-#: before round 2, within it every arm's.
+#: With #977's sink index change that walk is gone (its heaviest in the burst 637 cycles), so it is stated 120 us again, as
+#: before the drain and settlement change, within it every arm's.
 EIGHT_ONE = dict(base=300, withdraw=110, rebuild=590, walk=120, reclaim=40, retained=375, mrpdu=0, acmp=80, aecp=145,
                  aecp_long=325, acmp_declined=30)
 STATED_US = {shape_costs.Shape(1, 2, 2): ONE, shape_costs.Shape(1, 9, 9): EIGHT_ONE, shape_costs.Shape(2, 2, 2): TWO,
