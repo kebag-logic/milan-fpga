@@ -1,0 +1,48 @@
+== KL_render_queue: 2 streams x 8 lanes, 2 interfaces (out-leads 2, 3), 128 rows ==
+  dbg: [place] frame 118 if 1/1 stream 0/0 last 0/0 data 001800020c080002 exp 1f1800020c080002
+  dbg: [place] frame 118 if 1/1 stream 0/0 last 0/0 data 0038000232280002 exp 4538000232280002
+  dbg: [place] frame 118 if 1/1 stream 0/0 last 0/0 data 0058000258480002 exp 6b58000258480002
+  dbg: [place] frame 118 if 1/1 stream 0/0 last 1/1 data 007800027e680002 exp 917800027e680002
+  dbg: [place] frame 118 if 1/1 stream 1/1 last 0/0 data 0018008417080084 exp 2a18008417080084
+  dbg: [place] frame 118 if 1/1 stream 1/1 last 0/0 data 003800843d280084 exp 503800843d280084
+  [FAIL] [behind] every event presented to every interface is the frame the law names, byte-exact (916 reads, 52 mismatched beats)
+  [ ok ] [behind] lead_o and idle_o follow the model at every frame end (0 off)
+  [ ok ] [boot] every event presented to every interface is the frame the law names, byte-exact (40 reads, 0 mismatched beats)
+  [ ok ] [boot] lead_o and idle_o follow the model at every frame end (0 off)
+  [FAIL] [chans] every event presented to every interface is the frame the law names, byte-exact (364 reads, 312 mismatched beats)
+  [ ok ] [chans] lead_o and idle_o follow the model at every frame end (0 off)
+  [FAIL] [early] every event presented to every interface is the frame the law names, byte-exact (604 reads, 24 mismatched beats)
+  [ ok ] [early] lead_o and idle_o follow the model at every frame end (0 off)
+  [FAIL] [flush] every event presented to every interface is the frame the law names, byte-exact (318 reads, 144 mismatched beats)
+  [ ok ] [flush] lead_o and idle_o follow the model at every frame end (0 off)
+  [FAIL] [lap] every event presented to every interface is the frame the law names, byte-exact (554 reads, 48 mismatched beats)
+  [ ok ] [lap] lead_o and idle_o follow the model at every frame end (0 off)
+  [FAIL] [late] every event presented to every interface is the frame the law names, byte-exact (324 reads, 28 mismatched beats)
+  [ ok ] [late] lead_o and idle_o follow the model at every frame end (0 off)
+  [FAIL] [long] every event presented to every interface is the frame the law names, byte-exact (846 reads, 60 mismatched beats)
+  [ ok ] [long] lead_o and idle_o follow the model at every frame end (0 off)
+  [FAIL] [obs] every event presented to every interface is the frame the law names, byte-exact (2446 reads, 8844 mismatched beats)
+  [ ok ] [obs] lead_o and idle_o follow the model at every frame end (0 off)
+  [FAIL] [place] every event presented to every interface is the frame the law names, byte-exact (580 reads, 2866 mismatched beats)
+  [ ok ] [place] lead_o and idle_o follow the model at every frame end (0 off)
+  [FAIL] [round] every event presented to every interface is the frame the law names, byte-exact (412 reads, 764 mismatched beats)
+  [ ok ] [round] lead_o and idle_o follow the model at every frame end (0 off)
+  [FAIL] [slip] every event presented to every interface is the frame the law names, byte-exact (234 reads, 134 mismatched beats)
+  [ ok ] [slip] lead_o and idle_o follow the model at every frame end (0 off)
+  [ ok ] [untimed] every event presented to every interface is the frame the law names, byte-exact (244 reads, 0 mismatched beats)
+  [ ok ] [untimed] lead_o and idle_o follow the model at every frame end (0 off)
+  [FAIL] [wrap] every event presented to every interface is the frame the law names, byte-exact (1364 reads, 1196 mismatched beats)
+  [ ok ] [wrap] lead_o and idle_o follow the model at every frame end (0 off)
+  [ ok ] [late] late PDUs counted once each (10, model 10, phases 10)
+  [ ok ] [early] too-early PDUs counted once each (6, model 6, phases 6)
+  [ ok ] [refused] PDUs with a late or too-early event counted once each in refused_o (15, model 15, phases 15)
+  [ ok ] [untimed] untimed PDUs counted once each (2, model 2)
+  [ ok ] [slip] gaps and overlaps counted (22, model 22)
+  [ ok ] [obs] stream 0: one pop per interface-0 read with a sample (1903, model 1903)
+  [ ok ] [obs] stream 1: one pop per interface-0 read with a sample (276, model 276)
+  [ ok ] [obs] converged after 110 ms of steady presentation, and cleared by the gap after it
+  [ ok ] [wrap] the phase starts before its frame instants cross 2^32 ns, so its PDUs straddle the wrap
+  [ ok ] [if] each interface's render tick comes one cycle after its last beat, once per event (0 off)
+  [ ok ] [if] every stream presents 2 x ceil(N_CH / 2) = 8 lanes to its crossbar, the pad lane of an odd count a channel never latched
+== render_queue: checks: 39   failures: 12 ==
+RESULT: FAIL

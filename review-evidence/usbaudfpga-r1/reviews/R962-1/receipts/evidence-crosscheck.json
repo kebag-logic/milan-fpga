@@ -1,0 +1,49 @@
+{
+  "source_digest_checks": [
+    {
+      "path": "docs/design/USB_AUDIO_PATH.md",
+      "matches_published": true,
+      "sha256": "3b2603983d85424ffddf61e8ad2b4d18546007ca633041852af458af14654061"
+    },
+    {
+      "path": "hdl/milan/usbaudio/KL_usbaudio_reference.sv",
+      "matches_published": true,
+      "sha256": "b063db0555274bfdf43f37a76dea928b4611f5e4fc423a77ac2d555994b73aa7"
+    },
+    {
+      "path": "tb/verilator/usbaudio/reference_tb.sv",
+      "matches_published": true,
+      "sha256": "f2ab61687fef4b0d5e6e84d6219b6422e543d7aa232a25212e43c4a34a040b35"
+    },
+    {
+      "path": "tb/verilator/usbaudio/transport_mutations.py",
+      "matches_published": true,
+      "sha256": "83746be7b5096f6876dfed156d68eceb1c3eea021906218325a371515fe9821a"
+    }
+  ],
+  "resource_arithmetic": {
+    "LUTs": 2592,
+    "registers": 5861,
+    "block_RAM_tiles": 8,
+    "DSPs": 0,
+    "bonded_IOBs": 11,
+    "clock_managers": 1,
+    "slices": 454,
+    "global_clock_buffers": 3,
+    "PLLs": 0
+  },
+  "resource_arithmetic_matches": true,
+  "physical_reports_independently_verified": false,
+  "payload_comparison_independently_repeated": false,
+  "contract_documents": [
+    {
+      "revision": "9e5ef16",
+      "sha256": "0fa301bbe94f370c4a02c4c0fe7d75a88bfd4ceafc7ff26f0be2f756541a7cd8"
+    },
+    {
+      "revision": "47e6bbc93093c325b00a9263fdb9ceb20869ef46",
+      "sha256": "e350e701cbf87a0d9595971f5058ec1d7c54d65847a138b0328b6e0e4e41ae36"
+    }
+  ],
+  "contract_difference": "Firmware link-loss description only; FPGA-side wire layout and duties unchanged."
+}

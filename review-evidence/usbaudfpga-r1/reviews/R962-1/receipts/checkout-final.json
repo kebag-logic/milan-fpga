@@ -1,0 +1,85 @@
+{
+  "head": "75db86a926a9f4d2f7734246eac06a8f58c57bac",
+  "tree": "2e369a1b046f89e354d02fa7b465b5bcb787293b",
+  "root": {
+    "files": 2034,
+    "mismatches": [],
+    "index_matches": true,
+    "gitlinks": {
+      "external": "efeb541ae5fe1e078332d8462dca2fc2d9cb8db5",
+      "gptp-processor": "3ce71b768a2f6f6a5274c127080146e755d02275",
+      "protocol-processor": "801ef2283ec793e35a2590fc6593c90313a64041",
+      "third_party/lwSRP": "d1bb4f4e5954af6dabe7f210a6bf7adbb76bdd6b",
+      "third_party/tsn-c-stack": "a795471c0abc4e38f7e5146b4e539dd607b6f501",
+      "third_party/verilog-axis": "48ff7a7e2ef782cf778d47910cf85835c64b1bce"
+    }
+  },
+  "submodules": {
+    "protocol-processor": {
+      "files": 868,
+      "mismatches": [],
+      "index_matches": true,
+      "gitlinks": {},
+      "head": "801ef2283ec793e35a2590fc6593c90313a64041",
+      "expected": "801ef2283ec793e35a2590fc6593c90313a64041",
+      "registered": true
+    },
+    "gptp-processor": {
+      "files": 121,
+      "mismatches": [],
+      "index_matches": true,
+      "gitlinks": {},
+      "head": "3ce71b768a2f6f6a5274c127080146e755d02275",
+      "expected": "3ce71b768a2f6f6a5274c127080146e755d02275",
+      "registered": true
+    },
+    "third_party/verilog-axis": {
+      "files": 214,
+      "mismatches": [],
+      "index_matches": true,
+      "gitlinks": {},
+      "head": "48ff7a7e2ef782cf778d47910cf85835c64b1bce",
+      "expected": "48ff7a7e2ef782cf778d47910cf85835c64b1bce",
+      "registered": true
+    },
+    "third_party/tsn-c-stack": {
+      "files": 100,
+      "mismatches": [],
+      "index_matches": true,
+      "gitlinks": {},
+      "head": "a795471c0abc4e38f7e5146b4e539dd607b6f501",
+      "expected": "a795471c0abc4e38f7e5146b4e539dd607b6f501",
+      "registered": true
+    }
+  },
+  "network": {
+    "revision": "cc49123d2db1e01e80859efa10f8da43a01344ef",
+    "count": 22,
+    "identical": true,
+    "paths": [
+      "docs/DOCUMENTATION_AUDIT.md",
+      "docs/design/USB_NET_PATH.md",
+      "hdl/usbnet/KL_status_leds.sv",
+      "hdl/usbnet/KL_usbnet_pkg.sv",
+      "hdl/usbnet/KL_usbnet_rx_copy.sv",
+      "hdl/usbnet/KL_usbnet_tap.sv",
+      "hdl/usbnet/KL_usbnet_tx_arb.sv",
+      "hdl/usbnet/KL_usbnet_tx_inject.sv",
+      "sw/firmware/ctrl/plat/ctrl_plat_gen.py",
+      "sw/firmware/ctrl/plat/ctrl_plat_leds.h",
+      "sw/firmware/ctrl/plat/ctrl_plat_main.c",
+      "sw/firmware/ctrl/test/aecp_arms.py",
+      "sw/firmware/ctrl/test/aecp_leds_mutants.py",
+      "sw/firmware/ctrl/test/aecp_mutants.py",
+      "sw/firmware/ctrl/test/test_aecp.cpp",
+      "sw/litex/milan_soc.py",
+      "sw/litex/usbnet_soc.py",
+      "tb/verilator/usbnet/.gitignore",
+      "tb/verilator/usbnet/Makefile",
+      "tb/verilator/usbnet/mutants.py",
+      "tb/verilator/usbnet/sim_leds.cpp",
+      "tb/verilator/usbnet/sim_main.cpp"
+    ]
+  },
+  "pass": true
+}

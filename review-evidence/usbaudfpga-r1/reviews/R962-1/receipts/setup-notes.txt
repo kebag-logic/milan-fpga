@@ -1,0 +1,4 @@
+Reviewer setup corrections, excluded from pass evidence:
+- The initial ownership auditor compared against the common source base and included 56 paths, including unrelated preceding changes. Corrected to the actual eight network commits (0c31faae6b^..cc49123d2d): exactly 22 files. Source/index/submodule audits were already clean in the first attempt.
+- Initial shared-storage probe script had a quoting syntax error before any build started. Corrected the script; all three fresh mutation builds then reached runtime failures.
+- Initial connected-source reads returned no issue comments and failed the pinned file lookup. Read-only repository API supplied the pinned contract and verified the empty issue timeline.
