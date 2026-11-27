@@ -3547,6 +3547,11 @@ a save of at most 245 ms after the name's 1,000 ms window, which would give 490 
 uses the census model's figure. The worst of the ten in-flight arrivals is 369.2 ms, and the 64-bind burst converges in
 239.6 ms and 4 saves, within both.
 
+At 100 Mb/s this point's census drains egress at link rate through the shipping transmit queue ([FR_NFR 3.4.1](../reference/FR_NFR.md#341-control-service-budget-and-normative-timing), [PR #1020's ruling](https://github.com/kebag-logic/milan-fpga/pull/1020#issuecomment-7216971645), item 3):
+replayed through that queue, the instant-egress census changed the free-space test's outcome in 11 of its 159 cases.
+Measured again with the queue (`egress_queue.hpp`), the 159 cases derive the installed row unchanged, every cost and owner row the same, a fixed point.
+Its qualification passes, the 100 Mb/s egress row (`egress_mii.py`) at 505.74 us of its 1 ms, and the no-disposition control still finds no qualifying row, its least last queued notice again 237.0 ms.
+
 | Work | Statement, us |
 |---|---:|
 | Poll base | 235 |
