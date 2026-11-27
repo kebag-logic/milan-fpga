@@ -331,7 +331,7 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - It keeps its generated top and its inert scratch.
 - The Arty's `split` shape states it.
 - The AX7101 shapes do not.
-- The split console's `milan_lat` writes the pair (#878).
+- The split console's `lat IIIII EEEEE` writes the pair (#878).
 - `make -C tb/verilator/gptp_txts run-latw` and `make -C tb/verilator/milan_dp gptp-latw` grade it.
 
 ## Unreleased - gPTP on the MII port

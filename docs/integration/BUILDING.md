@@ -355,10 +355,10 @@ The clock ruling keeps `_CRG`'s `margin=0` contract.
 Its selected VCO is 800 MHz, divided by ten for sys/CPU.
 Companion outputs use divisors 32, 16 and four: 25/50/200 MHz.
 The configuration and launcher use those exact frequencies.
-This replaces round 2's unachievable 83,333,000 Hz request.
+This replaces the unachievable 83,333,000 Hz request.
 Historical measurements keep their original clock basis.
 
-The owner's round-4 ruling permits a measured Arty held-egress ledger.
+[#878's held-egress ruling](https://github.com/kebag-logic/milan-fpga/issues/878#issuecomment-7097474930) permits a measured Arty held-egress ledger.
 The `backlog-owed` stimulus holds egress for 60 ms after admitting commands.
 [FR_NFR 3.4.1](../reference/FR_NFR.md#341-control-service-budget-and-normative-timing) charges backpressure to the service budget.
 Its seven misses remain recorded misses, with no normative wait allowance.

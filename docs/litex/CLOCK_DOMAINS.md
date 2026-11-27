@@ -379,7 +379,7 @@ TX reference plane.
 Peer delay alone cannot identify an external inline-device fault.
 
 These latency CSRs do not change the timestamp reference plane.
-In VERSION `0x0002_0060`, `0x540`/`0x544` are readable shadow words:
+In VERSION `0x0002_0060` and a split image's `0x0003_0060`, `0x540`/`0x544` are readable shadow words:
 
 - `PTP_INGRESS_LAT` and `PTP_EGRESS_LAT` are plain RW shadow words.
 - A read returns the last written value.
