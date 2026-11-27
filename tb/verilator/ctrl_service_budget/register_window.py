@@ -258,7 +258,9 @@ def population_groups(p: scenario.Point) -> list[scenario.Group]:
     out.append(g)
     for name in ('leaveall', 'swap'):
         g = group(name, n)
-        g.add(f'frame 0 {declared(0, n).hex()}', f'wait cycles {30 * ms}', 'wait quiet 3 within 2000000')
+        probe(g, f'register_{name}_advertise', "every input's Talker Advertise, bound, before the record measured",
+              declared(0, n))
+        g.add('wait quiet 3 within 2000000')
         if name == 'leaveall':
             probe(g, 'register_leaveall', "a LeaveAll MRPDU in lwSRP's shape, every input replaced",
                   leave_all_shape(n, True))
