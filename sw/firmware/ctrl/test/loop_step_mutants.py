@@ -58,6 +58,14 @@ def charge_mutants(kind: Callable[..., T]) -> tuple[T, ...]:
         kind("drain-alone-past-a-settle", "loop/ctrl_loop.c", "const bool alone = !settled && ",
              "const bool alone = !(settled && l->settle == NULL) && ", port, l23b,
              "L23b and none starts alone after a settle that did work"),
+        kind("drain-alone-past-a-tier-1-record", "loop/ctrl_loop.c",
+             "const bool alone = !settled && l->stats.rx_records == taken && l->stats.ticks == ticks;",
+             "const bool alone = !settled && l->stats.rx_records >= taken && l->stats.ticks == ticks;", port, l23b,
+             "L23b and none starts alone after a tier-1 record"),
+        kind("drain-alone-past-a-centisecond", "loop/ctrl_loop.c",
+             "const bool alone = !settled && l->stats.rx_records == taken && l->stats.ticks == ticks;",
+             "const bool alone = !settled && l->stats.rx_records == taken;", port, l23b,
+             "L23b and none starts alone after a centisecond"),
         kind("settle-after-the-events", "loop/ctrl_loop.c", settle + "\tconst uint32_t ticks = l->stats.ticks;\n"
              "\tconst uint32_t taken = l->stats.rx_records;\n" + events,
              "\tconst uint32_t ticks = l->stats.ticks;\n\tconst uint32_t taken = l->stats.rx_records;\n" + events

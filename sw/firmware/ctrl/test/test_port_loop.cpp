@@ -1601,6 +1601,46 @@ TEST_F(Loop, L23bTheDrainChargesARecordAndSettlesFirst) {
     EXPECT_EQ(loop_.drain_taken, 0u) << "L23b its drain took nothing";
     static_cast<void>(ctrl_loop_service(&loop_));
     EXPECT_EQ(probe.rx, rx + 1u) << "L23b the next pass, settling nothing, starts it alone";
+    // a pass that dispatched a centisecond, and one that took a tier-1 record, start none alone (#977): the time the
+    // centiseconds take refills ACMP's bucket, so its record then needs no more time, which would post one too
+    rx = probe.rx;
+    mbx_model_advance_ms(&model, MBX_CH_ACMP_RATE_REFILL_MS * MBX_CH_ACMP_RATE_BURST);
+    const auto before = loop_.stats.ticks;
+    static_cast<void>(ctrl_loop_service(&loop_));
+    EXPECT_GT(loop_.stats.ticks, before) << "L23b the pass dispatches the centiseconds";
+    EXPECT_EQ(probe.rx, rx) << "L23b and none starts alone after a centisecond";
+    for (unsigned k = 0; k < 64u; ++k) {   // the passes that dispatch the rest of them, then the first that does not
+        const auto t = loop_.stats.ticks;
+        static_cast<void>(ctrl_loop_service(&loop_));
+        if (loop_.stats.ticks == t) {
+            break;
+        }
+        EXPECT_EQ(probe.rx, rx) << "L23b nor after each centisecond behind it";
+    }
+    for (unsigned k = 0; k < 8u && probe.rx == rx; ++k) {   // past the passes given whole the time left due
+        static_cast<void>(ctrl_loop_service(&loop_));
+    }
+    EXPECT_EQ(probe.rx, rx + 1u) << "L23b the next ordinary pass, with no centisecond, starts it alone";
+    rx = probe.rx;
+    ASSERT_TRUE(ctrl_loop_bind_rx(&loop_, MBX_CH_ACMP, probe_rx_acmp, nullptr));
+    model.filter_en |= 1u << MBX_CH_ACMP;
+    std::uint8_t a[48];
+    build_frame(a, sizeof a, 0x22F0, 0xFC, 2);
+    std::memset(a + 16, 0, sizeof a - 16u);   // the entity the loop opened as, which the filter's terms name
+    unsigned message = 0;
+    while (message < 16u && !mbx_model_rx(&model, a, sizeof a, 0)) {
+        a[15] = static_cast<std::uint8_t>(++message);
+    }
+    ASSERT_LT(message, 16u) << "(a message the channel takes)";
+    const unsigned acmp = probe.rx_acmp;
+    const auto ticks = loop_.stats.ticks;
+    static_cast<void>(ctrl_loop_service(&loop_));
+    EXPECT_TRUE(probe.rx_acmp == acmp + 1u && loop_.stats.ticks == ticks) << "L23b a tier-1 record alone is taken";
+    EXPECT_EQ(probe.rx, rx) << "L23b and none starts alone after a tier-1 record";
+    for (unsigned k = 0; k < 8u && probe.rx == rx; ++k) {
+        static_cast<void>(ctrl_loop_service(&loop_));
+    }
+    EXPECT_EQ(probe.rx, rx + 1u) << "L23b the next ordinary pass, with no tier-1 record, starts it alone";
     drain(&loop_);
     refill();
     probe.now_step = (CTRL_LOOP_SLICE_US - CTRL_LOOP_SRP_UNIT_US) / 4u;   // room for four at the unit
