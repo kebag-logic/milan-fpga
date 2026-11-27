@@ -1,0 +1,16 @@
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+adp_first_mutants leg 3/4: 6 of 26
+[ok] mutant link-up-draws-half-a-second (adp): 21 check(s) failed
+    first: [FAIL] AdpCore.A9DrawKinds: A9 the two kinds are distinct: the 0..4 s draws pass 2 s
+[ok] mutant link-loss-resets-the-index (adp): 1 check(s) failed
+    first: [FAIL] AdpFirstAvailable.G1G5WithinTheLinkUpDrawOfEveryLinkUp: G1 each ENTITY_AVAILABLE carries the next available_index, across every link-up (6.2.2.15)
+[ok] mutant seed-one-round (adp): 7 check(s) failed
+    first: [FAIL] AdpCore.A22GeneratorNeverStuckAtZero: A22 a seed that mixes to zero starts the generator at 1
+[ok] mutant seed-end-around-carry-added (adp): 4 check(s) failed
+    first: [FAIL] AdpCore.A22GeneratorNeverStuckAtZero: A22 a seed that mixes to zero starts the generator at 1
+[ok] mutant link-up-not-sampled (adp, platboot1): 60 check(s) failed
+    first: [FAIL] AdpCore.A25FirstDrawsAreUniformOverSamples: A25 one host's first draws over neighbouring samples are uniform (6.2.4.2.2)
+[ok] mutant plat-clock-in-milliseconds (platboot1): 2 check(s) failed
+    first: [FAIL] Boot.B25TheAdpDrawIsSeededFromThePlatformsClock: B25 boots one microsecond apart in the clock's origin seed ADP's draw differently (#970)
+mutants: 6 of 6 caught

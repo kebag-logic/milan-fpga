@@ -1,0 +1,18 @@
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+adp_first_mutants leg 1/4: 7 of 26
+[ok] mutant link-up-draws-startup-kind (walk, adp): 26 check(s) failed
+    first: [FAIL] Table551/AdpWalkCell.Graded/LINK_UP_x_DOWN: LINK_UP x DOWN: the draw is the 0..4 s kind
+[ok] mutant gm-change-in-delay-restarts-the-delay (adp): 4 check(s) failed
+    first: [FAIL] AdpCore.A19IgnoredInputsKeepTheOwedAvailable: A19 a GM change in DELAY leaves the owed ENTITY_AVAILABLE owed, no timer started
+[ok] mutant seed-fallback-constant (adp): 3 check(s) failed
+    first: [FAIL] AdpDraw.H6WithoutAClockBootsDrawUniformly: H6 without a clock the seed's NOW_MS still spreads one entity's boots
+[ok] mutant seed-without-the-mac (adp): 10 check(s) failed
+    first: [FAIL] AdpCore.A22GeneratorNeverStuckAtZero: A22 a seed that mixes to zero starts the generator at 1
+[ok] mutant seed-clock-not-wired (platboot1): 2 check(s) failed
+    first: [FAIL] Boot.B25TheAdpDrawIsSeededFromThePlatformsClock: B25 boots one microsecond apart in the clock's origin seed ADP's draw differently (#970)
+[ok] mutant disabled-up-sampled (adp): 4 check(s) failed
+    first: [FAIL] AdpCore.A30EachQualifiedRiseTakesOneSample: A30 a LINK_UP while disabled takes no sample
+[ok] mutant plat-clock-wired-after-release (platboot1): 1 check(s) failed
+    first: [FAIL] Boot.B25TheAdpDrawIsSeededFromThePlatformsClock: B25 boots one microsecond apart in the clock's origin seed ADP's draw differently (#970)
+mutants: 7 of 7 caught

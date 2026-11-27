@@ -1,0 +1,14 @@
+adp_first_mutants leg 2/4: 6 of 26
+[ok] mutant draw-kinds-merged (adp, adp): 38 check(s) failed
+    first: [FAIL] AdpCore.A9DrawKinds: A9 every startup draw is 0..2 s and every other draw 0..4 s
+[ok] mutant gm-change-draws-the-startup-kind (adp): 2 check(s) failed
+    first: [FAIL] AdpCore.A0toA2Schedule: A2 GM_CHANGE in WAITING: DELAY with a 0..4 s draw (5.6.3.5.7)
+[ok] mutant seed-mix-is-the-identity (adp): 22 check(s) failed
+    first: [FAIL] AdpCore.A22GeneratorNeverStuckAtZero: A22 a seed that mixes to zero starts the generator at 1
+[ok] mutant seed-mac-not-summed (adp): 7 check(s) failed
+    first: [FAIL] AdpCore.A22GeneratorNeverStuckAtZero: A22 a seed that mixes to zero starts the generator at 1
+[ok] mutant later-link-up-not-reseeded (adp): 21 check(s) failed
+    first: [FAIL] AdpCore.A28EachLeaveOfDownTakesAFreshSample: A28 the next LINK_UP takes a fresh sample
+[ok] mutant link-up-sample-ignored (adp): 16 check(s) failed
+    first: [FAIL] AdpCore.A25FirstDrawsAreUniformOverSamples: A25 one host's first draws over neighbouring samples are uniform (6.2.4.2.2)
+mutants: 6 of 6 caught

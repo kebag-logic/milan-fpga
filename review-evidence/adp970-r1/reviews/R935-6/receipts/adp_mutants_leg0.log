@@ -1,0 +1,21 @@
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+adp_first_mutants leg 0/4: 7 of 26
+[ok] mutant gm-change-ignored (walk, adp): 17 check(s) failed
+    first: [FAIL] AdpWalk.P1toP5FirstAdvertAndCadence: P5 GM_CHANGE re-advertises with the new grandmaster sampled at build (5.6.3.5.7)
+[ok] mutant first-delays-not-drawn (adp): 11 check(s) failed
+    first: [FAIL] AdpCore.A9DrawKinds: A9 and both reach near their maxima
+[ok] mutant seed-is-now-ms (adp): 17 check(s) failed
+    first: [FAIL] AdpDraw.H5BootsDrawUniformly: H5 one entity's boots draw their first delay uniformly
+[ok] mutant seed-without-the-entity-id (adp): 7 check(s) failed
+    first: [FAIL] AdpCore.A22GeneratorNeverStuckAtZero: A22 a seed that mixes to zero starts the generator at 1
+wrote $REVIEWS/adp970-r935-6-packet/scratch/mut0/mutants/work/build/platboot-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $REVIEWS/adp970-r935-6-packet/scratch/mut0/mutants/work/build/platboot-if2/contract/KL_mbx.sv (2 interfaces)
+wrote $REVIEWS/adp970-r935-6-packet/scratch/mut0/mutants/work/build/platboot-if2/contract/mbx_contract.h (2 interfaces)
+[ok] mutant seed-without-the-interface (platboot2): 1 check(s) failed
+    first: [FAIL] Boot.B26TwoInterfacesAreSeededApart: B26 two interfaces enabled at one clock reading are seeded apart
+[ok] mutant duplicate-up-sampled (adp): 15 check(s) failed
+    first: [FAIL] AdpCore.A30EachQualifiedRiseTakesOneSample: A30 a duplicate LINK_UP takes no sample
+[ok] mutant plat-clock-1024-us-granule (platboot1): 2 check(s) failed
+    first: [FAIL] Boot.B25TheAdpDrawIsSeededFromThePlatformsClock: B25 boots one microsecond apart in the clock's origin seed ADP's draw differently (#970)
+mutants: 7 of 7 caught

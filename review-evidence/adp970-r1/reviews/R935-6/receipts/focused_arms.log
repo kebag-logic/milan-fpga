@@ -1,0 +1,70 @@
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+toolchain: {'cc': 'gcc (GCC) 16.2.1 20260810', 'cxx': 'g++ (GCC) 16.2.1 20260810', 'gcov': 'gcov (GCC) 16.2.1 20260810', 'gtest': '1.18.0', 'gmock': '1.18.0'}
+tsn-c-stack at c3bff8f3dea03870ea7ae62965db360b509ee3b3
+wrote $REVIEWS/adp970-r935-6-packet/scratch/fwf/checkout/platboot-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $REVIEWS/adp970-r935-6-packet/scratch/fwf/checkout/platboot-if2/contract/KL_mbx.sv (2 interfaces)
+wrote $REVIEWS/adp970-r935-6-packet/scratch/fwf/checkout/platboot-if2/contract/mbx_contract.h (2 interfaces)
+[ok] arm adp
+    H4 neighbours, startup: 1024 draws over 0 to 2000 ms, chi-square 25.1 (99 %: 30.6)
+    H4 neighbours, startup: 1024 draws over 0 to 2000 ms, chi-square 8.2 (99 %: 30.6)
+    H4 neighbours, LINK_UP: 1024 draws over 0 to 4000 ms, chi-square 25.5 (99 %: 30.6)
+    H4 neighbours, LINK_UP: 1024 draws over 0 to 4000 ms, chi-square 8.3 (99 %: 30.6)
+    H5 boots, startup: 1024 draws over 0 to 2000 ms, chi-square 16.5 (99 %: 30.6)
+    H5 boots, startup: 1024 draws over 0 to 2000 ms, chi-square 18.2 (99 %: 30.6)
+    H5 boots, LINK_UP: 1024 draws over 0 to 4000 ms, chi-square 17.2 (99 %: 30.6)
+    H5 boots, LINK_UP: 1024 draws over 0 to 4000 ms, chi-square 17.5 (99 %: 30.6)
+    H6 no clock, startup: 1024 draws over 0 to 2000 ms, chi-square 15.7 (99 %: 30.6)
+    H6 no clock, LINK_UP: 1024 draws over 0 to 4000 ms, chi-square 15.7 (99 %: 30.6)
+    H8 a later LINK_UP: 1024 draws over 0 to 4000 ms, chi-square 13.3 (99 %: 30.6)
+    H10 915 distinct first delays of 1024 boots apart only at the LINK_UP
+    H10 the first LINK_UP: 1024 draws over 0 to 4000 ms, chi-square 17.2 (99 %: 30.6)
+    C0 LINK_UP -> TMR_DELAY armed                 12 accesses (bound 12)
+    C1 TMR_DELAY -> ENTITY_AVAILABLE, TMR_ADVERTISE  38 accesses (bound 39)
+    C2 RCV_ADP_DISCOVER -> TMR_DELAY armed        31 accesses (bound 31)
+    C3 TMR_ADVERTISE -> TMR_DELAY armed           11 accesses (bound 11)
+    C4 GM_CHANGE -> TMR_DELAY armed               11 accesses (bound 11)
+    C5 LINK_DOWN -> timer cancelled                9 accesses (bound 12)
+    C6 SHUTDOWN -> ENTITY_DEPARTING committed     28 accesses (bound 29)
+    G1 64 LINK_UPs: the first ENTITY_AVAILABLE 64 distinct delays, the latest 3973 ms after LINK_UP (its draw 0 to 4000 ms; the declared discovery time 6000 ms)
+    G5 the TMR_ADVERTISE delays after them: 63 distinct, the latest 3976 ms (0 to 4000)
+    G1 the LINK_UP delays, by 4 parts of 0 to 4000 ms: 14 16 18 16
+    G5 the TMR_ADVERTISE delays, by 4 parts of 0 to 4000 ms: 17 15 17 15
+    G2 32 startups with the link up: the first ENTITY_AVAILABLE 32 distinct delays, the latest 1959 ms (its draw 0 to 2000 ms)
+    G2 the startup delays, by 2 parts of 0 to 2000 ms: 17 15
+    G3 32 LINK_UPs with a grandmaster change in the delay: the first ENTITY_AVAILABLE the latest 3969 ms after LINK_UP
+    G4 32 LINK_UPs, a grandmaster change 4.5 s after each: the first ENTITY_AVAILABLE the latest 3916 ms after LINK_UP, the new grandmaster's the latest 3867 ms after the change
+    G4 the grandmaster change's delays, by 2 parts of 0 to 4000 ms: 13 19
+    backlog: 16 event records, 30 centiseconds, 8 receive records
+    passes: events by 2, ENTITY_AVAILABLE in 2 (170 accesses), receive ring by 5 (223 accesses), idle at 16; worst pass 100 accesses
+    F5 the costliest pass of the backlog         100 accesses (bound 407)
+    E5 1 SHUTDOWNs, expiry taken before the room: room to ENTITY_AVAILABLE  62 accesses (bound 1628)
+    E5 1 SHUTDOWNs, expiry taken after the room: room to ENTITY_AVAILABLE  68 accesses (bound 1628)
+    E5 2 SHUTDOWNs, expiry taken before the room: room to ENTITY_AVAILABLE  91 accesses (bound 1628)
+    E5 2 SHUTDOWNs, expiry taken after the room: room to ENTITY_AVAILABLE  97 accesses (bound 1628)
+    E5 64 SHUTDOWNs, expiry taken before the room: room to ENTITY_AVAILABLE  91 accesses (bound 1628)
+    E5 64 SHUTDOWNs, expiry taken after the room: room to ENTITY_AVAILABLE  97 accesses (bound 1628)
+    == ctrl ADP slice (fake ports and host model): checks: 84   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (84 tests, 0 failures, exit 0)
+[ok] arm plat
+    == ctrl split platform CSR window and console (host bus): checks: 12   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (12 tests, 0 failures, exit 0)
+    == ctrl split platform MMIO (host array): checks: 2   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (2 tests, 0 failures, exit 0)
+[ok] arm platboot
+    == ctrl split platform boot (host model, endstation_ax7101_1x1_tdm8 if1): checks: 59   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (59 tests, 0 failures, exit 0)
+[ok] arm platboot
+    == ctrl split platform boot (host model, endstation_ax7101_1x1_tdm8 if2): checks: 60   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (60 tests, 0 failures, exit 0)
+[ok] arm acmpnvm
+    == ctrl ACMP bindings on the saved-state store (1x1 shape): checks: 7   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (7 tests, 0 failures, exit 0)
+focused arms: PASS
