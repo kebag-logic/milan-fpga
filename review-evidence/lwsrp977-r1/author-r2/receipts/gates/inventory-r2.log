@@ -1,0 +1,14 @@
+# gate inventory at 50a2106483141fcd7d1b20654bcf0803e7c3020a, clean clone; 2026-11-27 07:04:52 CET
+$ git ls-files *.pyc *__pycache__*
+[rc=0] git ls-files *.pyc *__pycache__*
+python caches tracked: 0
+tracked files: 74
+tracked files by encoding:  52 us-ascii; 22 utf-8;
+non-text tracked files: 0
+generated-output paths tracked: 0
+$ cat .gitignore
+# Python bytecode the test tools leave when they run.
+__pycache__/
+*.pyc
+[rc=0] cat .gitignore
+# gate inventory rc=0 2026-11-27 07:04:52 CET

@@ -1,0 +1,72 @@
+# gate diff-OFF at 50a2106483141fcd7d1b20654bcf0803e7c3020a, clean clone; 2026-11-27 07:02:57 CET
+$ python3 tests/check_differential.py --work-dir $VALIDATION_STORAGE/lwsrp22-a861-scratch/gates/diff-OFF/work --milan OFF --sanitize-memory clang
+| Driver | Build | Seeds | Steps a seed | Trace lines | Identical | Refusal seeds at one port | Traces' sha256 |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| timer | default | 200 | 20000 | 7821600 | 200 | 0 | b5b59e88a4141d8b |
+| timer | scale | 200 | 20000 | 7821600 | 200 | 0 | b5b59e88a4141d8b |
+| timer | scale-slots4-wrap | 200 | 20000 | 7821600 | 200 | 0 | b5b59e88a4141d8b |
+| timer | scale-buckets1 | 200 | 20000 | 7821600 | 200 | 0 | b5b59e88a4141d8b |
+| timer | scale-buckets256 | 200 | 20000 | 7821600 | 200 | 0 | b5b59e88a4141d8b |
+| timer | lean | 200 | 20000 | 7821600 | 200 | 0 | b5b59e88a4141d8b |
+| timer | one-port | 200 | 20000 | 7821600 | 200 | 0 | b5b59e88a4141d8b |
+| timer | rapid | 200 | 20000 | 7821600 | 200 | 0 | b5b59e88a4141d8b |
+| timer | lean-copy | 200 | 20000 | 7821600 | 200 | 0 | b5b59e88a4141d8b |
+| timer | lean-tx | 200 | 20000 | 7821600 | 200 | 0 | b5b59e88a4141d8b |
+| timer | end-station | 200 | 20000 | 7821600 | 200 | 0 | b5b59e88a4141d8b |
+| mad | default | 200 | 3000 | 5768140 | 200 | 0 | 4356b787a89c2b18 |
+| mad | scale | 200 | 3000 | 5768140 | 200 | 0 | 4356b787a89c2b18 |
+| mad | scale-slots4-wrap | 200 | 3000 | 5768140 | 200 | 0 | 4356b787a89c2b18 |
+| mad | scale-buckets1 | 200 | 3000 | 5768140 | 200 | 0 | 4356b787a89c2b18 |
+| mad | scale-buckets256 | 200 | 3000 | 5768140 | 200 | 0 | 4356b787a89c2b18 |
+| mad | lean | 200 | 3000 | 5768140 | 200 | 0 | 4356b787a89c2b18 |
+| mad | one-port | 200 | 3000 | 5768140 | 177 | 23 | 0a1148fbf5d61aac |
+| mad | rapid | 200 | 3000 | 5768140 | 200 | 0 | 4356b787a89c2b18 |
+| mad | lean-copy | 200 | 3000 | 5768140 | 200 | 0 | 4356b787a89c2b18 |
+| mad | lean-tx | 200 | 3000 | 5768140 | 200 | 0 | 4356b787a89c2b18 |
+| mad | end-station | 200 | 3000 | 5768140 | 177 | 23 | 0a1148fbf5d61aac |
+KILLED timer-ahead-tick at seed 1
+KILLED timer-self-ahead at seed 1
+KILLED timer-due-order at seed 1
+KILLED timer-due-insert at seed 1
+KILLED timer-rising-run at seed 1
+KILLED timer-slot-turn at seed 1
+KILLED timer-zero-arm at seed 1
+KILLED timer-unregistered-arm at seed 1
+KILLED timer-removed-armed at seed 1
+KILLED timer-removed-registered at seed 1
+KILLED index-bucket-tail at seed 3
+KILLED index-reclaim-head at seed 1
+KILLED index-replacement-bucket at seed 3
+KILLED index-registered-bucket at seed 1
+KILLED index-lookup-bucket at seed 1
+KILLED sort-merge-ties at seed 3
+KILLED sort-run-reversal at seed 3
+KILLED sort-final-merge at seed 3
+KILLED sort-reencode at seed 1
+KILLED sort-failed-prefix at seed 3
+KILLED sort-ordered-check at seed 1
+KILLED reverse-any-order at seed 1
+KILLED reverse-ties at seed 3
+KILLED reverse-innermost-pair at seed 2
+KILLED reverse-half-swap at seed 1
+KILLED sort-direction at seed 1
+KILLED one-port-reserve at seed 3
+KILLED one-port-publish at seed 3
+KILLED rapid-replace-lv at seed 3
+KILLED lean-copy-row at seed 4
+KILLED lean-copy-restore at seed 16
+KILLED lean-copy-mac at seed 4
+KILLED lean-copy-failure at seed 4
+KILLED lean-tx-moved-skipped at seed 1
+KILLED lean-tx-la-skipped at seed 1
+KILLED lean-tx-word-skipped at seed 1
+KILLED lean-tx-word-ends-scan at seed 3
+KILLED lean-tx-word-ends-scan-alone at seed 3
+MSAN end-station: clean over 200 seeds
+KILLED lean-reads-value at seed 4
+Drivers: 2; builds: 22; mutants killed: 39 of 39; problems: 0
+[rc=0] python3 tests/check_differential.py --work-dir $VALIDATION_STORAGE/lwsrp22-a861-scratch/gates/diff-OFF/work --milan OFF --sanitize-memory clang
+$VALIDATION_STORAGE/lwsrp22-a861-scratch/bin/gate.sh: line 80: E: command not found
+generated-output paths tracked: 0
+$VALIDATION_STORAGE/lwsrp22-a861-scratch/bin/gate.sh: line 82: syntax error near unexpected token `;;'
+$VALIDATION_STORAGE/lwsrp22-a861-scratch/bin/gate.sh: line 82: `    step cat .gitignore ;;'

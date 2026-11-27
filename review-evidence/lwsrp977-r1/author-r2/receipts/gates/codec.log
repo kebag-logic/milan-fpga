@@ -1,0 +1,9 @@
+# gate codec at 50a2106483141fcd7d1b20654bcf0803e7c3020a, clean clone; 2026-11-27 07:03:03 CET
+$ cc -std=c11 -Isrc/include -I$VALIDATION_STORAGE/977-a825/cgreen/prefix/include -L$VALIDATION_STORAGE/977-a825/cgreen/prefix/lib tests/unit/mrp_pdu_test.c src/core/mrp_pdu.c -xc - -lcgreen -o $VALIDATION_STORAGE/lwsrp22-a861-scratch/gates/codec/b/mrp_pdu_tests
+[rc=0] cc -std=c11 -Isrc/include -I$VALIDATION_STORAGE/977-a825/cgreen/prefix/include -L$VALIDATION_STORAGE/977-a825/cgreen/prefix/lib tests/unit/mrp_pdu_test.c src/core/mrp_pdu.c -xc - -lcgreen -o $VALIDATION_STORAGE/lwsrp22-a861-scratch/gates/codec/b/mrp_pdu_tests
+$ $VALIDATION_STORAGE/lwsrp22-a861-scratch/gates/codec/b/mrp_pdu_tests
+Running "mrp_pdu_suite" (9 tests)...
+  "mrp_pdu_suite": 1690 passes in 17ms.
+Completed "mrp_pdu_suite": 1690 passes in 17ms.
+[rc=0] $VALIDATION_STORAGE/lwsrp22-a861-scratch/gates/codec/b/mrp_pdu_tests
+# gate codec rc=0 2026-11-27 07:03:03 CET

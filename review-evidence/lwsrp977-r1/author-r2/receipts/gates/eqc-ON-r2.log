@@ -1,0 +1,10 @@
+# gate eqc-ON at 50a2106483141fcd7d1b20654bcf0803e7c3020a, clean clone; 2026-11-27 07:06:28 CET
+$ python3 tests/check_equivalence_controls.py --work-dir $VALIDATION_STORAGE/lwsrp22-a861-scratch/gates/eqc-ON-r2/work --prefix $VALIDATION_STORAGE/977-a825/cgreen/prefix --milan ON
+PASS other-assertion: gate rc=1
+PASS other-test: gate rc=1
+PASS revised: gate rc=0
+PASS signal: gate rc=1
+PASS timeout: gate rc=1
+Controls: 5; failed: 0
+[rc=0] python3 tests/check_equivalence_controls.py --work-dir $VALIDATION_STORAGE/lwsrp22-a861-scratch/gates/eqc-ON-r2/work --prefix $VALIDATION_STORAGE/977-a825/cgreen/prefix --milan ON
+# gate eqc-ON rc=0 2026-11-27 07:14:36 CET

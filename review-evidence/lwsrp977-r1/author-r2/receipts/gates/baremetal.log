@@ -1,0 +1,140 @@
+# gate baremetal at 50a2106483141fcd7d1b20654bcf0803e7c3020a, clean clone; 2026-11-27 07:03:43 CET
+$ python3 tests/check_embedded.py --work-dir $VALIDATION_STORAGE/lwsrp22-a861-scratch/gates/baremetal/work
+-- The C compiler identification is GNU 16.2.1
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /usr/bin/cc - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Configuring done (0.4s)
+-- Generating done (0.0s)
+-- Build files have been written to: $VALIDATION_STORAGE/lwsrp22-a861-scratch/gates/baremetal/work/OFF
+OFF: ['cmake', '-S', '$VALIDATION_STORAGE/lwsrp22-a861-scratch/gates/baremetal/work', '-B', '$VALIDATION_STORAGE/lwsrp22-a861-scratch/gates/baremetal/work/OFF', '-DLWSRP_ROOT=$VALIDATION_STORAGE/lwsrp22-a861-scratch/gates/baremetal/src', '-DLWSRP_MILAN=OFF']; rc=0
+[ 18%] Building C object CMakeFiles/lwsrp.dir$VALIDATION_STORAGE/lwsrp22-a861-scratch/gates/baremetal/src/src/core/mrp_pdu.c.o
+[ 27%] Building C object CMakeFiles/lwsrp.dir$VALIDATION_STORAGE/lwsrp22-a861-scratch/gates/baremetal/src/src/core/switch.c.o
+[ 18%] Building C object CMakeFiles/lwsrp.dir$VALIDATION_STORAGE/lwsrp22-a861-scratch/gates/baremetal/src/src/core/mrp_mad.c.o
+[ 36%] Building C object CMakeFiles/lwsrp.dir$VALIDATION_STORAGE/lwsrp22-a861-scratch/gates/baremetal/src/src/modules/mvrp.c.o
+[ 45%] Building C object CMakeFiles/lwsrp.dir$VALIDATION_STORAGE/lwsrp22-a861-scratch/gates/baremetal/src/src/modules/mmrp.c.o
+[ 63%] Building C object CMakeFiles/lwsrp.dir$VALIDATION_STORAGE/lwsrp22-a861-scratch/gates/baremetal/src/src/ports/alloc.c.o
+[ 54%] Building C object CMakeFiles/lwsrp.dir$VALIDATION_STORAGE/lwsrp22-a861-scratch/gates/baremetal/src/src/modules/msrp.c.o
+[ 72%] Building C object CMakeFiles/lwsrp.dir$VALIDATION_STORAGE/lwsrp22-a861-scratch/gates/baremetal/src/src/ports/timer.c.o
+[ 81%] Linking C static library liblwsrp.a
+[ 81%] Built target lwsrp
+[ 90%] Building C object CMakeFiles/probe.dir$VALIDATION_STORAGE/lwsrp22-a861-scratch/gates/baremetal/src/tests/embedded_switch.c.o
+[100%] Linking C executable probe
+[100%] Built target probe
+OFF: ['cmake', '--build', '$VALIDATION_STORAGE/lwsrp22-a861-scratch/gates/baremetal/work/OFF', '--parallel', '2']; rc=0
+OFF: ['$VALIDATION_STORAGE/lwsrp22-a861-scratch/gates/baremetal/work/OFF/probe']; rc=0
+-- The C compiler identification is GNU 16.2.1
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /usr/bin/cc - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Configuring done (0.3s)
+-- Generating done (0.0s)
+-- Build files have been written to: $VALIDATION_STORAGE/lwsrp22-a861-scratch/gates/baremetal/work/ON
+ON: ['cmake', '-S', '$VALIDATION_STORAGE/lwsrp22-a861-scratch/gates/baremetal/work', '-B', '$VALIDATION_STORAGE/lwsrp22-a861-scratch/gates/baremetal/work/ON', '-DLWSRP_ROOT=$VALIDATION_STORAGE/lwsrp22-a861-scratch/gates/baremetal/src', '-DLWSRP_MILAN=ON']; rc=0
+[ 18%] Building C object CMakeFiles/lwsrp.dir$VALIDATION_STORAGE/lwsrp22-a861-scratch/gates/baremetal/src/src/core/mrp_pdu.c.o
+[  9%] Building C object CMakeFiles/lwsrp.dir$VALIDATION_STORAGE/lwsrp22-a861-scratch/gates/baremetal/src/src/core/mrp_mad.c.o
+[ 27%] Building C object CMakeFiles/lwsrp.dir$VALIDATION_STORAGE/lwsrp22-a861-scratch/gates/baremetal/src/src/core/switch.c.o
+[ 36%] Building C object CMakeFiles/lwsrp.dir$VALIDATION_STORAGE/lwsrp22-a861-scratch/gates/baremetal/src/src/modules/mmrp.c.o
+[ 45%] Building C object CMakeFiles/lwsrp.dir$VALIDATION_STORAGE/lwsrp22-a861-scratch/gates/baremetal/src/src/modules/mvrp.c.o
+[ 63%] Building C object CMakeFiles/lwsrp.dir$VALIDATION_STORAGE/lwsrp22-a861-scratch/gates/baremetal/src/src/ports/alloc.c.o
+[ 54%] Building C object CMakeFiles/lwsrp.dir$VALIDATION_STORAGE/lwsrp22-a861-scratch/gates/baremetal/src/src/modules/msrp.c.o
+[ 72%] Building C object CMakeFiles/lwsrp.dir$VALIDATION_STORAGE/lwsrp22-a861-scratch/gates/baremetal/src/src/ports/timer.c.o
+[ 81%] Linking C static library liblwsrp.a
+[ 81%] Built target lwsrp
+[ 90%] Building C object CMakeFiles/probe.dir$VALIDATION_STORAGE/lwsrp22-a861-scratch/gates/baremetal/src/tests/embedded_switch.c.o
+[100%] Linking C executable probe
+[100%] Built target probe
+ON: ['cmake', '--build', '$VALIDATION_STORAGE/lwsrp22-a861-scratch/gates/baremetal/work/ON', '--parallel', '2']; rc=0
+ON: ['$VALIDATION_STORAGE/lwsrp22-a861-scratch/gates/baremetal/work/ON/probe']; rc=0
+Embedded source list: both profile links and dispatch probes pass
+[rc=0] python3 tests/check_embedded.py --work-dir $VALIDATION_STORAGE/lwsrp22-a861-scratch/gates/baremetal/work
+$ python3 tests/check_freestanding.py
+COMMAND cc -std=c11 -ffreestanding -Wall -Wextra -Wpedantic -Werror -Isrc/include -Isrc -fsyntax-only src/core/mrp_mad.c; rc=0
+COMMAND cc -std=c11 -ffreestanding -Wall -Wextra -Wpedantic -Werror -Isrc/include -Isrc -M src/core/mrp_mad.c; rc=0
+COMMAND cc -std=c11 -ffreestanding -Wall -Wextra -Wpedantic -Werror -Isrc/include -Isrc -fsyntax-only src/core/mrp_pdu.c; rc=0
+COMMAND cc -std=c11 -ffreestanding -Wall -Wextra -Wpedantic -Werror -Isrc/include -Isrc -M src/core/mrp_pdu.c; rc=0
+COMMAND cc -std=c11 -ffreestanding -Wall -Wextra -Wpedantic -Werror -Isrc/include -Isrc -fsyntax-only src/core/switch.c; rc=0
+COMMAND cc -std=c11 -ffreestanding -Wall -Wextra -Wpedantic -Werror -Isrc/include -Isrc -M src/core/switch.c; rc=0
+COMMAND cc -std=c11 -ffreestanding -Wall -Wextra -Wpedantic -Werror -Isrc/include -Isrc -fsyntax-only src/ports/timer.c; rc=0
+COMMAND cc -std=c11 -ffreestanding -Wall -Wextra -Wpedantic -Werror -Isrc/include -Isrc -M src/ports/timer.c; rc=0
+COMMAND cc -std=c11 -ffreestanding -Wall -Wextra -Wpedantic -Werror -Isrc/include -Isrc -fsyntax-only src/modules/mmrp.c; rc=0
+COMMAND cc -std=c11 -ffreestanding -Wall -Wextra -Wpedantic -Werror -Isrc/include -Isrc -M src/modules/mmrp.c; rc=0
+COMMAND cc -std=c11 -ffreestanding -Wall -Wextra -Wpedantic -Werror -Isrc/include -Isrc -fsyntax-only src/modules/mvrp.c; rc=0
+COMMAND cc -std=c11 -ffreestanding -Wall -Wextra -Wpedantic -Werror -Isrc/include -Isrc -M src/modules/mvrp.c; rc=0
+COMMAND cc -std=c11 -ffreestanding -Wall -Wextra -Wpedantic -Werror -Isrc/include -Isrc -fsyntax-only src/modules/msrp.c; rc=0
+COMMAND cc -std=c11 -ffreestanding -Wall -Wextra -Wpedantic -Werror -Isrc/include -Isrc -M src/modules/msrp.c; rc=0
+Freestanding sources: 7; failures: 0
+[rc=0] python3 tests/check_freestanding.py
+$ env CC=cc -DLWSRP_MILAN=1 python3 tests/check_freestanding.py
+COMMAND cc -DLWSRP_MILAN=1 -std=c11 -ffreestanding -Wall -Wextra -Wpedantic -Werror -Isrc/include -Isrc -fsyntax-only src/core/mrp_mad.c; rc=0
+COMMAND cc -DLWSRP_MILAN=1 -std=c11 -ffreestanding -Wall -Wextra -Wpedantic -Werror -Isrc/include -Isrc -M src/core/mrp_mad.c; rc=0
+COMMAND cc -DLWSRP_MILAN=1 -std=c11 -ffreestanding -Wall -Wextra -Wpedantic -Werror -Isrc/include -Isrc -fsyntax-only src/core/mrp_pdu.c; rc=0
+COMMAND cc -DLWSRP_MILAN=1 -std=c11 -ffreestanding -Wall -Wextra -Wpedantic -Werror -Isrc/include -Isrc -M src/core/mrp_pdu.c; rc=0
+COMMAND cc -DLWSRP_MILAN=1 -std=c11 -ffreestanding -Wall -Wextra -Wpedantic -Werror -Isrc/include -Isrc -fsyntax-only src/core/switch.c; rc=0
+COMMAND cc -DLWSRP_MILAN=1 -std=c11 -ffreestanding -Wall -Wextra -Wpedantic -Werror -Isrc/include -Isrc -M src/core/switch.c; rc=0
+COMMAND cc -DLWSRP_MILAN=1 -std=c11 -ffreestanding -Wall -Wextra -Wpedantic -Werror -Isrc/include -Isrc -fsyntax-only src/ports/timer.c; rc=0
+COMMAND cc -DLWSRP_MILAN=1 -std=c11 -ffreestanding -Wall -Wextra -Wpedantic -Werror -Isrc/include -Isrc -M src/ports/timer.c; rc=0
+COMMAND cc -DLWSRP_MILAN=1 -std=c11 -ffreestanding -Wall -Wextra -Wpedantic -Werror -Isrc/include -Isrc -fsyntax-only src/modules/mmrp.c; rc=0
+COMMAND cc -DLWSRP_MILAN=1 -std=c11 -ffreestanding -Wall -Wextra -Wpedantic -Werror -Isrc/include -Isrc -M src/modules/mmrp.c; rc=0
+COMMAND cc -DLWSRP_MILAN=1 -std=c11 -ffreestanding -Wall -Wextra -Wpedantic -Werror -Isrc/include -Isrc -fsyntax-only src/modules/mvrp.c; rc=0
+COMMAND cc -DLWSRP_MILAN=1 -std=c11 -ffreestanding -Wall -Wextra -Wpedantic -Werror -Isrc/include -Isrc -M src/modules/mvrp.c; rc=0
+COMMAND cc -DLWSRP_MILAN=1 -std=c11 -ffreestanding -Wall -Wextra -Wpedantic -Werror -Isrc/include -Isrc -fsyntax-only src/modules/msrp.c; rc=0
+COMMAND cc -DLWSRP_MILAN=1 -std=c11 -ffreestanding -Wall -Wextra -Wpedantic -Werror -Isrc/include -Isrc -M src/modules/msrp.c; rc=0
+Freestanding sources: 7; failures: 0
+[rc=0] env CC=cc -DLWSRP_MILAN=1 python3 tests/check_freestanding.py
+$ env CC=cc -DLWSRP_TIMER_SLOTS=64u -DLWSRP_ATTR_BUCKETS=16u -DLWSRP_TX_MERGE=1 python3 tests/check_freestanding.py
+COMMAND cc -DLWSRP_TIMER_SLOTS=64u -DLWSRP_ATTR_BUCKETS=16u -DLWSRP_TX_MERGE=1 -std=c11 -ffreestanding -Wall -Wextra -Wpedantic -Werror -Isrc/include -Isrc -fsyntax-only src/core/mrp_mad.c; rc=0
+COMMAND cc -DLWSRP_TIMER_SLOTS=64u -DLWSRP_ATTR_BUCKETS=16u -DLWSRP_TX_MERGE=1 -std=c11 -ffreestanding -Wall -Wextra -Wpedantic -Werror -Isrc/include -Isrc -M src/core/mrp_mad.c; rc=0
+COMMAND cc -DLWSRP_TIMER_SLOTS=64u -DLWSRP_ATTR_BUCKETS=16u -DLWSRP_TX_MERGE=1 -std=c11 -ffreestanding -Wall -Wextra -Wpedantic -Werror -Isrc/include -Isrc -fsyntax-only src/core/mrp_pdu.c; rc=0
+COMMAND cc -DLWSRP_TIMER_SLOTS=64u -DLWSRP_ATTR_BUCKETS=16u -DLWSRP_TX_MERGE=1 -std=c11 -ffreestanding -Wall -Wextra -Wpedantic -Werror -Isrc/include -Isrc -M src/core/mrp_pdu.c; rc=0
+COMMAND cc -DLWSRP_TIMER_SLOTS=64u -DLWSRP_ATTR_BUCKETS=16u -DLWSRP_TX_MERGE=1 -std=c11 -ffreestanding -Wall -Wextra -Wpedantic -Werror -Isrc/include -Isrc -fsyntax-only src/core/switch.c; rc=0
+COMMAND cc -DLWSRP_TIMER_SLOTS=64u -DLWSRP_ATTR_BUCKETS=16u -DLWSRP_TX_MERGE=1 -std=c11 -ffreestanding -Wall -Wextra -Wpedantic -Werror -Isrc/include -Isrc -M src/core/switch.c; rc=0
+COMMAND cc -DLWSRP_TIMER_SLOTS=64u -DLWSRP_ATTR_BUCKETS=16u -DLWSRP_TX_MERGE=1 -std=c11 -ffreestanding -Wall -Wextra -Wpedantic -Werror -Isrc/include -Isrc -fsyntax-only src/ports/timer.c; rc=0
+COMMAND cc -DLWSRP_TIMER_SLOTS=64u -DLWSRP_ATTR_BUCKETS=16u -DLWSRP_TX_MERGE=1 -std=c11 -ffreestanding -Wall -Wextra -Wpedantic -Werror -Isrc/include -Isrc -M src/ports/timer.c; rc=0
+COMMAND cc -DLWSRP_TIMER_SLOTS=64u -DLWSRP_ATTR_BUCKETS=16u -DLWSRP_TX_MERGE=1 -std=c11 -ffreestanding -Wall -Wextra -Wpedantic -Werror -Isrc/include -Isrc -fsyntax-only src/modules/mmrp.c; rc=0
+COMMAND cc -DLWSRP_TIMER_SLOTS=64u -DLWSRP_ATTR_BUCKETS=16u -DLWSRP_TX_MERGE=1 -std=c11 -ffreestanding -Wall -Wextra -Wpedantic -Werror -Isrc/include -Isrc -M src/modules/mmrp.c; rc=0
+COMMAND cc -DLWSRP_TIMER_SLOTS=64u -DLWSRP_ATTR_BUCKETS=16u -DLWSRP_TX_MERGE=1 -std=c11 -ffreestanding -Wall -Wextra -Wpedantic -Werror -Isrc/include -Isrc -fsyntax-only src/modules/mvrp.c; rc=0
+COMMAND cc -DLWSRP_TIMER_SLOTS=64u -DLWSRP_ATTR_BUCKETS=16u -DLWSRP_TX_MERGE=1 -std=c11 -ffreestanding -Wall -Wextra -Wpedantic -Werror -Isrc/include -Isrc -M src/modules/mvrp.c; rc=0
+COMMAND cc -DLWSRP_TIMER_SLOTS=64u -DLWSRP_ATTR_BUCKETS=16u -DLWSRP_TX_MERGE=1 -std=c11 -ffreestanding -Wall -Wextra -Wpedantic -Werror -Isrc/include -Isrc -fsyntax-only src/modules/msrp.c; rc=0
+COMMAND cc -DLWSRP_TIMER_SLOTS=64u -DLWSRP_ATTR_BUCKETS=16u -DLWSRP_TX_MERGE=1 -std=c11 -ffreestanding -Wall -Wextra -Wpedantic -Werror -Isrc/include -Isrc -M src/modules/msrp.c; rc=0
+Freestanding sources: 7; failures: 0
+[rc=0] env CC=cc -DLWSRP_TIMER_SLOTS=64u -DLWSRP_ATTR_BUCKETS=16u -DLWSRP_TX_MERGE=1 python3 tests/check_freestanding.py
+$ env CC=cc -DLWSRP_ONE_PORT_MAP=1 -DLWSRP_LEAN_VALIDATE=1 -DLWSRP_RAPID_REPLACE=1 -DLWSRP_LEAN_COPY=1 -DLWSRP_LEAN_TX=1 python3 tests/check_freestanding.py
+COMMAND cc -DLWSRP_ONE_PORT_MAP=1 -DLWSRP_LEAN_VALIDATE=1 -DLWSRP_RAPID_REPLACE=1 -DLWSRP_LEAN_COPY=1 -DLWSRP_LEAN_TX=1 -std=c11 -ffreestanding -Wall -Wextra -Wpedantic -Werror -Isrc/include -Isrc -fsyntax-only src/core/mrp_mad.c; rc=0
+COMMAND cc -DLWSRP_ONE_PORT_MAP=1 -DLWSRP_LEAN_VALIDATE=1 -DLWSRP_RAPID_REPLACE=1 -DLWSRP_LEAN_COPY=1 -DLWSRP_LEAN_TX=1 -std=c11 -ffreestanding -Wall -Wextra -Wpedantic -Werror -Isrc/include -Isrc -M src/core/mrp_mad.c; rc=0
+COMMAND cc -DLWSRP_ONE_PORT_MAP=1 -DLWSRP_LEAN_VALIDATE=1 -DLWSRP_RAPID_REPLACE=1 -DLWSRP_LEAN_COPY=1 -DLWSRP_LEAN_TX=1 -std=c11 -ffreestanding -Wall -Wextra -Wpedantic -Werror -Isrc/include -Isrc -fsyntax-only src/core/mrp_pdu.c; rc=0
+COMMAND cc -DLWSRP_ONE_PORT_MAP=1 -DLWSRP_LEAN_VALIDATE=1 -DLWSRP_RAPID_REPLACE=1 -DLWSRP_LEAN_COPY=1 -DLWSRP_LEAN_TX=1 -std=c11 -ffreestanding -Wall -Wextra -Wpedantic -Werror -Isrc/include -Isrc -M src/core/mrp_pdu.c; rc=0
+COMMAND cc -DLWSRP_ONE_PORT_MAP=1 -DLWSRP_LEAN_VALIDATE=1 -DLWSRP_RAPID_REPLACE=1 -DLWSRP_LEAN_COPY=1 -DLWSRP_LEAN_TX=1 -std=c11 -ffreestanding -Wall -Wextra -Wpedantic -Werror -Isrc/include -Isrc -fsyntax-only src/core/switch.c; rc=0
+COMMAND cc -DLWSRP_ONE_PORT_MAP=1 -DLWSRP_LEAN_VALIDATE=1 -DLWSRP_RAPID_REPLACE=1 -DLWSRP_LEAN_COPY=1 -DLWSRP_LEAN_TX=1 -std=c11 -ffreestanding -Wall -Wextra -Wpedantic -Werror -Isrc/include -Isrc -M src/core/switch.c; rc=0
+COMMAND cc -DLWSRP_ONE_PORT_MAP=1 -DLWSRP_LEAN_VALIDATE=1 -DLWSRP_RAPID_REPLACE=1 -DLWSRP_LEAN_COPY=1 -DLWSRP_LEAN_TX=1 -std=c11 -ffreestanding -Wall -Wextra -Wpedantic -Werror -Isrc/include -Isrc -fsyntax-only src/ports/timer.c; rc=0
+COMMAND cc -DLWSRP_ONE_PORT_MAP=1 -DLWSRP_LEAN_VALIDATE=1 -DLWSRP_RAPID_REPLACE=1 -DLWSRP_LEAN_COPY=1 -DLWSRP_LEAN_TX=1 -std=c11 -ffreestanding -Wall -Wextra -Wpedantic -Werror -Isrc/include -Isrc -M src/ports/timer.c; rc=0
+COMMAND cc -DLWSRP_ONE_PORT_MAP=1 -DLWSRP_LEAN_VALIDATE=1 -DLWSRP_RAPID_REPLACE=1 -DLWSRP_LEAN_COPY=1 -DLWSRP_LEAN_TX=1 -std=c11 -ffreestanding -Wall -Wextra -Wpedantic -Werror -Isrc/include -Isrc -fsyntax-only src/modules/mmrp.c; rc=0
+COMMAND cc -DLWSRP_ONE_PORT_MAP=1 -DLWSRP_LEAN_VALIDATE=1 -DLWSRP_RAPID_REPLACE=1 -DLWSRP_LEAN_COPY=1 -DLWSRP_LEAN_TX=1 -std=c11 -ffreestanding -Wall -Wextra -Wpedantic -Werror -Isrc/include -Isrc -M src/modules/mmrp.c; rc=0
+COMMAND cc -DLWSRP_ONE_PORT_MAP=1 -DLWSRP_LEAN_VALIDATE=1 -DLWSRP_RAPID_REPLACE=1 -DLWSRP_LEAN_COPY=1 -DLWSRP_LEAN_TX=1 -std=c11 -ffreestanding -Wall -Wextra -Wpedantic -Werror -Isrc/include -Isrc -fsyntax-only src/modules/mvrp.c; rc=0
+COMMAND cc -DLWSRP_ONE_PORT_MAP=1 -DLWSRP_LEAN_VALIDATE=1 -DLWSRP_RAPID_REPLACE=1 -DLWSRP_LEAN_COPY=1 -DLWSRP_LEAN_TX=1 -std=c11 -ffreestanding -Wall -Wextra -Wpedantic -Werror -Isrc/include -Isrc -M src/modules/mvrp.c; rc=0
+COMMAND cc -DLWSRP_ONE_PORT_MAP=1 -DLWSRP_LEAN_VALIDATE=1 -DLWSRP_RAPID_REPLACE=1 -DLWSRP_LEAN_COPY=1 -DLWSRP_LEAN_TX=1 -std=c11 -ffreestanding -Wall -Wextra -Wpedantic -Werror -Isrc/include -Isrc -fsyntax-only src/modules/msrp.c; rc=0
+COMMAND cc -DLWSRP_ONE_PORT_MAP=1 -DLWSRP_LEAN_VALIDATE=1 -DLWSRP_RAPID_REPLACE=1 -DLWSRP_LEAN_COPY=1 -DLWSRP_LEAN_TX=1 -std=c11 -ffreestanding -Wall -Wextra -Wpedantic -Werror -Isrc/include -Isrc -M src/modules/msrp.c; rc=0
+Freestanding sources: 7; failures: 0
+[rc=0] env CC=cc -DLWSRP_ONE_PORT_MAP=1 -DLWSRP_LEAN_VALIDATE=1 -DLWSRP_RAPID_REPLACE=1 -DLWSRP_LEAN_COPY=1 -DLWSRP_LEAN_TX=1 python3 tests/check_freestanding.py
+$ env CC=cc -DLWSRP_MILAN=1 -DLWSRP_TIMER_SLOTS=64u -DLWSRP_ATTR_BUCKETS=16u -DLWSRP_TX_MERGE=1 -DLWSRP_ONE_PORT_MAP=1 -DLWSRP_LEAN_VALIDATE=1 -DLWSRP_RAPID_REPLACE=1 -DLWSRP_LEAN_COPY=1 -DLWSRP_LEAN_TX=1 python3 tests/check_freestanding.py
+COMMAND cc -DLWSRP_MILAN=1 -DLWSRP_TIMER_SLOTS=64u -DLWSRP_ATTR_BUCKETS=16u -DLWSRP_TX_MERGE=1 -DLWSRP_ONE_PORT_MAP=1 -DLWSRP_LEAN_VALIDATE=1 -DLWSRP_RAPID_REPLACE=1 -DLWSRP_LEAN_COPY=1 -DLWSRP_LEAN_TX=1 -std=c11 -ffreestanding -Wall -Wextra -Wpedantic -Werror -Isrc/include -Isrc -fsyntax-only src/core/mrp_mad.c; rc=0
+COMMAND cc -DLWSRP_MILAN=1 -DLWSRP_TIMER_SLOTS=64u -DLWSRP_ATTR_BUCKETS=16u -DLWSRP_TX_MERGE=1 -DLWSRP_ONE_PORT_MAP=1 -DLWSRP_LEAN_VALIDATE=1 -DLWSRP_RAPID_REPLACE=1 -DLWSRP_LEAN_COPY=1 -DLWSRP_LEAN_TX=1 -std=c11 -ffreestanding -Wall -Wextra -Wpedantic -Werror -Isrc/include -Isrc -M src/core/mrp_mad.c; rc=0
+COMMAND cc -DLWSRP_MILAN=1 -DLWSRP_TIMER_SLOTS=64u -DLWSRP_ATTR_BUCKETS=16u -DLWSRP_TX_MERGE=1 -DLWSRP_ONE_PORT_MAP=1 -DLWSRP_LEAN_VALIDATE=1 -DLWSRP_RAPID_REPLACE=1 -DLWSRP_LEAN_COPY=1 -DLWSRP_LEAN_TX=1 -std=c11 -ffreestanding -Wall -Wextra -Wpedantic -Werror -Isrc/include -Isrc -fsyntax-only src/core/mrp_pdu.c; rc=0
+COMMAND cc -DLWSRP_MILAN=1 -DLWSRP_TIMER_SLOTS=64u -DLWSRP_ATTR_BUCKETS=16u -DLWSRP_TX_MERGE=1 -DLWSRP_ONE_PORT_MAP=1 -DLWSRP_LEAN_VALIDATE=1 -DLWSRP_RAPID_REPLACE=1 -DLWSRP_LEAN_COPY=1 -DLWSRP_LEAN_TX=1 -std=c11 -ffreestanding -Wall -Wextra -Wpedantic -Werror -Isrc/include -Isrc -M src/core/mrp_pdu.c; rc=0
+COMMAND cc -DLWSRP_MILAN=1 -DLWSRP_TIMER_SLOTS=64u -DLWSRP_ATTR_BUCKETS=16u -DLWSRP_TX_MERGE=1 -DLWSRP_ONE_PORT_MAP=1 -DLWSRP_LEAN_VALIDATE=1 -DLWSRP_RAPID_REPLACE=1 -DLWSRP_LEAN_COPY=1 -DLWSRP_LEAN_TX=1 -std=c11 -ffreestanding -Wall -Wextra -Wpedantic -Werror -Isrc/include -Isrc -fsyntax-only src/core/switch.c; rc=0
+COMMAND cc -DLWSRP_MILAN=1 -DLWSRP_TIMER_SLOTS=64u -DLWSRP_ATTR_BUCKETS=16u -DLWSRP_TX_MERGE=1 -DLWSRP_ONE_PORT_MAP=1 -DLWSRP_LEAN_VALIDATE=1 -DLWSRP_RAPID_REPLACE=1 -DLWSRP_LEAN_COPY=1 -DLWSRP_LEAN_TX=1 -std=c11 -ffreestanding -Wall -Wextra -Wpedantic -Werror -Isrc/include -Isrc -M src/core/switch.c; rc=0
+COMMAND cc -DLWSRP_MILAN=1 -DLWSRP_TIMER_SLOTS=64u -DLWSRP_ATTR_BUCKETS=16u -DLWSRP_TX_MERGE=1 -DLWSRP_ONE_PORT_MAP=1 -DLWSRP_LEAN_VALIDATE=1 -DLWSRP_RAPID_REPLACE=1 -DLWSRP_LEAN_COPY=1 -DLWSRP_LEAN_TX=1 -std=c11 -ffreestanding -Wall -Wextra -Wpedantic -Werror -Isrc/include -Isrc -fsyntax-only src/ports/timer.c; rc=0
+COMMAND cc -DLWSRP_MILAN=1 -DLWSRP_TIMER_SLOTS=64u -DLWSRP_ATTR_BUCKETS=16u -DLWSRP_TX_MERGE=1 -DLWSRP_ONE_PORT_MAP=1 -DLWSRP_LEAN_VALIDATE=1 -DLWSRP_RAPID_REPLACE=1 -DLWSRP_LEAN_COPY=1 -DLWSRP_LEAN_TX=1 -std=c11 -ffreestanding -Wall -Wextra -Wpedantic -Werror -Isrc/include -Isrc -M src/ports/timer.c; rc=0
+COMMAND cc -DLWSRP_MILAN=1 -DLWSRP_TIMER_SLOTS=64u -DLWSRP_ATTR_BUCKETS=16u -DLWSRP_TX_MERGE=1 -DLWSRP_ONE_PORT_MAP=1 -DLWSRP_LEAN_VALIDATE=1 -DLWSRP_RAPID_REPLACE=1 -DLWSRP_LEAN_COPY=1 -DLWSRP_LEAN_TX=1 -std=c11 -ffreestanding -Wall -Wextra -Wpedantic -Werror -Isrc/include -Isrc -fsyntax-only src/modules/mmrp.c; rc=0
+COMMAND cc -DLWSRP_MILAN=1 -DLWSRP_TIMER_SLOTS=64u -DLWSRP_ATTR_BUCKETS=16u -DLWSRP_TX_MERGE=1 -DLWSRP_ONE_PORT_MAP=1 -DLWSRP_LEAN_VALIDATE=1 -DLWSRP_RAPID_REPLACE=1 -DLWSRP_LEAN_COPY=1 -DLWSRP_LEAN_TX=1 -std=c11 -ffreestanding -Wall -Wextra -Wpedantic -Werror -Isrc/include -Isrc -M src/modules/mmrp.c; rc=0
+COMMAND cc -DLWSRP_MILAN=1 -DLWSRP_TIMER_SLOTS=64u -DLWSRP_ATTR_BUCKETS=16u -DLWSRP_TX_MERGE=1 -DLWSRP_ONE_PORT_MAP=1 -DLWSRP_LEAN_VALIDATE=1 -DLWSRP_RAPID_REPLACE=1 -DLWSRP_LEAN_COPY=1 -DLWSRP_LEAN_TX=1 -std=c11 -ffreestanding -Wall -Wextra -Wpedantic -Werror -Isrc/include -Isrc -fsyntax-only src/modules/mvrp.c; rc=0
+COMMAND cc -DLWSRP_MILAN=1 -DLWSRP_TIMER_SLOTS=64u -DLWSRP_ATTR_BUCKETS=16u -DLWSRP_TX_MERGE=1 -DLWSRP_ONE_PORT_MAP=1 -DLWSRP_LEAN_VALIDATE=1 -DLWSRP_RAPID_REPLACE=1 -DLWSRP_LEAN_COPY=1 -DLWSRP_LEAN_TX=1 -std=c11 -ffreestanding -Wall -Wextra -Wpedantic -Werror -Isrc/include -Isrc -M src/modules/mvrp.c; rc=0
+COMMAND cc -DLWSRP_MILAN=1 -DLWSRP_TIMER_SLOTS=64u -DLWSRP_ATTR_BUCKETS=16u -DLWSRP_TX_MERGE=1 -DLWSRP_ONE_PORT_MAP=1 -DLWSRP_LEAN_VALIDATE=1 -DLWSRP_RAPID_REPLACE=1 -DLWSRP_LEAN_COPY=1 -DLWSRP_LEAN_TX=1 -std=c11 -ffreestanding -Wall -Wextra -Wpedantic -Werror -Isrc/include -Isrc -fsyntax-only src/modules/msrp.c; rc=0
+COMMAND cc -DLWSRP_MILAN=1 -DLWSRP_TIMER_SLOTS=64u -DLWSRP_ATTR_BUCKETS=16u -DLWSRP_TX_MERGE=1 -DLWSRP_ONE_PORT_MAP=1 -DLWSRP_LEAN_VALIDATE=1 -DLWSRP_RAPID_REPLACE=1 -DLWSRP_LEAN_COPY=1 -DLWSRP_LEAN_TX=1 -std=c11 -ffreestanding -Wall -Wextra -Wpedantic -Werror -Isrc/include -Isrc -M src/modules/msrp.c; rc=0
+Freestanding sources: 7; failures: 0
+[rc=0] env CC=cc -DLWSRP_MILAN=1 -DLWSRP_TIMER_SLOTS=64u -DLWSRP_ATTR_BUCKETS=16u -DLWSRP_TX_MERGE=1 -DLWSRP_ONE_PORT_MAP=1 -DLWSRP_LEAN_VALIDATE=1 -DLWSRP_RAPID_REPLACE=1 -DLWSRP_LEAN_COPY=1 -DLWSRP_LEAN_TX=1 python3 tests/check_freestanding.py
+# gate baremetal rc=0 2026-11-27 07:03:47 CET

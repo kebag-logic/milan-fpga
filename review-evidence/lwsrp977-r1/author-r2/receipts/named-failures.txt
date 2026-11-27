@@ -1,0 +1,25 @@
+# Named failures of the end-station reversals (gate rev-es-OFF / rev-es-ON, clean clone of 50a2106)
+== milan OFF one-port-refusal-kept
+      4 Failure: end_station_suite -> one_port_refused_reservation_refuses_the_receive_only_in_the_default_build
+== milan OFF one-port-inert
+      2 Failure: boundaries_suite -> registrar_recovery_stops_aging_without_duplicate_join_or_map
+      2 Failure: end_station_suite -> one_port_calls_the_policy_only_in_the_default_build
+      4 Failure: end_station_suite -> one_port_refused_reservation_refuses_the_receive_only_in_the_default_build
+== milan OFF one-port-policy-called
+      2 Failure: boundaries_suite -> registrar_recovery_stops_aging_without_duplicate_join_or_map
+      2 Failure: end_station_suite -> one_port_calls_the_policy_only_in_the_default_build
+      1 Failure: end_station_suite -> one_port_refused_reservation_refuses_the_receive_only_in_the_default_build
+== milan OFF lean-tx-word-ends-scan
+      8 Failure: end_station_suite -> sparse_attribute_types_each_send_one_message_in_type_order
+== milan ON one-port-refusal-kept
+      4 Failure: end_station_suite -> one_port_refused_reservation_refuses_the_receive_only_in_the_default_build
+== milan ON one-port-inert
+      2 Failure: boundaries_suite -> registrar_recovery_stops_aging_without_duplicate_join_or_map
+      2 Failure: end_station_suite -> one_port_calls_the_policy_only_in_the_default_build
+      4 Failure: end_station_suite -> one_port_refused_reservation_refuses_the_receive_only_in_the_default_build
+== milan ON one-port-policy-called
+      2 Failure: boundaries_suite -> registrar_recovery_stops_aging_without_duplicate_join_or_map
+      2 Failure: end_station_suite -> one_port_calls_the_policy_only_in_the_default_build
+      1 Failure: end_station_suite -> one_port_refused_reservation_refuses_the_receive_only_in_the_default_build
+== milan ON lean-tx-word-ends-scan
+      8 Failure: end_station_suite -> sparse_attribute_types_each_send_one_message_in_type_order

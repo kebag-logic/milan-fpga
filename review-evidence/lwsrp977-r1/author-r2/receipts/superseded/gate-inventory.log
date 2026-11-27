@@ -1,0 +1,86 @@
+# gate inventory at 50a2106483141fcd7d1b20654bcf0803e7c3020a, clean clone; 2026-11-27 07:03:52 CET
+$ git ls-files *.pyc *__pycache__*
+[rc=0] git ls-files *.pyc *__pycache__*
+python caches tracked: 0
+tracked files: 74
+.gitignore:                           us-ascii
+CHANGELOG.md:                         us-ascii
+CMakeLists.txt:                       us-ascii
+CONTRIBUTING.md:                      us-ascii
+Kconfig.zephyr:                       utf-8
+LICENSE:                              us-ascii
+NOTICE:                               us-ascii
+README.md:                            us-ascii
+behave.ini:                           us-ascii
+build.sh:                             us-ascii
+doc/architecture.md:                  us-ascii
+doc/developer.md:                     utf-8
+doc/integrator.md:                    us-ascii
+doc/manager.md:                       utf-8
+doc/tester.md:                        us-ascii
+doc/tools/README.md:                  us-ascii
+doc/tools/check_links.py:             us-ascii
+doc/tools/check_references.py:        utf-8
+doc/tools/check_sentences.py:         us-ascii
+doc/tools/common.py:                  us-ascii
+doc/tools/render_mermaid.py:          us-ascii
+src/core/mrp_mad.c:                   utf-8
+src/core/mrp_pdu.c:                   utf-8
+src/core/switch.c:                    us-ascii
+src/core/switch_ctrl.c:               utf-8
+src/include/shish_lan/error.h:        us-ascii
+src/include/shish_lan/mmrp.h:         utf-8
+src/include/shish_lan/mrp.h:          utf-8
+src/include/shish_lan/mrp_pdu.h:      utf-8
+src/include/shish_lan/msrp.h:         utf-8
+src/include/shish_lan/mvrp.h:         utf-8
+src/include/shish_lan/switch.h:       utf-8
+src/include/shish_lan/switch_ctrl.h:  utf-8
+src/modules/mmrp.c:                   utf-8
+src/modules/msrp.c:                   utf-8
+src/modules/mvrp.c:                   utf-8
+src/modules/sim_adapter.c:            us-ascii
+src/modules/sim_adapter.h:            utf-8
+src/ports/alloc.c:                    us-ascii
+src/ports/alloc.h:                    us-ascii
+src/ports/timer.c:                    us-ascii
+src/ports/timer.h:                    utf-8
+tests/check_differential.py:          us-ascii
+tests/check_embedded.py:              us-ascii
+tests/check_equivalence.py:           us-ascii
+tests/check_equivalence_controls.py:  us-ascii
+tests/check_freestanding.py:          us-ascii
+tests/check_reversals.py:             utf-8
+tests/differential/mad_trace.c:       us-ascii
+tests/differential/timer_trace.c:     us-ascii
+tests/embedded_switch.c:              us-ascii
+tests/features/environment.py:        utf-8
+tests/features/switch.feature:        us-ascii
+tests/features/switch_bindings.c:     us-ascii
+tests/unit/end_station_test.c:        us-ascii
+tests/unit/fault_alloc.c:             us-ascii
+tests/unit/fault_alloc.h:             us-ascii
+tests/unit/grouping_test.c:           us-ascii
+tests/unit/integration_test.c:        us-ascii
+tests/unit/key_test.c:                us-ascii
+tests/unit/main.c:                    us-ascii
+tests/unit/milan_test.c:              us-ascii
+tests/unit/mrp_pdu_test.c:            utf-8
+tests/unit/mrpdu_decoder.c:           us-ascii
+tests/unit/mrpdu_decoder.h:           us-ascii
+tests/unit/msrp_values_test.c:        us-ascii
+tests/unit/own_leaveall_test.c:       us-ascii
+tests/unit/receive_test.c:            us-ascii
+tests/unit/review_test.c:             us-ascii
+tests/unit/timer_test.c:              us-ascii
+tests/unit/transmit_test.c:           us-ascii
+tests/unit/transmit_trace.c:          us-ascii
+zephyr/module.yml:                    us-ascii
+non-text tracked files: 73
+generated-output paths tracked: 0
+$ cat .gitignore
+# Python bytecode the test tools leave when they run.
+__pycache__/
+*.pyc
+[rc=0] cat .gitignore
+# gate inventory rc=1 2026-11-27 07:03:53 CET
