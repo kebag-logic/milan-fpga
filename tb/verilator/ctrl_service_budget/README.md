@@ -235,7 +235,10 @@ Text receipt packets can be checked with `receipt_regrade.py PACKET`.
 [`census_extract.py`](census_extract.py) `PACKET OUT` writes a compact census extract from a packet with its full
 observation extracts: every case manifest, and of each extract only the lines a grader reads (`READ_LABELS`).
 It drops only the SPAN and CALL lines of traced functions no grader reads, keeps every other line unchanged,
-and regrades each case as it writes it. `FILES.json` maps every file it writes to the packet files it comes from.
+and regrades each case as it writes it. `FILES.json` maps every case file it writes, and the copied
+`published-qualification.json`, to the packet files they come from and their SHA256, each checked against the
+packet's `FILES` inventory; `census.json` is new. A part holds at most the limit `census.json` states, and a line
+longer than a part is refused rather than split. `census_extract.py --selftest` plants each part boundary and refusal.
 `receipt_regrade.py OUT` then checks the extract as it checks a packet, with the part limit its `census.json` states.
 `census.json` maps every case to its manifest and hash.
 Each manifest binds original-log size/hash, extracted observations, and original grades.
