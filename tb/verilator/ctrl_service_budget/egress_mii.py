@@ -419,7 +419,18 @@ def grade_case(text: str, p: Params) -> dict:
                 worst = (wait, phase, r)
     wait, phase, r = worst
     return dict(records=len(recs), held=sum(r.held for r in recs), agree_ps=agree, wait_ps=wait, phase=phase,
-                at=None if r is None else dict(commit=r.commit, ch=r.ch, length=r.length))
+                at=None if r is None else dict(commit=r.commit, ch=r.ch, length=r.length),
+                queued=most_queued([(x.commit * sp, x.egress[4]) for x in recs if not x.held]))
+
+
+def most_queued(spans: list[tuple[int, int]]) -> int:
+    """The most records committed and not yet on the wire at once, from (commit, last octet) in ps."""
+    events = sorted([(c, 1) for c, _ in spans] + [(e, -1) for _, e in spans], key=lambda x: (x[0], x[1]))
+    most = now = 0
+    for _, step in events:
+        now += step
+        most = max(most, now)
+    return most
 
 
 def gptp_wire_ps(p: Params) -> int:
@@ -442,7 +453,8 @@ def verdict(rows: dict, p: Params, margin: float = MARGIN) -> tuple[bool, list[s
     wait = max((r['wait_ps'] for r in graded), default=0)
     total_us = (margin * (wait + gptp_wire_ps(p)) / 1000 + MII_FIXED_NS) / 1000
     lines.append(f'EGRESS100 wait {wait / 10**6:.3f} us + gPTP {gptp_wire_ps(p) / 10**6:.2f} us, x {margin}, '
-                 f'+ fixed {MII_FIXED_NS / 1000:.2f} us = {total_us:.3f} us, bound {BOUND_US} us')
+                 f'+ fixed {MII_FIXED_NS / 1000:.2f} us = {total_us:.3f} us, bound {BOUND_US} us; most records '
+                 f'queued at once {max((r.get("queued", 0) for r in graded), default=0)}')
     ok = ok and bool(graded) and total_us <= BOUND_US
     return ok, lines
 
