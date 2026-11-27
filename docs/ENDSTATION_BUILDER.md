@@ -12,6 +12,14 @@ The scheduler shape is one interface, one source and two sinks.
 Its service-budget point is `arty-1x1`; it requires its own measured costs.
 The AX7101 1x1 point has two sources and cannot supply those costs.
 
+The Arty split 4x4 configuration is `configs/endstation_arty_split_4x4.yaml` (#878).
+Its entity has four AAF talkers, four AAF listeners, the CRF input and the CRF output that Milan v1.2 7.2.3
+requires with two or more AAF inputs, all on the one 100 Mb/s interface.
+Each listener is the 1x1 split's: eight clusters, the 2-channel 48 kHz Base format current and the 48 kHz family
+derived after it; each talker is the stereo framer with two clusters.
+The scheduler shape is one interface, five sources and five sinks, and its service-budget point is `arty-4x4`.
+The Arty recipe takes it through `BUILD_CFG=configs/endstation_arty_split_4x4.yaml`.
+
 The Arty sys/CPU clock is exactly 80,000,000 Hz.
 The datapath stays at 50 MHz; the exact-divider contract keeps `margin=0`.
 An 800 MHz VCO supplies sys, Ethernet reference, datapath and IDELAY.

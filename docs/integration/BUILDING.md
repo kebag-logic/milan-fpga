@@ -350,6 +350,11 @@ That scheduler shape has one source, two sinks and one interface.
 The `arty-1x1` service-budget point measures it at exactly 80 MHz sys/CPU.
 The existing AX7101 1x1 point has two sources and separate costs.
 The datapath remains at 50 MHz.
+The same recipe takes the 4x4/1if shape from `configs/endstation_arty_split_4x4.yaml`
+through `BUILD_CFG`: four AAF streams and the CRF each way, the scheduler shape (1,5,5),
+measured as its own `arty-4x4` service-budget point at the same 80 MHz.
+As for every recipe, the entity-shape gate launches it only once the tracked entity
+definition is that configuration's.
 
 The clock ruling keeps `_CRG`'s `margin=0` contract.
 Its selected VCO is 800 MHz, divided by ten for sys/CPU.

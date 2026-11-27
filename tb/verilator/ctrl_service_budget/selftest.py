@@ -705,7 +705,8 @@ def build_checks() -> list[Check]:
               if (shape, n) not in run.POINTS.values()}
     out = [('the ledgered points are named at the 8x8 points only (#584: with one interface too), as planned',
             named == {'1x1': None, '8x8': '8x8-two-interfaces',
-                      '8x8-1if': '8x8-one-interface', 'arty-1x1': None} and not any(others.values()) and
+                      '8x8-1if': '8x8-one-interface', 'arty-1x1': None, 'arty-4x4': None} and
+            not any(others.values()) and
             {named['8x8'], named['8x8-1if']} <= set(ctrl_memory.LEDGERED), f'{named}{others}')]
     with tempfile.TemporaryDirectory() as tmp:
         failed = []
