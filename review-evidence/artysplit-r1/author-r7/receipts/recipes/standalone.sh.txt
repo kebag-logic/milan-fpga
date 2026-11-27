@@ -1,0 +1,8 @@
+#!/bin/bash
+# Standalone service-budget self-tests at the merged head, each with its own log and exit status.
+S=$VALIDATION_STORAGE/r7
+cd $SOURCE
+for t in rows_tiers load_grade egress_ledger record_classes arty_grade; do
+  python3 -I -B tb/verilator/ctrl_service_budget/$t.py --selftest > $S/standalone-$t.log 2>&1
+  echo "$t $?" | tee -a $S/standalone.rc
+done

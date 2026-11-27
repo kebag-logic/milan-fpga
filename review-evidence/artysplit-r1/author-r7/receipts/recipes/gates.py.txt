@@ -1,0 +1,75 @@
+"""Foreground complete firmware partitions and affected boot/document checks."""
+import concurrent.futures
+import json
+import os
+from pathlib import Path
+import subprocess
+import sys
+import threading
+
+R = Path(__file__).parent
+ROOT = Path('$SOURCE')
+env = dict(os.environ, PYTHONHASHSEED='0', PYTHONDONTWRITEBYTECODE='1', TMPDIR=str(R / 'work-tmp'),
+           COURSIER_MODE='offline', SBT_OPTS='-Dsbt.offline=true')
+# Resumable across foreground windows: a gate that passed at this same head with
+# the same command is kept; anything else runs again.
+_saved = R / 'gates-results.json'
+MERGE = '74f942be516b84915f7d982fe1e3c65b497c227a'
+_now = subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=ROOT, text=True).strip()
+_since = subprocess.check_output(['git', 'diff', '--name-only', MERGE, 'HEAD'], cwd=ROOT, text=True).split()
+# Commits after the merge touch documentation only, so a firmware or native
+# gate passed at the merge still holds; every documentation gate runs again.
+# The receipt regrader and its README are read by no firmware, boot or region gate.
+assert all(path.startswith('docs/') or path in ('tb/verilator/ctrl_service_budget/receipt_regrade.py',
+           'tb/verilator/ctrl_service_budget/README.md') for path in _since), _since
+records = [row for row in (json.loads(_saved.read_text()) if _saved.exists() else [])
+           if row.get('head', MERGE) == _now or
+           (row.get('head', MERGE) == MERGE and row['name'].startswith(('firmware-', 'boot', 'region')))]
+HEAD = subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=ROOT, text=True).strip()
+lock = threading.Lock()
+
+def one(name, argv):
+    if any(row['name'] == name and row['command'] == argv and row['returncode'] == 0 for row in records):
+        print('KEPT', name, flush=True)
+        return 0
+    print('START', name, flush=True)
+    with (R / (name + '.log')).open('w') as log:
+        rc = subprocess.run(argv, cwd=ROOT, env=env, stdout=log, stderr=subprocess.STDOUT).returncode
+    with lock:
+        records[:] = [row for row in records if row['name'] != name]
+        records.append(dict(name=name, command=argv, returncode=rc, head=HEAD))
+        (R / 'gates-results.json').write_text(json.dumps(records, indent=2) + '\n')
+    print('DONE', name, rc, flush=True)
+    return rc
+
+jobs = [(f'firmware-{n}', [sys.executable, '-B', 'sw/firmware/ctrl/test/test_ctrl_firmware.py',
+         '--self-test', '--require-rv32', '--shard', f'{n}/4', '--jobs', '4',
+         '--build-dir', str(R / 'firmware' / str(n))]) for n in range(4)]
+with concurrent.futures.ThreadPoolExecutor(max_workers=4) as pool:
+    results = list(pool.map(lambda job: one(*job), jobs))
+assert not any(results), 'firmware gate failed'
+
+# Only one native simulation is active after the four firmware legs finish.
+boot = ('import sys; sys.path.insert(0, "tb/verilator/ctrl_split_boot"); '
+        'import run; run.JOBS=8; raise SystemExit(run.main())')
+assert one('boot', [sys.executable, '-B', '-c', boot, '--shape', 'endstation_arty_split',
+                   '--interfaces', '1', '--build-dir', str(R / 'boot')]) == 0
+assert one('boot-native-controls', [sys.executable, '-B', 'tb/verilator/ctrl_split_boot/run.py',
+           '--native-controls', '--shape', 'endstation_arty_split', '--interfaces', '1', '--build-dir', str(R / 'boot-controls')]) == 0
+region = ('import sys; sys.path.insert(0, "tb/verilator/ctrl_region_decode"); '
+          'import run; run.JOBS=8; raise SystemExit(run.main())')
+assert one('region-controls', [sys.executable, '-B', '-c', region, '--shape', 'endstation_arty_split',
+           '--self-test', '--build-dir', str(R / 'region')]) == 0
+checks = [('docs-check', ['scripts/docs_check.py']), ('doc-style', ['scripts/check_doc_style.py']),
+          ('doc-paths', ['scripts/check_doc_paths.py']), ('gptp-docs', ['scripts/check_gptp_docs.py']),
+          ('inventory', ['scripts/docs_inventory.py', '--check']),
+          ('idiom', ['scripts/check_py_idiom.py']),
+          ('cpp-idiom', ['scripts/check_cpp_idiom.py']),
+          ('em-dash', ['scripts/check_em_dash.py', '--base', 'c34e7d8b06739a22cc79997a9a1f4cbcd9bd0350'])]
+for name, args in checks:
+    python = '$VALIDATION_STORAGE/docs-venv/bin/python' if name == 'em-dash' else sys.executable
+    assert one(name, [python, '-B', *args]) == 0, name
+for mode in ('--check', '--verify-anchors'):
+    assert one('toc-' + mode[2:], ['$VALIDATION_STORAGE/docs-venv/bin/python',
+                                   '-B', 'scripts/gen_toc.py', mode]) == 0
+print('GATES COMPLETE', HEAD, flush=True)

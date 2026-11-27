@@ -1,0 +1,54 @@
+"""Round 6 receipt index: sections, then every file with its bytes and SHA256."""
+import hashlib
+import json
+from pathlib import Path
+
+OUT = Path('$LANE_TOOLS/artysplit-a829/round7/receipts')
+files = sorted(p for p in OUT.rglob('*') if p.is_file() and p.name not in ('INDEX.md', 'FILES.tsv'))
+rows = [f'{p.relative_to(OUT)}\t{p.stat().st_size}\t{hashlib.sha256(p.read_bytes()).hexdigest()}' for p in files]
+assert all(p.stat().st_size < 190_000 for p in files)
+Path(OUT / 'FILES.tsv').write_text('path\tbytes\tsha256\n' + '\n'.join(rows) + '\n')
+assert (OUT / 'FILES.tsv').stat().st_size < 190_000
+timing = json.loads((OUT / 'timing-r7.json').read_text())
+validation = json.loads((OUT / 'validation/manifest.json').read_text())
+lines = ['# Round 7 receipt index', '',
+         'Head `4adfa9dc84f58c1c7ad23d6a64fa019985fe62a1`. Image and census at `74f942be516b84915f7d982fe1e3c65b497c227a`; the two commits after it change `docs/` and the receipt regrader only.',
+         'Prepared locally; nothing has been posted or pushed.', '',
+         'Every receipt is UTF-8 text below 190,000 bytes. A manifest records each numbered part and the',
+         "SHA256 and byte count of the whole before and after redaction of private paths and host headers.",
+         f'[FILES.tsv](FILES.tsv) lists all {len(files)} files with bytes and SHA256.', '',
+         '## Reproduce', '',
+         'From a checkout of the head: `python3 tb/verilator/ctrl_service_budget/receipt_regrade.py <this directory>`.',
+         'It checks every part and whole hash, reproduces all 147 case grades from the extracts, reapplies the cross-case',
+         'checks, held-egress ledger and owner model, and regrades every timing corner. Allow about 4 GB of TMPDIR.',
+         'Its own log for this packet is [validation/receipt-regrade.log](validation/receipt-regrade.log).',
+         'Before its fix it refused the five lines #977 owes ([validation/receipt-regrade-before-fix.log](validation/receipt-regrade-before-fix.log)); a control packet without `srp-bound` is refused by name ([validation/receipt-regrade-control.log](validation/receipt-regrade-control.log)).', '',
+         '## Source', '',
+         '- [source/round7-commits.patch](source/round7-commits.patch): the four commits of this round.', '',
+         '## Primary timing reports', '',
+         '| Directive | Report | Original bytes | Original SHA256 | Manifest |', '|---|---|---:|---|---|']
+for row in timing:
+    m = json.loads((OUT / row['manifest']).read_text())
+    directive, name = row['manifest'].split('/')[1:3]
+    lines.append(f"| {directive} | {name.replace('.manifest.json', '')} | {m['original_bytes']} | `{m['original_sha256']}` | [{name}]({row['manifest']}) |")
+lines += ['', 'The grader verdict is [timing-r7/graded-images.json](timing-r7/graded-images.json); utilization and check_timing reports sit beside each directive\'s timing reports.', '',
+          '## Validation logs', '', '| Receipt | Original bytes | Original SHA256 | Parts |', '|---|---:|---|---:|']
+for row in validation:
+    first = row['published']['parts'][0]['file']
+    lines.append(f"| [{row['name']}](validation/{first}) | {row['original_bytes']} | `{row['original_sha256']}` | {len(row['published']['parts'])} |")
+c = json.loads((OUT / 'census.json').read_text())
+lines += ['', '## Native census', '',
+          f"[census.json](census.json) lists all {len(c['cases'])} cases at `{c['source_head']}`. Each case manifest binds the full",
+          'local trace\'s size and SHA256, the observation extract, the scenario, the stimulus and the original grade.',
+          'The traces were measured at step 1 (`f7b90e3b7`). Step 2 changed no firmware byte: every native executable, firmware',
+          'ELF, flash image and stimulus is identical, and the build inputs differ only in generation dates',
+          '([validation/identity.log](validation/identity.log)). So the step-2 census regrades step 1\'s traces',
+          '([validation/reuse.log](validation/reuse.log)).',
+          'Qualification command logs and results are under [qualification/](qualification/) ([manifest](qualification/manifest.json));',
+          '[published-qualification.json](published-qualification.json) is the qualification the regrader compares against.', '',
+          '## Derivation', '',
+          'The installed model of each step and its inputs (round 6\'s merged maxima, the round-4 control derivation, step 1\'s',
+          'cost census and qualification) are under [derivation/](derivation/) ([manifest](derivation/manifest.json)).']
+lines += ['', '## Recipes', '', 'The orchestration scripts, redacted, are under [recipes/](recipes/).', '']
+(OUT / 'INDEX.md').write_text('\n'.join(lines))
+print('INDEX', len(files), 'files')

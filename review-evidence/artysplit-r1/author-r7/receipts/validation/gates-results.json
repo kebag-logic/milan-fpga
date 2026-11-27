@@ -1,0 +1,229 @@
+[
+  {
+    "name": "firmware-0",
+    "command": [
+      "$TOOLCHAIN/venv/bin/python3",
+      "-B",
+      "sw/firmware/ctrl/test/test_ctrl_firmware.py",
+      "--self-test",
+      "--require-rv32",
+      "--shard",
+      "0/4",
+      "--jobs",
+      "4",
+      "--build-dir",
+      "$VALIDATION_STORAGE/r7/firmware/0"
+    ],
+    "returncode": 0,
+    "head": "74f942be516b84915f7d982fe1e3c65b497c227a"
+  },
+  {
+    "name": "firmware-2",
+    "command": [
+      "$TOOLCHAIN/venv/bin/python3",
+      "-B",
+      "sw/firmware/ctrl/test/test_ctrl_firmware.py",
+      "--self-test",
+      "--require-rv32",
+      "--shard",
+      "2/4",
+      "--jobs",
+      "4",
+      "--build-dir",
+      "$VALIDATION_STORAGE/r7/firmware/2"
+    ],
+    "returncode": 0,
+    "head": "74f942be516b84915f7d982fe1e3c65b497c227a"
+  },
+  {
+    "name": "firmware-3",
+    "command": [
+      "$TOOLCHAIN/venv/bin/python3",
+      "-B",
+      "sw/firmware/ctrl/test/test_ctrl_firmware.py",
+      "--self-test",
+      "--require-rv32",
+      "--shard",
+      "3/4",
+      "--jobs",
+      "4",
+      "--build-dir",
+      "$VALIDATION_STORAGE/r7/firmware/3"
+    ],
+    "returncode": 0,
+    "head": "74f942be516b84915f7d982fe1e3c65b497c227a"
+  },
+  {
+    "name": "firmware-1",
+    "command": [
+      "$TOOLCHAIN/venv/bin/python3",
+      "-B",
+      "sw/firmware/ctrl/test/test_ctrl_firmware.py",
+      "--self-test",
+      "--require-rv32",
+      "--shard",
+      "1/4",
+      "--jobs",
+      "4",
+      "--build-dir",
+      "$VALIDATION_STORAGE/r7/firmware/1"
+    ],
+    "returncode": 0,
+    "head": "74f942be516b84915f7d982fe1e3c65b497c227a"
+  },
+  {
+    "name": "boot",
+    "command": [
+      "$TOOLCHAIN/venv/bin/python3",
+      "-B",
+      "-c",
+      "import sys; sys.path.insert(0, \"tb/verilator/ctrl_split_boot\"); import run; run.JOBS=8; raise SystemExit(run.main())",
+      "--shape",
+      "endstation_arty_split",
+      "--interfaces",
+      "1",
+      "--build-dir",
+      "$VALIDATION_STORAGE/r7/boot"
+    ],
+    "returncode": 0,
+    "head": "74f942be516b84915f7d982fe1e3c65b497c227a"
+  },
+  {
+    "name": "boot-native-controls",
+    "command": [
+      "$TOOLCHAIN/venv/bin/python3",
+      "-B",
+      "tb/verilator/ctrl_split_boot/run.py",
+      "--native-controls",
+      "--shape",
+      "endstation_arty_split",
+      "--interfaces",
+      "1",
+      "--build-dir",
+      "$VALIDATION_STORAGE/r7/boot-controls"
+    ],
+    "returncode": 0,
+    "head": "74f942be516b84915f7d982fe1e3c65b497c227a"
+  },
+  {
+    "name": "region-controls",
+    "command": [
+      "$TOOLCHAIN/venv/bin/python3",
+      "-B",
+      "-c",
+      "import sys; sys.path.insert(0, \"tb/verilator/ctrl_region_decode\"); import run; run.JOBS=8; raise SystemExit(run.main())",
+      "--shape",
+      "endstation_arty_split",
+      "--self-test",
+      "--build-dir",
+      "$VALIDATION_STORAGE/r7/region"
+    ],
+    "returncode": 0,
+    "head": "74f942be516b84915f7d982fe1e3c65b497c227a"
+  },
+  {
+    "name": "docs-check",
+    "command": [
+      "$TOOLCHAIN/venv/bin/python3",
+      "-B",
+      "scripts/docs_check.py"
+    ],
+    "returncode": 0,
+    "head": "4adfa9dc84f58c1c7ad23d6a64fa019985fe62a1"
+  },
+  {
+    "name": "doc-style",
+    "command": [
+      "$TOOLCHAIN/venv/bin/python3",
+      "-B",
+      "scripts/check_doc_style.py"
+    ],
+    "returncode": 0,
+    "head": "4adfa9dc84f58c1c7ad23d6a64fa019985fe62a1"
+  },
+  {
+    "name": "doc-paths",
+    "command": [
+      "$TOOLCHAIN/venv/bin/python3",
+      "-B",
+      "scripts/check_doc_paths.py"
+    ],
+    "returncode": 0,
+    "head": "4adfa9dc84f58c1c7ad23d6a64fa019985fe62a1"
+  },
+  {
+    "name": "gptp-docs",
+    "command": [
+      "$TOOLCHAIN/venv/bin/python3",
+      "-B",
+      "scripts/check_gptp_docs.py"
+    ],
+    "returncode": 0,
+    "head": "4adfa9dc84f58c1c7ad23d6a64fa019985fe62a1"
+  },
+  {
+    "name": "inventory",
+    "command": [
+      "$TOOLCHAIN/venv/bin/python3",
+      "-B",
+      "scripts/docs_inventory.py",
+      "--check"
+    ],
+    "returncode": 0,
+    "head": "4adfa9dc84f58c1c7ad23d6a64fa019985fe62a1"
+  },
+  {
+    "name": "idiom",
+    "command": [
+      "$TOOLCHAIN/venv/bin/python3",
+      "-B",
+      "scripts/check_py_idiom.py"
+    ],
+    "returncode": 0,
+    "head": "4adfa9dc84f58c1c7ad23d6a64fa019985fe62a1"
+  },
+  {
+    "name": "cpp-idiom",
+    "command": [
+      "$TOOLCHAIN/venv/bin/python3",
+      "-B",
+      "scripts/check_cpp_idiom.py"
+    ],
+    "returncode": 0,
+    "head": "4adfa9dc84f58c1c7ad23d6a64fa019985fe62a1"
+  },
+  {
+    "name": "em-dash",
+    "command": [
+      "$VALIDATION_STORAGE/docs-venv/bin/python",
+      "-B",
+      "scripts/check_em_dash.py",
+      "--base",
+      "c34e7d8b06739a22cc79997a9a1f4cbcd9bd0350"
+    ],
+    "returncode": 0,
+    "head": "4adfa9dc84f58c1c7ad23d6a64fa019985fe62a1"
+  },
+  {
+    "name": "toc-check",
+    "command": [
+      "$VALIDATION_STORAGE/docs-venv/bin/python",
+      "-B",
+      "scripts/gen_toc.py",
+      "--check"
+    ],
+    "returncode": 0,
+    "head": "4adfa9dc84f58c1c7ad23d6a64fa019985fe62a1"
+  },
+  {
+    "name": "toc-verify-anchors",
+    "command": [
+      "$VALIDATION_STORAGE/docs-venv/bin/python",
+      "-B",
+      "scripts/gen_toc.py",
+      "--verify-anchors"
+    ],
+    "returncode": 0,
+    "head": "4adfa9dc84f58c1c7ad23d6a64fa019985fe62a1"
+  }
+]

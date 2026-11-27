@@ -1,0 +1,91 @@
+{
+ "none": {
+  "executable": "95e4f12538652018050f6d9eb1ec4309ca1bd6deed213bb0a55fa4595491f955",
+  "elf": "48d12194443c9b364e6e5b4c8b0514196b3535ebdba01f3eedc4377c7cab8d79",
+  "flash": null,
+  "inputs_compared": 27,
+  "stimuli_compared": 101
+ },
+ "answering-ports": {
+  "executable": "12897763246742e1ea7553d3edb7831cdda7db5ccf67d24eb2a301ce3f54911f",
+  "elf": "dc1807ac7c59a7f54de1e8268ce91548ec6e7badd17ebfdb144cd56536c6655f",
+  "flash": null,
+  "inputs_compared": 27,
+  "stimuli_compared": 4
+ },
+ "answering-every-port": {
+  "executable": "bde33b4de0321a10c3b91d7efe7e412a156dee03abc81df37b5dffa07d3aecdb",
+  "elf": "3bd871af8bc36ce78ba63e7893a909a7653d1d63cc00cc44bf03f8a31c6ec9f2",
+  "flash": null,
+  "inputs_compared": 27,
+  "stimuli_compared": 16
+ },
+ "valid-destinations": {
+  "executable": "c6d1b363b891246f9ec75b7a91cc4ba4801a70b2dc2011271ef0f2abe9a4bb54",
+  "elf": "dc514bae76418f2c14d4d03eb719ca1d770fd3f8e74c918bf34bcd28ff9ed0a1",
+  "flash": null,
+  "inputs_compared": 27,
+  "stimuli_compared": 3
+ },
+ "declaring-outputs": {
+  "executable": "14e86c322d767bdbab7eb2314f5ba089e2272e823e19f12d155149be39abe87d",
+  "elf": "9c26b7d71dfd04a80cd988688738f22919222fcae9b40f711f145fe8edd91508",
+  "flash": null,
+  "inputs_compared": 27,
+  "stimuli_compared": 5
+ },
+ "answering-later": {
+  "executable": "21a61f504f60fbdc5f51d8070d995c3e000bbcd64f9e8164dada8384740d7493",
+  "elf": "6ecb788089c29c41ece7aaf7c2b4bc0759c9edefec6271f390fbad7eb7889aa1",
+  "flash": null,
+  "inputs_compared": 27,
+  "stimuli_compared": 8
+ },
+ "talker-notices": {
+  "executable": "4b40e0fa086ccd879110ca1d24a8fa31d54335cdb8815c8a3bac6908a675c241",
+  "elf": "775c55c7da980f6ec2ef17adef775165222fd1743997e01159a5753da31a69cf",
+  "flash": null,
+  "inputs_compared": 27,
+  "stimuli_compared": 8
+ },
+ "shutdown-entry": {
+  "executable": "bcad0fe12e32a259d0168ef64cd54281895b901f5223c1f6c8c5976ec7e2e2fa",
+  "elf": "377e1c4c32efb38482fe29cb3c120acd6a8b03777f4da73c74d374d134fe8b3e",
+  "flash": null,
+  "inputs_compared": 27,
+  "stimuli_compared": 2
+ }
+}
+DIFFERS none: input build:gateware/sim.v differs: 0016504fac137203f1c715139f98a3f18fe4f3008c3e524a05c575877357d477 -> d1040a831d4e0a178e9053b827ee8fa679510d46d9221196305c176759a2e00b
+DIFFERS none: input build:runtime/libc.a differs: d4d6dbb93a357611d6982593544acd5cb32d439f35aefec0ab3d5357869ee58f -> 007101559b640981f07dae69eb21f1025c99f1e2ef848dbc81e55f1d1715c690
+DIFFERS none: input build:runtime/libcompiler_rt.a differs: 9cf53f1054f3890fbce9bcced9093b6bb318a0d95ddb9feead9c26a14df829c6 -> 39e89a2e3f755aacb1b4b85a74c3d563e81bb256655c47b8565324d63dbc17fb
+DIFFERS none: input build:split-soc/flash-map/flash_port.json differs: 6622ddef6c278c774894d2df718dec8c17c43d94eb04c82e9683c9b7bc9b3393 -> 98168b110565815655c9fd7ba3e9c2a601ed3aba356ade3db94336ac48875402
+DIFFERS answering-ports: input build:gateware/sim.v differs: 8afc17e9075e93ab0d240ee39fe102ebc2bbbf4d1f98270023688d383166a7ad -> 99fa8d6d95fdf33b6d82cd1b2aa005003e060917d8e13daa96ffd8a482ec5a74
+DIFFERS answering-ports: input build:runtime/libc.a differs: 3fcc6e6001126c2ff1c6f631756c1034fab36817bf30d9248b9433e934c7d2c7 -> 5b9494453197657339c9adeb008651574a0fc0d75f74293e11c92ab1d3e82c30
+DIFFERS answering-ports: input build:runtime/libcompiler_rt.a differs: cc19c3a79397e4ad59e550643871a5a107130375693a336c31bf94bc01694061 -> 9ae90caac853fe40951b77b83361be6b35ee3c5ea8c5b3e5f9b2359a9dae06a6
+DIFFERS answering-ports: input build:split-soc/flash-map/flash_port.json differs: ea7ba45d4e0664d8ebf4cdc9bf3f68ebc325a0b8049157bb4ffc409f65a3dbfd -> d2a41bf05347d1928ec0d14e59421f4c930b1dbbfad85dd151945b7c43c1be2b
+DIFFERS answering-every-port: input build:gateware/sim.v differs: ccec60a019bd2b9f5ffba8491c021243403b5678d28ad22f7181e5c989fbca7d -> 8bc9a44e3846777436a3215c24ec4e8b1a5e872369016e397b5e9bb8363bd1ff
+DIFFERS answering-every-port: input build:runtime/libc.a differs: a4053df6aa8c7af92d1a0f3649e8dcf5cc2c2786ad22fe151b9d210d9754e9d0 -> 1c341868b6ac1cb13755b04da826d44ec9ed2e33b651612ba3295a1a518e4c4a
+DIFFERS answering-every-port: input build:runtime/libcompiler_rt.a differs: 17c34a070ff1178ea6e0518329aa6d53f06bbe5d22cb2440ede0909d950951cc -> 6307cb8ade610969e1b984c713943f4e452ef1c1fdaf19eed56d55b6f97f5bf2
+DIFFERS answering-every-port: input build:split-soc/flash-map/flash_port.json differs: ac40405bdd9253093088081350f6e14f71a8e547337086957f67b57bc815eb9c -> 2a56b082fafe83a8c5dee51c37ecdbd9719875ae95a0582befb8af317f17292b
+DIFFERS valid-destinations: input build:gateware/sim.v differs: 6d8c49f71696d4d765eb9d9ca001f43f61650c6b5bc66295fafec6616b0822c7 -> aac5eedc9f3b4ba0f0170377c85d3d36c63ba1d1b37e5eb565908905606e87c2
+DIFFERS valid-destinations: input build:runtime/libc.a differs: 927edbdffc71df7916e7c5d15597fe680a79cce7b981b2f1dc6643f77b58a577 -> 36c91cac72b430858128715e34f5462eb2738abf164ab871f652dfa35736adbb
+DIFFERS valid-destinations: input build:runtime/libcompiler_rt.a differs: 6baf5c9d401e2427fee63f31f3530646d5a2548a520a3714f8f159be868f1b10 -> 070aced97f1d6b1b1cb8ea68193307bc3309bd29944ece1c53f53e4d4d88e8a4
+DIFFERS valid-destinations: input build:split-soc/flash-map/flash_port.json differs: f08dea6a86108582a31c73b873681c9b2c9743a3c4e05c44d544cd8ccb26ca79 -> 91b02246365bebcedbe094b40c0941f5f0dbe7f3ce20c634333d7124db664e76
+DIFFERS declaring-outputs: input build:gateware/sim.v differs: adbe26909cba1dda959e509f346e2acfee12f4a17d7ed7db504a349d7cbcb435 -> e25b574fe4763b2b40b3136d336fb0188264fa72f85fc2862f253286fd72a117
+DIFFERS declaring-outputs: input build:runtime/libc.a differs: bcdd34ac325148d4e6e7cdea2b7a43e7105a3a61fbb60f79c69b3c7e470c781b -> 4c094d9ca5f5c0b8ec584c9b32708e7ed0fb729b865b872601ce92614deb4f6e
+DIFFERS declaring-outputs: input build:runtime/libcompiler_rt.a differs: 3633115a64ec08d32ed657ba92047c846e134f9f9bc83a5906c2f37b1a5a826d -> a3d305576382fdd5711a27506eaa0c62ad501151e2b9689f7db6f59bb302d1f7
+DIFFERS declaring-outputs: input build:split-soc/flash-map/flash_port.json differs: 27b50c56f52aca0e2f7043e25f6ab48eccffdd748957091ec290b000bd330cd2 -> 529503fd94455de5a6ae2ce38df43779390161bdd42da5214275b9ed7bb26c47
+DIFFERS answering-later: input build:gateware/sim.v differs: 9714f23d50f2ffed75c35be06407470a648754541665c50c589592088b5a0040 -> 6bde9616b2caf11755a5c3bef8ef5f1ba621b2b3c69afb3f703dd686c01fbd01
+DIFFERS answering-later: input build:runtime/libc.a differs: 90894951b0c91534e6030599c096465063c04244a772bf0e2b8592b43c35bad1 -> 8b7085d72bb0f2ba8a0516673077bfedcb9e8d82da4cdc70362d14060bbeb911
+DIFFERS answering-later: input build:runtime/libcompiler_rt.a differs: 2f0ed67cf0690194d36e94286d449cd8f6390cc8b4bff6090daf845fe64de64a -> 72b5bc310c8e6e11809749e7469098f91ae0691b2ff0f501243ce21ddb2cbd73
+DIFFERS answering-later: input build:split-soc/flash-map/flash_port.json differs: 791b7845aef4d204f707e245e531f005f89956ae29c5cc387da3b6349269b52a -> 19227ac30267450840a323b5cfcaeebd5f7e626f8b7b3ec21c7c3e783131300f
+DIFFERS talker-notices: input build:gateware/sim.v differs: b84c9cd65ff261ee87257c98d97c7757a452d46659baa1b6f40498ff9222d30a -> fda32c1107f56084b34839fbde4508bcd3af9ef0749bb16b16122002c3899a04
+DIFFERS talker-notices: input build:runtime/libc.a differs: b64fba567d6c778fa9a94b64987f1de8f257df04bf7e838b07f4918f49daebed -> 9a92cf28a7eb894a70b2b8e9d127b0a07064678c95698770ac5419f424bd411f
+DIFFERS talker-notices: input build:runtime/libcompiler_rt.a differs: d4fdb4f6f798a25c2f7cdcc0ce841a5e1c32382cfce777e07a8734cf701b39a9 -> 20fefe85cf0726e9af54ab133f3a41eb0453dd6e8ce2391dc712a2266fa04560
+DIFFERS talker-notices: input build:split-soc/flash-map/flash_port.json differs: c387406dc65c60e86b14da0353f11e80eba731e836bfcb19ac88422e18ec6074 -> 8ac83d611d03a76e33b472404f449b49927605424e8714b92498d43d5d77ae06
+DIFFERS shutdown-entry: input build:gateware/sim.v differs: 82e76f3149accf7624dd9c32b4bc478201fed4a14f7211989f4cd5d883046fb6 -> 51a4f5eba2cf3a3a2d8eb5777ad0f083a3a3d3f5704494c4ad638dbe118e57b0
+DIFFERS shutdown-entry: input build:runtime/libc.a differs: 4589d05a744f9176892f8439d93fd761d411e550a92c6423c40264532413b4ff -> 73c4ba69ff91fab9cc5ea6fe98601df4175a7e6c7b214e9d7b5e5cda5e41a9e3
+DIFFERS shutdown-entry: input build:runtime/libcompiler_rt.a differs: 6dc9c9e6108c0712a5be6b4a0d1197db716d89389d90dc346077dc0427054b55 -> 95678dd2ee9e00143ddd45b3bcf77d379398ac2c970792d04cf20689e67ed2ec
+DIFFERS shutdown-entry: input build:split-soc/flash-map/flash_port.json differs: d35ebad86999d11ec361f059c77440d1a3a0d44a5714eef4aef3f99225127a5f -> d5f685c13eb069ebcda97a147149152f1afe55e676b9c146e4126579efde9ca8
+32 DIFFERENCES

@@ -1,0 +1,341 @@
+{
+  "status": "FAIL",
+  "kind": "complete measured Arty FPGA point",
+  "point": "arty-1x1",
+  "cpu_hz": 80000000,
+  "shape": [
+    1,
+    1,
+    2
+  ],
+  "groups": 147,
+  "checks": {
+    "owner-model": "FAIL",
+    "share": "FAIL",
+    "record-classes": "FAIL",
+    "retry-costs": "FAIL",
+    "transmit-costs": "FAIL",
+    "egress-ledger": "FAIL"
+  },
+  "findings": [
+    "CTRL_LOOP_TICK_US: installed 150, measured rule 160",
+    "Installed cost model differs from the measured model; rederive before qualification"
+  ],
+  "model": {
+    "status": "PASS",
+    "evidence": "stated-cost model only",
+    "cpu_hz": 80000000,
+    "shape": [
+      1,
+      1,
+      2
+    ],
+    "load": 0.49946461403508774,
+    "load_terms": {
+      "rec.aecp": 0.058,
+      "rec.acmp": 0.049,
+      "rec.adp": 0.012,
+      "rec.maap": 0.00625,
+      "srp": 0.18,
+      "item.reclaim": 0.020421052631578947,
+      "item.aecp": 0.04388,
+      "notices": 0.0018,
+      "item.acmp": 0.018600000000000002,
+      "item.acmp_declined": 0.012400000000000001,
+      "ticks": 0.02,
+      "item.walk": 0.0033157894736842108,
+      "builds": 0.006947368421052632,
+      "item.mrpdu": 0.013894736842105264,
+      "steps": 0.035333333333333335,
+      "timers": 0.017529000000000003,
+      "gm": 9.333333333333334e-05
+    },
+    "rows_ms": {
+      "R4": 14.46,
+      "R5": 68.46,
+      "R6": 66.6,
+      "first": 14.82,
+      "last": 116.77,
+      "R4L": 218.75,
+      "ACMP": 29.56,
+      "ADP": 27.6,
+      "MAAP": 27.72,
+      "tx": 34.59,
+      "txL": 48.54
+    },
+    "slice_us": 1250,
+    "slice_margin": 0.009387755102040833,
+    "pace_ms": 10
+  },
+  "worst_pass": {
+    "variant": "answering-every-port",
+    "group": "notice-every-4",
+    "native_status": 0,
+    "trace_sha256": "6be378bd56875ec28aaaa769325c8d484a6d5b7ab74c4991277b5809e83bd3c2",
+    "refusals": [],
+    "misses": [],
+    "share": [],
+    "late": [],
+    "forbidden": [],
+    "stated": [],
+    "seconds": 580.707097530365,
+    "worst_pass_cycles": 142775
+  },
+  "commands": [
+    {
+      "name": "regrade-answering-ports",
+      "command": [
+        "$TOOLCHAIN/venv/bin/python3",
+        "-B",
+        "tb/verilator/ctrl_service_budget/run.py",
+        "--point",
+        "arty-1x1",
+        "--build-dir",
+        "$VALIDATION_STORAGE/r7/final-census/answering-ports",
+        "--variant",
+        "answering-ports",
+        "--regrade",
+        "--record-budget-findings",
+        "--groups",
+        "aecp-fanout,aecp,aecp-reboot,aecp-largest-notice"
+      ],
+      "returncode": 0,
+      "log": "$VALIDATION_STORAGE/r7/final-census/regrade-answering-ports.log",
+      "sha256": "95480c6777335f1a9eaf065448cd5b5f210436b43357b61e402264851d4cfe99"
+    },
+    {
+      "name": "regrade-answering-every-port",
+      "command": [
+        "$TOOLCHAIN/venv/bin/python3",
+        "-B",
+        "tb/verilator/ctrl_service_budget/run.py",
+        "--point",
+        "arty-1x1",
+        "--build-dir",
+        "$VALIDATION_STORAGE/r7/final-census/answering-every-port",
+        "--variant",
+        "answering-every-port",
+        "--regrade",
+        "--record-budget-findings"
+      ],
+      "returncode": 0,
+      "log": "$VALIDATION_STORAGE/r7/final-census/regrade-answering-every-port.log",
+      "sha256": "6bd870a8879a0fb3c0c272fe972736fce4b7bda1bf20d1758f81929200dfecff"
+    },
+    {
+      "name": "regrade-answering-later",
+      "command": [
+        "$TOOLCHAIN/venv/bin/python3",
+        "-B",
+        "tb/verilator/ctrl_service_budget/run.py",
+        "--point",
+        "arty-1x1",
+        "--build-dir",
+        "$VALIDATION_STORAGE/r7/final-census/answering-later",
+        "--variant",
+        "answering-later",
+        "--regrade",
+        "--record-budget-findings"
+      ],
+      "returncode": 0,
+      "log": "$VALIDATION_STORAGE/r7/final-census/regrade-answering-later.log",
+      "sha256": "eb59e86abb278dce2aff1642f0dd52d8c2d4b5fb340ee59465e4fbcaef8d6b6a"
+    },
+    {
+      "name": "regrade-talker-notices",
+      "command": [
+        "$TOOLCHAIN/venv/bin/python3",
+        "-B",
+        "tb/verilator/ctrl_service_budget/run.py",
+        "--point",
+        "arty-1x1",
+        "--build-dir",
+        "$VALIDATION_STORAGE/r7/final-census/talker-notices",
+        "--variant",
+        "talker-notices",
+        "--regrade",
+        "--record-budget-findings"
+      ],
+      "returncode": 0,
+      "log": "$VALIDATION_STORAGE/r7/final-census/regrade-talker-notices.log",
+      "sha256": "af64b475629c3788b3fcbcd730bde454290b8258839770ed4ffb29fa9dc14392"
+    },
+    {
+      "name": "regrade-shutdown-entry",
+      "command": [
+        "$TOOLCHAIN/venv/bin/python3",
+        "-B",
+        "tb/verilator/ctrl_service_budget/run.py",
+        "--point",
+        "arty-1x1",
+        "--build-dir",
+        "$VALIDATION_STORAGE/r7/final-census/shutdown-entry",
+        "--variant",
+        "shutdown-entry",
+        "--regrade",
+        "--record-budget-findings"
+      ],
+      "returncode": 0,
+      "log": "$VALIDATION_STORAGE/r7/final-census/regrade-shutdown-entry.log",
+      "sha256": "14f856ec1f2694ce322a884e8c33325285080c598ecb23e0e9827e8fabceccc0"
+    },
+    {
+      "name": "regrade-declaring-outputs",
+      "command": [
+        "$TOOLCHAIN/venv/bin/python3",
+        "-B",
+        "tb/verilator/ctrl_service_budget/run.py",
+        "--point",
+        "arty-1x1",
+        "--build-dir",
+        "$VALIDATION_STORAGE/r7/final-census/declaring-outputs",
+        "--variant",
+        "declaring-outputs",
+        "--regrade",
+        "--record-budget-findings"
+      ],
+      "returncode": 0,
+      "log": "$VALIDATION_STORAGE/r7/final-census/regrade-declaring-outputs.log",
+      "sha256": "a95be0e85d80692bf2fae4632f59fdf2fd2419d201a8266a5dfd4ae62e096fdd"
+    },
+    {
+      "name": "regrade-valid-destinations",
+      "command": [
+        "$TOOLCHAIN/venv/bin/python3",
+        "-B",
+        "tb/verilator/ctrl_service_budget/run.py",
+        "--point",
+        "arty-1x1",
+        "--build-dir",
+        "$VALIDATION_STORAGE/r7/final-census/valid-destinations",
+        "--variant",
+        "valid-destinations",
+        "--regrade",
+        "--record-budget-findings"
+      ],
+      "returncode": 0,
+      "log": "$VALIDATION_STORAGE/r7/final-census/regrade-valid-destinations.log",
+      "sha256": "9982ff19c898797a372c8a1e43d2c4d8046c958b6b3265ebb935af2dce0e3846"
+    },
+    {
+      "name": "regrade-none",
+      "command": [
+        "$TOOLCHAIN/venv/bin/python3",
+        "-B",
+        "tb/verilator/ctrl_service_budget/run.py",
+        "--point",
+        "arty-1x1",
+        "--build-dir",
+        "$VALIDATION_STORAGE/r7/final-census/none",
+        "--variant",
+        "none",
+        "--regrade",
+        "--record-budget-findings"
+      ],
+      "returncode": 0,
+      "log": "$VALIDATION_STORAGE/r7/final-census/regrade-none.log",
+      "sha256": "cbce8600612968e1f4c1d204e563b757b8599ff31e07ca1369e38e5823e1c8d2"
+    },
+    {
+      "name": "egress-ledger",
+      "command": [
+        "$TOOLCHAIN/venv/bin/python3",
+        "-I",
+        "-B",
+        "tb/verilator/ctrl_service_budget/egress_ledger.py",
+        "--point",
+        "arty-1x1",
+        "$VALIDATION_STORAGE/r7/final-census/none/results",
+        "$VALIDATION_STORAGE/r7/final-census/answering-ports/results",
+        "$VALIDATION_STORAGE/r7/final-census/answering-every-port/results",
+        "$VALIDATION_STORAGE/r7/final-census/valid-destinations/results",
+        "$VALIDATION_STORAGE/r7/final-census/declaring-outputs/results",
+        "$VALIDATION_STORAGE/r7/final-census/answering-later/results",
+        "$VALIDATION_STORAGE/r7/final-census/talker-notices/results",
+        "$VALIDATION_STORAGE/r7/final-census/shutdown-entry/results"
+      ],
+      "returncode": 0,
+      "log": "$VALIDATION_STORAGE/r7/final-census/egress-ledger.log",
+      "sha256": "d0147fc37e10019b41555470606f79eff3cbde1ceb6e7be5624a1d668300d39b"
+    },
+    {
+      "name": "record-classes",
+      "command": [
+        "$TOOLCHAIN/venv/bin/python3",
+        "-I",
+        "-B",
+        "tb/verilator/ctrl_service_budget/record_classes.py",
+        "$VALIDATION_STORAGE/r7/final-census/none/results",
+        "$VALIDATION_STORAGE/r7/final-census/answering-ports/results",
+        "$VALIDATION_STORAGE/r7/final-census/answering-every-port/results",
+        "$VALIDATION_STORAGE/r7/final-census/valid-destinations/results",
+        "$VALIDATION_STORAGE/r7/final-census/declaring-outputs/results",
+        "$VALIDATION_STORAGE/r7/final-census/answering-later/results",
+        "$VALIDATION_STORAGE/r7/final-census/talker-notices/results",
+        "$VALIDATION_STORAGE/r7/final-census/shutdown-entry/results"
+      ],
+      "returncode": 0,
+      "log": "$VALIDATION_STORAGE/r7/final-census/record-classes.log",
+      "sha256": "29070cfd2f401bb74f6008496116faeb522482b52c7fb50c6dccd58105d02290"
+    },
+    {
+      "name": "census",
+      "command": [
+        "$TOOLCHAIN/venv/bin/python3",
+        "-B",
+        "$VALIDATION_STORAGE/r7/tools/census7.py",
+        "$VALIDATION_STORAGE/r7/final-census/census.json",
+        "$VALIDATION_STORAGE/r7/final-census/none/results",
+        "$VALIDATION_STORAGE/r7/final-census/answering-ports/results",
+        "$VALIDATION_STORAGE/r7/final-census/answering-every-port/results",
+        "$VALIDATION_STORAGE/r7/final-census/valid-destinations/results",
+        "$VALIDATION_STORAGE/r7/final-census/declaring-outputs/results",
+        "$VALIDATION_STORAGE/r7/final-census/answering-later/results",
+        "$VALIDATION_STORAGE/r7/final-census/talker-notices/results",
+        "$VALIDATION_STORAGE/r7/final-census/shutdown-entry/results"
+      ],
+      "returncode": 0,
+      "log": "$VALIDATION_STORAGE/r7/final-census/census.log",
+      "sha256": "993bbb9452213ce8e57e084a7571590bbe5b7e4c789b435cd5beba5689ec9a26"
+    },
+    {
+      "name": "merge-census",
+      "command": [
+        "$TOOLCHAIN/venv/bin/python3",
+        "-B",
+        "$VALIDATION_STORAGE/r7/tools/merge-census.py",
+        "$VALIDATION_STORAGE/r7/final-census/merged-census.json",
+        "$VALIDATION_STORAGE/r6g/preview/merged-preview.json",
+        "$VALIDATION_STORAGE/r7/final-census/census.json"
+      ],
+      "returncode": 0,
+      "log": "$VALIDATION_STORAGE/r7/final-census/merge-census.log",
+      "sha256": "6adb6404ebe7030de02cd580a88c0f92fdc807d3fe4da1d4a73b7f401f0c35e2"
+    },
+    {
+      "name": "derive-model",
+      "command": [
+        "$TOOLCHAIN/venv/bin/python3",
+        "-B",
+        "$VALIDATION_STORAGE/r7/tools/derive-own.py",
+        "$VALIDATION_STORAGE/r7/final-census/merged-census.json"
+      ],
+      "returncode": 0,
+      "log": "$VALIDATION_STORAGE/r7/final-census/derive-model.log",
+      "sha256": "f28b7e653eb5c804033f749d6eb733262904aff1219461b346b24707a85ed1b5"
+    }
+  ],
+  "owed_969": [
+    "srp.kept_advertise.if0: a record of 33,445 CPU cycles, 440 us by the rule, over CTRL_LOOP_SRP_UNIT_US 300 us, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)",
+    "srp.kept_recount.if0: a record of 30,160 CPU cycles, 400 us by the rule, over CTRL_LOOP_SRP_UNIT_US 300 us, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)",
+    "srp.kept_failed.if0: a record of 32,878 CPU cycles, 435 us by the rule, over CTRL_LOOP_SRP_UNIT_US 300 us, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)",
+    "srp.bound_advertise.if0: a record of 37,704 CPU cycles, 495 us by the rule, over CTRL_LOOP_SRP_UNIT_US 300 us, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)",
+    "srp-bound: a build-one pass at bus cycle 310318556: 56,255 CPU cycles over its stated 52,800 (CTRL_LOOP_BUILD_ONE_PASS_US, not restated), the bound path's registrations, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)",
+    "srp-bound: a build-one pass of 56,255 CPU cycles, over its stated 52,800, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)",
+    "srp-bound: an SRP record's apply of 37,217 CPU cycles, over its stated 24,000, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)",
+    "srp-kept: an SRP record's apply of 33,039 CPU cycles, over its stated 24,000, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)",
+    "srp-kept: an SRP record's apply of 29,754 CPU cycles, over its stated 24,000, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)",
+    "srp-kept: an SRP record's apply of 32,442 CPU cycles, over its stated 24,000, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)"
+  ],
+  "note": "Seven held-egress rows remain recorded budget misses, held to their own ledger."
+}

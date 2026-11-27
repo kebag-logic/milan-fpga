@@ -1,0 +1,150 @@
+"""Round 6: keep primary observations as numbered, hash-bound, redacted text receipts."""
+import hashlib
+import json
+from pathlib import Path
+import re
+import subprocess
+import sys
+
+ROOT = Path('$SOURCE')
+OLD = Path('$VALIDATION_STORAGE/r6g')
+OUT = Path('$LANE_TOOLS/artysplit-a829/round6/receipts')
+MERGE = '49b534fc9fac58d896e547b4ec337834ae054df0'
+sys.path[:0] = [str(ROOT / 'tb/verilator/ctrl_service_budget'), '$LANE_TOOLS']
+import privacy
+
+
+def sha(data):
+    return hashlib.sha256(data).hexdigest()
+
+
+def scrub(data):
+    data = data.replace(str(ROOT).encode(), b'$SOURCE').replace(str(OLD.parent).encode(), b'$VALIDATION_STORAGE')
+    data = data.replace(b'$TOOLCHAIN', b'$TOOLCHAIN').replace(b'$SHARED_STORAGE', b'$SHARED_STORAGE')
+    data = data.replace(b'$LANE_TOOLS', b'$LANE_TOOLS')
+    data = data.replace(b'$HOME', b'$HOME')
+    data = re.sub(rb'(?m)^(\|?\s*Host\s*:) .*$', rb'\1 <build-host>', data)
+    return privacy.scrub_redact(data)
+
+
+def parts(directory, name, data):
+    directory.mkdir(parents=True, exist_ok=True)
+    records, start = [], 0
+    while start < len(data) or not records:
+        end = min(start + 180_000, len(data))
+        if end < len(data):
+            cut = data.rfind(b'\n', start, end)
+            if cut >= start:
+                end = cut + 1
+        piece = data[start:end]
+        path = directory / (name if start == 0 and end == len(data) else f'{name}.part{len(records)+1:04d}.txt')
+        path.write_bytes(piece)
+        records.append(dict(file=path.name, bytes=len(piece), sha256=sha(piece)))
+        start = end
+        if not data:
+            break
+    return dict(bytes=len(data), sha256=sha(data), parts=records)
+
+
+def write(path, obj):
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(obj, indent=1) + '\n')
+    assert path.stat().st_size < 190_000, path
+
+
+def timing():
+    records = []
+    grading = json.loads((OLD / 'images/graded-images.json').read_text())
+    expected = {r['directive'] + '/' + Path(c['report']['path']).name: c['report']['sha256']
+                for r in grading['candidates'] for c in r['corners']}
+    for directive in ('ExtraTimingOpt', 'AltSpreadLogic_high', 'ExtraPostPlacementOpt'):
+        for corner in ('Slow_0C', 'Slow_85C', 'Fast_0C', 'Fast_85C'):
+            source = OLD / 'images' / directive / 'gateware' / f'digilent_arty_signoff_{corner}_timing.rpt'
+            raw = source.read_bytes()
+            assert sha(raw) == expected[directive + '/' + source.name]
+            directory = OUT / 'timing-r6' / directive
+            record = dict(original_bytes=len(raw), original_sha256=sha(raw),
+                          published=parts(directory, source.name, scrub(raw)), source_head=MERGE)
+            path = directory / (source.name + '.manifest.json')
+            write(path, record)
+            records.append(dict(manifest=str(path.relative_to(OUT)), sha256=sha(path.read_bytes())))
+        for extra in ('digilent_arty_utilization_place.rpt', 'digilent_arty_signoff_check_timing.rpt'):
+            source = OLD / 'images' / directive / 'gateware' / extra
+            raw = source.read_bytes()
+            record = dict(original_bytes=len(raw), original_sha256=sha(raw),
+                          published=parts(OUT / 'timing-r6' / directive, extra, scrub(raw)), source_head=MERGE)
+            write(OUT / 'timing-r6' / directive / (extra + '.manifest.json'), record)
+    graded = scrub((OLD / 'images/graded-images.json').read_bytes())
+    parts(OUT / 'timing-r6', 'graded-images.json', graded)
+    write(OUT / 'timing-r6.json', records)
+
+
+VALIDATION = ['rows-base.log', 'rows-merged-before.log', 'standalone-rows_tiers.log', 'standalone-load_grade.log',
+              'standalone-egress_ledger.log', 'standalone-record_classes.log', 'standalone.rc',
+              'service-selftest.log', 'service-selftest.json', 'host-tests.log', 'host/results.json',
+              'host/console.log', 'host/mii.log', 'product.log', 'product-link.log', 'product/size.json',
+              'route.log', 'grade-images.log', 'gates.log', 'gates-w2.log', 'gates-results.json',
+              'firmware-1-window1-stopped.log', 'test-ctrl-memory.log', 'images/inputs.json',
+              *[f'service-selftest-{n}.log' for n in range(8)],
+              *[f'firmware-{n}.log' for n in range(4)],
+              'boot.log', 'boot-native-controls.log', 'region-controls.log', 'docs-check.log', 'doc-style.log',
+              'doc-paths.log', 'gptp-docs.log', 'inventory.log', 'idiom.log', 'cpp-idiom.log', 'em-dash.log',
+              'toc-check.log', 'toc-verify-anchors.log']
+
+
+def validation():
+    rows = []
+    for name in VALIDATION:
+        for base in (OLD, OLD.parent / 'r6'):
+            source = base / name
+            if name.startswith('rows-') and base == OLD:
+                continue
+            if source.is_file():
+                break
+        raw = source.read_bytes()
+        label = ('earlier-session-' if base != OLD else '') + name.replace('/', '-')
+        record = dict(original_bytes=len(raw), original_sha256=sha(raw), published=parts(OUT / 'validation', label, scrub(raw)))
+        rows.append(dict(name=label, **record))
+    write(OUT / 'validation/manifest.json', rows)
+
+
+def merge():
+    show = subprocess.check_output(['git', 'show', '--cc', '--format=%H%n%P%n%s', MERGE], cwd=ROOT)
+    parts(OUT / 'merge', 'merge-resolution.cc.patch', show)
+    auto = subprocess.check_output(['git', 'merge-tree', '--write-tree', MERGE + '^1', MERGE + '^2'], cwd=ROOT,
+                                   ).split()[0].decode() if False else None
+    tree = subprocess.run(['git', 'merge-tree', '--write-tree', MERGE + '^1', MERGE + '^2'], cwd=ROOT,
+                          capture_output=True, text=True).stdout.split()[0]
+    beyond = subprocess.check_output(['git', 'diff', tree, MERGE, '--', 'sw/firmware/ctrl/test/plat_mutants.py',
+                                      'sw/firmware/ctrl/test/test_plat_phy_mii.cpp',
+                                      'tb/verilator/ctrl_service_budget/rows_tiers.py'], cwd=ROOT)
+    parts(OUT / 'merge', 'edits-in-cleanly-merged-files.patch', beyond)
+    after = subprocess.check_output(['git', 'log', '-p', MERGE + '..HEAD'], cwd=ROOT)
+    parts(OUT / 'merge', 'after-merge-commits.patch', after)
+    recipes = OUT / 'recipes'
+    for script in sorted(list(OLD.glob('*.py')) + list(OLD.glob('*.sh')) + [OLD / 'tools/pack6.py']):
+        parts(recipes, script.name + '.txt', scrub(script.read_bytes()))
+
+
+
+def preview():
+    """The partial measurement, its derivation and the round-4 control derivation."""
+    rows = []
+    for name in ('census-partial.json', 'census.log', 'merged-preview.json', 'derive-preview.json',
+                 'derive-r4-control.json'):
+        raw = (OLD / 'preview' / name).read_bytes()
+        rows.append(dict(name=name, original_bytes=len(raw), original_sha256=sha(raw),
+                         published=parts(OUT / 'preview', name, scrub(raw))))
+    raw = (OLD / 'final-census/completed.json').read_bytes()
+    rows.append(dict(name='completed.json', original_bytes=len(raw), original_sha256=sha(raw),
+                     published=parts(OUT / 'preview', 'completed.json', scrub(raw))))
+    r4 = Path('$VALIDATION_STORAGE/r4/build-corrected/final-census/merged-census.json').read_bytes()
+    rows.append(dict(name='round4-merged-census.json', original_bytes=len(r4), original_sha256=sha(r4),
+                     published=parts(OUT / 'preview', 'round4-merged-census.json', scrub(r4))))
+    write(OUT / 'preview/manifest.json', rows)
+
+
+if __name__ == '__main__':
+    for step in sys.argv[1:] or ['timing', 'validation', 'merge']:
+        globals()[step]()
+        print('PACKED', step, flush=True)

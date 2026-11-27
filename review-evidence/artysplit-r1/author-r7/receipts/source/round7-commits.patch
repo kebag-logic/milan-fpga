@@ -1,0 +1,372 @@
+commit 4adfa9dc84f58c1c7ad23d6a64fa019985fe62a1
+Author: hackerman-kl <hackerman-kl@kebag-logic.com>
+Date:   Thu Nov 26 21:49:23 2026 +0100
+
+    Apply run.py's disposition of the kept and bound registrations in the receipt regrader's cross-case step
+
+diff --git a/tb/verilator/ctrl_service_budget/README.md b/tb/verilator/ctrl_service_budget/README.md
+index 0ef376eb6..b2a0a77ff 100644
+--- a/tb/verilator/ctrl_service_budget/README.md
++++ b/tb/verilator/ctrl_service_budget/README.md
+@@ -218,6 +218,8 @@ It also includes the scenario, stimulus, and any journal bytes.
+ Numbered text parts stay below 190 KB, with whole-file hashes.
+ The script reconstructs every grade using the normal native graders.
+ Every resulting field must equal its original recorded value.
++Its cross-case step applies `run.py`'s disposition of `srp-kept` and `srp-bound` (`kept_grade.Disposition`),
++so a line #977 owes is printed OWED while every condition holds, and each breach is a finding.
+ Timing manifests likewise preserve complete reports as numbered text parts.
+ Their checks include setup/hold floors and failing endpoint counts.
+ Full-log hashes identify local originals; extracts cannot authenticate omitted bytes.
+diff --git a/tb/verilator/ctrl_service_budget/receipt_regrade.py b/tb/verilator/ctrl_service_budget/receipt_regrade.py
+index 9b03278d1..6cd08618f 100644
+--- a/tb/verilator/ctrl_service_budget/receipt_regrade.py
++++ b/tb/verilator/ctrl_service_budget/receipt_regrade.py
+@@ -91,12 +91,19 @@ def qualify(packet: Path, staged: Path, results: list[dict]) -> None:
+     import arty_grade
+     import declaring_outputs
+     import egress_ledger
++    import kept_grade
+     import long_notice
+     import record_classes
+     import run
+-    found = (run.share_misses(results) + run.stated_misses(results)
++    # run.py's disposition of #969's registrations, over the staged srp-kept and srp-bound extracts: their owed STATED
++    # and SHARE lines fail nothing while kept_grade's conditions hold, and each breach of one is a finding.
++    owed = kept_grade.Disposition(results, staged / 'none', dict(
++        shape='endstation_arty_current', interfaces=1, variant='none', sys_hz=80_000_000, cpu_hz=80_000_000))
++    found = (owed.shares(run.share_misses(results)) + owed.stated(run.stated_misses(results))
+              + run.save_misses(results) + run.burst_misses(results)
+              + run.notice_misses(results, 1) + long_notice.missing(results))
++    for line in owed.owed:
++        print('OWED', line)
+     legs, instances = [], []
+     for directory in sorted(staged.iterdir()):
+         spec = dict(shape='endstation_arty_current', interfaces=1, variant=directory.name,
+
+commit 2d911d2bf86428ade5943ced9e4a109e0780a837
+Author: hackerman-kl <hackerman-kl@kebag-logic.com>
+Date:   Thu Nov 26 20:47:48 2026 +0100
+
+    Record the complete 80 MHz qualification of the Arty row: 147 cases, longest pass 1.785 ms, held-egress rows below their ledger
+
+diff --git a/docs/design/SPLIT_CONTROL_MEMORY.md b/docs/design/SPLIT_CONTROL_MEMORY.md
+index bef9ba5e5..c4bbcd576 100644
+--- a/docs/design/SPLIT_CONTROL_MEMORY.md
++++ b/docs/design/SPLIT_CONTROL_MEMORY.md
+@@ -3517,8 +3517,9 @@ A complete campaign at it then raised the poll base, centisecond, LINK, MAAP and
+ Its costs are the larger of each measurement on the merged firmware and the one before it.
+ The `srp-kept` and `srp-bound` registrations over their statements are owed to #977 under #969's disposition,
+ as at the other points (`kept_grade.py`), and do not restate the row; their other measurements do.
+-The row is qualified only by a complete native campaign at this row; the seven held-egress
+-misses remain recorded under their ledger, and every other service row must meet its bound.
++The complete 80 MHz campaign qualifies the row over 147 native cases across eight image variants.
++The second step changed no firmware byte, so its census regrades the first step's traces against these statements.
++The seven held-egress misses remain recorded under their ledger; every other service row meets its bound.
+ The slice holds the measured build of both MRPDUs, so `CTRL_LOOP_BUILD_MOST`
+ builds both in one pass at this point.
+ 
+@@ -3548,7 +3549,8 @@ These are measurements of the complete retry rounds, distinct from the
+ transmit-only spans.
+ The slice and pace rules give load 0.5004771140, txL 48.82 ms, last notice
+ 117.47 ms and ACMP 29.77 ms.
+-THE SHARE's 2 ms bound is held by that campaign's measured whole passes.
++The observed maximum whole pass in that qualification is 142775 cycles,
++or 1.7846875 ms at 80 MHz.
+ The MII PHY frame statement is 195 us from 14487 cycles, or 181.0875 us,
+ with the same 5 percent and 5 us rounding rule.
+ 
+@@ -3560,6 +3562,7 @@ Each ledger figure is the 60 ms hold plus measured service, with 5 percent on se
+ The result is rounded up to 0.01 ms.
+ These remain misses against the 20 ms budget.
+ A new or larger miss fails.
++The campaign at the row above measured each row below its figure, 61.79729 to 63.29190 ms, and the ledger keeps the larger first measurements.
+ 
+ | Arty held-egress row | Measured at 80 MHz, ms | Ledger, ms |
+ |---|---:|---:|
+
+commit 74f942be516b84915f7d982fe1e3c65b497c227a
+Author: hackerman-kl <hackerman-kl@kebag-logic.com>
+Date:   Thu Nov 26 19:41:03 2026 +0100
+
+    Install the Arty row the complete census at the first derived row gives: raised poll base, centisecond, LINK, MAAP and withdrawal statements
+
+diff --git a/docs/design/SPLIT_CONTROL_MEMORY.md b/docs/design/SPLIT_CONTROL_MEMORY.md
+index 519759a99..bef9ba5e5 100644
+--- a/docs/design/SPLIT_CONTROL_MEMORY.md
++++ b/docs/design/SPLIT_CONTROL_MEMORY.md
+@@ -3513,7 +3513,10 @@ The Arty row states a 1250 us slice, a 10 ms AECP pace, a 125 ms queued-notice
+ bound and a 35 ms ordinary transmit bound.
+ The merge of dev-soft-core `c34e7d8b` raised the measured AECP, ACMP and MAAP costs at this point.
+ By the same rules, the first row (950 us, 9 ms, 30 ms) became this one.
++A complete campaign at it then raised the poll base, centisecond, LINK, MAAP and withdrawal statements, again by the rule.
+ Its costs are the larger of each measurement on the merged firmware and the one before it.
++The `srp-kept` and `srp-bound` registrations over their statements are owed to #977 under #969's disposition,
++as at the other points (`kept_grade.py`), and do not restate the row; their other measurements do.
+ The row is qualified only by a complete native campaign at this row; the seven held-egress
+ misses remain recorded under their ledger, and every other service row must meet its bound.
+ The slice holds the measured build of both MRPDUs, so `CTRL_LOOP_BUILD_MOST`
+@@ -3521,11 +3524,11 @@ builds both in one pass at this point.
+ 
+ | Work | Statement, us |
+ |---|---:|
+-| Poll base | 225 |
++| Poll base | 235 |
+ | Both MRPDU builds | 1035 |
+ | One MRPDU build | 660 |
+ | Aged SRP step | 1060 |
+-| Centisecond work | 150 |
++| Centisecond work | 160 |
+ | SRP record | 300 |
+ | ACMP record | 245 |
+ | ADP record | 120 |
+@@ -3543,8 +3546,8 @@ The retry fit measures 9767 cycles cold, 1929 cycles per refused attempt and
+ 17193 cycles per notice before applying the cost rule.
+ These are measurements of the complete retry rounds, distinct from the
+ transmit-only spans.
+-The slice and pace rules give load 0.4994646140, txL 48.54 ms, last notice
+-116.77 ms and ACMP 29.56 ms.
++The slice and pace rules give load 0.5004771140, txL 48.82 ms, last notice
++117.47 ms and ACMP 29.77 ms.
+ THE SHARE's 2 ms bound is held by that campaign's measured whole passes.
+ The MII PHY frame statement is 195 us from 14487 cycles, or 181.0875 us,
+ with the same 5 percent and 5 us rounding rule.
+diff --git a/sw/firmware/ctrl/loop/ctrl_loop.h b/sw/firmware/ctrl/loop/ctrl_loop.h
+index 3dfd20081..0aa72680d 100644
+--- a/sw/firmware/ctrl/loop/ctrl_loop.h
++++ b/sw/firmware/ctrl/loop/ctrl_loop.h
+@@ -409,7 +409,7 @@ extern "C" {
+ #define CTRL_LOOP_QUEUED_MS 125u
+ #define CTRL_LOOP_TX_MS 35u
+ #define CTRL_LOOP_STEP_PASS_US 1060u
+-#define CTRL_LOOP_TICK_US 150u
++#define CTRL_LOOP_TICK_US 160u
+ #define AECP_NOTICE_US 230u
+ #define AECP_PACE_MS 10u
+ #else
+diff --git a/tb/verilator/ctrl_service_budget/load_grade.py b/tb/verilator/ctrl_service_budget/load_grade.py
+index 7303a2d4d..7ec153e1a 100644
+--- a/tb/verilator/ctrl_service_budget/load_grade.py
++++ b/tb/verilator/ctrl_service_budget/load_grade.py
+@@ -231,8 +231,8 @@ OWN_MEASURED = {'8x8/1if': {'record.adp': (12_779, 'arm A, backlog-adp-refill, u
+ STATED_US = {
+     'arty-1x1': {
+         'record.srp': 300, 'record.aecp': 290, 'record.acmp': 245, 'record.adp': 120, 'record.maap': 125,
+-        'event.ADP': 95, 'event.ACMP': 165, 'event.MAAP': 160, 'event.AECP': 85, 'event.TICK': 50, 'event.GM': 40,
+-        'centisecond': 150, 'events_none': 40, 'item.retained': 300, 'item.aecp.notice': 205,
++        'event.ADP': 95, 'event.ACMP': 165, 'event.MAAP': 165, 'event.AECP': 85, 'event.TICK': 50, 'event.GM': 40,
++        'centisecond': 160, 'events_none': 40, 'item.retained': 300, 'item.aecp.notice': 205,
+         'item.aecp.response': 45, 'item.aecp.probe': 45},
+     '1x1/1if': {'record.srp': 285, 'record.aecp': 255, 'record.acmp': 280, 'record.adp': 105, 'record.maap': 115,
+                 'event.ADP': 115, 'event.ACMP': 185, 'event.MAAP': 165, 'event.AECP': 75, 'event.TICK': 55,
+@@ -289,8 +289,8 @@ STATED_US = {
+ STATED_US_DONOR = {
+     'arty-1x1': {
+         'record.srp': 300, 'record.aecp': 290, 'record.acmp': 245, 'record.adp': 120, 'record.maap': 125,
+-        'event.ADP': 95, 'event.ACMP': 165, 'event.MAAP': 160, 'event.AECP': 85, 'event.TICK': 50, 'event.GM': 40,
+-        'centisecond': 150, 'events_none': 40, 'item.retained': 300, 'item.aecp.notice': 205,
++        'event.ADP': 95, 'event.ACMP': 165, 'event.MAAP': 165, 'event.AECP': 85, 'event.TICK': 50, 'event.GM': 40,
++        'centisecond': 160, 'events_none': 40, 'item.retained': 300, 'item.aecp.notice': 205,
+         'item.aecp.response': 45, 'item.aecp.probe': 45},
+     '1x1/1if': {'record.srp': 285, 'record.aecp': 255, 'record.acmp': 265, 'record.adp': 105, 'record.maap': 115,
+                 'event.ADP': 115, 'event.ACMP': 170, 'event.MAAP': 170, 'event.AECP': 75, 'event.TICK': 55,
+diff --git a/tb/verilator/ctrl_service_budget/poll_grade.py b/tb/verilator/ctrl_service_budget/poll_grade.py
+index 53336aaba..527a92697 100644
+--- a/tb/verilator/ctrl_service_budget/poll_grade.py
++++ b/tb/verilator/ctrl_service_budget/poll_grade.py
+@@ -142,7 +142,7 @@ STATED_US = {shape_costs.Shape(1, 2, 2): ONE, shape_costs.Shape(1, 9, 9): EIGHT_
+ 
+ # Arty FPGA measurements at exactly 80 MHz; no interface-count fallback.
+ STATED_US[shape_costs.Shape(1, 1, 2)] = {
+-    'base': 225, 'withdraw': 90, 'rebuild': 255, 'walk': 30, 'reclaim': 20, 'retained': 300, 'mrpdu': 0,
++    'base': 235, 'withdraw': 95, 'rebuild': 255, 'walk': 30, 'reclaim': 20, 'retained': 300, 'mrpdu': 0,
+     'acmp': 60, 'aecp': 200, 'aecp_long': 385, 'acmp_declined': 20}
+ 
+ 
+diff --git a/tb/verilator/ctrl_service_budget/rows_grade.py b/tb/verilator/ctrl_service_budget/rows_grade.py
+index a6014ac98..7db929cc5 100644
+--- a/tb/verilator/ctrl_service_budget/rows_grade.py
++++ b/tb/verilator/ctrl_service_budget/rows_grade.py
+@@ -95,7 +95,7 @@ POINTS = ('1x1/1if', '8x8/2if')
+ #: (rows_tiers.DATAPATH_US, 3,103, 2,864 and 1,851 cycles there). Its rows are reported (flip_grade.py, REPORTED), and
+ #: THE TRANSMIT's figure there is held to its tx row (rows_tiers.tx_statements, flip_grade.tx_held).
+ ROW_COSTS = {
+-    'arty-1x1': {'event.LINK': 150},
++    'arty-1x1': {'event.LINK': 190},
+     '1x1/1if': {'event.LINK': 155}, '8x8/2if': {'event.LINK': 300}, '8x8/1if': {'event.LINK': 300}}
+ #: The sources the docstring names, each a part of every solved row's window (links R5's alone), and the terms of
+ #: demand() that make each up.
+
+commit f7b90e3b781812863b87256d4b349ee2154d480b
+Author: hackerman-kl <hackerman-kl@kebag-logic.com>
+Date:   Thu Nov 26 14:57:43 2026 +0100
+
+    Install the Arty row the rules derive for the merged firmware: 1250 us slice, 10 ms AECP pace, 35 ms transmit bound and the raised stated costs
+
+diff --git a/docs/design/SPLIT_CONTROL_MEMORY.md b/docs/design/SPLIT_CONTROL_MEMORY.md
+index b127e0e26..519759a99 100644
+--- a/docs/design/SPLIT_CONTROL_MEMORY.md
++++ b/docs/design/SPLIT_CONTROL_MEMORY.md
+@@ -3509,13 +3509,15 @@ The owner bounds are load 0.70, txL 49 ms, THE SHARE 2 ms, last notice 140 ms
+ and ACMP 30 ms.
+ The service harness still holds each other row to its own budget.
+ 
+-The Arty row states a 950 us slice, a 9 ms AECP pace, a 125 ms queued-notice
+-bound and a 30 ms ordinary transmit bound.
+-The complete 80 MHz campaign qualifies these statements over 145 native cases
+-across eight image variants. The seven held-egress misses remain recorded
+-under their ledger; every other service row meets its bound.
+-The measured build of both MRPDUs exceeds the slice, so the existing scheduler
+-builds one MRPDU per pass at this point.
++The Arty row states a 1250 us slice, a 10 ms AECP pace, a 125 ms queued-notice
++bound and a 35 ms ordinary transmit bound.
++The merge of dev-soft-core `c34e7d8b` raised the measured AECP, ACMP and MAAP costs at this point.
++By the same rules, the first row (950 us, 9 ms, 30 ms) became this one.
++Its costs are the larger of each measurement on the merged firmware and the one before it.
++The row is qualified only by a complete native campaign at this row; the seven held-egress
++misses remain recorded under their ledger, and every other service row must meet its bound.
++The slice holds the measured build of both MRPDUs, so `CTRL_LOOP_BUILD_MOST`
++builds both in one pass at this point.
+ 
+ | Work | Statement, us |
+ |---|---:|
+@@ -3525,25 +3527,25 @@ builds one MRPDU per pass at this point.
+ | Aged SRP step | 1060 |
+ | Centisecond work | 150 |
+ | SRP record | 300 |
+-| ACMP record | 240 |
+-| ADP or MAAP record | 120 |
+-| Ordinary AECP record | 285 |
+-| Long AECP record | 1095 |
+-| Retry cold start | 125 |
++| ACMP record | 245 |
++| ADP record | 120 |
++| MAAP record | 125 |
++| Ordinary AECP record | 290 |
++| Long AECP record | 1105 |
++| Retry cold start | 130 |
+ | Retry refused attempt | 30 |
+ | Retry notice | 230 |
+ | Transmit notice | 205 |
+ | Transmit response | 45 |
+-| Transmit long response | 380 |
++| Transmit long response | 385 |
+ 
+-The retry fit measures 9285 cycles cold, 1947 cycles per refused attempt and
+-17196 cycles per notice before applying the cost rule.
++The retry fit measures 9767 cycles cold, 1929 cycles per refused attempt and
++17193 cycles per notice before applying the cost rule.
+ These are measurements of the complete retry rounds, distinct from the
+ transmit-only spans.
+-The slice and pace rules give load 0.4966771140, txL 48.74 ms, last notice
+-121.84 ms and ACMP 28.82 ms.
+-The observed maximum whole pass in the fresh qualification is 134507 cycles,
+-or 1.6813375 ms at 80 MHz.
++The slice and pace rules give load 0.4994646140, txL 48.54 ms, last notice
++116.77 ms and ACMP 29.56 ms.
++THE SHARE's 2 ms bound is held by that campaign's measured whole passes.
+ The MII PHY frame statement is 195 us from 14487 cycles, or 181.0875 us,
+ with the same 5 percent and 5 us rounding rule.
+ 
+diff --git a/sw/firmware/ctrl/loop/ctrl_loop.h b/sw/firmware/ctrl/loop/ctrl_loop.h
+index 424ceceb0..3dfd20081 100644
+--- a/sw/firmware/ctrl/loop/ctrl_loop.h
++++ b/sw/firmware/ctrl/loop/ctrl_loop.h
+@@ -400,18 +400,18 @@ extern "C" {
+ #define CTRL_LOOP_QUEUED_MS 62u
+ #define CTRL_LOOP_TX_MS 105u
+ #elif CTRL_LOOP_SHAPE(1u, 1u, 2u)      // Arty FPGA: one interface, AAF talker, AAF and CRF sinks, 80 MHz
+-#define CTRL_LOOP_SLICE_US 950u
++#define CTRL_LOOP_SLICE_US 1250u
+ #define CTRL_LOOP_BUILD_PASS_US 1035u
+ #define CTRL_LOOP_BUILD_ONE_PASS_US 660u
+ #define CTRL_LOOP_SRP_UNIT_US 300u
+-#define CTRL_LOOP_RETRY_COLD_US 125u
++#define CTRL_LOOP_RETRY_COLD_US 130u
+ #define CTRL_LOOP_RETRY_ATTEMPT_US 30u
+ #define CTRL_LOOP_QUEUED_MS 125u
+-#define CTRL_LOOP_TX_MS 30u
++#define CTRL_LOOP_TX_MS 35u
+ #define CTRL_LOOP_STEP_PASS_US 1060u
+ #define CTRL_LOOP_TICK_US 150u
+ #define AECP_NOTICE_US 230u
+-#define AECP_PACE_MS 9u
++#define AECP_PACE_MS 10u
+ #else
+ #error "THE SHAPES: the shape (MBX_N_IF, CTRL_SRP_SOURCES, CTRL_SRP_SINKS) is not one ctrl_loop.h lists"
+ #endif
+diff --git a/tb/verilator/ctrl_service_budget/edit_rows.py b/tb/verilator/ctrl_service_budget/edit_rows.py
+index b71ea65d2..bf5c394f5 100644
+--- a/tb/verilator/ctrl_service_budget/edit_rows.py
++++ b/tb/verilator/ctrl_service_budget/edit_rows.py
+@@ -50,7 +50,7 @@ if TYPE_CHECKING:
+ #: each by the rule; on the SRP cut's head (#665's ruling of 2026-11-20, item 3), whose code moves AECP's, 29,993 CPU
+ #: cycles there, 315 us, raised as the owner decided on 2026-11-20 (#665, ruling item 4).
+ PACED = {
+-    'arty-1x1': {'a one-row edit': 335, 'an accepted SET_CONFIGURATION': 315},
++    'arty-1x1': {'a one-row edit': 335, 'an accepted SET_CONFIGURATION': 325},
+     '1x1/1if': {'a one-row edit': 315, 'an accepted SET_CONFIGURATION': 305},
+          '8x8/2if': {'a one-row edit': 355, 'an accepted SET_CONFIGURATION': 595},
+          '8x8/1if': {'a one-row edit': 335, 'an accepted SET_CONFIGURATION': 685}}
+diff --git a/tb/verilator/ctrl_service_budget/load_grade.py b/tb/verilator/ctrl_service_budget/load_grade.py
+index 963d68ec5..7303a2d4d 100644
+--- a/tb/verilator/ctrl_service_budget/load_grade.py
++++ b/tb/verilator/ctrl_service_budget/load_grade.py
+@@ -230,8 +230,8 @@ OWN_MEASURED = {'8x8/1if': {'record.adp': (12_779, 'arm A, backlog-adp-refill, u
+ #: (23,858 CPU cycles, the same SET_STREAM_INFO).
+ STATED_US = {
+     'arty-1x1': {
+-        'record.srp': 300, 'record.aecp': 285, 'record.acmp': 240, 'record.adp': 120, 'record.maap': 120,
+-        'event.ADP': 95, 'event.ACMP': 165, 'event.MAAP': 155, 'event.AECP': 85, 'event.TICK': 45, 'event.GM': 40,
++        'record.srp': 300, 'record.aecp': 290, 'record.acmp': 245, 'record.adp': 120, 'record.maap': 125,
++        'event.ADP': 95, 'event.ACMP': 165, 'event.MAAP': 160, 'event.AECP': 85, 'event.TICK': 50, 'event.GM': 40,
+         'centisecond': 150, 'events_none': 40, 'item.retained': 300, 'item.aecp.notice': 205,
+         'item.aecp.response': 45, 'item.aecp.probe': 45},
+     '1x1/1if': {'record.srp': 285, 'record.aecp': 255, 'record.acmp': 280, 'record.adp': 105, 'record.maap': 115,
+@@ -288,8 +288,8 @@ STATED_US = {
+ #: SET_STREAM_FORMAT's running check made again (#950), the AECP record as STATED_US states it, 255 us.
+ STATED_US_DONOR = {
+     'arty-1x1': {
+-        'record.srp': 300, 'record.aecp': 285, 'record.acmp': 240, 'record.adp': 120, 'record.maap': 120,
+-        'event.ADP': 95, 'event.ACMP': 165, 'event.MAAP': 155, 'event.AECP': 85, 'event.TICK': 45, 'event.GM': 40,
++        'record.srp': 300, 'record.aecp': 290, 'record.acmp': 245, 'record.adp': 120, 'record.maap': 125,
++        'event.ADP': 95, 'event.ACMP': 165, 'event.MAAP': 160, 'event.AECP': 85, 'event.TICK': 50, 'event.GM': 40,
+         'centisecond': 150, 'events_none': 40, 'item.retained': 300, 'item.aecp.notice': 205,
+         'item.aecp.response': 45, 'item.aecp.probe': 45},
+     '1x1/1if': {'record.srp': 285, 'record.aecp': 255, 'record.acmp': 265, 'record.adp': 105, 'record.maap': 115,
+diff --git a/tb/verilator/ctrl_service_budget/poll_grade.py b/tb/verilator/ctrl_service_budget/poll_grade.py
+index 99bc8170f..53336aaba 100644
+--- a/tb/verilator/ctrl_service_budget/poll_grade.py
++++ b/tb/verilator/ctrl_service_budget/poll_grade.py
+@@ -142,8 +142,8 @@ STATED_US = {shape_costs.Shape(1, 2, 2): ONE, shape_costs.Shape(1, 9, 9): EIGHT_
+ 
+ # Arty FPGA measurements at exactly 80 MHz; no interface-count fallback.
+ STATED_US[shape_costs.Shape(1, 1, 2)] = {
+-    'base': 225, 'withdraw': 90, 'rebuild': 245, 'walk': 30, 'reclaim': 20, 'retained': 300, 'mrpdu': 0,
+-    'acmp': 60, 'aecp': 200, 'aecp_long': 380, 'acmp_declined': 20}
++    'base': 225, 'withdraw': 90, 'rebuild': 255, 'walk': 30, 'reclaim': 20, 'retained': 300, 'mrpdu': 0,
++    'acmp': 60, 'aecp': 200, 'aecp_long': 385, 'acmp_declined': 20}
+ 
+ 
+ #: An SRP record's own apply (srp_mbx:apply_receive outside the polls), held to the retained item's stated cost.
+diff --git a/tb/verilator/ctrl_service_budget/rows_tiers.py b/tb/verilator/ctrl_service_budget/rows_tiers.py
+index bbdda5f5b..d4f96ad0c 100644
+--- a/tb/verilator/ctrl_service_budget/rows_tiers.py
++++ b/tb/verilator/ctrl_service_budget/rows_tiers.py
+@@ -100,7 +100,7 @@ DATAPATH = {'AVB_INFO_CHANGED': 'interface', 'AS_PATH_CHANGED': 'interface', 'AM
+ #: 5 %, rounded up to 5 us, the larger of each image's measurement and the one before it (#894: at #810's merge 31.96,
+ #: 29.06, 23.33 us at 1x1/1if, 36.57, 34.43, 23.02 at 8x8; direct index 30.55, 31.57, 25.51; #895 AMAP 8x8 24.65).
+ DATAPATH_US = {
+-    'arty-1x1': {'AVB_INFO_CHANGED': 25, 'AS_PATH_CHANGED': 25, 'AMAP_LIVE_WRITE': 15},
++    'arty-1x1': {'AVB_INFO_CHANGED': 30, 'AS_PATH_CHANGED': 30, 'AMAP_LIVE_WRITE': 15},
+     '1x1/1if': {'AVB_INFO_CHANGED': 35, 'AS_PATH_CHANGED': 35, 'AMAP_LIVE_WRITE': 30},
+                '8x8/2if': {'AVB_INFO_CHANGED': 40, 'AS_PATH_CHANGED': 40, 'AMAP_LIVE_WRITE': 30}}
+ #: The five rows decision D bounds, the slice rule's (slice_choice).
+@@ -136,7 +136,7 @@ LONG_NOTICE_US = {p: poll_grade.stated_us(shape_costs.of_point(p))[poll_grade.LO
+ #: before), and at 8x8/1if (THE SHAPES) 162,969 on the image that merges dev-soft-core 70f4056f (#901; 143,648 before,
+ #: 1,510 us), 1,715 us (#904: one decode, one pass), 1,720 (#943: 163,520). record.aecp is shorter ones'.
+ LONG_RECORD_US = {
+-    'arty-1x1': 1095,'1x1/1if': 975, '8x8/2if': 1650, '8x8/1if': 1720}
++    'arty-1x1': 1105,'1x1/1if': 975, '8x8/2if': 1650, '8x8/1if': 1720}
+ #: The terms a tier-1 row may not carry: tier 2's work, for which only the one slice its window opens on stands.
+ TIER2_TERMS = ('srp', 'item.retained', 'item.mrpdu', 'builds', 'rounds', 'item.withdraw', 'item.rebuild')
+ #: Each term these models count and its source: rows_grade's list, the three datapath events, and the tier model's.

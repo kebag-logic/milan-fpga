@@ -1,0 +1,35 @@
+import hashlib
+import json
+from pathlib import Path
+import sys
+
+ROOT = Path('$SOURCE')
+OUT = Path(__file__).parent / 'host'
+OUT.mkdir(exist_ok=True)
+sys.path.insert(0, str(ROOT / 'sw/firmware/ctrl/test'))
+import ctrl_build
+import ctrl_mutants
+import fw_gtest
+import plat_arms
+
+tree = ctrl_build.Tree(ctrl_build.CTRL, OUT / 'clean', OUT / 'reuse', fw_gtest.Build(jobs=1))
+records = []
+for name, arm in [('console', plat_arms.arm_plat),
+                  ('mii', lambda t: plat_arms.arm_platboot(t, 1, mii=True))]:
+    outcome = arm(tree)
+    (OUT / (name + '.log')).write_text(outcome.log)
+    print(name, outcome.rc, flush=True)
+    assert outcome.rc == 0, name
+    records.append(dict(name=name, returncode=outcome.rc))
+pristine = (ctrl_build.CTRL / 'plat/ctrl_plat_phy.c').read_bytes()
+ctrl_mutants.MUTANTS = tuple(m for m in ctrl_mutants.MUTANTS
+                            if m.name.startswith(('mii-', 'plat-lat-')))
+# This focused campaign covers the named tests of its own table. The full
+# firmware gate separately enforces coverage of every test in the suite.
+ctrl_mutants.unnamed_tests = lambda: []
+failed = ctrl_mutants.campaign(OUT / 'mutants', OUT / 'reuse', 1)
+assert (ctrl_build.CTRL / 'plat/ctrl_plat_phy.c').read_bytes() == pristine
+assert not failed
+records.append(dict(name='mii-and-lat-mutants', count=len(ctrl_mutants.MUTANTS), returncode=0,
+                    restored_phy_sha256=hashlib.sha256(pristine).hexdigest()))
+(OUT / 'results.json').write_text(json.dumps(records, indent=2) + '\n')

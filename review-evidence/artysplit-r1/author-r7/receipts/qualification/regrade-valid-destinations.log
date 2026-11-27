@@ -1,0 +1,9 @@
+CLOCK CPU 80 MHz on sys, the product's split CPU clock, bus 80 MHz
+STEPS 3315 passes carry the store's step; the longest 89,195 CPU cycles (1.115 ms), srp-talker-held; the longest step 77,951 (0.974 ms), srp-talker-held
+SLICES 265047 tier-2 slices; the longest SRP's records 86,975, THE TRANSMIT's build 58,655, THE RETRY's round 9,396 CPU cycles, against the stated slice 100,000 (THE TIERS)
+JOINS srp-talker: 5 join interval(s), the shortest 188.258 ms and the longest 190.012 ms, against 181.0 to 239.0; MRP timers' run-outs: 45 released, 44 empty; LeaveAll timers' run-outs by their LeaveAll: 2 sent
+JOINS srp-talker-loss: 4 join interval(s), the shortest 188.172 ms and the longest 190.012 ms, against 181.0 to 239.0; MRP timers' run-outs: 14 released, 13 empty
+JOINS srp-talker-held: 5 join interval(s), the shortest 188.269 ms and the longest 190.012 ms, against 181.0 to 239.0; MRP timers' run-outs: 19 released, 17 empty
+SAVE srp-talker-held: durable 1072.167 ms after its change (stated worst case 3,440 ms, 81 steps, longest gap between flash steps 10.046 ms) within
+3 groups graded, 0 refusals, 0 budget misses (0 of 12 probe instances, 0 of 9 paths), 0 of 9346 work passes over the per-pass share 2.000 ms (160,000 CPU cycles)
+CLOCK CPU 80 MHz on sys, the product's split CPU clock, bus 80 MHz

@@ -1,0 +1,49 @@
+{
+ "status": "INSTALLED RULE ROW; complete census qualification required",
+ "constants": {
+  "CTRL_LOOP_SLICE_US": 1250,
+  "CTRL_LOOP_BUILD_PASS_US": 1035,
+  "CTRL_LOOP_BUILD_ONE_PASS_US": 660,
+  "CTRL_LOOP_SRP_UNIT_US": 300,
+  "CTRL_LOOP_RETRY_COLD_US": 130,
+  "CTRL_LOOP_RETRY_ATTEMPT_US": 30,
+  "CTRL_LOOP_QUEUED_MS": 125,
+  "CTRL_LOOP_TX_MS": 35,
+  "CTRL_LOOP_STEP_PASS_US": 1060,
+  "CTRL_LOOP_TICK_US": 150,
+  "AECP_NOTICE_US": 230,
+  "AECP_PACE_MS": 10
+ },
+ "poll": {
+  "base": 225,
+  "withdraw": 90,
+  "rebuild": 255,
+  "walk": 30,
+  "reclaim": 20,
+  "retained": 300,
+  "mrpdu": 0,
+  "acmp": 60,
+  "aecp": 200,
+  "aecp_long": 385,
+  "acmp_declined": 20
+ },
+ "load_row": {
+  "record.srp": 300,
+  "record.aecp": 290,
+  "record.acmp": 245,
+  "record.adp": 120,
+  "record.maap": 125,
+  "event.ADP": 95,
+  "event.ACMP": 165,
+  "event.MAAP": 160,
+  "event.AECP": 85,
+  "event.TICK": 50,
+  "event.GM": 40,
+  "centisecond": 150,
+  "events_none": 40,
+  "item.retained": 300,
+  "item.aecp.notice": 205,
+  "item.aecp.response": 45,
+  "item.aecp.probe": 45
+ }
+}

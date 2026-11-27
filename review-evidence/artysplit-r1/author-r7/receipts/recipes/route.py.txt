@@ -1,0 +1,64 @@
+"""Foreground implementation of the new product, selected directive first."""
+import hashlib
+import json
+import os
+from pathlib import Path
+import subprocess
+import sys
+import shutil
+
+ROOT = Path('$SOURCE')
+R = Path(__file__).parent
+assert os.environ.get('PYTHONHASHSEED') == '0'
+elf = R / 'product/ctrl_app.elf'
+head = subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=ROOT, text=True).strip()
+assert subprocess.run(['git', 'diff', '--quiet', 'HEAD'], cwd=ROOT).returncode == 0
+sys.path.insert(0, str(ROOT / 'sw/builder'))
+import endstation_builder as eb
+config = ROOT / 'configs/endstation_arty_split.yaml'
+eb.build(str(config), placement='split')
+argv = eb.emit_soc_argv(eb.load_config(str(config)))
+argv[argv.index('--ctrl-firmware') + 1] = str(elf)
+argv += ['--entity-gen-dir', str(ROOT / 'configs/generated/endstation_arty_split')]
+out = R / 'images'
+out.mkdir(exist_ok=True)
+(out / 'inputs.json').write_text(json.dumps(dict(head=head,
+    firmware_sha256=hashlib.sha256(elf.read_bytes()).hexdigest()), indent=2) + '\n')
+env = dict(os.environ, PYTHONHASHSEED='0', PYTHONDONTWRITEBYTECODE='1', TMPDIR=str(R / 'work-tmp'),
+           COURSIER_MODE='offline', SBT_OPTS='-Dsbt.offline=true', VIVADO_SLOTS='2', VIVADO_MIN_GB='20')
+import concurrent.futures
+
+
+def route(directive):
+    # Resumable: a directive whose attempt completed with exit 0 is kept.
+    receipt = out / (directive + '.result.json')
+    if receipt.exists() and json.loads(receipt.read_text())['rc'] == 0:
+        print('KEPT', directive, flush=True)
+        return 0
+    assert shutil.disk_usage(R).free >= 20_000_000_000, 'Less than 20 GB free before routing'
+    assert sum(p.stat().st_size for p in R.rglob('*') if p.is_file()) < 40_000_000_000, 'Scratch cap reached'
+    command = ['systemd-run', '--user', '--scope', '--quiet', '--unit=artysplit-a829r7-route-' + directive,
+               '-p', 'CPUWeight=20', '-p', 'MemoryMax=24G', 'nice', '-n', '19', '$LANE_TOOLS/vivado-slot.sh', 'bash', '-c',
+               'source "$1"; shift; exec "$@"', 'arty-build', '$HOME/Xilinx2/2026.1/Vivado/settings64.sh',
+               sys.executable, '-B', str(ROOT / 'sw/litex/milan_soc.py'), *argv,
+               '--place-directive', directive, '--vivado-max-threads', '4', '--build',
+               '--output-dir', str(out / directive)]
+    (out / (directive + '.command.json')).write_text(json.dumps(command, indent=2) + '\n')
+    print('ROUTE', directive, flush=True)
+    with (out / (directive + '.log')).open('w') as log:
+        rc = subprocess.run(command, cwd=ROOT, env=env, stdout=log, stderr=subprocess.STDOUT).returncode
+    (out / (directive + '.result.json')).write_text(json.dumps(dict(rc=rc, directive=directive)) + '\n')
+    print('ROUTED', directive, rc, flush=True)
+    return rc
+
+
+# At most two Vivado runs at once; the selected directive starts first.
+with concurrent.futures.ThreadPoolExecutor(max_workers=2) as pool:
+    codes = list(pool.map(route, ('ExtraTimingOpt', 'AltSpreadLogic_high', 'ExtraPostPlacementOpt')))
+assert not any(codes), codes
+assert subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=ROOT, text=True).strip() == head
+assert subprocess.run(['git', 'diff', '--quiet', 'HEAD'], cwd=ROOT).returncode == 0
+grade_command = [sys.executable, '-B', str(R.parent / 'r4/build-corrected/grade-images.py'), str(out), str(elf)]
+with (R / 'grade-images.log').open('w') as log:
+    raise SystemExit(subprocess.run(grade_command, cwd=ROOT, env=env, stdout=log,
+                                   stderr=subprocess.STDOUT).returncode)

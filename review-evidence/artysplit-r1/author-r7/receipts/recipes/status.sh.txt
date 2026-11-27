@@ -1,0 +1,13 @@
+#!/bin/bash
+R=$VALIDATION_STORAGE/r7
+echo "$(date +%H:%M) load $(cut -d' ' -f1 /proc/loadavg)"
+echo "route: $(tr '\n' ' ' < $R/route.log) $(cat $R/route.rc 2>/dev/null)"
+echo "gates: $(command grep -c '^DONE' $R/gates.log) done; $(tail -1 $R/gates.log) $(cat $R/gates.rc 2>/dev/null)"
+echo "service: $(cat $R/service-selftest.log 2>/dev/null | tr '\n' ' ') $(cat $R/service-selftest.rc $R/host-tests.rc 2>/dev/null | tr '\n' ' ')"
+python3 - <<'P'
+import json,os
+R='$VALIDATION_STORAGE/r7/final-census'
+r=json.load(open(R+'/completed.json')) if os.path.exists(R+'/completed.json') else []
+bad=[(x['variant'],x['group']) for x in r if any(x[k] for k in ('refusals','share','late','forbidden','stated'))]
+print('census',len(r),'of 147; stop findings',bad,'max pass',max([x['worst_pass_cycles'] for x in r] or [0]), 'stop file',os.path.exists(R+'/stop-finding.json'))
+P

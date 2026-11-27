@@ -1,0 +1,51 @@
+"""Round 6 receipt index: sections, then every file with its bytes and SHA256."""
+import hashlib
+import json
+from pathlib import Path
+
+OUT = Path('$LANE_TOOLS/artysplit-a829/round6/receipts')
+files = sorted(p for p in OUT.rglob('*') if p.is_file() and p.name not in ('INDEX.md', 'FILES.tsv'))
+rows = [f'{p.relative_to(OUT)}\t{p.stat().st_size}\t{hashlib.sha256(p.read_bytes()).hexdigest()}' for p in files]
+assert all(p.stat().st_size < 190_000 for p in files)
+Path(OUT / 'FILES.tsv').write_text('path\tbytes\tsha256\n' + '\n'.join(rows) + '\n')
+assert (OUT / 'FILES.tsv').stat().st_size < 190_000
+timing = json.loads((OUT / 'timing-r6.json').read_text())
+validation = json.loads((OUT / 'validation/manifest.json').read_text())
+lines = ['# Round 6 receipt index', '',
+         'Merge `49b534fc9fac58d896e547b4ec337834ae054df0`; head `c3cd51474168913ae66fc74387ee9cfc0cae5aba` (docs only after the merge).',
+         'Prepared locally; nothing has been posted or pushed.', '',
+         'Every receipt is UTF-8 text below 190,000 bytes. A manifest records each numbered part and the',
+         "SHA256 and byte count of the whole before and after redaction of private paths and host headers.",
+         f'[FILES.tsv](FILES.tsv) lists all {len(files)} files with bytes and SHA256.', '',
+         '## Merge', '',
+         '- [merge/merge-resolution.cc.patch](merge/merge-resolution.cc.patch): the combined diff of the merge commit (conflict resolutions).',
+         '- [merge/edits-in-cleanly-merged-files.patch](merge/edits-in-cleanly-merged-files.patch): the merge result against the automatic merge, in the three files that merged cleanly but needed a change of meaning.',
+         '- [merge/after-merge-commits.patch](merge/after-merge-commits.patch): the commits after the merge (docs only).', '',
+         '## Primary timing reports', '',
+         '| Directive | Report | Original bytes | Original SHA256 | Manifest |', '|---|---|---:|---|---|']
+for row in timing:
+    m = json.loads((OUT / row['manifest']).read_text())
+    directive, name = row['manifest'].split('/')[1:3]
+    lines.append(f"| {directive} | {name.replace('.manifest.json', '')} | {m['original_bytes']} | `{m['original_sha256']}` | [{name}]({row['manifest']}) |")
+lines += ['', 'The grader verdict is [timing-r6/graded-images.json](timing-r6/graded-images.json); utilization and check_timing reports sit beside each directive\'s timing reports.', '',
+          '## Validation logs', '', '| Receipt | Original bytes | Original SHA256 | Parts |', '|---|---:|---|---:|']
+for row in validation:
+    first = row['published']['parts'][0]['file']
+    lines.append(f"| [{row['name']}](validation/{first}) | {row['original_bytes']} | `{row['original_sha256']}` | {len(row['published']['parts'])} |")
+census = OUT / 'census.json'
+lines += ['', '## Native census', '']
+if census.exists():
+    c = json.loads(census.read_text())
+    lines += [f"[census.json](census.json) lists all {len(c['cases'])} cases; each manifest names its stimulus, observation extract, grade and full-log hash.",
+              'Qualification command logs are under [qualification/](qualification/).']
+else:
+    lines += ['Not complete: 132 of 147 cases were measured before this round stopped on the row finding; the 15 longest did not fit a',
+              '2 h foreground window at CPU weight 10. Every completed case\'s record (status, trace SHA256, findings, worst pass)',
+              'is in [preview/completed.json](preview/completed.json). Native traces and executables remain local; they are not',
+              'qualification evidence for an installed row and are kept as calibration input.']
+lines += ['', '## Cost preview (partial census)', '',
+          'Measured maxima over the completed cases, the derivation with round 4\'s maxima filling the cases not yet run,',
+          'and the control derivation over round 4\'s census alone, under [preview/](preview/) ([manifest](preview/manifest.json)).']
+lines += ['', '## Recipes', '', 'The orchestration scripts, redacted, are under [recipes/](recipes/).', '']
+(OUT / 'INDEX.md').write_text('\n'.join(lines))
+print('INDEX', len(files), 'files')

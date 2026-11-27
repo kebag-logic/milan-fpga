@@ -1,0 +1,59 @@
+"""Step 2's census from step 1's native traces, after identity7.py proved every run input identical.
+
+Copies each case's stimulus, trace, status and saved journal (never its grade), then grades each case at this head
+with the census runner's own grading code, so every record's findings are this row's. Refuses unless identity7.py
+passed and each copied trace keeps step 1's recorded hash.
+"""
+import hashlib, json, shutil, sys
+from pathlib import Path
+root = Path.cwd()
+sys.path.insert(0, str(root / 'tb/verilator/ctrl_service_budget'))
+import build, egress_ledger, run, scenario
+R = Path('$VALIDATION_STORAGE/r7'); NEW = R / 'final-census'; OLD = R / 'step1/final-census'
+assert (R / 'identity.log').read_text().rstrip().endswith('IDENTICAL'), 'identity7.py did not pass'
+old_rows = {(r['variant'], r['group']): r for r in json.loads((OLD / 'completed.json').read_text())}
+manifest = json.loads((NEW / 'manifest.json').read_text())
+records = []
+for variant, wanted in manifest['groups'].items():
+    spec = build.reused(NEW / variant); results = NEW / variant / 'results'; results.mkdir(exist_ok=True)
+    groups = {g.name: g for g in run.all_groups(scenario.point('arty-1x1', spec), spec)}
+    for name in wanted:
+        g = groups[name]
+        for suffix in ('.txt', '.log', '.status'):
+            shutil.copy2(OLD / variant / 'results' / (name + suffix), results / (name + suffix))
+        assert (results / (name + '.txt')).read_text() == g.script()
+        if g.save.get('journal'):
+            src = run.journal_of(OLD / variant / 'results', g)
+            shutil.copy2(src, run.journal_of(results, g))
+        log = results / (name + '.log')
+        digest = hashlib.sha256(log.read_bytes()).hexdigest()
+        assert digest == old_rows[variant, name]['trace_sha256']
+        rc = int((results / (name + '.status')).read_text())
+        graded, refusals, misses = run.graded([g], [log], spec, results)
+        shares = run.share_misses(graded)
+        late = run.save_misses(graded) + run.burst_misses(graded) + run.notice_misses(graded, 1)
+        for result in graded:
+            joins = result['passes'].get('joins', {})
+            late += [f"{g.name}: join interval {row['ms']} ms outside protocol range" for row in joins.get('over', [])]
+            late += [run.run_out_miss(g.name, row) for row in joins.get('failing', [])]
+            late += [run.leave_all_miss(g.name, row) for row in joins.get('leave_all', {}).get('failing', [])]
+        forbidden = []
+        for result in graded:
+            for p in result['probes']:
+                if p.get('within_budget', True):
+                    continue
+                entry = {**p, 'group': g.name, 'exact': True}; ledger = egress_ledger.LEDGER['arty-1x1']
+                if not egress_ledger.is_row(entry, ledger) or egress_ledger.over(entry, ledger[p['probe']]):
+                    forbidden.append(p)
+        records.append(dict(variant=variant, group=name, native_status=rc, trace_sha256=digest, refusals=refusals,
+                            misses=misses, share=shares, late=late, forbidden=forbidden,
+                            stated=run.stated_misses(graded), reused_from_step1=True,
+                            worst_pass_cycles=max([x['passes']['worst']['cycles'] for x in graded] or [0])))
+        print('REGRADED', variant, name, rc, 'stated', len(records[-1]['stated']), flush=True)
+(NEW / 'completed.json').write_text(json.dumps(records, indent=2) + '\n')
+assert len(records) == 147
+manifest.update(status='NATIVE MEASUREMENTS COMPLETE; FINAL COST AND CLASS CHECKS REQUIRED', completed=len(records),
+                reused_from='step 1 traces; identity7.py IDENTICAL',
+                identity_sha256=hashlib.sha256((R / 'identity.log').read_bytes()).hexdigest())
+(NEW / 'manifest.json').write_text(json.dumps(manifest, indent=2) + '\n')
+print('REUSED AND REGRADED', len(records))
