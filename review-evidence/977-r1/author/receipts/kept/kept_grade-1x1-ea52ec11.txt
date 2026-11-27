@@ -1,0 +1,17 @@
+# python3 -I kept_grade.py <the arm A build at ea52ec11> --results <its regrade> (1x1)
+POINT endstation_ax7101_1x1_tdm8, 1 interface(s): shape (1, 2, 2)
+RECORD srp.kept_advertise.if0: the dearest 25,993 CPU cycles, 275 us by the rule, against its charge 50,500 (CTRL_LOOP_SRP_UNIT_US 285 us and its Talker values)
+RECORD srp.kept_recount.if0: the dearest 23,046 CPU cycles, 245 us by the rule, against its charge 50,500 (CTRL_LOOP_SRP_UNIT_US 285 us and its Talker values)
+RECORD srp.kept_failed.if0: the dearest 27,037 CPU cycles, 285 us by the rule, against its charge 50,500 (CTRL_LOOP_SRP_UNIT_US 285 us and its Talker values)
+RECORD srp.bound_advertise.if0: the dearest 31,025 CPU cycles, 330 us by the rule, against its charge 50,500 (CTRL_LOOP_SRP_UNIT_US 285 us and its Talker values)
+KEPT <= BOUND srp.kept_advertise.if0: 25,993 against 31,025 CPU cycles, -5,032 (-16.22 %), within the rule's +5 % (32,576), margin +6,583
+KEPT <= BOUND srp.kept_recount.if0: 23,046 against 31,025 CPU cycles, -7,979 (-25.72 %), within the rule's +5 % (32,576), margin +9,530
+KEPT <= BOUND srp.kept_failed.if0: 27,037 against 31,025 CPU cycles, -3,988 (-12.85 %), within the rule's +5 % (32,576), margin +5,539
+SHARE srp-kept: 0 work pass(es) and 0 idle run(s) over THE SHARE, of 1909 work pass(es) and 1862 idle run(s) in its log
+SHARE srp-bound: 0 work pass(es) and 0 idle run(s) over THE SHARE, of 1233 work pass(es) and 841 idle run(s) in its log
+BUILD srp-kept build: the heaviest pass 0 CPU cycles, against its stated 101,000 (CTRL_LOOP_BUILD_PASS_US)
+BUILD srp-kept build-one: the heaviest pass 20,576 CPU cycles, against its stated 73,500 (CTRL_LOOP_BUILD_ONE_PASS_US)
+BUILD srp-bound build: the heaviest pass 0 CPU cycles, against its stated 101,000 (CTRL_LOOP_BUILD_PASS_US)
+BUILD srp-bound build-one: the heaviest pass 36,950 CPU cycles, against its stated 73,500 (CTRL_LOOP_BUILD_ONE_PASS_US)
+kept_grade: PASS (0 finding(s), 0 owed: the registrations are charged since #977 (https://github.com/kebag-logic/milan-fpga/issues/977))
+rc=0
