@@ -10,10 +10,13 @@ saved-state store's tree), the journal the flash holds when it boots, and the
 stimulus it runs.
 
 The journals are built from the one the target wrote itself. The `commit`
-case boots blank flash with every record of the shape marked changed, renames
-the entity and binds sink 0 through AECP and ACMP, and lets the store commit:
-the capture it measures latches the whole container from its owners. Its
-journal is then the `valid` case's, and the reference codec
+case boots blank flash, renames the entity and binds sink 0 through AECP and
+ACMP, with every record of the shape marked changed at the first centisecond
+after the rename, and lets the store commit: the rename alone would wait its
+1,000 ms first-dirty window (DR2a), the binding records end it 100 ms after
+the marks (#1009), past the bind, and the one capture it measures latches the
+whole container from its owners. Its journal is then the `valid` case's, and
+the reference codec
 (scripts/nvm_klj3.py, the split placement's KLJ3 of #823) derives the `torn`
 journal (a newer container renaming the entity, its last page never
 programmed, beside the committed one) and the `version` one (the committed
@@ -46,14 +49,29 @@ SEQ = dict(set_name=0x5401, read_entity=0x5402, bind=0x5403, rx_state=0x5404)
 #: One page of the flash (nvm_shape.h NVM_FLASH_PAGE): a torn container's last page is never programmed.
 PAGE = 256
 
-#: Every record of the shape marked changed once the boot has released, so the store's first
-#: capture latches the whole container from its owners.
-CAPTURE_ALL = build.Variant('nvm-capture-all', ((
-    '    nvm_store_boot(&nvm_flash_litespi,&image_binding.port);\n',
-    '    nvm_store_boot(&nvm_flash_litespi,&image_binding.port);\n'
-    '    // Every record changed: the first capture latches the whole container (#665).\n'
-    '    for (struct nvm_rec r = nvm_rec_first(); r.ok; r = nvm_rec_next(r))\n'
-    '        nvm_store_changed(r.group, r.index);\n'),))
+#: Every record of the shape marked changed at the first centisecond after a change of its own, the
+#: rename's, so the store's first capture latches the whole container from its owners. The binding
+#: records among them end the first-dirty window 100 ms after the marks (#1009), so a mark at the boot
+#: would be saved before the case's changes; the rename marks its name first, whose own window is
+#: 1,000 ms (DR2a).
+CAPTURE_ALL = build.Variant('nvm-capture-all', (
+    ('int main(void)\n{\n',
+     '// Every record changed, at the first centisecond after a change: the first capture latches the\n'
+     '// whole container (#665).\n'
+     'static void capture_all_tick(void)\n{\n'
+     '    static bool marked;\n'
+     '    if (!marked && nvm_store_status()->dirty) {\n'
+     '        marked = true;\n'
+     '        for (struct nvm_rec r = nvm_rec_first(); r.ok; r = nvm_rec_next(r))\n'
+     '            nvm_store_changed(r.group, r.index);\n'
+     '    }\n'
+     '    nvm_store_tick();\n'
+     '}\n\n'
+     'int main(void)\n{\n'),
+    ('ctrl_loop_add_tick(&image_app.loop,nvm_store_tick)', 'ctrl_loop_add_tick(&image_app.loop,capture_all_tick)')))
+#: The commit's two windows (DR2a, #1009), in ms: its changes mark a binding record, so its erase follows
+#: them by the binding class's window and the capture and the seal, and not by the other records'.
+BIND_WINDOW_MS, OTHER_WINDOW_MS = 100, 1000
 #: After the boot, the port is asked to program and erase outside the journal and to erase one
 #: block inside it; unless it refuses every outside call and takes the inside one, main returns
 #: and the hart parks before the mailbox opens (#665, the flash region guard).
@@ -148,13 +166,14 @@ def build_key(case: Case) -> str:
 
 
 def commit_ms(point: scenario.Point, records: int, pages: int) -> int:
-    """The simulated time a capture of every record and its commit take after the boot, with room.
+    """The simulated time a capture of every record and its commit take after the bind, with room.
 
-    The store waits 1,000 ms after the first change (DR2a), then takes one step a 10 ms tick: a
-    capture step per record and one to seal, a CRC step per page, the erase and its poll, a blank
-    check, a program and its poll per page and a verify per page."""
+    The capture starts 100 ms after the binding records' marks (#1009; DR2a's 1,000 ms for a change of
+    no binding record bounds it too), then the store takes at least one step a 10 ms tick: a capture
+    step per record and one to seal, a CRC step per page, the erase and its poll, a blank check, a
+    program and its poll per page and a verify per page."""
     steps = records + 1 + pages + 2 + pages + 2 * pages + pages
-    return 1000 + 10 * steps + 500 + 100 * point.interfaces
+    return OTHER_WINDOW_MS + 10 * steps + 500 + 100 * point.interfaces
 
 
 def ready(steps: list[str], point: scenario.Point) -> None:

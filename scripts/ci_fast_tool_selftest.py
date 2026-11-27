@@ -22,6 +22,7 @@ import ci_install_workflows
 import ci_runtime_workflows
 from ci_gate_workflows import ROOT, generate, gate_graph, load_template
 from ci_gate_workflows import FAST_AGGREGATE, FAST_TOOL_CONSUMER, FAST_TOOL_JOB, FAST_TOOL_RECIPE, YOSYS_BUILD_STEPS
+from ci_gate_workflows import FAST_TOOL_SHARED
 
 
 #: The owner's hosted budget for every job (#789), held here rather than read
@@ -325,7 +326,8 @@ def fast_tool_emission(template: dict, generated: dict) -> list[str]:
     staged = ci_runtime_workflows.generate("rtl-fast", ci_install_workflows.generate(gate_graph("rtl-fast", template)))
     emitted = copy.deepcopy(generated)
     findings, recipes = [], set()
-    for job_id, name in ((FAST_TOOL_JOB, YOSYS_BUILD_STEPS[0]), (FAST_TOOL_CONSUMER, TOOL_RESTORE)):
+    for job_id, name in ((FAST_TOOL_JOB, YOSYS_BUILD_STEPS[0]), (FAST_TOOL_CONSUMER, TOOL_RESTORE),
+                         *((shared, TOOL_RESTORE) for shared in FAST_TOOL_SHARED)):
         expected = named_step(staged["jobs"].get(job_id, {"steps": []}), name)
         step = named_step(emitted["jobs"].get(job_id, {"steps": []}), name)
         if expected is None or step is None:
@@ -434,6 +436,19 @@ def fast_tool_emission_planted(template: dict, generated: dict) -> None:
     print("Fast Yosys tool emission refused a key binding that drops a self-test: " + found[0])
 
 
+def shared_recipe_edit(template: dict, step_name: str, old: str, new: str) -> dict:
+    """The rtl-fast template with one yosys-elaboration step's text replaced, in the census too when the step is
+    of the Yosys recipe the census legs share (#1008)."""
+    changed = copy.deepcopy(template)
+    step = named_step(changed["jobs"][FAST_TOOL_CONSUMER], step_name)
+    assert step["run"].count(old) == 1, (step_name, old)
+    twins = [named_step(changed["jobs"]["publication-census"], step_name)] if step_name in YOSYS_BUILD_STEPS else []
+    assert all(twin == step for twin in twins), step_name
+    for each in (step, *twins):
+        each["run"] = each["run"].replace(old, new)
+    return changed
+
+
 def fast_tool_key_inputs(template: dict, generated: dict) -> None:
     """The key follows every input the emitted tool job feeds its build: the template build step, the
     workflow's and the job's environment, what the transforms after the derivation add to or rewrite in the
@@ -442,12 +457,8 @@ def fast_tool_key_inputs(template: dict, generated: dict) -> None:
     key = tool_cache(generated["jobs"])["key"]
 
     def template_with(step_name: str, old: str, new: str) -> dict:
-        """The rtl-fast template with one yosys-elaboration step's text replaced."""
-        changed = copy.deepcopy(template)
-        step = named_step(changed["jobs"][FAST_TOOL_CONSUMER], step_name)
-        assert step["run"].count(old) == 1, (step_name, old)
-        step["run"] = step["run"].replace(old, new)
-        return changed
+        """The rtl-fast template with one yosys-elaboration step's text replaced (shared_recipe_edit)."""
+        return shared_recipe_edit(template, step_name, old, new)
 
     def tool_key(changed: dict) -> str:
         """The tool key generated from one template."""
@@ -486,7 +497,8 @@ def fast_tool_key_inputs(template: dict, generated: dict) -> None:
     scripted =template_with(YOSYS_BUILD_STEPS[1], "make -C /tmp/yosys-src config-gcc",
                              "python3 scripts/ci_scope.py --selftest\nmake -C /tmp/yosys-src config-gcc")
     moved = copy.deepcopy(template)
-    moved["jobs"][FAST_TOOL_CONSUMER]["runs-on"] = "ubuntu-22.04"
+    for job_id in (FAST_TOOL_CONSUMER, "publication-census"):     # the census legs restore on the same image
+        moved["jobs"][job_id]["runs-on"] = "ubuntu-22.04"
     missed = []
     for label, changed in (
             ("the template build step", tool_key(template_with(YOSYS_BUILD_STEPS[1], "ENABLE_PLUGINS := 0",
@@ -567,6 +579,11 @@ def fast_tool_template_refusals(template: dict) -> None:
             ("consumer in a container the tool job would not carry", lambda changed: changed["jobs"][
                 FAST_TOOL_CONSUMER].update({"container": {"image": "ubuntu:24.04"}}),
              "job keys the tool job does not carry into the build: container"),
+            ("census recipe that is not the consumer's", lambda changed: named_step(
+                changed["jobs"]["publication-census"], YOSYS_BUILD_STEPS[1]).update(
+                    run=named_step(changed["jobs"]["publication-census"], YOSYS_BUILD_STEPS[1])["run"].replace(
+                        "ENABLE_PLUGINS := 0", "ENABLE_PLUGINS := 1")),
+             "publication-census-legs: its Yosys recipe is not yosys-elaboration's"),
             ("verdict without the elaboration pair", lambda changed: verdict_step(changed["jobs"]).update(
                 run=verdict_step(changed["jobs"])["run"].replace(
                     '"yosys-elaboration:$YOSYS_ELABORATION_RESULT" \\\n', "")),
@@ -582,6 +599,29 @@ def fast_tool_template_refusals(template: dict) -> None:
             raise AssertionError("fast Yosys tool generator accepted a template " + label)
 
 
+def shared_tool_findings(scheduled: dict, derived: dict) -> list[str]:
+    """Each FAST_TOOL_SHARED job after the derivation: its build pair replaced by yosys-elaboration's own exact
+    restore, the tool job added to its needs, and every other key and step as scheduled (#1008)."""
+    findings = []
+    restore = named_step(derived[FAST_TOOL_CONSUMER], TOOL_RESTORE)
+    for job_id in FAST_TOOL_SHARED:
+        before, after = scheduled[job_id], derived[job_id]
+        names = [step.get("name") for step in before["steps"]]
+        at = names.index(YOSYS_BUILD_STEPS[0])
+        if names[at + 1] != YOSYS_BUILD_STEPS[1]:
+            findings.append(job_id + " does not carry the template build pair")
+            continue
+        if after["steps"] != [*before["steps"][:at], restore, *before["steps"][at + 2:]]:
+            findings.append(job_id + " does not restore exactly the tool tree in its build's place")
+        needs = before["needs"]
+        if after["needs"] != [*([needs] if isinstance(needs, str) else needs), FAST_TOOL_JOB]:
+            findings.append(job_id + " does not need the tool job")
+        if {k: v for k, v in after.items() if k not in ("steps", "needs")} != {
+                k: v for k, v in before.items() if k not in ("steps", "needs")}:
+            findings.append(job_id + "'s other job keys changed")
+    return findings
+
+
 def fast_tool_controls() -> None:
     """rtl-fast's Yosys: built once under a workflow-free key, restored exactly, and judged by the verdict (#789)."""
     template = load_template(ROOT, "rtl-fast")
@@ -592,12 +632,18 @@ def fast_tool_controls() -> None:
     assert found == [], found
     print("Fast Yosys tool: yosys-elaboration keeps every other template step in order, the tool job runs"
           " the checkout and the two moved steps, and the emitted workflow changes only their two keys")
-    order = list(template["jobs"])
+    from ci_fast_legs import generate as fast_legs
+    scheduling = fast_legs(copy.deepcopy(template))
+    order = list(scheduling["jobs"])
     at = order.index(FAST_TOOL_CONSUMER)
     assert list(derived) == [*order[:at], FAST_TOOL_JOB, *order[at:]], "tool job not just before its consumer"
     for job_id in order:
-        if job_id not in (FAST_TOOL_CONSUMER, FAST_AGGREGATE):
-            assert derived[job_id] == template["jobs"][job_id], "the derivation changed " + job_id
+        if job_id not in (FAST_TOOL_CONSUMER, FAST_AGGREGATE, *FAST_TOOL_SHARED):
+            assert derived[job_id] == scheduling["jobs"][job_id], "the derivation changed " + job_id
+    found = shared_tool_findings(scheduling["jobs"], derived)
+    assert found == [], found
+    print("Fast Yosys tool: each census leg restores the tool tree in its build's place, needs the tool job,"
+          " and keeps every other step")
     docs_only = {job_id: "skipped" for job_id in order if job_id not in ("changes", FAST_AGGREGATE)}
     assert verdict_exit(generated["jobs"][FAST_AGGREGATE], {**docs_only, FAST_TOOL_JOB: "skipped"}) == 0, \
         "rtl-fast verdict refuses a docs-only run"

@@ -168,6 +168,8 @@ OUTSIDE = {
                                   "a harness elaborates; it compiles nothing",
     "docs/diagrams/submodule_boundaries.gen.py": "draws the submodule diagram; it compiles nothing",
     "scripts/ci_events.py": "models the CI workflows; it compiles nothing",
+    "scripts/ci_fast_legs_selftest.py": "proves the fast workflow's campaign and census legs (#1008) against the "
+                                        "driver's dispatch with every campaign stood in for; it compiles nothing",
     "scripts/ci_scope.py": "selects the CI scope from the paths a change touches; it compiles nothing",
     "sw/firmware/ctrl/adp/adp_entity.py": "writes the ADP shape header; it compiles nothing",
     "sw/firmware/ctrl/test/ctrl_mutant.py": "the campaign tables' record of one defect; it compiles nothing",

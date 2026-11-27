@@ -140,4 +140,5 @@ def burst_checks(m: ModuleType) -> list[Check]:
     words = save_burst.misses(g, 'synthetic-flight')
     out.append(('flight: a next save that waited a step past its capture and seal fails',
                 len(words) == 1 and 'did not start at the first idle step' in words[0], str(words)))
-    return out
+    import selftest_bind  # it builds on this module's containers; the binding class's checks run with these (#1009)
+    return out + selftest_bind.bind_checks(m)
