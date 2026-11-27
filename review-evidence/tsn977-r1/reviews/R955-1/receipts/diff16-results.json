@@ -1,0 +1,92 @@
+[
+ {
+  "name": "head",
+  "rc": 0,
+  "result": "AGREE",
+  "first": [],
+  "summary": [
+   "[  PASSED  ] 5 tests.",
+   "[  SKIPPED ] 2 tests."
+  ]
+ },
+ {
+  "name": "r-rec-drop-unique",
+  "rc": 1,
+  "result": "DIVERGE",
+  "first": [
+   "<packet>/scratch/diff/diff_old_new.cpp:374: Failure",
+   "the changed-sink walk makes the full walk's calls, in order, at step 9 of 1 sinks",
+   "<packet>/scratch/diff/diff_old_new.cpp:374: Failure",
+   "the changed-sink walk makes the full walk's calls, in order, at step 9 of 2 sinks"
+  ],
+  "summary": [
+   "[  FAILED  ] AcmpWalk.BaseAndHeadAgreeAt1Sinks (0 ms)",
+   "[  FAILED  ] AcmpWalk.BaseAndHeadAgreeAt2Sinks (0 ms)",
+   "[  FAILED  ] AcmpWalk.BaseAndHeadAgreeAt8Sinks (0 ms)",
+   "[  FAILED  ] AcmpWalk.BaseAndHeadAgreeAt9Sinks (0 ms)",
+   "[  FAILED  ] AcmpWalk.BaseAndHeadAgreeAt16Sinks (40 ms)",
+   "[  PASSED  ] 0 tests.",
+   "[  SKIPPED ] 2 tests."
+  ]
+ },
+ {
+  "name": "r-rec-drop-controller",
+  "rc": 1,
+  "result": "DIVERGE",
+  "first": [
+   "<packet>/scratch/diff/diff_old_new.cpp:374: Failure",
+   "the changed-sink walk makes the full walk's calls, in order, at step 50 of 1 sinks",
+   "<packet>/scratch/diff/diff_old_new.cpp:374: Failure",
+   "the changed-sink walk makes the full walk's calls, in order, at step 5828 of 2 sinks"
+  ],
+  "summary": [
+   "[  FAILED  ] AcmpWalk.BaseAndHeadAgreeAt1Sinks (1 ms)",
+   "[  FAILED  ] AcmpWalk.BaseAndHeadAgreeAt2Sinks (6 ms)",
+   "[  FAILED  ] AcmpWalk.BaseAndHeadAgreeAt8Sinks (0 ms)",
+   "[  FAILED  ] AcmpWalk.BaseAndHeadAgreeAt9Sinks (4 ms)",
+   "[  FAILED  ] AcmpWalk.BaseAndHeadAgreeAt16Sinks (0 ms)",
+   "[  PASSED  ] 0 tests.",
+   "[  SKIPPED ] 2 tests."
+  ]
+ },
+ {
+  "name": "r-rec-drop-talker",
+  "rc": 1,
+  "result": "DIVERGE",
+  "first": [
+   "<packet>/scratch/diff/diff_old_new.cpp:374: Failure",
+   "the changed-sink walk makes the full walk's calls, in order, at step 12 of 1 sinks",
+   "<packet>/scratch/diff/diff_old_new.cpp:374: Failure",
+   "the changed-sink walk makes the full walk's calls, in order, at step 88 of 2 sinks"
+  ],
+  "summary": [
+   "[  FAILED  ] AcmpWalk.BaseAndHeadAgreeAt1Sinks (0 ms)",
+   "[  FAILED  ] AcmpWalk.BaseAndHeadAgreeAt2Sinks (0 ms)",
+   "[  FAILED  ] AcmpWalk.BaseAndHeadAgreeAt8Sinks (0 ms)",
+   "[  FAILED  ] AcmpWalk.BaseAndHeadAgreeAt9Sinks (0 ms)",
+   "[  FAILED  ] AcmpWalk.BaseAndHeadAgreeAt16Sinks (0 ms)",
+   "[  PASSED  ] 0 tests.",
+   "[  SKIPPED ] 2 tests."
+  ]
+ },
+ {
+  "name": "r-viewof-drop-binding-streaming_wait",
+  "rc": 1,
+  "result": "DIVERGE",
+  "first": [
+   "<packet>/scratch/diff/diff_old_new.cpp:390: Failure",
+   "reported view, sink 0 step 4",
+   "<packet>/scratch/diff/diff_old_new.cpp:390: Failure",
+   "reported view, sink 0 step 4"
+  ],
+  "summary": [
+   "[  FAILED  ] AcmpWalk.BaseAndHeadAgreeAt1Sinks (0 ms)",
+   "[  FAILED  ] AcmpWalk.BaseAndHeadAgreeAt2Sinks (0 ms)",
+   "[  FAILED  ] AcmpWalk.BaseAndHeadAgreeAt8Sinks (0 ms)",
+   "[  FAILED  ] AcmpWalk.BaseAndHeadAgreeAt9Sinks (0 ms)",
+   "[  FAILED  ] AcmpWalk.BaseAndHeadAgreeAt16Sinks (0 ms)",
+   "[  PASSED  ] 0 tests.",
+   "[  SKIPPED ] 2 tests."
+  ]
+ }
+]

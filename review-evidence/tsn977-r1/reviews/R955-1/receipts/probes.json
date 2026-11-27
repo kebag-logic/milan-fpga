@@ -1,0 +1,347 @@
+[
+ {
+  "name": "r-publish-word-zero",
+  "old": "\tfor (unsigned k = 0; k < a->cfg.n_sinks; ++k, bits >>= 1) {\n\t\tif (k % 32u == 0u) {\n\t\t\tbits = a->dirty[k / 32u];\n\t\t}\n\t\tif ((bits & 1u) == 0u) {\n\t\t\tcontinue;\n\t\t}\n\t\tstruct acmp_sink *s = &a->sinks[k];\n\t\tbool settled = s->state",
+  "new": "\tfor (unsigned k = 0; k < a->cfg.n_sinks; ++k, bits >>= 1) {\n\t\tif (k % 32u == 0u) {\n\t\t\tbits = a->dirty[0];\n\t\t}\n\t\tif ((bits & 1u) == 0u) {\n\t\t\tcontinue;\n\t\t}\n\t\tstruct acmp_sink *s = &a->sinks[k];\n\t\tbool settled = s->state"
+ },
+ {
+  "name": "r-publish-no-shift",
+  "old": "\tfor (unsigned k = 0; k < a->cfg.n_sinks; ++k, bits >>= 1) {\n\t\tif (k % 32u == 0u) {\n\t\t\tbits = a->dirty[k / 32u];\n\t\t}\n\t\tif ((bits & 1u) == 0u) {\n\t\t\tcontinue;\n\t\t}\n\t\tstruct acmp_sink *s = &a->sinks[k];\n\t\tbool settled = s->state",
+  "new": "\tfor (unsigned k = 0; k < a->cfg.n_sinks; ++k) {\n\t\tif (k % 32u == 0u) {\n\t\t\tbits = a->dirty[k / 32u];\n\t\t}\n\t\tif ((bits & 1u) == 0u) {\n\t\t\tcontinue;\n\t\t}\n\t\tstruct acmp_sink *s = &a->sinks[k];\n\t\tbool settled = s->state"
+ },
+ {
+  "name": "r-publish-no-reload",
+  "old": "\tfor (unsigned k = 0; k < a->cfg.n_sinks; ++k, bits >>= 1) {\n\t\tif (k % 32u == 0u) {\n\t\t\tbits = a->dirty[k / 32u];\n\t\t}\n\t\tif ((bits & 1u) == 0u) {\n\t\t\tcontinue;\n\t\t}\n\t\tstruct acmp_sink *s = &a->sinks[k];\n\t\tbool settled = s->state",
+  "new": "\tfor (unsigned k = 0; k < a->cfg.n_sinks; ++k, bits >>= 1) {\n\t\tif (k == 0u) {\n\t\t\tbits = a->dirty[k / 32u];\n\t\t}\n\t\tif ((bits & 1u) == 0u) {\n\t\t\tcontinue;\n\t\t}\n\t\tstruct acmp_sink *s = &a->sinks[k];\n\t\tbool settled = s->state"
+ },
+ {
+  "name": "r-publish-every-sink",
+  "old": "\tfor (unsigned k = 0; k < a->cfg.n_sinks; ++k, bits >>= 1) {\n\t\tif (k % 32u == 0u) {\n\t\t\tbits = a->dirty[k / 32u];\n\t\t}\n\t\tif ((bits & 1u) == 0u) {\n\t\t\tcontinue;\n\t\t}\n\t\tstruct acmp_sink *s = &a->sinks[k];\n\t\tbool settled = s->state",
+  "new": "\tfor (unsigned k = 0; k < a->cfg.n_sinks; ++k, bits >>= 1) {\n\t\tif (k % 32u == 0u) {\n\t\t\tbits = a->dirty[k / 32u];\n\t\t}\n\t\tif (false && (bits & 1u) == 0u) {\n\t\t\tcontinue;\n\t\t}\n\t\tstruct acmp_sink *s = &a->sinks[k];\n\t\tbool settled = s->state"
+ },
+ {
+  "name": "r-publish-stop-at-empty-word",
+  "old": "\tfor (unsigned k = 0; k < a->cfg.n_sinks; ++k, bits >>= 1) {\n\t\tif (k % 32u == 0u) {\n\t\t\tbits = a->dirty[k / 32u];\n\t\t}\n\t\tif ((bits & 1u) == 0u) {\n\t\t\tcontinue;\n\t\t}\n\t\tstruct acmp_sink *s = &a->sinks[k];\n\t\tbool settled = s->state",
+  "new": "\tfor (unsigned k = 0; k < a->cfg.n_sinks; ++k, bits >>= 1) {\n\t\tif (k % 32u == 0u) {\n\t\t\tbits = a->dirty[k / 32u];\n\t\t}\n\t\tif (bits == 0u) {\n\t\t\tbreak;\n\t\t}\n\t\tif ((bits & 1u) == 0u) {\n\t\t\tcontinue;\n\t\t}\n\t\tstruct acmp_sink *s = &a->sinks[k];\n\t\tbool settled = s->state"
+ },
+ {
+  "name": "r-admit-word-zero",
+  "old": "\tfor (unsigned k = 0; k < a->cfg.n_sinks; ++k, bits >>= 1) {\n\t\tif (k % 32u == 0u) {\n\t\t\tbits = a->dirty[k / 32u];\n\t\t}\n\t\tif ((bits & 1u) == 0u) {\n\t\t\tcontinue;\n\t\t}\n\t\tstruct acmp_sink *s = &a->sinks[k];\n\t\tuint64_t talker = s->binding.talker_entity_id;",
+  "new": "\tfor (unsigned k = 0; k < a->cfg.n_sinks; ++k, bits >>= 1) {\n\t\tif (k % 32u == 0u) {\n\t\t\tbits = a->dirty[0];\n\t\t}\n\t\tif ((bits & 1u) == 0u) {\n\t\t\tcontinue;\n\t\t}\n\t\tstruct acmp_sink *s = &a->sinks[k];\n\t\tuint64_t talker = s->binding.talker_entity_id;"
+ },
+ {
+  "name": "r-admit-no-shift",
+  "old": "\tfor (unsigned k = 0; k < a->cfg.n_sinks; ++k, bits >>= 1) {\n\t\tif (k % 32u == 0u) {\n\t\t\tbits = a->dirty[k / 32u];\n\t\t}\n\t\tif ((bits & 1u) == 0u) {\n\t\t\tcontinue;\n\t\t}\n\t\tstruct acmp_sink *s = &a->sinks[k];\n\t\tuint64_t talker = s->binding.talker_entity_id;",
+  "new": "\tfor (unsigned k = 0; k < a->cfg.n_sinks; ++k) {\n\t\tif (k % 32u == 0u) {\n\t\t\tbits = a->dirty[k / 32u];\n\t\t}\n\t\tif ((bits & 1u) == 0u) {\n\t\t\tcontinue;\n\t\t}\n\t\tstruct acmp_sink *s = &a->sinks[k];\n\t\tuint64_t talker = s->binding.talker_entity_id;"
+ },
+ {
+  "name": "r-admit-no-reload",
+  "old": "\tfor (unsigned k = 0; k < a->cfg.n_sinks; ++k, bits >>= 1) {\n\t\tif (k % 32u == 0u) {\n\t\t\tbits = a->dirty[k / 32u];\n\t\t}\n\t\tif ((bits & 1u) == 0u) {\n\t\t\tcontinue;\n\t\t}\n\t\tstruct acmp_sink *s = &a->sinks[k];\n\t\tuint64_t talker = s->binding.talker_entity_id;",
+  "new": "\tfor (unsigned k = 0; k < a->cfg.n_sinks; ++k, bits >>= 1) {\n\t\tif (k == 0u) {\n\t\t\tbits = a->dirty[k / 32u];\n\t\t}\n\t\tif ((bits & 1u) == 0u) {\n\t\t\tcontinue;\n\t\t}\n\t\tstruct acmp_sink *s = &a->sinks[k];\n\t\tuint64_t talker = s->binding.talker_entity_id;"
+ },
+ {
+  "name": "r-admit-every-sink",
+  "old": "\tfor (unsigned k = 0; k < a->cfg.n_sinks; ++k, bits >>= 1) {\n\t\tif (k % 32u == 0u) {\n\t\t\tbits = a->dirty[k / 32u];\n\t\t}\n\t\tif ((bits & 1u) == 0u) {\n\t\t\tcontinue;\n\t\t}\n\t\tstruct acmp_sink *s = &a->sinks[k];\n\t\tuint64_t talker = s->binding.talker_entity_id;",
+  "new": "\tfor (unsigned k = 0; k < a->cfg.n_sinks; ++k, bits >>= 1) {\n\t\tif (k % 32u == 0u) {\n\t\t\tbits = a->dirty[k / 32u];\n\t\t}\n\t\tif (false && (bits & 1u) == 0u) {\n\t\t\tcontinue;\n\t\t}\n\t\tstruct acmp_sink *s = &a->sinks[k];\n\t\tuint64_t talker = s->binding.talker_entity_id;"
+ },
+ {
+  "name": "r-admit-stop-at-empty-word",
+  "old": "\tfor (unsigned k = 0; k < a->cfg.n_sinks; ++k, bits >>= 1) {\n\t\tif (k % 32u == 0u) {\n\t\t\tbits = a->dirty[k / 32u];\n\t\t}\n\t\tif ((bits & 1u) == 0u) {\n\t\t\tcontinue;\n\t\t}\n\t\tstruct acmp_sink *s = &a->sinks[k];\n\t\tuint64_t talker = s->binding.talker_entity_id;",
+  "new": "\tfor (unsigned k = 0; k < a->cfg.n_sinks; ++k, bits >>= 1) {\n\t\tif (k % 32u == 0u) {\n\t\t\tbits = a->dirty[k / 32u];\n\t\t}\n\t\tif (bits == 0u) {\n\t\t\tbreak;\n\t\t}\n\t\tif ((bits & 1u) == 0u) {\n\t\t\tcontinue;\n\t\t}\n\t\tstruct acmp_sink *s = &a->sinks[k];\n\t\tuint64_t talker = s->binding.talker_entity_id;"
+ },
+ {
+  "name": "r-finish-word-zero",
+  "old": "\tfor (unsigned k = 0; k < a->cfg.n_sinks; ++k, bits >>= 1) {\n\t\tif (k % 32u == 0u) {\n\t\t\tbits = a->dirty[k / 32u];\n\t\t}\n\t\tif ((bits & 1u) == 0u) {\n\t\t\tcontinue;\n\t\t}\n\t\tstruct acmp_sink *s = &a->sinks[k];\n\t\tif (record_moved(s)) {",
+  "new": "\tfor (unsigned k = 0; k < a->cfg.n_sinks; ++k, bits >>= 1) {\n\t\tif (k % 32u == 0u) {\n\t\t\tbits = a->dirty[0];\n\t\t}\n\t\tif ((bits & 1u) == 0u) {\n\t\t\tcontinue;\n\t\t}\n\t\tstruct acmp_sink *s = &a->sinks[k];\n\t\tif (record_moved(s)) {"
+ },
+ {
+  "name": "r-finish-no-shift",
+  "old": "\tfor (unsigned k = 0; k < a->cfg.n_sinks; ++k, bits >>= 1) {\n\t\tif (k % 32u == 0u) {\n\t\t\tbits = a->dirty[k / 32u];\n\t\t}\n\t\tif ((bits & 1u) == 0u) {\n\t\t\tcontinue;\n\t\t}\n\t\tstruct acmp_sink *s = &a->sinks[k];\n\t\tif (record_moved(s)) {",
+  "new": "\tfor (unsigned k = 0; k < a->cfg.n_sinks; ++k) {\n\t\tif (k % 32u == 0u) {\n\t\t\tbits = a->dirty[k / 32u];\n\t\t}\n\t\tif ((bits & 1u) == 0u) {\n\t\t\tcontinue;\n\t\t}\n\t\tstruct acmp_sink *s = &a->sinks[k];\n\t\tif (record_moved(s)) {"
+ },
+ {
+  "name": "r-finish-no-reload",
+  "old": "\tfor (unsigned k = 0; k < a->cfg.n_sinks; ++k, bits >>= 1) {\n\t\tif (k % 32u == 0u) {\n\t\t\tbits = a->dirty[k / 32u];\n\t\t}\n\t\tif ((bits & 1u) == 0u) {\n\t\t\tcontinue;\n\t\t}\n\t\tstruct acmp_sink *s = &a->sinks[k];\n\t\tif (record_moved(s)) {",
+  "new": "\tfor (unsigned k = 0; k < a->cfg.n_sinks; ++k, bits >>= 1) {\n\t\tif (k == 0u) {\n\t\t\tbits = a->dirty[k / 32u];\n\t\t}\n\t\tif ((bits & 1u) == 0u) {\n\t\t\tcontinue;\n\t\t}\n\t\tstruct acmp_sink *s = &a->sinks[k];\n\t\tif (record_moved(s)) {"
+ },
+ {
+  "name": "r-finish-every-sink",
+  "old": "\tfor (unsigned k = 0; k < a->cfg.n_sinks; ++k, bits >>= 1) {\n\t\tif (k % 32u == 0u) {\n\t\t\tbits = a->dirty[k / 32u];\n\t\t}\n\t\tif ((bits & 1u) == 0u) {\n\t\t\tcontinue;\n\t\t}\n\t\tstruct acmp_sink *s = &a->sinks[k];\n\t\tif (record_moved(s)) {",
+  "new": "\tfor (unsigned k = 0; k < a->cfg.n_sinks; ++k, bits >>= 1) {\n\t\tif (k % 32u == 0u) {\n\t\t\tbits = a->dirty[k / 32u];\n\t\t}\n\t\tif (false && (bits & 1u) == 0u) {\n\t\t\tcontinue;\n\t\t}\n\t\tstruct acmp_sink *s = &a->sinks[k];\n\t\tif (record_moved(s)) {"
+ },
+ {
+  "name": "r-finish-stop-at-empty-word",
+  "old": "\tfor (unsigned k = 0; k < a->cfg.n_sinks; ++k, bits >>= 1) {\n\t\tif (k % 32u == 0u) {\n\t\t\tbits = a->dirty[k / 32u];\n\t\t}\n\t\tif ((bits & 1u) == 0u) {\n\t\t\tcontinue;\n\t\t}\n\t\tstruct acmp_sink *s = &a->sinks[k];\n\t\tif (record_moved(s)) {",
+  "new": "\tfor (unsigned k = 0; k < a->cfg.n_sinks; ++k, bits >>= 1) {\n\t\tif (k % 32u == 0u) {\n\t\t\tbits = a->dirty[k / 32u];\n\t\t}\n\t\tif (bits == 0u) {\n\t\t\tbreak;\n\t\t}\n\t\tif ((bits & 1u) == 0u) {\n\t\t\tcontinue;\n\t\t}\n\t\tstruct acmp_sink *s = &a->sinks[k];\n\t\tif (record_moved(s)) {"
+ },
+ {
+  "name": "r-rec-drop-p0",
+  "old": "(uint32_t)(p[0] ^ flags) | p[1] | (uint32_t)(p[2] ^ (unique >> 8)) |",
+  "new": "p[1] | (uint32_t)(p[2] ^ (unique >> 8)) |"
+ },
+ {
+  "name": "r-rec-drop-p1",
+  "old": "(uint32_t)(p[0] ^ flags) | p[1] | (uint32_t)(p[2] ^ (unique >> 8)) |",
+  "new": "(uint32_t)(p[0] ^ flags) | (uint32_t)(p[2] ^ (unique >> 8)) |"
+ },
+ {
+  "name": "r-rec-drop-p2",
+  "old": "(uint32_t)(p[0] ^ flags) | p[1] | (uint32_t)(p[2] ^ (unique >> 8)) |",
+  "new": "(uint32_t)(p[0] ^ flags) | p[1] |"
+ },
+ {
+  "name": "r-rec-drop-p3",
+  "old": "\t\t\t(uint32_t)(p[3] ^ (unique & 0xFFu)) |\n",
+  "new": ""
+ },
+ {
+  "name": "r-rec-drop-p4",
+  "old": "(p[4] ^ (th >> 24))",
+  "new": "0u"
+ },
+ {
+  "name": "r-rec-drop-p5",
+  "old": "(p[5] ^ ((th >> 16) & 0xFFu))",
+  "new": "0u"
+ },
+ {
+  "name": "r-rec-drop-p6",
+  "old": "(p[6] ^ ((th >> 8) & 0xFFu))",
+  "new": "0u"
+ },
+ {
+  "name": "r-rec-drop-p7",
+  "old": "(p[7] ^ (th & 0xFFu))",
+  "new": "0u"
+ },
+ {
+  "name": "r-rec-drop-p8",
+  "old": "(p[8] ^ (tl >> 24))",
+  "new": "0u"
+ },
+ {
+  "name": "r-rec-drop-p9",
+  "old": "(p[9] ^ ((tl >> 16) & 0xFFu))",
+  "new": "0u"
+ },
+ {
+  "name": "r-rec-drop-p10",
+  "old": "(p[10] ^ ((tl >> 8) & 0xFFu))",
+  "new": "0u"
+ },
+ {
+  "name": "r-rec-drop-p11",
+  "old": "(p[11] ^ (tl & 0xFFu))",
+  "new": "0u"
+ },
+ {
+  "name": "r-rec-drop-p12",
+  "old": "(p[12] ^ (ch >> 24))",
+  "new": "0u"
+ },
+ {
+  "name": "r-rec-drop-p13",
+  "old": "(p[13] ^ ((ch >> 16) & 0xFFu))",
+  "new": "0u"
+ },
+ {
+  "name": "r-rec-drop-p14",
+  "old": "(p[14] ^ ((ch >> 8) & 0xFFu))",
+  "new": "0u"
+ },
+ {
+  "name": "r-rec-drop-p15",
+  "old": "(p[15] ^ (ch & 0xFFu))",
+  "new": "0u"
+ },
+ {
+  "name": "r-rec-drop-p16",
+  "old": "(p[16] ^ (cl >> 24))",
+  "new": "0u"
+ },
+ {
+  "name": "r-rec-drop-p17",
+  "old": "(p[17] ^ ((cl >> 16) & 0xFFu))",
+  "new": "0u"
+ },
+ {
+  "name": "r-rec-drop-p18",
+  "old": "(p[18] ^ ((cl >> 8) & 0xFFu))",
+  "new": "0u"
+ },
+ {
+  "name": "r-rec-drop-p19",
+  "old": "(p[19] ^ (cl & 0xFFu))",
+  "new": "0u"
+ },
+ {
+  "name": "r-rec-unique-ungated",
+  "old": "uint16_t unique = b ? s->binding.talker_unique_id : 0u;",
+  "new": "uint16_t unique = s->binding.talker_unique_id;"
+ },
+ {
+  "name": "r-rec-talker-ungated",
+  "old": "uint64_t talker = b ? s->binding.talker_entity_id : 0u;",
+  "new": "uint64_t talker = s->binding.talker_entity_id;"
+ },
+ {
+  "name": "r-rec-controller-ungated",
+  "old": "uint64_t controller = b ? s->binding.controller_entity_id : 0u;",
+  "new": "uint64_t controller = s->binding.controller_entity_id;"
+ },
+ {
+  "name": "r-rec-no-started-flag",
+  "old": "uint8_t flags = (uint8_t)(b ? (BIND_VALID | (s->started ? BIND_STARTED : 0u) |",
+  "new": "uint8_t flags = (uint8_t)(b ? (BIND_VALID | 0u |"
+ },
+ {
+  "name": "r-rec-no-wait-flag",
+  "old": "\t\t\t       (s->binding.streaming_wait ? BIND_STREAMING_WAIT : 0u)) : 0u);\n\tuint16_t unique",
+  "new": "\t\t\t       0u) : 0u);\n\tuint16_t unique"
+ },
+ {
+  "name": "r-rec-no-valid-flag",
+  "old": "uint8_t flags = (uint8_t)(b ? (BIND_VALID | (s->started",
+  "new": "uint8_t flags = (uint8_t)(b ? (0u | (s->started"
+ },
+ {
+  "name": "r-rec-th-low",
+  "old": "uint32_t th = (uint32_t)(talker >> 32);",
+  "new": "uint32_t th = (uint32_t)(talker);"
+ },
+ {
+  "name": "r-rec-ch-low",
+  "old": "uint32_t ch = (uint32_t)(controller >> 32);",
+  "new": "uint32_t ch = (uint32_t)(controller);"
+ },
+ {
+  "name": "r-rec-always-moved",
+  "old": "\t\t(p[16] ^ (cl >> 24)) | (p[17] ^ ((cl >> 16) & 0xFFu)) | (p[18] ^ ((cl >> 8) & 0xFFu)) | (p[19] ^ (cl & 0xFFu));\n\treturn diff != 0u;",
+  "new": "\t\t(p[16] ^ (cl >> 24)) | (p[17] ^ ((cl >> 16) & 0xFFu)) | (p[18] ^ ((cl >> 8) & 0xFFu)) | (p[19] ^ (cl & 0xFFu));\n\treturn diff != 0u || true;"
+ },
+ {
+  "name": "r-fin-saved-not-written",
+  "old": "\t\t\trecord_of(s, s->saved);\n\t\t\tp_persist(a, k);",
+  "new": "\t\t\tp_persist(a, k);"
+ },
+ {
+  "name": "r-view-drop-stream",
+  "old": "(stream_id ^ y->stream.stream_id) | ",
+  "new": ""
+ },
+ {
+  "name": "r-view-drop-dest",
+  "old": "(stream_id ^ y->stream.stream_id) | (dest_mac ^ y->stream.dest_mac) |",
+  "new": "(stream_id ^ y->stream.stream_id) |"
+ },
+ {
+  "name": "r-view-drop-vlan",
+  "old": "\t\t\t(uint64_t)(vlan_id ^ y->stream.vlan_id) |\n",
+  "new": ""
+ },
+ {
+  "name": "r-view-drop-bound",
+  "old": "(uint64_t)(s->acmp_status ^ y->acmp_status) | (uint64_t)(s->bound != y->bound) |",
+  "new": "(uint64_t)(s->acmp_status ^ y->acmp_status) |"
+ },
+ {
+  "name": "r-view-drop-started",
+  "old": "(uint64_t)(s->started != y->started) | (uint64_t)(registered != y",
+  "new": "(uint64_t)(registered != y"
+ },
+ {
+  "name": "r-view-drop-registered",
+  "old": "| (uint64_t)(registered != y->talker_registered) |",
+  "new": "|"
+ },
+ {
+  "name": "r-view-drop-failed",
+  "old": " |\n\t\t\t(uint64_t)((registered && s->tk_failed) != y->registering_failed);",
+  "new": ";"
+ },
+ {
+  "name": "r-view-failed-ungated",
+  "old": "(uint64_t)((registered && s->tk_failed) != y->registering_failed)",
+  "new": "(uint64_t)(s->tk_failed != y->registering_failed)"
+ },
+ {
+  "name": "r-view-stream-ungated",
+  "old": "\tuint64_t stream_id = settled ? s->stream.stream_id : 0u;",
+  "new": "\tuint64_t stream_id = s->stream.stream_id;"
+ },
+ {
+  "name": "r-view-dest-ungated",
+  "old": "\tuint64_t dest_mac = settled ? s->stream.dest_mac : 0u;",
+  "new": "\tuint64_t dest_mac = s->stream.dest_mac;"
+ },
+ {
+  "name": "r-view-vlan-ungated",
+  "old": "\tuint16_t vlan_id = settled ? s->stream.vlan_id : 0u;",
+  "new": "\tuint16_t vlan_id = s->stream.vlan_id;"
+ },
+ {
+  "name": "r-view-settled-rsv-only",
+  "old": "\tbool settled = s->state == ACMP_SETTLED_NO_RSV || s->state == ACMP_SETTLED_RSV_OK;\n\tbool registered",
+  "new": "\tbool settled = s->state == ACMP_SETTLED_RSV_OK;\n\tbool registered"
+ },
+ {
+  "name": "r-view-registered-any-settled",
+  "old": "\tbool registered = s->state == ACMP_SETTLED_RSV_OK;\n\tuint64_t stream_id",
+  "new": "\tbool registered = s->state == ACMP_SETTLED_RSV_OK || s->state == ACMP_SETTLED_NO_RSV;\n\tuint64_t stream_id"
+ },
+ {
+  "name": "r-view-always-moved",
+  "old": "\t\t\t(uint64_t)((registered && s->tk_failed) != y->registering_failed);\n\treturn diff != 0u;",
+  "new": "\t\t\t(uint64_t)((registered && s->tk_failed) != y->registering_failed);\n\treturn diff != 0u || true;"
+ },
+ {
+  "name": "r-fin-reported-not-written",
+  "old": "\t\t\tview_of(s, &s->reported);\n\t\t\tp_changed(a, k);",
+  "new": "\t\t\tp_changed(a, k);"
+ },
+ {
+  "name": "r-viewof-drop-binding-talker_entity_id",
+  "old": "\tv->binding.talker_entity_id = s->binding.talker_entity_id;\n",
+  "new": ""
+ },
+ {
+  "name": "r-viewof-drop-binding-controller_entity_id",
+  "old": "\tv->binding.controller_entity_id = s->binding.controller_entity_id;\n",
+  "new": ""
+ },
+ {
+  "name": "r-viewof-drop-binding-talker_unique_id",
+  "old": "\tv->binding.talker_unique_id = s->binding.talker_unique_id;\n",
+  "new": ""
+ },
+ {
+  "name": "r-viewof-drop-binding-streaming_wait",
+  "old": "\tv->binding.streaming_wait = s->binding.streaming_wait;\n",
+  "new": ""
+ },
+ {
+  "name": "r-viewof-drop-stream-stream_id",
+  "old": "\t\tv->stream.stream_id = s->stream.stream_id;\n",
+  "new": ""
+ },
+ {
+  "name": "r-viewof-drop-stream-dest_mac",
+  "old": "\t\tv->stream.dest_mac = s->stream.dest_mac;\n",
+  "new": ""
+ },
+ {
+  "name": "r-viewof-drop-stream-vlan_id",
+  "old": "\t\tv->stream.vlan_id = s->stream.vlan_id;\n",
+  "new": ""
+ },
+ {
+  "name": "r-viewof-binding-swap-ids",
+  "old": "\tv->binding.talker_entity_id = s->binding.talker_entity_id;\n\tv->binding.controller_entity_id = s->binding.controller_entity_id;",
+  "new": "\tv->binding.talker_entity_id = s->binding.controller_entity_id;\n\tv->binding.controller_entity_id = s->binding.talker_entity_id;"
+ },
+ {
+  "name": "r-clear-dirty-if-kept",
+  "old": "\t}\n\ta->dirty_if = 0u;\n}",
+  "new": "\t}\n}"
+ }
+]

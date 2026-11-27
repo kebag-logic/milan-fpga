@@ -1,0 +1,24 @@
+head tree ea28576a2e51dde5c38be79be870c339f920460f parents 175cf9e052d5f38d81274436262b08a666447edb c3bff8f3dea03870ea7ae62965db360b509ee3b3 merge-base a795471c0abc4e38f7e5146b4e539dd607b6f501
+auto-merge tree b05bf883c95aac32f8c5da839050fb87832bb1ae (conflicts listed by merge-tree, if any):
+CHANGELOG.md
+
+Auto-merging CHANGELOG.md
+CONFLICT (content): Merge conflict in CHANGELOG.md
+Auto-merging tests/mutations.json
+files differing between the automatic merge tree and the head tree:
+CHANGELOG.md
+main-changed files whose head blob differs from main's:
+  CHANGELOG.md
+  tests/mutations.json
+branch-changed files whose head blob differs from the branch's:
+  CHANGELOG.md
+  tests/mutations.json
+files changed by neither side but differing at head from base a795471c0abc4e38f7e5146b4e539dd607b6f501:
+CHANGELOG at head = main's plus the branch line only:
+4a5
+> - Visit only the marked sinks at an ACMP entry's completion and in the publication before each new frame: each mark word is read once and shifted, not loaded and tested for every sink. Decide persistence and reporting from the sink's own fields against the saved binding record and the reported view, building the record or the view only when it changed. The calls, their order and their arguments are unchanged ([ACMP-13](docs/REQUIREMENTS.md#acmp-changed-sink-walk)); the nine planted defects at those lines are re-anchored to them, each killed by its test as before. On the RV32 control CPU of [milan-fpga #977](https://github.com/kebag-logic/milan-fpga/issues/977) an entry's completion was about 4,500 cycles at nine sinks.
+1
+head CHANGELOG line equals the branch's line:
+yes
+src/acmp.c head == branch: yes
+src/acmp.c main == base: yes
