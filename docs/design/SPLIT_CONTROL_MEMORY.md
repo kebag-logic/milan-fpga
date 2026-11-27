@@ -25,7 +25,7 @@ No BIOS ROM or BIOS SRAM is built there.
 - **[12. The remaining firmware levers at the present clock](#12-the-remaining-firmware-levers-at-the-present-clock)** -- The indexed descriptor lookup, the hot list's gate, ACMP's wire packing as a TSN stack change, the record copies and lwSRP's receive checked, the composed rows after them at a 100 MHz test clock, what a larger fetch L1 would save by the model, and, with the CPU on `sys` at 100 MHz, a save in a composed window, its worst case, aged windows, THE RETRY, and THE TRANSMIT with every pass class.
 - **[13. The larger fetch L1 and the record mover](#13-the-larger-fetch-l1-and-the-record-mover)** -- The 16 KiB two-way fetch L1 and its area and timing out of context, the bulk copies and fills, the mailbox's record mover, lwSRP's receive path as a change to lwSRP, the composed rows after them at a 100 MHz test clock, the rows again at the approved T_svc = 20 ms and with contract 2.3's face writer, the refills per window, what holds the 8x8 rows, every row and pass at the Milan clock of 2026-10-29, every row and pass with the CPU on `sys` at 100 MHz, a save in each flash phase and both links at once, with the store's step held to the pass's share, a save's worst case under any input, with one build a pass either way, the queued notices at stated costs, the polls by source: a base every pass is charged and the heavy items, each at its stated cost, and the long-window load of every source at its arrival bound, graded with tsn-c-stack #32 and held to 0.70 at 1x1/1if and 8x8/2if, and a burst of names and a change in flight under the held load, every acknowledged change durable within 5 s of its response at 1x1/1if and 8x8/1if (#920).
 - **[14. The 32x32 estimate](#14-the-32x32-estimate)** -- The service load per row at four times the 8x8 streams, an estimate against T_svc; each per-item cost measured on the 32x32/2if simulation shape, with the line's error against it; one CPU, measured on the cacheless core at 100 MHz; gPTP's share, a labelled assumption; and what it leaves to the owner.
-- **[15. Arty split at 80 MHz](#15-arty-split-at-80-mhz)** -- The Arty point, its own held-egress measurements and firmware memory ledger.
+- **[15. Arty split at 80 MHz](#15-arty-split-at-80-mhz)** -- The Arty 1x1 point, its own held-egress measurements and firmware memory ledger, and the 4x4/1if point, whose census leaves no qualifying row.
 
 ## 1. Memory map
 
@@ -3612,3 +3612,30 @@ Memory fit does not waive the service-budget or routed timing checks.
 The linked image's `size.json` records the sections and bank decomposition.
 The ROM banks (64, 32, 16, 8 and 4 KiB) hold 126976 bytes, so 1404 bytes remain before another bank.
 The routed image binds that firmware through `image_manifest.json`.
+
+### Arty split 4x4/1if
+
+The `arty-4x4` point is `configs/endstation_arty_split_4x4.yaml`: one interface, four AAF talkers and the CRF output,
+four AAF listeners and the CRF input, the scheduler shape (1,5,5), at the same 80 MHz.
+Its `ctrl_loop.h` row and its harness tables state the 1x1's figures, the basis its first census ran at.
+That census measured all 159 native cases of the eight image variants at that row.
+By this section's rules, its costs leave no row that meets every owner bound.
+Over every queued-notice bound from 125 to 140 ms and every pace from 1 to 13 ms, the slice by the rule, the least txL
+is 58.71 ms, the least ACMP 37.39 ms and the least last notice 201.93 ms, with the long-window load at 0.578.
+That derivation applies #969's disposition to the `srp-kept` and `srp-bound` registrations, as at the 1x1.
+Counted, they put the load at 1.03, and no last-notice row is finite.
+So no row of this point's own is installed, and `arty_grade.py --point arty-4x4` refuses the point.
+The longest whole pass measured is 151744 cycles, 1.897 ms, within THE SHARE.
+The seven `backlog-owed` held-egress rows measure 61.92 to 64.13 ms at this point; no ledger is stated for them here.
+
+The product firmware for this shape links within the same 56 RAMB36 budget.
+
+| Item | Bytes or RAMB36 equivalent |
+|---|---:|
+| `.text` | 114844 bytes |
+| `.rodata` | 17630 bytes |
+| `.bss` | 61104 bytes |
+| ROM allocation (banks 128 and 2 KiB) | 32.5 RAMB36 |
+| SRAM allocation (banks 64 and 4 KiB) | 17 RAMB36 |
+| Total allocation | 49.5 RAMB36 |
+| Budget | 56 RAMB36 |
