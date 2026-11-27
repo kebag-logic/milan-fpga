@@ -634,6 +634,7 @@ def arty_spec() -> dict:
 def packet_rows(packet: Path, p: Params) -> dict:
     """Every case of a packet or compact extract, from the observations each manifest binds."""
     import hashlib
+    sys.path.insert(0, str(HERE))  # receipt_regrade and the graders it reads beside it, under -I too
     import receipt_regrade
     census = json.loads((packet / 'census.json').read_text())
     limit = (min(census['part_limit'] + 1, receipt_regrade.EXTRACT_PART_LIMIT) if 'part_limit' in census
