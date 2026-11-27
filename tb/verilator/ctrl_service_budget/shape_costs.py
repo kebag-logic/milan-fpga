@@ -54,8 +54,10 @@ SLICE, BUILD, BUILD_ONE, SRP_UNIT, RETRY_COLD, RETRY_ATTEMPT = NAMES
 #: design, which rows_tiers.py holds and a withdrawn Talker's hold-off counts (srp_mbx.c, SRP_REDECLARE_CS).
 BOUNDS = ('CTRL_LOOP_QUEUED_MS', 'CTRL_LOOP_TX_MS')
 QUEUED, TX = BOUNDS
-#: Arty's 80 MHz FPGA point states these additional measured costs and its own pace.
+#: Arty's 80 MHz FPGA points state these additional measured costs and their own pace, each at its shape:
+#: (1,1,2), the 1x1, and (1,5,5), four AAF streams and the CRF each way (#878).
 ARTY_NAMES = ('CTRL_LOOP_STEP_PASS_US', 'CTRL_LOOP_TICK_US', 'AECP_NOTICE_US', 'AECP_PACE_MS')
+ARTY_SHAPES = ((1, 1, 2), (1, 5, 5))
 #: THE RETRY's round costs AECP reads, each where it is defined and the name of the table's it must be: a round's cold
 #: start, which the adapter admits a round at, and a refused attempt's, which the core charges (#894's retry-cost
 #: ruling, item 1).
@@ -72,7 +74,7 @@ DEFAULT_CONFIG = 'configs/endstation_ax7101_1x1_tdm8.yaml'
 #: same pairs as the harness's points (run.py, POINTS); its shape is what the builder writes for them (of_point).
 BUILT = {'1x1/1if': ('endstation_ax7101_1x1_tdm8', 1), '8x8/1if': ('endstation_ax7101_8x8', 1),
          '8x8/2if': ('endstation_ax7101_8x8', 2),
-         'arty-1x1': ('endstation_arty_current', 1)}
+         'arty-1x1': ('endstation_arty_current', 1), 'arty-4x4': ('endstation_arty_split_4x4', 1)}
 #: Where AECP_NOTICES_MOST is derived, and the notice-bearing descriptors the shape header states, by descriptor_type
 #: (IEEE 1722.1-2021 Table 7-1: STREAM_INPUT, STREAM_OUTPUT, AVB_INTERFACE, CLOCK_DOMAIN;
 #: srp_entity.NOTICE_DESCRIPTORS).
@@ -118,7 +120,7 @@ def listed(text: str) -> dict[Shape, dict[str, int]]:
         shape = Shape(*map(int, head.groups()))
         if shape in out:
             raise ValueError(f'ctrl_loop.h lists the shape {tuple(shape)} twice')
-        names = NAMES + BOUNDS + (ARTY_NAMES if shape == Shape(1, 1, 2) else ())
+        names = NAMES + BOUNDS + (ARTY_NAMES if tuple(shape) in ARTY_SHAPES else ())
         costs: dict[str, int] = {}
         k += 1
         while not re.match(r'#(?:elif|else|endif)\b', lines[k]):

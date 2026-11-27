@@ -98,11 +98,13 @@ CONTROLS = ('a pass missing a group of arm A', 'an unpaced edit charged at the e
             "a mixed-point pass missing 1x1/1if's arm A and its arm B's SET_CONFIGURATION")
 #: The points a pass is held complete at, each at its own statements: 1x1/1if, #902's flip point, and 8x8/1if, #894's
 #: 8x8/1if gate (THE SHAPES), and #878's Arty point at its own 80 MHz costs.
-COMPLETE = ('1x1/1if', '8x8/1if', 'arty-1x1')
+COMPLETE = ('1x1/1if', '8x8/1if', 'arty-1x1', 'arty-4x4')
 #: run.POINTS' label of each point a pass is held complete at.
-LABELS = {'1x1/1if': '1x1', '8x8/1if': '8x8-1if', 'arty-1x1': 'arty-1x1'}
+LABELS = {'1x1/1if': '1x1', '8x8/1if': '8x8-1if', 'arty-1x1': 'arty-1x1', 'arty-4x4': 'arty-4x4'}
 #: The points whose answering-ports leg must also run aecp-reboot's REBOOTs and the answered GET_AS_PATH (#871, #897).
-REBOOT_PATH_POINTS = ('1x1/1if', 'arty-1x1')
+REBOOT_PATH_POINTS = ('1x1/1if', 'arty-1x1', 'arty-4x4')
+#: #878's Arty points, each measured at exactly 80 MHz for its CPU and bus.
+ARTY_POINTS = ('arty-1x1', 'arty-4x4')
 #: The declaring-outputs arm's records a pass must run at each point it is held complete at, each with the completion.
 DECLARED = {'answered GET_STREAM_INFO': lambda r: r.command == GET_STREAM_INFO and r.status == 0,
             'accepted SET_STREAM_INFO': lambda r: r.command == SET_STREAM_INFO and r.status == 0,
@@ -137,11 +139,13 @@ def rule(cycles: int, cpu_hz: int) -> int:
 
 
 def point_name(spec: dict) -> str:
-    """The stated-cost point of a build, including #878's distinct Arty (1,1,2) shape."""
-    if spec['shape'] in ('endstation_arty_current', 'endstation_arty_split'):
+    """The stated-cost point of a build, including #878's distinct Arty (1,1,2) and (1,5,5) shapes."""
+    arty = {'endstation_arty_current': 'arty-1x1', 'endstation_arty_split': 'arty-1x1',
+            'endstation_arty_split_4x4': 'arty-4x4'}
+    if spec['shape'] in arty:
         if spec['interfaces'] != 1:
             raise ValueError('Arty record classes require exactly one interface')
-        return 'arty-1x1'
+        return arty[spec['shape']]
     eight = '8x8' in spec['shape']
     return ('8x8/2if' if spec['interfaces'] == 2 else '8x8/1if') if eight else '1x1/1if'
 
@@ -244,9 +248,9 @@ def findings(legs: list[Leg], groups_of_arm: list[str] | dict[str, list[str]] | 
     at every point it names and at every point of COMPLETE the pass runs any leg at, so a point with legs and no arm A
     leg is refused by name, whatever groups_of_arm holds."""
     out, reported = [], []
-    out += [f'arty-1x1 {leg.variant}: its CPU and bus must both be exactly 80000000 Hz, '
+    out += [f'{leg.point} {leg.variant}: its CPU and bus must both be exactly 80000000 Hz, '
             f'not {leg.cpu_hz} and {leg.sys_hz}' for leg in legs
-            if leg.point == 'arty-1x1' and (leg.cpu_hz, leg.sys_hz) != (80_000_000, 80_000_000)]
+            if leg.point in ARTY_POINTS and (leg.cpu_hz, leg.sys_hz) != (80_000_000, 80_000_000)]
     if groups_of_arm is not None:
         wanted = groups_of_arm if isinstance(groups_of_arm, dict) else {'1x1/1if': groups_of_arm}
         points = sorted({leg.point for leg in legs if leg.point in COMPLETE} | set(wanted))

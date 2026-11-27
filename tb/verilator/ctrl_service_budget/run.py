@@ -36,9 +36,10 @@ HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[2]
 sys.path.insert(0, str(HERE))
 from stimulus_clock import at_clock  # noqa: E402
-#: 8x8-1if is the flip's 8x8 measurement point (#665 ruling item 1), one interface of the 8x8 shape.
+#: 8x8-1if is the flip's 8x8 measurement point (#665 ruling item 1), one interface of the 8x8 shape; arty-4x4 #878's.
 POINTS = {'1x1': ('endstation_ax7101_1x1_tdm8', 1), '8x8': ('endstation_ax7101_8x8', 2),
-          '8x8-1if': ('endstation_ax7101_8x8', 1), 'arty-1x1': ('endstation_arty_current', 1)}
+          '8x8-1if': ('endstation_ax7101_8x8', 1), 'arty-1x1': ('endstation_arty_current', 1),
+          'arty-4x4': ('endstation_arty_split_4x4', 1)}
 
 
 def run_group(build_dir: Path, out: Path, group: object, flash: str) -> Path:
@@ -579,9 +580,8 @@ def table(results: list[dict], point: str, clock: str = '') -> str:
 
 def summary(point: str, build: str, results: list[dict], refusals: list[str], misses: list[str],
             shares: list[str] = ()) -> dict:
-    """results.json: every grade, every path's worst instance, the counts, the composed windows,
-    the composed maximum the table renders, the refusals, the misses and the passes over the
-    per-pass share (main adds the clock)."""
+    """results.json: every grade, every path's worst instance, the counts, the composed windows, the composed maximum
+    the table renders, the refusals, the misses and the passes over the per-pass share (main adds the clock)."""
     return dict(point=point, build=build, results=results, paths=paths(results), counts=counts(results),
                 windows=windows(results), composed_maximum=composed_maximum(results),
                 refusals=refusals, misses=misses, share_misses=list(shares), saves=saves(results),

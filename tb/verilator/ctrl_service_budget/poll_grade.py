@@ -144,6 +144,8 @@ STATED_US = {shape_costs.Shape(1, 2, 2): ONE, shape_costs.Shape(1, 9, 9): EIGHT_
 STATED_US[shape_costs.Shape(1, 1, 2)] = {
     'base': 235, 'withdraw': 95, 'rebuild': 255, 'walk': 30, 'reclaim': 20, 'retained': 300, 'mrpdu': 0,
     'acmp': 60, 'aecp': 200, 'aecp_long': 385, 'acmp_declined': 20}
+# The Arty 4x4 point (1,5,5), #878: the 1x1's figures until its own 80 MHz census restates them by the rule.
+STATED_US[shape_costs.Shape(1, 5, 5)] = dict(STATED_US[shape_costs.Shape(1, 1, 2)])
 
 
 #: An SRP record's own apply (srp_mbx:apply_receive outside the polls), held to the retained item's stated cost.
@@ -188,8 +190,9 @@ def record_us(interfaces: int | shape_costs.Shape) -> int:
     (load_grade.STATED_US, the column the rows read), which the kept record's accepted re-offer is held to (KEPT,
     #908)."""
     import load_grade
-    if shape_costs.shape(interfaces) == shape_costs.Shape(1, 1, 2):
-        return load_grade.STATED_US['arty-1x1']['record.acmp']
+    arty = {shape_costs.Shape(1, 1, 2): 'arty-1x1', shape_costs.Shape(1, 5, 5): 'arty-4x4'}
+    if shape_costs.shape(interfaces) in arty:
+        return load_grade.STATED_US[arty[shape_costs.shape(interfaces)]]['record.acmp']
     return load_grade.STATED_US['1x1/1if' if shape_costs.interfaces(interfaces) == 1 else '8x8/2if']['record.acmp']
 
 

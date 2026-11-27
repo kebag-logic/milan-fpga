@@ -357,6 +357,7 @@ CONFIGS = {
     "arty_4x4": ROOT / "configs/endstation_arty_4x4.yaml",
     "arty_8ch": ROOT / "configs/endstation_arty_8ch.yaml",
     "arty_split": ROOT / "configs/endstation_arty_split.yaml",
+    "arty_split_4x4": ROOT / "configs/endstation_arty_split_4x4.yaml",
     "ax7101_8x8": ROOT / "configs/endstation_ax7101_8x8.yaml",
     "ax7101_1x1_tdm8": ROOT / "configs/endstation_ax7101_1x1_tdm8.yaml",
 }
@@ -23898,7 +23899,7 @@ FABRIC_SUFFIX = "+all-fabric"
 #: The tracked configs that ship the split placement since the flip (#665):
 #: the two AX7101 shapes its bench gate qualified. Every other tracked
 #: config is all-fabric (gate 23n).
-SPLIT_SHIPPING = ("ax7101_1x1_tdm8", "ax7101_8x8", "arty_split")
+SPLIT_SHIPPING = ("ax7101_1x1_tdm8", "ax7101_8x8", "arty_split", "arty_split_4x4")
 
 
 def _split_cfg(cfg):
