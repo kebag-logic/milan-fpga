@@ -554,18 +554,20 @@ def plants(p: Params) -> dict:
             'grade-drifted': dict(graded=changed(lane_bytes=p.lane_bytes + 1)),
             'held-counted': dict(mark=lambda recs, windows, ends: None),
             'no-margin': dict(margin=1.0),
-            'no-gptp': dict(gptp=False)}
+            'no-gptp': dict(gptp=False),
+            'agreement-loose': dict(agree=10**9)}
 
 
 def controls(p: Params, defect: dict) -> list[tuple[str, bool]]:
     """Each control's name and whether it held under defect (an empty dict is the shipping grade)."""
-    shipped = globals()['mark_held']
+    shipped = globals()['mark_held'], globals()['AGREE_PS']
     if 'mark' in defect:
         globals()['mark_held'] = defect['mark']
+    globals()['AGREE_PS'] = defect.get('agree', shipped[1])
     try:
         return run_controls(p, defect.get('model', p), defect)
     finally:
-        globals()['mark_held'] = shipped
+        globals()['mark_held'], globals()['AGREE_PS'] = shipped
 
 
 def departures(text: str) -> list[tuple[int, int]]:
@@ -583,6 +585,10 @@ def run_controls(p: Params, m: Params, defect: dict) -> list[tuple[str, bool]]:
     row = grade_case(one, graded)
     out = [('an isolated frame leaves its wire time after its last beat', end - t_in == p.wire_ps(64)),
            ('the grade runs the testbench\'s queue and agrees with it', row.get('agree_ps') == 0)]
+    line = next(l for l in one.splitlines() if l.startswith('EGRESS '))
+    late = one.replace(line, line[:line.rindex(' ')] + f' {end + p.dp_ps}')
+    out.append(('a departure one datapath cycle off the replay fails',
+                not verdict({'late': grade_case(late, graded)}, p)[0]))
     (in0, _), (in1, _) = departures(testbench_log(m, [(quiet, 2, 64), (quiet + 1, 2, 64)]))
     out.append(('two frames enter the FIFO a gasket apart', in1 - in0 >= p.gap_dp * p.dp_ps))
     slow = dataclasses.replace(m, octet_ps=m.octet_ps * 64, gap_dp=1, sr_bytes=(), gptp_bytes=())
