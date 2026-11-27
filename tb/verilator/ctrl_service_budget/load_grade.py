@@ -6,7 +6,11 @@
 The load is the work the sources bring per millisecond of a window long enough that their bursts no longer count:
 each source's arrival rate, from a contract rate (sw/mailbox/mailbox.yaml, read from the tree) or a protocol timer
 (each clause below, its value read from the tree where the tree states it), times its stated cost. A pass's own cost
-(its events' fixed part and its polls' base) is not a source, so it is not a term: it is reported beside the load.
+(its events' fixed part and its polls' base) is not a source, so it is not a term: it is reported beside the load. The
+one exception is the work a registering record defers into the polls' base of the passes after it, its binding changes
+and loss completions, which the delivery bound makes one a delivery (#977, ctrl_app_srp.c deliver): a source, the
+record, at the registration rate, so a term of its own (deliveries), stated against the median ordinary pass's base
+(#977's review R957-2, finding 1, option (a), as the manager decided on 2026-11-27).
 At or above 1.0 no ordering of the work bounds a row; CEILING leaves room for the rows: 0.70 (#665, option D) at
 1x1/1if, which this gate holds for merge, at the pin and with tsn-c-stack#32 (COLUMNS), each named in what it finds.
 8x8/2if is held to the same 0.70 by the flip check, flip_grade.py, read at the pin, a check apart from the merge gates
@@ -80,11 +84,15 @@ The terms (per millisecond):
                  kind that replaces the one registered (35.2.6; Milan v1.2 4.2.7.2.2), so every one registers anew;
                  each at REGISTRATION_US, a Talker's share of its record's apply past the unit and of ACMP's completion
                  of it (THE SETTLE), where the point measures it.
+  deliveries     the binding changes and loss completions a registering record defers, one a delivery, into the polls'
+                 base of the passes after it (ctrl_app_srp.c deliver): V a record at the registrations' rate, each at
+                 DELIVERY_US, a sink's share of a record's delivering passes' base over the median ordinary pass's,
+                 where the point measures it.
 
 Not terms, each with its reason: a LINK change has no arrival rate (a row's definition, R5, counts one an interface);
 THE RETRY's rounds otherwise drain a queue a datapath reset leaves, at most AECP_NOTICES_MOST, a burst and not a rate,
 and AVB_INFO_CHANGED, AS_PATH_CHANGED and AMAP_LIVE_WRITE are coalesced events with no contract rate (mailbox.yaml);
-a pass's own cost is no source.
+a pass's own cost is no source, but for the deliveries a registering record defers into it.
 
 usage: python3 -I load_grade.py [--check] [--selftest]
   --check      print the load table and exit 1 if any point is over its ceiling
@@ -362,6 +370,17 @@ TX_PER_JOIN = 3
 #: cycles, 190 us by the rule; at 1x1/1if the none arm's, 56,210 cycles, 27,710 past the unit, and its settle, 7,446,
 #: over two values, 17,578 cycles, 185 us (#977's ruling on round 9's STOP, item 4: the cost restated by the rule).
 REGISTRATION_US = {'1x1/1if': 185, '8x8/1if': 190}
+#: The deliveries term (#977's review R957-2, finding 1, option (a), the manager's decision of 2026-11-27): the work a
+#: registering record defers into the polls' base of the passes after it, its binding changes and loss completions, one
+#: a delivery under the delivery bound, at a sink's share of it. Measured over every registering group of both arms on
+#: e59cf6ea's images (the head's byte-identical), each record's window the delivery bound's own, its pass and the 2 x
+#: n_sinks deliveries after it (tools' deliv11.py): the window's polls base over the stated baseline, the median base of
+#: the ordinary passes in the 50 ms before the record, summed and divided by the sinks, the dearest record by the rule.
+#: At 8x8/1if the answering-ports arm's swap, 104,157 cycles over its median 14,942, 11,573 a sink, 125 us; at 1x1/1if
+#: the answering-ports arm's JoinIn of both kinds with a change owed, 18,076 a sink, 190 us. Beside it, over the dearest
+#: base before the record instead (DELIVERY_US_DEAREST, reported, not graded): 7,236 and 11,930 cycles, 80 and 130 us.
+DELIVERY_US = {'1x1/1if': 190, '8x8/1if': 125}
+DELIVERY_US_DEAREST = {'1x1/1if': 130, '8x8/1if': 80}
 #: V, the Talker values one SRP record may register, as srp_mbx.h states it at each point's shape (SRP_RECORD_VALUES;
 #: #977, its ruling of 2026-11-27, item 2): the registrations term counts V a record, the bound and the kept together.
 RECORD_SHAPES = {'1x1/1if': '1u, 2u, 2u', '8x8/1if': '1u, 9u, 9u'}
@@ -586,6 +605,9 @@ def load(root: Path, point: str, table: dict | None = None) -> dict[str, float]:
     if point in REGISTRATION_US:
         # V Talkers a record, bound and kept, in each of TX_PER_JOIN MRPDUs a 1.5 x JoinTime
         out['registrations'] = REGISTRATION_US[point] * TX_PER_JOIN * record_values(point, root) / (1.5 * JOIN_MIN_MS)
+    if point in DELIVERY_US:
+        # the V binding changes and loss completions each such record defers, one a delivery, at the same rate
+        out['deliveries'] = DELIVERY_US[point] * TX_PER_JOIN * record_values(point, root) / (1.5 * JOIN_MIN_MS)
     return {term: us / 1000 for term, us in out.items()}
 
 
@@ -639,7 +661,7 @@ def findings(root: Path, table: dict | None = None, ceiling: dict | None = None,
     needs, a term without its source (one the term list does not name, or SRP's retries where the tree states no rule
     that bounds them), a graded cost below the pin's that tsn-c-stack#32 does not move, and a column bound to another
     table than its name's (unbound)."""
-    out = unbound() + srp_unit(root, texts) + own_findings(root)
+    out = unbound() + srp_unit(root, texts) + own_findings(root) + delivery_findings(root)
     out += [f'the term srp has no source: srp_mbx.c states no {part}' for part in retry_unbounded(root, texts)]
     out += below_pin(root, table, pin)
     planted = {'at the pin': pin, 'with tsn-c-stack#32': table}
@@ -655,6 +677,22 @@ def findings(root: Path, table: dict | None = None, ceiling: dict | None = None,
             total = sum(terms.values())
             if total > top:
                 out.append(f'{point}: the load {total:.3f} {name} is over its ceiling {top:.2f}')
+    return out
+
+
+def delivery_findings(root: Path) -> list[str]:
+    """Each point whose registrations the load counts but not the deliveries each registering record defers (the
+    deliveries term at DELIVERY_US, V a record at the registrations' rate), each named; and a deliveries cost stated
+    under its dearest-before figure, the lower bound beside it."""
+    out = []
+    for point in REGISTRATION_US:
+        want = DELIVERY_US.get(point, 0) * TX_PER_JOIN * record_values(point, root) / (1.5 * JOIN_MIN_MS) / 1000
+        got = load(root, point).get('deliveries', 0.0)
+        if point not in DELIVERY_US or abs(got - want) > 1e-12:
+            out.append(f'{point}: the load counts its registrations but not the deliveries each registering record '
+                       f'defers ({got:.4f} of the CPU, not V a record at DELIVERY_US)')
+        elif DELIVERY_US[point] < DELIVERY_US_DEAREST.get(point, 0):
+            out.append(f'{point}: DELIVERY_US {DELIVERY_US[point]} us under its dearest-before figure')
     return out
 
 
@@ -784,7 +822,10 @@ def controls(root: Path) -> list[str]:
     if not any('8x8/2if: the graded column states record.srp' in f for f in findings(root, lowered, fit)) or \
             below_pin(root, walked) or GRADED is not STATED_US_DONOR:
         escaped.append('the graded column below the pin where tsn-c-stack#32 moves nothing')
-    return escaped + srp_unit_controls(root, base, fit) + own_controls(root, base, fit) + binding_controls(root)
+    import load_deliveries
+    return escaped + srp_unit_controls(root, base, fit) + own_controls(root, base, fit) + binding_controls(root) + \
+        load_deliveries.controls(root)
+
 
 
 def own_controls(root: Path, base: dict, fit: dict) -> list[str]:
@@ -898,7 +939,9 @@ CONTROLS = ('a cost over the ceiling', 'a held point not held', 'a rise at the p
             'a timer slot counted per pass', 'a term without a source',
             'the graded column below the pin where tsn-c-stack#32 moves nothing',
             "the SRP drain's record cost not the load gate's", "8x8/1if's own ADP record not stated",
-            "8x8/1if's own ADP record not its measurement's by the rule", "a column's name bound to the other's table")
+            "8x8/1if's own ADP record not its measurement's by the rule", "a column's name bound to the other's table",
+            'the deliveries term left out', 'the deliveries term counted at half its rate',
+            'the deliveries cost stated at none', 'the deliveries cost stated under its dearest-before figure')
 
 
 def ceiling_checks() -> list[tuple[str, bool, str]]:
