@@ -151,8 +151,11 @@ TWO = dict(base=345, withdraw=245, rebuild=690, walk=60, reclaim=35, retained=36
 #: there), the walk is 18,004 cycles in the default (none) arm's srp-register-burst, a registrar walk after a record
 #: that replaced every input's Talker, 190 us by the rule (18,694 at the base, dd163e41); every other item is within
 #: this table's. With #977's sink index change that walk is gone (its heaviest in the burst 637 cycles), so it is
-#: stated 120 us again, as before the drain and settlement change, within it every arm's.
-EIGHT_ONE = dict(base=300, withdraw=110, rebuild=590, walk=120, reclaim=40, retained=375, mrpdu=0, acmp=80, aecp=145,
+#: stated 120 us again, as before the drain and settlement change, within it every arm's. With #977's delivery bound
+#: (one binding change or loss completion a delivery), measured over every registering group of both arms at e62e1936,
+#: the base is 33,137 cycles in srp-register-swap and the walk 14,270 there, restated by the rule at 350 and 150 us
+#: (#977's ruling of 2026-11-27 on the alone records, item 2: no finer split of the delivery).
+EIGHT_ONE = dict(base=350, withdraw=110, rebuild=590, walk=150, reclaim=40, retained=375, mrpdu=0, acmp=80, aecp=145,
                  aecp_long=325, acmp_declined=30)
 STATED_US = {shape_costs.Shape(1, 2, 2): ONE, shape_costs.Shape(1, 9, 9): EIGHT_ONE, shape_costs.Shape(2, 2, 2): TWO,
              shape_costs.Shape(2, 9, 9): TWO}
