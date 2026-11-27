@@ -1,0 +1,369 @@
+{
+ "name": "aecp-outputs",
+ "steps": [
+  "wait ready",
+  "mark booted",
+  "wait cycles 5000000",
+  "wait quiet 3 within 2000000",
+  "link 0 1",
+  "wait cycles 60000000",
+  "wait quiet 3 within 2000000",
+  "mark settled",
+  "wait cycles 260000000",
+  "wait quiet 3 within 2000000",
+  "wait cycles 500000",
+  "frame 0 024b4c4b4c020a0b0c0d0e0122f0fb000010024b4cfffe4b4c020a0b0c0d0e0f10005c01002400000000000000000000000000000000000000000000",
+  "wait tx 2 1 within 5000000",
+  "wait quiet 3 within 2000000",
+  "wait cycles 500000",
+  "frame 0 024b4c4b4c020a0b0c0d0e0122f0fb000010024b4cfffe4b4c020a0b0c0d0e0f10015c02002400000000000000000000000000000000000000000000",
+  "wait tx 2 1 within 5000000",
+  "wait quiet 3 within 2000000",
+  "wait cycles 500000",
+  "frame 0 024b4c4b4c020a0b0c0d0e0122f0fb000010024b4cfffe4b4c020a0b0c0d0e0f10025c03002400000000000000000000000000000000000000000000",
+  "wait tx 2 1 within 5000000",
+  "wait quiet 3 within 2000000",
+  "wait cycles 500000",
+  "frame 0 024b4c4b4c020a0b0c0d0e0122f0fb000010024b4cfffe4b4c020a0b0c0d0e0f10035c04002400000000000000000000000000000000000000000000",
+  "wait tx 2 1 within 5000000",
+  "wait quiet 3 within 2000000",
+  "wait cycles 500000",
+  "frame 0 024b4c4b4c020a0b0c0d0e0122f0fb000010024b4cfffe4b4c020a0b0c0d0e0f10045c05002400000000000000000000000000000000000000000000",
+  "wait tx 2 1 within 5000000",
+  "wait quiet 3 within 2000000",
+  "wait cycles 500000",
+  "frame 0 024b4c4b4c020a0b0c0d0e0122f0fb000010024b4cfffe4b4c020a0b0c0d0e0f10055c06002400000000000000000000000000000000000000000000",
+  "wait tx 2 1 within 5000000",
+  "wait quiet 3 within 2000000",
+  "wait cycles 500000",
+  "frame 0 024b4c4b4c020a0b0c0d0e0122f0fb000010024b4cfffe4b4c020a0b0c0d0e0f10065c07002400000000000000000000000000000000000000000000",
+  "wait tx 2 1 within 5000000",
+  "wait quiet 3 within 2000000",
+  "wait cycles 500000",
+  "frame 0 024b4c4b4c020a0b0c0d0e0122f0fb000010024b4cfffe4b4c020a0b0c0d0e0f10075c08002400000000000000000000000000000000000000000000",
+  "wait tx 2 1 within 5000000",
+  "wait quiet 3 within 2000000",
+  "wait cycles 500000",
+  "frame 0 024b4c4b4c020a0b0c0d0e0122f0fb000010024b4cfffe4b4c020a0b0c0d0e0f10085c09002400000000000000000000000000000000000000000000",
+  "wait tx 2 1 within 5000000",
+  "wait quiet 3 within 2000000",
+  "wait cycles 500000",
+  "frame 0 024b4c4b4c020a0b0c0d0e0122f0fb000010024b4cfffe4b4c020a0b0c0d0e0f10095c0a002400000000000000000000000000000000000000000000",
+  "wait tx 2 1 within 5000000",
+  "wait quiet 3 within 2000000",
+  "wait cycles 500000",
+  "frame 0 024b4c4b4c020a0b0c0d0e0122f0fb000010024b4cfffe4b4c020a0b0c0d0e0f100a5c0b002400000000000000000000000000000000000000000000",
+  "wait tx 2 1 within 5000000",
+  "wait quiet 3 within 2000000",
+  "wait cycles 500000",
+  "frame 0 024b4c4b4c020a0b0c0d0e0122f0fb000010024b4cfffe4b4c020a0b0c0d0e0f100b5c0c002400000000000000000000000000000000000000000000",
+  "wait tx 2 1 within 5000000",
+  "wait quiet 3 within 2000000",
+  "wait cycles 500000",
+  "frame 0 024b4c4b4c020a0b0c0d0e0122f0fb000010024b4cfffe4b4c020a0b0c0d0e0f100c5c0d002400000000000000000000000000000000000000000000",
+  "wait tx 2 1 within 5000000",
+  "wait quiet 3 within 2000000",
+  "wait cycles 500000",
+  "frame 0 024b4c4b4c020a0b0c0d0e0122f0fb000010024b4cfffe4b4c020a0b0c0d0e0f100d5c0e002400000000000000000000000000000000000000000000",
+  "wait tx 2 1 within 5000000",
+  "wait quiet 3 within 2000000",
+  "wait cycles 500000",
+  "frame 0 024b4c4b4c020a0b0c0d0e0122f0fb000010024b4cfffe4b4c020a0b0c0d0e0f100e5c0f002400000000000000000000000000000000000000000000",
+  "wait tx 2 1 within 5000000",
+  "wait quiet 3 within 2000000",
+  "wait cycles 500000",
+  "frame 0 024b4c4b4c020a0b0c0d0e0122f0fb000010024b4cfffe4b4c020a0b0c0d0e0f100f5c10002400000000000000000000000000000000000000000000",
+  "wait tx 2 1 within 5000000",
+  "wait quiet 3 within 2000000",
+  "mark aecp_outputs.declared.if0",
+  "wait cycles 500000",
+  "frame 0 91e0f00100000a0b0c0d0e0122f0fc00002c00000000000000000a0b0c0d0e0f0001024b4cfffe4b4c020d0e0f10111200020000000300000000000000005d00000000000000 aecp_outputs.declared.if0",
+  "wait tx 2 16 within 20000000",
+  "wait quiet 3 within 2000000",
+  "wait cycles 500000",
+  "frame 0 0180c200000e0e0e0e0e0e0122ea000308000e0001024b4c4b4c02000024800000000000000000000000000000000000000000000000000000000000",
+  "wait cycles 2000000",
+  "wait quiet 3 within 2000000",
+  "mark aecp_outputs.get_stream_info.get_stream_info_o0.if0",
+  "wait cycles 500000",
+  "frame 0 024b4c4b4c020a0b0c0d0e0122f0fb000010024b4cfffe4b4c020a0b0c0d0e0f00015c11000f00060000000000000000000000000000000000000000 aecp_outputs.get_stream_info.get_stream_info_o0.if0",
+  "wait tx 2 1 within 5000000",
+  "wait quiet 3 within 2000000",
+  "mark aecp_outputs.set_stream_info.set_stream_info_stream_id.if0",
+  "wait cycles 500000",
+  "frame 0 024b4c4b4c020a0b0c0d0e0122f0fb000060024b4cfffe4b4c020a0b0c0d0e0f00015c12000e000600004000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000 aecp_outputs.set_stream_info.set_stream_info_stream_id.if0",
+  "wait tx 2 1 within 5000000",
+  "wait quiet 3 within 2000000",
+  "wait cycles 500000",
+  "frame 0 024b4c4b4c020a0b0c0d0e0122f0fb00001c024b4cfffe4b4c020a0b0c0d0e0f00015c13000100000000000000000000000000000000000000000000",
+  "wait tx 2 17 within 20000000",
+  "wait quiet 3 within 2000000",
+  "mark aecp_outputs.set_stream_info.set_stream_info_locked.if0",
+  "wait cycles 500000",
+  "frame 0 024b4c4b4c020a0b0c0d0e0122f0fb000060024b4cfffe4b4c020a0b0c0d0e0f00025c14000e000600002000000000000000000000000000000000000000001e84800000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000 aecp_outputs.set_stream_info.set_stream_info_locked.if0",
+  "wait tx 2 1 within 5000000",
+  "wait quiet 3 within 2000000",
+  "wait cycles 500000",
+  "frame 0 024b4c4b4c020a0b0c0d0e0122f0fb00001c024b4cfffe4b4c020a0b0c0d0e0f00015c15000100000001000000000000000000000000000000000000",
+  "wait tx 2 17 within 20000000",
+  "wait quiet 3 within 2000000",
+  "txready 0",
+  "mark aecp_outputs.held_set_stream_info.if0",
+  "wait cycles 500000",
+  "frame 0 024b4c4b4c020a0b0c0d0e0122f0fb000060024b4cfffe4b4c020a0b0c0d0e0f00025c16000e000600002000000000000000000000000000000000000000002dc6c00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000 aecp_outputs.held_set_stream_info.if0",
+  "mark aecp_outputs.held_get_stream_info.if0",
+  "wait cycles 500000",
+  "frame 0 024b4c4b4c020a0b0c0d0e0122f0fb000010024b4cfffe4b4c020a0b0c0d0e0f00015c17000f00060000000000000000000000000000000000000000 aecp_outputs.held_get_stream_info.if0",
+  "wait cycles 400000",
+  "txready 1",
+  "wait quiet 3 within 50000000",
+  "mark aecp-outputs.held.end"
+ ],
+ "probes": [
+  {
+   "name": "aecp_outputs.declared.if0",
+   "row": "a Talker declared, from its PROBE_TX's commit to its STREAM_OUTPUT's notice, completed, to every registration (#936, #943)",
+   "family": "notify",
+   "start": "rxc:1",
+   "ends": [
+    "resp:1:5d00",
+    "notify:2:000f:6:0"
+   ],
+   "wait_ms": 0.0,
+   "expect": "acmp:PROBE_TX_RESPONSE:SUCCESS",
+   "accesses": null,
+   "until": "",
+   "also_from": "",
+   "recipients": [
+    [
+     723685415333072896,
+     0
+    ],
+    [
+     723685415333072897,
+     0
+    ],
+    [
+     723685415333072898,
+     0
+    ],
+    [
+     723685415333072899,
+     0
+    ],
+    [
+     723685415333072900,
+     0
+    ],
+    [
+     723685415333072901,
+     0
+    ],
+    [
+     723685415333072902,
+     0
+    ],
+    [
+     723685415333072903,
+     0
+    ],
+    [
+     723685415333072904,
+     0
+    ],
+    [
+     723685415333072905,
+     0
+    ],
+    [
+     723685415333072906,
+     0
+    ],
+    [
+     723685415333072907,
+     0
+    ],
+    [
+     723685415333072908,
+     0
+    ],
+    [
+     723685415333072909,
+     0
+    ],
+    [
+     723685415333072910,
+     0
+    ],
+    [
+     723685415333072911,
+     0
+    ]
+   ],
+   "path": "aecp_outputs.declared",
+   "owed": [],
+   "may_drop": false
+  },
+  {
+   "name": "aecp_outputs.get_stream_info.get_stream_info_o0.if0",
+   "row": "GET_STREAM_INFO_O0 of a declaring STREAM_OUTPUT",
+   "family": "aecp",
+   "start": "rxc:2",
+   "ends": [
+    "resp:2:5c11"
+   ],
+   "wait_ms": 0.0,
+   "expect": "aem:000f:SUCCESS",
+   "accesses": null,
+   "until": "",
+   "also_from": "",
+   "recipients": [],
+   "path": "aecp_outputs.get_stream_info",
+   "owed": [],
+   "may_drop": false
+  },
+  {
+   "name": "aecp_outputs.set_stream_info.set_stream_info_stream_id.if0",
+   "row": "SET_STREAM_INFO_STREAM_ID of a declaring STREAM_OUTPUT, refused NOT_SUPPORTED",
+   "family": "aecp",
+   "start": "rxc:2",
+   "ends": [
+    "resp:2:5c12"
+   ],
+   "wait_ms": 0.0,
+   "expect": "aem:000e:NOT_SUPPORTED",
+   "accesses": null,
+   "until": "",
+   "also_from": "",
+   "recipients": [],
+   "path": "aecp_outputs.set_stream_info",
+   "owed": [],
+   "may_drop": false
+  },
+  {
+   "name": "aecp_outputs.set_stream_info.set_stream_info_locked.if0",
+   "row": "SET_STREAM_INFO_LOCKED of a declaring STREAM_OUTPUT, refused ENTITY_LOCKED",
+   "family": "aecp",
+   "start": "rxc:2",
+   "ends": [
+    "resp:2:5c14"
+   ],
+   "wait_ms": 0.0,
+   "expect": "aem:000e:ENTITY_LOCKED",
+   "accesses": null,
+   "until": "",
+   "also_from": "",
+   "recipients": [],
+   "path": "aecp_outputs.set_stream_info",
+   "owed": [],
+   "may_drop": false
+  },
+  {
+   "name": "aecp_outputs.held_set_stream_info.if0",
+   "row": "SET_STREAM_INFO of a declaring STREAM_OUTPUT, its notices past the AECP ring's room behind a held egress",
+   "family": "notify",
+   "start": "rxc:2",
+   "ends": [
+    "resp:2:5c16",
+    "notify:2:000e:6:0"
+   ],
+   "wait_ms": 0.0,
+   "expect": "aem:000e:SUCCESS",
+   "accesses": null,
+   "until": "aecp-outputs.held.end",
+   "also_from": "",
+   "recipients": [
+    [
+     723685415333072896,
+     0
+    ],
+    [
+     723685415333072897,
+     0
+    ],
+    [
+     723685415333072898,
+     0
+    ],
+    [
+     723685415333072899,
+     0
+    ],
+    [
+     723685415333072900,
+     0
+    ],
+    [
+     723685415333072901,
+     0
+    ],
+    [
+     723685415333072902,
+     0
+    ],
+    [
+     723685415333072903,
+     0
+    ],
+    [
+     723685415333072904,
+     0
+    ],
+    [
+     723685415333072905,
+     0
+    ],
+    [
+     723685415333072906,
+     0
+    ],
+    [
+     723685415333072907,
+     0
+    ],
+    [
+     723685415333072908,
+     0
+    ],
+    [
+     723685415333072909,
+     0
+    ],
+    [
+     723685415333072910,
+     0
+    ],
+    [
+     723685415333072911,
+     0
+    ]
+   ],
+   "path": "aecp_outputs.held_set_stream_info",
+   "owed": [],
+   "may_drop": false
+  },
+  {
+   "name": "aecp_outputs.held_get_stream_info.if0",
+   "row": "GET_STREAM_INFO of a declaring STREAM_OUTPUT behind a held egress",
+   "family": "aecp",
+   "start": "rxc:2",
+   "ends": [
+    "resp:2:5c17"
+   ],
+   "wait_ms": 0.0,
+   "expect": "aem:000f:SUCCESS",
+   "accesses": null,
+   "until": "aecp-outputs.held.end",
+   "also_from": "",
+   "recipients": [],
+   "path": "aecp_outputs.held_get_stream_info",
+   "owed": [],
+   "may_drop": false
+  }
+ ],
+ "sim_ms": 5000,
+ "load": {},
+ "admission": {},
+ "save": {},
+ "sys_hz": 80000000
+}
