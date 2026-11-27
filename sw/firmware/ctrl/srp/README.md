@@ -150,8 +150,9 @@ The sink index and its configured interface are preserved independently.
 An accepted request retires; transient refusal stays pending and keeps the loop awake.
 One delivery makes at most one binding change, and outside THE SETTLE at most one loss completion (#977, [its
 ruling on round 9's STOP](https://github.com/kebag-logic/milan-fpga/issues/977#issuecomment-7212897415), item 2).
-Each is the first owed from its turn, the sink after the last it made, so an owed one waits at most `n_sinks`
-deliveries; the rest stay pending and keep the loop awake. THE SETTLE still completes every loss it owes.
+Each is the first owed from its turn, the sink after the last it made; where both are owed, a delivery makes only
+the kind the last one did not, so an owed one waits at most 2 x `n_sinks` deliveries. The rest stay pending and keep
+the loop awake. THE SETTLE still completes every loss it owes.
 THE TRANSMIT waits on none of them: several reservations ended at once withdraw across MRPDUs, the first in the next
 and each later one in the MRPDU after its delivery, within a JoinTime (IEEE 802.1Q-2018 10.7.4.1, Table 10-7).
 A probe response that overtakes a pending unbind replaces it in the request slot, so its Listener stays declared.

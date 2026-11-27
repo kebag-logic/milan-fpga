@@ -138,9 +138,9 @@ static bool deliver(void *ctx)
     app->srp_settle_owed = settles;
     pending = pending || settles;
     // One delivery makes at most one binding change and, outside THE SETTLE, at most one loss completion, each the
-    // first owed from its turn, the sink after the last it made: so each owed waits at most n_sinks deliveries and the
-    // rest stay pending, delivered in turn. THE TRANSMIT waits on none of them, and a withdrawal a later delivery makes
-    // rides the next MRPDU (#977, its ruling on round 9's STOP, item 2; IEEE 802.1Q-2018 10.7.4.1)
+    // first owed from its turn, the sink after the last it made, and the rest stay pending, delivered in turn. THE
+    // TRANSMIT waits on none of them, and a withdrawal a later delivery makes rides the next MRPDU (#977, its ruling
+    // on round 9's STOP, item 2; IEEE 802.1Q-2018 10.7.4.1)
     const unsigned n = app->acmp.acmp.cfg.n_sinks;
     unsigned bind = n;
     unsigned lose = n;
@@ -156,6 +156,15 @@ static bool deliver(void *ctx)
         if (k != bind && delivered(&app->srp_requests[k]) &&
             app->srp->ifs[app->acmp.acmp.cfg.sink_interface[k]].sinks[k].withdrawn) {
             lose = k;
+        }
+    }
+    // and one of the two: where both are owed, the kind the last delivery did not make, so a delivery's SRP work is one
+    // binding's or one loss's and each owed still waits at most 2 x n_sinks deliveries (the ruling's bound)
+    if (bind < n && lose < n) {
+        if (app->srp_lost_last) {
+            lose = n;
+        } else {
+            bind = n;
         }
     }
     for (unsigned sink = 0; sink < n; ++sink) {
@@ -188,9 +197,11 @@ static bool deliver(void *ctx)
     }
     if (bind < n) {
         app->srp_bind_turn = (uint8_t)((bind + 1u) % n);
+        app->srp_lost_last = false;
     }
     if (lose < n) {
         app->srp_loss_turn = (uint8_t)((lose + 1u) % n);
+        app->srp_lost_last = true;
     }
     return pending;
 }
@@ -222,6 +233,7 @@ bool ctrl_app_attach_srp(struct ctrl_app *app, struct srp_mbx *srp)
         app->srp_settle_owed = false;
         app->srp_bind_turn = 0u;
         app->srp_loss_turn = 0u;
+        app->srp_lost_last = false;
         (void)ctrl_loop_set_settle(&app->loop,settle,app);
     }
     mbx_irq_enable(mbx_place(channels,MBX_IRQ_ENABLE_RX_LSB,MBX_IRQ_ENABLE_RX_WIDTH) |

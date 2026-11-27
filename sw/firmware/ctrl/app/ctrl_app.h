@@ -107,6 +107,7 @@ struct ctrl_app {
 	// it took (ctrl_app_srp.c, deliver; #977's ruling on round 9's STOP, item 2).
 	uint8_t srp_bind_turn;
 	uint8_t srp_loss_turn;
+	bool srp_lost_last;                     // the last delivery's SRP work was a loss completion
 };
 
 struct ctrl_app_config {

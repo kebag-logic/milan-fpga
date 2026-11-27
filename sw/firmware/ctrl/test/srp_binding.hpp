@@ -420,15 +420,25 @@ TEST_F(SrpBinding, D3ADeliveryCompletesOneLossOutsideTheSettle) {
     // every input's registration lost in one ordinary pass, as its leave timers run out in one centisecond
     for (unsigned k=0;k<n;++k) sink(k).withdrawn=true;
     app.loop.drain_taken=0u;
-    for (unsigned d=1;d<=n;++d) {
+    // each loss owes its unbind, a binding change: one of the two a delivery, so each within 2 x n_sinks deliveries
+    unsigned lost=0, unbound=0;
+    for (unsigned d=1;d<=2u*n && lost<n;++d) {
         const bool more=app.loop.polls[4].fn(app.loop.polls[4].ctx);
-        unsigned lost=0;
-        for (unsigned k=0;k<n;++k) lost+=core()->sinks[k].state!=ACMP_SETTLED_RSV_OK ? 1u : 0u;
-        EXPECT_EQ(lost,d) << "D3 one loss completion a delivery outside THE SETTLE";
-        if (d<n) {
+        unsigned now_lost=0, now_unbound=0;
+        for (unsigned k=0;k<n;++k) {
+            now_lost+=core()->sinks[k].state!=ACMP_SETTLED_RSV_OK ? 1u : 0u;
+            now_unbound+=sink(k).bound ? 0u : 1u;
+        }
+        EXPECT_LE(now_lost-lost,1u) << "D3 one loss completion a delivery outside THE SETTLE";
+        EXPECT_LE(now_lost-lost+now_unbound-unbound,1u)
+            << "D3 one of a binding change and a loss completion a delivery";
+        lost=now_lost;
+        unbound=now_unbound;
+        if (lost<n) {
             EXPECT_TRUE(more) << "D3 a delivery that leaves a loss owed keeps the loop awake";
         }
     }
+    EXPECT_EQ(lost,n) << "D3 every loss is completed within 2 x n_sinks deliveries";
     settle();
     for (unsigned k=0;k<n;++k) EXPECT_FALSE(sink(k).bound) << "D3 every loss delivers its unbind in turn";
 }

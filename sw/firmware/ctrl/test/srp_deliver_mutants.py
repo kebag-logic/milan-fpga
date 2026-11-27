@@ -3,11 +3,12 @@
 """Planted defects of the SRP delivery's bound (#977, its ruling on round 9's STOP, item 2).
 
 A delivery (ctrl_app_srp.c deliver) makes at most one binding change and, outside THE SETTLE, at most one loss
-completion, each the first owed from its turn, the sink after the last it made; the rest stay pending, keep the loop
-awake and are delivered in turn, so each waits at most n_sinks deliveries. THE SETTLE still completes every loss it
-owes. One defect a rule: every owed change made at once, the turn taken from the first sink, every loss completed at
-once, an owed loss or an owed change leaving the loop asleep, and THE SETTLE completing none. srp_mutants.py plants each
-with the rest of its table; each named test (srp_binding.hpp, D1 to D5) must fail on its own words.
+completion, each the first owed from its turn, the sink after the last it made, and where both are owed only the kind
+the last delivery did not make; the rest stay pending, keep the loop awake and are delivered in turn, so each waits at
+most 2 x n_sinks deliveries. THE SETTLE still completes every loss it owes. One defect a rule: every owed change made
+at once, the turn taken from the first sink, every loss completed at once, a binding change made beside a loss, an owed
+loss or an owed change leaving the loop asleep, and THE SETTLE completing none. srp_mutants.py plants each with the
+rest of its table; each named test (srp_binding.hpp, D1 to D5) must fail on its own words.
 """
 from __future__ import annotations
 
@@ -29,6 +30,10 @@ def defects(kind: Callable[..., T]) -> tuple[T, ...]:
         kind('deliver-completes-every-loss', 'SrpBinding.D3ADeliveryCompletesOneLossOutsideTheSettle',
              'complete(app,sink,interface,sink == lose);', 'complete(app,sink,interface,true);',
              'D3 one loss completion a delivery outside THE SETTLE', path='app/ctrl_app_srp.c',
+             suite='test_acmp_mbx.cpp'),
+        kind('deliver-binds-beside-a-loss', 'SrpBinding.D3ADeliveryCompletesOneLossOutsideTheSettle',
+             '    if (bind < n && lose < n) {\n', '    if (false) {\n',
+             'D3 one of a binding change and a loss completion a delivery', path='app/ctrl_app_srp.c',
              suite='test_acmp_mbx.cpp'),
         kind('deliver-owed-loss-sleeps', 'SrpBinding.D5ALossLeftOwedKeepsTheLoopAwakeWithNoChangeOwed',
              'pending = r->pending || (delivered(r) && s->withdrawn) || pending;', 'pending = r->pending || pending;',
