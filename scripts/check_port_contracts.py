@@ -117,7 +117,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from lint_rtl import LINT_EXCLUDE
 from code_quality_scope import tracked
 #: the ONE header parser: what ports a module declares, and which are documented
-from sv_ports import declarations, module_headers
+from sv_ports import attribute_selftest, declarations, module_headers
 
 TREES = ("hdl", "gptp-processor", "protocol-processor")
 
@@ -699,17 +699,6 @@ def _arm_hierarchical_reads(ck):
 def _arm_port_documentation(ck):
     """Which ports the shared parser sees, and which comment documents which."""
     # -- port documentation, through the shared parser --
-    n, u = scan_ports(_mod(
-        '  (* IOB = "TRUE", note = "output, parameter; *)" *) output logic [7:0] dq_o, //! data\n'
-        '  (* IOB = "TRUE" *) (* dont_touch = "yes" *) output logic oe_o, //! enable\n'
-        '  (* keep = "yes" *) input wire missing_i'))
-    ck("attributes neither invent ports nor hide an undocumented neighbour",
-       n == 3 and u == ["missing_i"], f"{n} {u}")
-    rows = declarations('module m #( (* keep = "yes" *) parameter int N = 8 //! depth\n'
-                        ') ( (* IOB = "TRUE" *) output logic [N-1:0] q_o //! data\n); endmodule')
-    ck("attributes preserve parameter and port names, quantities and documentation",
-       [(r[1], r[2], r[3], r[4]) for r in rows]
-       == [("N", "depth", True, "param"), ("q_o", "data", True, "port")], str(rows))
     n, u = scan_ports(_mod("  input wire clk_i  //! the clock"))
     ck("a documented port is not counted", n == 1 and not u, f"{n} {u}")
     n, u = scan_ports(_mod("  input wire clk_i"))
@@ -887,7 +876,7 @@ def selftest() -> int:
             print(f"[FAIL] {name}{': ' + detail if detail else ''}")
 
     for arm in (_arm_binding_forms, _arm_multi_instance, _arm_foreign_and_noise,
-                _arm_hierarchical_reads, _arm_port_documentation,
+                _arm_hierarchical_reads, _arm_port_documentation, attribute_selftest,
                 _arm_dispositions, _arm_ratchets, _arm_population,
                 _arm_live_scan):
         arm(ck)
