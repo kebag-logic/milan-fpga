@@ -10,7 +10,7 @@
 //   timer_stop   -> TMR_CMD cancel of that slot
 //   gptp         -> the interface's GM_LO/GM_HI/DOMAIN snapshot
 //   link_up      -> LINK
-//   seed         -> NOW_MS
+//   seed         -> THE DRAW's seed (below)
 //
 // and from the loop: the ADP channel's RX records to adp_rx, the TIMER event
 // of a slot to adp_timer_expired when its tag is the current arm's (an
@@ -19,6 +19,15 @@
 // LINK and GM events of an interface to adp_link_change and adp_gm_change,
 // and a poll that retries a frame the transmit ring had no room for and
 // tells the loop it is still owed, so the loop does not sleep on it.
+//
+// THE DRAW (#970; IEEE 1722.1-2021 6.2.4.2.2, Milan v1.2 Table 5.49: several
+// entities powered up together). The core asks for a sample on each transition
+// out of DOWN, a startup with the link up and a LINK_UP (none at a duplicate
+// or disabled LINK_UP), and seeds its
+// generator with the sum of the MAC address and the sample, mixed with the
+// entity ID, the interface and its earlier state. The sample is the platform's
+// microsecond clock as it is asked (adp_mbx_set_clock), NOW_MS where the
+// composition gives none, which adds that path's one mailbox access.
 //
 // SERVICE LATENCY (the D3 ruling on #640: a deterministic bound per response
 // path, stated and tested), under the assumptions A1 to A4 of ctrl_loop.h.
@@ -148,6 +157,11 @@ struct adp_mbx {
 // False when the slots do not fit the fabric's timer bank.
 bool adp_mbx_init(struct adp_mbx *m, const struct adp_entity *entity, unsigned first_slot,
 		  uint16_t current_configuration_index);
+
+// The seed's clock: its least significant 32 bits at its finest resolution,
+// as it is asked (THE DRAW). NULL: NOW_MS.
+typedef uint32_t (*adp_mbx_clock_fn)(void *ctx);
+void adp_mbx_set_clock(adp_mbx_clock_fn clock, void *ctx);
 
 // Bind the ADP channel, the event sink and the poll into the loop.
 bool adp_mbx_attach(struct adp_mbx *m, struct ctrl_loop *l);

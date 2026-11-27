@@ -1203,13 +1203,18 @@ They refuse 0 and 55.
 
 Parent adapter tests exercise every ADP refusal and valid discovery.
 
+Issue #970 adopts stack pin `c3bff8f3`, the merge of PR #40.
+
+| Stack PR | Parent-visible result |
+|---|---|
+| [40](https://github.com/kebag-logic/tsn-c-stack/pull/40) (issue 39) | ADP takes one fresh clock sample at each transition out of DOWN: the startup draw and each qualified LINK_UP (Milan v1.2 5.6.3.5.2, 5.6.3.5.3), none at a duplicate or disabled LINK_UP. The seed sums the MAC address and the sample (IEEE 1722.1-2021 6.2.4.2.2) and mixes in the entity ID, the interface and the earlier state. The parent's seed port returns the platform's microsecond clock. |
+
 The mailbox publishes the stack declaration predicate as `DA_GATE`.
 
 Issue #977 moves the pin to `5d03517f`.
 
 | Stack PR | Parent-visible result |
 |---|---|
-| [40](https://github.com/kebag-logic/tsn-c-stack/pull/40) | ADP's delay generator is seeded on each transition out of DOWN from the sum of the MAC address and the local clock (IEEE 1722.1-2021 6.2.4.2.2), mixed with the entity ID and the interface; the draw ranges are unchanged |
 | branch `977-settle` (#977) | An entry's completion walks only its marked sinks, loading each mark word once, and builds the saved binding record and the reported view only where a sink's own fields changed; the calls, their order and their arguments are unchanged (ACMP-13) |
 
 That commit heads tsn-c-stack branch `977-settle`.
@@ -1225,10 +1230,6 @@ It adds margin under the [8x8/1if load ceiling](https://github.com/kebag-logic/m
 The cut reaches `main` through tsn-c-stack's own review.
 
 The pin then moves to that merge.
-
-PR 40 asks for the `seed` on each exit from DOWN.
-
-The ADP adapter answers with `NOW_MS`, the mailbox's only clock.
 
 ## Initialize safely
 

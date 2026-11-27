@@ -301,6 +301,15 @@ extern "C" void mbx_hal_write32(std::uint32_t offset, std::uint32_t value) {
 
 extern "C" void mbx_hal_wait(void) {}
 
+// The flash model's clock counted from the boot's own start, plus an origin of the test's: boots run alike read
+// alike, so two boots differ only in the origin. The model's clock runs on across a reload, so each boot marks
+// its start.
+std::uint64_t clock_origin_us = 0;
+std::uint64_t boot_start_us = 0;
+std::uint64_t biased_now_us(void* ctx) {
+    return nvm_fmodel_port.now_us(ctx) - boot_start_us + clock_origin_us;
+}
+
 namespace {
 
 struct Boot : ::testing::Test {
@@ -311,6 +320,8 @@ struct Boot : ::testing::Test {
     std::vector<std::uint8_t> image;
 
     void SetUp() override {
+        clock_origin_us = 0;
+        boot_start_us = 0;
         fabric_from_reset();
         counters = LinkCounters{};
         nvm_fmodel_blank();
@@ -338,6 +349,8 @@ struct Boot : ::testing::Test {
     // Every bus and the mailbox from reset, as SetUp and the configuration reload start them
     void fabric_from_reset() {
         bus().reset();
+        // the adapter's clock is file-scope state, which a reset zeroes with the rest of the image's data
+        adp_mbx_set_clock(nullptr, nullptr);
         mailbox.clear();
         media.clear();
         frames.clear();
@@ -1336,6 +1349,76 @@ struct Phy : Boot {
                bus().count(0, kPhyBus.link_status, true);
     }
 };
+
+// B25 the platform seeds ADP's draw from its microsecond clock, wired before ADP starts (adp_mbx.h, THE DRAW;
+// #970): three boots alike but for a clock origin one microsecond apart leave three generator states. A clock read in
+// milliseconds or in coarser granules, or wired after ADP's startup draw (NOW_MS), leaves two alike at least.
+TEST_F(Boot, B25TheAdpDrawIsSeededFromThePlatformsClock) {
+    std::uint32_t seeded[3] = {};
+    flash.now_us = biased_now_us;
+    for (unsigned k = 0; k < 3u; ++k) {
+        if (k != 0u) reload();
+        clock_origin_us = 5000000u + k;
+        boot_start_us = nvm_fmodel_now_us();
+        ASSERT_EQ(ctrl_plat_boot(&env), CTRL_PLAT_READY) << "B25 the boot reaches its ready state";
+        ASSERT_TRUE(ctrl_plat.app.adp.ifs[0].adp.enabled && ctrl_plat.app.adp.ifs[0].adp.draws == 1u)
+            << "B25 ADP is enabled at ready, its startup delay drawn";
+        seeded[k] = ctrl_plat.app.adp.ifs[0].adp.rng;
+    }
+    EXPECT_TRUE(seeded[0] != seeded[1] && seeded[1] != seeded[2] && seeded[0] != seeded[2])
+        << "B25 boots one microsecond apart in the clock's origin seed ADP's draw differently (#970)";
+}
+
+// B27 a LINK_UP after ready takes the platform clock's reading at that LINK_UP: boots alike up to it, the clock one
+// microsecond apart only from the link's loss on, draw apart on the interface that rose, and leave every other
+// interface's generator as it was (IEEE 1722.1-2021 6.2.4.2.2; Milan v1.2 5.6.3.5.3).
+TEST_F(Boot, B27ALinkUpReadsThePlatformsClockAtTheLinkUp) {
+    flash.now_us = biased_now_us;
+    for (unsigned i = 0; i < MBX_N_IF; ++i) {
+        std::uint32_t rose[3] = {};
+        for (unsigned k = 0; k < 3u; ++k) {
+            if (i != 0u || k != 0u) reload();
+            clock_origin_us = 5000000u;
+            boot_start_us = nvm_fmodel_now_us();
+            ASSERT_EQ(ctrl_plat_boot(&env), CTRL_PLAT_READY) << "B27 the boot reaches its ready state";
+            for (unsigned n = 0; n < 5u; ++n) pass_ms();
+            mbx_model_set_link(&fabric, i, false);
+            for (unsigned n = 0; n < 5u; ++n) pass_ms();
+            clock_origin_us += k;
+            std::uint32_t others[MBX_N_IF] = {};
+            for (unsigned j = 0; j < MBX_N_IF; ++j) others[j] = ctrl_plat.app.adp.ifs[j].adp.rng;
+            const std::uint32_t draws = ctrl_plat.app.adp.ifs[i].adp.draws;
+            mbx_model_set_link(&fabric, i, true);
+            for (unsigned n = 0; n < 5u; ++n) pass_ms();
+            ASSERT_TRUE(ctrl_plat.app.adp.ifs[i].adp.draws == draws + 1u &&
+                        ctrl_plat.app.adp.ifs[i].adp.last_draw == ADP_DRAW_DELAY)
+                << "B27 the LINK_UP draws its delay";
+            rose[k] = ctrl_plat.app.adp.ifs[i].adp.rng;
+            for (unsigned j = 0; j < MBX_N_IF; ++j) {
+                if (j != i) {
+                    EXPECT_EQ(ctrl_plat.app.adp.ifs[j].adp.rng, others[j])
+                        << "B27 another interface's LINK_UP leaves this one's generator";
+                }
+            }
+        }
+        EXPECT_TRUE(rose[0] != rose[1] && rose[1] != rose[2] && rose[0] != rose[2])
+            << "B27 boots apart only in the clock at the LINK_UP draw apart (#970)";
+    }
+}
+
+#if MBX_N_IF > 1
+// B26 the interface is in the seed: two interfaces enabled at one clock reading are seeded apart (#970).
+std::uint64_t stopped_now_us(void*) {
+    return 0;
+}
+
+TEST_F(Boot, B26TwoInterfacesAreSeededApart) {
+    flash.now_us = stopped_now_us;
+    ASSERT_EQ(ctrl_plat_boot(&env), CTRL_PLAT_READY) << "B26 the boot reaches its ready state";
+    EXPECT_NE(ctrl_plat.app.adp.ifs[0].adp.rng, ctrl_plat.app.adp.ifs[1].adp.rng)
+        << "B26 two interfaces enabled at one clock reading are seeded apart";
+}
+#endif
 
 TEST_F(Phy, B11ArmedPastTheIdentityCheck) {
     bus().csr[CTRL_PLAT_CSR_ID] = 0x12345678u;

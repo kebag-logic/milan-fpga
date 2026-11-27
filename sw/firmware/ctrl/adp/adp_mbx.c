@@ -47,10 +47,20 @@ static bool port_link_up(void *ctx, unsigned interface)
 	return mbx_link_up(interface);
 }
 
+// THE DRAW's clock (adp_mbx.h): outside the platform's ledgered struct.
+static adp_mbx_clock_fn clock_fn;
+static void *clock_ctx;
+
+void adp_mbx_set_clock(adp_mbx_clock_fn clock, void *ctx)
+{
+	clock_fn = clock;
+	clock_ctx = ctx;
+}
+
 static uint32_t port_seed(void *ctx)
 {
 	(void)ctx;
-	return mbx_now_ms();
+	return clock_fn != NULL ? clock_fn(clock_ctx) : mbx_now_ms();
 }
 
 bool adp_mbx_init(struct adp_mbx *m, const struct adp_entity *entity, unsigned first_slot,
