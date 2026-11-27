@@ -1,0 +1,55 @@
+IDENTICAL [-O2] core/mrp_mad.c
+IDENTICAL [-O2] core/mrp_pdu.c
+IDENTICAL [-O2] core/switch.c
+IDENTICAL [-O2] modules/msrp.c
+IDENTICAL [-O2] modules/mvrp.c
+IDENTICAL [-O2] modules/mmrp.c
+IDENTICAL [-O2] ports/alloc.c
+IDENTICAL [-O2] ports/timer.c
+IDENTICAL [-Os] core/mrp_mad.c
+IDENTICAL [-Os] core/mrp_pdu.c
+IDENTICAL [-Os] core/switch.c
+IDENTICAL [-Os] modules/msrp.c
+IDENTICAL [-Os] modules/mvrp.c
+IDENTICAL [-Os] modules/mmrp.c
+IDENTICAL [-Os] ports/alloc.c
+IDENTICAL [-Os] ports/timer.c
+DIFFERENT [-O0] core/mrp_mad.c
+IDENTICAL [-O0] core/mrp_pdu.c
+IDENTICAL [-O0] core/switch.c
+IDENTICAL [-O0] modules/msrp.c
+IDENTICAL [-O0] modules/mvrp.c
+IDENTICAL [-O0] modules/mmrp.c
+IDENTICAL [-O0] ports/alloc.c
+IDENTICAL [-O0] ports/timer.c
+IDENTICAL [-O2 -DLWSRP_MILAN=1] core/mrp_mad.c
+IDENTICAL [-O2 -DLWSRP_MILAN=1] core/mrp_pdu.c
+IDENTICAL [-O2 -DLWSRP_MILAN=1] core/switch.c
+IDENTICAL [-O2 -DLWSRP_MILAN=1] modules/msrp.c
+IDENTICAL [-O2 -DLWSRP_MILAN=1] modules/mvrp.c
+IDENTICAL [-O2 -DLWSRP_MILAN=1] modules/mmrp.c
+IDENTICAL [-O2 -DLWSRP_MILAN=1] ports/alloc.c
+IDENTICAL [-O2 -DLWSRP_MILAN=1] ports/timer.c
+IDENTICAL [-Os -DLWSRP_MILAN=1] core/mrp_mad.c
+IDENTICAL [-Os -DLWSRP_MILAN=1] core/mrp_pdu.c
+IDENTICAL [-Os -DLWSRP_MILAN=1] core/switch.c
+IDENTICAL [-Os -DLWSRP_MILAN=1] modules/msrp.c
+IDENTICAL [-Os -DLWSRP_MILAN=1] modules/mvrp.c
+IDENTICAL [-Os -DLWSRP_MILAN=1] modules/mmrp.c
+IDENTICAL [-Os -DLWSRP_MILAN=1] ports/alloc.c
+IDENTICAL [-Os -DLWSRP_MILAN=1] ports/timer.c
+IDENTICAL [-O2 -fPIC] core/mrp_mad.c
+IDENTICAL [-O2 -fPIC] core/mrp_pdu.c
+IDENTICAL [-O2 -fPIC] core/switch.c
+IDENTICAL [-O2 -fPIC] modules/msrp.c
+IDENTICAL [-O2 -fPIC] modules/mvrp.c
+IDENTICAL [-O2 -fPIC] modules/mmrp.c
+IDENTICAL [-O2 -fPIC] ports/alloc.c
+IDENTICAL [-O2 -fPIC] ports/timer.c
+rc=1
+# -O0 core/mrp_mad.c: symbols whose sizes differ (base / head)
+54c54
+< rx_on_attr 0000000000000574
+---
+> rx_on_attr 00000000000004fb
+# command: scripts/objects_identical.sh <base tree d1bb4f4e> <head tree 73007b48> <work>

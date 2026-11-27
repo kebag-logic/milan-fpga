@@ -1,0 +1,58 @@
+-- The C compiler identification is GNU 16.2.1
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /usr/bin/cc - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Configuring done (0.3s)
+-- Generating done (0.0s)
+-- Build files have been written to: <packet>/scratch/work/embedded/OFF
+OFF: ['cmake', '-S', '<packet>/scratch/work/embedded', '-B', '<packet>/scratch/work/embedded/OFF', '-DLWSRP_ROOT=<checkout>', '-DLWSRP_MILAN=OFF']; rc=0
+[ 18%] Building C object CMakeFiles/lwsrp.dir<checkout>/src/core/mrp_pdu.c.o
+[ 27%] Building C object CMakeFiles/lwsrp.dir<checkout>/src/core/switch.c.o
+[  9%] Building C object CMakeFiles/lwsrp.dir<checkout>/src/core/mrp_mad.c.o
+[ 36%] Building C object CMakeFiles/lwsrp.dir<checkout>/src/modules/mvrp.c.o
+[ 45%] Building C object CMakeFiles/lwsrp.dir<checkout>/src/modules/mmrp.c.o
+[ 54%] Building C object CMakeFiles/lwsrp.dir<checkout>/src/modules/msrp.c.o
+[ 63%] Building C object CMakeFiles/lwsrp.dir<checkout>/src/ports/alloc.c.o
+[ 72%] Building C object CMakeFiles/lwsrp.dir<checkout>/src/ports/timer.c.o
+[ 81%] Linking C static library liblwsrp.a
+[ 81%] Built target lwsrp
+[ 90%] Building C object CMakeFiles/probe.dir<checkout>/tests/embedded_switch.c.o
+[100%] Linking C executable probe
+[100%] Built target probe
+OFF: ['cmake', '--build', '<packet>/scratch/work/embedded/OFF', '--parallel', '2']; rc=0
+OFF: ['<packet>/scratch/work/embedded/OFF/probe']; rc=0
+-- The C compiler identification is GNU 16.2.1
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /usr/bin/cc - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Configuring done (0.3s)
+-- Generating done (0.0s)
+-- Build files have been written to: <packet>/scratch/work/embedded/ON
+ON: ['cmake', '-S', '<packet>/scratch/work/embedded', '-B', '<packet>/scratch/work/embedded/ON', '-DLWSRP_ROOT=<checkout>', '-DLWSRP_MILAN=ON']; rc=0
+[ 18%] Building C object CMakeFiles/lwsrp.dir<checkout>/src/core/mrp_pdu.c.o
+[ 27%] Building C object CMakeFiles/lwsrp.dir<checkout>/src/core/switch.c.o
+[  9%] Building C object CMakeFiles/lwsrp.dir<checkout>/src/core/mrp_mad.c.o
+[ 36%] Building C object CMakeFiles/lwsrp.dir<checkout>/src/modules/mvrp.c.o
+[ 45%] Building C object CMakeFiles/lwsrp.dir<checkout>/src/modules/mmrp.c.o
+[ 54%] Building C object CMakeFiles/lwsrp.dir<checkout>/src/modules/msrp.c.o
+[ 63%] Building C object CMakeFiles/lwsrp.dir<checkout>/src/ports/alloc.c.o
+[ 72%] Building C object CMakeFiles/lwsrp.dir<checkout>/src/ports/timer.c.o
+[ 81%] Linking C static library liblwsrp.a
+[ 81%] Built target lwsrp
+[ 90%] Building C object CMakeFiles/probe.dir<checkout>/tests/embedded_switch.c.o
+[100%] Linking C executable probe
+[100%] Built target probe
+ON: ['cmake', '--build', '<packet>/scratch/work/embedded/ON', '--parallel', '2']; rc=0
+ON: ['<packet>/scratch/work/embedded/ON/probe']; rc=0
+Embedded source list: both profile links and dispatch probes pass
+rc=0
+Freestanding sources: 7; failures: 0
+rc=0
+Freestanding sources: 7; failures: 0
+rc=0
+Freestanding sources: 7; failures: 0
+end-station freestanding rc=0
