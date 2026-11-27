@@ -1,0 +1,33 @@
+# R957-4 residue and stale-name search at 3256d1d2 (git grep over sw tb docs)
+## stale names (DELIVERY_US_DEAREST, dearest-before, 7226275798, deliv11, manager's decision of 2026-11-27): expect none
+## issue-comment ID 7229657853 (source comments are residue; docs links are allowed)
+HEAD:docs/design/SPLIT_CONTROL_MEMORY.md:2561:Each term is a source's arrival rate, a contract rate (`sw/mailbox/mailbox.yaml`) or a protocol timer, times its stated cost. The gate reads each timer fr
+HEAD:docs/reference/FR_NFR.md:427:At 8x8/1if, one AVB Interface with the 8x8 streams, the flip holds the contract-rate run on the built image, its largest-notice, `srp` and queued-notice groups includ
+HEAD:tb/verilator/ctrl_service_budget/flip_grade.py:66:#: the deliveries a registering record defers, a load term since #977, comment 7229657853, owner decision pending).
+HEAD:tb/verilator/ctrl_service_budget/load_deliveries.py:3:"""The load gate's planted controls of the deliveries term (load_grade.py's term list; #977, comment 7229657853, the
+HEAD:tb/verilator/ctrl_service_budget/load_grade.py:13:delivery window, which carry none of that work (#977, comment 7229657853, the manager's decision).
+HEAD:tb/verilator/ctrl_service_budget/load_grade.py:374:#: The deliveries term (#977, comment 7229657853, the manager's decision): the work a registering record defers into
+## files changed 3181a3ec..3256d1d2 under sw/ hdl/ third_party/
+sw/firmware/ctrl/test/srp_deliver_mutants.py
+## submodule gitlinks at 3181a3ec and 3256d1d2
+3181a3ec37 efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 external
+3181a3ec37 3ce71b768a2f6f6a5274c127080146e755d02275 gptp-processor
+3181a3ec37 801ef2283ec793e35a2590fc6593c90313a64041 protocol-processor
+3181a3ec37 e27b34c9231abaa862bdb73f807238b330aa4c51 third_party/lwSRP
+3181a3ec37 5a07d9b7d87298f04b15aa28f0304ec88b0aef81 third_party/tsn-c-stack
+3181a3ec37 48ff7a7e2ef782cf778d47910cf85835c64b1bce third_party/verilog-axis
+3256d1d2 efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 external
+3256d1d2 3ce71b768a2f6f6a5274c127080146e755d02275 gptp-processor
+3256d1d2 801ef2283ec793e35a2590fc6593c90313a64041 protocol-processor
+3256d1d2 e27b34c9231abaa862bdb73f807238b330aa4c51 third_party/lwSRP
+3256d1d2 5a07d9b7d87298f04b15aa28f0304ec88b0aef81 third_party/tsn-c-stack
+3256d1d2 48ff7a7e2ef782cf778d47910cf85835c64b1bce third_party/verilog-axis
+## hosted check runs at 3256d1d2 (count)
+0
+## workflow runs at 3256d1d2 (count)
+0
+## evidence commit 6208d963 signature
+verified=false reason=unsigned
+## round-10/11 index notes published at 6208d963 (grep supersed|publication note|2026-11-28)
+author-r10: 0 matching lines
+author-r11: 0 matching lines

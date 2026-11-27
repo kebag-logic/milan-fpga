@@ -1,0 +1,23 @@
+tree <scratch>/t3181
+FLIP {'8x8/2if': 0.7, '8x8/1if': 0.78}
+post-fix names present: False
+8x8/1if: DELIVERY_US 125 us 
+1x1/1if: DELIVERY_US 190 us 
+head: flip_checks failed []
+head: ceiling_checks failed []
+8x8/2if at 0.71: flip controls escaped ['the flip ceilings not 0.70 at 8x8/2if and 0.78 at 8x8/1if']
+8x8/2if at 0.71: flip_checks failed []
+8x8/2if at 0.71: ceiling_checks failed ['the load gate refuses a held point not held']
+unnamed flip escape: flip_checks failed []
+unnamed load-gate escape: ceiling_checks failed []
+8x8/1if flip --check findings at the head: []
+8x8/1if flip --check findings at 0.77: ['8x8/1if: the load 0.779 at the pin is over the flip ceiling 0.77']
+8x8/1if at 0.77: flip controls escaped ['the flip ceilings not 0.70 at 8x8/2if and 0.78 at 8x8/1if', '8x8/1if: 0.780 refused or 0.781 passed']
+over(0.79, 0.78) = True
+over(0.791, 0.78) = True
+over(0.78214, 0.78) = True
+over(0.7900001, 0.78) = True
+8x8/1if at 0.80: flip controls escaped ['the flip ceilings not 0.70 at 8x8/2if and 0.78 at 8x8/1if', '8x8/1if: 0.780 refused or 0.781 passed']
+load_deliveries.controls escaped []
+load_grade.findings at the head []
+rc=0

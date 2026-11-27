@@ -1,0 +1,38 @@
+tree <clone>
+FLIP {'8x8/2if': 0.7, '8x8/1if': 0.79}
+post-fix names present: True
+8x8/1if: DELIVERY_US 160 us 
+1x1/1if: DELIVERY_US 200 us 
+head: flip_checks failed []
+head: ceiling_checks failed []
+8x8/2if at 0.71: flip controls escaped ['the flip ceilings not 0.70 at 8x8/2if and 0.79 at 8x8/1if']
+8x8/2if at 0.71: flip_checks failed ['the flip check refuses the flip ceilings not 0.70 at 8x8/2if and 0.79 at 8x8/1if']
+8x8/2if at 0.71: ceiling_checks failed ['the load gate refuses a held point not held', 'the flip check refuses the flip ceilings not 0.70 at 8x8/2if and 0.79 at 8x8/1if']
+unnamed flip escape: flip_checks failed ['the flip check names every escape it returns: probe: unnamed']
+unnamed load-gate escape: ceiling_checks failed ['the load gate names every escape it returns: probe: unnamed']
+8x8/1if flip --check findings at the head: []
+8x8/1if flip --check findings at 0.77: ['8x8/1if: the load 0.782 at the pin is over the flip ceiling 0.77']
+8x8/1if at 0.77: flip controls escaped ['the flip ceilings not 0.70 at 8x8/2if and 0.79 at 8x8/1if', '8x8/1if: 0.790 refused or 0.791 passed']
+over(0.79, 0.79) = False
+over(0.791, 0.79) = True
+over(0.78214, 0.79) = False
+over(0.7900001, 0.79) = True
+8x8/1if at 0.80: flip controls escaped ['the flip ceilings not 0.70 at 8x8/2if and 0.79 at 8x8/1if', '8x8/1if: 0.790 refused or 0.791 passed']
+FLIP and RULED_FLIP both at 0.80: flip controls escaped ['8x8/1if: 0.790 refused or 0.791 passed']
+1x1/1if: DELIVERY_MEASURED 18778 cycles, by the rule 200 us, DELIVERY_US 200 us
+8x8/1if: DELIVERY_MEASURED 15104 cycles, by the rule 160 us, DELIVERY_US 160 us
+1x1/1if: beside before 50 ms 18076 cycles = 190 us, before 500 ms 18765 cycles = 200 us
+8x8/1if: beside before 50 ms 11573 cycles = 125 us, before 500 ms 13642 cycles = 145 us
+head delivery_findings []
+8x8/1if DELIVERY_US 155: delivery_findings ["8x8/1if: DELIVERY_US 155 us under its measurement's 160 us by the rule"]
+8x8/1if DELIVERY_US 159: delivery_findings ["8x8/1if: DELIVERY_US 159 us under its measurement's 160 us by the rule"]
+8x8/1if DELIVERY_US 160: delivery_findings []
+1x1/1if DELIVERY_US 195: delivery_findings ["1x1/1if: DELIVERY_US 195 us under its measurement's 200 us by the rule"]
+8x8/1if DELIVERY_US 125 (the prior figure): delivery_findings ["8x8/1if: DELIVERY_US 125 us under its measurement's 160 us by the rule"]
+load_deliveries.controls escaped []
+load_grade.findings at the head []
+
+real	0m27.949s
+user	0m27.137s
+sys	0m0.680s
+rc=0
