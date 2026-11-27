@@ -1,0 +1,42 @@
+[
+ {
+  "name": "r-rec-drop-p0",
+  "old": "(uint32_t)(p[0] ^ flags) | p[1]",
+  "new": "(uint32_t)(flags & 0u) | p[1]"
+ },
+ {
+  "name": "r-view-drop-stream",
+  "old": "(stream_id ^ y->stream.stream_id) | (dest_mac",
+  "new": "(stream_id & 0u) | (dest_mac"
+ },
+ {
+  "name": "r-view-drop-dest",
+  "old": "| (dest_mac ^ y->stream.dest_mac) |",
+  "new": "| (dest_mac & 0u) |"
+ },
+ {
+  "name": "r-view-drop-vlan",
+  "old": "(uint64_t)(vlan_id ^ y->stream.vlan_id) |",
+  "new": "(uint64_t)(vlan_id & 0u) |"
+ },
+ {
+  "name": "r-rec-drop-unique",
+  "old": "uint16_t unique = b ? s->binding.talker_unique_id : 0u;",
+  "new": "uint16_t unique = b ? s->binding.talker_unique_id : 0u;\n\tunique = (uint16_t)((p[2] << 8) | p[3]);"
+ },
+ {
+  "name": "r-rec-drop-talker",
+  "old": "\tuint32_t th = (uint32_t)(talker >> 32);\n\tuint32_t tl = (uint32_t)talker;",
+  "new": "\t(void)talker;\n\tuint32_t th = ((uint32_t)p[4] << 24) | ((uint32_t)p[5] << 16) | ((uint32_t)p[6] << 8) | p[7];\n\tuint32_t tl = ((uint32_t)p[8] << 24) | ((uint32_t)p[9] << 16) | ((uint32_t)p[10] << 8) | p[11];"
+ },
+ {
+  "name": "r-rec-drop-controller",
+  "old": "\tuint32_t ch = (uint32_t)(controller >> 32);\n\tuint32_t cl = (uint32_t)controller;",
+  "new": "\t(void)controller;\n\tuint32_t ch = ((uint32_t)p[12] << 24) | ((uint32_t)p[13] << 16) | ((uint32_t)p[14] << 8) | p[15];\n\tuint32_t cl = ((uint32_t)p[16] << 24) | ((uint32_t)p[17] << 16) | ((uint32_t)p[18] << 8) | p[19];"
+ },
+ {
+  "name": "r-rec-unique-low-byte-only",
+  "old": "(uint32_t)(p[2] ^ (unique >> 8)) |",
+  "new": "(uint32_t)(p[2] & 0u) |"
+ }
+]

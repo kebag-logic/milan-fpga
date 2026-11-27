@@ -1,0 +1,21 @@
+fatal: not a git repository (or any parent up to mount point /srv)
+Stopping at filesystem boundary (GIT_DISCOVERY_ACROSS_FILESYSTEM not set).
+Traceback (most recent call last):
+  File "$PACKET/scratch/tree/scripts/check_privacy.py", line 104, in <module>
+    raise SystemExit(selftest() if sys.argv[1:] == ["--selftest"] else main())
+                                                                       ~~~~^^
+  File "$PACKET/scratch/tree/scripts/check_privacy.py", line 74, in main
+    commits = git("rev-list", "HEAD").decode().splitlines()
+              ~~~^^^^^^^^^^^^^^^^^^^^
+  File "$PACKET/scratch/tree/scripts/check_privacy.py", line 23, in git
+    return subprocess.check_output(["git", *args], cwd=ROOT)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/subprocess.py", line 473, in check_output
+    return run(*popenargs, stdout=PIPE, timeout=timeout, check=True,
+           ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               **kwargs).stdout
+               ^^^^^^^^^
+  File "/usr/lib/python3.14/subprocess.py", line 578, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['git', 'rev-list', 'HEAD']' returned non-zero exit status 128.

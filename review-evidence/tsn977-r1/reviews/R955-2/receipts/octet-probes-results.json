@@ -1,0 +1,585 @@
+[
+ {
+  "name": "r-control-unmutated",
+  "arms": {
+   "acmp": {
+    "rc": 0,
+    "tests": 132,
+    "failed": []
+   },
+   "acmp_wide": {
+    "rc": 0,
+    "tests": 6,
+    "failed": []
+   },
+   "acmp_walk": {
+    "rc": 0,
+    "tests": 4,
+    "failed": []
+   }
+  },
+  "killed": false,
+  "killers": []
+ },
+ {
+  "name": "r2-record-omit-p0",
+  "arms": {
+   "acmp": {
+    "build": "FAILED",
+    "log": "$PACKET/scratch/work/probes-octet-probes/r2-record-omit-p0/acmp.c: In function \u2018record_moved\u2019:\n$PACKET/scratch/work/probes-octet-probes/r2-record-omit-p0/acmp.c:513:17: error: unused variable \u2018flags\u2019 [-Werror=unused-variable]\n  513 |         uint8_t flags = (uint8_t)(b ? (BIND_VALID | (s->started ? BIND_STARTED : 0u) |\n      |                 ^~~~~\ncc1: all warnings being treated as errors\n"
+   },
+   "acmp_wide": {
+    "build": "FAILED",
+    "log": "$PACKET/scratch/work/probes-octet-probes/r2-record-omit-p0/acmp.c: In function \u2018record_moved\u2019:\n$PACKET/scratch/work/probes-octet-probes/r2-record-omit-p0/acmp.c:513:17: error: unused variable \u2018flags\u2019 [-Werror=unused-variable]\n  513 |         uint8_t flags = (uint8_t)(b ? (BIND_VALID | (s->started ? BIND_STARTED : 0u) |\n      |                 ^~~~~\ncc1: all warnings being treated as errors\n"
+   },
+   "acmp_walk": {
+    "build": "FAILED",
+    "log": "$PACKET/scratch/work/probes-octet-probes/r2-record-omit-p0/acmp.c: In function \u2018record_moved\u2019:\n$PACKET/scratch/work/probes-octet-probes/r2-record-omit-p0/acmp.c:513:17: error: unused variable \u2018flags\u2019 [-Werror=unused-variable]\n  513 |         uint8_t flags = (uint8_t)(b ? (BIND_VALID | (s->started ? BIND_STARTED : 0u) |\n      |                 ^~~~~\ncc1: all warnings being treated as errors\n"
+   }
+  },
+  "killed": false,
+  "killers": []
+ },
+ {
+  "name": "r2-record-omit-p1",
+  "arms": {
+   "acmp": {
+    "rc": 0,
+    "tests": 132,
+    "failed": []
+   },
+   "acmp_wide": {
+    "rc": 0,
+    "tests": 6,
+    "failed": []
+   },
+   "acmp_walk": {
+    "rc": 0,
+    "tests": 4,
+    "failed": []
+   }
+  },
+  "killed": false,
+  "killers": []
+ },
+ {
+  "name": "r2-record-omit-p2",
+  "arms": {
+   "acmp": {
+    "rc": 1,
+    "tests": 132,
+    "failed": [
+     "AcmpCore.P3RebindChangingOnlyTheUniqueIdHighOctetIsSaved",
+     "AcmpCore.P4EachIdOctetChangedAloneIsSaved"
+    ]
+   },
+   "acmp_wide": {
+    "rc": 0,
+    "tests": 6,
+    "failed": []
+   },
+   "acmp_walk": {
+    "rc": 0,
+    "tests": 4,
+    "failed": []
+   }
+  },
+  "killed": true,
+  "killers": [
+   "AcmpCore.P3RebindChangingOnlyTheUniqueIdHighOctetIsSaved",
+   "AcmpCore.P4EachIdOctetChangedAloneIsSaved"
+  ]
+ },
+ {
+  "name": "r2-record-omit-p3",
+  "arms": {
+   "acmp": {
+    "rc": 1,
+    "tests": 132,
+    "failed": [
+     "AcmpCore.P4EachIdOctetChangedAloneIsSaved"
+    ]
+   },
+   "acmp_wide": {
+    "rc": 0,
+    "tests": 6,
+    "failed": []
+   },
+   "acmp_walk": {
+    "rc": 0,
+    "tests": 4,
+    "failed": []
+   }
+  },
+  "killed": true,
+  "killers": [
+   "AcmpCore.P4EachIdOctetChangedAloneIsSaved"
+  ]
+ },
+ {
+  "name": "r2-record-omit-p4",
+  "arms": {
+   "acmp": {
+    "rc": 1,
+    "tests": 132,
+    "failed": [
+     "AcmpCore.P1RebindChangingOnlyTheTalkerTopOctetIsSaved",
+     "AcmpCore.P4EachIdOctetChangedAloneIsSaved"
+    ]
+   },
+   "acmp_wide": {
+    "rc": 0,
+    "tests": 6,
+    "failed": []
+   },
+   "acmp_walk": {
+    "rc": 0,
+    "tests": 4,
+    "failed": []
+   }
+  },
+  "killed": true,
+  "killers": [
+   "AcmpCore.P1RebindChangingOnlyTheTalkerTopOctetIsSaved",
+   "AcmpCore.P4EachIdOctetChangedAloneIsSaved"
+  ]
+ },
+ {
+  "name": "r2-record-omit-p5",
+  "arms": {
+   "acmp": {
+    "rc": 1,
+    "tests": 132,
+    "failed": [
+     "AcmpCore.P4EachIdOctetChangedAloneIsSaved"
+    ]
+   },
+   "acmp_wide": {
+    "rc": 0,
+    "tests": 6,
+    "failed": []
+   },
+   "acmp_walk": {
+    "rc": 0,
+    "tests": 4,
+    "failed": []
+   }
+  },
+  "killed": true,
+  "killers": [
+   "AcmpCore.P4EachIdOctetChangedAloneIsSaved"
+  ]
+ },
+ {
+  "name": "r2-record-omit-p6",
+  "arms": {
+   "acmp": {
+    "rc": 1,
+    "tests": 132,
+    "failed": [
+     "AcmpCore.P4EachIdOctetChangedAloneIsSaved"
+    ]
+   },
+   "acmp_wide": {
+    "rc": 0,
+    "tests": 6,
+    "failed": []
+   },
+   "acmp_walk": {
+    "rc": 0,
+    "tests": 4,
+    "failed": []
+   }
+  },
+  "killed": true,
+  "killers": [
+   "AcmpCore.P4EachIdOctetChangedAloneIsSaved"
+  ]
+ },
+ {
+  "name": "r2-record-omit-p7",
+  "arms": {
+   "acmp": {
+    "rc": 1,
+    "tests": 132,
+    "failed": [
+     "AcmpCore.P4EachIdOctetChangedAloneIsSaved"
+    ]
+   },
+   "acmp_wide": {
+    "rc": 0,
+    "tests": 6,
+    "failed": []
+   },
+   "acmp_walk": {
+    "rc": 0,
+    "tests": 4,
+    "failed": []
+   }
+  },
+  "killed": true,
+  "killers": [
+   "AcmpCore.P4EachIdOctetChangedAloneIsSaved"
+  ]
+ },
+ {
+  "name": "r2-record-omit-p8",
+  "arms": {
+   "acmp": {
+    "rc": 1,
+    "tests": 132,
+    "failed": [
+     "AcmpCore.P4EachIdOctetChangedAloneIsSaved"
+    ]
+   },
+   "acmp_wide": {
+    "rc": 0,
+    "tests": 6,
+    "failed": []
+   },
+   "acmp_walk": {
+    "rc": 0,
+    "tests": 4,
+    "failed": []
+   }
+  },
+  "killed": true,
+  "killers": [
+   "AcmpCore.P4EachIdOctetChangedAloneIsSaved"
+  ]
+ },
+ {
+  "name": "r2-record-omit-p9",
+  "arms": {
+   "acmp": {
+    "rc": 1,
+    "tests": 132,
+    "failed": [
+     "AcmpCore.P4EachIdOctetChangedAloneIsSaved"
+    ]
+   },
+   "acmp_wide": {
+    "rc": 0,
+    "tests": 6,
+    "failed": []
+   },
+   "acmp_walk": {
+    "rc": 0,
+    "tests": 4,
+    "failed": []
+   }
+  },
+  "killed": true,
+  "killers": [
+   "AcmpCore.P4EachIdOctetChangedAloneIsSaved"
+  ]
+ },
+ {
+  "name": "r2-record-omit-p10",
+  "arms": {
+   "acmp": {
+    "rc": 1,
+    "tests": 132,
+    "failed": [
+     "AcmpCore.P4EachIdOctetChangedAloneIsSaved"
+    ]
+   },
+   "acmp_wide": {
+    "rc": 0,
+    "tests": 6,
+    "failed": []
+   },
+   "acmp_walk": {
+    "rc": 0,
+    "tests": 4,
+    "failed": []
+   }
+  },
+  "killed": true,
+  "killers": [
+   "AcmpCore.P4EachIdOctetChangedAloneIsSaved"
+  ]
+ },
+ {
+  "name": "r2-record-omit-p11",
+  "arms": {
+   "acmp": {
+    "rc": 1,
+    "tests": 132,
+    "failed": [
+     "AcmpCore.P4EachIdOctetChangedAloneIsSaved"
+    ]
+   },
+   "acmp_wide": {
+    "rc": 0,
+    "tests": 6,
+    "failed": []
+   },
+   "acmp_walk": {
+    "rc": 0,
+    "tests": 4,
+    "failed": []
+   }
+  },
+  "killed": true,
+  "killers": [
+   "AcmpCore.P4EachIdOctetChangedAloneIsSaved"
+  ]
+ },
+ {
+  "name": "r2-record-omit-p12",
+  "arms": {
+   "acmp": {
+    "rc": 1,
+    "tests": 132,
+    "failed": [
+     "AcmpCore.P2RebindChangingOnlyTheControllerTopOctetIsSaved",
+     "AcmpCore.P4EachIdOctetChangedAloneIsSaved"
+    ]
+   },
+   "acmp_wide": {
+    "rc": 0,
+    "tests": 6,
+    "failed": []
+   },
+   "acmp_walk": {
+    "rc": 0,
+    "tests": 4,
+    "failed": []
+   }
+  },
+  "killed": true,
+  "killers": [
+   "AcmpCore.P2RebindChangingOnlyTheControllerTopOctetIsSaved",
+   "AcmpCore.P4EachIdOctetChangedAloneIsSaved"
+  ]
+ },
+ {
+  "name": "r2-record-omit-p13",
+  "arms": {
+   "acmp": {
+    "rc": 1,
+    "tests": 132,
+    "failed": [
+     "AcmpCore.P4EachIdOctetChangedAloneIsSaved"
+    ]
+   },
+   "acmp_wide": {
+    "rc": 0,
+    "tests": 6,
+    "failed": []
+   },
+   "acmp_walk": {
+    "rc": 0,
+    "tests": 4,
+    "failed": []
+   }
+  },
+  "killed": true,
+  "killers": [
+   "AcmpCore.P4EachIdOctetChangedAloneIsSaved"
+  ]
+ },
+ {
+  "name": "r2-record-omit-p14",
+  "arms": {
+   "acmp": {
+    "rc": 1,
+    "tests": 132,
+    "failed": [
+     "AcmpCore.P4EachIdOctetChangedAloneIsSaved"
+    ]
+   },
+   "acmp_wide": {
+    "rc": 0,
+    "tests": 6,
+    "failed": []
+   },
+   "acmp_walk": {
+    "rc": 0,
+    "tests": 4,
+    "failed": []
+   }
+  },
+  "killed": true,
+  "killers": [
+   "AcmpCore.P4EachIdOctetChangedAloneIsSaved"
+  ]
+ },
+ {
+  "name": "r2-record-omit-p15",
+  "arms": {
+   "acmp": {
+    "rc": 1,
+    "tests": 132,
+    "failed": [
+     "AcmpCore.P4EachIdOctetChangedAloneIsSaved"
+    ]
+   },
+   "acmp_wide": {
+    "rc": 0,
+    "tests": 6,
+    "failed": []
+   },
+   "acmp_walk": {
+    "rc": 0,
+    "tests": 4,
+    "failed": []
+   }
+  },
+  "killed": true,
+  "killers": [
+   "AcmpCore.P4EachIdOctetChangedAloneIsSaved"
+  ]
+ },
+ {
+  "name": "r2-record-omit-p16",
+  "arms": {
+   "acmp": {
+    "rc": 1,
+    "tests": 132,
+    "failed": [
+     "AcmpCore.P4EachIdOctetChangedAloneIsSaved"
+    ]
+   },
+   "acmp_wide": {
+    "rc": 0,
+    "tests": 6,
+    "failed": []
+   },
+   "acmp_walk": {
+    "rc": 0,
+    "tests": 4,
+    "failed": []
+   }
+  },
+  "killed": true,
+  "killers": [
+   "AcmpCore.P4EachIdOctetChangedAloneIsSaved"
+  ]
+ },
+ {
+  "name": "r2-record-omit-p17",
+  "arms": {
+   "acmp": {
+    "rc": 1,
+    "tests": 132,
+    "failed": [
+     "AcmpCore.P4EachIdOctetChangedAloneIsSaved"
+    ]
+   },
+   "acmp_wide": {
+    "rc": 0,
+    "tests": 6,
+    "failed": []
+   },
+   "acmp_walk": {
+    "rc": 0,
+    "tests": 4,
+    "failed": []
+   }
+  },
+  "killed": true,
+  "killers": [
+   "AcmpCore.P4EachIdOctetChangedAloneIsSaved"
+  ]
+ },
+ {
+  "name": "r2-record-omit-p18",
+  "arms": {
+   "acmp": {
+    "rc": 1,
+    "tests": 132,
+    "failed": [
+     "AcmpCore.P4EachIdOctetChangedAloneIsSaved"
+    ]
+   },
+   "acmp_wide": {
+    "rc": 0,
+    "tests": 6,
+    "failed": []
+   },
+   "acmp_walk": {
+    "rc": 0,
+    "tests": 4,
+    "failed": []
+   }
+  },
+  "killed": true,
+  "killers": [
+   "AcmpCore.P4EachIdOctetChangedAloneIsSaved"
+  ]
+ },
+ {
+  "name": "r2-record-omit-p19",
+  "arms": {
+   "acmp": {
+    "rc": 1,
+    "tests": 132,
+    "failed": [
+     "AcmpCore.P4EachIdOctetChangedAloneIsSaved"
+    ]
+   },
+   "acmp_wide": {
+    "rc": 0,
+    "tests": 6,
+    "failed": []
+   },
+   "acmp_walk": {
+    "rc": 0,
+    "tests": 4,
+    "failed": []
+   }
+  },
+  "killed": true,
+  "killers": [
+   "AcmpCore.P4EachIdOctetChangedAloneIsSaved"
+  ]
+ },
+ {
+  "name": "r-control-planted-acmp-nothing-persisted",
+  "arms": {
+   "acmp": {
+    "rc": 1,
+    "tests": 132,
+    "failed": [
+     "AcmpCore.A19AResponseWithoutRoomIsOwedAndItsChangeWaits",
+     "AcmpCore.A1BindFromUnboundRespondsThenProbes",
+     "AcmpCore.A23EveryPortIsGuarded",
+     "AcmpCore.A24StartedIsSavedAndReported",
+     "AcmpCore.A3UnbindInEveryState",
+     "AcmpCore.A5RebindTheSameSourceUpdatesAndExits",
+     "AcmpCore.A6BindAnotherSourceRestartsTheSink",
+     "AcmpCore.P1RebindChangingOnlyTheTalkerTopOctetIsSaved",
+     "AcmpCore.P2RebindChangingOnlyTheControllerTopOctetIsSaved",
+     "AcmpCore.P3RebindChangingOnlyTheUniqueIdHighOctetIsSaved",
+     "AcmpCore.P4EachIdOctetChangedAloneIsSaved"
+    ]
+   },
+   "acmp_wide": {
+    "rc": 0,
+    "tests": 6,
+    "failed": []
+   },
+   "acmp_walk": {
+    "rc": 0,
+    "tests": 4,
+    "failed": []
+   }
+  },
+  "killed": true,
+  "killers": [
+   "AcmpCore.A19AResponseWithoutRoomIsOwedAndItsChangeWaits",
+   "AcmpCore.A1BindFromUnboundRespondsThenProbes",
+   "AcmpCore.A23EveryPortIsGuarded",
+   "AcmpCore.A24StartedIsSavedAndReported",
+   "AcmpCore.A3UnbindInEveryState",
+   "AcmpCore.A5RebindTheSameSourceUpdatesAndExits",
+   "AcmpCore.A6BindAnotherSourceRestartsTheSink",
+   "AcmpCore.P1RebindChangingOnlyTheTalkerTopOctetIsSaved",
+   "AcmpCore.P2RebindChangingOnlyTheControllerTopOctetIsSaved",
+   "AcmpCore.P3RebindChangingOnlyTheUniqueIdHighOctetIsSaved",
+   "AcmpCore.P4EachIdOctetChangedAloneIsSaved"
+  ]
+ }
+]

@@ -1,0 +1,19 @@
+# Hosted check runs at 0f72ca69a0cd85ade9a3f1c42a325b23704cf625 (read-only API)
+bare-metal	completed	success	0f72ca69a0cd85ade9a3f1c42a325b23704cf625	https://github.com/kebag-logic/tsn-c-stack/actions/runs/45961505812/job/140380155731
+quality	completed	success	0f72ca69a0cd85ade9a3f1c42a325b23704cf625	https://github.com/kebag-logic/tsn-c-stack/actions/runs/45961505812/job/140380155382
+quality	completed	success	0f72ca69a0cd85ade9a3f1c42a325b23704cf625	https://github.com/kebag-logic/tsn-c-stack/actions/runs/45961500310/job/140380137446
+bare-metal	completed	success	0f72ca69a0cd85ade9a3f1c42a325b23704cf625	https://github.com/kebag-logic/tsn-c-stack/actions/runs/45961500310/job/140380137283
+run 45961505812 event pull_request head 0f72ca69a0cd85ade9a3f1c42a325b23704cf625 conclusion success
+run 45961500310 event push head 0f72ca69a0cd85ade9a3f1c42a325b23704cf625 conclusion success
+quality job 140380155382 steps:
+  Set up job: success
+  Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262: success
+  Install host dependencies: success
+  Validate the portable cores: success
+  Keep gate evidence: success
+  Post Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262: success
+  Complete job: success
+quality-evidence artifact (run 45961505812) gates.json:
+   28 gates, rcs [0]
+  mutation.log last line: {"CAUGHT": 522, "ESCAPED": 0, "ERROR": 0}
+  conditionals.log last line: conditionals: 35 files; 58 region sides compiled

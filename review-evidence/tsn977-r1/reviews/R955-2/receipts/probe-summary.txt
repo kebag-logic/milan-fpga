@@ -1,0 +1,119 @@
+## probes {'KILLED': 54, 'SURVIVED': 13, 'BUILD-FAILED': 4}
+SURVIVED     r-control-unmutated 
+KILLED       r-publish-word-zero AcmpWalk.ThirtyThreeSinksMatchTheFullWalk;AcmpWide.SinkThirtyTwoBoundAloneIsPublishedAndAdmitted
+KILLED       r-publish-no-shift AcmpCore.A31LeavingSettlementTakesTheStreamOffTheDatapath;AcmpCore.A31RestoredBindingsArePublishedWhenTheTransportOpens;AcmpWalk.EightSinksMatchTheFullWalk;AcmpWalk.ThirtyThreeSinksMatchTheFullWalk;Ac
+KILLED       r-publish-no-reload AcmpWide.SinkThirtyTwoBoundAloneIsPublishedAndAdmitted
+SURVIVED     r-publish-every-sink 
+KILLED       r-publish-stop-at-empty-word AcmpWalk.ThirtyThreeSinksMatchTheFullWalk;AcmpWide.SinkThirtyTwoBoundAloneIsPublishedAndAdmitted
+KILLED       r-admit-word-zero AcmpWalk.ThirtyThreeSinksMatchTheFullWalk;AcmpWide.SinkThirtyTwoBoundAloneIsPublishedAndAdmitted
+KILLED       r-admit-no-shift AcmpCore.A29RestoredBindingsAreAdmittedWhenTheTransportOpens;AcmpCore.A29TheAdmitPortFollowsEachSinksBoundTalker;AcmpWalk.EightSinksMatchTheFullWalk;AcmpWalk.ThirtyThreeSinksMatchTheFullWalk;AcmpWalk.
+KILLED       r-admit-no-reload AcmpWide.SinkThirtyTwoBoundAloneIsPublishedAndAdmitted
+SURVIVED     r-admit-every-sink 
+KILLED       r-admit-stop-at-empty-word AcmpWalk.ThirtyThreeSinksMatchTheFullWalk;AcmpWide.SinkThirtyTwoBoundAloneIsPublishedAndAdmitted
+KILLED       r-finish-word-zero AcmpWalk.ThirtyThreeSinksMatchTheFullWalk;AcmpWide.OwedResponsesHoldOnlyTheirOwnSinksChanges;AcmpWide.ProbeInTheSlotOfSinkThirtyTwosResponseHoldsNoSink;AcmpWide.SinksThirtyOneAndThirtyTwoWaitOnlyForTh
+KILLED       r-finish-no-shift AcmpCore.A19AProbeInTheSlotOfAnEarlierResponseHoldsNoSink;AcmpWalk.EightSinksMatchTheFullWalk;AcmpWalk.ThirtyThreeSinksMatchTheFullWalk;AcmpWalk.ThirtyTwoSinksMatchTheFullWalk;AcmpWide.ProbeInTheSlotO
+KILLED       r-finish-no-reload AcmpWide.OwedResponsesHoldOnlyTheirOwnSinksChanges;AcmpWide.ProbeInTheSlotOfSinkThirtyTwosResponseHoldsNoSink;AcmpWide.SinksThirtyOneAndThirtyTwoWaitOnlyForTheirOwnResponses
+SURVIVED     r-finish-every-sink 
+KILLED       r-finish-stop-at-empty-word AcmpWalk.ThirtyThreeSinksMatchTheFullWalk;AcmpWide.OwedResponsesHoldOnlyTheirOwnSinksChanges;AcmpWide.ProbeInTheSlotOfSinkThirtyTwosResponseHoldsNoSink;AcmpWide.SinksThirtyOneAndThirtyTwoWaitOnlyForTh
+BUILD-FAILED r-rec-drop-p0 
+SURVIVED     r-rec-drop-p1 
+KILLED       r-rec-drop-p2 AcmpCore.P3RebindChangingOnlyTheUniqueIdHighOctetIsSaved;AcmpCore.P4EachIdOctetChangedAloneIsSaved
+KILLED       r-rec-drop-p3 AcmpCore.P4EachIdOctetChangedAloneIsSaved
+KILLED       r-rec-drop-p4 AcmpCore.P1RebindChangingOnlyTheTalkerTopOctetIsSaved;AcmpCore.P4EachIdOctetChangedAloneIsSaved
+KILLED       r-rec-drop-p5 AcmpCore.P4EachIdOctetChangedAloneIsSaved
+KILLED       r-rec-drop-p6 AcmpCore.P4EachIdOctetChangedAloneIsSaved
+KILLED       r-rec-drop-p7 AcmpCore.P4EachIdOctetChangedAloneIsSaved
+KILLED       r-rec-drop-p8 AcmpCore.P4EachIdOctetChangedAloneIsSaved
+KILLED       r-rec-drop-p9 AcmpCore.P4EachIdOctetChangedAloneIsSaved
+KILLED       r-rec-drop-p10 AcmpCore.P4EachIdOctetChangedAloneIsSaved
+KILLED       r-rec-drop-p11 AcmpCore.P4EachIdOctetChangedAloneIsSaved
+KILLED       r-rec-drop-p12 AcmpCore.P2RebindChangingOnlyTheControllerTopOctetIsSaved;AcmpCore.P4EachIdOctetChangedAloneIsSaved
+KILLED       r-rec-drop-p13 AcmpCore.P4EachIdOctetChangedAloneIsSaved
+KILLED       r-rec-drop-p14 AcmpCore.P4EachIdOctetChangedAloneIsSaved
+KILLED       r-rec-drop-p15 AcmpCore.P4EachIdOctetChangedAloneIsSaved
+KILLED       r-rec-drop-p16 AcmpCore.P4EachIdOctetChangedAloneIsSaved
+KILLED       r-rec-drop-p17 AcmpCore.P4EachIdOctetChangedAloneIsSaved
+KILLED       r-rec-drop-p18 AcmpCore.P4EachIdOctetChangedAloneIsSaved
+KILLED       r-rec-drop-p19 AcmpCore.P4EachIdOctetChangedAloneIsSaved
+SURVIVED     r-rec-unique-ungated 
+SURVIVED     r-rec-talker-ungated 
+SURVIVED     r-rec-controller-ungated 
+KILLED       r-rec-no-started-flag AcmpCore.A22DiscoveredStateCells;AcmpCore.A24StartedIsSavedAndReported;AcmpCore.A25OnlyTable522ItemsAreReported;AcmpWalk.EightSinksMatchTheFullWalk;AcmpWalk.OneSinkMatchesTheFullWalk;AcmpWalk.ThirtyTh
+KILLED       r-rec-no-wait-flag AcmpCore.A24StartedIsSavedAndReported;AcmpWalk.EightSinksMatchTheFullWalk;AcmpWalk.OneSinkMatchesTheFullWalk;AcmpWalk.ThirtyThreeSinksMatchTheFullWalk;AcmpWalk.ThirtyTwoSinksMatchTheFullWalk
+KILLED       r-rec-no-valid-flag AcmpCore.A22DiscoveredStateCells;AcmpCore.A24StartedIsSavedAndReported;AcmpCore.A25OnlyTable522ItemsAreReported;AcmpCore.A29RestoredBindingsAreAdmittedWhenTheTransportOpens;AcmpWalk.EightSinksMatchThe
+KILLED       r-rec-th-low AcmpCore.A22DiscoveredStateCells;AcmpCore.A24StartedIsSavedAndReported;AcmpCore.A25OnlyTable522ItemsAreReported;AcmpCore.A29RestoredBindingsAreAdmittedWhenTheTransportOpens;AcmpWalk.EightSinksMatchThe
+KILLED       r-rec-ch-low AcmpCore.A22DiscoveredStateCells;AcmpCore.A24StartedIsSavedAndReported;AcmpCore.A25OnlyTable522ItemsAreReported;AcmpCore.A29RestoredBindingsAreAdmittedWhenTheTransportOpens;AcmpWalk.EightSinksMatchThe
+KILLED       r-rec-always-moved AcmpCore.A22DiscoveredStateCells;AcmpCore.A24StartedIsSavedAndReported;AcmpCore.A25OnlyTable522ItemsAreReported;AcmpCore.A29RestoredBindingsAreAdmittedWhenTheTransportOpens;AcmpCore.A3UnbindInEverySta
+KILLED       r-fin-saved-not-written AcmpCore.A22DiscoveredStateCells;AcmpCore.A24StartedIsSavedAndReported;AcmpCore.A25OnlyTable522ItemsAreReported;AcmpCore.A3UnbindInEveryState;AcmpCore.P1RebindChangingOnlyTheTalkerTopOctetIsSaved;Acmp
+BUILD-FAILED r-view-drop-stream 
+BUILD-FAILED r-view-drop-dest 
+BUILD-FAILED r-view-drop-vlan 
+SURVIVED     r-view-drop-bound 
+KILLED       r-view-drop-started AcmpCore.A19AProbeInTheSlotOfAnEarlierResponseHoldsNoSink;AcmpCore.A24StartedIsSavedAndReported;AcmpCore.A31TheStartedLevelIsPublishedBeforeItIsPromised;AcmpWide.ProbeInTheSlotOfSinkThirtyOnesResponse
+KILLED       r-view-drop-registered AcmpCore.A14RegisteredSettlesTheReservation
+KILLED       r-view-drop-failed AcmpCore.KindChangesOnlyTheSettledView
+SURVIVED     r-view-failed-ungated 
+SURVIVED     r-view-stream-ungated 
+SURVIVED     r-view-dest-ungated 
+SURVIVED     r-view-vlan-ungated 
+KILLED       r-view-settled-rsv-only AcmpCore.A25OnlyTable522ItemsAreReported;AcmpCore.A31TheStartedLevelIsPublishedBeforeItIsPromised;AcmpWalk.EightSinksMatchTheFullWalk;AcmpWalk.OneSinkMatchesTheFullWalk;AcmpWalk.ThirtyThreeSinksMatchT
+KILLED       r-view-registered-any-settled AcmpCore.A25OnlyTable522ItemsAreReported;AcmpCore.A31TheStartedLevelIsPublishedBeforeItIsPromised;AcmpWalk.EightSinksMatchTheFullWalk;AcmpWalk.OneSinkMatchesTheFullWalk;AcmpWalk.ThirtyThreeSinksMatchT
+KILLED       r-view-always-moved AcmpCore.A19AProbeInTheSlotOfAnEarlierResponseHoldsNoSink;AcmpCore.A19TwoOwedResponsesForOneSinkReleaseTogether;AcmpCore.A22DiscoveredStateCells;AcmpCore.A24StartedIsSavedAndReported;AcmpCore.A25OnlyT
+KILLED       r-fin-reported-not-written AcmpCore.A19AProbeInTheSlotOfAnEarlierResponseHoldsNoSink;AcmpCore.A22DiscoveredStateCells;AcmpCore.A24StartedIsSavedAndReported;AcmpCore.A25OnlyTable522ItemsAreReported;AcmpCore.A31TheStartedLevelIsP
+KILLED       r-viewof-drop-binding-talker_entity_id AcmpCore.AdpTimeoutRetainsBindingAndReprobes;AcmpCore.DepartingRetainsBindingAndReprobes
+KILLED       r-viewof-drop-binding-controller_entity_id AcmpCore.AdpTimeoutRetainsBindingAndReprobes;AcmpCore.DepartingRetainsBindingAndReprobes
+KILLED       r-viewof-drop-binding-talker_unique_id AcmpCore.AdpTimeoutRetainsBindingAndReprobes;AcmpCore.DepartingRetainsBindingAndReprobes
+KILLED       r-viewof-drop-binding-streaming_wait AcmpCore.P5TheViewCarriesTheBindingsStreamingWait
+KILLED       r-viewof-drop-stream-stream_id AcmpCore.A25OnlyTable522ItemsAreReported;AcmpCore.A31TheStartedLevelIsPublishedBeforeItIsPromised;AcmpCore.KindChangesOnlyTheSettledView;AcmpWalk.EightSinksMatchTheFullWalk;AcmpWalk.OneSinkMatchesTheF
+KILLED       r-viewof-drop-stream-dest_mac AcmpCore.A25OnlyTable522ItemsAreReported;AcmpCore.A31TheStartedLevelIsPublishedBeforeItIsPromised;AcmpCore.KindChangesOnlyTheSettledView;AcmpWalk.EightSinksMatchTheFullWalk;AcmpWalk.OneSinkMatchesTheF
+KILLED       r-viewof-drop-stream-vlan_id AcmpCore.A25OnlyTable522ItemsAreReported;AcmpCore.A31TheStartedLevelIsPublishedBeforeItIsPromised;AcmpCore.A8SuccessSettles;AcmpCore.KindChangesOnlyTheSettledView;AcmpWalk.EightSinksMatchTheFullWalk;A
+KILLED       r-viewof-binding-swap-ids AcmpCore.AdpTimeoutRetainsBindingAndReprobes;AcmpCore.DepartingRetainsBindingAndReprobes
+KILLED       r-clear-dirty-if-kept AcmpWalk.EightSinksMatchTheFullWalk;AcmpWalk.OneSinkMatchesTheFullWalk;AcmpWalk.ThirtyThreeSinksMatchTheFullWalk;AcmpWalk.ThirtyTwoSinksMatchTheFullWalk
+KILLED       r-control-planted-acmp-nothing-persisted AcmpCore.A19AResponseWithoutRoomIsOwedAndItsChangeWaits;AcmpCore.A1BindFromUnboundRespondsThenProbes;AcmpCore.A23EveryPortIsGuarded;AcmpCore.A24StartedIsSavedAndReported;AcmpCore.A3UnbindInEveryState;
+## probes2 {'KILLED': 6, 'SURVIVED': 4, 'BUILD-FAILED': 0}
+SURVIVED     r-control-unmutated 
+KILLED       r-rec-drop-p0 AcmpCore.A24StartedIsSavedAndReported
+SURVIVED     r-view-drop-stream 
+SURVIVED     r-view-drop-dest 
+SURVIVED     r-view-drop-vlan 
+KILLED       r-rec-drop-unique AcmpCore.P3RebindChangingOnlyTheUniqueIdHighOctetIsSaved;AcmpCore.P4EachIdOctetChangedAloneIsSaved
+KILLED       r-rec-drop-talker AcmpCore.P1RebindChangingOnlyTheTalkerTopOctetIsSaved;AcmpCore.P4EachIdOctetChangedAloneIsSaved
+KILLED       r-rec-drop-controller AcmpCore.P2RebindChangingOnlyTheControllerTopOctetIsSaved;AcmpCore.P4EachIdOctetChangedAloneIsSaved
+KILLED       r-rec-unique-low-byte-only AcmpCore.P3RebindChangingOnlyTheUniqueIdHighOctetIsSaved;AcmpCore.P4EachIdOctetChangedAloneIsSaved
+KILLED       r-control-planted-acmp-nothing-persisted AcmpCore.A19AResponseWithoutRoomIsOwedAndItsChangeWaits;AcmpCore.A1BindFromUnboundRespondsThenProbes;AcmpCore.A23EveryPortIsGuarded;AcmpCore.A24StartedIsSavedAndReported;AcmpCore.A3UnbindInEveryState;
+## octet-probes {'KILLED': 19, 'SURVIVED': 2, 'BUILD-FAILED': 1}
+SURVIVED     r-control-unmutated 
+BUILD-FAILED r2-record-omit-p0 
+SURVIVED     r2-record-omit-p1 
+KILLED       r2-record-omit-p2 AcmpCore.P3RebindChangingOnlyTheUniqueIdHighOctetIsSaved;AcmpCore.P4EachIdOctetChangedAloneIsSaved
+KILLED       r2-record-omit-p3 AcmpCore.P4EachIdOctetChangedAloneIsSaved
+KILLED       r2-record-omit-p4 AcmpCore.P1RebindChangingOnlyTheTalkerTopOctetIsSaved;AcmpCore.P4EachIdOctetChangedAloneIsSaved
+KILLED       r2-record-omit-p5 AcmpCore.P4EachIdOctetChangedAloneIsSaved
+KILLED       r2-record-omit-p6 AcmpCore.P4EachIdOctetChangedAloneIsSaved
+KILLED       r2-record-omit-p7 AcmpCore.P4EachIdOctetChangedAloneIsSaved
+KILLED       r2-record-omit-p8 AcmpCore.P4EachIdOctetChangedAloneIsSaved
+KILLED       r2-record-omit-p9 AcmpCore.P4EachIdOctetChangedAloneIsSaved
+KILLED       r2-record-omit-p10 AcmpCore.P4EachIdOctetChangedAloneIsSaved
+KILLED       r2-record-omit-p11 AcmpCore.P4EachIdOctetChangedAloneIsSaved
+KILLED       r2-record-omit-p12 AcmpCore.P2RebindChangingOnlyTheControllerTopOctetIsSaved;AcmpCore.P4EachIdOctetChangedAloneIsSaved
+KILLED       r2-record-omit-p13 AcmpCore.P4EachIdOctetChangedAloneIsSaved
+KILLED       r2-record-omit-p14 AcmpCore.P4EachIdOctetChangedAloneIsSaved
+KILLED       r2-record-omit-p15 AcmpCore.P4EachIdOctetChangedAloneIsSaved
+KILLED       r2-record-omit-p16 AcmpCore.P4EachIdOctetChangedAloneIsSaved
+KILLED       r2-record-omit-p17 AcmpCore.P4EachIdOctetChangedAloneIsSaved
+KILLED       r2-record-omit-p18 AcmpCore.P4EachIdOctetChangedAloneIsSaved
+KILLED       r2-record-omit-p19 AcmpCore.P4EachIdOctetChangedAloneIsSaved
+KILLED       r-control-planted-acmp-nothing-persisted AcmpCore.A19AResponseWithoutRoomIsOwedAndItsChangeWaits;AcmpCore.A1BindFromUnboundRespondsThenProbes;AcmpCore.A23EveryPortIsGuarded;AcmpCore.A24StartedIsSavedAndReported;AcmpCore.A3UnbindInEveryState;
+## registered-new-plants {'KILLED': 11, 'SURVIVED': 1, 'BUILD-FAILED': 0}
+SURVIVED     r-control-unmutated 
+KILLED       reg-record-omit-talker-top-octet AcmpCore.P1RebindChangingOnlyTheTalkerTopOctetIsSaved;AcmpCore.P4EachIdOctetChangedAloneIsSaved
+KILLED       reg-record-omit-controller-top-octet AcmpCore.P2RebindChangingOnlyTheControllerTopOctetIsSaved;AcmpCore.P4EachIdOctetChangedAloneIsSaved
+KILLED       reg-record-omit-unique-high-octet AcmpCore.P3RebindChangingOnlyTheUniqueIdHighOctetIsSaved;AcmpCore.P4EachIdOctetChangedAloneIsSaved
+KILLED       reg-record-drop-unique AcmpCore.P3RebindChangingOnlyTheUniqueIdHighOctetIsSaved;AcmpCore.P4EachIdOctetChangedAloneIsSaved
+KILLED       reg-record-drop-talker AcmpCore.P1RebindChangingOnlyTheTalkerTopOctetIsSaved;AcmpCore.P4EachIdOctetChangedAloneIsSaved
+KILLED       reg-record-drop-controller AcmpCore.P2RebindChangingOnlyTheControllerTopOctetIsSaved;AcmpCore.P4EachIdOctetChangedAloneIsSaved
+KILLED       reg-record-omit-talker-low-octet AcmpCore.P4EachIdOctetChangedAloneIsSaved
+KILLED       reg-walk-publish-no-reload AcmpWide.SinkThirtyTwoBoundAloneIsPublishedAndAdmitted
+KILLED       reg-walk-admit-no-reload AcmpWide.SinkThirtyTwoBoundAloneIsPublishedAndAdmitted
+KILLED       reg-view-drop-streaming-wait AcmpCore.P5TheViewCarriesTheBindingsStreamingWait
+KILLED       r-control-planted-acmp-nothing-persisted AcmpCore.A19AResponseWithoutRoomIsOwedAndItsChangeWaits;AcmpCore.A1BindFromUnboundRespondsThenProbes;AcmpCore.A23EveryPortIsGuarded;AcmpCore.A24StartedIsSavedAndReported;AcmpCore.A3UnbindInEveryState;

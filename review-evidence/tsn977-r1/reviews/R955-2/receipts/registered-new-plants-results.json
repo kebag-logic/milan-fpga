@@ -1,0 +1,342 @@
+[
+ {
+  "name": "r-control-unmutated",
+  "arms": {
+   "acmp": {
+    "rc": 0,
+    "tests": 132,
+    "failed": []
+   },
+   "acmp_wide": {
+    "rc": 0,
+    "tests": 6,
+    "failed": []
+   },
+   "acmp_walk": {
+    "rc": 0,
+    "tests": 4,
+    "failed": []
+   }
+  },
+  "killed": false,
+  "killers": []
+ },
+ {
+  "name": "reg-record-omit-talker-top-octet",
+  "arms": {
+   "acmp": {
+    "rc": 1,
+    "tests": 132,
+    "failed": [
+     "AcmpCore.P1RebindChangingOnlyTheTalkerTopOctetIsSaved",
+     "AcmpCore.P4EachIdOctetChangedAloneIsSaved"
+    ]
+   },
+   "acmp_wide": {
+    "rc": 0,
+    "tests": 6,
+    "failed": []
+   },
+   "acmp_walk": {
+    "rc": 0,
+    "tests": 4,
+    "failed": []
+   }
+  },
+  "killed": true,
+  "killers": [
+   "AcmpCore.P1RebindChangingOnlyTheTalkerTopOctetIsSaved",
+   "AcmpCore.P4EachIdOctetChangedAloneIsSaved"
+  ]
+ },
+ {
+  "name": "reg-record-omit-controller-top-octet",
+  "arms": {
+   "acmp": {
+    "rc": 1,
+    "tests": 132,
+    "failed": [
+     "AcmpCore.P2RebindChangingOnlyTheControllerTopOctetIsSaved",
+     "AcmpCore.P4EachIdOctetChangedAloneIsSaved"
+    ]
+   },
+   "acmp_wide": {
+    "rc": 0,
+    "tests": 6,
+    "failed": []
+   },
+   "acmp_walk": {
+    "rc": 0,
+    "tests": 4,
+    "failed": []
+   }
+  },
+  "killed": true,
+  "killers": [
+   "AcmpCore.P2RebindChangingOnlyTheControllerTopOctetIsSaved",
+   "AcmpCore.P4EachIdOctetChangedAloneIsSaved"
+  ]
+ },
+ {
+  "name": "reg-record-omit-unique-high-octet",
+  "arms": {
+   "acmp": {
+    "rc": 1,
+    "tests": 132,
+    "failed": [
+     "AcmpCore.P3RebindChangingOnlyTheUniqueIdHighOctetIsSaved",
+     "AcmpCore.P4EachIdOctetChangedAloneIsSaved"
+    ]
+   },
+   "acmp_wide": {
+    "rc": 0,
+    "tests": 6,
+    "failed": []
+   },
+   "acmp_walk": {
+    "rc": 0,
+    "tests": 4,
+    "failed": []
+   }
+  },
+  "killed": true,
+  "killers": [
+   "AcmpCore.P3RebindChangingOnlyTheUniqueIdHighOctetIsSaved",
+   "AcmpCore.P4EachIdOctetChangedAloneIsSaved"
+  ]
+ },
+ {
+  "name": "reg-record-drop-unique",
+  "arms": {
+   "acmp": {
+    "rc": 1,
+    "tests": 132,
+    "failed": [
+     "AcmpCore.P3RebindChangingOnlyTheUniqueIdHighOctetIsSaved",
+     "AcmpCore.P4EachIdOctetChangedAloneIsSaved"
+    ]
+   },
+   "acmp_wide": {
+    "rc": 0,
+    "tests": 6,
+    "failed": []
+   },
+   "acmp_walk": {
+    "rc": 0,
+    "tests": 4,
+    "failed": []
+   }
+  },
+  "killed": true,
+  "killers": [
+   "AcmpCore.P3RebindChangingOnlyTheUniqueIdHighOctetIsSaved",
+   "AcmpCore.P4EachIdOctetChangedAloneIsSaved"
+  ]
+ },
+ {
+  "name": "reg-record-drop-talker",
+  "arms": {
+   "acmp": {
+    "rc": 1,
+    "tests": 132,
+    "failed": [
+     "AcmpCore.P1RebindChangingOnlyTheTalkerTopOctetIsSaved",
+     "AcmpCore.P4EachIdOctetChangedAloneIsSaved"
+    ]
+   },
+   "acmp_wide": {
+    "rc": 0,
+    "tests": 6,
+    "failed": []
+   },
+   "acmp_walk": {
+    "rc": 0,
+    "tests": 4,
+    "failed": []
+   }
+  },
+  "killed": true,
+  "killers": [
+   "AcmpCore.P1RebindChangingOnlyTheTalkerTopOctetIsSaved",
+   "AcmpCore.P4EachIdOctetChangedAloneIsSaved"
+  ]
+ },
+ {
+  "name": "reg-record-drop-controller",
+  "arms": {
+   "acmp": {
+    "rc": 1,
+    "tests": 132,
+    "failed": [
+     "AcmpCore.P2RebindChangingOnlyTheControllerTopOctetIsSaved",
+     "AcmpCore.P4EachIdOctetChangedAloneIsSaved"
+    ]
+   },
+   "acmp_wide": {
+    "rc": 0,
+    "tests": 6,
+    "failed": []
+   },
+   "acmp_walk": {
+    "rc": 0,
+    "tests": 4,
+    "failed": []
+   }
+  },
+  "killed": true,
+  "killers": [
+   "AcmpCore.P2RebindChangingOnlyTheControllerTopOctetIsSaved",
+   "AcmpCore.P4EachIdOctetChangedAloneIsSaved"
+  ]
+ },
+ {
+  "name": "reg-record-omit-talker-low-octet",
+  "arms": {
+   "acmp": {
+    "rc": 1,
+    "tests": 132,
+    "failed": [
+     "AcmpCore.P4EachIdOctetChangedAloneIsSaved"
+    ]
+   },
+   "acmp_wide": {
+    "rc": 0,
+    "tests": 6,
+    "failed": []
+   },
+   "acmp_walk": {
+    "rc": 0,
+    "tests": 4,
+    "failed": []
+   }
+  },
+  "killed": true,
+  "killers": [
+   "AcmpCore.P4EachIdOctetChangedAloneIsSaved"
+  ]
+ },
+ {
+  "name": "reg-walk-publish-no-reload",
+  "arms": {
+   "acmp": {
+    "rc": 0,
+    "tests": 132,
+    "failed": []
+   },
+   "acmp_wide": {
+    "rc": 1,
+    "tests": 6,
+    "failed": [
+     "AcmpWide.SinkThirtyTwoBoundAloneIsPublishedAndAdmitted"
+    ]
+   },
+   "acmp_walk": {
+    "rc": 0,
+    "tests": 4,
+    "failed": []
+   }
+  },
+  "killed": true,
+  "killers": [
+   "AcmpWide.SinkThirtyTwoBoundAloneIsPublishedAndAdmitted"
+  ]
+ },
+ {
+  "name": "reg-walk-admit-no-reload",
+  "arms": {
+   "acmp": {
+    "rc": 0,
+    "tests": 132,
+    "failed": []
+   },
+   "acmp_wide": {
+    "rc": 1,
+    "tests": 6,
+    "failed": [
+     "AcmpWide.SinkThirtyTwoBoundAloneIsPublishedAndAdmitted"
+    ]
+   },
+   "acmp_walk": {
+    "rc": 0,
+    "tests": 4,
+    "failed": []
+   }
+  },
+  "killed": true,
+  "killers": [
+   "AcmpWide.SinkThirtyTwoBoundAloneIsPublishedAndAdmitted"
+  ]
+ },
+ {
+  "name": "reg-view-drop-streaming-wait",
+  "arms": {
+   "acmp": {
+    "rc": 1,
+    "tests": 132,
+    "failed": [
+     "AcmpCore.P5TheViewCarriesTheBindingsStreamingWait"
+    ]
+   },
+   "acmp_wide": {
+    "rc": 0,
+    "tests": 6,
+    "failed": []
+   },
+   "acmp_walk": {
+    "rc": 0,
+    "tests": 4,
+    "failed": []
+   }
+  },
+  "killed": true,
+  "killers": [
+   "AcmpCore.P5TheViewCarriesTheBindingsStreamingWait"
+  ]
+ },
+ {
+  "name": "r-control-planted-acmp-nothing-persisted",
+  "arms": {
+   "acmp": {
+    "rc": 1,
+    "tests": 132,
+    "failed": [
+     "AcmpCore.A19AResponseWithoutRoomIsOwedAndItsChangeWaits",
+     "AcmpCore.A1BindFromUnboundRespondsThenProbes",
+     "AcmpCore.A23EveryPortIsGuarded",
+     "AcmpCore.A24StartedIsSavedAndReported",
+     "AcmpCore.A3UnbindInEveryState",
+     "AcmpCore.A5RebindTheSameSourceUpdatesAndExits",
+     "AcmpCore.A6BindAnotherSourceRestartsTheSink",
+     "AcmpCore.P1RebindChangingOnlyTheTalkerTopOctetIsSaved",
+     "AcmpCore.P2RebindChangingOnlyTheControllerTopOctetIsSaved",
+     "AcmpCore.P3RebindChangingOnlyTheUniqueIdHighOctetIsSaved",
+     "AcmpCore.P4EachIdOctetChangedAloneIsSaved"
+    ]
+   },
+   "acmp_wide": {
+    "rc": 0,
+    "tests": 6,
+    "failed": []
+   },
+   "acmp_walk": {
+    "rc": 0,
+    "tests": 4,
+    "failed": []
+   }
+  },
+  "killed": true,
+  "killers": [
+   "AcmpCore.A19AResponseWithoutRoomIsOwedAndItsChangeWaits",
+   "AcmpCore.A1BindFromUnboundRespondsThenProbes",
+   "AcmpCore.A23EveryPortIsGuarded",
+   "AcmpCore.A24StartedIsSavedAndReported",
+   "AcmpCore.A3UnbindInEveryState",
+   "AcmpCore.A5RebindTheSameSourceUpdatesAndExits",
+   "AcmpCore.A6BindAnotherSourceRestartsTheSink",
+   "AcmpCore.P1RebindChangingOnlyTheTalkerTopOctetIsSaved",
+   "AcmpCore.P2RebindChangingOnlyTheControllerTopOctetIsSaved",
+   "AcmpCore.P3RebindChangingOnlyTheUniqueIdHighOctetIsSaved",
+   "AcmpCore.P4EachIdOctetChangedAloneIsSaved"
+  ]
+ }
+]

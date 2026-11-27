@@ -1,0 +1,102 @@
+[
+ {
+  "name": "r2-record-omit-p0",
+  "old": "(uint32_t)(p[0] ^ flags)",
+  "new": "0u"
+ },
+ {
+  "name": "r2-record-omit-p1",
+  "old": "p[1]",
+  "new": "0u"
+ },
+ {
+  "name": "r2-record-omit-p2",
+  "old": "(uint32_t)(p[2] ^ (unique >> 8))",
+  "new": "0u"
+ },
+ {
+  "name": "r2-record-omit-p3",
+  "old": "(uint32_t)(p[3] ^ (unique & 0xFFu))",
+  "new": "0u"
+ },
+ {
+  "name": "r2-record-omit-p4",
+  "old": "(p[4] ^ (th >> 24))",
+  "new": "0u"
+ },
+ {
+  "name": "r2-record-omit-p5",
+  "old": "(p[5] ^ ((th >> 16) & 0xFFu))",
+  "new": "0u"
+ },
+ {
+  "name": "r2-record-omit-p6",
+  "old": "(p[6] ^ ((th >> 8) & 0xFFu))",
+  "new": "0u"
+ },
+ {
+  "name": "r2-record-omit-p7",
+  "old": "(p[7] ^ (th & 0xFFu))",
+  "new": "0u"
+ },
+ {
+  "name": "r2-record-omit-p8",
+  "old": "(p[8] ^ (tl >> 24))",
+  "new": "0u"
+ },
+ {
+  "name": "r2-record-omit-p9",
+  "old": "(p[9] ^ ((tl >> 16) & 0xFFu))",
+  "new": "0u"
+ },
+ {
+  "name": "r2-record-omit-p10",
+  "old": "(p[10] ^ ((tl >> 8) & 0xFFu))",
+  "new": "0u"
+ },
+ {
+  "name": "r2-record-omit-p11",
+  "old": "(p[11] ^ (tl & 0xFFu))",
+  "new": "0u"
+ },
+ {
+  "name": "r2-record-omit-p12",
+  "old": "(p[12] ^ (ch >> 24))",
+  "new": "0u"
+ },
+ {
+  "name": "r2-record-omit-p13",
+  "old": "(p[13] ^ ((ch >> 16) & 0xFFu))",
+  "new": "0u"
+ },
+ {
+  "name": "r2-record-omit-p14",
+  "old": "(p[14] ^ ((ch >> 8) & 0xFFu))",
+  "new": "0u"
+ },
+ {
+  "name": "r2-record-omit-p15",
+  "old": "(p[15] ^ (ch & 0xFFu))",
+  "new": "0u"
+ },
+ {
+  "name": "r2-record-omit-p16",
+  "old": "(p[16] ^ (cl >> 24))",
+  "new": "0u"
+ },
+ {
+  "name": "r2-record-omit-p17",
+  "old": "(p[17] ^ ((cl >> 16) & 0xFFu))",
+  "new": "0u"
+ },
+ {
+  "name": "r2-record-omit-p18",
+  "old": "(p[18] ^ ((cl >> 8) & 0xFFu))",
+  "new": "0u"
+ },
+ {
+  "name": "r2-record-omit-p19",
+  "old": "(p[19] ^ (cl & 0xFFu))",
+  "new": "0u"
+ }
+]

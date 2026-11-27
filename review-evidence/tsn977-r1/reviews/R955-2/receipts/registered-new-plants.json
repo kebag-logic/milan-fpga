@@ -1,0 +1,52 @@
+[
+ {
+  "name": "reg-record-omit-talker-top-octet",
+  "old": "(p[4] ^ (th >> 24))",
+  "new": "0u"
+ },
+ {
+  "name": "reg-record-omit-controller-top-octet",
+  "old": "(p[12] ^ (ch >> 24))",
+  "new": "0u"
+ },
+ {
+  "name": "reg-record-omit-unique-high-octet",
+  "old": "(uint32_t)(p[2] ^ (unique >> 8))",
+  "new": "0u"
+ },
+ {
+  "name": "reg-record-drop-unique",
+  "old": "uint16_t unique = b ? s->binding.talker_unique_id : 0u;",
+  "new": "uint16_t unique = wire_be16(p + 2);"
+ },
+ {
+  "name": "reg-record-drop-talker",
+  "old": "uint64_t talker = b ? s->binding.talker_entity_id : 0u;",
+  "new": "uint64_t talker = wire_be64(p + 4);"
+ },
+ {
+  "name": "reg-record-drop-controller",
+  "old": "uint64_t controller = b ? s->binding.controller_entity_id : 0u;",
+  "new": "uint64_t controller = wire_be64(p + 12);"
+ },
+ {
+  "name": "reg-record-omit-talker-low-octet",
+  "old": "(p[11] ^ (tl & 0xFFu))",
+  "new": "0u"
+ },
+ {
+  "name": "reg-walk-publish-no-reload",
+  "old": "\t\tif (k % 32u == 0u) {\n\t\t\tbits = a->dirty[k / 32u];\n\t\t}\n\t\tif ((bits & 1u) == 0u) {\n\t\t\tcontinue;\n\t\t}\n\t\tstruct acmp_sink *s = &a->sinks[k];\n\t\tbool settled",
+  "new": "\t\tif (k == 0u) {\n\t\t\tbits = a->dirty[k / 32u];\n\t\t}\n\t\tif ((bits & 1u) == 0u) {\n\t\t\tcontinue;\n\t\t}\n\t\tstruct acmp_sink *s = &a->sinks[k];\n\t\tbool settled"
+ },
+ {
+  "name": "reg-walk-admit-no-reload",
+  "old": "\t\tif (k % 32u == 0u) {\n\t\t\tbits = a->dirty[k / 32u];\n\t\t}\n\t\tif ((bits & 1u) == 0u) {\n\t\t\tcontinue;\n\t\t}\n\t\tstruct acmp_sink *s = &a->sinks[k];\n\t\tuint64_t talker = s->binding.talker_entity_id;",
+  "new": "\t\tif (k == 0u) {\n\t\t\tbits = a->dirty[k / 32u];\n\t\t}\n\t\tif ((bits & 1u) == 0u) {\n\t\t\tcontinue;\n\t\t}\n\t\tstruct acmp_sink *s = &a->sinks[k];\n\t\tuint64_t talker = s->binding.talker_entity_id;"
+ },
+ {
+  "name": "reg-view-drop-streaming-wait",
+  "old": "\tv->binding.streaming_wait = s->binding.streaming_wait;\n",
+  "new": ""
+ }
+]

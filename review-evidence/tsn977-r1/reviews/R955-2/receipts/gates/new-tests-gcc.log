@@ -1,0 +1,30 @@
+Note: Google Test filter = AcmpCore.P*
+[==========] Running 5 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 5 tests from AcmpCore
+[ RUN      ] AcmpCore.P1RebindChangingOnlyTheTalkerTopOctetIsSaved
+[       OK ] AcmpCore.P1RebindChangingOnlyTheTalkerTopOctetIsSaved (0 ms)
+[ RUN      ] AcmpCore.P2RebindChangingOnlyTheControllerTopOctetIsSaved
+[       OK ] AcmpCore.P2RebindChangingOnlyTheControllerTopOctetIsSaved (0 ms)
+[ RUN      ] AcmpCore.P3RebindChangingOnlyTheUniqueIdHighOctetIsSaved
+[       OK ] AcmpCore.P3RebindChangingOnlyTheUniqueIdHighOctetIsSaved (0 ms)
+[ RUN      ] AcmpCore.P4EachIdOctetChangedAloneIsSaved
+[       OK ] AcmpCore.P4EachIdOctetChangedAloneIsSaved (0 ms)
+[ RUN      ] AcmpCore.P5TheViewCarriesTheBindingsStreamingWait
+[       OK ] AcmpCore.P5TheViewCarriesTheBindingsStreamingWait (0 ms)
+[----------] 5 tests from AcmpCore (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 5 tests from 1 test suite ran. (0 ms total)
+[  PASSED  ] 5 tests.
+Note: Google Test filter = AcmpWide.SinkThirtyTwo*
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from AcmpWide
+[ RUN      ] AcmpWide.SinkThirtyTwoBoundAloneIsPublishedAndAdmitted
+[       OK ] AcmpWide.SinkThirtyTwoBoundAloneIsPublishedAndAdmitted (0 ms)
+[----------] 1 test from AcmpWide (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.

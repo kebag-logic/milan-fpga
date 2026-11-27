@@ -1,0 +1,2101 @@
+[
+ {
+  "name": "r-control-unmutated",
+  "arms": {
+   "acmp": {
+    "rc": 0,
+    "tests": 132,
+    "failed": []
+   },
+   "acmp_wide": {
+    "rc": 0,
+    "tests": 6,
+    "failed": []
+   },
+   "acmp_walk": {
+    "rc": 0,
+    "tests": 4,
+    "failed": []
+   }
+  },
+  "killed": false,
+  "killers": []
+ },
+ {
+  "name": "r-publish-word-zero",
+  "arms": {
+   "acmp": {
+    "rc": 0,
+    "tests": 132,
+    "failed": []
+   },
+   "acmp_wide": {
+    "rc": 1,
+    "tests": 6,
+    "failed": [
+     "AcmpWide.SinkThirtyTwoBoundAloneIsPublishedAndAdmitted"
+    ]
+   },
+   "acmp_walk": {
+    "rc": 1,
+    "tests": 4,
+    "failed": [
+     "AcmpWalk.ThirtyThreeSinksMatchTheFullWalk"
+    ]
+   }
+  },
+  "killed": true,
+  "killers": [
+   "AcmpWalk.ThirtyThreeSinksMatchTheFullWalk",
+   "AcmpWide.SinkThirtyTwoBoundAloneIsPublishedAndAdmitted"
+  ]
+ },
+ {
+  "name": "r-publish-no-shift",
+  "arms": {
+   "acmp": {
+    "rc": 1,
+    "tests": 132,
+    "failed": [
+     "AcmpCore.A31LeavingSettlementTakesTheStreamOffTheDatapath",
+     "AcmpCore.A31RestoredBindingsArePublishedWhenTheTransportOpens"
+    ]
+   },
+   "acmp_wide": {
+    "rc": 0,
+    "tests": 6,
+    "failed": []
+   },
+   "acmp_walk": {
+    "rc": 1,
+    "tests": 4,
+    "failed": [
+     "AcmpWalk.EightSinksMatchTheFullWalk",
+     "AcmpWalk.ThirtyThreeSinksMatchTheFullWalk",
+     "AcmpWalk.ThirtyTwoSinksMatchTheFullWalk"
+    ]
+   }
+  },
+  "killed": true,
+  "killers": [
+   "AcmpCore.A31LeavingSettlementTakesTheStreamOffTheDatapath",
+   "AcmpCore.A31RestoredBindingsArePublishedWhenTheTransportOpens",
+   "AcmpWalk.EightSinksMatchTheFullWalk",
+   "AcmpWalk.ThirtyThreeSinksMatchTheFullWalk",
+   "AcmpWalk.ThirtyTwoSinksMatchTheFullWalk"
+  ]
+ },
+ {
+  "name": "r-publish-no-reload",
+  "arms": {
+   "acmp": {
+    "rc": 0,
+    "tests": 132,
+    "failed": []
+   },
+   "acmp_wide": {
+    "rc": 1,
+    "tests": 6,
+    "failed": [
+     "AcmpWide.SinkThirtyTwoBoundAloneIsPublishedAndAdmitted"
+    ]
+   },
+   "acmp_walk": {
+    "rc": 0,
+    "tests": 4,
+    "failed": []
+   }
+  },
+  "killed": true,
+  "killers": [
+   "AcmpWide.SinkThirtyTwoBoundAloneIsPublishedAndAdmitted"
+  ]
+ },
+ {
+  "name": "r-publish-every-sink",
+  "arms": {
+   "acmp": {
+    "rc": 0,
+    "tests": 132,
+    "failed": []
+   },
+   "acmp_wide": {
+    "rc": 0,
+    "tests": 6,
+    "failed": []
+   },
+   "acmp_walk": {
+    "rc": 0,
+    "tests": 4,
+    "failed": []
+   }
+  },
+  "killed": false,
+  "killers": []
+ },
+ {
+  "name": "r-publish-stop-at-empty-word",
+  "arms": {
+   "acmp": {
+    "rc": 0,
+    "tests": 132,
+    "failed": []
+   },
+   "acmp_wide": {
+    "rc": 1,
+    "tests": 6,
+    "failed": [
+     "AcmpWide.SinkThirtyTwoBoundAloneIsPublishedAndAdmitted"
+    ]
+   },
+   "acmp_walk": {
+    "rc": 1,
+    "tests": 4,
+    "failed": [
+     "AcmpWalk.ThirtyThreeSinksMatchTheFullWalk"
+    ]
+   }
+  },
+  "killed": true,
+  "killers": [
+   "AcmpWalk.ThirtyThreeSinksMatchTheFullWalk",
+   "AcmpWide.SinkThirtyTwoBoundAloneIsPublishedAndAdmitted"
+  ]
+ },
+ {
+  "name": "r-admit-word-zero",
+  "arms": {
+   "acmp": {
+    "rc": 0,
+    "tests": 132,
+    "failed": []
+   },
+   "acmp_wide": {
+    "rc": 1,
+    "tests": 6,
+    "failed": [
+     "AcmpWide.SinkThirtyTwoBoundAloneIsPublishedAndAdmitted"
+    ]
+   },
+   "acmp_walk": {
+    "rc": 1,
+    "tests": 4,
+    "failed": [
+     "AcmpWalk.ThirtyThreeSinksMatchTheFullWalk"
+    ]
+   }
+  },
+  "killed": true,
+  "killers": [
+   "AcmpWalk.ThirtyThreeSinksMatchTheFullWalk",
+   "AcmpWide.SinkThirtyTwoBoundAloneIsPublishedAndAdmitted"
+  ]
+ },
+ {
+  "name": "r-admit-no-shift",
+  "arms": {
+   "acmp": {
+    "rc": 1,
+    "tests": 132,
+    "failed": [
+     "AcmpCore.A29RestoredBindingsAreAdmittedWhenTheTransportOpens",
+     "AcmpCore.A29TheAdmitPortFollowsEachSinksBoundTalker"
+    ]
+   },
+   "acmp_wide": {
+    "rc": 0,
+    "tests": 6,
+    "failed": []
+   },
+   "acmp_walk": {
+    "rc": 1,
+    "tests": 4,
+    "failed": [
+     "AcmpWalk.EightSinksMatchTheFullWalk",
+     "AcmpWalk.ThirtyThreeSinksMatchTheFullWalk",
+     "AcmpWalk.ThirtyTwoSinksMatchTheFullWalk"
+    ]
+   }
+  },
+  "killed": true,
+  "killers": [
+   "AcmpCore.A29RestoredBindingsAreAdmittedWhenTheTransportOpens",
+   "AcmpCore.A29TheAdmitPortFollowsEachSinksBoundTalker",
+   "AcmpWalk.EightSinksMatchTheFullWalk",
+   "AcmpWalk.ThirtyThreeSinksMatchTheFullWalk",
+   "AcmpWalk.ThirtyTwoSinksMatchTheFullWalk"
+  ]
+ },
+ {
+  "name": "r-admit-no-reload",
+  "arms": {
+   "acmp": {
+    "rc": 0,
+    "tests": 132,
+    "failed": []
+   },
+   "acmp_wide": {
+    "rc": 1,
+    "tests": 6,
+    "failed": [
+     "AcmpWide.SinkThirtyTwoBoundAloneIsPublishedAndAdmitted"
+    ]
+   },
+   "acmp_walk": {
+    "rc": 0,
+    "tests": 4,
+    "failed": []
+   }
+  },
+  "killed": true,
+  "killers": [
+   "AcmpWide.SinkThirtyTwoBoundAloneIsPublishedAndAdmitted"
+  ]
+ },
+ {
+  "name": "r-admit-every-sink",
+  "arms": {
+   "acmp": {
+    "rc": 0,
+    "tests": 132,
+    "failed": []
+   },
+   "acmp_wide": {
+    "rc": 0,
+    "tests": 6,
+    "failed": []
+   },
+   "acmp_walk": {
+    "rc": 0,
+    "tests": 4,
+    "failed": []
+   }
+  },
+  "killed": false,
+  "killers": []
+ },
+ {
+  "name": "r-admit-stop-at-empty-word",
+  "arms": {
+   "acmp": {
+    "rc": 0,
+    "tests": 132,
+    "failed": []
+   },
+   "acmp_wide": {
+    "rc": 1,
+    "tests": 6,
+    "failed": [
+     "AcmpWide.SinkThirtyTwoBoundAloneIsPublishedAndAdmitted"
+    ]
+   },
+   "acmp_walk": {
+    "rc": 1,
+    "tests": 4,
+    "failed": [
+     "AcmpWalk.ThirtyThreeSinksMatchTheFullWalk"
+    ]
+   }
+  },
+  "killed": true,
+  "killers": [
+   "AcmpWalk.ThirtyThreeSinksMatchTheFullWalk",
+   "AcmpWide.SinkThirtyTwoBoundAloneIsPublishedAndAdmitted"
+  ]
+ },
+ {
+  "name": "r-finish-word-zero",
+  "arms": {
+   "acmp": {
+    "rc": 0,
+    "tests": 132,
+    "failed": []
+   },
+   "acmp_wide": {
+    "rc": 1,
+    "tests": 6,
+    "failed": [
+     "AcmpWide.OwedResponsesHoldOnlyTheirOwnSinksChanges",
+     "AcmpWide.ProbeInTheSlotOfSinkThirtyTwosResponseHoldsNoSink",
+     "AcmpWide.SinksThirtyOneAndThirtyTwoWaitOnlyForTheirOwnResponses"
+    ]
+   },
+   "acmp_walk": {
+    "rc": 1,
+    "tests": 4,
+    "failed": [
+     "AcmpWalk.ThirtyThreeSinksMatchTheFullWalk"
+    ]
+   }
+  },
+  "killed": true,
+  "killers": [
+   "AcmpWalk.ThirtyThreeSinksMatchTheFullWalk",
+   "AcmpWide.OwedResponsesHoldOnlyTheirOwnSinksChanges",
+   "AcmpWide.ProbeInTheSlotOfSinkThirtyTwosResponseHoldsNoSink",
+   "AcmpWide.SinksThirtyOneAndThirtyTwoWaitOnlyForTheirOwnResponses"
+  ]
+ },
+ {
+  "name": "r-finish-no-shift",
+  "arms": {
+   "acmp": {
+    "rc": 1,
+    "tests": 132,
+    "failed": [
+     "AcmpCore.A19AProbeInTheSlotOfAnEarlierResponseHoldsNoSink"
+    ]
+   },
+   "acmp_wide": {
+    "rc": 1,
+    "tests": 6,
+    "failed": [
+     "AcmpWide.ProbeInTheSlotOfSinkThirtyOnesResponseHoldsNoSink",
+     "AcmpWide.SinksThirtyOneAndThirtyTwoWaitOnlyForTheirOwnResponses"
+    ]
+   },
+   "acmp_walk": {
+    "rc": 1,
+    "tests": 4,
+    "failed": [
+     "AcmpWalk.EightSinksMatchTheFullWalk",
+     "AcmpWalk.ThirtyThreeSinksMatchTheFullWalk",
+     "AcmpWalk.ThirtyTwoSinksMatchTheFullWalk"
+    ]
+   }
+  },
+  "killed": true,
+  "killers": [
+   "AcmpCore.A19AProbeInTheSlotOfAnEarlierResponseHoldsNoSink",
+   "AcmpWalk.EightSinksMatchTheFullWalk",
+   "AcmpWalk.ThirtyThreeSinksMatchTheFullWalk",
+   "AcmpWalk.ThirtyTwoSinksMatchTheFullWalk",
+   "AcmpWide.ProbeInTheSlotOfSinkThirtyOnesResponseHoldsNoSink",
+   "AcmpWide.SinksThirtyOneAndThirtyTwoWaitOnlyForTheirOwnResponses"
+  ]
+ },
+ {
+  "name": "r-finish-no-reload",
+  "arms": {
+   "acmp": {
+    "rc": 0,
+    "tests": 132,
+    "failed": []
+   },
+   "acmp_wide": {
+    "rc": 1,
+    "tests": 6,
+    "failed": [
+     "AcmpWide.OwedResponsesHoldOnlyTheirOwnSinksChanges",
+     "AcmpWide.ProbeInTheSlotOfSinkThirtyTwosResponseHoldsNoSink",
+     "AcmpWide.SinksThirtyOneAndThirtyTwoWaitOnlyForTheirOwnResponses"
+    ]
+   },
+   "acmp_walk": {
+    "rc": 0,
+    "tests": 4,
+    "failed": []
+   }
+  },
+  "killed": true,
+  "killers": [
+   "AcmpWide.OwedResponsesHoldOnlyTheirOwnSinksChanges",
+   "AcmpWide.ProbeInTheSlotOfSinkThirtyTwosResponseHoldsNoSink",
+   "AcmpWide.SinksThirtyOneAndThirtyTwoWaitOnlyForTheirOwnResponses"
+  ]
+ },
+ {
+  "name": "r-finish-every-sink",
+  "arms": {
+   "acmp": {
+    "rc": 0,
+    "tests": 132,
+    "failed": []
+   },
+   "acmp_wide": {
+    "rc": 0,
+    "tests": 6,
+    "failed": []
+   },
+   "acmp_walk": {
+    "rc": 0,
+    "tests": 4,
+    "failed": []
+   }
+  },
+  "killed": false,
+  "killers": []
+ },
+ {
+  "name": "r-finish-stop-at-empty-word",
+  "arms": {
+   "acmp": {
+    "rc": 0,
+    "tests": 132,
+    "failed": []
+   },
+   "acmp_wide": {
+    "rc": 1,
+    "tests": 6,
+    "failed": [
+     "AcmpWide.OwedResponsesHoldOnlyTheirOwnSinksChanges",
+     "AcmpWide.ProbeInTheSlotOfSinkThirtyTwosResponseHoldsNoSink",
+     "AcmpWide.SinksThirtyOneAndThirtyTwoWaitOnlyForTheirOwnResponses"
+    ]
+   },
+   "acmp_walk": {
+    "rc": 1,
+    "tests": 4,
+    "failed": [
+     "AcmpWalk.ThirtyThreeSinksMatchTheFullWalk"
+    ]
+   }
+  },
+  "killed": true,
+  "killers": [
+   "AcmpWalk.ThirtyThreeSinksMatchTheFullWalk",
+   "AcmpWide.OwedResponsesHoldOnlyTheirOwnSinksChanges",
+   "AcmpWide.ProbeInTheSlotOfSinkThirtyTwosResponseHoldsNoSink",
+   "AcmpWide.SinksThirtyOneAndThirtyTwoWaitOnlyForTheirOwnResponses"
+  ]
+ },
+ {
+  "name": "r-rec-drop-p0",
+  "arms": {
+   "acmp": {
+    "build": "FAILED",
+    "log": "$PACKET/scratch/work/probes-probes/r-rec-drop-p0/acmp.c: In function \u2018record_moved\u2019:\n$PACKET/scratch/work/probes-probes/r-rec-drop-p0/acmp.c:513:17: error: unused variable \u2018flags\u2019 [-Werror=unused-variable]\n  513 |         uint8_t flags = (uint8_t)(b ? (BIND_VALID | (s->started ? BIND_STARTED : 0u) |\n      |                 ^~~~~\ncc1: all warnings being treated as errors\n"
+   },
+   "acmp_wide": {
+    "build": "FAILED",
+    "log": "$PACKET/scratch/work/probes-probes/r-rec-drop-p0/acmp.c: In function \u2018record_moved\u2019:\n$PACKET/scratch/work/probes-probes/r-rec-drop-p0/acmp.c:513:17: error: unused variable \u2018flags\u2019 [-Werror=unused-variable]\n  513 |         uint8_t flags = (uint8_t)(b ? (BIND_VALID | (s->started ? BIND_STARTED : 0u) |\n      |                 ^~~~~\ncc1: all warnings being treated as errors\n"
+   },
+   "acmp_walk": {
+    "build": "FAILED",
+    "log": "$PACKET/scratch/work/probes-probes/r-rec-drop-p0/acmp.c: In function \u2018record_moved\u2019:\n$PACKET/scratch/work/probes-probes/r-rec-drop-p0/acmp.c:513:17: error: unused variable \u2018flags\u2019 [-Werror=unused-variable]\n  513 |         uint8_t flags = (uint8_t)(b ? (BIND_VALID | (s->started ? BIND_STARTED : 0u) |\n      |                 ^~~~~\ncc1: all warnings being treated as errors\n"
+   }
+  },
+  "killed": false,
+  "killers": []
+ },
+ {
+  "name": "r-rec-drop-p1",
+  "arms": {
+   "acmp": {
+    "rc": 0,
+    "tests": 132,
+    "failed": []
+   },
+   "acmp_wide": {
+    "rc": 0,
+    "tests": 6,
+    "failed": []
+   },
+   "acmp_walk": {
+    "rc": 0,
+    "tests": 4,
+    "failed": []
+   }
+  },
+  "killed": false,
+  "killers": []
+ },
+ {
+  "name": "r-rec-drop-p2",
+  "arms": {
+   "acmp": {
+    "rc": 1,
+    "tests": 132,
+    "failed": [
+     "AcmpCore.P3RebindChangingOnlyTheUniqueIdHighOctetIsSaved",
+     "AcmpCore.P4EachIdOctetChangedAloneIsSaved"
+    ]
+   },
+   "acmp_wide": {
+    "rc": 0,
+    "tests": 6,
+    "failed": []
+   },
+   "acmp_walk": {
+    "rc": 0,
+    "tests": 4,
+    "failed": []
+   }
+  },
+  "killed": true,
+  "killers": [
+   "AcmpCore.P3RebindChangingOnlyTheUniqueIdHighOctetIsSaved",
+   "AcmpCore.P4EachIdOctetChangedAloneIsSaved"
+  ]
+ },
+ {
+  "name": "r-rec-drop-p3",
+  "arms": {
+   "acmp": {
+    "rc": 1,
+    "tests": 132,
+    "failed": [
+     "AcmpCore.P4EachIdOctetChangedAloneIsSaved"
+    ]
+   },
+   "acmp_wide": {
+    "rc": 0,
+    "tests": 6,
+    "failed": []
+   },
+   "acmp_walk": {
+    "rc": 0,
+    "tests": 4,
+    "failed": []
+   }
+  },
+  "killed": true,
+  "killers": [
+   "AcmpCore.P4EachIdOctetChangedAloneIsSaved"
+  ]
+ },
+ {
+  "name": "r-rec-drop-p4",
+  "arms": {
+   "acmp": {
+    "rc": 1,
+    "tests": 132,
+    "failed": [
+     "AcmpCore.P1RebindChangingOnlyTheTalkerTopOctetIsSaved",
+     "AcmpCore.P4EachIdOctetChangedAloneIsSaved"
+    ]
+   },
+   "acmp_wide": {
+    "rc": 0,
+    "tests": 6,
+    "failed": []
+   },
+   "acmp_walk": {
+    "rc": 0,
+    "tests": 4,
+    "failed": []
+   }
+  },
+  "killed": true,
+  "killers": [
+   "AcmpCore.P1RebindChangingOnlyTheTalkerTopOctetIsSaved",
+   "AcmpCore.P4EachIdOctetChangedAloneIsSaved"
+  ]
+ },
+ {
+  "name": "r-rec-drop-p5",
+  "arms": {
+   "acmp": {
+    "rc": 1,
+    "tests": 132,
+    "failed": [
+     "AcmpCore.P4EachIdOctetChangedAloneIsSaved"
+    ]
+   },
+   "acmp_wide": {
+    "rc": 0,
+    "tests": 6,
+    "failed": []
+   },
+   "acmp_walk": {
+    "rc": 0,
+    "tests": 4,
+    "failed": []
+   }
+  },
+  "killed": true,
+  "killers": [
+   "AcmpCore.P4EachIdOctetChangedAloneIsSaved"
+  ]
+ },
+ {
+  "name": "r-rec-drop-p6",
+  "arms": {
+   "acmp": {
+    "rc": 1,
+    "tests": 132,
+    "failed": [
+     "AcmpCore.P4EachIdOctetChangedAloneIsSaved"
+    ]
+   },
+   "acmp_wide": {
+    "rc": 0,
+    "tests": 6,
+    "failed": []
+   },
+   "acmp_walk": {
+    "rc": 0,
+    "tests": 4,
+    "failed": []
+   }
+  },
+  "killed": true,
+  "killers": [
+   "AcmpCore.P4EachIdOctetChangedAloneIsSaved"
+  ]
+ },
+ {
+  "name": "r-rec-drop-p7",
+  "arms": {
+   "acmp": {
+    "rc": 1,
+    "tests": 132,
+    "failed": [
+     "AcmpCore.P4EachIdOctetChangedAloneIsSaved"
+    ]
+   },
+   "acmp_wide": {
+    "rc": 0,
+    "tests": 6,
+    "failed": []
+   },
+   "acmp_walk": {
+    "rc": 0,
+    "tests": 4,
+    "failed": []
+   }
+  },
+  "killed": true,
+  "killers": [
+   "AcmpCore.P4EachIdOctetChangedAloneIsSaved"
+  ]
+ },
+ {
+  "name": "r-rec-drop-p8",
+  "arms": {
+   "acmp": {
+    "rc": 1,
+    "tests": 132,
+    "failed": [
+     "AcmpCore.P4EachIdOctetChangedAloneIsSaved"
+    ]
+   },
+   "acmp_wide": {
+    "rc": 0,
+    "tests": 6,
+    "failed": []
+   },
+   "acmp_walk": {
+    "rc": 0,
+    "tests": 4,
+    "failed": []
+   }
+  },
+  "killed": true,
+  "killers": [
+   "AcmpCore.P4EachIdOctetChangedAloneIsSaved"
+  ]
+ },
+ {
+  "name": "r-rec-drop-p9",
+  "arms": {
+   "acmp": {
+    "rc": 1,
+    "tests": 132,
+    "failed": [
+     "AcmpCore.P4EachIdOctetChangedAloneIsSaved"
+    ]
+   },
+   "acmp_wide": {
+    "rc": 0,
+    "tests": 6,
+    "failed": []
+   },
+   "acmp_walk": {
+    "rc": 0,
+    "tests": 4,
+    "failed": []
+   }
+  },
+  "killed": true,
+  "killers": [
+   "AcmpCore.P4EachIdOctetChangedAloneIsSaved"
+  ]
+ },
+ {
+  "name": "r-rec-drop-p10",
+  "arms": {
+   "acmp": {
+    "rc": 1,
+    "tests": 132,
+    "failed": [
+     "AcmpCore.P4EachIdOctetChangedAloneIsSaved"
+    ]
+   },
+   "acmp_wide": {
+    "rc": 0,
+    "tests": 6,
+    "failed": []
+   },
+   "acmp_walk": {
+    "rc": 0,
+    "tests": 4,
+    "failed": []
+   }
+  },
+  "killed": true,
+  "killers": [
+   "AcmpCore.P4EachIdOctetChangedAloneIsSaved"
+  ]
+ },
+ {
+  "name": "r-rec-drop-p11",
+  "arms": {
+   "acmp": {
+    "rc": 1,
+    "tests": 132,
+    "failed": [
+     "AcmpCore.P4EachIdOctetChangedAloneIsSaved"
+    ]
+   },
+   "acmp_wide": {
+    "rc": 0,
+    "tests": 6,
+    "failed": []
+   },
+   "acmp_walk": {
+    "rc": 0,
+    "tests": 4,
+    "failed": []
+   }
+  },
+  "killed": true,
+  "killers": [
+   "AcmpCore.P4EachIdOctetChangedAloneIsSaved"
+  ]
+ },
+ {
+  "name": "r-rec-drop-p12",
+  "arms": {
+   "acmp": {
+    "rc": 1,
+    "tests": 132,
+    "failed": [
+     "AcmpCore.P2RebindChangingOnlyTheControllerTopOctetIsSaved",
+     "AcmpCore.P4EachIdOctetChangedAloneIsSaved"
+    ]
+   },
+   "acmp_wide": {
+    "rc": 0,
+    "tests": 6,
+    "failed": []
+   },
+   "acmp_walk": {
+    "rc": 0,
+    "tests": 4,
+    "failed": []
+   }
+  },
+  "killed": true,
+  "killers": [
+   "AcmpCore.P2RebindChangingOnlyTheControllerTopOctetIsSaved",
+   "AcmpCore.P4EachIdOctetChangedAloneIsSaved"
+  ]
+ },
+ {
+  "name": "r-rec-drop-p13",
+  "arms": {
+   "acmp": {
+    "rc": 1,
+    "tests": 132,
+    "failed": [
+     "AcmpCore.P4EachIdOctetChangedAloneIsSaved"
+    ]
+   },
+   "acmp_wide": {
+    "rc": 0,
+    "tests": 6,
+    "failed": []
+   },
+   "acmp_walk": {
+    "rc": 0,
+    "tests": 4,
+    "failed": []
+   }
+  },
+  "killed": true,
+  "killers": [
+   "AcmpCore.P4EachIdOctetChangedAloneIsSaved"
+  ]
+ },
+ {
+  "name": "r-rec-drop-p14",
+  "arms": {
+   "acmp": {
+    "rc": 1,
+    "tests": 132,
+    "failed": [
+     "AcmpCore.P4EachIdOctetChangedAloneIsSaved"
+    ]
+   },
+   "acmp_wide": {
+    "rc": 0,
+    "tests": 6,
+    "failed": []
+   },
+   "acmp_walk": {
+    "rc": 0,
+    "tests": 4,
+    "failed": []
+   }
+  },
+  "killed": true,
+  "killers": [
+   "AcmpCore.P4EachIdOctetChangedAloneIsSaved"
+  ]
+ },
+ {
+  "name": "r-rec-drop-p15",
+  "arms": {
+   "acmp": {
+    "rc": 1,
+    "tests": 132,
+    "failed": [
+     "AcmpCore.P4EachIdOctetChangedAloneIsSaved"
+    ]
+   },
+   "acmp_wide": {
+    "rc": 0,
+    "tests": 6,
+    "failed": []
+   },
+   "acmp_walk": {
+    "rc": 0,
+    "tests": 4,
+    "failed": []
+   }
+  },
+  "killed": true,
+  "killers": [
+   "AcmpCore.P4EachIdOctetChangedAloneIsSaved"
+  ]
+ },
+ {
+  "name": "r-rec-drop-p16",
+  "arms": {
+   "acmp": {
+    "rc": 1,
+    "tests": 132,
+    "failed": [
+     "AcmpCore.P4EachIdOctetChangedAloneIsSaved"
+    ]
+   },
+   "acmp_wide": {
+    "rc": 0,
+    "tests": 6,
+    "failed": []
+   },
+   "acmp_walk": {
+    "rc": 0,
+    "tests": 4,
+    "failed": []
+   }
+  },
+  "killed": true,
+  "killers": [
+   "AcmpCore.P4EachIdOctetChangedAloneIsSaved"
+  ]
+ },
+ {
+  "name": "r-rec-drop-p17",
+  "arms": {
+   "acmp": {
+    "rc": 1,
+    "tests": 132,
+    "failed": [
+     "AcmpCore.P4EachIdOctetChangedAloneIsSaved"
+    ]
+   },
+   "acmp_wide": {
+    "rc": 0,
+    "tests": 6,
+    "failed": []
+   },
+   "acmp_walk": {
+    "rc": 0,
+    "tests": 4,
+    "failed": []
+   }
+  },
+  "killed": true,
+  "killers": [
+   "AcmpCore.P4EachIdOctetChangedAloneIsSaved"
+  ]
+ },
+ {
+  "name": "r-rec-drop-p18",
+  "arms": {
+   "acmp": {
+    "rc": 1,
+    "tests": 132,
+    "failed": [
+     "AcmpCore.P4EachIdOctetChangedAloneIsSaved"
+    ]
+   },
+   "acmp_wide": {
+    "rc": 0,
+    "tests": 6,
+    "failed": []
+   },
+   "acmp_walk": {
+    "rc": 0,
+    "tests": 4,
+    "failed": []
+   }
+  },
+  "killed": true,
+  "killers": [
+   "AcmpCore.P4EachIdOctetChangedAloneIsSaved"
+  ]
+ },
+ {
+  "name": "r-rec-drop-p19",
+  "arms": {
+   "acmp": {
+    "rc": 1,
+    "tests": 132,
+    "failed": [
+     "AcmpCore.P4EachIdOctetChangedAloneIsSaved"
+    ]
+   },
+   "acmp_wide": {
+    "rc": 0,
+    "tests": 6,
+    "failed": []
+   },
+   "acmp_walk": {
+    "rc": 0,
+    "tests": 4,
+    "failed": []
+   }
+  },
+  "killed": true,
+  "killers": [
+   "AcmpCore.P4EachIdOctetChangedAloneIsSaved"
+  ]
+ },
+ {
+  "name": "r-rec-unique-ungated",
+  "arms": {
+   "acmp": {
+    "rc": 0,
+    "tests": 132,
+    "failed": []
+   },
+   "acmp_wide": {
+    "rc": 0,
+    "tests": 6,
+    "failed": []
+   },
+   "acmp_walk": {
+    "rc": 0,
+    "tests": 4,
+    "failed": []
+   }
+  },
+  "killed": false,
+  "killers": []
+ },
+ {
+  "name": "r-rec-talker-ungated",
+  "arms": {
+   "acmp": {
+    "rc": 0,
+    "tests": 132,
+    "failed": []
+   },
+   "acmp_wide": {
+    "rc": 0,
+    "tests": 6,
+    "failed": []
+   },
+   "acmp_walk": {
+    "rc": 0,
+    "tests": 4,
+    "failed": []
+   }
+  },
+  "killed": false,
+  "killers": []
+ },
+ {
+  "name": "r-rec-controller-ungated",
+  "arms": {
+   "acmp": {
+    "rc": 0,
+    "tests": 132,
+    "failed": []
+   },
+   "acmp_wide": {
+    "rc": 0,
+    "tests": 6,
+    "failed": []
+   },
+   "acmp_walk": {
+    "rc": 0,
+    "tests": 4,
+    "failed": []
+   }
+  },
+  "killed": false,
+  "killers": []
+ },
+ {
+  "name": "r-rec-no-started-flag",
+  "arms": {
+   "acmp": {
+    "rc": 1,
+    "tests": 132,
+    "failed": [
+     "AcmpCore.A22DiscoveredStateCells",
+     "AcmpCore.A24StartedIsSavedAndReported",
+     "AcmpCore.A25OnlyTable522ItemsAreReported"
+    ]
+   },
+   "acmp_wide": {
+    "rc": 0,
+    "tests": 6,
+    "failed": []
+   },
+   "acmp_walk": {
+    "rc": 1,
+    "tests": 4,
+    "failed": [
+     "AcmpWalk.EightSinksMatchTheFullWalk",
+     "AcmpWalk.OneSinkMatchesTheFullWalk",
+     "AcmpWalk.ThirtyThreeSinksMatchTheFullWalk",
+     "AcmpWalk.ThirtyTwoSinksMatchTheFullWalk"
+    ]
+   }
+  },
+  "killed": true,
+  "killers": [
+   "AcmpCore.A22DiscoveredStateCells",
+   "AcmpCore.A24StartedIsSavedAndReported",
+   "AcmpCore.A25OnlyTable522ItemsAreReported",
+   "AcmpWalk.EightSinksMatchTheFullWalk",
+   "AcmpWalk.OneSinkMatchesTheFullWalk",
+   "AcmpWalk.ThirtyThreeSinksMatchTheFullWalk",
+   "AcmpWalk.ThirtyTwoSinksMatchTheFullWalk"
+  ]
+ },
+ {
+  "name": "r-rec-no-wait-flag",
+  "arms": {
+   "acmp": {
+    "rc": 1,
+    "tests": 132,
+    "failed": [
+     "AcmpCore.A24StartedIsSavedAndReported"
+    ]
+   },
+   "acmp_wide": {
+    "rc": 0,
+    "tests": 6,
+    "failed": []
+   },
+   "acmp_walk": {
+    "rc": 1,
+    "tests": 4,
+    "failed": [
+     "AcmpWalk.EightSinksMatchTheFullWalk",
+     "AcmpWalk.OneSinkMatchesTheFullWalk",
+     "AcmpWalk.ThirtyThreeSinksMatchTheFullWalk",
+     "AcmpWalk.ThirtyTwoSinksMatchTheFullWalk"
+    ]
+   }
+  },
+  "killed": true,
+  "killers": [
+   "AcmpCore.A24StartedIsSavedAndReported",
+   "AcmpWalk.EightSinksMatchTheFullWalk",
+   "AcmpWalk.OneSinkMatchesTheFullWalk",
+   "AcmpWalk.ThirtyThreeSinksMatchTheFullWalk",
+   "AcmpWalk.ThirtyTwoSinksMatchTheFullWalk"
+  ]
+ },
+ {
+  "name": "r-rec-no-valid-flag",
+  "arms": {
+   "acmp": {
+    "rc": 1,
+    "tests": 132,
+    "failed": [
+     "AcmpCore.A22DiscoveredStateCells",
+     "AcmpCore.A24StartedIsSavedAndReported",
+     "AcmpCore.A25OnlyTable522ItemsAreReported",
+     "AcmpCore.A29RestoredBindingsAreAdmittedWhenTheTransportOpens"
+    ]
+   },
+   "acmp_wide": {
+    "rc": 0,
+    "tests": 6,
+    "failed": []
+   },
+   "acmp_walk": {
+    "rc": 1,
+    "tests": 4,
+    "failed": [
+     "AcmpWalk.EightSinksMatchTheFullWalk",
+     "AcmpWalk.OneSinkMatchesTheFullWalk",
+     "AcmpWalk.ThirtyThreeSinksMatchTheFullWalk",
+     "AcmpWalk.ThirtyTwoSinksMatchTheFullWalk"
+    ]
+   }
+  },
+  "killed": true,
+  "killers": [
+   "AcmpCore.A22DiscoveredStateCells",
+   "AcmpCore.A24StartedIsSavedAndReported",
+   "AcmpCore.A25OnlyTable522ItemsAreReported",
+   "AcmpCore.A29RestoredBindingsAreAdmittedWhenTheTransportOpens",
+   "AcmpWalk.EightSinksMatchTheFullWalk",
+   "AcmpWalk.OneSinkMatchesTheFullWalk",
+   "AcmpWalk.ThirtyThreeSinksMatchTheFullWalk",
+   "AcmpWalk.ThirtyTwoSinksMatchTheFullWalk"
+  ]
+ },
+ {
+  "name": "r-rec-th-low",
+  "arms": {
+   "acmp": {
+    "rc": 1,
+    "tests": 132,
+    "failed": [
+     "AcmpCore.A22DiscoveredStateCells",
+     "AcmpCore.A24StartedIsSavedAndReported",
+     "AcmpCore.A25OnlyTable522ItemsAreReported",
+     "AcmpCore.A29RestoredBindingsAreAdmittedWhenTheTransportOpens"
+    ]
+   },
+   "acmp_wide": {
+    "rc": 0,
+    "tests": 6,
+    "failed": []
+   },
+   "acmp_walk": {
+    "rc": 1,
+    "tests": 4,
+    "failed": [
+     "AcmpWalk.EightSinksMatchTheFullWalk",
+     "AcmpWalk.OneSinkMatchesTheFullWalk",
+     "AcmpWalk.ThirtyThreeSinksMatchTheFullWalk",
+     "AcmpWalk.ThirtyTwoSinksMatchTheFullWalk"
+    ]
+   }
+  },
+  "killed": true,
+  "killers": [
+   "AcmpCore.A22DiscoveredStateCells",
+   "AcmpCore.A24StartedIsSavedAndReported",
+   "AcmpCore.A25OnlyTable522ItemsAreReported",
+   "AcmpCore.A29RestoredBindingsAreAdmittedWhenTheTransportOpens",
+   "AcmpWalk.EightSinksMatchTheFullWalk",
+   "AcmpWalk.OneSinkMatchesTheFullWalk",
+   "AcmpWalk.ThirtyThreeSinksMatchTheFullWalk",
+   "AcmpWalk.ThirtyTwoSinksMatchTheFullWalk"
+  ]
+ },
+ {
+  "name": "r-rec-ch-low",
+  "arms": {
+   "acmp": {
+    "rc": 1,
+    "tests": 132,
+    "failed": [
+     "AcmpCore.A22DiscoveredStateCells",
+     "AcmpCore.A24StartedIsSavedAndReported",
+     "AcmpCore.A25OnlyTable522ItemsAreReported",
+     "AcmpCore.A29RestoredBindingsAreAdmittedWhenTheTransportOpens"
+    ]
+   },
+   "acmp_wide": {
+    "rc": 0,
+    "tests": 6,
+    "failed": []
+   },
+   "acmp_walk": {
+    "rc": 1,
+    "tests": 4,
+    "failed": [
+     "AcmpWalk.EightSinksMatchTheFullWalk",
+     "AcmpWalk.OneSinkMatchesTheFullWalk",
+     "AcmpWalk.ThirtyThreeSinksMatchTheFullWalk",
+     "AcmpWalk.ThirtyTwoSinksMatchTheFullWalk"
+    ]
+   }
+  },
+  "killed": true,
+  "killers": [
+   "AcmpCore.A22DiscoveredStateCells",
+   "AcmpCore.A24StartedIsSavedAndReported",
+   "AcmpCore.A25OnlyTable522ItemsAreReported",
+   "AcmpCore.A29RestoredBindingsAreAdmittedWhenTheTransportOpens",
+   "AcmpWalk.EightSinksMatchTheFullWalk",
+   "AcmpWalk.OneSinkMatchesTheFullWalk",
+   "AcmpWalk.ThirtyThreeSinksMatchTheFullWalk",
+   "AcmpWalk.ThirtyTwoSinksMatchTheFullWalk"
+  ]
+ },
+ {
+  "name": "r-rec-always-moved",
+  "arms": {
+   "acmp": {
+    "rc": 1,
+    "tests": 132,
+    "failed": [
+     "AcmpCore.A22DiscoveredStateCells",
+     "AcmpCore.A24StartedIsSavedAndReported",
+     "AcmpCore.A25OnlyTable522ItemsAreReported",
+     "AcmpCore.A29RestoredBindingsAreAdmittedWhenTheTransportOpens",
+     "AcmpCore.A3UnbindInEveryState"
+    ]
+   },
+   "acmp_wide": {
+    "rc": 0,
+    "tests": 6,
+    "failed": []
+   },
+   "acmp_walk": {
+    "rc": 1,
+    "tests": 4,
+    "failed": [
+     "AcmpWalk.EightSinksMatchTheFullWalk",
+     "AcmpWalk.OneSinkMatchesTheFullWalk",
+     "AcmpWalk.ThirtyThreeSinksMatchTheFullWalk",
+     "AcmpWalk.ThirtyTwoSinksMatchTheFullWalk"
+    ]
+   }
+  },
+  "killed": true,
+  "killers": [
+   "AcmpCore.A22DiscoveredStateCells",
+   "AcmpCore.A24StartedIsSavedAndReported",
+   "AcmpCore.A25OnlyTable522ItemsAreReported",
+   "AcmpCore.A29RestoredBindingsAreAdmittedWhenTheTransportOpens",
+   "AcmpCore.A3UnbindInEveryState",
+   "AcmpWalk.EightSinksMatchTheFullWalk",
+   "AcmpWalk.OneSinkMatchesTheFullWalk",
+   "AcmpWalk.ThirtyThreeSinksMatchTheFullWalk",
+   "AcmpWalk.ThirtyTwoSinksMatchTheFullWalk"
+  ]
+ },
+ {
+  "name": "r-fin-saved-not-written",
+  "arms": {
+   "acmp": {
+    "rc": 1,
+    "tests": 132,
+    "failed": [
+     "AcmpCore.A22DiscoveredStateCells",
+     "AcmpCore.A24StartedIsSavedAndReported",
+     "AcmpCore.A25OnlyTable522ItemsAreReported",
+     "AcmpCore.A3UnbindInEveryState",
+     "AcmpCore.P1RebindChangingOnlyTheTalkerTopOctetIsSaved",
+     "AcmpCore.P2RebindChangingOnlyTheControllerTopOctetIsSaved",
+     "AcmpCore.P3RebindChangingOnlyTheUniqueIdHighOctetIsSaved",
+     "AcmpCore.P4EachIdOctetChangedAloneIsSaved"
+    ]
+   },
+   "acmp_wide": {
+    "rc": 0,
+    "tests": 6,
+    "failed": []
+   },
+   "acmp_walk": {
+    "rc": 1,
+    "tests": 4,
+    "failed": [
+     "AcmpWalk.EightSinksMatchTheFullWalk",
+     "AcmpWalk.OneSinkMatchesTheFullWalk",
+     "AcmpWalk.ThirtyThreeSinksMatchTheFullWalk",
+     "AcmpWalk.ThirtyTwoSinksMatchTheFullWalk"
+    ]
+   }
+  },
+  "killed": true,
+  "killers": [
+   "AcmpCore.A22DiscoveredStateCells",
+   "AcmpCore.A24StartedIsSavedAndReported",
+   "AcmpCore.A25OnlyTable522ItemsAreReported",
+   "AcmpCore.A3UnbindInEveryState",
+   "AcmpCore.P1RebindChangingOnlyTheTalkerTopOctetIsSaved",
+   "AcmpCore.P2RebindChangingOnlyTheControllerTopOctetIsSaved",
+   "AcmpCore.P3RebindChangingOnlyTheUniqueIdHighOctetIsSaved",
+   "AcmpCore.P4EachIdOctetChangedAloneIsSaved",
+   "AcmpWalk.EightSinksMatchTheFullWalk",
+   "AcmpWalk.OneSinkMatchesTheFullWalk",
+   "AcmpWalk.ThirtyThreeSinksMatchTheFullWalk",
+   "AcmpWalk.ThirtyTwoSinksMatchTheFullWalk"
+  ]
+ },
+ {
+  "name": "r-view-drop-stream",
+  "arms": {
+   "acmp": {
+    "build": "FAILED",
+    "log": "$PACKET/scratch/work/probes-probes/r-view-drop-stream/acmp.c: In function \u2018view_moved\u2019:\n$PACKET/scratch/work/probes-probes/r-view-drop-stream/acmp.c:480:18: error: unused variable \u2018stream_id\u2019 [-Werror=unused-variable]\n  480 |         uint64_t stream_id = settled ? s->stream.stream_id : 0u;\n      |                  ^~~~~~~~~\ncc1: all warnings being treated as errors\n"
+   },
+   "acmp_wide": {
+    "build": "FAILED",
+    "log": "$PACKET/scratch/work/probes-probes/r-view-drop-stream/acmp.c: In function \u2018view_moved\u2019:\n$PACKET/scratch/work/probes-probes/r-view-drop-stream/acmp.c:480:18: error: unused variable \u2018stream_id\u2019 [-Werror=unused-variable]\n  480 |         uint64_t stream_id = settled ? s->stream.stream_id : 0u;\n      |                  ^~~~~~~~~\ncc1: all warnings being treated as errors\n"
+   },
+   "acmp_walk": {
+    "build": "FAILED",
+    "log": "$PACKET/scratch/work/probes-probes/r-view-drop-stream/acmp.c: In function \u2018view_moved\u2019:\n$PACKET/scratch/work/probes-probes/r-view-drop-stream/acmp.c:480:18: error: unused variable \u2018stream_id\u2019 [-Werror=unused-variable]\n  480 |         uint64_t stream_id = settled ? s->stream.stream_id : 0u;\n      |                  ^~~~~~~~~\ncc1: all warnings being treated as errors\n"
+   }
+  },
+  "killed": false,
+  "killers": []
+ },
+ {
+  "name": "r-view-drop-dest",
+  "arms": {
+   "acmp": {
+    "build": "FAILED",
+    "log": "$PACKET/scratch/work/probes-probes/r-view-drop-dest/acmp.c: In function \u2018view_moved\u2019:\n$PACKET/scratch/work/probes-probes/r-view-drop-dest/acmp.c:481:18: error: unused variable \u2018dest_mac\u2019 [-Werror=unused-variable]\n  481 |         uint64_t dest_mac = settled ? s->stream.dest_mac : 0u;\n      |                  ^~~~~~~~\ncc1: all warnings being treated as errors\n"
+   },
+   "acmp_wide": {
+    "build": "FAILED",
+    "log": "$PACKET/scratch/work/probes-probes/r-view-drop-dest/acmp.c: In function \u2018view_moved\u2019:\n$PACKET/scratch/work/probes-probes/r-view-drop-dest/acmp.c:481:18: error: unused variable \u2018dest_mac\u2019 [-Werror=unused-variable]\n  481 |         uint64_t dest_mac = settled ? s->stream.dest_mac : 0u;\n      |                  ^~~~~~~~\ncc1: all warnings being treated as errors\n"
+   },
+   "acmp_walk": {
+    "build": "FAILED",
+    "log": "$PACKET/scratch/work/probes-probes/r-view-drop-dest/acmp.c: In function \u2018view_moved\u2019:\n$PACKET/scratch/work/probes-probes/r-view-drop-dest/acmp.c:481:18: error: unused variable \u2018dest_mac\u2019 [-Werror=unused-variable]\n  481 |         uint64_t dest_mac = settled ? s->stream.dest_mac : 0u;\n      |                  ^~~~~~~~\ncc1: all warnings being treated as errors\n"
+   }
+  },
+  "killed": false,
+  "killers": []
+ },
+ {
+  "name": "r-view-drop-vlan",
+  "arms": {
+   "acmp": {
+    "build": "FAILED",
+    "log": "$PACKET/scratch/work/probes-probes/r-view-drop-vlan/acmp.c: In function \u2018view_moved\u2019:\n$PACKET/scratch/work/probes-probes/r-view-drop-vlan/acmp.c:482:18: error: unused variable \u2018vlan_id\u2019 [-Werror=unused-variable]\n  482 |         uint16_t vlan_id = settled ? s->stream.vlan_id : 0u;\n      |                  ^~~~~~~\ncc1: all warnings being treated as errors\n"
+   },
+   "acmp_wide": {
+    "build": "FAILED",
+    "log": "$PACKET/scratch/work/probes-probes/r-view-drop-vlan/acmp.c: In function \u2018view_moved\u2019:\n$PACKET/scratch/work/probes-probes/r-view-drop-vlan/acmp.c:482:18: error: unused variable \u2018vlan_id\u2019 [-Werror=unused-variable]\n  482 |         uint16_t vlan_id = settled ? s->stream.vlan_id : 0u;\n      |                  ^~~~~~~\ncc1: all warnings being treated as errors\n"
+   },
+   "acmp_walk": {
+    "build": "FAILED",
+    "log": "$PACKET/scratch/work/probes-probes/r-view-drop-vlan/acmp.c: In function \u2018view_moved\u2019:\n$PACKET/scratch/work/probes-probes/r-view-drop-vlan/acmp.c:482:18: error: unused variable \u2018vlan_id\u2019 [-Werror=unused-variable]\n  482 |         uint16_t vlan_id = settled ? s->stream.vlan_id : 0u;\n      |                  ^~~~~~~\ncc1: all warnings being treated as errors\n"
+   }
+  },
+  "killed": false,
+  "killers": []
+ },
+ {
+  "name": "r-view-drop-bound",
+  "arms": {
+   "acmp": {
+    "rc": 0,
+    "tests": 132,
+    "failed": []
+   },
+   "acmp_wide": {
+    "rc": 0,
+    "tests": 6,
+    "failed": []
+   },
+   "acmp_walk": {
+    "rc": 0,
+    "tests": 4,
+    "failed": []
+   }
+  },
+  "killed": false,
+  "killers": []
+ },
+ {
+  "name": "r-view-drop-started",
+  "arms": {
+   "acmp": {
+    "rc": 1,
+    "tests": 132,
+    "failed": [
+     "AcmpCore.A19AProbeInTheSlotOfAnEarlierResponseHoldsNoSink",
+     "AcmpCore.A24StartedIsSavedAndReported",
+     "AcmpCore.A31TheStartedLevelIsPublishedBeforeItIsPromised"
+    ]
+   },
+   "acmp_wide": {
+    "rc": 1,
+    "tests": 6,
+    "failed": [
+     "AcmpWide.ProbeInTheSlotOfSinkThirtyOnesResponseHoldsNoSink",
+     "AcmpWide.ProbeInTheSlotOfSinkThirtyTwosResponseHoldsNoSink"
+    ]
+   },
+   "acmp_walk": {
+    "rc": 0,
+    "tests": 4,
+    "failed": []
+   }
+  },
+  "killed": true,
+  "killers": [
+   "AcmpCore.A19AProbeInTheSlotOfAnEarlierResponseHoldsNoSink",
+   "AcmpCore.A24StartedIsSavedAndReported",
+   "AcmpCore.A31TheStartedLevelIsPublishedBeforeItIsPromised",
+   "AcmpWide.ProbeInTheSlotOfSinkThirtyOnesResponseHoldsNoSink",
+   "AcmpWide.ProbeInTheSlotOfSinkThirtyTwosResponseHoldsNoSink"
+  ]
+ },
+ {
+  "name": "r-view-drop-registered",
+  "arms": {
+   "acmp": {
+    "rc": 1,
+    "tests": 132,
+    "failed": [
+     "AcmpCore.A14RegisteredSettlesTheReservation"
+    ]
+   },
+   "acmp_wide": {
+    "rc": 0,
+    "tests": 6,
+    "failed": []
+   },
+   "acmp_walk": {
+    "rc": 0,
+    "tests": 4,
+    "failed": []
+   }
+  },
+  "killed": true,
+  "killers": [
+   "AcmpCore.A14RegisteredSettlesTheReservation"
+  ]
+ },
+ {
+  "name": "r-view-drop-failed",
+  "arms": {
+   "acmp": {
+    "rc": 1,
+    "tests": 132,
+    "failed": [
+     "AcmpCore.KindChangesOnlyTheSettledView"
+    ]
+   },
+   "acmp_wide": {
+    "rc": 0,
+    "tests": 6,
+    "failed": []
+   },
+   "acmp_walk": {
+    "rc": 0,
+    "tests": 4,
+    "failed": []
+   }
+  },
+  "killed": true,
+  "killers": [
+   "AcmpCore.KindChangesOnlyTheSettledView"
+  ]
+ },
+ {
+  "name": "r-view-failed-ungated",
+  "arms": {
+   "acmp": {
+    "rc": 0,
+    "tests": 132,
+    "failed": []
+   },
+   "acmp_wide": {
+    "rc": 0,
+    "tests": 6,
+    "failed": []
+   },
+   "acmp_walk": {
+    "rc": 0,
+    "tests": 4,
+    "failed": []
+   }
+  },
+  "killed": false,
+  "killers": []
+ },
+ {
+  "name": "r-view-stream-ungated",
+  "arms": {
+   "acmp": {
+    "rc": 0,
+    "tests": 132,
+    "failed": []
+   },
+   "acmp_wide": {
+    "rc": 0,
+    "tests": 6,
+    "failed": []
+   },
+   "acmp_walk": {
+    "rc": 0,
+    "tests": 4,
+    "failed": []
+   }
+  },
+  "killed": false,
+  "killers": []
+ },
+ {
+  "name": "r-view-dest-ungated",
+  "arms": {
+   "acmp": {
+    "rc": 0,
+    "tests": 132,
+    "failed": []
+   },
+   "acmp_wide": {
+    "rc": 0,
+    "tests": 6,
+    "failed": []
+   },
+   "acmp_walk": {
+    "rc": 0,
+    "tests": 4,
+    "failed": []
+   }
+  },
+  "killed": false,
+  "killers": []
+ },
+ {
+  "name": "r-view-vlan-ungated",
+  "arms": {
+   "acmp": {
+    "rc": 0,
+    "tests": 132,
+    "failed": []
+   },
+   "acmp_wide": {
+    "rc": 0,
+    "tests": 6,
+    "failed": []
+   },
+   "acmp_walk": {
+    "rc": 0,
+    "tests": 4,
+    "failed": []
+   }
+  },
+  "killed": false,
+  "killers": []
+ },
+ {
+  "name": "r-view-settled-rsv-only",
+  "arms": {
+   "acmp": {
+    "rc": 1,
+    "tests": 132,
+    "failed": [
+     "AcmpCore.A25OnlyTable522ItemsAreReported",
+     "AcmpCore.A31TheStartedLevelIsPublishedBeforeItIsPromised"
+    ]
+   },
+   "acmp_wide": {
+    "rc": 0,
+    "tests": 6,
+    "failed": []
+   },
+   "acmp_walk": {
+    "rc": 1,
+    "tests": 4,
+    "failed": [
+     "AcmpWalk.EightSinksMatchTheFullWalk",
+     "AcmpWalk.OneSinkMatchesTheFullWalk",
+     "AcmpWalk.ThirtyThreeSinksMatchTheFullWalk",
+     "AcmpWalk.ThirtyTwoSinksMatchTheFullWalk"
+    ]
+   }
+  },
+  "killed": true,
+  "killers": [
+   "AcmpCore.A25OnlyTable522ItemsAreReported",
+   "AcmpCore.A31TheStartedLevelIsPublishedBeforeItIsPromised",
+   "AcmpWalk.EightSinksMatchTheFullWalk",
+   "AcmpWalk.OneSinkMatchesTheFullWalk",
+   "AcmpWalk.ThirtyThreeSinksMatchTheFullWalk",
+   "AcmpWalk.ThirtyTwoSinksMatchTheFullWalk"
+  ]
+ },
+ {
+  "name": "r-view-registered-any-settled",
+  "arms": {
+   "acmp": {
+    "rc": 1,
+    "tests": 132,
+    "failed": [
+     "AcmpCore.A25OnlyTable522ItemsAreReported",
+     "AcmpCore.A31TheStartedLevelIsPublishedBeforeItIsPromised"
+    ]
+   },
+   "acmp_wide": {
+    "rc": 0,
+    "tests": 6,
+    "failed": []
+   },
+   "acmp_walk": {
+    "rc": 1,
+    "tests": 4,
+    "failed": [
+     "AcmpWalk.EightSinksMatchTheFullWalk",
+     "AcmpWalk.OneSinkMatchesTheFullWalk",
+     "AcmpWalk.ThirtyThreeSinksMatchTheFullWalk",
+     "AcmpWalk.ThirtyTwoSinksMatchTheFullWalk"
+    ]
+   }
+  },
+  "killed": true,
+  "killers": [
+   "AcmpCore.A25OnlyTable522ItemsAreReported",
+   "AcmpCore.A31TheStartedLevelIsPublishedBeforeItIsPromised",
+   "AcmpWalk.EightSinksMatchTheFullWalk",
+   "AcmpWalk.OneSinkMatchesTheFullWalk",
+   "AcmpWalk.ThirtyThreeSinksMatchTheFullWalk",
+   "AcmpWalk.ThirtyTwoSinksMatchTheFullWalk"
+  ]
+ },
+ {
+  "name": "r-view-always-moved",
+  "arms": {
+   "acmp": {
+    "rc": 1,
+    "tests": 132,
+    "failed": [
+     "AcmpCore.A19AProbeInTheSlotOfAnEarlierResponseHoldsNoSink",
+     "AcmpCore.A19TwoOwedResponsesForOneSinkReleaseTogether",
+     "AcmpCore.A22DiscoveredStateCells",
+     "AcmpCore.A24StartedIsSavedAndReported",
+     "AcmpCore.A25OnlyTable522ItemsAreReported",
+     "AcmpCore.A29RestoredBindingsAreAdmittedWhenTheTransportOpens",
+     "AcmpCore.A31TheStartedLevelIsPublishedBeforeItIsPromised",
+     "AcmpCore.KindChangesOnlyTheSettledView"
+    ]
+   },
+   "acmp_wide": {
+    "rc": 1,
+    "tests": 6,
+    "failed": [
+     "AcmpWide.OwedResponsesHoldOnlyTheirOwnSinksChanges",
+     "AcmpWide.SinksThirtyOneAndThirtyTwoWaitOnlyForTheirOwnResponses"
+    ]
+   },
+   "acmp_walk": {
+    "rc": 1,
+    "tests": 4,
+    "failed": [
+     "AcmpWalk.EightSinksMatchTheFullWalk",
+     "AcmpWalk.OneSinkMatchesTheFullWalk",
+     "AcmpWalk.ThirtyThreeSinksMatchTheFullWalk",
+     "AcmpWalk.ThirtyTwoSinksMatchTheFullWalk"
+    ]
+   }
+  },
+  "killed": true,
+  "killers": [
+   "AcmpCore.A19AProbeInTheSlotOfAnEarlierResponseHoldsNoSink",
+   "AcmpCore.A19TwoOwedResponsesForOneSinkReleaseTogether",
+   "AcmpCore.A22DiscoveredStateCells",
+   "AcmpCore.A24StartedIsSavedAndReported",
+   "AcmpCore.A25OnlyTable522ItemsAreReported",
+   "AcmpCore.A29RestoredBindingsAreAdmittedWhenTheTransportOpens",
+   "AcmpCore.A31TheStartedLevelIsPublishedBeforeItIsPromised",
+   "AcmpCore.KindChangesOnlyTheSettledView",
+   "AcmpWalk.EightSinksMatchTheFullWalk",
+   "AcmpWalk.OneSinkMatchesTheFullWalk",
+   "AcmpWalk.ThirtyThreeSinksMatchTheFullWalk",
+   "AcmpWalk.ThirtyTwoSinksMatchTheFullWalk",
+   "AcmpWide.OwedResponsesHoldOnlyTheirOwnSinksChanges",
+   "AcmpWide.SinksThirtyOneAndThirtyTwoWaitOnlyForTheirOwnResponses"
+  ]
+ },
+ {
+  "name": "r-fin-reported-not-written",
+  "arms": {
+   "acmp": {
+    "rc": 1,
+    "tests": 132,
+    "failed": [
+     "AcmpCore.A19AProbeInTheSlotOfAnEarlierResponseHoldsNoSink",
+     "AcmpCore.A22DiscoveredStateCells",
+     "AcmpCore.A24StartedIsSavedAndReported",
+     "AcmpCore.A25OnlyTable522ItemsAreReported",
+     "AcmpCore.A31TheStartedLevelIsPublishedBeforeItIsPromised",
+     "AcmpCore.A3UnbindInEveryState",
+     "AcmpCore.KindChangesOnlyTheSettledView"
+    ]
+   },
+   "acmp_wide": {
+    "rc": 1,
+    "tests": 6,
+    "failed": [
+     "AcmpWide.OwedResponsesHoldOnlyTheirOwnSinksChanges",
+     "AcmpWide.SinksThirtyOneAndThirtyTwoWaitOnlyForTheirOwnResponses"
+    ]
+   },
+   "acmp_walk": {
+    "rc": 1,
+    "tests": 4,
+    "failed": [
+     "AcmpWalk.EightSinksMatchTheFullWalk",
+     "AcmpWalk.OneSinkMatchesTheFullWalk",
+     "AcmpWalk.ThirtyThreeSinksMatchTheFullWalk",
+     "AcmpWalk.ThirtyTwoSinksMatchTheFullWalk"
+    ]
+   }
+  },
+  "killed": true,
+  "killers": [
+   "AcmpCore.A19AProbeInTheSlotOfAnEarlierResponseHoldsNoSink",
+   "AcmpCore.A22DiscoveredStateCells",
+   "AcmpCore.A24StartedIsSavedAndReported",
+   "AcmpCore.A25OnlyTable522ItemsAreReported",
+   "AcmpCore.A31TheStartedLevelIsPublishedBeforeItIsPromised",
+   "AcmpCore.A3UnbindInEveryState",
+   "AcmpCore.KindChangesOnlyTheSettledView",
+   "AcmpWalk.EightSinksMatchTheFullWalk",
+   "AcmpWalk.OneSinkMatchesTheFullWalk",
+   "AcmpWalk.ThirtyThreeSinksMatchTheFullWalk",
+   "AcmpWalk.ThirtyTwoSinksMatchTheFullWalk",
+   "AcmpWide.OwedResponsesHoldOnlyTheirOwnSinksChanges",
+   "AcmpWide.SinksThirtyOneAndThirtyTwoWaitOnlyForTheirOwnResponses"
+  ]
+ },
+ {
+  "name": "r-viewof-drop-binding-talker_entity_id",
+  "arms": {
+   "acmp": {
+    "rc": 1,
+    "tests": 132,
+    "failed": [
+     "AcmpCore.AdpTimeoutRetainsBindingAndReprobes",
+     "AcmpCore.DepartingRetainsBindingAndReprobes"
+    ]
+   },
+   "acmp_wide": {
+    "rc": 0,
+    "tests": 6,
+    "failed": []
+   },
+   "acmp_walk": {
+    "rc": 0,
+    "tests": 4,
+    "failed": []
+   }
+  },
+  "killed": true,
+  "killers": [
+   "AcmpCore.AdpTimeoutRetainsBindingAndReprobes",
+   "AcmpCore.DepartingRetainsBindingAndReprobes"
+  ]
+ },
+ {
+  "name": "r-viewof-drop-binding-controller_entity_id",
+  "arms": {
+   "acmp": {
+    "rc": 1,
+    "tests": 132,
+    "failed": [
+     "AcmpCore.AdpTimeoutRetainsBindingAndReprobes",
+     "AcmpCore.DepartingRetainsBindingAndReprobes"
+    ]
+   },
+   "acmp_wide": {
+    "rc": 0,
+    "tests": 6,
+    "failed": []
+   },
+   "acmp_walk": {
+    "rc": 0,
+    "tests": 4,
+    "failed": []
+   }
+  },
+  "killed": true,
+  "killers": [
+   "AcmpCore.AdpTimeoutRetainsBindingAndReprobes",
+   "AcmpCore.DepartingRetainsBindingAndReprobes"
+  ]
+ },
+ {
+  "name": "r-viewof-drop-binding-talker_unique_id",
+  "arms": {
+   "acmp": {
+    "rc": 1,
+    "tests": 132,
+    "failed": [
+     "AcmpCore.AdpTimeoutRetainsBindingAndReprobes",
+     "AcmpCore.DepartingRetainsBindingAndReprobes"
+    ]
+   },
+   "acmp_wide": {
+    "rc": 0,
+    "tests": 6,
+    "failed": []
+   },
+   "acmp_walk": {
+    "rc": 0,
+    "tests": 4,
+    "failed": []
+   }
+  },
+  "killed": true,
+  "killers": [
+   "AcmpCore.AdpTimeoutRetainsBindingAndReprobes",
+   "AcmpCore.DepartingRetainsBindingAndReprobes"
+  ]
+ },
+ {
+  "name": "r-viewof-drop-binding-streaming_wait",
+  "arms": {
+   "acmp": {
+    "rc": 1,
+    "tests": 132,
+    "failed": [
+     "AcmpCore.P5TheViewCarriesTheBindingsStreamingWait"
+    ]
+   },
+   "acmp_wide": {
+    "rc": 0,
+    "tests": 6,
+    "failed": []
+   },
+   "acmp_walk": {
+    "rc": 0,
+    "tests": 4,
+    "failed": []
+   }
+  },
+  "killed": true,
+  "killers": [
+   "AcmpCore.P5TheViewCarriesTheBindingsStreamingWait"
+  ]
+ },
+ {
+  "name": "r-viewof-drop-stream-stream_id",
+  "arms": {
+   "acmp": {
+    "rc": 1,
+    "tests": 132,
+    "failed": [
+     "AcmpCore.A25OnlyTable522ItemsAreReported",
+     "AcmpCore.A31TheStartedLevelIsPublishedBeforeItIsPromised",
+     "AcmpCore.KindChangesOnlyTheSettledView"
+    ]
+   },
+   "acmp_wide": {
+    "rc": 0,
+    "tests": 6,
+    "failed": []
+   },
+   "acmp_walk": {
+    "rc": 1,
+    "tests": 4,
+    "failed": [
+     "AcmpWalk.EightSinksMatchTheFullWalk",
+     "AcmpWalk.OneSinkMatchesTheFullWalk",
+     "AcmpWalk.ThirtyThreeSinksMatchTheFullWalk",
+     "AcmpWalk.ThirtyTwoSinksMatchTheFullWalk"
+    ]
+   }
+  },
+  "killed": true,
+  "killers": [
+   "AcmpCore.A25OnlyTable522ItemsAreReported",
+   "AcmpCore.A31TheStartedLevelIsPublishedBeforeItIsPromised",
+   "AcmpCore.KindChangesOnlyTheSettledView",
+   "AcmpWalk.EightSinksMatchTheFullWalk",
+   "AcmpWalk.OneSinkMatchesTheFullWalk",
+   "AcmpWalk.ThirtyThreeSinksMatchTheFullWalk",
+   "AcmpWalk.ThirtyTwoSinksMatchTheFullWalk"
+  ]
+ },
+ {
+  "name": "r-viewof-drop-stream-dest_mac",
+  "arms": {
+   "acmp": {
+    "rc": 1,
+    "tests": 132,
+    "failed": [
+     "AcmpCore.A25OnlyTable522ItemsAreReported",
+     "AcmpCore.A31TheStartedLevelIsPublishedBeforeItIsPromised",
+     "AcmpCore.KindChangesOnlyTheSettledView"
+    ]
+   },
+   "acmp_wide": {
+    "rc": 0,
+    "tests": 6,
+    "failed": []
+   },
+   "acmp_walk": {
+    "rc": 1,
+    "tests": 4,
+    "failed": [
+     "AcmpWalk.EightSinksMatchTheFullWalk",
+     "AcmpWalk.OneSinkMatchesTheFullWalk",
+     "AcmpWalk.ThirtyThreeSinksMatchTheFullWalk",
+     "AcmpWalk.ThirtyTwoSinksMatchTheFullWalk"
+    ]
+   }
+  },
+  "killed": true,
+  "killers": [
+   "AcmpCore.A25OnlyTable522ItemsAreReported",
+   "AcmpCore.A31TheStartedLevelIsPublishedBeforeItIsPromised",
+   "AcmpCore.KindChangesOnlyTheSettledView",
+   "AcmpWalk.EightSinksMatchTheFullWalk",
+   "AcmpWalk.OneSinkMatchesTheFullWalk",
+   "AcmpWalk.ThirtyThreeSinksMatchTheFullWalk",
+   "AcmpWalk.ThirtyTwoSinksMatchTheFullWalk"
+  ]
+ },
+ {
+  "name": "r-viewof-drop-stream-vlan_id",
+  "arms": {
+   "acmp": {
+    "rc": 1,
+    "tests": 132,
+    "failed": [
+     "AcmpCore.A25OnlyTable522ItemsAreReported",
+     "AcmpCore.A31TheStartedLevelIsPublishedBeforeItIsPromised",
+     "AcmpCore.A8SuccessSettles",
+     "AcmpCore.KindChangesOnlyTheSettledView"
+    ]
+   },
+   "acmp_wide": {
+    "rc": 0,
+    "tests": 6,
+    "failed": []
+   },
+   "acmp_walk": {
+    "rc": 1,
+    "tests": 4,
+    "failed": [
+     "AcmpWalk.EightSinksMatchTheFullWalk",
+     "AcmpWalk.OneSinkMatchesTheFullWalk",
+     "AcmpWalk.ThirtyThreeSinksMatchTheFullWalk",
+     "AcmpWalk.ThirtyTwoSinksMatchTheFullWalk"
+    ]
+   }
+  },
+  "killed": true,
+  "killers": [
+   "AcmpCore.A25OnlyTable522ItemsAreReported",
+   "AcmpCore.A31TheStartedLevelIsPublishedBeforeItIsPromised",
+   "AcmpCore.A8SuccessSettles",
+   "AcmpCore.KindChangesOnlyTheSettledView",
+   "AcmpWalk.EightSinksMatchTheFullWalk",
+   "AcmpWalk.OneSinkMatchesTheFullWalk",
+   "AcmpWalk.ThirtyThreeSinksMatchTheFullWalk",
+   "AcmpWalk.ThirtyTwoSinksMatchTheFullWalk"
+  ]
+ },
+ {
+  "name": "r-viewof-binding-swap-ids",
+  "arms": {
+   "acmp": {
+    "rc": 1,
+    "tests": 132,
+    "failed": [
+     "AcmpCore.AdpTimeoutRetainsBindingAndReprobes",
+     "AcmpCore.DepartingRetainsBindingAndReprobes"
+    ]
+   },
+   "acmp_wide": {
+    "rc": 0,
+    "tests": 6,
+    "failed": []
+   },
+   "acmp_walk": {
+    "rc": 0,
+    "tests": 4,
+    "failed": []
+   }
+  },
+  "killed": true,
+  "killers": [
+   "AcmpCore.AdpTimeoutRetainsBindingAndReprobes",
+   "AcmpCore.DepartingRetainsBindingAndReprobes"
+  ]
+ },
+ {
+  "name": "r-clear-dirty-if-kept",
+  "arms": {
+   "acmp": {
+    "rc": 0,
+    "tests": 132,
+    "failed": []
+   },
+   "acmp_wide": {
+    "rc": 0,
+    "tests": 6,
+    "failed": []
+   },
+   "acmp_walk": {
+    "rc": 1,
+    "tests": 4,
+    "failed": [
+     "AcmpWalk.EightSinksMatchTheFullWalk",
+     "AcmpWalk.OneSinkMatchesTheFullWalk",
+     "AcmpWalk.ThirtyThreeSinksMatchTheFullWalk",
+     "AcmpWalk.ThirtyTwoSinksMatchTheFullWalk"
+    ]
+   }
+  },
+  "killed": true,
+  "killers": [
+   "AcmpWalk.EightSinksMatchTheFullWalk",
+   "AcmpWalk.OneSinkMatchesTheFullWalk",
+   "AcmpWalk.ThirtyThreeSinksMatchTheFullWalk",
+   "AcmpWalk.ThirtyTwoSinksMatchTheFullWalk"
+  ]
+ },
+ {
+  "name": "r-control-planted-acmp-nothing-persisted",
+  "arms": {
+   "acmp": {
+    "rc": 1,
+    "tests": 132,
+    "failed": [
+     "AcmpCore.A19AResponseWithoutRoomIsOwedAndItsChangeWaits",
+     "AcmpCore.A1BindFromUnboundRespondsThenProbes",
+     "AcmpCore.A23EveryPortIsGuarded",
+     "AcmpCore.A24StartedIsSavedAndReported",
+     "AcmpCore.A3UnbindInEveryState",
+     "AcmpCore.A5RebindTheSameSourceUpdatesAndExits",
+     "AcmpCore.A6BindAnotherSourceRestartsTheSink",
+     "AcmpCore.P1RebindChangingOnlyTheTalkerTopOctetIsSaved",
+     "AcmpCore.P2RebindChangingOnlyTheControllerTopOctetIsSaved",
+     "AcmpCore.P3RebindChangingOnlyTheUniqueIdHighOctetIsSaved",
+     "AcmpCore.P4EachIdOctetChangedAloneIsSaved"
+    ]
+   },
+   "acmp_wide": {
+    "rc": 0,
+    "tests": 6,
+    "failed": []
+   },
+   "acmp_walk": {
+    "rc": 0,
+    "tests": 4,
+    "failed": []
+   }
+  },
+  "killed": true,
+  "killers": [
+   "AcmpCore.A19AResponseWithoutRoomIsOwedAndItsChangeWaits",
+   "AcmpCore.A1BindFromUnboundRespondsThenProbes",
+   "AcmpCore.A23EveryPortIsGuarded",
+   "AcmpCore.A24StartedIsSavedAndReported",
+   "AcmpCore.A3UnbindInEveryState",
+   "AcmpCore.A5RebindTheSameSourceUpdatesAndExits",
+   "AcmpCore.A6BindAnotherSourceRestartsTheSink",
+   "AcmpCore.P1RebindChangingOnlyTheTalkerTopOctetIsSaved",
+   "AcmpCore.P2RebindChangingOnlyTheControllerTopOctetIsSaved",
+   "AcmpCore.P3RebindChangingOnlyTheUniqueIdHighOctetIsSaved",
+   "AcmpCore.P4EachIdOctetChangedAloneIsSaved"
+  ]
+ }
+]
