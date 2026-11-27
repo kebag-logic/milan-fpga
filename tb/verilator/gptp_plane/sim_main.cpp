@@ -23,6 +23,10 @@
 //     latched adjfine level at the +100 ppm ideal (13,421 Q8.24 units
 //     within 15%), and the counter's advance tracking the master's
 //     over the last four intervals within 100 ns
+//  5  announce silence -> grandmaster; its Follow_Up rides the counter
+//  6  the link delay verdict (FPGA-gPTP #109): a negative delay is a good
+//     exchange, the Sync path uses it signed and floored at -800 ns, the
+//     counter takes no step; +800 ns keeps asCapable, +801 ns clears it
 //
 // The harness derives every egress-return sequenceId and messageType from
 // the selected transmitted frame. Those checks keep this direct engine
@@ -38,6 +42,7 @@
 
 #include <cstdint>
 #include <cstdio>
+#include <string>
 #include <vector>
 #include <verilated.h>
 #include "Vgptp_plane_wrap.h"
@@ -85,6 +90,15 @@ constexpr int32_t kOffsetLockNs = 150;
 constexpr int32_t kAddendMinQ824 = 11408;
 constexpr int32_t kAddendMaxQ824 = 15434;
 constexpr int64_t kRateTrackNs = 100;
+
+// Phase 6: neighborPropDelayThresh (Milan v1.2 4.2.6.1.1), which is also the
+// magnitude of the floor under the delay the Sync path uses (FPGA-gPTP #109).
+constexpr int64_t kDelayThreshNs = 800;
+// The offset every pair but a graded one is built for. A graded pair is built
+// for 0, so a pair the plane refused leaves this value published.
+constexpr int64_t kBackgroundOffsetNs = 11;
+// A pdelay exchange takes one second; the wait for one allows three.
+constexpr int kExchangeIntervals = 24;
 
 struct Frame {
   std::vector<uint8_t> b;
@@ -179,6 +193,7 @@ class GptpPlaneHarness {
     prove_better_announce_is_adopted();
     prove_closed_loop_steers_the_real_counter();
     prove_grandmaster_follow_up_rides_the_real_counter();
+    prove_the_link_delay_verdict();
     grade_every_stamp_return_tag();
 
     milan::tb::GptpTxFlags tx_flags;
@@ -186,12 +201,26 @@ class GptpPlaneHarness {
     tx_flags.report([this](const char* name, uint64_t got, uint64_t expected) {
       expect(name, got, expected);
     }, (1u << 0) | (1u << 2) | (1u << 8));
+    return tally();
+  }
 
+  //! Phase 6 alone, from a freshly capable slave: what one arm of
+  //! link_delay.py runs against its own image.
+  int execute_link_delay_only() {
+    bring_the_plane_out_of_reset();
+    prove_boot_exchange_is_not_yet_capable();
+    prove_second_exchange_raises_ascapable();
+    prove_better_announce_is_adopted();
+    prove_the_link_delay_verdict();
+    return tally();
+  }
+
+ private:
+  int tally() const {
     printf("%d checks: %d PASS, %d FAIL\n", checks, checks - fails, fails);
     return fails ? 1 : 0;
   }
 
- private:
   int checks = 0;
   int fails = 0;
   void expect(const char *what, uint64_t got, uint64_t exp) {
@@ -294,6 +323,9 @@ class GptpPlaneHarness {
   // ---- auto peer: answers every Pdelay_Req the plane transmits --------------
   size_t pd_seen = 0;
   bool pd_on = false;
+  bool pd_exact = false;       // phase 6: answer so that D is pd_target
+  int64_t pd_target = 600;
+  int pd_answers = 0;
 
   static uint64_t peer_ns(uint64_t ours) {
     return 5000000ull + ours + (ours >> 13);
@@ -314,6 +346,14 @@ class GptpPlaneHarness {
       uint64_t t2 = peer_ns(t1 + 300);
       uint64_t t3 = t2 + 20000;                    // D = ~600 ns
       uint64_t t4 = t1 + 21200;
+      if (pd_exact) {
+        // phase 6's peer: its clock is this one plus a constant, so the
+        // neighborRateRatio window (t3 and t4) reads exactly 1 and the
+        // residence alone sets the delay the plane computes
+        t3 = t4 + 5000000ull;
+        t2 = t3 - static_cast<uint64_t>(
+                      static_cast<int64_t>(t4 - t1) - 2 * pd_target);
+      }
       Frame f = ptp(0x3, seq, 0, 0x0200, 20);
       f.ts(t2); f.u64(OUR_CID); f.u16(1);
       send_frame(f.b, t4);
@@ -322,6 +362,7 @@ class GptpPlaneHarness {
       g.ts(t3); g.u64(OUR_CID); g.u16(1);
       send_frame(g.b, t4 + 1000);
       run(400);
+      pd_answers++;
     }
   }
 
@@ -544,6 +585,132 @@ class GptpPlaneHarness {
            OUR_CQ);
   }
 
+  // ---- 6: the link delay verdict (FPGA-gPTP #109) -----------------------
+  // A negative computed delay is a good exchange whatever its magnitude:
+  // Milan v1.2 4.2.6.2.7 only sets a minimum tolerance (-80 to 0 ns), and
+  // 802.1AS-2011 11.2.2 b) and Figure 11-8 clear asCapable only when the
+  // delay EXCEEDS neighborPropDelayThresh. The delay enters the Sync path
+  // signed (802.1AS-2011 11.2.13.2.1 f)), floored at -800 ns, so a wrong
+  // latency constant or a faulty peer cannot step the counter. This wrapper
+  // has no public bank, so the engine's signed word is what is graded here;
+  // the parent's clamp to 0 is graded by gptp_shadow and milan_dp.
+
+  //! The delay the Sync path uses for a computed delay `d`.
+  static int64_t used_delay(int64_t d) {
+    return d < -kDelayThreshNs ? -kDelayThreshNs : d;
+  }
+
+  //! One graded Sync/Follow_Up pair from GMID and what it did to the PHC.
+  struct PairResult { bool used; bool stepped; int32_t offset; };
+  uint16_t ld_seq = 0x0900;
+
+  //! One pair built so that a plane subtracting `link` measures `offset`.
+  PairResult delay_pair(int64_t link, int64_t offset) {
+    const size_t steps_before = steps_seen.size();
+    const size_t addends_before = adj_seen.size();
+    const uint64_t local_rx = phc() + 150;
+    const uint64_t origin = local_rx - static_cast<uint64_t>(link + offset);
+    const uint16_t seq = ld_seq++;
+    Frame f = ptp(0x0, seq, 0, 0x0208, 10);
+    f.ts(0);
+    send_frame(f.b, local_rx);
+    run(1000);
+    send_frame(follow_up(seq, origin).b, local_rx + 500);
+    run(4000);
+    return {adj_seen.size() == addends_before + 1,
+            steps_seen.size() != steps_before,
+            static_cast<int32_t>(dut->pub_offset_o)};
+  }
+
+  void announce_gmid() {
+    Frame a = ptp(0xB, ld_seq++, 0, 0x0008, 30);
+    for (int i = 0; i < 10; i++) a.u8(0);
+    a.u16(0xFFC4); a.u8(0);
+    a.u8(100); a.u32(OUR_CQ); a.u8(248);
+    a.u64(GMID);
+    a.u16(0); a.u8(0xA0);
+    send_frame(a.b, phc() + 150);
+    run(4000);
+  }
+
+  bool slave_of_gmid() {
+    const uint32_t mask = FL_ASCAP | FL_AMGM | FL_PRESENT;
+    return (dut->pub_flags_o & mask) == (FL_ASCAP | FL_PRESENT) &&
+           dut->pub_gm_id_o == GMID;
+  }
+
+  //! Keep GMID's Announce and Sync flowing until the peer has answered
+  //! `answers` requests and the plane has read the last of them. The pairs
+  //! follow the delay the plane should be using, which is `link`.
+  bool ride_to_answer(int answers, int64_t link) {
+    for (int k = 0; k < kExchangeIntervals && pd_answers < answers; k++) {
+      if (k % 8 == 0) announce_gmid();
+      run_svc(kSyncIntervalTicks);
+      if (pd_answers < answers) delay_pair(used_delay(link), kBackgroundOffsetNs);
+    }
+    run(6000);
+    return pd_answers >= answers;
+  }
+
+  //! A capable slave whose last two exchanges measured an ordinary 600 ns,
+  //! from wherever the previous trial left the port.
+  bool ready_for_a_trial() {
+    const int64_t link = 600;
+    pd_target = link;
+    bool answered = ride_to_answer(pd_answers + 2, link);
+    for (int k = 0; k < 2 * kExchangeIntervals && !slave_of_gmid(); k++) {
+      announce_gmid();
+      run_svc(kSyncIntervalTicks);
+      delay_pair(link, kBackgroundOffsetNs);
+    }
+    for (int k = 0; k < 4; k++) {
+      run_svc(kSyncIntervalTicks);
+      delay_pair(link, kBackgroundOffsetNs);
+    }
+    return answered && slave_of_gmid();
+  }
+
+  //! One exchange that computes exactly `d`, and the pair after it.
+  //! `link` is the delay the exchange before it left the Sync path using.
+  void trial(const char *name, int64_t link, int64_t d, bool kept) {
+    const std::string tag = std::string("link delay ") + name + ": ";
+    const auto check = [&](const char *what, uint64_t got, uint64_t exp) {
+      expect((tag + what).c_str(), got, exp);
+    };
+    check("runs from a capable slave", slave_of_gmid() ? 1 : 0, 1);
+    pd_target = d;
+    check("the exchange is answered",
+          ride_to_answer(pd_answers + 1, link) ? 1 : 0, 1);
+    check(kept ? "asCapable kept" : "asCapable clears",
+          dut->pub_flags_o & FL_ASCAP, kept ? FL_ASCAP : 0);
+    if (kept)
+      check("the engine publishes the used delay", dut->pub_pdelay_ns_o,
+            static_cast<uint32_t>(used_delay(d)));
+    const PairResult r = delay_pair(used_delay(d), 0);
+    check(kept ? "the next Follow_Up is used" : "the next Follow_Up is not used",
+          r.used ? 1 : 0, kept ? 1 : 0);
+    if (kept) {
+      check("its offset uses the delay exactly",
+            static_cast<uint32_t>(r.offset), 0);
+      check("the grandmaster stays elected", slave_of_gmid() ? 1 : 0, 1);
+    }
+    check("no PHC step", r.stepped ? 1 : 0, 0);
+  }
+
+  void prove_the_link_delay_verdict() {
+    pd_exact = true;
+    expect("link delay: ordinary exchanges leave a capable slave",
+           ready_for_a_trial() ? 1 : 0, 1);
+    int64_t link = 600;
+    for (const int64_t d : {-3, -80, -81, -263, -800, -801, -5000000, 800}) {
+      trial(std::to_string(d).c_str(), link, d, true);
+      link = d;
+    }
+    trial("801", link, 801, false);
+    expect("link delay: an ordinary exchange requalifies after 801",
+           ready_for_a_trial() ? 1 : 0, 1);
+  }
+
   // The existing behavior checks above make a bad tag operationally red:
   // a wrong Pdelay_Req tag prevents the second exchange, and a wrong Sync
   // tag prevents its Follow_Up. Grade the harness independently too, so a
@@ -579,5 +746,7 @@ class GptpPlaneHarness {
 int main(int argc, char **argv) {
   Verilated::commandArgs(argc, argv);
   GptpPlaneHarness harness;
-  return harness.execute();
+  return Verilated::commandArgsPlusMatch("link-delay-only")[0] != '\0'
+             ? harness.execute_link_delay_only()
+             : harness.execute();
 }

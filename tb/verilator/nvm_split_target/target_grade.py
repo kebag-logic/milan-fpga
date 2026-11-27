@@ -21,7 +21,11 @@ EVERY STEP of the store, in every phase and every case, must take at most the
 loop's T_svc of CPU time (FR_NFR.md 3.4.1, scenario.T_SVC_MS); a step over it
 is a finding of its case. That is the only timing bound the split writer F1
 has (#665 owner decision 2026-10-29, option (c)): F1 holds no owner while it
-captures, and a change behind its cursor opens its own window (DR2a).
+captures, and a change behind its cursor joins the capture or is the next save's
+(DR2a, #920).
+
+THE WINDOW the commit waits out is its binding records' (#1009, DR2a): its one erase
+follows its changes within the other records' 1,000 ms, and not at once (windowed).
 
 THE CAPTURE is the store's capture phase for one work set, every record of the
 shape dirty. It is measured and recorded, and has no bound of its own: its CPU
@@ -92,13 +96,18 @@ def observe(text: str, sys_hz: int, cpu_hz: int) -> Observed:
     """The log parsed: its spans with the calls inside each, the flash summary and its mutating operations."""
     log = budget.parse(text, sys_hz, cpu_hz)
     spans = [Step(rest[4], int(rest[0]), int(rest[1]), int(rest[2])) for kind, *rest in log.traced if kind == 'SPAN']
-    for kind, *rest in log.traced:
-        if kind != 'CALL':
-            continue
-        cpu = int(rest[1])
-        for step in spans:
-            if step.cpu <= cpu <= step.cpu + step.cycles:
-                step.calls.append(rest[2])
+    # each call joins every span it falls in, in the log's order: a sweep over the spans by their start, the open ones
+    # those that start at or before the call and end at or after it
+    starts = sorted(spans, key=lambda step: step.cpu)
+    calls = sorted(((int(rest[1]), rest[2]) for kind, *rest in log.traced if kind == 'CALL'), key=lambda c: c[0])
+    opened, at = [], 0
+    for cpu, name in calls:
+        while at < len(starts) and starts[at].cpu <= cpu:
+            opened.append(starts[at])
+            at += 1
+        opened = [step for step in opened if step.cpu + step.cycles >= cpu]
+        for step in opened:
+            step.calls.append(name)
     flash, ops = {}, []
     for line in text.splitlines():
         if line.startswith('FLASH '):
@@ -345,6 +354,29 @@ def committed(obs: Observed, ctx: Context, bench: object) -> list[str]:
     return found
 
 
+def window_bounds() -> tuple[float, float]:
+    """The commit's erase after its changes, ms (windowed): past half the binding class's window, which the marks
+    before the bind opened, and short of half the other records' 1,000 ms, which the rename opened."""
+    from target_cases import BIND_WINDOW_MS, OTHER_WINDOW_MS
+    return BIND_WINDOW_MS / 2, OTHER_WINDOW_MS / 2
+
+
+def windowed(obs: Observed) -> list[str]:
+    """The commit's first erase, from the case's changes (its `committing` mark, after the bind's response), within
+    window_bounds: at the end of the binding records' window, after the capture and the seal, and not at the end of the
+    other records' window, nor at once."""
+    low, high = window_bounds()
+    changed = next((c for c, name in obs.log.marks if name == 'committing'), None)
+    erase = next((c for c, op, *_ in obs.log.flash_ops if op == budget.FLASH_ERASE), None)
+    if changed is None or erase is None:
+        return ['the commit shows no change, or no erase']
+    waited = (erase - changed) * 1000.0 / obs.log.sys_hz
+    if not low <= waited <= high:
+        return [f"the commit's erase came {waited:.1f} ms after its changes, not at the end of its binding records' "
+                'window']
+    return []
+
+
 def grade_case(case: object, obs: Observed, ctx: Context, bench: object) -> dict:
     """One case's verdict: its measurement where it has one, its findings (every service step over T_svc
     among them), and whether it passed (a control passes when its planted defect is caught by its words)."""
@@ -364,7 +396,7 @@ def grade_case(case: object, obs: Observed, ctx: Context, bench: object) -> dict
         result['capture'] = capture(obs, ctx.records, ctx.cpu_hz)
         result['capture']['decomposed'] = decomposed(obs, list(ctx.plens))
         result['phases'] = phases(obs, ctx.cpu_hz)
-        result['findings'] += result['capture'].pop('findings') + committed(obs, ctx, bench)
+        result['findings'] += result['capture'].pop('findings') + committed(obs, ctx, bench) + windowed(obs)
         result['findings'] += held_to(obs, SAVED_NAME, scenario.TALKER_A)
     elif case.name == 'guard':
         result['findings'] += guarded(obs)

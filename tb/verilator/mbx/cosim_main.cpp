@@ -231,7 +231,10 @@ std::vector<Sent> scenario(Fabric& fab) {
     if (!ctrl_app_start(app.get(), &cfg)) {
         return out;
     }
-    for (std::uint32_t t = 0; t < 21000u; ++t) {
+    // The fourth ENTITY_AVAILABLE comes by 31.05 s whatever the draws: the LINK_UP's at most 4 s from the rise
+    // at 50 ms, then three of TMR_ADVERTISE (5 s) and a draw of at most 4 s (Milan v1.2 Table 5.50). The
+    // DISCOVER and the grandmaster change only shorten a cycle. So the shutdown comes at 32 s.
+    for (std::uint32_t t = 0; t < 33000u; ++t) {
         const std::vector<std::uint8_t> acmp = acmp_at(t);
         if (t == 50u) {
             fab.link(true);
@@ -245,7 +248,7 @@ std::vector<Sent> scenario(Fabric& fab) {
         fab.ms();
         while (ctrl_loop_service(&app->loop) != 0u) {
         }
-        if (t == 20000u) {
+        if (t == 32000u) {
             adp_mbx_set_enable(&app->adp, false);
         }
         for (auto& f : fab.sent()) {

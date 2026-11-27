@@ -36,7 +36,7 @@ from ctrl_build import CTRL, STACK, STACK_PARTS, STACK_PREFIX, Outcome, Refusal,
 from ctrl_mutant import ACMP_C, ADP_C, WIRE_H, Mutant
 
 
-from ctrl_mutant_fixtures import (APP_BRING, APP_BRING_LATE, LOOP_OPEN, LOOP_OWN_MAC,
+from ctrl_mutant_fixtures import (APP_BRING, APP_BRING_LATE, CDL_BOUND, LOOP_OPEN, LOOP_OWN_MAC,
                                   MODEL_CLASSIFY, MODEL_CLASSIFY_UNTAGGED, MODEL_GROUP, TX_ROOM)
 
 MUTANTS = (
@@ -287,9 +287,8 @@ MUTANTS = (
     Mutant("rx-binds-no-function", "loop/ctrl_loop.c", "if (ch >= MBX_N_CH || fn == NULL) {",
            "if (ch >= MBX_N_CH) {", "port", "LoopBring.L9TablesRefuseNullAndOverflow",
            "L9 a channel bound to no function is refused"),
-    Mutant("seed-left-at-zero", ADP_C, "0x9E3779B9u;\n\tif (a->rng == 0u) {\n\t\ta->rng = 1u;\n\t}\n",
-           "0x9E3779B9u;\n", "adp", "AdpCore.A22GeneratorNeverStuckAtZero",
-           "A22 an entity id whose words cancel the seed constant"),
+    Mutant("seed-left-at-zero", ADP_C, "a->rng = x != 0u ? x : 1u;", "a->rng = x;",
+           "adp", "AdpCore.A22GeneratorNeverStuckAtZero", "A22 a seed that mixes to zero starts the generator at 1"),
     Mutant("enable-not-idempotent", ADP_C, "\tif (enable == a->enabled) {\n\t\treturn;\n\t}\n", "",
            "adp", "AdpCore.A23RepeatedEnableOrDisableChangesNothing",
            "A23 an enable while enabled draws and arms nothing"),
@@ -577,13 +576,19 @@ MUTANTS += (
            "(frame[ADP_HEADER_BYTES + 1u] & 0x70u) != 0u ||", "false ||",
            "adp", "AdpAdapter.PinRejectsUnsupportedDiscoveryVersions",
            "malformed discovery changes only the discard count"),
-    Mutant("pin-adp-discovery-length", ADP_C,
-           "(wire_be16(frame + ADP_HEADER_BYTES + 2u) & 0x07FFu) != ADP_CONTROL_DATA_LENGTH ||",
-           "false ||", "adp", "AdpAdapter.PinRejectsWrongDiscoveryControlLength",
+    Mutant("pin-adp-discovery-length", ADP_C, CDL_BOUND, "false ||",
+           "adp", "AdpAdapter.PinRejectsShortDiscoveryControlLength",
            "malformed discovery changes only the discard count"),
-    Mutant("pin-adp-valid-discovery", ADP_C,
-           "(wire_be16(frame + ADP_HEADER_BYTES + 2u) & 0x07FFu) != ADP_CONTROL_DATA_LENGTH ||",
-           "wire_be16(frame + ADP_HEADER_BYTES + 2u) != ADP_CONTROL_DATA_LENGTH ||",
+    Mutant("pin-adp-discovery-valid-time", ADP_C, CDL_BOUND, CDL_BOUND.replace(" & 0x07FFu", ""),
+           "adp", "AdpAdapter.PinRejectsShortDiscoveryControlLength",
+           "malformed discovery changes only the discard count"),
+    Mutant("pin-adp-discovery-length-octet", ADP_C, CDL_BOUND, CDL_BOUND.replace("0x07FF", "0x00FF"),
+           "adp", "AdpAdapter.PinAcceptsLongDiscoveryThroughMailbox",
+           "a longer discovery restarts advertising through the mailbox"),
+    Mutant("pin-adp-long-discovery", ADP_C, CDL_BOUND, CDL_BOUND.replace("<", "!="),
+           "adp", "AdpAdapter.PinAcceptsLongDiscoveryThroughMailbox",
+           "a longer discovery restarts advertising through the mailbox"),
+    Mutant("pin-adp-valid-discovery", ADP_C, CDL_BOUND, CDL_BOUND.replace("<", "<="),
            "adp", "AdpAdapter.PinAcceptsCompleteDiscoveryThroughMailbox",
            "complete discovery restarts advertising through the mailbox"),
 )

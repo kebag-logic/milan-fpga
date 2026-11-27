@@ -29,7 +29,11 @@
 //       new ENTITY_AVAILABLE after its own 0 to 4 s draw; available_index
 //       advancing by one per ENTITY_AVAILABLE across the link-ups; every later
 //       delay 0 to 4 s (Milan v1.2 5.6.3.5.2, 5.6.3.5.3, 5.6.3.5.5, 5.6.3.5.7,
-//       5.6.3.5.9 and Table 5.51; IEEE 1722.1-2021 6.2.2.15 and 6.2.2.16).
+//       5.6.3.5.9 and Table 5.51; IEEE 1722.1-2021 6.2.2.15 and 6.2.2.16);
+//   H   THE DRAW (adp_mbx.h): the first delays of neighbouring entity IDs
+//       started together, and of one entity's boots, each uniform over its
+//       range at a startup and at a LINK_UP (IEEE 1722.1-2021 6.2.4.2.2); the
+//       seed's terms; the seed without a clock.
 //
 // One test per labelled step or scenario; each assertion carries the check's
 // name from the hand-rolled suite it replaces (sw/firmware/gtest/README.md,
@@ -850,7 +854,224 @@ void gm_change_after_first(void) {
         << "G4 the grandmaster change's delay is the 0 to 4 s draw: across the link-ups it passes 2 s";
 }
 
+// ---- H: THE DRAW (#970; IEEE 1722.1-2021 6.2.4.2.2) ----------------------------------
+
+// The seed's clock in these tests: the value in *ctx, as the platform's microseconds would give it.
+unsigned clock_reads = 0;
+uint32_t fixed_clock(void* ctx) {
+    ++clock_reads;
+    return *static_cast<uint32_t*>(ctx);
+}
+
+// A LINK event of interface 0 at `up`, handed to every sink of the loop as the loop hands one it takes: the model
+// posts one only on a change, so a duplicate comes this way.
+void link_event(bool up) {
+    struct mbx_event ev{};
+    ev.type = MBX_EV_TYPE_LINK;
+    ev.interface = 0;
+    ev.link_up = up;
+    for (unsigned k = 0; k < app.loop.n_sinks; ++k) {
+        app.loop.sinks[k].fn(app.loop.sinks[k].ctx, &ev);
+    }
+}
+
+// The clock port is the composition's, not the app's: each test leaves none behind.
+struct AdpDraw : ::testing::Test {
+    uint32_t sample = 0;
+    void SetUp() override { adp_mbx_set_clock(fixed_clock, &sample); }
+    void TearDown() override { adp_mbx_set_clock(nullptr, nullptr); }
+};
+
+// The app on a fresh model as `e`, its link up before its start or at a LINK_UP after it: its first delay is drawn.
+void draw_first(const struct adp_entity& e, bool startup, uint32_t skew = 0) {
+    mbx_model_reset(&model);
+    mbx_model_bind(&model, nullptr, nullptr);
+    mbx_model_advance_ms(&model, skew);
+    mbx_model_set_gm(&model, 0, kGmA, 0);
+    mbx_model_set_link(&model, 0, startup);
+    struct ctrl_app_config cfg = {&e, 2, arena, sizeof arena, classes, 1, nullptr, nullptr, nullptr, nullptr,
+                                   nullptr, nullptr, 0};
+    ASSERT_TRUE(ctrl_app_start(&app, &cfg)) << "H0 the app starts on the model";
+    if (!startup) {
+        mbx_model_set_link(&model, 0, true);
+    }
+    settle();
+    ASSERT_TRUE(adp0()->draws == 1u && adp0()->last_draw == (startup ? ADP_DRAW_STARTUP : ADP_DRAW_DELAY))
+        << "H0 one delay is drawn, of its kind";
+}
+
+struct adp_entity neighbour(uint32_t k, bool own_mac) {
+    struct adp_entity e = entity;
+    e.mac = own_mac ? 0x024b4c4b4000ull + k : entity.mac;
+    e.entity_id = 0x024b4cfffe4b4000ull + k;
+    return e;
+}
+
+constexpr uint32_t kHosts = 1024u;
+constexpr double kChiSquare99 = 30.58;          // 15 degrees of freedom, 99 %
+
+// Pearson's statistic of the delays over sixteen equal parts of the range.
+double chi_square(const Spread& d, uint32_t max_ms) {
+    const double expected = static_cast<double>(d.all.size()) / 16.0;
+    double sum = 0;
+    for (const unsigned n : d.bins(max_ms, 16u)) {
+        sum += (n - expected) * (n - expected) / expected;
+    }
+    return sum;
+}
+
+double uniform(const char* what, const Spread& d, uint32_t max_ms) {
+    const double x = chi_square(d, max_ms);
+    std::printf("  %s: %u draws over 0 to %u ms, chi-square %.1f (99 %%: %.1f)\n", what,
+                static_cast<unsigned>(d.all.size()), static_cast<unsigned>(max_ms), x, kChiSquare99);
+    return x;
+}
+
 // ---- the tests -----------------------------------------------------------------------
+
+// H4 neighbouring entity IDs started together, at one sample, with neighbouring MAC addresses and with one: each kind's
+// first delays are uniform.
+TEST_F(AdpDraw, H4NeighbouringEntitiesDrawUniformly) {
+    for (const bool startup : {true, false}) {
+        const uint32_t max_ms = startup ? kStartupDrawMaxMs : kLinkUpDrawMaxMs;
+        for (const bool own_mac : {true, false}) {
+            sample = own_mac ? 0u : 41000u;
+            Spread d;
+            for (uint32_t k = 0; k < kHosts; ++k) {
+                ASSERT_NO_FATAL_FAILURE(draw_first(neighbour(k, own_mac), startup));
+                d.add(adp0()->last_draw_ms);
+            }
+            EXPECT_TRUE(uniform(startup ? "H4 neighbours, startup" : "H4 neighbours, LINK_UP", d, max_ms) <= kChiSquare99)
+                << "H4 neighbouring entities started together draw their first delay uniformly";
+        }
+    }
+}
+
+// H5 one entity's boots, their samples one microsecond apart and one millisecond apart.
+TEST_F(AdpDraw, H5BootsDrawUniformly) {
+    for (const bool startup : {true, false}) {
+        const uint32_t max_ms = startup ? kStartupDrawMaxMs : kLinkUpDrawMaxMs;
+        for (const uint32_t step : {1u, 1000u}) {
+            Spread d;
+            for (uint32_t k = 0; k < kHosts; ++k) {
+                sample = 41000u + k * step;
+                ASSERT_NO_FATAL_FAILURE(draw_first(entity, startup));
+                d.add(adp0()->last_draw_ms);
+            }
+            EXPECT_TRUE(uniform(startup ? "H5 boots, startup" : "H5 boots, LINK_UP", d, max_ms) <= kChiSquare99)
+                << "H5 one entity's boots draw their first delay uniformly";
+        }
+    }
+}
+
+// H6 without a clock the sample is NOW_MS: boots one millisecond apart still draw uniformly.
+TEST_F(AdpDraw, H6WithoutAClockBootsDrawUniformly) {
+    adp_mbx_set_clock(nullptr, nullptr);
+    for (const bool startup : {true, false}) {
+        Spread d;
+        for (uint32_t k = 0; k < kHosts; ++k) {
+            ASSERT_NO_FATAL_FAILURE(draw_first(entity, startup, 30u + k));
+            d.add(adp0()->last_draw_ms);
+        }
+        EXPECT_TRUE(uniform(startup ? "H6 no clock, startup" : "H6 no clock, LINK_UP", d,
+                            startup ? kStartupDrawMaxMs : kLinkUpDrawMaxMs) <= kChiSquare99)
+            << "H6 without a clock the seed's NOW_MS still spreads one entity's boots";
+    }
+}
+
+// H7 the seed's terms: the sum of MAC address and clock, its least significant 32 bits (6.2.4.2.2), and the entity ID.
+TEST_F(AdpDraw, H7TheSeedIsTheSumOfMacAndClockMixedWithTheEntityId) {
+    const auto seeded = [this](const struct adp_entity& e, uint32_t at) {
+        sample = at;
+        draw_first(e, true);
+        return adp0()->rng;
+    };
+    const uint32_t base = seeded(entity, 41000u);
+    struct adp_entity e = entity;
+    e.mac += 1u;
+    EXPECT_NE(seeded(e, 41000u), base) << "H7 the MAC address is in the seed";
+    EXPECT_EQ(seeded(e, 40999u), base) << "H7 the seed is the sum of MAC address and clock";
+    e.mac = 0xFFFFFFFFull;
+    const uint32_t wrapped = seeded(e, 5u);
+    e.mac = 0;
+    EXPECT_EQ(seeded(e, 4u), wrapped) << "H7 the seed is the sum modulo 2^32";
+}
+
+// H8 a LINK_UP after a link loss takes a fresh sample: over samples one microsecond apart its delay is uniform too.
+TEST_F(AdpDraw, H8ALaterLinkUpTakesAFreshSample) {
+    Spread d;
+    for (uint32_t k = 0; k < kHosts; ++k) {
+        sample = 41000u;
+        ASSERT_NO_FATAL_FAILURE(draw_first(entity, false));
+        mbx_model_set_link(&model, 0, false);
+        settle();
+        sample = 90000u + k;
+        mbx_model_set_link(&model, 0, true);
+        settle();
+        ASSERT_EQ(adp0()->draws, 2u) << "H8 the second LINK_UP draws";
+        d.add(adp0()->last_draw_ms);
+    }
+    EXPECT_TRUE(uniform("H8 a later LINK_UP", d, kLinkUpDrawMaxMs) <= kChiSquare99)
+        << "H8 a LINK_UP after a link loss draws from a fresh sample";
+}
+
+// H9 through the adapter, the clock is read once for each qualified rise and for the startup draw, and never for a
+// duplicate LINK_UP or a LINK_UP while disabled (IEEE 1722.1-2021 6.2.4.2.2; Milan v1.2 5.6.3.5.2, 5.6.3.5.3).
+TEST_F(AdpDraw, H9EachQualifiedRiseReadsTheClockOnce) {
+    sample = 41000u;
+    clock_reads = 0;
+    mbx_model_reset(&model);
+    mbx_model_bind(&model, nullptr, nullptr);
+    mbx_model_set_gm(&model, 0, kGmA, 0);
+    struct ctrl_app_config cfg = {&entity, 2, arena, sizeof arena, classes, 1, nullptr, nullptr, nullptr, nullptr,
+                                   nullptr, nullptr, 0};
+    ASSERT_TRUE(ctrl_app_start(&app, &cfg)) << "H9 the app starts on the model";
+    settle();
+    EXPECT_EQ(clock_reads, 0u) << "H9 a start with the link down reads no clock";
+    for (unsigned rise = 1; rise <= 3u; ++rise) {
+        const uint32_t draws = adp0()->draws;
+        mbx_model_set_link(&model, 0, true);
+        settle();
+        EXPECT_TRUE(clock_reads == rise && adp0()->draws == draws + 1u)
+            << "H9 each qualified LINK_UP reads the clock once through the adapter";
+        link_event(true);
+        EXPECT_TRUE(clock_reads == rise && adp0()->draws == draws + 1u) << "H9 a duplicate LINK_UP reads no clock";
+        mbx_model_set_link(&model, 0, false);
+        settle();
+    }
+    adp_mbx_set_enable(&app.adp, false);
+    mbx_model_set_link(&model, 0, true);
+    settle();
+    EXPECT_EQ(clock_reads, 3u) << "H9 a LINK_UP while disabled reads no clock";
+    adp_mbx_set_enable(&app.adp, true);
+    EXPECT_TRUE(clock_reads == 4u && adp0()->last_draw == ADP_DRAW_STARTUP)
+        << "H9 the startup draw reads the clock once";
+}
+
+// H10 boots alike up to a LINK_UP, their clocks apart only when it comes: the LINK_UP's sample sets its draw.
+TEST_F(AdpDraw, H10TheClockAtTheLinkUpSetsItsDraw) {
+    Spread d;
+    for (uint32_t k = 0; k < kHosts; ++k) {
+        sample = 7u;
+        mbx_model_reset(&model);
+        mbx_model_bind(&model, nullptr, nullptr);
+        mbx_model_set_gm(&model, 0, kGmA, 0);
+        struct ctrl_app_config cfg = {&entity, 2, arena, sizeof arena, classes, 1, nullptr, nullptr, nullptr,
+                                       nullptr, nullptr, nullptr, 0};
+        ASSERT_TRUE(ctrl_app_start(&app, &cfg)) << "H10 the app starts on the model";
+        settle();
+        sample = 41000u + k;
+        mbx_model_set_link(&model, 0, true);
+        settle();
+        ASSERT_EQ(adp0()->draws, 1u) << "H10 the LINK_UP draws";
+        d.add(adp0()->last_draw_ms);
+    }
+    std::printf("  H10 %u distinct first delays of %u boots apart only at the LINK_UP\n",
+                static_cast<unsigned>(d.values.size()), static_cast<unsigned>(kHosts));
+    EXPECT_TRUE(d.values.size() >= 600u) << "H10 boots apart only at the LINK_UP draw apart";
+    EXPECT_TRUE(uniform("H10 the first LINK_UP", d, kLinkUpDrawMaxMs) <= kChiSquare99)
+        << "H10 and draw uniformly from the clock read at the LINK_UP";
+}
 
 TEST(AdpAdapter, B1StaleTagDiscarded) {
     adapter_race();
@@ -893,12 +1114,39 @@ TEST(AdpAdapter, PinRejectsUnsupportedDiscoveryVersions) {
     }
 }
 
-TEST(AdpAdapter, PinRejectsWrongDiscoveryControlLength) {
+TEST(AdpAdapter, PinRejectsShortDiscoveryControlLength) {
     uint8_t frame[82];
     discover(frame, 2u, 0u);
-    for (unsigned length : {0u, 55u, 57u, 2047u}) {
-        wire_put_be(frame + 16, length, 2);
-        refused_discovery(frame, sizeof frame);
+    for (unsigned valid_time : {0u, 31u}) {
+        for (unsigned length : {0u, 55u}) {
+            wire_put_be(frame + 16, (valid_time << 11) | length, 2);
+            refused_discovery(frame, sizeof frame);
+        }
+    }
+}
+
+// A longer PDU is read by its first 56 octets (IEEE 1722.1-2021 6.2.2.6 and 6.2.7.1.3, Milan v1.2 5.6.3.1), whole or
+// with the surplus absent; 102 fills the channel's largest frame, so 256 and 2047 arrive without theirs.
+TEST(AdpAdapter, PinAcceptsLongDiscoveryThroughMailbox) {
+    for (unsigned length : {57u, 84u, 102u, 256u, 2047u}) {
+        for (size_t octets : {size_t{82}, size_t{26} + length}) {
+            if (octets > MBX_CH_ADP_MAX_FRAME_BYTES) {
+                continue;
+            }
+            boot();
+            mbx_model_set_link(&model, 0, true);
+            settle();
+            to_waiting();
+            uint8_t frame[MBX_CH_ADP_MAX_FRAME_BYTES];
+            std::memset(frame, 0xFF, sizeof frame);
+            discover(frame, 2u, entity.entity_id);
+            wire_put_be(frame + 16, length, 2);
+            const auto discarded = adp0()->discarded;
+            ASSERT_TRUE(mbx_model_rx(&model, frame, octets, 0)) << "the adp channel keeps a longer discovery";
+            pass();
+            EXPECT_EQ(adp0()->state, ADP_STATE_DELAY) << "a longer discovery restarts advertising through the mailbox";
+            EXPECT_EQ(adp0()->discarded, discarded) << "a longer discovery is not discarded";
+        }
     }
 }
 

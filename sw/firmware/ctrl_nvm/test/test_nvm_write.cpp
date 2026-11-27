@@ -858,7 +858,9 @@ TEST_P(NvmBoth, service_bound) {
     if (port() == Port::Model) {
         EXPECT_EQ(r.at("max_read"), 128) << "a read-back step reads half a page, 0.7 ms of a pass's 2.0 ms share (#665)";
     }
-    EXPECT_TRUE(r.at("max_call_us") <= kNominalCallUs && r.at("calls") >= 3000000 / 100 && r.at("max_polls_call") <= 3)
+    // a call comes at most 110 us after the one before it, its own time on the command master included: the binding
+    // records of the pattern end the first-dirty window 100 ms after it, so the 3 s erase is all but the whole run
+    EXPECT_TRUE(r.at("max_call_us") <= kNominalCallUs && r.at("calls") >= 3000000 / 110 && r.at("max_polls_call") <= 3)
         << "the loop did not keep running: " << r.text();
 }
 

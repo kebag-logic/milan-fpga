@@ -168,6 +168,8 @@ OUTSIDE = {
                                   "a harness elaborates; it compiles nothing",
     "docs/diagrams/submodule_boundaries.gen.py": "draws the submodule diagram; it compiles nothing",
     "scripts/ci_events.py": "models the CI workflows; it compiles nothing",
+    "scripts/ci_fast_legs_selftest.py": "proves the fast workflow's campaign and census legs (#1008) against the "
+                                        "driver's dispatch with every campaign stood in for; it compiles nothing",
     "scripts/ci_scope.py": "selects the CI scope from the paths a change touches; it compiles nothing",
     "sw/firmware/ctrl/adp/adp_entity.py": "writes the ADP shape header; it compiles nothing",
     "sw/firmware/ctrl/test/ctrl_mutant.py": "the campaign tables' record of one defect; it compiles nothing",
@@ -314,6 +316,8 @@ OUTSIDE = {
                                                           "compiles nothing",
     "tb/verilator/ctrl_service_budget/save_window.py": "writes the stimulus of a save's windows and names the "
                                                        "store's source whose phases it stages; it compiles nothing",
+    "tb/verilator/ctrl_service_budget/model_counts.py": "holds scenario.py's ADP model counts to the counts adp_mbx.h "
+                                                        "states, read as text; it compiles nothing",
     "tb/verilator/ctrl_service_budget/scenario.py": "writes the harness's stimulus and reads AECP_REGISTRATIONS from "
                                                     "aecp.h; it compiles nothing",
     "tb/verilator/ctrl_service_budget/selftest.py": "the harness's grader self-test; it reads AECP_REGISTRATIONS from "

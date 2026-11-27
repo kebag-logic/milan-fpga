@@ -50,3 +50,5 @@ TX_ROOM = ("\t\tt->tail = counter(ch_reg(ch, MBX_CH_REG_TX_TAIL));\n\t\tused = (
 #: The same with the pool bound only once the mailbox is open.
 APP_BRING_LATE = APP_BRING.removeprefix("\tshlan_port_bind_pool(&app->pool);\n") + \
     "\tshlan_port_bind_pool(&app->pool);\n"
+#: adp_rx's bound on the 11-bit control_data_length
+CDL_BOUND = "(wire_be16(frame + ADP_HEADER_BYTES + 2u) & 0x07FFu) < ADP_CONTROL_DATA_LENGTH ||"

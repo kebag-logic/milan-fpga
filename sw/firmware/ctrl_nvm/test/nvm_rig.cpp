@@ -59,6 +59,13 @@ struct Rig {
     Bytes new_image;  // the reference commit's container
     std::uint32_t new_slot = 0;
     std::vector<State> states;  // the power-cut enumeration's state snapshots 0, 1 and 2
+    std::uint64_t erase_us = 0;    // the model's erase and page-program times (--times)
+    std::uint64_t program_us = 0;
+    std::uint64_t gate_us = 0;     // --sweep-gate: a cut this long after the change or later boots the new values
+    int flight_phase = -1;         // --sweep-flight PHASE:MS: the change arrives MS into this phase of another's save
+    std::uint64_t flight_ms = 0;
+    std::vector<std::pair<std::int64_t, std::int64_t>> effects;  // each media effect's start and end, model us
+    bool keep_effects = false;
 };
 
 Rig* rig;
@@ -124,6 +131,8 @@ void service() {
     const unsigned polls = nvm_fmodel_count()->busy_polls;
     const unsigned failed = nvm_store_status()->commits_failed;
     const unsigned ok = nvm_store_status()->commits_ok;
+    const unsigned erases = nvm_fmodel_count()->erases;
+    const unsigned programs = nvm_fmodel_count()->programs;
     nvm_fmodel_read_max_clear();
     if (rig->step_left < 0) {
         nvm_store_service();
@@ -138,6 +147,11 @@ void service() {
     }
     if (nvm_store_status()->commits_ok != ok) {
         note(rig->run.ok_at);
+    }
+    if (rig->keep_effects && (nvm_fmodel_count()->erases != erases || nvm_fmodel_count()->programs != programs)) {
+        const std::int64_t now = static_cast<std::int64_t>(nvm_fmodel_now_us());
+        const bool erased = nvm_fmodel_count()->erases != erases;
+        rig->effects.emplace_back(now, now + static_cast<std::int64_t>(erased ? rig->erase_us : rig->program_us));
     }
     if (nvm_fmodel_now_us() - before > rig->max_call_us) {
         rig->max_call_us = nvm_fmodel_now_us() - before;
@@ -298,6 +312,181 @@ bool one_cut(unsigned k, unsigned frac, unsigned* old, unsigned* new_set) {
     return after_cut(k == 0u, old, new_set);
 }
 
+// ---- the swept cut (#1009) -----------------------------------------------------
+
+// The record another save is taking when the change arrives: the last one of the shape, no binding.
+nvm_rec other_rec() {
+    nvm_rec last = nvm_rec_first();
+    for (nvm_rec r = last; r.ok; r = nvm_rec_next(r)) {
+        last = r;
+    }
+    return last;
+}
+
+void set_bytes(nvm_rec r, unsigned seed) {
+    std::uint8_t payload[NVM_PAYLOAD_MAX];
+    for (unsigned j = 0; j < r.plen; ++j) {
+        payload[j] = static_cast<std::uint8_t>(seed + j * 7u);
+    }
+    set(r.id, payload, r.plen);
+}
+
+// A boot of the sweep: the model's erase and page times are the part's again (power on resets them).
+void sweep_boot() {
+    boot();
+    nvm_fmodel_times(rig->erase_us, rig->program_us);
+}
+
+// Up to the change the sweep cuts after: with --sweep-flight, the other record's save, as far as the change finds it.
+void sweep_arrive() {
+    if (rig->flight_phase < 0) {
+        return;
+    }
+    set_bytes(other_rec(), 0x21u);
+    until_phase(static_cast<unsigned>(rig->flight_phase));
+    run_ms(rig->flight_ms);
+}
+
+// The binding change the sweep saves: the first binding record's payload, a pattern no fixture image carries.
+void sweep_change() { set_bytes(nvm_rec_of(NVM_G_BIND, 0), 0xb0u); }
+
+// The cut a power failure at t us after the change makes: inside the effect running then, the share of it that had
+// landed, or at the start of the next one (nothing more lands); none when every effect had ended. The effects and
+// their times are the reference run's, those before the change included, as the model counts them from power on.
+void arm_cut(std::int64_t t) {
+    for (std::size_t k = 0; k < rig->effects.size(); ++k) {
+        const auto [start, end] = rig->effects[k];
+        if (t < end) {
+            const std::int64_t frac = t <= start ? 0 : (t - start) * 256 / (end - start);
+            nvm_fmodel_cut(static_cast<unsigned>(k + 1u), static_cast<unsigned>(frac));
+            return;
+        }
+    }
+}
+
+// One cut t us after the change: the board boots a state a whole save left, never a mix and never nothing: before
+// the change's own save landed, the binding it had (states 0, or 1 when the other record's save landed first), and
+// from then on the new one; from the gate on always the new one. Then a change commits and boots back. 0 when it
+// does, else the check that failed (sweep()'s list).
+int sweep_one(std::int64_t t, std::int64_t landed_other, std::int64_t landed, unsigned* old, unsigned* new_set) {
+    restore_snapshot();
+    sweep_boot();
+    if (rig->flight_phase < 0) {
+        protect_auth();
+    }
+    arm_cut(t);
+    sweep_arrive();
+    sweep_change();
+    run_ms(static_cast<std::uint64_t>((t + 999) / 1000));
+    if (nvm_fmodel_count()->protected_hit || nvm_fmodel_count()->outside) {
+        return 1;
+    }
+    sweep_boot();
+    const State now = capture_state();
+    if (now == rig->states[3]) {
+        (*new_set)++;
+    } else if (rig->gate_us != 0u && t >= static_cast<std::int64_t>(rig->gate_us)) {
+        return 6;
+    } else if (now == rig->states[0] && t < landed_other) {
+        (*old)++;
+    } else if (now == rig->states[1] && t < landed) {
+        (*old)++;
+    } else {
+        return now == rig->states[0] || now == rig->states[1] ? 2 : 3;
+    }
+    set_pattern(0x77u, false);
+    until_idle();
+    if (nvm_store_status()->commits_ok < 1u || nvm_store_status()->stale) {
+        return 4;
+    }
+    rig->states[2] = capture_state();
+    sweep_boot();
+    return capture_state() == rig->states[2] && nvm_store_status()->terminal == NVM_T_COMPLETE ? 0 : 5;
+}
+
+// The journal's own state (0), the other record's save alone (1, the same for an idle store) and both (3), each read
+// back by a boot; the reference run's effects, timed from the change.
+std::int64_t sweep_reference() {
+    restore_snapshot();
+    sweep_boot();
+    rig->states.assign(4, State{});
+    rig->states[0] = capture_state();
+    rig->states[1] = rig->states[0];
+    if (rig->flight_phase >= 0) {
+        set_bytes(other_rec(), 0x21u);
+        until_idle();
+        sweep_boot();
+        rig->states[1] = capture_state();
+        restore_snapshot();
+        sweep_boot();
+    }
+    rig->effects.clear();
+    rig->keep_effects = true;
+    sweep_arrive();
+    const std::int64_t change = static_cast<std::int64_t>(nvm_fmodel_now_us());
+    const unsigned ok = nvm_store_status()->commits_ok;
+    const bool flying = rig->flight_phase < 0 || nvm_store_status()->phase != NVM_P_IDLE;
+    sweep_change();
+    until_idle();
+    rig->keep_effects = false;
+    const std::int64_t durable = static_cast<std::int64_t>(nvm_fmodel_now_us()) - change;
+    const unsigned saves = nvm_store_status()->commits_ok - ok;
+    sweep_boot();
+    rig->states[3] = capture_state();
+    if (rig->states[3] == rig->states[1] || saves == 0u || !flying) {
+        fail("sweep_reference", saves, flying ? 1u : 0u);
+    }
+    rig->run.sweep["saves"] = saves;
+    for (auto& [start, end] : rig->effects) {
+        start -= change;
+        end -= change;
+    }
+    return durable;
+}
+
+// --sweep-cut STEP_MS: from the journal as it is, the reference run with every effect timed, then a cut every STEP_MS
+// from the change to 3 s after it, and at each later effect's start and middle.
+void sweep(unsigned step_ms) {
+    unsigned cases = 0;
+    unsigned old = 0;
+    unsigned new_set = 0;
+    unsigned bad = 0;
+    rig->snapshot.assign(nvm_fmodel_mem + NVM_SLOT_A, nvm_fmodel_mem + NVM_SLOT_A + kJournal);
+    const std::int64_t durable = sweep_reference();
+    const std::int64_t landed = rig->effects.empty() ? 0 : rig->effects.back().second;
+    // the other record's save ends with the page before the last save's erase: both saves program as many pages
+    const std::size_t half = rig->effects.size() / 2u;
+    const std::int64_t landed_other =
+        rig->run.sweep["saves"] == 2 && half > 0u ? rig->effects[half - 1u].second : landed;
+    std::vector<std::int64_t> at;
+    for (std::int64_t t = 0; t <= 3000000; t += static_cast<std::int64_t>(step_ms) * 1000) {
+        at.push_back(t);
+    }
+    for (const auto& [start, end] : rig->effects) {
+        if (start >= 0) {
+            at.push_back(start);
+            at.push_back((start + end) / 2);
+        }
+    }
+    for (const std::int64_t t : at) {
+        cases++;
+        const int why = sweep_one(t, landed_other, landed, &old, &new_set);
+        if (why != 0) {
+            // 1 the authoritative slot (an idle store's) or outside the journal written, 2 an old state once its
+            // successor had landed, 3 neither set, 4 the next change not committed, 5 it did not boot back, 6 not the
+            // new values at or after the gate (--sweep-gate)
+            char line[96];
+            std::snprintf(line, sizeof line, "SWEEP-BAD t_us=%lld check=%d", static_cast<long long>(t), why);
+            rig->run.fails.emplace_back(line);
+            bad++;
+        }
+    }
+    rig->run.sweep.insert({{"cases", cases}, {"old", old}, {"new", new_set}, {"bad", bad},
+                           {"effects", static_cast<long long>(rig->effects.size())}, {"durable_us", durable},
+                           {"landed_us", landed}});
+    restore_snapshot();
+}
+
 void powercut() {
     static constexpr unsigned kFracs[4] = {0u, 1u, 128u, 255u};
     unsigned cases = 0;
@@ -456,7 +645,9 @@ void times_arg(const std::string& arg) {
     char* end = nullptr;
     const unsigned long erase_ms = number(arg.c_str(), &end);
     const unsigned long program_us = (end != nullptr && *end == ':') ? number(end + 1, nullptr) : 1000u;
-    nvm_fmodel_times(static_cast<std::uint64_t>(erase_ms) * 1000u, program_us);
+    rig->erase_us = static_cast<std::uint64_t>(erase_ms) * 1000u;
+    rig->program_us = program_us;
+    nvm_fmodel_times(rig->erase_us, rig->program_us);
 }
 
 // A console commit: start one now and run until it settles.
@@ -557,6 +748,14 @@ bool word_arg(const std::string& a, const std::string& v, Files& files) {
         load_at(files, v);
     } else if (a == "--dump-legacy") {
         dump(files, v, nvm_fmodel_mem + NVM_LEGACY_A, MILAN_FLASH_JOURNAL_SIZE);
+    } else if (a == "--sweep-cut") {
+        sweep(static_cast<unsigned>(number(v.c_str(), nullptr)));
+    } else if (a == "--sweep-gate") {
+        rig->gate_us = static_cast<std::uint64_t>(number(v.c_str(), nullptr)) * 1000u;
+    } else if (a == "--sweep-flight") {
+        char* end = nullptr;
+        rig->flight_phase = static_cast<int>(number(v.c_str(), &end));
+        rig->flight_ms = (end != nullptr && *end == ':') ? number(end + 1, nullptr) : 0u;
     } else if (a == "--times") {
         times_arg(v);
     } else if (a == "--refuse") {

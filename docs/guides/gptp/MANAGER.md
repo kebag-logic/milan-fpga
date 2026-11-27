@@ -23,7 +23,7 @@ The [split contract](../../ARCHITECTURE_HW_SW_SPLIT.md) defines that transition.
 - Atomic publication prevents contradictory consumer state.
 - Direct health drives every AVTP uncertainty bit.
 
-Read the [engine manager guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/1213ac5b9e09b8759ba76cc70c53652b5e108996/docs/MANAGER.md).
+Read the [engine manager guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/3ce71b768a2f6f6a5274c127080146e755d02275/docs/MANAGER.md).
 
 ## Status
 
@@ -53,7 +53,7 @@ Simulation remains necessary but insufficient.
 
 Transition behavior is in [grandmaster recovery](../../design/GM_LOSS_RECOVERY.md).
 
-Open upstream risks appear in the [engine guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/1213ac5b9e09b8759ba76cc70c53652b5e108996/docs/MANAGER.md).
+Open upstream risks appear in the [engine guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/3ce71b768a2f6f6a5274c127080146e755d02275/docs/MANAGER.md).
 
 ## Release evidence
 

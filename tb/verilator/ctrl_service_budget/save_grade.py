@@ -8,6 +8,8 @@ group; grade.save_phase reads a save's flash phases off first_save.
 """
 from __future__ import annotations
 
+from bisect import bisect_right
+from collections.abc import Iterable
 from dataclasses import dataclass
 
 import grade
@@ -29,23 +31,24 @@ class Save:
 
 def first_save(log: grade.Log, n: int = 0) -> Save | None:
     """The log's first save (or its n-th after it): its erase, the pages programmed before the next erase, and the
-    slot's read-backs after the last page, the verify, which ends when they have read back every programmed byte
-    (nvm_store.c, the verify step); None when the log shows no such erase."""
+    slot's read-backs after the last page, the verify, which ends when they have read back every byte the pages
+    programmed, each counted once (read_back); None when the log shows no such erase. A run of reads that started
+    before the last page was programmed verifies nothing (the blank check's), and a log whose reads are not in the
+    device's order is refused (in_order)."""
+    in_order(log)
     erases = [(c, a) for c, op, a, _ in log.flash_ops if op == grade.FLASH_ERASE]
     if len(erases) <= n:
         return None
     erase, base = erases[n]
     stop = erases[n + 1][0] if len(erases) > n + 1 else 1 << 62
     pages = [(c, a, n) for c, op, a, n in log.flash_ops if op == grade.FLASH_PROGRAM and erase < c < stop]
-    image = sum(n for *_, n in pages)
+    spans = united((a, a + n) for _, a, n in pages)
+    image = sum(end - start for start, end in spans)
     last = pages[-1][0] if pages else 1 << 62
-    verified, done, durable = [], 0, None
-    for first, end, address, n in merged_reads(log):
-        if last < first < stop and base <= address < base + image:
-            verified.append((end, n))
-            done += n
-            if durable is None and done >= image:
-                durable = end
+    after = verify_reads(log, last, stop)
+    verified = [(end, n) for first, end, address, n in merged_reads(log)
+                if last < first < stop and base <= address < base + image]
+    durable = read_back(after, spans)
     until = durable if durable is not None else 1 << 62
     steps = sorted([erase, *(c for c, _, _ in pages), *(c for c in log.polls if erase <= c <= until),
                     *(first for first, _, a, _ in merged_reads(log) if erase < first <= until
@@ -53,13 +56,52 @@ def first_save(log: grade.Log, n: int = 0) -> Save | None:
     return Save(erase, base, pages, image, verified, durable, steps)
 
 
+def verify_reads(log: grade.Log, last: int, stop: int) -> list[tuple[int, int, int, int]]:
+    """The runs of reads that may verify a save: begun after its last page was programmed and before the next erase."""
+    return [r for r in log.reads if last < r[0] < stop]
+
+
+def united(spans: Iterable[tuple[int, int]]) -> list[tuple[int, int]]:
+    """The spans [start, end) in order, each byte once: those that overlap or touch made one."""
+    out: list[tuple[int, int]] = []
+    for start, end in sorted(spans):
+        if out and start <= out[-1][1]:
+            out[-1] = (out[-1][0], max(out[-1][1], end))
+        else:
+            out.append((start, end))
+    return out
+
+
+def read_back(reads: list[tuple[int, int, int, int]], spans: list[tuple[int, int]]) -> int | None:
+    """The last read of the run with which the reads have read every byte of the spans, each byte counted once
+    whatever the reads that cover it; None when they never have, or the spans are empty."""
+    got: list[tuple[int, int]] = []
+    for _, end, address, n in sorted(reads, key=lambda r: r[1]):
+        got = united([*got, (address, address + n)])
+        if spans and all(any(a <= start and stop <= b for a, b in got) for start, stop in spans):
+            return end
+    return None
+
+
+def in_order(log: grade.Log) -> None:
+    """Every run of reads must lie between two writes of the device (sim_main.cpp's flash_sample ends a run at an erase
+    or a page program), so a byte read before a page was programmed never counts as one read back after it."""
+    writes = sorted(c for c, *_ in log.flash_ops)
+    for first, last, address, n in log.reads:
+        if bisect_right(writes, last) > bisect_right(writes, first):
+            raise grade.Refusal(f'a run of {n} bytes read from {address:06x} in [{first}, {last}] spans a write of the '
+                                f'device, so the log does not say which bytes were read after it')
+
+
 def merged_reads(log: grade.Log) -> list[tuple[int, int, int, int]]:
     """The journal's runs of reads (FLASHRD), each later one that starts inside the span a run has read and within a
-    millisecond of its last (sim_main.cpp's read_gap) merged into it: one read-back step's span, whatever word
-    reads it took."""
+    millisecond of its last (sim_main.cpp's read_gap), with no write of the device between them, merged into it: one
+    read-back step's span, whatever word reads it took."""
     out: list[list[int]] = []
+    writes = sorted(c for c, *_ in log.flash_ops)
     for first, last, address, n in log.reads:
-        if out and out[-1][2] <= address <= out[-1][2] + out[-1][3] and first - out[-1][1] <= log.sys_hz // 1000:
+        if (out and out[-1][2] <= address <= out[-1][2] + out[-1][3] and first - out[-1][1] <= log.sys_hz // 1000
+                and bisect_right(writes, first) == bisect_right(writes, out[-1][1])):
             run = out[-1]
             run[1], run[3] = max(run[1], last), max(run[3], address + n - run[2])
         else:

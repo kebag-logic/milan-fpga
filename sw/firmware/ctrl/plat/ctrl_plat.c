@@ -132,6 +132,13 @@ static uint32_t random_value(void *ctx)
 	return mbx_now_ms();
 }
 
+// The clock of ADP's seed (adp_mbx.h, THE DRAW): the flash driver's microseconds as they are asked
+static uint32_t adp_clock(void *ctx)
+{
+	const struct ctrl_plat *p = ctx;
+	return (uint32_t)p->env->flash->now_us(p->env->flash->ctx);
+}
+
 // ---- the receive monitor's formats on the datapath CSR window (#946) -------
 //
 // The monitor judges every PDU of a stream above 0 against its context's
@@ -391,6 +398,7 @@ enum ctrl_plat_stage ctrl_plat_boot(const struct ctrl_plat_env *env)
 	if (!compose(p)) {
 		return reach(p, CTRL_PLAT_COMPOSE, "Milan split: composition refused; entity disabled\r\n");
 	}
+	adp_mbx_set_clock(adp_clock, p);
 	// The console's poll, before SRP's two. It is refused only by a full table,
 	// and ctrl_app_attach_srp below refuses unless two more slots are free, so
 	// a composition that leaves the console no slot stops at SRP, by name
