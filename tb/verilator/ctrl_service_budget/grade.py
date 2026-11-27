@@ -275,6 +275,8 @@ def parse(text: str, sys_hz: int, cpu_hz: int) -> Log:
                                 'aged=1' in rest[5:]))
         elif kind in ('FLASH', 'REPLY', 'TXREADY', 'PC', 'FETCH', 'FLASHDATA'):
             continue
+        elif kind in ('EGRESSQ', 'EGRESS'):
+            continue  # the 100 Mb/s queue and its departures: egress_mii.py grades them
         elif kind == 'FAIL:':
             log.errors.append(line)
         else:
