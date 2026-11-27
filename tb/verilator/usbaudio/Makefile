@@ -72,3 +72,10 @@ levels-build:
 	  $(wildcard $(RTL)/*.sv) ../../../third_party/verilog-axis/rtl/axis_async_fifo.v levels_tb.sv
 levels: levels-build
 	$(abspath $(MDIR))/Vlevels_tb
+
+epochs-build:
+	$(RTL_SIMULATOR) --binary --timing --top-module epochs_tb -Wall \
+	  -Wno-fatal -Wno-TIMESCALEMOD --build-jobs $(JOBS) --Mdir $(abspath $(MDIR)) \
+	  $(wildcard $(RTL)/*.sv) ../../../third_party/verilog-axis/rtl/axis_async_fifo.v epochs_tb.sv
+epochs: epochs-build
+	$(abspath $(MDIR))/Vepochs_tb

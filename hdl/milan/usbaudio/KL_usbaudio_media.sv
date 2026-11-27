@@ -56,8 +56,11 @@ module KL_usbaudio_media #(
   wire pop_w = media_tick_i && playback_on_w && primed_r && emit_r == 0;
   assign running_o = {playback_on_w && primed_r, flags_r[2] && flags_r[1]};
   assign playback_extremes_o = {maximum_r, minimum_r};
-  assign state_ready_o = ack_ready_i;
-  assign ack_valid_o = state_valid_i;
+  // A playback transition cannot cancel the grid event or an active pair
+  // walk. Finish that atomic frame before applying and acknowledging state.
+  wire state_boundary_w = !playback_changed_w || (emit_r == 0 && !media_tick_i);
+  assign state_ready_o = ack_ready_i && state_boundary_w;
+  assign ack_valid_o = state_valid_i && state_boundary_w;
   assign ack_epoch_o = state_i[66:35];
   assign playback_ready_o = !playback_changed_w &&
       (!epoch_matches_w || !playback_on_w || pop_w);
@@ -102,11 +105,12 @@ module KL_usbaudio_media #(
       end
       if (playback_on_w && epoch_matches_w && playback_valid_i
           && playback_level_i >= 7'(PREFILL_FRAMES_P)) primed_r <= 1;
-      if (media_tick_i && emit_r == 0 && !playback_changed_w) begin
-        playback_r <= pop_w && playback_valid_i && epoch_matches_w ? playback_i[255:0] : 256'd0;
+      if (media_tick_i && emit_r == 0) begin
+        playback_r <= pop_w && playback_valid_i && epoch_matches_w
+            && !playback_changed_w ? playback_i[255:0] : 256'd0;
         frame_ns_o <= media_ns_i;
         emit_r <= 1;
-        if (pop_w && (!playback_valid_i || !epoch_matches_w)) begin
+        if (pop_w && !playback_changed_w && (!playback_valid_i || !epoch_matches_w)) begin
           error_o <= 1;
           if (gaps_o != 32'hffffffff) gaps_o <= gaps_o+1'b1;
         end

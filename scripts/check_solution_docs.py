@@ -100,10 +100,7 @@ class PortGroup:
 
     def row(self) -> str:
         """The group as the one Markdown table row the docs must carry."""
-        return (
-            f"| {self.label} | {self.rtl_names} | {self.duty} | "
-            f"{self.safe_start} |"
-        )
+        return f"| {self.label} | {self.rtl_names} | {self.duty} | {self.safe_start} |"
 
 
 PORT_GROUPS = (
@@ -207,11 +204,15 @@ PORT_GROUPS = (
         (r"i2s_.*", r"tdm_.*", r"media_lrclk_o"),
     ),
     PortGroup("PPS output", "`pps_o`", "Carry the PHC second boundary to a pin", "Leave the output open", (r"pps_o",)),
+    PortGroup("Optional USB audio",
+              "`usb_pair_*`, `usb_frame_ns_i`, `usb_capture_tick_i`, `usb_render_*`, `usb_media_*`",
+              "Carry complete ordered frames on the media grid",
+              "Disabled by default; clear inputs and leave outputs open",
+              (r"usb_pair_.*", r"usb_frame_ns_i", r"usb_capture_tick_i", r"usb_render_.*", r"usb_media_.*")),
     PortGroup("Split control face", "`i_ctl_*`, `o_ctl_*`",
               "Bind the mailbox through `KL_mbx_cdc` when `CTRL_SPLIT_P` = 1",
               "Tie every `i_ctl_*` to 0; leave the outputs open", (r"[io]_ctl_.*",)),
 )
-
 STALE_DEFAULT_PHRASES = (
     "cli default is naxriscv",
     "naxriscv stays the cli default",
@@ -230,7 +231,6 @@ SHIPPING_CONTEXT = re.compile(
 )
 STALE_CACHE = re.compile(r"\b(?:32\s*kib|l2[- ]?32k|32768)\b", re.IGNORECASE)
 STALE_CLOCK = re.compile(r"\b(?:100\s*mhz|100e6)\b", re.IGNORECASE)
-
 
 def scalar(value: object) -> str:
     """One argparse or shell default as the docs spell it: an absent value is

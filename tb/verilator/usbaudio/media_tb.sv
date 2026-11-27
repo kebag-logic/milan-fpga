@@ -120,6 +120,27 @@ module media_tb;
     grid(-1);check(gaps==1,"MEDIA_UNDERFLOW_FRAME_COUNT");
     check(extremes[13:7]>=12 && frames==2,"MEDIA_DIAGNOSTICS");
     rst_n=0;step();check(!capture_valid && gaps==0 && drops==0 && !error_value,"MEDIA_RESET");
+    // A state change can arrive on the grid, any pair, or the snapshot.
+    // Count actual output pairs and snapshots; an aborted walk cannot pass.
+    for(int offset=0;offset<8;offset++) begin
+      rst_n=0;step(3);rst_n=1;step(3);
+      pair_count=0;tick_count=0;apply(1,1);playback(50+offset,1,12);
+      score_frame=offset==0 ? -1 : 50+offset;
+      for(int cycle=0;cycle<12;cycle++) begin
+        tick=cycle==0;
+        if(cycle==offset) begin state_data={32'd1,32'd2,3'd7};state_valid=1;end
+        #1;
+        if(state_valid && state_ready) begin step();state_valid=0;end
+        else step();
+        if(cycle==0) play_valid=0;
+      end
+      tick=0;
+      check(pair_count==4 && tick_count==1 && frames==1,"MEDIA_EVERY_GRID_SNAPSHOT");
+      check(gaps==0 && !error_value,"MEDIA_TRANSITION_NO_GAP");
+      check(!running[1],"MEDIA_TRANSITION_REPRIMES");
+      playback(70+offset,2,11);grid(-1);
+      playback(70+offset,2,12);grid(70+offset);
+    end
     $display("PASS media endpoint: prefill, atomic frames, independent epochs, acknowledgement, all bits and loss counts");
     $finish;
   end

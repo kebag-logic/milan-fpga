@@ -1,10 +1,17 @@
 # Optional USB audio path
 
 This is the desk implementation for [#1021](https://github.com/kebag-logic/milan-fpga/issues/1021).
-Its wire contract is [USB audio #9, revision 47e6bbc9](https://github.com/kebag-logic/usb-audio/blob/47e6bbc93093c325b00a9263fdb9ceb20869ef46/docs/AUDIO-FPGA.md).
-The [socket allocation](https://github.com/kebag-logic/usb-audio/blob/ae4b11bdaf3e84faa46a9ce32b641f65716b0ed2/docs/NETWORK.md)
+Its wire contract is [USB audio #9 as merged, 9e5ef16](https://github.com/kebag-logic/usb-audio/blob/9e5ef16cfbbcc26722bfef56081b992a5e8fc89f/docs/AUDIO-FPGA.md).
+The [socket allocation](https://github.com/kebag-logic/usb-audio/blob/9e5ef16cfbbcc26722bfef56081b992a5e8fc89f/docs/NETWORK.md)
 is shared with [the network attachment, #1020](https://github.com/kebag-logic/milan-fpga/pull/1020).
 Physical qualification remains a bench prerequisite.
+
+## Contents
+
+- **[Build ownership](#build-ownership)** -- Select the Arty profile and enforce exclusive bus ownership.
+- **[Frame transport](#frame-transport)** -- Preserve whole frames across queues, epochs, and status publication.
+- **[Clock qualification and diagnostics](#clock-qualification-and-diagnostics)** -- Qualify interval references and report transport losses.
+- **[Desk evidence and remaining bench work](#desk-evidence-and-remaining-bench-work)** -- Separate simulated coverage from remaining physical acceptance.
 
 ## Build ownership
 
@@ -54,7 +61,10 @@ changes.
 USB playback feeds the capture mapper as four ordered 32-bit pairs, followed
 by its frame-snapshot strobe. Twelve complete frames prime playback. Before
 priming or while inactive, the mapper receives whole silent frames on the
-media grid. After priming, an empty grid event inserts one whole silent frame,
+media grid. Playback epoch changes wait until the pair walk finishes.
+A transition coincident with the grid emits one whole silent frame.
+Every grid event retains its snapshot; transitions insert no gaps.
+After priming, an empty grid event inserts one whole silent frame,
 increments the gap counter, and sets sticky error. A full playback FIFO
 rejects and counts a whole frame while continuing to drain state and reference
 traffic. No rate conversion or fractional-sample interpolation is present.
@@ -102,7 +112,9 @@ The reference watchdog uses the FPGA's own bus clock.
 Its three milliseconds include the submission spacing plus margin.
 USB interval counts determine reference continuity, including modulo wrap.
 Firmware's application timer never supplies reference time.
-Boundary tests accept 2.9 ms and refuse 3 ms.
+Watchdog tests accept 2.9 ms and refuse 3 ms.
+Their source timestamps remain one millisecond apart.
+The separate delivery guard still rejects late source timestamps.
 Separate planted defects exercise both sides of that bound.
 
 Two controls default to zero. `armed` releases the coordinated session reset
@@ -122,8 +134,18 @@ atomic snapshot, not independent synchronized bits.
 
 ## Desk evidence and remaining bench work
 
-The transport harness uses independent bus, media and oscillator clocks,
-full-width channel-distinct samples, stalls, and strict ordering scores.
+The long-run harness fixes bus/media clocks at a 1:2 ratio.
+Their phase stays fixed; only the oscillator is incommensurate.
+Playback supplies six frames every 6,250 bus cycles.
+Supply and consumption rates match exactly.
+It checks full-width channel-distinct samples, stalls, and strict ordering.
+It does not test bus/media phase drift or rate mismatch.
+The integrated epoch test uses 20 ns and 26 ns clocks.
+It changes each direction independently during partial capture intervals.
+It also changes capture state during a partial render frame.
+Checks cover abandonment, channel-zero restart, and both acknowledgement gates.
+Planted bridge defects must fail their named runtime checks.
+Grid tests move playback state through all eight walk offsets.
 Separate tests exercise reference rejection, raw timestamp correction,
 independent epochs, packet fences, phased bus sampling, and the shared AAF
 storage paths at both widths. Source-level tests inject decode hazards between

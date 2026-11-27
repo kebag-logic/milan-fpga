@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: 2026 Kebag Logic
 // SPDX-License-Identifier: CERN-OHL-W-2.0
-// Independent bus, oscillator and media-grid drivers with exact sample scoring.
+// Fixed 1:2 bus/media clocks and a separate oscillator, with exact sample scoring.
 #include "VKL_usbaudio_bridge.h"
 #include "../../common/verilator_harness.hpp"
 #include <cstdint>

@@ -26,7 +26,7 @@ def main() -> None:
     subprocess.run([sys.executable, "-B", str(here/"selection_test.py")], check=True)
     subprocess.run([sys.executable, "-B", str(here/"packing_test.py"),
                     "--out", str(args.out/"packing")], check=True)
-    cases = [(name, name, []) for name in ("protocol", "reference", "media", "packet", "gpif", "levels")]
+    cases = [(name, name, []) for name in ("protocol", "reference", "media", "packet", "gpif", "levels", "epochs")]
     cases += [("storage24", "storage", ["STORAGE_BITS=24"]),
               ("storage32", "storage", ["STORAGE_BITS=32"]),
               ("duplex", "duplex", ["WINDOW_LOG2=5"])]
@@ -48,6 +48,9 @@ def main() -> None:
                     "--temporary-suffix", suffix, "--discard-builds",
                     "--only", "reference_count_alignment", "--only", "media_epoch_trailing",
                     "--only", "gpif_blocked_status", "--only", "packet_fence",
+                    "--only", "bridge_applied_epoch", "--only", "bridge_capture_abort",
+                    "--only", "bridge_status_epoch", "--only", "bridge_published_epoch",
+                    "--only", "bridge_packet_fence",
                     "--only", "levels_clock_launch", "--only", "levels_playback_launch",
                     "--only", "levels_capture_launch"], check=True)
     print("PASS default audio regression: selection, protocol, references, media, packets, bus, "
