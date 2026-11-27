@@ -1,0 +1,390 @@
+SOURCE HEAD 011aaa6f080321e0a89f915720ebb3ee14807a16
+SOURCE TREE 5b11a07de8c4f69999277424aa8d9b704c297a96
+LATEST HISTORY
+011aaa6f08 Remove the extra blank line at the end of four Python helpers
+64a76076e4 Correct residual wording: the lat command, the held-egress ruling citations, both VERSION values, the QSPI part and the calibration comment
+9f15ecb300 Point the service-budget README at the installed Arty row's qualification and name the superseded row's receipt as such
+367c1dcdb7 Add a compact census extractor and let the receipt regrader read the part limit an extract states
+bdbd7b7c4d Cite #1022 as the owner of the Arty's owed registration cost, with the no-disposition control and the derivation's choice of row
+4adfa9dc84 Apply run.py's disposition of the kept and bound registrations in the receipt regrader's cross-case step
+2d911d2bf8 Record the complete 80 MHz qualification of the Arty row: 147 cases, longest pass 1.785 ms, held-egress rows below their ledger
+74f942be51 Install the Arty row the complete census at the first derived row gives: raised poll base, centisecond, LINK, MAAP and withdrawal statements
+f7b90e3b78 Install the Arty row the rules derive for the merged firmware: 1250 us slice, 10 ms AECP pace, 35 ms transmit bound and the raised stated costs
+c3cd514741 Record the merged Arty firmware's sections and 44.5 RAMB36 allocation in its memory ledger
+
+ORIGINAL-BASE TOOLING DIFF
+diff --git a/tb/verilator/ctrl_service_budget/census_extract.py b/tb/verilator/ctrl_service_budget/census_extract.py
+new file mode 100644
+index 0000000000..1e5c1a6794
+--- /dev/null
++++ b/tb/verilator/ctrl_service_budget/census_extract.py
+@@ -0,0 +1,149 @@
++# SPDX-FileCopyrightText: 2026 Kebag Logic
++# SPDX-License-Identifier: CERN-OHL-W-2.0
++"""A compact census extract: every case manifest, and of each observation extract only the lines a grader reads.
++
++usage: python3 -I census_extract.py PACKET OUT
++
++PACKET is a text receipt packet with its full observation extracts (census.json, census/<variant>/<group>/...).
++OUT receives census.json, published-qualification.json, one directory per case and FILES.json. Each case keeps its
++scenario, stimulus, original grade and any journal byte for byte. Its observations are the packet's, less the SPAN and
++CALL lines of every traced function no grader reads (READ_LABELS); every other line is kept, in order and unchanged.
++FILES.json maps every file written to the packet files it comes from and their SHA256, each checked against the
++packet's FILES inventory. Each compact case is regraded on the way (receipt_regrade.regrade) and must reproduce its
++recorded grade exactly. receipt_regrade.py then runs on OUT as on a full packet, with OUT's part limit (PART_LIMIT).
++"""
++from __future__ import annotations
++
++import hashlib
++import json
++import shutil
++import sys
++from pathlib import Path
++
++sys.path.insert(0, str(Path(__file__).resolve().parent))
++
++import kept_grade  # noqa: E402
++import poll_items  # noqa: E402
++import receipt_regrade  # noqa: E402
++import round_grade  # noqa: E402
++import slice_grade  # noqa: E402
++
++#: The traced functions a grader reads: poll_grade's first and last polls, items, offers and their handler
++#: (poll_items), THE RETRY's rounds, attempts and builds (round_grade), SRP's records (kept_grade, slice_grade) and
++#: AECP's frames (declaring_outputs, record_classes). The others (a pass's parts, poll_items.PART_SPANS and PART_CALLS,
++#: and the saved-state store's calls) serve the cost measurement, which no grader repeats.
++READ_LABELS = frozenset({poll_items.FIRST, poll_items.LAST, poll_items.OFFER, poll_items.HANDLER,
++                         *(label for label, _ in poll_items.ITEMS.values()), round_grade.ROUND, round_grade.ATTEMPT,
++                         round_grade.BUILT, kept_grade.RECORD, slice_grade.RECORD, 'aecp_mbx:frame'})
++#: The largest part a compact extract writes (its census.json states it; receipt_regrade.py caps it at 15 MB).
++PART_LIMIT = 14_000_000
++
++
++def sha(data: bytes) -> str:
++    """SHA256 of exactly the bytes named."""
++    return hashlib.sha256(data).hexdigest()
++
++
++def read_line(line: str) -> bool:
++    """Whether a grader reads this observation line: every line but a SPAN or CALL of a function none reads."""
++    fields = line.split()
++    return not fields or fields[0] not in ('SPAN', 'CALL') or fields[-1] in READ_LABELS
++
++
++def compact(text: str) -> str:
++    """The observation lines a grader reads, each unchanged and in order."""
++    return ''.join(line for line in text.splitlines(keepends=True) if read_line(line))
++
++
++def parts(directory: Path, name: str, data: bytes) -> dict:
++    """Numbered text parts of at most PART_LIMIT bytes, cut at line ends, with each part's and the whole's hash."""
++    directory.mkdir(parents=True, exist_ok=True)
++    records, start = [], 0
++    while start < len(data) or not records:
++        end = min(start + PART_LIMIT, len(data))
++        if end < len(data):
++            end = data.rfind(b'\n', start, end) + 1
++        piece = data[start:end]
++        single = start == 0 and end == len(data)
++        path = directory / (name if single else f'{name}.part{len(records) + 1:04d}.txt')
++        path.write_bytes(piece)
++        records.append(dict(file=path.name, bytes=len(piece), sha256=sha(piece)))
++        start = end
++        if not data:
++            break
++    return dict(bytes=len(data), sha256=sha(data), parts=records)
++
++
++def inventory(packet: Path) -> dict[str, str]:
++    """The packet's FILES inventory: every file's SHA256 by its path, from FILES.tsv or its numbered parts."""
++    record = json.loads((packet / 'FILES.manifest.json').read_text())
++    text = receipt_regrade.read_parts(packet, record).decode()
++    rows = [line.split('\t') for line in text.splitlines()[1:] if line]
++    return {path: digest for path, _, digest in rows}
++
++
++def sources(packet: Path, directory: Path, record: dict, listed: dict[str, str]) -> list[dict]:
++    """A packet record's parts as paths and SHA256, each the one the FILES inventory lists."""
++    out = []
++    for part in record['parts']:
++        path = str((directory / part['file']).relative_to(packet))
++        if listed.get(path) != part['sha256']:
++            raise ValueError(f'{path}: not the file the FILES inventory lists')
++        out.append(dict(path=path, sha256=part['sha256']))
++    return out
++
++
++def case(packet: Path, row: dict, out: Path, listed: dict[str, str]) -> tuple[dict, list[dict]]:
++    """One case: its files written to OUT, its regrade checked, and its census row and FILES entries returned."""
++    path = packet / row['manifest']
++    if sha(path.read_bytes()) != row['sha256']:
++        raise ValueError(f'manifest integrity failure: {row["case"]}')
++    old, source = json.loads(path.read_text()), path.parent
++    target = out / 'census' / row['case']
++    manifest, files = dict(old), []
++    for key, name in (('group', 'scenario.json'), ('stimulus', 'stimulus.txt'), ('grade', 'original-grade.json'),
++                      ('journal', 'journal.hex.txt')):
++        if key in old:
++            manifest[key] = parts(target, name, receipt_regrade.read_parts(source, old[key]))
++            files.append(dict(record=manifest[key], relation='identical', sources=sources(packet, source, old[key],
++                                                                                            listed)))
++    full = receipt_regrade.read_parts(source, old['extract'])
++    manifest['full_extract'] = dict(bytes=old['extract']['bytes'], sha256=old['extract']['sha256'])
++    manifest['extract'] = parts(target, 'observations.log', compact(full.decode()).encode())
++    manifest['read_labels'] = sorted(READ_LABELS)
++    files.append(dict(record=manifest['extract'], relation='the lines a grader reads, in order',
++                      sources=sources(packet, source, old['extract'], listed)))
++    (target / 'manifest.json').write_text(json.dumps(manifest, separators=(',', ':')) + '\n')
++    files.append(dict(record=dict(parts=[dict(file='manifest.json')]), relation='the packet manifest, its extract '
++                      'record replaced and the full extract named', sources=[dict(path=row['manifest'],
++                                                                                   sha256=row['sha256'])]))
++    receipt_regrade.regrade(target / 'manifest.json', limit=PART_LIMIT)
++    entries = [dict(path=str((target / p['file']).relative_to(out)), sha256=sha((target / p['file']).read_bytes()),
++                    relation=f['relation'], sources=f['sources']) for f in files for p in f['record']['parts']]
++    return dict(case=row['case'], manifest=str((target / 'manifest.json').relative_to(out)),
++                sha256=sha((target / 'manifest.json').read_bytes())), entries
++
++
++def main(argv: list[str]) -> int:
++    """Write OUT from PACKET; exit 1 if any case does not regrade to its recorded grade."""
++    if len(argv) != 2:
++        print(__doc__)
++        return 2
++    packet, out = Path(argv[0]), Path(argv[1])
++    census, listed = json.loads((packet / 'census.json').read_text()), inventory(packet)
++    rows, files = [], []
++    for row in census['cases']:
++        written, entries = case(packet, row, out, listed)
++        rows.append(written)
++        files.extend(entries)
++        print(f'EXTRACTED {row["case"]}: complete grade reproduced', flush=True)
++    shutil.copyfile(packet / 'published-qualification.json', out / 'published-qualification.json')
++    (out / 'census.json').write_text(json.dumps(dict(source_head=census['source_head'], part_limit=PART_LIMIT,
++                                                     read_labels=sorted(READ_LABELS), cases=rows), indent=1) + '\n')
++    (out / 'FILES.json').write_text(json.dumps(files, indent=1) + '\n')
++    print(f'RESULT: PASS cases={len(rows)} files={len(files) + 3}')
++    return 0
++
++
++if __name__ == '__main__':
++    sys.exit(main(sys.argv[1:]))
+diff --git a/tb/verilator/ctrl_service_budget/receipt_regrade.py b/tb/verilator/ctrl_service_budget/receipt_regrade.py
+new file mode 100644
+index 0000000000..51bebf621a
+--- /dev/null
++++ b/tb/verilator/ctrl_service_budget/receipt_regrade.py
+@@ -0,0 +1,214 @@
++# SPDX-FileCopyrightText: 2026 Kebag Logic
++# SPDX-License-Identifier: CERN-OHL-W-2.0
++"""Verify text receipt parts and reproduce native service grades from extracts.
++
++Usage: python3 receipt_regrade.py PACKET [--case VARIANT/GROUP]
++The packet's census.json lists case manifests. Each manifest binds the full
++local log's size and hash, the extracted observations, the scenario, the
++original grade and any saved-state journal. Parts are text, below 190 KB, or
++in a compact census extract (census_extract.py) at most the part_limit its
++census.json states, never 15 MB.
++The full-log hash is provenance; the extract alone cannot prove omitted bytes.
++"""
++from __future__ import annotations
++
++import argparse
++import hashlib
++import json
++import re
++import sys
++import tempfile
++from pathlib import Path
++
++import grade
++import scenario
++import shape_costs
++
++
++def sha(data: bytes) -> str:
++    """SHA256 of exactly the bytes named by a receipt."""
++    return hashlib.sha256(data).hexdigest()
++
++
++#: A part's size limit: below 190 KB in a packet, at most 15 MB in a compact census extract whose census.json states
++#: its own part_limit (census_extract.py).
++PART_LIMIT, EXTRACT_PART_LIMIT = 190_000, 15_000_000
++
++
++def read_parts(directory: Path, record: dict, limit: int = PART_LIMIT) -> bytes:
++    """Reassemble numbered text parts, checking each and the whole."""
++    chunks = []
++    for part in record['parts']:
++        path = directory / part['file']
++        if not path.resolve().is_relative_to(directory.resolve()):
++            raise ValueError('receipt part escapes its directory')
++        data = path.read_bytes()
++        if len(data) >= limit or len(data) != part['bytes'] or sha(data) != part['sha256']:
++            raise ValueError(f'part integrity failure: {part["file"]}')
++        data.decode('utf-8')
++        chunks.append(data)
++    data = b''.join(chunks)
++    if len(data) != record['bytes'] or sha(data) != record['sha256']:
++        raise ValueError('whole receipt integrity failure')
++    return data
++
++
++def group_from(data: dict) -> scenario.Group:
++    """Restore the scenario's typed probes from its JSON record."""
++    fields = dict(data)
++    probes = []
++    for row in fields.pop('probes'):
++        row = dict(row)
++        row['recipients'] = tuple(tuple(value) for value in row['recipients'])
++        row['owed'] = tuple(row['owed'])
++        probes.append(scenario.Probe(**row))
++    return scenario.Group(**fields, probes=probes)
++
++
++def regrade(path: Path, staged: Path | None = None, limit: int = PART_LIMIT) -> dict:
++    """Reproduce one complete original grade from its primary observations."""
++    manifest = json.loads(path.read_text())
++    directory = path.parent
++    group = group_from(json.loads(read_parts(directory, manifest['group'], limit)))
++    script = read_parts(directory, manifest['stimulus'], limit).decode()
++    if group.script() != script:
++        raise ValueError('scenario differs from the recorded stimulus')
++    text = read_parts(directory, manifest['extract'], limit).decode()
++    expected = json.loads(read_parts(directory, manifest['grade'], limit))
++    with tempfile.TemporaryDirectory(prefix='receipt-') as tmp:
++        journal = None
++        if manifest.get('journal'):
++            journal = Path(tmp) / 'journal.bin'
++            journal.write_bytes(bytes.fromhex(read_parts(directory, manifest['journal'], limit).decode()))
++        got = grade.grade(text, group, manifest['sys_hz'], manifest['cpu_hz'],
++                          shape_costs.Shape(*manifest['shape']), journal)
++    if json.loads(json.dumps(got)) != expected:
++        raise ValueError(f'grade differs: {path.parent.name}')
++    if manifest['native_status'] != 0:
++        raise ValueError('native execution failed')
++    if staged is not None:
++        staged.mkdir(parents=True, exist_ok=True)
++        (staged / f'{group.name}.log').write_text(text)
++        (staged / f'{group.name}.json').write_text(json.dumps(got))
++    return got
++
++
++def qualify(packet: Path, staged: Path, results: list[dict], limit: int = PART_LIMIT) -> None:
++    """Reapply the cross-case costs, record classes, ledger and owner bounds."""
++    import arty_grade
++    import declaring_outputs
++    import egress_ledger
++    import kept_grade
++    import long_notice
++    import record_classes
++    import run
++    # run.py's disposition of #969's registrations, over the staged srp-kept and srp-bound extracts: their owed STATED
++    # and SHARE lines fail nothing while kept_grade's conditions hold, and each breach of one is a finding.
++    owed = kept_grade.Disposition(results, staged / 'none', dict(
++        shape='endstation_arty_current', interfaces=1, variant='none', sys_hz=80_000_000, cpu_hz=80_000_000))
++    found = (owed.shares(run.share_misses(results)) + owed.stated(run.stated_misses(results))
++             + run.save_misses(results) + run.burst_misses(results)
++             + run.notice_misses(results, 1) + long_notice.missing(results))
++    for line in owed.owed:
++        print('OWED', line)
++    legs, instances = [], []
++    for directory in sorted(staged.iterdir()):
++        spec = dict(shape='endstation_arty_current', interfaces=1, variant=directory.name,
++                    sys_hz=80_000_000, cpu_hz=80_000_000)
++        (directory / 'build.json').write_text(json.dumps(spec))
++        legs.append(record_classes.read_leg(directory)[0])
++        instances.extend(egress_ledger.from_results(directory))
++        groups = [group_from(json.loads(read_parts(path.parent, json.loads(path.read_text())['group'], limit)))
++                  for path in sorted((packet / 'census' / directory.name).glob('*/manifest.json'))]
++        found.extend(declaring_outputs.findings(spec, directory, groups))
++        found.extend(line for group in groups for line in run.unstated(group))
++    arm = {'arty-1x1': next(sorted(leg.groups) for leg in legs if leg.variant == 'none')}
++    failed, reported = record_classes.findings(legs, arm)
++    found.extend(failed)
++    found.extend(egress_ledger.findings(instances, 'arty-1x1'))
++    for line in reported:
++        print('REPORTED', line)
++    print('\n'.join(egress_ledger.table(instances, 'arty-1x1')))
++    model, failed = arty_grade.inspect()
++    found.extend(failed)
++    original = json.loads((packet / 'published-qualification.json').read_text())
++    if model != original['model'] or len(results) != original['groups']:
++        found.append('owner model or case count differs from the published qualification')
++    for line in found:
++        print('REFUSED', line)
++    print('OWNER', json.dumps(model, sort_keys=True))
++    if found:
++        raise ValueError('cross-case qualification failed')
++    print('RESULT: PASS cross-case costs, record classes, held-egress ledger and owner bounds')
++
++
++def timing(packet: Path, index: Path) -> None:
++    """Regrade every setup/hold corner, including rounded-zero hold failures."""
++    sys.path.insert(0, str(Path(__file__).resolve().parents[3] / 'scripts'))
++    from area_baseline import parse_timing
++    candidates: dict[str, list[dict]] = {}
++    for row in json.loads(index.read_text()):
++        path = packet / row['manifest']
++        if sha(path.read_bytes()) != row['sha256']:
++            raise ValueError('timing manifest integrity failure')
++        manifest = json.loads(path.read_text())
++        data = read_parts(path.parent, manifest['published'])
++        with tempfile.TemporaryDirectory(prefix='timing-') as tmp:
++            report = Path(tmp) / 'timing.rpt'
++            report.write_bytes(data)
++            result = parse_timing(report)
++        match = re.search(r'WNS\(ns\).*?\n\s*-+.*?\n\s*[-\d.]+\s+[-\d.]+\s+\d+\s+'
++                          r'\d+\s+[-\d.]+\s+[-\d.]+\s+(\d+)\s+(\d+)', data.decode(), re.S)
++        if not result or match is None:
++            raise ValueError('missing setup/hold summary')
++        result['failing_hold_endpoints'] = int(match[1])
++        result['pass'] = (result['wns'] >= 0.030 and result['whs'] >= 0
++                          and result['failing_endpoints'] == 0 and int(match[1]) == 0)
++        candidates.setdefault(path.parent.name, []).append(result)
++        print(f'{index.stem} {path.name}: {json.dumps(result, sort_keys=True)}')
++    if any(len(rows) != 4 for rows in candidates.values()):
++        raise ValueError('each directive needs four corner reports')
++    passed = [(min(r['wns'] for r in rows), min(r['whs'] for r in rows), name)
++              for name, rows in candidates.items() if all(r['pass'] for r in rows)]
++    if not passed:
++        raise ValueError('no directive meets every signoff floor')
++    print(f'{index.stem} selected: {max(passed)[2]}')
++
++
++def main() -> int:
++    """Check every case and report exact grade equality."""
++    parser = argparse.ArgumentParser(description=__doc__)
++    parser.add_argument('packet', type=Path)
++    parser.add_argument('--case')
++    parser.add_argument('--timing-only', action='store_true')
++    args = parser.parse_args()
++    if args.case is None:
++        for index in sorted(args.packet.glob('timing-*.json')):
++            timing(args.packet, index)
++    if args.timing_only:
++        return 0
++    census = json.loads((args.packet / 'census.json').read_text())
++    # A compact extract states its parts' largest size; a part reaching the limit is refused (read_parts).
++    limit = min(census['part_limit'] + 1, EXTRACT_PART_LIMIT) if 'part_limit' in census else PART_LIMIT
++    rows = [r for r in census['cases'] if args.case is None or r['case'] == args.case]
++    if not rows:
++        parser.error('no selected cases')
++    worst, results = 0, []
++    with tempfile.TemporaryDirectory(prefix='receipt-census-') as tmp:
++        staged = Path(tmp)
++        for row in rows:
++            path = args.packet / row['manifest']
++            if sha(path.read_bytes()) != row['sha256']:
++                raise ValueError(f'manifest integrity failure: {row["case"]}')
++            got = regrade(path, staged / row['case'].split('/')[0] if args.case is None else None, limit)
++            results.append(got)
++            worst = max(worst, got['passes']['worst']['cycles'])
++            print(f'PASS {row["case"]}: complete grade reproduced', flush=True)
++        if args.case is None:
++            qualify(args.packet, staged, results, limit)
++    print(f'RESULT: PASS cases={len(rows)} worst_pass_cycles={worst}')
++    return 0
++
++
++if __name__ == '__main__':
++    raise SystemExit(main())

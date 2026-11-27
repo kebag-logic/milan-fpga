@@ -1,0 +1,22 @@
+{
+  "normal_cases": 147,
+  "control_cases": 146,
+  "normal_exit": 0,
+  "control_exit": 1,
+  "worst_pass_cycles": 142775,
+  "worst_pass_ms": 1.7846875,
+  "required_refusal": "srp-kept and srp-bound are graded together on one image, this run graded srp-kept alone",
+  "control_refusals": [
+    "REFUSED srp-kept: an SRP record's apply of 33,039 CPU cycles, over its stated 24,000",
+    "REFUSED srp-kept: an SRP record's apply of 29,754 CPU cycles, over its stated 24,000",
+    "REFUSED srp-kept: an SRP record's apply of 32,442 CPU cycles, over its stated 24,000",
+    "REFUSED #977 (https://github.com/kebag-logic/milan-fpga/issues/977): srp-kept and srp-bound are graded together on one image, this run graded srp-kept alone",
+    "REFUSED owner model or case count differs from the published qualification"
+  ],
+  "hashes": {
+    "regrade.log": "8bee049c709e6317d6688690e34a1950e3f6066a4b7dea89e6036c752175a4d5",
+    "missing-bound.log": "d5acab312661b386f0d4ddd7f2eefe1cf8395e3b73043365f7f80ceae1ab5dad",
+    "audit.log": "c9cbc19010c8073754624c35aa9658d145e9caba7b11912ea61bf8393d7e0720",
+    "publication-delta.diff": "2ca1992e81f7c3ac3e6dbc401c5e29ad23053a2f2f59fc302b99975326c87462"
+  }
+}
