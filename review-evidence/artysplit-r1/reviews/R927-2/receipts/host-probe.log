@@ -1,0 +1,45 @@
+ARM console rc 0
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:02 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+ARM mii rc 0
+MUTANTS 15 ['plat-lat-length-unchecked', 'plat-lat-first-width-unchecked', 'plat-lat-directions-crossed', 'plat-lat-wide-value-accepted', 'plat-lat-third-field-accepted', 'plat-lat-answer-not-read-back', 'plat-lat-key-reaches-every-build', 'mii-publish-guard-removed', 'mii-advertises-ten', 'mii-advertises-half', 'mii-loss-not-latched', 'mii-advertised-once', 'mii-readback-unchecked', 'mii-unacknowledged-local-written', 'mii-no-room-ignored']
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:02 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:02 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:02 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:02 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:02 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:02 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:02 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:02 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:02 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+[ok] mutant plat-lat-length-unchecked (plat): 11 check(s) failed
+    first: [FAIL] Plat.K9LatencyCommandFitsFifoAndRefusesLostDigits: K9 a dropped digit is refused at 10
+[ok] mutant plat-lat-first-width-unchecked (plat): 5 check(s) failed
+    first: [FAIL] Plat.K9LatencyCommandFitsFifoAndRefusesLostDigits: K9 over-length or unequal fields are refused
+[ok] mutant plat-lat-directions-crossed (plat): 5 check(s) failed
+    first: [FAIL] Plat.K7MilanLatWritesThePairAndReadsItBack: K7 ingress to 0x540, egress to 0x544
+[ok] mutant plat-lat-wide-value-accepted (plat): 4 check(s) failed
+    first: [FAIL] Plat.K7MilanLatWritesThePairAndReadsItBack: K7 a value past 65535 is refused
+[ok] mutant plat-lat-third-field-accepted (plat): 4 check(s) failed
+    first: [FAIL] Plat.K7MilanLatWritesThePairAndReadsItBack: K7 a third field is refused
+[ok] mutant plat-lat-answer-not-read-back (plat): 2 check(s) failed
+    first: [FAIL] Plat.K7MilanLatWritesThePairAndReadsItBack: K7 the answer is GPTP_LAT read back
+[ok] mutant plat-lat-key-reaches-every-build (plat): 3 check(s) failed
+    first: [FAIL] Plat.K8MilanLatIsNoCommandWithoutTheKey: K8 without the key lat is refused
+[ok] mutant mii-publish-guard-removed (platmii): 4 check(s) failed
+    first: [FAIL] ArtyPhy.AdvertisementDriftNeverPublishesUnsupportedMode: MII drifted 10 Mb/s must stay down
+[ok] mutant mii-advertises-ten (platmii, platmii): 22 check(s) failed
+    first: [FAIL] ArtyPhy.BootAdvertisesOnly100FullWithoutGigabitRegisters: MII only 100 full advertised
+[ok] mutant mii-advertises-half (platmii): 11 check(s) failed
+    first: [FAIL] ArtyPhy.BootAdvertisesOnly100FullWithoutGigabitRegisters: MII only 100 full advertised
+[ok] mutant mii-loss-not-latched (platmii): 3 check(s) failed
+    first: [FAIL] ArtyPhy.LatchedLossRechecksWithoutAnotherRestart: MII both link edges
+[ok] mutant mii-advertised-once (platmii): 2 check(s) failed
+    first: [FAIL] ArtyPhy.ResetAdvertisementIsRepairedAndRenegotiated: MII only 100 full advertised
+[ok] mutant mii-readback-unchecked (platmii): 3 check(s) failed
+    first: [FAIL] ArtyPhy.DroppedAdvertisementStaysOwedUntilReadback: MII advertisement remains owed
+[ok] mutant mii-unacknowledged-local-written (platmii): 3 check(s) failed
+    first: [FAIL] ArtyPhy.UnacknowledgedAdvertisementWritesNothing: the turnaround or data driven by the STA
+[ok] mutant mii-no-room-ignored (platmii): 1 check(s) failed
+    first: [FAIL] ArtyPhy.NoFrameWithoutStepBudget: MII no frame without room
+mutants: 15 of 15 caught
+[{"arm": "console", "rc": 0}, {"arm": "mii", "rc": 0}, {"mutants": 15, "escaped_any": false, "checkout_plat_sources_unchanged": true}]
