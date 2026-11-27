@@ -35,21 +35,49 @@
 # Dropped: aecp owe; the size fixture's 8x8/2if images lack it, in every arm.
 # Dropped: aecp owed_drain; the size fixture's 8x8/2if images lack it, in every arm.
 # The traces' sha256 (each window's PC lines, as the harness printed them):
-#   backlog              a2fdc4575584f686a4930fe168660e92eca84a5ebc4482e66309ed5adb97b769
-#   backlog-adp          cd5f971161526cb9042c38bfc20467411d0bbe2d112495f0291181b9b139cfc0
-#   aecp-largest-notice  51e001d1f3d18ae7708dc1edd93008ab648812eaa4bbbd55fa8638228414da95
-# The backlog windows' traces end with their groups, at 205,603 and 273,120 PCs; the third's at 900,000.
+#   backlog              114ff1508f3cc8d24a39a23d96b3b16ae44d825992379ed6092e755c96927639
+#   backlog-adp          be8b17e4f0c5e15d6ed0a0d8549b725a634c09174266c34996b11f8085e19704
+#   aecp-largest-notice  d625326d99b49115b0840d8d014304e21233a9bdf4dd1fc6a1d8398ef73fd143
+#   srp-register-swap    bf69e4348e564c3f72ed7d43781eea81ec61b2c7eac1c316dac0e2e3e7643e34
+# The backlog windows' traces end with their groups, at 204,832 and 273,408 PCs;
+# the third's and the fourth's at 900,000.
 #
 # sw/firmware/ctrl/test/ctrl_hot.py requires the script's list to be this one,
 # entry for entry, and every entry to name a section of the linked image.
 # One entry a line: the object, then the function's section name. A firmware
 # object is its source's stem; a runtime archive's member is <archive>:<member>.
-ctrl_app_aecp ctrl_app_aecp_store_words
-ctrl_app_aecp publish_store
-aecp_face aecp_face_status
-ctrl_app_aecp deliver
-aecp_face aecp_face_poll
+adp adp_poll
 ctrl_loop ctrl_loop_service
+acmp_mbx on_poll
+acmp acmp_poll
+acmp enter
+maap_mbx poll
+maap_mbx refresh_demand
+acmp acmp_declaring
+ctrl_mem memset
+ctrl_app_srp source
+ctrl_app_aecp source
+ctrl_aecp_image source
+maap maap_poll
+maap enter
+maap pump
+maap_mbx declaring
+aecp_mbx poll
+aecp aecp_poll
+aecp aecp_enter
+aecp now
+aecp_mbx now
+mbx mbx_now_ms
+aecp transmit
+aecp arm
+aecp_mbx timer
+ctrl_app_aecp deliver
+aecp_nvm aecp_nvm_poll
+ctrl_app_aecp publish_store
+nvm_store nvm_store_status
+ctrl_app_aecp ctrl_app_aecp_store_words
+aecp_face aecp_face_status
+aecp_face aecp_face_poll
 srp_mbx poll
 srp_mbx enter
 mbx mbx_link_up
@@ -57,20 +85,15 @@ srp_mbx snapshot
 srp_mbx reclaim
 ctrl_app_srp deliver
 srp_mbx srp_mbx_gate
+ctrl_app_srp delivered.isra.0
 nvm_store nvm_store_clock
 nvm_store nvm_now
 nvm_flash_litespi ls_now_us
 ctrl_loop round_of
 aecp_mbx retry
 aecp aecp_retry
-aecp aecp_enter
 aecp round_waits
-aecp now
-aecp_mbx now
-mbx mbx_now_ms
 aecp scan
-aecp arm
-aecp_mbx timer
 nvm_store nvm_store_step
 ctrl_loop ctrl_loop_step
 mbx_plat_mmio mbx_hal_wait
@@ -90,27 +113,7 @@ acmp_mbx on_rx_ready
 srp_mbx rx_ready
 mbx mbx_rx_waiting
 adp_mbx on_poll
-adp adp_poll
 adp reject_reentry
-acmp_mbx on_poll
-acmp acmp_poll
-acmp enter
-maap_mbx poll
-maap_mbx refresh_demand
-acmp acmp_declaring
-ctrl_mem memset
-ctrl_app_srp source
-ctrl_app_aecp source
-ctrl_aecp_image source
-maap maap_poll
-maap enter
-maap pump
-maap_mbx declaring
-aecp_mbx poll
-aecp aecp_poll
-aecp transmit
-aecp_nvm aecp_nvm_poll
-nvm_store nvm_store_status
 srp_mbx tick
 timer shlan_timer_tick
 mrp_mad mrp_port_status
@@ -210,9 +213,6 @@ srp_mbx hold
 mrp_mad mrp_attr_visit
 srp_mbx registrations
 mrp_mad mrp_reclaim
-maap_mbx receive
-maap maap_rx
-maap mac_at
 acmp_mbx on_adp_frame
 adp_mbx on_frame
 adp adp_rx
@@ -229,12 +229,15 @@ acmp publish
 acmp p_send
 acmp_mbx port_send
 acmp finish
-mbx mbx_tick_pending
-srp_mbx transmit
+maap_mbx receive
+maap maap_rx
+maap mac_at
 srp_mbx rx_charge
 mbx mbx_rx_next_len
 mbx mbx_rx_next_byte
 srp_mbx receive
+mbx mbx_tick_pending
+srp_mbx transmit
 maap enqueue
 maap wire_put_be
 maap_mbx send_frame
@@ -314,3 +317,22 @@ nvm_store nvm_store_changed_id
 nvm_klj2 nvm_rec_id_known
 nvm_store nvm_mark
 nvm_store nvm_open_set
+ctrl_app_srp complete
+msrp msrp_leave_ind
+srp_mbx left
+srp_mbx talker_changed
+srp_mbx failed
+msrp msrp_declare_listener
+srp_mbx build_mrpdu
+mrp_mad mrp_transmit
+mrp_mad map_replay
+acmp acmp_tk_unregistered
+acmp srp_stop
+ctrl_app_srp request
+ctrl_app_aecp srp
+ctrl_aecp_image stream
+acmp_mbx port_publish
+mbx mbx_pub_sink
+srp_mbx srp_mbx_bind
+msrp msrp_withdraw_listener
+mrp_mad mrp_mad_leave
