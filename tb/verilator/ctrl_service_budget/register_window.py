@@ -239,7 +239,10 @@ def population_groups(p: scenario.Point) -> list[scenario.Group]:
     each input's Lv of the registered kind with New of the other; srp-register-lv, the same registered, then one MRPDU
     of each input's Lv alone; srp-register-leavetime, the same left until the leave timers the one record started run
     out, in one centisecond (10.7.11); srp-register-both, every input's JoinIn of both kinds in one MRPDU, the Failed
-    replacing the Advertise (35.2.6), at twice V's charge; and srp-register-messages, every input bound, then one MRPDU
+    replacing the Advertise (35.2.6), at twice V's charge; srp-register-both-owed, the same record with a binding change
+    owed as it arrives, two inputs' UNBIND_RX just ahead of it, so the delivery of the pass before the record's makes
+    one change and leaves the other owed (#977's ruling of 2026-11-27 on the alone records, item 4: the record's pass
+    makes none); and srp-register-messages, every input bound, then one MRPDU
     of eight Listener Messages before one Talker Advertise Message for each input, past the eight Messages the drain
     reads one by one (#977's ruling of 2026-11-27, item 5, and its ruling on round 9's STOP, item 4)."""
     srp, ms, n = scenario.CH['srp'], scenario.MS, p.sinks
@@ -291,12 +294,15 @@ def population_groups(p: scenario.Point) -> list[scenario.Group]:
               f.msrp(scenario.TALKER_A_MAC, [f.mrp_message(1, talker(0), [5] * n)]))
         g.add(f'wait cycles {(AFTER_MS + extra) * ms}', 'wait quiet 3 within 2000000')
         out.append(g)
-    g = group('both', n)
-    probe(g, 'register_both', "every input's JoinIn of both kinds in one MRPDU",
-          f.msrp(scenario.TALKER_A_MAC, [f.mrp_message(1, talker(0), [1] * n),
-                                         f.mrp_message(2, talker_failed(0), [1] * n)]))
-    g.add(f'wait cycles {AFTER_MS * ms}', 'wait quiet 3 within 2000000')
-    out.append(g)
+    both = f.msrp(scenario.TALKER_A_MAC, [f.mrp_message(1, talker(0), [1] * n),
+                                          f.mrp_message(2, talker_failed(0), [1] * n)])
+    for name, owed in (('both', 0), ('both-owed', 2)):
+        g = group(name, n)
+        g.add(*(f'frame 0 {scenario.acmp_cmd(p, "UNBIND_RX", k, 0x6100 + k).hex()}' for k in range(n - owed, n)))
+        probe(g, f'register_{name.replace("-", "_")}', "every input's JoinIn of both kinds in one MRPDU" +
+              (', a binding change owed' if owed else ''), both)
+        g.add(f'wait cycles {AFTER_MS * ms}', 'wait quiet 3 within 2000000')
+        out.append(g)
     g = group('messages', n)
     listeners = [f.mrp_message(3, f.be(STREAM + 0x100 + k, 8), [1], four_packed=[2]) for k in range(8)]
     talkers = [f.mrp_message(1, talker(k), [1]) for k in range(n)]

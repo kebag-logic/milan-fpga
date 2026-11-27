@@ -375,7 +375,9 @@ TEST_F(SrpBinding, AttachmentRefusesMissingRoomAndShapeWithoutPartialBinding) {
 
 // The delivery's bound (#977, its ruling on round 9's STOP, item 2): a delivery makes at most one binding change and,
 // outside THE SETTLE, at most one loss completion, each the first owed from its turn; the rest stay pending, are
-// delivered in turn and keep the loop awake, so each waits at most n_sinks deliveries.
+// delivered in turn and keep the loop awake, so each waits at most n_sinks deliveries of passes that took no SRP
+// record: a pass that carries a record alone makes no binding change (its ruling of 2026-11-27 on the alone records,
+// item 4).
 TEST_F(SrpBinding, D1ADeliveryMakesOneBindingChangeTheRestInTurn) {
     const unsigned n=acfg.n_sinks;
     for (unsigned k=0;k<n;++k) bind(k);
@@ -466,6 +468,25 @@ TEST_F(SrpBinding, D5ALossLeftOwedKeepsTheLoopAwakeWithNoChangeOwed) {
     for (unsigned k=0;k<n;++k) EXPECT_FALSE(app.srp_requests[k].pending);
     settle();
     for (unsigned k=0;k<n;++k) EXPECT_FALSE(sink(k).withdrawn) << "D5 every loss is completed in turn";
+}
+TEST_F(SrpBinding, D6ARecordsPassMakesNoBindingChangeTheNextDeliveryMakesIt) {
+    const unsigned n=acfg.n_sinks;
+    for (unsigned k=0;k<n;++k) bind(k);
+    without_delivery([&]{ for (unsigned k=0;k<n;++k) response(k,k); });
+    for (unsigned k=0;k<n;++k) ASSERT_TRUE(app.srp_requests[k].pending);
+    // the pass took an SRP record, which it carries alone: its delivery owes THE SETTLE and makes no change
+    app.loop.drain_taken=1u;
+    EXPECT_TRUE(app.loop.polls[4].fn(app.loop.polls[4].ctx)) << "D6 a record's pass keeps the loop awake";
+    for (unsigned k=0;k<n;++k) {
+        EXPECT_FALSE(sink(k).bound) << "D6 a record's pass makes no binding change";
+        EXPECT_TRUE(app.srp_requests[k].pending) << "D6 the change a record's pass leaves stays owed";
+    }
+    // the next delivery, of a pass that took no SRP record, makes the first owed in turn
+    app.loop.drain_taken=0u;
+    (void)app.loop.polls[4].fn(app.loop.polls[4].ctx);
+    EXPECT_TRUE(sink(0).bound) << "D6 the next delivery of a pass that took no SRP record makes it";
+    settle();
+    for (unsigned k=0;k<n;++k) expect_stream(k,k);
 }
 } // namespace
 

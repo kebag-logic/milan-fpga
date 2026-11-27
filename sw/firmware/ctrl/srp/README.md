@@ -151,8 +151,10 @@ An accepted request retires; transient refusal stays pending and keeps the loop 
 One delivery makes at most one binding change, and outside THE SETTLE at most one loss completion (#977, [its
 ruling on round 9's STOP](https://github.com/kebag-logic/milan-fpga/issues/977#issuecomment-7212897415), item 2).
 Each is the first owed from its turn, the sink after the last it made; where both are owed, a delivery makes only
-the kind the last one did not, so an owed one waits at most 2 x `n_sinks` deliveries. The rest stay pending and keep
-the loop awake. THE SETTLE still completes every loss it owes.
+the kind the last one did not, so an owed one waits at most 2 x `n_sinks` deliveries of passes that took no SRP record.
+A pass that carries an SRP record alone makes no binding change: the change stays pending, owed to the next delivery
+(#977, [its ruling of 2026-11-27 on the alone records](https://github.com/kebag-logic/milan-fpga/issues/977#issuecomment-7216582862),
+item 4). The rest stay pending and keep the loop awake. THE SETTLE still completes every loss it owes.
 THE TRANSMIT waits on none of them: several reservations ended at once withdraw across MRPDUs, the first in the next
 and each later one in the MRPDU after its delivery, within a JoinTime (IEEE 802.1Q-2018 10.7.4.1, Table 10-7).
 A probe response that overtakes a pending unbind replaces it in the request slot, so its Listener stays declared.
