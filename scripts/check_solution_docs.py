@@ -200,6 +200,13 @@ PORT_GROUPS = (
         (r"[io]_mmcm_.*", r"i_ps_clk"),
     ),
     PortGroup(
+        "Status LED levels",
+        "`o_led_*`",
+        "Register complete display predicates on `axis_clk`, then synchronize into the display clock",
+        "Leave outputs open when no display is present; never use them for flow control",
+        (r"o_led_(input_locked|output_open|clock_internal|clock_stream|source_locked|clock_locked)",),
+    ),
+    PortGroup(
         "Audio pins",
         "`i2s_*`, `tdm_*`, `media_lrclk_o`",
         "Match the selected audio geometry",

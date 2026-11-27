@@ -44,7 +44,8 @@ int main(int argc, char **argv)
             for (unsigned cycle = 1; cycle <= 10000 && netoff < net.size(); ++cycle) {
                 d.clk_i = 0;
                 // Two local copies: a waiting network frame must beat the second.
-                d.s_active_i = off < 2 * length;
+                // Retirement follows the registered copy of the final beat.
+                d.s_active_i = 1;
                 d.s_valid_i = off < 2 * length;
                 d.s_data_i = 0; d.s_keep_i = 0; d.s_last_i = 0;
                 if (d.s_valid_i) {
@@ -85,6 +86,8 @@ int main(int argc, char **argv)
         accepted += d.passed_o[1] & 65535;
         full += d.dropped_o[1] & 65535;
         rate += d.rate_dropped_o[1] & 65535;
+        std::printf("length %u: accepted %u, full/size drops %u, rate drops %u\n", length,
+                    d.passed_o[1] & 65535, d.dropped_o[1] & 65535, d.rate_dropped_o[1] & 65535);
         d.final();
     }
     ++cases;
