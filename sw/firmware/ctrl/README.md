@@ -62,10 +62,10 @@ core-only unit tests:
 
 | Header | What it is |
 |---|---|
-| [`adp.h`](https://github.com/kebag-logic/tsn-c-stack/blob/5d03517f2ab42416654a8f2be2f71cfc51d82440/include/adp.h) | ADP advertising (Milan v1.2 5.6.3) |
-| [`acmp.h`](https://github.com/kebag-logic/tsn-c-stack/blob/5d03517f2ab42416654a8f2be2f71cfc51d82440/include/acmp.h) | Milan ACMP: the listener, the talker's answers and discovery |
-| [`maap.h`](https://github.com/kebag-logic/tsn-c-stack/blob/5d03517f2ab42416654a8f2be2f71cfc51d82440/include/maap.h) | MAAP allocation (IEEE 1722-2016 Annex B) |
-| [`wire.h`](https://github.com/kebag-logic/tsn-c-stack/blob/5d03517f2ab42416654a8f2be2f71cfc51d82440/include/wire.h) | the big-endian wire layer |
+| [`adp.h`](https://github.com/kebag-logic/tsn-c-stack/blob/0f72ca69a0cd85ade9a3f1c42a325b23704cf625/include/adp.h) | ADP advertising (Milan v1.2 5.6.3) |
+| [`acmp.h`](https://github.com/kebag-logic/tsn-c-stack/blob/0f72ca69a0cd85ade9a3f1c42a325b23704cf625/include/acmp.h) | Milan ACMP: the listener, the talker's answers and discovery |
+| [`maap.h`](https://github.com/kebag-logic/tsn-c-stack/blob/0f72ca69a0cd85ade9a3f1c42a325b23704cf625/include/maap.h) | MAAP allocation (IEEE 1722-2016 Annex B) |
+| [`wire.h`](https://github.com/kebag-logic/tsn-c-stack/blob/0f72ca69a0cd85ade9a3f1c42a325b23704cf625/include/wire.h) | the big-endian wire layer |
 
 The stack depends on nothing in this repository.
 It includes only its own headers and the C library.
@@ -83,7 +83,7 @@ The composed `DA_GATE` requires valid destination state and either an answered
 probe younger than 15 seconds or a registered Listener, including Asking Failed.
 The SRP licence remains separate. Idle service ticks refresh probe expiry.
 Its callback and timing obligations are in its
-[porting guide](https://github.com/kebag-logic/tsn-c-stack/blob/5d03517f2ab42416654a8f2be2f71cfc51d82440/docs/PORTING.md).
+[porting guide](https://github.com/kebag-logic/tsn-c-stack/blob/0f72ca69a0cd85ade9a3f1c42a325b23704cf625/docs/PORTING.md).
 
 [`ctrl_boundary.py`](test/ctrl_boundary.py) holds both directions, in the builders' own compiles.
 It judges exactly the sources a capture of the builders' compiler invocations recorded as compiled; it lists no source of its own.
@@ -302,7 +302,7 @@ The gate [below](#the-host-test) builds the stack's own core tests into the
 `adp`, `reentry_debug`, `reentry_release`, `acmp`, `maap` and `maap_debug` binaries.
 The coverage gate measures the stack's sources, and the campaign plants core defects into a copy of them.
 The stack's own suite runs from the submodule, as its
-[CI](https://github.com/kebag-logic/tsn-c-stack/blob/5d03517f2ab42416654a8f2be2f71cfc51d82440/.github/workflows/quality.yml)
+[CI](https://github.com/kebag-logic/tsn-c-stack/blob/0f72ca69a0cd85ade9a3f1c42a325b23704cf625/.github/workflows/quality.yml)
 runs it, with GoogleTest and GoogleMock 1.14.0:
 
 ```sh
@@ -311,7 +311,7 @@ cmake --build <build directory> -j16
 ctest --test-dir <build directory> --output-on-failure -j16
 ```
 
-The stack is [MIT](https://github.com/kebag-logic/tsn-c-stack/blob/5d03517f2ab42416654a8f2be2f71cfc51d82440/LICENSE) (Kebag Logic).
+The stack is [MIT](https://github.com/kebag-logic/tsn-c-stack/blob/0f72ca69a0cd85ade9a3f1c42a325b23704cf625/LICENSE) (Kebag Logic).
 Its files keep their MIT identifiers inside this platform.
 The platform's own files stay [CERN-OHL-W-2.0](../../../LICENSE).
 lwSRP stays a separate Apache-2.0 component.
@@ -324,7 +324,7 @@ machine), in three units, each stating its clauses in its header:
 
 | Unit | What it is |
 |---|---|
-| [`acmp.h`](https://github.com/kebag-logic/tsn-c-stack/blob/5d03517f2ab42416654a8f2be2f71cfc51d82440/include/acmp.h), [`acmp.c`](https://github.com/kebag-logic/tsn-c-stack/blob/5d03517f2ab42416654a8f2be2f71cfc51d82440/src/acmp.c) (the TSN stack's) | the core, with no mailbox: every listener transition of Table 5.30, the talker's answers of 5.5.4, the discovery machine of Table 5.54, the timers of Tables 5.26 and 5.29, the lock, the saved binding record, and the no-callback guard of #678 |
+| [`acmp.h`](https://github.com/kebag-logic/tsn-c-stack/blob/0f72ca69a0cd85ade9a3f1c42a325b23704cf625/include/acmp.h), [`acmp.c`](https://github.com/kebag-logic/tsn-c-stack/blob/0f72ca69a0cd85ade9a3f1c42a325b23704cf625/src/acmp.c) (the TSN stack's) | the core, with no mailbox: every listener transition of Table 5.30, the talker's answers of 5.5.4, the discovery machine of Table 5.54, the timers of Tables 5.26 and 5.29, the lock, the saved binding record, and the no-callback guard of #678 |
 | [`acmp_mbx.h`](acmp/acmp_mbx.h), [`acmp_mbx.c`](acmp/acmp_mbx.c) | the mailbox adapter: the acmp channel, one fabric timer slot per AVB interface armed at the earliest deadline of its sinks, the tap that hands the adp channel's ENTITY_AVAILABLE and ENTITY_DEPARTING to discovery and everything else to ADP, the adp channel's bound-talker table kept equal to the bindings, a command the core declines at its owed bound kept and offered again after the next accepting poll, and the service-latency figures per path |
 | [`acmp_nvm.h`](acmp/acmp_nvm.h), [`acmp_nvm.c`](acmp/acmp_nvm.c) | the binding group on lane F1's state port (`ctrl_nvm/nvm_state.h`), every other group forwarded to the integrator's owners |
 
@@ -651,6 +651,7 @@ Moving either pin requires a reviewed change.
 The pin is lwSRP's branch `opt-exec-3`: public `main` with PR #12, PR #15, PR #18 and PR #21, the optimisation line's
 `opt-exec-1` (its build options, the attribute key and buckets, the timer wheel and the merged Message build), and the
 end-station options a one-interface shape sets (#977; [the SRP adapter](srp/README.md)).
+The branch is [lwSRP PR #22](https://github.com/kebag-logic/lwSRP/pull/22); the pin moves to its merge commit once it lands.
 Anonymous HTTPS checkout needs no repository credentials.
 
 ## Linked size

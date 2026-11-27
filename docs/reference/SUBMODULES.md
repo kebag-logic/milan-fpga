@@ -24,7 +24,7 @@ Dirty submodules invalidate local evidence.
 | `gptp-processor` | `3ce71b768a2f6f6a5274c127080146e755d02275` | Fabric gPTP engine | `KL_gptp_shadow.sv` |
 | `protocol-processor` | `801ef2283ec793e35a2590fc6593c90313a64041` | ADP, ACMP, AECP, and SRP | `KL_pp_shadow.sv` |
 | `third_party/lwSRP` | `73007b4807977517045e8aa485c61ebb8f5ee843` | Bare-metal MRP, MSRP and MVRP | `sw/firmware/ctrl/srp/srp_mbx.c` |
-| `third_party/tsn-c-stack` | `5d03517f2ab42416654a8f2be2f71cfc51d82440` | Portable ADP, ACMP and MAAP cores | `sw/firmware/ctrl` mailbox adapters |
+| `third_party/tsn-c-stack` | `0f72ca69a0cd85ade9a3f1c42a325b23704cf625` | Portable ADP, ACMP and MAAP cores | `sw/firmware/ctrl` mailbox adapters |
 | `third_party/verilog-axis` | `48ff7a7e2ef782cf778d47910cf85835c64b1bce` | AXI-Stream primitives | Multiple RTL consumers |
 <!-- submodule-pins:end -->
 
@@ -1211,11 +1211,11 @@ Issue #970 adopts stack pin `c3bff8f3`, the merge of PR #40.
 
 The mailbox publishes the stack declaration predicate as `DA_GATE`.
 
-Issue #977 moves the pin to `5d03517f`.
+Issue #977 moves the pin to `0f72ca69`.
 
 | Stack PR | Parent-visible result |
 |---|---|
-| branch `977-settle` (#977) | An entry's completion walks only its marked sinks, loading each mark word once, and builds the saved binding record and the reported view only where a sink's own fields changed; the calls, their order and their arguments are unchanged (ACMP-13) |
+| [41](https://github.com/kebag-logic/tsn-c-stack/pull/41), branch `977-settle` (#977) | An entry's completion walks only its marked sinks, loading each mark word once, and builds the saved binding record and the reported view only where a sink's own fields changed; the calls, their order and their arguments are unchanged (ACMP-13). Tests hold each field of the record's comparison, sink 32's publication and admission, and the view's STREAMING_WAIT |
 
 That commit heads tsn-c-stack branch `977-settle`.
 
@@ -1223,13 +1223,17 @@ Its two commits sit on `main` `a795471c`.
 
 It then merges `main` `c3bff8f3`, PR 40's merge.
 
+Two commits after that add tests only.
+
 Its cut shortens ACMP's completion of each sink.
 
 It adds margin under the [8x8/1if load ceiling](https://github.com/kebag-logic/milan-fpga/issues/977#issuecomment-7160202807).
 
-The cut reaches `main` through tsn-c-stack's own review.
+The branch is tsn-c-stack PR #41.
 
-The pin then moves to that merge.
+The cut reaches `main` through its own review.
+
+The pin then moves to its merge commit.
 
 ## Initialize safely
 
@@ -1247,8 +1251,11 @@ git submodule update --init \
 lwSRP uses the HTTPS URL recorded in `.gitmodules`.
 The repository is public; anonymous HTTPS fetch needs no credentials.
 
-The pin is published on `main`.
-It includes PR #12, PR #15 and PR #18.
+The pin heads lwSRP branch `opt-exec-3`, lwSRP PR #22.
+
+It holds PR #12, #15, #18 and #21.
+
+The pin moves to PR #22's merge commit.
 
 The [SRP adapter](../../sw/firmware/ctrl/srp/README.md) documents compilation and ownership.
 
@@ -1271,7 +1278,7 @@ It holds the ADP, ACMP and MAAP cores.
 
 The [control firmware](../../sw/firmware/ctrl/README.md) uses its public headers.
 
-tsn-c-stack is licensed under [MIT](https://github.com/kebag-logic/tsn-c-stack/blob/5d03517f2ab42416654a8f2be2f71cfc51d82440/LICENSE).
+tsn-c-stack is licensed under [MIT](https://github.com/kebag-logic/tsn-c-stack/blob/0f72ca69a0cd85ade9a3f1c42a325b23704cf625/LICENSE).
 
 The unused external import uses SSH.
 
@@ -1316,7 +1323,7 @@ The cleanliness command must print nothing.
 | `gptp-processor` | `make -C gptp-processor` | `make -C tb/verilator/gptp_shadow` |
 | `third_party/verilog-axis` | Upstream evidence | `make -C tb/verilator/queues` |
 | `third_party/lwSRP` | cgreen and behave | `python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4` |
-| `third_party/tsn-c-stack` | [Quality workflow](https://github.com/kebag-logic/tsn-c-stack/blob/5d03517f2ab42416654a8f2be2f71cfc51d82440/.github/workflows/quality.yml) | `python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4` |
+| `third_party/tsn-c-stack` | [Quality workflow](https://github.com/kebag-logic/tsn-c-stack/blob/0f72ca69a0cd85ade9a3f1c42a325b23704cf625/.github/workflows/quality.yml) | `python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4` |
 | `external` | Upstream evidence | Not applicable; no active product consumer |
 
 ## Known documentation conflicts

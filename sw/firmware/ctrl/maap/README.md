@@ -16,7 +16,7 @@ defines H-MAAP; host evidence does not establish target or wire timing.
 
 ## Core
 
-The TSN stack's [`maap.c`](https://github.com/kebag-logic/tsn-c-stack/blob/5d03517f2ab42416654a8f2be2f71cfc51d82440/src/maap.c)
+The TSN stack's [`maap.c`](https://github.com/kebag-logic/tsn-c-stack/blob/0f72ca69a0cd85ade9a3f1c42a325b23704cf625/src/maap.c)
 (the [submodule](../../../../third_party/tsn-c-stack), #697) implements B.3.2/Table B.7 in static storage.
 Each interface owns an INITIAL, PROBE or DEFEND state and one timer.
 ReserveAddress sends an initial PROBE, then three retransmissions.
