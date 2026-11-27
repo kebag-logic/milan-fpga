@@ -5,9 +5,11 @@
 // processor-to-datapath bus simulation or a measurement of media acquisition.
 // clock_commands.py appends this to the unchanged AECP fixture translation unit.
 #include "VKL_status_led_truth.h"
+#include "../../common/verilator_harness.hpp"
 
 struct FabricClock : Core {
-    VKL_status_led_truth leds;
+    milan::tb::Model<VKL_status_led_truth> model;
+    VKL_status_led_truth &leds = *model;
     void edge() { leds.clk_i = 0; leds.eval(); leds.clk_i = 1; leds.eval(); }
     unsigned source(unsigned kind) {
         for (const auto &d : descriptors)

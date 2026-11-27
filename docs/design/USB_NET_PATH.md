@@ -328,6 +328,11 @@ image without them moves.
 
 ## 8. Verification
 
+The suite also requires the pinned Python HDL dependencies in
+`sw/litex/litex_pins.txt`, PyYAML, GoogleTest and GoogleMock. The exhaustive
+suite workers install them so the command and production-attachment checks
+run with the fabric benches. No firmware LED observer is linked into an image.
+
 - `tb/verilator/usbnet` (`make`, `make mutants`):
   - **tap harness.** Every receive class, the transmit drops, the station record
     and LD1's inputs, a full buffer, and the rate limit. The best-effort-only

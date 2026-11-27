@@ -3,6 +3,7 @@
 // Bound a network control frame's wait through the real mailbox byte input.
 #include "Vusbnet_mailbox_wrap.h"
 #include "verilated.h"
+#include "../../common/verilator_harness.hpp"
 #include <algorithm>
 #include <cstdio>
 #include <vector>
@@ -28,7 +29,8 @@ int main(int argc, char **argv)
     // The mailbox never consumes a host record while this fixture runs.
     // Later repetitions therefore exercise full rings and empty buckets too.
     for (unsigned length : {60u, 61u, 1514u, 1515u}) {
-        Vusbnet_mailbox_wrap d;
+        milan::tb::Model<Vusbnet_mailbox_wrap> model;
+        auto &d = *model;
         auto tick = [&] { d.clk_i = 0; d.eval(); d.clk_i = 1; d.eval(); };
         d.rst_ni = 0; tick(); tick(); d.rst_ni = 1;
         for (unsigned repeat = 0; repeat < 20; ++repeat) {
@@ -88,7 +90,6 @@ int main(int argc, char **argv)
         rate += d.rate_dropped_o[1] & 65535;
         std::printf("length %u: accepted %u, full/size drops %u, rate drops %u\n", length,
                     d.passed_o[1] & 65535, d.dropped_o[1] & 65535, d.rate_dropped_o[1] & 65535);
-        d.final();
     }
     ++cases;
     if (!accepted || !full || !rate) {

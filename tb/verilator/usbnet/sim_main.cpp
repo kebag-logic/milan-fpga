@@ -13,6 +13,7 @@
 
 #include "VKL_usbnet_tap.h"
 #include "verilated.h"
+#include "../../common/verilator_harness.hpp"
 
 #include <cstdint>
 #include <cstdio>
@@ -128,7 +129,7 @@ static int want_tx(const Bytes &b, Mac host, bool host_ok)
 struct Sent { Bytes b; uint64_t first; bool lo; };
 
 struct Bench {
-    std::unique_ptr<VKL_usbnet_tap> model;
+    milan::tb::Model<VKL_usbnet_tap> model;
     VKL_usbnet_tap *d;
     uint64_t tsys = 0;
     uint64_t teth = 0;
@@ -168,7 +169,7 @@ struct Bench {
     bool prev_inj = false;
     bool prev_hi_valid = false;
 
-    Bench() : model(std::make_unique<VKL_usbnet_tap>()), d(model.get()) {
+    Bench() : d(model.get()) {
         d->clk_i = 0; d->eth_clk_i = 0; d->rst_ni = 0; d->eth_rst_ni = 0;
         d->inject_en_i = 1; d->bus_alive_i = 1; d->m_ready_i = 1; d->up_ready_i = 1;
         d->eval();
@@ -345,7 +346,6 @@ struct Bench {
         }
         return r;
     }
-    ~Bench() { d->final(); }
 };
 
 using BenchPtr = std::unique_ptr<Bench>;

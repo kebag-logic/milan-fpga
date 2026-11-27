@@ -7,6 +7,7 @@
 
 #include "VKL_status_leds.h"
 #include "verilated.h"
+#include "../../common/verilator_harness.hpp"
 
 #include <array>
 #include <cstdio>
@@ -18,7 +19,7 @@ static int &fails() { static int n = 0; return n; }
     std::printf(__VA_ARGS__); std::printf("\n"); ++fails(); } } while (0)
 
 struct Leds {
-    std::unique_ptr<VKL_status_leds> model = std::make_unique<VKL_status_leds>();
+    milan::tb::Model<VKL_status_leds> model;
     VKL_status_leds *d = model.get();
     std::array<unsigned, 4> on_cnt{};
     unsigned tot = 0;
@@ -43,7 +44,6 @@ struct Leds {
             CHECK(on_cnt[k] == want, "%s: LD%d lit %u of %u clocks, expected %u", what, k, on_cnt[k], tot, want);
         }
     }
-    ~Leds() { d->final(); }
 };
 
 int main(int argc, char **argv)

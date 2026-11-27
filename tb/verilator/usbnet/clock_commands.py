@@ -35,7 +35,7 @@ def main() -> int:
         combined = directory / "clock_fixture.cpp"
         combined.write_text((CTRL / "test/test_aecp.cpp").read_text() + "\n" +
                             (HERE / "test_clock.cpp").read_text())
-        return compile_tests(build, [*includes, f"-I{CTRL / 'test'}", f"-I{rtl}",
+        return compile_tests(build, [*includes, f"-I{CTRL / 'test'}", f"-I{HERE}", f"-I{rtl}",
                                     "-isystem", str(runtime / "include")],
                              [combined], directory, **kwargs)
 

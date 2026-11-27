@@ -4,6 +4,7 @@
 // retain whole packets under pressure, and leave network control bytes intact.
 #include "VKL_usbnet_local_rx.h"
 #include "verilated.h"
+#include "../../common/verilator_harness.hpp"
 #include <algorithm>
 #include <cstdint>
 #include <cstdio>
@@ -23,7 +24,8 @@ static Bytes frame(uint64_t dst, size_t length, uint8_t seed)
     return b;
 }
 struct Bench {
-    VKL_usbnet_local_rx d;
+    milan::tb::Model<VKL_usbnet_local_rx> model;
+    VKL_usbnet_local_rx &d = *model;
     std::deque<Bytes> local;
     std::deque<Bytes> network;
     size_t loff = 0;

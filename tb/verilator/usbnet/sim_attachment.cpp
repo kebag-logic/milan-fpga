@@ -3,12 +3,14 @@
 // The production attachment, with independent source and destination clocks.
 #include "Vled_attachment.h"
 #include "verilated.h"
+#include "../../common/verilator_harness.hpp"
 #include <cstdio>
 
 int main(int argc, char **argv)
 {
     Verilated::commandArgs(argc, argv);
-    Vled_attachment d;
+    milan::tb::Model<Vled_attachment> model;
+    auto &d = *model;
     unsigned checks = 0;
     unsigned failures = 0;
     auto check = [&](bool ok, const char *name) {
@@ -47,7 +49,6 @@ int main(int argc, char **argv)
     check((d.state & 3) == 3, "link and USB status do not wait for the datapath clock");
     d.milan_rst = 1; source(); dest(); dest();
     check((d.state & 12) == 0, "source reset crosses into the display");
-    d.final();
     std::printf("%u checks: %u PASS, %u FAIL\n", checks, checks - failures, failures);
     return failures != 0;
 }

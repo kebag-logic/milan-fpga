@@ -2312,6 +2312,13 @@ RTL_STEP_LISTS = {
                                   'Put Verilator on PATH and prove the version')]},
         {"name": "Prove specialized suite ownership", "env": SHARD_STEP_ENV,
          "run": CANONICAL_OWNERSHIP_SCRIPT},
+        {"name": "Install the USB network integration test dependencies",
+         "run": (
+             'set -euo pipefail',
+             'sudo apt-get update -qq',
+             'sudo apt-get install -y --no-install-recommends libgtest-dev libgmock-dev',
+             'python3 -m pip install --quiet pyyaml -r sw/litex/litex_pins.txt',
+         )},
         {"name": "Cache the pinned Yosys build for the netlist-level suite "
                  "owner",
          "if": NETLIST_OWNER_IF, "id": "cache-yosys",

@@ -3,12 +3,14 @@
 // Exhaust the ruled predicates, including external sources and reset.
 #include "VKL_status_led_truth.h"
 #include "verilated.h"
+#include "../../common/verilator_harness.hpp"
 #include <cstdio>
 
 int main(int argc, char **argv)
 {
     Verilated::commandArgs(argc, argv);
-    VKL_status_led_truth d;
+    milan::tb::Model<VKL_status_led_truth> model;
+    auto &d = *model;
     int failures = 0;
     int checks = 0;
     auto check = [&](bool ok, const char *message, unsigned bits) {
@@ -49,7 +51,6 @@ int main(int argc, char **argv)
                   "fabric truth table", bits);
         }
     }
-    d.final();
     std::printf("%d checks: %d PASS, %d FAIL\n", checks, checks - failures, failures);
     return failures != 0;
 }
