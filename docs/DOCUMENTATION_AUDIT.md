@@ -179,7 +179,7 @@ Areas follow the directory tree.
 | [docs/design/SPLIT_CONTROL_MEMORY.md](design/SPLIT_CONTROL_MEMORY.md) | firmware developer | Split placement control memory | `tb/verilator/ctrl_service_budget`, `sw/firmware/ctrl`, `sw/litex`, Milan v1.2, 1722.1-2021, 1722-2016, 802.1Q, 802.1AS | current | no recorded contradiction | area lane | design |
 | [docs/design/TIME_SYNC.md](design/TIME_SYNC.md) | maintainer | Time synchronization | `tb/verilator/capture_coherence`, `tb/verilator/ptp`, `scripts`, Milan v1.2, 1722-2016, 802.1AS | current | no recorded contradiction | area lane | design |
 | [docs/design/TRACE_LOGGING.md](design/TRACE_LOGGING.md) | firmware developer | Fault tracing: bare-metal DRAM ring and workstation bundles | `sw/trace` | current | no recorded contradiction | area lane | design |
-| [docs/design/USB_NET_PATH.md](design/USB_NET_PATH.md) | FPGA and firmware developers, and the USB device firmware's developers (kebag-logic/usb-audio#5). | USB network path and Arty status LEDs (#1011, #1018) | `hdl/milan`, `sw/litex`, `tb/verilator/cbs`, Milan v1.2, 1722.1-2021, 1722-2016, 802.1Q, 802.1BA | current | no recorded contradiction | area lane | design |
+| [docs/design/USB_NET_PATH.md](design/USB_NET_PATH.md) | FPGA and firmware developers, and the USB device firmware's developers (kebag-logic/usb-audio#5). | USB network path and Arty status LEDs (#1011, #1018) | `hdl/milan`, `sw/litex`, `tb/verilator/cbs`, 1722-2016, 802.1Q, 802.1BA | current | no recorded contradiction | area lane | design |
 
 ### docs/development
 

@@ -35,6 +35,9 @@ PKG, RXC, TXI, ARB, TAP, LED = ("KL_usbnet_pkg.sv", "KL_usbnet_rx_copy.sv", "KL_
 
 # (name, harness, file, old, new, the FAIL text that must appear)
 CONTROLS = [
+    ("local_rx_wait_never_releases", "wait", "KL_usbnet_local_rx.sv",
+     "locked_r <= !(m_ready_i && m_last_o);", "locked_r <= 1'b1;",
+     "mailbox local wait bound"),
     ("local_rx_abort_ignored", "local", "KL_usbnet_local_rx.sv",
      ".discard_i(discard_w)", ".discard_i(1'b0)",
      "aborted local copy preserves completed frames and restarts at the next header"),

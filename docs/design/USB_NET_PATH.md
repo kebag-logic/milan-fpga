@@ -68,6 +68,18 @@ Buffered control delivery can wait behind one local frame.
 This queueing affects firmware delivery, not network ingress timestamps.
 The attachment requires the split control mailbox.
 
+At the Arty's 80 MHz system clock, the conservative additional wait is
+`2 * 1515 + 16 = 3046` clocks, or 38.075 us.
+This bounds the serializer's remaining bytes and the mailbox's finite
+classification, drain and verdict states; ring capacity and token availability
+decide admission, rather than waiting for firmware to release `ready`.
+The production mailbox test exercises full rings and empty token buckets.
+Its longest observed wait is 1707 clocks (21.3375 us).
+Adding the conservative bound to #1004's 29.77 ms ACMP row gives
+29.808075 ms, below 30 ms by 191.925 us.
+The mailbox's channel limits and held-record refill allowances still apply.
+This is the merger's additional wait, not a claim that every local copy is admitted.
+
 ## 2. Receive copy (frames toward the computer)
 
 Two independent copies read the frames the device takes from the MAC and
@@ -140,6 +152,19 @@ every SR class frame and every frame of the device's own control plane.
 The product's TX trunk has no credit-based shaper (see the TX-trunk note in
 `hdl/milan/milan_datapath.sv`). This arbiter is therefore the strict-priority
 stage below the SR classes (IEEE 802.1Q-2018 8.6.8).
+
+**Egress qualification remains open at 100 Mb/s.** The control row reserves
+1 ms for egress: `49 = 240 - 190 - T_egress`, as `rows_tiers.py` derives it.
+The injected frame's 123.2 us must fit inside that allowance together with
+the existing egress path. It cannot simply be added outside the 49 ms bound.
+The capacity proof in [FR_NFR 3.4.1](../reference/FR_NFR.md#341-control-service-budget)
+uses 250 Mb/s of a gigabit link. That premise does not hold for this board.
+The current five rings can hold 254 minimum records accepted by `KL_mbx_tx`.
+Their predecessors alone occupy 1700.16 us at 100 Mb/s, before injection,
+even without competing traffic. This is a counterexample to that capacity
+argument, not evidence that the production firmware generates that backlog.
+A tighter bound on reachable Arty traffic and arbitration is required.
+Firmware identity and CPU census results do not establish it.
 
 **Rate limit.** A token bucket in octets on the wire, refilled at 10 Mb/s (a
 tenth of the Arty's link) with a 3200-octet burst. Each frame costs at least 60
@@ -327,6 +352,17 @@ image without them moves.
 - **Fabric predicates.** The truth-table harness exhausts all six inputs.
   It checks reset and source-clock registration too.
   Each predicate rule has a named planted defect.
+- **Production LED attachment.** The real attachment is generated with
+  independent source and system clocks. Its 258 checks cover the complete
+  predicates, source registration, both synchronizer stages and colour wiring.
+- **Clock commands.** Real `SET_CLOCK_SOURCE` commands select internal,
+  flowing stream, stopped stream and external sources in the unchanged AECP
+  fixture, then exercise the fabric predicate with explicit lock inputs.
+  This is a command-to-predicate seam test; it does not simulate the processor
+  bus or media-clock acquisition.
+- **Mailbox wait.** The local receiver drives the production mailbox byte
+  input with even, odd and maximum lengths, full rings and empty buckets.
+  A planted grant-release defect must fail the named wait check.
 - **The stand-alone shaper suites** (`tb/verilator/cbs`, `shaper_core`,
   `queues`) are unchanged by this path and pass.
 

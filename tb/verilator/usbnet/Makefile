@@ -3,7 +3,7 @@
 #
 # The USB network path (#1011) and the status LEDs (#1018).
 #
-#   make          - build and run all three harnesses
+#   make          - build and run the fabric and command harnesses
 #   make tap      - KL_usbnet_tap: the filter classes, the transmit drops, the
 #                   best-effort-only injection and its rate limit
 #   make leds     - KL_status_leds: each LED rule, the blink and the PWM
@@ -26,9 +26,9 @@ TAP_SRCS = $(RTL)/KL_usbnet_pkg.sv $(RTL)/KL_usbnet_rx_copy.sv $(RTL)/KL_usbnet_
            $(RTL)/KL_usbnet_tx_arb.sv $(RTL)/KL_usbnet_tap.sv
 TAP_G    = -GCLK_HZ_P=1000000 -GRATE_BPS_P=800000 -GBURST_OCTETS_P=3200
 
-.PHONY: all run tap leds truth local mutants clean
+.PHONY: all run tap leds truth local wait clock attachment mutants clean
 all: run
-run: tap leds truth local
+run: tap leds truth local wait clock attachment
 
 tap:
 	mkdir -p $(OBJ)/tap
@@ -54,8 +54,27 @@ local:
 	  $(RTL)/KL_usbnet_pkg.sv $(RTL)/KL_usbnet_rx_copy.sv $(RTL)/KL_usbnet_local_rx.sv sim_local.cpp -o Vlocal
 	$(abspath $(OBJ))/local/Vlocal
 
+wait:
+	mkdir -p $(OBJ)/wait
+	$(VERILATOR) $(VFLAGS) --top-module usbnet_mailbox_wrap --Mdir $(OBJ)/wait \
+	  ../../../hdl/milan/mailbox/KL_mbx_pkg.sv ../../../hdl/milan/mailbox/KL_mbx_rx.sv \
+	  $(RTL)/KL_usbnet_pkg.sv $(RTL)/KL_usbnet_rx_copy.sv $(RTL)/KL_usbnet_local_rx.sv \
+	  usbnet_mailbox_wrap.sv sim_wait.cpp -o Vwait
+	$(abspath $(OBJ))/wait/Vwait
+
 mutants:
 	python3 mutants.py
+
+clock: truth
+	python3 clock_commands.py $(OBJ)/clock $(OBJ)/truth
+
+attachment:
+	mkdir -p $(OBJ)/attachment
+	python3 led_attachment.py $(OBJ)/attachment/led_attachment.v
+	$(VERILATOR) $(VFLAGS) --top-module led_attachment --Mdir $(OBJ)/attachment \
+	  $(OBJ)/attachment/led_attachment.v $(RTL)/KL_status_led_truth.sv $(RTL)/KL_status_leds.sv \
+	  sim_attachment.cpp -o Vattachment
+	$(abspath $(OBJ))/attachment/Vattachment
 
 clean:
 	rm -rf obj_dir

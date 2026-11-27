@@ -155,23 +155,24 @@ def add_usb_net(mac: object, platform: object, sys_clk_freq: float, repo_root: P
 
 @dataclass(frozen=True)
 class LedInputs:
-    """The three hardware inputs of the LEDs: the link level, a pulse per frame, and LD1's level."""
+    """MAC/system inputs and the datapath levels with their source clock domain."""
     link_up: object
     activity: object
     usb_ok: object
+    levels: dict
+    milan_cd: str
 
 
 class StatusLeds(LiteXModule):
     """Fabric-owned LD0 to LD3, a read-only status and the green pads."""
 
-    def __init__(self, platform: object, sys_clk_freq: float, repo_root: Path, inputs: LedInputs,
-                 levels: dict, milan_cd: str) -> None:
+    def __init__(self, platform: object, sys_clk_freq: float, repo_root: Path, inputs: LedInputs) -> None:
         add_sources(platform, repo_root, LED_SOURCES)
         stream_dp, clock_dp = Signal(name="led_stream_dp"), Signal(name="led_clock_dp")
         stream_sys, clock_sys = Signal(name="led_stream_sys"), Signal(name="led_clock_sys")
         self.specials += Instance("KL_status_led_truth", name="status_led_truth",
-            i_clk_i=ClockSignal(milan_cd), i_rst_ni=~ResetSignal(milan_cd),
-            **{"i_" + name + "_i": levels[name] for name in LED_LEVELS},
+            i_clk_i=ClockSignal(inputs.milan_cd), i_rst_ni=~ResetSignal(inputs.milan_cd),
+            **{"i_" + name + "_i": inputs.levels[name] for name in LED_LEVELS},
             o_stream_o=stream_dp, o_clock_o=clock_dp)
         # Each complete predicate is registered before its two-stage crossing.
         # These independent display levels never control a datapath or mailbox.
@@ -205,5 +206,5 @@ def add_status_leds(soc: object, platform: object, sys_clk_freq: float, repo_roo
     # image linked against the map without the LEDs keeps every address.
     soc.csr.add("status_leds", n=soc.csr.n_locs - 5)
     soc.status_leds = StatusLeds(platform, sys_clk_freq, repo_root,
-                                 LedInputs(mac.link_status.fields.link_up, activity, usb_ok),
-                                 soc.led_levels, soc.milan.milan_cd)
+                                 LedInputs(mac.link_status.fields.link_up, activity, usb_ok,
+                                           soc.led_levels, soc.milan.milan_cd))

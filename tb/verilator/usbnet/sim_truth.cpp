@@ -9,7 +9,8 @@ int main(int argc, char **argv)
 {
     Verilated::commandArgs(argc, argv);
     VKL_status_led_truth d;
-    int failures = 0, checks = 0;
+    int failures = 0;
+    int checks = 0;
     auto check = [&](bool ok, const char *message, unsigned bits) {
         ++checks;
         if (!ok) {
@@ -36,7 +37,8 @@ int main(int argc, char **argv)
             check((d.stream_o | (d.clock_o << 1)) == before,
                   "fabric predicates change only on source clock", bits);
             tick();
-            bool expected_stream = false, expected_clock = false;
+            bool expected_stream = false;
+            bool expected_clock = false;
             if (bits & 3) expected_stream = true;
             if (bits & 4) expected_clock = true;
             else if (bits & 32) {

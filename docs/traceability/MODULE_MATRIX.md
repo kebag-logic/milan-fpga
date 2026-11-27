@@ -21,7 +21,7 @@ test is possible and is reproduced verbatim below.
 
 Legend: ✅ dedicated Verilator TB · ➰ exercised transitively in a broader TB's design · 🔬 in the tsn_fuzz field campaign · 📦 package · 🗄️ archived by a stated decision · ⚪ not compiled by any TB.
 
-**Totals:** 90 modules · 89 with a dedicated TB · 0 exercised-only · 32 field-fuzzed · 0 archived · **0 not in any TB**
+**Totals:** 91 modules · 90 with a dedicated TB · 0 exercised-only · 32 field-fuzzed · 0 archived · **0 not in any TB**
 
 ## Coverage by spec family
 
@@ -167,7 +167,7 @@ _datapath + top wrappers_
 | ✅ `KL_mbx_evt` | `milan/mailbox/KL_mbx_evt.sv` | `mbx` · `milan_dp` | -- |
 | 📦 `KL_mbx_pkg` | `milan/mailbox/KL_mbx_pkg.sv` | -- | -- |
 | ✅ `KL_mbx_ring` | `milan/mailbox/KL_mbx_ring.sv` | `mbx` · `milan_dp` | -- |
-| ✅ `KL_mbx_rx` | `milan/mailbox/KL_mbx_rx.sv` | `mbx` · `milan_dp` | -- |
+| ✅ `KL_mbx_rx` | `milan/mailbox/KL_mbx_rx.sv` | `mbx` · `milan_dp` · `usbnet` | -- |
 | ✅ `KL_mbx_tx` | `milan/mailbox/KL_mbx_tx.sv` | `mbx` · `milan_dp` | -- |
 | ✅ `KL_mbx_wb` | `milan/mailbox/KL_mbx_wb.sv` | `mbx` | -- |
 | ✅ `KL_ctrl_split` | `milan/KL_ctrl_split.sv` | `milan_dp` · ➰capture_coherence,milan_dp_mclk,milan_dp_render | -- |
