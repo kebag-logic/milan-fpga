@@ -48,8 +48,8 @@ def run_group(build_dir: Path, out: Path, group: object, flash: str) -> Path:
     script.write_text(group.script())
     log = out / f'{group.name}.log'
     argv = [str(build_dir / 'native/Vsim'), str(script), flash]
-    # a group that grades the journal a cut leaves has the testbench write it at the script's end (save_burst.py)
-    env = dict(os.environ, BUDGET_JOURNAL_OUT=str(journal_of(out, group))) if group.save.get('journal') else None
+    import bind_save
+    env = bind_save.environment(group.save, journal_of(out, group))
     print('COMMAND', shlex.join(argv), flush=True)
     with log.open('w') as sink:
         subprocess.run(argv, cwd=build_dir / 'gateware', stdout=sink, stderr=subprocess.STDOUT, check=False, env=env)
@@ -62,10 +62,11 @@ def journal_of(out: Path, group: object) -> Path:
 
 
 def burst_misses(results: list[dict]) -> list[str]:
-    """Each name of a burst or a change in flight not durable within its target, or missing at the cut, and a next
-    save that waited past the first idle step (save_burst.misses), named by its group."""
+    """Each name of a burst or a change in flight not durable within its target, or missing at the cut, a next save
+    that waited past the first idle step (save_burst.misses), and a bind group's (bind_save.late), each by its group."""
+    import bind_save
     import save_burst
-    return [m for g in results if g.get('burst') for m in save_burst.misses(g['burst'], g['group'])]
+    return save_burst.late(results) + bind_save.late(results)
 
 
 def burst_lines(results: list[dict]) -> list[str]:
@@ -86,8 +87,9 @@ def burst_lines(results: list[dict]) -> list[str]:
 
 
 def print_bursts(results: list[dict]) -> None:
-    """Each burst's and change in flight's BURST line (burst_lines), as the run prints it."""
-    for line in burst_lines(results):
+    """Each burst's and change in flight's BURST line (burst_lines) and bind group's BIND line, as the run prints it."""
+    import bind_save
+    for line in burst_lines(results) + bind_save.lines(results):
         print(line)
 
 
@@ -518,6 +520,7 @@ def share_table(results: list[dict]) -> list[str]:
 def table(results: list[dict], point: str, clock: str = '') -> str:
     """The clock, the Markdown rows of every path's worst instance, the composed windows, the
     per-pass share, then every probe, then the timeouts."""
+    import bind_save
     tally = counts(results)
     lines = [f'### {point}', '', *([f'Clock: {clock}.', ''] if clock else []),
              f"{tally['path_misses']} of {tally['paths']} paths and {tally['instance_misses']} of "
@@ -553,7 +556,7 @@ def table(results: list[dict], point: str, clock: str = '') -> str:
     lines += share_table(results)
     lines += aged_table(results)
     lines += save_table(results)
-    lines += burst_table(results)
+    lines += burst_table(results) + bind_save.table(results)
     lines += notice_table(results)
     lines += step_table(results)
     lines += ['', '| Path | Probe | CPU cycles | ms | Budget (+W) ms | Ceiling ms | Verdict | Taking pass cycles '

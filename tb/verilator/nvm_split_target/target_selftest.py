@@ -534,10 +534,51 @@ def d5_checks() -> list[Check]:
              f'{at} {refused!r}')]
 
 
+def window_checks() -> list[Check]:
+    """The commit's erase after its changes (tg.windowed): at the end of the binding records' 100 ms window, after the
+    capture and the seal, it passes; at the other records' 1,000 ms, at once, before the changes or never, it fails."""
+    ms = SYS_HZ // 1000
+    erased = lambda at: None if at is None else f'FLASHOP {int((500 + at) * ms)} 216 e40000 0\n'
+    found = {at: tg.windowed(tg.observe(f'MARK {500 * ms} committing\n{erased(at) or ""}RESULT: PASS\n', SYS_HZ,
+                                        CPU_HZ)) for at in (128.4, 1030.0, 5.0, -20.0, None)}
+    return [("the commit's erase at its binding records' window passes; at the other records' 1,000 ms, at once, "
+             'before its changes or never it fails', not found[128.4] and all(found[k] for k in found if k != 128.4),
+             str(found))]
+
+
+class _Codec:
+    """The reference codec's decode, as committed() calls it: a verdict and the records, given."""
+
+    def __init__(self, verdict: int, applied: dict) -> None:
+        self.verdict, self.applied = verdict, applied
+
+    def decode(self, blob: bytes) -> tuple[int, dict]:
+        """The given verdict and records, whatever the blob."""
+        return self.verdict, self.applied
+
+
+def commit_checks() -> list[Check]:
+    """The commit (tg.committed): one erase and the container's pages, a journal that decodes with the saved name and
+    sink 0's binding; another count of writes, a journal that does not decode, or one without either value fails."""
+    journal = bytearray(64)
+    struct.pack_into('<I', journal, 16, 64)
+    ctx = tg.Context(CPU_HZ, 2, 2, b'', bytes(journal), {}, ORDER)
+    talker = tg.scenario.TALKER_A.to_bytes(8, 'big')
+    held = {('NAME', 0): cases.SAVED_NAME, ('BINDING', 0): b'\x03\x00\x00\x01' + talker}
+    obs = lambda erases: tg.observe(f'FLASH erases={erases} programs=2 bytes=512\nRESULT: PASS\n', SYS_HZ, CPU_HZ)
+    found = dict(good=tg.committed(obs(1), ctx, _Codec(0, held)), twice=tg.committed(obs(2), ctx, _Codec(0, held)),
+                 undecoded=tg.committed(obs(1), ctx, _Codec(3, held)),
+                 unnamed=tg.committed(obs(1), ctx, _Codec(0, {('BINDING', 0): held[('BINDING', 0)]})),
+                 unbound=tg.committed(obs(1), ctx, _Codec(0, {('NAME', 0): cases.SAVED_NAME})))
+    return [("the commit is one erase and its pages, its journal decoding with the saved name and sink 0's binding",
+             not found['good'] and all(found[k] for k in found if k != 'good'), str(found))]
+
+
 def checks() -> list[Check]:
     """Every check."""
     return [*capture_checks(), *t_svc_checks(), *report_checks(), *clock_checks(), *reused_checks(), *order_checks(),
-            *answer_checks(), *journal_checks(), *plant_checks(), *control_checks(), *d5_checks()]
+            *answer_checks(), *journal_checks(), *plant_checks(), *control_checks(), *d5_checks(), *window_checks(),
+            *commit_checks()]
 
 
 @contextlib.contextmanager
@@ -682,6 +723,17 @@ MUTANTS: tuple[tuple[str, object, str, object, str], ...] = (
      'refuse removes a pair already written and leaves its refusal alone'),
     ('reuse: the refused record written as results.json', RUN, 'refuse', _refusal_as_results,
      'a success, then results misconverted in the same directory: the refusal alone, no table or results left'),
+    ("window: the commit's erase not timed", tg, 'windowed', lambda obs: [],
+     "the commit's erase at its binding records' window passes; at the other records' 1,000 ms, at once, before its "
+     'changes or never it fails'),
+    ("window: the other records' 1,000 ms window passes", tg, 'window_bounds', lambda: (50.0, 1100.0),
+     "the commit's erase at its binding records' window passes; at the other records' 1,000 ms, at once, before its "
+     'changes or never it fails'),
+    ('window: an erase at once passes', tg, 'window_bounds', lambda: (0.0, 500.0),
+     "the commit's erase at its binding records' window passes; at the other records' 1,000 ms, at once, before its "
+     'changes or never it fails'),
+    ('commit: its writes not counted', tg, 'committed', lambda obs, ctx, bench: [],
+     "the commit is one erase and its pages, its journal decoding with the saved name and sink 0's binding"),
     ('the current flash writer: its 24.5 ms check removed from its grader', SELF, 'shipping_source',
      _shipping_check_removed,
      "the current flash writer's capture is held to 24.5 ms: exactly 24.5 ms passes, one system tick more is "

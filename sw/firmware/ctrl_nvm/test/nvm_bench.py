@@ -70,7 +70,7 @@ class Binary:
 RIG = ("nvm_rig.cpp", "nvm_suite.cpp")
 #: Every shape: the boot and write paths, the codec and the extra store paths.
 SUITE = Binary("suite", (*RIG, "test_nvm_boot.cpp", "test_nvm_write.cpp", "test_nvm_codec.cpp", "test_nvm_more.cpp",
-                         "test_nvm_flashmock.cpp"))
+                         "test_nvm_flashmock.cpp", "test_nvm_window.cpp"))
 #: The shapes tb/verilator/nvm_backend records a vector of, under its identity.
 VECTOR = Binary("vector", (*RIG, "test_nvm_vector.cpp"), vector=True)
 #: The shipping 1x1 shape only: two doctored builds (a map the codec's byte

@@ -39,6 +39,7 @@ import run
 import save_grade
 import save_window
 import scenario
+import selftest_mutants_bind
 import selftest_mutants_burst
 import selftest_mutants_mrp
 import shape_costs
@@ -468,6 +469,7 @@ def _reuse_unchecked() -> Patches:
 
 MUTANTS: dict[str, Patches] = {
     **selftest_mutants_burst.MUTANTS,
+    **selftest_mutants_bind.MUTANTS,
     'marker: the frame tag is ignored': _start_with(_tag_ignored),
     'marker: a timer path starts when its record is posted': _start_with(_timer_posted),
     'marker: a timer path starts one millisecond after its deadline': _start_with(_timer_late),

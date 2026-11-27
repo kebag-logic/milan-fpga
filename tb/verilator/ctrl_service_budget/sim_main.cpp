@@ -86,7 +86,21 @@ struct Step { std::string op; std::vector<std::string> args; };
 
 class Bench {
 public:
-    Bench(const char* script, const char* flash_image) : flash_(0, 0) {
+    // The part's erase and page-program times (part 0, 1), in bus cycles, from BUDGET_FLASH_US "erase:program" in
+    // microseconds, which run.py sets for a group that declares them (bind_save.py); without it a save is the CPU's
+    // and the loop's own work. The SUMMARY line records them.
+    static std::uint64_t flash_cycles(unsigned part) {
+        const char* text = std::getenv("BUDGET_FLASH_US");
+        if (text == nullptr) return 0;
+        unsigned long erase = 0;
+        unsigned long program = 0;
+        char rest = 0;
+        if (std::sscanf(text, "%lu:%lu%c", &erase, &program, &rest) != 2)
+            throw std::runtime_error("BUDGET_FLASH_US is erase:program in microseconds");
+        return (part == 0 ? erase : program) * (sys_hz / 1000000);
+    }
+
+    Bench(const char* script, const char* flash_image) : flash_(flash_cycles(0), flash_cycles(1)) {
         // The store's journal is the flash map's (budget_config.hpp), the KLJ3 journal at the split placement
         // (#823): the device refuses a write outside it, and its reads are the FLASHRD runs below.
         flash_.journal(journal_offset, journal_size);
@@ -182,6 +196,7 @@ public:
         std::string text = "SUMMARY";
         text += " sys=" + std::to_string(sys_) + " cpu=" + std::to_string(cpu_) + " passes=" + std::to_string(passes_);
         text += " instr=" + std::to_string(instr_) + " bus_errors=" + std::to_string(bus_errors_) + " traps=" + std::to_string(traps_);
+        text += " flash_erase=" + std::to_string(flash_cycles(0)) + " flash_program=" + std::to_string(flash_cycles(1));
         text += mbx_read_.text("mbx_read") + mbx_write_.text("mbx_write");
         text += host_.text("host_cycles");
         for (unsigned r = 0; r < N_REGIONS; ++r) {
@@ -280,7 +295,8 @@ private:
     // FLASHRD line for each run of reads, each starting inside the span the run has read and within read_gap
     // cycles of its last (the uncached window reads a word for each byte load): a read-back step's 128 bytes,
     // a boot judgement's slot. A save's read-backs are so seen though their passes write nothing to the
-    // mailbox (save_window.py).
+    // mailbox (save_window.py). An erase or a page program ends the run before it (flash_sample), so no line's
+    // reads come from both sides of a write and the lines keep the order the device saw (save_grade.in_order).
     void flash_closed() {
         const auto command = flash_.command();
         const auto address = flash_.address();
@@ -310,6 +326,8 @@ private:
             const auto programmed = flash_.programmed_bytes;
             const auto op = flash_.deselect(sys_);
             if (op) {
+                flush_reads();
+                read_start_ = read_next_ = ~0u;
                 const auto bytes = flash_.programmed_bytes - programmed;
                 std::printf("FLASHOP %llu %u %06x %u\n", ull(sys_), op, address, bytes);
                 flash_write_at_ = sys_;
@@ -434,7 +452,10 @@ private:
             if (last_pc_ == span_pc[s]) open = {true, prev_pc + 4u, sys_, cpu_};
         }
         for (unsigned c = 0; c < n_calls; ++c)
-            if (last_pc_ == call_pc[c]) std::printf("CALL %llu %llu %s\n", ull(sys_), ull(cpu_), call_name[c]);
+            if (last_pc_ == call_pc[c]) {
+                ++calls_[c];
+                std::printf("CALL %llu %llu %s\n", ull(sys_), ull(cpu_), call_name[c]);
+            }
     }
 
     // The MRP participants' registry (#665, PR #934): lwSRP's three timers of a participant share one argument,
@@ -597,6 +618,13 @@ private:
             if (kind == "idle") return flash_.programs > 0 && sys_ - flash_write_at_ >= n;
             throw std::runtime_error("unknown flash wait " + kind);
         }
+        // call <function> <n>: n entries of a CALL line's function since the wait began: a save's seal, its read-backs
+        // (bind_save.py's arrivals).
+        if (s.op == "call") {
+            for (unsigned c = 0; c < n_calls; ++c)
+                if (s.args.at(0) == call_name[c]) return calls_[c] - calls_mark_[c] >= std::stoull(s.args.at(1));
+            throw std::runtime_error("unknown call " + s.args.at(0));
+        }
         throw std::runtime_error("unknown wait " + s.op);
     }
 
@@ -647,6 +675,7 @@ private:
                     wire_mark_ = wire_frames_;
                     steps_mark_ = step_passes_;
                     ticks_mark_ = centiseconds_;
+                    calls_mark_ = calls_;
                     quiet_run_ = 0;
                 }
                 std::vector<std::string> args(s.args.begin() + 1, s.args.end());
@@ -747,6 +776,8 @@ private:
     std::map<std::uint32_t, std::string> owners_;
     struct OpenSpan { bool active; std::uint32_t ret; std::uint64_t sys, cpu; };
     std::array<OpenSpan, n_spans> spans_{};
+    std::array<std::uint64_t, n_calls> calls_{};       // the entries of each CALL line's function
+    std::array<std::uint64_t, n_calls> calls_mark_{};  // and their count when the running wait began
     unsigned module_ = n_modules;
     std::array<std::uint64_t, n_modules + 1> module_total_{};
     // An optional trace of committed PCs from the first commit at trace_from (a debugging aid).
