@@ -1,10 +1,8 @@
 #!/usr/bin/env python3
 r"""Balance the physical serial inventory and the case-partitioned CI inventory.
 
-The serial sweep still discovers every Makefile and excludes only the scheduled
-physical gPTP suite. CI expands eight registered parents into driver-owned case
-partitions. Only leg counts and measured duration estimates are registered here;
-the case names come from each driver, and executed receipts prove their union.
+The serial sweep discovers every Makefile except the scheduled physical gPTP suite.
+CI partitions eight parents; driver-owned cases and executed receipts prove their union.
 
 Longest-first scheduling balances the regular workers (#781, #799, #998); the tsn-gen owner stays at worker 1 and
 the netlist owner at worker 3. Leg A, one continuous media-clock history, runs alone on the final worker under #737's
@@ -18,8 +16,7 @@ hide a new suite by omitting it from selection. A changed count or timeout is re
 from the generated workflow, and omission, ownership, overflow and deterministic
 selection controls must still pass.
 
-    python3 scripts/suite_shards.py --suite-root tb/verilator --ci-pieces --shard 0/27
-    python3 scripts/suite_shards.py --measure worker.log
+    python3 scripts/suite_shards.py --suite-root tb/verilator --ci-pieces --shard 0/29
     python3 scripts/suite_shards.py --selftest
 """
 
@@ -57,8 +54,7 @@ HEADROOM_PERCENT = 60
 CI_BUDGET_SECONDS = int(30 * 60 / 1.41)
 
 #: The tree this file belongs to, and the three things its head arms read.
-HERE = Path(__file__).resolve()
-ROOT = HERE.parents[1]
+ROOT = Path(__file__).resolve().parents[1]
 WORKFLOW = ROOT / ".github" / "workflows" / "rtl.yml"
 SUITE_ROOT = ROOT / "tb" / "verilator"
 DRIVER = ROOT / "scripts" / "run_all_suites.sh"
@@ -151,7 +147,8 @@ SUITE_SECONDS = {
 
 #: Suites whose SUITE_SECONDS figure is provisional: the wall clock the driver's suite_timeout gives a new suite,
 #: until the change's own hosted run measures it (step 3 of the module docstring's new-suite steps).
-PROVISIONAL_SUITES: frozenset[str] = frozenset({"input_loopback", "input_loopback_dp", "reboot_ctrl", "usbaudio", "usbnet"})
+PROVISIONAL_SUITES: frozenset[str] = frozenset(
+    {"input_loopback", "input_loopback_dp", "reboot_ctrl", "usbaudio", "usbnet"})
 
 #: Seconds of each worker's job outside its suite windows in the same dev run: checkout, the Verilator cache, tsn-gen
 #: on worker 1, Yosys and sv2v on worker 3, the ownership step and the sweep's preflight self-tests, then the tally.
