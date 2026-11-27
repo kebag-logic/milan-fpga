@@ -954,7 +954,9 @@ def ceiling_checks() -> list[tuple[str, bool, str]]:
     escaped = controls(ROOT) + period_controls(ROOT)
     names = (*CONTROLS, *(f'the period {name} not read' for name in PERIODS))
     return [(f'the load gate refuses {name}', name not in escaped, 'escaped' if name in escaped else 'refused')
-            for name in names] + flip_grade.flip_checks() + record_classes.checks()
+            for name in names] + [(f'the load gate names every escape it returns: {name}', False, 'escaped, unnamed')
+                                  for name in escaped if name not in names] + \
+        flip_grade.flip_checks() + record_classes.checks()
 
 
 def main() -> int:

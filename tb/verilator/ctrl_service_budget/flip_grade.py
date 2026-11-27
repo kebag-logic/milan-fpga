@@ -64,6 +64,13 @@ ROOT = load_grade.ROOT
 #: 0.77 (#894's shape ruling, item (b), at 0.75; raised to 0.76 by #977's owner decision of 2026-11-25, and to
 #: 0.77 by its owner decision of 2026-11-27, for the registration cost its swap record states by the rule).
 FLIP = {'8x8/2if': 0.70, '8x8/1if': 0.77}
+#: The ceilings the flip check is ruled to hold (a control refuses FLIP at any other), and at 8x8/1if a load within its
+#: ceiling and one over it; each control's name is built from them, so controls() and CONTROLS name it alike.
+RULED_FLIP = {'8x8/2if': 0.70, '8x8/1if': 0.77}
+EDGE_1IF = (0.761, 0.771)
+CEILINGS_CONTROL = (f"the flip ceilings not {RULED_FLIP['8x8/2if']:.2f} at 8x8/2if and {RULED_FLIP['8x8/1if']:.2f} "
+                    "at 8x8/1if")
+EDGE_CONTROL = f'8x8/1if: {EDGE_1IF[0]:.3f} refused or {EDGE_1IF[1]:.3f} passed'
 #: The points the flip check names: the rows' (rows_grade.POINTS) and 8x8/1if, whose rows by every source are reported
 #: apart, owed to #872 (REPORTED), and whose measured rows the CPU budget harness holds.
 POINTS = (*rows_grade.POINTS, '8x8/1if')
@@ -191,12 +198,11 @@ def controls(root: Path) -> list[str]:
         escaped.append('a stated cost missing')
     # the held point and its ceiling (#665: the 0.70 long-window ceiling, option D), read at the pin (#665, #890:
     # item 6), never on the graded column
-    if FLIP != {'8x8/2if': 0.70, '8x8/1if': 0.77}:
-        escaped.append('the flip ceilings not 0.70 at 8x8/2if and 0.77 at 8x8/1if')
-    # 8x8/1if's ceiling at #977's owner decision of 2026-11-27: a load of 0.761, over the 0.76 before it, passes,
-    # and one of 0.771 fails
-    if over(0.761, FLIP['8x8/1if']) or not over(0.771, FLIP['8x8/1if']):
-        escaped.append('8x8/1if: 0.761 refused or 0.771 passed')
+    if FLIP != RULED_FLIP:
+        escaped.append(CEILINGS_CONTROL)
+    # 8x8/1if's ceiling: a load at the edge within it passes, and one over it fails
+    if over(EDGE_1IF[0], FLIP['8x8/1if']) or not over(EDGE_1IF[1], FLIP['8x8/1if']):
+        escaped.append(EDGE_CONTROL)
     if COLUMN is not load_grade.STATED_US:
         escaped.append('the graded column read, not the pin')
     # ctrl_loop.h's table of shapes, which the flip check holds at every point (#894's shape ruling,
@@ -416,8 +422,7 @@ def rule_controls(root: Path) -> list[str]:
 
 #: The planted defects controls() plants, in its order: the load's, then the rows'.
 CONTROLS = ('an over-ceiling row', 'a row within its ceiling', 'a cost raised over the ceiling',
-            'a stated cost missing', 'the flip ceilings not 0.70 at 8x8/2if and 0.77 at 8x8/1if',
-            '8x8/1if: 0.761 refused or 0.771 passed',
+            'a stated cost missing', CEILINGS_CONTROL, EDGE_CONTROL,
             'the graded column read, not the pin', 'an over-ceiling row at 8x8/1if',
             'a row within its ceiling at 8x8/1if', *(f'the table of shapes: {name}' for name in shape_costs.CONTROLS),
             *TX_HELD_CONTROLS, CHECK_HELD_CONTROL)
@@ -452,8 +457,10 @@ RULE_CONTROLS = ('the arrival rules not held at this head', 'the retained retry 
 def flip_checks() -> list[tuple[str, bool, str]]:
     """The harness self-test's checks of the flip check: every planted defect refused."""
     escaped = controls(ROOT)
+    names = (*CONTROLS, *row_control_names(ROOT), *built_control_names(ROOT))
     return [(f'the flip check refuses {name}', name not in escaped, 'escaped' if name in escaped else 'refused')
-            for name in (*CONTROLS, *row_control_names(ROOT), *built_control_names(ROOT))]
+            for name in names] + [(f'the flip check names every escape it returns: {name}', False, 'escaped, unnamed')
+                                  for name in escaped if name not in names]
 
 
 def main() -> int:
