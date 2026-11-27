@@ -1,0 +1,27 @@
+[
+  {
+    "job": "quality",
+    "argv": [
+      "/usr/bin/python3",
+      "scripts/validate.py",
+      "--work",
+      "<scratch>/quality",
+      "--jobs",
+      "3",
+      "--graphs"
+    ],
+    "rc": 0
+  },
+  {
+    "job": "rv32",
+    "argv": [
+      "/usr/bin/python3",
+      "scripts/baremetal.py",
+      "--work",
+      "<scratch>/rv32",
+      "--jobs",
+      "3"
+    ],
+    "rc": 0
+  }
+]

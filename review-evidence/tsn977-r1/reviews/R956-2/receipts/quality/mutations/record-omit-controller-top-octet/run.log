@@ -1,0 +1,38 @@
+Note: Google Test filter = AcmpCore.P2RebindChangingOnlyTheControllerTopOctetIsSaved
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from AcmpCore
+[ RUN      ] AcmpCore.P2RebindChangingOnlyTheControllerTopOctetIsSaved
+<scratch>/quality/mutations/baseline/tests/test_acmp.cpp:565: Failure
+Expected equality of these values:
+  fk.count(Call::PERSIST)
+    Which is: 0
+  1u
+    Which is: 1
+
+TSN_MESSAGE_BEGIN_95ee9184e0ea344805d4575bfb2190e7
+P2 a rebind changing only the controller ID's top octet is saved
+TSN_MESSAGE_END_767f04b5c0511b77aee1435e4e2aa0b7
+
+
+<scratch>/quality/mutations/baseline/tests/test_acmp.cpp:566: Failure
+Expected equality of these values:
+  std::memcmp(a.sinks[0].saved, latch, spec::BINDING_BYTES)
+    Which is: -2
+  0
+
+TSN_MESSAGE_BEGIN_95ee9184e0ea344805d4575bfb2190e7
+P2 the saved record then holds the new controller ID's top octet
+TSN_MESSAGE_END_767f04b5c0511b77aee1435e4e2aa0b7
+
+
+[  FAILED  ] AcmpCore.P2RebindChangingOnlyTheControllerTopOctetIsSaved (0 ms)
+[----------] 1 test from AcmpCore (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] AcmpCore.P2RebindChangingOnlyTheControllerTopOctetIsSaved
+
+ 1 FAILED TEST

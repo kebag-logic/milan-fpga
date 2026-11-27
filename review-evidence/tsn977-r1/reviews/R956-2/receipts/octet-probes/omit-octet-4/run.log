@@ -1,0 +1,25 @@
+Note: Google Test filter = AcmpCore.P4EachIdOctetChangedAloneIsSaved
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from AcmpCore
+[ RUN      ] AcmpCore.P4EachIdOctetChangedAloneIsSaved
+<scratch>/quality/mutations/baseline/tests/test_acmp.cpp:601: Failure
+Value of: fk.count(Call::PERSIST) == 1u && std::memcmp(a.sinks[0].saved, latch, spec::BINDING_BYTES) == 0
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_95ee9184e0ea344805d4575bfb2190e7
+P4 a rebind changing one octet of the record's IDs alone is saved, record octet 4
+TSN_MESSAGE_END_767f04b5c0511b77aee1435e4e2aa0b7
+
+
+[  FAILED  ] AcmpCore.P4EachIdOctetChangedAloneIsSaved (0 ms)
+[----------] 1 test from AcmpCore (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] AcmpCore.P4EachIdOctetChangedAloneIsSaved
+
+ 1 FAILED TEST

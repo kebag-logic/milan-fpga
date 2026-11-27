@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="1" failures="1" disabled="0" errors="0" time="0." timestamp="2026-11-27T09:01:37.825" name="AllTests">
+  <testsuite name="AcmpCore" tests="1" failures="1" disabled="0" skipped="0" errors="0" time="0." timestamp="2026-11-27T09:01:37.825">
+    <testcase name="P2RebindChangingOnlyTheControllerTopOctetIsSaved" file="<scratch>/quality/mutations/baseline/tests/test_acmp.cpp" line="559" status="run" result="completed" time="0." timestamp="2026-11-27T09:01:37.825" classname="AcmpCore">
+      <failure message="<scratch>/quality/mutations/baseline/tests/test_acmp.cpp:565&#x0A;Expected equality of these values:&#x0A;  fk.count(Call::PERSIST)&#x0A;    Which is: 0&#x0A;  1u&#x0A;    Which is: 1&#x0A;&#x0A;TSN_MESSAGE_BEGIN_95ee9184e0ea344805d4575bfb2190e7&#x0A;P2 a rebind changing only the controller ID&apos;s top octet is saved&#x0A;TSN_MESSAGE_END_767f04b5c0511b77aee1435e4e2aa0b7&#x0A;&#x0A;" type=""><![CDATA[<scratch>/quality/mutations/baseline/tests/test_acmp.cpp:565
+Expected equality of these values:
+  fk.count(Call::PERSIST)
+    Which is: 0
+  1u
+    Which is: 1
+
+TSN_MESSAGE_BEGIN_95ee9184e0ea344805d4575bfb2190e7
+P2 a rebind changing only the controller ID's top octet is saved
+TSN_MESSAGE_END_767f04b5c0511b77aee1435e4e2aa0b7
+
+]]></failure>
+      <failure message="<scratch>/quality/mutations/baseline/tests/test_acmp.cpp:566&#x0A;Expected equality of these values:&#x0A;  std::memcmp(a.sinks[0].saved, latch, spec::BINDING_BYTES)&#x0A;    Which is: -2&#x0A;  0&#x0A;&#x0A;TSN_MESSAGE_BEGIN_95ee9184e0ea344805d4575bfb2190e7&#x0A;P2 the saved record then holds the new controller ID&apos;s top octet&#x0A;TSN_MESSAGE_END_767f04b5c0511b77aee1435e4e2aa0b7&#x0A;&#x0A;" type=""><![CDATA[<scratch>/quality/mutations/baseline/tests/test_acmp.cpp:566
+Expected equality of these values:
+  std::memcmp(a.sinks[0].saved, latch, spec::BINDING_BYTES)
+    Which is: -2
+  0
+
+TSN_MESSAGE_BEGIN_95ee9184e0ea344805d4575bfb2190e7
+P2 the saved record then holds the new controller ID's top octet
+TSN_MESSAGE_END_767f04b5c0511b77aee1435e4e2aa0b7
+
+]]></failure>
+    </testcase>
+  </testsuite>
+</testsuites>

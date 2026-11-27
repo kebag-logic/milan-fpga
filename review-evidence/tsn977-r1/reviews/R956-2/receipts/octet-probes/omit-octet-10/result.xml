@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="1" failures="1" disabled="0" errors="0" time="0." timestamp="2026-11-27T09:01:26.823" name="AllTests">
+  <testsuite name="AcmpCore" tests="1" failures="1" disabled="0" skipped="0" errors="0" time="0." timestamp="2026-11-27T09:01:26.823">
+    <testcase name="P4EachIdOctetChangedAloneIsSaved" file="<scratch>/quality/mutations/baseline/tests/test_acmp.cpp" line="583" status="run" result="completed" time="0." timestamp="2026-11-27T09:01:26.823" classname="AcmpCore">
+      <failure message="<scratch>/quality/mutations/baseline/tests/test_acmp.cpp:601&#x0A;Value of: fk.count(Call::PERSIST) == 1u &amp;&amp; std::memcmp(a.sinks[0].saved, latch, spec::BINDING_BYTES) == 0&#x0A;  Actual: false&#x0A;Expected: true&#x0A;&#x0A;TSN_MESSAGE_BEGIN_95ee9184e0ea344805d4575bfb2190e7&#x0A;P4 a rebind changing one octet of the record&apos;s IDs alone is saved, record octet 10&#x0A;TSN_MESSAGE_END_767f04b5c0511b77aee1435e4e2aa0b7&#x0A;&#x0A;" type=""><![CDATA[<scratch>/quality/mutations/baseline/tests/test_acmp.cpp:601
+Value of: fk.count(Call::PERSIST) == 1u && std::memcmp(a.sinks[0].saved, latch, spec::BINDING_BYTES) == 0
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_95ee9184e0ea344805d4575bfb2190e7
+P4 a rebind changing one octet of the record's IDs alone is saved, record octet 10
+TSN_MESSAGE_END_767f04b5c0511b77aee1435e4e2aa0b7
+
+]]></failure>
+    </testcase>
+  </testsuite>
+</testsuites>
