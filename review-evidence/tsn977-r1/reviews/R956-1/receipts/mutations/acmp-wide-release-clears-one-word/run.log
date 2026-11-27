@@ -1,0 +1,35 @@
+Note: Google Test filter = AcmpWide.ProbeInTheSlotOfSinkThirtyTwosResponseHoldsNoSink:AcmpWide.ProbeInTheSlotOfSinkThirtyTwosResponseHoldsNoSink
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from AcmpWide
+[ RUN      ] AcmpWide.ProbeInTheSlotOfSinkThirtyTwosResponseHoldsNoSink
+<PACKET>/scratch/mutations/baseline/tests/test_acmp_wide.cpp:189: Failure
+Value of: !acmp_change_pending(&a, kLast) && owed_changes() == 3u
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+W5 the probe in that slot holds no sink: sink 32 is free, and sinks 1 to 3 each wait for their own response
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+<PACKET>/scratch/mutations/baseline/tests/test_acmp_wide.cpp:192: Failure
+Value of: acmp_set_started(&a, kLast, false) && fk.count(Call::CHANGED) == 1u && changed_sink(0) == kLast
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+W5 a change of sink 32 is reported at once
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+[  FAILED  ] AcmpWide.ProbeInTheSlotOfSinkThirtyTwosResponseHoldsNoSink (0 ms)
+[----------] 1 test from AcmpWide (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] AcmpWide.ProbeInTheSlotOfSinkThirtyTwosResponseHoldsNoSink
+
+ 1 FAILED TEST

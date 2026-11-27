@@ -1,0 +1,47 @@
+Note: Google Test filter = AcmpWide.SinksThirtyOneAndThirtyTwoWaitOnlyForTheirOwnResponses
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from AcmpWide
+[ RUN      ] AcmpWide.SinksThirtyOneAndThirtyTwoWaitOnlyForTheirOwnResponses
+<PACKET>/scratch/mutations/baseline/tests/test_acmp_wide.cpp:143: Failure
+Value of: acmp_change_pending(&a, kWordEnd) && a.sinks[kWordEnd].change_owed == 1u && owed_changes() == 1u
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+W3 sink 31's change waits behind its own owed response, and no other sink's does
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+<PACKET>/scratch/mutations/baseline/tests/test_acmp_wide.cpp:146: Failure
+Value of: a.sinks[kWordEnd].change_owed == 1u && a.sinks[kLast].change_owed == 1u && owed_changes() == 2u
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+W3 with both bound, sinks 31 and 32 each wait behind one owed response, their own
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+<PACKET>/scratch/mutations/baseline/tests/test_acmp_wide.cpp:151: Failure
+Expected equality of these values:
+  fk.count(Call::CHANGED)
+    Which is: 0
+  1u
+    Which is: 1
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+W3 sink 31's response left: one change is reported
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+[  FAILED  ] AcmpWide.SinksThirtyOneAndThirtyTwoWaitOnlyForTheirOwnResponses (0 ms)
+[----------] 1 test from AcmpWide (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] AcmpWide.SinksThirtyOneAndThirtyTwoWaitOnlyForTheirOwnResponses
+
+ 1 FAILED TEST

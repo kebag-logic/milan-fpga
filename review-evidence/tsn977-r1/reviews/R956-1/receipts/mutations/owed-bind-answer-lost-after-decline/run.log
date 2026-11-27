@@ -1,0 +1,48 @@
+Note: Google Test filter = AcmpOwed.DeclinedBindIsAnsweredAfterTheHold:AcmpOwed.DeferredBindWaitsForTwoSlotsAndLosesNoProbe
+[==========] Running 2 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 2 tests from AcmpOwed
+[ RUN      ] AcmpOwed.DeclinedBindIsAnsweredAfterTheHold
+<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:2943: Failure
+Value of: s != nullptr
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+the BIND_RX behind the owed set is answered after the egress returns
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+[  FAILED  ] AcmpOwed.DeclinedBindIsAnsweredAfterTheHold (0 ms)
+[ RUN      ] AcmpOwed.DeferredBindWaitsForTwoSlotsAndLosesNoProbe
+<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3015: Failure
+Value of: held.empty() && a.owed_count == 8u && a.sinks[1].bound
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+with two free owed slots the BIND_RX is taken, and its answer and probe are both owed
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3020: Failure
+Value of: s != nullptr
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+the deferred BIND_RX is answered
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+[  FAILED  ] AcmpOwed.DeferredBindWaitsForTwoSlotsAndLosesNoProbe (0 ms)
+[----------] 2 tests from AcmpOwed (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 2 tests from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 2 tests, listed below:
+[  FAILED  ] AcmpOwed.DeclinedBindIsAnsweredAfterTheHold
+[  FAILED  ] AcmpOwed.DeferredBindWaitsForTwoSlotsAndLosesNoProbe
+
+ 2 FAILED TESTS

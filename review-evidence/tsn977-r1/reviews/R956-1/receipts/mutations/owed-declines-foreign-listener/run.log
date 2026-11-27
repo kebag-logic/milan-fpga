@@ -1,0 +1,35 @@
+Note: Google Test filter = AcmpOwed.OnlyOwnCommandsAreDeclined
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from AcmpOwed
+[ RUN      ] AcmpOwed.OnlyOwnCommandsAreDeclined
+<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:2919: Failure
+Value of: take(other_listener)
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+a listener command for another entity is taken and ignored
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:2925: Failure
+Value of: a.busy_declined == 0u && a.rx_malformed == 1u && a.rx_ignored == 3u
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+frames without an owed answer are never declined
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+[  FAILED  ] AcmpOwed.OnlyOwnCommandsAreDeclined (0 ms)
+[----------] 1 test from AcmpOwed (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] AcmpOwed.OnlyOwnCommandsAreDeclined
+
+ 1 FAILED TEST

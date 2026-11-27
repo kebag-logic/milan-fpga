@@ -1,0 +1,51 @@
+Note: Google Test filter = AcmpOwed.HoldEndsWithTheLastHeldProbe:AcmpOwed.BindDeclinedBehindTheFullSetHoldsNoProbe:AcmpOwed.BindToAnotherTalkerEndsTheHoldOfTheProbeItReplaces
+[==========] Running 3 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 3 tests from AcmpOwed
+[ RUN      ] AcmpOwed.HoldEndsWithTheLastHeldProbe
+<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3142: Failure
+Value of: a.probes_lost == 1u && a.probes_held == 1u && !a.sinks[1].probe_held && a.sinks[1].state == ACMP_PRB_W_RESP2
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+with no probe held and no BIND_RX waiting, a retry that finds every slot owed is lost and counted
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+[  FAILED  ] AcmpOwed.HoldEndsWithTheLastHeldProbe (0 ms)
+[ RUN      ] AcmpOwed.BindDeclinedBehindTheFullSetHoldsNoProbe
+<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3185: Failure
+Value of: !a.sinks[2].probe_held && a.probes_held == 0u && a.probes_lost == 1u && a.sinks[2].state == ACMP_PRB_W_RESP2 && a.sinks[2].timer == ACMP_TIMER_NO_RESP && a.sinks[2].timer_deadline == fk.now + spec::TMR_NO_RESP_MS
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+a retry falling due while a BIND_RX waits behind the full set is lost and counted, and its timeout runs
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+[  FAILED  ] AcmpOwed.BindDeclinedBehindTheFullSetHoldsNoProbe (0 ms)
+[ RUN      ] AcmpOwed.BindToAnotherTalkerEndsTheHoldOfTheProbeItReplaces
+<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3300: Failure
+Value of: a.probes_lost == 1u && !a.sinks[3].probe_held && a.sinks[3].state == ACMP_PRB_W_RESP2
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+with nothing held and no BIND_RX waiting, the next retry that finds every slot owed is lost
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+[  FAILED  ] AcmpOwed.BindToAnotherTalkerEndsTheHoldOfTheProbeItReplaces (0 ms)
+[----------] 3 tests from AcmpOwed (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 3 tests from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 3 tests, listed below:
+[  FAILED  ] AcmpOwed.HoldEndsWithTheLastHeldProbe
+[  FAILED  ] AcmpOwed.BindDeclinedBehindTheFullSetHoldsNoProbe
+[  FAILED  ] AcmpOwed.BindToAnotherTalkerEndsTheHoldOfTheProbeItReplaces
+
+ 3 FAILED TESTS

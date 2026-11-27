@@ -1,0 +1,52 @@
+Note: Google Test filter = AcmpOwed.ProbesFallingDueInTheDrainWaitForTheDeferredBind:AcmpOwed.HoldEndsWithTheLastHeldProbe:AcmpOwed.ProbesFallingDueInTheDrainWaitForTheDeferredBind
+[==========] Running 2 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 2 tests from AcmpOwed
+[ RUN      ] AcmpOwed.ProbesFallingDueInTheDrainWaitForTheDeferredBind
+<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:2737: Failure
+Expected equality of these values:
+  waiting_with_room
+    Which is: 7
+  0u
+    Which is: 0
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+while bind_waiting is set at most one owed slot is free
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3061: Failure
+Expected equality of these values:
+  fk.sent.size()
+    Which is: 10
+  8u + 2u + c.behind + others.size()
+    Which is: 11
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+the owed frames, the BIND_RX answer and its probe, and every held probe leave
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+[  FAILED  ] AcmpOwed.ProbesFallingDueInTheDrainWaitForTheDeferredBind (0 ms)
+[ RUN      ] AcmpOwed.HoldEndsWithTheLastHeldProbe
+<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3142: Failure
+Value of: a.probes_lost == 1u && a.probes_held == 1u && !a.sinks[1].probe_held && a.sinks[1].state == ACMP_PRB_W_RESP2
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+with no probe held and no BIND_RX waiting, a retry that finds every slot owed is lost and counted
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+[  FAILED  ] AcmpOwed.HoldEndsWithTheLastHeldProbe (0 ms)
+[----------] 2 tests from AcmpOwed (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 2 tests from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 2 tests, listed below:
+[  FAILED  ] AcmpOwed.ProbesFallingDueInTheDrainWaitForTheDeferredBind
+[  FAILED  ] AcmpOwed.HoldEndsWithTheLastHeldProbe
+
+ 2 FAILED TESTS

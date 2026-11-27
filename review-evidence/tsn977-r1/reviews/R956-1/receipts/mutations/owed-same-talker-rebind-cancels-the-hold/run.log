@@ -1,0 +1,25 @@
+Note: Google Test filter = AcmpOwed.SameTalkerRebindKeepsTheHeldProbe
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from AcmpOwed
+[ RUN      ] AcmpOwed.SameTalkerRebindKeepsTheHeldProbe
+<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3322: Failure
+Value of: held.empty() && a.sinks[2].binding.controller_entity_id == kCtl2 && !a.sinks[2].probe_held && a.sinks[2].state == ACMP_PRB_W_RESP2 && a.sinks[2].timer == ACMP_TIMER_NO_RESP && a.sinks[2].timer_held
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+a BIND_RX to the same talker keeps the held probe, which is owed once a slot is free
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+[  FAILED  ] AcmpOwed.SameTalkerRebindKeepsTheHeldProbe (0 ms)
+[----------] 1 test from AcmpOwed (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] AcmpOwed.SameTalkerRebindKeepsTheHeldProbe
+
+ 1 FAILED TEST

@@ -1,0 +1,38 @@
+Note: Google Test filter = AcmpCore.DepartingRetainsBindingAndReprobes:AcmpCore.AdpTimeoutRetainsBindingAndReprobes
+[==========] Running 2 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 2 tests from AcmpCore
+[ RUN      ] AcmpCore.DepartingRetainsBindingAndReprobes
+<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:181: Failure
+Value of: a.sinks[0].discovered && a.sinks[0].state == ACMP_PRB_W_DELAY && a.sinks[0].timer == ACMP_TIMER_DELAY
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+returning talker remains discoverable and starts a fresh probe delay
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+[  FAILED  ] AcmpCore.DepartingRetainsBindingAndReprobes (0 ms)
+[ RUN      ] AcmpCore.AdpTimeoutRetainsBindingAndReprobes
+<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:181: Failure
+Value of: a.sinks[0].discovered && a.sinks[0].state == ACMP_PRB_W_DELAY && a.sinks[0].timer == ACMP_TIMER_DELAY
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+returning talker remains discoverable and starts a fresh probe delay
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+[  FAILED  ] AcmpCore.AdpTimeoutRetainsBindingAndReprobes (0 ms)
+[----------] 2 tests from AcmpCore (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 2 tests from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 2 tests, listed below:
+[  FAILED  ] AcmpCore.DepartingRetainsBindingAndReprobes
+[  FAILED  ] AcmpCore.AdpTimeoutRetainsBindingAndReprobes
+
+ 2 FAILED TESTS

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="2" failures="2" disabled="0" errors="0" time="0." timestamp="2026-11-27T06:01:08.310" name="AllTests">
+  <testsuite name="AcmpWide" tests="2" failures="2" disabled="0" skipped="0" errors="0" time="0." timestamp="2026-11-27T06:01:08.310">
+    <testcase name="SinksThirtyOneAndThirtyTwoWaitOnlyForTheirOwnResponses" file="<PACKET>/scratch/mutations/baseline/tests/test_acmp_wide.cpp" line="140" status="run" result="completed" time="0." timestamp="2026-11-27T06:01:08.310" classname="AcmpWide">
+      <failure message="<PACKET>/scratch/mutations/baseline/tests/test_acmp_wide.cpp:151&#x0A;Expected equality of these values:&#x0A;  fk.count(Call::CHANGED)&#x0A;    Which is: 0&#x0A;  1u&#x0A;    Which is: 1&#x0A;&#x0A;TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8&#x0A;W3 sink 31&apos;s response left: one change is reported&#x0A;TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/mutations/baseline/tests/test_acmp_wide.cpp:151
+Expected equality of these values:
+  fk.count(Call::CHANGED)
+    Which is: 0
+  1u
+    Which is: 1
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+W3 sink 31's response left: one change is reported
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+]]></failure>
+    </testcase>
+    <testcase name="ProbeInTheSlotOfSinkThirtyOnesResponseHoldsNoSink" file="<PACKET>/scratch/mutations/baseline/tests/test_acmp_wide.cpp" line="170" status="run" result="completed" time="0." timestamp="2026-11-27T06:01:08.311" classname="AcmpWide">
+      <failure message="<PACKET>/scratch/mutations/baseline/tests/test_acmp_wide.cpp:174&#x0A;Value of: !acmp_change_pending(&amp;a, kWordEnd) &amp;&amp; owed_changes() == 3u&#x0A;  Actual: false&#x0A;Expected: true&#x0A;&#x0A;TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8&#x0A;W4 the probe in that slot holds no sink: sink 31 is free, and sinks 1 to 3 each wait for their own response&#x0A;TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/mutations/baseline/tests/test_acmp_wide.cpp:174
+Value of: !acmp_change_pending(&a, kWordEnd) && owed_changes() == 3u
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+W4 the probe in that slot holds no sink: sink 31 is free, and sinks 1 to 3 each wait for their own response
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+]]></failure>
+      <failure message="<PACKET>/scratch/mutations/baseline/tests/test_acmp_wide.cpp:177&#x0A;Value of: acmp_set_started(&amp;a, kWordEnd, false) &amp;&amp; fk.count(Call::CHANGED) == 1u &amp;&amp; changed_sink(0) == kWordEnd&#x0A;  Actual: false&#x0A;Expected: true&#x0A;&#x0A;TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8&#x0A;W4 a change of sink 31 is reported at once&#x0A;TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/mutations/baseline/tests/test_acmp_wide.cpp:177
+Value of: acmp_set_started(&a, kWordEnd, false) && fk.count(Call::CHANGED) == 1u && changed_sink(0) == kWordEnd
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+W4 a change of sink 31 is reported at once
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+]]></failure>
+      <failure message="<PACKET>/scratch/mutations/baseline/tests/test_acmp_wide.cpp:180&#x0A;Value of: a.owed_count == 0u &amp;&amp; owed_changes() == 0u&#x0A;  Actual: false&#x0A;Expected: true&#x0A;&#x0A;TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8&#x0A;W4 once every owed frame left, no sink is held: 1&#x0A;TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/mutations/baseline/tests/test_acmp_wide.cpp:180
+Value of: a.owed_count == 0u && owed_changes() == 0u
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+W4 once every owed frame left, no sink is held: 1
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+]]></failure>
+    </testcase>
+  </testsuite>
+</testsuites>

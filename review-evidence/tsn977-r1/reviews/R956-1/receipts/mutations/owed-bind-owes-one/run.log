@@ -1,0 +1,112 @@
+Note: Google Test filter = AcmpOwed.DeferredBindWaitsForTwoSlotsAndLosesNoProbe:AcmpOwed.ReadyPredicateMatchesTheOwedBound
+[==========] Running 2 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 2 tests from AcmpOwed
+[ RUN      ] AcmpOwed.ReadyPredicateMatchesTheOwedBound
+<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:2880: Failure
+Value of: acmp_rx_ready(&a)
+  Actual: true
+Expected: false
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+one free owed slot is not ready, since a BIND_RX needs two
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:2882: Failure
+Value of: acmp_rx(&a, 0, bind_rx.data(), bind_rx.size())
+  Actual: true
+Expected: false
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+a BIND_RX with one free owed slot is declined
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:2884: Failure
+Value of: a.busy_declined == 1u && !a.sinks[1].bound
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+the BIND_RX declined at one free slot binds nothing
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:2886: Failure
+Value of: acmp_rx(&a, 0, last_slot.data(), last_slot.size())
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+the command that takes the last owed slot is taken
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:2892: Failure
+Value of: acmp_rx_ready(&a)
+  Actual: true
+Expected: false
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+one accepted owed frame leaves one free slot, still not ready
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+[  FAILED  ] AcmpOwed.ReadyPredicateMatchesTheOwedBound (0 ms)
+[ RUN      ] AcmpOwed.DeferredBindWaitsForTwoSlotsAndLosesNoProbe
+<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3012: Failure
+Value of: held.size() == 1u && a.owed_count == 8u - 1u && a.busy_declined == 2u && !a.sinks[1].bound
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+with one free owed slot the BIND_RX is declined again
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3015: Failure
+Value of: held.empty() && a.owed_count == 8u && a.sinks[1].bound
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+with two free owed slots the BIND_RX is taken, and its answer and probe are both owed
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3018: Failure
+Expected equality of these values:
+  a.probes_lost
+    Which is: 1
+  0u
+    Which is: 0
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+a deferred binding loses no probe
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3022: Failure
+Expected equality of these values:
+  fk.sent.size()
+    Which is: 9
+  8u + 2u
+    Which is: 10
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+the owed frames, the BIND_RX answer and one probe leave
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+[  FAILED  ] AcmpOwed.DeferredBindWaitsForTwoSlotsAndLosesNoProbe (0 ms)
+[----------] 2 tests from AcmpOwed (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 2 tests from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 2 tests, listed below:
+[  FAILED  ] AcmpOwed.ReadyPredicateMatchesTheOwedBound
+[  FAILED  ] AcmpOwed.DeferredBindWaitsForTwoSlotsAndLosesNoProbe
+
+ 2 FAILED TESTS

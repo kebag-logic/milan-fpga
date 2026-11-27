@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="1" failures="1" disabled="0" errors="0" time="0." timestamp="2026-11-27T06:01:05.713" name="AllTests">
+  <testsuite name="AcmpCore" tests="1" failures="1" disabled="0" skipped="0" errors="0" time="0." timestamp="2026-11-27T06:01:05.713">
+    <testcase name="A31TheStartedLevelIsPublishedBeforeItIsPromised" file="<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp" line="2173" status="run" result="completed" time="0." timestamp="2026-11-27T06:01:05.713" classname="AcmpCore">
+      <failure message="<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:2182&#x0A;Value of: fk.pubs[0].bound &amp;&amp; fk.pubs[0].started &amp;&amp; !fk.pubs[0].moved &amp;&amp; fk.pubs[0].stream == 0u&#x0A;  Actual: false&#x0A;Expected: true&#x0A;&#x0A;TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8&#x0A;A31 started now, the stream not moved&#x0A;TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:2182
+Value of: fk.pubs[0].bound && fk.pubs[0].started && !fk.pubs[0].moved && fk.pubs[0].stream == 0u
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+A31 started now, the stream not moved
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+]]></failure>
+      <failure message="<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:2191&#x0A;Value of: fk.pubs[0].bound &amp;&amp; !fk.pubs[0].started &amp;&amp; fk.pubs[0].stream == kSid &amp;&amp; !fk.pubs[0].moved&#x0A;  Actual: false&#x0A;Expected: true&#x0A;&#x0A;TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8&#x0A;A31 stopped, the settled stream kept and not moved&#x0A;TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:2191
+Value of: fk.pubs[0].bound && !fk.pubs[0].started && fk.pubs[0].stream == kSid && !fk.pubs[0].moved
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+A31 stopped, the settled stream kept and not moved
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+]]></failure>
+      <failure message="<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:2201&#x0A;Value of: fk.pubs[0].started &amp;&amp; fk.pubs[0].stream == kSid &amp;&amp; !fk.pubs[0].moved&#x0A;  Actual: false&#x0A;Expected: true&#x0A;" type=""><![CDATA[<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:2201
+Value of: fk.pubs[0].started && fk.pubs[0].stream == kSid && !fk.pubs[0].moved
+  Actual: false
+Expected: true
+]]></failure>
+    </testcase>
+  </testsuite>
+</testsuites>

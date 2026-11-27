@@ -1,0 +1,67 @@
+Note: Google Test filter = AcmpOwed.DeclinedUnbindChangesNothingUntilItIsTaken
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from AcmpOwed
+[ RUN      ] AcmpOwed.DeclinedUnbindChangesNothingUntilItIsTaken
+<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:2854: Failure
+Value of: deliver(command(spec::MSG_UNBIND_RX_COMMAND, 1, kTkA, 1, kCtl1, 0, 0x7508))
+  Actual: true
+Expected: false
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+an UNBIND_RX behind the full owed set is declined
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:2856: Failure
+Value of: fk.calls.empty() && fk.pubs.empty()
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+the declined UNBIND_RX calls no port or environment service
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:2858: Failure
+Value of: unchanged_since(before)
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+the declined UNBIND_RX changes no instance state but its counter
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:2859: Failure
+Expected equality of these values:
+  a.busy_declined
+    Which is: 0
+  before.busy_declined + 1u
+    Which is: 1
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+the declined UNBIND_RX is counted once
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:2862: Failure
+Value of: s != nullptr
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+the UNBIND_RX behind the owed set is answered once it is taken
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+[  FAILED  ] AcmpOwed.DeclinedUnbindChangesNothingUntilItIsTaken (0 ms)
+[----------] 1 test from AcmpOwed (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] AcmpOwed.DeclinedUnbindChangesNothingUntilItIsTaken
+
+ 1 FAILED TEST

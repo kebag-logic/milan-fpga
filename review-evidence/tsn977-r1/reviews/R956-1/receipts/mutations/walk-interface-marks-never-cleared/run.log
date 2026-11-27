@@ -1,0 +1,72 @@
+Note: Google Test filter = AcmpWalk.EightSinksMatchTheFullWalk:AcmpWalk.OneSinkMatchesTheFullWalk:AcmpWalk.ThirtyThreeSinksMatchTheFullWalk:AcmpWalk.ThirtyTwoSinksMatchTheFullWalk
+[==========] Running 4 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 4 tests from AcmpWalk
+[ RUN      ] AcmpWalk.OneSinkMatchesTheFullWalk
+<PACKET>/scratch/mutations/baseline/tests/test_acmp_walk.cpp:345: Failure
+Expected equality of these values:
+  walked.a.dirty_if
+    Which is: 1
+  0u
+    Which is: 0
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+a completed entry leaves no interface marked, at step 2 of 1 sinks
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+[  FAILED  ] AcmpWalk.OneSinkMatchesTheFullWalk (0 ms)
+[ RUN      ] AcmpWalk.EightSinksMatchTheFullWalk
+<PACKET>/scratch/mutations/baseline/tests/test_acmp_walk.cpp:345: Failure
+Expected equality of these values:
+  walked.a.dirty_if
+    Which is: 2
+  0u
+    Which is: 0
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+a completed entry leaves no interface marked, at step 2 of 8 sinks
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+[  FAILED  ] AcmpWalk.EightSinksMatchTheFullWalk (0 ms)
+[ RUN      ] AcmpWalk.ThirtyTwoSinksMatchTheFullWalk
+<PACKET>/scratch/mutations/baseline/tests/test_acmp_walk.cpp:345: Failure
+Expected equality of these values:
+  walked.a.dirty_if
+    Which is: 1
+  0u
+    Which is: 0
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+a completed entry leaves no interface marked, at step 2 of 32 sinks
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+[  FAILED  ] AcmpWalk.ThirtyTwoSinksMatchTheFullWalk (0 ms)
+[ RUN      ] AcmpWalk.ThirtyThreeSinksMatchTheFullWalk
+<PACKET>/scratch/mutations/baseline/tests/test_acmp_walk.cpp:345: Failure
+Expected equality of these values:
+  walked.a.dirty_if
+    Which is: 1
+  0u
+    Which is: 0
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+a completed entry leaves no interface marked, at step 4 of 33 sinks
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+[  FAILED  ] AcmpWalk.ThirtyThreeSinksMatchTheFullWalk (0 ms)
+[----------] 4 tests from AcmpWalk (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 4 tests from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 4 tests, listed below:
+[  FAILED  ] AcmpWalk.OneSinkMatchesTheFullWalk
+[  FAILED  ] AcmpWalk.EightSinksMatchTheFullWalk
+[  FAILED  ] AcmpWalk.ThirtyTwoSinksMatchTheFullWalk
+[  FAILED  ] AcmpWalk.ThirtyThreeSinksMatchTheFullWalk
+
+ 4 FAILED TESTS

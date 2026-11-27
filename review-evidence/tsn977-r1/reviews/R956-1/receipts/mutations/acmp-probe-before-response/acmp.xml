@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="2" failures="2" disabled="0" errors="0" time="0." timestamp="2026-11-27T06:00:47.550" name="AllTests">
+  <testsuite name="AcmpCore" tests="1" failures="1" disabled="0" skipped="0" errors="0" time="0." timestamp="2026-11-27T06:00:47.550">
+    <testcase name="A1BindFromUnboundRespondsThenProbes" file="<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp" line="272" status="run" result="completed" time="0." timestamp="2026-11-27T06:00:47.550" classname="AcmpCore">
+      <failure message="<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:287&#x0A;Value of: same(r, want)&#x0A;  Actual: false&#x0A;Expected: true&#x0A;&#x0A;TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8&#x0A;A1 BIND_RX_RESPONSE is Table 5.32 field by field&#x0A;TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:287
+Value of: same(r, want)
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+A1 BIND_RX_RESPONSE is Table 5.32 field by field
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+]]></failure>
+      <failure message="<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:298&#x0A;Value of: same(p, probe)&#x0A;  Actual: false&#x0A;Expected: true&#x0A;&#x0A;TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8&#x0A;A1 PROBE_TX_COMMAND is Table 5.33 field by field&#x0A;TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:298
+Value of: same(p, probe)
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+A1 PROBE_TX_COMMAND is Table 5.33 field by field
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+]]></failure>
+    </testcase>
+  </testsuite>
+  <testsuite name="AcmpOwed" tests="1" failures="1" disabled="0" skipped="0" errors="0" time="0." timestamp="2026-11-27T06:00:47.550">
+    <testcase name="DeferredBindWaitsForTwoSlotsAndLosesNoProbe" file="<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp" line="3003" status="run" result="completed" time="0." timestamp="2026-11-27T06:00:47.550" classname="AcmpOwed">
+      <failure message="<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3025&#x0A;Value of: q.msg == spec::MSG_PROBE_TX_COMMAND &amp;&amp; q.talker == kTkA &amp;&amp; q.listener_uid == 1u &amp;&amp; q.seq == a.sinks[1].probe_seq &amp;&amp; probe.at == s-&gt;at + 1u&#x0A;  Actual: false&#x0A;Expected: true&#x0A;&#x0A;TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8&#x0A;the first probe leaves at once, in the pass after the BIND_RX answer&#x0A;TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3025
+Value of: q.msg == spec::MSG_PROBE_TX_COMMAND && q.talker == kTkA && q.listener_uid == 1u && q.seq == a.sinks[1].probe_seq && probe.at == s->at + 1u
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+the first probe leaves at once, in the pass after the BIND_RX answer
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+]]></failure>
+      <failure message="<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3028&#x0A;Value of: a.sinks[1].state == ACMP_PRB_W_RESP &amp;&amp; !a.sinks[1].probe_retried &amp;&amp; a.sinks[1].timer == ACMP_TIMER_NO_RESP &amp;&amp; a.sinks[1].timer_deadline == probe.at + spec::TMR_NO_RESP_MS&#x0A;  Actual: false&#x0A;Expected: true&#x0A;&#x0A;TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8&#x0A;the probe&apos;s timeout runs from when it left, with its retry still unused&#x0A;TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3028
+Value of: a.sinks[1].state == ACMP_PRB_W_RESP && !a.sinks[1].probe_retried && a.sinks[1].timer == ACMP_TIMER_NO_RESP && a.sinks[1].timer_deadline == probe.at + spec::TMR_NO_RESP_MS
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+the probe's timeout runs from when it left, with its retry still unused
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+]]></failure>
+    </testcase>
+  </testsuite>
+</testsuites>

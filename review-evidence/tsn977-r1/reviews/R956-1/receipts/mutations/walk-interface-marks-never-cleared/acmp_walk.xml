@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="4" failures="4" disabled="0" errors="0" time="0." timestamp="2026-11-27T06:01:09.461" name="AllTests">
+  <testsuite name="AcmpWalk" tests="4" failures="4" disabled="0" skipped="0" errors="0" time="0." timestamp="2026-11-27T06:01:09.461">
+    <testcase name="OneSinkMatchesTheFullWalk" file="<PACKET>/scratch/mutations/baseline/tests/test_acmp_walk.cpp" line="364" status="run" result="completed" time="0." timestamp="2026-11-27T06:01:09.461" classname="AcmpWalk">
+      <failure message="<PACKET>/scratch/mutations/baseline/tests/test_acmp_walk.cpp:345&#x0A;Expected equality of these values:&#x0A;  walked.a.dirty_if&#x0A;    Which is: 1&#x0A;  0u&#x0A;    Which is: 0&#x0A;&#x0A;TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8&#x0A;a completed entry leaves no interface marked, at step 2 of 1 sinks&#x0A;TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/mutations/baseline/tests/test_acmp_walk.cpp:345
+Expected equality of these values:
+  walked.a.dirty_if
+    Which is: 1
+  0u
+    Which is: 0
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+a completed entry leaves no interface marked, at step 2 of 1 sinks
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+]]></failure>
+    </testcase>
+    <testcase name="EightSinksMatchTheFullWalk" file="<PACKET>/scratch/mutations/baseline/tests/test_acmp_walk.cpp" line="369" status="run" result="completed" time="0." timestamp="2026-11-27T06:01:09.461" classname="AcmpWalk">
+      <failure message="<PACKET>/scratch/mutations/baseline/tests/test_acmp_walk.cpp:345&#x0A;Expected equality of these values:&#x0A;  walked.a.dirty_if&#x0A;    Which is: 2&#x0A;  0u&#x0A;    Which is: 0&#x0A;&#x0A;TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8&#x0A;a completed entry leaves no interface marked, at step 2 of 8 sinks&#x0A;TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/mutations/baseline/tests/test_acmp_walk.cpp:345
+Expected equality of these values:
+  walked.a.dirty_if
+    Which is: 2
+  0u
+    Which is: 0
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+a completed entry leaves no interface marked, at step 2 of 8 sinks
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+]]></failure>
+    </testcase>
+    <testcase name="ThirtyTwoSinksMatchTheFullWalk" file="<PACKET>/scratch/mutations/baseline/tests/test_acmp_walk.cpp" line="374" status="run" result="completed" time="0." timestamp="2026-11-27T06:01:09.461" classname="AcmpWalk">
+      <failure message="<PACKET>/scratch/mutations/baseline/tests/test_acmp_walk.cpp:345&#x0A;Expected equality of these values:&#x0A;  walked.a.dirty_if&#x0A;    Which is: 1&#x0A;  0u&#x0A;    Which is: 0&#x0A;&#x0A;TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8&#x0A;a completed entry leaves no interface marked, at step 2 of 32 sinks&#x0A;TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/mutations/baseline/tests/test_acmp_walk.cpp:345
+Expected equality of these values:
+  walked.a.dirty_if
+    Which is: 1
+  0u
+    Which is: 0
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+a completed entry leaves no interface marked, at step 2 of 32 sinks
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+]]></failure>
+    </testcase>
+    <testcase name="ThirtyThreeSinksMatchTheFullWalk" file="<PACKET>/scratch/mutations/baseline/tests/test_acmp_walk.cpp" line="379" status="run" result="completed" time="0." timestamp="2026-11-27T06:01:09.461" classname="AcmpWalk">
+      <failure message="<PACKET>/scratch/mutations/baseline/tests/test_acmp_walk.cpp:345&#x0A;Expected equality of these values:&#x0A;  walked.a.dirty_if&#x0A;    Which is: 1&#x0A;  0u&#x0A;    Which is: 0&#x0A;&#x0A;TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8&#x0A;a completed entry leaves no interface marked, at step 4 of 33 sinks&#x0A;TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/mutations/baseline/tests/test_acmp_walk.cpp:345
+Expected equality of these values:
+  walked.a.dirty_if
+    Which is: 1
+  0u
+    Which is: 0
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+a completed entry leaves no interface marked, at step 4 of 33 sinks
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+]]></failure>
+    </testcase>
+  </testsuite>
+</testsuites>

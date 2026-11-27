@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="1" failures="1" disabled="0" errors="0" time="0." timestamp="2026-11-27T06:01:01.134" name="AllTests">
+  <testsuite name="AcmpCore" tests="1" failures="1" disabled="0" skipped="0" errors="0" time="0." timestamp="2026-11-27T06:01:01.134">
+    <testcase name="A29TheAdmitPortFollowsEachSinksBoundTalker" file="<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp" line="1863" status="run" result="completed" time="0." timestamp="2026-11-27T06:01:01.134" classname="AcmpCore">
+      <failure message="<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:1888&#x0A;Value of: v[0].index == 2u &amp;&amp; v[0].value == 1u &amp;&amp; v[0].flag&#x0A;  Actual: false&#x0A;Expected: true&#x0A;&#x0A;TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8&#x0A;A29 sink 2&apos;s talker on interface 1&#x0A;TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:1888
+Value of: v[0].index == 2u && v[0].value == 1u && v[0].flag
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+A29 sink 2's talker on interface 1
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+]]></failure>
+    </testcase>
+  </testsuite>
+</testsuites>

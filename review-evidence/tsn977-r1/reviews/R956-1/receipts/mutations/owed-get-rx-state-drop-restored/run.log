@@ -1,0 +1,45 @@
+Note: Google Test filter = AcmpOwed.HeldEgressDefersTheCommandBehindTheOwedSet
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from AcmpOwed
+[ RUN      ] AcmpOwed.HeldEgressDefersTheCommandBehindTheOwedSet
+<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:2777: Failure
+Value of: deliver(command(spec::MSG_GET_RX_STATE_COMMAND, 0, 0, 0, kCtl2, 0, 0x7388))
+  Actual: true
+Expected: false
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+a GET_RX_STATE behind the full owed set is declined to the port, not taken
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:2779: Failure
+Value of: fk.calls.empty() && a.busy_declined == 1u && a.owed_count == 8u
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+the declined GET_RX_STATE makes no port call and is counted once
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:2784: Failure
+Value of: s != nullptr
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+the command behind the owed set is answered after the egress returns
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+[  FAILED  ] AcmpOwed.HeldEgressDefersTheCommandBehindTheOwedSet (0 ms)
+[----------] 1 test from AcmpOwed (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] AcmpOwed.HeldEgressDefersTheCommandBehindTheOwedSet
+
+ 1 FAILED TEST

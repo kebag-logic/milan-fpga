@@ -1,0 +1,93 @@
+Note: Google Test filter = AcmpCore.A5RebindTheSameSourceUpdatesAndExits:AcmpOwed.KeptCommandsLeaveOnePassPerFrameOwedAheadOfThem
+[==========] Running 2 tests from 2 test suites.
+[----------] Global test environment set-up.
+[----------] 1 test from AcmpCore
+[ RUN      ] AcmpCore.A5RebindTheSameSourceUpdatesAndExits
+<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:491: Failure
+Expected equality of these values:
+  fk.sent.size()
+    Which is: 3
+  1u
+    Which is: 1
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+A5 a re-bind of the same source sends the response alone, state 1
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+[  FAILED  ] AcmpCore.A5RebindTheSameSourceUpdatesAndExits (0 ms)
+[----------] 1 test from AcmpCore (0 ms total)
+
+[----------] 1 test from AcmpOwed
+[ RUN      ] AcmpOwed.KeptCommandsLeaveOnePassPerFrameOwedAheadOfThem
+<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3394: Failure
+Expected equality of these values:
+  kept_answers[i]->at - released
+    Which is: 15
+  8u + 1u + f
+    Which is: 14
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+each kept command leaves in pass ACMP_OWED_MAX + 1 + f, f the frames owed by the kept commands ahead of it
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3394: Failure
+Expected equality of these values:
+  kept_answers[i]->at - released
+    Which is: 16
+  8u + 1u + f
+    Which is: 15
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+each kept command leaves in pass ACMP_OWED_MAX + 1 + f, f the frames owed by the kept commands ahead of it
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3394: Failure
+Expected equality of these values:
+  kept_answers[i]->at - released
+    Which is: 17
+  8u + 1u + f
+    Which is: 16
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+each kept command leaves in pass ACMP_OWED_MAX + 1 + f, f the frames owed by the kept commands ahead of it
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3394: Failure
+Expected equality of these values:
+  kept_answers[i]->at - released
+    Which is: 19
+  8u + 1u + f
+    Which is: 18
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+each kept command leaves in pass ACMP_OWED_MAX + 1 + f, f the frames owed by the kept commands ahead of it
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3405: Failure
+Expected equality of these values:
+  fk.sent.size()
+    Which is: 23
+  8u + f + others.size()
+    Which is: 22
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+every kept command and every held probe left, none lost
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+[  FAILED  ] AcmpOwed.KeptCommandsLeaveOnePassPerFrameOwedAheadOfThem (0 ms)
+[----------] 1 test from AcmpOwed (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 2 tests from 2 test suites ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 2 tests, listed below:
+[  FAILED  ] AcmpCore.A5RebindTheSameSourceUpdatesAndExits
+[  FAILED  ] AcmpOwed.KeptCommandsLeaveOnePassPerFrameOwedAheadOfThem
+
+ 2 FAILED TESTS

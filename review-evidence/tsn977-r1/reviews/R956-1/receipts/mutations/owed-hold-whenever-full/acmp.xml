@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="3" failures="3" disabled="0" errors="0" time="0." timestamp="2026-11-27T06:00:56.675" name="AllTests">
+  <testsuite name="AcmpOwed" tests="3" failures="3" disabled="0" skipped="0" errors="0" time="0." timestamp="2026-11-27T06:00:56.675">
+    <testcase name="HoldEndsWithTheLastHeldProbe" file="<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp" line="3114" status="run" result="completed" time="0." timestamp="2026-11-27T06:00:56.675" classname="AcmpOwed">
+      <failure message="<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3142&#x0A;Value of: a.probes_lost == 1u &amp;&amp; a.probes_held == 1u &amp;&amp; !a.sinks[1].probe_held &amp;&amp; a.sinks[1].state == ACMP_PRB_W_RESP2&#x0A;  Actual: false&#x0A;Expected: true&#x0A;&#x0A;TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8&#x0A;with no probe held and no BIND_RX waiting, a retry that finds every slot owed is lost and counted&#x0A;TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3142
+Value of: a.probes_lost == 1u && a.probes_held == 1u && !a.sinks[1].probe_held && a.sinks[1].state == ACMP_PRB_W_RESP2
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+with no probe held and no BIND_RX waiting, a retry that finds every slot owed is lost and counted
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+]]></failure>
+    </testcase>
+    <testcase name="BindDeclinedBehindTheFullSetHoldsNoProbe" file="<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp" line="3174" status="run" result="completed" time="0." timestamp="2026-11-27T06:00:56.675" classname="AcmpOwed">
+      <failure message="<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3185&#x0A;Value of: !a.sinks[2].probe_held &amp;&amp; a.probes_held == 0u &amp;&amp; a.probes_lost == 1u &amp;&amp; a.sinks[2].state == ACMP_PRB_W_RESP2 &amp;&amp; a.sinks[2].timer == ACMP_TIMER_NO_RESP &amp;&amp; a.sinks[2].timer_deadline == fk.now + spec::TMR_NO_RESP_MS&#x0A;  Actual: false&#x0A;Expected: true&#x0A;&#x0A;TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8&#x0A;a retry falling due while a BIND_RX waits behind the full set is lost and counted, and its timeout runs&#x0A;TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3185
+Value of: !a.sinks[2].probe_held && a.probes_held == 0u && a.probes_lost == 1u && a.sinks[2].state == ACMP_PRB_W_RESP2 && a.sinks[2].timer == ACMP_TIMER_NO_RESP && a.sinks[2].timer_deadline == fk.now + spec::TMR_NO_RESP_MS
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+a retry falling due while a BIND_RX waits behind the full set is lost and counted, and its timeout runs
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+]]></failure>
+    </testcase>
+    <testcase name="BindToAnotherTalkerEndsTheHoldOfTheProbeItReplaces" file="<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp" line="3279" status="run" result="completed" time="0." timestamp="2026-11-27T06:00:56.675" classname="AcmpOwed">
+      <failure message="<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3300&#x0A;Value of: a.probes_lost == 1u &amp;&amp; !a.sinks[3].probe_held &amp;&amp; a.sinks[3].state == ACMP_PRB_W_RESP2&#x0A;  Actual: false&#x0A;Expected: true&#x0A;&#x0A;TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8&#x0A;with nothing held and no BIND_RX waiting, the next retry that finds every slot owed is lost&#x0A;TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3300
+Value of: a.probes_lost == 1u && !a.sinks[3].probe_held && a.sinks[3].state == ACMP_PRB_W_RESP2
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+with nothing held and no BIND_RX waiting, the next retry that finds every slot owed is lost
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+]]></failure>
+    </testcase>
+  </testsuite>
+</testsuites>

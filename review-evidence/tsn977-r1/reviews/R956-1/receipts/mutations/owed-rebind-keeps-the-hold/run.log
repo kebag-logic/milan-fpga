@@ -1,0 +1,35 @@
+Note: Google Test filter = AcmpOwed.BindToAnotherTalkerEndsTheHoldOfTheProbeItReplaces:AcmpOwed.BindToAnotherTalkerEndsTheHoldOfTheProbeItReplaces
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from AcmpOwed
+[ RUN      ] AcmpOwed.BindToAnotherTalkerEndsTheHoldOfTheProbeItReplaces
+<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3297: Failure
+Value of: held.empty() && a.sinks[2].binding.talker_entity_id == kTkA && a.sinks[2].state == ACMP_PRB_W_RESP && !a.sinks[2].probe_held
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+a BIND_RX to another talker ends the hold of the probe it replaces
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3300: Failure
+Value of: a.probes_lost == 1u && !a.sinks[3].probe_held && a.sinks[3].state == ACMP_PRB_W_RESP2
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+with nothing held and no BIND_RX waiting, the next retry that finds every slot owed is lost
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+[  FAILED  ] AcmpOwed.BindToAnotherTalkerEndsTheHoldOfTheProbeItReplaces (0 ms)
+[----------] 1 test from AcmpOwed (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] AcmpOwed.BindToAnotherTalkerEndsTheHoldOfTheProbeItReplaces
+
+ 1 FAILED TEST

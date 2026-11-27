@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="1" failures="1" disabled="0" errors="0" time="0." timestamp="2026-11-27T06:01:06.650" name="AllTests">
+  <testsuite name="AdpCore" tests="1" failures="1" disabled="0" skipped="0" errors="0" time="0." timestamp="2026-11-27T06:01:06.650">
+    <testcase name="A27EverySeedTermIsMixedIn" file="<PACKET>/scratch/mutations/baseline/tests/test_adp.cpp" line="882" status="run" result="completed" time="0." timestamp="2026-11-27T06:01:06.650" classname="AdpCore">
+      <failure message="<PACKET>/scratch/mutations/baseline/tests/test_adp.cpp:609&#x0A;Expected: (first_draw(other).rng) != (base), actual: 1653198019 vs 1653198019&#x0A;&#x0A;TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8&#x0A;A27 the MAC address is in the seed&#x0A;TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/mutations/baseline/tests/test_adp.cpp:609
+Expected: (first_draw(other).rng) != (base), actual: 1653198019 vs 1653198019
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+A27 the MAC address is in the seed
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+]]></failure>
+      <failure message="<PACKET>/scratch/mutations/baseline/tests/test_adp.cpp:611&#x0A;Expected equality of these values:&#x0A;  first_draw(other).rng&#x0A;    Which is: 1854786797&#x0A;  base&#x0A;    Which is: 1653198019&#x0A;&#x0A;TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8&#x0A;A27 the seed is the sum of MAC address and clock (6.2.4.2.2)&#x0A;TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/mutations/baseline/tests/test_adp.cpp:611
+Expected equality of these values:
+  first_draw(other).rng
+    Which is: 1854786797
+  base
+    Which is: 1653198019
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+A27 the seed is the sum of MAC address and clock (6.2.4.2.2)
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+]]></failure>
+      <failure message="<PACKET>/scratch/mutations/baseline/tests/test_adp.cpp:618&#x0A;Expected equality of these values:&#x0A;  first_draw(wrapped).rng&#x0A;    Which is: 472821687&#x0A;  first_draw(modular).rng&#x0A;    Which is: 495843637&#x0A;&#x0A;TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8&#x0A;A27 the seed is the sum&apos;s least significant 32 bits, modulo 2^32 (6.2.4.2.2)&#x0A;TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/mutations/baseline/tests/test_adp.cpp:618
+Expected equality of these values:
+  first_draw(wrapped).rng
+    Which is: 472821687
+  first_draw(modular).rng
+    Which is: 495843637
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+A27 the seed is the sum's least significant 32 bits, modulo 2^32 (6.2.4.2.2)
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+]]></failure>
+      <failure message="<PACKET>/scratch/mutations/baseline/tests/test_adp.cpp:609&#x0A;Expected: (first_draw(other).rng) != (base), actual: 1653198019 vs 1653198019&#x0A;&#x0A;TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8&#x0A;A27 the MAC address is in the seed&#x0A;TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/mutations/baseline/tests/test_adp.cpp:609
+Expected: (first_draw(other).rng) != (base), actual: 1653198019 vs 1653198019
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+A27 the MAC address is in the seed
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+]]></failure>
+      <failure message="<PACKET>/scratch/mutations/baseline/tests/test_adp.cpp:611&#x0A;Expected equality of these values:&#x0A;  first_draw(other).rng&#x0A;    Which is: 1854786797&#x0A;  base&#x0A;    Which is: 1653198019&#x0A;&#x0A;TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8&#x0A;A27 the seed is the sum of MAC address and clock (6.2.4.2.2)&#x0A;TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/mutations/baseline/tests/test_adp.cpp:611
+Expected equality of these values:
+  first_draw(other).rng
+    Which is: 1854786797
+  base
+    Which is: 1653198019
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+A27 the seed is the sum of MAC address and clock (6.2.4.2.2)
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+]]></failure>
+      <failure message="<PACKET>/scratch/mutations/baseline/tests/test_adp.cpp:618&#x0A;Expected equality of these values:&#x0A;  first_draw(wrapped).rng&#x0A;    Which is: 472821687&#x0A;  first_draw(modular).rng&#x0A;    Which is: 495843637&#x0A;&#x0A;TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8&#x0A;A27 the seed is the sum&apos;s least significant 32 bits, modulo 2^32 (6.2.4.2.2)&#x0A;TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/mutations/baseline/tests/test_adp.cpp:618
+Expected equality of these values:
+  first_draw(wrapped).rng
+    Which is: 472821687
+  first_draw(modular).rng
+    Which is: 495843637
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+A27 the seed is the sum's least significant 32 bits, modulo 2^32 (6.2.4.2.2)
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+]]></failure>
+    </testcase>
+  </testsuite>
+</testsuites>

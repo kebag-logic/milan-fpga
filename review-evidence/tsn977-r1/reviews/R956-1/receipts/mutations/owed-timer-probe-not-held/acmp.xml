@@ -1,0 +1,813 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="6" failures="6" disabled="0" errors="0" time="0." timestamp="2026-11-27T06:00:55.959" name="AllTests">
+  <testsuite name="AcmpOwed" tests="6" failures="6" disabled="0" skipped="0" errors="0" time="0." timestamp="2026-11-27T06:00:55.959">
+    <testcase name="ProbesFallingDueInTheDrainWaitForTheDeferredBind" file="<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp" line="3034" status="run" result="completed" time="0." timestamp="2026-11-27T06:00:55.959" classname="AcmpOwed">
+      <failure message="<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3052&#x0A;Expected equality of these values:&#x0A;  taken_in&#x0A;    Which is: 3&#x0A;  2u&#x0A;    Which is: 2&#x0A;&#x0A;TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8&#x0A;the deferred BIND_RX is declined once more at one free slot and taken in pass two&#x0A;TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3052
+Expected equality of these values:
+  taken_in
+    Which is: 3
+  2u
+    Which is: 2
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+the deferred BIND_RX is declined once more at one free slot and taken in pass two
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+]]></failure>
+      <failure message="<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3053&#x0A;Expected equality of these values:&#x0A;  a.busy_declined&#x0A;    Which is: 3&#x0A;  2u + c.behind&#x0A;    Which is: 2&#x0A;&#x0A;TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8&#x0A;no probe makes the deferred BIND_RX wait another pass&#x0A;TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3053
+Expected equality of these values:
+  a.busy_declined
+    Which is: 3
+  2u + c.behind
+    Which is: 2
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+no probe makes the deferred BIND_RX wait another pass
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+]]></failure>
+      <failure message="<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3056&#x0A;Expected equality of these values:&#x0A;  s-&gt;at - released&#x0A;    Which is: 10&#x0A;  8u + 1u&#x0A;    Which is: 9&#x0A;&#x0A;TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8&#x0A;the deferred BIND_RX is answered in pass ACMP_OWED_MAX + 1 though other probes fall due&#x0A;TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3056
+Expected equality of these values:
+  s->at - released
+    Which is: 10
+  8u + 1u
+    Which is: 9
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+the deferred BIND_RX is answered in pass ACMP_OWED_MAX + 1 though other probes fall due
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+]]></failure>
+      <failure message="<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3058&#x0A;Expected equality of these values:&#x0A;  position(s)&#x0A;    Which is: 9&#x0A;  8u&#x0A;    Which is: 8&#x0A;&#x0A;TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8&#x0A;no held probe leaves ahead of the deferred BIND_RX answer&#x0A;TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3058
+Expected equality of these values:
+  position(s)
+    Which is: 9
+  8u
+    Which is: 8
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+no held probe leaves ahead of the deferred BIND_RX answer
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+]]></failure>
+      <failure message="<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3064&#x0A;Value of: own.msg == spec::MSG_PROBE_TX_COMMAND &amp;&amp; own.listener_uid == 1u &amp;&amp; own.talker == kTkA&#x0A;  Actual: false&#x0A;Expected: true&#x0A;&#x0A;TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8&#x0A;the deferred binding&apos;s own probe leaves right after its answer&#x0A;TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3064
+Value of: own.msg == spec::MSG_PROBE_TX_COMMAND && own.listener_uid == 1u && own.talker == kTkA
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+the deferred binding's own probe leaves right after its answer
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+]]></failure>
+      <failure message="<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3081&#x0A;Value of: q.msg == spec::MSG_PROBE_TX_COMMAND &amp;&amp; q.listener_uid == others[j] &amp;&amp; q.seq == sink.probe_seq&#x0A;  Actual: false&#x0A;Expected: true&#x0A;&#x0A;TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8&#x0A;each held probe leaves after the deferred binding&apos;s frames, in sink order&#x0A;TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3081
+Value of: q.msg == spec::MSG_PROBE_TX_COMMAND && q.listener_uid == others[j] && q.seq == sink.probe_seq
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+each held probe leaves after the deferred binding's frames, in sink order
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+]]></failure>
+      <failure message="<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3083&#x0A;Expected equality of these values:&#x0A;  owed_in[j]&#x0A;    Which is: 1&#x0A;  taken_in + 1u + c.behind + j&#x0A;    Which is: 4&#x0A;&#x0A;TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8&#x0A;each held probe is owed in the pass after the BIND_RX is taken, one pass per probe before it&#x0A;TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3083
+Expected equality of these values:
+  owed_in[j]
+    Which is: 1
+  taken_in + 1u + c.behind + j
+    Which is: 4
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+each held probe is owed in the pass after the BIND_RX is taken, one pass per probe before it
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+]]></failure>
+      <failure message="<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3085&#x0A;Value of: sink.timer == ACMP_TIMER_NO_RESP &amp;&amp; !sink.timer_held &amp;&amp; !sink.probe_held &amp;&amp; sink.timer_deadline == left.at + spec::TMR_NO_RESP_MS&#x0A;  Actual: false&#x0A;Expected: true&#x0A;&#x0A;TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8&#x0A;each held probe was sent, and its timeout runs from when it left&#x0A;TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3085
+Value of: sink.timer == ACMP_TIMER_NO_RESP && !sink.timer_held && !sink.probe_held && sink.timer_deadline == left.at + spec::TMR_NO_RESP_MS
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+each held probe was sent, and its timeout runs from when it left
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+]]></failure>
+      <failure message="<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3052&#x0A;Expected equality of these values:&#x0A;  taken_in&#x0A;    Which is: 3&#x0A;  2u&#x0A;    Which is: 2&#x0A;&#x0A;TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8&#x0A;the deferred BIND_RX is declined once more at one free slot and taken in pass two&#x0A;TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3052
+Expected equality of these values:
+  taken_in
+    Which is: 3
+  2u
+    Which is: 2
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+the deferred BIND_RX is declined once more at one free slot and taken in pass two
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+]]></failure>
+      <failure message="<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3053&#x0A;Expected equality of these values:&#x0A;  a.busy_declined&#x0A;    Which is: 3&#x0A;  2u + c.behind&#x0A;    Which is: 2&#x0A;&#x0A;TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8&#x0A;no probe makes the deferred BIND_RX wait another pass&#x0A;TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3053
+Expected equality of these values:
+  a.busy_declined
+    Which is: 3
+  2u + c.behind
+    Which is: 2
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+no probe makes the deferred BIND_RX wait another pass
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+]]></failure>
+      <failure message="<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3056&#x0A;Expected equality of these values:&#x0A;  s-&gt;at - released&#x0A;    Which is: 10&#x0A;  8u + 1u&#x0A;    Which is: 9&#x0A;&#x0A;TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8&#x0A;the deferred BIND_RX is answered in pass ACMP_OWED_MAX + 1 though other probes fall due&#x0A;TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3056
+Expected equality of these values:
+  s->at - released
+    Which is: 10
+  8u + 1u
+    Which is: 9
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+the deferred BIND_RX is answered in pass ACMP_OWED_MAX + 1 though other probes fall due
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+]]></failure>
+      <failure message="<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3058&#x0A;Expected equality of these values:&#x0A;  position(s)&#x0A;    Which is: 9&#x0A;  8u&#x0A;    Which is: 8&#x0A;&#x0A;TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8&#x0A;no held probe leaves ahead of the deferred BIND_RX answer&#x0A;TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3058
+Expected equality of these values:
+  position(s)
+    Which is: 9
+  8u
+    Which is: 8
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+no held probe leaves ahead of the deferred BIND_RX answer
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+]]></failure>
+      <failure message="<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3064&#x0A;Value of: own.msg == spec::MSG_PROBE_TX_COMMAND &amp;&amp; own.listener_uid == 1u &amp;&amp; own.talker == kTkA&#x0A;  Actual: false&#x0A;Expected: true&#x0A;&#x0A;TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8&#x0A;the deferred binding&apos;s own probe leaves right after its answer&#x0A;TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3064
+Value of: own.msg == spec::MSG_PROBE_TX_COMMAND && own.listener_uid == 1u && own.talker == kTkA
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+the deferred binding's own probe leaves right after its answer
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+]]></failure>
+      <failure message="<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3081&#x0A;Value of: q.msg == spec::MSG_PROBE_TX_COMMAND &amp;&amp; q.listener_uid == others[j] &amp;&amp; q.seq == sink.probe_seq&#x0A;  Actual: false&#x0A;Expected: true&#x0A;&#x0A;TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8&#x0A;each held probe leaves after the deferred binding&apos;s frames, in sink order&#x0A;TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3081
+Value of: q.msg == spec::MSG_PROBE_TX_COMMAND && q.listener_uid == others[j] && q.seq == sink.probe_seq
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+each held probe leaves after the deferred binding's frames, in sink order
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+]]></failure>
+      <failure message="<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3083&#x0A;Expected equality of these values:&#x0A;  owed_in[j]&#x0A;    Which is: 1&#x0A;  taken_in + 1u + c.behind + j&#x0A;    Which is: 4&#x0A;&#x0A;TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8&#x0A;each held probe is owed in the pass after the BIND_RX is taken, one pass per probe before it&#x0A;TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3083
+Expected equality of these values:
+  owed_in[j]
+    Which is: 1
+  taken_in + 1u + c.behind + j
+    Which is: 4
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+each held probe is owed in the pass after the BIND_RX is taken, one pass per probe before it
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+]]></failure>
+      <failure message="<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3085&#x0A;Value of: sink.timer == ACMP_TIMER_NO_RESP &amp;&amp; !sink.timer_held &amp;&amp; !sink.probe_held &amp;&amp; sink.timer_deadline == left.at + spec::TMR_NO_RESP_MS&#x0A;  Actual: false&#x0A;Expected: true&#x0A;&#x0A;TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8&#x0A;each held probe was sent, and its timeout runs from when it left&#x0A;TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3085
+Value of: sink.timer == ACMP_TIMER_NO_RESP && !sink.timer_held && !sink.probe_held && sink.timer_deadline == left.at + spec::TMR_NO_RESP_MS
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+each held probe was sent, and its timeout runs from when it left
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+]]></failure>
+      <failure message="<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3052&#x0A;Expected equality of these values:&#x0A;  taken_in&#x0A;    Which is: 6&#x0A;  2u&#x0A;    Which is: 2&#x0A;&#x0A;TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8&#x0A;the deferred BIND_RX is declined once more at one free slot and taken in pass two&#x0A;TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3052
+Expected equality of these values:
+  taken_in
+    Which is: 6
+  2u
+    Which is: 2
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+the deferred BIND_RX is declined once more at one free slot and taken in pass two
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+]]></failure>
+      <failure message="<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3053&#x0A;Expected equality of these values:&#x0A;  a.busy_declined&#x0A;    Which is: 6&#x0A;  2u + c.behind&#x0A;    Which is: 2&#x0A;&#x0A;TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8&#x0A;no probe makes the deferred BIND_RX wait another pass&#x0A;TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3053
+Expected equality of these values:
+  a.busy_declined
+    Which is: 6
+  2u + c.behind
+    Which is: 2
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+no probe makes the deferred BIND_RX wait another pass
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+]]></failure>
+      <failure message="<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3056&#x0A;Expected equality of these values:&#x0A;  s-&gt;at - released&#x0A;    Which is: 13&#x0A;  8u + 1u&#x0A;    Which is: 9&#x0A;&#x0A;TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8&#x0A;the deferred BIND_RX is answered in pass ACMP_OWED_MAX + 1 though other probes fall due&#x0A;TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3056
+Expected equality of these values:
+  s->at - released
+    Which is: 13
+  8u + 1u
+    Which is: 9
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+the deferred BIND_RX is answered in pass ACMP_OWED_MAX + 1 though other probes fall due
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+]]></failure>
+      <failure message="<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3058&#x0A;Expected equality of these values:&#x0A;  position(s)&#x0A;    Which is: 12&#x0A;  8u&#x0A;    Which is: 8&#x0A;&#x0A;TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8&#x0A;no held probe leaves ahead of the deferred BIND_RX answer&#x0A;TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3058
+Expected equality of these values:
+  position(s)
+    Which is: 12
+  8u
+    Which is: 8
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+no held probe leaves ahead of the deferred BIND_RX answer
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+]]></failure>
+      <failure message="<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3064&#x0A;Value of: own.msg == spec::MSG_PROBE_TX_COMMAND &amp;&amp; own.listener_uid == 1u &amp;&amp; own.talker == kTkA&#x0A;  Actual: false&#x0A;Expected: true&#x0A;&#x0A;TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8&#x0A;the deferred binding&apos;s own probe leaves right after its answer&#x0A;TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3064
+Value of: own.msg == spec::MSG_PROBE_TX_COMMAND && own.listener_uid == 1u && own.talker == kTkA
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+the deferred binding's own probe leaves right after its answer
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+]]></failure>
+      <failure message="<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3081&#x0A;Value of: q.msg == spec::MSG_PROBE_TX_COMMAND &amp;&amp; q.listener_uid == others[j] &amp;&amp; q.seq == sink.probe_seq&#x0A;  Actual: false&#x0A;Expected: true&#x0A;&#x0A;TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8&#x0A;each held probe leaves after the deferred binding&apos;s frames, in sink order&#x0A;TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3081
+Value of: q.msg == spec::MSG_PROBE_TX_COMMAND && q.listener_uid == others[j] && q.seq == sink.probe_seq
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+each held probe leaves after the deferred binding's frames, in sink order
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+]]></failure>
+      <failure message="<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3083&#x0A;Expected equality of these values:&#x0A;  owed_in[j]&#x0A;    Which is: 1&#x0A;  taken_in + 1u + c.behind + j&#x0A;    Which is: 7&#x0A;&#x0A;TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8&#x0A;each held probe is owed in the pass after the BIND_RX is taken, one pass per probe before it&#x0A;TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3083
+Expected equality of these values:
+  owed_in[j]
+    Which is: 1
+  taken_in + 1u + c.behind + j
+    Which is: 7
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+each held probe is owed in the pass after the BIND_RX is taken, one pass per probe before it
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+]]></failure>
+      <failure message="<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3085&#x0A;Value of: sink.timer == ACMP_TIMER_NO_RESP &amp;&amp; !sink.timer_held &amp;&amp; !sink.probe_held &amp;&amp; sink.timer_deadline == left.at + spec::TMR_NO_RESP_MS&#x0A;  Actual: false&#x0A;Expected: true&#x0A;&#x0A;TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8&#x0A;each held probe was sent, and its timeout runs from when it left&#x0A;TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3085
+Value of: sink.timer == ACMP_TIMER_NO_RESP && !sink.timer_held && !sink.probe_held && sink.timer_deadline == left.at + spec::TMR_NO_RESP_MS
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+each held probe was sent, and its timeout runs from when it left
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+]]></failure>
+      <failure message="<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3081&#x0A;Value of: q.msg == spec::MSG_PROBE_TX_COMMAND &amp;&amp; q.listener_uid == others[j] &amp;&amp; q.seq == sink.probe_seq&#x0A;  Actual: false&#x0A;Expected: true&#x0A;&#x0A;TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8&#x0A;each held probe leaves after the deferred binding&apos;s frames, in sink order&#x0A;TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3081
+Value of: q.msg == spec::MSG_PROBE_TX_COMMAND && q.listener_uid == others[j] && q.seq == sink.probe_seq
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+each held probe leaves after the deferred binding's frames, in sink order
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+]]></failure>
+      <failure message="<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3083&#x0A;Expected equality of these values:&#x0A;  owed_in[j]&#x0A;    Which is: 2&#x0A;  taken_in + 1u + c.behind + j&#x0A;    Which is: 8&#x0A;&#x0A;TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8&#x0A;each held probe is owed in the pass after the BIND_RX is taken, one pass per probe before it&#x0A;TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3083
+Expected equality of these values:
+  owed_in[j]
+    Which is: 2
+  taken_in + 1u + c.behind + j
+    Which is: 8
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+each held probe is owed in the pass after the BIND_RX is taken, one pass per probe before it
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+]]></failure>
+      <failure message="<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3085&#x0A;Value of: sink.timer == ACMP_TIMER_NO_RESP &amp;&amp; !sink.timer_held &amp;&amp; !sink.probe_held &amp;&amp; sink.timer_deadline == left.at + spec::TMR_NO_RESP_MS&#x0A;  Actual: false&#x0A;Expected: true&#x0A;&#x0A;TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8&#x0A;each held probe was sent, and its timeout runs from when it left&#x0A;TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3085
+Value of: sink.timer == ACMP_TIMER_NO_RESP && !sink.timer_held && !sink.probe_held && sink.timer_deadline == left.at + spec::TMR_NO_RESP_MS
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+each held probe was sent, and its timeout runs from when it left
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+]]></failure>
+      <failure message="<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3081&#x0A;Value of: q.msg == spec::MSG_PROBE_TX_COMMAND &amp;&amp; q.listener_uid == others[j] &amp;&amp; q.seq == sink.probe_seq&#x0A;  Actual: false&#x0A;Expected: true&#x0A;&#x0A;TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8&#x0A;each held probe leaves after the deferred binding&apos;s frames, in sink order&#x0A;TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3081
+Value of: q.msg == spec::MSG_PROBE_TX_COMMAND && q.listener_uid == others[j] && q.seq == sink.probe_seq
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+each held probe leaves after the deferred binding's frames, in sink order
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+]]></failure>
+      <failure message="<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3083&#x0A;Expected equality of these values:&#x0A;  owed_in[j]&#x0A;    Which is: 3&#x0A;  taken_in + 1u + c.behind + j&#x0A;    Which is: 9&#x0A;&#x0A;TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8&#x0A;each held probe is owed in the pass after the BIND_RX is taken, one pass per probe before it&#x0A;TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3083
+Expected equality of these values:
+  owed_in[j]
+    Which is: 3
+  taken_in + 1u + c.behind + j
+    Which is: 9
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+each held probe is owed in the pass after the BIND_RX is taken, one pass per probe before it
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+]]></failure>
+      <failure message="<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3085&#x0A;Value of: sink.timer == ACMP_TIMER_NO_RESP &amp;&amp; !sink.timer_held &amp;&amp; !sink.probe_held &amp;&amp; sink.timer_deadline == left.at + spec::TMR_NO_RESP_MS&#x0A;  Actual: false&#x0A;Expected: true&#x0A;&#x0A;TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8&#x0A;each held probe was sent, and its timeout runs from when it left&#x0A;TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3085
+Value of: sink.timer == ACMP_TIMER_NO_RESP && !sink.timer_held && !sink.probe_held && sink.timer_deadline == left.at + spec::TMR_NO_RESP_MS
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+each held probe was sent, and its timeout runs from when it left
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+]]></failure>
+      <failure message="<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3081&#x0A;Value of: q.msg == spec::MSG_PROBE_TX_COMMAND &amp;&amp; q.listener_uid == others[j] &amp;&amp; q.seq == sink.probe_seq&#x0A;  Actual: false&#x0A;Expected: true&#x0A;&#x0A;TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8&#x0A;each held probe leaves after the deferred binding&apos;s frames, in sink order&#x0A;TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3081
+Value of: q.msg == spec::MSG_PROBE_TX_COMMAND && q.listener_uid == others[j] && q.seq == sink.probe_seq
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+each held probe leaves after the deferred binding's frames, in sink order
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+]]></failure>
+      <failure message="<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3083&#x0A;Expected equality of these values:&#x0A;  owed_in[j]&#x0A;    Which is: 4&#x0A;  taken_in + 1u + c.behind + j&#x0A;    Which is: 10&#x0A;&#x0A;TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8&#x0A;each held probe is owed in the pass after the BIND_RX is taken, one pass per probe before it&#x0A;TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3083
+Expected equality of these values:
+  owed_in[j]
+    Which is: 4
+  taken_in + 1u + c.behind + j
+    Which is: 10
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+each held probe is owed in the pass after the BIND_RX is taken, one pass per probe before it
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+]]></failure>
+      <failure message="<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3085&#x0A;Value of: sink.timer == ACMP_TIMER_NO_RESP &amp;&amp; !sink.timer_held &amp;&amp; !sink.probe_held &amp;&amp; sink.timer_deadline == left.at + spec::TMR_NO_RESP_MS&#x0A;  Actual: false&#x0A;Expected: true&#x0A;&#x0A;TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8&#x0A;each held probe was sent, and its timeout runs from when it left&#x0A;TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3085
+Value of: sink.timer == ACMP_TIMER_NO_RESP && !sink.timer_held && !sink.probe_held && sink.timer_deadline == left.at + spec::TMR_NO_RESP_MS
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+each held probe was sent, and its timeout runs from when it left
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+]]></failure>
+      <failure message="<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3052&#x0A;Expected equality of these values:&#x0A;  taken_in&#x0A;    Which is: 3&#x0A;  2u&#x0A;    Which is: 2&#x0A;&#x0A;TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8&#x0A;the deferred BIND_RX is declined once more at one free slot and taken in pass two&#x0A;TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3052
+Expected equality of these values:
+  taken_in
+    Which is: 3
+  2u
+    Which is: 2
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+the deferred BIND_RX is declined once more at one free slot and taken in pass two
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+]]></failure>
+      <failure message="<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3053&#x0A;Expected equality of these values:&#x0A;  a.busy_declined&#x0A;    Which is: 3&#x0A;  2u + c.behind&#x0A;    Which is: 2&#x0A;&#x0A;TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8&#x0A;no probe makes the deferred BIND_RX wait another pass&#x0A;TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3053
+Expected equality of these values:
+  a.busy_declined
+    Which is: 3
+  2u + c.behind
+    Which is: 2
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+no probe makes the deferred BIND_RX wait another pass
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+]]></failure>
+      <failure message="<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3056&#x0A;Expected equality of these values:&#x0A;  s-&gt;at - released&#x0A;    Which is: 10&#x0A;  8u + 1u&#x0A;    Which is: 9&#x0A;&#x0A;TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8&#x0A;the deferred BIND_RX is answered in pass ACMP_OWED_MAX + 1 though other probes fall due&#x0A;TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3056
+Expected equality of these values:
+  s->at - released
+    Which is: 10
+  8u + 1u
+    Which is: 9
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+the deferred BIND_RX is answered in pass ACMP_OWED_MAX + 1 though other probes fall due
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+]]></failure>
+      <failure message="<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3058&#x0A;Expected equality of these values:&#x0A;  position(s)&#x0A;    Which is: 9&#x0A;  8u&#x0A;    Which is: 8&#x0A;&#x0A;TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8&#x0A;no held probe leaves ahead of the deferred BIND_RX answer&#x0A;TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3058
+Expected equality of these values:
+  position(s)
+    Which is: 9
+  8u
+    Which is: 8
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+no held probe leaves ahead of the deferred BIND_RX answer
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+]]></failure>
+      <failure message="<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3060&#x0A;Expected equality of these values:&#x0A;  a.probes_lost&#x0A;    Which is: 3&#x0A;  0u&#x0A;    Which is: 0&#x0A;&#x0A;TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8&#x0A;no probe held for the deferred BIND_RX is lost&#x0A;TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3060
+Expected equality of these values:
+  a.probes_lost
+    Which is: 3
+  0u
+    Which is: 0
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+no probe held for the deferred BIND_RX is lost
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+]]></failure>
+      <failure message="<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3061&#x0A;Expected equality of these values:&#x0A;  fk.sent.size()&#x0A;    Which is: 11&#x0A;  8u + 2u + c.behind + others.size()&#x0A;    Which is: 14&#x0A;&#x0A;TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8&#x0A;the owed frames, the BIND_RX answer and its probe, and every held probe leave&#x0A;TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3061
+Expected equality of these values:
+  fk.sent.size()
+    Which is: 11
+  8u + 2u + c.behind + others.size()
+    Which is: 14
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+the owed frames, the BIND_RX answer and its probe, and every held probe leave
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+]]></failure>
+    </testcase>
+    <testcase name="DeferredBindAtTheDocumentedMarginMeetsItsTimeout" file="<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp" line="3097" status="run" result="completed" time="0." timestamp="2026-11-27T06:00:55.959" classname="AcmpOwed">
+      <failure message="<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3106&#x0A;Expected equality of these values:&#x0A;  s-&gt;at - arrival&#x0A;    Which is: 201&#x0A;  kCommandTimeoutMs&#x0A;    Which is: 200&#x0A;&#x0A;TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8&#x0A;a 191 ms hold leaves the deferred BIND_RX exactly the documented passes of its 200 ms timeout&#x0A;TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3106
+Expected equality of these values:
+  s->at - arrival
+    Which is: 201
+  kCommandTimeoutMs
+    Which is: 200
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+a 191 ms hold leaves the deferred BIND_RX exactly the documented passes of its 200 ms timeout
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+]]></failure>
+      <failure message="<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3108&#x0A;Value of: a.probes_lost == 0u &amp;&amp; a.probes_held != 0u &amp;&amp; fk.sent.size() == 8u + 2u + retries&#x0A;  Actual: false&#x0A;Expected: true&#x0A;&#x0A;TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8&#x0A;at the margin every probe falling due is held and sent, none lost&#x0A;TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3108
+Value of: a.probes_lost == 0u && a.probes_held != 0u && fk.sent.size() == 8u + 2u + retries
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+at the margin every probe falling due is held and sent, none lost
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+]]></failure>
+      <failure message="<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3106&#x0A;Expected equality of these values:&#x0A;  s-&gt;at - arrival&#x0A;    Which is: 204&#x0A;  kCommandTimeoutMs&#x0A;    Which is: 200&#x0A;&#x0A;TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8&#x0A;a 191 ms hold leaves the deferred BIND_RX exactly the documented passes of its 200 ms timeout&#x0A;TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3106
+Expected equality of these values:
+  s->at - arrival
+    Which is: 204
+  kCommandTimeoutMs
+    Which is: 200
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+a 191 ms hold leaves the deferred BIND_RX exactly the documented passes of its 200 ms timeout
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+]]></failure>
+      <failure message="<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3108&#x0A;Value of: a.probes_lost == 0u &amp;&amp; a.probes_held != 0u &amp;&amp; fk.sent.size() == 8u + 2u + retries&#x0A;  Actual: false&#x0A;Expected: true&#x0A;&#x0A;TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8&#x0A;at the margin every probe falling due is held and sent, none lost&#x0A;TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3108
+Value of: a.probes_lost == 0u && a.probes_held != 0u && fk.sent.size() == 8u + 2u + retries
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+at the margin every probe falling due is held and sent, none lost
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+]]></failure>
+    </testcase>
+    <testcase name="HoldEndsWithTheLastHeldProbe" file="<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp" line="3114" status="run" result="completed" time="0." timestamp="2026-11-27T06:00:55.959" classname="AcmpOwed">
+      <failure message="<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3129&#x0A;Value of: a.sinks[2].probe_held &amp;&amp; a.probes_held == 1u &amp;&amp; a.owed_count == 8u - 1u&#x0A;  Actual: false&#x0A;Expected: true&#x0A;&#x0A;TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8&#x0A;the retry falling due beside the deferred BIND_RX is held, not owed&#x0A;TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3129
+Value of: a.sinks[2].probe_held && a.probes_held == 1u && a.owed_count == 8u - 1u
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+the retry falling due beside the deferred BIND_RX is held, not owed
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+]]></failure>
+    </testcase>
+    <testcase name="RefusedPollLeavesTheBindWaitingAndItsHold" file="<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp" line="3229" status="run" result="completed" time="0." timestamp="2026-11-27T06:00:55.959" classname="AcmpOwed">
+      <failure message="<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3261&#x0A;Value of: a.sinks[2].probe_held &amp;&amp; a.probes_held == 1u &amp;&amp; a.owed_count == 8u - 1u &amp;&amp; a.sinks[2].timer_deadline == fk.now + 1u &amp;&amp; a.sinks[2].state == ACMP_PRB_W_RESP&#x0A;  Actual: false&#x0A;Expected: true&#x0A;&#x0A;TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8&#x0A;a retry falling due in the refused pass is held, its timer re-armed 1 ms on&#x0A;TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3261
+Value of: a.sinks[2].probe_held && a.probes_held == 1u && a.owed_count == 8u - 1u && a.sinks[2].timer_deadline == fk.now + 1u && a.sinks[2].state == ACMP_PRB_W_RESP
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+a retry falling due in the refused pass is held, its timer re-armed 1 ms on
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+]]></failure>
+      <failure message="<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3268&#x0A;Expected equality of these values:&#x0A;  position(s)&#x0A;    Which is: 9&#x0A;  8u&#x0A;    Which is: 8&#x0A;&#x0A;TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8&#x0A;no probe leaves ahead of the BIND_RX answer after a refused poll&#x0A;TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3268
+Expected equality of these values:
+  position(s)
+    Which is: 9
+  8u
+    Which is: 8
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+no probe leaves ahead of the BIND_RX answer after a refused poll
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+]]></failure>
+      <failure message="<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3269&#x0A;Expected equality of these values:&#x0A;  s-&gt;at - released&#x0A;    Which is: 11&#x0A;  8u + 1u + 1u&#x0A;    Which is: 10&#x0A;&#x0A;TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8&#x0A;one refused poll delays the kept BIND_RX one pass&#x0A;TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3269
+Expected equality of these values:
+  s->at - released
+    Which is: 11
+  8u + 1u + 1u
+    Which is: 10
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+one refused poll delays the kept BIND_RX one pass
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+]]></failure>
+      <failure message="<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3272&#x0A;Value of: q.msg == spec::MSG_PROBE_TX_COMMAND &amp;&amp; q.listener_uid == 2u &amp;&amp; a.probes_lost == 0u &amp;&amp; !a.sinks[2].probe_held&#x0A;  Actual: false&#x0A;Expected: true&#x0A;&#x0A;TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8&#x0A;the retry held through the refused poll leaves after the deferred binding&apos;s frames, not lost&#x0A;TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3272
+Value of: q.msg == spec::MSG_PROBE_TX_COMMAND && q.listener_uid == 2u && a.probes_lost == 0u && !a.sinks[2].probe_held
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+the retry held through the refused poll leaves after the deferred binding's frames, not lost
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+]]></failure>
+      <failure message="<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3261&#x0A;Value of: a.sinks[2].probe_held &amp;&amp; a.probes_held == 1u &amp;&amp; a.owed_count == 8u - 1u &amp;&amp; a.sinks[2].timer_deadline == fk.now + 1u &amp;&amp; a.sinks[2].state == ACMP_PRB_W_RESP&#x0A;  Actual: false&#x0A;Expected: true&#x0A;&#x0A;TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8&#x0A;a retry falling due in the refused pass is held, its timer re-armed 1 ms on&#x0A;TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3261
+Value of: a.sinks[2].probe_held && a.probes_held == 1u && a.owed_count == 8u - 1u && a.sinks[2].timer_deadline == fk.now + 1u && a.sinks[2].state == ACMP_PRB_W_RESP
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+a retry falling due in the refused pass is held, its timer re-armed 1 ms on
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+]]></failure>
+      <failure message="<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3268&#x0A;Expected equality of these values:&#x0A;  position(s)&#x0A;    Which is: 9&#x0A;  8u&#x0A;    Which is: 8&#x0A;&#x0A;TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8&#x0A;no probe leaves ahead of the BIND_RX answer after a refused poll&#x0A;TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3268
+Expected equality of these values:
+  position(s)
+    Which is: 9
+  8u
+    Which is: 8
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+no probe leaves ahead of the BIND_RX answer after a refused poll
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+]]></failure>
+      <failure message="<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3269&#x0A;Expected equality of these values:&#x0A;  s-&gt;at - released&#x0A;    Which is: 11&#x0A;  8u + 1u + 1u&#x0A;    Which is: 10&#x0A;&#x0A;TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8&#x0A;one refused poll delays the kept BIND_RX one pass&#x0A;TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3269
+Expected equality of these values:
+  s->at - released
+    Which is: 11
+  8u + 1u + 1u
+    Which is: 10
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+one refused poll delays the kept BIND_RX one pass
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+]]></failure>
+      <failure message="<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3272&#x0A;Value of: q.msg == spec::MSG_PROBE_TX_COMMAND &amp;&amp; q.listener_uid == 2u &amp;&amp; a.probes_lost == 0u &amp;&amp; !a.sinks[2].probe_held&#x0A;  Actual: false&#x0A;Expected: true&#x0A;&#x0A;TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8&#x0A;the retry held through the refused poll leaves after the deferred binding&apos;s frames, not lost&#x0A;TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3272
+Value of: q.msg == spec::MSG_PROBE_TX_COMMAND && q.listener_uid == 2u && a.probes_lost == 0u && !a.sinks[2].probe_held
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+the retry held through the refused poll leaves after the deferred binding's frames, not lost
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+]]></failure>
+    </testcase>
+    <testcase name="KeptCommandsLeaveOnePassPerFrameOwedAheadOfThem" file="<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp" line="3367" status="run" result="completed" time="0." timestamp="2026-11-27T06:00:55.959" classname="AcmpOwed">
+      <failure message="<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3394&#x0A;Expected equality of these values:&#x0A;  kept_answers[i]-&gt;at - released&#x0A;    Which is: 13&#x0A;  8u + 1u + f&#x0A;    Which is: 9&#x0A;&#x0A;TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8&#x0A;each kept command leaves in pass ACMP_OWED_MAX + 1 + f, f the frames owed by the kept commands ahead of it&#x0A;TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3394
+Expected equality of these values:
+  kept_answers[i]->at - released
+    Which is: 13
+  8u + 1u + f
+    Which is: 9
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+each kept command leaves in pass ACMP_OWED_MAX + 1 + f, f the frames owed by the kept commands ahead of it
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+]]></failure>
+      <failure message="<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3394&#x0A;Expected equality of these values:&#x0A;  kept_answers[i]-&gt;at - released&#x0A;    Which is: 15&#x0A;  8u + 1u + f&#x0A;    Which is: 11&#x0A;&#x0A;TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8&#x0A;each kept command leaves in pass ACMP_OWED_MAX + 1 + f, f the frames owed by the kept commands ahead of it&#x0A;TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3394
+Expected equality of these values:
+  kept_answers[i]->at - released
+    Which is: 15
+  8u + 1u + f
+    Which is: 11
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+each kept command leaves in pass ACMP_OWED_MAX + 1 + f, f the frames owed by the kept commands ahead of it
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+]]></failure>
+      <failure message="<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3394&#x0A;Expected equality of these values:&#x0A;  kept_answers[i]-&gt;at - released&#x0A;    Which is: 16&#x0A;  8u + 1u + f&#x0A;    Which is: 12&#x0A;&#x0A;TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8&#x0A;each kept command leaves in pass ACMP_OWED_MAX + 1 + f, f the frames owed by the kept commands ahead of it&#x0A;TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3394
+Expected equality of these values:
+  kept_answers[i]->at - released
+    Which is: 16
+  8u + 1u + f
+    Which is: 12
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+each kept command leaves in pass ACMP_OWED_MAX + 1 + f, f the frames owed by the kept commands ahead of it
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+]]></failure>
+      <failure message="<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3394&#x0A;Expected equality of these values:&#x0A;  kept_answers[i]-&gt;at - released&#x0A;    Which is: 17&#x0A;  8u + 1u + f&#x0A;    Which is: 13&#x0A;&#x0A;TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8&#x0A;each kept command leaves in pass ACMP_OWED_MAX + 1 + f, f the frames owed by the kept commands ahead of it&#x0A;TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3394
+Expected equality of these values:
+  kept_answers[i]->at - released
+    Which is: 17
+  8u + 1u + f
+    Which is: 13
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+each kept command leaves in pass ACMP_OWED_MAX + 1 + f, f the frames owed by the kept commands ahead of it
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+]]></failure>
+      <failure message="<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3394&#x0A;Expected equality of these values:&#x0A;  kept_answers[i]-&gt;at - released&#x0A;    Which is: 18&#x0A;  8u + 1u + f&#x0A;    Which is: 14&#x0A;&#x0A;TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8&#x0A;each kept command leaves in pass ACMP_OWED_MAX + 1 + f, f the frames owed by the kept commands ahead of it&#x0A;TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3394
+Expected equality of these values:
+  kept_answers[i]->at - released
+    Which is: 18
+  8u + 1u + f
+    Which is: 14
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+each kept command leaves in pass ACMP_OWED_MAX + 1 + f, f the frames owed by the kept commands ahead of it
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+]]></failure>
+      <failure message="<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3394&#x0A;Expected equality of these values:&#x0A;  kept_answers[i]-&gt;at - released&#x0A;    Which is: 19&#x0A;  8u + 1u + f&#x0A;    Which is: 15&#x0A;&#x0A;TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8&#x0A;each kept command leaves in pass ACMP_OWED_MAX + 1 + f, f the frames owed by the kept commands ahead of it&#x0A;TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3394
+Expected equality of these values:
+  kept_answers[i]->at - released
+    Which is: 19
+  8u + 1u + f
+    Which is: 15
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+each kept command leaves in pass ACMP_OWED_MAX + 1 + f, f the frames owed by the kept commands ahead of it
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+]]></failure>
+      <failure message="<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3394&#x0A;Expected equality of these values:&#x0A;  kept_answers[i]-&gt;at - released&#x0A;    Which is: 20&#x0A;  8u + 1u + f&#x0A;    Which is: 16&#x0A;&#x0A;TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8&#x0A;each kept command leaves in pass ACMP_OWED_MAX + 1 + f, f the frames owed by the kept commands ahead of it&#x0A;TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3394
+Expected equality of these values:
+  kept_answers[i]->at - released
+    Which is: 20
+  8u + 1u + f
+    Which is: 16
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+each kept command leaves in pass ACMP_OWED_MAX + 1 + f, f the frames owed by the kept commands ahead of it
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+]]></failure>
+      <failure message="<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3394&#x0A;Expected equality of these values:&#x0A;  kept_answers[i]-&gt;at - released&#x0A;    Which is: 22&#x0A;  8u + 1u + f&#x0A;    Which is: 18&#x0A;&#x0A;TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8&#x0A;each kept command leaves in pass ACMP_OWED_MAX + 1 + f, f the frames owed by the kept commands ahead of it&#x0A;TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3394
+Expected equality of these values:
+  kept_answers[i]->at - released
+    Which is: 22
+  8u + 1u + f
+    Which is: 18
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+each kept command leaves in pass ACMP_OWED_MAX + 1 + f, f the frames owed by the kept commands ahead of it
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+]]></failure>
+      <failure message="<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3410&#x0A;Value of: q.msg == spec::MSG_PROBE_TX_COMMAND &amp;&amp; q.listener_uid == others[j] &amp;&amp; left.at - released == 8u + 1u + f + j&#x0A;  Actual: false&#x0A;Expected: true&#x0A;&#x0A;TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8&#x0A;held probes follow the frames of the last kept command, one per pass in sink order&#x0A;TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3410
+Value of: q.msg == spec::MSG_PROBE_TX_COMMAND && q.listener_uid == others[j] && left.at - released == 8u + 1u + f + j
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+held probes follow the frames of the last kept command, one per pass in sink order
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+]]></failure>
+      <failure message="<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3410&#x0A;Value of: q.msg == spec::MSG_PROBE_TX_COMMAND &amp;&amp; q.listener_uid == others[j] &amp;&amp; left.at - released == 8u + 1u + f + j&#x0A;  Actual: false&#x0A;Expected: true&#x0A;&#x0A;TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8&#x0A;held probes follow the frames of the last kept command, one per pass in sink order&#x0A;TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3410
+Value of: q.msg == spec::MSG_PROBE_TX_COMMAND && q.listener_uid == others[j] && left.at - released == 8u + 1u + f + j
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+held probes follow the frames of the last kept command, one per pass in sink order
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+]]></failure>
+      <failure message="<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3410&#x0A;Value of: q.msg == spec::MSG_PROBE_TX_COMMAND &amp;&amp; q.listener_uid == others[j] &amp;&amp; left.at - released == 8u + 1u + f + j&#x0A;  Actual: false&#x0A;Expected: true&#x0A;&#x0A;TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8&#x0A;held probes follow the frames of the last kept command, one per pass in sink order&#x0A;TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3410
+Value of: q.msg == spec::MSG_PROBE_TX_COMMAND && q.listener_uid == others[j] && left.at - released == 8u + 1u + f + j
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+held probes follow the frames of the last kept command, one per pass in sink order
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+]]></failure>
+      <failure message="<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3410&#x0A;Value of: q.msg == spec::MSG_PROBE_TX_COMMAND &amp;&amp; q.listener_uid == others[j] &amp;&amp; left.at - released == 8u + 1u + f + j&#x0A;  Actual: false&#x0A;Expected: true&#x0A;&#x0A;TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8&#x0A;held probes follow the frames of the last kept command, one per pass in sink order&#x0A;TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3410
+Value of: q.msg == spec::MSG_PROBE_TX_COMMAND && q.listener_uid == others[j] && left.at - released == 8u + 1u + f + j
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+held probes follow the frames of the last kept command, one per pass in sink order
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+]]></failure>
+    </testcase>
+    <testcase name="KeptBacklogWithinTheDocumentedBudgetMeetsItsTimeout" file="<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp" line="3418" status="run" result="completed" time="0." timestamp="2026-11-27T06:00:55.959" classname="AcmpOwed">
+      <failure message="<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3439&#x0A;Expected: (s-&gt;at - arrival) &lt;= (kCommandTimeoutMs), actual: 201 vs 200&#x0A;&#x0A;TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8&#x0A;each kept command is answered within 200 ms&#x0A;TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3439
+Expected: (s->at - arrival) <= (kCommandTimeoutMs), actual: 201 vs 200
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+each kept command is answered within 200 ms
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+]]></failure>
+      <failure message="<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3441&#x0A;Expected equality of these values:&#x0A;  kept_answers.back()-&gt;at - arrival&#x0A;    Which is: 201&#x0A;  kCommandTimeoutMs&#x0A;    Which is: 200&#x0A;&#x0A;TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8&#x0A;a hold of 200 ms less ACMP_OWED_MAX + 1 + f passes leaves the last kept command exactly at 200 ms&#x0A;TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3441
+Expected equality of these values:
+  kept_answers.back()->at - arrival
+    Which is: 201
+  kCommandTimeoutMs
+    Which is: 200
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+a hold of 200 ms less ACMP_OWED_MAX + 1 + f passes leaves the last kept command exactly at 200 ms
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+]]></failure>
+      <failure message="<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3439&#x0A;Expected: (s-&gt;at - arrival) &lt;= (kCommandTimeoutMs), actual: 201 vs 200&#x0A;&#x0A;TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8&#x0A;each kept command is answered within 200 ms&#x0A;TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3439
+Expected: (s->at - arrival) <= (kCommandTimeoutMs), actual: 201 vs 200
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+each kept command is answered within 200 ms
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+]]></failure>
+      <failure message="<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3441&#x0A;Expected equality of these values:&#x0A;  kept_answers.back()-&gt;at - arrival&#x0A;    Which is: 201&#x0A;  kCommandTimeoutMs&#x0A;    Which is: 200&#x0A;&#x0A;TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8&#x0A;a hold of 200 ms less ACMP_OWED_MAX + 1 + f passes leaves the last kept command exactly at 200 ms&#x0A;TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3441
+Expected equality of these values:
+  kept_answers.back()->at - arrival
+    Which is: 201
+  kCommandTimeoutMs
+    Which is: 200
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+a hold of 200 ms less ACMP_OWED_MAX + 1 + f passes leaves the last kept command exactly at 200 ms
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+]]></failure>
+      <failure message="<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3439&#x0A;Expected: (s-&gt;at - arrival) &lt;= (kCommandTimeoutMs), actual: 201 vs 200&#x0A;&#x0A;TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8&#x0A;each kept command is answered within 200 ms&#x0A;TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3439
+Expected: (s->at - arrival) <= (kCommandTimeoutMs), actual: 201 vs 200
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+each kept command is answered within 200 ms
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+]]></failure>
+      <failure message="<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3441&#x0A;Expected equality of these values:&#x0A;  kept_answers.back()-&gt;at - arrival&#x0A;    Which is: 201&#x0A;  kCommandTimeoutMs&#x0A;    Which is: 200&#x0A;&#x0A;TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8&#x0A;a hold of 200 ms less ACMP_OWED_MAX + 1 + f passes leaves the last kept command exactly at 200 ms&#x0A;TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3441
+Expected equality of these values:
+  kept_answers.back()->at - arrival
+    Which is: 201
+  kCommandTimeoutMs
+    Which is: 200
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+a hold of 200 ms less ACMP_OWED_MAX + 1 + f passes leaves the last kept command exactly at 200 ms
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+]]></failure>
+      <failure message="<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3439&#x0A;Expected: (s-&gt;at - arrival) &lt;= (kCommandTimeoutMs), actual: 201 vs 200&#x0A;&#x0A;TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8&#x0A;each kept command is answered within 200 ms&#x0A;TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3439
+Expected: (s->at - arrival) <= (kCommandTimeoutMs), actual: 201 vs 200
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+each kept command is answered within 200 ms
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+]]></failure>
+      <failure message="<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3441&#x0A;Expected equality of these values:&#x0A;  kept_answers.back()-&gt;at - arrival&#x0A;    Which is: 201&#x0A;  kCommandTimeoutMs&#x0A;    Which is: 200&#x0A;&#x0A;TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8&#x0A;a hold of 200 ms less ACMP_OWED_MAX + 1 + f passes leaves the last kept command exactly at 200 ms&#x0A;TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3441
+Expected equality of these values:
+  kept_answers.back()->at - arrival
+    Which is: 201
+  kCommandTimeoutMs
+    Which is: 200
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+a hold of 200 ms less ACMP_OWED_MAX + 1 + f passes leaves the last kept command exactly at 200 ms
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+]]></failure>
+    </testcase>
+  </testsuite>
+</testsuites>

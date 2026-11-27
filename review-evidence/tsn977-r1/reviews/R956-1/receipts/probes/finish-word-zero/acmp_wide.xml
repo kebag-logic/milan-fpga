@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="5" failures="3" disabled="0" errors="0" time="0." timestamp="2026-11-27T06:02:04.036" name="AllTests">
+  <testsuite name="AcmpWide" tests="5" failures="3" disabled="0" skipped="0" errors="0" time="0." timestamp="2026-11-27T06:02:04.036">
+    <testcase name="OwedResponsesHoldOnlyTheirOwnSinksChanges" file="<SOURCE>/tests/test_acmp_wide.cpp" line="102" status="run" result="completed" time="0." timestamp="2026-11-27T06:02:04.036" classname="AcmpWide">
+      <failure message="<SOURCE>/tests/test_acmp_wide.cpp:114&#x0A;Expected equality of these values:&#x0A;  fk.count(Call::CHANGED)&#x0A;    Which is: 0&#x0A;  1u&#x0A;    Which is: 1&#x0A;W1 sink 32&apos;s response left: one change is reported&#x0A;" type=""><![CDATA[<SOURCE>/tests/test_acmp_wide.cpp:114
+Expected equality of these values:
+  fk.count(Call::CHANGED)
+    Which is: 0
+  1u
+    Which is: 1
+W1 sink 32's response left: one change is reported
+]]></failure>
+    </testcase>
+    <testcase name="SinkZerosOwedResponseLeavesSinkThirtyTwoFree" file="<SOURCE>/tests/test_acmp_wide.cpp" line="127" status="run" result="completed" time="0." timestamp="2026-11-27T06:02:04.036" classname="AcmpWide" />
+    <testcase name="SinksThirtyOneAndThirtyTwoWaitOnlyForTheirOwnResponses" file="<SOURCE>/tests/test_acmp_wide.cpp" line="140" status="run" result="completed" time="0." timestamp="2026-11-27T06:02:04.036" classname="AcmpWide">
+      <failure message="<SOURCE>/tests/test_acmp_wide.cpp:159&#x0A;Expected equality of these values:&#x0A;  fk.count(Call::CHANGED)&#x0A;    Which is: 1&#x0A;  2u&#x0A;    Which is: 2&#x0A;W3 sink 32&apos;s response left: a second change is reported&#x0A;" type=""><![CDATA[<SOURCE>/tests/test_acmp_wide.cpp:159
+Expected equality of these values:
+  fk.count(Call::CHANGED)
+    Which is: 1
+  2u
+    Which is: 2
+W3 sink 32's response left: a second change is reported
+]]></failure>
+    </testcase>
+    <testcase name="ProbeInTheSlotOfSinkThirtyOnesResponseHoldsNoSink" file="<SOURCE>/tests/test_acmp_wide.cpp" line="170" status="run" result="completed" time="0." timestamp="2026-11-27T06:02:04.036" classname="AcmpWide" />
+    <testcase name="ProbeInTheSlotOfSinkThirtyTwosResponseHoldsNoSink" file="<SOURCE>/tests/test_acmp_wide.cpp" line="185" status="run" result="completed" time="0." timestamp="2026-11-27T06:02:04.036" classname="AcmpWide">
+      <failure message="<SOURCE>/tests/test_acmp_wide.cpp:192&#x0A;Value of: acmp_set_started(&amp;a, kLast, false) &amp;&amp; fk.count(Call::CHANGED) == 1u &amp;&amp; changed_sink(0) == kLast&#x0A;  Actual: false&#x0A;Expected: true&#x0A;W5 a change of sink 32 is reported at once&#x0A;" type=""><![CDATA[<SOURCE>/tests/test_acmp_wide.cpp:192
+Value of: acmp_set_started(&a, kLast, false) && fk.count(Call::CHANGED) == 1u && changed_sink(0) == kLast
+  Actual: false
+Expected: true
+W5 a change of sink 32 is reported at once
+]]></failure>
+    </testcase>
+  </testsuite>
+</testsuites>

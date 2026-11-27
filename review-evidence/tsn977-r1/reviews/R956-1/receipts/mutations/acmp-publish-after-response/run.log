@@ -1,0 +1,35 @@
+Note: Google Test filter = AcmpCore.A31TheBindingIsPublishedBeforeTheResponseThatPromisesIt
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from AcmpCore
+[ RUN      ] AcmpCore.A31TheBindingIsPublishedBeforeTheResponseThatPromisesIt
+<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:2108: Failure
+Value of: published_before_send(0, 0)
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+A31 the binding is published before the BIND_RX response
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:2128: Failure
+Value of: published_before_send(0, static_cast<unsigned>(fk.sent.size() - 1u))
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+A31 the sink is published unbound before the UNBIND_RX response
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+[  FAILED  ] AcmpCore.A31TheBindingIsPublishedBeforeTheResponseThatPromisesIt (0 ms)
+[----------] 1 test from AcmpCore (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] AcmpCore.A31TheBindingIsPublishedBeforeTheResponseThatPromisesIt
+
+ 1 FAILED TEST

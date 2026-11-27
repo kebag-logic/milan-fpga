@@ -1,0 +1,55 @@
+Note: Google Test filter = AcmpOwed.OnlyTimerProbesAreHeldBesideTheWaitingBind:AcmpOwed.OnlyTimerProbesAreHeldBesideTheWaitingBind:AcmpOwed.OnlyTimerProbesAreHeldBesideTheWaitingBind
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from AcmpOwed
+[ RUN      ] AcmpOwed.OnlyTimerProbesAreHeldBesideTheWaitingBind
+<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3214: Failure
+Value of: a.sinks[3].state == ACMP_PRB_W_RETRY && a.sinks[3].timer == ACMP_TIMER_RETRY && a.sinks[3].timer_deadline == fk.now + spec::TMR_RETRY_MS && !a.sinks[3].probe_held && a.sinks[3].acmp_status == spec::STATUS_LISTENER_TALKER_TIMEOUT
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+the TMR_NO_RESP that ends PRB_W_RESP2 is not held beside a waiting BIND_RX
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3219: Failure
+Value of: a.sinks[2].state == ACMP_PRB_W_AVAIL && a.sinks[2].timer == ACMP_TIMER_NONE && !a.sinks[2].probe_held
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+a TMR_RETRY expiry is not held beside a waiting BIND_RX
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3222: Failure
+Value of: a.sinks[4].state == ACMP_PRB_W_AVAIL && a.sinks[4].timer == ACMP_TIMER_NONE && !a.sinks[4].probe_held
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+a TMR_NO_TK expiry is not held beside a waiting BIND_RX
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3224: Failure
+Value of: a.probes_held == 0u && a.bind_waiting && a.owed_count == 8u - 1u
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+no expiry that sends no probe is held or counted in probes_held
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+[  FAILED  ] AcmpOwed.OnlyTimerProbesAreHeldBesideTheWaitingBind (0 ms)
+[----------] 1 test from AcmpOwed (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] AcmpOwed.OnlyTimerProbesAreHeldBesideTheWaitingBind
+
+ 1 FAILED TEST

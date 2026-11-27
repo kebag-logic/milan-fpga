@@ -1,0 +1,35 @@
+Note: Google Test filter = AcmpCore.Independent*
+[==========] Running 3 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 3 tests from AcmpCore
+[ RUN      ] AcmpCore.IndependentTalkerTopOctetPersistence
+<PACKET>/scratch/witness/test_acmp.cpp:3622: Failure
+Expected equality of these values:
+  fk.count(Call::PERSIST)
+    Which is: 0
+  1u
+    Which is: 1
+talker-only top octet change requires persistence
+
+<PACKET>/scratch/witness/test_acmp.cpp:3623: Failure
+Expected equality of these values:
+  a.sinks[0].saved[4]
+    Which is: '\0'
+  2u
+    Which is: 2
+saved talker top octet must follow the new binding
+
+[  FAILED  ] AcmpCore.IndependentTalkerTopOctetPersistence (0 ms)
+[ RUN      ] AcmpCore.IndependentControllerTopOctetPersistence
+[       OK ] AcmpCore.IndependentControllerTopOctetPersistence (0 ms)
+[ RUN      ] AcmpCore.IndependentUniqueHighOctetPersistence
+[       OK ] AcmpCore.IndependentUniqueHighOctetPersistence (0 ms)
+[----------] 3 tests from AcmpCore (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 3 tests from 1 test suite ran. (0 ms total)
+[  PASSED  ] 2 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] AcmpCore.IndependentTalkerTopOctetPersistence
+
+ 1 FAILED TEST

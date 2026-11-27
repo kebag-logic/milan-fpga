@@ -1,0 +1,80 @@
+Note: Google Test filter = AcmpWide.SinksThirtyOneAndThirtyTwoWaitOnlyForTheirOwnResponses:AcmpWide.SinksThirtyOneAndThirtyTwoWaitOnlyForTheirOwnResponses:AcmpWide.ProbeInTheSlotOfSinkThirtyOnesResponseHoldsNoSink
+[==========] Running 2 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 2 tests from AcmpWide
+[ RUN      ] AcmpWide.SinksThirtyOneAndThirtyTwoWaitOnlyForTheirOwnResponses
+<PACKET>/scratch/mutations/baseline/tests/test_acmp_wide.cpp:143: Failure
+Value of: acmp_change_pending(&a, kWordEnd) && a.sinks[kWordEnd].change_owed == 1u && owed_changes() == 1u
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+W3 sink 31's change waits behind its own owed response, and no other sink's does
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+<PACKET>/scratch/mutations/baseline/tests/test_acmp_wide.cpp:146: Failure
+Value of: a.sinks[kWordEnd].change_owed == 1u && a.sinks[kLast].change_owed == 1u && owed_changes() == 2u
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+W3 with both bound, sinks 31 and 32 each wait behind one owed response, their own
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+<PACKET>/scratch/mutations/baseline/tests/test_acmp_wide.cpp:151: Failure
+Expected equality of these values:
+  fk.count(Call::CHANGED)
+    Which is: 0
+  1u
+    Which is: 1
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+W3 sink 31's response left: one change is reported
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+[  FAILED  ] AcmpWide.SinksThirtyOneAndThirtyTwoWaitOnlyForTheirOwnResponses (0 ms)
+[ RUN      ] AcmpWide.ProbeInTheSlotOfSinkThirtyOnesResponseHoldsNoSink
+<PACKET>/scratch/mutations/baseline/tests/test_acmp_wide.cpp:174: Failure
+Value of: !acmp_change_pending(&a, kWordEnd) && owed_changes() == 3u
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+W4 the probe in that slot holds no sink: sink 31 is free, and sinks 1 to 3 each wait for their own response
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+<PACKET>/scratch/mutations/baseline/tests/test_acmp_wide.cpp:177: Failure
+Value of: acmp_set_started(&a, kWordEnd, false) && fk.count(Call::CHANGED) == 1u && changed_sink(0) == kWordEnd
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+W4 a change of sink 31 is reported at once
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+<PACKET>/scratch/mutations/baseline/tests/test_acmp_wide.cpp:180: Failure
+Value of: a.owed_count == 0u && owed_changes() == 0u
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+W4 once every owed frame left, no sink is held: 255
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+[  FAILED  ] AcmpWide.ProbeInTheSlotOfSinkThirtyOnesResponseHoldsNoSink (0 ms)
+[----------] 2 tests from AcmpWide (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 2 tests from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 2 tests, listed below:
+[  FAILED  ] AcmpWide.SinksThirtyOneAndThirtyTwoWaitOnlyForTheirOwnResponses
+[  FAILED  ] AcmpWide.ProbeInTheSlotOfSinkThirtyOnesResponseHoldsNoSink
+
+ 2 FAILED TESTS

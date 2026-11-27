@@ -1,0 +1,279 @@
+diff --git a/CHANGELOG.md b/CHANGELOG.md
+index 54cf838..0388cd8 100644
+--- a/CHANGELOG.md
++++ b/CHANGELOG.md
+@@ -2,6 +2,7 @@
+ 
+ ## Unreleased
+ 
++- Visit only the marked sinks at an ACMP entry's completion and in the publication before each new frame: each mark word is read once and shifted, not loaded and tested for every sink. Decide persistence and reporting from the sink's own fields against the saved binding record and the reported view, building the record or the view only when it changed. The calls, their order and their arguments are unchanged ([ACMP-13](docs/REQUIREMENTS.md#acmp-changed-sink-walk)); the nine planted defects at those lines are re-anchored to them, each killed by its test as before. On the RV32 control CPU of [milan-fpga #977](https://github.com/kebag-logic/milan-fpga/issues/977) an entry's completion was about 4,500 cycles at nine sinks.
+ - Seed the ADP delay generator on each transition out of DOWN, startup with the link up and LINK_UP, with the sum of the MAC address and the local clock (IEEE 1722.1-2021 6.2.4.2.2), mixed with the entity ID, the interface and the earlier state by two rounds of a bijection without multiplication. The generator was seeded once, at enable, by an exclusive-or whose low bits one xorshift step does not carry into the sixteen bits a draw uses: one host's first draw stayed in a 250 ms span over a 0 to 4 s range, sixteen neighbouring entity IDs drew within 5 ms, and two interfaces sampled together drew alike. The draw ranges are unchanged, and the sequence keeps its length of 2^32 - 1. Integrators: the `seed` callback is now called once per transition out of DOWN, after `link_up`, and returns the local clock at its finest resolution ([ADP-02](docs/REQUIREMENTS.md), [PORT-01](docs/REQUIREMENTS.md), [milan-fpga #970](https://github.com/kebag-logic/milan-fpga/issues/970)). Tests require uniform first draws over samples and over neighbouring hosts for both draw kinds. They also count one sample for each qualified rise and none for a duplicate or disabled LINK_UP or an ENTITY_DISCOVER, on either interface, and require boots that differ only in the sample at a LINK_UP to draw apart. The sum is the plain one, modulo 2^32: its least significant 32 bits.
+ - Accept an ENTITY_DISCOVER whose `control_data_length` is above 56: read its first 56 octets after `entity_id` and ignore the rest. A length below 56 is still discarded and counted, a frame still needs 82 bytes, and the core still sends 56 ([ADP-01](docs/REQUIREMENTS.md#adp-input-validation); IEEE 1722.1-2021 6.2.2.6 and 6.2.7.1.3, Milan v1.2 5.6.3.1 and Table 5.50, IEEE 1722-2016 4.4.5.4; [issue 37](https://github.com/kebag-logic/tsn-c-stack/issues/37)). The control length test is split into a reject-short test, 0 to 55, and an accept-long test, 57 to 2047, and a third test reads a frame of every length that ends at a protected page. Eleven planted defects cover them. The RV32 smoke checks accept a length of 256.
+ - Assert that a grandmaster change in WAITING enters DELAY with a fresh draw of the zero to four second kind ([MFDISC-01](docs/REQUIREMENTS.md#mfdisc-01), Milan v1.2 5.6.3.5.7), and plant two defects at that call site, the startup kind and a re-arm without a draw, which the suite now catches ([milan-fpga #970](https://github.com/kebag-logic/milan-fpga/issues/970)). No constant or behaviour changes.
+diff --git a/src/acmp.c b/src/acmp.c
+index 9f248a4..10a813d 100644
+--- a/src/acmp.c
++++ b/src/acmp.c
+@@ -213,16 +213,15 @@ static void mark(struct acmp *a, unsigned k)
+ 	a->dirty_if |= 1u << a->sinks[k].interface;
+ }
+ 
+-static bool marked(const struct acmp *a, unsigned k)
+-{
+-	return ((a->dirty[k / 32u] >> (k % 32u)) & 1u) != 0u;
+-}
+-
+ // REQ: ACMP-10, ACMP-13
+ static void publish(struct acmp *a)
+ {
+-	for (unsigned k = 0; k < a->cfg.n_sinks; ++k) {
+-		if (!marked(a, k)) {
++	uint32_t bits = 0u;
++	for (unsigned k = 0; k < a->cfg.n_sinks; ++k, bits >>= 1) {
++		if (k % 32u == 0u) {
++			bits = a->dirty[k / 32u];
++		}
++		if ((bits & 1u) == 0u) {
+ 			continue;
+ 		}
+ 		struct acmp_sink *s = &a->sinks[k];
+@@ -450,13 +449,18 @@ static void view_of(const struct acmp_sink *s, struct acmp_sink_view *v)
+ 	memset(v, 0, sizeof *v);
+ 	v->state = s->state;
+ 	v->bound = s->bound;
+-	v->binding = s->binding;
++	v->binding.talker_entity_id = s->binding.talker_entity_id;
++	v->binding.controller_entity_id = s->binding.controller_entity_id;
++	v->binding.talker_unique_id = s->binding.talker_unique_id;
++	v->binding.streaming_wait = s->binding.streaming_wait;
+ 	v->started = s->started;
+ 	v->probing_status = s->probing;
+ 	v->acmp_status = s->acmp_status;
+ 	v->settled = s->state == ACMP_SETTLED_NO_RSV || s->state == ACMP_SETTLED_RSV_OK;
+ 	if (v->settled) {
+-		v->stream = s->stream;
++		v->stream.stream_id = s->stream.stream_id;
++		v->stream.dest_mac = s->stream.dest_mac;
++		v->stream.vlan_id = s->stream.vlan_id;
+ 	}
+ 	v->talker_registered = s->state == ACMP_SETTLED_RSV_OK;
+ 	v->registering_failed = v->talker_registered && s->tk_failed;
+@@ -468,15 +472,21 @@ static void view_of(const struct acmp_sink *s, struct acmp_sink_view *v)
+ 
+ 
+ 
+-static bool view_equal(const struct acmp_sink_view *x, const struct acmp_sink_view *y)
+-{
+-	uint64_t diff = (x->stream.stream_id ^ y->stream.stream_id) | (x->stream.dest_mac ^ y->stream.dest_mac) |
+-			(uint64_t)(x->stream.vlan_id ^ y->stream.vlan_id) |
+-			(uint64_t)((unsigned)x->probing_status ^ (unsigned)y->probing_status) |
+-			(uint64_t)(x->acmp_status ^ y->acmp_status) | (uint64_t)(x->bound != y->bound) |
+-			(uint64_t)(x->started != y->started) | (uint64_t)(x->talker_registered != y->talker_registered) |
+-			(uint64_t)(x->registering_failed != y->registering_failed);
+-	return diff == 0u;
++// REQ: ACMP-13
++static bool view_moved(const struct acmp_sink *s, const struct acmp_sink_view *y)
++{
++	bool settled = s->state == ACMP_SETTLED_NO_RSV || s->state == ACMP_SETTLED_RSV_OK;
++	bool registered = s->state == ACMP_SETTLED_RSV_OK;
++	uint64_t stream_id = settled ? s->stream.stream_id : 0u;
++	uint64_t dest_mac = settled ? s->stream.dest_mac : 0u;
++	uint16_t vlan_id = settled ? s->stream.vlan_id : 0u;
++	uint64_t diff = (stream_id ^ y->stream.stream_id) | (dest_mac ^ y->stream.dest_mac) |
++			(uint64_t)(vlan_id ^ y->stream.vlan_id) |
++			(uint64_t)((unsigned)s->probing ^ (unsigned)y->probing_status) |
++			(uint64_t)(s->acmp_status ^ y->acmp_status) | (uint64_t)(s->bound != y->bound) |
++			(uint64_t)(s->started != y->started) | (uint64_t)(registered != y->talker_registered) |
++			(uint64_t)((registered && s->tk_failed) != y->registering_failed);
++	return diff != 0u;
+ }
+ 
+ // Milan v1.2 5.5.3.5.8
+@@ -495,13 +505,27 @@ static void record_of(const struct acmp_sink *s, uint8_t payload[ACMP_BINDING_BY
+ 
+ 
+ 
+-static bool same_record(const uint8_t *x, const uint8_t *y)
+-{
+-	uint8_t diff = 0;
+-	for (unsigned i = 0; i < ACMP_BINDING_BYTES; ++i) {
+-		diff |= (uint8_t)(x[i] ^ y[i]);
+-	}
+-	return diff == 0u;
++// REQ: ACMP-13
++static bool record_moved(const struct acmp_sink *s)
++{
++	const uint8_t *p = s->saved;
++	bool b = s->bound;
++	uint8_t flags = (uint8_t)(b ? (BIND_VALID | (s->started ? BIND_STARTED : 0u) |
++				       (s->binding.streaming_wait ? BIND_STREAMING_WAIT : 0u)) : 0u);
++	uint16_t unique = b ? s->binding.talker_unique_id : 0u;
++	uint64_t talker = b ? s->binding.talker_entity_id : 0u;
++	uint64_t controller = b ? s->binding.controller_entity_id : 0u;
++	uint32_t th = (uint32_t)(talker >> 32);
++	uint32_t tl = (uint32_t)talker;
++	uint32_t ch = (uint32_t)(controller >> 32);
++	uint32_t cl = (uint32_t)controller;
++	uint32_t diff = (uint32_t)(p[0] ^ flags) | p[1] | (uint32_t)(p[2] ^ (unique >> 8)) |
++			(uint32_t)(p[3] ^ (unique & 0xFFu)) |
++			(p[4] ^ (th >> 24)) | (p[5] ^ ((th >> 16) & 0xFFu)) | (p[6] ^ ((th >> 8) & 0xFFu)) | (p[7] ^ (th & 0xFFu)) |
++			(p[8] ^ (tl >> 24)) | (p[9] ^ ((tl >> 16) & 0xFFu)) | (p[10] ^ ((tl >> 8) & 0xFFu)) | (p[11] ^ (tl & 0xFFu)) |
++			(p[12] ^ (ch >> 24)) | (p[13] ^ ((ch >> 16) & 0xFFu)) | (p[14] ^ ((ch >> 8) & 0xFFu)) | (p[15] ^ (ch & 0xFFu)) |
++			(p[16] ^ (cl >> 24)) | (p[17] ^ ((cl >> 16) & 0xFFu)) | (p[18] ^ ((cl >> 8) & 0xFFu)) | (p[19] ^ (cl & 0xFFu));
++	return diff != 0u;
+ }
+ 
+ // Milan v1.2 5.6.4.1
+@@ -510,8 +534,12 @@ static bool same_record(const uint8_t *x, const uint8_t *y)
+ // REQ: ACMP-13
+ static void admit(struct acmp *a)
+ {
+-	for (unsigned k = 0; k < a->cfg.n_sinks; ++k) {
+-		if (!marked(a, k)) {
++	uint32_t bits = 0u;
++	for (unsigned k = 0; k < a->cfg.n_sinks; ++k, bits >>= 1) {
++		if (k % 32u == 0u) {
++			bits = a->dirty[k / 32u];
++		}
++		if ((bits & 1u) == 0u) {
+ 			continue;
+ 		}
+ 		struct acmp_sink *s = &a->sinks[k];
+@@ -532,25 +560,27 @@ static void finish(struct acmp *a)
+ 	publish(a);
+ 	rearm(a);
+ 	admit(a);
+-	for (unsigned k = 0; k < a->cfg.n_sinks; ++k) {
+-		if (!marked(a, k)) {
++	uint32_t bits = 0u;
++	for (unsigned k = 0; k < a->cfg.n_sinks; ++k, bits >>= 1) {
++		if (k % 32u == 0u) {
++			bits = a->dirty[k / 32u];
++		}
++		if ((bits & 1u) == 0u) {
+ 			continue;
+ 		}
+ 		struct acmp_sink *s = &a->sinks[k];
+-		uint8_t record[ACMP_BINDING_BYTES];
+-		record_of(s, record);
+-		if (!same_record(record, s->saved)) {
+-			memcpy(s->saved, record, ACMP_BINDING_BYTES);
++		if (record_moved(s)) {
++			record_of(s, s->saved);
+ 			p_persist(a, k);
+ 		}
+-		struct acmp_sink_view v;
+-		view_of(s, &v);
+-		if (s->change_owed == 0u && !view_equal(&v, &s->reported)) {
+-			s->reported = v;
++		if (s->change_owed == 0u && view_moved(s, &s->reported)) {
++			view_of(s, &s->reported);
+ 			p_changed(a, k);
+ 		}
+ 	}
+-	memset(a->dirty, 0, sizeof a->dirty);
++	for (unsigned w = 0; w < ACMP_DIRTY_WORDS; ++w) {
++		a->dirty[w] = 0u;
++	}
+ 	a->dirty_if = 0u;
+ }
+ 
+diff --git a/tests/mutations.json b/tests/mutations.json
+index dd07e67..6a5b768 100644
+--- a/tests/mutations.json
++++ b/tests/mutations.json
+@@ -870,8 +870,8 @@
+   {
+     "name": "acmp-nothing-persisted",
+     "path": "src/acmp.c",
+-    "old": "\t\t\tmemcpy(s->saved, record, ACMP_BINDING_BYTES);\n\t\t\tp_persist(a, k);",
+-    "new": "\t\t\tmemcpy(s->saved, record, ACMP_BINDING_BYTES);\n\t\t\t(void)p_persist;",
++    "old": "\t\t\trecord_of(s, s->saved);\n\t\t\tp_persist(a, k);",
++    "new": "\t\t\trecord_of(s, s->saved);\n\t\t\t(void)p_persist;",
+     "kills": [
+       {
+         "test": "AcmpCore.A1BindFromUnboundRespondsThenProbes",
+@@ -886,8 +886,8 @@
+   {
+     "name": "acmp-unbind-not-persisted",
+     "path": "src/acmp.c",
+-    "old": "\t\tif (!same_record(record, s->saved)) {",
+-    "new": "\t\tif (!same_record(record, s->saved) && s->bound) {",
++    "old": "\t\tif (record_moved(s)) {",
++    "new": "\t\tif (record_moved(s) && s->bound) {",
+     "kills": [
+       {
+         "test": "AcmpCore.A3UnbindInEveryState",
+@@ -902,8 +902,8 @@
+   {
+     "name": "acmp-rebind-not-persisted",
+     "path": "src/acmp.c",
+-    "old": "\t\tif (!same_record(record, s->saved)) {",
+-    "new": "\t\tif (!same_record(record, s->saved) && (s->saved[0] & 0x01u) == 0u) {",
++    "old": "\t\tif (record_moved(s)) {",
++    "new": "\t\tif (record_moved(s) && (s->saved[0] & 0x01u) == 0u) {",
+     "kills": [
+       {
+         "test": "AcmpCore.A6BindAnotherSourceRestartsTheSink",
+@@ -3795,8 +3795,8 @@
+   {
+     "name": "acmp-discovery-notifies",
+     "path": "src/acmp.c",
+-    "old": "\t\t\t(uint64_t)(x->registering_failed != y->registering_failed);",
+-    "new": "\t\t\t(uint64_t)(x->registering_failed != y->registering_failed) |\n\t\t\t(uint64_t)(x->talker_discovered != y->talker_discovered);",
++    "old": "\t\t\t(uint64_t)((registered && s->tk_failed) != y->registering_failed);",
++    "new": "\t\t\t(uint64_t)((registered && s->tk_failed) != y->registering_failed) |\n\t\t\t(uint64_t)(s->discovered != y->talker_discovered);",
+     "kills": [
+       {
+         "test": "AcmpCore.A25OnlyTable522ItemsAreReported",
+@@ -3811,8 +3811,8 @@
+   {
+     "name": "acmp-status-not-notified",
+     "path": "src/acmp.c",
+-    "old": "\t\t\t(uint64_t)(x->acmp_status ^ y->acmp_status) | (uint64_t)(x->bound != y->bound) |",
+-    "new": "\t\t\t(uint64_t)(x->bound != y->bound) |",
++    "old": "\t\t\t(uint64_t)(s->acmp_status ^ y->acmp_status) | (uint64_t)(s->bound != y->bound) |",
++    "new": "\t\t\t(uint64_t)(s->bound != y->bound) |",
+     "kills": [
+       {
+         "test": "AcmpCore.A25OnlyTable522ItemsAreReported",
+@@ -3826,7 +3826,7 @@
+   {
+     "name": "acmp-probing-status-not-notified",
+     "path": "src/acmp.c",
+-    "old": "\t\t\t(uint64_t)((unsigned)x->probing_status ^ (unsigned)y->probing_status) |\n",
++    "old": "\t\t\t(uint64_t)((unsigned)s->probing ^ (unsigned)y->probing_status) |\n",
+     "new": "",
+     "kills": [
+       {
+@@ -8246,8 +8246,8 @@
+   {
+     "name": "walk-marked-word-zero",
+     "path": "src/acmp.c",
+-    "old": "return ((a->dirty[k / 32u] >> (k % 32u)) & 1u) != 0u;",
+-    "new": "return ((a->dirty[0] >> (k % 32u)) & 1u) != 0u;",
++    "old": "\t\t\tbits = a->dirty[k / 32u];\n\t\t}\n\t\tif ((bits & 1u) == 0u) {\n\t\t\tcontinue;\n\t\t}\n\t\tstruct acmp_sink *s = &a->sinks[k];\n\t\tbool settled",
++    "new": "\t\t\tbits = a->dirty[0];\n\t\t}\n\t\tif ((bits & 1u) == 0u) {\n\t\t\tcontinue;\n\t\t}\n\t\tstruct acmp_sink *s = &a->sinks[k];\n\t\tbool settled",
+     "kills": [
+       {
+         "test": "AcmpWalk.ThirtyThreeSinksMatchTheFullWalk",
+@@ -8326,7 +8326,7 @@
+   {
+     "name": "walk-marks-never-cleared",
+     "path": "src/acmp.c",
+-    "old": "\tmemset(a->dirty, 0, sizeof a->dirty);\n",
++    "old": "\t\ta->dirty[w] = 0u;\n",
+     "new": "",
+     "kills": [
+       {
+@@ -8394,8 +8394,8 @@
+   {
+     "name": "walk-clear-first-word-only",
+     "path": "src/acmp.c",
+-    "old": "\tmemset(a->dirty, 0, sizeof a->dirty);",
+-    "new": "\tmemset(a->dirty, 0, sizeof a->dirty[0]);",
++    "old": "\tfor (unsigned w = 0; w < ACMP_DIRTY_WORDS; ++w) {\n\t\ta->dirty[w] = 0u;",
++    "new": "\tfor (unsigned w = 0; w < 1u; ++w) {\n\t\ta->dirty[w] = 0u;",
+     "kills": [
+       {
+         "test": "AcmpWalk.ThirtyThreeSinksMatchTheFullWalk",

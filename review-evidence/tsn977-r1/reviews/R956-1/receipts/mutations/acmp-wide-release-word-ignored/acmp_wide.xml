@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="1" failures="1" disabled="0" errors="0" time="0." timestamp="2026-11-27T06:01:08.241" name="AllTests">
+  <testsuite name="AcmpWide" tests="1" failures="1" disabled="0" skipped="0" errors="0" time="0." timestamp="2026-11-27T06:01:08.241">
+    <testcase name="OwedResponsesHoldOnlyTheirOwnSinksChanges" file="<PACKET>/scratch/mutations/baseline/tests/test_acmp_wide.cpp" line="102" status="run" result="completed" time="0." timestamp="2026-11-27T06:01:08.241" classname="AcmpWide">
+      <failure message="<PACKET>/scratch/mutations/baseline/tests/test_acmp_wide.cpp:105&#x0A;Value of: acmp_change_pending(&amp;a, kLast) &amp;&amp; a.sinks[kLast].change_owed == 1u&#x0A;  Actual: false&#x0A;Expected: true&#x0A;&#x0A;TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8&#x0A;W1 sink 32&apos;s change waits behind its owed response (#653)&#x0A;TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/mutations/baseline/tests/test_acmp_wide.cpp:105
+Value of: acmp_change_pending(&a, kLast) && a.sinks[kLast].change_owed == 1u
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+W1 sink 32's change waits behind its owed response (#653)
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+]]></failure>
+      <failure message="<PACKET>/scratch/mutations/baseline/tests/test_acmp_wide.cpp:107&#x0A;Value of: acmp_change_pending(&amp;a, 0)&#x0A;  Actual: true&#x0A;Expected: false&#x0A;&#x0A;TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8&#x0A;W1 sink 0, which owes nothing, is not held by sink 32&apos;s response&#x0A;TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/mutations/baseline/tests/test_acmp_wide.cpp:107
+Value of: acmp_change_pending(&a, 0)
+  Actual: true
+Expected: false
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+W1 sink 0, which owes nothing, is not held by sink 32's response
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+]]></failure>
+      <failure message="<PACKET>/scratch/mutations/baseline/tests/test_acmp_wide.cpp:109&#x0A;Value of: a.owed_count == 4u &amp;&amp; a.sinks[0].change_owed == 1u &amp;&amp; a.sinks[kLast].change_owed == 1u&#x0A;  Actual: false&#x0A;Expected: true&#x0A;&#x0A;TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8&#x0A;W1 with both bound, each sink waits behind one owed response, its own&#x0A;TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/mutations/baseline/tests/test_acmp_wide.cpp:109
+Value of: a.owed_count == 4u && a.sinks[0].change_owed == 1u && a.sinks[kLast].change_owed == 1u
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+W1 with both bound, each sink waits behind one owed response, its own
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+]]></failure>
+      <failure message="<PACKET>/scratch/mutations/baseline/tests/test_acmp_wide.cpp:114&#x0A;Expected equality of these values:&#x0A;  fk.count(Call::CHANGED)&#x0A;    Which is: 0&#x0A;  1u&#x0A;    Which is: 1&#x0A;&#x0A;TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8&#x0A;W1 sink 32&apos;s response left: one change is reported&#x0A;TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/mutations/baseline/tests/test_acmp_wide.cpp:114
+Expected equality of these values:
+  fk.count(Call::CHANGED)
+    Which is: 0
+  1u
+    Which is: 1
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+W1 sink 32's response left: one change is reported
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+]]></failure>
+    </testcase>
+  </testsuite>
+</testsuites>

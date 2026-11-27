@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="1" failures="1" disabled="0" errors="0" time="0." timestamp="2026-11-27T06:00:54.780" name="AllTests">
+  <testsuite name="AcmpOwed" tests="1" failures="1" disabled="0" skipped="0" errors="0" time="0." timestamp="2026-11-27T06:00:54.780">
+    <testcase name="ReadyPredicateMatchesTheOwedBound" file="<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp" line="2872" status="run" result="completed" time="0." timestamp="2026-11-27T06:00:54.780" classname="AcmpOwed">
+      <failure message="<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:2886&#x0A;Value of: acmp_rx(&amp;a, 0, last_slot.data(), last_slot.size())&#x0A;  Actual: false&#x0A;Expected: true&#x0A;&#x0A;TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8&#x0A;the command that takes the last owed slot is taken&#x0A;TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:2886
+Value of: acmp_rx(&a, 0, last_slot.data(), last_slot.size())
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+the command that takes the last owed slot is taken
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+]]></failure>
+      <failure message="<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:2888&#x0A;Expected equality of these values:&#x0A;  a.owed_count&#x0A;    Which is: 7&#x0A;  8u&#x0A;    Which is: 8&#x0A;&#x0A;TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8&#x0A;the last owed slot holds that answer&#x0A;TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:2888
+Expected equality of these values:
+  a.owed_count
+    Which is: 7
+  8u
+    Which is: 8
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+the last owed slot holds that answer
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+]]></failure>
+      <failure message="<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:2892&#x0A;Value of: acmp_rx_ready(&amp;a)&#x0A;  Actual: true&#x0A;Expected: false&#x0A;&#x0A;TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8&#x0A;one accepted owed frame leaves one free slot, still not ready&#x0A;TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:2892
+Value of: acmp_rx_ready(&a)
+  Actual: true
+Expected: false
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+one accepted owed frame leaves one free slot, still not ready
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+]]></failure>
+      <failure message="<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:2902&#x0A;Value of: a.reentries == 1u &amp;&amp; reentry_traps == 1u &amp;&amp; a.busy_declined == 1u&#x0A;  Actual: false&#x0A;Expected: true&#x0A;&#x0A;TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8&#x0A;the re-entered frame counts as re-entry, not as a full owed set&#x0A;TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:2902
+Value of: a.reentries == 1u && reentry_traps == 1u && a.busy_declined == 1u
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+the re-entered frame counts as re-entry, not as a full owed set
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+]]></failure>
+    </testcase>
+  </testsuite>
+</testsuites>

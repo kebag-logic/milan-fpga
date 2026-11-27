@@ -1,0 +1,35 @@
+Note: Google Test filter = AcmpOwed.AnsweredProbeEndsTheHoldOfItsRetry
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from AcmpOwed
+[ RUN      ] AcmpOwed.AnsweredProbeEndsTheHoldOfItsRetry
+<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3525: Failure
+Value of: !a.sinks[2].probe_held && a.sinks[2].state == (ok ? ACMP_SETTLED_NO_RSV : ACMP_PRB_W_RETRY) && a.sinks[2].timer == (ok ? ACMP_TIMER_NO_TK : ACMP_TIMER_RETRY) && a.sinks[2].acmp_status == status
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+an answer to the probe a held retry repeats ends the hold, and the sink goes on as the answer says
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3525: Failure
+Value of: !a.sinks[2].probe_held && a.sinks[2].state == (ok ? ACMP_SETTLED_NO_RSV : ACMP_PRB_W_RETRY) && a.sinks[2].timer == (ok ? ACMP_TIMER_NO_TK : ACMP_TIMER_RETRY) && a.sinks[2].acmp_status == status
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+an answer to the probe a held retry repeats ends the hold, and the sink goes on as the answer says
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+[  FAILED  ] AcmpOwed.AnsweredProbeEndsTheHoldOfItsRetry (0 ms)
+[----------] 1 test from AcmpOwed (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] AcmpOwed.AnsweredProbeEndsTheHoldOfItsRetry
+
+ 1 FAILED TEST

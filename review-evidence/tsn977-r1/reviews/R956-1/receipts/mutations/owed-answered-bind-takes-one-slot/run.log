@@ -1,0 +1,35 @@
+Note: Google Test filter = AcmpOwed.AnsweredOnlyBindAlsoWaitsForTwoSlots
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from AcmpOwed
+[ RUN      ] AcmpOwed.AnsweredOnlyBindAlsoWaitsForTwoSlots
+<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3166: Failure
+Value of: acmp_rx(&a, 0, f.data(), f.size())
+  Actual: true
+Expected: false
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+a BIND_RX that is only answered also waits for two free owed slots
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3169: Failure
+Value of: a.busy_declined == 2u && a.unknown_sink == 0u && fk.calls.empty() && a.bind_waiting
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+the BIND_RX for an unknown sink and the same-talker rebind are declined unchanged at one free slot
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+[  FAILED  ] AcmpOwed.AnsweredOnlyBindAlsoWaitsForTwoSlots (0 ms)
+[----------] 1 test from AcmpOwed (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] AcmpOwed.AnsweredOnlyBindAlsoWaitsForTwoSlots
+
+ 1 FAILED TEST

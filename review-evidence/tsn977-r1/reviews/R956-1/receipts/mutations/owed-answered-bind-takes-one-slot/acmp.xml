@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="1" failures="1" disabled="0" errors="0" time="0." timestamp="2026-11-27T06:00:56.750" name="AllTests">
+  <testsuite name="AcmpOwed" tests="1" failures="1" disabled="0" skipped="0" errors="0" time="0." timestamp="2026-11-27T06:00:56.750">
+    <testcase name="AnsweredOnlyBindAlsoWaitsForTwoSlots" file="<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp" line="3154" status="run" result="completed" time="0." timestamp="2026-11-27T06:00:56.750" classname="AcmpOwed">
+      <failure message="<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3166&#x0A;Value of: acmp_rx(&amp;a, 0, f.data(), f.size())&#x0A;  Actual: true&#x0A;Expected: false&#x0A;&#x0A;TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8&#x0A;a BIND_RX that is only answered also waits for two free owed slots&#x0A;TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3166
+Value of: acmp_rx(&a, 0, f.data(), f.size())
+  Actual: true
+Expected: false
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+a BIND_RX that is only answered also waits for two free owed slots
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+]]></failure>
+      <failure message="<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3169&#x0A;Value of: a.busy_declined == 2u &amp;&amp; a.unknown_sink == 0u &amp;&amp; fk.calls.empty() &amp;&amp; a.bind_waiting&#x0A;  Actual: false&#x0A;Expected: true&#x0A;&#x0A;TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8&#x0A;the BIND_RX for an unknown sink and the same-talker rebind are declined unchanged at one free slot&#x0A;TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3169
+Value of: a.busy_declined == 2u && a.unknown_sink == 0u && fk.calls.empty() && a.bind_waiting
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+the BIND_RX for an unknown sink and the same-talker rebind are declined unchanged at one free slot
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+]]></failure>
+    </testcase>
+  </testsuite>
+</testsuites>

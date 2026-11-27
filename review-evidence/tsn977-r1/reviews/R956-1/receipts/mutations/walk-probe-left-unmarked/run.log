@@ -1,0 +1,38 @@
+Note: Google Test filter = AcmpWalk.ThirtyThreeSinksMatchTheFullWalk:AcmpWalk.ThirtyTwoSinksMatchTheFullWalk
+[==========] Running 2 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 2 tests from AcmpWalk
+[ RUN      ] AcmpWalk.ThirtyTwoSinksMatchTheFullWalk
+<PACKET>/scratch/mutations/baseline/tests/test_acmp_walk.cpp:338: Failure
+Value of: walked.trace == full.trace
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+the changed-sink walk makes the full walk's calls, in order, at step 3636 of 32 sinks
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+[  FAILED  ] AcmpWalk.ThirtyTwoSinksMatchTheFullWalk (12 ms)
+[ RUN      ] AcmpWalk.ThirtyThreeSinksMatchTheFullWalk
+<PACKET>/scratch/mutations/baseline/tests/test_acmp_walk.cpp:338: Failure
+Value of: walked.trace == full.trace
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+the changed-sink walk makes the full walk's calls, in order, at step 202 of 33 sinks
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+[  FAILED  ] AcmpWalk.ThirtyThreeSinksMatchTheFullWalk (1 ms)
+[----------] 2 tests from AcmpWalk (14 ms total)
+
+[----------] Global test environment tear-down
+[==========] 2 tests from 1 test suite ran. (14 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 2 tests, listed below:
+[  FAILED  ] AcmpWalk.ThirtyTwoSinksMatchTheFullWalk
+[  FAILED  ] AcmpWalk.ThirtyThreeSinksMatchTheFullWalk
+
+ 2 FAILED TESTS

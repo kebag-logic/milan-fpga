@@ -1,0 +1,87 @@
+Note: Google Test filter = AdpCore.A30EachQualifiedRiseTakesOneSample
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from AdpCore
+[ RUN      ] AdpCore.A30EachQualifiedRiseTakesOneSample
+<PACKET>/scratch/mutations/baseline/tests/test_adp.cpp:672: Failure
+Value of: seed_calls == rise && a.draws == draws + 1u
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+A30 each qualified LINK_UP takes one sample
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+<PACKET>/scratch/mutations/baseline/tests/test_adp.cpp:674: Failure
+Value of: seed_calls == rise && a.draws == draws + 1u
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+A30 a duplicate LINK_UP takes no sample
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+<PACKET>/scratch/mutations/baseline/tests/test_adp.cpp:672: Failure
+Value of: seed_calls == rise && a.draws == draws + 1u
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+A30 each qualified LINK_UP takes one sample
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+<PACKET>/scratch/mutations/baseline/tests/test_adp.cpp:674: Failure
+Value of: seed_calls == rise && a.draws == draws + 1u
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+A30 a duplicate LINK_UP takes no sample
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+<PACKET>/scratch/mutations/baseline/tests/test_adp.cpp:679: Failure
+Value of: seed_calls == 4u && other.rng != untouched && other.last_draw == ADP_DRAW_DELAY
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+A30 the other interface's LINK_UP takes its own sample
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+<PACKET>/scratch/mutations/baseline/tests/test_adp.cpp:684: Failure
+Expected equality of these values:
+  seed_calls
+    Which is: 2
+  4u
+    Which is: 4
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+A30 a LINK_UP while disabled takes no sample
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+<PACKET>/scratch/mutations/baseline/tests/test_adp.cpp:688: Failure
+Value of: seed_calls == 5u && a.last_draw == ADP_DRAW_STARTUP
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+A30 the startup draw takes one sample
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+[  FAILED  ] AdpCore.A30EachQualifiedRiseTakesOneSample (0 ms)
+[----------] 1 test from AdpCore (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] AdpCore.A30EachQualifiedRiseTakesOneSample
+
+ 1 FAILED TEST

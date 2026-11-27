@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="1" failures="1" disabled="0" errors="0" time="0." timestamp="2026-11-27T06:00:56.285" name="AllTests">
+  <testsuite name="AcmpOwed" tests="1" failures="1" disabled="0" skipped="0" errors="0" time="0." timestamp="2026-11-27T06:00:56.285">
+    <testcase name="RefusedPollLeavesTheBindWaitingAndItsHold" file="<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp" line="3229" status="run" result="completed" time="0." timestamp="2026-11-27T06:00:56.285" classname="AcmpOwed">
+      <failure message="<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3246&#x0A;Value of: a.owed_count == before &amp;&amp; a.bind_waiting&#x0A;  Actual: false&#x0A;Expected: true&#x0A;&#x0A;TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8&#x0A;a refused acmp_poll frees nothing and leaves bind_waiting set&#x0A;TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3246
+Value of: a.owed_count == before && a.bind_waiting
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+a refused acmp_poll frees nothing and leaves bind_waiting set
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+]]></failure>
+      <failure message="<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3261&#x0A;Value of: a.sinks[2].probe_held &amp;&amp; a.probes_held == 1u &amp;&amp; a.owed_count == 8u - 1u &amp;&amp; a.sinks[2].timer_deadline == fk.now + 1u &amp;&amp; a.sinks[2].state == ACMP_PRB_W_RESP&#x0A;  Actual: false&#x0A;Expected: true&#x0A;&#x0A;TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8&#x0A;a retry falling due in the refused pass is held, its timer re-armed 1 ms on&#x0A;TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3261
+Value of: a.sinks[2].probe_held && a.probes_held == 1u && a.owed_count == 8u - 1u && a.sinks[2].timer_deadline == fk.now + 1u && a.sinks[2].state == ACMP_PRB_W_RESP
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+a retry falling due in the refused pass is held, its timer re-armed 1 ms on
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+]]></failure>
+      <failure message="<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3268&#x0A;Expected equality of these values:&#x0A;  position(s)&#x0A;    Which is: 9&#x0A;  8u&#x0A;    Which is: 8&#x0A;&#x0A;TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8&#x0A;no probe leaves ahead of the BIND_RX answer after a refused poll&#x0A;TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3268
+Expected equality of these values:
+  position(s)
+    Which is: 9
+  8u
+    Which is: 8
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+no probe leaves ahead of the BIND_RX answer after a refused poll
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+]]></failure>
+      <failure message="<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3269&#x0A;Expected equality of these values:&#x0A;  s-&gt;at - released&#x0A;    Which is: 11&#x0A;  8u + 1u + 1u&#x0A;    Which is: 10&#x0A;&#x0A;TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8&#x0A;one refused poll delays the kept BIND_RX one pass&#x0A;TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3269
+Expected equality of these values:
+  s->at - released
+    Which is: 11
+  8u + 1u + 1u
+    Which is: 10
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+one refused poll delays the kept BIND_RX one pass
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+]]></failure>
+      <failure message="<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3272&#x0A;Value of: q.msg == spec::MSG_PROBE_TX_COMMAND &amp;&amp; q.listener_uid == 2u &amp;&amp; a.probes_lost == 0u &amp;&amp; !a.sinks[2].probe_held&#x0A;  Actual: false&#x0A;Expected: true&#x0A;&#x0A;TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8&#x0A;the retry held through the refused poll leaves after the deferred binding&apos;s frames, not lost&#x0A;TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3272
+Value of: q.msg == spec::MSG_PROBE_TX_COMMAND && q.listener_uid == 2u && a.probes_lost == 0u && !a.sinks[2].probe_held
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+the retry held through the refused poll leaves after the deferred binding's frames, not lost
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+]]></failure>
+      <failure message="<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3246&#x0A;Value of: a.owed_count == before &amp;&amp; a.bind_waiting&#x0A;  Actual: false&#x0A;Expected: true&#x0A;&#x0A;TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8&#x0A;a refused acmp_poll frees nothing and leaves bind_waiting set&#x0A;TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3246
+Value of: a.owed_count == before && a.bind_waiting
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+a refused acmp_poll frees nothing and leaves bind_waiting set
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+]]></failure>
+    </testcase>
+  </testsuite>
+</testsuites>

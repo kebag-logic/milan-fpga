@@ -1,0 +1,35 @@
+Note: Google Test filter = AcmpCore.A27AProbeOwedPastAnUnbindARebindOrASuccessStartsNothing
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from AcmpCore
+[ RUN      ] AcmpCore.A27AProbeOwedPastAnUnbindARebindOrASuccessStartsNothing
+<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:1741: Failure
+Value of: a.sinks[0].timer_held && !fk.armed[0]
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+A27 the old probe leaving starts no timer for the new one
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:1745: Failure
+Value of: !a.sinks[0].timer_held && a.sinks[0].timer_deadline == fk.now + spec::TMR_NO_RESP_MS && fk.armed[0]
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+A27 the new probe's own send starts it
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+[  FAILED  ] AcmpCore.A27AProbeOwedPastAnUnbindARebindOrASuccessStartsNothing (0 ms)
+[----------] 1 test from AcmpCore (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] AcmpCore.A27AProbeOwedPastAnUnbindARebindOrASuccessStartsNothing
+
+ 1 FAILED TEST

@@ -1,0 +1,203 @@
+Note: Google Test filter = AllStates/AdpInputControl.AcceptsLongControlDataLength/0:AllStates/AdpInputControl.AcceptsLongControlDataLength/1:AllStates/AdpInputControl.AcceptsLongControlDataLength/2:AllStates/AdpInputControl.AcceptsLongControlDataLength/3:AllStates/AdpInputControl.AcceptsLongControlDataLength/4
+[==========] Running 5 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 5 tests from AllStates/AdpInputControl
+[ RUN      ] AllStates/AdpInputControl.AcceptsLongControlDataLength/0
+<PACKET>/scratch/mutations/baseline/tests/test_adp.cpp:1044: Failure
+Expected equality of these values:
+  a.discarded
+    Which is: 1
+  0u
+    Which is: 0
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+valid discovery is never discarded
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+<PACKET>/scratch/mutations/baseline/tests/test_adp.cpp:1054: Failure
+Expected equality of these values:
+  std::memcmp(&a, &before, sizeof a)
+    Which is: 1
+  0
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+valid discovery preserves inactive or delaying state
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+[  FAILED  ] AllStates/AdpInputControl.AcceptsLongControlDataLength/0, where GetParam() = 0 (0 ms)
+[ RUN      ] AllStates/AdpInputControl.AcceptsLongControlDataLength/1
+<PACKET>/scratch/mutations/baseline/tests/test_adp.cpp:1044: Failure
+Expected equality of these values:
+  a.discarded
+    Which is: 1
+  0u
+    Which is: 0
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+valid discovery is never discarded
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+<PACKET>/scratch/mutations/baseline/tests/test_adp.cpp:1054: Failure
+Expected equality of these values:
+  std::memcmp(&a, &before, sizeof a)
+    Which is: 1
+  0
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+valid discovery preserves inactive or delaying state
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+[  FAILED  ] AllStates/AdpInputControl.AcceptsLongControlDataLength/1, where GetParam() = 1 (0 ms)
+[ RUN      ] AllStates/AdpInputControl.AcceptsLongControlDataLength/2
+<PACKET>/scratch/mutations/baseline/tests/test_adp.cpp:1044: Failure
+Expected equality of these values:
+  a.discarded
+    Which is: 1
+  0u
+    Which is: 0
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+valid discovery is never discarded
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+<PACKET>/scratch/mutations/baseline/tests/test_adp.cpp:1054: Failure
+Expected equality of these values:
+  std::memcmp(&a, &before, sizeof a)
+    Which is: 1
+  0
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+valid discovery preserves inactive or delaying state
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+[  FAILED  ] AllStates/AdpInputControl.AcceptsLongControlDataLength/2, where GetParam() = 2 (0 ms)
+[ RUN      ] AllStates/AdpInputControl.AcceptsLongControlDataLength/3
+<PACKET>/scratch/mutations/baseline/tests/test_adp.cpp:1044: Failure
+Expected equality of these values:
+  a.discarded
+    Which is: 1
+  0u
+    Which is: 0
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+valid discovery is never discarded
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+<PACKET>/scratch/mutations/baseline/tests/test_adp.cpp:1054: Failure
+Expected equality of these values:
+  std::memcmp(&a, &before, sizeof a)
+    Which is: 1
+  0
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+valid discovery preserves inactive or delaying state
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+[  FAILED  ] AllStates/AdpInputControl.AcceptsLongControlDataLength/3, where GetParam() = 3 (0 ms)
+[ RUN      ] AllStates/AdpInputControl.AcceptsLongControlDataLength/4
+<PACKET>/scratch/mutations/baseline/tests/test_adp.cpp:1044: Failure
+Expected equality of these values:
+  a.discarded
+    Which is: 1
+  0u
+    Which is: 0
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+valid discovery is never discarded
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+<PACKET>/scratch/mutations/baseline/tests/test_adp.cpp:1047: Failure
+Expected equality of these values:
+  a.state
+    Which is: 3
+  ADP_STATE_DELAY
+    Which is: 2
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+valid discovery enters DELAY from WAITING
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+<PACKET>/scratch/mutations/baseline/tests/test_adp.cpp:1048: Failure
+Expected equality of these values:
+  fk.starts
+    Which is: 2
+  port_before.starts + 1u
+    Which is: 3
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+valid discovery starts one delay timer
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+<PACKET>/scratch/mutations/baseline/tests/test_adp.cpp:1049: Failure
+Expected equality of these values:
+  fk.stops
+    Which is: 0
+  port_before.stops + 1u
+    Which is: 1
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+valid discovery stops the advertisement timer
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+<PACKET>/scratch/mutations/baseline/tests/test_adp.cpp:1050: Failure
+Expected equality of these values:
+  a.timer
+    Which is: 2
+  ADP_TIMER_DELAY
+    Which is: 1
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+valid discovery selects the delay timer
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+<PACKET>/scratch/mutations/baseline/tests/test_adp.cpp:1051: Failure
+Expected equality of these values:
+  a.draws
+    Which is: 1
+  before.draws + 1u
+    Which is: 2
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+valid discovery draws one delay
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+<PACKET>/scratch/mutations/baseline/tests/test_adp.cpp:1052: Failure
+Expected equality of these values:
+  a.last_draw
+    Which is: 1
+  ADP_DRAW_DELAY
+    Which is: 2
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+valid discovery uses the normal delay range
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+[  FAILED  ] AllStates/AdpInputControl.AcceptsLongControlDataLength/4, where GetParam() = 4 (0 ms)
+[----------] 5 tests from AllStates/AdpInputControl (1 ms total)
+
+[----------] Global test environment tear-down
+[==========] 5 tests from 1 test suite ran. (1 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 5 tests, listed below:
+[  FAILED  ] AllStates/AdpInputControl.AcceptsLongControlDataLength/0, where GetParam() = 0
+[  FAILED  ] AllStates/AdpInputControl.AcceptsLongControlDataLength/1, where GetParam() = 1
+[  FAILED  ] AllStates/AdpInputControl.AcceptsLongControlDataLength/2, where GetParam() = 2
+[  FAILED  ] AllStates/AdpInputControl.AcceptsLongControlDataLength/3, where GetParam() = 3
+[  FAILED  ] AllStates/AdpInputControl.AcceptsLongControlDataLength/4, where GetParam() = 4
+
+ 5 FAILED TESTS

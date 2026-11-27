@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="1" failures="1" disabled="0" errors="0" time="0." timestamp="2026-11-27T06:01:06.751" name="AllTests">
+  <testsuite name="AdpCore" tests="1" failures="1" disabled="0" skipped="0" errors="0" time="0." timestamp="2026-11-27T06:01:06.751">
+    <testcase name="A32ADiscoverDrawTakesNoSample" file="<PACKET>/scratch/mutations/baseline/tests/test_adp.cpp" line="892" status="run" result="completed" time="0." timestamp="2026-11-27T06:01:06.751" classname="AdpCore">
+      <failure message="<PACKET>/scratch/mutations/baseline/tests/test_adp.cpp:731&#x0A;Value of: a.state == ADP_STATE_DELAY &amp;&amp; a.draws == draws + 1u &amp;&amp; seed_calls == 1u&#x0A;  Actual: false&#x0A;Expected: true&#x0A;&#x0A;TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8&#x0A;A32 an ENTITY_DISCOVER in WAITING draws its delay and takes no sample&#x0A;TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/mutations/baseline/tests/test_adp.cpp:731
+Value of: a.state == ADP_STATE_DELAY && a.draws == draws + 1u && seed_calls == 1u
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+A32 an ENTITY_DISCOVER in WAITING draws its delay and takes no sample
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+]]></failure>
+      <failure message="<PACKET>/scratch/mutations/baseline/tests/test_adp.cpp:731&#x0A;Value of: a.state == ADP_STATE_DELAY &amp;&amp; a.draws == draws + 1u &amp;&amp; seed_calls == 1u&#x0A;  Actual: false&#x0A;Expected: true&#x0A;&#x0A;TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8&#x0A;A32 an ENTITY_DISCOVER in WAITING draws its delay and takes no sample&#x0A;TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/mutations/baseline/tests/test_adp.cpp:731
+Value of: a.state == ADP_STATE_DELAY && a.draws == draws + 1u && seed_calls == 1u
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+A32 an ENTITY_DISCOVER in WAITING draws its delay and takes no sample
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+]]></failure>
+    </testcase>
+  </testsuite>
+</testsuites>

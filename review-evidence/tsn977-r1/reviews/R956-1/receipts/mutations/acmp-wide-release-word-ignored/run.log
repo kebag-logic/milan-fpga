@@ -1,0 +1,57 @@
+Note: Google Test filter = AcmpWide.OwedResponsesHoldOnlyTheirOwnSinksChanges
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from AcmpWide
+[ RUN      ] AcmpWide.OwedResponsesHoldOnlyTheirOwnSinksChanges
+<PACKET>/scratch/mutations/baseline/tests/test_acmp_wide.cpp:105: Failure
+Value of: acmp_change_pending(&a, kLast) && a.sinks[kLast].change_owed == 1u
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+W1 sink 32's change waits behind its owed response (#653)
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+<PACKET>/scratch/mutations/baseline/tests/test_acmp_wide.cpp:107: Failure
+Value of: acmp_change_pending(&a, 0)
+  Actual: true
+Expected: false
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+W1 sink 0, which owes nothing, is not held by sink 32's response
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+<PACKET>/scratch/mutations/baseline/tests/test_acmp_wide.cpp:109: Failure
+Value of: a.owed_count == 4u && a.sinks[0].change_owed == 1u && a.sinks[kLast].change_owed == 1u
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+W1 with both bound, each sink waits behind one owed response, its own
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+<PACKET>/scratch/mutations/baseline/tests/test_acmp_wide.cpp:114: Failure
+Expected equality of these values:
+  fk.count(Call::CHANGED)
+    Which is: 0
+  1u
+    Which is: 1
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+W1 sink 32's response left: one change is reported
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+[  FAILED  ] AcmpWide.OwedResponsesHoldOnlyTheirOwnSinksChanges (0 ms)
+[----------] 1 test from AcmpWide (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] AcmpWide.OwedResponsesHoldOnlyTheirOwnSinksChanges
+
+ 1 FAILED TEST

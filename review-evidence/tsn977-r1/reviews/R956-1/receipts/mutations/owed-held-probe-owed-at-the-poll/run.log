@@ -1,0 +1,119 @@
+Note: Google Test filter = AcmpOwed.CommandOfferedAfterTheTakenBindDelaysTheHeldRetry:AcmpOwed.CommandOfferedAfterTheTakenBindDelaysTheHeldRetry
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from AcmpOwed
+[ RUN      ] AcmpOwed.CommandOfferedAfterTheTakenBindDelaysTheHeldRetry
+<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3564: Failure
+Value of: deliver(command(spec::MSG_GET_RX_STATE_COMMAND, 0, 0, 0, kCtl2, 0, static_cast<std::uint16_t>(0x7B90 + offered)))
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+a GET_RX_STATE offered for the first time after an accepting poll takes the freed slot
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3577: Failure
+Expected equality of these values:
+  owed
+    Which is: 3
+  taken + 1u + later
+    Which is: 4
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+after the BIND_RX is taken, a GET_RX_STATE offered after the next accepting poll delays the held retry one pass
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3588: Failure
+Value of: position(s) < position(retry)
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+no command answer waits for the held retry
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3564: Failure
+Value of: deliver(command(spec::MSG_GET_RX_STATE_COMMAND, 0, 0, 0, kCtl2, 0, static_cast<std::uint16_t>(0x7B90 + offered)))
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+a GET_RX_STATE offered for the first time after an accepting poll takes the freed slot
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3564: Failure
+Value of: deliver(command(spec::MSG_GET_RX_STATE_COMMAND, 0, 0, 0, kCtl2, 0, static_cast<std::uint16_t>(0x7B90 + offered)))
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+a GET_RX_STATE offered for the first time after an accepting poll takes the freed slot
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3564: Failure
+Value of: deliver(command(spec::MSG_GET_RX_STATE_COMMAND, 0, 0, 0, kCtl2, 0, static_cast<std::uint16_t>(0x7B90 + offered)))
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+a GET_RX_STATE offered for the first time after an accepting poll takes the freed slot
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3577: Failure
+Expected equality of these values:
+  owed
+    Which is: 3
+  taken + 1u + later
+    Which is: 6
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+after the BIND_RX is taken, a GET_RX_STATE offered after the next accepting poll delays the held retry one pass
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3588: Failure
+Value of: position(s) < position(retry)
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+no command answer waits for the held retry
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3588: Failure
+Value of: position(s) < position(retry)
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+no command answer waits for the held retry
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3588: Failure
+Value of: position(s) < position(retry)
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+no command answer waits for the held retry
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+[  FAILED  ] AcmpOwed.CommandOfferedAfterTheTakenBindDelaysTheHeldRetry (0 ms)
+[----------] 1 test from AcmpOwed (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] AcmpOwed.CommandOfferedAfterTheTakenBindDelaysTheHeldRetry
+
+ 1 FAILED TEST

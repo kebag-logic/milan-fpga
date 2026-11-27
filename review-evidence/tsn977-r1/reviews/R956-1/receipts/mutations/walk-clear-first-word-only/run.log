@@ -1,0 +1,27 @@
+Note: Google Test filter = AcmpWalk.ThirtyThreeSinksMatchTheFullWalk
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from AcmpWalk
+[ RUN      ] AcmpWalk.ThirtyThreeSinksMatchTheFullWalk
+<PACKET>/scratch/mutations/baseline/tests/test_acmp_walk.cpp:342: Failure
+Expected equality of these values:
+  word
+    Which is: 1
+  0u
+    Which is: 0
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+a completed entry leaves no sink marked, at step 9 of 33 sinks
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+[  FAILED  ] AcmpWalk.ThirtyThreeSinksMatchTheFullWalk (0 ms)
+[----------] 1 test from AcmpWalk (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] AcmpWalk.ThirtyThreeSinksMatchTheFullWalk
+
+ 1 FAILED TEST

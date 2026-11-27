@@ -1,0 +1,26 @@
+[==========] Running 4 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 4 tests from AcmpWalk
+[ RUN      ] AcmpWalk.OneSinkMatchesTheFullWalk
+[       OK ] AcmpWalk.OneSinkMatchesTheFullWalk (6 ms)
+[ RUN      ] AcmpWalk.EightSinksMatchTheFullWalk
+[       OK ] AcmpWalk.EightSinksMatchTheFullWalk (13 ms)
+[ RUN      ] AcmpWalk.ThirtyTwoSinksMatchTheFullWalk
+[       OK ] AcmpWalk.ThirtyTwoSinksMatchTheFullWalk (28 ms)
+[ RUN      ] AcmpWalk.ThirtyThreeSinksMatchTheFullWalk
+<SOURCE>/tests/test_acmp_walk.cpp:338: Failure
+Value of: walked.trace == full.trace
+  Actual: false
+Expected: true
+the changed-sink walk makes the full walk's calls, in order, at step 12 of 33 sinks
+
+[  FAILED  ] AcmpWalk.ThirtyThreeSinksMatchTheFullWalk (0 ms)
+[----------] 4 tests from AcmpWalk (48 ms total)
+
+[----------] Global test environment tear-down
+[==========] 4 tests from 1 test suite ran. (48 ms total)
+[  PASSED  ] 3 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] AcmpWalk.ThirtyThreeSinksMatchTheFullWalk
+
+ 1 FAILED TEST

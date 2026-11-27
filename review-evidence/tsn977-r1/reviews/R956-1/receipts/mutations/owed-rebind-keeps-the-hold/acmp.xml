@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="1" failures="1" disabled="0" errors="0" time="0." timestamp="2026-11-27T06:00:56.486" name="AllTests">
+  <testsuite name="AcmpOwed" tests="1" failures="1" disabled="0" skipped="0" errors="0" time="0." timestamp="2026-11-27T06:00:56.486">
+    <testcase name="BindToAnotherTalkerEndsTheHoldOfTheProbeItReplaces" file="<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp" line="3279" status="run" result="completed" time="0." timestamp="2026-11-27T06:00:56.486" classname="AcmpOwed">
+      <failure message="<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3297&#x0A;Value of: held.empty() &amp;&amp; a.sinks[2].binding.talker_entity_id == kTkA &amp;&amp; a.sinks[2].state == ACMP_PRB_W_RESP &amp;&amp; !a.sinks[2].probe_held&#x0A;  Actual: false&#x0A;Expected: true&#x0A;&#x0A;TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8&#x0A;a BIND_RX to another talker ends the hold of the probe it replaces&#x0A;TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3297
+Value of: held.empty() && a.sinks[2].binding.talker_entity_id == kTkA && a.sinks[2].state == ACMP_PRB_W_RESP && !a.sinks[2].probe_held
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+a BIND_RX to another talker ends the hold of the probe it replaces
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+]]></failure>
+      <failure message="<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3300&#x0A;Value of: a.probes_lost == 1u &amp;&amp; !a.sinks[3].probe_held &amp;&amp; a.sinks[3].state == ACMP_PRB_W_RESP2&#x0A;  Actual: false&#x0A;Expected: true&#x0A;&#x0A;TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8&#x0A;with nothing held and no BIND_RX waiting, the next retry that finds every slot owed is lost&#x0A;TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3300
+Value of: a.probes_lost == 1u && !a.sinks[3].probe_held && a.sinks[3].state == ACMP_PRB_W_RESP2
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+with nothing held and no BIND_RX waiting, the next retry that finds every slot owed is lost
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+]]></failure>
+    </testcase>
+  </testsuite>
+</testsuites>

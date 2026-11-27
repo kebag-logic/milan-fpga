@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="2" failures="2" disabled="0" errors="0" time="0." timestamp="2026-11-27T06:00:51.319" name="AllTests">
+  <testsuite name="AcmpCore" tests="1" failures="1" disabled="0" skipped="0" errors="0" time="0." timestamp="2026-11-27T06:00:51.319">
+    <testcase name="A5RebindTheSameSourceUpdatesAndExits" file="<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp" line="480" status="run" result="completed" time="0." timestamp="2026-11-27T06:00:51.319" classname="AcmpCore">
+      <failure message="<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:491&#x0A;Expected equality of these values:&#x0A;  fk.sent.size()&#x0A;    Which is: 3&#x0A;  1u&#x0A;    Which is: 1&#x0A;&#x0A;TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8&#x0A;A5 a re-bind of the same source sends the response alone, state 1&#x0A;TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:491
+Expected equality of these values:
+  fk.sent.size()
+    Which is: 3
+  1u
+    Which is: 1
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+A5 a re-bind of the same source sends the response alone, state 1
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+]]></failure>
+    </testcase>
+  </testsuite>
+  <testsuite name="AcmpOwed" tests="1" failures="1" disabled="0" skipped="0" errors="0" time="0." timestamp="2026-11-27T06:00:51.319">
+    <testcase name="KeptCommandsLeaveOnePassPerFrameOwedAheadOfThem" file="<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp" line="3367" status="run" result="completed" time="0." timestamp="2026-11-27T06:00:51.319" classname="AcmpOwed">
+      <failure message="<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3394&#x0A;Expected equality of these values:&#x0A;  kept_answers[i]-&gt;at - released&#x0A;    Which is: 15&#x0A;  8u + 1u + f&#x0A;    Which is: 14&#x0A;&#x0A;TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8&#x0A;each kept command leaves in pass ACMP_OWED_MAX + 1 + f, f the frames owed by the kept commands ahead of it&#x0A;TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3394
+Expected equality of these values:
+  kept_answers[i]->at - released
+    Which is: 15
+  8u + 1u + f
+    Which is: 14
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+each kept command leaves in pass ACMP_OWED_MAX + 1 + f, f the frames owed by the kept commands ahead of it
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+]]></failure>
+      <failure message="<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3394&#x0A;Expected equality of these values:&#x0A;  kept_answers[i]-&gt;at - released&#x0A;    Which is: 16&#x0A;  8u + 1u + f&#x0A;    Which is: 15&#x0A;&#x0A;TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8&#x0A;each kept command leaves in pass ACMP_OWED_MAX + 1 + f, f the frames owed by the kept commands ahead of it&#x0A;TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3394
+Expected equality of these values:
+  kept_answers[i]->at - released
+    Which is: 16
+  8u + 1u + f
+    Which is: 15
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+each kept command leaves in pass ACMP_OWED_MAX + 1 + f, f the frames owed by the kept commands ahead of it
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+]]></failure>
+      <failure message="<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3394&#x0A;Expected equality of these values:&#x0A;  kept_answers[i]-&gt;at - released&#x0A;    Which is: 17&#x0A;  8u + 1u + f&#x0A;    Which is: 16&#x0A;&#x0A;TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8&#x0A;each kept command leaves in pass ACMP_OWED_MAX + 1 + f, f the frames owed by the kept commands ahead of it&#x0A;TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3394
+Expected equality of these values:
+  kept_answers[i]->at - released
+    Which is: 17
+  8u + 1u + f
+    Which is: 16
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+each kept command leaves in pass ACMP_OWED_MAX + 1 + f, f the frames owed by the kept commands ahead of it
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+]]></failure>
+      <failure message="<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3394&#x0A;Expected equality of these values:&#x0A;  kept_answers[i]-&gt;at - released&#x0A;    Which is: 19&#x0A;  8u + 1u + f&#x0A;    Which is: 18&#x0A;&#x0A;TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8&#x0A;each kept command leaves in pass ACMP_OWED_MAX + 1 + f, f the frames owed by the kept commands ahead of it&#x0A;TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3394
+Expected equality of these values:
+  kept_answers[i]->at - released
+    Which is: 19
+  8u + 1u + f
+    Which is: 18
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+each kept command leaves in pass ACMP_OWED_MAX + 1 + f, f the frames owed by the kept commands ahead of it
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+]]></failure>
+      <failure message="<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3405&#x0A;Expected equality of these values:&#x0A;  fk.sent.size()&#x0A;    Which is: 23&#x0A;  8u + f + others.size()&#x0A;    Which is: 22&#x0A;&#x0A;TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8&#x0A;every kept command and every held probe left, none lost&#x0A;TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3405
+Expected equality of these values:
+  fk.sent.size()
+    Which is: 23
+  8u + f + others.size()
+    Which is: 22
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+every kept command and every held probe left, none lost
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+]]></failure>
+    </testcase>
+  </testsuite>
+</testsuites>

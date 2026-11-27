@@ -1,0 +1,57 @@
+Note: Google Test filter = AcmpOwed.ReadyPredicateMatchesTheOwedBound
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from AcmpOwed
+[ RUN      ] AcmpOwed.ReadyPredicateMatchesTheOwedBound
+<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:2886: Failure
+Value of: acmp_rx(&a, 0, last_slot.data(), last_slot.size())
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+the command that takes the last owed slot is taken
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:2888: Failure
+Expected equality of these values:
+  a.owed_count
+    Which is: 7
+  8u
+    Which is: 8
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+the last owed slot holds that answer
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:2892: Failure
+Value of: acmp_rx_ready(&a)
+  Actual: true
+Expected: false
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+one accepted owed frame leaves one free slot, still not ready
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:2902: Failure
+Value of: a.reentries == 1u && reentry_traps == 1u && a.busy_declined == 1u
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+the re-entered frame counts as re-entry, not as a full owed set
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+[  FAILED  ] AcmpOwed.ReadyPredicateMatchesTheOwedBound (0 ms)
+[----------] 1 test from AcmpOwed (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] AcmpOwed.ReadyPredicateMatchesTheOwedBound
+
+ 1 FAILED TEST

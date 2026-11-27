@@ -1,0 +1,127 @@
+Note: Google Test filter = AcmpOwed.KeptCommandsBehindSevenOwedLeaveOnePassSooner:AcmpOwed.KeptCommandsBehindSevenOwedLeaveOnePassSooner
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from AcmpOwed
+[ RUN      ] AcmpOwed.KeptCommandsBehindSevenOwedLeaveOnePassSooner
+<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3479: Failure
+Value of: a.owed_count == 8u - 1u && a.bind_waiting && a.sinks[3].probe_held && a.sinks[3].state == ACMP_PRB_W_RESP && held.size() == kept.size()
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+the egress returns with seven owed: a retry falling due in the hold is held beside the waiting BIND_RX
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3491: Failure
+Expected equality of these values:
+  s->at - released
+    Which is: 9
+  8u + f
+    Which is: 8
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+from seven owed each kept command leaves in pass ACMP_OWED_MAX + f, one pass sooner than from a full set
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3491: Failure
+Expected equality of these values:
+  s->at - released
+    Which is: 11
+  8u + f
+    Which is: 10
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+from seven owed each kept command leaves in pass ACMP_OWED_MAX + f, one pass sooner than from a full set
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3491: Failure
+Expected equality of these values:
+  s->at - released
+    Which is: 12
+  8u + f
+    Which is: 11
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+from seven owed each kept command leaves in pass ACMP_OWED_MAX + f, one pass sooner than from a full set
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3498: Failure
+Value of: q.msg == spec::MSG_PROBE_TX_COMMAND && q.listener_uid == 3u && fk.sent.back().at - released == 8u + f && a.probes_lost == 0u
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+the retry held through the hold at seven owed follows the last kept command's frames, not lost
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3479: Failure
+Value of: a.owed_count == 8u - 1u && a.bind_waiting && a.sinks[3].probe_held && a.sinks[3].state == ACMP_PRB_W_RESP && held.size() == kept.size()
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+the egress returns with seven owed: a retry falling due in the hold is held beside the waiting BIND_RX
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3491: Failure
+Expected equality of these values:
+  s->at - released
+    Which is: 9
+  8u + f
+    Which is: 8
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+from seven owed each kept command leaves in pass ACMP_OWED_MAX + f, one pass sooner than from a full set
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3491: Failure
+Expected equality of these values:
+  s->at - released
+    Which is: 11
+  8u + f
+    Which is: 10
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+from seven owed each kept command leaves in pass ACMP_OWED_MAX + f, one pass sooner than from a full set
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3491: Failure
+Expected equality of these values:
+  s->at - released
+    Which is: 12
+  8u + f
+    Which is: 11
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+from seven owed each kept command leaves in pass ACMP_OWED_MAX + f, one pass sooner than from a full set
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3498: Failure
+Value of: q.msg == spec::MSG_PROBE_TX_COMMAND && q.listener_uid == 3u && fk.sent.back().at - released == 8u + f && a.probes_lost == 0u
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+the retry held through the hold at seven owed follows the last kept command's frames, not lost
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+[  FAILED  ] AcmpOwed.KeptCommandsBehindSevenOwedLeaveOnePassSooner (0 ms)
+[----------] 1 test from AcmpOwed (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] AcmpOwed.KeptCommandsBehindSevenOwedLeaveOnePassSooner
+
+ 1 FAILED TEST

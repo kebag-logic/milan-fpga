@@ -1,0 +1,61 @@
+Note: Google Test filter = AcmpCore.A1BindFromUnboundRespondsThenProbes:AcmpOwed.DeferredBindWaitsForTwoSlotsAndLosesNoProbe
+[==========] Running 2 tests from 2 test suites.
+[----------] Global test environment set-up.
+[----------] 1 test from AcmpCore
+[ RUN      ] AcmpCore.A1BindFromUnboundRespondsThenProbes
+<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:287: Failure
+Value of: same(r, want)
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+A1 BIND_RX_RESPONSE is Table 5.32 field by field
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:298: Failure
+Value of: same(p, probe)
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+A1 PROBE_TX_COMMAND is Table 5.33 field by field
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+[  FAILED  ] AcmpCore.A1BindFromUnboundRespondsThenProbes (0 ms)
+[----------] 1 test from AcmpCore (0 ms total)
+
+[----------] 1 test from AcmpOwed
+[ RUN      ] AcmpOwed.DeferredBindWaitsForTwoSlotsAndLosesNoProbe
+<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3025: Failure
+Value of: q.msg == spec::MSG_PROBE_TX_COMMAND && q.talker == kTkA && q.listener_uid == 1u && q.seq == a.sinks[1].probe_seq && probe.at == s->at + 1u
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+the first probe leaves at once, in the pass after the BIND_RX answer
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3028: Failure
+Value of: a.sinks[1].state == ACMP_PRB_W_RESP && !a.sinks[1].probe_retried && a.sinks[1].timer == ACMP_TIMER_NO_RESP && a.sinks[1].timer_deadline == probe.at + spec::TMR_NO_RESP_MS
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+the probe's timeout runs from when it left, with its retry still unused
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+[  FAILED  ] AcmpOwed.DeferredBindWaitsForTwoSlotsAndLosesNoProbe (0 ms)
+[----------] 1 test from AcmpOwed (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 2 tests from 2 test suites ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 2 tests, listed below:
+[  FAILED  ] AcmpCore.A1BindFromUnboundRespondsThenProbes
+[  FAILED  ] AcmpOwed.DeferredBindWaitsForTwoSlotsAndLosesNoProbe
+
+ 2 FAILED TESTS

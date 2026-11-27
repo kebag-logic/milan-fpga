@@ -1,0 +1,26 @@
+Note: Google Test filter = AdpCore.AdvertisementFieldsMatchCaller
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from AdpCore
+[ RUN      ] AdpCore.AdvertisementFieldsMatchCaller
+<PACKET>/scratch/mutations/baseline/tests/test_adp.cpp:961: Failure
+Expected equality of these values:
+  std::memcmp(frame, expected, sizeof expected)
+    Which is: -17
+  0
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+advertisement bytes match the independent entity vector
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+[  FAILED  ] AdpCore.AdvertisementFieldsMatchCaller (0 ms)
+[----------] 1 test from AdpCore (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] AdpCore.AdvertisementFieldsMatchCaller
+
+ 1 FAILED TEST

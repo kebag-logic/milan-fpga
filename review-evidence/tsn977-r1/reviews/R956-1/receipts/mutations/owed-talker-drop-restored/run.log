@@ -1,0 +1,71 @@
+Note: Google Test filter = AcmpOwed.TalkerCommandsBehindTheOwedSetAreAnsweredInTime:AcmpCore.A19AFullQueueDeclinesTheCommandBeforeItActs
+[==========] Running 2 tests from 2 test suites.
+[----------] Global test environment set-up.
+[----------] 1 test from AcmpCore
+[ RUN      ] AcmpCore.A19AFullQueueDeclinesTheCommandBeforeItActs
+<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:1120: Failure
+Value of: acmp_rx(&a, 0, g.data(), g.size())
+  Actual: true
+Expected: false
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+A19 a full queue declines a GET_TX_STATE to its caller
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+[  FAILED  ] AcmpCore.A19AFullQueueDeclinesTheCommandBeforeItActs (0 ms)
+[----------] 1 test from AcmpCore (0 ms total)
+
+[----------] 1 test from AcmpOwed
+[ RUN      ] AcmpOwed.TalkerCommandsBehindTheOwedSetAreAnsweredInTime
+<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:2813: Failure
+Value of: deliver(p)
+  Actual: true
+Expected: false
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+a PROBE_TX behind the full owed set is declined to the port
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:2818: Failure
+Value of: deliver(p)
+  Actual: true
+Expected: false
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+a DISCONNECT_TX waits in the port behind the declined command
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:2821: Failure
+Value of: deliver(p)
+  Actual: true
+Expected: false
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+a GET_TX_CONNECTION waits in the port behind the declined commands
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:2825: Failure
+Value of: probe != nullptr
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+the PROBE_TX behind the owed set is answered
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+[  FAILED  ] AcmpOwed.TalkerCommandsBehindTheOwedSetAreAnsweredInTime (0 ms)
+[----------] 1 test from AcmpOwed (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 2 tests from 2 test suites ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 2 tests, listed below:
+[  FAILED  ] AcmpCore.A19AFullQueueDeclinesTheCommandBeforeItActs
+[  FAILED  ] AcmpOwed.TalkerCommandsBehindTheOwedSetAreAnsweredInTime
+
+ 2 FAILED TESTS

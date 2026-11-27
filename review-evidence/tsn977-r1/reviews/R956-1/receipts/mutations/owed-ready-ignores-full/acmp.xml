@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="2" failures="2" disabled="0" errors="0" time="0." timestamp="2026-11-27T06:00:54.877" name="AllTests">
+  <testsuite name="AcmpOwed" tests="2" failures="2" disabled="0" skipped="0" errors="0" time="0." timestamp="2026-11-27T06:00:54.877">
+    <testcase name="ReadyPredicateMatchesTheOwedBound" file="<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp" line="2872" status="run" result="completed" time="0." timestamp="2026-11-27T06:00:54.877" classname="AcmpOwed">
+      <failure message="<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:2880&#x0A;Value of: acmp_rx_ready(&amp;a)&#x0A;  Actual: true&#x0A;Expected: false&#x0A;&#x0A;TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8&#x0A;one free owed slot is not ready, since a BIND_RX needs two&#x0A;TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:2880
+Value of: acmp_rx_ready(&a)
+  Actual: true
+Expected: false
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+one free owed slot is not ready, since a BIND_RX needs two
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+]]></failure>
+      <failure message="<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:2889&#x0A;Value of: acmp_rx_ready(&amp;a)&#x0A;  Actual: true&#x0A;Expected: false&#x0A;&#x0A;TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8&#x0A;a full owed set is not ready&#x0A;TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:2889
+Value of: acmp_rx_ready(&a)
+  Actual: true
+Expected: false
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+a full owed set is not ready
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+]]></failure>
+      <failure message="<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:2892&#x0A;Value of: acmp_rx_ready(&amp;a)&#x0A;  Actual: true&#x0A;Expected: false&#x0A;&#x0A;TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8&#x0A;one accepted owed frame leaves one free slot, still not ready&#x0A;TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:2892
+Value of: acmp_rx_ready(&a)
+  Actual: true
+Expected: false
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+one accepted owed frame leaves one free slot, still not ready
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+]]></failure>
+    </testcase>
+    <testcase name="GatedPortBudgetsOnePassPerProbeOwedAhead" file="<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp" line="3331" status="run" result="completed" time="0." timestamp="2026-11-27T06:00:54.877" classname="AcmpOwed">
+      <failure message="<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3346&#x0A;Value of: taken&#x0A;  Actual: false&#x0A;Expected: true&#x0A;&#x0A;TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8&#x0A;a gated port offers its frame only when acmp_rx_ready is true, and it is taken&#x0A;TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3346
+Value of: taken
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+a gated port offers its frame only when acmp_rx_ready is true, and it is taken
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+]]></failure>
+      <failure message="<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3358&#x0A;Value of: a.busy_declined == 0u &amp;&amp; a.probes_held == 0u &amp;&amp; !a.bind_waiting &amp;&amp; a.probes_lost == 0u&#x0A;  Actual: false&#x0A;Expected: true&#x0A;&#x0A;TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8&#x0A;a port that tests acmp_rx_ready gives the core no sign of the waiting frame: nothing is declined or held&#x0A;TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3358
+Value of: a.busy_declined == 0u && a.probes_held == 0u && !a.bind_waiting && a.probes_lost == 0u
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+a port that tests acmp_rx_ready gives the core no sign of the waiting frame: nothing is declined or held
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+]]></failure>
+      <failure message="<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3360&#x0A;Expected equality of these values:&#x0A;  s-&gt;at - released&#x0A;    Which is: 9&#x0A;  8u + 1u + others.size()&#x0A;    Which is: 13&#x0A;&#x0A;TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8&#x0A;each timer probe owed while the frame waits delays it one pass, one per sink&#x0A;TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3360
+Expected equality of these values:
+  s->at - released
+    Which is: 9
+  8u + 1u + others.size()
+    Which is: 13
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+each timer probe owed while the frame waits delays it one pass, one per sink
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+]]></failure>
+    </testcase>
+  </testsuite>
+</testsuites>

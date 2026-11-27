@@ -1,0 +1,122 @@
+Note: Google Test filter = AcmpOwed.ProbesFallingDueInTheDrainWaitForTheDeferredBind:AcmpOwed.RefusedPollLeavesTheBindWaitingAndItsHold
+[==========] Running 2 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 2 tests from AcmpOwed
+[ RUN      ] AcmpOwed.ProbesFallingDueInTheDrainWaitForTheDeferredBind
+<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3092: Failure
+Expected equality of these values:
+  a.probes_held
+    Which is: 1
+  holds
+    Which is: 2
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+each held probe counts once for each pass it is held
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3092: Failure
+Expected equality of these values:
+  a.probes_held
+    Which is: 1
+  holds
+    Which is: 2
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+each held probe counts once for each pass it is held
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3092: Failure
+Expected equality of these values:
+  a.probes_held
+    Which is: 4
+  holds
+    Which is: 8
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+each held probe counts once for each pass it is held
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3083: Failure
+Expected equality of these values:
+  owed_in[j]
+    Which is: 5
+  taken_in + 1u + c.behind + j
+    Which is: 4
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+each held probe is owed in the pass after the BIND_RX is taken, one pass per probe before it
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3083: Failure
+Expected equality of these values:
+  owed_in[j]
+    Which is: 7
+  taken_in + 1u + c.behind + j
+    Which is: 6
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+each held probe is owed in the pass after the BIND_RX is taken, one pass per probe before it
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3092: Failure
+Expected equality of these values:
+  a.probes_held
+    Which is: 8
+  holds
+    Which is: 16
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+each held probe counts once for each pass it is held
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3092: Failure
+Expected equality of these values:
+  a.probes_held
+    Which is: 4
+  holds
+    Which is: 8
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+each held probe counts once for each pass it is held
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+[  FAILED  ] AcmpOwed.ProbesFallingDueInTheDrainWaitForTheDeferredBind (0 ms)
+[ RUN      ] AcmpOwed.RefusedPollLeavesTheBindWaitingAndItsHold
+<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3261: Failure
+Value of: a.sinks[2].probe_held && a.probes_held == 1u && a.owed_count == 8u - 1u && a.sinks[2].timer_deadline == fk.now + 1u && a.sinks[2].state == ACMP_PRB_W_RESP
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+a retry falling due in the refused pass is held, its timer re-armed 1 ms on
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3261: Failure
+Value of: a.sinks[2].probe_held && a.probes_held == 1u && a.owed_count == 8u - 1u && a.sinks[2].timer_deadline == fk.now + 1u && a.sinks[2].state == ACMP_PRB_W_RESP
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+a retry falling due in the refused pass is held, its timer re-armed 1 ms on
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+[  FAILED  ] AcmpOwed.RefusedPollLeavesTheBindWaitingAndItsHold (0 ms)
+[----------] 2 tests from AcmpOwed (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 2 tests from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 2 tests, listed below:
+[  FAILED  ] AcmpOwed.ProbesFallingDueInTheDrainWaitForTheDeferredBind
+[  FAILED  ] AcmpOwed.RefusedPollLeavesTheBindWaitingAndItsHold
+
+ 2 FAILED TESTS

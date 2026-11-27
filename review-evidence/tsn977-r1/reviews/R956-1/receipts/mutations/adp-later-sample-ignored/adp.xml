@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="1" failures="1" disabled="0" errors="0" time="0.001" timestamp="2026-11-27T06:01:06.972" name="AllTests">
+  <testsuite name="AdpCore" tests="1" failures="1" disabled="0" skipped="0" errors="0" time="0.001" timestamp="2026-11-27T06:01:06.972">
+    <testcase name="A31TheLinkUpsSampleSetsItsDraw" file="<PACKET>/scratch/mutations/baseline/tests/test_adp.cpp" line="890" status="run" result="completed" time="0.001" timestamp="2026-11-27T06:01:06.972" classname="AdpCore">
+      <failure message="<PACKET>/scratch/mutations/baseline/tests/test_adp.cpp:713&#x0A;Expected: (distinct) &gt;= (2400u), actual: 1 vs 2400&#x0A;&#x0A;TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8&#x0A;A31 boots that differ only in the sample at a LINK_UP draw apart&#x0A;TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/mutations/baseline/tests/test_adp.cpp:713
+Expected: (distinct) >= (2400u), actual: 1 vs 2400
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+A31 boots that differ only in the sample at a LINK_UP draw apart
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+]]></failure>
+      <failure message="<PACKET>/scratch/mutations/baseline/tests/test_adp.cpp:714&#x0A;Expected: (chi_square_x16(first, 4000u)) &lt;= (kChiSquareX16), actual: 983040 vs 490&#x0A;&#x0A;TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8&#x0A;A31 and draw uniformly from the sample taken at that LINK_UP&#x0A;TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/mutations/baseline/tests/test_adp.cpp:714
+Expected: (chi_square_x16(first, 4000u)) <= (kChiSquareX16), actual: 983040 vs 490
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+A31 and draw uniformly from the sample taken at that LINK_UP
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+]]></failure>
+      <failure message="<PACKET>/scratch/mutations/baseline/tests/test_adp.cpp:713&#x0A;Expected: (distinct) &gt;= (2400u), actual: 1 vs 2400&#x0A;&#x0A;TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8&#x0A;A31 boots that differ only in the sample at a LINK_UP draw apart&#x0A;TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/mutations/baseline/tests/test_adp.cpp:713
+Expected: (distinct) >= (2400u), actual: 1 vs 2400
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+A31 boots that differ only in the sample at a LINK_UP draw apart
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+]]></failure>
+      <failure message="<PACKET>/scratch/mutations/baseline/tests/test_adp.cpp:714&#x0A;Expected: (chi_square_x16(first, 4000u)) &lt;= (kChiSquareX16), actual: 983040 vs 490&#x0A;&#x0A;TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8&#x0A;A31 and draw uniformly from the sample taken at that LINK_UP&#x0A;TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/mutations/baseline/tests/test_adp.cpp:714
+Expected: (chi_square_x16(first, 4000u)) <= (kChiSquareX16), actual: 983040 vs 490
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+A31 and draw uniformly from the sample taken at that LINK_UP
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+]]></failure>
+    </testcase>
+  </testsuite>
+</testsuites>

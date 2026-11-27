@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="1" failures="1" disabled="0" errors="0" time="0." timestamp="2026-11-27T06:01:09.329" name="AllTests">
+  <testsuite name="EntityYaml" tests="1" failures="1" disabled="0" skipped="0" errors="0" time="0." timestamp="2026-11-27T06:01:09.329">
+    <testcase name="AcmpRoundTrip" file="<PACKET>/scratch/mutations/baseline/tests/test_entity.cpp" line="18" status="run" result="completed" time="0." timestamp="2026-11-27T06:01:09.329" classname="EntityYaml">
+      <failure message="<PACKET>/scratch/mutations/baseline/tests/test_entity.cpp:20&#x0A;Expected equality of these values:&#x0A;  entity_check_acmp()&#x0A;    Which is: 44&#x0A;  0&#x0A;&#x0A;TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8&#x0A;generated ACMP interfaces preserve binding admission routes&#x0A;TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/mutations/baseline/tests/test_entity.cpp:20
+Expected equality of these values:
+  entity_check_acmp()
+    Which is: 44
+  0
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+generated ACMP interfaces preserve binding admission routes
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+]]></failure>
+    </testcase>
+  </testsuite>
+</testsuites>

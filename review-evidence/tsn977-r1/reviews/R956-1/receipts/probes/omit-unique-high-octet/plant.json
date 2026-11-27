@@ -1,0 +1,5 @@
+{
+  "name": "omit-unique-high-octet",
+  "old": "(uint32_t)(p[2] ^ (unique >> 8))",
+  "new": "0u"
+}

@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="(empty)"
+	tests="10"
+	failures="0"
+	disabled="0"
+	skipped="0"
+	hostname=""
+	time="0"
+	timestamp="2026-11-27T06:00:29"
+	>
+	<testcase name="adp_tests" classname="adp_tests" time="0.180008" status="run">
+		<properties/>
+		<system-out>[==========] Running 57 tests from 2 test suites.
+[----------] Global test environment set-up.
+[----------] 27 tests from AdpCore
+[ RUN      ] AdpCore.A0toA2Schedule
+[       OK ] AdpCore.A0toA2Schedule (0 ms)
+[ RUN      ] AdpCore.A3toA5DiscoverAndDiscard
+[       OK ] AdpCore.A3toA5DiscoverAndDiscard (0 ms)
+[ RUN      ] AdpCore.A6toA8DeferredSends
+[       OK ] AdpCore.A6toA8DeferredSends (0 ms)
+[ RUN      ] AdpCore.A9DrawKinds
+[       OK ] AdpCore.A9DrawKinds (0 ms)
+[ RUN      ] AdpCore.A10toA14DepartingIndex
+[       OK ] AdpCore.A10toA14DepartingIndex (0 ms)
+[ RUN      ] AdpCore.A15OwedDepartingAcrossARestart
+[       OK ] AdpCore.A15OwedDepartingAcrossARestart (0 ms)
+[ RUN      ] AdpCore.A16SecondShutdownQueuesItsOwn
+[       OK ] AdpCore.A16SecondShutdownQueuesItsOwn (0 ms)
+[ RUN      ] AdpCore.A17RoomBackBeforeAPoll
+[       OK ] AdpCore.A17RoomBackBeforeAPoll (0 ms)
+[ RUN      ] AdpCore.A18LinkLossKeepsTheOwedDeparting
+[       OK ] AdpCore.A18LinkLossKeepsTheOwedDeparting (0 ms)
+[ RUN      ] AdpCore.A19Ignor...
+[This part of the test output was removed since it exceeds the threshold of 1024 bytes.]
+</system-out>
+	</testcase>
+	<testcase name="acmp_tests" classname="acmp_tests" time="0.0340086" status="run">
+		<properties/>
+		<system-out>[==========] Running 127 tests from 4 test suites.
+[----------] Global test environment set-up.
+[----------] 80 tests from AcmpCore
+[ RUN      ] AcmpCore.A0InitRefusesWhatTheStaticSizesCannotHold
+[       OK ] AcmpCore.A0InitRefusesWhatTheStaticSizesCannotHold (0 ms)
+[ RUN      ] AcmpCore.A0EverySinkStartsUnboundAndNothingIsCalled
+[       OK ] AcmpCore.A0EverySinkStartsUnboundAndNothingIsCalled (0 ms)
+[ RUN      ] AcmpCore.A1BindFromUnboundRespondsThenProbes
+[       OK ] AcmpCore.A1BindFromUnboundRespondsThenProbes (0 ms)
+[ RUN      ] AcmpCore.A1BindWithoutStreamingWaitBindsStarted
+[       OK ] AcmpCore.A1BindWithoutStreamingWaitBindsStarted (0 ms)
+[ RUN      ] AcmpCore.A2GetRxStateInEveryState
+[       OK ] AcmpCore.A2GetRxStateInEveryState (0 ms)
+[ RUN      ] AcmpCore.A2GetRxStateReportsStreamingWaitAndRegisteringFailed
+[       OK ] AcmpCore.A2GetRxStateReportsStreamingWaitAndRegisteringFailed (0 ms)
+[ RUN      ] AcmpCore.A2UnknownSinkIsAnsweredListenerUnknownId
+[       OK ] AcmpCore.A2UnknownSinkIsAnsweredLi...
+[This part of the test output was removed since it exceeds the threshold of 1024 bytes.]
+</system-out>
+	</testcase>
+	<testcase name="acmp_wide" classname="acmp_wide" time="0.0180785" status="run">
+		<properties/>
+		<system-out>[==========] Running 5 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 5 tests from AcmpWide
+[ RUN      ] AcmpWide.OwedResponsesHoldOnlyTheirOwnSinksChanges
+[       OK ] AcmpWide.OwedResponsesHoldOnlyTheirOwnSinksChanges (0 ms)
+[ RUN      ] AcmpWide.SinkZerosOwedResponseLeavesSinkThirtyTwoFree
+[       OK ] AcmpWide.SinkZerosOwedResponseLeavesSinkThirtyTwoFree (0 ms)
+[ RUN      ] AcmpWide.SinksThirtyOneAndThirtyTwoWaitOnlyForTheirOwnResponses
+[       OK ] AcmpWide.SinksThirtyOneAndThirtyTwoWaitOnlyForTheirOwnResponses (0 ms)
+[ RUN      ] AcmpWide.ProbeInTheSlotOfSinkThirtyOnesResponseHoldsNoSink
+[       OK ] AcmpWide.ProbeInTheSlotOfSinkThirtyOnesResponseHoldsNoSink (0 ms)
+[ RUN      ] AcmpWide.ProbeInTheSlotOfSinkThirtyTwosResponseHoldsNoSink
+[       OK ] AcmpWide.ProbeInTheSlotOfSinkThirtyTwosResponseHoldsNoSink (0 ms)
+[----------] 5 tests from AcmpWide (1 ms total)
+
+[----------] Global test environment tear-down
+[==========] 5 tests from 1 test suite ran. (2 ms total)
+[  P...
+[This part of the test output was removed since it exceeds the threshold of 1024 bytes.]
+</system-out>
+	</testcase>
+	<testcase name="acmp_walk" classname="acmp_walk" time="0.315693" status="run">
+		<properties/>
+		<system-out>[==========] Running 4 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 4 tests from AcmpWalk
+[ RUN      ] AcmpWalk.OneSinkMatchesTheFullWalk
+[       OK ] AcmpWalk.OneSinkMatchesTheFullWalk (24 ms)
+[ RUN      ] AcmpWalk.EightSinksMatchTheFullWalk
+[       OK ] AcmpWalk.EightSinksMatchTheFullWalk (34 ms)
+[ RUN      ] AcmpWalk.ThirtyTwoSinksMatchTheFullWalk
+[       OK ] AcmpWalk.ThirtyTwoSinksMatchTheFullWalk (69 ms)
+[ RUN      ] AcmpWalk.ThirtyThreeSinksMatchTheFullWalk
+[       OK ] AcmpWalk.ThirtyThreeSinksMatchTheFullWalk (167 ms)
+[----------] 4 tests from AcmpWalk (296 ms total)
+
+[----------] Global test environment tear-down
+[==========] 4 tests from 1 test suite ran. (297 ms total)
+[  PASSED  ] 4 tests.
+</system-out>
+	</testcase>
+	<testcase name="maap_tests" classname="maap_tests" time="0.10414" status="run">
+		<properties/>
+		<system-out>[==========] Running 34 tests from 2 test suites.
+[----------] Global test environment set-up.
+[----------] 16 tests from MaapCore
+[ RUN      ] MaapCore.InitialAndThreeRetransmissions
+[       OK ] MaapCore.InitialAndThreeRetransmissions (0 ms)
+[ RUN      ] MaapCore.ConstantsStrictTimersAndSeed
+[       OK ] MaapCore.ConstantsStrictTimersAndSeed (86 ms)
+[ RUN      ] MaapCore.ReverseOctetPriority
+[       OK ] MaapCore.ReverseOctetPriority (0 ms)
+[ RUN      ] MaapCore.PriorityAfterTiedOctets
+[       OK ] MaapCore.PriorityAfterTiedOctets (0 ms)
+[ RUN      ] MaapCore.RestartDrawsNewRange
+[       OK ] MaapCore.RestartDrawsNewRange (0 ms)
+[ RUN      ] MaapCore.UniformDrawRejectsIncompleteBucket
+[       OK ] MaapCore.UniformDrawRejectsIncompleteBucket (0 ms)
+[ RUN      ] MaapCore.DefendEchoAndIntersection
+[       OK ] MaapCore.DefendEchoAndIntersection (0 ms)
+[ RUN      ] MaapCore.DisjointAdjacentZeroAndDefendRange
+[       OK ] MaapCore.DisjointAdjacentZeroAndDefendRange (0 ms)
+[ RUN      ] MaapCore.MalformedAndVersio...
+[This part of the test output was removed since it exceeds the threshold of 1024 bytes.]
+</system-out>
+	</testcase>
+	<testcase name="entity_tests" classname="entity_tests" time="0.0135127" status="run">
+		<properties/>
+		<system-out>[==========] Running 4 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 4 tests from EntityYaml
+[ RUN      ] EntityYaml.AdpRoundTrip
+[       OK ] EntityYaml.AdpRoundTrip (0 ms)
+[ RUN      ] EntityYaml.AcmpRoundTrip
+[       OK ] EntityYaml.AcmpRoundTrip (0 ms)
+[ RUN      ] EntityYaml.DaFreshRoundTrip
+[       OK ] EntityYaml.DaFreshRoundTrip (0 ms)
+[ RUN      ] EntityYaml.MaapRoundTrip
+[       OK ] EntityYaml.MaapRoundTrip (0 ms)
+[----------] 4 tests from EntityYaml (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 4 tests from 1 test suite ran. (0 ms total)
+[  PASSED  ] 4 tests.
+</system-out>
+	</testcase>
+	<testcase name="port_tests" classname="port_tests" time="0.0144816" status="run">
+		<properties/>
+		<system-out>[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from ExamplePort
+[ RUN      ] ExamplePort.DefersExpiryAndRetainsBlockedOutput
+[       OK ] ExamplePort.DefersExpiryAndRetainsBlockedOutput (0 ms)
+[----------] 1 test from ExamplePort (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+</system-out>
+	</testcase>
+	<testcase name="adp_release" classname="adp_release" time="0.024606" status="run">
+		<properties/>
+		<system-out>[==========] Running 122 tests from 2 test suites.
+[----------] Global test environment set-up.
+[----------] 2 tests from AdpReentry
+[ RUN      ] AdpReentry.AdvertiseInlineExpiry
+[       OK ] AdpReentry.AdvertiseInlineExpiry (0 ms)
+[ RUN      ] AdpReentry.DelayInlineExpiryOnGmChange
+[       OK ] AdpReentry.DelayInlineExpiryOnGmChange (0 ms)
+[----------] 2 tests from AdpReentry (0 ms total)
+
+[----------] 120 tests from AllPorts/AdpPortEntry
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/0
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/0 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/1
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/1 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/2
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/2 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/3
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/3 (0 ms)
+[ RUN      ] AllPorts/AdpPortEntry.Refus...
+[This part of the test output was removed since it exceeds the threshold of 1024 bytes.]
+</system-out>
+	</testcase>
+	<testcase name="adp_debug" classname="adp_debug" time="0.357683" status="run">
+		<properties/>
+		<system-out>[==========] Running 122 tests from 2 test suites.
+[----------] Global test environment set-up.
+[----------] 2 tests from AdpReentry
+[ RUN      ] AdpReentry.AdvertiseInlineExpiry
+[       OK ] AdpReentry.AdvertiseInlineExpiry (3 ms)
+[ RUN      ] AdpReentry.DelayInlineExpiryOnGmChange
+[       OK ] AdpReentry.DelayInlineExpiryOnGmChange (2 ms)
+[----------] 2 tests from AdpReentry (5 ms total)
+
+[----------] 120 tests from AllPorts/AdpPortEntry
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/0
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/0 (2 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/1
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/1 (2 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/2
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/2 (2 ms)
+[ RUN      ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/3
+[       OK ] AllPorts/AdpPortEntry.RefusesBeforeTouchingState/3 (2 ms)
+[ RUN      ] AllPorts/AdpPortEntry.Refus...
+[This part of the test output was removed since it exceeds the threshold of 1024 bytes.]
+</system-out>
+	</testcase>
+	<testcase name="maap_debug" classname="maap_debug" time="0.0211601" status="run">
+		<properties/>
+		<system-out>[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from MaapDebug
+[ RUN      ] MaapDebug.SynchronousExpiryAsserts
+[       OK ] MaapDebug.SynchronousExpiryAsserts (4 ms)
+[----------] 1 test from MaapDebug (4 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (5 ms total)
+[  PASSED  ] 1 test.
+</system-out>
+	</testcase>
+</testsuite>

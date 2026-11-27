@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="1" failures="1" disabled="0" errors="0" time="0." timestamp="2026-11-27T06:00:56.364" name="AllTests">
+  <testsuite name="AcmpOwed" tests="1" failures="1" disabled="0" skipped="0" errors="0" time="0." timestamp="2026-11-27T06:00:56.364">
+    <testcase name="OnlyTimerProbesAreHeldBesideTheWaitingBind" file="<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp" line="3196" status="run" result="completed" time="0." timestamp="2026-11-27T06:00:56.364" classname="AcmpOwed">
+      <failure message="<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3214&#x0A;Value of: a.sinks[3].state == ACMP_PRB_W_RETRY &amp;&amp; a.sinks[3].timer == ACMP_TIMER_RETRY &amp;&amp; a.sinks[3].timer_deadline == fk.now + spec::TMR_RETRY_MS &amp;&amp; !a.sinks[3].probe_held &amp;&amp; a.sinks[3].acmp_status == spec::STATUS_LISTENER_TALKER_TIMEOUT&#x0A;  Actual: false&#x0A;Expected: true&#x0A;&#x0A;TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8&#x0A;the TMR_NO_RESP that ends PRB_W_RESP2 is not held beside a waiting BIND_RX&#x0A;TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3214
+Value of: a.sinks[3].state == ACMP_PRB_W_RETRY && a.sinks[3].timer == ACMP_TIMER_RETRY && a.sinks[3].timer_deadline == fk.now + spec::TMR_RETRY_MS && !a.sinks[3].probe_held && a.sinks[3].acmp_status == spec::STATUS_LISTENER_TALKER_TIMEOUT
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+the TMR_NO_RESP that ends PRB_W_RESP2 is not held beside a waiting BIND_RX
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+]]></failure>
+      <failure message="<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3224&#x0A;Value of: a.probes_held == 0u &amp;&amp; a.bind_waiting &amp;&amp; a.owed_count == 8u - 1u&#x0A;  Actual: false&#x0A;Expected: true&#x0A;&#x0A;TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8&#x0A;no expiry that sends no probe is held or counted in probes_held&#x0A;TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3224
+Value of: a.probes_held == 0u && a.bind_waiting && a.owed_count == 8u - 1u
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+no expiry that sends no probe is held or counted in probes_held
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+]]></failure>
+    </testcase>
+  </testsuite>
+</testsuites>

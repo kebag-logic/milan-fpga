@@ -1,0 +1,46 @@
+[==========] Running 5 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 5 tests from AcmpWide
+[ RUN      ] AcmpWide.OwedResponsesHoldOnlyTheirOwnSinksChanges
+<SOURCE>/tests/test_acmp_wide.cpp:114: Failure
+Expected equality of these values:
+  fk.count(Call::CHANGED)
+    Which is: 0
+  1u
+    Which is: 1
+W1 sink 32's response left: one change is reported
+
+[  FAILED  ] AcmpWide.OwedResponsesHoldOnlyTheirOwnSinksChanges (0 ms)
+[ RUN      ] AcmpWide.SinkZerosOwedResponseLeavesSinkThirtyTwoFree
+[       OK ] AcmpWide.SinkZerosOwedResponseLeavesSinkThirtyTwoFree (0 ms)
+[ RUN      ] AcmpWide.SinksThirtyOneAndThirtyTwoWaitOnlyForTheirOwnResponses
+<SOURCE>/tests/test_acmp_wide.cpp:159: Failure
+Expected equality of these values:
+  fk.count(Call::CHANGED)
+    Which is: 1
+  2u
+    Which is: 2
+W3 sink 32's response left: a second change is reported
+
+[  FAILED  ] AcmpWide.SinksThirtyOneAndThirtyTwoWaitOnlyForTheirOwnResponses (0 ms)
+[ RUN      ] AcmpWide.ProbeInTheSlotOfSinkThirtyOnesResponseHoldsNoSink
+[       OK ] AcmpWide.ProbeInTheSlotOfSinkThirtyOnesResponseHoldsNoSink (0 ms)
+[ RUN      ] AcmpWide.ProbeInTheSlotOfSinkThirtyTwosResponseHoldsNoSink
+<SOURCE>/tests/test_acmp_wide.cpp:192: Failure
+Value of: acmp_set_started(&a, kLast, false) && fk.count(Call::CHANGED) == 1u && changed_sink(0) == kLast
+  Actual: false
+Expected: true
+W5 a change of sink 32 is reported at once
+
+[  FAILED  ] AcmpWide.ProbeInTheSlotOfSinkThirtyTwosResponseHoldsNoSink (0 ms)
+[----------] 5 tests from AcmpWide (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 5 tests from 1 test suite ran. (0 ms total)
+[  PASSED  ] 2 tests.
+[  FAILED  ] 3 tests, listed below:
+[  FAILED  ] AcmpWide.OwedResponsesHoldOnlyTheirOwnSinksChanges
+[  FAILED  ] AcmpWide.SinksThirtyOneAndThirtyTwoWaitOnlyForTheirOwnResponses
+[  FAILED  ] AcmpWide.ProbeInTheSlotOfSinkThirtyTwosResponseHoldsNoSink
+
+ 3 FAILED TESTS

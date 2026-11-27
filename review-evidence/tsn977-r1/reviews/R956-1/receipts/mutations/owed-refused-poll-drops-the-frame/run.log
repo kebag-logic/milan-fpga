@@ -1,0 +1,81 @@
+Note: Google Test filter = AcmpOwed.RefusedPollLeavesTheBindWaitingAndItsHold:AcmpOwed.RefusedPollLeavesTheBindWaitingAndItsHold
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from AcmpOwed
+[ RUN      ] AcmpOwed.RefusedPollLeavesTheBindWaitingAndItsHold
+<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3246: Failure
+Value of: a.owed_count == before && a.bind_waiting
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+a refused acmp_poll frees nothing and leaves bind_waiting set
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3254: Failure
+Value of: held.size() == 1u && !a.sinks[1].bound
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+a BIND_RX delivered again after a refused poll is declined again
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3261: Failure
+Value of: a.sinks[2].probe_held && a.probes_held == 1u && a.owed_count == 8u - 1u && a.sinks[2].timer_deadline == fk.now + 1u && a.sinks[2].state == ACMP_PRB_W_RESP
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+a retry falling due in the refused pass is held, its timer re-armed 1 ms on
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3268: Failure
+Expected equality of these values:
+  position(s)
+    Which is: 7
+  8u
+    Which is: 8
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+no probe leaves ahead of the BIND_RX answer after a refused poll
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3269: Failure
+Expected equality of these values:
+  s->at - released
+    Which is: 9
+  8u + 1u + 1u
+    Which is: 10
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+one refused poll delays the kept BIND_RX one pass
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3270: Failure
+Expected equality of these values:
+  fk.sent.size()
+    Which is: 9
+  8u + 3u
+    Which is: 11
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+the owed frames, the BIND_RX answer, its probe and the retry leave
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+[  FAILED  ] AcmpOwed.RefusedPollLeavesTheBindWaitingAndItsHold (0 ms)
+[----------] 1 test from AcmpOwed (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] AcmpOwed.RefusedPollLeavesTheBindWaitingAndItsHold
+
+ 1 FAILED TEST

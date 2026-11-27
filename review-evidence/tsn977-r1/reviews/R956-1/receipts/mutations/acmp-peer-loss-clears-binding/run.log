@@ -1,0 +1,58 @@
+Note: Google Test filter = AcmpCore.DepartingRetainsBindingAndReprobes:AcmpCore.AdpTimeoutRetainsBindingAndReprobes
+[==========] Running 2 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 2 tests from AcmpCore
+[ RUN      ] AcmpCore.DepartingRetainsBindingAndReprobes
+<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:171: Failure
+Value of: retained.bound && retained.binding.talker_entity_id == kTkA && retained.binding.talker_unique_id == 1u && retained.binding.controller_entity_id == kCtl1
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+peer loss retains the binding and its talker, stream and controller
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:191: Failure
+Value of: view(0).bound && view(0).state == ACMP_PRB_W_RESP
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+rediscovery keeps the sink bound while awaiting the new response
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+[  FAILED  ] AcmpCore.DepartingRetainsBindingAndReprobes (0 ms)
+[ RUN      ] AcmpCore.AdpTimeoutRetainsBindingAndReprobes
+<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:171: Failure
+Value of: retained.bound && retained.binding.talker_entity_id == kTkA && retained.binding.talker_unique_id == 1u && retained.binding.controller_entity_id == kCtl1
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+peer loss retains the binding and its talker, stream and controller
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:191: Failure
+Value of: view(0).bound && view(0).state == ACMP_PRB_W_RESP
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+rediscovery keeps the sink bound while awaiting the new response
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+[  FAILED  ] AcmpCore.AdpTimeoutRetainsBindingAndReprobes (0 ms)
+[----------] 2 tests from AcmpCore (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 2 tests from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 2 tests, listed below:
+[  FAILED  ] AcmpCore.DepartingRetainsBindingAndReprobes
+[  FAILED  ] AcmpCore.AdpTimeoutRetainsBindingAndReprobes
+
+ 2 FAILED TESTS

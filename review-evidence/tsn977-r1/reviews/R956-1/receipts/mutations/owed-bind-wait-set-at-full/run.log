@@ -1,0 +1,35 @@
+Note: Google Test filter = AcmpOwed.BindDeclinedBehindTheFullSetHoldsNoProbe:AcmpOwed.BindDeclinedBehindTheFullSetHoldsNoProbe
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from AcmpOwed
+[ RUN      ] AcmpOwed.BindDeclinedBehindTheFullSetHoldsNoProbe
+<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3182: Failure
+Value of: a.bind_waiting
+  Actual: true
+Expected: false
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+a BIND_RX declined with no slot free does not set bind_waiting
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:3185: Failure
+Value of: !a.sinks[2].probe_held && a.probes_held == 0u && a.probes_lost == 1u && a.sinks[2].state == ACMP_PRB_W_RESP2 && a.sinks[2].timer == ACMP_TIMER_NO_RESP && a.sinks[2].timer_deadline == fk.now + spec::TMR_NO_RESP_MS
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+a retry falling due while a BIND_RX waits behind the full set is lost and counted, and its timeout runs
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+[  FAILED  ] AcmpOwed.BindDeclinedBehindTheFullSetHoldsNoProbe (0 ms)
+[----------] 1 test from AcmpOwed (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] AcmpOwed.BindDeclinedBehindTheFullSetHoldsNoProbe
+
+ 1 FAILED TEST

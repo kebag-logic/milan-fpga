@@ -1,0 +1,26 @@
+Note: Google Test filter = EntityYaml.DaFreshRoundTrip
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from EntityYaml
+[ RUN      ] EntityYaml.DaFreshRoundTrip
+<PACKET>/scratch/mutations/baseline/tests/test_entity.cpp:26: Failure
+Expected equality of these values:
+  entity_check_dafresh()
+    Which is: 80
+  0
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+generated freshness configuration survives both target round trips
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+[  FAILED  ] EntityYaml.DaFreshRoundTrip (0 ms)
+[----------] 1 test from EntityYaml (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] EntityYaml.DaFreshRoundTrip
+
+ 1 FAILED TEST

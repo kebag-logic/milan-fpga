@@ -1,0 +1,25 @@
+Note: Google Test filter = AcmpOwed.TalkerCommandsBehindTheOwedSetAreAnsweredInTime
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from AcmpOwed
+[ RUN      ] AcmpOwed.TalkerCommandsBehindTheOwedSetAreAnsweredInTime
+<PACKET>/scratch/mutations/baseline/tests/test_acmp.cpp:2814: Failure
+Value of: fk.calls.empty() && a.busy_declined == 1u
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+the declined PROBE_TX reads no source state and is counted
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+
+[  FAILED  ] AcmpOwed.TalkerCommandsBehindTheOwedSetAreAnsweredInTime (0 ms)
+[----------] 1 test from AcmpOwed (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] AcmpOwed.TalkerCommandsBehindTheOwedSetAreAnsweredInTime
+
+ 1 FAILED TEST

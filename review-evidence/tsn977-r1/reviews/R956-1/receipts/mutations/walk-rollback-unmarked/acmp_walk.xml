@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="4" failures="4" disabled="0" errors="0" time="0.001" timestamp="2026-11-27T06:01:08.976" name="AllTests">
+  <testsuite name="AcmpWalk" tests="4" failures="4" disabled="0" skipped="0" errors="0" time="0.001" timestamp="2026-11-27T06:01:08.976">
+    <testcase name="OneSinkMatchesTheFullWalk" file="<PACKET>/scratch/mutations/baseline/tests/test_acmp_walk.cpp" line="364" status="run" result="completed" time="0." timestamp="2026-11-27T06:01:08.976" classname="AcmpWalk">
+      <failure message="<PACKET>/scratch/mutations/baseline/tests/test_acmp_walk.cpp:338&#x0A;Value of: walked.trace == full.trace&#x0A;  Actual: false&#x0A;Expected: true&#x0A;&#x0A;TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8&#x0A;the changed-sink walk makes the full walk&apos;s calls, in order, at step 92 of 1 sinks&#x0A;TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/mutations/baseline/tests/test_acmp_walk.cpp:338
+Value of: walked.trace == full.trace
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+the changed-sink walk makes the full walk's calls, in order, at step 92 of 1 sinks
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+]]></failure>
+    </testcase>
+    <testcase name="EightSinksMatchTheFullWalk" file="<PACKET>/scratch/mutations/baseline/tests/test_acmp_walk.cpp" line="369" status="run" result="completed" time="0." timestamp="2026-11-27T06:01:08.976" classname="AcmpWalk">
+      <failure message="<PACKET>/scratch/mutations/baseline/tests/test_acmp_walk.cpp:338&#x0A;Value of: walked.trace == full.trace&#x0A;  Actual: false&#x0A;Expected: true&#x0A;&#x0A;TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8&#x0A;the changed-sink walk makes the full walk&apos;s calls, in order, at step 39 of 8 sinks&#x0A;TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/mutations/baseline/tests/test_acmp_walk.cpp:338
+Value of: walked.trace == full.trace
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+the changed-sink walk makes the full walk's calls, in order, at step 39 of 8 sinks
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+]]></failure>
+    </testcase>
+    <testcase name="ThirtyTwoSinksMatchTheFullWalk" file="<PACKET>/scratch/mutations/baseline/tests/test_acmp_walk.cpp" line="374" status="run" result="completed" time="0." timestamp="2026-11-27T06:01:08.976" classname="AcmpWalk">
+      <failure message="<PACKET>/scratch/mutations/baseline/tests/test_acmp_walk.cpp:338&#x0A;Value of: walked.trace == full.trace&#x0A;  Actual: false&#x0A;Expected: true&#x0A;&#x0A;TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8&#x0A;the changed-sink walk makes the full walk&apos;s calls, in order, at step 39 of 32 sinks&#x0A;TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/mutations/baseline/tests/test_acmp_walk.cpp:338
+Value of: walked.trace == full.trace
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+the changed-sink walk makes the full walk's calls, in order, at step 39 of 32 sinks
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+]]></failure>
+    </testcase>
+    <testcase name="ThirtyThreeSinksMatchTheFullWalk" file="<PACKET>/scratch/mutations/baseline/tests/test_acmp_walk.cpp" line="379" status="run" result="completed" time="0." timestamp="2026-11-27T06:01:08.977" classname="AcmpWalk">
+      <failure message="<PACKET>/scratch/mutations/baseline/tests/test_acmp_walk.cpp:338&#x0A;Value of: walked.trace == full.trace&#x0A;  Actual: false&#x0A;Expected: true&#x0A;&#x0A;TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8&#x0A;the changed-sink walk makes the full walk&apos;s calls, in order, at step 30 of 33 sinks&#x0A;TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b&#x0A;&#x0A;" type=""><![CDATA[<PACKET>/scratch/mutations/baseline/tests/test_acmp_walk.cpp:338
+Value of: walked.trace == full.trace
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_907758ea56714f04456a85f487788ca8
+the changed-sink walk makes the full walk's calls, in order, at step 30 of 33 sinks
+TSN_MESSAGE_END_194c85578a18c657bfa76c6606d7de3b
+
+]]></failure>
+    </testcase>
+  </testsuite>
+</testsuites>

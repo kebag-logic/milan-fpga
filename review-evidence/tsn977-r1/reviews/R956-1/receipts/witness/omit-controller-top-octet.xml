@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="3" failures="1" disabled="0" errors="0" time="0." timestamp="2026-11-27T06:03:22.494" name="AllTests">
+  <testsuite name="AcmpCore" tests="3" failures="1" disabled="0" skipped="0" errors="0" time="0." timestamp="2026-11-27T06:03:22.495">
+    <testcase name="IndependentTalkerTopOctetPersistence" file="<PACKET>/scratch/witness/test_acmp.cpp" line="3619" status="run" result="completed" time="0." timestamp="2026-11-27T06:03:22.495" classname="AcmpCore" />
+    <testcase name="IndependentControllerTopOctetPersistence" file="<PACKET>/scratch/witness/test_acmp.cpp" line="3625" status="run" result="completed" time="0." timestamp="2026-11-27T06:03:22.495" classname="AcmpCore">
+      <failure message="<PACKET>/scratch/witness/test_acmp.cpp:3628&#x0A;Expected equality of these values:&#x0A;  fk.count(Call::PERSIST)&#x0A;    Which is: 0&#x0A;  1u&#x0A;    Which is: 1&#x0A;controller-only top octet change requires persistence&#x0A;" type=""><![CDATA[<PACKET>/scratch/witness/test_acmp.cpp:3628
+Expected equality of these values:
+  fk.count(Call::PERSIST)
+    Which is: 0
+  1u
+    Which is: 1
+controller-only top octet change requires persistence
+]]></failure>
+      <failure message="<PACKET>/scratch/witness/test_acmp.cpp:3629&#x0A;Expected equality of these values:&#x0A;  a.sinks[0].saved[12]&#x0A;    Which is: &apos;\0&apos;&#x0A;  2u&#x0A;    Which is: 2&#x0A;saved controller top octet must follow the new binding&#x0A;" type=""><![CDATA[<PACKET>/scratch/witness/test_acmp.cpp:3629
+Expected equality of these values:
+  a.sinks[0].saved[12]
+    Which is: '\0'
+  2u
+    Which is: 2
+saved controller top octet must follow the new binding
+]]></failure>
+    </testcase>
+    <testcase name="IndependentUniqueHighOctetPersistence" file="<PACKET>/scratch/witness/test_acmp.cpp" line="3631" status="run" result="completed" time="0." timestamp="2026-11-27T06:03:22.495" classname="AcmpCore" />
+  </testsuite>
+</testsuites>
